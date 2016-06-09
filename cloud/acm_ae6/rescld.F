@@ -74,6 +74,7 @@ C-----------------------------------------------------------------------
       USE GRID_CONF           ! horizontal & vertical domain specifications
       USE CGRID_SPCS          ! CGRID mechanism species
       USE UTILIO_DEFN
+      !USE AQ_DATA 
 
       IMPLICIT NONE
 
@@ -209,13 +210,13 @@ C...........External Functions:
            REAL,    INTENT( IN )    :: ALFA0, ALFA2, ALFA3
            LOGICAL, INTENT( IN )    :: DARK                  !Golam Sarwar, July 1, 2011
         END SUBROUTINE AQ_MAP
-      SUBROUTINE CZANGLE( JDATE, JTIME, NX, NY, COSZEN )
-         INTEGER, INTENT( IN )  :: JDATE
-         INTEGER, INTENT( IN )  :: JTIME
-         INTEGER, INTENT( IN )  :: NX
-         INTEGER, INTENT( IN )  :: NY
-         REAL,    INTENT( OUT ) :: COSZEN( :,: )
-      END SUBROUTINE CZANGLE
+        SUBROUTINE CZANGLE( JDATE, JTIME, NX, NY, COSZEN )
+           INTEGER, INTENT( IN )  :: JDATE
+           INTEGER, INTENT( IN )  :: JTIME
+           INTEGER, INTENT( IN )  :: NX
+           INTEGER, INTENT( IN )  :: NY
+           REAL,    INTENT( OUT ) :: COSZEN( :,: )
+        END SUBROUTINE CZANGLE
       END INTERFACE
 C-----------------------------------------------------------------------
 

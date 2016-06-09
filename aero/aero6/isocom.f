@@ -475,7 +475,7 @@ C
       DATA MOLAL/NIONS*0.0D0/, MOLALR/NPAIR*0.0D0/, GAMA/NPAIR*0.1D0/,
      &     GAMOU/NPAIR*1D10/,  GAMIN/NPAIR*1D10/,   CALAIN/.TRUE./,
      &     CALAOU/.TRUE./,     EPSACT/5D-2/,        ICLACT/0/,
-     &     IACALC/1/,          NADJ/0/,             WFTYP/2/
+     &     IACALC/1/,          NADJ/1/,             WFTYP/2/
 C
       DATA ERRSTK/NERRMX*0/,   ERRMSG/NERRMX*' '/,  NOFER/0/, 
      &     STKOFL/.FALSE./ 

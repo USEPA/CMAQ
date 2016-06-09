@@ -54,12 +54,12 @@ C       Inclusion of EM aqueous chemistry JNY 12/93
 C       UPGRADE TO FULL RADM CLOUD MODULE EMULATION, JNY 4/94
 C       8/16/94 by Dongming Hwang Configuration management template
 C       Adapted 10/96 by S.Roselle for Models-3
-C       1/97 s.roselle added McHenry's well mixed assumption code
+C       1/97 s.roselle added McHenry`s well mixed assumption code
 C       8/97 S.Roselle revised cgrid units, pressure units, rainfall
 C              to hourly amounts, built indices for wet dep species,
 C              scavenged species, and aqueous species, built wrapper
 C              around aqueous chemistry module
-C       10/97 S.Roselle removed McHenry's well mixed assumption code
+C       10/97 S.Roselle removed McHenry`s well mixed assumption code
 C              and put back the below cloud concentration scaling
 C       11/97 S.Roselle moved the wet deposition output to the calling
 C              routine--CLDPROC
@@ -83,8 +83,8 @@ C       5/05 J.Pleim Replaced cloud mixing algorithm with ACM
 C       6/05 S.Roselle added new cloud diagnostic variables
 C       7/05 J.Young: clean up and mod for CMAQ-F
 C       8/10 J.Young: replace chem mechanism include files with namelists
-C                    and accomodate Shawn Roselle's, Sergey Napelenok's
-C                    and Steve Howard's aerosol reengineering
+C                    and accomodate Shawn Roselle`s, Sergey Napelenok`s
+C                    and Steve Howard`s aerosol reengineering
 C       3/11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C       5/11/11 D.Wong: incorporated twoway model implementation
 C       7/11 G. Sarwar: calculate zenith angle to determine daytime and nightime 
@@ -145,6 +145,9 @@ C critical rel humidity for land (fraction)
 
 C critical rel humidity for water (fraction)
       REAL, SAVE      :: RCRITW
+
+C intermediate factor
+      REAL            :: XKM
 
 C param contlng sidewall entrainment function for raining clouds
       REAL, PARAMETER :: SIDEFAC = 0.5
@@ -569,8 +572,9 @@ C...allocate saved arrays
 
 C...Calculate the Sundqvist et al. 1989 threshold humidities for cloud formation based on 
 C...Mocko and Cotton (1995)
-        RCRITL = 0.839 + SQRT(1.0/(50.0+0.5*REAL(XCELL_GD/1000)**3))
-        RCRITW = 0.879 + SQRT(1.0/(100.0+REAL(XCELL_GD/1000)**2))
+        XKM = REAL( XCELL_GD / 1000 )
+        RCRITW = 0.879 + SQRT( 1.0 / ( 100.0 + XKM * XKM ) )
+        RCRITL = 0.839 + SQRT( 1.0 / ( 50.0 + 0.5 * XKM ** 3 ) )
 
       END IF   ! Firstime
 
@@ -760,7 +764,7 @@ C...load aerosol minimum concentrations into the "CONCMINL" array
 C...  initialize all species to CMIN
 
 !         CONCMINL = CMIN
-          CONCMINL =  1.0E-25
+          CONCMINL = 1.0E-25
 
 C...  set minimum for aerosol species
 
@@ -997,10 +1001,11 @@ C...   humidity criterion, or, not let cloud top go above 600mb.
 
 C...compute relative humidity at the cloud source level
 
-            RLHSRC = QVL( SRCLAY ) / QSAT( ESAT( TAL( SRCLAY ) ), PRESL( SRCLAY ) )
+            RLHSRC = MIN( 1.0, QVL( SRCLAY )
+     &                        / QSAT( ESAT( TAL( SRCLAY ) ), PRESL( SRCLAY ) ) )
 
 C...If all tests pass, then a CNP or PFW cloud exists
-C...  Proceed to find CLTOP for CNP or PFW; don't allow
+C...  Proceed to find CLTOP for CNP or PFW; don`t allow
 C...  cloud top to exceed 500mb, or, when RH falls below
 C...  65%, cloud top found
 
@@ -1033,12 +1038,14 @@ C...  solver
 C...Now compute fractional coverage for either CNP or PFW:
 C...Now based on Sunqdvist et al. 1989 DOI: 10.1175/1520-0493(1989)117<1641:CACPSW>2.0.CO;2 
             FRAC = 0.0
-            IF ( RLHSRC .GE. RCRITL .AND. GRID_DATA%LWMASK( COL,ROW ) .EQ. 1.0 ) THEN
-              FRAC = 1.0-SQRT((1.0-RLHSRC)/(1.0-RCRITL))
-            ELSE IF ( RLHSRC .GE. RCRITW .AND. GRID_DATA%LWMASK( COL,ROW ) .EQ. 0.0 ) THEN
-              FRAC = 1.0-SQRT((1.0-RLHSRC)/(1.0-RCRITW))
+            IF ( GRID_DATA%LWMASK( COL,ROW ) .EQ. 1.0 ) THEN   ! land
+               IF ( RLHSRC .GE. RCRITL )
+     &            FRAC = 1.0 - SQRT( ( 1.0 - RLHSRC ) / ( 1.0 - RCRITL ) )
+            ELSE   ! water
+               IF ( RLHSRC .GE. RCRITW )
+     &            FRAC = 1.0 - SQRT( ( 1.0 - RLHSRC ) / ( 1.0 - RCRITW ) )
             END IF
-            FRAC = MAX(0.0, MIN( FRAC, 0.95 ) )
+            FRAC = MAX( 0.0, MIN( FRAC, 0.95 ) )
 
             IF ( FRAC .LT. 0.01 ) GO TO 299
 
@@ -1086,7 +1093,7 @@ C...below cloud base
 
           DO LAY = 1, CLBASE - 1
 
-C...   determine no. of mol/m2 of trace gas
+C...determine no. of mol/m2 of trace gas
 
             DO SPC = 1, NSPCSD
               BMOL( SPC ) = BMOL( SPC ) + CONC( SPC,LAY ) * RHOM2( LAY )
@@ -1473,7 +1480,7 @@ C...  path is >= 10 g/m2
           END IF
 
 C...If no cloud or optical depth < 5, set clear sky values.
-C...  (i.e. don't do anything)
+C...  (i.e. don`t do anything)
 
           IF ( CLOD .GE. 5.0 ) THEN
 

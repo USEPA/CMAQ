@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the CB6R3 family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, PHOT, HRCALCKS, HRSOLVER
 C
-C  REVISION HISTORY: Created by EBI solver program, Mar 30, 2016
+C  REVISION HISTORY: Created by EBI solver program, May 12, 2016
 C                       Based on the algorithm in "Test of Two Numerical
 C                       Schemes for Use in Atmospheric Transport-Chemistry
 C                       Models", O. Hertel, R. Berkowicz, J. Christensen,
@@ -139,7 +139,6 @@ C for INTERPX
 
       INTERFACE
          SUBROUTINE PHOT ( MDATE, MTIME, JDATE, JTIME, DTSTEP, RJ )
-          IMPLICIT NONE
           INTEGER, INTENT( IN )  :: MDATE       !"centered" Julian date (YYYYDDD)
           INTEGER, INTENT( IN )  :: MTIME       !"centered" time (HHMMSS)
           INTEGER, INTENT( IN )  :: JDATE       ! Current date (YYYYDDD)
@@ -148,10 +147,6 @@ C for INTERPX
           REAL,    INTENT( OUT ) :: RJ(:,:,:,:) ! gridded J-values  (1/min units)
         END SUBROUTINE PHOT
         SUBROUTINE HRSOLVER( JDATE, JTIME, C, R, L )
-           USE UTILIO_DEFN
-           USE RXNS_DATA
-           USE HRDATA
-           IMPLICIT NONE
            INTEGER, INTENT( IN ) :: JDATE    ! Current date (YYYYDDD)
            INTEGER, INTENT( IN ) :: JTIME    ! Current time (HHMMSS)
            INTEGER, INTENT( IN ) :: C, R, L  ! Cell col, row, lev
@@ -358,7 +353,8 @@ C.. Get pressure in Pascals
 
 C.. Get photolysis rates in /min
       CALL PHOT ( MIDDATE, MIDTIME, JDATE, JTIME, TSTEP, RJ )
-C.. Get Heteorogeneous rats
+C.. Get Heteorogeneous rates and Update Aerosol Properties (Moments, D
+C   and sigma)
       CALL HETCHEM_RATES( TA, PRES, QV, CGRID )
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -439,6 +435,9 @@ c..Update concentration array
             END DO
          END DO
       END DO
+
+      !Update Aerosol Surface Area
+      CALL HETCHEM_UPDATE_AERO( CGRID )
 
 
 

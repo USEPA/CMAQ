@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6/aqchem.F,v 1.6 2012/03/19 15:43:49 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6_mp/aqchem.F,v 1.4 2012/03/28 15:39:52 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -92,21 +92,24 @@ C                       specified timestep.
 C   10 Oct 10 J.Young:  update to use aero_reeng by Steve Howard, Prakash Bhave,
 C                       Jeff Young, Sergey Napelenok, and Shawn Roselle
 C   01 Mar 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
-C    9 Mar 11 S.Napelenok: update for AE6 - pH calculation now expanded to 
+C    9 Mar 11 S.Napelenok: update for AE6 - pH calculation now expanded to
 C                       include Ca Mg K SOIL CORS SEAS
-C   23 May 11 G.Sarwar: update S(VI) production rate via H2O2, O3, MHP, PAA 
+C   23 May 11 G.Sarwar: update S(VI) production rate via H2O2, O3, MHP, PAA
 C                       pathways (Jacobson 1997)
-C   23 May 11 G.Sarwar: update S(VI) production rate via O2 pathway (metal 
+C   23 May 11 G.Sarwar: update S(VI) production rate via O2 pathway (metal
 C                       catalysis) (Martin and Goodman, 1991)
 C   01 Jul 11 G.Sarwar: Incorporate day and night dependent Fe III oxidation
 C                       state (Alexander et al.,  2009)
-C   12 Aug 11 G.Sarwar: Revise Fe and Mn solubility based on 
+C   12 Aug 11 G.Sarwar: Revise Fe and Mn solubility based on
 C                       Alexander et al., 2009
+C   15 Aug 11 B.Hutzell: adapted for TXHG version by adding aerosol tracers and
+C                        mercury-chlorine chemistry from CMAQ version 4.71
+C
 C    8 Mar 12 J.Bash:   FE_OX and MN_OX were calculated from FE and MN before
-C                       a floor value of 0.0 was established for these 
-C                       concentrations sometimes resulting in negative 
-C                       concentrations and model crashes. The code used to 
-C                       estimate FE_OX and MN_OX was moved to be after a floor 
+C                       a floor value of 0.0 was established for these
+C                       concentrations sometimes resulting in negative
+C                       concentrations and model crashes. The code used to
+C                       estimate FE_OX and MN_OX was moved to be after a floor
 C                       value for FE and MN was set. Also the washout rate was
 C                       removed from the calculation of the estimate for doubling
 C                       the time step based on sulfur oxidized < 5%.
@@ -116,6 +119,7 @@ C   12 Feb 15 B.Hutzell: reduced number of exp(...) calculations for scavenging 
 C                        aerosols to improve efficiency
 C   15 Jun 15 J.Young:  Fixed bug found by Martin Otte in calculations for scavenging
 C                       aitken aerosols
+C   15 Apr 16 J.Young:  Use aerosol factors from AERO_DATA module named constants
 C
 C  References:
 C     Walcek & Taylor, 1986, A theoretical Method for computing
@@ -126,33 +130,34 @@ C        S.J. Roselle, and R.J. Weber, CMAQ Model Performance Enhanced When
 C        In-Cloud Secondary Organic Aerosol is Included:  Comparison of Organic
 C        Carbon Predictions with Measurements, Environ. Sci. Technol., 42(23),
 C        8798-8802, 2008.
-C     Jacobson, M., Development and application of a new air pollution modeling 
-C        system II. Aerosol module structure and design, Atmospheric 
+C     Jacobson, M., Development and application of a new air pollution modeling
+C        system II. Aerosol module structure and design, Atmospheric
 C        Environment, 31, 131-144, 1997
-C     Martin, R.L. and T.W. Good, catalyzed oxidation of sulfur dioxide in 
-C        solution: the iron-manganese synercism, Atmospheric Environment, 25A, 
+C     Martin, R.L. and T.W. Good, catalyzed oxidation of sulfur dioxide in
+C        solution: the iron-manganese synercism, Atmospheric Environment, 25A,
 C        2395-2399, 1991
-C     Alexander, B., R.J. Park, D.J. jacob, S. Gong, Transition metal-catalyzed  
+C     Alexander, B., R.J. Park, D.J. jacob, S. Gong, Transition metal-catalyzed
 C        oxidation of atmospheric sulfur: global implications for the sulfur
 C        budget, GRL, 114, D02309, 2009
-C
+
 C  Called by:  AQMAP
- 
+
 C  Calls the following subroutines:  none
- 
+
 C  Calls the following functions:  HLCONST
- 
+
 C  Arguments     Type      I/O       Description
 C  ---------     ----  ------------  --------------------------------
 C  GAS(ngas)     real  input&output  Concentration for species i=1,15
 C  GASWDEP(ngas) real     output     wet deposition for species
- 
+
 C  AEROSOL(naer,nmodes) real input&output   Concentration for species i=1,51
 C  AERWDEP(naer,nmodes) real     output     wet deposition for species
 C-----------------------------------------------------------------------
 
-      USE RXNS_DATA           ! chemical mechanism data
-      USE AQ_DATA
+      USE RXNS_DATA       ! chemical mechanism data
+      USE AQ_DATA         ! doesn't inherit; gets only n_aerospc, conmin from AERO_DATA
+      USE AERO_DATA
       USE UTILIO_DEFN
 
       IMPLICIT NONE
@@ -166,7 +171,8 @@ C...........Parameters:
       INTEGER, PARAMETER :: NUMOX = 5          ! number of oxidation reactions
 
       REAL( 8 ), PARAMETER :: H2ODENS = 1000.0D0   ! water density at 20 C and 1 ATM (kg/m3)
-      REAL( 8 ), PARAMETER :: SEC2HR = 1.0D0 / 3600.0D0 ! convert seconds to hours
+      REAL( 8 ), PARAMETER :: SEC2HR  = 1.0D0 / 3600.0D0 ! convert seconds to hours
+      REAL( 8 ), PARAMETER :: SCVEFF  = 100.0D0    ! Scavenging efficiency (%)
 
 C...........Arguments:
 
@@ -178,18 +184,18 @@ C...........Arguments:
       REAL,      INTENT( IN )  :: ALFA2     ! scav coef for aitken aerosol sfc area
       REAL,      INTENT( IN )  :: ALFA3     ! scav coef for aitken aerosol mass
       REAL,      INTENT( OUT ) :: HPWDEP    ! hydrogen wet deposition (mm mol/liter)
-      REAL( 8 ), INTENT( OUT ) :: BETASO4  
+      REAL( 8 ), INTENT( OUT ) :: BETASO4
       REAL,      INTENT( IN )  :: PRCRATE   ! precip rate (mm/hr)
       REAL,      INTENT( IN )  :: PRES_PA   ! pressure (Pa)
       REAL,      INTENT( IN )  :: TAUCLD    ! timestep for cloud (s)
       REAL,      INTENT( IN )  :: TEMP      ! temperature (K)
       REAL,      INTENT( IN )  :: WCAVG     ! liquid water content (kg/m3)
       REAL,      INTENT( IN )  :: WTAVG     ! total water content (kg/m3)
-      LOGICAL,   INTENT( IN )  :: DARK      ! DARK = TRUE is night,  DARK = FALSE is day     
-      REAL( 8 ), INTENT( INOUT ) :: GAS    ( NGAS )         ! gas phase concentrations (mol/molV)
-      REAL( 8 ), INTENT( INOUT ) :: AEROSOL( NAER, NMODES ) ! aerosol concentrations (mol/molV)
-      REAL( 8 ), INTENT( INOUT ) :: GASWDEP( NGAS )         ! gas phase wet deposition array (mm mol/liter)
-      REAL( 8 ), INTENT( INOUT ) :: AERWDEP( NAER, NMODES ) ! aerosol wet deposition array (mm mol/liter)
+      REAL( 8 ), INTENT( INOUT ) :: GAS    ( : )   ! gas phase concentrations (mol/molV)
+      REAL( 8 ), INTENT( INOUT ) :: AEROSOL( :,: ) ! aerosol concentrations (mol/molV)
+      REAL( 8 ), INTENT( INOUT ) :: GASWDEP( : )   ! gas phase wet deposition array (mm mol/liter)
+      REAL( 8 ), INTENT( INOUT ) :: AERWDEP( :,: ) ! aerosol wet deposition array (mm mol/liter)
+      LOGICAL,   INTENT( IN )    :: DARK           ! DARK = TRUE is night,  DARK = FALSE is day
 
 C...........Local Variables (scalars):
 
@@ -198,7 +204,7 @@ C...........Local Variables (scalars):
       CHARACTER( 16 ), SAVE :: PNAME = 'AQCHEM'             ! driver program name
       CHARACTER( 16 ), SAVE :: MGLYSUR = 'METHYL_GLYOXAL  ' ! Henry's law surrogate for MGLY
 
-      INTEGER      ISPC            ! loop counter for species    
+      INTEGER      ISPC            ! loop counter for species
       INTEGER      I20C            ! loop counter for do loop 20
       INTEGER      I30C            ! loop counter for do loop 30
       INTEGER      ITERAT          ! # iterations of aqueous chemistry solver
@@ -210,7 +216,7 @@ C...........Local Variables (scalars):
 
       REAL( 8 ) :: DEPSUM
       REAL( 8 ) :: A               ! iron's anion concentration
-      REAL( 8 ) :: AC              ! H+ concentration in cloudwater (mol/liter)
+      REAL( 8 ) :: HPLUS           ! H+ concentration in cloudwater (mol/liter)
       REAL( 8 ) :: ACT1            ! activity correction factor, single ions
       REAL( 8 ) :: ACT2            ! activity factor correction, double ions
       REAL( 8 ) :: ACTB            !
@@ -345,7 +351,6 @@ C...........Local Variables (scalars):
       REAL( 8 ) :: RMHP            !
       REAL( 8 ) :: RPAA            !
       REAL( 8 ) :: RT              ! gas const * temperature (liter atm/mol)
-      REAL( 8 ),SAVE :: SCVEFF = 100.0D0   ! Scavenging efficiency (%)
       REAL( 8 ) :: SIV             ! dissolved so2 in cloudwater (mol/liter)
       REAL( 8 ) :: SK6             !
       REAL( 8 ) :: SK6TS6          !
@@ -396,9 +401,9 @@ C...........Local Variables (scalars):
       REAL( 8 ) :: XLO3            !
       REAL( 8 ) :: XLPAA           !
       REAL( 8 ) :: XLSO2           !
-      REAL( 8 ) :: CAACC           ! accumulation mode Calcium (AE6) SLN 16March2011      
-      REAL( 8 ) :: MGACC           ! accumulation mode Magnesium (AE6) SLN 16March2011     
-      REAL( 8 ) :: KACC            ! accumulation mode Potassium (AE6) SLN 16March2011     
+      REAL( 8 ) :: CAACC           ! accumulation mode Calcium (AE6) SLN 16March2011
+      REAL( 8 ) :: MGACC           ! accumulation mode Magnesium (AE6) SLN 16March2011
+      REAL( 8 ) :: KACC            ! accumulation mode Potassium (AE6) SLN 16March2011
       REAL( 8 ) :: CACOR           ! coarse mode Calcium (AE6) SLN 16March2011
       REAL( 8 ) :: MGCOR           ! coarse mode Magnesium (AE6) SLN 16March2011
       REAL( 8 ) :: KCOR            ! coarse mode Potassium (AE6) SLN 16March2011
@@ -406,24 +411,40 @@ C...........Local Variables (scalars):
       REAL( 8 ) :: ANTHCOR         ! coarse mode CORS (AE6) SLN 16March2011
       REAL( 8 ) :: SEASCOR         ! coarse mode SEAS (AE6) SLN 16March2011
       REAL( 8 ) :: FEACC           ! accumulation mode Fe (AE6) SLN 22March2011
-      REAL( 8 ) :: MNACC           ! accumulation mode Fe (AE6) SLN 22March2011
-      REAL( 8 ) :: FECOR           ! coarse mode Mn (AE6) SLN 22March2011
+      REAL( 8 ) :: MNACC           ! accumulation mode Mn (AE6) SLN 22March2011
+      REAL( 8 ) :: FECOR           ! coarse mode Fe (AE6) SLN 22March2011
       REAL( 8 ) :: MNCOR           ! coarse mode Mn (AE6) SLN 22March2011
       REAL( 8 ) :: FE_OX           ! Fe(III) available for sulfate oxidation
       REAL( 8 ) :: MN_OX           ! Mn(II) available for sulfate oxidation
-
       REAL( 8 ) :: FE_III          ! Fractional Fe(III) partitioning, GS - July 1, 2011
       REAL( 8 ) :: MN_II           ! Fractional Mn(II) partitioning, GS - July 1, 2011
-      
+
       REAL( 8 ) :: FE_SOL          ! Fractional Fe solubility, GS - July 1, 2011
       REAL( 8 ) :: MN_SOL          ! Fractional Mn solubility, GS - July 1, 2011
 
+      REAL( 8 ), SAVE :: SOIL_FE_FAC  ! Fe molar fraction of ASOIL
+      REAL( 8 ), SAVE :: CORS_FE_FAC  ! Fe molar fraction of ACORS
+      REAL( 8 ), SAVE :: SOIL_MN_FAC  ! etc.
+      REAL( 8 ), SAVE :: CORS_MN_FAC
+      REAL( 8 ), SAVE :: SEAS_NA_FAC  ! Na molar fraction of ASEACAT
+      REAL( 8 ), SAVE :: SOIL_NA_FAC
+      REAL( 8 ), SAVE :: CORS_NA_FAC
+      REAL( 8 ), SAVE :: SEAS_MG_FAC
+      REAL( 8 ), SAVE :: SOIL_MG_FAC
+      REAL( 8 ), SAVE :: CORS_MG_FAC
+      REAL( 8 ), SAVE :: SEAS_CA_FAC
+      REAL( 8 ), SAVE :: SOIL_CA_FAC
+      REAL( 8 ), SAVE :: CORS_CA_FAC
+      REAL( 8 ), SAVE :: SEAS_K_FAC
+      REAL( 8 ), SAVE :: SOIL_K_FAC
+      REAL( 8 ), SAVE :: CORS_K_FAC
+
 C...........Local Variables (arrays):
 
+      REAL( 8 ) :: LOADING( MAX_NAER, NMODES ) ! aerosol loading (mol/liter)
+      REAL( 8 ) :: INITGAS( NGAS ) ! initial gas partial pressure (atm)
       REAL( 8 ) :: LIQUID( NLIQS ) ! wet deposition array (mm mol/liter)
       REAL( 8 ) :: WETDEP( NLIQS ) ! wet deposition array (mm mol/liter)
-      REAL( 8 ) :: LOADING( NAER, NMODES ) ! aerosol loading (mol/liter)
-      REAL( 8 ) :: INITGAS( NGAS ) ! initial gas partial pressure (atm)      
       REAL( 8 ) :: DSIVDT( 0:NUMOX ) ! rate of so2 oxid incloud (mol/liter/sec)
       REAL( 8 ) :: DS4   ( 0:NUMOX ) ! S(IV) oxidized over timestep DTW(0)
       REAL( 8 ) :: DTW   ( 0:NUMOX ) ! cloud chemistry timestep (sec)
@@ -433,6 +454,13 @@ C...........Local Variables (arrays):
 C...........External Functions:
 
       REAL, EXTERNAL :: HLCONST
+
+!For Varaible used by TXHG Version
+      LOGICAL, SAVE :: TRUST_TXHG_CHEM = .TRUE.  ! allow effects for TXHG version on ion and ph
+      REAL( 8 ) :: TRACER           ! TRACER acc+akn aerosol in cloudwater (mol/liter)
+      REAL( 8 ) :: TRACERCOR        ! TRACER coarse aerosol in cloudwater (mol/liter)
+      REAL( 8 ) :: HGFINE           ! mercury PM acc+akn aerosol in cloudwater (mol/liter)
+      REAL( 8 ) :: HGCOR            ! mercury PM coarse aerosol in cloudwater (mol/liter)
 
       INTEGER, SAVE :: LOGDEV
       INTEGER, EXTERNAL :: SETUP_LOGDEV
@@ -455,11 +483,52 @@ C...Make sure an AE6 version of the mechanism is being used
         END IF
 
 C...special treatment of MGLY for CB05 mechanism:
-C...  use Henry's law constant for glyoxal as a surrogate for methyl glyoxal
+C...  use Henry`s law constant for glyoxal as a surrogate for methyl glyoxal
 
         IF ( INDEX ( MECHNAME, 'CB05' ) .GT. 0 ) THEN
           MGLYSUR = 'GLYOXAL         '
         END IF
+
+C... set MW ratios and speciation factors for molar concentrations of coarse
+C... soluble aerosols
+
+        SOIL_FE_FAC = ASOIL_FE_FAC * REAL( AEROSPC_MW( ASOIL_IDX ), 8 )
+     &                             / REAL( AEROSPC_MW( AFE_IDX ), 8 ) / ASOIL_RENORM
+        CORS_FE_FAC = ACORS_FE_FAC * REAL( AEROSPC_MW( ACORS_IDX ), 8 )
+     &                             / REAL( AEROSPC_MW( AFE_IDX ), 8 ) / ACORS_RENORM
+
+        SOIL_MN_FAC = ASOIL_MN_FAC * REAL( AEROSPC_MW( ASOIL_IDX ), 8 )
+     &                             / REAL( AEROSPC_MW( AMN_IDX ), 8 ) / ASOIL_RENORM
+        CORS_MN_FAC = ACORS_MN_FAC * REAL( AEROSPC_MW( ACORS_IDX ), 8 )
+     &                             / REAL( AEROSPC_MW( AMN_IDX ), 8 ) / ACORS_RENORM
+
+        SEAS_NA_FAC = ASCAT_NA_FAC * REAL( AEROSPC_MW( ASEACAT_IDX ), 8 )
+     &                             / REAL( AEROSPC_MW( ANA_IDX ), 8 )
+        SOIL_NA_FAC = ASOIL_NA_FAC * REAL( AEROSPC_MW( ASOIL_IDX ), 8 )
+     &                             / REAL( AEROSPC_MW( ANA_IDX ), 8 ) / ASOIL_RENORM
+        CORS_NA_FAC = ACORS_NA_FAC * REAL( AEROSPC_MW( ACORS_IDX ), 8 )
+     &                             / REAL( AEROSPC_MW( ANA_IDX ), 8 ) / ACORS_RENORM
+
+        SEAS_MG_FAC = ASCAT_MG_FAC * REAL( AEROSPC_MW( ASEACAT_IDX ), 8 )
+     &                             / REAL( AEROSPC_MW( AMG_IDX ), 8 )
+        SOIL_MG_FAC = ASOIL_MG_FAC * REAL( AEROSPC_MW( ASOIL_IDX ), 8 )
+     &                             / REAL( AEROSPC_MW( AMG_IDX ), 8 ) / ASOIL_RENORM
+        CORS_MG_FAC = ACORS_MG_FAC * REAL( AEROSPC_MW( ACORS_IDX ), 8 )
+     &                             / REAL( AEROSPC_MW( AMG_IDX ), 8 ) / ACORS_RENORM
+
+        SEAS_CA_FAC = ASCAT_CA_FAC * REAL( AEROSPC_MW( ASEACAT_IDX ), 8 )
+     &                             / REAL( AEROSPC_MW( ACA_IDX ), 8 )
+        SOIL_CA_FAC = ASOIL_CA_FAC * REAL( AEROSPC_MW( ASOIL_IDX ), 8 )
+     &                             / REAL( AEROSPC_MW( ACA_IDX ), 8 ) / ASOIL_RENORM
+        CORS_CA_FAC = ACORS_CA_FAC * REAL( AEROSPC_MW( ACORS_IDX ), 8 )
+     &                             / REAL( AEROSPC_MW( ACA_IDX ), 8 ) / ACORS_RENORM
+
+        SEAS_K_FAC = ASCAT_K_FAC * REAL( AEROSPC_MW( ASEACAT_IDX ), 8 )
+     &                             / REAL( AEROSPC_MW( AK_IDX ), 8 )
+        SOIL_K_FAC = ASOIL_K_FAC * REAL( AEROSPC_MW( ASOIL_IDX ), 8 )
+     &                             / REAL( AEROSPC_MW( AK_IDX ), 8 ) / ASOIL_RENORM
+        CORS_K_FAC = ACORS_K_FAC * REAL( AEROSPC_MW( ACORS_IDX ), 8 )
+     &                             / REAL( AEROSPC_MW( AK_IDX ), 8 ) / ACORS_RENORM
 
       END IF    ! FIRSTIME
 
@@ -546,14 +615,14 @@ C...From Carlton et al. (2007)
 
 C...make initializations
 
-      WETDEP = 0.0D0
+      WETDEP  = 0.0D0
       LOADING = 0.0D0
       INITGAS = 0.0D0
 
       DSIVDT = 0.0D0
       DTW    = 0.0D0
       DS4    = 0.0D0
-      
+
       DGLY1  = 0.0D0
       DMGLY1 = 0.0D0
       DORGC  = 0.0D0
@@ -600,7 +669,7 @@ C...  aerosol mass in incorporated into the cloud droplets
 
       DO ISPC = 1, NAER
         LOADING( ISPC, ACC ) = AEROSOL( ISPC, ACC ) * PRES_ATM_OVER_XL
-      END DO  
+      END DO
 
       LOADING( LSO4, ACC ) = ( AEROSOL( LSO4, ACC ) + GAS( LH2SO4 ) ) * PRES_ATM_OVER_XL
 
@@ -642,7 +711,7 @@ C...set constant factors that will be used in later multiplications (moles/atm)
 C...loop If kinetic calculations are made, return to this point
 
       DO I20C = 1, 10001
-      
+
         IF ( I20C .GE. 10000 ) THEN
           XMSG = 'EXCESSIVE LOOPING AT I20C'
           CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
@@ -690,12 +759,8 @@ C...   = initial partial pressure - amount deposited partial pressure
 !steadystate     &                   - WETDEP( LOHL ) * XC2
 
 
-C...don't allow gas concentrations to go below zero
+C...don`t allow gas concentrations to go below zero
 
-        DO IGAS = 1, NGAS
-          INITGAS( IGAS ) = MAX( INITGAS( IGAS ), 0.0D0 )
-        END DO
-  
 C...Molar concentrations of soluble aerosols
 C...   = Initial amount - amount deposited  (mol/liter)
 
@@ -707,24 +772,12 @@ C...   = Initial amount - amount deposited  (mol/liter)
         SOILCOR = MAX( LOADING( LSOILC,COR ) - WETDEP( LSOILCL  ) * XC1, 0.0D0 ) ! SLN 16March2011
         ANTHCOR = MAX( LOADING( LANTHC,COR ) - WETDEP( LANTHCL  ) * XC1, 0.0D0 ) ! SLN 16March2011
         SEASCOR = MAX( LOADING( LSEASC,COR ) - WETDEP( LSEASCL  ) * XC1, 0.0D0 ) ! SLN 16March2011
-
-
-        FECOR   = 0.0281D0  * ( 100.0D0 / 55.8D0 ) * SOILCOR / ( 1.0 - 0.04642 ) ! SLN 22March2011
-     &          + 0.0467D0  * ( 100.0D0 / 55.8D0 ) * ANTHCOR / ( 1.0 - 0.00325 )
-        MNCOR   = 0.00078D0 * ( 100.0D0 / 54.9D0 ) * SOILCOR / ( 1.0 - 0.04642 ) ! SLN 22March2011
-     &          + 0.0011D0  * ( 100.0D0 / 54.9D0 ) * ANTHCOR / ( 1.0 - 0.00325 )
-        NACOR   = 0.8373D0  * (  23.0D0 / 23.0D0 ) * SEASCOR                     ! SLN 29March2011
-     &          + 0.0652D0  * ( 100.0D0 / 23.0D0 ) * SOILCOR / ( 1.0 - 0.04642 )
-     &          + 0.0023D0  * ( 100.0D0 / 23.0D0 ) * ANTHCOR / ( 1.0 - 0.00325 )
-        MGCOR   = 0.0997D0  * (  23.0D0 / 24.3D0 ) * SEASCOR                     ! SLN 16March2011
-     &          + 0.0000D0  * ( 100.0D0 / 24.3D0 ) * SOILCOR / ( 1.0 - 0.04642 )
-     &          + 0.0032D0  * ( 100.0D0 / 24.3D0 ) * ANTHCOR / ( 1.0 - 0.00325 )
-        CACOR   = 0.0320D0  * (  23.0D0 / 40.1D0 ) * SEASCOR                     ! SLN 16March2011
-     &          + 0.0872D0  * ( 100.0D0 / 40.1D0 ) * SOILCOR / ( 1.0 - 0.04642 )
-     &          + 0.0562D0  * ( 100.0D0 / 40.1D0 ) * ANTHCOR / ( 1.0 - 0.00325 )
-        KCOR    = 0.0310D0  * (  23.0D0 / 39.1D0 ) * SEASCOR                     ! SLN 16March2011
-     &          + 0.0252D0  * ( 100.0D0 / 39.1D0 ) * SOILCOR / ( 1.0 - 0.04642 )
-     &          + 0.0176D0  * ( 100.0D0 / 39.1D0 ) * ANTHCOR / ( 1.0 - 0.00325 )
+        FECOR   = SOIL_FE_FAC * SOILCOR + CORS_FE_FAC * ANTHCOR     ! SLN 22Mar2011
+        MNCOR   = SOIL_MN_FAC * SOILCOR + CORS_MN_FAC * ANTHCOR
+        NACOR   = SEAS_NA_FAC * SEASCOR + SOIL_NA_FAC * SOILCOR + CORS_NA_FAC * ANTHCOR
+        MGCOR   = SEAS_MG_FAC * SEASCOR + SOIL_MG_FAC * SOILCOR + CORS_MG_FAC * ANTHCOR
+        CACOR   = SEAS_CA_FAC * SEASCOR + SOIL_CA_FAC * SOILCOR + CORS_CA_FAC * ANTHCOR
+        KCOR    = SEAS_K_FAC  * SEASCOR + SOIL_K_FAC  * SOILCOR + CORS_K_FAC  * ANTHCOR
 
         TS6     = LOADING( LSO4,  AKN ) + LOADING( LSO4, ACC ) + TS6COR
      &          - ( WETDEP( LSO4ACCL ) + WETDEP( LHSO4ACCL ) ) * XC1
@@ -732,14 +785,14 @@ C...   = Initial amount - amount deposited  (mol/liter)
 
         NA      = LOADING( LNA,   ACC ) + LOADING( LNA, AKN ) + NACOR
      &          - WETDEP( LNAACCL ) * XC1
-!       CA      = LOADING( LCACO3,COR ) - WETDEP( LCAL ) * XC1 
-!       MG      = LOADING( LMGCO3,COR ) - WETDEP( LMGL ) * XC1 
-!       K       = LOADING( LK,    COR ) - WETDEP( LKL  ) * XC1 
+!       CA      = LOADING( LCACO3,COR ) - WETDEP( LCAL ) * XC1
+!       MG      = LOADING( LMGCO3,COR ) - WETDEP( LMGL ) * XC1
+!       K       = LOADING( LK,    COR ) - WETDEP( LKL  ) * XC1
 !       FE      = LOADING( LA3FE, COR ) - WETDEP( LFEL ) * XC1
 !       MN      = LOADING( LB2MN, COR ) - WETDEP( LMNL ) * XC1
         CA      = LOADING( LCAACC, ACC) - WETDEP( LCAACCL ) * XC1 + CACOR
-        MG      = LOADING( LMGACC, ACC) - WETDEP( LMGACCL ) * XC1 + MGCOR 
-        K       = LOADING( LKACC,  ACC) - WETDEP( LKACCL  ) * XC1 + KCOR 
+        MG      = LOADING( LMGACC, ACC) - WETDEP( LMGACCL ) * XC1 + MGCOR
+        K       = LOADING( LKACC,  ACC) - WETDEP( LKACCL  ) * XC1 + KCOR
         FE      = LOADING( LFEACC, ACC) - WETDEP( LFEACCL ) * XC1 + FECOR
         MN      = LOADING( LMNACC, ACC) - WETDEP( LMNACCL ) * XC1 + MNCOR
         SOA     = LOADING( LSOA,  ACC ) - WETDEP( LSOAL  ) * XC1
@@ -753,7 +806,7 @@ C...   = Initial amount - amount deposited  (mol/liter)
 !       B       = 2.0D0 * MN
 
 !       FE_OX = 0.5D0 * 0.62D0 * FE      ! SLN 28March2011
-!       MN_OX = 1.0D0 * 0.84D0 * MN      ! SLN 28March2011       
+!       MN_OX = 1.0D0 * 0.84D0 * MN      ! SLN 28March2011
 
 C...don't allow aerosol concentrations to go below zero
 
@@ -785,6 +838,28 @@ C...  bisections Make initial guesses for pH:   between .01  to  10.
 
         HA =  0.01D0
         HB = 10.0D0
+
+C...don't allow gas concentrations to go below zero
+
+        DO IGAS = 1, NGAS
+          INITGAS( IGAS ) = MAX( INITGAS( IGAS ), 0.0D0 )
+        END DO
+
+C...Aerosol specific to TXHG Versions
+
+        TRACER     = LOADING( LTRACER_ACC,  ACC ) + LOADING( LTRACER_AKN,  AKN )
+     &             - WETDEP( LTRACERL ) * XC1
+        TRACER    = MAX( TRACER,    0.0D0 )
+        
+        TRACERCOR  = LOADING( LTRACER_COR,  COR ) - WETDEP( LTRACERCORL ) * XC1
+        TRACERCOR = MAX( TRACERCOR, 0.0D0 )
+ 
+        HGFINE    = LOADING( LPHG_ACC,  ACC ) + LOADING( LPHG_AKN,  AKN )
+     &             - WETDEP( LPHGFINEL ) * XC1
+        HGFINE    = MAX( HGFINE,    0.0D0 )
+
+        HGCOR     = LOADING( LPHG_COR, COR ) - WETDEP( LPHGCORL ) * XC1
+        HGCOR     = MAX( HGCOR ,     0.0D0 )
 
         DO I7777C = 1, 10001
 
@@ -918,7 +993,7 @@ C...compute Ionic strength and activity coefficient by the Davies equation
           STION = 0.5D0
      &          * ( AE + NH4 + OH + HCO3 + HSO3
      &              + 4.0D0 * ( SO4 + CO3 + SO3 + CA + MG + MN_OX )
-     &              + NO3 + HSO4 + 9.0D0 * FE_OX + NA + K + CL + A + B + HCO2 ) ! KMF 08September2011   
+     &              + NO3 + HSO4 + 9.0D0 * FE_OX + NA + K + CL + A + B + HCO2 ) ! KMF 08September2011
 C     &              + 4.0D0 * ( SO4 + CO3 + SO3 + CA + MG + MN )
 C     &              + NO3 + HSO4 + 9.0D0 * FE + NA + K + CL + A + B + HCO2 )
           GM1LOG = -0.509D0 * ( SQRT( STION )
@@ -984,7 +1059,7 @@ C...Make those concentration calculations which can be made outside
 C...  of the function.
 
         SO2L = SO2H * PSO2F
-        AC = 10.0D0 ** ( -BB )
+        HPLUS = 10.0D0 ** ( -BB )
         SIV = SO3 + HSO3 + SO2L
 
 C...Calculate final gas phase concentrations of oxidants (atm)
@@ -1029,15 +1104,15 @@ C...compute modal concentrations
         NAACC   = MAX( NA   - NACOR,    0.0D0 )
         CLACC   = MAX( CL   - CLCOR,    0.0D0 )
         NH4ACC  = MAX( NH4  - NH4COR,   0.0D0 )
-        CAACC   = MAX( CA   - CACOR,    0.0D0 ) ! AE6       
-        MGACC   = MAX( MG   - MGCOR,    0.0D0 ) ! AE6      
-        KACC    = MAX( K    - KCOR,     0.0D0 ) ! AE6      
+        CAACC   = MAX( CA   - CACOR,    0.0D0 ) ! AE6
+        MGACC   = MAX( MG   - MGCOR,    0.0D0 ) ! AE6
+        KACC    = MAX( K    - KCOR,     0.0D0 ) ! AE6
         FEACC   = MAX( FE   - FECOR,    0.0D0 ) ! AE6
         MNACC   = MAX( MN   - MNCOR,    0.0D0 ) ! AE6
 
 C...load the liquid concentration array with current values
 
-        LIQUID( LACL      ) = AC
+        LIQUID( LACL      ) = HPLUS
         LIQUID( LNH4ACCL  ) = NH4ACC
         LIQUID( LCACORL   ) = CACOR
         LIQUID( LNAACCL   ) = NAACC
@@ -1078,17 +1153,25 @@ C...load the liquid concentration array with current values
         LIQUID( LPOAL     ) = POA
         LIQUID( LECL      ) = EC
         LIQUID( LSOAL     ) = SOA
-        LIQUID( LORGCL    ) = ORGC  
-        LIQUID( LGLYL     ) = GLYL    
-        LIQUID( LMGLYL    ) = MGLYL   
-        LIQUID( LCAACCL   ) = CAACC   ! AE6 - SLN 16March2011      
-        LIQUID( LMGACCL   ) = MGACC   ! AE6 - SLN 16March2011     
-        LIQUID( LKACCL    ) = KACC    ! AE6 - SLN 16March2011     
+        LIQUID( LORGCL    ) = ORGC
+        LIQUID( LGLYL     ) = GLYL
+        LIQUID( LMGLYL    ) = MGLYL
+        LIQUID( LCAACCL   ) = CAACC   ! AE6 - SLN 16March2011
+        LIQUID( LMGACCL   ) = MGACC   ! AE6 - SLN 16March2011
+        LIQUID( LKACCL    ) = KACC    ! AE6 - SLN 16March2011
         LIQUID( LSOILCL   ) = SOILCOR ! AE6 - SLN 16March2011
         LIQUID( LANTHCL   ) = ANTHCOR ! AE6 - SLN 16March2011
         LIQUID( LSEASCL   ) = SEASCOR ! AE6 - SLN 16March2011
         LIQUID( LFEACCL   ) = FEACC   ! AE6 - SLN 22March2011
         LIQUID( LMNACCL   ) = MNACC   ! AE6 - SLN 22March2011
+
+C...Load array variable TXHG Version
+
+        LIQUID( LTRACERL    )  = TRACER
+        LIQUID( LTRACERCORL )  = TRACERCOR
+        LIQUID( LPHGFINEL   )  = HGFINE
+        LIQUID( LPHGCORL    )  = HGCOR
+
 
 C...if the maximum cloud lifetime has not been reached, then compute
 C...  the next timestep, else exit loop 20.
@@ -1110,7 +1193,7 @@ C...Define the total S(iv) available for oxidation
 
 C...Calculate sulfur iv oxidation rate due to H2O2 (Jacobson, 1997)
 
-        DSIVDT( 1 ) = -RH2O2 * H2O2L * HSO3 * AC / ( 1.0D0 + 13.0D0 * AC )
+        DSIVDT( 1 ) = -RH2O2 * H2O2L * HSO3 * HPLUS / ( 1.0D0 + 13.0D0 * HPLUS )
         TH2O2 = INITGAS( LH2O2 ) * ONE_OVER_XL
         IF ( ( DSIVDT( 1 ) .EQ. 0.0D0 ) .OR.
      &       ( TSIV  .LE. CONMIN ) .OR.
@@ -1123,8 +1206,9 @@ C...Calculate sulfur iv oxidation rate due to H2O2 (Jacobson, 1997)
 C...Calculate sulfur iv oxidation rate due to O3 (Jacobson, 1997)
 
         DSIVDT( 2 ) = -( 2.4D4 * SO2L                                          +
-     &                   3.7D5 * EXP( -18.56 * ( ( 298.0D0 / TEMP ) - 1.0D0 ) ) * HSO3 + 
-     &                   1.5D9 * EXP( -17.72 * ( ( 298.0D0 / TEMP ) - 1.0D0 ) ) * SO3 ) * O3L 
+     &                   3.7D5 * EXP( -18.56 * ( ( 298.0D0 / TEMP ) - 1.0D0 ) ) * HSO3 +
+     &                   1.5D9 * EXP( -17.72 * ( ( 298.0D0 / TEMP ) - 1.0D0 ) ) * SO3 ) * O3L
+
         TO3 = INITGAS( LO3 ) * ONE_OVER_XL
         IF ( ( DSIVDT( 2 ) .EQ. 0.0D0 ) .OR.
      &       ( TSIV  .LE. CONMIN ) .OR.
@@ -1151,7 +1235,7 @@ C...Implement sulfate inhibition based on Martin and Good, 1991
 
 C...Calculate sulfur oxidation rate due to MHP (Jacobson,  1997)
 
-        DSIVDT( 4 ) = -RMHP * AC * MHPL * HSO3
+        DSIVDT( 4 ) = -RMHP * HPLUS * MHPL * HSO3
         TMHP = INITGAS( LMHP ) * ONE_OVER_XL
         IF ( ( DSIVDT( 4 ) .EQ. 0.0D0 ) .OR.
      &       ( TSIV  .LE. CONMIN ) .OR.
@@ -1163,7 +1247,7 @@ C...Calculate sulfur oxidation rate due to MHP (Jacobson,  1997)
 
 C...Calculate sulfur oxidation due to PAA (Jacobson,  1997)
 
-        DSIVDT( 5 ) = -( RPAA * AC + 7.00D2 ) * HSO3 * PAAL
+        DSIVDT( 5 ) = -( RPAA * HPLUS + 7.00D2 ) * HSO3 * PAAL
         TPAA = INITGAS( LPAA ) * ONE_OVER_XL
         IF ( ( DSIVDT( 5 ) .EQ. 0.0D0 ) .OR.
      &       ( TSIV  .LE. CONMIN ) .OR.
@@ -1188,7 +1272,7 @@ C...Calculate a minimum time step required
 C...check for large time step
 
         IF ( DTW( 0 ) .GT. 8.0D+37 ) THEN
-          WRITE( LOGDEV,1001 ) PRCRATE, DSIVDT(0), TS6, DTW(0), CTHK1, WTAVG
+          WRITE(LOGDEV,1001) PRCRATE, DSIVDT(0), TS6, DTW(0), CTHK1, WTAVG
         ELSE
 
 C...CALCULATE IN-CLOUD SOA PRODUCTION
@@ -1212,13 +1296,13 @@ C...Define the total methylglyoxal available for oxidation
 C...Calculate MGLY oxidation due to OH
 
           DMGLYDT = -RMGLY3 * MGLYL * OHL
-        
+
 !ccC...Define the total OH available for oxidation
 !cc
 !cc          THO = PHO0 * ONE_OVER_XL
 
 C...Calculate OH consumption
-        
+
 !steadystate          DOHDT = -( RGLY3 * GLYL + RMGLY3 * MGLYL ) * OHL
 
 C...calculate the change in sulfur iv for this time step
@@ -1449,6 +1533,15 @@ C...  to the accumulation mode particles
 !     AERWDEP( LSRF, ACC ) = 0.0D0
 !     AERWDEP( LSRF, COR ) = 0.0D0
 
+C...Compute for Aerosol species in  TXHG Version
+
+      AERWDEP( LTRACER_AKN, AKN ) = 0.0D0
+      AERWDEP( LTRACER_ACC, ACC ) = WETDEP( LTRACERL )
+      AERWDEP( LTRACER_COR, COR ) = WETDEP( LTRACERCORL )
+      AERWDEP( LPHG_AKN, AKN ) = 0.0D0
+      AERWDEP( LPHG_ACC, ACC ) = WETDEP( LPHGFINEL )
+      AERWDEP( LPHG_COR, COR ) = WETDEP( LPHGCORL )
+
 C...aerosol concentrations (mol/molV)
 
       AEROSOL( LSO4, AKN ) = AEROSOL( LSO4, AKN ) * EALFA3T
@@ -1500,6 +1593,15 @@ C...aerosol concentrations (mol/molV)
       AEROSOL( LFEACC, ACC ) = FEACC   * XL * RECIPAP1 ! AE6 - SLN 22March2011
       AEROSOL( LMNACC, ACC ) = MNACC   * XL * RECIPAP1 ! AE6 - SLN 22March2011
 
+C...Compute for Aerosol species in  TXHG Version
+
+      AEROSOL( LTRACER_AKN, AKN ) = AEROSOL( LTRACER_AKN, AKN ) * EALFA3T
+      AEROSOL( LTRACER_ACC, ACC ) = TRACER    * XL * RECIPAP1
+      AEROSOL( LTRACER_COR, COR ) = TRACERCOR * XL * RECIPAP1
+      AEROSOL( LPHG_AKN, AKN )    = AEROSOL( LPHG_AKN, AKN ) * EALFA3T
+      AEROSOL( LPHG_ACC, ACC )    = HGFINE * XL * RECIPAP1
+      AEROSOL( LPHG_COR, COR )    = HGCOR * XL * RECIPAP1
+
 C...store the amount of hydrogen deposition
 
       HPWDEP = WETDEP( LACL )
@@ -1512,4 +1614,5 @@ C...formats
      &       'TS6=', F10.5, 'DTW(0)=', F10.5, 'CTHK1=', F10.5,
      &       'WTAVG=', F10.5 )
 
+1002  FORMAT( 65(1X, ES12.4, 4X) )
       END

@@ -23,7 +23,7 @@
 !:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module ABFlux_Mod
 
-! Contains the shared variables and subrountes needed for the bidirectional 
+! Contains the shared variables and subroutines needed for the bidirectional 
 ! NH3 flux model in CMAQ
 !
 ! INIT_ABFLUX - Intitializes the NH3 flux routines, allocates arrays, reads in
@@ -607,7 +607,7 @@ C-------------------------------------------------------------------------------
          End If
  
          wg_ir = Min( wg_ir,GRID_DATA%WSAT( c,r ) )
-         wg_ir = Max( wg_ir,GRID_DATA%WSAT( c,r ) )
+         wg_ir = Max( wg_ir,GRID_DATA%WRES( c,r ) )
 
          ldry= d1 * ( Exp( ( 1.0 - wg_ir / GRID_DATA%WSAT( c,r ) ) ** 5 ) - 1.0 ) / 1.718
          
@@ -672,7 +672,7 @@ C-------------------------------------------------------------------------------
      &                                  maxgam)
                      cnh3g2 = Min( Max( gamma2( c,r ) / w5cm, C_gam / w5cm), 
      &                                  maxgam )
-                     cnh3s  = Max( cnh3s, a1 *( Max(gamma2(c,r),C_gam) * 1.0e-7
+                     cnh3s  = Max( cnh3s, Real( a1 ) *( Max(gamma2(c,r),C_gam) * 1.0e-7
      &                                          * w5cm * MolN * d2 * 1.0e4 * 12.3 + 20.3 ) )
                      agfrac  = agfrac  + GRID_DATA%LUFRAC( c,r,j )
                   Case( 'AGMOS' ) ! Ag mosaic 67% ag 33% mosaic 
@@ -680,7 +680,7 @@ C-------------------------------------------------------------------------------
      &                                  * twothree + onethree * natgam / wg_ir, maxgam )
                      cnh3g2 = Min( Max( gamma2( c,r ) / w5cm, C_gam / w5cm )
      &                                  * twothree + onethree * natgam / w5cm, maxgam )
-                     cnh3s  = Max( cnh3s, a1 * ( Max(gamma2(c,r),C_gam) * 1.0e-7
+                     cnh3s  = Max( cnh3s, Real( a1 ) * ( Max(gamma2(c,r),C_gam) * 1.0e-7
      &                                  * w5cm * MolN * d2 *1.0e4 * 12.3 + 20.3 ) )
      &                                  * twothree + onethree * cnh3s
                      agfrac  = agfrac  + twothree * GRID_DATA%LUFRAC( c,r,j )

@@ -191,115 +191,115 @@
 
 ! define special rate operators
 
-           RO2NO            = RKI( NCELL,   52 )  * Y( NCELL, IOLD2NEW(    2, NCS) )
+           RO2NO            =  RKI( NCELL,   52 ) * Y( NCELL, IOLD2NEW(    2, NCS) )
 
-           RO2HO2           = RKI( NCELL,   53 )  * Y( NCELL, IOLD2NEW(   11, NCS) )
+           RO2HO2           =  RKI( NCELL,   53 ) * Y( NCELL, IOLD2NEW(   11, NCS) )
 
-           RO2NO3           = RKI( NCELL,   54 )  * Y( NCELL, IOLD2NEW(    5, NCS) )
+           RO2NO3           =  RKI( NCELL,   54 ) * Y( NCELL, IOLD2NEW(    5, NCS) )
 
-           RO2RO2           = RKI( NCELL,   55 )  * Y( NCELL, IOLD2NEW(   19, NCS) )  &
-     &                      + RKI( NCELL,   56 )  * Y( NCELL, IOLD2NEW(   23, NCS) )  &
-     &                      + RKI( NCELL,   56 )  * Y( NCELL, IOLD2NEW(   24, NCS) )
+           RO2RO2           =  RKI( NCELL,   55 ) * Y( NCELL, IOLD2NEW(   19, NCS) )  &
+     &                      +  RKI( NCELL,   56 ) * Y( NCELL, IOLD2NEW(   23, NCS) )  &
+     &                      +  RKI( NCELL,   56 ) * Y( NCELL, IOLD2NEW(   24, NCS) )
 
-           RO2RO3           = RKI( NCELL,   70 )  * Y( NCELL, IOLD2NEW(   25, NCS) )  &
-     &                      + RKI( NCELL,   70 )  * Y( NCELL, IOLD2NEW(   29, NCS) )  &
-     &                      + RKI( NCELL,   70 )  * Y( NCELL, IOLD2NEW(   36, NCS) )  &
-     &                      + RKI( NCELL,   70 )  * Y( NCELL, IOLD2NEW(   39, NCS) )
+           RO2RO3           =  RKI( NCELL,   70 ) * Y( NCELL, IOLD2NEW(   25, NCS) )  &
+     &                      +  RKI( NCELL,   70 ) * Y( NCELL, IOLD2NEW(   29, NCS) )  &
+     &                      +  RKI( NCELL,   70 ) * Y( NCELL, IOLD2NEW(   36, NCS) )  &
+     &                      +  RKI( NCELL,   70 ) * Y( NCELL, IOLD2NEW(   39, NCS) )
 
-           RO2RO            = RO2NO  &
-     &                      + RO2NO3  &
-     &                      + RO2RO3  &
-     &                      +   5.0000D-01 * RO2RO2
+           RO2RO            =  RO2NO  &
+     &                      +  RO2NO3  &
+     &                      +  RO2RO3  &
+     &                      +  5.0000D-01 * RO2RO2
 
-           RO2XRO           = RO2HO2  &
-     &                      +   5.0000D-01 * RO2RO2
+           RO2XRO           =  RO2HO2  &
+     &                      +  5.0000D-01 * RO2RO2
 
            RO2RO2M          =   5.0000D-01 * RO2RO2
 
-           RO22NN           = RO2NO3  &
-     &                      + RO2RO3  &
-     &                      +   5.0000D-01 * RO2RO2
+           RO22NN           =  RO2NO3  &
+     &                      +  RO2RO3  &
+     &                      +  5.0000D-01 * RO2RO2
 
 
 ! define rate constants in terms of special rate operators 
 
-           RKI( NCELL, 114 ) = RO2RO            ! reaction: RO01
-           RKI( NCELL, 115 ) = RO2XRO           ! reaction: RO02
-           RKI( NCELL, 116 ) = RO2RO            ! reaction: RO03
-           RKI( NCELL, 117 ) = RO2XRO           ! reaction: RO04
-           RKI( NCELL, 118 ) = RO2RO            ! reaction: RO05
-           RKI( NCELL, 119 ) = RO2XRO           ! reaction: RO06
-           RKI( NCELL, 120 ) = RO2RO            ! reaction: RO07
-           RKI( NCELL, 121 ) = RO2XRO           ! reaction: RO08
-           RKI( NCELL, 122 ) = RO2RO            ! reaction: RO09
-           RKI( NCELL, 123 ) = RO2XRO           ! reaction: RO10
-           RKI( NCELL, 124 ) = RO2RO            ! reaction: RO11
-           RKI( NCELL, 125 ) = RO2XRO           ! reaction: RO12
-           RKI( NCELL, 126 ) = RO2RO            ! reaction: RO13
-           RKI( NCELL, 127 ) = RO2XRO           ! reaction: RO14
-           RKI( NCELL, 128 ) = RO2RO            ! reaction: RO15
-           RKI( NCELL, 129 ) = RO2XRO           ! reaction: RO16
-           RKI( NCELL, 130 ) = RO2RO            ! reaction: RO17
-           RKI( NCELL, 131 ) = RO2XRO           ! reaction: RO18
-           RKI( NCELL, 213 ) = RO2RO            ! reaction: PO01
-           RKI( NCELL, 214 ) = RO2XRO           ! reaction: PO02
-           RKI( NCELL, 215 ) = RO2RO            ! reaction: PO03
-           RKI( NCELL, 216 ) = RO2XRO           ! reaction: PO04
-           RKI( NCELL, 217 ) = RO2RO            ! reaction: PO05
-           RKI( NCELL, 218 ) = RO2XRO           ! reaction: PO06
-           RKI( NCELL, 219 ) = RO2RO            ! reaction: PO07
-           RKI( NCELL, 220 ) = RO2XRO           ! reaction: PO08
-           RKI( NCELL, 221 ) = RO2RO            ! reaction: PO09
-           RKI( NCELL, 222 ) = RO2XRO           ! reaction: PO10
-           RKI( NCELL, 223 ) = RO2RO            ! reaction: PO11
-           RKI( NCELL, 224 ) = RO2XRO           ! reaction: PO12
-           RKI( NCELL, 225 ) = RO2RO            ! reaction: PO13
-           RKI( NCELL, 226 ) = RO2XRO           ! reaction: PO14
-           RKI( NCELL, 227 ) = RO2RO            ! reaction: PO15
-           RKI( NCELL, 228 ) = RO2XRO           ! reaction: PO16
-           RKI( NCELL, 229 ) = RO2RO            ! reaction: PO17
-           RKI( NCELL, 230 ) = RO2XRO           ! reaction: PO18
-           RKI( NCELL, 231 ) = RO2RO            ! reaction: PO19
-           RKI( NCELL, 232 ) = RO2XRO           ! reaction: PO20
-           RKI( NCELL, 233 ) = RO2RO            ! reaction: PO21
-           RKI( NCELL, 234 ) = RO2XRO           ! reaction: PO22
-           RKI( NCELL, 235 ) = RO2RO            ! reaction: PO23
-           RKI( NCELL, 236 ) = RO2XRO           ! reaction: PO24
-           RKI( NCELL, 237 ) = RO2RO            ! reaction: PO25
-           RKI( NCELL, 238 ) = RO2XRO           ! reaction: PO26
-           RKI( NCELL, 239 ) = RO2RO            ! reaction: PO27
-           RKI( NCELL, 240 ) = RO2XRO           ! reaction: PO28
-           RKI( NCELL, 241 ) = RO2RO            ! reaction: PO29
-           RKI( NCELL, 242 ) = RO2XRO           ! reaction: PO30
-           RKI( NCELL, 243 ) = RO2RO            ! reaction: PO31
-           RKI( NCELL, 244 ) = RO2XRO           ! reaction: PO32
-           RKI( NCELL, 245 ) = RO2RO            ! reaction: PO33
-           RKI( NCELL, 246 ) = RO2XRO           ! reaction: PO34
-           RKI( NCELL, 247 ) = RO2NO            ! reaction: PO35
-           RKI( NCELL, 248 ) = RO22NN           ! reaction: PO36
-           RKI( NCELL, 249 ) = RO2XRO           ! reaction: PO37
-           RKI( NCELL, 250 ) = RO2HO2           ! reaction: PO38
-           RKI( NCELL, 251 ) = RO2RO2M          ! reaction: PO39
-           RKI( NCELL, 252 ) = RO2RO            ! reaction: PO40
-           RKI( NCELL, 253 ) = RO2HO2           ! reaction: PO41
-           RKI( NCELL, 254 ) = RO2RO2M          ! reaction: PO42
-           RKI( NCELL, 255 ) = RO2RO            ! reaction: PO43
-           RKI( NCELL, 256 ) = RO2HO2           ! reaction: PO41a
-           RKI( NCELL, 257 ) = RO2RO2M          ! reaction: PO42b
-           RKI( NCELL, 258 ) = RO2RO            ! reaction: PO43c
-           RKI( NCELL, 259 ) = RO2HO2           ! reaction: PO44
-           RKI( NCELL, 260 ) = RO2RO2M          ! reaction: PO45
-           RKI( NCELL, 261 ) = RO2RO            ! reaction: PO46
-           RKI( NCELL, 262 ) = RO2RO            ! reaction: PO47
-           RKI( NCELL, 263 ) = RO2XRO           ! reaction: PO48
-           RKI( NCELL, 264 ) = RO2RO            ! reaction: PO49
-           RKI( NCELL, 265 ) = RO2XRO           ! reaction: PO50
-           RKI( NCELL, 375 ) = RO2RO            ! reaction: CP23
-           RKI( NCELL, 376 ) = RO2XRO           ! reaction: CP24
-           RKI( NCELL, 377 ) = RO2RO            ! reaction: CP25
-           RKI( NCELL, 378 ) = RO2XRO           ! reaction: CP26
-           RKI( NCELL, 379 ) = RO2RO            ! reaction: CP27
-           RKI( NCELL, 380 ) = RO2XRO           ! reaction: CP28
+           RKI( NCELL, 114 ) = RO2RO                         ! reaction: RO01
+           RKI( NCELL, 115 ) = RO2XRO                        ! reaction: RO02
+           RKI( NCELL, 116 ) = RO2RO                         ! reaction: RO03
+           RKI( NCELL, 117 ) = RO2XRO                        ! reaction: RO04
+           RKI( NCELL, 118 ) = RO2RO                         ! reaction: RO05
+           RKI( NCELL, 119 ) = RO2XRO                        ! reaction: RO06
+           RKI( NCELL, 120 ) = RO2RO                         ! reaction: RO07
+           RKI( NCELL, 121 ) = RO2XRO                        ! reaction: RO08
+           RKI( NCELL, 122 ) = RO2RO                         ! reaction: RO09
+           RKI( NCELL, 123 ) = RO2XRO                        ! reaction: RO10
+           RKI( NCELL, 124 ) = RO2RO                         ! reaction: RO11
+           RKI( NCELL, 125 ) = RO2XRO                        ! reaction: RO12
+           RKI( NCELL, 126 ) = RO2RO                         ! reaction: RO13
+           RKI( NCELL, 127 ) = RO2XRO                        ! reaction: RO14
+           RKI( NCELL, 128 ) = RO2RO                         ! reaction: RO15
+           RKI( NCELL, 129 ) = RO2XRO                        ! reaction: RO16
+           RKI( NCELL, 130 ) = RO2RO                         ! reaction: RO17
+           RKI( NCELL, 131 ) = RO2XRO                        ! reaction: RO18
+           RKI( NCELL, 213 ) = RO2RO                         ! reaction: PO01
+           RKI( NCELL, 214 ) = RO2XRO                        ! reaction: PO02
+           RKI( NCELL, 215 ) = RO2RO                         ! reaction: PO03
+           RKI( NCELL, 216 ) = RO2XRO                        ! reaction: PO04
+           RKI( NCELL, 217 ) = RO2RO                         ! reaction: PO05
+           RKI( NCELL, 218 ) = RO2XRO                        ! reaction: PO06
+           RKI( NCELL, 219 ) = RO2RO                         ! reaction: PO07
+           RKI( NCELL, 220 ) = RO2XRO                        ! reaction: PO08
+           RKI( NCELL, 221 ) = RO2RO                         ! reaction: PO09
+           RKI( NCELL, 222 ) = RO2XRO                        ! reaction: PO10
+           RKI( NCELL, 223 ) = RO2RO                         ! reaction: PO11
+           RKI( NCELL, 224 ) = RO2XRO                        ! reaction: PO12
+           RKI( NCELL, 225 ) = RO2RO                         ! reaction: PO13
+           RKI( NCELL, 226 ) = RO2XRO                        ! reaction: PO14
+           RKI( NCELL, 227 ) = RO2RO                         ! reaction: PO15
+           RKI( NCELL, 228 ) = RO2XRO                        ! reaction: PO16
+           RKI( NCELL, 229 ) = RO2RO                         ! reaction: PO17
+           RKI( NCELL, 230 ) = RO2XRO                        ! reaction: PO18
+           RKI( NCELL, 231 ) = RO2RO                         ! reaction: PO19
+           RKI( NCELL, 232 ) = RO2XRO                        ! reaction: PO20
+           RKI( NCELL, 233 ) = RO2RO                         ! reaction: PO21
+           RKI( NCELL, 234 ) = RO2XRO                        ! reaction: PO22
+           RKI( NCELL, 235 ) = RO2RO                         ! reaction: PO23
+           RKI( NCELL, 236 ) = RO2XRO                        ! reaction: PO24
+           RKI( NCELL, 237 ) = RO2RO                         ! reaction: PO25
+           RKI( NCELL, 238 ) = RO2XRO                        ! reaction: PO26
+           RKI( NCELL, 239 ) = RO2RO                         ! reaction: PO27
+           RKI( NCELL, 240 ) = RO2XRO                        ! reaction: PO28
+           RKI( NCELL, 241 ) = RO2RO                         ! reaction: PO29
+           RKI( NCELL, 242 ) = RO2XRO                        ! reaction: PO30
+           RKI( NCELL, 243 ) = RO2RO                         ! reaction: PO31
+           RKI( NCELL, 244 ) = RO2XRO                        ! reaction: PO32
+           RKI( NCELL, 245 ) = RO2RO                         ! reaction: PO33
+           RKI( NCELL, 246 ) = RO2XRO                        ! reaction: PO34
+           RKI( NCELL, 247 ) = RO2NO                         ! reaction: PO35
+           RKI( NCELL, 248 ) = RO22NN                        ! reaction: PO36
+           RKI( NCELL, 249 ) = RO2XRO                        ! reaction: PO37
+           RKI( NCELL, 250 ) = RO2HO2                        ! reaction: PO38
+           RKI( NCELL, 251 ) = RO2RO2M                       ! reaction: PO39
+           RKI( NCELL, 252 ) = RO2RO                         ! reaction: PO40
+           RKI( NCELL, 253 ) = RO2HO2                        ! reaction: PO41
+           RKI( NCELL, 254 ) = RO2RO2M                       ! reaction: PO42
+           RKI( NCELL, 255 ) = RO2RO                         ! reaction: PO43
+           RKI( NCELL, 256 ) = RO2HO2                        ! reaction: PO41a
+           RKI( NCELL, 257 ) = RO2RO2M                       ! reaction: PO42b
+           RKI( NCELL, 258 ) = RO2RO                         ! reaction: PO43c
+           RKI( NCELL, 259 ) = RO2HO2                        ! reaction: PO44
+           RKI( NCELL, 260 ) = RO2RO2M                       ! reaction: PO45
+           RKI( NCELL, 261 ) = RO2RO                         ! reaction: PO46
+           RKI( NCELL, 262 ) = RO2RO                         ! reaction: PO47
+           RKI( NCELL, 263 ) = RO2XRO                        ! reaction: PO48
+           RKI( NCELL, 264 ) = RO2RO                         ! reaction: PO49
+           RKI( NCELL, 265 ) = RO2XRO                        ! reaction: PO50
+           RKI( NCELL, 375 ) = RO2RO                         ! reaction: CP23
+           RKI( NCELL, 376 ) = RO2XRO                        ! reaction: CP24
+           RKI( NCELL, 377 ) = RO2RO                         ! reaction: CP25
+           RKI( NCELL, 378 ) = RO2XRO                        ! reaction: CP26
+           RKI( NCELL, 379 ) = RO2RO                         ! reaction: CP27
+           RKI( NCELL, 380 ) = RO2XRO                        ! reaction: CP28
        END DO
 
        RETURN

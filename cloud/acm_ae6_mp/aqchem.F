@@ -120,6 +120,7 @@ C   12 Feb 15 B.Hutzell: reduced number of exp(...) calculations for scavenging 
 C                        aerosols to improve efficiency
 C   15 Jun 15 J.Young:  Fixed bug found by Martin Otte in calculations for scavenging
 C                       aitken aerosols
+C   15 Apr 16 J.Young:  Use aerosol factors from AERO_DATA module named constants
 C
 C  References:
 C     Walcek & Taylor, 1986, A theoretical Method for computing
@@ -157,6 +158,7 @@ C-----------------------------------------------------------------------
 
       USE RXNS_DATA           ! chemical mechanism data
       USE AQ_DATA
+      USE AERO_DATA
       USE HG_AQCHEM_DATA
       USE UTILIO_DEFN
 
@@ -260,7 +262,7 @@ C...........Local Variables (scalars):
       REAL( 8 ) :: FHNO3           ! frac weight of HNO3 to total NO3
       REAL( 8 ) :: FNO3ACC         ! frac weight of NO3 acc to total NO3
       REAL( 8 ) :: FRACLIQ         ! fraction of water in liquid form
-      REAL( 8 ) :: FOA1            ! First dissociation constant for FOA
+      REAL( 8 ) :: FOA1            ! First dissociation constant for FOA (Formic Acid)
       REAL( 8 ) :: FOAH            ! Henry's Law constant for FOA
       REAL( 8 ) :: FOA1H           ! FOAH*FOA1
       REAL( 8 ) :: FOAL            ! FOA conc in cloudwater (mol/liter)
@@ -411,8 +413,8 @@ C...........Local Variables (scalars):
       REAL( 8 ) :: ANTHCOR         ! coarse mode CORS (AE6) SLN 16March2011
       REAL( 8 ) :: SEASCOR         ! coarse mode SEAS (AE6) SLN 16March2011
       REAL( 8 ) :: FEACC           ! accumulation mode Fe (AE6) SLN 22March2011
-      REAL( 8 ) :: MNACC           ! accumulation mode Fe (AE6) SLN 22March2011
-      REAL( 8 ) :: FECOR           ! coarse mode Mn (AE6) SLN 22March2011
+      REAL( 8 ) :: MNACC           ! accumulation mode Mn (AE6) SLN 22March2011
+      REAL( 8 ) :: FECOR           ! coarse mode Fe (AE6) SLN 22March2011
       REAL( 8 ) :: MNCOR           ! coarse mode Mn (AE6) SLN 22March2011
       REAL( 8 ) :: FE_OX           ! Fe(III) available for sulfate oxidation
       REAL( 8 ) :: MN_OX           ! Mn(II) available for sulfate oxidation
@@ -422,11 +424,27 @@ C...........Local Variables (scalars):
       REAL( 8 ) :: FE_SOL          ! Fractional Fe solubility, GS - July 1, 2011
       REAL( 8 ) :: MN_SOL          ! Fractional Mn solubility, GS - July 1, 2011
 
+      REAL( 8 ), SAVE :: SOIL_FE_FAC  ! Fe molar fraction of ASOIL
+      REAL( 8 ), SAVE :: CORS_FE_FAC  ! Fe molar fraction of ACORS
+      REAL( 8 ), SAVE :: SOIL_MN_FAC  ! etc.
+      REAL( 8 ), SAVE :: CORS_MN_FAC
+      REAL( 8 ), SAVE :: SEAS_NA_FAC  ! Na molar fraction of ASEACAT
+      REAL( 8 ), SAVE :: SOIL_NA_FAC
+      REAL( 8 ), SAVE :: CORS_NA_FAC
+      REAL( 8 ), SAVE :: SEAS_MG_FAC
+      REAL( 8 ), SAVE :: SOIL_MG_FAC
+      REAL( 8 ), SAVE :: CORS_MG_FAC
+      REAL( 8 ), SAVE :: SEAS_CA_FAC
+      REAL( 8 ), SAVE :: SOIL_CA_FAC
+      REAL( 8 ), SAVE :: CORS_CA_FAC
+      REAL( 8 ), SAVE :: SEAS_K_FAC
+      REAL( 8 ), SAVE :: SOIL_K_FAC
+      REAL( 8 ), SAVE :: CORS_K_FAC
+
 C...........Local Variables (arrays):
 
       REAL( 8 ) :: LOADING( MAX_NAER, NMODES ) ! aerosol loading (mol/liter)
       REAL( 8 ) :: INITGAS( NGAS ) ! initial gas partial pressure (atm)
-
       REAL( 8 ) :: LIQUID( NLIQS ) ! wet deposition array (mm mol/liter)
       REAL( 8 ) :: WETDEP( NLIQS ) ! wet deposition array (mm mol/liter)
       REAL( 8 ) :: DSIVDT( 0:NUMOX ) ! rate of so2 oxid incloud (mol/liter/sec)
@@ -529,11 +547,52 @@ C...Make sure an AE6 version of the mechanism is being used
         END IF
 
 C...special treatment of MGLY for CB05 mechanism:
-C...  use Henry's law constant for glyoxal as a surrogate for methyl glyoxal
+C...  use Henry`s law constant for glyoxal as a surrogate for methyl glyoxal
 
         IF ( INDEX ( MECHNAME, 'CB05' ) .GT. 0 ) THEN
           MGLYSUR = 'GLYOXAL         '
         END IF
+
+C... set MW ratios and speciation factors for molar concentrations of coarse
+C... soluble aerosols
+
+        SOIL_FE_FAC = ASOIL_FE_FAC * REAL( AEROSPC_MW( ASOIL_IDX ), 8 )
+     &                             / REAL( AEROSPC_MW( AFE_IDX ), 8 ) / ASOIL_RENORM
+        CORS_FE_FAC = ACORS_FE_FAC * REAL( AEROSPC_MW( ACORS_IDX ), 8 )
+     &                             / REAL( AEROSPC_MW( AFE_IDX ), 8 ) / ACORS_RENORM
+
+        SOIL_MN_FAC = ASOIL_MN_FAC * REAL( AEROSPC_MW( ASOIL_IDX ), 8 )
+     &                             / REAL( AEROSPC_MW( AMN_IDX ), 8 ) / ASOIL_RENORM
+        CORS_MN_FAC = ACORS_MN_FAC * REAL( AEROSPC_MW( ACORS_IDX ), 8 )
+     &                             / REAL( AEROSPC_MW( AMN_IDX ), 8 ) / ACORS_RENORM
+
+        SEAS_NA_FAC = ASCAT_NA_FAC * REAL( AEROSPC_MW( ASEACAT_IDX ), 8 )
+     &                             / REAL( AEROSPC_MW( ANA_IDX ), 8 )
+        SOIL_NA_FAC = ASOIL_NA_FAC * REAL( AEROSPC_MW( ASOIL_IDX ), 8 )
+     &                             / REAL( AEROSPC_MW( ANA_IDX ), 8 ) / ASOIL_RENORM
+        CORS_NA_FAC = ACORS_NA_FAC * REAL( AEROSPC_MW( ACORS_IDX ), 8 )
+     &                             / REAL( AEROSPC_MW( ANA_IDX ), 8 ) / ACORS_RENORM
+
+        SEAS_MG_FAC = ASCAT_MG_FAC * REAL( AEROSPC_MW( ASEACAT_IDX ), 8 )
+     &                             / REAL( AEROSPC_MW( AMG_IDX ), 8 )
+        SOIL_MG_FAC = ASOIL_MG_FAC * REAL( AEROSPC_MW( ASOIL_IDX ), 8 )
+     &                             / REAL( AEROSPC_MW( AMG_IDX ), 8 ) / ASOIL_RENORM
+        CORS_MG_FAC = ACORS_MG_FAC * REAL( AEROSPC_MW( ACORS_IDX ), 8 )
+     &                             / REAL( AEROSPC_MW( AMG_IDX ), 8 ) / ACORS_RENORM
+
+        SEAS_CA_FAC = ASCAT_CA_FAC * REAL( AEROSPC_MW( ASEACAT_IDX ), 8 )
+     &                             / REAL( AEROSPC_MW( ACA_IDX ), 8 )
+        SOIL_CA_FAC = ASOIL_CA_FAC * REAL( AEROSPC_MW( ASOIL_IDX ), 8 )
+     &                             / REAL( AEROSPC_MW( ACA_IDX ), 8 ) / ASOIL_RENORM
+        CORS_CA_FAC = ACORS_CA_FAC * REAL( AEROSPC_MW( ACORS_IDX ), 8 )
+     &                             / REAL( AEROSPC_MW( ACA_IDX ), 8 ) / ACORS_RENORM
+
+        SEAS_K_FAC = ASCAT_K_FAC * REAL( AEROSPC_MW( ASEACAT_IDX ), 8 )
+     &                             / REAL( AEROSPC_MW( AK_IDX ), 8 )
+        SOIL_K_FAC = ASOIL_K_FAC * REAL( AEROSPC_MW( ASOIL_IDX ), 8 )
+     &                             / REAL( AEROSPC_MW( AK_IDX ), 8 ) / ASOIL_RENORM
+        CORS_K_FAC = ACORS_K_FAC * REAL( AEROSPC_MW( ACORS_IDX ), 8 )
+     &                             / REAL( AEROSPC_MW( AK_IDX ), 8 ) / ACORS_RENORM
 
       END IF    ! FIRSTIME
 
@@ -827,24 +886,12 @@ C...   = Initial amount - amount deposited  (mol/liter)
         SOILCOR = MAX( LOADING( LSOILC,COR ) - WETDEP( LSOILCL  ) * XC1, 0.0D0 ) ! SLN 16March2011
         ANTHCOR = MAX( LOADING( LANTHC,COR ) - WETDEP( LANTHCL  ) * XC1, 0.0D0 ) ! SLN 16March2011
         SEASCOR = MAX( LOADING( LSEASC,COR ) - WETDEP( LSEASCL  ) * XC1, 0.0D0 ) ! SLN 16March2011
-
-
-        FECOR   = 0.0281D0  * (100.0D0/55.8D0) * SOILCOR / ( 1.0 - 0.04642 )     ! SLN 22March2011
-     &          + 0.0467D0  * (100.0D0/55.8D0) * ANTHCOR / ( 1.0 - 0.00325 )
-        MNCOR   = 0.00078D0 * (100.0D0/54.9D0) * SOILCOR / ( 1.0 - 0.04642 )     ! SLN 22March2011
-     &          + 0.0011D0  * (100.0D0/54.9D0) * ANTHCOR / ( 1.0 - 0.00325 )
-        NACOR   = 0.8373D0  * ( 23.0D0/23.0D0) * SEASCOR                         ! SLN 29March2011
-     &          + 0.0652D0  * (100.0D0/23.0D0) * SOILCOR / ( 1.0 - 0.04642 )
-     &          + 0.0023D0  * (100.0D0/23.0D0) * ANTHCOR / ( 1.0 - 0.00325 )
-        MGCOR   = 0.0997D0  * ( 23.0D0/24.3D0) * SEASCOR                         ! SLN 16March2011
-     &          + 0.0000D0  * (100.0D0/24.3D0) * SOILCOR / ( 1.0 - 0.04642 )
-     &          + 0.0032D0  * (100.0D0/24.3D0) * ANTHCOR / ( 1.0 - 0.00325 )
-        CACOR   = 0.0320D0  * ( 23.0D0/40.1D0) * SEASCOR                         ! SLN 16March2011
-     &          + 0.0872D0  * (100.0D0/40.1D0) * SOILCOR / ( 1.0 - 0.04642 )
-     &          + 0.0562D0  * (100.0D0/40.1D0) * ANTHCOR / ( 1.0 - 0.00325 )
-        KCOR    = 0.0310D0  * ( 23.0D0/39.1D0) * SEASCOR                         ! SLN 16March2011
-     &          + 0.0252D0  * (100.0D0/39.1D0) * SOILCOR / ( 1.0 - 0.04642 )
-     &          + 0.0176D0  * (100.0D0/39.1D0) * ANTHCOR / ( 1.0 - 0.00325 )
+        FECOR   = SOIL_FE_FAC * SOILCOR + CORS_FE_FAC * ANTHCOR     ! SLN 22Mar2011
+        MNCOR   = SOIL_MN_FAC * SOILCOR + CORS_MN_FAC * ANTHCOR
+        NACOR   = SEAS_NA_FAC * SEASCOR + SOIL_NA_FAC * SOILCOR + CORS_NA_FAC * ANTHCOR
+        MGCOR   = SEAS_MG_FAC * SEASCOR + SOIL_MG_FAC * SOILCOR + CORS_MG_FAC * ANTHCOR
+        CACOR   = SEAS_CA_FAC * SEASCOR + SOIL_CA_FAC * SOILCOR + CORS_CA_FAC * ANTHCOR
+        KCOR    = SEAS_K_FAC  * SEASCOR + SOIL_K_FAC  * SOILCOR + CORS_K_FAC  * ANTHCOR
 
         TS6     = LOADING( LSO4,  AKN ) + LOADING( LSO4, ACC ) + TS6COR
      &          - ( WETDEP( LSO4ACCL ) + WETDEP( LHSO4ACCL ) ) * XC1
