@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the CB05EH51 family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Mar 11, 2016
+C  REVISION HISTORY: Created by EBI solver program, May 25, 2016
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C**********************************************************************
@@ -87,7 +87,7 @@ c..Production of C2O3 (except from PAN )
      &   +    3.0000D-01 * RXRAT( 230 )      ! MACO3+MEO2=0.3000D+00*C2O3+...
      &   +    3.0000D-01 * RXRAT( 231 )      ! MACO3+XO2=0.3000D+00*C2O3+...
      &   +    3.5000D-01 * RXRAT( 232 )      ! MACO3+CXO3=0.3500D+00*C2O3+...
-     &   +                 RXRAT( 408 )      ! BR+ALD2=C2O3+HBR
+     &   +                 RXRAT( 415 )      ! BR+ALD2=C2O3+HBR
 
 c..Loss frequency of C2O3 ( not including C2O3 + C2O3 )
       L8 =                 RKI(  68 ) * YC( IEPXO2       )   ! C2O3+IEPXO2=...
@@ -99,7 +99,7 @@ c..Loss frequency of C2O3 ( not including C2O3 + C2O3 )
      &   +                 RKI( 115 ) * YC( CXO3         )   ! C2O3+CXO3=MEO2+...
      &   +                 RKI( 165 ) * YC( ISOPO2       )   ! C2O3+ISOPO2=...
      &   +    6.5000D-01 * RKI( 233 ) * YC( MACO3        )   ! C2O3+MACO3=...
-     &   +                 RKI( 412 ) * YC( BRO          )   ! C2O3+BRO=BR+MEO2
+     &   +                 RKI( 419 ) * YC( BRO          )   ! C2O3+BRO=BR+MEO2
 
 c..Loss frequency of PAN
       L9 =                 RKI(  93 )                        ! PAN=C2O3+NO2

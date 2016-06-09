@@ -233,7 +233,7 @@ CONTAINS
        
                KRXN = KRXN * Q 
     
-            ENDIF      
+            END IF      
       
             KRXN = KRXN * PHI2
        

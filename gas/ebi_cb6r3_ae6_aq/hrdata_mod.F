@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the CB6R3 family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, May 12, 2016
+C  REVISION HISTORY: Created by EBI solver program, May 25, 2016
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables for solution
 C*************************************************************************
@@ -238,9 +238,17 @@ c..Species indices
       INTEGER, PARAMETER :: APAH2J           =  126
       INTEGER, PARAMETER :: AALK1J           =  127
       INTEGER, PARAMETER :: AALK2J           =  128
-      INTEGER, PARAMETER :: APOCI            =  129
-      INTEGER, PARAMETER :: APNCOMI          =  130
-      INTEGER, PARAMETER :: APOCJ            =  131
-      INTEGER, PARAMETER :: APNCOMJ          =  132
+      INTEGER, PARAMETER :: PCVOC            =  129
+      INTEGER, PARAMETER :: PCSOARXN         =  130
+      INTEGER, PARAMETER :: VLVPO1           =  131
+      INTEGER, PARAMETER :: VSVPO1           =  132
+      INTEGER, PARAMETER :: VSVPO2           =  133
+      INTEGER, PARAMETER :: VSVPO3           =  134
+      INTEGER, PARAMETER :: VIVPO1           =  135
+      INTEGER, PARAMETER :: VLVOO1           =  136
+      INTEGER, PARAMETER :: VLVOO2           =  137
+      INTEGER, PARAMETER :: VSVOO2           =  138
+      INTEGER, PARAMETER :: VSVOO3           =  139
+      INTEGER, PARAMETER :: VSVOO1           =  140
 
       END MODULE HRDATA

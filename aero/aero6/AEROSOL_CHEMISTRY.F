@@ -25,9 +25,9 @@
 ! 17 March 15 D. Luecken:  Added NTR heterogeneous hydrolysis as per
 !    the CB6r3 chemical mechanism used by the Environ CAMX model consult 
 !    references 8 and 9., 
+! 22 Feb 16 B.Hutzell: Added Flag stating whether module is initialized
 ! 24 March 16 D. Luecken: removed the references to F_NTR2_ON so that all 
 !  nitrates have the potential to partition to aerosol.  
-! 22 Feb 16 B.Hutzell: Added Flag stating whether module is initialized
 ! 24 Mar 16 G. Sarwar: Added heterogeneous uptake of BRONO2 on aerosols
 ! 10 May 16 H. Pye: Merged with AEROSOL_CHEMISTRY.F from aero6i
 !                   Size of NAMES_AERO_RATES reduced to match RXN_DATA_MODULE
@@ -241,9 +241,6 @@ c            Compilation and evaluation of gas-phase diffusion coefficients
 c            of inorganic reactive trace gases in the atmosphere. Atmos. Chem.
 c            Phys. Discuss., 14, 15645–15682, 2014. 
 c            www.atmos-chem-phys-discuss.net/14/15645/2014/doi:10.5194/acpd-14-15645-2014.pdf
-c 01/02/15 - H. Pye - Heterogeneous uptake of MAE added to saprc07tic_ae6i version
-C            heterogeneous nitryl chloride production used for Sarwar et al.
-c            (2012).
 c 09/12/14 - G. Sarwar - revised the heterogeneous nitryl chloride production
 C 10/01/14 - B.Hutzell - change STP value for N205 diffusivity based on
 C            review paper: 1)   M. J. Tang, R. A. Cox, and M. Kalberer.
@@ -251,9 +248,11 @@ C            Compilation and evaluation of gas-phase diffusion coefficients
 C            of inorganic reactive trace gases in the atmosphere. Atmos. Chem.
 C            Phys. Discuss., 14, 15645–15682, 2014. 
 C            www.atmos-chem-phys-discuss.net/14/15645/2014/doi:10.5194/acpd-14-15645-2014.pdf
+c 01/02/15 - H. Pye - Heterogeneous uptake of MAE added to saprc07tic_ae6i version
+C            heterogeneous nitryl chloride production used for Sarwar et al.
+c            (2012).
 C 02/09/15 - B.Hutzell - corrected NO2 rate by a factor of two based consulting the stoiciometery for 
 c            reaction published in Sarwar et al. (2008) and its analytical solution
-c 03/24/16 - G. Sarwar - Heterogeneous uptake of BRONO2 on aerosols
 C 05/06/2015 H Pye - Added NO3 heterogeneous reaction using low end of
 C            range from Mao et al 2013 
 C 06/2015    H Pye - Added SOA from GLY and MGLY uptake onto particles
@@ -261,6 +260,7 @@ C 09/2015    B.Hutzell - Added data and varaibles to calculate pseudo-first orde
 C            for heterogeneous hydrolysis that converts organic nitrate to nitric acid. Both are
 C            assumed gas phase species. The reaction comes the CB6r3 chemical mechanism used by 
 C            the Environ CAMX model consult references 9 and 10.
+c 03/24/16 - G. Sarwar - Heterogeneous uptake of BRONO2 on aerosols
 C 5/2016     H Pye - merged with AERO6i version (added NO3, GLY, MGLY, IMAE het rxn)
 
 c
@@ -1041,7 +1041,7 @@ C ***            Isoprene epoxide uptake
 
                      IF( TETROL_PPM .GT. 0.0D0 ) THEN
                         KHETERO( IRATE, C,R,L ) = 60.0D0 * AQUEOUS_FREQUENCY
-     &                                              * FDIM1(1) / TETROL_PPM !min*ppm-1  
+     &                                              * FDIM1(1) / TETROL_PPM ! min*ppm-1  
                      ELSE
                         KHETERO( IRATE, C,R,L ) = 0.0D0
                      END IF
@@ -1050,7 +1050,7 @@ C ***            Isoprene epoxide uptake
 
                      IF( IEPOXOS_PPM .GT. 0.0D0 ) THEN
                         KHETERO( IRATE, C,R,L ) = 60.0D0 * AQUEOUS_FREQUENCY
-     &                                              * FDIM2(1) / IEPOXOS_PPM !min*ppm-1
+     &                                              * FDIM2(1) / IEPOXOS_PPM ! min*ppm-1
                      ELSE
                         KHETERO( IRATE, C,R,L ) = 0.0D0
                      END IF
@@ -1081,8 +1081,11 @@ C ***            Isoprene epoxide uptake
 
                  CASE( IA_NTR2 )
 C *** calculate gas-particle partitioning of NTR2
-                    CON_TOA = aerospc_conc(   apoc_idx,1 ) + aerospc_conc(   apoc_idx,2 )
+                    CON_TOA = 0.0
+                    If ( INDEX( MECHNAME, 'NVPOA' ) .NE. 0 ) Then
+                      CON_TOA = aerospc_conc(   apoc_idx,1 ) + aerospc_conc(   apoc_idx,2 )
      &                      + aerospc_conc( apncom_idx,1 ) + aerospc_conc( apncom_idx,2 )
+                    End If
 
                     Do i = 1, n_aerospc
                        If ( aerospc( i )%nonVol_soa ) Then
@@ -1254,32 +1257,32 @@ C  Called by: Gas-Phase Chemistry Driver
       IMPLICIT NONE
       
       REAL, POINTER       :: CGRID ( :,:,:,: )  ! pointer of model concentrations
-      REAL                :: M2DRY_FINAL( N_MODE ) !Dry 2nd Aerosol Moment
-      REAL                :: M3DRY_FINAL( N_MODE ) !Dry 3rd Aerosol Moment
+      REAL                :: M2DRY_FINAL( N_MODE ) ! Dry 2nd Aerosol Moment
+      REAL                :: M3DRY_FINAL( N_MODE ) ! Dry 3rd Aerosol Moment
       INTEGER L, R, C, m
 
       LOOP_LAY: DO L = 1, NLAYS
          LOOP_ROW: DO R = 1, MY_NROWS
             LOOP_COL: DO C = 1, MY_NCOLS
      
-               !Extract grid cell concentrations of aero species from CGRID
-               !into aerospc_conc in aero_data module
-               !also converts dry surface area to wet second moment
+               ! Extract grid cell concentrations of aero species from CGRID
+               ! into aerospc_conc in aero_data module
+               ! also converts dry surface area to wet second moment
                CALL EXTRACT_AERO ( CGRID( C,R,L,: ), .TRUE. )
 
-               !Recalculate Dry 3rd Moment After Chemistry Processes
-               !2nd moment hasn't been update yet.
+               ! Recalculate Dry 3rd Moment After Chemistry Processes
+               ! 2nd moment hasn't been update yet.
                CALL CALCMOMENTS( .False. )
                M2DRY_FINAL( : ) = MOMENT2_CONC( : )
                M3DRY_FINAL( : ) = MOMENT3_CONC( : )
 
-               !Calculate new Second Moment Manually
-               !Assume standard deviation is fixed.
+               ! Calculate new Second Moment Manually
+               ! Assume standard deviation is fixed.
                M2DRY_FINAL( : ) = CHEM_M2DRY_INIT( C,R,L,: ) * 
      &                            ( M3DRY_FINAL( : )/CHEM_M3DRY_INIT( C,R,L,: ) ) ** (2.0/3.0)
 
-               !Update the Aerosol Surface Area making sure to multiply
-               !the 2nd moment by Pi to convert properly
+               ! Update the Aerosol Surface Area making sure to multiply
+               ! the 2nd moment by Pi to convert properly
                DO M = 1, N_MODE
                  CGRID( C, R, L, AEROSRF_MAP(M) ) = Real( PI, 4 ) * M2DRY_FINAL( M )
                END DO
@@ -2208,38 +2211,38 @@ C        Determine rate of particle phase rxn for a given pair (Eddingsaas et al
          
 C        Update sum
 C        Store information with speciation for IEPOX
-         if ( acid_nuc_pairs(i)%parent == 'IEPOX' ) then
+         if ( acid_nuc_pairs(i)%parent .EQ. 'IEPOX' ) then
             kparticle(1)  = kparticle(1) + kchem
-            if( acid_nuc_pairs(i)%prod == 'AIEOSJ' ) then !ae6i
+            if( acid_nuc_pairs(i)%prod .EQ. 'AIEOSJ' ) then !ae6i
               kchemos(1)  = kchemos(1)   + kchem
-            elseif( (acid_nuc_pairs(i)%prod == 'ADIMJ')
-     &             .and. (acid_nuc_pairs(i)%nuc == 'AIETETJ') ) then !ae6i
+            elseif( (acid_nuc_pairs(i)%prod .EQ. 'ADIMJ')
+     &             .and. (acid_nuc_pairs(i)%nuc .EQ. 'AIETETJ') ) then !ae6i
               kchemdim1(1) = kchemdim1(1)  + kchem
-            elseif( (acid_nuc_pairs(i)%prod == 'ADIMJ')
-     &             .and. (acid_nuc_pairs(i)%nuc == 'AIEOSJ') ) then !ae6i
+            elseif( (acid_nuc_pairs(i)%prod .EQ. 'ADIMJ')
+     &             .and. (acid_nuc_pairs(i)%nuc .EQ. 'AIEOSJ') ) then !ae6i
               kchemdim2(1) = kchemdim2(1)  + kchem
-            elseif( acid_nuc_pairs(i)%prod == 'AIETETJ' ) then !ae6i
+            elseif( acid_nuc_pairs(i)%prod .EQ. 'AIETETJ' ) then !ae6i
               kchemtet(1) = kchemtet(1)  + kchem
-            elseif( acid_nuc_pairs(i)%prod == 'AISO3J' ) then
+            elseif( acid_nuc_pairs(i)%prod .EQ. 'AISO3J' ) then
               ! do nothing for aero6 since speciation isn't tracked
             else
                print*, 'Reaction not recognized'
                STOP
-            endif
-         endif
+            end if
+         end if
 
 C        Store information with speciation for IMAE
-         if ( acid_nuc_pairs(i)%parent == 'IMAE' ) then
+         if ( acid_nuc_pairs(i)%parent .EQ. 'IMAE' ) then
             kparticle(2)  = kparticle(2) + kchem
-            if( acid_nuc_pairs(i)%prod == 'AIMOSJ' ) then
+            if( acid_nuc_pairs(i)%prod .EQ. 'AIMOSJ' ) then
               kchemos(2)  = kchemos(2)   + kchem
-            elseif( acid_nuc_pairs(i)%prod == 'AIMGAJ' ) then
+            elseif( acid_nuc_pairs(i)%prod .EQ. 'AIMGAJ' ) then
               kchemtet(2) = kchemtet(2)  + kchem
             else
                print*, 'Reaction not recognized'
                STOP
-            endif
-         endif
+            end if
+         end if
       End Do      
 
 C *** Calculate gamma following Pye et al. 2013 ES&T
@@ -2293,7 +2296,7 @@ C     No/slow reaction
          fdim1(i) = 0d0
          fdim2(i) = 0d0
 
-      endif
+      end if
 
       End Do
 

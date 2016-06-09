@@ -444,12 +444,53 @@ REACTIONS[CM] =
 <OLIG_ALK1>       AALK1J = 1.7143*AOLGAJ  # 9.48816E-6;
 <OLIG_ALK2>       AALK2J = 1.7143*AOLGAJ  # 9.48816E-6;
 
-!aging reactions for primary organic carbon
+! Formation of Potential Combustion SOA (pcSOA)
+<PCSOA>  PCVOC + OH       = OH  + PCSOARXN  # 1.25E-11;
 
-<RPOAGEPI> APOCI   + OH = 1.25*APNCOMI + APOCI + OH # 2.5E-12;
-<RPOAGELI> APNCOMI + OH = OH                        # 1.0~<HETERO_PNCOMLI>;
-<RPOAGEPJ> APOCJ   + OH = 1.25*APNCOMJ + APOCJ + OH # 2.5E-12;
-<RPOAGELJ> APNCOMJ + OH = OH                        # 1.0~<HETERO_PNCOMLJ>;
+! Aging with Func. and Frag. (Donahue et al. 2012)
+<POA_AGE1> VLVPO1 + OH = OH 
+      + 0.4857 * VLVPO1 + 0.0062 * VSVPO1
+      + 0.0025 * VSVPO2 + 0.0026 * VSVPO3
+      + 0.0023 * VIVPO1 + 0.2944 * VLVOO1
+      + 0.2021 * VLVOO2 + 0.0019 * VSVOO2
+      + 0.0023 * VSVOO3                   #4.0e-11;
+<POA_AGE2> VSVPO1 + OH = OH 
+      + 0.3003 * VLVPO1 + 0.2862 * VSVPO1
+      + 0.0041 * VSVPO2 + 0.0035 * VSVPO3
+      + 0.2239 * VLVOO1 + 0.1820 * VLVOO2 #4.0e-11;
+<POA_AGE3> VSVPO2 + OH = OH 
+      + 0.3856 * VLVPO1 + 0.0950 * VSVPO1
+      + 0.1373 * VSVPO2 + 0.0005 * VSVPO3
+      + 0.2051 * VLVOO1 + 0.1764 * VLVOO2 #4.0e-11;
+<POA_AGE4> VSVPO3 + OH = OH 
+      + 0.2181 * VLVPO1 + 0.3063 * VSVPO1
+      + 0.0153 * VSVPO2 + 0.1043 * VSVPO3
+      + 0.1893 * VLVOO1 + 0.1668 * VLVOO2 #4.0e-11;
+<POA_AGE5> VIVPO1 + OH = OH 
+      + 0.2412 * VLVPO1 + 0.2089 * VSVPO1
+      + 0.3000 * VSVPO2 + 0.2028 * VLVOO1
+      + 0.0471 * VLVOO2                   #4.0e-11;
+<POA_AGE6> VLVOO1 + OH = OH 
+      + 0.6664 * VLVOO1 + 0.0143 * VLVOO2
+      + 0.0123 * VSVOO1 + 0.1239 * VSVOO2
+      + 0.1831 * VSVOO3                   #4.0e-11;
+<POA_AGE7> VLVOO2 + OH = OH 
+      + 0.2858 * VLVOO1 + 0.3931 * VLVOO2
+      + 0.0139 * VSVOO1 + 0.1027 * VSVOO2
+      + 0.2045 * VSVOO3                   #4.0e-11;
+<POA_AGE8> VSVOO1 + OH = OH 
+      + 0.3303 * VLVOO1 + 0.2272 * VLVOO2
+      + 0.2607 * VSVOO1 + 0.0702 * VSVOO2
+      + 0.1116 * VSVOO3                   #4.0e-11;
+<POA_AGE9> VSVOO2 + OH = OH 
+      + 0.3444 * VLVOO1 + 0.2749 * VLVOO2
+      + 0.0491 * VSVOO1 + 0.2577 * VSVOO2
+      + 0.0739 * VSVOO3                   #4.0e-11;
+<POA_AGE10> VSVOO3 + OH = OH 
+      + 0.3886 * VLVOO1 + 0.2421 * VLVOO2
+      + 0.0640 * VSVOO1 + 0.0385 * VSVOO2
+      + 0.2667 * VSVOO3                   #4.0e-11;         
+
 
 END MECH
 

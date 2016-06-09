@@ -58,8 +58,10 @@ c        INTEGER                  :: LEN
 c     END TYPE CARRY1
 
       TYPE( RARRY2 ), ALLOCATABLE, SAVE :: STKEMIS( : )   ! stack emissions [mol/s]
+      TYPE( RARRY2 ), ALLOCATABLE, SAVE :: STKEMIS_TMP( : )   ! stack emissions [mol/s]
       TYPE( CARRY1 ), ALLOCATABLE, SAVE :: STKSPC( : )    ! emitted species names
       TYPE( RARRY2 ), ALLOCATABLE, SAVE :: FIREVAR( : )   ! fire variables, 2 assumed
+      TYPE( RARRY2 ), ALLOCATABLE, SAVE :: FIREVAR_TMP( : )   ! stack emissions [mol/s]
       TYPE( CARRY1 ), ALLOCATABLE, SAVE :: FIRENAM( : )   ! fire variable names
 
  !    INTEGER, PARAMETER                :: FGRPS = 1      ! assuming one fire sector
@@ -111,6 +113,7 @@ C-----------------------------------------------------------------------
 
          ALLOCATE ( STKEMIS( NGRPS ), STAT = ASTAT )
          CALL CHECKMEM( ASTAT, 'STKEMIS', PNAME )
+         ALLOCATE ( STKEMIS_TMP( NGRPS ), STAT = ASTAT )
 
          ALLOCATE ( STKSPC( NGRPS ), STAT = ASTAT )
          CALL CHECKMEM( ASTAT, 'STKSPC', PNAME )
@@ -121,6 +124,7 @@ C-----------------------------------------------------------------------
 
          ALLOCATE ( FIREVAR( FGRPS ), STAT = ASTAT )
          CALL CHECKMEM( ASTAT, 'FIREVAR', PNAME )
+         ALLOCATE ( FIREVAR_TMP( FGRPS ), STAT = ASTAT )
 
          ALLOCATE ( FIRENAM( FGRPS ), STAT = ASTAT )
          CALL CHECKMEM( ASTAT, 'FIRENAM', PNAME )
@@ -157,6 +161,7 @@ C-----------------------------------------------------------------------
             STKEMIS( N )%LEN1 = LEN1
             STKEMIS( N )%LEN2 = LEN2
             ALLOCATE ( STKEMIS( N )%ARRY( LEN1,LEN2 ), STAT = ASTAT )
+            ALLOCATE ( STKEMIS_TMP( N )%ARRY( LEN1,LEN2 ), STAT = ASTAT )
             CALL CHECKMEM( ASTAT, 'STKEMIS', PNAME )
             STKEMIS( N )%ARRY = 0.0   ! array
 
@@ -166,6 +171,7 @@ C-----------------------------------------------------------------------
 
             IF ( FIREFLAG( N ) ) THEN   ! subtract and save off 'HFLUX'
                ALLOCATE ( FIREVAR( N )%ARRY( LEN1,NVARS_FIRE ), STAT = ASTAT )
+               ALLOCATE ( FIREVAR_TMP( N )%ARRY( LEN1,NVARS_FIRE ), STAT = ASTAT )
                CALL CHECKMEM( ASTAT, 'FIREVAR', PNAME )
                ALLOCATE ( FIRENAM( N )%ARRY( NVARS_FIRE ), STAT = ASTAT )
                CALL CHECKMEM( ASTAT, 'FIRENAM', PNAME )

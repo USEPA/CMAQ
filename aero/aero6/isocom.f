@@ -5491,13 +5491,13 @@ C
       GMAX    = 0.1D0
       DO I=1, NPAIR
          GMAX = MAX(GMAX,GAMA(I))
-      ENDDO
+      END DO
       IF ((GMAX) .GT. (GTHRESH)) THEN
          DO I = 1,NPAIR
             GAMA(I)  = 1.D-1
             GAMIN(I) = GREAT
             GAMOU(I) = GREAT
-         ENDDO
+         END DO
          CALAOU   = .TRUE.
          FRST     = .TRUE.
       ENDIF

@@ -261,7 +261,7 @@ C  Hg(OH)2 => Hg + products        RXN 3   3.00D-7
       ELSE
         RHGHY  = 0.0D+0
         RHGHYI = 0.0D+0               ! NOT USED IF RHGHY = 0
-      ENDIF
+      END IF
 
 C  Hg(aq) + OHRAD(aq) => Hg(II)     RXN 4  2.0E9
       ROHRAD = 2.0D+9
@@ -283,7 +283,7 @@ C  Overall: Hg(II) + R(CO2)2 => Hg(aq) + products
          KORGC   = 1.2D+4 * COSINE_ZENITH        ! 1/(M S)
       ELSE 
          KORGC   = 0.0D+0
-      ENDIF
+      END IF
 
 C ADSORPTION AND DESORPTION:  RXN 7-20
 C
@@ -452,7 +452,7 @@ c        END IF
 c        if(DTWHG(IClI+ NUMOX_v46 ) .lt. 0.1D+0 ) then  !temporary check
 c           DTWHG(IClI+ NUMOX_v46 ) = DTRMV
 c           print*,"Warning: DTW too short for Chlorine ox. of Hg(0)"
-c        endif
+c        end if
 
 
 C...sixth Hg reaction:  REDUCTION OF Hg(II) by R(CO2)2

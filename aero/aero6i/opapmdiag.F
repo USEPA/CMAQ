@@ -1,1 +1,0 @@
-../aero6/opapmdiag.F

@@ -34,7 +34,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Oct 19, 2015
+C  REVISION HISTORY: Created by EBI solver program, May 25, 2016
 C   21 Jun 10 J.Young:   convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files
@@ -145,7 +145,7 @@ C***********************************************************************
 
 c..Allocate and define ebi species
 
-      N_EBISP  = 134
+      N_EBISP  = 142
       ALLOCATE( EBISP( N_EBISP ), STAT = IOS ) 
       IF ( IOS .NE. 0 ) THEN
          MSG = 'Error allocating EBISP' 
@@ -268,24 +268,32 @@ c..Allocate and define ebi species
       EBISP( 114 ) = APAH2J
       EBISP( 115 ) = AALK1J
       EBISP( 116 ) = AALK2J
-      EBISP( 117 ) = APOCI
-      EBISP( 118 ) = APNCOMI
-      EBISP( 119 ) = APOCJ
-      EBISP( 120 ) = APNCOMJ
-      EBISP( 121 ) = FORM_PRIMARY
-      EBISP( 122 ) = ALD2_PRIMARY
-      EBISP( 123 ) = BUTADIENE13
-      EBISP( 124 ) = ACROLEIN
-      EBISP( 125 ) = ACRO_PRIMARY
-      EBISP( 126 ) = TOLU
-      EBISP( 127 ) = MXYL
-      EBISP( 128 ) = OXYL
-      EBISP( 129 ) = PXYL
-      EBISP( 130 ) = APIN
-      EBISP( 131 ) = BPIN
-      EBISP( 132 ) = HG
-      EBISP( 133 ) = HGIIAER
-      EBISP( 134 ) = HGIIGAS
+      EBISP( 117 ) = PCVOC
+      EBISP( 118 ) = PCSOARXN
+      EBISP( 119 ) = VLVPO1
+      EBISP( 120 ) = VSVPO1
+      EBISP( 121 ) = VSVPO2
+      EBISP( 122 ) = VSVPO3
+      EBISP( 123 ) = VIVPO1
+      EBISP( 124 ) = VLVOO1
+      EBISP( 125 ) = VLVOO2
+      EBISP( 126 ) = VSVOO2
+      EBISP( 127 ) = VSVOO3
+      EBISP( 128 ) = VSVOO1
+      EBISP( 129 ) = FORM_PRIMARY
+      EBISP( 130 ) = ALD2_PRIMARY
+      EBISP( 131 ) = BUTADIENE13
+      EBISP( 132 ) = ACROLEIN
+      EBISP( 133 ) = ACRO_PRIMARY
+      EBISP( 134 ) = TOLU
+      EBISP( 135 ) = MXYL
+      EBISP( 136 ) = OXYL
+      EBISP( 137 ) = PXYL
+      EBISP( 138 ) = APIN
+      EBISP( 139 ) = BPIN
+      EBISP( 140 ) = HG
+      EBISP( 141 ) = HGIIAER
+      EBISP( 142 ) = HGIIGAS
 
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -420,10 +428,18 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( APAH2J       ) = 1.0D-03
       RTOL( AALK1J       ) = 1.0D-03
       RTOL( AALK2J       ) = 1.0D-03
-      RTOL( APOCI        ) = 1.0D-03
-      RTOL( APNCOMI      ) = 1.0D-03
-      RTOL( APOCJ        ) = 1.0D-03
-      RTOL( APNCOMJ      ) = 1.0D-03
+      RTOL( PCVOC        ) = 1.0D-03
+      RTOL( PCSOARXN     ) = 1.0D-03
+      RTOL( VLVPO1       ) = 1.0D-03
+      RTOL( VSVPO1       ) = 1.0D-03
+      RTOL( VSVPO2       ) = 1.0D-03
+      RTOL( VSVPO3       ) = 1.0D-03
+      RTOL( VIVPO1       ) = 1.0D-03
+      RTOL( VLVOO1       ) = 1.0D-03
+      RTOL( VLVOO2       ) = 1.0D-03
+      RTOL( VSVOO2       ) = 1.0D-03
+      RTOL( VSVOO3       ) = 1.0D-03
+      RTOL( VSVOO1       ) = 1.0D-03
       RTOL( FORM_PRIMARY ) = 1.0D-03
       RTOL( ALD2_PRIMARY ) = 1.0D-03
       RTOL( BUTADIENE13  ) = 1.0D-03
