@@ -102,8 +102,6 @@ C   01 Jul 11 G.Sarwar: Incorporate day and night dependent Fe III oxidation
 C                       state (Alexander et al.,  2009)
 C   12 Aug 11 G.Sarwar: Revise Fe and Mn solubility based on
 C                       Alexander et al., 2009
-C   15 Aug 11 B.Hutzell: adapted for TXHG version by adding aerosol tracers and
-C                        mercury-chlorine chemistry from CMAQ version 4.71
 C
 C    8 Mar 12 J.Bash:   FE_OX and MN_OX were calculated from FE and MN before
 C                       a floor value of 0.0 was established for these

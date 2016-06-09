@@ -36,7 +36,7 @@ C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRRATES, HRG1, HRG2, HRG3
 C                                     HRG4, HRPRODLOSS
 C                                     DEGRADE
 C
-C  REVISION HISTORY: Created by EBI solver program, Oct 19, 2015
+C  REVISION HISTORY: Created by EBI solver program, May 27, 2016
 C   21 Jun 10 J.Young: convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised 1) to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files and 2) to use

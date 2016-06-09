@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the CB05TUMP family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, March 12, 2015
+C  REVISION HISTORY: Created by EBI solver program, May 27, 2016
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables for solution
 C*************************************************************************
@@ -218,23 +218,31 @@ c..Species indices
       INTEGER, PARAMETER :: APAH2J           =  101
       INTEGER, PARAMETER :: AALK1J           =  102
       INTEGER, PARAMETER :: AALK2J           =  103
-      INTEGER, PARAMETER :: APOCI            =  104
-      INTEGER, PARAMETER :: APNCOMI          =  105
-      INTEGER, PARAMETER :: APOCJ            =  106
-      INTEGER, PARAMETER :: APNCOMJ          =  107
-      INTEGER, PARAMETER :: FORM_PRIMARY     =  108
-      INTEGER, PARAMETER :: ALD2_PRIMARY     =  109
-      INTEGER, PARAMETER :: BUTADIENE13      =  110
-      INTEGER, PARAMETER :: ACROLEIN         =  111
-      INTEGER, PARAMETER :: ACROLEIN_PRIMARY =  112
-      INTEGER, PARAMETER :: TOLU             =  113
-      INTEGER, PARAMETER :: MXYL             =  114
-      INTEGER, PARAMETER :: OXYL             =  115
-      INTEGER, PARAMETER :: PXYL             =  116
-      INTEGER, PARAMETER :: APIN             =  117
-      INTEGER, PARAMETER :: BPIN             =  118
-      INTEGER, PARAMETER :: HG               =  119
-      INTEGER, PARAMETER :: HGIIAER          =  120
-      INTEGER, PARAMETER :: HGIIGAS          =  121
+      INTEGER, PARAMETER :: PCVOC            =  104
+      INTEGER, PARAMETER :: PCSOARXN         =  105
+      INTEGER, PARAMETER :: VLVPO1           =  106
+      INTEGER, PARAMETER :: VSVPO1           =  107
+      INTEGER, PARAMETER :: VSVPO2           =  108
+      INTEGER, PARAMETER :: VSVPO3           =  109
+      INTEGER, PARAMETER :: VIVPO1           =  110
+      INTEGER, PARAMETER :: VLVOO1           =  111
+      INTEGER, PARAMETER :: VLVOO2           =  112
+      INTEGER, PARAMETER :: VSVOO2           =  113
+      INTEGER, PARAMETER :: VSVOO3           =  114
+      INTEGER, PARAMETER :: VSVOO1           =  115
+      INTEGER, PARAMETER :: FORM_PRIMARY     =  116
+      INTEGER, PARAMETER :: ALD2_PRIMARY     =  117
+      INTEGER, PARAMETER :: BUTADIENE13      =  118
+      INTEGER, PARAMETER :: ACROLEIN         =  119
+      INTEGER, PARAMETER :: ACROLEIN_PRIMARY =  120
+      INTEGER, PARAMETER :: TOLU             =  121
+      INTEGER, PARAMETER :: MXYL             =  122
+      INTEGER, PARAMETER :: OXYL             =  123
+      INTEGER, PARAMETER :: PXYL             =  124
+      INTEGER, PARAMETER :: APIN             =  125
+      INTEGER, PARAMETER :: BPIN             =  126
+      INTEGER, PARAMETER :: HG               =  127
+      INTEGER, PARAMETER :: HGIIAER          =  128
+      INTEGER, PARAMETER :: HGIIGAS          =  129
 
       END MODULE HRDATA

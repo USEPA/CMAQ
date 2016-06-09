@@ -175,8 +175,9 @@ C Open the emissions file (for gas chem, aerosols and non-reactive species)
      &              UNITSCK .NE. 'MOLES/SEC' .AND.
      &              UNITSCK .NE. 'MOLE/SEC'  .AND.
      &              UNITSCK .NE. 'MOL/SEC' ) THEN
-                  XMSG = 'GC units incorrect on ' // EMIS_1
-                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+                  XMSG = 'GC units incorrect on ' // EMIS_1 //' for species ' // GC_EMIS( N )
+                  !CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+                  CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
                END IF
             ELSE
                XMSG = 'Emissions species '
