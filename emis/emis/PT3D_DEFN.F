@@ -702,6 +702,7 @@ C-----------------------------------------------------------------------
 
 C Time step part of laypoint
 
+         USE RXNS_DATA, ONLY : MECHNAME !Get Chemical Mechanism Name
          USE GRID_CONF   ! horizontal & vertical domain specifications
          USE CGRID_SPCS  ! CGRID mechanism species
          USE STK_PRMS    ! stack groups file
@@ -952,6 +953,23 @@ C Ensure that the model and stack groups emissions timestamp dates stay synchron
      &                   ' from ' // TRIM( STKENAME( N ) )
                   CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
                END IF
+
+               !Read Non-Carbon Organic Matter Too if POC is Requested
+               IF ( (INDEX( MECHNAME, 'NVPOA' ) .EQ. 0) 
+     &               .AND. (VNAME .EQ. 'POC') ) THEN
+	              STKEMIS_TMP( N )%ARRY = 0.0
+	              IF ( .NOT. INTERPX( STKENAME( N ), 'PNCOM', PNAME,
+     &                             1,1, MY_STRT_SRC( N ),MY_END_SRC( N ), 1,1,
+!    &                             STKDATE( N ), JTIME,
+     &                             LOC_STKDATE, JTIME,
+     &                             STKEMIS_TMP( N )%ARRY( 1,V ) ) ) THEN
+                     XMSG = 'Could not read ' // TRIM( VNAME ) //
+     &                    ' from ' // TRIM( STKENAME( N ) )
+                     CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+                  END IF     
+                  STKEMIS( N )%ARRY( 1,V ) = STKEMIS( N )%ARRY( 1,V ) 
+     &                                         + STKEMIS_TMP( N )%ARRY( 1,V )
+               ENDIF
             END DO
 
             IF ( FIREFLAG( N ) ) THEN
@@ -965,6 +983,22 @@ C Ensure that the model and stack groups emissions timestamp dates stay synchron
      &                      ' from ' // TRIM( STKENAME( N ) )
                      CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
                   END IF
+                  !Read Non-Carbon Organic Matter Too if POC is Requested
+                  IF ( (INDEX( MECHNAME, 'NVPOA' ) .EQ. 0)
+     &                  .AND. VNAME .EQ. 'POC' ) THEN
+                     FIREVAR_TMP( N )%ARRY = 0.0
+	                 IF ( .NOT. INTERPX( STKENAME( N ), 'PNCOM', PNAME,
+     &                             1,1, MY_STRT_SRC( N ),MY_END_SRC( N ), 1,1,
+!    &                             STKDATE( N ), JTIME,
+     &                             LOC_STKDATE, JTIME,
+     &                             FIREVAR_TMP( 1 )%ARRY( 1,V ) ) ) THEN
+                        XMSG = 'Could not read ' // TRIM( VNAME ) //
+     &                    ' from ' // TRIM( STKENAME( N ) )
+                        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+                     END IF     
+                     FIREVAR( N )%ARRY( 1,V ) = FIREVAR( N )%ARRY( 1,V ) 
+     &                                           + FIREVAR_TMP( N )%ARRY( 1,V )
+                  ENDIF
                END DO
                DO S = 1, MY_NSRC( N )
                   SRC = SOURCE( N )%ARRY( S )

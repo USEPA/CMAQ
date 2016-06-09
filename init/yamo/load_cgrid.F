@@ -228,13 +228,13 @@ C if there`s a surrogate name, CGRID_SPCS handles setting GC_ICBC_FAC
                   ICBC_FAC( SPC ) = GC_ICBC_FAC( ISUR )
 !                 write( logdev,* ) '=c=_fac in sur: ', icbc_fac( spc )
                ELSE
-                  XMSG = ESTR1 // TRIM( GC_ICBC( ISUR ) ) // ESTR2
-     &                 // TRIM( GC_SPC( SPC ) )
+                  XMSG = ESTR1 // TRIM( GC_ICBC( ISUR ) ) // ESTR2 // 
+     &                   TRIM(GC_SPC( SPC ))
                   CALL M3MESG( XMSG )
                END IF
             END IF
-C can`t find a surrogate, look for the (main) species name on the IC file
-            IF ( ISUR .EQ. 0 .OR. NDX .EQ. 0 ) THEN
+C If there is no surrogate or it can''t be found, look for the (main) species name on the IC file
+            If ( ISUR .EQ. 0 .OR. NDX .EQ. 0 ) THEN
                NDX = INDEX1( GC_SPC( SPC ), NVARS3D, VNAME3D )
                IF ( NDX .NE. 0 ) THEN
                   INDX( SPC ) = NDX   ! index in the IC file
@@ -272,13 +272,13 @@ C is it on the IC file?
                   ICBC_FAC( SPC ) = AE_ICBC_FAC( ISUR )
 !                 write( logdev,* ) '=c=_fac in sur: ', icbc_fac( spc )
                ELSE
-                  XMSG = ESTR1 // TRIM( AE_ICBC( ISUR ) ) // ESTR2
-     &                 // TRIM( AE_SPC( SPC ) )
+                  XMSG = ESTR1 // TRIM( AE_ICBC( ISUR ) ) // ESTR2 // 
+     &                   TRIM(AE_SPC( SPC ))
                   CALL M3MESG( XMSG )
                END IF
             END IF
-C can`t find a surrogate, look for the (main) species name on the IC file
-            IF ( ISUR .EQ. 0 .OR. NDX .EQ. 0 ) THEN
+C If there is no surrogate or it cant be found, look for the (main) species name on the IC file
+            If ( ISUR .EQ. 0 .OR. NDX .EQ. 0 ) THEN
                NDX = INDEX1( AE_SPC( SPC ), NVARS3D, VNAME3D )
                IF ( NDX .NE. 0 ) THEN
                   INDX( SPC ) = NDX
@@ -316,13 +316,13 @@ C is it on the IC file?
                   ICBC_FAC( SPC ) = NR_ICBC_FAC( ISUR )
 !                 write( logdev,* ) '=c=_fac in sur: ', icbc_fac( spc )
                ELSE
-                  XMSG = ESTR1 // TRIM( NR_ICBC( ISUR ) ) // ESTR2
-     &                 // TRIM( NR_SPC( SPC ) )
+                  XMSG = ESTR1 // TRIM( NR_ICBC( ISUR ) ) // ESTR2 // 
+     &                   TRIM(NR_SPC( SPC ))
                   CALL M3MESG( XMSG )
                END IF
             END IF
-C can`t find a surrogate, look for the (main) species name on the IC file
-            IF ( ISUR .EQ. 0 .OR. NDX .EQ. 0 ) THEN
+C If there is no surrogate or it cant be found, look for the (main) species name on the IC file
+            If ( ISUR .EQ. 0 .OR. NDX .EQ. 0 ) THEN
                NDX = INDEX1( NR_SPC( SPC ), NVARS3D, VNAME3D )
                IF ( NDX .NE. 0 ) THEN
                   INDX( SPC ) = NDX
@@ -360,13 +360,13 @@ C is it on the IC file?
                   ICBC_FAC( SPC ) = TR_ICBC_FAC( ISUR )
 !                 write( logdev,* ) '=c=_fac in sur: ', icbc_fac( spc )
                ELSE
-                  XMSG = ESTR1 // TRIM( TR_ICBC( ISUR ) ) // ESTR2
-     &                 // TRIM( TR_SPC( SPC ) )
+                  XMSG = ESTR1 // TRIM( TR_ICBC( ISUR ) ) // ESTR2 // 
+     &                   TRIM(TR_SPC( SPC ))
                   CALL M3MESG( XMSG )
                END IF
             END IF
-C can`t find a surrogate, look for the (main) species name on the IC file
-            IF ( ISUR .EQ. 0 .OR. NDX .EQ. 0 ) THEN
+C If there is no surrogate or it cant be found, look for the (main) species name on the IC file
+            If ( ISUR .EQ. 0 .OR. NDX .EQ. 0 ) THEN
                NDX = INDEX1( TR_SPC( SPC ), NVARS3D, VNAME3D )
                IF ( NDX .NE. 0 ) THEN
                   INDX( SPC ) = NDX

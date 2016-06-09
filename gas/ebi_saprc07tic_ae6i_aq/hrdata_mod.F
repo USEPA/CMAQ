@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the SAPRC07TIC family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Jan 26, 2016
+C  REVISION HISTORY: Created by EBI solver program, May 25, 2016
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables for solution
 C*************************************************************************
@@ -332,13 +332,21 @@ c..Species indices
       INTEGER, PARAMETER :: ASQTJ            =  221
       INTEGER, PARAMETER :: APAH1J           =  222
       INTEGER, PARAMETER :: APAH2J           =  223
-      INTEGER, PARAMETER :: APOCI            =  224
-      INTEGER, PARAMETER :: APNCOMI          =  225
-      INTEGER, PARAMETER :: APOCJ            =  226
-      INTEGER, PARAMETER :: APNCOMJ          =  227
-      INTEGER, PARAMETER :: AMTNO3J          =  228
-      INTEGER, PARAMETER :: AMTHYDJ          =  229
-      INTEGER, PARAMETER :: AISOPNNJ         =  230
-      INTEGER, PARAMETER :: AGLYJ            =  231
+      INTEGER, PARAMETER :: PCVOC            =  224
+      INTEGER, PARAMETER :: PCSOARXN         =  225
+      INTEGER, PARAMETER :: VLVPO1           =  226
+      INTEGER, PARAMETER :: VSVPO1           =  227
+      INTEGER, PARAMETER :: VSVPO2           =  228
+      INTEGER, PARAMETER :: VSVPO3           =  229
+      INTEGER, PARAMETER :: VIVPO1           =  230
+      INTEGER, PARAMETER :: VLVOO1           =  231
+      INTEGER, PARAMETER :: VLVOO2           =  232
+      INTEGER, PARAMETER :: VSVOO2           =  233
+      INTEGER, PARAMETER :: VSVOO3           =  234
+      INTEGER, PARAMETER :: VSVOO1           =  235
+      INTEGER, PARAMETER :: AMTNO3J          =  236
+      INTEGER, PARAMETER :: AMTHYDJ          =  237
+      INTEGER, PARAMETER :: AISOPNNJ         =  238
+      INTEGER, PARAMETER :: AGLYJ            =  239
 
       END MODULE HRDATA
