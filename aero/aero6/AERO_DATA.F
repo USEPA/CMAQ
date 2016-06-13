@@ -714,7 +714,7 @@ C Find indices of required species
       aseacat_idx = findAero( req_seacat, .True. )
 
       If ( INDEX( MECHNAME, 'NVPOA' ) .EQ. 0 ) then
-         apoc_idx    = findAero( 'ALVPO1', .True. )
+         apoc_idx    = findAero( 'ALVPO1          ', .True. )
          apncom_idx  = 0
       Else
          apoc_idx    = findAero( req_poc,  .True. )
