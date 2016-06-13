@@ -46,21 +46,20 @@
 
       PUBLIC            :: AERO_ASYM_FAC, AERO_EXTI_COEF, AERO_SCAT_COEF,
      &                     INIT_AERO_DATA, GET_AERO_DATA, AERO_OPTICS_INTERNAL
-      PRIVATE
 
-      INTEGER :: LOGDEV                   ! unit number for the log file
-      INTEGER, ALLOCATABLE :: REFRACT_INDX_MAP( : )  ! map array for refactive index
+      INTEGER, PRIVATE                :: LOGDEV                 ! unit number for the log file
+      INTEGER,   ALLOCATABLE, PRIVATE :: REFRACT_INDX_MAP( : )  ! map array for refactive index
 
-      REAL,    ALLOCATABLE :: VOL_MINS( : )          ! minmum volume permode
-      REAL,    ALLOCATABLE :: M3_FACTOR( : )         ! convert mass to portion of 3rd moment
-      LOGICAL, ALLOCATABLE :: IS_CORE_SPCS( :,: )    ! flag denoting species is in aerosol core
+      REAL,      ALLOCATABLE, PRIVATE :: VOL_MINS( : )          ! minmum volume permode
+      REAL( 8 ), ALLOCATABLE, PRIVATE :: M3_FACTOR( : )         ! convert mass to portion of 3rd moment
+      LOGICAL,   ALLOCATABLE, PRIVATE :: IS_CORE_SPCS( :,: )    ! flag denoting species is in aerosol core
 
-      INTEGER, PARAMETER   :: NUMB_COR_SPCS = 3      ! number species in core
+      INTEGER,   PARAMETER, PRIVATE   :: NUMB_COR_SPCS = 3      ! number species in core
 
 C *** Species in aerosol core
 
-      CHARACTER( 16 ), PARAMETER :: CORE_SPCS( NUMB_COR_SPCS ) =
-     &                              (/ 'AECI', 'AECJ', 'AECK' /)
+      CHARACTER( 16 ), PARAMETER, PRIVATE :: CORE_SPCS( NUMB_COR_SPCS ) =
+     &                                       (/ 'AECI', 'AECJ', 'AECK' /)
       
       CONTAINS
 
@@ -296,7 +295,7 @@ C ***    Create map for refactive index for each species
 
          DO SPC = 1, N_AEROSPC
 
-            M3_FACTOR( SPC ) = 1.0E-9 * F6DPI / AEROSPC( SPC )%DENSITY
+            M3_FACTOR( SPC ) = REAL( 1.0E-9 * F6DPI / AEROSPC( SPC )%DENSITY, 8 )
 
             DO M = 1, NUM_REFRACTIVE
                IF ( AEROSPC( SPC )%OPTIC_SURR .EQ. REFRACTIVE_INDEX( M )%NAME ) THEN
@@ -487,6 +486,7 @@ C *** initialize internal and external dimensions of aerosols
       AE_DGN_CORE   = 0.0
       SUCCESS       = .TRUE.
 
+
       LAY_LOOP1: DO L = 1, NLAYS
 
 C *** extract grid cell concentrations of aero species from CGRID into aerospc_conc 
@@ -517,18 +517,18 @@ C *** Calculate geometric mean diameters and standard deviations of "wet" size d
             FRACTION_SHELL = 0.0D+0
             
             SPC_LOOP1: DO SPC = 1, N_AEROSPC
-               IF ( AEROSPC( SPC )%TRACER ) CYCLE              ! neglect tracer species
-               IF ( AEROSPC( SPC )%NAME( MODE ) .EQ. ' ' ) CYCLE  ! neglect undefined species
+               IF ( AEROSPC( SPC )%TRACER ) CYCLE      ! skip tracer species
+               IF ( AERO_MISSING( SPC,MODE ) ) CYCLE   ! skip undefined species
                BLK_AE_CONC( SPC,MODE,L ) = AEROSPC_CONC( SPC,MODE )
 
-               MOMENT3_PORTION  = REAL( M3_FACTOR( SPC ) * AEROSPC_CONC( SPC,MODE ), 8)
-               IF( IS_CORE_SPCS( SPC,MODE ) ) THEN  
+               MOMENT3_PORTION = M3_FACTOR( SPC ) * REAL( AEROSPC_CONC( SPC,MODE ), 8 )
+               IF ( IS_CORE_SPCS( SPC,MODE ) ) THEN  
                   CORE_MOMENT3( MODE,L )  = CORE_MOMENT3( MODE,L )  + MOMENT3_PORTION
 #ifdef verbose_phot
                   if ( col .eq. 1 .and. row .eq. 1 .and. l .eq. 1 ) then
                      write(logdev,5007)aerospc( spc )%name( mode ),moment3_portion,
      &               core_moment3( mode, l )
-5007                 format(a16,1x,'moment3_portion = ',es12.4,1x,'moment3_core = ',es12.4)
+5007                 format(a16,1x,'moment3_portion = ',es12.4,1x,'moment3_core = ',es12.4 )
                   end if
 #endif 
                ELSE 
@@ -537,16 +537,17 @@ C *** Calculate geometric mean diameters and standard deviations of "wet" size d
                   if ( col .eq. 1 .and. row .eq. 1 .and. l .eq. 1 ) then
                      write(logdev,5008)aerospc( spc )%name( mode ),moment3_portion,
      &               shell_moment3( mode, l )
-5008                 format(a16,1x,'moment3_portion = ',es12.4,1x,'moment3_shell = ',es12.4)
+5008                 format(a16,1x,'moment3_portion = ',es12.4,1x,'moment3_shell = ',es12.4 )
                   end if
 #endif 
                END IF 
             END DO SPC_LOOP1
 
-            FRACTION_CORE  = CORE_MOMENT3(  MODE,L ) / REAL( MOMENT3_CONC( MODE ), 8)
-            FRACTION_SHELL = SHELL_MOMENT3( MODE,L ) / REAL( MOMENT3_CONC( MODE ), 8)
 
-            BLK_AE_LSG  ( MODE,L ) = aeromode_lnsg( MODE )
+            FRACTION_CORE  = CORE_MOMENT3(  MODE,L ) / REAL( MOMENT3_CONC( MODE ), 8 )
+            FRACTION_SHELL = SHELL_MOMENT3( MODE,L ) / REAL( MOMENT3_CONC( MODE ), 8 )
+
+            BLK_AE_LSG  ( MODE,L ) = AEROMODE_LNSG( MODE )
             AE_DGN_SHELL( MODE,L ) = AEROMODE_DIAM( MODE )
 
             IF ( FRACTION_CORE .LT. NEGLECT_FRAC ) THEN
@@ -596,11 +597,11 @@ C *** Initialize refractive indices then compute
 
                SPC_LOOP2: DO SPC = 1, N_AEROSPC
                   IF ( AEROSPC( SPC )%TRACER ) CYCLE              ! neglect tracer species
-                  IF ( AEROSPC( SPC )%NAME( MODE ) .EQ. ' ' ) CYCLE  ! neglect undefined species
+                  IF ( AERO_MISSING( SPC,MODE ) ) CYCLE  ! neglect undefined species
 
                   M = REFRACT_INDX_MAP( SPC )
 
-                  MOMENT3_PORTION = REAL( M3_FACTOR( SPC ) * BLK_AE_CONC( SPC,MODE,L ), 8)
+                  MOMENT3_PORTION = M3_FACTOR( SPC ) * REAL( BLK_AE_CONC( SPC,MODE,L ), 8)
      
                   IF ( IS_CORE_SPCS( SPC, MODE ) ) THEN  
                   
@@ -1024,10 +1025,10 @@ C *** Calculate geometric mean diameters and standard deviations of "wet" size d
          DIME_LOOP: DO MODE = 1, N_MODE
             SPC_LOOP1: DO SPC = 1, N_AEROSPC
                IF ( AEROSPC( SPC )%TRACER ) CYCLE              ! neglect tracer species
-               IF ( AEROSPC( SPC )%NAME( MODE ) .EQ. ' ' ) CYCLE  ! neglect undefined species
+               IF ( AERO_MISSING( SPC,MODE ) ) CYCLE  ! neglect undefined species
                BLK_AE_CONC( SPC,MODE,L ) = AEROSPC_CONC( SPC,MODE )
 
-               MOMENT3_PORTION          = M3_FACTOR( SPC ) * AEROSPC_CONC( SPC,MODE )
+               MOMENT3_PORTION          = REAL( M3_FACTOR( SPC ) ) * AEROSPC_CONC( SPC,MODE )
                SHELL_MOMENT3( MODE,L ) = SHELL_MOMENT3( MODE,L ) + REAL( MOMENT3_PORTION, 8 )
 #ifdef verbose_phot
                if ( col .eq. 1 .and. row .eq. 1 .and. l .eq. 1 ) then
@@ -1066,17 +1067,17 @@ C *** Initialize refractive indices then compute
 
          LAY_LOOP2: DO L = 1, NLAYS
             REFRAC_LOOP: DO MODE = 1, N_MODE
-               SUMRI_R_SHELL = 0.0D+0
-               SUMRI_I_SHELL = 0.0D+0
+               SUMRI_R_SHELL = 0.0D0
+               SUMRI_I_SHELL = 0.0D0
 
                IF ( SHELL_MOMENT3( MODE, L ) .LE. 0.0D0 ) CYCLE
                SPC_LOOP2: DO SPC = 1, N_AEROSPC
-                  IF ( AEROSPC( SPC )%TRACER ) CYCLE                 ! neglect tracer species
-                  IF ( AEROSPC( SPC )%NAME( MODE ) .EQ. ' ' ) CYCLE  ! neglect undefined species
+                  IF ( AEROSPC( SPC )%TRACER ) CYCLE     ! skip tracer species
+                  IF ( AERO_MISSING( SPC,MODE ) ) CYCLE  ! skip undefined species
 
                   M = REFRACT_INDX_MAP( SPC )
 
-                  MOMENT3_PORTION  = M3_FACTOR( SPC ) * BLK_AE_CONC( SPC,MODE,L )
+                  MOMENT3_PORTION  = REAL( M3_FACTOR( SPC ) ) * BLK_AE_CONC( SPC,MODE,L )
 
                   SUMRI_R_SHELL = SUMRI_R_SHELL + MOMENT3_PORTION
      &                          * REFRACTIVE_INDEX( M )%REAL_PART( MODE,V )
