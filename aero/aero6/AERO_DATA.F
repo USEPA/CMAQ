@@ -320,9 +320,9 @@ C profiles 3399, 3404, 3409, and 3414 for coarse PM. (G. Pouliot - private commu
 C See Ref. (4), above and https://cfpub.epa.gov/si/speciate/
 
 C number of chemical species in windblown dust aerosol
-      integer, parameter :: ndust_spc = 20
+      integer, parameter :: ndust_spc = 19
 
-      Type( emis_table ), Parameter :: dust_spc( ndust_spc ) = (/
+      Type( emis_table ), Parameter :: dust_spc_list( ndust_spc ) = (/
 C                        -------- name --------         -------- spcfac --------
 C                      Aitken    accum     coarse        Aitken  accum   coarse
      &   emis_table( (/'       ','ASO4J  ','ASO4K  '/), (/ 0.0, 0.02250, 0.02655/) ),   ! Sulfate
@@ -335,7 +335,6 @@ C                      Aitken    accum     coarse        Aitken  accum   coarse
      &   emis_table( (/'       ','AKJ    ','       '/), (/ 0.0, 0.03770, 0.0    /) ),   ! Potassium
      &   emis_table( (/'       ','APOCJ  ','       '/), (/ 0.0, 0.01075, 0.0    /) ),   ! Organic Carbon
      &   emis_table( (/'       ','APNCOMJ','       '/), (/ 0.0, 0.00430, 0.0    /) ),   ! Non-Carbon Organic Matter
-     &   emis_table( (/'       ','ALVPO1J','       '/), (/ 0.0, 0.01505, 0.0    /) ),   ! Total Organic Matter
      &   emis_table( (/'       ','AECJ   ','       '/), (/ 0.0, 0.0,     0.0    /) ),   ! Elemental Carbon
      &   emis_table( (/'       ','AFEJ   ','       '/), (/ 0.0, 0.03355, 0.0    /) ),   ! Iron
      &   emis_table( (/'       ','AALJ   ','       '/), (/ 0.0, 0.05695, 0.0    /) ),   ! Aluminum
@@ -346,6 +345,8 @@ C                      Aitken    accum     coarse        Aitken  accum   coarse
      &   emis_table( (/'       ','AOTHRJ ','       '/), (/ 0.0, 0.48319, 0.0    /) ),   ! Other
      &   emis_table( (/'       ','       ','ASOIL  '/), (/ 0.0, 0.0,     0.95358/) ) /) ! Non-Anion Dust
 
+      Type( emis_table ), Save :: dust_spc( ndust_spc )  
+       
 C Sea-Salt Speciation factors based on seawater composition:
 
 C number of chemical species in seawater aerosol composition
@@ -568,6 +569,10 @@ C Local Variables:
       Logical :: error_flag
       Logical :: ae6isoa
 
+      Real    :: dust_POC, dust_PNC, dust_OMOC, nh_no, no, nc,
+     &           dust_OC, POA_OC, OOA_OC, dust_POA, dust_OOA
+      Integer :: idust, dust_org1, dust_org2
+
       logdev = setup_logdev()
       mole_weight = 0.0
 
@@ -735,6 +740,39 @@ C Find indices of required species
       aimos_idx   = findAero( req_imos,  AE6ISOA )
       aphgj_idx   = findAero( req_phgj,  .False. )
 
+C Adjust Dust Emissions for Organic Species, if running with
+C semivolatile POA
+      dust_spc = dust_spc_list
+
+      If ( INDEX( MECHNAME, 'NVPOA' ) .EQ. 0 ) Then
+         ! Find Indices for Nonvolatile Organics
+         Do idust = 1,ndust_spc
+            If ( INDEX( dust_spc( idust )%name( 2 ), 'APOCJ' ) .GT. 0 ) dust_org1 = idust
+            If ( INDEX( dust_spc( idust )%name( 2 ), 'APNCOMJ') .GT. 0) dust_org2 = idust
+         End Do
+         
+         ! Compute Total Organic Dust Scale Factor and O:C Ratio
+         dust_POC = dust_spc( dust_org1 )%spcfac( 2 )
+         dust_PNC = dust_spc( dust_org2 )%spcfac( 2 )
+         dust_OMOC = ( dust_POC + dust_PNC ) / dust_POC
+         nh_no = ( 44./12. - dust_OMOC ) / ( dust_OMOC - 14./12. )
+         no = dust_PNC / ( 16. + nh_no )
+         nc = dust_POC / 12.
+         dust_OC = no / nc
+
+         ! Distribute Dust Organic Speciation between Volatility-Based
+         ! Surrogates
+         POA_OC = 0.1853  !O:C Ratio of LVPOA1
+         OOA_OC = 0.7106  !O:C Ratio of LVOOA2
+         dust_POA = 1. / ( 1. + ( dust_OC - POA_OC ) / ( OOA_OC - dust_OC ) )
+         dust_OOA = 1. / ( 1. + ( dust_OC - OOA_OC ) / ( POA_OC - dust_OC ) )
+
+         ! Assign new names and speciation to dust table
+         dust_spc( dust_org1 )%name( 2 ) = 'ALVPO1J'
+         dust_spc( dust_org2 )%name( 2 ) = 'ALVOO2J'
+         dust_spc( dust_org1 )%spcfac( 2 ) = dust_POA * ( dust_POC + dust_PNC )
+         dust_spc( dust_org2 )%spcfac( 2 ) = dust_OOA * ( dust_POC + dust_PNC )
+      End If
 
 #ifdef verbose_aero
       ! Mandatory Species
