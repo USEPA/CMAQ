@@ -287,8 +287,8 @@ C                  ---------   ---------   ---------    --------- ------- +  +  
  
 C Primary Organic Aerosol Volatility Distributions
        Integer, Parameter :: N_VBS_BIN = 5
-       Character(10)   :: POA_NAME( N_VBS_BIN ) =   (/'LVPO1','SVPO1','SVPO2','SVPO3','IVPO1'/)
-       Real, Parameter :: POA_OP_VF( N_VBS_BIN )= (/0.09,  0.09,   0.14,   0.18,   0.5/)  ! Aggregated
+       Character(10)   :: POA_NAME( N_VBS_BIN )  =  (/'LVPO1','SVPO1','SVPO2','SVPO3','IVPO1'/)
+       Real, Parameter :: POA_OP_VF( N_VBS_BIN ) = (/0.09,  0.09,   0.14,   0.18,   0.5/)  ! Aggregated
 
        ! The Following Volatility Distributions are alternative options
        ! but at this point can only be implemented indivdually for the
@@ -411,27 +411,18 @@ C Required species
       Character( 16 ), Private, Parameter :: req_cl     = 'ACL'
       Character( 16 ), Private, Parameter :: req_nh4    = 'ANH4'
       Character( 16 ), Private, Parameter :: req_na     = 'ANA'
-      Character( 16 ), Private, Parameter :: req_poc    = 'APOC'
       Character( 16 ), Private, Parameter :: req_mg     = 'AMG'
       Character( 16 ), Private, Parameter :: req_k      = 'AK'
       Character( 16 ), Private, Parameter :: req_ca     = 'ACA'
       Character( 16 ), Private, Parameter :: req_fe     = 'AFE'
       Character( 16 ), Private, Parameter :: req_mn     = 'AMN'
+      Character( 16 ), Private, Parameter :: req_poc    = 'APOC'
+      Character( 16 ), Private, Parameter :: req_ncom   = 'APNCOM'
       Character( 16 ), Private, Parameter :: req_h2o    = 'AH2O'
       Character( 16 ), Private, Parameter :: req_h3op   = 'AH3OP'
       Character( 16 ), Private, Parameter :: req_soil   = 'ASOIL'
       Character( 16 ), Private, Parameter :: req_cors   = 'ACORS'
-      Character( 16 ), Private, Parameter :: req_ncom   = 'APNCOM'
       Character( 16 ), Private, Parameter :: req_seacat = 'ASEACAT'
-
-C Optional Species
-      Character( 16 ), Private, Parameter :: req_ietet  = 'AIETET'
-      Character( 16 ), Private, Parameter :: req_ieos   = 'AIEOS'
-      Character( 16 ), Private, Parameter :: req_dim    = 'ADIM'
-      Character( 16 ), Private, Parameter :: req_imga   = 'AIMGA'
-      Character( 16 ), Private, Parameter :: req_imos   = 'AIMOS'
-C Optional Species
-      Character( 16 ), Private, Parameter :: req_phgj   = 'APHGJ'
 
 C Indices of required species
       Integer :: aso4_idx
@@ -452,6 +443,14 @@ C Indices of required species
       Integer :: acors_idx
       Integer :: aseacat_idx
 
+C Optional Species
+      Character( 16 ), Private, Parameter :: req_ietet  = 'AIETET'
+      Character( 16 ), Private, Parameter :: req_ieos   = 'AIEOS'
+      Character( 16 ), Private, Parameter :: req_dim    = 'ADIM'
+      Character( 16 ), Private, Parameter :: req_imga   = 'AIMGA'
+      Character( 16 ), Private, Parameter :: req_imos   = 'AIMOS'
+      Character( 16 ), Private, Parameter :: req_phgj   = 'APHGJ'
+
 C Indices of Optional species
       Integer :: aietet_idx
       Integer :: aieos_idx
@@ -460,7 +459,7 @@ C Indices of Optional species
       Integer :: aimos_idx
       Integer :: aphgj_idx
 
-      Real, Allocatable :: aerospc_mw( : )          ! aero species M.W. (from AE_SPC Namelist) [ g/mol ]
+      Real, Allocatable :: aerospc_mw( : )     ! aero species M.W. (from AE_SPC Namelist) [ g/mol ]
       Real, Allocatable :: aerospc_conc( :,: ) ! aero species concentration [ ug/m^3 ]
 
 C Common factors
@@ -576,12 +575,12 @@ C Local Variables:
       logdev = setup_logdev()
       mole_weight = 0.0
 
-      if ( mapped ) Return
+      If ( mapped ) Return
 
       n_aerospc      = 0.0 ! Number of Used Aerosol Chemical Species
       aerolist_map   = 0   ! Pointer from aerolist to CGRID
       aerospc_tolist = 0   ! Pointer from aerospc to aerolist
-      error_flag = .false.
+      error_flag = .False.
 
 C Build mapping to CGRID for each species in the master AeroList
       Do spc = 1, n_aerolist
@@ -592,9 +591,9 @@ C Build mapping to CGRID for each species in the master AeroList
                ! it. Check to see if it is in the namelist
                n = index1( aerolist( spc )%name( m ), n_ae_spc, ae_spc )
 
-               If ( n .NE. 0 ) Then
+               If ( n .Ne. 0 ) Then
                   ! Species is in the Master List and on the NameList
-                  If ( .NOT. (Any( aerolist_map( spc,: ) .NE. 0 ) ) ) Then
+                  If ( .Not. (Any( aerolist_map( spc,: ) .NE. 0 ) ) ) Then
                      ! Add this species to the map if it does not exist already
                      n_aerospc = n_aerospc + 1
                      aerospc_tolist( n_aerospc ) = spc
@@ -612,7 +611,7 @@ C Build mapping to CGRID for each species in the master AeroList
                      Write( xmsg,* ) 'New Value(', n, ') = ', ae_molwt( n ),
      &                               'Expected value(', spc, ')= ', mole_weight( spc )
                      Call m3warn( pname, 0, 0, xmsg )
-                     error_flag = .true.
+                     error_flag = .True.
                   End If
                   ! Add the map from CGRID to AeroList
                   aerolist_map( spc,m ) = ae_strt - 1 + n
@@ -625,14 +624,14 @@ C Build mapping to CGRID for each species in the master AeroList
       ! Migrate all of the user-requested aerosols from AeroList to
       ! AeroSpc. Begin by allocating all of the new arrays now that we
       ! know the value of n_aerospc
-      Allocate( aerospc       ( n_aerospc ) )
-      Allocate( aerospc_mw    ( n_aerospc ) )
-      Allocate( aerospc_map   ( n_aerospc, n_mode ) )
-      Allocate( aerospc_conc  ( n_aerospc, n_mode ) )
-      Allocate( aerospc_ssf   ( n_mode, n_aerospc ) )
-      Allocate( aero_missing  ( n_aerospc, n_mode ) )
-      Allocate( aeronum_map   ( n_aerospc ) )
-      Allocate( aerosrf_map   ( n_aerospc ) )
+      Allocate ( aerospc     ( n_aerospc ) )
+      Allocate ( aerospc_mw  ( n_aerospc ) )
+      Allocate ( aerospc_map ( n_aerospc, n_mode ) )
+      Allocate ( aerospc_conc( n_aerospc, n_mode ) )
+      Allocate ( aerospc_ssf ( n_mode, n_aerospc ) )
+      Allocate ( aero_missing( n_aerospc, n_mode ) )
+      Allocate ( aeronum_map ( n_aerospc ) )
+      Allocate ( aerosrf_map ( n_aerospc ) )
 
       aerospc_ssf = 0.0
 
@@ -719,13 +718,12 @@ C Find indices of required species
       acors_idx   = findAero( req_cors,   .True. )
       aseacat_idx = findAero( req_seacat, .True. )
 
-
       If ( INDEX( MECHNAME, 'NVPOA' ) .EQ. 0 ) then
-         apoc_idx    = findAero( 'ALVPO1          ',    .True. )
+         apoc_idx    = findAero( 'ALVPO1          ', .True. )
          apncom_idx  = 0
       Else
-         apoc_idx    = findAero( req_poc,    .True. )
-         apncom_idx  = findAero( req_ncom,  .True. )
+         apoc_idx    = findAero( req_poc,  .True. )
+         apncom_idx  = findAero( req_ncom, .True. )
       End If
 
       If ( INDEX( MECHNAME, 'SAPRC07TIC_AE6I' ) .GT. 0 ) then
@@ -800,7 +798,7 @@ C semivolatile POA
       Write( logdev,'( 5x, a, i4 )' ) 'adim_idx:   ', adim_idx
       Write( logdev,'( 5x, a, i4 )' ) 'aimga_idx:  ', aimga_idx
       Write( logdev,'( 5x, a, i4 )' ) 'aimos_idx:  ', aimos_idx
-      If( aphgj_idx .Gt. 0 )Then
+      If ( aphgj_idx .Gt. 0 ) Then
           Write( logdev,'( 5x, a, i4 )' ) 'aphgj_idx:  ', aphgj_idx
       else
           Write( logdev,'( 5x, a, i4 )' ) 'PHGJ not found so aphgj_idx: ', aphgj_idx
@@ -1122,7 +1120,7 @@ C Copy aero number and surface area back to grid cell concentrations
 
 C Save dry second moment to surface area (with pi conversion)
       If ( wet_moments_flag ) Then
-         call calcmoments( .false. ) ! called with the F flag, returns dry moments
+         Call calcmoments( .False. ) ! called with the F flag, returns dry moments
       End If
 
       Do m = 1, n_mode
@@ -1170,7 +1168,7 @@ C Find the substring vname in aerospc( spc )%name( n )
          idx = 0
          xmsg =  pname // 'Optional Species '
      &       // Trim( vname ) // ' Not found in aerospc names array'
-         call m3mesg( xmsg )
+         Call m3mesg( xmsg )
          Return
       End If
 
@@ -1210,6 +1208,9 @@ C-----------------------------------------------------------------------
 C Arguments:
       Logical :: addwet ! T: result in wet m3 and m2, F: result in dry m3 and m2
 
+C Parameters:
+      Real( 8 ), Parameter :: two3rds = 2.0D0 / 3.0D0
+
 C Local variables:
       Integer :: spc, n ! loop variable
       Real( 4 ) :: m3( n_mode )       ! wet or dry M3
@@ -1230,14 +1231,14 @@ C     moment [ m**2/m**3 ]
 
          Do n = 1, n_mode
             initialM2 = moment2_conc( n )
-            If (initialM2 .eq. 0.0) then
+            If ( initialM2 .Eq. 0.0 ) Then
                 write( xmsg,'(A32,I1,A42)') "Warning: Second Moment for Mode ",
      &                 n," is 0.0. This will cause numerical issues."
-                call m3warn( pname_loc, 0, 0, xmsg )
+                Call m3warn( pname_loc, 0, 0, xmsg )
             End If
 
             initialM3 = moment3_conc( n )
-            If (initialM3 .eq. 0.0) then
+            If ( initialM3 .Eq. 0.0 ) Then
                 write( xmsg,'(A31,I1,A42)') "Warning: Third Moment for Mode ",
      &                 n," is 0.0. This will cause numerical issues."
                 call m3warn( pname_loc, 0, 0, xmsg )
@@ -1249,34 +1250,34 @@ C     moment [ m**2/m**3 ]
                factor = 1.0E-9 * f6pi / aerospc( spc )%density
                wetsumM3  = wetsumM3 + factor * aerospc_conc( spc,n )
             End Do
-            m3( n ) = Max ( real( wetsumM3, 4), aeromode( n )%min_m3conc )
-            If( wet_moments_flag ) then
+            m3( n ) = Max ( Real( wetsumM3, 4 ), aeromode( n )%min_m3conc )
+            If ( wet_moments_flag ) Then
                m2( n ) = initialM2
             Else
-               m2( n ) = initialM2 * ( real( wetsumM3, 4) / initialM3 ) ** ( 2.0d0 / 3.0d0 )
+               m2( n ) = initialM2 * ( Real( wetsumM3, 4 ) / initialM3 ) ** two3rds
             End if
          End Do
 
          ! Save back to aero_data variables
          moment2_conc( : ) = m2( : )
          moment3_conc( : ) = m3( : )
-         wet_moments_flag = .true.
+         wet_moments_flag = .True.
 
       Else ! produce dry moments
 
          Do n = 1, n_mode
             initialM2 = moment2_conc( n )
-            If (initialM2 .eq. 0.0) then
+            If ( initialM2 .Eq. 0.0 )  Then
                 write( xmsg,'(A32,I1,A42)') "Warning: Second Moment for Mode ",
      &                 n," is 0.0. This will cause numerical issues."
-                call m3warn( pname_loc, 0, 0, xmsg )
+                Call m3warn( pname_loc, 0, 0, xmsg )
             End If
 
             initialM3 = moment3_conc( n )
-            If (initialM3 .eq. 0.0) then
+            If ( initialM3 .Eq. 0.0 )  Then
                 write( xmsg,'(A31,I1,A42)') "Warning: Third Moment for Mode ",
      &                 n," is 0.0. This will cause numerical issues."
-                call m3warn( pname_loc, 0, 0, xmsg )
+                Call m3warn( pname_loc, 0, 0, xmsg )
             End If
 
             drysumM3 = 0.0
@@ -1286,9 +1287,9 @@ C     moment [ m**2/m**3 ]
                factor = 1.0E-9 * f6pi / aerospc( spc )%density
                drysumM3  = drysumM3 + factor * aerospc_conc( spc,n )
             End Do
-            m3( n ) = Max ( real( drysumM3, 4), aeromode( n )%min_m3conc )
-            If( wet_moments_flag) then
-               m2( n ) = initialM2 * ( real( drysumM3, 4) / initialM3 ) ** ( 2.0d0/ 3.0d0 )
+            m3( n ) = Max ( Real( drysumM3, 4 ), aeromode( n )%min_m3conc )
+            If ( wet_moments_flag) Then
+               m2( n ) = initialM2 * ( Real( drysumM3, 4 ) / initialM3 ) ** two3rds
             Else ! already dry
                m2( n ) = initialM2
             End If
@@ -1297,7 +1298,7 @@ C     moment [ m**2/m**3 ]
          ! Save back to aero_data variables
          moment2_conc( : ) = m2( : )
          moment3_conc( : ) = m3( : )
-         wet_moments_flag = .false.
+         wet_moments_flag = .False.
 
       End If
 
