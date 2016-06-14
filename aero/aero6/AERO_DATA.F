@@ -568,7 +568,7 @@ C Local Variables:
       Logical :: error_flag
       Logical :: ae6isoa
 
-      Real    :: dust_POC, dust_PNC, dust_OMOC, nh_no, no, nc,
+      Real    :: dust_POC, dust_PNC, dust_OMOC, 
      &           dust_OC, POA_OC, OOA_OC, dust_POA, dust_OOA
       Integer :: idust, dust_org1, dust_org2
 
@@ -750,18 +750,20 @@ C semivolatile POA
          End Do
          
          ! Compute Total Organic Dust Scale Factor and O:C Ratio
+         ! The dust OM:OC should equal 1.4 if it consistent with Simon
+         ! and Bhave (2011).
          dust_POC = dust_spc( dust_org1 )%spcfac( 2 )
          dust_PNC = dust_spc( dust_org2 )%spcfac( 2 )
          dust_OMOC = ( dust_POC + dust_PNC ) / dust_POC
-         nh_no = ( 44./12. - dust_OMOC ) / ( dust_OMOC - 14./12. )
-         no = dust_PNC / ( 16. + nh_no )
-         nc = dust_POC / 12.
-         dust_OC = no / nc
+         dust_OC = 12. / 15. * dust_OMOC - 14. / 15. 
 
          ! Distribute Dust Organic Speciation between Volatility-Based
-         ! Surrogates
+         ! Surrogates. These hard-coded values can be generalized once
+         ! O:C information is incoporated directly into the internal OA
+         ! species table.
          POA_OC = 0.1853  !O:C Ratio of LVPOA1
          OOA_OC = 0.7106  !O:C Ratio of LVOOA2
+         dust_OC = max( dust_OC, POA_OC )
          dust_POA = 1. / ( 1. + ( dust_OC - POA_OC ) / ( OOA_OC - dust_OC ) )
          dust_OOA = 1. / ( 1. + ( dust_OC - OOA_OC ) / ( POA_OC - dust_OC ) )
 
