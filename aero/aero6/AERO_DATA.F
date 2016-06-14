@@ -568,8 +568,16 @@ C Local Variables:
       Logical :: error_flag
       Logical :: ae6isoa
 
-      Real    :: dust_POC, dust_PNC, dust_OMOC, 
-     &           dust_OC, POA_OC, OOA_OC, dust_POA, dust_OOA
+      Real    :: dust_POC  !Dust Scale Factor for Primary Organic Carbon 
+      Real    :: dust_PNC  !Dust Scale Factor for Primary Non-Carbon Aerosol
+      Real    :: dust_OMOC !Ratio of Organic Matter to Organic Carbon in
+                           !Dust Emissions
+      Real    :: dust_OC   !Ratio of elmental Oxygen to Carbon in Dust
+                           !Emissions
+      Real    :: POA_OC    !Ratio of elemental Oxygen to Carbon in POA
+      Real    :: OOA_OC    !Ratio of Elemental Oxygen to Carbon in Oxygenated OA 
+      Real    :: dust_POA  !Scale Factor for Semivolatile POA in Dust Emissions
+      Real    :: dust_OOA  !Scale Factor for Semivolatile OOA in Dust Emissions
       Integer :: idust, dust_org1, dust_org2
 
       logdev = setup_logdev()
