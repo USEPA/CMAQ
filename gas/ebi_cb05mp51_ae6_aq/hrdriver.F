@@ -34,7 +34,7 @@ C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, PHOT, HRCALCKS, HRSOLVER
 C                                     FIND_DEGRADED, INIT_DEGRADE, FINAL_DEGRADE
 C
-C  REVISION HISTORY: Created by EBI solver program, Oct 19, 2015
+C  REVISION HISTORY: Created by EBI solver program, May 27, 2016
 C                       Based on the algorithm in "Test of Two Numerical
 C                       Schemes for Use in Atmospheric Transport-Chemistry
 C                       Models", O. Hertel, R. Berkowicz, J. Christensen,
@@ -387,7 +387,8 @@ C.. Get pressure in Pascals
 
 C.. Get photolysis rates in /min
       CALL PHOT ( MIDDATE, MIDTIME, JDATE, JTIME, TSTEP, RJ )
-C.. Get Heteorogeneous rats
+C.. Get Heteorogeneous rates and Update Aerosol Properties (Moments, D
+C   and sigma)
       CALL HETCHEM_RATES( TA, PRES, QV, CGRID )
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -489,7 +490,8 @@ c..Update concentration array
          END DO
       END DO
 
-
+      !Update Aerosol Surface Area
+      CALL HETCHEM_UPDATE_AERO( CGRID )
 
 
 #ifdef hrstats

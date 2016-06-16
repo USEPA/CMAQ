@@ -142,6 +142,8 @@ CONTAINS
 
 ! Begin INLINED Rate Law Functions
 
+!kf Moved Functions KMTF, KMTB, ORGC and rate coefficient calculations (RCONST) from aqchem_Rates to 
+!kf aqchem_Initialize, because they only need to be calculated once per call to aqchem 
 
       REAL( kind=dp )FUNCTION DISF ( KEQ, DH, KB, G1 )
 
@@ -179,7 +181,7 @@ CONTAINS
        
             REAL( kind=dp ) KR, DH
             REAL( kind=dp ) Q, q1, COTHq, SVIinh
-            REAL( kind=dp ) kO31, kO32, kO33, kO3T    
+            REAL( kind=dp ) kO31, kO32, kO33, kO3T
             INTEGER QY, RTYPE, METAL
        
             SVIinh = 1.0D0 + 75.0D0 * ((VAR(ind_L_H2SO4) + VAR(ind_L_HSO4MIN) + &
@@ -231,7 +233,7 @@ CONTAINS
        
                KRXN = KRXN * Q 
     
-            ENDIF      
+            END IF      
       
             KRXN = KRXN * PHI2
        
@@ -266,9 +268,12 @@ REAL( kind=dp )FUNCTION KIEPOX ( KH, KHSO4, TYPE )
                K2 = 1.31D-5 * VAR( ind_L_HSO4MIN ) * PHI2        
                KIEPOXT = (K1 + K2) * FIX( indf_L_H2O ) * PHI2  ! IEPOX + H2O
         
-               K1 = 2.0D-4 * VAR( ind_L_HPLUS ) * PHI2
+               K1 = 8.83D-3 * VAR( ind_L_HPLUS ) * PHI2  
                K2 = 2.92D-6 * VAR( ind_L_HSO4MIN ) * PHI2        
                KIEPOXT = KIEPOXT + (K1 + K2) * VAR( ind_L_SO4MIN2 ) * PHI2  ! IEPOX + SO4
+       
+               K1 = 2.0D-4 * VAR( ind_L_HPLUS ) * PHI2
+               K2 = 2.92D-6 * VAR( ind_L_HSO4MIN ) * PHI2  
                KIEPOXT = KIEPOXT + (K1 + K2) * VAR( ind_L_IETET ) * PHI2    ! IEPOX + IETET
                KIEPOXT = KIEPOXT + (K1 + K2) * VAR( ind_L_IEOS ) * PHI2     ! IEPOX + IEOS
      
@@ -308,8 +313,7 @@ REAL( kind=dp )FUNCTION KIEPOX ( KH, KHSO4, TYPE )
                   END IF
                ELSE
                   Q = 1.0D0
-               END IF  
-         
+               END IF       
             END IF
      
             KIEPOX = KIEPOX * Q     
@@ -439,7 +443,7 @@ SUBROUTINE Update_RCONST ( )
   RCONST(71) = ((KRXN(3.60D+07,-3999.2D0,3,0,0)))
   RCONST(72) = ((KRXN(7.0D+02,0.0D0,0,0,0)))
   RCONST(114) = ((KIEPOX(9.0D-4,1.31D-5,1)))
-  RCONST(115) = ((KIEPOX(2.0D-4,2.92D-6,1)))
+  RCONST(115) = ((KIEPOX(8.83D-3,2.92D-6,1)))
   RCONST(116) = ((KIEPOX(2.0D-4,2.92D-6,1)))
   RCONST(117) = ((KIEPOX(2.0D-4,2.92D-6,1)))
   RCONST(118) = ((KIEPOX(9.0D-4,1.31D-5,2)))

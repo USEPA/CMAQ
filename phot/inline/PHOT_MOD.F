@@ -99,6 +99,7 @@ C-----------------------------------------------------------------------
       REAL               :: REFLECTION             ! broad band reflection coefficient (diffuse) at model top 
       REAL               :: TRANSMISSION           ! broad band transmission coefficient (diffuse) at surface
       REAL               :: TRANS_DIRECT           ! broad band direct transmission coefficient at surface
+      REAL               :: TROPO_O3_COLUMN        ! ozone column density in the troposphere [Dobson Units]
   
       LOGICAL            :: ONLY_SOLVE_RAD   ! only compute fluxes     
            
@@ -195,7 +196,6 @@ C-----------------------------------------------------------------------
       REAL INSOLATION        ! downward solar flux at atmosphere top summed over wavelength bands, [photons/(cm^2*s)]
 
       REAL DELTA_O3_COLUMN   ! change in ozone column density [molecules/cm2]
-      REAL TROPO_O3_COLUMN   ! ozone column density in the troposphere [molecules/cm2]
       REAL STRAT_O3_COLUMN   ! ozone column density in the stratosphere [molecules/cm2]
       REAL STRAT_O3_COLMIN   ! ozone minium column density in the stratosphere [molecules/cm2]
       REAL TAU_O3            ! optical depth of stratospheric ozone [ m ]
@@ -395,7 +395,8 @@ C-----------------------------------------------------------------------
       IF ( COSZEN .LE. COS85 ) THEN
          TAUO3_TOP = 0.0
          TAU_RAY   = 0.0
-         TOTAL_O3_COLUMN   = 0.0
+         TOTAL_O3_COLUMN = 0.0
+         TROPO_O3_COLUMN = 0.0
          RETURN
       END IF
 
@@ -432,7 +433,6 @@ C-----------------------------------------------------------------------
          CALL SLANTPATHTOP ( ZTOM, ZTOA, ZSFC, REARTH, SINZEN, DSDH_TOP )
 
 C*** find ozone column density for atmosphere, stratosphere, and troposphere
-         TROPO_O3_COLUMN = 0.0
          STRAT_O3_COLUMN = DU_TO_CONC * REAL( TOTAL_O3_COLUMN )
          STRAT_O3_COLMIN = 0.10 * STRAT_O3_COLUMN
          SUCCESS = .TRUE.
@@ -449,33 +449,41 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
             END IF
          END DO
 
+         STRAT_O3_COLUMN = CONC_TO_DU * STRAT_O3_COLUMN
+         TROPO_O3_COLUMN = CONC_TO_DU * TROPO_O3_COLUMN
+
+         IF( PHOT_COL .EQ. 1 .AND. PHOT_ROW .EQ. 1 )THEN
+              WRITE( NEW_OPTICS_LOG,*)'TOTAL_O3_COLUMN, TROPO_O3_COLUMN = ',TOTAL_O3_COLUMN, TROPO_O3_COLUMN
+         END IF
+
          IF ( .NOT. SUCCESS ) THEN
+            WRITE( NEW_OPTICS_LOG, 99888)TOTAL_O3_COLUMN, TROPO_O3_COLUMN
             WRITE( NEW_OPTICS_LOG, 99999)
             PHOT_MOD_MSG = 'ERROR: predicted O3 tropospheric Column EXCEEDS VALUE based on OMI.DAT' 
-     &                  // 'Read the above dianostic information.'
+     &                  // 'Read the above diagnostic information.'
             CALL M3EXIT( 'NEW_OPTICS', JDATE, JTIME, PHOT_MOD_MSG, XSTAT1 )
          END IF
+99888    FORMAT(/'OMI Total O3 Column = ',F8.3,' DU: Model Tropospheric O3 COLUMN = ',F8.3,
+     &           ' DU' /)
 99999    FORMAT( 'ERROR: predicted O3 tropospheric Column EXCEEDS VALUE based on OMI Data'
      &         / 'Potential causes include boundary condition and meteorological input files. '
      &         / 'Check the former for unrealistic concentrations of ozone and its precursors.'
      &         / 'Check the latter for unrealistic advection and diffusion parameters.')           
 
-         STRAT_O3_COLUMN = CONC_TO_DU * STRAT_O3_COLUMN
-!        TOTAL_O3_COLUMN = REAL( STRAT_O3_COLUMN + CONC_TO_DU * TROPO_O3_COLUMN, 4 )
-!        TOTAL_O3_COLUMN = CONC_TO_DU * TROPO_O3_COLUMN
+!        TOTAL_O3_COLUMN = REAL( STRAT_O3_COLUMN + TROPO_O3_COLUMN, 4 )
+!        TOTAL_O3_COLUMN = TROPO_O3_COLUMN
           
 !***stratosphere is assumed to exist above the model domain
 !***  top layer. THe assumption here is that this layer is at about 100
 !***  [mb] or 10 [kPa]
 !        IF ( STRAT_O3_COLUMN .LE. STRAT_O3_COLMIN ) THEN
-! 25% is arbitary and could be refined based on mean ozone profiles                    
-!           TOTAL_O3_COLUMN = CONC_TO_DU * STRAT_O3_COLMIN
+! 10% is arbitary and could be refined based on mean ozone profiles                    
+!           STRAT_O3_COLUMN = CONC_TO_DU * STRAT_O3_COLMIN
+!           TOTAL_O3_COLUMN = STRAT_O3_COLUMN + TROPO_O3_COLUMN 
 !           PHOT_MOD_MSG = 'ERROR: CMAQ O3 COLUMN EXCEEDS VALUE IN OMI.DAT' 
 !           CALL M3WARN( 'NEW_OPTICS', JDATE, JTIME, PHOT_MOD_MSG )
 !           WRITE(NEW_OPTICS_LOG,99988)
 !           WRITE(NEW_OPTICS_LOG,99989)PHOT_ROW, PHOT_COL
-!        ELSE 
-!           TOTAL_O3_COLUMN = CONC_TO_DU * STRAT_O3_COLUMN
 !        END IF
          
          DO IWL = 1, NWL

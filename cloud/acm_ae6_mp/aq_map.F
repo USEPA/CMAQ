@@ -321,7 +321,7 @@ C...Now, re-apportion mass back into cend/remov (cgrid-type) array
               CEND ( PNTR ) = AEROSOL( IAER, IMODE ) * WSRGAER( IAER, IMODE, ISRG )
               REMOV( PNTR ) = AERWDEP( IAER, IMODE ) * WSRGAER( IAER, IMODE, ISRG )
             END DO
-          ENDIF 
+          END IF 
         END DO
       END DO
 

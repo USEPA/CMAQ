@@ -56,6 +56,8 @@ C                          - Replaced BMATVEC with BMATVECN which will call with
 C                            2d argument subroutine by F90 poly-morphism feature
 C                          - Based on the condition of MY_NSRC ( > 0 or not) to determine 
 C                            execution of certain section of code or not
+C     30 Apr 2016 J.Young: add multiple fire source capability, in affiliation with
+C                          Yongtao Hu (Georgia Tech)
 
 C-----------------------------------------------------------------------
 
@@ -90,8 +92,8 @@ C Gas-phase Namelist emissions factors
       INTEGER,              SAVE :: N_EMIS_GAS_SPC ! number of gas-phase emissions species
 
 C Wildfire emissions source parameters
-      REAL,    ALLOCATABLE, SAVE :: ACRES( : )   ! acres burned
-      REAL,    ALLOCATABLE, SAVE :: BFLUX( : )   ! Briggs buoyancy flux
+      TYPE( RARRY1 ), ALLOCATABLE, SAVE :: ACRES( : )   ! acres burned
+      TYPE( RARRY1 ), ALLOCATABLE, SAVE :: BFLUX( : )   ! Briggs buoyancy flux
 
 C Vertical coord values
       REAL,    ALLOCATABLE, SAVE :: VGLVSXG( : )
@@ -578,6 +580,12 @@ C Open diagnostic layer fractions file?
          ALLOCATE( STK_VEL( NPTGRPS ), STAT = IOS )
          CALL CHECKMEM( IOS, 'STK_VEL', PNAME )
 
+         ALLOCATE( ACRES (NPTGRPS ), STAT = IOS )
+         CALL CHECKMEM( IOS, 'ACRES', PNAME )
+
+         ALLOCATE( BFLUX (NPTGRPS ), STAT = IOS )
+         CALL CHECKMEM( IOS, 'BFLUX', PNAME )
+
          DO N = 1, NPTGRPS
 
 C Allocate and set stack parameters
@@ -611,21 +619,23 @@ C Allocate and set stack parameters
                   STK_VEL( N )%ARRY( S ) = STKVEL( N )%ARRY( SRC )
                END DO
 
-C If wildfire, allocate and fire parameters (assumes only one file group)
+C If wildfires, allocate fire parameters
                IF ( FIREFLAG( N ) ) THEN
 
-                  ALLOCATE( ACRES( MY_NSRC( N ) ), STAT = IOS )
+                  ALLOCATE( ACRES( N )%ARRY( MY_NSRC( N ) ), STAT = IOS )
                   CALL CHECKMEM( IOS, 'ACRES', PNAME )
-                  ACRES = 0.0   ! 1D array
+                  ACRES( N )%ARRY  = 0.0   ! 1D array
+                  ACRES( N )%LEN = MY_NSRC( N )
 
                   DO S = 1, MY_NSRC( N )
                      SRC = SOURCE( N )%ARRY( S )
-                     ACRES( S ) = ACRES_BURNED( SRC )
+                     ACRES( N )%ARRY( S ) = ACRES_BURNED( N )%ARRY( SRC )
                   END DO
 
-                  ALLOCATE( BFLUX( MY_NSRC( N ) ), STAT = IOS )
+                  ALLOCATE( BFLUX( N )%ARRY( MY_NSRC( N ) ), STAT = IOS )
                   CALL CHECKMEM( IOS, 'BFLUX', PNAME )
-                  BFLUX = 0.0   ! 1D array
+                  BFLUX( N )%ARRY = 0.0   ! 1D array
+                  BFLUX( N )%LEN = MY_NSRC( N )
 
                END IF
             END IF   ! MY_NSRC > 0
@@ -692,6 +702,7 @@ C-----------------------------------------------------------------------
 
 C Time step part of laypoint
 
+         USE RXNS_DATA, ONLY : MECHNAME !Get Chemical Mechanism Name
          USE GRID_CONF   ! horizontal & vertical domain specifications
          USE CGRID_SPCS  ! CGRID mechanism species
          USE STK_PRMS    ! stack groups file
@@ -715,7 +726,7 @@ C Parameters:
          REAL,            PARAMETER :: CONVPA = 1.0E-2  ! convert Pa to mb
          REAL,            PARAMETER :: BTU2M4PS3 = 9.2752E-03 ! convert BTU/s to m**4/s**3
          REAL,            PARAMETER :: BFACPHR = BTU2M4PS3 / 3600.0 ! m**4/s**3 per hour
-                                 ! assumes heat flux from file pt src file is in BTU/hr
+                                 ! assumes heat flux from fire pt src file is in BTU/hr
 
 C External functions:
          INTEGER,         EXTERNAL :: SETUP_LOGDEV
@@ -910,9 +921,7 @@ C Convert pt source met data to bi-linear interpolated data
 
          DO N = 1, NPTGRPS
 
-            IF ( MY_NSRC( N ) .LE. 0 ) THEN
-               CYCLE
-            END IF
+            IF ( MY_NSRC( N ) .LE. 0 ) CYCLE
 
             ALLOCATE( STKEM( NVARS_EMIS( N ) ), STAT = IOS )
             CALL CHECKMEM( IOS, 'STKEM', PNAME )
@@ -938,31 +947,62 @@ C Ensure that the model and stack groups emissions timestamp dates stay synchron
                VNAME = STKSPC( N )%ARRY( V )
                IF ( .NOT. INTERPX( STKENAME( N ), VNAME, PNAME,
      &                             1,1, MY_STRT_SRC( N ),MY_END_SRC( N ), 1,1,
-!    &                             STKDATE( N ), JTIME,
      &                             LOC_STKDATE, JTIME,
      &                             STKEMIS( N )%ARRY( 1,V ) ) ) THEN
                   XMSG = 'Could not read ' // TRIM( VNAME ) //
      &                   ' from ' // TRIM( STKENAME( N ) )
                   CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
                END IF
+
+               !Read Non-Carbon Organic Matter Too if POC is Requested
+               IF ( (INDEX( MECHNAME, 'NVPOA' ) .EQ. 0) 
+     &               .AND. (VNAME .EQ. 'POC') ) THEN
+	              STKEMIS_TMP( N )%ARRY = 0.0
+	              IF ( .NOT. INTERPX( STKENAME( N ), 'PNCOM', PNAME,
+     &                             1,1, MY_STRT_SRC( N ),MY_END_SRC( N ), 1,1,
+!    &                             STKDATE( N ), JTIME,
+     &                             LOC_STKDATE, JTIME,
+     &                             STKEMIS_TMP( N )%ARRY( 1,V ) ) ) THEN
+                     XMSG = 'Could not read ' // TRIM( VNAME ) //
+     &                    ' from ' // TRIM( STKENAME( N ) )
+                     CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+                  END IF     
+                  STKEMIS( N )%ARRY( 1,V ) = STKEMIS( N )%ARRY( 1,V ) 
+     &                                         + STKEMIS_TMP( N )%ARRY( 1,V )
+               ENDIF
             END DO
 
             IF ( FIREFLAG( N ) ) THEN
                DO V = 1, NVARS_FIRE
-                  VNAME = FIRENAM( 1 )%ARRY( V )
+                  VNAME = FIRENAM( N )%ARRY( V )
                   IF ( .NOT. INTERPX( STKENAME( N ), VNAME, PNAME,
      &                                1,1, MY_STRT_SRC( N ),MY_END_SRC( N ), 1,1,
-!    &                                STKDATE( N ), JTIME,
      &                                LOC_STKDATE, JTIME,
-     &                                FIREVAR( 1 )%ARRY( 1,V ) ) ) THEN
+     &                                FIREVAR( N )%ARRY( 1,V ) ) ) THEN
                      XMSG = 'Could not read ' // TRIM( VNAME ) //
      &                      ' from ' // TRIM( STKENAME( N ) )
                      CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
                   END IF
+                  !Read Non-Carbon Organic Matter Too if POC is Requested
+                  IF ( (INDEX( MECHNAME, 'NVPOA' ) .EQ. 0)
+     &                  .AND. VNAME .EQ. 'POC' ) THEN
+                     FIREVAR_TMP( N )%ARRY = 0.0
+	                 IF ( .NOT. INTERPX( STKENAME( N ), 'PNCOM', PNAME,
+     &                             1,1, MY_STRT_SRC( N ),MY_END_SRC( N ), 1,1,
+!    &                             STKDATE( N ), JTIME,
+     &                             LOC_STKDATE, JTIME,
+     &                             FIREVAR_TMP( 1 )%ARRY( 1,V ) ) ) THEN
+                        XMSG = 'Could not read ' // TRIM( VNAME ) //
+     &                    ' from ' // TRIM( STKENAME( N ) )
+                        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+                     END IF     
+                     FIREVAR( N )%ARRY( 1,V ) = FIREVAR( N )%ARRY( 1,V ) 
+     &                                           + FIREVAR_TMP( N )%ARRY( 1,V )
+                  ENDIF
                END DO
                DO S = 1, MY_NSRC( N )
                   SRC = SOURCE( N )%ARRY( S )
-                  BFLUX( S ) = FIREVAR( 1 )%ARRY( SRC,1 ) * BTU2M4PS3
+                  BFLUX( N )%ARRY( S ) = FIREVAR( N )%ARRY( SRC,1 ) * BTU2M4PS3
                END DO
             END IF
 
@@ -975,7 +1015,7 @@ C Loop through sources and compute plume rise
             DO S = 1, MY_NSRC( N )
 
                IF ( FIREFLAG( N ) ) THEN
-                  IF ( BFLUX( S ) .LE. 0.0 ) THEN
+                  IF ( BFLUX( N )%ARRY( S ) .LE. 0.0 ) THEN
                      TFRAC( 1 ) = 1.0
                      TFRAC( 2:EMLYRS ) = 0.0
                      LTOP = 1
@@ -1023,7 +1063,7 @@ C Convert heat flux (watts/m2 to m K /s )
      &                         WSTK, ZPLM )
                ELSE
                   CALL FIRE_PLMRIS( EMLYRS, LSTK, HFLX, P_D( N )%HMIX( S ),
-     &                         BFLUX( S ),
+     &                         BFLUX( N )%ARRY( S ),
      &                         TSTK, USTMP,
      &                         P_D( N )%DTHDZ,     P_D( N )%TA( :,S ),
      &                         P_D( N )%WSPD,      P_D( N )%ZZF,
@@ -1175,8 +1215,8 @@ C If layer fractions are negative, put in the first layer
 C If source is a fire, adjust for fire smoldering effects (include fractions below LBOT)
 C calculate smoldering fraction:
 
-                  IF ( ACRES( S ) .NE. 0.0 ) THEN
-                     BESIZE = 0.0703 * LOG( ACRES( S ) ) + 0.3
+                  IF ( ACRES( N )%ARRY ( S ) .NE. 0.0 ) THEN
+                     BESIZE = 0.0703 * LOG( ACRES( N )%ARRY( S ) ) + 0.3
                      BESIZE = MIN( BESIZE, 1.0 )
                      SFRACT = 1.0 - BESIZE
                   ELSE

@@ -78,6 +78,7 @@ C                       arrays to avoid run time memory issue
 C 08 Jun 12 J.Young: remove full character blank padding for GNU Fortran (GCC) 4.1.2
 C 07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
 C 07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module. 
+C    May 16 B. Murphy, H. Pye: Updated treatment of aerosol moments
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
@@ -85,7 +86,6 @@ C-----------------------------------------------------------------------
       USE CGRID_SPCS          ! CGRID mechanism species
       USE UTILIO_DEFN      
       USE AERO_DATA           ! aero variable data
-      USE SOA_DEFN            ! gas soa data
       USE AEROMET_DATA        ! Includes CONST.EXT
       USE Mosaic_Mod, Only: ADEPVJ  ! Shared mosaic variables
       Use LSM_Mod, Only: N_LUFRAC
@@ -291,70 +291,18 @@ C ***    Set meteorological data for the grid cell.
 
 C ***    extract grid cell concentrations of aero species from CGRID
 C        into aerospc_conc in aero_data module
+C        Also determines second moment from surface area and adds wet
+C        species
          CALL EXTRACT_AERO( CGRID( C,R,1,: ), .TRUE. )
-
-C ***    extract soa concentrations from CGRID
-         CALL EXTRACT_SOA( CGRID( C,R,1,: ) )
-
-C ***    Calculate aerosol surface area to 2nd moment. 
-         DO S = 1, N_MODE
-            N = AEROSRF_MAP( S )
-            MOMENT2_CONC( S ) = CGRID( C,R,1,N ) / PI
-         END DO
-
-C ***    Calculate geometric mean diameters and standard deviations of the
-C        "dry" size distribution
-         CALL GETPAR( .FALSE., .FALSE. ) 
-
-C add contribution of water and SOA
-
-C        Aitken mode.
-         M3_DRY = MOMENT3_CONC( 1 )
-         M3SUBT = ( 1.0E-9 * F6PI / AEROSPC( AH2O_IDX )%DENSITY )
-     &          * AEROSPC_CONC( AH2O_IDX,1 )
-         M3_WET = M3_DRY + M3SUBT
-         M2_DRY = MOMENT2_CONC( 1 )
-         M2_WET= M2_DRY * ( M3_WET / M3_DRY ) ** TWO3
-
-         MOMENT3_CONC( 1 ) = MAX( CONMIN, M3_WET )
-         MOMENT2_CONC( 1 ) = MAX( CONMIN, M2_WET )
-
-C        accumulation mode.
-         M3_DRY = MOMENT3_CONC( 2 )
-
-         M3SUBT = ( 1.0E-9 * F6PI / AEROSPC( AH2O_IDX )%DENSITY )
-     &          * AEROSPC_CONC( AH2O_IDX,2 )
-         DO SPC = 1, N_VAPOR
-            M3SUBT = M3SUBT + ( 1.0E-9 * F6PI / AEROSPC( APOC_IDX )%DENSITY )
-     &             * AEROSPC_CONC( SOA_AEROMAP( SPC ),2 )
-         END DO
-
-         M3_WET = M3_DRY + M3SUBT
-         M2_DRY = MOMENT2_CONC(2)
-         M2_WET = M2_DRY * ( M3_WET / M3_DRY ) ** TWO3
-
-         MOMENT3_CONC( 2 ) = MAX( CONMIN, M3_WET )
-         MOMENT2_CONC( 2 ) = MAX( CONMIN, M2_WET )
-
-C        coarse mode
-         M3_DRY = moment3_conc(3)
-         M3SUBT = ( 1.0E-9 * F6PI / AEROSPC( AH2O_IDX )%DENSITY )
-     &          * AEROSPC_CONC( AH2O_IDX,3 )
-         M3_WET = M3_DRY + M3SUBT
-         M2_DRY = MOMENT2_CONC( 3 )
-         M2_WET = M2_DRY * ( M3_WET / M3_DRY ) ** TWO3
-
-         MOMENT3_CONC( 3 ) = MAX( CONMIN, M3_WET )
-         MOMENT2_CONC( 3 ) = MAX( CONMIN, M2_WET )
 
 C ***    Calculate geometric mean diameters and standard deviations of the
 C        "wet" size distribution
-         CALL GETPAR( .TRUE., .FALSE. )     
+         CALL GETPAR( .FALSE. )     
 
 C        Save getpar values to arrays
-         XXLSGAT( C,R ) = AEROMODE_SDEV( 1 )
-         XXLSGAC( C,R ) = AEROMODE_SDEV( 2 )
-         XXLSGCO( C,R ) = AEROMODE_SDEV( 3 )
+         XXLSGAT( C,R ) = AEROMODE_LNSG( 1 )
+         XXLSGAC( C,R ) = AEROMODE_LNSG( 2 )
+         XXLSGCO( C,R ) = AEROMODE_LNSG( 3 )
 
          DGATK( C,R )   = AEROMODE_DIAM( 1 )
          DGACC( C,R )   = AEROMODE_DIAM( 2 )

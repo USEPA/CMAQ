@@ -859,7 +859,7 @@
 !  Reaction Label SA13            
              RKI( NCELL,  258) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.7000D-12,   3.7400D+02 )
 !  Reaction Label HET_NTR2        
-             RKI( NCELL,  259) =   1.4084D+00 * BLKHET( NCELL, IK_HETERO_NTR2 )
+             RKI( NCELL,  259) =   1.4000D+00 * BLKHET( NCELL, IK_HETERO_NTR2 )
 !  Reaction Label HET_N2O5IJ      
              RKI( NCELL,  260) =  BLKHET(  NCELL, IK_HETERO_N2O5IJ )
 !  Reaction Label HET_N2O5K       
@@ -878,44 +878,62 @@
              RKI( NCELL,  267) =  BLKHET(  NCELL, IK_HETERO_NO2 )
 !  Reaction Label HET_IEPOX       
              RKI( NCELL,  269) =  BLKHET(  NCELL, IK_HETERO_IEPOX )
+!  Reaction Label HET_GLY         
+             RKI( NCELL,  270) =  BLKHET(  NCELL, IK_HETERO_GLY )
+!  Reaction Label HET_MGLY        
+             RKI( NCELL,  271) =  BLKHET(  NCELL, IK_HETERO_MGLY )
 !  Reaction Label OLIG_XYLENE1    
-             RKI( NCELL,  270) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_XYLENE2    
-             RKI( NCELL,  271) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_TOLUENE1   
              RKI( NCELL,  272) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_TOLUENE2   
+!  Reaction Label OLIG_XYLENE2    
              RKI( NCELL,  273) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_BENZENE1   
+!  Reaction Label OLIG_TOLUENE1   
              RKI( NCELL,  274) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_BENZENE2   
+!  Reaction Label OLIG_TOLUENE2   
              RKI( NCELL,  275) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_TERPENE1   
+!  Reaction Label OLIG_BENZENE1   
              RKI( NCELL,  276) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_TERPENE2   
+!  Reaction Label OLIG_BENZENE2   
              RKI( NCELL,  277) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_ISOPRENE1  
+!  Reaction Label OLIG_TERPENE1   
              RKI( NCELL,  278) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_ISOPRENE2  
+!  Reaction Label OLIG_TERPENE2   
              RKI( NCELL,  279) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_SESQT1     
+!  Reaction Label OLIG_ISOPRENE1  
              RKI( NCELL,  280) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_PAH1       
+!  Reaction Label OLIG_ISOPRENE2  
              RKI( NCELL,  281) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_PAH2       
+!  Reaction Label OLIG_SESQT1     
              RKI( NCELL,  282) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_ALK1       
+!  Reaction Label OLIG_PAH1       
              RKI( NCELL,  283) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_ALK2       
+!  Reaction Label OLIG_PAH2       
              RKI( NCELL,  284) =   9.4882D-06 * SFACT 
-!  Reaction Label RPOAGEPI        
-             RKI( NCELL,  285) =   2.5000D-12 * CFACT 
-!  Reaction Label RPOAGELI        
-             RKI( NCELL,  286) =  BLKHET(  NCELL, IK_HETERO_PNCOMLI )
-!  Reaction Label RPOAGEPJ        
-             RKI( NCELL,  287) =   2.5000D-12 * CFACT 
-!  Reaction Label RPOAGELJ        
-             RKI( NCELL,  288) =  BLKHET(  NCELL, IK_HETERO_PNCOMLJ )
+!  Reaction Label OLIG_ALK1       
+             RKI( NCELL,  285) =   9.4882D-06 * SFACT 
+!  Reaction Label OLIG_ALK2       
+             RKI( NCELL,  286) =   9.4882D-06 * SFACT 
+!  Reaction Label PCSOA           
+             RKI( NCELL,  287) =   1.2500D-11 * CFACT 
+!  Reaction Label POA_AGE1        
+             RKI( NCELL,  288) =   4.0000D-11 * CFACT 
+!  Reaction Label POA_AGE2        
+             RKI( NCELL,  289) =   4.0000D-11 * CFACT 
+!  Reaction Label POA_AGE3        
+             RKI( NCELL,  290) =   4.0000D-11 * CFACT 
+!  Reaction Label POA_AGE4        
+             RKI( NCELL,  291) =   4.0000D-11 * CFACT 
+!  Reaction Label POA_AGE5        
+             RKI( NCELL,  292) =   4.0000D-11 * CFACT 
+!  Reaction Label POA_AGE6        
+             RKI( NCELL,  293) =   4.0000D-11 * CFACT 
+!  Reaction Label POA_AGE7        
+             RKI( NCELL,  294) =   4.0000D-11 * CFACT 
+!  Reaction Label POA_AGE8        
+             RKI( NCELL,  295) =   4.0000D-11 * CFACT 
+!  Reaction Label POA_AGE9        
+             RKI( NCELL,  296) =   4.0000D-11 * CFACT 
+!  Reaction Label POA_AGE10       
+             RKI( NCELL,  297) =   4.0000D-11 * CFACT 
 
         END DO  
 !  Multiply rate constants by [M], [O2], [N2], [H2O], [H2], or [CH4]

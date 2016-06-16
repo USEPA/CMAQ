@@ -1,1 +1,0 @@
-../aero6/AEROMET_DATA.F

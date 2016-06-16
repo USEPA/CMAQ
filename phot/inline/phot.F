@@ -283,7 +283,8 @@ C...modules
       
 !...Variables for diagnostic outputs
 
-      REAL, ALLOCATABLE, SAVE :: TOC( :,: )              ! total ozone column
+      REAL, ALLOCATABLE, SAVE :: TOTAL_OC( :,: )         ! total ozone column [DU]
+      REAL, ALLOCATABLE, SAVE :: TROPO_OC( :,: )         ! tropospheric ozone column [DU]
       REAL, ALLOCATABLE, SAVE :: TRANSMIS_DIFFUSE( :,: ) ! diffuse transmission coefficient at surface
       REAL, ALLOCATABLE, SAVE :: TRANSMIS_DIRECT( :,: )  ! direct transmission coefficient at surface
       REAL, ALLOCATABLE, SAVE :: REFLECT_COEFF( :,: )    ! reflection coefficient at top of atmosphere
@@ -401,9 +402,10 @@ C...modules
          ALLOCATE( TAUC_AERO( NLAYS,NWL ) )
          ALLOCATE( TAU_TOT  ( NLAYS,NWL ) )
 
-         ALLOCATE( TOC      ( NCOLS,NROWS ) )
+         ALLOCATE( TOTAL_OC ( NCOLS,NROWS ) )
 
          IF ( PHOTDIAG ) THEN
+            ALLOCATE( TROPO_OC ( NCOLS,NROWS ) )
             ALLOCATE( TRANSMIS_DIFFUSE( NCOLS,NROWS ) )
             ALLOCATE( TRANSMIS_DIRECT ( NCOLS,NROWS ) )
             ALLOCATE( REFLECT_COEFF   ( NCOLS,NROWS ) )
@@ -559,10 +561,11 @@ C...modules
 
 !...Write data to output diagnostic file
 
-         TOC = 0.0
+         TOTAL_OC = 0.0
 
          IF ( JTIME_CHK ) THEN
 
+            TROPO_OC     = 0.0
             ETOT_SFC_WL  = 0.0
             TAUO3_TOP_WL = 0.0
             TAU_AERO_WL  = 0.0
@@ -603,7 +606,8 @@ C...modules
                   RJ( COL,ROW, :,: ) = 0.0
    
                   IF ( JTIME_CHK ) THEN
-                     TOC( COL,ROW )             = 0.0                            
+                     TOTAL_OC( COL,ROW )        = 0.0                            
+                     TROPO_OC( COL,ROW )        = 0.0                            
                      ETOT_SFC_WL ( COL,ROW, : ) = 0.0
                      TAUO3_TOP_WL( COL,ROW, : ) = 0.0
                      TAU_AERO_WL ( COL,ROW, : ) = 0.0
@@ -756,7 +760,8 @@ C...modules
 !...load diagnostic file arrays
 
                IF ( JTIME_CHK  ) THEN
-                  TOC( COL,ROW ) = REAL( TOTAL_O3_COLUMN )
+                  TOTAL_OC( COL,ROW )         = REAL( TOTAL_O3_COLUMN )
+                  TROPO_OC( COL,ROW )         = REAL( TROPO_O3_COLUMN )
                   TRANSMIS_DIFFUSE( COL,ROW ) = TRANSMISSION
                   TRANSMIS_DIRECT( COL,ROW )  = TRANS_DIRECT
                   REFLECT_COEFF( COL,ROW )    = REFLECTION
@@ -941,7 +946,13 @@ C...modules
          END IF
 
          VARNM = 'OZONE_COLUMN'
-         IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, TOC ) ) THEN
+         IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, TOTAL_OC ) ) THEN
+            XMSG = 'Error writing variable ' // VARNM
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+
+         VARNM = 'TROPO_O3_COLUMN'
+         IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, TROPO_OC ) ) THEN
             XMSG = 'Error writing variable ' // VARNM
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
