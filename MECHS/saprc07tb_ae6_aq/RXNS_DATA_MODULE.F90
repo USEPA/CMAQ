@@ -1,8 +1,6 @@
        MODULE RXNS_DATA
 
-
        IMPLICIT NONE
-
 
 
 ! --------- Photochemical Mechanism Reactions, Rates, etc. DAT ---------
