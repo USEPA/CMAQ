@@ -516,7 +516,7 @@ C Initialize stack emissions data
             SUCCESS = .FALSE.; RETURN
          END IF
 
-         ALLOCATE ( VDEMIS_PT( MY_NCOLS,MY_NROWS,EMLYRS,N_SPC_PTEM ), STAT = IOS )
+         ALLOCATE ( VDEMIS_PT( MY_NCOLS,MY_NROWS,EMLYRS,N_GSPC_EMIS ), STAT = IOS )
          CALL CHECKMEM( IOS, 'VDEMIS_PT', PNAME )
          VDEMIS_PT = 0.0   ! array assignment
 
@@ -534,11 +534,11 @@ C Set up and open 3d point source emissions diagnostic file?
             NDATE = SDATE; NTIME = STIME
             CALL NEXTIME( NDATE, NTIME, TSTEP ) ! advance one output tstep
             CALL OPPT3D_DIAG( CTM_PT3D_DIAG, NDATE, NTIME, TSTEP, EMLYRS,
-     &                        N_SPC_PTEM, STKEM_NAME, N_SPC_PTPM, STKPM_NAME )
-            ALLOCATE ( VDEMIS_BUF( MY_NCOLS,MY_NROWS,EMLYRS,N_SPC_PTEM ), STAT = IOS )
+     &                        N_GSPC_EMIS, GSPC_EMIS, N_ASPC_EMIS, ASPC_EMIS )
+            ALLOCATE ( VDEMIS_BUF( MY_NCOLS,MY_NROWS,EMLYRS,N_GSPC_EMIS ), STAT = IOS )
             CALL CHECKMEM( IOS, 'VDEMIS_BUF', PNAME )
             VDEMIS_BUF = 0.0   ! array
-            ALLOCATE ( PMEMIS_BUF( MY_NCOLS,MY_NROWS,EMLYRS,N_SPC_PTPM ), STAT = IOS )
+            ALLOCATE ( PMEMIS_BUF( MY_NCOLS,MY_NROWS,EMLYRS,N_ASPC_EMIS ), STAT = IOS )
             CALL CHECKMEM( IOS, 'PM_EMIS_BUF', PNAME )
             PMEMIS_BUF = 0.0   ! array
             WRITE( LOGDEV,'(/5X, A /5X, A )' )
@@ -1329,18 +1329,18 @@ C Possible report to REPRTLAY
 #ifdef Verbose1
                write( logdev,* ) '   ntics, divfac: ', ntics, divfac
 #endif
-               DO V = 1, N_SPC_PTEM
+               DO V = 1, N_GSPC_EMIS
                   VDEMIS_BUF( :,:,:,V ) = DIVFAC * VDEMIS_BUF( :,:,:,V )
-                  IF ( .NOT. WRITE3( CTM_PT3D_DIAG, STKEM_NAME( V ),
+                  IF ( .NOT. WRITE3( CTM_PT3D_DIAG, GSPC_EMIS( V ),
      &                               WDATE, WTIME, VDEMIS_BUF( :,:,:,V ) ) ) THEN
                      XMSG = 'Error writing "VDEMIS_PT" to '
      &                    // CTM_PT3D_DIAG( 1:LEN_TRIM( CTM_PT3D_DIAG ) )
                      CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
                   END IF
                END DO
-               DO V = 1, N_SPC_PTPM
+               DO V = 1, N_ASPC_EMIS
                   PMEMIS_BUF( :,:,:,V ) = DIVFAC * PMEMIS_BUF( :,:,:,V )
-                  IF ( .NOT. WRITE3( CTM_PT3D_DIAG, STKPM_NAME( V ),
+                  IF ( .NOT. WRITE3( CTM_PT3D_DIAG, ASPC_EMIS( V ),
      &                               WDATE, WTIME, PMEMIS_BUF( :,:,:,V ) ) ) THEN
                      XMSG = 'Error writing "PMEMIS_PT" to '
      &                    // CTM_PT3D_DIAG( 1:LEN_TRIM( CTM_PT3D_DIAG ) )
