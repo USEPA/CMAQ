@@ -756,12 +756,12 @@ C *** Inputs to subroutine HCOND3
       REAL( 8 ) :: AM1( N_MODE ) ! first moments
       REAL( 8 ) :: AM2( N_MODE ) ! second moments
 
-      REAL( 8 ) :: M2DRY_INIT( N_MODE ) !Dry Second Moment Initial Array
-      REAL( 8 ) :: M3DRY_INIT( N_MODE ) !Dry Third Moment Initial Array
-      REAL( 8 ) :: M2WET_INIT( N_MODE ) !Wet Second Moment Initial Array
-      REAL( 8 ) :: M3WET_INIT( N_MODE ) !Wet Third Moment Initial Array
-      REAL( 8 ) :: M2WET_FINAL( N_MODE ) !Wet Second Moment Final Array
-      REAL( 8 ) :: M3WET_FINAL( N_MODE ) !Wet Third Moment Final Array
+      REAL( 8 ) :: M2DRY_INIT( N_MODE )  ! Dry Second Moment Initial Array
+      REAL( 8 ) :: M3DRY_INIT( N_MODE )  ! Dry Third Moment Initial Array
+      REAL( 8 ) :: M2WET_INIT( N_MODE )  ! Wet Second Moment Initial Array
+      REAL( 8 ) :: M3WET_INIT( N_MODE )  ! Wet Third Moment Initial Array
+      REAL( 8 ) :: M2WET_FINAL( N_MODE ) ! Wet Second Moment Final Array
+      REAL( 8 ) :: M3WET_FINAL( N_MODE ) ! Wet Third Moment Final Array
 
 C *** Outputs from HCOND3: size-dependent term in the condensational-growth 
 C     expressions defined in Equations A13-A14 of [Binkowski & Shankar,1995]
@@ -1153,7 +1153,7 @@ C     (The _RENORM and cation_FAC constants are set in the AERO_DATA module)
      &             + ANTHFAC * AEROSPC_CONC( ACORS_IDX,IMODE )
             WETM3  = MOMENT3_CONC( IMODE )
             WETM2  = MOMENT2_CONC( IMODE )
-            DRYM3  = WETM3 - REAL( H2OFAC * AEROSPC_CONC( AH2O_IDX, IMODE ), 8 )  !Assume no SOA in coarse mode
+            DRYM3  = WETM3 - REAL( H2OFAC * AEROSPC_CONC( AH2O_IDX, IMODE ), 8 )  ! Assume no SOA in coarse mode
             DRYM20 = WETM2 * ( DRYM3 / WETM3 ) ** D_TWOTHIRDS
 
 C *** Initial vapor-phase concentrations [ug/m3]
@@ -1405,9 +1405,9 @@ C *** Change in volatile inorganic PM concentration to achieve
 C     equilibrium, calculated as initial-gas-phase concentration minus 
 C     equilibrium gas-phase concentration.  DVOLINORG is positive for
 C     condensation and negative for evaporation.
-      DVOLINORG( KNH4 ) = GNH3R8 * CFAC_GNH3  - GAS( 1 )   !mol m-3
-      DVOLINORG( KNO3 ) = GNO3R8 * CFAC_GHNO3 - GAS( 2 )   !mol m-3
-      DVOLINORG( KCL )  = GCLR8  * CFAC_GHCL  - GAS( 3 )   !mol m-3
+      DVOLINORG( KNH4 ) = GNH3R8 * CFAC_GNH3  - GAS( 1 )   ! mol m-3
+      DVOLINORG( KNO3 ) = GNO3R8 * CFAC_GHNO3 - GAS( 2 )   ! mol m-3
+      DVOLINORG( KCL )  = GCLR8  * CFAC_GHCL  - GAS( 3 )   ! mol m-3
 
       IF ( DVOLINORG( KNH4 ) .LT. 0.0D0 ) THEN
          DVOLMAX = -SUM(REAL( AEROSPC_CONC( ANH4_IDX,1:2 ), 8 ) ) * CFAC_ANH4 + EVAPMIN
@@ -1427,13 +1427,13 @@ C     condensation and negative for evaporation.
       END IF
 
 C *** Apply modal partitioning of equilibrium aerosol mass
-      !Calculate Distribution of Mass Transfer Among Modes
+      ! Calculate Distribution of Mass Transfer Among Modes
       OMEGA( 1 ) = GRFAC2( 1 ) / ( GRFAC2( 1 ) + GRFAC2( 2 ) )
       OMEGA( 2 ) = 1.0D0 - OMEGA( 1 )
 
       CFINAL = 0.0
       DO IMODE = 1, 2  
-         !Save Initial Concentrations
+         ! Save Initial Concentrations
          CINORG( KSO4,IMODE ) = AEROSPC_CONC( ASO4_IDX, IMODE )
          CINORG( KNH4,IMODE ) = AEROSPC_CONC( ANH4_IDX, IMODE )
          CINORG( KNO3,IMODE ) = AEROSPC_CONC( ANO3_IDX, IMODE )
@@ -1443,14 +1443,14 @@ C *** Apply modal partitioning of equilibrium aerosol mass
          CINORG( KK,  IMODE ) = AEROSPC_CONC( AK_IDX,   IMODE )
          CINORG( KMG, IMODE ) = AEROSPC_CONC( AMG_IDX,  IMODE )
 
-         !Calculate Final Concentrations
+         ! Calculate Final Concentrations
          DO ISP = 1, NVOLINORG
 
             CFINAL( ISP,IMODE ) = CFINAL( ISP,IMODE ) + CINORG( ISP,IMODE )
      &                          + OMEGA( IMODE ) * DVOLINORG( ISP ) * DF( ISP )
 
-            !Jai Xing's VOLINORG fix - Check Aitken and Accumulation modes
-            !individually for negative concentrations
+            ! Jai Xing's VOLINORG fix - Check Aitken and Accumulation modes
+            ! individually for negative concentrations
             IF (CFINAL( ISP,IMODE ) .LT. 0.0D0 ) THEN
 
               IF ( IMODE .EQ. 1 ) THEN
@@ -1479,13 +1479,13 @@ C *** Apply modal partitioning of equilibrium aerosol mass
       END DO    ! IMODE
 
 C *** Apply Final Concentrations to Moment Variables in Aerosol Scheme
-      !Store Initial Wet Moments
+      ! Store Initial Wet Moments
       M3WET_INIT( : ) = MOMENT3_CONC( : )
       M2WET_INIT( : ) = MOMENT2_CONC( : )
 
-      !Calculate and Store Initial Dry Moments and set wet_moments_flag to false/dry
-      !There has not yet been an update to AEROSPC_CONC so this will
-      !calculate the old 3rd moment.
+      ! Calculate and Store Initial Dry Moments and set wet_moments_flag to false/dry
+      ! There has not yet been an update to AEROSPC_CONC so this will
+      ! calculate the old 3rd moment.
       call calcmoments( .false. )
       M3DRY_INIT( : ) = MOMENT3_CONC( : )
       M2DRY_INIT( : ) = MOMENT2_CONC( : )
@@ -1493,13 +1493,13 @@ C *** Apply Final Concentrations to Moment Variables in Aerosol Scheme
       DO IMODE = 1, 2  ! modal partitioning of equilibrium aerosol mass
 
          IF ( IMODE .EQ. 1 ) THEN
-            !Update Number Concentration with NPF
+            ! Update Number Concentration with NPF
             MOMENT0_CONC( IMODE ) = AM0(IMODE) + DNDT * DELT
-            !Add NPF to total condensation rate
+            ! Add NPF to total condensation rate
             RATE = DMDT_SO4 + CONDSO4( IMODE )
             SO4 = CINORG( KSO4,IMODE ) + RATE * DELT * H2SO4RATM1 
          ELSE
-            !Ignore NPF. The small particles are not in these modes
+            ! Ignore NPF. The small particles are not in these modes
             SO4 = CINORG( KSO4,IMODE ) + CONDSO4( IMODE ) * DELT * H2SO4RATM1
          END IF
 
@@ -1515,7 +1515,7 @@ C *** Double precision vars for CALC_H2O
 
          CALL CALC_H2O( WI, RHI, TEMPI, H2O_NEW ) 
          
-         !Update All Aerosol Concentrations
+         ! Update All Aerosol Concentrations
          AEROSPC_CONC( AH2O_IDX, IMODE ) = H2O_NEW * DFH2OR8
          AEROSPC_CONC( ANH4_IDX, IMODE ) = CFINAL( KNH4,IMODE )
          AEROSPC_CONC( ANO3_IDX, IMODE ) = CFINAL( KNO3,IMODE )
@@ -1568,7 +1568,7 @@ C *** Assign H+ Concentration to each Mode
       ELSE
           AEROSPC_CONC( AH3OP_IDX, 1:2 ) = CONMIN
       END IF
-      AEROSPC_CONC( AH3OP_IDX, 3 ) = 1.0D+6 * HPLUS( 3 )  !Coarse mode H+ concentration
+      AEROSPC_CONC( AH3OP_IDX, 3 ) = 1.0D+6 * HPLUS( 3 )  ! Coarse mode H+ concentration
 
 C *** Update the third moments, geometric mean diameters, geometric 
 C     standard deviations, modal mass totals, and modal particle 
@@ -3254,7 +3254,7 @@ C     Dover,1981 page 179. Original edition was Wiley, 1957.
       real alfa     ! Mie parameter
       real nr, ni   ! real and imaginary parts of the index of refraction
       real QEXT     ! extinction efficiency for a sphere
-      real z, tanb, b, cos2b, v1, v2, x, expmx, expm2x, cs1, cs2
+      real z, tanb, b, cos2b, v1, v2, x, expmx, cs1, cs2
       real twob, cosb
       real nr1
 
@@ -3267,12 +3267,10 @@ C     Dover,1981 page 179. Original edition was Wiley, 1957.
       cos2b  = cos( twob )
       v1     = 5.0 * nr1
       v2     = 4.08 / ( 1.0 + 3.0 * tanb )
-      x      = z * tanb
+      x      = Min(z * tanb, 69.0)
       expmx  = exp( -x )
-      expm2x = exp( -2.0 * x )
       cs1    = cosb / z
       cs2    = cs1 * cs1
-
       QEXT   = 2.0 - 4.0 * cs1 * expmx * sin( z - b )
      &       + 4.0 * cs2 * ( cos2b - expmx * cos(z - twob ) )
       return

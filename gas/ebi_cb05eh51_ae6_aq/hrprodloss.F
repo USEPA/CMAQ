@@ -35,7 +35,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Mar 11, 2016
+C  REVISION HISTORY: Created by EBI solver program, May 25, 2016
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 
@@ -92,9 +92,9 @@ C***********************************************************************
      &                      +                 RXRAT( 269 )      ! H2NO3PIJ=HNO3
      &                      +                 RXRAT( 270 )      ! H2NO3PK=HNO3
      &                      +    5.0000D-01 * RXRAT( 274 )      ! NO2=0.5000D+00*HNO3+...
-     &                      +                 RXRAT( 370 )      ! HI+NO3=HNO3+I
-     &                      +                 RXRAT( 435 )      ! BRONO2=HNO3+HOBR
-     &                      +                 RXRAT( 436 )      ! BRONO2=HNO3+HOBR
+     &                      +                 RXRAT( 377 )      ! HI+NO3=HNO3+I
+     &                      +                 RXRAT( 442 )      ! BRONO2=HNO3+HOBR
+     &                      +                 RXRAT( 443 )      ! BRONO2=HNO3+HOBR
       LOSS(  HNO3         ) =                 RXRAT(  29 )      ! HNO3+OH=NO3
      &                      +                 RXRAT(  53 )      ! HNO3=OH+NO2
 
@@ -250,7 +250,7 @@ C***********************************************************************
      &                      +                 RXRAT(  89 )      ! ALD2+NO3=C2O3+HNO3
      &                      +                 RXRAT(  90 )      ! ALD2=MEO2+CO+HO2
      &                      +                 RXRAT( 201 )      ! ALD2+CL=HCL+C2O3
-     &                      +                 RXRAT( 408 )      ! ALD2+BR=HBR+C2O3
+     &                      +                 RXRAT( 415 )      ! ALD2+BR=HBR+C2O3
 
       PROD(  ALDX         ) =    5.0000D-01 * RXRAT(  62 )      ! ROOH+OH=0.5000D+00*ALDX+...
      &                      +    5.0000D-01 * RXRAT(  63 )      ! ROOH=0.5000D+00*ALDX+HO2+...
@@ -292,7 +292,7 @@ C***********************************************************************
      &                      +                 RXRAT( 104 )      ! ALDX+NO3=CXO3+HNO3
      &                      +                 RXRAT( 105 )      ! ALDX=MEO2+CO+HO2
      &                      +                 RXRAT( 202 )      ! ALDX+CL=HCL+CXO3
-     &                      +                 RXRAT( 409 )      ! ALDX+BR=HBR+CXO3
+     &                      +                 RXRAT( 416 )      ! ALDX+BR=HBR+CXO3
 
       PROD(  ISOPX        ) =                 RXRAT( 166 )      ! ISOPO2+HO2=ISOPX
       LOSS(  ISOPX        ) =                 RXRAT(  64 )      ! ISOPX+OH=0.9040D+00*IEPOX+...
@@ -383,14 +383,14 @@ C***********************************************************************
      &                      +    3.3000D-01 * RXRAT( 256 )      ! NTROH=0.3300D+00*FORM+HO2+...
      &                      +    3.3000D-01 * RXRAT( 257 )      ! NTRCN=0.3300D+00*FORM+HO2+...
      &                      +    3.3000D-01 * RXRAT( 258 )      ! NTRCNOH=0.3300D+00*FORM+...
-     &                      +                 RXRAT( 379 )      ! IO+MEO2=FORM+I+HO2
-     &                      +                 RXRAT( 380 )      ! CH3I+OH=FORM+I
-     &                      +                 RXRAT( 385 )      ! MI2=FORM+0.2000D+01*I
-     &                      +                 RXRAT( 386 )      ! MIB=FORM+BR+I
-     &                      +                 RXRAT( 387 )      ! MIC=FORM+CL+I
-     &                      +                 RXRAT( 410 )      ! BRO+MEO2=FORM+HOBR
-     &                      +                 RXRAT( 411 )      ! BRO+MEO2=FORM+BR+HO2
-     &                      +                 RXRAT( 414 )      ! CH3BR+OH=FORM+BR
+     &                      +                 RXRAT( 386 )      ! IO+MEO2=FORM+I+HO2
+     &                      +                 RXRAT( 387 )      ! CH3I+OH=FORM+I
+     &                      +                 RXRAT( 392 )      ! MI2=FORM+0.2000D+01*I
+     &                      +                 RXRAT( 393 )      ! MIB=FORM+BR+I
+     &                      +                 RXRAT( 394 )      ! MIC=FORM+CL+I
+     &                      +                 RXRAT( 417 )      ! BRO+MEO2=FORM+HOBR
+     &                      +                 RXRAT( 418 )      ! BRO+MEO2=FORM+BR+HO2
+     &                      +                 RXRAT( 421 )      ! CH3BR+OH=FORM+BR
       LOSS(  FORM         ) =                 RXRAT(  77 )      ! FORM+OH=HO2+CO
      &                      +                 RXRAT(  78 )      ! FORM=0.2000D+01*HO2+CO
      &                      +                 RXRAT(  79 )      ! FORM=CO
@@ -398,7 +398,7 @@ C***********************************************************************
      &                      +                 RXRAT(  81 )      ! FORM+NO3=HNO3+HO2+CO
      &                      +                 RXRAT(  82 )      ! FORM+HO2=HCO3
      &                      +                 RXRAT( 200 )      ! FORM+CL=HCL+HO2+CO
-     &                      +                 RXRAT( 407 )      ! FORM+BR=HBR+HO2+CO
+     &                      +                 RXRAT( 414 )      ! FORM+BR=HBR+HO2+CO
 
       PROD(  FACD         ) =    7.4000D-02 * RXRAT(  66 )      ! IEPXO2+HO2=0.7400D-01*FACD+...
      &                      +                 RXRAT(  84 )      ! HCO3+NO=FACD+NO2+HO2
@@ -442,15 +442,15 @@ C***********************************************************************
      &                      +    6.0000D-01 * RXRAT( 231 )      ! MACO3+XO2=0.6000D+00*CO+...
      &                      +    6.5000D-01 * RXRAT( 232 )      ! MACO3+CXO3=0.6500D+00*CO+...
      &                      +    6.5000D-01 * RXRAT( 233 )      ! MACO3+C2O3=0.6500D+00*CO+...
-     &                      +                 RXRAT( 407 )      ! BR+FORM=CO+HO2+HBR
-     &                      +                 RXRAT( 413 )      ! MB3+OH=CO+0.3000D+01*BR
-     &                      +                 RXRAT( 415 )      ! MB2+OH=CO+HO2+0.2000D+01*BR
-     &                      +                 RXRAT( 416 )      ! MB2C+OH=CO+CL+0.2000D+01*BR
-     &                      +                 RXRAT( 417 )      ! MBC2+OH=CO+0.2000D+01*CL+BR
-     &                      +                 RXRAT( 418 )      ! MBC+OH=CO+CL+BR+HO2
-     &                      +                 RXRAT( 432 )      ! MB3=CO+HO2+0.3000D+01*BR
-     &                      +                 RXRAT( 433 )      ! MB2C=CO+CL+HO2+0.2000D+01*BR
-     &                      +                 RXRAT( 434 )      ! MBC2=CO+0.2000D+01*CL+HO2+BR
+     &                      +                 RXRAT( 414 )      ! BR+FORM=CO+HO2+HBR
+     &                      +                 RXRAT( 420 )      ! MB3+OH=CO+0.3000D+01*BR
+     &                      +                 RXRAT( 422 )      ! MB2+OH=CO+HO2+0.2000D+01*BR
+     &                      +                 RXRAT( 423 )      ! MB2C+OH=CO+CL+0.2000D+01*BR
+     &                      +                 RXRAT( 424 )      ! MBC2+OH=CO+0.2000D+01*CL+BR
+     &                      +                 RXRAT( 425 )      ! MBC+OH=CO+CL+BR+HO2
+     &                      +                 RXRAT( 439 )      ! MB3=CO+HO2+0.3000D+01*BR
+     &                      +                 RXRAT( 440 )      ! MB2C=CO+CL+HO2+0.2000D+01*BR
+     &                      +                 RXRAT( 441 )      ! MBC2=CO+0.2000D+01*CL+HO2+BR
       LOSS(  CO           ) =                 RXRAT(  69 )      ! CO+OH=HO2
 
       PROD(  PAR          ) =    2.4500D+00 * RXRAT(  66 )      ! IEPXO2+HO2=0.2450D+01*PAR+...
@@ -505,19 +505,19 @@ C***********************************************************************
      &                      +    2.9000D-01 * RXRAT( 229 )      ! MACO3+HO2=0.2900D+00*MEO2+...
      &                      +    6.0000D-01 * RXRAT( 231 )      ! MACO3+XO2=0.6000D+00*MEO2+...
      &                      +    1.6500D+00 * RXRAT( 233 )      ! MACO3+C2O3=0.1650D+01*MEO2+...
-     &                      +                 RXRAT( 364 )      ! IO+DMS=MEO2+0.2500D+00*MSA+...
-     &                      +                 RXRAT( 384 )      ! CH3I=MEO2+I
-     &                      +                 RXRAT( 412 )      ! BRO+C2O3=MEO2+BR
-     &                      +                 RXRAT( 424 )      ! DMS+BRO=MEO2+0.2500D+...
+     &                      +                 RXRAT( 371 )      ! IO+DMS=MEO2+0.2500D+00*MSA+...
+     &                      +                 RXRAT( 391 )      ! CH3I=MEO2+I
+     &                      +                 RXRAT( 419 )      ! BRO+C2O3=MEO2+BR
+     &                      +                 RXRAT( 431 )      ! DMS+BRO=MEO2+0.2500D+...
       LOSS(  MEO2         ) =                 RXRAT(  71 )      ! MEO2+NO=FORM+HO2+NO2
      &                      +                 RXRAT(  72 )      ! MEO2+HO2=MEPX
      &                      +    2.0000D+00 * RXRAT(  73 )      ! MEO2+MEO2=0.1370D+01*FORM+...
      &                      +    1.0000D-01 * RXRAT(  96 )      ! MEO2+C2O3=0.9000D+00*MEO2+...
      &                      +                 RXRAT( 112 )      ! MEO2+CXO3=0.9000D+00*ALD2+...
      &                      +    4.0000D-01 * RXRAT( 230 )      ! MEO2+MACO3=0.6000D+00*MEO2+...
-     &                      +                 RXRAT( 379 )      ! MEO2+IO=FORM+I+HO2
-     &                      +                 RXRAT( 410 )      ! MEO2+BRO=HOBR+FORM
-     &                      +                 RXRAT( 411 )      ! MEO2+BRO=BR+FORM+HO2
+     &                      +                 RXRAT( 386 )      ! MEO2+IO=FORM+I+HO2
+     &                      +                 RXRAT( 417 )      ! MEO2+BRO=HOBR+FORM
+     &                      +                 RXRAT( 418 )      ! MEO2+BRO=BR+FORM+HO2
 
       PROD(  AACD         ) =    2.0000D-01 * RXRAT(  68 )      ! IEPXO2+C2O3=0.2000D+...
      &                      +    1.5000D-01 * RXRAT(  95 )      ! C2O3+HO2=0.1500D+00*AACD+...
@@ -560,7 +560,7 @@ C***********************************************************************
      &                      +    2.5000D-01 * RXRAT( 162 )      ! O+ISOP=0.2500D+00*CXO3+...
      &                      +    3.9000D-01 * RXRAT( 179 )      ! TERP+O3=0.3900D+00*CXO3+...
      &                      +                 RXRAT( 202 )      ! CL+ALDX=CXO3+HCL
-     &                      +                 RXRAT( 409 )      ! BR+ALDX=CXO3+HBR
+     &                      +                 RXRAT( 416 )      ! BR+ALDX=CXO3+HBR
       LOSS(  CXO3         ) =                 RXRAT( 106 )      ! CXO3+NO=ALD2+NO2+HO2+XO2
      &                      +                 RXRAT( 107 )      ! CXO3+NO2=PANX
      &                      +                 RXRAT( 111 )      ! CXO3+HO2=0.4100D+00*PACD+...
@@ -761,8 +761,8 @@ C***********************************************************************
      &                      +    2.0000D+00 * RXRAT( 177 )      ! XO2T+XO2T=
      &                      +                 RXRAT( 178 )      ! XO2T+XO2=
 
-      PROD(  SO2          ) =    7.5000D-01 * RXRAT( 364 )      ! IO+DMS=0.7500D+00*SO2+...
-     &                      +    7.5000D-01 * RXRAT( 424 )      ! DMS+BRO=0.7500D+00*SO2+...
+      PROD(  SO2          ) =    7.5000D-01 * RXRAT( 371 )      ! IO+DMS=0.7500D+00*SO2+...
+     &                      +    7.5000D-01 * RXRAT( 431 )      ! DMS+BRO=0.7500D+00*SO2+...
       LOSS(  SO2          ) =                 RXRAT( 181 )      ! SO2+OH=SULF+HO2+SULRXN
 
       PROD(  SULF         ) =                 RXRAT( 181 )      ! SO2+OH=SULF+HO2+SULRXN
@@ -790,18 +790,18 @@ C***********************************************************************
      &                      +                 RXRAT( 192 )      ! FMCL=CL+CO+HO2
      &                      +                 RXRAT( 205 )      ! HCL+OH=CL
      &                      +                 RXRAT( 210 )      ! CLNO2=CL+NO2
-     &                      +                 RXRAT( 374 )      ! IO+CLO=CL+I
-     &                      +                 RXRAT( 375 )      ! IO+CLO=CL+I
-     &                      +                 RXRAT( 387 )      ! MIC=CL+I+FORM
-     &                      +                 RXRAT( 395 )      ! ICL=CL+I
-     &                      +                 RXRAT( 416 )      ! MB2C+OH=CL+0.2000D+01*BR+CO
-     &                      +    2.0000D+00 * RXRAT( 417 )      ! MBC2+OH=0.2000D+01*CL+BR+CO
-     &                      +                 RXRAT( 418 )      ! MBC+OH=CL+BR+CO+HO2
-     &                      +                 RXRAT( 421 )      ! BRO+CLO=CL+BR
-     &                      +                 RXRAT( 422 )      ! BRO+CLO=CL+BR
-     &                      +                 RXRAT( 425 )      ! BRCL=CL+BR
-     &                      +                 RXRAT( 433 )      ! MB2C=CL+0.2000D+01*BR+HO2+CO
-     &                      +    2.0000D+00 * RXRAT( 434 )      ! MBC2=0.2000D+01*CL+BR+HO2+CO
+     &                      +                 RXRAT( 381 )      ! IO+CLO=CL+I
+     &                      +                 RXRAT( 382 )      ! IO+CLO=CL+I
+     &                      +                 RXRAT( 394 )      ! MIC=CL+I+FORM
+     &                      +                 RXRAT( 402 )      ! ICL=CL+I
+     &                      +                 RXRAT( 423 )      ! MB2C+OH=CL+0.2000D+01*BR+CO
+     &                      +    2.0000D+00 * RXRAT( 424 )      ! MBC2+OH=0.2000D+01*CL+BR+CO
+     &                      +                 RXRAT( 425 )      ! MBC+OH=CL+BR+CO+HO2
+     &                      +                 RXRAT( 428 )      ! BRO+CLO=CL+BR
+     &                      +                 RXRAT( 429 )      ! BRO+CLO=CL+BR
+     &                      +                 RXRAT( 432 )      ! BRCL=CL+BR
+     &                      +                 RXRAT( 440 )      ! MB2C=CL+0.2000D+01*BR+HO2+CO
+     &                      +    2.0000D+00 * RXRAT( 441 )      ! MBC2=0.2000D+01*CL+BR+HO2+CO
       LOSS(  CL           ) =                 RXRAT( 187 )      ! CL+O3=CLO
      &                      +                 RXRAT( 193 )      ! CL=HCL+MEO2
      &                      +                 RXRAT( 194 )      ! CL+PAR=HCL+0.8700D+00*XO2+...
@@ -827,12 +827,12 @@ C***********************************************************************
       LOSS(  CLO          ) =    2.0000D+00 * RXRAT( 188 )      ! CLO+CLO=0.3000D+00*CL2+...
      &                      +                 RXRAT( 189 )      ! CLO+NO=CL+NO2
      &                      +                 RXRAT( 190 )      ! CLO+HO2=HOCL
-     &                      +                 RXRAT( 374 )      ! CLO+IO=I+CL
-     &                      +                 RXRAT( 375 )      ! CLO+IO=I+CL
-     &                      +                 RXRAT( 376 )      ! CLO+IO=ICL
-     &                      +                 RXRAT( 421 )      ! CLO+BRO=BR+CL
-     &                      +                 RXRAT( 422 )      ! CLO+BRO=BR+CL
-     &                      +                 RXRAT( 423 )      ! CLO+BRO=BRCL
+     &                      +                 RXRAT( 381 )      ! CLO+IO=I+CL
+     &                      +                 RXRAT( 382 )      ! CLO+IO=I+CL
+     &                      +                 RXRAT( 383 )      ! CLO+IO=ICL
+     &                      +                 RXRAT( 428 )      ! CLO+BRO=BR+CL
+     &                      +                 RXRAT( 429 )      ! CLO+BRO=BR+CL
+     &                      +                 RXRAT( 430 )      ! CLO+BRO=BRCL
 
       PROD(  FMCL         ) =                 RXRAT( 196 )      ! CL+ETH=FMCL+0.2000D+01*XO2+...
      &                      +                 RXRAT( 197 )      ! CL+OLE=FMCL+0.3300D+...
@@ -1048,359 +1048,421 @@ C***********************************************************************
       PROD(  AALK2J       ) =   0.0D0
       LOSS(  AALK2J       ) =                 RXRAT( 290 )      ! AALK2J=0.1714D+01*AOLGAJ
 
-      PROD(  APOCI        ) =   0.0D0
-      LOSS(  APOCI        ) =   0.0D0
+      PROD(  PCVOC        ) =   0.0D0
+      LOSS(  PCVOC        ) =                 RXRAT( 291 )      ! PCVOC+OH=OH+PCSOARXN
 
-      PROD(  APNCOMI      ) =    1.2500D+00 * RXRAT( 291 )      ! APOCI+OH=0.1250D+...
-      LOSS(  APNCOMI      ) =                 RXRAT( 292 )      ! APNCOMI+OH=OH
+      PROD(  PCSOARXN     ) =                 RXRAT( 291 )      ! PCVOC+OH=PCSOARXN+OH
+      LOSS(  PCSOARXN     ) =   0.0D0
 
-      PROD(  APOCJ        ) =   0.0D0
-      LOSS(  APOCJ        ) =   0.0D0
+      PROD(  VLVPO1       ) =    3.0030D-01 * RXRAT( 293 )      ! VSVPO1+OH=0.3003D+...
+     &                      +    3.8560D-01 * RXRAT( 294 )      ! VSVPO2+OH=0.3856D+...
+     &                      +    2.1810D-01 * RXRAT( 295 )      ! VSVPO3+OH=0.2181D+...
+     &                      +    2.4120D-01 * RXRAT( 296 )      ! VIVPO1+OH=0.2412D+...
+      LOSS(  VLVPO1       ) =    5.1430D-01 * RXRAT( 292 )      ! VLVPO1+OH=0.4857D+...
 
-      PROD(  APNCOMJ      ) =    1.2500D+00 * RXRAT( 293 )      ! APOCJ+OH=0.1250D+...
-      LOSS(  APNCOMJ      ) =                 RXRAT( 294 )      ! APNCOMJ+OH=OH
+      PROD(  VSVPO1       ) =    6.2000D-03 * RXRAT( 292 )      ! VLVPO1+OH=0.6200D-...
+     &                      +    9.5000D-02 * RXRAT( 294 )      ! VSVPO2+OH=0.9500D-...
+     &                      +    3.0630D-01 * RXRAT( 295 )      ! VSVPO3+OH=0.3063D+...
+     &                      +    2.0890D-01 * RXRAT( 296 )      ! VIVPO1+OH=0.2089D+...
+      LOSS(  VSVPO1       ) =    7.1380D-01 * RXRAT( 293 )      ! VSVPO1+OH=0.2862D+...
+
+      PROD(  VSVPO2       ) =    2.5000D-03 * RXRAT( 292 )      ! VLVPO1+OH=0.2500D-...
+     &                      +    4.1000D-03 * RXRAT( 293 )      ! VSVPO1+OH=0.4100D-...
+     &                      +    1.5300D-02 * RXRAT( 295 )      ! VSVPO3+OH=0.1530D-...
+     &                      +    3.0000D-01 * RXRAT( 296 )      ! VIVPO1+OH=0.3000D+...
+      LOSS(  VSVPO2       ) =    8.6270D-01 * RXRAT( 294 )      ! VSVPO2+OH=0.1373D+...
+
+      PROD(  VSVPO3       ) =    2.6000D-03 * RXRAT( 292 )      ! VLVPO1+OH=0.2600D-...
+     &                      +    3.5000D-03 * RXRAT( 293 )      ! VSVPO1+OH=0.3500D-...
+     &                      +    5.0000D-04 * RXRAT( 294 )      ! VSVPO2+OH=0.5000D-...
+      LOSS(  VSVPO3       ) =    8.9570D-01 * RXRAT( 295 )      ! VSVPO3+OH=0.1043D+...
+
+      PROD(  VIVPO1       ) =    2.3000D-03 * RXRAT( 292 )      ! VLVPO1+OH=0.2300D-...
+      LOSS(  VIVPO1       ) =                 RXRAT( 296 )      ! VIVPO1+OH=OH+0.2412D+...
+
+      PROD(  VLVOO1       ) =    2.9440D-01 * RXRAT( 292 )      ! VLVPO1+OH=0.2944D+...
+     &                      +    2.2390D-01 * RXRAT( 293 )      ! VSVPO1+OH=0.2239D+...
+     &                      +    2.0510D-01 * RXRAT( 294 )      ! VSVPO2+OH=0.2051D+...
+     &                      +    1.8930D-01 * RXRAT( 295 )      ! VSVPO3+OH=0.1893D+...
+     &                      +    2.0280D-01 * RXRAT( 296 )      ! VIVPO1+OH=0.2028D+...
+     &                      +    2.8580D-01 * RXRAT( 298 )      ! VLVOO2+OH=0.2858D+...
+     &                      +    3.3030D-01 * RXRAT( 299 )      ! VSVOO1+OH=0.3303D+...
+     &                      +    3.4440D-01 * RXRAT( 300 )      ! VSVOO2+OH=0.3444D+...
+     &                      +    3.8860D-01 * RXRAT( 301 )      ! VSVOO3+OH=0.3886D+...
+      LOSS(  VLVOO1       ) =    3.3360D-01 * RXRAT( 297 )      ! VLVOO1+OH=0.6664D+...
+
+      PROD(  VLVOO2       ) =    2.0210D-01 * RXRAT( 292 )      ! VLVPO1+OH=0.2021D+...
+     &                      +    1.8200D-01 * RXRAT( 293 )      ! VSVPO1+OH=0.1820D+...
+     &                      +    1.7640D-01 * RXRAT( 294 )      ! VSVPO2+OH=0.1764D+...
+     &                      +    1.6680D-01 * RXRAT( 295 )      ! VSVPO3+OH=0.1668D+...
+     &                      +    4.7100D-02 * RXRAT( 296 )      ! VIVPO1+OH=0.4710D-...
+     &                      +    1.4300D-02 * RXRAT( 297 )      ! VLVOO1+OH=0.1430D-...
+     &                      +    2.2720D-01 * RXRAT( 299 )      ! VSVOO1+OH=0.2272D+...
+     &                      +    2.7490D-01 * RXRAT( 300 )      ! VSVOO2+OH=0.2749D+...
+     &                      +    2.4210D-01 * RXRAT( 301 )      ! VSVOO3+OH=0.2421D+...
+      LOSS(  VLVOO2       ) =    6.0690D-01 * RXRAT( 298 )      ! VLVOO2+OH=0.3931D+...
+
+      PROD(  VSVOO2       ) =    1.9000D-03 * RXRAT( 292 )      ! VLVPO1+OH=0.1900D-...
+     &                      +    1.2390D-01 * RXRAT( 297 )      ! VLVOO1+OH=0.1239D+...
+     &                      +    1.0270D-01 * RXRAT( 298 )      ! VLVOO2+OH=0.1027D+...
+     &                      +    7.0200D-02 * RXRAT( 299 )      ! VSVOO1+OH=0.7020D-...
+     &                      +    3.8500D-02 * RXRAT( 301 )      ! VSVOO3+OH=0.3850D-...
+      LOSS(  VSVOO2       ) =    7.4230D-01 * RXRAT( 300 )      ! VSVOO2+OH=0.2577D+...
+
+      PROD(  VSVOO3       ) =    2.3000D-03 * RXRAT( 292 )      ! VLVPO1+OH=0.2300D-...
+     &                      +    1.8310D-01 * RXRAT( 297 )      ! VLVOO1+OH=0.1831D+...
+     &                      +    2.0450D-01 * RXRAT( 298 )      ! VLVOO2+OH=0.2045D+...
+     &                      +    1.1160D-01 * RXRAT( 299 )      ! VSVOO1+OH=0.1116D+...
+     &                      +    7.3900D-02 * RXRAT( 300 )      ! VSVOO2+OH=0.7390D-...
+      LOSS(  VSVOO3       ) =    7.3330D-01 * RXRAT( 301 )      ! VSVOO3+OH=0.2667D+...
+
+      PROD(  VSVOO1       ) =    1.2300D-02 * RXRAT( 297 )      ! VLVOO1+OH=0.1230D-...
+     &                      +    1.3900D-02 * RXRAT( 298 )      ! VLVOO2+OH=0.1390D-...
+     &                      +    4.9100D-02 * RXRAT( 300 )      ! VSVOO2+OH=0.4910D-...
+     &                      +    6.4000D-02 * RXRAT( 301 )      ! VSVOO3+OH=0.6400D-...
+      LOSS(  VSVOO1       ) =    7.3930D-01 * RXRAT( 299 )      ! VSVOO1+OH=0.2607D+...
 
       PROD(  FORM_PRIMARY ) =   0.0D0
-      LOSS(  FORM_PRIMARY ) =                 RXRAT( 295 )      ! FORM_PRIMARY+OH=OH
-     &                      +                 RXRAT( 296 )      ! FORM_PRIMARY+NO3=NO3
-     &                      +                 RXRAT( 297 )      ! FORM_PRIMARY+O=O
-     &                      +                 RXRAT( 298 )      ! FORM_PRIMARY=
-     &                      +                 RXRAT( 299 )      ! FORM_PRIMARY=
-     &                      +                 RXRAT( 300 )      ! FORM_PRIMARY+CL=CL
+      LOSS(  FORM_PRIMARY ) =                 RXRAT( 302 )      ! FORM_PRIMARY+OH=OH
+     &                      +                 RXRAT( 303 )      ! FORM_PRIMARY+NO3=NO3
+     &                      +                 RXRAT( 304 )      ! FORM_PRIMARY+O=O
+     &                      +                 RXRAT( 305 )      ! FORM_PRIMARY=
+     &                      +                 RXRAT( 306 )      ! FORM_PRIMARY=
+     &                      +                 RXRAT( 307 )      ! FORM_PRIMARY+CL=CL
 
       PROD(  ALD2_PRIMARY ) =   0.0D0
-      LOSS(  ALD2_PRIMARY ) =                 RXRAT( 301 )      ! ALD2_PRIMARY+OH=OH
-     &                      +                 RXRAT( 302 )      ! ALD2_PRIMARY+NO3=NO3
-     &                      +                 RXRAT( 303 )      ! ALD2_PRIMARY+O=O
-     &                      +                 RXRAT( 304 )      ! ALD2_PRIMARY=
-     &                      +                 RXRAT( 305 )      ! ALD2_PRIMARY+CL=CL
+      LOSS(  ALD2_PRIMARY ) =                 RXRAT( 308 )      ! ALD2_PRIMARY+OH=OH
+     &                      +                 RXRAT( 309 )      ! ALD2_PRIMARY+NO3=NO3
+     &                      +                 RXRAT( 310 )      ! ALD2_PRIMARY+O=O
+     &                      +                 RXRAT( 311 )      ! ALD2_PRIMARY=
+     &                      +                 RXRAT( 312 )      ! ALD2_PRIMARY+CL=CL
 
       PROD(  BUTADIENE13  ) =   0.0D0
-      LOSS(  BUTADIENE13  ) =                 RXRAT( 306 )      ! BUTADIENE13+OH=OH+0.5800D+...
-     &                      +                 RXRAT( 307 )      ! BUTADIENE13+O3=O3+0.5200D+...
-     &                      +                 RXRAT( 308 )      ! BUTADIENE13+NO3=NO3+...
-     &                      +                 RXRAT( 309 )      ! BUTADIENE13+CL=CL+0.5800D+...
+      LOSS(  BUTADIENE13  ) =                 RXRAT( 313 )      ! BUTADIENE13+OH=OH+0.5800D+...
+     &                      +                 RXRAT( 314 )      ! BUTADIENE13+O3=O3+0.5200D+...
+     &                      +                 RXRAT( 315 )      ! BUTADIENE13+NO3=NO3+...
+     &                      +                 RXRAT( 316 )      ! BUTADIENE13+CL=CL+0.5800D+...
 
-      PROD(  ACROLEIN     ) =    5.8000D-01 * RXRAT( 306 )      ! BUTADIENE13+OH=0.5800D+...
-     &                      +    5.2000D-01 * RXRAT( 307 )      ! BUTADIENE13+O3=0.5200D+...
-     &                      +    4.5000D-02 * RXRAT( 308 )      ! BUTADIENE13+NO3=0.4500D-...
-     &                      +    5.8000D-01 * RXRAT( 309 )      ! BUTADIENE13+CL=0.5800D+...
-      LOSS(  ACROLEIN     ) =                 RXRAT( 315 )      ! ACROLEIN+OH=OH
-     &                      +                 RXRAT( 316 )      ! ACROLEIN+O3=O3
-     &                      +                 RXRAT( 317 )      ! ACROLEIN+NO3=NO3
-     &                      +                 RXRAT( 318 )      ! ACROLEIN=
-     &                      +                 RXRAT( 319 )      ! ACROLEIN+CL=CL
+      PROD(  ACROLEIN     ) =    5.8000D-01 * RXRAT( 313 )      ! BUTADIENE13+OH=0.5800D+...
+     &                      +    5.2000D-01 * RXRAT( 314 )      ! BUTADIENE13+O3=0.5200D+...
+     &                      +    4.5000D-02 * RXRAT( 315 )      ! BUTADIENE13+NO3=0.4500D-...
+     &                      +    5.8000D-01 * RXRAT( 316 )      ! BUTADIENE13+CL=0.5800D+...
+      LOSS(  ACROLEIN     ) =                 RXRAT( 322 )      ! ACROLEIN+OH=OH
+     &                      +                 RXRAT( 323 )      ! ACROLEIN+O3=O3
+     &                      +                 RXRAT( 324 )      ! ACROLEIN+NO3=NO3
+     &                      +                 RXRAT( 325 )      ! ACROLEIN=
+     &                      +                 RXRAT( 326 )      ! ACROLEIN+CL=CL
 
       PROD(  ACRO_PRIMARY ) =   0.0D0
-      LOSS(  ACRO_PRIMARY ) =                 RXRAT( 310 )      ! ACRO_PRIMARY+OH=OH
-     &                      +                 RXRAT( 311 )      ! ACRO_PRIMARY+O3=O3
-     &                      +                 RXRAT( 312 )      ! ACRO_PRIMARY+NO3=NO3
-     &                      +                 RXRAT( 313 )      ! ACRO_PRIMARY=
-     &                      +                 RXRAT( 314 )      ! ACRO_PRIMARY+CL=CL
+      LOSS(  ACRO_PRIMARY ) =                 RXRAT( 317 )      ! ACRO_PRIMARY+OH=OH
+     &                      +                 RXRAT( 318 )      ! ACRO_PRIMARY+O3=O3
+     &                      +                 RXRAT( 319 )      ! ACRO_PRIMARY+NO3=NO3
+     &                      +                 RXRAT( 320 )      ! ACRO_PRIMARY=
+     &                      +                 RXRAT( 321 )      ! ACRO_PRIMARY+CL=CL
 
       PROD(  TOLU         ) =   0.0D0
-      LOSS(  TOLU         ) =                 RXRAT( 320 )      ! TOLU+OH=OH
-     &                      +                 RXRAT( 321 )      ! TOLU+CL=CL
+      LOSS(  TOLU         ) =                 RXRAT( 327 )      ! TOLU+OH=OH
+     &                      +                 RXRAT( 328 )      ! TOLU+CL=CL
 
       PROD(  MXYL         ) =   0.0D0
-      LOSS(  MXYL         ) =                 RXRAT( 322 )      ! MXYL+OH=OH
-     &                      +                 RXRAT( 323 )      ! MXYL+CL=CL
+      LOSS(  MXYL         ) =                 RXRAT( 329 )      ! MXYL+OH=OH
+     &                      +                 RXRAT( 330 )      ! MXYL+CL=CL
 
       PROD(  OXYL         ) =   0.0D0
-      LOSS(  OXYL         ) =                 RXRAT( 324 )      ! OXYL+OH=OH
-     &                      +                 RXRAT( 325 )      ! OXYL+CL=CL
+      LOSS(  OXYL         ) =                 RXRAT( 331 )      ! OXYL+OH=OH
+     &                      +                 RXRAT( 332 )      ! OXYL+CL=CL
 
       PROD(  PXYL         ) =   0.0D0
-      LOSS(  PXYL         ) =                 RXRAT( 326 )      ! PXYL+OH=OH
-     &                      +                 RXRAT( 327 )      ! PXYL+CL=CL
+      LOSS(  PXYL         ) =                 RXRAT( 333 )      ! PXYL+OH=OH
+     &                      +                 RXRAT( 334 )      ! PXYL+CL=CL
 
       PROD(  APIN         ) =   0.0D0
-      LOSS(  APIN         ) =                 RXRAT( 328 )      ! APIN+O=O
-     &                      +                 RXRAT( 329 )      ! APIN+OH=OH
-     &                      +                 RXRAT( 330 )      ! APIN+O3=O3
-     &                      +                 RXRAT( 331 )      ! APIN+NO3=NO3
-     &                      +                 RXRAT( 332 )      ! APIN+CL=CL
+      LOSS(  APIN         ) =                 RXRAT( 335 )      ! APIN+O=O
+     &                      +                 RXRAT( 336 )      ! APIN+OH=OH
+     &                      +                 RXRAT( 337 )      ! APIN+O3=O3
+     &                      +                 RXRAT( 338 )      ! APIN+NO3=NO3
+     &                      +                 RXRAT( 339 )      ! APIN+CL=CL
 
       PROD(  BPIN         ) =   0.0D0
-      LOSS(  BPIN         ) =                 RXRAT( 333 )      ! BPIN+O=O
-     &                      +                 RXRAT( 334 )      ! BPIN+OH=OH
-     &                      +                 RXRAT( 335 )      ! BPIN+O3=O3
-     &                      +                 RXRAT( 336 )      ! BPIN+NO3=NO3
-     &                      +                 RXRAT( 337 )      ! BPIN+CL=CL
+      LOSS(  BPIN         ) =                 RXRAT( 340 )      ! BPIN+O=O
+     &                      +                 RXRAT( 341 )      ! BPIN+OH=OH
+     &                      +                 RXRAT( 342 )      ! BPIN+O3=O3
+     &                      +                 RXRAT( 343 )      ! BPIN+NO3=NO3
+     &                      +                 RXRAT( 344 )      ! BPIN+CL=CL
 
       PROD(  HG           ) =   0.0D0
-      LOSS(  HG           ) =                 RXRAT( 338 )      ! HG+O3=0.5000D+00*HGIIAER+...
-     &                      +                 RXRAT( 339 )      ! HG+CL2=HGIIGAS+CL2
-     &                      +                 RXRAT( 340 )      ! HG+H2O2=HGIIGAS+H2O2
-     &                      +                 RXRAT( 341 )      ! HG+OH=0.5000D+00*HGIIAER+...
-     &                      +    5.0000D-01 * RXRAT( 342 )      ! HG+CL=0.5000D+00*HG+...
+      LOSS(  HG           ) =                 RXRAT( 345 )      ! HG+O3=0.5000D+00*HGIIAER+...
+     &                      +                 RXRAT( 346 )      ! HG+CL2=HGIIGAS+CL2
+     &                      +                 RXRAT( 347 )      ! HG+H2O2=HGIIGAS+H2O2
+     &                      +                 RXRAT( 348 )      ! HG+OH=0.5000D+00*HGIIAER+...
+     &                      +    5.0000D-01 * RXRAT( 349 )      ! HG+CL=0.5000D+00*HG+...
 
-      PROD(  HGIIAER      ) =    5.0000D-01 * RXRAT( 338 )      ! HG+O3=0.5000D+00*HGIIAER+...
-     &                      +    5.0000D-01 * RXRAT( 341 )      ! HG+OH=0.5000D+00*HGIIAER+...
+      PROD(  HGIIAER      ) =    5.0000D-01 * RXRAT( 345 )      ! HG+O3=0.5000D+00*HGIIAER+...
+     &                      +    5.0000D-01 * RXRAT( 348 )      ! HG+OH=0.5000D+00*HGIIAER+...
       LOSS(  HGIIAER      ) =   0.0D0
 
-      PROD(  HGIIGAS      ) =    5.0000D-01 * RXRAT( 338 )      ! HG+O3=0.5000D+00*HGIIGAS+...
-     &                      +                 RXRAT( 339 )      ! HG+CL2=HGIIGAS+CL2
-     &                      +                 RXRAT( 340 )      ! HG+H2O2=HGIIGAS+H2O2
-     &                      +    5.0000D-01 * RXRAT( 341 )      ! HG+OH=0.5000D+00*HGIIGAS+...
-     &                      +    5.0000D-01 * RXRAT( 342 )      ! HG+CL=0.5000D+00*HGIIGAS+...
+      PROD(  HGIIGAS      ) =    5.0000D-01 * RXRAT( 345 )      ! HG+O3=0.5000D+00*HGIIGAS+...
+     &                      +                 RXRAT( 346 )      ! HG+CL2=HGIIGAS+CL2
+     &                      +                 RXRAT( 347 )      ! HG+H2O2=HGIIGAS+H2O2
+     &                      +    5.0000D-01 * RXRAT( 348 )      ! HG+OH=0.5000D+00*HGIIGAS+...
+     &                      +    5.0000D-01 * RXRAT( 349 )      ! HG+CL=0.5000D+00*HGIIGAS+...
       LOSS(  HGIIGAS      ) =   0.0D0
 
-      PROD(  I            ) =                 RXRAT( 346 )      ! IO+NO=I+NO2
-     &                      +                 RXRAT( 348 )      ! IO+IO=I+OIO
-     &                      +                 RXRAT( 352 )      ! I2+O=I+IO
-     &                      +                 RXRAT( 353 )      ! IO+O=I
-     &                      +                 RXRAT( 354 )      ! IO+OH=I+HO2
-     &                      +                 RXRAT( 355 )      ! I2O2=I+OIO
-     &                      +                 RXRAT( 358 )      ! I2+OH=I+HOI
-     &                      +                 RXRAT( 359 )      ! I2+NO3=I+IONO2
-     &                      +                 RXRAT( 361 )      ! OH+HI=I
-     &                      +                 RXRAT( 364 )      ! IO+DMS=I+0.2500D+00*MSA+...
-     &                      +                 RXRAT( 365 )      ! INO2=I+NO2
-     &                      +                 RXRAT( 370 )      ! HI+NO3=I+HNO3
-     &                      +                 RXRAT( 371 )      ! IO+BRO=I+BR
-     &                      +                 RXRAT( 374 )      ! IO+CLO=I+CL
-     &                      +                 RXRAT( 375 )      ! IO+CLO=I+CL
-     &                      +                 RXRAT( 377 )      ! IO+BR=I+BRO
-     &                      +                 RXRAT( 379 )      ! IO+MEO2=I+FORM+HO2
-     &                      +                 RXRAT( 380 )      ! CH3I+OH=I+FORM
-     &                      +                 RXRAT( 384 )      ! CH3I=I+MEO2
-     &                      +    2.0000D+00 * RXRAT( 385 )      ! MI2=0.2000D+01*I+FORM
-     &                      +                 RXRAT( 386 )      ! MIB=I+BR+FORM
-     &                      +                 RXRAT( 387 )      ! MIC=I+CL+FORM
-     &                      +    2.0000D+00 * RXRAT( 388 )      ! I2=0.2000D+01*I
-     &                      +                 RXRAT( 389 )      ! IO=I+O
-     &                      +                 RXRAT( 390 )      ! OIO=I
-     &                      +                 RXRAT( 391 )      ! INO=I+NO
-     &                      +                 RXRAT( 392 )      ! INO2=I+NO2
-     &                      +                 RXRAT( 393 )      ! IONO2=I+NO3
-     &                      +                 RXRAT( 394 )      ! HOI=I+OH
-     &                      +                 RXRAT( 395 )      ! ICL=I+CL
-      LOSS(  I            ) =                 RXRAT( 343 )      ! I+O3=IO
-     &                      +                 RXRAT( 345 )      ! I+HO2=HI
-     &                      +                 RXRAT( 360 )      ! I+NO3=IO+NO2
-     &                      +                 RXRAT( 362 )      ! I+IONO2=I2+NO3
-     &                      +                 RXRAT( 373 )      ! I+BRO=IO+BR
-     &                      +                 RXRAT( 381 )      ! I+NO2=INO2
-     &                      +                 RXRAT( 383 )      ! I+NO=INO
+      PROD(  I            ) =                 RXRAT( 353 )      ! IO+NO=I+NO2
+     &                      +                 RXRAT( 355 )      ! IO+IO=I+OIO
+     &                      +                 RXRAT( 359 )      ! I2+O=I+IO
+     &                      +                 RXRAT( 360 )      ! IO+O=I
+     &                      +                 RXRAT( 361 )      ! IO+OH=I+HO2
+     &                      +                 RXRAT( 362 )      ! I2O2=I+OIO
+     &                      +                 RXRAT( 365 )      ! I2+OH=I+HOI
+     &                      +                 RXRAT( 366 )      ! I2+NO3=I+IONO2
+     &                      +                 RXRAT( 368 )      ! OH+HI=I
+     &                      +                 RXRAT( 371 )      ! IO+DMS=I+0.2500D+00*MSA+...
+     &                      +                 RXRAT( 372 )      ! INO2=I+NO2
+     &                      +                 RXRAT( 377 )      ! HI+NO3=I+HNO3
+     &                      +                 RXRAT( 378 )      ! IO+BRO=I+BR
+     &                      +                 RXRAT( 381 )      ! IO+CLO=I+CL
+     &                      +                 RXRAT( 382 )      ! IO+CLO=I+CL
+     &                      +                 RXRAT( 384 )      ! IO+BR=I+BRO
+     &                      +                 RXRAT( 386 )      ! IO+MEO2=I+FORM+HO2
+     &                      +                 RXRAT( 387 )      ! CH3I+OH=I+FORM
+     &                      +                 RXRAT( 391 )      ! CH3I=I+MEO2
+     &                      +    2.0000D+00 * RXRAT( 392 )      ! MI2=0.2000D+01*I+FORM
+     &                      +                 RXRAT( 393 )      ! MIB=I+BR+FORM
+     &                      +                 RXRAT( 394 )      ! MIC=I+CL+FORM
+     &                      +    2.0000D+00 * RXRAT( 395 )      ! I2=0.2000D+01*I
+     &                      +                 RXRAT( 396 )      ! IO=I+O
+     &                      +                 RXRAT( 397 )      ! OIO=I
+     &                      +                 RXRAT( 398 )      ! INO=I+NO
+     &                      +                 RXRAT( 399 )      ! INO2=I+NO2
+     &                      +                 RXRAT( 400 )      ! IONO2=I+NO3
+     &                      +                 RXRAT( 401 )      ! HOI=I+OH
+     &                      +                 RXRAT( 402 )      ! ICL=I+CL
+      LOSS(  I            ) =                 RXRAT( 350 )      ! I+O3=IO
+     &                      +                 RXRAT( 352 )      ! I+HO2=HI
+     &                      +                 RXRAT( 367 )      ! I+NO3=IO+NO2
+     &                      +                 RXRAT( 369 )      ! I+IONO2=I2+NO3
+     &                      +                 RXRAT( 380 )      ! I+BRO=IO+BR
+     &                      +                 RXRAT( 388 )      ! I+NO2=INO2
+     &                      +                 RXRAT( 390 )      ! I+NO=INO
 
-      PROD(  IO           ) =                 RXRAT( 343 )      ! I+O3=IO
-     &                      +                 RXRAT( 352 )      ! I2+O=IO+I
-     &                      +    2.0000D+00 * RXRAT( 356 )      ! I2O2=0.2000D+01*IO
-     &                      +                 RXRAT( 360 )      ! I+NO3=IO+NO2
-     &                      +                 RXRAT( 363 )      ! HOI+OH=IO
-     &                      +                 RXRAT( 366 )      ! IONO2=IO+NO2
-     &                      +                 RXRAT( 369 )      ! OIO+NO=IO+NO2
-     &                      +                 RXRAT( 373 )      ! I+BRO=IO+BR
-      LOSS(  IO           ) =                 RXRAT( 344 )      ! IO+O3=OIO
-     &                      +                 RXRAT( 346 )      ! IO+NO=I+NO2
-     &                      +                 RXRAT( 347 )      ! IO+HO2=HOI
-     &                      +    2.0000D+00 * RXRAT( 348 )      ! IO+IO=OIO+I
-     &                      +    2.0000D+00 * RXRAT( 349 )      ! IO+IO=I2O2
-     &                      +                 RXRAT( 350 )      ! IO+OIO=I2O3
-     &                      +                 RXRAT( 353 )      ! IO+O=I
-     &                      +                 RXRAT( 354 )      ! IO+OH=HO2+I
-     &                      +                 RXRAT( 364 )      ! IO+DMS=0.7500D+00*SO2+...
-     &                      +                 RXRAT( 371 )      ! IO+BRO=BR+I
-     &                      +                 RXRAT( 372 )      ! IO+BRO=BR+OIO
-     &                      +                 RXRAT( 374 )      ! IO+CLO=I+CL
-     &                      +                 RXRAT( 375 )      ! IO+CLO=I+CL
-     &                      +                 RXRAT( 376 )      ! IO+CLO=ICL
-     &                      +                 RXRAT( 377 )      ! IO+BR=I+BRO
-     &                      +                 RXRAT( 378 )      ! IO+NO3=OIO+NO2
-     &                      +                 RXRAT( 379 )      ! IO+MEO2=FORM+I+HO2
-     &                      +                 RXRAT( 382 )      ! IO+NO2=IONO2
-     &                      +                 RXRAT( 389 )      ! IO=I+O
+      PROD(  IO           ) =                 RXRAT( 350 )      ! I+O3=IO
+     &                      +                 RXRAT( 359 )      ! I2+O=IO+I
+     &                      +    2.0000D+00 * RXRAT( 363 )      ! I2O2=0.2000D+01*IO
+     &                      +                 RXRAT( 367 )      ! I+NO3=IO+NO2
+     &                      +                 RXRAT( 370 )      ! HOI+OH=IO
+     &                      +                 RXRAT( 373 )      ! IONO2=IO+NO2
+     &                      +                 RXRAT( 376 )      ! OIO+NO=IO+NO2
+     &                      +                 RXRAT( 380 )      ! I+BRO=IO+BR
+      LOSS(  IO           ) =                 RXRAT( 351 )      ! IO+O3=OIO
+     &                      +                 RXRAT( 353 )      ! IO+NO=I+NO2
+     &                      +                 RXRAT( 354 )      ! IO+HO2=HOI
+     &                      +    2.0000D+00 * RXRAT( 355 )      ! IO+IO=OIO+I
+     &                      +    2.0000D+00 * RXRAT( 356 )      ! IO+IO=I2O2
+     &                      +                 RXRAT( 357 )      ! IO+OIO=I2O3
+     &                      +                 RXRAT( 360 )      ! IO+O=I
+     &                      +                 RXRAT( 361 )      ! IO+OH=HO2+I
+     &                      +                 RXRAT( 371 )      ! IO+DMS=0.7500D+00*SO2+...
+     &                      +                 RXRAT( 378 )      ! IO+BRO=BR+I
+     &                      +                 RXRAT( 379 )      ! IO+BRO=BR+OIO
+     &                      +                 RXRAT( 381 )      ! IO+CLO=I+CL
+     &                      +                 RXRAT( 382 )      ! IO+CLO=I+CL
+     &                      +                 RXRAT( 383 )      ! IO+CLO=ICL
+     &                      +                 RXRAT( 384 )      ! IO+BR=I+BRO
+     &                      +                 RXRAT( 385 )      ! IO+NO3=OIO+NO2
+     &                      +                 RXRAT( 386 )      ! IO+MEO2=FORM+I+HO2
+     &                      +                 RXRAT( 389 )      ! IO+NO2=IONO2
+     &                      +                 RXRAT( 396 )      ! IO=I+O
 
-      PROD(  OIO          ) =                 RXRAT( 344 )      ! IO+O3=OIO
-     &                      +                 RXRAT( 348 )      ! IO+IO=OIO+I
-     &                      +                 RXRAT( 355 )      ! I2O2=OIO+I
-     &                      +    2.0000D+00 * RXRAT( 357 )      ! I2O4=0.2000D+01*OIO
-     &                      +                 RXRAT( 372 )      ! IO+BRO=OIO+BR
-     &                      +                 RXRAT( 378 )      ! IO+NO3=OIO+NO2
-      LOSS(  OIO          ) =                 RXRAT( 350 )      ! OIO+IO=I2O3
-     &                      +    2.0000D+00 * RXRAT( 351 )      ! OIO+OIO=I2O4
-     &                      +                 RXRAT( 369 )      ! OIO+NO=IO+NO2
-     &                      +                 RXRAT( 390 )      ! OIO=I
+      PROD(  OIO          ) =                 RXRAT( 351 )      ! IO+O3=OIO
+     &                      +                 RXRAT( 355 )      ! IO+IO=OIO+I
+     &                      +                 RXRAT( 362 )      ! I2O2=OIO+I
+     &                      +    2.0000D+00 * RXRAT( 364 )      ! I2O4=0.2000D+01*OIO
+     &                      +                 RXRAT( 379 )      ! IO+BRO=OIO+BR
+     &                      +                 RXRAT( 385 )      ! IO+NO3=OIO+NO2
+      LOSS(  OIO          ) =                 RXRAT( 357 )      ! OIO+IO=I2O3
+     &                      +    2.0000D+00 * RXRAT( 358 )      ! OIO+OIO=I2O4
+     &                      +                 RXRAT( 376 )      ! OIO+NO=IO+NO2
+     &                      +                 RXRAT( 397 )      ! OIO=I
 
-      PROD(  HI           ) =                 RXRAT( 345 )      ! I+HO2=HI
-      LOSS(  HI           ) =                 RXRAT( 361 )      ! HI+OH=I
-     &                      +                 RXRAT( 370 )      ! HI+NO3=I+HNO3
+      PROD(  HI           ) =                 RXRAT( 352 )      ! I+HO2=HI
+      LOSS(  HI           ) =                 RXRAT( 368 )      ! HI+OH=I
+     &                      +                 RXRAT( 377 )      ! HI+NO3=I+HNO3
 
-      PROD(  HOI          ) =                 RXRAT( 347 )      ! IO+HO2=HOI
-     &                      +                 RXRAT( 358 )      ! I2+OH=HOI+I
-      LOSS(  HOI          ) =                 RXRAT( 363 )      ! HOI+OH=IO
-     &                      +                 RXRAT( 394 )      ! HOI=I+OH
+      PROD(  HOI          ) =                 RXRAT( 354 )      ! IO+HO2=HOI
+     &                      +                 RXRAT( 365 )      ! I2+OH=HOI+I
+      LOSS(  HOI          ) =                 RXRAT( 370 )      ! HOI+OH=IO
+     &                      +                 RXRAT( 401 )      ! HOI=I+OH
 
-      PROD(  I2O2         ) =                 RXRAT( 349 )      ! IO+IO=I2O2
-      LOSS(  I2O2         ) =                 RXRAT( 355 )      ! I2O2=OIO+I
-     &                      +                 RXRAT( 356 )      ! I2O2=0.2000D+01*IO
+      PROD(  I2O2         ) =                 RXRAT( 356 )      ! IO+IO=I2O2
+      LOSS(  I2O2         ) =                 RXRAT( 362 )      ! I2O2=OIO+I
+     &                      +                 RXRAT( 363 )      ! I2O2=0.2000D+01*IO
 
-      PROD(  I2O3         ) =                 RXRAT( 350 )      ! IO+OIO=I2O3
+      PROD(  I2O3         ) =                 RXRAT( 357 )      ! IO+OIO=I2O3
       LOSS(  I2O3         ) =   0.0D0
 
-      PROD(  I2O4         ) =                 RXRAT( 351 )      ! OIO+OIO=I2O4
-      LOSS(  I2O4         ) =                 RXRAT( 357 )      ! I2O4=0.2000D+01*OIO
+      PROD(  I2O4         ) =                 RXRAT( 358 )      ! OIO+OIO=I2O4
+      LOSS(  I2O4         ) =                 RXRAT( 364 )      ! I2O4=0.2000D+01*OIO
 
-      PROD(  I2           ) =                 RXRAT( 362 )      ! I+IONO2=I2+NO3
-     &                      +                 RXRAT( 367 )      ! INO+INO=I2+0.2000D+01*NO
-     &                      +                 RXRAT( 368 )      ! INO2+INO2=I2+0.2000D+01*NO2
-      LOSS(  I2           ) =                 RXRAT( 352 )      ! I2+O=IO+I
-     &                      +                 RXRAT( 358 )      ! I2+OH=HOI+I
-     &                      +                 RXRAT( 359 )      ! I2+NO3=I+IONO2
-     &                      +                 RXRAT( 388 )      ! I2=0.2000D+01*I
+      PROD(  I2           ) =                 RXRAT( 369 )      ! I+IONO2=I2+NO3
+     &                      +                 RXRAT( 374 )      ! INO+INO=I2+0.2000D+01*NO
+     &                      +                 RXRAT( 375 )      ! INO2+INO2=I2+0.2000D+01*NO2
+      LOSS(  I2           ) =                 RXRAT( 359 )      ! I2+O=IO+I
+     &                      +                 RXRAT( 365 )      ! I2+OH=HOI+I
+     &                      +                 RXRAT( 366 )      ! I2+NO3=I+IONO2
+     &                      +                 RXRAT( 395 )      ! I2=0.2000D+01*I
 
-      PROD(  IONO2        ) =                 RXRAT( 359 )      ! I2+NO3=IONO2+I
-     &                      +                 RXRAT( 382 )      ! IO+NO2=IONO2
-      LOSS(  IONO2        ) =                 RXRAT( 362 )      ! IONO2+I=I2+NO3
-     &                      +                 RXRAT( 366 )      ! IONO2=IO+NO2
-     &                      +                 RXRAT( 393 )      ! IONO2=I+NO3
+      PROD(  IONO2        ) =                 RXRAT( 366 )      ! I2+NO3=IONO2+I
+     &                      +                 RXRAT( 389 )      ! IO+NO2=IONO2
+      LOSS(  IONO2        ) =                 RXRAT( 369 )      ! IONO2+I=I2+NO3
+     &                      +                 RXRAT( 373 )      ! IONO2=IO+NO2
+     &                      +                 RXRAT( 400 )      ! IONO2=I+NO3
 
       PROD(  DMS          ) =   0.0D0
-      LOSS(  DMS          ) =                 RXRAT( 364 )      ! DMS+IO=0.7500D+00*SO2+...
-     &                      +                 RXRAT( 424 )      ! DMS+BRO=0.7500D+00*SO2+...
+      LOSS(  DMS          ) =                 RXRAT( 371 )      ! DMS+IO=0.7500D+00*SO2+...
+     &                      +                 RXRAT( 431 )      ! DMS+BRO=0.7500D+00*SO2+...
 
-      PROD(  MSA          ) =    2.5000D-01 * RXRAT( 364 )      ! IO+DMS=0.2500D+00*MSA+...
-     &                      +    2.5000D-01 * RXRAT( 424 )      ! DMS+BRO=0.2500D+00*MSA+...
+      PROD(  MSA          ) =    2.5000D-01 * RXRAT( 371 )      ! IO+DMS=0.2500D+00*MSA+...
+     &                      +    2.5000D-01 * RXRAT( 431 )      ! DMS+BRO=0.2500D+00*MSA+...
       LOSS(  MSA          ) =   0.0D0
 
-      PROD(  INO2         ) =                 RXRAT( 381 )      ! I+NO2=INO2
-      LOSS(  INO2         ) =                 RXRAT( 365 )      ! INO2=I+NO2
-     &                      +    2.0000D+00 * RXRAT( 368 )      ! INO2+INO2=I2+0.2000D+01*NO2
-     &                      +                 RXRAT( 392 )      ! INO2=I+NO2
+      PROD(  INO2         ) =                 RXRAT( 388 )      ! I+NO2=INO2
+      LOSS(  INO2         ) =                 RXRAT( 372 )      ! INO2=I+NO2
+     &                      +    2.0000D+00 * RXRAT( 375 )      ! INO2+INO2=I2+0.2000D+01*NO2
+     &                      +                 RXRAT( 399 )      ! INO2=I+NO2
 
-      PROD(  INO          ) =                 RXRAT( 383 )      ! I+NO=INO
-      LOSS(  INO          ) =    2.0000D+00 * RXRAT( 367 )      ! INO+INO=I2+0.2000D+01*NO
-     &                      +                 RXRAT( 391 )      ! INO=I+NO
+      PROD(  INO          ) =                 RXRAT( 390 )      ! I+NO=INO
+      LOSS(  INO          ) =    2.0000D+00 * RXRAT( 374 )      ! INO+INO=I2+0.2000D+01*NO
+     &                      +                 RXRAT( 398 )      ! INO=I+NO
 
-      PROD(  BRO          ) =                 RXRAT( 377 )      ! IO+BR=BRO+I
-     &                      +                 RXRAT( 396 )      ! BR+O3=BRO
-     &                      +                 RXRAT( 406 )      ! BR+NO3=BRO+NO2
-     &                      +                 RXRAT( 428 )      ! BRONO2=BRO+NO2
-      LOSS(  BRO          ) =                 RXRAT( 371 )      ! BRO+IO=BR+I
-     &                      +                 RXRAT( 372 )      ! BRO+IO=BR+OIO
-     &                      +                 RXRAT( 373 )      ! BRO+I=IO+BR
-     &                      +                 RXRAT( 397 )      ! BRO+HO2=HOBR
-     &                      +    2.0000D+00 * RXRAT( 400 )      ! BRO+BRO=0.2000D+01*BR
-     &                      +    2.0000D+00 * RXRAT( 401 )      ! BRO+BRO=BR2
-     &                      +                 RXRAT( 402 )      ! BRO+NO=BR+NO2
-     &                      +                 RXRAT( 405 )      ! BRO+OH=BR+HO2
-     &                      +                 RXRAT( 410 )      ! BRO+MEO2=HOBR+FORM
-     &                      +                 RXRAT( 411 )      ! BRO+MEO2=BR+FORM+HO2
-     &                      +                 RXRAT( 412 )      ! BRO+C2O3=BR+MEO2
-     &                      +                 RXRAT( 419 )      ! BRO+NO2=BRONO2
-     &                      +                 RXRAT( 421 )      ! BRO+CLO=BR+CL
-     &                      +                 RXRAT( 422 )      ! BRO+CLO=BR+CL
-     &                      +                 RXRAT( 423 )      ! BRO+CLO=BRCL
-     &                      +                 RXRAT( 424 )      ! BRO+DMS=0.7500D+00*SO2+...
-     &                      +                 RXRAT( 426 )      ! BRO=BR+O
+      PROD(  BRO          ) =                 RXRAT( 384 )      ! IO+BR=BRO+I
+     &                      +                 RXRAT( 403 )      ! BR+O3=BRO
+     &                      +                 RXRAT( 413 )      ! BR+NO3=BRO+NO2
+     &                      +                 RXRAT( 435 )      ! BRONO2=BRO+NO2
+      LOSS(  BRO          ) =                 RXRAT( 378 )      ! BRO+IO=BR+I
+     &                      +                 RXRAT( 379 )      ! BRO+IO=BR+OIO
+     &                      +                 RXRAT( 380 )      ! BRO+I=IO+BR
+     &                      +                 RXRAT( 404 )      ! BRO+HO2=HOBR
+     &                      +    2.0000D+00 * RXRAT( 407 )      ! BRO+BRO=0.2000D+01*BR
+     &                      +    2.0000D+00 * RXRAT( 408 )      ! BRO+BRO=BR2
+     &                      +                 RXRAT( 409 )      ! BRO+NO=BR+NO2
+     &                      +                 RXRAT( 412 )      ! BRO+OH=BR+HO2
+     &                      +                 RXRAT( 417 )      ! BRO+MEO2=HOBR+FORM
+     &                      +                 RXRAT( 418 )      ! BRO+MEO2=BR+FORM+HO2
+     &                      +                 RXRAT( 419 )      ! BRO+C2O3=BR+MEO2
+     &                      +                 RXRAT( 426 )      ! BRO+NO2=BRONO2
+     &                      +                 RXRAT( 428 )      ! BRO+CLO=BR+CL
+     &                      +                 RXRAT( 429 )      ! BRO+CLO=BR+CL
+     &                      +                 RXRAT( 430 )      ! BRO+CLO=BRCL
+     &                      +                 RXRAT( 431 )      ! BRO+DMS=0.7500D+00*SO2+...
+     &                      +                 RXRAT( 433 )      ! BRO=BR+O
 
-      PROD(  BR           ) =                 RXRAT( 371 )      ! IO+BRO=BR+I
-     &                      +                 RXRAT( 372 )      ! IO+BRO=BR+OIO
-     &                      +                 RXRAT( 373 )      ! I+BRO=BR+IO
-     &                      +                 RXRAT( 386 )      ! MIB=BR+I+FORM
-     &                      +                 RXRAT( 399 )      ! HBR+OH=BR
-     &                      +    2.0000D+00 * RXRAT( 400 )      ! BRO+BRO=0.2000D+01*BR
-     &                      +                 RXRAT( 402 )      ! BRO+NO=BR+NO2
-     &                      +                 RXRAT( 404 )      ! BR2+OH=BR+HOBR
-     &                      +                 RXRAT( 405 )      ! BRO+OH=BR+HO2
-     &                      +                 RXRAT( 411 )      ! BRO+MEO2=BR+FORM+HO2
-     &                      +                 RXRAT( 412 )      ! BRO+C2O3=BR+MEO2
-     &                      +    3.0000D+00 * RXRAT( 413 )      ! MB3+OH=0.3000D+01*BR+CO
-     &                      +                 RXRAT( 414 )      ! CH3BR+OH=BR+FORM
-     &                      +    2.0000D+00 * RXRAT( 415 )      ! MB2+OH=0.2000D+01*BR+HO2+CO
-     &                      +    2.0000D+00 * RXRAT( 416 )      ! MB2C+OH=0.2000D+01*BR+CL+CO
-     &                      +                 RXRAT( 417 )      ! MBC2+OH=BR+0.2000D+01*CL+CO
-     &                      +                 RXRAT( 418 )      ! MBC+OH=BR+CL+CO+HO2
-     &                      +                 RXRAT( 421 )      ! BRO+CLO=BR+CL
-     &                      +                 RXRAT( 422 )      ! BRO+CLO=BR+CL
-     &                      +                 RXRAT( 424 )      ! DMS+BRO=BR+0.2500D+00*MSA+...
-     &                      +                 RXRAT( 425 )      ! BRCL=BR+CL
-     &                      +                 RXRAT( 426 )      ! BRO=BR+O
-     &                      +                 RXRAT( 427 )      ! HOBR=BR+OH
-     &                      +                 RXRAT( 429 )      ! BRONO2=BR+NO3
-     &                      +                 RXRAT( 430 )      ! BRNO2=BR+NO2
-     &                      +    2.0000D+00 * RXRAT( 431 )      ! BR2=0.2000D+01*BR
-     &                      +    3.0000D+00 * RXRAT( 432 )      ! MB3=0.3000D+01*BR+HO2+CO
-     &                      +    2.0000D+00 * RXRAT( 433 )      ! MB2C=0.2000D+01*BR+CL+HO2+CO
-     &                      +                 RXRAT( 434 )      ! MBC2=BR+0.2000D+01*CL+HO2+CO
-      LOSS(  BR           ) =                 RXRAT( 377 )      ! BR+IO=I+BRO
-     &                      +                 RXRAT( 396 )      ! BR+O3=BRO
-     &                      +                 RXRAT( 398 )      ! BR+HO2=HBR
-     &                      +                 RXRAT( 403 )      ! BR+BRONO2=BR2+NO3
-     &                      +                 RXRAT( 406 )      ! BR+NO3=BRO+NO2
-     &                      +                 RXRAT( 407 )      ! BR+FORM=HBR+HO2+CO
-     &                      +                 RXRAT( 408 )      ! BR+ALD2=HBR+C2O3
-     &                      +                 RXRAT( 409 )      ! BR+ALDX=HBR+CXO3
-     &                      +                 RXRAT( 420 )      ! BR+NO2=BRNO2
+      PROD(  BR           ) =                 RXRAT( 378 )      ! IO+BRO=BR+I
+     &                      +                 RXRAT( 379 )      ! IO+BRO=BR+OIO
+     &                      +                 RXRAT( 380 )      ! I+BRO=BR+IO
+     &                      +                 RXRAT( 393 )      ! MIB=BR+I+FORM
+     &                      +                 RXRAT( 406 )      ! HBR+OH=BR
+     &                      +    2.0000D+00 * RXRAT( 407 )      ! BRO+BRO=0.2000D+01*BR
+     &                      +                 RXRAT( 409 )      ! BRO+NO=BR+NO2
+     &                      +                 RXRAT( 411 )      ! BR2+OH=BR+HOBR
+     &                      +                 RXRAT( 412 )      ! BRO+OH=BR+HO2
+     &                      +                 RXRAT( 418 )      ! BRO+MEO2=BR+FORM+HO2
+     &                      +                 RXRAT( 419 )      ! BRO+C2O3=BR+MEO2
+     &                      +    3.0000D+00 * RXRAT( 420 )      ! MB3+OH=0.3000D+01*BR+CO
+     &                      +                 RXRAT( 421 )      ! CH3BR+OH=BR+FORM
+     &                      +    2.0000D+00 * RXRAT( 422 )      ! MB2+OH=0.2000D+01*BR+HO2+CO
+     &                      +    2.0000D+00 * RXRAT( 423 )      ! MB2C+OH=0.2000D+01*BR+CL+CO
+     &                      +                 RXRAT( 424 )      ! MBC2+OH=BR+0.2000D+01*CL+CO
+     &                      +                 RXRAT( 425 )      ! MBC+OH=BR+CL+CO+HO2
+     &                      +                 RXRAT( 428 )      ! BRO+CLO=BR+CL
+     &                      +                 RXRAT( 429 )      ! BRO+CLO=BR+CL
+     &                      +                 RXRAT( 431 )      ! DMS+BRO=BR+0.2500D+00*MSA+...
+     &                      +                 RXRAT( 432 )      ! BRCL=BR+CL
+     &                      +                 RXRAT( 433 )      ! BRO=BR+O
+     &                      +                 RXRAT( 434 )      ! HOBR=BR+OH
+     &                      +                 RXRAT( 436 )      ! BRONO2=BR+NO3
+     &                      +                 RXRAT( 437 )      ! BRNO2=BR+NO2
+     &                      +    2.0000D+00 * RXRAT( 438 )      ! BR2=0.2000D+01*BR
+     &                      +    3.0000D+00 * RXRAT( 439 )      ! MB3=0.3000D+01*BR+HO2+CO
+     &                      +    2.0000D+00 * RXRAT( 440 )      ! MB2C=0.2000D+01*BR+CL+HO2+CO
+     &                      +                 RXRAT( 441 )      ! MBC2=BR+0.2000D+01*CL+HO2+CO
+      LOSS(  BR           ) =                 RXRAT( 384 )      ! BR+IO=I+BRO
+     &                      +                 RXRAT( 403 )      ! BR+O3=BRO
+     &                      +                 RXRAT( 405 )      ! BR+HO2=HBR
+     &                      +                 RXRAT( 410 )      ! BR+BRONO2=BR2+NO3
+     &                      +                 RXRAT( 413 )      ! BR+NO3=BRO+NO2
+     &                      +                 RXRAT( 414 )      ! BR+FORM=HBR+HO2+CO
+     &                      +                 RXRAT( 415 )      ! BR+ALD2=HBR+C2O3
+     &                      +                 RXRAT( 416 )      ! BR+ALDX=HBR+CXO3
+     &                      +                 RXRAT( 427 )      ! BR+NO2=BRNO2
 
-      PROD(  ICL          ) =                 RXRAT( 376 )      ! IO+CLO=ICL
-      LOSS(  ICL          ) =                 RXRAT( 395 )      ! ICL=I+CL
+      PROD(  ICL          ) =                 RXRAT( 383 )      ! IO+CLO=ICL
+      LOSS(  ICL          ) =                 RXRAT( 402 )      ! ICL=I+CL
 
       PROD(  CH3I         ) =   0.0D0
-      LOSS(  CH3I         ) =                 RXRAT( 380 )      ! CH3I+OH=I+FORM
-     &                      +                 RXRAT( 384 )      ! CH3I=I+MEO2
+      LOSS(  CH3I         ) =                 RXRAT( 387 )      ! CH3I+OH=I+FORM
+     &                      +                 RXRAT( 391 )      ! CH3I=I+MEO2
 
       PROD(  MI2          ) =   0.0D0
-      LOSS(  MI2          ) =                 RXRAT( 385 )      ! MI2=0.2000D+01*I+FORM
+      LOSS(  MI2          ) =                 RXRAT( 392 )      ! MI2=0.2000D+01*I+FORM
 
       PROD(  MIB          ) =   0.0D0
-      LOSS(  MIB          ) =                 RXRAT( 386 )      ! MIB=I+BR+FORM
+      LOSS(  MIB          ) =                 RXRAT( 393 )      ! MIB=I+BR+FORM
 
       PROD(  MIC          ) =   0.0D0
-      LOSS(  MIC          ) =                 RXRAT( 387 )      ! MIC=I+CL+FORM
+      LOSS(  MIC          ) =                 RXRAT( 394 )      ! MIC=I+CL+FORM
 
-      PROD(  HOBR         ) =                 RXRAT( 397 )      ! BRO+HO2=HOBR
-     &                      +                 RXRAT( 404 )      ! BR2+OH=HOBR+BR
-     &                      +                 RXRAT( 410 )      ! BRO+MEO2=HOBR+FORM
-     &                      +                 RXRAT( 435 )      ! BRONO2=HOBR+HNO3
-     &                      +                 RXRAT( 436 )      ! BRONO2=HOBR+HNO3
-      LOSS(  HOBR         ) =                 RXRAT( 427 )      ! HOBR=OH+BR
+      PROD(  HOBR         ) =                 RXRAT( 404 )      ! BRO+HO2=HOBR
+     &                      +                 RXRAT( 411 )      ! BR2+OH=HOBR+BR
+     &                      +                 RXRAT( 417 )      ! BRO+MEO2=HOBR+FORM
+     &                      +                 RXRAT( 442 )      ! BRONO2=HOBR+HNO3
+     &                      +                 RXRAT( 443 )      ! BRONO2=HOBR+HNO3
+      LOSS(  HOBR         ) =                 RXRAT( 434 )      ! HOBR=OH+BR
 
-      PROD(  HBR          ) =                 RXRAT( 398 )      ! BR+HO2=HBR
-     &                      +                 RXRAT( 407 )      ! BR+FORM=HBR+HO2+CO
-     &                      +                 RXRAT( 408 )      ! BR+ALD2=HBR+C2O3
-     &                      +                 RXRAT( 409 )      ! BR+ALDX=HBR+CXO3
-      LOSS(  HBR          ) =                 RXRAT( 399 )      ! HBR+OH=BR
+      PROD(  HBR          ) =                 RXRAT( 405 )      ! BR+HO2=HBR
+     &                      +                 RXRAT( 414 )      ! BR+FORM=HBR+HO2+CO
+     &                      +                 RXRAT( 415 )      ! BR+ALD2=HBR+C2O3
+     &                      +                 RXRAT( 416 )      ! BR+ALDX=HBR+CXO3
+      LOSS(  HBR          ) =                 RXRAT( 406 )      ! HBR+OH=BR
 
-      PROD(  BR2          ) =                 RXRAT( 401 )      ! BRO+BRO=BR2
-     &                      +                 RXRAT( 403 )      ! BR+BRONO2=BR2+NO3
-      LOSS(  BR2          ) =                 RXRAT( 404 )      ! BR2+OH=HOBR+BR
-     &                      +                 RXRAT( 431 )      ! BR2=0.2000D+01*BR
+      PROD(  BR2          ) =                 RXRAT( 408 )      ! BRO+BRO=BR2
+     &                      +                 RXRAT( 410 )      ! BR+BRONO2=BR2+NO3
+      LOSS(  BR2          ) =                 RXRAT( 411 )      ! BR2+OH=HOBR+BR
+     &                      +                 RXRAT( 438 )      ! BR2=0.2000D+01*BR
 
-      PROD(  BRONO2       ) =                 RXRAT( 419 )      ! BRO+NO2=BRONO2
-      LOSS(  BRONO2       ) =                 RXRAT( 403 )      ! BRONO2+BR=BR2+NO3
-     &                      +                 RXRAT( 428 )      ! BRONO2=BRO+NO2
-     &                      +                 RXRAT( 429 )      ! BRONO2=BR+NO3
-     &                      +                 RXRAT( 435 )      ! BRONO2=HOBR+HNO3
-     &                      +                 RXRAT( 436 )      ! BRONO2=HOBR+HNO3
+      PROD(  BRONO2       ) =                 RXRAT( 426 )      ! BRO+NO2=BRONO2
+      LOSS(  BRONO2       ) =                 RXRAT( 410 )      ! BRONO2+BR=BR2+NO3
+     &                      +                 RXRAT( 435 )      ! BRONO2=BRO+NO2
+     &                      +                 RXRAT( 436 )      ! BRONO2=BR+NO3
+     &                      +                 RXRAT( 442 )      ! BRONO2=HOBR+HNO3
+     &                      +                 RXRAT( 443 )      ! BRONO2=HOBR+HNO3
 
       PROD(  MB3          ) =   0.0D0
-      LOSS(  MB3          ) =                 RXRAT( 413 )      ! MB3+OH=0.3000D+01*BR+CO
-     &                      +                 RXRAT( 432 )      ! MB3=0.3000D+01*BR+HO2+CO
+      LOSS(  MB3          ) =                 RXRAT( 420 )      ! MB3+OH=0.3000D+01*BR+CO
+     &                      +                 RXRAT( 439 )      ! MB3=0.3000D+01*BR+HO2+CO
 
       PROD(  CH3BR        ) =   0.0D0
-      LOSS(  CH3BR        ) =                 RXRAT( 414 )      ! CH3BR+OH=BR+FORM
+      LOSS(  CH3BR        ) =                 RXRAT( 421 )      ! CH3BR+OH=BR+FORM
 
       PROD(  MB2          ) =   0.0D0
-      LOSS(  MB2          ) =                 RXRAT( 415 )      ! MB2+OH=0.2000D+01*BR+HO2+CO
+      LOSS(  MB2          ) =                 RXRAT( 422 )      ! MB2+OH=0.2000D+01*BR+HO2+CO
 
       PROD(  MB2C         ) =   0.0D0
-      LOSS(  MB2C         ) =                 RXRAT( 416 )      ! MB2C+OH=0.2000D+01*BR+CL+CO
-     &                      +                 RXRAT( 433 )      ! MB2C=0.2000D+01*BR+CL+HO2+CO
+      LOSS(  MB2C         ) =                 RXRAT( 423 )      ! MB2C+OH=0.2000D+01*BR+CL+CO
+     &                      +                 RXRAT( 440 )      ! MB2C=0.2000D+01*BR+CL+HO2+CO
 
       PROD(  MBC2         ) =   0.0D0
-      LOSS(  MBC2         ) =                 RXRAT( 417 )      ! MBC2+OH=BR+0.2000D+01*CL+CO
-     &                      +                 RXRAT( 434 )      ! MBC2=BR+0.2000D+01*CL+HO2+CO
+      LOSS(  MBC2         ) =                 RXRAT( 424 )      ! MBC2+OH=BR+0.2000D+01*CL+CO
+     &                      +                 RXRAT( 441 )      ! MBC2=BR+0.2000D+01*CL+HO2+CO
 
       PROD(  MBC          ) =   0.0D0
-      LOSS(  MBC          ) =                 RXRAT( 418 )      ! MBC+OH=BR+CL+CO+HO2
+      LOSS(  MBC          ) =                 RXRAT( 425 )      ! MBC+OH=BR+CL+CO+HO2
 
-      PROD(  BRNO2        ) =                 RXRAT( 420 )      ! BR+NO2=BRNO2
-      LOSS(  BRNO2        ) =                 RXRAT( 430 )      ! BRNO2=BR+NO2
+      PROD(  BRNO2        ) =                 RXRAT( 427 )      ! BR+NO2=BRNO2
+      LOSS(  BRNO2        ) =                 RXRAT( 437 )      ! BRNO2=BR+NO2
 
-      PROD(  BRCL         ) =                 RXRAT( 423 )      ! BRO+CLO=BRCL
-      LOSS(  BRCL         ) =                 RXRAT( 425 )      ! BRCL=BR+CL
+      PROD(  BRCL         ) =                 RXRAT( 430 )      ! BRO+CLO=BRCL
+      LOSS(  BRCL         ) =                 RXRAT( 432 )      ! BRCL=BR+CL
 
       PNEG( PAR ) =    2.1000D+00 * RXRAT( 117 )      ! ROR=-0.2100D+01*PAR+...
      &            +    7.0000D-01 * RXRAT( 121 )      ! OH+OLE=-0.7000D+00*PAR+...

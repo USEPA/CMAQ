@@ -76,6 +76,7 @@ C-----------------------------------------------------------------------
       REAL,    SAVE :: DT         ! TSTEP (output) in sec
 
       REAL,    ALLOCATABLE, SAVE :: BUFF( :,:,: )        ! read buffer
+      REAL,    ALLOCATABLE, SAVE :: BUFF2( :,:,: )        ! read buffer
       REAL,    ALLOCATABLE, SAVE :: FERT( :,:,: )        ! read buffer
 
       INTEGER, SAVE :: STRT_GC, FINI_GC, STRT_AE, FINI_AE,
@@ -122,6 +123,7 @@ C Local Variables:
 
          CHARACTER( 16 ), SAVE :: CTM_EMLAYS = 'CTM_EMLAYS'    ! env var for no. of
                                                                ! emiss. layers
+         
          CHARACTER( 16 ) :: PNAME = 'EMIS_INIT'
          CHARACTER( 80 ) :: VARDESC   ! env variable description
          CHARACTER( 120 ) :: XMSG = ' '
@@ -191,6 +193,7 @@ C lightning NO emissions?
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
+C Initialize Aerosol Emissions         
          IF ( N_AE_SPC .GT. 0 ) THEN
             WRITE( LOGDEV,'( /5X, A )' ) 'Aerosol Emissions Processing in '
      &                                // 'Vertical diffusion ...'
@@ -207,6 +210,7 @@ C lightning NO emissions?
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
+C Map Emissions Surrogates to Global Variables
          N_SPC_EMIS = N_GC_EMIS
      &              + NEMIS_AE
      &              + N_NR_EMIS
@@ -228,7 +232,7 @@ C lightning NO emissions?
             s = s + 1
             emis_spc( s ) = gc_emis( v )
             emis_map( s ) = gc_strt - 1 + gc_emis_map( v )
-         end do
+         end do 
          do v = 1, n_ae_emis
             s = s + 1
             emis_spc( s ) = ae_emis( v )
@@ -279,6 +283,7 @@ C 3D point source emissions (N_SPC_EMIS+1 serves as the null map for PTEM_MAP)
          END IF
 
          ALLOCATE ( BUFF( NCOLS,NROWS,EMLYRS ), STAT = STATUS )
+         ALLOCATE ( BUFF2( NCOLS,NROWS,EMLYRS ), STAT = STATUS )
          IF ( STATUS .NE. 0 ) THEN
             XMSG = 'BUFF memory allocation failed'
             CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
@@ -308,6 +313,7 @@ C combined gas emssions conversion factor
          STRT_TR = N_GC_EMIS + NEMIS_AE + N_NR_EMIS + 1
          FINI_TR = N_GC_EMIS + NEMIS_AE + N_NR_EMIS + N_TR_EMIS
 
+C RETURN FROM INITIALIZATION
          SUCCESS = .TRUE.; RETURN
 
          END FUNCTION EMIS_INIT
@@ -370,7 +376,8 @@ C-----------------------------------------------------------------------
 C Get domain decomp info from the emissions file
             CALL SUBHFILE ( EMIS_1, GXOFF, GYOFF, STARTCOL, ENDCOL, STARTROW, ENDROW )
             CNVTP = CONVPA * CNVTE
-         END IF
+
+         END IF    !FirstTime
 
 C read & interpolate emissions (create VDEMIS in the species class order)
 
@@ -388,6 +395,22 @@ C                                       vvvvvvv - emis surrogate names
 !              CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
             END IF
+
+            !READ Non-Carbon Organic Matter From Gas Emissions
+            IF ( GC_EMIS( S ) .EQ. 'POC' ) THEN
+                 BUFF2 = 0.0
+                 IF ( .NOT. INTERPX( EMIS_1, 'PNCOM', PNAME,
+     &                          STARTCOL,ENDCOL, STARTROW,ENDROW, 1,EMLYRS,
+     &                          JDATE, JTIME, BUFF2 ) ) THEN
+                 XMSG = 'Could not read '
+     &               // TRIM( GC_EMIS( S ) ) // ' from ' // EMIS_1
+!                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+                 CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+              END IF  
+              BUFF = BUFF + BUFF2
+            ENDIF
+
+
             CNVTI = CNVTP * GC_EMIS_FAC( S )
 
 C reactive gases (conversion to ppmv/s) VDEMIS in this order from RDEMIS
@@ -410,7 +433,7 @@ C  loads."
 
          END DO   ! V
 
-C beis
+C Retrieve BEIS Emissions
 
          IF ( BIOGEMIS ) THEN
 
@@ -508,8 +531,7 @@ C accessed by GET_AERO_EMIS to be "speciated" and merged with the AE emissions.
                         N = PTEM_MAP( S )     ! <- pointer to non-PM emissions
                         IF ( V .LT. 1 ) CYCLE
                         VDEMIS( V,L,C,R ) = VDEMIS( V,L,C,R )
-     &                                    + CNVTC * SPC_PTEM_FAC( S )
-     &                                            * VDEMIS_PT( C,R,L,N )
+     &                                    + CNVTC * SPC_PTEM_FAC( S ) * VDEMIS_PT( C,R,L,N )
                      END DO
                   END DO
                END DO

@@ -34,7 +34,7 @@ C  PRECONDITIONS: For the CB05EH51 family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Mar 11, 2016
+C  REVISION HISTORY: Created by EBI solver program, May 25, 2016
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C**********************************************************************
@@ -116,8 +116,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &   +                 RXRAT(  17 )      ! NO2+NO3=NO+NO2
      &   +                 RXRAT(  25 )      ! HONO=NO+OH
      &   +                 RXRAT(  27 )      ! HONO+HONO=NO+NO2
-     &   +    2.0000D+00 * RXRAT( 367 )      ! INO+INO=0.2000D+01*NO+I2
-     &   +                 RXRAT( 391 )      ! INO=NO+I
+     &   +    2.0000D+00 * RXRAT( 374 )      ! INO+INO=0.2000D+01*NO+I2
+     &   +                 RXRAT( 398 )      ! INO=NO+I
       P1    = YC0( NO ) + P1 * DTC
 
 
@@ -130,7 +130,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &   +    1.0000D-01 * RKI( 164 ) * YC( ISOPO2       )   ! NO+ISOPO2=...
      &   +                 RKI( 175 ) * YC( XO2T         )   ! NO+XO2T=NTRM
      &   +    1.3000D-01 * RKI( 248 ) * YC( NTRMO2       )   ! NO+NTRMO2=...
-     &   +                 RKI( 383 ) * YC( I            )   ! NO+I=INO
+     &   +                 RKI( 390 ) * YC( I            )   ! NO+I=INO
       L1    = 1.0D0 + L1 * DTC
 
 
@@ -168,9 +168,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &     +                 RKI( 244 ) * YC( NCNOHO2      )   ! NO+NCNOHO2=...
      &     +    8.7000D-01 * RKI( 248 ) * YC( NTRMO2       )   ! NO+NTRMO2=...
      &     +                 RKI( 251 ) * YC( NTRIO2       )   ! NO+NTRIO2=...
-     &     +                 RKI( 346 ) * YC( IO           )   ! NO+IO=NO2+I
-     &     +                 RKI( 369 ) * YC( OIO          )   ! NO+OIO=NO2+IO
-     &     +                 RKI( 402 ) * YC( BRO          )   ! NO+BRO=NO2+BR
+     &     +                 RKI( 353 ) * YC( IO           )   ! NO+IO=NO2+I
+     &     +                 RKI( 376 ) * YC( OIO          )   ! NO+OIO=NO2+IO
+     &     +                 RKI( 409 ) * YC( BRO          )   ! NO+BRO=NO2+BR
       R2_1  = R2_1 * DTC
 
 
@@ -215,15 +215,15 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &   +                 RXRAT( 257 )      ! NTRCN=NO2+HO2+0.3300D+...
      &   +                 RXRAT( 258 )      ! NTRCNOH=NO2+HO2+...
      &   +                 RXRAT( 259 )      ! NTRPX=NO2+HO2+ROOH
-     &   +                 RXRAT( 360 )      ! I+NO3=NO2+IO
-     &   +                 RXRAT( 365 )      ! INO2=NO2+I
-     &   +                 RXRAT( 366 )      ! IONO2=NO2+IO
-     &   +    2.0000D+00 * RXRAT( 368 )      ! INO2+INO2=0.2000D+...
-     &   +                 RXRAT( 378 )      ! IO+NO3=NO2+OIO
-     &   +                 RXRAT( 392 )      ! INO2=NO2+I
-     &   +                 RXRAT( 406 )      ! BR+NO3=NO2+BRO
-     &   +                 RXRAT( 428 )      ! BRONO2=NO2+BRO
-     &   +                 RXRAT( 430 )      ! BRNO2=NO2+BR
+     &   +                 RXRAT( 367 )      ! I+NO3=NO2+IO
+     &   +                 RXRAT( 372 )      ! INO2=NO2+I
+     &   +                 RXRAT( 373 )      ! IONO2=NO2+IO
+     &   +    2.0000D+00 * RXRAT( 375 )      ! INO2+INO2=0.2000D+...
+     &   +                 RXRAT( 385 )      ! IO+NO3=NO2+OIO
+     &   +                 RXRAT( 399 )      ! INO2=NO2+I
+     &   +                 RXRAT( 413 )      ! BR+NO3=NO2+BRO
+     &   +                 RXRAT( 435 )      ! BRONO2=NO2+BRO
+     &   +                 RXRAT( 437 )      ! BRNO2=NO2+BR
       P2 = YC0( NO2 ) + P2 * DTC
 
 
@@ -243,10 +243,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &   +                 RKI( 209 ) * YC( CL           )   ! NO2+CL=CLNO2
      &   +                 RKI( 225 ) * YC( MACO3        )   ! NO2+MACO3=MAPAN
      &   +                 RKI( 274 )                        ! NO2=0.5000D+...
-     &   +                 RKI( 381 ) * YC( I            )   ! NO2+I=INO2
-     &   +                 RKI( 382 ) * YC( IO           )   ! NO2+IO=IONO2
-     &   +                 RKI( 419 ) * YC( BRO          )   ! NO2+BRO=BRONO2
-     &   +                 RKI( 420 ) * YC( BR           )   ! NO2+BR=BRNO2
+     &   +                 RKI( 388 ) * YC( I            )   ! NO2+I=INO2
+     &   +                 RKI( 389 ) * YC( IO           )   ! NO2+IO=IONO2
+     &   +                 RKI( 426 ) * YC( BRO          )   ! NO2+BRO=BRONO2
+     &   +                 RKI( 427 ) * YC( BR           )   ! NO2+BR=BRNO2
       L2     = 1.0D0 + L2 * DTC
 
 
@@ -276,9 +276,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &   +                 RKI( 170 ) * YC( ISPD         )   ! O3+ISPD=0.1140D+...
      &   +                 RKI( 179 ) * YC( TERP         )   ! O3+TERP=0.5700D+...
      &   +                 RKI( 187 ) * YC( CL           )   ! O3+CL=CLO
-     &   +                 RKI( 343 ) * YC( I            )   ! O3+I=IO
-     &   +                 RKI( 344 ) * YC( IO           )   ! O3+IO=OIO
-     &   +                 RKI( 396 ) * YC( BR           )   ! O3+BR=BRO
+     &   +                 RKI( 350 ) * YC( I            )   ! O3+I=IO
+     &   +                 RKI( 351 ) * YC( IO           )   ! O3+IO=OIO
+     &   +                 RKI( 403 ) * YC( BR           )   ! O3+BR=BRO
       L3    = 1.0D0 + L3 * DTC
 
 
@@ -292,8 +292,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &    +                 RXRAT(  14 )      ! NO3=O+NO2
      &    +                 RXRAT(  42 )      ! OH+OH=O
      &    +    5.0000D-01 * RXRAT( 130 )      ! IOLE+O3=0.5000D+00*O+...
-     &    +                 RXRAT( 389 )      ! IO=O+I
-     &    +                 RXRAT( 426 )      ! BRO=O+BR
+     &    +                 RXRAT( 396 )      ! IO=O+I
+     &    +                 RXRAT( 433 )      ! BRO=O+BR
       P12 = YC0( O ) + P12 * DTC
 
 
@@ -313,8 +313,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &    +                 RKI( 128 ) * YC( IOLE         )   ! O+IOLE=0.1240D+...
      &    +                 RKI( 162 ) * YC( ISOP         )   ! O+ISOP=0.7500D+...
      &    +                 RKI( 173 ) * YC( TERP         )   ! O+TERP=0.1500D+...
-     &    +                 RKI( 352 ) * YC( I2           )   ! O+I2=IO+I
-     &    +                 RKI( 353 ) * YC( IO           )   ! O+IO=I
+     &    +                 RKI( 359 ) * YC( I2           )   ! O+I2=IO+I
+     &    +                 RKI( 360 ) * YC( IO           )   ! O+IO=I
       L12   = 1.0D0 + L12 * DTC
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc

@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the SAPRC07TB family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Sep 22, 2015
+C  REVISION HISTORY: Created by EBI solver program, May 25, 2016
 C
 C***********************************************************************
       USE HRDATA
@@ -512,11 +512,18 @@ C..NOTE: RXRAT commented out are not referenced by any routine
       RXRAT(  450 ) = RKI( 450 ) * YC(  APAH2J )
       RXRAT(  451 ) = RKI( 451 ) * YC(  AALK1J )
       RXRAT(  452 ) = RKI( 452 ) * YC(  AALK2J )
-      RXRAT(  453 ) = RKI( 453 ) * YC(  APOCI ) * YC(  OH )
-      RXRAT(  454 ) = RKI( 454 ) * YC(  APNCOMI ) * YC(  OH )
-      RXRAT(  455 ) = RKI( 455 ) * YC(  APOCJ ) * YC(  OH )
-      RXRAT(  456 ) = RKI( 456 ) * YC(  APNCOMJ ) * YC(  OH )
-      RXRAT(  457 ) = RKI( 457 ) * YC(  IEPOX )
+      RXRAT(  453 ) = RKI( 453 ) * YC(  PCVOC ) * YC(  OH )
+      RXRAT(  454 ) = RKI( 454 ) * YC(  VLVPO1 ) * YC(  OH )
+      RXRAT(  455 ) = RKI( 455 ) * YC(  VSVPO1 ) * YC(  OH )
+      RXRAT(  456 ) = RKI( 456 ) * YC(  VSVPO2 ) * YC(  OH )
+      RXRAT(  457 ) = RKI( 457 ) * YC(  VSVPO3 ) * YC(  OH )
+      RXRAT(  458 ) = RKI( 458 ) * YC(  VIVPO1 ) * YC(  OH )
+      RXRAT(  459 ) = RKI( 459 ) * YC(  VLVOO1 ) * YC(  OH )
+      RXRAT(  460 ) = RKI( 460 ) * YC(  VLVOO2 ) * YC(  OH )
+      RXRAT(  461 ) = RKI( 461 ) * YC(  VSVOO1 ) * YC(  OH )
+      RXRAT(  462 ) = RKI( 462 ) * YC(  VSVOO2 ) * YC(  OH )
+      RXRAT(  463 ) = RKI( 463 ) * YC(  VSVOO3 ) * YC(  OH )
+      RXRAT(  464 ) = RKI( 464 ) * YC(  IEPOX )
 
 
       RETURN

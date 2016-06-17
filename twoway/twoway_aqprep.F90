@@ -1664,7 +1664,7 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
   ! percent to decimal.
   !-----------------------------------------------------------------------------
 
-  if (config_flags%sf_sfclay_physics == PXLSMSCHEME) then
+  if (config_flags%sf_surface_physics == PXLSMSCHEME) then
      metcro2d_data_wrf     (:,:,20) =  grid%vegf_px (sc:ec, sr:er)        ! veg
   else
      metcro2d_data_wrf     (:,:,20) =  grid%vegfra (sc:ec, sr:er) * 0.01  ! veg

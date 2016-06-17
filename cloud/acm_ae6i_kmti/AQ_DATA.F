@@ -381,7 +381,7 @@ C-----------------------------------------------------------------------
          Firstcall = .False.
       Else
          Return
-      Endif
+      End if
  
       Allocate ( aename( n_ae_a2aq ), stat = ios )
       If ( ios .Ne. 0 ) Then
@@ -461,7 +461,7 @@ C...Add missing optional aerosol surrogate species
      &                               aerospc( spc )%name( 1:n_mode )
               Call m3warn( 'aq_data_init', 0, 0, xmsg )
               Cycle
-         Endif
+         End if
 !        If ( var .Eq. asoil_idx ) Cycle ! SLN 16March2011
 
          Do mode = 1, n_mode

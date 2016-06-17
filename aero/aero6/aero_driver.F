@@ -316,7 +316,7 @@ C ------------------ begin body of AERO_DRIVER -------------------------
          FIRSTIME = .FALSE.
          LOGDEV = INIT3()
 
-         IF ( MECHNAME .EQ. 'SAPRC07TIC_AE6I_AQ' ) THEN
+         IF ( INDEX(MECHNAME, 'SAPRC07TIC_AE6I_AQ') .GT. 0 ) THEN
             NUM_PMDIAG_SPC = 41
          ELSE
             NUM_PMDIAG_SPC = 39
@@ -665,8 +665,8 @@ C     diagnostic array (lowest vertical layer only)
                   TEMP_DATA( 38 ) = AEROMODE_DENS( 2 )    ! Accumulation Mode Density [kg m-3]
                   TEMP_DATA( 39 ) = AEROMODE_DENS( 3 )    ! Coarse Mode Density [kg m3-]
                   IF ( NUM_PMDIAG_SPC .GT. 39 ) THEN ! AERO6i
-                     TEMP_DATA( 40 ) = KPARTIEPOX( C,R,L )      ! coarse CLNO2 heterorxn yield
-                     TEMP_DATA( 41 ) = GAMMA_IMAE( C,R,L )  ! IEPOX heterorxn uptake coeff
+                     TEMP_DATA( 40 ) = KPARTIEPOX( C,R,L )  ! Particle-Phase Rxn Rate Constant
+                     TEMP_DATA( 41 ) = GAMMA_IMAE( C,R,L )  ! IMAE Heterorxn Uptake Coeff
                   END IF
                END IF
 
