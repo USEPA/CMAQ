@@ -1236,33 +1236,36 @@ C Transfer particle-phase SOA and vapor-phase SVOCs back to CBLK
 
            ! Transfer the semivolatile mass
            Do im = 1,2
+             If ( aero_missing( soa_aeroMap( i ),im ) ) Cycle
              aerospc_conc( indx,im ) = 
      &             aerospc_conc( indx,im ) + dcaer( i ) * GR3FRAC( i,im )
            End Do
         
            ! Check to make sure none of the modes went negative
-           If ( aerospc_conc( indx,1 ) .lt. conmin ) Then
-              aerospc_conc( indx,2 ) = aerospc_conc( indx,2 ) 
-     &               + aerospc_conc( indx,1 ) - conmin
-              aerospc_conc( indx,1 ) = conmin
-           End If
-           If ( aerospc_conc( indx,2 ) .lt. conmin ) Then
-              aerospc_conc( indx,1 ) = aerospc_conc( indx,1 ) 
-     &               + aerospc_conc( indx,2 ) - conmin
-              aerospc_conc( indx,2 ) = conmin
-              If ( aerospc_conc( indx,1 ) .lt. conmin ) Then
-                If ( abs(aerospc_conc( indx,1 ) - conmin) .lt. 1.0e-15 ) Then
-                  aerospc_conc( indx,1 ) = conmin
-                Else
-                  Write( xmsg,'( A56,/,A11,I2,A9,E12.5,A9,E12.5 )' ) 
-     &                 ' *** Too Much Evaporation from Existing Organic Aerosol:',
-     &                 ' SOA Spcs: ',i,' Mode 1: ',aerospc_conc( indx,1 ),
-     &                 ' Mode 2: ',aerospc_conc( indx,2 )
-                  Call m3exit( pname, 0, 0, xmsg, xstat3 )
-                End If
-              End If   
-           End If
-          
+           If ( .NOT. aero_missing( soa_aeroMap( i ),1 ) .AND.
+     &          .NOT. aero_missing( soa_aeroMap( i ),2 ) ) Then
+              If ( aerospc_conc( indx,1 ) .lt. 0.0 ) Then
+                 aerospc_conc( indx,2 ) = aerospc_conc( indx,2 ) 
+     &                  + aerospc_conc( indx,1 ) 
+                 aerospc_conc( indx,1 ) = 0.0
+              End If
+              If ( aerospc_conc( indx,2 ) .lt. 0.0 ) Then
+                 aerospc_conc( indx,1 ) = aerospc_conc( indx,1 ) 
+     &                  + aerospc_conc( indx,2 ) 
+                 aerospc_conc( indx,2 ) = 0.0
+                 If ( aerospc_conc( indx,1 ) .lt. 0.0 ) Then
+                    If ( abs(aerospc_conc( indx,1 ) ) .lt. 1.0e-15 ) Then
+                       aerospc_conc( indx,1 ) = 0.0
+                    Else
+                       Write( xmsg,'( A56,/,A11,I2,A9,E12.5,A9,E12.5 )' ) 
+     &                    ' *** Too Much Evaporation from Existing Organic Aerosol:',
+     &                    ' SOA Spcs: ',i,' Mode 1: ',aerospc_conc( indx,1 ),
+     &                    ' Mode 2: ',aerospc_conc( indx,2 )
+                       Call m3exit( pname, 0, 0, xmsg, xstat3 )
+                    End If
+                 End If   
+              End If
+          End If
         End If
       End Do
 
