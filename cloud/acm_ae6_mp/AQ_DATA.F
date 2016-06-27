@@ -53,7 +53,7 @@ C-----------------------------------------------------------------------
       Integer, Save      :: naer        ! number of aerosol surrogate species for AQCHEM
       Integer, Parameter :: nliqs = 72  ! number of liquid-phase species in AQCHEM
       Integer, Parameter :: nmodes = 3  ! number of aerosol modes
-      Integer, Parameter :: mxsrg = 30  ! maximum number of species for surrogate
+      Integer, Parameter :: mxsrg = 35  ! maximum number of species for surrogate
 
       integer, parameter :: akn = 1     ! number for Aitken mode
       Integer, Parameter :: acc = 2     ! number for Accumulation mode
@@ -184,7 +184,7 @@ C...Required aerosol species
       Character( 16 ), Parameter, Private :: req_apoa   = 'POA_ACCUM'
       Character( 16 ), Parameter, Private :: req_aec    = 'EC_ACCUM'
       Character( 16 ), Parameter, Private :: req_apri   = 'PRI_ACCUM'
-!     Character( 16 ), Parameter, Private :: req_apric  = 'PRI_COARSE'     ! SLN 16March2011
+!     Character( 16 ), Parameter, Private :: req_apric  = 'PRI_COARSE'  ! SLN 16March2011
       Character( 16 ), Parameter, Private :: req_ana    = 'NA_ACCUM'
       Character( 16 ), Parameter, Private :: req_acl    = 'CL_ACCUM'
       Character( 16 ), Parameter, Private :: req_acaco3 = 'CACO3'
@@ -195,14 +195,14 @@ C...Required aerosol species
       Character( 16 ), Parameter, Private :: req_num    = 'NUM_ACCUM'
       Character( 16 ), Parameter, Private :: req_srf    = 'SRF_ACCUM'
 
-      Character( 16 ), Parameter, Private :: req_caacc  = 'CA_ACCUM'     ! SLN 16March2011
-      Character( 16 ), Parameter, Private :: req_mgacc  = 'MG_ACCUM'     ! SLN 16March2011
-      Character( 16 ), Parameter, Private :: req_kacc   = 'K_ACCUM'      ! SLN 16March2011
-      Character( 16 ), Parameter, Private :: req_feacc  = 'FE_ACCUM'     ! SLN 22March2011
-      Character( 16 ), Parameter, Private :: req_mnacc  = 'MN_ACCUM'     ! SLN 22March2011
-      Character( 16 ), Parameter, Private :: req_soilc  = 'SOIL_COARSE'  ! SLN 16March2011
-      Character( 16 ), Parameter, Private :: req_anthc  = 'ANTH_COARSE'  ! SLN 16March2011
-      Character( 16 ), Parameter, Private :: req_seasc  = 'SEAS_COARSE'  ! SLN 16March2011
+      Character( 16 ), Parameter, Private :: req_caacc  = 'CA_ACCUM'    ! SLN 16March2011
+      Character( 16 ), Parameter, Private :: req_mgacc  = 'MG_ACCUM'    ! SLN 16March2011
+      Character( 16 ), Parameter, Private :: req_kacc   = 'K_ACCUM'     ! SLN 16March2011
+      Character( 16 ), Parameter, Private :: req_feacc  = 'FE_ACCUM'    ! SLN 22March2011
+      Character( 16 ), Parameter, Private :: req_mnacc  = 'MN_ACCUM'    ! SLN 22March2011
+      Character( 16 ), Parameter, Private :: req_soilc  = 'SOIL_COARSE' ! SLN 16March2011
+      Character( 16 ), Parameter, Private :: req_anthc  = 'ANTH_COARSE' ! SLN 16March2011
+      Character( 16 ), Parameter, Private :: req_seasc  = 'SEAS_COARSE' ! SLN 16March2011
 C...For TX version      
       Character( 16 ), Parameter, Private :: req_traceri = 'TRACER_AITKEN'
       Character( 16 ), Parameter, Private :: req_tracerj = 'TRACER_ACCUM'
@@ -390,7 +390,7 @@ C-----------------------------------------------------------------------
          Firstcall = .False.
       Else
          Return
-      Endif
+      End if
  
       Allocate ( aename( n_ae_a2aq ), stat = ios )
       If ( ios .Ne. 0 ) Then
@@ -470,7 +470,7 @@ C...Add missing optional aerosol surrogate species
      &                               aerospc( spc )%name( 1:n_mode )
               Call m3warn( 'aq_data_init', 0, 0, xmsg )
               Cycle
-         Endif
+         End if
 !        If ( var .Eq. asoil_idx ) Cycle ! SLN 16March2011
 
          Do mode = 1, n_mode
@@ -787,6 +787,7 @@ C Local Variables:
             ! Write( *,'(a,i5)' ) vname, spc
             If ( srgaer( spc )%name( n ) .Eq. Trim( vname ) ) Then
                idx = spc
+               ! Write( *,'(a,i5)' ) vname, idx
                Return
             End If
          End Do

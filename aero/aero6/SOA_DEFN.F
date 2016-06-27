@@ -35,13 +35,12 @@ C
 C HP  03/11/11 Updated monoterpene SOA alphas and Cstars to Carlton et al. 2010 values
 C HP  07/24/11 Changed aromatic SOA alphas for consistency with updated reaction counters
 C               BNZ, TOL, XYL numbers now match Ng et al. 2007 Atmos. Chem. Phys.
-C JY  06/08/12 remove full character blank padding put in for GNU Fortran (GCC) 4.1.2
+C 08 Jun 12 J.Young: remove full character blank padding for GNU Fortran (GCC) 4.1.2
 C 13 Aug 13 H. Pye: Xylene and toluene low-NOx yields switched. Values now
 C               follow experimental data of Ng et al. 2007 ACP as shown in Table 3.
 C               Values in Table 6 of Ng et al. (previously used) are incorrect.
-C 18 Dec 13 G.Sarwar: added orgprod parent names based on RACM2 
-C 07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran
-C                      module
+C 18 Dec 13 G.Sarwar: added orgprod parent names based on RACM2
+C 07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
 C 21 Jul 14 B.Hutzell: used ifdef statement to make oligomerization
 C                      optional because process represented in chemical
 C                      mechanism
@@ -49,23 +48,25 @@ C 26 Sep 14 H. Pye: Added isoprene + NO3 SOA (see mech.def, no changes
 C                   here). When IEPOX uptake present in gas phase for
 C                   cb05e51, replace preivous acid enhanced isoprene SOA
 C                   with IEPOX uptake SOA now handled as a heterogeneous
-C                   rxn. For saprc07tic_ae6i, perform more detailed 
-C                   IEPOX and MAE uptake and do not do Carlton et al. 2010 
+C                   rxn. For saprc07tic_ae6i, perform more detailed
+C                   IEPOX and MAE uptake and do not do Carlton et al. 2010
 C                   acid enhancement. Note that saprc07tic_ae6i is a research
 C                   version and it is unclear how duplicative AISO1+AISO2+their oligomers
-C                   are with  IEPOX+MAE uptake and their oligomers. 
+C                   are with  IEPOX+MAE uptake and their oligomers.
 C                   Both pathways occur with sarpc07tic_ae6i. To turn AISO1+AISO2
 C                   oligomers off, set "Decay" in vaporspc to 0.0 for SV_ISO1/2.
 C 27 Sep 14 H. Pye: Added alkane and PAH SOA (Pye and Pouliot 2012 ES&T)
 C 15 Jul 15 G. Sarwar: updated SOA from alkane, PAH, and isoprene for RACM2
 C 03/03/16  D. Luecken: added capability for CB6
 C 24 Mar 16 G. Sarwar: updated for CB05EH51
+C    May 16 B. Murphy, H. Pye: updated treatment of aerosol moments
 C
 C-----------------------------------------------------------------------
       Implicit None
 
-      Integer, Parameter :: n_vapor   = 15   ! # of partitioning SVOCs
-      Integer, Parameter :: n_orgprod = 12   ! # of ROG rxn counter species
+      Integer, Parameter :: n_vapor_list = 28   ! # of potential partitioning SVOCs
+      Integer, Parameter :: n_orgprod    = 13   ! # of ROG rxn counter species
+      Integer, Save      :: n_vapor             ! # of actual simulated SOA vapors
 
       Type vapor_type
          Character( 16 ) :: name
@@ -78,39 +79,63 @@ C-----------------------------------------------------------------------
          Character( 16 ) :: drog_name   ! Precursor name
       End Type vapor_type
 
-      Type( vapor_type ), Save :: vaporspc( n_vapor ) = (/
+      Type( vapor_type ), Allocatable, Save :: vaporspc( : )
+
+      Type( vapor_type ), Save :: vaporlist( n_vapor_list ) = (/
+C
 C                   Name       Alpha    CStar     Enth     SOA           Decay  Drog
 C                                                          Name   Origin        Name
-C                  -------    -------  --------  -------  ------    --  ----   -------
-     & vapor_type('SV_ALK1',  0.0334,   0.1472,  53.0E3, 'AALK1J', 'A', 12.0, 'ALKRXN' ),
-     & vapor_type('SV_ALK2',  0.2164,  51.8775,  53.0E3, 'AALK2J', 'A', 12.0, 'ALKRXN' ),
-     & vapor_type('SV_XYL1',  0.0310,   1.3140,  32.0E3, 'AXYL1J', 'A',  8.0, 'XYLNRXN'),
-     & vapor_type('SV_XYL2',  0.0900,  34.4830,  32.0E3, 'AXYL2J', 'A',  8.0, 'XYLNRXN'),
-     & vapor_type('SV_TOL1',  0.0580,   2.3260,  18.0E3, 'ATOL1J', 'A',  7.0, 'TOLNRXN'),
-     & vapor_type('SV_TOL2',  0.1130,  21.2770,  18.0E3, 'ATOL2J', 'A',  7.0, 'TOLNRXN'),
-     & vapor_type('SV_BNZ1',  0.0720,   0.3020,  18.0E3, 'ABNZ1J', 'A',  6.0, 'BNZNRXN'),
-     & vapor_type('SV_BNZ2',  0.8880, 111.1100,  18.0E3, 'ABNZ2J', 'A',  6.0, 'BNZNRXN'),
-     & vapor_type('SV_PAH1',  0.2100,   1.6598,  18.0E3, 'APAH1J', 'A', 10.0, 'PAHNRXN'),
-     & vapor_type('SV_PAH2',  1.0700, 264.6675,  18.0E3, 'APAH2J', 'A', 10.0, 'PAHNRXN'),
-     & vapor_type('SV_TRP1',  0.1393,  14.7920,  40.0E3, 'ATRP1J', 'B', 10.0, 'TRPRXN '),
-     & vapor_type('SV_TRP2',  0.4542, 133.7297,  40.0E3, 'ATRP2J', 'B', 10.0, 'TRPRXN '),
-     & vapor_type('SV_ISO1',  0.2320, 116.0100,  40.0E3, 'AISO1J', 'B',  5.0, 'ISOPRXN'),
-     & vapor_type('SV_ISO2',  0.0288,   0.6170,  40.0E3, 'AISO2J', 'B',  5.0, 'ISOPRXN'),
-     & vapor_type('SV_SQT ',  1.5370,  24.9840,  40.0E3, 'ASQTJ ', 'B', 15.0, 'SESQRXN')/)
+C                  -------    -------  --------  -------  ------    --   ----   -------
+     & vapor_type('SV_ALK1 ',  0.0334,   0.1472,  53.0E3, 'AALK1J ', 'A', 12.0, 'ALKRXN  '),
+     & vapor_type('SV_ALK2 ',  0.2164,  51.8775,  53.0E3, 'AALK2J ', 'A', 12.0, 'ALKRXN  '),
+     & vapor_type('SV_XYL1 ',  0.0310,   1.3140,  32.0E3, 'AXYL1J ', 'A',  8.0, 'XYLNRXN '),
+     & vapor_type('SV_XYL2 ',  0.0900,  34.4830,  32.0E3, 'AXYL2J ', 'A',  8.0, 'XYLNRXN '),
+     & vapor_type('SV_TOL1 ',  0.0580,   2.3260,  18.0E3, 'ATOL1J ', 'A',  7.0, 'TOLNRXN '),
+     & vapor_type('SV_TOL2 ',  0.1130,  21.2770,  18.0E3, 'ATOL2J ', 'A',  7.0, 'TOLNRXN '),
+     & vapor_type('SV_BNZ1 ',  0.0720,   0.3020,  18.0E3, 'ABNZ1J ', 'A',  6.0, 'BNZNRXN '),
+     & vapor_type('SV_BNZ2 ',  0.8880, 111.1100,  18.0E3, 'ABNZ2J ', 'A',  6.0, 'BNZNRXN '),
+     & vapor_type('SV_PAH1 ',  0.2100,   1.6598,  18.0E3, 'APAH1J ', 'A', 10.0, 'PAHNRXN '),
+     & vapor_type('SV_PAH2 ',  1.0700, 264.6675,  18.0E3, 'APAH2J ', 'A', 10.0, 'PAHNRXN '),
+     & vapor_type('SV_TRP1 ',  0.1393,  14.7920,  40.0E3, 'ATRP1J ', 'B', 10.0, 'TRPRXN  '),
+     & vapor_type('SV_TRP2 ',  0.4542, 133.7297,  40.0E3, 'ATRP2J ', 'B', 10.0, 'TRPRXN  '),
+     & vapor_type('MTNO3   ',     0.0,     12.0,  40.0E3, 'AMTNO3J', 'B', 10.0, '        '),
+     & vapor_type('ISOPNN  ',     0.0,     8.9,   40.0E3, 'AISOPNNJ','B', 5.0,  '        '),
+     & vapor_type('SV_ISO1 ',  0.2320, 116.0100,  40.0E3, 'AISO1J ', 'B',  5.0, 'ISOPRXN '),
+     & vapor_type('SV_ISO2 ',  0.0288,   0.6170,  40.0E3, 'AISO2J ', 'B',  5.0, 'ISOPRXN '),
+     & vapor_type('SV_SQT  ',  1.5370,  24.9840,  40.0E3, 'ASQTJ  ', 'B', 15.0, 'SESQRXN '),
+     & vapor_type('LV_PCSOG',  1.0   ,   1.0e-5,  40.0E3, 'APCSOJ ', 'A', 10.0, 'PCSOARXN'),
+     & vapor_type('VLVPO1  ',  0.0000,    1.e-1,  96.0E3, 'ALVPO1J', 'A',  0.0, '        '),
+     & vapor_type('VSVPO1  ',  0.0000,    1.e+0,  85.0E3, 'ASVPO1J', 'A',  0.0, '        '),
+     & vapor_type('VSVPO2  ',  0.0000,    1.e+1,  74.0E3, 'ASVPO2J', 'A',  0.0, '        '),
+     & vapor_type('VSVPO3  ',  0.0000,    1.e+2,  63.0E3, 'ASVPO3J', 'A',  0.0, '        '),
+     & vapor_type('VIVPO1  ',  0.0000,    1.e+3,  52.0E3, 'AIVPO1J', 'A',  0.0, '        '),
+     & vapor_type('VLVOO1  ',  0.0000,    1.e-2, 107.0E3, 'ALVOO1J', 'A',  0.0, '        '),
+     & vapor_type('VLVOO2  ',  0.0000,    1.e-1,  96.0E3, 'ALVOO2J', 'A',  0.0, '        '),
+     & vapor_type('VSVOO1  ',  0.0000,    1.e+0,  85.0E3, 'ASVOO1J', 'A',  0.0, '        '),
+     & vapor_type('VSVOO2  ',  0.0000,    1.e+1,  74.0E3, 'ASVOO2J', 'A',  0.0, '        '),
+     & vapor_type('VSVOO3  ',  0.0000,    1.e+2,  63.0E3, 'ASVOO3J', 'A',  0.0, '        ')/)
 
 C Required species
       Character( 16 ), Private, Parameter :: req_sviso1  = 'SV_ISO1'
       Character( 16 ), Private, Parameter :: req_sviso2  = 'SV_ISO2'
+      Character( 16 ), Private, Parameter :: req_mtno3   = 'MTNO3'
+      Character( 16 ), Private, Parameter :: req_isopnn  = 'ISOPNN'
       Character( 16 ), Private, Parameter :: req_aeiso1  = 'AISO1'
       Character( 16 ), Private, Parameter :: req_aeiso2  = 'AISO2'
       Character( 16 ), Private, Parameter :: req_aeiso3  = 'AISO3'
       Character( 16 ), Private, Parameter :: req_aeolga  = 'AOLGA'
       Character( 16 ), Private, Parameter :: req_aeolgb  = 'AOLGB'
       Character( 16 ), Private, Parameter :: req_aeorgc  = 'AORGC'
+      Character( 16 ), Private, Parameter :: req_amtno3  = 'AMTNO3'
+      Character( 16 ), Private, Parameter :: req_aisopnn = 'AISOPNN'
 
 C Indices of required species
       Integer :: iso1_idx
       Integer :: iso2_idx
+      Integer :: mtno3_idx
+      Integer :: isopnn_idx
+      Integer :: amtno3_idx
+      Integer :: aisopnn_idx
       Integer :: aiso1_idx
       Integer :: aiso2_idx
       Integer :: aiso3_idx
@@ -118,9 +143,9 @@ C Indices of required species
       Integer :: aolgb_idx
       Integer :: aorgc_idx
 
-      Real    :: vapor_mw  ( n_vapor )   ! Molecular weights
-      Real    :: vapor_conc( n_vapor )   ! vapor concentration
-      Integer :: drog_map  ( n_vapor )   ! drog mapping assignments
+      Real, Allocatable    :: vapor_mw  ( : )   ! Molecular weights
+      Real, Allocatable    :: vapor_conc( : )   ! vapor concentration
+      Integer, Allocatable :: drog_map  ( : )   ! drog mapping assignments
 
 C orgprod species
 
@@ -136,29 +161,31 @@ C   extract_soa for the SAPRC99 and SAPRC07T mechanisms
 C
       Type( orgprod_type ), Save      :: orgprod( n_orgprod ) = (/
 C                      Name      Parent     Aerospc  AlphaH
-C                     -------    -------    ------   ------ 
-     & orgprod_type( 'ALKRXN',  'SOAALK ', '      ', 0.000 ),
-     & orgprod_type( 'XYLNRXN', 'XYL    ', '      ', 0.000 ),
-     & orgprod_type( 'XYLHRXN', 'XYL    ', 'AXYL3J', 0.360 ),
-     & orgprod_type( 'TOLNRXN', 'TOL    ', '      ', 0.000 ),
-     & orgprod_type( 'TOLHRXN', 'TOL    ', 'ATOL3J', 0.300 ),
-     & orgprod_type( 'BNZNRXN', 'BENZENE', '      ', 0.000 ),
-     & orgprod_type( 'BNZHRXN', 'BENZENE', 'ABNZ3J', 0.370 ),
-     & orgprod_type( 'PAHNRXN', 'NAPH   ', '      ', 0.000 ),
-     & orgprod_type( 'PAHHRXN', 'NAPH   ', 'APAH3J', 0.730 ),
-     & orgprod_type( 'TRPRXN ', 'TRPRXN ', '      ', 0.000 ),
-     & orgprod_type( 'ISOPRXN', 'ISOPRXN', '      ', 0.000 ),
-     & orgprod_type( 'SESQRXN', 'SESQRXN', '      ', 0.000 ) /)
+C                     -------    -------    ------   ------
+     & orgprod_type( 'ALKRXN  ', 'SOAALK ', '      ', 0.000 ),
+     & orgprod_type( 'XYLNRXN ', 'XYL    ', '      ', 0.000 ),
+     & orgprod_type( 'XYLHRXN ', 'XYL    ', 'AXYL3J', 0.360 ),
+     & orgprod_type( 'TOLNRXN ', 'TOL    ', '      ', 0.000 ),
+     & orgprod_type( 'TOLHRXN ', 'TOL    ', 'ATOL3J', 0.300 ),
+     & orgprod_type( 'BNZNRXN ', 'BENZENE', '      ', 0.000 ),
+     & orgprod_type( 'BNZHRXN ', 'BENZENE', 'ABNZ3J', 0.370 ),
+     & orgprod_type( 'PAHNRXN ', 'NAPH   ', '      ', 0.000 ),
+     & orgprod_type( 'PAHHRXN ', 'NAPH   ', 'APAH3J', 0.730 ),
+     & orgprod_type( 'TRPRXN  ', 'TRPRXN ', '      ', 0.000 ),
+     & orgprod_type( 'ISOPRXN ', 'ISOPRXN', '      ', 0.000 ),
+     & orgprod_type( 'SESQRXN ', 'SESQRXN', '      ', 0.000 ),
+     & orgprod_type( 'PCSOARXN', 'PCVOC  ', '      ', 0.000 ) /)
 
 
       Real    :: orgprod_mw     ( n_orgprod )  ! Mol weight of reactive organic gases
       Real    :: orgprod_conc   ( n_orgprod )  ! orgprod concentration
       Integer :: orgprod_aeroMap( n_orgprod )  ! orgprod pointers to aerospc
-      Integer :: soa_aeroMap    ( n_vapor )    ! soa pointers to aerospc
+      Integer, Allocatable :: soa_aeroMap    ( : )    ! soa pointers to aerospc
+
 
 C mapping variables used for loading and unloading to CGRID array
-      Integer          :: vapor_map( n_vapor )     ! pointers of vapor species to CGRID
-      Integer          :: orgprod_map( n_orgprod ) ! pointers of orgprod species to CGRID
+      Integer, Allocatable :: vapor_map( : )     ! pointers of vapor species to CGRID
+      Integer              :: orgprod_map( n_orgprod ) ! pointers of orgprod species to CGRID
 
       Logical, Private, Save :: mapped              = .False.
       Logical, Private, Save :: IEPOX_SOA_mechanism = .False. ! IEPOX uptake in mechanism reactions?
@@ -180,14 +207,14 @@ C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
 C
 C SH  03/10/11 Renamed met_data to aeromet_data
 C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
-C HP  09/27/14 alk_factor removed, updated for alkane/PAH SOA
+C HP  09/27/14 alk_factor removed, updated for alkane/PAH SOA.
 C              Conversion of reacted alkane to dodecane equivalent
 C              is handled in mech.def. A factor of 0.47 is in use and
 C              reflects the fact that alkane SOA precursor
 C              emissions are dominated by compounds smaller than dodecane.
 C-----------------------------------------------------------------------
 
-      Use rxns_data
+      Use rxns_data       ! chemical mechanism data
       Use aero_data       ! aero species
       Use aeromet_data    ! air and met variables
       Use cgrid_spcs      ! CGRID mechanism species
@@ -204,28 +231,76 @@ C Local Variables:
       Character( 132 ) :: xmsg
       Real            :: gasconv
       Real            :: vtmp
-      Integer         :: n
+      Integer         :: n, g
       Integer         :: spc
+      Integer         :: vapor_to_vaporlist( n_vapor_list )
 
       Real, Save :: alk_factor = 1.00
 
       If ( .Not. mapped ) Then
 
-         vapor_mw = 0.0
-         vapor_map = 0
+C Before Anything Else, the VaporSpc Array must be populated with
+C the species from VaporList that have been identified in the GC
+C namelist or in the NR namelist.
+          n_vapor = 0
+          Do spc = 1,n_vapor_list
+             n = 0
+             g = 0
+             n = index1( vaporlist( spc )%name, n_nr_n2ae, nr_n2ae )
+             g = index1( vaporlist( spc )%name, n_gc_g2ae, gc_g2ae )
+             If ( n .GT. 0 .OR. g .GT. 0 ) Then
+                 n_vapor = n_vapor + 1
+                 vapor_to_vaporlist( n_vapor ) = spc
+             End If
+          End Do
+
+          Allocate ( vaporspc  ( n_vapor ))
+          Allocate ( vapor_mw  ( n_vapor ))
+          Allocate ( vapor_conc( n_vapor ))
+          Allocate ( drog_map  ( n_vapor ))
+          Allocate ( SOA_AeroMap  ( n_vapor ))
+          Allocate ( vapor_map  ( n_vapor ))
+
+          Do spc = 1,n_vapor
+             vaporspc( spc ) = vaporlist( vapor_to_vaporlist( spc ) )
+          End Do
 
 C Build mapping to CGRID for each vapor species
+C Add option to have species in GC.nml (for real semivolatiles)
+         vapor_mw = 0.0
+         vapor_map = 0
          Do spc = 1, n_vapor
-            n = index1( vaporspc( spc )%name, n_nr_n2ae, nr_n2ae )
-            If ( n .Ne. 0 ) Then
-               vapor_map( spc ) = nr_strt - 1 + nr_n2ae_map( n )
-               vapor_mw( spc ) = nr_molwt( nr_n2ae_map( n ) )
-            Else
-               xmsg = 'Species ' // Trim( vaporspc( spc )%name )
-     &              // ' in vapor name is not in non-reactives table'
-               Call m3exit( pname, 0, 0, xmsg, xstat3 )
+            If( vaporspc( spc )%alpha .gt. 0.0 ) Then
+               n = index1( vaporspc( spc )%name, n_nr_n2ae, nr_n2ae )
+               If ( n .Ne. 0 ) Then
+                  vapor_map( spc ) = nr_strt - 1 + nr_n2ae_map( n )
+                  vapor_mw( spc ) = nr_molwt( nr_n2ae_map( n ) )
+               Else
+                  xmsg = 'Species ' // Trim( vaporspc( spc )%name )
+     &                 // ' in vapor name is not in non-reactives table'
+                  Call m3exit( pname, 0, 0, xmsg, xstat3 )
+               End If
+            Else ! vaporspc is a real species in GC (alpha=0 )
+               n = index1( vaporspc( spc )%name, n_gc_g2ae, gc_g2ae )
+               If ( n .Ne. 0 ) Then
+                  vapor_map( spc ) = gc_strt - 1 + gc_g2ae_map( n )
+                  vapor_mw( spc ) = gc_molwt( gc_g2ae_map( n ) )
+               Else
+                  xmsg = 'Species ' // Trim( vaporspc( spc )%name )
+     &                 // ' in vapor name is not in gas spc table'
+     &                 // ' of '// TRIM ( MECHNAME )
+                  Call m3exit( pname, 0, 0, xmsg, xstat3 )
+               End If
             End If
          End Do
+
+#ifdef verbose_soa
+
+         Do spc = 1, n_vapor
+          print*, vaporspc( spc ), vapor_map, vapor_mw
+         End Do
+
+#endif
 
 C define orgprod parent names based on mechanism dependence
 C if they differ from above declarations and
@@ -246,6 +321,13 @@ C determine if gas-phase IEPOX uptake occurs for the mechanism
                orgprod( 8 )%parent     = 'NAPHTHAL'
                orgprod( 9 )%parent     = 'NAPHTHAL'
                IEPOX_SOA_mechanism = .True.
+            Else If ( INDEX( MECHNAME, 'CRIe' ) .GT. 0 ) then
+               orgprod( 2 )%parent     = 'MXYL'
+               orgprod( 3 )%parent     = 'MXYL'
+               orgprod( 4 )%parent     = 'TOLUENE'
+               orgprod( 5 )%parent     = 'TOLUENE'
+               orgprod( 8 )%parent     = 'NAPHTHAL'
+               orgprod( 9 )%parent     = 'NAPHTHAL'
             Else If ( INDEX( MECHNAME, 'SAPRC07TC' ) .GT. 0 ) then
                orgprod( 2 )%parent     = 'MXYL'
                orgprod( 3 )%parent     = 'MXYL'
@@ -254,17 +336,14 @@ C determine if gas-phase IEPOX uptake occurs for the mechanism
                orgprod( 8 )%parent     = 'NAPHTHAL'
                orgprod( 9 )%parent     = 'NAPHTHAL'
                IEPOX_SOA_mechanism = .True.
-            Else If( INDEX(MECHNAME, 'RACM2') .GT. 0) then 
-!               alk_factor = 0.47    ! fraction of HC8 that can produce SOA
-! the factor with RACM2 should be different because the HC8 + OH rate is higher
-! but endothermic 
+            Else If( INDEX(MECHNAME, 'RACM2') .GT. 0) then
 ! Changed by Golam Sarwar, 07/15/2015 for CMAQv51
                orgprod( 2 )%parent     = 'XYM'
                orgprod( 3 )%parent     = 'XYM'
                orgprod( 4 )%parent     = 'TOL'
-               orgprod( 5 )%parent     = 'TOL'               
-               IEPOX_SOA_mechanism = .True.               
-            Else If( INDEX(MECHNAME, 'CB05E51') .GT. 0) then 
+               orgprod( 5 )%parent     = 'TOL'
+               IEPOX_SOA_mechanism = .True.
+            Else If( INDEX(MECHNAME, 'CB05E51') .GT. 0) then
                orgprod( 2 )%parent = 'XYLMN'
                orgprod( 3 )%parent = 'XYLMN'
                IEPOX_SOA_mechanism = .True.
@@ -282,12 +361,13 @@ C determine if gas-phase IEPOX uptake occurs for the mechanism
                Call m3exit( pname, 0, 0, xmsg, xstat3 )
             End If
 
+! SOA_DEFN NO LONGER HAS VERSION CONSTRAINTS ON SPECIES
 ! This SOA_DEFN works for AE6 and AE6i versions of aero
-            If( INDEX( MECHNAME, '_AE6_' ) .EQ. 0 ) then
-                  xmsg =  'Using AERO6 option and the Mechanism, '  
-     &                // Trim( MECHNAME ) // ', is not based on AERO6 '
-                 Call m3exit( pname, 0, 0, xmsg, xstat3 )
-            End If
+!            If( INDEX( MECHNAME, '_AE6_' ) .EQ. 0 ) then
+!                  xmsg =  'Using AERO6 option and the Mechanism, '
+!     &                // Trim( MECHNAME ) // ', is not based on AERO6 '
+!                 Call m3exit( pname, 0, 0, xmsg, xstat3 )
+!            End If
 
 
 C Build mapping to CGRID for each ORGPROD species and find MW of parent
@@ -319,7 +399,18 @@ C Find indices of required species
          aolgb_idx  = findAero( req_aeolgb, .True. )
          aorgc_idx  = findAero( req_aeorgc, .True. )
 
-C Build mapping array to aero species
+         ! Look for Additional Isoprene Product Species if AE6i is being
+         ! used
+         If ( INDEX( MECHNAME,"SAPRC07TIC_AE6I" ) .NE. 0 ) Then
+           mtno3_idx  = findVapor( req_mtno3  )
+           isopnn_idx = findVapor( req_isopnn )
+           amtno3_idx  = findAero( req_amtno3, .True. )
+           aisopnn_idx = findAero( req_aisopnn,.True. )
+         End If
+
+
+C Build mapping array of Semivolatile Vapors (vaporspc) to the Aerosol
+C Species they correspond to (aerospc is used inside findAero)
          soa_aeroMap = 0
          Do spc = 1, n_vapor
             If ( vaporspc( spc )%soa_name .Ne. ' ' ) Then
@@ -327,6 +418,9 @@ C Build mapping array to aero species
             End If
          End Do
 
+C Build Mapping array of Reactive variables that track production rates
+C of condensable gases (orgprod) to any nonvolatile species they yield
+C (aerospc is used inside findAero)
          orgprod_aeroMap = 0
          Do spc = 1, n_orgprod
             If ( orgprod( spc )%aerospc .Ne. ' ' ) Then
@@ -334,7 +428,8 @@ C Build mapping array to aero species
             End If
          End Do
 
-C Build mapping array to orgprod species
+C Build mapping array of sources of Semivolatile Vapors (vaporspc) to the
+C Reactive variables that store their production rates (orgprod)
          drog_map = 0
          Do spc = 1, n_vapor
             If ( vaporspc( spc )%drog_name .Ne. ' ' ) Then
@@ -371,7 +466,7 @@ C Copy grid cell concentrations of ORGPROD species
 
 C Adjust ALK orgprod for fraction that produces SOA
 !      orgprod_conc( 1 ) = alk_factor * orgprod_conc( 1 )
- 
+
       Return
       End Subroutine extract_soa
 
@@ -789,6 +884,7 @@ C Key Subroutines/Functions called:  newt, soabisection
       Use aero_data
       Use aeromet_data
       Use utilio_defn
+      Use rxns_data, only : MECHNAME
 
       Implicit None
 
@@ -803,11 +899,11 @@ C Local variables:
       Logical, Save :: first_time = .True.
       Integer, Save :: logdev
       Character( 80 ) :: xmsg
-      Integer       :: i
+      Integer       :: i, im, indx
 
       Real, Save :: mwpoa                     ! Molecular weight of POA [ g/mol ]
 
-      Real, Save ::  mw_vap_m1( n_vapor )     ! Inverse MW of SVOCs [ mol/g ]
+      Real, Allocatable, Save ::  mw_vap_m1( : )     ! Inverse MW of SVOCs [ mol/g ]
 
       Real, Save ::  drog_ppm2ug( n_orgprod ) ! [ ppm per ug/m3 ] for ORGPROD at
                                               ! reference temperature and pressure
@@ -823,6 +919,8 @@ C Parameters & variables for adjusting cstar to ambient conditions
       Real, Parameter :: threshmin = 1.0E-19     ! small positive number
       Real, Parameter :: ctolmin = 1.0E-06
       Real, Parameter :: convfac_298 = 101325.0 * rgas1 * trefm1  ! P/RT at 1 atm and 298 K [ mole/m**3 ]
+      Real, Parameter :: difforg = 9.36e-6  ! Diffusivity of organics [m2 s-1]
+      Real, Parameter :: alphorg = 1.0      ! accomodation coefficient
 
       Real convfac
       Real tt1, tt2      ! temperature-related factors
@@ -843,11 +941,18 @@ C Variables used in acid-enhanced isoprene SOA calculations
 C Variables used in equilibrium partitioning calculations
       Real drog( n_orgprod ) ! change in precursor conc [ ug/m3 ]
       Real totrog( n_vapor ) ! drog conc mapped to each SVOC [ ug/m3 ]
+      Real(8) GRtmp( n_mode )   ! Dummy variable for accurate treatment of growth to specific moment
+      Real GR3( n_vapor,n_mode ) ! 3rd Moment Growth for each mode and compound
+      Real GR3FRAC( n_vapor,n_mode ) ! Fraction of each mode growing/shrinking
       Real c0    ( n_vapor ) ! cstar at AIRTEMP [ ug/m3 ]
+      Real caer0 ( n_vapor ) ! SVOC conc before current time step [ ug/m3 ]
       Real ctoti ( n_vapor ) ! SVOC conc before current time step [ ug/m3 ]
       Real prod  ( n_vapor ) ! SVOC generated during current step [ ug/m3 ]
       Real ctotf ( n_vapor ) ! SVOC conc after current time step [ ug/m3 ]
       Real caer  ( n_vapor ) ! SVOC conc in aerosol phase [ ug/m3 ]
+      Real dcaer ( n_vapor ) ! Change in SVOC conc after partitioning happens[ ug/m3 ]
+      Real cbar_org(n_vapor) ! On-line molecular speed of each organic
+      Real dv_org            ! On-line gas-phase diffusivity of each organic
       Real totorgsw          ! POA + non-volatile SOA [ umole/m3 ]
       Real totorg            ! SOA + POA before time step [ umole/m3 ]
       Real threshold         ! criterion for establishing gas/part equil.
@@ -856,10 +961,13 @@ C Variables used in equilibrium partitioning calculations
                              ! converged to a spurious root
 
 C Variables for updating 2nd and 3rd moments
-      Real m3wet_init  ! initial 3rd moment, wet [ mom/m3 ]
-      Real m2wet_init  ! initial 2nd moment, wet [ mom/m3 ]
-      Real m3wet_final  ! final 3rd moment with updated SOA [ mom/m3 ]
-      Real m2wet_final  ! final 2nd moment with updated SOA [ mom/m3 ]
+      Real(8) m0_init( 2 )  ! initial 0 moment, wet [ mom/m3 ]
+      Real(8) m1wet_init( 2 )  ! initial 1st moment, wet [ mom/m3 ]
+      Real(8) m2wet_initD( 2 )  ! initial 2nd moment, wet [ mom/m3 ]
+      Real m3wet_init( 2 )  ! initial 3rd moment, wet [ mom/m3 ]
+      Real m2wet_init( 2 )  ! initial 2nd moment, wet [ mom/m3 ]
+      Real m3wet_final( 2 )  ! final 3rd moment with updated SOA [ mom/m3 ]
+      Real m2wet_final( 2 )  ! final 2nd moment with updated SOA [ mom/m3 ]
 
 C Added for new SOA bisection (hotp 7/6/11)
       Real               :: lowb, upb, orgmoles      ! lower bound, upper bound, total aerosol moles
@@ -873,6 +981,7 @@ C-----------------------------------------------------------------------
 
 C Set unit conversion and inverse mw constants
          drog_ppm2ug( : ) = orgprod_mw( : ) * convfac_298
+         Allocate( mw_vap_m1( n_vapor ) )
          mw_vap_m1( : ) = 1.0 / vapor_mw( : )
          mwpoa = aerospc_mw( apoc_idx )
 
@@ -883,23 +992,53 @@ C Set temperature factors
       tt2 = trefm1 - 1.0 / airtemp
       convfac = tt1 * airpres * prefm1
 
+C Set Mass Transfer Properties (although each condensing organic
+C will have its own diffusivity and molecular speed, just assume
+C as a first guess that they are all uniform and given by a rep-
+C resentative compound.
+      Dv_org = difforg * ( STDATMPA / AIRPRES ) * ( AIRTEMP / 273.16 ) ** 1.75
+      cbar_org( : ) = SQRT(8.0 * RGASUNIV * AIRTEMP / ( PI * vapor_mw(:) * 1.0E-3 ) )
+ 
 C Compute 3rd moment, 2nd moment. moment_conc arrays are wet
-C Only the accumulation mode is modified
       Call calcmoments ( .true. )
-      m3wet_init = moment3_conc( 2 )
-      m2wet_init = moment2_conc( 2 )
+      m3wet_init( : ) = moment3_conc( 1:2 )
+      m2wet_init( : ) = moment2_conc( 1:2 )
+        
+      GR3( :,: ) = 0.0
+      m0_init( : )    = moment0_conc( 1:2 )
+      m2wet_initD( : ) = DBLE( m2wet_init( 1:2 ) )
+
+      Do im = 1,2
+        m1wet_init( im ) = m0_init( im ) * aeromode_diam( im ) * 
+     &                         exp( 0.5 * aeromode_lnsg( im ) ** 2 )
+
+        Do i = 1, n_vapor
+          If ( aero_missing( soa_aeroMap( i ),im ) ) Cycle
+          
+          Call HCOND3( m0_init( im ), m1wet_init( im ),
+     &                 m2wet_initD( im ), Dv_org, alphorg, cbar_org(i), GRtmp )
+          GR3( i,im ) = GRtmp( 2 )
+        End Do
+      End Do
+      
+      ! Calculate fraction of mass transfer to/from each mode
+      GR3FRAC( :,: ) = 0.0
+      Where ( GR3( :,1 ) .gt. 0. ) 
+     &    GR3FRAC( :,1 ) = GR3( :,1 ) / ( GR3(:,1) + GR3(:,2) ) ! Aitken Growth
+      Where ( GR3( :,2 ) .gt. 0. )
+     &    GR3FRAC( :,2 ) = GR3( :,2 ) / ( GR3(:,1) + GR3(:,2) ) ! Accumulation Growth
 
 C Initialize drog from ORGPROD and change units to [ ug / m**3 ]
       drog( : ) = orgprod_conc( : ) * drog_ppm2ug( : ) * convfac
 
-C Assignment of drog to totrog. This moving mass from the reactive 
+C Assignment of drog to totrog. This moving mass from the reactive
 C gas tracer species to the array that will be multiplied by alpha
 C to give newly formed semivolatile vapors.
       totrog( : ) = 0.0
       Do i = 1, n_vapor
-         if ( drog_map( i ) .gt. 0 ) then
+         If ( drog_map( i ) .gt. 0 ) then
            totrog( i ) = drog( drog_map( i ) )
-         endif
+         End If
       End Do
 
 C Transfer non-volatile products directly to aerospc_conc array (2nd mode)
@@ -913,6 +1052,7 @@ C Transfer non-volatile products directly to aerospc_conc array (2nd mode)
 
 #ifdef Oligo_aero
 C Oligomerization
+
 C Convert semi-volatile SOA to non-volatile oligomers by an exponential decay
 C process that conserves carbon mass.
 
@@ -941,13 +1081,23 @@ C process that conserves carbon mass.
      &                            + 12.0 * nsvpa * ( 1.0 - expdt ) * olgrat
       aerospc_conc( aolgb_idx,2 ) = aerospc_conc( aolgb_idx,2 )
      &                            + 12.0 * nsvpb * ( 1.0 - expdt ) * olgrat
+
 #endif
 C Compute molar concentrations of non-volatile organic material and total
 C organic material; in future code updates, molecular weights of non-volatile
 C SOA species should be inherited from the include files or namelists to avoid
 C hard-coded values.
 
-      totorgsw = ( aerospc_conc( apoc_idx,1 ) + aerospc_conc( apoc_idx,2 ) ) / mwpoa
+      totorgsw = 0.0  
+
+      ! First Sum Up POA Species if this the NON-Volatile POA Mechanism
+      If ( INDEX( MECHNAME, 'NVPOA' ) .NE. 0 ) Then
+         totorgsw = ( aerospc_conc(   apoc_idx,1 ) + aerospc_conc(   apoc_idx,2 )) / aerospc_mw( apoc_idx )
+     &             +( aerospc_conc( apncom_idx,1 ) + aerospc_conc( apncom_idx,2 )) / aerospc_mw( apncom_idx )
+      End If
+
+      ! Sum Up Nonvolatile OA. This is just a couple of SOA products.
+      ! They are in the orgprd table.
       Do i = 1, n_aerospc
          If(  aerospc( i )%tracer )cycle
          If ( aerospc( i )%nonVol_soa ) Then
@@ -955,17 +1105,23 @@ C hard-coded values.
          End If
       End Do
 
+      ! Sum Up all other OA species. This is most of them. They are in
+      ! the vaporspc table.
       totorg = totorgsw
       Do i = 1, n_vapor
          If( soa_aeroMap( i ) .lt. 1 )Cycle
-         totorg = totorg + aerospc_conc( soa_aeroMap( i ),2 ) * mw_vap_m1( i )
+         totorg = totorg + ( aerospc_conc( soa_aeroMap( i ),2 ) + 
+     &              aerospc_conc( soa_aeroMap( i ),1 ) ) * mw_vap_m1( i )
       End Do
 
 C Initialize ctoti as sum of vapor-phase and particle-phase SVOCs
 C Note: all of these CBLK species are in [ug/m**3]
       Do i = 1, n_vapor
          If( soa_aeroMap( i ) .lt. 1 )Cycle
-         ctoti( i ) = vapor_conc( i ) + aerospc_conc( soa_aeroMap( i ),2 )
+         ctoti( i ) = vapor_conc( i ) + aerospc_conc( soa_aeroMap( i ),2 )  
+     &                + aerospc_conc( soa_aeroMap( i ),1 )
+         caer0( i ) = aerospc_conc( soa_aeroMap( i ),2 )  
+     &                + aerospc_conc( soa_aeroMap( i ),1 )
       End Do
 
 C Equilibrium Partitioning Calculations
@@ -977,16 +1133,16 @@ C    Assuming totorg doesn't change during the timestep,
 C    caer * (1 + c0/MW / totorg) = ctotf
 C    caer = ctotf / ( 1 + c0/MW / totorg )
 
-      threshold = 0.0  !This threshold will be compared to the
-                       !saturation concentration to determine whether
-		       !or not OA partitioning is even likely
-      upb = 0.0 ! upper bound for bisection method
-      
+      threshold = 0.0  ! This threshold will be compared to the
+                       ! saturation concentration to determine whether
+                       ! or not OA partitioning is even likely.
+      upb = 0.0  ! Upper bound for bisection method
+
       Do i = 1, n_vapor
          tempcorr   = tt1 * Exp( vaporspc( i )%enth * rgas1 * tt2 )
-         c0( i )    = vaporspc( i )%cstar * tempcorr        !Satn Conc.
-         prod( i )  = vaporspc( i )%alpha * totrog( i )     !Total Vapor Produced
-         ctotf( i ) = ctoti( i ) + prod( i )                !Vapor + Particle
+         c0( i )    = vaporspc( i )%cstar * tempcorr        ! Satn Conc.
+         prod( i )  = vaporspc( i )%alpha * totrog( i )     ! Total Vapor Produced
+         ctotf( i ) = ctoti( i ) + prod( i )                ! Vapor + Particle
          threshold  = threshold +  ctotf( i ) / c0( i )
          caer( i )  = ctotf( i ) * totorg                   ! initial
      &              / (totorg + c0( i ) * mw_vap_m1( i ) )  ! guess
@@ -1022,7 +1178,7 @@ C Try again with initial guess of 50/50 gas/aerosol split.
          End If
 
 C METHOD2
-C      Calculate new SOA by partitioning. 
+C      Calculate new SOA by partitioning.
 C      Method uses bisection method to solve for total number of moles
 C      of orgaic aerosol. Caer is then calculated based on that number.
         Else
@@ -1030,7 +1186,7 @@ C      of orgaic aerosol. Caer is then calculated based on that number.
 C        Solve for total number of organic moles in aerosol (hotp 7/5/11)
          lowb      = totorgsw   ! lower: moles of nonvolatile
          upb       = lowb + upb ! upper: all moles (semi and nonvolatile)
-!        orgmoles  = soabisect( lowb, upb, totorgsw, c0, ctotf, vapor_mw ) 
+         upb       = upb * ( 1.0 + 1e-7*n_vapor ) ! prevent numerical issues
          If ( abs( upb - lowb ) .lt. threshmin ) then
             ! no SOA to partition
             orgmoles = ( lowb + upb ) / 2.0D0
@@ -1049,13 +1205,11 @@ C End SOA paritioning solver METHOD selection
 C Constrain caer to values between conmin and ctotf
          Do i = 1, n_vapor
 
-            If ( caer( i ) .Lt. conmin ) Then
-               If ( caer( i ) .Lt. 0.0 ) Then
+            If ( caer( i ) .Lt. 0.0 ) Then
                   Write( logdev,* ) 'caer negative at i: ', i, caer( i ),
-     &                              ' reset to conmin'
-               End If
-               caer( i ) = conmin
+     &                              ' reset to evapmin'
             End If
+            caer( i ) = max( caer(i), evapmin )
 
             If ( caer( i ) - ctotf( i ) .Gt. ctolmin ) Then
                Write( logdev,* ) 'caer-ctotf exceeds ctolmin at i = ', i
@@ -1068,15 +1222,48 @@ C Constrain caer to values between conmin and ctotf
 
       Else   ! threshold not exceeded; no material transferred to aerosol phase
 
-         caer = 0.0   ! array assignment
+         caer = 2. * conmin   ! array assignment
 
       End If    ! check on equilibrium threshold
 
 C Transfer particle-phase SOA and vapor-phase SVOCs back to CBLK
+      dcaer = caer - caer0   ! Change in each species conc.
+      vapor_conc( : ) = ctotf( : ) - caer( : )
+
       Do i = 1, n_vapor
-         If( soa_aeroMap( i ) .lt. 1 )Cycle
-         aerospc_conc( soa_aeroMap( i ),2 ) = caer( i )
-         vapor_conc( i ) = ctotf( i ) - caer( i )
+        If ( soa_aeroMap( i ) .ge. 1 ) Then
+           indx = soa_aeroMap( i )
+
+           ! Transfer the semivolatile mass
+           Do im = 1,2
+             aerospc_conc( indx,im ) = 
+     &             aerospc_conc( indx,im ) + dcaer( i ) * GR3FRAC( i,im )
+           End Do
+        
+           ! Check to make sure none of the modes went negative
+           If ( aerospc_conc( indx,1 ) .lt. conmin ) Then
+              aerospc_conc( indx,2 ) = aerospc_conc( indx,2 ) 
+     &               + aerospc_conc( indx,1 ) - conmin
+              aerospc_conc( indx,1 ) = conmin
+           End If
+           If ( aerospc_conc( indx,2 ) .lt. conmin ) Then
+              aerospc_conc( indx,1 ) = aerospc_conc( indx,1 ) 
+     &               + aerospc_conc( indx,2 ) - conmin
+              aerospc_conc( indx,2 ) = conmin
+              If ( aerospc_conc( indx,1 ) .lt. conmin ) Then
+                If ( abs(aerospc_conc( indx,1 ) - conmin) .lt. 1.0e-15 ) Then
+                  aerospc_conc( indx,1 ) = conmin
+                Else
+                  Write( xmsg,'( A56,/,A11,I2,A9,E12.5,A9,E12.5 )' ) 
+     &                 ' *** Too Much Evaporation from Existing Organic Aerosol:',
+     &                 ' SOA Spcs: ',i,' Mode 1: ',aerospc_conc( indx,1 ),
+     &                 ' Mode 2: ',aerospc_conc( indx,2 )
+                  Call m3exit( pname, 0, 0, xmsg, xstat3 )
+                End If
+              End If   
+           End If
+          
+        End If
       End Do
 
 C Acid-induced Isoprene SOA if IEPOX uptake is not considered mechanism reactions
@@ -1130,9 +1317,10 @@ C condensation/evaporation does not affect the geometric standard deviation.
       ! directly from the calcmoments diagnostic. Instead, update it
       ! manually to account for condensation in ORGAER.
       Call calcmoments( .true. )
-      m3wet_final = moment3_conc( 2 )
-      m2wet_final = m2wet_init * ( m3wet_final / m3wet_init ) ** ( 2.0 / 3.0 )
-      moment2_conc( 2 )  = m2wet_final
+      m3wet_final( : ) = moment3_conc( 1:2 )
+      m2wet_final( 1 ) = m2wet_init( 1 ) * ( m3wet_final( 1 ) / m3wet_init( 1 ) ) ** ( 2.0 / 3.0 )
+      m2wet_final( 2 ) = m2wet_init( 2 ) * ( m3wet_final( 2 ) / m3wet_init( 2 ) ) ** ( 2.0 / 3.0 )
+      moment2_conc( 1:2 )  = m2wet_final( : )
 
       Return
       End Subroutine orgaer
@@ -1201,9 +1389,9 @@ C  Arguments
 C  Following Numerical recipes
 
       Integer NN
-      REAL FVEC               ! vector of functions to be zeroed
-      COMMON /NEWTV/ FVEC(n_vapor), NN
-      SAVE /NEWTV/
+      REAL :: FVEC( N )               ! vector of functions to be zeroed
+      ! COMMON /NEWTV/ FVEC(n_vapor), NN
+      ! SAVE /NEWTV/
 
 C  Parameters
       INTEGER, PARAMETER :: MAXITS = 100  ! maximum number of iterations
@@ -1214,12 +1402,12 @@ C  Parameters
       REAL, PARAMETER :: STPMX = 100.0    ! scaled maximum step length allowed
 
 C  Local variables
-      REAL CT
-      REAL CS
-      REAL IMW
-      REAL M
-      COMMON /NEWTINP/ CT( N_VAPOR ), CS( N_VAPOR ), IMW( N_VAPOR ), M
-      SAVE /NEWTINP/
+      REAL :: CT( N ), CS( N ), IMW( N ), M
+      ! REAL CS
+      ! REAL IMW
+      ! REAL M
+      ! COMMON /NEWTINP/ CT( N_VAPOR ), CS( N_VAPOR ), IMW( N_VAPOR ), M
+      ! SAVE /NEWTINP/
 
       INTEGER I, ITS, J, INDX( N_VAPOR )
       REAL D, DEN, F, FOLD, STPMAX, SUM, TEMP, TEST
@@ -1238,7 +1426,7 @@ C-----------------------------------------------------------------------
       END DO
 
       NN = N
-      CALL FMINV( X,F )       ! The vector FVEC is also computed by this call
+      CALL FMINV( X,F,NN,FVEC,CT,CS,IMW,M )  ! The vector FVEC is also computed by this call
       TEST = 0.0              ! Test for initial guess being a root. Use more
                               ! stringent test than simply TOLF.
       DO I = 1, N
@@ -1252,7 +1440,7 @@ C-----------------------------------------------------------------------
       END DO
       STPMAX = STPMX * MAX( SQRT( SUM ), FLOAT( N ) )
       DO ITS = 1, MAXITS           ! start of iteration loop
-         CALL FDJAC( N, X, FJAC )  ! get Jacobian
+         CALL FDJAC( N, X, FJAC, CT, CS, IMW, M )  ! get Jacobian
          DO I = 1, N               ! compute Delta f for line search
             SUM = 0.0
             DO J = 1, N
@@ -1272,7 +1460,8 @@ C-----------------------------------------------------------------------
          CALL LNSRCH( CTOT,
      &                N, XOLD, FOLD, G,  ! LNSRCH returns new X and F. It also
      &                P, X, F, STPMAX,   ! calculates FVEC at the new X when it
-     &                TOLX, CHECK )      ! calls FMINV
+     &                TOLX, CHECK, FVEC,
+     &                CT, CS, IMW, M)      ! calls FMINV
          TEST = 0.0
          DO I = 1, N
             IF ( ABS( FVEC( I ) ) .GT. TEST ) TEST = ABS( FVEC( I ) )
@@ -1295,7 +1484,7 @@ C-----------------------------------------------------------------------
             END IF
             RETURN
          END IF
-         TEST = 0.0             !Test for convergence on delta_x
+         TEST = 0.0             ! Test for convergence on delta_x
          DO I = 1, N
             TEMP = ( ABS( X( I ) - XOLD( I ) ) ) / MAX( ABS( X( I ) ), 1.0 )
             IF ( TEMP .GT. TEST ) TEST = TEMP
@@ -1306,7 +1495,7 @@ C-----------------------------------------------------------------------
       END SUBROUTINE NEWT
 
 C-----------------------------------------------------------------------
-      SUBROUTINE FDJAC( N, X, FJAC )
+      SUBROUTINE FDJAC( N, X, FJAC, CT, CS, IMW, M )
 
 C  Description:
 C    Get the Jacobian of the function
@@ -1335,13 +1524,12 @@ C   SH  02/10/10 renamed NCVAP to n_vapor. Value is inherited from SOA_DEFN.
       IMPLICIT NONE
 
       INTEGER N                 ! dimension of problem
-      REAL X( N )                 ! initial guess of CAER
+      REAL X( N )               ! initial guess of CAER
 
-      REAL CT
-      REAL CS
-      REAL IMW
+      REAL CT( N )
+      REAL CS( N )
+      REAL IMW( N )
       REAL M
-      COMMON /NEWTINP/ CT( N_VAPOR ), CS( N_VAPOR ), IMW( N_VAPOR ), M
 
       REAL FJAC( N,N )
 
@@ -1376,7 +1564,7 @@ C   SH  02/10/10 renamed NCVAP to n_vapor. Value is inherited from SOA_DEFN.
       END SUBROUTINE FDJAC
 
 C-----------------------------------------------------------------------
-      SUBROUTINE FMINV( X,F )
+      SUBROUTINE FMINV( X,F,N,FVEC, CT, CS, IMW, M )
 
 C Description:
 C    Returns f = 0.5 * F*F at X. SR FUNCV(N,X,F) is a fixed-name,
@@ -1398,14 +1586,11 @@ C   SH  02/10/10 renamed NCVAP to n_vapor. Value is inherited from SOA_DEFN.
       INTEGER N
 
       REAL X( * ), F
-      REAL FVEC
-
-      COMMON /NEWTV/ FVEC( N_VAPOR ), N
-      SAVE /NEWTV/
+      REAL :: FVEC( N ), CT( N ), CS( N ), IMW( N ), M
 
       INTEGER I
       REAL SUM
-      CALL FUNCV( N, X, FVEC )
+      CALL FUNCV( N, X, FVEC, CT, CS, IMW, M )
       SUM = 0.0
       DO I = 1, N
          SUM = SUM + FVEC( I ) ** 2
@@ -1415,7 +1600,7 @@ C   SH  02/10/10 renamed NCVAP to n_vapor. Value is inherited from SOA_DEFN.
       END SUBROUTINE FMINV
 
 C-----------------------------------------------------------------------
-      SUBROUTINE FUNCV( N, X, FVEC )
+      SUBROUTINE FUNCV( N, X, FVEC, CT, CS, IMW, M )
 
 C Description:
 C   From Equation (8) of Schell et al., 2001:
@@ -1456,12 +1641,10 @@ C      Res., Vol 106, No D22, 28275-28293, 2001.
       REAL X( * )
       REAL FVEC( N )
 
-      REAL CT
-      REAL CS
-      REAL IMW
+      REAL CT( N )
+      REAL CS( N )
+      REAL IMW( N )
       REAL M
-      COMMON /NEWTINP/ CT( N_VAPOR ), CS( N_VAPOR ), IMW( N_VAPOR ), M
-      SAVE /NEWTINP/
 
       INTEGER I, J
       REAL SUM_JNEI
@@ -1487,7 +1670,8 @@ C      Res., Vol 106, No D22, 28275-28293, 2001.
 C-----------------------------------------------------------------------
       SUBROUTINE LNSRCH( CTOT,
      &                   N, XOLD, FOLD, G, P,
-     &                   X, F, STPMAX, TOLX, CHECK)
+     &                   X, F, STPMAX, TOLX, CHECK, FVEC,
+     &                   CT, CS, IMW, M )
 
 C Description:
 C   Given an n-dimensional point XOLD(1:N), the value of the function
@@ -1522,6 +1706,7 @@ C       subroutine).
       REAL CTOT( N )
       REAL, PARAMETER :: ALF = 1.E-04
       REAL, PARAMETER :: CONMIN = 1.E-30
+      REAL :: FVEC( N ), CT( N ), CS( N ), IMW( N ), M
 
       INTEGER I
       REAL A, ALAM, ALAM2, ALAMIN, B, DISC
@@ -1560,7 +1745,7 @@ C  avoid negative concentrations and set upper limit given by CTOT.
          IF ( X( I ) .LE. 0.0 )       X( I ) = CONMIN
          IF ( X( I ) .GT. CTOT( I ) ) X( I ) = CTOT( I )
       END DO
-      CALL FMINV( X,F )
+      CALL FMINV( X,F,N,FVEC,CT,CS,IMW,M )
       IF ( ALAM .LT. ALAMIN ) THEN
          DO I = 1, N
             X( I ) = XOLD( I )
@@ -1744,8 +1929,10 @@ C    all dimensions now depend upon N only
       RETURN
       END SUBROUTINE LUDCMP
 
+C-----------------------------------------------------------------------
       Function soabisect( lowerb, upperb, nonvolmol, cstaratt, totsemivol,
      &                    mlwt) RESULT ( nroot )
+
 C     Determines the root of an equation, nroot, that is located
 C     between the lowerb and upperb. The equation of interest is defined
 C     in the function soaequation. Before calling soabisect, the threshold 
@@ -1825,9 +2012,8 @@ C     abstol (absolute) amount
      &       'Warning: number of organic aerosol moles going to zero in soa bisection:',
      &        nroot
 #else
-          xmsg = 'Error: number of organic aerosol moles going to zero in soa bisection'
+          xmsg = 'Warning: number of organic aerosol moles going to zero in soa bisection'
 #endif
-!         Call m3warn( pname, 0, 0, xmsg )
           Call m3exit( pname, 0, 0, xmsg, xstat3 )
         End If
 
@@ -1861,7 +2047,7 @@ C     abstol (absolute) amount
      &      'Warning: possible false convergence in soa bisection:', fnguess, nroot
             Call m3warn( pname, 0, 0, xmsg )
 #else
-!           xmsg = 'Warning: possible false convergence in soa bisection'
+            xmsg = 'Warning: possible false convergence in soa bisection'
 #endif
 !           Call m3warn( pname, 0, 0, xmsg )
           End If
@@ -1947,7 +2133,7 @@ C     Local variables
       Integer, Save    :: logdev
 
       Real             :: nguess              ! current guess for total moles organic aerosol
-      Real             :: oldn, lower, upper, flower, fnguess !intermediate values
+      Real             :: oldn, lower, upper, flower, fnguess ! intermediate values
       Real             :: fupper              ! function evaluated at upper bound
       Real             :: ea                  ! difference b/w old and new guesses (umol/m3)
       Real             :: test                ! to detect sign change

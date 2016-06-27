@@ -53,8 +53,6 @@
 
       integer, parameter :: nlat = 17 ! or 19
       integer, parameter :: nlon = 17
-!     integer, parameter :: nt   = 570 ! or 1000
-      integer, save :: nt
 
 ! local variables
 
@@ -62,29 +60,24 @@
       character( 16 ), save :: pname = 'O3TOTCOL'
       character( 96 ) :: xmsg = ' '
       character( 96 ) :: xmsgs( 3 )
-      logical, save :: firsttime = .true.
 
       integer :: allocstat
       integer :: ilat
       integer :: ilon
-      integer, save :: it
       integer :: i
       integer :: icount
       integer :: ios
-      integer, save :: logdev           ! output log unit number
       integer :: nrecs
-      integer, save :: tmunit
       integer :: jyear
+
+      integer, save :: logdev           ! output log unit number
+      integer, save :: nt
+      integer, save :: it
+      integer, save :: tmunit
       integer, save :: jdate_prev = 0
       integer, save :: jstdate, jenddate, jtdate_temp
 
-      real, save :: lat( nlat )
-      real, save :: lon( nlon )
-!     real, save :: t( nt )
-      real, allocatable, save :: t( : )
-      real, save :: oz( nlat, nlon, 2 ) ! two timesteps for interpolation
       real :: flag( 8 )
-      real, save :: x1
       real :: x2
       real :: x3
       real :: np_oz
@@ -92,7 +85,16 @@
       real :: total
       real :: latitudem
       real :: tdate_temp, tdate
-      real :: stdate, enddate
+
+      real, save :: x1
+      real, save :: stdate, enddate
+
+      real, allocatable, save :: t( : )
+      real, allocatable, save :: lat( : )
+      real, allocatable, save :: lon( : )
+      real, allocatable, save :: oz( :, :, : ) ! two timesteps for interpolation
+
+      logical, save :: firsttime = .true.
 
 !----------------------------------------------------------------------
 
@@ -100,11 +102,23 @@
       
         firsttime = .false.
         logdev = init3()
+
+        allocate ( lat( nlat ), stat = allocstat )
+        if ( allocstat .ne. 0 ) then
+          xmsg = 'Failure allocating lat'
+          call m3exit ( pname, jdate, 0, xmsg, xstat1 )
+        end if
+
+        allocate ( lon( nlon ), stat = allocstat )
+        if ( allocstat .ne. 0 ) then
+          xmsg = 'Failure allocating lon'
+          call m3exit ( pname, jdate, 0, xmsg, xstat1 )
+        end if
         
 ! Assign values to array of longitudes: lon
-
+        x2 = 360.0 / real( nlon - 1 )
         do ilon = 1, nlon
-          lon( ilon ) = -180.0 + 22.5 * real( ilon - 1 )
+          lon( ilon ) = -180.0 + x2 * real( ilon - 1 )
         end do
 
         tmunit = getefile( tmfile, .true., .true., pname )
@@ -129,23 +143,18 @@
           call m3exit ( pname, jdate, 0, xmsg, xstat1 )
         end if
 
-      end if ! firsttime
-
-      if ( jdate .ne. jdate_prev ) then
-
-! Initialize
-
-        jdate_prev = jdate
-        oz = 0.0
-        t  = 0.0
-        lat = 0.0
+        allocate ( oz( nlat, nlon, 2 ), stat = allocstat )
+        if ( allocstat .ne. 0 ) then
+          xmsg = 'Failure allocating oz '
+          call m3exit ( pname, jdate, 0, xmsg, xstat1 )
+        end if
 
         rewind( tmunit )
         read( tmunit, * )
 
 ! When adding x lines of data to OMI.dat, increase upper limit by x
-! Note: ilat(1) => 80N = + 80 deg ; ilat(nlat) => 80S = -80 deg
-! Note: ilon(1) = international dateline = ilon(nlon); ilon(2)=> 157.5W ; ilon(9)= ZULU
+! Note: ilat(1) => North to South in degrees
+! Note: ilon(1) = International Dateline (ID) = ilon(nlon); ilon(2)=> West of ID 
 
 ! Read in array of dates (format: yyyy.yyy)
 
@@ -157,6 +166,13 @@
 
         stdate  = minval( t )
         enddate = maxval( t )
+
+      end if ! firsttime
+
+      if ( jdate .ne. jdate_prev ) then
+! reset oz and jdate_prev
+        jdate_prev = jdate
+        oz = 0.0
 
 ! Use a temporary dummy variable jdate_temp so as not to overwrite jdate
 
@@ -274,18 +290,18 @@
         end do
    
         do ilat = 1, nlat
-          read( tmunit,* ) t( it ), lat( ilat ), ( oz( ilat, ilon, 1 ), ilon=1,16 )
+          read( tmunit,* ) t( it ), lat( ilat ), ( oz( ilat, ilon, 1 ), ilon=1,(nlon-1) )
           oz( ilat, nlon, 1 ) = oz( ilat, 1, 1 )
         end do
    
         do ilat = 1, nlat
-          read( tmunit,* ) t( it+1 ), lat( ilat ), ( oz( ilat, ilon, 2 ), ilon=1,16 )
+          read( tmunit,* ) t( it+1 ), lat( ilat ), ( oz( ilat, ilon, 2 ), ilon=1,(nlon-1) )
           oz( ilat, nlon, 2 ) = oz( ilat, 1, 2 )
         end do
    
       end if   ! jdate .ne. jdate_prev
 
-      flag( 1:8 ) = 0.0
+      flag  = 0.0
       ozone = 0.0
       latitudem = 0.0
       x2 = 0.0
@@ -305,7 +321,7 @@
 ! Identify the database latitudes that bound the requested latitude
 ! Determine the proportionality x2
 
-      x2loop: do ilat = 1, 16
+      x2loop: do ilat = 1, nlat-1
         if ( ( latitudem .le. lat( ilat ) ) .and. 
      &       ( latitudem .ge. lat( ilat+1 ) ) ) then
           x2 = ( latitudem - lat( ilat+1 ) ) / ( lat( ilat ) - lat( ilat+1 ) )
@@ -315,7 +331,7 @@
 
 ! Analogously determine the proportionality x3 fot longitude
 
-      x3loop: do ilon = 1, 16
+      x3loop: do ilon = 1, nlon-1
         if ( ( longitude .ge. lon( ilon ) ) .and. 
      &       ( longitude .le. lon( ilon+1 ) ) ) then
           x3 = ( longitude - lon( ilon ) ) / ( lon( ilon+1 ) - lon( ilon ) )
@@ -328,7 +344,7 @@
 ! Determine the interpolated ozone, with consideration that some of the 8 ozone values
 ! of the data cube may be missing.  Construct the estimate from those values that are     ! available
 
-      flag( 1:8 ) = 1.0
+      flag = 1.0
 
       if ( oz( ilat, ilon+1, 2 ) .le. 0.0 ) then
         oz( ilat, ilon+1, 2 ) = 0.0
@@ -395,10 +411,7 @@
      &       +( 1.0-x1 ) * ( 1.0-x2 ) * (     x3 ) * oz( ilat+1, ilon+1, 1 )
      &       +( 1.0-x1 ) * ( 1.0-x2 ) * ( 1.0-x3 ) * oz( ilat+1, ilon  , 1 )
 
-      total = 0.0
-      do i = 1, 8
-        total = total + flag( i )
-      end do
+      total = sum( flag )
 
 ! Special case of abs(lat) > 80
 
@@ -455,13 +468,13 @@
       else
         if ( latitude .ge. 80.0 ) then
           np_oz = np_oz / total
-          ozone = ( ( latitude - 80.0 ) / 10.0 ) * np_oz
-     &          + ( 1.0 - ( ( ( latitude - 80.0 ) / 10.0 ) ) ) * ozone / total
+          ozone = ( ( latitude - 80.0 ) * 0.1 ) * np_oz
+     &          + ( 1.0 - ( ( ( latitude - 80.0 ) * 0.1 ) ) ) * ozone / total
         
         else if ( latitude .le. -80.0 ) then
           sp_oz = sp_oz / total
-          ozone = ( ( latitude + 80.0 ) / 10.0 ) * sp_oz
-     &          + ( 1.0 - ( ( ( latitude + 80.0 ) / 10.0 ) ) ) * ozone / total
+          ozone = ( ( latitude + 80.0 ) * 0.1 ) * sp_oz
+     &          + ( 1.0 - ( ( ( latitude + 80.0 ) * 0.1 ) ) ) * ozone / total
         
         else
           ozone = ozone / total

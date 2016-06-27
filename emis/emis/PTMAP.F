@@ -167,9 +167,10 @@ C point source emissions to gas-phase species map
                IF ( IDX .GT. 0 ) THEN
 
 !WTH skip if emission species used multiple times for current point group
-                  DO K = NM+1, L 
-                     IF ( VNAME .EQ. GVNM( K ) ) CYCLE LOOP_GC
-                  END DO
+                  !BNM Don't Skip if a species is used multiple times
+                  !DO K = NM+1, L 
+                  !   IF ( VNAME .EQ. GVNM( K ) ) CYCLE LOOP_GC
+                  !END DO
 #ifdef Verbose
                   WRITE ( LOGDEV,* ) TRIM( VNAME ), ' added to GVNM array '
 #endif
@@ -193,9 +194,9 @@ C point source emissions to gas-phase species map
                IF ( IDX .GT. 0 ) THEN
 
 !WTH skip if emission species used multiple times for current point group
-                  DO K = NM+1, L
-                     IF ( VNAME .EQ. GVNM( K ) ) CYCLE LOOP_NR
-                  END DO
+                  !DO K = NM+1, L
+                  !   IF ( VNAME .EQ. GVNM( K ) ) CYCLE LOOP_NR
+                  !END DO
 #ifdef Verbose
                   WRITE ( LOGDEV,* ) TRIM( VNAME ), ' added to GVNM array '
 #endif
@@ -218,9 +219,9 @@ C point source emissions to gas-phase species map
                IDX = INDEX1( VNAME, NVARS_EMIS( N ), STKSPC( N )%ARRY )
                IF ( IDX .GT. 0 ) THEN
 !WTH skip if emission species used multiple times for current point group
-                  DO K = NM+1, L
-                     IF ( VNAME .EQ. GVNM( K ) ) CYCLE LOOP_TR
-                  END DO
+                  !DO K = NM+1, L
+                  !   IF ( VNAME .EQ. GVNM( K ) ) CYCLE LOOP_TR
+                  !END DO
 #ifdef Verbose
                   WRITE ( LOGDEV,* ) TRIM( VNAME ), ' added to GVNM array '
 #endif
@@ -319,7 +320,8 @@ C Cull ...
          VC( 1 ) = V( 1 )
          NCULL = 1
          DO I = 2, NM
-            IF ( V( I )%STR .NE. VC( NCULL )%STR ) THEN
+            IF ( V( I )%STR .NE. VC( NCULL )%STR .OR.
+     &           V( I )%NDX .NE. VC( NCULL )%NDX ) THEN
                NCULL = NCULL + 1
                VC( NCULL ) = V( I )
             END IF
@@ -485,32 +487,34 @@ C point source emissions to PM species map
 !        WRITE( LOGDEV,1007 )
 
          NM = 0; L = 0
-         DO N = 1, NPTGRPS
+         DO N = 1, NPTGRPS  !Loop through Point Source Files
            
             I = 0
             LOOP_PM: DO J = 1, N_EMIS_PM
-               K = PMEM_MAP( J )
-               VNAME = AEROSPC( K )%EMIS
+               VNAME = PMEM_MAP_NAME( J )
                IDX = INDEX1( VNAME, NVARS_EMIS( N ), STKSPC( N )%ARRY )
                IF ( IDX .GT. 0 ) THEN
 !WTH skip if emission species used multiple times for current point group
-                  DO I2 = NM+1, L
-                     IF ( VNAME .EQ. PVNM( I2 ) ) CYCLE LOOP_PM
-                  END DO
+                  !BNM Don't Skip if emissions species are used multiple
+		  !times
+                  !DO I2 = NM+1, L
+                  !   IF ( VNAME .EQ. PVNM( I2 ) ) CYCLE LOOP_PM
+                  !END DO
 #ifdef Verbose
                   WRITE( LOGDEV,* ) TRIM( VNAME ), ' added to PVNM array'
 #endif
 !WTH
                   I = I + 1
                   L = L + 1
-                  PMAP( L ) = J
-                  PLST( I,N ) = IDX
-                  PVNM( L ) = VNAME
+                  PMAP( L ) = J      !Map Global Pt Spcs Index -> AERODATA Index
+                  PLST( I,N ) = IDX  !Map Local Pt Spcs Binary -> Index in File List
+                  PVNM( L ) = VNAME  !Populate global Pt Src Spcs List Names
 #ifdef Verbose
                   WRITE( LOGDEV,1009 ) N, J, I, L, PLST( I,N ), PMAP( L ),
      &                                 TRIM( PVNM( L ) ) 
 #endif
                END IF
+
             END DO LOOP_PM
 
             NM = NM + I

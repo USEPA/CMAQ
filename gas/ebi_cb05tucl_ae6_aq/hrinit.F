@@ -34,7 +34,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, March 12, 2015
+C  REVISION HISTORY: Created by EBI solver program, May 25, 2016
 C   21 Jun 10 J.Young:   convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files
@@ -145,7 +145,7 @@ C***********************************************************************
 
 c..Allocate and define ebi species
 
-      N_EBISP  =  94
+      N_EBISP  = 102
       ALLOCATE( EBISP( N_EBISP ), STAT = IOS ) 
       IF ( IOS .NE. 0 ) THEN
          MSG = 'Error allocating EBISP' 
@@ -242,10 +242,18 @@ c..Allocate and define ebi species
       EBISP(  88 ) = APAH2J
       EBISP(  89 ) = AALK1J
       EBISP(  90 ) = AALK2J
-      EBISP(  91 ) = APOCI
-      EBISP(  92 ) = APNCOMI
-      EBISP(  93 ) = APOCJ
-      EBISP(  94 ) = APNCOMJ
+      EBISP(  91 ) = PCVOC
+      EBISP(  92 ) = PCSOARXN
+      EBISP(  93 ) = VLVPO1
+      EBISP(  94 ) = VSVPO1
+      EBISP(  95 ) = VSVPO2
+      EBISP(  96 ) = VSVPO3
+      EBISP(  97 ) = VIVPO1
+      EBISP(  98 ) = VLVOO1
+      EBISP(  99 ) = VLVOO2
+      EBISP( 100 ) = VSVOO2
+      EBISP( 101 ) = VSVOO3
+      EBISP( 102 ) = VSVOO1
 
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -354,10 +362,18 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( APAH2J   ) = 1.0D-03
       RTOL( AALK1J   ) = 1.0D-03
       RTOL( AALK2J   ) = 1.0D-03
-      RTOL( APOCI    ) = 1.0D-03
-      RTOL( APNCOMI  ) = 1.0D-03
-      RTOL( APOCJ    ) = 1.0D-03
-      RTOL( APNCOMJ  ) = 1.0D-03
+      RTOL( PCVOC    ) = 1.0D-03
+      RTOL( PCSOARXN ) = 1.0D-03
+      RTOL( VLVPO1   ) = 1.0D-03
+      RTOL( VSVPO1   ) = 1.0D-03
+      RTOL( VSVPO2   ) = 1.0D-03
+      RTOL( VSVPO3   ) = 1.0D-03
+      RTOL( VIVPO1   ) = 1.0D-03
+      RTOL( VLVOO1   ) = 1.0D-03
+      RTOL( VLVOO2   ) = 1.0D-03
+      RTOL( VSVOO2   ) = 1.0D-03
+      RTOL( VSVOO3   ) = 1.0D-03
+      RTOL( VSVOO1   ) = 1.0D-03
 
 
       RETURN

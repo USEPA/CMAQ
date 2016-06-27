@@ -124,6 +124,12 @@ C...CSA Variables, Units and Descriptions for RJ_FILE
          VTYPE3D( N ) = M3REAL
 
          N = N + 1
+         VNAME3D( N ) = 'TROPO_O3_COLUMN'
+         UNITS3D( N ) = 'DU'
+         VDESC3D( N ) = 'Tropospheric Ozone Column Density'
+         VTYPE3D( N ) = M3REAL
+
+         N = N + 1
          VNAME3D( N ) = 'JNO2'
          UNITS3D( N ) = '1/min'
          VDESC3D( N ) = 'J-value for NO2'

@@ -864,7 +864,7 @@ C******************************************************************************
 
             DO i = 1, NC
                B(i) = B(i) - NHS(i)
-            ENDDO
+            END DO
 
 !        Solve for x in VR*x=B using Cramer's Rule
 

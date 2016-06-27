@@ -27,6 +27,7 @@ C 08 Feb 13 J.Young: initial
 C 20 Jun 14 J.Young: restructure
 C 22 Oct 14 J.Bash:  replaced P0 with STDATMPA from CONST.EXT and shared 
 C                    variables in the asx_data_mod
+C May 2015 B. Murphy, H. Pye: Updated treatment of aerosol moments
 C-----------------------------------------------------------------------
 
       use grid_conf           ! horizontal & vertical domain specifications
@@ -193,8 +194,8 @@ C "wet" size distribution
 C                        | do not fix stnd dev`s to existing value
 
 C Save getpar values to arrays
-         xxlsgac( l ) = aeromode_sdev( 2 )
-         xxlsgco( l ) = aeromode_sdev( 3 )
+         xxlsgac( l ) = aeromode_lnsg( 2 )
+         xxlsgco( l ) = aeromode_lnsg( 3 )
 
          dgacc( l )   = aeromode_diam( 2 )
          dgcor( l )   = aeromode_diam( 3 )

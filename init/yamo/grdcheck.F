@@ -92,13 +92,13 @@ C...For DOT files only
             NCOLS_DOT = GL_NCOLS + 1
             CALL INTDIFF( 'GL_NCOLS', NCOLS3D, NCOLS_DOT )
             LOK = .FALSE.
-         ENDIF
+         END IF
 
          IF( GL_NROWS + 1 .NE. NROWS3D ) THEN
             NROWS_DOT = GL_NROWS + 1
             CALL INTDIFF( 'GL_NROWS', NROWS3D,  NROWS_DOT )
             LOK = .FALSE.
-         ENDIF
+         END IF
 
 C...Skip PDM files
       ELSEIF( INDEX( FNAME, 'PDM_' ) .NE. 0) THEN
@@ -118,14 +118,14 @@ C...All other files
          IF( GL_NCOLS .NE. NCOLS3D ) THEN
             CALL INTDIFF( 'GL_NCOLS', NCOLS3D, GL_NCOLS )
             LOK = .FALSE.
-         ENDIF
+         END IF
 
          IF( GL_NROWS .NE. NROWS3D ) THEN
             CALL INTDIFF( 'GL_NROWS', NROWS3D, GL_NROWS )
             LOK = .FALSE.
-         ENDIF
+         END IF
  
-      ENDIF
+      END IF
 
 C...Check Number of vertical layers only for true 3D files
 
@@ -142,27 +142,27 @@ C...Check Number of vertical layers only for true 3D files
             NLAYS_FL = NLAYS3D   ! don't check this file
          ELSE
             NLAYS_FL = NLAYS
-         ENDIF
+         END IF
 
          IF( NLAYS_FL .NE. NLAYS3D ) THEN
             CALL INTDIFF( 'NLAYS', NLAYS3D, NLAYS_FL )
             LOK = .FALSE.
             LNLAYSOK = .FALSE.
-         ENDIF
+         END IF
 
          IF( NTHIK .NE. NTHIK3D ) THEN
             CALL INTDIFF( 'NTHIK', NTHIK3D, NTHIK )
             LOK = .FALSE.
-         ENDIF
+         END IF
              
-      ENDIF
+      END IF
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C  Check Map projection
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF( GDTYP_GD .NE. GDTYP3D ) THEN
          CALL INTDIFF( 'GDTYP', GDTYP_GD, GDTYP3D )
          LOK = .FALSE.
-      ENDIF
+      END IF
 
 C...Check P_ALPHA only for Lambert, Mercator, Stereographic and UTM
       IF( GDTYP_GD .GE. 2 .AND. GDTYP_GD .LE. 5 ) THEN      
@@ -171,8 +171,8 @@ C...Check P_ALPHA only for Lambert, Mercator, Stereographic and UTM
          IF( CHR1 .NE. CHR2 ) THEN
             CALL CHRDIFF( 'P_ALP', CHR1, CHR2 )
             LOK = .FALSE.
-        ENDIF
-      ENDIF
+        END IF
+      END IF
 
 C...Check P_BETA only for Lambert, Mercator, and Stereographic
       IF( GDTYP_GD .GE. 2 .AND. GDTYP_GD .LE. 4 ) THEN      
@@ -181,8 +181,8 @@ C...Check P_BETA only for Lambert, Mercator, and Stereographic
          IF( CHR1 .NE. CHR2 ) THEN
             CALL CHRDIFF( 'P_BET', CHR1,  CHR2 )
             LOK = .FALSE.
-        ENDIF
-      ENDIF
+        END IF
+      END IF
 
 C...Check P_GAMMA only for Lambert, Mercator, and Stereographic
       IF( GDTYP_GD .GE. 2 .AND. GDTYP_GD .LE. 4 ) THEN      
@@ -191,8 +191,8 @@ C...Check P_GAMMA only for Lambert, Mercator, and Stereographic
          IF( CHR1 .NE. CHR2 ) THEN
             CALL CHRDIFF( 'P_GAM', CHR1,  CHR2 )
             LOK = .FALSE.
-         ENDIF
-      ENDIF
+         END IF
+      END IF
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C  Check for horizontal grid location and size
@@ -205,20 +205,20 @@ C...Check XORG & YORG only for Lambert, Mercator, Stereographic and UTM
          ELSE
             XORIG_FL = XORIG_GD 
             YORIG_FL = YORIG_GD 
-         ENDIF
+         END IF
          WRITE( CHR1, 94020 ) XORIG3D
          WRITE( CHR2, 94020 ) XORIG_FL
          IF( CHR1 .NE. CHR2 ) THEN
             CALL CHRDIFF( 'XORIG', CHR1,  CHR2 )
             LOK = .FALSE.
-         ENDIF
+         END IF
          WRITE( CHR1, 94020 ) YORIG3D
          WRITE( CHR2, 94020 ) YORIG_FL
          IF( CHR1 .NE. CHR2 ) THEN
             CALL CHRDIFF( 'YORIG', CHR1,  CHR2 )
             LOK = .FALSE.
-         ENDIF
-      ENDIF
+         END IF
+      END IF
 
 C...Check XCENT & YCENT only for Lambert, Mercator, and Stereographic
       IF( GDTYP_GD .GE. 2 .AND. GDTYP_GD .LE. 4 ) THEN      
@@ -227,29 +227,29 @@ C...Check XCENT & YCENT only for Lambert, Mercator, and Stereographic
          IF( CHR1 .NE. CHR2 ) THEN
             CALL CHRDIFF( 'XCENT', CHR1,  CHR2 )
             LOK = .FALSE.
-         ENDIF
+         END IF
 
          WRITE( CHR1, 94020 ) YCENT3D
          WRITE( CHR2, 94020 ) YCENT_GD
          IF( CHR1 .NE. CHR2 ) THEN
             CALL CHRDIFF( 'YCENT', CHR1,  CHR2 )
             LOK = .FALSE.
-         ENDIF
-      ENDIF
+         END IF
+      END IF
 
       WRITE( CHR1, 94020 ) XCELL3D
       WRITE( CHR2, 94020 ) XCELL_GD
       IF( CHR1 .NE. CHR2 ) THEN
          CALL CHRDIFF( 'XCELL', CHR1,  CHR2 )
          LOK = .FALSE.
-      ENDIF
+      END IF
 
       WRITE( CHR1, 94020 ) YCELL3D
       WRITE( CHR2, 94020 ) YCELL_GD
       IF( CHR1 .NE. CHR2 ) THEN
          CALL CHRDIFF( 'YCELL', CHR1,  CHR2 )
          LOK = .FALSE.
-      ENDIF
+      END IF
  
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C  Check vertical structure (only for "true" 3D files
@@ -261,7 +261,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          IF( VGTYP_GD .NE. VGTYP3D ) THEN
             CALL INTDIFF( 'VGTYP', VGTYP3D, VGTYP_GD )
             LOK = .FALSE.
-         ENDIF
+         END IF
 
 C..Check for vtop for sigma-p coordinates only
          IF( VGTYP3D .GE. 1 .AND. VGTYP3D .LE. 2 ) THEN  
@@ -270,8 +270,8 @@ C..Check for vtop for sigma-p coordinates only
             IF( CHR1 .NE. CHR2 ) THEN
                CALL CHRDIFF( 'VGTOP', CHR1,  CHR2 )
                LOK = .FALSE.
-            ENDIF
-         ENDIF
+            END IF
+         END IF
 
 C..Check vertical levels for 3D files only
 
@@ -282,21 +282,21 @@ C..Check vertical levels for 3D files only
             NLAYS2CK = NLAYS3D
          ELSE
             NLAYS2CK = NLAYS
-         ENDIF
+         END IF
 
          DO LAY = 1 , NLAYS2CK
             WRITE( CHR1, 94020 ) VGLVS3D( LAY )
             WRITE( CHR2, 94020 ) VGLVS_GD( LAY )
             IF( CHR1 .NE. CHR2 ) LDIFF = .TRUE.
-         ENDDO
+         END DO
 
          IF( LDIFF ) THEN    
             MSG = '    Inconsistent value for vertical level'
             CALL M3MESG( MSG )
             LOK = .FALSE.
-         ENDIF
+         END IF
 
-      ENDIF
+      END IF
 
       RETURN
 

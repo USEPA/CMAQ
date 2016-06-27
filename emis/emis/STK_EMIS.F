@@ -33,7 +33,8 @@ C           3d point source emissions
 C Revision History:
 C     16 Jan 2007 J.Young: initial implementation
 C     16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
-
+C     30 Apr 2016 J.Young: add multiple fire source capability, in affiliation with
+C                          Yongtao Hu (Georgia Tech)
 C-----------------------------------------------------------------------
 
       USE UDTYPES, ONLY: RARRY2, CARRY1
@@ -57,11 +58,14 @@ c        INTEGER                  :: LEN
 c     END TYPE CARRY1
 
       TYPE( RARRY2 ), ALLOCATABLE, SAVE :: STKEMIS( : )   ! stack emissions [mol/s]
+      TYPE( RARRY2 ), ALLOCATABLE, SAVE :: STKEMIS_TMP( : )   ! stack emissions [mol/s]
       TYPE( CARRY1 ), ALLOCATABLE, SAVE :: STKSPC( : )    ! emitted species names
       TYPE( RARRY2 ), ALLOCATABLE, SAVE :: FIREVAR( : )   ! fire variables, 2 assumed
+      TYPE( RARRY2 ), ALLOCATABLE, SAVE :: FIREVAR_TMP( : )   ! stack emissions [mol/s]
       TYPE( CARRY1 ), ALLOCATABLE, SAVE :: FIRENAM( : )   ! fire variable names
 
-      INTEGER, PARAMETER                :: FGRPS = 1      ! assuming one fire sector
+ !    INTEGER, PARAMETER                :: FGRPS = 1      ! assuming one fire sector
+      INTEGER FGRPS
 
       INTEGER,        ALLOCATABLE, SAVE :: STKDATE( : )   ! src grp timestamp date
 !     INTEGER,        ALLOCATABLE, SAVE :: STKTIME( : )   ! src grp timestamp time
@@ -90,6 +94,7 @@ C-----------------------------------------------------------------------
          SUCCESS = .TRUE.
 
          NGRPS = SIZE( STKENAME )
+         FGRPS = NGRPS
 
          ALLOCATE ( NSRC_EMIS( NGRPS ), STAT = ASTAT )
          CALL CHECKMEM( ASTAT, 'NSRC_EMIS', PNAME )
@@ -108,6 +113,7 @@ C-----------------------------------------------------------------------
 
          ALLOCATE ( STKEMIS( NGRPS ), STAT = ASTAT )
          CALL CHECKMEM( ASTAT, 'STKEMIS', PNAME )
+         ALLOCATE ( STKEMIS_TMP( NGRPS ), STAT = ASTAT )
 
          ALLOCATE ( STKSPC( NGRPS ), STAT = ASTAT )
          CALL CHECKMEM( ASTAT, 'STKSPC', PNAME )
@@ -118,6 +124,7 @@ C-----------------------------------------------------------------------
 
          ALLOCATE ( FIREVAR( FGRPS ), STAT = ASTAT )
          CALL CHECKMEM( ASTAT, 'FIREVAR', PNAME )
+         ALLOCATE ( FIREVAR_TMP( FGRPS ), STAT = ASTAT )
 
          ALLOCATE ( FIRENAM( FGRPS ), STAT = ASTAT )
          CALL CHECKMEM( ASTAT, 'FIRENAM', PNAME )
@@ -154,6 +161,7 @@ C-----------------------------------------------------------------------
             STKEMIS( N )%LEN1 = LEN1
             STKEMIS( N )%LEN2 = LEN2
             ALLOCATE ( STKEMIS( N )%ARRY( LEN1,LEN2 ), STAT = ASTAT )
+            ALLOCATE ( STKEMIS_TMP( N )%ARRY( LEN1,LEN2 ), STAT = ASTAT )
             CALL CHECKMEM( ASTAT, 'STKEMIS', PNAME )
             STKEMIS( N )%ARRY = 0.0   ! array
 
@@ -162,23 +170,24 @@ C-----------------------------------------------------------------------
             CALL CHECKMEM( ASTAT, 'STKSPC', PNAME )
 
             IF ( FIREFLAG( N ) ) THEN   ! subtract and save off 'HFLUX'
-               ALLOCATE ( FIREVAR( 1 )%ARRY( LEN1,NVARS_FIRE ), STAT = ASTAT )
+               ALLOCATE ( FIREVAR( N )%ARRY( LEN1,NVARS_FIRE ), STAT = ASTAT )
+               ALLOCATE ( FIREVAR_TMP( N )%ARRY( LEN1,NVARS_FIRE ), STAT = ASTAT )
                CALL CHECKMEM( ASTAT, 'FIREVAR', PNAME )
-               ALLOCATE ( FIRENAM( 1 )%ARRY( NVARS_FIRE ), STAT = ASTAT )
+               ALLOCATE ( FIRENAM( N )%ARRY( NVARS_FIRE ), STAT = ASTAT )
                CALL CHECKMEM( ASTAT, 'FIRENAM', PNAME )
                I = 0
                DO J = 1, NVARS3D
 C The FIRENAM_FIREVAR to match use in PT3D_DEFN
                   IF ( TRIM( VNAME3D( J ) ) .EQ. 'HFLUX' ) THEN
-                     FIRENAM( 1 )%ARRY( 1 ) = VNAME3D( J )
+                     FIRENAM( N )%ARRY( 1 ) = VNAME3D( J )
                      CYCLE
                   END IF
                   I = I + 1
                   STKSPC( N )%ARRY( I ) = VNAME3D( J )
                END DO
-               FIRENAM( 1 )%LEN = NVARS_FIRE
-               FIREVAR( 1 )%LEN1 = LEN1
-               FIREVAR( 1 )%LEN2 = NVARS_FIRE
+               FIRENAM( N )%LEN = NVARS_FIRE
+               FIREVAR( N )%LEN1 = LEN1
+               FIREVAR( N )%LEN2 = NVARS_FIRE
             ELSE
 !              STKSPC( N )%ARRY = VNAME3D   ! array
                DO J = 1, STKSPC( N )%LEN
