@@ -65,7 +65,8 @@ ANO3_PPB	    ,ppbV      ,(ANO3I[1]+ANO3J[1]+ANO3K[1])/(DENS[2]*(62.0/28.97))
 NTR             ,ppbV      ,1000.0*(NTROH[1]+NTRALK[1]+NTRCN[1]+NTRCNOH[1]+NTRM[1]+NTRI[1]+NTRPX[1])
 PANS            ,ppbV      ,1000.0*(PAN[1]+PANX[1]+OPAN[1]+MAPAN[1])
 NOY             ,ppbV      ,1000.0* ( NO[1]+NO2[1]+NO3[1]+2*N2O5[1]+HONO[1]+HNO3[1]+PNA[1] \
-                                     +CRON[1]+CRNO[1]+CRN2[1]+CRPX[1]+CLNO2[1]) \
+                                     +CRON[1]+CRNO[1]+CRN2[1]+CRPX[1]+CLNO2[1] \
+                                     +IONO2[1]+INO2[1]+INO[1]+BRONO2[1]+BRNO2[1])\
                                      +PANS[0]+NTR[0]+ANO3_PPB[0]
 O3              ,ppbV      ,1000.0*O3[1]
 OLE             ,ppbV      ,1000.0*OLE[1]
@@ -83,6 +84,38 @@ VOC             ,ppbC      ,1000.0* ( PAR[1]      + 2.0*ETH[1]  + MEOH[1]     + 
                                      +5.0*ISOP[1] + 10.0*TERP[1]+ 10.0*NAPH[1])
 XYL             ,ppbV      ,1000.0*(MXYL[1]+OXYL[1]+PXYL[1])
 
+! iodine and bromine species
+I               ,pptV      ,1000.0*1000.0*I[1]
+IO              ,pptV      ,1000.0*1000.0*IO[1]
+OIO             ,pptV      ,1000.0*1000.0*OIO[1]
+HI              ,pptV      ,1000.0*1000.0*HI[1]
+HOI             ,pptV      ,1000.0*1000.0*HOI[1]
+I2O2            ,pptV      ,1000.0*1000.0*I2O2[1]
+I2O3            ,pptV      ,1000.0*1000.0*I2O3[1]
+I2O4            ,pptV      ,1000.0*1000.0*I2O4[1]
+I2              ,pptV      ,1000.0*1000.0*I2[1]
+IONO2           ,pptV      ,1000.0*1000.0*IONO2[1]
+INO2            ,pptV      ,1000.0*1000.0*INO2[1]
+INO             ,pptV      ,1000.0*1000.0*INO[1]
+BRO             ,pptV      ,1000.0*1000.0*BRO[1]
+BR              ,pptV      ,1000.0*1000.0*BR[1]
+ICL             ,pptV      ,1000.0*1000.0*ICL[1]
+CH3I            ,pptV      ,1000.0*1000.0*CH3I[1]
+MI2             ,pptV      ,1000.0*1000.0*MI2[1]
+MIB             ,pptV      ,1000.0*1000.0*MIB[1]
+MIC             ,pptV      ,1000.0*1000.0*MIC[1]
+HOBR            ,pptV      ,1000.0*1000.0*HOBR[1]
+HBR             ,pptV      ,1000.0*1000.0*HBR[1]
+BR2             ,pptV      ,1000.0*1000.0*BR2[1]
+BRONO2          ,pptV      ,1000.0*1000.0*BRONO2[1]
+MB3             ,pptV      ,1000.0*1000.0*MB3[1]
+CH3BR           ,pptV      ,1000.0*1000.0*CH3BR[1]
+MB2             ,pptV      ,1000.0*1000.0*MB2[1]
+MB2C            ,pptV      ,1000.0*1000.0*MB2C[1]
+MBC2            ,pptV      ,1000.0*1000.0*MBC2[1]
+MBC             ,pptV      ,1000.0*1000.0*MBC[1]
+BRNO2           ,pptV      ,1000.0*1000.0*BRNO2[1]
+BRCL            ,pptV      ,1000.0*1000.0*BRCL[1]
 
 ! Particles
 !! Crustal Elements

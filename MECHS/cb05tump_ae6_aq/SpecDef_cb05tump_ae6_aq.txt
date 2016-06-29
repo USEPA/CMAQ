@@ -40,6 +40,7 @@
 ! Gases
 ALD2            ,ppbV      ,1000.0*ALD2[1]
 ALDX            ,ppbV      ,1000.0*ALDX[1]
+BENZENE         ,ppbV      ,1000.0*BENZENE[1]
 CO              ,ppbV      ,1000.0*CO[1]
 ETH             ,ppbV      ,1000.0*ETH[1]
 ETHA            ,ppbV      ,1000.0*ETHA[1]
@@ -48,6 +49,7 @@ H2O2            ,ppbV      ,1000.0*H2O2[1]
 HNO3            ,ppbV      ,1000.0*HNO3[1]
 HNO3_UGM3       ,ug/m3     ,1000.0*(HNO3[1]*2.1756*DENS[2])
 HONO            ,ppbV      ,1000.0*HONO[1]
+CLNO2           ,ppbV      ,1000.0*CLNO2[1] 
 HOX             ,ppbV      ,1000.0*(OH[1]+HO2[1])
 OH	            ,ppbV      ,1000.0*(OH[1])
 IOLE            ,ppbV      ,1000.0*IOLE[1]
@@ -59,7 +61,9 @@ NHX             ,ug/m3     ,1000.0*(NH3[1]*0.5880*DENS[2])+ANH4I[1]+ANH4J[1]+ANH
 NO              ,ppbV      ,1000.0*NO[1]
 NO2             ,ppbV      ,1000.0*NO2[1]
 ANO3_PPB	,ppbV	   ,(ANO3I[1]+ANO3J[1]+ANO3K[1])/(DENS[2]*(62.0/28.97))
-NOY             ,ppbV      ,1000.0*(NO[1]+NO2[1]+NO3[1]+2*N2O5[1]+HONO[1]+HNO3[1]+PAN[1]+PANX[1]+PNA[1]+NTR[1]+CRON[1]+CRNO[1]+CRN2[1]+CRPX[1]+OPAN[1])+ANO3_PPB[0]
+NOY             ,ppbV      ,1000.0*(NO[1]+NO2[1]+NO3[1]+2*N2O5[1]+HONO[1]+HNO3[1] \
+                                   +PAN[1]+PANX[1]+PNA[1]+NTR[1]+CRON[1]+CRNO[1]  \
+                                   +CRN2[1]+CRPX[1]+OPAN[1]+CLNO2[1]) + ANO3_PPB[0]
 NTR             ,ppbV      ,1000.0*NTR[1]
 O3              ,ppbV      ,1000.0*O3[1]
 OLE             ,ppbV      ,1000.0*OLE[1]

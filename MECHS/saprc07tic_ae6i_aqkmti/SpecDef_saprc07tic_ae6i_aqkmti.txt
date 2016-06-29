@@ -62,7 +62,7 @@ NO              ,ppbV      ,1000.0*NO[1]
 NO2             ,ppbV      ,1000.0*NO2[1]
 ANO3INORG_PPB	,ppbV	   ,(ANO3I[1]+ANO3J[1]+ANO3K[1])/(DENS[2]*(62.0/28.97))
 AORGNO3_PPB     ,ppbV      ,(AMTNO3J[1]/231.0+AISOPNNJ[1]*2.0/226.0)/(DENS[2]/28.97) 
-NO3_PPB         ,ppbV      ,ANO3INORG_PPB[0]+AORGNO3_PPB[0]
+ANO3_PPB        ,ppbV      ,ANO3INORG_PPB[0]+AORGNO3_PPB[0]
 ISOPNTOT        ,ppbV      ,1000.0*(ISOPND[1]+ISOPNB[1]+NIT1[1]+NISOPOOH[1]+MVKN[1] \
                            +MACRN[1]+ETHLN[1]+RNO3I[1]+PROPNN[1]+2.0*ISOPNN[1])
 ANTOT           ,ppbv      ,ISOPNTOT[0]+(RNO3[1]+MTNO3[1])*1000.0
@@ -70,7 +70,7 @@ NTR             ,ppbV      ,ISOPNTOT[0]+1000.0*(RNO3[1]+MTNO3[1])
 PAN             ,ppbV      ,1000.*PAN[1]
 PANs            ,ppbV      ,(PAN[1]+PAN2[1]+PBZN[1]+MAPAN[1]+IMAPAN[1])*1000.0
 CLNTOT          ,ppbV      ,1000.*(CLNO[1]+CLONO[1]+CLNO2[1]+CLONO2[1])
-NOY             ,ppbV      ,1000.0*(NO[1]+NO2[1]+NO3[1]+2*N2O5[1]+HONO[1]+HNO3[1]+HNO4[1])+ANTOT[0]+PANTOT[0]+CLNTOT[0]+ANO3TOT_PPB[0]
+NOY             ,ppbV      ,1000.0*(NO[1]+NO2[1]+NO3[1]+2*N2O5[1]+HONO[1]+HNO3[1]+HNO4[1])+ANTOT[0]+PANTOT[0]+CLNTOT[0]+ANO3_PPB[0]
 NOY_NOPM        ,ppbV      ,1000.0*(NO[1]+NO2[1]+NO3[1]+2*N2O5[1]+HONO[1]+HNO3[1]+HNO4[1])+ANTOT[0]+PANTOT[0]+CLNTOT[0]
 O3              ,ppbV      ,1000.0*O3[1]
 PAN             ,ppbV      ,1000.0*PAN[1]

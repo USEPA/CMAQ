@@ -114,6 +114,9 @@ ASO4IJ          ,ug/m3     ,ASO4I[1]+ASO4J[1]
 ASO4K           ,ug/m3     ,ASO4K[1]
 
 !! Organic Particle Species
+APOCI           ,ugC/m3    ,APOCI[1]
+APOMI           ,ug/m3     ,APOCI[1]+APNCOMI[1]
+
 APOCIJ          ,ugC/m3    ,APOCI[1]+APOCJ[1]
 APOMIJ          ,ug/m3     ,APOCIJ[0]+APNCOMI[1]+APNCOMJ[1]
 
