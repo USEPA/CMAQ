@@ -43,13 +43,15 @@ C-----------------------------------------------------------------------
                                         ! groups of stack input files
       IMPLICIT NONE
 
-      INTEGER, SAVE :: N_SPC_PTEM = 0   ! merged no. of unique species for non_PM
+      INTEGER, SAVE :: N_GSPC_EMIS = 0   ! number of gas species in diagnostic file
+      INTEGER, SAVE :: N_ASPC_EMIS = 0   ! number of aerosol species in diagnostic file
 
 C Species names from input file used for point source non-PM emissions mapping
       INTEGER,          ALLOCATABLE, SAVE :: PTEM_MAP( : )
       INTEGER,          ALLOCATABLE, SAVE :: SPC_PTEM_MAP( : )
       REAL,             ALLOCATABLE, SAVE :: SPC_PTEM_FAC( : )
-      CHARACTER( 16 ),  ALLOCATABLE, SAVE :: STKEM_NAME( : ) ! diagnostic file
+      CHARACTER( 16 ),  ALLOCATABLE, SAVE :: GSPC_EMIS( : )  ! emissions for gas species, diagnostic
+      CHARACTER( 16 ),  ALLOCATABLE, SAVE :: ASPC_EMIS( : )  ! emissions for aerosol species, diagnostic
 
 C Species names from input file used for point source PM emissions mapping
       INTEGER,          ALLOCATABLE, SAVE :: PTPM_MAP( : )
@@ -97,18 +99,21 @@ C-----------------------------------------------------------------------
          TYPE ( CARRY1 ), ALLOCATABLE :: STKPM_VAR( : )   ! just to record on log
 
          INTEGER          :: N_GAS_EMIS
+         INTEGER          :: N_SPC_PTEM  = 0   ! merged no. of unique species for non_PM
 
          INTEGER, ALLOCATABLE          :: GMAP( : )
          INTEGER, ALLOCATABLE          :: GLST( :,: )
          CHARACTER( 16 ), ALLOCATABLE  :: GVNM( : )
          CHARACTER( 16 ), ALLOCATABLE  :: GSPC( : )
+         CHARACTER( 16 ), ALLOCATABLE  :: STKEM_NAME( : ) ! gas emissions names
+
          INTEGER          :: PMAP( N_EMIS_PM*NPTGRPS )
          INTEGER          :: PLST( N_EMIS_PM,NPTGRPS )
          CHARACTER( 16 )  :: PVNM( N_EMIS_PM*NPTGRPS )
          CHARACTER( 16 )  :: VNAME
 
          CHARACTER( 16 )       :: PNAME = 'PTMAP_INIT'  ! procedure name
-         INTEGER I, I2, J, K, L, N, NM, NCULL, IOS, LOGDEV
+         INTEGER I, I2, J, K, L, M, N, NM, NCULL, IOS, LOGDEV
          INTEGER IDX                                      
          INTEGER NSPC1, NSPC2, NSPC3
 
@@ -340,6 +345,9 @@ C Cull ...
          ALLOCATE ( SPC_PTEM_FAC( N_GAS_EMIS ), STAT=IOS )
          CALL CHECKMEM( IOS, 'SPC_PTEM_FAC', PNAME )
 
+         ALLOCATE ( GSPC_EMIS( N_GAS_EMIS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'GSPC_EMIS', PNAME )
+
          ALLOCATE ( STKEM_NAME( N_SPC_PTEM ), STAT=IOS )
          CALL CHECKMEM( IOS, 'STKEM_NAME', PNAME )
 
@@ -363,6 +371,7 @@ C>> WTH
             WRITE( LOGDEV,1041 ) I, TRIM( STKEM_NAME( I ) ), PTEM_MAP( I ), TRIM( GSPC( I ) )
 #endif
          END DO
+
          
          GSPC = 'UNDEFINED'
 #ifdef Verbose
@@ -371,11 +380,14 @@ C>> WTH
          WRITE( LOGDEV,* ) 'Redefining GAS EMISSIONS to MODEL SPECIES MAP '
 #endif
          L = 0
+         M = 0
          DO J = 1, N_GC_EMIS
             IDX = INDEX1( GC_EMIS( J ), N_SPC_PTEM, STKEM_NAME )
             IF ( IDX .GT. 0 ) THEN
                L = L + 1
                GSPC( J ) = GC_SPC( GC_EMIS_MAP( J ) )
+               M = M + 1
+               GSPC_EMIS( M ) = GSPC( J )
                SPC_PTEM_MAP( L ) = J
                PTEM_MAP( L ) = IDX
                SPC_PTEM_FAC( L ) = GC_EMIS_FAC( J )
@@ -395,6 +407,8 @@ C>> WTH
             IF ( IDX .GT. 0 ) THEN
                L = L + 1
                GSPC( J ) = NR_SPC( NR_EMIS_MAP( J ) )
+               M = M + 1
+               GSPC_EMIS( M ) = GSPC( J )
                SPC_PTEM_MAP( L ) = J + NSPC2
                PTEM_MAP( L ) = IDX
                SPC_PTEM_FAC( L ) = NR_EMIS_FAC( J )
@@ -414,6 +428,8 @@ C>> WTH
             IF ( IDX .GT. 0 ) THEN
                L = L + 1
                GSPC( J ) = TR_SPC( TR_EMIS_MAP( J ) )
+               M = M + 1
+               GSPC_EMIS( M ) = GSPC( J )
                SPC_PTEM_MAP( L ) = J + NSPC3
                PTEM_MAP( L ) = IDX
 	       SPC_PTEM_FAC( L ) = TR_EMIS_FAC( J )
@@ -430,6 +446,10 @@ C>> WTH
 #endif
             END IF
          END DO
+         N_GSPC_EMIS = M
+
+
+         
 C<< WTH         
 
          IF ( ALLOCATED( V ) ) DEALLOCATE( V )
@@ -658,12 +678,40 @@ C Cull ...
 #endif
          END DO
 
+! build array listing aerosol diagnostic names
+
+         ALLOCATE ( ASPC_EMIS( N_EMIS_PM ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'ASPC_EMIS', PNAME )
+         ASPC_EMIS = ' '
+
+         N_ASPC_EMIS = 0
+         DO N = 1, N_EMIS_PM
+            L = PMEM_MAP( N )
+            IF( L .LT. 1 )CYCLE
+            DO J = 1, N_MODE
+               IF( AERO_MISSING( L, J ) )CYCLE
+               NM = LEN_TRIM( AEROSPC( L )%NAME( J )  ) - 1
+               VNAME = AEROSPC( L )%NAME( J )( 1:NM )
+! check name to prevent redundancy
+               IDX = INDEX1( VNAME, N_EMIS_PM, ASPC_EMIS )
+               IF( IDX .GT. 0 )EXIT
+               N_ASPC_EMIS = N_ASPC_EMIS + 1               
+               ASPC_EMIS( N_ASPC_EMIS ) = VNAME
+               EXIT
+            END DO
+         END DO
+
+        
+
+!build aerosol species array for diagnostic file
          IF ( ALLOCATED( GMAP ) ) DEALLOCATE( GMAP )
          IF ( ALLOCATED( GLST ) ) DEALLOCATE( GLST )
          IF ( ALLOCATED( GVNM ) ) DEALLOCATE( GVNM )
          IF ( ALLOCATED( GSPC ) ) DEALLOCATE( GSPC )
          IF ( ALLOCATED( V ) )    DEALLOCATE( V )
          IF ( ALLOCATED( VC ) )   DEALLOCATE( VC )
+
+         IF ( ALLOCATED( STKEM_NAME ) ) DEALLOCATE( STKEM_NAME ) 
 
          RETURN
 
