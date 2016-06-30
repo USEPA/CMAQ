@@ -138,15 +138,15 @@ APOCI           ,ugC/m3    ,ALVPO1I[1]/1.39 + ASVPO1I[1]/1.32 + ASVPO2I[1]/1.26
 APOCJ           ,ugC/m3    ,ALVPO1J[1]/1.39 + ASVPO1J[1]/1.32 + ASVPO2J[1]/1.26 \
                            +ASVPO3J[1]/1.21 + AIVPO1J[1]/1.17
 
-APOMIJ          ,ug/m3     ,APOMI[0] + APOMJ[0]
 APOCIJ          ,ugC/m3    ,APOCI[0] + APOCJ[0]
+APOMIJ          ,ug/m3     ,APOMI[0] + APOMJ[0]
 
-AOCI            ,ugC/m3    ,APOCI[0] + ALVOO1I[1]/2.27 + ALVOO2I[1]/2.06  \
+ASOCI           ,ugC/m3    ,ALVOO1I[1]/2.27 + ALVOO2I[1]/2.06  \
                            +ASVOO1I[1]/1.88 + ASVOO2I[1]/1.73
-AOMI            ,ug/m3     ,APOMI[0] + ALVOO1I[1] + ALVOO2I[1] + ASVOO1I[1] \
+ASOMI           ,ug/m3     ,ALVOO1I[1] + ALVOO2I[1] + ASVOO1I[1] \
                            +ASVOO2I[1] 
 
-AOCJ            ,ugC/m3    ,AXYL1J[1]/2.42 + AXYL2J[1]/1.93 + AXYL3J[1]/2.30 \
+ASOCJ           ,ugC/m3    ,AXYL1J[1]/2.42 + AXYL2J[1]/1.93 + AXYL3J[1]/2.30 \
                            +ATOL1J[1]/2.26 + ATOL2J[1]/1.82 + ATOL3J[1]/2.70 \
                            +ABNZ1J[1]/2.68 + ABNZ2J[1]/2.23 + ABNZ3J[1]/3.00 \
                            +AISO1J[1]/2.20 + AISO2J[1]/2.23 + AISO3J[1]/2.80 \
@@ -159,19 +159,31 @@ AOCJ            ,ugC/m3    ,AXYL1J[1]/2.42 + AXYL2J[1]/1.93 + AXYL3J[1]/2.30 \
                            +AISOPNNJ[1]/3.8 + AMTHYDJ[1]/1.54 + AGLYJ[1]/2.13  \
                            +ALVOO1J[1]/2.27 + ALVOO2J[1]/2.06 + ASVOO1J[1]/1.88\
                            +ASVOO2J[1]/1.73 + ASVOO3J[1]/1.60                  \
-                           +APOCJ[0]        + APCSOJ[1] /2.00
-AOMJ            ,ug/m3     ,AXYL1J[1]+AXYL2J[1]+AXYL3J[1]+ATOL1J[1]+ATOL2J[1]+ATOL3J[1] \
+                           +APCSOJ[1] /2.00
+ASOMJ           ,ug/m3     ,AXYL1J[1]+AXYL2J[1]+AXYL3J[1]+ATOL1J[1]+ATOL2J[1]+ATOL3J[1] \
                            +ABNZ1J[1]+ABNZ2J[1]+ABNZ3J[1]+AISO1J[1]+AISO2J[1]+AISO3J[1] \
                            +ATRP1J[1]+ATRP2J[1]+ASQTJ[1]+AALK1J[1]+AALK2J[1]            \
                            +AORGCJ[1]+AOLGBJ[1]+AOLGAJ[1] \
                            +APAH1J[1]+APAH2J[1]+APAH3J[1]+AIETETJ[1]+AIEOSJ[1]+ADIMJ[1] \
                            +AIMGAJ[1]+AIMOSJ[1]+AMTNO3J[1]+AISOPNNJ[1]+AMTHYDJ[1]+AGLYJ[1] \
-                           +APOMJ[0] +ALVOO1J[1]+ ALVOO2J[1] + ASVOO1J[1] + ASVOO2J[1]\
+                           +ALVOO1J[1]+ ALVOO2J[1] + ASVOO1J[1] + ASVOO2J[1]\
                            +ASVOO3J[1]+ APCSOJ[1]  
-                            
+ 
+ASOCIJ          ,ugC/m3    ,ASOCI[0] + ASOCJ[0]
+ASOMIJ          ,ug/m3     ,ASOMI[0] + ASOMJ[0]
+
+AOCI            ,ugC/m3    ,APOCI[0] + ASOCI[0]
+AOMI            ,ug/m3     ,APOMI[0] + ASOMI[0]
+
+AOCJ            ,ugC/m3    ,APOCJ[0] + ASOCJ[0]
+AOMJ            ,ug/m3     ,APOMJ[0] + ASOMJ[0]
+
+AOCIJ           ,ugC/m3    ,AOCI[0] + AOCJ[0]                               
+AOMIJ           ,ug/m3     ,AOMI[0] + AOMJ[0]                               \
+
 AORGAJ          ,ug/m3     ,AXYL1J[1]+AXYL2J[1]+AXYL3J[1]+ATOL1J[1]+ATOL2J[1]+ATOL3J[1] \
                            +ABNZ1J[1]+ABNZ2J[1]+ABNZ3J[1]+AALK1J[1]+AALK2J[1]+AOLGAJ[1] \
-                           +APAH1J[1]+APAH2J[1]+APAH3J[1] +ALVOO1I[1]+ALVOO2I[1]         \
+                           +APAH1J[1]+APAH2J[1]+APAH3J[1]+ALVOO1I[1]+ALVOO2I[1]         \
                            +ASVOO1I[1]+ASVOO2I[1]+ALVOO1J[1]+ALVOO2J[1]+ASVOO1J[1]      \
                            +ASVOO2J[1]+ASVOO3J[1]+APCSOJ[1] 
 AORGBJ          ,ug/m3     ,AISO1J[1]+AISO2J[1]+AISO3J[1]+ATRP1J[1]+ATRP2J[1]+ASQTJ[1]+AOLGBJ[1] \
@@ -185,6 +197,7 @@ AORGCJ          ,ug/m3     ,AORGCJ[1]
 
 !! OM/OC ratios
 AOMOCRAT_PRI    ,none      ,APOMIJ[0]/APOCIJ[0] 
+AOMOCRAT_SEC    ,none      ,ASOMIJ[0]/ASOCIJ[0] 
 AOMOCRAT_TOT    ,none      ,AOMIJ[0]/AOCIJ[0]
 
 !! Modern/Fossil Carbon Ratios

@@ -120,20 +120,22 @@ APOMI           ,ug/m3     ,APOCI[1]+APNCOMI[1]
 APOCIJ          ,ugC/m3    ,APOCI[1]+APOCJ[1]
 APOMIJ          ,ug/m3     ,APOCIJ[0]+APNCOMI[1]+APNCOMJ[1]
 
-AOCIJ           ,ugC/m3    ,AXYL1J[1]/2.42 + AXYL2J[1]/1.93 + AXYL3J[1]/2.30 \
+ASOCIJ          ,ugC/m3    ,AXYL1J[1]/2.42 + AXYL2J[1]/1.93 + AXYL3J[1]/2.30 \
                            +ATOL1J[1]/2.26 + ATOL2J[1]/1.82 + ATOL3J[1]/2.70 \
                            +ABNZ1J[1]/2.68 + ABNZ2J[1]/2.23 + ABNZ3J[1]/3.00 \
                            +AISO1J[1]/2.20 + AISO2J[1]/2.23 + AISO3J[1]/2.80 \
                            +ATRP1J[1]/1.84 + ATRP2J[1]/1.83 + ASQTJ[1]/1.52  \
                            +AALK1J[1]/1.56 + AALK2J[1]/1.42                  \
                            +AORGCJ[1]/2.00 + AOLGBJ[1]/2.10 + AOLGAJ[1]/2.50 \
-                           +APAH1J[1]/1.63 + APAH2J[1]/1.49 + APAH3J[1]/1.77 \
-                           +APOCIJ[0]      
-AOMIJ           ,ug/m3     ,AXYL1J[1]+AXYL2J[1]+AXYL3J[1]+ATOL1J[1]+ATOL2J[1]+ATOL3J[1] \
+                           +APAH1J[1]/1.63 + APAH2J[1]/1.49 + APAH3J[1]/1.77 
+ASOMIJ          ,ug/m3     ,AXYL1J[1]+AXYL2J[1]+AXYL3J[1]+ATOL1J[1]+ATOL2J[1]+ATOL3J[1] \
                            +ABNZ1J[1]+ABNZ2J[1]+ABNZ3J[1]+AISO1J[1]+AISO2J[1]+AISO3J[1] \
                            +ATRP1J[1]+ATRP2J[1]+ASQTJ[1]+AALK1J[1]+AALK2J[1]            \
                            +APAH1J[1]+APAH2J[1]+APAH3J[1]+AORGCJ[1]+AOLGBJ[1]+AOLGAJ[1] \
-                           +APOMIJ[0]  
+
+AOCIJ           ,ugC/m3    ,APOCIJ[0]+ASOCIJ[0]
+AOMIJ           ,ug/m3     ,APOMIJ[0]+ASOMIJ[0]
+
 AORGAJ          ,ug/m3     ,AXYL1J[1]+AXYL2J[1]+AXYL3J[1]+ATOL1J[1]+ATOL2J[1]+ATOL3J[1] \
                            +ABNZ1J[1]+ABNZ2J[1]+ABNZ3J[1]+AALK1J[1]+AALK2J[1]+AOLGAJ[1] \
                            +APAH1J[1]+APAH2J[1]+APAH3J[1]
@@ -142,6 +144,7 @@ AORGCJ          ,ug/m3     ,AORGCJ[1]
 
 !! OM/OC ratios
 AOMOCRAT_PRI    ,none      ,APOMIJ[0]/APOCIJ[0] 
+AOMOCRAT_SEC    ,none      ,ASOMIJ[0]/ASOCIJ[0] 
 AOMOCRAT_TOT    ,none      ,AOMIJ[0]/AOCIJ[0]
 
 !! Total PM Aggregates
