@@ -337,6 +337,7 @@ C GET_AERO_EMIS has to apply factors - don`t do it at this level.
          USE UTILIO_DEFN
          USE DEPV_DEFN, ONLY: ABFLUX ! ammonia bidi flag
          USE ASX_DATA_MOD, ONLY: MET_DATA, GRID_DATA
+         USE RXNS_DATA, ONLY: MECHNAME
 
          IMPLICIT NONE
 
@@ -531,7 +532,16 @@ C accessed by GET_AERO_EMIS to be "speciated" and merged with the AE emissions.
                         N = PTEM_MAP( S )     ! <- pointer to non-PM emissions
                         IF ( V .LT. 1 ) CYCLE
                         VDEMIS( V,L,C,R ) = VDEMIS( V,L,C,R )
-     &                                    + CNVTC * SPC_PTEM_FAC( S ) * VDEMIS_PT( C,R,L,N )
+     &                          + CNVTC * SPC_PTEM_FAC( S ) * VDEMIS_PT( C,R,L,N )
+                        ! Remove PCSOA from large fire point sources.
+                        ! Letting the large fires contribute to pcSOA
+                        ! was causing enormous OA plumes.
+                        IF ( INDEX( MECHNAME, 'NVPOA') .EQ. 0 .AND. S .LE. N_GC_EMIS ) THEN
+                           IF ( GC_SPC( GC_EMIS_MAP( S ) ) .EQ. 'PCVOC' ) THEN
+                             VDEMIS( V,L,C,R ) = VDEMIS( V,L,C,R ) 
+     &                          - CNVTC * SPC_PTEM_FAC( S ) * VDEMIS_PT_FIRE( C,R,L,N )
+                           END IF
+                        END IF
                      END DO
                   END DO
                END DO

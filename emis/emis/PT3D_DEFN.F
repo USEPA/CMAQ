@@ -67,9 +67,10 @@ C-----------------------------------------------------------------------
       LOGICAL,                       SAVE :: PT3DEMIS   ! flag in-lining plume rise
       INTEGER,                       SAVE :: NPTGRPS    ! no. pt src input file groups
       REAL,             ALLOCATABLE, SAVE :: VDEMIS_PT( :,:,:,: ) ! 3D pt src non-PM emis
+      REAL,             ALLOCATABLE, SAVE :: VDEMIS_PT_FIRE( :,:,:,: ) ! 3D pt src non-PM emis
       REAL,             ALLOCATABLE, SAVE :: PMEMIS_PT( :,:,:,: ) ! 3D pt src PM emis
 
-      PUBLIC PT3DEMIS, NPTGRPS, VDEMIS_PT, PMEMIS_PT, PT3D_INIT, GET_PT3D_EMIS
+      PUBLIC PT3DEMIS, NPTGRPS, VDEMIS_PT, VDEMIS_PT_FIRE, PMEMIS_PT, PT3D_INIT, GET_PT3D_EMIS
       PRIVATE
 
 C Scenario start
@@ -520,6 +521,9 @@ C Initialize stack emissions data
          CALL CHECKMEM( IOS, 'VDEMIS_PT', PNAME )
          VDEMIS_PT = 0.0   ! array assignment
 
+         ALLOCATE ( VDEMIS_PT_FIRE( MY_NCOLS,MY_NROWS,EMLYRS,N_SPC_PTEM ), STAT = IOS )
+         VDEMIS_PT_FIRE = 0.0   ! array assignment
+
          N_EMIS_GAS_SPC = N_GC_EMIS + N_NR_EMIS + N_TR_EMIS
          ALLOCATE ( EMIS_FAC( N_EMIS_GAS_SPC ), STAT = IOS )
          CALL CHECKMEM( IOS, 'EMIS_FAC', PNAME )
@@ -917,6 +921,7 @@ C Convert pt source met data to bi-linear interpolated data
          CALL PTMET_CONVT( JDATE, JTIME, NPTGRPS, EMLYRS, ZSTATIC )
 
          VDEMIS_PT = 0.0   ! array assignment
+         VDEMIS_PT_FIRE = 0.0   ! array assignment
          PMEMIS_PT = 0.0   ! array assignment
 
          DO N = 1, NPTGRPS
@@ -1263,6 +1268,15 @@ C Apportion emissions to the layers
                      VDEMIS_PT( C,R,L,I ) = VDEMIS_PT( C,R,L,I )
 !    &                                    + LFRC * STKEM( J )
      &                                    + LFRC * EMIS_FAC( V ) * STKEM( J )
+                     ! Save the fire emission rate of POC (+PNCOM) so
+                     ! that we can neglect the fire emissions for pcVOC
+                     ! in GET_EMIS.
+                     IF ( FIREFLAG( N ) ) THEN
+                        IF ( STKSPC( N )%ARRY( J ) .EQ. 'POC' ) THEN
+                          VDEMIS_PT_FIRE( C,R,L,I ) = VDEMIS_PT_FIRE( C,R,L,I ) + 
+     &                              LFRC * EMIS_FAC( V ) * STKEM( J ) 
+                        END IF
+                     END IF
                   END DO
                   DO V = 1, STKPM_MAP( N )%LEN
                      I = PM_MAP( N )%ARRY( V )
