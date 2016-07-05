@@ -35,17 +35,19 @@ C     16 Jan 2007 J.Young: initial implementation
 C     16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C     30 Apr 2016 J.Young: add multiple fire source capability, in affiliation with
 C                          Yongtao Hu (Georgia Tech)
+C     22 Jun 2016 B.Murphy & J.Young: Added STKEMIS_TOO and FIREVAR_TOO to accomodate
+C                                     non-volatile POA mechanism
 C-----------------------------------------------------------------------
 
       USE UDTYPES, ONLY: RARRY2, CARRY1
 
       IMPLICIT NONE
 
-      INTEGER,         ALLOCATABLE, SAVE :: NSRC_EMIS( : )   ! no. of pt sources
-      INTEGER,         ALLOCATABLE, SAVE :: NVARS_EMIS( : )  ! no. of species
-      INTEGER, PARAMETER                 :: NVARS_FIRE = 1   ! 
+      INTEGER,        ALLOCATABLE, SAVE :: NSRC_EMIS( : )   ! no. of pt sources
+      INTEGER,        ALLOCATABLE, SAVE :: NVARS_EMIS( : )  ! no. of species
+      INTEGER, PARAMETER                :: NVARS_FIRE = 1   ! default
 
-      LOGICAL,         ALLOCATABLE, SAVE :: FIREFLAG( : )    ! which is the fire file?
+      LOGICAL,        ALLOCATABLE, SAVE :: FIREFLAG( : )    ! which is the fire file?
 
 c     TYPE :: RARRY2
 c        REAL,    POINTER :: ARRY( :,: )
@@ -58,10 +60,10 @@ c        INTEGER                  :: LEN
 c     END TYPE CARRY1
 
       TYPE( RARRY2 ), ALLOCATABLE, SAVE :: STKEMIS( : )   ! stack emissions [mol/s]
-      TYPE( RARRY2 ), ALLOCATABLE, SAVE :: STKEMIS_TMP( : )   ! stack emissions [mol/s]
+      TYPE( RARRY2 ), ALLOCATABLE, SAVE :: STKEMIS_TOO( : )   ! stack emissions [mol/s]
       TYPE( CARRY1 ), ALLOCATABLE, SAVE :: STKSPC( : )    ! emitted species names
       TYPE( RARRY2 ), ALLOCATABLE, SAVE :: FIREVAR( : )   ! fire variables, 2 assumed
-      TYPE( RARRY2 ), ALLOCATABLE, SAVE :: FIREVAR_TMP( : )   ! stack emissions [mol/s]
+      TYPE( RARRY2 ), ALLOCATABLE, SAVE :: FIREVAR_TOO( : )   ! stack emissions [mol/s]
       TYPE( CARRY1 ), ALLOCATABLE, SAVE :: FIRENAM( : )   ! fire variable names
 
  !    INTEGER, PARAMETER                :: FGRPS = 1      ! assuming one fire sector
@@ -113,7 +115,8 @@ C-----------------------------------------------------------------------
 
          ALLOCATE ( STKEMIS( NGRPS ), STAT = ASTAT )
          CALL CHECKMEM( ASTAT, 'STKEMIS', PNAME )
-         ALLOCATE ( STKEMIS_TMP( NGRPS ), STAT = ASTAT )
+         ALLOCATE ( STKEMIS_TOO( NGRPS ), STAT = ASTAT )
+         CALL CHECKMEM( ASTAT, 'STKEMIS_TOO', PNAME )
 
          ALLOCATE ( STKSPC( NGRPS ), STAT = ASTAT )
          CALL CHECKMEM( ASTAT, 'STKSPC', PNAME )
@@ -124,7 +127,8 @@ C-----------------------------------------------------------------------
 
          ALLOCATE ( FIREVAR( FGRPS ), STAT = ASTAT )
          CALL CHECKMEM( ASTAT, 'FIREVAR', PNAME )
-         ALLOCATE ( FIREVAR_TMP( FGRPS ), STAT = ASTAT )
+         ALLOCATE ( FIREVAR_TOO( FGRPS ), STAT = ASTAT )
+         CALL CHECKMEM( ASTAT, 'FIREVAR_TOO', PNAME )
 
          ALLOCATE ( FIRENAM( FGRPS ), STAT = ASTAT )
          CALL CHECKMEM( ASTAT, 'FIRENAM', PNAME )
@@ -161,7 +165,7 @@ C-----------------------------------------------------------------------
             STKEMIS( N )%LEN1 = LEN1
             STKEMIS( N )%LEN2 = LEN2
             ALLOCATE ( STKEMIS( N )%ARRY( LEN1,LEN2 ), STAT = ASTAT )
-            ALLOCATE ( STKEMIS_TMP( N )%ARRY( LEN1,LEN2 ), STAT = ASTAT )
+            ALLOCATE ( STKEMIS_TOO( N )%ARRY( LEN1,LEN2 ), STAT = ASTAT )
             CALL CHECKMEM( ASTAT, 'STKEMIS', PNAME )
             STKEMIS( N )%ARRY = 0.0   ! array
 
@@ -171,7 +175,7 @@ C-----------------------------------------------------------------------
 
             IF ( FIREFLAG( N ) ) THEN   ! subtract and save off 'HFLUX'
                ALLOCATE ( FIREVAR( N )%ARRY( LEN1,NVARS_FIRE ), STAT = ASTAT )
-               ALLOCATE ( FIREVAR_TMP( N )%ARRY( LEN1,NVARS_FIRE ), STAT = ASTAT )
+               ALLOCATE ( FIREVAR_TOO( N )%ARRY( LEN1,NVARS_FIRE ), STAT = ASTAT )
                CALL CHECKMEM( ASTAT, 'FIREVAR', PNAME )
                ALLOCATE ( FIRENAM( N )%ARRY( NVARS_FIRE ), STAT = ASTAT )
                CALL CHECKMEM( ASTAT, 'FIRENAM', PNAME )
