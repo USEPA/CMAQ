@@ -20,9 +20,6 @@
 C RCS file, release, date & time of last delta, author, state, [and locker]
 C $Header: /project/yoj/arc/CCTM/src/emis/emis/PTMAP.F,v 1.8 2011/10/21 16:10:46 yoj Exp $
 
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE PTMAP
 
@@ -37,6 +34,8 @@ C   17 Sep 09 B.Hutzell: extended mapping algorithm to allow multiple usage
 C                        of an emission species from an individual source  
 C    6 Apr 11 S.Howard: replace Module PMEM_DEFN with AERO_DATA
 C   19 Dec 13 J.Young: fix index bug in AEROSPC log report
+C   22 Jun 16 B.Hutzell: Fixed issue where single emis species maps to multiple model
+C                        species
 C-----------------------------------------------------------------------
 
       USE UDTYPES, ONLY: IARRY1, CARRY1 ! implementation for multiple
@@ -47,25 +46,25 @@ C-----------------------------------------------------------------------
       INTEGER, SAVE :: N_ASPC_EMIS = 0   ! number of aerosol species in diagnostic file
 
 C Species names from input file used for point source non-PM emissions mapping
-      INTEGER,          ALLOCATABLE, SAVE :: PTEM_MAP( : )
-      INTEGER,          ALLOCATABLE, SAVE :: SPC_PTEM_MAP( : )
-      REAL,             ALLOCATABLE, SAVE :: SPC_PTEM_FAC( : )
-      CHARACTER( 16 ),  ALLOCATABLE, SAVE :: GSPC_EMIS( : )  ! emissions for gas species, diagnostic
-      CHARACTER( 16 ),  ALLOCATABLE, SAVE :: ASPC_EMIS( : )  ! emissions for aerosol species, diagnostic
+      INTEGER,         ALLOCATABLE, SAVE :: PTEM_MAP( : )
+      INTEGER,         ALLOCATABLE, SAVE :: SPC_PTEM_MAP( : )
+      REAL,            ALLOCATABLE, SAVE :: SPC_PTEM_FAC( : )
+      CHARACTER( 16 ), ALLOCATABLE, SAVE :: GSPC_EMIS( : ) ! gas emis species, diagnostic
+      CHARACTER( 16 ), ALLOCATABLE, SAVE :: ASPC_EMIS( : ) ! aero emis species, diagnostic
 
 C Species names from input file used for point source PM emissions mapping
-      INTEGER,          ALLOCATABLE, SAVE :: PTPM_MAP( : )
-      CHARACTER( 16 ),  ALLOCATABLE, SAVE :: STKPM_NAME( : ) ! diagnostic file
+      INTEGER,         ALLOCATABLE, SAVE :: PTPM_MAP( : )
+      CHARACTER( 16 ), ALLOCATABLE, SAVE :: STKPM_NAME( : ) ! diagnostic file
 
 C Mapping for point source non-PM emissions (maps only GC, NR and TR)
-      TYPE ( IARRY1 ),  ALLOCATABLE, SAVE :: STKEM_MAP( : ) ! STKEM index
-      TYPE ( IARRY1 ),  ALLOCATABLE, SAVE :: GAS_MAP  ( : ) ! VDEMIS_PT index
+      TYPE ( IARRY1 ), ALLOCATABLE, SAVE :: STKEM_MAP( : ) ! STKEM index
+      TYPE ( IARRY1 ), ALLOCATABLE, SAVE :: GAS_MAP  ( : ) ! VDEMIS_PT index
 
       INTEGER, SAVE :: N_SPC_PTPM = 0   ! merged no. of unique species for PM
 
 C Mapping for point source PM emissions (maps pt. src. PM spcs to PMEMIS_PT)
-      TYPE ( IARRY1 ),  ALLOCATABLE, SAVE :: STKPM_MAP( : ) ! STKPM index
-      TYPE ( IARRY1 ),  ALLOCATABLE, SAVE :: PM_MAP   ( : ) ! PMEMIS_PT index
+      TYPE ( IARRY1 ), ALLOCATABLE, SAVE :: STKPM_MAP( : ) ! STKPM index
+      TYPE ( IARRY1 ), ALLOCATABLE, SAVE :: PM_MAP   ( : ) ! PMEMIS_PT index
 
 C-----------------------------------------------------------------------
 
@@ -87,7 +86,6 @@ C-----------------------------------------------------------------------
 
          TYPE :: STRNDX
             CHARACTER( 16 ) :: STR
-!           CHARACTER( 16 ), POINTER :: STR
             INTEGER         :: NDX
          END TYPE STRNDX
 
@@ -112,14 +110,10 @@ C-----------------------------------------------------------------------
          CHARACTER( 16 )  :: PVNM( N_EMIS_PM*NPTGRPS )
          CHARACTER( 16 )  :: VNAME
 
-         CHARACTER( 16 )       :: PNAME = 'PTMAP_INIT'  ! procedure name
+         CHARACTER( 16 )  :: PNAME = 'PTMAP_INIT'  ! procedure name
          INTEGER I, I2, J, K, L, M, N, NM, NCULL, IOS, LOGDEV
          INTEGER IDX                                      
          INTEGER NSPC1, NSPC2, NSPC3
-
-         LOGICAL          :: QUIT = .FALSE.
-
-!        LOGICAL :: NO_PMEMIS = .FALSE.   ! set to .TRUE. if N_AE_EMIS = 0
 
 C-----------------------------------------------------------------------
 
@@ -165,28 +159,21 @@ C point source emissions to gas-phase species map
          NM = 0; L = 0
          DO N = 1, NPTGRPS
             
-            I  = 0
+            I = 0
             LOOP_GC: DO J = 1, N_GC_EMIS
                VNAME = GC_EMIS( J )
                IDX = INDEX1( VNAME, NVARS_EMIS( N ), STKSPC( N )%ARRY )
                IF ( IDX .GT. 0 ) THEN
-
-!WTH skip if emission species used multiple times for current point group
-                  !BNM Don't Skip if a species is used multiple times
-                  !DO K = NM+1, L 
-                  !   IF ( VNAME .EQ. GVNM( K ) ) CYCLE LOOP_GC
-                  !END DO
-#ifdef Verbose
+#ifdef verbose_ptmap
                   WRITE ( LOGDEV,* ) TRIM( VNAME ), ' added to GVNM array '
 #endif
-!WTH
                   I = I + 1
                   L = L + 1
                   GMAP( L ) = J
                   GLST( I,N ) = IDX
                   GVNM( L ) = VNAME
                   GSPC( L ) = GC_SPC( GC_EMIS_MAP( J ) )
-#ifdef Verbose
+#ifdef verbose_ptmap
                   WRITE( LOGDEV,1009 ) N, J, I, L, GLST( I,N ), GMAP( L ),
      &                                 TRIM( GVNM( L ) ), TRIM( GSPC( L ) )
 #endif
@@ -197,22 +184,16 @@ C point source emissions to gas-phase species map
                VNAME = NR_EMIS( J )
                IDX = INDEX1( VNAME, NVARS_EMIS( N ), STKSPC( N )%ARRY )
                IF ( IDX .GT. 0 ) THEN
-
-!WTH skip if emission species used multiple times for current point group
-                  !DO K = NM+1, L
-                  !   IF ( VNAME .EQ. GVNM( K ) ) CYCLE LOOP_NR
-                  !END DO
-#ifdef Verbose
+#ifdef verbose_ptmap
                   WRITE ( LOGDEV,* ) TRIM( VNAME ), ' added to GVNM array '
 #endif
-!WTH
                   I = I + 1
                   L = L + 1
                   GMAP( L ) = J + NSPC2
                   GLST( I,N ) = IDX
                   GVNM( L ) = VNAME
                   GSPC( L ) = NR_SPC( NR_EMIS_MAP( J ) )
-#ifdef Verbose
+#ifdef verbose_ptmap
                   WRITE( LOGDEV,1009 ) N, J, I, L, GLST( I,N ), GMAP( L ),
      &                                 TRIM( GVNM( L ) ), TRIM( GSPC( L ) )
 #endif
@@ -223,21 +204,16 @@ C point source emissions to gas-phase species map
                VNAME = TR_EMIS( J )
                IDX = INDEX1( VNAME, NVARS_EMIS( N ), STKSPC( N )%ARRY )
                IF ( IDX .GT. 0 ) THEN
-!WTH skip if emission species used multiple times for current point group
-                  !DO K = NM+1, L
-                  !   IF ( VNAME .EQ. GVNM( K ) ) CYCLE LOOP_TR
-                  !END DO
-#ifdef Verbose
+#ifdef verbose_ptmap
                   WRITE ( LOGDEV,* ) TRIM( VNAME ), ' added to GVNM array '
 #endif
-!WTH
                   I = I + 1
                   L = L + 1
                   GMAP( L ) = J + NSPC3
                   GLST( I,N ) = IDX
                   GVNM( L ) = VNAME
                   GSPC( L ) = TR_SPC( TR_EMIS_MAP( J ) )
-#ifdef Verbose
+#ifdef verbose_ptmap
                   WRITE( LOGDEV,1009 ) N, J, I, L, GLST( I,N ), GMAP( L ),
      &                                 TRIM( GVNM( L ) ), TRIM( GSPC( L ) )
 #endif
@@ -263,12 +239,12 @@ C point source emissions to gas-phase species map
 
          END DO   ! NPTGRPS
 
-#ifdef Verbose
+#ifdef verbose_ptmap
          WRITE( LOGDEV,'(/ 5X, A, I3 /)' ) 'NM =', NM
 #endif
          L = 0
          DO N = 1, NPTGRPS
-#ifdef Verbose
+#ifdef verbose_ptmap
             WRITE( LOGDEV,1011 ) N, STKEM_MAP( N )%LEN
 #endif
             DO I = 1, STKEM_MAP( N )%LEN
@@ -276,7 +252,7 @@ C point source emissions to gas-phase species map
                STKEM_MAP( N )%ARRY( I ) = GLST( I,N )
                STKEM_VAR( N )%ARRY( I ) = GVNM( L )
             END DO
-#ifdef Verbose
+#ifdef verbose_ptmap
             DO I = 1, STKEM_MAP( N )%LEN, 8
                I2 = MIN( I + 7, STKEM_MAP( N )%LEN )
                WRITE( LOGDEV,1015 ) N, ( STKEM_MAP( N )%ARRY( J ), J = I, I2 )
@@ -296,12 +272,12 @@ C point source emissions to gas-phase species map
          END DO
 
 C Sort ...
-#ifdef Verbose
+#ifdef verbose_ptmap
          WRITE( LOGDEV,'(5X, A)' ) 'Concatenated Species List:'
          WRITE( LOGDEV,'(5X, I3, 1X, A, I3)' ) 1, V( 1 )
 #endif
          DO I = 2, NM
-#ifdef Verbose
+#ifdef verbose_ptmap
             WRITE( LOGDEV,'(5X, I3, 1X, A, I3)' ) I, V( I )
 #endif
             TV = V( I )
@@ -314,7 +290,7 @@ C Sort ...
             V( J+1 ) = TV
          END DO
 
-#ifdef Verbose
+#ifdef verbose_ptmap
          WRITE( LOGDEV,'(5X, A)' ) 'Sorted Species List:'
          DO I = 1, NM
             WRITE( LOGDEV,'(5X, I3, 1X, A, I3)' ) I, V( I )
@@ -331,7 +307,7 @@ C Cull ...
                VC( NCULL ) = V( I )
             END IF
          END DO
-#ifdef Verbose
+#ifdef verbose_ptmap
          WRITE( LOGDEV,'(/ 5X, A, I3 / )' ) 'Unique Gas =', NCULL
 #endif
          N_SPC_PTEM = NCULL
@@ -351,10 +327,10 @@ C Cull ...
          ALLOCATE ( STKEM_NAME( N_SPC_PTEM ), STAT=IOS )
          CALL CHECKMEM( IOS, 'STKEM_NAME', PNAME )
 
-C>> WTH
          GSPC = 'UNDEFINED'
          DO I = 1, N_SPC_PTEM
-            PTEM_MAP( I ) = VC( I )%NDX
+            PTEM_MAP( I )   = VC( I )%NDX
+            STKEM_NAME( I ) = VC( I )%STR
 
             IF ( PTEM_MAP( I ) .LE. NSPC1 ) THEN
                GSPC( I ) = GC_SPC( GC_EMIS_MAP( PTEM_MAP( I ) ) ) 
@@ -366,91 +342,81 @@ C>> WTH
                GSPC( I ) = TR_SPC( TR_EMIS_MAP( PTEM_MAP( I ) - NSPC3 ) )
             END IF
 
-            STKEM_NAME( I ) = VC( I )%STR
-#ifdef Verbose
+#ifdef verbose_ptmap
             WRITE( LOGDEV,1041 ) I, TRIM( STKEM_NAME( I ) ), PTEM_MAP( I ), TRIM( GSPC( I ) )
 #endif
          END DO
 
-         
          GSPC = 'UNDEFINED'
-#ifdef Verbose
+#ifdef verbose_ptmap
          WRITE( LOGDEV,* ) 'To match the number: N_GC_EMIS + N_NR_EMIS + N_TR_EMIS:',
      &                      N_GC_EMIS + N_NR_EMIS + N_TR_EMIS
          WRITE( LOGDEV,* ) 'Redefining GAS EMISSIONS to MODEL SPECIES MAP '
 #endif
-         L = 0
-         M = 0
+         L = 0; M = 0
          DO J = 1, N_GC_EMIS
+            L = L + 1
             IDX = INDEX1( GC_EMIS( J ), N_SPC_PTEM, STKEM_NAME )
             IF ( IDX .GT. 0 ) THEN
-               L = L + 1
                GSPC( J ) = GC_SPC( GC_EMIS_MAP( J ) )
                M = M + 1
                GSPC_EMIS( M ) = GSPC( J )
                SPC_PTEM_MAP( L ) = J
                PTEM_MAP( L ) = IDX
                SPC_PTEM_FAC( L ) = GC_EMIS_FAC( J )
-#ifdef Verbose
+#ifdef verbose_ptmap
                WRITE( LOGDEV,1045 ) L, PTEM_MAP( L ), TRIM( STKEM_NAME( IDX ) ),  
      &         SPC_PTEM_MAP( L ), TRIM( GSPC( J ) )
 #endif
             ELSE
-               L = L + 1
                SPC_PTEM_MAP( L ) = -1
                PTEM_MAP( L ) = -1
                WRITE( LOGDEV,1046 ) J, TRIM( GC_EMIS( J ) ), TRIM( GC_SPC( GC_EMIS_MAP( J ) ) )
             END IF
          END DO
          DO J = 1, N_NR_EMIS
+            L = L + 1
             IDX = INDEX1( NR_EMIS( J ), N_SPC_PTEM, STKEM_NAME )
             IF ( IDX .GT. 0 ) THEN
-               L = L + 1
                GSPC( J ) = NR_SPC( NR_EMIS_MAP( J ) )
                M = M + 1
                GSPC_EMIS( M ) = GSPC( J )
                SPC_PTEM_MAP( L ) = J + NSPC2
                PTEM_MAP( L ) = IDX
                SPC_PTEM_FAC( L ) = NR_EMIS_FAC( J )
-#ifdef Verbose
+#ifdef verbose_ptmap
                WRITE( LOGDEV,1045 ) L, PTEM_MAP( L ), TRIM( STKEM_NAME( IDX ) ),  
      &         SPC_PTEM_MAP( L ), TRIM( GSPC( J ) )
 #endif
             ELSE
-               L = L + 1
                SPC_PTEM_MAP( L ) = -1
                PTEM_MAP( L ) = -1
                WRITE( LOGDEV,1046 ) J, TRIM( NR_EMIS( J ) ), TRIM( NR_SPC( GC_EMIS_MAP( J ) ) )
             END IF
          END DO
          DO J = 1, N_TR_EMIS
+            L = L + 1
             IDX = INDEX1( TR_EMIS( J ), N_SPC_PTEM, STKEM_NAME )
             IF ( IDX .GT. 0 ) THEN
-               L = L + 1
                GSPC( J ) = TR_SPC( TR_EMIS_MAP( J ) )
                M = M + 1
                GSPC_EMIS( M ) = GSPC( J )
                SPC_PTEM_MAP( L ) = J + NSPC3
                PTEM_MAP( L ) = IDX
-	       SPC_PTEM_FAC( L ) = TR_EMIS_FAC( J )
-#ifdef Verbose
+               SPC_PTEM_FAC( L ) = TR_EMIS_FAC( J )
+#ifdef verbose_ptmap
                WRITE( LOGDEV,1045 ) L, PTEM_MAP( L ), TRIM( STKEM_NAME( IDX ) ),  
      &         SPC_PTEM_MAP( L ), TRIM( GSPC( J ) )
 #endif
             ELSE
-               L = L + 1
                SPC_PTEM_MAP( L ) = -1
                PTEM_MAP( L ) = -1
-#ifdef Verbose
+#ifdef verbose_ptmap
                WRITE( LOGDEV,1046 ) J, TRIM( TR_EMIS( J ) ), TRIM( TR_SPC( TR_EMIS_MAP( J ) ) )
 #endif
             END IF
          END DO
          N_GSPC_EMIS = M
-
-
-         
-C<< WTH         
 
          IF ( ALLOCATED( V ) ) DEALLOCATE( V )
          IF ( ALLOCATED( VC ) ) DEALLOCATE( VC )
@@ -462,17 +428,16 @@ C<< WTH
                IF ( IDX .NE. 0 ) THEN
                   J = J + 1
                   GAS_MAP( N )%ARRY( J ) = I
-#ifdef Verbose
+#ifdef verbose_ptmap
                   WRITE( LOGDEV,1031 ) N, J, GAS_MAP( N )%ARRY( J )
 #endif
                END IF
             END DO
-!           WRITE( LOGDEV,'(5X, A, I4)' ) 'J =', J
          END DO
 
          DO N = 1, NPTGRPS
             DO I = 1, STKEM_MAP( N )%LEN
-#ifdef Verbose
+#ifdef verbose_ptmap
                WRITE( LOGDEV,1031 ) N, I, GAS_MAP( N )%ARRY( I )
 #endif
                IF ( GAS_MAP( N )%ARRY( I ) .LT. 1 ) THEN
@@ -492,7 +457,6 @@ C point source emissions to PM species map
          ALLOCATE ( STKPM_VAR( NPTGRPS ), STAT=IOS )
          CALL CHECKMEM( IOS, 'STKPM_VAR', PNAME )
 
-!        IF ( NO_PMEMIS ) THEN
          IF ( N_AE_EMIS .LE. 0 ) THEN
             DO N = 1, NPTGRPS
                STKPM_MAP( N )%LEN = 0
@@ -507,34 +471,26 @@ C point source emissions to PM species map
 !        WRITE( LOGDEV,1007 )
 
          NM = 0; L = 0
-         DO N = 1, NPTGRPS  !Loop through Point Source Files
+         DO N = 1, NPTGRPS  ! Loop through Point Source Files
            
             I = 0
             LOOP_PM: DO J = 1, N_EMIS_PM
                VNAME = PMEM_MAP_NAME( J )
                IDX = INDEX1( VNAME, NVARS_EMIS( N ), STKSPC( N )%ARRY )
                IF ( IDX .GT. 0 ) THEN
-!WTH skip if emission species used multiple times for current point group
-                  !BNM Don't Skip if emissions species are used multiple
-		  !times
-                  !DO I2 = NM+1, L
-                  !   IF ( VNAME .EQ. PVNM( I2 ) ) CYCLE LOOP_PM
-                  !END DO
-#ifdef Verbose
+#ifdef verbose_ptmap
                   WRITE( LOGDEV,* ) TRIM( VNAME ), ' added to PVNM array'
 #endif
-!WTH
                   I = I + 1
                   L = L + 1
-                  PMAP( L ) = J      !Map Global Pt Spcs Index -> AERODATA Index
-                  PLST( I,N ) = IDX  !Map Local Pt Spcs Binary -> Index in File List
-                  PVNM( L ) = VNAME  !Populate global Pt Src Spcs List Names
-#ifdef Verbose
+                  PMAP( L ) = J      ! Map Global Pt Spcs Index -> AERODATA Index
+                  PLST( I,N ) = IDX  ! Map Local Pt Spcs Binary -> Index in File List
+                  PVNM( L ) = VNAME  ! Populate global Pt Src Spcs List Names
+#ifdef verbose_ptmap
                   WRITE( LOGDEV,1009 ) N, J, I, L, PLST( I,N ), PMAP( L ),
      &                                 TRIM( PVNM( L ) ) 
 #endif
                END IF
-
             END DO LOOP_PM
 
             NM = NM + I
@@ -556,12 +512,13 @@ C point source emissions to PM species map
 
          END DO   ! NPTGRPS
 
-#ifdef Verbose
+#ifdef verbose_ptmap
          WRITE( LOGDEV,'( / 5X, A, I3 /)' ) 'NM =', NM
 #endif
          L = 0
          DO N = 1, NPTGRPS
-#ifdef Verbose
+
+#ifdef verbose_ptmap
              WRITE( LOGDEV,1021 ) N, STKPM_MAP( N )%LEN
 #endif
             DO I = 1, STKPM_MAP( N )%LEN
@@ -569,7 +526,7 @@ C point source emissions to PM species map
                STKPM_MAP( N )%ARRY( I ) = PLST( I,N )
                STKPM_VAR( N )%ARRY( I ) = PVNM( L )
             END DO
-#ifdef Verbose
+#ifdef verbose_ptmap
             DO I = 1, STKPM_MAP( N )%LEN, 8
                I2 = MIN( I + 7, STKPM_MAP( N )%LEN )
                WRITE( LOGDEV,1025 ) N, ( STKPM_MAP( N )%ARRY( J ), J = I, I2 )
@@ -578,23 +535,18 @@ C point source emissions to PM species map
 #endif
 
             IF ( N_AE_EMIS .GT. 0 ) THEN   ! assume PM species required
-C Check that the PM species names match EMIS_1
+C Check that the PM species names match on emissions file
                DO I = 1, N_EMIS_PM
                   K = PMEM_MAP( I )
                   IDX = INDEX1( AEROSPC( K )%EMIS, STKPM_VAR( N )%LEN, STKPM_VAR( N )%ARRY )
                   IF ( IDX .LE. 0 ) THEN
                      WRITE( LOGDEV,'(5X, A, I3)' ) TRIM( AEROSPC( K )%EMIS )
      &                                        // ' Not in Stack Emissions file', N
-!                    QUIT = .TRUE.
                   END IF
                END DO
             END IF
 
          END DO
-
-         IF ( QUIT ) THEN
-            SUCCESS = .FALSE.; RETURN
-         END IF
 
          ALLOCATE( V( NM ), STAT=IOS )
          CALL CHECKMEM( IOS, 'V', PNAME )
@@ -607,12 +559,12 @@ C Check that the PM species names match EMIS_1
          END DO
 
 C Sort ...
-#ifdef Verbose
+#ifdef verbose_ptmap
          WRITE( LOGDEV,'(5X, A)' ) 'Concatenated Species List:'
          WRITE( LOGDEV,'(5X, I3, 1X, A, I3)' ) 1, V( 1 )
 #endif
          DO I = 2, NM
-#ifdef Verbose
+#ifdef verbose_ptmap
             WRITE( LOGDEV,'(5X, I3, 1X, A, I3)' ) I, V( I )
 #endif
             TV = V( I )
@@ -625,7 +577,7 @@ C Sort ...
             V( J+1 ) = TV
          END DO
 
-#ifdef Verbose
+#ifdef verbose_ptmap
          WRITE( LOGDEV,'(5X, A)' ) 'Sorted Species List:'
          DO I = 1, NM
             WRITE( LOGDEV,'(5X, A, I3)' ) V( I )
@@ -641,10 +593,9 @@ C Cull ...
                VC( NCULL ) = V( I )
             END IF
          END DO
-#ifdef Verbose
+#ifdef verbose_ptmap
          WRITE( LOGDEV,'(5X, A, I3)' ) 'Unique PM =', NCULL
 #endif
-
          N_SPC_PTPM = NCULL
 
          ALLOCATE ( PTPM_MAP( N_SPC_PTPM ), STAT=IOS )
@@ -656,7 +607,7 @@ C Cull ...
          DO I = 1, N_SPC_PTPM
             PTPM_MAP( I ) = VC( I )%NDX
             STKPM_NAME( I ) = VC( I )%STR
-#ifdef Verbose
+#ifdef verbose_ptmap
             WRITE( LOGDEV,1043 ) I, TRIM( STKPM_NAME( I ) ), PTPM_MAP( I )
 #endif
          END DO
@@ -668,17 +619,17 @@ C Cull ...
                IF ( IDX .NE. 0 ) THEN
                   J = J + 1
                   PM_MAP( N )%ARRY( J ) = I
-#ifdef Verbose
+#ifdef verbose_ptmap
                   WRITE( LOGDEV,1033 ) N, J, PM_MAP( N )%ARRY( J )
 #endif
                END IF
             END DO
-#ifdef Verbose
+#ifdef verbose_ptmap
             WRITE( LOGDEV,'(5X, A, I4)' ) 'J =', J
 #endif
          END DO
 
-! build array listing aerosol diagnostic names
+C build array listing aerosol diagnostic names
 
          ALLOCATE ( ASPC_EMIS( N_EMIS_PM ), STAT=IOS )
          CALL CHECKMEM( IOS, 'ASPC_EMIS', PNAME )
@@ -687,23 +638,20 @@ C Cull ...
          N_ASPC_EMIS = 0
          DO N = 1, N_EMIS_PM
             L = PMEM_MAP( N )
-            IF( L .LT. 1 )CYCLE
+            IF ( L .LT. 1 ) CYCLE
             DO J = 1, N_MODE
-               IF( AERO_MISSING( L, J ) )CYCLE
+               IF ( AERO_MISSING( L,J ) ) CYCLE
                NM = LEN_TRIM( AEROSPC( L )%NAME( J )  ) - 1
                VNAME = AEROSPC( L )%NAME( J )( 1:NM )
-! check name to prevent redundancy
+C check name to prevent redundancy
                IDX = INDEX1( VNAME, N_EMIS_PM, ASPC_EMIS )
-               IF( IDX .GT. 0 )EXIT
+               IF ( IDX .GT. 0 ) EXIT
                N_ASPC_EMIS = N_ASPC_EMIS + 1               
                ASPC_EMIS( N_ASPC_EMIS ) = VNAME
                EXIT
             END DO
          END DO
 
-        
-
-!build aerosol species array for diagnostic file
          IF ( ALLOCATED( GMAP ) ) DEALLOCATE( GMAP )
          IF ( ALLOCATED( GLST ) ) DEALLOCATE( GLST )
          IF ( ALLOCATED( GVNM ) ) DEALLOCATE( GVNM )

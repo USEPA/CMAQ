@@ -58,7 +58,8 @@ C                          - Based on the condition of MY_NSRC ( > 0 or not) to 
 C                            execution of certain section of code or not
 C     30 Apr 2016 J.Young: add multiple fire source capability, in affiliation with
 C                          Yongtao Hu (Georgia Tech)
-
+C     22 Jun 2016 B.Hutzell: Fixed issue where single emis species maps to multiple model
+C                            species
 C-----------------------------------------------------------------------
 
       USE UDTYPES           ! implementation for multiple groups of stack input files
@@ -954,22 +955,22 @@ C Ensure that the model and stack groups emissions timestamp dates stay synchron
                   CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
                END IF
 
-               !Read Non-Carbon Organic Matter Too if POC is Requested
-               IF ( (INDEX( MECHNAME, 'NVPOA' ) .EQ. 0) 
-     &               .AND. (VNAME .EQ. 'POC') ) THEN
-	              STKEMIS_TMP( N )%ARRY = 0.0
-	              IF ( .NOT. INTERPX( STKENAME( N ), 'PNCOM', PNAME,
-     &                             1,1, MY_STRT_SRC( N ),MY_END_SRC( N ), 1,1,
-!    &                             STKDATE( N ), JTIME,
-     &                             LOC_STKDATE, JTIME,
-     &                             STKEMIS_TMP( N )%ARRY( 1,V ) ) ) THEN
+               ! Read Non-Carbon Organic Matter too if POC is Requested
+               IF ( ( INDEX( MECHNAME, 'NVPOA' ) .EQ. 0 )
+     &               .AND. ( VNAME .EQ. 'POC' ) ) THEN
+                  STKEMIS_TOO( N )%ARRY = 0.0
+                  IF ( .NOT. INTERPX( STKENAME( N ), 'PNCOM', PNAME,
+     &                                1,1, MY_STRT_SRC( N ),MY_END_SRC( N ), 1,1,
+!    &                                STKDATE( N ), JTIME,
+     &                                LOC_STKDATE, JTIME,
+     &                                STKEMIS_TOO( N )%ARRY( 1,V ) ) ) THEN
                      XMSG = 'Could not read ' // TRIM( VNAME ) //
      &                    ' from ' // TRIM( STKENAME( N ) )
                      CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-                  END IF     
+                  END IF
                   STKEMIS( N )%ARRY( 1,V ) = STKEMIS( N )%ARRY( 1,V ) 
-     &                                         + STKEMIS_TMP( N )%ARRY( 1,V )
-               ENDIF
+     &                                     + STKEMIS_TOO( N )%ARRY( 1,V )
+               END IF
             END DO
 
             IF ( FIREFLAG( N ) ) THEN
@@ -983,22 +984,21 @@ C Ensure that the model and stack groups emissions timestamp dates stay synchron
      &                      ' from ' // TRIM( STKENAME( N ) )
                      CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
                   END IF
-                  !Read Non-Carbon Organic Matter Too if POC is Requested
-                  IF ( (INDEX( MECHNAME, 'NVPOA' ) .EQ. 0)
+                  ! Read Non-Carbon Organic Matter too if POC is Requested
+                  IF ( ( INDEX( MECHNAME, 'NVPOA' ) .EQ. 0 )
      &                  .AND. VNAME .EQ. 'POC' ) THEN
-                     FIREVAR_TMP( N )%ARRY = 0.0
-	                 IF ( .NOT. INTERPX( STKENAME( N ), 'PNCOM', PNAME,
-     &                             1,1, MY_STRT_SRC( N ),MY_END_SRC( N ), 1,1,
-!    &                             STKDATE( N ), JTIME,
-     &                             LOC_STKDATE, JTIME,
-     &                             FIREVAR_TMP( 1 )%ARRY( 1,V ) ) ) THEN
+                     FIREVAR_TOO( N )%ARRY = 0.0
+                     IF ( .NOT. INTERPX( STKENAME( N ), 'PNCOM', PNAME,
+     &                                   1,1, MY_STRT_SRC( N ),MY_END_SRC( N ), 1,1,
+     &                                   LOC_STKDATE, JTIME,
+     &                                   FIREVAR_TOO( 1 )%ARRY( 1,V ) ) ) THEN
                         XMSG = 'Could not read ' // TRIM( VNAME ) //
-     &                    ' from ' // TRIM( STKENAME( N ) )
+     &                         ' from ' // TRIM( STKENAME( N ) )
                         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-                     END IF     
-                     FIREVAR( N )%ARRY( 1,V ) = FIREVAR( N )%ARRY( 1,V ) 
-     &                                           + FIREVAR_TMP( N )%ARRY( 1,V )
-                  ENDIF
+                     END IF
+                     FIREVAR( N )%ARRY( 1,V ) = FIREVAR( N )%ARRY( 1,V )
+     &                                        + FIREVAR_TOO( N )%ARRY( 1,V )
+                  END IF
                END DO
                DO S = 1, MY_NSRC( N )
                   SRC = SOURCE( N )%ARRY( S )
