@@ -898,7 +898,7 @@ C External functions:
 C Local variables:
       Logical, Save :: first_time = .True.
       Integer, Save :: logdev
-      Character( 80 ) :: xmsg
+      Character( 300 ) :: xmsg
       Integer       :: i, im, indx
 
       Real, Save :: mwpoa                     ! Molecular weight of POA [ g/mol ]
@@ -956,7 +956,7 @@ C Variables used in equilibrium partitioning calculations
       Real totorgsw          ! POA + non-volatile SOA [ umole/m3 ]
       Real totorg            ! SOA + POA before time step [ umole/m3 ]
       Real threshold         ! criterion for establishing gas/part equil.
-
+      Real faer              ! fraction of total in aerosol, intermediate value
       Logical check          ! flag to indicate if NEWT subroutine
                              ! converged to a spurious root
 
@@ -1144,8 +1144,9 @@ C    caer = ctotf / ( 1 + c0/MW / totorg )
          prod( i )  = vaporspc( i )%alpha * totrog( i )     ! Total Vapor Produced
          ctotf( i ) = ctoti( i ) + prod( i )                ! Vapor + Particle
          threshold  = threshold +  ctotf( i ) / c0( i )
-         caer( i )  = ctotf( i ) * totorg                   ! initial
-     &              / (totorg + c0( i ) * mw_vap_m1( i ) )  ! guess
+         faer       = totorg                                ! initial fraction in aerosol
+     &              / (totorg + c0( i ) * mw_vap_m1( i ) )  
+         caer( i )  = ctotf( i ) * faer                     ! initial amount in aerosol
          upb        = upb + ctotf( i) * mw_vap_m1( i )      ! upper: all moles (semi and nonvolatile)
       End Do
 
@@ -1196,7 +1197,8 @@ C        Solve for total number of organic moles in aerosol (hotp 7/5/11)
 
 C        Determine concentration of each semivoltile (hotp 7/5/11)
          Do i = 1, n_vapor
-            caer(i) = ctotf(i) * vapor_mw(i) * orgmoles / ( c0(i) + vapor_mw(i) * orgmoles )
+            faer    = vapor_mw(i) * orgmoles / ( c0(i) + vapor_mw(i) * orgmoles )
+            caer(i) = ctotf(i) * faer
          End Do
 
 C End SOA paritioning solver METHOD selection
@@ -1205,69 +1207,73 @@ C End SOA paritioning solver METHOD selection
 C Constrain caer to values between conmin and ctotf
          Do i = 1, n_vapor
 
-            If ( caer( i ) .Lt. 0.0 ) Then
+           If ( caer( i ) .Lt. 0.0 ) Then
                   Write( logdev,* ) 'caer negative at i: ', i, caer( i ),
      &                              ' reset to evapmin'
-            End If
-            caer( i ) = max( caer(i), evapmin )
+           End If
+           caer( i ) = max( caer(i), evapmin )
 
-            If ( caer( i ) - ctotf( i ) .Gt. ctolmin ) Then
+           If ( caer( i ) - ctotf( i ) .Gt. ctolmin ) Then
                Write( logdev,* ) 'caer-ctotf exceeds ctolmin at i = ', i
                Write( logdev,* ) 'caer: ', caer( i ), ' ctotf: ', ctotf( i )
                Write( logdev,* ) 'caer reset to ctotf'
                caer( i ) = ctotf( i )
-            End If
+           End If
 
+           dcaer( i ) = caer( i ) - caer0( i )   ! Change in each species conc.
+    
+           ! Check for overshoot in any of the specific modes
+           If ( soa_aeroMap( i ) .ge. 1 ) Then
+              indx = soa_aeroMap( i )
+
+              ! Transfer the semivolatile mass
+              Do im = 1,2
+                If ( aero_missing( soa_aeroMap( i ),im ) ) Cycle
+                aerospc_conc( indx,im ) = 
+     &               aerospc_conc( indx,im ) + dcaer( i ) * GR3FRAC( i,im )
+              End Do
+        
+              ! Check to make sure none of the modes went negative
+              If ( .NOT. aero_missing( soa_aeroMap( i ),1 ) .AND.
+     &             .NOT. aero_missing( soa_aeroMap( i ),2 ) ) Then
+                 If ( aerospc_conc( indx,1 ) .lt. 0.0 ) Then
+                    aerospc_conc( indx,2 ) = aerospc_conc( indx,2 ) 
+     &                     + aerospc_conc( indx,1 ) 
+                    aerospc_conc( indx,1 ) = 0.0
+                 End If
+                 If ( aerospc_conc( indx,2 ) .lt. 0.0 ) Then
+                    aerospc_conc( indx,1 ) = aerospc_conc( indx,1 ) 
+     &                     + aerospc_conc( indx,2 ) 
+                    aerospc_conc( indx,2 ) = 0.0
+                    If ( aerospc_conc( indx,1 ) .lt. 0.0 ) Then
+                       If ( abs(aerospc_conc( indx,1 ) ) .lt. 1.0e-15 ) Then
+                          aerospc_conc( indx,1 ) = 0.0
+                       Else
+                          Write( xmsg,'( A56,/,A11,I2,A9,E12.5,A9,E12.5 )' ) 
+     &                       ' *** Too Much Evaporation from Existing Organic Aerosol:',
+     &                       ' SOA Spcs: ',i,' Mode 1: ',aerospc_conc( indx,1 ),
+     &                       ' Mode 2: ',aerospc_conc( indx,2 )
+                          Call m3exit( pname, 0, 0, xmsg, xstat3 )
+                       End If
+                    End If   
+                 End If
+             End If
+           End If
          End Do
-
+ 
       Else   ! threshold not exceeded; no material transferred to aerosol phase
-
-         caer = 2. * conmin   ! array assignment
+         Do i = 1, n_vapor
+            indx = soa_aeroMap( i )
+            If ( .NOT. aero_missing( indx,1 ) ) aerospc_conc( indx,1 ) = conmin   ! array assignment
+            If ( .NOT. aero_missing( indx,2 ) ) aerospc_conc( indx,2 ) = conmin   ! array assignment
+         End Do
+         caer( i ) = sum( aerospc_conc( indx,: ) )
 
       End If    ! check on equilibrium threshold
 
-C Transfer particle-phase SOA and vapor-phase SVOCs back to CBLK
-      dcaer = caer - caer0   ! Change in each species conc.
+C Update Vapor-Phase Organic Species
       vapor_conc( : ) = ctotf( : ) - caer( : )
 
-      Do i = 1, n_vapor
-        If ( soa_aeroMap( i ) .ge. 1 ) Then
-           indx = soa_aeroMap( i )
-
-           ! Transfer the semivolatile mass
-           Do im = 1,2
-             If ( aero_missing( soa_aeroMap( i ),im ) ) Cycle
-             aerospc_conc( indx,im ) = 
-     &             aerospc_conc( indx,im ) + dcaer( i ) * GR3FRAC( i,im )
-           End Do
-        
-           ! Check to make sure none of the modes went negative
-           If ( .NOT. aero_missing( soa_aeroMap( i ),1 ) .AND.
-     &          .NOT. aero_missing( soa_aeroMap( i ),2 ) ) Then
-              If ( aerospc_conc( indx,1 ) .lt. 0.0 ) Then
-                 aerospc_conc( indx,2 ) = aerospc_conc( indx,2 ) 
-     &                  + aerospc_conc( indx,1 ) 
-                 aerospc_conc( indx,1 ) = 0.0
-              End If
-              If ( aerospc_conc( indx,2 ) .lt. 0.0 ) Then
-                 aerospc_conc( indx,1 ) = aerospc_conc( indx,1 ) 
-     &                  + aerospc_conc( indx,2 ) 
-                 aerospc_conc( indx,2 ) = 0.0
-                 If ( aerospc_conc( indx,1 ) .lt. 0.0 ) Then
-                    If ( abs(aerospc_conc( indx,1 ) ) .lt. 1.0e-15 ) Then
-                       aerospc_conc( indx,1 ) = 0.0
-                    Else
-                       Write( xmsg,'( A56,/,A11,I2,A9,E12.5,A9,E12.5 )' ) 
-     &                    ' *** Too Much Evaporation from Existing Organic Aerosol:',
-     &                    ' SOA Spcs: ',i,' Mode 1: ',aerospc_conc( indx,1 ),
-     &                    ' Mode 2: ',aerospc_conc( indx,2 )
-                       Call m3exit( pname, 0, 0, xmsg, xstat3 )
-                    End If
-                 End If   
-              End If
-          End If
-        End If
-      End Do
 
 C Acid-induced Isoprene SOA if IEPOX uptake is not considered mechanism reactions
       IF( .Not. IEPOX_SOA_mechanism ) then
