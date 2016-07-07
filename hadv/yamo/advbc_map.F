@@ -100,7 +100,7 @@ C Map advected species to bc`s
  
       SPC = 0
  
-C Map advected reactive gas species to bc`s
+      ! Map advected reactive gas species to bc`s
 
       IF ( N_GC_TRNS .GT. 0 ) THEN
 
@@ -119,30 +119,27 @@ C Map advected reactive gas species to bc`s
             SPC = SPC + 1
             ONFILE( SPC ) = .TRUE.
             BCFAC( SPC ) = 1.0
-C is there a surrogate name?
+            INDX = 0
+
+            ! Is there a surrogate name?
             ISUR = FINDEX( GC_TRNS_MAP( VAR ), N_GC_ICBC, GC_ICBC_MAP )
-!           write( logdev,* ) '=b=var,spc,isur: ', var, spc, isur
+
+            ! Is it on the BC File?
             IF ( ISUR .NE. 0 ) THEN
-C is it on the BC file?
+               BCFAC( SPC ) = GC_ICBC_FAC( ISUR )
                INDX = INDEX1( GC_ICBC( ISUR ), NVARS3D, VNAME3D )
                IF ( INDX .NE. 0 ) THEN
-C if there`s a surrogate name, CGRID_SPCS will handle setting GC_ICBC_FAC
                   BCNAME( SPC ) = VNAME3D( INDX )
-               ELSE   ! not on the BC file
-!                 BCNAME( SPC ) = BLNK
-                  ONFILE( SPC ) = .FALSE.
-                  WRCNT = WRCNT + 1
-                  WRVAR( WRCNT ) = GC_TRNS( VAR )
                END IF
-               BCFAC( SPC ) = GC_ICBC_FAC( ISUR )
-!              write( logdev,* ) '=b=_fac in sur: ', bcfac( spc )
-            ELSE
-C is the (main) species name on the BC file?
+            END IF
+
+            ! If there is no surrogate or it can`t be found, look 
+            ! for the species name on the BC file
+            IF ( ISUR .EQ. 0 .OR. INDX .EQ. 0 ) THEN
                INDX = INDEX1( GC_TRNS( VAR ), NVARS3D, VNAME3D )
                IF ( INDX .NE. 0 ) THEN
                   BCNAME( SPC ) = VNAME3D( INDX )
                ELSE
-!                 BCNAME( SPC ) = BLNK
                   ONFILE( SPC ) = .FALSE.
                   WRCNT = WRCNT + 1
                   WRVAR( WRCNT ) = GC_TRNS( VAR )
@@ -166,7 +163,7 @@ C is the (main) species name on the BC file?
 
       END IF
 
-C Map advected aerosol species to bc`s
+      ! Map advected aerosol species to bc`s
 
       IF ( N_AE_TRNS .GT. 0 ) THEN
 
@@ -185,29 +182,27 @@ C Map advected aerosol species to bc`s
             SPC = SPC + 1
             ONFILE( SPC ) = .TRUE.
             BCFAC( SPC ) = 1.0
-C is there a surrogate name?
+            INDX = 0
+
+            ! Is there a surrogate name?
             ISUR = FINDEX( AE_TRNS_MAP( VAR ), N_AE_ICBC, AE_ICBC_MAP )
-!           write( logdev,* ) '=b=var,spc,isur: ', var, spc, isur
+
+            ! Is it on the BC file?
             IF ( ISUR .NE. 0 ) THEN
-C is it on the BC file?
+               BCFAC( SPC ) = AE_ICBC_FAC( ISUR )
                INDX = INDEX1( AE_ICBC( ISUR ), NVARS3D, VNAME3D )
                IF ( INDX .NE. 0 ) THEN
                   BCNAME( SPC ) = VNAME3D( INDX )
-               ELSE   ! not on the BC file
-!                 BCNAME( SPC ) = BLNK
-                  ONFILE( SPC ) = .FALSE.
-                  WRCNT = WRCNT + 1
-                  WRVAR( WRCNT ) = AE_TRNS( VAR )
                END IF
-               BCFAC( SPC ) = AE_ICBC_FAC( ISUR )
-!              write( logdev,* ) '=b=_fac in sur: ', bcfac( spc )
-            ELSE
-C is the (main) species name on the BC file?
+            END IF
+            
+            ! If there is no surrogate or it can`t be found, look 
+            ! for the species name on the BC file
+            IF ( ISUR .EQ. 0 .OR. INDX .EQ. 0 ) THEN
                INDX = INDEX1( AE_TRNS( VAR ), NVARS3D, VNAME3D )
                IF ( INDX .NE. 0 ) THEN
                   BCNAME( SPC ) = VNAME3D( INDX )
                ELSE
-!                 BCNAME( SPC ) = BLNK
                   ONFILE( SPC ) = .FALSE.
                   WRCNT = WRCNT + 1
                   WRVAR( WRCNT ) = AE_TRNS( VAR )
@@ -231,7 +226,8 @@ C is the (main) species name on the BC file?
 
       END IF
   
-C Map advected non-reactive species to bc`s
+
+      ! Map advected non-reactive species to bc`s
 
       IF ( N_NR_TRNS .GT. 0 ) THEN
 
@@ -244,35 +240,33 @@ C Map advected non-reactive species to bc`s
             XMSG = 'Could not get ' // BNDY_NONR_1 // ' file description'
             CALL M3EXIT( PNAME, XDATE, XTIME, XMSG, XSTAT1 )
          END IF
-
+          
          WRCNT = 0
          DO VAR = 1, N_NR_TRNS
             SPC = SPC + 1
             ONFILE( SPC ) = .TRUE.
             BCFAC( SPC ) = 1.0
-C is there a surrogate name?
+            INDX = 0
+            
+            ! Is there a surrogate name?
             ISUR = FINDEX( NR_TRNS_MAP( VAR ), N_NR_ICBC, NR_ICBC_MAP )
-!           write( logdev,* ) '=b=var,spc,isur: ', var, spc, isur
+
+            ! Is is on the BC file?
             IF ( ISUR .NE. 0 ) THEN
-C is it on the BC file?
+               BCFAC( SPC ) = NR_ICBC_FAC( ISUR )
                INDX = INDEX1( NR_ICBC( ISUR ), NVARS3D, VNAME3D )
                IF ( INDX .NE. 0 ) THEN
                   BCNAME( SPC ) = VNAME3D( INDX )
-               ELSE   ! not on the BC file
-!                 BCNAME( SPC ) = BLNK
-                  ONFILE( SPC ) = .FALSE.
-                  WRCNT = WRCNT + 1
-                  WRVAR( WRCNT ) = NR_TRNS( VAR )
                END IF
-               BCFAC( SPC ) = NR_ICBC_FAC( ISUR )
-!              write( logdev,* ) '=b=_fac in sur: ', bcfac( spc )
-            ELSE
-C is the (main) species name on the BC file?
+            END IF
+
+            ! If there is no surrogate or it can`t be found, look 
+            ! for the species name on the BC file
+            IF ( ISUR .EQ. 0 .OR. INDX .EQ. 0 ) THEN
                INDX = INDEX1( NR_TRNS( VAR ), NVARS3D, VNAME3D )
                IF ( INDX .NE. 0 ) THEN
                   BCNAME( SPC ) = VNAME3D( INDX )
                ELSE
-!                 BCNAME( SPC ) = BLNK
                   ONFILE( SPC ) = .FALSE.
                   WRCNT = WRCNT + 1
                   WRVAR( WRCNT ) = NR_TRNS( VAR )
@@ -315,29 +309,27 @@ C Map advected tracer species to bc`s
             SPC = SPC + 1
             ONFILE( SPC ) = .TRUE.
             BCFAC( SPC ) = 1.0
-C is there a surrogate name?
+            INDX = 0
+
+            ! Is there a surrogate name?
             ISUR = FINDEX( TR_ADV_MAP( VAR ), N_TR_ICBC, TR_ICBC_MAP )
-!           write( logdev,* ) '=b=var,spc,isur: ', var, spc, isur
+
+            ! Is it on the BC file?
             IF ( ISUR .NE. 0 ) THEN
-C is it on the BC file?
+               BCFAC( SPC ) = TR_ICBC_FAC( ISUR )
                INDX = INDEX1( TR_ICBC( ISUR ), NVARS3D, VNAME3D )
                IF ( INDX .NE. 0 ) THEN
                   BCNAME( SPC ) = VNAME3D( INDX )
-               ELSE   ! not on the BC file
-!                 BCNAME( SPC ) = BLNK
-                  ONFILE( SPC ) = .FALSE.
-                  WRCNT = WRCNT + 1
-                  WRVAR( WRCNT ) = TR_ADV( VAR )
                END IF
-               BCFAC( SPC ) = TR_ICBC_FAC( ISUR )
-!              write( logdev,* ) '=b=_fac in sur: ', bcfac( spc )
-            ELSE
-C is the (main) species name on the BC file?
+            END IF
+
+            ! If there is no surrogate or it can`t be found, look 
+            ! for the species name on the BC file
+            IF ( ISUR .EQ. 0 .OR. INDX .EQ. 0 ) THEN
                INDX = INDEX1( TR_ADV( VAR ), NVARS3D, VNAME3D )
                IF ( INDX .NE. 0 ) THEN
                   BCNAME( SPC ) = VNAME3D( INDX )
                ELSE
-!                 BCNAME( SPC ) = BLNK
                   ONFILE( SPC ) = .FALSE.
                   WRCNT = WRCNT + 1
                   WRVAR( WRCNT ) = TR_ADV( VAR )
