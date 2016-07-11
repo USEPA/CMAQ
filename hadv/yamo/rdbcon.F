@@ -90,7 +90,7 @@ C File variables:
       REAL, ALLOCATABLE, SAVE :: RHOJ_BUF  ( :,: ) ! mid-layer grid RhoJ
 
       REAL, ALLOCATABLE, SAVE :: BBUF      ( :,: ) ! bcon file buffer
-      REAL, ALLOCATABLE       :: BBUF_TMP  ( :,: ) ! bcon file buffer
+      REAL, ALLOCATABLE, SAVE :: BBUF_TMP  ( :,: ) ! bcon file buffer
 
 C External Functions: None
 
