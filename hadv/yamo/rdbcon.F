@@ -231,6 +231,9 @@ C create advected species map to bc`s
       CALL NEXTIME( MDATE, MTIME, SEC2TIME( STEP / 2 ) )
 
 C Read & interpolate boundary SqrDMT, and RhoJ
+C According to the METBDY3D File, variables have the following units:
+C    JACOBM  - Meters
+C    DENSA_J - KG M-2
 
       IF ( WINDOW ) THEN
 
@@ -284,8 +287,6 @@ C Fill in DENSJ array for boundaries
 
       ELSE
 
- !       write ( logdev,* ) '=0= mdate,mtime,nbndy,nlays: ',
- !   &                           mdate,mtime,nbndy,nlays
 
          VNAME = 'JACOBM'
          IF ( .NOT. INTERPB ( MET_BDY_3D, VNAME, PNAME,
@@ -374,8 +375,11 @@ C Read & interpolate boundary concentrations
                   END IF
                END IF
 
+               ! Units of JACOBM_BND are Meters, according to the input
+               ! file. Units of BBUF are ug m-3 ( m2 m-3 for surface
+               ! area and N m-3 for number).
                BCON( 1:NBNDY,VAR ) = BCFAC( VAR ) * BBUF( 1:NBNDY,LVL ) 
-     &                               * KGPMG * JACOBM_BND( 1:NBNDY,LVL )
+     &                               * JACOBM_BND( 1:NBNDY,LVL )
                   
                ! Found bc's (microgram/m**3, m**2/m**3, or number/m**3)
                ! Also Do a Mass conversion as long as this particle
