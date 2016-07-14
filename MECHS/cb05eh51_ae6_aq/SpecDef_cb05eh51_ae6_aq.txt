@@ -267,7 +267,7 @@ PM25_SO4        ,ug/m3     ,ASO4I[1]*PM25AT[3]+ASO4J[1]*PM25AC[3]+ASO4K[1]*PM25C
 PM25_TOT        ,ug/m3     ,ATOTI[0]*PM25AT[3]+ATOTJ[0]*PM25AC[3]+ATOTK[0]*PM25CO[3]
 PM25_UNSPEC1    ,ug/m3     ,PM25_TOT[0]-(PM25_CL[0]+PM25_EC[0]+PM25_NA[0]+PM25_NH4[0] \
                            +PM25_NO3[0]+PM25_OC[0]+PM25_SOIL[0]+PM25_SO4[0])
-PM10_TOT        ,ug/m3     ,ATOTI[0]*PM10AT[3]+ATOTJ[0]*PM10AC[3]+ATOTK[0]*PM10CO[3]
+PM10            ,ug/m3     ,ATOTI[0]*PM10AT[3]+ATOTJ[0]*PM10AC[3]+ATOTK[0]*PM10CO[3]
 
 PMC_CL          ,ug/m3     ,ACLI[1]+ACLJ[1]+ACLK[1]-PM25_CL[0]
 PMC_NA          ,ug/m3     ,ANAIJ[0]+ANAK[0]-PM25_NA[0]
