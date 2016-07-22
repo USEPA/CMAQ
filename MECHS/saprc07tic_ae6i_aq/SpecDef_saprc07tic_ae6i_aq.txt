@@ -214,7 +214,7 @@ FMODERNSOCIJ      ,ugC/m3  ,( AISO1J[1]/2.2   + AISO2J[1]/2.23 + AISO3J[1]/2.8 \
 
 !! Aggregated Particle Quantities
 ATOTI           ,ug/m3     ,ASO4I[1]+ANO3I[1]+ANH4I[1]+ANAI[1]+ACLI[1]+AECI[1] \
-                           +AOMI+AOTHRI[1] 
+                           +AOMI[0]+AOTHRI[1] 
 ATOTJ           ,ug/m3     ,ASO4J[1]+ANO3J[1]+ANH4J[1]+ANAJ[1]+ACLJ[1]+AECJ[1] \
                            +AOMJ[0]+AOTHRJ[1]+AFEJ[1]   \
                            +ASIJ[1]+ATIJ[1]+ACAJ[1]+AMGJ[1]+AMNJ[1]+AALJ[1]+AKJ[1] 
