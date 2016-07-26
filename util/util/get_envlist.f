@@ -44,28 +44,31 @@ C but also obtain the count on the number of itmes (=3).
 
 ! Revision: 2013/02/11 David Wong: increased the max env var length from 256 to 1000
 ! 13 Dec 2013 J.Young: 1000 breaks BUFLEN in IOAPI's envgets.c. Change to 512.
+! 17 Jun 2016 J.Young: IOAPI's envgets.c BUFLEN has been increased to 10000.
+! 20 Jun 2016 J.Young: Forget IOAPI's envgets.c: use Fortran GETENV
 
       IMPLICIT NONE
 
-      CHARACTER( * ), INTENT ( IN ) :: ENV_VAR
-      INTEGER, INTENT ( OUT ) :: NVARS
+      CHARACTER( * ),  INTENT ( IN )  :: ENV_VAR
+      INTEGER,         INTENT ( OUT ) :: NVARS
       CHARACTER( 16 ), INTENT ( OUT ) :: VAL_LIST( : )
 
-      INTEGER, PARAMETER   :: MAX_LEN = 512
-      CHARACTER(  16 )     :: PNAME = 'GET_ENVLIST'
-      CHARACTER( MAX_LEN ) :: E_VAL
-      CHARACTER(   1 )     :: CHR
-      CHARACTER(  96 )     :: XMSG
-      INTEGER STATUS
+      INTEGER             :: MAX_LEN
+      CHARACTER( 16 )     :: PNAME = 'GET_ENVLIST'
+      CHARACTER( 16*SIZE( VAL_LIST ) ) :: E_VAL
+      CHARACTER(  1 )     :: CHR
+      CHARACTER( 96 )     :: XMSG
 
-      INTEGER :: JP( SIZE( VAL_LIST ) ), KP( SIZE( VAL_LIST ) )
+      INTEGER :: JP( 16*SIZE( VAL_LIST ) ), KP( 16*SIZE( VAL_LIST ) )
       INTEGER IP, V
 
-C               env_var_name description default_env_var_name
-C                    |          |          |   env_var_value
-C                    |          |          |        |
-      CALL ENVSTR( ENV_VAR, 'Env_Var', 'VARLIST', E_VAL, STATUS )
-      IF ( STATUS .NE. 0 ) THEN
+      MAX_LEN = 16 * SIZE( VAL_LIST )
+
+C               env_var_name
+C                    |   env_var_value
+C                    |        |
+      CALL GETENV( ENV_VAR, E_VAL )
+      IF ( ENV_VAR .EQ. " " ) THEN
          XMSG = 'Environment variable ' // ENV_VAR // ' not set'
          CALL M3WARN( PNAME, 0, 0, XMSG )
          NVARS = 0
