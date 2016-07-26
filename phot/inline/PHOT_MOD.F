@@ -141,6 +141,7 @@ C      -revised error checking to needed photolysis data
 C      -modified case statement for RACM2 photolysis rates
 C      -moved aerosol optics to its own module
 C  07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
+C  23 Jun 16 J.Young: made TOTAL_O3_COLUMN, etc. write to the log a preprocessing option
 C-----------------------------------------------------------------------
 
       USE UTILIO_DEFN
@@ -452,19 +453,21 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
          STRAT_O3_COLUMN = CONC_TO_DU * STRAT_O3_COLUMN
          TROPO_O3_COLUMN = CONC_TO_DU * TROPO_O3_COLUMN
 
-         IF( PHOT_COL .EQ. 1 .AND. PHOT_ROW .EQ. 1 )THEN
-              WRITE( NEW_OPTICS_LOG,*)'TOTAL_O3_COLUMN, TROPO_O3_COLUMN = ',TOTAL_O3_COLUMN, TROPO_O3_COLUMN
+#ifdef verbose_new_optics
+         IF ( PHOT_COL .EQ. 1 .AND. PHOT_ROW .EQ. 1 ) THEN
+            WRITE( NEW_OPTICS_LOG, 99888 ) TOTAL_O3_COLUMN, TROPO_O3_COLUMN
          END IF
+#endif
 
          IF ( .NOT. SUCCESS ) THEN
-            WRITE( NEW_OPTICS_LOG, 99888)TOTAL_O3_COLUMN, TROPO_O3_COLUMN
-            WRITE( NEW_OPTICS_LOG, 99999)
+            WRITE( NEW_OPTICS_LOG, 99888 ) TOTAL_O3_COLUMN, TROPO_O3_COLUMN
+            WRITE( NEW_OPTICS_LOG, 99999 )
             PHOT_MOD_MSG = 'ERROR: predicted O3 tropospheric Column EXCEEDS VALUE based on OMI.DAT' 
      &                  // 'Read the above diagnostic information.'
             CALL M3EXIT( 'NEW_OPTICS', JDATE, JTIME, PHOT_MOD_MSG, XSTAT1 )
          END IF
-99888    FORMAT(/'OMI Total O3 Column = ',F8.3,' DU: Model Tropospheric O3 COLUMN = ',F8.3,
-     &           ' DU' /)
+99888    FORMAT(/5X, 'OMI Total O3 Column =', F9.3, ' DU:'
+     &           ' Model Tropospheric O3 Column =', F9.3, ' DU' /)
 99999    FORMAT( 'ERROR: predicted O3 tropospheric Column EXCEEDS VALUE based on OMI Data'
      &         / 'Potential causes include boundary condition and meteorological input files. '
      &         / 'Check the former for unrealistic concentrations of ozone and its precursors.'
