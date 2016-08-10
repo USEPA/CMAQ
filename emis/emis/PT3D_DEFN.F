@@ -58,7 +58,8 @@ C                          - Based on the condition of MY_NSRC ( > 0 or not) to 
 C                            execution of certain section of code or not
 C     30 Apr 2016 J.Young: add multiple fire source capability, in affiliation with
 C                          Yongtao Hu (Georgia Tech)
-
+C     22 Jun 2016 B.Hutzell: Fixed issue where single emis species maps to multiple model
+C                            species
 C-----------------------------------------------------------------------
 
       USE UDTYPES           ! implementation for multiple groups of stack input files
@@ -517,7 +518,7 @@ C Initialize stack emissions data
             SUCCESS = .FALSE.; RETURN
          END IF
 
-         ALLOCATE ( VDEMIS_PT( MY_NCOLS,MY_NROWS,EMLYRS,N_SPC_PTEM ), STAT = IOS )
+         ALLOCATE ( VDEMIS_PT( MY_NCOLS,MY_NROWS,EMLYRS,N_GSPC_EMIS ), STAT = IOS )
          CALL CHECKMEM( IOS, 'VDEMIS_PT', PNAME )
          VDEMIS_PT = 0.0   ! array assignment
 
@@ -538,11 +539,11 @@ C Set up and open 3d point source emissions diagnostic file?
             NDATE = SDATE; NTIME = STIME
             CALL NEXTIME( NDATE, NTIME, TSTEP ) ! advance one output tstep
             CALL OPPT3D_DIAG( CTM_PT3D_DIAG, NDATE, NTIME, TSTEP, EMLYRS,
-     &                        N_SPC_PTEM, STKEM_NAME, N_SPC_PTPM, STKPM_NAME )
-            ALLOCATE ( VDEMIS_BUF( MY_NCOLS,MY_NROWS,EMLYRS,N_SPC_PTEM ), STAT = IOS )
+     &                        N_GSPC_EMIS, GSPC_EMIS, N_ASPC_EMIS, ASPC_EMIS )
+            ALLOCATE ( VDEMIS_BUF( MY_NCOLS,MY_NROWS,EMLYRS,N_GSPC_EMIS ), STAT = IOS )
             CALL CHECKMEM( IOS, 'VDEMIS_BUF', PNAME )
             VDEMIS_BUF = 0.0   ! array
-            ALLOCATE ( PMEMIS_BUF( MY_NCOLS,MY_NROWS,EMLYRS,N_SPC_PTPM ), STAT = IOS )
+            ALLOCATE ( PMEMIS_BUF( MY_NCOLS,MY_NROWS,EMLYRS,N_ASPC_EMIS ), STAT = IOS )
             CALL CHECKMEM( IOS, 'PM_EMIS_BUF', PNAME )
             PMEMIS_BUF = 0.0   ! array
             WRITE( LOGDEV,'(/5X, A /5X, A )' )
@@ -959,22 +960,22 @@ C Ensure that the model and stack groups emissions timestamp dates stay synchron
                   CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
                END IF
 
-               !Read Non-Carbon Organic Matter Too if POC is Requested
-               IF ( (INDEX( MECHNAME, 'NVPOA' ) .EQ. 0) 
-     &               .AND. (VNAME .EQ. 'POC') ) THEN
-	              STKEMIS_TMP( N )%ARRY = 0.0
-	              IF ( .NOT. INTERPX( STKENAME( N ), 'PNCOM', PNAME,
-     &                             1,1, MY_STRT_SRC( N ),MY_END_SRC( N ), 1,1,
-!    &                             STKDATE( N ), JTIME,
-     &                             LOC_STKDATE, JTIME,
-     &                             STKEMIS_TMP( N )%ARRY( 1,V ) ) ) THEN
+               ! Read Non-Carbon Organic Matter too if POC is Requested
+               IF ( ( INDEX( MECHNAME, 'NVPOA' ) .EQ. 0 )
+     &               .AND. ( VNAME .EQ. 'POC' ) ) THEN
+                  STKEMIS_TOO( N )%ARRY = 0.0
+                  IF ( .NOT. INTERPX( STKENAME( N ), 'PNCOM', PNAME,
+     &                                1,1, MY_STRT_SRC( N ),MY_END_SRC( N ), 1,1,
+!    &                                STKDATE( N ), JTIME,
+     &                                LOC_STKDATE, JTIME,
+     &                                STKEMIS_TOO( N )%ARRY( 1,V ) ) ) THEN
                      XMSG = 'Could not read ' // TRIM( VNAME ) //
      &                    ' from ' // TRIM( STKENAME( N ) )
                      CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-                  END IF     
+                  END IF
                   STKEMIS( N )%ARRY( 1,V ) = STKEMIS( N )%ARRY( 1,V ) 
-     &                                         + STKEMIS_TMP( N )%ARRY( 1,V )
-               ENDIF
+     &                                     + STKEMIS_TOO( N )%ARRY( 1,V )
+               END IF
             END DO
 
             IF ( FIREFLAG( N ) ) THEN
@@ -988,22 +989,21 @@ C Ensure that the model and stack groups emissions timestamp dates stay synchron
      &                      ' from ' // TRIM( STKENAME( N ) )
                      CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
                   END IF
-                  !Read Non-Carbon Organic Matter Too if POC is Requested
-                  IF ( (INDEX( MECHNAME, 'NVPOA' ) .EQ. 0)
+                  ! Read Non-Carbon Organic Matter too if POC is Requested
+                  IF ( ( INDEX( MECHNAME, 'NVPOA' ) .EQ. 0 )
      &                  .AND. VNAME .EQ. 'POC' ) THEN
-                     FIREVAR_TMP( N )%ARRY = 0.0
-	                 IF ( .NOT. INTERPX( STKENAME( N ), 'PNCOM', PNAME,
-     &                             1,1, MY_STRT_SRC( N ),MY_END_SRC( N ), 1,1,
-!    &                             STKDATE( N ), JTIME,
-     &                             LOC_STKDATE, JTIME,
-     &                             FIREVAR_TMP( 1 )%ARRY( 1,V ) ) ) THEN
+                     FIREVAR_TOO( N )%ARRY = 0.0
+                     IF ( .NOT. INTERPX( STKENAME( N ), 'PNCOM', PNAME,
+     &                                   1,1, MY_STRT_SRC( N ),MY_END_SRC( N ), 1,1,
+     &                                   LOC_STKDATE, JTIME,
+     &                                   FIREVAR_TOO( 1 )%ARRY( 1,V ) ) ) THEN
                         XMSG = 'Could not read ' // TRIM( VNAME ) //
-     &                    ' from ' // TRIM( STKENAME( N ) )
+     &                         ' from ' // TRIM( STKENAME( N ) )
                         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-                     END IF     
-                     FIREVAR( N )%ARRY( 1,V ) = FIREVAR( N )%ARRY( 1,V ) 
-     &                                           + FIREVAR_TMP( N )%ARRY( 1,V )
-                  ENDIF
+                     END IF
+                     FIREVAR( N )%ARRY( 1,V ) = FIREVAR( N )%ARRY( 1,V )
+     &                                        + FIREVAR_TOO( N )%ARRY( 1,V )
+                  END IF
                END DO
                DO S = 1, MY_NSRC( N )
                   SRC = SOURCE( N )%ARRY( S )
@@ -1343,18 +1343,18 @@ C Possible report to REPRTLAY
 #ifdef Verbose1
                write( logdev,* ) '   ntics, divfac: ', ntics, divfac
 #endif
-               DO V = 1, N_SPC_PTEM
+               DO V = 1, N_GSPC_EMIS
                   VDEMIS_BUF( :,:,:,V ) = DIVFAC * VDEMIS_BUF( :,:,:,V )
-                  IF ( .NOT. WRITE3( CTM_PT3D_DIAG, STKEM_NAME( V ),
+                  IF ( .NOT. WRITE3( CTM_PT3D_DIAG, GSPC_EMIS( V ),
      &                               WDATE, WTIME, VDEMIS_BUF( :,:,:,V ) ) ) THEN
                      XMSG = 'Error writing "VDEMIS_PT" to '
      &                    // CTM_PT3D_DIAG( 1:LEN_TRIM( CTM_PT3D_DIAG ) )
                      CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
                   END IF
                END DO
-               DO V = 1, N_SPC_PTPM
+               DO V = 1, N_ASPC_EMIS
                   PMEMIS_BUF( :,:,:,V ) = DIVFAC * PMEMIS_BUF( :,:,:,V )
-                  IF ( .NOT. WRITE3( CTM_PT3D_DIAG, STKPM_NAME( V ),
+                  IF ( .NOT. WRITE3( CTM_PT3D_DIAG, ASPC_EMIS( V ),
      &                               WDATE, WTIME, PMEMIS_BUF( :,:,:,V ) ) ) THEN
                      XMSG = 'Error writing "PMEMIS_PT" to '
      &                    // CTM_PT3D_DIAG( 1:LEN_TRIM( CTM_PT3D_DIAG ) )
