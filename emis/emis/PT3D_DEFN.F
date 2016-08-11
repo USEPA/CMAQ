@@ -60,18 +60,20 @@ C     30 Apr 2016 J.Young: add multiple fire source capability, in affiliation w
 C                          Yongtao Hu (Georgia Tech)
 C     22 Jun 2016 B.Hutzell: Fixed issue where single emis species maps to multiple model
 C                            species
+C     08 Aug 2016 B.Murphy: Neglect fire emissions for pcVOC
 C-----------------------------------------------------------------------
 
       USE UDTYPES           ! implementation for multiple groups of stack input files
       IMPLICIT NONE
 
-      LOGICAL,                       SAVE :: PT3DEMIS   ! flag in-lining plume rise
-      INTEGER,                       SAVE :: NPTGRPS    ! no. pt src input file groups
-      REAL,             ALLOCATABLE, SAVE :: VDEMIS_PT( :,:,:,: ) ! 3D pt src non-PM emis
-      REAL,             ALLOCATABLE, SAVE :: VDEMIS_PT_FIRE( :,:,:,: ) ! 3D pt src non-PM emis
-      REAL,             ALLOCATABLE, SAVE :: PMEMIS_PT( :,:,:,: ) ! 3D pt src PM emis
+      LOGICAL,              SAVE :: PT3DEMIS   ! flag in-lining plume rise
+      INTEGER,              SAVE :: NPTGRPS    ! no. pt src input file groups
+      REAL,    ALLOCATABLE, SAVE :: VDEMIS_PT( :,:,:,: ) ! 3D pt src non-PM emis
+      REAL,    ALLOCATABLE, SAVE :: VDEMIS_PT_FIRE( :,:,:,: ) ! 3D pt src non-PM emis
+      REAL,    ALLOCATABLE, SAVE :: PMEMIS_PT( :,:,:,: ) ! 3D pt src PM emis
 
-      PUBLIC PT3DEMIS, NPTGRPS, VDEMIS_PT, VDEMIS_PT_FIRE, PMEMIS_PT, PT3D_INIT, GET_PT3D_EMIS
+      PUBLIC PT3DEMIS, NPTGRPS, VDEMIS_PT, VDEMIS_PT_FIRE, PMEMIS_PT,
+     &       PT3D_INIT, GET_PT3D_EMIS
       PRIVATE
 
 C Scenario start
@@ -518,11 +520,12 @@ C Initialize stack emissions data
             SUCCESS = .FALSE.; RETURN
          END IF
 
-         ALLOCATE ( VDEMIS_PT( MY_NCOLS,MY_NROWS,EMLYRS,N_GSPC_EMIS ), STAT = IOS )
+         ALLOCATE ( VDEMIS_PT( NCOLS,NROWS,EMLYRS,N_GSPC_EMIS ), STAT = IOS )
          CALL CHECKMEM( IOS, 'VDEMIS_PT', PNAME )
          VDEMIS_PT = 0.0   ! array assignment
 
-         ALLOCATE ( VDEMIS_PT_FIRE( MY_NCOLS,MY_NROWS,EMLYRS,N_SPC_PTEM ), STAT = IOS )
+         ALLOCATE ( VDEMIS_PT_FIRE( NCOLS,NROWS,EMLYRS,N_GSPC_EMIS), STAT = IOS )
+         CALL CHECKMEM( IOS, 'VDEMIS_PT_FIRE', PNAME )
          VDEMIS_PT_FIRE = 0.0   ! array assignment
 
          N_EMIS_GAS_SPC = N_GC_EMIS + N_NR_EMIS + N_TR_EMIS
@@ -530,7 +533,7 @@ C Initialize stack emissions data
          CALL CHECKMEM( IOS, 'EMIS_FAC', PNAME )
          EMIS_FAC = 1.0   ! array assignment (default)
 
-         ALLOCATE ( PMEMIS_PT( MY_NCOLS,MY_NROWS,EMLYRS,N_SPC_PTPM ), STAT = IOS )
+         ALLOCATE ( PMEMIS_PT( NCOLS,NROWS,EMLYRS,N_SPC_PTPM ), STAT = IOS )
          CALL CHECKMEM( IOS, 'PMEMIS_PT', PNAME )
          PMEMIS_PT = 0.0   ! array
 
@@ -540,10 +543,10 @@ C Set up and open 3d point source emissions diagnostic file?
             CALL NEXTIME( NDATE, NTIME, TSTEP ) ! advance one output tstep
             CALL OPPT3D_DIAG( CTM_PT3D_DIAG, NDATE, NTIME, TSTEP, EMLYRS,
      &                        N_GSPC_EMIS, GSPC_EMIS, N_ASPC_EMIS, ASPC_EMIS )
-            ALLOCATE ( VDEMIS_BUF( MY_NCOLS,MY_NROWS,EMLYRS,N_GSPC_EMIS ), STAT = IOS )
+            ALLOCATE ( VDEMIS_BUF( NCOLS,NROWS,EMLYRS,N_GSPC_EMIS ), STAT = IOS )
             CALL CHECKMEM( IOS, 'VDEMIS_BUF', PNAME )
             VDEMIS_BUF = 0.0   ! array
-            ALLOCATE ( PMEMIS_BUF( MY_NCOLS,MY_NROWS,EMLYRS,N_ASPC_EMIS ), STAT = IOS )
+            ALLOCATE ( PMEMIS_BUF( NCOLS,NROWS,EMLYRS,N_ASPC_EMIS ), STAT = IOS )
             CALL CHECKMEM( IOS, 'PM_EMIS_BUF', PNAME )
             PMEMIS_BUF = 0.0   ! array
             WRITE( LOGDEV,'(/5X, A /5X, A )' )
@@ -1273,8 +1276,8 @@ C Apportion emissions to the layers
                      ! in GET_EMIS.
                      IF ( FIREFLAG( N ) ) THEN
                         IF ( STKSPC( N )%ARRY( J ) .EQ. 'POC' ) THEN
-                          VDEMIS_PT_FIRE( C,R,L,I ) = VDEMIS_PT_FIRE( C,R,L,I ) + 
-     &                              LFRC * EMIS_FAC( V ) * STKEM( J ) 
+                           VDEMIS_PT_FIRE( C,R,L,I ) = VDEMIS_PT_FIRE( C,R,L,I )
+     &                                               + LFRC * EMIS_FAC( V ) * STKEM( J ) 
                         END IF
                      END IF
                   END DO
