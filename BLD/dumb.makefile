@@ -25,10 +25,10 @@ ifeq ($(COMPILER),INTEL)
 #CC = /usr/local/intel/ictce/3.2.2.013/cc/bin/intel64/icc
 FC = ifort
 CC = icc
-F_FLAGS = -fixed -132 -fp-model precise -fpe0 -O3 -override-limits -check uninit -warn nounused -check bounds -check format -g -traceback -override-limits -fno-alias -mp1  -I . -g
-f_FLAGS = -fixed -132 -fp-model precise -fpe0 -O3 -override-limits -check uninit -warn nounused -check bounds -check format -g -traceback -override-limits -fno-alias -mp1  -I . -g
-F90_FLAGS = -free -132 -fp-model precise -fpe0 -O3 -override-limits -check uninit -warn nounused -check bounds -check format -g -traceback -override-limits -fno-alias -mp1  -I . -g
-f90_FLAGS = -free -132 -fp-model precise -fpe0 -O3 -override-limits -check uninit -warn nounused -check bounds -check format -g -traceback -override-limits -fno-alias -mp1  -I . -g
+F_FLAGS = -fixed -132 -fp-model source -fpe0 -O3 -override-limits -check uninit -warn nounused -check bounds -check format -g -traceback -override-limits -fno-alias -mp1  -I . -g
+f_FLAGS = -fixed -132 -fp-model source -fpe0 -O3 -override-limits -check uninit -warn nounused -check bounds -check format -g -traceback -override-limits -fno-alias -mp1  -I . -g
+F90_FLAGS = -free -132 -fp-model source -fpe0 -O3 -override-limits -check uninit -warn nounused -check bounds -check format -g -traceback -override-limits -fno-alias -mp1  -I . -g
+f90_FLAGS = -free -132 -fp-model source -fpe0 -O3 -override-limits -check uninit -warn nounused -check bounds -check format -g -traceback -override-limits -fno-alias -mp1  -I . -g
 C_FLAGS =  -O2  -DFLDMN=1
 #  LINK_FLAGS = $(myLINK_FLAG)
 LINK_FLAGS = -i-static
