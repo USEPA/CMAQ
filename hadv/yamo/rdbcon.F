@@ -58,6 +58,7 @@ C-----------------------------------------------------------------------
       USE GRID_CONF            ! horizontal & vertical domain specifications
       USE CGRID_SPCS           ! CGRID mechanism species
       USE UTILIO_DEFN
+      USE RXNS_DATA, ONLY : MECHNAME
 
       IMPLICIT NONE
  
@@ -89,6 +90,7 @@ C File variables:
       REAL, ALLOCATABLE, SAVE :: RHOJ_BUF  ( :,: ) ! mid-layer grid RhoJ
 
       REAL, ALLOCATABLE, SAVE :: BBUF      ( :,: ) ! bcon file buffer
+      REAL, ALLOCATABLE, SAVE :: BBUF_TMP  ( :,: ) ! bcon file buffer
 
 C External Functions: None
 
@@ -99,6 +101,7 @@ C Local variables:
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
 
       CHARACTER( 16 ) :: BLNK = ' '
+      CHARACTER( 16 ) :: BCNAME_TMP = ' '
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: BCNAME( : )  ! BC name for adv species
       REAL,            ALLOCATABLE, SAVE :: BCFAC( : )   ! Scale factor for BCs
       LOGICAL,         ALLOCATABLE, SAVE :: ONFILE( : )  ! BC species on the file
@@ -171,6 +174,7 @@ C currently not implemented: case where only one origin component matches file`s
             XMSG = 'Failure allocating BBUF'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
+         ALLOCATE ( BBUF_TMP( NBNDY,NLAYS ), STAT = ALLOCSTAT )
 
          N_SPC_ADV = N_GC_TRNS + N_AE_TRNS + N_NR_TRNS + N_TR_ADV + 1
                                                   ! add 1 for advecting RHOJ
@@ -227,6 +231,9 @@ C create advected species map to bc`s
       CALL NEXTIME( MDATE, MTIME, SEC2TIME( STEP / 2 ) )
 
 C Read & interpolate boundary SqrDMT, and RhoJ
+C According to the METBDY3D File, variables have the following units:
+C    JACOBM  - Meters
+C    DENSA_J - KG M-2
 
       IF ( WINDOW ) THEN
 
@@ -280,8 +287,6 @@ C Fill in DENSJ array for boundaries
 
       ELSE
 
- !       write ( logdev,* ) '=0= mdate,mtime,nbndy,nlays: ',
- !   &                           mdate,mtime,nbndy,nlays
 
          VNAME = 'JACOBM'
          IF ( .NOT. INTERPB ( MET_BDY_3D, VNAME, PNAME,
@@ -304,29 +309,19 @@ C Fill in DENSJ array for boundaries
       BCON = 0.0
 
 C Read & interpolate boundary concentrations
-
+      ! Gas-Phase Species
       STRT = 1
       FINI = N_GC_TRNS
       DO 141 VAR = STRT, FINI
-!        IF ( BCNAME( VAR ) .NE. BLNK ) THEN
          IF ( ONFILE( VAR ) ) THEN
             BBUF = 0.0   ! array assignment
             IF ( .NOT. INTERPB( BNDY_GASC_1, BCNAME( VAR ), PNAME,
- !          IF ( .NOT. INTERPB( BNDY_GASC_1, BCNAME( VAR ), 'DBG',
      &                          MDATE, MTIME, NBNDY*NLAYS, BBUF ) ) THEN
                XMSG = 'Could not read ' // TRIM( BCNAME( VAR ) ) // ' from '
      &              // BNDY_GASC_1
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
             ELSE   ! found bc's (PPM) on file; convert
- !    if ( lvl .eq. 1 )
- !   &   write ( logdev,'( a, i4, 1x, a )' ) '=b= var,bcname :', var, trim( bcname( var ) )
                DO BND = 1, NBNDY
- !    if ( lvl .eq. 1 ) then
- !       write ( logdev,'( a, i4, 3(1pe13.3 ) )' )
-!    &                      '=0= var,bnd,bcfac,bbuf,rhoj_bnd: ',
- !   &                      '=b= bnd,bcfac,bbuf,rhoj_bnd: ',
- !   &                           bnd, bcfac( var ), bbuf( bnd,lvl ), rhoj_bnd( bnd,lvl )
- !    end if
                   BCON( BND,VAR ) = BCFAC( VAR ) * BBUF( BND,LVL )
      &                            * RHOJ_BND( BND,LVL )
                END DO
@@ -351,59 +346,49 @@ C Read & interpolate boundary concentrations
       end if
 #endif
 
+      ! Particle Species
       SPC = 0
       STRT = N_GC_TRNS + 1
       FINI = N_GC_TRNS + N_AE_TRNS
       DO 151 VAR = STRT, FINI
          SPC = SPC + 1
-!        IF ( BCNAME( VAR ) .NE. BLNK ) THEN
          IF ( ONFILE( VAR ) ) THEN
             BBUF = 0.0   ! array assignment
             IF ( .NOT. INTERPB ( BNDY_AERO_1, BCNAME( VAR ), PNAME,
- !          IF ( .NOT. INTERPB ( BNDY_AERO_1, BCNAME( VAR ), 'DBG',
      &                           MDATE, MTIME, NBNDY*NLAYS, BBUF ) ) THEN
                XMSG = 'Could not read ' // TRIM( BCNAME ( VAR ) ) // ' from '
      &              // BNDY_AERO_1
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-            ELSE   ! found bc's (microgram/m**3, m**2/m**3, or number/m**3)
-                      ! on file; convert
-               IF ( AE_TRNS( SPC )( 1:3 ) .EQ. 'NUM' ) THEN
- !    if ( lvl .eq. 1 )
- !   &   write ( logdev,'( a, i4, 1x, a )' ) '=b= var,bcname :', var, trim( bcname( var ) )
-                  DO BND = 1, NBNDY
- !    if ( lvl .eq. 1 ) then
- !       write ( logdev,'( a, i4, 3(1pe13.3 ) )' )
- !   &                      '=b= bnd,bcfac,bbuf,jacobm_bnd: ',
- !   &                           bnd, bcfac( var ), bbuf( bnd,lvl ), jacobm_bnd( bnd,lvl )
- !    end if
-                     BCON( BND,VAR ) = BCFAC( VAR ) * BBUF( BND,LVL )
-     &                               * JACOBM_BND( BND,LVL )
-                  END DO
-               ELSE IF ( AE_TRNS( SPC )( 1:3 ) .EQ. 'SRF' ) THEN
- !    if ( lvl .eq. 1 )
- !   &   write ( logdev,'( a, i4, 1x, a )' ) '=b= var,bcname :', var, trim( bcname( var ) )
-                  DO BND = 1, NBNDY
- !    if ( lvl .eq. 1 ) then
- !       write ( logdev,'( a, i4, 3(1pe13.3 ) )' )
- !   &                      '=b= bnd,bcfac,bbuf,jacobm_bnd: ',
- !   &                           bnd, bcfac( var ), bbuf( bnd,lvl ), jacobm_bnd( bnd,lvl )
- !    end if
-                     BCON( BND,VAR ) = BCFAC( VAR ) * BBUF( BND,LVL )
-     &                               * JACOBM_BND( BND,LVL )
-                  END DO
-               ELSE
- !    if ( lvl .eq. 1 )
- !   &   write ( logdev,'( a, i4, 1x, a )' ) '=b= var,bcname :', var, trim( bcname( var ) )
-                  DO BND = 1, NBNDY
- !    if ( lvl .eq. 1 ) then
- !       write ( logdev,'( a, i4, 3(1pe13.3 ) )' )
- !   &                      '=b= bnd,bcfac,bbuf,jacobm_bnd: ',
- !   &                           bnd, bcfac( var ), bbuf( bnd,lvl ), jacobm_bnd( bnd,lvl )
- !    end if
-                     BCON( BND,VAR ) = BCFAC( VAR ) * BBUF( BND,LVL ) * KGPMG
-     &                               * JACOBM_BND( BND,LVL )
-                  END DO
+            ELSE   
+               ! Add Non-Carbon Mass to Carbon Mass if the model is
+               ! running semivolatile POA
+               IF ( BCNAME( VAR )( 1:4 ) .EQ. 'APOC' ) THEN 
+                  IF ( INDEX( MECHNAME,"NVPOA" ) .EQ. 0 ) THEN
+                    BCNAME_TMP = 'APNCOM' // BCNAME( VAR )( 5:5 )
+                    IF ( .NOT. INTERPB ( BNDY_AERO_1, BCNAME_TMP, PNAME,
+     &                         MDATE, MTIME, NBNDY*NLAYS, BBUF_TMP ) ) THEN
+                       XMSG = 'Could not read ' // TRIM( BCNAME_TMP ) 
+     &                        // ' from ' // BNDY_AERO_1
+                       CALL M3WARN( PNAME, MDATE, MTIME, XMSG ) 
+                    END IF
+                    BBUF = BBUF + BBUF_TMP
+                  END IF
                END IF
+
+               ! Units of JACOBM_BND are Meters, according to the input
+               ! file. Units of BBUF are ug m-3 ( m2 m-3 for surface
+               ! area and N m-3 for number).
+               BCON( 1:NBNDY,VAR ) = BCFAC( VAR ) * BBUF( 1:NBNDY,LVL ) 
+     &                               * JACOBM_BND( 1:NBNDY,LVL )
+                  
+               ! Found bc's (microgram/m**3, m**2/m**3, or number/m**3)
+               ! Also Do a Mass conversion as long as this particle
+               ! species is not Number or Surface Area.
+               IF ( AE_TRNS( SPC )( 1:3 ) .NE. 'NUM' .AND.
+     &              AE_TRNS( SPC )( 1:3 ) .NE. 'SRF'      ) THEN
+                  BCON( 1:NBNDY,VAR ) = BCON( 1:NBNDY,VAR ) * KGPMG
+               END IF
+                
             END IF
          ELSE
             DO BND = 1, NBNDY
@@ -424,28 +409,19 @@ C Read & interpolate boundary concentrations
       end if
 #endif
 
+      ! Non-Reactive Species
       STRT = N_GC_TRNS + N_AE_TRNS + 1
       FINI = N_GC_TRNS + N_AE_TRNS + N_NR_TRNS
       DO 161 VAR = STRT, FINI
-!        IF ( BCNAME( VAR ) .NE. BLNK ) THEN
          IF ( ONFILE( VAR ) ) THEN
- !          write ( logdev,* ) '=0= spc,var,bcname: ', spc, var, bcname( var )
             BBUF = 0.0   ! array assignment
             IF ( .NOT. INTERPB ( BNDY_NONR_1, BCNAME( VAR ), PNAME,
- !          IF ( .NOT. INTERPB ( BNDY_NONR_1, BCNAME( VAR ), 'DBG',
      &                           MDATE, MTIME, NBNDY*NLAYS, BBUF ) ) THEN
                XMSG = 'Could not read ' // TRIM( BCNAME( VAR ) ) // ' from '
      &              // BNDY_NONR_1
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
                ELSE   ! found bc's (PPM) on file; convert
- !    if ( lvl .eq. 1 )
- !   &   write ( logdev,'( a, i4, 1x, a )' ) '=b= var,bcname :', var, trim( bcname( var ) )
                DO BND = 1, NBNDY
- !    if ( lvl .eq. 1 ) then
- !       write ( logdev,'( a, i4, 3(1pe13.3 ) )' )
- !   &                      '=b= bnd,bcfac,bbuf,rhoj_bnd: ',
- !   &                           bnd, bcfac( var ), bbuf( bnd,lvl ), rhoj_bnd( bnd,lvl )
- !    end if
                   BCON( BND,VAR ) = BCFAC( VAR ) * BBUF( BND,LVL )
      &                            * RHOJ_BND( BND,LVL )
                   END DO
@@ -469,13 +445,12 @@ C Read & interpolate boundary concentrations
       end if
 #endif
 
+      ! Tracer Species
       STRT = N_GC_TRNS + N_AE_TRNS + N_NR_TRNS + 1
       FINI = N_GC_TRNS + N_AE_TRNS + N_NR_TRNS + N_TR_ADV
       DO 171 VAR = STRT, FINI
-!        IF ( BCNAME( VAR ) .NE. BLNK ) THEN
          IF ( ONFILE( VAR ) ) THEN
             BBUF = 0.0   ! array assignment
- !          write ( logdev,* ) '=0= spc,var,bcname: ', spc, var, bcname( var )
             IF ( .NOT. INTERPB ( BNDY_TRAC_1, BCNAME( VAR ), PNAME,
      &                           MDATE, MTIME, NBNDY*NLAYS, BBUF ) ) THEN
                XMSG = 'Could not read ' // TRIM( BCNAME( VAR ) ) // ' from '
