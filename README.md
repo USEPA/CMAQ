@@ -20,7 +20,7 @@ git clone -b CMAQ_v5.2 https://github.com/USEPA/CMAQ.git
 This command shows how to check out CMAQ v5.1 codes and scripts.  
 
 [CMAQv5.2 Documentation](docs/User_Manual/User_Manual.md)   
-[CMAQv5.2 Release Notes](docs/Release_Notes/Release_Notes.md)   
+[CMAQv5.2 Release Notes](docs/Release_Notes/Summary.md)   
 Release notes and Code documentation are included within this repository (they are version-controlled along with the code itself).
 
 Benchmark/tutorial input and output data for each CMAQ release version are available from the CMAS Center Software Clearinghouse. From http://www.cmascenter.org, select Download -> Software -> CMAQ and choose the version to get the tutorial data.
