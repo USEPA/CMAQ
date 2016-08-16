@@ -11,7 +11,7 @@ The title of each note file is up to the user (please make it close to the title
 
 # Title 
 
-'''Author/P.O.C.:''', Name(s), email address, Computational Exposure Division, U.S. EPA
+**Author/P.O.C.:**, [Name(s)](mailto:email@address.com), Computational Exposure Division, U.S. EPA
 
 ## Brief Description 
 
@@ -21,13 +21,26 @@ The title of each note file is up to the user (please make it close to the title
 
 (significance and impact on modeled results and runtime)
 
-## Relevant Pull Requests: 
+## Affected Files: 
 
-(link to the pull requests that describe the change)
- [PR # 20](/usepa/cmaq/pull/20)
+(Use the Pull Request to Identify Affected Files)  
+*(See Ben for a way to automatically harvest this from the command line on Sol.)*
 
 ## References: 
 
-(''for example'') Byun, D.W. and K.L. Schere (2006), Review of governing equations, computational algorithms, and other components of the models-3 Community Multiscale Air Quality (CMAQ) modeling system, Applied Mechanics Review, 59, 51-77.
+(*for example*) Byun, D.W. and K.L. Schere (2006), Review of governing equations, computational algorithms, and other components of the models-3 Community Multiscale Air Quality (CMAQ) modeling system, Applied Mechanics Review, 59, 51-77.
+
+-----
+## Internal Records:
+#### Relevant Pull Requests:
+[PR #20](https://github.com/usepa/cmaq/pulls/20)  
+[PR #32](https://github.com/usepa/cmaq/pulls/32)
+
+#### Commit IDs:
+*(See Ben for a way to automatically harvest this from the command line on Sol)*  
+123ABCDEF  
+456A6HYTU  
+101LKIUJH  
+FG38H8G5G  
 
 -----

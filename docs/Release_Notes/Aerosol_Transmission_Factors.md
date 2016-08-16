@@ -1,6 +1,6 @@
 # Implemented Aerosol Transmission Factor Calculations for PM1 and AMS Applications
 
-'''Author/P.O.C.:''', Ben Murphy, murphy.benjamin@epa.gov, Computational Exposure Division, U.S. EPA
+**Author/P.O.C.:**, [Ben Murphy](mailto:murphy.benjamin@epa.gov), Computational Exposure Division, U.S. EPA
 
 ## Brief Description 
 
@@ -17,11 +17,30 @@ Finally, the output for Modal composite densities was added to the AERODIAM (now
 
 (significance and impact on modeled results and runtime)
 
-## Relevant Pull Requests: 
-  [PR #22](/usepa/cmaq/pull/22)
+## Affected Files:
+aero/aero6/aero_driver.F  
+aero/aero6/aero_subs.F  
+aero/aero6/opdiam.F  
+
 
 ## References: 
 
 1. DeCarlo et al., Particle Morphology and Density Characterization by Combined Mobility and Aerodynamic Diameter Measurements. Part 1: Theory, Aerosol Sci. and Technology, 38:1185-1205, 2004
 2. Ensberg et al., Inorganic and black carbin aerosols in the Los Angeles Basin during CalNex, Journ. Geophys. Res., 2013.
 3. Jiang et al., 2004
+
+-----
+## Internal Records:
+
+### Relevant Pull Requests: 
+  [PR #22](/usepa/cmaq/pull/22)
+
+### Commit IDs:
+8f3bd301099c354350a3d152088c9f2fb961c720  
+dfe134ae37240de92fc19292e2ce98306742b984  
+dc9a180de6d3452db7852dab7007d1a2a38d8ad5  
+77df3e978480eecdea4081599fee89a2a98c597f  
+5db1fa3af2f49c9dc382f45593a7657fbb964abf  
+e246de9d80a9076575a3d4a83071ed4edeca4a56  
+879f22428b8932cd0113c12f42acead44a9bdf1c  
+
