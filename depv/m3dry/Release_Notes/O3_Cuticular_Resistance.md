@@ -1,0 +1,1 @@
+../../../docs/Release_Notes/O3_Cuticular_Resistance.md

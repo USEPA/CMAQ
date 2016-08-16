@@ -1,0 +1,1 @@
+../../../docs/Release_Notes/Aerosol_Transmission_Factors.md
