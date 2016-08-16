@@ -1,6 +1,6 @@
 # Updated Scaling of Ozone Cuticular Resistance
 
-'''Author/P.O.C.:''', Jesse Bash, bash.jesse@epa.gov, Computational Exposure Division, U.S. EPA
+**Author/P.O.C.:**, [Jesse Bash](mailto:bash.jesse@epa.gov), Computational Exposure Division, U.S. EPA
 
 ## Brief Description 
 
@@ -10,9 +10,28 @@ This update implements the scaling of the O3 cuticular resistance between dry an
 
 (significance and impact on modeled results and runtime)
 
-## Relevant Pull Requests: 
-  [PR #12](/usepa/cmaq/pull/12)
+## Affected Files:  
+cloud/acm_ae6/cldproc_acm.F  
+cloud/acm_ae6/convcld_acm.F  
+cloud/acm_ae6/rescld.F  
+cloud/acm_ae6_mp/cldproc_acm.F  
+cloud/acm_ae6_mp/convcld_acm.F  
+cloud/acm_ae6_mp/rescld.F  
+depv/m3dry/m3dry.F  
+emis/emis/LTNG_DEFN.F  
 
 ## References: 
 
 Altimir et al., 2006
+
+-----
+## Internal Records:
+
+### Relevant Pull Requests: 
+[PR #12](https:github.com/usepa/cmaq/pulls/12)  
+
+### Commit IDs:
+1c3acae905a03f8ef4db56ac8e4a7ce127010429  
+d293062342b788ee14ccb147a772f47e68e8e134  
+
+
