@@ -1,3 +1,3 @@
 ../../docs/aero6.md
 
-[[include repo=cmaq path=README]]
+[[include repo=cmaq.git path=README]]
