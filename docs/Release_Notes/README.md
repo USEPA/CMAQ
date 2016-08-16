@@ -1,7 +1,7 @@
 CMAQ Release Notes Guidance
 ===========================
 
-[Release Notes for CMAQv5.2](Release_Notes.md)
+[Release Notes for CMAQv5.2](Summary.md)
 
 In this folder we keep all of the individual descriptions of updates to the current version of CMAQ. In general, there should be an approximate 1:1 correspondence between updates and accepted, merged Pull Requests. This is not completely accurate since it is very possible to have one update spread across a few Pull Requests or to have one Pull Request address two or more updates. However, the rule is a good starting point.  
 
