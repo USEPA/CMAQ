@@ -417,7 +417,7 @@ c         LERROR = .FALSE.
               MSG = 'ERROR in environment value for ' // TRIM( VAR_NAME )
               WRITE(LOGDEV,'(a)')TRIM( MSG )
            ELSE IF( STATUS .EQ. 1 )THEN
-              STATUS  = 0
+              STATUS  = -1
               VAR_VALUE = TRIM( VAR_DEFAULT ) 
            ELSE IF( STATUS .GT. 1 )THEN
               STATUS  = 1
