@@ -1,35 +1,20 @@
 
 !------------------------------------------------------------------------!
-!  The Community Multiscale Air Quality (CMAQ) system software is in
-!  !
-!  continuous development by various groups and is based on information
-!  !
+!  The Community Multiscale Air Quality (CMAQ) system software is in 
+!  continuous development by various groups and is based on information 
 !  from these groups: Federal Government employees, contractors working
-!  !
-!  within a United States Government contract, and non-Federal sources
-!  !
+!  within a United States Government contract, and non-Federal sources 
 !  including research institutions.  These groups give the Government
-!  !
 !  permission to use, prepare derivative works of, and distribute copies
-!  !
 !  of their work in the CMAQ system to the public and to permit others
-!  !
 !  to do so.  The United States Environmental Protection Agency
-!  !
 !  therefore grants similar permission to use the CMAQ system software,
-!  !
 !  but users are requested to provide copies of derivative works or
-!  !
 !  products designed to operate in the CMAQ system to the United States
-!  !
 !  Government without restrictions as to use by others.  Software
-!  !
 !  that is used with the CMAQ system but distributed under the GNU
-!  !
 !  General Public License or the GNU Lesser General Public License is
-!  !
 !  subject to their copyright restrictions.
-!  !
 !------------------------------------------------------------------------!
 
 !C RCS file, release, date & time of last delta, author, state, [and
@@ -337,8 +322,7 @@ C...  set Lambert projection
                   SUCCESS = .FALSE.; RETURN
                END IF
 !C read in the ocean mask and parameter file if needed, if NLDN strike
-!is used, only the OCEAN MASK values are needed, the rest will be
-!ignored          
+!C is used, only the OCEAN MASK values are needed, the rest will be ignored          
                IF ( .NOT. INTERPX( ONAME, "OCNMASK", PNAME,
      &                             STRTCOLLT3,ENDCOLLT3, STRTROWLT3,ENDROWLT3, 1,1,
      &                             LDATE, LTIME, OCEAN_MASK ) ) THEN
@@ -419,8 +403,7 @@ C...  set Lambert projection
 !           write(*,*) "LTNG INIT MNAME", MNAME
 #endif
 
-!C Read description of domain (there may be a better way to get this
-!info)
+!C Read description of domain (there may be a better way to get this info)
             IF ( .NOT. DESC3( MNAME ) ) THEN
                XMSG = 'Could not get description of file "'
      &              // TRIM( MNAME ) // '"'
@@ -845,8 +828,7 @@ C statement function for ERF approximation
      &                ' from file "' // TRIM( LNAME ) // '"'
                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
              END IF
-!!!!! comment this out to avoid problems reading in a specific time /
-!date from LNO file
+!!!!! comment this out to avoid problems reading in a specific time / date from LNO file
 
 !           DO ROW = 1, MY_NROWS 
 !              DO COL = 1, MY_NCOLS
