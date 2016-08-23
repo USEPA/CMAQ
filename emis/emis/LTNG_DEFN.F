@@ -51,32 +51,24 @@
 !C     1 Jan 2011: Rob Pinder: added support for online calculation of 
 !C                 lightning NO from convective precip and NLDN data
 !C    10 Mar 2011: Jeff Young: code revisions
-!C    11 Apr 2011: S.Roselle: replaced I/O API include files with
-!UTILIO_DEFN
+!C    11 Apr 2011: S.Roselle: replaced I/O API include files with UTILIO_DEFN
 !C    11 May 11 D.Wong: incorporated twoway model implementation
-!C     6 May 13 D.Wong: replaced species name RC with RCA in the twoway
-!model
-!C    10 Jun 13 D.Wong: modified the code to work in the twoway model
-!mode
-!C    24 Sep 13 D.Wong: modified the code to allow finer met data time
-!step
+!C     6 May 13 D.Wong: replaced species name RC with RCA in the twoway model
+!C    10 Jun 13 D.Wong: modified the code to work in the twoway model mode
+!C    24 Sep 13 D.Wong: modified the code to allow finer met data time step
 !C                      rather than fixed with one hour data
-!C    Aug 15 D.Wong:    Replaced MYPE with IO_PE_INCLUSIVE for parallel
-!I/O
+!C    Aug 15 D.Wong:    Replaced MYPE with IO_PE_INCLUSIVE for parallel I/O
 !C                        implementation
 !C    Aug 16 D.Kang: Updating the Lightning NO calculation with NLDN
-!C         hourly data directly and using NLDN-RC log linear
-!relationship,
+!C         hourly data directly and using NLDN-RC log linear relationship,
 !C         completely changing the data input process   
 !C----------------------------------------------------------------------
 
       IMPLICIT NONE
 
-      LOGICAL, SAVE :: LTNG_NO          ! flag for lightning NO
-emissions
+      LOGICAL, SAVE :: LTNG_NO          ! flag for lightning NO emissions
       INTEGER, SAVE :: LTNG_MAP         ! map to GC NO
-      REAL,    ALLOCATABLE, SAVE :: VDEMIS_LT( :,:,: )   ! lightning
-emis
+      REAL,    ALLOCATABLE, SAVE :: VDEMIS_LT( :,:,: )   ! lightning emis
 
       PUBLIC LTNG_NO, LTNG_MAP, VDEMIS_LT, LTNG_INIT, GET_LTNG
       PRIVATE
@@ -89,23 +81,18 @@ emis
       REAL, PARAMETER :: MOLSNCG = 350
       REAL, PARAMETER :: MOLSNIC = 350
 
-      LOGICAL, SAVE :: LPARAM     ! flag to use lightning NO parameters
-file
+      LOGICAL, SAVE :: LPARAM     ! flag to use lightning NO parameters file
       LOGICAL, SAVE :: NLDNSTRIKE     ! flag to use NLDN STRIKE directly 
-      LOGICAL, SAVE :: LTNGDIAG   ! flag to turn on lightning NO
-diagnostics
+      LOGICAL, SAVE :: LTNGDIAG   ! flag to turn on lightning NO diagnostics
       INTEGER, SAVE :: LTLYRS     ! no. of emissions layers
-      REAL,    ALLOCATABLE, SAVE :: VDEMIS_DIAG( :,:,: ) ! lightning NO
-diagnostic
+      REAL,    ALLOCATABLE, SAVE :: VDEMIS_DIAG( :,:,: ) ! lightning NO diagnostic
 
-!C file name for off line lightning NO input; set to "InLine" for inline
-!production
+!C file name for off line lightning NO input; set to "InLine" for inline production
       CHARACTER( 16 ), SAVE :: LNAME
 !C file name for lightning NO diagnostic output
       CHARACTER( 16 ), SAVE :: DNAME1 = 'LTNGOUT1'
       CHARACTER( 16 ), SAVE :: DNAME2 = 'LTNGOUT2'
-!C file name for inline lightning parameters, (only used if LNAME =
-!"InLine")
+!C file name for inline lightning parameters, (only used if LNAME = "InLine")
       CHARACTER( 16 ), SAVE :: ANAME
       CHARACTER( 16 ), SAVE :: ONAME
 !C file name for met file for inline lightning
@@ -176,10 +163,8 @@ C        INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
          INTEGER :: LOG_UNIT     ! scenario start time
          INTEGER :: COL, ROW     ! local col and row variable 
 !C Local Variables:
-         CHARACTER( 16 ), SAVE :: CTM_LTNG_NO = 'CTM_LTNG_NO'  ! env var
-         Cflag
-         CHARACTER( 16 ), SAVE :: SCALE_FACTOR = 'SCALE_FACTOR'  ! env
-         CCvar flag
+         CHARACTER( 16 ), SAVE :: CTM_LTNG_NO = 'CTM_LTNG_NO'  ! env var Cflag
+         CHARACTER( 16 ), SAVE :: SCALE_FACTOR = 'SCALE_FACTOR'  ! env CCvar flag
          CHARACTER( 16 )       :: PNAME = 'LTNG_INIT'
          CHARACTER( 80 )       :: VARDESC   ! env variable description
          CHARACTER( 120 )      :: XMSG = ' '
