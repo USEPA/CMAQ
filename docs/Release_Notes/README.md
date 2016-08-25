@@ -38,9 +38,9 @@ The title of each note file is up to the user (please make it close to the title
 
 #### Commit IDs:
 *(See Ben for a way to automatically harvest this from the command line on Sol)*  
-123ABCDEF  
-456A6HYTU  
-101LKIUJH  
-FG38H8G5G  
+123abcdef
+456a6uthy  
+101lkiujh  
+fg38h8g5gv  
 
 -----
