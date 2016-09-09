@@ -17,11 +17,10 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-!C RCS file, release, date & time of last delta, author, state, [and locker]
-!C $Header: /project/yoj/arc/CCTM/src/emis/emis/LTNG_DEFN.F,v 1.6 2012/01/27 19:57:47 sjr Exp $
-
-!C what(1) key, module and SID; SCCS file; date and time of last delta:
-!C %W% %P% %G% %U%
+!C RCS file, release, date & time of last delta, author, state, [and
+!locker]
+!C $Header: /project/yoj/arc/CCTM/src/emis/emis/LTNG_DEFN.F,v 1.6
+!2012/01/27 19:57:47 sjr Exp $
 
 !C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE LTNG_DEFN
@@ -35,13 +34,16 @@
 !C                 lightning NO from convective precip and NLDN data
 !C    10 Mar 2011: Jeff Young: code revisions
 !C    11 Apr 2011: S.Roselle: replaced I/O API include files with UTILIO_DEFN
-!C    11 May 11 D.Wong: incorporated twoway model implementation
-!C     6 May 13 D.Wong: replaced species name RC with RCA in the twoway model
-!C    10 Jun 13 D.Wong: modified the code to work in the twoway model mode
-!C    24 Sep 13 D.Wong: modified the code to allow finer met data time step
-!C                      rather than fixed with one hour data
-!C    Aug 15 D.Wong:    Replaced MYPE with IO_PE_INCLUSIVE for parallel I/O
+!C    11 May 2011 D.Wong: incorporated twoway model implementation
+!C     6 May 2013 D.Wong: replaced species name RC with RCA in the twoway model
+!C    10 Jun 2013 D.Wong: modified the code to work in the twoway model mode
+!C    24 Sep 2013 D.Wong: modified the code to allow finer met data time step
+!C                        rather than fixed with one hour data
+!C    15 Aug 2016 D.Wong: Replaced MYPE with IO_PE_INCLUSIVE for parallel I/O
 !C                        implementation
+!C    16 Aug 2016 D.Kang: Updating the Lightning NO calculation with NLDN hourly
+!C                        data directly and using NLDN-RC log linear relationship,
+!C                        completely changing the data input process   
 !C----------------------------------------------------------------------
 
       IMPLICIT NONE
@@ -55,8 +57,14 @@
 
 !C lightning emis species name
       CHARACTER( 16 ), PARAMETER :: LTSPC = 'NO'
+!C lightning log linear regression parameters with RC 
+      REAL            :: SQUAREKM
+      REAL, SAVE      :: scl_factor
+      REAL, PARAMETER :: MOLSNCG = 350
+      REAL, PARAMETER :: MOLSNIC = 350
 
       LOGICAL, SAVE :: LPARAM     ! flag to use lightning NO parameters file
+      LOGICAL, SAVE :: NLDNSTRIKE     ! flag to use NLDN STRIKE directly 
       LOGICAL, SAVE :: LTNGDIAG   ! flag to turn on lightning NO diagnostics
       INTEGER, SAVE :: LTLYRS     ! no. of emissions layers
       REAL,    ALLOCATABLE, SAVE :: VDEMIS_DIAG( :,:,: ) ! lightning NO diagnostic
@@ -64,24 +72,30 @@
 !C file name for off line lightning NO input; set to "InLine" for inline production
       CHARACTER( 16 ), SAVE :: LNAME
 !C file name for lightning NO diagnostic output
-      CHARACTER( 16 ), SAVE :: DNAME = 'LTNGOUT'
+      CHARACTER( 16 ), SAVE :: DNAME1 = 'LTNGOUT1'
+      CHARACTER( 16 ), SAVE :: DNAME2 = 'LTNGOUT2'
 !C file name for inline lightning parameters, (only used if LNAME = "InLine")
       CHARACTER( 16 ), SAVE :: ANAME
+      CHARACTER( 16 ), SAVE :: ONAME
 !C file name for met file for inline lightning
       CHARACTER( 16 ), SAVE :: MNAME
+!C file name for ICCG parameters, (only used if LNAME = "InLine")
+!     CHARACTER( 80 ), SAVE :: iccgFile 
 
 !C allocate these if LNAME = 'InLine'
-      REAL,    ALLOCATABLE, SAVE :: COLUMN_LTNG_NO( :,: ) ! column total NO
-      REAL,    ALLOCATABLE, SAVE :: LTNG_PRSFC    ( :,: ) ! surface pressure
-      REAL,    ALLOCATABLE, SAVE :: LTNG_RC       ( :,: ) ! convective rainfall
+!     REAL,    ALLOCATABLE, SAVE :: COLUMN_LTNG_NO( :,: ) ! column total NO
+      REAL,    ALLOCATABLE, SAVE :: LTNG_PRSFC    ( :,:,: ) ! surface pressure
+      REAL,    ALLOCATABLE, SAVE :: LTNG_RC       ( :,:,: ) ! convective rainfall
 !     REAL,    ALLOCATABLE, SAVE :: LTNG_CLDT     ( :,: ) ! cloud top
+      CHARACTER( 16 ), SAVE :: RC_NAME       ! RC name: old is RC and CCnew is RCA
 !C allocate these if LPARAM
-      REAL,    ALLOCATABLE, SAVE :: STRIKE_FACTOR ( :,: ) ! flashes per unit precip
-      REAL,    ALLOCATABLE, SAVE :: LRATIO        ( :,: ) ! ratio derived from NLDN data
+      REAL,    ALLOCATABLE, SAVE :: NLDN_STRIKE    ( :,:,: ) ! Hourly NLDN strike data
       REAL,    ALLOCATABLE, SAVE :: OCEAN_MASK    ( :,: ) ! reduce offshore strikes
+      REAL,    ALLOCATABLE, SAVE :: SLOPE    ( :,: ) ! reduce offshore strikes
+      REAL,    ALLOCATABLE, SAVE :: INTERCEPT    ( :,: ) ! reduce offshore strikes
+      REAL,    ALLOCATABLE, SAVE :: SLOPE_lg    ( :,: ) ! reduce offshore strikes
+      REAL,    ALLOCATABLE, SAVE :: INTERCEPT_lg    ( :,: ) ! reduce offshore strikes
       REAL,    ALLOCATABLE, SAVE :: ICCG          ( :,: ) ! intercloud strikes per cloud to ground strike
-      REAL,    ALLOCATABLE, SAVE :: MOLSNFLASH    ( :,: ) ! moles N per flash
-      REAL,    ALLOCATABLE, SAVE :: MOLSNIC       ( :,: ) ! moles N per IC flash
 
 !C    scenario time/date needed for diagnostic output
       INTEGER, SAVE :: SDATE     ! scenario start date
@@ -103,7 +117,7 @@
 
 !C======================================================================
 !C Initialize lightning routines
- 
+
          FUNCTION LTNG_INIT ( JDATE, JTIME, TSTEP, EMLAYS ) RESULT ( SUCCESS )
 
          USE GRID_CONF ! horizontal & vertical domain specifications
@@ -118,27 +132,36 @@
 
 !C Arguments:
 C        INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
-C        INTEGER, INTENT( IN ) :: EMLAYS     ! number of emissions layers
+         INTEGER, INTENT( IN ) :: EMLAYS     ! number of emissions layers
          INTEGER :: JDATE, JTIME, TSTEP
-         INTEGER :: EMLAYS     ! number of emissions layers
 
          LOGICAL SUCCESS
 
 !C External Functions:
          INTEGER, EXTERNAL :: SETUP_LOGDEV
          LOGICAL, EXTERNAL :: CHKGRID
-
+!        CHARACTER( 16 )   :: iccgFile = 'ICCG' 
+!        INTEGER :: ICCG_UNIT    ! scenario start time
+         INTEGER :: COL, ROW     ! local col and row variable 
 !C Local Variables:
-         CHARACTER( 16 ), SAVE :: CTM_LTNG_NO = 'CTM_LTNG_NO'  ! env var flag
+         CHARACTER( 16 ), SAVE :: CTM_LTNG_NO = 'CTM_LTNG_NO'  ! env var Cflag
+         CHARACTER( 16 ), SAVE :: SCALE_FACTOR = 'SCALE_FACTOR'  ! env CCvar flag
          CHARACTER( 16 )       :: PNAME = 'LTNG_INIT'
          CHARACTER( 80 )       :: VARDESC   ! env variable description
          CHARACTER( 120 )      :: XMSG = ' '
+         REAL                  :: LAT, LON, X, Y, VAL
+         INTEGER               :: C, R
+         CHARACTER( 80 )       :: DUMP
 
          LOGICAL LTNGPARAM           ! env var to use lightning NO parameters file
          INTEGER LSPCS               ! no. of lightning species
          REAL    CONVEM              ! conversion for emissions rates to Kg/s
-         INTEGER J, K, L, V, STATUS
+         INTEGER               :: I, J, K, L, V, STATUS
+         INTEGER               :: CJDATE
+         CHARACTER( 7 )        :: SJDATE
+
          LOGICAL OK
+         INTEGER               :: SPC
 
          INTEGER :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
 !-----------------------------------------------------------------------
@@ -147,28 +170,35 @@ C        INTEGER, INTENT( IN ) :: EMLAYS     ! number of emissions layers
 
          LOGDEV = SETUP_LOGDEV()
 
+!        ICCG_UNIT = GETEFILE( iccgFile, .TRUE., .TRUE., PNAME )
 !C Read in scenario time/date
          SDATE = ENVINT( 'CTM_STDATE', 'Scenario Start (YYYYJJJ)', 0, STATUS )
          STIME = ENVINT( 'CTM_STTIME', 'Scenario Start (HHMMSS)', 0, STATUS )
          NSTEPS = ENVINT( 'CTM_RUNLEN', 'Scenario Duration (HHMMSS)', 24, STATUS )
          NSTEPS = NSTEPS / TSTEP           ! initscen guarantees divisibility
 
+         LDATE = JDATE
+         LTIME = JTIME
+         WRITE( SJDATE, '(I7)' ) JDATE
+         READ( SJDATE, '(4X, I3)' ) CJDATE
+
 !C Lightning NO production
 !C Set LTNG_NO to Y or T to turn on lightning NO production
 
          VARDESC = 'Flag for lightning emissions'
          LTNG_NO = ENVYN( CTM_LTNG_NO, VARDESC, .FALSE., STATUS )
+         SCL_FACTOR = ENVREAL( SCALE_FACTOR, VARDESC, 0.9, STATUS )
          IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
          IF ( STATUS .EQ. 1 ) THEN
             XMSG = 'Environment variable improperly formatted'
-            CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+            CALL M3WARN ( PNAME, LDATE, LTIME, XMSG )
             SUCCESS = .FALSE.; RETURN
          ELSE IF ( STATUS .EQ. -1 ) THEN
             XMSG = 'Env. variable set, but empty: Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
+            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, LTIME
          ELSE IF ( STATUS .EQ. -2 ) THEN
             XMSG = 'Environment variable not set ... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
+            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, LTIME
          END IF
 
          IF ( .NOT. LTNG_NO ) RETURN
@@ -178,14 +208,14 @@ C        INTEGER, INTENT( IN ) :: EMLAYS     ! number of emissions layers
          IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
          IF ( STATUS .EQ. 1 ) THEN
             XMSG = 'Environment variable improperly formatted'
-            CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+            CALL M3WARN ( PNAME, LDATE, LTIME, XMSG )
             SUCCESS = .FALSE.; RETURN
          ELSE IF ( STATUS .EQ. -1 ) THEN
             XMSG = 'Env. variable set, but empty: Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
+            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, LTIME
          ELSE IF ( STATUS .EQ. -2 ) THEN
             XMSG = 'Environment variable not set ... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
+            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, LTIME
          END IF
 
 !C Is lightning NO production inline, or from a file?
@@ -193,31 +223,22 @@ C        INTEGER, INTENT( IN ) :: EMLAYS     ! number of emissions layers
             XMSG = 'Using in-line lightning NO production'
             CALL M3MSG2( XMSG )
 
-!C Is there a file specifying iccg, ocean, and other parameters?
+!C Is there a file specifying hourly NLDN strikes?
             VARDESC = 'Use parameter file'
             LPARAM = ENVYN( 'LTNGPARAM', VARDESC, .FALSE., STATUS )
+            VARDESC = 'Use NLDN STRIKE'
+            NLDNSTRIKE = ENVYN( 'USE_NLDN', VARDESC, .FALSE., STATUS )
             IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
             IF ( STATUS .EQ. 1 ) THEN
                XMSG = 'Environment variable improperly formatted'
-               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+               CALL M3WARN ( PNAME, LDATE, LTIME, XMSG )
                SUCCESS = .FALSE.; RETURN
             ELSE IF ( STATUS .EQ. -1 ) THEN
                XMSG = 'Env. variable set, but empty: Using default:'
-               WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
+               WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, LTIME
             ELSE IF ( STATUS .EQ. -2 ) THEN
                XMSG = 'Environment variable not set ... Using default:'
-               WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-            END IF
-
-            ALLOCATE( COLUMN_LTNG_NO( NCOLS,NROWS ),
-     &                LTNG_PRSFC    ( NCOLS,NROWS ),
-     &                LTNG_RC       ( NCOLS,NROWS ), STAT = STATUS )
-!    &                LTNG_CLDT     ( NCOLS,NROWS ),
-            IF ( STATUS .NE. 0 ) THEN
-               XMSG = 'COLUMN_LTNG_NO, LTNG_PRSFC, LTNG_RC, or LTNG_CLDT'
-     &              // '  memory allocation failed'
-               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-               SUCCESS = .FALSE.; RETURN
+               WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, LTIME
             END IF
 
             IF ( LPARAM ) THEN
@@ -225,88 +246,152 @@ C        INTEGER, INTENT( IN ) :: EMLAYS     ! number of emissions layers
                CALL M3MSG2( XMSG )
 !C Open lightning parameters file?
                ANAME = PROMPTMFILE(
-     &                    'Enter name for lightning parameters file',
+     &                    'Enter name for NLDN STRIKE Parameters',
      &                    FSREAD3, 'LTNGPARM_FILE', PNAME )
+               ONAME = PROMPTMFILE(
+     &                    'Enter name for lightning parameters file',
+     &                    FSREAD3, 'LTNGPARMS_FILE', PNAME )
+               MNAME = PROMPTMFILE(
+     &                    'Enter name for gridded met input file',
+     &                    FSREAD3, 'MET_CRO_2D', PNAME )
 !C Read description of normalized emissions file
-!              IF ( .NOT. DESC3( ANAME ) ) THEN
-!                 XMSG = 'Could not get description of file "'
-!    &                 // TRIM( ANAME ) // '"'
-!                 CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-!                 SUCCESS = .FALSE.; RETURN
-!              END IF
+               IF ( .NOT. OPEN3( ANAME, FSREAD3, PNAME ) ) THEN
+                  CALL M3ERR( PNAME, 0, 0,
+     &           'Could not open NLDN Parameter FILE', .TRUE.)
+               END IF
 
-!C Check grid definition (initialize if first call)
-               OK = CHKGRID( ANAME )
-            
-               ALLOCATE( LRATIO       ( NCOLS,NROWS ),
-     &                   ICCG         ( NCOLS,NROWS ),
-     &                   OCEAN_MASK   ( NCOLS,NROWS ),
-     &                   MOLSNFLASH   ( NCOLS,NROWS ),
-     &                   MOLSNIC      ( NCOLS,NROWS ),
-     &                   STRIKE_FACTOR( NCOLS,NROWS ), STAT = STATUS )
-               IF ( STATUS .NE. 0 ) THEN
-                  XMSG = 'LRATIO, ICCG, OCEAN_MASK, MOLSNFLASH or STRIKE_FACTOR' 
-     &                 // '  memory allocation failed'
-                  CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+               IF( .not. open3(MNAME,fsread3,pname)) THEN
+                  call m3err(pname, 0, 0,
+     &            'Could not open MET_CRO_2D', .TRUE.)
+               END IF
+
+               IF ( .NOT. DESC3( MNAME ) ) THEN
+                  XMSG = 'Could not get description of file "'
+     &                  // TRIM( MNAME ) // '"'
+                  CALL M3WARN ( PNAME, LDATE, LTIME, XMSG )
                   SUCCESS = .FALSE.; RETURN
                END IF
 
-!C Get domain window info for the lightning parameters file
-               CALL SUBHFILE ( ANAME, GXOFF, GYOFF,
+               LTNGDIAG = ENVYN( 'LTNGDIAG', 
+     &              'Write lightning NO production diagnostic file?',
+     &              .FALSE., STATUS )
+           
+!C Set Lambert projection
+               IF ( .NOT. SETLAM( SNGL( P_ALP3D ),
+     &            SNGL( P_BET3D ),
+     &            SNGL( P_GAM3D ),
+     &            SNGL( XCENT3D ),
+     &            SNGL( YCENT3D ) ) ) THEN
+                  CALL M3EXIT( 'CELL_LL', 0, 0,
+     &            'Lambert projection setup error', 2 )
+               END IF
+!              write(*,*) P_BET3D, P_GAM3D, XCENT3D, YCENT3D, P_ALP3D
+               SQUAREKM = ( XCELL3D * 1.0E-3 ) * ( YCELL3D * 1.0E-3 )
+
+!C Check grid definition (initialize if first call)
+               OK = CHKGRID( MNAME )
+
+               CALL SUBHFILE ( MNAME, GXOFF, GYOFF,
      &                         STRTCOLLT3, ENDCOLLT3, STRTROWLT3, ENDROWLT3 )
-
-               IF ( .NOT. INTERPX( ANAME, "LTratio", PNAME,
-     &                             STRTCOLLT3,ENDCOLLT3, STRTROWLT3,ENDROWLT3, 1,1,
-     &                             JDATE, JTIME, LRATIO ) ) THEN
-                  XMSG = 'Could not read LTratio from' // TRIM( ANAME )
+               SPC = INDEX1( 'RCA', NVARS3D, VNAME3D )
+               IF ( SPC .GT. 0 ) THEN
+                  RC_NAME = 'RCA'
+               ELSE
+                  RC_NAME = 'RC'
                END IF
 
-               IF ( .NOT. INTERPX( ANAME, "ICCG", PNAME,
+               ALLOCATE( ICCG        ( NCOLS,NROWS ),
+     &                   OCEAN_MASK  ( NCOLS,NROWS ),
+     &                   SLOPE       ( NCOLS,NROWS ),
+     &                   INTERCEPT   ( NCOLS,NROWS ),
+     &                   SLOPE_lg    ( NCOLS,NROWS ),
+     &                   INTERCEPT_lg( NCOLS,NROWS ),
+     &                   LTNG_PRSFC  ( NCOLS,NROWS,NSTEPS ),
+     &                   NLDN_STRIKE ( NCOLS,NROWS,NSTEPS ),
+     &                   LTNG_RC     ( NCOLS,NROWS,NSTEPS ),STAT = STATUS )
+               IF ( STATUS .NE. 0 ) THEN
+                  XMSG = 'ICCG, OCEAN_MASK, LTNG_Parameters'
+     &                 // '  memory allocation failed'
+                  CALL M3WARN ( PNAME, LDATE, LTIME, XMSG )
+                  SUCCESS = .FALSE.; RETURN
+               END IF
+!C read in the ocean mask and parameter file if needed, if NLDN strike
+!C is used, only the OCEAN MASK values are needed, the rest will be ignored          
+               IF ( .NOT. INTERPX( ONAME, "OCNMASK", PNAME,
      &                             STRTCOLLT3,ENDCOLLT3, STRTROWLT3,ENDROWLT3, 1,1,
-     &                             JDATE, JTIME, ICCG ) ) THEN
-                  XMSG = 'Could not read ICCG from' // TRIM( ANAME )
+     &                             LDATE, LTIME, OCEAN_MASK ) ) THEN
+                  XMSG = 'Could not read OCNMASK from' // TRIM( ONAME ) // '"'
                END IF
 
-               IF ( .NOT. INTERPX( ANAME, "OCNMASK", PNAME,
+               IF ( .NOT. INTERPX( ONAME, "SLOPE", PNAME,
      &                             STRTCOLLT3,ENDCOLLT3, STRTROWLT3,ENDROWLT3, 1,1,
-     &                             JDATE, JTIME, OCEAN_MASK ) ) THEN
-                  XMSG = 'Could not read OCNMASK from' // TRIM( ANAME ) // '"'
+     &                             LDATE, LTIME, SLOPE ) ) THEN
+                  XMSG = 'Could not read SLOPE from' // TRIM( ONAME ) // '"'
                END IF
-              
-               IF ( .NOT. INTERPX( ANAME, "MOLSN", PNAME,
+               IF ( .NOT. INTERPX( ONAME, "INTERCEPT", PNAME,
      &                             STRTCOLLT3,ENDCOLLT3, STRTROWLT3,ENDROWLT3, 1,1,
-     &                             JDATE, JTIME, MOLSNFLASH ) ) THEN
-                  XMSG = 'Could not read MOLSN from' // TRIM( ANAME )
+     &                             LDATE, LTIME, INTERCEPT ) ) THEN
+                  XMSG = 'Could not read INTERCEPT from' // TRIM( ONAME) // '"'
                END IF
-
-               IF ( .NOT. INTERPX( ANAME, "MOLSNIC", PNAME,
+               IF ( .NOT. INTERPX( ONAME, "SLOPE_lg", PNAME,
      &                             STRTCOLLT3,ENDCOLLT3, STRTROWLT3,ENDROWLT3, 1,1,
-     &                             JDATE, JTIME, MOLSNIC ) ) THEN
-                  XMSG = 'Could not read MOLSNIC from' // TRIM( ANAME )
+     &                             LDATE, LTIME, SLOPE_lg ) ) THEN
+                  XMSG = 'Could not read SLOPE_lg from' // TRIM( ONAME ) // '"'
                END IF
-              
-               IF ( .NOT. INTERPX( ANAME, "STRKCNT", PNAME,
+               IF ( .NOT. INTERPX( ONAME, "INTERCEPT_lg", PNAME,
      &                             STRTCOLLT3,ENDCOLLT3, STRTROWLT3,ENDROWLT3, 1,1,
-     &                             JDATE, JTIME, STRIKE_FACTOR ) ) THEN
-                  XMSG = 'Could not read STRKCNT from' // TRIM( ANAME )
+     &                             LDATE, LTIME, INTERCEPT_lg ) ) THEN
+                  XMSG = 'Could not read INTERCEPT_lg from' // TRIM( ONAME ) // '"'
                END IF
-
+               IF ( CJDATE .GT. 90 .AND. CJDATE .LT. 274 ) THEN
+                  IF ( .NOT. INTERPX( ONAME, "ICCG_SUM", PNAME,
+     &                             STRTCOLLT3,ENDCOLLT3, STRTROWLT3,ENDROWLT3, 1,1,
+     &                             LDATE, LTIME, ICCG ) ) THEN
+                     XMSG = 'Could not read ICCG from' // TRIM( ONAME ) // '"'
+                  END IF
+               ELSE
+                  IF ( .NOT. INTERPX( ONAME, "ICCG_WIN", PNAME,
+     &                             STRTCOLLT3,ENDCOLLT3, STRTROWLT3,ENDROWLT3, 1,1,
+     &                             LDATE, LTIME, ICCG ) ) THEN
+                     XMSG = 'Could not read ICCG from' // TRIM( ONAME ) // '"'
+                  END IF
+               END IF
+!C read in the hourly lightning strike file
+               DO I = 1, NSTEPS
+                  IF ( .NOT. XTRACT3( MNAME, RC_NAME, 1, 1,
+     &                             STRTROWLT3,ENDROWLT3, STRTCOLLT3,ENDCOLLT3,
+     &                             LDATE, LTIME, LTNG_RC(:,:,I) ) ) THEN
+                     XMSG = 'Could not read LTNG_RC from' // TRIM( MNAME )
+                  END IF
+                  IF ( .NOT. XTRACT3( MNAME, 'PRSFC', 1, 1,
+     &                             STRTROWLT3,ENDROWLT3, STRTCOLLT3,ENDCOLLT3,
+     &                             LDATE, LTIME, LTNG_PRSFC(:,:,I) ) ) THEN
+                     XMSG = 'Could not read LTNG_RC from' // TRIM( MNAME )
+                  END IF
+                  IF ( NLDNSTRIKE ) THEN
+                     IF ( .NOT. XTRACT3( ANAME, "NLDNstrk", 1, 1,
+     &                             STRTROWLT3,ENDROWLT3, STRTCOLLT3,ENDCOLLT3,
+     &                             LDATE, LTIME, NLDN_STRIKE(:,:,I) ) ) THEN
+                        XMSG = 'Could not read NLDN_STRIKE from' // TRIM( ANAME )
+                     END IF
+                  END IF  ! NLDNSTRIKE
+                  CALL NEXTIME( LDATE, LTIME, TSTEP)
+               END DO
             END IF   ! LPARAM
-
 !C Set up domain based on met file
 !C Open met file
 #ifdef twoway
             IF ( IO_PE_INCLUSIVE ) THEN
-               MNAME = PROMPTMFILE( 
+               MNAME = PROMPTMFILE(
      &                 'Enter name for gridded met input file',
      &                 FSRDWR3, CTM_CONC_1, PNAME )
             ELSE
-               MNAME = PROMPTMFILE( 
+               MNAME = PROMPTMFILE(
      &                 'Enter name for gridded met input file',
      &                 FSREAD3, CTM_CONC_1, PNAME )
             END IF
 #else
-            MNAME = PROMPTMFILE( 
+            MNAME = PROMPTMFILE(
      &              'Enter name for gridded met input file',
      &              FSREAD3, 'MET_CRO_3D', PNAME )
 !           write(*,*) "LTNG INIT MNAME", MNAME
@@ -316,17 +401,16 @@ C        INTEGER, INTENT( IN ) :: EMLAYS     ! number of emissions layers
             IF ( .NOT. DESC3( MNAME ) ) THEN
                XMSG = 'Could not get description of file "'
      &              // TRIM( MNAME ) // '"'
-               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+               CALL M3WARN ( PNAME, LDATE, LTIME, XMSG )
                SUCCESS = .FALSE.; RETURN
             END IF
 
 !C Check grid definition (initialize if first call)
             OK = CHKGRID( MNAME )
-            
+
 !C Get domain window info for met_cro_3d file
             CALL SUBHFILE ( MNAME, GXOFF, GYOFF,
      &              STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
-
 !C Set up vertical layers
             ALLOCATE( VGLVSLT( 0:EMLAYS ), STAT = STATUS )
             CALL CHECKMEM( STATUS, 'VGLVSLT', PNAME )
@@ -338,10 +422,10 @@ C        INTEGER, INTENT( IN ) :: EMLAYS     ! number of emissions layers
             END DO
 
 !C Lightning Diagnostic file?
-            LTNGDIAG = ENVYN( 'LTNGDIAG', 
+            LTNGDIAG = ENVYN( 'LTNGDIAG',
      &              'Write lightning NO production diagnostic file?',
      &              .FALSE., STATUS )
-           
+
             IF ( LTNGDIAG ) THEN
 !C Build description for, and open lightning diagnostic file
 !C (all but variables-table and horizontal domain in description is borrowed from MNAME)
@@ -387,22 +471,27 @@ C        INTEGER, INTENT( IN ) :: EMLAYS     ! number of emissions layers
 
 !C Open output file (mol/s)
                IF ( IO_PE_INCLUSIVE ) THEN
-                  IF ( .NOT. OPEN3( DNAME, FSNEW3, PNAME ) ) THEN
-                     XMSG = 'Could not open ' // TRIM( DNAME )
-                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+                  IF ( .NOT. OPEN3( DNAME1, FSNEW3, PNAME ) ) THEN
+                     XMSG = 'Could not open ' // TRIM( DNAME1 )
+                     CALL M3EXIT( PNAME, LDATE, LTIME, XMSG, XSTAT1 )
                   END IF
+                  NLAYS3D = 1
+                  VDESC3D( 1 ) = 'Column NO produced from lightning'
+                  IF ( .NOT. OPEN3( DNAME2, FSNEW3, PNAME ) ) THEN
+                     XMSG = 'Could not open ' // TRIM( DNAME2 )
+                     CALL M3EXIT( PNAME, LDATE, LTIME, XMSG, XSTAT1 )
+                  END IF
+
                END IF
 
                ALLOCATE( VDEMIS_DIAG( NCOLS,NROWS,EMLAYS ), STAT = STATUS )
                IF ( STATUS .NE. 0 ) THEN
                   XMSG = 'VDEMIS_DIAG memory allocation failed'
-                  CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+                  CALL M3WARN ( PNAME, LDATE, LTIME, XMSG )
                   SUCCESS = .FALSE.; RETURN
                END IF
                VDEMIS_DIAG = 0.0   ! array assignment
-
             END IF   ! LTNGDIAG
-            
          ELSE   ! lightning emissions off line
 
 !C Lightning NO production from an input file
@@ -417,18 +506,18 @@ C        INTEGER, INTENT( IN ) :: EMLAYS     ! number of emissions layers
             IF ( .NOT. DESC3( LNAME ) ) THEN
                XMSG = 'Could not get description of file "'
      &              // TRIM( LNAME ) // '"'
-               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+               CALL M3WARN ( PNAME, LDATE, LTIME, XMSG )
                SUCCESS = .FALSE.; RETURN
             END IF
 
 !C Check grid definition (intialize, if first call)
             OK = CHKGRID( LNAME )
-            
+
 !C Get domain decomp info for the lightning emissions file
             CALL SUBHFILE ( LNAME, GXOFF, GYOFF,
-     &                      STRTCOLLT3, ENDCOLLT3, STRTROWLT3, ENDROWLT3 )
+     &                      STRTCOLLT3, ENDCOLLT3, STRTROWLT3, ENDROWLT3)
 
-         END IF   ! lightning NO production inline, or from a file
+         END IF   ! IF ( LNAME .EQ. "InLine" ) inline or offline lightning NO production
 
          LTLYRS = EMLAYS
 
@@ -437,13 +526,13 @@ C        INTEGER, INTENT( IN ) :: EMLAYS     ! number of emissions layers
          LTNG_MAP = INDEX1( LTSPC, N_GC_EMIS, GC_EMIS )
          IF ( LTNG_MAP .EQ. 0 ) THEN
             XMSG = TRIM( LTSPC ) // ' not found in GC_EMIS table'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, LDATE, LTIME, XMSG, XSTAT1 )
          END IF
 
          ALLOCATE( VDEMIS_LT( NCOLS,NROWS,LTLYRS ), STAT = STATUS )
          IF ( STATUS .NE. 0 ) THEN
             XMSG = 'VDEMIS_LT memory allocation failed'
-            CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+            CALL M3WARN ( PNAME, LDATE, LTIME, XMSG )
             SUCCESS = .FALSE.; RETURN
          END IF
 
@@ -467,6 +556,8 @@ C        INTEGER, INTENT( IN ) :: EMLAYS     ! number of emissions layers
          INCLUDE SUBST_FILES_ID  ! file name parameters
 
          INTEGER JDATE, JTIME, TSTEP( 3 )
+         INTEGER INDX
+         INTEGER STATUS
 
          REAL,   PARAMETER :: CONVPA = 1.0E-2  ! convert Pa to hPa
 !        REAL,   PARAMETER :: WK = 8.0         ! shape parameter for weibull distribution
@@ -499,12 +590,14 @@ C        INTEGER, INTENT( IN ) :: EMLAYS     ! number of emissions layers
          CHARACTER( 16 ) :: MNAME
          CHARACTER( 16 ) :: PNAME = 'GET_LTNG'
          CHARACTER( 120 ) :: XMSG = ' '
+         REAL,    ALLOCATABLE :: COLUMN_LTNG_NO( :,: ) ! column total NO
 
          INTEGER, SAVE :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2
 
-         CHARACTER( 16 ), SAVE :: RC_NAME       ! RC name: old is RC and new is RCA
-         INTEGER               :: SPC
+!        CHARACTER( 16 ), SAVE :: RC_NAME       ! RC name: old is RC and new is RCA
          INTEGER               :: CDATE, CTIME
+         INTEGER               :: cjdate
+         CHARACTER( 7 ) :: sjdate
 
          LOGICAL, SAVE :: FIRSTIME = .TRUE.
 
@@ -512,7 +605,6 @@ C statement function for ERF approximation
          REAL :: ERF                ! ERF approx. statement function
          REAL :: X                  ! dummy argument for ERF
          ERF( X ) = SIGN( 1.0, X ) * SQRT( 1.0 - EXP( -4.0 * X * X / PI ) )
-
 !-----------------------------------------------------------------------
 
          IF ( LNAME .EQ. "InLine" ) THEN
@@ -529,95 +621,78 @@ C statement function for ERF approximation
             VDEMIS_LT = 0.0
 
             WRITE( LOGDEV,'(5X, A)' ) 'InLine LNOx production'
-
-!C Open met file
-            MNAME = PROMPTMFILE( 
+            !C Open met file
+            MNAME = PROMPTMFILE(
      &                    'Enter name for gridded met input file',
      &                    FSREAD3, 'MET_CRO_2D', PNAME )
-
 !C Get domain window info for met_cro_2d file
             CALL SUBHFILE ( MNAME, GXOFF, GYOFF,
      &              STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2 )
 
-            SPC = INDEX1( 'RCA', NVARS3D, VNAME3D )
-            IF ( SPC .GT. 0 ) THEN
-               RC_NAME = 'RCA'
-            ELSE
-               RC_NAME = 'RC'
-            END IF
+            WRITE( SJDATE, '(I7)') JDATE
+            READ( SJDATE, '(4X, I3)') CJDATE
 
             IF ( .NOT. CURRSTEP( JDATE, JTIME, SDATE3D, STIME3D, TSTEP3D,
      &                           CDATE, CTIME ) ) THEN
-              XMSG = 'Cannot get step-starting date and time'
-              CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+               XMSG = 'Cannot get step-starting date and time'
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
             END IF
 
-            CALL NEXTIME ( CDATE, CTIME, TSTEP3D )  ! set mdate:mtime to the hour
+            CALL NEXTIME ( CDATE, CTIME, TSTEP3D )  ! set mdate:mtime to Cthe hour
 
-!           IF ( .NOT. INTERPX( MNAME, "RC", PNAME,  ! convective rain in cm
-            IF ( .NOT. INTERPX( MNAME, RC_NAME, PNAME,  ! convective rain in cm
-     &                          STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
-     &                          CDATE, CTIME, LTNG_RC ) ) THEN
-               XMSG = 'Could not read RC from ' // TRIM( MNAME )
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )     
-            END IF
-
-            IF ( .NOT. INTERPX( MNAME, "PRSFC", PNAME,  ! surface pressure in Pa
-     &                          STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
-     &                          JDATE, JTIME, LTNG_PRSFC ) ) THEN
-               XMSG = 'Could not read PRSFC from ' // TRIM( MNAME )
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-            END IF
-
-!           IF ( .NOT. INTERPX( MNAME, "CLDT", PNAME,  ! cloud top in meters
-!    &                          STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
-!    &                          JDATE, JTIME, LTNG_CLDT ) ) THEN
-!              XMSG = 'Could not read CLDT from ' // TRIM( MNAME )
-!              CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-!           END IF
-
+            ALLOCATE( COLUMN_LTNG_NO( NCOLS,NROWS ), STAT = STATUS )
+               IF ( STATUS .NE. 0 ) THEN
+                  XMSG = 'COLUMN_LTNG_NO memory allocation failed'
+                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+               END IF
+            COLUMN_LTNG_NO( :,: ) = 0.0
 !C Iterate over each grid cell and distribute lightning NO vertically
 
             IF ( LPARAM ) THEN
-
-               DO ROW = 1, MY_NROWS 
+               INDX = JTIME/10000 + 1
+               DO ROW = 1, MY_NROWS
                   DO COL = 1, MY_NCOLS
-                     COLUMN_LTNG_NO( COL,ROW ) = 
-     &                  (LTNG_RC( COL,ROW )
-     &                    * STRIKE_FACTOR( COL,ROW ) ! flashes per unit precip
-     &                    * LRATIO( COL,ROW ) ! ratio derived from NLDN data
-     &                    * OCEAN_MASK( COL,ROW ) ! reduce offshore strikes
-     &                    * ( MOLSNFLASH( COL,ROW ) +  ! moles N per flash
-!                             intercloud strikes per cloud to ground strike
-     &                        (MOLSNIC(COL,ROW) * ICCG( COL,ROW ) )))
-     &                 / DT_STEP         ! get time units right
+                     IF ( NLDNSTRIKE ) THEN
+                        COLUMN_LTNG_NO( COL,ROW ) =
+     &                     ( NLDN_STRIKE( COL,ROW,INDX )
+     &                       * SQUAREKM     ! the NLD_STRIKE in unit of km-2
+     &                       * OCEAN_MASK( COL,ROW ) ! reduce offshore strikes
+     &                       * ( MOLSNCG + MOLSNIC * ICCG( COL,ROW ) ) )
+     &                       / ( 60.0 * 60.0 ) ! get time units right:emisions are in the unit of moles/s
+                     ELSE
+                        IF ( LTNG_RC( COL,ROW,INDX ) .GT. 0 ) THEN
+                           IF ( LTNG_RC( COL,ROW,INDX ) .GT. SCL_FACTOR .AND.
+     &                        ( CJDATE .GT. 151 .AND. CJDATE .LT. 244 ) ) THEN
+                              COLUMN_LTNG_NO( COL,ROW ) =
+     &                         ( EXP( SLOPE_LG( COL,ROW ) * LOG( LTNG_RC( COL,ROW,INDX ) )
+     &                           + INTERCEPT_LG( COL,ROW) )
+     &                           * SQUAREKM   ! the relation is built on the unit of flash/km2*hr
+     &                           * OCEAN_MASK( COL,ROW ) ! reduce offshore strikes
+     &                           * ( MOLSNCG  ! moles N per flash intercloud strikes per cloud-to-ground strike
+     &                             + ( MOLSNIC * ICCG( COL,ROW ) ) ) )
+     &                         / ( 60.0 * 60.0 )         ! get time units right
+                              IF ( COLUMN_LTNG_NO( COL,ROW ) .LT. 0 ) COLUMN_LTNG_NO( COL,ROW ) = 0
+                           ELSE
+                              COLUMN_LTNG_NO( COL,ROW ) =
+     &                         ( ( SLOPE( COL,ROW ) * LTNG_RC( COL,ROW,INDX ) + INTERCEPT( COL,ROW ) )
+     &                           * SQUAREKM   ! the relation is built on the unit of flash/km2*hr
+     &                           * OCEAN_MASK( COL,ROW ) ! reduce offshore strikes
+     &                           * ( MOLSNCG  ! moles N per flash intercloud strikes per cloud-to-ground strike
+     &                             + ( MOLSNIC * ICCG( COL,ROW ) ) ) )
+     &                         / ( 60.0 * 60.0 )         ! get time units right 
+                              IF ( COLUMN_LTNG_NO( COL,ROW ) .LT. 0 ) COLUMN_LTNG_NO( COL,ROW ) = 0
+                           END IF
+                        ELSE
+                           COLUMN_LTNG_NO( COL,ROW ) = 0.0
+                        END IF
+                     END IF   ! NLDNSTRIKE
+                  END DO   ! COL
+               END DO   ! ROW
+            END IF   ! LPARAM
 
-!                   write( logdev,'( 2i4, 7f9.4 )' ) col,row,
-!      &                 ltng_rc( col,row ),
-!      &                 strike_factor( col,row ), lratio( col,row ),
-!      &                 ocean_mask( col,row ), iccg( col,row ), 
-!      &                 molsnflash( col,row )
-                  END DO
-               END DO
-
-            ELSE
-
-               XCELLR =  REAL( XCELL_GD, 4 ) / 36000.0
-               YCELLR =  REAL( YCELL_GD, 4 ) / 36000.0
-               FLASH_FAC = 147.0 * XCELLR * YCELLR * 500.0 * 4.0 / DT_STEP
-               ! 147 flahses, but adjust depending on horizontal grid resolution
-               ! 500 moles N per flash * 3 intercloud strikes per ground strike
-               DO ROW = 1, MY_NROWS 
-                  DO COL = 1, MY_NCOLS
-                     COLUMN_LTNG_NO( COL,ROW ) = FLASH_FAC * LTNG_RC( COL,ROW )
-                  END DO
-               END DO
-
-            END IF
-                 
             VDEMIS_LT = 0.0   ! array assignment
 
-            DO ROW = 1, MY_NROWS 
+            DO ROW = 1, MY_NROWS
                DO COL = 1, MY_NCOLS
 
 !C check to see if there are lightning strikes for this grid cell
@@ -628,18 +703,19 @@ C statement function for ERF approximation
 !    &                 LTNG_CLDT( COL,ROW ) .GT. 6500.0 )  THEN
 
                   IF ( COLUMN_LTNG_NO( COL,ROW ) .LE. 0.0 ) CYCLE
-                  SUM_FRAC = 0.0  
+                  SUM_FRAC = 0.0
                   LTEMIS = 0.0   ! array assignment
 
                   DO LAY = 1, LTLYRS
 
-!C Get pressures: Use SIGMA values and surface pres. p=sigma*(psfc-ptop)+ptop
+!C Get pressures: Use SIGMA values and surface pres.
+!p=sigma*(psfc-ptop)+ptop
                      BOTTOM = ( VGLVSLT( LAY-1 )
-     &                      * ( LTNG_PRSFC( COL,ROW ) - VGTOP_GD )
+     &                      * ( LTNG_PRSFC( COL,ROW,INDX ) - VGTOP_GD )
      &                      + VGTOP_GD ) * CONVPA
 !                           write( logdev,* ) "bottom: ", bottom
                      TOP    = ( VGLVSLT( LAY )
-     &                      * ( LTNG_PRSFC( COL,ROW ) - VGTOP_GD )
+     &                      * ( LTNG_PRSFC( COL,ROW,INDX ) - VGTOP_GD )
      &                      + VGTOP_GD ) * CONVPA
 !                           write( logdev,* ) "top: ", top
 
@@ -674,7 +750,8 @@ C statement function for ERF approximation
 
 !                    write( logdev,* ) col, row, lay,
 !     &                                bottom_frac, top_frac,
-!     &                                bottom_frac2, top_frac2, sum_frac,
+!     &                                bottom_frac2, top_frac2,
+!     sum_frac,
 !     &                                column_ltng_no( col,row )
 
 !C If emissions are less than 0, generate an error message in the log
@@ -686,7 +763,8 @@ C statement function for ERF approximation
                         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
                      END IF
 
-!                    write( logdev,* ) "VDEMIS_LT ", VDEMIS_LT( 1,COL,ROW,LAY )
+!                    write( logdev,* ) "VDEMIS_LT ", VDEMIS_LT(
+!                    1,COL,ROW,LAY )
 
                   END DO   ! end layers loop 
 
@@ -703,40 +781,28 @@ C statement function for ERF approximation
 !C Write lightning NO to the diagnostic file
 
             IF ( LTNGDIAG ) THEN
-
-               IF ( .NOT. DESC3( CTM_CONC_1 ) ) THEN
-                  XMSG = 'Could not get description of file "'
-     &                 // TRIM( CTM_CONC_1 ) // '"'
-                  CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-               END IF
-
                VDEMIS_DIAG = VDEMIS_DIAG + VDEMIS_LT   ! array assignment
                NTICS = NTICS + 1
                LASTTIC = NTICS .EQ. TIME2SEC( TSTEP( 1 ) ) / TIME2SEC( TSTEP( 2 ) )
 
                IF ( LASTTIC ) THEN   ! time to write out
-
-#ifdef parallel_io
-                  IF ( FIRSTIME ) THEN
-                     FIRSTIME = .FALSE.
-                     IF ( .not. IO_PE_INCLUSIVE ) THEN
-                        IF ( .NOT. OPEN3( CTM_DRY_DEP_1, FSREAD3, PNAME ) ) THEN
-                           XMSG = 'Could not open ' // TRIM(CTM_DRY_DEP_1)
-                           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-                        END IF
-                     END IF
-                  END IF
-#endif
-
                   DIVFAC = 1.0 / FLOAT( NTICS )
                   VDEMIS_DIAG = VDEMIS_DIAG * DIVFAC   ! array assignment
 
-                  IF ( .NOT. WRITE3( DNAME, LTSPC, LDATE, LTIME, VDEMIS_DIAG ) )  THEN
-                     XMSG = 'Could not write to ' // TRIM( DNAME )
+                  IF ( .NOT. WRITE3( DNAME1, LTSPC, LDATE, LTIME, VDEMIS_DIAG ) )  THEN
+                     XMSG = 'Could not write to ' // TRIM( DNAME1 )
                      CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
                   ELSE
                      WRITE( LOGDEV,94040 )
-     &                    'Timestep written to', TRIM( DNAME ),
+     &                    'Timestep written to', TRIM( DNAME1 ),
+     &                    'for date and time', LDATE, LTIME
+                  END IF
+                  IF ( .NOT. WRITE3( DNAME2, LTSPC, LDATE, LTIME, COLUMN_LTNG_NO ) )  THEN
+                     XMSG = 'Could not write to ' // TRIM( DNAME2 )
+                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+                  ELSE
+                     WRITE( LOGDEV,94040 )
+     &                    'Timestep written to', TRIM( DNAME2 ),
      &                    'for date and time', LDATE, LTIME
                   END IF
 
@@ -759,24 +825,25 @@ C statement function for ERF approximation
                XMSG = 'Could not read NO' //
      &                ' from file "' // TRIM( LNAME ) // '"'
                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-!!!!! comment this out to avoid problems reading in a specific time / date from LNO file
-               
             END IF
+!!!!! comment this out to avoid problems reading in a specific time / date from LNO file
 
 !           DO ROW = 1, MY_NROWS 
 !              DO COL = 1, MY_NCOLS
 !                 DO LAY = 1, LTLYRS
-!                    IF ( VDEMIS_LT( COL,ROW,LAY ) .gt. 0.0 ) THEN
+!                    IF ( VDEMIS_LT( COL,ROW,LAY ) .GT. 0.0 ) THEN
 !                       write( logdev,* ) col, row, lay,
 !     &                                   VDEMIS_LT( COL,ROW,LAY )
 !                    END IF
 !                 END DO
 !              END DO
 !           END DO
-                
+
          END IF  ! end lightning NO production inline or from a file
-               
-         write( logdev,94042 ) 'VDEMIS_LT sum:', jdate, jtime, sum( vdemis_lt )
+
+         WRITE( LOGDEV,94042 ) 'VDEMIS_LT sum:', JDATE, JTIME, SUM( VDEMIS_LT )
+
+         DEALLOCATE( COLUMN_LTNG_NO )
 
 !C Save date
 !        LDATE = JDATE
@@ -786,7 +853,8 @@ C statement function for ERF approximation
 !              NTICS = 0
 !           END IF
 !           RETURN
-!        ELSE IF ( NTICS .LT. TIME2SEC( TSTEP( 1 ) ) / TIME2SEC( TSTEP( 2 ) ) ) THEN
+!        ELSE IF ( NTICS .LT. TIME2SEC( TSTEP( 1 ) ) / TIME2SEC( TSTEP(
+!        2 ) ) ) THEN
 !           RETURN
 !        END IF
 
@@ -796,8 +864,7 @@ C------------------  Format  Statements   ------------------------------
 
 94040 FORMAT( /5X, 3( A, :, 1X ), I8, ":", I6.6 )
 94042 FORMAT( /5X, A, 1X, I8, ":", I6.6, 1X, 1PE13.5 )
-        
-         END SUBROUTINE GET_LTNG
-      
-      END MODULE LTNG_DEFN
 
+         END SUBROUTINE GET_LTNG
+
+      END MODULE LTNG_DEFN
