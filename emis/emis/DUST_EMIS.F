@@ -120,10 +120,10 @@ C the first 12 soil types are used and the rest lumped into Other.
       integer, parameter :: nsltyp = 13
 
 C Variables for the windblown dust diagnostic file:
-      logical, save      :: dustem_diag   ! flag for dustemis diagnostic file
-      integer, parameter :: fndust_diag = 42 ! number of fixed diagnostic output vars
+      logical, save      :: dustem_diag      ! flag for dustemis diagnostic file
+      integer, parameter :: fndust_diag = 17 ! number of fixed diagnostic output vars
       integer, save      :: ndust_diag       ! number of diagnostic output vars
-      real, allocatable, save :: diagv( : ) ! diagnostic output variables
+      real, allocatable, save :: diagv( : )  ! diagnostic output variables
       real, allocatable, save :: dustbf( :,:,: ) ! diagnostic accumulate buffer
 
 #ifdef verbose_wbdust
@@ -164,31 +164,6 @@ C                 ----------------    --------    ------------------------------
      & diag_type( 'Forest_Cover    ', 'percent ', 'forest land coverage                       '),
      & diag_type( 'Trfac_Above_Can ', '        ', 'transport factor above canopy              '),
      & diag_type( 'Trfac_Inside_Can', '        ', 'transport factor in and below canopy       '),
-     & diag_type( 'ASO4J           ', 'g/m**3/s', 'accumulation mode Sulfate                  '),
-     & diag_type( 'ANO3J           ', 'g/m**3/s', 'accumulation mode Nitrate                  '),
-     & diag_type( 'ACLJ            ', 'g/m**3/s', 'accumulation mode Chlorine                 '),
-     & diag_type( 'ANH4J           ', 'g/m**3/s', 'accumulation mode Ammonium                 '),
-     & diag_type( 'ANAJ            ', 'g/m**3/s', 'accumulation mode Sodium                   '),
-     & diag_type( 'ACAJ            ', 'g/m**3/s', 'accumulation mode Calcium                  '),
-     & diag_type( 'AMGJ            ', 'g/m**3/s', 'accumulation mode Magnesium                '),
-     & diag_type( 'AKJ             ', 'g/m**3/s', 'accumulation mode Potassium                '),
-     & diag_type( 'APOCJ           ', 'g/m**3/s', 'accumulation mode Organic Carbon           '),
-     & diag_type( 'APNCOMJ         ', 'g/m**3/s', 'accumulation mode Non-Carbon Organic Matter'),
-     & diag_type( 'AECJ            ', 'g/m**3/s', 'accumulation mode Elemental Carbon         '),
-     & diag_type( 'AFEJ            ', 'g/m**3/s', 'accumulation mode Iron                     '),
-     & diag_type( 'AALJ            ', 'g/m**3/s', 'accumulation mode Aluminum                 '),
-     & diag_type( 'ASIJ            ', 'g/m**3/s', 'accumulation mode Silicon                  '),
-     & diag_type( 'ATIJ            ', 'g/m**3/s', 'accumulation mode Titanium                 '),
-     & diag_type( 'AMNJ            ', 'g/m**3/s', 'accumulation mode Manganese                '),
-     & diag_type( 'AH2OJ           ', 'g/m**3/s', 'accumulation mode Water                    '),
-     & diag_type( 'AOTHRJ          ', 'g/m**3/s', 'accumulation mode Other                    '),
-     & diag_type( 'ASO4K           ', 'g/m**3/s', 'coarse mode Sulfate                        '),
-     & diag_type( 'ANO3K           ', 'g/m**3/s', 'coarse mode Nitrate                        '),
-     & diag_type( 'ACLK            ', 'g/m**3/s', 'coarse mode Chlorine                       '),
-     & diag_type( 'AH2OK           ', 'g/m**3/s', 'coarse mode Water                          '),
-     & diag_type( 'ASOIL           ', 'g/m**3/s', 'coarse mode total                          '),
-     & diag_type( 'ANUMJ           ', '#/s     ', 'accumulation mode number                   '),
-     & diag_type( 'ANUMK           ', '#/s     ', 'coarse mode number                         '),
      & diag_type( 'ASRFJ           ', 'm**2/s  ', 'accumulation mode surface area             '),
      & diag_type( 'ASRFK           ', 'm**2/s  ', 'coarse mode surface area                   ')/)
   
@@ -250,6 +225,8 @@ C Local variables:
          logical :: erode_agland = .true. ! default
          integer status
          integer c, r, i, j, k, l, n
+         integer idiag
+         integer n_mass_emissions
 
          integer  gxoff, gyoff                 ! global origin offset from file
          integer, save :: strtcol, endcol, strtrow, endrow
@@ -381,7 +358,16 @@ C Set up variable diagnostic names (from LUS_DEFN)
             vdiagnm_kvh   = diag_type( ' ', ' ', ' ' )  ! array assignment
             vdiagnm_rough = diag_type( ' ', ' ', ' ' )  ! array assignment
 
-            ndust_diag = fndust_diag + 5 * n_dlcat
+C...Count the number of mass emissions species
+            n_mass_emissions = 0
+            do i = 1, ndust_spc
+               do j = 1, n_mode
+                  if( len_trim( dust_spc( i )%name( j ) ) .lt. 1 )cycle
+                  n_mass_emissions = n_mass_emissions + 1  
+               end do
+            end do
+            
+            ndust_diag = fndust_diag + 5 * n_dlcat + n_mass_emissions
 
             do i = 1, n_dlcat
                truncnm = vnmld( i )%desc   ! char( 10 )
@@ -458,9 +444,33 @@ C Build the complete diagnostic name array                     n for MODIS NOAH
             n = n + n_dlcat + 1
             diagnm( n ) = fdiagnm( 7 )    ! Cropland_Rough
 
-            n = n - 7                     ! All other dust diag var
-            do i = 8, fndust_diag
-               diagnm( i+n ) = fdiagnm( i )
+            n = n - 7                     ! add remaining variables in fdiagnm
+            do i = 8, fndust_diag 
+               idiag = i+n
+               diagnm( idiag ) = fdiagnm( i )
+            end do
+
+C...append diagnostic variables with mass emissions species
+            do i = 1, ndust_spc
+               do j = 1, n_mode
+                  n = len_trim( dust_spc( i )%name( j ) )
+                  if( n .lt. 1  )cycle ! assumes cmaq species names atleast one character long
+                  idiag = idiag + 1
+                  diagnm( idiag )%var   = dust_spc( i )%name( j )
+                  diagnm( idiag )%units = 'g/m**3/s'
+                  Select( j ) ! assumes only three aerosol modes
+                    Case( 1 )
+                       diagnm( idiag )%des = 'aitken mode ' 
+                    Case( 2 )
+                       diagnm( idiag )%des = 'accumulation mode ' 
+                    Case( 3 )
+                       diagnm( idiag )%des = 'coarse mode ' 
+!                    Case Default 
+!                       diagnm( idiag )%des = 'Undefined mode ' 
+                    end Select
+                    diagnm( idiag )%des = diagnm( idiag )%des
+     &                                  // Trim( dust_spc( i )%description )
+               end do
             end do
 
             sdate = envint( 'CTM_STDATE', 'Scenario Start (YYYYJJJ)', 0, status )
