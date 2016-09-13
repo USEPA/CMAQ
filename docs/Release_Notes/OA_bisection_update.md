@@ -15,7 +15,7 @@ If the code is not able to find the root, it stops and prints a message. That si
 
 ## Affected Files
 
-SOA_DEFN.F
+aero/aero6/SOA_DEFN.F
 
 ## References
 
@@ -24,9 +24,13 @@ Pye, H. O. T., Murphy, B. N., Xu, L., Ng, N. L., Carlton, A. G., Guo, H., Weber,
 -----
 ## Internal Records:
 #### Relevant Pull Requests:
+[PR #118](https://github.com/usepa/cmaq_dev/pulls/118) superceeds
+[PR #111](https://github.com/usepa/cmaq_dev/pulls/111) 
 
 
 #### Commit IDs:
+dcc376663aa4224392353ef4e55c784aff272191
 
+144c002bf1fcfb60ba3ed44afa284b0ab34ab343
 
 -----
