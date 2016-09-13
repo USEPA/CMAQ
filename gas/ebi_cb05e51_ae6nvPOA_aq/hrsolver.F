@@ -298,7 +298,11 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
             IF ( DTC .GT. DTMIN ) THEN
 ! reset YC and cut sub time-step in half
                IF ( MXFL ) THEN
-                  WRITE( LOGDEV, 92010 ) C, R, L, TRIM( CHEMISTRY_SPC( S ) ), NBKUPS
+                  WRITE( LOGDEV, 92008 ) NBKUPS
+                  WRITE( LOGDEV, 92009 ) C, R, L
+                  DO S = 1, N_SPEC
+                     IF( LEBISPFL( S ) )WRITE( LOGDEV, 92010 )TRIM( CHEMISTRY_SPC( S ) )
+                  END DO 
                ELSE
                   WRITE( LOGDEV, 92000 ) C, R, L, NBKUPS
                END IF
@@ -346,16 +350,17 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 
 92000 FORMAT( 'WARNING: EBI Euler convergence failure' /
      &        '         Reducing EBI time step because of ',
-     &         'convergence failure for ' /
+     &        '         convergence failure in ' /
      &        '         Cell (', I3, ', ', I3, ', ', I3, ')' ,
-     &        '  Back-up number', I2 )
+     &        '         Solution Attempt #', I2 )
 
-92010 FORMAT( 'WARNING: EBI Euler convergence failure' /
+92008 FORMAT( 'WARNING: At solution attempt #', I2  )
+92009 FORMAT( 'WARNING: EBI Euler convergence failure' /
      &        '         Reducing EBI time step because of ',
-     &         'MAXPRED convergence failure for ' /
+     &        '         MAXPRED failure in ' /
      &        '         Cell (', I3, ', ', I3, ', ', I3, ')' ,
-     &        ' and species ', A,
-     &        '  Back-up number', I2 )
+     &        '         for the below species: ')
+92010 FORMAT( A16 )
 
 92040 FORMAT( 'ERROR: Max number of EBI time step reductions exceeded'
      &      / '      Convergence failure for cell (', I3, ', ', I3,
