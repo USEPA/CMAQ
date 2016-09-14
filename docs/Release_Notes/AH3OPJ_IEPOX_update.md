@@ -16,9 +16,8 @@ IEPOX-derived SOA is estimated to increase by only 3% compared to before this up
 
 ## Affected Files
 
-aero/aero6/aero_subs.F
-
-cloud/acm_ae6/hlconst.F
+aero/aero6/aero_subs.F  
+cloud/acm_ae6/hlconst.F  
 
 ## References
 
@@ -33,8 +32,8 @@ Pye, H. O. T., Murphy, B. N., Xu, L., Ng, N. L., Carlton, A. G., Guo, H., Weber,
 
 
 #### Commit IDs:
-ce109c9bd1a4b1d3c730b002f489c9a907ab9c71
-7e0c1d8c0645559c0773c7c222d70acb240a2896
+ce109c9bd1a4b1d3c730b002f489c9a907ab9c71  
+7e0c1d8c0645559c0773c7c222d70acb240a2896  
 
 
 -----
