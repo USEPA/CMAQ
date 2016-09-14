@@ -4,8 +4,8 @@
 
 ## Brief Description
 
-In CMAQv5.1, three options existed within the aero module: aero6, aero6i, and aero6_mp. Each option consisted of a directory of code within aero6. Since much of the code was already shared among the modules, the remaining code was merged together so that separate code directories are not needed in the aero module for each aerosol option.
-All three options remain using the shared code directory.
+In CMAQv5.1, three options existed within the aero module: aero6, aero6i, and aero6_mp. Each option consisted of a directory of code within aero that would be selected when the model was built. Since much of the code was already shared among the modules, the remaining code was merged together so that separate code directories are not needed in the aero module for each aerosol option.
+The functionality of all three options (6, 6i, and 6mp) remain using the shared code directory.
 
 ## Significance and Impact
 
