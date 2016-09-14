@@ -1,27 +1,18 @@
-# Changes to acidity for epoxide uptake
+# Changes to acidity and epoxide uptake properties
 
 **Author/P.O.C.:**, [Havala Pye](mailto:pye.havala@epa.gov), Computational Exposure Division, U.S. EPA
 
 ## Brief Description
 
-Formation of SOA from epoxides is acid catalyzed. The molecular weight of AH3OP (the hydronium ion) is needed to convert the concentration of H+ predicted by ISORROPIA in mol/m3 to micrograms/m3. The molecular weight of AH2OP was incorrectly being obtained from PRECURSOR_MW array instead of AEROSPC_MW in aero_subs.F.
-As a result, the molecular weight (species 18 in aerospc) is being set to that of species 18 in precursor_mw (SESQRXN). This is a factor of 10 higher than it should be. Correcting this reference should result in a factor of 10 decrease in acidity (AH3OP) which degrades prediction of IEPOX SOA for the SOAS 2013 campaign.
+Formation of SOA from epoxides is acid catalyzed. The molecular weight of AH3OP (the hydronium ion) is needed to convert the concentration of H+ predicted by ISORROPIA in mol/m3 to micrograms/m3. The molecular weight of AH3OP was incorrectly being obtained from PRECURSOR_MW array instead of AEROSPC_MW in aero_subs.F.
+As a result, the molecular weight was a factor of 10 higher than it should be. Correcting this array reference resulted in decrease in acidity (AH3OPJ+AH3OPI) which degraded predictions of IEPOX SOA for the SOAS 2013 campaign. AH3OPK was not affected.
 
-Considerable uncertainty exists in the Henry's law coefficient for IEPOX
+To improve model performance, we implemented a Henry's law coefficient for IEPOX of 3.0e7 M/atm (instead of the former 2.7e6 M/atm) based on Nguyen et al. (2014) (laboratory experiments on NaCl particles). This improved the model predictions of 2-methyltetrols, a known IEPOX-derived organic aerosol species.
 
-|H (M/atm)       |Reference      |              How it was determined|
-|---|---|---|
-|2.7e6              | Pye et al. 2013      |      HenryWin|
-|3.0e7               |Nguyen et al. 2014    | Laboratory, on NaCl aqueous particles|
-|3.3e7              | Marais et al. 2016    |   Fitted value to reproduce SEAC4RS and SOAS data|
-|1.7e8 | Gaston et al. 2014 |  Laboratory |
-
-To improve model performance, we recommend a Henry's law coefficient for IEPOX of 3.0e7 M/atm based on Nguyen et al. 2014 (laboratory experiments on NaCl particles). This improves the model predictions of 2-methyltetrols, a known IEPOX-derived organic aerosol species. The plot below shows particle-phase 2-methyltetrols measured by Gabriel Isaacman-VanWertz (formerly Goldstein Group, Berkeley) in black, CMAQ predictions before the H-law increase in red, and CMAQ predictions with the larger 3e7 M/atm H-law for IEPOX in green. Simulations/observations are for June 2013 SOAS (eastern US domain) at the Centreville, AL site.
-See Pye et al., 2016 for performance of IEPOX SOA in CMAQ with this update.
 
 ## Significance and Impact
 
-Minor changes in IEPOX-derived SOA as a result of compensating corrections.
+IEPOX-derived SOA is estimated to increase by only 3% compared to v5.1 as a result of compensating modifications. See Pye et al. (2016) for performance of IEPOX SOA and 2-methyltetrols in CMAQ with this update.
 
 ## Affected Files
 
@@ -30,15 +21,19 @@ cloud/acm_ae6/hlconst.F
 
 ## References
 
-Pye, H. O. T., Murphy, B. N., Xu, L., Ng, N. L., Carlton, A. G., Guo, H., Weber, R., Vasilakos, P., Appel, K. W., Budisulistiorini, S. H., Surratt, J. D., Nenes, A., Hu, W., Jimenez, J. L., Isaacman-VanWertz, G., Misztal, P. K., and Goldstein, A. H.: On the implications of aerosol liquid water and phase separation for organic aerosol mass, Atmos. Chem. Phys. Discuss., doi:10.5194/acp-2016-719, in review, 2016. 
+Nguyen, T. B., Coggon, M. M., Bates, K. H., Zhang, X., Schwantes, R. H., Schilling, K. A., Loza, C. L., Flagan, R. C., Wennberg, P. O., and Seinfeld, J. H.: Organic aerosol formation from the reactive uptake of isoprene epoxydiols (IEPOX) onto non-acidified inorganic seeds, Atmos. Chem. Phys., 14, 3497-3510, doi:10.5194/acp-14-3497-2014, 2014. [link](http://www.atmos-chem-phys.net/14/3497/2014/)
+
+Pye, H. O. T., Murphy, B. N., Xu, L., Ng, N. L., Carlton, A. G., Guo, H., Weber, R., Vasilakos, P., Appel, K. W., Budisulistiorini, S. H., Surratt, J. D., Nenes, A., Hu, W., Jimenez, J. L., Isaacman-VanWertz, G., Misztal, P. K., and Goldstein, A. H.: On the implications of aerosol liquid water and phase separation for organic aerosol mass, Atmos. Chem. Phys. Discuss., doi:10.5194/acp-2016-719, in review, 2016. [link](http://www.atmos-chem-phys-discuss.net/acp-2016-719/)
 
 -----
 ## Internal Records:
 #### Relevant Pull Requests:
-
+[PR #105](https://github.com/usepa/cmaq_dev/pulls/105) 
 
 
 #### Commit IDs:
+ce109c9bd1a4b1d3c730b002f489c9a907ab9c71
+7e0c1d8c0645559c0773c7c222d70acb240a2896
 
 
 -----
