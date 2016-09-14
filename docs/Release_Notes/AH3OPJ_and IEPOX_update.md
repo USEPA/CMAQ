@@ -12,7 +12,7 @@ To improve model performance, we implemented a Henry's law coefficient for IEPOX
 
 ## Significance and Impact
 
-IEPOX-derived SOA is estimated to increase by only 3% compared to v5.1 as a result of compensating modifications. See Pye et al. (2016) for performance of IEPOX SOA and 2-methyltetrols in CMAQ with this update.
+IEPOX-derived SOA is estimated to increase by only 3% compared to before this update as a result of compensating modifications. See Pye et al. (2016) for performance of IEPOX SOA and 2-methyltetrols in CMAQ with this update.
 
 ## Affected Files
 
