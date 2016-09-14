@@ -28,7 +28,7 @@ The Community Multiscale Air Quality (CMAQ) Model version 5.2 is major update to
   * [OA Bisection upper bound adjustment](OA_bisection_update.md)
   * [Glyoxal and methylglyoxal uptake onto aqueous particles](gly_mgly_soa_update.md)
   * [IEPOX organosulfate formation rate constant update](iepoxos_rateconstant.md)
-  * [Acidity bug fix and IEPOX SOA update](AH2OPJ_IEPOX_update.md)
+  * [Acidity bug fix and IEPOX SOA update](AH3OPJ_IEPOX_update.md)
 
 ### Aqueous and Heterogeneous Chemistry
 #### Aqueous aerosol chemistry
