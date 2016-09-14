@@ -34,7 +34,16 @@ Revised surrogate properties
 
 ## Significance and Impact
 
-(significance and impact on modeled results and runtime)
+Deposition rates for many species were updated and compared to observations of concentrations and deposition velocities measured during SOAS by Nguyen et al. (2015). The largest changes occured for H2O2 (HO2H in SAPRC) in which dry deposition velocities at midday increased from approx 3 cm/s to 5 cm/s (consistent with measurements). The bias in H2O2 concentration was reduced from 238% to 113%. 
+
+HACET deposition velocities at midday increased from 0.6 cm/s to 2 cm/s. The bias in HACET decreased from 26% to 15%.
+
+HPALD was not deposited in v5.1. Deposition velocities predicted for HPALD in CMAQ v5.2 are low (1 cm/s) compared to measurements (>2 cm/s) at midday. The overestimate in HPALD at night improved signifcantly with the added deposition.
+
+The deposition velocity of NISOPOOH decreased to just under 2 cm/s at midday (consistent with observation of INP) which increased the bias in concentration slightly.
+
+The deposition velocity of PROPNN increased to approx 2 cm/s at midday (consistent with observations) with little effect on gas-phase predicted PROPNN concentrations.
+
 
 ## Affected Files:
 MECHS/saprc07tic_ae6i_aq/AE_saprc07tic_ae6i_aq.nml  
