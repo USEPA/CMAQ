@@ -14,16 +14,16 @@ AGLYJ available in the new CB6 mechanism and updated in saprc07tic mechanisms. S
 
 ## Affected Files
 
-aero/aero6/AEROSOL_CHEMISTRY.F
-aero/aero6/AERO_DATA.F
-MECHS/cb6r3_ae6_aq/mech*.def
-MECHS/cb6r3_ae6_aq/RXNS_DATA_MODULE.F90
-MECHS/cb6r3_ae6_aq/RXNS_FUNC_MODULE.F90
-gas/ebi_cb6r3_ae6_aq/*.F
-MECHS/saprc07tic_ae6_aq/mech*.def
-MECHS/saprc07tic_ae6i_aq/RXNS_DATA_MODULE.F90
-MECHS/saprc07tic_ae6i_aq/RXNS_FUNC_MODULE.F90
-gas/ebi_saprc07tic_ae6i_aq/*.F
+aero/aero6/AEROSOL_CHEMISTRY.F  
+aero/aero6/AERO_DATA.F  
+MECHS/cb6r3_ae6_aq/mech\*.def  
+MECHS/cb6r3_ae6_aq/RXNS_DATA_MODULE.F90  
+MECHS/cb6r3_ae6_aq/RXNS_FUNC_MODULE.F90  
+gas/ebi_cb6r3_ae6_aq/\*.F  
+MECHS/saprc07tic_ae6_aq/mech\*.def  
+MECHS/saprc07tic_ae6i_aq/RXNS_DATA_MODULE.F90  
+MECHS/saprc07tic_ae6i_aq/RXNS_FUNC_MODULE.F90  
+gas/ebi_saprc07tic_ae6i_aq/\*.F  
 
 
 ## References
@@ -33,12 +33,12 @@ NA
 -----
 ## Internal Records:
 #### Relevant Pull Requests:
-[PR #78](https://github.com/usepa/cmaq_dev/pulls/78) 
+[PR #78](https://github.com/usepa/cmaq_dev/pulls/78)  
 
 
 #### Commit IDs:
-1dfd9e3b10034dde2f43add22aed1d73cb128711
-60099f8a4014cd889b6f2af9ca2e97283895dafc
+1dfd9e3b10034dde2f43add22aed1d73cb128711  
+60099f8a4014cd889b6f2af9ca2e97283895dafc  
 
 
 -----
