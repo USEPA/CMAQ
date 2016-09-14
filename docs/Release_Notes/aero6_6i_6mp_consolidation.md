@@ -16,6 +16,14 @@ No change in model predictions. Reduces the amount of code in the CCTM.
 
 aero/aero6i and aero/aero6_mp directories eliminated. All options now exist in main aero/aero6 folder.
 
+cloud/acm_ae6/AQ_DATA.F
+cloud/acm_ae6/aq_map.F
+cloud/acm_ae6/aqchem.F
+cloud/acm_ae6/rescld.F
+cloud/acm_ae6_mp/AQ_DATA.F
+cloud/acm_ae6_mp/aqchem.F
+
+
 ## References
 
 NA
