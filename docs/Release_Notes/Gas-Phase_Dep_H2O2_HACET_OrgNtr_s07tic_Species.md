@@ -61,7 +61,11 @@ vdiff/acm2/ASX_DATA_MOD.F
 
 ## References: 
 
-Nguyen et al. 2015 PNAS
+Nguyen, T. B., Crounse, J. D., Teng, A. P., St. Clair, J. M., Paulot, F., Wolfe, G. M., and Wennberg, P. O.: Rapid deposition of oxidized biogenic compounds to a temperate forest, Proc. Natl. Acad. Sci. U. S. A., 112, E392–E401, doi:10.1073/pnas.1418702112, 2015.
+
+Sander R.: Compilation of Henry’s Law Constants for Inorganic and Organic Species of Potential Importance in Environmental Chemistry (Max Planck Inst Chem, Mainz, Germany). http://www.henrys-law.org/henry-3.0.pdf, 1999.
+
+Wolfe, G. M., and Thornton, J. A.: The Chemistry of Atmosphere-Forest Exchange (CAFE) Model – Part 1: Model description and characterization. Atmos. Chem. Phys. 11, 1, 77-101, 2011.
 
 -----
 ## Internal Records:
