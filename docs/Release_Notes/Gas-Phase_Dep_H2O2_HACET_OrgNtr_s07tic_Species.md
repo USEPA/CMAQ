@@ -4,28 +4,32 @@
 
 ## Brief Description 
 
-Based largely on the work of Nguyen et al. (2015), deposition of several gas-phase species has been updated. Specifically, 
+Based largely on the work of Nguyen et al. (2015) for the southeast United States, deposition of several gas-phase species has been updated. Most species only exist in saprc07tic. Howver, IEPOX and H2O2 are common to several mechanisms.
 
 New deposition surrogates
-|Species|	Henry’s Law Coefficient (M/atm)	|Diffusivity (cm2/s)|	Relative reactivity	|f0 (meso parameter from Wesely)|	Lebas molar volume (cm3/mol)|
-|---|---|---|---|---|---|
-|IEPOX|	IEPOX (3x107)	|0.0579|	8|	0	|110.8|
-|HACET|	HACET (2.93x103)|	0.106 (Nguyen et al., 2015)|	8|	0|	72.6|
 
-Revised deposition species
+|Species|	Henry’s Law Coefficient (M/atm)	|Diffusivity (cm2/s)|	Relative reactivity	|f0 (meso parameter from Wesely)|	Lebas molar volume (cm3/mol)|
+| --- | --- | --- | --- | --- | --- |
+|IEPOX|	IEPOX (3x10<sup>7</sup>)	|0.0579|	8|	0	|110.8|
+|HACET|	HACET (2.93x10<sup>3</sup>)|	0.106 (Nguyen et al., 2015)|	8|	0|	72.6|
+
+Revised deposition species (saprc07tic species only)
+
 |Species	|Old dry deposition surrogate|	Old wet deposition surrogate|	New dry deposition surrogate|	New wet deposition surrogate|
 |---|---|---|---|---|
-|NISOPOOH|	H2O2|	H2O2|	NTRM|	HYDROXY_NITRATES (1.7×104 M/atm)|
-|HPALD|	none|	none|	OP	|hydroxy_peroxide (8.3×104 M/atm)|
-|ISOPOOH	|OP	|HYDROXY_PEROXIDE (H=7.4x103 M/atm)|	IEPOX|	no change|
+|NISOPOOH|	H2O2|	H2O2|	NTRM|	HYDROXY_NITRATES (1.7×10<sup>4</sup> M/atm)|
+|HPALD|	none|	none|	OP	|hydroxy_peroxide (8.3×10<sup>4</sup> M/atm)|
+|ISOPOOH	|OP	|HYDROXY_PEROXIDE (H=7.4x10<sup>3</sup> M/atm)|	IEPOX|	no change|
 
 Revised surrogate properties
-Species	Property	Old Value	New Value	Reference
-PROPNN	Henry’s Law Coefficient	1×103 M/atm	1×104 M/atm 	Nguyen et al. (2015)
-H2O2	Henry’s Law	8.3×104 M/atm	1.1×105 M/atm	Sander (1999)
-H2O2	Relative reactivity	30	34,000	Nguyen et al. (2015)
-HYDROXY_NITRATES, PROPNN, ORG_NTR	f0 (meso parameter)	0.1	0	Nguyen et al. (2015)
-OP	f0 (meso parameter)	0.1	0.3	Wolfe and Thornton (2011)
+
+|Species|	Property	|Old Value	|New Value	|Reference
+|---|---|---|---|---|
+|PROPNN	|Henry’s Law Coefficient	|1×10<sup>3</sup> M/atm	|1×10<sup>4</sup> M/atm |	Nguyen et al. (2015)
+|H2O2	|Henry’s Law|	8.3×10<sup>4</sup> M/atm	|1.1×10<sup>5</sup> M/atm	|Sander (1999)
+|H2O2	|Relative reactivity	|30	|34,000	|Nguyen et al. (2015)
+|HYDROXY_NITRATES, PROPNN, ORG_NTR	|f0 (meso parameter)	|0.1|	0	|Nguyen et al. (2015)
+|OP	|f0 (meso parameter)	|0.1	|0.3	|Wolfe and Thornton (2011)
 
 
 ## Significance and Impact
