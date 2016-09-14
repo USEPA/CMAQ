@@ -6,6 +6,7 @@
 
 In CMAQv5.1, three options existed within the aero module: aero6, aero6i, and aero6_mp. Each option consisted of a directory of code within aero6. Since much of the code was already shared among the modules, the remaining code was merged together so that separate code directories are not needed in the aero module for each aerosol option.
 All three options remain using the shared code directory.
+Technically, this update was primarily implemented by employing a master table of aerosol species in AERO_DATA.F. The main reason for the existence of three modules in the past was that they all treated distinct sets of aerosol species. Now all species are merged and available at runtime. The aerosol module now automatically populates the list of species it will treat using the aerosol namelist input file.
 
 ## Significance and Impact
 
@@ -22,7 +23,11 @@ cloud/acm_ae6/aqchem.F
 cloud/acm_ae6/rescld.F  
 cloud/acm_ae6_mp/AQ_DATA.F  
 cloud/acm_ae6_mp/aqchem.F  
-
+aero/aero6_mp/AERO_DATA.F
+aero/aero6_mp/opapmdiag.F
+aero/aero6_mp/opavis.F
+aero/aero6_mp/opdiam.F
+aero/aero6_mp/oppmdiag.F
 
 ## References
 
@@ -34,6 +39,7 @@ NA
 [PR #84](https://github.com/USEPA/CMAQ_Dev/pull/84)  
 [PR #78](https://github.com/USEPA/CMAQ_Dev/pull/78)  
 [PR #75](https://github.com/USEPA/CMAQ_Dev/pull/75)  
+[PR #98](https://github.com/USEPA/CMAQ_Dev/pull/98)  
 
 #### Commit IDs:
 e3b710b744edf6fab4f1d5c6ba3cfe18eca8ef47  
@@ -53,6 +59,7 @@ c84c4042a2347a9569ba6f7a4891edb39af0b7c6
 bb91c5cc99f02c5117d90a86ddbf93fd78c604a9  
 7acc41f6e6d96d49ede0d8bd4aaaaaa8c6ef85f0  
 86e391e47dc1954bab5e270c0d475967734d8571  
+2343c2ac3d58a781a32a5dc46efb3013526773e8
 
 
 -----
