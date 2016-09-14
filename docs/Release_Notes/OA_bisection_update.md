@@ -19,18 +19,17 @@ aero/aero6/SOA_DEFN.F
 
 ## References
 
-Pye, H. O. T., Murphy, B. N., Xu, L., Ng, N. L., Carlton, A. G., Guo, H., Weber, R., Vasilakos, P., Appel, K. W., Budisulistiorini, S. H., Surratt, J. D., Nenes, A., Hu, W., Jimenez, J. L., Isaacman-VanWertz, G., Misztal, P. K., and Goldstein, A. H.: On the implications of aerosol liquid water and phase separation for organic aerosol mass, Atmos. Chem. Phys. Discuss., doi:10.5194/acp-2016-719, in review, 2016. 
+Pye, H. O. T., Murphy, B. N., Xu, L., Ng, N. L., Carlton, A. G., Guo, H., Weber, R., Vasilakos, P., Appel, K. W., Budisulistiorini, S. H., Surratt, J. D., Nenes, A., Hu, W., Jimenez, J. L., Isaacman-VanWertz, G., Misztal, P. K., and Goldstein, A. H.: On the implications of aerosol liquid water and phase separation for organic aerosol mass, Atmos. Chem. Phys. Discuss., doi:10.5194/acp-2016-719, in review, 2016. [link](http://www.atmos-chem-phys-discuss.net/acp-2016-719/)
 
 -----
 ## Internal Records:
 #### Relevant Pull Requests:
-[PR #118](https://github.com/usepa/cmaq_dev/pulls/118) superceeds
+[PR #118](https://github.com/usepa/cmaq_dev/pulls/118) superceeds  
 [PR #111](https://github.com/usepa/cmaq_dev/pulls/111) 
 
 
 #### Commit IDs:
-dcc376663aa4224392353ef4e55c784aff272191
-
+dcc376663aa4224392353ef4e55c784aff272191  
 144c002bf1fcfb60ba3ed44afa284b0ab34ab343
 
 -----
