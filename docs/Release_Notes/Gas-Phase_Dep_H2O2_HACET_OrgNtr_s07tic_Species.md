@@ -19,7 +19,7 @@ Revised deposition species (saprc07tic species only)
 |---|---|---|---|---|
 |NISOPOOH|	H2O2|	H2O2|	NTRM|	HYDROXY_NITRATES (1.7×10<sup>4</sup> M/atm)|
 |HPALD|	none|	none|	OP	|hydroxy_peroxide (8.3×10<sup>4</sup> M/atm)|
-|ISOPOOH	|OP	|HYDROXY_PEROXIDE (H=7.4x10<sup>3</sup> M/atm)|	IEPOX|	no change|
+|ISOPOOH	|OP	|HYDROXY_PEROXIDE (H=8.3×10<sup>4</sup> M/atm)|	IEPOX|	no change|
 
 Revised surrogate properties
 
