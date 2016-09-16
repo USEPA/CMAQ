@@ -713,6 +713,7 @@ C Parameters:
          real       :: rlay1hgt         ! reciprocal of layer-1 height [1/m]
          real       :: m3j              ! 3rd moment accumulation (J) mode emis rates [m3/m3/s]
          real       :: m3k              ! 3rd moment coarse mode (K) emis rates [m3/m3/s]
+         real       :: fruf2            ! surface roughness factor squared
 
          character( 16 ), save :: rc_name, rn_name    ! new names: RC -> RCA, RN -> RNA
          logical, save :: firstime = .true.
@@ -1102,11 +1103,17 @@ C---Calculate friction velocity (U*) at the surafce applicable to dust emission
 
 C---Roughness effect on U*t (Drag partitioning)
 C   Xi and Sokolik [JGR,2015]
-                        fruf( c,r,m ) = sqrt( ( 1.0 - sigv_mv  * lambdav )
-     &                                  *     ( 1.0 + betav_mv * lambdav )
-     &                                  *     ( 1.0 - sigb_mb  * lambdab( n ) / vegfree ) 
-     &                                  *     ( 1.0 + betab_mb * lambdab( n ) / vegfree ) )
-                        fruf( c,r,m ) = max( fruf( c,r,m ), 1.0 )
+                        fruf2  = ( 1.0 - sigv_mv  * lambdav )
+     &                     *     ( 1.0 + betav_mv * lambdav )
+     &                     *     ( 1.0 - sigb_mb  * lambdab( n ) / vegfree ) 
+     &                     *     ( 1.0 + betab_mb * lambdab( n ) / vegfree )
+
+                        if( fruf2 .gt. 1.0 ) then
+
+                           fruf( c,r,m ) = sqrt( fruf2 )
+                        else 
+                           fruf( c,r,m ) = 10.0
+                        end if
 
 C---Vert-to-Horiz dust flux ratio : Kang et al. [JGR, 2011] : Eq. (12)
 !                       kvh( c,r,m ) = ( calpha * 9.81 * pfrac * 1000.0 / 2.0 / pp )

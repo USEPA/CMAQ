@@ -1135,7 +1135,7 @@ C-----------------------------------------------------------------------
                END DO
 
 !             write LAI for each LUC to file
-               DBUFF3( C,R,J ) = 0.0
+               DBUFF3 = 0.0
                FORALL( R = 1:MY_NROWS, C = 1:MY_NCOLS,
      &                 J = 1:N_LUFRAC, GRID_DATA%LUFRAC( C,R,J ) .GT. 0.0 )
                   DBUFF3( C,R,J ) = Mosaic_Data%LAI( C,R,J )
