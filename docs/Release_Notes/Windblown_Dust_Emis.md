@@ -24,8 +24,10 @@ emis/emis/DUST_EMIS.F
 ## Internal Records:
 
 ### Relevant Pull Requests: 
-  [PR #26](/usepa/cmaq/pull/26)
-  [PR #135](/usepa/cmaq/pull/135)
+
+  [PR #26](https://github.com/USEPA/CMAQ_Dev/pull/26)
+  
+  [PR #135](https://github.com/USEPA/CMAQ_Dev/pull/135)
 
 ### Commit IDs:
 ?
