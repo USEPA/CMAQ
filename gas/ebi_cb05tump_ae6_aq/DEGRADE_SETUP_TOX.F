@@ -49,6 +49,18 @@ C.....INCLUDES:
 
 C..declare and define variables used by maps and data
 
+      INTEGER, PARAMETER :: N_REACT      = 30    ! number of  species being degraded
+      INTEGER, PARAMETER :: N_UNI_LOSS   = 1     ! Number of Unimolecular Loss Processes
+      INTEGER, PARAMETER :: N_BI_LOSS    = 5     ! Number of Bimolcular Loss processes
+      INTEGER, PARAMETER :: N_TRI_LOSS   = 2     ! Number of Bimolcular Loss processes
+      INTEGER, PARAMETER :: N_PHOTO_LOSS = 2     ! Number of Photolysis Loss processes
+
+! Total number of Loss processes      
+      INTEGER, PARAMETER :: N_PROCESSES  = N_UNI_LOSS
+     &                                   + N_BI_LOSS
+     &                                   + N_PHOTO_LOSS
+     &                                   + N_TRI_LOSS
+
       CHARACTER(16), PARAMETER :: BLANK = ' '  ! default value for characters
 
       INTEGER :: N_REACT           ! Maxumim number of  species being degraded
@@ -103,6 +115,8 @@ C..looping data
 
       REAL(8), ALLOCATABLE :: RATE_CONST( :,: )
       REAL(8), ALLOCATABLE :: RATE_YIELD( :,: )
+
+      REAL(8)              :: EFFECTIVE_ZERO
 
 C..arrays to store indices to CGRID
 

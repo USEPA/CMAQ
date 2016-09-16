@@ -85,6 +85,10 @@ C  H.Pye      01/26/2016 added SOA SVOCs
 C  G.Sarwar   03/24/15  added iodine and bromine species
 C  H.Pye      05/31/16  updated IEPOX H-law from 2.7e6 to 3.0e7 M/atm
 C                       to reflect Nguyen et al. 2014.
+C  W.Hutzell  09/16/16  1) removed HCHO dissociation because its henry's
+C                        constant already accounts for the effect.
+C                       2) added henry's constant for compounds 194 thru
+C                        199 representing several toxic air pollutants
 C  
 C-----------------------------------------------------------------------
 
@@ -104,7 +108,7 @@ C...........INCLUDES and their descriptions
 
 C...........PARAMETERS and their descriptions:
 
-      INTEGER, PARAMETER :: MXSPCS = 193     ! Number of substances
+      INTEGER, PARAMETER :: MXSPCS = 199     ! Number of substances
       INTEGER, PARAMETER :: MXDSPCS = 19     ! Number of dissociating species
 
 C...pointers for the dissociation constants (array B and D)
@@ -116,18 +120,18 @@ C...pointers for the dissociation constants (array B and D)
       INTEGER, PARAMETER :: LCO2       =  5  ! CO2
       INTEGER, PARAMETER :: LHCO3      =  6  ! HCO3
       INTEGER, PARAMETER :: LH2O2      =  7  ! H2O2
-      INTEGER, PARAMETER :: LHCHO      =  8  ! HCHO
-      INTEGER, PARAMETER :: LHCOOH     =  9  ! HCOOH
-      INTEGER, PARAMETER :: LHO2       = 10  ! HO2
-      INTEGER, PARAMETER :: LNH4OH     = 11  ! NH4OH
-      INTEGER, PARAMETER :: LH2O       = 12  ! H2O
-      INTEGER, PARAMETER :: LATRA      = 13  ! Atrazine
-      INTEGER, PARAMETER :: LCL2       = 14  ! CL2
-      INTEGER, PARAMETER :: LHOCL      = 15  ! HOCL
-      INTEGER, PARAMETER :: LHCL       = 16  ! HCL
-      INTEGER, PARAMETER :: LHYDRAZINE = 17  ! Hydrazine
-      INTEGER, PARAMETER :: LHBR       = 18  ! HBR
-      INTEGER, PARAMETER :: LHI        = 19  ! HI
+      INTEGER, PARAMETER :: LHCOOH     =  8  ! HCOOH
+      INTEGER, PARAMETER :: LHO2       =  9  ! HO2
+      INTEGER, PARAMETER :: LNH4OH     = 10  ! NH4OH
+      INTEGER, PARAMETER :: LH2O       = 11  ! H2O
+      INTEGER, PARAMETER :: LATRA      = 12  ! Atrazine
+      INTEGER, PARAMETER :: LCL2       = 13  ! CL2
+      INTEGER, PARAMETER :: LHOCL      = 14  ! HOCL
+      INTEGER, PARAMETER :: LHCL       = 15  ! HCL
+      INTEGER, PARAMETER :: LHYDRAZINE = 16  ! Hydrazine
+      INTEGER, PARAMETER :: LHBR       = 17  ! HBR
+      INTEGER, PARAMETER :: LHI        = 18  ! HI
+      INTEGER, PARAMETER :: LACRYACID  = 19  ! CCH3COOH
 
 
 C...........SCRATCH LOCAL VARIABLES and their descriptions:
@@ -365,6 +369,13 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA SUBNAME(192), A(192), E(192) / 'DMS             ', 4.80E-01, 3.1E+03 /   ! ROLF SANDERS COMPILATION (1999)/De Bryuyn et al. (1995)
       DATA SUBNAME(193), A(193), E(193) / 'MSA             ', 7.70E+04, 0.0E+00 /   ! Meylan and Howard (1991), inverse of the value is used due to unit conversion
 
+      DATA SUBNAME(194), A(194), E(194) / 'ACETONITRILE    ', 5.27E+02, 4.0E+03 /   ! ROLF SANDERS COMPILATION (1999)/Moore et al. (1995)
+      DATA SUBNAME(195), A(195), E(195) / 'ACRYACID        ', 3.14E+03, 0.0E+03 /   ! ROLF SANDERS COMPILATION (1999)/Moore et al. (1995)
+      DATA SUBNAME(196), A(196), E(196) / 'METHCHLORIDE    ', 1.32E-01, 3.8E+03 /   ! ROLF SANDERS COMPILATION (1999)/Moore et al. (1995)
+      DATA SUBNAME(197), A(197), E(197) / 'CARBSULFIDE     ', 2.13E-01, 3.3E+03 /   ! ROLF SANDERS COMPILATION (1999)/Moore et al. (1995)
+      DATA SUBNAME(198), A(198), E(198) / 'CHLOROPRENE     ', 4.76E+00, 0.0E+00 /   ! ROLF SANDERS COMPILATION (1999)/Moore et al. (1995)
+      DATA SUBNAME(199), A(199), E(199) / 'ETHYLBENZENE    ', 1.42E-01, 4.8E+03 /   ! ROLF SANDERS COMPILATION (1999)/De Bryuyn et al. (1995)
+
       DATA B( LSO2   ), D( LSO2   ) / 1.30E-02,  1.96E+03 /  ! SO2*H2O<=>HSO3+H     : Smith and Martell (1976)
       DATA B( LHSO3  ), D( LHSO3  ) / 6.60E-08,  1.50E+03 /  ! HSO3<=>SO3+H         : Smith and Martell (1976)
       DATA B( LHNO2  ), D( LHNO2  ) / 5.10E-04, -1.26E+03 /  ! HNO2(aq)<=>NO2+H     : Schwartz and White (1981)
@@ -372,7 +383,6 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA B( LCO2   ), D( LCO2   ) / 4.30E-07, -1.00E+03 /  ! CO2*H2O<=>HCO3+H     : Smith and Martell (1976)
       DATA B( LHCO3  ), D( LHCO3  ) / 4.68E-11, -1.76E+03 /  ! HCO3<=>CO3+H         : Smith and Martell (1976)
       DATA B( LH2O2  ), D( LH2O2  ) / 2.20E-12, -3.73E+03 /  ! H2O2(aq)<=>HO2+H     : Smith and Martell (1976)
-      DATA B( LHCHO  ), D( LHCHO  ) / 2.53E+03,  4.02E+03 /  ! HCHO(aq)<=>H2C(OH)2  : Le Hanaf (1968)
       DATA B( LHCOOH ), D( LHCOOH ) / 1.80E-04, -2.00E+01 /  ! HCOOH(aq)<=>HCOO+H   : Martell and Smith (1977)
       DATA B( LHO2   ), D( LHO2   ) / 3.50E-05,  0.00E+00 /  ! HO2(aq)<=>H+O2       : Perrin (1982)
       DATA B( LNH4OH ), D( LNH4OH ) / 1.70E-05, -4.50E+02 /  ! NH4*OH<=>NH4+OH      : Smith and Martell (1976)
@@ -384,6 +394,8 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA B( LHYDRAZINE), D( LHYDRAZINE) / 1.11E-08,  0.00E+00 /  ! HYDRAZINE <=> HYDRAZINE+ + OH-  : Moliner and Street (1989)
       DATA B( LHBR   ), D( LHBR   ) / 1.00E+09,  0.00E+00 /  ! HBR <=> H + BR       : Schweitzer et al. (2000)
       DATA B( LHI    ), D( LHI    ) / 3.20E+09,  0.00E+00 /  ! HI <=> H + I         : Schweitzer et al. (2000)
+      DATA B( LHI    ), D( LHI    ) / 3.20E+09,  0.00E+00 /  ! HI <=> H + I         : Schweitzer et al. (2000)
+      DATA B( LACRYACID ), D( LACRYACID ) / 5.62E-5,  0.00E+00 /  ! CH3C(O)OH <=> H + CH3C(O)O  : Riddick et al. (1985)
 !-------------------------------------------------------------------------------
 ! Note for dissociation constant for equation 14: CL2*H2O <=> HOCL + H + CL
 ! Need aqueous [CL-] concentration to calculate effective henry's law coefficient
@@ -527,6 +539,11 @@ C...assign a value for clminus.  use 2.0 mM based on Lin and Pehkonene, 1998, JG
         CASE ( 'HI' )          ! HI <=> H+ + I-
 
           AKEQ1   = B( LHI ) * EXP( D( LHI ) * TFAC )
+          HLCONST = KH * ( 1.0 + AKEQ1 * HPLUSI )
+
+        CASE ( 'ACRYACID' )    ! CH3C(O)OH <=> H + CH3C(O)O 
+
+          AKEQ1   = B( LACRYACID ) * EXP( D( LACRYACID ) * TFAC )
           HLCONST = KH * ( 1.0 + AKEQ1 * HPLUSI )
 
         END SELECT CHECK_NAME

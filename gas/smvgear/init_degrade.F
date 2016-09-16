@@ -93,6 +93,8 @@ C**********************************************************************
 
          FIRSTCALL = .FALSE.
 
+         EFFECTIVE_ZERO  = 5.0D0 * TINY( CONV_M2N )
+
       ENDIF
 
       NUM_CELLS = NUMCELLS
@@ -113,7 +115,7 @@ C.. initialize concentrations and their changes
 
          DO I_CELL = 1, NUMCELLS
             NUMB_DENS( I_CELL ) = MASS_TO_NUMBER * DCELL( I_CELL )
-            TEMP( I_CELL )      = REAL( TCELL( I_CELL ) )
+            TEMP( I_CELL )      = TCELL( I_CELL )
             INV_TEMP( I_CELL )  = 1.0D0 / TCELL( I_CELL )
             CONV_FACT( I_CELL ) = CONV_M2N * DCELL( I_CELL )
          END DO
@@ -125,6 +127,7 @@ C.. initialize concentrations and their changes
 
 
             LOOP_UNIRATE: DO J = 1, N_UNI_LOSS
+               IF( UNIRATE( I, J ) .LT. EFFECTIVE_ZERO )CYCLE
                DO I_CELL = 1, NUMCELLS
                 RATE_CONST( I_CELL, I, J ) = UNIRATE( I, J ) 
      &                                     * TCELL( I_CELL )**UNI_TEXP( I, J )
@@ -133,6 +136,7 @@ C.. initialize concentrations and their changes
             ENDDO LOOP_UNIRATE
 
             LOOP_BIRATE: DO J = 1, N_BI_LOSS
+               IF( BIRATE( I, J ) .LT. EFFECTIVE_ZERO )CYCLE
                DO I_CELL = 1, NUMCELLS
                  RATE_CONST( I_CELL, I, (J+UNI_STOP) ) = CONV_FACT( I_CELL ) * BIRATE( I, J ) 
      &                                                 * TCELL( I_CELL )**BI_TEXP( I, J )
@@ -142,6 +146,7 @@ C.. initialize concentrations and their changes
             ENDDO LOOP_BIRATE
 
             LOOP_TRIRATE: DO J = 1, N_TRI_LOSS
+              IF( TRIRATE( I, J ) .LT. EFFECTIVE_ZERO )CYCLE
               DO I_CELL = 1, NUMCELLS 
                RATE_CONST( I_CELL, I, (J+BI_STOP) ) = CONV_FACT( I_CELL ) * CONV_FACT( I_CELL )
      &                                              * TRIRATE( I, J ) * TCELL( I_CELL )**TRI_TEXP( I, J )
@@ -150,9 +155,10 @@ C.. initialize concentrations and their changes
             ENDDO LOOP_TRIRATE
 
             LOOP_PHOTORATE: DO J = 1, N_PHOTO_LOSS
+              K = PHOTO_MAP( I, J )
+              IF ( K < 1 ) CYCLE
+              IF ( A_PHOT( I, J ) .LT. EFFECTIVE_ZERO ) CYCLE
               DO I_CELL = 1, NUMCELLS
-                K = PHOTO_MAP( I, J )
-                IF ( K < 1 ) CYCLE
                 RATE_CONST( I_CELL, I, (J+TRI_STOP) ) = A_PHOTO( I, J ) * PHOTO_CELL( I_CELL, K )
               END DO
             ENDDO LOOP_PHOTORATE
