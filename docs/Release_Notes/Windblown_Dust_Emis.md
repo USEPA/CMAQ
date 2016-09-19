@@ -4,7 +4,7 @@
 
 ## Brief Description 
 
-This update implements a new physics-based windblown dust emission scheme. A new dynamic relation for the surface roughness length is developed [Foroutan et al., 2016] in this scheme, and the friction velocity at the surface is calculated accordingly. The MODIS FPAR satelite observation is used to represent more realistic time-varying vegetation coverage in this model that affects both the friction velocity and the drag partitioning coefficient. Additionally, the threshold friction velocity for dust emission is updated to reflect the dependency on soil grain size following Shao and Lu [2000]. Finally, a physics-based sandblasting efficiency formulation [Lu and Shao, 1999] is used in the present model that includes the effect of soil plasticity, texture, and density into account. 
+This update implements a new physics-based windblown dust emission scheme. A new dynamic relation for the surface roughness length is developed [Foroutan et al., 2016] in this scheme, and the friction velocity at the surface is calculated accordingly. The MODIS FPAR satellite observation is used to represent more realistic time-varying vegetation coverage in this model that affects both the friction velocity and the drag partitioning coefficient. Additionally, the threshold friction velocity for dust emission is updated to reflect the dependency on soil grain size following Shao and Lu [2000]. Finally, a physics-based sandblasting efficiency formulation [Lu and Shao, 1999] is used in the present model that includes the effect of soil plasticity, texture, and density into account. 
 
 ## Significance and Impact
 
