@@ -30,6 +30,10 @@ emis/emis/DUST_EMIS.F
   [PR #135](https://github.com/USEPA/CMAQ_Dev/pull/135)
 
 ### Commit IDs:
-?
+
+a8216accbe0830eb90b7d5af8c22612c2c964785
+8705282abed3f5f6e870d99ac97ba6c554668672
+5a4cb1103fb09c429cb93010a864e9f1431e6acf
+918ad000e648b4b3b6db091ab514fcb91b636190
 
 
