@@ -149,7 +149,7 @@ C        INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
          INTEGER :: COL, ROW     ! local col and row variable 
 !C Local Variables:
          CHARACTER( 16 ), SAVE :: CTM_LTNG_NO = 'CTM_LTNG_NO'  ! env var Cflag
-         CHARACTER( 16 ), SAVE :: SCALE_FACTOR = 'SCALE_FACTOR'  ! env CCvar flag
+         CHARACTER( 16 ), SAVE :: RC_logCUTOFF = 'RC_LOG'  ! env CCvar flag
          CHARACTER( 16 )       :: PNAME = 'LTNG_INIT'
          CHARACTER( 80 )       :: VARDESC   ! env variable description
          CHARACTER( 120 )      :: XMSG = ' '
@@ -192,7 +192,7 @@ C        INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
 
          VARDESC = 'Flag for lightning emissions'
          LTNG_NO = ENVYN( CTM_LTNG_NO, VARDESC, .FALSE., STATUS )
-         scl_factor = ENVREAL( SCALE_FACTOR, VARDESC, 0.9, STATUS )
+         scl_factor = ENVREAL( RC_logCUTOFF, VARDESC, 0.9, STATUS )
          IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
          IF ( STATUS .EQ. 1 ) THEN
             XMSG = 'Environment variable improperly formatted'
@@ -252,7 +252,7 @@ C        INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
 !C Open lightning parameters file?
                ANAME = PROMPTMFILE(
      &                    'Enter name for NLDN STRIKE Parameters',
-     &                    FSREAD3, 'LTNGPARM_FILE', PNAME )
+     &                    FSREAD3, 'NLDN_STRIKES', PNAME )
                ONAME = PROMPTMFILE(
      &                    'Enter name for lightning parameters file',
      &                    FSREAD3, 'LTNGPARMS_FILE', PNAME )
