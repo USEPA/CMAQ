@@ -129,7 +129,6 @@ c !! NO   and to populate the allocated arrays from the stnd gc_spc.ext  !!! NO
 
          function cgrid_spcs_init() result ( success )
             use UTILIO_DEFN
-            use RXNS_DATA           ! chemical mechanism data
      
             implicit none
 

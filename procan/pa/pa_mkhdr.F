@@ -21,19 +21,18 @@
 C RCS file, release, date & time of last delta, author, state, [and locker]
 C $Header: /project/yoj/arc/CCTM/src/procan/pa/pa_mkhdr.F,v 1.5 2011/10/21 16:11:33 yoj Exp $
 
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C=======================================================================
       SUBROUTINE PA_MKHDR ( TYPE, NFL, OUTFNAME, SDATE, STIME, TSTEP )
 
 C   21 Jun 10 J.Young: convert for Namelist redesign
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C   11 May 11 D.Wong: incorporated twoway model implementation
+C   16 Sep 16 J.Young: update for inline procan
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE CGRID_SPCS            ! CGRID mechanism species
       USE UTILIO_DEFN
+      USE PA_DEFN               ! Process Anaylsis control and data variables
       USE PAGRD_DEFN            ! PA horiz domain specs
 
       IMPLICIT NONE
@@ -41,8 +40,6 @@ C   11 May 11 D.Wong: incorporated twoway model implementation
 C used in pa_init
 C FIRSTIME gets some FDESC3 common variables from GRID_CONF to be used
 C for both IPR and IRR if needed.
-
-      INCLUDE SUBST_PACMN_ID    ! PA common block definitions
 
 C Arguments:
       CHARACTER( 3 ) ::  TYPE   ! IPR or IRR

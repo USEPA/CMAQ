@@ -72,6 +72,7 @@ C                    types by using unit conversion factors and 4) revised usage
 C                    INIT_DEGRADE and FINAL_DEGRADE routines
 C                    02 Dec 14 B.Hutzell 1) added terrestrial data to conduct surface
 C                    dependent reactions and 2) modified the call CALC_RCONST routine
+C                    16 Sep 16 J.Young: update for inline procan (IRR)
 C**********************************************************************
 
       USE RXNS_DATA
@@ -82,6 +83,7 @@ C**********************************************************************
       USE UTILIO_DEFN
       USE AEROSOL_CHEMISTRY
       USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP
+      USE PA_DEFN, Only: LIRR   ! Process Anaylsis control and data variable
 
       IMPLICIT NONE 
 
@@ -89,7 +91,6 @@ C..Includes:
 
       INCLUDE SUBST_FILES_ID    ! CMAQ files
       INCLUDE SUBST_CONST       ! CMAQ constants
-      INCLUDE SUBST_PACTL_ID    ! Process analysis control parameters
  
 C..Arguments:
 

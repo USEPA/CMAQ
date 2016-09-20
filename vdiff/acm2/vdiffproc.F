@@ -77,6 +77,7 @@ C                   - Added a block of code to allow non I/O processors
 C                     to open CTM_DRY_DEP_1, CTM_VSED_DIAG, CTM_VDIFF_DIAG,
 C                     CTM_DRY_DEP_MOS, and CTM_DRY_DEP_FST
 C 03 Mar 16 G.Sarwar: updated for halogen emissions
+C 16 Sep 16 J.Young: update for inline procan (IPR)
 C-----------------------------------------------------------------------
 
       USE CGRID_SPCS          ! CGRID mechanism species
@@ -88,13 +89,13 @@ C-----------------------------------------------------------------------
       USE UTILIO_DEFN
       USE BIDI_MOD
       USE HGSIM
-      USE LSM_MOD, ONLY: n_lufrac
+      USE LSM_MOD, Only: n_lufrac
       USE SEDIMENTATION
       USE VDIFF_DIAG
+      USE PA_DEFN, Only: LIPR ! Process Anaylsis control and data variables
 
       IMPLICIT NONE
 
-      INCLUDE SUBST_PACTL_ID  ! PA control parameters
       INCLUDE SUBST_FILES_ID  ! file name parameters
 
       CHARACTER( 120 ) :: XMSG = ' '

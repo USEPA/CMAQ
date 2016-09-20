@@ -21,9 +21,6 @@
 C RCS file, release, date & time of last delta, author, state, [and locker]
 C $Header: /project/yoj/arc/CCTM/src/grid/cartesian/PAGRD_DEFN.F,v 1.4 2011/10/21 16:11:18 yoj Exp $
 
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE PAGRD_DEFN
 
@@ -43,6 +40,8 @@ C   COLSX_PE and ROWSX_PE
 C   J.Young  8 Jul 10: minor mods
 C   S. Roselle 29 Mar 11: Replaced I/O API include files with UTILIO_DEFN
 C   J.Young 14 Sep 11: allow default subdomain values
+C   J.Young 28 Jun 16: use PA_DEFN module intead of include files
+C   J.Young 16 Sep 16: update for inline procan
 C.......................................................................
 
       IMPLICIT NONE
@@ -99,9 +98,7 @@ C Buffer for writing IRR results
 #else
          USE NOOP_MODULES        ! stenex (using NOOP_UTIL_MODULE)
 #endif
-
-         INCLUDE SUBST_PACTL_ID  ! PA control parameters
-         INCLUDE SUBST_PACMN_ID  ! PA common block definitions
+         USE PA_DEFN             ! Process Anaylsis control and data variables
 
          INTEGER, INTENT( IN ) :: NPROCS  ! total worker processors
          INTEGER, INTENT( IN ) :: RANK
@@ -252,7 +249,7 @@ C Construct the processor-to-subdomain map for IPR domain
 
                IF ( LIPR ) THEN
 
-                  ALLOCATE ( DELC( MY_PACOLS,MY_PAROWS,PALEVS,NIPRVARD ),
+                  ALLOCATE ( DELC( MY_PACOLS,MY_PAROWS,PALEVS,NIPRVAR ),
      &                       STAT = ALST )
                   IF ( ALST .NE. 0 ) THEN
                      XMSG = '*** DELC Memory allocation failed'
@@ -260,7 +257,7 @@ C Construct the processor-to-subdomain map for IPR domain
                      SUCCESS = .FALSE.; RETURN
                   END IF
 
-                  ALLOCATE ( CSAV( MY_PACOLS,MY_PAROWS,PALEVS,NCSAVED ),
+                  ALLOCATE ( CSAV( MY_PACOLS,MY_PAROWS,PALEVS,NCSAVE ),
      &                       STAT = ALST )
                   IF ( ALST .NE. 0 ) THEN
                      XMSG = '*** CSAV Memory allocation failed'
@@ -284,7 +281,7 @@ C Determine IRR subgrid mapping without data redistribution
                   IRROWS = X1F0 * PAROWS + ( 1 - X1F0 ) * NROWS
                   IRLEVS = PALEVS
 
-                  ALLOCATE ( IRROUT( IRCOLS,IRROWS,IRLEVS,NIRRVARD ),
+                  ALLOCATE ( IRROUT( IRCOLS,IRROWS,IRLEVS,NIRRVAR ),
      &                       STAT = ALST )
                   IF ( ALST .NE. 0 ) THEN
                      XMSG = '*** IRROUT Memory allocation failed'

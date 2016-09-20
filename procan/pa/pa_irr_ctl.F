@@ -21,9 +21,6 @@
 C RCS file, release, date & time of last delta, author, state, [and locker]
 C $Header: /project/yoj/arc/CCTM/src/procan/pa/pa_irr_ctl.F,v 1.4 2011/10/21 16:11:33 yoj Exp $
 
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C @(#)pa_irr_ctl.F	1.1 /project/mod3/CMAQ/src/procan/pa/SCCS/s.pa_irr_ctl.F 07 Jul 1997 10:20:54
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE PA_IRR_SETUP( NBLKS, LIRRBLK, LCELL, BLKLEN,
      &                         CCOL, CROW, CLEV )
@@ -54,16 +51,17 @@ C                      BLKPRM.EXT; Use GRVARS
 C   31 Jan 05 J.Young: dyn alloc - establish both horizontal & vertical
 C                      domain specifications in one module (GRID_CONF)
 C   21 Jun 10 J.Young: convert for Namelist redesign
+C   16 Sep 16 J.Young: update for inline procan (IRR)
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE CGRID_SPCS            ! CGRID mechanism species
+      USE PA_DEFN               ! Process Anaylsis control and data variables
       USE PAGRD_DEFN            ! PA horiz domain specs
 
       IMPLICIT NONE 
 
-C..Includes:
-      INCLUDE SUBST_PACMN_ID   ! PA control parameters
+C..Includes: None
 
 C..Arguments: 
       INTEGER NBLKS               ! Number of blocks in modeling domain
