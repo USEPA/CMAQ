@@ -27,7 +27,7 @@ DOI: 10.1039/C3CP52851K. [link](http://pubs.rsc.org/en/Content/ArticleLanding/20
 -----
 ## Internal Records:
 #### Relevant Pull Requests:
-[PR #11](https://github.com/usepa/cmaq_dev/pulls/11) 
+[PR #11](https://github.com/usepa/cmaq_dev/pull/11) 
 
 
 #### Commit IDs:
