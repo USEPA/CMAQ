@@ -4,7 +4,7 @@
 
 ## Brief Description 
 
-Based largely on the work of Nguyen et al. (2015) for the southeast United States, deposition of several gas-phase species has been updated. Most species only exist in saprc07tic. Howver, IEPOX and H2O2 are common to several mechanisms.
+Based largely on the work of Nguyen et al. (2015) for the southeast United States, deposition of several gas-phase species has been updated. Most species only exist in saprc07tic. However, IEPOX and H2O2 are common to several mechanisms.
 
 New deposition surrogates
 
@@ -34,7 +34,7 @@ Revised surrogate properties
 
 ## Significance and Impact
 
-Deposition rates for many species were updated and compared to observations of concentrations and deposition velocities measured during SOAS by Nguyen et al. (2015). The largest changes occured for H2O2 (HO2H in SAPRC) in which dry deposition velocities at midday increased from approx 3 cm/s to 5 cm/s (consistent with measurements). The bias in H2O2 concentration was reduced from 238% to 113%. 
+Deposition rates were compared to observations of concentrations and deposition velocities measured during SOAS by Nguyen et al. (2015). The largest changes occured for H2O2 (HO2H in SAPRC) in which dry deposition velocities at midday increased from approx 3 cm/s to 5 cm/s (consistent with measurements). The bias in H2O2 concentration was reduced from 238% to 113%. 
 
 HACET deposition velocities at midday increased from 0.6 cm/s to 2 cm/s. The bias in HACET decreased from 26% to 15%.
 
@@ -80,7 +80,7 @@ Wolfe, G. M., and Thornton, J. A.: The Chemistry of Atmosphere-Forest Exchange (
 ## Internal Records:
 
 ### Relevant Pull Requests: 
-[PR #11](/usepa/cmaq/pull/11)
+[PR #11](https://github.com/usepa/cmaq_dev/pull/11)
 
 ### Commit IDs:
 8f3bd301099c354350a3d152088c9f2fb961c720  
