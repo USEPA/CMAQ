@@ -33,7 +33,7 @@ NA
 -----
 ## Internal Records:
 #### Relevant Pull Requests:
-[PR #78](https://github.com/usepa/cmaq_dev/pulls/78)  
+[PR #78](https://github.com/usepa/cmaq_dev/pull/78)  
 
 
 #### Commit IDs:
