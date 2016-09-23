@@ -397,7 +397,7 @@ C                         Aitken    accum     coarse             Aitken  accum  
      &   emis_table( (/'         ','         ','ASEACAT  '/), (/ 0.0, 0.0    , 0.36860/) ),   ! Sea-Salt Cations
 ! For toxic metal species, Use Table 1 in K.W. Bruland and M.C. Lohan, 6.02 - Controls of Trace Metals in Seawater, 
 ! In Treatise on Geochemistry, edited by Heinrich D. Holland and Karl K. Turekian, Pergamon, Oxford, 2003, Pages 23-47,
-! ISBN 9780080437514, http://dx.doi.org/10.1016/B0-08-043751-6/B06105-3.
+! ISBN 9780080437514, http://dx.doi.org/10.1016/B0-08-043751-6/06105-3.
      &   emis_table( (/'         ','ACR_VIJ  ','         '/), (/ 0.0, 5.95E-9, 0.0    /) ),   ! accumaltion mode Hexavalent Chromium
      &   emis_table( (/'         ','ANIJ     ','         '/), (/ 0.0, 1.34E-8, 0.0    /) ),   ! accumaltion mode Nickle
      &   emis_table( (/'         ','AASJ     ','         '/), (/ 0.0, 4.93E-8, 0.0    /) ),   ! accumaltion mode Arsenic

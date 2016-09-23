@@ -369,10 +369,10 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA SUBNAME(192), A(192), E(192) / 'DMS             ', 4.80E-01, 3.1E+03 /   ! ROLF SANDERS COMPILATION (1999)/De Bryuyn et al. (1995)
       DATA SUBNAME(193), A(193), E(193) / 'MSA             ', 7.70E+04, 0.0E+00 /   ! Meylan and Howard (1991), inverse of the value is used due to unit conversion
 
-      DATA SUBNAME(194), A(194), E(194) / 'ACETONITRILE    ', 5.27E+02, 4.0E+03 /   ! ROLF SANDERS COMPILATION (1999)/Moore et al. (1995)
-      DATA SUBNAME(195), A(195), E(195) / 'ACRYACID        ', 3.14E+03, 0.0E+03 /   ! ROLF SANDERS COMPILATION (1999)/Moore et al. (1995)
+      DATA SUBNAME(194), A(194), E(194) / 'ACETONITRILE    ', 5.27E+01, 4.0E+03 /   ! ROLF SANDERS COMPILATION (1999)/Moore et al. (1995)
+      DATA SUBNAME(195), A(195), E(195) / 'ACRYACID        ', 3.14E+03, 0.0E+00 /   ! ROLF SANDERS COMPILATION (1999)/Moore et al. (1995)
       DATA SUBNAME(196), A(196), E(196) / 'METHCHLORIDE    ', 1.32E-01, 3.8E+03 /   ! ROLF SANDERS COMPILATION (1999)/Moore et al. (1995)
-      DATA SUBNAME(197), A(197), E(197) / 'CARBSULFIDE     ', 2.13E-01, 3.3E+03 /   ! ROLF SANDERS COMPILATION (1999)/Moore et al. (1995)
+      DATA SUBNAME(197), A(197), E(197) / 'CARBSULFIDE     ', 2.13E-02, 3.3E+03 /   ! ROLF SANDERS COMPILATION (1999)/Moore et al. (1995)
       DATA SUBNAME(198), A(198), E(198) / 'CHLOROPRENE     ', 4.76E+00, 0.0E+00 /   ! ROLF SANDERS COMPILATION (1999)/Moore et al. (1995)
       DATA SUBNAME(199), A(199), E(199) / 'ETHYLBENZENE    ', 1.42E-01, 4.8E+03 /   ! ROLF SANDERS COMPILATION (1999)/De Bryuyn et al. (1995)
 
@@ -477,11 +477,6 @@ C...assign a value for clminus.  use 2.0 mM based on Lin and Pehkonene, 1998, JG
 
           AKEQ1 = B( LH2O2 ) * EXP( D( LH2O2 ) * TFAC )
           HLCONST = KH * ( 1.0 + AKEQ1 * HPLUSI )
-
-        CASE ('FORMALDEHYDE')   ! HCHO(aq) <=> H2C(OH)2(aq)
-
-          AKEQ1 = B( LHCHO ) * EXP( D( LHCHO ) * TFAC )
-          HLCONST = KH * ( 1.0 + AKEQ1 )
 
         CASE ('FORMIC_ACID')    ! HCOOH(aq) <=> HCOO- + H+
 
