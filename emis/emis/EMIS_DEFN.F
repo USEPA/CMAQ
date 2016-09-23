@@ -47,6 +47,7 @@ C     07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module.
 C     24 Feb 16 B.Murphy: Generalize scaling of point source species based on
 C                         mapping model species, not point source species
 C     03 Mar 16 B.Gantt/G. Sarwar: incorporated halogen emissions
+C     08 Aug 2016 B.Murphy: Neglect fire emissions for pcVOC
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications      
@@ -337,6 +338,7 @@ C GET_AERO_EMIS has to apply factors - don`t do it at this level.
          USE UTILIO_DEFN
          USE DEPV_DEFN, ONLY: ABFLUX ! ammonia bidi flag
          USE ASX_DATA_MOD, ONLY: MET_DATA, GRID_DATA
+         USE RXNS_DATA, ONLY: MECHNAME
 
          IMPLICIT NONE
 
@@ -355,6 +357,7 @@ C Local Variables:
          REAL,    SAVE :: CNVTP         ! intermediate combined conv. factor
          REAL             DELT          ! interpolation factor
          INTEGER          C, R, L, N, S, V ! loop induction variables
+         INTEGER          S_STRT, S_END ! substitute loop induction variables
 
          CHARACTER( 16 ) :: PNAME = 'GET_EMIS'
          CHARACTER( 120 ) :: XMSG = ' '
@@ -522,16 +525,62 @@ C merge: VDEMIS_PT in mol/sec. Convert to ppm/sec
 C If aerosols, then the PM emissions obtained from GET_PT3D_EMIS need to be
 C accessed by GET_AERO_EMIS to be "speciated" and merged with the AE emissions.
 
+            S_STRT = 1; S_END = N_GC_EMIS
+            IF ( INDEX( MECHNAME, 'NVPOA' ) .EQ. 0 ) THEN
+               DO R = 1, MY_NROWS
+                  DO C = 1, MY_NCOLS
+                     DO L = 1, EMLAYS
+                        CNVTC = CNVTP * Grid_Data%RDX3F( L ) * Met_Data%RRHOJ( C,R,L )
+                        DO S = S_STRT, S_END
+                           V = SPC_PTEM_MAP( S ) ! <- pointer to non-PM (non-aerosol) species
+                           N = PTEM_MAP( S )     ! <- pointer to non-PM emissions
+                           IF ( V .LT. 1 ) CYCLE
+                           VDEMIS( V,L,C,R ) = VDEMIS( V,L,C,R )
+     &                                       + CNVTC * SPC_PTEM_FAC( S )
+     &                                       * VDEMIS_PT( C,R,L,N )
+                           IF ( GC_SPC( GC_EMIS_MAP( S ) ) .EQ. 'PCVOC' ) THEN
+                              VDEMIS( V,L,C,R ) = VDEMIS( V,L,C,R ) 
+     &                                          - CNVTC * SPC_PTEM_FAC( S )
+     &                                          * VDEMIS_PT_FIRE( C,R,L,N )
+                           END IF
+                        END DO
+                     END DO
+                  END DO
+               END DO
+
+            ELSE ! Remove pcSOA from fire point sources. Biomass burning sources
+                 ! contributing to pcSOA cause enormous OA plumes.
+
+               DO R = 1, MY_NROWS
+                  DO C = 1, MY_NCOLS
+                     DO L = 1, EMLAYS
+                        CNVTC = CNVTP * Grid_Data%RDX3F( L ) * Met_Data%RRHOJ( C,R,L )
+                        DO S = S_STRT, S_END
+                           V = SPC_PTEM_MAP( S ) ! <- pointer to non-PM (non-aerosol) species
+                           N = PTEM_MAP( S )     ! <- pointer to non-PM emissions
+                           IF ( V .LT. 1 ) CYCLE
+                           VDEMIS( V,L,C,R ) = VDEMIS( V,L,C,R )
+     &                                       + CNVTC * SPC_PTEM_FAC( S )
+     &                                       * VDEMIS_PT( C,R,L,N )
+                        END DO
+                     END DO
+                  END DO
+               END DO
+
+            END IF
+
+            S_STRT = S_END + 1; S_END = N_GC_EMIS + N_NR_EMIS + N_TR_EMIS
             DO R = 1, MY_NROWS
                DO C = 1, MY_NCOLS
                   DO L = 1, EMLAYS
                      CNVTC = CNVTP * Grid_Data%RDX3F( L ) * Met_Data%RRHOJ( C,R,L )
-                     DO S = 1, N_GC_EMIS + N_NR_EMIS + N_TR_EMIS
+                     DO S = S_STRT, S_END
                         V = SPC_PTEM_MAP( S ) ! <- pointer to non-PM (non-aerosol) species
                         N = PTEM_MAP( S )     ! <- pointer to non-PM emissions
                         IF ( V .LT. 1 ) CYCLE
                         VDEMIS( V,L,C,R ) = VDEMIS( V,L,C,R )
-     &                                    + CNVTC * SPC_PTEM_FAC( S ) * VDEMIS_PT( C,R,L,N )
+     &                                    + CNVTC * SPC_PTEM_FAC( S )
+     &                                    * VDEMIS_PT( C,R,L,N )
                      END DO
                   END DO
                END DO
@@ -586,7 +635,7 @@ C                                       vvvvvvv - emis surrogate names
                DO R = 1, MY_NROWS
                   DO C = 1, MY_NCOLS
                      BUFF( C,R,1 ) = BUFF( C,R,1 ) - FERT( C,R,1 )
-                     IF(BUFF( C,R,1 ) .LT. 0.0 ) THEN
+                     IF ( BUFF( C,R,1 ) .LT. 0.0 ) THEN
                         XMSG = 'Negative values in NH3 emissions' 
      &                       //'Error in NH3 Bidi emissions'                          
                         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )

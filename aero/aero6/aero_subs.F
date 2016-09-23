@@ -1410,19 +1410,19 @@ C     condensation and negative for evaporation.
       DVOLINORG( KCL )  = GCLR8  * CFAC_GHCL  - GAS( 3 )   ! mol m-3
 
       IF ( DVOLINORG( KNH4 ) .LT. 0.0D0 ) THEN
-         DVOLMAX = -SUM(REAL( AEROSPC_CONC( ANH4_IDX,1:2 ), 8 ) ) * CFAC_ANH4 + EVAPMIN
+         DVOLMAX = -SUM(REAL( AEROSPC_CONC( ANH4_IDX,1:2 ), 8 ) ) * CFAC_ANH4 + EVAPMIND
          DVOLINORG( KNH4 ) = MAX( DVOLINORG( KNH4 ), DVOLMAX )
       END IF
 
       IF ( DVOLINORG( KNO3 ) .LT. 0.0D0 ) THEN
-         DVOLMAX = -SUM(REAL( AEROSPC_CONC( ANO3_IDX,1:2 ), 8 ) ) * CFAC_ANO3 + EVAPMIN
+         DVOLMAX = -SUM(REAL( AEROSPC_CONC( ANO3_IDX,1:2 ), 8 ) ) * CFAC_ANO3 + EVAPMIND
          DVOLINORG( KNO3 ) = MAX( DVOLINORG( KNO3 ), DVOLMAX)
       END IF
 
       IF ( .not.TRUSTCL ) THEN  
          DVOLINORG( KCL ) = 0.0D0
       ELSEIF ( DVOLINORG( KCL ) .LT. 0.0D0 ) THEN
-         DVOLMAX = -SUM(REAL( AEROSPC_CONC( ACL_IDX,1:2 ), 8 ) ) * CFAC_ACL + EVAPMIN
+         DVOLMAX = -SUM(REAL( AEROSPC_CONC( ACL_IDX,1:2 ), 8 ) ) * CFAC_ACL + EVAPMIND
          DVOLINORG( KCL ) = MAX( DVOLINORG( KCL ), DVOLMAX )
       END IF
 
@@ -3254,7 +3254,7 @@ C     Dover,1981 page 179. Original edition was Wiley, 1957.
       real alfa     ! Mie parameter
       real nr, ni   ! real and imaginary parts of the index of refraction
       real QEXT     ! extinction efficiency for a sphere
-      real z, tanb, b, cos2b, v1, v2, x, expmx, expm2x, cs1, cs2
+      real z, tanb, b, cos2b, v1, v2, x, expmx, cs1, cs2
       real twob, cosb
       real nr1
 
@@ -3267,12 +3267,10 @@ C     Dover,1981 page 179. Original edition was Wiley, 1957.
       cos2b  = cos( twob )
       v1     = 5.0 * nr1
       v2     = 4.08 / ( 1.0 + 3.0 * tanb )
-      x      = z * tanb
+      x      = Min(z * tanb, 69.0)
       expmx  = exp( -x )
-      expm2x = exp( -2.0 * x )
       cs1    = cosb / z
       cs2    = cs1 * cs1
-
       QEXT   = 2.0 - 4.0 * cs1 * expmx * sin( z - b )
      &       + 4.0 * cs2 * ( cos2b - expmx * cos(z - twob ) )
       return

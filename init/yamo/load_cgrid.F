@@ -54,6 +54,7 @@ C-----------------------------------------------------------------------
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE CGRID_SPCS            ! CGRID mechanism species
       USE UTILIO_DEFN
+      USE RXNS_DATA, ONLY : MECHNAME
 
       IMPLICIT NONE
 
@@ -118,6 +119,7 @@ C for XTRACT3
       INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
       INTEGER       :: STRTCOLINI, ENDCOLINI, STRTROWINI, ENDROWINI
       REAL      :: DBUFF( NCOLS,NROWS,NLAYS )
+      REAL      :: DBUFF_TMP( NCOLS,NROWS,NLAYS )
 
       INTEGER      SPC_STRT
       INTEGER      N_SPCS                     ! no. of species for this call
@@ -131,6 +133,7 @@ C for XTRACT3
 
       CHARACTER( 16 ) :: PNAME = 'LOAD_CGRID'
       CHARACTER( 16 ) :: VNAME
+      CHARACTER( 16 ) :: ICNAME_TMP
       CHARACTER( 16 ) :: CONCMIN
       CHARACTER( 96 ) :: XMSG = ' '
       CHARACTER( 40 ) :: CHWARN = 'Domain extents different from model for '
@@ -417,6 +420,23 @@ C IOFDESC common now loaded with FNAME header
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
+            ! Add Non-Carbon Mass to Carbon Mass if the model is
+            ! running semivolatile POA
+            IF ( VNAME3D( NDX )( 1:4 ) .EQ. 'APOC' ) THEN 
+               IF ( INDEX( MECHNAME,"NVPOA" ) .EQ. 0 ) THEN
+                  ICNAME_TMP = 'APNCOM' // VNAME3D( NDX )( 5:5 )
+                  IF ( .NOT. XTRACT3( FNAME, ICNAME_TMP,
+     &                   1,NLAYS, STRTROWINI,ENDROWINI,STRTCOLINI,
+     &                   ENDCOLINI,JDATE, JTIME, DBUFF_TMP ) ) THEN 
+                     XMSG = 'Could not read ' // TRIM( ICNAME_TMP ) 
+     &                      // ' from ' // FNAME
+                     CALL M3WARN( PNAME, JDATE, JTIME, XMSG ) 
+                  END IF
+                  DBUFF = DBUFF + DBUFF_TMP
+                END IF
+            END IF
+
+            ! Load ICs into CGRID
             DO L = 1, NLAYS
                DO R = 1, MY_NROWS
                   DO C = 1, MY_NCOLS

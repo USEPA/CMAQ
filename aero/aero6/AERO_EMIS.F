@@ -242,7 +242,7 @@ C External Functions:
 
 C Local Variables:
          CHARACTER( 16 ), SAVE :: CTM_WB_DUST = 'CTM_WB_DUST' ! env var for windblown dust
-         LOGICAL :: ZERO_PCSOA
+         LOGICAL, SAVE :: ZERO_PCSOA
          CHARACTER( 16 ), SAVE :: CTM_ZERO_PCSOA = 'CTM_ZERO_PCSOA' ! env var for toggling
                                                                     ! pcSOA modeling
 
