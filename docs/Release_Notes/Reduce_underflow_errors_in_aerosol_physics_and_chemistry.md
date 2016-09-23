@@ -19,7 +19,6 @@ original models.  The sensitivity occurs through altering mean diameters of aero
 the effects based on the last two days of the simulation.    
     
 ## Affected Files:
-    
 MECHS/saprc07tb_ae6_aq/RXNS_DATA_MODULE.F90
 aero/aero6/AEROSOL_CHEMISTRY.F
 aero/aero6/aero_subs.F
@@ -35,8 +34,7 @@ None
     
     
 ### Relevant Pull Requests:
-
-Pull Request #113 (/usepa/cmaq_dev/pull/113)
+  [PR #113](https://github.com/USEPA/CMAQ_Dev/pull/113)
 
 ### Commit IDs:
     
