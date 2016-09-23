@@ -26,7 +26,7 @@ None
     
     
 ### Relevant Pull Requests:
-Pull Request #14 (/usepa/cmaq_dev/pull/14)
+  [PR #14](https://github.com/USEPA/CMAQ_Dev/pull/14)
     
 ### Commit IDs:
     
