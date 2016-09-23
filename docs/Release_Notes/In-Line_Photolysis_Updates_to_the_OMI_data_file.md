@@ -45,7 +45,7 @@ None
 ## Internal Records:
     
 ### Relevant Pull Requests:
-Pull Request #100 (/usepa/cmaq_dev/pull/100)
+  [PR #100](https://github.com/USEPA/CMAQ_Dev/pull/100)
 
 ### Commit IDs:
     

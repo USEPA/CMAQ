@@ -21,6 +21,7 @@ The Community Multiscale Air Quality (CMAQ) Model version 5.2 is major update to
   * [Brute force no chemistry capacity](Brute_force_no_chemistry_capacity.md)
   * [RXNS_DATA_MODULEs comply to FORTRAN 132 column limit](MECHS_RXNS_DATA_MODULEs_comply_to_FORTRAN_132_column_limit.md)
   * [Chemistry EBI solvers corrected in error messages](GAS_EBI_solvers_corrected_in_error_messages.md)
+
 ### Photolysis Rates
   * [Updates to the OMI data file](In-Line_Photolysis_Updates_to_the_OMI_data_file.md)
   * [In-line Photolysis CLOUD_OPTICS.F fixed for possible floating point error](In-line_Photolysis_CLOUD_OPTICS.F_fixed_for_possible_floating_point_error.md)

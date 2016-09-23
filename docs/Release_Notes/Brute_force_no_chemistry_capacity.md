@@ -13,7 +13,6 @@ capacity within the model.
 A user can conduct brute force debugging or process analysis by modifying sciproc.F.    
     
 ## Affected Files:
-        
 aero/aero6/AEROSOL_CHEMISTRY.F
 aero/aero6/aero_driver.F
 aero/aero6i/AEROSOL_CHEMISTRY.F
@@ -28,7 +27,7 @@ None
     
     
 ### Relevant Pull Requests:
-Pull Request #25 (/usepa/cmaq_dev/pull/25)
+  [PR #25](https://github.com/USEPA/CMAQ_Dev/pull/25)
     
 ### Commit IDs:
     
