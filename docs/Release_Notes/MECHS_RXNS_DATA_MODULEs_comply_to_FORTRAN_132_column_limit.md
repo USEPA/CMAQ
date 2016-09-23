@@ -12,7 +12,6 @@ FORTRAN standard. Most of the changes remove the problem.
 Makes to the model code for robust regards to changing the  FORTRAN compiler.    
     
 ## Affected Files:
-    
 MECHS/cb05e51_ae6_aq/RXNS_DATA_MODULE.F90
 MECHS/cb05tucl_ae6_aq/RXNS_DATA_MODULE.F90
 MECHS/cb05tump_ae6_aq/RXNS_DATA_MODULE.F90
@@ -30,8 +29,8 @@ None
 ## Internal Records:
     
 ### Relevant Pull Requests:
-Pull Request #90 (/usepa/cmaq_dev/pull/90)
-    
+[PR #90](https://github.com/USEPA/CMAQ_Dev/pull/90)
+
 ### Commit IDs:
 66fa93ce679070b1e1ac39ed964e5a217221631d
     
