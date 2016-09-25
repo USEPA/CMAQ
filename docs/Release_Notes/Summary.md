@@ -21,11 +21,14 @@ The Community Multiscale Air Quality (CMAQ) Model version 5.2 is major update to
 
 ### Aerosol Processes
   * Semivolatile POA and pcSOA implementation
-  * New Organic Properties
+  * [New Organic Properties](SOA_properties.md)
   * [Transmission Factors for PM<sub>1</sub> and AMS size-dependent collection have been added and are output in the diagnostic routine](Aerosol_Transmission_Factors.md)
   * New flexibility in Aero_Data table
   * Consistent treatment of M2wet
-  * SOA Biseciton: numerical considerations for choice of upper bound
+  * [OA Bisection upper bound adjustment](OA_bisection_update.md)
+  * [Glyoxal and methylglyoxal uptake onto aqueous particles](gly_mgly_soa_update.md)
+  * [IEPOX organosulfate formation rate constant update](iepoxos_rateconstant.md)
+  * [Acidity bug fix and IEPOX SOA update](AH3OPJ_IEPOX_update.md)
 
 ### Aqueous and Heterogeneous Chemistry
 #### Aqueous aerosol chemistry
@@ -49,6 +52,7 @@ The Community Multiscale Air Quality (CMAQ) Model version 5.2 is major update to
   * Multiple emissions files for fire sources capability
 
 ## Structural Updates
+  * [Consolidation of aero module](aero6_6i_6mp_consolidation.md)
 
 ## Tools & Utilities
   * SpecDef files and SpecDef_Dep files
