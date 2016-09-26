@@ -13,10 +13,10 @@ capacity within the model.
 A user can conduct brute force debugging or process analysis by modifying sciproc.F.    
     
 ## Affected Files:
-aero/aero6/AEROSOL_CHEMISTRY.F
-aero/aero6/aero_driver.F
-aero/aero6i/AEROSOL_CHEMISTRY.F
-aero/aero6i/aero_driver.F
+aero/aero6/AEROSOL_CHEMISTRY.F  
+aero/aero6/aero_driver.F  
+aero/aero6i/AEROSOL_CHEMISTRY.F  
+aero/aero6i/aero_driver.F  
     
 ## References:    
 
@@ -31,6 +31,6 @@ None
     
 ### Commit IDs:
     
-186074857e125cc0f51f3ae991b4fb58f38c3d5b
-1a245369e3318406602a3fa05441aedea2c03d03
+186074857e125cc0f51f3ae991b4fb58f38c3d5b  
+1a245369e3318406602a3fa05441aedea2c03d03  
     
