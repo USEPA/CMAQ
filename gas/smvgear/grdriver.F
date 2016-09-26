@@ -90,6 +90,7 @@ C**********************************************************************
       USE GRVARS              ! inherits GRID_CONF
       USE AEROSOL_CHEMISTRY
       USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP
+      USE PA_DEFN, Only: LIRR   ! Process Anaylsis control and data variable
 
 
       IMPLICIT NONE 
@@ -97,7 +98,6 @@ C**********************************************************************
 C..INCLUDES:
       INCLUDE SUBST_FILES_ID  ! CMAQ files
       INCLUDE SUBST_CONST     ! CMAQ constants
-      INCLUDE SUBST_PACTL_ID  ! Process analysis control parameters
 
 C..ARGUMENTS:
       REAL, POINTER :: CONC( :,:,:,: )  ! concentrations
