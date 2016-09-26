@@ -16,20 +16,20 @@ Improves error messaging when then EBI solver encounters a convergence error.
     
 ## Affected Files:
     
-gas/ebi_cb05e51_ae6_aq/hrsolver.F
-gas/ebi_cb05e51_ae6nvPOA_aq/hrsolver.F
-gas/ebi_cb05eh51_ae6_aq/hrsolver.F
-gas/ebi_cb05mp51_ae6_aq/hrsolver.F
-gas/ebi_cb05tucl_ae6_aq/hrsolver.F
-gas/ebi_cb05tump_ae6_aq/hrsolver.F
-gas/ebi_cb6r3_ae6_aq/hrsolver.F
-gas/ebi_cb6r3_ae6nvPOA_aq/hrsolver.F
-gas/ebi_racm2_ae6_aq/hrsolver.F
-gas/ebi_saprc07tb_ae6_aq/hrsolver.F
-gas/ebi_saprc07tc_ae6_aq/hrsolver.F
-gas/ebi_saprc07tc_ae6nvPOA_aq/hrsolver.F
-gas/ebi_saprc07tic_ae6i_aq/hrsolver.F
-gas/ebi_saprc07tic_ae6invPOA_aq/hrsolver.F
+gas/ebi_cb05e51_ae6_aq/hrsolver.F  
+gas/ebi_cb05e51_ae6nvPOA_aq/hrsolver.F  
+gas/ebi_cb05eh51_ae6_aq/hrsolver.F  
+gas/ebi_cb05mp51_ae6_aq/hrsolver.F  
+gas/ebi_cb05tucl_ae6_aq/hrsolver.F  
+gas/ebi_cb05tump_ae6_aq/hrsolver.F  
+gas/ebi_cb6r3_ae6_aq/hrsolver.F  
+gas/ebi_cb6r3_ae6nvPOA_aq/hrsolver.F  
+gas/ebi_racm2_ae6_aq/hrsolver.F  
+gas/ebi_saprc07tb_ae6_aq/hrsolver.F  
+gas/ebi_saprc07tc_ae6_aq/hrsolver.F  
+gas/ebi_saprc07tc_ae6nvPOA_aq/hrsolver.F  
+gas/ebi_saprc07tic_ae6i_aq/hrsolver.F  
+gas/ebi_saprc07tic_ae6invPOA_aq/hrsolver.F  
 
 ## References:    
 
@@ -44,8 +44,8 @@ None
     
 ### Commit IDs:
     
-c1f3fe71edbb1eb71ead0be0898fa505fe2a55b6
-6b6e3e87e57195016d61dc5c868729fecddabd07
-fbac629f9413280877b643f304979ea7cd3431d2
-d640e4495b40348fb7f30f6f731d3a3039ca1c5b
-    
+c1f3fe71edbb1eb71ead0be0898fa505fe2a55b6  
+6b6e3e87e57195016d61dc5c868729fecddabd07  
+fbac629f9413280877b643f304979ea7cd3431d2  
+d640e4495b40348fb7f30f6f731d3a3039ca1c5b  
+      
