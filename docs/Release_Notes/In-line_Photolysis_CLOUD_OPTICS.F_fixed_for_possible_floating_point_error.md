@@ -14,7 +14,7 @@ CONUS12 domain from Febuary 1st to 2nd 2011.
     
 ## Affected Files:
     
-phot/inline/CLOUD_OPTICS.F 
+phot/inline/CLOUD_OPTICS.F  
 phot/inline/phot.F
 
 ## References:    
