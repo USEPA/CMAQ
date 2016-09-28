@@ -91,7 +91,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF ( IFILE .LT. 0 ) THEN
          MSG = 'PACP_INFILE not found; looking for pa.inp'
          CALL M3MESG( MSG )
-         IFILE = GETEFILE ( 'PACP_INPUT', LRDONLY, LFMTTED, 'PA_READ' )
+         IFILE = GETEFILE ( 'pa.inp', LRDONLY, LFMTTED, 'PA_READ' )
          IF ( IFILE .LT. 0 ) THEN 
             MSG = 'ERROR: Could not open PACP input file'
             CALL M3EXIT( 'PA_READ', IZERO, IZERO, MSG, XSTAT2 )

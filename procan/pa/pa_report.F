@@ -51,7 +51,9 @@ C-----------------------------------------------------------------------
       
 C Includes: None
 C Arguments: None
-C Parameters: None
+C Parameters:
+      CHARACTER( 16 ), PARAMETER :: PACP_REPORT = 'PACP_REPORT'  
+
 C External Functions: None
 
 C Local Variables
@@ -109,6 +111,8 @@ C Local Variables
       LOGICAL LRXINC( MXRXNS )  ! Flag to include reaction in prod,
                                 ! loss, or net operations
       REAL    COEFFS( MXRXNS )  ! Coefficients of operator reactions
+
+
          
 C-----------------------------------------------------------------------
 
@@ -121,10 +125,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       LRDONLY = .FALSE.
       LFMTTED = .TRUE.
 
-      IOUT = GETEFILE ( 'PA_REPORT', LRDONLY, LFMTTED, 'PA_READ' )
+      IOUT = GETEFILE ( PACP_REPORT, LRDONLY, LFMTTED, 'PA_READ' )
       IF ( IOUT .LT. 0 ) THEN
-         MSG = 'ERROR: Could not open PA_REPORT output file'
-         CALL M3EXIT( 'PA_READ', IZERO, IZERO, MSG, XSTAT2 )
+         MSG = 'ERROR: Could not open PACP_REPORT output file'
+         CALL M3EXIT( 'PA_REPORT', IZERO, IZERO, MSG, XSTAT2 )
       END IF
 
       WRITE( IOUT, 93020 ) TDATOUT
