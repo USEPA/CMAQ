@@ -18,6 +18,13 @@ The Community Multiscale Air Quality (CMAQ) Model version 5.2 is major update to
 ## Chemistry 
 ### Photochemistry
   * CB6r3 details
+  * [Brute force no chemistry capacity](Brute_force_no_chemistry_capacity.md)
+  * [RXNS_DATA_MODULEs comply to FORTRAN 132 column limit](MECHS_RXNS_DATA_MODULEs_comply_to_FORTRAN_132_column_limit.md)
+  * [Chemistry EBI solvers corrected in error messages](GAS_EBI_solvers_corrected_in_error_messages.md)
+
+### Photolysis Rates
+  * [Updates to the OMI data file](In-Line_Photolysis_Updates_to_the_OMI_data_file.md)
+  * [In-line Photolysis CLOUD_OPTICS.F fixed for possible floating point error](In-line_Photolysis_CLOUD_OPTICS.F_fixed_for_possible_floating_point_error.md)
 
 ### Aerosol Processes
   * Semivolatile POA and pcSOA implementation
@@ -25,6 +32,7 @@ The Community Multiscale Air Quality (CMAQ) Model version 5.2 is major update to
   * [Transmission Factors for PM<sub>1</sub> and AMS size-dependent collection have been added and are output in the diagnostic routine](Aerosol_Transmission_Factors.md)
   * New flexibility in Aero_Data table
   * Consistent treatment of M2wet
+  * [Reduce underflow errors in aerosol physics and chemistry](Reduce_underflow_errors_in_aerosol_physics_and_chemistry.md)
   * [OA Bisection upper bound adjustment](OA_bisection_update.md)
   * [Glyoxal and methylglyoxal uptake onto aqueous particles](gly_mgly_soa_update.md)
   * [IEPOX organosulfate formation rate constant update](iepoxos_rateconstant.md)
