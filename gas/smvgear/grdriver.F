@@ -92,7 +92,6 @@ C**********************************************************************
       USE AEROSOL_CHEMISTRY
       USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP
       USE PA_DEFN, Only: LIRR   ! Process Anaylsis control and data variable
-      USE PA_DEFN, Only: LIRR   ! Process Anaylsis control and data variable
 
       IMPLICIT NONE 
 
