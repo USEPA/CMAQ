@@ -371,8 +371,7 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA SUBNAME(191), A(191), E(191) / 'ICL             ', 1.10E+02, 0.0E+00 /   ! Wagman et al. (1982)
       DATA SUBNAME(192), A(192), E(192) / 'DMS             ', 4.80E-01, 3.1E+03 /   ! ROLF SANDERS COMPILATION (1999)/De Bryuyn et al. (1995)
       DATA SUBNAME(193), A(193), E(193) / 'MSA             ', 7.70E+04, 0.0E+00 /   ! Meylan and Howard (1991), inverse of the value is used due to unit conversion
-      DATA SUBNAME(194), A(194), E(194) / 'XYLENE          ', 1.90E-01, 4.2E+03  / ! .35/.3/.35 m/o/p, Sander ACP 2015, 
-Staudinger and Roberts (2001) for m; Fogg and Sangster (2003) for o and p
+      DATA SUBNAME(194), A(194), E(194) / 'XYLENE          ', 1.90E-01, 4.2E+03  / ! .35/.3/.35 m/o/p, Sander ACP 2015, Staudinger and Roberts (2001) for m; Fogg and Sangster (2003) for o and p
       DATA SUBNAME(195), A(195), E(195) / 'ETHYLBENZENE    ', 1.42E-01, 4.8E+03 / ! Sander ACP 2015, Fogg Sangster (2003)
       DATA SUBNAME(196), A(196), E(196) / 'ACRYACID        ', 3.141E+03, 0.0E+00 / ! Sander ACP 2015, Lide Frederikse (1995)
       DATA SUBNAME(197), A(197), E(197) / 'ACETONITRILE    ', 5.269E+01, 4.0E+03 / ! Sander ACP 2015, Sander et al (2011)
