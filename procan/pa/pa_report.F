@@ -63,9 +63,11 @@ C Local Variables
       CHARACTER(  4 ) :: OPNAM     ! Operator variable name
       CHARACTER(  4 ) :: TYPE      ! Operator type
       CHARACTER(  7 ) :: PNFLG     ! Pos or Neg only flag
-      CHARACTER( 11 ) :: COUT     ! Output coefficient
-      CHARACTER( 72 ) :: CEES     ! Line of asterisks
-      CHARACTER( 80 ) :: LINOUT   ! line of output
+      CHARACTER( 11 ) :: COUT      ! Output coefficient
+      CHARACTER( 80 ) :: CEES      ! Line of asterisks
+      CHARACTER( 80 ) :: LINOUT    ! line of output
+      CHARACTER(  5 ) :: TZ        ! Time zone label
+      CHARACTER( 24 ) :: TIMNDAT   ! Wall clock time and date
 
       CHARACTER( 50 ) :: STRING( 20 )             ! Strings to concatenate
       CHARACTER( LABLEN ) :: RJLABL( MXRXNS ) ! Right justified reaction label
@@ -99,6 +101,8 @@ C Local Variables
       INTEGER NTERM      ! Loop index for number of terms in output request
       INTEGER NUMSTRNGS  ! Number of strings to concatenate
       INTEGER SPOS       ! Starting position of right justified label
+      INTEGER IDATE      ! Wall-clock date
+      INTEGER ITIME      ! Wall clock time
 
       INTEGER RXNUMS( MXRXNS )  ! Rx nos. of reactions in operator term
 
@@ -131,10 +135,27 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          CALL M3EXIT( 'PA_REPORT', IZERO, IZERO, MSG, XSTAT2 )
       END IF
 
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Get the time and date to be used as the time stamp for all outputs;
+c  Convert from GMT to EDT or EST
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      CALL GETDTTIME( IDATE, ITIME )
+
+      IF ( ISDSTIME( IDATE ) ) THEN
+         CALL NEXTIME( IDATE, ITIME, -40000 )
+         TZ = ' EDT '
+      ELSE
+         CALL NEXTIME( IDATE, ITIME, -50000 )
+         TZ = ' EST '
+      END IF
+
+      TIMNDAT = DT2STR( IDATE, ITIME )
+      TDATOUT = TIMNDAT( 1:8 ) // TZ // TIMNDAT( 10:24 )
+
       WRITE( IOUT, 93020 ) TDATOUT
       WRITE( IOUT, 93000 )
 
-      DO N = 1, 72
+      DO N = 1, 80
          CEES( N:N ) = C
       END DO
 
@@ -239,7 +260,7 @@ c..Write the header for each output
          WRITE( IOUT, 93240 )
          LINOUT = CEES
          WRITE( IOUT, 93000 ) LINOUT
-         STRING( 1 ) = 'c  Summary of Input IRR Commands for OUTPUT'
+         STRING( 1 ) = '   Summary of Input IRR Commands for OUTPUT'
          STRING( 2 ) = INT2CHR( NOUT )
          IEND = LEN_TRIM( STRING( 2 ) )
          STRING( 2 ) = STRING( 2 )( 1:IEND ) // ':'
@@ -256,7 +277,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          WRITE( IOUT, 93140 )
          WRITE( IOUT, 93260 )
          WRITE( IOUT, 93140 )
-         LINOUT = 'c      IRROUT(' // OUTLBL // ') = '
+         LINOUT = '       IRROUT(' // OUTLBL // ') = '
          IEND = LEN_TRIM( LINOUT ) + 1
          EQPOS1 = IEND
          DO 100 NTERM = 1, NIRRTERMS( NOUT )
@@ -335,7 +356,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             END IF
 
             WRITE( IOUT, 93000 ) LINOUT
-            LINOUT = 'c     &'
+            LINOUT = '      &'
             LINOUT = LINOUT( 1:EQPOS1 )
 
 100      CONTINUE
@@ -381,7 +402,7 @@ c..Write the cycle name
 
 c..Write reactions used in the cycle
                WRITE( LABL, '( I3 )' ) NCYC
-               LINOUT = 'c     CYSM(' // LABL // ') ='
+               LINOUT = '      CYSM(' // LABL // ') ='
                IEND = LEN_TRIM( STRING( 2 ) )
 
                IF ( NCYTERMS( NCYC ) .EQ. 0 ) THEN
@@ -430,7 +451,7 @@ c..Write the reaction sum name
 
 c..Write reactions used in the reaction sum
                WRITE( LABL, '( I3 )' ) NRX
-               LINOUT = 'c     RXSM(' // LABL // ') ='
+               LINOUT = '      RXSM(' // LABL // ') ='
                WRITE( IOUT, 93000 ) LINOUT
                IEND = LEN_TRIM( STRING( 2 ) )
 
@@ -550,7 +571,7 @@ c..Write the operator description
 
 c..Write reactions used in the operator
                            !123456     7890      1     234      567
-                  LINOUT = 'c     ' // OPNAM // '(' // LABL // ') ='
+                  LINOUT = '      ' // OPNAM // '(' // LABL // ') ='
                   IEND = LEN_TRIM( LINOUT )   ! = 17
                   IF ( NR .LE. 0 ) THEN
                      LINOUT = LINOUT( 1:IEND ) // ' 0.0'
@@ -607,7 +628,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Write the pseudocode for IRROUT
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-         STRING( 1 ) = 'c  Pseudocode for OUTPUT'
+         STRING( 1 ) = '   Pseudocode for OUTPUT'
          STRING( 2 ) = INT2CHR( NOUT )
          IEND = LEN_TRIM( STRING( 2 ) )
          STRING( 2 ) = STRING( 2 )( 1:IEND ) // ':'
@@ -749,10 +770,10 @@ C----------------------- Format Statements -----------------------------
 93020 FORMAT( //'============ Process Analysis Control Program Output', 
      &        ' Report ============'/18X, 'Created  ', A/ )
 
-!3040 FORMAT( 'c', 24X, 'OUTPUT DOMAIN SECTION'/
-!    &        'c  Process Monitoring and IRR outputs will be generated', 
+!3040 FORMAT( ' ', 24X, 'OUTPUT DOMAIN SECTION'/
+!    &        '   Process Monitoring and IRR outputs will be generated', 
 !    &        ' for the'/
-!    &        'c  following cells relative to the full modeling domain.' )
+!    &        '   following cells relative to the full modeling domain.' )
 !3060 FORMAT( '       Starting column:', I4/
 !    &        '       Ending column:  ', I4/
 !    &        '       Starting row:   ', I4/
@@ -760,55 +781,55 @@ C----------------------- Format Statements -----------------------------
 !    &        '       Starting layer: ', I4/
 !    &        '       Ending layer:   ', I4 ) 
 
-93080 FORMAT( 'c', 19X, 'INTEGRATED PROCESS RATE SECTION'/
-     &        'c  No requests for IPR outputs were included', 
+93080 FORMAT( 20X, 'INTEGRATED PROCESS RATE SECTION'/
+     &        '   No requests for IPR outputs were included', 
      &        ' in the command file.' )
 
-93100 FORMAT( 'c', 19X, 'INTEGRATED PROCESS RATE SECTION'/
-     &        'c  The following section lists the IPR ', 
+93100 FORMAT( 20X, 'INTEGRATED PROCESS RATE SECTION'/
+     &        '   The following section lists the IPR ', 
      &        'outputs generated from the'/
-     &        'c  command file inputs.' )
+     &        '   command file inputs.' )
 
-93120 FORMAT( 'c'/
-     &        'c  The referenced families are defined as follows:'/
-     &        'c' )
-93140 FORMAT( 'c' )
+93120 FORMAT( ' '/
+     &        '   The referenced families are defined as follows:'/
+     &        ' ' )
+93140 FORMAT( ' ' )
 93160 FORMAT( '      IPR_OUTPUT(', I3, ') = ', A, ' of ', A ) 
-93180 FORMAT( 'c', 19X, 'INTEGRATED REACTION RATE SECTION'/
-     &        'c  A FULL IRR analysis has been requested. Each reaction', 
+93180 FORMAT( 20X, 'INTEGRATED REACTION RATE SECTION'/
+     &        '   A FULL IRR analysis has been requested. Each reaction', 
      &          ' rate will be'/
-     &        'c  integrated individually and output for the',
+     &        '   integrated individually and output for the',
      &          ' specified domain.' )
-93200 FORMAT( 'c', 19X, 'INTEGRATED REACTION RATE SECTION'/
-     &        'c  No requests for IRR analysis were included in the', 
+93200 FORMAT( 20X, 'INTEGRATED REACTION RATE SECTION'/
+     &        '   No requests for IRR analysis were included in the', 
      &        ' command file.' )
-93220 FORMAT( 'c', 19X, 'INTEGRATED REACTION RATE SECTION'/
-     &        'c  The following section gives a symbolic representation', 
+93220 FORMAT( 20X, 'INTEGRATED REACTION RATE SECTION'/
+     &        '   The following section gives a symbolic representation', 
      &        ' of how the'/
-     &        'c  PARTIAL IRR outputs are calculated given the commands', 
+     &        '   PARTIAL IRR outputs are calculated given the commands', 
      &        ' that were'/
-     &        'c  included in the command file. The report includes', 
+     &        '   included in the command file. The report includes', 
      &        ' pseudocode showing'/
-     &        'c  how individual integrated reactions rates are', 
+     &        '   how individual integrated reactions rates are', 
      &        ' combined to produce the '/
-     &        'c  requested output.  In the pseudocode that follows'/
-     &        'c'/
-     &        'c        IRR< x > = the integrated reaction rate for '/
-     &        'c                   the reaction with label x as '/
-     &        'c                   defined in the chemical mechanism'/
-     &        'c'/
-     &        'c        IRROUT( n ) = the nth integrated reaction rate'/
-     &        'c                      output that was requested'/
-     &        'c' )  
+     &        '   requested output.  In the pseudocode that follows'/
+     &        ' '/
+     &        '         IRR< x > = the integrated reaction rate for '/
+     &        '                    the reaction with label x as '/
+     &        '                    defined in the chemical mechanism'/
+     &        ' '/
+     &        '         IRROUT( n ) = the nth integrated reaction rate'/
+     &        '                       output that was requested'/
+     &        ' ' )  
 93240 FORMAT( //1X )
-93260 FORMAT( 'c  The IRR_OUTPUT command was specified as follows:' )
-93280 FORMAT( 'c  The referenced families are defined as follows:'/'c' )
-93300 FORMAT( 'c  The referenced cycles are defined as follows:'/'c' )
-93320 FORMAT( 'c  The referenced reaction sums are defined as follows:'/
-     &        'c' )
-93340 FORMAT( 'c  The referenced operators are defined as follows:'/'c' )
-93360 FORMAT( 'c  The following reactions are referenced individually:'/
-     &        'c' )
+93260 FORMAT( '   The IRR_OUTPUT command was specified as follows:' )
+93280 FORMAT( '   The referenced families are defined as follows:'/' ' )
+93300 FORMAT( '   The referenced cycles are defined as follows:'/' ' )
+93320 FORMAT( '   The referenced reaction sums are defined as follows:'/
+     &        ' ' )
+93340 FORMAT( '   The referenced operators are defined as follows:'/' ' )
+93360 FORMAT( '   The following reactions are referenced individually:'/
+     &        ' ' )
 93380 FORMAT( ///'========= End of Process Analysis Control Program', 
      &         ' Output Report ========='  )  
 C-----------------------------------------------------------------------

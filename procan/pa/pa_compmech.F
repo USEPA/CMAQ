@@ -98,7 +98,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 c..First get the reaction label right justified
                   !123456789012345678901234 
-         LINOUT = 'c    &              IRR<'
+         LINOUT = '     &              IRR<'
          IEND = LEN_TRIM( LINOUT )
          DO N = 1, LABLEN
             TEMPSTR( N:N ) = ' '
@@ -180,7 +180,7 @@ c..List products
                   CALL M3EXIT( 'MECHCOMP', IZERO, IZERO, ' ', XSTAT2 )
                END IF
                LINOUT = ''
-               LINOUT( 1:1 ) = 'c'
+               LINOUT( 1:1 ) = ' '
                LINOUT( EXPOS:EXPOS ) = '!'
                IEND = EXPOS + 6
             END IF
@@ -210,7 +210,7 @@ c  Now get a compressed list of Family definitions
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       DO 200 NFAM = 1, NFAMLYS
          IEND = LEN_TRIM( FAMNAME( NFAM ) )
-         LINOUT = 'c    ' // FAMNAME( NFAM )( 1:IEND ) // '='
+         LINOUT = '     ' // FAMNAME( NFAM )( 1:IEND ) // '='
          IEND = LEN_TRIM( LINOUT )
          EQPOS = IEND
          LINNUM = 1
@@ -235,7 +235,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                    CALL M3EXIT( 'MECHCOMP', IZERO, IZERO, ' ', XSTAT2 )
                END IF
                LINOUT = ''
-               LINOUT( 1:1 ) = 'c'
+               LINOUT( 1:1 ) = ' '
                IEND = EQPOS
             END IF
             IF ( FAMSC( NFAM, N ) .LT. 0.0 ) THEN
