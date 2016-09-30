@@ -90,6 +90,12 @@ C                        constant already accounts for the effect.
 C                       2) added henry's constant for compounds 194 thru
 C                        199 representing several toxic air pollutants
 C  
+C  D. Luecken 09/21/2016 
+C       1. added HAPs in 194-200; 
+C       2. modified existing HEXANE (19),N-HEXANE (117), and STYRENE (119); 
+C       3. removed dissociation  calculation for formaldedhyde because the listed value 
+C          is already an effective rate (Sander ACP, 2015, note 187)
+C       4. added dissociation constant for acrylic acid (LACRYACID) (via B. Hutzell)
 C-----------------------------------------------------------------------
 
       USE UTILIO_DEFN
@@ -108,7 +114,7 @@ C...........INCLUDES and their descriptions
 
 C...........PARAMETERS and their descriptions:
 
-      INTEGER, PARAMETER :: MXSPCS = 199     ! Number of substances
+      INTEGER, PARAMETER :: MXSPCS = 200     ! Number of substances
       INTEGER, PARAMETER :: MXDSPCS = 19     ! Number of dissociating species
 
 C...pointers for the dissociation constants (array B and D)
@@ -185,7 +191,7 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA SUBNAME( 16), A( 16), E( 16) / 'PROPANE         ', 1.5E-03, 2.7E+03 /  ! Linde and Frederikse 1995
       DATA SUBNAME( 17), A( 17), E( 17) / 'BUTANE          ', 1.1E-03, 0.0E+00 /  ! Mackay and Shiu 1981
       DATA SUBNAME( 18), A( 18), E( 18) / 'PENTANE         ', 8.1E-04, 0.0E+00 /  ! Mackay and Shiu 1981
-      DATA SUBNAME( 19), A( 19), E( 19) / 'HEXANE          ', 0.1E-03, 7.5E+03 /  ! Ashworth, Howe et al 1988
+      DATA SUBNAME( 19), A( 19), E( 19) / 'HEXANE          ', 6.18E-04,3.8E+03 /  ! Sander, ACP, 2015; Abraham Matteoli (1988)
       DATA SUBNAME( 20), A( 20), E( 20) / 'OCTANE          ', 2.9E-03, 7.8E+03 /  ! Hansen et al. 1993
       DATA SUBNAME( 21), A( 21), E( 21) / 'NONANE          ', 2.4E-03, 2.1E+02 /  ! Ashworth, Howe et al 1988
       DATA SUBNAME( 22), A( 22), E( 22) / 'DECANE          ', 1.4E-04, 0.0E+00 /  ! Mackay and Shiu 1981
@@ -284,8 +290,10 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA SUBNAME(115), A(115), E(115) / 'M-XYLENE        ', 1.43E-01, 3.9E+03 / ! Staudinger and Roberts (2001)
       DATA SUBNAME(116), A(116), E(116) / 'P-XYLENE        ', 1.35E-01, 3.7E+03 / ! Staudinger and Roberts (2001)
 
-      DATA SUBNAME(117), A(117), E(117) / 'N-HEXANE        ', 1.53E-02, 7.2E+03 /  ! Staudinger and Roberts (2001)
+      DATA SUBNAME(117), A(117), E(117) / 'N-HEXANE        ', 6.18E-04, 3.8E+03 /  ! Sander, ACP, 2015, Abraham Matteoli (1988)
       DATA SUBNAME(118), A(118), E(118) / 'PROPANAL        ', 1.64E+00, 5.4E+03 /  ! Staudinger and Roberts (2001)
+      DATA SUBNAME(119), A(119), E(119) / 'STYRENE         ', 2.74E-01, 0.0E+00 /  ! Sander, ACP, 2015, Kim and Kim (2014)
+
       DATA SUBNAME(119), A(119), E(119) / 'STYRENE         ', 3.82E-01, 4.4E+03 /  ! Staudinger and Roberts (2001)
 
       DATA SUBNAME(120), A(120), E(120) / '124TRIMETH_BENZE', 1.50E-01, 4.3E+03 /  ! Hanson et al. (1995)
@@ -368,13 +376,13 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA SUBNAME(191), A(191), E(191) / 'ICL             ', 1.10E+02, 0.0E+00 /   ! Wagman et al. (1982)
       DATA SUBNAME(192), A(192), E(192) / 'DMS             ', 4.80E-01, 3.1E+03 /   ! ROLF SANDERS COMPILATION (1999)/De Bryuyn et al. (1995)
       DATA SUBNAME(193), A(193), E(193) / 'MSA             ', 7.70E+04, 0.0E+00 /   ! Meylan and Howard (1991), inverse of the value is used due to unit conversion
-
-      DATA SUBNAME(194), A(194), E(194) / 'ACETONITRILE    ', 5.27E+01, 4.0E+03 /   ! ROLF SANDERS COMPILATION (1999)/Moore et al. (1995)
-      DATA SUBNAME(195), A(195), E(195) / 'ACRYACID        ', 3.14E+03, 0.0E+00 /   ! ROLF SANDERS COMPILATION (1999)/Moore et al. (1995)
-      DATA SUBNAME(196), A(196), E(196) / 'METHCHLORIDE    ', 1.32E-01, 3.8E+03 /   ! ROLF SANDERS COMPILATION (1999)/Moore et al. (1995)
-      DATA SUBNAME(197), A(197), E(197) / 'CARBSULFIDE     ', 2.13E-02, 3.3E+03 /   ! ROLF SANDERS COMPILATION (1999)/Moore et al. (1995)
-      DATA SUBNAME(198), A(198), E(198) / 'CHLOROPRENE     ', 4.76E+00, 0.0E+00 /   ! ROLF SANDERS COMPILATION (1999)/Moore et al. (1995)
-      DATA SUBNAME(199), A(199), E(199) / 'ETHYLBENZENE    ', 1.42E-01, 4.8E+03 /   ! ROLF SANDERS COMPILATION (1999)/De Bryuyn et al. (1995)
+      DATA SUBNAME(194), A(194), E(194) / 'XYLENE          ', 1.90E-01, 4.2E+03  / ! .35/.3/.35 m/o/p, Sander ACP 2015, Staudinger and Roberts (2001) for m; Fogg and Sangster (2003) for o and p
+      DATA SUBNAME(195), A(195), E(195) / 'ETHYLBENZENE    ', 1.42E-01, 4.8E+03 / ! Sander ACP 2015, Fogg Sangster (2003)
+      DATA SUBNAME(196), A(196), E(196) / 'ACRYACID        ', 3.141E+03, 0.0E+00 / ! Sander ACP 2015, Lide Frederikse (1995)
+      DATA SUBNAME(197), A(197), E(197) / 'ACETONITRILE    ', 5.269E+01, 4.0E+03 / ! Sander ACP 2015, Sander et al (2011)
+      DATA SUBNAME(198), A(198), E(198) / 'CHLOROPRENE     ', 4.760E+00, 0.0E+00 / ! Sander ACP 2015, Mackay et al. (1993)
+      DATA SUBNAME(199), A(199), E(199) / 'METHCHLORIDE    ', 1.320E-01, 3.3E+03 / ! Sander ACP 2015, Sander et al. (2011)
+      DATA SUBNAME(200), A(200), E(200) / 'CARBSULFIDE     ', 2.130E-02, 3.3E+03 / ! Sander ACP 2015, Warneck Williams (2012)
 
       DATA B( LSO2   ), D( LSO2   ) / 1.30E-02,  1.96E+03 /  ! SO2*H2O<=>HSO3+H     : Smith and Martell (1976)
       DATA B( LHSO3  ), D( LHSO3  ) / 6.60E-08,  1.50E+03 /  ! HSO3<=>SO3+H         : Smith and Martell (1976)
@@ -394,8 +402,8 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA B( LHYDRAZINE), D( LHYDRAZINE) / 1.11E-08,  0.00E+00 /  ! HYDRAZINE <=> HYDRAZINE+ + OH-  : Moliner and Street (1989)
       DATA B( LHBR   ), D( LHBR   ) / 1.00E+09,  0.00E+00 /  ! HBR <=> H + BR       : Schweitzer et al. (2000)
       DATA B( LHI    ), D( LHI    ) / 3.20E+09,  0.00E+00 /  ! HI <=> H + I         : Schweitzer et al. (2000)
-      DATA B( LHI    ), D( LHI    ) / 3.20E+09,  0.00E+00 /  ! HI <=> H + I         : Schweitzer et al. (2000)
-      DATA B( LACRYACID ), D( LACRYACID ) / 5.62E-5,  0.00E+00 /  ! CH3C(O)OH <=> H + CH3C(O)O  : Riddick et al. (1985)
+      DATA B( LACRYACID ), D( LACRYACID ) / 5.62E-05,  0.00E+00 /  ! CH3C(O)OH <=> H + CH3C(O)O  : Riddick et al. (1985)
+
 !-------------------------------------------------------------------------------
 ! Note for dissociation constant for equation 14: CL2*H2O <=> HOCL + H + CL
 ! Need aqueous [CL-] concentration to calculate effective henry's law coefficient
