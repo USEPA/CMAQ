@@ -20,12 +20,10 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
 C $Header: /project/yoj/arc/CCTM/src/procan/pa/pa_init.F,v 1.7 2011/10/21 16:11:32 yoj Exp $ 
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C @(#)pa_init.F	1.1 /project/mod3/CMAQ/src/procan/pa/SCCS/s.pa_init.F 07 Jul 1997 10:20:52
 
       SUBROUTINE PA_INIT( CGRID, SDATE, STIME, TSTEP )
  
-C**********************************************************************
+C-----------------------------------------------------------------------
  
 C Function: Create the Process Analysis ouput files and initialize
 C           Process Analysis arrays           
@@ -59,7 +57,7 @@ C                         implementation of IRR calculation which does not
 C                         shift to the origin
 C  Modified 4/12/00 by Jerry Gipson to correct units for aerosol IPRs writen to IO/API file
 C  Modified 1 Jul 2000 by Jeff Young to allow for file updating - added PA_MKHDR
-C  Modified 22 Nov 00 by J.Young: Dave Wong's f90 stenex SUBGRID_INDEX and DATA_COPY
+C  Modified 22 Nov 00 by J.Young: Dave Wong`s f90 stenex SUBGRID_INDEX and DATA_COPY
 C  6 Oct 01 J.Young: dyn alloc - generic CGRID declaration; Use PAGRD_DEFN,
 C                                which uses HGRD_DEFN; new pario
 C  Modified 10 Oct 01 by David Wong
@@ -75,7 +73,8 @@ C   8 Jul 10 J.Young: restructure
 C  23 Jul 10 D.Wong:  move first OPEN3 try inside IF ( MYPE .EQ. 0 ) clause
 C  16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C  11 May 11 D.Wong: incorporated twoway model implementation
-C**********************************************************************
+C  16 Sep 16 J.Young: update for inline procan
+C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE PAGRD_DEFN            ! PA horiz domain specs
@@ -85,18 +84,14 @@ C**********************************************************************
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE, NOOP_DATA_COPY_MODULE)
 #endif
+      USE PA_DEFN               ! Process Anaylsis control and data variables
 
       IMPLICIT NONE 
 
 C..Includes:
       INCLUDE SUBST_FILES_ID    ! file name parameters
 
-      INCLUDE SUBST_PACTL_ID    ! PA control parameters
-      INCLUDE SUBST_PACMN_ID    ! PA common block definitions
-      INCLUDE SUBST_PADAT_ID    ! PA data statements
-
 C..Arguments:
-!     REAL :: CGRID( NCOLS,NROWS,NLAYS,ALLSPC )
       REAL, POINTER :: CGRID( :,:,:,: )
       INTEGER, INTENT( IN ) :: SDATE      !  starting date, format YYYYDDD
       INTEGER, INTENT( IN ) :: STIME      !  starting time, format HHMMSS
@@ -135,7 +130,7 @@ C..Local Variables:
       INTEGER NUMFLS    ! Number of PA or IRR output files needed
       INTEGER STATUS    ! Status Code
 
-C**********************************************************************
+C-----------------------------------------------------------------------
 
       LSTOP = .FALSE.         
 
@@ -147,13 +142,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 C..compute the number of files needed
 
-         NUMFLS = (NIPRVAR - 1) / MXVARS3 + 1
-
-!        IF ( MOD( NIPRVAR, MXVARS3 ) .EQ. 0 ) THEN
-!           NUMFLS = NIPRVAR / MXVARS3
-!        ELSE
-!           NUMFLS = ( NIPRVAR / MXVARS3 ) + 1
-!        END IF
+         NUMFLS = ( NIPRVAR - 1 ) / MXVARS3 + 1
 
 C..open each one 
          DO NFL = 1, NUMFLS
@@ -229,7 +218,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                   PR = R - MY_BEGROW + 1
                   DO C = MY_BEGCOL, MY_ENDCOL
                      PC = C - MY_BEGCOL + 1
-                     CSAV( PC,PR,PL,NS ) = CGRID ( C,R,L,ICG ) 
+                     CSAV( PC,PR,PL,NS ) = CGRID( C,R,L,ICG ) 
                   END DO
               END DO
             END DO
@@ -244,15 +233,17 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       IF ( LIRR ) THEN
 
+C Allocate PA_DEFN arrays:
+         ALLOCATE ( IRRSTEP( BLKSIZE,NIRRVAR ),
+     &              IRRBLK ( BLKSIZE,NIRRVAR ), STAT = STATUS )
+         IF ( STATUS .NE. 0 ) THEN
+            XMSG = 'Failure initializing IRRSTEP of IRRBLK'
+            CALL M3EXIT( PNAME, SDATE, STIME, XMSG, XSTAT1 )
+         END IF
+
 C..compute the number of files needed
 
-         NUMFLS = (NIRRVAR - 1) / MXVARS3 + 1
-
-!        IF ( MOD( NIRRVAR, MXVARS3 ) .EQ. 0 ) THEN
-!           NUMFLS = NIRRVAR / MXVARS3
-!        ELSE
-!           NUMFLS = ( NIRRVAR / MXVARS3 ) + 1
-!        END IF
+         NUMFLS = ( NIRRVAR - 1 ) / MXVARS3 + 1
 
 C..open each one
          DO NFL = 1, NUMFLS

@@ -21,9 +21,6 @@
 C RCS file, release, date & time of last delta, author, state, [and locker]
 C $Header: /project/yoj/arc/CCTM/src/aero/aero5/aero_driver.F,v 1.11 2012/01/19 13:12:57 yoj Exp $
 
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C >>> 08/04/2000 Changes necessary to be able to read and process
 C two different types of emissions files.
 C the first type is the existing opperational PM2.5 & PM10 unspeciated
@@ -138,7 +135,6 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C *** Includes:
 
       INCLUDE SUBST_FILES_ID  ! file name parameters (req IOPARMS)
-      INCLUDE SUBST_PACTL_ID  ! process analysis
 
 C *** Arguments:
 

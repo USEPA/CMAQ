@@ -17,24 +17,19 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
 C RCS file, release, date & time of last delta, author, state, [and locker]
 C $Header: /project/yoj/arc/CCTM/src/procan/pa/pa_output.F,v 1.5 2011/10/21 16:11:33 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C @(#)pa_output.F	1.1 /project/mod3/CMAQ/src/procan/pa/SCCS/s.pa_output.F 07 Jul 1997 10:20:55
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
        SUBROUTINE PA_OUTPUT( CGRID, JDATE, JTIME )
 
 C-----------------------------------------------------------------------
- 
 C Function: Output the Process Analysis and/or Integrated Reaction Rate data           
  
 C Preconditions: None
  
 C Key Subroutines/Functions Called: INIT3, ENVSTR, M3EXIT
-C
+ 
 C Revision History:
 C  Prototype created by Jerry Gipson, August, 1996
 C  allow env var for file names Jeff, Dec, 1996
@@ -75,7 +70,7 @@ C                     to control printing decomposition map
 C  10 Jul 10 J.Young: restructure so as to not keep reallocating DBUFF for IRR
 C  16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C  26 Jan 16 J.Young: consolidated pio_init, flag for couple/decouple
-
+C  16 Sep 16 J.Young: update for inline procan
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -86,14 +81,12 @@ C-----------------------------------------------------------------------
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE, NOOP_DATA_COPY_MODULE)
 #endif
+      USE PA_DEFN               ! Process Anaylsis control and data variables
 
       IMPLICIT NONE 
 
 C Includes:
       INCLUDE SUBST_FILES_ID    ! file name parameters
-
-      INCLUDE SUBST_PACTL_ID    ! PA control parameters
-      INCLUDE SUBST_PACMN_ID    ! PA common block definitions
 
 C Arguments:
       REAL, POINTER :: CGRID( :,:,:,: )

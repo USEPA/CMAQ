@@ -95,14 +95,16 @@ C                      in I/O processing in front of routine PIO_RE_INIT and pas
 C                      that information into PIO_RE_INIT
 C   26 Jan 16 J.Young: Consolidate PIO_INIT, use keywords for optional arguments
 C   28 Jan 16 D.Wong:  Add SAVE attribute to TSTEP for the two-way model implementation
+C   16 Sep 16 J.Young: update for inline procan (IRR)
 C-----------------------------------------------------------------------
 
       USE PCGRID_DEFN           ! inherits GRID_CONF
       USE RXNS_DATA             ! chemical mechanism data
-      USE CGRID_SPCS, ONLY: CGRID_SPCS_INIT  ! CGRID mechanism species
+      USE CGRID_SPCS, Only: CGRID_SPCS_INIT  ! CGRID mechanism species
       USE STD_CONC              ! standard CONC
       USE AVG_CONC              ! integral average CONC
       USE WVEL_DEFN             ! derived vertical velocity component
+      USE PA_DEFN, Only: LIPR, LIRR  ! Process Anaylsis control and data variables
       USE PAGRD_DEFN            ! Process Anaylsis horiz domain specs
       USE UTILIO_DEFN
 
@@ -126,7 +128,6 @@ C-----------------------------------------------------------------------
 
 C Include Files:
       INCLUDE SUBST_FILES_ID    ! I/O definitions and declarations
-      INCLUDE SUBST_PACTL_ID    ! PA control parameters
 
 #ifdef parallel
 !     INCLUDE SUBST_MPI         ! MPI definitions and parameters
@@ -313,6 +314,9 @@ C Initialize stencil exchange
          write( logdev,* ) ' MYPE -> MWDIS:    ', mype, mwdis
 #endif
 #endif
+
+C Generate the process analysis data: load PA_DEFN module
+         CALL PA_DATAGEN( )
 
 C Set up horizontal domain and calculate processor-to-subdomain maps for
 C process analysis, if required
