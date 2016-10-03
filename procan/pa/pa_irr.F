@@ -21,9 +21,6 @@
 C RCS file, release, date & time of last delta, author, state, [and locker]
 C $Header: /project/yoj/arc/CCTM/src/procan/pa/pa_irr.F,v 1.4 2011/10/21 16:11:32 yoj Exp $
 
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C @(#)pa_irr.F	1.1 /project/mod3/CMAQ/src/procan/pa/SCCS/s.pa_irr.F 07 Jul 1997 10:20:53
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE PA_IRR ( LSTART, LCHGVL, RK, CONC, DELT, NUMCELLS, ICLND )
 
@@ -54,14 +51,14 @@ C   07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
-      USE RXNS_DATA           ! chemical mechanism data
+      USE RXNS_DATA             ! chemical mechanism data
       USE CGRID_SPCS            ! CGRID mechanism species
+      USE PA_DEFN               ! Process Anaylsis control and data variables
       USE UTILIO_DEFN
 
       IMPLICIT NONE 
 
-C..Includes:
-      INCLUDE SUBST_PACMN_ID    ! PA control parameters
+C..Includes: None
       
 C..Arguments: 
       LOGICAL, INTENT( IN ) :: LSTART   ! Flag to indicate start of chemical integration period
@@ -84,8 +81,8 @@ C..Saved Local Variables:
       LOGICAL, SAVE :: LFIRST = .TRUE.   ! Flag for first call to subroutine
       LOGICAL, SAVE :: LINTRXN( NRXNS )  ! Flag for reaction integration
 
-      REAL,    SAVE :: RXOLD( BLKSIZED,NRXNS )
-      REAL,    SAVE :: RXSAV( BLKSIZED,NRXNS )
+      REAL,    SAVE :: RXOLD( BLKSIZE,NRXNS )
+      REAL,    SAVE :: RXSAV( BLKSIZE,NRXNS )
 
 C..Scratch Local Variables:
       INTEGER ISP1, ISP2, ISP3  ! Species indices
@@ -96,10 +93,10 @@ C..Scratch Local Variables:
       INTEGER NTEMP             ! Loop index for temp IRRs
       INTEGER NTERM             ! Loop index for terms
 
-      REAL    COEFF                            ! Coefficient of IRR term
-      REAL    :: RXRAT  ( BLKSIZED,NRXNS )     ! Calcualted reaction rates
-      REAL    :: INTRXN ( BLKSIZED,NRXNS )     ! Integrated reaction rates
-      REAL    :: TEMPIRR( BLKSIZED,NUMTEMPSD ) ! Array of computed temp IRRs
+      REAL    COEFF                           ! Coefficient of IRR term
+      REAL    :: RXRAT  ( BLKSIZE,NRXNS )     ! Calcualted reaction rates
+      REAL    :: INTRXN ( BLKSIZE,NRXNS )     ! Integrated reaction rates
+      REAL    :: TEMPIRR( BLKSIZE,NUMTEMPS )  ! Array of computed temp IRRs
 
 C-----------------------------------------------------------------------
 

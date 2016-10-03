@@ -71,6 +71,7 @@ C**********************************************************************
       USE RXNS_FUNCTION
       USE HRDATA
       USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP
+      USE PA_DEFN, Only: LIRR   ! Process Anaylsis control and data variable
 
       IMPLICIT NONE
 
@@ -79,7 +80,6 @@ C..Includes:
       INCLUDE SUBST_CONST     ! CMAQ constants
 
       INCLUDE SUBST_EMISPRM   ! Emissions processing control parameters
-      INCLUDE SUBST_PACTL_ID  ! Process analysis control parameters
 
 C..Arguments:
       REAL, POINTER :: CGRID( :,:,:,: )  ! Species concentrations
