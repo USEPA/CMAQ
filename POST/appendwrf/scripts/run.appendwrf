@@ -1,0 +1,40 @@
+#! /bin/csh -f
+
+# ===================== APPENDWRFv5.1 Run Script ====================
+# Usage: run.appendwrf >&! appendwrf_V51.log &
+#
+# To report problems or request help with this script/program:
+#             http://www.cmascenter.org
+# ===================================================================
+
+#> Source the config.cmaq file to set the run environment
+ source ../../config.cmaq
+
+ set APPL = D51a
+ set EXEC = APPENDWRF_${APPL}_$EXEC_ID
+
+#> Set the working directory
+ set BASE  = $cwd      
+#set BASE  = $M3HOME/scripts/appendwrf
+ set BLD   = ${BASE}/BLD_$APPL
+
+ cd $BASE; date; set timestamp; cat $BASE/cfg.${APPL}; echo " "; set echo
+
+ set INDIR  = /your/input/directory
+ set OUTDIR = /your/output/directory
+
+### set input and output files
+
+ setenv INFILE_1 ${INDIR}/06May30/wrfbdy_d01
+ setenv INFILE_2 ${INDIR}/06Jun04/wrfbdy_d01
+ setenv INFILE_3 ${INDIR}/06Jun09/wrfbdy_d01
+
+ setenv OUTFILE ${OUTDIR}/wrfbdy_d01
+
+#> Executable call:
+ /usr/bin/time $BLD/$EXEC
+ 
+ date
+ exit()
+
+
