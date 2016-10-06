@@ -33,8 +33,8 @@ The title of each note file is up to the user (please make it close to the title
 -----
 ## Internal Records:
 #### Relevant Pull Requests:
-[PR #20](https://github.com/usepa/cmaq/pulls/20)  
-[PR #32](https://github.com/usepa/cmaq/pulls/32)
+[PR #20](https://github.com/usepa/cmaq_dev/pulls/20)  
+[PR #32](https://github.com/usepa/cmaq_dev/pulls/32)
 
 #### Commit IDs:
 *(See Ben for a way to automatically harvest this from the command line on Sol)*  

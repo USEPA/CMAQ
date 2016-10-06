@@ -6,18 +6,16 @@ Refer to the CMAQv5.0 [Technical Documentation](http://www.airqualitymodeling.or
 The Community Multiscale Air Quality (CMAQ) Model version 5.2 is major update to CMAQ that includes several changes to the science algorithms in the base model.  CMAQ v5.2 was developed by the U.S. EPA with contributions from other research partners. Summarized below are the main enhancements to the modeling system since the previous release, CMAQ v5.2. 
 
 # Base Documentation  
-[Building and running CMAQv5.1](http://www.airqualitymodeling.org/cmaqwiki/index.php?title=CMAQv5.1_Readme_file)  
+[Building and running CMAQv5.2](http://www.airqualitymodeling.org/cmaqwiki/index.php?title=CMAQv5.1_Readme_file)  
 [Building and running WRF-CMAQ Two Way Model](http://www.airqualitymodeling.org/cmaqwiki/index.php?title=CMAQv5.1_Two-way_model_release_notes)
-
-# Patches 
-###    Patch 1 
 
 -----
 # Release Notes  
 
 ## Chemistry 
 ### Photochemistry
-  * CB6r3 details
+  * [Implementation of CB6r3](CB6_release_notes.md)
+  * [Implementation of bromine and iodine chemistry](Halogen_Chemistry.md)
   * [Brute force no chemistry capacity](Brute_force_no_chemistry_capacity.md)
   * [RXNS_DATA_MODULEs comply to FORTRAN 132 column limit](MECHS_RXNS_DATA_MODULEs_comply_to_FORTRAN_132_column_limit.md)
   * [Chemistry EBI solvers corrected in error messages](GAS_EBI_solvers_corrected_in_error_messages.md)
@@ -27,21 +25,26 @@ The Community Multiscale Air Quality (CMAQ) Model version 5.2 is major update to
   * [In-line Photolysis CLOUD_OPTICS.F fixed for possible floating point error](In-line_Photolysis_CLOUD_OPTICS.F_fixed_for_possible_floating_point_error.md)
 
 ### Aerosol Processes
-  * Semivolatile POA and pcSOA implementation
+  * [Semivolatile POA and pcSOA implementation](SemiVolPOA_pcSOA.md)
   * [New Organic Properties](SOA_properties.md)
   * [Transmission Factors for PM<sub>1</sub> and AMS size-dependent collection have been added and are output in the diagnostic routine](Aerosol_Transmission_Factors.md)
-  * New flexibility in Aero_Data table
-  * Consistent treatment of M2wet
+  * [New flexibility in Aero_Data table](aero6_6i_6mp_consolidation.md)
+  * [Consistent treatment of aerosol water contribution to second and third aerosol moments](Aerosol_Moment_Consistency.md)
   * [Reduce underflow errors in aerosol physics and chemistry](Reduce_underflow_errors_in_aerosol_physics_and_chemistry.md)
   * [OA Bisection upper bound adjustment](OA_bisection_update.md)
   * [Glyoxal and methylglyoxal uptake onto aqueous particles](gly_mgly_soa_update.md)
   * [IEPOX organosulfate formation rate constant update](iepoxos_rateconstant.md)
   * [Acidity bug fix and IEPOX SOA update](AH3OPJ_IEPOX_update.md)
+  * [Update to Speciation of coarse-mode aerosol](Coarse_Aerosol_Speciation.md)
 
 ### Aqueous and Heterogeneous Chemistry
 #### Aqueous aerosol chemistry
-  * Adoption of tracer species into acm_cld standard code
-
+  * [Updates to AQCHEM-KMT(I)](AQCHEM-KMT.md)
+  * [Adoption of tracer species into acm_cld standard code](aero6_6i_6mp_consolidation.md)
+  
+### Lightning Interactions
+  * [Improvement of parameterization for lightning NO<sub>x</sub> generation](Lightning_NOx.md)
+  
 ## Transport Processes 
   * Monin-Obukhov fix
 
@@ -50,20 +53,21 @@ The Community Multiscale Air Quality (CMAQ) Model version 5.2 is major update to
   
 
 ### Windblown Dust Emissions
-  * New Dust Module
+  * [Improvement to windblown dust generation parameterization](Windblown_Dust_Emis.md)
 
 ### Dry Deposition
-  * [The deposition parameters of H2O2, HACET, and Organic Nitrates have been updated.](Gas-Phase_Dep_H2O2_HACET_OrgNtr_s07tic_Species.md)
-  * [The cuticular resistance resistance parameter of Ozone has been updated](O3_Cuticular_Resistance.md)
+  * [Update to the deposition parameters of H2O2, HACET, and Organic Nitrates.](Gas-Phase_Dep_H2O2_HACET_OrgNtr_s07tic_Species.md)
+  * [Update to the cuticular resistance resistance parameter of Ozone](O3_Cuticular_Resistance.md)
 
 ## VOC Emission Updates
   * Multiple emissions files for fire sources capability
 
 ## Structural Updates
   * [Consolidation of aero module](aero6_6i_6mp_consolidation.md)
+  * [Conform mechanisms to the legacy fortran 132 column limit](MECHS_RXNS_DATA_MODULEs_comply_to_FORTRAN_132_column_limit.md)
 
 ## Tools & Utilities
-  * SpecDef files and SpecDef_Dep files
+  * [Distribution of SpecDef files and SpecDef_Dep files into mechanism sub-modules](Misc_Aerosol_Operation_Updates.md)
 
 ## Two-way Coupled WRF-CMAQ
 
