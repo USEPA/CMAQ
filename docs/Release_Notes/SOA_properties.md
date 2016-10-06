@@ -32,11 +32,11 @@ Pye, H. O. T., Murphy, B. N., Xu, L., Ng, N. L., Carlton, A. G., Guo, H., Weber,
 -----
 ## Internal Records:
 #### Relevant Pull Requests:
-[PR #13](https://github.com/usepa/cmaq_dev/pulls/13)   
-[PR #11](https://github.com/usepa/cmaq_dev/pulls/11)  
-[PR #75](https://github.com/usepa/cmaq_dev/pulls/75)  
-[PR #64](https://github.com/usepa/cmaq_dev/pulls/64)  
-[PR #36](https://github.com/usepa/cmaq_dev/pulls/36)  
+[PR #13](https://github.com/usepa/cmaq_dev/pull/13)   
+[PR #11](https://github.com/usepa/cmaq_dev/pull/11)  
+[PR #75](https://github.com/usepa/cmaq_dev/pull/75)  
+[PR #64](https://github.com/usepa/cmaq_dev/pull/64)  
+[PR #36](https://github.com/usepa/cmaq_dev/pull/36)  
 
 #### Commit IDs:
 

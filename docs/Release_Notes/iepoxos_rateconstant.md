@@ -5,7 +5,7 @@
 ## Brief Description
 
 IEPOX uptake to aqueous particles results in 2-methyltetrols and organosulfates along with other species. The organosulfate formation rate constant was updated to use
-the IEPOXOS:tetrol relative value from Piletic et al. (2013). Thus the aqueous organosulfate formation rate constant was updated to 8.83e-3 M^-2 s^-1.
+the IEPOXOS:tetrol relative value from Piletic et al. (2013). Thus the aqueous organosulfate formation rate constant was updated to 8.83 x 10<sup>-3</sup> M<sup>-2</sup> s<sup>-1</sup>. We believe the old value was less accurate as it was based on nitrate and did not properly reflect the increased nucleophilic strenght of sulfate vs water.
 
 
 ## Significance and Impact
@@ -27,7 +27,7 @@ DOI: 10.1039/C3CP52851K. [link](http://pubs.rsc.org/en/Content/ArticleLanding/20
 -----
 ## Internal Records:
 #### Relevant Pull Requests:
-[PR #11](https://github.com/usepa/cmaq_dev/pulls/11) 
+[PR #11](https://github.com/usepa/cmaq_dev/pull/11) 
 
 
 #### Commit IDs:

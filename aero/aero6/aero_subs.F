@@ -1554,7 +1554,7 @@ C *** Add water and SOA to 2nd moment while preserving standard deviation
       M2WET_FINAL = moment2_conc
 
 C *** Assign H+ Concentration to each Mode
-      HPLUS = 0.0
+      HPLUS( 1:2 ) = 0.0
       DO I = 1, N_AEROSPC
          IF(  AEROSPC( I )%tracer )CYCLE
          HPLUS( 1:2 ) = HPLUS( 1:2 )

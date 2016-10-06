@@ -54,6 +54,7 @@ C    25 Jul 08 S.Roselle: removed PING from modeled processes
 C    16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C    11 May 11 D.Wong: incorporated twoway model implementation
 C    25 Mar 16 R.Mathur: incorporated pot. vorticity strat. O3 scaling
+C    16 Sep 16 J.Young: update for inline procan (IPR)
 C-----------------------------------------------------------------------
 
       USE UTILIO_DEFN
@@ -62,12 +63,9 @@ C-----------------------------------------------------------------------
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
 #endif
+      USE PA_DEFN, Only: LIPR   ! Process Anaylsis control and data variables
 
       IMPLICIT NONE   
-
-C Include files:
-
-      INCLUDE SUBST_PACTL_ID    ! PA control parameters
 
 C Arguments:
       REAL, POINTER :: CGRID( :,:,:,: )
