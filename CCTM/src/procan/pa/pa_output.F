@@ -71,6 +71,7 @@ C  10 Jul 10 J.Young: restructure so as to not keep reallocating DBUFF for IRR
 C  16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C  26 Jan 16 J.Young: consolidated pio_init, flag for couple/decouple
 C  16 Sep 16 J.Young: update for inline procan
+C   7 Oct 16 J.Young: write domain re-decomp to log only on first call
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -131,20 +132,32 @@ C Local Variables:
 C-----------------------------------------------------------------------
 
 #ifdef parallel
+      IF ( .NOT. LFIRST ) THEN
 C Reset decomposition map
-      IF ( .NOT. PIO_INIT( COLROW, PACOLS, PAROWS, PALEVS, NTHIK,
-     &                     MY_PACOLS, MY_PAROWS, NPCOL, NPROW, NPCOL*NPROW,
-     &                     MYPE, wflg = WFLG ) ) THEN
-         XMSG = 'Failed to re-initialize parallel I/O library.'
-         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-         RETURN
+         IF ( .NOT. PIO_INIT( COLROW, PACOLS, PAROWS, PALEVS, NTHIK,
+     &                        MY_PACOLS, MY_PAROWS, NPCOL, NPROW, NPCOL*NPROW,
+     &                        MYPE ) ) THEN
+            XMSG = 'Failed to re-initialize parallel I/O library.'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+            RETURN
+         END IF
       END IF
 #endif
 
 C On first call, get and save the output file names 
       IF ( LFIRST ) THEN
 
-         LFIRST = .FALSE.
+#ifdef parallel
+C Reset decomposition map
+         IF ( .NOT. PIO_INIT( COLROW, PACOLS, PAROWS, PALEVS, NTHIK,
+     &                        MY_PACOLS, MY_PAROWS, NPCOL, NPROW, NPCOL*NPROW,
+     &                        MYPE, wflg = WFLG ) ) THEN
+            XMSG = 'Failed to re-initialize parallel I/O library.'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+            RETURN
+         END IF
+#endif
+
          LOGDEV = INIT3( )
 
          IF ( LIPR .AND. NIPRVAR. GT. 0 ) THEN
@@ -329,15 +342,29 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       END IF   ! IRR
 
 #ifdef parallel
-C Reset decomposition map for the rest of the model
-      IF ( .NOT. PIO_INIT( COLROW, GL_NCOLS, GL_NROWS, NLAYS, NTHIK,
-     &                     NCOLS, NROWS, NPCOL, NPROW, NPCOL*NPROW,
-     &                     MYPE, wflg = WFLG ) ) THEN
-         XMSG = 'Failed to re-initialize parallel I/O library.'
-         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-         RETURN
+      IF ( .NOT. LFIRST ) THEN
+C Reset decomposition map
+         IF ( .NOT. PIO_INIT( COLROW, GL_NCOLS, GL_NROWS, NLAYS, NTHIK,
+     &                        NCOLS, NROWS, NPCOL, NPROW, NPCOL*NPROW,
+     &                        MYPE ) ) THEN
+            XMSG = 'Failed to re-initialize parallel I/O library.'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+            RETURN
+         END IF
+      ELSE
+         IF ( .NOT. PIO_INIT( COLROW, GL_NCOLS, GL_NROWS, NLAYS, NTHIK,
+     &                        NCOLS, NROWS, NPCOL, NPROW, NPCOL*NPROW,
+     &                        MYPE, wflg = WFLG ) ) THEN
+            XMSG = 'Failed to re-initialize parallel I/O library.'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+            RETURN
+         END IF
       END IF
 #endif
+
+      IF ( LFIRST ) THEN
+         LFIRST = .FALSE.
+      END IF
 
       RETURN
       END

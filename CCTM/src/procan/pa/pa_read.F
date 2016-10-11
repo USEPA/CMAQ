@@ -62,8 +62,9 @@ C Includes: None
 C Arguments: None
                                         
 C Parameters:
-      ! env var for PACP input file name
-      CHARACTER( 16 ), PARAMETER :: PACP_INFILE = 'PACP_INFILE'  
+      ! env var for the Process Analysis Control Module input file name
+      CHARACTER( 16 ), PARAMETER :: PACM_INFILE = 'PACM_INFILE'  
+      CHARACTER( 16 ), PARAMETER :: PNAME = 'PA_READ'  
 
 C External Functions: 
 
@@ -87,14 +88,14 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       LRDONLY = .TRUE.
       LFMTTED = .TRUE.
 
-      IFILE = GETEFILE ( PACP_INFILE, LRDONLY, LFMTTED, 'PA_READ' )
+      IFILE = GETEFILE ( PACM_INFILE, LRDONLY, LFMTTED, PNAME )
       IF ( IFILE .LT. 0 ) THEN
-         MSG = 'PACP_INFILE not found; looking for pa.inp'
+         MSG = 'PACM_INFILE not found; looking for pa.inp'
          CALL M3MESG( MSG )
-         IFILE = GETEFILE ( 'pa.inp', LRDONLY, LFMTTED, 'PA_READ' )
+         IFILE = GETEFILE ( 'pa.inp', LRDONLY, LFMTTED, PNAME )
          IF ( IFILE .LT. 0 ) THEN 
-            MSG = 'ERROR: Could not open PACP input file'
-            CALL M3EXIT( 'PA_READ', IZERO, IZERO, MSG, XSTAT2 )
+            MSG = 'ERROR: Could not open PACM input file'
+            CALL M3EXIT( PNAME, IZERO, IZERO, MSG, XSTAT2 )
          END IF
       END IF
  
@@ -118,7 +119,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             CALL M3MESG( MSG )
             WRITE( MSG, 94020 ) CHR
             CALL M3MESG( MSG )
-            CALL M3EXIT( 'PA_READ', IZERO, IZERO, ' ', XSTAT2 )
+            CALL M3EXIT( PNAME, IZERO, IZERO, ' ', XSTAT2 )
          END IF
          CALL GETCHR
          CALL GETWORD
@@ -139,7 +140,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             CALL M3MESG( MSG )
             WRITE( MSG, 94040 ) WORD
             CALL M3MESG( MSG )
-            CALL M3EXIT( 'PA_READ', IZERO, IZERO, ' ', XSTAT2 )
+            CALL M3EXIT( PNAME, IZERO, IZERO, ' ', XSTAT2 )
          END IF
          IF ( CHR .NE. ';' ) THEN
             WRITE( MSG, 94100 ) 
@@ -148,7 +149,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             CALL M3MESG( MSG )
             WRITE( MSG, 94020 ) CHR
             CALL M3MESG( MSG )
-            CALL M3EXIT( 'PA_READ', IZERO, IZERO, ' ', XSTAT2 )
+            CALL M3EXIT( PNAME, IZERO, IZERO, ' ', XSTAT2 )
          ELSE
             CALL GETCHR
             CALL GETWORD
@@ -175,7 +176,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             CALL M3MESG( MSG )
             WRITE( MSG,94040 ) WORD
             CALL M3MESG( MSG )
-            CALL M3EXIT( 'PA_READ', IZERO, IZERO, ' ', XSTAT2 )
+            CALL M3EXIT( PNAME, IZERO, IZERO, ' ', XSTAT2 )
          END IF
       ELSE IF ( WORD .EQ. 'IPR_OUTPUT' ) THEN
          CALL GETIPROUT
@@ -194,7 +195,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          CALL M3MESG( MSG )
          WRITE( MSG, 94040 ) WORD
          CALL M3MESG( MSG )
-         CALL M3EXIT( 'PA_READ', IZERO, IZERO, ' ', XSTAT2 )
+         CALL M3EXIT( PNAME, IZERO, IZERO, ' ', XSTAT2 )
       END IF
       LASTCMND = CMND
       CALL GETWORD
@@ -235,7 +236,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &           IRRDESC( NIRRVAR ), STAT = ASTAT )
       IF ( ASTAT .NE. 0 ) THEN
          WRITE( MSG, 94460 )
-         CALL M3EXIT( 'PA_READ', IZERO, IZERO, MSG, XSTAT2 )
+         CALL M3EXIT( PNAME, IZERO, IZERO, MSG, XSTAT2 )
       END IF
       IRRNAME = IRRNAME_TMP( 1:NIRRVAR )
       IRRDESC = IRRDESC_TMP( 1:NIRRVAR )

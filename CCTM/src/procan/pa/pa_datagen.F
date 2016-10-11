@@ -36,8 +36,6 @@ C----------------------------------------------------------------------
 
       IMPLICIT NONE 
 
-
-
 C..Includes: None
 C..Arguments: None
 C..Parameters: None
@@ -61,8 +59,7 @@ C----------------------------------------------------------------------
 
 !...Get flag to use process analysis
 
-      JDATE = 0
-      JTIME = 0
+      JDATE = 0; JTIME = 0
       PROCAN = .FALSE.         ! default
       VARDESC= 'Flag for using process analysis'
       PROCAN = ENVYN( CTM_PROCAN, VARDESC, PROCAN, ESTAT )
@@ -78,16 +75,14 @@ C----------------------------------------------------------------------
          WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
       END IF
 
-         
-      IF( PROCAN )THEN
-         XMSG = TRIM( PNAME ) // ': Process Analysis is activitated'
+      IF ( PROCAN ) THEN
+         XMSG = TRIM( PNAME ) // ': Process Analysis is activated'
          CALL M3MESG( XMSG )
       ELSE
-         XMSG = TRIM( PNAME ) // ': Process Analysis is not activitated'
+         XMSG = TRIM( PNAME ) // ': Process Analysis is not activated'
          CALL M3MESG( XMSG )
          RETURN
       END IF
-
         
       CALL PA_READ
       CALL PA_ERRCHECK

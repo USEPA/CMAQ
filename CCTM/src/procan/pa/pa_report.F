@@ -37,7 +37,7 @@ C  Modified May, 1997 by Jerry Gipson to be consistent with beta CTM
 C  Modified Sept, 1997 by Jerry Gipson to be consistent with targeted CTM
 C  Modified Jun, 1998 by Jerry Gipson to change name of output report
 C  Modified May 2002 by Jerry Gipson to add comma in format statements
-C  Aug 2011 Jeff Young: Replaced I/O API include files with IOAPI's M3UTILIO
+C  Aug 2011 Jeff Young: Replaced I/O API include files with IOAPI`s M3UTILIO
 C-----------------------------------------------------------------------
 
       USE M3UTILIO      ! IOAPI module
@@ -52,7 +52,8 @@ C-----------------------------------------------------------------------
 C Includes: None
 C Arguments: None
 C Parameters:
-      CHARACTER( 16 ), PARAMETER :: PACP_REPORT = 'PACP_REPORT'  
+      CHARACTER( 16 ), PARAMETER :: PACM_REPORT = 'PACM_REPORT'  
+      CHARACTER( 16 ), PARAMETER :: PNAME = 'PA_REPORT'  
 
 C External Functions: None
 
@@ -116,8 +117,6 @@ C Local Variables
                                 ! loss, or net operations
       REAL    COEFFS( MXRXNS )  ! Coefficients of operator reactions
 
-
-         
 C-----------------------------------------------------------------------
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -129,10 +128,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       LRDONLY = .FALSE.
       LFMTTED = .TRUE.
 
-      IOUT = GETEFILE ( PACP_REPORT, LRDONLY, LFMTTED, 'PA_READ' )
+      IOUT = GETEFILE ( PACM_REPORT, LRDONLY, LFMTTED, PNAME )
       IF ( IOUT .LT. 0 ) THEN
-         MSG = 'ERROR: Could not open PACP_REPORT output file'
-         CALL M3EXIT( 'PA_REPORT', IZERO, IZERO, MSG, XSTAT2 )
+         MSG = 'ERROR: Could not open PA_REPORT output file'
+         CALL M3EXIT( PNAME, IZERO, IZERO, MSG, XSTAT2 )
       END IF
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -767,7 +766,7 @@ c..Write the final equation for the output integrated reaction rates
 C----------------------- Format Statements -----------------------------
 93000 FORMAT( A )
 
-93020 FORMAT( //'============ Process Analysis Control Program Output', 
+93020 FORMAT( //'============ Process Analysis Control Module Output', 
      &        ' Report ============'/18X, 'Created  ', A/ )
 
 !3040 FORMAT( ' ', 24X, 'OUTPUT DOMAIN SECTION'/
@@ -781,11 +780,11 @@ C----------------------- Format Statements -----------------------------
 !    &        '       Starting layer: ', I4/
 !    &        '       Ending layer:   ', I4 ) 
 
-93080 FORMAT( 20X, 'INTEGRATED PROCESS RATE SECTION'/
+93080 FORMAT( 20X, 'Integrated Process Rate Section'/
      &        '   No requests for IPR outputs were included', 
      &        ' in the command file.' )
 
-93100 FORMAT( 20X, 'INTEGRATED PROCESS RATE SECTION'/
+93100 FORMAT( 20X, 'Integrated Process Rate Section'/
      &        '   The following section lists the IPR ', 
      &        'outputs generated from the'/
      &        '   command file inputs.' )
@@ -795,15 +794,15 @@ C----------------------- Format Statements -----------------------------
      &        ' ' )
 93140 FORMAT( ' ' )
 93160 FORMAT( '      IPR_OUTPUT(', I3, ') = ', A, ' of ', A ) 
-93180 FORMAT( 20X, 'INTEGRATED REACTION RATE SECTION'/
+93180 FORMAT( 20X, 'Integrated Reaction Rate Section'/
      &        '   A FULL IRR analysis has been requested. Each reaction', 
      &          ' rate will be'/
      &        '   integrated individually and output for the',
      &          ' specified domain.' )
-93200 FORMAT( 20X, 'INTEGRATED REACTION RATE SECTION'/
+93200 FORMAT( 20X, 'Integrated Reaction Rate Section'/
      &        '   No requests for IRR analysis were included in the', 
      &        ' command file.' )
-93220 FORMAT( 20X, 'INTEGRATED REACTION RATE SECTION'/
+93220 FORMAT( 20X, 'Integrated Reaction Rate Section'/
      &        '   The following section gives a symbolic representation', 
      &        ' of how the'/
      &        '   PARTIAL IRR outputs are calculated given the commands', 
@@ -830,7 +829,7 @@ C----------------------- Format Statements -----------------------------
 93340 FORMAT( '   The referenced operators are defined as follows:'/' ' )
 93360 FORMAT( '   The following reactions are referenced individually:'/
      &        ' ' )
-93380 FORMAT( ///'========= End of Process Analysis Control Program', 
+93380 FORMAT( ///'========= End of Process Analysis Control Module', 
      &         ' Output Report ========='  )  
 C-----------------------------------------------------------------------
 

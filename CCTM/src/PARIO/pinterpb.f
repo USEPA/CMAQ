@@ -483,7 +483,6 @@ C Store the interpolated values from MSGBUFHD into VARRAY
 
       RETURN
 
-9020  FORMAT ( /5X, 'VSIZE= ', I5, ' NBNDY = ', I5, ' NLAYS3D = ', I5,
-     &         ' NLAYS3D = ', I5 / )
+9020  FORMAT ( /5X, 'VSIZE= ', I5, ' NBNDY = ', I5, ' NLAYS3D = ', I5 /)
 
       END    ! Logical function PINTERPB
