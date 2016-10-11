@@ -63,7 +63,9 @@ C Argument variables
       
 C Local Variables
 
-      REAL,   PARAMETER   :: ONE = 1.0
+      REAL,   PARAMETER   :: ONE  = 1.0
+      REAL,   PARAMETER   :: ZERO = 0.0
+      LOGICAL, PARAMETER  :: FALSE = .FALSE.
    
       
       INTEGER ISPC, IRX, IFLD0, IFLD1, IFLD2, NLINES
@@ -456,14 +458,14 @@ c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
           DO ISPC = 1, NS + N_SS_SPC
 !             WRITE( WRUNIT, 2161 ) ISPC, ISPC, ISPC, ISPC, ISPC, MECHANISM_SPC( ISPC ), CGRID_INDEX( ISPC ), 
 !     &       SPECIES_TYPE( ISPC ), ONE, USE_SPCS_NAMELISTS
-              WRITE( WRUNIT, 2061 ) ISPC, ISPC, MECHANISM_SPC( ISPC ), SPECIES_MOLWT( ISPC )
+              WRITE( WRUNIT, 2061 ) ISPC, ISPC, MECHANISM_SPC( ISPC ), ZERO 
           END DO
           WRITE( WRUNIT,'( / )')
           WRITE( WRUNIT, 2063 ) 
           WRITE( WRUNIT, 2064 )      
           DO ISPC = 1, NS + N_SS_SPC
               WRITE( WRUNIT, 2065 ) ISPC, ISPC, ISPC, CGRID_INDEX( ISPC ), 
-     &       SPECIES_TYPE( ISPC ), CONVERT_CONC( ISPC ), TRIM( MECHANISM_SPC( ISPC ) )
+     &       SPECIES_TYPE( ISPC ), FALSE, TRIM( MECHANISM_SPC( ISPC ) )
           END DO
       END IF
 
