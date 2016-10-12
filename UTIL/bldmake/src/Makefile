@@ -1,7 +1,7 @@
 # make file to build bldmake program
 
-#EXEC = bldmake_for_developers
- EXEC = bldmake
+#EXEC = BLDMAKE_for_developers
+ EXEC = BLDMAKE
 
 #FC = /usr/local/intel/ictce/3.2.2.013/fc/bin/intel64/ifort
  FC = /usr/local/apps/intel/composer_xe_2013.2.146/bin/intel64/ifort
@@ -27,6 +27,6 @@ $(EXEC): $(OBJS)
 	$(FC) -c $(F_FLAGS) $<
 
 clean:
-	rm *.o *.mod bldmake
+	rm *.o *.mod $EXEC
 # make file to build bldmake program
 
