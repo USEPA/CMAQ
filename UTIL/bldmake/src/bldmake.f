@@ -279,9 +279,10 @@
       Write( lfn, '("#   Generation date [",a,"]")' )      Trim( currentDate )
       Write( lfn, '("#   Configuration file [",a,"]")' )   Trim( cfgFile )
       Write( lfn, '("#   Using GIT repository [",a,"]")' ) Trim( repo )
-      Write( lfn, '("#   With mechanism [",a,"]")' )       Trim( mechanism )
+      If ( Trim( mechanism ) .Ne. 'X' )
+     &   Write( lfn, '("#   With mechanism [",a,"]")' )    Trim( mechanism )
 
-      Write( lfn, '(/" MODEL = ",a)' ) Trim( model )
+      Write( lfn, '(/" EXEC = ",a)' ) Trim( model )
 
       Write( lfn, '(/" FC = ",a)' ) Trim( f_compiler )
       Write( lfn, '( " CC = ",a)' ) Trim( c_compiler )
@@ -973,7 +974,7 @@
 
       Write( lfn, '(/,a)') Trim( record )
 
-      Write( lfn, '(/"$(MODEL): $(OBJS)")' )
+      Write( lfn, '(/"$(EXEC): $(OBJS)")' )
       Write( lfn, '(a,"$(LINKER) $(LINK_FLAGS) $(OBJS) $(LIBRARIES) -o $@"/)' ) tab
 
       Write( lfn, '(".F.o:")' )

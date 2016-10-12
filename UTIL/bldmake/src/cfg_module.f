@@ -83,7 +83,7 @@
       Character( FLN_LEN ) :: reporoot
 
 ! mechanism
-      Character( FLN_LEN ) :: mechanism
+      Character( FLN_LEN ) :: mechanism = 'X'
 
 ! current system date
       Character( 20 ) :: currentDate
