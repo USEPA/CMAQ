@@ -1,0 +1,256 @@
+setenv M3HOME /home/yoj/src/repo/restruct
+setenv REPO /home/yoj/src/repo/restruct/CMAQ_Dev_Restruct
+setenv M3DATA /home/yoj/src/repo/restruct/data
+setenv compiler intel
+switch ( intel )
+setenv compiler_ext ifort
+setenv myFC mpifort
+setenv myCC icc
+setenv myFSTD -O3 -fno-alias -mp1 -fp-model source -mcmodel=medium -shared-intel
+setenv myDBG -g -check bounds -check uninit -fpe0 -fno-alias -ftrapuv -traceback
+setenv myFFLAGS -fixed -132 -override-limits
+setenv myFRFLAGS -free -override-limits
+setenv myCFLAGS -O2
+setenv mpi -lmpich
+setenv extra_lib -lmpiif
+setenv myLINK_FLAG -i-static
+breaksw
+setenv system `/bin/uname -i`
+/bin/uname -i
+setenv bld_os `/bin/uname -s``/bin/uname -r | cut -d. -f1`
+/bin/uname -s
+cut -d. -f1
+/bin/uname -r
+setenv lib_basedir /home/wdx/lib_sol
+setenv M3LIB /home/wdx/lib_sol/x86_64/intel
+setenv EXEC_ID Linux2_x86_64intel
+unset echo
+   Model repository path: /home/yoj/src/repo/restruct
+            library path: /home/wdx/lib_sol/x86_64/intel
+         Model repository path: /home/yoj/src/repo/restruct/CMAQ_Dev_Restruct
+setenv REPOROOT /home/yoj/src/repo/restruct/CMAQ_Dev_Restruct/PREP/bc/BCON/src
+set MODEL = /home/yoj/src/repo/restruct/CMAQ_Dev_Restruct/PREP/bc/BCON/src
+set Mechs = /home/yoj/src/repo/restruct/CMAQ_Dev_Restruct/PREP/bc/BCON/src/MECHS
+set Base = /home/yoj/src/repo/restruct/CMAQ_Dev_Restruct/PREP/bc/BCON/scripts_sol
+set APPL = v52_profile
+set EXEC = BCON_v52_profile_Linux2_x86_64intel
+set CFG = cfg.BCON_v52_profile_Linux2_x86_64intel
+set MakeFileOnly
+set ModCommon = common
+set ModType = profile
+set Mechanism = cb05e51_ae6_aq/
+set Tracer = trac0
+set FC = mpifort
+set FP = mpifort
+set IOAPI = ioapi_3.1
+set xLib_Base = /home/wdx/lib_sol/x86_64/intel
+set xLib_1 = ioapi_3.1/Linux2_x86_64ifort
+set xLib_2 = ioapi_3.1/ioapi/fixed_src
+set FSTD = -O3 -fno-alias -mp1 -fp-model source -mcmodel=medium -shared-intel
+set DBG = -g -check bounds -check uninit -fpe0 -fno-alias -ftrapuv -traceback
+set F_FLAGS = -fixed -132 -override-limits
+set F90_FLAGS = -free -override-limits
+set CPP_FLAGS = 
+set LINK_FLAGS = -i-static
+set LIB1 = -lioapi
+set LIB2 = -lnetcdff -lnetcdf
+set Blder = /home/yoj/src/repo/restruct/CMAQ_Dev_Restruct/UTIL/bldmake/src/BLDMAKE -serial -verbose
+set Bld = /home/yoj/src/repo/restruct/CMAQ_Dev_Restruct/PREP/bc/BCON/scripts_sol/BLD_BCON_v52_profile
+if ( ! -e /home/yoj/src/repo/restruct/CMAQ_Dev_Restruct/PREP/bc/BCON/scripts_sol/BLD_BCON_v52_profile ) then
+mkdir /home/yoj/src/repo/restruct/CMAQ_Dev_Restruct/PREP/bc/BCON/scripts_sol/BLD_BCON_v52_profile
+else
+cd /home/yoj/src/repo/restruct/CMAQ_Dev_Restruct/PREP/bc/BCON/scripts_sol/BLD_BCON_v52_profile
+set ICL_MECH = /home/yoj/src/repo/restruct/CMAQ_Dev_Restruct/PREP/bc/BCON/src/MECHS/cb05e51_ae6_aq/
+set ICL_TRAC = /home/yoj/src/repo/restruct/CMAQ_Dev_Restruct/PREP/bc/BCON/src/MECHS/trac0
+if ( 0 ) then
+set Cfile = cfg.BCON_v52_profile_Linux2_x86_64intel
+set quote = "
+echo
+echo model       BCON_v52_profile_Linux2_x86_64intel;
+echo
+echo repo        /home/yoj/src/repo/restruct/CMAQ_Dev_Restruct/PREP/bc/BCON/src;
+echo
+echo mechanism   cb05e51_ae6_aq/;
+echo
+echo lib_base    /home/wdx/lib_sol/x86_64/intel;
+echo
+echo lib_1       ioapi_3.1/Linux2_x86_64ifort;
+echo
+echo lib_2       ioapi_3.1/ioapi/fixed_src;
+echo
+set text = "";
+echo cpp_flags   "";
+echo
+echo f_compiler  mpifort;
+echo
+echo fstd        "-O3 -fno-alias -mp1 -fp-model source -mcmodel=medium -shared-intel";
+echo
+echo dbg         "-g -check bounds -check uninit -fpe0 -fno-alias -ftrapuv -traceback";
+echo
+echo f_flags     "-fixed -132 -override-limits";
+echo
+echo f90_flags   "-free -override-limits";
+echo
+echo link_flags  "-i-static";
+echo
+echo ioapi       "-lioapi";
+echo
+echo netcdf      "-lnetcdff -lnetcdf";
+echo
+set text=// mechanism:
+echo // mechanism: cb05e51_ae6_aq/
+echo // project repository location: /home/yoj/src/repo/restruct/CMAQ_Dev_Restruct/PREP/bc/BCON/src
+echo
+if ( intel == gfort ) then
+echo
+set text = common
+echo // required common
+echo Module common;
+echo
+set text = profile, m3conc, tracer
+echo // options are profile, m3conc, tracer
+echo Module profile;
+echo
+if ( 0 ) then
+unalias mv rm
+if ( 1 ) then
+if ( 0 ) then
+/home/yoj/src/repo/restruct/CMAQ_Dev_Restruct/UTIL/bldmake/src/BLDMAKE -serial -verbose -makefo -git_local cfg.BCON_v52_profile_Linux2_x86_64intel
+REPOROOT set to:/home/yoj/src/repo/restruct/CMAQ_Dev_Restruct/PREP/bc/BCON/src
+
+Model set to BCON_v52_profile_Linux2_x86_64intel
+Repository set to /home/yoj/src/repo/restruct/CMAQ_Dev_Restruct/PREP/bc/BCON/src
+Mechanism set to cb05e51_ae6_aq/
+LIB_BASE set to /home/wdx/lib_sol/x86_64/intel
+LIB_1 set to ioapi_3.1/Linux2_x86_64ifort
+LIB_2 set to ioapi_3.1/ioapi/fixed_src
+CPP_FLAGS set to 
+F_COMPILER set to mpifort
+FSTD set to -O3 -fno-alias -mp1 -fp-model source -mcmodel=medium -shared-intel
+DBG set to -g -check bounds -check uninit -fpe0 -fno-alias -ftrapuv -traceback
+f_flags set to -fixed -132 -override-limits
+f90_flags set to -free -override-limits
+LINK_FLAGS set to -i-static
+IOAPI set to -lioapi
+NETCDF set to -lnetcdff -lnetcdf
+
+
+Building file list for module common
+  file /home/yoj/src/repo/restruct/CMAQ_Dev_Restruct/PREP/bc/BCON/src/common/bcon.F added to make list
+  file /home/yoj/src/repo/restruct/CMAQ_Dev_Restruct/PREP/bc/BCON/src/common/BC_PARMS.F added to make list
+  file /home/yoj/src/repo/restruct/CMAQ_Dev_Restruct/PREP/bc/BCON/src/common/CGRID_SPCS.F added to make list
+  file /home/yoj/src/repo/restruct/CMAQ_Dev_Restruct/PREP/bc/BCON/src/common/findex.F added to make list
+  file /home/yoj/src/repo/restruct/CMAQ_Dev_Restruct/PREP/bc/BCON/src/common/gc_spc_map.F added to make list
+  file /home/yoj/src/repo/restruct/CMAQ_Dev_Restruct/PREP/bc/BCON/src/common/get_envlist.f added to make list
+  file /home/yoj/src/repo/restruct/CMAQ_Dev_Restruct/PREP/bc/BCON/src/common/HGRD_DEFN.F added to make list
+  file /home/yoj/src/repo/restruct/CMAQ_Dev_Restruct/PREP/bc/BCON/src/common/lat_lon.F added to make list
+  file /home/yoj/src/repo/restruct/CMAQ_Dev_Restruct/PREP/bc/BCON/src/common/lr_interp.F added to make list
+  file /home/yoj/src/repo/restruct/CMAQ_Dev_Restruct/PREP/bc/BCON/src/common/lst_spc_map.F added to make list
+  file /home/yoj/src/repo/restruct/CMAQ_Dev_Restruct/PREP/bc/BCON/src/common/ngc_spc_map.F added to make list
+  file /home/yoj/src/repo/restruct/CMAQ_Dev_Restruct/PREP/bc/BCON/src/common/opn_bc_file.F added to make list
+  file /home/yoj/src/repo/restruct/CMAQ_Dev_Restruct/PREP/bc/BCON/src/common/UTILIO_DEFN.F added to make list
+  file /home/yoj/src/repo/restruct/CMAQ_Dev_Restruct/PREP/bc/BCON/src/common/VGRD_DEFN.F added to make list
+
+
+Building file list for module profile
+  file /home/yoj/src/repo/restruct/CMAQ_Dev_Restruct/PREP/bc/BCON/src/profile/prof_bcout.F added to make list
+  file /home/yoj/src/repo/restruct/CMAQ_Dev_Restruct/PREP/bc/BCON/src/profile/prof_driver.F added to make list
+  file /home/yoj/src/repo/restruct/CMAQ_Dev_Restruct/PREP/bc/BCON/src/profile/prof_vinterp.F added to make list
+
+Determining global module files
+  file BC_PARMS.F determined to be global
+  file CGRID_SPCS.F determined to be global
+  file HGRD_DEFN.F determined to be global
+  file VGRD_DEFN.F determined to be global
+  file UTILIO_DEFN.F determined to be global
+
+Generating Makefile
+
+  Compilers defined
+  CPP Flags defined
+  Libraries defined
+  Includes defined
+  Objects defined
+  Make rules defined
+  
+ file,nfields-1 bcon.F            6
+ modName,modFile            2 HGRD_DEFN HGRD_DEFN.F
+ modName,modFile            3 VGRD_DEFN VGRD_DEFN.F
+ modName                    4 M3UTILIO  -------------
+ modName,modFile            5 CGRID_SPCS CGRID_SPCS.F
+ modName,modFile            6 BC_PARMS BC_PARMS.F
+  
+  
+ file,nfields-1 CGRID_SPCS.F            2
+ modName,modFile            2 UTILIO_DEFN UTILIO_DEFN.F
+  
+  
+ file,nfields-1 gc_spc_map.F            3
+ modName                    2 M3UTILIO  -------------
+ modName,modFile            3 CGRID_SPCS CGRID_SPCS.F
+  
+  
+ file,nfields-1 HGRD_DEFN.F            2
+ modName                    2 M3UTILIO  -------------
+  
+ file,nfields-1 lat_lon.F            2
+ modName                    2 M3UTILIO  -------------
+  
+ file,nfields-1 lr_interp.F            2
+ modName                    2 M3UTILIO  -------------
+  
+ file,nfields-1 lst_spc_map.F            4
+ modName                    2 M3UTILIO  -------------
+ modName,modFile            3 CGRID_SPCS CGRID_SPCS.F
+ modName,modFile            4 BC_PARMS BC_PARMS.F
+  
+ file,nfields-1 ngc_spc_map.F            4
+ modName                    2 M3UTILIO  -------------
+ modName,modFile            3 CGRID_SPCS CGRID_SPCS.F
+ modName,modFile            4 BC_PARMS BC_PARMS.F
+  
+ file,nfields-1 opn_bc_file.F            6
+ modName,modFile            2 HGRD_DEFN HGRD_DEFN.F
+ modName,modFile            3 VGRD_DEFN VGRD_DEFN.F
+ modName                    4 M3UTILIO  -------------
+ modName,modFile            5 CGRID_SPCS CGRID_SPCS.F
+ modName,modFile            6 BC_PARMS BC_PARMS.F
+  
+ file,nfields-1 UTILIO_DEFN.F            3
+ modName                    2 M3UTILIO  -------------
+ modName                    3 PARUTILIO  -------------
+  
+ file,nfields-1 VGRD_DEFN.F            2
+ modName                    2 M3UTILIO  -------------
+  
+ file,nfields-1 prof_bcout.F            6
+ modName,modFile            2 HGRD_DEFN HGRD_DEFN.F
+ modName,modFile            3 VGRD_DEFN VGRD_DEFN.F
+ modName                    4 M3UTILIO  -------------
+ modName,modFile            5 CGRID_SPCS CGRID_SPCS.F
+ modName,modFile            6 BC_PARMS BC_PARMS.F
+  
+ file,nfields-1 prof_driver.F            4
+ modName                    2 M3UTILIO  -------------
+ modName,modFile            3 CGRID_SPCS CGRID_SPCS.F
+ modName,modFile            4 BC_PARMS BC_PARMS.F
+  
+ file,nfields-1 prof_vinterp.F            5
+ modName,modFile            2 HGRD_DEFN HGRD_DEFN.F
+ modName,modFile            3 VGRD_DEFN VGRD_DEFN.F
+ modName                    4 M3UTILIO  -------------
+ modName,modFile            5 BC_PARMS BC_PARMS.F
+  USE/MODULE dependencies defined
+
+Makefile generated
+endif
+else
+mv Makefile /home/yoj/src/repo/restruct/CMAQ_Dev_Restruct/PREP/bc/BCON/scripts_sol/BLD_BCON_v52_profile/Makefile.intel
+if ( -e Makefile.intel && -e Makefile ) rm Makefile
+ln -s Makefile.intel Makefile
+if ( 0 != 0 ) then
+if ( -e /home/yoj/src/repo/restruct/CMAQ_Dev_Restruct/PREP/bc/BCON/scripts_sol/cfg.BCON_v52_profile_Linux2_x86_64intel ) then
+cd /home/yoj/src/repo/restruct/CMAQ_Dev_Restruct/PREP/bc/BCON/src
+set brnch = `git branch`
+git branch
+unset echo

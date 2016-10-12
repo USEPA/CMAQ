@@ -1,0 +1,110 @@
+#   Makefile generated for serial execution using program bldmake
+#
+#   Generation date [10/12/2016  12:11:08]
+#   Configuration file [cfg.BCON_v52_profile_Linux2_x86_64intel]
+#   Using GIT repository [/home/yoj/src/repo/restruct/CMAQ_Dev_Restruct/PREP/bc/BCON/src]
+#   With mechanism [cb05e51_ae6_aq/]
+
+ EXEC = BCON_v52_profile_Linux2_x86_64intel
+
+ FC = /usr/local/apps/openmpi-1.8.1/intel-13.1/bin/mpifort
+ CC = /usr/bin/cc
+
+ LIB = /home/wdx/lib_sol/x86_64/intel
+ include_path = -I $(LIB)/ioapi_3.1/Linux2_x86_64ifort \
+                -I $(LIB)/ioapi_3.1/ioapi/fixed_src
+
+ WARN = 
+ FSTD = -O3 -fno-alias -mp1 -fp-model source -mcmodel=medium -shared-intel
+ DBG  = -g -check bounds -check uninit -fpe0 -fno-alias -ftrapuv -traceback
+
+ f_FLAGS   = -fixed -132 -override-limits $(FSTD) $(include_path)
+ f90_FLAGS = -free -override-limits $(FSTD) $(include_path)
+#f_FLAGS   = -fixed -132 -override-limits $(DBG) $(include_path)
+#f90_FLAGS = -free -override-limits $(DBG) $(include_path)
+
+ F_FLAGS   = $(f_FLAGS)
+ F90_FLAGS = $(f90_FLAGS)
+ C_FLAGS   = -I.
+
+ LINKER     = $(FC)
+ LINK_FLAGS = -i-static
+
+ REPOROOT = /home/yoj/src/repo/restruct/CMAQ_Dev_Restruct/PREP/bc/BCON/src
+
+#   Search PATH for source files
+ VPATH = $(REPOROOT): \
+  $(REPOROOT)/common: \
+  $(REPOROOT)/profile:
+
+ CPP = $(FC)
+ CPP_FLAGS = 
+
+ IOAPI  = -L$(LIB)/ioapi_3.1/Linux2_x86_64ifort -lioapi
+ NETCDF = -L$(LIB)/netcdf/lib -lnetcdff -lnetcdf
+ LIBRARIES = $(IOAPI) $(NETCDF)
+
+
+GLOBAL_MODULES = \
+  BC_PARMS.o \
+  UTILIO_DEFN.o \
+  HGRD_DEFN.o \
+  CGRID_SPCS.o \
+  VGRD_DEFN.o
+
+COMMON = \
+  bcon.o \
+  findex.o \
+  gc_spc_map.o \
+  get_envlist.o \
+  lat_lon.o \
+  lr_interp.o \
+  lst_spc_map.o \
+  ngc_spc_map.o \
+  opn_bc_file.o
+
+PROFILE = \
+  prof_bcout.o \
+  prof_driver.o \
+  prof_vinterp.o
+
+OBJS = \
+  $(GLOBAL_MODULES) \
+  $(COMMON) \
+  $(PROFILE)
+
+.SUFFIXES: .F .f .c .F90 .f90
+
+$(EXEC): $(OBJS)
+	$(LINKER) $(LINK_FLAGS) $(OBJS) $(LIBRARIES) -o $@
+
+.F.o:
+	$(FC) -c $(F_FLAGS) $(CPP_FLAGS) $(INCLUDES) $<
+
+.f.o:
+	$(FC) -c $(F_FLAGS) $<
+
+.F90.o:
+	$(FC) -c $(F90_FLAGS) $(CPP_FLAGS) $(INCLUDES) $<
+
+.f90.o:
+	$(FC) -c $(F90_FLAGS) $<
+
+.c.o:
+	$(CC) -c $(C_FLAGS) $<
+
+clean:
+	rm -f $(OBJS) *.mod
+
+
+# dependencies
+
+bcon.o:	HGRD_DEFN.o VGRD_DEFN.o CGRID_SPCS.o BC_PARMS.o
+CGRID_SPCS.o:	UTILIO_DEFN.o
+gc_spc_map.o:	CGRID_SPCS.o
+lst_spc_map.o:	CGRID_SPCS.o BC_PARMS.o
+ngc_spc_map.o:	CGRID_SPCS.o BC_PARMS.o
+opn_bc_file.o:	HGRD_DEFN.o VGRD_DEFN.o CGRID_SPCS.o BC_PARMS.o
+prof_bcout.o:	HGRD_DEFN.o VGRD_DEFN.o CGRID_SPCS.o BC_PARMS.o
+prof_driver.o:	CGRID_SPCS.o BC_PARMS.o
+prof_vinterp.o:	HGRD_DEFN.o VGRD_DEFN.o BC_PARMS.o
