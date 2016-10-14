@@ -13,7 +13,7 @@
   set recompile = "T"
 
 #set path and name of executable mechanism porcessor
- set Xpath = ${BASE}/BLD-kpp_hetero
+ set Xpath = ${BASE}/src
  set EXEC  = CHEMMECH_ggb_SS4
 
  if( ${recompile} == "T" )then
@@ -49,7 +49,7 @@ cd ${Mpath} ; set MCFL =  ` \ls mech*def ` ; cd ${BASE}
  set echo
  setenv MECHDEF  $Mpath/$MCFL
 
-  setenv MAPPING_ROUTINE "${BASE}/BLD-kpp_hetero/map_chemistry_spc.F90"
+  setenv MAPPING_ROUTINE "${BASE}/src/map_chemistry_spc.F90"
  
 
  set NML    = ${Mpath}
