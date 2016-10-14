@@ -9,15 +9,25 @@ set echo
 #setenv COMPILER PGF90
 
 #define path to mechanism include or module data files
- set mech_archive = /home/${USER}/CCTM_git_repository/MECHS
- set mechanism    = cb05e51_ae6_aq
+#set mech_archive = /home/${USER}/CCTM_git_repository/MECHS
+#set mechanism    = CRIe2_ae6_aq
+set mechanism    = saprc07tic_ae6i_aq
  setenv APPL ${mechanism}
-#setenv GC_INC /home/${USER}/tools/mech_processor/output/cb05e6cl_ae6_aq
+# setenv GC_INC /home/${USER}/tools/mech_processor/input/CRIe2_ae6_aq
+#setenv GC_INC /home/${USER}/tools/mech_processor/output/CRIe2_ae6_aq-Feb-22-2016-INTEL
+ setenv GC_INC /media/E869-493F/${mechanism}
 #setenv GC_INC ${mech_archive}/cb05tucl_ae6_aq
- setenv GC_INC ${mech_archive}/${mechanism}
+#setenv GC_INC ${mech_archive}/${mechanism}
 
-#use RXNS_DATA_MODULE, comment out if not use
+ setenv suffix ikx
+# setenv APPL cb05e51_ae6_aq
+# setenv GC_INC /home/${USER}/tools/mech_processor/output/cb05e6cl_ae6_aq
+# setenv GC_INC /home/${USER}/CCTM_git_repository/MECHS/cb05e51_ae6_aq
+#use RXNS_DATA_MODULE, comment out if CMAQ v5.02 and keep if CMAQ v5.1
  setenv USE_RXNS_MODULES T
+ if( ${USE_RXNS_MODULES} == "T" )then
+    if( ! ( -e ${GC_INC}/RXNS_DATA_MODULE.F90 ) ) ls ${GC_INC}/RXNS_DATA_MODULE.F90
+ endif
  
 #Whether to include spectral values of refractive indices for aerosol species [T|Y|F|N]
 setenv WVL_AE_REFRAC T
@@ -32,11 +42,15 @@ setenv SPLIT_OUTPUT T
 
 set BASE  = /home/${USER}/tools/CSQY_table_processor
 set XBASE = /home/${USER}/tools/CSQY_table_processor
+
+
 set EXEC  = CSQY_TABLE_PROCESSOR_${APPL}
 
 
 #create executable
  cd BLD ; make clean; make -f dumb.makefile; cd ..
+
+
 
  set OUTDIR = ${BASE}/output/csqy_table_${APPL}-test
 #set OUTDIR = ${GC_INC}
@@ -91,6 +105,5 @@ endif
  
  cd $BASE
 
-\ls ${OUTDIR}
 
 exit()
