@@ -50,7 +50,7 @@ set EXEC  = CSQY_TABLE_PROCESSOR_${APPL}
 
 
 #create executable
- cd BLD ; make clean; make -f dumb.makefile; cd ..
+ cd src ; make clean; make -f dumb.makefile; cd ..
 
 
 
