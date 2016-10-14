@@ -41,7 +41,12 @@
 ! local
       REAL, EXTERNAL  :: OZONE_YIELD
       REAL, EXTERNAL  :: QY_ACETONE
+      REAL, EXTERNAL  :: RQY_ACETONE
       REAL, EXTERNAL  :: QY_ACETONE_TUV
+      REAL, EXTERNAL  :: QY_GLYOXAL
+      REAL, EXTERNAL  :: RQY_GLYOXAL
+      REAL, EXTERNAL  :: RQUANTUM_ACETONE
+      REAL, EXTERNAL  :: RQY_ACETONE_CH3CO
 
       REAL NO2_XCROSS_298K( KW )
 !      REAL NO2_QUANT_298K ( KW )
@@ -77,6 +82,7 @@
       REAL ADJ_CLONO2_XCROSS(KW,KZ)
       REAL ADJ_QY_NO3_NO2(KW,KZ)
       REAL ADJ_QY_NO3_NO(KW,KZ)
+      REAL ADJUST( KZ )  
       
       LOGICAL, SAVE :: COMPUTED_NO2O3P = .FALSE.
       LOGICAL, SAVE :: COMPUTED_NO2EXC = .FALSE.
@@ -100,15 +106,22 @@
       REAL          :: SIG, ALPHA, BETA, CHI
       REAL          :: XCROSS( NZ, NW), QUANT( NZ,NW )
 
+      REAL          :: PHI_CO_STP     ! CO branch of IUPAC (2013) acetone QYZ at STP
+      REAL          :: PHI_CH3CO_STP  ! CH3CO branch of IUPAC (2013) acetone QYZ at STP
+      REAL          :: PHI_CO         ! CO branch of IUPAC (2013) acetone QYZ at Level
+      REAL          :: PHI_CH3CO      ! CH3CO branch of IUPAC (2013) acetone QYZ at Level
+
+      REAL          :: ADJ_ACETONE_XCROSS( KZ, NW ) ! temperature correction to acetone cross section
+      REAL          :: ADJ_PHI_CO( KZ, NW )         ! T-P adjustment for CO branch of IUPAC (2013) acetone QYZ 
+      REAL          :: ADJ_PHI_CH3CO( KZ, NW )      ! T-P adjustment for CH3CO branch of IUPAC (2013) acetone QYZ 
+
+
       INTERFACE
         SUBROUTINE WVBIN_AVERAGE(WL_CS_IN, CS_IN, NWL_CS_IN,  
      &                         WL_QY_IN, QY_IN, NWL_QY_IN,  
      &                         SPECTRA_TYPE,
      &                         WLL_AVE, WLU_AVE, NWL_AVE, 
      &                         CS_AVE, QY_AVE )
-          USE CSQY_PARAMETERS
-          USE BIN_DATA
-          IMPLICIT NONE      
           CHARACTER(1), INTENT( IN ) :: SPECTRA_TYPE        ! spectra type
           INTEGER, INTENT( IN )      :: NWL_AVE             ! number of intervals average 
           INTEGER, INTENT( IN )      :: NWL_CS_IN           ! number of intervals CS_IN
@@ -122,6 +135,14 @@
           REAL, INTENT( OUT)         :: CS_AVE( : )    ! cross-section as f(WL_AVE)
           REAL, INTENT( OUT)         :: QY_AVE( : )    ! quantum yield as f(WL_AVE)
         END SUBROUTINE WVBIN_AVERAGE
+        SUBROUTINE QY_ACETONE_CHANNELS( TEMP, DENS_NUMB, LAMBDA, PHI_CO, PHI_CH3CO )
+         IMPLICIT NONE
+         REAL, INTENT(IN)  :: TEMP        ! air temperature, K
+         REAL, INTENT(IN)  :: DENS_NUMB   ! air number density, 1/cm^3
+         REAL, INTENT(IN)  :: LAMBDA      ! wavelength, nm
+         REAL, INTENT(OUT) :: PHI_CO      ! CO branch of IUPAC (2013) acetone QYZ
+         REAL, INTENT(OUT) :: PHI_CH3CO   ! CH3CO branch of IUPAC (2013) acetone QYZ
+        END SUBROUTINE QY_ACETONE_CHANNELS
       END INTERFACE  
 !_______________________________________________________________________
 
@@ -190,6 +211,21 @@
  
       DO IW = 1, NW
 
+         CALL QY_ACETONE_CHANNELS( T298K, DENS0, WC(IW), PHI_CO_STP, PHI_CH3CO_STP )
+         DO I = 1, NZ
+            CALL QY_ACETONE_CHANNELS( TLEV( I ), DENS( I ), WC(IW), PHI_CO, PHI_CH3CO )
+            IF( PHI_CO_STP .GT. 1.0E-9 )THEN
+              ADJ_PHI_CO(I,IW) = PHI_CO / PHI_CO_STP
+            ELSE 
+              ADJ_PHI_CO(I,IW) = 1.0
+            END IF
+            IF( PHI_CH3CO_STP .GT. 1.0E-9 )THEN
+              ADJ_PHI_CH3CO(I,IW) = PHI_CH3CO / PHI_CH3CO_STP
+            ELSE 
+              ADJ_PHI_CH3CO(I,IW) = 1.0
+            END IF
+         END DO
+
 ! calculation at 298K      
          O3_XCROSS_298K( IW ) = O3_XCROSS_293K( IW )
          O3_QUANT_298K ( IW ) = OZONE_YIELD( WC( IW ), T298K )
@@ -202,8 +238,8 @@
          NO2_XCROSS_298K(IW )  =  NO2_XCROSS_294K(IW)
          NO2_QUANT_298K( IW )  =  NO2_QUANT_298K(IW)
          
-         QY_NO3_NO_298K( IW )  = NO3NO_QUANT_298K( IW )
-         QY_NO3_NO2_298K( IW ) = NO3NO2_QUANT_298K( IW )
+         QY_NO3_NO_298K( IW )  = 1.0E-3*NO3NO_QUANT_298K( IW )
+         QY_NO3_NO2_298K( IW ) = 1.0E-3*NO3NO2_QUANT_298K( IW )
 
 
          HCHO_XCROSS_298K( IW ) = HCHO_XCROSS_300K(IW) + HCHO_XCROSS_A(IW)*(T298K-300.0)
@@ -283,12 +319,14 @@
             
            IF( QY_NO3_NO_298K( IW ) .GT. 0.0 )THEN
                ADJ_QY_NO3_NO(IW,I) = QYNO3_NO(IW,I) / QY_NO3_NO_298K(IW )
+               print*,'QYNO3_NO(IW,I), QY_NO3_NO_298K(IW ) = ',QYNO3_NO(IW,I), QY_NO3_NO_298K(IW )
            ELSE
                ADJ_QY_NO3_NO(IW,I) = 1.0
            END IF
 
            IF( QY_NO3_NO2_298K( IW ) .GT. 0.0 )THEN
-               ADJ_QY_NO3_NO2(IW,I) = QYNO3_NO2(IW,I) / QY_NO3_NO_298K(IW )
+               ADJ_QY_NO3_NO2(IW,I) = QYNO3_NO2(IW,I) / QY_NO3_NO2_298K(IW )
+               print*,'QYNO3_NO2(IW,I), QY_NO3_NO2_298K(IW ) = ',QYNO3_NO2(IW,I), QY_NO3_NO2_298K(IW )
            ELSE
                ADJ_QY_NO3_NO2(IW,I) = 1.0
            END IF
@@ -376,6 +414,23 @@
                ADJ_NO2EXC_QUANT(IW,I) = ADJ_NO2EXC_QUANT(IW,I) + BETA
            ELSE
                ADJ_NO2EXC_QUANT(IW,I) = 1.0
+           END IF
+
+! temperature adjustment to acetone cross-section 
+           SIG = XC_D_ACETONE(IW)
+     &         + XC_A_ACETONE(IW)*TLEV(I)
+     &         + XC_B_ACETONE(IW)*TLEV(I)**2
+     &         + XC_C_ACETONE(IW)*TLEV(I)**3
+ 
+           CHI = XC_D_ACETONE(IW)
+     &         + XC_A_ACETONE(IW)*T298K
+     &         + XC_B_ACETONE(IW)*T298K**2
+     &         + XC_C_ACETONE(IW)*T298K**3
+     
+           IF( CHI .GT. 0.0 )THEN
+              ADJ_ACETONE_XCROSS( I, IW ) = MAX(SIG/CHI, 0.0)          
+           ELSE 
+              ADJ_ACETONE_XCROSS( I, IW ) = 1.0
            END IF
 
 
@@ -572,7 +627,7 @@
             DO IW = 1, NW
                DO I = 1, NZ
                   XC(I, IW) = ADJ_CLONO2_XCROSS(IW,I) * XC(I, IW)
-              print*,JLABEL,TLEV(I)-T298K,XC(I, IW), XCROSS(I,IW)
+!              print*,JLABEL,TLEV(I)-T298K,XC(I, IW), XCROSS(I,IW)
                   SQ(I, IW) = XC(I,IW) * QY(I,IW)
                ENDDO
             ENDDO
@@ -586,7 +641,7 @@
             DO IW = 1, NW
                DO I = 1, NZ
                   XC(I, IW) = ADJ_CLONO2_XCROSS(IW,I) * XC(I, IW)
-              print*,JLABEL,TLEV(I)-T298K,XC(I, IW), XCROSS(I,IW)
+!              print*,JLABEL,TLEV(I)-T298K,XC(I, IW), XCROSS(I,IW)
 
                   SQ(I, IW) = XC(I,IW) * QY(I,IW)
                ENDDO
@@ -594,15 +649,25 @@
 
             REPLACE = .TRUE.
 
-         CASE( 'CCHO_R', 'ALD2_R_IUPAC10', 'CH3CHO_RACM2'  )      ! 'CH3CHO -> CH3 + HCO'
+         CASE( 'CCHO_R', 'ALD2_R_IUPAC10', 'CH3CHO_RACM2','CCHO_R1_MCMv32  ', 'CCHO_R2_MCMv32  '  )      ! 'CH3CHO -> CH3 + HCO'
 
-! density correction to quantum yield
+! density correction to quantum yield recommended in 
+! http://iupac.pole-ether.fr/htdocs/datasheets/pdf/P2_CH3CHO+hv.pdf dated June 2013   
+! and based on 
+! Warneck, P. and Moortgat, G.K. (2012). Quantum yields and photodissociation coefficients of 
+! acetaldehyde in the troposphere, Atmos. Environ., 62, 153-163.
 
            DO IW = 1, NW
+!               WRITE(6,'(A,3(1X,ES12.4))') ' WAVE, CCHO_QUANT_INFIN( IW ), CCHO_YIELD_COEFF( IW )',
+!     &         WC(IW), CCHO_QUANT_INFIN( IW ), CCHO_YIELD_COEFF( IW )
                DO I = 1, NZ
                
-                   FACTOR = (1. + CCHO_YIELD_COEFF(IW))
-     &                    / (1. + CCHO_YIELD_COEFF(IW)*DENS(I)/2.465E19)
+                   IF( CCHO_QUANT_INFIN( IW ) .GT. 1.0E-5 )THEN
+                       FACTOR = ( 1.0/CCHO_QUANT_INFIN( IW ) + 2.465E19 * CCHO_YIELD_COEFF( IW ) )
+     &                        / ( 1.0/CCHO_QUANT_INFIN( IW ) + DENS(I) * CCHO_YIELD_COEFF( IW ) )
+                   ELSE
+                       FACTOR = 1.0
+                   END IF
 
                    QY(I, IW) = FACTOR * QY(I, IW)
                    QY(I, IW) = MIN(1.0, QY(I, IW))
@@ -612,8 +677,72 @@
                ENDDO
            ENDDO
 
-           REPLACE = .TRUE.
 
+           REPLACE = .TRUE.
+         CASE( 'ACET_CO_CRI' ) ! Acetone (CH3COCH3 ) ---> 2CH3 + CO
+! http://iupac.pole-ether.fr/htdocs/datasheets/pdf/P7_CH3COCH3+hv.pdf dated 2013
+! based on 
+! Blitz, M. A., Heard, D. E., Pilling, M. J., Arnold S. R. and M. Chipperfield, Geophys. Res. Lett. 
+! L06111, doi:10.1029/2003GL018793, 2004.
+           DO IW = 1, NW
+               DO I = 1, NZ
+                   XC(I, IW) = ADJ_ACETONE_XCROSS( I, IW ) * XC(I, IW)
+                   QY(I, IW) = MAX(0.0, MIN(1.0, ADJ_PHI_CO(I, IW) * QY(I, IW)))
+                   SQ(I, IW)  = XC(I,IW) * QY(I, IW)
+               ENDDO
+           ENDDO
+
+           REPLACE = .TRUE.
+         CASE( 'ACET_R2_CRI' ) ! Acetone (CH3COCH3 ) ---> CH3CO+CH3 
+! http://iupac.pole-ether.fr/htdocs/datasheets/pdf/P7_CH3COCH3+hv.pdf dated 2013
+! based on 
+! Blitz, M. A., Heard, D. E., Pilling, M. J., Arnold S. R. and M. Chipperfield, Geophys. Res. Lett. 
+! L06111, doi:10.1029/2003GL018793, 2004.
+           DO IW = 1, NW
+               SIG = DENS0
+               CALL QY_ACETONE_CHANNELS( T298K, SIG, WC(IW), PHI_CO_STP, PHI_CH3CO_STP )
+               DO I = 1, NZ
+                   XC(I, IW) = ADJ_ACETONE_XCROSS( I, IW ) * XC(I, IW)
+                   QY(I, IW) = MAX(0.0, MIN(1.0, ADJ_PHI_CH3CO(I, IW) * QY(I, IW)))
+                   SQ(I, IW)  = XC(I,IW) * QY(I, IW)
+#ifdef verbose
+               CHI  = 1.0
+               CALL QY_ACETONE_CHANNELS( T298K, SIG, WC(IW), PHI_CO, PHI_CH3CO )
+               IF(   PHI_CH3CO_STP .GT. 0.0 )CHI = PHI_CH3CO/PHI_CH3CO_STP              
+               WRITE(6,'(A,10(1X,ES12.4))')
+     &         'TEMP, SIG, WC( IW ), QYCH3CO/QYCH3CO_STP, RQY_ACETONE_CH3CO, RQUANTUM_ACETONE = ', 
+     &         TLEV( I ), SIG, WC( IW ), CHI , RQY_ACETONE_CH3CO( T298K, SIG, WC( IW ) ), 
+     &         RQUANTUM_ACETONE( T298K, SIG, WC( IW ) )
+               SIG = 0.90*SIG
+#endif
+               ENDDO
+           ENDDO
+
+           REPLACE = .TRUE.
+         CASE(  'CH3ONO2_MCMv32' )  ! CH3ONO2 -->  CH3O + NO2
+!Methyl nitrate (CH3ONO2) T dependent cross sections
+!CH3ONO2 -->  CH3O + NO2
+!http://iupac.pole-ether.fr/htdocs/datasheets/pdf/P14_CH3ONO2+hv.pdf dated May 2002
+           DO IW = 1, NW
+               DO I = 1, NZ
+                    FACTOR    = EXP(CH3ONO2_XCROSS_B(IW)*(TLEV(I)-T298K))
+                    XC(I, IW) = FACTOR * XC(I, IW)
+                    SQ(I, IW) = XC(I,IW) * QY(I, IW)
+               ENDDO
+           ENDDO
+           REPLACE = .TRUE.
+         CASE(  'ETHYNO3_MCMv32' )  ! CH3CH2ONO2 --> C2H5O + NO2
+!ethyl nitrate cross-sections (CH3CH2ONO2)
+!CH3CH2ONO2 --> C2H5O + NO2
+!http://iupac.pole-ether.fr/htdocs/datasheets/pdf/P15_C2H5ONO2+hv.pdf dated May 2002
+           DO IW = 1, NW
+               DO I = 1, NZ
+                    FACTOR    = EXP(ETHYNO3_XCROSS_B(IW)*(TLEV(I)-T298K))
+                    XC(I, IW) = FACTOR * XC(I, IW)
+                    SQ(I, IW) = XC(I,IW) * QY(I, IW)
+               ENDDO
+           ENDDO
+           REPLACE = .TRUE.
          CASE(  'PAN', 'PAN_IUPAC04', 'PAN_IUPAC10' )  ! 'PAN + hv -> PRODUCTS'
 
 ! temperature correction to cross-section 
@@ -621,7 +750,6 @@
            DO IW = 1, NW
                DO I = 1, NZ
                     FACTOR    = EXP(PAN_XCROSS_B(IW)*(TLEV(I)-T298K))
-              print*,JLABEL,TLEV(I)-T298K,factor* XC(I, IW), XCROSS(I,IW) 
                     XC(I, IW) = FACTOR * XC(I, IW)
                     SQ(I, IW) = XC(I,IW) * QY(I, IW)
                ENDDO
@@ -638,13 +766,56 @@
            DO IW = 1, NW
                DO I = 1, NZ
                     FACTOR    = EXP(PAN_XCROSS_B(IW)*(TLEV(I)-T298K))
-              print*,JLABEL,TLEV(I)-T298K,factor* XC(I, IW), XCROSS(I,IW) 
                     XC(I, IW) = FACTOR * XC(I, IW)
                     SQ(I, IW) = XC(I,IW) * QY(I, IW)
                ENDDO
            ENDDO
 
 
+           REPLACE = .TRUE.
+         CASE( 'GLYOX_R_CRI', 'GLYOX_M_CRI' )
+
+
+           DO IW = 1, NW
+               CHI = QY_GLYOXAL( T298K, DENS0, WC( IW ) )
+               SIG = DENS0
+               DO I = 1, NZ
+                    IF( CHI .GT. 0.0 )THEN
+                        FACTOR  = QY_GLYOXAL( TLEV( I ), DENS( I ), WC( IW ) )
+     &                          / CHI 
+                    ELSE
+                        FACTOR  = 1.0
+                    END IF
+                    QY(I, IW) = MIN(1.0, MAX(0.0, FACTOR * QY(I, IW)))
+                    SQ(I, IW) = XC(I,IW) * QY(I, IW)
+#ifdef verbose
+                    WRITE(6,'(A,10(1X,ES12.4))')'SIG, WC( IW ), RQY_GLYOXAL( T298K, SIG, WC( IW ) ) = ',
+     &              SIG, WC( IW ), RQY_GLYOXAL( T298K, SIG, WC( IW ) ),QY_GLYOXAL( T298K, SIG, WC( IW ) )
+     &              /QY_GLYOXAL( T298K, DENS0, WC( IW ) )
+
+#endif
+                    SIG = 0.90*SIG
+               ENDDO
+           ENDDO
+
+
+           REPLACE = .TRUE.
+
+
+         CASE( 'NC3CHO_R_MCMv32', 'NC3CHO_M_MCMv32' )
+!Number density correction to quantum yield
+!IUPAC 2002 Recommendation
+!http://iupac.pole-ether.fr/htdocs/datasheets/pdf/P11_nC3H7CHO+hv.pdf
+           DO I = 1, NZ
+              ADJUST( I ) = ( 1.81 + 4.919E-3 * T298K )
+     &                    / ( 1.81 + 2.000E-22 * DENS( I ) * TLEV( I ) )
+           END DO
+           DO IW = 1, NW
+              DO I = 1, NZ
+                QY(I, IW) = MIN(1.0, MAX(0.0, ADJUST( I ) * QY(I, IW)))
+                SQ(I, IW) = XC(I,IW) * QY(I, IW)
+             END DO
+           END DO
            REPLACE = .TRUE.
 
          CASE( 'C2CHO', 'ALD_RACM2', 'ALDX_R_IUPAC10' )  ! 'C2H5CHO -> C2H5 + HCO'
@@ -743,7 +914,7 @@ C number density coefficient is five times higher.
 
          REPLACE = .TRUE.
 
-       CASE( 'MACR-06', 'MACR_06', 'MACR_RACM2' )
+       CASE( 'MACR_MCMv32', 'MACR-06', 'MACR_06', 'MACR_RACM2' )
 
 C quantum yield based on 2.76 times MVK from
 C Gierczak, T., J. B. Burkholder, R. K. Talukdar, A. Mellouki, S. B. Barone,
@@ -772,7 +943,7 @@ C number density coefficient is five times higher.
 
          REPLACE = .TRUE.
 
-       CASE(  'MEK-06', 'MEK_06')
+       CASE(  'MEK_MCMv32', 'MEK-06', 'MEK_06')
 C Quantum Yields from 
 C Raber, W.H. (1992) PhD Thesis, Johannes Gutenberg-Universitaet, Mainz, Germany.
 C other channels assumed negligible (less than 10%).
@@ -815,10 +986,10 @@ C       by a multiplication factor in the mechanism definition file
 
                   IF(WC(IW) .GE. 260.0 .AND. WC(IW) .LE. 350.0)THEN 
 !  compute cross section at TLEV
-                     CHI = 1.0 / (1.0 + EXP(-1265.0/MAX(200.0, MIN(TLEV(I),400.0))) )
+                     CHI = REAL( 1.0D0 /(1.0D0 + EXP(-1265.0D0/MAX(200.0D0, MIN(REAL(TLEV(I),8),400.0D0))) ), 4)
                      SIG = CHI*H2O2_XCROSS_A(IW) + (1.0 - CHI)*H2O2_XCROSS_B(IW)
 !  compute correction factor normalized by value at T298K
-                     CHI    = 1.0 / (1.0 + EXP(-1265.0/T298K) )
+                     CHI    = REAL( 1.0D0 /(1.0D0 + EXP(-1265.0D0/REAL(T298K,8)) ), 4)
                      FACTOR = SIG
      &                      / (CHI*H2O2_XCROSS_A(IW) + (1.0 - CHI)*H2O2_XCROSS_B(IW))
 
@@ -847,7 +1018,6 @@ C       by a multiplication factor in the mechanism definition file
 
 C               QY(I,IW) = MIN( QY(I,IW), 1.0)
 C               QY(I,IW) = MAX( QY(I,IW), 0.0)
-
 ! Recommendation in NASA JPL (2011).  Computed pressures are differences 
 ! between layer pressures and pressure of interpolated values. Pressure units are Torrs.
                PRESSURE  = (1.03547E-19*DENS(I)*TLEV(I)) ! TORR 
@@ -881,6 +1051,26 @@ C               QY(I,IW) = MAX( QY(I,IW), 0.0)
             ENDDO
          ENDDO
 
+
+         REPLACE = .TRUE.
+
+      CASE( 'BIACET_MCMv32' )
+! Biacetyl quantum yield (CH3CO + CH3CO) = 0.158 for wavelength less than 460 nm
+! Pressure correction based on phi(z=infi) and ph(z=0) values based on
+! http://iupac.pole-ether.fr/htdocs/datasheets/pdf/P23_Biacetyl+hv.pdf dated 2011
+! by solving the below for kq
+! phi(z=infi)/ph(z=0) = (0.76/0.16) = 1.0 + kq*Temp(z=0)*Number_Density(z=0)
+! where Temp(z=0) = 298.15K and Number_Density(z=0) = 2.46E19 molecules/cm3
+         DO IW = 1, NW
+            DO I = 1, NZ
+               FACTOR = ( 1.0 + 5.19481E-22 * DENS0 * T298K )
+     &                / ( 1.0 + 5.19481E-22 * DENS(I) * TLEV( I ) )
+
+               QY(I, IW) = MAX( MIN( FACTOR * QY(I, IW), 1.0), 0.0)
+               SQ(I, IW) = XC(I,IW) * QY(I, IW)
+
+            ENDDO
+         ENDDO
 
          REPLACE = .TRUE.
 
@@ -923,7 +1113,7 @@ C  Gardner et. al may support this conclusion.
 
          REPLACE = .TRUE.
 
-      CASE(  'HCHOR-06', 'HCHOR_06', 'FORM_R_IUPAC10', 'HCHO_R_SAPRC99', 'HCHO_RAD_RACM2' )  ! 'CH2O -> H + HCO' 
+      CASE(  'HCHO_R_MCMv32', 'HCHOR-06', 'HCHOR_06', 'FORM_R_IUPAC10', 'HCHO_R_SAPRC99', 'HCHO_RAD_RACM2' )  ! 'CH2O -> H + HCO' 
 
 
 ! temperature correction to cross-section 
@@ -962,7 +1152,7 @@ C  Gardner et. al may support this conclusion.
 
           REPLACE = .TRUE.
 
-      CASE(  'HCHOM-06', 'HCHOM_06', 'FORM_M_IUPAC10', 'HCHO_M_SAPRC99', 'HCHO_MOL_RACM2' )  ! 'CH2O -> H2 + CO'
+      CASE(  'HCHO_M_MCMv32', 'HCHOM-06', 'HCHOM_06', 'FORM_M_IUPAC10', 'HCHO_M_SAPRC99', 'HCHO_MOL_RACM2' )  ! 'CH2O -> H2 + CO'
 
 ! temperature correction to cross-section 
 
@@ -1108,6 +1298,7 @@ C  Gardner et. al may support this conclusion.
 
       CASE(  'ACET-06', 'ACET_06', 'ACET_IUPAC10', 'ACETONE', 'ACT_RACM2' ) ! 'CH3COCH3 -> products'
 
+          FACTOR = 1.0 
           DO IW = 1, NW
              DO I = 1, NZ
 
@@ -1123,15 +1314,23 @@ C  Gardner et. al may support this conclusion.
      &            + XC_B_ACETONE(IW)*T298K**2
      &            + XC_C_ACETONE(IW)*T298K**3
      
-              IF( CHI .GT. 0.0 )FACTOR = MAX(SIG/CHI, 0.0)
+              IF( CHI .GT. 0.0 )THEN
+                  FACTOR = MAX(SIG/CHI, 0.0)
+              ELSE
+                  FACTOR = 1.0
+              END IF
               
               XC(I, IW) = FACTOR * XC(I, IW)
-              print*,JLABEL,TLEV(I)-T298K,XC(I, IW) , XCROSS(I,IW)
+!              print*,JLABEL,TLEV(I)-T298K,XC(I, IW) , XCROSS(I,IW)
 
 ! temperature/density correction to quantum yield
-
-              FACTOR = QY_ACETONE(TLEV(I),DENS(I),WC(IW))
-     &               / QY_ACETONE(T298K, DENS0, WC(IW))
+              CHI = QY_ACETONE(T298K, DENS0, WC(IW))
+              IF( CHI .GT. 0.0 )THEN
+                  FACTOR = QY_ACETONE(TLEV(I),DENS(I),WC(IW))
+     &                   / CHI
+              ELSE
+                  FACTOR = 1.0
+              END IF
 
               QY(I, IW) = MAX(FACTOR, 0.0) * QY(I, IW)
               QY(I, IW) = MIN(1.0, QY(I, IW))
@@ -1763,8 +1962,6 @@ C inputs
       REAL         A2                 ! 3rd coef for qy
       REAL         A3                 ! 4th coef for qy
       REAL         A4                 ! 5th coef for qy
-      REAL         A5                 ! 6th coef for qy
-      REAL         A6                 ! 7th coef for qy
 
       REAL         PHI_CO              ! CO branch of IUPAC (2005) acetone QYZ
       REAL         PHI_CH3CO           ! CH3CO branch of IUPAC (2005) acetone QYZ
@@ -1858,8 +2055,6 @@ C 302-349 nm
       REAL :: A2           ! 3rd coef for qy
       REAL :: A3           ! 4th coef for qy
       REAL :: A4           ! 5th coef for qy
-      REAL :: A5           ! 6th coef for qy
-      REAL :: A6           ! 7th coef for qy
 
       REAL :: PHI_CO       ! CO branch of IUPAC (2005) acetone QYZ
       REAL :: PHI_CH3CO    ! CH3CO branch of IUPAC (2005) acetone QYZ
@@ -1919,8 +2114,8 @@ C 302-349 nm
 
 !***based on IUPAC (2005) data sheet
 
-         PHI_CO    = 0.05
-         PHI_CH3CO = 0.95
+         PHI_CO    = 0.45
+         PHI_CH3CO = 0.55
          QY_ACETONE = PHI_CO + PHI_CH3CO
 
       ELSE IF ( LAMBDA .GT. 349.0 ) THEN
@@ -2038,5 +2233,452 @@ C 302-349 nm
 
       RETURN
       END
+      SUBROUTINE QY_ACETONE_CHANNELS( TEMP, DENS_NUMB, LAMBDA, PHI_CO, PHI_CH3CO )
+
+C-----------------------------------------------------------------------
+C Computes acetone quantum yields according to:
+C IUPAC (2013) recommendation based on
+C Blitz, M. A., D. E. Heard, M. J. Pilling, S. R. Arnold, and M. P. Chipperfield
+C       (2004), Pressure and temperature-dependent quantum yields for the
+C       photodissociation of acetone between 279 and 327.5 nm, Geophys.
+C       Res. Lett., 31, L06111, doi:10.1029/2003GL018793.
+C-----------------------------------------------------------------------
+
+      IMPLICIT NONE
+
+!***arguments
+
+      REAL, INTENT(IN)  :: TEMP        ! air temperature, K
+      REAL, INTENT(IN)  :: DENS_NUMB   ! air number density, 1/cm^3
+      REAL, INTENT(IN)  :: LAMBDA      ! wavelength, nm
+      REAL, INTENT(OUT) :: PHI_CO      ! CO branch of IUPAC (2013) acetone QYZ
+      REAL, INTENT(OUT) :: PHI_CH3CO   ! CH3CO branch of IUPAC (2013) acetone QYZ
+
+!***local
+      REAL, PARAMETER  :: ONE_OVER_295K  = 1.0 / 295.0  ! 1/K
+      
+      REAL A0           ! 1st coef for qy
+      REAL A1           ! 2nd coef for qy
+      REAL A2           ! 3rd coef for qy
+      REAL A3           ! 4th coef for qy
+      REAL A4           ! 5th coef for qy
+
+      REAL AA           ! scratch variable for IUPAC (2013) acetone QYZ
+      REAL BB           ! scratch variable for IUPAC (2013) acetone QYZ
+      REAL CC           ! scratch variable for IUPAC (2013) acetone QYZ
+      
+      REAL TEMP_OVER 295K   ! temperature divided by 295 K
+      REAL ONE_OVER_LAMBDA  ! reciporcal of wavelenght, 10E7/nm or 1/cm
+
+      TEMP_OVER 295K  = TEMP * ONE_OVER_295K
+      ONE_OVER_LAMBDA = 1.0E7 / LAMBDA
+      
+      IF ( LAMBDA .GE. 248.0 .AND. LAMBDA .LE. 349.0 ) THEN
+
+         AA = 0.350 * ( TEMP_OVER 295K )**(-1.28)
+         BB = 0.068 * ( TEMP_OVER 295K )**(-2.65)
+         A0 = ( AA / ( 1.0 - AA ) ) * EXP( BB * ( LAMBDA - 248.0 ) )
+         PHI_CO = 1.0 / ( 1.0 + A0 )
+
+         PHI_CO = MAX( 0.0, MIN( 1.0, PHI_CO ) )
+
+         IF ( LAMBDA .LE. 302.0 ) THEN
+
+!***wavelengths 248-302 nm
+
+            AA = 1.600 * 1.0E-19 * ( TEMP_OVER 295K )**(-2.38)
+            BB =  0.55 * 1.0E-03 * ( TEMP_OVER 295K )**(-3.19)
+            A1 = AA * EXP( -BB * ( ( ONE_OVER_LAMBDA ) - 33113.0 ) )
+            PHI_CH3CO = ( 1.0 - PHI_CO ) / ( 1.0 + A1*DENS_NUMB )
+
+!***wavelengths 302-349 nm
+
+         ELSE
+
+            AA = 1.62 * 1.0E-17 * ( TEMP_OVER 295K )**(-10.03)
+            BB = 1.79 * 1.0E-3  * ( TEMP_OVER 295K )**(-1.364)
+            A2 = AA * EXP( -BB * ( ( ONE_OVER_LAMBDA ) - 30488.0 ) )
+
+            AA = 26.29 * ( TEMP_OVER 295K )**(-6.59)
+            BB = 5.72 * 1.0E-7 * ( TEMP_OVER 295K )**(-2.93)
+            CC = ( 30006.0 )   * ( TEMP_OVER 295K )**(-0.064)
+            A3 = AA * EXP( -BB * ( ( ONE_OVER_LAMBDA ) - CC )**2.0 )
+
+            AA = 1.67 * 1.0E-15 * ( TEMP_OVER 295K )**(-7.25)
+            BB = 2.08 * 1.0E-3  * ( TEMP_OVER 295K )**(-1.16)
+            A4 = AA * EXP( -BB * ( ( ONE_OVER_LAMBDA ) - 30488.0 ) )
+
+            PHI_CH3CO = ( 1.0 - PHI_CO )
+     &                * ( 1.0 + A4 * DENS_NUMB + A3 )
+     &                / ( ( 1.0 + A2 * DENS_NUMB + A3 )
+     &                *   ( 1.0 + A4 * DENS_NUMB ) )
+         END IF
+
+         PHI_CH3CO = MAX( 0.0, MIN( 1.0, PHI_CH3CO ) )
+
+      ELSE IF ( LAMBDA .LT. 248.0 .AND. LAMBDA .GT. 0.0 ) THEN ! set QY to 1.0
+
+!***based on IUPAC (2013) data sheet
+
+         PHI_CO    = 0.45
+         PHI_CH3CO = 0.55
+
+      ELSE IF ( LAMBDA .GT. 349.0 ) THEN
+
+         PHI_CO    = 0.0
+         PHI_CH3CO = 0.0
+
+      END IF
+
+      RETURN
+      END SUBROUTINE QY_ACETONE_CHANNELS
+      REAL FUNCTION RQY_ACETONE_CH3CO( TEMP, DENS_NUMB, LAMBDA )
+
+C-----------------------------------------------------------------------
+C Computes correction to acetone CH3CO quantum yields at (TEMP, DENS_NUMB)  relative to
+C quantum yields at (TEMP, DENS_NUMB = 2.46E19) according to:
+C IUPAC (2013) recommendation based on
+C Blitz, M. A., D. E. Heard, M. J. Pilling, S. R. Arnold, and M. P. Chipperfield
+C       (2004), Pressure and temperature-dependent quantum yields for the
+C       photodissociation of acetone between 279 and 327.5 nm, Geophys.
+C       Res. Lett., 31, L06111, doi:10.1029/2003GL018793.
+C-----------------------------------------------------------------------
+
+      IMPLICIT NONE
+
+!***arguments
+
+      REAL,    INTENT(IN)  :: TEMP        ! air temperature, K
+      REAL,    INTENT(IN)  :: DENS_NUMB   ! air number density, molcules/cm^3
+      REAL,    INTENT(IN)  :: LAMBDA      ! wavelength, nm
+!      INTEGER, INTENT(IN)  :: ILAMBDA     ! array index for wavelength
+
+!***local
+      REAL, PARAMETER  :: ONE_OVER_295K  = 1.0 / 295.0  ! 1/K
+      REAL, PARAMETER  :: DENS0          = 2.46E19      ! air number at STP, molecules/cm^3 
+
+      REAL A0           ! 1st coef for qy
+      REAL A1           ! 2nd coef for qy
+      REAL A2           ! 3rd coef for qy
+      REAL A3           ! 4th coef for qy
+      REAL A4           ! 5th coef for qy
+
+      REAL PHI_CO       ! CO qy  at (TEMP, DENS_NUMB)
+      REAL PHI_CH3CO    ! CH3CO qy at (TEMP, DENS_NUMB)
+      REAL PHI_COS      ! CO qy branch at (TEMP, DENS0)
+      REAL PHI_CH3COS   ! inverse of CH3CO qy at (TEMP, DENS0)
+      REAL AA           ! scratch variable for acetone QY
+      REAL BB           ! scratch variable for acetone QY
+      REAL CC           ! scratch variable for acetone QY
+      
+      REAL TEMP_OVER 295K   ! temperature divided by 295 K
+!      REAL LAMBDA           ! wavelenght, nm 
+      REAL ONE_OVER_LAMBDA  ! wavenumber, 10E7/nm or 1/cm
+
+      TEMP_OVER 295K  = TEMP * ONE_OVER_295K
+
+!      LAMBDA          = WAVELENGTH( ILAMBDA )     
+!      ONE_OVER_LAMBDA = WAVENUMBER( ILAMBDA )  
+
+      ONE_OVER_LAMBDA = 1.0E7 / LAMBDA
+
+      IF ( LAMBDA .GE. 248.0 .AND. LAMBDA .LE. 349.0 ) THEN
+
+         IF ( LAMBDA .LE. 302.0 ) THEN
+
+!***wavelengths 248-302 nm
+
+            AA = 1.60E-19 * ( TEMP_OVER 295K )**(-2.38)
+            BB = 0.55E-03 * ( TEMP_OVER 295K )**(-3.19)
+            A1 = AA * EXP( -BB * ( ONE_OVER_LAMBDA - 33113.0 ) )
+            RQY_ACETONE_CH3CO = ( 1.0 + A1*DENS0 ) / ( 1.0 + A1*DENS_NUMB )
+
+!***wavelengths 302-349 nm
+
+         ELSE
+
+            AA = 1.62E-17 * ( TEMP_OVER 295K )**(-10.03)
+            BB = 1.79E-03  * ( TEMP_OVER 295K )**(-1.364)
+            A2 = AA * EXP( -BB * ( ONE_OVER_LAMBDA - 30488.0 ) )
+
+            AA = 26.29 * ( TEMP_OVER 295K )**(-6.59)
+            BB = 5.72E-7 * ( TEMP_OVER 295K )**(-2.93)
+            CC = 30006.0 * ( TEMP_OVER 295K )**(-0.064)
+            A3 = AA * EXP( -BB * ( ONE_OVER_LAMBDA - CC )**2.0 )
+
+            AA = 1.67E-15 * ( TEMP_OVER 295K )**(-7.25)
+            BB = 2.08E-03  * ( TEMP_OVER 295K )**(-1.16)
+            A4 = AA * EXP( -BB * ( ONE_OVER_LAMBDA - 30488.0 ) )
+
+!***below qy_ch3co values are normalized by (1 - qy_co) which does not depend on
+!***number density
+            PHI_CH3CO  = ( 1.0 + A4 * DENS_NUMB + A3 ) 
+     &                 / ( ( 1.0 + A2 * DENS_NUMB + A3 ) * ( 1.0 + A4 * DENS_NUMB ) )
+
+            PHI_CH3COS = ( ( 1.0 + A2 * DENS0 + A3 ) * ( 1.0 + A4 * DENS0 ) )
+     &                 / ( 1.0 + A4 * DENS0 + A3 )
+       
+            RQY_ACETONE_CH3CO = PHI_CH3CO * PHI_CH3COS
+
+         END IF
+
+      ELSE ! set RQY to 1.0 for 248.0 > LAMBDA or LAMBDA 349.0
+
+         RQY_ACETONE_CH3CO = 1.0
+
+      END IF
+
+      RETURN
+      END FUNCTION RQY_ACETONE_CH3CO
+      REAL FUNCTION RQUANTUM_ACETONE( TEMP, DENS_NUMB, LAMBDA )
+
+C-----------------------------------------------------------------------
+C Computes total acetone quantum yields at (TEMP, DENS_NUMB)  relative to
+C quantum yields at (TEMP, DENS_NUMB = 2.46E19) according to
+C IUPAC (2013) recommendation based on
+C Blitz, M. A., D. E. Heard, M. J. Pilling, S. R. Arnold, and M. P. Chipperfield
+C       (2004), Pressure and temperature-dependent quantum yields for the
+C       photodissociation of acetone between 279 and 327.5 nm, Geophys.
+C       Res. Lett., 31, L06111, doi:10.1029/2003GL018793.
+C-----------------------------------------------------------------------
+
+      IMPLICIT NONE
+
+!***arguments
+
+      REAL, INTENT(IN) :: TEMP        ! air temperature, K
+      REAL, INTENT(IN) :: DENS_NUMB   ! air number density, 1/cm^3
+      REAL, INTENT(IN) :: LAMBDA      ! wavelength, nm
+
+!***local
+      REAL, PARAMETER  :: ONE_OVER_295K  = 1.0 / 295.0  ! 1/K
+      REAL, PARAMETER  :: DENS0          = 2.46E19      ! air number at STP, molecules/cm^3 
+      
+      REAL A0           ! 1st coef for qy
+      REAL A1           ! 2nd coef for qy
+      REAL A2           ! 3rd coef for qy
+      REAL A3           ! 4th coef for qy
+      REAL A4           ! 5th coef for qy
+
+      REAL PHI_CO       ! CO branch of IUPAC (2013) acetone QYZ
+      REAL DEL_PHI_CO   ! one minus CO branch of IUPAC (2013) acetone QYZ
+      REAL PHI_CH3CO    ! CH3CO branch of IUPAC (2013) acetone QYZ
+      REAL PHI_CH3CO0   ! CH3CO branch of IUPAC (2013) acetone QYZ at DENS0
+      REAL AA           ! scratch variable for IUPAC (2013) acetone QYZ
+      REAL BB           ! scratch variable for IUPAC (2013) acetone QYZ
+      REAL CC           ! scratch variable for IUPAC (2013) acetone QYZ
+      
+      REAL TEMP_OVER 295K   ! temperature divided by 295 K
+      REAL ONE_OVER_LAMBDA  ! reciporcal of wavelenght, 10E7/nm or 1/cm
+
+      TEMP_OVER 295K  = TEMP * ONE_OVER_295K
+      ONE_OVER_LAMBDA = 1.0E7 / LAMBDA
+      
+      IF ( LAMBDA .GE. 248.0 .AND. LAMBDA .LE. 349.0 ) THEN
+
+         AA = 0.350 * ( TEMP_OVER 295K )**(-1.28)
+         BB = 0.068 * ( TEMP_OVER 295K )**(-2.65)
+         A0 = ( AA / ( 1.0 - AA ) ) * EXP( BB * ( LAMBDA - 248.0 ) )
+         PHI_CO     = 1.0 / ( 1.0 + A0 )
+         DEL_PHI_CO = MAX(0.0, 1.0 - PHI_CO)
+
+         IF ( LAMBDA .LE. 302.0 ) THEN
+
+!***wavelengths 248-302 nm
+
+            AA = 1.600E-19 * ( TEMP_OVER 295K )**(-2.38)
+            BB =  0.55E-03 * ( TEMP_OVER 295K )**(-3.19)
+            A1 = AA * EXP( -BB * ( ( ONE_OVER_LAMBDA ) - 33113.0 ) )
+            PHI_CH3CO  = DEL_PHI_CO / ( 1.0 + A1*DENS_NUMB )
+            PHI_CH3CO0 = DEL_PHI_CO / ( 1.0 + A1*DENS0 )
+
+!***wavelengths 302-349 nm
+
+         ELSE
+
+            AA = 1.62E-17 * ( TEMP_OVER 295K )**(-10.03)
+            BB = 1.79E-03  * ( TEMP_OVER 295K )**(-1.364)
+            A2 = AA * EXP( -BB * ( ONE_OVER_LAMBDA - 30488.0 ) )
+
+            AA = 26.29 * ( TEMP_OVER 295K )**(-6.59)
+            BB = 5.72E-7 * ( TEMP_OVER 295K )**(-2.93)
+            CC = ( 30006.0 )   * ( TEMP_OVER 295K )**(-0.064)
+            A3 = AA * EXP( -BB * ( ONE_OVER_LAMBDA - CC )**2.0 )
+
+            AA = 1.67E-15 * ( TEMP_OVER 295K )**(-7.25)
+            BB = 2.08E-03  * ( TEMP_OVER 295K )**(-1.16)
+            A4 = AA * EXP( -BB * ( ONE_OVER_LAMBDA - 30488.0 ) )
+
+            PHI_CH3CO = DEL_PHI_CO
+     &                * ( 1.0 + A4 * DENS_NUMB + A3 )
+     &                / ( ( 1.0 + A2 * DENS_NUMB + A3 )
+     &                *   ( 1.0 + A4 * DENS_NUMB ) )
+
+            PHI_CH3CO0 = DEL_PHI_CO
+     &                * ( 1.0 + A4 * DENS0 + A3 )
+     &                / ( ( 1.0 + A2 * DENS0 + A3 )
+     &                *   ( 1.0 + A4 * DENS0 ) )
+
+         END IF
+
+         IF( (PHI_CO + PHI_CH3CO0) .GT. 1.0E-10 )THEN
+             RQUANTUM_ACETONE = ( PHI_CO + PHI_CH3CO ) / ( PHI_CO + PHI_CH3CO0 )
+         ELSE
+             RQUANTUM_ACETONE = 1.0
+         END IF
+
+      ELSE
+
+         RQUANTUM_ACETONE = 1.0
+
+      END IF
+
+
+      RETURN
+      END FUNCTION RQUANTUM_ACETONE                  
+      REAL FUNCTION RQY_GLYOXAL( TEMP, DENS_NUMB, LAMBDA )
+
+!-----------------------------------------------------------------------
+! Computes total glyoxal (CHOCHO) quantum yield at (TEMP, DENS_NUMB)  
+! relative to total yield at (TEMP0, DENS_NUMB = 2.46E19) according to
+!  IUPAC (2013) recommendation
+!  http://iupac.pole-ether.fr/htdocs/datasheets/pdf/P4_%28CHO%292+hv.pdf 
+! that is based on
+!  Salter, R. J., Blitz, M. A., Heard, D. E., Kovacs, T., Pilling, M. J., 
+!  Rickard, A. R. and Seakins, P. W. (2013), Quantum yields for the photolysis 
+!  of glyoxal below 350 nm and parameterisations for its photolysis rate in 
+!  the troposphere, Phys. Chem. Chem. Phys., 15, 4984-4994, 
+!  doi:10.1039/c3cp43597k.
+!-----------------------------------------------------------------------
+
+        IMPLICIT NONE
+
+!***arguments
+
+
+        REAL, INTENT(IN) :: TEMP        ! air temperature, K
+        REAL, INTENT(IN) :: DENS_NUMB   ! air number density, 1/cm^3
+        REAL, INTENT(IN) :: LAMBDA      ! wavelength, nm
+
+!***local
+        REAL,      PARAMETER  :: ONE_OVER_295K  = 1.0 / 295.0  ! 1/K
+        REAL( 8 ), PARAMETER  :: DENS0          = 2.46D19      ! air number at STP, molecules/cm^3 
+      
+        REAL( 8 ) TEMP_OVER 295K   ! temperature divided by 295 K
+
+        REAL( 8 ) AA           ! scratch variable for qy
+        REAL( 8 ) BB           ! scratch variable for qy
+        REAL( 8 ) A1           ! 2nd coef for qy
+        REAL( 8 ) A2           ! 3rd coef for qy
+        REAL( 8 ) A3           ! 4th coef for qy
+        REAL( 8 ) WN_OFFSET    ! adjusted wavenumber, 1/cm
+        REAL( 8 ) R8_DENS      ! air number density, 1/cm^3 
+
+        REAL ONE_OVER_LAMBDA  ! wavenumber, 10E7/nm or 1/cm
+        REAL QY_DENS_NUMB     ! total qy at DENS_NUMB
+        REAL IQY_DENS0        ! reciporcal of total qy at DENS0
+      
+        TEMP_OVER 295K  = REAL( TEMP * ONE_OVER_295K, 8 )
+        WN_OFFSET       = REAL( 1.0E7 / LAMBDA - 23800.0, 8 )
+        R8_DENS         = REAL( DENS_NUMB, 8 )
+
+
+         IF( LAMBDA .LT. 650.0 .AND. LAMBDA .GT. 250.0 )THEN
+            AA = 6.48D-19 * TEMP_OVER 295K**(-1.83D0)
+            BB = 7.60D-04 * TEMP_OVER 295K**(-0.515D0)
+            A1 = AA * EXP( -BB * WN_OFFSET ) 
+
+            AA = 1.128D02 * TEMP_OVER 295K**(-1.53D0)
+            BB = 4.61D-03 * TEMP_OVER 295K**(-0.507D0)
+            A2 = AA * EXP( -BB * WN_OFFSET  ) 
+
+            AA = 2.25D-16 * TEMP_OVER 295K**(-9.18D0)
+            BB = 7.80D-04 * TEMP_OVER 295K**(-7.03D0)
+            A3 = AA * EXP( -BB * WN_OFFSET ) 
+
+!*** note that values are normalized by total qy at DENS = 0.0 but
+!    its values equals 1.0
+
+            IQY_DENS0 = REAL( (1.0 + A1*DENS0 + A2) * (1.0 + A3*DENS0)
+     &                / (1.0 + A2 + A3*DENS0 ) )
+
+            QY_DENS_NUMB  = REAL( (1.0 + A2 + A3*R8_DENS) 
+     &                    / ((1.0 + A1*R8_DENS + A2)*(1.0 + A3*R8_DENS)) )
+
+            RQY_GLYOXAL  = QY_DENS_NUMB * IQY_DENS0
+
+          ELSE
+
+            RQY_GLYOXAL  = 1.0
+      
+          END IF
+
+          RETURN
+       END FUNCTION RQY_GLYOXAL
+       REAL FUNCTION QY_GLYOXAL( TEMP, DENS_NUMB, LAMBDA )
+
+!-----------------------------------------------------------------------
+! Computes total glyoxal (CHOCHO) quantum yield at (TEMP, DENS_NUMB)  
+!  IUPAC (2013) recommendation
+!  http://iupac.pole-ether.fr/htdocs/datasheets/pdf/P4_%28CHO%292+hv.pdf 
+! that is based on
+!  Salter, R. J., Blitz, M. A., Heard, D. E., Kovacs, T., Pilling, M. J., 
+!  Rickard, A. R. and Seakins, P. W. (2013), Quantum yields for the photolysis 
+!  of glyoxal below 350 nm and parameterisations for its photolysis rate in 
+!  the troposphere, Phys. Chem. Chem. Phys., 15, 4984-4994, 
+!  doi:10.1039/c3cp43597k.
+!-----------------------------------------------------------------------
+
+        IMPLICIT NONE
+
+!***arguments
+
+
+        REAL, INTENT(IN) :: TEMP        ! air temperature, K
+        REAL, INTENT(IN) :: DENS_NUMB   ! air number density, 1/cm^3
+        REAL, INTENT(IN) :: LAMBDA      ! wavelength, nm
+
+!***local
+        REAL, PARAMETER  :: ONE_OVER_295K  = 1.0 / 295.0  ! 1/K
+      
+        REAL( 8 ) TEMP_OVER 295K   ! temperature divided by 295 K
+
+        REAL( 8 ) AA           ! scratch variable for qy
+        REAL( 8 ) BB           ! scratch variable for qy
+        REAL( 8 ) A1           ! 2nd coef for qy
+        REAL( 8 ) A2           ! 3rd coef for qy
+        REAL( 8 ) A3           ! 4th coef for qy
+        REAL( 8 ) WN_OFFSET    ! adjusted wavenumber, 1/cm
+        REAL( 8 ) R8_DENS      ! air number density, 1/cm^3 
+      
+        TEMP_OVER 295K  = REAL( TEMP * ONE_OVER_295K, 8 )
+        WN_OFFSET       = REAL( 1.0E7 / LAMBDA - 23800.0, 8 )
+        R8_DENS         = REAL( DENS_NUMB, 8 )
+
+            AA = 6.48D-19 * TEMP_OVER 295K**(-1.83D0)
+            BB = 7.60D-04 * TEMP_OVER 295K**(-0.515D0)
+            A1 = AA * EXP( -BB * WN_OFFSET ) 
+
+            AA = 1.128D02 * TEMP_OVER 295K**(-1.53D0)
+            BB = 4.61D-03 * TEMP_OVER 295K**(-0.507D0)
+            A2 = AA * EXP( -BB * WN_OFFSET  ) 
+
+            AA = 2.25D-16 * TEMP_OVER 295K**(-9.18D0)
+            BB = 7.80D-04 * TEMP_OVER 295K**(-7.03D0)
+            A3 = AA * EXP( -BB * WN_OFFSET ) 
+
+
+!            WRITE(6,'(A,10(1X,ES12.4))')'GLYOXAL:Temp, Lambda, A1, A2, A3 = ', Temp, Lambda, 
+!     &      A1, A2, A3
+            QY_GLYOXAL =  REAL(  (1.0D0 + A2 + A3*R8_DENS )
+     &                 / ((1.0D0 + A1*R8_DENS + A2) * (1.0D0 + A3*R8_DENS)) )
+
+!            WRITE(6,'(A,10(1X,ES12.4))')'GLYOXAL:Temp, Lambda, A1, A2, A3 QY_GLYOXAL = ', Temp, Lambda, 
+!     &      A1, A2, A3, QY_GLYOXAL
+
+
+
+          RETURN
+       END FUNCTION QY_GLYOXAL
 
 !*******************************************************************************

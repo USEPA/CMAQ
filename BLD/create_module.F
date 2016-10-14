@@ -201,6 +201,10 @@ C...........PARAMETERS and their descriptions
            IMPLICIT NONE
            REAL, INTENT( OUT ) :: MODIS_ALBEDO( :, : )
         END SUBROUTINE SPECTRAL_REFLECT
+        SUBROUTINE CONVERT_CASE ( BUFFER, UPPER )
+           CHARACTER(LEN= *), INTENT( INOUT ) :: BUFFER
+           LOGICAL,           INTENT( IN    ) :: UPPER
+        END SUBROUTINE CONVERT_CASE
       END INTERFACE
 
       IF( FIRSTCALL )THEN

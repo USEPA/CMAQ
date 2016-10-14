@@ -52,8 +52,9 @@ else
  LINK_FLAGS = -Bstatic  -Bstatic_pgi
 
  ifeq ($(COMPILER),GFORT)
-   FC    = /usr/local/gcc-4.6/bin/gfortran
-   CC    = /usr/bin/gcc
+#   FC    = /usr/local/gcc-4.6/bin/gfortran
+   FC    = gfortran
+   CC    = gcc
  #FC    = gfortran
  #CC    = gcc
    f_FLAGS       = -ffixed-form -ffixed-line-length-132 -O3 -funroll-loops -I. -fbounds-check
@@ -62,7 +63,7 @@ else
    F90_FLAGS     = $(f90_FLAGS)
    C_FLAGS       = -O2 -DFLDMN -I /home/wdx/lib/x86_64/gcc/mpich/include
    LINKER        = $(FC)
-   LINK_FLAGS    = -static
+   LINK_FLAGS    = 
  endif
 
 endif

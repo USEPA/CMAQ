@@ -4,36 +4,55 @@ set echo
 #scom command defines compiler and libraries
 #source ~/scom -d -c ifc
 
-setenv COMPILER INTEL
+ setenv COMPILER INTEL
+#setenv COMPILER GFORT
+#setenv COMPILER PGF90
 
 #define path to mechanism include or module data files
- set mech_archive = /home/hutzellb/CCTM_git_repository/MECHS
+#set mech_archive = /home/${USER}/CCTM_git_repository/MECHS
+#set mechanism    = CRIe2_ae6_aq
+set mechanism    = saprc07tic_ae6i_aq
+ setenv APPL ${mechanism}
+# setenv GC_INC /home/${USER}/tools/mech_processor/input/CRIe2_ae6_aq
+#setenv GC_INC /home/${USER}/tools/mech_processor/output/CRIe2_ae6_aq-Feb-22-2016-INTEL
+ setenv GC_INC /media/E869-493F/${mechanism}
+#setenv GC_INC ${mech_archive}/cb05tucl_ae6_aq
+#setenv GC_INC ${mech_archive}/${mechanism}
 
  setenv suffix ikx
- setenv APPL cb05e6cl_ae6_aq
- setenv GC_INC /home/hutzellb/tools/mech_processor/output/cb05e6cl_ae6_aq
-#use RXNS_DATA_MODULE, comment out if not use
+# setenv APPL cb05e51_ae6_aq
+# setenv GC_INC /home/${USER}/tools/mech_processor/output/cb05e6cl_ae6_aq
+# setenv GC_INC /home/${USER}/CCTM_git_repository/MECHS/cb05e51_ae6_aq
+#use RXNS_DATA_MODULE, comment out if CMAQ v5.02 and keep if CMAQ v5.1
  setenv USE_RXNS_MODULES T
+ if( ${USE_RXNS_MODULES} == "T" )then
+    if( ! ( -e ${GC_INC}/RXNS_DATA_MODULE.F90 ) ) ls ${GC_INC}/RXNS_DATA_MODULE.F90
+ endif
  
 #Whether to include spectral values of refractive indices for aerosol species [T|Y|F|N]
-setenv WVL_AE_REFRAC F
+setenv WVL_AE_REFRAC T
 
 #whether optical and CSQY data written to two separate file
-setenv SPLIT_OUTPUT F
+# set F if CMAQ v5.02 and T if CMAQ v5.1
+setenv SPLIT_OUTPUT T
 
 #Variables used to name executable, i.e., CSQY_TABLE_PROCESSOR_mechanism
 #setenv APPL   ${APPL}_${suffix}
  setenv APPL   ${APPL}
 
-set BASE  = /home/hutzellb/tools/CSQY_table_processor
-set XBASE = /home/hutzellb/tools/CSQY_table_processor
+set BASE  = /home/${USER}/tools/CSQY_table_processor
+set XBASE = /home/${USER}/tools/CSQY_table_processor
+
+
 set EXEC  = CSQY_TABLE_PROCESSOR_${APPL}
 
 
 #create executable
  cd BLD ; make clean; make -f dumb.makefile; cd ..
 
- set OUTDIR = ${BASE}/output/csqy_table_${APPL}-v3
+
+
+ set OUTDIR = ${BASE}/output/csqy_table_${APPL}-test
 #set OUTDIR = ${GC_INC}
 if( ! ( -d $OUTDIR ) )mkdir -p $OUTDIR
 
