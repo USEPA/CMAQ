@@ -24,3 +24,9 @@ This command shows how to check out CMAQ v5.2 codes and scripts.
 Release notes and Code documentation are included within this repository (they are version-controlled along with the code itself).
 
 Benchmark/tutorial input and output data for each CMAQ release version are available from the CMAS Center Software Clearinghouse. From http://www.cmascenter.org, select Download -> Software -> CMAQ and choose the version to get the tutorial data.
+
+Source code and scripts are organized as follows:
+* **CCTM (CMAQ Chemical Transport Model):** code and scripts for running the 3D-CTM at the heart of CMAQ.
+* **PREP:** Data preprocessing tools for important input files like initial and boundary conditions, etc.
+* **POST:** Data postprocessing tools for aggregating and evaluating CMAQ output products (e.g. Combine, Site-Compare, etc)
+* **UTIL:** Utilities for generating code and using CMAQ (e.g. chemical mechanism generation, IO-API, etc)
