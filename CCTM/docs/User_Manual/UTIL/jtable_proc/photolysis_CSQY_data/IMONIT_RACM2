@@ -1,0 +1,43 @@
+IMONIT_RACM2
+! IMONIT + hv = HKET + NO2: j(Pj_imonit) ;
+! j(Pj_onitoh1) ~ MCM n-propyl nitrate (n-C3H7ONO2) : J<53>, 
+! divided by 3 at mech.def file: Browne et al. 2014: divided by 3 due to the hydroxy group (Robert & Fajer 1989)
+! Absorption x-section taken from IUPAC recommended 
+! Quantum Yield (φ) = 1.00 IUPAC recommended
+! Made by Azimeh Zare Jul2016
+!Absorption cross-sections at 298 K
+Points (the mechanism evaluated with this format)
+! With FAC, units are (cm^2/molecule)
+FAC=1
+185.0  1.810E-17  1.000
+190.0  1.800E-17  1.000
+195.0  1.600E-17  1.000
+200.0  1.260E-17  1.000
+205.0  0.855E-17  1.000
+210.0  0.489E-17  1.000
+215.0  0.244E-17  1.000
+220.0  0.105E-17  1.000
+225.0  0.050E-17  1.000
+230.0  0.027E-17  1.000
+235.0  0.015E-17  1.000
+240.0  8.900E-20  1.000
+245.0  6.000E-20  1.000
+250.0  4.800E-20  1.000
+255.0  4.400E-20  1.000
+260.0  4.000E-20  1.000
+265.0  3.600E-20  1.000
+270.0  3.200E-20  1.000
+275.0  2.800E-20  1.000
+280.0  2.300E-20  1.000
+285.0  1.800E-20  1.000
+290.0  1.300E-20  1.000
+295.0  0.950E-20  1.000
+300.0  0.570E-20  1.000
+305.0  0.340E-20  1.000
+310.0  0.190E-20  1.000
+315.0  0.100E-20  1.000
+320.0  0.053E-20  1.000
+325.0  0.031E-20  1.000
+330.0  0.022E-20  1.000
+335.0  0.018E-20  1.000
+340.0  0.016E-20  1.000

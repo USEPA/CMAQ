@@ -1,0 +1,31 @@
+MACRN_RACM2                		
+! MACRN + hv = NO2 + HO2 + CO + HAC j(macrn)  
+! cross section based on Müller et al. 2014 (Fig.2)
+! quantum yield based on Müller (2014).   
+! R2SMH (updated RACM2 at WRF-Chem)  uses i-butyraldehyde cross sections recommended by Atkinson et al. (2006) for MACRN
+! but  Müller (2014) show large cross-section enhancements for MACRN and a near-unit quantum yield for these compounds.
+! They assume a near-unit quantum yield  for ethanal nitrate
+! Made by Azimeh Zare               		                		
+Points (the mechanism evaluated with this format)          		
+! With "FAC," units are (cm^2/molecule)           		
+FAC=1.0                		
+255 14.10E-20 0.94                   
+260 12.00E-20 0.94             		
+265 11.10E-20 0.92             		
+270 11.10E-20 0.9              		
+275 11.70E-20 0.9              		
+280 12.60E-20 0.9              		
+285 13.10E-20 0.9              		
+290 13.30E-20 0.9              		
+295 13.50E-20 0.9
+300 12.90E-20 0.9              		
+305 12.50E-20 0.9              		
+310 11.10E-20 0.9              		
+315 10.60E-20 0.9              		
+320 9.100E-20 0.9              		
+325 8.800E-20 0.9              		
+330 8.000E-20 0.9              		
+335 6.500E-20 0.9             		
+340 3.500E-20 0.9              		
+345 0.000E+00 0.9              		
+350 0.000E+00 0.9              		
