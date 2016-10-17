@@ -28,8 +28,8 @@
  set echo
 
 #> model repository location
- setenv M3HOME  /home/yoj/src/repo/restruct
- setenv REPO    $M3HOME/CMAQ_Dev_Restruct
+ setenv M3HOME  /home/yoj/src/repo
+ setenv REPO    $M3HOME/CMAQ_Dev
  setenv M3DATA  $M3HOME/data
 
 #===============================================================================

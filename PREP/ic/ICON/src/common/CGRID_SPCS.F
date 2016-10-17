@@ -1,1 +1,1 @@
-/home/yoj/src/repo/restruct/CMAQ_Dev_Restruct/CCTM/src/spcs/cgrid_spcs_nml/CGRID_SPCS.F
+../../../../../CCTM/src/spcs/cgrid_spcs_nml/CGRID_SPCS.F

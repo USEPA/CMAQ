@@ -1,0 +1,224 @@
+#!/bin/csh -f
+
+# ====================== JPROCv5.1 Build Script ===================== #
+# Usage: bldit.jproc >&! bldit.jproc.log                              #
+# Requirements: I/O API & netCDF libs, Git, and a Fortran compiler    #
+# Note that this script is configured/tested for Red Hat Linux O/S    #
+# The following environment variables must be set for this script to  #
+# build an executable.                                                #
+#   setenv M3MODEL <source code Git repository>                       #
+#   setenv M3LIB   <code libraries>                                   #
+# To report problems or request help with this script/program:        #
+#             http://www.cmascenter.org/html/help.html                #
+# =================================================================== #
+
+ set BLD_OS = `uname -s`        ## Script set up for Linux only 
+ if ($BLD_OS != 'Linux') then
+    echo "   $BLD_OS -> wrong bldit script for host!"
+    exit 1
+ endif
+
+#> Source the config.cmaq file to set the build environment
+ source ../../../config.cmaq
+
+#> Check for M3HOME and M3LIB settings:
+ if ( ! -e $M3HOME || ! -e $M3LIB ) then
+    echo "   $M3HOME or $M3LIB directory not found"
+    exit 1
+ endif
+ echo "   Model repository path: $M3HOME"
+ echo "            library path: $M3LIB"
+
+#> If $REPO not set, default to $M3HOME
+ if ( $?REPO ) then
+    echo "         Model repository path: $REPO"
+ else
+    setenv REPO $M3HOME
+    echo " default Model repository path: $REPO"
+ endif
+
+ set echo
+
+#> Source Code Repository
+ setenv REPOROOT $REPO/PREP/jproc  #> location of the source code for BLDMAKE
+ set MODEL = $REPOROOT/src         #> location of the BCON source code
+ set Mechs = $REPO/CCTM/src/MECHS  #> location of the chemistry mechanism defining files
+
+#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#><#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#
+#>#>#>#>#>#>#>#>#>#>#>#>#># Begin User Input Section #<#<#<#<#<#<#<#<#<#<#<#<#<#
+
+#> user choices: base working directory and application ID
+ set Base = $cwd                    #> working directory
+ set APPL = D52a                    #> model configuration ID
+ set EXEC = JPROC_${APPL}_$EXEC_ID  #> executable name for this application
+ set CFG  = cfg.$EXEC               #> BLDMAKE configuration file name
+ 
+#> user choice: copy source files
+#set CopySrc        # copy the source files into the BLD directory
+
+#set Opt = verbose  # show requested commands as they are executed
+
+#> user choice: make a Makefile
+ set MakeFileOnly   # builds a Makefile to make the model, but does not compile -
+                    # comment out to also compile the model (default if not set)
+
+#>==============================================================================
+#> JPROC Science Modules
+#> NOTE: For the chemisty Mechanism options, look in $Mechs
+#>   source code
+#>==============================================================================
+
+ set ModDriver = src
+ set Mechanism = cb05e51_ae6_aq        #> chemical mechanism
+ set Tracer    = trac0                 #> default: no tracer species
+ set ModMisc   = $Mechs/$Mechanism/RXNS_DATA_MODULE.F90
+
+#>#>#>#>#>#>#>#>#>#>#>#>#>#> End User Input Section #<#<#<#<#<#<#<#<#<#<#<#<#<#
+#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#
+
+#> Set full path of Fortran 90 compiler
+ set FC = ${myFC}
+ set FP = $FC
+
+#> Set IO/API version
+ set IOAPI = ioapi_3.1
+
+#> Set compiler flags
+ set xLib_Base  = ${M3LIB}
+ set xLib_1     = $IOAPI/Linux2_${system}${compiler_ext}
+ set xLib_2     = $IOAPI/ioapi/fixed_src
+ set FSTD       = "${myFSTD}"
+ set DBG        = "${myDBG}"
+ set F_FLAGS    = "${myFFLAGS}"
+ set F90_FLAGS  = "${myFRFLAGS}"
+ set CPP_FLAGS  = ""
+ set LINK_FLAGS = "${myLINK_FLAG}"
+
+ set LIB1 = "-lioapi"
+ set LIB2 = "-lnetcdff -lnetcdf"
+
+#> invoke BLDMAKE for serial execution
+ set Blder = "$REPO/UTIL/bldmake/src/BLDMAKE -serial -verbose"
+
+#> The "BLD" directory for compiling source code (and possibly copying the code to)
+ set Bld = $Base/BLD_JPROC_${APPL}
+ if ( ! -e "$Bld" ) then
+    mkdir $Bld
+ else
+    if ( ! -d "$Bld" ) then
+       echo "   *** target exists, but not a directory ***"
+       exit 1
+    endif
+ endif
+
+ cd $Bld
+
+#source $Base/relinc.bcon
+#if ( $status ) exit 1
+
+ set ICL_CONST = $REPO/CCTM/src/ICL/fixed/const/CONST.EXT
+ if ( $?CopySrc ) then
+    /bin/cp -fp $ICL_CONST $Bld
+ endif
+
+#> make the config file
+
+ set Cfile = $CFG
+ set quote = '"'
+
+ echo                                                               > $Cfile
+ echo "model       $EXEC;"                                         >> $Cfile
+ echo                                                              >> $Cfile
+ echo "repo        $MODEL;"                                        >> $Cfile
+ echo                                                              >> $Cfile
+ echo "mechanism   $Mechanism;"                                    >> $Cfile
+ echo                                                              >> $Cfile
+ echo "lib_base    $xLib_Base;"                                    >> $Cfile
+ echo                                                              >> $Cfile
+ echo "lib_1       $xLib_1;"                                       >> $Cfile
+ echo                                                              >> $Cfile
+ echo "lib_2       $xLib_2;"                                       >> $Cfile
+ echo                                                              >> $Cfile
+ set text = "$quote$CPP_FLAGS$quote;"
+ echo "cpp_flags   $text"                                          >> $Cfile
+ echo                                                              >> $Cfile
+ echo "f_compiler  $FC;"                                           >> $Cfile
+ echo                                                              >> $Cfile
+ echo "fstd        $quote$FSTD$quote;"                             >> $Cfile
+ echo                                                              >> $Cfile
+ echo "dbg         $quote$DBG$quote;"                              >> $Cfile
+ echo                                                              >> $Cfile
+ echo "f_flags     $quote$F_FLAGS$quote;"                          >> $Cfile
+ echo                                                              >> $Cfile
+ echo "f90_flags   $quote$F90_FLAGS$quote;"                        >> $Cfile
+ echo                                                              >> $Cfile
+ echo "link_flags  $quote$LINK_FLAGS$quote;"                       >> $Cfile
+ echo                                                              >> $Cfile
+#echo "libraries   $quote$LIBS$quote;"                             >> $Cfile
+ echo "ioapi       $quote$LIB1$quote;"                             >> $Cfile
+ echo                                                              >> $Cfile
+ echo "netcdf      $quote$LIB2$quote;"                             >> $Cfile
+ echo                                                              >> $Cfile
+
+ set text="// mechanism:"
+ echo "$text ${Mechanism}"                                         >> $Cfile
+ echo "// model repository: ${MODEL}"                              >> $Cfile
+ echo                                                              >> $Cfile
+ echo "include SUBST_CONST $ICL_CONST;"                           >> $Cfile
+
+ set text = "jproc_table"
+ echo "// options are" $text                                       >> $Cfile
+ echo "Module ${ModDriver};"                                       >> $Cfile
+ echo                                                              >> $Cfile
+
+ if ( $?ModMisc ) then
+    echo "MISC ${ModMisc};"                                        >> $Cfile
+    echo                                                           >> $Cfile
+ endif
+
+#> make the Makefile or the model executable
+
+ unalias mv rm
+ if ( $?MakeFileOnly ) then
+    if ( $?CopySrc ) then
+       $Blder -makefo $Cfile
+    else
+       $Blder -makefo -git_local $Cfile   # $Cfile = ${CFG}.bld
+     # totalview -a $Blder -makefo $Cfile
+    endif
+ else   # also compile the model
+    if ( $?CopySrc ) then
+       $Blder $Cfile
+    else
+       $Blder -git_local $Cfile
+    endif
+ endif
+ mv Makefile $Bld/Makefile.$compiler
+ if ( -e Makefile.$compiler && -e Makefile ) rm Makefile
+ ln -s Makefile.$compiler Makefile
+
+ if ( $status != 0 ) then
+    echo "   *** failure in $Blder ***"
+    exit 1
+ endif
+ if ( -e "$Base/${CFG}" ) then
+    echo "   >>> previous ${CFG} exists, re-naming to ${CFG}.old <<<"
+    mv $Base/${CFG} $Base/${CFG}.old
+ endif
+
+ cd $MODEL
+ set brnch = `git branch`
+ unset echo
+ @ i = 0
+ while ( $i < $#brnch )
+    @ i++
+    if ( "$brnch[$i]" == "*" ) @ l = $i + 1
+ end
+ set rep = `echo $cwd | tr "/" "#"`
+ set rln = "repo:${rep},branch:${brnch[$l]},compiler:${compiler}"
+ set ref = $Bld/$rln
+ /bin/touch $ref
+ if ( -d $MODEL/branch ) /bin/cp $MODEL/branch/branch.* $Bld
+
+ exit
+
