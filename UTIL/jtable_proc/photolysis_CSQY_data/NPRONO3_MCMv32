@@ -1,0 +1,57 @@
+NPRONO3_MCMv32
+!1-propyl nitrate cross-sections (n-CH3CH2CH2ONO2)
+!
+!Taken from the MPI-Mainz Spectral Atlas
+!http://www.atmosphere.mpg.de/enid/2295
+!
+!From IUPAC 2005 recommendation
+!http://iupac.pole-ether.fr/htdocs/datasheets/pdf/P16_n-C3H7ONO2+hv.pdf
+!
+!Taken from:
+!1.  J. M. Roberts and R. W. Fajer, Environ. Sci. Technol. 23, 945 (1989).
+!2.  M. P. Turberg, D. M. Giolando, C. Tilt, T. Soper, S. Mason, M. Davies, P. Klingensmith,
+!    and G. A. Takacs, J. Photochem. Photobiol. A51, 281 (1990).
+!3.  K. C. Clemitshaw, J. Williams, O. V. Rattigan, D. E. Shallcross, K. S. Law, and R. A.
+!    Cox, J. Photochem. Photobiol. A: Chemistry 102, 117 (1997).
+!
+!Quantum Yield
+!
+!There are no data on either the products of photodissociation or the quantum yields. 
+!However, the quantum yields for photodissociation of both ethyl and methyl nitrate to form 
+!NO2 have been shown to be unity at 308 nm and 248 nm, see IUPAC datasheets for these RONO2 species
+!wavelength (nm) sigma (298K)
+Points (the mechanism evaluated with this format)
+! With FAC, units are (cm^2/molecule)
+FAC=1.0
+185.0 1.81E-17 1.000
+190.0 1.80E-17 1.000
+195.0 1.60E-17 1.000
+200.0 1.26E-17 1.000
+205.0 8.55E-18 1.000
+210.0 4.89E-18 1.000
+215.0 2.44E-18 1.000
+220.0 1.05E-18 1.000
+225.0 5.00E-19 1.000
+230.0 2.70E-19 1.000
+235.0 1.50E-19 1.000
+240.0 8.90E-20 1.000
+245.0 6.00E-20 1.000
+250.0 4.80E-20 1.000
+255.0 4.40E-20 1.000
+260.0 4.00E-20 1.000
+265.0 3.60E-20 1.000
+270.0 3.20E-20 1.000
+275.0 2.80E-20 1.000
+280.0 2.30E-20 1.000
+285.0 1.80E-20 1.000
+290.0 1.30E-20 1.000
+295.0 9.50E-21 1.000
+300.0 5.70E-21 1.000
+305.0 3.40E-21 1.000
+310.0 1.90E-21 1.000
+315.0 1.00E-21 1.000
+320.0 5.30E-22 1.000
+325.0 3.10E-22 1.000
+330.0 2.20E-22 1.000
+335.0 1.80E-22 1.000
+340.0 1.60E-22 1.000
