@@ -1,0 +1,31 @@
+#! /bin/csh -f
+
+set echo
+
+#scom command defines compiler and libraries
+source ~/scom -d -c ifc
+
+ set mech_archive = /home/hwo/mech_git_archive
+ setenv suffix AE_REFRACT
+ setenv suffix v501
+ setenv APPL cb05tump_ae6_aq
+ setenv APPL cb05tucl-chlorine_update
+#setenv GC_INC ${mech_archive}/${APPL}
+#setenv APPL saprc07tc_ae6_aq
+#path of mechanism for gas phase chemistry RXCM.EXT and RXDT files
+#setenv GC_INC /home/hwo/cmaq-v5.0/mechanisms/ozone_tracer
+#setenv GC_INC /home/hwo/cmaq-v5.0/mechanisms/saprc07tc_xya_isoprene_v5_v50
+#setenv GC_INC /home/hwo/cmaq-v5.0/mechanisms/racm2_ae6_aq
+ setenv GC_INC /home/hwo/tools/mech_processor/cb05tucl-chlorine_update
+ setenv APPL   ${APPL}_${suffix}
+# variable used to name executable, i.e., CSQY_TABLE_PROCESSOR_mechanism
+#setenv APPL ozone_tracer
+#setenv APPL racm2_ae6_aq
+
+#make clean
+
+make -f Makefile
+
+exit()
+
+

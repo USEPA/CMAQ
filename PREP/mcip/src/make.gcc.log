@@ -1,0 +1,220 @@
+make[1]: Entering directory `/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/scripts/mcip/src'
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c const_mod.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c const_pbl_mod.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c coord_mod.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c date_time_mod.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c date_pack_mod.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c files_mod.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c groutcom_mod.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c luvars_mod.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c mcipparm_mod.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c mcoutcom_mod.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c mdoutcom_mod.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c metinfo_mod.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c metvars_mod.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c vgrd_mod.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c wrf_netcdf_mod.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c xvars_mod.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c sat2mcip_mod.f90
+make[1]: Leaving directory `/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/scripts/mcip/src'
+make[1]: Entering directory `/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/scripts/mcip/src'
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c mcip.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c alloc_ctm.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c alloc_met.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c alloc_x.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c bcldprc_ak.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c blddesc.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c chkwpshdr.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c chkwrfhdr.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c close_files.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c collapx.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c comheader.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c cori.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c dealloc_ctm.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c dealloc_met.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c dealloc_x.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c detangle_soil_px.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c e_aerk.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c dynflds.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c getgist.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c getluse.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c getmet.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c getpblht.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c getsdt.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c getversion.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c graceful_stop.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c gridout.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c init_io.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c init_met.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c init_x.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c julian.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c layht.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c ll2xy_lam.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c ll2xy_lam_sec.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c ll2xy_lam_tan.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c ll2xy_merc.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c ll2xy_ps.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c locate.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c mapfac_lam.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c mapfac_merc.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c mapfac_ps.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c metcro.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c metdot.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c metgrid2ctm.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c metvars2ctm.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c mm5v3opts.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c pblsup.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c ptemp.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c pvs.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c qsat.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c rdmm5v3.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c rdwrfem.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c readnml.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c readter.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c refstate.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c resistcalc.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c setgriddefs.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c setup.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c setup_mm5v3.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c setup_wrfem.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c sfclayer.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c statflds.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c vertarys.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c vertnhy.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c vertnhy_wrf.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c vstamp.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c vtemp.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c wind.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c wrfemopts.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c wrgdesc.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c xy2ll_lam.f90
+gfortran -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include  -c xy2ll_merc.f90
+gfortran -o mcip.exe -O3 -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/include -I/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/include mcip.o alloc_ctm.o alloc_met.o alloc_x.o bcldprc_ak.o blddesc.o chkwpshdr.o chkwrfhdr.o close_files.o collapx.o comheader.o cori.o dealloc_ctm.o dealloc_met.o dealloc_x.o detangle_soil_px.o e_aerk.o dynflds.o getgist.o getluse.o getmet.o getpblht.o getsdt.o getversion.o graceful_stop.o gridout.o init_io.o init_met.o init_x.o julian.o layht.o ll2xy_lam.o ll2xy_lam_sec.o ll2xy_lam_tan.o ll2xy_merc.o ll2xy_ps.o locate.o mapfac_lam.o mapfac_merc.o mapfac_ps.o metcro.o metdot.o metgrid2ctm.o metvars2ctm.o mm5v3opts.o pblsup.o ptemp.o pvs.o qsat.o rdmm5v3.o rdwrfem.o readnml.o readter.o refstate.o resistcalc.o setgriddefs.o setup.o setup_mm5v3.o setup_wrfem.o sfclayer.o statflds.o vertarys.o vertnhy.o vertnhy_wrf.o vstamp.o vtemp.o wind.o wrfemopts.o wrgdesc.o xy2ll_lam.o xy2ll_merc.o const_mod.o const_pbl_mod.o coord_mod.o date_time_mod.o date_pack_mod.o files_mod.o groutcom_mod.o luvars_mod.o mcipparm_mod.o mcoutcom_mod.o mdoutcom_mod.o metinfo_mod.o metvars_mod.o vgrd_mod.o wrf_netcdf_mod.o xvars_mod.o sat2mcip_mod.o -L/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/lib -lioapi -L/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/netcdf/lib -lnetcdf -lcurl
+/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/lib/libioapi.a(desc3.o): In function `desc3_':
+desc3.F:(.text+0x328): undefined reference to `GOMP_critical_name_start'
+desc3.F:(.text+0x890): undefined reference to `GOMP_critical_name_end'
+/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/lib/libioapi.a(init3.o): In function `init3_':
+init3.F:(.text+0x5b): undefined reference to `GOMP_critical_name_start'
+init3.F:(.text+0x105): undefined reference to `GOMP_critical_name_end'
+/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/lib/libioapi.a(m3msg2.o): In function `m3msg2_':
+m3msg2.F:(.text+0x1e): undefined reference to `GOMP_critical_name_start'
+m3msg2.F:(.text+0x8d): undefined reference to `GOMP_critical_name_end'
+/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/lib/libioapi.a(m3msg2.o): In function `m3mesg_':
+m3msg2.F:(.text+0xd4): undefined reference to `GOMP_critical_name_start'
+m3msg2.F:(.text+0x14d): undefined reference to `GOMP_critical_name_end'
+/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/lib/libioapi.a(m3msg2.o): In function `m3prompt_':
+m3msg2.F:(.text+0x1a4): undefined reference to `GOMP_critical_name_start'
+m3msg2.F:(.text+0x29e): undefined reference to `GOMP_critical_name_end'
+/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/lib/libioapi.a(m3msg2.o): In function `m3parag_':
+m3msg2.F:(.text+0x373): undefined reference to `GOMP_critical_name_start'
+m3msg2.F:(.text+0x583): undefined reference to `GOMP_critical_name_end'
+/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/lib/libioapi.a(m3msg2.o): In function `m3flush_':
+m3msg2.F:(.text+0x5ca): undefined reference to `GOMP_critical_name_start'
+m3msg2.F:(.text+0x5df): undefined reference to `GOMP_critical_name_end'
+/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/lib/libioapi.a(opnfil3.o): In function `opnfil3_':
+opnfil3.F:(.text+0x5d): undefined reference to `GOMP_critical_name_start'
+opnfil3.F:(.text+0x123): undefined reference to `GOMP_critical_name_end'
+/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/lib/libioapi.a(opnlog3.o): In function `opnlog3_':
+opnlog3.F:(.text+0x38): undefined reference to `GOMP_critical_name_start'
+opnlog3.F:(.text+0x50): undefined reference to `GOMP_critical_name_start'
+opnlog3.F:(.text+0x9a): undefined reference to `GOMP_critical_name_end'
+opnlog3.F:(.text+0x1563): undefined reference to `GOMP_critical_name_end'
+/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/lib/libioapi.a(shut3.o): In function `shut3_':
+shut3.F:(.text+0x2e): undefined reference to `GOMP_critical_name_start'
+shut3.F:(.text+0x3c5): undefined reference to `GOMP_critical_name_end'
+/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/lib/libioapi.a(write3.o): In function `write3_':
+write3.F:(.text+0x116): undefined reference to `GOMP_critical_name_start'
+write3.F:(.text+0x136): undefined reference to `GOMP_critical_name_end'
+/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/lib/libioapi.a(wrprofil.o): In function `wrprofil_':
+wrprofil.F:(.text+0x21): undefined reference to `GOMP_critical_name_start'
+wrprofil.F:(.text+0x2b): undefined reference to `GOMP_critical_name_start'
+wrprofil.F:(.text+0x144): undefined reference to `GOMP_critical_name_end'
+wrprofil.F:(.text+0x14e): undefined reference to `GOMP_critical_name_end'
+wrprofil.F:(.text+0x481): undefined reference to `GOMP_critical_name_end'
+wrprofil.F:(.text+0x48b): undefined reference to `GOMP_critical_name_end'
+/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/lib/libioapi.a(wrvars.o): In function `wrvars_':
+wrvars.F:(.text+0x48): undefined reference to `GOMP_critical_name_start'
+wrvars.F:(.text+0x91): undefined reference to `GOMP_critical_name_end'
+wrvars.F:(.text+0xa9): undefined reference to `GOMP_critical_name_start'
+wrvars.F:(.text+0x53e): undefined reference to `GOMP_critical_name_end'
+wrvars.F:(.text+0x601): undefined reference to `GOMP_critical_name_start'
+wrvars.F:(.text+0x656): undefined reference to `GOMP_critical_name_end'
+wrvars.F:(.text+0x66e): undefined reference to `GOMP_critical_name_start'
+wrvars.F:(.text+0xd16): undefined reference to `GOMP_critical_name_start'
+wrvars.F:(.text+0xd44): undefined reference to `GOMP_critical_name_end'
+wrvars.F:(.text+0xd4e): undefined reference to `GOMP_critical_name_start'
+wrvars.F:(.text+0x14d1): undefined reference to `GOMP_critical_name_end'
+/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/lib/libioapi.a(chkfil3.o): In function `chkfil3_':
+chkfil3.f:(.text+0x20): undefined reference to `GOMP_critical_name_start'
+chkfil3.f:(.text+0x21cc): undefined reference to `GOMP_critical_name_end'
+/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/lib/libioapi.a(close3.o): In function `close3_':
+close3.f:(.text+0x106): undefined reference to `GOMP_critical_name_start'
+close3.f:(.text+0x2b0): undefined reference to `GOMP_critical_name_end'
+close3.f:(.text+0x2d2): undefined reference to `GOMP_critical_name_end'
+/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/lib/libioapi.a(crtbuf3.o): In function `crtbuf3_':
+crtbuf3.f:(.text+0x586): undefined reference to `GOMP_critical_name_start'
+crtbuf3.f:(.text+0x644): undefined reference to `GOMP_critical_name_end'
+/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/lib/libioapi.a(name2fid.o): In function `name2fid_':
+name2fid.f:(.text+0x17): undefined reference to `GOMP_critical_name_start'
+name2fid.f:(.text+0x2f): undefined reference to `GOMP_critical_name_end'
+name2fid.f:(.text+0xd9): undefined reference to `GOMP_critical_name_end'
+/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/lib/libioapi.a(syncfid.o): In function `syncfid_':
+syncfid.f:(.text+0x2c): undefined reference to `GOMP_critical_name_start'
+syncfid.f:(.text+0x4c): undefined reference to `GOMP_critical_name_end'
+syncfid.f:(.text+0x278): undefined reference to `GOMP_critical_name_start'
+syncfid.f:(.text+0x4ec): undefined reference to `GOMP_critical_name_start'
+syncfid.f:(.text+0x64b): undefined reference to `GOMP_critical_name_end'
+syncfid.f:(.text+0x74b): undefined reference to `GOMP_critical_name_end'
+/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/lib/libioapi.a(wrdict3.o): In function `wrdict3_':
+wrdict3.f:(.text+0x3a): undefined reference to `GOMP_critical_name_start'
+wrdict3.f:(.text+0x44): undefined reference to `GOMP_critical_name_start'
+wrdict3.f:(.text+0x32a): undefined reference to `GOMP_critical_name_end'
+wrdict3.f:(.text+0x334): undefined reference to `GOMP_critical_name_end'
+wrdict3.f:(.text+0x1830): undefined reference to `GOMP_critical_name_end'
+wrdict3.f:(.text+0x183a): undefined reference to `GOMP_critical_name_end'
+/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/lib/libioapi.a(wriddata.o): In function `wriddata_':
+wriddata.f:(.text+0x21): undefined reference to `GOMP_critical_name_start'
+wriddata.f:(.text+0x3a): undefined reference to `GOMP_critical_name_start'
+wriddata.f:(.text+0x6b): undefined reference to `GOMP_critical_name_end'
+wriddata.f:(.text+0x153): undefined reference to `GOMP_critical_name_end'
+wriddata.f:(.text+0x19d): undefined reference to `GOMP_critical_name_start'
+wriddata.f:(.text+0x1d5): undefined reference to `GOMP_critical_name_end'
+wriddata.f:(.text+0x1f8): undefined reference to `GOMP_critical_name_end'
+/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/lib/libioapi.a(wrsmatrx.o): In function `wrsmatrx_':
+wrsmatrx.f:(.text+0x62): undefined reference to `GOMP_critical_name_start'
+wrsmatrx.f:(.text+0x6c): undefined reference to `GOMP_critical_name_start'
+wrsmatrx.f:(.text+0x17e): undefined reference to `GOMP_critical_name_end'
+wrsmatrx.f:(.text+0x188): undefined reference to `GOMP_critical_name_end'
+wrsmatrx.f:(.text+0x211): undefined reference to `GOMP_critical_name_end'
+wrsmatrx.f:(.text+0x21b): undefined reference to `GOMP_critical_name_end'
+/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/lib/libioapi.a(wrtflag.o): In function `wrtflag_':
+wrtflag.f:(.text+0x75): undefined reference to `GOMP_critical_name_start'
+wrtflag.f:(.text+0xab): undefined reference to `GOMP_critical_name_end'
+wrtflag.f:(.text+0x104): undefined reference to `GOMP_critical_name_start'
+wrtflag.f:(.text+0x125): undefined reference to `GOMP_critical_name_end'
+wrtflag.f:(.text+0x3d6): undefined reference to `GOMP_critical_name_start'
+wrtflag.f:(.text+0x8ae): undefined reference to `GOMP_critical_name_end'
+/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/lib/libioapi.a(crtfil3.o): In function `crtfil3_':
+crtfil3.F:(.text+0x26): undefined reference to `GOMP_critical_name_start'
+crtfil3.F:(.text+0x40): undefined reference to `GOMP_critical_name_end'
+crtfil3.F:(.text+0x5a): undefined reference to `GOMP_critical_name_start'
+crtfil3.F:(.text+0x224): undefined reference to `GOMP_critical_name_end'
+/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/lib/libioapi.a(rdvars.o): In function `rdvars_':
+rdvars.F:(.text+0x4b): undefined reference to `GOMP_critical_name_start'
+rdvars.F:(.text+0x99): undefined reference to `GOMP_critical_name_end'
+rdvars.F:(.text+0x127): undefined reference to `GOMP_critical_name_start'
+rdvars.F:(.text+0x172): undefined reference to `GOMP_critical_name_end'
+rdvars.F:(.text+0x38a): undefined reference to `GOMP_critical_name_start'
+rdvars.F:(.text+0x3fc): undefined reference to `GOMP_critical_name_end'
+rdvars.F:(.text+0x9c6): undefined reference to `GOMP_critical_name_end'
+/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/lib/x86_64/gcc/ioapi/lib/libioapi.a(wrgrnest.o): In function `wrgrnest_':
+wrgrnest.F:(.text+0x21): undefined reference to `GOMP_critical_name_start'
+wrgrnest.F:(.text+0x2b): undefined reference to `GOMP_critical_name_start'
+wrgrnest.F:(.text+0x146): undefined reference to `GOMP_critical_name_end'
+wrgrnest.F:(.text+0x150): undefined reference to `GOMP_critical_name_end'
+wrgrnest.F:(.text+0x8ac): undefined reference to `GOMP_critical_name_end'
+wrgrnest.F:(.text+0x8b6): undefined reference to `GOMP_critical_name_end'
+collect2: error: ld returned 1 exit status
+make[1]: *** [mcip.exe] Error 1
+make[1]: Leaving directory `/nas01/depts/ie/cempd/apps/CMAQ/v5.1/UNC_Testing/CMAQv5.1/scripts/mcip/src'
+make: *** [all] Error 2

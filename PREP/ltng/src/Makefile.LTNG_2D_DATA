@@ -1,0 +1,28 @@
+# make file to build lightningNOx program
+
+PROGRAM = LTNG_2D_DATA
+IOAPI = $(M3LIB)/ioapi
+NETCDF = $(M3LIB)/netcdf
+
+
+# Include file subsitution definitions
+INCLUDES =  \
+
+FC_FLAGS = -c -extend_source -openmp -I $(IOAPI)/include
+
+FC=ifort
+
+LIBRARIES = -L $(IOAPI)/lib -lioapi \
+	    -L $(NETCDF)/lib -lnetcdf
+
+OBJS = \
+ $(PROGRAM).o
+
+
+$(PROGRAM):  $(OBJS)
+	$(FC) $(OBJS) $(LIBRARIES)  -o $(PROGRAM)
+
+.F.o:
+	$(FC) $(FC_FLAGS) $<
+
+

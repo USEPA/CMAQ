@@ -1,0 +1,74 @@
+#! /bin/csh -f
+
+# ====================== HR2DAYv5.1 Run Script ======================
+# Usage: run.hr2day >&! hr2day_V51.log &
+#
+# To report problems or request help with this script/program:
+#             http://www.cmascenter.org
+# ===================================================================
+
+#> Source the config.cmaq file to set the run environment
+ source ../../config.cmaq
+
+#> Check that M3DATA is set: 
+ if ( ! -e $M3DATA ) then
+    echo "   $M3DATA path does not exist"
+    exit 1
+    endif
+ echo " "; echo " Input data path, M3DATA set to $M3DATA"; echo " "
+
+ set APPL = D51a
+ set MECH = cb05e51_ae6_aq 
+ set EXEC = HR2DAY_${APPL}_$EXEC_ID
+
+#> Set the working directory
+ set BASE  = $cwd      
+#set BASE  = $M3HOME/scripts/combine
+ set BLD   = ${BASE}/BLD_$APPL
+
+ cd $BASE; date; set timestamp; cat $BASE/cfg.${APPL}; echo " "; set echo
+
+ setenv IOAPI_ISPH 20
+
+
+#> set to use local time (default is GMT)
+ setenv USELOCAL Y
+
+#> set to use daylight savings time (default is N)
+ setenv USEDST N
+
+#> location of time zone data file, tz.csv (this is a required input file)
+ setenv TZFILE tz.csv
+
+#> partial day calculation (computes value for last day)
+ setenv PARTIAL_DAY Y
+
+#> constant hour offset between desired time zone and GMT (default is 0)
+ setenv HROFFSET 0
+
+#> starting hour for daily metrics (default is 0)
+ setenv START_HOUR 0
+
+#> ending hour for daily metrics (default is 23)
+ setenv END_HOUR 23
+
+#> Number of 8hr values to use when computing daily maximum 8hr ozone.
+#> Allowed values are 24 (use all 8-hr averages with starting hours 
+#> from 0 - 23 hr local time) and 17 (use only the 17 8-hr averages
+#> with starting hours from 7 - 23 hr local time)
+ setenv HOURS_8HRMAX 24
+# setenv HOURS_8HRMAX 17
+
+#> define species (format: "Name, units, From_species, Operation")
+#>  operations : {SUM, AVG, MIN, MAX, @MAXT, MAXDIF, 8HRMAX, SUM06}
+ setenv SPECIES_1 "O3,ppbV,O3,8HRMAX"
+
+#> set input and output files
+ setenv INFILE $M3DATA/cctm/CCTM_${APPL}_Linux2_x86_64intel_COMBINE_ACONC.CMAQ51-BENCHMARK_20110701
+ setenv OUTFILE dailymaxozone.07
+
+#> Executable call:
+ /usr/bin/time $BLD/$EXEC
+
+ date
+ exit()

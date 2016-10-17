@@ -1,0 +1,14 @@
+PACD_CB05
+! PACD   + HV = MEO2 + OH 
+! CB05 Photolysis data for PACD  
+! Supplied by Greg Yarwood, 11/16/2007
+! Ref: Giguère, P. A. and A. W. Olmos. Sur le spectre ultraviolet de l'acide peracétique et l'hydrolyse des peracétates. Can. J. Chem., 34, 689-691, 1956.
+Points 
+! With FAC, units are (cm^2/molecule)
+FAC=1.0
+280.0 2.140E-21 1.000
+290.0 1.020E-21 1.000
+300.0 4.900E-22 1.000
+310.0 2.350E-22 1.000
+320.0 1.070E-22 1.000
+330.0 4.900E-23 1.000

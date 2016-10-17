@@ -1,0 +1,19 @@
+  Number of crop species:          18
+ Alfalfa         
+ BarleySpring    
+ BarleyFall      
+ Corn            
+ Cotton          
+ Hay             
+ OatsSpring      
+ OatsFall        
+ Peanuts         
+ Potatoes        
+ Rice            
+ Rye             
+ Sorghum         
+ Soybeans        
+ Sugerbeets      
+ Tobacco         
+ WheatSpring     
+ WheatWinter     
