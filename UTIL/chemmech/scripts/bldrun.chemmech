@@ -34,7 +34,6 @@
    \ls $Mpath/$MCFL
     exit()
  endif
-
  set echo
  setenv MECHDEF  $Mpath/$MCFL
  setenv MAPPING_ROUTINE "${Xpath}/map_chemistry_spc.F90"
@@ -47,14 +46,17 @@
 
  set TR_NML = $NML_TR/Species_Table_TR_0.nml
 
- setenv gc_matrix_nml $GC_NML
- setenv ae_matrix_nml $AE_NML
- setenv nr_matrix_nml $NR_NML
- setenv tr_matrix_nml $TR_NML
+setenv gc_matrix_nml $GC_NML
+setenv ae_matrix_nml $AE_NML
+setenv nr_matrix_nml $NR_NML
+setenv tr_matrix_nml $TR_NML
+
+set day = ` date "+%b-%d-%Y" `
+# set Opath = ${Mpath}
+  set Opath = ${BASE}"/output/"${Mechanism}"-"${day}"-"${COMPILER}
+  if( ! ( -d $Opath ) ) mkdir -p $Opath
 
 # output files ................................................................
- 
- if( ! ( -d $Opath ) ) mkdir -p $Opath
 
  if( $Opath != ${Mpath} )then
     \cp -f $MECHDEF  $Opath/.
@@ -84,3 +86,4 @@
  $Xpath/$EXEC
 
  exit()
+
