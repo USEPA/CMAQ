@@ -50,9 +50,9 @@ else
  # CC    = /usr/bin/gcc
     FC    = gfortran
     CC    = gcc
-   f_FLAGS       = -ffixed-form -ffixed-line-length-132 -funroll-loops -O3 -ffpe-trap=invalid,zero -g -finit-character=32 -I. -fcheck=all
+   f_FLAGS       = -ffixed-form -ffixed-line-length-132 -funroll-loops -O3 -ffpe-trap=invalid,zero -g -finit-character=32 -I. -fbounds-check -fbacktrace
    F_FLAGS       = $(f_FLAGS)
-   f90_FLAGS     = -cpp -ffree-form -ffree-line-length-none -funroll-loops -O3 -ffpe-trap=invalid,zero -g -finit-character=32 -I. -fcheck=all
+   f90_FLAGS     = -cpp -ffree-form -ffree-line-length-none -funroll-loops -O3 -ffpe-trap=invalid,zero -g -finit-character=32 -I. -fbounds-check -fbacktrace
    F90_FLAGS     = $(f90_FLAGS)
    C_FLAGS       = -O2 -DFLDMN -I /home/wdx/lib/x86_64/gcc/mpich/include
    LINKER        = $(FC)

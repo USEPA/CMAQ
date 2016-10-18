@@ -85,5 +85,14 @@ set day = ` date "+%b-%d-%Y" `
 
  $Xpath/$EXEC
 
+ unset echo 
+
+ if( ( -e ${RXNS_DATA_MODULE} ) && ( -e ${RXNS_FUNC_MODULE} ) )then
+      echo "output written to ${Opath}"
+ else
+      echo "failed to create ${RXNS_DATA_MODULE} or ${RXNS_FUNC_MODULE}"
+      exit()
+ endif
+
  exit()
 
