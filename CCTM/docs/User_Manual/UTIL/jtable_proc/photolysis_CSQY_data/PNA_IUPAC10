@@ -1,0 +1,21 @@
+PNA_IUPAC10
+! j(PNA)  IUPAC(2010)                                   
+! PNA = 0.61 HO2 + 0.61 NO2 + 0.39 OH + 0.39 NO3        
+! From IUPAC Subcommittee on Gas Kinetic Data Evaluation
+! Data Sheet PNxO3, updated 16th Jul, 2001              
+! These are point values                                
+Begining (the mechanism evaluated with this format)
+!WL(nm) XSEC(cm2) QY
+FAC=1.0
+280.0 9.300E-20 1.000
+285.0 6.200E-20 1.000
+290.0 3.900E-20 1.000
+295.0 2.400E-20 1.000
+300.0 1.400E-20 1.000
+305.0 8.500E-21 1.000
+310.0 5.300E-21 1.000
+315.0 3.900E-21 1.000
+320.0 2.400E-21 1.000
+325.0 1.500E-21 1.000
+330.0 9.000E-22 1.000
+331.0 0.000E+00 1.000
