@@ -41,7 +41,7 @@ if ( ! ( -e ${RXNS_DATA_SRC} ) )then
 
 # output directory
  set day = ` date "+%b-%d-%Y" `
- setenv OUTDIR  ${BASE}/output/ebi_${MECH}-${day}
+ setenv OUTDIR  ${BASE}/output/ebi_${MECH}-${day}-${COMPILER}
  
  setenv COPYRT_FLAG      N
  setenv CVS_HDR_FLAG     N
