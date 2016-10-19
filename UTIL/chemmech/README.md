@@ -5,8 +5,8 @@ This repository  contains the template bldrun script under script and code direc
 for CMAQ version 5.2.
 
 To use this tool:
-1) Compile the tool by modifying the Makefile in the src directory. The changes set fortran compiler(s), cc compiler(s), their compilation
-and link flags based on your system, IF NEEDED.
+
+1) Compile the tool by modifying the Makefile in the src directory. The changes set fortran compiler(s), cc compiler(s), their compilation and link flags based on your system, IF NEEDED.
 
 2) Next, copy modify the bldrun template into its parent direcory.
 
