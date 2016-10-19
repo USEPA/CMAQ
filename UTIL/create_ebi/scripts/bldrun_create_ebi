@@ -57,7 +57,7 @@ if ( ! ( -e ${RXNS_DATA_SRC} ) )then
 
 #Set the below compound names within the mechanism
 # Mechanism                  SAPRC99 or        CB4
-#                         # SAPRC07 / RACM2  #  CB05    #
+#                         # SAPRC07 / RACM2  #  CB05 or cb6r3   #
  setenv MECH_NO    NO     #  NO           # NO       # Mechanism name for nitric oxide
  setenv MECH_NO2   NO2    #  NO2          # NO2      # Mechanism name for nitrogen dioxide
  setenv MECH_NO2EX NO2EX  #  NO2EX / Not Present # NO2S     # Mechanism name for excited nitrogen dioxide
