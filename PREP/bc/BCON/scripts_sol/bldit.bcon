@@ -6,7 +6,7 @@
 # Note that this script is configured/tested for Red Hat Linux O/S    #
 # The following environment variables must be set for this script to  #
 # build an executable.                                                #
-#   setenv M3MODEL <source code Git repository>                       #
+#   setenv MODEL < Git repository source code >                       #
 #   setenv M3LIB   <code libraries>                                   #
 # To report problems or request help with this script/program:        #
 #             http://www.cmascenter.org/html/help.html                #
@@ -41,8 +41,8 @@
 
 #> Source Code Repository
  setenv REPOROOT $REPO/PREP/bc/BCON/src  #> location of the source code for BLDMAKE
- set MODEL   = $REPOROOT           #> location of the BCON source code
- set Mechs   = $MODEL/MECHS        #> location of the chemistry mechanism defining files
+ set MODEL = $REPOROOT             #> location of the BCON source code
+ set Mechs = $REPO/CCTM/src/MECHS  #> location of the chemistry mechanism defining files
 
 #>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#><#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#
 #>#>#>#>#>#>#>#>#>#>#>#>#># Begin User Input Section #<#<#<#<#<#<#<#<#<#<#<#<#<#
@@ -50,11 +50,12 @@
 #> user choices: base working directory and application ID
  set Base = $cwd                    #> working directory
  set APPL = v52_profile             #> model configuration ID
+#set APPL = v52_m3conc              #> model configuration ID
  set EXEC = BCON_${APPL}_$EXEC_ID   #> executable name for this application
  set CFG  = cfg.$EXEC               #> BLDMAKE configuration file name
 
 #> user choice: copy source files
-#set CopySrc        # copy the source files into the BLD directory
+ set CopySrc        # copy the source files into the BLD directory
 
 #set Opt = verbose  # show requested commands as they are executed
 
@@ -129,12 +130,20 @@
 #source $Base/relinc.bcon
 #if ( $status ) exit 1
 
- set ICL_MECH  = $Mechs/$Mechanism
- set ICL_TRAC  = $Mechs/$Tracer
+#set ICL_MECH  = $Mechs/$Mechanism
+#set ICL_TRAC  = $Mechs/$Tracer
+
+#if ( $?CopySrc ) then
+#   /bin/cp -fp ${ICL_MECH}/*    ${Bld}
+#   /bin/cp -fp ${ICL_TRAC}/*    ${Bld}
+#endif
 
  if ( $?CopySrc ) then
-    /bin/cp -fp ${ICL_MECH}/*    ${Bld}
-    /bin/cp -fp ${ICL_TRAC}/*    ${Bld}
+    /bin/cp -fp $Mechs/$Mechanism/*.nml $Bld
+    /bin/cp -fp $Mechs/$Tracer/*.nml $Bld
+ else
+    /bin/ln -s $Mechs/$Mechanism/*.nml $Bld
+    /bin/ln -s $Mechs/$Tracer/*.nml $Bld
  endif
 
 #> make the config file
@@ -180,10 +189,9 @@
  echo "$text ${Mechanism}"                                         >> $Cfile
  echo "// project repository location: ${MODEL}"                   >> $Cfile
  echo                                                              >> $Cfile
- if ( $compiler == gfort ) then
-   set ICL_CONST = '.'
-   set ICL_MECH = '.'
- endif
+#if ( $compiler == gfort ) then
+#  set ICL_MECH = '.'
+#endif
 #echo "include SUBST_RXCMMN     $ICL_MECH/RXCM.EXT;"               >> $Cfile
 #echo "include SUBST_RXDATA     $ICL_MECH/RXDT.EXT;"               >> $Cfile
  echo                                                              >> $Cfile
@@ -210,7 +218,7 @@
     if ( $?CopySrc ) then
        $Blder -makefo $Cfile
     else
-       $Blder -makefo -git_local $Cfile   # $Cfile = ${CFG}.bld
+       $Blder -makefo -git_local $Cfile   # $Cfile = ${CFG}
      # totalview -a $Blder -makefo $Cfile
     endif
  else   # also compile the model

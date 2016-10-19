@@ -11,16 +11,27 @@ CMAQ combines current knowledge in atmospheric science and air quality modeling 
 computing techniques in an open-source framework to deliver fast, technically sound estimates of ozone,
 particulates, toxics, and acid deposition.
 
+##Getting the CMAQ Repository
 This CMAQ Git archive is organized with each official public release stored as a branch on the main USEPA/CMAQ repository.
 To clone code from the CMAQ Git archive, specify the branch (i.e. version number) and issue the following command from within
 a working directory on your server:
+```
+git clone -b CMAQ_v5.2 https://github.com/USEPA/CMAQ.git  
+```
 
-git clone -b CMAQ_v5.2 https://github.com/USEPA/CMAQ.git
+##CMAQ Repository Guide
+Source code and scripts are organized as follows:
+* **CCTM (CMAQ Chemical Transport Model):** code and scripts for running the 3D-CTM at the heart of CMAQ.
+* **PREP:** Data preprocessing tools for important input files like initial and boundary conditions, etc.
+* **POST:** Data postprocessing tools for aggregating and evaluating CMAQ output products (e.g. Combine, Site-Compare, etc)
+* **UTIL:** Utilities for generating code and using CMAQ (e.g. chemical mechanism generation, IO-API, etc)
 
-This command shows how to check out CMAQ v5.2 codes and scripts.  
-
-[CMAQv5.2 Documentation](docs/User_Manual/User_Manual.md)   
-[CMAQv5.2 Release Notes](docs/Release_Notes/Summary.md)   
+##Documentation
+[CMAQv5.2 Documentation](cctm/docs/User_Manual/User_Manual.md)   
+[CMAQv5.2 Release Notes](cctm/docs/Release_Notes/Summary.md)   
 Release notes and Code documentation are included within this repository (they are version-controlled along with the code itself).
 
+##CMAQ Test Cases
 Benchmark/tutorial input and output data for each CMAQ release version are available from the CMAS Center Software Clearinghouse. From http://www.cmascenter.org, select Download -> Software -> CMAQ and choose the version to get the tutorial data.
+
+

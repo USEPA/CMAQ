@@ -34,7 +34,7 @@ Yarwood, G., Whitten, G.Z., Jung, J., Heo, G., Allen, D.T., 2010. Development, e
 ## Internal Records:
 
 #### Relevant Pull Requests:
-[PR #44](https://github.com/usepa/cmaq/pulls/44)
+[PR #44](https://github.com/usepa/cmaq/pulls/44)  
 [PR #115](https://github.com/usepa/cmaq/pulls/115)
 
 #### Commit IDs:
