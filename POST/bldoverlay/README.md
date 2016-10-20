@@ -26,7 +26,8 @@ Bldoverlay accepts "OBS" and "SITES" formats (FILETYPE) for the input file. For 
  OBS format:     The OBS format consists of comma separated values in the format 
                  YYYDDD, HH, Site_ID, Longitude, Latitude, Value1[, Value2, Value3,...]. 
                  Note that if the input data is daily that an hour column (HH) is still required 
-                 in the input data file.  In this case HH is ignored so the user could set this value to 0 for all records.
+                 in the input data file.  In this case HH is ignored so the user could set this 
+                 value to 0 for all records.
  SITES format:   Set to create a static site file using the value set by VALUE (default is 1). 
                  The format is a tab delimited file with the structure Site_ID Longitude Latitude.
 ```
