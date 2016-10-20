@@ -11,16 +11,15 @@ computing techniques in an open-source framework to deliver fast, technically so
 particulates, toxics, and acid deposition.
 
 The CMAQ Git archive is organized with each official public release stored as a branch on the main public GitHub USEPA CMAQ repository.
-To check out code from the CMAQ Git archive, specify the branch (i.e. version number) and issue the following command from within
-a working directory on your server:
+To check out code from the CMAQ Git archive, specify the branch (i.e. version number) and issue the following command from within a working directory on your server:
 
-git clone -b 5.2 https://github.com/USEPA/CMAQ.git
+git clone -b 5.2Beta https://github.com/USEPA/CMAQ.git
 
-This command shows how to check out CMAQ v5.1 codes and scripts.  
+This command shows how to check out CMAQ v5.2Beta codes and scripts.  
 
 The release versions of CMAQ that are currently available on Git Hub include:
 
-* [v5.2   (October 2016)](https://github.com/USEPA/CMAQ/tree/5.2)
+* [v5.2Beta (October 2016)](https://github.com/USEPA/CMAQ/tree/5.2Beta)
 * [v5.1   (December 2015)](https://github.com/USEPA/CMAQ/tree/5.1)
 * [v5.0.2 (April 2014)](https://github.com/USEPA/CMAQ/tree/5.0.2)
 * [v5.0.1 (July 2012)](https://github.com/USEPA/CMAQ/tree/5.0.1)
