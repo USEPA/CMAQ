@@ -62,13 +62,11 @@ C...........LOCAL VARIABLES and their descriptions:
       INTERFACE 
         SUBROUTINE INTAVG ( WLIN, CQIN, NWLIN, SPECTRA_TYPE,
      &                    NWLOUT, WLOUT1, WLOUT2, CQOUT )
-          USE CSQY_PARAMETERS
-          IMPLICIT NONE      
           CHARACTER(1), INTENT( IN )  :: SPECTRA_TYPE                ! spectra type
           INTEGER, INTENT( IN )  ::      NWLOUT              ! number of intervals ETin
           INTEGER, INTENT( IN )  ::      NWLIN               ! number of intervals CQin
-          REAL, INTENT( IN )  ::         WLIN ( MXWLIN )     ! wl for CQin
-          REAL, INTENT( IN )  ::         CQIN( MXWLIN )      ! quantity (CS or QY) as f(WLIN)
+          REAL, INTENT( IN )  ::         WLIN ( : )     ! wl for CQin
+          REAL, INTENT( IN )  ::         CQIN( : )      ! quantity (CS or QY) as f(WLIN)
           REAL, INTENT( INOUT ) ::       WLOUT1( : )      ! lower limit on wl int ETin
           REAL, INTENT( INOUT ) ::       WLOUT2( : )      ! upper limit on wl int ETin
           REAL, INTENT( OUT ) ::         CQOUT ( : )      ! quantity (CS or QY) as f(WLOUT)
@@ -80,8 +78,8 @@ C...........LOCAL VARIABLES and their descriptions:
           CHARACTER(1), INTENT( IN ) ::   SPECTRA_TYPE                ! spectra type
           INTEGER, INTENT( IN )      ::   NWLOUT              ! number of intervals ETin
           INTEGER, INTENT( IN )      ::   NWLIN               ! number of intervals CQin
-          REAL, INTENT( IN )   ::         WLIN ( MXWLIN )     ! wl for CQin
-          REAL, INTENT( IN )   ::         CQIN( MXWLIN )      ! quantity (CS or QY) as f(WLIN)
+          REAL, INTENT( IN )   ::         WLIN ( : )     ! wl for CQin
+          REAL, INTENT( IN )   ::         CQIN( : )      ! quantity (CS or QY) as f(WLIN)
           REAL, INTENT( INOUT ) ::       WLOUT1( : )      ! lower limit on wl int ETin
           REAL, INTENT( INOUT ) ::       WLOUT2( : )      ! upper limit on wl int ETin
           REAL, INTENT( OUT )  ::         CQOUT ( : )      ! quantity (CS or QY) as f(WLOUT)

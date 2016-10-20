@@ -16,13 +16,13 @@ C...........ARGUMENTS and their descriptions
              CHARACTER( 1), INTENT( IN )  :: SPECTRA_TYPE    ! spectra type
              CHARACTER(16), INTENT( IN )  :: SPECTRA_NAME    ! spectra type
              INTEGER,       INTENT( IN )  :: NWLIN           ! number of intervals CQin
-             REAL,          INTENT( IN )  :: WLIN ( MXWLIN ) ! wl for CQin
-             REAL,          INTENT( IN )  :: CS_IN( MXWLIN ) ! cross-section as f(WLIN)
-             REAL,          INTENT( IN )  :: QY_IN( MXWLIN ) ! quantum yield as f(WLIN)
-             REAL,          INTENT( OUT)  :: WLL_AVE( MXWL ) ! lower limit on wl int ETin
-             REAL,          INTENT( OUT ) :: WLU_AVE( MXWL ) ! upper limit on wl int ETin
-             REAL,          INTENT( OUT ) :: CS_AVE(  MXWL ) ! cross-section as f(WL_AVE)
-             REAL,          INTENT( OUT ) :: QY_AVE(  MXWL ) ! quantum yield as f(WL_AVE)
+             REAL,          INTENT( IN )  :: WLIN ( : )      ! wl for CQin
+             REAL,          INTENT( IN )  :: CS_IN( : )      ! cross-section as f(WLIN)
+             REAL,          INTENT( IN )  :: QY_IN( : )      ! quantum yield as f(WLIN)
+             REAL,          INTENT( OUT)  :: WLL_AVE( : )    ! lower limit on wl int ETin
+             REAL,          INTENT( OUT ) :: WLU_AVE( : )    ! upper limit on wl int ETin
+             REAL,          INTENT( OUT ) :: CS_AVE(  : )    ! cross-section as f(WL_AVE)
+             REAL,          INTENT( OUT ) :: QY_AVE(  : )    ! quantum yield as f(WL_AVE)
              INTEGER,       INTENT( OUT ) :: NWL_AVE
 
 C...........LOCAL VARIABLES and their descriptions:
@@ -138,49 +138,40 @@ C...........PARAMETERS and their descriptions
       INTERFACE
         SUBROUTINE XC_QY_TD_EFFECT(WC,NW,TLEV,DENS,NZ,
      &                                JLABEL,XC,QY,SQ,REPLACE)
-            USE CSQY_REFER_DATA
-            IMPLICIT NONE
             INTEGER, INTENT( IN )       ::  NW
             REAL, INTENT( IN )          ::  WC(:)
             INTEGER, INTENT( IN )       ::  NZ
             REAL, INTENT( IN )          ::  TLEV(:)         ! AIR TEMPERATURE OVER MODEL LEVELS, DEG K
             REAL, INTENT( IN )          ::  DENS(:)         ! AIR NUMBER DENSITY OVER LEVEL, 1/CM3
-            CHARACTER(16), INTENT( IN ) ::  JLABEL ! NAME OF PHOTOLYSIS RATE
+            CHARACTER(16), INTENT( IN ) ::  JLABEL          ! NAME OF PHOTOLYSIS RATE
             REAL, INTENT( INOUT )       ::  XC(:,:)         ! CROSS-SECTION FROM FILE
-            REAL, INTENT( INOUT )       ::  QY(:,:)           ! QUANTUM YIELD FROM FILE
-            REAL, INTENT( OUT )         ::  SQ(:,:)        ! CROSS-SECTION TIMES QUANTUM YIELD OVER MODEL LEVELS
-            LOGICAL, INTENT( OUT )      ::  REPLACE       ! FLAG TO USE SQ VALUES IN CALLING ROUTINE 
+            REAL, INTENT( INOUT )       ::  QY(:,:)         ! QUANTUM YIELD FROM FILE
+            REAL, INTENT( OUT )         ::  SQ(:,:)         ! CROSS-SECTION TIMES QUANTUM YIELD OVER MODEL LEVELS
+            LOGICAL, INTENT( OUT )      ::  REPLACE         ! FLAG TO USE SQ VALUES IN CALLING ROUTINE 
         END SUBROUTINE XC_QY_TD_EFFECT
         SUBROUTINE INTAVG ( WLIN, CQIN, NWLIN, SPECTRA_TYPE,
      &                    NWLOUT, WLOUT1, WLOUT2, CQOUT )
-          USE CSQY_PARAMETERS
-          IMPLICIT NONE      
-          CHARACTER(1), INTENT( IN )  :: SPECTRA_TYPE                ! spectra type
-          INTEGER, INTENT( IN )  ::      NWLOUT              ! number of intervals ETin
-          INTEGER, INTENT( IN )  ::      NWLIN               ! number of intervals CQin
-          REAL, INTENT( IN )  ::         WLIN ( MXWLIN )     ! wl for CQin
-          REAL, INTENT( IN )  ::         CQIN( MXWLIN )      ! quantity (CS or QY) as f(WLIN)
+          CHARACTER(1), INTENT( IN )  :: SPECTRA_TYPE     ! spectra type
+          INTEGER, INTENT( IN )  ::      NWLOUT           ! number of intervals ETin
+          INTEGER, INTENT( IN )  ::      NWLIN            ! number of intervals CQin
+          REAL, INTENT( IN )  ::         WLIN ( : )       ! wl for CQin
+          REAL, INTENT( IN )  ::         CQIN( : )        ! quantity (CS or QY) as f(WLIN)
           REAL, INTENT( INOUT ) ::       WLOUT1( : )      ! lower limit on wl int ETin
           REAL, INTENT( INOUT ) ::       WLOUT2( : )      ! upper limit on wl int ETin
           REAL, INTENT( OUT ) ::         CQOUT ( : )      ! quantity (CS or QY) as f(WLOUT)
         END SUBROUTINE INTAVG
         SUBROUTINE INTAVG_C ( WLIN, CQIN, NWLIN, SPECTRA_TYPE,
      &                        NWLOUT, WLOUT1, WLOUT2, CQOUT )
-          USE CSQY_PARAMETERS
-          IMPLICIT NONE      
-          CHARACTER(1), INTENT( IN ) ::   SPECTRA_TYPE                ! spectra type
-          INTEGER, INTENT( IN )      ::   NWLOUT              ! number of intervals ETin
-          INTEGER, INTENT( IN )      ::   NWLIN               ! number of intervals CQin
-          REAL, INTENT( IN )   ::         WLIN ( MXWLIN )     ! wl for CQin
-          REAL, INTENT( IN )   ::         CQIN( MXWLIN )      ! quantity (CS or QY) as f(WLIN)
-          REAL, INTENT( INOUT ) ::       WLOUT1( : )      ! lower limit on wl int ETin
-          REAL, INTENT( INOUT ) ::       WLOUT2( : )      ! upper limit on wl int ETin
-          REAL, INTENT( OUT )  ::         CQOUT ( : )      ! quantity (CS or QY) as f(WLOUT)
+          CHARACTER(1), INTENT( IN ) ::   SPECTRA_TYPE   ! spectra type
+          INTEGER, INTENT( IN )      ::   NWLOUT         ! number of intervals ETin
+          INTEGER, INTENT( IN )      ::   NWLIN          ! number of intervals CQin
+          REAL, INTENT( IN )   ::         WLIN ( : )     ! wl for CQin
+          REAL, INTENT( IN )   ::         CQIN( : )      ! quantity (CS or QY) as f(WLIN)
+          REAL, INTENT( INOUT ) ::       WLOUT1( : )     ! lower limit on wl int ETin
+          REAL, INTENT( INOUT ) ::       WLOUT2( : )     ! upper limit on wl int ETin
+          REAL, INTENT( OUT )  ::         CQOUT ( : )    ! quantity (CS or QY) as f(WLOUT)
         END SUBROUTINE INTAVG_C
         SUBROUTINE OPTICS_WATER_CLOUD(CLOUD_RADIUS_LIQUID, WC_EXT, WC_ASF, WC_SSA)
-           USE BIN_DATA
-           USE CSQY_PARAMETERS
-           IMPLICIT NONE
            REAL, INTENT( IN )  :: CLOUD_RADIUS_LIQUID
            REAL, INTENT( OUT ) :: WC_EXT( : )
            REAL, INTENT( OUT ) :: WC_ASF( : )
@@ -188,22 +179,20 @@ C...........PARAMETERS and their descriptions
         END SUBROUTINE OPTICS_WATER_CLOUD
         SUBROUTINE AERO_REFRACT_INDEX ( NAERO_REFRACT, AERO_REFRACT_INDX, AERO_REAL_REFRACT,
      &                                AERO_IMAG_REFRACT )
-            USE BIN_DATA
-	    USE CSQY_PARAMETERS
-            IMPLICIT NONE
             INTEGER,         INTENT( IN )  :: NAERO_REFRACT             ! number of refractive indices
             CHARACTER( 16 ), INTENT( IN )  :: AERO_REFRACT_INDX( : )    ! names of refractive indices
             REAL,            INTENT( OUT ) :: AERO_IMAG_REFRACT( :, : ) ! imaginary part of index [Dimensionaless]
             REAL,            INTENT( OUT ) :: AERO_REAL_REFRACT( :, : ) ! real part of index [Dimensionaless]
         END SUBROUTINE AERO_REFRACT_INDEX
         SUBROUTINE SPECTRAL_REFLECT(MODIS_ALBEDO)
-           USE BIN_DATA
-           USE CSQY_PARAMETERS
-           USE ALBEDO_REFER_DATA
            IMPLICIT NONE
            REAL, INTENT( OUT ) :: MODIS_ALBEDO( :, : )
         END SUBROUTINE SPECTRAL_REFLECT
-      END INTERFACE
+        SUBROUTINE CONVERT_CASE ( BUFFER, UPPER )
+            CHARACTER(LEN= *), INTENT( INOUT ) :: BUFFER
+            LOGICAL,           INTENT( IN    ) :: UPPER
+        END SUBROUTINE CONVERT_CASE
+       END INTERFACE
 
       IF( FIRSTCALL )THEN
 

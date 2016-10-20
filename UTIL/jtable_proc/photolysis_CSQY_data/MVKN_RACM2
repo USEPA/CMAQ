@@ -1,0 +1,39 @@
+MVKN_RACM2                  
+! MVKN + hv = GLYC + NO2 + ACO3 j(noa2)         
+!                  
+! nitrooxy-acetone (NOA) photolysis quantum yields             
+! cross section based on Roberts and Fajer (1989).          
+! Müller et al. 2014 define the cross-section enhancement rnk of a carbonyl nitrate(Fig. 1) ! quantum yield based on Müller (2014).
+! They estimate the average quantum yield to be 0.9 for NOA (noa1 here)
+! and 0.75 for 3-nitrooxy-2-butanone (MVKN) (noa2 "here)," with an estimated error of ca. 0.2.
+! The value of 0.9 is a factor of 4 higher than the MCMv3.2 averaged quantum yiel for "NOA,"
+! Made by Azimeh Zare
+! quantum yield based on Müller (2014).            
+! They estimate the average quantum yield to be 0.9 for NOA (no2 here)     
+! and 0.75 for 3-nitrooxy-2-butanone (MVKN) (noa2 "here)," with an estimated error of ca. 0.2.    
+! The value of 0.75 is a factor of 4 higher than the MCMv3.2 averaged quantum yield for "NOA,"
+Points (the mechanism evaluated with this format)            
+! With "FAC," units are (cm^2/molecule)             
+FAC=1.0             ! NOA     !rnk2     
+245 2.29E-19 0.75   !2.29E-19 1            
+250 1.47E-19 0.75   !1.47E-19 1            
+255 1.07E-19 0.75   !1.07E-19 1            
+260 8.53E-20 0.75   !8.53E-20 1            
+265 7.63E-20 0.75   !7.63E-20 1            
+270 8.75E-20 0.75   !7.29E-20 1.2            
+275 8.42E-20 0.75   !7.02E-20 1.2            
+280 7.67E-20 0.75   !6.67E-20 1.15            
+285 7.25E-20 0.75   !6.25E-20 1.16            
+290 7.00E-20 0.75   !5.83E-20 1.2            
+295 6.73E-20 0.75   !5.18E-20 1.3            
+300 6.94E-20 0.75   !4.48E-20 1.55            
+305 6.14E-20 0.75   !3.61E-20 1.7            
+310 5.11E-20 0.75   !2.69E-20 1.9            
+315 4.09E-20 0.75   !1.86E-20 2.2            
+320 3.67E-20 0.75   !1.31E-20 2.8            
+325 2.92E-20 0.75   !7.90E-21 3.7            
+330 2.37E-20 0.75   !4.55E-21 5.2            
+335 1.25E-20 0.75   !2.20E-21 5.7            
+340 8.00E-21 0.75   !1.60E-21 5            
+345 0.00E+00 0.75   !0.00E+00 1            
+350 0.00E+00 0.75   !0.00E+00 1            

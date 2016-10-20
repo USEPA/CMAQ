@@ -170,15 +170,16 @@
 !CH3CHO -> CH3 + CHO for quantum yields
 !from Horowitz and Calvert (1982)                                                                                                                                                    
 
-      INTEGER, PARAMETER :: N_CCHO_QUENCH =   5
-      REAL              :: WV_CCHO_QUENCH( N_CCHO_QUENCH)
-      REAL              :: CCHO_QUENCH( N_CCHO_QUENCH)
+      INTEGER, PARAMETER :: N_CCHO_QUENCH =   78
+      REAL               :: WV_CCHO_QUENCH( N_CCHO_QUENCH)
+      REAL               :: CCHO_PHI0  ( N_CCHO_QUENCH)
+      REAL               :: CCHO_QUENCH( N_CCHO_QUENCH)
 
-      DATA WV_CCHO_QUENCH /
-     &     2.9000E+02, 3.0000E+02, 3.1300E+02, 3.2000E+02, 3.3120E+02/
+!      DATA WV_CCHO_QUENCH /
+!     &     2.9000E+02, 3.0000E+02, 3.1300E+02, 3.2000E+02, 3.3120E+02/
 
-      DATA CCHO_QUENCH /
-     &     5.9000E-01, 1.5100E+00, 5.8300E+00, 8.4800E+00, 2.8800E+00/
+!      DATA CCHO_QUENCH /
+!     &     5.9000E-01, 1.5100E+00, 5.8300E+00, 8.4800E+00, 2.8800E+00/
 
 !PAN absorption cross section from Talukdar et al.                                                                                                           
 !Reference:  Talukdar et al., 1995, J.Geophys.Res. 100/D7, 14163-14174                                                                                                               
@@ -1284,6 +1285,125 @@ C Output by PHK.
      &     3.197E+19,3.265E+19,3.291E+19,3.317E+19,3.396E+19,
      &     3.474E+19,3.474E+19,3.474E+19 /
 
+!IUPAC 2005 recommendation
+!http://iupac.pole-ether.fr/htdocs/datasheets/pdf/P15_C2H5ONO2+hv.pdf
+!
+!298K cs from:
+!M. P. Turberg, D. M. Giolando, C. Tilt, T. Soper, S. Mason, M. Davies, P. Klingensmith,
+!and G. A. Takacs, J. Photochem. Photobiol. A51, 281 (1990)
+!
+!T dependence average from:
+!1. L. Zhu and C.-F. Ding, Chem. Phys. Lett. 265, 177 (1997).
+!2. K. C. Clemitshaw, J. Williams, O. V. Rattigan, D. E. Shallcross, K. S. Law, and R. A.
+!   Cox, J. Photochem. Photobiol. A: Chemistry 102, 117 (1997).
+!3. R. K. Talukdar, J. B. Burkholder, M. Hunter, M. K. Giles, J. M. Roberts, and A. R.
+!   Ravishankara, J. Chem. Soc. Faraday Trans. 93, 2797 (1997)
+!
+!Quantum Yield
+!
+!phi (CH3CH2O + NO2) = unity from 290 nm to 340 nm
+!
+!ln(sigma(T,lambda)) - ln(sigma(298,lambda)) = B * (T-298)
+!wlv
+           INTEGER, PARAMETER :: N_ETHYNO3_XC_SLOPE = 22
+           REAL WV_ETHYNO3_XC_B( N_ETHYNO3_XC_SLOPE )   
+           DATA WV_ETHYNO3_XC_B /    
+     &     235.0,
+     &     240.0,
+     &     245.0,
+     &     250.0,
+     &     255.0,
+     &     260.0,
+     &     265.0,
+     &     270.0,
+     &     275.0,
+     &     280.0,
+     &     285.0,
+     &     290.0,
+     &     295.0,
+     &     300.0,
+     &     305.0,
+     &     310.0,
+     &     315.0,
+     &     320.0,  
+     &     325.0,  
+     &     330.0,  
+     &     335.0,  
+     &     340.0 /  
+!B
+           REAL ETHYNO3_XC_B( N_ETHYNO3_XC_SLOPE )
+           DATA ETHYNO3_XC_B /
+     &     0.0014,
+     &     0.0028,
+     &     0.0029,
+     &     0.0028,
+     &     0.0026,
+     &     0.0026,
+     &     0.0029,
+     &     0.0031,
+     &     0.0033,
+     &     0.0036,
+     &     0.0038,
+     &     0.0042,
+     &     0.0047,
+     &     0.0051,
+     &     0.0058,
+     &     0.0067,
+     &     0.0079,
+     &     0.0086,
+     &     0.0104,
+     &     0.0129,
+     &     0.0141,
+     &     0.0156 /
+
+           INTEGER, PARAMETER :: N_CH3ONO2_XC_SLOPE = 21
+           REAL WV_CH3ONO2_XC_B( N_CH3ONO2_XC_SLOPE )   
+           DATA WV_CH3ONO2_XC_B /    
+     &     240.0,
+     &     245.0,
+     &     250.0,
+     &     255.0,
+     &     260.0,
+     &     265.0,
+     &     270.0,
+     &     275.0,
+     &     280.0,
+     &     285.0,
+     &     290.0,
+     &     295.0,
+     &     300.0,
+     &     305.0,
+     &     310.0,
+     &     315.0,
+     &     320.0,
+     &     325.0,  
+     &     330.0,  
+     &     335.0,  
+     &     340.0  /  
+!B
+           REAL CH3ONO2_XC_B( N_CH3ONO2_XC_SLOPE )
+           DATA CH3ONO2_XC_B /
+     &     3.48E-3,
+     &     3.29E-3,
+     &     2.96E-3,
+     &     2.82E-3,
+     &     2.83E-3,
+     &     2.92E-3,
+     &     3.08E-3,
+     &     3.28E-3,
+     &     3.51E-3,
+     &     3.78E-3,
+     &     4.04E-3,
+     &     4.47E-3,
+     &     4.94E-3,
+     &     5.56E-3,
+     &     6.33E-3,
+     &     7.34E-3,
+     &     8.74E-3,
+     &     9.97E-3,
+     &     13.6E-3,
+     &     13.6E-3,
+     &     13.6E-3   /
 
       REAL, SAVE :: INTERP_SAPRC07_FLUX( KW )
       REAL, SAVE :: HNO3_XCROSS_298K(kw)
@@ -1302,6 +1422,7 @@ C Output by PHK.
       REAL, SAVE :: NO2_XCROSS_220K(kw), NO2_XCROSS_294K(kw)
       REAL, SAVE :: CLONO2_XCROSS0(kw), CLONO2_A1(kw), CLONO2_A2(kw)
       REAL, SAVE :: PAN_XCROSS(kw), PAN_XCROSS_B(KW)
+      REAL, SAVE :: CCHO_QUANT_INFIN(kw)
       REAL, SAVE :: CCHO_YIELD_COEFF(kw)
       REAL, SAVE :: O3_XCROSS_218K(kw),O3_XCROSS_293K(kw)
       REAL, SAVE :: HCHO_XCROSS_300K(kw), HCHO_XCROSS_A(kw)
@@ -1314,6 +1435,8 @@ C Output by PHK.
       REAL, SAVE :: NO3NO_QUANT_230K(kw), NO3NO2_QUANT_230K(kw)
       REAL, SAVE :: NO3NO_QUANT_190K(kw), NO3NO2_QUANT_190K(kw)
       REAL, SAVE :: N2O5_XCROSS_298K(kw), N2O5_XCROSS_EXP(kw)
+      REAL, SAVE :: ETHYNO3_XCROSS_B(KW)
+      REAL, SAVE :: CH3ONO2_XCROSS_B(KW)
 
       CONTAINS
 
@@ -1329,7 +1452,8 @@ C Output by PHK.
 
          REAL, ALLOCATABLE :: WAVE( : ), XDUMB( : ), YDUMB( : ), ZDUMB( : )
          REAL              :: FACTOR
-         INTEGER I, NDUMB
+         INTEGER           :: I, NDUMB
+         REAL( 8 )         :: ILAMBDA
 
          INTEGER J 
          
@@ -1341,9 +1465,6 @@ C Output by PHK.
      &                            SPECTRA_TYPE,
      &                            WLL_AVE, WLU_AVE, NWL_AVE, 
      &                            CS_AVE, QY_AVE )
-             USE CSQY_PARAMETERS
-             USE BIN_DATA
-             IMPLICIT NONE      
              CHARACTER(1), INTENT( IN ) :: SPECTRA_TYPE        ! spectra type
              INTEGER, INTENT( IN )      :: NWL_AVE             ! number of intervals average 
              INTEGER, INTENT( IN )      :: NWL_CS_IN           ! number of intervals CS_IN
@@ -1362,9 +1483,6 @@ C Output by PHK.
      &                            SPECTRA_TYPE,
      &                            WLL_AVE, WLU_AVE, NWL_AVE, 
      &                            CS_AVE, QY_AVE )
-             USE CSQY_PARAMETERS
-             USE BIN_DATA
-             IMPLICIT NONE      
              CHARACTER(1), INTENT( IN ) :: SPECTRA_TYPE        ! spectra type
              INTEGER, INTENT( IN )      :: NWL_AVE             ! number of intervals average 
              INTEGER, INTENT( IN )      :: NWL_CS_IN           ! number of intervals CS_IN
@@ -1411,11 +1529,6 @@ C Output by PHK.
      &   WL, WU, NW, O3_XCROSS_293K, YDUMB )
 
 
-!         CALL INTAVG (WV_IC3ONO2_XC, IC3ONO2_XC_298K, N_IC3ONO2_XC, 'C', 
-!     &                   wl, wu, IC3ONO2_XCROSS_298K, nw)
-!         CALL INTAVG (WV_IC3ONO2_XC, IC3ONO2_XC_B, N_IC3ONO2_XC, 'C', 
-!     &                   wl, wu, IC3ONO2_XCROSS_EXP, nw)
-
          XDUMB = 1.0
          NDUMB = N_IC3ONO2_XC
          WAVE  = 0.0
@@ -1430,11 +1543,6 @@ C Output by PHK.
      &   WL, WU, NW, IC3ONO2_XCROSS_EXP, YDUMB )
 
          J = J + 1 
-
-!         CALL INTAVG (WV_N2O5_XC, N2O5_XC_298K, N_N2O5_XC, 'C', 
-!     &                   wl, wu, N2O5_XCROSS_298K, nw)
-!         CALL INTAVG (WV_N2O5_XC, N2O5_XC_EXP, N_N2O5_XC, 'C', 
-!     &                   wl, wu, N2O5_XCROSS_EXP, nw)
 
          XDUMB = 1.0
          NDUMB = N_N2O5_XC
@@ -1451,25 +1559,58 @@ C Output by PHK.
 
          J = J + 1 
 
-!         CALL INTAVG (WV_CCHO_QUENCH, CCHO_QUENCH, N_CCHO_QUENCH,
-!     &                'C', wl, wu, CCHO_YIELD_COEFF, nw)
+         XDUMB = 1.0
+         WAVE  = 0.0
+         NDUMB = N_ETHYNO3_XC_SLOPE
+         WAVE( 1:NDUMB ) =  WV_ETHYNO3_XC_B( 1:NDUMB )
+
+         CALL WVBIN_AVERAGE(WAVE, ETHYNO3_XC_B, NDUMB,  
+     &   WAVE, XDUMB, NDUMB, 'C',
+     &   WL, WU, NW, ETHYNO3_XCROSS_B, YDUMB )
+
+         J = J + 1 
+
+         XDUMB = 1.0
+         WAVE  = 0.0
+         NDUMB = N_CH3ONO2_XC_SLOPE
+         WAVE( 1:NDUMB ) =  WV_CH3ONO2_XC_B( 1:NDUMB )
+
+         CALL WVBIN_AVERAGE(WAVE, CH3ONO2_XC_B, NDUMB,  
+     &   WAVE, XDUMB, NDUMB, 'C',
+     &   WL, WU, NW, CH3ONO2_XCROSS_B, YDUMB )
+
+         J = J + 1 
+
 
          XDUMB = 1.0
          NDUMB = N_CCHO_QUENCH
          WAVE  = 0.0
+         WV_CCHO_QUENCH( 1 ) = 258.0
+         DO J = 1, (N_CCHO_QUENCH-1)
+              WV_CCHO_QUENCH( J+1 ) = WV_CCHO_QUENCH( J ) + 1.0
+         END DO
+            
          WAVE( 1:NDUMB ) =  WV_CCHO_QUENCH( 1:NDUMB )
 
-         CALL WVBIN_AVERAGE(WAVE, XDUMB, NDUMB,  
-     &   WAVE, CCHO_QUENCH, NDUMB, 'C',
-     &   WL, WU, NW, YDUMB, CCHO_YIELD_COEFF )
+         DO J = 1, N_CCHO_QUENCH
+            ILAMBDA = REAL(1.0/WV_CCHO_QUENCH( J ), 8)
+            CCHO_QUENCH( J ) = REAL( 1.0D-21
+     &                       * ( 1.04D27*EXP(-1.792D4*ILAMBDA) + 1.48D06*EXP(-3.211D3*ILAMBDA) ) )
+            CCHO_PHI0( J )   = 1.0/(1.0 + EXP(0.2627801*(WV_CCHO_QUENCH( J ) - 320.56)) )
+!            WRITE(6,'(A,3(1X,ES12.4))') "WV_CCHO_QUENCH( J ), CCHO_QUENCH( J ), CCHO_PHI0( J ) =  ",
+!     &              WV_CCHO_QUENCH( J ), CCHO_QUENCH( J ), CCHO_PHI0( J )
+         END DO
+!         STOP
+
+         CALL WVBIN_AVERAGE(WAVE, CCHO_QUENCH, NDUMB,  
+     &   WAVE, XDUMB, NDUMB, 'C',
+     &   WL, WU, NW, CCHO_YIELD_COEFF, YDUMB )
+
+         CALL WVBIN_AVERAGE(WAVE, CCHO_PHI0, NDUMB,  
+     &   WAVE, XDUMB, NDUMB, 'C',
+     &   WL, WU, NW, CCHO_QUANT_INFIN, YDUMB  )
 
          J = J + 1 
-
-!         CALL INTAVG (WV_PAN, PAN_XC_298K, N_PAN, 
-!     &                'C', wl, wu, PAN_XCROSS, nw)
- 
-!         CALL INTAVG (WV_PAN, PAN_XC_EXP,  N_PAN, 
-!     &                'C', wl, wu, PAN_XCROSS_B, nw)
 
          XDUMB = 1.0
          NDUMB = N_PAN
@@ -1486,17 +1627,6 @@ C Output by PHK.
 
          J = J + 1 
 
-!         CALL INTAVG (WL_ACETONE, CSZ_ACETONE, N_WL_ACETONE, 
-!     &                'C', wl, wu, XCROSS_ACETONE_298K, nw)
-
-!         CALL INTAVG (WL_ACETONE, A_ACETONE, N_WL_ACETONE, 
-!     &                'C', wl, wu, XC_A_ACETONE, nw)
-
-!         CALL INTAVG (WL_ACETONE, B_ACETONE, N_WL_ACETONE, 
-!     &                'C', wl, wu, XC_B_ACETONE, nw)
-
-!         CALL INTAVG (WL_ACETONE, C_ACETONE, N_WL_ACETONE, 
-!     &                'C', wl, wu, XC_C_ACETONE, nw)
          XDUMB = 1.0
          NDUMB = N_WL_ACETONE
          WAVE  = 0.0
@@ -1520,12 +1650,6 @@ C Output by PHK.
 
          J = J + 1 
 
-C interpolate SAPRC07T actinic flux
-!         CALL INTAVG (SAPRC07_SPECTRUM, SAPRC07_FLUX, 
-!     &                N_SAPRC07_SPECTRUM, 'C',  
-!     &                wl, wu, INTERP_SAPRC07_FLUX, nw)
-
-
 C compute normalization correction to ACETONE coefficients
 
       
@@ -1535,15 +1659,6 @@ C compute normalization correction to ACETONE coefficients
      &                      -  XC_B_ACETONE( I )*298**2
      &                      -  XC_C_ACETONE( I )*298**3
 	  ENDDO
-
-!         CALL INTAVG (WV_HO2NO2, HO2NO2_XC_296K, N_HO2NO2, 
-!     &                'C', wl, wu, HO2NO2_XCROSS_296K, nw)
-
-!         CALL INTAVG (WV_HO2NO2, HO2NO2_A1_296K, N_HO2NO2, 
-!     &                'C', wl, wu, HO2NO2_XCROSS_A1, nw)
-
-!         CALL INTAVG (WV_HO2NO2, HO2NO2_A2_296K, N_HO2NO2, 
-!     &                'C', wl, wu, HO2NO2_XCROSS_A2, nw)
 
          XDUMB = 1.0
          NDUMB = N_HO2NO2
@@ -1598,18 +1713,6 @@ C compute normalization correction to ACETONE coefficients
 
          J = J + 1
 
-
-C      REAL, SAVE :: CLONO2_XCROSS0(kw), CLONO2_A1(kw), CLONO2_A2(kw)
-
-!         CALL INTAVG (WV_CLONO2, CLONO2_XC_296K, N_CLONO2 , 
-!     &                'C', wl, wu, CLONO2_XCROSS0, nw)
- 
-!         CALL INTAVG (WV_CLONO2, CLONO2_A1_296K, N_CLONO2 , 
-!     &                'C', wl, wu, CLONO2_A1, nw)
-
-!         CALL INTAVG (WV_CLONO2, CLONO2_A2_296K, N_CLONO2 , 
-!     &                'C', wl, wu, CLONO2_A2, nw)
-
          XDUMB = 1.0
          NDUMB = N_CLONO2
          WAVE  = 0.0
@@ -1629,9 +1732,6 @@ C      REAL, SAVE :: CLONO2_XCROSS0(kw), CLONO2_A1(kw), CLONO2_A2(kw)
 
          J = J + 1 
 
-C      REAL, SAVE :: NO2_XCROSS_220K(kw), NO2_XCROSS_294K(kw)
-C      REAL, SAVE :: NO2_QUANT_248K(kw), NO2_QUANT_298K(kw)
-
          XDUMB = 1.0
          NDUMB = N_NO2_XC
          WAVE  = 0.0
@@ -1648,12 +1748,6 @@ C      REAL, SAVE :: NO2_QUANT_248K(kw), NO2_QUANT_298K(kw)
 
          J = J + 1 
 
-!         CALL INTAVG (WV_NO2_XC, NO2_XC_294K, N_NO2_XC, 
-!     &                'C', wl, wu, NO2_XCROSS_294K, nw)
-
-!         CALL INTAVG (WV_NO2_XC, NO2_XC_220K, N_NO2_XC, 
-!     &                'C', wl, wu, NO2_XCROSS_220K, nw)
-
          XDUMB = 0.0
          DO I = 1, N_NO2_XC
             FACTOR     = (NO2_XC_294K(I)-NO2_XC_220K(I))
@@ -1669,9 +1763,6 @@ C      REAL, SAVE :: NO2_QUANT_248K(kw), NO2_QUANT_298K(kw)
 
          J = J + 1 
 
-!         CALL INTAVG (WV_NO2_QY, NO2_QY_248K, N_NO2_QY, 
-!     &                'C', wl, wu, NO2_QUANT_248K, nw)
-
          XDUMB = 0.0
          DO I = 1, N_NO2_XC
             XDUMB( I ) =  NO2_XC_294K(I)
@@ -1682,9 +1773,6 @@ C      REAL, SAVE :: NO2_QUANT_248K(kw), NO2_QUANT_298K(kw)
      &   WL, WU, NW, YDUMB, NO2_QUANT_298K )
 
          J = J + 1 
-
-!         CALL INTAVG (WV_NO2_QY, NO2_QY_298K, N_NO2_QY, 
-!     &                'C', wl, wu, NO2_QUANT_298K, nw)
 
          XDUMB = 1.0
          NDUMB = N_HNO3_XC
@@ -1701,11 +1789,6 @@ C      REAL, SAVE :: NO2_QUANT_248K(kw), NO2_QUANT_298K(kw)
 
          J = J + 1 
 
-!         CALL INTAVG (WV_HNO3_XC, HNO3_XC_298K, N_HNO3_XC, 'C', 
-!     &                   wl, wu, HNO3_XCROSS_298K, nw)
-!         CALL INTAVG (WV_HNO3_XC, HNO3_XC_B, N_HNO3_XC, 'C', 
-!     &                   wl, wu, HNO3_XCROSS_EXP, nw)
-
          XDUMB = 1.0
          NDUMB = N_HCHO_XC
          WAVE  = 0.0
@@ -1720,11 +1803,6 @@ C      REAL, SAVE :: NO2_QUANT_248K(kw), NO2_QUANT_298K(kw)
      &   WL, WU, NW, HCHO_XCROSS_A, YDUMB )
 
          J = J + 1 
-
-!         CALL INTAVG (WV_HCHO_XC, HCHO_XC_300K, N_HCHO_XC,
-!     &             'C', wl, wu, HCHO_XCROSS_300K, nw)
-!         CALL INTAVG (WV_HCHO_XC, HCHO_XC_A, N_HCHO_XC,
-!     &             'C', wl, wu, HCHO_XCROSS_A, nw)
 
          XDUMB = 0.0
          DO I = 1, N_HCHO_XC
@@ -1747,9 +1825,6 @@ C      REAL, SAVE :: NO2_QUANT_248K(kw), NO2_QUANT_298K(kw)
      &                     * (1.+0.05*(WV_HCHO_QY(I)-329.0))
             ENDIF
          ENDDO
-
-C       REAL, SAVE :: AQY_HCHO_BELOW_220K(kw), AQY_HCHO_ABOVE_300K(kw),
-C    &              AQY_HCHO_220K_TO_300K(KW)
 
          CALL WVBIN_AVERAGE(WAVE, XDUMB, NDUMB,  
      &   WV_HCHO_QY, ZDUMB, N_HCHO_QY, 'C',
@@ -1794,11 +1869,6 @@ C    &              AQY_HCHO_220K_TO_300K(KW)
 
          J = J + 1 
 
-!         CALL INTAVG (WV_HCHO_QY, HCHO_QYR, N_HCHO_QY, 'C',
-!     &                wl, wu, HCHO_QUANTR_STP, nw)
-!         CALL INTAVG (WV_HCHO_QY, HCHO_QYM, N_HCHO_QY, 'C', 
-!     &                wl, wu, HCHO_QUANTM_STP, nw)
-
          WAVE  = 0.0
          NDUMB = N_NO3_06
          WAVE(1:NDUMB) = WV_NO3_06(1:NDUMB)
@@ -1819,12 +1889,6 @@ C    &              AQY_HCHO_220K_TO_300K(KW)
 
          J = J + 1 
 
-!         CALL INTAVG (WV_NO3_QY, NO3NO_QY_190K, N_NO3_QY, 'C', 
-!     &                wl, wu, NO3NO_QUANT_190K, nw)
-!         CALL INTAVG (WV_NO3_QY, NO3NO2_QY_190K, N_NO3_QY, 'C',
-!     &                wl, wu, NO3NO2_QUANT_190K, nw)
-
-
          FACTOR    = (1.0-exp(-1096.4/230.0)-2.0*exp(-529.5/230.0))
      &             / (1.0-exp(-1096.4/298.0)-2.0*exp(-529.5/298.0))
          XDUMB    = 0.0
@@ -1841,18 +1905,8 @@ C    &              AQY_HCHO_220K_TO_300K(KW)
 
          J = J + 1 
 
-!         CALL INTAVG (WV_NO3_QY, NO3NO_QY_230K, N_NO3_QY, 'C', 
-!     &                wl, wu, NO3NO_QUANT_230K, nw)
-!         CALL INTAVG (WV_NO3_QY, NO3NO2_QY_230K, N_NO3_QY, 'C',
-!     &                wl, wu, NO3NO2_QUANT_230K, nw)
-
          XDUMB    = 0.0
          XDUMB(   1:N_NO3_06) = XC_NO3_06(1:N_NO3_06) 
-
-!         CALL INTAVG (WV_NO3_QY, NO3NO_QY_298K, N_NO3_QY, 'C',
-!     &                wl, wu, NO3NO_QUANT_298K, nw)
-!         CALL INTAVG (WV_NO3_QY, NO3NO2_QY_298K, N_NO3_QY, 'C',
-!     &                wl, wu, NO3NO2_QUANT_298K, nw)
 
          CALL WVBIN_AVERAGE(WAVE, XDUMB, NDUMB,  
      &   WV_NO3_QY, NO3NO_QY_298K, N_NO3_QY, 'C',
@@ -1865,10 +1919,6 @@ C    &              AQY_HCHO_220K_TO_300K(KW)
      &   WL, WU, NW, NO3_XCROSS_06, NO3NO2_QUANT_298K )
 
          J = J + 1 
-
-!         write(6,'(4(es12.4,1x))')(WU(I),NO3NO_QUANT_190K(I),NO3NO_QUANT_230K(I),
-!     &                             NO3NO_QUANT_298K(I), I = 1, 18)
-
 
          DEALLOCATE( WAVE, XDUMB, YDUMB )
 

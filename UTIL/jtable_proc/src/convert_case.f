@@ -1,4 +1,4 @@
-       SUBROUTINE  CONVERT_CASE ( BUFFER, UPPER )
+       SUBROUTINE CONVERT_CASE ( BUFFER, UPPER )
 C***********************************************************************
 
 C  subroutine body starts at line  41
@@ -18,8 +18,8 @@ C***********************************************************************
 
 C...........   ARGUMENTS and their descriptions:
 
-        CHARACTER*(*)   BUFFER
-        LOGICAL         UPPER
+        CHARACTER(LEN= *), INTENT( INOUT ) :: BUFFER
+        LOGICAL,           INTENT( IN    ) :: UPPER
 
 
 C...........   PARAMETER:  ASCII for 'a', 'z', 'A'
