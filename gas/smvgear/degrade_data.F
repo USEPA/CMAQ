@@ -344,7 +344,7 @@ C.. STYRENE
       REACT(23)       = 'STYRENE         '
       BICAUSE(23,1:4) = (/'OH              ','HO              ','O3              ',
      &                    'CL              '/)
-      BIRATE(23,1:4)  = (/1.02D-11, 1.02D-11, 1.51D-13, 3.6E-10/)
+      BIRATE(23,1:4)  = (/1.02D-11, 1.02D-11, 1.51D-13, 3.6D-10/)
       BI_ACT(23,1:2)  = (/    532.0D0,   532.0D0/)
 
 C.. ACETONITRILE
@@ -359,7 +359,7 @@ C.. ACRYACID
       REACT(25)       = 'ACRYACID           '
       BICAUSE(25,1:4) = (/'OH              ','HO              ','O3              ',
      &                    'CL              '/)
-      BIRATE(25,1:4)  = (/1.75D-11, 1.75D-11, 6.50D-19, 4.00E-10/)
+      BIRATE(25,1:4)  = (/1.75D-11, 1.75D-11, 6.50D-19, 4.00D-10/)
 
 C.. HEXANE 
  
@@ -378,8 +378,8 @@ C.. METHCHLORIDE
 C.. CARBSULFIDE
 
       REACT(28)       = 'CARBSULFIDE       '
-      BICAUSE(28,1:3) = (/'OH              ','HO              ','O3              ',/)
-      BIRATE(28,1:3)  = (/          1.10D-13,          1.10D-13,           3.01E-16/)
+      BICAUSE(28,1:3) = (/'OH              ','HO              ','O3              '/)
+      BIRATE(28,1:3)  = (/          1.10D-13,          1.10D-13,           3.01D-16/)
       BI_ACT(28,1:2)  = (/          1200.0D0,          1200.0D0/)
 
 C.. CHLOROPRENE

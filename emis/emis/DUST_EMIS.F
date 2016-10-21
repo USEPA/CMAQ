@@ -458,18 +458,18 @@ C...append diagnostic variables with mass emissions species
                   idiag = idiag + 1
                   diagnm( idiag )%var   = dust_spc( i )%name( j )
                   diagnm( idiag )%units = 'g/m**3/s'
-                  Select( j ) ! assumes only three aerosol modes
+                  Select Case( j ) ! assumes only three aerosol modes
                     Case( 1 )
-                       diagnm( idiag )%des = 'aitken mode ' 
+                       diagnm( idiag )%desc = 'aitken mode ' 
                     Case( 2 )
-                       diagnm( idiag )%des = 'accumulation mode ' 
+                       diagnm( idiag )%desc = 'accumulation mode ' 
                     Case( 3 )
-                       diagnm( idiag )%des = 'coarse mode ' 
+                       diagnm( idiag )%desc = 'coarse mode ' 
 !                    Case Default 
 !                       diagnm( idiag )%des = 'Undefined mode ' 
                     end Select
-                    diagnm( idiag )%des = diagnm( idiag )%des
-     &                                  // Trim( dust_spc( i )%description )
+                    diagnm( idiag )%desc = diagnm( idiag )%desc
+     &                                        // Trim( dust_spc( i )%description )
                end do
             end do
 

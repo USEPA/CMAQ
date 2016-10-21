@@ -157,7 +157,7 @@ C.. initialize concentrations and their changes
             LOOP_PHOTORATE: DO J = 1, N_PHOTO_LOSS
               K = PHOTO_MAP( I, J )
               IF ( K < 1 ) CYCLE
-              IF ( A_PHOT( I, J ) .LT. EFFECTIVE_ZERO ) CYCLE
+              IF ( A_PHOTO( I, J ) .LT. EFFECTIVE_ZERO ) CYCLE
               DO I_CELL = 1, NUMCELLS
                 RATE_CONST( I_CELL, I, (J+TRI_STOP) ) = A_PHOTO( I, J ) * PHOTO_CELL( I_CELL, K )
               END DO

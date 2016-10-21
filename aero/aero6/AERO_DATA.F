@@ -319,10 +319,11 @@ C profiles 3399, 3404, 3409, and 3414 for coarse PM. (G. Pouliot - private commu
 C See Ref. (4), above and https://cfpub.epa.gov/si/speciate/
 
 C maximum number of chemical species in windblown dust aerosol
-      Integer, Parameter :: ndust_list = 29
+      Integer, Parameter :: ndust_list = 33
       Integer            :: ndust_spc
+
        
-      Type( emis_table ), Parameter :: dust_spc_list( ndust_list ) = (/
+      Type( emis_table ) :: dust_spc_list( ndust_list ) = (/
 C                    --description--           -------- name --------             -------- spcfac --------
 C                                           Aitken     accum       coarse          Aitken  accum   coarse
      &   emis_table( 'Sulfate       ', (/'         ','ASO4J    ','ASO4K    '/), (/ 0.0, 0.02250, 0.02655/) ),   ! Sulfate
@@ -388,32 +389,32 @@ C number of chemical species in seawater aerosol composition
       Type( emis_table ), Parameter :: sea_spc( nsea_spc ) = (/
 C                        -------- name --------                -------- spcfac --------
 C                         Aitken    accum     coarse             Aitken  accum   coarse
-     &   emis_table( (/'         ','ASO4J    ','ASO4K    '/), (/ 0.0, 0.07760, 0.07760/) ),   ! Sulfate
-     &   emis_table( (/'         ','ACLJ     ','ACLK     '/), (/ 0.0, 0.55380, 0.55380/) ),   ! Chlorine
-     &   emis_table( (/'         ','ANAJ     ','         '/), (/ 0.0, 0.30860, 0.0    /) ),   ! Sodium
-     &   emis_table( (/'         ','ACAJ     ','         '/), (/ 0.0, 0.01180, 0.0    /) ),   ! Calcium
-     &   emis_table( (/'         ','AMGJ     ','         '/), (/ 0.0, 0.03680, 0.0    /) ),   ! Magnesium
-     &   emis_table( (/'         ','AKJ      ','         '/), (/ 0.0, 0.01140, 0.0    /) ),   ! Potassium
-     &   emis_table( (/'         ','         ','ASEACAT  '/), (/ 0.0, 0.0    , 0.36860/) ),   ! Sea-Salt Cations
+     &   emis_table( 'Sulfate       ', (/'         ','ASO4J    ','ASO4K    '/), (/ 0.0, 0.07760, 0.07760/) ),   ! Sulfate
+     &   emis_table( 'Chlorine      ', (/'         ','ACLJ     ','ACLK     '/), (/ 0.0, 0.55380, 0.55380/) ),   ! Chlorine
+     &   emis_table( 'Sodium        ', (/'         ','ANAJ     ','         '/), (/ 0.0, 0.30860, 0.0    /) ),   ! Sodium
+     &   emis_table( 'Calcium       ', (/'         ','ACAJ     ','         '/), (/ 0.0, 0.01180, 0.0    /) ),   ! Calcium
+     &   emis_table( 'Magnesium     ', (/'         ','AMGJ     ','         '/), (/ 0.0, 0.03680, 0.0    /) ),   ! Magnesium
+     &   emis_table( 'Potassium     ', (/'         ','AKJ      ','         '/), (/ 0.0, 0.01140, 0.0    /) ),   ! Potassium
+     &   emis_table( 'SeaSalt_Cation', (/'         ','         ','ASEACAT  '/), (/ 0.0, 0.0    , 0.36860/) ),   ! Sea-Salt Cations
 ! For toxic metal species, Use Table 1 in K.W. Bruland and M.C. Lohan, 6.02 - Controls of Trace Metals in Seawater, 
 ! In Treatise on Geochemistry, edited by Heinrich D. Holland and Karl K. Turekian, Pergamon, Oxford, 2003, Pages 23-47,
 ! ISBN 9780080437514, http://dx.doi.org/10.1016/B0-08-043751-6/06105-3.
-     &   emis_table( (/'         ','ACR_VIJ  ','         '/), (/ 0.0, 5.95E-9, 0.0    /) ),   ! accumaltion mode Hexavalent Chromium
-     &   emis_table( (/'         ','ANIJ     ','         '/), (/ 0.0, 1.34E-8, 0.0    /) ),   ! accumaltion mode Nickle
-     &   emis_table( (/'         ','AASJ     ','         '/), (/ 0.0, 4.93E-8, 0.0    /) ),   ! accumaltion mode Arsenic
-     &   emis_table( (/'         ','ABEJ     ','         '/), (/ 0.0, 5.2E-11, 0.0    /) ),   ! accumaltion mode Beryllium
-     &   emis_table( (/'         ','AHGJ     ','         '/), (/ 0.0, 5.8E-12, 0.0    /) ),   ! accumaltion mode Mercury
-     &   emis_table( (/'         ','APBJ     ','         '/), (/ 0.0, 6.0E-11, 0.0    /) ),   ! accumaltion mode Lead
-     &   emis_table( (/'         ','ACDJ     ','         '/), (/ 0.0, 1.93E-9, 0.0    /) ),   ! accumaltion mode cadmium
-     &   emis_table( (/'         ','AMN_HAPSJ','         '/), (/ 0.0, 4.7E-11, 0.0    /) ),   ! accumaltion mode Air toxics Manganese
-     &   emis_table( (/'         ','         ','ACR_VIK  '/), (/ 0.0, 0.0    , 5.95E-9/) ),   ! coarse mode Hexavalent Chromium 
-     &   emis_table( (/'         ','         ','ANIK     '/), (/ 0.0, 0.0    , 1.34E-8/) ),   ! coarse mode Nickle
-     &   emis_table( (/'         ','         ','AASK     '/), (/ 0.0, 0.0    , 4.93E-8/) ),   ! coarse mode Arsenic
-     &   emis_table( (/'         ','         ','ABEK     '/), (/ 0.0, 0.0    , 5.2E-11/) ),   ! coarse mode Beryllium
-     &   emis_table( (/'         ','         ','APHGK    '/), (/ 0.0, 0.0    , 5.8E-12/) ),   ! coarse mode Mercury
-     &   emis_table( (/'         ','         ','APBK     '/), (/ 0.0, 0.0    , 6.0E-11/) ),   ! coarse mode Lead
-     &   emis_table( (/'         ','         ','ACDK     '/), (/ 0.0, 0.0    , 1.93E-9/) ),   ! coarse mode cadmium
-     &   emis_table( (/'         ','         ','AMN_HAPSK'/), (/ 0.0, 0.0    , 4.7E-11/) ) /)   ! coarse mode Air toxics Manganese
+     &   emis_table( 'Chromium IV   ', (/'         ','ACR_VIJ  ','         '/), (/ 0.0, 5.95E-9, 0.0    /) ),   ! accumaltion mode Hexavalent Chromium
+     &   emis_table( 'Nickel        ', (/'         ','ANIJ     ','         '/), (/ 0.0, 1.34E-8, 0.0    /) ),   ! accumaltion mode Nickle
+     &   emis_table( 'Arsenic       ', (/'         ','AASJ     ','         '/), (/ 0.0, 4.93E-8, 0.0    /) ),   ! accumaltion mode Arsenic
+     &   emis_table( 'Beryllium     ', (/'         ','ABEJ     ','         '/), (/ 0.0, 5.2E-11, 0.0    /) ),   ! accumaltion mode Beryllium
+     &   emis_table( 'Mercury       ', (/'         ','AHGJ     ','         '/), (/ 0.0, 5.8E-12, 0.0    /) ),   ! accumaltion mode Mercury
+     &   emis_table( 'Lead          ', (/'         ','APBJ     ','         '/), (/ 0.0, 6.0E-11, 0.0    /) ),   ! accumaltion mode Lead
+     &   emis_table( 'Cadmium       ', (/'         ','ACDJ     ','         '/), (/ 0.0, 1.93E-9, 0.0    /) ),   ! accumaltion mode cadmium
+     &   emis_table( 'Air Toxics Mn ', (/'         ','AMN_HAPSJ','         '/), (/ 0.0, 4.7E-11, 0.0    /) ),   ! accumaltion mode Air toxics Manganese
+     &   emis_table( 'Chromium IV   ', (/'         ','         ','ACR_VIK  '/), (/ 0.0, 0.0    , 5.95E-9/) ),   ! coarse mode Hexavalent Chromium 
+     &   emis_table( 'Nickel        ', (/'         ','         ','ANIK     '/), (/ 0.0, 0.0    , 1.34E-8/) ),   ! coarse mode Nickle
+     &   emis_table( 'Arsenic       ', (/'         ','         ','AASK     '/), (/ 0.0, 0.0    , 4.93E-8/) ),   ! coarse mode Arsenic
+     &   emis_table( 'Beryllium     ', (/'         ','         ','ABEK     '/), (/ 0.0, 0.0    , 5.2E-11/) ),   ! coarse mode Beryllium
+     &   emis_table( 'Mercury       ', (/'         ','         ','APHGK    '/), (/ 0.0, 0.0    , 5.8E-12/) ),   ! coarse mode Mercury
+     &   emis_table( 'Lead          ', (/'         ','         ','APBK     '/), (/ 0.0, 0.0    , 6.0E-11/) ),   ! coarse mode Lead
+     &   emis_table( 'Cadmium       ', (/'         ','         ','ACDK     '/), (/ 0.0, 0.0    , 1.93E-9/) ),   ! coarse mode cadmium
+     &   emis_table( 'Air Toxics Mn ', (/'         ','         ','AMN_HAPSK'/), (/ 0.0, 0.0    , 4.7E-11/) ) /) ! coarse mode Air toxics Manganese
  
       Real, Allocatable, Save :: aerospc_ssf( :,: )
 
@@ -849,9 +850,9 @@ C Adjust Dust Emissions list for Organic Species, if running with semivolatile P
 
 ! build dust_spc type from selected list elements
       Allocate( dust_spc( ndust_spc ) )
-      Do ispc = 1, ndust_spc
-         idust = dustlist_map( ispc )
-         dust_spc( ispc ) = dust_spc_list( idust )
+      Do spc = 1, ndust_spc
+         idust = dustlist_map( spc )
+         dust_spc( spc ) = dust_spc_list( idust )
       End Do
 
       Deallocate( dustlist_map )
