@@ -31,6 +31,7 @@ C Description:
 
 C Revision History:
 C   03 Nov 15: B. Gantt and G. Sarwar: created the initial version for marine gas emissions
+C   26 Sep 16: D. Wong: removed repeated SEAICE interpx statement
 
       USE HGRD_DEFN
 
@@ -540,13 +541,7 @@ C Open the MET_CRO_2D file
      &                         1,1, JDATE, JTIME, SEAICE ) ) THEN
               XMSG = 'Could not find SEAICE in ' // MET_CRO_2D //
      &               ' search for SEAICE '
-              CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-              IF ( .NOT. INTERPX( MET_CRO_2D, 'SEAICE', PNAME,
-     &                            STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3,
-     &                            1,1, JDATE, JTIME, SEAICE ) ) THEN
-                 XMSG = 'Could not find WIND10 or SEAICE in ' // MET_CRO_2D
-                 CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-              END IF
+              CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
            END IF
 
 C Read fractional seawater and surf-zone coverage from the OCEAN file.
