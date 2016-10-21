@@ -201,7 +201,7 @@
 
  if ( $?build_twoway ) then
     set MakeFileOnly   # do not compile coupled model, only generate makefile
-    set ModTwoway = $MODEL/twoway
+    set ModTwoway = twoway
  endif
 
  if ( $?build_parallel_io ) then
