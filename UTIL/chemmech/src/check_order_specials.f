@@ -76,18 +76,21 @@
          LOOP_KC: DO IKC_TERM = 1, MAXSPECTERMS
             NRK = INDEX_KTERM( ISP, IKC_TERM )
 
-            IF ( NRK .LT. 1 ) CYCLE LOOP_KC  ! empty array entery
-	    ORDER_TERM( IKC_TERM ) = IORDER( NRK )
-
+            IF ( NRK .LT. 0 )THEN ! empty array entry
+               CYCLE LOOP_KC  
+	    ELSE IF( NRK .GT. 0 )THEN ! existing rate constant
+               ORDER_TERM( IKC_TERM ) = IORDER( NRK )
 ! correct if rate constant is a falloff type
-            IS_FALLOFF = ( KTYPE( NRK ) .GT. 7 .AND. KTYPE( NRK ) .LT. 11 )
-	    IF( KUNITS .NE. 2 .AND. IS_FALLOFF )THEN
-	        ORDER_TERM( IKC_TERM ) = ORDER_TERM( IKC_TERM ) + 1
-	    END IF
-	    
-            ISP2 = INDEX_CTERM( ISP, IKC_TERM )
-            IF ( ISP2 .LT. 1 ) CYCLE LOOP_KC  ! empty array entery
-	    ORDER_TERM( IKC_TERM ) = ORDER_TERM( IKC_TERM ) - 1
+               IS_FALLOFF = ( KTYPE( NRK ) .GT. 7 .AND. KTYPE( NRK ) .LT. 11 )
+               IF( KUNITS .NE. 2 .AND. IS_FALLOFF )THEN
+	           ORDER_TERM( IKC_TERM ) = ORDER_TERM( IKC_TERM ) + 1
+	       END IF
+               ISP2 = INDEX_CTERM( ISP, IKC_TERM )
+               IF ( ISP2 .LT. 1 ) CYCLE LOOP_KC  ! empty array entery
+	       ORDER_TERM( IKC_TERM ) = ORDER_TERM( IKC_TERM ) - 1
+            ELSE ! NRK = 0, KC term is a pure concentration
+               ORDER_TERM( IKC_TERM ) = 0
+            END IF
 
          END DO LOOP_KC
 	 

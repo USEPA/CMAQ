@@ -70,6 +70,7 @@ C**********************************************************************
       USE AEROSOL_CHEMISTRY
       USE RXNS_FUNCTION
       USE HRDATA
+      USE PA_DEFN, Only: LIRR   ! Process Anaylsis control and data variable
 R5      USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP
 
       IMPLICIT NONE 
@@ -79,7 +80,6 @@ C..Includes:
       INCLUDE SUBST_CONST     ! CMAQ constants
       
       INCLUDE SUBST_EMISPRM   ! Emissions processing control parameters
-      INCLUDE SUBST_PACTL_ID  ! Process analysis control parameters
 
 C..Arguments:
       REAL, POINTER :: CGRID( :,:,:,: )  ! Species concentrations
@@ -395,9 +395,9 @@ C.. Get pressure in Pascals
          CALL M3EXIT ( PNAME, JDATE, JTIME, MSG, XSTAT1 )
       END IF
  
-C.. Get photolysis rates in /min
+C.. Get photolysis rates in 1/min
       CALL PHOT ( MIDDATE, MIDTIME, JDATE, JTIME, TSTEP, RJ )
-C.. Get Heteorogeneous rats
+C.. Get Heteorogeneous rates and Update Aerosol Distribution Properties 
       CALL HETCHEM_RATES( TA, PRES, QV, CGRID )
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -499,8 +499,8 @@ R5               END IF
          END DO
       END DO
 
-
-
+!  Update Aerosol Surface Area
+      CALL HETCHEM_UPDATE_AERO( CGRID )
 
 #ifdef hrstats 
       AVGEBI = SUMEBI / REAL( NCOLS * NROWS * NLAYS )

@@ -299,7 +299,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                KC_COEFFS( ISPC,  1:MAXSPECTERMS) = 0.0
                KC_TERMS(  ISPC,  1:MAXSPECTERMS, 1) = ' '
                KC_TERMS(  ISPC,  1:MAXSPECTERMS, 2) = ' '
-               INDEX_KTERM(MAXSPECRXNS,  1:MAXSPECTERMS) = 0
+               INDEX_KTERM(MAXSPECRXNS,  1:MAXSPECTERMS) = -1
                INDEX_CTERM(MAXSPECRXNS,  1:MAXSPECTERMS) = 0
                N_OPERATORS( ISPC )  = 0
                OPERATORS(   ISPC, 1:MAXSPECTERMS)  = 0
