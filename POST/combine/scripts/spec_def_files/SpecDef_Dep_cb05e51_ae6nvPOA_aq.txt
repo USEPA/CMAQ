@@ -1,1 +1,1 @@
-/home/yoj/src/repo/restruct/CMAQ_Dev_Restruct/CCTM/src/MECHS/cb05e51_ae6nvPOA_aq/SpecDef_Dep_cb05e51_ae6nvPOA_aq.txt
+../../../../CCTM/src/MECHS/cb05e51_ae6nvPOA_aq/SpecDef_Dep_cb05e51_ae6nvPOA_aq.txt
