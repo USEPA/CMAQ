@@ -1,0 +1,124 @@
+#! /bin/csh -f
+
+# ================== CMAQ5.2 Configuration Script =================== #
+# Requirements: I/O API & netCDF libs, Git, PGI, Intel, Gnu Compiler  #
+#               Collection (GCC), MPICH for multiprocessor computing  #
+# Note that this script is configured/tested for Red Hat Linux O/S    #
+#                                                                     #
+# To report problems or request help with this script/program:        #
+#             http://www.cmascenter.org/help_desk.cfm                 #
+# sol compiler options:
+#    ifc-13.1
+#    ifc-15.0
+#    intel -> ifc-13.1
+#    gcc-4.4.7
+#    gcc-4.9.1 
+#    gcc -> gcc-4.9.1 
+#    pgi-13.8
+#    pgi-14.7
+#    pgi-15.3
+#    pgi -> pgi-15.3
+# =================================================================== #
+
+#> config.cmaq
+#> sourced from bldit.<model>
+
+#> To accommodate an ioapi naming convention, which does not follow the
+#> compiler directory name, the env var "compiler_ext" must be set.
+ set echo
+
+#> model repository location
+ setenv M3HOME  /home/yoj/src/repo
+ setenv REPO    $M3HOME/CMAQ_Dev
+ setenv M3DATA  $M3HOME/data
+
+#===============================================================================
+
+#> architecture & compiler specific settings
+#-------------------------------------------------------------------------------
+
+#> Set the compiler  #> options: intel, gcc, pgi
+ setenv compiler intel
+#setenv compiler pgi
+#setenv compiler gcc
+
+ switch ( $compiler )
+    case intel:  # intel-13.1, intel-15.0
+##> Intel compilers.............................................................
+#> module load intel/13.1 netcdf-4.3.0/intel-13.1 openmpi-1.8.1/intel-13.1
+#> Also, if compiled for running w/ parallel_io, pnetcdf-1.4.1/intel-13.1
+#> module load intel/15.0 netcdf-4.3.2/intel-15.0 openmpi-1.10.2/intel-15.0
+       setenv compiler_ext ifort
+       setenv myFC mpifort
+       setenv myCC icc
+       setenv myFSTD "-O3 -fno-alias -mp1 -fp-model source -mcmodel=medium -shared-intel"
+       setenv myDBG  "-g -check bounds -check uninit -fpe0 -fno-alias -ftrapuv -traceback"
+       setenv myFFLAGS "-fixed -132 -override-limits"
+       setenv myFRFLAGS "-free -override-limits"
+       setenv myCFLAGS "-O2"
+       setenv mpi "-lmpich"
+       setenv extra_lib "-lmpiif"
+       setenv myLINK_FLAG "-i-static"
+       breaksw
+
+    case pgi:  # pgi-15.3
+##> Portland Group compilers....................................................
+#> module load pgi/14.7 openmpi-1.8.2/pgi-14.7 netcdf-4.3.2/pgi-14.7
+#> module load pgi/15.3 openmpi-1.8.6/pgi-15.3 netcdf-4.3.3/pgi-15.3
+#      setenv compiler pgi-14.7
+       setenv compiler pgi-15.3
+       setenv compiler_ext pg
+       setenv myFC mpifort
+       setenv myCC pgcc
+       setenv myFSTD "-Mextend -mcmodel=medium"
+       setenv myDBG  "-g -Mbounds -Mchkptr -traceback -Ktrap=fp"
+       setenv myFFLAGS "-Mfixed -O3"
+       setenv myFRFLAGS "-Mfree -O3"
+       setenv myCFLAGS "-O2"
+       setenv mpi "-lmpi"
+#      setenv extra_lib "-lcurl"
+       setenv extra_lib "-lextra"
+       setenv myLINK_FLAG ""
+       breaksw
+
+    case gcc:  # gcc-4.9.1
+##> gfortran compilers..........................................................
+#> module load gcc/4.9.1 openmpi-1.8.1/gcc-4.9.1
+#> module load gcc/4.9.1 openmpi-1.8.6/gcc-4.9.1
+       setenv compiler_ext gfort
+       setenv myFC mpifort
+       setenv myCC gcc
+       setenv myFSTD "-O3 -funroll-loops -finit-character=32"
+       set DBG1 = "-fcheck=all -ffpe-trap=invalid,zero,overflow -fbounds-check"
+       set DBG2 = "-fbacktrace -Wno-zerotrip -Wno-unused-function"
+       setenv myDBG  " -Wall -O0 -g $DBG1 $DBG2"
+       setenv myFFLAGS "-ffixed-form -ffixed-line-length-132"
+       setenv myFRFLAGS "-ffree-form -ffree-line-length-none"
+       setenv myCFLAGS "-O2"
+       setenv mpi "-lmpich"
+       setenv extra_lib
+#      setenv extra_lib "-lgomp"
+       setenv myLINK_FLAG ""
+       breaksw
+
+    default:
+       echo "*** Compiler $compiler not found"
+       exit(2)
+       breaksw
+
+ endsw
+ 
+#===============================================================================
+
+ setenv system "`/bin/uname -i`"
+ setenv bld_os "`/bin/uname -s``/bin/uname -r | cut -d. -f1`"
+#setenv lib_basedir $M3HOME/lib
+ setenv lib_basedir /home/wdx/lib_sol
+
+#> generate library locations
+ setenv M3LIB ${lib_basedir}/${system}/${compiler}
+#setenv MPI_INC $M3LIB/mpich/include
+
+#> set executable id
+ setenv EXEC_ID ${bld_os}_${system}${compiler}
+ unset echo

@@ -1,0 +1,12 @@
+! RCS file, release, date & time of last delta, author, state, [and locker]
+! $Header: /project/yoj/arc/MECHS/src/trac0/Species_Table_TR_0.nml,v 1.1 2010/07/26 11:46:56 yoj Exp $
+
+&TR_nml
+ 
+n_surr1 = 3,
+n_surr2 = 2,
+n_ctrl = 5,
+ 
+TYPE_HEADER =,
+TYPE_MATRIX =
+/
