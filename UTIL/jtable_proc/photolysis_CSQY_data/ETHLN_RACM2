@@ -1,0 +1,29 @@
+ETHLN_RACM2                		
+! ETHLN + hv = NO2 + HO2 + CO + HCHO j(ethln)  
+! cross section based on Müller et al. 2014 (Fig.2)
+! quantum yield based on Müller (2014).          		
+! They assume a near-unit quantum yield  for ethanal nitrate
+! Made by Azimeh Zare               		                		
+Points (the mechanism evaluated with this format)          		
+! With "FAC," units are (cm^2/molecule)           		
+FAC=1.0                		
+255 10.0E-20 0.94                   
+260 8.53E-20 0.94             		
+265 8.00E-20 0.92             		
+270 7.50E-20 0.9              		
+275 7.50E-20 0.9              		
+280 7.45E-20 0.9              		
+285 7.20E-20 0.9              		
+290 7.10E-20 0.9              		
+295 6.90E-20 0.9              		
+300 6.90E-20 0.9              		
+305 6.10E-20 0.9              		
+310 6.00E-20 0.9              		
+315 5.00E-20 0.9              		
+320 4.70E-20 0.9              		
+325 4.10E-20 0.9              		
+330 3.90E-20 0.9             		
+335 2.00E-20 0.9              		
+340 0.90E-20 0.9              		
+345 0.00E+00 0.9              		
+350 0.00E+00 0.9              		

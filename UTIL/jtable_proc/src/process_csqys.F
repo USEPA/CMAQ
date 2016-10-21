@@ -82,34 +82,30 @@ C...........EXTERNAL FUNCTIONS and their descriptions:
       INTERFACE       
         SUBROUTINE WRT_CSQY_DATA( WLIN, CS_IN, QY_IN, NWLIN, SPECTRA_NAME, SPECTRA_TYPE,
      &                    WLL_AVE, WLU_AVE, CS_AVE, QY_AVE, NWL_AVE )
-             USE CSQY_REFER_DATA
-             IMPLICIT NONE      
              CHARACTER( 1), INTENT( IN )  :: SPECTRA_TYPE    ! spectra type
              CHARACTER(16), INTENT( IN )  :: SPECTRA_NAME    ! spectra type
              INTEGER,       INTENT( IN )  :: NWLIN           ! number of intervals CQin
-             REAL,          INTENT( IN )  :: WLIN ( MXWLIN ) ! wl for CQin
-             REAL,          INTENT( IN )  :: CS_IN( MXWLIN ) ! cross-section as f(WLIN)
-             REAL,          INTENT( IN )  :: QY_IN( MXWLIN ) ! quantum yield as f(WLIN)
-             REAL,          INTENT( OUT)  :: WLL_AVE( MXWL ) ! lower limit on wl int ETin
-             REAL,          INTENT( OUT ) :: WLU_AVE( MXWL ) ! upper limit on wl int ETin
-             REAL,          INTENT( OUT ) :: CS_AVE(  MXWL ) ! cross-section as f(WL_AVE)
-             REAL,          INTENT( OUT ) :: QY_AVE(  MXWL ) ! quantum yield as f(WL_AVE)
+             REAL,          INTENT( IN )  :: WLIN ( : )      ! wl for CQin
+             REAL,          INTENT( IN )  :: CS_IN( : )      ! cross-section as f(WLIN)
+             REAL,          INTENT( IN )  :: QY_IN( : )      ! quantum yield as f(WLIN)
+             REAL,          INTENT( OUT)  :: WLL_AVE( : )    ! lower limit on wl int ETin
+             REAL,          INTENT( OUT ) :: WLU_AVE( : )    ! upper limit on wl int ETin
+             REAL,          INTENT( OUT ) :: CS_AVE(  : )    ! cross-section as f(WL_AVE)
+             REAL,          INTENT( OUT ) :: QY_AVE(  : )    ! quantum yield as f(WL_AVE)
              INTEGER,       INTENT( OUT ) :: NWL_AVE
           END SUBROUTINE WRT_CSQY_DATA
           SUBROUTINE WRT_CSQY_DATA_ONLY( WLIN, CS_IN, QY_IN, NWLIN, SPECTRA_NAME, SPECTRA_TYPE,
      &                    WLL_AVE, WLU_AVE, CS_AVE, QY_AVE, NWL_AVE )
-             USE CSQY_REFER_DATA
-             IMPLICIT NONE      
              CHARACTER( 1), INTENT( IN )  :: SPECTRA_TYPE    ! spectra type
              CHARACTER(16), INTENT( IN )  :: SPECTRA_NAME    ! spectra type
              INTEGER,       INTENT( IN )  :: NWLIN           ! number of intervals CQin
-             REAL,          INTENT( IN )  :: WLIN ( MXWLIN ) ! wl for CQin
-             REAL,          INTENT( IN )  :: CS_IN( MXWLIN ) ! cross-section as f(WLIN)
-             REAL,          INTENT( IN )  :: QY_IN( MXWLIN ) ! quantum yield as f(WLIN)
-             REAL,          INTENT( OUT)  :: WLL_AVE( MXWL ) ! lower limit on wl int ETin
-             REAL,          INTENT( OUT ) :: WLU_AVE( MXWL ) ! upper limit on wl int ETin
-             REAL,          INTENT( OUT ) :: CS_AVE(  MXWL ) ! cross-section as f(WL_AVE)
-             REAL,          INTENT( OUT ) :: QY_AVE(  MXWL ) ! quantum yield as f(WL_AVE)
+             REAL,          INTENT( IN )  :: WLIN ( : )      ! wl for CQin
+             REAL,          INTENT( IN )  :: CS_IN( : )      ! cross-section as f(WLIN)
+             REAL,          INTENT( IN )  :: QY_IN( : )      ! quantum yield as f(WLIN)
+             REAL,          INTENT( OUT)  :: WLL_AVE( : )    ! lower limit on wl int ETin
+             REAL,          INTENT( OUT ) :: WLU_AVE( : )    ! upper limit on wl int ETin
+             REAL,          INTENT( OUT ) :: CS_AVE(  : )    ! cross-section as f(WL_AVE)
+             REAL,          INTENT( OUT ) :: QY_AVE(  : )    ! quantum yield as f(WL_AVE)
              INTEGER,       INTENT( OUT ) :: NWL_AVE
           END SUBROUTINE WRT_CSQY_DATA_ONLY
       END INTERFACE

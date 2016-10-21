@@ -1,28 +1,35 @@
 #!/bin/csh -fx
 
- source ../../scripts/config.cmaq
  set echo
 
 #> CMAQv5.1 Mechanism Options: cb05tucl_ae6_aq cb05tump_ae6_aq cb05e51_ae6_aq saprc07tb_ae6_aq saprc07tc_ae6_aq  saprc07tic_ae6i_aq   racm2_ae6_aq 
  set Mechanism = racm2_ae6_aq          #> CMAQ mechanism ID
  set BASE  = $cwd
  set XBASE = $cwd
- set OUTDIR = ${BASE}/output/csqy_table_${Mechanism}
 
 #> option to set compiler and build a new executable (not required)
  setenv COMPILER  GFORT #> INTEL, PGF90, or GFORT
+ set day = ` date "+%b-%d-%Y" `
+ set OUTDIR = ${BASE}/output/csqy_table_${Mechanism}-${day}-${COMPILER}
 
- setenv GC_INC ${M3MODEL}/CCTM/MECHS/${Mechanism}
+#specify directory containing the mechanism modules or include files
+ setenv GC_INC ${BASE}/input/${Mechanism}
 
-#use RXNS_DATA_MODULE, comment out if CMAQ v5.02 and keep if CMAQ v5.1
+#use RXNS_DATA_MODULE, comment out if CMAQ v5.02 and keep if CMAQ v5.1 or higher
  setenv USE_RXNS_MODULES T
+ if( ${USE_RXNS_MODULES} == "T" )then
+    if( ! ( -e ${GC_INC}/RXNS_DATA_MODULE.F90 ) )then
+          ls ${GC_INC}/RXNS_DATA_MODULE.F90
+          exit()
+    endif       
+ endif
  
 #Whether to include spectral values of refractive indices for aerosol species [T|Y|F|N]
-# set F if CMAQ v5.02 and T if CMAQ v5.1
+# set F if CMAQ v5.02 and T if CMAQ v5.1 or higher
 setenv WVL_AE_REFRAC T
 
 #whether optical and CSQY data written to two separate file
-# set F if CMAQ v5.02 and T if CMAQ v5.1
+# set F if CMAQ v5.02 and T if CMAQ v5.1 or higher
 setenv SPLIT_OUTPUT T
 
 #Define exectubale
@@ -75,8 +82,10 @@ endif
  \rm -f  DUST
  \rm -f ${XBASE}/${EXEC}
  \rm -f fort.*
- \rm -rf ${BASE}/output/csqy_table_${Mechanism}/csqy_table_${Mechanism}
+#\rm -f  OPTICS_DATA 
+#\rm -f  CSQY_DATA 
  
  cd $BASE
+
 
 exit()
