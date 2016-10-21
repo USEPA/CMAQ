@@ -145,7 +145,7 @@ C flag for marine gas emissions; use in-line marine gas option only if CB05EH51 
             ELSE
                MGEM = .FALSE.
                RETURN
-            ENDIF
+            END IF
 
 C Allocate mapping array
             ALLOCATE ( MGSPC_MAP( NMGSPC ), STAT = STATUS )

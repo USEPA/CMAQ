@@ -67,9 +67,6 @@ C----------------------------------------------------------------------
 
          FUNCTION DEPVVARS_INIT( ) RESULT ( SUCCESS )
 
-!        USE HGRD_DEFN
-!        USE UTILIO_DEFN
-
          IMPLICIT NONE
 
          LOGICAL SUCCESS
