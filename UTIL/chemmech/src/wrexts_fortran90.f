@@ -63,7 +63,9 @@ C Argument variables
       
 C Local Variables
 
-      REAL,   PARAMETER   :: ONE = 1.0
+      REAL,   PARAMETER   :: ONE  = 1.0
+      REAL,   PARAMETER   :: ZERO = 0.0
+      LOGICAL, PARAMETER  :: FALSE = .FALSE.
    
       
       INTEGER ISPC, IRX, IFLD0, IFLD1, IFLD2, NLINES
@@ -438,24 +440,43 @@ c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
          WRITE( WRUNIT, 3061 )
       END IF
       
-      WRITE( WRUNIT, 2064 )      
+
       IF( USE_SPCS_NAMELISTS )THEN
-          WRITE( WRUNIT, 2063 ) 
           DO ISPC = 1, NS + N_SS_SPC
-             WRITE( WRUNIT, 2061 ) ISPC, ISPC, ISPC, ISPC,  ISPC, MECHANISM_SPC( ISPC ), CGRID_INDEX( ISPC ), 
-     &       SPECIES_TYPE( ISPC ), SPECIES_MOLWT( ISPC ), CONVERT_CONC( ISPC )
+!             WRITE( WRUNIT, 2161 ) ISPC, ISPC, ISPC, ISPC,  ISPC, MECHANISM_SPC( ISPC ), CGRID_INDEX( ISPC ), 
+!     &       SPECIES_TYPE( ISPC ), SPECIES_MOLWT( ISPC ), CONVERT_CONC( ISPC )
+              WRITE( WRUNIT, 2061 ) ISPC, ISPC, MECHANISM_SPC( ISPC ), SPECIES_MOLWT( ISPC )
+          END DO
+          WRITE( WRUNIT,'( / )')
+          WRITE( WRUNIT, 2063 ) 
+          WRITE( WRUNIT, 2064 )      
+          DO ISPC = 1, NS + N_SS_SPC
+              WRITE( WRUNIT, 2065 ) ISPC, ISPC, ISPC, CGRID_INDEX( ISPC ), 
+     &       SPECIES_TYPE( ISPC ), CONVERT_CONC( ISPC ), TRIM( MECHANISM_SPC( ISPC ) )
           END DO
       ELSE
-          WRITE( WRUNIT, 2063 ) 
           DO ISPC = 1, NS + N_SS_SPC
-             WRITE( WRUNIT, 2061 ) ISPC, ISPC, ISPC, ISPC, ISPC, MECHANISM_SPC( ISPC ), CGRID_INDEX( ISPC ), 
-     &       SPECIES_TYPE( ISPC ), ONE, USE_SPCS_NAMELISTS
+!             WRITE( WRUNIT, 2161 ) ISPC, ISPC, ISPC, ISPC, ISPC, MECHANISM_SPC( ISPC ), CGRID_INDEX( ISPC ), 
+!     &       SPECIES_TYPE( ISPC ), ONE, USE_SPCS_NAMELISTS
+              WRITE( WRUNIT, 2061 ) ISPC, ISPC, MECHANISM_SPC( ISPC ), ZERO 
+          END DO
+          WRITE( WRUNIT,'( / )')
+          WRITE( WRUNIT, 2063 ) 
+          WRITE( WRUNIT, 2064 )      
+          DO ISPC = 1, NS + N_SS_SPC
+              WRITE( WRUNIT, 2065 ) ISPC, ISPC, ISPC, CGRID_INDEX( ISPC ), 
+     &       SPECIES_TYPE( ISPC ), FALSE, TRIM( MECHANISM_SPC( ISPC ) )
           END DO
       END IF
 
-2061   FORMAT( 6X, 'DATA', 1X, 'CHEMISTRY_SPC(', I4, ' ), CGRID_INDEX(', I4,' ), SPECIES_TYPE(', I4,
+2161   FORMAT( 6X, 'DATA', 1X, 'CHEMISTRY_SPC(', I4, ' ), CGRID_INDEX(', I4,' ), SPECIES_TYPE(', I4,
      &       ' ), SPECIES_MOLWT(', I4,' ), CONVERT_CONC(', I4,' ) / ''', A16, ''', ', I4,', ''', A2, ''', ', 
      &       F7.2,', ', L1,' /')
+
+2061   FORMAT( 6X, 'DATA', 1X, 'CHEMISTRY_SPC(', I4, ' ), SPECIES_MOLWT(', I4,' ) / ''', A16, ''', ', F7.2,' /')
+
+2065   FORMAT( 6X, 'DATA', 1X, 'CGRID_INDEX(', I4,' ), SPECIES_TYPE(', I4,' ), CONVERT_CONC(', I4,' ) / ', 
+     &              I4, ', ''', A2, ''', ',  L1,' /  ! ', A)
 
 3060  FORMAT( /6X,'LOGICAL   :: HALOGEN_PARAMETER = .TRUE. '  /)
 3061  FORMAT( /6X,'LOGICAL   :: HALOGEN_PARMAETER = .FALSE. ' /)

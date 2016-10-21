@@ -39,6 +39,8 @@ C       I/O API
 
 C Revision History:
 C   16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+C   26 Sep 2016 D.Wong: reformatted PLAY_BASE variable as PLAY_BASE_*
+C                       rather than PLAY_BASE*_
 
 C-----------------------------------------------------------------------
 C Modified from:
@@ -157,7 +159,7 @@ C Set up and open diagnostic file(s)
          IF ( MY_NSRC( N ) .GT. 0 ) THEN
             NCOLS3D = MY_NSRC( N )
 
-            WRITE( PLAY_BASE,'( "PLAY_BASE", I2.2, "_" )' ) N
+            WRITE( PLAY_BASE,'( "PLAY_BASE", "_", I2.2 )' ) N
             XMSG = 'Logical name for LAYER FRACTIONS MATRIX'
             CALL ENVSTR( PLAY_BASE, XMSG, ' ', BASE, IOS )
             IF ( IOS .NE. 0 ) THEN

@@ -88,6 +88,8 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 !              -- Calculated and output the rainfall (convective and
 !                 non-convect) information according to the output file time step
 !                 rather than the two-way model time step
+!           30 Aug 2016  (David Wong)
+!              -- fixed a bug in outputing MET_CRO_2D physical file
 !===============================================================================
 
   USE module_domain                                ! WRF module
@@ -1309,9 +1311,9 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
                                     xuu_d(c,  r,  k) - xuu_d(cp1,r,  k)) / dsy) +  &
                     xcorl(c,r)
 
-              metcro3d_data_wrf (c,r,k,15) = -1.0e6 * ( vor * dtds(c,r) &
-                                           - dvds(c,r) * dtdx(c,r)      &
-                                           + duds(c,r) * dtdy(c,r) )    &
+              metcro3d_data_wrf (c,r,k,n_metcro3d_var) = -1.0e6 * ( vor * dtds(c,r)   &
+                                                         - dvds(c,r) * dtdx(c,r)      &
+                                                         + duds(c,r) * dtdy(c,r) )    &
                          / ( metcro3d_data_wrf (c,r,k,3) * gridcro2d_data_wrf (c,r,3))
            ENDDO
         ENDDO
@@ -1664,7 +1666,7 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
   ! percent to decimal.
   !-----------------------------------------------------------------------------
 
-  if (config_flags%sf_surface_physics == PXLSMSCHEME) then
+  if (config_flags%sf_sfclay_physics == PXLSMSCHEME) then
      metcro2d_data_wrf     (:,:,20) =  grid%vegf_px (sc:ec, sr:er)        ! veg
   else
      metcro2d_data_wrf     (:,:,20) =  grid%vegfra (sc:ec, sr:er) * 0.01  ! veg
@@ -1708,7 +1710,7 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
                  stop
               end if
            else
-              if ( .not. write3 (pfname, metcro2d_vlist(v), jdate, jtime, metcro2d_data_cmaq(tsc_c:tec_c, tsr_c:ter_c, :) ) ) then
+              if ( .not. write3 (pfname, metcro2d_vlist(v), jdate, jtime, metcro2d_data_cmaq(tsc_c:tec_c, tsr_c:ter_c, v) ) ) then
                  print *, ' Error: Could not write to file ', pfname
                  stop
               end if

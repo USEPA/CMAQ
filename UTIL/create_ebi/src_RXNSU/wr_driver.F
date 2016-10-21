@@ -108,8 +108,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             
          ELSEIF( LINEIN( 2 : 2 ) .EQ. '0' .AND. .NOT. LOUT0 ) THEN
 
-            IF( NSPECIAL .NE. 0 ) WRITE( IOUT, 93029 ) 
-
             LOUT0 = .TRUE.             
 
          ELSEIF( LINEIN( 2 : 2 ) .EQ. '3' .AND. .NOT. LOUT3 ) THEN
