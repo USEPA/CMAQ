@@ -4,58 +4,78 @@
 
 ## Brief Description 
 
-The CMAQ model now contains detailed halogen (bromine and iodine) chemistry. Sarwar et al. (2015) examined the impacts of halogen chemistry without and with the photolysis of higher iodine oxides. The inclusion of the photolysis of higher iodine oxides substantially reduces ozone and is not included in the model. The halogen chemistry without the photolysis of higher iodine is included in the model. The halogen chemistry in CMAQ follows the description of Sarwar et al. (2015) with the following three changes: (1) Rate constants of the several iodine reactions in Sarwar et al. (2015) contained special expressions which have been replaced with rate constants from Sherwen et al. (2016) (2) Sarwar et al. (2015) calculated photolysis rates of halogen species using ratios of other chemical species following the Comprehensive Air quality Model with extensions (Yarwood et al. 2012). These photolysis rates are now directly calculated using absorption cross-section and quantum yield data (3) Br2 emissions are a function of sea-salt production rates which are calculated in the aerosol module of CMAQ. Sarwar et al. (2015) calculated Br2 emissions independent of the sea-salt production rates in the aerosol module of CMAQ which are now calculated using the sea-salt production rates in the aerosol module of CMAQ. 
+To compute an average value of various PM diagnostic variables which are defined in PMDIAG_DATA.F and four visibility diagnostic variables bases on user predefined time interval. It will follow the behaviour of ACONC file to output data to the top or bottom of the "hour".  
+
+ Options:  
+  -- user can define a subset of PM diagnostic variables  
+  -- user can define a vertical layer range  
+  -- user can define a vertical layer range  
+
+Name changes:
+
+ * run script  
+   -- AERODIAM to PMDIAG  
+   -- CTM_AERDIAG to CTM_PMDIAG  
+   -- AD1 to PMD1  
+   -- AD1file to PMD1file  
+
+ * outck_bidi.q  
+   -- AD1file to PMD1file  
+
+ * aero_driver.F  
+   -- CTM_AERDIAG to CTM_PMDIAG  
+   -- AERDIAG to PMDIAG  
+
+ * AEROSOL_CHEMISTRY.F
+   -- CTM_AERDIAG with CTM_PMDIAG  
+   -- AERDIAG with PMDIAG  
+
+New environmental variable:
+
+ * run script  
+   -- CTM_APMDIAG  
+   -- APMDIAG_BLEV_ELEV  
+   -- AVG_PMDIAG_SPCS  
+   -- CTM_AVISDIAG  
+
+Misc:
+
+ * run script
+   -- added AAV1file  
+   -- added APMD1file  
+
+ * outck_bidi.q  
+   -- added CTM_AVIS_1  
+   -- added CTM_ADIAM_1  
+
 
 ## Significance and Impact
 
-Halogen chemistry reduces mean ozone by 2-6 ppbv over seawater and 2-4 ppbv over some areas of land. The inclusion of the halogen chemistry increases model runtime by > 25%. 
+This update ensures consistency among the major output files for aerosol and aerosol chemistry related variables. It also makes possible the user selection of instantaneous OR hourly averaged aerosol diagnostic species.
 
+## Affected Files:  
 
-## Affected Files:
-
-MECHS/cb05eh51_ae6_aq/AE_cb05eh51_ae6_aq.nml   
-MECHS/cb05eh51_ae6_aq/CSQY_DATA_cb05eh51_ae6_aq  
-MECHS/cb05eh51_ae6_aq/GC_cb05eh51_ae6_aq.nml  
-MECHS/cb05eh51_ae6_aq/NR_cb05eh51_ae6_aq.nml  
-MECHS/cb05eh51_ae6_aq/RXNS_DATA_MODULE.F90   
-MECHS/cb05eh51_ae6_aq/RXNS_FUNC_MODULE.F90   
-MECHS/cb05eh51_ae6_aq/Species_Table_TR_0.nml   
-MECHS/cb05eh51_ae6_aq/mech_CB05eh51.def   
-gas/ebi_cb05eh51_ae6_aq/hrdata_mod.F   
-gas/ebi_cb05eh51_ae6_aq/hrdriver.F   
-gas/ebi_cb05eh51_ae6_aq/hrg1.F   
-gas/ebi_cb05eh51_ae6_aq/hrg2.F   
-gas/ebi_cb05eh51_ae6_aq/hrg3.F   
-gas/ebi_cb05eh51_ae6_aq/hrg4.F   
-gas/ebi_cb05eh51_ae6_aq/hrinit.F   
-gas/ebi_cb05eh51_ae6_aq/hrprodloss.F   
-gas/ebi_cb05eh51_ae6_aq/hrrates.F     
-gas/ebi_cb05eh51_ae6_aq/hrsolver.F   
-emis/emis/MGEMIS.F   
-emis/emis/SSEMIS.F   
-emis/emis/EMIS_DEFN.F   
-vdiff/acm2/ASX_DATA_MOD.F   
-vdiff/acm2/vdiffproc.F   
-aero/aero6/AEROSOL_CHEMISTRY.F   
-aero/aero6/SOA_DEFN.F   
-cloud/acm_ae6/hlconst.F   
-depv/m3dry/DEPVVARS.F   
-ICL/fixed/filenames/FILES_CTM.EXT    
+run script  
+outck_bidi.q  
+FILES_CTM.EXT  
+aero_driver.F  
+opadiam.F  
+opavis.F  
+AEROSOL_CHEMISTRY.F  
+PMDIAG_DATA.F  
 
 
 ## References: 
 
-Sarwar, et al.: Impact of enhanced ozone deposition and halogen chemistry on tropospheric ozone over the Northern Hemisphere, Environmental Science & Technology, 49(15):9203-9211, 2015.   
-Yarwood et al.: Improving CAMx performance in simulating ozone transport from the Gulf of Mexico, Final Report for the Texas Commission on Environmental Quality; Project No. 0626408I, 2012.   
-Sherwen et al.:  Iodine’s impact on tropospheric oxidants: a global model study in GEOS-Chem, Atmospheric Chemistry & Physics, 16, 1161–1186, 2016.  
+NA
 
 -----
 ## Internal Records:
 
 ### Relevant Pull Requests: 
-  [PR #82](/usepa/cmaq_dev/pull/82)
-  [PR #102](/usepa/cmaq_dev/pull/102)
-  [PR #104](/usepa/cmaq_dev/pull/104)
+  [PR #82](https://github.com/usepa/cmaq_dev/pull/82)
+  [PR #102](https://github.com/usepa/cmaq_dev/pull/102)
+  [PR #104](https://github.com/usepa/cmaq_dev/pull/104)
 
 ### Commit IDs:
 992729db506091be3ce80f5086d909e0ea15ae9f  

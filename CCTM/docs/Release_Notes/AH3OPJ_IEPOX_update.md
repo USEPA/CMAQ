@@ -7,7 +7,7 @@
 Formation of SOA from epoxides is acid catalyzed. The molecular weight of AH3OP (the hydronium ion) is needed to convert the concentration of H+ predicted by ISORROPIA in mol/m3 to micrograms/m3. The molecular weight of AH3OP was incorrectly being obtained from PRECURSOR_MW array instead of AEROSPC_MW in aero_subs.F.
 As a result, the molecular weight was a factor of 10 higher than it should be. Correcting this array reference resulted in decrease in acidity (AH3OPJ+AH3OPI) which degraded predictions of IEPOX SOA for the SOAS 2013 campaign. AH3OPK was not affected.
 
-To improve model performance, we implemented a Henry's law coefficient for IEPOX of 3.0e7 M/atm (instead of the former 2.7e6 M/atm) based on Nguyen et al. (2014) (laboratory experiments on NaCl particles). This improved the model predictions of 2-methyltetrols, a known IEPOX-derived organic aerosol species.
+To improve model performance, we implemented a Henrys law coefficient for IEPOX of 3.0e7 M/atm (instead of the former 2.7e6 M/atm) based on Nguyen et al. (2014) (laboratory experiments on NaCl particles). This improved the model predictions of 2-methyltetrols, a known IEPOX-derived organic aerosol species.
 
 
 ## Significance and Impact

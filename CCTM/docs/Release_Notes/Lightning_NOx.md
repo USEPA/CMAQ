@@ -52,8 +52,8 @@ Hourly data over the conus US 12km domain in IOAPI format (direct input to CMAQ)
 ## Internal Records:
 
 ### Relevant Pull Requests: 
-  [PR #128](/usepa/cmaq_dev/pull/128) 
-  [PR #142](/usepa/cmaq_dev/pull/142) 
+  [PR #128](https://github.com/usepa/cmaq_dev/pull/128)   
+  [PR #142](https://github.com/usepa/cmaq_dev/pull/142) 
 
 ### Commit IDs:
 e1f99c41cce2650878744d783c5c90fb4caf7209   

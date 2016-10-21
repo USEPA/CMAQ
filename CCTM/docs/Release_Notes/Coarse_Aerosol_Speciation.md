@@ -18,7 +18,7 @@
 ## Internal Records:
 
 ### Relevant Pull Requests: 
-  [PR #85](/usepa/cmaq_dev/pull/85)
+  [PR #85](https://github.com/usepa/cmaq_dev/pull/85)
 
 ### Commit IDs:
  85c228d4c282c00b3dc25c114eaa9b2746ccad09

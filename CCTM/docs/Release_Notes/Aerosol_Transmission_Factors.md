@@ -33,7 +33,7 @@ aero/aero6/opdiam.F
 ## Internal Records:
 
 ### Relevant Pull Requests: 
-  [PR #22](/usepa/cmaq_dev/pull/22)
+  [PR #22](https://github.com/usepa/cmaq_dev/pull/22)
 
 ### Commit IDs:
 8f3bd301099c354350a3d152088c9f2fb961c720  
