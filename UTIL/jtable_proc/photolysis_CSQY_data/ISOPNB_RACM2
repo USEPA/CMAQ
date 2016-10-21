@@ -1,0 +1,25 @@
+ISOPNB_RACM2
+! ISOPNB + hv = ISOP + NO2: j(Pj_sopnb) ;
+! j(Pj_onitoh3) ~ MCMv3.3.1 tert-butyl nitrate (t-C4H9ONO2) : J<55>, FAC=0.333
+! Absorption x-section taken from Roberts and Fajer (1989)  
+! Quantum Yield (φ) = 1.00 
+! Made by Azimeh Zare Jul2016
+! at mech.def file: cross sections should be divided by 3 due to the hydroxy group
+!(Browne et al., 2014 and Robeerts and Fajer (1989))
+!Absorption cross-sections at 298 K
+Points
+! With FAC, units are (cm^2/molecule)
+FAC=1
+270.0  4.300E-20  1.000
+275.0  4.000E-20  1.000
+280.0  3.700E-20  1.000
+285.0  3.100E-20  1.000
+290.0  2.600E-20  1.000
+295.0  2.000E-20  1.000
+300.0  1.500E-20  1.000
+305.0  1.000E-20  1.000
+310.0  7.000E-21  1.000
+315.0  4.500E-21  1.000
+320.0  2.700E-21  1.000
+325.0  1.500E-21  1.000
+330.0  8.600E-22  1.000

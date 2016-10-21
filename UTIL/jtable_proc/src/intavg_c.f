@@ -46,44 +46,47 @@ C*********************************************************************
 
       IMPLICIT NONE      
       
-!      INCLUDE 'JVALPARMS.EXT'         ! jproc parameters
 
 C...........PARAMETERS and their descriptions
 
-      INTEGER      XSTAT2             ! Program ERROR exit status
-      PARAMETER  ( XSTAT2 = 2 )
+      INTEGER, PARAMETER :: XSTAT2 = 2            ! Program ERROR exit status
 
 C...........ARGUMENTS and their descriptions
 
           CHARACTER(1), INTENT( IN ) ::   SPECTRA_TYPE                ! spectra type
           INTEGER, INTENT( IN )      ::   NWLOUT              ! number of intervals ETin
           INTEGER, INTENT( IN )      ::   NWLIN               ! number of intervals CQin
-          REAL, INTENT( IN )   ::         WLIN ( MXWLIN )     ! wl for CQin
-          REAL, INTENT( IN )   ::         CQIN( MXWLIN )      ! quantity (CS or QY) as f(WLIN)
+          REAL, INTENT( IN )   ::         WLIN ( : )     ! wl for CQin
+          REAL, INTENT( IN )   ::         CQIN( : )      ! quantity (CS or QY) as f(WLIN)
           REAL, INTENT( INOUT )  ::         WLOUT1( : )      ! lower limit on wl int ETin
           REAL, INTENT( INOUT )  ::         WLOUT2( : )      ! upper limit on wl int ETin
           REAL, INTENT( OUT )  ::         CQOUT ( : )      ! quantity (CS or QY) as f(WLOUT)
 
 C...........LOCAL VARIABLES and their descriptions:
       
-      CHARACTER*16 PNAME               ! program name
-      DATA         PNAME   / 'INTAVG' /
-      CHARACTER*80 MSG                 ! message
-      DATA         MSG / '    ' /
+      CHARACTER( 16 ), SAVE :: PNAME =  'INTAVG_C'             ! program name
+      CHARACTER( 80 )       :: MSG   =   '    '              ! message
 
-      REAL         WLIN1( MXWLIN )     ! lower limit on wl int CQin
-      REAL         WLIN2( MXWLIN )     ! upper limit on wl int CQin
+      REAL     ::     WLIN1( MXWLIN )     ! lower limit on wl int CQin
+      REAL     ::     WLIN2( MXWLIN )     ! upper limit on wl int CQin
+      REAL     ::     DWLIN               ! wl int for CQin
+      REAL     ::     CQA                 ! lower cq value
+      REAL     ::     CQB                 ! upper cq value
 
-      INTEGER      I                   ! index var
-      INTEGER      J                   ! index var
-      INTEGER      MXWLPT              ! pointer
-      INTEGER      MNWLPT              ! pointer
+      INTEGER  ::     I                   ! index var
+      INTEGER  ::     J                   ! index var
+      INTEGER  ::     MXWLPT              ! pointer
+      INTEGER  ::     MNWLPT              ! pointer
      
-      REAL         DWLIN               ! wl int for CQin
-      REAL         CQA                 ! lower cq value
-      REAL         CQB                 ! upper cq value
       
       CHARACTER( 1 ) :: DATA_TYPE
+
+      INTERFACE
+       SUBROUTINE CONVERT_CASE ( BUFFER, UPPER )
+           CHARACTER(LEN= *), INTENT( INOUT ) :: BUFFER
+           LOGICAL,           INTENT( IN    ) :: UPPER
+       END SUBROUTINE CONVERT_CASE
+      END INTERFACE
       
 C*********************************************************************
 C...begin body of subroutine INTAVG
