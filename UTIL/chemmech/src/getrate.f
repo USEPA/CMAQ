@@ -142,7 +142,7 @@ C '#' or '%' signals beginning of part of line that has rate constant data
             CALL GETREAL ( IMECH, INBUF, LPOINT, IEOL, CHR, NUMBER )
             IF ( CHR .EQ. '*' ) THEN  !  reverse equilibrium
                KTYPE( NXX ) = 5
-               RTDAT( 2,NXX ) = -NUMBER
+               RTDAT( 2,NXX ) = -1.0D0 * NUMBER
                CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
                IF ( CHR .NE. 'E' ) THEN
                   WRITE( *,2005 ) NXX, INBUF
@@ -170,9 +170,9 @@ C '#' or '%' signals beginning of part of line that has rate constant data
                   KTYPE( NXX ) = 4
                END IF
                IF ( NUMANDS .EQ. 0 ) THEN
-                  RTDAT( 3,NXX ) = -NUMBER
+                  RTDAT( 3,NXX ) = -1.0D0 * NUMBER
                ELSE
-                  RFDAT( 3,NFALLOFF ) = -NUMBER
+                  RFDAT( 3,NFALLOFF ) = -1.0D0 * NUMBER
                END IF
                GO TO 101
             END IF        ! CHR .EQ. '*'
@@ -185,8 +185,8 @@ C '#' or '%' signals beginning of part of line that has rate constant data
                NFALLOFF = NFALLOFF + 1
                IRRFALL( NFALLOFF ) = NXX
                KTYPE( NXX ) = 10
-               RFDAT( 4,NFALLOFF ) = 0.6      ! default F
-               RFDAT( 5,NFALLOFF ) = 1.0      ! default n
+               RFDAT( 4,NFALLOFF ) = 0.6D0      ! default F
+               RFDAT( 5,NFALLOFF ) = 1.0D0      ! default n
             END IF
             CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
             CALL GETREAL ( IMECH, INBUF, LPOINT, IEOL, CHR, NUMBER )
@@ -379,7 +379,7 @@ C                 IPH(IP,2) to be resolved in caller (CHEMMECH.f)
                IF ( NUMREALS .EQ. 2 .OR. 
      &              NUMREALS .EQ. 4 .OR. 
      &              NUMREALS .EQ. 6 )
-     &            NUMBER = -NUMBER
+     &            NUMBER = -1.0D0 * NUMBER
                IF ( NUMREALS .LE. 3 ) THEN
                   RTDAT( NUMREALS,NXX ) = NUMBER
                ELSE
@@ -425,7 +425,7 @@ C                 IPH(IP,2) to be resolved in caller (CHEMMECH.f)
                CALL GETREAL ( IMECH, INBUF, LPOINT, IEOL, CHR, NUMBER )
                IF( NOT_POWER )THEN
                    NUMREALS = NUMREALS + 1
-                   IF ( MOD(NUMREALS, 2) .EQ. 0 .AND. NUMBER .NE. 0.0D+0 )NUMBER = -NUMBER
+                   IF ( MOD(NUMREALS, 2) .EQ. 0 .AND. NUMBER .NE. 0.0D+0 )NUMBER = -1.0D0 * NUMBER
                    IF ( NUMREALS .LE. 3 ) THEN
                        RTDAT( NUMREALS,NXX ) = NUMBER
                    ELSE
@@ -493,7 +493,7 @@ C                 IPH(IP,2) to be resolved in caller (CHEMMECH.f)
             IF( CHR .EQ. '@' )THEN
                 CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
                 CALL GETREAL ( IMECH, INBUF, LPOINT, IEOL, CHR, NUMBER )
-                RFDAT( NUMREALS,NFALLOFF ) = -NUMBER
+                RFDAT( NUMREALS,NFALLOFF ) = -1.0D0 * NUMBER
             END IF
             IF( CHR .EQ. '&' )THEN
 	       NUMREALS     = 2
@@ -503,7 +503,7 @@ C                 IPH(IP,2) to be resolved in caller (CHEMMECH.f)
                IF( CHR .EQ. '@' )THEN
                    CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
                    CALL GETREAL ( IMECH, INBUF, LPOINT, IEOL, CHR, NUMBER )
-                   RFDAT( NUMREALS,NFALLOFF ) = -NUMBER
+                   RFDAT( NUMREALS,NFALLOFF ) = -1.0D0 * NUMBER
                END IF
             END IF
 !            IF( CHR .NE. '/' )THEN

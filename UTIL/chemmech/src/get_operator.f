@@ -87,70 +87,90 @@ C characters 0,1,2,...,9
       ELSE
          NUMBER =  1.0
       END IF
-c      print*,CHR
-      IF( CHR .EQ. 'K' )THEN
-
-         NKC_TERMS( NSPECIAL ) = NKC_TERMS( NSPECIAL ) + 1
-         L  = NKC_TERMS( NSPECIAL )
-         IF( L .GT. MAXSPECTERMS )THEN
-             WRITE( *, 2005)SPECIAL(NSPECIAL)
-             STOP
-         ENDIF        
-
-         KC_COEFFS( NSPECIAL, L ) = NUMBER
-
-         CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
-         IF( CHR .EQ. '<' )THEN
-            CALL GETLABEL ( IMECH, INBUF, LPOINT, IEOL, CHR, 
-     &                      KC_TERMS( NSPECIAL, L, 1 ) )
-         ELSE
-            WRITE( *, 2009)SPECIAL(NSPECIAL),INBUF(LPOINT:IEOL)
-            STOP
-         ENDIF
-         IF( CHR .EQ. '*' )THEN
-            CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
-            IF( CHR .EQ. 'C' )THEN
-               CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
-               IF( CHR .EQ. '<' )THEN
-                  CALL GETLABEL ( IMECH, INBUF, LPOINT, IEOL, CHR, 
-     &                            KC_TERMS( NSPECIAL, L, 2 ) )
-               ENDIF           
-            ELSE                   
-               WRITE( *, 2010)SPECIAL(NSPECIAL),INBUF(LPOINT:IEOL)
+ 
+      SELECT CASE( CHR )
+         CASE( 'C' )
+           NKC_TERMS( NSPECIAL ) = NKC_TERMS( NSPECIAL ) + 1
+           L  = NKC_TERMS( NSPECIAL )
+           INDEX_KTERM( NSPECIAL, L ) = 0
+           IF( L .GT. MAXSPECTERMS )THEN
+               WRITE( *, 2005)SPECIAL(NSPECIAL)
                STOP
-            ENDIF
-         ELSEIF( CHR .EQ. '+' .OR. CHR .EQ. '-')THEN
-            KC_TERMS( NSPECIAL, L, 2 ) = 'FIRST_ORDER_RATE'
-         ELSEIF( CHR .EQ. ';')THEN
-            KC_TERMS( NSPECIAL, L, 2 ) = 'FIRST_ORDER_RATE'
-         ENDIF
+           END IF        
+
+           KC_COEFFS( NSPECIAL, L ) = NUMBER
+
+           CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
+           IF( CHR .EQ. '<' )THEN
+              CALL GETLABEL ( IMECH, INBUF, LPOINT, IEOL, CHR, 
+     &                      KC_TERMS( NSPECIAL, L, 2 ) )
+           ELSE
+              WRITE( *, 2009)SPECIAL(NSPECIAL),INBUF(LPOINT:IEOL)
+              STOP
+           END IF
+         CASE( 'K' )
+
+           NKC_TERMS( NSPECIAL ) = NKC_TERMS( NSPECIAL ) + 1
+           L  = NKC_TERMS( NSPECIAL )
+           IF( L .GT. MAXSPECTERMS )THEN
+               WRITE( *, 2005)SPECIAL(NSPECIAL)
+               STOP
+           END IF        
+
+           KC_COEFFS( NSPECIAL, L ) = NUMBER
+
+           CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
+           IF( CHR .EQ. '<' )THEN
+              CALL GETLABEL ( IMECH, INBUF, LPOINT, IEOL, CHR, 
+     &                      KC_TERMS( NSPECIAL, L, 1 ) )
+           ELSE
+              WRITE( *, 2009)SPECIAL(NSPECIAL),INBUF(LPOINT:IEOL)
+              STOP
+           END IF
+           IF( CHR .EQ. '*' )THEN
+              CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
+              IF( CHR .EQ. 'C' )THEN
+                 CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
+                 IF( CHR .EQ. '<' )THEN
+                    CALL GETLABEL ( IMECH, INBUF, LPOINT, IEOL, CHR, 
+     &                              KC_TERMS( NSPECIAL, L, 2 ) )
+                 ENDIF           
+              ELSE                   
+                 WRITE( *, 2010)SPECIAL(NSPECIAL),INBUF(LPOINT:IEOL)
+                 STOP
+              END IF
+           ELSE IF( CHR .EQ. '+' .OR. CHR .EQ. '-')THEN
+              KC_TERMS( NSPECIAL, L, 2 ) = 'FIRST_ORDER_RATE'
+           ELSE IF( CHR .EQ. ';')THEN
+              KC_TERMS( NSPECIAL, L, 2 ) = 'FIRST_ORDER_RATE'
+           END IF
 
 c         print*,'For ',SPECIAL(NSPECIAL)(1:LEN_TRIM(SPECIAL(NSPECIAL))),
 c     &          ' ',KC_COEFFS(NSPECIAL, L ),
 c     &          ' ',KC_TERMS( NSPECIAL, L, 1:2 )
-      ELSEIF( CHR .EQ. 'R' )THEN
-            CALL GETWORD ( IMECH, INBUF, LPOINT, IEOL, CHR, WORD )
-            N_OPERATORS( NSPECIAL) = N_OPERATORS( NSPECIAL) + 1
-            L = N_OPERATORS( NSPECIAL)
-            IF( L .GT. MAXSPECTERMS )THEN
-                WRITE( *, 2007)SPECIAL(NSPECIAL)
-                STOP
-            ENDIF        
-            NDX = INDEX1( WORD, (NSPECIAL-1), SPECIAL)
-            IF( NDX .NE. 0 )THEN
-                OPERATORS(NSPECIAL, L )       = NDX
-                OPERATOR_COEFFS(NSPECIAL, L ) = NUMBER
-            ELSE
-                WRITE( *, 2011)SPECIAL(NSPECIAL),INBUF
-                STOP
-            ENDIF
+         CASE( 'R' )
+           CALL GETWORD ( IMECH, INBUF, LPOINT, IEOL, CHR, WORD )
+           N_OPERATORS( NSPECIAL) = N_OPERATORS( NSPECIAL) + 1
+           L = N_OPERATORS( NSPECIAL)
+           IF( L .GT. MAXSPECTERMS )THEN
+               WRITE( *, 2007)SPECIAL(NSPECIAL)
+               STOP
+           END IF        
+           NDX = INDEX1( WORD, (NSPECIAL-1), SPECIAL)
+           IF( NDX .NE. 0 )THEN
+               OPERATORS(NSPECIAL, L )       = NDX
+               OPERATOR_COEFFS(NSPECIAL, L ) = NUMBER
+           ELSE
+               WRITE( *, 2011)SPECIAL(NSPECIAL),INBUF
+               STOP
+           END IF
 c         print*,'For ',SPECIAL(NSPECIAL)(1:LEN_TRIM(SPECIAL(NSPECIAL))),
 c     &          ' ',OPERATOR_COEFFS(NSPECIAL, L ),
 c     &          ' ',SPECIAL(OPERATORS( NSPECIAL, L))
-      ELSE
+         CASE DEFAULT 
             WRITE( *, 2010)SPECIAL(NSPECIAL),INBUF
             STOP
-      END IF
+      END SELECT
       
       RETURN
 

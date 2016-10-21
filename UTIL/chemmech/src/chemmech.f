@@ -736,7 +736,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                     EXIT NR_LOOP
                 ENDIF
              ENDDO NR_LOOP
-             IF( INDEX_KTERM(IRX, IPR ) .EQ. 0)THEN
+             IF( INDEX_KTERM(IRX, IPR ) .LT. 0 )THEN
                WRITE( LUNOUT, 2031)SPECIAL( IRX ),KC_TERMS(IRX, IPR, 1)
                STOP ' *** CHEMMECH ERROR ***'
              ENDIF
@@ -749,7 +749,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                  CYCLE
              ENDIF
 
-             IF( IORDER( ISPC ) .EQ. 2 )THEN
+             IF( IORDER( ISPC ) .EQ. 2 .OR. INDEX_KTERM(IRX, IPR ) .EQ. 0 )THEN
                  ISPC = INDEX1( KC_TERMS(IRX, IPR, 2), NS, SPCLIS)
                  IF( ISPC .GT. 0 )THEN
                     INDEX_CTERM(IRX, IPR ) = ISPC
