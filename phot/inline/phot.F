@@ -207,7 +207,7 @@ C...modules
       LOGICAL JTIME_CHK            ! To check for JTIME to write RJ values
       INTEGER ODATE                ! output date
       INTEGER OTIME                ! output time 
-      INTEGER SUM_COUNT            ! counter between calls to write diagnostics
+      INTEGER TSTEP_COUNT            ! counter between calls to write diagnostics
 
       INTEGER ALLOCSTAT
 
@@ -384,6 +384,7 @@ C...modules
          CALL SEASONAL_STRAT_O3( JDATE, JTIME )
          MIN_STRATO3_FRAC = MONTH_STRAT_03_FRAC
          MAX_TROPOO3_FRAC = MAX( 1.0 - MONTH_STRAT_03_FRAC, 0.0 )
+         WRITE( LOGDEV,*)'PHOT: MIN_STRATO3_FRAC = ',MIN_STRATO3_FRAC 
 
 !...Initialize Surface albedo method
 
@@ -443,8 +444,8 @@ C...modules
             ALLOCATE( TAUO3_TOP_WL( NCOLS,NROWS,NWL ) )
  
             N_EXCEED_TROPO3 = 0.0
-            TROPO_O3_EXCEED   = 0.0
-            SUM_COUNT        = 0.0
+            TROPO_O3_EXCEED = 0.0
+            TSTEP_COUNT     = 0.0
 
             DIAG_WVL( 1 )    = 1
             DIAG_WVL( N_DIAG_WVL ) = NWL
@@ -528,8 +529,9 @@ C...modules
 !...climatological averages.
 
       O3_TOGGLE_AVE     = 0.0
+      O3_TOGGLE_MIN     = 1.0
       N_TROPO_O3_TOGGLE = 0
-      SUM_COUNT         = SUM_COUNT + 1
+      TSTEP_COUNT       = TSTEP_COUNT + 1
 
       CALL GET_PHOT_MET( JDATE, JTIME, MDATE, MTIME )
 
@@ -569,6 +571,7 @@ C...modules
             END IF
          END IF
 #endif
+         TROPO_O3_EXCEED = 0.0
       ELSE     
          JTIME_CHK = .FALSE.
       END IF 
@@ -792,8 +795,11 @@ C...modules
 !...load diagnostic file arrays
                IF ( PHOTDIAG .AND. .NOT. STRATO3_MINS_MET ) THEN
                     N_EXCEED_TROPO3( COL,ROW ) =  N_EXCEED_TROPO3( COL,ROW ) + 1.0
-                    TROPO_O3_EXCEED( COL,ROW )   = TROPO_O3_EXCEED( COL,ROW ) 
-     &                                          + ( 1.0  - TROPO_O3_TOGGLE )
+!                    TROPO_O3_EXCEED( COL,ROW ) = TROPO_O3_EXCEED( COL,ROW )
+!     &                                         + MAX( (TROPO_O3_COLUMN/(TOTAL_O3_COLUMN*MAX_TROPOO3_FRAC) - 1.0), 
+!     &                                           0.0)
+!     &                                         + 1.0 / TROPO_O3_TOGGLE - 1.0
+                     TROPO_O3_EXCEED( COL,ROW ) = TROPO_O3_COLUMN/(MAX_TROPOO3_FRAC*TOTAL_O3_COLUMN) - 1.0
                END IF 
 
                IF ( JTIME_CHK  ) THEN
@@ -978,7 +984,8 @@ C...modules
          O3_TOGGLE_AVE = O3_TOGGLE_AVE / REAL( N_TROPO_O3_TOGGLE )
          WRITE( LOGDEV, 9500 )'PHOT: Exceedance of tropospheric ozone column ',
      &   'or below top of model domains based on stratospheric column minimum ',
-     &   'at date and time; ', JDATE, JTIME, N_TROPO_O3_TOGGLE, (1.0 - O3_TOGGLE_AVE)
+     &   'at date and time; ', JDATE, JTIME, N_TROPO_O3_TOGGLE, (1.0/O3_TOGGLE_AVE - 1.0),
+     &    (1.0/O3_TOGGLE_MIN - 1.0)
       END IF
 
 !...write diagnostic data to output file at the end of every output tstep
@@ -1057,13 +1064,14 @@ C...modules
          END IF
 
          VARNM = 'TROPO_O3_EXCEED'
-         TROPO_O3_EXCEED = TROPO_O3_EXCEED / REAL( SUM_COUNT )
+!         TSTEP_COUNT = 1.0 / REAL( MAX(1, TSTEP_COUNT) )
+!         TROPO_O3_EXCEED = TROPO_O3_EXCEED * TSTEP_COUNT
          IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, TROPO_O3_EXCEED ) ) THEN
             XMSG = 'Error writing variable ' // VARNM
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
          TROPO_O3_EXCEED = 0.0 ! reset sum and counter
-         SUM_COUNT       = 0
+         TSTEP_COUNT     = 0
 
          VARNM = 'N_EXCEED_TROPO3'
          IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, N_EXCEED_TROPO3 ) ) THEN
@@ -1233,7 +1241,8 @@ C...modules
 
 1003  FORMAT( 8X, 'Processor ',I4.4,' is in darkness at ', I8.7, ':', I6.6,
      &        1X, 'GMT - no photolysis')
-9500  FORMAT(3(/ A), I7, 1X, I6.6, 1X, / "Total Number: ", I9, ";Mean Value: ", F9.6 /)
+9500  FORMAT(3(/ A), I7, 1X, I6.6, 1X, / "Total Number: ", I9, ";Mean Value: ", F9.6,
+     &       "; Max Value: ",F9.6 /)
 
       RETURN
       END SUBROUTINE PHOT

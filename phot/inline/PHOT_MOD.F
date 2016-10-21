@@ -112,8 +112,8 @@ C-----------------------------------------------------------------------
       REAL               :: TRANS_DIRECT           ! broad band direct transmission coefficient at surface
       REAL               :: TROPO_O3_COLUMN        ! ozone column density in the troposphere [Dobson Units]
       REAL               :: TROPO_O3_TOGGLE        ! factor correcting tropospheric ozone column 
-      REAL               :: TROPO_O3_ADJUST        ! factor adjusting ozone extinction 
       REAL               :: O3_TOGGLE_AVE          ! average of nonunity factors adjusting ozone extinction 
+      REAL               :: O3_TOGGLE_MIN          ! Max of nonunity factors adjusting ozone extinction 
   
       LOGICAL            :: ONLY_SOLVE_RAD             ! only compute fluxes     
       LOGICAL            :: OBEY_STRATO3_MINS = .TRUE. ! Has stratospheric O3 column not violated 
@@ -491,6 +491,7 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
      &                        / TROPO_O3_COLUMN
             N_TROPO_O3_TOGGLE = N_TROPO_O3_TOGGLE + 1 
             O3_TOGGLE_AVE     = O3_TOGGLE_AVE + TROPO_O3_TOGGLE
+            O3_TOGGLE_MIN     = MIN( O3_TOGGLE_MIN, TROPO_O3_TOGGLE)
             STRATO3_MINS_MET  = .FALSE. 
            IF( OBEY_STRATO3_MINS )THEN ! write to PE log for first occurance
                WRITE( NEW_OPTICS_LOG, 99983)STRAT_O3_COLUMN
@@ -530,7 +531,6 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
       END IF ! for NEW_PROFILE
 
 !***loop over wavelengths
-
       DO IWL = 1, NWL           ! outermost loop
 
 !        RSFC       = ALB( IWL )        ! surface albedo
@@ -549,7 +549,6 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
          DTSCAT_CLOUD = 0.0
          TAU_SCAT_CLD = 0.0
          
-         IF( ADJUST_OZONE ) TROPO_O3_ADJUST = TROPO_O3_TOGGLE
          DO L = 2, NLAYS + 1
             II = NLAYS + 2 - L  ! from top to bottom
 
@@ -558,7 +557,7 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
 
             BETA_M = SRAYL( IWL )         * BLKDENS( II ) * 100.0
             AO3    = CSZ( II,IWL,LO3O3P ) * BLKO3  ( II ) * 100.0
-            AO3    = TROPO_O3_ADJUST      * AO3
+            AO3    = TROPO_O3_TOGGLE      * AO3
             ANO2   = CSZ( II,IWL,LNO2   ) * BLKNO2 ( II ) * 100.0
 
 !***set up aerosol optical properties
