@@ -641,6 +641,7 @@ C...begin read
      &             'the reference data! '
              ERROR_FLAG = .TRUE.
              CALL M3WARN ( PNAME, 0, 0, MSG )
+             CYCLE
           END IF
           IP_REF = PHOT_MAP( IP_MAP )
           PHOTOLYSIS_RATE( IPHOT ) = PNAME_MAP( IP_MAP )

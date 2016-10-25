@@ -451,6 +451,10 @@ C *** scaling to 0.0
              ! Find the index for the pcVOC species in the emissions
              ! scale-factor vector
              V = INDEX1( 'PCVOC', N_GC_SPC, GC_SPC )
+             IF( V .LT. 1 )THEN
+                XMSG = 'Could not find PCVOC in GC namelist table'
+                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+             END IF
              S = FINDEX( V, N_GC_EMIS, GC_EMIS_MAP )
              GC_EMIS_FAC( S ) = 0.0
            ENDIF
@@ -464,6 +468,11 @@ C *** Assign Volaitlity Distribution to Primary Orgnaic Vapor Species
            DO IPOA = 1,N_VBS_BIN
              VNAME = 'V' // POA_NAME( IPOA )
              V = INDEX1( VNAME, N_GC_SPC, GC_SPC )
+             IF( V .LT. 1 )THEN
+                XMSG =  'Could not find ' // TRIM( VNAME )
+     &              //  ' in GC namelist table'
+                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+             END IF
              S = FINDEX( V, N_GC_EMIS, GC_EMIS_MAP )
              GC_EMIS_FAC( S ) = GC_EMIS_FAC( S ) * POA_OP_VF( IPOA ) * 
      &                          (1.0 - POA_AMF( IPOA ) ) / GC_MOLWT( V )

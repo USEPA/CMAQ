@@ -632,6 +632,7 @@ C Local Variables:
 
       Integer dust_org1, dust_org2
       Logical ae6isoa
+      Logical dust_match
       Logical error_flag
 
       logdev = setup_logdev()
@@ -805,7 +806,7 @@ C Find indices of required species
 C Adjust Dust Emissions list for Organic Species, if running with semivolatile POA
       If ( Index( mechname, 'NVPOA' ) .Eq. 0 ) Then
          ! Find Indices for Nonvolatile Organics
-         Do idust = 1, ndust_spc
+         Do idust = 1, ndust_list
             If ( Index( dust_spc_list( idust )%name( 2 ), 'APOCJ' ) .Gt. 0 ) dust_org1 = idust
             If ( Index( dust_spc_list( idust )%name( 2 ), 'APNCOMJ') .Gt. 0 ) dust_org2 = idust
          End Do
@@ -833,27 +834,54 @@ C Adjust Dust Emissions list for Organic Species, if running with semivolatile P
          dust_spc_list( dust_org2 )%spcfac( 2 ) = dust_OOA * ( dust_POC + dust_PNC )
       End If
 
-! Determine map between aero_spc dust emissions and the dust emission list
+! Determine map between aero_spc dust emissions and the dust emission listndust_spc
       ndust_spc = 0
       Allocate( dustlist_map( ndust_list ) )
 
       Do spc = 1, n_aerospc ! Loop through user-requested chemical species
          Do idust = 1, ndust_list ! loop through dust list
+            dust_match = .False.
             Do m = 1, n_mode
-               If ( dust_spc_list( idust )%name( m ) .Eq. aerospc( spc )%name( n ) ) Then
-                    ndust_spc = ndust_spc + 1
-                    dustlist_map( ndust_spc ) = idust
+               If( aero_missing(spc,m) )Cycle
+               If ( dust_spc_list( idust )%name( m ) .Eq. aerospc( spc )%name( m ) ) Then
+                   dust_match = .True.
                End If
             End Do
+            If( dust_match )Then
+                ndust_spc = ndust_spc + 1
+                dustlist_map( ndust_spc ) = idust
+#ifndef verbose_aero
+                Write( logdev,'(a,1x,a)')'Dust Emissions Included for ',
+     &          dust_spc_list( ndust_spc )%description
+#endif
+            End If
          End Do
       End Do
 
+      If( ndust_spc .Gt. 0 )Then
 ! build dust_spc type from selected list elements
-      Allocate( dust_spc( ndust_spc ) )
-      Do spc = 1, ndust_spc
-         idust = dustlist_map( spc )
-         dust_spc( spc ) = dust_spc_list( idust )
-      End Do
+         Allocate( dust_spc( ndust_spc ) )
+         n = 0
+#ifndef verbose_aero
+         Write(logdev,99949)
+#endif
+         Do spc = 1, ndust_spc
+            idust = dustlist_map( spc )
+            dust_spc( spc ) = dust_spc_list( idust )
+            Do m = 1, n_mode
+               If( len_trim( dust_spc( spc )%name( m ) ) .lt. 1 )cycle
+               n = n + 1
+#ifndef verbose_aero
+               Write(logdev,99950)n,dust_spc( spc )%name( m ),dust_spc( spc )%spcfac( m )
+#endif
+            End Do
+         End Do
+      End If
+
+#ifndef verbose_aero
+99949 Format(/ '_I_',1X,'Aero_Species____','Dust_Emiss_Speciation')
+99950 Format(i3,1X,a16,11X,es12.4)
+#endif
 
       Deallocate( dustlist_map )
 
