@@ -1,1 +1,0 @@
-/home/yoj/src/repo/restruct/CMAQ_Dev_Restruct/CCTM/src/MECHS/cb05tump_ae6_aq/SpecDef_cb05tump_ae6_aq.txt

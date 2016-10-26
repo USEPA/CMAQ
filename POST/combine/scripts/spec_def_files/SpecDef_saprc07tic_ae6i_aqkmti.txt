@@ -1,1 +1,0 @@
-/home/yoj/src/repo/restruct/CMAQ_Dev_Restruct/CCTM/src/MECHS/saprc07tic_ae6i_aqkmti/SpecDef_saprc07tic_ae6i_aqkmti.txt
