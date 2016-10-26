@@ -1,59 +1,41 @@
-# Update to Potential Vorticity Scaling for Ozone Representation
+# Representing the Influence of Stratosphere-Troposphere Exchange on Simulated O3 Distributions 
 
 **Author/P.O.C.:**, [Rohit Mathur](mailto:mathur.rohit@epa.gov), Computational Exposure Division, U.S. EPA
 
 ## Brief Description 
 
-The CMAQ model now contains detailed halogen (bromine and iodine) chemistry. Sarwar et al. (2015) examined the impacts of halogen chemistry without and with the photolysis of higher iodine oxides. The inclusion of the photolysis of higher iodine oxides substantially reduces ozone and is not included in the model. The halogen chemistry without the photolysis of higher iodine is included in the model. The halogen chemistry in CMAQ follows the description of Sarwar et al. (2015) with the following three changes: (1) Rate constants of the several iodine reactions in Sarwar et al. (2015) contained special expressions which have been replaced with rate constants from Sherwen et al. (2016) (2) Sarwar et al. (2015) calculated photolysis rates of halogen species using ratios of other chemical species following the Comprehensive Air quality Model with extensions (Yarwood et al. 2012). These photolysis rates are now directly calculated using absorption cross-section and quantum yield data (3) Br2 emissions are a function of sea-salt production rates which are calculated in the aerosol module of CMAQ. Sarwar et al. (2015) calculated Br2 emissions independent of the sea-salt production rates in the aerosol module of CMAQ which are now calculated using the sea-salt production rates in the aerosol module of CMAQ. 
+Though the role of cross-tropopause transport of O3 is acknowledged as a significant contributor to the tropospheric O3 budget, the distribution of O3 in the troposphere that originates from the stratosphere is still uncertain. Tightening O3 NAAQS and decreasing amounts of photo-chemically derived O3 due to continuously declining anthropogenic precursor emissions, now put greater emphasis on accurately characterizing the fraction of O3 in the troposphere, especially at the surface, that is of stratospheric origin.  This fraction varies spatially and seasonally in response to the tropopause height, with larger contributions episodically from deep intrusion events associated with weather patterns and frontal movement.  Potential vorticity (PV) has been shown to be a robust indicator of air mass exchange between the stratosphere and the troposphere with strong positive correlation with O3 and other trace species transported from the stratosphere to the upper troposphere (Danielsen, 1968). Numerous modeling studies have used this correlation to develop scaling factors that specify O3 in the modeled upper tropospheric-lower stratospheric (UTLS) based on estimated PV. The reported O3/PV ratios (e.g., Ebel et al, 1991; Carmichael et al, 1998; McCaffery et al, 2004; Mathur et al., 2008) however exhibit a wide range: 20-100 ppb/PVu (1 PV unit = 10-6 m2 K kg-1 s-1), as a function of location, altitude and season.  
 
-## Significance and Impact
+To overcome these challenges and to develop a more robust representation of STE impacts, we have developed a dynamic O3-PV function based on 21-year ozonesonde records from World Ozone and Ultraviolet Radiation Data Centre (WOUDC) with corresponding PV values from WRF-CMAQ simulation across the northern hemisphere from 1990 to 2010. The result suggests strong spatial and seasonal variations of O3/PV ratios which exhibits large values in the upper layers and in high latitude regions, with highest values in spring and the lowest values in autumn over an annual cycle. The new generalized parameterization, detailed in Xing et al. (2016) can dynamically represent O3 in the UTLS across the northern hemisphere. The implementation of the new function in the hemispheric version of CMAQ significantly improves the model’s performance in the simulation of UTLS O3 in both magnitude and seasonality compared to observations, which then enables a more accurate simulation of the vertical distribution of O3 across the northern hemisphere (Xing et al., 2016). These can then be used to derive more realistic vertically and temporally varying LBCs for regional nested model calculations.  
 
-Halogen chemistry reduces mean ozone by 2-6 ppbv over seawater and 2-4 ppbv over some areas of land. The inclusion of the halogen chemistry increases model runtime by > 25%. 
-
+In CMAQv5.2, this PV-based scaling of O3 in the model’s UTLS is invoked through calling the subroutine PVO3 in the subroutine SCIPROC.  In the current implementation, modelled O3 for all layers at pressure <110mb is scaled by the estimated PV using the dynamical function such that the scaling is dependent on latitude, altitude, and time. It is recommended that users pay attention to the vertical resolution employed in the discretization of the modelled vertical extent. Since O3 vertical profiles exhibit a strong gradient near the tropopause, inadequate vertical resolution near the tropopause can result in excessive artificial diffusion of O3 resulting in unrealistic high simulated O3 in the mid troposphere. This can then be entrained downwards through deep clouds and then to the boundary layer thereby unrealistically impacting predicted surface O3.   
 
 ## Affected Files:
 
-MECHS/cb05eh51_ae6_aq/AE_cb05eh51_ae6_aq.nml   
-MECHS/cb05eh51_ae6_aq/CSQY_DATA_cb05eh51_ae6_aq  
-MECHS/cb05eh51_ae6_aq/GC_cb05eh51_ae6_aq.nml  
-MECHS/cb05eh51_ae6_aq/NR_cb05eh51_ae6_aq.nml  
-MECHS/cb05eh51_ae6_aq/RXNS_DATA_MODULE.F90   
-MECHS/cb05eh51_ae6_aq/RXNS_FUNC_MODULE.F90   
-MECHS/cb05eh51_ae6_aq/Species_Table_TR_0.nml   
-MECHS/cb05eh51_ae6_aq/mech_CB05eh51.def   
-gas/ebi_cb05eh51_ae6_aq/hrdata_mod.F   
-gas/ebi_cb05eh51_ae6_aq/hrdriver.F   
-gas/ebi_cb05eh51_ae6_aq/hrg1.F   
-gas/ebi_cb05eh51_ae6_aq/hrg2.F   
-gas/ebi_cb05eh51_ae6_aq/hrg3.F   
-gas/ebi_cb05eh51_ae6_aq/hrg4.F   
-gas/ebi_cb05eh51_ae6_aq/hrinit.F   
-gas/ebi_cb05eh51_ae6_aq/hrprodloss.F   
-gas/ebi_cb05eh51_ae6_aq/hrrates.F     
-gas/ebi_cb05eh51_ae6_aq/hrsolver.F   
-emis/emis/MGEMIS.F   
-emis/emis/SSEMIS.F   
-emis/emis/EMIS_DEFN.F   
-vdiff/acm2/ASX_DATA_MOD.F   
-vdiff/acm2/vdiffproc.F   
-aero/aero6/AEROSOL_CHEMISTRY.F   
-aero/aero6/SOA_DEFN.F   
-cloud/acm_ae6/hlconst.F   
-depv/m3dry/DEPVVARS.F   
-ICL/fixed/filenames/FILES_CTM.EXT    
-
+driver/wrf/sciproc.F  
+driver/yamo/sciproc.F  
+pv_o3/pvo3.F  
 
 ## References: 
 
-Sarwar, et al.: Impact of enhanced ozone deposition and halogen chemistry on tropospheric ozone over the Northern Hemisphere, Environmental Science & Technology, 49(15):9203-9211, 2015.   
-Yarwood et al.: Improving CAMx performance in simulating ozone transport from the Gulf of Mexico, Final Report for the Texas Commission on Environmental Quality; Project No. 0626408I, 2012.   
-Sherwen et al.:  Iodine’s impact on tropospheric oxidants: a global model study in GEOS-Chem, Atmospheric Chemistry & Physics, 16, 1161–1186, 2016.  
+Carmichael, G. R., Uno, I., Phadnis, M. J., Zhang, Y., and Sunwoo, Y.: Tropospheric ozone production and transport in the springtime in east Asia. J. Geophys. Res., 103(D9), 10649-10671, 1998.  
+
+Danielsen, E. F., Stratospheric-Tropospheric Exchange Based on Radioactivity, Ozone and Potential Vorticity, J. Atmos. Sci., 25, 502–518, 1968.   
+
+Ebel, A., H. Haus, H. J. Jakobs, M. Laube, M. Memmesheimer, and A. Oberreuter: Simulation of ozone intrusion caused by a tropopause fold and cut-off low, Atmos. Environ., 25, 2131–2144, 1991.   
+
+Mathur, R., Lin, H. M., McKeen, S., Kang, D., and Wong, D.: Three-dimensional model studies of exchange processes in the troposphere: use of potential vorticity to specify aloft O3 in regional models, Presented at the 7th Annual CMAS Conference, available at: https://www.cmascenter.org/conference/2008/slides/mathur_three-dimension_model_cmas08.ppt, 2008.   
+
+McCaffery, S. J., S. A. McKeen, E.-Y. Hsie, D. D. Parrish, O. R. Cooper, J. S. Holloway, G. Hubler, F. C. Fehsenfeld, and M. Trainer: A case study of stratosphere-troposphere exchange during the 1996 North Atlantic Regional Experiment, J. Geophys. Res., 109, D14103, doi:10.1029/2003JD004007, 2004.   
+
+Xing, J., R. Mathur, J. Pleim, C. Hogrefe, J. Wang, C.-M. Gan, G. Sarwar, D. Wong, and S. McKeen, Representing the effects of stratosphere-troposphere exchange on 3D O3 distributions in chemistry transport models using a potential vorticity based parameterization, Atmos. Chem. Phys., 16, 10865-10877, doi:10.5194/acp-16-10865-2016, 2016.   
+
 
 -----
 ## Internal Records:
 
 ### Relevant Pull Requests: 
-  [PR #31](/usepa/cmaq_dev/pull/31)
+  [PR #31](https://github.com/usepa/cmaq_dev/pull/31)
 
 ### Commit IDs:
 992729db506091be3ce80f5086d909e0ea15ae9f  

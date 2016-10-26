@@ -92,13 +92,13 @@ emis/emis/PT3D_DEFN.F
 ## Internal Records:
 
 ### Relevant Pull Requests: 
-  [PR #18](/usepa/cmaq_dev/pull/18)  
-  [PR #20](/usepa/cmaq_dev/pull/20)  
-  [PR #106](/usepa/cmaq_dev/pull/106)  
-  [PR #116](/usepa/cmaq_dev/pull/116)  
-  [PR #121](/usepa/cmaq_dev/pull/121)  
-  [PR #123](/usepa/cmaq_dev/pull/123)  
-  [PR #124](/usepa/cmaq_dev/pull/124)  
+  [PR #18](https://github.com/usepa/cmaq_dev/pull/18)  
+  [PR #20](https://github.com/usepa/cmaq_dev/pull/20)  
+  [PR #106](https://github.com/usepa/cmaq_dev/pull/106)  
+  [PR #116](https://github.com/usepa/cmaq_dev/pull/116)  
+  [PR #121](https://github.com/usepa/cmaq_dev/pull/121)  
+  [PR #123](https://github.com/usepa/cmaq_dev/pull/123)  
+  [PR #124](https://github.com/usepa/cmaq_dev/pull/124)  
 
 ### Commit IDs:
 ce70e37fe1d18628bc2cb0fb969dd5da27e5de90
