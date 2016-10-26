@@ -571,7 +571,6 @@ C...modules
             END IF
          END IF
 #endif
-         TROPO_O3_EXCEED = 0.0
       ELSE     
          JTIME_CHK = .FALSE.
       END IF 
@@ -611,7 +610,8 @@ C...modules
             AERO_SSA     = 0.0
             AERO_ASYM    = 0.0
             ACTINIC_FX   = 0.0
-                   
+
+            TROPO_O3_EXCEED   = 0.0
             TRANSMIS_DIFFUSE  = 0.0
             TRANSMIS_DIRECT   = 0.0
             REFLECT_COEFF     = 0.0
@@ -654,6 +654,7 @@ C...modules
                      AERO_ASYM ( COL,ROW, :,: ) = 0.0
                      ACTINIC_FX( COL,ROW, :,: ) = 0.0
                    
+                     TROPO_O3_EXCEED( COL,ROW )  = 0.0
                      TRANSMIS_DIFFUSE( COL,ROW ) = 0.0
                      TRANSMIS_DIRECT ( COL,ROW ) = 0.0
                      REFLECT_COEFF   ( COL,ROW ) = 0.0
@@ -800,6 +801,8 @@ C...modules
 !     &                                           0.0)
 !     &                                         + 1.0 / TROPO_O3_TOGGLE - 1.0
                      TROPO_O3_EXCEED( COL,ROW ) = TROPO_O3_COLUMN/(MAX_TROPOO3_FRAC*TOTAL_O3_COLUMN) - 1.0
+               ELSE IF(  PHOTDIAG ) THEN
+                     TROPO_O3_EXCEED( COL,ROW ) = 0.0
                END IF 
 
                IF ( JTIME_CHK  ) THEN
@@ -1070,7 +1073,7 @@ C...modules
             XMSG = 'Error writing variable ' // VARNM
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
-         TROPO_O3_EXCEED = 0.0 ! reset sum and counter
+!        TROPO_O3_EXCEED = 0.0 ! reset sum and counter
          TSTEP_COUNT     = 0
 
          VARNM = 'N_EXCEED_TROPO3'
