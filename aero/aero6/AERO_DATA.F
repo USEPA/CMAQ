@@ -850,7 +850,7 @@ C Adjust Dust Emissions list for Organic Species, if running with semivolatile P
             If( dust_match )Then
                 ndust_spc = ndust_spc + 1
                 dustlist_map( ndust_spc ) = idust
-#ifndef verbose_aero
+#ifdef verbose_aero
                 Write( logdev,'(a,1x,a)')'Dust Emissions Included for ',
      &          dust_spc_list( ndust_spc )%description
 #endif
@@ -862,7 +862,7 @@ C Adjust Dust Emissions list for Organic Species, if running with semivolatile P
 ! build dust_spc type from selected list elements
          Allocate( dust_spc( ndust_spc ) )
          n = 0
-#ifndef verbose_aero
+#ifdef verbose_aero
          Write(logdev,99949)
 #endif
          Do spc = 1, ndust_spc
@@ -871,14 +871,14 @@ C Adjust Dust Emissions list for Organic Species, if running with semivolatile P
             Do m = 1, n_mode
                If( len_trim( dust_spc( spc )%name( m ) ) .lt. 1 )cycle
                n = n + 1
-#ifndef verbose_aero
+#ifdef verbose_aero
                Write(logdev,99950)n,dust_spc( spc )%name( m ),dust_spc( spc )%spcfac( m )
 #endif
             End Do
          End Do
       End If
 
-#ifndef verbose_aero
+#ifdef verbose_aero
 99949 Format(/ '_I_',1X,'Aero_Species____','Dust_Emiss_Speciation')
 99950 Format(i3,1X,a16,11X,es12.4)
 #endif
