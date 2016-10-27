@@ -47,7 +47,7 @@ No impact on results. This is for the benefit of users and to maintain consisten
 ## Internal Records:
 
 ### Relevant Pull Requests:   
-  [PR #120](/usepa/cmaq_dev/pull/120)
+  [PR #120](https://github.com/usepa/cmaq_dev/pull/120)
 
 ### Commit IDs:
   b7e9682ef5ac055ee7006b3fe41409824a7cfd5b  

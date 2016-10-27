@@ -48,9 +48,9 @@ This effects the stability of the mode widths (standard deviation). It`s overall
 ## Internal Records:
 
 ### Relevant Pull Requests: 
-  [PR #63](/usepa/cmaq_dev/pull/63)  
-  [PR #97](/usepa/cmaq_dev/pull/97)  
-  [PR #70](/usepa/cmaq_dev/pull/70)  
+  [PR #63](https://github.com/usepa/cmaq_dev/pull/63)  
+  [PR #97](https://github.com/usepa/cmaq_dev/pull/97)  
+  [PR #70](https://github.com/usepa/cmaq_dev/pull/70)  
 
 ### Commit IDs:
   b775f74dabd842020d5636ea60ed250a64ee66bc  

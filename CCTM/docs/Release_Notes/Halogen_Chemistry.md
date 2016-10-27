@@ -53,7 +53,7 @@ Sherwen et al.:  Iodine’s impact on tropospheric oxidants: a global model stud
 ## Internal Records:
 
 ### Relevant Pull Requests: 
-  [PR #30](/usepa/cmaq_dev/pull/30)
+  [PR #30](https://github.com/usepa/cmaq_dev/pull/30)
 
 ### Commit IDs:
 992729db506091be3ce80f5086d909e0ea15ae9f  
