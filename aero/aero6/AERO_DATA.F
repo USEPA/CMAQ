@@ -403,7 +403,7 @@ C                         Aitken    accum     coarse             Aitken  accum  
      &   emis_table( 'Nickel        ', (/'         ','ANIJ     ','         '/), (/ 0.0, 1.34E-8, 0.0    /) ),   ! accumaltion mode Nickle
      &   emis_table( 'Arsenic       ', (/'         ','AASJ     ','         '/), (/ 0.0, 4.93E-8, 0.0    /) ),   ! accumaltion mode Arsenic
      &   emis_table( 'Beryllium     ', (/'         ','ABEJ     ','         '/), (/ 0.0, 5.2E-11, 0.0    /) ),   ! accumaltion mode Beryllium
-     &   emis_table( 'Mercury       ', (/'         ','AHGJ     ','         '/), (/ 0.0, 5.8E-12, 0.0    /) ),   ! accumaltion mode Mercury
+     &   emis_table( 'Mercury       ', (/'         ','APHGJ    ','         '/), (/ 0.0, 5.8E-12, 0.0    /) ),   ! accumaltion mode Mercury
      &   emis_table( 'Lead          ', (/'         ','APBJ     ','         '/), (/ 0.0, 6.0E-11, 0.0    /) ),   ! accumaltion mode Lead
      &   emis_table( 'Cadmium       ', (/'         ','ACDJ     ','         '/), (/ 0.0, 1.93E-9, 0.0    /) ),   ! accumaltion mode cadmium
      &   emis_table( 'Air Toxics Mn ', (/'         ','AMN_HAPSJ','         '/), (/ 0.0, 4.7E-11, 0.0    /) ),   ! accumaltion mode Air toxics Manganese
@@ -840,10 +840,23 @@ C Adjust Dust Emissions list for Organic Species, if running with semivolatile P
 
       Do spc = 1, n_aerospc ! Loop through user-requested chemical species
          Do idust = 1, ndust_list ! loop through dust list
+#ifdef verbose_aero
+            xmsg = ' '
+#endif
             dust_match = .False.
             Do m = 1, n_mode
                If( aero_missing(spc,m) )Cycle
                If ( dust_spc_list( idust )%name( m ) .Eq. aerospc( spc )%name( m ) ) Then
+#ifdef verbose_aero
+                   Select Case( m )
+                     Case( 1 )
+                        xmsg = 'Aitken'
+                     Case( 2 )
+                        xmsg = Trim( xmsg ) // ' Accum.'
+                     Case( 3 ) 
+                       xmsg = Trim( xmsg ) // ' Coarse'
+                   End Select
+#endif
                    dust_match = .True.
                End If
             End Do
@@ -851,8 +864,9 @@ C Adjust Dust Emissions list for Organic Species, if running with semivolatile P
                 ndust_spc = ndust_spc + 1
                 dustlist_map( ndust_spc ) = idust
 #ifdef verbose_aero
-                Write( logdev,'(a,1x,a)')'Dust Emissions Included for ',
-     &          dust_spc_list( ndust_spc )%description
+                Write( logdev,'(a,1x,a)')'Dust Emissions Added to ',
+     &          Trim( dust_spc_list( ndust_spc )%description )  // ' '
+     &          // Trim( xmsg ) // ' mode(s)'
 #endif
             End If
          End Do
