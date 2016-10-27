@@ -27,11 +27,11 @@ Source code and scripts are organized as follows:
 * **UTIL:** Utilities for generating code and using CMAQ (e.g. chemical mechanism generation, IO-API, etc)
 
 ##Documentation
+Release notes and Code documentation are included within this repository (they are version-controlled along with the code itself).  
+
 [CMAQv5.2 Documentation](CCTM/docs/User_Manual/User_Manual.md)   
-[CMAQv5.2 Release Notes](CCTM/docs/Release_Notes/Summary.md)   
-Release notes and Code documentation are included within this repository (they are version-controlled along with the code itself).
+[CMAQv5.2 Release Notes](CCTM/docs/Release_Notes/README.md)   
 
 ##CMAQ Test Cases
 Benchmark/tutorial input and output data for each CMAQ release version are available from the CMAS Center Software Clearinghouse. From http://www.cmascenter.org, select Download -> Software -> CMAQ and choose the version to get the tutorial data.
-
 
