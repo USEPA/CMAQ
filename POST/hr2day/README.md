@@ -19,6 +19,10 @@ This Fortran program creates gridded IOAPI files with daily values from gridded 
  START_HOUR    starting hour to use when computing daily values (default 0)
  END_HOUR      ending hour to use when computing daily values (default 23)
  TEMPERATURE   temperature variable to be used in the @MAXT operation (default TEMP2)
+ HOURS_8HRMAX  Number of 8hr values to use when computing daily maximum 8hr ozone.
+               Allowed values are 24 (use all 8-hr averages with starting hours 
+               from 0 - 23 hr local time) and 17 (use only the 17 8-hr averages
+               with starting hours from 7 - 23 hr local time) (default is 24)
  INFILE        input IOAPI file name with hourly values. Supported map projections are 
                Lambert conformal, polar stereographic, and lat/lon
  OUTFILE       output IOAPI file name with computed daily values
