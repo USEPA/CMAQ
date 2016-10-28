@@ -1,0 +1,23 @@
+BRO_IUPAC14     
+! BRO + HV = BR + O
+! BRO Photolysis data  
+! Supplied by Brett Gantt
+! Created from IUPAC dataset 3-Mar-2014 10:00
+Points (These data can be treated as point values)
+! With FAC, units are (cm^2/molecule)
+FAC=1.0
+302.0 2.000E-18 1.000
+307.0 2.590E-18 1.000
+312.0 4.540E-18 1.000
+317.0 3.910E-18 1.000
+322.0 6.000E-18 1.000
+327.0 7.530E-18 1.000
+332.0 6.280E-18 1.000
+337.0 5.890E-18 1.000
+342.0 5.150E-18 1.000
+347.0 3.990E-18 1.000
+352.0 2.280E-18 1.000
+357.0 1.720E-18 1.000
+362.0 1.610E-18 1.000
+367.0 9.200E-19 1.000
+372.0 5.100E-19 1.000

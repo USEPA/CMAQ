@@ -1,0 +1,603 @@
+
+R version 2.12.1 (2010-12-16)
+Copyright (C) 2010 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+Platform: x86_64-unknown-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> 
+> #
+> # nohup R --vanilla < --args file.name="file.1" file.out="file.2" file.img="file.3" ocean_mask.R > & ocean_mask.dump &
+> #
+> 
+> #library(maps)
+> 
+> #args <- commandArgs(TRUE)
+> 
+> file.name <- "/project/pinder/lightningNOx/emissions/src/base//mcip/met.20060101.ioapi"
+> file.out <- "/project/pinder/lightningNOx/emissions/src/base//R-out/canada_mask.csv"
+> file.img <- "/project/pinder/lightningNOx/emissions/src/base//R-out/canada_mask.png"
+> file.Rscript <- "/project/pinder/lightningNOx/emissions/src/base/R-scripts"
+> 
+> print(args)
+function (name) 
+.Internal(args(name))
+<environment: namespace:base>
+> print(c(file.name, file.out, file.img))
+[1] "/project/pinder/lightningNOx/emissions/src/base//mcip/met.20060101.ioapi"
+[2] "/project/pinder/lightningNOx/emissions/src/base//R-out/canada_mask.csv"  
+[3] "/project/pinder/lightningNOx/emissions/src/base//R-out/canada_mask.png"  
+> 
+> 
+> library(maps)
+> 
+> 
+> source(paste(file.Rscript,"/func_for_CMAQ_files_with_ncdf_rgdal.r", sep=""))
+> source(paste(file.Rscript,"/vertical_image_legend.R", sep=""))
+> source(paste(file.Rscript,"/draw_color_scatterplot_w_geoR.r", sep=""))
+> source(paste(file.Rscript,"/dapply.R", sep=""))
+> 
+> ########################################
+> # open CMAQ grid files, for this case
+> ########################################
+> 
+> grid.data <- get.Models3.variable(file = file.name,
++                                   ldatetime=get.datetime.seq(file.name)[1],
++                                   udatetime=get.datetime.seq(file.name)[1],
++                                   var="TEMP2")
+Loading required package: ncdf
+> 
+> 
+> grids.from.land <- ceiling(100 / (grid.data$x.cell.ctr[2] - grid.data$x.cell.ctr[1]))
+> res <- (grid.data$x.cell.ctr[2] - grid.data$x.cell.ctr[1])
+> n.col <- dim(grid.data$data)[1]
+> n.row <- dim(grid.data$data)[2]
+> 
+> mask <- matrix(0,nrow=n.row, ncol=n.col)
+> 
+> # figure out a way to do this in batch
+> for (col in 1:n.col) {
++   for(row in 1:n.row) {
++     place <- (map.where(database="world",
++                         proj.Models3.to.lonlat(grid.data$x.cell.ctr[col],
++                                                grid.data$y.cell.ctr[row],file.name)))
++     if ((!(is.na(place))) & (length(grep("Canada", place)) > 0))
++       mask[row,col] <- 1
++     
++   }
++   print(paste(col,"of",n.col,sep=" "))
++ }
+Loading required package: rgdal
+Loading required package: sp
+Geospatial Data Abstraction Library extensions to R successfully loaded
+Loaded GDAL runtime: GDAL 1.6.2, released 2009/07/31
+Path to GDAL shared files: /usr/local/share/gdal
+Loaded PROJ.4 runtime: Rel. 4.6.0, 21 Dec 2007
+Path to PROJ.4 shared files: (autodetected)
+[1] "1 of 459"
+[1] "2 of 459"
+[1] "3 of 459"
+[1] "4 of 459"
+[1] "5 of 459"
+[1] "6 of 459"
+[1] "7 of 459"
+[1] "8 of 459"
+[1] "9 of 459"
+[1] "10 of 459"
+[1] "11 of 459"
+[1] "12 of 459"
+[1] "13 of 459"
+[1] "14 of 459"
+[1] "15 of 459"
+[1] "16 of 459"
+[1] "17 of 459"
+[1] "18 of 459"
+[1] "19 of 459"
+[1] "20 of 459"
+[1] "21 of 459"
+[1] "22 of 459"
+[1] "23 of 459"
+[1] "24 of 459"
+[1] "25 of 459"
+[1] "26 of 459"
+[1] "27 of 459"
+[1] "28 of 459"
+[1] "29 of 459"
+[1] "30 of 459"
+[1] "31 of 459"
+[1] "32 of 459"
+[1] "33 of 459"
+[1] "34 of 459"
+[1] "35 of 459"
+[1] "36 of 459"
+[1] "37 of 459"
+[1] "38 of 459"
+[1] "39 of 459"
+[1] "40 of 459"
+[1] "41 of 459"
+[1] "42 of 459"
+[1] "43 of 459"
+[1] "44 of 459"
+[1] "45 of 459"
+[1] "46 of 459"
+[1] "47 of 459"
+[1] "48 of 459"
+[1] "49 of 459"
+[1] "50 of 459"
+[1] "51 of 459"
+[1] "52 of 459"
+[1] "53 of 459"
+[1] "54 of 459"
+[1] "55 of 459"
+[1] "56 of 459"
+[1] "57 of 459"
+[1] "58 of 459"
+[1] "59 of 459"
+[1] "60 of 459"
+[1] "61 of 459"
+[1] "62 of 459"
+[1] "63 of 459"
+[1] "64 of 459"
+[1] "65 of 459"
+[1] "66 of 459"
+[1] "67 of 459"
+[1] "68 of 459"
+[1] "69 of 459"
+[1] "70 of 459"
+[1] "71 of 459"
+[1] "72 of 459"
+[1] "73 of 459"
+[1] "74 of 459"
+[1] "75 of 459"
+[1] "76 of 459"
+[1] "77 of 459"
+[1] "78 of 459"
+[1] "79 of 459"
+[1] "80 of 459"
+[1] "81 of 459"
+[1] "82 of 459"
+[1] "83 of 459"
+[1] "84 of 459"
+[1] "85 of 459"
+[1] "86 of 459"
+[1] "87 of 459"
+[1] "88 of 459"
+[1] "89 of 459"
+[1] "90 of 459"
+[1] "91 of 459"
+[1] "92 of 459"
+[1] "93 of 459"
+[1] "94 of 459"
+[1] "95 of 459"
+[1] "96 of 459"
+[1] "97 of 459"
+[1] "98 of 459"
+[1] "99 of 459"
+[1] "100 of 459"
+[1] "101 of 459"
+[1] "102 of 459"
+[1] "103 of 459"
+[1] "104 of 459"
+[1] "105 of 459"
+[1] "106 of 459"
+[1] "107 of 459"
+[1] "108 of 459"
+[1] "109 of 459"
+[1] "110 of 459"
+[1] "111 of 459"
+[1] "112 of 459"
+[1] "113 of 459"
+[1] "114 of 459"
+[1] "115 of 459"
+[1] "116 of 459"
+[1] "117 of 459"
+[1] "118 of 459"
+[1] "119 of 459"
+[1] "120 of 459"
+[1] "121 of 459"
+[1] "122 of 459"
+[1] "123 of 459"
+[1] "124 of 459"
+[1] "125 of 459"
+[1] "126 of 459"
+[1] "127 of 459"
+[1] "128 of 459"
+[1] "129 of 459"
+[1] "130 of 459"
+[1] "131 of 459"
+[1] "132 of 459"
+[1] "133 of 459"
+[1] "134 of 459"
+[1] "135 of 459"
+[1] "136 of 459"
+[1] "137 of 459"
+[1] "138 of 459"
+[1] "139 of 459"
+[1] "140 of 459"
+[1] "141 of 459"
+[1] "142 of 459"
+[1] "143 of 459"
+[1] "144 of 459"
+[1] "145 of 459"
+[1] "146 of 459"
+[1] "147 of 459"
+[1] "148 of 459"
+[1] "149 of 459"
+[1] "150 of 459"
+[1] "151 of 459"
+[1] "152 of 459"
+[1] "153 of 459"
+[1] "154 of 459"
+[1] "155 of 459"
+[1] "156 of 459"
+[1] "157 of 459"
+[1] "158 of 459"
+[1] "159 of 459"
+[1] "160 of 459"
+[1] "161 of 459"
+[1] "162 of 459"
+[1] "163 of 459"
+[1] "164 of 459"
+[1] "165 of 459"
+[1] "166 of 459"
+[1] "167 of 459"
+[1] "168 of 459"
+[1] "169 of 459"
+[1] "170 of 459"
+[1] "171 of 459"
+[1] "172 of 459"
+[1] "173 of 459"
+[1] "174 of 459"
+[1] "175 of 459"
+[1] "176 of 459"
+[1] "177 of 459"
+[1] "178 of 459"
+[1] "179 of 459"
+[1] "180 of 459"
+[1] "181 of 459"
+[1] "182 of 459"
+[1] "183 of 459"
+[1] "184 of 459"
+[1] "185 of 459"
+[1] "186 of 459"
+[1] "187 of 459"
+[1] "188 of 459"
+[1] "189 of 459"
+[1] "190 of 459"
+[1] "191 of 459"
+[1] "192 of 459"
+[1] "193 of 459"
+[1] "194 of 459"
+[1] "195 of 459"
+[1] "196 of 459"
+[1] "197 of 459"
+[1] "198 of 459"
+[1] "199 of 459"
+[1] "200 of 459"
+[1] "201 of 459"
+[1] "202 of 459"
+[1] "203 of 459"
+[1] "204 of 459"
+[1] "205 of 459"
+[1] "206 of 459"
+[1] "207 of 459"
+[1] "208 of 459"
+[1] "209 of 459"
+[1] "210 of 459"
+[1] "211 of 459"
+[1] "212 of 459"
+[1] "213 of 459"
+[1] "214 of 459"
+[1] "215 of 459"
+[1] "216 of 459"
+[1] "217 of 459"
+[1] "218 of 459"
+[1] "219 of 459"
+[1] "220 of 459"
+[1] "221 of 459"
+[1] "222 of 459"
+[1] "223 of 459"
+[1] "224 of 459"
+[1] "225 of 459"
+[1] "226 of 459"
+[1] "227 of 459"
+[1] "228 of 459"
+[1] "229 of 459"
+[1] "230 of 459"
+[1] "231 of 459"
+[1] "232 of 459"
+[1] "233 of 459"
+[1] "234 of 459"
+[1] "235 of 459"
+[1] "236 of 459"
+[1] "237 of 459"
+[1] "238 of 459"
+[1] "239 of 459"
+[1] "240 of 459"
+[1] "241 of 459"
+[1] "242 of 459"
+[1] "243 of 459"
+[1] "244 of 459"
+[1] "245 of 459"
+[1] "246 of 459"
+[1] "247 of 459"
+[1] "248 of 459"
+[1] "249 of 459"
+[1] "250 of 459"
+[1] "251 of 459"
+[1] "252 of 459"
+[1] "253 of 459"
+[1] "254 of 459"
+[1] "255 of 459"
+[1] "256 of 459"
+[1] "257 of 459"
+[1] "258 of 459"
+[1] "259 of 459"
+[1] "260 of 459"
+[1] "261 of 459"
+[1] "262 of 459"
+[1] "263 of 459"
+[1] "264 of 459"
+[1] "265 of 459"
+[1] "266 of 459"
+[1] "267 of 459"
+[1] "268 of 459"
+[1] "269 of 459"
+[1] "270 of 459"
+[1] "271 of 459"
+[1] "272 of 459"
+[1] "273 of 459"
+[1] "274 of 459"
+[1] "275 of 459"
+[1] "276 of 459"
+[1] "277 of 459"
+[1] "278 of 459"
+[1] "279 of 459"
+[1] "280 of 459"
+[1] "281 of 459"
+[1] "282 of 459"
+[1] "283 of 459"
+[1] "284 of 459"
+[1] "285 of 459"
+[1] "286 of 459"
+[1] "287 of 459"
+[1] "288 of 459"
+[1] "289 of 459"
+[1] "290 of 459"
+[1] "291 of 459"
+[1] "292 of 459"
+[1] "293 of 459"
+[1] "294 of 459"
+[1] "295 of 459"
+[1] "296 of 459"
+[1] "297 of 459"
+[1] "298 of 459"
+[1] "299 of 459"
+[1] "300 of 459"
+[1] "301 of 459"
+[1] "302 of 459"
+[1] "303 of 459"
+[1] "304 of 459"
+[1] "305 of 459"
+[1] "306 of 459"
+[1] "307 of 459"
+[1] "308 of 459"
+[1] "309 of 459"
+[1] "310 of 459"
+[1] "311 of 459"
+[1] "312 of 459"
+[1] "313 of 459"
+[1] "314 of 459"
+[1] "315 of 459"
+[1] "316 of 459"
+[1] "317 of 459"
+[1] "318 of 459"
+[1] "319 of 459"
+[1] "320 of 459"
+[1] "321 of 459"
+[1] "322 of 459"
+[1] "323 of 459"
+[1] "324 of 459"
+[1] "325 of 459"
+[1] "326 of 459"
+[1] "327 of 459"
+[1] "328 of 459"
+[1] "329 of 459"
+[1] "330 of 459"
+[1] "331 of 459"
+[1] "332 of 459"
+[1] "333 of 459"
+[1] "334 of 459"
+[1] "335 of 459"
+[1] "336 of 459"
+[1] "337 of 459"
+[1] "338 of 459"
+[1] "339 of 459"
+[1] "340 of 459"
+[1] "341 of 459"
+[1] "342 of 459"
+[1] "343 of 459"
+[1] "344 of 459"
+[1] "345 of 459"
+[1] "346 of 459"
+[1] "347 of 459"
+[1] "348 of 459"
+[1] "349 of 459"
+[1] "350 of 459"
+[1] "351 of 459"
+[1] "352 of 459"
+[1] "353 of 459"
+[1] "354 of 459"
+[1] "355 of 459"
+[1] "356 of 459"
+[1] "357 of 459"
+[1] "358 of 459"
+[1] "359 of 459"
+[1] "360 of 459"
+[1] "361 of 459"
+[1] "362 of 459"
+[1] "363 of 459"
+[1] "364 of 459"
+[1] "365 of 459"
+[1] "366 of 459"
+[1] "367 of 459"
+[1] "368 of 459"
+[1] "369 of 459"
+[1] "370 of 459"
+[1] "371 of 459"
+[1] "372 of 459"
+[1] "373 of 459"
+[1] "374 of 459"
+[1] "375 of 459"
+[1] "376 of 459"
+[1] "377 of 459"
+[1] "378 of 459"
+[1] "379 of 459"
+[1] "380 of 459"
+[1] "381 of 459"
+[1] "382 of 459"
+[1] "383 of 459"
+[1] "384 of 459"
+[1] "385 of 459"
+[1] "386 of 459"
+[1] "387 of 459"
+[1] "388 of 459"
+[1] "389 of 459"
+[1] "390 of 459"
+[1] "391 of 459"
+[1] "392 of 459"
+[1] "393 of 459"
+[1] "394 of 459"
+[1] "395 of 459"
+[1] "396 of 459"
+[1] "397 of 459"
+[1] "398 of 459"
+[1] "399 of 459"
+[1] "400 of 459"
+[1] "401 of 459"
+[1] "402 of 459"
+[1] "403 of 459"
+[1] "404 of 459"
+[1] "405 of 459"
+[1] "406 of 459"
+[1] "407 of 459"
+[1] "408 of 459"
+[1] "409 of 459"
+[1] "410 of 459"
+[1] "411 of 459"
+[1] "412 of 459"
+[1] "413 of 459"
+[1] "414 of 459"
+[1] "415 of 459"
+[1] "416 of 459"
+[1] "417 of 459"
+[1] "418 of 459"
+[1] "419 of 459"
+[1] "420 of 459"
+[1] "421 of 459"
+[1] "422 of 459"
+[1] "423 of 459"
+[1] "424 of 459"
+[1] "425 of 459"
+[1] "426 of 459"
+[1] "427 of 459"
+[1] "428 of 459"
+[1] "429 of 459"
+[1] "430 of 459"
+[1] "431 of 459"
+[1] "432 of 459"
+[1] "433 of 459"
+[1] "434 of 459"
+[1] "435 of 459"
+[1] "436 of 459"
+[1] "437 of 459"
+[1] "438 of 459"
+[1] "439 of 459"
+[1] "440 of 459"
+[1] "441 of 459"
+[1] "442 of 459"
+[1] "443 of 459"
+[1] "444 of 459"
+[1] "445 of 459"
+[1] "446 of 459"
+[1] "447 of 459"
+[1] "448 of 459"
+[1] "449 of 459"
+[1] "450 of 459"
+[1] "451 of 459"
+[1] "452 of 459"
+[1] "453 of 459"
+[1] "454 of 459"
+[1] "455 of 459"
+[1] "456 of 459"
+[1] "457 of 459"
+[1] "458 of 459"
+[1] "459 of 459"
+> 
+> 
+> 
+> 
+> # get color range
+> library("fields")
+Loading required package: spam
+Package 'spam' is loaded. Spam version 0.23-0 (2010-09-01).
+Type demo( spam) for some demos, help( Spam) for an overview
+of this package.
+Help for individual functions is optained by adding the
+suffix '.spam' to the function name, e.g. 'help(chol.spam)'.
+
+Attaching package: 'spam'
+
+The following object(s) are masked from 'package:base':
+
+    backsolve, forwardsolve, norm
+
+ Use help(fields) for an overview of this library
+
+library( fields, keep.source=TRUE) retains comments in the source code. 
+> col.rng <- c("white","grey")
+> detach("package:fields")
+> 
+> z.rng <- c(0,1) 
+> 
+> #################################################
+> # plot maps of continental ocean mask
+> #################################################
+> 
+> # initialize map
+> 
+> world.lines <- get.map.lines.Models3.proj(file=file.name, region="world")
+> 
+> # CMAQ
+> png(file.img, height=600, width=600)
+> 
+> par(mar=c(3,3,5,4))
+> image(grid.data$x.cell.ctr, grid.data$y.cell.ctr, t(mask),
++       col=col.rng, breaks=c(0,0.5,1),zlim=z.rng,
++       axes=F, xlab="", ylab="")
+> #      xlab="Projection x-coord (km)", ylab="Projection y-coord (km)")
+> 
+> title(main="Canada Mask")
+> 
+> lines(world.lines, col="black")
+> box()
+> 
+> vertical.image.legend(zlim=z.rng, col=col.rng, cex=1.5)
+> 
+> dev.off()
+null device 
+          1 
+> 
+> write.table(file=file.out,as.data.frame(mask), sep=",",row.names=F,col.names=F)
+> 

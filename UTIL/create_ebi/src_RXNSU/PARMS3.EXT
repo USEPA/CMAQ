@@ -1,0 +1,181 @@
+
+!.........................................................................
+! Version "@(#)$Header$"
+!    EDSS/Models-3 I/O API.
+!    Copyright (C) 1992-2003 MCNC and Carlie J. Coats, Jr, and
+!    (C) 2003-2004 Baron Advanced Meteorological Systems LLC.
+!    Distributed under the GNU LESSER GENERAL PUBLIC LICENSE version 2.1
+!    See file "LGPL.txt" for conditions of use.
+!....................................................................
+!  INCLUDE FILE  PARMS3.EXT
+!
+!  DO NOT EDIT !!
+!
+!       The EDSS/Models-3 I/O API depends in an essential manner
+!       upon the contents of this INCLUDE file.  ANY CHANGES are
+!       likely to result in very obscure, difficult-to-diagnose
+!       bugs caused by an inconsistency between standard "libioapi.a"
+!       object-libraries and whatever code is compiled with the
+!       resulting modified INCLUDE-file.
+!
+!       By making any changes to this INCLUDE file, the user
+!       explicitly agrees that in the case any assistance is 
+!       required of MCNC or of the I/O API author, Carlie J. Coats, Jr.
+!       as a result of such changes, THE USER AND/OR HIS PROJECT OR
+!       CONTRACT AGREES TO REIMBURSE MCNC AND/OR THE I/O API AUTHOR,
+!       CARLIE J. COATS, JR., AT A RATE TRIPLE THE NORMAL CONTRACT
+!       RATE FOR THE SERVICES REQUIRED.
+!
+!  CONTAINS:
+!       Fortran dimensioning parameters, standard file-type, grid-type, etc.
+!       token values for Models-3 I/O System API
+!
+!  DEPENDENT UPON:
+!       M3INT, M3REAL, M3DBLE consistent with NETCDF.EXT
+!       Consistent with C include file "parms3.h"
+!
+!  REVISION HISTORY:
+!       prototype 3/1992 by Carlie J. Coats, Jr., MCNC Environmental
+!       Programs
+!
+!       Modified 12/1992 by CJC:  new map projection type STEGRD3.
+!
+!       Modified  6/1994 by CJC:  I/O API Revisions.
+!
+!       Modified 12/1996 by CJC:  support for new file types
+!       Modified  2/2002 by CJC:  updated dates, license; compatibility
+!       with both free and fixed Fortran 9x source forms
+!
+!       Modified 10/2003 by CJC for I/O AI version 3:  support for
+!       native-binary BINFILE3 file type
+!....................................................................
+
+!...........   Dimensioning parameters:
+            
+        INTEGER         MXDLEN3   !  description line length
+        INTEGER         NAMLEN3   !  name length (logical names, etc.)
+        INTEGER         MXFILE3   !  max number of open files
+        INTEGER         MXVARS3   !  max number of variables per file
+        INTEGER         MXDESC3   !  max number of description lines
+        INTEGER         MXLAYS3   !  max # of layers per file
+        INTEGER         MXATTS3   !  max # ATDSC3.EXT attributes per variable
+            
+!...........   Token-values ("magic numbers"):
+            
+        INTEGER         CUSTOM3   !  file type value "user-structured custom"
+        INTEGER         GRDDED3   !  file type value "gridded"
+        INTEGER         BNDARY3   !  file type value "boundary-condition"
+        INTEGER         IDDATA3   !  file type value "ID-referenced data"
+        INTEGER         PROFIL3   !  file type value "rawind vertical profiles"
+        INTEGER         GRNEST3   !  file type value "nested-grid"
+        INTEGER         SMATRX3   !  file type value "sparse matrix"
+        INTEGER         DCTNRY3   !  file type value "dictionary"
+        INTEGER         DGRAPH3   !  file type value "directed graph"
+        INTEGER         KFEVNT3   !  file type value "KF cloud event"
+        INTEGER         TSRIES3   !  file type value "time series"
+        INTEGER         PTRFLY3   !  file type value "pointer-flyer"
+
+        INTEGER         M3CHAR    !  variable type value "CHARACTER-string"
+        INTEGER         M3BYTE    !  variable type value "Byte"
+        INTEGER         M3INT     !  variable type value "INTEGER"
+        INTEGER         M3REAL    !  variable type value "REAL"
+        INTEGER         M3DBLE    !  variable type value "DOUBLE PRECISION"
+
+        INTEGER         BUFFIL3   !  "buffered-file" value for CDFID
+        INTEGER         VIRFIL3   !  "virtual-file"  value for CDFID
+        INTEGER         LSTFIL3   !  "file-list"     value for CDFID
+        INTEGER         BINFIL3   !  "native-binary" value for CDFID
+
+        INTEGER         FSREAD3   !  OPEN3() flag:  "old read-only" file
+        INTEGER         FSRDWR3   !  "old read-write" file
+        INTEGER         FSNEW3    !  "new (read-write)" file
+        INTEGER         FSUNKN3   !  "unknown (read_write)" file
+        INTEGER         FSCREA3   !  "unknown (write):  truncate if exists" file
+
+        INTEGER         LATGRD3   !  grid type value:  lat-lon coords
+        INTEGER         LAMGRD3   !  grid type value:  Lambert (e.g., RADM)
+        INTEGER         MERGRD3   !  grid type value:  (general) Mercator
+        INTEGER         STEGRD3   !  grid type value:  (tangent) stereographic
+        INTEGER         UTMGRD3   !  grid type value:  UTM (special case Merc.)
+        INTEGER         POLGRD3   !  grid type value:  polar stereographic
+        INTEGER         EQMGRD3   !  grid type value: equatorial Mercator
+        INTEGER         TRMGRD3   !  grid type value: transverse Mercator
+
+        INTEGER         VGSGPH3   !  vert coord type 1:  hydrostatic sigma-P
+        INTEGER         VGSGPN3   !  vert coord type 2:  non-h sigma-P
+        INTEGER         VGSIGZ3   !  vert coord type 3:  sigma-Z
+        INTEGER         VGPRES3   !  vert coord type 4:  pressure (mb)
+        INTEGER         VGZVAL3   !  vert coord type 5:  Z (m) (above sea lvl)
+        INTEGER         VGHVAL3   !  vert coord type 6:  H (m) (above ground)
+        INTEGER         VGWRFEM   !  vert coord type 7:  WRF mass-core sigma
+        INTEGER         VGWRFNM   !  vert coord type 8:  WRF NMM
+
+        INTEGER         ALLAYS3   !  Flag value: read all layers
+        CHARACTER*16    ALLVAR3   !  Flag value: read all variables
+        
+        REAL            BADVAL3   !  real flag value: "bad" or "missing"
+        REAL            AMISS3    !  BADVAL3 < AMISS3 on all machines
+        INTEGER         OKFLAG3   !  int flag value: "good" values
+        INTEGER         IMISS3    !  int flag value: "bad" or "missing" 
+        CHARACTER*16    CMISS3    !  char flag value:  "missing"
+
+        INTEGER         XSTAT0    !  Normal, successful completion
+        INTEGER         XSTAT1    !  File I/O error
+        INTEGER         XSTAT2    !  Execution error
+        INTEGER         XSTAT3    !  Special  error
+
+        INTEGER         LITTLE_ENDIAN
+        INTEGER         BIG_ENDIAN
+        INTEGER         PDP_ENDIAN
+
+
+!.......   Dimensioning parameters:
+
+        PARAMETER    ( MXFILE3 =  64 , MXVARS3 = 540 ,
+     &                 MXDESC3 =  60 , MXDLEN3 =  80 ,
+     &                 MXATTS3 =  20 , MXLAYS3 = 100 ,
+     &                 NAMLEN3 =  16 )
+
+!.......   Token-value parameters:
+
+        PARAMETER    ( KFEVNT3 =  -3 , DGRAPH3 =  -2 , CUSTOM3 =  -1 ,
+     &                 DCTNRY3 =   0 , GRDDED3 =   1 , BNDARY3 =   2 ,
+     &                 IDDATA3 =   3 , PROFIL3 =   4 , GRNEST3 =   5 ,
+     &                 SMATRX3 =   6 , TSRIES3 =   7 , PTRFLY3 =   8 ,
+     &                 M3BYTE  =   1 , M3CHAR  =   2 , M3INT   =   4 ,
+     &                 M3REAL  =   5 , M3DBLE  =   6 ,
+     &                 BUFFIL3 =  -1 , VIRFIL3 =  -2 , LSTFIL3 =  -3 ,
+     &                 BINFIL3 =  -4 , FSREAD3 =   1 , FSRDWR3 =   2 ,
+     &                 FSNEW3  =   3 , FSUNKN3 =   4 ,
+     &                 FSCREA3 =   5 )
+        
+        PARAMETER    ( LATGRD3 =   1 , LAMGRD3 =   2 ,
+     &                 MERGRD3 =   3 , STEGRD3 =   4 ,
+     &                 UTMGRD3 =   5 , POLGRD3 =   6 ,
+     &                 EQMGRD3 =   7 , TRMGRD3 =   8 )
+        
+        PARAMETER    ( VGSGPH3 =   1 , VGSGPN3 =   2 ,
+     &                 VGSIGZ3 =   3 , VGPRES3 =   4 ,
+     &                 VGZVAL3 =   5 , VGHVAL3 =   6 ,
+     &                 VGWRFEM =   7 , VGWRFNM =   8 )
+        
+        PARAMETER    ( ALLAYS3 =    -1 , ALLVAR3 = 'ALL',
+     &                 OKFLAG3 =  5461 ,
+     &                 IMISS3  = -9999 ,
+     &                 AMISS3  =  -9.000E36 ,
+     &                 BADVAL3 =  -9.999E36 ,
+     &                 CMISS3  =  '????????????????' )
+
+        PARAMETER    ( XSTAT0 = 0 ,
+     &                 XSTAT1 = 1 ,
+     &                 XSTAT2 = 2 ,
+     &                 XSTAT3 = 3 )
+
+!.......   These match BSD-style "endian.h" values:
+
+        PARAMETER    ( LITTLE_ENDIAN = 1234,
+     &                 BIG_ENDIAN    = 4321 ,
+     &                 PDP_ENDIAN    = 3412 )
+
+!................   end   PARMS3.EXT   ....................................
+

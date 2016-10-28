@@ -1,0 +1,85 @@
+#! /bin/csh -f
+
+# ====================== COMBINEv5.1 Run Script =====================
+# Usage: run.combine.dep >&! combine_V51.dep.log &
+#
+# To report problems or request help with this script/program:
+#             foley.kristen@epa.gov
+# ===================================================================
+
+ 
+#> Location of CMAQv5.1 benchmark case
+ set M3DATA = /home/sjr/dev/cmaqv51/data
+
+#> Location of IOAPI utilities
+ set IOAPI_DIR = /home/sjr/dev/cmaqv51/lib/x86_64/intel/ioapi
+
+#> Set the working directory
+ set BASE  = $cwd      
+
+ cd $BASE; date; set timestamp; echo " "; set echo
+
+#> Timestep run parameters.
+ set YEAR     = 2011
+ set MONTH    = 07
+ set MET_YEAR = 11
+
+#> Use GENSPEC switch to generate a new specdef file (does not generate output file).
+ setenv GENSPEC N
+
+#> define name of species definition file
+ setenv SPECIES_DEF spec_def_files/species_dep_CMAQ5.1_cb05e51_ae6_aq_CAPS.txt
+
+# Needed julian day values by month (apply for leap year only)
+if ( $MONTH == 01 ) then
+ set days   = "01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31"
+else if ( $MONTH == 02 ) then
+ set days   = "01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28"
+#set days   = "01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29"
+else if ( $MONTH == 03 ) then
+ set days   = "01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31"
+else if ( $MONTH == 04 ) then
+ set days   = "01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30"
+else if ( $MONTH == 05 ) then
+ set days   = "01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31"
+else if ( $MONTH == 06 ) then
+ set days   = "01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30"
+else if ( $MONTH == 07 ) then
+#set days   = "01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31"
+ set days   = "01"
+else if ( $MONTH == 08 ) then
+ set days   = "01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31"
+else if ( $MONTH == 09 ) then
+ set days   = "01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30"
+else if ( $MONTH == 10 ) then
+ set days   = "01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31"
+else if ( $MONTH == 11 ) then
+ set days   = "01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30"
+else if ( $MONTH == 12 ) then
+ set days   = "01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31"
+else
+ echo " ========= MONTH MUST BE BETWEEN 1-12  =========="
+ exit (1)
+endif
+
+## define name of output file 
+ setenv OUTFILE CCTM_D51a_Linux2_x86_64intel_COMBINE_DEP.CMAQ51-BENCHMARK_$YEAR$MONTH
+
+ env
+
+ ls -l /home/kfoley/CMAQ-Tools/bin/combine.exe
+
+ foreach day ($days)
+
+#> define name of input files
+   setenv INFILE1 ${M3DATA}/cctm/CCTM_D51a_Linux2_x86_64intel_DRYDEP.CMAQ51-BENCHMARK_$YEAR$MONTH$day
+   setenv INFILE2 ${M3DATA}/cctm/CCTM_D51a_Linux2_x86_64intel_WETDEP1.CMAQ51-BENCHMARK_$YEAR$MONTH$day
+   setenv INFILE3 ${M3DATA}/mcip/METCRO2D_$MET_YEAR$MONTH$day
+ 
+#> Executable call:
+   /usr/bin/time /home/kfoley/CMAQ-Tools/bin/combine.exe
+ 
+ end
+
+ date
+ exit()
