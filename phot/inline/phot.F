@@ -207,7 +207,6 @@ C...modules
       LOGICAL JTIME_CHK            ! To check for JTIME to write RJ values
       INTEGER ODATE                ! output date
       INTEGER OTIME                ! output time 
-      INTEGER TSTEP_COUNT            ! counter between calls to write diagnostics
 
       INTEGER ALLOCSTAT
 
@@ -215,6 +214,7 @@ C...modules
       INTEGER, SAVE :: GXOFF, GYOFF        ! global origin offset from file
       INTEGER, SAVE :: PECOL_OFFSET        ! Local Column Offset for processor
       INTEGER, SAVE :: PEROW_OFFSET        ! Local Column Offset for processor
+      INTEGER, SAVE :: TSTEP_COUNT         ! counter between calls to write diagnostics
 
 ! for INTERPX
       INTEGER, SAVE :: STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2
@@ -611,7 +611,7 @@ C...modules
             AERO_ASYM    = 0.0
             ACTINIC_FX   = 0.0
 
-            TROPO_O3_EXCEED   = 0.0
+!           TROPO_O3_EXCEED   = 0.0
             TRANSMIS_DIFFUSE  = 0.0
             TRANSMIS_DIRECT   = 0.0
             REFLECT_COEFF     = 0.0
@@ -654,7 +654,7 @@ C...modules
                      AERO_ASYM ( COL,ROW, :,: ) = 0.0
                      ACTINIC_FX( COL,ROW, :,: ) = 0.0
                    
-                     TROPO_O3_EXCEED( COL,ROW )  = 0.0
+!                     TROPO_O3_EXCEED( COL,ROW )  = 0.0
                      TRANSMIS_DIFFUSE( COL,ROW ) = 0.0
                      TRANSMIS_DIRECT ( COL,ROW ) = 0.0
                      REFLECT_COEFF   ( COL,ROW ) = 0.0
@@ -796,13 +796,11 @@ C...modules
 !...load diagnostic file arrays
                IF ( PHOTDIAG .AND. .NOT. STRATO3_MINS_MET ) THEN
                     N_EXCEED_TROPO3( COL,ROW ) =  N_EXCEED_TROPO3( COL,ROW ) + 1.0
-!                    TROPO_O3_EXCEED( COL,ROW ) = TROPO_O3_EXCEED( COL,ROW )
-!     &                                         + MAX( (TROPO_O3_COLUMN/(TOTAL_O3_COLUMN*MAX_TROPOO3_FRAC) - 1.0), 
-!     &                                           0.0)
+                    TROPO_O3_EXCEED( COL,ROW ) = TROPO_O3_COLUMN/(MAX_TROPOO3_FRAC*TOTAL_O3_COLUMN) - 1.0
 !     &                                         + 1.0 / TROPO_O3_TOGGLE - 1.0
-                     TROPO_O3_EXCEED( COL,ROW ) = TROPO_O3_COLUMN/(MAX_TROPOO3_FRAC*TOTAL_O3_COLUMN) - 1.0
-               ELSE IF(  PHOTDIAG ) THEN
-                     TROPO_O3_EXCEED( COL,ROW ) = 0.0
+     &                                         + TROPO_O3_EXCEED( COL,ROW )
+!               ELSE IF(  PHOTDIAG ) THEN
+!                     TROPO_O3_EXCEED( COL,ROW ) = 0.0
                END IF 
 
                IF ( JTIME_CHK  ) THEN
@@ -1067,13 +1065,12 @@ C...modules
          END IF
 
          VARNM = 'TROPO_O3_EXCEED'
-!         TSTEP_COUNT = 1.0 / REAL( MAX(1, TSTEP_COUNT) )
-!         TROPO_O3_EXCEED = TROPO_O3_EXCEED * TSTEP_COUNT
+         TROPO_O3_EXCEED = TROPO_O3_EXCEED / REAL( MAX(1, TSTEP_COUNT) )
          IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, TROPO_O3_EXCEED ) ) THEN
             XMSG = 'Error writing variable ' // VARNM
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
-!        TROPO_O3_EXCEED = 0.0 ! reset sum and counter
+         TROPO_O3_EXCEED = 0.0 ! reset sum and counter
          TSTEP_COUNT     = 0
 
          VARNM = 'N_EXCEED_TROPO3'

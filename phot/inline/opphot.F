@@ -207,7 +207,7 @@ C...CSA Variables, Units and Descriptions for RJ_FILE
          N = N + 1
          VNAME3D( N ) = 'TROPO_O3_EXCEED'
          UNITS3D( N ) = 'Rel. Fraction'
-         VDESC3D( N ) = 'Exceedance of modeled ozone column from max fraction of Total Column'
+         VDESC3D( N ) = 'Average Exceedance of modeled ozone column from max fraction of Total Column'
          VTYPE3D( N ) = M3REAL
 
          N = N + 1
