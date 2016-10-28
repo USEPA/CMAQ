@@ -1,0 +1,24 @@
+PROPANAL_IUPAC
+!Propionaldehyde + HV = C2H5. + CHO.
+! From IUPAC Subcommittee on Gas Kinetic Data Evaluation
+! Data Sheet Propiopnaldehyde+hv, updated 17th Feb 2005
+! Website: http://www.iupac-kinetic.ch.cam.ac.uk/
+! IUPAC did not recommend quantum yields, values taken from
+! Jaoui and Kamens (2003), Atm. Env., vol 37(13), 1835-1851.
+Points (!These are point values)
+! With FAC, units are (cm^2/molecule)
+FAC=1.0
+277.5 1.22E-19 0.4000
+282.5 1.30E-19 0.4000
+287.5 1.35E-19 0.4000
+292.5 1.29E-19 0.4000
+297.5 1.22E-19 0.4000
+302.5 1.06E-19 0.4000
+307.5 8.94E-20 0.4000
+312.5 6.84E-20 0.4000
+317.5 4.90E-20 0.4000
+322.5 3.07E-20 0.4000
+327.5 1.72E-20 0.4000
+332.5 0.72E-20 0.4000
+337.5 0.29E-20 0.4000
+342.5 0.08E-20 0.4000
