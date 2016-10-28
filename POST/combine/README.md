@@ -40,7 +40,7 @@ Formular expressions supports operators ^+-\*/ and are evaluated from left to ri
 
 Variables from input files are defined by their name followed by its file number enclosed in brackets. Once defined in a species definition file, variables can subsequently be referred to by their name and the number zero enclosed in brackets. Adding a + or - sign before the file number within the bracket instructs combine to use the variable value for the next or previous timestep instead of the current time step when evaluating the expression. This can be used to define variables that are computed as difference between the current and previous time step, for example to compute hourly precipitation as the difference in WRF cumulative precipitation values between successive timesteps.
 
-Examples of possible expressions are shown in the sample SPECIES_DEF files under scripts/spec_def_files folder in this directory.  
+Examples of possible expressions are shown in the sample SPECIES_DEF files under the scripts/spec_def_files folder in this directory.  Species definitions are specific to the chemical mechanism being using the CMAQ simulation.  The sample spec_def files provided have been labeled according to the different chemical mechanisms avialable in the CMAQ system.  There are two spec_def files for each chemical mechanism, one for creating a combined file of concentration species and a second to create a file of deposition species (these are indicated with the "Dep" label in the file name).
 
 **If you identify anything in any of the sample species definition files that does not seem correct please let us know by creating an "Issue" through GitHub or contacting the CMAS Help Desk: http://www.cmascenter.org.**
 
