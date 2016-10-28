@@ -38,5 +38,4 @@ Bldoverlay accepts "OBS" and "SITES" formats (FILETYPE) for the input file. For 
 Check the log file to ensure complete and correct execution without errors.
 
 ##Note about overlays in VERDI:
-VERDI has the capability of directly reading in a .csv or tab-delimited observational dataset. Hourly observed data needs to be in UTC.  
-See the [documentation for VERDI](https://github.com/CEMPD/VERDI/releases) for further details.
+VERDI has the capability of directly reading in a .csv or tab-delimited observational dataset. Hourly observed data needs to be in UTC.  See the [documentation for VERDI](https://github.com/CEMPD/VERDI/releases) for further details.
