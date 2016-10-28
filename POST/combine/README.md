@@ -40,8 +40,9 @@ Formular expressions supports operators ^+-\*/ and are evaluated from left to ri
 
 Variables from input files are defined by their name followed by its file number enclosed in brackets. Once defined in a species definition file, variables can subsequently be referred to by their name and the number zero enclosed in brackets. Adding a + or - sign before the file number within the bracket instructs combine to use the variable value for the next or previous timestep instead of the current time step when evaluating the expression. This can be used to define variables that are computed as difference between the current and previous time step, for example to compute hourly precipitation as the difference in WRF cumulative precipitation values between successive timesteps.
 
-Examples of possible expressions are shown in the sample SPECIES_DEF files distributed with the CMAQ_TOOLS package.
+Examples of possible expressions are shown in the sample SPECIES_DEF files under scripts/spec_def_files folder in this directory.  
 
+**If you identify anything in any of the sample species definition files that does not seem correct please let us know by creating an "Issue" through GitHub or contacting the CMAS Help Desk: http://www.cmascenter.org.**
 
 ##To run:
 Edit the sample run script (run.combine.aconc), then run:
