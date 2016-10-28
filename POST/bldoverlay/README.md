@@ -6,16 +6,21 @@ This Fortran program creates an observation overlay file that can be imported in
 ##Environment variables used:
 
 ```
- SDATE      start date in the format: YYYYDDD
- EDATE      end date in the format: YYYYDDD
- FILETYPE   type of input file to be used (see information below).  Choices are: OBS, SITES (default it OBS)
- OLAYTYPE   type of data for the overlay output file.  If input data is daily this should be set to DAILY.
-            If input data is hourly choices are: HOURLY, 1HRMAX, 8HRMAX
- SPECIES    list of names of the species in the input file (e.g. setenv SPECIES 'O3,NO,CO')
- UNITS      list of units of the species in the input file (e.g. setenv UNITS 'ppb,ppb,ppb')
- INFILE     file containing input observed data
- VALUE      static value to use as "observed" concentration for SITES filetype (default is 1)
- OUTFILE    name of overlay file to create
+ SDATE         start date in the format: YYYYDDD
+ EDATE         end date in the format: YYYYDDD
+ FILETYPE      type of input file to be used (see information below).  Choices are: OBS, SITES (default it OBS)
+ OLAYTYPE      type of data for the overlay output file.  If input data is daily this should be set to DAILY.
+               If input data is hourly choices are: HOURLY, 1HRMAX, 8HRMAX
+ SPECIES       list of names of the species in the input file (e.g. setenv SPECIES 'O3,NO,CO')
+ UNITS         list of units of the species in the input file (e.g. setenv UNITS 'ppb,ppb,ppb')
+ INFILE        file containing input observed data
+ TZFILE        location of time zone data file, tz.csv (this is a required input file)
+ HOURS_8HRMAX  Number of 8hr values to use when computing daily maximum 8hr ozone.
+               Allowed values are 24 (use all 8-hr averages with starting hours 
+               from 0 - 23 hr local time) and 17 (use only the 17 8-hr averages
+               with starting hours from 7 - 23 hr local time) (default is 24)
+ VALUE         static value to use as "observed" concentration for SITES filetype (default is 1)
+ OUTFILE       name of overlay file to create
 ```
 
 ##Input file types and format:
