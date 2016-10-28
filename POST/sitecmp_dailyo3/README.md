@@ -34,6 +34,10 @@ This Fortran program generates a csv (comma separated values) file that compares
                 Leave unset/blank for full day calculations. (default '')
                 Example: setenv PARTIAL_DAY "10,17" 
  APPLY_DLS      apply daylight savings time (default N)
+ HOURS_8HRMAX   Number of 8hr values to use when computing daily maximum 8hr ozone.
+                Allowed values are 24 (use all 8-hr averages with starting hours 
+                from 0 - 23 hr local time) and 17 (use only the 17 8-hr averages
+                with starting hours from 7 - 23 hr local time) (default is 24)
  TIME_SHIFT     number of hours to add when retrieving time steps from M3_FILE_n files 
                 during processing. This should only be non-zero if the M3_FILE_n files
                 were pre-processed with a utility like m3tshift (default 0)
