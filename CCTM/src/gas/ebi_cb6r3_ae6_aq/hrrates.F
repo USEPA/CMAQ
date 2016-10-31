@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the CB6R3 family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, May 25, 2016
+C  REVISION HISTORY: Created by EBI solver program, Oct 31, 2016
 C
 C***********************************************************************
       USE HRDATA
@@ -357,6 +357,38 @@ C..NOTE: RXRAT commented out are not referenced by any routine
       RXRAT(  295 ) = RKI( 295 ) * YC(  VSVOO1 ) * YC(  OH )
       RXRAT(  296 ) = RKI( 296 ) * YC(  VSVOO2 ) * YC(  OH )
       RXRAT(  297 ) = RKI( 297 ) * YC(  VSVOO3 ) * YC(  OH )
+      RXRAT(  298 ) = RKI( 298 ) * YC(  FORM_PRIMARY ) * YC(  OH )
+      RXRAT(  299 ) = RKI( 299 ) * YC(  FORM_PRIMARY ) * YC(  NO3 )
+      RXRAT(  300 ) = RKI( 300 ) * YC(  FORM_PRIMARY ) * YC(  O )
+      RXRAT(  301 ) = RKI( 301 ) * YC(  FORM_PRIMARY )
+      RXRAT(  302 ) = RKI( 302 ) * YC(  FORM_PRIMARY )
+      RXRAT(  303 ) = RKI( 303 ) * YC(  FORM_PRIMARY ) * YC(  CL )
+      RXRAT(  304 ) = RKI( 304 ) * YC(  ALD2_PRIMARY ) * YC(  OH )
+      RXRAT(  305 ) = RKI( 305 ) * YC(  ALD2_PRIMARY ) * YC(  NO3 )
+      RXRAT(  306 ) = RKI( 306 ) * YC(  ALD2_PRIMARY ) * YC(  O )
+      RXRAT(  307 ) = RKI( 307 ) * YC(  ALD2_PRIMARY )
+      RXRAT(  308 ) = RKI( 308 ) * YC(  ALD2_PRIMARY ) * YC(  CL )
+      RXRAT(  309 ) = RKI( 309 ) * YC(  BUTADIENE13 ) * YC(  OH )
+      RXRAT(  310 ) = RKI( 310 ) * YC(  BUTADIENE13 ) * YC(  O3 )
+      RXRAT(  311 ) = RKI( 311 ) * YC(  BUTADIENE13 ) * YC(  NO3 )
+      RXRAT(  312 ) = RKI( 312 ) * YC(  BUTADIENE13 ) * YC(  CL )
+      RXRAT(  313 ) = RKI( 313 ) * YC(  ACRO_PRIMARY ) * YC(  OH )
+      RXRAT(  314 ) = RKI( 314 ) * YC(  ACRO_PRIMARY ) * YC(  O3 )
+      RXRAT(  315 ) = RKI( 315 ) * YC(  ACRO_PRIMARY ) * YC(  NO3 )
+      RXRAT(  316 ) = RKI( 316 ) * YC(  ACRO_PRIMARY )
+      RXRAT(  317 ) = RKI( 317 ) * YC(  ACRO_PRIMARY ) * YC(  CL )
+      RXRAT(  318 ) = RKI( 318 ) * YC(  ACROLEIN ) * YC(  OH )
+      RXRAT(  319 ) = RKI( 319 ) * YC(  ACROLEIN ) * YC(  O3 )
+      RXRAT(  320 ) = RKI( 320 ) * YC(  ACROLEIN ) * YC(  NO3 )
+      RXRAT(  321 ) = RKI( 321 ) * YC(  ACROLEIN )
+      RXRAT(  322 ) = RKI( 322 ) * YC(  ACROLEIN ) * YC(  CL )
+      RXRAT(  323 ) = RKI( 323 ) * YC(  TOLU ) * YC(  OH )
+      RXRAT(  324 ) = RKI( 324 ) * YC(  TOLU ) * YC(  CL )
+      RXRAT(  325 ) = RKI( 325 ) * YC(  HG ) * YC(  O3 )
+      RXRAT(  326 ) = RKI( 326 ) * YC(  HG ) * YC(  CL2 )
+      RXRAT(  327 ) = RKI( 327 ) * YC(  HG ) * YC(  H2O2 )
+      RXRAT(  328 ) = RKI( 328 ) * YC(  HG ) * YC(  OH )
+      RXRAT(  329 ) = RKI( 329 ) * YC(  HG ) * YC(  CL )
 
 
       RETURN
