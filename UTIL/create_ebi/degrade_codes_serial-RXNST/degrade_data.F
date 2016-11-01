@@ -110,17 +110,17 @@ C..arrays to store indices to CGRID
 
       UNI_ACT   = 0.0D0
       UNIRATE   = 0.0D0
-      UNI_TEXP  = 0.0
+      UNI_TEXP  = 0.0D0
       UNI_YIELD = 0.0
 
       BI_ACT   = 0.0D0
       BIRATE   = 0.0D0
-      BI_TEXP  = 0.0
+      BI_TEXP  = 0.0D0
       BI_YIELD = 0.0
 
       TRI_ACT   = 0.0D0
       TRIRATE   = 0.0D0
-      TRI_TEXP  = 0.0
+      TRI_TEXP  = 0.0D0
       TRI_YIELD = 0.0
 
       A_PHOTO     = 0.0D0
@@ -342,7 +342,7 @@ C.. STYRENE
       REACT(23)       = 'STYRENE        '
       BICAUSE(23,1:4) = (/'OH            ','OH            ','O3              ',
      &                    'CL              '/)
-      BIRATE(23,1:4)  = (/1.02D-11, 1.02D-11, 1.51D-13, 3.6E-10/)
+      BIRATE(23,1:4)  = (/1.02D-11, 1.02D-11, 1.51D-13, 3.6D-10/)
       BI_ACT(23,1:2)  = (/    532.0D0,   532.0D0/)
 
 C.. ACETONITRILE
@@ -357,7 +357,7 @@ C.. ACRYACID
       REACT(25)       = 'ACRYACID       '
       BICAUSE(25,1:4) = (/'OH            ','OH            ','O3              ',
      &                    'CL              '/)
-      BIRATE(25,1:4)  = (/1.75D-11, 1.75D-11, 6.50D-19, 4.00E-10/)
+      BIRATE(25,1:4)  = (/1.75D-11, 1.75D-11, 6.50D-19, 4.00D-10/)
 
 C.. HEXANE 
  
@@ -376,8 +376,8 @@ C.. METHCHLORIDE
 C.. CARBSULFIDE
 
       REACT(28)       = 'CARBSULFIDE    '
-      BICAUSE(28,1:3) = (/'OH            ','OH            ','O3              ',/)
-      BIRATE(28,1:3)  = (/          1.10D-13,          1.10D-13,           3.01E-16/)
+      BICAUSE(28,1:3) = (/'OH            ','OH            ','O3              '/)
+      BIRATE(28,1:3)  = (/          1.10D-13,          1.10D-13,           3.01D-16/)
       BI_ACT(28,1:2)  = (/          1200.0D0,          1200.0D0/)
 
 C.. CHLOROPRENE

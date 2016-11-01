@@ -63,13 +63,6 @@ C..declare and define variables used by maps and data
 
       CHARACTER(16), PARAMETER :: BLANK = ' '  ! default value for characters
 
-      INTEGER :: N_REACT           ! Maxumim number of  species being degraded
-      INTEGER :: N_UNI_LOSS        ! Number of Unimolecular Loss Processes
-      INTEGER :: N_BI_LOSS         ! Number of Bimolcular Loss processes
-      INTEGER :: N_TRI_LOSS        ! Number of Bimolcular Loss processes
-      INTEGER :: N_PHOTO_LOSS      ! Number of Photolysis Loss processes
-      INTEGER :: N_PROCESSES       ! Total number of Loss processes
-
       INTEGER, SAVE :: N_PHOTO_TAB    ! Number of photolysis rates in mechanism
       INTEGER, SAVE :: N_REACT_FOUND  ! Number ofreact species found in namelists
 
@@ -97,17 +90,17 @@ C..looping data
 
       REAL(8), ALLOCATABLE :: UNIRATE  ( :,: ) ! rate for unimolecular decay for react(i) [molecules/sec^1]
       REAL(8), ALLOCATABLE :: UNI_ACT  ( :,: ) ! activation energy for UNIRATE(I) [K]. Positive if exothermic
-      REAL,    ALLOCATABLE :: UNI_TEXP ( :,: ) ! exponent of Temperature
+      REAL(8), ALLOCATABLE :: UNI_TEXP ( :,: ) ! exponent of Temperature
       REAL,    ALLOCATABLE :: UNI_YIELD( :,: ) ! production yield
 
       REAL(8), ALLOCATABLE :: BIRATE  ( :,: )  ! degradation rates for bimolecular reactions,  [cm^3/(sec*molecules)]
       REAL(8), ALLOCATABLE :: BI_ACT  ( :,: )  ! activation energy for BIRATE(I) [K]. Positive if exothermic
-      REAL,    ALLOCATABLE :: BI_TEXP ( :,: )  ! exponent of Temperature
+      REAL(8), ALLOCATABLE :: BI_TEXP ( :,: )  ! exponent of Temperature
       REAL,    ALLOCATABLE :: BI_YIELD( :,: )  ! production yield
 
       REAL(8), ALLOCATABLE :: TRIRATE  ( :,: ) ! degradation rates for trimolecular reactions,  [cm^3/(sec*molecules)]
       REAL(8), ALLOCATABLE :: TRI_ACT  ( :,: ) ! activation energy for TRIRATE(I) [K]. Positive if exothermic
-      REAL,    ALLOCATABLE :: TRI_TEXP ( :,: ) ! exponent of Temperature
+      REAL(8), ALLOCATABLE :: TRI_TEXP ( :,: ) ! exponent of Temperature
       REAL,    ALLOCATABLE :: TRI_YIELD( :,: ) ! production yield
 
       REAL(8), ALLOCATABLE :: A_PHOTO    ( :,: ) ! multiplier of photolysis rates
