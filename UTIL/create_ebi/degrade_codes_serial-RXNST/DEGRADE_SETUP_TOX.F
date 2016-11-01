@@ -63,13 +63,6 @@ C..declare and define variables used by maps and data
 
       CHARACTER(16), PARAMETER :: BLANK = ' '  ! default value for characters
 
-      INTEGER :: N_REACT           ! Maxumim number of  species being degraded
-      INTEGER :: N_UNI_LOSS        ! Number of Unimolecular Loss Processes
-      INTEGER :: N_BI_LOSS         ! Number of Bimolcular Loss processes
-      INTEGER :: N_TRI_LOSS        ! Number of Bimolcular Loss processes
-      INTEGER :: N_PHOTO_LOSS      ! Number of Photolysis Loss processes
-      INTEGER :: N_PROCESSES       ! Total number of Loss processes
-
       INTEGER, SAVE :: N_PHOTO_TAB    ! Number of photolysis rates in mechanism
       INTEGER, SAVE :: N_REACT_FOUND  ! Number ofreact species found in namelists
 
