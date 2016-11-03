@@ -7,6 +7,7 @@ This Fortran program combines fields from a set of IOAPI or wrfout input files t
 
 ```
  GENSPEC      Indicates to generate a new SPECIES_DEF file (does not generate OUTFILE)
+              Choices are: Y, N. (e.g. setenv GENSPEC N)
  SPECIES_DEF  Species definition file defining the new variables of the output file
  INFILE1      input file number 1, (max of 9).
  OUTFILE      IOAPI output file name, opened as read/write if it does not exist and 
