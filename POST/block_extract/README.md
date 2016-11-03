@@ -21,8 +21,6 @@ where VAR1 VAR2 ... are the variable names specified by SPECLIST.
                 Program checks the existence of environment variables, up to M3_FILE_99, 
                 until it detects there are no further input files specified.
   OUTFILE       output text file
-  specfile      Not actually an environment variable, this is a text file created by the run script, 
-                listing the variables to extract.
   TIME_ZONE     GMT or EST. Default is GMT.
   OUTFORMAT     Actually refers to the format of the INPUT files. 
                 Choices are IOAPI (default) or SAS, which has not been tested by anyone still at EPA.
@@ -51,3 +49,4 @@ Edit the sample run script (run.block_extract), then run:
  run.block_extract |& tee block_extract.log
 ```
 Check the log file to ensure complete and correct execution without errors.
+Note that in addition to the OUTFILE, the program generates a text file "specdef" which lists the variables that were extracted.
