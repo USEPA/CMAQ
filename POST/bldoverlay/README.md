@@ -8,7 +8,7 @@ This Fortran program creates an observation overlay file that can be imported in
 ```
  SDATE         start date in the format: YYYYDDD
  EDATE         end date in the format: YYYYDDD
- FILETYPE      type of input file to be used (see information below).  Choices are: OBS, SITES (default it OBS)
+ FILETYPE      type of input file to be used (see information below).  Choices are: OBS, SITES (default is OBS)
  OLAYTYPE      type of data for the overlay output file.  If input data is daily this should be set to DAILY.
                If input data is hourly choices are: HOURLY, 1HRMAX, 8HRMAX
  SPECIES       list of names of the species in the input file (e.g. setenv SPECIES 'O3,NO,CO')
