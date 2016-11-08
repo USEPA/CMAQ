@@ -470,7 +470,7 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
      &              100.0*MIN_STRATO3_FRAC,'%',
      &             'observed total column. The percentage is a global minimum based on ',
      &             'climatological ozone profiles. ',
-     &             'The Problem starts below layer= ', L-1, ' or alt= ',0.001*BLKZF( L-1 ), 
+     &             'The Problem starts at layer = ', L, ' or alt= ',0.001*BLKZF( L ), 
      &             ' Km for col,row = ', PHOT_COL, PHOT_ROW
                END IF
                SUCCESS = .FALSE.
