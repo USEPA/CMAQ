@@ -605,7 +605,6 @@ C-----------------------------------------------------------------------
       Use cgrid_spcs            ! CGRID mechanism species
       Use aeromet_data
       Use utilio_defn
-
       Implicit None
 
 C Local Variables:
@@ -705,6 +704,9 @@ C Build mapping to CGRID for each species in the master AeroList
          aerospc_mw( spc ) = mole_weight( l )
 
          Write( xmsg2,* ) (' ', Trim( aerolist( spc )%name( m ) ), ' ', m = 1, n_mode )
+#ifdef verbose_aero
+         If( spc .eq. 1 )Write(logdev,99948)
+#endif
          Do n = 1,n_mode
             ! Map the Modal-Dependent CGRID Pointers from AeroSpc to AeroList
             aerospc_map( spc, n ) = aerolist_map( l, n )
@@ -714,6 +716,10 @@ C Build mapping to CGRID for each species in the master AeroList
                Do m = 1, n_mode
                   If ( sea_spc( isea )%name( m ) .Eq. aerospc( spc )%name( n ) ) Then
                      aerospc_ssf( n, spc ) = sea_spc( isea )%spcfac( m )
+#ifdef verbose_aero
+                      If ( sea_spc( isea )%spcfac( m ) .Lt. conmin )Cycle
+                      Write(logdev,99950)spc,sea_spc( isea )%name( m ),sea_spc( isea )%spcfac( m )
+#endif
                   End If
                End Do
             End Do
@@ -893,6 +899,7 @@ C Adjust Dust Emissions list for Organic Species, if running with semivolatile P
       End If
 
 #ifdef verbose_aero
+99948 Format(/ '_I_',1X,'Aero_Species____','SeaSalt_Emiss_Speciation')
 99949 Format(/ '_I_',1X,'Aero_Species____','Dust_Emiss_Speciation')
 99950 Format(i3,1X,a16,11X,es12.4)
 #endif

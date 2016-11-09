@@ -63,13 +63,6 @@ C..declare and define variables used by maps and data
 
       CHARACTER(16), PARAMETER :: BLANK = ' '  ! default value for characters
 
-      INTEGER :: N_REACT           ! Maxumim number of  species being degraded
-      INTEGER :: N_UNI_LOSS        ! Number of Unimolecular Loss Processes
-      INTEGER :: N_BI_LOSS         ! Number of Bimolcular Loss processes
-      INTEGER :: N_TRI_LOSS        ! Number of Bimolcular Loss processes
-      INTEGER :: N_PHOTO_LOSS      ! Number of Photolysis Loss processes
-      INTEGER :: N_PROCESSES       ! Total number of Loss processes
-
       INTEGER, SAVE :: N_PHOTO_TAB    ! Number of photolysis rates in mechanism
       INTEGER, SAVE :: N_REACT_FOUND  ! Number ofreact species found in namelists
 
@@ -268,11 +261,9 @@ C..Set up indices that point to concentrations in CGRID.
                      MARKER = NR_STRT
                      IF ( N == 0 ) THEN
 #ifdef verbose_gas                     
-                        WRITE( LOGDEV,* ) WNAME( 1:LEN_NAME ), ' is not '
+                        WRITE( LOGDEV,'(a)' ) TRIM( WNAME ), ' is not '
      &                       // 'in gas or nonreactive species table.'
      &                       // 'its loss processes not calculated '
-!                        CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-                        CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
 #endif                        
                         RXTANT_MAP( I ) = -1
                         CYCLE
@@ -495,10 +486,10 @@ C..set value in map
          WRITE( LOGDEV,* ) BLANK
 
 1000     FORMAT(A20,1X,A5,1X,A20,1X,2(A20,1X,A5,1X),A12,1X,A20,1X,A5)
-1100     FORMAT(A20,1X,I5,1X,A20,1X,2(21X,6X),E12.4,1X,A20,1X,I5)
-1200     FORMAT(A20,1X,I5,1X,A20,1X,A20,1X,I5,1X,21X,6X,E12.4,1X,A20,1X,I5)
-1300     FORMAT(A20,1X,I5,1X,A20,1X,2(A20,1X,I5,1X),E12.4,1X,A20,1X,I5)
-1400     FORMAT(A20,1X,I5,1X,A20,1X,2(A20,1X,A5,1X),E12.4,1X,A20,1X,I5)
+1100     FORMAT(A20,1X,I5,1X,A20,1X,2(21X,6X),ES12.4,1X,A20,1X,I5)
+1200     FORMAT(A20,1X,I5,1X,A20,1X,A20,1X,I5,1X,21X,6X,ES12.4,1X,A20,1X,I5)
+1300     FORMAT(A20,1X,I5,1X,A20,1X,2(A20,1X,I5,1X),ES12.4,1X,A20,1X,I5)
+1400     FORMAT(A20,1X,I5,1X,A20,1X,2(A20,1X,A5,1X),ES12.4,1X,A20,1X,I5)
 1600     FORMAT('       DEGRADED      ',' Index',
      &              '       Process      ','        Cause A      ',
      &              ' Index', '       Cause B      ',' Index',

@@ -536,8 +536,10 @@ C mass.
          do n = 2, n_mode
             sumsplit = 0.0; sumfrac = 0.0
             do i = 1, ndust_spc
-               sumsplit = sumsplit + dust_spc( i )%spcfac( n ) ! should = 1.0
                idx = findAero( dust_spc( i )%name( n ), .true. )
+               if( aerospc( idx )%tracer )cycle
+               if( dust_spc( i )%spcfac( n ) .lt. 1.0e-30 )cycle
+               sumsplit = sumsplit + dust_spc( i )%spcfac( n ) ! should = 1.0
                sumfrac = sumfrac + dust_spc( i )%spcfac( n ) / aerospc( idx )%density
             end do
             dustmode_dens( n ) = sumsplit / sumfrac

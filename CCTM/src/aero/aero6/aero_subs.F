@@ -225,7 +225,8 @@ C *** Parameters
       REAL, PARAMETER :: DIFFSULF = 9.36E-06  ! molecular diffusiviity for sulfuric acid
       REAL, PARAMETER :: SQRT2 = 1.4142135623731
       REAL, PARAMETER :: T0 = 288.15   ! [ K ]
-      REAL, PARAMETER :: TWOTHIRDS = 2.0 / 3.0
+      REAL, PARAMETER :: TWOTHIRDS   =  2.0 / 3.0
+      REAL, PARAMETER :: ONE_OVER_TICE =  1.0 / 273.16
 
 C *** local variables
       REAL         DIFFCORR   ! Correction to DIFFSULF & DIFFORG for pressure
@@ -329,7 +330,7 @@ C     production and a fully dynamic treatment of inorganic gas-to-
 C     particle mass transfer.
 
 C *** Compute H2SO4 diffusivity, correct for temperature and pressure
-      DIFFCORR = ( STDATMPA / AIRPRES ) * ( AIRTEMP / 273.16 ) ** 1.75
+      DIFFCORR = ( STDATMPA / AIRPRES ) * ( ONE_OVER_TICE * AIRTEMP ) ** 1.75
       DV_SO4 = DIFFSULF * DIFFCORR
 
 C *** Update size parameters (distribution is wet from ORGAER)

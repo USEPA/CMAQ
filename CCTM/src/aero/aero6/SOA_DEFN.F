@@ -83,9 +83,9 @@ C-----------------------------------------------------------------------
 
       Type( vapor_type ), Save :: vaporlist( n_vapor_list ) = (/
 C
-C                   Name       Alpha    CStar     Enth     SOA           Decay  Drog
-C                                                          Name   Origin        Name
-C                  -------    -------  --------  -------  ------    --   ----   -------
+C                        Name          Alpha       CStar          Enth     SOA               Decay     Drog
+C                                                                          Name       Origin           Name
+C                      -------        -------     --------     -------    ------       --     ----     -------
      & vapor_type('SV_ALK1 ',  0.0334,   0.1472,  53.0E3, 'AALK1J ', 'A', 12.0, 'ALKRXN  '),
      & vapor_type('SV_ALK2 ',  0.2164,  51.8775,  53.0E3, 'AALK2J ', 'A', 12.0, 'ALKRXN  '),
      & vapor_type('SV_XYL1 ',  0.0310,   1.3140,  32.0E3, 'AXYL1J ', 'A',  8.0, 'XYLNRXN '),
@@ -194,6 +194,9 @@ C mapping variables used for loading and unloading to CGRID array
 
       Character( 16 ), Private, Save :: pname = 'Soa_Defn        '
 
+      Integer, Private, Save :: logdev
+      Integer, Private, External :: setup_logdev
+
       Contains
 
 C-----------------------------------------------------------------------
@@ -238,6 +241,8 @@ C Local Variables:
       Real, Save :: alk_factor = 1.00
 
       If ( .Not. mapped ) Then
+
+          logdev = setup_logdev()
 
 C Before Anything Else, the VaporSpc Array must be populated with
 C the species from VaporList that have been identified in the GC
@@ -295,11 +300,11 @@ C Add option to have species in GC.nml (for real semivolatiles)
          End Do
 
 #ifdef verbose_soa
-
+         write(logdev,'(a16,1x,a4,1x,a7)')"    vaporspc    ","INDX","Mol.Wei"
          Do spc = 1, n_vapor
-          print*, vaporspc( spc ), vapor_map, vapor_mw
+           write(logdev,'(a16,1x,i4,1x,f7.2)')vaporspc( spc )%name, vapor_map( spc ), 
+     &                                        vapor_mw( spc )
          End Do
-
 #endif
 
 C define orgprod parent names based on mechanism dependence
@@ -389,6 +394,15 @@ C Build mapping to CGRID for each ORGPROD species and find MW of parent
             End If
          End Do
 
+#ifdef verbose_soa
+         write(logdev,'(2(a16),1x,a4,1x,a7)')"    orgprod    ","    parent    ","INDX","Mol.Wei"
+         Do spc = 1, n_orgprod
+           If ( orgprod_map( spc ) .Lt. 1 )Cycle
+           write(logdev,'(2(a16),1x,i4,1x,f7.2)')orgprod( spc )%name,orgprod( spc )%parent, 
+     &                                        orgprod_map( spc ),orgprod_mw( spc ) 
+         End Do
+#endif
+
 C Find indices of required species
          iso1_idx   = findVapor( req_sviso1 )
          iso2_idx   = findVapor( req_sviso2 )
@@ -399,6 +413,18 @@ C Find indices of required species
          aolgb_idx  = findAero( req_aeolgb, .True. )
          aorgc_idx  = findAero( req_aeorgc, .True. )
 
+#ifdef verbose_soa
+      ! Mandatory Species
+         Write( logdev,'( /5x, a )' ) 'soa_defn: required species'
+         Write( logdev,'( 5x, a, i4 )' ) 'iso1_idx:   ', iso1_idx 
+         Write( logdev,'( 5x, a, i4 )' ) 'iso2_idx:   ', iso2_idx 
+         Write( logdev,'( 5x, a, i4 )' ) 'aiso1_idx:  ', aiso1_idx
+         Write( logdev,'( 5x, a, i4 )' ) 'aiso2_idx:  ', aiso2_idx
+         Write( logdev,'( 5x, a, i4 )' ) 'aiso3_idx:  ', aiso3_idx
+         Write( logdev,'( 5x, a, i4 )' ) 'aolga_idx:  ', aolga_idx
+         Write( logdev,'( 5x, a, i4 )' ) 'aolgb_idx:  ', aolgb_idx
+         Write( logdev,'( 5x, a, i4 )' ) 'aorgc_idx:  ', aorgc_idx
+#endif
          ! Look for Additional Isoprene Product Species if AE6i is being
          ! used
          If ( INDEX( MECHNAME,"SAPRC07TIC_AE6I" ) .Ne. 0 ) Then
@@ -406,15 +432,31 @@ C Find indices of required species
            isopnn_idx = findVapor( req_isopnn )
            amtno3_idx  = findAero( req_amtno3, .True. )
            aisopnn_idx = findAero( req_aisopnn,.True. )
+#ifdef verbose_soa
+           Write( logdev,'( /5x, a )' )
+     &      'SAPRC07TIC_AE6I soa_defn: required species'
+           Write( logdev,'( 5x, a, i4 )' ) 'mtno3_idx:   ', mtno3_idx  
+           Write( logdev,'( 5x, a, i4 )' ) 'isopnn_idx:  ', isopnn_idx 
+           Write( logdev,'( 5x, a, i4 )' ) 'amtno3_idx:  ', amtno3_idx 
+           Write( logdev,'( 5x, a, i4 )' ) 'aisopnn_idx: ', aisopnn_idx
+#endif
          End If
 
 
 C Build mapping array of Semivolatile Vapors (vaporspc) to the Aerosol
 C Species they correspond to (aerospc is used inside findAero)
          soa_aeroMap = 0
+#ifdef verbose_soa
+           Write( logdev,'( /5x, a )' )
+     &      'soa_defn: vapor species'
+#endif     
          Do spc = 1, n_vapor
             If ( vaporspc( spc )%soa_name .Ne. ' ' ) Then
                soa_aeroMap( spc ) = findAero( vaporspc( spc )%soa_name, .True. )
+#ifdef verbose_soa
+           Write( logdev,'( 5x, a20, i4 )' ) Trim(vaporspc( spc )%soa_name) // ':', 
+     &                                       soa_aeroMap( spc )
+#endif
             End If
          End Do
 
@@ -422,18 +464,34 @@ C Build Mapping array of Reactive variables that track production rates
 C of condensable gases (orgprod) to any nonvolatile species they yield
 C (aerospc is used inside findAero)
          orgprod_aeroMap = 0
+#ifdef verbose_soa
+           Write( logdev,'( /5x, a )' )
+     &      'soa_defn: orgprod_aero species'
+#endif     
          Do spc = 1, n_orgprod
             If ( orgprod( spc )%aerospc .Ne. ' ' ) Then
                orgprod_aeroMap( spc ) = findAero( orgprod( spc )%aerospc, .True. )
+#ifdef verbose_soa
+           Write( logdev,'( 5x, a20, i4 )' ) Trim(orgprod( spc )%aerospc) // ':', 
+     &                                       orgprod_aeroMap( spc )
+#endif
             End If
          End Do
 
 C Build mapping array of sources of Semivolatile Vapors (vaporspc) to the
 C Reactive variables that store their production rates (orgprod)
          drog_map = 0
+#ifdef verbose_soa
+           Write( logdev,'( /5x, a )' )
+     &      'soa_defn: drog species'
+#endif     
          Do spc = 1, n_vapor
             If ( vaporspc( spc )%drog_name .Ne. ' ' ) Then
                drog_map( spc ) = findOrgprod( vaporspc( spc )%drog_name )
+#ifdef verbose_soa
+           Write( logdev,'( 5x, a20, i4 )' ) Trim(vaporspc( spc )%drog_name) // ':', 
+     &                                       drog_map( spc )
+#endif
             End If
          End Do
 
