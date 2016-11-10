@@ -690,11 +690,10 @@ c        Iodide in sea-water based on SST  (mol /dm-3)
                IF ( l .Ne. l_O3 ) THEN 
                   rwet = rcw0 / heff      ! wet cuticle
                ELSE
-                  ! Set RCW/LAI = 200 s/m on basis of Keysburg exp for O3
-!                  rwet = 1250.0    ! s/m
-!                  rwet = MAX( 200.0, 200.0 * laicr ) ! s/m
-! Average of 2002 and 2003 from Table 1. Altimir et al 2006 doi:10.5194/bg-3-209-2006
-                  rwet = 385.0 ! s/m
+         ! Canopy level wet resistence Rwet to ozone was found to be about 200 s/m on basis of Keysburg exp
+         ! Using LAI(1-sided) of about 6.25 measured at Keysburg gives leaf level rwet about 1250 s/m
+                  rwet = 1250.0    ! s/m
+         ! Leaf level rwet estimated from Altimir et al 2006 gives about 1350 s/m
                END IF
 
                rgw  = rgwet0 / heff    ! wet ground
