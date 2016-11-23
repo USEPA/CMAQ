@@ -127,6 +127,9 @@ C...modules
       USE PHOTOLYSIS_ALBEDO    ! surface albedo data and routines
       USE PHOT_MET_DATA        ! Met and Grid data
       USE CLOUD_OPTICS         ! data and routines for optics of cloud hydrometeors
+!      USE STRATOS_O3_MINFRACS  ! annual minimum fraction of ozone column density above Pressure TOP
+!      USE SEAS_STRAT_O3_FRACS  ! monthly minimum fraction of ozone column density above Pressure TOP
+      USE SEAS_STRAT_O3_MIN    ! monthly minimum fraction of ozone column density above Pressure TOP
 
 #ifdef parallel
       USE SE_MODULES           ! stenex (using SE_UTIL_MODULE)
@@ -204,11 +207,14 @@ C...modules
       LOGICAL JTIME_CHK            ! To check for JTIME to write RJ values
       INTEGER ODATE                ! output date
       INTEGER OTIME                ! output time 
+
       INTEGER ALLOCSTAT
 
+      INTEGER, SAVE :: TDATE
       INTEGER, SAVE :: GXOFF, GYOFF        ! global origin offset from file
       INTEGER, SAVE :: PECOL_OFFSET        ! Local Column Offset for processor
       INTEGER, SAVE :: PEROW_OFFSET        ! Local Column Offset for processor
+      INTEGER, SAVE :: TSTEP_COUNT         ! counter between calls to write diagnostics
 
 ! for INTERPX
       INTEGER, SAVE :: STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2
@@ -245,6 +251,9 @@ C...modules
       
       REAL,              SAVE :: JYEAR  ! year
       REAL,              SAVE :: JDSTRT ! current Julian day (DDD)
+
+      INTEGER, PARAMETER  :: DAYS( 12 ) = (/ 0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30 /)
+      INTEGER, SAVE       :: IMONTH = 0
 
       REAL, ALLOCATABLE, SAVE :: ETOT_SFC ( : )    ! total downward irradiance at sfc [ Watts / m**2  ]
       REAL, ALLOCATABLE, SAVE :: TAUO3_TOP( : )    ! optical depth of ozone above model domain
@@ -283,8 +292,11 @@ C...modules
       
 !...Variables for diagnostic outputs
 
+      REAL, ALLOCATABLE, SAVE :: N_EXCEED_TROPO3( :,: )  ! Number of adjustments tropospheric ozone optical depth
+
       REAL, ALLOCATABLE, SAVE :: TOTAL_OC( :,: )         ! total ozone column [DU]
       REAL, ALLOCATABLE, SAVE :: TROPO_OC( :,: )         ! tropospheric ozone column [DU]
+      REAL, ALLOCATABLE, SAVE :: TROPO_O3_EXCEED( :,: )   ! Factor used to adjust tropospheric ozone optical depth
       REAL, ALLOCATABLE, SAVE :: TRANSMIS_DIFFUSE( :,: ) ! diffuse transmission coefficient at surface
       REAL, ALLOCATABLE, SAVE :: TRANSMIS_DIRECT( :,: )  ! direct transmission coefficient at surface
       REAL, ALLOCATABLE, SAVE :: REFLECT_COEFF( :,: )    ! reflection coefficient at top of atmosphere
@@ -366,6 +378,13 @@ C...modules
          CALL INIT_AERO_DATA(  )
          
          CALL INIT_CLOUD_OPTICS(  )
+!...set minimum fraction of ozone column above PTOP
+!         CALL GET_MIN_STRAT_O3( JDATE, JTIME )
+
+         CALL SEASONAL_STRAT_O3( JDATE, JTIME )
+         MIN_STRATO3_FRAC = MONTH_STRAT_03_FRAC
+         MAX_TROPOO3_FRAC = MAX( 1.0 - MONTH_STRAT_03_FRAC, 0.0 )
+         WRITE( LOGDEV,*)'PHOT: MIN_STRATO3_FRAC = ',MIN_STRATO3_FRAC 
 
 !...Initialize Surface albedo method
 
@@ -406,6 +425,8 @@ C...modules
 
          IF ( PHOTDIAG ) THEN
             ALLOCATE( TROPO_OC ( NCOLS,NROWS ) )
+            ALLOCATE( TROPO_O3_EXCEED( NCOLS,NROWS ) )
+            ALLOCATE( N_EXCEED_TROPO3( NCOLS,NROWS ) )
             ALLOCATE( TRANSMIS_DIFFUSE( NCOLS,NROWS ) )
             ALLOCATE( TRANSMIS_DIRECT ( NCOLS,NROWS ) )
             ALLOCATE( REFLECT_COEFF   ( NCOLS,NROWS ) )
@@ -421,8 +442,12 @@ C...modules
 #endif            
             ALLOCATE( TAU_TOT_WL  ( NCOLS,NROWS,NWL ) )
             ALLOCATE( TAUO3_TOP_WL( NCOLS,NROWS,NWL ) )
+ 
+            N_EXCEED_TROPO3 = 0.0
+            TROPO_O3_EXCEED = 0.0
+            TSTEP_COUNT     = 0.0
 
-            DIAG_WVL( 1 ) = 1
+            DIAG_WVL( 1 )    = 1
             DIAG_WVL( N_DIAG_WVL ) = NWL
 
             ALLOCATE ( AERO_ASYM( NCOLS,NROWS,NLAYS,N_DIAG_WVL ), STAT = ALLOCSTAT )
@@ -500,7 +525,13 @@ C...modules
 #endif
       END IF  ! firstime
 
-!...Get Met data
+!...initialize variables tracking whether stratosphere ozone column satisfies
+!...climatological averages.
+
+      O3_TOGGLE_AVE     = 0.0
+      O3_TOGGLE_MIN     = 1.0
+      N_TROPO_O3_TOGGLE = 0
+      TSTEP_COUNT       = TSTEP_COUNT + 1
 
       CALL GET_PHOT_MET( JDATE, JTIME, MDATE, MTIME )
 
@@ -544,6 +575,7 @@ C...modules
          JTIME_CHK = .FALSE.
       END IF 
 
+      
 !...If sun below horizon at all cells, zero photolysis rates & exit
 !...  (assumes sun below horizon at *all* levels!)
 
@@ -554,8 +586,6 @@ C...modules
 !...write to the log file, CTM_RJ_1 file and return
 
          WRITE( LOGDEV, 1003 ) MYPE, JDATE, JTIME
-1003     FORMAT( 8X, 'Processor ',I4.4,' is in darkness at ', I8.7, ':', I6.6,
-     &           1X, 'GMT - no photolysis')
 
 !...Initialize ETOT_SFC, TAU_AERO, TAU_TOT, TAUO3_TOP to 0.0
 
@@ -580,7 +610,8 @@ C...modules
             AERO_SSA     = 0.0
             AERO_ASYM    = 0.0
             ACTINIC_FX   = 0.0
-                   
+
+!           TROPO_O3_EXCEED   = 0.0
             TRANSMIS_DIFFUSE  = 0.0
             TRANSMIS_DIRECT   = 0.0
             REFLECT_COEFF     = 0.0
@@ -623,6 +654,7 @@ C...modules
                      AERO_ASYM ( COL,ROW, :,: ) = 0.0
                      ACTINIC_FX( COL,ROW, :,: ) = 0.0
                    
+!                     TROPO_O3_EXCEED( COL,ROW )  = 0.0
                      TRANSMIS_DIFFUSE( COL,ROW ) = 0.0
                      TRANSMIS_DIRECT ( COL,ROW ) = 0.0
                      REFLECT_COEFF   ( COL,ROW ) = 0.0
@@ -743,7 +775,11 @@ C...modules
                FORALL ( IWL = 1:NWL )
                   ALB( IWL ) = SURFACE_ALBEDO( IWL, COL,ROW )
                END FORALL
-
+!set min/max fractions of ozone column in stratosphere and troposphere
+!              MIN_STRATO3_FRAC = MIN_STRAT_03_FRAC( COL, ROW )
+!              MAX_TROPOO3_FRAC = MAX( 1.0 - MIN_STRAT_03_FRAC( COL, ROW ), 0.0 )
+!                MIN_STRATO3_FRAC = MONTH_STRAT_03_FRAC( COL, ROW )
+!                MAX_TROPOO3_FRAC = MAX( 1.0 - MONTH_STRAT_03_FRAC( COL, ROW ), 0.0 )
 !...calculate resolved-sky photolysis rates at all layers:
 
                NEW_PROFILE    = .TRUE. 
@@ -758,6 +794,14 @@ C...modules
      &                           TAU_RAY, SSA, TAU_CLOUD, TOTAL_O3_COLUMN )
 
 !...load diagnostic file arrays
+               IF ( PHOTDIAG .AND. .NOT. STRATO3_MINS_MET ) THEN
+                    N_EXCEED_TROPO3( COL,ROW ) =  N_EXCEED_TROPO3( COL,ROW ) + 1.0
+                    TROPO_O3_EXCEED( COL,ROW ) = TROPO_O3_COLUMN/(MAX_TROPOO3_FRAC*TOTAL_O3_COLUMN) - 1.0
+!     &                                         + 1.0 / TROPO_O3_TOGGLE - 1.0
+     &                                         + TROPO_O3_EXCEED( COL,ROW )
+!               ELSE IF(  PHOTDIAG ) THEN
+!                     TROPO_O3_EXCEED( COL,ROW ) = 0.0
+               END IF 
 
                IF ( JTIME_CHK  ) THEN
                   TOTAL_OC( COL,ROW )         = REAL( TOTAL_O3_COLUMN )
@@ -765,6 +809,8 @@ C...modules
                   TRANSMIS_DIFFUSE( COL,ROW ) = TRANSMISSION
                   TRANSMIS_DIRECT( COL,ROW )  = TRANS_DIRECT
                   REFLECT_COEFF( COL,ROW )    = REFLECTION
+
+
                   FORALL( IWL = 1:NWL )
                      ETOT_SFC_WL ( COL,ROW,IWL ) = IRRADIANCE( 1,IWL )
                      TAUO3_TOP_WL( COL,ROW,IWL ) = TAUO3_TOP( IWL )
@@ -934,6 +980,15 @@ C...modules
 
       END IF
 
+!...report on whether stratospheric ozone column satisfies climatological minimums
+      IF( N_TROPO_O3_TOGGLE .GT. 0 )THEN
+         O3_TOGGLE_AVE = O3_TOGGLE_AVE / REAL( N_TROPO_O3_TOGGLE )
+         WRITE( LOGDEV, 9500 )'PHOT: Exceedance of tropospheric ozone column ',
+     &   'or below top of model domains based on stratospheric column minimum ',
+     &   'at date and time; ', JDATE, JTIME, N_TROPO_O3_TOGGLE, (1.0/O3_TOGGLE_AVE - 1.0),
+     &    (1.0/O3_TOGGLE_MIN - 1.0)
+      END IF
+
 !...write diagnostic data to output file at the end of every output tstep
 
       IF ( JTIME_CHK ) THEN
@@ -956,6 +1011,22 @@ C...modules
             XMSG = 'Error writing variable ' // VARNM
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
+
+         IMONTH = IMONTH + 1
+         IF( IMONTH .GT. 12 )THEN
+             IMONTH = 1
+             TDATE = 2011001
+         END IF
+         TDATE = TDATE + DAYS( IMONTH )
+!         CALL SEASONAL_STRAT_O3(TDATE, JTIME )
+
+
+!         VARNM = 'MIN_FRAC_STRATO3'
+!         IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, MONTH_STRAT_03_FRAC ) ) THEN
+!            XMSG = 'Error writing variable ' // VARNM
+!            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+!         END IF
+
 
          VARNM = 'TRANS_DIFFUSE'
          IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, TRANSMIS_DIFFUSE ) ) THEN
@@ -992,6 +1063,22 @@ C...modules
             XMSG = 'Error writing variable ' // VARNM
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
+
+         VARNM = 'TROPO_O3_EXCEED'
+         TROPO_O3_EXCEED = TROPO_O3_EXCEED / REAL( MAX(1, TSTEP_COUNT) )
+         IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, TROPO_O3_EXCEED ) ) THEN
+            XMSG = 'Error writing variable ' // VARNM
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+         TROPO_O3_EXCEED = 0.0 ! reset sum and counter
+         TSTEP_COUNT     = 0
+
+         VARNM = 'N_EXCEED_TROPO3'
+         IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, N_EXCEED_TROPO3 ) ) THEN
+            XMSG = 'Error writing variable ' // VARNM
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+         N_EXCEED_TROPO3 = 0.0 ! reset counter
 
          VARNM = 'JNO2'
          IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, RJ( :,:,1, LNO2 ) ) ) THEN
@@ -1151,6 +1238,11 @@ C...modules
      &          'for date and time', ODATE, OTIME
 
       END IF   ! if JTIME_CHK 
+
+1003  FORMAT( 8X, 'Processor ',I4.4,' is in darkness at ', I8.7, ':', I6.6,
+     &        1X, 'GMT - no photolysis')
+9500  FORMAT(3(/ A), I7, 1X, I6.6, 1X, / "Total Number: ", I9, ";Mean Value: ", F9.6,
+     &       "; Max Value: ",F9.6 /)
 
       RETURN
       END SUBROUTINE PHOT
