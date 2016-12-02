@@ -827,7 +827,7 @@ C..Includes:
 C..Functions:
 
 C..Parameters:
-      Real, Parameter :: cmin = 1.0E-25   ! minimum concentration for most species
+      Real, Parameter :: cmin = 1.0E-34   ! minimum concentration for most species
 
 C..Arguments:
       Real, Intent( Out ) :: aeconcmin( : ) ! array of minimum concentrations
