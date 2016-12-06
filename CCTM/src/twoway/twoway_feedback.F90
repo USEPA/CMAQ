@@ -30,10 +30,6 @@ SUBROUTINE feedback_setup ( jdate, jtime, tstep )
 
   INTEGER, INTENT(IN) :: jdate, jtime, tstep
 
-! INCLUDE 'PARMS3.EXT'     ! I/O parameters definitions
-! INCLUDE 'FDESC3.EXT'     ! file header data structure
-! INCLUDE 'IODECL3.EXT'    ! I/O parameters definitions
-
   CHARACTER (LEN = 16), PARAMETER :: pname = 'feedback_setup  '
 
   CHARACTER (LEN = 16) :: feedback_fname
@@ -92,10 +88,6 @@ SUBROUTINE feedback_setup ( jdate, jtime, tstep )
 
        indirect_effect = envyn ('INDIRECT_EFFECT', ' ', .false., stat)
 
-!      allocate (ws_spc(n_ae_spc, 3),     &
-!                wi_spc(n_ae_spc, 3),     &
-!                stat=stat)
-
        allocate (ws_spc_index(n_ae_spc, 3),     &
                  wi_spc_index(n_ae_spc, 3),     &
                  stat=stat)
@@ -133,11 +125,9 @@ SUBROUTINE feedback_setup ( jdate, jtime, tstep )
              if (found) then
                 if (aerolist(k)%optic_surr .eq. 'SOLUTE') then
                    num_ws_spc(n) = num_ws_spc(n) + 1
-!                  ws_spc(num_ws_spc(n), n) = ae_spc(i)
                    ws_spc_index(num_ws_spc(n), n) = i
                 else if (aerolist(k)%optic_surr .eq. 'DUST') then
                    num_wi_spc(n) = num_wi_spc(n) + 1
-!                  wi_spc(num_wi_spc(n), n) = ae_spc(i)
                    wi_spc_index(num_wi_spc(n), n) = i
                 end if 
              end if
@@ -250,27 +240,17 @@ SUBROUTINE feedback_write ( c, r, l, cgrid, o3_value, jdate, jtime )
 
      do j = 1, 3
         do i = 1, num_ws_spc(j)
-!          ws_spc_index(i,j) = index1 (ws_spc(i,j), n_ae_spc, ae_spc)
-!          if (ws_spc_index(i,j) == 0) then
-!             write (logdev, *) ' in aero_driver ws species ', &
-!                   trim(ws_spc(i,j)), ' is not found '
-!             stop
-!          else
+           if (ws_spc_index(i,j) .gt. 0) then
               ws_spc_index(i,j) = ws_spc_index(i,j) + n_gc_spcd
-!          end if
+           end if
         end do
      end do
 
      do j = 1, 3
         do i = 1, num_wi_spc(j)
-!          wi_spc_index(i,j) = index1 (wi_spc(i,j), n_ae_spc, ae_spc)
-!          if (wi_spc_index(i,j) == 0) then
-!             write (logdev, *) ' in aero_driver wi species ', &
-!                   trim(wi_spc(i,j)), ' is not found '
-!             stop
-!          else
+           if (wi_spc_index(i,j) .gt. 0) then
               wi_spc_index(i,j) = wi_spc_index(i,j) + n_gc_spcd
-!          end if
+           end if
         end do
      end do
 
@@ -315,15 +295,12 @@ SUBROUTINE feedback_write ( c, r, l, cgrid, o3_value, jdate, jtime )
 
 ! water soluble
 ! i mode
-!    feedback_data_cmaq(c,r,l, 1) = cgrid(ws_spc_index(1)) + cgrid(ws_spc_index(3)) + cgrid(ws_spc_index(5))
      feedback_data_cmaq(c,r,l, 1) = 0.0
      do i = 1, num_ws_spc(1)
         feedback_data_cmaq(c,r,l, 1) = feedback_data_cmaq(c,r,l, 1) + cgrid(ws_spc_index(i,1))
      end do
 
 ! j mode
-!    feedback_data_cmaq(c,r,l, 2) = cgrid(ws_spc_index(2)) + cgrid(ws_spc_index(4)) + cgrid(ws_spc_index(6)) + &
-!                                   cgrid(ws_spc_index(7)) + cgrid(ws_spc_index(8)) + cgrid(ws_spc_index(9))
      feedback_data_cmaq(c,r,l, 2) = 0.0
      do i = 1, num_ws_spc(2)
         feedback_data_cmaq(c,r,l, 2) = feedback_data_cmaq(c,r,l, 2) + cgrid(ws_spc_index(i,2))
@@ -334,11 +311,6 @@ SUBROUTINE feedback_write ( c, r, l, cgrid, o3_value, jdate, jtime )
 
 ! insoluble
 ! i mode
-!    feedback_data_cmaq(c,r,l, 4) =   0.0                      &    ! in AE5 cblk(VORGAI) = 0.0
-!                                   + cgrid(wi_spc_index( 1))  &
-!                                   + 0.0                      &    ! in AE5 cblk(VORGBAI)) = 0.0
-!                                   + cgrid(wi_spc_index( 2))  &
-!                                   + cgrid(wi_spc_index( 3)) 
      feedback_data_cmaq(c,r,l, 4) = 0.0
      do i = 1, num_wi_spc(1)
         feedback_data_cmaq(c,r,l, 4) = feedback_data_cmaq(c,r,l, 4) + cgrid(wi_spc_index(i,1))
@@ -346,20 +318,12 @@ SUBROUTINE feedback_write ( c, r, l, cgrid, o3_value, jdate, jtime )
 
 ! j mode
      feedback_data_cmaq(c,r,l, 5) =   0.0
-!    do i = 4, 30
-!       feedback_data_cmaq(c,r,l, 5) =   feedback_data_cmaq(c,r,l, 5) &
-!                                      + cgrid(wi_spc_index(i))
-!    end do
      do i = 1, num_wi_spc(2)
         feedback_data_cmaq(c,r,l, 5) = feedback_data_cmaq(c,r,l, 5) + cgrid(wi_spc_index(i,2))
      end do
 
 ! k mode
      feedback_data_cmaq(c,r,l, 6) =   0.0
-!    do i = 31, 32
-!       feedback_data_cmaq(c,r,l, 6) =   feedback_data_cmaq(c,r,l, 6) &
-!                                      + cgrid(wi_spc_index(i))
-!    end do
      do i = 1, num_wi_spc(3)
         feedback_data_cmaq(c,r,l, 6) = feedback_data_cmaq(c,r,l, 6) + cgrid(wi_spc_index(i,3))
      end do
