@@ -8,7 +8,7 @@ CMAQ has been developed to meet the needs of both the research and application c
 <span id=Figure2-1></span>
 
 <center>
-![](Figure2-1.png "Figure2-1.png")
+![](./images/Figure2-1.png "Figure2-1.png")
 
 </center>
 <center>
