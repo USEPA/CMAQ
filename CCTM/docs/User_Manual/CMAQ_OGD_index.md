@@ -6,7 +6,7 @@ This manual is an operational guidance document for users of the CMAQ modeling s
 
 In brief, the following sections are included in this manual:
 
-[Chapter 1](CMAQ_OGD_ch01_intro.md) presents the CMAQ concepts, terminology, installation instructions, and guidance on running the tutorial simulation distributed with the model.
+[Chapter 1a](CMAQ_OGD_ch01_intro.md) presents the CMAQ concepts, terminology, installation instructions, and guidance on running the tutorial simulation distributed with the model.
 
 [Chapter 1b](unknown) provides information on how to develop the meteorology and emissions for CMAQ present the basic concepts and the availability of models that generate these CMAQ inputs, and describe how to configure these systems to produce input for CMAQ.
 
