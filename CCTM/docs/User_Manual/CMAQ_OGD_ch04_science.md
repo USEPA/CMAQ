@@ -102,7 +102,7 @@ CCTM uses data from other models and CMAQ input processing programs as input for
 <span id=Figure2-2></span>
 
 <center>
-![](Figure2-2.png "Figure2-2.png")
+![](./images/Figure2-2.png "Figure2-2.png")
 
 </center>
 <center>
@@ -128,7 +128,7 @@ MCIP uses output files from a meteorological model (such as MM5) to create netCD
 <span id=Figure2-3></span>
 
 <center>
-![](Figure2-3.png "Figure2-3.png")
+![](./images/Figure2-3.png "Figure2-3.png")
 
 </center>
 <center>
@@ -156,7 +156,7 @@ To perform air quality simulations, both initial and boundary conditions are req
 <span id=Figure2-4></span>
 
 <center>
-![](Figure2-4.png "Figure2-4.png")
+![](./images/Figure2-4.png "Figure2-4.png")
 
 </center>
 <center>
@@ -174,7 +174,7 @@ For CMAQ, the photolysis rate model, JPROC, is used to generate clear-sky photod
 <span id=Figure2-5></span>
 
 <center>
-![](Figure2-5.png "Figure2-5.png")
+![](./images/Figure2-5.png "Figure2-5.png")
 
 </center>
 <center>
@@ -194,7 +194,7 @@ Gas-phase chemical mechanisms are implemented in CMAQ using Fortran INCLUDE file
 <span id=Figure2-6></span>
 
 <center>
-![](Figure2-6.png "Figure2-6.png")
+![](./images/Figure2-6.png "Figure2-6.png")
 
 </center>
 <center>
@@ -212,7 +212,7 @@ PROCAN is the PA preprocessor in the CMAQ modeling system. As shown in [Figure 2
 <span id=Figure2-7></span>
 
 <center>
-![](Figure2-7.png "Figure2-7.png")
+![](./images/Figure2-7.png "Figure2-7.png")
 
 </center>
 <center>
@@ -228,7 +228,7 @@ The preprocessor is a combination of R scripts and a Fortran program. As shown i
 <span id=Figure2-8></span>
 
 <center>
-![](Figure2-8.png "Figure2-8.png")
+![](./images/Figure2-8.png "Figure2-8.png")
 
 </center>
 <center>
@@ -244,7 +244,7 @@ Figure 2-9 is a Calmap schematic showing the data flow through the software. The
 <span id=Figure2-9></span>
 
 <center>
-![](Figure2-9.png "Figure2-9.png")
+![](./images/Figure2-9.png "Figure2-9.png")
 
 </center>
 <center>
@@ -267,7 +267,7 @@ CMAQv5 includes options for simulating the chemistry of chlorine, mercury, and o
 <span id=Figure2-10></span>
 
 <center>
-![](Figure2-10.png "Figure2-10.png")
+![](./images/Figure2-10.png "Figure2-10.png")
 
 </center>
 <center>

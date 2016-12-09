@@ -73,7 +73,7 @@ dimensionality in the Y direction
 CMAQv5 is distributed with a GRIDDESC file that contains a definition for a grid covering the southeastern U.S. that uses a Lambert Conformal Conic coordinate. A picture of the grid and the grid definition, in the GRIDDESC format, is shown in [Figure 9-2](#Figure9-1 "wikilink").
 
 |---|---|
-|<span id=Figure9-2></span>![](Figure9-1.png "fig:Figure9-1.png")|Coordinate: Lambert Conformal
+|<span id=Figure9-2></span>![](./images/Figure9-1.png "fig:Figure9-1.png")|Coordinate: Lambert Conformal
 
 Latitude 0: 40.0
 
