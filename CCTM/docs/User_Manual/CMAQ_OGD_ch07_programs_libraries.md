@@ -17,7 +17,7 @@ MCIP is the first program in the CMAQ distribution package that a user should ru
 <span id=Figure7-1></span>
 
 <center>
-![](Figure5-1.png "Figure5-1.png")
+![](./images/Figure5-1.png "Figure5-1.png")
 
 </center>
 <center>
@@ -56,7 +56,7 @@ CCTM can also be forced with chemical boundary conditions downscaled from global
 <span id=Figure7-2></span>
 
 <center>
-![](Figure5-2.png "Figure5-2.png")
+![](./images/Figure5-2.png "Figure5-2.png")
 
 </center>
 <center>
@@ -222,7 +222,7 @@ Figure 5-3 shows that Calmap reads five input files to produce a eight outputs, 
 <span id=Figure7-3></span>
 
 <center>
-![](Figure5-3.png "Figure5-3.png")
+![](./images/Figure5-3.png "Figure5-3.png")
 
 </center>
 <center>
@@ -309,7 +309,7 @@ Both in-line emissions and photolysis are invoked through compile-time configura
 <span id=Figure7-4></span>
 
 <center>
-![](Figure7-4.png "Figure7-4.png")
+![](./images/Figure7-4.png "Figure7-4.png")
 
 </center>
 <center>
@@ -842,7 +842,7 @@ See Section 9.4 for details on how to update existing mechanisms or create new m
 <span id=Figure7-5></span>
 
 <center>
-![](Figure5-4.png "Figure5-4.png")
+![](./images/Figure5-4.png "Figure5-4.png")
 
 </center>
 <center>
@@ -983,7 +983,7 @@ CCTM can also be forced with initial conditions downscaled from global chemistry
 <span id=Figure7-6></span>
 
 <center>
-![](Figure7-6.png "Figure7-6.png")
+![](./images/Figure7-6.png "Figure7-6.png")
 
 </center>
 <center>
@@ -1148,7 +1148,7 @@ CCTM includes an in-line photolysis option that calculates photolysis rates usin
 <span id=Figure7-7></span>
 
 <center>
-![](Figure7-7.png "Figure7-7.png")
+![](./images/Figure7-7.png "Figure7-7.png")
 
 </center>
 <center>
@@ -1263,7 +1263,7 @@ LTNG\_2D\_DATA outputs [a parameters file](#LTNG_2D_DATA_output_files "wikilink"
 <span id=Figure7-8></span>
 
 <center>
-![](Figure7-8.png "Figure7-8.png")
+![](./images/Figure7-8.png "Figure7-8.png")
 
 </center>
 <center>
@@ -1416,7 +1416,7 @@ MCIP can extract both temporal and spatial subsets of the input meteorology file
 <span id=Figure7-9></span>
 
 <center>
-![](Figure7-9.png "Figure7-9.png")
+![](./images/Figure7-9.png "Figure7-9.png")
 
 </center>
 <center>
@@ -1670,7 +1670,7 @@ The program PROCAN creates a set of three output INCLUDE files needed to instrum
 <span id=Figure7-10></span>
 
 <center>
-![](Figure7-10.png "Figure7-10.png")
+![](./images/Figure7-10.png "Figure7-10.png")
 
 </center>
 <center>
