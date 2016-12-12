@@ -49,30 +49,25 @@ CMAQ requires all of the programs listed in [Table 5‑1](#Table5-1); this list 
 
 **Table 5‑1. Software required for running CMAQ**
 
-|---|---|---|
-|**Software**|**Description**|**Source**|
-|***CMAQ Programs***|
-
-|Bldmake|Models-3 program builder for source code management and code compilation|
-Contained in the standard CMAQ distribution available at [<http://www.cmascenter.org>](http://www.cmascenter.org/)
-Release notes and documentation available at [<http://www.cmaq-model.org>](http://www.cmaq-model.org/)
-
-|JPROC|Photolysis rate preprocessor|
-|ICON|Initial conditions preprocessor|
-|BCON|Boundary conditions preprocessor|
-|MCIP|Meteorology-Chemistry Interface Processor|
-|CCTM|CMAQ Chemistry-Transport Model|
-|CHEMMECH|Chemical mechanism compiler for modifying or adding reactions to the CMAQ chemistry|
-|LTNG\_2D\_DATA|Lightning flash count preprocessor|
-|PROCAN|Process analysis preprocessor for setting up CMAQ to generate integrated reaction rates or integrated process rates|
-|***Compilers***|
+| **Software** | **Description** | **Source** |
+|:------------------------------ |:------------------------------:|:-----------------------------------------------:|
+|***CMAQ Programs***|  |  |
+|Bldmake|Models-3 program builder for source code management and code compilation|Contained in the standard CMAQ distribution available at [<http://www.cmascenter.org>](http://www.cmascenter.org/) Release notes and documentation available at [<http://www.cmaq-model.org>](http://www.cmaq-model.org/)|
+|JPROC|Photolysis rate preprocessor| "|
+|ICON|Initial conditions preprocessor|" |
+|BCON|Boundary conditions preprocessor|"|
+|MCIP|Meteorology-Chemistry Interface Processor| "|
+|CCTM|CMAQ Chemistry-Transport Model| "|
+|CHEMMECH|Chemical mechanism compiler for modifying or adding reactions to the CMAQ chemistry| "|
+|LTNG\_2D\_DATA|Lightning flash count preprocessor| "|
+|PROCAN|Process analysis preprocessor for setting up CMAQ to generate integrated reaction rates or integrated process rates| "|
+|***Compilers***| | |
 |IFORT|Intel Fortran 90 compiler|[<http://www.intel.com>](http://www.intel.com/)|
 |PGF90|Portland Group Fortran 90 compiler|[<http://www.pgroup.com/>](http://www.pgroup.com/)|
 |GFORT|Gnu Fortran compiler|[<http://gcc.gnu.org/fortran/>](http://gcc.gnu.org/fortran/)|
 |GCC|Gnu C compiler|[<http://gcc.gnu.org/>](http://gcc.gnu.org/)|
-|***Code libraries***|
-|STENEX|CMAQ stencil exchange library for parallel job management|
-Contained in the standard CMAQ distribution available at [<http://www.cmascenter.org>](http://www.cmascenter.org/)
+|***Code libraries***| | |
+|STENEX|CMAQ stencil exchange library for parallel job management|Contained in the standard CMAQ distribution available at [<http://www.cmascenter.org>](http://www.cmascenter.org/)
 |PARIO|CMAQ parallel input/output management library|
 |MPICH|Library for the message passing interface; used for multiprocessor CMAQ simulations|[<http://www.mcs.anl.gov/research/projects/mpich2/>](http://www.mcs.anl.gov/research/projects/mpich2/)|
 |netCDF|Network Common Data Form library for controlling CMAQ file formats|[<http://my.unidata.ucar.edu/content/software/netcdf/index.html>](http://my.unidata.ucar.edu/content/software/netcdf/index.html)|
@@ -85,10 +80,10 @@ Contained in the standard CMAQ distribution available at [<http://www.cmascenter
 <a id=Table5-2></a>
 
 |**Table 5‑2. Optional support software for CMAQ**|
-|---|---|---|
-|**Software**|**Description**|**Source**|
-|***Evaluation and visualization tools***|
 
+|**Software**|**Description**|     **Source**    |
+|------------|---------------|-------------------|
+|***Evaluation and visualization tools***| | |
 |VERDI|Visualization Environment for Rich Data Interpretation for graphical analysis of netCDF gridded data|[<http://www.verdi-tool.org>](http://www.verdi-tool.org/)|
 |PAVE|Package for Analysis and Visualization of Environmental data for graphical analysis of netCDF gridded data|[<http://www.cmascenter.org>](http://www.cmascenter.org/)|
 |IDV|Integrated Data Viewer for 3-D graphical analysis of netCDF gridded data|[<http://www.unidata.ucar.edu/software/idv/>](http://www.unidata.ucar.edu/software/idv/)|
@@ -131,57 +126,9 @@ Compiler flag consistency between the Fortran and C compilers used to build netC
 
 <span id=Table5-3></span> **Table 5‑3. NetCDF and I/O API compilation options for CMAQ**
 
-|---|---|---|---|
-|<center>
-**Library Type**
-
-</center>|<center>
-**Intel Fortran**
-
-</center>|<center>
-**PGI Fortran**
-
-</center>|<center>
-**Gnu Fortran**|
-|netCDF|CC = icc
-
-CPPFLAGS = \`-DNDEBUG
-
-–DpgiFortran\`
-
-CFLAGS = \`-g –O\`
-
-FC = ifort
-
-F77 = ifort
-
-FFLAGS = \`-g –O2 –mp –recursive\`
-
-CXX = icpc|CC = gcc
-
-CPPFLAGS = \`-DNDEBUG
-
-–DpgiFortran\`
-
-CFLAGS = -O
-
-FC = pgf90
-
-FFLAGS = \`-O –w\`
-
-CXX = g++|CC = gcc
-
-CPPFLAGS = \`-DNDEBUG
-
-–DgFortran\`
-
-CFLAGS = -O
-
-FC = gfortran
-
-FFLAGS = \`-O –w\`
-
-CXX = g++|
+|**Library Type**|**Intel Fortran**|**PGI Fortran**|**Gnu Fortran**|
+|----------------|-----------------|---------------|--------------|
+|netCDF|CC = icc CPPFLAGS = \`-DNDEBUG –DpgiFortran\` CFLAGS = \`-g –O\` FC = ifort F77 = ifort FFLAGS = \`-–O2 –mp –recursive\` CXX = icpc|CC = gcc CPPFLAGS =\`-DNDEBUG –DpgiFortran\` CFLAGS = -O FC = pgf90 FFLAGS = \`-O –w\` CXX = g++|CC = gcc CPPFLAGS = \`-DNDEBUG –DgFortran\` CFLAGS = -O FC = gfortran FFLAGS = \`-O –w\` CXX = g++|
 |I/O API 32-bit|BIN = Linux2\_x86ifort|BIN = Linux2\_x86pg\_pgcc\_nomp|N/A|
 |I/O API 64-bit|BIN = Linux2\_x86\_64ifort|BIN = Linux2\_x86\_64pg\_pgcc\_nomp|BIN = Linux2\_x86\_64gfort|
 
