@@ -16,17 +16,17 @@ After determining the horizontal and vertical extent of the domain of interest, 
 
 ### Supported CMAQ Coordinate Systems
 
-Specifications for CMAQ and [MCIP](#Meteorology-Chemistry_Interface_Processor_.28MCIP.29 "wikilink") grids are governed by [I/O API](#Input.2FOutput_Applications_Programming_Interface_.28I.2FO_API.29 "wikilink") [grid conventions](https://www.cmascenter.org/ioapi/documentation/3.1/html/GRIDS.html). The choice of horizontal coordinate system, or map projection, for CMAQ is governed by the input emissions inventories and meteorological model fields, which must agree. [MM5](http://en.wikipedia.org/wiki/MM5_%28weather_model%29) and [WRF/ARW](https://en.wikipedia.org/wiki/Weather_Research_and_Forecasting_model) support the [Lambert conformal](https://en.wikipedia.org/wiki/Lambert_conformal_conic_projection), [polar stereographic](https://en.wikipedia.org/wiki/Universal_polar_stereographic_coordinate_system), and [Mercator projection](https://en.wikipedia.org/wiki/Mercator_projection)s, which can be directly passed to CMAQ.
+Specifications for CMAQ and [MCIP](#Meteorology-Chemistry_Interface_Processor_.28MCIP.29) grids are governed by [I/O API](#Input.2FOutput_Applications_Programming_Interface_.28I.2FO_API.29) [grid conventions](https://www.cmascenter.org/ioapi/documentation/3.1/html/GRIDS.html). The choice of horizontal coordinate system, or map projection, for CMAQ is governed by the input emissions inventories and meteorological model fields, which must agree. [MM5](http://en.wikipedia.org/wiki/MM5_%28weather_model%29) and [WRF/ARW](https://en.wikipedia.org/wiki/Weather_Research_and_Forecasting_model) support the [Lambert conformal](https://en.wikipedia.org/wiki/Lambert_conformal_conic_projection), [polar stereographic](https://en.wikipedia.org/wiki/Universal_polar_stereographic_coordinate_system), and [Mercator projection](https://en.wikipedia.org/wiki/Mercator_projection)s, which can be directly passed to CMAQ.
 
 ### Horizontal Grids
 
-Available horizontal grids for a given CMAQ run are defined at runtime by setting the GRIDDESC and GRID\_NAME environment variables to point to an existing grid definition file and to one of the grids defined in the file, respectively. Horizontal grids are defined by the [grid definition file](#GRIDDESC:_Horizontal_domain_definition "wikilink"), which can be edited by the user (more below).
+Available horizontal grids for a given CMAQ run are defined at runtime by setting the GRIDDESC and GRID\_NAME environment variables to point to an existing grid definition file and to one of the grids defined in the file, respectively. Horizontal grids are defined by the [grid definition file](#GRIDDESC:_Horizontal_domain_definition), which can be edited by the user (more below).
 
-The extent of the horizontal grid used in CMAQ is limited by the size of the domain of the input meteorology. [MCIP](#Meteorology-Chemistry_Interface_Processor_.28MCIP.29 "wikilink") and the [I/O API](#Input.2FOutput_Applications_Programming_Interface_.28I.2FO_API.29 "wikilink") utilities can be used to *window* subsets of meteorology data. Choosing the appropriate horizontal grid scale and extent for a [CCTM](#CMAQ_Chemistry-Transport_Model_.28CCTM.29 "wikilink") run is largely dependent on the issues to be addressed by the modeling. However, practical consideration should also be paid to the relationship between grid size, output file size, and execution times.
+The extent of the horizontal grid used in CMAQ is limited by the size of the domain of the input meteorology. [MCIP](#Meteorology-Chemistry_Interface_Processor_.28MCIP.29) and the [I/O API](#Input.2FOutput_Applications_Programming_Interface_.28I.2FO_API.29) utilities can be used to *window* subsets of meteorology data. Choosing the appropriate horizontal grid scale and extent for a [CCTM](#CMAQ_Chemistry-Transport_Model_.28CCTM.29) run is largely dependent on the issues to be addressed by the modeling. However, practical consideration should also be paid to the relationship between grid size, output file size, and execution times.
 
 #### CMAQ horizontal grid conventions
 
-Grid conventions are specified (at length) by [I/O API](#Input.2FOutput_Applications_Programming_Interface_.28I.2FO_API.29 "wikilink") [here](https://www.cmascenter.org/ioapi/documentation/3.1/html/GRIDS.html). In summary, users should be aware that CMAQ uses both "cross-point" and "dot-point" grids.
+Grid conventions are specified (at length) by [I/O API](#Input.2FOutput_Applications_Programming_Interface_.28I.2FO_API.29) [here](https://www.cmascenter.org/ioapi/documentation/3.1/html/GRIDS.html). In summary, users should be aware that CMAQ uses both "cross-point" and "dot-point" grids.
 
 <span id=Figure9-1></span>
 
@@ -34,7 +34,7 @@ Grid conventions are specified (at length) by [I/O API](#Input.2FOutput_Applicat
 ![Figure 9-1. relating cross and dot grids](CMAQ_IOAPI_dot_and_point_grids.jpg "fig:Figure 9-1. relating cross and dot grids") **Figure 9-1. relating cross and dot grids**
 
 </center>
-Hence, a user interested in a particular grid should be aware of its type. "Cross-point" is often abbreviated *CRO*, as in [`GRID_CRO_2D`](#GRID_CRO_2D:_Two-dimensional_grid_cross-point_fields "wikilink"). "Dot-point" is often abbreviated *DOT*, as in [`MET_DOT_3D`](MET_DOT_3D:_Three-dimensional_meteorological_dot-point_fields "wikilink").
+Hence, a user interested in a particular grid should be aware of its type. "Cross-point" is often abbreviated *CRO*, as in [`GRID_CRO_2D`](#GRID_CRO_2D:_Two-dimensional_grid_cross-point_fields). "Dot-point" is often abbreviated *DOT*, as in [`MET_DOT_3D`](MET_DOT_3D:_Three-dimensional_meteorological_dot-point_fields).
 
 Similarly, the user should be aware of the grid's
 
@@ -70,7 +70,7 @@ dimensionality in the Y direction
 
 #### Using predefined horizontal grids
 
-CMAQv5 is distributed with a GRIDDESC file that contains a definition for a grid covering the southeastern U.S. that uses a Lambert Conformal Conic coordinate. A picture of the grid and the grid definition, in the GRIDDESC format, is shown in [Figure 9-2](#Figure9-1 "wikilink").
+CMAQv5 is distributed with a GRIDDESC file that contains a definition for a grid covering the southeastern U.S. that uses a Lambert Conformal Conic coordinate. A picture of the grid and the grid definition, in the GRIDDESC format, is shown in [Figure 9-2](#Figure9-1).
 
 |---|---|
 |<span id=Figure9-2></span>![](./images/Figure9-1.png "fig:Figure9-1.png")|Coordinate: Lambert Conformal

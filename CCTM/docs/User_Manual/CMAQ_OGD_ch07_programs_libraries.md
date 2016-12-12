@@ -4,13 +4,13 @@ CMAQ Programs and Libraries
 Overview
 --------
 
-The core CMAQ programs that are needed to perform a basic air quality model simulation are MCIP, ICON, BCON, JPROC, and CCTM. The relationships among these programs are depicted within the green box in [Figure 7-1](#Figure5-1 "wikilink"). The blue boxes represent programs that are not part of the CMAQ distribution package but supply data necessary for an air quality simulation (emissions and meteorology data). The yellow boxes represent the standard CMAQ preprocessors: MCIP, ICON, BCON, and JPROC. The red box represents the CMAQ chemistry-transport model (CCTM), the Eulerian air quality modeling component of CMAQ. Data flows between the CMAQ programs are represented in [Figure 7‑1](#Figure5-1 "wikilink") by arrows. The red arrows illustrate the flow of data from the CMAQ preprocessors and the emissions model to CCTM. The green arrows show the data feedbacks from CCTM to create initial and boundary conditions for nested simulations. The black arrow illustrates the connection between the meteorological model and MCIP. Finally, the blue arrow shows that the output from MCIP can be used to drive an emissions model.
+The core CMAQ programs that are needed to perform a basic air quality model simulation are MCIP, ICON, BCON, JPROC, and CCTM. The relationships among these programs are depicted within the green box in [Figure 7-1](#Figure5-1). The blue boxes represent programs that are not part of the CMAQ distribution package but supply data necessary for an air quality simulation (emissions and meteorology data). The yellow boxes represent the standard CMAQ preprocessors: MCIP, ICON, BCON, and JPROC. The red box represents the CMAQ chemistry-transport model (CCTM), the Eulerian air quality modeling component of CMAQ. Data flows between the CMAQ programs are represented in [Figure 7‑1](#Figure5-1) by arrows. The red arrows illustrate the flow of data from the CMAQ preprocessors and the emissions model to CCTM. The green arrows show the data feedbacks from CCTM to create initial and boundary conditions for nested simulations. The black arrow illustrates the connection between the meteorological model and MCIP. Finally, the blue arrow shows that the output from MCIP can be used to drive an emissions model.
 
 The meteorological model**,** such as MM5 or WRF‑ARW, generates gridded meteorology for input to both CMAQ and the emissions model.
 
 The emissions model converts emissions inventories to gridded, hourly emissions formatted for CMAQ. The SMOKE and CONCEPT emissions models are currently available for preparing emissions data for CMAQ.
 
-CMAQv5 includes two in-line options for emissions: the user can incorporate the processing of biogenic emissions, or of point-source plume rise, or both, directly in a CCTM simulation. Previous versions of CMAQ required that biogenic emissions and point-source plume rise were provided from input files as pre-calculated hourly values. There are several advantages of incorporating these processes directly in a CCTM simulation: (1) the emissions are meteorologically modulated at the synchronization (chemistry) time step rather than being linearly time-interpolated within each simulation hour; (2) disk space may be saved, because a 3‑D emissions file is no longer needed for elevated point sources; and (3) CMAQ can more easily be coupled with a meteorological model, enabling direct emissions modulation by the underlying, freshly computed meteorological variables. In-line emissions are an option in CMAQv5, the traditional approaches of computing biogenic and 3-d point source emissions off-line are still available. Details about configuring CMAQ for in-line emissions are provided in [Section 7.3](#CCTM "wikilink").
+CMAQv5 includes two in-line options for emissions: the user can incorporate the processing of biogenic emissions, or of point-source plume rise, or both, directly in a CCTM simulation. Previous versions of CMAQ required that biogenic emissions and point-source plume rise were provided from input files as pre-calculated hourly values. There are several advantages of incorporating these processes directly in a CCTM simulation: (1) the emissions are meteorologically modulated at the synchronization (chemistry) time step rather than being linearly time-interpolated within each simulation hour; (2) disk space may be saved, because a 3‑D emissions file is no longer needed for elevated point sources; and (3) CMAQ can more easily be coupled with a meteorological model, enabling direct emissions modulation by the underlying, freshly computed meteorological variables. In-line emissions are an option in CMAQv5, the traditional approaches of computing biogenic and 3-d point source emissions off-line are still available. Details about configuring CMAQ for in-line emissions are provided in [Section 7.3](#CCTM)
 
 MCIP is the first program in the CMAQ distribution package that a user should run when setting up a new simulation. MCIP is used to preprocess the data from a meteorological model for CMAQ and SMOKE.
 
@@ -32,11 +32,11 @@ JPROC converts physical information about photoreactive molecules into clear-sky
 
 CCTM is run last in the sequence of programs. All of the other CMAQ programs and the emissions and meteorological models are used to prepare the inputs to CCTM. By using data that are synchronized for a particular modeling time period, model grid, vertical layer configuration, and chemical parameterization, CCTM can produce estimates of pollutant concentrations, wet and dry deposition rates, and visibility metrics at a time granularity set by the user.
 
-In addition to the core programs shown in [Figure 7‑1](#Figure5-1 "wikilink"), the CMAQ distribution package also includes utilities and libraries for utilizing some of the special features in CMAQ and for setting up CCTM for multiprocessor computing. CMAQ includes the PROCAN utility for preparing process analysis simulations, and CHEMMECH for editing existing and preparing new chemical mechanisms for CMAQ. The program LTNG\_2D\_DATA converts monthly lightning flash counts and ratios of cloud-to-cloud and cloud-to-ground flashes into an input file for CCTM. The stencil exchange code library (STENEX) is a module that CCTM uses to control the communication between processors in a multiprocessor computing environment. Similarly, CCTM uses the parallel I/O (PARIO) code library to synchronize the reading and writing of information among multiple processors.
+In addition to the core programs shown in [Figure 7‑1](#Figure5-1), the CMAQ distribution package also includes utilities and libraries for utilizing some of the special features in CMAQ and for setting up CCTM for multiprocessor computing. CMAQ includes the PROCAN utility for preparing process analysis simulations, and CHEMMECH for editing existing and preparing new chemical mechanisms for CMAQ. The program LTNG\_2D\_DATA converts monthly lightning flash counts and ratios of cloud-to-cloud and cloud-to-ground flashes into an input file for CCTM. The stencil exchange code library (STENEX) is a module that CCTM uses to control the communication between processors in a multiprocessor computing environment. Similarly, CCTM uses the parallel I/O (PARIO) code library to synchronize the reading and writing of information among multiple processors.
 
-In the remaining sections of this section, we provide detailed descriptions of these programs, utilities, and libraries, in alphabetical order. Information about the third-party libraries used by CMAQ—such as I/O API, netCDF, and MPICH—is available in [Section 6](#Required_Libraries "wikilink").
+In the remaining sections of this section, we provide detailed descriptions of these programs, utilities, and libraries, in alphabetical order. Information about the third-party libraries used by CMAQ—such as I/O API, netCDF, and MPICH—is available in [Section 6](#Required_Libraries).
 
-When viewing the tables that list each program’s input and output files, recall that the various file formats shown are described in [Table 4-2](#Table4-2 "wikilink").
+When viewing the tables that list each program’s input and output files, recall that the various file formats shown are described in [Table 4-2](#Table4-2).
 
 BCON
 ----
@@ -51,7 +51,7 @@ CCTM can also be forced with chemical boundary conditions downscaled from global
 
 ### Files, configuration, and environment variables
 
-[Figure 7‑2](#Figure5-2 "wikilink") shows the input and output files and configuration options for BCON. A distinction is made between the options that are invoked at compilation versus those invoked at execution of the program. When compiling BCON, the user specifies a chemical mechanism to configure the gas-phase chemistry and aerosol mechanism used to create the chemical BCs. Setting the *ModMech* and *Mechanism* variables in the BCON compile script configures the program to use a specific set of mechanism INCLUDE files to build an executable. Setting the *ModType* variable in the BCON compile script configures the program to input either a text file of static concentrations or a binary netCDF file of time-dependent concentrations for estimating BCs for CCTM. Separate BCON executables must be prepared for different mechanism and input file configurations.
+[Figure 7‑2](#Figure5-2) shows the input and output files and configuration options for BCON. A distinction is made between the options that are invoked at compilation versus those invoked at execution of the program. When compiling BCON, the user specifies a chemical mechanism to configure the gas-phase chemistry and aerosol mechanism used to create the chemical BCs. Setting the *ModMech* and *Mechanism* variables in the BCON compile script configures the program to use a specific set of mechanism INCLUDE files to build an executable. Setting the *ModType* variable in the BCON compile script configures the program to input either a text file of static concentrations or a binary netCDF file of time-dependent concentrations for estimating BCs for CCTM. Separate BCON executables must be prepared for different mechanism and input file configurations.
 
 <a id=Figure7-2></a>
 
@@ -130,13 +130,13 @@ The configuration options listed here are set during compilation of the BCON exe
 
 #### BCON compilation
 
-First, it is assumed that you have already installed and compiled the I/O API and netCDF libraries (see [Section 5.2.3](#Configuring_your_system_for_compiling_CMAQ "wikilink")).
+First, it is assumed that you have already installed and compiled the I/O API and netCDF libraries (see [Section 5.2.3](#Configuring_your_system_for_compiling_CMAQ)).
 
-[Section 5.3](#Benchmarking "wikilink") provides an overview of how to install and compile the CMAQ programs for the benchmark simulation. Follow the steps outlined in [Section 5.3](#Benchmarking "wikilink") (summarized below) to compile new versions of BCON:
+[Section 5.3](#Benchmarking) provides an overview of how to install and compile the CMAQ programs for the benchmark simulation. Follow the steps outlined in [Section 5.3](#Benchmarking) (summarized below) to compile new versions of BCON:
 
 -   If you have not already done so, compile Bldmake, the CMAQ source code and compilation management program. This needs to be done only once—the first time CMAQ is installed.
 -   If needed, configure the BCON build script to use the available I/O API and netCDF libraries.
--   Configure the BCON build script for your application (using the options discussed in [Section 7.2.2.2](#BCON_compilation_options "wikilink"))
+-   Configure the BCON build script for your application (using the options discussed in [Section 7.2.2.2](#BCON_compilation_options)
 -   Invoke the build script to create an executable:
 
 `./bldit.bcon`
@@ -304,7 +304,7 @@ Both in-line emissions and photolysis are invoked through compile-time configura
 
 ### Files, configuration, and environment variables
 
-[Figure 7‑4](#Figure7-4 "wikilink") shows the input and output files and configuration options for CCTM. A distinction is made between the options that are invoked at compilation time versus those invoked at execution of the program. When compiling CCTM, the user specifies a chemical mechanism to configure the gas-phase chemistry and aerosol mechanism used for the air quality calculations. Setting the *Mechanism* variable in CCTM compile script configures the program to use a specific set of mechanism INCLUDE files to build an executable. All of the science processes simulated by CCTM must also be selected during the compilation step for CCTM. Separate CCTM executables must be prepared for different mechanism and science configurations. During the execution step, or when CCTM is run, the user sets the horizontal and vertical grid definitions and the input files used for the simulation. Different spatial domains, vertical grid structures and input files can be used with a single CCTM executable, as long as the input files are consistent with the scientific configuration built into the executable. For example, with the gas-phase photochemical mechanism configuration built into a CCTM executable, different modeling domains can be simulated with the executable as long as the emissions and IC/BC files are consistent with the photochemical mechanism configuration built into the executable.
+[Figure 7‑4](#Figure7-4) shows the input and output files and configuration options for CCTM. A distinction is made between the options that are invoked at compilation time versus those invoked at execution of the program. When compiling CCTM, the user specifies a chemical mechanism to configure the gas-phase chemistry and aerosol mechanism used for the air quality calculations. Setting the *Mechanism* variable in CCTM compile script configures the program to use a specific set of mechanism INCLUDE files to build an executable. All of the science processes simulated by CCTM must also be selected during the compilation step for CCTM. Separate CCTM executables must be prepared for different mechanism and science configurations. During the execution step, or when CCTM is run, the user sets the horizontal and vertical grid definitions and the input files used for the simulation. Different spatial domains, vertical grid structures and input files can be used with a single CCTM executable, as long as the input files are consistent with the scientific configuration built into the executable. For example, with the gas-phase photochemical mechanism configuration built into a CCTM executable, different modeling domains can be simulated with the executable as long as the emissions and IC/BC files are consistent with the photochemical mechanism configuration built into the executable.
 
 <a id=Figure7-4></a>
 
@@ -778,7 +778,7 @@ Directory path and file name for ozone monitoring instrument look-up table.
 
 #### CCTM output files
 
-[Table 7-7](#Table7-7 "wikilink") lists the logical file names, formats, and descriptions of the output files that are produced by the base configuration of CCTM. Activating different science modules, in-line deposition, and in-line emissions processing produces additional output files from CCTM. [Table 7-8](#Table7-8 "wikilink") lists the logical file names, formats, and descriptions of the output files that are produced by optional configurations of CCTM.
+[Table 7-7](#Table7-7) lists the logical file names, formats, and descriptions of the output files that are produced by the base configuration of CCTM. Activating different science modules, in-line deposition, and in-line emissions processing produces additional output files from CCTM. [Table 7-8](#Table7-8) lists the logical file names, formats, and descriptions of the output files that are produced by optional configurations of CCTM.
 
 <span id=Table7-7></span>
 
@@ -837,7 +837,7 @@ See Section 9.4 for details on how to update existing mechanisms or create new m
 
 ### Files, configuration, and environment variables
 
-[Figure 7‑5](#Figure5-4 "wikilink") shows the input and output files and configuration options for CHEMMECH and CSV2NML. The full set of mechanism INCLUDE files required by the CMAQ programs is generated in two steps. In the first step, the program CHEMMECH is run with the mechanism definition file, mech.def, provided as input. The resulting RXDT.EXT and RXCM.EXT INCLUDE files are then input to the CMAQ build scripts to compile CMAQ with a new chemical mechanism configuration. CSV2NML is used to convert the species definition files from CSV format to NAMELIST files. The NAMELIST files are used as inputs to the CMAQ programs ICON, BCON, or CCTM to define the processes that will impact each model species. Three NAMELIST files define the processes for gas-phase species (GC.nml), aerosol species (AE.nml), and nonreactive species (NR.nml).
+[Figure 7‑5](#Figure5-4) shows the input and output files and configuration options for CHEMMECH and CSV2NML. The full set of mechanism INCLUDE files required by the CMAQ programs is generated in two steps. In the first step, the program CHEMMECH is run with the mechanism definition file, mech.def, provided as input. The resulting RXDT.EXT and RXCM.EXT INCLUDE files are then input to the CMAQ build scripts to compile CMAQ with a new chemical mechanism configuration. CSV2NML is used to convert the species definition files from CSV format to NAMELIST files. The NAMELIST files are used as inputs to the CMAQ programs ICON, BCON, or CCTM to define the processes that will impact each model species. Three NAMELIST files define the processes for gas-phase species (GC.nml), aerosol species (AE.nml), and nonreactive species (NR.nml).
 
 <a id=Figure7-5></a>
 
@@ -933,7 +933,7 @@ The location of the CHEMMECH output files is set in the run script by the variab
 
 #### CSV2NML input files
 
-Detailed descriptions of the formats of the files shown in [Table 7-11](#Table5-9 "wikilink") are provided in Section 8. <span id=Table7-11></span>
+Detailed descriptions of the formats of the files shown in [Table 7-11](#Table5-9) are provided in Section 8. <span id=Table7-11></span>
 
 <center>
 **Table 7‑11. CSV2NML input files**
@@ -978,7 +978,7 @@ CCTM can also be forced with initial conditions downscaled from global chemistry
 
 ### Files, configuration, and environment variables
 
-[Figure 7‑6](#Figure7-6 "wikilink") shows the input and output files and configuration options for ICON. A distinction is made between the options that are invoked at compilation versus those invoked at execution of the program. When compiling ICON, the user specifies a chemical mechanism to determine the gas-phase chemistry and aerosol mechanism for which to calculate chemical ICs. Setting the *ModMech* and Mechanism variables in the ICON compile script configures the program to use a specific set of mechanism INCLUDE files to build an executable. Separate ICON executables are required for each mechanism configuration. Setting the *ModType* variable in the ICON compile script configures the program to input either a text file of static concentrations or a binary netCDF file of time-dependent concentrations for estimating ICs for CCTM. Separate ICON executables must be prepared for different mechanism and input file configurations.
+[Figure 7‑6](#Figure7-6) shows the input and output files and configuration options for ICON. A distinction is made between the options that are invoked at compilation versus those invoked at execution of the program. When compiling ICON, the user specifies a chemical mechanism to determine the gas-phase chemistry and aerosol mechanism for which to calculate chemical ICs. Setting the *ModMech* and Mechanism variables in the ICON compile script configures the program to use a specific set of mechanism INCLUDE files to build an executable. Separate ICON executables are required for each mechanism configuration. Setting the *ModType* variable in the ICON compile script configures the program to input either a text file of static concentrations or a binary netCDF file of time-dependent concentrations for estimating ICs for CCTM. Separate ICON executables must be prepared for different mechanism and input file configurations.
 
 <a id=Figure7-6></a>
 
@@ -1143,7 +1143,7 @@ CCTM includes an in-line photolysis option that calculates photolysis rates usin
 
 ### Files, configuration, and environment variables
 
-[Figure 7‑7](#Figure7-7 "wikilink") shows the input and output files for JPROC. Some options are invoked at compilation, while others are invoked with execution of the program. When compiling JPROC, the user specifies a chemical mechanism to indicate the gas-phase chemistry for which to calculate photolysis rates. Setting the *Mechanism* variable in the JPROC compile script configures the program to use a specific set of mechanism INCLUDE files to build an executable. JPROC executables are hard-wired to a specific mechanism configuration.
+[Figure 7‑7](#Figure7-7) shows the input and output files for JPROC. Some options are invoked at compilation, while others are invoked with execution of the program. When compiling JPROC, the user specifies a chemical mechanism to indicate the gas-phase chemistry for which to calculate photolysis rates. Setting the *Mechanism* variable in the JPROC compile script configures the program to use a specific set of mechanism INCLUDE files to build an executable. JPROC executables are hard-wired to a specific mechanism configuration.
 
 <a id=Figure7-7></a>
 
@@ -1252,13 +1252,13 @@ The program LTNG\_2D\_DATA prepares the input parameter file for estimating ligh
 
 LTNG\_2D\_DATA reads those input files, plus
 
--   A [MET\_CRO\_2D](#MET_CRO_2D:_Two-dimensional_meteorological_cross-point_fields "wikilink") file from MCIP
+-   A [MET\_CRO\_2D](#MET_CRO_2D:_Two-dimensional_meteorological_cross-point_fields) file from MCIP
 -   An I/O API netCDF file of monthly flash densities gridded to your modeling domain. 12-km continental U.S. monthly flash densities are available from the [CMAS Data Clearinghouse](https://www.cmascenter.org/download/data/nldn.cfm).
 -   If those are not available, the program NLDN\_2D (packaged with LTNG\_2D\_DATA) can produce them from raw hourly flash counts from the [NLDN](http://gcmd.nasa.gov/records/GCMD_NLDN.html).
 
-LTNG\_2D\_DATA outputs [a parameters file](#LTNG_2D_DATA_output_files "wikilink").
+LTNG\_2D\_DATA outputs [a parameters file](#LTNG_2D_DATA_output_files).
 
-[Figure 7-8](#Figure7-8 "wikilink") shows the input and output files for LTNG\_2D\_DATA. The preprocessor Fortran program NLDN\_2D inputs a text file of NLDN flash count data and a MET\_CRO\_2D file and outputs an I/O API netCDF file for input to LTNG\_2D\_DATA. The R batch script ocean\_mask.R reads a MET\_CRO\_2D file to create an ocean mask CSV file on the modeling grid. The R batch script iccg.R reads a MET\_CRO\_2D file and a flash ratio text file and outputs a CSV-formatted flash ratio file on the modeling grid. The outputs of these processes are used by LTNG\_2D\_DATA, along with a MET\_CRO\_2D file, to produce a lightning NO<sub>x</sub> parameters file for input to CCTM. The MET\_CRO\_2D file must be consistent across all of the programs associated with LTNG\_2D\_DATA.
+[Figure 7-8](#Figure7-8) shows the input and output files for LTNG\_2D\_DATA. The preprocessor Fortran program NLDN\_2D inputs a text file of NLDN flash count data and a MET\_CRO\_2D file and outputs an I/O API netCDF file for input to LTNG\_2D\_DATA. The R batch script ocean\_mask.R reads a MET\_CRO\_2D file to create an ocean mask CSV file on the modeling grid. The R batch script iccg.R reads a MET\_CRO\_2D file and a flash ratio text file and outputs a CSV-formatted flash ratio file on the modeling grid. The outputs of these processes are used by LTNG\_2D\_DATA, along with a MET\_CRO\_2D file, to produce a lightning NO<sub>x</sub> parameters file for input to CCTM. The MET\_CRO\_2D file must be consistent across all of the programs associated with LTNG\_2D\_DATA.
 
 <a id=Figure7-8></a>
 
@@ -1281,14 +1281,14 @@ LTNG\_2D\_DATA outputs [a parameters file](#LTNG_2D_DATA_output_files "wikilink"
 |---|---|---|
 |**File Name**|**Format**|**Description**|
 |NLDNFILE|GRDDED3|NLDN monthly flash totals, aka monthly average strike density; contains the variable, NLDNstrk, that is the number of flashes per month in each grid cell|
-|OCEANMASK|CSV|Ocean mask file; 1 = land, 0 = open ocean. Can be built by `ocean_mask.R` from [MET\_CRO\_2D](#MET_CRO_2D:_Two-dimensional_meteorological_cross-point_fields "wikilink")|
-|ICCG|CSV|Intercloud to cloud-to-ground ratios by model grid cell. Example ICCG files are in the [CMAQ distribution](#Installing_CMAQ_on_your_system "wikilink") @ `$M3DATA/raw/lnox/input/`|
+|OCEANMASK|CSV|Ocean mask file; 1 = land, 0 = open ocean. Can be built by `ocean_mask.R` from [MET\_CRO\_2D](#MET_CRO_2D:_Two-dimensional_meteorological_cross-point_fields)|
+|ICCG|CSV|Intercloud to cloud-to-ground ratios by model grid cell. Example ICCG files are in the [CMAQ distribution](#Installing_CMAQ_on_your_system) @ `$M3DATA/raw/lnox/input/`|
 |METFILE|GRDDED3|MET\_CRO\_2D file from MCIP; must include convective precipitation (RC) and cloud-top variables (CLDT)|
 
 Example LTNG\_2D\_DATA inputs for North America can be found at the [CMAS Data Clearinghouse](https://www.cmascenter.org/download/data/nldn.cfm): the NLDN monthly flash total files there are named `NLDN.$YYYY.$MM.ioapi`. To rebuild them,
 
 1.  Obtain raw hourly flash counts from the [NLDN](http://gcmd.nasa.gov/records/GCMD_NLDN.html)
-2.  [Install CMAQ](#Installing_CMAQ_on_your_system "wikilink")
+2.  [Install CMAQ](#Installing_CMAQ_on_your_system)
 3.  Follow the directions in `$M3HOME/scripts/lnox/README`
     1.  Build `NLDN_2D` using `$M3HOME/scripts/lnox/src/Makefile.NLDN_2D`
     2.  Run `$M3HOME/scripts/lnox/src/run.NLDN_2D.csh`
@@ -1391,8 +1391,8 @@ The output files have the following fields (with units):
 
 The default location of the LTNG\_2D\_DATA output files is the `$M3DATA/lnox` directory, controlled by the `OUTDIR` variable in the run script. To build these CCTM parameter files,
 
-1.  [Install CMAQ](#Installing_CMAQ_on_your_system "wikilink")
-2.  Obtain or build [NLDN gridded monthly flash counts](#LTNG_2D_DATA_input_files "wikilink")
+1.  [Install CMAQ](#Installing_CMAQ_on_your_system)
+2.  Obtain or build [NLDN gridded monthly flash counts](#LTNG_2D_DATA_input_files)
 3.  Follow the directions in `$M3HOME/scripts/lnox/README`
     1.  Build `LTNG_2D_DATA` using `$M3HOME/scripts/lnox/src/Makefile.LTNG_2D_DATA`
     2.  Run `$M3HOME/scripts/lnox/run.LTNG_2D.csh`
@@ -1411,7 +1411,7 @@ MCIP can extract both temporal and spatial subsets of the input meteorology file
 
 ### Files, configuration, and environment variables
 
-[Figure 7‑9](#Figure7-9 "wikilink") shows the input and output files and configuration options for MCIP. All MCIP configurations are accomplished at execution (rather than at compile time) and via Fortran namelist variables, a distinction from the rest of the CMAQ programs. The user does not need to directly edit the MCIP namelist file. All configuration settings are contained in the MCIP run script, which automatically creates a new namelist file each time the script is executed.
+[Figure 7‑9](#Figure7-9) shows the input and output files and configuration options for MCIP. All MCIP configurations are accomplished at execution (rather than at compile time) and via Fortran namelist variables, a distinction from the rest of the CMAQ programs. The user does not need to directly edit the MCIP namelist file. All configuration settings are contained in the MCIP run script, which automatically creates a new namelist file each time the script is executed.
 
 <a id=Figure7-9></a>
 
@@ -1665,7 +1665,7 @@ Process analysis is a diagnostic tool that captures model-generated data not rou
 
 ### Files, configuration, and environment variables
 
-The program PROCAN creates a set of three output INCLUDE files needed to instrument CCTM to produce process analysis output (See [Figure 7-10](#Figure7-10 "wikilink")). This program reads and interprets instructions from a command file and then generates three Fortran INCLUDE files used by CCTM to produce the process analysis outputs that were requested in the commands. The process analysis commands themselves are formatted according to a simple set of rules and a free-form format. Nevertheless, each command has a special syntax that must be followed, and each command makes use of special keywords and/or operators that have specific meaning to PROCAN. The commands are of three major types: global commands, IPR commands, and IRR commands. The discussion begins first, however, with a description of some general rules for configuring PROCAN.
+The program PROCAN creates a set of three output INCLUDE files needed to instrument CCTM to produce process analysis output (See [Figure 7-10](#Figure7-10). This program reads and interprets instructions from a command file and then generates three Fortran INCLUDE files used by CCTM to produce the process analysis outputs that were requested in the commands. The process analysis commands themselves are formatted according to a simple set of rules and a free-form format. Nevertheless, each command has a special syntax that must be followed, and each command makes use of special keywords and/or operators that have specific meaning to PROCAN. The commands are of three major types: global commands, IPR commands, and IRR commands. The discussion begins first, however, with a description of some general rules for configuring PROCAN.
 
 <a id=Figure7-10></a>
 
@@ -1747,9 +1747,9 @@ PROCAN configuration is implemented through the command file PACP\_INFILE. The f
 
 This section describes the individual process analysis commands that are used to construct a PROCAN command file. In the description of these commands, the following conventions are used: bold type is used for PROCAN keywords, and normal type for user-supplied inputs. Alternative inputs are separated by vertical bars (|), and optional inputs are enclosed in braces ({}). The PROCAN commands fall into three general categories:
 
-1.  *Process Analysis Global Commands*. These commands ([Table 7-22](#Table7-22 "wikilink")) include general specifications that are applicable throughout the configuration.
-2.  *Integrated Process Rate Command*. This command ([Tables 7-23](#Table7-23 "wikilink") and [7-24](#Table7-24 "wikilink")) is specific to the configuration of the integrated process rates. There is only one command for IPRs, and it controls the specific IPRs that are output. Note that one command can cause many IPR outputs to be generated. For example, if one species or family is specified in a command but no process codes are specified, then one IPR will be generated for each science process for that species. Similarly, if the keyword ALL is used for the species name and no process code is specified, 12 IPRs will be generated for every model species. This would generate an output file that would be approximately 12 times as large as the corresponding concentration file. Also, the impact on the CCTM memory requirements would be substantial, since adding a single IPR output has roughly the same effect as adding a model species. Thus, caution should be exercised when formulating the commands to request IPR outputs. The IPR outputs are written to an I/O API output file in exactly the same format and with the same number of time steps as the concentration output file. Since the I/O API currently has a limit of 120 output variables in a file, multiple files will be output if this limit is exceeded.
-3.  *Integrated Reaction Rate Commands.* These commands ([Table 7-25](#Table7-25 "wikilink")) are specific to the configuration of the IRRs. The same considerations regarding file size and memory usage detailed in item 2 above should be considered when using these commands.
+1.  *Process Analysis Global Commands*. These commands ([Table 7-22](#Table7-22) include general specifications that are applicable throughout the configuration.
+2.  *Integrated Process Rate Command*. This command ([Tables 7-23](#Table7-23) and [7-24](#Table7-24) is specific to the configuration of the integrated process rates. There is only one command for IPRs, and it controls the specific IPRs that are output. Note that one command can cause many IPR outputs to be generated. For example, if one species or family is specified in a command but no process codes are specified, then one IPR will be generated for each science process for that species. Similarly, if the keyword ALL is used for the species name and no process code is specified, 12 IPRs will be generated for every model species. This would generate an output file that would be approximately 12 times as large as the corresponding concentration file. Also, the impact on the CCTM memory requirements would be substantial, since adding a single IPR output has roughly the same effect as adding a model species. Thus, caution should be exercised when formulating the commands to request IPR outputs. The IPR outputs are written to an I/O API output file in exactly the same format and with the same number of time steps as the concentration output file. Since the I/O API currently has a limit of 120 output variables in a file, multiple files will be output if this limit is exceeded.
+3.  *Integrated Reaction Rate Commands.* These commands ([Table 7-25](#Table7-25) are specific to the configuration of the IRRs. The same considerations regarding file size and memory usage detailed in item 2 above should be considered when using these commands.
 
 <span id=Table7-22></span>
 
@@ -1770,7 +1770,7 @@ This section describes the individual process analysis commands that are used to
 </center>
 |---|---|
 |**Command**|**Description**|
-|**IPR\_OUTPUT** species|familyname|**ALL** **=** {pcode<sub>1</sub> **+** pcode<sub>2</sub> **+** ...}**;**|The IPR\_OUTPUT command defines specific IPR outputs to be generated during a CMAQ CTM simulation. A model species name, family name, or the keyword “ALL” must follow the IPR\_OUTPUT keyword. The keyword ALL refers to all model species. IPRs are generated for the selected species or family, and they are controlled by the specified values of pcode<sub>i</sub>, where pcode<sub>i</sub> corresponds to one of the process codes listed below. If no process codes are specified, IPRs will be generated for every science process (i.e., the first 12 codes shown in [Table 7-24](#Table7-24 "wikilink")). The output variables that are generated are named either species\_pcode<sub>i</sub> or familyname\_pcode<sub>i</sub>.|
+|**IPR\_OUTPUT** species|familyname|**ALL** **=** {pcode<sub>1</sub> **+** pcode<sub>2</sub> **+** ...}**;**|The IPR\_OUTPUT command defines specific IPR outputs to be generated during a CMAQ CTM simulation. A model species name, family name, or the keyword “ALL” must follow the IPR\_OUTPUT keyword. The keyword ALL refers to all model species. IPRs are generated for the selected species or family, and they are controlled by the specified values of pcode<sub>i</sub>, where pcode<sub>i</sub> corresponds to one of the process codes listed below. If no process codes are specified, IPRs will be generated for every science process (i.e., the first 12 codes shown in [Table 7-24](#Table7-24). The output variables that are generated are named either species\_pcode<sub>i</sub> or familyname\_pcode<sub>i</sub>.|
 
 <span id=Table7-24></span>
 
