@@ -5,7 +5,7 @@ As discussed in [Section 3](#Introduction "wikilink"), CMAQ is a multipollutant,
 
 CMAQ has been developed to meet the needs of both the research and application communities. The CMAQ system allows users to easily construct model variations with different characteristics, such as different chemical mechanisms or alternative cloud treatments, in order to address a specific air quality issue (illustrated schematically in [Figure 2-1](./images/Figure2-1.png)). This modeling configuration allows CMAQ to retain its state-of-the-science status over time because it facilitates the implementation of new science modules as appropriate.
 
-<span id=Figure2-1></span>
+<a id="Figure2-1"></a>
 
 <center>
 ![](./images/Figure2-1.png "Figure2-1.png")
