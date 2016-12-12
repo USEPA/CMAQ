@@ -1,4 +1,4 @@
-[[Back to Wiki Home|/Home.md]]
+[Back to CMAQ OGD Index](CMAQ_OGD_index.md)
 <center>
 **Operational Guidance for the Community Multiscale Air Quality (CMAQ) Modeling System**
 
@@ -293,4 +293,4 @@ CMAQ is designed to meet the needs of the multiple groups contained within the a
 7.  *Computational Efficiency* – Provide scientifically acceptable results without compro­mising the speed at which the results are generated
 8.  ''Open-Source Design ''– Enable no-cost distribution and application by the modeling community
 
-[[Next Chapter|/CMAQ_OGD_overview.md]]
+[Next Chapter](CMAQ_OGD_ch02_overview.md)
