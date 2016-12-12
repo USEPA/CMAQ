@@ -79,7 +79,7 @@ CMAQ requires all of the programs listed in [Table 5‑1](#Table5-1); this list 
 
 <a id=Table5-2></a>
 
-|**Table 5‑2. Optional support software for CMAQ**|
+**Table 5‑2. Optional support software for CMAQ**
 
 |**Software**|**Description**|     **Source**    |
 |------------|---------------|-------------------|
@@ -124,7 +124,9 @@ The CMAQ scripts require users to select only the location of the `M3HOME` direc
 
 Compiler flag consistency between the Fortran and C compilers used to build netCDF and I/O API is critical for building library files compatible with CMAQ. [Table 5-3](#Table5-3) lists the suggested compilation options for building netCDF and I/O API libraries that are compatible with CMAQ. Refer to the documentation for these libraries for additional information on installation and compiling.
 
-<span id=Table5-3></span> **Table 5‑3. NetCDF and I/O API compilation options for CMAQ**
+<a id=Table5-3></a>
+
+**Table 5‑3. NetCDF and I/O API compilation options for CMAQ**
 
 |**Library Type**|**Intel Fortran**|**PGI Fortran**|**Gnu Fortran**|
 |----------------|-----------------|---------------|--------------|
@@ -137,27 +139,13 @@ Compiler flag consistency between the Fortran and C compilers used to build netC
 
 Consistency of configuration variables is critical for building CMAQ itself, not just its libraries. Accordingly CMAQ now distributes with `CMAQv5.0/scripts/config.cmaq` to help prevent multiple, inconsistent settings. [Table 5-4](#Table5-4) lists variables defined for the build process and suggests values to which to set those variables.
 
-<span id=Table5-4></span> **Table 5‑4. config.cmaq configuration variables**
+<a id=Table5-4></a>
 
-|---|---|
-|<center>
-**Variable Name**
+**Table 5‑4. config.cmaq configuration variables**
 
-</center>|<center>
-**Suggested Value**
-
-</center>|
-|`M3HOME`|the directory to which you are installing CMAQ. For example, if you installed the CMAQ source code in the directory
-
-`/home/user/CMAQv5.0`
-
-set the M3HOME environment variable with (e.g.)
-
-`export M3HOME='/home/user/CMAQv5.0' # bash`
-
-or
-
-`setenv M3HOME /home/user/CMAQv5.0   # csh`|
+| **Variable Name** | **Suggested Value** |
+|:-----------------:|:-------------------:|
+|`M3HOME`|the directory to which you are installing CMAQ. For example, if you installed the CMAQ source code in the directory `/home/user/CMAQv5.0` set the M3HOME environment variable with (e.g.) `export M3HOME='/home/user/CMAQv5.0' # bash` or `setenv M3HOME /home/user/CMAQv5.0   # csh`|
 |`M3DATA`|should be automatically set by config.cmaq|
 |`M3LIB`|should be automatically set by config.cmaq|
 |`M3MODEL`|should be automatically set by config.cmaq|

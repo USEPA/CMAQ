@@ -33,16 +33,10 @@ All files manipulated by the I/O API may have multiple variables and multiple la
 
 <center>
 **Table 6‑1. Possible Time Step Structures in I/O API Files**
-
 </center>
-|---|---|
-|<center>
-**File Type**
 
-</center>|<center>
-**Description**
-
-</center>|
+|**File Type**|**Description**|
+|:-----------:|:-------------:|
 |Time-independent|The file’s time-step attribute is set to zero. Routines that use time-independent files ignore the date and time arguments.|
 |Time-stepped|The file has a starting date, a starting time, and a positive time step. Read and write requests must be for some positive integer multiple of the time step from the starting date and time.|
 |Circular-buffer|This type of file keeps only two “records”, the “even” part and the “odd” part (useful, for example, for “restart” files where only the last data written in the file are used). The file’s description has a starting date, a starting time, and a negative time step (set to the negative of the actual time step). Read and write requests must be for some positive integer multiple of the time step from the starting date and time, and they must reflect a specific time step that is in the file.|
@@ -51,22 +45,10 @@ All files manipulated by the I/O API may have multiple variables and multiple la
 
 <center>
 **Table 6‑2. Possible Data Type Structures in I/O API Files**
-
 </center>
+
+|**File Type**|**Magic Number**|**Data Type**|**Description**|
 |---|---|---|---|
-|<center>
-**File Type**
-
-</center>|<center>
-**Magic Number**
-
-</center>|<center>
-**Data Type**
-
-</center>|<center>
-**Description**
-
-</center>|
 |CUSTOM3|-1|Custom|User-dimensioned array of REAL\*4s that the system reads/writes reliably|
 |DCTNRY3|0|Dictionary|Data type stores and retrieves parts of an FDESC.EXT file description|
 |GRDDED3|1|Gridded|Dimension as REAL\*4 ARRAY (NCOLS, NROWS, NLAYS, NVARS)|
@@ -97,39 +79,15 @@ This function maintains considerable audit trail information in the file header 
 
 <center>
 **Table 6‑3. Possible values for OPEN(3) FSTATUS**
-
 </center>
-|---|---|---|
-|<center>
-**FSTATUS**
 
-</center>|<center>
-**Value**
-
-</center>|<center>
-**Description**
-
-</center>|
-|FSREAD3|<center>
-1
-
-</center>|for READ-ONLY access to an existing file|
-|FSRDWR3|<center>
-2
-
-</center>|for READ/WRITE/UPDATE access to an existing file|
-|FSNEW3|<center>
-3
-
-</center>|for READ/WRITE access to create a new file (file must not yet exist)|
-|FSUNKN3|<center>
-4
-
-</center>|for READ/WRITE/UPDATE access to a file whose existence is unknown|
-|FSCREA3|<center>
-5
-
-</center>|for CREATE/TRUNCATE/READ/WRITE access to files|
+|**FSTATUS**|**Value**|**Description**|
+|:---------:|:-------:|:-------------:|
+|FSREAD3|1|for READ-ONLY access to an existing file|
+|FSRDWR3|2|for READ/WRITE/UPDATE access to an existing file|
+|FSNEW3|3|for READ/WRITE access to create a new file (file must not yet exist)|
+|FSUNKN3|4|for READ/WRITE/UPDATE access to a file whose existence is unknown|
+|FSCREA3|5|for CREATE/TRUNCATE/READ/WRITE access to files|
 
 In the last three cases, “new” “unknown” and “create/truncate,” the code developer may fill in the file description from the INCLUDE file FDESC3.EXT to define the structure for the file, and then call *OPEN3*. If the file does not exist in either of these cases, *OPEN3* will use the information to create a new file according to your specifications, and open it for read/write access. In the “unknown” case, if the file already exists, OPEN3 will perform a consistency check between your supplied file description and the description found in the file’s own header, and will return TRUE (and leave the file open) only if the two are consistent.
 
@@ -165,16 +123,10 @@ There are four routines with varying kinds of selectivity used to read or otherw
 
 <center>
 **Table 6‑4. IO API data retrieval routines**
-
 </center>
+
+|**Routine**|**Description**|
 |---|---|
-|<center>
-**Routine**
-
-</center>|<center>
-**Description**
-
-</center>|
 |READ3|reads one or all variables and layers from a file for a particular date and time.|
 |XTRACT3|reads a windowed subgrid for one or all variables from a file for a particular date and time.|
 |INTERP3|interpolates the requested variable from the requested file to the date/time|
@@ -238,16 +190,10 @@ Data files in the CMAQ system can be easily manipulated by using the I/O API uti
 
 <center>
 **Table 6‑5. I/O API data manipulation utilities**
-
 </center>
-|<center>
-Utility
 
-</center>|<center>
-Description
-
-</center>|
-|---------|-----------|
+|Utility|Description|
+|:---------:|:-----------|
 |M3XTRACT|extract a subset of variables from a file for a specified time interval|
 |M3DIFF|compute statistics for pairs of variables|
 |M3STAT|compute statistics for variables in a file|
