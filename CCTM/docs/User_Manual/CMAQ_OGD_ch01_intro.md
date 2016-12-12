@@ -28,49 +28,49 @@ Figures, Tables, and Acronyms
 
 [Figure 2‑1. CMAQ Modeling Framework](CMAQ_OGD_ch04_science.md#Figure2-1)
 
-[Figure 2-2. CMAQ Chemistry-Transport Model (CCTM) and input processors](CMAQ_OGD_ch04_science.md#Figure2-2.png)
+[Figure 2-2. CMAQ Chemistry-Transport Model (CCTM) and input processors](CMAQ_OGD_ch04_science.md#Figure2-2)
 
-[Figure 2-3. Meteorology preprocessing for CMAQ with MCIP](CMAQ_OGD_ch04_science.md#Figure2-3.png)
+[Figure 2-3. Meteorology preprocessing for CMAQ with MCIP](CMAQ_OGD_ch04_science.md#Figure2-3)
 
-[Figure 2-4. Initial and boundary conditions preprocessing for CMAQ](CMAQ_OGD_ch04_science.md#Figure2-4.png)
+[Figure 2-4. Initial and boundary conditions preprocessing for CMAQ](CMAQ_OGD_ch04_science.md#Figure2-4)
 
-[Figure 2-5. Clear-sky photolysis rate preprocessing for CMAQ](CMAQ_OGD_ch04_science.md#Figure2-5.png)
+[Figure 2-5. Clear-sky photolysis rate preprocessing for CMAQ](CMAQ_OGD_ch04_science.md#Figure2-5)
 
-[Figure 2-6. Invoking new/modified gas-phase chemical mechanisms in CMAQ](CMAQ_OGD_ch04_science.md#Figure2-6.png)
+[Figure 2-6. Invoking new/modified gas-phase chemical mechanisms in CMAQ](CMAQ_OGD_ch04_science.md#Figure2-6)
 
-[Figure 2-7 Process analysis implementation in the CMAQ modeling system](CMAQ_OGD_ch04_science.md#Figure2-7.png)
+[Figure 2-7 Process analysis implementation in the CMAQ modeling system](CMAQ_OGD_ch04_science.md#Figure2-7)
 
-[Figure 2-8 Lightning data preprocessor for CCTM](CMAQ_OGD_ch04_science.md#Figure2-8.png)
+[Figure 2-8 Lightning data preprocessor for CCTM](CMAQ_OGD_ch04_science.md#Figure2-8)
 
-[Figure 2-9 Crop calendar data preprocessor for the CCTM](CMAQ_OGD_ch04_science.md#Figure2-9.png)
+[Figure 2-9 Crop calendar data preprocessor for the CCTM](CMAQ_OGD_ch04_science.md#Figure2-9)
 
-[Figure 2-10. CMAQ chemistry-transport model and associated preprocessors](CMAQ_OGD_ch04_science.md#Figure2-10.png)
+[Figure 2-10. CMAQ chemistry-transport model and associated preprocessors](CMAQ_OGD_ch04_science.md#Figure2-10)
 
-[Figure 7‑1.CMAQ core programs](CMAQ_OGD_ch07_programs_libraries.md#Figure7-1.png)
+[Figure 7‑1.CMAQ core programs](CMAQ_OGD_ch07_programs_libraries.md#Figure7-1)
 
-[Figure 7‑2. BCON input and output files](CMAQ_OGD_ch07_programs_libraries.md#Figure7-2.png)
+[Figure 7‑2. BCON input and output files](CMAQ_OGD_ch07_programs_libraries.md#Figure7-2)
 
-[Figure 7‑3. Calmap input and output files](CMAQ_OGD_ch07_programs_libraries.md#Figure7-3.png)
+[Figure 7‑3. Calmap input and output files](CMAQ_OGD_ch07_programs_libraries.md#Figure7-3)
 
-[Figure 7‑4. CCTM input and output files](CMAQ_OGD_ch07_programs_libraries.md#Figure7-4.png)
+[Figure 7‑4. CCTM input and output files](CMAQ_OGD_ch07_programs_libraries.md#Figure7-4)
 
-[Figure 7‑5. CHEMMECH and CSV2NML input and output files](CMAQ_OGD_ch07_programs_libraries.md#Figure7-5.png)
+[Figure 7‑5. CHEMMECH and CSV2NML input and output files](CMAQ_OGD_ch07_programs_libraries.md#Figure7-5)
 
-[Figure 7‑6. ICON input and output files](CMAQ_OGD_ch07_programs_libraries.md#Figure7-6.png)
+[Figure 7‑6. ICON input and output files](CMAQ_OGD_ch07_programs_libraries.md#Figure7-6)
 
-[Figure 7‑7. JPROC input and output files](CMAQ_OGD_ch07_programs_libraries.md#Figure7-7.png)
+[Figure 7‑7. JPROC input and output files](CMAQ_OGD_ch07_programs_libraries.md#Figure7-7)
 
-[Figure 7‑8. LTNG\_2D\_DATA input and output files](CMAQ_OGD_ch07_programs_libraries.md#Figure7-8.png)
+[Figure 7‑8. LTNG\_2D\_DATA input and output files](CMAQ_OGD_ch07_programs_libraries.md#Figure7-8)
 
-[Figure 7‑9. MCIP input and output files](CMAQ_OGD_ch07_programs_libraries.md#Figure7-9.png)
+[Figure 7‑9. MCIP input and output files](CMAQ_OGD_ch07_programs_libraries.md#Figure7-9)
 
-[Figure 7‑10. PROCAN input and output files](CMAQ_OGD_ch07_programs_libraries.md#Figure7-10.png)
+[Figure 7‑10. PROCAN input and output files](CMAQ_OGD_ch07_programs_libraries.md#Figure7-10)
 
-[Figure 9-1. CMAQ benchmark grid](CMAQ_OGD_ch09_grid_defn.md#Figure9-1.png)
+[Figure 9-1. CMAQ benchmark grid](CMAQ_OGD_ch09_grid_defn.md#Figure9-1)
 
-[Figure 10-1. 36-km four-day modeling period IC/BC schematic](CMAQ_OGD_ch10_new_simulation.md#Figure10-1.png)
+[Figure 10-1. 36-km four-day modeling period IC/BC schematic](CMAQ_OGD_ch10_new_simulation.md#Figure10-1)
 
-[Figure 10-2. 12-km nested two-day modeling period IC/BC schematic](CMAQ_OGD_ch10_new_simulation.md#Figure10-2.png)
+[Figure 10-2. 12-km nested two-day modeling period IC/BC schematic](CMAQ_OGD_ch10_new_simulation.md#Figure10-2)
 
 **List of Tables**
 
