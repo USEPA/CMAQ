@@ -26,7 +26,7 @@ Figures, Tables, and Acronyms
 
 **List of Figures**
 
-[Figure 2‑1. CMAQ Modeling Framework](CMAQ_OGD_ch04_science#Figure2-1)
+[Figure 2‑1. CMAQ Modeling Framework](CMAQ_OGD_ch04_science.md#Figure2-1)
 
 [Figure 2-2. CMAQ Chemistry-Transport Model (CCTM) and input processors](CMAQ_OGD_ch04_science#Figure2-2.png)
 
