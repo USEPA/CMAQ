@@ -249,8 +249,8 @@ C...modules
 
       REAL                    :: TOTAL_O3_COLUMN ! total ozone column density, DU
       
-      REAL,              SAVE :: JYEAR  ! year
-      REAL,              SAVE :: JDSTRT ! current Julian day (DDD)
+      REAL,              SAVE :: JYEAR          = 0 ! year
+      REAL,              SAVE :: JD_STRAT_O3MIN = 0 ! Julian day (YYYYDDD) of min fraction for stratos ozone
 
       INTEGER, PARAMETER  :: DAYS( 12 ) = (/ 0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30 /)
       INTEGER, SAVE       :: IMONTH = 0
@@ -378,13 +378,6 @@ C...modules
          CALL INIT_AERO_DATA(  )
          
          CALL INIT_CLOUD_OPTICS(  )
-!...set minimum fraction of ozone column above PTOP
-!         CALL GET_MIN_STRAT_O3( JDATE, JTIME )
-
-         CALL SEASONAL_STRAT_O3( JDATE, JTIME )
-         MIN_STRATO3_FRAC = MONTH_STRAT_03_FRAC
-         MAX_TROPOO3_FRAC = MAX( 1.0 - MONTH_STRAT_03_FRAC, 0.0 )
-         WRITE( LOGDEV,*)'PHOT: MIN_STRATO3_FRAC = ',MIN_STRATO3_FRAC 
 
 !...Initialize Surface albedo method
 
@@ -525,6 +518,16 @@ C...modules
 #endif
       END IF  ! firstime
 
+      IF ( JD_STRAT_O3MIN .NE. JDATE ) THEN
+!...set minimum fraction of ozone column above PTOP
+
+         CALL SEASONAL_STRAT_O3( JDATE, JTIME )
+         MIN_STRATO3_FRAC = MONTH_STRAT_03_FRAC
+         MAX_TROPOO3_FRAC = MAX( 1.0 - MONTH_STRAT_03_FRAC, 0.0 )
+         WRITE( LOGDEV,*)'PHOT: MIN_STRATO3_FRAC = ',MIN_STRATO3_FRAC 
+         
+         JD_STRAT_O3MIN = JDATE
+      END IF
 !...initialize variables tracking whether stratosphere ozone column satisfies
 !...climatological averages.
 

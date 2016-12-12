@@ -466,12 +466,12 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
             IF ( STRAT_O3_COLUMN .LT. STRAT_O3_COLMIN  .AND. SUCCESS ) THEN
                IF( OBEY_STRATO3_MINS )THEN
                    WRITE( NEW_OPTICS_LOG,'( /A, F5.2, A, 3(/A), I3, A,  F8.3, A , 2(I4,1X) )' )
-     &             'PHOT WARNING: First Occurance where simulated stratospheric O3 column < ',
+     &             'PHOT WARNING: First Occurance where computed stratospheric O3 column < ',
      &              100.0*MIN_STRATO3_FRAC,'%',
      &             'observed total column. The percentage is a global minimum based on ',
      &             'climatological ozone profiles. ',
-     &             'The Problem starts at layer = ', L, ' or alt= ',0.001*BLKZF( L ), 
-     &             ' Km for col,row = ', PHOT_COL, PHOT_ROW
+     &             'The Error accumulates downward from layer = ', L, ' or alt= ', 
+     &              0.001*BLKZF( L ),' Km for col,row = ', PHOT_COL, PHOT_ROW
                END IF
                SUCCESS = .FALSE.
             END IF
@@ -493,25 +493,32 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
             O3_TOGGLE_AVE     = O3_TOGGLE_AVE + TROPO_O3_TOGGLE
             O3_TOGGLE_MIN     = MIN( O3_TOGGLE_MIN, TROPO_O3_TOGGLE)
             STRATO3_MINS_MET  = .FALSE. 
+            STRAT_O3_COLUMN = CONC_TO_DU * STRAT_O3_COLMIN
            IF( OBEY_STRATO3_MINS )THEN ! write to PE log for first occurance
                WRITE( NEW_OPTICS_LOG, 99983)STRAT_O3_COLUMN
                IF( ADJUST_OZONE ) WRITE( NEW_OPTICS_LOG, 99984)TROPO_O3_TOGGLE
                WRITE( NEW_OPTICS_LOG, 99887)
                WRITE( NEW_OPTICS_LOG, 99888)TOTAL_O3_COLUMN, TROPO_O3_COLUMN, MAX_TROPOO3_FRAC
-               STRAT_O3_COLUMN = CONC_TO_DU * STRAT_O3_COLMIN
                WRITE( NEW_OPTICS_LOG, 99999)
                OBEY_STRATO3_MINS = .FALSE.
             END IF
+            IF( .NOT. ADJUST_OZONE ) TROPO_O3_TOGGLE = 1.0 ! reset toggle to one 
          ELSE
             TROPO_O3_TOGGLE = 1.0
          END IF
+
 
 99983    FORMAT( 'Corrective Action: 1) Stratospheric O3 column set to ',F8.3,' DU' ) 
 99984    FORMAT( 'and 2) Extinction from Model Domain O3 multiplied by ',F9.6 )
 99887    FORMAT(/'Check TROPO_O3_EXCEED and N_EXCEED_TROPO3 in PHOTDIAG1 file for '
      &          /'values greater than zero to assess the extent of the '
      &          /'problem. TROPO_O3_EXCEED and N_EXCEED_TROPO3 are the average '
-     &          /'exceedance and their number over file time step, respectively.')
+     &          /'exceedance and their number over file time step for each grid cell,'
+     &          /'respectively. Exceedance depends on the predicted tropospheric'
+     &          /'fraction over the maximum allowed fraction of the total ozone column.'
+     &          /'Its value equals the ratio minus one if ratio is greater than one and'
+     &          /'zero if the ratio is less than or equal to one. N_EXCEED_TROPO3 '
+     &          /'counts the number of nonzero values per timestep')
 99888    FORMAT(/'Direct Cause: Predicted O3 tropospheric Column exceeds maximum allowed '
      &          /'fraction of total OMI column.',
      &          /'OMI Total O3 Column = ',F8.3,' DU: Model Tropospheric O3 Column = ',F8.3,' DU',
@@ -523,7 +530,6 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
          DO IWL = 1, NWL
 !***Get optical depth for stratospheric ozone column
 !***Note that stratosphere ozone coluumn assumed to exist above model domain
-!***at about 100 [mb] or 10 [kPa]
             CALL GET_TAUO3 ( IWL, STRAT_O3_COLUMN, STRAT_TEMP, TAUO3_TOP( IWL ) )
 !***get Rayleigh optical depth for stratosphere
             TAU_RAY( IWL ) = NBAR * SRAYL( IWL )         
