@@ -44,7 +44,7 @@ This section describes each of the input files required by the various CMAQ prog
 |**CCTM** | | | | |
 |INIT\_CONC\_1 (initial conditions)| GRDDED3 | Time-invariant | X\*Y\*Z | ICON/CCTM
 |BNDY\_CONC\_1 (boundary conditions)| BNDARY3 | Hourly |[2(X+1)+2(Y+1)]\*Z | BCON
-|JTABLE (photolysis rates look-up table)| ASCII | Daily | n/a | JPROC 
+|JTABLE (photolysis rates look-up table)| ASCII | Daily | n/a | JPROC
 |OMI| ASCII | Annual | n/a ||
 |EMIS\_1 (Emissions)| GRDDED3 | Hourly | X\*Y\*Z | SMOKE
 |OCEAN\_1 (sea salt mask)| GRDDED3 | Time-invariant | X\*Y | |Spatial Allocator
@@ -53,13 +53,13 @@ This section describes each of the input files required by the various CMAQ prog
 |BIOSEASON (freeze dates)|GRDDED3 |Time-invariant | X\*Y | Metscan
 |STK\_GRPS\_\#\# (stack groups)| GRDDED3 |Time-invariant|X\*Y | SMOKE
 |STK\_EMIS\_\#\# (point-source emissions)| GRDDED3 | Hourly | X\*Y | SMOKE
-|DUST\_LU\_1|GRDDED3 | Time-invariant | X\*Y | Spatial Allocator 
+|DUST\_LU\_1|GRDDED3 | Time-invariant | X\*Y | Spatial Allocator
 |DUST\_LU\_2|GRDDED3 | Time-invariant | X\*Y | Spatial Allocator
 |CROPMAP01| GRDDED3 | Time-invariant | X\*Y | Cropcal
 |CROPMAP04| GRDDED3 | Time-invariant | X\*Y | Cropcal
 |CROPMAP08|GRDDED3 | Time-invariant | X\*Y | Cropcal
 |LTNGNO|<center> GRDDED3 </center>|<center> Hourly </center>|<center> X\*Y\*Z </center>|<center> User
-|LTNGPARM\_FILE| GRDDED3 | Monthly | X\*Y |LTNG\_2D\_DATA 
+|LTNGPARM\_FILE| GRDDED3 | Monthly | X\*Y |LTNG\_2D\_DATA
 |B4LU\_file|<center> GRDDED3 </center>|<center> Time-invariant </center>|<center> X\*Y
 |E2C\_Soilfile|<center> GRDDED3 </center>|<center> Time-invariant </center>|<center> X\*Y
 |E2C\_Fertfile|<center> GRDDED3 </center>|<center> Time-invariant </center>|<center> X\*Y
@@ -69,7 +69,7 @@ This section describes each of the input files required by the various CMAQ prog
 |MET\_BDY\_3D (3‑D meteorological boundary input)|<center> BNDARY3 </center>|<center> Hourly </center>|<center> PERIM\*Z </center>|<center> MCIP
 |MET\_CRO\_2D (2‑D meteorological cross-point fields)|<center> GRDDED3 </center>|<center> Hourly </center>|<center> X\*Y </center>|<center> MCIP
 |MET\_CRO\_3D (3‑D meteorological cross-point fields)|<center> GRDDED3 </center>|<center> Hourly </center>|<center> X\*Y\*Z </center>|<center> MCIP
-|MET\_DOT\_3D (3‑D meteorological dot-point fields)|<center> GRDDED3 </center>|<center> Hourly </center>|<center> (X+1)\*(Y+1)\*Z </center>|<center> MCIP 
+|MET\_DOT\_3D (3‑D meteorological dot-point fields)|<center> GRDDED3 </center>|<center> Hourly </center>|<center> (X+1)\*(Y+1)\*Z </center>|<center> MCIP
 </center>|
 
 ### GRIDDESC: Horizontal domain definition
@@ -86,228 +86,35 @@ The grid description section ([Table 8-3](#Table8-3 "wikilink")) consists of tex
 
 <span id=Table8-2></span>
 
-<center>
-**Table 8‑2. Coordinate sytem description segment of GRIDDESC**
+<center> **Table 8‑2. Coordinate sytem description segment of GRIDDESC**</center>
 
-</center>
+| **Line**| **Column**| **Name** | **Type** | **Description**|
 |---|---|---|---|---|
-|<center>
-**Line**
+|1|A|<center> Header </center>|<center> String </center>|Single-quote-delimited header describing section contents; may be blank, i.e., ' '|
+|2|A|<center> COORD-NAME </center>|<center> String </center>|Name of the coordinate description (required); single quote delimited|
+|3|A|<center> COORDTYPE </center>|<center> Int </center>|I/O API index defining the map projection type (required)| |<center>
+|3|B| P\_ALP </center>|<center> Double </center>|First map projection descriptive parameter (dependent on projection type)| |<center>
+|3|C| P\_BET </center>|<center> Double </center>|Second map projection descriptive parameter (dependent on projection type)| |<center>  
+|3|D| P\_GAM </center>|<center> Double </center>|Third map projection descriptive parameter (dependent on projection type)| |<center>  
+|3|E|<center> XCENT </center>|<center> Double </center>|Longitude for coordinate system center| | 
+|3|F|<center> YCENT </center>|<center> Double </center>|Latitude for coordinate system center|
 
-</center>|<center>
-**Column**
+<a id=Table8-3></a>
 
-</center>|<center>
-**Name**
+<center> **Table 8‑3. Grid definition segment of GRIDDESC**</center>
 
-</center>|<center>
-**Type**
-
-</center>|<center>
-**Description**
-
-</center>|
-|1|A|<center>
-Header
-
-</center>|<center>
-String
-
-</center>|Single-quote-delimited header describing section contents; may be blank, i.e., ' '|
-|2|A|<center>
-COORD-NAME
-
-</center>|<center>
-String
-
-</center>|Name of the coordinate description (required); single quote delimited|
-|3|A|<center>
-COORDTYPE
-
-</center>|<center>
-Int
-
-</center>|I/O API index defining the map projection type (required)|
-|<center>
- 
-
-</center>|B|<center>
-P\_ALP
-
-</center>|<center>
-Double
-
-</center>|First map projection descriptive parameter (dependent on projection type)|
-|<center>
- 
-
-</center>|C|<center>
-P\_BET
-
-</center>|<center>
-Double
-
-</center>|Second map projection descriptive parameter (dependent on projection type)|
-|<center>
- 
-
-</center>|D|<center>
-P\_GAM
-
-</center>|<center>
-Double
-
-</center>|Third map projection descriptive parameter (dependent on projection type)|
-|<center>
- 
-
-</center>|E|<center>
-XCENT
-
-</center>|<center>
-Double
-
-</center>|Longitude for coordinate system center|
-| |F|<center>
-YCENT
-
-</center>|<center>
-Double
-
-</center>|Latitude for coordinate system center|
-
-<span id=Table8-3></span>
-
-<center>
-**Table 8‑3. Grid definition segment of GRIDDESC**
-
-</center>
+|**Line** | **Column** | **Name** | **Type** | **Description**|
 |---|---|---|---|---|
-|<center>
-**Line**
-
-</center>|<center>
-**Column**
-
-</center>|<center>
-**Name**
-
-</center>|<center>
-**Type**
-
-</center>|<center>
-**Description**
-
-</center>|
-|<center>
-1
-
-</center>|<center>
-A
-
-</center>|<center>
-Header
-
-</center>|<center>
-String
-
-</center>|Single-quote-delimited header describing section contents; may be blank, i.e., ' '|
-|<center>
-2
-
-</center>|<center>
-A
-
-</center>|<center>
-GRID-NAME
-
-</center>|<center>
-String
-
-</center>|Name of the horizontal grid (required); single quote delimited|
-|<center>
-3
-
-</center>|<center>
-A
-
-</center>|<center>
-COORD-NAME
-
-</center>|<center>
-String
-
-</center>|Name of the coordinate description in the previous section (required); single quote delimited|
-||<center>
-B
-
-</center>|<center>
-XORIG
-
-</center>|<center>
-Double
-
-</center>|X-coordinate for lower-left (southwest) corner of the grid with respect to (XCENT,YCENT) (dependent on projection type)|
-||<center>
-C
-
-</center>|<center>
-YORIG
-
-</center>|<center>
-Double
-
-</center>|Y-coordinate for lower-left (southwest) corner of the grid with respect to (XCENT,YCENT) (dependent on projection type)|
-||<center>
-D
-
-</center>|<center>
-XCELL
-
-</center>|<center>
-Double
-
-</center>|X-coordinate grid cell size (dependent on projection type)|
-||<center>
-E
-
-</center>|<center>
-YCELL
-
-</center>|<center>
-Double
-
-</center>|Y-coordinate grid cell size (dependent on projection type)|
-||<center>
-F
-
-</center>|<center>
-NCOLS
-
-</center>|<center>
-Int
-
-</center>|Number of horizontal grid columns (dependent on projection type)|
-||<center>
-G
-
-</center>|<center>
-NROWS
-
-</center>|<center>
-Int
-
-</center>|Number of horizontal grid rows (dependent on projection type)|
-||<center>
-H
-
-</center>|<center>
-NTHIK
-
-</center>|<center>
-Int
-
-</center>|Boundary perimeter thickness (number of cells) (optional)|
+| 1 | A | Header </center>|<center> String|Single-quote-delimited header describing section contents; may be blank, i.e., ' '|
+| 2 | A | GRID-NAME | String |Name of the horizontal grid (required); single quote delimited|
+| 3 | A | COORD-NAME| String |Name of the coordinate description in the previous section (required); single quote delimited|
+| 3 | B | XORIG | Double |X-coordinate for lower-left (southwest) corner of the grid with respect to (XCENT,YCENT) (dependent on projection type)|
+|3 | C | YORIG | Double |Y-coordinate for lower-left (southwest) corner of the grid with respect to (XCENT,YCENT) (dependent on projection type)|
+|3 | D | XCELL | Double|X-coordinate grid cell size (dependent on projection type)|
+|3 | E | YCELL | Double|Y-coordinate grid cell size (dependent on projection type)|
+|3 | F | NCOLS | Int |Number of horizontal grid columns (dependent on projection type)|
+|3 | G | NROWS | Int |Number of horizontal grid rows (dependent on projection type)|
+|3 | H </center>|<center> NTHIK </center>|<center> Int </center>|Boundary perimeter thickness (number of cells) (optional)|
 
 Each data record in these files consists of two or three list-formatted lines (i.e., items are separated by either blanks or commas). Name fields are quoted strings, and appear on the first of these lines. Numeric fields are given in double precision, and occur on either the second line or the second and third lines (this allows you to organize the text so that it is easily viewed in a text editor without running off-screen). The records have the following organization, depending upon whether they are in the first or second segment of GRIDDESC:
 
@@ -371,266 +178,36 @@ Namelist look-up tables for different classes of simulated pollutants are used t
 
 The namelist files contain header information that describe which class of species are contained in the file, the number of parameters contained in the file, headers describing the parameter fields, and then a series of rows with configuration parameters for every model species. Table 8-4 contains the namelist file format for the gas-phase (GC) species namelist file. The namelist files for the other species classifications (AE, NR, TR) are similar to the format shown in Table 8-4.
 
-<span id=Table8-4></span>
+<a id=Table8-4></a>
 
-<center>
-**Table 8‑4. GC species namelist file format**
+<center> **Table 8‑4. GC species namelist file format** </center>
 
-</center>
+| **Line**| **Column** |**Name** | **Type**| **Description** |
 |---|---|---|---|---|
-|<center>
-**Line**
-
-</center>|<center>
-**Column**
-
-</center>|<center>
-**Name**
-
-</center>|<center>
-**Type**
-
-</center>|<center>
-**Description**
-
-</center>|
-|<center>
-1
-
-</center>||<center>
-File type
-
-</center>|<center>
-String
-
-</center>|&GC\_nml|
-|<center>
-2
-
-</center>||<center>
-Number of surrogate params
-
-</center>|<center>
-String
-
-</center>|n\_surr1 = x, where x is the number of ????|
-|<center>
-3
-
-</center>||<center>
-Number of ???? params
-
-</center>|<center>
-String
-
-</center>|n\_surr2 = x, where x is the number of ????|
-|<center>
-4
-
-</center>||<center>
-Number of control params
-
-</center>|<center>
-String
-
-</center>|n\_ctrl = x, where x is the number of ????|
-|<center>
-5
-
-</center>||<center>
-Header ID
-
-</center>|<center>
-String
-
-</center>|TYPE\_HEADER =|
-|<center>
-6
-
-</center>||<center>
-HEADER
-
-</center>|<center>
-String
-
-</center>|Abbreviated names of file columns, enclosed by single quotes|
-|<center>
- 7
-
-</center>||<center>
-Matrix ID
-
-</center>|<center>
-String
-
-</center>|TYPE\_MATRIX =|
-|<center>
-8
-
-</center>|<center>
-1
-
-</center>|<center>
-SPC
-
-</center>|<center>
-String
-
-</center>|CMAQ pollutant name, i.e. NO, HNO3, PAR; dependent on chemical mechanism|
-||<center>
-2
-
-</center>|<center>
-MOLWT
-
-</center>|<center>
-Integer
-
-</center>|Pollutant molecular weight|
-||<center>
-3
-
-</center>|<center>
-EMIS\_SUR
-
-</center>|<center>
-String
-
-</center>|Emissions species name for the CMAQ pollutant|
-||<center>
-4
-
-</center>|<center>
-EMIS\_FAC
-
-</center>|<center>
-Real
-
-</center>|Scaling factor for input emissions|
-||<center>
-5
-
-</center>|<center>
-DEPV\_SUR
-
-</center>|<center>
-String
-
-</center>|Deposition velocity variable name for the CMAQ pollutant|
-||<center>
-6
-
-</center>|<center>
-DEPV\_FAC
-
-</center>|<center>
-Real
-
-</center>|Scaling factor for the deposition velocity|
-||<center>
-7
-
-</center>|<center>
-ICBC\_SUR
-
-</center>|<center>
-String
-
-</center>|IC/BC species name for the CMAQ pollutant|
-||<center>
-8
-
-</center>|<center>
-ICBC\_FAC
-
-</center>|<center>
-Real
-
-</center>|Scaling factor for the IC/BC concentration|
-||<center>
-9
-
-</center>|<center>
-SCAV\_SUR
-
-</center>|<center>
-String
-
-</center>||
-||<center>
-10
-
-</center>|<center>
-SCAV\_FAC
-
-</center>|<center>
-Real
-
-</center>||
-||<center>
-11
-
-</center>|<center>
-G2AE\_SUR
-
-</center>|<center>
-String
-
-</center>|Gas-to-aerosol transformation species|
-||<center>
-12
-
-</center>|<center>
-G2AQ\_SUR
-
-</center>|<center>
-String
-
-</center>|Gas-to-aqueous transformation species|
-||<center>
-13
-
-</center>|<center>
-TRNS
-
-</center>|<center>
-Yes/No
-
-</center>|Transport switch|
-||<center>
-14
-
-</center>|<center>
-DDEP
-
-</center>|<center>
-Yes/No
-
-</center>|Dry deposition output file switch|
-||<center>
-15
-
-</center>|<center>
-WDEP
-
-</center>|<center>
-Yes/No
-
-</center>|Wet deposition output file switch|
-||<center>
-16
-
-</center>|<center>
-CONC
-
-</center>|<center>
-Yes/No
-
-</center>|Concentration output file switch|
-|<center>
-…
-
-</center>|Repeat for the number of gas-phase pollutants in the mechanism being modeling|
+|<center> 1 </center>||<center> File type </center>|<center> String </center>|&GC\_nml|
+|<center> 2 </center>||<center> Number of surrogate params </center>|<center> String </center>|n\_surr1 = x, where x is the number of ????|
+|<center> 3 </center>||<center> Number of ???? params </center>|<center> String </center>|n\_surr2 = x, where x is the number of ????|
+|<center> 4 </center>||<center> Number of control params </center>|<center> String </center>|n\_ctrl = x, where x is the number of ????|
+|<center> 5 </center>||<center> Header ID </center>|<center> String </center>|TYPE\_HEADER =|
+|<center> 6 </center>||<center> HEADER </center>|<center> String </center>|Abbreviated names of file columns, enclosed by single quotes|
+|<center>  7 </center>||<center> Matrix ID </center>|<center> String </center>|TYPE\_MATRIX =|
+|<center> 8 </center>|<center> 1 </center>|<center> SPC </center>|<center> String </center>|CMAQ pollutant name, i.e. NO, HNO3, PAR; dependent on chemical mechanism|
+||<center> 2 </center>|<center> MOLWT </center>|<center> Integer </center>|Pollutant molecular weight|
+||<center> 3 </center>|<center> EMIS\_SUR </center>|<center> String </center>|Emissions species name for the CMAQ pollutant|
+||<center> 4 </center>|<center> EMIS\_FAC </center>|<center> Real </center>|Scaling factor for input emissions|
+||<center> 5 </center>|<center> DEPV\_SUR </center>|<center> String </center>|Deposition velocity variable name for the CMAQ pollutant|
+||<center> 6 </center>|<center> DEPV\_FAC </center>|<center> Real </center>|Scaling factor for the deposition velocity|
+||<center> 7 </center>|<center> ICBC\_SUR </center>|<center> String </center>|IC/BC species name for the CMAQ pollutant|
+||<center> 8 </center>|<center> ICBC\_FAC </center>|<center> Real </center>|Scaling factor for the IC/BC concentration|
+||<center> 9 </center>|<center> SCAV\_SUR </center>|<center> String </center>||
+||<center> 10 </center>|<center> SCAV\_FAC </center>|<center> Real </center>||
+||<center> 11 </center>|<center> G2AE\_SUR </center>|<center> String </center>|Gas-to-aerosol transformation species|
+||<center> 12 </center>|<center> G2AQ\_SUR </center>|<center> String </center>|Gas-to-aqueous transformation species|
+||<center> 13 </center>|<center> TRNS </center>|<center> Yes/No </center>|Transport switch|
+||<center> 14 </center>|<center> DDEP </center>|<center> Yes/No </center>|Dry deposition output file switch|
+||<center> 15 </center>|<center> WDEP </center>|<center> Yes/No </center>|Wet deposition output file switch|
+||<center> 16 </center>|<center> CONC </center>|<center> Yes/No </center>|Concentration output file switch|
+| … | ...| ...|... | Repeat for the number of gas-phase pollutants in the mechanism being modeling|
 
 The namelist files for the other pollutant classes have similar configurations as the gas-phase species configuration shown in [Table 8-4](#Table8-4 "wikilink"). See existing namelist files in the CMAQv5 distribution for examples.
 
@@ -648,310 +225,38 @@ Initial conditions are provided for only the first hour of a model simulation. T
 
 A detailed description of the vertical profile file format for initial conditions is provided in [Table 8-5](#Table8-5 "wikilink"). The header of the profiles file is list-formatted, while the data section of the file is fixed format.
 
-<span id=Table8-5></span>
+<a id=Table8-5></a>
 
-<center>
-**Table 8-5. IC\_PROFILE format description**
+<center> **Table 8-5. IC\_PROFILE format description** </center>
 
-</center>
-|---|---|---|---|---|
 |**Line**|**Column**|**Name**|**Type**|**Description**|
-|<center>
-1-3
-
-</center>||<center>
-Text Header
-
-</center>|<center>
-String
-
-</center>|Text description of the contents and source of the initial conditions file (optional)|
-|<center>
-4
-
-</center>|<center>
-A
-
-</center>|<center>
-NUM\_SIGMA\_LVL
-
-</center>|<center>
-Int
-
-</center>|Number of sigma levels contained in the file (required)|
-||<center>
-B
-
-</center>|<center>
-NUM\_POLL
-
-</center>|<center>
-Int
-
-</center>|Number of pollutants contained in the file (required)|
-||<center>
-C
-
-</center>|<center>
-SIGMA\_LVL
-
-</center>|<center>
-Real
-
-</center>|Vertical coordinate values of sigma-p levels; number of values (n+1) is one more than the NUM\_SIGMA\_LVL (n) (required)|
-|<center>
-4
-
-</center>|<center>
-n
-
-</center>|<center>
-...
-
-</center>|<center>
-...
-
-</center>|...|
-|<center>
-5
-
-</center>|<center>
-A
-
-</center>|<center>
-STDATE
-
-</center>|<center>
-String
-
-</center>|Julian start date of the file, YYYYDDD (optional)|
-||<center>
-B
-
-</center>|<center>
-STTIME
-
-</center>|<center>
-String
-
-</center>|Start time of the file, HH (optional)|
-|<center>
-6
-
-</center>|<center>
-1-10
-
-</center>|<center>
-SPECIES1
-
-</center>|<center>
-String
-
-</center>|Pollutant name, enclosed in double quotes (required)|
-||<center>
-12-20
-
-</center>|<center>
-LAYER1\_IC
-
-</center>|<center>
-Exp
-
-</center>|IC concentration for species 1 in lowest sigma layer (required)|
-||<center>
-23-31
-
-</center>|<center>
-LAYER2\_IC
-
-</center>|<center>
-Exp
-
-</center>|IC concentration for species 1 in 2nd sigma layer (required)|
-||<center>
-34-42
-
-</center>|<center>
-LAYER3\_IC
-
-</center>|<center>
-Exp
-
-</center>|IC concentration for species 1 in 3rd sigma layer (required)|
-||<center>
-45-53
-
-</center>|<center>
-LAYER4\_IC
-
-</center>|<center>
-Exp
-
-</center>|IC concentration for species 1 in 4th sigma layer (required)|
-||<center>
-...
-
-</center>|<center>
-LAYERX\_IC
-
-</center>|<center>
-Exp
-
-</center>|IC concentration for species 1 in Xth sigma layer (required)|
-|<center>
-7
-
-</center>|<center>
-1-10
-
-</center>|<center>
-SPECIES2
-
-</center>|<center>
-String
-
-</center>|Pollutant name, enclosed in double quotes (required)|
-||<center>
-12-20
-
-</center>|<center>
-LAYER1\_IC
-
-</center>|<center>
-Exp
-
-</center>|IC concentration for species 2 in lowest sigma layer (required)|
-||<center>
-23-31
-
-</center>|<center>
-LAYER2\_IC
-
-</center>|<center>
-Exp
-
-</center>|IC concentration for species 2 in 2nd sigma layer (required)|
-||<center>
-34-42
-
-</center>|<center>
-LAYER3\_IC
-
-</center>|<center>
-Exp
-
-</center>|IC concentration for species 2 in 3rd sigma layer (required)|
-||<center>
-45-53
-
-</center>|<center>
-LAYER4\_IC
-
-</center>|<center>
-Exp
-
-</center>|IC concentration for species 2 in 4th sigma layer (required)|
-||<center>
-...
-
-</center>|<center>
-LAYERX\_IC
-
-</center>|<center>
-Exp
-
-</center>|IC concentration for species 2 in Xth sigma layer (required)|
-|<center>
-...
-
-</center>|<center>
-...
-
-</center>|<center>
-...
-
-</center>|<center>
-...
-
-</center>|...|
-|<center>
-Z
-
-</center>|<center>
-1-10
-
-</center>|<center>
-SPECIESZ
-
-</center>|<center>
-String
-
-</center>|Pollutant name, enclosed in double quotes (required)|
-|<center>
-...
-
-</center>|<center>
-12-20
-
-</center>|<center>
-LAYER1\_IC
-
-</center>|<center>
-Exp
-
-</center>|IC concentration for species Z in lowest sigma layer (required)|
-|<center>
-...
-
-</center>|<center>
-23-31
-
-</center>|<center>
-LAYER2\_IC
-
-</center>|<center>
-Exp
-
-</center>|IC concentration for species Z in 2nd sigma layer (required)|
-|<center>
-...
-
-</center>|<center>
-34-42
-
-</center>|<center>
-LAYER3\_IC
-
-</center>|<center>
-Exp
-
-</center>|IC concentration for species Z in 3rd sigma layer (required)|
-|<center>
-...
-
-</center>|<center>
-45-53
-
-</center>|<center>
-LAYER4\_IC
-
-</center>|<center>
-Exp
-
-</center>|IC concentration for species Z in 4th sigma layer (required)|
-|<center>
-...
-
-</center>|<center>
-...
-
-</center>|<center>
-LAYERX\_IC
-
-</center>|<center>
-Exp
-
-</center>|IC concentration for species Z in Xth sigma layer (required)|
+|---|---|---|---|---|
+|<center> 1-3 </center>||<center> Text Header </center>|<center> String </center>|Text description of the contents and source of the initial conditions file (optional)|
+|<center> 4 </center>|<center> A </center>|<center> NUM\_SIGMA\_LVL </center>|<center> Int </center>|Number of sigma levels contained in the file (required)|
+||<center> B </center>|<center> NUM\_POLL </center>|<center> Int </center>|Number of pollutants contained in the file (required)|
+||<center> C </center>|<center> SIGMA\_LVL </center>|<center> Real </center>|Vertical coordinate values of sigma-p levels; number of values (n+1) is one more than the NUM\_SIGMA\_LVL (n) (required)|
+|<center> 4 </center>|<center> n </center>|<center> ...  </center>|<center> ...  </center>|...|
+|<center> 5 </center>|<center> A </center>|<center> STDATE </center>|<center> String </center>|Julian start date of the file, YYYYDDD (optional)|
+||<center> B </center>|<center> STTIME </center>|<center> String </center>|Start time of the file, HH (optional)|
+|<center> 6 </center>|<center> 1-10 </center>|<center> SPECIES1 </center>|<center> String </center>|Pollutant name, enclosed in double quotes (required)|
+||<center> 12-20 </center>|<center> LAYER1\_IC </center>|<center> Exp </center>|IC concentration for species 1 in lowest sigma layer (required)|
+||<center> 23-31 </center>|<center> LAYER2\_IC </center>|<center> Exp </center>|IC concentration for species 1 in 2nd sigma layer (required)|
+||<center> 34-42 </center>|<center> LAYER3\_IC </center>|<center> Exp </center>|IC concentration for species 1 in 3rd sigma layer (required)|
+||<center> 45-53 </center>|<center> LAYER4\_IC </center>|<center> Exp </center>|IC concentration for species 1 in 4th sigma layer (required)|
+||<center> ...  </center>|<center> LAYERX\_IC </center>|<center> Exp </center>|IC concentration for species 1 in Xth sigma layer (required)|
+ |<center> 7 </center>|<center> 1-10 </center>|<center> SPECIES2 </center>|<center> String </center>|Pollutant name, enclosed in double quotes (required)|
+||<center> 12-20 </center>|<center> LAYER1\_IC </center>|<center> Exp </center>|IC concentration for species 2 in lowest sigma layer (required)|
+||<center> 23-31 </center>|<center> LAYER2\_IC </center>|<center> Exp </center>|IC concentration for species 2 in 2nd sigma layer (required)|
+||<center> 34-42 </center>|<center> LAYER3\_IC </center>|<center> Exp </center>|IC concentration for species 2 in 3rd sigma layer (required)|
+||<center> 45-53 </center>|<center> LAYER4\_IC </center>|<center> Exp </center>|IC concentration for species 2 in 4th sigma layer (required)|
+||<center> ...  </center>|<center> LAYERX\_IC </center>|<center> Exp </center>|IC concentration for species 2 in Xth sigma layer (required)|
+|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|...|
+|<center> Z </center>|<center> 1-10 </center>|<center> SPECIESZ </center>|<center> String </center>|Pollutant name, enclosed in double quotes (required)|
+|<center> ...  </center>|<center> 12-20 </center>|<center> LAYER1\_IC </center>|<center> Exp </center>|IC concentration for species Z in lowest sigma layer (required)|
+|<center> ...  </center>|<center> 23-31 </center>|<center> LAYER2\_IC </center>|<center> Exp </center>|IC concentration for species Z in 2nd sigma layer (required)|
+|<center> ...  </center>|<center> 34-42 </center>|<center> LAYER3\_IC </center>|<center> Exp </center>|IC concentration for species Z in 3rd sigma layer (required)|
+|<center> ...  </center>|<center> 45-53 </center>|<center> LAYER4\_IC </center>|<center> Exp </center>|IC concentration for species Z in 4th sigma layer (required)|
+|<center> ...  </center>|<center> ...  </center>|<center> LAYERX\_IC </center>|<center> Exp </center>|IC concentration for species Z in Xth sigma layer (required)|
 
 A sample of the four sections of an IC\_PROFILE file is shown below.
 
@@ -976,340 +281,42 @@ Boundary conditions can either be time-independent (static) or time-dependent (d
 
 A detailed description of the vertical profile file format for boundary conditions is provided in Table 8-6. The header of the profiles file is list-formatted, while the data section of the file is fixed format.
 
-<span id=Table8-6></span>
+<a id=Table8-6></a>
 
-<center>
-**Table 8-6. BC\_PROFILE format description**
+<center> **Table 8-6. BC\_PROFILE format description** </center>
 
-</center>
-|---|---|---|---|---|
 |**Line**|**Column**|**Name**|**Type**|**Description**|
-|<center>
-1-3
-
-</center>||<center>
-Text Header
-
-</center>|<center>
-String
-
-</center>|Text description of the contents and source of the initial conditions file (optional)|
-|<center>
-4
-
-</center>|<center>
-A
-
-</center>|<center>
-NUM\_SIGMA\_LVL
-
-</center>|<center>
-Int
-
-</center>|Number of sigma levels contained in the file (required)|
-||<center>
-B
-
-</center>|<center>
-NUM\_POLL
-
-</center>|<center>
-Int
-
-</center>|Number of pollutants contained in the file (required)|
-||<center>
-C
-
-</center>|<center>
-SIGMA\_LVL
-
-</center>|<center>
-Real
-
-</center>|Vertical coordinate values of sigma-p levels; number of values (n+1) is one more than the NUM\_SIGMA\_LVL (n) (required)|
-|<center>
-4
-
-</center>|<center>
-n
-
-</center>|<center>
-...
-
-</center>|<center>
-...
-
-</center>|...|
-|<center>
-5
-
-</center>|<center>
-A
-
-</center>|<center>
-STDATE
-
-</center>|<center>
-String
-
-</center>|Julian start date of the file, YYYYDDD (optional)|
-||<center>
-B
-
-</center>|<center>
-STTIME
-
-</center>|<center>
-String
-
-</center>|Start time of the file, HH (optional)|
-|<center>
-6
-
-</center>|<center>
-A
-
-</center>|<center>
-Direction
-
-</center>|<center>
-String
-
-</center>|North, South, East, West; indicates the boundary described by the subsequent data section (required)|
-|<center>
-7
-
-</center>|<center>
-1-10
-
-</center>|<center>
-SPECIES1
-
-</center>|<center>
-String
-
-</center>|Pollutant name, enclosed in double quotes (required)|
-||<center>
-12-20
-
-</center>|<center>
-LAYER1\_BC
-
-</center>|<center>
-Exp
-
-</center>|BC concentration for species 1 in lowest sigma layer (required)|
-||<center>
-23-31
-
-</center>|<center>
-LAYER2\_BC
-
-</center>|<center>
-Exp
-
-</center>|BC concentration for species 1 in 2nd sigma layer (required)|
-||<center>
-34-42
-
-</center>|<center>
-LAYER3\_BC
-
-</center>|<center>
-Exp
-
-</center>|BC concentration for species 1 in 3rd sigma layer (required)|
-||<center>
-45-53
-
-</center>|<center>
-LAYER4\_BC
-
-</center>|<center>
-Exp
-
-</center>|BC concentration for species 1 in 4th sigma layer (required)|
-||<center>
-...
-
-</center>|<center>
-LAYERX\_BC
-
-</center>|<center>
-Exp
-
-</center>|BC concentration for species 1 in Xth sigma layer (required)|
-|<center>
-8
-
-</center>|<center>
-1-10
-
-</center>|<center>
-SPECIES2
-
-</center>|<center>
-String
-
-</center>|Pollutant name, enclosed in double quotes (required)|
-||<center>
-12-20
-
-</center>|<center>
-LAYER1\_BC
-
-</center>|<center>
-Exp
-
-</center>|BC concentration for species 2 in lowest sigma layer (required)|
-||<center>
-23-31
-
-</center>|<center>
-LAYER2\_BC
-
-</center>|<center>
-Exp
-
-</center>|BC concentration for species 2 in 2nd sigma layer (required)|
-||<center>
-34-42
-
-</center>|<center>
-LAYER3\_BC
-
-</center>|<center>
-Exp
-
-</center>|BC concentration for species 2 in 3rd sigma layer (required)|
-||<center>
-45-53
-
-</center>|<center>
-LAYER4\_BC
-
-</center>|<center>
-Exp
-
-</center>|BC concentration for species 2 in 4th sigma layer (required)|
-||<center>
-...
-
-</center>|<center>
-LAYERX\_BC
-
-</center>|<center>
-Exp
-
-</center>|BC concentration for species 2 in Xth sigma layer (required)|
-|<center>
-...
-
-</center>|<center>
-...
-
-</center>|<center>
-...
-
-</center>|<center>
-...
-
-</center>|...|
-|<center>
-Y
-
-</center>|<center>
-A
-
-</center>|<center>
-Direction
-
-</center>|<center>
-String
-
-</center>|North, South, East, West; indicates the horizontal boundary described by the subsequent data section (required)|
-|<center>
-Z+1
-
-</center>|<center>
-1-10
-
-</center>|<center>
-SPECIESZ
-
-</center>|<center>
-String
-
-</center>|Pollutant name, enclosed in double quotes (required)|
-|<center>
-...
-
-</center>|<center>
-12-20
-
-</center>|<center>
-LAYER1\_BC
-
-</center>|<center>
-Exp
-
-</center>|BC concentration for species Z in lowest sigma layer (required)|
-|<center>
-...
-
-</center>|<center>
-23-31
-
-</center>|<center>
-LAYER2\_BC
-
-</center>|<center>
-Exp
-
-</center>|BC concentration for species Z in 2nd sigma layer (required)|
-|<center>
-...
-
-</center>|<center>
-34-42
-
-</center>|<center>
-LAYER3\_BC
-
-</center>|<center>
-Exp
-
-</center>|BC concentration for species Z in 3rd sigma layer (required)|
-|<center>
-...
-
-</center>|<center>
-45-53
-
-</center>|<center>
-LAYER4\_BC
-
-</center>|<center>
-Exp
-
-</center>|BC concentration for species Z in 4th sigma layer (required)|
-|<center>
-...
-
-</center>|<center>
-...
-
-</center>|<center>
-LAYERX\_BC
-
-</center>|<center>
-Exp
-
-</center>|BC concentration for species Z in Xth sigma layer (required)|
-
-A sample of the important sections of a BC\_PROFILE file is shown below.
-
-` 6 55 1.00 0.98 0.93 0.84 0.60 0.30 0.00`
+|---|---|---|---|---|
+| 1-3 || Text Header | String |Text description of the contents and source of the initial conditions file (optional) |
+|<center> 4 </center>|<center> A </center>|<center> NUM\_SIGMA\_LVL </center>|<center> Int </center>|Number of sigma levels contained in the file (required)|
+||<center> B </center>|<center> NUM\_POLL </center>|<center> Int </center>|Number of pollutants contained in the file (required)|
+||<center> C </center>|<center> SIGMA\_LVL </center>|<center> Real </center>|Vertical coordinate values of sigma-p levels; number of values (n+1) is one more than the NUM\_SIGMA\_LVL (n) (required)|
+|<center> 4 </center>|<center> n </center>|<center> ...  </center>|<center> ...  </center>|...|
+|<center> 5 </center>|<center> A </center>|<center> STDATE </center>|<center> String </center>|Julian start date of the file, YYYYDDD (optional)|
+||<center> B </center>|<center> STTIME </center>|<center> String </center>|Start time of the file, HH (optional)|
+|<center> 6 </center>|<center> A </center>|<center> Direction </center>|<center> String </center>|North, South, East, West; indicates the boundary described by the subsequent data section (required)|
+|<center> 7 </center>|<center> 1-10 </center>|<center> SPECIES1 </center>|<center> String </center>|Pollutant name, enclosed in double quotes (required)|
+||<center> 12-20 </center>|<center> LAYER1\_BC </center>|<center> Exp </center>|BC concentration for species 1 in lowest sigma layer (required)|
+||<center> 23-31 </center>|<center> LAYER2\_BC </center>|<center> Exp </center>|BC concentration for species 1 in 2nd sigma layer (required)|
+||<center> 34-42 </center>|<center> LAYER3\_BC </center>|<center> Exp </center>|BC concentration for species 1 in 3rd sigma layer (required)|
+||<center> 45-53 </center>|<center> LAYER4\_BC </center>|<center> Exp </center>|BC concentration for species 1 in 4th sigma layer (required)|
+||<center> ...  </center>|<center> LAYERX\_BC </center>|<center> Exp </center>|BC concentration for species 1 in Xth sigma layer (required)|
+|<center> 8 </center>|<center> 1-10 </center>|<center> SPECIES2 </center>|<center> String </center>|Pollutant name, enclosed in double quotes (required)|
+||<center> 12-20 </center>|<center> LAYER1\_BC </center>|<center> Exp </center>|BC concentration for species 2 in lowest sigma layer (required)|
+||<center> 23-31 </center>|<center> LAYER2\_BC </center>|<center> Exp </center>|BC concentration for species 2 in 2nd sigma layer (required)|
+||<center> 34-42 </center>|<center> LAYER3\_BC </center>|<center> Exp </center>|BC concentration for species 2 in 3rd sigma layer (required)|
+||<center> 45-53 </center>|<center> LAYER4\_BC </center>|<center> Exp </center>|BC concentration for species 2 in 4th sigma layer (required)|
+||<center> ...  </center>|<center> LAYERX\_BC </center>|<center> Exp </center>|BC concentration for species 2 in Xth sigma layer (required)|
+|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|...|
+|<center> Y </center>|<center> A </center>|<center> Direction </center>|<center> String </center>|North, South, East, West; indicates the horizontal boundary described by the subsequent data section (required)|
+|<center> Z+1 </center>|<center> 1-10 </center>|<center> SPECIESZ </center>|<center> String </center>|Pollutant name, enclosed in double quotes (required)|
+|<center> ...  </center>|<center> 12-20 </center>|<center> LAYER1\_BC </center>|<center> Exp </center>|BC concentration for species Z in lowest sigma layer (required)|
+|<center> ...  </center>|<center> 23-31 </center>|<center> LAYER2\_BC </center>|<center> Exp </center>|BC concentration for species Z in 2nd sigma layer (required)|
+|<center> ...  </center>|<center> 34-42 </center>|<center> LAYER3\_BC </center>|<center> Exp </center>|BC concentration for species Z in 3rd sigma layer (required)|
+|<center> ...  </center>|<center> 45-53 </center>|<center> LAYER4\_BC </center>|<center> Exp </center>|BC concentration for species Z in 4th sigma layer (required)|
+|<center> ...  </center>|<center> ...  </center>|<center> LAYERX\_BC </center>|<center> Exp </center>|BC concentration for species Z in Xth sigma layer (required)|
+
+A sample of the important sections of a BC\_PROFILE file is shown below.  ` 6 55 1.00 0.98 0.93 0.84 0.60 0.30 0.00`
 ` 1988180 00`
 ` North`
 ` "SO2 " 0.300E-03 0.200E-03 0.100E-03 0.100E-03 0.200E-04 0.100E-04`
@@ -1330,176 +337,24 @@ CSQY is the logical name for the ASCII data file containing absorption cross sec
 
 The ASCII-formatted CSQY files begin with a header that describes the applicable photolysis reaction. This header includes (1) the reaction name/ID; (2) comment lines describing the reaction, the stoichiometry, and the data source (note that comment lines are preceded with a “!”); (3) the location on the wavelength interval that the data represent (beginning, centered, ending, or point); and (4) a multiplier (FAC) that is applied to the photolysis rate calculation. The data section of the CSQY file lists the wavelength of the incoming solar radiation (nm), the absorption cross section (cm), and the quantum yield as columns, with each row corresponding to a specific wavelength interval. The CSQY file uses a space-delimited, free-form format for the data section of the file. A detailed description of the CSQY file format is provided in Table 8-7.
 
-<span id=Table8-7></span>
+<a id=Table8-7></a>
 
-<center>
-**Table 8-7. CSQY format description**
+<center> **Table 8-7. CSQY format description** </center>
 
-</center>
+|**Line** | **Column** | **Name** | **Type** | **Description** |
 |---|---|---|---|---|
-|<center>
-**Line**
-
-</center>|<center>
-**Column**
-
-</center>|<center>
-**Name**
-
-</center>|<center>
-**Type**
-
-</center>|<center>
-**Description**
-
-</center>|
-|<center>
-1
-
-</center>|<center>
-A
-
-</center>|<center>
-Reaction ID
-
-</center>|<center>
-String
-
-</center>|Text name identifying the CSQY data this name is cross-referenced in the chemical mechanism description and INCLUDE files (required)|
-|<center>
-2
-
-</center>|<center>
-A
-
-</center>|<center>
-Comments
-
-</center>|<center>
-String
-
-</center>|Preceded by "!", comment lines describe the reaction, list the stoichiometry, and document the source of the data (optional)|
-|<center>
-n
-
-</center>|<center>
-...
-
-</center>|<center>
-...
-
-</center>|<center>
-...
-
-</center>|<center>
-...
-
-</center>|
-|<center>
-n+1
-
-</center>|<center>
-A
-
-</center>|<center>
-Data Location
-
-</center>|<center>
-String
-
-</center>|Field indicating the location of the data as measured across the wavelength band; possible answers: beginning, ending, centered, point (required)|
-|<center>
-n+2
-
-</center>|<center>
-A
-
-</center>|<center>
-Multiplier
-
-</center>|<center>
-String
-
-</center>|Multiplication factor to apply to photolysis rate equation; line begins with FAC=; factor is listed in real or exponential format (required)|
-|<center>
-n+3
-
-</center>|<center>
-A
-
-</center>|<center>
-Wavelength
-
-</center>|<center>
-Int or Real
-
-</center>|Wavelength corresponding to CSQY data; units = nm (required)|
-||<center>
-B
-
-</center>|<center>
-Absorption Cross-Section
-
-</center>|<center>
-Real or Exp
-
-</center>|Measurement of the cross-section of a molecule’s spherical receiving surface for actinic flux; units = cm<sup>2</sup> molecule<sup>-1</sup> (required)|
-||<center>
-C
-
-</center>|<center>
-Quantum Yield
-
-</center>|<center>
-Real
-
-</center>|Ratio of the number of molecules reacting via a specific pathway to the number of molecules absorbing photons in that wavelength interval; units = molecules photon<sup>-1</sup> (required)|
-|<center>
-n+4
-
-</center>|<center>
-A
-
-</center>|<center>
-Wavelength
-
-</center>|<center>
-Int
-
-</center>|Wavelength corresponding to CSQY data; units = nm (required)|
-||<center>
-B
-
-</center>|<center>
-Absorption Cross-Section
-
-</center>|<center>
-Real or Exp
-
-</center>|Measurement of the cross-section of a molecule’s spherical receiving surface for actinic flux; units = cm<sup>2</sup> molecule<sup>-1</sup> (required)|
-||<center>
-C
-
-</center>|<center>
-Quantum Yield
-
-</center>|<center>
-Real
-
-</center>|Ratio of the number of molecules reacting via a specific pathway to the number of molecules absorbing photons in that wavelength interval; units = molecules photon<sup>-1</sup> (required)|
-|<center>
-n+X
-
-</center>|<center>
-...
-
-</center>|<center>
-...
-
-</center>|<center>
-...
-
-</center>|...|
+|<center> 1 </center>|<center> A </center>|<center> Reaction ID </center>|<center> String </center>|Text name identifying the CSQY data this name is cross-referenced in the chemical mechanism description and INCLUDE files (required)|
+|<center> 2 </center>|<center> A </center>|<center> Comments </center>|<center> String </center>|Preceded by "!", comment lines describe the reaction, list the stoichiometry, and document the source of the data (optional)|
+|<center> n </center>|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|
+|<center> n+1 </center>|<center> A </center>|<center> Data Location </center>|<center> String </center>|Field indicating the location of the data as measured across the wavelength band; possible answers: beginning, ending, centered, point (required)|
+|<center> n+2 </center>|<center> A </center>|<center> Multiplier </center>|<center> String </center>|Multiplication factor to apply to photolysis rate equation; line begins with FAC=; factor is listed in real or exponential format (required)|
+|<center> n+3 </center>|<center> A </center>|<center> Wavelength </center>|<center> Int or Real </center>|Wavelength corresponding to CSQY data; units = nm (required)|
+||<center> B </center>|<center> Absorption Cross-Section </center>|<center> Real or Exp </center>|Measurement of the cross-section of a molecule’s spherical receiving surface for actinic flux; units = cm<sup>2</sup> molecule<sup>-1</sup> (required)|
+||<center> C </center>|<center> Quantum Yield </center>|<center> Real </center>|Ratio of the number of molecules reacting via a specific pathway to the number of molecules absorbing photons in that wavelength interval; units = molecules photon<sup>-1</sup> (required)|
+|<center> n+4 </center>|<center> A </center>|<center> Wavelength </center>|<center> Int </center>|Wavelength corresponding to CSQY data; units = nm (required)|
+||<center> B </center>|<center> Absorption Cross-Section </center>|<center> Real or Exp </center>|Measurement of the cross-section of a molecule’s spherical receiving surface for actinic flux; units = cm<sup>2</sup> molecule<sup>-1</sup> (required)|
+||<center> C </center>|<center> Quantum Yield </center>|<center> Real </center>|Ratio of the number of molecules reacting via a specific pathway to the number of molecules absorbing photons in that wavelength interval; units = molecules photon<sup>-1</sup> (required)|
+|<center> n+X </center>|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|...|
 
 A sample of the important sections of a CSQY file is shown below.
 
@@ -1523,144 +378,19 @@ ET is the logical name for the ASCII data file containing extraterrestrial radia
 
 <span id=Table8-8></span>
 
-<center>
-**Table 8-8 ET file format description**
+<center> **Table 8-8 ET file format description** </center>
 
-</center>
+| **Line** | **Column** | **Name** | **Type** | **Description**|
 |---|---|---|---|---|
-|<center>
-**Line**
-
-</center>|<center>
-**Column**
-
-</center>|<center>
-**Name**
-
-</center>|<center>
-**Type**
-
-</center>|<center>
-**Description**
-
-</center>|
-|<center>
-1
-
-</center>|<center>
-A
-
-</center>|<center>
-Comments
-
-</center>|<center>
-String
-
-</center>|Preceded by "!", comment lines describe the file contents and document the source of the data (optional)|
-|<center>
-n
-
-</center>|<center>
-...
-
-</center>|<center>
-...
-
-</center>|<center>
-...
-
-</center>|<center>
-...
-
-</center>|
-|<center>
-n + 1
-
-</center>|<center>
-A
-
-</center>|<center>
-Data Location
-
-</center>|<center>
-String
-
-</center>|Field indicating the location of the data as measured across the wavelength band; possible answers: beginning, ending, centered, point (required)|
-|<center>
-n + 2
-
-</center>|<center>
-A
-
-</center>|<center>
-Multiplier
-
-</center>|<center>
-String
-
-</center>|Multiplication factor to apply to photolysis rate equation; line begins with FAC=; factor listed in real or exponential format (required)|
-|<center>
-n+3
-
-</center>|<center>
-A
-
-</center>|<center>
-Wavelength
-
-</center>|<center>
-Int or Real
-
-</center>|Wavelength corresponding to ET data; units = nm (required)|
-||<center>
-B
-
-</center>|<center>
-Extra–terrestrial Irradiance
-
-</center>|<center>
-Real or Exp
-
-</center>|Estimation of the photon flux reaching the exterior of the earth’s atmosphere; units = photons cm<sup>-2</sup> second<sup>-1</sup> (required)|
-|<center>
-n+4
-
-</center>|<center>
-A
-
-</center>|<center>
-Wavelength
-
-</center>|<center>
-Int
-
-</center>|Wavelength corresponding to ET data; units = nm (required)|
-||<center>
-B
-
-</center>|<center>
-Extra–terrestrial Irradiance
-
-</center>|<center>
-Real or Exp
-
-</center>|Estimation of the photon flux reaching the exterior of the earth’s atmosphere; units = photons cm<sup>-2</sup> second<sup>-1</sup> (required)|
-|<center>
-n+X
-
-</center>|<center>
-...
-
-</center>|<center>
-...
-
-</center>|<center>
-...
-
-</center>|<center>
-...
-
-</center>|
+|<center> 1 </center>|<center> A </center>|<center> Comments </center>|<center> String </center>|Preceded by "!", comment lines describe the file contents and document the source of the data (optional)|
+|<center> n </center>|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|
+|<center> n + 1 </center>|<center> A </center>|<center> Data Location </center>|<center> String </center>|Field indicating the location of the data as measured across the wavelength band; possible answers: beginning, ending, centered, point (required)|
+|<center> n + 2 </center>|<center> A </center>|<center> Multiplier </center>|<center> String </center>|Multiplication factor to apply to photolysis rate equation; line begins with FAC=; factor listed in real or exponential format (required)|
+|<center> n+3 </center>|<center> A </center>|<center> Wavelength </center>|<center> Int or Real </center>|Wavelength corresponding to ET data; units = nm (required)|
+||<center> B </center>|<center> Extra–terrestrial Irradiance </center>|<center> Real or Exp </center>|Estimation of the photon flux reaching the exterior of the earth’s atmosphere; units = photons cm<sup>-2</sup> second<sup>-1</sup> (required)|
+|<center> n+4 </center>|<center> A </center>|<center> Wavelength </center>|<center> Int </center>|Wavelength corresponding to ET data; units = nm (required)|
+||<center> B </center>|<center> Extra–terrestrial Irradiance </center>|<center> Real or Exp </center>|Estimation of the photon flux reaching the exterior of the earth’s atmosphere; units = photons cm<sup>-2</sup> second<sup>-1</sup> (required)|
+|<center> n+X </center>|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|
 
 A sample of the important sections of an ET file is shown below.
 
@@ -1686,396 +416,41 @@ The last data section in the PROFILES file contains vertical profiles from the 1
 
 <span id=Table8-9></span>
 
-<center>
-**Table 8-9. PROFILES file format description.**
+<center> **Table 8-9. PROFILES file format description.** </center>
 
-</center>
+| **Line** | **Column**| **Name**|**Type**|**Description**|
 |---|---|---|---|---|
-|<center>
-**Line**
-
-</center>|<center>
-**Column**
-
-</center>|<center>
-**Name**
-
-</center>|<center>
-**Type**
-
-</center>|<center>
-**Description**
-
-</center>|
-|<center>
-1
-
-</center>|<center>
-A
-
-</center>|<center>
-Ozone concentration at Season 1, Latitude 1, Level 1
-
-</center>|<center>
-Exp (E10.3)
-
-</center>|Ozone measurements as a function of season, latitude, and vertical level; units = molecules cm<sup>-3</sup> (required)|
-||<center>
-B
-
-</center>|<center>
-Ozone concentration at Season 1, Latitude 1, Level 2
-
-</center>|<center>
-Exp (E10.3)
-
-</center>|Ozone measurements as a function of season, latitude, and vertical level; units = molecules cm<sup>-3</sup> (required)|
-|<center>
-...
-
-</center>|<center>
-...
-
-</center>|<center>
-...
-
-</center>|<center>
-...
-
-</center>|...|
-|<center>
-127
-
-</center>|<center>
-A
-
-</center>|<center>
-Ozone concentration at Season 1, Latitude 19, Level 1
-
-</center>|<center>
-Exp (E10.3)
-
-</center>|Ozone measurements as a function of season, latitude, and vertical level; units = molecules cm<sup>-3</sup> (required)|
-||<center>
-B
-
-</center>|<center>
-Ozone concentration at Season 1, Latitude 19, Level 2
-
-</center>|<center>
-Exp (E10.3)
-
-</center>|Ozone measurements as a function of season, latitude, and vertical level; units = molecules cm<sup>-3</sup> (required)|
-|<center>
-...
-
-</center>|<center>
-...
-
-</center>|<center>
-...
-
-</center>|<center>
-...
-
-</center>|...|
-|<center>
-134
-
-</center>|<center>
-A
-
-</center>|<center>
-Temperature profiles at Season 1, Latitude 1, Level 1
-
-</center>|<center>
-Exp (E10.3)
-
-</center>|Temperature measurements as a function of season, latitude, and vertical level; units = K (required)|
-||<center>
-B
-
-</center>|<center>
-Temperature profiles at Season 1, Latitude 1, Level 2
-
-</center>|<center>
-Exp (E10.3)
-
-</center>|Temperature measurements as a function of season, latitude, and vertical level; units = K (required)|
-|<center>
-...
-
-</center>|<center>
-...
-
-</center>|<center>
-...
-
-</center>|<center>
-...
-
-</center>|...|
-|<center>
-260
-
-</center>|<center>
-A
-
-</center>|<center>
-Temperature profiles at Season 1, Latitude 19, Level 1
-
-</center>|<center>
-Exp (E10.3)
-
-</center>|Temperature measurements as a function of season, latitude, and vertical level; units = K (required)|
-||<center>
-B
-
-</center>|<center>
-Temperature profiles at Season 1, Latitude 19, Level 2
-
-</center>|<center>
-Exp (E10.3)
-
-</center>|Temperature measurements as a function of season, latitude, and vertical level; units = K (required)|
-|<center>
-...
-
-</center>|<center>
-...
-
-</center>|<center>
-...
-
-</center>|<center>
-...
-
-</center>|...|
-|<center>
-267
-
-</center>|<center>
-A
-
-</center>|<center>
-Air density profiles at Season 1, Latitude 1, Level 1
-
-</center>|<center>
-Exp (E10.3)
-
-</center>|Air density
-
-measurements as a function of month, latitude, and vertical level; units = molecules cm<sup>-3</sup> (required)|
-||<center>
-B
-
-</center>|<center>
-Air density profiles at Season 1, Latitude 1, Level 2
-
-</center>|<center>
-Exp (E10.3)
-
-</center>|Air density measurements as a function of month, latitude, and vertical level; units = molecules cm<sup>-3</sup> (required)|
-|<center>
-...
-
-</center>|<center>
-...
-
-</center>|<center>
-...
-
-</center>|<center>
-...
-
-</center>|...|
-|<center>
-393
-
-</center>|<center>
-A
-
-</center>|<center>
-Air density profiles at Season 1, Latitude 19, Level 1
-
-</center>|<center>
-Exp (E10.3)
-
-</center>|Air density measurements as a function of season, latitude, and vertical level; units = molecules cm<sup>-3</sup> (required)|
-||<center>
-B
-
-</center>|<center>
-Air density profiles at Season 1, Latitude 19, Level 2
-
-</center>|<center>
-Exp (E10.3)
-
-</center>|Air density measurements as a function of season, latitude, and vertical level; units = molecules cm<sup>-3</sup> (required)|
-|<center>
-...
-
-</center>|<center>
-...
-
-</center>|<center>
-...
-
-</center>|<center>
-...
-
-</center>|...|
-|<center>
-1596
-
-</center>|<center>
-A
-
-</center>|<center>
-Air density profiles at Season 4, Latitude 19, Level 51
-
-</center>|<center>
-Exp (E10.3)
-
-</center>|Air density measurements as a function of season, latitude, and vertical level; units = molecules cm<sup>-3</sup> (required)|
-|<center>
-1597
-
-</center>|<center>
-A
-
-</center>|<center>
-Average Dobson Values at Latitude 1, Month 1
-
-</center>|<center>
-Real
-
-</center>|Average Dobson value as a function of latitude and month (required)|
-|<center>
-1597
-
-</center>|<center>
-B
-
-</center>|<center>
-Average Dobson Values at Latitude 2, Month 1
-
-</center>|<center>
-Real
-
-</center>|Average Dobson value as a function of latitude and month (required)|
-|<center>
-...
-
-</center>|<center>
-...
-
-</center>|<center>
-...
-
-</center>|<center>
-...
-
-</center>|...|
-|<center>
-1608
-
-</center>|<center>
-A
-
-</center>|<center>
-Average Dobson Values at Latitude 19, Month 12
-
-</center>|<center>
-Real
-
-</center>|Average Dobson value as a function of latitude and month (required)|
-|<center>
-1609
-
-</center>|<center>
-A
-
-</center>|<center>
-Air Temperature at Level 1
-
-</center>|<center>
-Real
-
-</center>|Air temperature for a standard atmospheric profile; units = K (required)|
-||<center>
-B
-
-</center>|<center>
-Air Density at Level 1
-
-</center>|<center>
-Real or Exp
-
-</center>|Air Density for a standard atmospheric profile; units = molecules cm<sup>-3</sup>(required)|
-||<center>
-C
-
-</center>|<center>
-Ozone Concentration at Level 1
-
-</center>|<center>
-Real or Exp
-
-</center>|Ozone concentration for a standard atmospheric profile; units = molecules cm<sup>-3</sup>(required)|
-||<center>
-D
-
-</center>|<center>
-Aerosol Attenuation at Level 1
-
-</center>|<center>
-Real or Exp
-
-</center>|Aerosol attenuation coefficient for a standard atmospheric profile; units = km<sup>-1</sup>(required)|
-|<center>
-1659
-
-</center>|<center>
-A
-
-</center>|<center>
-Air Temperature at Level 51
-
-</center>|<center>
-Real
-
-</center>|Air temperature for a standard atmospheric profile, units = K (required)|
-||<center>
-B
-
-</center>|<center>
-Air Pressure at Level 51
-
-</center>|<center>
-Real or Exp
-
-</center>|Air pressure for a standard atmospheric profile, units = molecules cm<sup>-3</sup>(required)|
-||<center>
-C
-
-</center>|<center>
-Ozone Concentration at Level 51
-
-</center>|<center>
-Real or Exp
-
-</center>|Ozone concentration for a standard atmospheric profile, units = molecules cm<sup>-3</sup>(required)|
-||<center>
-D
-
-</center>|<center>
-Aerosol Attenuation at Level 51
-
-</center>|<center>
-Real or Exp
-
-</center>|Aerosol attenuation coefficient for a standard atmospheric profile; units = km<sup>-1</sup>(required)|
+|<center> 1 </center>|<center> A </center>|<center> Ozone concentration at Season 1, Latitude 1, Level 1 </center>|<center> Exp (E10.3) </center>|Ozone measurements as a function of season, latitude, and vertical level; units = molecules cm<sup>-3</sup> (required)|
+||<center> B </center>|<center> Ozone concentration at Season 1, Latitude 1, Level 2 </center>|<center> Exp (E10.3) </center>|Ozone measurements as a function of season, latitude, and vertical level; units = molecules cm<sup>-3</sup> (required)|
+|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|...|
+|<center> 127 </center>|<center> A </center>|<center> Ozone concentration at Season 1, Latitude 19, Level 1 </center>|<center> Exp (E10.3) </center>|Ozone measurements as a function of season, latitude, and vertical level; units = molecules cm<sup>-3</sup> (required)|
+||<center> B </center>|<center> Ozone concentration at Season 1, Latitude 19, Level 2 </center>|<center> Exp (E10.3) </center>|Ozone measurements as a function of season, latitude, and vertical level; units = molecules cm<sup>-3</sup> (required)|
+|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|...|
+|<center> 134 </center>|<center> A </center>|<center> Temperature profiles at Season 1, Latitude 1, Level 1 </center>|<center> Exp (E10.3) </center>|Temperature measurements as a function of season, latitude, and vertical level; units = K (required)|
+||<center> B </center>|<center> Temperature profiles at Season 1, Latitude 1, Level 2 </center>|<center> Exp (E10.3) </center>|Temperature measurements as a function of season, latitude, and vertical level; units = K (required)|
+|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|...|
+|<center> 260 </center>|<center> A </center>|<center> Temperature profiles at Season 1, Latitude 19, Level 1 </center>|<center> Exp (E10.3) </center>|Temperature measurements as a function of season, latitude, and vertical level; units = K (required)|
+||<center> B </center>|<center> Temperature profiles at Season 1, Latitude 19, Level 2 </center>|<center> Exp (E10.3) </center>|Temperature measurements as a function of season, latitude, and vertical level; units = K (required)|
+|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|...|
+|<center> 267 </center>|<center> A </center>|<center> Air density profiles at Season 1, Latitude 1, Level 1 </center>|<center> Exp (E10.3) </center>|Air density measurements as a function of month, latitude, and vertical level; units = molecules cm<sup>-3</sup> (required)|
+||<center> B </center>|<center> Air density profiles at Season 1, Latitude 1, Level 2 </center>|<center> Exp (E10.3) </center>|Air density measurements as a function of month, latitude, and vertical level; units = molecules cm<sup>-3</sup> (required)|
+|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|...|
+|<center> 393 </center>|<center> A </center>|<center> Air density profiles at Season 1, Latitude 19, Level 1 </center>|<center> Exp (E10.3) </center>|Air density measurements as a function of season, latitude, and vertical level; units = molecules cm<sup>-3</sup> (required)|
+||<center> B </center>|<center> Air density profiles at Season 1, Latitude 19, Level 2 </center>|<center> Exp (E10.3) </center>|Air density measurements as a function of season, latitude, and vertical level; units = molecules cm<sup>-3</sup> (required)|
+|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|...|
+|<center> 1596 </center>|<center> A </center>|<center> Air density profiles at Season 4, Latitude 19, Level 51 </center>|<center> Exp (E10.3) </center>|Air density measurements as a function of season, latitude, and vertical level; units = molecules cm<sup>-3</sup> (required)|
+|<center> 1597 </center>|<center> A </center>|<center> Average Dobson Values at Latitude 1, Month 1 </center>|<center> Real </center>|Average Dobson value as a function of latitude and month (required)|
+|<center> 1597 </center>|<center> B </center>|<center> Average Dobson Values at Latitude 2, Month 1 </center>|<center> Real </center>|Average Dobson value as a function of latitude and month (required)|
+|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|...|
+|<center> 1608 </center>|<center> A </center>|<center> Average Dobson Values at Latitude 19, Month 12 </center>|<center> Real </center>|Average Dobson value as a function of latitude and month (required)|
+|<center> 1609 </center>|<center> A </center>|<center> Air Temperature at Level 1 </center>|<center> Real </center>|Air temperature for a standard atmospheric profile; units = K (required)|
+||<center> B </center>|<center> Air Density at Level 1 </center>|<center> Real or Exp </center>|Air Density for a standard atmospheric profile; units = molecules cm<sup>-3</sup>(required)|
+||<center> C </center>|<center> Ozone Concentration at Level 1 </center>|<center> Real or Exp </center>|Ozone concentration for a standard atmospheric profile; units = molecules cm<sup>-3</sup>(required)|
+||<center> D </center>|<center> Aerosol Attenuation at Level 1 </center>|<center> Real or Exp </center>|Aerosol attenuation coefficient for a standard atmospheric profile; units = km<sup>-1</sup>(required)|
+|<center> 1659 </center>|<center> A </center>|<center> Air Temperature at Level 51 </center>|<center> Real </center>|Air temperature for a standard atmospheric profile, units = K (required)|
+||<center> B </center>|<center> Air Pressure at Level 51 </center>|<center> Real or Exp </center>|Air pressure for a standard atmospheric profile, units = molecules cm<sup>-3</sup>(required)|
+||<center> C </center>|<center> Ozone Concentration at Level 51 </center>|<center> Real or Exp </center>|Ozone concentration for a standard atmospheric profile, units = molecules cm<sup>-3</sup>(required)|
+||<center> D </center>|<center> Aerosol Attenuation at Level 51 </center>|<center> Real or Exp </center>|Aerosol attenuation coefficient for a standard atmospheric profile; units = km<sup>-1</sup>(required)|
 
 ### TOMS: Total ozone mapping spectrometer data
 
@@ -2087,99 +462,16 @@ A detailed description of the file format is provided in Table 8-10. The files a
 
 <span id=Table8-10></span>
 
-<center>
-'''Table 8-10 TOMS Data Profile '''
+<center> '''Table 8-10 TOMS Data Profile ''' </center>
 
-</center>
+|**Line** | **Column**| **Name** | **Type**| **Description** |
 |---|---|---|---|---|
-|<center>
-**Line**
-
-</center>|<center>
-**Column**
-
-</center>|<center>
-**Name**
-
-</center>|<center>
-**Type**
-
-</center>|<center>
-**Description**
-
-</center>|
-|<center>
-1
-
-</center>|<center>
-A
-
-</center>|<center>
-Julian Day
-
-</center>|<center>
-Int
-
-</center>|Julian start day of the file, DDD; preceded by 6 blank spaces (required)|
-||<center>
-B
-
-</center>|<center>
-Year
-
-</center>|<center>
-Int
-
-</center>|Start year of the file, YYYY; preceded by 9 blank spaces (required)|
-|<center>
-2
-
-</center>||<center>
-Header
-
-</center>|<center>
-String
-
-</center>|80-character line describing the contents of the file (if omitted, needs line placeholder)|
-|<center>
-3
-
-</center>||<center>
-Header
-
-</center>|<center>
-String
-
-</center>|80-character line describing the contents of the file (if omitted, needs line placeholder)|
-|<center>
-4
-
-</center>|<center>
-A
-
-</center>|<center>
-TOMS Data
-
-</center>|<center>
-Int
-
-</center>|TOMS ozone measurements as a function of longitude and latitude, \#\#\#; line starts with a space, then space-delimited 25 values per line (required)|
-|<center>
-...
-
-</center>|<center>
-...
-
-</center>|<center>
-...
-
-</center>|<center>
-...
-
-</center>|<center>
-...
-
-</center>|
+|<center> 1 </center>|<center> A </center>|<center> Julian Day </center>|<center> Int </center>|Julian start day of the file, DDD; preceded by 6 blank spaces (required)|
+||<center> B </center>|<center> Year </center>|<center> Int </center>|Start year of the file, YYYY; preceded by 9 blank spaces (required)|
+|<center> 2 </center>||<center> Header </center>|<center> String </center>|80-character line describing the contents of the file (if omitted, needs line placeholder)|
+|<center> 3 </center>||<center> Header </center>|<center> String </center>|80-character line describing the contents of the file (if omitted, needs line placeholder)|
+|<center> 4 </center>|<center> A </center>|<center> TOMS Data </center>|<center> Int </center>|TOMS ozone measurements as a function of longitude and latitude, \#\#\#; line starts with a space, then space-delimited 25 values per line (required)|
+|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|
 
 ### O2ABS: Molecular oxygen absorption cross-section data
 
@@ -2261,27 +553,10 @@ The data section of the file contains data blocks that are mapped to the header 
 
 <span id=Table8-11></span>
 
-<center>
-**Table 8-11. JTABLE file format description**
+<center> **Table 8-11. JTABLE file format description** </center>
 
-</center>
+| **Line** | **Column** |**Name** | **Type** | **Description** |
 |---|---|---|---|---|
-|<center>
-**Line**
-
-</center>|<center>
-**Column**
-
-</center>|<center>
-**Name**
-
-</center>|<center>
-**Type**
-
-</center>|<center>
-**Description**
-
-</center>|
 |1|A|JVDATE|String|Julian date of the file; YYYYDDD (required)|
 ||B|Comment|String|Description of the Julian date field (optional)|
 |2|A|JVHT|Int|Number of vertical levels covered by the data (required)|
@@ -2364,430 +639,41 @@ OMI ozone column data by latitude and longitude for use in the inline photolysis
 
 <span id=Table8-12></span>
 
-<center>
-**Table 8‑12. OMI data format**
+<center> **Table 8‑12. OMI data format** </center>
 
-</center>
+| **Line** | **Column** | **Name** | **Type** | **Description**|
 |---|---|---|---|---|
-|<center>
-**Line**
-
-</center>|<center>
-**Column**
-
-</center>|<center>
-**Name**
-
-</center>|<center>
-**Type**
-
-</center>|<center>
-**Description**
-
-</center>|
-|<center>
-1
-
-</center>||<center>
-Header
-
-</center>||Header with names for each column|
-|<center>
-2
-
-</center>|<center>
-A
-
-</center>|<center>
-Yeardate 1
-
-</center>|<center>
-Real
-
-</center>|YYYY.YYY formatted date field.|
-||<center>
-B
-
-</center>|<center>
-Latitude 1
-
-</center>|<center>
-Int
-
-</center>|80 North latitude|
-||<center>
-C
-
-</center>|<center>
-Longitude 1
-
-</center>|<center>
-Int
-
-</center>|180.0Z longitude ozone column (DU)|
-||<center>
-D
-
-</center>|<center>
-Longitude 2
-
-</center>|<center>
-Int
-
-</center>|157.5W longitude ozone column (DU)|
-||<center>
-E
-
-</center>|<center>
-Longitude 3
-
-</center>|<center>
-Int
-
-</center>|135.0W longitude ozone column (DU)|
-|<center>
-…
-
-</center>|<center>
-…
-
-</center>|<center>
-…
-
-</center>|<center>
-…
-
-</center>|<center>
-…
-
-</center>|
-|<center>
-2
-
-</center>|<center>
-R
-
-</center>|<center>
-Longitude 16
-
-</center>||<center>
-157.5E longitude ozone column (DU)
-
-</center>|
-|<center>
-3
-
-</center>|<center>
-A
-
-</center>|<center>
-Yeardate 1
-
-</center>|<center>
-Real
-
-</center>|<center>
-YYYY.YYY formatted date field.
-
-</center>|
-||<center>
-B
-
-</center>|<center>
-Latitude 2
-
-</center>|<center>
-Int
-
-</center>|<center>
-70 North latitude
-
-</center>|
-||<center>
-C
-
-</center>|<center>
-Longitude 1
-
-</center>|<center>
-Int
-
-</center>|<center>
-180.0Z longitude ozone column (DU)
-
-</center>|
-||<center>
-D
-
-</center>|<center>
-Longitude 2
-
-</center>|<center>
-Int
-
-</center>|<center>
-157.5W longitude ozone column (DU)
-
-</center>|
-||<center>
-E
-
-</center>|<center>
-Longitude 3
-
-</center>|<center>
-Int
-
-</center>|<center>
-135.0W longitude ozone column (DU)
-
-</center>|
-|<center>
-…
-
-</center>|<center>
-…
-
-</center>|<center>
-…
-
-</center>|<center>
-…
-
-</center>|<center>
-…
-
-</center>|
-|<center>
-3
-
-</center>|<center>
-R
-
-</center>|<center>
-Longitude 16
-
-</center>||<center>
-157.5E longitude ozone column (DU)
-
-</center>|
-|<center>
-…
-
-</center>|<center>
-…
-
-</center>|<center>
-…
-
-</center>|<center>
-…
-
-</center>|<center>
-…
-
-</center>|
-|<center>
-18
-
-</center>|<center>
-A
-
-</center>|<center>
-Yeardate 1
-
-</center>|<center>
-Real
-
-</center>|<center>
-YYYY.YYY formatted date field.
-
-</center>|
-||<center>
-B
-
-</center>|<center>
-Latitude 17
-
-</center>|<center>
-Int
-
-</center>|<center>
-80 South latitude
-
-</center>|
-||<center>
-C
-
-</center>|<center>
-Longitude 1
-
-</center>|<center>
-Int
-
-</center>|<center>
-180.0Z longitude ozone column (DU)
-
-</center>|
-||<center>
-D
-
-</center>|<center>
-Longitude 2
-
-</center>|<center>
-Int
-
-</center>|<center>
-157.5W longitude ozone column (DU)
-
-</center>|
-||<center>
-E
-
-</center>|<center>
-Longitude 3
-
-</center>|<center>
-Int
-
-</center>|<center>
-135.0W longitude ozone column (DU)
-
-</center>|
-|<center>
-…
-
-</center>|<center>
-…
-
-</center>|<center>
-…
-
-</center>|<center>
-…
-
-</center>|<center>
-…
-
-</center>|
-|<center>
-18
-
-</center>|<center>
-R
-
-</center>|<center>
-Longitude 16
-
-</center>||<center>
-157.5E longitude ozone column (DU)
-
-</center>|
-|<center>
-19
-
-</center>|<center>
-A
-
-</center>|<center>
-Yeardate 2
-
-</center>|<center>
-Real
-
-</center>|<center>
-YYYY.YYY formatted date field
-
-</center>|
-||<center>
-B
-
-</center>|<center>
-Latitude 1
-
-</center>|<center>
-Int
-
-</center>|<center>
-80 North latitude
-
-</center>|
-||<center>
-C
-
-</center>|<center>
-Longitude 1
-
-</center>|<center>
-Int
-
-</center>|<center>
-180.0Z longitude ozone column (DU)
-
-</center>|
-||<center>
-D
-
-</center>|<center>
-Longitude 2
-
-</center>|<center>
-Int
-
-</center>|<center>
-157.5W longitude ozone column (DU)
-
-</center>|
-||<center>
-E
-
-</center>|<center>
-Longitude 3
-
-</center>|<center>
-Int
-
-</center>|<center>
-135.0W longitude ozone column (DU)
-
-</center>|
-|<center>
-…
-
-</center>|<center>
-…
-
-</center>|<center>
-…
-
-</center>|<center>
-…
-
-</center>|<center>
-…
-
-</center>|
-|<center>
-19
-
-</center>|<center>
-R
-
-</center>|<center>
-Longitude 16
-
-</center>||<center>
-157.5E longitude ozone column (DU)
-
-</center>|
-|<center>
-…
-
-</center>|<center>
-Repeat for N years of data
-
-</center>|
+|<center> 1 </center>||<center> Header </center>||Header with names for each column|
+|<center> 2 </center>|<center> A </center>|<center> Yeardate 1 </center>|<center> Real </center>|YYYY.YYY formatted date field.|
+||<center> B </center>|<center> Latitude 1 </center>|<center> Int </center>|80 North latitude|
+||<center> C </center>|<center> Longitude 1 </center>|<center> Int </center>|180.0Z longitude ozone column (DU)|
+||<center> D </center>|<center> Longitude 2 </center>|<center> Int </center>|157.5W longitude ozone column (DU)|
+ ||<center> E </center>|<center> Longitude 3 </center>|<center> Int </center>|135.0W longitude ozone column (DU)|
+|<center> … </center>|<center> … </center>|<center> … </center>|<center> … </center>|<center> … </center>|
+|<center> 2 </center>|<center> R </center>|<center> Longitude 16 </center>||<center> 157.5E longitude ozone column (DU) </center>|
+|<center> 3 </center>|<center> A </center>|<center> Yeardate 1 </center>|<center> Real </center>|<center> YYYY.YYY formatted date field.</center>|
+||<center> B </center>|<center> Latitude 2 </center>|<center> Int </center>|<center> 70 North latitude </center>|
+||<center> C </center>|<center> Longitude 1 </center>|<center> Int </center>|<center> 180.0Z longitude ozone column (DU) </center>|
+||<center> D </center>|<center> Longitude 2 </center>|<center> Int </center>|<center> 157.5W longitude ozone column (DU) </center>|
+||<center> E </center>|<center> Longitude 3 </center>|<center> Int </center>|<center> 135.0W longitude ozone column (DU) </center>|
+|<center> … </center>|<center> … </center>|<center> … </center>|<center> … </center>|<center> … </center>|
+|<center> 3 </center>|<center> R </center>|<center> Longitude 16 </center>||<center> 157.5E longitude ozone column (DU) </center>|
+|<center> … </center>|<center> … </center>|<center> … </center>|<center> … </center>|<center> … </center>|
+|<center> 18 </center>|<center> A </center>|<center> Yeardate 1 </center>|<center> Real </center>|<center> YYYY.YYY formatted date field.  </center>|
+||<center> B </center>|<center> Latitude 17 </center>|<center> Int </center>|<center> 80 South latitude </center>|
+||<center> C </center>|<center> Longitude 1 </center>|<center> Int </center>|<center> 180.0Z longitude ozone column (DU) </center>|
+||<center> D </center>|<center> Longitude 2 </center>|<center> Int </center>|<center> 157.5W longitude ozone column (DU) </center>|
+||<center> E </center>|<center> Longitude 3 </center>|<center> Int </center>|<center> 135.0W longitude ozone column (DU) </center>|
+|<center> … </center>|<center> … </center>|<center> … </center>|<center> … </center>|<center> … </center>|
+|<center> 18 </center>|<center> R </center>|<center> Longitude 16 </center>||<center> 157.5E longitude ozone column (DU) </center>|
+|<center> 19 </center>|<center> A </center>|<center> Yeardate 2 </center>|<center> Real </center>|<center> YYYY.YYY formatted date field </center>|
+||<center> B </center>|<center> Latitude 1 </center>|<center> Int </center>|<center> 80 North latitude </center>|
+||<center> C </center>|<center> Longitude 1 </center>|<center> Int </center>|<center> 180.0Z longitude ozone column (DU) </center>|
+||<center> D </center>|<center> Longitude 2 </center>|<center> Int </center>|<center> 157.5W longitude ozone column (DU) </center>|
+||<center> E </center>|<center> Longitude 3 </center>|<center> Int </center>|<center> 135.0W longitude ozone column (DU) </center>|
+|<center> … </center>|<center> … </center>|<center> … </center>|<center> … </center>|<center> … </center>|
+|<center> 19 </center>|<center> R </center>|<center> Longitude 16 </center>||<center> 157.5E longitude ozone column (DU) </center>|
+| … |…|…|…| <center> Repeat for N years of data </center>|
 
 ### EMIS\_1: Emissions
 
@@ -3418,138 +1304,20 @@ To select a predefined mechanism configuration in CMAQ, set the *Mechanism* vari
 
 <span id=Table7-1></span>
 
-<center>
-**Table 7-1. CMAQ chemical mechanisms**
+<center>**Table 7-1. CMAQ chemical mechanisms**</center>
 
-</center>
+|**MechanismID**|**cb05**|**saprc07**|**saprc99**|**CMAQ Aerosols**|**Aqueous Chemistry**|**Additional species**|
 |---|---|---|---|---|---|---|
-|<center>
-**Mechanism ID**
-
-</center>|<center>
-**cb05**
-
-</center>|<center>
-**saprc07**
-
-</center>|<center>
-**saprc99**
-
-</center>|<center>
-**CMAQ Aerosols**
-
-</center>|<center>
-**Aqueous Chemistry**
-
-</center>|<center>
-**Additional species**
-
-</center>|
-|<center>
-**5<sup>rd</sup> gen.**
-
-</center>|<center>
-**6<sup>th</sup> gen.**
-
-</center>|
-|cb05cl\_ae5\_aq|<center>
-x
-
-</center>|||<center>
-x
-
-</center>||<center>
-x
-
-</center>|<center>
-Cl
-
-</center>|
-|cb05tucl\_ae5\_aq|<center>
-x
-
-</center>|||<center>
-x
-
-</center>||<center>
-x
-
-</center>|<center>
-Cl, updated toluene
-
-</center>|
-|cb05tucl\_ae6\_aq|<center>
-x
-
-</center>||||<center>
-x
-
-</center>|<center>
-x
-
-</center>|<center>
-Cl, updated toluene
-
-</center>|
-|cb05tump\_ae6\_aq|<center>
-x
-
-</center>||||<center>
-x
-
-</center>|<center>
-x
-
-</center>|<center>
-Cl, updated toluene, air toxics, Hg
-
-</center>|
-|saprc07tb\_ae6\_aq||<center>
-x
-
-</center>|||<center>
-x
-
-</center>|<center>
-x
-
-</center>|<center>
-Updated toluene
-
-</center>|
-|saprc07tc\_ae6\_aq||<center>
-x
-
-</center>|||<center>
-x
-
-</center>|<center>
-x
-
-</center>|<center>
-Updated toluene
-
-</center>|
-|saprc99\_ae5\_aq|||<center>
-x
-
-</center>|<center>
-x
-
-</center>||<center>
-x
-
-</center>||
-|saprc99\_ae6\_aq|||<center>
-x
-
-</center>||<center>
-x
-
-</center>|<center>
-x
-
-</center>||
+|<center>**5<sup>rd</sup> gen.**</center>
+|<center>**6<sup>th</sup> gen.*</center>|
+|cb05cl\_ae5\_aq|<center>x</center>|||<center>x</center>||<center>x</center>|<center>Cl</center>|
+|cb05tucl\_ae5\_aq|<center></center>|||<center>x</center>||<center>x</center>|<center>Cl, updated toluene</center>|
+|cb05tucl\_ae6\_aq|<center>x</center>||||<centerx</center>|<center>x</center>|<center>Cl, updated toluene</center>|
+|cb05tump\_ae6\_aq|<center>x</center>||||<center>x</center>|<center>x</center>|<center>Cl, updated toluene, air toxics, Hg</center>|
+|saprc07tb\_ae6\_aq||<center>x</center>|||<center>x</center>|<center>x</center>|<center>Updated toluene</center>|
+|saprc07tc\_ae6\_aq||<center>x</center>|||<center>x</center>|<center>x</center>|<center>Updated toluene</center>|
+|saprc99\_ae5\_aq|||<center>x</center>|<center>x</center>||<center>x</center>||
+|saprc99\_ae6\_aq|||<center>x</center>||<center>x</center>|<center>x</center>||
 
 ### Creating or modifying chemical mechanisms
 
@@ -4782,8 +2550,8 @@ This chapter presents a brief overview of each set of tools mentioned above. At 
 CMAQ Utility Tools
 ------------------
 
-|---|---|
 |Latest Version|Version 4.7, released on 12/09/2008|
+|---|---|
 |Main website|[<http://www.cmascenter.org>](http://www.cmascenter.org/)|
 |Support|[<http://bugz.unc.edu>](http://bugz.unc.edu/)|
 
@@ -4835,9 +2603,9 @@ This utility reads the CASTNET hourly values downloaded from [www.epa.gov/castne
 
 M3tools
 -------
-
+|Latest Version | |
 |---|---|
-|Main website|[<https://www.cmascenter.org/ioapi/>](https://www.cmascenter.org/ioapi/)|
+|Mainwebsite|[<https://www.cmascenter.org/ioapi/>](https://www.cmascenter.org/ioapi/)|
 |Download|[<https://www.cmascenter.org/download/forms/step_2.cfm?prod=5>](https://www.cmascenter.org/download/forms/step_2.cfm?prod=5)|
 |Answers to FAQ|[<https://www.cmascenter.org/ioapi/documentation/3.1/html/ERRORS.html>](https://www.cmascenter.org/ioapi/documentation/3.1/html/ERRORS.html)|
 |Latest User’s Manual|[<https://www.cmascenter.org/ioapi/documentation/3.1/html/AA.html#tools>](https://www.cmascenter.org/ioapi/documentation/3.1/html/AA.html#tools)|
@@ -4876,8 +2644,8 @@ A list of these utility programs and brief descriptions is provided below.
 Package for Analyses and Visualization of Environmental Data (PAVE)
 -------------------------------------------------------------------
 
-|---|---|
 |Latest Version|Version 2.3 released on October 18, 2004|
+|---|---|
 |Main website|[<http://paved.sourceforge.net>](http://paved.sourceforge.net/)|
 |Download|[<http://paved.sourceforge.net/#Downloads>](http://paved.sourceforge.net/#Downloads)|
 |Latest User’s Manual|[<http://paved.sourceforge.net/pave_doc/Pave.html>](http://paved.sourceforge.net/pave_doc/Pave.html)|
@@ -4898,8 +2666,8 @@ PAVE is very widely used by the air quality modeling community, and it can produ
 Visualization Environment for Rich Data Interpretation (VERDI)
 --------------------------------------------------------------
 
-|---|---|
 |Latest Version|Version 1.1 released on May 22, 2009|
+|---|---|
 |Main website|[<http://www.verdi-tool.org>](http://www.verdi-tool.org/)|
 |Download|[<http://www.verdi-tool.org>](http://www.verdi-tool.org/)|
 |Latest User’s Manual|[<http://www.verdi-tool.org>](http://www.verdi-tool.org/)|
@@ -4911,9 +2679,9 @@ The Visualization Environment for Rich Data Interpretation (VERDI) is a flexible
 Atmospheric Model Evaluation Tool (AMET)
 ----------------------------------------
 
-|---|---|
 |Latest Version|Version 1.1 released on May 31, 2008|
-|Main website|[<http://www.cmascenter.org>](http://www.cmascenter.org/)|
+|---|---|
+|Mainwebsite|[<http://www.cmascenter.org>](http://www.cmascenter.org/)|
 |Download|[<http://www.cmascenter.org>](http://www.cmascenter.org/)|
 |Latest User’s Manual|[<http://www.cmascenter.org>](http://www.cmascenter.org/)|
 |Training/Workshop|[<http://www.cmascenter.org>](http://www.cmascenter.org/)|
@@ -4925,8 +2693,9 @@ The Atmospheric Model Evaluation Tool (AMET) is a suite of software designed to 
 netCDF Operators (NCO)
 ----------------------
 
-|---|---|
+
 |Latest version|Version 3.9.9 released on July 24, 2009|
+|---|---|
 |Main website|[<http://nco.sourceforge.net/>](http://nco.sourceforge.net/)|
 |Download|[<http://nco.sourceforge.net/#Download>](http://nco.sourceforge.net/#Download)|
 |Latest User’s Manual|[<http://nco.sourceforge.net/#RTFM>](http://nco.sourceforge.net/#RTFM)|
@@ -4955,6 +2724,7 @@ An overview of the various netCDF operators is given below.
 Python ioapiTools
 -----------------
 
+|Latest version| |
 |---|---|
 |Main website|[<http://www-pcmdi.llnl.gov/software-portal/Members/azubrow/ioapiTools/index_html>](http://www-pcmdi.llnl.gov/software-portal/Members/azubrow/ioapiTools/index_html)|
 |Download|[<http://www-pcmdi.llnl.gov/softwareportal/Members/azubrow/ioapiTools/download-source-file>](http://www-pcmdi.llnl.gov/softwareportal/Members/azubrow/ioapiTools/download-source-file)|
@@ -4970,6 +2740,7 @@ After installing CDAT and the ioapiTools, the user should use a python interpret
 Integrated Data Viewer (IDV)
 ----------------------------
 
+|Latest version||
 |---|---|
 |Main website|[<http://www.unidata.ucar.edu/software/idv/>](http://www.unidata.ucar.edu/software/idv/)|
 |Download|[<http://www.unidata.ucar.edu/software/idv/docs/userguide/Starting.html>](http://www.unidata.ucar.edu/software/idv/docs/userguide/Starting.html)|
@@ -4991,9 +2762,9 @@ runIDV capture.isl
 NCAR Command Language (NCL)
 ---------------------------
 
-|---|---|
 |Latest Version|Version 5.1.1 released on June 16, 2009|
-|Main website|[<http://www.ncl.ucar.edu>](http://www.ncl.ucar.edu/)|
+|---|---|
+|Mainwebsite|[<http://www.ncl.ucar.edu>](http://www.ncl.ucar.edu/)|
 |Download|[<http://www.ncl.ucar.edu/Download/index.shtml>](http://www.ncl.ucar.edu/Download/index.shtml)|
 |Latest User’s Manual|[<http://www.ncl.ucar.edu/Document/index.shtml>](http://www.ncl.ucar.edu/Document/index.shtml)|
 |Training/Workshop|[<http://www.ncl.ucar.edu/Training/index.shtml>](http://www.ncl.ucar.edu/Training/index.shtml)|
@@ -5101,18 +2872,10 @@ The CMAS Center is available on the web at [<http://www.cmascenter.org>](http://
 
 <span id=Table11-1></span>
 
-<center>
-**Table 11‑1. CMAS contact information and important links**
+<center>**Table 11‑1. CMAS contact information and important links**</center>
 
-</center>
+|<center>**Resource**</center>|<center>**Link**</center>|
 |---|---|
-|<center>
-**Resource**
-
-</center>|<center>
-**Link**
-
-</center>|
 |Main website|[<http://www.cmascenter.org>](http://www.cmascenter.org/)|
 |General Questions|<cmas@unc.edu>|
 |Help Desk|[<http://www.cmascenter.org/help_desk.cfm>](http://www.cmascenter.org/help_desk.cfm)|
@@ -5130,334 +2893,92 @@ Appendix A – CMAQ Chemical Mechanisms and Species
 
 <span id=TableA-2></span>
 
-<center>
-**Table A‑2. CB05tucl species**
+<center>**Table A‑2. CB05tucl species**</center>
 
-</center>
-|---|---|---|
 |Species|Description|MW|
-|AACD|Acetic and higher acids|<div align="right">
-60
-
-</div>|
-|ALD2|Acetaldehyde|<div align="right">
-44
-
-</div>|
-|ALDX|Propionaldehyde and higher aldehydes|<div align="right">
-44
-
-</div>|
-|BENZENE|Benzene|<div align="right">
-78
-
-</div>|
-|BENZRO2|First generation SOA intermediate from benzene oxidation|<div align="right">
-127
-
-</div>|
-|BNZHRXN|Counter species for computing SOA from BENZENE under low NOx conditions|<div align="right">
-127
-
-</div>|
-|BNZNRXN|Counter species for computing SOA from BENZENE under high NOx conditions|<div align="right">
-127
-
-</div>|
-|C2O3|Acetylperoxy radical|<div align="right">
-75
-
-</div>|
-|CAO2||<div align="right">
-133
-
-</div>|
-|CAT1||<div align="right">
-124
-
-</div>|
-|CL||<div align="right">
-35.5
-
-</div>|
-|CL2||<div align="right">
-71
-
-</div>|
-|CLO||<div align="right">
-51.5
-
-</div>|
-|CO|Carbon monoxide|<div align="right">
-28
-
-</div>|
-|CRES|Cresol and higher molecular weight phenols|<div align="right">
-108
-
-</div>|
-|CRN2||<div align="right">
-168
-
-</div>|
-|CRNO|Alkoxy radical from oxidation of CRON|<div align="right">
-152
-
-</div>|
-|CRO|Methylphenoxy radical|<div align="right">
-107
-
-</div>|
-|CRON|Nitro cresol|<div align="right">
-153
-
-</div>|
-|CRPX||<div align="right">
-169
-
-</div>|
-|CXO3|C3 and higher acylperoxy radicals|<div align="right">
-75
-
-</div>|
-|ETH|Ethene|<div align="right">
-28
-
-</div>|
-|ETHA|Ethane|<div align="right">
-30
-
-</div>|
-|ETOH|Ethanol|<div align="right">
-46
-
-</div>|
-|FACD|Formic acid|<div align="right">
-46
-
-</div>|
-|FMCL||<div align="right">
-64.5
-
-</div>|
-|FORM|Formaldehyde|<div align="right">
-30
-
-</div>|
-|H2O2|Hydrogen peroxide|<div align="right">
-34
-
-</div>|
-|HCL||<div align="right">
-36.5
-
-</div>|
-|HCO3||<div align="right">
-63
-
-</div>|
-|HNO3|Nitric acid|<div align="right">
-63
-
-</div>|
-|HO2|Hydroperoxy radical|<div align="right">
-33
-
-</div>|
-|HOCL||<div align="right">
-52.5
-
-</div>|
-|HONO|Nitrous acid|<div align="right">
-47
-
-</div>|
-|IOLE|Internal olefin carbon bond (R-C=C-R)|<div align="right">
-48
-
-</div>|
-|ISOP|Isoprene|<div align="right">
-68
-
-</div>|
-|ISOPRXN|Counter species for computing SOA from ISOP|<div align="right">
-68
-
-</div>|
-|ISPD|Isoprene oxidation product|<div align="right">
-70
-
-</div>|
-|MEO2|Methylperoxy radical|<div align="right">
-47
-
-</div>|
-|MEOH|Methanol|<div align="right">
-32
-
-</div>|
-|MEPX|Methylhydroperoxide|<div align="right">
-48
-
-</div>|
-|MGLY|Methylglyoxal and other aromatic products|<div align="right">
-72
-
-</div>|
-|N2O5|Nitrogen pentoxide|<div align="right">
-108
-
-</div>|
-|NO|Nitric oxide|<div align="right">
-30
-
-</div>|
-|NO2|Nitrogen dioxide|<div align="right">
-46
-
-</div>|
-|NO3|Nitrogen trioxide|<div align="right">
-62
-
-</div>|
-|NTR|Organic nitrate|<div align="right">
-130
-
-</div>|
-|O|Oxygen atom (triplet)|<div align="right">
-16
-
-</div>|
-|O1D|Oxygen atom (singlet)|<div align="right">
-16
-
-</div>|
-|O3|Ozone|<div align="right">
-48
-
-</div>|
-|OH|Hydroxyl radical|<div align="right">
-17
-
-</div>|
-|OLE|Terminal olefin carbon bond (R-C=C)|<div align="right">
-27
-
-</div>|
-|OPAN||<div align="right">
-161
-
-</div>|
-|OPEN|Aromatic ring open product|<div align="right">
-84
-
-</div>|
-|OPO3|Peroxyacyl radical from oxidation of OPEN|<div align="right">
-115
-
-</div>|
-|PACD|Peroxy acetic acid|<div align="right">
-76
-
-</div>|
-|PAN|Peroxyacyl nitrate|<div align="right">
-121
-
-</div>|
-|PANX|C3 and higher peroxyacyl nitrates|<div align="right">
-121
-
-</div>|
-|PAR|Paraffin carbon bond (C-C)|<div align="right">
-14
-
-</div>|
-|PNA|Peroxynitric acid|<div align="right">
-79
-
-</div>|
-|ROOH|Higher organic peroxide|<div align="right">
-62
-
-</div>|
-|ROR|Secondary alkoxy radical|<div align="right">
-31
-
-</div>|
-|SESQ|Sesquiterpene|<div align="right">
-204
-
-</div>|
-|SESQRXN|Counter species for computing SOA from SESQ|<div align="right">
-204
-
-</div>|
-|SO2|Sulfur dioxide|<div align="right">
-64
-
-</div>|
-|SULF|Sulfuric acid gas|<div align="right">
-98
-
-</div>|
-|SULRXN|Counter species for computing aerosols from SULF|<div align="right">
-98
-
-</div>|
-|TERP|Terpene|<div align="right">
-136
-
-</div>|
-|TO2|Tolene-hydroxyl radical adduct|<div align="right">
-173
-
-</div>|
-|TOL|Toluene and other monoalkyl aromatics|<div align="right">
-92
-
-</div>|
-|TOLHRXN|Counter species for computing SOA from TOL under low NOx conditions|<div align="right">
-141
-
-</div>|
-|TOLNRXN|Counter species for computing SOA from TOL under high NOx conditions|<div align="right">
-141
-
-</div>|
-|TOLRO2|First generation SOA intermediate from TOL oxidation|<div align="right">
-141
-
-</div>|
-|TRPRXN|Counter species for computing SOA from TERP|<div align="right">
-136
-
-</div>|
-|XO2|NO-to-NO2 conversion from alkylperoxy radical|<div align="right">
-1
-
-</div>|
-|XO2N|NO-to-nitrate conversion from alkylperoxy radical|<div align="right">
-1
-
-</div>|
-|XYL|Xylene and other polyalkyl aromatics|<div align="right">
-106
-
-</div>|
-|XYLHRXN|Counter species for computing SOA from XYL under low NOx conditions|<div align="right">
-155
-
-</div>|
-|XYLNRXN|Counter species for computing SOA from XYL under high NOx conditions|<div align="right">
-155
-
-</div>|
-|XYLRO2|First generation SOA intermediate from XYL oxidation|<div align="right">
-155
-
-</div>|
-
-<span id=Glossary></span>
+|---|---|---|
+|AACD|Acetic and higher acids|<div align="right">60</div>|
+|ALD2|Acetaldehyde|<div align="right">44</div>|
+|ALDX|Propionaldehyde and higher aldehydes|<div align="right">44</div>|
+|BENZENE|Benzene|<div align="right">78</div>|
+|BENZRO2|First generation SOA intermediate from benzene oxidation|<div align="right">127</div>|
+|BNZHRXN|Counter species for computing SOA from BENZENE under low NOx conditions|<div align="right">127</div>|
+|BNZNRXN|Counter species for computing SOA from BENZENE under high NOx conditions|<div align="right">127</div>|
+|C2O3|Acetylperoxy radical|<div align="right">75</div>|
+|CAO2||<div align="right">133</div>|
+|CAT1||<div align="right">124</div>|
+|CL||<div align="right">35.5</div>|
+|CL2||<div align="right">71</div>|
+|CLO||<div align="right">51.5</div>|
+|CO|Carbon monoxide|<div align="right">28</div>|
+|CRES|Cresol and higher molecular weight phenols|<div align="right">108</div>|
+|CRN2||<div align="right">168</div>|
+|CRNO|Alkoxy radical from oxidation of CRON|<div align="right">152</div>|
+|CRO|Methylphenoxy radical|<div align="right">107</div>|
+|CRON|Nitro cresol|<div align="right">153</div>|
+|CRPX||<div align="right">169</div>|
+|CXO3|C3 and higher acylperoxy radicals|<div align="right">75</div>|
+|ETH|Ethene|<div align="right">28</div>|
+|ETHA|Ethane|<div align="right">30</div>|
+|ETOH|Ethanol|<div align="right">46</div>|
+|FACD|Formic acid|<div align="right">46</div>|
+|FMCL||<div align="right">64.5</div>|
+|FORM|Formaldehyde|<div align="right">30</div>|
+|H2O2|Hydrogen peroxide|<div align="right">34</div>|
+|HCL||<div align="right">36.5</div>|
+|HCO3||<div align="right">63</div>|
+|HNO3|Nitric acid|<div align="right">63</div>|
+|HO2|Hydroperoxy radical|<div align="right">33</div>|
+|HOCL||<div align="right">52.5</div>|
+|HONO|Nitrous acid|<div align="right">47</div>|
+|IOLE|Internal olefin carbon bond (R-C=C-R)|<div align="right">48</div>|
+|ISOP|Isoprene|<div align="right">68</div>|
+|ISOPRXN|Counter species for computing SOA from ISOP|<div align="right">68</div>|
+|ISPD|Isoprene oxidation product|<div align="right">70</div>|
+|MEO2|Methylperoxy radical|<div align="right">47</div>|
+|MEOH|Methanol|<div align="right">32</div>|
+|MEPX|Methylhydroperoxide|<div align="right">48</div>|
+|MGLY|Methylglyoxal and other aromatic products|<div align="right">72</div>|
+|N2O5|Nitrogen pentoxide|<div align="right">108</div>|
+|NO|Nitric oxide|<div align="right">30</div>|
+|NO2|Nitrogen dioxide|<div align="right">46 </div>|
+|NO3|Nitrogen trioxide|<div align="right"> 62 </div>|
+|NTR|Organic nitrate|<div align="right"> 130 </div>|
+|O|Oxygen atom (triplet)|<div align="right"> 16 </div>|
+|O1D|Oxygen atom (singlet)|<div align="right"> 16 </div>|
+|O3|Ozone|<div align="right"> 48 </div>|
+|OH|Hydroxyl radical|<div align="right"> 17 </div>|
+|OLE|Terminal olefin carbon bond (R-C=C)|<div align="right"> 27 </div>|
+|OPAN||<div align="right"> 161 </div>| 
+|OPEN|Aromatic ring open product|<div align="right"> 84 </div>|
+|OPO3|Peroxyacyl radical from oxidation of OPEN|<div align="right"> 115 </div>|
+|PACD|Peroxy acetic acid|<div align="right"> 76 </div>|
+|PAN|Peroxyacyl nitrate|<div align="right"> 121 </div>|
+|PANX|C3 and higher peroxyacyl nitrates|<div align="right"> 121 </div>|
+|PAR|Paraffin carbon bond (C-C)|<div align="right"> 14 </div>|
+|PNA|Peroxynitric acid|<div align="right"> 79 </div>|
+|ROOH|Higher organic peroxide|<div align="right"> 62 </div>|
+|ROR|Secondary alkoxy radical|<div align="right"> 31 </div>|
+|SESQ|Sesquiterpene|<div align="right"> 204 </div>|
+|SESQRXN|Counter species for computing SOA from SESQ|<div align="right"> 204 </div>|
+|SO2|Sulfur dioxide|<div align="right"> 64 </div>|
+|SULF|Sulfuric acid gas|<div align="right"> 98 </div>|
+|SULRXN|Counter species for computing aerosols from SULF|<div align="right"> 98 </div>|
+|TERP|Terpene|<div align="right"> 136 </div>|
+|TO2|Tolene-hydroxyl radical adduct|<div align="right"> 173 </div>|
+|TOL|Toluene and other monoalkyl aromatics|<div align="right"> 92 </div>|
+|TOLHRXN|Counter species for computing SOA from TOL under low NOx conditions|<div align="right"> 141 </div>|
+|TOLNRXN|Counter species for computing SOA from TOL under high NOx conditions|<div align="right"> 141 </div>|
+|TOLRO2|First generation SOA intermediate from TOL oxidation|<div align="right"> 141 </div>|
+|TRPRXN|Counter species for computing SOA from TERP|<div align="right"> 136 </div>|
+|XO2|NO-to-NO2 conversion from alkylperoxy radical|<div align="right"> 1 </div>|
+|XO2N|NO-to-nitrate conversion from alkylperoxy radical|<div align="right"> 1 </div>|
+|XYL|Xylene and other polyalkyl aromatics|<div align="right"> 106 </div>|
+|XYLHRXN|Counter species for computing SOA from XYL under low NOx conditions|<div align="right"> 155 </div>|
+|XYLNRXN|Counter species for computing SOA from XYL under high NOx conditions|<div align="right"> 155 </div>|
+|XYLRO2|First generation SOA intermediate from XYL oxidation|<div align="right"> 155 </div>|
+
+<a id=Glossary></a>
 
 GLOSSARY
 ========
