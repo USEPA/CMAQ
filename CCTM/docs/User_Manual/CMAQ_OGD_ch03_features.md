@@ -1,5 +1,5 @@
 
-[<< Previous Chapter](CMAQ_OGD_ch02_overview) - [Home](CMAQ_OGD_index) - [Next Chapter >>](CMAQ_OGD_ch04_science)
+[<< Previous Chapter](CMAQ_OGD_ch02_overview.md) - [Home](CMAQ_OGD_index.md) - [Next Chapter >>](CMAQ_OGD_ch04_science.md)
 
 Features of CMAQ for Application Users
 ======================================
@@ -160,4 +160,4 @@ New Features in MCIP version 4.0
 -   Updated metadata with options from WRFv3.2 and WRFv3.3. Added shallow convection option to metadata.
 -   Fully compliant with Fortran 2003 coding standards. Several changes throughout MCIP to eliminate F77 legacy coding practices and upgrade to F90 standards.
 
-[<< Previous Chapter](CMAQ_OGD_ch02_overview) - [Home](CMAQ_OGD_index) - [Next Chapter >>](CMAQ_OGD_ch04_science)
+[<< Previous Chapter](CMAQ_OGD_ch02_overview.md) - [Home](CMAQ_OGD_index.md) - [Next Chapter >>](CMAQ_OGD_ch04_science.md)

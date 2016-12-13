@@ -1,5 +1,5 @@
 
-[<< Previous Chapter](CMAQ_OGD_ch01_intro) - [Home](CMAQ_OGD_index) - [Next Chapter >>](CMAQ_OGD_ch03_features)
+[<< Previous Chapter](CMAQ_OGD_ch01_intro.md) - [Home](CMAQ_OGD_index.md) - [Next Chapter >>](CMAQ_OGD_ch03_features.md)
 
 Overview of CMAQ System Components
 ==================================
@@ -117,4 +117,4 @@ This program creates chemical mechanism INCLUDE files for CMAQ from a mechanism 
 
 This program reads lightning flash count data from the National Lightning Detection Network (NLDN) and creates a CCTM input file to use for simulations that include lightning NO<sub>x</sub> emissions.
 
-[<< Previous Chapter](CMAQ_OGD_ch01_intro) - [Home](CMAQ_OGD_index) - [Next Chapter >>](CMAQ_OGD_ch03_features)
+[<< Previous Chapter](CMAQ_OGD_ch01_intro.md) - [Home](CMAQ_OGD_index.md) - [Next Chapter >>](CMAQ_OGD_ch03_features.md)

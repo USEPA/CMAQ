@@ -1,4 +1,4 @@
-[<< Previous Chapter](CMAQ_OGD_ch04_science) - [Home](CMAQ_OGD_index) - [Next Chapter >>](CMAQ_OGD_ch06_req_lib)
+[<< Previous Chapter](CMAQ_OGD_ch04_science.md) - [Home](CMAQ_OGD_index.md) - [Next Chapter >>](CMAQ_OGD_ch06_req_lib.md)
 
 CMAQ System Requirements and Installation
 =========================================
@@ -379,4 +379,4 @@ For single-processor computing,
 
 After completing the CMAQ benchmark case, the CCTM output files can be compared with the reference datasets provided in the CMAQ distribution. (As of CMAQ-5.0.1, the reference [tarball](http://en.wikipedia.org/wiki/Tar_%28computing%29) for "one-way" CMAQ is named DATA\_REF.tar.gz, and the reference tarball for two-way coupled WRF-CMAQ is named DATA\_REF.WRF3.3-CMAQv5.tar.gz.) A plot of percent difference between the output and the benchmark data is the easiest method.
 
-[<< Previous Chapter](CMAQ_OGD_ch04_science) - [Home](CMAQ_OGD_index) - [Next Chapter >>](CMAQ_OGD_ch06_req_lib)
+[<< Previous Chapter](CMAQ_OGD_ch04_science.md) - [Home](CMAQ_OGD_index.md) - [Next Chapter >>](CMAQ_OGD_ch06_req_lib.md)

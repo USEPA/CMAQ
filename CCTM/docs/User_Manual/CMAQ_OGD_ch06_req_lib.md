@@ -1,5 +1,5 @@
 
-[<< Previous Chapter](CMAQ_OGD_ch05_sys_req) - [Home](CMAQ_OGD_index) - [Next Chapter >>](CMAQ_OGD_ch07_programs_libraries)
+[<< Previous Chapter](CMAQ_OGD_ch05_sys_req.md) - [Home](CMAQ_OGD_index.md) - [Next Chapter >>](CMAQ_OGD_ch07_programs_libraries.md)
 
 Required Libraries
 ==================
@@ -225,4 +225,4 @@ Coats, C., 2005: The EDSS/Models-3 I/O API. [Available online at [<https://www.c
 
 Unidata, 2009: NetCDF. [Available online at <http://www.unidata.ucar.edu/software/netcdf>]
 
-[<< Previous Chapter](CMAQ_OGD_ch05_sys_req) - [Home](CMAQ_OGD_index) - [Next Chapter >>](CMAQ_OGD_ch07_programs_libraries)
+[<< Previous Chapter](CMAQ_OGD_ch05_sys_req.md) - [Home](CMAQ_OGD_index.md) - [Next Chapter >>](CMAQ_OGD_ch07_programs_libraries.md)
