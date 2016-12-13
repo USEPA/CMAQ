@@ -18,91 +18,72 @@ After determining the horizontal and vertical extent of the domain of interest, 
 
 ### Supported CMAQ Coordinate Systems
 
-Specifications for CMAQ and [MCIP](#Meteorology-Chemistry_Interface_Processor_.28MCIP.29 "wikilink") grids are governed by [I/O API](#Input.2FOutput_Applications_Programming_Interface_.28I.2FO_API.29 "wikilink") [grid conventions](https://www.cmascenter.org/ioapi/documentation/3.1/html/GRIDS.html). The choice of horizontal coordinate system, or map projection, for CMAQ is governed by the input emissions inventories and meteorological model fields, which must agree. [MM5](http://en.wikipedia.org/wiki/MM5_%28weather_model%29) and [WRF/ARW](https://en.wikipedia.org/wiki/Weather_Research_and_Forecasting_model) support the [Lambert conformal](https://en.wikipedia.org/wiki/Lambert_conformal_conic_projection), [polar stereographic](https://en.wikipedia.org/wiki/Universal_polar_stereographic_coordinate_system), and [Mercator projection](https://en.wikipedia.org/wiki/Mercator_projection)s, which can be directly passed to CMAQ.
+Specifications for CMAQ and [MCIP](#Meteorology-Chemistry_Interface_Processor_.28MCIP.29) grids are governed by [I/O API](#Input.2FOutput_Applications_Programming_Interface_.28I.2FO_API.29) [grid conventions](https://www.cmascenter.org/ioapi/documentation/3.1/html/GRIDS.html). The choice of horizontal coordinate system, or map projection, for CMAQ is governed by the input emissions inventories and meteorological model fields, which must agree. [MM5](http://en.wikipedia.org/wiki/MM5_%28weather_model%29) and [WRF/ARW](https://en.wikipedia.org/wiki/Weather_Research_and_Forecasting_model) support the [Lambert conformal](https://en.wikipedia.org/wiki/Lambert_conformal_conic_projection), [polar stereographic](https://en.wikipedia.org/wiki/Universal_polar_stereographic_coordinate_system), and [Mercator projection](https://en.wikipedia.org/wiki/Mercator_projection)s, which can be directly passed to CMAQ.
 
 ### Horizontal Grids
 
-Available horizontal grids for a given CMAQ run are defined at runtime by setting the GRIDDESC and GRID\_NAME environment variables to point to an existing grid definition file and to one of the grids defined in the file, respectively. Horizontal grids are defined by the [grid definition file](#GRIDDESC:_Horizontal_domain_definition "wikilink"), which can be edited by the user (more below).
+Available horizontal grids for a given CMAQ run are defined at runtime by setting the GRIDDESC and GRID\_NAME environment variables to point to an existing grid definition file and to one of the grids defined in the file, respectively. Horizontal grids are defined by the [grid definition file](#GRIDDESC:_Horizontal_domain_definition), which can be edited by the user (more below).
 
-The extent of the horizontal grid used in CMAQ is limited by the size of the domain of the input meteorology. [MCIP](#Meteorology-Chemistry_Interface_Processor_.28MCIP.29 "wikilink") and the [I/O API](#Input.2FOutput_Applications_Programming_Interface_.28I.2FO_API.29 "wikilink") utilities can be used to *window* subsets of meteorology data. Choosing the appropriate horizontal grid scale and extent for a [CCTM](#CMAQ_Chemistry-Transport_Model_.28CCTM.29 "wikilink") run is largely dependent on the issues to be addressed by the modeling. However, practical consideration should also be paid to the relationship between grid size, output file size, and execution times.
+The extent of the horizontal grid used in CMAQ is limited by the size of the domain of the input meteorology. [MCIP](#Meteorology-Chemistry_Interface_Processor_.28MCIP.29) and the [I/O API](#Input.2FOutput_Applications_Programming_Interface_.28I.2FO_API.29) utilities can be used to *window* subsets of meteorology data. Choosing the appropriate horizontal grid scale and extent for a [CCTM](#CMAQ_Chemistry-Transport_Model_.28CCTM.29) run is largely dependent on the issues to be addressed by the modeling. However, practical consideration should also be paid to the relationship between grid size, output file size, and execution times.
 
 #### CMAQ horizontal grid conventions
 
-Grid conventions are specified (at length) by [I/O API](#Input.2FOutput_Applications_Programming_Interface_.28I.2FO_API.29 "wikilink") [here](https://www.cmascenter.org/ioapi/documentation/3.1/html/GRIDS.html). In summary, users should be aware that CMAQ uses both "cross-point" and "dot-point" grids.
+Grid conventions are specified (at length) by [I/O API](#Input.2FOutput_Applications_Programming_Interface_.28I.2FO_API.29) [here](https://www.cmascenter.org/ioapi/documentation/3.1/html/GRIDS.html). In summary, users should be aware that CMAQ uses both "cross-point" and "dot-point" grids.
 
-<span id=Figure9-1></span>
+<a id=Figure7-1></a>
 
 <center>
-![Figure 9-1. relating cross and dot grids](CMAQ_IOAPI_dot_and_point_grids.jpg "fig:Figure 9-1. relating cross and dot grids") **Figure 9-1. relating cross and dot grids**
+![Figure 9-1. relating cross and dot grids](./images/CMAQ_IOAPI_dot_and_point_grids.jpeg)
 
 </center>
-Hence, a user interested in a particular grid should be aware of its type. "Cross-point" is often abbreviated *CRO*, as in [`GRID_CRO_2D`](#GRID_CRO_2D:_Two-dimensional_grid_cross-point_fields "wikilink"). "Dot-point" is often abbreviated *DOT*, as in [`MET_DOT_3D`](MET_DOT_3D:_Three-dimensional_meteorological_dot-point_fields "wikilink").
+Hence, a user interested in a particular grid should be aware of its type. "Cross-point" is often abbreviated *CRO*, as in [`GRID_CRO_2D`](#GRID_CRO_2D:_Two-dimensional_grid_cross-point_fields). "Dot-point" is often abbreviated *DOT*, as in [`MET_DOT_3D`](MET_DOT_3D:_Three-dimensional_meteorological_dot-point_fields).
 
 Similarly, the user should be aware of the grid's
 
 -   [projection](https://en.wikipedia.org/wiki/Map_projection)
 -   units. Usually meters, except when using [lat-lon coordinate systems](https://en.wikipedia.org/wiki/Geographic_coordinates#Geographic_latitude_and_longitude).
 
-Regarding both grid types, the terms with which most users must be concerned are
+Regarding both grid types, the terms with which most users must be concerned are listed in Table 9-1.
 
-origin  
-lower left corner of the cell at column=row=1
+<span id=Table9-1></span>
 
-`X_ORIG`  
-X coordinate of the grid origin (in projection units)
+<center> **Table 9-1. CMAQ Grid Type Terms** </center>
 
-`Y_ORIG`  
-Y coordinate of the grid origin (in projection units)
-
-`X_CELL`  
-horizontal resolution parallel to the X coordinate axis (in projection units)
-
-`Y_CELL`  
-horizontal resolution parallel to the Y coordinate axis (in projection units)
-
-`NCOLS`  
-number of grid columns
-
-dimensionality in the X direction
-
-`NROWS`  
-number of grid rows
-
-dimensionality in the Y direction
+|Term|Definition|
+|----|----------|
+|origin|lower left corner of the cell at column=row=1|
+|`X_ORIG`|X coordinate of the grid origin (in projection units)|
+|`Y_ORIG` |  Y coordinate of the grid origin (in projection units)|
+|`X_CELL`|horizontal resolution parallel to the X coordinate axis (in projection units)|
+|`Y_CELL`|horizontal resolution parallel to the Y coordinate axis (in projection units)|
+|`NCOLS`|number of grid columns, dimensionality in the X direction|
+|`NROWS`|number of grid rows, dimensionality in the Y direction|
 
 #### Using predefined horizontal grids
 
-CMAQv5 is distributed with a GRIDDESC file that contains a definition for a grid covering the southeastern U.S. that uses a Lambert Conformal Conic coordinate. A picture of the grid and the grid definition, in the GRIDDESC format, is shown in [Figure 9-2](#Figure9-1 "wikilink").
+CMAQv5 is distributed with a GRIDDESC file that contains a definition for a grid covering the southeastern U.S. that uses a Lambert Conformal Conic coordinate. A picture of the grid and the grid definition, in the GRIDDESC format, is shown in [Figure 9-2](#Figure9-2).
 
-|---|---|
-|<span id=Figure9-2></span>![](Figure9-1.png "fig:Figure9-1.png")|Coordinate: Lambert Conformal
-
-Latitude 0: 40.0
-
-Longitude 0: -97.0
-
-Standard Parallel 1: 33.0
-
-Standard Parallel 2: 45.0
-
-X origin = 504,000
-
-Y origin = -1,488,000
-
-Rows: 122
-
-Columns: 127
-
-dX = 12,000
-
-dY = 12,000
-
-Layers = 35|
-
+<a id=Figure9-2></a>
 <center>
-**Figure 9-2. CMAQ benchmark grid**
-
+![](./images/Figure9-2.png "fig:Figure9-2.png")
 </center>
+
+<center> **Figure 9-2. CMAQ benchmark grid** </center>
+
+- Coordinate: Lambert Conformal
+- Latitude 0: 40.0
+- Longitude 0: -97.0
+- Standard Parallel 1: 33.0
+- Standard Parallel 2: 45.0
+- X origin = 504,000
+- Y origin = -1,488,000
+- Rows: 122
+- Columns: 127
+- dX = 12,000
+- dY = 12,000
+- Layers = 35
+
+
 #### Creating or modifying horizontal grids
 
 Creating a grid in CMAQ involves simply adding a few lines of text to the GRIDDESC file. Using a combination of the file format documentation in Chapter 6 and existing grid definitions as examples, new grids can be defined for CMAQ by adding a coordinate and grid description to the GRIDDESC file. Set the GRID\_NAME environment variable in the CMAQ run scripts to point to the name of the new grid. The most common situation for creating a new CMAQ grid definition is encountered when using meteorology and/or emissions data that have not yet been modeled with CMAQ. MM5 or WRF‑ARW outputs can be run through MCIP to generate a GRIDDESC file that can be input directly to both CMAQ and SMOKE. If the meteorology data have already been processed by MCIP and the GRIDDESC file is missing, the grid definition of the input meteorology (and emissions) can be determined by using the netCDF utility *ncdump* to view the header of one of the I/O API files and then use that information to manually create a GRIDDESC file.
@@ -149,138 +130,20 @@ To select a predefined mechanism configuration in CMAQ, set the *Mechanism* vari
 
 <span id=Table7-1></span>
 
-<center>
-**Table 7-1. CMAQ chemical mechanisms**
+<center> **Table 7-1. CMAQ chemical mechanisms** </center>
 
-</center>
+|**Mechanism ID**|**cb05**|**saprc07**|**saprc99**|**CMAQ Aerosols**|**Aqueous Chemistry**|**Additional species**|
 |---|---|---|---|---|---|---|
-|<center>
-**Mechanism ID**
-
-</center>|<center>
-**cb05**
-
-</center>|<center>
-**saprc07**
-
-</center>|<center>
-**saprc99**
-
-</center>|<center>
-**CMAQ Aerosols**
-
-</center>|<center>
-**Aqueous Chemistry**
-
-</center>|<center>
-**Additional species**
-
-</center>|
-|<center>
-**5<sup>rd</sup> gen.**
-
-</center>|<center>
-**6<sup>th</sup> gen.**
-
-</center>|
-|cb05cl\_ae5\_aq|<center>
-x
-
-</center>|||<center>
-x
-
-</center>||<center>
-x
-
-</center>|<center>
-Cl
-
-</center>|
-|cb05tucl\_ae5\_aq|<center>
-x
-
-</center>|||<center>
-x
-
-</center>||<center>
-x
-
-</center>|<center>
-Cl, updated toluene
-
-</center>|
-|cb05tucl\_ae6\_aq|<center>
-x
-
-</center>||||<center>
-x
-
-</center>|<center>
-x
-
-</center>|<center>
-Cl, updated toluene
-
-</center>|
-|cb05tump\_ae6\_aq|<center>
-x
-
-</center>||||<center>
-x
-
-</center>|<center>
-x
-
-</center>|<center>
-Cl, updated toluene, air toxics, Hg
-
-</center>|
-|saprc07tb\_ae6\_aq||<center>
-x
-
-</center>|||<center>
-x
-
-</center>|<center>
-x
-
-</center>|<center>
-Updated toluene
-
-</center>|
-|saprc07tc\_ae6\_aq||<center>
-x
-
-</center>|||<center>
-x
-
-</center>|<center>
-x
-
-</center>|<center>
-Updated toluene
-
-</center>|
-|saprc99\_ae5\_aq|||<center>
-x
-
-</center>|<center>
-x
-
-</center>||<center>
-x
-
-</center>||
-|saprc99\_ae6\_aq|||<center>
-x
-
-</center>||<center>
-x
-
-</center>|<center>
-x
-
-</center>||
+|**5<sup>rd</sup> gen.**| | | | | | |
+|**6<sup>th</sup> gen.**| | | | | | |
+|cb05cl\_ae5\_aq|<center> x </center>|||<center> x </center>||<center> x </center>|<center> Cl </center>|
+|cb05tucl\_ae5\_aq|<center> x </center>|||<center> x </center>||<center> x </center>|<center> Cl, updated toluene </center>|
+|cb05tucl\_ae6\_aq|<center> x </center>||||<center> x </center>|<center> x </center>|<center> Cl, updated toluene </center>|
+|cb05tump\_ae6\_aq|<center> x </center>||||<center> x </center>|<center> x </center>|<center> Cl, updated toluene, air toxics, Hg </center>|
+|saprc07tb\_ae6\_aq||<center> x </center>|||<center> x </center>|<center> x </center>|<center> Updated toluene </center>|
+|saprc07tc\_ae6\_aq||<center> x </center>|||<center> x </center>|<center> x </center>|<center> Updated toluene </center>|
+|saprc99\_ae5\_aq|||<center> x </center>|<center> x </center>||<center> x </center>||
+|saprc99\_ae6\_aq|||<center> x </center>||<center> x </center>|<center> x </center>||
 
 ### Creating or modifying chemical mechanisms
 
@@ -303,6 +166,5 @@ When mechanisms are modified or created in CMAQ, new namelist files must be crea
 -   The Euler Backward Iterative (EBI) chemistry solver is mechanism-dependent. If a chemical mechanism is modified, then the default EBI solver cannot be used for the new mechanism. The Rosenbrock and SMVGEAR solvers are the only mechanism-independent choices of chemistry solvers with CCTM.
 -   When adding new species to CMAQ, it is important to check that the sources of these new species into the modeling domain are accounted for correctly in the mechanism INCLUDE files. If species are added to the domain through the emissions files, the namelist files that define the mechanism species must contain these new species.
 
-<span id=Section10></span>
 
 [<< Previous Chapter](CMAQ_OGD_ch08_input_files) - [Home](CMAQ_OGD_index) - [Next Chapter >>](CMAQ_OGD_ch10_new_simulation)

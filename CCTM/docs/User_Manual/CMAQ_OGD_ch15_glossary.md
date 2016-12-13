@@ -1,7 +1,5 @@
+
 [<< Previous Chapter](CMAQ_OGD_ch14_appendix) - [Home](CMAQ_OGD_index)
-
-
-<span id=Glossary></span>
 
 GLOSSARY
 ========
@@ -198,4 +196,4 @@ GLOSSARY
 
 [2] <sup>The\\ CVS\\ ''modules\\ ''file\\ has\\ no\\ intrinsic\\ relationship\\ with\\ the\\ CMAQ\\ classes/module\\ design\\ implementation.</sup>
 
-[<< Previous Chapter](CMAQ_OGD_ch14_appendix) - [Home](CMAQ_OGD_index) 
+[<< Previous Chapter](CMAQ_OGD_ch14_appendix) - [Home](CMAQ_OGD_index)

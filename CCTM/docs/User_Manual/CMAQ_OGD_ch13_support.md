@@ -78,18 +78,10 @@ The CMAS Center is available on the web at [<http://www.cmascenter.org>](http://
 
 <span id=Table11-1></span>
 
-<center>
-**Table 11‑1. CMAS contact information and important links**
+<center> **Table 11‑1. CMAS contact information and important links** </center>
 
-</center>
+|<center> **Resource** </center>|<center> **Link** </center>|
 |---|---|
-|<center>
-**Resource**
-
-</center>|<center>
-**Link**
-
-</center>|
 |Main website|[<http://www.cmascenter.org>](http://www.cmascenter.org/)|
 |General Questions|<cmas@unc.edu>|
 |Help Desk|[<http://www.cmascenter.org/help_desk.cfm>](http://www.cmascenter.org/help_desk.cfm)|
@@ -99,5 +91,6 @@ The CMAS Center is available on the web at [<http://www.cmascenter.org>](http://
 |Release Calendar|[<http://www.cmascenter.org/release_calendar.cfm>](http://www.cmascenter.org/release_calendar.cfm)|
 |FAQs|[<http://www.cmascenter.org/help/faq.cfm>](http://www.cmascenter.org/help/faq.cfm)|
 |CMAQ Home Page|[<http://www.cmaq-model.org>](http://www.cmaq-model.org/)|
+
 
 [<< Previous Chapter](CMAQ_OGD_ch12_analysis_tools) - [Home](CMAQ_OGD_index) - [Next Chapter >>](CMAQ_OGD_ch14_appendix)
