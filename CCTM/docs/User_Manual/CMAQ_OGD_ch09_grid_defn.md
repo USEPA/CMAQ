@@ -1,3 +1,5 @@
+[<< Previous Chapter](CMAQ_OGD_ch08_input_files) - [Home](CMAQ_OGD_index) - [Next Chapter >>](CMAQ_OGD_ch10_new_simulation)
+
 DEFINING GRIDS, LAYERS, DOMAINS, AND CHEMISTRY
 ==============================================
 
@@ -302,3 +304,5 @@ When mechanisms are modified or created in CMAQ, new namelist files must be crea
 -   When adding new species to CMAQ, it is important to check that the sources of these new species into the modeling domain are accounted for correctly in the mechanism INCLUDE files. If species are added to the domain through the emissions files, the namelist files that define the mechanism species must contain these new species.
 
 <span id=Section10></span>
+
+[<< Previous Chapter](CMAQ_OGD_ch08_input_files) - [Home](CMAQ_OGD_index) - [Next Chapter >>](CMAQ_OGD_ch10_new_simulation)
