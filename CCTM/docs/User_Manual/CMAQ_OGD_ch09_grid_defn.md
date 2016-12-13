@@ -29,10 +29,10 @@ The extent of the horizontal grid used in CMAQ is limited by the size of the dom
 
 Grid conventions are specified (at length) by [I/O API](#Input.2FOutput_Applications_Programming_Interface_.28I.2FO_API.29) [here](https://www.cmascenter.org/ioapi/documentation/3.1/html/GRIDS.html). In summary, users should be aware that CMAQ uses both "cross-point" and "dot-point" grids.
 
-<span id=Figure9-1></span>
+<a id=Figure9-1></a>
 
 <center>
-![Figure 9-1. relating cross and dot grids](CMAQ_IOAPI_dot_and_point_grids.jpg "fig:Figure 9-1. relating cross and dot grids") **Figure 9-1. relating cross and dot grids**
+![Figure 9-1. relating cross and dot grids](./images/CMAQ_IOAPI_dot_and_point_grids.jpeg) 
 
 </center>
 Hence, a user interested in a particular grid should be aware of its type. "Cross-point" is often abbreviated *CRO*, as in [`GRID_CRO_2D`](#GRID_CRO_2D:_Two-dimensional_grid_cross-point_fields). "Dot-point" is often abbreviated *DOT*, as in [`MET_DOT_3D`](MET_DOT_3D:_Three-dimensional_meteorological_dot-point_fields).
@@ -71,10 +71,12 @@ dimensionality in the Y direction
 
 #### Using predefined horizontal grids
 
-CMAQv5 is distributed with a GRIDDESC file that contains a definition for a grid covering the southeastern U.S. that uses a Lambert Conformal Conic coordinate. A picture of the grid and the grid definition, in the GRIDDESC format, is shown in [Figure 9-2](#Figure9-1).
+CMAQv5 is distributed with a GRIDDESC file that contains a definition for a grid covering the southeastern U.S. that uses a Lambert Conformal Conic coordinate. A picture of the grid and the grid definition, in the GRIDDESC format, is shown in [Figure 9-2](#Figure9-2).
 
-|---|---|
-|<span id=Figure9-2></span>![](./images/Figure9-1.png "fig:Figure9-1.png")|Coordinate: Lambert Conformal
+<a id=Figure9-2></a>
+![](./images/Figure9-2.png "fig:Figure9-2.png")
+
+Coordinate: Lambert Conformal
 
 Latitude 0: 40.0
 
