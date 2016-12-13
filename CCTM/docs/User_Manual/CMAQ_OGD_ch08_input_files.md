@@ -507,7 +507,7 @@ Used by: MCIP
 
 Used by: CCTM
 
-CMAQ boundary condition data are of the BNDARY3 file type. Produced by the boundary condition processor, BCON, CCTM reads these data and correlates them with the interior data by the use of a pointer system. This pointer system designates the beginning location of the data in memory that start a new side of the domain (i.e., south, east, north, or west). [Figure 6‑1](#Figure6-1 "wikilink") illustrates this input data structure and the relationship of the boundary data to the interior (“main grid”) data within CMAQ modules.
+CMAQ boundary condition data are of the BNDARY3 file type. Produced by the boundary condition processor, BCON, CCTM reads these data and correlates them with the interior data by the use of a pointer system. This pointer system designates the beginning location of the data in memory that start a new side of the domain (i.e., south, east, north, or west). [Figure 6‑1](#Figure6-1) illustrates this input data structure and the relationship of the boundary data to the interior (“main grid”) data within CMAQ modules.
 
 Each species being modeled should be in the BNDY\_CONC\_1 file. If some modeled species are not contained in this file, the boundary condition for these species will default to the value 1 × 10<sup>‑30</sup>. The perimeter of the CMAQ domain is 1 cell wide, where the number of boundary cells = (2\*NROW)+(2\*NCOL)+4. [Figure 6-2](#Figure6-2 "wikilink") is a graphical example of the CMAQ boundary conditions file; the west and north boundaries have ozone values of 0.035 ppmV, while the east and south boundaries have values of 0.030 ppmV.
 

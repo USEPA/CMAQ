@@ -24,8 +24,8 @@ This chapter presents a brief overview of each set of tools mentioned above. At 
 CMAQ Utility Tools
 ------------------
 
-|---|---|
 |Latest Version|Version 4.7, released on 12/09/2008|
+|---|---|
 |Main website|[<http://www.cmascenter.org>](http://www.cmascenter.org/)|
 |Support|[<http://bugz.unc.edu>](http://bugz.unc.edu/)|
 
@@ -78,6 +78,7 @@ This utility reads the CASTNET hourly values downloaded from [www.epa.gov/castne
 M3tools
 -------
 
+|Latest Version||
 |---|---|
 |Main website|[<https://www.cmascenter.org/ioapi/>](https://www.cmascenter.org/ioapi/)|
 |Download|[<https://www.cmascenter.org/download/forms/step_2.cfm?prod=5>](https://www.cmascenter.org/download/forms/step_2.cfm?prod=5)|
@@ -118,8 +119,8 @@ A list of these utility programs and brief descriptions is provided below.
 Package for Analyses and Visualization of Environmental Data (PAVE)
 -------------------------------------------------------------------
 
-|---|---|
 |Latest Version|Version 2.3 released on October 18, 2004|
+|---|---|
 |Main website|[<http://paved.sourceforge.net>](http://paved.sourceforge.net/)|
 |Download|[<http://paved.sourceforge.net/#Downloads>](http://paved.sourceforge.net/#Downloads)|
 |Latest User’s Manual|[<http://paved.sourceforge.net/pave_doc/Pave.html>](http://paved.sourceforge.net/pave_doc/Pave.html)|
@@ -140,8 +141,8 @@ PAVE is very widely used by the air quality modeling community, and it can produ
 Visualization Environment for Rich Data Interpretation (VERDI)
 --------------------------------------------------------------
 
-|---|---|
 |Latest Version|Version 1.1 released on May 22, 2009|
+|---|---|
 |Main website|[<http://www.verdi-tool.org>](http://www.verdi-tool.org/)|
 |Download|[<http://www.verdi-tool.org>](http://www.verdi-tool.org/)|
 |Latest User’s Manual|[<http://www.verdi-tool.org>](http://www.verdi-tool.org/)|
@@ -153,8 +154,8 @@ The Visualization Environment for Rich Data Interpretation (VERDI) is a flexible
 Atmospheric Model Evaluation Tool (AMET)
 ----------------------------------------
 
-|---|---|
 |Latest Version|Version 1.1 released on May 31, 2008|
+|---|---|
 |Main website|[<http://www.cmascenter.org>](http://www.cmascenter.org/)|
 |Download|[<http://www.cmascenter.org>](http://www.cmascenter.org/)|
 |Latest User’s Manual|[<http://www.cmascenter.org>](http://www.cmascenter.org/)|
@@ -167,8 +168,8 @@ The Atmospheric Model Evaluation Tool (AMET) is a suite of software designed to 
 netCDF Operators (NCO)
 ----------------------
 
-|---|---|
 |Latest version|Version 3.9.9 released on July 24, 2009|
+|---|---|
 |Main website|[<http://nco.sourceforge.net/>](http://nco.sourceforge.net/)|
 |Download|[<http://nco.sourceforge.net/#Download>](http://nco.sourceforge.net/#Download)|
 |Latest User’s Manual|[<http://nco.sourceforge.net/#RTFM>](http://nco.sourceforge.net/#RTFM)|
@@ -197,6 +198,7 @@ An overview of the various netCDF operators is given below.
 Python ioapiTools
 -----------------
 
+|Latest version||
 |---|---|
 |Main website|[<http://www-pcmdi.llnl.gov/software-portal/Members/azubrow/ioapiTools/index_html>](http://www-pcmdi.llnl.gov/software-portal/Members/azubrow/ioapiTools/index_html)|
 |Download|[<http://www-pcmdi.llnl.gov/softwareportal/Members/azubrow/ioapiTools/download-source-file>](http://www-pcmdi.llnl.gov/softwareportal/Members/azubrow/ioapiTools/download-source-file)|
@@ -212,6 +214,7 @@ After installing CDAT and the ioapiTools, the user should use a python interpret
 Integrated Data Viewer (IDV)
 ----------------------------
 
+|Latest version||
 |---|---|
 |Main website|[<http://www.unidata.ucar.edu/software/idv/>](http://www.unidata.ucar.edu/software/idv/)|
 |Download|[<http://www.unidata.ucar.edu/software/idv/docs/userguide/Starting.html>](http://www.unidata.ucar.edu/software/idv/docs/userguide/Starting.html)|
@@ -233,8 +236,8 @@ runIDV capture.isl
 NCAR Command Language (NCL)
 ---------------------------
 
-|---|---|
 |Latest Version|Version 5.1.1 released on June 16, 2009|
+|---|---|
 |Main website|[<http://www.ncl.ucar.edu>](http://www.ncl.ucar.edu/)|
 |Download|[<http://www.ncl.ucar.edu/Download/index.shtml>](http://www.ncl.ucar.edu/Download/index.shtml)|
 |Latest User’s Manual|[<http://www.ncl.ucar.edu/Document/index.shtml>](http://www.ncl.ucar.edu/Document/index.shtml)|
