@@ -1,3 +1,4 @@
+[Previous: Science](CMAQ_OGD_ch04_science.md)
 CMAQ System Requirements and Installation
 =========================================
 
@@ -42,52 +43,31 @@ Below are two examples of optimal hardware configurations for running CMAQ on mu
 
 ### Software
 
-CMAQ requires all of the programs listed in [Table 5‑1](#Table5-1 "wikilink"); this list includes the programs distributed with CMAQ. CMAQv5 requires I/O API version 3.1. It will not compile with earlier versions of the I/O API library. [Table 5‑2](#Table5-2 "wikilink") lists additional utility software that is not required for running CMAQ, but is useful for model diagnostics and evaluation. Note that MPICH needs to be installed by the system administrator because this program is specific to the computing platform.
+CMAQ requires all of the programs listed in [Table 5‑1](#Table5-1); this list includes the programs distributed with CMAQ. CMAQv5 requires I/O API version 3.1. It will not compile with earlier versions of the I/O API library. [Table 5‑2](#Table5-2) lists additional utility software that is not required for running CMAQ, but is useful for model diagnostics and evaluation. Note that MPICH needs to be installed by the system administrator because this program is specific to the computing platform.
 
-<span id=Table5-1></span>
+<a id=Table5-1></a>
 
-<center>
 **Table 5‑1. Software required for running CMAQ**
 
-</center>
-|---|---|---|
-|**Software**|**Description**|**Source**|
-|<center>
-***CMAQ Programs***
-
-</center>|
-|Bldmake|Models-3 program builder for source code management and code compilation|<center>
-Contained in the standard CMAQ distribution available at [<http://www.cmascenter.org>](http://www.cmascenter.org/)
-
-</center>
-<center>
-Release notes and documentation available at [<http://www.cmaq-model.org>](http://www.cmaq-model.org/)
-
-</center>|
-|JPROC|Photolysis rate preprocessor|
-|ICON|Initial conditions preprocessor|
-|BCON|Boundary conditions preprocessor|
-|MCIP|Meteorology-Chemistry Interface Processor|
-|CCTM|CMAQ Chemistry-Transport Model|
-|CHEMMECH|Chemical mechanism compiler for modifying or adding reactions to the CMAQ chemistry|
-|LTNG\_2D\_DATA|Lightning flash count preprocessor|
-|PROCAN|Process analysis preprocessor for setting up CMAQ to generate integrated reaction rates or integrated process rates|
-|<center>
-***Compilers***
-
-</center>|
+| **Software** | **Description** | **Source** |
+|:------------------------------ |:------------------------------:|:-----------------------------------------------:|
+|***CMAQ Programs***|  |  |
+|Bldmake|Models-3 program builder for source code management and code compilation|Contained in the standard CMAQ distribution available at [<http://www.cmascenter.org>](http://www.cmascenter.org/) Release notes and documentation available at [<http://www.cmaq-model.org>](http://www.cmaq-model.org/)|
+|JPROC|Photolysis rate preprocessor| "|
+|ICON|Initial conditions preprocessor|" |
+|BCON|Boundary conditions preprocessor|"|
+|MCIP|Meteorology-Chemistry Interface Processor| "|
+|CCTM|CMAQ Chemistry-Transport Model| "|
+|CHEMMECH|Chemical mechanism compiler for modifying or adding reactions to the CMAQ chemistry| "|
+|LTNG\_2D\_DATA|Lightning flash count preprocessor| "|
+|PROCAN|Process analysis preprocessor for setting up CMAQ to generate integrated reaction rates or integrated process rates| "|
+|***Compilers***| | |
 |IFORT|Intel Fortran 90 compiler|[<http://www.intel.com>](http://www.intel.com/)|
 |PGF90|Portland Group Fortran 90 compiler|[<http://www.pgroup.com/>](http://www.pgroup.com/)|
 |GFORT|Gnu Fortran compiler|[<http://gcc.gnu.org/fortran/>](http://gcc.gnu.org/fortran/)|
 |GCC|Gnu C compiler|[<http://gcc.gnu.org/>](http://gcc.gnu.org/)|
-|<center>
-***Code libraries***
-
-</center>|
-|STENEX|CMAQ stencil exchange library for parallel job management|<center>
-Contained in the standard CMAQ distribution available at [<http://www.cmascenter.org>](http://www.cmascenter.org/)
-
-</center>|
+|***Code libraries***| | |
+|STENEX|CMAQ stencil exchange library for parallel job management|Contained in the standard CMAQ distribution available at [<http://www.cmascenter.org>](http://www.cmascenter.org/)
 |PARIO|CMAQ parallel input/output management library|
 |MPICH|Library for the message passing interface; used for multiprocessor CMAQ simulations|[<http://www.mcs.anl.gov/research/projects/mpich2/>](http://www.mcs.anl.gov/research/projects/mpich2/)|
 |netCDF|Network Common Data Form library for controlling CMAQ file formats|[<http://my.unidata.ucar.edu/content/software/netcdf/index.html>](http://my.unidata.ucar.edu/content/software/netcdf/index.html)|
@@ -97,34 +77,26 @@ Contained in the standard CMAQ distribution available at [<http://www.cmascenter
 |***for versions prior to CMAQ-5.0.2***|
 |CVS|Concurrent Versions System for managing the distributed archive of the CMAQ source code|[<http://ximbiot.com/cvs/cvshome/>](http://ximbiot.com/cvs/cvshome/) or your host's package management system|
 
-<span id=Table5-2></span>
+<a id=Table5-2></a>
 
-<center>
 **Table 5‑2. Optional support software for CMAQ**
 
-</center>
-|---|---|---|
-|**Software**|**Description**|**Source**|
-|<center>
-***Evaluation and visualization tools***
-
-</center>|
+|**Software**|**Description**|     **Source**    |
+|------------|---------------|-------------------|
+|***Evaluation and visualization tools***| | |
 |VERDI|Visualization Environment for Rich Data Interpretation for graphical analysis of netCDF gridded data|[<http://www.verdi-tool.org>](http://www.verdi-tool.org/)|
 |PAVE|Package for Analysis and Visualization of Environmental data for graphical analysis of netCDF gridded data|[<http://www.cmascenter.org>](http://www.cmascenter.org/)|
 |IDV|Integrated Data Viewer for 3-D graphical analysis of netCDF gridded data|[<http://www.unidata.ucar.edu/software/idv/>](http://www.unidata.ucar.edu/software/idv/)|
 |I/O API Tools|Postprocessing tools for manipulating data in the I/O API/netCDF format|[<https://www.cmascenter.org/ioapi/>](https://www.cmascenter.org/ioapi/)|
 |netCDF Tools|Postprocessing tools for manipulating data in the netCDF format|[<http://my.unidata.ucar.edu/content/software/netcdf/index.html>](http://my.unidata.ucar.edu/content/software/netcdf/index.html)|
-|<center>
-***Source code diagnostics***
-
-</center>|
+| ***Source code diagnostics*** |
 |PGDBG|Portland Group Fortran 90 debugger|[<http://www.pgroup.com/>](http://www.pgroup.com/)|
 |PGPROF|Portland Group Fortran 90 code profiler|[<http://www.pgroup.com/>](http://www.pgroup.com/)|
 
 Installing and Compiling CMAQ Source Code
 -----------------------------------------
 
-After installing the [I/O API](#Input.2FOutput_Applications_Programming_Interface_.28I.2FO_API.29 "wikilink") and [netCDF](#Network_Common_Data_Form_.28netCDF.29 "wikilink") libraries, Fortran and C compilers, and CVS if required for your CMAQ version, users should then download the CMAQ source code, scripts, and benchmark data files from the CMAS Center web site ([<http://www.cmascenter.org>](http://www.cmascenter.org/)). After registering to download CMAQ on the CMAS Center Software Clearinghouse, users are redirected to a page that contains links to download Linux tar files of the CMAQ code, scripts, and benchmark data along with various documents describing the installation and execution processes.
+After installing the [I/O API](#Input.2FOutput_Applications_Programming_Interface_.28I.2FO_API.29) and [netCDF](#Network_Common_Data_Form_.28netCDF.29) libraries, Fortran and C compilers, and CVS if required for your CMAQ version, users should then download the CMAQ source code, scripts, and benchmark data files from the CMAS Center web site ([<http://www.cmascenter.org>](http://www.cmascenter.org/)). After registering to download CMAQ on the CMAS Center Software Clearinghouse, users are redirected to a page that contains links to download Linux tar files of the CMAQ code, scripts, and benchmark data along with various documents describing the installation and execution processes.
 
 ### Distribution contents
 
@@ -150,90 +122,30 @@ The CMAQ scripts require users to select only the location of the `M3HOME` direc
 
 ### Configuring your system for compiling CMAQ
 
-Compiler flag consistency between the Fortran and C compilers used to build netCDF and I/O API is critical for building library files compatible with CMAQ. [Table 5-3](#Table5-3 "wikilink") lists the suggested compilation options for building netCDF and I/O API libraries that are compatible with CMAQ. Refer to the documentation for these libraries for additional information on installation and compiling.
+Compiler flag consistency between the Fortran and C compilers used to build netCDF and I/O API is critical for building library files compatible with CMAQ. [Table 5-3](#Table5-3) lists the suggested compilation options for building netCDF and I/O API libraries that are compatible with CMAQ. Refer to the documentation for these libraries for additional information on installation and compiling.
 
-<span id=Table5-3></span> **Table 5‑3. NetCDF and I/O API compilation options for CMAQ**
+<a id=Table5-3></a>
 
-|---|---|---|---|
-|<center>
-**Library Type**
+**Table 5‑3. NetCDF and I/O API compilation options for CMAQ**
 
-</center>|<center>
-**Intel Fortran**
-
-</center>|<center>
-**PGI Fortran**
-
-</center>|<center>
-**Gnu Fortran**|
-|netCDF|CC = icc
-
-CPPFLAGS = \`-DNDEBUG
-
-–DpgiFortran\`
-
-CFLAGS = \`-g –O\`
-
-FC = ifort
-
-F77 = ifort
-
-FFLAGS = \`-g –O2 –mp –recursive\`
-
-CXX = icpc|CC = gcc
-
-CPPFLAGS = \`-DNDEBUG
-
-–DpgiFortran\`
-
-CFLAGS = -O
-
-FC = pgf90
-
-FFLAGS = \`-O –w\`
-
-CXX = g++|CC = gcc
-
-CPPFLAGS = \`-DNDEBUG
-
-–DgFortran\`
-
-CFLAGS = -O
-
-FC = gfortran
-
-FFLAGS = \`-O –w\`
-
-CXX = g++|
+|**Library Type**|**Intel Fortran**|**PGI Fortran**|**Gnu Fortran**|
+|----------------|-----------------|---------------|--------------|
+|netCDF|CC = icc CPPFLAGS = \`-DNDEBUG –DpgiFortran\` CFLAGS = \`-g –O\` FC = ifort F77 = ifort FFLAGS = \`-–O2 –mp –recursive\` CXX = icpc|CC = gcc CPPFLAGS =\`-DNDEBUG –DpgiFortran\` CFLAGS = -O FC = pgf90 FFLAGS = \`-O –w\` CXX = g++|CC = gcc CPPFLAGS = \`-DNDEBUG –DgFortran\` CFLAGS = -O FC = gfortran FFLAGS = \`-O –w\` CXX = g++|
 |I/O API 32-bit|BIN = Linux2\_x86ifort|BIN = Linux2\_x86pg\_pgcc\_nomp|N/A|
 |I/O API 64-bit|BIN = Linux2\_x86\_64ifort|BIN = Linux2\_x86\_64pg\_pgcc\_nomp|BIN = Linux2\_x86\_64gfort|
 
 </center>
 #### config.cmaq
 
-Consistency of configuration variables is critical for building CMAQ itself, not just its libraries. Accordingly CMAQ now distributes with `CMAQv5.0/scripts/config.cmaq` to help prevent multiple, inconsistent settings. [Table 5-4](#Table5-4 "wikilink") lists variables defined for the build process and suggests values to which to set those variables.
+Consistency of configuration variables is critical for building CMAQ itself, not just its libraries. Accordingly CMAQ now distributes with `CMAQv5.0/scripts/config.cmaq` to help prevent multiple, inconsistent settings. [Table 5-4](#Table5-4) lists variables defined for the build process and suggests values to which to set those variables.
 
-<span id=Table5-4></span> **Table 5‑4. config.cmaq configuration variables**
+<a id=Table5-4></a>
 
-|---|---|
-|<center>
-**Variable Name**
+**Table 5‑4. config.cmaq configuration variables**
 
-</center>|<center>
-**Suggested Value**
-
-</center>|
-|`M3HOME`|the directory to which you are installing CMAQ. For example, if you installed the CMAQ source code in the directory
-
-`/home/user/CMAQv5.0`
-
-set the M3HOME environment variable with (e.g.)
-
-`export M3HOME='/home/user/CMAQv5.0' # bash`
-
-or
-
-`setenv M3HOME /home/user/CMAQv5.0   # csh`|
+| **Variable Name** | **Suggested Value** |
+|:-----------------:|:-------------------:|
+|`M3HOME`|the directory to which you are installing CMAQ. For example, if you installed the CMAQ source code in the directory `/home/user/CMAQv5.0` set the M3HOME environment variable with (e.g.) `export M3HOME='/home/user/CMAQv5.0' # bash` or `setenv M3HOME /home/user/CMAQv5.0   # csh`|
 |`M3DATA`|should be automatically set by config.cmaq|
 |`M3LIB`|should be automatically set by config.cmaq|
 |`M3MODEL`|should be automatically set by config.cmaq|
@@ -261,7 +173,7 @@ This will produce the following subdirectories:
 `CMAQv5.0/models`
 `CMAQv5.0/scripts`
 
--   Edit the file `CMAQv5.0/scripts/config.cmaq` to set the environment variable `M3HOME` as discussed in [Table 5-4](#Table5-4 "wikilink").
+-   Edit the file `CMAQv5.0/scripts/config.cmaq` to set the environment variable `M3HOME` as discussed in [Table 5-4](#Table5-4).
 
 -   Edit the file `CMAQv5.0/scripts/config.cmaq` to configure the CMAQ installation for the local computing architecture and compilers. Under the “\#architecture & compiler specific settings” section of the script there are three example compiler configurations: (1) Intel Fortran, (2) Portland Group Fortran, and (3) Gnu Fortran. Configure this section of the script for your system using the comment character (\#) to deactivate the settings that will not be used; similarly, uncomment (and, if necessary, edit) the settings that will be used to compile CMAQ. Save and exit from the config.cmaq file and use the source command to invoke the settings in the file:
 
@@ -381,7 +293,7 @@ For all CMAQ programs (other than MCIP), the program Bldmake is used to compile 
 
 A new feature in the CMAQv5 compilation system is the centralization of the compiler configuration into the config.cmaq script. None of the CMAQ build scripts contain compiler settings. Instead, the build scripts for each program reference the config.cmaq script using the Linux command “source”.
 
-All of the CMAQ programs other than CCTM are run in single-processor mode. CCTM may be run either in single-processor (serial) mode or in parallel on multiple processors. Program-specific compilation instructions are provided below. These compilation instructions are for building executables for simulating the benchmark data sets distributed with CMAQ. Additional information about the configuration options for the various CMAQ programs is provided in [Section 4](#Overview_of_the_Science_in_the_CMAQ_Modeling_System "wikilink") and [Section 7](#CMAQ_Programs_and_Libraries "wikilink").
+All of the CMAQ programs other than CCTM are run in single-processor mode. CCTM may be run either in single-processor (serial) mode or in parallel on multiple processors. Program-specific compilation instructions are provided below. These compilation instructions are for building executables for simulating the benchmark data sets distributed with CMAQ. Additional information about the configuration options for the various CMAQ programs is provided in [Section 4](#Overview_of_the_Science_in_the_CMAQ_Modeling_System) and [Section 7](#CMAQ_Programs_and_Libraries).
 
 **`Note` `about` `compiling` `with` `netCDF4`**
 `The Fortran and C components of the netCDF library are separated in netCDF version 4.1 `
@@ -466,4 +378,6 @@ For single-processor computing,
 
 After completing the CMAQ benchmark case, the CCTM output files can be compared with the reference datasets provided in the CMAQ distribution. (As of CMAQ-5.0.1, the reference [tarball](http://en.wikipedia.org/wiki/Tar_%28computing%29) for "one-way" CMAQ is named DATA\_REF.tar.gz, and the reference tarball for two-way coupled WRF-CMAQ is named DATA\_REF.WRF3.3-CMAQv5.tar.gz.) A plot of percent difference between the output and the benchmark data is the easiest method.
 
-If the benchmark case is run on a system similar to that used to create the reference data (as of CMAQ-5.0.1, [RHEL](http://en.wikipedia.org/wiki/Red_Hat_Enterprise_Linux) with the [Gnu Fortran](https://en.wikipedia.org/wiki/Gfortran) compiler), the results should differ by no more than 0.5% for every model species. Changing the optimization of the compiler or compiling on other operating systems with different compilers can lead to larger differences between the benchmark results and the reference datasets. The CCTM benchmark targets for compilers other than those listed in [Table 5.1](#Table5-1 "wikilink") are differences less than 1% for every model species. Differences greater than this require a review of the installation. Remember it is necessary that the same compilers be used for all programs.
+If the benchmark case is run on a system similar to that used to create the reference data (as of CMAQ-5.0.1, [RHEL](http://en.wikipedia.org/wiki/Red_Hat_Enterprise_Linux) with the [Gnu Fortran](https://en.wikipedia.org/wiki/Gfortran) compiler), the results should differ by no more than 0.5% for every model species. Changing the optimization of the compiler or compiling on other operating systems with different compilers can lead to larger differences between the benchmark results and the reference datasets. The CCTM benchmark targets for compilers other than those listed in [Table 5.1](#Table5-1) are differences less than 1% for every model species. Differences greater than this require a review of the installation. Remember it is necessary that the same compilers be used for all programs.
+
+[Next: Libraries](CMAQ_OGD_ch06_req_lib.md)
