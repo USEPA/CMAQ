@@ -1,8 +1,8 @@
 # Updated Gas-Phase Deposition of H2O2, HACET, Organic Nitrates and s07tic Species
 
-**Author/P.O.C.:**, Havala Pye, pye.havala@epa.gov, Computational Exposure Division, U.S. EPA
+**Author/P.O.C.:**, [Havala Pye](mailto:pye.havala@epa.gov), Computational Exposure Division, U.S. EPA
 
-## Brief Description 
+## Brief Description
 
 Based largely on the work of Nguyen et al. (2015) for the southeast United States, deposition of several gas-phase species has been updated. Most species only exist in saprc07tic. However, IEPOX and H2O2 are common to several mechanisms.
 
@@ -34,15 +34,15 @@ Revised surrogate properties
 
 ## Significance and Impact
 
-Deposition rates were compared to observations of concentrations and deposition velocities measured during SOAS by Nguyen et al. (2015). The largest changes occured for H2O2 (HO2H in SAPRC) in which dry deposition velocities at midday increased from approx 3 cm/s to 5 cm/s (consistent with measurements). The bias in H2O2 concentration was reduced from 238% to 113%. 
+Deposition rates were compared to observations of concentrations and deposition velocities measured during SOAS by Nguyen et al. (2015). The largest changes occured for H2O2 (HO2H in SAPRC) in which dry deposition velocities at midday increased from approximately 3 cm/s to 5 cm/s (consistent with measurements). The bias in H2O2 concentration was reduced from 238% to 113%.
 
 HACET deposition velocities at midday increased from 0.6 cm/s to 2 cm/s. The bias in HACET decreased from 26% to 15%.
 
 HPALD was not deposited in v5.1. Deposition velocities predicted for HPALD in CMAQ v5.2 are low (1 cm/s) compared to measurements (>2 cm/s) at midday. The overestimate in HPALD at night improved signifcantly with the added deposition.
 
-The deposition velocity of NISOPOOH decreased to just under 2 cm/s at midday (consistent with observation of INP) which increased the bias in concentration slightly.
+The deposition velocity of NISOPOOH decreased to just under 2 cm/s at midday (consistent with observation of INP), slightly increasing the bias in concentration.
 
-The deposition velocity of PROPNN increased to approx 2 cm/s at midday (consistent with observations) with little effect on gas-phase predicted PROPNN concentrations.
+The deposition velocity of PROPNN increased to approximately 2 cm/s at midday (consistent with observations) with little effect on gas-phase predicted PROPNN concentrations.
 
 
 ## Affected Files:
@@ -68,7 +68,7 @@ gas/ebi_saprc07tic_ae6i_aq/hrrates.F
 gas/ebi_saprc07tic_ae6i_aq/hrsolver.F  
 vdiff/acm2/ASX_DATA_MOD.F  
 
-## References: 
+## References:
 
 Nguyen, T. B., Crounse, J. D., Teng, A. P., St. Clair, J. M., Paulot, F., Wolfe, G. M., and Wennberg, P. O.: Rapid deposition of oxidized biogenic compounds to a temperate forest, Proc. Natl. Acad. Sci. U. S. A., 112, E392–E401, doi:10.1073/pnas.1418702112, 2015.
 
@@ -79,7 +79,7 @@ Wolfe, G. M., and Thornton, J. A.: The Chemistry of Atmosphere-Forest Exchange (
 -----
 ## Internal Records:
 
-### Relevant Pull Requests: 
+### Relevant Pull Requests:
 [PR #11](https://github.com/usepa/cmaq_dev/pull/11)
 
 ### Commit IDs:
@@ -90,4 +90,3 @@ dc9a180de6d3452db7852dab7007d1a2a38d8ad5
 5db1fa3af2f49c9dc382f45593a7657fbb964abf  
 e246de9d80a9076575a3d4a83071ed4edeca4a56  
 879f22428b8932cd0113c12f42acead44a9bdf1c  
-
