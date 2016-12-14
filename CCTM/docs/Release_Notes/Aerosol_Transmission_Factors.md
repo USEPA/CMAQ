@@ -26,9 +26,9 @@ aero/aero6/opdiam.F
 
 ## References:
 
-1. DeCarlo et al., Particle Morphology and Density Characterization by Combined Mobility and Aerodynamic Diameter Measurements. Part 1: Theory, Aerosol Sci. and Technology, 38:1185-1205, 2004
-2. Ensberg et al., Inorganic and black carbin aerosols in the Los Angeles Basin during CalNex, Journ. Geophys. Res., 2013.
-3. Jiang et al., 2004
+1. DeCarlo et al., Particle Morphology and Density Characterization by Combined Mobility and Aerodynamic Diameter Measurements. Part 1: Theory, Aerosol Sci. and Technology, 38:1185-1205, 2004.
+2. Ensberg et al., Inorganic and black carbon aerosols in the Los Angeles Basin during CalNex, Journ. Geophys. Res., 2013.
+3. Jiang et al., 2004.
 
 -----
 ## Internal Records:

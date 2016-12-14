@@ -4,8 +4,9 @@
 
 ## Brief Description
 
-In CMAQv5.1, three options existed within the aero module: aero6, aero6i, and aero6_mp. Each option consisted of a directory of code within aero6. Since much of the code was already shared among the modules, the remaining code was merged together so that separate code directories are not needed in the aero module for each aerosol option.
-All three options remain using the shared code directory.
+In CMAQv5.1, three options existed within the aero module: aero6, aero6i, and aero6_mp. Each option consisted of a directory of code within aero6. Because much of the code was already shared among the modules, the remaining code was merged together so that separate code directories are not needed in the aero module for each aerosol option.
+
+All three options use the shared code directory.
 Technically, this update was primarily implemented by employing a master table of aerosol species in AERO_DATA.F. The main reason for the existence of three modules in the past was that they all treated distinct sets of aerosol species. Now all species are merged and available at runtime. The aerosol module now automatically populates the list of species it will treat using the aerosol namelist input file.
 
 ## Significance and Impact
