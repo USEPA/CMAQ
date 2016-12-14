@@ -6,7 +6,7 @@
 
 Included with CMAQv5.2 is a new mechanism that has not been available in previous versions, the CB6r3 (Emery et al., 2015). CB6r3 is the fourth version of CB6 (Yarwood et al. 2010), which is based on CB05.
 
-CB6 contains numerous changes from CB05, including updated reaction rates throughout, new operators to better represent alkoxy and peroxy radicals, additional explicit species to represent long-lived and abundant chemicals and those that form SOA, and additional representation of organic nitrates.  These changes are detailed in reports listed under References section.
+CB6 contains numerous changes from CB05, including updated reaction rates throughout, new operators to better represent alkoxy and peroxy radicals, additional explicit species to represent long-lived and abundant chemicals and those that form SOA, and additional representation of organic nitrates.  These changes are detailed in reports listed in the References section.
 
 ## Significance and Impact
 
@@ -26,7 +26,7 @@ spcs/cgrid_spcs_nml/CGRID_SPCS.F
 
 Emery, C., Jung, J., Koo, B., Yarwood, G., 2015. Improvements to CAMx Snow Cover Treatments and Carbon Bond Chemical Mechanism for Winter Ozone. Final report for Utah DAQ, project UDAQ PO 480 52000000001.
 
-Hildebrandt Ruiz, L., Yarwood, G., 2013. Interactions between Organic Aerosol and NOy: Influence on Oxidant Production. Final report for AQRP project 12‐012. Available at http://aqrp.ceer.utexas.edu/projectinfoFY12_13%5C12‐012%5C12‐012%20Final%20Report.pdf.
+Hildebrandt Ruiz, L., Yarwood, G., 2013. Interactions between Organic Aerosol and NOy: Influence on Oxidant Production. Final report for AQRP project 12‐012. Available at http://aqrp.ceer.utexas.edu/projectinfoFY12_13/12-012/12-012%20Final%20Report.pdf.
 
 Yarwood, G., Whitten, G.Z., Jung, J., Heo, G., Allen, D.T., 2010. Development, evaluation and testing of version 6 of the Carbon Bond chemical mechanism (CB6), Final report to the Texas Commission on Environmental Quality, Work Order No. 582-7-84005-FY10-26.
 
