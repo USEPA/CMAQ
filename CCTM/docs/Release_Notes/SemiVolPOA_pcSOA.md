@@ -2,15 +2,21 @@
 
 **Author/P.O.C.:**, [Ben Murphy](mailto:murphy.benjamin@epa.gov), Computational Exposure Division, U.S. EPA
 
-## Brief Description 
+## Brief Description
 
-Mounting evidence from field and laboratory observations coupled with atmospheric model analysis shows that primary combustion emissions of organic compounds exhibit a broad spectrum of volaitlity, leading to dynamic partitioning of these compounds, especially in the early stages of their atmospheric lifetime. The most recent version of the Community Multiscale Air Quality (CMAQ) Model v5.2 accounts for the semivolaitle partitioning and gas-phase aging of these primary organic aerosol (POA) compounds consistent with experimentally derived parameterizations. We also include a new surrogate species, potential-combustion secondary organic aerosol (pcSOA), which provides a cumulative representation of the SOA from cobustion sources that could be missing from current chemical transport model predictions. The reasons for this missing mass likely include 1) missing intermediate volatility organic compound (IVOC) emissions in current inventories, 2) multigenerational aging of organic vapor products from known SOA precursors (e.g. toluene, alkanes, etc), 3) underestimation of SOA yields due to vapor wall losses in smog chamber experiments, and 4) organic-water interactions and aqueuous-phase processing of known organic vapor emissions. 
+Mounting evidence from field and laboratory observations coupled with atmospheric model analysis shows that primary combustion emissions of organic compounds exhibit a broad spectrum of volatility, leading to dynamic partitioning of these compounds, especially in the early stages of their atmospheric lifetime. The most recent version of CMAQ v5.2 accounts for the semivolatle partitioning and gas-phase aging of these primary organic aerosol (POA) compounds consistent with experimentally derived parameterizations.
+
+We include a new surrogate species, potential-combustion secondary organic aerosol (pcSOA). It provides a cumulative representation of the SOA from combustion sources that could be missing from current chemical transport model predictions. The reasons for this missing mass likely include:  
+1. Missing intermediate volatility organic compound (IVOC) emissions in current inventories.
+2. Multigenerational aging of organic vapor products from known SOA precursors (e.g., toluene, alkanes).  
+3. Underestimation of SOA yields due to vapor losses at the walls in smog chamber experiments.  
+4. Organic-water interactions and aqueuous-phase processing of known organic vapor emissions.
 
 ## Significance and Impact
 
-The effect on OA concentrations is significant, especially near combustion sources. In cities, especially in winter with low photochemical activity, the OA concentrations should decrease. In summer and/or rural areas, concentrations may stay the same or increase slightly depending on the behavior of pcSOA, which is technically a new source of OA to the model, but in practice, makes up for a lot of the material evaporated from the POA source. 
+The effect on organic aerosol (OA) concentrations is significant, especially near combustion sources. In cities, especially in winter with low photochemical activity, the OA concentrations should decrease. In summer and/or rural areas, concentrations may stay the same or increase slightly depending on the behavior of pcSOA. Although it is technically a new source of OA to the model, in practice it compensates for a lot of the material evaporated from the POA source.
 
-The model with representation of semivolatile POA improves predictions of hourly observations over the nonvolatile model at sites in California during the CalNex and CARES campaigns (May-June 2010) as well as in the southeast during the Southern Oxidant and Aerosol Study (SOAS) (May 2013) and at SEARCH sites in 2011 winter and summer. Model improvements manifest in better correlations (e.g. correlation coefficient at Pasadena at night increases from 0.38 to 0.62) and reductions in underprediction during the photochemically active afternoon period (e.g. bias at Pasadena from -5.62 to -2.42). Daily-averaged predictions of observations at routine monitoring networks show modest improvement during winter with mean biases reducing from 1.14 to 0.73, but less change in the summer where the contributions from nonvolatile POA were replaced by pcSOA and by SOA from the oxidation of volatilized particle emissions.
+Representation of semivolatile POA improves model predictions of hourly observations over the nonvolatile model at sites in California during the CalNex and CARES campaigns (May-June 2010) as well as in the southeast during the Southern Oxidant and Aerosol Study (SOAS) (May 2013) and at SEARCH sites in 2011 winter and summer. Model improvements manifest in better correlations (e.g. correlation coefficient at Pasadena at night increases from 0.38 to 0.62) and reductions in underprediction during the photochemically active afternoon period (e.g. bias at Pasadena from -5.62 to -2.42). Daily-averaged predictions of observations at routine monitoring networks show modest improvement during winter with mean biases reducing from 1.14 to 0.73, but less change in the summer where the contributions from nonvolatile POA were replaced by pcSOA and by SOA from the oxidation of volatilized particle emissions.
 
 ## Affected Files:
 aero/aero6/SOA_DEFN.F
@@ -83,15 +89,16 @@ MECHS/cb05tucl_ae6_aq/mech.def
 MECHS/cb05tump_ae6_aq/AE_cb05tump_ae6_aq.nml
 emis/emis/EMIS_DEFN.F
 emis/emis/PT3D_DEFN.F
- 
 
-## References: 
 
+## References:
+
+{Are there any references, especially pertaining to the studies cited?}
 
 -----
 ## Internal Records:
 
-### Relevant Pull Requests: 
+### Relevant Pull Requests:
   [PR #18](https://github.com/usepa/cmaq_dev/pull/18)  
   [PR #20](https://github.com/usepa/cmaq_dev/pull/20)  
   [PR #106](https://github.com/usepa/cmaq_dev/pull/106)  
