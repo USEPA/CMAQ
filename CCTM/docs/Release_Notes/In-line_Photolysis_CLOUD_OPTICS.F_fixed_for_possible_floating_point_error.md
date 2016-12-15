@@ -9,7 +9,7 @@ underflow errors in the exponential function. The limiting cases were derived fr
 
 ## Significance and Impact
 
-Test simulations showed max ozone differences of 2.0E-7 ppm compared to the original code. The simulations spanned the CONUS12 domain for Febuary 1-2, 2011.    
+Test simulations showed max ozone differences of 2.0E<sup>-7</sup> ppm compared to the original code. The simulations spanned the CONUS12 domain for Febuary 1-2, 2011.    
 
 ## Affected Files:
 

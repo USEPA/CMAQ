@@ -4,7 +4,7 @@
 
 ## Brief Description
 CMAQ included the approach to estimating the light extinction of aerosols at 550nm based on the algorithm derived with IMPROVE (Interagency Monitoring of Protected Visual Environments) particle speciation data. The estimated aerosol extinction efficiency will be used to:  
-1. Diagnose the AOD (to generate the diagnostic file, set CTM_AOD=Y in run script)
+1. Diagnose the AOD (to generate the diagnostic file, set CTM_AOD=Y in run script)  
 2. Diagnose the visibility (output in CTM_VIS_1 file)
 
 Subroutine get_extinc was modified to reflect the latest change in the IMPROVE based algorithm. In addition, the model's code was made more consistent when using the aerosol extinction efficiency to estimate the AOD and visibility, respectively.  

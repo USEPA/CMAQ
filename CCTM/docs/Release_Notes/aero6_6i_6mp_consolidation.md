@@ -24,11 +24,11 @@ cloud/acm_ae6/aqchem.F
 cloud/acm_ae6/rescld.F  
 cloud/acm_ae6_mp/AQ_DATA.F  
 cloud/acm_ae6_mp/aqchem.F  
-aero/aero6_mp/AERO_DATA.F
-aero/aero6_mp/opapmdiag.F
-aero/aero6_mp/opavis.F
-aero/aero6_mp/opdiam.F
-aero/aero6_mp/oppmdiag.F
+aero/aero6_mp/AERO_DATA.F  
+aero/aero6_mp/opapmdiag.F  
+aero/aero6_mp/opavis.F  
+aero/aero6_mp/opdiam.F  
+aero/aero6_mp/oppmdiag.F  
 
 ## References
 

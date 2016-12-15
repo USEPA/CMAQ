@@ -8,7 +8,7 @@ Based largely on the work of Nguyen et al. (2015) for the southeast United State
 
 New deposition surrogates
 
-|Species| Henry’s Law Coefficient (M/atm) | Diffusivity (cm2/s)        | Relative reactivity| f0 (meso parameter from Wesely) | Lebas molar volume (cm3/mol) |
+|Species| Henry’s law Coefficient (M/atm) | Diffusivity (cm2/s)        | Relative reactivity| f0 (meso parameter from Wesely) | Lebas molar volume (cm3/mol) |
 |-------|--------------------------       |--------------              |--------------      |---------------                  |--------------                |
 |IEPOX  | IEPOX (3x10<sup>7</sup>)        | 0.0579                     | 8                  | 0                               | 110.8 |
 |HACET  | HACET (2.93x10<sup>3</sup>)     | 0.106 (Nguyen et al., 2015)| 8                  | 0                               | 72.6  |
@@ -25,8 +25,8 @@ Revised surrogate properties
 
 |Species          |Property                             |Old Value                |New Value                |Reference
 |-----------------|------------------                   |-------------            |------------               |----------------
-|PROPNN           |Henry’s Law Coefficient              |1×10<sup>3</sup> M/atm   |1×10<sup>4</sup> M/atm   |Nguyen et al. (2015)
-|H2O2             |Henry’s Law                          |8.3×10<sup>4</sup> M/atm |1.1×10<sup>5</sup> M/atm |Sander (1999)
+|PROPNN           |Henry’s law Coefficient              |1×10<sup>3</sup> M/atm   |1×10<sup>4</sup> M/atm   |Nguyen et al. (2015)
+|H2O2             |Henry’s law                          |8.3×10<sup>4</sup> M/atm |1.1×10<sup>5</sup> M/atm |Sander (1999)
 |H2O2             |Relative reactivity                  |30                       |34,000	            |Nguyen et al. (2015)
 |HYDROXY_ NITRATES, PROPNN, ORG_NTR |f0 (meso parameter) |0.1                      |0                        |Nguyen et al. (2015)
 |OP               |f0 (meso parameter)                  |0.1                      |0.3                      |Wolfe and Thornton (2011)

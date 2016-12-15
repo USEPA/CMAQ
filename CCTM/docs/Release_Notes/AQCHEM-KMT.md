@@ -4,12 +4,12 @@
 
 ## Brief Description
 
-AQCHEM-KMT and AQCHEM-KMTI have been updated in the following ways to maintain or improve consistency across CMAQ:
-1. Use the HLCONST function to calculate temperature-adjusted Henry's law coefficients (as opposed to using hard-coded values).  This allows any updates to Henry's law coefficients to automatically propagate through to the KMT mass transfer coefficient calculations in AQCHEM-KMT(I).
-2. Use constants in the AERO_DATA module to calculate coarse cation concentrations following J. Young updates in AQCHEM.F (as opposed to using hard-coded values).
-3. Update the IEPOX+SO4 rate coefficient in AQCHEM-KMTI, to be consistent with aero6i updates for aerosol chemistry.
-4. Update the HO(aqueous) concentration calculation to be more consistent with standard AQCHEM. Now initial gas phase HO represents the "total" (gas+aqueous) HO available for the system (rather than just the gas phase concentration). This should have only a minor impact on results, as HO is not very soluble.
-5. Minor updates to array sizes and inclusion of simple Aitken/wet scavenging treatment processing of Hg/toxic tracer species to accommodate changes made to AQ_DATA.F and aq_map.F.
+AQCHEM-KMT and AQCHEM-KMT(I) have been updated in the following ways to maintain or improve consistency across CMAQ:  
+1. Use the HLCONST function to calculate temperature-adjusted Henry's law coefficients (as opposed to using hard-coded values).  This allows any updates to Henry's law coefficients to automatically propagate through to the KMT mass transfer coefficient calculations in AQCHEM-KMT(I).  
+2. Use constants in the AERO_DATA module to calculate coarse cation concentrations following J. Young updates in AQCHEM.F (as opposed to using hard-coded values).  
+3. Update the IEPOX+SO4 rate coefficient in AQCHEM-KMT(I), to be consistent with aero6i updates for aerosol chemistry.  
+4. Update the HO(aqueous) concentration calculation to be more consistent with standard AQCHEM. Now initial gas phase HO represents the "total" (gas+aqueous) HO available for the system (rather than just the gas phase concentration). This should have only a minor impact on results, as HO is not very soluble.  
+5. Minor updates to array sizes and inclusion of simple Aitken/wet scavenging treatment processing of Hg/toxic tracer species to accommodate changes made to AQ_DATA.F and aq_map.F.  
 
 
 ## Significance and Impact

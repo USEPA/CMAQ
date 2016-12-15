@@ -6,10 +6,10 @@
 
 The CMAQ model now contains detailed halogen (bromine and iodine) chemistry. Sarwar et al. (2015) examined the impacts of halogen chemistry both with and without the photolysis of higher iodine oxides. The inclusion of the photolysis of higher iodine oxides substantially reduces ozone and is not included in the model. The halogen chemistry without the photolysis of higher iodine is included in the model.
 
-The halogen chemistry in CMAQ follows the description of Sarwar et al. (2015) with the following three changes:
-1. Rate constants of the several iodine reactions in Sarwar et al. (2015) contained special expressions which have been replaced with rate constants from Sherwen et al. (2016).
-2. Sarwar et al. (2015) calculated photolysis rates of halogen species using ratios of other chemical species following the Comprehensive Air quality Model with extensions (CAMx) (Yarwood et al., 2012). These photolysis rates are now directly calculated using absorption cross-section and quantum yield data.
-3. Br2 emissions are a function of sea-salt production rates that are calculated in the aerosol module of CMAQ. This method is different from Sarwar et al. (2015) that calculated Br2 emissions independent of the sea-salt production rates in the aerosol module of CMAQ.
+The halogen chemistry in CMAQ follows the description of Sarwar et al. (2015) with the following three changes:  
+1. Rate constants of the several iodine reactions in Sarwar et al. (2015) contained special expressions which have been replaced with rate constants from Sherwen et al. (2016).  
+2. Sarwar et al. (2015) calculated photolysis rates of halogen species using ratios of other chemical species following the Comprehensive Air quality Model with extensions (CAMx) (Yarwood et al., 2012). These photolysis rates are now directly calculated using absorption cross-section and quantum yield data.  
+3. Br2 emissions are a function of sea-salt production rates that are calculated in the aerosol module of CMAQ. This method is different from Sarwar et al. (2015) that calculated Br2 emissions independent of the sea-salt production rates in the aerosol module of CMAQ.  
 
 ## Significance and Impact
 

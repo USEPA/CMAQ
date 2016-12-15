@@ -4,9 +4,9 @@
 
 ## Brief Description
 
-Two major updates for lightning NOx production are included in the CMAQ v5.2 release:
-1. Use of hourly NLDN lightning data to directly estimate lightning NOx (LNOx) production.
-2. New LNOx parameterization based on the model convective rainfall rate (RC – rain convective) that is designed for future forecasts where observed lightning data are not available.
+Two major updates for lightning NOx production are included in the CMAQ v5.2 release:  
+1. Use of hourly NLDN lightning data to directly estimate lightning NOx (LNOx) production.  
+2. New LNOx parameterization based on the model convective rainfall rate (RC – rain convective) that is designed for future forecasts where observed lightning data are not available.  
 
 ## Significance and Impact
 
@@ -22,15 +22,15 @@ emis/emis/LTNG_DEFN.F
 
 ## Additional Notes:
 
-Input Files:
-1. Hourly gridded NLDN lightning strike data (24 hours/day)
-2. Parameter file – ocean mask, climatological IC/CG ratios, and parameters for parameterization scheme when NLDN data are not available (e.g. forecast and future climate studies). Details to be presented next
+Input Files:  
+1. Hourly gridded NLDN lightning strike data (24 hours/day)  
+2. Parameter file – ocean mask, climatological IC/CG ratios, and parameters for parameterization scheme when NLDN data are not available (e.g. forecast and future climate studies). Details to be presented next  
 
-Output Diagnostic Files (optional):
-1. Vertical profile (3D) and
-2. Column total (2D)
+Output Diagnostic Files (optional):  
+1. Vertical profile (3D)  
+2. Column total (2D)  
 
-Run Script Configurations:
+Run Script Configurations:  
 
 + setenv LTNGNO "InLine"  
 + setenv LTNGPARAM Y  

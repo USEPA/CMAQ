@@ -16,11 +16,11 @@ In simulations, CB6 generally produces lower NO2 and lower ozone, due to multipl
 
 ## Affected Files:
 
-All files in MECHS/cb6r3_ae6_aq
-All files in gas/ebi_cb6r3_ae6_aq
-aero/aero6/AEROSOL_CHEMISTRY.F
-aero/aero6/SOA_DEFN.F
-spcs/cgrid_spcs_nml/CGRID_SPCS.F
+All files in MECHS/cb6r3_ae6_aq  
+All files in gas/ebi_cb6r3_ae6_aq  
+aero/aero6/AEROSOL_CHEMISTRY.F  
+aero/aero6/SOA_DEFN.F  
+spcs/cgrid_spcs_nml/CGRID_SPCS.F  
 
 ## References:
 
