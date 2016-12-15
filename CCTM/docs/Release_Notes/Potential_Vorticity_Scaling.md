@@ -1,14 +1,20 @@
-# Representing the Influence of Stratosphere-Troposphere Exchange on Simulated O3 Distributions 
+# Representing the Influence of Stratosphere-Troposphere Exchange on Simulated O3 Distributions
 
 **Author/P.O.C.:**, [Rohit Mathur](mailto:mathur.rohit@epa.gov), Computational Exposure Division, U.S. EPA
 
-## Brief Description 
+## Brief Description
 
-Though the role of cross-tropopause transport of O3 is acknowledged as a significant contributor to the tropospheric O3 budget, the distribution of O3 in the troposphere that originates from the stratosphere is still uncertain. Tightening O3 NAAQS and decreasing amounts of photo-chemically derived O3 due to continuously declining anthropogenic precursor emissions, now put greater emphasis on accurately characterizing the fraction of O3 in the troposphere, especially at the surface, that is of stratospheric origin.  This fraction varies spatially and seasonally in response to the tropopause height, with larger contributions episodically from deep intrusion events associated with weather patterns and frontal movement.  Potential vorticity (PV) has been shown to be a robust indicator of air mass exchange between the stratosphere and the troposphere with strong positive correlation with O3 and other trace species transported from the stratosphere to the upper troposphere (Danielsen, 1968). Numerous modeling studies have used this correlation to develop scaling factors that specify O3 in the modeled upper tropospheric-lower stratospheric (UTLS) based on estimated PV. The reported O3/PV ratios (e.g., Ebel et al, 1991; Carmichael et al, 1998; McCaffery et al, 2004; Mathur et al., 2008) however exhibit a wide range: 20-100 ppb/PVu (1 PV unit = 10-6 m2 K kg-1 s-1), as a function of location, altitude and season.  
+The role of cross-tropopause transport of O3 is acknowledged as a significant contributor to the tropospheric O3 budget. However, the distribution of O3 in the troposphere that originates from the stratosphere is still uncertain.
 
-To overcome these challenges and to develop a more robust representation of STE impacts, we have developed a dynamic O3-PV function based on 21-year ozonesonde records from World Ozone and Ultraviolet Radiation Data Centre (WOUDC) with corresponding PV values from WRF-CMAQ simulation across the northern hemisphere from 1990 to 2010. The result suggests strong spatial and seasonal variations of O3/PV ratios which exhibits large values in the upper layers and in high latitude regions, with highest values in spring and the lowest values in autumn over an annual cycle. The new generalized parameterization, detailed in Xing et al. (2016) can dynamically represent O3 in the UTLS across the northern hemisphere. The implementation of the new function in the hemispheric version of CMAQ significantly improves the model’s performance in the simulation of UTLS O3 in both magnitude and seasonality compared to observations, which then enables a more accurate simulation of the vertical distribution of O3 across the northern hemisphere (Xing et al., 2016). These can then be used to derive more realistic vertically and temporally varying LBCs for regional nested model calculations.  
+As the O3 NAAQS are tightened and anthropogenic precursor emissions continue to decline, the amount of O3 derived photochemically from those emissions are decreasing. This makes it more important to accurately characterize the fraction of O3 in the troposphere, especially at the surface, that originates in the stratosphere. This fraction varies both spatially and seasonally due to changes in the height of the tropopause. Episodes of deep intrusion events associated with weather patterns and frontal movement also increase this fraction.
 
-In CMAQv5.2, this PV-based scaling of O3 in the model’s UTLS is invoked through calling the subroutine PVO3 in the subroutine SCIPROC.  In the current implementation, modelled O3 for all layers at pressure <110mb is scaled by the estimated PV using the dynamical function such that the scaling is dependent on latitude, altitude, and time. It is recommended that users pay attention to the vertical resolution employed in the discretization of the modelled vertical extent. Since O3 vertical profiles exhibit a strong gradient near the tropopause, inadequate vertical resolution near the tropopause can result in excessive artificial diffusion of O3 resulting in unrealistic high simulated O3 in the mid troposphere. This can then be entrained downwards through deep clouds and then to the boundary layer thereby unrealistically impacting predicted surface O3.   
+Potential vorticity (PV) has been shown to be a robust indicator of air mass exchange between the stratosphere and the troposphere. PV shows strong positive correlation with O3 and other trace species transported from the stratosphere to the upper troposphere (Danielsen, 1968). Numerous modeling studies have used this correlation to develop scaling factors that specify O3 in the modeled upper troposphere/lower stratosphere (UTLS) based on estimated PV. The reported O3/PV ratios (e.g., Ebel et al, 1991; Carmichael et al, 1998; McCaffery et al, 2004; Mathur et al., 2008), however, exhibit a wide range: 20-100 ppb/PVu (1 PV unit = 10<sup>-6</sup> m<sup>2</sup> K kg<sup>-1</sup> s<sup>-1</sup>) as a function of location, altitude and season.  
+
+To overcome these challenges and to develop a more robust representation of stratosphere-troposphere exchange (STE) impacts, we have developed a dynamic O3-PV function based on 21-year ozonesonde records from World Ozone and Ultraviolet Radiation Data Centre (WOUDC) with corresponding PV values from WRF-CMAQ simulations across the northern hemisphere from 1990 to 2010. The result suggests strong spatial and seasonal variations of O3/PV ratios. Large values are calculated in the upper layers and in high latitude regions. The highest values occur in the spring and the lowest values occur in autumn over an annual cycle.
+
+Xing et al. (2016) provides details of the new generalized parameterization that can dynamically represent O3 in the UTLS across the northern hemisphere. Implementation of the new function in the hemispheric version of CMAQ significantly improves the model’s performance in the simulation of UTLS O3 in both magnitude and seasonality compared to observations. This improvement enables a more accurate simulation of the vertical distribution of O3 across the northern hemisphere (Xing et al., 2016). These can then be used to derive more realistic vertically and temporally varying lateral-boundary conditions  (LBCs) for regional nested model calculations.  
+
+In CMAQv5.2, this PV-based scaling of O3 in the model’s UTLS is invoked by calling the subroutine PVO3 in the subroutine SCIPROC.  In the current implementation, modelled O3 for all layers at pressure <110 mb is scaled by the estimated PV using the dynamical function such that the scaling is dependent on latitude, altitude, and time. Users must pay attention to the vertical resolution employed in the discretization of the modelled vertical extent. Because O3 vertical profiles exhibit a strong gradient near the tropopause, inadequate vertical resolution near the tropopause can result in excessive artificial diffusion of O3, resulting in unrealistic high simulated O3 in the mid troposphere. This O3 can then be entrained downwards through deep clouds and then to the boundary layer, thereby unrealistically impacting predicted surface O3.   
 
 ## Affected Files:
 
@@ -16,7 +22,7 @@ driver/wrf/sciproc.F
 driver/yamo/sciproc.F  
 pv_o3/pvo3.F  
 
-## References: 
+## References:
 
 Carmichael, G. R., Uno, I., Phadnis, M. J., Zhang, Y., and Sunwoo, Y.: Tropospheric ozone production and transport in the springtime in east Asia. J. Geophys. Res., 103(D9), 10649-10671, 1998.  
 
@@ -34,7 +40,7 @@ Xing, J., R. Mathur, J. Pleim, C. Hogrefe, J. Wang, C.-M. Gan, G. Sarwar, D. Won
 -----
 ## Internal Records:
 
-### Relevant Pull Requests: 
+### Relevant Pull Requests:
   [PR #31](https://github.com/usepa/cmaq_dev/pull/31)
 
 ### Commit IDs:
