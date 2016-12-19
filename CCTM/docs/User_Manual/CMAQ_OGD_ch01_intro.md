@@ -51,7 +51,7 @@ CMAQ was designed from the start as a community model. “Community modeling” 
 
 CMAQ is designed to meet the needs of the multiple groups contained within the air quality modeling community: research and regulatory modelers, algorithm and science module developers, air quality forecasters, and planners and policy makers. While each of these groups has distinct individual requirements for CMAQ, they also share a common need for an efficient, transparent, and scientifically credible tool to simulate air pollution formation and transport. To address these individual and common needs, CMAQ development and maintenance have the following goals:
 
-1.  *Scientific Integrity* – Ensure that the model remains state-of-the-science through subjecting it to regular peer reviews
+1.  *Scientific Integrity* – Ensure that the model remains state-of-the-science through subjecting it to [regular peer reviews](https://www.cmascenter.org/r-and-d/cmaq-review-process.cfm)
 2.  *Community Development* – Utilize a design that encourages innovations and enhancements by all members of the air quality modeling community
 3.  *Multiscale Modeling* – Provide adequate technical formulations to address air quality issues on multiple spatial scales, from urban to hemispheric
 4.  *One-Atmosphere Design* – Provide robust and integrated science for modeling multiple, coupled air quality issues in a single simulation

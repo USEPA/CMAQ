@@ -16,35 +16,44 @@ Ancillary support programs distributed with CMAQ include
 
 -   The code builder/manager (Bldmake)
 -   The chemical mechanism compiler (CHEMMECH)
+-   EBI chemistry solver builder (CREATE_EBI)
 -   The process analysis preprocessor (PROCAN)
 
-Sections 3.2.1 through 3.2.3 describe the CMAQ system concept, followed in [Section 3.2.4](#Summary_descriptions_of_the_major_CMAQ_programs "wikilink") by summaries describing the programs listed above.
+The following sections describe the CMAQ system concept, followed by [details of the programs listed above](#Summary_descriptions_of_the_major_CMAQ_programs "wikilink").
 
 ### Installation overview
 
-All CMAQ source code is distributed as [gzip](https://en.wikipedia.org/wiki/Gzip)'ed [tarballs](https://en.wikipedia.org/wiki/Tar_%28computing%29#Format_details). Prior to CMAQ version=5.0.2, CMAQ developers used [CVS](https://en.wikipedia.org/wiki/Concurrent_Versions_System) for source code management, and distributed tarballs (except for MCIP) were CVS archives. Starting with version=5.0.2, CMAQ developers switched to [git](https://en.wikipedia.org/wiki/Git_%28software%29).
+All CMAQ source code is distributed as [gzip](https://en.wikipedia.org/wiki/Gzip)'ed [tarballs](https://en.wikipedia.org/wiki/Tar_%28computing%29#Format_details). Prior to CMAQ version 5.0.2, CMAQ developers used [CVS](https://en.wikipedia.org/wiki/Concurrent_Versions_System) for source code management, and distributed tarballs (except for MCIP) were CVS archives. Starting with version 5.0.2, CMAQ developers switched to [git](https://en.wikipedia.org/wiki/Git_%28software%29). All versions of CMAQ from 4.7.1 to the present are available on the [U.S. EPA GitHub repository](https://github.com/USEPA/CMAQ).
 
 CMAQ source codes are used to build "executables": binary files that consist of instructions that have been translated from their original [source code](http://www.linfo.org/sourcecode.html) (e.g., Fortran) into [machine code](http://www.linfo.org/machine_code.html) (also called machine language or object code) so that they are ready to be run (executed). Executable files are created through the use of a specialized program called a [compiler](http://www.linfo.org/compiler.html).
 
-#### installing from CVS-based tarballs
+#### Installing from GitHub
 
-CVS must be installed on the user’s Linux system before installing CMAQ versions \<= 5.0.1. When the distributed CMAQ tar file is unpacked, a CVS directory tree is installed on the user’s machine that contains archived copies of the CMAQ source code. The CMAQ program Bldmake controls the extraction of copies of CMAQ source code from CVS based on the configuration options specified by the user in UNIX C-shell scripts. After exporting the CMAQ source code from CVS, Bldmake then invokes a Fortran 90 compiler to compile the CMAQ source code into binary object files and link them with the necessary precompiled libraries to create binary CMAQ executables. C and Fortran 90 compilers must be installed on the user’s Linux system in order to create CMAQ executables.
+There are two options for obtaining CMAQ source code from GibHub.
+1. Download a zipped code archive from the GitHub web client
+2. Clone the repository directly to a Linux server using the command line. For example, to download CMAQ version 5.1, issue the following command (this assumes that git is installed on your system):
+
+  <pre><code>git clone -b 5.1 https://github.com/USEPA/CMAQ.git CMAQ_v5.1</code></pre>
+
+#### Installing from git-based tarballs (CMAQ version 5.0.2 and later)
+
+Users need not install git to install CMAQ. Tarballs of all source code and scripts are available from the CMAS Center. The files contained in these tarballs do not have any source-code-management artifacts.
+
+#### Installing from CVS-based tarballs (CMAQ version 5.0.1 and earlier)
+
+CVS must be installed on the user’s Linux system before installing CMAQ versions earlier than 5.0.2. When the distributed CMAQ tar file is unpacked, a CVS directory tree is installed on the user’s machine that contains archived copies of the CMAQ source code. The CMAQ program Bldmake controls the extraction of copies of CMAQ source code from CVS based on the configuration options specified by the user in UNIX C-shell scripts. After exporting the CMAQ source code from CVS, Bldmake then invokes a Fortran 90 compiler to compile the CMAQ source code into binary object files and link them with the necessary precompiled libraries to create binary CMAQ executables. C and Fortran 90 compilers must be installed on the user’s Linux system in order to create CMAQ executables.
 
 MCIP was not distributed in a CVS archive. Instead, when older CMAQ versions are downloaded, MCIP appears in its own directory with source code and Makefiles for installation.
-
-#### installing from git-based tarballs
-
-Users need not install git to install CMAQ. The sources contained in the distributed tarballs are normal files, with no additional source-code-management artifacts.
 
 ### Configuration options
 
 Because the model infrastructure was designed to promote modularity, the user must create new CMAQ executables for each suite of science configuration options for all programs except MCIP. There are too many combinations of the various chemical mechanisms, horizontal and vertical transport schemes, cloud routines, and chemistry solvers in the CMAQ science configuration to include efficiently in a single executable. The requirement to recompile CMAQ with each science configuration change is offset by the flexibility to add new science to the model or simply to switch between different model configurations. This point about modularity is most pertinent to CCTM, although there are configuration options that must be selected when compiling the other CMAQ programs as well.
 
-In addition to compile-time configuration options with CMAQ, there are also execution-time configuration options (options that are chosen when the model is run versus when it is compiled). The horizontal domain configuration and the vertical coordinate system are dynamic features in CMAQ that are independent of the executable. In other words, a user can employ a single executable for a simulation that uses any of the supported map projections or grid definitions, without having to recompile the source code into a new executable. Discussions concerning which CMAQ options must be selected at compilation versus at execution are part of [Section 7.3.2](#Files.2C_configuration.2C_and_environment_variables_2 "wikilink").
+In addition to compile-time configuration options with CMAQ, there are also execution-time configuration options (options that are chosen when the model is run versus when it is compiled). The horizontal domain configuration and the vertical coordinate system are dynamic features in CMAQ that are independent of the executable. In other words, a user can employ a single executable for a simulation that uses any of the supported map projections or grid definitions, without having to recompile the source code into a new executable. A description of which CMAQ options must be selected at compilation versus at execution are is included in [Chapter 7: CMAQ Programs and Libraries](#Files.2C_configuration.2C_and_environment_variables_2 "wikilink").
 
 ### Chemistry-transport model conceptual formulation
 
-As the chemistry-transport model (CTM) component of CMAQ, CCTM is the final program to be run in the CMAQ modeling sequence. There are four other main programs that prepare input data for CCTM (i.e., ICON, BCON, JPROC, and MCIP). Before describing each of the CMAQ programs ([Section 3.2.4](##Summary_descriptions_of_the_major_CMAQ_programs "wikilink")), we present a conceptual formulation of CMAQ and Eulerian air quality modeling to provide a framework for understanding the purposes of the various programs and their relationships to each other and to the overall system.
+As the chemistry-transport model (CTM) component of CMAQ, CCTM is the final program to be run in the CMAQ modeling sequence. There are four other main programs that prepare input data for CCTM (i.e., ICON, BCON, JPROC, and MCIP). Before describing each of the CMAQ programs [in Chapter 3](##Summary_descriptions_of_the_major_CMAQ_programs "wikilink"), we present a conceptual formulation of CMAQ and Eulerian air quality modeling to provide a framework for understanding the purposes of the various programs and their relationships to each other and to the overall system.
 
 Eulerian CTMs use coupled ordinary differential equations (ODEs) to predict changes in pollutant concentrations throughout a three-dimensional grid that is fixed in space. The following processes affect changes in the predicted concentrations in each grid cell:
 
@@ -56,23 +65,22 @@ Eulerian CTMs use coupled ordinary differential equations (ODEs) to predict chan
 
 Mathematically, these processes relate to the concentration change in each grid cell over time (*∂C/∂t*) through the *continuity equation,* which is presented in simplified form below:
 
-''∂C/∂t *= Adv + Diff +*R<sub>c''</sub> + ''E<sub>c''</sub> – ''S<sub>c''</sub>
+<pre><code>∂C/∂t = Adv + Diff +R<sub>c</sub> + E<sub>c</sub> – S<sub>c</sub>
 
-where
-
+where,
 Adv = advection
-
 Diff = diffusion
-
-''R<sub>c''</sub> = chemical transformation of species *c*
-
-''E<sub>c''</sub> = emissions of species *c*
-
-''S<sub>c''</sub> = loss processes for species *c*
+R<sub>c</sub> = chemical transformation of species c
+E<sub>c</sub> = emissions of species c
+S<sub>c</sub> = loss processes for species c</code></pre>
 
 In CMAQ, the advection and emissions terms are calculated based on input files generated by the meteorology and emissions models, respectively; the diffusion, chemical transformation, and loss process terms are calculated within CCTM.
 
-The Eulerian representation of the area to be modeled is a series of contiguous grid cells that form a limited-area modeling domain on a subset of the globe. A limited-area domain requires that boundary conditions be established to account for advection of pollutants and other chemical species into the modeling domain from areas outside it. CMAQ currently accounts for advection into the domain only from the horizontal (i.e., lateral) boundaries, assuming there is no exchange through the top boundary of the domain (i.e., vertical exchange). These spatial lateral boundary conditions are estimated in CMAQ using the boundary conditions processor, BCON. Similarly, a temporal boundary condition is established with the initial conditions processor, ICON, which estimates the chemical conditions in the first time step of a CMAQ model simulation. To model incoming solar radiation, which provides the energy source for photolysis reactions, the program JPROC calculates clear-sky photolysis rates at various latitude bands and hours based on solar hour angles. Output from these three CMAQ programs is used with output files from the emissions and meteorological models and other CMAQ preprocessors to form the required input data for running CCTM.
+The Eulerian representation of the area to be modeled is a series of contiguous grid cells that form a limited-area modeling domain on a subset of the globe. A limited-area domain requires that boundary conditions be established to account for advection of pollutants and other chemical species into the modeling domain from areas outside it. CMAQ currently accounts for advection into the domain only from the horizontal (i.e., lateral) boundaries, assuming there is no exchange through the top boundary of the domain (i.e., vertical exchange). These spatial lateral boundary conditions are estimated in CMAQ using the boundary conditions processor, BCON. Similarly, a temporal boundary condition is established with the initial conditions processor, ICON, which estimates the chemical conditions in the first time step of a CMAQ model simulation. To model incoming solar radiation, which provides the energy source for photolysis reactions, the program JPROC calculates clear-sky photolysis rates at various latitude bands and hours based on solar hour angles. Output from these three CMAQ programs is used with output files from the emissions and meteorological models and other CMAQ preprocessors to form the required input data for running CCTM.  
+
+#### Inline processes
+
+In the context of air quality modeling, inline processes refer to those processes that are run at the same time as the chemistry-transport model.  The major advantage of including processes inline to the CCTM is that the simulation of one parameter can feedback to the simulation of one or more other parameters. For example, by including the photolysis rate calculations inline in the CCTM, the rates will be influenced by the radiative impacts of the simulated aerosol loading. Other inline features to the CCTM, such as emissions processing, provide efficiency advantages to the modeling operation and facilitate coupled meteorology-chemistry modeling. CMAQ version 5.0 and forward supports emissions calculations for biogenic sources, windblown dust, seasalt, and point source plume rise in the CCTM.
 
 ### Summary descriptions of the major CMAQ programs
 
