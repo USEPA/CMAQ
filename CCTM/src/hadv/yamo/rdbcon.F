@@ -59,6 +59,7 @@ C-----------------------------------------------------------------------
       USE CGRID_SPCS           ! CGRID mechanism species
       USE UTILIO_DEFN
       USE RXNS_DATA, ONLY : MECHNAME
+      USE AERO_DATA, only : CHECK_AERO_ICBC, N_MODE
 
       IMPLICIT NONE
  
@@ -106,17 +107,20 @@ C Local variables:
       REAL,            ALLOCATABLE, SAVE :: BCFAC( : )   ! Scale factor for BCs
       LOGICAL,         ALLOCATABLE, SAVE :: ONFILE( : )  ! BC species on the file
 
-      CHARACTER( 96 ) :: XMSG = ' '
+      CHARACTER( 96 )  :: XMSG = ' '
+      CHARACTER( 199 ) :: XMSG2 = ' '
+      INTEGER          :: STAT
 
       INTEGER, SAVE :: N_SPC_ADV
+      REAL          :: AER_PAR( N_MODE,3 )
 
       INTEGER   MDATE             ! mid-advection date
       INTEGER   MTIME             ! mid-advection time
       INTEGER   STEP              ! advection time step in seconds
 
       INTEGER   BND, VAR, SPC     ! loop counters
-      INTEGER   COL, ROW          ! loop counters
-      INTEGER   STRT, FINI
+      INTEGER   COL, ROW, IMODE   ! loop counters
+      INTEGER   STRT, FINI, IAER, J
       INTEGER   ALLOCSTAT
 
       INTEGER   COUNT             ! Counter for constructing boundary arrays
@@ -150,7 +154,7 @@ C-----------------------------------------------------------------------
          logdev = init3()
 #endif
 
-         WRITE( CONCMIN,'(1PE8.2)' ) CMIN
+         WRITE( CONCMIN,'(1PE9.2)' ) CMIN
 
          CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
      &                   STRTCOLMC, ENDCOLMC, STRTROWMC, ENDROWMC )
@@ -391,11 +395,34 @@ C Read & interpolate boundary concentrations
                 
             END IF
          ELSE
-            DO BND = 1, NBNDY
-               BCON( BND,VAR ) = CMIN
-            END DO
+            BCON( 1:NBNDY,VAR ) = CMIN
          END IF
 151   CONTINUE
+      
+      !Check Aerosol Size Distributions and Warn the User if They Aren`t
+      !Robust
+      DO BND = 1,NBNDY
+        CALL CHECK_AERO_ICBC( BCON( BND,STRT:FINI ), STAT, AER_PAR )
+        IF ( STAT .EQ. 1 ) THEN
+C          WRITE( XMSG2, '(A43,/,4x,A22,I4,2x,I2,4x,A4,4x,A3,8x,A2,8x,A2,
+C    &                         3(/,4x,I1,7x,E8.1,1x,E8.1,1x,E8.1),/,A70)' ),
+C    &       'Error Applying Aerosol Boundary Conditions!',
+C    &       'Grid Cell(Horz,Vert): ',BND, LVL,
+C    &       'Mode','Num','Dg','Sg',
+C    &       '1',AER_PAR(1,1), AER_PAR(1,2), AER_PAR(1,3),
+C    &       '2',AER_PAR(2,1), AER_PAR(2,2), AER_PAR(2,3),
+C    &       '3',AER_PAR(3,1), AER_PAR(3,2), AER_PAR(3,3),
+C    &       'The Offending Mode(s) was overwritten by changing the Num and SrfArea.'
+           print *, 'Error Applying Aerosol Boundary Conditions!'
+           print *, 'Grid Cell(Horz,Vert): ',BND, LVL
+           print *, 'Mode   ','Num    ','Dg     ','Sg     '
+           print *, '1',AER_PAR(1,1), AER_PAR(1,2), AER_PAR(1,3)
+           print *, '2',AER_PAR(2,1), AER_PAR(2,2), AER_PAR(2,3)
+           print *, '3',AER_PAR(3,1), AER_PAR(3,2), AER_PAR(3,3)
+           print *, 'The Offending Mode(s) was overwritten by changing the Num and SrfArea.'
+           CALL M3WARN( 'Read BCs', MDATE, MTIME, XMSG2 )
+        ENDIF
+      END DO
 
 #ifdef verbose_rdbcon
       if ( lvl .eq. 1 ) then
