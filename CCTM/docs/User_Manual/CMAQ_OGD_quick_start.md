@@ -1,4 +1,4 @@
-[Home](CMAQ_OGD_index.md) - [Next Chapter >>](CMAQ_OGD_ch01_intro.md)
+[Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch01_intro.md)
 ***
 CMAQ Installation Quick Start Guide
 =========================================
@@ -118,5 +118,5 @@ After configuring the MPI settings for your Linux system, run the CCTM:
 
 ***
 
-[Home](CMAQ_OGD_index.md) - [Next Chapter >>](CMAQ_OGD_ch01_intro.md)
+[Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch01_intro.md)
 CMAQ Operational Guidance Document (c) 2016<br>
