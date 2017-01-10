@@ -118,5 +118,5 @@ After configuring the MPI settings for your Linux system, run the CCTM:
 
 ***
 
-[Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch01_intro.md)
+[Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch01_intro.md)<br>
 CMAQ Operational Guidance Document (c) 2016<br>
