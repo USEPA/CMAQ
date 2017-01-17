@@ -2489,7 +2489,7 @@
 
 !determine model time           
             DAY  = MOD( JDATE, 1000 )
-            YEAR = 0.001*JDATE
+            YEAR = INT( 0.001 * REAL(JDATE) )
             
             LEAP_YEAR = ( ( MOD(YEAR,4) .EQ. 0 )
      &                      .AND. ( MOD(YEAR,100) .NE. 0 )
