@@ -22,8 +22,8 @@ The directories under $CMAQ_HOME/CCTM/src/MECHS contain files that define the ch
 
 The directories under $CMAQ_HOME/CCTM/src/gas contain the Fortran source codes for numerical solvers to calculate species concentrations using the different CMAQ chemical mechanisms. 
 
-*The ros3 and smvgear solvers work for any mechanism and are based on Rosenbrock and Gear methods, respectively. 
-*The ebi_''mechanism'' solver only works for the specified ''mechanism''. They are optimized solvers based on a Backward Euler Iteration (EBI) method and analytical solutions.
+- The ros3 and smvgear solvers work for any mechanism and are based on Rosenbrock and Gear methods, respectively. 
+- The ebi_*mechanism* solver only works for the specified *mechanism*. They are optimized solvers based on a Backward Euler Iteration (EBI) method and analytical solutions.
 
 ## CMAQ v5.2 Mechanism Listing
 The table below lists the chemistry mechanisms available in CMAQ v5.2.  The entries in the MECHS Module column correspond to the `Mechanism` setting in the CMAQ build scripts. Clicking on these entries diplays the mechanism listing.   Each row in the table defines the aerosol and cloud modules that are compatible with each mechanism.
