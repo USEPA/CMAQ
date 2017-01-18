@@ -16,6 +16,7 @@ The Community Multiscale Air Quality (CMAQ) Model version 5.2 is a major update 
 ## Chemistry
 ### Photochemistry
 There are 11 unique gas-phase chemical mechanisms in CMAQv5.2. These are all located in the MECHS/ folder and may be invoked when building the model and Makefile. Variations of Carbon Bond 5 (CB05), Carbon Bond 6 (CB6), RACM2, and SAPRC07 are all available. Specific science updates include the following:  
+  * [CMAQv5.2 Photochemical Mechanisms](CMAQv5.2_Mechanisms.md)
   * [Implementation of CB6r3](CB6_release_notes.md)
   * [Implementation of CB05eh51: Bromine and Iodine Chemistry](Halogen_Chemistry.md)  
 
