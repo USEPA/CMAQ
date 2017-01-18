@@ -13,10 +13,10 @@ Photochemical mechanisms define the chemical reactions that destroy or produce g
 The photochemical mechanism does not define the reactions and species used in cloud chemistry. 
 
 The directories under $CMAQ_HOME/CCTM/src/MECHS contain files that define the chemical species and their reactions for each of the CMAQ chemistry mechanisms. Along with the GC, AE, and NR namelists, a set of other files are used to define the CMAQ mechanisms:
-- The CSQY_DATA_''mechanism'' file contains data used for in-line photolysis rates calculations
-- The mech*.def file lists the photochemical reactions. 
-- The RXNS*.F90 files are machine-generated, Fortran source code implementations of the CMAQ mechanisms. The CMAQ utility CHEMMECH uses the mech*.def file to generate the RXNS*.F90 files for use in compiling the different CMAQ programs.
-- The trac* file contains the TR namelists for configuring CMAQ to run with inert tracer species.
+- The CSQY_DATA_*mechanism* file contains data used for in-line photolysis rates calculations
+- The mech.def file lists the photochemical reactions. 
+- The RXNS.F90 files are machine-generated, Fortran source code implementations of the CMAQ mechanisms. The CMAQ utility CHEMMECH uses the mech.def file to generate the RXNS.F90 files for use in compiling the different CMAQ programs.
+- The trac file contains the TR namelists for configuring CMAQ to run with inert tracer species.
 
 ## Chemistry Solvers
 
