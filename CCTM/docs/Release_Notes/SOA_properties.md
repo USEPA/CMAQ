@@ -4,11 +4,13 @@
 
 ## Brief Description
 
-Several properties of semivolatile SOA species (aerosol and nonreactives) were updated: number of C per molecule, density, OM/OC (now in species definition file), and molecular weights. In addition, unique dry and wet deposition surrogates were implemented for each semivolatile species. See Pye et al. (2016) for how updated properties were determined.
+Several properties of semivolatile SOA species (aerosol and nonreactives) were updated: number of carbon atoms per molecule, density, organic-mass-to-organic-carbon (OM/OC) ratio (now in species definition file), and molecular weights. In addition, unique dry and wet deposition surrogates were implemented for each semivolatile species. See Pye et al. (2016) for how updated properties were determined.
 
 ## Significance and Impact
 
-Up to 7% decrease in OM and 10% decrease in OC in the Eastern US for June 2013 conditions. The largest impact was due to the updated OM/OC. Deposition updates play a relatively minor role.
++ Up to 7% decrease in OM and 10% decrease in OC in the Eastern US for June 2013 conditions.
++ The largest impact was due to the updated OM/OC. 
++ Deposition updates play a relatively minor role.
 
 ## Affected Files
 
