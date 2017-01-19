@@ -4,9 +4,9 @@
 
 ## Brief Description
 
-In CMAQ v5.1, only saprc07tic_aero6i allowed for the formation of glyoxal and methylglyoxal SOA in aqueous accumulation mode particles (AGLYJ). 
- SOA from GLY+MGLY uptake onto particles was added to CB6. In addition, the uptake 
-coefficient of MGLY was updated by scaling the uptake coefficient for glyoxal using the Henry's law coefficients to reflect the fact that it is less soluble than GLY.
+In CMAQ v5.1, only saprc07tic_aero6i allowed for the formation of glyoxal (GLY) and methylglyoxal (MGLY) SOA in aqueous accumulation mode particles (AGLYJ).
+ SOA from GLY+MGLY uptake onto particles was added to CB6. In addition, the uptake
+coefficient of MGLY was updated by scaling the uptake coefficient for GLY using the Henry's law coefficients to reflect the lower solubility of MGLY than GLY.
 
 ## Significance and Impact
 
