@@ -14,6 +14,7 @@ SUBROUTINE feedback_setup ( jdate, jtime, tstep )
 !                          and cmaq_wrf_c_recv_index_l
 !           22 Nov 2016  Constructed water soluble and insoluble list dynamically
 !                        based on a given chemical mechanism and AE scheme
+!           17 Jan 2017  Replace 3 with n_mode for robustness
 !===============================================================================
 
   USE twoway_header_data_module
@@ -21,6 +22,7 @@ SUBROUTINE feedback_setup ( jdate, jtime, tstep )
   USE twoway_data_module
   USE twoway_util_module
   USE twoway_cgrid_aerosol_spc_map_module
+  USE aero_data
 
   use cgrid_spcs
 
@@ -88,8 +90,8 @@ SUBROUTINE feedback_setup ( jdate, jtime, tstep )
 
        indirect_effect = envyn ('INDIRECT_EFFECT', ' ', .false., stat)
 
-       allocate (ws_spc_index(n_ae_spc, 3),     &
-                 wi_spc_index(n_ae_spc, 3),     &
+       allocate (ws_spc_index(n_ae_spc, n_mode),     &
+                 wi_spc_index(n_ae_spc, n_mode),     &
                  stat=stat)
 
 ! to create water soluable and insoluble list
@@ -115,7 +117,7 @@ SUBROUTINE feedback_setup ( jdate, jtime, tstep )
              do while ((.not. found) .and. (k .lt. n_aerolist))
                k = k + 1
                n = 0
-               do while ((.not. found) .and. (n .lt. 3))
+               do while ((.not. found) .and. (n .lt. n_mode))
                   n = n + 1
                   if (aerolist(k)%name(n) .eq. ae_spc(i)) then
                      found = .true.
@@ -212,6 +214,8 @@ SUBROUTINE feedback_write ( c, r, l, cgrid, o3_value, jdate, jtime )
 
      nlays = ioapi_header%nlays
 
+! feedback_vlist defines the feedback variable list (twoway_cgrid_aerosol_spc_map_module.F90)
+! the first 22 variables are for direct aerosol effect.
      allocate ( feedback_data_cmaq (cmaq_c_ncols, cmaq_c_nrows, nlays, n_feedback_var), stat=stat)
 
      allocate (dens( NCOLS, NROWS, nlays ), stat=stat)
@@ -238,7 +242,7 @@ SUBROUTINE feedback_write ( c, r, l, cgrid, o3_value, jdate, jtime )
      end if
 ! end: this is for indirect effect only, temporary blocked
 
-     do j = 1, 3
+     do j = 1, n_mode
         do i = 1, num_ws_spc(j)
            if (ws_spc_index(i,j) .gt. 0) then
               ws_spc_index(i,j) = ws_spc_index(i,j) + n_gc_spcd
@@ -246,7 +250,7 @@ SUBROUTINE feedback_write ( c, r, l, cgrid, o3_value, jdate, jtime )
         end do
      end do
 
-     do j = 1, 3
+     do j = 1, n_mode
         do i = 1, num_wi_spc(j)
            if (wi_spc_index(i,j) .gt. 0) then
               wi_spc_index(i,j) = wi_spc_index(i,j) + n_gc_spcd
@@ -307,7 +311,7 @@ SUBROUTINE feedback_write ( c, r, l, cgrid, o3_value, jdate, jtime )
      end do
 
 ! k mode
-     feedback_data_cmaq(c,r,l, 3) = 0.0
+     feedback_data_cmaq(c,r,l, n_mode) = 0.0
 
 ! insoluble
 ! i mode
