@@ -2,8 +2,11 @@
 [<< Previous Chapter](CMAQ_OGD_ch02_overview.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch04_science.md)<br>
 ***
 
-3. Features of CMAQ for Application Users
+3. CMAQ Features
 =========
+
+Features of CMAQ for Application Users
+-------------------------------------------------
 
 The CMAQ modeling system provides a variety of important features to users who are interested in applying the model for investigating scientific research questions or for regulatory applications such as preparation of State Implementation Plans (SIPs).
 

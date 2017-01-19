@@ -33,7 +33,7 @@ CMAQ requires all of the programs listed in [Table 5‑1](#Table5-1). This list 
 **Table 5‑1. Software required for running CMAQ**
 
 | **Software** | **Description** | **Source** |
-|:-            |:-               |:--:|
+|:-------------|:----------------|:----------:|
 |***CMAQ Programs***|||
 |Bldmake|Executable builder for source code compilation|Contained in the standard CMAQ distribution available at [<http://www.cmascenter.org>](http://www.cmascenter.org/) Release notes and documentation available at [<http://www.cmaq-model.org>](http://www.cmaq-model.org/)|
 |JPROC|Photolysis rate preprocessor| "|
@@ -60,6 +60,7 @@ CMAQ requires all of the programs listed in [Table 5‑1](#Table5-1). This list 
 |BLAS|Basic Linear Algebra Subprograms|[<http://netlib.org/blas/>](http://netlib.org/blas/)|
 |***For versions prior to CMAQ-5.0.2***|
 |CVS|Concurrent Versions System for managing the distributed archive of the CMAQ source code|[<http://ximbiot.com/cvs/cvshome/>](http://ximbiot.com/cvs/cvshome/) or your host's package management system|
+
 
 <a id=Table5-2></a>
 

@@ -1,7 +1,7 @@
 
 [<< Previous Chapter](CMAQ_OGD_ch07_programs_libraries.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch09_grid_defn.md)
 ***
-8. CMAQ FILES
+8. CMAQ Input and Output Files
 ==========
 
 The input files for CMAQv5 consist of a domain definition file for all programs; two sets of file options for both ICON and BCON; two types of input files (WRF/MM5 and terrain) for MCIP; five mandatory and one optional input file for JPROC; and for CCTM, emissions, initial conditions, and boundary conditions files, six files that define the meteorological conditions to be simulated, and a photolysis rates file. For most CCTM input, a separate data set is required for each horizontal domain that is modeled. When CMAQv5 is configured for in-line emissions and deposition, there are additional emissions input files that are required. CMAQ output files include a basic set of files with aerosol and gas-phase species concentrations, wet and dry deposition estimates, and visibility metrics, and an auxiliary set of output files for diagnosing model performance and in-line-calculated emissions.

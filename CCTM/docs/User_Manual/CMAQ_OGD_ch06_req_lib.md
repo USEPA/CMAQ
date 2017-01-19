@@ -1,12 +1,12 @@
 
 [<< Previous Chapter](CMAQ_OGD_ch05_sys_req.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch07_programs_libraries.md)
 ***
-Required Libraries
+6. Required Libraries
 ==================
 
-The CMAQ programs require a set of third-party libraries that must be installed on the users system before CMAQ can be compiled and run. These libraries control the data flow through CMAQ, define the binary file formats used by the CMAQ input and output files, and control how CMAQ functions in a multiple-processor computing environment. The [Input/Output Applications Programming Interface (I/O API)](#IOAPI "wikilink") and the [Network Common Data Form (netCDF)](#NCF "wikilink") are required for all applications of CMAQ. The [Message Passing Interface (MPI)](#MPI "wikilink") is only required for multiple-processor applications of CCTM. Brief descriptions of these three libraries are provided in this section. For additional information, including how to compile and configure these libraries, refer to the documentation associated with each library.
+The CMAQ programs require a set of third-party libraries that must be installed on the users system before CMAQ can be compiled and run. These libraries control the data flow through CMAQ, define the binary file formats used by the CMAQ input and output files, and control how CMAQ functions in a multiple-processor computing environment. The [Input/Output Applications Programming Interface (I/O API)](#IOAPI) and the [Network Common Data Form (netCDF)](#NCF) are required for all applications of CMAQ. The [Message Passing Interface (MPI)](#MPI) is only required for multiple-processor applications of CCTM. Brief descriptions of these three libraries are provided in this section. For additional information, including how to compile and configure these libraries, refer to the documentation associated with each library.
 
-<span id=IOAPI></span>
+<a id="IOAPI"></a>
 [Input/Output Applications Programming Interface (I/O API)](https://www.cmascenter.org/ioapi/)
 ---------------------------------------------------------
 
@@ -195,13 +195,13 @@ Data files in the CMAQ system can be easily manipulated by using the I/O API uti
 |VERTOT|compute vertical-column totals of variables in a file|
 |UTMTOOL|coordinate conversions and grid-related computations for lat/lon, Lambert, and UTM|
 
-<span id=NCF></span>
+<a id="NCF"></a>
 [Network Common Data Form (netCDF)](http://www.unidata.ucar.edu/software/netcdf/)
 ---------------------------------
 
 The Network Common Data Form (netCDF) is a set of software libraries and machine-independent data formats that support the creation, access, and sharing of array-oriented scientific data (Unidata, 2009). The netCDF library provides an implementation of the netCDF interface for several different programming languages. The netCDF is used in CMAQ to define the format and data structure of the binary input and output files. CMAQ input and output files are self-describing netCDF-format files in which the file headers have all the dimensioning and descriptive information needed to define the resident data. Users should download the latest code for the netCDF from [<http://www.unidata.ucar.edu/software/netcdf>](http://www.unidata.ucar.edu/software/netcdf). Compilation and configuration information for the netCDF is available through the Unidata website.
 
-<span id=MPI></span>
+<a id="MPI"></a>
 Message Passing Interface Library (MPI)
 -----------------------------------------
 
