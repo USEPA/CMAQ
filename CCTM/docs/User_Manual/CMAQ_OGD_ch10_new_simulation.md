@@ -2,7 +2,7 @@
 [<< Previous Chapter](CMAQ_OGD_ch09_grid_defn.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch11_code_management.md)
 ***
 
-10. DEVELOPING NEW CMAQ SIMULATIONS
+10. Developing New CMAQ Simulations
 ===============================
 
 For application users of CMAQ, the CMAQ model builder Bldmake is used only at the beginning of a simulation to compile executables for a specific science configuration. Since the horizontal grid and vertical layer structure are defined dynamically at execution of the model, there is typically no need to recompile the programs when changing these parameters. Compilation is required only when either developing CMAQ simulations for the first time or when the chemistry/science configuration within the model is changed.
@@ -110,7 +110,6 @@ Not all of the combinations of the various CCTM configuration options have been 
 
 -   For configurations that use the Yamartino model driver, the Yamartino options must be used for the initialization module, the advection routines, and the concentration adjustment scheme.
 -   Ensure that there is consistency in the selection of the chemistry mechanism and the aerosol module; for example, the *aero6* aerosol module cannot be used with a chemistry mechanism that is tagged “ae5".
--
 -   The EBI chemistry solver is mechanism-dependent and must be consistent with the chemistry mechanism; for example, the EBI solver for CB05 cannot be used with a SAPRC‑07 chemistry mechanism.
 
 The availability of different science options in CMAQ creates the flexibility to select a configuration that optimizes the model performance for different applications. Through testing the various science configurations with respect to model accuracy and speed, the CMAQ user can find the combination of science options that gives the best performance for a particular modeling study.
