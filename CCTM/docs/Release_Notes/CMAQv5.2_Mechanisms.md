@@ -26,7 +26,7 @@ The directories under $CMAQ_HOME/CCTM/src/gas contain the Fortran source codes f
 - The ebi_*mechanism* solver only works for the specified *mechanism*. They are optimized solvers based on a Backward Euler Iteration (EBI) method and analytical solutions.
 
 ## CMAQ v5.2 Mechanism Listing
-The table below lists the chemistry mechanisms available in CMAQ v5.2.  The entries in the MECHS Module column correspond to the `Mechanism` setting in the CMAQ build scripts. Clicking on these entries diplays the mechanism listing.   Each row in the table defines the aerosol and cloud modules that are compatible with each mechanism.
+The table below lists the chemistry mechanisms available in CMAQ v5.2.  The entries in the MECHS Module column correspond to the `Mechanism` setting in the CMAQ build scripts. The entries in this column link to documentation for each mechanism.   The next two columns in the table define the aerosol and cloud modules that are compatible with each mechanism. The last column links to the mechanism definition, showing the details of the stoichiometry and kinetics of each mechanism.
 
 |**MECHS Module**|**Aerosol Module**|**Cloud Module**|**Mechanism Definition**|
 |---|---|---|---|
