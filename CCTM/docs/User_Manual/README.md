@@ -1,43 +1,43 @@
 CMAQv5.2 Operational Guidance Document
 ==
 
-This manual is an operational guidance document for users of the Community Multiscale Air Quality (CMAQ) modeling system, and is designed to support the installation, configuration, and execution of CMAQ on Linux systems. CMAQ users should be familiar with Linux scripting conventions and have some familiarity with the Fortran programming language. Users should also have some familiarity with atmospheric structure, and the physical and chemical processes that occur in the atmosphere.
+This manual is an operational guidance document for users of the [Community Multiscale Air Quality (CMAQ)](http://www.cmaq-model.org) modeling system, and is designed to support the installation, configuration, and execution of CMAQ on Linux systems. CMAQ users should be comfortable with Linux scripting conventions and have some familiarity with the Fortran programming language. Users should also have some familiarity with atmospheric structure, and the physical and chemical processes that occur in the atmosphere.
 
 The following sections are included in this manual:
 
-[Quick Start Guide](CMAQ_OGD_quick_start.md) provides a concise description of how to get up and running with CMAQ.
+[Quick Start Guide. ](CMAQ_OGD_quick_start.md) Abbreviated description of how to get up and running with CMAQ.
 
-[Chapter 1](CMAQ_OGD_ch01_intro.md) presents the CMAQ background, goals, and terminology.
+[Chapter 1 (Background):](CMAQ_OGD_ch01_intro.md) CMAQ background, goals, and terminology.
 
-[Chapter 2](CMAQ_OGD_ch02_overview.md) provides an overview of CMAQ.
+[Chapter 2 (Overview):](CMAQ_OGD_ch02_overview.md) Overview of the CMAQ system and programs.
 
-[Chapter 3](CMAQ_OGD_ch03_features.md) provides a list of the CMAQ features.
+[Chapter 3 (Features):](CMAQ_OGD_ch03_features.md) CMAQ features for application users and developers; includes links to new features by version.
 
-[Chapter 4](CMAQ_OGD_ch04_science.md) provides an explanation of the science used in CMAQ.
+[Chapter 4 (Science):](CMAQ_OGD_ch04_science.md) Explanation of the science used in CMAQ.
 
-[Chapter 5](CMAQ_OGD_ch05_sys_req.md) describes computer system requirements and installation.
+[Chapter 5 (Installation:)](CMAQ_OGD_ch05_sys_req.md) CMAQ installation instructions.
 
-[Chapter 6](CMAQ_OGD_ch06_req_lib.md) discusses the required libraries including the Input/Output Applications Programming Interface (I/O API) and netCDF.
+[Chapter 6 (Libraries):](CMAQ_OGD_ch06_req_lib.md) Description of the 3rd party libraries required by CMAQ.
 
-[Chapter 7](CMAQ_OGD_ch07_programs_libraries.md) describes the CMAQ programs.
+[Chapter 7 (Programs):](CMAQ_OGD_ch07_programs_libraries.md) Detailed descriptions of the CMAQ programs.
 
-[Chapter 8](CMAQ_OGD_ch08_input_files.md) describes CMAQ input and output files.
+[Chapter 8 (Files):](CMAQ_OGD_ch08_input_files.md) Descriptions of the CMAQ input and output files.
 
-[Chapter 9](CMAQ_OGD_ch09_grid_defn.md) discusses how to define modeling grids, vertical layers, and chemical mechanisms.
+[Chapter 9 (Model Configuration):](CMAQ_OGD_ch09_grid_defn.md) How to specify new modeling grids, vertical layers, and chemical mechanisms in CMAQ.
 
-[Chapter 10](CMAQ_OGD_ch10_new_simulation.md) describes how to set up CMAQ for new simulations.
+[Chapter 10 (New Simulations):](CMAQ_OGD_ch10_new_simulation.md) Describes how to set up CMAQ for new simulations.
 
-[Chapter 11](CMAQ_OGD_ch11_code_management.md) provides CMAQ code management and development guidelines.
+[Chapter 11 (Code Management):](CMAQ_OGD_ch11_code_management.md) Provides CMAQ code management and development guidelines.
 
-[Chapter 12](CMAQ_OGD_ch12_analysis_tools.md) describes analysis options for CMAQ output.
+[Chapter 12 (Analysis):](CMAQ_OGD_ch12_analysis_tools.md) Describes analysis options for CMAQ output.
 
-[Chapter 13](CMAQ_OGD_ch13_support.md) describes how to obtain support for CMAQ.
+[Chapter 13 (Support):](CMAQ_OGD_ch13_support.md) How to get technical support for CMAQ.
 
-Chapter 14 (CMAQ_OGD_ch14_input.md) provides information on how to develop the meteorology and emissions for CMAQ.
+Chapter 14 (CMAQ_OGD_ch14_input.md) Information on how to develop the meteorology and emissions for CMAQ.
 
-[Appendix A](CMAQ_OGD_appendix_A.md) describes the CMAQ Chemical Mechanisms and Species
+[Appendix A:](CMAQ_OGD_appendix_A.md) Describes the CMAQ Chemical Mechanisms and Species.
 
-[Glossary](CMAQ_OGD_glossary.md) contains a list of technical terms and their definitions
+[Glossary:](CMAQ_OGD_glossary.md) List of technical terms and their definitions.
 ***
 
 CMAQ Operational Guidance Document (c) 2016<br>
