@@ -30,7 +30,7 @@ where:
 
 -n name is used to specify a different name for the network Common data form Description Language (CDL) description than the default.
 
-<a id="#cmdtools"><a/>
+<a id="cmdtools"><a/>
 Command Line Data Processors
 -------------
 
@@ -504,7 +504,7 @@ An overview of the various netCDF operators is given below.
 -   **ncrename (netCDF Renamer)**: ncrename renames dimensions, variables, and attributes in a netCDF file. Each object that has a name in the list of old names is renamed using the corresponding name in the list of new names. All the new names must be unique.
 -   **ncwa (netCDF Weighted Averager)**: ncwa averages variables in a single file over arbitrary dimensions, with options to specify weights, masks, and normalization.
 
-<a id="#viztools"><a/>
+<a id="viztools"><a/>
 Visualization Tools
 -------------------------------
 ### Visualization Environment for Rich Data Interpretation (VERDI) ###
