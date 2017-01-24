@@ -7,7 +7,7 @@
 Overview
 --------
 
-The core CMAQ programs that are needed to perform a basic air quality model simulation are MCIP, ICON, BCON, JPROC, and CCTM. The relationships among these programs are depicted within the green box in [Figure 7-1](#Figure7-1 "wikilink"). The blue boxes represent programs that are not part of the CMAQ distribution package but supply data necessary for an air quality simulation (emissions and meteorology data). The yellow boxes represent the standard CMAQ preprocessors: MCIP, ICON, BCON, and JPROC. The red box represents the CMAQ chemistry-transport model (CCTM), the Eulerian air quality modeling component of CMAQ. Data flows between the CMAQ programs are represented in by arrows. The red arrows illustrate the flow of data from the CMAQ preprocessors and the emissions model to CCTM. The green arrows show the data feedbacks from CCTM to create initial and boundary conditions for nested simulations. The black arrow illustrates the connection between the meteorological model and MCIP. Finally, the blue arrow shows that the output from MCIP can be used to drive an emissions model.
+The core CMAQ programs that are needed to perform a basic air quality model simulation are MCIP, ICON, BCON, JPROC, and CCTM. The relationships among these programs are depicted within the green box in [Figure 7-1](#Figure7-1). The blue boxes represent programs that are not part of the CMAQ distribution package but supply data necessary for an air quality simulation (emissions and meteorology data). The yellow boxes represent the standard CMAQ preprocessors: MCIP, ICON, BCON, and JPROC. The red box represents the CMAQ chemistry-transport model (CCTM), the Eulerian air quality modeling component of CMAQ. Data flows between the CMAQ programs are represented in by arrows. The red arrows illustrate the flow of data from the CMAQ preprocessors and the emissions model to CCTM. The green arrows show the data feedbacks from CCTM to create initial and boundary conditions for nested simulations. The black arrow illustrates the connection between the meteorological model and MCIP. Finally, the blue arrow shows that the output from MCIP can be used to drive an emissions model.
 
 The meteorological model,such as [WRF‑ARW](http://www.wrf-model.org), generates gridded meteorology for input to both CMAQ and the emissions model.
 
@@ -23,7 +23,7 @@ CMAQ includes several "in-line" options to support coupling between meteorology 
 <a id=Figure7-1></a>
 
 <center>
-![](./images/Figure5-1.png "Figure5-1.png")
+![](./images/Figure7-1.png "Figure7-1.png")
 
 </center>
 <center>
@@ -41,7 +41,7 @@ JPROC converts physical information about photoreactive molecules into clear-sky
 
 CCTM is run last in the sequence of programs. All of the other CMAQ programs, and the emissions and meteorological models, are used to prepare the inputs to CCTM. By using data that are synchronized for a particular modeling time period, model grid, vertical layer configuration, and chemical parameterization, CCTM can produce estimates of pollutant concentrations, wet and dry deposition rates, and visibility metrics.
 
-In addition to the core programs shown in [Figure 7‑1](#Figure7-1), the CMAQ distribution package also includes utilities for utilizing additional technical and diagnostic features in CMAQ. CMAQ includes  CHEMMECH and CREATE_EBI for editing existing and preparing new chemical mechanisms for CMAQ. The program LTNG_2D_DATA converts monthly lightning flash counts and ratios of cloud-to-cloud and cloud-to-ground flashes into an input file for CCTM. CALMAP creates maps of the crop calendar for use in estimating windblown dust emissions.
+In addition to the core programs shown in [Figure 7‑1](#Figure7-1), the CMAQ distribution package also includes utilities ($CMAQ_HOME/UTIL/*) and preprocessors (CMAQ_HOME/PREP/*) for utilizing additional technical and diagnostic features in CMAQ. CMAQ utilities include CHEMMECH and CREATE_EBI for editing existing and preparing new chemical mechanisms for CMAQ. CMAQ preprocessors include LTNG_2D_DATA that converts monthly lightning flash counts and ratios of cloud-to-cloud and cloud-to-ground flashes into an input file for CCTM (prior to CMAQv5.2). CMAQv5.2 updates the production of lightning NOx by using hourly NLDN data. The CMAQ preprocessor CALMAP creates maps of the crop calendar for use in estimating windblown dust emissions.
 
 This chapter provides detailed descriptions of the CMAQ programs and utilities. Information about the third-party libraries used by CMAQ—such as I/O API, netCDF, and MPI available in [Chapter 6](CMAQ_OGD_ch06_req_lib.md).
 
@@ -60,19 +60,19 @@ CCTM can also be forced with chemical boundary conditions downscaled from global
 
 ### Files, configuration, and environment variables
 
-[Figure 7‑2](#Figure5-2) shows the input and output files and configuration options for BCON. A distinction is made between the options that are invoked at compilation versus those invoked at execution of the program. When compiling BCON, the user specifies a chemical mechanism to configure the gas-phase chemistry and aerosol mechanism used to create the chemical BCs. Setting the *ModMech* and *Mechanism* variables in the BCON compile script configures the program to use a specific set of mechanism INCLUDE files to build an executable. Setting the *ModType* variable in the BCON compile script configures the program to input either a text file of static concentrations or a binary netCDF file of time-dependent concentrations for estimating BCs for CCTM. Separate BCON executables must be prepared for different mechanism and input file configurations.
+[Figure 7‑2](#Figure7-2) shows the input and output files and configuration options for BCON. A distinction is made between the options that are invoked at compilation versus those invoked at execution of the program. When compiling BCON, the user specifies a chemical mechanism to configure the gas-phase chemistry and aerosol mechanism used to create the chemical BCs. Setting the *ModMech* and *Mechanism* variables in the BCON compile script configures the program to use a specific set of mechanism INCLUDE files to build an executable. Setting the *ModType* variable in the BCON compile script configures the program to input either a text file of static concentrations or a binary netCDF file of time-dependent concentrations for estimating BCs for CCTM. Separate BCON executables must be prepared for different mechanism and input file configurations.
 
 <a id=Figure7-2></a>
 
 <center>
-![](./images/Figure5-2.png "Figure5-2.png")<br>
+![](./images/Figure7-2.png "Figure7-2.png")<br>
 
 **Figure 7‑2. BCON input and output files**
 </center>
 
-When BCON is run, it converts a data file of chemical ambient concentrations to BCs on a predefined model grid. Through the specification of the *ModInpt* variable in the BCON run script, BCON will input either an ASCII vertical profile file (BC\_PROFILE) or an existing CCTM concentration file (CTM\_CONC\_1); the choice depends on how the user compiled the model. The BC input file provided by the user must have chemical speciation that is consistent with the mechanism configuration of the BCON executable. For example, if BCON was compiled to create BCs using the CB05 mechanism, the input BC profile data must be in terms of the CB05 mechanism. CMAQ is distributed with ASCII vertical profiles representing clean continental BCs for North America for the following chemical mechanisms: cb05\_ae6\_aq, saprc07t\_ae6\_aq, saprc99\_ae6\_aq, and racm2_aq6_aq. It is the user’s responsibility to generate BC inputs for other mechanism configurations.
+When BCON is run, it converts a data file of chemical ambient concentrations to BCs on a predefined model grid. Through the specification of the *ModInpt* variable in the BCON run script, BCON will input either an ASCII vertical profile file (BC\_PROFILE) or an existing CCTM concentration file (CTM\_CONC\_1); the choice depends on how the user compiled the model. The BC input file provided by the user must have chemical speciation that is consistent with the mechanism configuration of the BCON executable. For example, if BCON was compiled to create BCs using the CB05 mechanism, the input BC profile data must be in terms of the CB05 mechanism. CMAQ is distributed with ASCII vertical profiles representing clean continental BCs for North America for the following chemical mechanisms: cb05e51_ae6_aq, saprc07tb_ae6_aq and racm2_aq6_aq. It is the user’s responsibility to generate BC inputs for other mechanism configurations.
 
-The horizontal grid and vertical layer structures for BCON are defined at execution through the input of a grid description (GRIDDESC) file and a meteorology cross-point 3‑D (MET\_CRO\_3D) file, respectively. BCON interpolates between the input vertical layer structure and output layer structure if they are different.
+The horizontal grid and vertical layer structures for BCON are defined at execution through the input of a grid description (GRIDDESC) file and a meteorology cross-point 3‑D (MET_CRO_3D) file, respectively. BCON interpolates between the input vertical layer structure and output layer structure if they are different.
 
 
 
@@ -122,8 +122,8 @@ The configuration options listed here are set during compilation of the BCON exe
     -   *tracer*: use the tracer namelist file to create BCs of tagged tracer species
 
 
--   Mechanism: [default: cb05tucl\_ae6\_aq]<br>
-    Specifies the gas-phase, aerosol, and aqueous-phase chemical mechanisms for which to create boundary conditions. The choices for the *Mechanism* variable are the mechanism directory names under the $CMAQ_HOME/CCTM/src/MECHS directory. Examples include:
+-   Mechanism: [default: cb05e51_ae6_aq]<br>
+    Specifies the gas-phase, aerosol, and aqueous-phase chemical mechanisms for which to create boundary conditions. The choices for the *Mechanism* variable are the mechanism directory names under the $CMAQ_HOME/CCTM/src/MECHS directory. Also see the [Mechanism Definitions Table](../Release_Notes/CMAQv5.2_Mechanisms.md)). Examples include:
     -   *cb6r3_ae6_aq*: CB6, revision 3 gas-phase mechanism, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM Other, aqueous/cloud chemistry
     -   *cb05e51_ae6_aq*: CB05 gas-phase mechanism with CMAQv5.1 updates, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM Other, aqueous/cloud chemistry
     -   *cb05tucl_ae6_aq*: CB05 gas-phase mechanism with active chlorine chemistry, updated toluene mechanism, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM Other, aqueous/cloud chemistry
@@ -149,13 +149,13 @@ The environment variables listed here are invoked during execution of the progra
 -   `EXEC: [default: BCON_${APPL}_${EXECID}]`<br>
     Executable to use for the simulation. The variable CFG is set in the BCON run script. The variable EXECID is set in the config.cmaq configuration file.
 
--   `GRIDDESC: [default: $M3HOME/scripts/GRIDDESC1]`<br>
+-   `GRIDDESC: [default: $CMAQ_HOME/scripts/GRIDDESC1]`<br>
     Grid description file for setting the horizontal grid definition.
 
 -   `GRID_NAME: [default:CMAQ-BENCHMARK]`<br>
     Name of the grid definition contained in the GRIDDESC file that specifies the horizontal grid for the current application of the model.
 
--   `IOAPI_ISPH: [default: 19]`<br>
+-   `IOAPI_ISPH: [default: 20]`<br>
     I/O API setting for spheroid type. See I/O API documentation for [setsphere](https://www.cmascenter.org/ioapi/documentation/3.1/html/SETSPHERE.html) for more information.
 
 -   `IOAPI_OFFSET_64: [default: NO]`<br>
@@ -214,16 +214,16 @@ Calmap
 
 ### Description
 
-The program Calmap produces gridded planting start dates, planting end dates, and harvesting end dates for different crop types for estimating the impacts of agricultural activities on windblown dust emissions. The CMAQ windblown dust emissions module can optionally use the output from Calmap to simulate the effects of crop cycles on dust emissions.
+The preprocessor program Calmap produces gridded planting start dates, planting end dates, and harvesting end dates for different crop types for estimating the impacts of agricultural activities on windblown dust emissions. The CMAQ windblown dust emissions module can optionally use the output from Calmap to simulate the effects of crop cycles on dust emissions.
 
 ### Files, configuration, and environment variables
 
-Figure 5-3 shows that Calmap reads five input files to produce a eight outputs, only three of which are used by the CCTM. Calmap uses the GRIDCRO2D file, produced by MCIP, to define the modeling grid. The BELD01 file points to a BELD3 “a” file of gridded land cover/land use data containing coverage for several different crop categories. The BELD3 “a” file is an input to the BEIS emissions model and can be [generated by the Spatial Allocator](http://www.ie.unc.edu/cempd/projects/mims/spatial/smoke_bio_inputs.html). The rest of the inputs to Calmap are crop calendar data for the United States that are packaged with CMAQv5. Calmap converts to the data to I/O API GRDDED3 files on the modeling grid defined in the GRIDCRO2D file. The CROPMAP01 file contains planting start dates for specific crops. The CROPMAP04 file contains planting end dates for specific crops. The CROPMAP08 file contains harvesting end dates for specific crops. Each of these files are input to the CCTM when the erodible agricultural land (CTM\_ERODE\_AGLAND) feature is turned on.
+Figure 7-3 shows that Calmap reads five input files to produce a eight outputs, only three of which are used by the CCTM. Calmap uses the GRIDCRO2D file, produced by MCIP, to define the modeling grid. The BELD01 file points to a BELD3 “a” file of gridded land cover/land use data containing coverage for several different crop categories. The BELD3 “a” file is an input to the BEIS emissions model and can be [generated by the Spatial Allocator](http://www.ie.unc.edu/cempd/projects/mims/spatial/smoke_bio_inputs.html). The rest of the inputs to Calmap are crop calendar data for the United States that are packaged with CMAQv5. Calmap converts to the data to I/O API GRDDED3 files on the modeling grid defined in the GRIDCRO2D file. The CROPMAP01 file contains planting start dates for specific crops. The CROPMAP04 file contains planting end dates for specific crops. The CROPMAP08 file contains harvesting end dates for specific crops. Each of these files are input to the CCTM when the erodible agricultural land (CTM_ERODE_AGLAND) feature is turned on.
 
 <a id=Figure7-3></a>
 
 <center>
-![](./images/Figure5-3.png "Figure5-3.png")
+![](./images/Figure7-3.png "Figure7-3.png")
 
 </center>
 <center>**Figure 7‑3.Calmap input and output files**</center>
@@ -242,7 +242,7 @@ Figure 5-3 shows that Calmap reads five input files to produce a eight outputs, 
 
 ### Calmap compilation
 
-Calmap is compiled with a Makefile. The configuration options in the Makefile include only the compiler and compiler flags to use for building the executable. The Makefile is located in the directory with the Calmap source code (\$M3HOME/calmap/src). To compile Calmap, source the config.cmaq file and invoke the Makefile at the command line:
+Calmap is compiled with a Makefile. The configuration options in the Makefile include only the compiler and compiler flags to use for building the executable. The Makefile is located in the directory with the Calmap source code ($CMAQ_HOME/calmap/src). To compile Calmap, source the config.cmaq file and invoke the Makefile at the command line:
 
 `./make`
 
@@ -252,7 +252,7 @@ To port Calmap to different compilers, change the compiler names, locations, and
 
 The environment variables listed here are invoked during execution of the program and are set in the Calmap run script.
 
--   BASE: [default: \$M3HOME/scripts/calmap]
+-   BASE: [default: $CMAQ_HOME/PREP/agdust/scripts]
 
 Base Calmap installation location.
 
@@ -384,7 +384,7 @@ The configuration options listed here are set during compilation of the CCTM exe
 
 -   `ModDriver: [default: ctm_wrf]`
     The CCTM generalized -coordinate driver module.
-    -   *ctm\_wrf*: use WRF-based scheme for mass-conserving advection; select this option when using WRF meteorology
+    -   *driver/wrf*: use WRF-based scheme for mass-conserving advection; select this option when using WRF meteorology
     -   *ctm\_yamo*: use Yamartino scheme for mass-conserving advection
 
 -   `ModGrid: [default: Cartesian]`
@@ -830,7 +830,7 @@ See Section 9.4 for details on how to update existing mechanisms or create new m
 
 <a id=Figure7-5></a>
 
-<center>![](./images/Figure5-4.png "Figure5-4.png")</center>
+<center>![](./images/Figure7-5.png "Figure7-5.png")</center>
 <center>**Figure 7‑5. CHEMMECH and CSV2NML input and output files**</center>
 
 <br>

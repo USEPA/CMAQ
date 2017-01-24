@@ -197,7 +197,7 @@ The first step in editing `CMAQv5.2/config.cmaq` is to set the environment varia
 
 Under the “architecture & compiler specific settings” section of the script set the compiler and libraries that you will use to build the CMAQ executables. There are three example compiler configurations built into the config.cmaq script: (1) Intel Fortran (intel), (2) Portland Group Fortran (pgi), and (3) Gnu Fortran (gcc). Set the script variable `compiler` for one of the supported compilers.
 
-Set the names of the I/O API and netCDF libraries using the `ioapi_lib` and `netcdf_lib` script variables. You may also choose to set the pnetcdf_lib if you are using paralell netCDF.  Note that for version 4.2 of the netCDF and later, you need to provide both the C and Fortran versions of the netCDF library, in this order: `-lnetcdff -lnetcdf`
+Set the names of the I/O API and netCDF libraries using the `ioapi_lib` and `netcdf_lib` script variables. You may also choose to set the pnetcdf_lib if you are using parallel netCDF.  Note that for version 4.2 of the netCDF and later, you need to provide both the C and Fortran versions of the netCDF library, in this order: `-lnetcdff -lnetcdf`
 
 Set the name of the MPI library using the `mpi` script variable. For MVAPICH use `-lmpich`; for openMPI use `-lmpi`. If you are using another MPI library, use the variable `mpi` to set the name of the library.
 
@@ -378,7 +378,7 @@ The system configuration parameters used to generate the benchmark reference dat
 
 #### CMAQ Benchmark Results
 
-  After completing the CMAQ benchmark case, the CCTM output files can be compared with the reference datasets provided in the CMAQ distribution. The reference data for CMAQ are available from the CMAS Center Software Clearinghouse. The reference data may be compared to the results from your simulation using tile plots of differences, grid-cell statistics (minimum/maximum differences), and domain-wide statistics. See [Chapter 12](CMAQ_OGD_ch12_analysis_tool.md) for a list of analysis tools that are available for comparing two model simulations.
+  After completing the CMAQ benchmark case, the CCTM output files can be compared with the reference datasets provided in the CMAQ distribution. The reference data for CMAQ are available from the CMAS Center Software Clearinghouse. The reference data may be compared to the results from your simulation using tile plots of differences, grid-cell statistics (minimum/maximum differences), and domain-wide statistics. See [Chapter 12](CMAQ_OGD_ch12_analysis_tools.md) for a list of analysis tools that are available for comparing two model simulations.
 
   Domain-wide differences between the reference data and your simulation results for each model species and each simulation time step (hourly) of less than 1% indicate a successful benchmarking of the software on a Linux system.  While larger differences may indicate a problem with the installation, they may also point to a configuration discrepancy in the benchmark simulation.  Review the compiler optimization flags and the CCTM configuration that you used to resolve differences with the reference data.
 

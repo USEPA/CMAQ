@@ -236,7 +236,7 @@ CCTM represents PM using three lognormal subdistributions, or modes. Two interac
 
 Particulate matter is deposited to the ground by wet or dry deposition, both of which are modeled by CMAQ. In wet deposition, PM is transferred by rainfall. Wet deposition is calculated within CMAQ’s cloud module. In dry deposition, the transfer is by turbulent air motion and by direct gravitational sedimentation of larger particles. The deposition velocity for particles must be calculated from the aerosol size distribution and from meteorological and land use information. CMAQ’s dry deposition module calculates the size distribution from the mass and number concentration for each of the three modes and then calculates the dry deposition velocity. Starting in CMAQv4.7, the dry deposition algorithm was modified to include an impaction term in the coarse and accumulation modes.
 
-The 6th generation CMAQ aerosol module (AERO6) expands the definition of the PM Other species in earlier versions of the model to include more detailed PM species. Nine new PM species are added to CMAQ in AERO6: noncarbon organic matter (NCOM), Al, Ca, Fe, Si, Ti, Mg, K, and Mn. Four species that were explicitly treated in previous versions of CMAQ but were not modeled can now be treated as primary anthropogenic species: H<sub>2</sub>O, Na, Cl, and NH<sub>4</sub>. The PM emissions mass that remains after speciation into the new components is now input to the model as PMOTHER. AERO6 requires 18 PM<sub>2.5</sub>emissions species: OC, EC, sulfate, nitrate, H2O, Na, Cl, NH4, NCOM, Al, Ca, Fe, Si, Ti, Mg, K, Mn, and Other (Reff et al., 2009).
+The 6th generation CMAQ aerosol module (AERO6) expands the definition of the PM. Other species in earlier versions of the model include more detailed PM species. Nine new PM species are added to CMAQ in AERO6: noncarbon organic matter (NCOM), Al, Ca, Fe, Si, Ti, Mg, K, and Mn. Four species that were explicitly treated in previous versions of CMAQ but were not modeled can now be treated as primary anthropogenic species: H<sub>2</sub>O, Na, Cl, and NH<sub>4</sub>. The PM emissions mass that remains after speciation into the new components is now input to the model as PMOTHER. AERO6 requires 18 PM<sub>2.5</sub>emissions species: OC, EC, sulfate, nitrate, H2O, Na, Cl, NH4, NCOM, Al, Ca, Fe, Si, Ti, Mg, K, Mn, and Other (Reff et al., 2009).
 
 CMAQ simulates primary organic aerosol (POA) aging as a second-order reaction between primary organic carbon (POCR) and OH radicals.
 
@@ -282,7 +282,7 @@ In addition to its role in the quality control of air quality modeling runs, PA 
 -   As a tool for model development, PA can help evaluate the effect of modifications made to a model or process module.
 -   As a tool for regulatory decision-making, PA can help determine whether a decision to control a specific type of emission would produce the desired results.
 
-Note that CMAQ with process analysis will not work with the EBI chemical solver. Process anlysis works only with either the Rosenbrock or the SMVGEAR solvers.
+Note that CMAQ with process analysis will not work with the EBI chemical solver. Process analysis works only with either the Rosenbrock or the SMVGEAR solvers.
 
 The CMAQ User Interface
 -----------------------
