@@ -183,33 +183,48 @@ The benefit of the namelist approach to defining the CMAQ mechanisms is that the
 
 Process analysis (PA) is an accounting system that tracks the quantitative effects of the individual chemical and physical processes that combine to produce the predicted hourly species concentrations output from a CTM simulation. The CMAQ CTM and other Eulerian grid models output concentration fields that are solutions of systems of partial differential equations for the time-rate of change in species concentrations due to a series of individual physical and chemical processes; these results are then combined to obtain a cumulative hourly concentration. PA tracks the mass throughput of these individual processes and provides quantitative information about how each process affected the predicted hourly species concentrations. PA is an optional configuration in CMAQ that is implemented by compiling CCTM with Fortran INCLUDE files that define PA configuration options. A PA-instrumented version of CCTM outputs additional files that contain hourly concentrations by physical and/or chemical process for selected model species.
 
-PROCAN is the PA preprocessor in the CMAQ modeling system. PROCAN takes as input a configuration file (Pacp.inp) that is used to define the model species and processes to be tracked using PA, and outputs three INCLUDE files (PA\_CMN.EXT, PA\_CTL.EXT, and PA_DAT.EXT) that are used when compiling CCTM.
+PROCAN is the PA preprocessor in the CMAQ modeling system. As shown in [Figure 4-7](#Figure4-7) PROCAN takes as input a configuration file (Pacp.inp) that is used to define the model species and processes to be tracked using PA, and outputs three INCLUDE files (PA\_CMN.EXT, PA\_CTL.EXT, and PA_DAT.EXT) that are used when compiling CCTM.
+
+<a id="Figure4-7"></a><center>
+![](./images/Figure4-7.png "Figure4-7.png")
+</center>
+<center>**Figure 4‑7. Process analysis implementation in the CMAQ modeling system*
 
 ## LTNG_2D_DATA: Lightning flash count preprocessor
 
 CMAQ is instrumented to estimate the impacts of NO<sub>x</sub> emissions from lightning on air quality. Details of the CCTM lightning NO<sub>x</sub> capability are described in [Chapter 7](CMAQ_OGD_ch07_programs_libraries.md) and in the [CMAQv5 Technical Documentation](http://www.cmaq-model.org/cmaqwiki/index.php?title=CMAQv5.0_Lightning_NO). One of the CCTM configurations estimates lightning NO<sub>x</sub> from flash count observations. CMAQ is distributed with a lightning flash count preprocessor that converts ASCII flash count data into a format for input to CCTM.
 
-The LTNG_2D_DATA preprocessor is a combination of R scripts and a Fortran program. The open-source statistical package R is used to read in a METCRO2D meteorology file (MCIP output) that includes hourly convective precipitation (RC) and cloud top heights (CLDT) and a text file of intercloud/cloud-to-ground ratios. The output from these scripts is read in by the Fortran program LTNG_2D_DATA, along with a text file of lightning flash counts, to produce a binary file for input to CCTM. The output binary netCDF file from this preprocessor includes (1) monthly flash totals per CMAQ grid cell, (2) grid-cell scaling factors for calculating flashes using the convective precipitation rate, (3) ratio of intercloud to cloud-to-ground flashes, and (4) moles of NO per flash.
+The LTNG_2D_DATA preprocessor is a combination of R scripts and a Fortran program. As shown in [Figure 4-8](Figure4-8), the open-source statistical package R is used to read in a METCRO2D meteorology file (MCIP output) that includes hourly convective precipitation (RC) and cloud top heights (CLDT) and a text file of intercloud/cloud-to-ground ratios. The output from these scripts is read in by the Fortran program LTNG_2D_DATA, along with a text file of lightning flash counts, to produce a binary file for input to CCTM. The output binary netCDF file from this preprocessor includes (1) monthly flash totals per CMAQ grid cell, (2) grid-cell scaling factors for calculating flashes using the convective precipitation rate, (3) ratio of intercloud to cloud-to-ground flashes, and (4) moles of NO per flash.
+
+<a id="Figure4-8"></a><center>
+![](./images/Figure4-8.png "Figure4-8.png")
+</center>
+<center>**Figure 4‑8. Lightning data preprocessor for CCTM**
 
 ## CALMAP: Crop calendar map preprocessor
 
 CMAQ has the capability to estimate windblown dust emissions in-line in the CCTM. The CMAQ dust emissions module uses land cover/land use data to identify dust source regions. The dust module includes a feature to estimate dust emissions from agricultural areas and the impacts of planting and harvesting cycles on dust emissions. Calmap is a preprocessor to the CCTM that uses crop calendar information to produce gridded crop planting and harvesting dates for input to the CMAQ dust module.
 
-CALMAP reads grid information from the GRIDCRO2D meteorology file (MCIP output), land cover/land use data from [BELD3](https://www.epa.gov/air-emissions-modeling/biogenic-emissions-landuse-database-version-3-beld3), and crop calendar data to produce files of planting start dates, planting end dates, and harvesting end dates for different crop types interpolated to the modeling grid. These files are input to the CCTM when it is configured to estimate windblown dust and simulate the impacts of agricultural activity on the dust emissions.
+[Figure 4-9](#Figure4-9) is a Calmap schematic showing the data flow through the software. CALMAP reads grid information from the GRIDCRO2D meteorology file (MCIP output), land cover/land use data from [BELD3](https://www.epa.gov/air-emissions-modeling/biogenic-emissions-landuse-database-version-3-beld3), and crop calendar data to produce files of planting start dates, planting end dates, and harvesting end dates for different crop types interpolated to the modeling grid. These files are input to the CCTM when it is configured to estimate windblown dust and simulate the impacts of agricultural activity on the dust emissions.
+
+<a id="Figure4-9"></a><center>
+![](./images/Figure4-9.png "Figure4-9.png")
+</center>
+<center>**Figure 4‑9. Crop calendar data preprocessor for the CCTM**
 
 CCTM: The CMAQ Chemistry-Transport Model
 ----
 
-[Figure 2‑3](#Figure2-3) illustrates the CMAQ modeling system used to simulate the chemistry and transport of pollutants. This figure also shows how CMAQ relates to other parts of an air quality modeling system: the meteorological model, emissions model, and analysis software. To perform a model simulation, CMAQ needs input data, including meteorological and emissions data. Using this information, CCTM simulates each of the atmospheric processes that affect the transport, transformation, and removal of ozone, particulate matter, and other pollutants. CMAQ uses state-of-the-science techniques to simulate these processes, as described below.
+[Figure 4‑10](#Figure4-10) illustrates the CMAQ modeling system used to simulate the chemistry and transport of pollutants. This figure also shows how CMAQ relates to other parts of an air quality modeling system: the meteorological model, emissions model, and analysis software. To perform a model simulation, CMAQ needs input data, including meteorological and emissions data. Using this information, CCTM simulates each of the atmospheric processes that affect the transport, transformation, and removal of ozone, particulate matter, and other pollutants. CMAQ uses state-of-the-science techniques to simulate these processes, as described below.
 
-<a id=Figure2-3></a>
+<a id=Figure4-10></a>
 
 <center>
-![](./images/Figure2-10.png "Figure2-10.png")
+![](./images/Figure4-10.png "Figure4-10.png")
 
 </center>
 <center>
-**Figure 2-3. CMAQ chemistry-transport model and associated preprocessors**
+**Figure 4-10. CMAQ chemistry-transport model and associated preprocessors**
 
 </center>
 ### Gas-phase chemistry solvers
