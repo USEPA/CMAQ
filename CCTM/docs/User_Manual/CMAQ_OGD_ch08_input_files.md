@@ -9,7 +9,7 @@ The input files for CMAQv5 consist of a domain definition file for all programs;
 CMAQ Input Files
 ----------------
 
-This section describes each of the input files required by the various CMAQ programs. The section begins with a description of the grid definition file, which is used by several CMAQ programs, and then goes through a program-by-program listing of the CMAQ input file requirements. [Table 8‑1](#Table8-1 "wikilink") lists the source, file type, and temporal and spatial dimensions of each CMAQ input file. Sample disk space requirements for a desired input data set can easily be calculated from the information in [Table 8‑1](#Table8-1 "wikilink"); each data record is four bytes. The I/O API file sizes can be calculated using the number of variables in a CMAQ file and the spatial and temporal coverage of the data. The user should consult the CMAQv5 release notes for additional file information.
+This section describes each of the input files required by the various CMAQ programs. The section begins with a description of the grid definition file, which is used by several CMAQ programs, and then goes through a program-by-program listing of the CMAQ input file requirements. [Table 8‑1](#Table8-1) lists the source, file type, and temporal and spatial dimensions of each CMAQ input file. Sample disk space requirements for a desired input data set can easily be calculated from the information in [Table 8‑1](#Table8-1); each data record is four bytes. The I/O API file sizes can be calculated using the number of variables in a CMAQ file and the spatial and temporal coverage of the data. The user should consult the CMAQv5 release notes for additional file information.
 
 <span id=Table8-1></span>
 
@@ -77,13 +77,13 @@ This section describes each of the input files required by the various CMAQ prog
 
 Used by: ICON, BCON, CCTM
 
-The CMAQ grid description file (**GRIDDESC**) is used by all programs except JPROC and MCIP to define the horizontal spatial grid of the modeling domain. GRIDDESC implements [I/O API](#Input.2FOutput_Applications_Programming_Interface_.28I.2FO_API.29 "wikilink") grid conventions: for more details see the section on [Grids and coordinate systems](#Grids_and_coordinate_systems "wikilink").
+The CMAQ grid description file (**GRIDDESC**) is used by all programs except JPROC and MCIP to define the horizontal spatial grid of the modeling domain. GRIDDESC implements [I/O API](#Input.2FOutput_Applications_Programming_Interface_.28I.2FO_API.29) grid conventions: for more details see the section on [Grids and coordinate systems](#Grids_and_coordinate_systems).
 
 A GRIDDESC is an ASCII file that contains two sections: a horizontal coordinate section, and grid description section. GRIDDESC is the logical name for text files that store horizontal coordinate and grid descriptions, and that are read by the DSCGRID() and DSCOORD() utility routines. Each segment has a one-line header (which by convention provides titles for the columns in the data records), a sequence of data records, and a terminal record with name field blank (i.e., ' '). The GRIDDESC file is generated automatically with MCIP; alternatively, GRIDDESC can be created using a text editor.
 
-The horizontal coordinate section ([Table 8-2](#Table8-2 "wikilink")) consists of text records that provide coordinate-system name, the map projection, and descriptive parameters P\_ALP, P\_BET, P\_GAM, XCENT, and YCENT.
+The horizontal coordinate section ([Table 8-2](#Table8-2)) consists of text records that provide coordinate-system name, the map projection, and descriptive parameters P\_ALP, P\_BET, P\_GAM, XCENT, and YCENT.
 
-The grid description section ([Table 8-3](#Table8-3 "wikilink")) consists of text records that indicate the grid name, related coordinate-system name (i.e., which GRIDDESC horizontal coordinate name that is defined in the previous section that is applied to this grid), and descriptive parameters XORIG, YORIG, XCELL, YCELL, NCOLS, NROWS, and NTHIK. For a typical CMAQ application, both "dot-point" and "cross-point" grids are defined in the GRIDDESC file; these grids are topological duals in the sense that the vertices (corners) of one correspond to the cell-centers of the other.
+The grid description section ([Table 8-3](#Table8-3)) consists of text records that indicate the grid name, related coordinate-system name (i.e., which GRIDDESC horizontal coordinate name that is defined in the previous section that is applied to this grid), and descriptive parameters XORIG, YORIG, XCELL, YCELL, NCOLS, NROWS, and NTHIK. For a typical CMAQ application, both "dot-point" and "cross-point" grids are defined in the GRIDDESC file; these grids are topological duals in the sense that the vertices (corners) of one correspond to the cell-centers of the other.
 
 <span id=Table8-2></span>
 
@@ -210,7 +210,7 @@ The namelist files contain header information that describe which class of speci
 ||<center> 16 </center>|<center> CONC </center>|<center> Yes/No </center>|Concentration output file switch|
 | … | ...| ...|... | Repeat for the number of gas-phase pollutants in the mechanism being modeling|
 
-The namelist files for the other pollutant classes have similar configurations as the gas-phase species configuration shown in [Table 8-4](#Table8-4 "wikilink"). See existing namelist files in the CMAQv5 distribution for examples.
+The namelist files for the other pollutant classes have similar configurations as the gas-phase species configuration shown in [Table 8-4](#Table8-4). See existing namelist files in the CMAQv5 distribution for examples.
 
 ### IC\_PROFILE: Initial conditions vertical profiles
 
@@ -224,7 +224,7 @@ Each line in IC\_PROFILE corresponds to a different pollutant and begins with th
 
 Initial conditions are provided for only the first hour of a model simulation. The initial conditions that are based on an ASCII vertical profile include a gridded file for input to CCTM that has horizontally uniform species concentrations at each model layer. For spatially resolved initial conditions in the horizontal direction, it is necessary to use the other input file type to ICON, an existing CCTM concentration file (CTM\_CONC\_1).
 
-A detailed description of the vertical profile file format for initial conditions is provided in [Table 8-5](#Table8-5 "wikilink"). The header of the profiles file is list-formatted, while the data section of the file is fixed format.
+A detailed description of the vertical profile file format for initial conditions is provided in [Table 8-5](#Table8-5). The header of the profiles file is list-formatted, while the data section of the file is fixed format.
 
 <a id=Table8-5></a>
 
@@ -375,7 +375,7 @@ A sample of the important sections of a CSQY file is shown below.
 
 Used by: JPROC
 
-ET is the logical name for the ASCII data file containing extraterrestrial radiation as a function of wavelength. The extraterrestrial irradiance file has a format similar to that of the CSQY file (Section 6.1.6). The file begins with a header section; comment lines are preceded with a “!”. Like the CSQY file, the header contains a field describing the location on the wavelength interval that the data represent, and a multiplier. The data section uses a space-delimited, free-form format and lists the wavelength of the incoming solar radiation (nm) and the irradiance (photons cm<sup>‑2</sup> s<sup>‑1</sup>) at each wavelength, with each row corresponding to a specific wavelength interval. A detailed description of the file format is provided in [Table 8-8](Table8-8 "wikilink").
+ET is the logical name for the ASCII data file containing extraterrestrial radiation as a function of wavelength. The extraterrestrial irradiance file has a format similar to that of the CSQY file (Section 6.1.6). The file begins with a header section; comment lines are preceded with a “!”. Like the CSQY file, the header contains a field describing the location on the wavelength interval that the data represent, and a multiplier. The data section uses a space-delimited, free-form format and lists the wavelength of the incoming solar radiation (nm) and the irradiance (photons cm<sup>‑2</sup> s<sup>‑1</sup>) at each wavelength, with each row corresponding to a specific wavelength interval. A detailed description of the file format is provided in [Table 8-8](Table8-8).
 
 <span id=Table8-8></span>
 
@@ -510,7 +510,7 @@ Used by: CCTM
 
 CMAQ boundary condition data are of the BNDARY3 file type. Produced by the boundary condition processor, BCON, CCTM reads these data and correlates them with the interior data by the use of a pointer system. This pointer system designates the beginning location of the data in memory that start a new side of the domain (i.e., south, east, north, or west). [Figure 6‑1](#Figure6-1) illustrates this input data structure and the relationship of the boundary data to the interior (“main grid”) data within CMAQ modules.
 
-Each species being modeled should be in the BNDY\_CONC\_1 file. If some modeled species are not contained in this file, the boundary condition for these species will default to the value 1 × 10<sup>‑30</sup>. The perimeter of the CMAQ domain is 1 cell wide, where the number of boundary cells = (2\*NROW)+(2\*NCOL)+4. [Figure 6-2](#Figure6-2 "wikilink") is a graphical example of the CMAQ boundary conditions file; the west and north boundaries have ozone values of 0.035 ppmV, while the east and south boundaries have values of 0.030 ppmV.
+Each species being modeled should be in the BNDY\_CONC\_1 file. If some modeled species are not contained in this file, the boundary condition for these species will default to the value 1 × 10<sup>‑30</sup>. The perimeter of the CMAQ domain is 1 cell wide, where the number of boundary cells = (2\*NROW)+(2\*NCOL)+4. [Figure 6-2](#Figure6-2) is a graphical example of the CMAQ boundary conditions file; the west and north boundaries have ozone values of 0.035 ppmV, while the east and south boundaries have values of 0.030 ppmV.
 
 <center>
 <Image:>
@@ -532,7 +532,7 @@ Each species being modeled should be in the BNDY\_CONC\_1 file. If some modeled 
 
 Used by: CCTM
 
-The initial concentrations of each species being modeled must be input to CMAQ. The initial conditions input file type is GRDDED3 and does not vary with time. The file data are looped in this manner: by column, by row, by layer, by variable. Initial conditions files have the same structure as concentration files, so the predicted concentrations from the last hour of day 1 can be used to initialize the following day’s simulation. This gives CMAQ users the flexibility to segment simulations in any way they choose. [Figure 6-3](#Figure6-3 "wikilink") is a graphical example of the CMAQ initial conditions file. The file shows spatially varying data that can be used to initialize a following run beginning at the time shown (i.e., June 25, 1996 0:00:00).
+The initial concentrations of each species being modeled must be input to CMAQ. The initial conditions input file type is GRDDED3 and does not vary with time. The file data are looped in this manner: by column, by row, by layer, by variable. Initial conditions files have the same structure as concentration files, so the predicted concentrations from the last hour of day 1 can be used to initialize the following day’s simulation. This gives CMAQ users the flexibility to segment simulations in any way they choose. [Figure 6-3](#Figure6-3) is a graphical example of the CMAQ initial conditions file. The file shows spatially varying data that can be used to initialize a following run beginning at the time shown (i.e., June 25, 1996 0:00:00).
 
 <center>
 <Image:>
@@ -550,7 +550,7 @@ Each of the gas-phase mechanisms in CMAQ contains photolysis reactions that requ
 
 The first line of the header contains the Julian date of the data in the file. This date corresponds to the start date for the simulation that uses the JTABLE data. This is followed by four pairs of data that describe the altitude (m), latitude (degrees), hour angle (from noon), and photolytic reaction name for the data contained in the file. Each data pair begins with a line describing the number of values for each variable and the variable name, followed by the values for each variable. The altitude (variable = LEVELS), latitude (variable = LATITUDES), and hour angle (variable = HOUR ANGLES) variables have fixed values that are hard-coded in the program JPROC (routine jproc.F). The reaction names (variable = PHOTOLYTIC REACTIONS) are mechanism-dependent and vary with the choice of gas-phase mechanism.
 
-The data section of the file contains data blocks that are mapped to the header using a three-digit code. Each block corresponds to an altitude, latitude, and photolysis reaction and contains nine values of clear-sky photolysis rates for the nine hour angles listed in the header. The three-digit code maps the altitude/latitude/reaction number to the data block. For example, the data block that uses the code “3 1 2” corresponds to altitude 3, latitude 1, and reaction 2 as listed in the file header. A detailed description of the JTABLE file format is provided in [Table 8-11](Table8-11 "wikilink"). The files are list-formatted.
+The data section of the file contains data blocks that are mapped to the header using a three-digit code. Each block corresponds to an altitude, latitude, and photolysis reaction and contains nine values of clear-sky photolysis rates for the nine hour angles listed in the header. The three-digit code maps the altitude/latitude/reaction number to the data block. For example, the data block that uses the code “3 1 2” corresponds to altitude 3, latitude 1, and reaction 2 as listed in the file header. A detailed description of the JTABLE file format is provided in [Table 8-11](Table8-11). The files are list-formatted.
 
 <span id=Table8-11></span>
 
@@ -764,21 +764,21 @@ This variable is used in combination with the variables in the DUST\_LU\_1 file 
 
 ### CROPMAP01: Gridded planting start dates
 
-Used by: [CCTM](#CMAQ_Chemistry-Transport_Model_.28CCTM.29 "wikilink") – in-line dust emission version with crops only
+Used by: [CCTM](#CMAQ_Chemistry-Transport_Model_.28CCTM.29) – in-line dust emission version with crops only
 
-The gridded planting start dates file is an I/O API GRDDED3 file of planting start dates for various crops interpolated to the modeling domain. The variables in this file are planting start dates for different crop types, where each variable is an integer representing the number of days after January 1 that planting stops for each crop. The CMAQ preprocessing program [CALMAP](#CALMAP:_Crop_calendar_map_preprocessor "wikilink") reads a crop activity calendar and a [GRID\_CRO\_2D](#GRID_CRO_2D:_Two-dimensional_grid_cross-point_fields "wikilink") file to generate the CROPMAP08 file.
+The gridded planting start dates file is an I/O API GRDDED3 file of planting start dates for various crops interpolated to the modeling domain. The variables in this file are planting start dates for different crop types, where each variable is an integer representing the number of days after January 1 that planting stops for each crop. The CMAQ preprocessing program [CALMAP](#CALMAP:_Crop_calendar_map_preprocessor) reads a crop activity calendar and a [GRID\_CRO\_2D](#GRID_CRO_2D:_Two-dimensional_grid_cross-point_fields) file to generate the CROPMAP08 file.
 
 ### CROPMAP04: Gridded planting end dates
 
-Used by: [CCTM](#CMAQ_Chemistry-Transport_Model_.28CCTM.29 "wikilink") – in-line dust emission version with crops only
+Used by: [CCTM](#CMAQ_Chemistry-Transport_Model_.28CCTM.29) – in-line dust emission version with crops only
 
-The gridded planting end dates file is an I/O API GRDDED3 file of planting end dates for various crops interpolated to the modeling domain. The variables in this file are planting end dates for different crop types, where each variable is an integer representing the number of days after January 1 that planting stops for each crop. The CMAQ preprocessing program [CALMAP](#CALMAP:_Crop_calendar_map_preprocessor "wikilink") reads a crop activity calendar and a [GRID\_CRO\_2D](#GRID_CRO_2D:_Two-dimensional_grid_cross-point_fields "wikilink") file to generate the CROPMAP08 file.
+The gridded planting end dates file is an I/O API GRDDED3 file of planting end dates for various crops interpolated to the modeling domain. The variables in this file are planting end dates for different crop types, where each variable is an integer representing the number of days after January 1 that planting stops for each crop. The CMAQ preprocessing program [CALMAP](#CALMAP:_Crop_calendar_map_preprocessor) reads a crop activity calendar and a [GRID\_CRO\_2D](#GRID_CRO_2D:_Two-dimensional_grid_cross-point_fields) file to generate the CROPMAP08 file.
 
 ### CROPMAP08: Gridded harvesting end dates
 
-Used by: [CCTM](#CMAQ_Chemistry-Transport_Model_.28CCTM.29 "wikilink") – in-line dust emission version with crops only
+Used by: [CCTM](#CMAQ_Chemistry-Transport_Model_.28CCTM.29) – in-line dust emission version with crops only
 
-The gridded harvesting end dates file is an I/O API GRDDED3 file of harvesting end dates for various crops interpolated to the modeling domain. The variables in this file are harvesting end dates for different crop types, where each variable is an integer representing the number of days after January 1 that harvesting stops for each crop. The CMAQ preprocessing program [CALMAP](#CALMAP:_Crop_calendar_map_preprocessor "wikilink") reads a crop activity calendar and a [GRID\_CRO\_2D](#GRID_CRO_2D:_Two-dimensional_grid_cross-point_fields "wikilink") file to generate the CROPMAP08 file.
+The gridded harvesting end dates file is an I/O API GRDDED3 file of harvesting end dates for various crops interpolated to the modeling domain. The variables in this file are harvesting end dates for different crop types, where each variable is an integer representing the number of days after January 1 that harvesting stops for each crop. The CMAQ preprocessing program [CALMAP](#CALMAP:_Crop_calendar_map_preprocessor) reads a crop activity calendar and a [GRID\_CRO\_2D](#GRID_CRO_2D:_Two-dimensional_grid_cross-point_fields) file to generate the CROPMAP08 file.
 
 ### LTNGNO: Lightning NOx emissions
 

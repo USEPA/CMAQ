@@ -116,7 +116,7 @@ END IF`
 
 ### Reading Data Files in I/O API
 
-There are four routines with varying kinds of selectivity used to read or otherwise retrieve data from files: `READ3`, `XTRACT3`, `INTERP3`, and `DDTVAR3`. All four are logical functions that return TRUE when they succeed, FALSE when they fail. The descriptions of the routines are listed in [Table 6-4](#Table6-4 "wikilink").
+There are four routines with varying kinds of selectivity used to read or otherwise retrieve data from files: `READ3`, `XTRACT3`, `INTERP3`, and `DDTVAR3`. All four are logical functions that return TRUE when they succeed, FALSE when they fail. The descriptions of the routines are listed in [Table 6-4](#Table6-4).
 
 <span id=Table6-4></span>
 
