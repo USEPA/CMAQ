@@ -188,7 +188,7 @@ PROCAN is the PA preprocessor in the CMAQ modeling system. As shown in [Figure 4
 <a id="Figure4-7"></a><center>
 ![](./images/Figure4-7.png "Figure4-7.png")
 </center>
-<center>**Figure 4‑7. Process analysis implementation in the CMAQ modeling system*
+<center>**Figure 4‑7. Process analysis implementation in the CMAQ modeling system**</center>
 
 ## LTNG_2D_DATA: Lightning flash count preprocessor
 
