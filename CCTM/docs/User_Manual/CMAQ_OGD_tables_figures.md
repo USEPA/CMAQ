@@ -39,7 +39,7 @@ List of Figures
 
 [Figure 7‑7. JPROC input and output files](CMAQ_OGD_ch07_programs_libraries.md#Figure7-7)
 
-[Figure 7‑8. LTNG\_2D\_DATA input and output files](CMAQ_OGD_ch07_programs_libraries.md#Figure7-8)
+[Figure 7‑8. LTNG_2D_DATA input and output files](CMAQ_OGD_ch07_programs_libraries.md#Figure7-8)
 
 [Figure 7‑9. MCIP input and output files](CMAQ_OGD_ch07_programs_libraries.md#Figure7-9)
 
@@ -101,9 +101,9 @@ List of Figures
 
 [Table 7‑16. JPROC output files](CMAQ_OGD_ch07_programs_libraries.md#Table7-16)
 
-[Table 7‑17. LTNG\_2D\_DATA input files](CMAQ_OGD_ch07_programs_libraries.md#Table7-17)
+[Table 7‑17. LTNG_2D_DATA input files](CMAQ_OGD_ch07_programs_libraries.md#Table7-17)
 
-[Table 7‑18. LTNG\_2D\_DATA output files](CMAQ_OGD_ch07_programs_libraries.md#Table7-18)
+[Table 7‑18. LTNG_2D_DATA output files](CMAQ_OGD_ch07_programs_libraries.md#Table7-18)
 
 [Table 7‑19. MCIP input files](CMAQ_OGD_ch07_programs_libraries.md#Table7-19)
 
@@ -129,9 +129,9 @@ List of Figures
 
 [Table 8‑4. GC species namelist file format](CMAQ_OGD_ch08_input_files.md#Table8-4)
 
-[Table 8-5. IC\_PROFILE format description](CMAQ_OGD_ch08_input_files.md#Table8-5)
+[Table 8-5. IC_PROFILE format description](CMAQ_OGD_ch08_input_files.md#Table8-5)
 
-[Table 8-6. BC\_PROFILE format description](CMAQ_OGD_ch08_input_files.md#Table8-6)
+[Table 8-6. BC_PROFILE format description](CMAQ_OGD_ch08_input_files.md#Table8-6)
 
 [Table 8-7. CSQY format description](CMAQ_OGD_ch08_input_files.md#Table8-7)
 

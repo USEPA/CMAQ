@@ -161,7 +161,7 @@ Used by: BCON, CCTM, ICON, JPROC, PROCAN
 
 Namelist look-up tables for different classes of simulated pollutants are used to define the parameters of different model species during the execution of the CMAQ programs. Gas-phase (gc), aerosol (ae), non-reactive (nr), and tracer (tr) species namelist files contain parameters for the model species that are included in these different classifications. The species namelist files are used to control how the different CMAQ programs and processes handle the model species. The namelist files define the following processes for each model species:
 
--   Emissions – is the pollutant an emitted species
+-   Emissions – is the pollutant from an emitted species
 -   Emissions factor – if the pollutant is an emitted species, uniformly apply a scaling factor to the emissions
 -   Deposition velocity – does the pollutant have a deposition velocity
 -   Deposition velocity factor – if the pollutant does have a deposition velocity, uniformly apply a scaling factor to this velocity
@@ -177,7 +177,7 @@ Namelist look-up tables for different classes of simulated pollutants are used t
 -   Wet deposition – Write the pollutant to the wet deposition output file
 -   Concentration – Write the pollutant to the instantaneous concentration output file
 
-The namelist files contain header information that describe which class of species are contained in the file, the number of parameters contained in the file, headers describing the parameter fields, and then a series of rows with configuration parameters for every model species. Table 8-4 contains the namelist file format for the gas-phase (GC) species namelist file. The namelist files for the other species classifications (AE, NR, TR) are similar to the format shown in Table 8-4.
+The namelist files contain header information that describe which class of species are contained in the file, the number of parameters contained in the file, headers describing the parameter fields, and then a series of rows with configuration parameters for every model species. [Table 8‑4](#Table8-4) contains the namelist file format for the gas-phase (GC) species namelist file. The namelist files for the other species classifications (AE, NR, TR) are similar to the format shown in [Table 8‑4](#Table8-4).
 
 <a id=Table8-4></a>
 
@@ -280,7 +280,7 @@ The format of the data sections in BC_PROFILE files is the same as in IC_PROFILE
 
 Boundary conditions can either be time-independent (static) or time-dependent (dynamic). Boundary conditions generated with BC_PROFILE’s ASCII vertical profiles are both static and spatially uniform along each of the four horizontal boundaries at each model layer. For spatially resolved (in the horizontal direction) and temporally resolved boundary conditions, it is necessary to use the other input file type to BCON, an existing CCTM concentration file (CTM_CONC_1).
 
-A detailed description of the vertical profile file format for boundary conditions is provided in Table 8-6. The header of the profiles file is list-formatted, while the data section of the file is fixed format.
+A detailed description of the vertical profile file format for boundary conditions is provided in [Table 8‑6](#Table8-6). The header of the profiles file is list-formatted, while the data section of the file is fixed format.
 
 <a id=Table8-6></a>
 
@@ -336,7 +336,7 @@ Used by: JPROC
 
 CSQY is the logical name for the ASCII data file containing absorption cross section and quantum yield data for unique photolysis reactions. The data in these files are listed as a function of wavelength and correspond to the standard photolysis reactions in each of the chemical mechanisms implemented in CMAQ. A flexible format allows users to deviate from these standards and test new data with minimal effort.
 
-The ASCII-formatted CSQY files begin with a header that describes the applicable photolysis reaction. This header includes (1) the reaction name/ID; (2) comment lines describing the reaction, the stoichiometry, and the data source (note that comment lines are preceded with a “!”); (3) the location on the wavelength interval that the data represent (beginning, centered, ending, or point); and (4) a multiplier (FAC) that is applied to the photolysis rate calculation. The data section of the CSQY file lists the wavelength of the incoming solar radiation (nm), the absorption cross section (cm), and the quantum yield as columns, with each row corresponding to a specific wavelength interval. The CSQY file uses a space-delimited, free-form format for the data section of the file. A detailed description of the CSQY file format is provided in Table 8-7.
+The ASCII-formatted CSQY files begin with a header that describes the applicable photolysis reaction. This header includes (1) the reaction name/ID; (2) comment lines describing the reaction, the stoichiometry, and the data source (note that comment lines are preceded with a “!”); (3) the location on the wavelength interval that the data represent (beginning, centered, ending, or point); and (4) a multiplier (FAC) that is applied to the photolysis rate calculation. The data section of the CSQY file lists the wavelength of the incoming solar radiation (nm), the absorption cross section (cm), and the quantum yield as columns, with each row corresponding to a specific wavelength interval. The CSQY file uses a space-delimited, free-form format for the data section of the file. A detailed description of the CSQY file format is provided in [Table 8‑7](#Table8-7).
 
 <a id=Table8-7></a>
 
@@ -413,7 +413,7 @@ The first data section of the PROFILES file is divided into 228 (1934) dat
 
 The second data section in the PROFILES file contains monthly average Dobson values. The data are organized in 12 rows (January through December) and 19 columns (90°N to 80°N through 80°S to 90°S).
 
-The last data section in the PROFILES file contains vertical profiles from the 1976 U.S. Standard Atmosphere of temperature, air density, ozone concentrations, and aerosol attenuation coefficients. The data are organized in 51 rows, corresponding to altitude (0 to 50 km), with four columns per row for each of the four variables. A detailed description of the file format is provided in Table 8-9.
+The last data section in the PROFILES file contains vertical profiles from the 1976 U.S. Standard Atmosphere of temperature, air density, ozone concentrations, and aerosol attenuation coefficients. The data are organized in 51 rows, corresponding to altitude (0 to 50 km), with four columns per row for each of the four variables. A detailed description of the file format is provided in [Table 8‑9](#Table8-9).
 
 <a id=Table8-9></a>
 
@@ -459,7 +459,7 @@ Used by: JPROC
 
 TOMS is the logical name for the ASCII data file containing total ozone column measurements in Dobson units taken by the Total Ozone Mapping Spectrometer instrument aboard the sun-synchronous polar orbiting Nimbus satellite. The data are presented for specific Julian dates as a function of location on the earth (latitude and longitude).
 
-A detailed description of the file format is provided in Table 8-10. The files are fixed format.
+A detailed description of the file format is provided in [Table 8‑10](#Table8-10). The files are fixed format.
 
 <a id=Table8-10></a>
 
@@ -636,7 +636,7 @@ A sample of the important sections of a JTABLE file is shown below.
 
 Used by: CCTM
 
-OMI ozone column data by latitude and longitude for use in the inline photolysis calculations. CMAQv5 is distributed with ozone columns from 1978 to 2011. The data are 22.5°x10° gridded ozone columns in Dobson units. Table 8-12 lists the format of the OMI data file.
+OMI ozone column data by latitude and longitude for use in the inline photolysis calculations. CMAQv5 is distributed with ozone columns from 1978 to 2011. The data are 22.5°x10° gridded ozone columns in Dobson units. [Table 8‑12](#Table8-12) lists the format of the OMI data file.
 
 <a id=Table8-12></a>
 

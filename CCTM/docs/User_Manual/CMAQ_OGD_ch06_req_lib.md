@@ -210,7 +210,7 @@ The Message Passing Interface (MPI) is a standard library specification for mess
 - [MVAPICH2](http://mvapich.cse.ohio-state.edu) is a portable implementation of MPI that is available from Ohio State University.
 - [OpenMPI](https://www.open-mpi.org) is an open-source MPI implelmentation that is developed and maintained by a consortium of academic, research, and industry partners.
 
-References for Section: Required Libraries
+References for Chapter 6: Required Libraries
 ------------------------------------------
 
 Coats, C., 2005: The EDSS/Models-3 I/O API. [Available online at [<https://www.cmascenter.org/ioapi/>](https://www.cmascenter.org/ioapi/)]
