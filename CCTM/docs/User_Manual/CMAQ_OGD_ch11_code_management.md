@@ -718,6 +718,7 @@ To run a model executable, various UNIX environment variables must be set in the
 
 The following is a sample run script that can be downloaded from the CMAS web site. The build and run scripts are part of the downloaded tar file from this site.
 
+```Tcsh
 \#! /bin/csh –f
 
 \# ======================== CCTMv4.7 Run Script ====================== \#
@@ -1035,6 +1036,7 @@ time \$MPIRUN -v -machinefile \$TASKMAP -np \$NPROCS \$BASE/\$EXEC
 date
 
 exit
+```
 
 Testing and Distribution of Development Source Code
 ---------------------------------------------------
