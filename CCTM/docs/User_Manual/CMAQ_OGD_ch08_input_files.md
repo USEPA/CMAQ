@@ -77,7 +77,7 @@ This section describes each of the input files required by the various CMAQ prog
 
 Used by: ICON, BCON, CCTM
 
-The CMAQ grid description file (**GRIDDESC**) is used by all programs except JPROC and MCIP to define the horizontal spatial grid of the modeling domain. GRIDDESC implements [I/O API](#Input.2FOutput_Applications_Programming_Interface_.28I.2FO_API.29) grid conventions: for more details see the section on [Grids and coordinate systems](CMAQ_OGD_ch09_grid_defn.md#Grids-and-coordinate-systems).
+The CMAQ grid description file (**GRIDDESC**) is used by all programs except JPROC and MCIP to define the horizontal spatial grid of the modeling domain. GRIDDESC implements [I/O API](#Input.2FOutput_Applications_Programming_Interface_.28I.2FO_API.29) grid conventions: for more details see the section on [Grids and coordinate systems](CMAQ_OGD_ch09_grid_defn.md#Grids and coordinate systems).
 
 A GRIDDESC is an ASCII file that contains two sections: a horizontal coordinate section, and grid description section. GRIDDESC is the logical name for text files that store horizontal coordinate and grid descriptions, and that are read by the DSCGRID() and DSCOORD() utility routines. Each segment has a one-line header (which by convention provides titles for the columns in the data records), a sequence of data records, and a terminal record with name field blank (i.e., ' '). The GRIDDESC file is generated automatically with MCIP; alternatively, GRIDDESC can be created using a text editor.
 
