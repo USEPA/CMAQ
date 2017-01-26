@@ -51,41 +51,41 @@ The CVS repository structure, i.e., the UNIX directory hierarchy, follows the cl
 
 +-\> adjcon
 
-| +-\> adjcon\_noop --\> RCS files
+| +-\> adjcon_noop --\> RCS files
 
 | +-\> denrate --\> RCS files
 
 +-\> aero
 
-| +-\> aero\_noop --\> RCS files
+| +-\> aero_noop --\> RCS files
 
 | +-\> aero4 --\> RCS files
 
 | +-\> aero5 --\> RCS files
 
-| +-\> aero5\_txhg --\> RCS files
+| +-\> aero5_txhg --\> RCS files
 
-+-\> aero\_depv
++-\> aero_depv
 
-| +-\> aero\_depv\_noop --\> RCS files
+| +-\> aero_depv_noop --\> RCS files
 
-| +-\> aero\_depv2 --\> RCS files
+| +-\> aero_depv2 --\> RCS files
 
 +-\> chem
 
-| +-\> chem\_noop --\> RCS files
+| +-\> chem_noop --\> RCS files
 
 | +-\> smvgear --\> RCS files
 
 | +-\> ros3 --\> RCS files
 
-| +-\> ebi\_cb05cltx\_ae5 --\> RCS files
+| +-\> ebi_cb05cltx_ae5 --\> RCS files
 
-| +-\> ebi\_cb05cltxhg\_ae5 --\> RCS files
+| +-\> ebi_cb05cltxhg_ae5 --\> RCS files
 
-| +-\> ebi\_saprc99 --\> RCS files
+| +-\> ebi_saprc99 --\> RCS files
 
-| +-\> ebi\_saprc99 --\> RCS files
+| +-\> ebi_saprc99 --\> RCS files
 
 The symbolic tree is shown relative to the subdirectory in the repository named for the CCTM model. Similar trees exist for each of the generic models. The RCS files are the revision control history files that contain the change tables to reconstruct the actual source code according to a specific revision identifier. The tree closely follows the organization of classes and modules for CCTM and contains alternate modules within the classes. In particular, most classes contain a “no-operation” (noop) module that allows a user to essentially turn off that particular science process modeling. This is useful, for example, in debugging, where rapid turnaround is important, and a computationally demanding module that is not needed can be bypassed.
 
@@ -169,89 +169,89 @@ SUBROUTINE VDIFF ( CGRID, JDATE, JTIME, TSTEP )
 
 C-----------------------------------------------------------------------
 
-( 2) USE AERO\_EMIS ! inherits GRID\_CONF
+( 2) USE AERO_EMIS ! inherits GRID_CONF
 
-( 2) USE SUBST\_MODULES ! stenex
+( 2) USE SUBST_MODULES ! stenex
 
-! USE SUBST\_GLOBAL\_SUM\_MODULE ! stenex
+! USE SUBST_GLOBAL_SUM_MODULE ! stenex
 
 ( 3) IMPLICIT NONE
 
-! INCLUDE SUBST\_HGRD\_ID ! horizontal dimensioning parameters
+! INCLUDE SUBST_HGRD_ID ! horizontal dimensioning parameters
 
-! INCLUDE SUBST\_VGRD\_ID ! vertical dimensioning parameters
+! INCLUDE SUBST_VGRD_ID ! vertical dimensioning parameters
 
-( 4) INCLUDE SUBST\_RXCMMN ! model mechanism name
+( 4) INCLUDE SUBST_RXCMMN ! model mechanism name
 
-( 4) INCLUDE SUBST\_GC\_SPC ! gas chemistry species table
+( 4) INCLUDE SUBST_GC_SPC ! gas chemistry species table
 
-( 4) INCLUDE SUBST\_GC\_EMIS ! gas chem emis surrogate names and map table
+( 4) INCLUDE SUBST_GC_EMIS ! gas chem emis surrogate names and map table
 
-( 4) INCLUDE SUBST\_GC\_DEPV ! gas chem dep vel surrogate names and map table
+( 4) INCLUDE SUBST_GC_DEPV ! gas chem dep vel surrogate names and map table
 
-( 4) INCLUDE SUBST\_GC\_DDEP ! gas chem dry dep species and map table
+( 4) INCLUDE SUBST_GC_DDEP ! gas chem dry dep species and map table
 
-INCLUDE SUBST\_GC\_DIFF ! gas chem diffusion species and map table
+INCLUDE SUBST_GC_DIFF ! gas chem diffusion species and map table
 
-( 4) INCLUDE SUBST\_AE\_SPC ! aerosol species table''' '''
+( 4) INCLUDE SUBST_AE_SPC ! aerosol species table''' '''
 
-! INCLUDE SUBST\_AE\_EMIS ! aerosol emis surrogate names and map table
+! INCLUDE SUBST_AE_EMIS ! aerosol emis surrogate names and map table
 
-( 4) INCLUDE SUBST\_AE\_DEPV ! aerosol dep vel surrogate names and map table
+( 4) INCLUDE SUBST_AE_DEPV ! aerosol dep vel surrogate names and map table
 
-( 4) INCLUDE SUBST\_AE\_DDEP ! aerosol dry dep species and map table
+( 4) INCLUDE SUBST_AE_DDEP ! aerosol dry dep species and map table
 
-( 4) INCLUDE SUBST\_AE\_DIFF ! aerosol diffusion species and map table
+( 4) INCLUDE SUBST_AE_DIFF ! aerosol diffusion species and map table
 
-( 4) INCLUDE SUBST\_NR\_SPC ! non-reactive species table
+( 4) INCLUDE SUBST_NR_SPC ! non-reactive species table
 
-( 4) INCLUDE SUBST\_NR\_EMIS ! non-react emis surrogate names and map table
+( 4) INCLUDE SUBST_NR_EMIS ! non-react emis surrogate names and map table
 
-( 4) INCLUDE SUBST\_NR\_DEPV ! non-react dep vel surrogate names and map table
+( 4) INCLUDE SUBST_NR_DEPV ! non-react dep vel surrogate names and map table
 
-( 4) INCLUDE SUBST\_NR\_DDEP ! non-react dry dep species and map table
+( 4) INCLUDE SUBST_NR_DDEP ! non-react dry dep species and map table
 
-( 4) INCLUDE SUBST\_NR\_DIFF ! non-react diffusion species and map table
+( 4) INCLUDE SUBST_NR_DIFF ! non-react diffusion species and map table
 
-( 4) INCLUDE SUBST\_TR\_SPC ! tracer species table
+( 4) INCLUDE SUBST_TR_SPC ! tracer species table
 
-( 4) INCLUDE SUBST\_TR\_EMIS ! tracer emis surrogate names and map table
+( 4) INCLUDE SUBST_TR_EMIS ! tracer emis surrogate names and map table
 
-( 4) INCLUDE SUBST\_TR\_DEPV ! tracer dep vel surrogate names and map table
+( 4) INCLUDE SUBST_TR_DEPV ! tracer dep vel surrogate names and map table
 
-( 4) INCLUDE SUBST\_TR\_DDEP ! tracer dry dep species and map table
+( 4) INCLUDE SUBST_TR_DDEP ! tracer dry dep species and map table
 
-( 4) INCLUDE SUBST\_TR\_DIFF ! tracer diffusion species and map table
+( 4) INCLUDE SUBST_TR_DIFF ! tracer diffusion species and map table
 
-! INCLUDE SUBST\_EMLYRS\_ID ! emissions layers parameter
+! INCLUDE SUBST_EMLYRS_ID ! emissions layers parameter
 
-( 5)\#ifdef emis\_chem
+( 5)#ifdef emis_chem
 
-( 5) INCLUDE SUBST\_EMPR\_CH ! emissions processing in chem
+( 5) INCLUDE SUBST_EMPR_CH ! emissions processing in chem
 
-( 5)\#else
+( 5)#else
 
-( 5) INCLUDE SUBST\_EMPR\_VD ! emissions processing in vdif
+( 5) INCLUDE SUBST_EMPR_VD ! emissions processing in vdif
 
-( 5)\#endif
+( 5)#endif
 
-( 6) INCLUDE SUBST\_PACTL\_ID ! PA control parameters
+( 6) INCLUDE SUBST_PACTL_ID ! PA control parameters
 
-( 6) INCLUDE SUBST\_CONST ! constants
+( 6) INCLUDE SUBST_CONST ! constants
 
-( 6) INCLUDE SUBST\_FILES\_ID ! file name parameters
+( 6) INCLUDE SUBST_FILES_ID ! file name parameters
 
-( 6) INCLUDE SUBST\_IOPARMS ! I/O parameters definitions
+( 6) INCLUDE SUBST_IOPARMS ! I/O parameters definitions
 
-\#include SUBST\_IODECL \# I/O definitions and declarations
+\#include SUBST_IODECL # I/O definitions and declarations
 
-! INCLUDE SUBST\_COORD\_ID ! coordinate and domain definitions (req IOPARMS)
+! INCLUDE SUBST_COORD_ID ! coordinate and domain definitions (req IOPARMS)
 
 ( 7) CHARACTER( 120 ) :: XMSG = ' '
 
 ( 8)C Arguments:
 
-! REAL CGRID( NCOLS,NROWS,NLAYS,\* ) ! concentrations
+! REAL CGRID( NCOLS,NROWS,NLAYS,* ) ! concentrations
 
 ! REAL :: CGRID( :,:,:,: ) ! concentrations
 
@@ -277,15 +277,15 @@ INCLUDE SUBST\_GC\_DIFF ! gas chem diffusion species and map table
 
 ( 9) REAL THRAT ! THBAR/THETA
 
-( 9) INTEGER, PARAMETER :: N\_SPC\_DDEP = N\_GC\_DDEP
+( 9) INTEGER, PARAMETER :: N_SPC_DDEP = N_GC_DDEP
 
-( 9) & + N\_AE\_DDEP
+( 9) & + N_AE_DDEP
 
-( 9) & + N\_NR\_DDEP
+( 9) & + N_NR_DDEP
 
-( 9) & + N\_TR\_DDEP
+( 9) & + N_TR_DDEP
 
-( 9)\< \>
+( 9)< \>
 
 ( 9)C number of species on the PM emissions input file. Set in OPEMIS
 
@@ -293,7 +293,7 @@ INCLUDE SUBST\_GC\_DIFF ! gas chem diffusion species and map table
 
 ( 9) INTEGER, SAVE :: NAESPCEMIS
 
-( 9) REAL, PARAMETER :: M2PHA = 1.0E+04 ! 1 hectare = 1.0e4 m\*\*2
+( 9) REAL, PARAMETER :: M2PHA = 1.0E+04 ! 1 hectare = 1.0e4 m**2
 
 ( 9) REAL, PARAMETER :: CMLMR = 1.0E+06 ! ppmV/Molar Mixing Ratio
 
@@ -313,17 +313,17 @@ INCLUDE SUBST\_GC\_DIFF ! gas chem diffusion species and map table
 
 (11)C File variables:
 
-(11)\< \>
+(11)< >
 
 (12)C Local Variables:
 
 (12) CHARACTER( 16 ), SAVE :: PNAME = 'VDIFFIM'
 
-(12)\< \>
+(12)< >
 
 (12) REAL, ALLOCATABLE, SAVE :: VDEMIS( :,:,:,: ) ! total emissions array
 
-(12)\< \>
+(12)< >
 
 (13) INTERFACE
 
@@ -357,7 +357,7 @@ INCLUDE SUBST\_GC\_DIFF ! gas chem diffusion species and map table
 
 (13) END SUBROUTINE RDDEPV
 
-(13)\< \>
+(13)< >
 
 END INTERFACE
 
@@ -371,25 +371,25 @@ C-----------------------------------------------------------------------
 
 (14) C for emissions (from COORD.EXT) .......................................
 
-(14) IF ( GDTYP\_GD .EQ. LATGRD3 ) THEN
+(14) IF ( GDTYP_GD .EQ. LATGRD3 ) THEN
 
-(14) DX1 = DG2M \* XCELL\_GD ! in m.
+(14) DX1 = DG2M * XCELL_GD ! in m.
 
-(14) DX2 = DG2M \* YCELL\_GD
+(14) DX2 = DG2M * YCELL_GD
 
-(14) & \* COS( PI180\*( YORIG\_GD + YCELL\_GD \* FLOAT( GL\_NROWS/2 ))) ! in m.
+(14) & * COS( PI180*( YORIG_GD + YCELL_GD * FLOAT( GL_NROWS/2 ))) ! in m.
 
 (14) ELSE
 
-(14) DX1 = XCELL\_GD ! in m.
+(14) DX1 = XCELL_GD ! in m.
 
-(14) DX2 = YCELL\_GD ! in m.
+(14) DX2 = YCELL_GD ! in m.
 
 (14) END IF
 
 (14) C create global maps
 
-(14) CALL VDIFF\_MAP ( DF2EM, DF2DV, DD2DV, DEPV\_MAP, DIFF\_MAP, DDEP\_SPC,
+(14) CALL VDIFF_MAP ( DF2EM, DF2DV, DD2DV, DEPV_MAP, DIFF_MAP, DDEP_SPC,
 
 (14) & DV2DF )
 
@@ -407,7 +407,7 @@ C-----------------------------------------------------------------------
 
 (15) END IF
 
-(14) \< other calculations that need to be performed only the first time \>
+(14) < other calculations that need to be performed only the first time >
 
 `END IF ! if Firstime`
 
@@ -431,17 +431,15 @@ C read & interpolate deposition velocities
 
 (18) IF ( LIPR ) THEN
 
-(18) DO S = 1, N\_SPC\_EMIS+1
+(18) DO S = 1, N_SPC_EMIS+1
 
 (18) DO L = 1, ELAYS
 
-(18) DO R = 1, MY\_NROWS
+(18) DO R = 1, MY_NROWS
 
-(18) DO C = 1, MY\_NCOLS
+(18) DO C = 1, MY_NCOLS
 
-(18) EMIS\_PA( C,R,L,S ) = VDEMIS( S,L,C,R )
-
-(18) END DO
+(18) EMIS_PA( C,R,L,S ) = VDEMIS( S,L,C,R )
 
 (18) END DO
 
@@ -449,33 +447,35 @@ C read & interpolate deposition velocities
 
 (18) END DO
 
-(18) CALL PA\_UPDATE\_EMIS ( 'VDIF', EMIS\_PA, JDATE, JTIME, TSTEP )
+(18) END DO
+
+(18) CALL PA_UPDATE_EMIS ( 'VDIF', EMIS_PA, JDATE, JTIME, TSTEP )
 
 (18) END IF
 
 (19) CALL EDYINTB ( EDDYV, DT, JDATE, JTIME, TSTEP( 2 ) )
 
-\< Perform other operations to set up for tridiagonal solver \>
+< Perform other operations to set up for tridiagonal solver >
 
-(20) DO 345 R = 1, MY\_NROWS
+(20) DO 345 R = 1, MY_NROWS
 
-(20) DO 344 C = 1, MY\_NCOLS
+(20) DO 344 C = 1, MY_NCOLS
 
-\< Perform operations \>
+< Perform operations >
 
 (21) DO 301 N = 1, NSTEPS( C,R )
 
-\< Perform operations \>
+< Perform operations >
 
 (21) 301 CONTINUE ! end time steps loop
 
-\< Update concentration and deposition arrays \>
+< Update concentration and deposition arrays >
 
 (20) 344 CONTINUE ! end loop on col C
 
 (20) 345 CONTINUE ! end loop on row R
 
-\< Perform other operations \>
+< Perform other operations >
 
 C If last call this hour: write accumulated depositions:
 
@@ -491,13 +491,13 @@ C If last call this hour: write accumulated depositions:
 
 (22) WSTEP = 0
 
-(22) DO V = 1, N\_SPC\_DDEP
+(22) DO V = 1, N_SPC_DDEP
 
 (22) S = DD2DV( V )
 
-(22) DO R = 1, MY\_NROWS
+(22) DO R = 1, MY_NROWS
 
-(22) DO C = 1, MY\_NCOLS
+(22) DO C = 1, MY_NCOLS
 
 (22) WRDD( C,R ) = DDEP( S,C,R )
 
@@ -505,11 +505,11 @@ C If last call this hour: write accumulated depositions:
 
 (22) END DO
 
-(22) IF ( .NOT. WRITE3( CTM\_DRY\_DEP\_1, DDEP\_SPC( V ),
+(22) IF ( .NOT. WRITE3( CTM_DRY_DEP_1, DDEP_SPC( V ),
 
 (22) & MDATE, MTIME, WRDD ) ) THEN
 
-(22) XMSG = 'Could not write ' // CTM\_DRY\_DEP\_1 // ' file'
+(22) XMSG = 'Could not write ' // CTM_DRY_DEP_1 // ' file'
 
 (22) CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
 
@@ -517,7 +517,7 @@ C If last call this hour: write accumulated depositions:
 
 (22) END DO
 
-(18) EMIS\_PA( C,R,L,S ) = VDEMIS( S,L,C,R )
+(18) EMIS_PA( C,R,L,S ) = VDEMIS( S,L,C,R )
 
 (18) END DO
 
@@ -527,33 +527,33 @@ C If last call this hour: write accumulated depositions:
 
 (18) END DO
 
-(18) CALL PA\_UPDATE\_EMIS ( 'VDIF', EMIS\_PA, JDATE, JTIME, TSTEP )
+(18) CALL PA_UPDATE_EMIS ( 'VDIF', EMIS_PA, JDATE, JTIME, TSTEP )
 
 (18) END IF
 
 (19) CALL EDYINTB ( EDDYV, DT, JDATE, JTIME, TSTEP( 2 ) )
 
-\< Perform other operations to set up for tridiagonal solver \>
+< Perform other operations to set up for tridiagonal solver >
 
-(20) DO 345 R = 1, MY\_NROWS
+(20) DO 345 R = 1, MY_NROWS
 
-(20) DO 344 C = 1, MY\_NCOLS
+(20) DO 344 C = 1, MY_NCOLS
 
-\< Perform operations \>
+< Perform operations >
 
 (21) DO 301 N = 1, NSTEPS( C,R )
 
-\< Perform operations \>
+< Perform operations >
 
 (21) 301 CONTINUE ! end time steps loop
 
-\< Update concentration and deposition arrays \>
+< Update concentration and deposition arrays >
 
 (20) 344 CONTINUE ! end loop on col C
 
 (20) 345 CONTINUE ! end loop on row R
 
-\< Perform other operations \>
+< Perform other operations >
 
 C If last call this hour: write accumulated depositions:
 
@@ -569,13 +569,13 @@ C If last call this hour: write accumulated depositions:
 
 (22) WSTEP = 0
 
-(22) DO V = 1, N\_SPC\_DDEP
+(22) DO V = 1, N_SPC_DDEP
 
 (22) S = DD2DV( V )
 
-(22) DO R = 1, MY\_NROWS
+(22) DO R = 1, MY_NROWS
 
-(22) DO C = 1, MY\_NCOLS
+(22) DO C = 1, MY_NCOLS
 
 (22) WRDD( C,R ) = DDEP( S,C,R )
 
