@@ -151,6 +151,8 @@ The following example from CMAQ v4.7 illustrates a science process class-driver 
 **Example of Science Process Class-Driver**
 
 </center>
+
+```Fortran
 SUBROUTINE VDIFF ( CGRID, JDATE, JTIME, TSTEP )
 
 ( 1)C-----------------------------------------------------------------------
@@ -630,6 +632,7 @@ END IF
 (23) RETURN
 
 (23) END
+```
 
 **Footnotes:**
 

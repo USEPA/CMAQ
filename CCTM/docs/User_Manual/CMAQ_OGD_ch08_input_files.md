@@ -480,13 +480,13 @@ A detailed description of the file format is provided in [Table 8‑10](#Table8-
 
 Used by: JPROC
 
-O2ABS is the logical name for the ASCII data file containing absorption cross section and quantum yield data for O<sub>2</sub> photolysis. The data in this file are listed as a function of wavelength. This file follows the same format as the CSQY files described in this [Section](#CSQY).
+O2ABS is the logical name for the ASCII data file containing absorption cross section and quantum yield data for O<sub>2</sub> photolysis. The data in this file are listed as a function of wavelength. This file follows the same format as the CSQY files described in this [section](#CSQY).
 
 ### O3ABS: Ozone absorption cross-section data
 
 Used by: JPROC
 
-O3ABS is the logical name for the ASCII data file containing absorption cross section and quantum yield data for O<sub>3</sub> photolysis. The data in this file are listed as a function of wavelength. This file follows the same format as the CSQY files described in this [Section](#CSQY).
+O3ABS is the logical name for the ASCII data file containing absorption cross section and quantum yield data for O<sub>3</sub> photolysis. The data in this file are listed as a function of wavelength. This file follows the same format as the CSQY files described in this [section](#CSQY).
 
 ### InMetFiles: List of MM5 or WRF‑ARW output files
 
