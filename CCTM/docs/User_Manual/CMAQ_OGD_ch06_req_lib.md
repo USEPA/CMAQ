@@ -32,7 +32,7 @@ Each CMAQ data file has internal file descriptions that contain the file type, t
 
 All files manipulated by the I/O API may have multiple variables and multiple layers. Each file also has a time-step structure that is shared by all of its variables. There are three kinds of time-step structure supported ([Table 6‑1](#Table6-1)). Within a file, all the variables are data arrays with the same dimensions, number of layers, and data structure type, although possibly different basic types (e.g., gridded and boundary variables cannot be mixed within the same file, but real and integer variables can). The data type structures that are supported are listed in [Table 6‑2](#Table6-2). GRDDED3 and BNDARY3 are the most prevalent file types in a CMAQ simulation. Magic number is an indicator associated with the files type.
 
-<span id=Table6-1></span>
+<a id=Table6-1></a>
 
 <center>
 **Table 6‑1. Possible Time Step Structures in I/O API Files**
@@ -44,7 +44,7 @@ All files manipulated by the I/O API may have multiple variables and multiple la
 |Time-stepped|The file has a starting date, a starting time, and a positive time step. Read and write requests must be for some positive integer multiple of the time step from the starting date and time.|
 |Circular-buffer|This type of file keeps only two “records”, the “even” part and the “odd” part (useful, for example, for “restart” files where only the last data written in the file are used). The file’s description has a starting date, a starting time, and a negative time step (set to the negative of the actual time step). Read and write requests must be for some positive integer multiple of the time step from the starting date and time, and they must reflect a specific time step that is in the file.|
 
-<span id=Table6-2></span>
+<a id=Table6-2></a>
 
 <center>
 **Table 6‑2. Possible Data Type Structures in I/O API Files**
@@ -78,7 +78,7 @@ where:
 
 `OPEN3` maintains considerable audit trail information in the file header automatically, and automates various logging activities. The arguments to `OPEN3` are the name of the file, an integer FSTATUS indicating the type of open operation, and the caller's name for logging and audit-trail purposes. `OPEN3` can be called many times for the same file. FSTATUS values are defined for CMAQ in PARMS3.EXT and are also listed in [Table 6-3](#Table6-3).
 
-<span id=Table6-3></span>
+<a id=Table6-3></a>
 
 <center>
 **Table 6‑3. Possible values for OPEN(3) FSTATUS**
@@ -118,7 +118,7 @@ END IF`
 
 There are four routines with varying kinds of selectivity used to read or otherwise retrieve data from files: `READ3`, `XTRACT3`, `INTERP3`, and `DDTVAR3`. All four are logical functions that return TRUE when they succeed, FALSE when they fail. The descriptions of the routines are listed in [Table 6-4](#Table6-4).
 
-<span id=Table6-4></span>
+<a id=Table6-4></a>
 
 <center>
 **Table 6‑4. IO API data retrieval routines**
@@ -175,7 +175,7 @@ END IF
 
 Data files in the CMAQ system can be easily manipulated by using the I/O API utilities. The I/O API utilities (also known as m3tools) are a set of scriptable programs for manipulation and analysis of netCDF-I/O API formatted files. Information regarding the most commonly employed utility routines is listed in [Table 6‑5](#Table6-5). Further information about how to use the utilities are available in the I/O API documentation.
 
-<span id=Table6-5></span>
+<a id=Table6-5></a>
 
 <center>
 **Table 6‑5. I/O API data manipulation utilities**

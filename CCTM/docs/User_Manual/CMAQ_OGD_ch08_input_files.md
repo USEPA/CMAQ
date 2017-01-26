@@ -11,7 +11,7 @@ CMAQ Input Files
 
 This section describes each of the input files required by the various CMAQ programs. The section begins with a description of the grid definition file, which is used by several CMAQ programs, and then goes through a program-by-program listing of the CMAQ input file requirements. [Table 8‑1](#Table8-1) lists the source, file type, and temporal and spatial dimensions of each CMAQ input file. Sample disk space requirements for a desired input data set can easily be calculated from the information in [Table 8‑1](#Table8-1); each data record is four bytes. The I/O API file sizes can be calculated using the number of variables in a CMAQ file and the spatial and temporal coverage of the data. The user should consult the CMAQv5 release notes for additional file information.
 
-<span id=Table8-1></span>
+<a id=Table8-1></a>
 
 <center>**Table 8‑1. CMAQ input files**</center>
 
@@ -377,7 +377,7 @@ Used by: JPROC
 
 ET is the logical name for the ASCII data file containing extraterrestrial radiation as a function of wavelength. The extraterrestrial irradiance file has a format similar to that of the CSQY file (Section 6.1.6). The file begins with a header section; comment lines are preceded with a “!”. Like the CSQY file, the header contains a field describing the location on the wavelength interval that the data represent, and a multiplier. The data section uses a space-delimited, free-form format and lists the wavelength of the incoming solar radiation (nm) and the irradiance (photons cm<sup>‑2</sup> s<sup>‑1</sup>) at each wavelength, with each row corresponding to a specific wavelength interval. A detailed description of the file format is provided in [Table 8-8](Table8-8).
 
-<span id=Table8-8></span>
+<a id=Table8-8></a>
 
 <center> **Table 8-8 ET file format description** </center>
 
@@ -415,7 +415,7 @@ The second data section in the PROFILES file contains monthly average Dobson val
 
 The last data section in the PROFILES file contains vertical profiles from the 1976 U.S. Standard Atmosphere of temperature, air density, ozone concentrations, and aerosol attenuation coefficients. The data are organized in 51 rows, corresponding to altitude (0 to 50 km), with four columns per row for each of the four variables. A detailed description of the file format is provided in Table 8-9.
 
-<span id=Table8-9></span>
+<a id=Table8-9></a>
 
 <center> **Table 8-9. PROFILES file format description.** </center>
 
@@ -461,7 +461,7 @@ TOMS is the logical name for the ASCII data file containing total ozone column m
 
 A detailed description of the file format is provided in Table 8-10. The files are fixed format.
 
-<span id=Table8-10></span>
+<a id=Table8-10></a>
 
 <center> '''Table 8-10 TOMS Data Profile ''' </center>
 
@@ -552,7 +552,7 @@ The first line of the header contains the Julian date of the data in the file. T
 
 The data section of the file contains data blocks that are mapped to the header using a three-digit code. Each block corresponds to an altitude, latitude, and photolysis reaction and contains nine values of clear-sky photolysis rates for the nine hour angles listed in the header. The three-digit code maps the altitude/latitude/reaction number to the data block. For example, the data block that uses the code “3 1 2” corresponds to altitude 3, latitude 1, and reaction 2 as listed in the file header. A detailed description of the JTABLE file format is provided in [Table 8-11](Table8-11). The files are list-formatted.
 
-<span id=Table8-11></span>
+<a id=Table8-11></a>
 
 <center> **Table 8-11. JTABLE file format description** </center>
 
@@ -638,7 +638,7 @@ Used by: CCTM
 
 OMI ozone column data by latitude and longitude for use in the inline photolysis calculations. CMAQv5 is distributed with ozone columns from 1978 to 2011. The data are 22.5°x10° gridded ozone columns in Dobson units. Table 8-12 lists the format of the OMI data file.
 
-<span id=Table8-12></span>
+<a id=Table8-12></a>
 
 <center> **Table 8‑12. OMI data format** </center>
 

@@ -82,7 +82,7 @@ As described in Chapter 5, there are two types of input concentrations for ICON 
 
 Standard operation of CMAQ uses boundary conditions that are extracted from a global model, such as GEOS-Chem or MOZART for the outermost modeling domain. Nested grids use temporally resolved boundary conditions extracted from the results of a parent-grid CCTM simulation. The initial conditions produced by ICON are time independent for the first spin-up day. If the initial conditions were generated from vertical profile data then they will also be spatially uniform, meaning that for a given layer they will contain the same concentration in every grid cell. The remaining days of a simulation should use spatially heterogeneous output from the previous day’s CCTM simulation to initialize each day. See [Figure 10‑1](Figure10-1) for a schematic of the initial and boundary conditions used for a CCTM simulation with a two‑day spin-up followed by a two‑day period of interest. In this example, each of the days was run separately.
 
-<span id=Figure10-1></span>
+<a id=Figure10-1></a>
 
 <center> ![](./images/Figure10-1.png "Figure10-1.png") </center>
 

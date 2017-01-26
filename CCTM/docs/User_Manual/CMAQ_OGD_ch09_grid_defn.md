@@ -42,7 +42,7 @@ Grid conventions are specified (at length) by the [I/O API](https://www.cmascent
 
 The terms associated with I/O API grid definitions are listed in Table 9-1.
 
-<span id=Table9-1></span>
+<a id=Table9-1></a>
 
 <center> **Table 9-1. I/O API Grid Type Terms** </center>
 
