@@ -10,7 +10,7 @@ CMAQ has been developed to meet the needs of both the research and application c
 <a id="Figure4-1"></a>
 
 <center>
-![](./images/Figure2-1.png "Figure2-1.png")
+![](./images/Figure4-1.png "Figure4-1.png")
 
 </center>
 <center>
@@ -83,19 +83,19 @@ The CMAQ system was designed to minimize the potential for model simulation erro
 CMAQ Input Processors
 ---------------------
 
-CCTM uses data from other models and CMAQ input processing programs as input for model simulations [Figure 2-2](#Figure2-2).
+CCTM uses data from other models and CMAQ input processing programs as input for model simulations [Figure 4-2](#Figure4-2).
 
-<a id=Figure2-2></a>
+<a id=Figure4-2></a>
 
 <center>
-![](./images/Figure2-2.png "Figure2-2.png")
+![](./images/Figure4-2.png "Figure4-2.png")
 
 </center>
 <center>
-**Figure 2-2. CMAQ Chemistry-Transport Model (CCTM) and input processors**
+**Figure 4-2. CMAQ Chemistry-Transport Model (CCTM) and input processors**
 
 </center>
-The input data for CCTM are developed using the four input processors shown in grey in [Figure 2-2](#Figure2-2). All of the CMAQ programs shown in [Figure 2-2](#Figure2-2) (bordered by the broken line) require five basic configuration options:
+The input data for CCTM are developed using the four input processors shown in grey in [Figure 4-2](#Figure4-2). All of the CMAQ programs shown in [Figure 4-2](#Figure4-2) (bordered by the broken line) require five basic configuration options:
 
 -   Case – a unique character string that identifies the simulation
 -   Grid (Domain and size) – a definition of the horizontal modeling grid that includes the location relative to a fixed map projection and the size of the domain
@@ -105,11 +105,12 @@ The input data for CCTM are developed using the four input processors shown in g
 
 The choices for these options and how they are selected for each of the CMAQ programs are detailed in [Chapter 7](CMAQ_OGD_ch07_programs_libraries.md).
 
-CMAQ uses the MCIP software to prepare the meteorological fields for CCTM. The ICON and BCON processors generate the initial and boundary conditions for a CCTM simulation. JPROC computes the photolysis rates that are used when simulating photochemical reactions in CCTM. Emissions for CMAQ must be prepared with a data processing system that generates emissions for direct input to CCTM. Brief descriptions of the various CMAQ input processors are presented in this section. Also described are two processors (CHEMMECH and PROCAN) not shown in [Figure 2.1](#Figure2-1).
+CMAQ uses the MCIP software to prepare the meteorological fields for CCTM. The ICON and BCON processors generate the initial and boundary conditions for a CCTM simulation. JPROC computes the photolysis rates that are used when simulating photochemical reactions in CCTM. Emissions for CMAQ must be prepared with a data processing system that generates emissions for direct input to CCTM. Brief descriptions of the various CMAQ input processors are presented in this section. Also described are two processors (CHEMMECH and PROCAN) not shown in [Figure 4.1](#Figure4-1).
 
 ## MCIP: Meteorology-Chemistry Interface Processor
 
 MCIP uses output files from a meteorological model, such as the <a href="http://www.wrf-model.org">Weather Research Forecast Model (WRF)</a>, to create netCDF-formatted input meteorology files that are used by the emissions model that computes emissions inputs to CMAQ, and by CCTM within CMAQ.
+
 <a id="Figure4-3"></a>
 
 <center>
