@@ -19,7 +19,7 @@ Ancillary support programs distributed with CMAQ include
 -   EBI chemistry solver builder (CREATE_EBI)
 -   The process analysis preprocessor (PROCAN)
 
-The following sections describe the CMAQ system concept, followed by [details of the programs listed above](#Summary_descriptions_of_the_major_CMAQ_programs).
+The following sections describe the CMAQ system concept, followed by [details of the programs listed above](#summary-descriptions-of-the-major-cmaq-programs).
 
 ### Installation overview
 
