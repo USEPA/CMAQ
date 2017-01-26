@@ -627,11 +627,11 @@ Setting to output the in-line photolysis rates and associated data to diagnostic
 
 -   `CTM_WB_DUST [default: Y|T]`
 
-Setting to calculate in-line windblown dust emissions in CCTM. Setting this variable to Y or T requires the availability of gridded land use input files that include the following BELD USGS land use classifications: shrubland, shrubgrass, and sprsbarren. See [Chapter 5](CMAQ_OGD_ch05_sys_req.md) for a description of the DUST_LU_1 and DUST_LU_2 input files. Comment out variable or set to Y or T to turn on; set to N or F to turn off.
+Setting to calculate in-line windblown dust emissions in CCTM. Setting this variable to Y or T requires the availability of gridded land use input files that include the following BELD USGS land use classifications: shrubland, shrubgrass, and sprsbarren. See [Chapter 8](CMAQ_OGD_ch08_input_files.md#Table8-1) for a description of the DUST_LU_1 and DUST_LU_2 input files. Comment out variable or set to Y or T to turn on; set to N or F to turn off.
 
 -   `CTM_ERODE_AGLAND [default: N|F]`
 
-Setting to use optional erodible agricultural land classifications for computing windblown dust emissions from agricultural land. Setting this variable to Y or T requires the availability of gridded crop timing data that describe planting start dates, planting end dates, and harvesting end dates for 18 crop types. See [Chapter 5](CMAQ_OGD_ch05_sys_req.md#Table5-3) for a description of the CROPMAP01, CROPMAP04, and CROPMAP08 input files. If CTM_WB_DUST is set to N or F, this setting will be ignored. Set to Y or T to turn on; comment out variable or set to N or F to turn off.
+Setting to use optional erodible agricultural land classifications for computing windblown dust emissions from agricultural land. Setting this variable to Y or T requires the availability of gridded crop timing data that describe planting start dates, planting end dates, and harvesting end dates for 18 crop types. See [Chapter 8](CMAQ_OGD_ch08_input_files.md#Table8-1) for a description of the CROPMAP01, CROPMAP04, and CROPMAP08 input files. If CTM_WB_DUST is set to N or F, this setting will be ignored. Set to Y or T to turn on; comment out variable or set to N or F to turn off.
 
 -   `CTM_DUSTEM_DIAG [default: N|F]`
 
@@ -667,7 +667,7 @@ Calculate in-line deposition velocities. Comment out variable or set to Y or T t
 
 -   `CTM_ABFLUX [default: N|F]`
 
-Setting to activate fertilizer ammonia bidirectional flux for in-line emissions and deposition velocities. If CTM_ILDEPV is set to N or F this variable is ignored. Setting this variable to Y or T requires four additional input files that include gridded fractional crop distributions (B4LU_file), soil properties (E2C_Soilfile), fertilizer conditions (E2C_Fertfile), and an agricultural soil initial conditions file (INIT_MEDC_1). Activation of this setting will produce additional variables in the output dry deposition file. See Section 5.3.2.1 for a description of the required input files. Set to Y or T to turn on; comment out or set to N or F to turn off.
+Setting to activate fertilizer ammonia bidirectional flux for in-line emissions and deposition velocities. If CTM_ILDEPV is set to N or F this variable is ignored. Setting this variable to Y or T requires four additional input files that include gridded fractional crop distributions (B4LU_file), soil properties (E2C_Soilfile), fertilizer conditions (E2C_Fertfile), and an agricultural soil initial conditions file (INIT_MEDC_1). Activation of this setting will produce additional variables in the output dry deposition file. See [Chapter 8](CMAQ_OGD_ch08_input_files.md#Table8-1) for a description of the required input files. Set to Y or T to turn on; comment out or set to N or F to turn off.
 
 -   `CTM_MOSAIC [default N|F]`
 Setting to output land use specific deposition velocities and fluxes.
@@ -1052,15 +1052,15 @@ The configuration options listed here are set during compilation of the ICON exe
 
 #### ICON compilation
 
-First, it is assumed that you have already installed and compiled the I/O API and netCDF libraries (see Section 3.2.3), or that these are already available from a previous CMAQ compilation.
+First, it is assumed that you have already installed and compiled the I/O API and netCDF libraries (see [Chapter 5](CMAQ_OGD_ch05_sys_req.md#Table5-3), or that these are already available from a previous CMAQ compilation.
 
-Section 3.3 provides an overview of how to install and compile the CMAQ programs for the tutorial simulation. Follow the steps outlined in Section 3.3 (summarized below) to compile new versions of ICON:
+[Chapter 5](CMAQ_OGD_ch05_sys_req.md) provides an overview of how to install and compile the CMAQ programs for the tutorial simulation. Follow the steps outlined in Chapter 5 (summarized below) to compile new versions of ICON:
 
 -   If you have not already done so, compile Bldmake, the CMAQ source code and compilation management program. This needs to be done only once—the first time CMAQ is installed.
 -   If needed, configure the ICON build script to use the available I/O API and netCDF libraries.
 
 -   If you have not already done so, compile the STENEX library.
--   Configure the ICON build script for your application (using the options discussed in Section 5.5.2.2)
+-   Configure the ICON build script for your application (using the options discussed in [Chapter 5(CMAQ_OGD_ch05_sys_req.md])
 -   Invoke the build script to create an executable:
 
 `./bldit.icon`
@@ -1079,7 +1079,7 @@ Executable to use for the simulation. The variable CFG is set in the ICON run sc
 -   `GRID_NAME: [default: [CMAQ-BENCHMARK]`
     Name of the grid definition contained in the GRIDDESC file that specifies the horizontal grid for the current application of the model.
 
--   `IOAPI_ISPH: [default: 19]`
+-   `IOAPI_ISPH: [default: 20]`
     I/O API setting for spheroid type. See I/O API documentation for [setsphere](https://www.cmascenter.org/ioapi/documentation/3.1/html/SETSPHERE.html) for more information.
 
 -   `IOAPI_OFFSET_64: [default: NO]`
@@ -1194,13 +1194,13 @@ The configuration options listed here are set during compilation of the JPROC ex
 
 #### JPROC compilation
 
-First, it is assumed that you have already installed and compiled the I/O API and netCDF libraries (see Section 3.2.3), or that these are already available from a previous CMAQ compilation.
+First, it is assumed that you have already installed and compiled the I/O API and netCDF libraries ([Chapter 5](CMAQ_OGD_ch05_sys_req.md#Table5-3)), or that these are already available from a previous CMAQ compilation.
 
-Section 3.3 provides an overview of how to install and compile the CMAQ programs for the tutorial simulation. Follow the steps outlined in Section 3.3 (summarized below) to compile new versions of JPROC:
+[Chapter 5](CMAQ_OGD_ch05_sys_req.md) provides an overview of how to install and compile the CMAQ programs for the tutorial simulation. Follow the steps outlined in Chapter 5 (summarized below) to compile new versions of JPROC:
 
 -   If you have not already done so, compile Bldmake, the CMAQ source code and compilation management program. This needs to be done only once—the first time CMAQ is installed.
 -   If needed, configure the JPROC build script to use the available I/O API and netCDF libraries.
--   Configure the JPROC build script for your application (using the options discussed in Section 5.6.2.2)
+-   Configure the JPROC build script for your application (using the options discussed in [Chapter 7](CMAQ_OGD_ch07_programs_libraries.md))
 -   Invoke the build script to create an executable:
 
 `./bldit.jproc`
@@ -1391,7 +1391,7 @@ The Meteorology-Chemistry Interface Processor (MCIP) processes meteorological mo
 
 Many of the fields that are simulated by the meteorological model are not modified by MCIP for the emissions model and CCTM, and they are written to I/O API files. Fields that are required for the transformation to CMAQ’s generalized coordinate system are calculated within MCIP. The dry deposition velocities are no longer calculated by the current version of MCIP. CMAQv5 can now calculate all deposition velocities, MCIPv3.4 will be the last version of MCIP to calculate those velocities internally.
 
-MCIP can extract both temporal and spatial subsets of the input meteorology files. The run script allows the user to specify the beginning and end dates/times of the MCIP simulation; these dates/times can fall anywhere within the range of the input meteorological time period, but must be consistent with the time granularity of the meteorological files. MCIP cannot perform temporal interpolations to artificially increase the temporal resolution of the meteorology fields. Two types of horizontal domain windowing are allowed with MCIP. The boundary trim option (“BTRIM”) uniformly trims grid cells off each of the four lateral boundaries of the input meteorology grid. The nonuniform trim option specifies an offset from the lower left corner of the input meteorology domain and the number of cells in the X and Y directions from the revised origin to extract from the input domain. More information about how to invoke these options is provided in Section 5.7.2.4, “MCIP execution options.” MCIP also provides the capability to reconfigure the vertical layer structure in the input meteorology through interpolation from the input structure to an output structure defined through sigma coordinates in the run script. Commonly referred to as “layer collapsing,” this option should be exercised with caution as it can significantly impact the conservation of energy assumption inherent in the meteorology through its effects on the predicted wind fields.
+MCIP can extract both temporal and spatial subsets of the input meteorology files. The run script allows the user to specify the beginning and end dates/times of the MCIP simulation; these dates/times can fall anywhere within the range of the input meteorological time period, but must be consistent with the time granularity of the meteorological files. MCIP cannot perform temporal interpolations to artificially increase the temporal resolution of the meteorology fields. Two types of horizontal domain windowing are allowed with MCIP. The boundary trim option (“BTRIM”) uniformly trims grid cells off each of the four lateral boundaries of the input meteorology grid. The nonuniform trim option specifies an offset from the lower left corner of the input meteorology domain and the number of cells in the X and Y directions from the revised origin to extract from the input domain. More information about how to invoke these options is provided in the next section: [MCIP execution options](#MCIP execution options). MCIP also provides the capability to reconfigure the vertical layer structure in the input meteorology through interpolation from the input structure to an output structure defined through sigma coordinates in the run script. Commonly referred to as “layer collapsing,” this option should be exercised with caution as it can significantly impact the conservation of energy assumption inherent in the meteorology through its effects on the predicted wind fields.
 
 ### Files, configuration, and environment variables
 
@@ -1425,9 +1425,9 @@ All model configuration options for MCIP are set during execution. System compil
 
 #### MCIP compilation
 
-First, it is assumed that you have already installed and compiled the I/O API and netCDF libraries (see Section 3.2.3), or that these are already available from a previous CMAQ compilation.
+First, it is assumed that you have already installed and compiled the I/O API and netCDF libraries ([Chapter 5](CMAQ_OGD_ch05_sys_req.md)), or that these are already available from a previous CMAQ compilation.
 
-Section 3.3 provides an overview of how to install and compile the CMAQ programs for the tutorial simulation. Follow the steps outlined in Section 3.3 (summarized below) to compile new versions of **MCIP**:
+[Chapter 5](CMAQ_OGD_ch05_sys_req.md) provides an overview of how to install and compile the CMAQ programs for the tutorial simulation. Follow the steps outlined in Chapter 5 (summarized below) to compile new versions of **MCIP**:
 
 -   Configure the Makefile for the current operating system/compiler combination. Comment out the configuration that does not apply to the current system. Uncomment the configuration that is closest to that of the current system and make the necessary changes to point to the compiler path, I/O API location, and netCDF locations on the current system.
 -   Invoke the Makefile to create an executable by typing the following command in the directory that contains the Makefile and **MCIP** source code:
@@ -1618,9 +1618,9 @@ Other than configuring the build script for the current system (i.e., compiler a
 
 #### PARIO compilation
 
-First, it is assumed that you have already installed and compiled the I/O API, netCDF, and MPICH libraries (see Section 3.2.3), or that these are already available from a previous CMAQ compilation.
+First, it is assumed that you have already installed and compiled the I/O API, netCDF, and MPICH libraries ([Chapter 5](CMAQ_OGD_ch05_sys_req.md)), or that these are already available from a previous CMAQ compilation.
 
-Section 3.3 provides an overview of how to install and compile the CMAQ programs for the tutorial simulation. Follow the steps outlined in Section 3.3 (summarized below) to compile new versions of PARIO:
+[Chapter 5](CMAQ_OGD_ch05_sys_req.md) provides an overview of how to install and compile the CMAQ programs for the tutorial simulation. Follow the steps outlined in Chapter 5 (summarized below) to compile new versions of PARIO:
 
 -   -   -   If you have not already done so, compile Bldmake, the CMAQ source code and compilation management program. This needs to be done only once—the first time CMAQ is installed.
         -   If needed, configure the PARIO build script to use the available I/O API and MPICH libraries.
@@ -1696,13 +1696,13 @@ The configuration options listed here are set during compilation of the PROCAN e
 
 #### PROCAN compilation
 
-First, it is assumed that you have already installed and compiled the I/O API and netCDF libraries (see Section 3.2.3).
+First, it is assumed that you have already installed and compiled the I/O API and netCDF libraries ([Chapter 5](CMAQ_OGD_ch05_sys_req.md)).
 
-Section 3.3 provides an overview of how to install and compile the CMAQ programs for the tutorial simulation. Follow the steps outlined in Section 3.3 (summarized below) to compile new versions of PROCAN:
+[Chapter 5](CMAQ_OGD_ch05_sys_req.md) provides an overview of how to install and compile the CMAQ programs for the tutorial simulation. Follow the steps outlined in Chapter 5 (summarized below) to compile new versions of PROCAN:
 
 -   If you have not already done so, compile Bldmake, the CMAQ source code and compilation management program. This needs to be done only once—the first time CMAQ is installed.
 -   If needed, configure the PROCAN build script to use the available I/O API and netCDF libraries.
--   Configure the PROCAN build script for your application (using the options discussed in Section 5.10.2.2)
+-   Configure the PROCAN build script for your application (using the options discussed in [Chapter 7](CMAQ_OGD_ch07_programs_libraries.md))
 -   Invoke the build script to create an executable:
 
 `./bldit.procan`
@@ -1836,9 +1836,9 @@ Other than configuring the build script for your system (i.e., compiler and libr
 
 #### STENEX compilation
 
-First, it is assumed that you have already installed and compiled the I/O API, netCDF, and MPICH libraries (see Section 3.2.3), or that these are already available from a previous CMAQ compilation.
+First, it is assumed that you have already installed and compiled the I/O API, netCDF, and MPICH libraries ([Chapter 5](CMAQ_OGD_ch05_sys_req.md)), or that these are already available from a previous CMAQ compilation.
 
-Section 3.3 provides an overview of how to install and compile the CMAQ programs for the tutorial simulation. Follow the steps outlined in Section 3.3 (summarized below) to compile new versions of STENEX:
+[Chapter 5](CMAQ_OGD_ch05_sys_req.md) provides an overview of how to install and compile the CMAQ programs for the tutorial simulation. Follow the steps outlined in Chapter 5 (summarized below) to compile new versions of STENEX:
 
 -   If you have not already done so, compile Bldmake, the CMAQ source code and compilation management program. This needs to be done only once—the first time CMAQ is installed.
 -   If needed, configure the STENEX build script to use the available I/O API and MPICH libraries.
@@ -1858,7 +1858,7 @@ Because STENEX is not a program, it does not have an associated run script.
 
 Successful compilation of STENEX will produce the library files libsef90\_noop.a for serial compilations and libse\_snl.a for parallel compilations, along with several module files in the `$M3LIB/stenex/$OS` directory.
 
-References for Section: CMAQ Programs and Libraries
+References for Chapter 7: CMAQ Programs and Libraries
 ---------------------------------------------------
 
 Arya, P., 1984: Parametric relations for the atmospheric boundary layer. Bound.-Layer Meteor., 30, 57–73.
