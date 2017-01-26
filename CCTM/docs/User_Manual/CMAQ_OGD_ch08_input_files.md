@@ -85,7 +85,7 @@ The horizontal coordinate section ([Table 8-2](#Table8-2)) consists of text reco
 
 The grid description section ([Table 8-3](#Table8-3)) consists of text records that indicate the grid name, related coordinate-system name (i.e., which GRIDDESC horizontal coordinate name that is defined in the previous section that is applied to this grid), and descriptive parameters XORIG, YORIG, XCELL, YCELL, NCOLS, NROWS, and NTHIK. For a typical CMAQ application, both "dot-point" and "cross-point" grids are defined in the GRIDDESC file; these grids are topological duals in the sense that the vertices (corners) of one correspond to the cell-centers of the other.
 
-<span id=Table8-2></span>
+<a id=Table8-2></a>
 
 <center> **Table 8‑2. Coordinate sytem description segment of GRIDDESC**</center>
 
