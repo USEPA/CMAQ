@@ -443,7 +443,7 @@ C Indices of required species
 
 C Flag if optional species present
       Logical :: ae6isoa = .False.
-      Logical :: ae6mp   = .False.
+      Logical :: ae6hg   = .False.
 
 C Optional Species
       Character( 16 ), Private, Parameter :: req_ietet  = 'AIETET'
@@ -580,7 +580,7 @@ C Local Variables:
 
       Integer dust_org1, dust_org2
       Logical ae6isoa
-      Logical ae6mp
+      Logical ae6hg
 
       logdev = setup_logdev()
       mole_weight = 0.0
@@ -756,12 +756,12 @@ C Find indices of required species
          ae6isoa     = .False.
       End If
 
-      If ( Index( mechname, 'CB05TUMP' ) .Gt. 0 .Or. Index( mechname, 'CB6MP' )) Then
-         ae6mp     = .True.
-         aphgj_idx = findAero( req_phgj,  .False. )
+      aphgj_idx = findAero( req_phgj,  .False. )
+      If ( aphgj_idx .Gt. 0 ) Then
+         ae6hg     = .True.
       Else
          aphgj_idx = 0 
-         ae6mp     = .False.
+         ae6hg     = .False.
       End If
 
 C Adjust Dust Emissions for Organic Species, if running with semivolatile POA
@@ -824,12 +824,10 @@ C Adjust Dust Emissions for Organic Species, if running with semivolatile POA
           Write( logdev,'( 5x, a, i4 )' ) 'aimga_idx:  ', aimga_idx
           Write( logdev,'( 5x, a, i4 )' ) 'aimos_idx:  ', aimos_idx
       End If      
-      If ( ae6mp ) Then
-        If ( aphgj_idx .Gt. 0 ) Then
-             Write( logdev,'( 5x, a, i4 )' ) 'aphgj_idx:  ', aphgj_idx
-        Else 
-             Write( logdev,'( 5x, a, i4 )' ) 'PHGJ not found so aphgj_idx: ', aphgj_idx
-        End If
+      If ( ae6hg ) Then
+          Write( logdev,'( 5x, a, i4 )' ) 'aphgj_idx:  ', aphgj_idx
+      Else 
+          Write( logdev,'( 5x, a, i4 )' ) 'PHGJ not found so aphgj_idx: ', aphgj_idx
       End If
 #endif
  
@@ -1203,9 +1201,9 @@ C Find the substring vname in aerospc( spc )%name( n )
       End Do
 
       If ( .Not. required ) Then
-         xmsg =  pname // 'Note: Optional Species '
+         xmsg = ' NOT FATAL: Optional Species '
      &       // Trim( vname ) // ' Not found in AE namelist.'
-         Call m3mesg( xmsg )
+         write(logdev,'(/ a / )')xmsg
          Return
       End If
 

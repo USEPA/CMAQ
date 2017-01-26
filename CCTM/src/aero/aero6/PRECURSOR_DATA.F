@@ -195,18 +195,18 @@ C Find indices of required species
       HCL_idx    = findPrecursor( req_HCL,    .true.)
       NH3_idx    = findPrecursor( req_NH3,    .true.)
       OH_idx     = findPrecursor( req_OH,     .true.)
-      If( aphgj_idx .gt. 0 .And. ae6mp )then
-          PHGRXN_idx = findPrecursor( req_phgrxn,  .false.)
-          If(   precursor_map( PHGRXN_idx ) .Lt. 1  )Then
-             xmsg = ' Gas Phase Precursor ' // Trim( req_PHGRXN )
-     &           // ' not found -> NO gas production of APHG species'
-             Call m3warn( 'map_precursor', 0, 0, xmsg )
-          End If 
+      If( ae6hg )then
+         PHGRXN_idx = findPrecursor( req_phgrxn,  .false.)
+         If(   precursor_map( PHGRXN_idx ) .Lt. 1  )Then
+           xmsg = ' Gas Phase Precursor ' // Trim( req_PHGRXN )
+     &         // ' not found -> NO gas production of APHG species'
+           Call m3warn( 'map_precursor', 0, 0, xmsg )
+         End If 
 #ifdef verbose_aero
-      Else If( ae6mp )then
-          xmsg = ' NO particulate mercury in model.'
-          Call m3warn( 'map_precursor', 0, 0, xmsg )
-          PHGRXN_idx = 0
+      Else 
+         xmsg = ' NO particulate mercury in model.'
+         Call m3warn( 'map_precursor', 0, 0, xmsg )
+         PHGRXN_idx = 0
 #endif
       end if
 
