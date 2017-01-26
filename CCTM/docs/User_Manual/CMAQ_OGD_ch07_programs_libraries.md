@@ -133,7 +133,7 @@ The configuration options listed here are set during compilation of the BCON exe
 
 #### BCON compilation
 
-[Chapter 5](CMAQ_OGD_ch05_sys_req.md) provides an overview of how to install and compile the CMAQ programs for a test simulation. Follow those steps (summarized below) to compile new versions of BCON.
+[Chapter 5](CMAQ_OGD_ch05_sys_req.md) provides an overview of how to install and compile the CMAQ pre-processor programs for a test simulation. Follow those steps (summarized below) to compile new versions of BCON.
 
 1. Compile Bldmake, the CMAQ source code and compilation management program. This needs to be done only once—the first time CMAQ is installed.
 -   Configure the BCON build script to use the available I/O API and netCDF libraries.
@@ -490,14 +490,14 @@ The configuration options listed here are set during compilation of the CCTM exe
 
 #### CCTM compilation
 
-First, it is assumed that you have already installed and compiled the I/O API, netCDF, and MPICH libraries (see Section 3.2.3), or that these are already available from a previous CMAQ compilation.
+First, it is assumed that you have already installed and compiled the I/O API, netCDF, and MPICH libraries, or that these are already available from a previous CMAQ compilation.
 
-Chapter 3.3 provides an overview of how to install and compile the CMAQ programs for the benchmark simulation. Follow the steps outlined in Chapter 3.3 (summarized below) to compile new versions of CCTM:
+Chapter 5 provides an overview of how to install and compile the CMAQ programs for the benchmark simulation. Follow the steps outlined in Chapter 5 (summarized below) to compile new versions of CCTM:
 
 -   If you have not already done so, compile Bldmake, the CMAQ source code and compilation management program. This needs to be done only once—the first time CMAQ is installed.
 -   If needed, configure the CCTM build script to use the available I/O API, netCDF, and MPICH libraries.
 -   If you have not already done so, compile the STENEX and PARIO libraries.
--   Configure the CCTM build script for your application (using the options discussed in Chapter 5.3.2.2)
+-   Configure the CCTM build script for your application (using the options discussed in [Chapter 5](CMAQ_OGD_ch05_sys_req.md)
 -   Invoke the build script to create an executable:
 
 `./bldit.cctm`
@@ -627,11 +627,11 @@ Setting to output the in-line photolysis rates and associated data to diagnostic
 
 -   `CTM_WB_DUST [default: Y|T]`
 
-Setting to calculate in-line windblown dust emissions in CCTM. Setting this variable to Y or T requires the availability of gridded land use input files that include the following BELD USGS land use classifications: shrubland, shrubgrass, and sprsbarren. See Section 5.3.2.1 for a description of the DUST_LU_1 and DUST_LU_2 input files. Comment out variable or set to Y or T to turn on; set to N or F to turn off.
+Setting to calculate in-line windblown dust emissions in CCTM. Setting this variable to Y or T requires the availability of gridded land use input files that include the following BELD USGS land use classifications: shrubland, shrubgrass, and sprsbarren. See [Chapter 5](CMAQ_OGD_ch05_sys_req.md) for a description of the DUST_LU_1 and DUST_LU_2 input files. Comment out variable or set to Y or T to turn on; set to N or F to turn off.
 
 -   `CTM_ERODE_AGLAND [default: N|F]`
 
-Setting to use optional erodible agricultural land classifications for computing windblown dust emissions from agricultural land. Setting this variable to Y or T requires the availability of gridded crop timing data that describe planting start dates, planting end dates, and harvesting end dates for 18 crop types. See Section 5.3.2.1 for a description of the CROPMAP01, CROPMAP04, and CROPMAP08 input files. If CTM_WB_DUST is set to N or F, this setting will be ignored. Set to Y or T to turn on; comment out variable or set to N or F to turn off.
+Setting to use optional erodible agricultural land classifications for computing windblown dust emissions from agricultural land. Setting this variable to Y or T requires the availability of gridded crop timing data that describe planting start dates, planting end dates, and harvesting end dates for 18 crop types. See [Chapter 5](CMAQ_OGD_ch05_sys_req.md#Table5-3) for a description of the CROPMAP01, CROPMAP04, and CROPMAP08 input files. If CTM_WB_DUST is set to N or F, this setting will be ignored. Set to Y or T to turn on; comment out variable or set to N or F to turn off.
 
 -   `CTM_DUSTEM_DIAG [default: N|F]`
 
@@ -848,7 +848,7 @@ CHEMMECH reads in a mechanism definition (mech.def) text file that lists the sto
 
 CSV2NML reads in a series of CSV files that define the processes that impact the concentrations of all of the CMAQ species. The CSV files are converted to NAMELIST files that are invoked at execution of the various CMAQ programs. Environment variables in the run scripts for ICON, BCON, and CCTM must be set to point to the NAMELIST files for a particular mechanism.
 
-See Section 9.4 for details on how to update existing mechanisms or create new mechanisms in CMAQ.
+See [Chapter 9](CMAQ_OGD_ch09_grid_defn.md)) for details on how to update existing mechanisms or create new mechanisms in CMAQ.
 
 ### Files, configuration, and environment variables
 
@@ -860,7 +860,7 @@ See Section 9.4 for details on how to update existing mechanisms or create new m
 <center>**Figure 7‑5. CHEMMECH and CSV2NML input and output files**</center>
 
 <br>
-<p>To implement a new mechanism in CMAQ, start with a mechanism definition (mech.def) file and CSV species files from an existing mechanism in the model. Edit the mech.def file to include the new reactions, species, and reaction rates and provide this new mech.def file as input to CHEMMECH. Edit the CSV species files to include the new species and provide these files as input to CSV2NML. Detailed examples of updating an existing mechanism and adding a new mechanism to CMAQ are provided in Section 7.4. Neither CHEMMECH nor CSV2NML requires horizontal grid, vertical layer, or temporal settings.</p>
+<p>To implement a new mechanism in CMAQ, start with a mechanism definition (mech.def) file and CSV species files from an existing mechanism in the model. Edit the mech.def file to include the new reactions, species, and reaction rates and provide this new mech.def file as input to CHEMMECH. Edit the CSV species files to include the new species and provide these files as input to CSV2NML. Detailed examples of updating an existing mechanism and adding a new mechanism to CMAQ are provided in [Chapter 9](CMAQ_OGD_ch09_grid_defn.md). Neither CHEMMECH nor CSV2NML requires horizontal grid, vertical layer, or temporal settings.</p>
 
 #### CHEMMECH input files
 
@@ -940,7 +940,7 @@ The location of the CHEMMECH output files is set in the run script by the variab
 
 #### CSV2NML input files
 
-Detailed descriptions of the formats of the files shown in [Table 7-11](#Table5-9) are provided in Section 8. <a id=Table7-11></a>
+Detailed descriptions of the formats of the files shown in [Table 7-11](#Table5-9) are provided in [Chapter 8](CMAQ_OGD_ch08_input_files.md). <a id=Table7-11></a>
 
 <center>**Table 7‑11. CSV2NML input files**</center>
 
