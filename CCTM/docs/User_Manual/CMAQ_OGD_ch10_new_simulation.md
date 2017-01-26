@@ -114,7 +114,7 @@ Not all of the combinations of the various CCTM configuration options have been 
 
 The availability of different science options in CMAQ creates the flexibility to select a configuration that optimizes the model performance for different applications. Through testing the various science configurations with respect to model accuracy and speed, the CMAQ user can find the combination of science options that gives the best performance for a particular modeling study.
 
-References
+References for Chapter 10: New Simulations
 ----------
 
 GEOS-CHEM (2009) <http://wiki.seas.harvard.edu/geos-chem/index.php/Main_Page>

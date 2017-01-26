@@ -338,7 +338,7 @@ The CMAS Center currently fully supports CMAQ on Linux systems using the Gnu, Po
 
 **CMAQ users are strongly urged** to use the *same* Fortran compiler for *all* components of the CMAQ system, including the netCDF and I/O API libraries on which CMAQ depends.
 
-References
+References for Chapter 4: Science Overview
 -----------------------------------------------
 
 Binkowski, F.S., and U. Shankar, 1995: The Regional Particulate Model: Part I. Model description and preliminary results. *J. Geophys. Res*., **100**, 26 191–26 209.

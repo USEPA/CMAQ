@@ -1052,7 +1052,7 @@ Based on the insights gained from the testing and archiving of a development ver
 
 Model developers are also recommended to check the CMAS website to see if there are any additional guidelines that have been recommended since the first set listed above.
 
-References
+References for Chapter 11: Code Management
 ----------
 
 Fine, S. S., W. T. Smith, D. Hwang, T. L. Turner, 1998: Improving model development with configuration management, IEEE Computational Science and Engineering, 5(1, Ja-Mr), 56-65.
