@@ -3,7 +3,7 @@
 4. Overview of the Science in the CMAQ Modeling System
 ===================================================
 
-As discussed in [Chapter 3](CMAQ_OGD_cho03_features.md), CMAQ is a multipollutant, multiscale air quality modeling system that estimates the transport and chemistry of ozone, PM, toxic airborne pollutants (referred to as “air toxics”), visibility, and acidic and nutrient pollutant species. CMAQ includes state-of-the-art technical and computational techniques to simulate air quality from urban to global scales. It can model complex atmospheric processes affecting transformation, transport, and deposition of air pollutants using a system architecture that is designed for fast and efficient computing. While superceded by several science updates since its release, the [Science Algorithms of the EPA Models-3 Community Multiscale Air Quality Modeling System](https://www.cmascenter.org/cmaq/science_documentation/) continues to be important reference for the science and design of CMAQ. [Chapter 3](CMAQ_OGD_cho03_features.md) includes links to descriptions of the updates made to CMAQ by release version.
+As discussed in [Chapter 1](CMAQ_OGD_ch01_intro.md), CMAQ is a multipollutant, multiscale air quality modeling system that estimates the transport and chemistry of ozone, PM, toxic airborne pollutants (referred to as “air toxics”), visibility, and acidic and nutrient pollutant species. CMAQ includes state-of-the-art technical and computational techniques to simulate air quality from urban to global scales. It can model complex atmospheric processes affecting transformation, transport, and deposition of air pollutants using a system architecture that is designed for fast and efficient computing. While superceded by several science updates since its release, the [Science Algorithms of the EPA Models-3 Community Multiscale Air Quality Modeling System](https://www.cmascenter.org/cmaq/science_documentation/) continues to be important reference for the science and design of CMAQ. [Chapter 3](CMAQ_OGD_cho03_features.md) includes links to descriptions of the updates made to CMAQ by release version.
 
 CMAQ has been developed to meet the needs of both the research and application communities. The CMAQ system allows users to easily construct model variations with different characteristics, such as different chemical mechanisms or alternative cloud treatments, in order to address a specific air quality issue (illustrated schematically in [Figure 4-1](#Figure4-1)). This modeling configuration allows CMAQ to retain its state-of-the-science status over time because it facilitates the implementation of new science modules as appropriate.
 
@@ -19,7 +19,7 @@ CMAQ has been developed to meet the needs of both the research and application c
 </center>
 CMAQ can be employed for regulatory applications by using approved standard configurations of the modeling platform that represent the best available modeling technology at a given time. At the same time, the CMAQ modeling system is also a useful tool for the model developer. It is unique in that its components are designed in a flexible, modular fashion with a user interface; model developers can use these design features to create complex modeling situations and scenarios, or to develop entirely new models using a standardized coding framework. Model developers can also perform sensitivity analyses on newly developed modules and perform comparisons with existing systems.
 
-This chapter summarizes the CMAQ modeling system framework and science features in various components of the CMAQ system, including MCIP, ICON, BCON, JPROC, CHEMMECH, PROCAN, and CCTM. More detailed discussions on these features can be found in [Byun and Ching (1999)](https://www.cmascenter.org/cmaq/science_documentation/) and Byun and Schere (2006). The last section of this chapter discusses the CMAQ user interface for building and running CMAQ.
+This chapter summarizes the CMAQ modeling system framework and science features in various components of the CMAQ system, including MCIP, ICON, BCON, JPROC, CHEMMECH, PROCAN, and CCTM. More detailed discussions on these features can be found in [Byun and Ching (1999)](https://www.cmascenter.org/cmaq/science_documentation/) and Byun and Schere (2006). The [next chapter](CMAQ_OGD_ch05_sys_req.md) discusses the CMAQ user interface for building and running CMAQ.
 
 Features Implemented to Achieve the Goals of CMAQ
 -------------------------------------------------
@@ -83,7 +83,7 @@ The CMAQ system was designed to minimize the potential for model simulation erro
 CMAQ Input Processors
 ---------------------
 
-CCTM uses data from other models and CMAQ input processing programs as input for model simulations (Figure 2-2).
+CCTM uses data from other models and CMAQ input processing programs as input for model simulations [Figure 2-2](#Figure2-2).
 
 <a id=Figure2-2></a>
 
@@ -110,6 +110,15 @@ CMAQ uses the MCIP software to prepare the meteorological fields for CCTM. The I
 ## MCIP: Meteorology-Chemistry Interface Processor
 
 MCIP uses output files from a meteorological model, such as the <a href="http://www.wrf-model.org">Weather Research Forecast Model (WRF)</a>, to create netCDF-formatted input meteorology files that are used by the emissions model that computes emissions inputs to CMAQ, and by CCTM within CMAQ.
+<a id="Figure4-3"></a>
+
+<center>
+![](./images/Figure4-3.png "Figure4-3.png")
+
+</center>
+<center>
+**Figure 4‑3. Meteorology preprocessing for CMAQ with MCIP**
+
 
 Using output fields from the meteorological model, MCIP performs the following functions:
 
@@ -121,13 +130,20 @@ Using output fields from the meteorological model, MCIP performs the following f
 
 ## ICON and BCON: The initial and boundary conditions processors
 
-To perform air quality simulations, both initial and boundary conditions are required. Initial conditions (calculated in ICON) are needed to provide concentrations of individual chemical species for the first time step throughout the modeling domain. Boundary conditions (calculated in BCON) are needed to provide concentrations of individual chemical species at the lateral boundaries of the modeling domain. In a single run of each processor, ICON and BCON can generate these concentrations for all of the chemical species required by CMAQ. ICON and BCON require a file that specifies the concentrations of various chemical species in the troposphere and specification of the photochemical chemical and aerosol mechanisms that will be used in the supported CCTM simulation.
+To perform air quality simulations, both initial and boundary conditions are required. Initial conditions (calculated in ICON) are needed to provide concentrations of individual chemical species for the first time step throughout the modeling domain. Boundary conditions (calculated in BCON) are needed to provide concentrations of individual chemical species at the lateral boundaries of the modeling domain. In a single run of each processor, ICON and BCON can generate these concentrations for all of the chemical species required by CMAQ. ICON and BCON require a file that specifies the concentrations of various chemical species in the troposphere and specification of the photochemical chemical and aerosol mechanisms that will be used in the supported CCTM simulation. These processors require two inputs [Figure 4‑4](#Figure4-4): a concentration file for the chemical species to be simulated, and the chemical mechanism. 
 
 ***Concentration file:*** The concentration file used in ICON and BCON can come from one of two sources:
 
 -   A time-independent set of vertical concentration profiles that are dependent upon the chemical mechanism being used. This approach is usually taken when no other information about the initial and boundary concentrations is available. CMAQ is currently distributed with IC and BC profiles for the CB05, SAPRC-07T, and SAPRC-99 photochemical mechanisms and the CMAQ AERO6 aerosol module. These files are set at the four boundaries (north, east, south, west) of the computational grid and are thus fixed in space.
 
 -   Existing CCTM 3-D concentration fields. Usually, this option is selected when performing a nested model simulation and modeling results from a previous CCTM simulation are available from a coarser-grid-resolution simulation. Existing CCTM concentration fields are also used when a CCTM simulation is extended in time in a separate run step. Unlike the profiles discussed in the previous bullet, these CCTM concentration files are spatially and temporally resolved.
+
+<a id="Figure4-4"></a>
+<center>
+![](./images/Figure4-4.png "Figure4-4.png")
+</center>
+<center>**Figure 4‑4. Initial and boundary conditions preprocessing for CMAQ**
+
 
 ***Chemical mechanism:*** Both the vertical concentration profiles and the CCTM concentration fields have specific chemical mechanisms associated with them, which are a function of how the files were originally generated. Either a generic ASCII input profile or an existing CCTM 3-D concentration file can be used to generate initial and boundary conditions for the CCTM. The user must consider the gas-phase chemical mechanism and aerosol module being used for the CCTM simulation when configuring ICON and BCON. CMAQ includes ASCII input profiles for the CB05, SAPRC-07T, and SAPRC-99 photochemical mechanisms and the CMAQ AERO6 aerosol module. Existing CCTM 3‑D concentration fields could have been generated using several different chemical mechanisms.
 
