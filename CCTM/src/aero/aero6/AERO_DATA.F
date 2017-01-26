@@ -861,7 +861,7 @@ C compute aeromode_minNum and aeromode_minM2
       Write( logdev,'( 5x, a )' ) ' --- Aero Species Mapped ---'
 
 99901 Format( 'FATAL Error(s) found in the AE namelist used. Check that ' 
-     &     /  'this AE namelist contains the above data as the file in '
+     &     /  'this AE namelist contains the above required data as the file in '
      &     /  'the respository version of the mechanism: ', a )
       Return
       End Subroutine map_aero

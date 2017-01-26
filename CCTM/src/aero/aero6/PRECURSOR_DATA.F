@@ -237,7 +237,7 @@ C Find indices of required species
       Write( logdev,'( 5x, a )' ) ' --- Precursor Species Mapped ---'
 
 99901 Format( 'FATAL error(s) found in the GC and/or NR namelists used. Check that '
-     &     /  'these namelists contain the above data as the respective files '
+     &     /  'these namelists contain the above required data as the respective files '
      &     /  'in the respository version of the mechanism: ' , a )
 99902 Format( 'Note: ', a, ' is not found in G2AE or N2AE values of '
      &    /   'the GC or NR namelist. Simulation does not include effects '
@@ -386,7 +386,7 @@ C Local Variables:
       End Do
 
       xmsg = 'FATAL: ' // Trim( vname )
-     &    // ' is not found in the G2AE or N2AE values of GC or namelists'
+     &    // ' is not found in the G2AE or N2AE values of GC or NR namelists'
       Precursor_eflag  = .True.
       Call m3warn( pname, 0, 0, xmsg )
 !     Call m3exit( pname, 0, 0, xmsg, xstat3 )

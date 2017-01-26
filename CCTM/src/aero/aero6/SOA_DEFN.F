@@ -291,11 +291,14 @@ C precursor
             If ( n .Lt. 1 ) Then
               n = index1( vaporspc( spc )%drog_name, n_nr_spc, nr_spc )
               If ( n .Lt. 1 ) Then
-                 xmsg = 'FATAL: SOA Precursor, ' // Trim( vaporspc( spc )%drog_name )
-     &               // ', is not found among the species in GC or NR namelist'
-     &               // ' used. '
+!                 xmsg = 'FATAL: SOA Precursor, ' // Trim( vaporspc( spc )%drog_name )
+!     &               // '. is not found among the species in GC or NR namelist'
+!     &               // ' used. Required for modeling vapor, '
+!     &               // Trim( vaporspc( spc )%name )
                 SOA_eflag  = .True.
-                Call m3warn( pname, 0, 0, xmsg )
+                write(logdev,99903)Trim( vaporspc( spc )%drog_name ),
+     &          Trim( vaporspc( spc )%name )
+!                Call m3warn( pname, 0, 0, xmsg )
               End If
             End If
          End Do
@@ -329,9 +332,6 @@ C phase as model species
              End If
          End Do
 
-99902    Format('FATAL: SOA Vapor, ', a, ', is not found among the species in '
-     &        / 'the NR or GC namelist used. Required for modeling ', a / )
-  
 C Build mapping to CGRID for each vapor species
 C Add option to have species in GC.nml (for real semivolatiles)
          vapor_mw = 0.0
@@ -495,8 +495,10 @@ C Species they correspond to (aerospc is used inside findAero)
          Do spc = 1, n_vapor
             If ( vaporspc( spc )%soa_name .Ne. ' ' ) Then
                soa_aeroMap( spc ) = findAero( vaporspc( spc )%soa_name, .True. )
+               If( soa_aeroMap( spc ) .Lt. 1 ) write(logdev,99904) Trim( vaporspc( spc )%name )
             End If
          End Do
+
 
 C Build Mapping array of Reactive variables that track production rates
 C of condensable gases (orgprod) to any nonvolatile species they yield
@@ -505,8 +507,10 @@ C (aerospc is used inside findAero)
          Do spc = 1, n_orgprod
             If ( orgprod( spc )%aerospc .Ne. ' ' ) Then
                orgprod_aeroMap( spc ) = findAero( orgprod( spc )%aerospc, .True. )
+               If( orgprod_aeroMap( spc ) .Lt. 1 ) write(logdev,99905) Trim( orgprod( spc )%name )
             End If
          End Do
+
 
 C Build mapping array of sources of Semivolatile Vapors (vaporspc) to the
 C Reactive variables that store their production rates (orgprod)
@@ -514,6 +518,7 @@ C Reactive variables that store their production rates (orgprod)
          Do spc = 1, n_vapor
             If ( vaporspc( spc )%drog_name .Ne. ' ' ) Then
                drog_map( spc ) = findOrgprod( vaporspc( spc )%drog_name )
+               If( drog_map( spc ) .Lt. 1 ) write(logdev,99905) Trim( orgprod( spc )%name )
             End If
          End Do
 
@@ -553,9 +558,17 @@ C Copy grid cell concentrations of ORGPROD species
 C Adjust ALK orgprod for fraction that produces SOA
 !      orgprod_conc( 1 ) = alk_factor * orgprod_conc( 1 )
 
-99901 Format( 'FATAL Error(s) found in the namelist(s). Check that '
-     &     /  'these namelists contain the above data as the files in '
-     &     /  'the respository version of the mechanism: ', a )
+99901 Format(/'FATAL Error(s) found in the namelist(s) used. Check that '
+     &     /  'these namelists contain the data as the files in '
+     &     /  'the respository version of the mechanism: ', a / )
+99902 Format('FATAL: SOA Vapor, ', a, ', is not found among the species in '
+     &        / 'the NR or GC namelist used. Required for modeling ', a / )
+99903 Format( 'FATAL: SOA Precursor, ', a,  '. is not found among the species',
+     &         / 'in GC or NR namelist used. Required for modeling vapor, ', a / )
+99904 Format(1X,'aerosol product from namelist species: ', a /)
+99905 Format(1X,'aerosol by-product from namelist species : ', a /)
+99906 Format(1X,'precursor from namelist species : ', a /)
+  
 
       Return
       End Subroutine extract_soa
