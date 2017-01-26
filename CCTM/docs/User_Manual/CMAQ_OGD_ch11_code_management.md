@@ -719,323 +719,411 @@ To run a model executable, various UNIX environment variables must be set in the
 The following is a sample run script that can be downloaded from the CMAS web site. The build and run scripts are part of the downloaded tar file from this site.
 
 ```Tcsh
-\#! /bin/csh –f
-
-\# ======================== CCTMv4.7 Run Script ====================== \#
-
-\# Usage: run.cctm \>&! cctm\_e3a.log & \#
-
-\# The following environment variables must be set for this script to \#
-
-\# execute properly: \#
-
-\# setenv M3DATA = input/output data directory \#
-
-\# To report problems or request help with this script/program: \#
-
-\# <http://www.cmascenter.org/html/help.html> \#
-
-\# =================================================================== \#
-
-\#\> Check that M3DATA is set:
-
-if ( ! -e \$M3DATA ) then
-
-echo " \$M3DATA path does not exist"
-
-exit 1
-
-endif
-
-echo " "; echo " Input data path, M3DATA set to \$M3DATA"; echo " "
-
-set APPL = e3a
-
-set CFG = e3a
-
-\#set CFG = \$APPL
-
-set EXEC = CCTM\_\$CFG \# ctm version
-
-\#\> horizontal domain decomposition
-
-\#setenv NPCOL\_NPROW "1 1"; set NPROCS = 1 \# single processor setting
-
-setenv NPCOL\_NPROW "4 2"; set NPROCS = 8
-
-\#\> for Scyld Beowulf ...
-
-\#setenv NP \$NPROCS
-
-\#setenv BEOWULF\_JOB\_MAP -1:-1:0:0:1:1:2:2:3:3:4:4
-
-\#echo " task-processor map \`beomap\`"
-
-\#\> Set the working directory:
-
-set BASE = \$cwd
-
-cd \$BASE; date; cat \$BASE/cfg.\$CFG; echo " "; set echo
-
-\#\> timestep run parameters
-
-set STDATE = 2001203 \# beginning date
-
-set STTIME = 000000 \# beginning GMT time (HHMMSS)
-
-set NSTEPS = 240000 \# time duration (HHMMSS) for this run
-
-set TSTEP = 010000 \# output time step interval (HHMMSS)
-
-\#\> set log file [ default = unit 6 ]; uncomment to write standard output to a log
-
-\#setenv LOGFILE \$BASE/\$APPL.log
-
-\#\> turn off excess WRITE3 logging
-
-setenv IOAPI\_LOG\_WRITE F
-
-\#\> max sync time step (sec) (default is 720)
-
-\#setenv CTM\_MAXSYNC 300
-
-\#\> aerosol diagnostic file [ T | Y | F | N ] (default is F|N)
-
-\#setenv CTM\_AERDIAG Y
-
-\#\> sea-salt emissions diagnostic file [ T | Y | F | N ] (default is F|N)
-
-\#setenv CTM\_SSEMDIAG Y
-
-\#\> stop on inconsistent input file [ T | Y | F | N ]
-
-setenv FL\_ERR\_STOP F
-
-\#\> remove existing output files?
-
-\#set DISP = delete
-
-\#set DISP = update
-
-set DISP = keep
-
-\#\> output files and directories
-
-set OUTDIR = \$M3DATA/cctm
-
-if ( ! -d "\$OUTDIR" ) mkdir -p \$OUTDIR
-
-set CONCfile = \$EXEC"CONC".\$APPL \# CTM\_CONC\_1
-
-set ACONCfile = \$EXEC"ACONC".\${APPL} \# CTM\_ACONC\_1
-
-set CGRIDfile = \$EXEC"CGRID".\${APPL} \# CTM\_CGRID\_1
-
-set DD1file = \$EXEC"DRYDEP".\$APPL \# CTM\_DRY\_DEP\_1
-
-set WD1file = \$EXEC"WETDEP1".\$APPL \# CTM\_WET\_DEP\_1
-
-set WD2file = \$EXEC"WETDEP2".\$APPL \# CTM\_WET\_DEP\_2
-
-set SS1file = \$EXEC"SSEMIS1".\$APPL \# CTM\_SSEMIS\_1
-
-set AV1file = \$EXEC"AEROVIS".\$APPL \# CTM\_VIS\_1
-
-set AD1file = \$EXEC"AERODIAM".\$APPL \# CTM\_DIAM\_1
-
-set PA1file = \$EXEC"PA\_1".\$APPL \# CTM\_IPR\_1
-
-set PA2file = \$EXEC"PA\_2".\$APPL \# CTM\_IPR\_2
-
-set PA3file = \$EXEC"PA\_3".\$APPL \# CTM\_IPR\_3
-
-set IRR1file = \$EXEC"IRR\_1".\$APPL \# CTM\_IRR\_1
-
-set IRR2file = \$EXEC"IRR\_2".\$APPL \# CTM\_IRR\_2
-
-set IRR3file = \$EXEC"IRR\_3".\$APPL \# CTM\_IRR\_3
-
-set RJ1file = \$EXEC"RJ\_1".\$APPL \# CTM\_RJ\_1
-
-set RJ2file = \$EXEC"RJ\_2".\$APPL \# CTM\_RJ\_2
-
-\#\> set ancillary log file name extensions
-
-setenv CTM\_APPL \$APPL
-
-\#\> set floor file (neg concs)
-
-setenv FLOOR\_FILE \$BASE/FLOOR\_\${APPL}
-
-\#\> horizontal grid defn; check GRIDDESC file for GRID\_NAME options
-
-setenv GRIDDESC ../GRIDDESC1
-
-setenv GRID\_NAME M\_36\_2001
-
-\#\> species for standard conc
-
-\#setenv CONC\_SPCS "O3 NO ANO3I ANO3J NO2 FORM ISOP ANH4J ASO4I ASO4J"
-
-\#\> layer range for standard conc
-
-\#setenv CONC\_BLEV\_ELEV " 1 4"
-
-\#\> species for integral average conc
-
-setenv AVG\_CONC\_SPCS "O3 NO CO NO2 ASO4I ASO4J NH3"
-
-\#setenv AVG\_CONC\_SPCS "ALL"
-
-\#\> layer range for integral average conc
-
-setenv ACONC\_BLEV\_ELEV " 1 1"
-
-\#\> input files and directories
-
-set OCEANpath = \$M3DATA/emis/2001
-
-set OCEANfile = us36\_surf.40x44.ncf
-
-set EMISpath = \$M3DATA/emis/2001
-
-set EMISfile = emis3d.20010722.US36\_40X44.ncf
-
-\#set TR\_EMpath =
-
-\#set TR\_EMfile =
-
-\#set GC\_ICpath = \$OUTDIR
-
-\#set GC\_ICfile = CCTM\_e3aCGRID.d1b
-
-set GC\_ICpath = \$M3DATA/icon
-
-set GC\_ICfile = ICON\_cb05cl\_M\_36\_2001\_profile
-
-set GC\_BCpath = \$M3DATA/bcon
-
-set GC\_BCfile = BCON\_cb05cl\_M\_36\_2001\_profile
-
-set METpath = \$M3DATA/mcip3/M\_36\_2001
-
-set extn = 010722
-
-set GC2file = GRIDCRO2D\_\${extn}
-
-set GD2file = GRIDDOT2D\_\${extn}
-
-set MC2file = METCRO2D\_\${extn}
-
-set MD3file = METDOT3D\_\${extn}
-
-set MC3file = METCRO3D\_\${extn}
-
-set MB3file = METBDY3D\_\${extn}
-
-set TR\_DVpath = \$METpath
-
-set TR\_DVfile = \$MC2file
-
-\#\> 7-level photolysis data w/ file header
-
-set JVALpath = \$M3DATA/jproc
-
-set JVALfile = JTABLE\_\${STDATE}
-
-set AE\_ICpath = \$GC\_ICpath
-
-set NR\_ICpath = \$GC\_ICpath
-
-set TR\_ICpath = \$GC\_ICpath
-
-set AE\_ICfile = \$GC\_ICfile
-
-set NR\_ICfile = \$GC\_ICfile
-
-set TR\_ICfile = \$GC\_ICfile
-
-set AE\_BCpath = \$GC\_BCpath
-
-set NR\_BCpath = \$GC\_BCpath
-
-set TR\_BCpath = \$GC\_BCpath
-
-set AE\_BCfile = \$GC\_BCfile
-
-set NR\_BCfile = \$GC\_BCfile
-
-set TR\_BCfile = \$GC\_BCfile
-
-\#\> input and output files and directories (boilerplate)
-
-source in\_out.q
-
-if ( \$status ) exit 1
-
-\#\> for the run control ...
-
-setenv CTM\_STDATE \$STDATE
-
-setenv CTM\_STTIME \$STTIME
-
-setenv CTM\_RUNLEN \$NSTEPS
-
-setenv CTM\_TSTEP \$TSTEP
-
-setenv CTM\_PROGNAME \$EXEC
-
-\#\> look for existing log files
-
-set test = \`ls CTM\_LOG\_???.\${APPL}\`
-
-if ( "\$test" != "" ) then
-
-if ( \$DISP == 'delete' ) then
-
-echo " ancillary log files being deleted"
-
-foreach file ( \$test )
-
-echo " deleting \$file"
-
-rm \$file
-
-end
-
+#!/bin/csh -f
+
+# ====================== CCTMv5.1 Run Script ====================== 
+# Usage: run.cctm >&! cctm_D51a.log &                                
+#
+# To report problems or request help with this script/program:        
+#             http://www.cmascenter.org
+# =================================================================== 
+
+#> Source the config.cmaq file to set the run environment
+ source ../../config.cmaq.pgi
+
+#> Check that CMAQ_DATA is set:
+ if ( ! -e $CMAQ_DATA ) then
+    echo "   $CMAQ_DATA path does not exist"
+    exit 1
+    endif
+ echo " "; echo " Input data path, CMAQ_DATA set to $CMAQ_DATA"; echo " "
+
+ set PROC     = mpi #> serial or mpi
+ set APPL     = v52b
+ set CFG      = CMAQ52b_${PROC}
+ set MECH     = cb05e51_ae6_aq
+ set EXEC     = CCTM_${APPL}_$EXEC_ID
+
+#> horizontal domain decomposition
+if ( $PROC == serial ) then
+   setenv NPCOL_NPROW "1 1"; set NPROCS   = 1 # single processor setting
 else
-
-echo "\*\*\* Logs exist - run ABORTED \*\*\*"
-
-exit 1
-
+   setenv NPCOL_NPROW "4 4"; set NPROCS   = 16
 endif
 
+#> Set the working directory
+ set BASE     = $CMAQ_HOME/CCTM/scripts
+ set BLD      = ${BASE}/BLD_CCTM_${APPL}
+
+ cd $BASE; date; cat $BLD/cfg.$EXEC; echo "    "; set echo
+
+#> timestep run parameters
+
+ set STDATE   = 2011182       # beginning date
+ set STTIME   = 000000        # beginning GMT time (HHMMSS)
+ set NSTEPS   = 240000        # time duration (HHMMSS) for this run
+ set TSTEP    = 010000        # output time step interval (HHMMSS)
+ set YEAR  = 2011
+ set YR    = 11
+ set MONTH = 07
+ set DAY   = 01
+ set YMD   = ${YEAR}${MONTH}${DAY}
+
+# =====================================================================
+# CCTM Configuration Options
+# =====================================================================
+#setenv LOGFILE $BASE/$APPL.log  #> log file name; uncomment to write standard output to a log, otherwise write to screen
+
+setenv GRID_NAME 12CalnexBench         #> check GRIDDESC file for GRID_NAME options
+setenv GRIDDESC $CMAQ_DATA/mcip/GRIDDESC  #> grid description file                                                  
+
+#setenv CONC_SPCS "O3 NO ANO3I ANO3J NO2 FORM ISOP ANH4J ASO4I ASO4J" #> CONC file species; comment or set to "ALL" to write all speci
+es to CONC
+#setenv CONC_BLEV_ELEV " 1 4" #> CONC file layer range; comment to write all layers to CONC
+
+setenv AVG_CONC_SPCS "O3 NO CO NO2 ASO4I ASO4J NH3" #> ACONC file species; comment or set to "ALL" to write all species to ACONC
+setenv ACONC_BLEV_ELEV " 1 1"  #> ACONC file layer range; comment to write all layers to ACONC
+#setenv ACONC_END_TIME Y        #> override default beginning ACON timestamp [ default: N ]
+
+setenv EXECUTION_ID $EXEC    #> define the model execution id
+
+#> Sychronization Time Step and Tolerance Options
+setenv CTM_MAXSYNC 300       #> max sync time step (sec) [ default: 720 ]
+setenv CTM_MINSYNC  60       #> min sync time step (sec) [ default: 60 ]
+setenv SIGMA_SYNC_TOP 0.7    #> top sigma level thru which sync step determined [ default: 0.7 ] 
+#setenv ADV_HDIV_LIM 0.95     #> maximum horiz. div. limit for adv step adjust [ default: 0.9 ]
+setenv CTM_ADV_CFL 0.95      #> max CFL [ default: 0.75]
+#setenv RB_ATOL 1.0E-09       #> global ROS3 solver abs tol [ default: 1.0E-07 ] 
+
+#> Science Options
+setenv CTM_WB_DUST N         #> use inline windblown dust emissions [ default: Y ]
+setenv CTM_ERODE_AGLAND Y    #> use agricultural activity for windblown dust [ default: N ]; ignore if CTM_WB_DUST = N
+setenv CTM_WBDUST_BELD BELD3 #> landuse database for identifying dust source regions [ default: BELD3 ]; ignore if CTM_WB_DUST = N 
+setenv CTM_LTNG_NO Y         #> turn on lightning NOx [ default: N ]
+setenv CTM_WVEL Y            #> save derived vertical velocity component to conc file [ default: N ]
+setenv KZMIN Y               #> use Min Kz option in edyintb [ default: Y ], otherwise revert to Kz0UT
+setenv CTM_ILDEPV Y          #> calculate in-line deposition velocities [ default: Y ]
+setenv CTM_MOSAIC N          #> landuse specific deposition velocities [ default: N ]                               
+setenv CTM_FST N             #> mosaic method to get land-use specific stomatal flux [ default: N ]
+setenv CTM_ABFLUX Y          #> ammonia bi-directional flux for in-line deposition velocities [ default: N ]; ignore if CTM_ILDEPV = N
+setenv CTM_HGBIDI Y          #> mercury bi-directional flux for in-line deposition velocities [ default: N ]; ignore if CTM_ILDEPV = N
+setenv CTM_SFC_HONO Y        #> surface HONO interaction [ default: Y ]; ignore if CTM_ILDEPV = N
+setenv CTM_GRAV_SETL Y       #> vdiff aerosol gravitational sedimentation [ default: Y ]
+setenv CTM_BIOGEMIS Y        #> calculate in-line biogenic emissions [ default: N ]
+setenv CTM_PT3DEMIS Y        #> calculate in-line plume rise for elevated point emissions [ default: N ]
+
+#> Process Analysis Options
+setenv CTM_PROCAN N          #> use process analysis [ default: N]
+#> process analysis global column, row and layer ranges
+#>>> user must check GRIDDESC for validity!
+setenv PA_BCOL_ECOL "10 320"
+setenv PA_BROW_EROW "10 195"
+setenv PA_BLEV_ELEV "1  4"
+
+#> I/O Controls
+setenv IOAPI_LOG_WRITE F     #> turn on excess WRITE3 logging [ options: T | F ]
+setenv FL_ERR_STOP N         #> stop on inconsistent input files
+setenv PROMPTFLAG F          #> turn on I/O-API PROMPT*FILE interactive mode [ options: T | F ]
+setenv IOAPI_OFFSET_64 NO    #> support large timestep records (>2GB/timestep record) [ options: YES | NO ]         
+
+#> AeroSprint Controls
+setenv CTM_AVISDIAG N        #> diagnostic file [ default: N ]
+setenv CTM_PMDIAG N          #> What is this [ default: Y ]
+setenv CTM_APMDIAG N         #> What is this [ default: Y ]
+setenv APMDIAG_BLEV_ELEV "1 3" #> layer range for average pmdiag
+setenv APMDIAG_BLEV_ELEV ""  #> layer range for average pmdiag = NLAYS
+setenv AVG_FILE_ENDTIME N    #> What is this [ default: N ]
+
+#> Diagnostic Output Flags
+setenv CTM_CKSUM N           #> cksum report [ default: Y ]
+setenv CLD_DIAG N            #> cloud diagnostic file [ default: N ]
+setenv CTM_AERDIAG Y         #> aerosol diagnostic file [ default: N ]
+setenv CTM_PHOTDIAG N        #> photolysis diagnostic file [ default: N ]
+setenv CTM_SSEMDIAG N        #> sea-salt emissions diagnostic file [ default: N ]
+setenv CTM_DUSTEM_DIAG N     #> windblown dust emissions diagnostic file [ default: N ]; ignore if CTM_WB_DUST = N
+setenv CTM_DEPV_FILE N       #> deposition velocities diagnostic file [ default: N ]
+setenv VDIFF_DIAG_FILE N     #> vdiff & possibly aero grav. sedimentation diagnostic file [ default: N ]
+setenv LTNGDIAG N            #> lightning diagnostic file [ default: N ]
+setenv CTM_AOD N             #> AOD diagnostic file [ default: N ]
+setenv B3GTS_DIAG N          #> beis mass emissions diagnostic file [ default: N ]
+setenv PT3DDIAG N            #> optional 3d point source emissions diagnostic file [ default: N]; ignore if CTM_PT3DEMIS = N
+setenv PT3DFRAC N            #> optional layer fractions diagnostic (play) file(s) [ default: N]; ignore if CTM_PT3DEMIS = N
+setenv REP_LAYER_MIN -1      #> Minimum layer for reporting plume rise info [ default: -1 ]
+
+#> MPI Optimization Flags 
+setenv MPI_SM_POOL 16000     #> increase shared memory pool in case many MPI_SEND headers
+setenv MP_EAGER_LIMIT 65536  #> set MPI message passing buffer size to max                                          
+setenv MP_SINGLE_THREAD yes  #> optimizate for single threaded applications [ default: no ]
+setenv MP_STDOUTMODE ordered #> order output by the processor ID 
+setenv MP_LABELIO yes        #> label output by processor ID [ default: no ]
+setenv MP_SHARED_MEMORY yes  #> force use of shared memory for tasks on same node [ default: no ]
+setenv MP_ADAPTER_USE shared #> share the MP adapter with other jobs 
+setenv MP_CPU_USE multiple   #> share the node with multiple users/jobs
+setenv MP_CSS_INTERRUPT yes  #> specify whether arriving packets generate interrupts [ default: no ]
+
+set DISP = delete            #> [ delete | update | keep ] existing output files
+
+# =====================================================================
+#> Input/Output Directories
+# =====================================================================
+
+set ICpath    = $CMAQ_DATA/icon      #> initial conditions input directory 
+set BCpath    = $CMAQ_DATA/bcon      #> boundary conditions input directory
+set EMISpath  = $CMAQ_DATA/emis      #> surface emissions input directory
+set IN_PTpath = $CMAQ_DATA/emis      #> elevated emissions input directory (in-line point only)
+set IN_LTpath = $CMAQ_DATA/lightning #> lightning NOx input directory
+set METpath   = $CMAQ_DATA/mcip      #> meteorology input directory 
+set JVALpath  = $CMAQ_DATA/jproc     #> offline photolysis rate table directory
+set OMIpath   = $CMAQ_HOME/CCTM/src/phot/inline #> ozone columne data for the photolysis model                      
+set LUpath    = $CMAQ_DATA/dust      #> BELD landuse data for windblown dust model
+set SZpath    = $CMAQ_DATA/ocean     #> surf zone file for in-line seasalt emissions
+set NMLpath   = $CMAQ_HOME/CCTM/src/MECHS #> mechanism namelist files
+
+set OUTDIR   = $CMAQ_DATA/cctm       #> output file directory
+
+# =====================================================================
+#> Input Files
+# =====================================================================
+
+#> Initial conditions
+set ICFILE = CCTM_D51a_Linux2_x86_64intel_CGRID.CMAQ51-BENCHMARK_20110630
+
+#> Boundary conditions
+set BCFILE = BCON_D51a_12CalnexBench_20110701
+
+#> Off-line photolysis rates 
+set JVALfile  = JTABLE_${STDATE}
+
+#> Ozone column data
+set OMIfile   = OMI_1979_to_2015.dat
+
+#> Optics file
+set OPTfile = PHOT_OPTICS.dat
+
+#> MCIP meteorology files 
+set EXTN = 110701
+setenv GRID_DOT_2D $METpath/GRIDDOT2D_${EXTN}                                                                       
+setenv GRID_CRO_2D $METpath/GRIDCRO2D_${EXTN}
+setenv MET_CRO_2D $METpath/METCRO2D_${EXTN}
+setenv MET_CRO_3D $METpath/METCRO3D_${EXTN}
+setenv MET_DOT_3D $METpath/METDOT3D_${EXTN}
+setenv MET_BDY_3D $METpath/METBDY3D_${EXTN}
+
+#> Emissions files 
+
+if ( $CTM_PT3DEMIS == 'N' ) then
+   set EMISfile  = e3d.${YMD}.12EUS1_279X240.cb05soa.24.ncf #> Offline 3d emissions file name
+else
+   #> In-line emissions configuration
+   set STKCASEG = 12US1_G20_CB05E51
+   set STKCASEE = 12US1_cb05e51_G20_CB05E51
+   set CASE = 12CalnexBench_cb05e51_G20_CB05E51                                                                     
+   set EMISfile  = emis_mole_all_${YMD}_${CASE}.ncf #> Surface emissions
+   setenv NPTGRPS 5          #> Number of elevated source groups
+
+   setenv STK_GRPS_01 $IN_PTpath/stack_groups_ptnonipm_${STKCASEG}.ncf
+   setenv STK_GRPS_02 $IN_PTpath/stack_groups_ptegu_${STKCASEG}.ncf
+   setenv STK_GRPS_03 $IN_PTpath/stack_groups_othpt_${STKCASEG}.ncf
+   setenv STK_GRPS_04 $IN_PTpath/stack_groups_ptfire_${YMD}_${STKCASEG}.ncf
+   setenv STK_GRPS_05 $IN_PTpath/stack_groups_pt_oilgas_${STKCASEG}.ncf
+   setenv LAYP_STTIME $STTIME
+   setenv LAYP_NSTEPS $NSTEPS
+
+   setenv STK_EMIS_01 $IN_PTpath/inln_mole_ptnonipm_${YMD}_${STKCASEE}.ncf
+   setenv STK_EMIS_02 $IN_PTpath/inln_mole_ptegu_${YMD}_${STKCASEE}.ncf
+   setenv STK_EMIS_03 $IN_PTpath/inln_mole_othpt_${YMD}_${STKCASEE}.ncf
+   setenv STK_EMIS_04 $IN_PTpath/inln_mole_ptfire_${YMD}_${STKCASEE}.ncf
+   setenv STK_EMIS_05 $IN_PTpath/inln_mole_pt_oilgas_${YMD}_${STKCASEE}.ncf
+   setenv LAYP_STDATE $STDATE
 endif
 
-\#\> - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#> Lightning NOx configuration
+if ( $CTM_LTNG_NO == 'Y' ) then
+#   setenv LTNGNO $IN_LTpath/nox_CMAQ-BENCHMARK.35L.$YMD  #> offline calculated lightning NOx   setenv LTNGNO "InLine"    #> set LTNGNO to "Inline" to activate in-line calculation
 
-env
+#> In-line lightning NOx options
+   setenv USE_NLDN  N        #> use hourly NLDN strike file [ default: Y ]
+   setenv LTNGPARAM N        #> use lightning parameter file [ default: Y ]
+   if ( $USE_NLDN == Y ) then                                                                                       
+      setenv NLDN_STRIKES
+   else
+      setenv LOG_START 2.0   #> RC value to transit linear to log linear
+   endif
+   setenv LTNGPARMS_FILE $CMAQ_DATA/lightning/LTNG_RATIO.$YEAR.$MONTH.12CalnexBench.ioapi #> lightning parameter file; ignore if LTNGP
+ARAM = N
+   setenv LTNGOUT $OUTDIR/$EXEC.LTNGDIAG.${CFG}_${YMD} #> lightning diagnostic file; ignore if LTNGDIAG = N
+endif
 
-ls -l \$BASE/\$EXEC; size \$BASE/\$EXEC
+#> In-line biogenic emissions configuration
+if ( $CTM_BIOGEMIS == 'Y' ) then
+   set GSPROpath = ${CMAQ_DATA}/emis
+   setenv GSPRO $GSPROpath/gspro_cb05soa_notoxics_cmaq_poc_09nov2007.txt
+   set IN_BEISpath = ${CMAQ_DATA}/emis
+   setenv B3GRD     $IN_BEISpath/b3grd.smoke30_beis361.12CalnexBench.2006NLCD_FIA5.1_norm_foliage_biomass.ncf
+   setenv BIOG_SPRO     B10C5 # speciation profile to use for biogenics
+   setenv BIOSW_YN      N     # use frost date switch [ default: Y ]                                                
+   setenv BIOSEASON $IN_BEISpath/bioseason.cmaq.2011_12CalnexBench_wetland100.ghrsst.ncf #> ignore season switch file if BIOSW_YN = N
+   setenv SUMMER_YN     N     # Use summer normalized emissions? [ default: Y ]
+   setenv PX_VERSION    Y     # MCIP is PX version? [ default: N ]
+   setenv INITIAL_RUN Y # non-existent or not using SOILINP [ default: N ]; default uses SOILINP
+   setenv SOILINP $OUTDIR/$EXEC.SOILINP.${CFG}_${YMD}  # Biogenic NO soil input file; ignore if INITIAL_RUN = Y
+endif
 
-\#\> Executable call for single PE, uncomment to invoke
+#> Windblown dust emissions configuration
+if ( $CTM_WB_DUST == 'Y' ) then
+   # Input variables for BELD3 Landuse option
+   setenv DUST_LU_1 $LUpath/beld3_12CalnexBench_output_a.ncf
+   setenv DUST_LU_2 $LUpath/beld4_12CalnexBench_output_tot.ncf
+   setenv MODIS_FPAR $LUPath/modis_fpar_lai_12km_20101201_20111231_daily_ioapi.ncf
 
-\# time \$BASE/\$EXEC
+   # Input variables for BELD4 Landuse option
+   setenv BELD4_LU $LUpath/
+   # All other Landuse options (USGS24, MODIS_NOAH, MODIS, NLCD50, NLCD40) read the GRID_CRO_2D file
+   if ( $CTM_ERODE_AGLAND == 'Y' ) then
+      setenv CROPMAP01 ${CMAQ_DATA}/crop/BeginPlanting_12CalnexBench
+      setenv CROPMAP04 ${CMAQ_DATA}/crop/EndPlanting_12CalnexBench
+      setenv CROPMAP08 ${CMAQ_DATA}/crop/EndHarvesting_12CalnexBench
+   endif
+endif
 
-\#\> Executable call for multiple PE, set location of MPIRUN script
+#> In-line sea salt emisisions configuration
+setenv OCEAN_1 $SZpath/12CalnexBench_surf.ncf #> horizontal grid-dependent surf zone file
 
-set MPIRUN = /share/linux/bin/mpich-ch\_p4/bin/mpirun
+#> Bidiretional ammonia configuration                                                                               
+if ( $CTM_ABFLUX == 'Y' ) then
+   setenv E2C_Soilfile  ${CMAQ_DATA}/bidi/2011_12CalnexBench_soil.nc
+   setenv E2C_Fertfile  ${CMAQ_DATA}/bidi/2011_12CalnexBench_time${YMD}.nc
+   setenv B4LU_file     ${CMAQ_DATA}/bidi/beld4_12CalnexBench_2006nlcd.ncf
+   setenv E2C_SOIL ${E2C_Soilfile}
+   setenv E2C_FERT ${E2C_Fertfile}
+   setenv BELD4_LU ${B4LU_file}
+endif
 
-set TASKMAP = \$BASE/machines8
+# =====================================================================
+#> Output Files
+# =====================================================================
 
-cat \$TASKMAP
+#> set output file name extensions
+ setenv CTM_APPL ${CFG}_${YMD}
+#> set output file names
+ set CONCfile  = $EXEC.CONC.${CTM_APPL}               # CTM_CONC_1
+ set ACONCfile = $EXEC.ACONC.${CTM_APPL}              # CTM_ACONC_1
+ set CGRIDfile = $EXEC.CGRID.${CTM_APPL}              # CTM_CGRID_1
+ set MEDfile   = $EXEC.MEDIA_CONC.${CTM_APPL}         # MEDIA_CONC                                                  
+ set DD1file   = $EXEC.DRYDEP.${CTM_APPL}             # CTM_DRY_DEP_1
+ set DV1file   = $EXEC.DEPV.${CTM_APPL}               # CTM_DEPV_DIAG
+ set PT1file   = $EXEC.PT3D.${CTM_APPL}               # CTM_PT3D_DIAG
+ set BIO1file  = $EXEC.B3GTS_S.${CTM_APPL}            # B3GTS_S
+ set SOIL1file = $EXEC.SOILOUT.${CTM_APPL}            # SOILOUT
+ set WD1file   = $EXEC.WETDEP1.${CTM_APPL}            # CTM_WET_DEP_1
+ set WD2file   = $EXEC.WETDEP2.${CTM_APPL}            # CTM_WET_DEP_2
+ set AV1file   = $EXEC.PMVIS.${CTM_APPL}              # CTM_VIS_1
+ set AV2file   = $EXEC.APMVIS.${CTM_APPL}             # CTM_AVIS_1
+ set AD1file   = $EXEC.PMDIAG.${CTM_APPL}             # CTM_PMDIAG_1
+ set AD2file   = $EXEC.APMDIAG.${CTM_APPL}            # CTM_APMDIAG_1
+ set RJ1file   = $EXEC.PHOTDIAG1.${CTM_APPL}          # CTM_RJ_2
+ set RJ2file   = $EXEC.PHOTDIAG2.${CTM_APPL}          # CTM_RJ_2
+ set SSEfile   = $EXEC.SSEMIS.$CTM_APPL               # CTM_SSEMIS_1
+ set DSEfile   = $EXEC.DUSTEMIS.$CTM_APPL             # CTM_DUST_EMIS_1
+ set PA1file   = $EXEC.PA_1.${CTM_APPL}               # CTM_IPR_1
+ set PA2file   = $EXEC.PA_2.${CTM_APPL}               # CTM_IPR_2
+ set PA3file   = $EXEC.PA_3.${CTM_APPL}               # CTM_IPR_3
+ set IRR1file  = $EXEC.IRR_1.${CTM_APPL}              # CTM_IRR_1
+ set IRR2file  = $EXEC.IRR_2.${CTM_APPL}              # CTM_IRR_2
+ set IRR3file  = $EXEC.IRR_3.${CTM_APPL}              # CTM_IRR_3
+ set DVMfile   = $EXEC.DEPVFST.${CTM_APPL}            # CTM_DEPV_FST
+ set DVFfile   = $EXEC.DEPVMOS.${CTM_APPL}            # CTM_DEPV_MOS
+ set DDFfile   = $EXEC.DDFST.${CTM_APPL}              # CTM_DRY_DEP_FST
+ set DDMfile   = $EXEC.DDMOS.${CTM_APPL}              # CTM_DRY_DEP_MOS
+ set VDFfile   = $EXEC.VDIFF_DIAG.${CTM_APPL}         # CTM_VDIFF_DIAG   diag
+ set VSDfile   = $EXEC.VSED_DIAG.${CTM_APPL}          # CTM_VSED_DIAG    diag
+ set AODfile   = $EXEC.AOD_DIAG.${CTM_APPL}           # CTM_AOD_1        diag                                       
+#> In-line biogenic emissions output files
+if ( $CTM_BIOGEMIS == 'Y' ) then
+   setenv B3GTS_S $OUTDIR/$EXEC".B3GTS_S".${CTM_APPL}
+   setenv SOILOUT $OUTDIR/$EXEC".SOILOUT".${CTM_APPL}  # Biogenic NO soil output file
+endif
 
-time \$MPIRUN -v -machinefile \$TASKMAP -np \$NPROCS \$BASE/\$EXEC
+#> set floor file (neg concs)
+setenv FLOOR_FILE $BASE/FLOOR_${CTM_APPL}
 
-date
+#> create output directory 
+if ( ! -d "$OUTDIR" ) mkdir -p $OUTDIR
 
-exit
+#> look for existing log files
+
+ set test = `ls CTM_LOG_???.${CTM_APPL}`
+ if ( "$test" != "" ) then
+    if ( $DISP == 'delete' ) then
+       echo " ancillary log files being deleted"
+       foreach file ( $test )
+          echo " deleting $file"
+          rm $file
+          end
+       else
+       echo "*** Logs exist - run ABORTED ***"
+       exit 1
+       endif
+    endif
+
+#> for the run control ...
+
+setenv CTM_STDATE      $STDATE
+setenv CTM_STTIME      $STTIME
+setenv CTM_RUNLEN      $NSTEPS
+setenv CTM_TSTEP       $TSTEP
+setenv EMIS_1 $EMISpath/$EMISfile
+setenv INIT_GASC_1 $ICpath/$ICFILE
+setenv INIT_AERO_1 $INIT_GASC_1
+setenv INIT_NONR_1 $INIT_GASC_1
+setenv INIT_TRAC_1 $INIT_GASC_1
+setenv BNDY_GASC_1 $BCpath/$BCFILE
+setenv BNDY_AERO_1 $BNDY_GASC_1
+setenv BNDY_NONR_1 $BNDY_GASC_1
+setenv BNDY_TRAC_1 $BNDY_GASC_1
+setenv OMI $OMIpath/$OMIfile
+setenv OPTICS_DATA $OMIpath/$OPTfile
+setenv XJ_DATA $JVALpath/$JVALfile
+set TR_DVpath = $METpath
+set TR_DVfile = $MET_CRO_2D
+
+#> species defn & photolysis
+setenv gc_matrix_nml ${BLD}/GC_$MECH.nml
+setenv ae_matrix_nml ${BLD}/AE_$MECH.nml
+setenv nr_matrix_nml ${BLD}/NR_$MECH.nml
+setenv tr_matrix_nml ${NMLpath}/trac0/Species_Table_TR_0.nml
+
+#> check for photolysis input data
+setenv CSQY_DATA ${BLD}/CSQY_DATA_$MECH
+
+if (! (-e $CSQY_DATA ) ) then
+   echo " $CSQY_DATA  not found "
+   exit 1
+endif
+if (! (-e $OPTICS_DATA ) ) then
+   echo " $OPTICS_DATA  not found "
+   exit 1
+endif
+
+
+#>- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+ source $BASE/outck.q
+
+ ls -l $BLD/$EXEC; size $BLD/$EXEC
+ unlimit
+ limit
+
+#> Executable call for single PE, uncomment to invoke
+ /usr/bin/time  $BLD/$EXEC
+
+#> Executable call for multi PE, configure for your system 
+# set MPI = /usr/local/intel/impi/3.2.2.006/bin64
+# set MPIRUN = $MPI/mpirun
+# time $MPIRUN -r ssh -np $NPROCS $BLD/$EXEC
+
+ date
+ exit
 ```
 
 Testing and Distribution of Development Source Code
