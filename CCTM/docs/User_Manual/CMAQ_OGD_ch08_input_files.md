@@ -1065,8 +1065,9 @@ The previous section described the output files from JPROC, ICON, BCON, and MCIP
 ### CMAQ output log
 
 All of the CMAQ processors generate standard output and standard error during execution. For all of the processors other than CCTM, this diagnostic output information can be captured to a log file at execution using a UNIX redirect command. For example, to capture the standard output and error of a BCON simulation, use the following command:
-
+```Tcsh
 run.bcon >& bcon_e1a.log
+```
 
 For CCTM, the LOGFILE environment variable allows users to specify the name of a log file for capturing the standard output from the program. If this variable is not set, the standard output is written to the terminal and can be captured using the UNIXredirect command (“>”), as shown in the example above.
 
@@ -1084,7 +1085,7 @@ The 3-D CCTM integral average concentration file (ACONC) contains average model 
 
 ### DRYDEP: CCTM hourly cumulative dry deposition file
 
-The 2-D CCTM dry deposition file (DRYDEP) includes cumulative hourly dry deposition fluxes (kg hectare<sup>‑1</sup>) for selected model species. CCTM calculates dry deposition for all of the species listed in the dry deposition INCLUDE'' *files within the mechanism INCLUDE directories. Dry deposition INCLUDE* ''files exist for gas-phase species (GC_DDEP.EXT), aerosol species (AE_DDEP.EXT), and inert model species (NR_DDEP.EXT). Species can be removed from the DDEP.EXT files to adjust the number of species that undergo the dry deposition process and are written to the DRYDEP output file.
+The 2-D CCTM dry deposition file (DRYDEP) includes cumulative hourly dry deposition fluxes (kg hectare<sup>‑1</sup>) for selected model species. CCTM calculates dry deposition for all of the species listed in the dry deposition INCLUDE files within the mechanism INCLUDE directories. Dry deposition INCLUDE files exist for gas-phase species (GC_DDEP.EXT), aerosol species (AE_DDEP.EXT), and inert model species (NR_DDEP.EXT). Species can be removed from the DDEP.EXT files to adjust the number of species that undergo the dry deposition process and are written to the DRYDEP output file.
 
 ### WETDEP: CCTM hourly cumulative wet deposition file
 
