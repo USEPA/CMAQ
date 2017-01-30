@@ -4,12 +4,12 @@
 8. CMAQ Input and Output Files
 ==========
 
-The input files for CMAQv5 consist of a domain definition file for all programs; two sets of file options for both ICON and BCON; two types of input files (WRF/MM5 and terrain) for MCIP; five mandatory and one optional input file for JPROC; and for CCTM, emissions, initial conditions, and boundary conditions files, six files that define the meteorological conditions to be simulated, and a photolysis rates file. For most CCTM input, a separate data set is required for each horizontal domain that is modeled. When CMAQv5 is configured for in-line emissions and deposition, there are additional emissions input files that are required. CMAQ output files include a basic set of files with aerosol and gas-phase species concentrations, wet and dry deposition estimates, and visibility metrics, and an auxiliary set of output files for diagnosing model performance and in-line-calculated emissions.
+The input files for CMAQ consist of a domain definition file for all programs; two sets of file options for both ICON and BCON; two types of input files (WRF/MM5 and terrain) for MCIP; five mandatory and one optional input file for JPROC; and for CCTM, emissions, initial conditions, and boundary conditions files, six files that define the meteorological conditions to be simulated, and a photolysis rates file. For most CCTM input, a separate data set is required for each horizontal domain that is modeled. When CMAQ is configured for in-line emissions and deposition, there are additional emissions input files that are required. CMAQ output files include a basic set of files with aerosol and gas-phase species concentrations, wet and dry deposition estimates, and visibility metrics, and an auxiliary set of output files for diagnosing model performance and in-line-calculated emissions.
 
 CMAQ Input Files
 ----------------
 
-This section describes each of the input files required by the various CMAQ programs. The section begins with a description of the grid definition file, which is used by several CMAQ programs, and then goes through a program-by-program listing of the CMAQ input file requirements. [Table 8‑1](#Table8-1) lists the source, file type, and temporal and spatial dimensions of each CMAQ input file. Sample disk space requirements for a desired input data set can easily be calculated from the information in [Table 8‑1](#Table8-1); each data record is four bytes. The I/O API file sizes can be calculated using the number of variables in a CMAQ file and the spatial and temporal coverage of the data. The user should consult the CMAQv5 release notes for additional file information.
+This section describes each of the input files required by the various CMAQ programs. The section begins with a description of the grid definition file, which is used by several CMAQ programs, and then goes through a program-by-program listing of the CMAQ input file requirements. [Table 8‑1](#Table8-1) lists the source, file type, and temporal and spatial dimensions of each CMAQ input file. Sample disk space requirements for a desired input data set can easily be calculated from the information in [Table 8‑1](#Table8-1); each data record is four bytes. The I/O API file sizes can be calculated using the number of variables in a CMAQ file and the spatial and temporal coverage of the data. The user should consult the CMAQ release notes for additional file information.
 
 <a id=Table8-1></a>
 
@@ -636,7 +636,7 @@ A sample of the important sections of a JTABLE file is shown below.
 
 Used by: CCTM
 
-OMI ozone column data by latitude and longitude for use in the inline photolysis calculations. CMAQv5 is distributed with ozone columns from 1978 to 2015. The data are 22.5°x10° gridded ozone columns in Dobson units. [Table 8‑12](#Table8-12) lists the format of the OMI data file.
+OMI ozone column data by latitude and longitude for use in the inline photolysis calculations. CMAQ is distributed with ozone columns from 1978 to 2015. The data are 22.5°x10° gridded ozone columns in Dobson units. [Table 8‑12](#Table8-12) lists the format of the OMI data file.
 
 <a id=Table8-12></a>
 
@@ -735,7 +735,7 @@ The elevated-point-source emissions file is an I/O API GRDDED3 file with emissio
 
 Used by: CCTM – in-line dust emission version only
 
-The gridded land cover/land use (LCLU) file is an I/O API GRDDED3 file of BELD3 data projected to the modeling domain. This file must contain the following LCLU variables to be compatible with the CMAQv5 dust module:
+The gridded land cover/land use (LCLU) file is an I/O API GRDDED3 file of BELD3 data projected to the modeling domain. This file must contain the following LCLU variables to be compatible with the CMAQ dust module:
 
 -   USGS_urban
 -   USGS_drycrop
@@ -763,7 +763,7 @@ These categories are used to determine dust source locations and canopy scavengi
 
 Used by: CCTM – in-line dust emission version only
 
-The gridded land cover/land use (LCLU) file is an I/O API GRDDED3 file of BELD3 data projected to the modeling domain. This file must contain the following variables to be compatible with the CMAQv5 dust module:
+The gridded land cover/land use (LCLU) file is an I/O API GRDDED3 file of BELD3 data projected to the modeling domain. This file must contain the following variables to be compatible with the CMAQ dust module:
 
 -   FOREST
 
@@ -797,7 +797,7 @@ The lightning NO<sub>x</sub> emissions file is an I/O API GRDDED3 file with 3-d 
 
 Used by: CCTM – lightning NO<sub>x</sub> version only
 
-The lightning parameters file is used for calculating in-line NO emissions from lightning using convective precipitation rates. The LTNG_2D_DATA processor that is part of the CMAQv5 distribution package produces the I/O API GRDDED3 lightning parameters file. This file contains the following variables interpolated to the modeling grid:
+The lightning parameters file is used for calculating in-line NO emissions from lightning using convective precipitation rates. The LTNG_2D_DATA processor that is part of the CMAQ distribution package produces the I/O API GRDDED3 lightning parameters file. This file contains the following variables interpolated to the modeling grid:
 
 -   STRKCNT (unitless): Lightning flash count
 -   NLDNstrk (km<sup>2</sup>/day): Monthly flash totals (normalized to day<sup>-1</sup>) from NLDN input data
