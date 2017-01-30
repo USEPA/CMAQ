@@ -40,9 +40,9 @@ Grid conventions are specified (at length) by the [I/O API](https://www.cmascent
 <br>
 "Cross-point" is often abbreviated *CRO*, as in `GRID_CRO_2D`. "Dot-point" is often abbreviated *DOT*, as in `MET_DOT_3D`. Similarly, the user should be aware of the grid's [projection](https://en.wikipedia.org/wiki/Map_projection) units. Usually meters, except when using [lat-lon coordinate systems](https://en.wikipedia.org/wiki/Geographic_coordinates#Geographic_latitude_and_longitude).
 
-The terms associated with I/O API grid definitions are listed in Table 9-1.
+The terms associated with I/O API grid definitions are listed in [Table 9-1](#Table9-1).
 
-<span id=Table9-1></span>
+<a id=Table9-1></a>
 
 <center> **Table 9-1. I/O API Grid Type Terms** </center>
 

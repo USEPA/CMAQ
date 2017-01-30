@@ -19,7 +19,7 @@ Ancillary support programs distributed with CMAQ include
 -   EBI chemistry solver builder (CREATE_EBI)
 -   The process analysis preprocessor (PROCAN)
 
-The following sections describe the CMAQ system concept, followed by [details of the programs listed above](#Summary_descriptions_of_the_major_CMAQ_programs "wikilink").
+The following sections describe the CMAQ system concept, followed by [details of the programs listed above](#summary-descriptions-of-the-major-cmaq-programs).
 
 ### Installation overview
 
@@ -49,11 +49,11 @@ MCIP was not distributed in a CVS archive. Instead, when older CMAQ versions are
 
 Because the model infrastructure was designed to promote modularity, the user must create new CMAQ executables for each suite of science configuration options for all programs except MCIP. There are too many combinations of the various chemical mechanisms, horizontal and vertical transport schemes, cloud routines, and chemistry solvers in the CMAQ science configuration to include efficiently in a single executable. The requirement to recompile CMAQ with each science configuration change is offset by the flexibility to add new science to the model or to switch between different model configurations. This point about modularity is most pertinent to CCTM, although there are configuration options that must be selected when compiling the other CMAQ programs as well.
 
-In addition to compile-time configuration options with CMAQ, there are also execution-time configuration options (options that are chosen when the model is run versus when it is compiled). The horizontal domain configuration and the vertical coordinate system are dynamic features in CMAQ that are independent of the executable. In other words, a user can employ a single executable for a simulation that uses any of the supported map projections or grid definitions, without having to recompile the source code into a new executable. A description of which CMAQ options must be selected at compilation versus at execution are is included in [Chapter 7: CMAQ Programs and Libraries](CMAQ_OGD_ch07_programs_libraries.md).
+In addition to compile-time configuration options with CMAQ, there are also execution-time configuration options (options that are chosen when the model is run versus when it is compiled). The horizontal domain configuration and the vertical coordinate system are dynamic features in CMAQ that are independent of the executable. In other words, a user can employ a single executable for a simulation that uses any of the supported map projections or grid definitions, without having to recompile the source code into a new executable. A description of which CMAQ options must be selected at compilation versus at execution are is included in [Chapter 7: CMAQ Programs and Libraries](CMAQ_OGD_ch07_programs_libraries.md#CCTM).
 
 ### Chemistry-transport model conceptual formulation
 
-As the chemistry-transport model (CTM) component of CMAQ, CCTM is the final program to be run in the CMAQ modeling sequence. There are four other main programs that prepare input data for CCTM (i.e., ICON, BCON, JPROC, and MCIP). Before describing each of the CMAQ programs [in Chapter 3](CMAQ_OGD_ch03_features), we present a conceptual formulation of CMAQ and Eulerian air quality modeling to provide a framework for understanding the purposes of the various programs and their relationships to each other and to the overall system.
+As the chemistry-transport model (CTM) component of CMAQ, CCTM is the final program to be run in the CMAQ modeling sequence. There are four other main programs that prepare input data for CCTM (i.e., ICON, BCON, JPROC, and MCIP). Before describing each of the CMAQ programs in the [summary description section](CMAQ_OGD_ch02_overview.md#summary-descriptions-of-the-major-cmaq-programs), we present a conceptual formulation of CMAQ and Eulerian air quality modeling to provide a framework for understanding the purposes of the various programs and their relationships to each other and to the overall system.
 
 Eulerian CTMs use coupled ordinary differential equations (ODEs) to predict changes in pollutant concentrations throughout a three-dimensional grid that is fixed in space. The following processes affect changes in the predicted concentrations in each grid cell:
 
@@ -88,7 +88,7 @@ Photolysis rates may also be calculated inline in the CCTM. **When the CCTM is c
 
 ### Summary descriptions of the major CMAQ programs
 
-The major CMAQ components and ancillary programs are described below. More detailed discussions on the formulations of the CMAQ programs are available in [Section 4](CMAQ_OGD_ch04_science.md), in Byun and Ching (1999), and in Byun and Schere (2006).
+The major CMAQ components and ancillary programs are described below. More detailed discussions on the formulations of the CMAQ programs are available in [Chapter 4](CMAQ_OGD_ch04_science.md), in Byun and Ching (1999), and in Byun and Schere (2006).
 
 Note that the following list of programs is generally the order in which the CMAQ programs are run.
 
@@ -124,7 +124,7 @@ The spatial and temporal coverages of CCTM are dictated by the input meteorology
 
 #### Process Analysis Preprocessor (PROCAN)
 
-Process analysis is a technique used to trace the source(s) of a chemical species within a simulation. PROCAN generates Fortran INCLUDE files for building a version of CCTM that can calculate integrated process rates and/or integrated reaction rates (discussed in Section 8.3); these rates can then be used for diagnosing the chemical behavior of CMAQ simulations. This preprocessor uses an input configuration file to select the process analysis options desired, and outputs three INCLUDE files that are used to compile a version of CCTM that is instrumented for process analysis.
+Process analysis is a technique used to trace the source(s) of a chemical species within a simulation. PROCAN generates Fortran INCLUDE files for building a version of CCTM that can calculate integrated process rates and/or integrated reaction rates (discussed in [Chapter 7](CMAQ_OGD_ch07_programs_libraries.md#PROCAN); these rates can then be used for diagnosing the chemical behavior of CMAQ simulations. This preprocessor uses an input configuration file to select the process analysis options desired, and outputs three INCLUDE files that are used to compile a version of CCTM that is instrumented for process analysis.
 
 #### Chemical Mechanism Compiler (CHEMMECH)
 
