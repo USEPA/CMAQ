@@ -192,14 +192,16 @@ The namelist files contain header information that describe which class of speci
 
 | **Line**| **Column** |**Name** | **Type**| **Description** |
 |---|---|---|---|---|
-|<center> 1 </center>||<center> File type </center>|<center> String </center>|&GC_nml|
-|<center> 2 </center>||<center> Number of surrogate params </center>|<center> String </center>|n_surr1 = x, where x is the number of ????|
-|<center> 3 </center>||<center> Number of ???? params </center>|<center> String </center>|n_surr2 = x, where x is the number of ????|
-|<center> 4 </center>||<center> Number of control params </center>|<center> String </center>|n_ctrl = x, where x is the number of ????|
-|<center> 5 </center>||<center> Header ID </center>|<center> String </center>|TYPE_HEADER =|
-|<center> 6 </center>||<center> HEADER </center>|<center> String </center>|Abbreviated names of file columns, enclosed by single quotes|
-|<center>  7 </center>||<center> Matrix ID </center>|<center> String </center>|TYPE_MATRIX =|
-|<center> 8 </center>|<center> 1 </center>|<center> SPC </center>|<center> String </center>|CMAQ pollutant name, i.e. NO, HNO3, PAR; dependent on chemical mechanism|
+|<center> 1 </center>||<center> !Revision Control System(RCS file) |
+|<center> 2 </center>||<center> Header: filename, version, date/time, author |
+|<center> 4 </center>||<center> File type </center>|<center> String </center>|&GC_nml|
+|<center> 6 </center>||<center> Number of surrogate params </center>|<center> String </center>|n_surr1 = x, where x is the number of ????|
+|<center> 7 </center>||<center> Number of ???? params </center>|<center> String </center>|n_surr2 = x, where x is the number of ????|
+|<center> 8 </center>||<center> Number of control params </center>|<center> String </center>|n_ctrl = x, where x is the number of ????|
+|<center> 10 </center>||<center> Header ID </center>|<center> String </center>|TYPE_HEADER =|
+|<center> 11 </center>||<center> HEADER </center>|<center> String </center>|Abbreviated names of file columns, enclosed by single quotes|
+|<center>  12 </center>||<center> Matrix ID </center>|<center> String </center>|TYPE_MATRIX =|
+|<center> 13 </center>|<center> 1 </center>|<center> SPC </center>|<center> String </center>|CMAQ pollutant name, i.e. NO, HNO3, PAR; dependent on chemical mechanism|
 ||<center> 2 </center>|<center> MOLWT </center>|<center> Integer </center>|Pollutant molecular weight|
 ||<center> 3 </center>|<center> EMIS_SUR </center>|<center> String </center>|Emissions species name for the CMAQ pollutant|
 ||<center> 4 </center>|<center> EMIS_FAC </center>|<center> Real </center>|Scaling factor for input emissions|
@@ -217,7 +219,7 @@ The namelist files contain header information that describe which class of speci
 ||<center> 16 </center>|<center> CONC </center>|<center> Yes/No </center>|Concentration output file switch|
 | … | ...| ...|... | Repeat for the number of gas-phase pollutants in the mechanism being modeling|
 
-The namelist files for the other pollutant classes have similar configurations as the gas-phase species configuration shown in [Table 8-4](#Table8-4). See this [link](https://github.com/CMASCenter/EPA-CMAQ/blob/5.2Beta/CCTM/src/MECHS/cb05e51_ae6_aq/GC_cb05e51_ae6_aq.nml) to the GC namelist species file for the cb05e51_ae6_aq mechanism.
+The namelist files for the other pollutant classes have similar configurations as the gas-phase species configuration shown in [Table 8-4](#Table8-4). For an example see this [link](https://github.com/CMASCenter/EPA-CMAQ/blob/5.2Beta/CCTM/src/MECHS/cb05e51_ae6_aq/GC_cb05e51_ae6_aq.nml) to the GC namelist species file for the cb05e51_ae6_aq mechanism.
 
 ### IC_PROFILE: Initial conditions vertical profiles
 
