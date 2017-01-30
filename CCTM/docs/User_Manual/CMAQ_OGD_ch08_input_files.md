@@ -61,12 +61,19 @@ This section describes each of the input files required by the various CMAQ prog
 |CROPMAP08|GRDDED3 | Time-invariant | X*Y | Cropcal
 |LTNGNO|<center> GRDDED3 </center>|<center> Hourly </center>|<center> X*Y*Z </center>|<center> User
 |LTNGPARM_FILE| GRDDED3 | Monthly | X*Y |LTNG_2D_DATA
-|B4LU_file|<center> GRDDED3 </center>|<center> Time-invariant </center>|<center> X*Y
-|E2C_Soilfile|<center> GRDDED3 </center>|<center> Time-invariant </center>|<center> X*Y
-|E2C_Fertfile|<center> GRDDED3 </center>|<center> Time-invariant </center>|<center> X*Y
+|BELD4_LU|<center> GRDDED3 </center>|<center> Time-invariant </center>|<center> X*Y
+|E2C_SOIL|<center> GRDDED3 </center>|<center> Time-invariant </center>|<center> X*Y
+|E2C_FERT|<center> GRDDED3 </center>|<center> Time-invariant </center>|<center> X*Y
 |INIT_MEDC_1|<center> GRDDED3 </center>||<center> X*Y </center>||
+|INIT_GASC_1|<center> GRDDED3 </center>||<center> X*Y </center>||
+|INIT_AERO_1|<center> GRDDED3 </center>||<center> X*Y </center>||
+|INIT_NONR_1|<center> GRDDED3 </center>||<center> X*Y </center>||
+|INIT_TRAC_1|<center> GRDDED3 </center>||<center> X*Y </center>||
 |GRID_CRO_2D (2‑D grid cross-point fields)|<center> GRDDED3 </center>|<center> Time-invariant </center>|<center> X*Y </center>|<center> MCIP
+|GRID_CRO_3D (3‑D grid cross-point fields)|<center> GRDDED3 </center>|<center> Time-invariant </center>|<center> X*Y*Z </center>|<center> MCIP
+|GRID_BDY_2D (2‑D grid cross-point fields)|<center> GRDDED3 </center>|<center> Time-invariant </center>|<center> PERIM*Z </center>|<center> MCIP
 |GRID_DOT_2D (2‑D grid dot-point fields)|<center> GRDDED3 </center>|<center> Time-invariant </center>|<center> (X+1)*(Y+1) </center>|<center> MCIP
+MET_BDY_2D (2‑D meteorological boundary input)|<center> BNDARY3 </center>|<center> Hourly </center>|<center> ??? </center>|<center> MCIP
 |MET_BDY_3D (3‑D meteorological boundary input)|<center> BNDARY3 </center>|<center> Hourly </center>|<center> PERIM*Z </center>|<center> MCIP
 |MET_CRO_2D (2‑D meteorological cross-point fields)|<center> GRDDED3 </center>|<center> Hourly </center>|<center> X*Y </center>|<center> MCIP
 |MET_CRO_3D (3‑D meteorological cross-point fields)|<center> GRDDED3 </center>|<center> Hourly </center>|<center> X*Y*Z </center>|<center> MCIP
@@ -681,9 +688,9 @@ OMI ozone column data by latitude and longitude for use in the inline photolysis
 ||<center> C </center>|<center> Longitude 1 </center>|<center> Int </center>|180.0Z longitude ozone column (DU)|
 |<center> … </center>|<center> … </center>|<center> … </center>|<center> … </center>|<center> … </center>|
 ||<center> S </center>|<center> Longitude 17 </center>|<center> Int </center>|180.0Z longitude ozone column (DU)|
-|…|<center> Repeat for total of 17 latitudes of data </center>|…|…|…|
-|<center> Repeat for (1978-2008) there are ~48 days (4 days per month) of data </center>|…|…|…|…|
-|<center> Repeat for (2009-2015) there are 365 days of data </center>|…|…|…|…|
+|…|<center> Repeat for total of 17 latitudes of data </center>|…|…|
+|…|<center> Repeat for (1978-2008) there are ~48 days (4 days per month) of data </center>|…|…|…|
+|…|<center> Repeat for (2009-2015) there are 365 days of data </center>|…|…|…|
 
 ### EMIS_1: Emissions
 
@@ -813,19 +820,19 @@ The lightning parameters file is used for calculating in-line NO emissions from 
 
 The lightning parameter file can be created from lightning network flash detections, MCIP output data and intercloud to cloud-to-ground ratios. The University of Maryland prepared National Lightning Detection Network (NLDN) flash frequencies for North American for the years 2002-2010. These data are available from the [CMAS Center Data Clearinghouse](ftp://ftp.unc.edu/pub/cmas/DATA/NLDN_CMAQ/).
 
-### B4LU_file – Fractional crop distributions
+### BELD4_LU – Fractional crop distributions
 
 Used by: CCTM – bidirectional NH<sub>3</sub> flux version only
 
 Add content
 
-### E2C_Soilfile – EPIC soil properties
+### E2C_SOIL – EPIC soil properties
 
 Used by: CCTM – bidirectional NH<sub>3</sub> flux version only
 
 Add content
 
-### E2C_Fertfile – EPIC crop types and fertilizer application
+### E2C_FERT – EPIC crop types and fertilizer application
 
 Used by: CCTM – bidirectional NH<sub>3</sub> flux version only
 
