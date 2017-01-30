@@ -33,7 +33,7 @@ $ mv /path of downloaded data/DATA_REF.CMAQv5.2.tar.gz .
 $ tar xvzf DATA.CMAQv5.2.tar.gz
 $ tar xvzf DATA_REF.CMAQv5.2.tar.gz</code></pre>
 
-3: Run the CCTM Benchmark Script
+3. Run the CCTM Benchmark Script
 ------------------------------
 The default CCTM script in the CMAQ installation is configured to run the benchmark case. You will need to have compiled the CMAQ model builder (Bldmake) and installed the I/O API, netCDF, and MPI libraries before preceding with this step (See [CMAQ OGD Chapter 5](https://github.com/USEPA/CMAQ/blob/5.2Beta/CCTM/docs/User_Manual/CMAQ_OGD_ch05_sys_req.md)).  Use the following commands to run the CCTM benchmark script:
 
@@ -41,7 +41,7 @@ The default CCTM script in the CMAQ installation is configured to run the benchm
 $ run.cctm |& tee run.benchmark.log</code></pre>
 
 
-4: Confirm that the Benchmark Simulation Completed
+4. Confirm that the Benchmark Simulation Completed
 ------------------------------
 To confirm that the benchmark case ran to completion view the run.benchmark.log file. A successful run will contain the following line at the bottom of the log:
 
@@ -55,7 +55,7 @@ Common errors in a CCTM simulation include the following:
 
 Check the last few lines of the CCTM output log for messages to help diagnose why the simulation did not complete.
 
-5: Check the Benchmark Results
+5. Check the Benchmark Results
 ------------------------------
 To determine if CMAQ is correctly installed on your Linux system compare the results from your benchmark simulation to the reference data downloaded from the CMAS Center. These data were generated on a Linux system with the following specifications:
 - Red Hat Enterprise Linux Server release 5.11 (Tikanga)
