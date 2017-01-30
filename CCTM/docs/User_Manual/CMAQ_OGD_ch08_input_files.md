@@ -679,9 +679,9 @@ OMI ozone column data by latitude and longitude for use in the inline photolysis
 ||<center> C </center>|<center> Longitude 1 </center>|<center> Int </center>|180.0Z longitude ozone column (DU)|
 |<center> … </center>|<center> … </center>|<center> … </center>|<center> … </center>|<center> … </center>|
 ||<center> S </center>|<center> Longitude 17 </center>|<center> Int </center>|180.0Z longitude ozone column (DU)|
-|…|<center> Repeat for total of 17 latitudes of data </center>|…|…|
-|…|<center> Repeat for (1978-2008) there are ~48 days (4 days per month) of data </center>|…|…|…|
-|…|<center> Repeat for (2009-2015) there are 365 days of data </center>|…|…|…|
+|…|…|…|<center> Repeat for total of 17 latitudes of data </center>
+|…|…|…|<center> Repeat for (1978-2008) there are ~48 days (4 days per month) of data </center>
+|…|…|…|<center> Repeat for (2009-2015) there are 365 days of data </center>
 
 ### EMIS_1: Emissions
 
