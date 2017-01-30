@@ -46,7 +46,7 @@ This section describes each of the input files required by the various CMAQ prog
 |INIT_CONC_1 (initial conditions)| GRDDED3 | Time-invariant | X*Y*Z | ICON/CCTM
 |BNDY_CONC_1 (boundary conditions)| BNDARY3 | Hourly |[2(X+1)+2(Y+1)]*Z | BCON
 |JTABLE (photolysis rates look-up table)| ASCII | Daily | n/a | JPROC
-|OMI| ASCII | Annual | n/a ||
+|OMI | ASCII | daily | n/a ||
 |EMIS_1 (Emissions)| GRDDED3 | Hourly | X*Y*Z | SMOKE
 |OCEAN_1 (sea salt mask)| GRDDED3 | Time-invariant | X*Y | |Spatial Allocator
 |GSPRO (speciation profiles)| ASCII | Time-invariant | N/a | User
@@ -638,7 +638,7 @@ A sample of the important sections of a JTABLE file is shown below.
 
 Used by: CCTM
 
-OMI ozone column data by latitude and longitude for use in the inline photolysis calculations. CMAQv5 is distributed with ozone columns from 1978 to 2011. The data are 22.5°x10° gridded ozone columns in Dobson units. [Table 8‑12](#Table8-12) lists the format of the OMI data file.
+OMI ozone column data by latitude and longitude for use in the inline photolysis calculations. CMAQv5 is distributed with ozone columns from 1978 to 2015. The data are 22.5°x10° gridded ozone columns in Dobson units. [Table 8‑12](#Table8-12) lists the format of the OMI data file.
 
 <a id=Table8-12></a>
 
@@ -647,36 +647,43 @@ OMI ozone column data by latitude and longitude for use in the inline photolysis
 | **Line** | **Column** | **Name** | **Type** | **Description**|
 |---|---|---|---|---|
 |<center> 1 </center>||<center> Header </center>||Header with names for each column|
-|<center> 2 </center>|<center> A </center>|<center> Yeardate 1 </center>|<center> Real </center>|YYYY.YYY formatted date field.|
+|<center> 2 </center>|<center> A </center>|<center> Yeardate </center>|<center> Real </center>|YYYY.??? or YYYY.???? formatted date field.|
 ||<center> B </center>|<center> Latitude 1 </center>|<center> Int </center>|80 North latitude|
 ||<center> C </center>|<center> Longitude 1 </center>|<center> Int </center>|180.0Z longitude ozone column (DU)|
 ||<center> D </center>|<center> Longitude 2 </center>|<center> Int </center>|157.5W longitude ozone column (DU)|
- ||<center> E </center>|<center> Longitude 3 </center>|<center> Int </center>|135.0W longitude ozone column (DU)|
+||<center> E </center>|<center> Longitude 3 </center>|<center> Int </center>|135.0W longitude ozone column (DU)|
+||<center> F </center>|<center> Longitude 4 </center>|<center> Int </center>|112.5W longitude ozone column (DU)|
+||<center> G </center>|<center> Longitude 5 </center>|<center> Int </center>|090.0W longitude ozone column (DU)|
+||<center> H </center>|<center> Longitude 6 </center>|<center> Int </center>|067.5W longitude ozone column (DU)|
+||<center> I </center>|<center> Longitude 7 </center>|<center> Int </center>|045.0W longitude ozone column (DU)|
+||<center> J </center>|<center> Longitude 8 </center>|<center> Int </center>|022.5W longitude ozone column (DU)|
+||<center> K </center>|<center> Longitude 9 </center>|<center> Int </center>|000.0Z longitude ozone column (DU)|
+||<center> L </center>|<center> Longitude 10 </center>|<center> Int </center>|022.5E longitude ozone column (DU)|
+||<center> M </center>|<center> Longitude 11 </center>|<center> Int </center>|045.0E longitude ozone column (DU)|
+||<center> N </center>|<center> Longitude 12 </center>|<center> Int </center>|067.5E longitude ozone column (DU)|
+||<center> O </center>|<center> Longitude 13 </center>|<center> Int </center>|090.0E longitude ozone column (DU)|
+||<center> P </center>|<center> Longitude 14 </center>|<center> Int </center>|112.5E longitude ozone column (DU)|
+||<center> Q </center>|<center> Longitude 15 </center>|<center> Int </center>|135.0E longitude ozone column (DU)|
+||<center> R </center>|<center> Longitude 16 </center>|<center> Int </center>|157.5E longitude ozone column (DU)|
+||<center> S </center>|<center> Longitude 17 </center>|<center> Int </center>|180.0Z longitude ozone column (DU)|
+|<center> 3 </center>|<center> A </center>|<center> Yeardate </center>|<center> Real </center>|YYYY.??? or YYYY.???? formatted date field.|
+||<center> B </center>|<center> Latitude 2 </center>|<center> Int </center>|70 North latitude|
+||<center> C </center>|<center> Longitude 1 </center>|<center> Int </center>|180.0Z longitude ozone column (DU)|
 |<center> … </center>|<center> … </center>|<center> … </center>|<center> … </center>|<center> … </center>|
-|<center> 2 </center>|<center> R </center>|<center> Longitude 16 </center>||<center> 157.5E longitude ozone column (DU) </center>|
-|<center> 3 </center>|<center> A </center>|<center> Yeardate 1 </center>|<center> Real </center>|<center> YYYY.YYY formatted date field.</center>|
-||<center> B </center>|<center> Latitude 2 </center>|<center> Int </center>|<center> 70 North latitude </center>|
-||<center> C </center>|<center> Longitude 1 </center>|<center> Int </center>|<center> 180.0Z longitude ozone column (DU) </center>|
-||<center> D </center>|<center> Longitude 2 </center>|<center> Int </center>|<center> 157.5W longitude ozone column (DU) </center>|
-||<center> E </center>|<center> Longitude 3 </center>|<center> Int </center>|<center> 135.0W longitude ozone column (DU) </center>|
+||<center> S </center>|<center> Longitude 17 </center>|<center> Int </center>|180.0Z longitude ozone column (DU)|
+|<center> 4 </center>|<center> A </center>|<center> Yeardate </center>|<center> Real </center>|YYYY.??? or YYYY.???? formatted date field.|
+||<center> B </center>|<center> Latitude 3 </center>|<center> Int </center>|60 North latitude|
+||<center> C </center>|<center> Longitude 1 </center>|<center> Int </center>|180.0Z longitude ozone column (DU)|
 |<center> … </center>|<center> … </center>|<center> … </center>|<center> … </center>|<center> … </center>|
-|<center> 3 </center>|<center> R </center>|<center> Longitude 16 </center>||<center> 157.5E longitude ozone column (DU) </center>|
+||<center> S </center>|<center> Longitude 17 </center>|<center> Int </center>|180.0Z longitude ozone column (DU)|
+|<center> 5 </center>|<center> A </center>|<center> Yeardate </center>|<center> Real </center>|YYYY.??? or YYYY.???? formatted date field.|
+||<center> B </center>|<center> Latitude 4 </center>|<center> Int </center>|50 North latitude|
+||<center> C </center>|<center> Longitude 1 </center>|<center> Int </center>|180.0Z longitude ozone column (DU)|
 |<center> … </center>|<center> … </center>|<center> … </center>|<center> … </center>|<center> … </center>|
-|<center> 18 </center>|<center> A </center>|<center> Yeardate 1 </center>|<center> Real </center>|<center> YYYY.YYY formatted date field.  </center>|
-||<center> B </center>|<center> Latitude 17 </center>|<center> Int </center>|<center> 80 South latitude </center>|
-||<center> C </center>|<center> Longitude 1 </center>|<center> Int </center>|<center> 180.0Z longitude ozone column (DU) </center>|
-||<center> D </center>|<center> Longitude 2 </center>|<center> Int </center>|<center> 157.5W longitude ozone column (DU) </center>|
-||<center> E </center>|<center> Longitude 3 </center>|<center> Int </center>|<center> 135.0W longitude ozone column (DU) </center>|
-|<center> … </center>|<center> … </center>|<center> … </center>|<center> … </center>|<center> … </center>|
-|<center> 18 </center>|<center> R </center>|<center> Longitude 16 </center>||<center> 157.5E longitude ozone column (DU) </center>|
-|<center> 19 </center>|<center> A </center>|<center> Yeardate 2 </center>|<center> Real </center>|<center> YYYY.YYY formatted date field </center>|
-||<center> B </center>|<center> Latitude 1 </center>|<center> Int </center>|<center> 80 North latitude </center>|
-||<center> C </center>|<center> Longitude 1 </center>|<center> Int </center>|<center> 180.0Z longitude ozone column (DU) </center>|
-||<center> D </center>|<center> Longitude 2 </center>|<center> Int </center>|<center> 157.5W longitude ozone column (DU) </center>|
-||<center> E </center>|<center> Longitude 3 </center>|<center> Int </center>|<center> 135.0W longitude ozone column (DU) </center>|
-|<center> … </center>|<center> … </center>|<center> … </center>|<center> … </center>|<center> … </center>|
-|<center> 19 </center>|<center> R </center>|<center> Longitude 16 </center>||<center> 157.5E longitude ozone column (DU) </center>|
-| … |…|…|…| <center> Repeat for N years of data </center>|
+||<center> S </center>|<center> Longitude 17 </center>|<center> Int </center>|180.0Z longitude ozone column (DU)|
+|…|<center> Repeat for total of 17 latitudes of data </center>|…|…|…|
+|<center> Repeat for (1978-2008) there are ~48 days (4 days per month) of data </center>|…|…|…|…|
+|<center> Repeat for (2009-2015) there are 365 days of data </center>|…|…|…|…|
 
 ### EMIS_1: Emissions
 
