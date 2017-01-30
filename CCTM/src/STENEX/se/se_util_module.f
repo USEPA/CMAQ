@@ -403,6 +403,9 @@ C                      -- recode the code using F90 syntax
 C                    12/04/02 by David Wong
 C                      -- modified the routine to accommodate worker and 
 C                         I/O processors partition scheme
+C                    01/30/07 by David Wong
+C                      -- modified the routine to avoid unnecessary creating
+C                         and destroying communicator
 C --------------------------------------------------------------------------
 
         subroutine se_barrier (flag)
@@ -418,14 +421,12 @@ C --------------------------------------------------------------------------
         integer :: local_comm, error
 
         if (present(flag)) then
-           call mpi_comm_dup (mpi_comm_world, local_comm, error)
-        else
            call mpi_comm_dup (se_worker_comm, local_comm, error)
+           call mpi_barrier (local_comm, error)
+           call mpi_comm_free (local_comm, error)
+        else
+           call mpi_barrier (mpi_comm_world, error)
         end if
-
-        call mpi_barrier (local_comm, error)
-
-        call mpi_comm_free (local_comm, error)
 
         return
         end subroutine se_barrier
