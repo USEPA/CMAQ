@@ -368,19 +368,7 @@ The ASCII-formatted CSQY files begin with a header that describes the applicable
 ||<center> C </center>|<center> Quantum Yield </center>|<center> Real </center>|Ratio of the number of molecules reacting via a specific pathway to the number of molecules absorbing photons in that wavelength interval; units = molecules photon<sup>-1</sup> (required)|
 |<center> n+X </center>|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|...|
 
-A sample of the important sections of a CSQY file is shown below.
-
-` ALD_CBIV88`
-` ! Acetaldehyde Photolysis (ALD)`
-` ! CH3CHO + hv (+2O2)-> CH3OO + HO2 + CO`
-` ! Taken from Gery et al. (1988); CSQY from Baulch et al. 5 (1984).`
-` ! format: wl, abs_cs, qy`
-` Centered`
-` ! With FAC, units are (cm^2/molecule)`
-` FAC=1.0E-20`
-` 280 4.50 0.580`
-` 281 4.54 0.575`
-` 282 4.58 0.570`
+See this [link](https://github.com/CMASCenter/EPA-CMAQ/blob/5.2Beta/CCTM/src/MECHS/cb05e51_ae6_aq/CSQY_DATA_cb05e51_ae6_aq) for an example CSQY file for the cb05e51_ae6_aq mechanism.
 
 ### ET: Extraterrestrial irradiance
 
@@ -404,6 +392,7 @@ ET is the logical name for the ASCII data file containing extraterrestrial radia
 ||<center> B </center>|<center> Extra–terrestrial Irradiance </center>|<center> Real or Exp </center>|Estimation of the photon flux reaching the exterior of the earth’s atmosphere; units = photons cm<sup>-2</sup> second<sup>-1</sup> (required)|
 |<center> n+X </center>|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|
 
+See this [link](https://github.com/CMASCenter/EPA-CMAQ/blob/5.2Beta/UTIL/inline_phot_preproc/photolysis_CSQY_data/ETirradiance.dat) for an example ET file.
 A sample of the important sections of an ET file is shown below.
 
 ` ! Extraterrestrial Irradiance`
@@ -420,11 +409,11 @@ Used by: JPROC
 
 PROFILES is the logical name for the ASCII data file containing seasonal and vertical profiles for ozone, aerosol attenuation, temperature, air pressure, and Dobson values. The ASCII-formatted data provided in the PROFILES file are at 19 latitudes (90°N to 90°S) and 51 altitudes (0 to 50 km) in three distinct data sections. The first data section contains seasonal, latitude-dependent vertical profiles of O<sub>3</sub> concentrations (molecules cm<sup>‑3</sup>), air temperature (K), and air density (molecules cm<sup>‑3</sup>). The second data section contains monthly Dobson values at the 19 latitude bands. The last data section contains vertical profiles from the 1976 U.S. Standard Atmosphere of air temperature (K), air density (molecules cm<sup>‑3</sup>), ozone concentrations (molecules cm<sup>‑3</sup>), and aerosol attenuation coefficients (km<sup>‑1</sup>).
 
-The first data section of the PROFILES file is divided into 228 (1934) data blocks, with each block representing one of the three variables (O<sub>3</sub>, air temperature, and air density) at one of the 19 latitude bands, for each of the 4 seasons of the year. The individual data blocks contain 51 values per variable, representing standard conditions at altitudes ranging from 0 to 50 km. The data are ordered, from general to specific, by season (spring, summer, autumn, winter), variable (O<sub>3</sub>, air temperature, air density), latitude, and altitude. For example, the first block in the PROFILES file contains spring O<sub>3</sub> concentration profiles at the latitude band ranging from 90°N to 80°N from 0 to 50 km above sea level; the first value in the block is at 0 km and the last value is at 50 km. The next data block is again spring O<sub>3</sub> concentration profiles but at the latitude band ranging from 80°N to 70°N. The next 17 data blocks complete the spring O<sub>3</sub> concentration profiles by continuing through the rest of the 19 latitude bands, with the last block representing the 80°S to 90°S latitude band. The 20<sup>th</sup> data block begins the spring air temperature profiles at the latitude band ranging from 90°N to 80°N and is followed by 18 more data blocks of spring air temperature profiles. The following 19 data blocks follow an identical format for air density and round out the spring profiles. The 193 data blocks are then repeated for summer profiles, autumn profiles, and finally winter profiles.
+The first data section of the PROFILES file is divided into 228 (19x3x4) data blocks, with each block representing one of the three variables (O<sub>3</sub>, air temperature, and air density) at one of the 19 latitude bands, for each of the 4 seasons of the year. The individual data blocks contain 51 values per variable, representing standard conditions at altitudes ranging from 0 to 50 km. The data are ordered, from general to specific, by season (spring, summer, autumn, winter), variable (O<sub>3</sub>, air temperature, air density), latitude, and altitude. For example, the first block in the PROFILES file contains spring O<sub>3</sub> concentration profiles at the latitude band ranging from 90°N to 80°N from 0 to 50 km above sea level; the first value in the block is at 0 km and the last value is at 50 km. The next data block is again spring O<sub>3</sub> concentration profiles but at the latitude band ranging from 80°N to 70°N. The next 17 data blocks complete the spring O<sub>3</sub> concentration profiles by continuing through the rest of the 19 latitude bands, with the last block representing the 80°S to 90°S latitude band. The 20<sup>th</sup> data block begins the spring air temperature profiles at the latitude band ranging from 90°N to 80°N and is followed by 18 more data blocks of spring air temperature profiles. The following 19 data blocks follow an identical format for air density and round out the spring profiles. The 19x3 data blocks are then repeated for summer profiles, autumn profiles, and finally winter profiles.
 
 The second data section in the PROFILES file contains monthly average Dobson values. The data are organized in 12 rows (January through December) and 19 columns (90°N to 80°N through 80°S to 90°S).
 
-The last data section in the PROFILES file contains vertical profiles from the 1976 U.S. Standard Atmosphere of temperature, air density, ozone concentrations, and aerosol attenuation coefficients. The data are organized in 51 rows, corresponding to altitude (0 to 50 km), with four columns per row for each of the four variables. A detailed description of the file format is provided in [Table 8‑9](#Table8-9).
+The last data section in the PROFILES file contains vertical profiles from the 1976 U.S. Standard Atmosphere of temperature, air density, ozone concentrations, and aerosol attenuation coefficients. The data are organized in 51 rows, corresponding to altitude (0 to 50 km), with four columns per row for each of the four variables. See this [link](https://github.com/CMASCenter/EPA-CMAQ/blob/5.2Beta/UTIL/inline_phot_preproc/photolysis_CSQY_data/PROFILES.dat) for an example PROFILES file. A detailed description of the file format is provided in [Table 8‑9](#Table8-9).
 
 <a id=Table8-9></a>
 
@@ -495,7 +484,7 @@ O2ABS is the logical name for the ASCII data file containing absorption cross se
 
 Used by: JPROC
 
-O3ABS is the logical name for the ASCII data file containing absorption cross section and quantum yield data for O<sub>3</sub> photolysis. The data in this file are listed as a function of wavelength. This file follows the same format as the CSQY files described in this [section](#CSQY).
+O3ABS is the logical name for the ASCII data file containing absorption cross section and quantum yield data for O<sub>3</sub> photolysis. The data in this file are listed as a function of wavelength. For an example see this [link](https://github.com/CMASCenter/EPA-CMAQ/blob/5.2Beta/UTIL/inline_phot_preproc/photolysis_CSQY_data/O3O1D_JPL06-2) This file follows the same format as the CSQY files described in this [section](#CSQY).
 
 ### InMetFiles: List of MM5 or WRF‑ARW output files
 
@@ -519,16 +508,16 @@ Used by: MCIP
 
 Used by: CCTM
 
-CMAQ boundary condition data are of the BNDARY3 file type. Produced by the boundary condition processor, BCON, CCTM reads these data and correlates them with the interior data by the use of a pointer system. This pointer system designates the beginning location of the data in memory that start a new side of the domain (i.e., south, east, north, or west). [Figure 6‑1](#Figure6-1) illustrates this input data structure and the relationship of the boundary data to the interior (“main grid”) data within CMAQ modules.
+CMAQ boundary condition data are of the BNDARY3 file type. Produced by the boundary condition processor, BCON, CCTM reads these data and correlates them with the interior data by the use of a pointer system. This pointer system designates the beginning location of the data in memory that start a new side of the domain (i.e., south, east, north, or west). [Figure 8‑1](#Figure8-1) illustrates this input data structure and the relationship of the boundary data to the interior (“main grid”) data within CMAQ modules.
 
-Each species being modeled should be in the BNDY_CONC_1 file. If some modeled species are not contained in this file, the boundary condition for these species will default to the value 1 × 10<sup>‑30</sup>. The perimeter of the CMAQ domain is 1 cell wide, where the number of boundary cells = (2*NROW)+(2*NCOL)+4. [Figure 6-2](#Figure6-2) is a graphical example of the CMAQ boundary conditions file; the west and north boundaries have ozone values of 0.035 ppmV, while the east and south boundaries have values of 0.030 ppmV.
+Each species being modeled should be in the BNDY_CONC_1 file. If some modeled species are not contained in this file, the boundary condition for these species will default to the value 1 × 10<sup>‑30</sup>. The perimeter of the CMAQ domain is 1 cell wide, where the number of boundary cells = (2*NROW)+(2*NCOL)+4. [Figure 8-2](#Figure8-2) is a graphical example of the CMAQ boundary conditions file; the west and north boundaries have ozone values of 0.035 ppmV, while the east and south boundaries have values of 0.030 ppmV.
 
 <center>
 <Image:>
 
 </center>
 <center>
-**Figure 6-1. Illustration of CMAQ boundary condition file**
+**Figure 8-1. Illustration of CMAQ boundary condition file**
 
 </center>
 <center>
@@ -536,21 +525,21 @@ Each species being modeled should be in the BNDY_CONC_1 file. If some modeled sp
 
 </center>
 <center>
-**Figure 6-2. Graphical example of a CMAQ gridded boundary conditions file**
+**Figure 8-2. Graphical example of a CMAQ gridded boundary conditions file**
 
 </center>
 ### INIT_CONC_1: Initial conditions
 
 Used by: CCTM
 
-The initial concentrations of each species being modeled must be input to CMAQ. The initial conditions input file type is GRDDED3 and does not vary with time. The file data are looped in this manner: by column, by row, by layer, by variable. Initial conditions files have the same structure as concentration files, so the predicted concentrations from the last hour of day 1 can be used to initialize the following day’s simulation. This gives CMAQ users the flexibility to segment simulations in any way they choose. [Figure 6-3](#Figure6-3) is a graphical example of the CMAQ initial conditions file. The file shows spatially varying data that can be used to initialize a following run beginning at the time shown (i.e., June 25, 1996 0:00:00).
+The initial concentrations of each species being modeled must be input to CMAQ. The initial conditions input file type is GRDDED3 and does not vary with time. The file data are looped in this manner: by column, by row, by layer, by variable. Initial conditions files have the same structure as concentration files, so the predicted concentrations from the last hour of day 1 can be used to initialize the following day’s simulation. This gives CMAQ users the flexibility to segment simulations in any way they choose. [Figure 8-3](#Figure8-3) is a graphical example of the CMAQ initial conditions file. The file shows spatially varying data that can be used to initialize a following run beginning at the time shown (i.e., June 25, 1996 0:00:00).
 
 <center>
 <Image:>
 
 </center>
 <center>
-**Figure 6-3. Graphical example of a CMAQ gridded initial conditions file**
+**Figure 8-3. Graphical example of a CMAQ gridded initial conditions file**
 
 </center>
 ### JTABLE: Photolysis rates look-up table
