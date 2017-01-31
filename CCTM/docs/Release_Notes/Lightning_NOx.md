@@ -61,7 +61,7 @@ setenv LTNGNO Inline
 setenv LOG_START 2.0
 ```
 
-### 4. Lightning NOx Derived from Hourly NLDN Flash Counts ### 
+### 4. Lightning NOx Derived from Hourly NLDN Flash Counts ###
 This option uses hourly flash counts to ensure that the seasonal lightning totals match observed lightning totals. 
 
 Settings: 
