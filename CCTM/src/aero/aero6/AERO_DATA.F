@@ -370,7 +370,7 @@ C                                           Aitken     accum       coarse       
      &   emis_table( 'Nickel        ', (/'         ','         ','ANIK     '/), (/ 0.0, 0.0    , 2.0E-05/) ),   ! Nickel K mode
      &   emis_table( 'Chromium III  ', (/'         ','ACR_IIIJ ','         '/), (/ 0.0, 5.6E-05, 0.0    /) ),   ! Trivalent Chromium J mode
      &   emis_table( 'Chromium III  ', (/'         ','         ','ACR_IIIK '/), (/ 0.0, 0.0    , 5.6E-05/) ),   ! Trivalent Chromium K mode
-     &   emis_table( 'Arsenic       ', (/'         ','AASJ    ','          '/), (/ 0.0, 5.5E-06, 0.0    /) ),   ! Arsenic J mode
+     &   emis_table( 'Arsenic       ', (/'         ','AASJ     ','         '/), (/ 0.0, 5.5E-06, 0.0    /) ),   ! Arsenic J mode
      &   emis_table( 'Arsenic       ', (/'         ','         ','AASK     '/), (/ 0.0, 0.0    , 5.5E-06/) ),   ! Arsenic K mode
      &   emis_table( 'Lead          ', (/'         ','APBJ     ','         '/), (/ 0.0, 1.6E-05, 0.0    /) ),   ! Lead J mode
      &   emis_table( 'Lead          ', (/'         ','         ','APBK     '/), (/ 0.0, 0.0    , 1.6E-05/) ),   ! Lead K mode
@@ -642,7 +642,6 @@ C Local Variables:
       n_aerospc      = 0.0 ! Number of Used Aerosol Chemical Species
       aerolist_map   = 0   ! Pointer from aerolist to CGRID
       aerospc_tolist = 0   ! Pointer from aerospc to aerolist
-      dustlist_map   = 0   ! Pointer identifies to use dust emission table
       error_flag = .False.
 
 C Build mapping to CGRID for each species in the master AeroList
@@ -841,9 +840,10 @@ C Adjust Dust Emissions list for Organic Species, if running with semivolatile P
       End If
 
 ! Determine map between aero_spc dust emissions and the dust emission listndust_spc
-      ndust_spc = 0
       Allocate( dustlist_map( ndust_list ) )
+      dustlist_map   = 0   ! Pointer identifies to use dust emission table
 
+      ndust_spc = 0
       Do spc = 1, n_aerospc ! Loop through user-requested chemical species
          Do idust = 1, ndust_list ! loop through dust list
 #ifdef verbose_aero

@@ -42,6 +42,8 @@ c..EBI solver fixed parameters
       INTEGER, PARAMETER    ::  NEBITER       = 1000     ! No. of iterations for EBI
       INTEGER, PARAMETER    ::  MAX_CELLS_EBI = 1        ! max # cells in local conc arrays
       REAL( 8 ), PARAMETER  ::  DELTAT        = 2.5D+00  ! EBI time step
+!      REAL( 8 ), PARAMETER  ::  DELTAT        = 1.25D+00  ! EBI time step
+!      REAL( 8 ), PARAMETER  ::  DELTAT        = 6.25D-01  ! EBI time step
 
 c..Mechanism specific variables
       INTEGER   N_SPEC       ! No. of species in mechanism
