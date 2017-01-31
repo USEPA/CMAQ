@@ -34,7 +34,7 @@ Run Script Configurations:
 
 There are four options for the CCTM lightning NOx module.
 
-1. No Lightning NOx
+### 1. No Lightning NOx ###
 CMAQ will not generate NO from lightning. 
 
 Settings:
@@ -42,7 +42,7 @@ Settings:
 setenv CTM_LTNG_NO N or unsetenv CTM_LTNG_NO
 ```
 
-2. Lightning NOx from a 4-D file
+### 2. Lightning NOx from a 4-D file ###
 This option reads in NO defined as a rate of production (moles/sec) for each model layer at each timestep. 
 
 Settings:
@@ -51,7 +51,7 @@ setenv CTM_LTNG_NO Y
 setenv LTNGNO [4-D netCDF file of lightning NO emissions]
 ```
 
-3. Lightning NOx Interpolated from the Convective Precipitation Rate
+### 3. Lightning NOx Interpolated from the Convective Precipitation Rate ###
 As described above, this option is based on a regression relationship between multi-years’ WRF generated convective rainfall and observed NLDN lightning strike data. Recommended for applications where NLDN data are not available to calculate lightning NOx emissions. The variable LOG_START defines the convective precipation rate (RC) at which to transition from a linear to log-linear relationship between precipitation and lightning flashes.
 
 Settings: 
@@ -61,7 +61,7 @@ setenv LTNGNO Inline
 setenv LOG_START 2.0
 ```
 
-4. Lightning NOx Derived from Hourly NLDN Flash Counts
+### 4. Lightning NOx Derived from Hourly NLDN Flash Counts ### 
 This option uses hourly flash counts to ensure that the seasonal lightning totals match observed lightning totals. 
 
 Settings: 
