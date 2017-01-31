@@ -365,6 +365,7 @@ Both in-line emissions and photolysis are invoked through compile-time configura
 
 The configuration options listed here are set during compilation of the CCTM executable. When these options are invoked they create a binary executable that is fixed to the specified configuration. To change these options you must recompile CCTM and create a new executable.
 
+<!---
 -   `Opt: [default: verbose]`
     Defines the action to be taken by the program Bldmake when extracting source code from CVS and compiling an executable.
     -   *compile_all:* force compile, even if all the object files are current
@@ -376,123 +377,164 @@ The configuration options listed here are set during compilation of the CCTM exe
     -   *show_only:* show requested commands but does not execute them
     -   *verbose:* show requested commands as they are executed
 
--   `MakeOpt`
+-   `set MakeOpt`
     Uncomment to build a Makefile to compile the executable.
+-->
 
--   `ParOpt`
-    Uncomment to build an executable for running on multiple processors. Invoking this command requires the availability of a parallel STENEX library file, a PARIO library file, and the MPI library/INCLUDE files.
+-   `set ParOpt`
+    Build an executable for running on multiple processors. Invoking this command requires the availability of a parallel STENEX library file, a PARIO library file, and the MPI library/INCLUDE files.
+
+-   `set MakeFileOnly`
+    Builds a Makefile to make the model, but does not compile
+
+-   `#set build_parallel_io`
+     Uncomment to build CMAQ with true parallel I/O feature (requires ioapi3.2 and pnetcdf)
+
+-   `#set build_twoway`
+    Uncomment to build WRF-CMAQ twoway - this cannot be set for stand-alone CMAQ
+
+-   `#set potvortO3`
+    Uncomment to build CMAQ with potential vorticity free-troposphere O3 scaling
+
+CCTM Science Modules Selection
+```Tcsh
+NOTE: For the modules with multiple choices, choose by uncommenting.
+#> NOTE: For the modules with multiple choices, choose by uncommenting.
+#> look in the CCTM source code repository or refer to the CMAQ documentation
+#> for other possible options. Be careful. Not all options work together. ```
+
 
 -   `ModDriver: [default: driver/wrf]`
     The CCTM generalized -coordinate driver module.
-    -   *driver/wrf*: use WRF-based scheme for mass-conserving advection; select this option when using WRF meteorology
-    -   *driver/yamo*: use Yamartino scheme for mass-conserving advection
+    - `set ModDriver = driver/wrf` : use WRF-based scheme for mass-conserving advection; select this option when using WRF meteorology
+    - `#set ModDriver = driver/yamo` : use Yamartino scheme for mass-conserving advection
 
--   `ModGrid: [default: Cartesian]`
+-   `ModGrid: [default: Cartesian]` 
     The CCTM model grid configuration module. Currently only Cartesian coordinates are supported by CMAQ.
+    -   `set ModGrid = grid/cartesian`
 
 -   `ModInit: [default: init/yamo]`
     The CCTM time-step initialization module that uses a Yamartino scheme for mass-conserving advection
+    -   `set ModInit = init/yamo`
+
+-   `ModCpl: [default: couple/gencoor_wrf]`
+    Mass coupling concentration converstion module options. Unit conversion and concentration coupling module.
+    -   `set ModCpl  = couple/gencoor_wrf`  - Coupling scheme compatible with the WRF-based advection scheme; select this option when ModDriver is set to *ctm_wrf*
+    -  `#set ModCpl  = couple/gencoor`      - Coupling scheme compatible with the Yamartino advection scheme; select this option when ModDriver is set to *ctm_yamo*.
 
 <!-- -   `ModAdjc: [default: // Yamartino option]`
     Mass conservation error adjustment scheme. Corrects for mass inconsistencies arising from how the input meteorology treats density and wind fields. This adjustment is required only if the air-density-based scheme for mass-conserving advection is selected. Not used in CMAQv5 because the Yamartino advection scheme is mass conserving. -->
 
--   `ModCpl: [default: couple/gencoor_wrf]`
-    Unit conversion and concentration coupling module.
-    -   ''couple/gencoor_wrf: ''Coupling scheme compatible with the WRF-based advection scheme; select this option when ModDriver is set to *ctm_wrf*
-    -   *couple/gencoor*: Coupling scheme compatible with the Yamartino advection scheme; select this option when ModDriver is set to *ctm_yamo*.
-
--   `ModHadv: [default: hadv/yamo]`
-    The only option in CMAQv5 for the horizontal advection module is the'' hyamo'' global mass-conserving scheme.
+-    `ModHadv: [default: hadv/yamo]`
+      Horizontal advection module.  Currently only the Yamartino global mass-conserving hoizontal advection scheme is supported.
+     -   `set ModHadv  = hadv/yamo`
 
 -   `ModVadv: [default: vadv/wrf]`
     Vertical advection module.
-    -   *vadv/wrf*: use the WRF omega calculation with the Piecewise Parabolic Method (PPM) to calculate vertical advection; this module should be used only with WRF meteorology
-    -   *vadv/yamo*: use the global mass-conserving scheme to calculate vertical advection
+    -   `set ModVadv = vadv/wrf`   : use the WRF omega calculation with the Piecewise Parabolic Method (PPM) to calculate vertical advection; this module should be used only with WRF meteorology
+    -   `#set ModVadv = vadv/yamo`  : use the global mass-conserving scheme to calculate vertical advection
 
 -   `ModHdiff: [default: hdiff/multiscale]`
     The only option in CMAQv5 for the horizontal diffusion module is *hdiff/multiscale*, which uses a diffusion coefficient based on local wind deformation.
+    -   `set ModHdiff = hdiff/multiscale`
 
 -   `ModVdiff: [default: vdiff/acm2]`
-    Vertical diffusion module.
-    -   *vdiff/acm2*: calculate vertical diffusion using the Asymmetric Convective Model version 2 (ACM2)
+    Vertical diffusion and surface exchange module.
+    -   `set ModVdiff = vdiff/acm2`   : calculate vertical diffusion using the Asymmetric Convective Model version 2 (ACM2)
     <!-- -   *acm2_mp*: use ACM2 vertical diffusion instrumented for multipollutant modeling -->
 
 -   `ModDepv: [default: depv/m3dry]`
     Deposition velocity calculation module.
-    -   *depv/m3dry*: CMAQ dry deposition velocity routine
+    -   `set ModDepv = depv/m3dry`   : CMAQ dry deposition velocity routine
     <!-- -   *m3dry_mp*: CMAQ dry deposition velocity routine instrumented for multipollutant modeling -->
+
 -   `ModEmis: [default: emis/emis]`
-    CMAQ in-line emissions module.
+    - `set ModEmis = emis/emis` : CMAQ in-line anthropogenic and natural emissions module.
 
 -   `ModBiog: [default: biog/beis3]`
-    Calculate biogenic emissions in-line with the BEIS3 model.
+    - `set ModBiog = biog/beis3` : Calculate biogenic emissions in-line with the BEIS3 model.
 
 -   `ModPlmrs: [default: plrise/smoke]`
-    Calculate in-line plume rise for large point sources using the Briggs algorithm as it is implemented in SMOKE.
+    - `set ModPlmrs = plrise/smoke` : Calculate in-line plume rise for large point sources using the Briggs algorithm as it is implemented in SMOKE.
 
 -   `ModCgrds: [default: spcs/cgrid_spcs_nml]`
     CMAQ model species configuration module.
-    -   *spcs/cgrid_spcs_nml*: namelist files used to configure CMAQ model species
-    -   *spcs/cgrid_specs_icl*: Fortran INCLUDE files used to configure CMAQ model species
+    -   `set ModCgrds = spcs/cgrid_spcs_nml` : namelist files used to configure CMAQ model species
+    -   `#set ModCgrds = spcs/cgrid_specs_icl` : use Fortran INCLUDE files used to configure CMAQ model species
 
 -   `ModPhot: [default: phot/inline]`
     Photolysis calculation module.
-    -   *phot/table*: calculate clear-sky photolysis rates off-line using the CMAQ program JPROC; provide daily photolysis rate look-up tables to CCTM
-    -   *phot/inline*: calculate photolysis rates in-line using simulated aerosols and ozone concentrations
+    -   `set ModPhot = phot/inline` : calculate photolysis rates in-line using simulated aerosols and ozone concentrations
+    -   `#set ModPhot = phot/table` : calculate clear-sky photolysis rates off-line using the CMAQ program JPROC; provide daily photolysis rate look-up tables to CCTM
 
 -   `Mechanism: [default: cb05e51_ae6_aq`]
-     optimized for the Carbon Bond-05 mechanism with chlorine
-    -   *cb05tucl*: use the Euler Backward Iterative solver optimized for the Carbon Bond-05 mechanism with chlorine and updated toluene chemistry
-    -   *cb05tump*: use the Euler Backward Iterative solver optimized for the Carbon Bond-05 mechanism with updated toluene chemistry and air toxics; this is the multipollutant mechanism in CMAQv5'' ''
-    -   *saprc07tb*: use the Euler Backward Iterative solver optimized for the SAPRC-07 mechanism with updated toluene chemistry version B
-    -   *saprc07tc*: use the Euler Backward Iterative solver optimized for the SAPRC-07 mechanism with updated toluene chemistry version C
+    -  `set Mechanism = cb05e51_ae6_aq` : optimized for the Carbon Bond-05 mechanism with chlorine 
+    - `#set Mechanism = cb05e51_ae6nvPOA_aq` : use .. 
+    - `#set Mechanism = cb05eh51_ae6_aq` : use ..
+    - `#set Mechanism = cb05mp51_ae6_aq` : use ..
+    - `#set Mechanism = cb05tucl_ae6_aq`: use the Euler Backward Iterative solver optimized for the Carbon Bond-05 mechanism with chlorine and updated toluene chemistry
+    - `#set Mechanism = cb05tump_ae6_aq`: use the Euler Backward Iterative solver optimized for the Carbon Bond-05 mechanism with updated toluene chemistry and air toxics; this is the multipollutant mechanism in CMAQv5'' ''
+    - `#set Mechanism = cb6r3_ae6_aq` : use ..
+    - `#set Mechanism = cb6r3_ae6nvPOA_aq` : use ..
+    - `#set Mechanism = racm2_ae6_aq` : use ..
+    - `#set Mechanism = saprc07tb_ae6_aq`: use the Euler Backward Iterative solver optimized for the SAPRC-07 mechanism with updated toluene chemistry version B
+    - `#set Mechanism = saprc07tc_ae6_aq`: use the Euler Backward Iterative solver optimized for the SAPRC-07 mechanism with updated toluene chemistry version C
+    - `#set Mechanism = saprc07tc_ae6nvPOA_aq` : use ..
+    - `#set Mechanism = saprc07tic_ae6i_aq` : use ..
+    - `#set Mechanism = saprc07tic_ae6invPOA_aq` : use ..
+    - `#set Mechanism = saprc07tic_ae6i_aqkmti` #> if using ebi solver, use ebi_saprc07tic_ae6i_aq
 
 -   `Tracer [default trac0] `
     Specifies tracer species to use from the emissions, IC, or BC input files. Invoking inert tracer species in CMAQ requires defining the tracers using INCLUDE files and compiling CCTM with these files. The setting for this module corresponds to the directory name in the $CMAQ_HOME/include/release directory that contains the INCLUDE files for the tracer configuration to implement in CCTM. The default setting is to not use tracers in CCTM.
+    - `set Tracer  = trac0`
 
 -   `ModMech: MECHS/$Mechanism`
+     Specifies the chemistry mechanism selected above.
 
 -   `ModGas: [default: gas/ebi]`
      Gas-phase chemistry solver module.
-     -   *smvgear*: use the SMVGEAR chemistry solver
-     -   *ros3*: use the Rosenbrock chemistry solver
-     -   *ebi*: use the Euler Backward Iterative solver
+     -  `#set ModGas = smvgear` : use the SMVGEAR chemistry solver
+     -  `#set ModGas =  ros3`   : use the Rosenbrock chemistry solver
+     -  `set ModGas =  ebi`: use the Euler Backward Iterative solver
 
 -   `ModAero: [default: aero6]`
     CMAQ aerosol module.
     <!-- -   *aero5*: fifth-generation modal CMAQ aerosol model with extensions for sea salt emissions and thermodynamics; includes a new formulation for secondary organic aerosol yields -->
-    -   *aero6*: sixth-generation modal CMAQ aerosol model with extensions for sea salt emissions and thermodynamics; includes a new formulation for secondary organic aerosol yields
-    -   *aero6_mp*: sixth-generation CMAQ aerosol model including air toxics; this is the multipollutant mechanism in CMAQv5 (prior to CMAQv5.2)
+    -   set ModAero = aero6` : sixth-generation modal CMAQ aerosol model with extensions for sea salt emissions and thermodynamics; includes a new formulation for secondary organic aerosol yields
+    <!-- -   *aero6_mp*: sixth-generation CMAQ aerosol model including air toxics; this is the multipollutant mechanism in CMAQv5 (prior to CMAQv5.2) -->
+
 -   `ModCloud: [default: cloud/acm_ae6]`
     CMAQ cloud module for modeling the impacts of clouds on deposition, mixing, photolysis, and aqueous chemistry.
     <!-- -   *cloud_acm_ae5*: ACM cloud processor that uses the ACM methodology to compute convective mixing with heterogeneous chemistry for AERO5 -->
-    -   *cloud_acm_ae6*: ACM cloud processor that uses the ACM methodology to compute convective mixing with heterogeneous chemistry for AERO6
-    -   *cloud_acm_ae6_mp*: ACM cloud processor that uses the ACM methodology to compute convective mixing with heterogeneous chemistry for AERO6 and air toxics; this is the multipollutant mechanism in CMAQv5
-    -   *cloud_acm_ae6_kmt*: ACM cloud processor that uses the ACM methodology to compute convective mixing with heterogeneous chemistry for AERO6 and aqueous chemistry with kinetic mass transfer and Rosenbrock solver
-    -   *cloud_acm_ae6i_kmti*: ACM cloud processor that uses the ACM methodology to compute convective mixing with heterogeneous chemistry for AERO6 and aqueous chemistry with kinetic mass transfer and Rosenbrock solver with an extension to simulate the aqueous phase formation of SOA in cloud droplets (see: [CMAQv5.1 Aqueous Chemistry](https://www.airqualitymodeling.org/index.php/CMAQv5.1_Aqueous_Chemistry))
+    -   `set ModCloud = cloud/acm_ae6`: ACM cloud processor that uses the ACM methodology to compute convective mixing with heterogeneous chemistry for AERO6
+    -   `set ModCloud = cloud/acm_ae6_mp`: ACM cloud processor that uses the ACM methodology to compute convective mixing with heterogeneous chemistry for AERO6 and air toxics; this is the multipollutant mechanism in CMAQv5
+    -   `set ModCloud = cloud/acm_ae6_kmt`: ACM cloud processor that uses the ACM methodology to compute convective mixing with heterogeneous chemistry for AERO6 and aqueous chemistry with kinetic mass transfer and Rosenbrock solver
+    -   `set ModCloud = cloud/acm_ae6i_kmti`: ACM cloud processor that uses the ACM methodology to compute convective mixing with heterogeneous chemistry for AERO6 and aqueous chemistry with kinetic mass transfer and Rosenbrock solver with an extension to simulate the aqueous phase formation of SOA in cloud droplets (see: [CMAQv5.1 Aqueous Chemistry](https://www.airqualitymodeling.org/index.php/CMAQv5.1_Aqueous_Chemistry))
 
 -   `ModUtil: [default: util]`
     CMAQ utility modules.
-    -   *util*: only configuration option at the module level
+    -  `set ModUtil = util/util`: only configuration option at the module level
 
 -   `ModPvO3: [default: pv_o3]`
     Potential vorticity
-    - pv_o3: parameterized       free-troposphere ozone module.
+    - `set ModPvO3 = pv_o3`: parameterized free-troposphere ozone module.
+
 -   `ModPa: [default: procan/pa]`
     Process analysis module.
-    -   *procan/pa*: only configuration option at the module level; to turn process analysis on/off in CMAQ, use the PAOpt variable (see below).
+    -   `set ModPa = procan/pa`: only configuration option at the module level; to turn process analysis on/off in CMAQ, use the PAOpt variable (see below).
 
 <!-- -   `PABase = $GlobInc`
     Specifies the base directory location of the process analysis INCLUDE files to use when compiling CCTM. -->
 
 -   `PAOpt: [default: pa_noop]`
     Specifies the process analysis configuration to use for CMAQ. The choices for the PAOpt variable are the available directories for process analysis INCLUDE files under the $M3MODEL/include/release directory.
+     - `set PAOpt = pa_noop`
 
 #### CCTM compilation
 
 First, it is assumed that you have already installed and compiled the I/O API, netCDF, and MPICH libraries, or that these are already available from a previous CMAQ compilation.
 
-Chapter 5 provides an overview of how to install and compile the CMAQ programs for the benchmark simulation. Follow the steps outlined in Chapter 5 (summarized below) to compile new versions of CCTM:
+[Chapter 5](CMAQ_OGD_ch05_sys_req.md) provides an overview of how to install and compile the CMAQ programs for the benchmark simulation. Follow the steps outlined in [Chapter 5](CMAQ_OGD_ch05_sys_req.md) (summarized below) to compile new versions of CCTM:
 
 -   If you have not already done so, compile Bldmake, the CMAQ source code and compilation management program. This needs to be done only once—the first time CMAQ is installed.
 -   If needed, configure the CCTM build script to use the available I/O API, netCDF, and MPICH libraries.
@@ -506,286 +548,217 @@ Chapter 5 provides an overview of how to install and compile the CMAQ programs f
 
 The environment variables listed here are invoked during execution of the program and are set in the CCTM run script.
 
+-   `PROC [default: mpi]` To specify if the run is to be run on 1 processor (serial) or to be run on multiple processors (mpi).
+
 -   `EXEC [default: CCTM_$APPL_$EXECID]`
 
 Executable to use for the simulation.
 
--   `NPCOL_NPROW [default: 1 1]`
+-   `NPCOL_NPROW [default: 1 1]` : if PROC is serial
+
+-   `NPCOL_NPROW [default: 4 4]` : if PROC is mpi
 
 Domain decomposition for parallel mode; recommended configuration is for the number of columns to be larger than the number of rows. For example, if running with 8 processors, the recommended setting is “4 2”.
 
--   `NPROCS [default: 1]`
+-   `NPROCS [default: 1]` : if PROC is serial
+-   `NPROCS [default: 16]` : if PROC is mpi and NPCOL_NPROW = "4 4"
 
 Number of processors for parallel execution; equal to the product of NPCOL x NPROW.
 
--   `STDATE:`
+Timestep run parameters
 
-Simulation start date in Julian format (YYYYDDD).
+-   `STDATE` : Simulation start date in Julian format (YYYYDDD).
+-   `STTIME` : Simulation start time (HHMMSS).
+-   `NSTEPS [default: 240000]`:  Number of simulation time steps (HHMMSS).
+-   `TSTEP [default: 010000]` : Simulation output time step interval (HHMMSS).
+-   `YEAR ` : Simulation year specified using 4 digits (YYYY).
+-   `YR` : Simulation year specified using 2 digits (YY) 
+-   `MONTH` : Simulation Month specified using 2 digits (MM)
+-   `DAY` : Simulation Day specified using 2 digits (DD)
+-   `YMD` : Calculated using YMD   = ${YEAR}${MONTH}${DAY}
 
--   `STTIME:`
+CCTM Configuration Options.
+-   `LOGFILE [default: $BASE/$APPL.log]` : Uncomment to capture CCTM standard output to a log file; the LOGFILE variable sets the name and location of the log.
 
-Simulation start time (HHMMSS).
+-   `GRID_NAME [default: CMAQ-BENCHMARK]` : Name of the grid definition contained in the GRIDDESC file that specifies the horizontal grid for the current application of the model.
+-   `GRIDDESC [default: $M3HOME/scripts/GRIDDESC1]` : Grid description file for setting the horizontal grid definition.
 
--   `NSTEPS [default: 240000]`
+-   `OUTDIR [default: $M3DATA/cctm]` :  CCTM output file directory location.
+-   `CTM_APPL [default: $APPL]` : CCTM log file naming extension.
+-   `CONC_SPCS [default: if not defined, all species]`:  Model species to be written to the CCTM CONC file.
+-   `CONC_BLEV_ELEV [default: if not defined, all layers]` :  Vertical model layer range for the CONC-file concentrations; this variable sets the lower and upper layers over which to output the CONC file.
+-   `AVG_CONC_SPCS [default: `if not defined, output all species] :  Model species for calculating integral average concentrations for each output time step. Options can be any of the standard output species that are written to the CCTM CONC file. The species in this list will be written to the ACONC output file.
+-   `ACONC_BLEV_ELEV [default: if not defined, all layers]` :  Vertical model layer range for integral average concentrations; this variable sets the lower and upper layers over which to calculate integral average concentrations. For example, setting this variable to “1 5” will produce integral average concentrations for model layers 1 through 5.
+-   `ACONC_END_TIME [default: N|F]`:  Change the time stamp of the ACONC file output time step from the default of the beginning of the hour to the end of the hour. Set to Y or T to set the time stamp to the end of each hour or set to N or F to set the time stamp to the beginning of the hour.
 
-Number of simulation time steps (HHMMSS).
+-   'EXECUTION_ID' Define the model execution id
 
--   `TSTEP [default: 010000]`
+Synchronization Time Step and Tolerance Options
+-   `CTM_MAXSYNC [default: 720]`:  Maximum synchronization time step in seconds.
+-   `CTM_MINSYNC [default: 60]` : Minimum synchronization time step in seconds.
+-   `SIGMA_SYNC_TOP [default: .70]`: Top sigma level thru which sync step determined
+-   `CTM_ADV_CFL [default: .75]`: maximum Courant–Friedrichs–Lewy (cfl) condition
+-   `RB_ATOL [default: 1.0E-07]`: global ROS3 solver absolute tolerance
 
-Simulation output time step interval (HHMMSS).
+Science Options
+-   `CTM_WB_DUST [default: Y|T]`:  Setting to calculate in-line windblown dust emissions in CCTM. Setting this variable to Y or T requires the availability of gridded land use input files that include the following BELD USGS land use classifications: shrubland, shrubgrass, and sprsbarren. See [Chapter 8](CMAQ_OGD_ch08_input_files.md#Table8-1) for a description of the DUST_LU_1 and DUST_LU_2 input files. Comment out variable or set to Y or T to turn on; set to N or F to turn off.
+-   `CTM_ERODE_AGLAND [default: N|F]` Setting to use optional erodible agricultural land classifications for computing windblown dust emissions from agricultural land. Setting this variable to Y or T requires the availability of gridded crop timing data that describe planting start dates, planting end dates, and harvesting end dates for 18 crop types. See [Chapter 8](CMAQ_OGD_ch08_input_files.md#Table8-1) for a description of the CROPMAP01, CROPMAP04, and CROPMAP08 input files. If CTM_WB_DUST is set to N or F, this setting will be ignored. Set to Y or T to turn on; comment out variable or set to N or F to turn off.
+-    `CTM_WBDUST_BELD [default: BELD3]:  Landuse database for identifying dust source regions;  ignore if CTM_WB_DUST = N
+-   `CTM_LTNG_NO [default: Y|T]` : Setting to activate lightning NO emissions. Setting this variable to Y or T requires additional variables to define the configuration of the lightning NO emissions calculation. See the settings for LTNGNO, LTNGPARAM, and LTNGDIAG below. Set to Y or T to turn on; comment out variable or set to N or F to turn off.
+-   `CTM_WVEL [default: N|F]`: Setting to output the CCTM-calculated vertical velocities to the CONC file. Set to Y or T to turn on; comment out variable or set to N or F to turn off.
+-   `KZMIN [default: Y]`: If KZMIN is set to Y, CCTM will read the urban land use fraction variable (PURB) from the GRID_CRO_2D meteorology file and use this information to determine the minimum eddy diffusivity in each grid cell. In CMAQv5, grid cells that are predominantly urban use a KZMIN value of 1.0 m<sup>2</sup>/s and nonurban cells use a value of 0.01 m<sup>2</sup>/s. If this variable is set to N, the PURB variable will not be used and a uniform KZMIN value of 1.0 m<sup>2</sup>/s will be used throughout the modeling domain.
+-   `CTM_ILDEPV [default: Y|T]`: Calculate in-line deposition velocities. Comment out variable or set to Y or T to turn on; set to N or F to turn off.
+-   `CTM_MOSAIC [default N|F]`:  Setting to output land use specific deposition velocities and fluxes.
+    -    `CTM_FST [devault: N|F]`:  Mosaic method to get land-use specific stomatal flux.
+-   `CTM_ABFLUX [default: N|F]`:  Setting to activate fertilizer ammonia bidirectional flux for in-line emissions and deposition velocities. If CTM_ILDEPV is set to N or F this variable is ignored. Setting this variable to Y or T requires four additional input files that include gridded fractional crop distributions (B4LU_file), soil properties (E2C_Soilfile), fertilizer conditions (E2C_Fertfile), and an agricultural soil initial conditions file (INIT_MEDC_1). Activation of this setting will produce additional variables in the output dry deposition file. See [Chapter 8](CMAQ_OGD_ch08_input_files.md#Table8-1) for a description of the required input files. Set to Y or T to turn on; comment out or set to N or F to turn off.
+-   `CTM_HGBIDI [default: N|F]`: Setting to activate mercury bidirectional flux for in-line emissions and deposition velocities. If CTM_ILDEPV is set to N or F this variable is ignored. Activation of this setting will produce additional variables in the output
+ dry deposition file. Set to Y or T to turn on; comment out or set to N or F to turn off.
+-   `CTM_SFC_HONO [default: Y|T]`:  Calculate surface HONO interactions. If CTM_ILDEPV is set to N or F this variable is ignored. Comment out or set to Y or T to turn on; set to N or F to turn off.
+-   `CTM_GRAV_SETL [default N|F]`: Vertical diffusion aerosol gravitational sedimentation option.
+-   `CTM_BIOGEMIS [default: Y|T]`:  Calculate biogenic emissions. Comment out or set to Y or T to turn on; set to N or F to turn off.  If the option to calculate in-line biogenic emissions is activated (i.e., CTM_BIOGEMIS is set to Y or T), the following variables must be set.     
+    -   `GSPRO`: Directory path and file name for input speciation profiles.
+    -   `B3GRD`: Directory path and file name for grid-normalized biogenic emissions input file.
+    -   `BIOG_SPRO`:  Profile ID for speciating biogenic VOCs. This profile ID must be present in the GSPRO file.
+    -   `BIOSW_YN [default: Y|T]`: Use the frost dates switch file to determine whether to use winter or summer biogenic emissions. Comment out or set to Y or T to turn on; set to N or F to turn off.
+    -   `BIOSEASON`:  Directory path and file name for the frost date switch file.
+    -   `SUMMER_YN [default: Y|T]`:  Use summer season normalized biogenic emissions. This variable is ignored if BIOSW_YN is set to Y. Comment out or set to Y or T to turn on; set to N or F to turn off.
+    -   `PX_VERSION [Default: N|F]`:  Setting to indicate whether the Pleim-Xiu land-surface model was used for the input meteorology. If this setting is set to Y or T the input meteorology data must include soil moisture (SOILM), soil temperature (SOILT), and soil type (ISLTYP) variables for use in the calculation of soil NO emissions.
+    -   `INITIAL_RUN`:  Set to Y or T if this is the first time that biogenic NO soil emissions will be calculated. If there is a previously created file, set to N or F.
+    -   `SOILINP`:  Directory path and file name of biogenic NO soil emissions file. If INITIAL_RUN is set to N or F, the soil NO emissions file from the previous day’s simulation will be a required input file.
+    -   `B3GTS_DIAG [default: N|F]`:  Setting to write the calculated biogenic emissions (mass units) to a diagnostic netCDF output file (B3GTS_S). Set to Y or T to turn on; comment out or set to N or F to turn off.
+    -   `B3GTS_S`:  Directory path and file name for the diagnostic output biogenic emissions. This variable is ignored if B3GTS_DIAG is turned off.
+-   `CTM_PT3DEMIS [default: N|F]`:  Calculate plume rise for elevated point sources. Set to Y or T to turn on; comment out or set N or F to turn off.
+    If the option to calculate in-line plume rise is activated (i.e., CTM_PT3DEMIS is set to Y or T), the following variables must be set.
+    -   `NPTGRPS [default: 1]`: The number of input point-source elevated emission sector file groups. A maximum of 9 sectors is allowed.
+    -   `STK_GRPS_## ` : Directory path and file name of the stack groups file for sector \#\#, where \#\# = 01, 02,…,NPTGRPS. Each \#\# refers to one of the plume rise point-source sectors.
+    -   `STK_EMIS_##` : Directory path and file name of the point emissions file for sector \#\#, where \#\# = 01, 02,…,NPTGRPS. Each \#\# refers to the one of the plume rise point-source sectors.
+    -   `LAYP_STDATE [HHMMSS]` : Start date for calculating elevated-point-source emissions.
+    -   `LAYP_STTIME [HHMMSS]` : Start time for calculating elevated-point-source emissions.
+    -   `LAYP_NSTEPS [HHHHHH]` : Number of time steps for calculating elevated-point-source emissions.
 
--   `LOGFILE [default: $BASE/$APPL.log]`
+<--
+    -   `CTM_EMLAYS [##]` : Number of emissions layers for calculating elevated-point-source emissions.
+-->
+    -   `PT3DDIAG [default: N]` : Setting to write the in-line 3-D point-source emissions to a diagnostic netCDF output file (CTM_PT3D_DIAG). Set to Y to turn on; comment out or set to N to turn off.
+    -   `PT3DFRAC [default: N]` : Setting to write the in-line 3-D point-source layer fractions to a diagnostic netCDF output file (PLAY_SRCID_NAME). Set to Y to turn on; comment out or set to N to turn off.
+-   `REP_LAYER_MIN [default: -1]` : Minimum layer for reporting plume rise info
 
-Uncomment to capture CCTM standard output to a log file; the LOGFILE variable sets the name and location of the log.
+`[Add content]`
 
--   `IOAPI_LOG_WRITE [default: F]`
 
-`[T|F]; set to “T” to turn on excess WRITE3 logging by the I/O API.`
+Lightning NOx configuration
+-   `LTNGNO [default:InLine]`:  Setting to define whether the lightning emissions calculation will be in-line or off-line. This variable can be set to a gridded netCDF file of lightning NO emissions to use emissions calculated with a preprocessor outside of CCTM. Setting this variable to “inline” activates the in-line emissions calculation in CCTM and requires the LTNGPARM variable (see below) to define the configuration of the in-line emissions.
+-    `USE_NLDN [default: Y|T]` : Uuse hourly NLDN strike file 
+-   `LTNGPARAM [default: Y|T]` Setting to define the configuration of in-line lightning NO emissions. When the variable LTNGNO is set to “inline”, this setting is used to define how the in-line emissions will be calculated. Commenting out this variable or setting it to Y or T will compute lightning NO from input flash count observations. Setting this variable to N or F will compute lightning NO strictly from convective precipitation rates in the input meteorology data. When this variable is set to Y or T, an additional input lightning parameter file (LTNGPARM_FILE) will need to be available that includes gridded monthly flash counts, intercloud to cloud-to-ground flash ratios, scaling factors for calculating flashes using the convective precipitation rate, and the moles of NO per flash.
+-  `NLDN_STRIKES` : ??
+-  `LOG_START`    : 2.0   #> RC value to transit linear to log linear
+-  `LTNGPARMS_FILE` : lightning parameter file; ignore if LTNGPARAM = N
+-  `LTNGOUT` : lightning diagnostic file; ignore if LTNGDIAG = N
 
--   `FL_ERR_STOP [default: F]`
+In-line biogenic emissions configuration
+-  add content here
 
-[T|F|Y|N]; set to “T” or “Y” to configure the program to exit if inconsistent headers are found in the input files.
+Windblown dust emissions configuration
+-  add content here
+
+In-line sea salt emisisions configuration
+-   `OCEAN_1` : Directory path and file name for the ocean mask file to be used for calculating sea salt emissions.
+
+Bidiretional ammonia configuration
+
+Process Analysis Options
+-   `CTM_PROCAN [default: N]`:  Set to Y to use the process analysis option.
+    - PA_BCOL_ECOL : global column range
+    - PA_BROW_EROW : global row range
+    - PA_BLEV_ELEV : global layer range
+<!--
+-   `ASKfile`
+Directory path and location for the output surface media mercury concentrations. This variable is used only when CCTM is compiled to calculate the bidirectional surface exchange for mercury.
+-   `ASXfile`
+Directory path and location for the output soil ammonia emission potential and pH for the surface and tilled soil layers.  -->
+
+I/O Controls
+-   `IOAPI_LOG_WRITE [default: F]` :  `[T|F]; set to “T” to turn on excess WRITE3 logging by the I/O API.`
+-   `FL_ERR_STOP [default: F]` : [T|F|Y|N]; set to “T” or “Y” to configure the program to exit if inconsistent headers are found in the input files.
+-   `PROMPTFLAG [default: F]` : turn on I/O-API PROMPT*FILE interactive mode
+-   `IOAPI_OFFSET_64: [default: NO]`:  I/O API setting for large time step records. If your output time step is going to produce data that are >2GB per time step, then this needs to be set to YES.
+
+AeroSprint Controls
+-   `CTM_AVISDIAG` : Diagnostic file
+-   `CTM_PMDIAG`   : ??
+-   `CTM_APMDIAG`  : ??
+-   `APMDIAG_BLEV_ELEV` : layer range for average pmdiag
+-   `APMDIAG_BLEV_ELEV` : layer range for average pmdiag = NLAYS
+-   `AVG_FILE_ENDTIME` : ??
+
+Diagnostic Output Flags
+-   `CTM_CKSUM [default: Y|T]`
+-   `CLD_DIAG [default: N|F]` : Setting to output an hourly wet deposition diagnostic file (CTM_WET_DEP_2) that includes convective wet deposition estimates. Set to Y or T to turn on; comment out variable or set to N or F to turn off.
+-   `CTM_AERDIAG [default: N|F]` :  Setting to output an instantaneous hourly aerosol diagnostic file (CTM_DIAM_1) with the geometric mean diameters and the geometric standard deviations for the lognormal aerosol modes. Set to Y or T to turn on; comment out variable or set to N or F to turn off.
+-   `CTM_PHOTDIAG [default: N|F]`: Setting to output the in-line photolysis rates and associated data to diagnostic netCDF output files. The file CTM_RJ_1 contains gridded photolysis rates for O3 (JO3O1D) and NO2 (JNO2) that include both clear-sky and cloud effects, total downward irradiance at the surface (ETOT_SFC_W), aerosol optical depth (TAU_AERO_W), total optical depth (TAU_TOT_W), optical depth of ozone above the model domain (TAUO3_TOP_W), Rayleigh optical depth above the model domain (TAU_RAY_W), and surface albedo (ALBEDO_W). The file CTM_RJ_2 contains gridded photolysis rates for all other photolysis reactions in the selected chemical mechanism. Set to Y or T to turn on; comment out variable or set to N or F to turn off.
+-   `CTM_SSEMDIAG [default: N|F]` : Setting to output the calculated sea salt emissions to a diagnostic netCDF output file (CTM_SSEMIS_1). Set to Y or T to turn on; comment out variable or set to N or F to turn off.
+-   `CTM_DUSTEM_DIAG [default: N|F]`: Setting to output the in-line dust emissions to a diagnostic netCDF output file (CTM_DUST_EMIS_1). The diagnostic file includes not only the total dust emissions, but also dust emissions by land use category and dust model parameters, such as gridded erodible land use fractions. Set to Y or T to turn on; comment out variable or set to N or F to turn off. 
+-   `CTM_DEPV_FILE [default: N|F]` : Generate an hourly diagnostic file (CTM_DEPV_DIAG) for the in-line deposition velocity calculations. If CTM_ILDEPV is set to N or F this variable is ignored. Set to Y or T to turn on; comment out or set to N or F to turn off.
+-   `VDIFF_DIAG_FILE [default: N|F]`: Generate a diff & possibly aero grav. sedimentation diagnostic file
+-   `LTNGDIAG [default: N|F]` : Setting to output the in-line lightning NO emissions to a diagnostic netCDF output file (LTNGOUT). The diagnostic file includes gridded, hourly average NO produced from lightning. Set to Y or T to turn on; comment out variable or set to N or F to turn off.
+-    `CTM_AOD [default N|F]`:  AOD Disgnostic file.
+     - `AODfile`:  File name containing aerosol optical depth values.
+-   `B3GTS_DIAG [default: N|F]`: Setting to write the calculated biogenic emissions (mass units) to a diagnostic netCDF output file (B3GTS_S). Set to Y or T to turn on; comment out or set to N or F to turn off.k
+-   `PT3DDIAG [default: N]`:  Setting to write the in-line 3-D point-source emissions to a diagnostic netCDF output file (CTM_PT3D_DIAG). Set to Y to turn on; comment out or set to N to turn off.
+-   `PT3DFRAC [default: N]`:  Setting to write the in-line 3-D point-source layer fractions to a diagnostic netCDF output file (PLAY_SRCID_NAME). Set to Y to turn on; comment out or set to N to turn off.
+-   `REP_LAYER_MIN [default: -1]` : Minimum layer for reporting plume rise info
+
+MPI Optimization Flags
+-   `MPI_SM_POOL` : Increase shared memory pool in case many MPI_SEND headers
+-   `MP_EAGER_LIMIT` : Set MPI message passing buffer size to max
+-   `MP_SINGLE_THREAD [default: N] : Optimizate for single threaded applications
+-   `MP_STDOUTMODE` [default: ordered]: order output by the processor ID
+-   `MP_LABELIO [default: N]` label output by processor ID
+-   `MP_SHARED_MEMORY default: N]` : force use of shared memory for tasks on same node
+-   `MP_ADAPTER_USE [default: shared]` : share the MP adapter with other jobs
+-   `MP_CPU_USE [default: multiple]` : share the node with multiple users/jobs
+-   `MP_CSS_INTERRUPT [default: N]` : specify whether arriving packets generate interrupts 
 
 -   `DISP [default: keep]`
     Controls the maintenance of existing log files.
     -   *delete:* delete output log if it already exists
     -   *keep:* abort simulation if output log exists
 
--   `OUTDIR [default: $M3DATA/cctm]`</nowiki>
-    CCTM output file directory location.
-
--   `CTM_APPL [default: $APPL]`
-
-CCTM log file naming extension.
-
--   `GRIDDESC [default: $M3HOME/scripts/GRIDDESC1]`
-
-Grid description file for setting the horizontal grid definition.
-
--   `GRID_NAME [default: CMAQ-BENCHMARK]`
-
-Name of the grid definition contained in the GRIDDESC file that specifies the horizontal grid for the current application of the model.
-
--   `AVG_CONC_SPCS [default: `if not defined, output all species]
-
-Model species for calculating integral average concentrations for each output time step. Options can be any of the standard output species that are written to the CCTM CONC file. The species in this list will be written to the ACONC output file.
-
--   `ACONC_BLEV_ELEV [default: if not defined, all layers]`
-
-Vertical model layer range for integral average concentrations; this variable sets the lower and upper layers over which to calculate integral average concentrations. For example, setting this variable to “1 5” will produce integral average concentrations for model layers 1 through 5.
-
--   `ACONC_END_TIME [default: N|F]`
-
-Change the time stamp of the ACONC file output time step from the default of the beginning of the hour to the end of the hour. Set to Y or T to set the time stamp to the end of each hour or set to N or F to set the time stamp to the beginning of the hour.
-
--   `CONC_SPCS [default: if not defined, all species]`
-
-Model species to be written to the CCTM CONC file.
-
--   `CONC_BLEV_ELEV [default: if not defined, all layers]`
-
-Vertical model layer range for the CONC-file concentrations; this variable sets the lower and upper layers over which to output the CONC file.
-
--   `CTM_MAXSYNC [default: 720]`
-
-Maximum synchronization time step in seconds.
-
--   `CTM_MINSYNC [default: 60]`
-
-Minimum synchronization time step in seconds.
-
--   `CTM_ADV_CFL [default: .75]`
-
-Maximum CFL
-
--   `REP_LAYER_MIN [default: -1]`
-
-Minimum layer for reporting plume rise info
-
--   `RB_ATOL [default: 1.0E-07]`
-Global ROS3 solver absolute tolerance
-
--   `CTM_CKSUM [default: Y|T]`
-
-`[Add content]`
-
--   `CLD_DIAG [default: N|F]`
-
-Setting to output an hourly wet deposition diagnostic file (CTM_WET_DEP_2) that includes convective wet deposition estimates. Set to Y or T to turn on; comment out variable or set to N or F to turn off.
-
--   `CTM_AERDIAG [default: N|F]`
-
-Setting to output an instantaneous hourly aerosol diagnostic file (CTM_DIAM_1) with the geometric mean diameters and the geometric standard deviations for the lognormal aerosol modes. Set to Y or T to turn on; comment out variable or set to N or F to turn off.
-
--   `CTM_SSEMDIAG [default: N|F]`
-
-Setting to output the calculated sea salt emissions to a diagnostic netCDF output file (CTM_SSEMIS_1). Set to Y or T to turn on; comment out variable or set to N or F to turn off.
-
--   `CTM_PHOTDIAG [default: N|F]`
-
-Setting to output the in-line photolysis rates and associated data to diagnostic netCDF output files. The file CTM_RJ_1 contains gridded photolysis rates for O3 (JO3O1D) and NO2 (JNO2) that include both clear-sky and cloud effects, total downward irradiance at the surface (ETOT_SFC_W), aerosol optical depth (TAU_AERO_W), total optical depth (TAU_TOT_W), optical depth of ozone above the model domain (TAUO3_TOP_W), Rayleigh optical depth above the model domain (TAU_RAY_W), and surface albedo (ALBEDO_W). The file CTM_RJ_2 contains gridded photolysis rates for all other photolysis reactions in the selected chemical mechanism. Set to Y or T to turn on; comment out variable or set to N or F to turn off.
-
--   `CTM_WB_DUST [default: Y|T]`
-
-Setting to calculate in-line windblown dust emissions in CCTM. Setting this variable to Y or T requires the availability of gridded land use input files that include the following BELD USGS land use classifications: shrubland, shrubgrass, and sprsbarren. See [Chapter 8](CMAQ_OGD_ch08_input_files.md#Table8-1) for a description of the DUST_LU_1 and DUST_LU_2 input files. Comment out variable or set to Y or T to turn on; set to N or F to turn off.
-
--   `CTM_ERODE_AGLAND [default: N|F]`
-
-Setting to use optional erodible agricultural land classifications for computing windblown dust emissions from agricultural land. Setting this variable to Y or T requires the availability of gridded crop timing data that describe planting start dates, planting end dates, and harvesting end dates for 18 crop types. See [Chapter 8](CMAQ_OGD_ch08_input_files.md#Table8-1) for a description of the CROPMAP01, CROPMAP04, and CROPMAP08 input files. If CTM_WB_DUST is set to N or F, this setting will be ignored. Set to Y or T to turn on; comment out variable or set to N or F to turn off.
-
--   `CTM_DUSTEM_DIAG [default: N|F]`
-
-Setting to output the in-line dust emissions to a diagnostic netCDF output file (CTM_DUST_EMIS_1). The diagnostic file includes not only the total dust emissions, but also dust emissions by land use category and dust model parameters, such as gridded erodible land use fractions. Set to Y or T to turn on; comment out variable or set to N or F to turn off.
-
--   `CTM_LTNG_NO [default: N|F]`
-
-Setting to activate lightning NO emissions. Setting this variable to Y or T requires additional variables to define the configuration of the lightning NO emissions calculation. See the settings for LTNGNO, LTNGPARAM, and LTNGDIAG below. Set to Y or T to turn on; comment out variable or set to N or F to turn off.
-
--   `LTNGNO`
-
-Setting to define whether the lightning emissions calculation will be in-line or off-line. This variable can be set to a gridded netCDF file of lightning NO emissions to use emissions calculated with a preprocessor outside of CCTM. Setting this variable to “inline” activates the in-line emissions calculation in CCTM and requires the LTNGPARM variable (see below) to define the configuration of the in-line emissions.
-
--   `LTNGPARAM [default: Y|T]`
-
-Setting to define the configuration of in-line lightning NO emissions. When the variable LTNGNO is set to “inline”, this setting is used to define how the in-line emissions will be calculated. Commenting out this variable or setting it to Y or T will compute lightning NO from input flash count observations. Setting this variable to N or F will compute lightning NO strictly from convective precipitation rates in the input meteorology data. When this variable is set to Y or T, an additional input lightning parameter file (LTNGPARM_FILE) will need to be available that includes gridded monthly flash counts, intercloud to cloud-to-ground flash ratios, scaling factors for calculating flashes using the convective precipitation rate, and the moles of NO per flash.
-
--   `LTNGDIAG [default: N|F]`
-
-Setting to output the in-line lightning NO emissions to a diagnostic netCDF output file (LTNGOUT). The diagnostic file includes gridded, hourly average NO produced from lightning. Set to Y or T to turn on; comment out variable or set to N or F to turn off.
-
--   `CTM_WVEL [default: N|F]`
-
-Setting to output the CCTM-calculated vertical velocities to the CONC file. Set to Y or T to turn on; comment out variable or set to N or F to turn off.
-
--   `KZMIN [default: Y]`
-
-If KZMIN is set to Y, CCTM will read the urban land use fraction variable (PURB) from the GRID_CRO_2D meteorology file and use this information to determine the minimum eddy diffusivity in each grid cell. In CMAQv5, grid cells that are predominantly urban use a KZMIN value of 1.0 m<sup>2</sup>/s and nonurban cells use a value of 0.01 m<sup>2</sup>/s. If this variable is set to N, the PURB variable will not be used and a uniform KZMIN value of 1.0 m<sup>2</sup>/s will be used throughout the modeling domain.
-
--   `CTM_ILDEPV [default: Y|T]`
-
-Calculate in-line deposition velocities. Comment out variable or set to Y or T to turn on; set to N or F to turn off.
-
--   `CTM_ABFLUX [default: N|F]`
-
-Setting to activate fertilizer ammonia bidirectional flux for in-line emissions and deposition velocities. If CTM_ILDEPV is set to N or F this variable is ignored. Setting this variable to Y or T requires four additional input files that include gridded fractional crop distributions (B4LU_file), soil properties (E2C_Soilfile), fertilizer conditions (E2C_Fertfile), and an agricultural soil initial conditions file (INIT_MEDC_1). Activation of this setting will produce additional variables in the output dry deposition file. See [Chapter 8](CMAQ_OGD_ch08_input_files.md#Table8-1) for a description of the required input files. Set to Y or T to turn on; comment out or set to N or F to turn off.
-
--   `CTM_MOSAIC [default N|F]`
-Setting to output land use specific deposition velocities and fluxes.
-    -    `CTM_FST [devault: N|F]`
-         Mosaic method to get land-use specific stomatal flux.
--   `CTM_GRAV_SETL [default N|F]`
-     Vertical diffusion aerosol gravitational sedimentation option.
--    `CTM_WBDUST_BELD [default: BELD3]
-      Landuse database for identifying dust source regions;  ignore if CTM_WB_DUST = N
--    `CTM_AOD [default N|F]`
-     AOD Disgnostic file.
-     - `AODfile`
-        File name containing aerosol optical depth values.
-
--   `CTM_HGBIDI [default: N|F]`
-
-Setting to activate mercury bidirectional flux for in-line emissions and deposition velocities. If CTM_ILDEPV is set to N or F this variable is ignored. Activation of this setting will produce additional variables in the output dry deposition file. Set to Y or T to turn on; comment out or set to N or F to turn off.
-
--   `CTM_SFC_HONO [default: Y|T]`
-
-Calculate surface HONO interactions. If CTM_ILDEPV is set to N or F this variable is ignored. Comment out or set to Y or T to turn on; set to N or F to turn off.
-
--   `CTM_DEPV_FILE [default: N`|F]
-
-Generate an hourly diagnostic file (CTM_DEPV_DIAG) for the in-line deposition velocity calculations. If CTM_ILDEPV is set to N or F this variable is ignored. Set to Y or T to turn on; comment out or set to N or F to turn off.
-
--   `CTM_BIOGEMIS [default: Y|T]`
-    Calculate biogenic emissions. Comment out or set to Y or T to turn on; set to N or F to turn off.
-    If the option to calculate in-line biogenic emissions is activated (i.e., CTM_BIOGEMIS is set to Y or T), the following variables must be set.
-    -   `GSPRO`
-        Directory path and file name for input speciation profiles.
-    -   `B3GRD`
-        Directory path and file name for grid-normalized biogenic emissions input file.
-    -   `BIOSW_YN [default: Y|T]`
-        Use the frost dates switch file to determine whether to use winter or summer biogenic emissions. Comment out or set to Y or T to turn on; set to N or F to turn off.
-    -   `BIOSEASON`
-        Directory path and file name for the frost date switch file.
-    -   `SUMMER_YN [default: Y|T]`
-        Use summer season normalized biogenic emissions. This variable is ignored if BIOSW_YN is set to Y. Comment out or set to Y or T to turn on; set to N or F to turn off.
-    -   `BIOG_SPRO`
-        Profile ID for speciating biogenic VOCs. This profile ID must be present in the GSPRO file.
-    -   `B3GTS_DIAG [default: N|F]`
-        Setting to write the calculated biogenic emissions (mass units) to a diagnostic netCDF output file (B3GTS_S). Set to Y or T to turn on; comment out or set to N or F to turn off.
-    -   `B3GTS_S`
-        Directory path and file name for the diagnostic output biogenic emissions. This variable is ignored if B3GTS_DIAG is turned off.
-    -   `INITIAL_RUN`
-        Set to Y or T if this is the first time that biogenic NO soil emissions will be calculated. If there is a previously created file, set to N or F.
-    -   `PX_VERSION [Default: N|F]`
-        Setting to indicate whether the Pleim-Xiu land-surface model was used for the input meteorology. If this setting is set to Y or T the input meteorology data must include soil moisture (SOILM), soil temperature (SOILT), and soil type (ISLTYP) variables for use in the calculation of soil NO emissions.
-    -   `SOILINP`
-        Directory path and file name of biogenic NO soil emissions file. If INITIAL_RUN is set to N or F, the soil NO emissions file from the previous day’s simulation will be a required input file.
-
--   `CTM_PT3DEMIS [default: N|F]`
-    Calculate plume rise for elevated point sources. Set to Y or T to turn on; comment out or set N or F to turn off.
-    If the option to calculate in-line plume rise is activated (i.e., CTM_PT3DEMIS is set to Y or T), the following variables must be set.
-    -   `NPTGRPS [default: 1]`
-        The number of input point-source emission sector file groups. A maximum of 9 sectors is allowed.
-    -   `STK_GRPS_## `
-        Directory path and file name of the stack groups file for sector \#\#, where \#\# = 01, 02,…,NPTGRPS. Each \#\# refers to one of the plume rise point-source sectors.
-    -   `STK_EMIS_##`
-        Directory path and file name of the point emissions file for sector \#\#, where \#\# = 01, 02,…,NPTGRPS. Each \#\# refers to the one of the plume rise point-source sectors.
-    -   `LAYP_STDATE [HHMMSS]`
-        Start date for calculating elevated-point-source emissions.
-    -   `LAYP_STTIME [HHMMSS]`
-        Start time for calculating elevated-point-source emissions.
-    -   `LAYP_NSTEPS [HHHHHH]`
-        Number of time steps for calculating elevated-point-source emissions.
-    -   `CTM_EMLAYS [##]`
-        Number of emissions layers for calculating elevated-point-source emissions.
-    -   `PT3DDIAG [default: N]`
-        Setting to write the in-line 3-D point-source emissions to a diagnostic netCDF output file (CTM_PT3D_DIAG). Set to Y to turn on; comment out or set to N to turn off.
-    -   `PT3DFRAC [default: N]`
-        Setting to write the in-line 3-D point-source layer fractions to a diagnostic netCDF output file (PLAY_SRCID_NAME). Set to Y to turn on; comment out or set to N to turn off.
-
--   `CTM_PROCAN [default: N]`
-     Set to Y to use the process analysis option.
-
--   `ASKfile`
-
-Directory path and location for the output surface media mercury concentrations. This variable is used only when CCTM is compiled to calculate the bidirectional surface exchange for mercury.
-
--   `ASXfile`
-
-Directory path and location for the output soil ammonia emission potential and pH for the surface and tilled soil layers.
-
--   `OCEAN_1`
-
-Directory path and file name for the ocean mask file to be used for calculating sea salt emissions.
-
--   `EMIS_1`
-
-Directory path and file name for the input emissions file.
-
--   `TR_EMpath`
--   `TR_Emfile`
-
-Directory path and file name for the input tracer emissions file.
-
--   `INIT_[GASC|AERO|NONR|TRAC]_1 `
-
-Directory path and file name for the input initial conditions file for gases, aerosols, nonreactive species, and tracers; generated by ICON.
-
--   `$INIT_MEDC_1`
-
-Directory path and file name for the input initial conditions for the bidirectional surface exchange model. These variables are used only when CCTM is compiled to calculate the bidirectional surface exchange for mercury.
-
--   `BNDY_[GASC|AERO|NONR|TRAC]_1`
-
-Directory path and file name for the input boundary conditions file for gases, aerosols, nonreactive species, and tracers; generated by BCON.
-
+Input/Output Directories 
+
+add content here ??
+
+
+Input Files
+add content here ??
+-   `ICFILE` : Initial conditions file
+-   `BCFILE` : Boundary conditions file
+-   `JVALfile` : Off-line photolysis rate file
+-   `OMIfile` : Ozone column data
+-   `OPTfile` : Optics file
+Directory path and file names for the input meteorology files; generated by MCIP.
 -   <tt>GRID_DOT_2D
 -   GRID_CRO_2D
 -   MET_CRO_2D
 -   MET_CRO_3D
 -   MET_DOT_3D
 -   MET_BDY_3D</tt>
+Offline Emission File
+-   `EMISfile`
+Inline Emissions Files
+-   
 
-Directory path and file names for the input meteorology files; generated by MCIP.
+-   `EMIS_1` : Directory path and file name for the input emissions file.
+-   `TR_EMpath`
+-   `TR_Emfile`
+
+Directory path and file name for the input tracer emissions file.
+
+-   `INIT_[GASC|AERO|NONR|TRAC]_1 `:  Directory path and file name for the input initial conditions file for gases, aerosols, nonreactive species, and tracers; generated by ICON.
+
+-   `$INIT_MEDC_1` : Directory path and file name for the input initial conditions for the bidirectional surface exchange model. These variables are used only when CCTM is compiled to calculate the bidirectional surface exchange for mercury.
+
+-   `BNDY_[GASC|AERO|NONR|TRAC]_1` : Directory path and file name for the input boundary conditions file for gases, aerosols, nonreactive species, and tracers; generated by BCON.
 
 -   `XJDATA`
 
@@ -1081,9 +1054,6 @@ Executable to use for the simulation. The variable CFG is set in the ICON run sc
 
 -   `IOAPI_ISPH: [default: 20]`
     I/O API setting for spheroid type. See I/O API documentation for [setsphere](https://www.cmascenter.org/ioapi/documentation/3.1/html/SETSPHERE.html) for more information.
-
--   `IOAPI_OFFSET_64: [default: NO]`
-    I/O API setting for large time step records. If your output time step is going to produce data that are >2GB per time step, then this needs to be set to YES.
 
 -   `LAYER_FILE:[default: `none]
     Name and location of a MET_CRO_3D file for specifying the vertical layer structure for the current application of the model
