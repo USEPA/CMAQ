@@ -58,6 +58,8 @@ Settings:
 ```
 setenv CTM_LTNG_NO Y
 setenv LTNGNO Inline
+setenv LTNGPARAM  N
+setenv USE_NLDN N
 setenv LOG_START 2.0
 ```
 
