@@ -401,9 +401,8 @@ CCTM Science Modules Selection
 NOTE: For the modules with multiple choices, choose by uncommenting.
 #> NOTE: For the modules with multiple choices, choose by uncommenting.
 #> look in the CCTM source code repository or refer to the CMAQ documentation
-#> for other possible options. Be careful. Not all options work together. ```
-
-
+#> for other possible options. Be careful. Not all options work together. 
+```
 -   `ModDriver: [default: driver/wrf]`
     The CCTM generalized -coordinate driver module.
     - `set ModDriver = driver/wrf` : use WRF-based scheme for mass-conserving advection; select this option when using WRF meteorology
