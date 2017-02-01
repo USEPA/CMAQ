@@ -594,7 +594,7 @@ C Build mapping to CGRID for each species in the master AeroList
             If ( aerolist( spc )%name( m )(1:1) .Ne. ' ' ) Then
                ! This place on the AeroList has a potential species in
                ! it. Check to see if it is in the namelist
-               n = index1( Trim(aerolist( spc )%name( m ) ), n_ae_spc, ae_spc )
+               n = index1( aerolist( spc )%name( m ) , n_ae_spc, ae_spc )
 
                If ( n .Ne. 0 ) Then
                   ! Species is in the Master List and on the NameList
@@ -687,7 +687,7 @@ C Build mapping to CGRID for aero # and surf area variables
       aerosrf_map = 0
 
       Do m = 1, n_mode
-         n = index1( Trim( aeromode( m )%num_name ), n_ae_spc, ae_spc )
+         n = index1( aeromode( m )%num_name , n_ae_spc, ae_spc )
          If ( n .Eq. 0 ) Then
             xmsg = 'Species ' // Trim( aeromode( m )%num_name )
      &           //' in aeronum name is not in AE_SPC'
@@ -696,7 +696,7 @@ C Build mapping to CGRID for aero # and surf area variables
             aeronum_map( m ) = ae_strt - 1 + n
          End If
 
-         n = index1( Trim( aeromode( m )%srf_name ), n_ae_spc, ae_spc )
+         n = index1( aeromode( m )%srf_name , n_ae_spc, ae_spc )
          If ( n .Eq. 0 ) Then
             xmsg = 'species ' // Trim( aeromode( m )%srf_name )
      &           // ' in aerosrf name is not in AE_SPC'
