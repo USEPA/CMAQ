@@ -1,4 +1,4 @@
-[Home](CMAQ_OGD_index.md)
+[Home](README.md)
 
 CMAQ Operational Guidance document
 ==
@@ -61,7 +61,7 @@ List of Figures
 
 [Table 5‑3. NetCDF and I/O API compilation options for CMAQ](CMAQ_OGD_ch05_sys_req.md#Table5-3)
 
-[Table 5‑4. Config.cmaq Configuration Variables
+[Table 5‑4. Config.cmaq Configuration Variables](CMAQ_OGD_ch05_sys_req.md#Table5-4)
 
 [Table 6-1. Possible Time Step Structures in I/O API Files](CMAQ_OGD_ch06_req_lib.md#Table6-1)
 
@@ -149,4 +149,4 @@ List of Figures
 
 [Table 8‑12. OMI data format](CMAQ_OGD_ch08_input_files.md#Table8-12)
 
-[Home](CMAQ_OGD_index.md)
+[Home](README.md)
