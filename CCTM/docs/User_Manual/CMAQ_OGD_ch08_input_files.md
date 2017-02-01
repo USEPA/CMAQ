@@ -369,36 +369,14 @@ The ASCII-formatted CSQY files begin with a header that describes the applicable
 ||<center> C </center>|<center> Quantum Yield </center>|<center> Real </center>|Ratio of the number of molecules reacting via a specific pathway to the number of molecules absorbing photons in that wavelength interval; units = molecules photon<sup>-1</sup> (required)|
 |<center> n+X </center>|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|...|
 
+Portion of the 
 ```Tcsh
 Table for Mechanism = CB05E51_AE6_AQ
 NPHOTAB =   26
 !Individual rates listed below:
 NO2_IUPAC10
 O3_O3P_IUPAC10
-O3_O1D_IUPAC10
-NO3NO2_06
-NO3NO_06
-HONO_IUPAC10
-H2O2_IUPAC10
-PNA_IUPAC10
-HNO3_IUPAC10
-N2O5_IUPAC10
-MEPX_IUPAC10
-FORM_R_IUPAC10
-FORM_M_IUPAC10
-ALD2_R_IUPAC10
-PAN_IUPAC10
-PACD_CB05
-ALDX_R_IUPAC10
-MGLY_IUPAC10
-ACRO_09
-CL2_IUPAC04
-HOCL_IUPAC04
-FMCL_IUPAC04
-CLNO2
-NTR_IUPAC10
-NOA_14
-NBO_14
+...
 NTEMP =    6
 ! I   TEMP( I ) K
   1  210.00
@@ -464,7 +442,7 @@ O3_STRAT            CS  380.000 6.685868E-19  2.568540E-19  9.962031E-20  4.3306
 O3_STRAT            CS  420.000 6.685868E-19  2.568540E-19  9.962031E-20  4.330621E-20  5.286344E-21  4.086261E-23  1.663175E-21
 ```
 
-See this [link](https://github.com/CMASCenter/EPA-CMAQ/blob/5.2Beta/CCTM/src/MECHS/cb05e51_ae6_aq/CSQY_DATA_cb05e51_ae6_aq) for an example CSQY file for the cb05e51_ae6_aq mechanism.
+See this [link](https://github.com/CMASCenter/EPA-CMAQ/blob/5.2Beta/CCTM/src/MECHS/cb05e51_ae6_aq/CSQY_DATA_cb05e51_ae6_aq) for an complete CSQY file for the cb05e51_ae6_aq mechanism.
 
 ### ET: Extraterrestrial irradiance
 
