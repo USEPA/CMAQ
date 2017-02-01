@@ -33,11 +33,11 @@ The following sections are included in this manual:
 
 [Chapter 13 (Support):](CMAQ_OGD_ch13_support.md) How to get technical support for CMAQ.
 
-[Tables and Figures](CMAQ_OGD_tables_figures.md) List of Tables and Figures
+[Tables and Figures:](CMAQ_OGD_tables_figures.md) List of Tables and Figures
 
 [Appendix A:](CMAQ_OGD_appendix_A.md) Describes the CMAQ Chemical Mechanisms and Species.
 
-[Acronyms](CMAQ_OGD_acronyms.md) List of Acronyms Used in CMAQ OGD
+[Acronyms:](CMAQ_OGD_acronyms.md) List of Acronyms Used in CMAQ OGD
 
 [Glossary:](CMAQ_OGD_glossary.md) List of technical terms and their definitions.
 ***
