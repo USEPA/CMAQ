@@ -365,17 +365,17 @@ The ASCII-formatted CSQY files begin with a header that describes the applicable
 <center> 3+NPHOTAB+2 </center>|<center> A </center>|<center> Number| Integer | Index of temperature |
 ||<center> B </center>|<center> TEMP </center>| Real | Temperature in Kelvin|
 | repeat for all NTEMP values|
-|<center> 3+NPHOTAB+2 </center>|<center> A </center>|<center> Comments </center>|<center> String </center>|Preceded by "!", column header: I,      START_WL_BIN(nm),    EFFECT_WL_BIN_(nm),       END_WL_BIN_(nm), photon_flux(cm-2*s-1), |
-|<center> 3+NPHOTAB+3 </center>|<center> A </center>|<center> Number of Inline Photolysis Bands</center>|<center> Integer </center>| |
+|<center> 3+NPHOTAB+NTEMP </center>|<center> A </center>|<center> Comments </center>|<center> String </center>|Preceded by "!", column header: I,      START_WL_BIN(nm),    EFFECT_WL_BIN_(nm),       END_WL_BIN_(nm), photon_flux(cm-2*s-1), |
+|<center> 3+NPHOTAB+NTEMP+1 </center>|<center> A </center>|<center> Number of Inline Photolysis Bands</center>|<center> Integer </center>| |
 ||<center> B </center>|<center> Start Wavelength </center>|<center> Real </center>|Start Wavelength for Bin |
 ||<center> C </center>|<center> Effect Wavelength </center>|<center> Real </center>|Effect Wavelength for Bin |
 ||<center> D </center>|<center> End Wavelength </center>|<center> Real </center>|End Wavelength for Bin |
 ||<center> E </center>|<center> Photon Flux</center>|<center> Real </center>|Photon Flux |
-|<center> 3+NPHOTAB+4 </center>|<center> A </center>|<center> Comments </center>|<center> String </center>|Preceded by "!", CS  = absorption cross sections averaged over UCI Solar Flux|
-|<center> 3+NPHOTAB+5 </center>|<center> A </center>|<center> Comments </center>|<center> String </center>|Preceded by "!", QY  = quantum yields averaged over UCI Solar Flux|
-|<center> 3+NPHOTAB+6 </center>|<center> A </center>|<center> Comments </center>|<center> String </center>|Preceded by "!", EQY = eCS*eQY/CS averaged over Solar Flux and 77 bins in UCI Model|
-|<center> 3+NPHOTAB+7 </center>|<center> A </center>|<center> Comments </center>|<center> String </center>|Preceded by "!", header for reactions, CS or EQY, and Wavelength Bins|
-|<center> 3+NPHOTAB+8 </center>|<center> A </center>|<center>Reaction Name </center>|<center> String </center>|Reaction Name|
+|<center> 3+NPHOTAB+NTEMP+2 </center>|<center> A </center>|<center> Comments </center>|<center> String </center>|Preceded by "!", CS  = absorption cross sections averaged over UCI Solar Flux|
+|<center> 3+NPHOTAB+NTEMP+3 </center>|<center> A </center>|<center> Comments </center>|<center> String </center>|Preceded by "!", QY  = quantum yields averaged over UCI Solar Flux|
+|<center> 3+NPHOTAB+NTEMP+4 </center>|<center> A </center>|<center> Comments </center>|<center> String </center>|Preceded by "!", EQY = eCS*eQY/CS averaged over Solar Flux and 77 bins in UCI Model|
+|<center> 3+NPHOTAB+NTEMP+5 </center>|<center> A </center>|<center> Comments </center>|<center> String </center>|Preceded by "!", header for reactions, CS or EQY, and Wavelength Bins|
+|<center> 3+NPHOTAB+8+NTEMP+6</center>|<center> A </center>|<center>Reaction Name </center>|<center> String </center>|Reaction Name|
 ||<center> B </center>|<center> Quantity </center>|<center> String </center>|CS |
 ||<center> C </center>|<center> TEMP</center>|<center> Real </center>| Temperature|
 ||<center> D </center>|<center> WBIN (1) </center>|<center> Real or EXP </center>| Absorption Cross Section (CS)  Value for BIN 1|
