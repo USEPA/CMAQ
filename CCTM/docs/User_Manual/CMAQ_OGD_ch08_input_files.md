@@ -362,6 +362,9 @@ The ASCII-formatted CSQY files begin with a header that describes the applicable
 | repeat for all (NPHOTAB) reaction names|
 |<center> 3+NPHOTAB </center>|<center> A </center>|<center> Name </center>|<center> String </center>|Reaction Name|
 |<center> 3+NPHOTAB+1 </center>|<center> A </center>|<center> NTEMP</center>|<center> Int or Real </center>|Number of Temperature Bands|
+<center> 3+NPHOTAB+2 </center>|<center> A </center>|<center> Number| Integer | Index of temperature |
+||<center> B </center>|<center> TEMP </center>| Real | Temperature in Kelvin|
+| repeat for all NTEMP values|
 |<center> 3+NPHOTAB+2 </center>|<center> A </center>|<center> Comments </center>|<center> String </center>|Preceded by "!", column header: I,      START_WL_BIN(nm),    EFFECT_WL_BIN_(nm),       END_WL_BIN_(nm), photon_flux(cm-2*s-1), |
 |<center> 3+NPHOTAB+3 </center>|<center> A </center>|<center> Number of Inline Photolysis Bands</center>|<center> Integer </center>| |
 ||<center> B </center>|<center> Start Wavelength </center>|<center> Real </center>|Start Wavelength for Bin |
