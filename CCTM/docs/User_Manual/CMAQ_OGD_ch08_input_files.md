@@ -347,7 +347,7 @@ Used by: JPROC
 
 CSQY is the logical name for the ASCII data file containing absorption cross section and quantum yield data for unique photolysis reactions. The data in these files are listed as a function of wavelength and correspond to the standard photolysis reactions in each of the chemical mechanisms implemented in CMAQ. A flexible format allows users to deviate from these standards and test new data with minimal effort.
 
-The ASCII-formatted CSQY files begin with a header that describes the applicable photolysis reaction. This header includes (1) the reaction name/ID; (2) comment lines describing the reaction, the stoichiometry, and the data source (note that comment lines are preceded with a “!”); (3) the location on the wavelength interval that the data represent (beginning, centered, ending, or point); and (4) a multiplier (FAC) that is applied to the photolysis rate calculation. The data section of the CSQY file lists the wavelength of the incoming solar radiation (nm), the absorption cross section (cm), and the quantum yield as columns, with each row corresponding to a specific wavelength interval. The CSQY file uses a space-delimited, free-form format for the data section of the file. A detailed description of the CSQY file format is provided in [Table 8‑7](#Table8-7).
+The ASCII-formatted CSQY files begin with the number and a list of the applicable photolysis reactions. The data section of the CSQY file includes (1) the reaction name/ID; (2) The temperature bands (3) the number of wavelength bins (4) the start, effect and end of the wavelength bin and the photon flux for each inline band. The absorption cross section averaged over UCI Solar Flux(cm), and the quantum yield averaged over UCI Solar Flux as columns, for each wavelength bin, for each temperature, and for each reaction. The CSQY file uses a space-delimited, free-form format for the data section of the file. A detailed description of the CSQY file format is provided in [Table 8‑7](#Table8-7).
 
 <a id=Table8-7></a>
 
@@ -375,7 +375,7 @@ The ASCII-formatted CSQY files begin with a header that describes the applicable
 |<center> 3+NPHOTAB+NTEMP+3 </center>|<center> A </center>|<center> Comments </center>|<center> String </center>|Preceded by "!", QY  = quantum yields averaged over UCI Solar Flux|
 |<center> 3+NPHOTAB+NTEMP+4 </center>|<center> A </center>|<center> Comments </center>|<center> String </center>|Preceded by "!", EQY = eCS*eQY/CS averaged over Solar Flux and 77 bins in UCI Model|
 |<center> 3+NPHOTAB+NTEMP+5 </center>|<center> A </center>|<center> Comments </center>|<center> String </center>|Preceded by "!", header for reactions, CS or EQY, and Wavelength Bins|
-|<center> 3+NPHOTAB+8+NTEMP+6</center>|<center> A </center>|<center>Reaction Name </center>|<center> String </center>|Reaction Name|
+|<center> 3+NPHOTAB+NTEMP+6</center>|<center> A </center>|<center>Reaction Name </center>|<center> String </center>|Reaction Name|
 ||<center> B </center>|<center> Quantity </center>|<center> String </center>|CS |
 ||<center> C </center>|<center> TEMP</center>|<center> Real </center>| Temperature|
 ||<center> D </center>|<center> WBIN (1) </center>|<center> Real or EXP </center>| Absorption Cross Section (CS)  Value for BIN 1|
@@ -385,7 +385,7 @@ The ASCII-formatted CSQY files begin with a header that describes the applicable
 ||<center> H </center>|<center> WBIN (5)  </center>|<center> Real or EXP  </center>|Absorption Cross Section (CS) Value for BIN 5|
 ||<center> I </center>|<center> WBIN (6)  </center>|<center> Real or EXP  </center>|Absorption Cross Section (CS) Value for BIN 6|
 ||<center> J </center>|<center> WBIN (7)  </center>|<center> Real or EXP  </center>|Absorption Cross Section (CS) Value for BIN 7|
-|<center> 3+NPHOTAB+9 </center>|<center> A </center>|<center>Reaction Name </center>|<center> String </center>|Reaction Name|
+|<center> 3+NPHOTAB+NTEMP+7 </center>|<center> A </center>|<center>Reaction Name </center>|<center> String </center>|Reaction Name|
 ||<center> B </center>|<center> Quantity </center>|<center> String </center>|EQY |
 ||<center> C </center>|<center> TEMP</center>|<center> Real </center>| Temperature|
 ||<center> D </center>|<center> WBIN (1) </center>|<center> Real or EXP </center>| Absorption Cross Section (EQY)  Value for BIN 1|||<center> E </center>|<center> WBIN (2)  </center>|<center> Real or EXP  </center>|Absorption Cross Section (EQY) Value for BIN 2|
