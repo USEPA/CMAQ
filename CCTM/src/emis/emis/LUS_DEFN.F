@@ -522,18 +522,18 @@ C Includes:
             success = .false.; return
          end if
 
-         if ( trim( land_scheme ) .eq. 'BELD3' ) then
+         if ( land_scheme .eq. 'BELD3' ) then
             isbeld = .true.
-            lufile( 1 ) = trim( dust_lu_1 )
-            lufile( 2 ) = trim( dust_lu_2 )   ! total forest coverage
-         else if ( trim( land_scheme ) .eq. 'BELD4' ) then
+            lufile( 1 ) = dust_lu_1 
+            lufile( 2 ) = dust_lu_2    ! total forest coverage
+         else if ( land_scheme .eq. 'BELD4' ) then
             isbeld = .true.
-            lufile( 1 ) = trim( beld4_lu )
-!           lufile( 2 ) = trim( beld4_lu_forest )
-            lufile( 2 ) = trim( beld4_lu )
+            lufile( 1 ) = beld4_lu 
+!           lufile( 2 ) = beld4_lu_forest )
+            lufile( 2 ) = beld4_lu 
          else
             isbeld = .false.
-            lufile( 1 ) = trim( grid_cro_2d )
+            lufile( 1 ) = grid_cro_2d
          end if
 
          if ( .not. open3( lufile( 1 ), fsread3, pname ) ) then
@@ -568,7 +568,7 @@ C Includes:
 
 C mminlu and num_land_cat are WRF global variables
             
-            select case( trim( mminlu ) )
+            select case( mminlu )
 
                case( 'USGS24' )
                   if ( num_land_cat .ne. 24 ) then

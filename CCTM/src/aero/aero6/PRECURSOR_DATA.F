@@ -358,7 +358,7 @@ C Local Variables:
       ndx = 0
       
       Do spc = 1, n_precursor
-         If ( Index( precursor( spc )%name, Trim( vname ) ) .Gt. 0 ) Then
+         If ( Index( precursor( spc )%name, vname ) .Gt. 0 ) Then
             ndx = spc
             Return
          End If

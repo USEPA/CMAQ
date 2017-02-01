@@ -231,15 +231,15 @@ C set auxiliary depv arrays
          HONO_HIT = 0; HNO3_HIT = 0; NO2_HIT  = 0; NH3_HIT = 0
                        HNO3_MAP = 0; NO2_MAP  = 0
          DO V = 1, N_SPC_DEPV
-            IF ( TRIM( DV2DF_SPC( V ) ) .EQ. 'NO2' ) THEN
+            IF ( DV2DF_SPC( V ) .EQ. 'NO2' ) THEN
                NO2_HIT = V
                NO2_MAP = DV2DF( V )
-            ELSE IF ( TRIM( DV2DF_SPC( V ) ) .EQ. 'HONO' ) THEN
+            ELSE IF ( DV2DF_SPC( V ) .EQ. 'HONO' ) THEN
                HONO_HIT = V
-            ELSE IF ( TRIM( DV2DF_SPC( V ) ) .EQ. 'HNO3' ) THEN
+            ELSE IF ( DV2DF_SPC( V ) .EQ. 'HNO3' ) THEN
                HNO3_HIT = V
                HNO3_MAP = DV2DF( V )
-            ELSE IF ( TRIM( DV2DF_SPC( V ) ) .EQ. 'NH3' ) THEN
+            ELSE IF ( DV2DF_SPC( V ) .EQ. 'NH3' ) THEN
                NH3_HIT = V
             END IF
          END DO
