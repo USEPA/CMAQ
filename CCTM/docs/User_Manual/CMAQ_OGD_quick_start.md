@@ -49,7 +49,7 @@ The CMAQ compilation scripts assume that the I/O API library resides in the `$CM
 The CMAQ compilation scripts assume that an MPI library and INCLUDE files reside in the `$CMAQ_LIB/mpi` directory. For example, if you are using OpenMPI located in /usr/mpi/pgi/openmpi:
 
 `cd $CMAQ_LIB`<br>
-` ln –s /vusr/mpi/pgi/openmpi mpi`
+` ln –s /usr/mpi/pgi/openmpi mpi`
 
 ### Compiling CMAQ ###
 
