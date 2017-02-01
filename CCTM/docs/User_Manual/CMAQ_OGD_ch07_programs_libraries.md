@@ -272,7 +272,7 @@ Directory path and names of Calmap output files. The CROPMAP01, CROPMAP04, and C
 
 ### Calmap output files
 
-<center>**Table 7‑4. Cropmap output files**</center>
+<center>**Table 7‑4. Calmap output files**</center>
 
 |**File Name**|**Format**|**Description**|
 |---|---|---|
