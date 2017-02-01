@@ -669,11 +669,6 @@ Process Analysis Options
     - PA_BCOL_ECOL : global column range
     - PA_BROW_EROW : global row range
     - PA_BLEV_ELEV : global layer range
-<!--
--   `ASKfile`
-Directory path and location for the output surface media mercury concentrations. This variable is used only when CCTM is compiled to calculate the bidirectional surface exchange for mercury.
--   `ASXfile`
-Directory path and location for the output soil ammonia emission potential and pH for the surface and tilled soil layers.  -->
 
 I/O Controls
 -   `IOAPI_LOG_WRITE [default: F]` :  `[T|F]; set to “T” to turn on excess WRITE3 logging by the I/O API.`
@@ -1756,12 +1751,13 @@ This section describes the individual process analysis commands that are used to
 #### PROCAN execution options
 
 The environment variables listed here are invoked during execution of the program and are set in the PROCAN run script.
+!!! Where is the PROCAN run script??
 
 -   `EXEC: [default: PACP_${CFG}]`
 
 Executable to use for the simulation
 
--   `PACP_INFILE: [default: $CMAQ_HOME/data/procan/pacp.inp]`
+-   `PACP_INFILE: [default: $CMAQ_HOME/data/pacp/pacp.inp]`
 
 PROCAN control file for setting process analysis configuration
 
