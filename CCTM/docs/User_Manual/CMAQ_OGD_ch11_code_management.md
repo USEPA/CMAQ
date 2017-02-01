@@ -722,29 +722,29 @@ C re-set dry deposition array to zero
 
 **Footnotes:**
 
-*Header comments - Highly recommended for internal documentation.*
-*USE <module name> includes the Fortran source file specified.*
-*IMPLICIT NONE must be used in Fortran 90, i.e., implicit declarations are not supported. This dramatically reduces errors due to typos and undefined variables.*
-*Chemical mechanism array dimensioning and looping global variables.*
-*C preprocessor flags that determine which emissions control dimensioning and looping variables are compiled.*
-*Other global array dimensioning and looping global variables, including those for the I/O API. The logical variable LIPR is defined in the SUBST_PACTL_ID INCLUDE file for use at lines labeled (18).*
-*Local variable declaration. Note syntax differences from Fortran-77.*
-*(8)Declarations for the argument list (standardized).*
-*(9)Declarations and PARAMETER statements for local Fortran parameters, illustrating in-line documentation of variables and units. Note syntax differences from Fortran-77.*
-*(10)Declarations for external functions not previously declared.*
-*(11)Declarations for arrays to hold external file data.*
-*(12)Declarations and definitions for local and saved variables, and dynamic memory allocations.*
-*(13)Interface is a convenient way to declare calling arguments to a subroutine as input, output, or both in the calling program through the INTENT variable specification (as IN, OUT, or IN OUT). No other declaration of the calling arguments is necessary in the calling program. If IN only, the values of arguments can be passed explicitly in the subroutine call. If OUT, the argument must be passed as a variable.*
-*(14)Code section for subroutine initialization and for any local data that need not be set at every entry into the subroutine. Such data would require a SAVE statement in the declarations. For example, FIRSTIME is initialized to .TRUE. in the local variables section.*
-*(15)Illustration of memory allocation for a variable declared as allocatable. In this example, NLAYS is accessed from the COORD.EXT file.*
-*(16)Illustrates using an I/O API function to set file interpolation time.*
-*(17)Meteorological and other data are read and interpolated through a series of subroutine calls. These subroutines in turn use I/O API utilities to perform the time interpolation of the desired met variables, deposited and emitted species.*
-*(18)Call to process analysis routine to obtain data for the optional integrated process rates function.*
-*(19)Illustrates call to another science process within the module.*
-*(20)Main computational loop over the horizontal grid.*
-*(21)Time-step loop over subsynchronization time step intervals.*
-*(22)Illustrates writing to an I/O API file within a module.*
-*(23)Subroutine end*
+1. Header comments - Highly recommended for internal documentation.
+2. USE <module name> includes the Fortran source file specified.
+3. IMPLICIT NONE must be used in Fortran 90, i.e., implicit declarations are not supported. This dramatically reduces errors due to typos and undefined variables.
+4. Chemical mechanism array dimensioning and looping global variables.
+5. C preprocessor flags that determine which emissions control dimensioning and looping variables are compiled.
+6. Other global array dimensioning and looping global variables, including those for the I/O API. The logical variable LIPR is defined in the SUBST_PACTL_ID INCLUDE file for use at lines labeled (18).
+7. Local variable declaration. Note syntax differences from Fortran-77.
+8. Declarations for the argument list (standardized).
+9. Declarations and PARAMETER statements for local Fortran parameters, illustrating in-line documentation of variables and units. Note syntax differences from Fortran-77.
+10. Declarations for external functions not previously declared.
+11. Declarations for arrays to hold external file data.
+12. Declarations and definitions for local and saved variables, and dynamic memory allocations.
+13. Interface is a convenient way to declare calling arguments to a subroutine as input, output, or both in the calling program through the INTENT variable specification (as IN, OUT, or IN OUT). No other declaration of the calling arguments is necessary in the calling program. If IN only, the values of arguments can be passed explicitly in the subroutine call. If OUT, the argument must be passed as a variable.
+14. Code section for subroutine initialization and for any local data that need not be set at every entry into the subroutine. Such data would require a SAVE statement in the declarations. For example, FIRSTIME is initialized to .TRUE. in the local variables section.
+15. Illustration of memory allocation for a variable declared as allocatable. In this example, NLAYS is accessed from the COORD.EXT file.
+16. Illustrates using an I/O API function to set file interpolation time.
+17. Meteorological and other data are read and interpolated through a series of subroutine calls. These subroutines in turn use I/O API utilities to perform the time interpolation of the desired met variables, deposited and emitted species.
+18. Call to process analysis routine to obtain data for the optional integrated process rates function.
+19. Illustrates call to another science process within the module.
+20. Main computational loop over the horizontal grid.
+21. Time-step loop over subsynchronization time step intervals.
+22. Illustrates writing to an I/O API file within a module.
+23. Subroutine end
 
 Compiling CMAQ with New Source Code
 -----------------------------------
@@ -1197,15 +1197,15 @@ The CMAS Center collects, tests, and distributes various operational and develop
 
 Based on the insights gained from the testing and archiving of a development version of the model such as CMAQ-MADRID, CMAS recom­mends the following steps as the minimum level of coding and testing practices to be adopted by developers wishing to contribute code to the public CMAQ archive:
 
-1.  To make the best use of the CMAQ features in developing new code, the developer should review the coding conventions that are provided in the previous sections of this chapter. [Also see [<http://www.epa.gov/asmdnerl/CMAQ/CMAQscienceDoc.html>](http://www.epa.gov/asmdnerl/CMAQ/CMAQscienceDoc.html)].
-2.  New code should be built using the current operational CMAQ version as a template whenever possible. This will facilitate consistency in coding practices, including naming conventions, in-line documentation, and the specification of compile time versus run-time parameters.
-3.  Before submitting source code to the CMAS Center, the developer should verify that the code is consistent with the operational CMAQ version from which it was built, especially in the use of common INCLUDE files (such as horizontal and vertical grid definition files) and run-time parameter settings. Mixing code from different operational versions of the CMAQ model within the same development code version can lead to problems in using the generalized CMAQ scripts.
-4.  Comprehensive documentation or other references to peer-reviewed literature should be provided for any new science algorithms include in the source code (see Section 9.2.5).
-5.  The developer must document the computational platform used for the testing, including type and speed of the processor(s), the compiler version used, and CPU usage. It is recommended that developers use any combination of the above for testing code intended for release through the CMAS Center, to facilitate benchmarking and portability testing by CMAS staff. Any documentation on potential differences in model outputs between different computing platforms would be useful for end-users who may not be able to duplicate the platform on which the model was initially developed and tested. To this end, code testing and documentation of test results by developers, using more than one platform if available, are highly desirable.
-6.  The developer should provide all input data for the test case so that interested users may attempt to run the code and reproduce the results on their own platforms.
-7.  It is recommended that benchmark results from the testing be provided for at least one 5‑day simulation. Shorter simulations do not provide adequate results from which to discern model trends beyond the spin-up period.
-8.  When making incremental changes to model science, the developer should provide documentation of the results, including (a) the results for all variables that show a deviation of greater than 1.0e10<sup>‑6</sup> ppm for the gas-phase species or 1.0e10<sup>‑4</sup> µg m<sup>‑3</sup> for the particulate species from the base model results for the same case, (b) an analysis of what was done to understand these differences, and (c) conclusions of the analysis.
-9.  Note that more than one simulation may be necessary to adequately demonstrate seasonal or regional biases, if any, in the results. It is also understood that with models still under development, the analysis may not resolve all differences from the operational model results. It is recommended that these unresolved issues also be documented.
+1. To make the best use of the CMAQ features in developing new code, the developer should review the coding conventions that are provided in the previous sections of this chapter. [Also see [<http://www.epa.gov/asmdnerl/CMAQ/CMAQscienceDoc.html>](http://www.epa.gov/asmdnerl/CMAQ/CMAQscienceDoc.html)].
+*New code should be built using the current operational CMAQ version as a template whenever possible. This will facilitate consistency in coding practices, including naming conventions, in-line documentation, and the specification of compile time versus run-time parameters.
+2. Before submitting source code to the CMAS Center, the developer should verify that the code is consistent with the operational CMAQ version from which it was built, especially in the use of common INCLUDE files (such as horizontal and vertical grid definition files) and run-time parameter settings. Mixing code from different operational versions of the CMAQ model within the same development code version can lead to problems in using the generalized CMAQ scripts.
+3.  Comprehensive documentation or other references to peer-reviewed literature should be provided for any new science algorithms include in the source code (see Section 9.2.5).
+4.  The developer must document the computational platform used for the testing, including type and speed of the processor(s), the compiler version used, and CPU usage. It is recommended that developers use any combination of the above for testing code intended for release through the CMAS Center, to facilitate benchmarking and portability testing by CMAS staff. Any documentation on potential differences in model outputs between different computing platforms would be useful for end-users who may not be able to duplicate the platform on which the model was initially developed and tested. To this end, code testing and documentation of test results by developers, using more than one platform if available, are highly desirable.
+5.  The developer should provide all input data for the test case so that interested users may attempt to run the code and reproduce the results on their own platforms.
+6.  It is recommended that benchmark results from the testing be provided for at least one 5‑day simulation. Shorter simulations do not provide adequate results from which to discern model trends beyond the spin-up period.
+7.  When making incremental changes to model science, the developer should provide documentation of the results, including (a) the results for all variables that show a deviation of greater than 1.0e10<sup>‑6</sup> ppm for the gas-phase species or 1.0e10<sup>‑4</sup> µg m<sup>‑3</sup> for the particulate species from the base model results for the same case, (b) an analysis of what was done to understand these differences, and (c) conclusions of the analysis.
+8.  Note that more than one simulation may be necessary to adequately demonstrate seasonal or regional biases, if any, in the results. It is also understood that with models still under development, the analysis may not resolve all differences from the operational model results. It is recommended that these unresolved issues also be documented.
 
 Model developers are also recommended to check the CMAS website to see if there are any additional guidelines that have been recommended since the first set listed above.
 
