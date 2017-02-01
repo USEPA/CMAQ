@@ -99,294 +99,651 @@ The following example from CMAQ v4.7 illustrates a science process class-driver 
 </center>
 
 ```Fortran
-SUBROUTINE VDIFF ( CGRID, JDATE, JTIME, TSTEP )
-( 1)C-----------------------------------------------------------------------
-( 1)C Function:
-( 1)C Preconditions:
-( 1)C Subroutines and Functions Called:
-( 1)C Revision History:
-( 1)C References:
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+      SUBROUTINE VDIFF ( CGRID, JDATE, JTIME, TSTEP )
+
 C-----------------------------------------------------------------------
-( 2) USE AERO_EMIS ! inherits GRID_CONF
-( 2) USE SUBST_MODULES ! stenex
-! USE SUBST_GLOBAL_SUM_MODULE ! stenex
-( 3) IMPLICIT NONE
-! INCLUDE SUBST_HGRD_ID ! horizontal dimensioning parameters
-! INCLUDE SUBST_VGRD_ID ! vertical dimensioning parameters
-( 4) INCLUDE SUBST_RXCMMN ! model mechanism name
-( 4) INCLUDE SUBST_GC_SPC ! gas chemistry species table
-( 4) INCLUDE SUBST_GC_EMIS ! gas chem emis surrogate names and map table
-( 4) INCLUDE SUBST_GC_DEPV ! gas chem dep vel surrogate names and map table
-( 4) INCLUDE SUBST_GC_DDEP ! gas chem dry dep species and map table
-INCLUDE SUBST_GC_DIFF ! gas chem diffusion species and map table
-( 4) INCLUDE SUBST_AE_SPC ! aerosol species table''' '''
-! INCLUDE SUBST_AE_EMIS ! aerosol emis surrogate names and map table
-( 4) INCLUDE SUBST_AE_DEPV ! aerosol dep vel surrogate names and map table
-( 4) INCLUDE SUBST_AE_DDEP ! aerosol dry dep species and map table
-( 4) INCLUDE SUBST_AE_DIFF ! aerosol diffusion species and map table
-( 4) INCLUDE SUBST_NR_SPC ! non-reactive species table
-( 4) INCLUDE SUBST_NR_EMIS ! non-react emis surrogate names and map table
-( 4) INCLUDE SUBST_NR_DEPV ! non-react dep vel surrogate names and map table
-( 4) INCLUDE SUBST_NR_DDEP ! non-react dry dep species and map table
-( 4) INCLUDE SUBST_NR_DIFF ! non-react diffusion species and map table
-( 4) INCLUDE SUBST_TR_SPC ! tracer species table
-( 4) INCLUDE SUBST_TR_EMIS ! tracer emis surrogate names and map table
-( 4) INCLUDE SUBST_TR_DEPV ! tracer dep vel surrogate names and map table
-( 4) INCLUDE SUBST_TR_DDEP ! tracer dry dep species and map table
-( 4) INCLUDE SUBST_TR_DIFF ! tracer diffusion species and map table
-! INCLUDE SUBST_EMLYRS_ID ! emissions layers parameter
-( 5)#ifdef emis_chem
-( 5) INCLUDE SUBST_EMPR_CH ! emissions processing in chem
-( 5)#else
-( 5) INCLUDE SUBST_EMPR_VD ! emissions processing in vdif
-( 5)#endif
-( 6) INCLUDE SUBST_PACTL_ID ! PA control parameters
-( 6) INCLUDE SUBST_CONST ! constants
-( 6) INCLUDE SUBST_FILES_ID ! file name parameters
-( 6) INCLUDE SUBST_IOPARMS ! I/O parameters definitions
-#include SUBST_IODECL # I/O definitions and declarations
-! INCLUDE SUBST_COORD_ID ! coordinate and domain definitions (req IOPARMS)
-( 7) CHARACTER( 120 ) :: XMSG = ' '
-( 8)C Arguments:
-! REAL CGRID( NCOLS,NROWS,NLAYS,* ) ! concentrations
-! REAL :: CGRID( :,:,:,: ) ! concentrations
-( 8) REAL, POINTER :: CGRID( :,:,:,: ) ! concentrations
-( 8) INTEGER JDATE ! current model date, coded YYYYDDD
-( 8) INTEGER JTIME ! current model time, coded HHMMSS
-( 8) INTEGER TSTEP( 2 ) ! time step vector (HHMMSS)
-`! TSTEP(1) = local output step`
-`! TSTEP(2) = sciproc sync. step (chem)`
-( 9)C Parameters:
-( 9)C explicit, THETA = 0, implicit, THETA = 1
-( 9) REAL, PARAMETER :: THETA = 0.5, ! Semi-implicit (Crank-Nicolson)
-( 9) & THBAR = 1.0 - THETA
-( 9) REAL THRAT ! THBAR/THETA
-( 9) INTEGER, PARAMETER :: N_SPC_DDEP = N_GC_DDEP
-( 9) & + N_AE_DDEP
-( 9) & + N_NR_DDEP
-( 9) & + N_TR_DDEP
-( 9)< >
-( 9)C number of species on the PM emissions input file. Set in OPEMIS
-( 9)C the value changes with the type of emissions file.
-( 9) INTEGER, SAVE :: NAESPCEMIS
-( 9) REAL, PARAMETER :: M2PHA = 1.0E+04 ! 1 hectare = 1.0e4 m**2
-( 9) REAL, PARAMETER :: CMLMR = 1.0E+06 ! ppmV/Molar Mixing Ratio
-( 9) REAL, PARAMETER :: CNVTD = M2PHA / CMLMR / MWAIR ! combined ddep
-! conversion factor
-( 9) REAL, PARAMETER :: GPKG = 1.0E+03 ! g/Kg
-( 9) REAL, PARAMETER :: MGPG = 1.0E+06 ! micro-g/g
-(10)C External Functions not previously declared in IODECL3.EXT:
-(10) INTEGER, EXTERNAL :: SECSDIFF, SEC2TIME, TIME2SEC
-(10) LOGICAL, EXTERNAL :: ENVYN
-(11)C File variables:
-(11)< >
-(12)C Local Variables:
-(12) CHARACTER( 16 ), SAVE :: PNAME = 'VDIFFIM'
-(12)< >
-(12) REAL, ALLOCATABLE, SAVE :: VDEMIS( :,:,:,: ) ! total emissions array
-(12)< >
-(13) INTERFACE
-(13) SUBROUTINE RDMET( MDATE, MTIME, RDEPVHT, RJACM, RVJACMF, RRHOJ, DENS1 )
-(13) IMPLICIT NONE
-(13) INTEGER, INTENT( IN ) :: MDATE, MTIME
-(13) REAL, INTENT( OUT ) :: RDEPVHT( :,: )
-(13) REAL, INTENT( OUT ) :: RJACM ( :,:,: )
-(13) REAL, INTENT( OUT ) :: RVJACMF( :,:,: )
-(13) REAL, INTENT( OUT ) :: RRHOJ ( :,:,: )
-(13) REAL, INTENT( OUT ) :: DENS1 ( :,: )
-(13) END SUBROUTINE RDMET
-(13) SUBROUTINE RDDEPV ( MDATE, MTIME, MSTEP, CGRID, DEPV )
-(13) IMPLICIT NONE
-(13) INTEGER, INTENT( IN ) :: MDATE, MTIME, MSTEP
-(13) REAL, POINTER :: CGRID( :,:,:,: )
-(13) REAL, INTENT( OUT ) :: DEPV( :,:,: )
-(13) END SUBROUTINE RDDEPV
-(13)< >
-END INTERFACE
+C Asymmetric Convective Model v2 (ACM2) -- Pleim(2006)
+C Function:
+C   calculates and writes dry deposition.
+C   calculates vertical diffusion
+
+C Subroutines and Functions Called:
+C   INIT3, SEC2TIME, TIME2SEC, WRITE3, NEXTIME,
+C   M3EXIT, EDDYX, TRI, MATRIX, PA_UPDATE_EMIS, PA_UPDATE_DDEP
+C Revision History:
+C   Analogous to VDIFFIM (Eddy diffusion PBL scheme)
+C 03 Mar 16 G.Sarwar: updated for halogen emissions
+C 16 Sep 16 J.Young: update for inline procan (IPR)
 C-----------------------------------------------------------------------
-(14) IF ( FIRSTIME ) THEN
-(14) FIRSTIME = .FALSE.
-(14) LOGDEV = INIT3()
-(14) C for emissions (from COORD.EXT) .......................................
-(14) IF ( GDTYP_GD .EQ. LATGRD3 ) THEN
-(14) DX1 = DG2M * XCELL_GD ! in m.
-(14) DX2 = DG2M * YCELL_GD
-(14) & * COS( PI180*( YORIG_GD + YCELL_GD * FLOAT( GL_NROWS/2 ))) ! in m.
-(14) ELSE
-(14) DX1 = XCELL_GD ! in m.
-(14) DX2 = YCELL_GD ! in m.
-(14) END IF
-(14) C create global maps
-(14) CALL VDIFF_MAP ( DF2EM, DF2DV, DD2DV, DEPV_MAP, DIFF_MAP, DDEP_SPC,
-(14) & DV2DF )
-(14) C set vertical layer definitions from COORD.EXT
-(15) ALLOCATE ( RDX3F( NLAYS ), STAT = ALLOCSTAT )
-(15) ALLOCATE ( RDX3M( NLAYS ), STAT = ALLOCSTAT )
-(15) IF ( ALLOCSTAT .NE. 0 ) THEN
-(15) XMSG = 'Failure allocating RDX3F or RDX3M'
-(15) CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-(15) END IF
-(14) < other calculations that need to be performed only the first time >
-`END IF ! if Firstime`
-(16) MDATE = JDATE
-(16) MTIME = JTIME
-(16) MSTEP = TIME2SEC( TSTEP( 2 ) )
-(16) DTSEC = FLOAT( MSTEP )
-(16) CALL NEXTIME ( MDATE, MTIME, SEC2TIME( MSTEP / 2 ) )
+...
+C-----------------------------------------------------------------------
+
+      USE CGRID_SPCS          ! CGRID mechanism species
+      USE GRID_CONF
+      USE EMIS_DEFN
+      USE DEPV_DEFN
+      USE ASX_DATA_MOD
+      USE VDIFF_MAP
+      USE UTILIO_DEFN
+      USE BIDI_MOD
+      USE HGSIM
+      USE LSM_MOD, Only: n_lufrac
+      USE SEDIMENTATION
+      USE VDIFF_DIAG
+      USE PA_DEFN, Only: LIPR ! Process Anaylsis control and data variables
+
+      IMPLICIT NONE
+
+      INCLUDE SUBST_FILES_ID  ! file name parameters
+
+      CHARACTER( 120 ) :: XMSG = ' '
+
+C Arguments:
+
+      REAL, POINTER :: CGRID( :,:,:,: )              !  concentrations
+      INTEGER      JDATE        ! current model date, coded YYYYDDD
+      INTEGER      JTIME        ! current model time, coded HHMMSS
+      INTEGER      TSTEP( 3 )   ! time step vector (HHMMSS)
+                                ! TSTEP(1) = local output step
+                                ! TSTEP(2) = sciproc sync. step (chem)
+                                ! TSTEP(3) = twoway model time step w.r.t. wrf time
+                                !            step and wrf/cmaq call frequency
+
+C Parameters:
+
+C External Functions: None
+
+C Local Variables: 
+      CHARACTER( 16 ), SAVE :: PNAME = 'VDIFFPROC'
+      CHARACTER( 16 ), SAVE :: AERO_GRAV_SETL = 'CTM_GRAV_SETL'
+      CHARACTER( 80 ) :: VARDESC                ! env variable description
+      LOGICAL, SAVE :: GRAV_SETL
+      LOGICAL, SAVE :: FIRSTIME = .TRUE.
+      LOGICAL, SAVE :: WRITE_FIRSTIME = .TRUE.
+      INTEGER, SAVE :: WSTEP  = 0               ! local write counter
+      INTEGER  STATUS                           ! ENV... status
+
+      REAL          :: FCJACMF( NCOLS,NROWS,NLAYS )  ! 1/ mid-full layer vert Jac factor
+      REAL             LRDX3M                        ! loop local RDX3M( L )
+      REAL             FCMSF                         ! loop local RMSFX4( C,R )
+
+      REAL, ALLOCATABLE, SAVE :: CNGRD( :,:,:,: )    ! cgrid aero in mixing ratio
+      REAL, ALLOCATABLE, SAVE :: DDEP     ( :,:,: )   ! ddep accumulator
+      REAL, ALLOCATABLE, SAVE :: ICMP     ( :,:,: )   ! component flux accumlator 
+      REAL, ALLOCATABLE, SAVE :: DDEPJ    ( :,:,:,: ) ! ddep for mosaic
+      REAL, ALLOCATABLE, SAVE :: DDEPJ_FST( :,:,:,: ) ! ddep for stomtal/cuticular pathway
+
+      REAL     :: WRDD( NCOLS,NROWS )                 ! ddep write buffer
+      REAL     :: WRDDJ( NCOLS,NROWS,N_LUFRAC+1 )     ! mosaic ddep write buffer
+      REAL     :: WRDDJ_FST( NCOLS,NROWS,N_LUFRAC+1 ) ! mosaic stomatal flux write buffer
+
+      REAL, ALLOCATABLE, SAVE :: DDEP_PA  ( :,:,: )   ! ddep for process analysis
+      REAL, ALLOCATABLE, SAVE :: EMIS_PA( :,:,:,: )   ! emis for process analysis
+
+      INTEGER, SAVE :: N_SPC_CGRID              ! no. of CGRID species
+
+      REAL     :: EDDYV ( NCOLS,NROWS,NLAYS )   ! from EDYINTB
+      REAL     :: SEDDY ( NLAYS,NCOLS,NROWS )   ! flipped EDDYV
+      REAL        DTSEC                         ! model time step in seconds
+
+      REAL, ALLOCATABLE, SAVE :: VSED_AE( :,:,:,: )
+
+C Local Variables
+
+      INTEGER, SAVE :: LOGDEV
+
+      INTEGER     ASTAT
+      INTEGER     C, R, L, S, V, I, J, OFF      ! loop induction variables
+      INTEGER     MDATE, MTIME, MSTEP           ! internal simulation date&time
+
+      INTERFACE
+         SUBROUTINE PA_UPDATE_EMIS ( PNAME, VDEMIS, JDATE, JTIME, TSTEP )
+            CHARACTER( * ), INTENT( IN )  :: PNAME
+            REAL,           INTENT( IN )  :: VDEMIS( :,:,:,: )
+            INTEGER,        INTENT( IN )  :: JDATE, JTIME
+            INTEGER,        INTENT( IN )  :: TSTEP( 3 )
+         END SUBROUTINE PA_UPDATE_EMIS
+         SUBROUTINE PA_UPDATE_DDEP ( PNAME, DDEP, JDATE, JTIME, TSTEP )
+            CHARACTER( * ), INTENT( IN )  :: PNAME
+            REAL,           INTENT( IN )  :: DDEP( :,:,: )
+            INTEGER,        INTENT( IN )  :: JDATE, JTIME
+            INTEGER,        INTENT( IN )  :: TSTEP( 3 )
+         END SUBROUTINE PA_UPDATE_DDEP
+         SUBROUTINE CONV_CGRID ( CGRID, JDATE, JTIME, CNGRD )
+            REAL, POINTER :: CGRID( :,:,:,: )
+            INTEGER,        INTENT( IN )  :: JDATE, JTIME
+            REAL,           INTENT( INOUT ) :: CNGRD( :,:,:,: )
+         END SUBROUTINE CONV_CGRID
+         SUBROUTINE REV_CGRID ( CNGRD, JDATE, JTIME, CGRID )
+            REAL,           INTENT( INOUT ) :: CNGRD( :,:,:,: )
+            INTEGER,        INTENT( IN )  :: JDATE, JTIME
+            REAL, POINTER :: CGRID( :,:,:,: )
+         END SUBROUTINE REV_CGRID
+         SUBROUTINE EDDYX ( EDDYV )
+            REAL,           INTENT( OUT ) :: EDDYV( :,:,: )
+         END SUBROUTINE EDDYX
+         SUBROUTINE VDIFFACMX( dtsec, seddy, ddep, icmp, ddepj, ddepj_fst, cngrd )
+            REAL, INTENT( IN )    :: dtsec
+            REAL, INTENT( INOUT ) :: seddy( :,:,: )
+            REAL, INTENT( INOUT ) :: ddep ( :,:,: )
+            REAL, INTENT( INOUT ) :: icmp ( :,:,: )
+            REAL, INTENT( INOUT ), OPTIONAL :: ddepj    ( :,:,:,: )
+            REAL, INTENT( INOUT ), OPTIONAL :: ddepj_fst( :,:,:,: )
+            REAL, INTENT( INOUT ) :: cngrd( :,:,:,: )
+         END SUBROUTINE VDIFFACMX
+      END INTERFACE
+
+C-----------------------------------------------------------------------
+      IF ( FIRSTIME ) THEN
+
+         FIRSTIME = .FALSE.
+         LOGDEV = INIT3()
+
+         IF ( .NOT. DEPV_INIT ( JDATE, JTIME, TSTEP, CGRID ) ) THEN
+            XMSG = 'Failure initializing deposition velocities module'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+
+C create global maps
+         IF ( .NOT. VDIFF_MAP_INIT( N_SPC_DEPV ) ) THEN
+            XMSG = 'Failure initializing index mapping module'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+
+C Initialize the met data
+         CALL INIT_MET( JDATE, JTIME, MOSAIC, ABFLUX, HGBIDI )
+
+        IF ( HGBIDI ) THEN ! Initialize HGSIM module
+           CALL INIT_HGSIM(JDATE, JTIME)
+        END IF
+
+C Get gravitational settling (sedi) flag.
+         GRAV_SETL = .TRUE.         ! default
+         VARDESC = 'Using J-,K-mode aerosols gravitational settling'
+         GRAV_SETL = ENVYN( AERO_GRAV_SETL, VARDESC, GRAV_SETL, STATUS )
+         IF ( STATUS .EQ. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
+
+C Get diagnostic files flag.
+         VDIFFDIAG = .FALSE.         ! default
+         VARDESC = 'Writing the VDIFF diagnostic files'
+         VDIFFDIAG = ENVYN( VDIFF_DIAG_FILE, VARDESC, VDIFFDIAG, STATUS )
+         IF ( STATUS .EQ. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
+
+C Set output file characteristics based on COORD.EXT and open the dry dep file
+         IF ( IO_PE_INCLUSIVE ) THEN
+            CALL OPDDEP ( JDATE, JTIME, TSTEP( 1 ), N_SPC_DDEP, ABFLUX )
+            IF ( ABFLUX .OR. HGBIDI ) CALL OPASX_MEDIA( JDATE, JTIME, TSTEP( 1 ), ABFLUX )
+         END IF
+
+C Open vdiff diagnostics file (ioapi header from cgrd)
+         IF ( VDIFFDIAG ) THEN
+            IF ( .NOT. VDIFF_DIAG_INIT ( JDATE, JTIME, TSTEP( 1 ), GRAV_SETL ) ) THEN
+               XMSG = 'Failure initializing vdiff diagnostics module'
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            END IF
+         END IF
+C Allocate and initialize dry deposition array
+
+         ALLOCATE ( DDEP( N_SPC_DEPV,NCOLS,NROWS ), STAT = ASTAT )
+         IF ( ASTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating DDEP'
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+         DDEP = 0.0   ! array assignment
+
+         ALLOCATE ( ICMP( LCMP,NCOLS,NROWS ), STAT = ASTAT )
+         IF ( ASTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating ICMP'
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+         ICMP = 0.0   ! array assignment
+
+         IF ( .NOT. EMIS_INIT ( JDATE, JTIME, TSTEP( 1 ) ) ) THEN
+            XMSG = 'Failure initializing emissions module'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+
+C Set up for process analysis
+         IF ( LIPR ) THEN
+            ALLOCATE ( EMIS_PA( NCOLS,NROWS,EMLAYS,N_SPC_EMIS+1 ), STAT = ASTAT )
+            IF ( ASTAT .NE. 0 ) THEN
+               XMSG = 'EMIS_PA memory allocation failed'
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            END IF
+            ALLOCATE ( DDEP_PA( NCOLS,NROWS,N_SPC_DEPV ), STAT = ASTAT )
+            IF ( ASTAT .NE. 0 ) THEN
+               XMSG = 'DDEP_PA memory allocation failed'
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            END IF
+         END IF
+C Set up for grav. settling
+         IF ( GRAV_SETL ) THEN
+            ALLOCATE ( VSED_AE( N_AE_SPC,NLAYS,NCOLS,NROWS ), STAT = ASTAT )
+            IF ( ASTAT .NE. 0 ) THEN
+               XMSG = 'Failure allocating VSED_AE'
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            END IF
+         END IF
+
+         N_SPC_CGRID = SIZE ( CGRID,4 )
+
+         ALLOCATE ( CNGRD( N_SPC_CGRID,NLAYS,NCOLS,NROWS ), STAT = ASTAT )
+         IF ( ASTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating CNGRD'
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+         CNGRD = 0.0   ! array assignment
+
+         IF ( MOSAIC ) THEN
+            ALLOCATE ( DDEPJ( N_LUFRAC,N_SPC_DEPV,NCOLS,NROWS ), STAT = ASTAT )
+            IF ( ASTAT .NE. 0 ) THEN
+               XMSG = 'Failure allocating DDEPJ'
+               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+            END IF
+            DDEPJ = 0.0   ! array assignment
+            IF ( IO_PE_INCLUSIVE )
+     &         CALL OPDDEP_MOS ( JDATE, JTIME, TSTEP( 1 ), N_SPC_DDEP )
+            IF ( FST ) THEN
+               ALLOCATE ( DDEPJ_FST( N_LUFRAC,N_SPC_DEPV,NCOLS,NROWS ), STAT = ASTAT )
+               IF ( ASTAT .NE. 0 ) THEN
+                  XMSG = 'Failure allocating DDEPJ_FST'
+                  CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+               END IF
+               DDEPJ_FST = 0.0   ! array assignment
+               IF ( IO_PE_INCLUSIVE )
+     &            CALL OPDDEP_FST ( JDATE, JTIME, TSTEP( 1 ), N_SPC_DDEP )
+            END IF   ! if Fst
+         END IF   ! if Mosaic
+
+      END IF   !  if Firstime
+
+      MDATE = JDATE
+      MTIME = JTIME
+      MSTEP = TIME2SEC( TSTEP( 2 ) )
+      DTSEC = FLOAT( MSTEP )
+      CALL NEXTIME ( MDATE, MTIME, SEC2TIME( MSTEP / 2 ) )
+
+C Convert non-molar mixing ratio species and re-order CGRID
+      CALL CONV_CGRID ( CGRID, MDATE, MTIME, CNGRD )
 C read & interpolate met data
-(17) CALL RDMET ( MDATE, MTIME, RDEPVHT, RJACM, RVJACMF, RRHOJ, DENS1 )
+      CALL GET_MET ( MDATE, MTIME, MSTEP, MOSAIC, ABFLUX, HGBIDI )
+
 C read & interpolate deposition velocities
-`< perform other operations > `
-(18) IF ( LIPR ) THEN
-(18) DO S = 1, N_SPC_EMIS+1
-(18) DO L = 1, ELAYS
-(18) DO R = 1, MY_NROWS
-(18) DO C = 1, MY_NCOLS
-(18) EMIS_PA( C,R,L,S ) = VDEMIS( S,L,C,R )
-(18) END DO
-(18) END DO
-(18) END DO
-(18) END DO
-(18) CALL PA_UPDATE_EMIS ( 'VDIF', EMIS_PA, JDATE, JTIME, TSTEP )
-(18) END IF
-(19) CALL EDYINTB ( EDDYV, DT, JDATE, JTIME, TSTEP( 2 ) )
-< Perform other operations to set up for tridiagonal solver >
-(20) DO 345 R = 1, MY_NROWS
-(20) DO 344 C = 1, MY_NCOLS
-< Perform operations >
-(21) DO 301 N = 1, NSTEPS( C,R )
-< Perform operations >
-(21) 301 CONTINUE ! end time steps loop
-< Update concentration and deposition arrays >
-(20) 344 CONTINUE ! end loop on col C
-(20) 345 CONTINUE ! end loop on row R
-< Perform other operations >
-C If last call this hour: write accumulated depositions:
-(22) WSTEP = WSTEP + TIME2SEC( TSTEP( 2 ) )
-(22) IF ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) ) THEN
-(22) MDATE = JDATE
-(22) MTIME = JTIME
-(22) CALL NEXTIME( MDATE, MTIME, TSTEP( 2 ) )
-(22) WSTEP = 0
-(22) DO V = 1, N_SPC_DDEP
-(22) S = DD2DV( V )
-(22) DO R = 1, MY_NROWS
-(22) DO C = 1, MY_NCOLS
-(22) WRDD( C,R ) = DDEP( S,C,R )
-(22) END DO
-(22) END DO
-(22) IF ( .NOT. WRITE3( CTM_DRY_DEP_1, DDEP_SPC( V ),
-(22) & MDATE, MTIME, WRDD ) ) THEN
-(22) XMSG = 'Could not write ' // CTM_DRY_DEP_1 // ' file'
-(22) CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-(22) END IF
-(22) END DO
-(18) EMIS_PA( C,R,L,S ) = VDEMIS( S,L,C,R )
-(18) END DO
-(18) END DO
-(18) END DO
-(18) END DO
-(18) CALL PA_UPDATE_EMIS ( 'VDIF', EMIS_PA, JDATE, JTIME, TSTEP )
-(18) END IF
-(19) CALL EDYINTB ( EDDYV, DT, JDATE, JTIME, TSTEP( 2 ) )
-< Perform other operations to set up for tridiagonal solver >
-(20) DO 345 R = 1, MY_NROWS
-(20) DO 344 C = 1, MY_NCOLS
-< Perform operations >
-(21) DO 301 N = 1, NSTEPS( C,R )
-< Perform operations >
-(21) 301 CONTINUE ! end time steps loop
-< Update concentration and deposition arrays >
-(20) 344 CONTINUE ! end loop on col C
-(20) 345 CONTINUE ! end loop on row R
-< Perform other operations >
-C If last call this hour: write accumulated depositions:
-(22) WSTEP = WSTEP + TIME2SEC( TSTEP( 2 ) )
-(22) IF ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) ) THEN
-(22) MDATE = JDATE
-(22) MTIME = JTIME
-(22) CALL NEXTIME( MDATE, MTIME, TSTEP( 2 ) )
-(22) WSTEP = 0
-(22) DO V = 1, N_SPC_DDEP
-(22) S = DD2DV( V )
-(22) DO R = 1, MY_NROWS
-(22) DO C = 1, MY_NCOLS
-(22) WRDD( C,R ) = DDEP( S,C,R )
-(22) END DO
-(22) END DO
-(22) IF ( .NOT. WRITE3( CTM_DRY_DEP_1, DDEP_SPC( V ),
-(22) & MDATE, MTIME, WRDD ) ) THEN
-(22) XMSG = 'Could not write ' // CTM_DRY_DEP_1 // ' file'
-(22) CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-(22) END IF
-(22) END DO
-(22) WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
-(22) & 'Timestep written to', CTM_DRY_DEP_1,
-(22) & 'for date and time', MDATE, MTIME
-(18) IF ( LIPR ) THEN
-! DO V = 1, N_SPC_DDEP
-(18) DO V = 1, N_SPC_DEPV
-(18) DO R = 1, MY_NROWS
-(18) DO C = 1, MY_NCOLS
-(18) DDEP_PA( C,R,V ) = DDEP( V,C,R )
-(18) END DO
-(18) END DO
-(18) END DO
-(18) CALL PA_UPDATE_DDEP ( 'VDIF', DDEP_PA, JDATE, JTIME, TSTEP )
-(18) END IF
+      CALL GET_DEPV ( MDATE, MTIME, TSTEP, CGRID )
+
+      IF ( GRAV_SETL ) THEN
+C Get gravitational settling velocity for the vsed aero species:
+C AERO_SEDV assumes that every aero species is dry deposited and is diffused (trns)
+C Calculate the changes in the layer J-,K-mode aerosol concentrations
+         CALL SEDI( MDATE, MTIME, DTSEC, VSED_AE, CGRID, CNGRD )
+      END IF
+
+C read & interpolate emissions data => VDEMIS from EMIS_DEFN module
+      CALL GET_EMIS ( MDATE, MTIME, TSTEP, CONVPA, CGRID )
+
+      IF ( LIPR ) THEN
+         DO S = 1, N_SPC_EMIS+1
+            DO L = 1, EMLAYS
+               DO R = 1, MY_NROWS
+                  DO C = 1, MY_NCOLS
+                     EMIS_PA( C,R,L,S ) = VDEMIS( S,L,C,R )
+                  END DO
+               END DO
+            END DO
+         END DO
+         CALL PA_UPDATE_EMIS ( 'VDIF', EMIS_PA, JDATE, JTIME, TSTEP )
+      END IF
+
+      CALL EDDYX ( EDDYV )
+
+C EDDYV returned = Kz, where Kz is in m**2/sec
+
+      DO L = 1, NLAYS
+         LRDX3M = Grid_Data%RDX3M( L )
+         DO R = 1, MY_NROWS
+            DO C = 1, MY_NCOLS
+               FCJACMF( C,R,L ) = LRDX3M * Met_Data%RJACM( C,R,L ) * Met_Data%RJACF( C,R,L )
+            END DO
+         END DO
+      END DO
+      DO R = 1, MY_NROWS
+         DO C = 1, MY_NCOLS
+            FCMSF = Grid_Data%RMSFX4( C,R )
+            DO L = 1, NLAYS
+               SEDDY( L,C,R ) = FCMSF * FCJACMF( C,R,L ) * EDDYV( C,R,L )
+            END DO
+         END DO
+      END DO
+
+      IF ( WSTEP .EQ. 0 ) THEN
+         DDEP = 0.0                      ! array assignment
+         ICMP = 0.0                      ! array assignment
+         IF ( MOSAIC ) THEN
+            DDEPJ = 0.0                  ! array assignment
+            IF ( FST ) DDEPJ_FST = 0.0   ! array assignment
+         END IF
+      END IF
+
+C Calculate the change in concentration and dry dep from vertical diffusion and vsed
+C Note: cngrd is the argument keyword (from the INTERFACE); CNGRD is the actual argument
+      IF ( .NOT. MOSAIC ) THEN
+         CALL VDIFFACMX( DTSEC, SEDDY, DDEP, ICMP,
+     &                   cngrd = CNGRD )
+      ELSE
+         IF ( .NOT. FST ) THEN
+            CALL VDIFFACMX( DTSEC, SEDDY, DDEP, ICMP,
+     &                      ddepj = DDEPJ, cngrd = CNGRD )
+         ELSE
+            CALL VDIFFACMX( DTSEC, SEDDY, DDEP, ICMP,
+     &                      ddepj = DDEPJ, ddepj_fst = DDEPJ_FST, cngrd = CNGRD )
+         END IF
+      END IF
+
+      IF ( VDIFFDIAG ) THEN
+         NTICS = NTICS + 1
+         NLPCR_SUM = NLPCR_SUM + NLPCR_MEAN    ! array assignment
+         DO R = 1, MY_NROWS
+            DO C = 1, MY_NCOLS
+               NLPCR_MAX( C,R ) = MAX( NLPCR_MEAN( C,R ), NLPCR_MAX( C,R ) )
+               NLPCR_MIN( C,R ) = MIN( NLPCR_MEAN( C,R ), NLPCR_MIN( C,R ) )
+            END DO
+         END DO
+         IF ( GRAV_SETL ) THEN
+            DTCCR_SUM = DTCCR_SUM + DTCCR_MEAN    ! array assignment
+            DO R = 1, MY_NROWS
+               DO C = 1, MY_NCOLS
+                  DTCCR_MAX( C,R ) = MAX( DTCCR_MEAN( C,R ), DTCCR_MAX( C,R ) )
+                  DTCCR_MIN( C,R ) = MIN( DTCCR_MEAN( C,R ), DTCCR_MIN( C,R ) )
+               END DO
+            END DO
+         END IF
+      END IF
+C Revert non-molar mixing ratio species and re-order CGRID
+      CALL REV_CGRID ( CNGRD, MDATE, MTIME, CGRID )
+
+C If last call this hour:  write accumulated depositions:
+
+      WSTEP = WSTEP + TIME2SEC( TSTEP( 2 ) )
+      IF ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) ) THEN
+         MDATE = JDATE
+         MTIME = JTIME
+         CALL NEXTIME( MDATE, MTIME, TSTEP( 2 ) )
+         WSTEP = 0
+
+#ifdef parallel_io
+         IF ( WRITE_FIRSTIME ) THEN
+            WRITE_FIRSTIME = .FALSE.
+
+            IF ( .NOT. IO_PE_INCLUSIVE ) THEN
+               IF ( .NOT. OPEN3( CTM_DRY_DEP_1, FSREAD3, PNAME ) ) THEN
+                  XMSG = 'Could not open ' // TRIM(CTM_DRY_DEP_1)
+                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+               END IF
+               IF ( MOSAIC ) THEN
+                  IF ( .NOT. OPEN3( CTM_DRY_DEP_MOS, FSREAD3, PNAME ) ) THEN
+                     XMSG = 'Could not open ' // TRIM(CTM_DRY_DEP_MOS)
+                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+                  END IF
+                  IF ( FST ) THEN
+                     IF ( .NOT. OPEN3( CTM_DRY_DEP_FST, FSREAD3, PNAME ) ) THEN
+                        XMSG = 'Could not open ' // TRIM(CTM_DRY_DEP_FST)
+                        CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+                     END IF
+                  END IF
+               END IF
+            END IF   ! .NOT. IO_PE_INCLUSIVE
+         END IF
+#endif
+
+         DO V = 1, N_SPC_DDEP
+            S = DD2DV( V )
+            DO R = 1, MY_NROWS
+               DO C = 1, MY_NCOLS
+                  WRDD( C,R ) = DDEP( S,C,R )
+               END DO
+            END DO
+
+            IF ( .NOT. WRITE3( CTM_DRY_DEP_1, DDEP_SPC( V ),
+     &                 MDATE, MTIME, WRDD ) ) THEN
+               XMSG = 'Could not write ' // CTM_DRY_DEP_1 // ' file'
+               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+            END IF
+
+            IF ( ABFLUX .AND. TRIM( DDEP_SPC( V ) ) .EQ. 'NH3' ) THEN
+               DO I = 1, LCMP
+                  DO R = 1, MY_NROWS
+                     DO C = 1, MY_NCOLS
+                        WRDD( C,R ) = ICMP( I,C,R )
+                     END DO
+                  END DO
+                  IF ( .NOT. WRITE3( CTM_DRY_DEP_1, CMPSPC( I ),
+     &                 MDATE, MTIME, WRDD ) ) THEN
+                     XMSG = 'Could not write ' // CTM_DRY_DEP_1 // ' file'
+                     CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+                  END IF     
+               END DO       
+            ENDIF
+
+         END DO 
+
+         WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
+     &         'Timestep written to', CTM_DRY_DEP_1,
+     &         'for date and time', MDATE, MTIME
+         
+C Write vdiff diagnostics
+         IF ( VDIFFDIAG ) THEN
+            IF ( GRAV_SETL ) THEN   ! Write vsed diagnostics
+
+               DO V = 1, N_VSED
+                  S = VSED_MAP( V )
+                  DO L = 1, NLAYS
+                     DO R = 1, MY_NROWS
+                        DO C = 1, MY_NCOLS
+                           VSED_BUF( C,R,L,V ) = VSED_AE( S,L,C,R )
+                        END DO
+                     END DO
+                  END DO
+                  IF ( .NOT. WRITE3( CTM_VSED_DIAG, VSED_NAME( V ),
+     &                               MDATE, MTIME, VSED_BUF( 1,1,1,V ) ) ) THEN
+                     XMSG = 'Could not write ' // TRIM( VSED_NAME( V ) )
+     &                    // ' to ' // CTM_VSED_DIAG
+                     CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+                  END IF
+               END DO
+
+               WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
+     &               'Timestep written to', CTM_VSED_DIAG,
+     &               'for date and time', MDATE, MTIME
+
+            END IF   ! GRAV_SETL
+
+C Write other diagnostics
+            NLPCR_MEAN = NLPCR_SUM / FLOAT( NTICS )
+            IF ( .NOT. WRITE3( CTM_VDIFF_DIAG, 'NLP_MEAN',
+     &                         MDATE, MTIME, NLPCR_MEAN ) ) THEN
+               XMSG = 'Could not write ' //  'NLP_MEAN to ' // CTM_VDIFF_DIAG
+               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+            END IF
+            IF ( .NOT. WRITE3( CTM_VDIFF_DIAG, 'NLP_MAX',
+     &                         MDATE, MTIME, NLPCR_MAX ) ) THEN
+               XMSG = 'Could not write ' //  'NLP_MAX to ' // CTM_VDIFF_DIAG
+               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+            END IF
+            IF ( .NOT. WRITE3( CTM_VDIFF_DIAG, 'NLP_MIN',
+     &                         MDATE, MTIME, NLPCR_MIN ) ) THEN
+               XMSG = 'Could not write ' //  'NLP_MIN to ' // CTM_VDIFF_DIAG
+               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+            END IF
+            NLPCR_MAX = 0.0      ! array assignment
+            NLPCR_MIN = 9.9E30   ! array assignment
+            NLPCR_SUM = 0.0      ! array assignment
+
+            IF ( GRAV_SETL ) THEN   ! Write vsed diagnostics
+               DTCCR_MEAN = DTCCR_SUM / FLOAT( NTICS )
+               IF ( .NOT. WRITE3( CTM_VDIFF_DIAG, 'SEDI_DTC_MEAN',
+     &                            MDATE, MTIME, DTCCR_MEAN ) ) THEN
+                  XMSG = 'Could not write ' //  'SEDI_DTC_MEAN to ' // CTM_VDIFF_DIAG
+                  CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+               END IF
+               IF ( .NOT. WRITE3( CTM_VDIFF_DIAG, 'SEDI_DTC_MAX',
+     &                            MDATE, MTIME, DTCCR_MAX ) ) THEN
+                  XMSG = 'Could not write ' //  'SEDI_DTC_MAX to ' // CTM_VDIFF_DIAG
+                  CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+               END IF
+               IF ( .NOT. WRITE3( CTM_VDIFF_DIAG, 'SEDI_DTC_MIN',
+     &                            MDATE, MTIME, DTCCR_MIN ) ) THEN
+                  XMSG = 'Could not write ' //  'SEDI_DTC_MIN to ' // CTM_VDIFF_DIAG
+                  CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+               END IF
+               DTCCR_MAX = 0.0      ! array assignment
+               DTCCR_MIN = 9.9E30   ! array assignment
+               DTCCR_SUM = 0.0      ! array assignment
+            END IF
+
+            CNVCT = 0.0   ! array assignment
+            DO R = 1, MY_NROWS
+               DO C = 1, MY_NCOLS
+                  IF ( Met_Data%CONVCT( C,R ) ) CNVCT( C,R ) = 1.0
+               END DO
+            END DO
+            IF ( .NOT. WRITE3( CTM_VDIFF_DIAG, 'CONVCT',
+     &                         MDATE, MTIME, CNVCT ) ) THEN
+               XMSG = 'Could not write ' //  'convct to ' // CTM_VDIFF_DIAG
+               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+            END IF
+            IF ( .NOT. WRITE3( CTM_VDIFF_DIAG, 'LPBL',
+     &                         MDATE, MTIME, REAL( Met_Data%LPBL ) ) ) THEN
+               XMSG = 'Could not write ' //  'lpbl to ' // CTM_VDIFF_DIAG
+               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+            END IF
+
+            WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6, I6 )' )
+     &            'Timestep written to', CTM_VDIFF_DIAG,
+     &            'for date and time (and ntics)', MDATE, MTIME, NTICS
+            NTICS = 0
+
+         END IF
+         
+         IF ( MOSAIC ) THEN
+
+            DO V = 1, N_SPC_DDEP
+               S = DD2DV( V )
+               WRDD = 0.0 ! reuse array since it has already been written for hour
+               DO R = 1, MY_NROWS
+                  DO C = 1, MY_NCOLS
+                     DO J = 1, N_LUFRAC
+                        WRDD( C,R ) = WRDD( C,R ) + DDEPJ( J,S,C,R ) * Grid_Data%LUFRAC( C,R,J )
+                        WRDDJ( C,R,J ) = DDEPJ( J,S,C,R )
+                     END DO
+                     WRDDJ( C,R,N_LUFRAC+1 ) = WRDD( C,R )  ! last array element is total across all land use categories
+                  END DO
+               END DO
+
+               IF ( .NOT. WRITE3( CTM_DRY_DEP_MOS, DDEP_SPC( V ),
+     &                     MDATE, MTIME, WRDDJ ) ) THEN
+                  XMSG = 'Could not write ' // CTM_DRY_DEP_MOS // ' file'
+                  CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+               END IF
+
+            END DO
+
+            WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
+     &             'Timestep written to', CTM_DRY_DEP_MOS,
+     &             'for date and time', MDATE, MTIME
+
+            IF ( FST ) THEN
+
+               DO V = 1, N_SPC_DDEP
+                  S = DD2DV( V )
+                  WRDD = 0.0 ! reuse array since it has already been written for hour
+                  DO R = 1, MY_NROWS
+                     DO C = 1, MY_NCOLS
+                        DO J = 1, N_LUFRAC
+                           WRDD( C,R ) = WRDD( C,R ) + DDEPJ_FST( J,S,C,R ) * Grid_Data%LUFRAC( C,R,J )
+                           WRDDJ_FST( C,R,J ) = DDEPJ_FST( J,S,C,R )
+                           IF ( DDEPJ_FST( J,S,C,R ) .GT. DDEPJ( J,S,C,R ) ) THEN
+                              WRITE( LOGDEV,* ) 'FST too big !!!'
+                              WRITE( LOGDEV,* ) 'J,S,C,R = ', J, S, C, R
+                              WRITE( LOGDEV,* ) 'DDEPJ,DDEPJ_FST: ', DDEPJ( J,S,C,R ), DDEPJ_FST( J,S,C,R )
+                              WRITE( LOGDEV,* ) 'DDEP Species: ', DDEP_SPC( V )
+                              WRITE( LOGDEV,* ) 'Time and date: ', MTIME, MDATE
+                           END IF
+                        END DO
+                        WRDDJ_FST( C,R,N_LUFRAC+1 ) = WRDD( C,R )  ! last array element is total across all land use categories
+                    END DO
+                  END DO
+
+                  IF ( .NOT. WRITE3( CTM_DRY_DEP_FST, DDEP_SPC( V ),
+     &                       MDATE, MTIME, WRDDJ_FST ) ) THEN
+                     XMSG = 'Could not write ' // CTM_DRY_DEP_FST // ' file'
+                     CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+                  END IF
+             
+               END DO
+
+               WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
+     &               'Timestep written to', CTM_DRY_DEP_FST,
+     &               'for date and time', MDATE, MTIME
+
+            END IF   ! FST
+
+         END IF   ! MOSAIC
+
+         IF ( ABFLUX .OR. HGBIDI ) THEN    
+            CALL WRASX_MEDIA( MDATE, MTIME, ABFLUX )
+         END IF 
+ 
+         IF ( LIPR ) THEN
+            DO V = 1, N_SPC_DEPV
+               DO R = 1, MY_NROWS
+                  DO C = 1, MY_NCOLS
+                     DDEP_PA( C,R,V ) = DDEP( V,C,R )
+                  END DO
+               END DO
+            END DO
+            CALL PA_UPDATE_DDEP ( 'VDIF', DDEP_PA, JDATE, JTIME, TSTEP )
+         END IF
+
 C re-set dry deposition array to zero
-DDEP = 0.0
-END IF
-(23) RETURN
-(23) END
+
+         DDEP = 0.0
+         ICMP = 0.0
+         IF ( MOSAIC ) THEN
+            DDEPJ = 0.0   ! array assignment
+            IF ( FST ) DDEPJ_FST = 0.0   ! array assignment
+         END IF
+
+      END IF
+
+      RETURN
+      END
 ```
 
 **Footnotes:**
 
-*( 1)Header comments - Highly recommended for internal documentation.*
-
-*( 2)USE <module name> includes the Fortran source file specified.*
-
-*( 3)IMPLICIT NONE must be used in Fortran 90, i.e., implicit declarations are not supported. This dramatically reduces errors due to typos and undefined variables.*
-
-*( 4)Chemical mechanism array dimensioning and looping global variables.*
-
-*( 5)C preprocessor flags that determine which emissions control dimensioning and looping variables are compiled.*
-
-*( 6)Other global array dimensioning and looping global variables, including those for the I/O API. The logical variable LIPR is defined in the SUBST_PACTL_ID INCLUDE file for use at lines labeled (18).*
-
-*( 7)Local variable declaration. Note syntax differences from Fortran-77.*
-
-*( 8)Declarations for the argument list (standardized).*
-
-*( 9)Declarations and PARAMETER statements for local Fortran parameters, illustrating in-line documentation of variables and units. Note syntax differences from Fortran-77.*
-
+*Header comments - Highly recommended for internal documentation.*
+*USE <module name> includes the Fortran source file specified.*
+*IMPLICIT NONE must be used in Fortran 90, i.e., implicit declarations are not supported. This dramatically reduces errors due to typos and undefined variables.*
+*Chemical mechanism array dimensioning and looping global variables.*
+*C preprocessor flags that determine which emissions control dimensioning and looping variables are compiled.*
+*Other global array dimensioning and looping global variables, including those for the I/O API. The logical variable LIPR is defined in the SUBST_PACTL_ID INCLUDE file for use at lines labeled (18).*
+*Local variable declaration. Note syntax differences from Fortran-77.*
+*(8)Declarations for the argument list (standardized).*
+*(9)Declarations and PARAMETER statements for local Fortran parameters, illustrating in-line documentation of variables and units. Note syntax differences from Fortran-77.*
 *(10)Declarations for external functions not previously declared.*
-
 *(11)Declarations for arrays to hold external file data.*
-
 *(12)Declarations and definitions for local and saved variables, and dynamic memory allocations.*
-
 *(13)Interface is a convenient way to declare calling arguments to a subroutine as input, output, or both in the calling program through the INTENT variable specification (as IN, OUT, or IN OUT). No other declaration of the calling arguments is necessary in the calling program. If IN only, the values of arguments can be passed explicitly in the subroutine call. If OUT, the argument must be passed as a variable.*
-
 *(14)Code section for subroutine initialization and for any local data that need not be set at every entry into the subroutine. Such data would require a SAVE statement in the declarations. For example, FIRSTIME is initialized to .TRUE. in the local variables section.*
-
 *(15)Illustration of memory allocation for a variable declared as allocatable. In this example, NLAYS is accessed from the COORD.EXT file.*
-
 *(16)Illustrates using an I/O API function to set file interpolation time.*
-
 *(17)Meteorological and other data are read and interpolated through a series of subroutine calls. These subroutines in turn use I/O API utilities to perform the time interpolation of the desired met variables, deposited and emitted species.*
-
 *(18)Call to process analysis routine to obtain data for the optional integrated process rates function.*
-
 *(19)Illustrates call to another science process within the module.*
-
 *(20)Main computational loop over the horizontal grid.*
-
 *(21)Time-step loop over subsynchronization time step intervals.*
-
 *(22)Illustrates writing to an I/O API file within a module.*
-
 *(23)Subroutine end*
 
 Compiling CMAQ with New Source Code
