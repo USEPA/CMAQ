@@ -28,66 +28,12 @@ Faced with a large and growing community that uses and develops a wide variety o
 
 Prior to CMAQ version=5.0.2, CMAQ developers used [CVS](https://en.wikipedia.org/wiki/Concurrent_Versions_System) for versioning, and distributed tarballs included CVS artifacts (e.g., files with names ending with ',v'). Starting with version=5.0.2, CMAQ developers switched to [git](https://en.wikipedia.org/wiki/Git_%28software%29).
 
-#### CVS explained
+### git Explained
 
-There are many configuration management tools, both free and commercially available. We chose The Concurrent Versions System (CVS) mainly because of its versatility. CVS controls the concurrent editing of sources by several users working on releases built from a hierarchical set of directories. CVS uses the Revision Control System (RCS) as the base system. Other reasons that CVS was an attractive choice include the following:
-
+git controls the concurrent editing of files by several users..
 -   It works on virtually all UNIX and Linux platforms and on many PCs.
 -   It is publicly available and free.
 
-The CVS wiki states that “CVS uses a client-server architecture: a server stores the current version(s) of a project and its history, and clients connect to the server in order to ‘check out’ a complete copy of the project, work on this copy and then later ‘check in’ their changes. Typically, the client and server connect over a LAN or over the Internet, but client and server may both run on the same machine if CVS has the task of keeping track of the version history of a project with only local developers. The server software normally runs on UNIX and Linux.
-
-“Several developers may work on the same project concurrently, each one editing files within their own ‘working copy’ of the project, and sending (or checking in) their modifications to the server. To avoid the possibility of people stepping on each other's toes, the server will only accept changes made to the most recent version of a file. Developers are therefore expected to keep their working copy up-to-date by incorporating other people’s changes on a regular basis. This task is mostly handled automatically by the CVS client, requiring manual intervention only when a conflict arises between a checked-in modification and the yet-unchecked local version of a file.” Thus, CVS adds power and features that are attractive for the CMAQ system.
-
-#### The CVS repository
-
-The CVS repository structure, i.e., the UNIX directory hierarchy, follows the class/module organ­ization discussed in Young (1999). The repository is actually divided into many reposi­tories, one for each generic model. This division makes it easier to maintain the class/module organization that is important for the model-building operation described in Chapter 8. CVS allows for the use of a “modules” file,[2] which enables a user to easily check out or extract a complete CMAQ module. For example, a user might check out a module to make code modifications. Complete modules are checked out during the CMAQ model building operation. The following shows a small portion of a symbolic CVS UNIX directory tree that represents the current structure for CCTM:
-
-+-\> CCTM
-
-+-\> CVSROOT *(CVS administrative files)*
-
-+-\> src
-
-+-\> adjcon
-
-| +-\> adjcon_noop --\> RCS files
-
-| +-\> denrate --\> RCS files
-
-+-\> aero
-
-| +-\> aero_noop --\> RCS files
-
-| +-\> aero4 --\> RCS files
-
-| +-\> aero5 --\> RCS files
-
-| +-\> aero5_txhg --\> RCS files
-
-+-\> aero_depv
-
-| +-\> aero_depv_noop --\> RCS files
-
-| +-\> aero_depv2 --\> RCS files
-
-+-\> chem
-
-| +-\> chem_noop --\> RCS files
-
-| +-\> smvgear --\> RCS files
-
-| +-\> ros3 --\> RCS files
-
-| +-\> ebi_cb05cltx_ae5 --\> RCS files
-
-| +-\> ebi_cb05cltxhg_ae5 --\> RCS files
-
-| +-\> ebi_saprc99 --\> RCS files
-
-| +-\> ebi_saprc99 --\> RCS files
-
-The symbolic tree is shown relative to the subdirectory in the repository named for the CCTM model. Similar trees exist for each of the generic models. The RCS files are the revision control history files that contain the change tables to reconstruct the actual source code according to a specific revision identifier. The tree closely follows the organization of classes and modules for CCTM and contains alternate modules within the classes. In particular, most classes contain a “no-operation” (noop) module that allows a user to essentially turn off that particular science process modeling. This is useful, for example, in debugging, where rapid turnaround is important, and a computationally demanding module that is not needed can be bypassed.
 
 Guidelines for Developing New CMAQ Source Code
 ----------------------------------------------
@@ -145,7 +91,7 @@ Appropriate documentation is critical to the ease of use and maintainability of 
 
 ### Science process code template
 
-The following example from CMAQ v4.7 illustrates a science process class-driver Fortran 90 subroutine. Code developers should follow this template, where appropriate, to maximize the benefit from the design concepts implemented in CMAQ. This template is generic and demonstrates many of the available features. Some class drivers and most other subprograms within a module may not have, nor require, most or any of these features. (The numbers at the left-hand margin refer to footnotes and are not part of the code, and the text within “\< \>” indicates code removed from the example for brevity in this section)
+The following example from CMAQ v4.7 illustrates a science process class-driver Fortran 90 subroutine. Code developers should follow this template, where appropriate, to maximize the benefit from the design concepts implemented in CMAQ. This template is generic and demonstrates many of the available features. Some class drivers and most other subprograms within a module may not have, nor require, most or any of these features. (The numbers at the left-hand margin refer to footnotes and are not part of the code, and the text within “< >” indicates code removed from the example for brevity in this section)
 
 <center>
 **Example of Science Process Class-Driver**
@@ -154,483 +100,244 @@ The following example from CMAQ v4.7 illustrates a science process class-driver 
 
 ```Fortran
 SUBROUTINE VDIFF ( CGRID, JDATE, JTIME, TSTEP )
-
 ( 1)C-----------------------------------------------------------------------
-
 ( 1)C Function:
-
 ( 1)C Preconditions:
-
 ( 1)C Subroutines and Functions Called:
-
 ( 1)C Revision History:
-
 ( 1)C References:
-
 C-----------------------------------------------------------------------
-
 ( 2) USE AERO_EMIS ! inherits GRID_CONF
-
 ( 2) USE SUBST_MODULES ! stenex
-
 ! USE SUBST_GLOBAL_SUM_MODULE ! stenex
-
 ( 3) IMPLICIT NONE
-
 ! INCLUDE SUBST_HGRD_ID ! horizontal dimensioning parameters
-
 ! INCLUDE SUBST_VGRD_ID ! vertical dimensioning parameters
-
 ( 4) INCLUDE SUBST_RXCMMN ! model mechanism name
-
 ( 4) INCLUDE SUBST_GC_SPC ! gas chemistry species table
-
 ( 4) INCLUDE SUBST_GC_EMIS ! gas chem emis surrogate names and map table
-
 ( 4) INCLUDE SUBST_GC_DEPV ! gas chem dep vel surrogate names and map table
-
 ( 4) INCLUDE SUBST_GC_DDEP ! gas chem dry dep species and map table
-
 INCLUDE SUBST_GC_DIFF ! gas chem diffusion species and map table
-
 ( 4) INCLUDE SUBST_AE_SPC ! aerosol species table''' '''
-
 ! INCLUDE SUBST_AE_EMIS ! aerosol emis surrogate names and map table
-
 ( 4) INCLUDE SUBST_AE_DEPV ! aerosol dep vel surrogate names and map table
-
 ( 4) INCLUDE SUBST_AE_DDEP ! aerosol dry dep species and map table
-
 ( 4) INCLUDE SUBST_AE_DIFF ! aerosol diffusion species and map table
-
 ( 4) INCLUDE SUBST_NR_SPC ! non-reactive species table
-
 ( 4) INCLUDE SUBST_NR_EMIS ! non-react emis surrogate names and map table
-
 ( 4) INCLUDE SUBST_NR_DEPV ! non-react dep vel surrogate names and map table
-
 ( 4) INCLUDE SUBST_NR_DDEP ! non-react dry dep species and map table
-
 ( 4) INCLUDE SUBST_NR_DIFF ! non-react diffusion species and map table
-
 ( 4) INCLUDE SUBST_TR_SPC ! tracer species table
-
 ( 4) INCLUDE SUBST_TR_EMIS ! tracer emis surrogate names and map table
-
 ( 4) INCLUDE SUBST_TR_DEPV ! tracer dep vel surrogate names and map table
-
 ( 4) INCLUDE SUBST_TR_DDEP ! tracer dry dep species and map table
-
 ( 4) INCLUDE SUBST_TR_DIFF ! tracer diffusion species and map table
-
 ! INCLUDE SUBST_EMLYRS_ID ! emissions layers parameter
-
 ( 5)#ifdef emis_chem
-
 ( 5) INCLUDE SUBST_EMPR_CH ! emissions processing in chem
-
 ( 5)#else
-
 ( 5) INCLUDE SUBST_EMPR_VD ! emissions processing in vdif
-
 ( 5)#endif
-
 ( 6) INCLUDE SUBST_PACTL_ID ! PA control parameters
-
 ( 6) INCLUDE SUBST_CONST ! constants
-
 ( 6) INCLUDE SUBST_FILES_ID ! file name parameters
-
 ( 6) INCLUDE SUBST_IOPARMS ! I/O parameters definitions
-
-\#include SUBST_IODECL # I/O definitions and declarations
-
+#include SUBST_IODECL # I/O definitions and declarations
 ! INCLUDE SUBST_COORD_ID ! coordinate and domain definitions (req IOPARMS)
-
 ( 7) CHARACTER( 120 ) :: XMSG = ' '
-
 ( 8)C Arguments:
-
 ! REAL CGRID( NCOLS,NROWS,NLAYS,* ) ! concentrations
-
 ! REAL :: CGRID( :,:,:,: ) ! concentrations
-
 ( 8) REAL, POINTER :: CGRID( :,:,:,: ) ! concentrations
-
 ( 8) INTEGER JDATE ! current model date, coded YYYYDDD
-
 ( 8) INTEGER JTIME ! current model time, coded HHMMSS
-
 ( 8) INTEGER TSTEP( 2 ) ! time step vector (HHMMSS)
-
 `! TSTEP(1) = local output step`
-
 `! TSTEP(2) = sciproc sync. step (chem)`
-
 ( 9)C Parameters:
-
 ( 9)C explicit, THETA = 0, implicit, THETA = 1
-
 ( 9) REAL, PARAMETER :: THETA = 0.5, ! Semi-implicit (Crank-Nicolson)
-
 ( 9) & THBAR = 1.0 - THETA
-
 ( 9) REAL THRAT ! THBAR/THETA
-
 ( 9) INTEGER, PARAMETER :: N_SPC_DDEP = N_GC_DDEP
-
 ( 9) & + N_AE_DDEP
-
 ( 9) & + N_NR_DDEP
-
 ( 9) & + N_TR_DDEP
-
-( 9)< \>
-
+( 9)< >
 ( 9)C number of species on the PM emissions input file. Set in OPEMIS
-
 ( 9)C the value changes with the type of emissions file.
-
 ( 9) INTEGER, SAVE :: NAESPCEMIS
-
 ( 9) REAL, PARAMETER :: M2PHA = 1.0E+04 ! 1 hectare = 1.0e4 m**2
-
 ( 9) REAL, PARAMETER :: CMLMR = 1.0E+06 ! ppmV/Molar Mixing Ratio
-
 ( 9) REAL, PARAMETER :: CNVTD = M2PHA / CMLMR / MWAIR ! combined ddep
-
 ! conversion factor
-
 ( 9) REAL, PARAMETER :: GPKG = 1.0E+03 ! g/Kg
-
 ( 9) REAL, PARAMETER :: MGPG = 1.0E+06 ! micro-g/g
-
 (10)C External Functions not previously declared in IODECL3.EXT:
-
 (10) INTEGER, EXTERNAL :: SECSDIFF, SEC2TIME, TIME2SEC
-
 (10) LOGICAL, EXTERNAL :: ENVYN
-
 (11)C File variables:
-
 (11)< >
-
 (12)C Local Variables:
-
 (12) CHARACTER( 16 ), SAVE :: PNAME = 'VDIFFIM'
-
 (12)< >
-
 (12) REAL, ALLOCATABLE, SAVE :: VDEMIS( :,:,:,: ) ! total emissions array
-
 (12)< >
-
 (13) INTERFACE
-
 (13) SUBROUTINE RDMET( MDATE, MTIME, RDEPVHT, RJACM, RVJACMF, RRHOJ, DENS1 )
-
 (13) IMPLICIT NONE
-
 (13) INTEGER, INTENT( IN ) :: MDATE, MTIME
-
 (13) REAL, INTENT( OUT ) :: RDEPVHT( :,: )
-
 (13) REAL, INTENT( OUT ) :: RJACM ( :,:,: )
-
 (13) REAL, INTENT( OUT ) :: RVJACMF( :,:,: )
-
 (13) REAL, INTENT( OUT ) :: RRHOJ ( :,:,: )
-
 (13) REAL, INTENT( OUT ) :: DENS1 ( :,: )
-
 (13) END SUBROUTINE RDMET
-
 (13) SUBROUTINE RDDEPV ( MDATE, MTIME, MSTEP, CGRID, DEPV )
-
 (13) IMPLICIT NONE
-
 (13) INTEGER, INTENT( IN ) :: MDATE, MTIME, MSTEP
-
 (13) REAL, POINTER :: CGRID( :,:,:,: )
-
 (13) REAL, INTENT( OUT ) :: DEPV( :,:,: )
-
 (13) END SUBROUTINE RDDEPV
-
 (13)< >
-
 END INTERFACE
-
 C-----------------------------------------------------------------------
-
 (14) IF ( FIRSTIME ) THEN
-
 (14) FIRSTIME = .FALSE.
-
 (14) LOGDEV = INIT3()
-
 (14) C for emissions (from COORD.EXT) .......................................
-
 (14) IF ( GDTYP_GD .EQ. LATGRD3 ) THEN
-
 (14) DX1 = DG2M * XCELL_GD ! in m.
-
 (14) DX2 = DG2M * YCELL_GD
-
 (14) & * COS( PI180*( YORIG_GD + YCELL_GD * FLOAT( GL_NROWS/2 ))) ! in m.
-
 (14) ELSE
-
 (14) DX1 = XCELL_GD ! in m.
-
 (14) DX2 = YCELL_GD ! in m.
-
 (14) END IF
-
 (14) C create global maps
-
 (14) CALL VDIFF_MAP ( DF2EM, DF2DV, DD2DV, DEPV_MAP, DIFF_MAP, DDEP_SPC,
-
 (14) & DV2DF )
-
 (14) C set vertical layer definitions from COORD.EXT
-
 (15) ALLOCATE ( RDX3F( NLAYS ), STAT = ALLOCSTAT )
-
 (15) ALLOCATE ( RDX3M( NLAYS ), STAT = ALLOCSTAT )
-
 (15) IF ( ALLOCSTAT .NE. 0 ) THEN
-
 (15) XMSG = 'Failure allocating RDX3F or RDX3M'
-
 (15) CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-
 (15) END IF
-
 (14) < other calculations that need to be performed only the first time >
-
 `END IF ! if Firstime`
-
 (16) MDATE = JDATE
-
 (16) MTIME = JTIME
-
 (16) MSTEP = TIME2SEC( TSTEP( 2 ) )
-
 (16) DTSEC = FLOAT( MSTEP )
-
 (16) CALL NEXTIME ( MDATE, MTIME, SEC2TIME( MSTEP / 2 ) )
-
 C read & interpolate met data
-
 (17) CALL RDMET ( MDATE, MTIME, RDEPVHT, RJACM, RVJACMF, RRHOJ, DENS1 )
-
 C read & interpolate deposition velocities
-
 `< perform other operations > `
-
 (18) IF ( LIPR ) THEN
-
 (18) DO S = 1, N_SPC_EMIS+1
-
 (18) DO L = 1, ELAYS
-
 (18) DO R = 1, MY_NROWS
-
 (18) DO C = 1, MY_NCOLS
-
 (18) EMIS_PA( C,R,L,S ) = VDEMIS( S,L,C,R )
-
 (18) END DO
-
 (18) END DO
-
 (18) END DO
-
 (18) END DO
-
 (18) CALL PA_UPDATE_EMIS ( 'VDIF', EMIS_PA, JDATE, JTIME, TSTEP )
-
 (18) END IF
-
 (19) CALL EDYINTB ( EDDYV, DT, JDATE, JTIME, TSTEP( 2 ) )
-
 < Perform other operations to set up for tridiagonal solver >
-
 (20) DO 345 R = 1, MY_NROWS
-
 (20) DO 344 C = 1, MY_NCOLS
-
 < Perform operations >
-
 (21) DO 301 N = 1, NSTEPS( C,R )
-
 < Perform operations >
-
 (21) 301 CONTINUE ! end time steps loop
-
 < Update concentration and deposition arrays >
-
 (20) 344 CONTINUE ! end loop on col C
-
 (20) 345 CONTINUE ! end loop on row R
-
 < Perform other operations >
-
 C If last call this hour: write accumulated depositions:
-
 (22) WSTEP = WSTEP + TIME2SEC( TSTEP( 2 ) )
-
 (22) IF ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) ) THEN
-
 (22) MDATE = JDATE
-
 (22) MTIME = JTIME
-
 (22) CALL NEXTIME( MDATE, MTIME, TSTEP( 2 ) )
-
 (22) WSTEP = 0
-
 (22) DO V = 1, N_SPC_DDEP
-
 (22) S = DD2DV( V )
-
 (22) DO R = 1, MY_NROWS
-
 (22) DO C = 1, MY_NCOLS
-
 (22) WRDD( C,R ) = DDEP( S,C,R )
-
 (22) END DO
-
 (22) END DO
-
 (22) IF ( .NOT. WRITE3( CTM_DRY_DEP_1, DDEP_SPC( V ),
-
 (22) & MDATE, MTIME, WRDD ) ) THEN
-
 (22) XMSG = 'Could not write ' // CTM_DRY_DEP_1 // ' file'
-
 (22) CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-
 (22) END IF
-
 (22) END DO
-
 (18) EMIS_PA( C,R,L,S ) = VDEMIS( S,L,C,R )
-
 (18) END DO
-
 (18) END DO
-
 (18) END DO
-
 (18) END DO
-
 (18) CALL PA_UPDATE_EMIS ( 'VDIF', EMIS_PA, JDATE, JTIME, TSTEP )
-
 (18) END IF
-
 (19) CALL EDYINTB ( EDDYV, DT, JDATE, JTIME, TSTEP( 2 ) )
-
 < Perform other operations to set up for tridiagonal solver >
-
 (20) DO 345 R = 1, MY_NROWS
-
 (20) DO 344 C = 1, MY_NCOLS
-
 < Perform operations >
-
 (21) DO 301 N = 1, NSTEPS( C,R )
-
 < Perform operations >
-
 (21) 301 CONTINUE ! end time steps loop
-
 < Update concentration and deposition arrays >
-
 (20) 344 CONTINUE ! end loop on col C
-
 (20) 345 CONTINUE ! end loop on row R
-
 < Perform other operations >
-
 C If last call this hour: write accumulated depositions:
-
 (22) WSTEP = WSTEP + TIME2SEC( TSTEP( 2 ) )
-
 (22) IF ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) ) THEN
-
 (22) MDATE = JDATE
-
 (22) MTIME = JTIME
-
 (22) CALL NEXTIME( MDATE, MTIME, TSTEP( 2 ) )
-
 (22) WSTEP = 0
-
 (22) DO V = 1, N_SPC_DDEP
-
 (22) S = DD2DV( V )
-
 (22) DO R = 1, MY_NROWS
-
 (22) DO C = 1, MY_NCOLS
-
 (22) WRDD( C,R ) = DDEP( S,C,R )
-
 (22) END DO
-
 (22) END DO
-
-(22) IF ( .NOT. WRITE3( CTM\_DRY\_DEP\_1, DDEP\_SPC( V ),
-
+(22) IF ( .NOT. WRITE3( CTM_DRY_DEP_1, DDEP_SPC( V ),
 (22) & MDATE, MTIME, WRDD ) ) THEN
-
-(22) XMSG = 'Could not write ' // CTM\_DRY\_DEP\_1 // ' file'
-
+(22) XMSG = 'Could not write ' // CTM_DRY_DEP_1 // ' file'
 (22) CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-
 (22) END IF
-
 (22) END DO
-
 (22) WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
-
-(22) & 'Timestep written to', CTM\_DRY\_DEP\_1,
-
+(22) & 'Timestep written to', CTM_DRY_DEP_1,
 (22) & 'for date and time', MDATE, MTIME
-
 (18) IF ( LIPR ) THEN
-
-! DO V = 1, N\_SPC\_DDEP
-
-(18) DO V = 1, N\_SPC\_DEPV
-
-(18) DO R = 1, MY\_NROWS
-
-(18) DO C = 1, MY\_NCOLS
-
-(18) DDEP\_PA( C,R,V ) = DDEP( V,C,R )
-
+! DO V = 1, N_SPC_DDEP
+(18) DO V = 1, N_SPC_DEPV
+(18) DO R = 1, MY_NROWS
+(18) DO C = 1, MY_NCOLS
+(18) DDEP_PA( C,R,V ) = DDEP( V,C,R )
 (18) END DO
-
 (18) END DO
-
 (18) END DO
-
-(18) CALL PA\_UPDATE\_DDEP ( 'VDIF', DDEP\_PA, JDATE, JTIME, TSTEP )
-
+(18) CALL PA_UPDATE_DDEP ( 'VDIF', DDEP_PA, JDATE, JTIME, TSTEP )
 (18) END IF
-
 C re-set dry deposition array to zero
-
 DDEP = 0.0
-
 END IF
-
 (23) RETURN
-
 (23) END
 ```
 
@@ -638,7 +345,7 @@ END IF
 
 *( 1)Header comments - Highly recommended for internal documentation.*
 
-*( 2)USE \<module name\> includes the Fortran source file specified.*
+*( 2)USE <module name> includes the Fortran source file specified.*
 
 *( 3)IMPLICIT NONE must be used in Fortran 90, i.e., implicit declarations are not supported. This dramatically reduces errors due to typos and undefined variables.*
 
@@ -646,7 +353,7 @@ END IF
 
 *( 5)C preprocessor flags that determine which emissions control dimensioning and looping variables are compiled.*
 
-*( 6)Other global array dimensioning and looping global variables, including those for the I/O API. The logical variable LIPR is defined in the SUBST\_PACTL\_ID INCLUDE file for use at lines labeled (18).*
+*( 6)Other global array dimensioning and looping global variables, including those for the I/O API. The logical variable LIPR is defined in the SUBST_PACTL_ID INCLUDE file for use at lines labeled (18).*
 
 *( 7)Local variable declaration. Note syntax differences from Fortran-77.*
 
@@ -691,25 +398,25 @@ The following steps are recommended for compiling CMAQ when a new module has bee
 -   Download the appropriate tar file CMAQv5.tar.gz from the CMAS web site ([www.cmascenter.org](http://www.cmascenter.org/)) for the chosen platform. Users must register before proceeding with the download steps.
 -   Untar the file using the command:
 
-\> tar xvfz CMAQv5.tar.gz
+`tar xvfz CMAQv5.tar.gz`
 
 This will expand a directory labeled *scripts* that contains all the scripts necessary to compile and run CMAQ.
 
 -   Either install the CMAQ source code and libraries (Chapter 3) or create links to the CMAQ models and libraries as follows:
 
-\> ln –s \<models directory\> models
+`ln –s <models directory> models`
 
-\> ln –s \<lib directory\> lib
+` ln –s <lib directory> lib`
 
 -   In the $CMAQ_HOME/CCTM/scripts/ subdirectory, modify a file called bldit.cctm as follows:
 
-uncomment the line “set MakeOpt” by removing the leading ‘\#’ character.
+uncomment the line “set MakeOpt” by removing the leading ‘#’ character.
 
 -   Execute the bldit.cctm script. This creates a Makefile as well as a configuration file in the subdirectory $CMAQ_HOME/CCTM/scripts/CCTM_v52_{compiler}, where the model code has been copied.
--   The Makefile can be modified to compile and link the new module by specifying \<full path name\>.o for the object file that needs to be linked in. It is essential that a source file with the corresponding name (with extension “.F”) reside in the same directory as the specified path name for the object file.
+-   The Makefile can be modified to compile and link the new module by specifying <full path name>.o for the object file that needs to be linked in. It is essential that a source file with the corresponding name (with extension “.F”) reside in the same directory as the specified path name for the object file.
 -   Issue the “make” command to compile the source code into an executable.
 
-\> make –f Makefile
+> make –f Makefile
 
 Guidelines to Writing Shell Scripts for CMAQ
 --------------------------------------------
