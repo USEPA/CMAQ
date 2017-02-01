@@ -355,7 +355,8 @@ The ASCII-formatted CSQY files begin with a header that describes the applicable
 
 |**Line** | **Column** | **Name** | **Type** | **Description** |
 |---|---|---|---|---|
-|<center> 1 </center>|<center> A </center>|<center> Reaction ID </center>|<center> String </center>|Text name identifying the CSQY data this name is cross-referenced in the chemical mechanism description and INCLUDE files (required)|
+|<center> 1 </center>|<center> A </center>|<center> Table for Mechanism = " "</center>|<center> String </center>|Text name indicating this is the CSQY for the Mechanism Specified.  This name is cross-referenced in the chemical mechanism description and INCLUDE files (required)|
+|<center> 1 </center>|<center> A </center>|<center> NPHOTAB </center>|<center> String </center>|Number of |
 |<center> 2 </center>|<center> A </center>|<center> Comments </center>|<center> String </center>|Preceded by "!", comment lines describe the reaction, list the stoichiometry, and document the source of the data (optional)|
 |<center> n </center>|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|
 |<center> n+1 </center>|<center> A </center>|<center> Data Location </center>|<center> String </center>|Field indicating the location of the data as measured across the wavelength band; possible answers: beginning, ending, centered, point (required)|
@@ -367,6 +368,101 @@ The ASCII-formatted CSQY files begin with a header that describes the applicable
 ||<center> B </center>|<center> Absorption Cross-Section </center>|<center> Real or Exp </center>|Measurement of the cross-section of a molecule’s spherical receiving surface for actinic flux; units = cm<sup>2</sup> molecule<sup>-1</sup> (required)|
 ||<center> C </center>|<center> Quantum Yield </center>|<center> Real </center>|Ratio of the number of molecules reacting via a specific pathway to the number of molecules absorbing photons in that wavelength interval; units = molecules photon<sup>-1</sup> (required)|
 |<center> n+X </center>|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|...|
+
+```Tcsh
+Table for Mechanism = CB05E51_AE6_AQ
+NPHOTAB =   26
+!Individual rates listed below:
+NO2_IUPAC10
+O3_O3P_IUPAC10
+O3_O1D_IUPAC10
+NO3NO2_06
+NO3NO_06
+HONO_IUPAC10
+H2O2_IUPAC10
+PNA_IUPAC10
+HNO3_IUPAC10
+N2O5_IUPAC10
+MEPX_IUPAC10
+FORM_R_IUPAC10
+FORM_M_IUPAC10
+ALD2_R_IUPAC10
+PAN_IUPAC10
+PACD_CB05
+ALDX_R_IUPAC10
+MGLY_IUPAC10
+ACRO_09
+CL2_IUPAC04
+HOCL_IUPAC04
+FMCL_IUPAC04
+CLNO2
+NTR_IUPAC10
+NOA_14
+NBO_14
+NTEMP =    6
+! I   TEMP( I ) K
+  1  210.00
+  2  230.00
+  3  250.00
+  4  270.00
+  5  290.00
+  6  310.00
+! Wavelength and Photolysis Rate Parameters for CMAQ In-Line Photolysis
+! calculation . The values are determined by averaging technique over the below
+! number of wavelength bins. The technique employs an approach used by the FASTJX
+! versions 6 and 7.
+!References:
+! 1) Bian, H. S. and Prather, M. J.: Fast-J2: accurate simulation of stratospheric
+!     photolysis in global chemical models, J. Atmos. Chem., 41, 281-296
+     doi:10.1023/A:1014980619462, 2002.
+! 2) Hsu, J. and Prather, M. J.: Stratospheric variability and tropospheric ozone,
+!    J. Geophys. Res., 114, D06102, doi:10.1029/2008JD010942, 2009.
+! 3) Prather, M. J.: Fast-JX versions and utilities, available at:
+!    http://www.ess.uci.edu/researchgrp/prather/scholar_software/fast-jx
+!    (last accessed: 24 January 2014), 2014.
+! Wave bands and Solar Flux
+!
+N_INLINE_BAND =    7
+! I,      START_WL_BIN(nm),    EFFECT_WL_BIN_(nm),       END_WL_BIN_(nm), photon_flux(cm-2*s-1),
+  1,               291.000,               294.590,               298.300,            5.8828E+14,
+  2,               298.300,               303.151,               307.500,            7.6354E+14,
+  3,               307.500,               310.007,               312.500,            5.0412E+14,
+  4,               312.500,               316.434,               320.300,            8.9628E+14,
+  5,               320.300,               333.076,               345.000,            3.8537E+15,
+  6,               345.000,               381.997,               412.500,            1.5457E+16,
+  7,               412.500,               607.723,               850.000,            2.1307E+17,
+!...  CS  = absorption cross sections averaged over UCI Solar Flux
+!...  QY  = quantum yields averaged over UCI Solar Flux
+!...  EQY = eCS*eQY/CS averaged over Solar Flux and 77 bins in UCI Model
+!PHOTAB       QUANTITY   TEMP   WBIN(  1)     WBIN(  2)     WBIN(  3)     WBIN(  4)     WBIN(  5)     WBIN(  6)     WBIN(  7)
+NO2_IUPAC10         CS  210.000 9.420958E-20  1.354622E-19  1.774391E-19  2.174503E-19  3.547179E-19  5.767915E-19  3.786790E-21
+NO2_IUPAC10        EQY  210.000 1.000000E+00  1.000000E+00  1.000000E+00  1.000000E+00  1.000000E+00  7.963594E-01  4.393946E-02
+NO2_IUPAC10         CS  230.000 9.434513E-20  1.353973E-19  1.770686E-19  2.162921E-19  3.512878E-19  5.752929E-19  3.777024E-21
+NO2_IUPAC10        EQY  230.000 1.000000E+00  1.000000E+00  1.000000E+00  1.000000E+00  1.000000E+00  7.963594E-01  4.393946E-02
+NO2_IUPAC10         CS  250.000 9.461621E-20  1.352675E-19  1.763276E-19  2.139758E-19  3.444275E-19  5.722957E-19  3.757493E-21
+NO2_IUPAC10        EQY  250.000 1.000000E+00  1.000000E+00  1.000000E+00  1.000000E+00  1.000000E+00  7.971660E-01  4.545939E-02
+NO2_IUPAC10         CS  270.000 9.488729E-20  1.351377E-19  1.755867E-19  2.116595E-19  3.375671E-19  5.692984E-19  3.737961E-21
+NO2_IUPAC10        EQY  270.000 1.000000E+00  1.000000E+00  1.000000E+00  1.000000E+00  1.000000E+00  8.052323E-01  6.065865E-02
+NO2_IUPAC10         CS  290.000 9.515838E-20  1.350079E-19  1.748457E-19  2.093432E-19  3.307068E-19  5.663012E-19  3.718430E-21 
+NO2_IUPAC10        EQY  290.000 1.000000E+00  1.000000E+00  1.000000E+00  1.000000E+00  1.000000E+00  8.132986E-01  7.585791E-02 
+NO2_IUPAC10         CS  310.000 9.521259E-20  1.349819E-19  1.746975E-19  2.088799E-19  3.293347E-19  5.657017E-19  3.714523E-21 
+NO2_IUPAC10        EQY  310.000 1.000000E+00  1.000000E+00  1.000000E+00  1.000000E+00  1.000000E+00  8.165251E-01  8.193760E-02 
+repeat (6 temperature bands  x 2 (CS or EQY) lines for each of the 26 reactions:
+...
+...
+after last reaction:
+! Ozone Cross-Section for Stratospheric Opacity based on Table 4-5 in
+! Chemical Kinetics and Photochemical Data for Use in Atmospheric
+! Studies Evaluation Number 15. Sander et. al: NASA-JPL 2006
+NTEMP_STRAT =    6
+!             QUANTITY   TEMP   WBIN(  1)     WBIN(  2)     WBIN(  3)     WBIN(  4)     WBIN(  5)     WBIN(  6)     WBIN(  7)
+O3_STRAT            CS  180.000 6.113743E-19  2.263004E-19  8.354117E-20  3.417408E-20  3.688351E-21  4.086261E-23  1.663175E-21
+O3_STRAT            CS  260.000 6.434133E-19  2.434104E-19  9.254548E-20  3.928807E-20  4.583227E-21  4.086261E-23  1.663175E-21
+O3_STRAT            CS  300.000 6.685868E-19  2.568540E-19  9.962031E-20  4.330621E-20  5.286344E-21  4.086261E-23  1.663175E-21
+O3_STRAT            CS  340.000 6.685868E-19  2.568540E-19  9.962031E-20  4.330621E-20  5.286344E-21  4.086261E-23  1.663175E-21
+O3_STRAT            CS  380.000 6.685868E-19  2.568540E-19  9.962031E-20  4.330621E-20  5.286344E-21  4.086261E-23  1.663175E-21
+O3_STRAT            CS  420.000 6.685868E-19  2.568540E-19  9.962031E-20  4.330621E-20  5.286344E-21  4.086261E-23  1.663175E-21
+```
 
 See this [link](https://github.com/CMASCenter/EPA-CMAQ/blob/5.2Beta/CCTM/src/MECHS/cb05e51_ae6_aq/CSQY_DATA_cb05e51_ae6_aq) for an example CSQY file for the cb05e51_ae6_aq mechanism.
 
