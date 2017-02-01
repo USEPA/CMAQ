@@ -60,10 +60,10 @@ Compile the model builder, bldmake:
 
 Create the model executables for ICON, BCON, and CCTM:
 
-`cd $CMAQ_HOME/PREP/ICON`<br>
+`cd $CMAQ_HOME/PREP/icon/scripts`<br>
 `bldit.icon`
 
-`cd $CMAQ_HOME/PREP/BCON`<br>
+`cd $CMAQ_HOME/PREP/bcon/scripts`<br>
 `bldit.bcon`
 
 `cd $CMAQ_HOME/CCTM/scripts`<br>
