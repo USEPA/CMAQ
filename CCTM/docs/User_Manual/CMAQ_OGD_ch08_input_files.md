@@ -359,7 +359,6 @@ The ASCII-formatted CSQY files begin with a header that describes the applicable
 |<center> 1 </center>|<center> A </center>|<center> NPHOTAB </center>|<center> String </center>|Number of Photolysis Reactions|
 |<center> 2 </center>|<center> A </center>|<center> Comments </center>|<center> String </center>|Preceded by "!", Individual Reaction Rates Listed below|
 |<center> 3 </center>|<center> A  </center>|<center> Name </center>|<center> String</center>|<center> Reaction Name  </center>|
-....
 |<center> 3+NPHOTAB </center>|<center> A </center>|<center> Name </center>|<center> String </center>|Reaction Name|
 |<center> 3+NPHOTAB+1 </center>|<center> A </center>|<center> NTEMP</center>|<center> Int or Real </center>|Number of Temperature Bands|
 |<center> 3+NPHOTAB+2 </center>|<center> A </center>|<center> Comments </center>|<center> String </center>|Preceded by "!", column header: I,      START_WL_BIN(nm),    EFFECT_WL_BIN_(nm),       END_WL_BIN_(nm), photon_flux(cm-2*s-1), |
@@ -391,9 +390,7 @@ The ASCII-formatted CSQY files begin with a header that describes the applicable
 ||<center> H </center>|<center> WBIN (5)  </center>|<center> Real or EXP  </center>|Absorption Cross Section (CS) Value for BIN 5|
 ||<center> I </center>|<center> WBIN (6)  </center>|<center> Real or EXP  </center>|Absorption Cross Section (CS) Value for BIN 6|
 ||<center> J </center>|<center> WBIN (7)  </center>|<center> Real or EXP  </center>|Absorption Cross Section (CS) Value for BIN 7|
-<repeat for 6 temperature bands and for each of the 26 reactions)
-...
-...
+|<repeat for 6 temperature bands and for each of the 26 reactions)|
 |<center> n-11 </center>|<center> A </center>|<center> Comments </center>|<center> String </center>|Preceded by "!", Ozone Cross-Section for Stratospheric Opacity based on Table 4-5 in|
 |<center> n-10 </center>|<center> A </center>|<center> Comments </center>|<center> String </center>|Chemical Kinetics and Photochemical Data for Use in Atmospheric|
 |<center> n-9 </center>|<center> A </center>|<center> Comments </center>|<center> String </center>|Studies Evaluation Number 15. Sander et. al: NASA-JPL 2006|
@@ -408,10 +405,6 @@ The ASCII-formatted CSQY files begin with a header that describes the applicable
 ||<center> H </center>|<center> WBIN (5)  </center>|<center> Real or EXP  </center>|Absorption Cross Section (CS) Value for BIN 5|
 ||<center> I </center>|<center> WBIN (6)  </center>|<center> Real or EXP  </center>|Absorption Cross Section (CS) Value for BIN 6|
 ||<center> J </center>|<center> WBIN (7)  </center>|<center> Real or EXP  </center>|Absorption Cross Section (CS) Value for BIN 7|
-
-
-
-
 
 Portion of the 
 ```Tcsh
