@@ -355,19 +355,63 @@ The ASCII-formatted CSQY files begin with a header that describes the applicable
 
 |**Line** | **Column** | **Name** | **Type** | **Description** |
 |---|---|---|---|---|
-|<center> 1 </center>|<center> A </center>|<center> Table for Mechanism = " "</center>|<center> String </center>|Text name indicating this is the CSQY for the Mechanism Specified.  This name is cross-referenced in the chemical mechanism description and INCLUDE files (required)|
-|<center> 1 </center>|<center> A </center>|<center> NPHOTAB </center>|<center> String </center>|Number of |
-|<center> 2 </center>|<center> A </center>|<center> Comments </center>|<center> String </center>|Preceded by "!", comment lines describe the reaction, list the stoichiometry, and document the source of the data (optional)|
-|<center> n </center>|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|
-|<center> n+1 </center>|<center> A </center>|<center> Data Location </center>|<center> String </center>|Field indicating the location of the data as measured across the wavelength band; possible answers: beginning, ending, centered, point (required)|
-|<center> n+2 </center>|<center> A </center>|<center> Multiplier </center>|<center> String </center>|Multiplication factor to apply to photolysis rate equation; line begins with FAC=; factor is listed in real or exponential format (required)|
-|<center> n+3 </center>|<center> A </center>|<center> Wavelength </center>|<center> Int or Real </center>|Wavelength corresponding to CSQY data; units = nm (required)|
-||<center> B </center>|<center> Absorption Cross-Section </center>|<center> Real or Exp </center>|Measurement of the cross-section of a molecule’s spherical receiving surface for actinic flux; units = cm<sup>2</sup> molecule<sup>-1</sup> (required)|
-||<center> C </center>|<center> Quantum Yield </center>|<center> Real </center>|Ratio of the number of molecules reacting via a specific pathway to the number of molecules absorbing photons in that wavelength interval; units = molecules photon<sup>-1</sup> (required)|
-|<center> n+4 </center>|<center> A </center>|<center> Wavelength </center>|<center> Int </center>|Wavelength corresponding to CSQY data; units = nm (required)|
-||<center> B </center>|<center> Absorption Cross-Section </center>|<center> Real or Exp </center>|Measurement of the cross-section of a molecule’s spherical receiving surface for actinic flux; units = cm<sup>2</sup> molecule<sup>-1</sup> (required)|
-||<center> C </center>|<center> Quantum Yield </center>|<center> Real </center>|Ratio of the number of molecules reacting via a specific pathway to the number of molecules absorbing photons in that wavelength interval; units = molecules photon<sup>-1</sup> (required)|
-|<center> n+X </center>|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|...|
+|<center> 1 </center>|<center> A </center>|<center> CSQY Mechanism Table Name </center>|<center> String </center>|Text name indicating this is the CSQY for the Mechanism Specified.  This name is cross-referenced in the chemical mechanism description and INCLUDE files (required)|
+|<center> 1 </center>|<center> A </center>|<center> NPHOTAB </center>|<center> String </center>|Number of Photolysis Reactions|
+|<center> 2 </center>|<center> A </center>|<center> Comments </center>|<center> String </center>|Preceded by "!", Individual Reaction Rates Listed below|
+|<center> 3 </center>|<center> A  </center>|<center> Name </center>|<center> String</center>|<center> Reaction Name  </center>|
+....
+|<center> 3+NPHOTAB </center>|<center> A </center>|<center> Name </center>|<center> String </center>|Reaction Name|
+|<center> 3+NPHOTAB+1 </center>|<center> A </center>|<center> NTEMP</center>|<center> Int or Real </center>|Number of Temperature Bands|
+|<center> 3+NPHOTAB+2 </center>|<center> A </center>|<center> Comments </center>|<center> String </center>|Preceded by "!", column header: I,      START_WL_BIN(nm),    EFFECT_WL_BIN_(nm),       END_WL_BIN_(nm), photon_flux(cm-2*s-1), |
+|<center> 3+NPHOTAB+3 </center>|<center> A </center>|<center> Number of Inline Photolysis Bands</center>|<center> Integer </center>| |
+||<center> B </center>|<center> Start Wavelength </center>|<center> Real </center>|Start Wavelength for Bin |
+||<center> C </center>|<center> Effect Wavelength </center>|<center> Real </center>|Effect Wavelength for Bin |
+||<center> D </center>|<center> End Wavelength </center>|<center> Real </center>|End Wavelength for Bin |
+||<center> E </center>|<center> Photon Flux</center>|<center> Real </center>|Photon Flux |
+|<center> 3+NPHOTAB+4 </center>|<center> A </center>|<center> Comments </center>|<center> String </center>|Preceded by "!", CS  = absorption cross sections averaged over UCI Solar Flux|
+|<center> 3+NPHOTAB+5 </center>|<center> A </center>|<center> Comments </center>|<center> String </center>|Preceded by "!", QY  = quantum yields averaged over UCI Solar Flux|
+|<center> 3+NPHOTAB+6 </center>|<center> A </center>|<center> Comments </center>|<center> String </center>|Preceded by "!", EQY = eCS*eQY/CS averaged over Solar Flux and 77 bins in UCI Model|
+|<center> 3+NPHOTAB+7 </center>|<center> A </center>|<center> Comments </center>|<center> String </center>|Preceded by "!", header for reactions, CS or EQY, and Wavelength Bins|
+|<center> 3+NPHOTAB+8 </center>|<center> A </center>|<center>Reaction Name </center>|<center> String </center>|Reaction Name|
+||<center> B </center>|<center> Quantity </center>|<center> String </center>|CS |
+||<center> C </center>|<center> TEMP</center>|<center> Real </center>| Temperature|
+||<center> D </center>|<center> WBIN (1) </center>|<center> Real or EXP </center>| Absorption Cross Section (CS)  Value for BIN 1|
+||<center> E </center>|<center> WBIN (2)  </center>|<center> Real or EXP  </center>|Absorption Cross Section (CS) Value for BIN 2|
+||<center> F </center>|<center> WBIN (3)  </center>|<center> Real or EXP  </center>|Absorption Cross Section (CS) Value for BIN 3|
+||<center> G </center>|<center> WBIN (4)  </center>|<center> Real or EXP  </center>|Absorption Cross Section (CS) Value for BIN 4|
+||<center> H </center>|<center> WBIN (5)  </center>|<center> Real or EXP  </center>|Absorption Cross Section (CS) Value for BIN 5|
+||<center> I </center>|<center> WBIN (6)  </center>|<center> Real or EXP  </center>|Absorption Cross Section (CS) Value for BIN 6|
+||<center> J </center>|<center> WBIN (7)  </center>|<center> Real or EXP  </center>|Absorption Cross Section (CS) Value for BIN 7|
+|<center> 3+NPHOTAB+9 </center>|<center> A </center>|<center>Reaction Name </center>|<center> String </center>|Reaction Name|
+||<center> B </center>|<center> Quantity </center>|<center> String </center>|EQY |
+||<center> C </center>|<center> TEMP</center>|<center> Real </center>| Temperature|
+||<center> D </center>|<center> WBIN (1) </center>|<center> Real or EXP </center>| Absorption Cross Section (CS)  Value for BIN 1|||<center> E </center>|<center> WBIN (2)  </center>|<center> Real or EXP  </center>|Absorption Cross Section (CS) Value for BIN 2|
+||<center> F </center>|<center> WBIN (3)  </center>|<center> Real or EXP  </center>|Absorption Cross Section (CS) Value for BIN 3|
+||<center> G </center>|<center> WBIN (4)  </center>|<center> Real or EXP  </center>|Absorption Cross Section (CS) Value for BIN 4|
+||<center> H </center>|<center> WBIN (5)  </center>|<center> Real or EXP  </center>|Absorption Cross Section (CS) Value for BIN 5|
+||<center> I </center>|<center> WBIN (6)  </center>|<center> Real or EXP  </center>|Absorption Cross Section (CS) Value for BIN 6|
+||<center> J </center>|<center> WBIN (7)  </center>|<center> Real or EXP  </center>|Absorption Cross Section (CS) Value for BIN 7|
+<repeat for 6 temperature bands and for each of the 26 reactions)
+...
+...
+|<center> n-11 </center>|<center> A </center>|<center> Comments </center>|<center> String </center>|Preceded by "!", Ozone Cross-Section for Stratospheric Opacity based on Table 4-5 in|
+|<center> n-10 </center>|<center> A </center>|<center> Comments </center>|<center> String </center>|Chemical Kinetics and Photochemical Data for Use in Atmospheric|
+|<center> n-9 </center>|<center> A </center>|<center> Comments </center>|<center> String </center>|Studies Evaluation Number 15. Sander et. al: NASA-JPL 2006|
+|<center> n-8 </center>|<center> A </center>|<center>NTEMP_STRAT </center>|<center> Int </center>|Number of Temperature Bins in Stratosphere|
+|<center> n-7 </center>|<center> A </center>|<center> Comments </center>|<center> String </center>|Preceded by "!", Header|
+|<center> n-6 </center>|<center> A </center>|<center>Reaction Name </center>|<center> String </center>|Stratospheric Reaction Name|
+||<center> B </center>|<center> Quantity </center>|<center> String </center>|CS |
+||<center> C </center>|<center> TEMP</center>|<center> Real </center>| Temperature|
+||<center> D </center>|<center> WBIN (1) </center>|<center> Real or EXP </center>| Absorption Cross Section (CS)  Value for BIN 1|||<center> E </center>|<center> WBIN (2)  </center>|<center> Real or EXP  </center>|Absorption Cross Section (CS) Value for BIN 2|
+||<center> F </center>|<center> WBIN (3)  </center>|<center> Real or EXP  </center>|Absorption Cross Section (CS) Value for BIN 3|
+||<center> G </center>|<center> WBIN (4)  </center>|<center> Real or EXP  </center>|Absorption Cross Section (CS) Value for BIN 4|
+||<center> H </center>|<center> WBIN (5)  </center>|<center> Real or EXP  </center>|Absorption Cross Section (CS) Value for BIN 5|
+||<center> I </center>|<center> WBIN (6)  </center>|<center> Real or EXP  </center>|Absorption Cross Section (CS) Value for BIN 6|
+||<center> J </center>|<center> WBIN (7)  </center>|<center> Real or EXP  </center>|Absorption Cross Section (CS) Value for BIN 7|
+
+
+
+
 
 Portion of the 
 ```Tcsh
@@ -376,6 +420,8 @@ NPHOTAB =   26
 !Individual rates listed below:
 NO2_IUPAC10
 O3_O3P_IUPAC10
+repeat for each photolysis reaction
+...
 ...
 NTEMP =    6
 ! I   TEMP( I ) K
