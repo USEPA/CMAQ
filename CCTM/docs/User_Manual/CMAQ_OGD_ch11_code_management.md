@@ -109,7 +109,7 @@ To effect the implementation of the INCLUDE files into the code, a special compi
 
 ### Thin Interface
 
-As mentioned in [Chapter 4](CMAQ_OGD_ch04_science.md#modular_flexibility), CMAQ is designed to be robust and flexible with respect to the interchange of modules and the elimination of cross-module data dependencies. Consequently, the concept of a “thin interface” has been employed in the design, which applies principally to the class-drivers (i.e. the top level call to a science module). At a minimum, the thin interface implementation implies the following requirements:
+As mentioned in [Chapter 4](CMAQ_OGD_ch04_science.md#modular-flexibility), CMAQ is designed to be robust and flexible with respect to the interchange of modules and the elimination of cross-module data dependencies. Consequently, the concept of a “thin interface” has been employed in the design, which applies principally to the class-drivers (i.e. the top level call to a science module). At a minimum, the thin interface implementation implies the following requirements:
 
 -   Eliminate global memory references (across modules). This implies no common blocks across modules, no hidden data paths, and no “back doors.”
 -   Each module reads and interpolates its required data independently. The I/O API helps to ensure this kind of data independence.
