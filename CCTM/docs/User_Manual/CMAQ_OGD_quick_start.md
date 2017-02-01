@@ -29,7 +29,7 @@ Edit the file `CMAQv5.2/config.cmaq` to configure the CMAQ installation for the 
 2. Set the script variable `compiler` for one of the supported compilers.
 3. Set the names of the I/O API and netCDF libraries using the `ioapi_lib` and `netcdf_lib` script variables.
 4. Set the name of the MPI library using the `mpi` script variable. For MVAPICH use `-lmpich`; for openMPI use `-lmpi`.
-5. Invoke the settings in the configuration script: `source CMAQv5.2/config.cmaq`
+5. Invoke the settings in the configuration script: `source $CMAQ_HOME/config.cmaq`
 
 #### Install the CMAQ libraries
 
@@ -82,12 +82,12 @@ To run the test simulation for the various CMAQ programs, change directories to 
 
 Run ICON to produce initial conditions:
 
-`cd $CMAQ_HOME/PREP/ICON`<br>
+`cd $CMAQ_HOME/PREP/icon/scripts`<br>
 `./run.icon >&! icon.log &`
 
 Run BCON to produce boundary conditions:
 
-`cd $CMAQ_HOME/PREP/BCON`<br>
+`cd $CMAQ_HOME/PREP/bcon/scripts`<br>
 `./run.bcon >&! bcon.log &`
 
 Check the ICON and BCON log file to ensure that the programs completed successfully.

@@ -701,11 +701,11 @@ This will expand a directory labeled *scripts* that contains all the scripts nec
 
 \> ln –s \<lib directory\> lib
 
--   In the scripts/cctm subdirectory, modify a file called bldit.cctm as follows:
+-   In the $CMAQ_HOME/CCTM/scripts/ subdirectory, modify a file called bldit.cctm as follows:
 
 uncomment the line “set MakeOpt” by removing the leading ‘\#’ character.
 
--   Execute the bldit.cctm script. This creates a Makefile as well as a configuration file in the subdirectory scripts/cctm/BLD\_V5f, where the model code has been copied.
+-   Execute the bldit.cctm script. This creates a Makefile as well as a configuration file in the subdirectory $CMAQ_HOME/CCTM/scripts/CCTM_v52_{compiler}, where the model code has been copied.
 -   The Makefile can be modified to compile and link the new module by specifying \<full path name\>.o for the object file that needs to be linked in. It is essential that a source file with the corresponding name (with extension “.F”) reside in the same directory as the specified path name for the object file.
 -   Issue the “make” command to compile the source code into an executable.
 

@@ -141,6 +141,7 @@ The configuration options listed here are set during compilation of the BCON exe
 -   Configure the BCON build script for your application.
 -   Invoke the build script to create an executable:
 
+`cd $CMAQ_HOME/PREP/bcon/scripts/`
 `./bldit.bcon`
 
 #### BCON execution options
@@ -540,6 +541,7 @@ First, it is assumed that you have already installed and compiled the I/O API, 
 -   Configure the CCTM build script for your application (using the options discussed in [Chapter 5](CMAQ_OGD_ch05_sys_req.md)
 -   Invoke the build script to create an executable:
 
+`cd $CMAQ_HOME/CCTM/scripts/`
 `./bldit.cctm`
 
 #### CCTM execution options
@@ -1029,6 +1031,7 @@ First, it is assumed that you have already installed and compiled the I/O API a
 -   Configure the ICON build script for your application (using the options discussed in [Chapter 5(CMAQ_OGD_ch05_sys_req.md])
 -   Invoke the build script to create an executable:
 
+`cd $CMAQ_HOME/PREP/icon/scripts`
 `./bldit.icon`
 
 #### ICON execution options
@@ -1166,6 +1169,7 @@ First, it is assumed that you have already installed and compiled the I/O API a
 -   Configure the JPROC build script for your application (using the options discussed in [Chapter 7](CMAQ_OGD_ch07_programs_libraries.md))
 -   Invoke the build script to create an executable:
 
+`cd $CMAQ_HOME/PREP/jproc/scripts`
 `./bldit.jproc`
 
 #### JPROC execution options
@@ -1589,7 +1593,8 @@ First, it is assumed that you have already installed and compiled the I/O API, 
         -   If needed, configure the PARIO build script to use the available I/O API and MPICH libraries.
         -   Invoke the build script to create an executable:
 
-./bldit.pario
+`cd $CMAQ_HOME/????`
+`./bldit.pario`
 
 #### PARIO execution options
 
@@ -1668,6 +1673,7 @@ First, it is assumed that you have already installed and compiled the I/O API a
 -   Configure the PROCAN build script for your application (using the options discussed in [Chapter 7](CMAQ_OGD_ch07_programs_libraries.md))
 -   Invoke the build script to create an executable:
 
+`cd $CMAQ_HOME/????`
 `./bldit.procan`
 
 #### PROCAN configuration
@@ -1751,7 +1757,8 @@ This section describes the individual process analysis commands that are used to
 #### PROCAN execution options
 
 The environment variables listed here are invoked during execution of the program and are set in the PROCAN run script.
-!!! Where is the PROCAN run script??
+
+add content here !!! Where is the PROCAN run script??
 
 -   `EXEC: [default: PACP_${CFG}]`
 
@@ -1774,7 +1781,7 @@ PROCAN control file for setting process analysis configuration
 |PA.DAT.EXT|ASCII|Process analysis data statements that define the IPR and IRR configuration for CCTM.|
 |PA_REPORT|ASCII|Summary report describing the process analysis configuration produced by PROCAN.|
 
-The default location of the PROCAN output files is the directory where the program PROCAN is run. After the process analysis INCLUDE files `(*.EXT)` have been created with PROCAN, they must be copied to a process analysis directory in the `$CMAQ_HOME/CCTM/src/ICL/procan/pa` directory before they can be used to configure CCTM for a process analysis simulation. For example, after creating new process analysis INCLUDE files with PROCAN, create a new directory under `$CMAQ_HOME/CCTM/src/ICL/procan` called pa_example and copy the INCLUDE files to that directory:
+The default location of the PROCAN output files is the directory where the program PROCAN is run. After the process analysis INCLUDE files `(*.EXT)` have been created with PROCAN, they must be copied to a process analysis directory in the `$CMAQ_HOME/CCTM/src/ICL/procan/` directory before they can be used to configure CCTM for a process analysis simulation. For example, after creating new process analysis INCLUDE files with PROCAN, create a new directory under `$CMAQ_HOME/CCTM/src/ICL/procan` called pa_example and copy the INCLUDE files to that directory:
 
 `mkdir $CMAQ_HOME/CCTM/src/ICL/procan/pa_example`
 `cp $CMAQ_HOME/PREP/procan/scripts/*EXT $CMAQ_HOME/CCTM/src/ICL/procan/pa_example`
@@ -1808,10 +1815,11 @@ First, it is assumed that you have already installed and compiled the I/O API, 
 -   If needed, configure the STENEX build script to use the available I/O API and MPICH libraries.
 -   Invoke the single-processor build script to create serial executables:
 
+`cd $CMAQ_HOME/????`
 `./bldit.se_noop`
 
 -   Invoke the multiprocessor build script to create parallel executables:
-
+`cd $CMAQ_HOME/???`
 `./bldit.se.Linux`
 
 #### STENEX execution options
