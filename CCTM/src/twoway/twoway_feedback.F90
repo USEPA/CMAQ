@@ -90,11 +90,16 @@ SUBROUTINE feedback_setup ( jdate, jtime, tstep )
 
        indirect_effect = envyn ('INDIRECT_EFFECT', ' ', .false., stat)
 
+! The water soluble and insoluble lists are actually used to differentiate between two
+! refractive index values. They do not necessarily align completely with water soluble
+! and insoluble species. The detemrination for what goes into each list is from the 
+! AERO_DATA table, column "OptSurr". Species with "solute" in this column will be in the
+! ws_spc_index list and species with "dust" will be in the wi_spc_index list.
        allocate (ws_spc_index(n_ae_spc, n_mode),     &
                  wi_spc_index(n_ae_spc, n_mode),     &
                  stat=stat)
 
-! to create water soluable and insoluble list
+! to create water soluble and insoluble list
        num_ws_spc = 0
        num_wi_spc = 0
        ws_spc_index = 0
