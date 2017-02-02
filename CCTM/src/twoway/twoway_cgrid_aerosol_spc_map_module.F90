@@ -5,6 +5,8 @@
 !
 ! Revised:  11 Aug 2011  Original version.  David Wong
 !           21 Oct 2015  Updated water insoluble species list
+!           22 Nov 2016  Constructed water soluble and insoluble list dynamically
+!                        based on a given chemical mechanism and AE scheme
 !===============================================================================
 
   module twoway_cgrid_aerosol_spc_map_module
@@ -12,42 +14,14 @@
     use aero_data
 
     ! water soluble
-    integer, parameter :: num_ws_spc = 9
+    integer :: num_ws_spc(3)
 
-    integer :: ws_spc_index(num_ws_spc)
-
-    character (len = 16), parameter :: ws_spc(num_ws_spc) = &
-      (/ 'ASO4I           ', 'ASO4J           ',            &
-         'ANH4I           ', 'ANH4J           ',            &
-         'ANO3I           ', 'ANO3J           ',            &
-         'AMGJ            ', 'AKJ             ',            &
-         'ACAJ            '                                 &
-      /)
+    integer, allocatable :: ws_spc_index(:,:)
 
     ! water insoluble
-    integer, parameter :: num_wi_spc = 32
+    integer :: num_wi_spc(3)
 
-    integer :: wi_spc_index(num_wi_spc)
-
-    character (len = 16), parameter :: wi_spc(num_wi_spc) = &
-      (/ 'APOCI           ', 'AOTHRI          ',            &
-         'APNCOMI         ',                                &
-         'AALK1J          ', 'AALK2J          ',            &
-         'AXYL1J          ',                                &
-         'AXYL2J          ', 'AXYL3J          ',            &
-         'ATOL1J          ', 'ATOL2J          ',            &
-         'ATOL3J          ', 'ABNZ1J          ',            &
-         'ABNZ2J          ', 'ABNZ3J          ',            &
-         'AOLGAJ          ', 'APOCJ           ',            &
-         'ATRP1J          ', 'ATRP2J          ',            &
-         'AISO1J          ', 'AISO2J          ',            &
-         'AISO3J          ', 'ASQTJ           ',            &
-         'AOLGBJ          ', 'AOTHRJ          ',            &
-         'APNCOMJ         ', 'AFEJ            ',            &
-         'AALJ            ', 'ASIJ            ',            &
-         'ATIJ            ', 'AMNJ            ',            &
-         'ACORS           ', 'ASOIL           '             &
-      /)
+    integer, allocatable :: wi_spc_index(:,:)
 
     ! elmental carbon
     integer, parameter :: num_ec_spc = 2
