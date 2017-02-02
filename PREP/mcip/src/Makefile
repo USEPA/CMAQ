@@ -16,48 +16,17 @@
 #  subject to their copyright restrictions.                                    #
 #------------------------------------------------------------------------------#
 
-# Requirements: set M3LIB before running this script
+# Requirements: source config.cmaq before running this script
 
 .SUFFIXES:
 .SUFFIXES: .o .f90 .F90
 
 MODEL = mcip.exe
 
-#...Portland Group Fortran
-#FC     = pgf90
-#NETCDF = $(M3LIB)/netcdf
-#IOAPI_ROOT = $(M3LIB)/ioapi
-#FFLAGS = -g -O0 -Ktrap=unf -Ktrap=denorm -Ktrap=inv -Ktrap=ovf -Ktrap=divz  \
-#         -Ktrap=fp -pc 32 -Mbounds -Mchkfpstk -Mchkptr -Kieee     \
-#         -Minform,inform -Mfree -byteswapio -I$(NETCDF)/include \
-#         -I$(IOAPI_ROOT)/Linux2_x86_64pg
-#FFLAGS = -O4 -fastsse -pc 32 -Mfree -byteswapio -I$(NETCDF)/include \
-         #-I$(IOAPI_ROOT)/include
-#LIBS   = -L$(IOAPI_ROOT)/lib -lioapi \
-	 -L$(NETCDF)/lib -lnetcdf
-#	 -L$(NETCDF)/lib -lnetcdff -lnetcdf
-
-#...gfortran
-#FC	= gfortran
-#NETCDF = $(M3LIB)/netcdf
-#IOAPI_ROOT = $(M3LIB)/ioapi
-#FFLAGS	= -O3 -I$(NETCDF)/include -I$(IOAPI_ROOT)/include
-##FFLAGS	= -g -O0  \
-          -ffpe-trap='invalid','zero','overflow','underflow'  \
-          -I$(NETCDF)/include -I$(IOAPI_ROOT)/include
-#LIBS    = -L$(IOAPI_ROOT)/lib -lioapi  \
-          #-L$(NETCDF)/lib -lnetcdf -lgomp
-#
-#...Intel Fortran
-FC      = ifort
-NETCDF = $(M3LIB)/netcdf
-IOAPI_ROOT = $(M3LIB)/ioapi
-#FFLAGS  = -g -O0 -check all -C -traceback -FR -I$(NETCDF)/include  \
-#          -I$(IOAPI_ROOT)/include
-FFLAGS  = -FR -O3 -traceback -openmp -I$(NETCDF)/include -I$(IOAPI_ROOT)/include
-LIBS    = -L$(IOAPI_ROOT)/lib -lioapi \
-          -L$(NETCDF)/lib -lnetcdf
- 	  #-limf
+FC     = ${myFC}
+FFLAGS = $(myFRFLAGS) -I$(NETCDF_DIR)/include -I$(IOAPI_DIR)/include
+LIBS   = -L$(IOAPI_DIR)/lib $(ioapi_lib) \
+	 -L$(NETCDF_DIR)/lib $(netcdf_lib) $(extra_lib) 
 
 DEFS   = 
 

@@ -1,6 +1,6 @@
 #!/bin/csh -f
 
-# ====================== JPROCv5.1 Run Script ======================= 
+# ====================== JPROCv5.2 Run Script ======================= 
 # Usage: run.jproc >&! jproc_V5.log &                                 
 #
 # To report problems or request help with this script/program:        
@@ -8,22 +8,22 @@
 # =================================================================== 
 
 #> Source the config.cmaq file to set the run environment
- source ../config.cmaq
+ source ../../../config.cmaq
 
-#> Check that M3DATA is set: 
- if ( ! -e $M3DATA ) then
-    echo "   $M3DATA path does not exist"
+#> Check that CMAQ_DATA is set: 
+ if ( ! -e $CMAQ_DATA ) then
+    echo "   $CMAQ_DATA path does not exist"
     exit 1
     endif
- echo " "; echo " Input data path, M3DATA set to $M3DATA"; echo " "
+ echo " "; echo " Input data path, CMAQ_DATA set to $CMAQ_DATA"; echo " "
 
- set APPL     = D51a
+ set APPL     = v52 
  set CFG      = CMAQ-BENCHMARK
  set MECH     = cb05e51_ae6_aq 
  set EXEC     = JPROC_${APPL}_$EXEC_ID
 
 #> Set the working directory:
- set BASE     = $M3HOME/scripts/jproc
+ set BASE     = $CMAQ_HOME/scripts/jproc
  set BLD   = ${BASE}/BLD_$APPL
 
  cd $BASE; date; set timestamp; cat $BASE/cfg.${CFG}; echo " "; set echo
@@ -37,11 +37,11 @@
 #> Input/Output Directories
 # =====================================================================
 
- set CSQYpath   = $M3DATA/phot  # CSQY input data
- set PROFpath   = $M3DATA/phot  # PROF input data
- set ETpath     = $M3DATA/phot  # ET input data
- set TOMSpath   = $M3DATA/phot  # TOMS input data
- set OUTDIR   = $M3DATA/jproc   # Output directory
+ set CSQYpath   = $CMAQ_DATA/phot  # CSQY input data
+ set PROFpath   = $CMAQ_DATA/phot  # PROF input data
+ set ETpath     = $CMAQ_DATA/phot  # ET input data
+ set TOMSpath   = $CMAQ_DATA/phot  # TOMS input data
+ set OUTDIR   = $CMAQ_DATA/jproc   # Output directory
 
 # =====================================================================
 #> Input Files
