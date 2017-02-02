@@ -17,7 +17,6 @@ Ancillary support programs distributed with CMAQ include
 -   The code builder/manager [Bldmake](#bldmake)
 -   The chemical mechanism compiler [CHEMMECH](#chemmech)
 -   EBI chemistry solver builder [CREATE_EBI](#create_ebi)
--   The process analysis preprocessor [PROCAN](#procan)
 
 The following sections describe the CMAQ system concept, followed by [details of the programs listed above](#summary-descriptions-of-the-major-cmaq-programs).
 
@@ -127,11 +126,6 @@ MCIP uses output files from the MM5 or WRF meteorological models to create netCD
 CCTM integrates the output from the preprocessing programs described above (JPROC, BCON, ICON, and MCIP), as well as CMAQ-ready emissions inputs (e.g., output from SMOKE), to simulate continuous atmospheric chemical conditions. The modeled concentrations of relevant species can be captured for output at a user-defined time frequency (typically hourly). The CCTM output files are all binary netCDF files of gridded and temporally resolved air pollutant information, such as gas- and aerosol-phase species mixing ratios, hourly wet and dry deposition values, visibility metrics, and integral-averaged concentrations.
 
 The spatial and temporal coverages of CCTM are dictated by the input meteorology information. The science configuration is specific to each application of the model and can be adjusted to optimize model performance both computationally and in the numerical reproduction of observed air quality trends. Configuration options for CCTM include the temporal coverage of the simulation, the chemical mechanism to use in the modeling, the physics scheme to use for modeling pollutant transport, heterogeneous and aqueous chemistry options, inline processing options, and diagnostic options (such as process analysis, discussed in the next paragraph). CCTM has the largest number of configuration options of all the CMAQ programs. (discussed further in [Chapter 7](CMAQ_OGD_ch07_programs_libraries.md#cctm))
-
-<a id="procan"></a>
-#### Process Analysis Preprocessor (PROCAN)
-
-Process analysis is a technique used to trace the source(s) of a chemical species within a simulation. PROCAN generates Fortran INCLUDE files for building a version of CCTM that can calculate integrated process rates and/or integrated reaction rates (discussed in [Chapter 7](CMAQ_OGD_ch07_programs_libraries.md#PROCAN); these rates can then be used for diagnosing the chemical behavior of CMAQ simulations. This preprocessor uses an input configuration file to select the process analysis options desired, and outputs three INCLUDE files that are used to compile a version of CCTM that is instrumented for process analysis.
 
 <a id="chemmech"></a>
 #### Chemical Mechanism Compiler (CHEMMECH)
