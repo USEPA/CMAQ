@@ -228,7 +228,7 @@ The namelist files for the other pollutant classes have similar configurations a
 
 Used by: ICON
 
-ICON can generate initial conditions from two different input file types. The first file type is an ASCII vertical profile file that lists species concentrations at various model layers that are fixed in space and time. To configure ICON to generate initial conditions from ASCII vertical profiles, the “prof” input module is chosen when compiling the program (see [Chapter 8](CMAQ_OGD_ch07_programs_libraries.md#ICON)). These ASCII-formatted vertical profile files are IC_PROFILE files, and are described in this section. IC_PROFILE files must be developed by the user and can be generated from climatologically averaged observational data or as an a priori estimate from previous modeling studies of the region being modeled. The second file type that ICON can use to generate initial conditions is a concentration file from a previous CMAQ run. These are CTM_CONC_1 files, and are described later in the [CTM_CONC_1 section](#CCTM_CONC_1).
+ICON can generate initial conditions from two different input file types. The first file type is an ASCII vertical profile file that lists species concentrations at various model layers that are fixed in space and time. To configure ICON to generate initial conditions from ASCII vertical profiles, the “prof” input module is chosen when compiling the program (see [Chapter 8](CMAQ_OGD_ch07_programs_libraries.md#ICON)). These ASCII-formatted vertical profile files are IC_PROFILE files, and are described in this section. IC_PROFILE files must be developed by the user and can be generated from climatologically averaged observational data or as an a priori estimate from previous modeling studies of the region being modeled. The second file type that ICON can use to generate initial conditions is a concentration file from a previous CMAQ run. These are CTM_CONC_1 files, and are described later in the [CTM_CONC_1 section](#ctm_conc_1).
 
 IC_PROFILE begins with a header that contains a comment section that describes the data, and a file description section that defines the number of vertical levels in the file, the number of pollutants in the file, and the distribution of the vertical levels. The next entries in IC_PROFILE are the Julian start date and the start time of the data; they are not used by ICON.
 
@@ -285,7 +285,7 @@ A sample of the four sections of an IC_PROFILE file is shown below.
 
 Used by: BCON
 
-As with the ICON program, BCON can generate boundary conditions from two different input file types. The first file type is an ASCII vertical profile file that list species concentrations at various model layers that are fixed in space in time. To configure BCON to generate boundary conditions from ASCII vertical profiles, the “prof” input module is chosen when compiling the program (see Section 5.2 on BCON). These ASCII-formatted vertical profile files are BC_PROFILE files, and are described in this section. BC_PROFILE files must be developed by the user and can be generated from climatologically averaged observational data or as an a priori estimate from previous modeling studies of the region being modeled. The second file type that BCON can use to generate initial conditions is a concentration file from a previous CMAQ run. These are CTM_CONC_1 files, and are described later in the [CTM_CONC_1 section](#CCTM_CONC_1).
+As with the ICON program, BCON can generate boundary conditions from two different input file types. The first file type is an ASCII vertical profile file that list species concentrations at various model layers that are fixed in space in time. To configure BCON to generate boundary conditions from ASCII vertical profiles, the “prof” input module is chosen when compiling the program (see Section 5.2 on BCON). These ASCII-formatted vertical profile files are BC_PROFILE files, and are described in this section. BC_PROFILE files must be developed by the user and can be generated from climatologically averaged observational data or as an a priori estimate from previous modeling studies of the region being modeled. The second file type that BCON can use to generate initial conditions is a concentration file from a previous CMAQ run. These are CTM_CONC_1 files, and are described later in the [CTM_CONC_1 section](#ctm_conc_1).
 
 BC_PROFILE begins with a header that contains a comment section that describes the data, and a file description section that defines the number of vertical levels in the file, the number of pollutants in the file, and the distribution of the vertical levels. The next entries in BC_PROFILE are the Julian start date and the start time of the data; they are not used by BCON. The BCON input consists of four data sections that correspond to the lateral boundaries (i.e., north, south, east, and west) of the model grid. The BCON input profiles contain a field that precedes each data section to indicate which horizontal boundary the data section describes.
 
@@ -491,12 +491,12 @@ O3_STRAT            CS  420.000 6.685868E-19  2.568540E-19  9.962031E-20  4.3306
 
 See this [link](https://github.com/CMASCenter/EPA-CMAQ/blob/5.2Beta/CCTM/src/MECHS/cb05e51_ae6_aq/CSQY_DATA_cb05e51_ae6_aq) for an complete CSQY file for the cb05e51_ae6_aq mechanism.
 
-<a id=et_irr></a>
+<a id=et></a>
 ### ET: Extraterrestrial irradiance
 
 Used by: JPROC
 
-ET is the logical name for the ASCII data file containing extraterrestrial radiation as a function of wavelength. The extraterrestrial irradiance file has a format similar to that of the CSQY file ([CSQY Section](#CSQY)). The file begins with a header section; comment lines are preceded with a “!”. Like the CSQY file, the header contains a field describing the location on the wavelength interval that the data represent, and a multiplier. The data section uses a space-delimited, free-form format and lists the wavelength of the incoming solar radiation (nm) and the irradiance (photons cm<sup>‑2</sup> s<sup>‑1</sup>) at each wavelength, with each row corresponding to a specific wavelength interval. A detailed description of the file format is provided in [Table 8-8](Table8-8).
+ET is the logical name for the ASCII data file containing extraterrestrial radiation as a function of wavelength. The extraterrestrial irradiance file has a format similar to that of the CSQY file ([CSQY Section](#csqy)). The file begins with a header section; comment lines are preceded with a “!”. Like the CSQY file, the header contains a field describing the location on the wavelength interval that the data represent, and a multiplier. The data section uses a space-delimited, free-form format and lists the wavelength of the incoming solar radiation (nm) and the irradiance (photons cm<sup>‑2</sup> s<sup>‑1</sup>) at each wavelength, with each row corresponding to a specific wavelength interval. A detailed description of the file format is provided in [Table 8-8](Table8-8).
 
 <a id=Table8-8></a>
 
@@ -603,14 +603,14 @@ A detailed description of the file format is provided in [Table 8‑10](#Table8-
 
 Used by: JPROC
 
-O2ABS is the logical name for the ASCII data file containing absorption cross section and quantum yield data for O<sub>2</sub> photolysis. The data in this file are listed as a function of wavelength. This file follows the same format as the CSQY files described in this [section](#CSQY).
+O2ABS is the logical name for the ASCII data file containing absorption cross section and quantum yield data for O<sub>2</sub> photolysis. The data in this file are listed as a function of wavelength. This file follows the same format as the CSQY files described in this [section](#csqy).
 
 <a id=o3abs></a>
 ### O3ABS: Ozone absorption cross-section data
 
 Used by: JPROC
 
-O3ABS is the logical name for the ASCII data file containing absorption cross section and quantum yield data for O<sub>3</sub> photolysis. The data in this file are listed as a function of wavelength. For an example see this [link](https://github.com/CMASCenter/EPA-CMAQ/blob/5.2Beta/UTIL/inline_phot_preproc/photolysis_CSQY_data/O3O1D_JPL06-2) This file follows the same format as the CSQY files described in this [section](#CSQY).
+O3ABS is the logical name for the ASCII data file containing absorption cross section and quantum yield data for O<sub>3</sub> photolysis. The data in this file are listed as a function of wavelength. For an example see this [link](https://github.com/CMASCenter/EPA-CMAQ/blob/5.2Beta/UTIL/inline_phot_preproc/photolysis_CSQY_data/O3O1D_JPL06-2) This file follows the same format as the CSQY files described in this [section](#csqy).
 
 <a id=inmetfiles></a>
 ### InMetFiles: List of MM5 or WRF‑ARW output files
@@ -825,14 +825,14 @@ Used by: CCTM
 
 CMAQ can accept emissions inputs from a variety of emissions models and preprocessors. The most commonly used option is the Sparse Matrix Operator Kernel Emissions (SMOKE) modeling system, which is a collection of programs that separately process and merge emissions data for each emissions sector for input to air quality models.
 
-The emissions file sorts the emitted gas-phase and aerosol species by grid cell and time. The file type is GRDDED3, and the units are in moles per second (moles s<sup>‑1</sup>) for gas-phase species and grams per second (g s<sup>‑1</sup>) for aerosol species. The file data are looped as follows: by column, by row, by layer, by variable, and by input time step. CMAQ does not artificially distinguish between surface and elevated emissions sources; elevated sources are provided to CMAQ as vertically resolved emissions. For CCTM configurations that do not use in-line emissions calculations, all emissions estimates are contained within a single input emission file for each day. In v4.7, CMAQ now has the capability to process point-source, sea salt, and biogenic emissions in-line. The supplemental input files to use for calculating the in-line emissions are described i in the CMAQv4.7 release notes.
+The emissions file sorts the emitted gas-phase and aerosol species by grid cell and time. The file type is GRDDED3, and the units are in moles per second (moles s<sup>‑1</sup>) for gas-phase species and grams per second (g s<sup>‑1</sup>) for aerosol species. The file data are looped as follows: by column, by row, by layer, by variable, and by input time step. CMAQ does not artificially distinguish between surface and elevated emissions sources; elevated sources are provided to CMAQ as vertically resolved emissions. For CCTM configurations that do not use in-line emissions calculations, all emissions estimates are contained within a single input emission file for each day. In v4.7, CMAQ now has the capability to process point-source, sea salt, and biogenic emissions in-line. The supplemental input files to use for calculating the in-line emissions are described in the CMAQv4.7 release notes.
 
 <a id="ocean_1"><a/>
 ### OCEAN_1: Sea salt mask
 
 Used by: CCTM
 
-The CMAQ aerosol model AERO5 can compute sea salt emissions from both open ocean grid cells and surf zone grid cells. The addition of the surf zone option simulates the elevated emissions rates of sea salt in coastal regions where wave action occurs. The OCEAN_1 file contains data on the fraction of each grid cell that is either open ocean (OPEN) or in the surf zone (SURF). When CCTM is compiled with AERO5, it will expect the OCEAN_1 file as input.
+The CMAQ aerosol models AERO5 and AERO6 can compute sea salt emissions from both open ocean grid cells and surf zone grid cells. The addition of the surf zone option simulates the elevated emissions rates of sea salt in coastal regions where wave action occurs. The OCEAN_1 file contains data on the fraction of each grid cell that is either open ocean (OPEN) or in the surf zone (SURF). When CCTM is compiled with AERO5 or AERO6, it will expect the OCEAN_1 file as input.
 
 <a id="gspro"><a/>
 ### GSPRO: Speciation profiles
@@ -1009,6 +1009,9 @@ LWMASKland-water mask (1=land, 0=water)
 
 PURB:urban percentage if cell is based on land (percent)
 
+LUFRAC_01: land use fraction of NLCD40: Evergreen Needleleaf Forest
+LUFRAC_XX: <repeated for 40 land use fractions>
+
 <a id="grid_dot_2d"><a/>
 ### GRID_DOT_2D: Two-dimensional grid dot-point fields
 
@@ -1021,6 +1024,19 @@ LAT:latitude (degrees, where Northern Hemisphere is positive)
 LON:longitude (degrees, where Western Hemisphere is negative)
 
 MSFD2:squared map scale factor (m<sup>2</sup> m<sup>‑2</sup>)
+
+<a id="grid_cro_3d"><a/>
+### GRID_CRO_3D: Three-dimensional grid cross-point fields 
+Used by: CCTM
+
+The GRID_CRO_3D time-independent file contains surface fields at cross points (i.e., at cell centers) that vary by height. It is created by MCIP and used by CCTM for the PT3D. The following variables are in this file:
+add content 
+
+<a id="met_bdy_2d"><a/>
+### MET_BDY_2D: Two-dimensional meteorological boundary input
+
+Used by: CCTM
+add content
 
 <a id="met_bdy_3d"><a/>
 ### MET_BDY_3D: Three-dimensional meteorological boundary input
@@ -1194,6 +1210,7 @@ VD_HG:deposition velocities for HG (m s<sup>‑1</sup>)
 
 VD_HGIIGAS:deposition velocities for HGIIGAS (m s<sup>‑1</sup>)
 
+
 <a id="met_cro_3d"><a/>
 ### MET_CRO_3D: Three-dimensional meteorological cross-point fields
 
@@ -1275,14 +1292,89 @@ This diagnostic file contains information on the geometric mean diameters and ge
 
 This optional 2-D CCTM hourly output file contains calculated biogenic emissions in mass units. The B3GTS_S file will be produced only if in-line biogenic emissions are being calculated by CCTM and if the B3GTS_DIAG variable is turned on.
 
-<a id="depv_diag"><a/>
-### DEPV_DIAG: CCTM inline deposition diagnostics file
+<a id="ctm_depv_diag"><a/>
+### CTM_DEPV_DIAG: CCTM inline deposition diagnostics file
+Add content
 
+<a id="ctm_pt3d_diag"><a/>
+### CTM_PT3D_DIAG: CCTM PT3D diagnostics file
 Add content
 
 <a id="dust_emis"><a/>
-### DUST_EMIS
+### CTM_DUST_EMIS_1
+Add content
 
+<a id="ctm_vis_1"><a/>
+### CTM_VIS_1
+Add content
+
+<a id="ctm_avis_1"><a/>
+### CTM_AVIS_1
+Add content
+
+<a id="ctm_pmdiag_1"><a/>
+### CTM_PMDIAG_1
+Add content
+
+<a id="ctm_apmdiag_1"><a/>
+### CTM_APMDIAG_1
+Add content
+
+<a id="ctm_aod_1"><a/>
+### CTM_AOD_1
+Add content
+
+<a id="ctm_ipr"><a/>
+### CTM_IPR_[1-3]
+Add content
+
+<a id="ctm_irr"><a/>
+### CTM_IRR_[1-3] Process analysis output – integrated reaction rates
+The 3-D CCTM integrated reaction rate file (IRR) contains hourly concentrations of selected model output species in terms of the gas-phase chemistry pathways that contributed to the predicted concentration at each hour. For each grid cell in the process analysis domain (which is most likely a subset of the full modeling domain), the IRR file shows the hourly change in species concentration that is due to particular gas-phase chemistry reactions or reaction groups. The process analysis preprocessor, PROCAN (Section 2.2.6), is used to select the process analysis domain, the model species for which to capture process analysis information, and the chemistry reactions or groups of reactions to track during the process analysis.
+
+
+<a id="a_conc_1"><a/>
+### A_CONC_1
+Add content
+
+<a id="s_cgrid"><a/>
+### S_CGRID
+Add content
+
+<a id="init_gasc_1"><a/>
+### INIT_GASC_1
+Add content
+
+<a id="init_aero_1"><a/>
+### INIT_AERO_1
+Add content
+
+<a id="init_nonr_1"><a/>
+### INIT_NONR_1
+Add content
+
+<a id="init_trac_1"><a/>
+### INIT_TRAC_1
+Add content
+
+<a id="bndy_gasc_1"><a/>
+### BNDY_GASC_1
+Add content
+
+<a id="bndy_aero_1"><a/>
+### BNDY_AERO_1
+Add content
+
+<a id="bndy_nonr_1"><a/>
+### BNDY_NONR_1
+Add content
+
+<a id="bndy_trac_1"><a/>
+### BNDY_TRAC_1
+Add content
+
+<a id="emis_trac_1"><a/>
+### EMIS_TRAC_1
 Add content
 
 <a id="floor"><a/>
@@ -1291,14 +1383,36 @@ Add content
 FLOOR files are optional output diagnostic files which list specific gridboxes/timesteps in which species with `-ve` concentrations are reset to zero.
 
 <a id="init_medc_1"><a/>
-### INIT_MEDC_1
-
+### INIT_MEDC_1 Used to get fertilizer from the previous month to estimate soil NH4+
 Add content
 
-<a id="irr"><a/>
-### IRR: Process analysis output – integrated reaction rates
+<a id="media_conc"><a/>
+### MEDIA_CONC  Used by bidirectional NH3 flux model in CMAQ
+Add content
 
-The 3-D CCTM integrated reaction rate file (IRR) contains hourly concentrations of selected model output species in terms of the gas-phase chemistry pathways that contributed to the predicted concentration at each hour. For each grid cell in the process analysis domain (which is most likely a subset of the full modeling domain), the IRR file shows the hourly change in species concentration that is due to particular gas-phase chemistry reactions or reaction groups. The process analysis preprocessor, PROCAN (Section 2.2.6), is used to select the process analysis domain, the model species for which to capture process analysis information, and the chemistry reactions or groups of reactions to track during the process analysis.
+<a id="ctm_depv_mos"><a/>
+### CTM_DEPV_MOS
+Add content
+
+<a id="ctm_dry_dep_mos"><a/>
+### CTM_DRY_DEPV_MOS 
+Add content
+
+<a id="ctm_dry_depv_fst"><a/>
+### CTM_DRY_DEPV_FST 
+Add content
+
+<a id="ctm_depv_fst"><a/>
+### CTM_DEPV_FST 
+Add content
+
+<a id="ctm_vdiff_diag"><a/>
+### CTM_VDIFF_DIAG
+Add content
+
+<a id="ctm_vsed_diag"><a/>
+### CTM_VSED_DIAG
+Add content
 
 <a id="ltngout"><a/>
 ### LTNGOUT
@@ -1312,16 +1426,10 @@ The 3-D CCTM integrated process rate file (PA) contains hourly concentrations of
 
 <a id="play_srcid"><a/>
 ### PLAY_SRCID
-
 Add content
 
-<a id="pt3d_diag"><a/>
-### PT3D_DIAG
-
-Add content
-
-<a id="rj"><a/>
-### RJ: In-line photolysis output – gridded photolysis rates
+<a id="ctm_rj"><a/>
+### CTM_RJ_[1,2]: In-line photolysis output – gridded photolysis rates
 
 The photolysis diagnostic output files (RJ) contain the photolysis rates calculated by CCTM when the in-line photolysis option is used.
 <a id="soilout"><a/>
@@ -1329,13 +1437,13 @@ The photolysis diagnostic output files (RJ) contain the photolysis rates calcula
 
 Name and location of hourly soil NO emissions file; output when in-line biogenic emissions processing is activated by setting CTM_BIOGEMIS to “T” or “Y”.
 
-<a id="ssemis"><a/>
-### SSEMIS: Sea salt emissions diagnostic file
+<a id="ctm_ssemis_1"><a/>
+### CTM_SSEMIS_1: Sea salt emissions diagnostic file
 
 This optional 2-D CCTM hourly output file contains calculated sea salt emissions. The SSEMIS file will be produced by CCTM only if the AERO5 aerosol mechanism is being used and if the CTM_SSEMDIAG variable is turned on.
 
-<a id="wetdep2"><a/>
-### WETDEP2: CCTM cloud diagnostics file
+<a id="ctm_wet_dep_2"><a/>
+### CTM_WET_DEP_2: CCTM cloud diagnostics file
 
 The 2-D CCTM wet deposition file (WETDEP2) includes cumulative hourly wet deposition fluxes (kg hectare<sup>‑1</sup>) for selected model species. CCTM calculates wet deposition for all of the species listed in the wet deposition INCLUDE files within the mechanism INCLUDE directories. Wet deposition INCLUDE files exist for gas-phase species (GC_WDEP.EXT), aerosol species (AE_WDEP.EXT), and inert model species (NR_WDEP.EXT). Species can be removed from the WDEP.EXT files to adjust the number of species that undergo the wet deposition process. These extra species are written to the WETDEP2 output file.
 
