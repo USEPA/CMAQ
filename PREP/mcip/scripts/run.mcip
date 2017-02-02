@@ -114,19 +114,19 @@
 #   WorkDir    = Working Directory for Fortran links and namelist
 #-----------------------------------------------------------------------
 
-source ../config.cmaq
+source ../../../config.cmaq
 
 set APPL       = 110701
 set CoordName  = LamCon_40N_97W    # 16-character maximum
 set GridName   = 12benchCA         # 16-character maximum
 
-set DataPath   = $M3DATA/wrf
-set InMetDir   = $M3DATA/wrf
-set InTerDir   = $M3DATA
-set InSatDir   = $M3DATA
-set OutDir     = $M3DATA/mcip 
-set ProgDir    = $M3HOME/scripts/mcip/src 
-set WorkDir    = $M3DATA/mcip
+set DataPath   = $CMAQ_DATA/wrf
+set InMetDir   = $CMAQ_DATA/wrf
+set InTerDir   = $CMAQ_DATA
+set InSatDir   = $CMAQ_DATA
+set OutDir     = $CMAQ_DATA/mcip 
+set ProgDir    = $CMAQ_HOME/scripts/mcip/src 
+set WorkDir    = $CMAQ_DATA/mcip
 
 #-----------------------------------------------------------------------
 # Set name(s) of input meteorology file(s)

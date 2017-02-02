@@ -312,7 +312,7 @@
       If ( serial ) Then
          Write( lfn, '( " C_FLAGS   = ",a)' ) Trim( c_flags ) // "-I."
       Else
-         Write( lfn, '( " C_FLAGS   = ",a)' ) Trim( c_flags ) // "$(LIB)/mpich/include -I."
+         Write( lfn, '( " C_FLAGS   = ",a)' ) Trim( c_flags ) // "$(LIB)/mpi/include -I."
       End If
 
       If ( verbose ) Then
@@ -340,7 +340,8 @@
       If ( serial ) Then
          Write( lfn, '( " LIBRARIES = $(IOAPI) $(NETCDF)")' )
       Else
-         Write( lfn, '( " MPICH  = -L$(LIB)/",a,1x,a)' ) "mpich/lib", Trim( mpich )
+!         Write( lfn, '( " MPICH  = -L$(LIB)/",a,1x,a)' ) "mpich/lib", Trim( mpich )
+         Write( lfn, '( " MPICH  = -L$(LIB)/",a,1x,a)' ) "mpi/lib", Trim( mpich )
          Write( lfn, '( " LIBRARIES = $(IOAPI) $(NETCDF) $(MPICH)")' )
       End If
 
