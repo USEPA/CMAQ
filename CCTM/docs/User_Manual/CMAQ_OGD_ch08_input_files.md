@@ -643,16 +643,14 @@ CMAQ boundary condition data are of the BNDARY3 file type. Produced by the bound
 Each species being modeled should be in the BNDY_CONC_1 file. If some modeled species are not contained in this file, the boundary condition for these species will default to the value 1 × 10<sup>‑30</sup>. The perimeter of the CMAQ domain is 1 cell wide, where the number of boundary cells = (2*NROW)+(2*NCOL)+4. [Figure 8-2](#Figure8-2) is a graphical example of the CMAQ boundary conditions file; the west and north boundaries have ozone values of 0.035 ppmV, while the east and south boundaries have values of 0.030 ppmV.
 
 <center>
-<Image:>
-
+![](./images/Figure8-1.png "Figure8-1.png")
 </center>
 <center>
 **Figure 8-1. Illustration of CMAQ boundary condition file**
 
 </center>
 <center>
-<Image:>
-
+![](./images/Figure8-2.png "Figure8-2.png")
 </center>
 <center>
 **Figure 8-2. Graphical example of a CMAQ gridded boundary conditions file**
