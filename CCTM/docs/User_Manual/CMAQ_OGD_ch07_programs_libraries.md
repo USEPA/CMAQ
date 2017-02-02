@@ -382,7 +382,7 @@ The configuration options listed here are set during compilation of the CCTM exe
 -->
 
 -   `set ParOpt`
-    Build an executable for running on multiple processors. Invoking this command requires the availability of a parallel STENEX library file, a PARIO library file, and the MPI library/INCLUDE files.
+    Build an executable for running on multiple processors. Invoking this command requires the availability of the MPI library/INCLUDE files.
 
 -   `set MakeFileOnly`
     Builds a Makefile to make the model, but does not compile
@@ -533,7 +533,6 @@ First, it is assumed that you have already installed and compiled the I/O API, 
 
 -   If you have not already done so, compile Bldmake, the CMAQ source code and compilation management program. This needs to be done only once—the first time CMAQ is installed.
 -   If needed, configure the CCTM build script to use the available I/O API, netCDF, and MPICH libraries.
--   If you have not already done so, compile the STENEX and PARIO libraries.
 -   Configure the CCTM build script for your application (using the options discussed in [Chapter 5](CMAQ_OGD_ch05_sys_req.md)
 -   Invoke the build script to create an executable:
 
@@ -1017,7 +1016,6 @@ First, it is assumed that you have already installed and compiled the I/O API a
 -   If you have not already done so, compile Bldmake, the CMAQ source code and compilation management program. This needs to be done only once—the first time CMAQ is installed.
 -   If needed, configure the ICON build script to use the available I/O API and netCDF libraries.
 
--   If you have not already done so, compile the STENEX library.
 -   Configure the ICON build script for your application (using the options discussed in [Chapter 5(CMAQ_OGD_ch05_sys_req.md])
 -   Invoke the build script to create an executable:
 
@@ -1553,89 +1551,6 @@ WRF Lambert Conformal reference latitude. Use this setting to force the referenc
 |mmheader|ASCII|Content of MM5 header including configuration information; not generated for WRF‑ARW input|
 
 The default location of the MCIP output files is the `$CMAQ_HOME/data/mcip3/$GridName directory`. Since the default file names do not have any information about the model grid that they are simulating, the name of the grid is set in the output directory path. The default naming convention for all MCIP output files uses only the APPL environment variable in the file name. All of the file-naming variables for the MCIP outputs are set in the run script.
-
-<a id="PARIO"></a>
-## PARIO
-
-### Description
-
-The parallel input/output (PARIO) library contains modules for controlling the model input and output in parallel multiprocessor computing environments. In addition to a series of CMAQ-specific routines, it contains special implementations of several of the I/O API modules for multiprocessor computing environments.
-
-The PARIO library is necessary only when compiling CCTM for parallel multiprocessor environments; single-processor versions of CCTM and the other CMAQ programs do not use the PARIO library.
-
-### Files, configuration, and environment variables
-
-#### PARIO input files
-
-**PARIO** does not require any input files.
-
-#### PARIO compilation options
-
-Other than configuring the build script for the current system (i.e., compiler and library locations), **PARIO** does not require any configuration at compilation.
-
-#### PARIO compilation
-
-First, it is assumed that you have already installed and compiled the I/O API, netCDF, and MPICH libraries ([Chapter 5](CMAQ_OGD_ch05_sys_req.md)), or that these are already available from a previous CMAQ compilation.
-
-[Chapter 5](CMAQ_OGD_ch05_sys_req.md) provides an overview of how to install and compile the CMAQ programs for the tutorial simulation. Follow the steps outlined in Chapter 5 (summarized below) to compile new versions of PARIO:
-
--   -   -   If you have not already done so, compile Bldmake, the CMAQ source code and compilation management program. This needs to be done only once—the first time CMAQ is installed.
-        -   If needed, configure the PARIO build script to use the available I/O API and MPICH libraries.
-        -   Invoke the build script to create an executable:
-
-`cd $CMAQ_HOME/????`
-`./bldit.pario`
-
-<a id="pario"></a>
-#### PARIO execution options
-
-Because PARIO is not a program, it does not have an associated run script.
-
-#### PARIO output files
-
-Successful compilation of PARIO will produce the library file libpario.a. along with several module files in the $M3LIB/pario/$OS directory.
-
-<a id="stenex"></a>
-## STENEX
-
-### Description
-
-The stencil exchange (**STENEX**) library contains modules for controlling the communication between processors in parallel multiprocessor computing environments. A “noop” version of the library is required for single-processor versions of CCTM; the parallel version is required when compiling for parallel multiprocessor versions of CCTM.
-
-### Files, configuration, and environment variables
-
-#### STENEX input files
-
-**STENEX** does not require any input files.
-
-#### STENEX compilation options
-
-Other than configuring the build script for your system (i.e., compiler and library locations), STENEX does not require any configuration at compilation.
-
-#### STENEX compilation
-
-First, it is assumed that you have already installed and compiled the I/O API, netCDF, and MPICH libraries ([Chapter 5](CMAQ_OGD_ch05_sys_req.md)), or that these are already available from a previous CMAQ compilation.
-
-[Chapter 5](CMAQ_OGD_ch05_sys_req.md) provides an overview of how to install and compile the CMAQ programs for the tutorial simulation. Follow the steps outlined in Chapter 5 (summarized below) to compile new versions of STENEX:
-
--   If you have not already done so, compile Bldmake, the CMAQ source code and compilation management program. This needs to be done only once—the first time CMAQ is installed.
--   If needed, configure the STENEX build script to use the available I/O API and MPICH libraries.
--   Invoke the single-processor build script to create serial executables:
-
-`cd $CMAQ_HOME/????`
-`./bldit.se_noop`
-
--   Invoke the multiprocessor build script to create parallel executables:
-`cd $CMAQ_HOME/???`
-`./bldit.se.Linux`
-
-#### STENEX execution options
-
-Because STENEX is not a program, it does not have an associated run script.
-
-#### STENEX output files
-
-Successful compilation of STENEX will produce the library files libsef90_noop.a for serial compilations and libse_snl.a for parallel compilations, along with several module files in the `$M3LIB/stenex/$OS` directory.
 
 <a id="References_Chapter7"></a>
 ## References for Chapter 7: CMAQ Programs and Libraries
