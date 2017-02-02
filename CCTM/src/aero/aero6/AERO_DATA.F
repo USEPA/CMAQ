@@ -1161,7 +1161,7 @@ C Local Variables:
 C Find the substring vname in aerospc( spc )%name( n )
       Do n = 1, n_mode
          Do spc = 1, n_aerospc
-            If ( Index( aerospc( spc )%name( n ), vname ) .Gt. 0 ) Then
+            If ( Index( aerospc( spc )%name( n ), trim(vname) ) .Gt. 0 ) Then
                idx = spc
                Return
             End If
