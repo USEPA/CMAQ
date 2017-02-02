@@ -403,7 +403,7 @@ C                      -- recode the code using F90 syntax
 C                    12/04/02 by David Wong
 C                      -- modified the routine to accommodate worker and 
 C                         I/O processors partition scheme
-C                    01/30/07 by David Wong
+C                    01/30/17 by David Wong
 C                      -- modified the routine to avoid unnecessary creating
 C                         and destroying communicator
 C --------------------------------------------------------------------------
