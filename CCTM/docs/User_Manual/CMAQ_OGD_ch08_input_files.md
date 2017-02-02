@@ -837,21 +837,21 @@ The CMAQ aerosol models AERO5 and AERO6 can compute sea salt emissions from both
 
 Used by: CCTM – inline emissions version only
 
-The speciation profile file, GSPRO, contains the factors that are used to separate aggregated inventory pollutant emissions totals into emissions of model species in the form required by CMAQ. If only biogenic emissions are being calculated in-line in CMAQ, the GSPRO file used by CCTM needs to contain split factors only for the biogenic VOC emissions that are input in the B3GRD file. If other emissions sources are being calculated by CCTM, VOC split factors for these other sources must be included in the GSPRO file. The GSPRO file format is listed in the SMOKE user’s manual ([<http://www.smoke-model.org/version2.5/html/ch08s05s02.html>](http://www.smoke-model.org/version2.5/html/ch08s05s02.html)).
+The speciation profile file, GSPRO, contains the factors that are used to separate aggregated inventory pollutant emissions totals into emissions of model species in the form required by CMAQ. If only biogenic emissions are being calculated in-line in CMAQ, the GSPRO file used by CCTM needs to contain split factors only for the biogenic VOC emissions that are input in the B3GRD file. If other emissions sources are being calculated by CCTM, VOC split factors for these other sources must be included in the GSPRO file. The GSPRO file format is listed in the SMOKE user’s manual, see: [GSPRO documentation](https://www.cmascenter.org/smoke/documentation/4.0/html/ch08s05s02.html).
 
 <a id="b3grd"><a/>
 ### B3GRD: Gridded, normalized biogenic emissions
 
 Used by: CCTM – inline-emissions version only
 
-An I/O API GRDDED3 file of gridded, normalized biogenic emissions (in grams of carbon or nitrogen per hour, depending on the species) and leaf area index. The B3GRD file contains normalized emissions calculated with both summer and winter emissions factors. The B3GRD file is generated with the SMOKE program NORMBEIS3 using gridded land use data. For additional information about creating the B3GRD file, see the NORMBEIS3 documentation in the SMOKE users’ manual ([<http://www.smoke-model.org/version2.5/html/ch06s11.html>](http://www.smoke-model.org/version2.5/html/ch06s11.html)).
+An I/O API GRDDED3 file of gridded, normalized biogenic emissions (in grams of carbon or nitrogen per hour, depending on the species) and leaf area index. The B3GRD file contains normalized emissions calculated with both summer and winter emissions factors. The B3GRD file is generated with the SMOKE program NORMBEIS3 using gridded land use data. For additional information about creating the B3GRD file, see the [NORMBEIS3 documentation](https://www.cmascenter.org/smoke/documentation/4.0/html/ch06s12.html) in the SMOKE users’ manual. 
 
 <a id="bioseason"><a/>
 ### BIOSEASON: Freeze dates
 
 Used by: CCTM – inline-emissions version only
 
-The BIOSEASON switch file is an I/O API GRDDED3 file used to indicate which biogenic emissions factor to use on each day in a given year for every grid cell in the modeling domain. This file can be created using the Metscan utility program that is distributed with SMOKE. The BIOSEASON file is time-dependent and usually contains data for an entire year (365 or 366 days). It uses one variable, SEASON, which is either 0 (grid cell should use winter factors for current day) or 1 (grid cell should use summer factors for current day). For additional information about creating the BIOSEASON file, see the Metscan documentation in the SMOKE user’s manual ([<http://www.smoke-model.org/version2.5/html/ch05s11.html>](http://www.smoke-model.org/version2.5/html/ch05s11.html)).
+The BIOSEASON switch file is an I/O API GRDDED3 file used to indicate which biogenic emissions factor to use on each day in a given year for every grid cell in the modeling domain. This file can be created using the Metscan utility program that is distributed with SMOKE. The BIOSEASON file is time-dependent and usually contains data for an entire year (365 or 366 days). It uses one variable, SEASON, which is either 0 (grid cell should use winter factors for current day) or 1 (grid cell should use summer factors for current day). For additional information about creating the BIOSEASON file, see the [Metscan documentation](https://www.cmascenter.org/smoke/documentation/4.0/html/ch05s03s10.html) in the SMOKE user’s manual. 
 
 <a id="stk_grps"><a/>
 ### STK_GRPS_##: Stack groups
@@ -860,7 +860,7 @@ Used by: CCTM – in-line emissions version only
 
 The ## mark is unique and represents the sector identification.
 
-The stack groups file is an I/O API netCDF file containing stack parameters for elevated sources. This file can be created using the SMOKE program ELEVPOINT. For additional information about creating the stack groups file, see the ELEVPOINT documentation in the SMOKE user’s manual ([<http://www.smoke-model.org/version2.5/html/ch06s03.html>](http://www.smoke-model.org/version2.5/html/ch06s03.html)).
+The stack groups file is an I/O API netCDF file containing stack parameters for elevated sources. This file can be created using the SMOKE program ELEVPOINT. For additional information about creating the stack groups file, see the [ELEVPOINT documentation](https://www.cmascenter.org/smoke/documentation/4.0/html/ch06s03.html) in the SMOKE user’s manual 
 
 <a id="stk_emis"><a/>
 ### STK_EMIS_##: Point source emissions
@@ -869,7 +869,7 @@ Used by: CCTM – inline emissions version only
 
 The ## mark is unique and represents the sector identification.
 
-The elevated-point-source emissions file is an I/O API GRDDED3 file with emissions for point sources to be treated as elevated sources by CCTM. The emissions in this file are distributed through the vertical model layers using a plume-rise algorithm contained in CCTM. The elevated-point-source emissions file can be creating using SMOKE. For additional information about preparing point-source emissions for using the CMAQ in-line plume rise calculation, see the ELEVPOINT documentation in the SMOKE user’s manual ([<http://www.smoke-model.org/version2.5/html/ch06s03.html>](http://www.smoke-model.org/version2.5/html/ch06s03.html)).
+The elevated-point-source emissions file is an I/O API GRDDED3 file with emissions for point sources to be treated as elevated sources by CCTM. The emissions in this file are distributed through the vertical model layers using a plume-rise algorithm contained in CCTM. The elevated-point-source emissions file can be creating using SMOKE. For additional information about preparing point-source emissions for using the CMAQ in-line plume rise calculation, see the [ELEVPOINT documentation](https://www.cmascenter.org/smoke/documentation/4.0/html/ch06s03.html) in the SMOKE user’s manual. 
 
 <a id="dust_lu_1"><a/>
 ### DUST_LU_1: Gridded land cover/land use
@@ -898,7 +898,7 @@ The gridded land cover/land use (LCLU) file is an I/O API GRDDED3 file of BELD3 
 -   USGS_mxtundra
 -   USGS_snowice
 
-These categories are used to determine dust source locations and canopy scavenging factors for estimating dust emission in the model. This file can be created for North America using the Spatial Allocator and BELD3 tiles. The DUST_LU_1 file corresponds to the “a” output file from the Spatial Allocator. See the chapter on [creating biogenic inputs to SMOKE](http://www.ie.unc.edu/cempd/projects/mims/spatial/smoke_bio_inputs.html) of the Spatial Allocator User’s Guide for details.
+These categories are used to determine dust source locations and canopy scavenging factors for estimating dust emission in the model. This file can be created for North America using the Spatial Allocator and BELD4 tiles. The DUST_LU_1 file corresponds to the “a” output file from the Spatial Allocator. See the chapter on [creating biogenic inputs to SMOKE](https://www.cmascenter.org/sa-tools/documentation/4.2/html/raster/Raster_Users_Guide_4_2.htm#_Toc389118706) of the Spatial Allocator User’s Guide for details.
 
 <a id="dust_lu_2"><a/>
 ### DUST_LU_2: Gridded land cover/land use
@@ -909,7 +909,7 @@ The gridded land cover/land use (LCLU) file is an I/O API GRDDED3 file of BELD3 
 
 -   FOREST
 
-This variable is used in combination with the variables in the DUST_LU_1 file to determine canopy scavenging factors for estimating dust emission in the model. This file can be created for North America using the Spatial Allocator and BELD3 tiles. The DUST_LU_2 file corresponds to the “tot” output file from the Spatial Allocator. See the chapter on [creating biogenic inputs to SMOKE](http://www.ie.unc.edu/cempd/projects/mims/spatial/smoke_bio_inputs.html) of the Spatial Allocator User’s Guide for details
+This variable is used in combination with the variables in the DUST_LU_1 file to determine canopy scavenging factors for estimating dust emission in the model. This file can be created for North America using the Spatial Allocator and BELD3 tiles. The DUST_LU_2 file corresponds to the “tot” output file from the Spatial Allocator. See the chapter on [creating biogenic inputs to SMOKE](https://www.cmascenter.org/sa-tools/documentation/4.2/html/raster/Raster_Users_Guide_4_2.htm#_Toc389118706) of the Spatial Allocator User’s Guide for details
 
 <a id="cropmap01"><a/>
 ### CROPMAP01: Gridded planting start dates
