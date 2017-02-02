@@ -86,6 +86,16 @@ C-----------------------------------------------------------------------
 
       REAL, PARAMETER :: DU_TO_CONC = 2.6879E16        ! factor from [DU] to [molecules/cm^2]
       REAL, PARAMETER :: CONC_TO_DU = 1.0 / DU_TO_CONC 
+      
+      LOGICAL, PARAMETER :: ADJUST_OZONE = .FALSE.     ! Flag to correct tropospheric ozone optical depth based
+                                                       ! on climatology
+
+       REAL :: MIN_STRATO3_FRAC ! minimum fraction of O3 column in statosphere
+       REAL :: MAX_TROPOO3_FRAC ! maximum fraction of O3 column in troposphere
+
+!      REAL, PARAMETER :: MIN_STRATO3_FRAC = 0.55                   ! minimum fraction of O3 column in statosphere
+                                                                    !  if PTOP = 50 mb
+!      REAL, PARAMETER :: MAX_TROPOO3_FRAC = 1.0 - MIN_STRATO3_FRAC ! maximum fraction of O3 column in troposphere
 
 !***LOGDEV for NEW_OPTICS and supporting routines
       
@@ -93,6 +103,7 @@ C-----------------------------------------------------------------------
 
       INTEGER, PARAMETER :: N_DIAG_WVL = 2         ! number of dianostic wavelengths
       INTEGER, SAVE      :: DIAG_WVL( N_DIAG_WVL ) ! pointers to diagnostic wavelengths
+      INTEGER            :: N_TROPO_O3_TOGGLE      ! number of adjustments to ozone extinction 
       
       REAL, ALLOCATABLE  :: ACTINIC_FLUX( :,: )    ! actinic fluxes, initially [Photons/(cm^2s)] then  [Watts/m^2] 
       REAL, ALLOCATABLE  :: IRRADIANCE  ( :,: )    ! total downward irradiance [Watts/m^2]
@@ -100,13 +111,22 @@ C-----------------------------------------------------------------------
       REAL               :: TRANSMISSION           ! broad band transmission coefficient (diffuse) at surface
       REAL               :: TRANS_DIRECT           ! broad band direct transmission coefficient at surface
       REAL               :: TROPO_O3_COLUMN        ! ozone column density in the troposphere [Dobson Units]
+      REAL               :: TROPO_O3_TOGGLE        ! factor correcting tropospheric ozone column 
+      REAL               :: O3_TOGGLE_AVE          ! average of nonunity factors adjusting ozone extinction 
+      REAL               :: O3_TOGGLE_MIN          ! Max of nonunity factors adjusting ozone extinction 
   
-      LOGICAL            :: ONLY_SOLVE_RAD   ! only compute fluxes     
+      LOGICAL            :: ONLY_SOLVE_RAD             ! only compute fluxes     
+      LOGICAL            :: OBEY_STRATO3_MINS = .TRUE. ! Has stratospheric O3 column not violated 
+                                                       ! climatological minimums, yet?
+      LOGICAL            :: STRATO3_MINS_MET           ! Does the call to NEW_OPTICS meet the stratospheric O3 column
+                                                       ! climatological minimums?
+
            
       CHARACTER( 133 )   :: PHOT_MOD_MSG
       
       INTEGER            :: PHOT_COL   ! cell column of routine calling module routine
       INTEGER            :: PHOT_ROW   ! cell row of routine calling module routine
+
 
       CONTAINS
 
@@ -141,7 +161,6 @@ C      -revised error checking to needed photolysis data
 C      -modified case statement for RACM2 photolysis rates
 C      -moved aerosol optics to its own module
 C  07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
-C  23 Jun 16 J.Young: made TOTAL_O3_COLUMN, etc. write to the log a preprocessing option
 C-----------------------------------------------------------------------
 
       USE UTILIO_DEFN
@@ -367,7 +386,8 @@ C-----------------------------------------------------------------------
       TRANSMISSION  = 0.0
       TRANS_DIRECT  = 0.0
       INSOLATION    = 0.0
-
+      TROPO_O3_TOGGLE  = 1.0
+      STRATO3_MINS_MET = .TRUE.
 !***Initialize sums or set default values for outputs: 
 !   TAUC_AERO, TAU_TOT, TAUO3_TOP, TAU_RAY, SSA_AERO, etc.
 
@@ -398,6 +418,7 @@ C-----------------------------------------------------------------------
          TAU_RAY   = 0.0
          TOTAL_O3_COLUMN = 0.0
          TROPO_O3_COLUMN = 0.0
+         TROPO_O3_TOGGLE = 1.0
          RETURN
       END IF
 
@@ -435,17 +456,23 @@ C-----------------------------------------------------------------------
 
 C*** find ozone column density for atmosphere, stratosphere, and troposphere
          STRAT_O3_COLUMN = DU_TO_CONC * REAL( TOTAL_O3_COLUMN )
-         STRAT_O3_COLMIN = 0.10 * STRAT_O3_COLUMN
-         SUCCESS = .TRUE.
+!         STRAT_O3_COLMIN = 0.10 * STRAT_O3_COLUMN
+         STRAT_O3_COLMIN = MIN_STRATO3_FRAC * STRAT_O3_COLUMN
+        SUCCESS = .TRUE.
          DO L = NLAYS, 1, -1
             DELTA_O3_COLUMN = 100.0 * BLKO3( L ) * BLKDZ( L )
             STRAT_O3_COLUMN = STRAT_O3_COLUMN - DELTA_O3_COLUMN
             TROPO_O3_COLUMN = TROPO_O3_COLUMN + DELTA_O3_COLUMN
             IF ( STRAT_O3_COLUMN .LT. STRAT_O3_COLMIN  .AND. SUCCESS ) THEN
-               WRITE( NEW_OPTICS_LOG,'( A, I3, A, F8.3, A , 2(I4,1X) )' )
-     &         'ERROR: Tropospheric O3 column greater than 90% Stratospheric O3 Column'
-     &         // ' Below layer: ', L, ' Alt = ',0.001*BLKZF( L ), ' Km  at col,row = ',
-     &         PHOT_COL, PHOT_ROW
+               IF( OBEY_STRATO3_MINS )THEN
+                   WRITE( NEW_OPTICS_LOG,'( /A, F5.2, A, 3(/A), I3, A,  F8.3, A , 2(I4,1X) )' )
+     &             'PHOT WARNING: First Occurance where computed stratospheric O3 column < ',
+     &              100.0*MIN_STRATO3_FRAC,'%',
+     &             'observed total column. The percentage is a global minimum based on ',
+     &             'climatological ozone profiles. ',
+     &             'The Error accumulates downward from layer = ', L, ' or alt= ', 
+     &              0.001*BLKZF( L ),' Km for col,row = ', PHOT_COL, PHOT_ROW
+               END IF
                SUCCESS = .FALSE.
             END IF
          END DO
@@ -453,46 +480,56 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
          STRAT_O3_COLUMN = CONC_TO_DU * STRAT_O3_COLUMN
          TROPO_O3_COLUMN = CONC_TO_DU * TROPO_O3_COLUMN
 
-#ifdef verbose_new_optics
-         IF ( PHOT_COL .EQ. 1 .AND. PHOT_ROW .EQ. 1 ) THEN
-            WRITE( NEW_OPTICS_LOG, 99888 ) TOTAL_O3_COLUMN, TROPO_O3_COLUMN
+#ifdef verbose_PHOT_MOD
+         IF( PHOT_COL .EQ. 1 .AND. PHOT_ROW .EQ. 1 )THEN
+              WRITE( NEW_OPTICS_LOG,*)'TOTAL_O3_COLUMN, TROPO_O3_COLUMN = ',TOTAL_O3_COLUMN, TROPO_O3_COLUMN
          END IF
 #endif
 
          IF ( .NOT. SUCCESS ) THEN
-            WRITE( NEW_OPTICS_LOG, 99888 ) TOTAL_O3_COLUMN, TROPO_O3_COLUMN
-            WRITE( NEW_OPTICS_LOG, 99999 )
-            PHOT_MOD_MSG = 'ERROR: predicted O3 tropospheric Column EXCEEDS VALUE based on OMI.DAT' 
-     &                  // 'Read the above diagnostic information.'
-            CALL M3EXIT( 'NEW_OPTICS', JDATE, JTIME, PHOT_MOD_MSG, XSTAT1 )
+            TROPO_O3_TOGGLE   = MAX_TROPOO3_FRAC * TOTAL_O3_COLUMN
+     &                        / TROPO_O3_COLUMN
+            N_TROPO_O3_TOGGLE = N_TROPO_O3_TOGGLE + 1 
+            O3_TOGGLE_AVE     = O3_TOGGLE_AVE + TROPO_O3_TOGGLE
+            O3_TOGGLE_MIN     = MIN( O3_TOGGLE_MIN, TROPO_O3_TOGGLE)
+            STRATO3_MINS_MET  = .FALSE. 
+            STRAT_O3_COLUMN = CONC_TO_DU * STRAT_O3_COLMIN
+           IF( OBEY_STRATO3_MINS )THEN ! write to PE log for first occurance
+               WRITE( NEW_OPTICS_LOG, 99983)STRAT_O3_COLUMN
+               IF( ADJUST_OZONE ) WRITE( NEW_OPTICS_LOG, 99984)TROPO_O3_TOGGLE
+               WRITE( NEW_OPTICS_LOG, 99887)
+               WRITE( NEW_OPTICS_LOG, 99888)TOTAL_O3_COLUMN, TROPO_O3_COLUMN, MAX_TROPOO3_FRAC
+               WRITE( NEW_OPTICS_LOG, 99999)
+               OBEY_STRATO3_MINS = .FALSE.
+            END IF
+            IF( .NOT. ADJUST_OZONE ) TROPO_O3_TOGGLE = 1.0 ! reset toggle to one 
+         ELSE
+            TROPO_O3_TOGGLE = 1.0
          END IF
-99888    FORMAT(/5X, 'OMI Total O3 Column =', F9.3, ' DU:'
-     &           ' Model Tropospheric O3 Column =', F9.3, ' DU' /)
-99999    FORMAT( 'ERROR: predicted O3 tropospheric Column EXCEEDS VALUE based on OMI Data'
-     &         / 'Potential causes include boundary condition and meteorological input files. '
-     &         / 'Check the former for unrealistic concentrations of ozone and its precursors.'
-     &         / 'Check the latter for unrealistic advection and diffusion parameters.')           
 
-!        TOTAL_O3_COLUMN = REAL( STRAT_O3_COLUMN + TROPO_O3_COLUMN, 4 )
-!        TOTAL_O3_COLUMN = TROPO_O3_COLUMN
-          
-!***stratosphere is assumed to exist above the model domain
-!***  top layer. THe assumption here is that this layer is at about 100
-!***  [mb] or 10 [kPa]
-!        IF ( STRAT_O3_COLUMN .LE. STRAT_O3_COLMIN ) THEN
-! 10% is arbitary and could be refined based on mean ozone profiles                    
-!           STRAT_O3_COLUMN = CONC_TO_DU * STRAT_O3_COLMIN
-!           TOTAL_O3_COLUMN = STRAT_O3_COLUMN + TROPO_O3_COLUMN 
-!           PHOT_MOD_MSG = 'ERROR: CMAQ O3 COLUMN EXCEEDS VALUE IN OMI.DAT' 
-!           CALL M3WARN( 'NEW_OPTICS', JDATE, JTIME, PHOT_MOD_MSG )
-!           WRITE(NEW_OPTICS_LOG,99988)
-!           WRITE(NEW_OPTICS_LOG,99989)PHOT_ROW, PHOT_COL
-!        END IF
+
+99983    FORMAT( 'Corrective Action: 1) Stratospheric O3 column set to ',F8.3,' DU' ) 
+99984    FORMAT( 'and 2) Extinction from Model Domain O3 multiplied by ',F9.6 )
+99887    FORMAT(/'Check TROPO_O3_EXCEED and N_EXCEED_TROPO3 in PHOTDIAG1 file for '
+     &          /'values greater than zero to assess the extent of the '
+     &          /'problem. TROPO_O3_EXCEED and N_EXCEED_TROPO3 are the average '
+     &          /'exceedance and their number over file time step for each grid cell,'
+     &          /'respectively. Exceedance depends on the predicted tropospheric'
+     &          /'fraction over the maximum allowed fraction of the total ozone column.'
+     &          /'Its value equals the ratio minus one if ratio is greater than one and'
+     &          /'zero if the ratio is less than or equal to one. N_EXCEED_TROPO3 '
+     &          /'counts the number of nonzero values per timestep')
+99888    FORMAT(/'Direct Cause: Predicted O3 tropospheric Column exceeds maximum allowed '
+     &          /'fraction of total OMI column.',
+     &          /'OMI Total O3 Column = ',F8.3,' DU: Model Tropospheric O3 Column = ',F8.3,' DU',
+     &          /'Climatological Expected Tropospheric Fraction = ',F9.6)
+99999    FORMAT(/'ULTIMATE causes include boundary condition and meteorological input files. '
+     &          /'Check the former for unrealistic concentrations of ozone and its precursors.'
+     &          /'Check the latter for unrealistic advection and diffusion parameters.')           
          
          DO IWL = 1, NWL
 !***Get optical depth for stratospheric ozone column
 !***Note that stratosphere ozone coluumn assumed to exist above model domain
-!***at about 100 [mb] or 10 [kPa]
             CALL GET_TAUO3 ( IWL, STRAT_O3_COLUMN, STRAT_TEMP, TAUO3_TOP( IWL ) )
 !***get Rayleigh optical depth for stratosphere
             TAU_RAY( IWL ) = NBAR * SRAYL( IWL )         
@@ -500,7 +537,6 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
       END IF ! for NEW_PROFILE
 
 !***loop over wavelengths
-
       DO IWL = 1, NWL           ! outermost loop
 
 !        RSFC       = ALB( IWL )        ! surface albedo
@@ -518,7 +554,7 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
          DT_CLOUD     = 0.0
          DTSCAT_CLOUD = 0.0
          TAU_SCAT_CLD = 0.0
-
+         
          DO L = 2, NLAYS + 1
             II = NLAYS + 2 - L  ! from top to bottom
 
@@ -527,6 +563,7 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
 
             BETA_M = SRAYL( IWL )         * BLKDENS( II ) * 100.0
             AO3    = CSZ( II,IWL,LO3O3P ) * BLKO3  ( II ) * 100.0
+            AO3    = TROPO_O3_TOGGLE      * AO3
             ANO2   = CSZ( II,IWL,LNO2   ) * BLKNO2 ( II ) * 100.0
 
 !***set up aerosol optical properties
