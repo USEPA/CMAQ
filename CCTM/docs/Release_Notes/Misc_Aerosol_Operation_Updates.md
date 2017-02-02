@@ -2,12 +2,12 @@
 
 **Author/P.O.C.:**, [Ben Murphy](mailto:murphy.benjamin@epa.gov), Computational Exposure Division, U.S. EPA
 
-## Brief Description 
-  Due to the large number of chemical/aerosol processing options available in CMAQ, it has been decided to incorporate the template for post-processing raw output species into the folder for each mechanism. These files, all beginning with "SpecDef\_" map CMAQ internal species to values that can be compared to observed quantities. For example, they provide the necessary map to values like O:C for organic aerosol, PM_coarse, NOy, etc. An analogous file for post-processing deposition quantities has also been added.
+## Brief Description
+  Due to the large number of chemical/aerosol processing options available in CMAQ, the template for post-processing raw output species has been incorporated into the folder for each mechanism. These files, which all beginning with "SpecDef\_", map CMAQ internal species to values that can be compared to observed quantities. For example, they provide the necessary map to values like O:C for organic aerosol, PM_coarse, NOy, etc. An analogous file for post-processing deposition quantities has also been added.
 
 ## Significance and Impact
 
-No impact on results. This is for the benefit of users and to maintain consistency across environments and within the CMAQ community.
+No impact on results. These changes were made to benefit users and to maintain consistency across environments and within the CMAQ community.
 
 ## Affected Files:
   MECHS/cb05e51_ae6_aq/SpecDef_Dep_cb05e51_ae6_aq.txt  
@@ -41,7 +41,8 @@ No impact on results. This is for the benefit of users and to maintain consisten
   MECHS/saprc07tic_ae6invPOA_aq/SpecDef_Dep_saprc07tic_ae6invPOA_aq2.txt  
   MECHS/saprc07tic_ae6invPOA_aq/SpecDef_saprc07tic_ae6invPOA_aq.txt  
 
-## References: 
+## References:
+NA
 
 -----
 ## Internal Records:
@@ -64,4 +65,3 @@ No impact on results. This is for the benefit of users and to maintain consisten
   20c6a90dbf749b3ba7c793ac4a8337653088c130  
   ada953c8b402cf2138f680d477b00689b526656c  
   221ae3074d581e37244dad2ce81068de276fd3c5  
-
