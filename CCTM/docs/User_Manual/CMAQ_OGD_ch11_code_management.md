@@ -62,11 +62,11 @@ git is a version control system that supports distributed workflows.  Every Git 
 Use the following command to get the changes that have been made to the remote git repository:
 `git pull` 
     12. You will be asked to merge the files if there are no changes that conflict with your file changes. IF successful you will see a message similar to the following, that indicates what files were changed.
-```Tcsh
-Merge made by the 'recursive' strategy.
- config.cmaq | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-```
+        ```Tcsh
+        Merge made by the 'recursive' strategy.
+        config.cmaq | 4 ++--
+        1 file changed, 2 insertions(+), 2 deletions(-)
+        ```
     13. Retry the push command to place the changes that you committed to the local repository on the CMAS CENTER Github repository:
 `git push`
 
