@@ -30,9 +30,31 @@ Prior to CMAQ version=5.0.2, CMAQ developers used [CVS](https://en.wikipedia.org
 
 ### git Explained
 
-git controls the concurrent editing of files by several users..
+git is a version control system that supports distributed workflows.  Every Git directory is a full repository with complete history and version tracking.  
 -   It works on virtually all UNIX and Linux platforms and on many PCs.
--   It is publicly available and free.
+-   It is publicly available and free and is distributed under the terms of the GNU General Public License.
+-   If you would like to contribute changes to the EPA CMAQ repository, use the following steps 
+    1. `git clone  -b 5.2Beta https://github.com/CMASCenter/EPA-CMAQ.git` - Get a clone or copy of the CMAQ repository from the CMAS CENTER github site.
+    3.  This will make a directory called EPA-CMAQ and will contain a copy of the files from the 5.2Beta Branch 
+    4. `git status`   To confirm the status of the files in the repository and the branch that is currently checked out
+    5.  To edit the config.cmaq file take the following steps:
+`cd CMAQ`
+`vi config.cmaq`  - or use the Atom, TextWrangler or other Editor
+    6. To see what changes you made use the following command
+`git diff config.cmaq`
+    7. To stage the change use the following command.
+`git add config.cmaq`
+    8. To commit changes to the local repostitory use the command:
+`git commit -m "changed config.cmaq to fix issue X"
+    9. To commit changes to the CMAS CENTER Github repository use the command:
+`git push` 
+    10. If you get a message that the push failed, then the files have changed on the CMAS CENTER Github repository. Use the commandto get the changes that have been made to the remote git repository:
+`git pull` 
+    11. You will be asked to merge the files
+    12. Retry the push command to place the changes that you committed to the local repository on the CMAS CENTER Github repository:
+`git push`
+
+         
 
 
 Guidelines for Developing New CMAQ Source Code
