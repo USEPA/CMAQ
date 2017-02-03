@@ -48,14 +48,27 @@ git is a version control system that supports distributed workflows.  Every Git 
 `git commit -m "changed config.cmaq to fix issue X"
     9. To commit changes to the CMAS CENTER Github repository use the command:
 `git push` 
-    10. If you get a message that the push failed, then the files have changed on the CMAS CENTER Github repository. Use the commandto get the changes that have been made to the remote git repository:
+    10. If you get a message that the push was rejected 
+```Tcsh
+ ! [rejected]        5.2Beta -> 5.2Beta (fetch first)
+error: failed to push some refs to 'https://github.com/CMASCenter/EPA-CMAQ.git'
+hint: Updates were rejected because the remote contains work that you do
+hint: not have locally. This is usually caused by another repository pushing
+hint: to the same ref. You may want to first integrate the remote changes
+hint: (e.g., 'git pull ...') before pushing again.
+hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+```
+    11. This means the files have been changed on the CMAS CENTER Github repository since you last did a clone. 
+Use the following command to get the changes that have been made to the remote git repository:
 `git pull` 
-    11. You will be asked to merge the files
-    12. Retry the push command to place the changes that you committed to the local repository on the CMAS CENTER Github repository:
+    12. You will be asked to merge the files if there are no changes that conflict with your file changes. IF successful you will see a message similar to the following, that indicates what files were changed.
+```Tcsh
+Merge made by the 'recursive' strategy.
+ config.cmaq | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+```
+    13. Retry the push command to place the changes that you committed to the local repository on the CMAS CENTER Github repository:
 `git push`
-
-         
-
 
 Guidelines for Developing New CMAQ Source Code
 ----------------------------------------------
