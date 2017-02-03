@@ -112,7 +112,12 @@ C Local variables:
       INTEGER          :: STAT
 
       INTEGER, SAVE :: N_SPC_ADV
-      REAL          :: AER_PAR( N_MODE,3 )
+      INTEGER       :: LMODE    !Identifies the problematic mode from
+                                !the BC Check routine
+      REAL          :: AER_PAR( 2, N_MODE,5 )  !Modal parameter after the BC 
+                                               !check (N, dg, sg)
+                                               !      (N, M2, M3) - Before
+                                               !      (N, M2, M3) - After
 
       INTEGER   MDATE             ! mid-advection date
       INTEGER   MTIME             ! mid-advection time
@@ -399,28 +404,26 @@ C Read & interpolate boundary concentrations
          END IF
 151   CONTINUE
       
-      !Check Aerosol Size Distributions and Warn the User if They Aren`t
-      !Robust
+      !Check Aerosol Size Distributions and Warn 
+      !the User if They Are Not Robust
       DO BND = 1,NBNDY
-        CALL CHECK_AERO_ICBC( BCON( BND,STRT:FINI ), STAT, AER_PAR )
+        CALL CHECK_AERO_ICBC( BCON( BND,STRT:FINI ), STAT, AER_PAR, LMODE )
         IF ( STAT .EQ. 1 ) THEN
-C          WRITE( XMSG2, '(A43,/,4x,A22,I4,2x,I2,4x,A4,4x,A3,8x,A2,8x,A2,
-C    &                         3(/,4x,I1,7x,E8.1,1x,E8.1,1x,E8.1),/,A70)' ),
-C    &       'Error Applying Aerosol Boundary Conditions!',
-C    &       'Grid Cell(Horz,Vert): ',BND, LVL,
-C    &       'Mode','Num','Dg','Sg',
-C    &       '1',AER_PAR(1,1), AER_PAR(1,2), AER_PAR(1,3),
-C    &       '2',AER_PAR(2,1), AER_PAR(2,2), AER_PAR(2,3),
-C    &       '3',AER_PAR(3,1), AER_PAR(3,2), AER_PAR(3,3),
-C    &       'The Offending Mode(s) was overwritten by changing the Num and SrfArea.'
-           print *, 'Error Applying Aerosol Boundary Conditions!'
-           print *, 'Grid Cell(Horz,Vert): ',BND, LVL
-           print *, 'Mode   ','Num    ','Dg     ','Sg     '
-           print *, '1',AER_PAR(1,1), AER_PAR(1,2), AER_PAR(1,3)
-           print *, '2',AER_PAR(2,1), AER_PAR(2,2), AER_PAR(2,3)
-           print *, '3',AER_PAR(3,1), AER_PAR(3,2), AER_PAR(3,3)
-           print *, 'The Offending Mode(s) was overwritten by changing the Num and SrfArea.'
-           CALL M3WARN( 'Read BCs', MDATE, MTIME, XMSG2 )
+          WRITE( XMSG2, '(A52,I1)' ),
+     &       'Error Applying Aerosol Boundary Conditions for mode ',LMODE
+          CALL M3WARN( 'Read BCs', MDATE, MTIME, XMSG2 )
+#ifdef verbose_rdbcon
+          WRITE ( *, '(7x,A20,I1,A42,/,9x,A51,/,9x,A22,I4,2x,I2,/,
+     &                 9x,A19,1x,A3,8x,A2,8x,A2,8x,A2,8x,A2,/,
+     &                 27x,E8.1,1x,E8.1,1x,E8.1,1x,E8.1,4x,F4.1,/,
+     &                 9x,A19,1x,A3,8x,A2,8x,A2,8x,A2,8x,A2,/,
+     &                 27x,E8.1,1x,E8.1,1x,E8.1,1x,E8.1,4x,F4.1)'),
+     &               'The Offending Mode (',LMODE,') had diameter and/or sigma out of bounds.',
+     &               'It was overwritten by changing the Num and SrfArea.',
+     &               'Grid Cell(Horz,Vert): ',BND, LVL,
+     &               'Modal Props Before:','Num','M2','M3','Dg','Sg',(AER_PAR(1,LMODE,j),j=1,5),
+     &               'Modal Props After: ','Num','M2','M3','Dg','Sg',(AER_PAR(2,LMODE,j),j=1,5)
+#endif
         ENDIF
       END DO
 
