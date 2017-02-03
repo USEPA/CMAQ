@@ -49,7 +49,7 @@ git is a version control system that supports distributed workflows.  Every Git 
     9. To commit changes to the CMAS CENTER Github repository use the command:
 `git push` 
     10. If you get a message that the push was rejected similar to the following:
-        ```Tcsh
+        ```
         ! [rejected]        5.2Beta -> 5.2Beta (fetch first)
           error: failed to push some refs to 'https://github.com/CMASCenter/EPA-CMAQ.git'
           hint: Updates were rejected because the remote contains work that you do
@@ -62,7 +62,7 @@ git is a version control system that supports distributed workflows.  Every Git 
 Use the following command to get the changes that have been made to the remote git repository:
 `git pull` 
     12. You will be asked to merge the files if there are no changes that conflict with your file changes. IF successful you will see a message similar to the following, that indicates what files were changed.
-        ```Tcsh
+        ```
         Merge made by the 'recursive' strategy.
         config.cmaq | 4 ++--
         1 file changed, 2 insertions(+), 2 deletions(-)
