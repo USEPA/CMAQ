@@ -30,10 +30,47 @@ Prior to CMAQ version=5.0.2, CMAQ developers used [CVS](https://en.wikipedia.org
 
 ### git Explained
 
-git controls the concurrent editing of files by several users..
+git is a version control system that supports distributed workflows.  Every Git directory is a full repository with complete history and version tracking.  
 -   It works on virtually all UNIX and Linux platforms and on many PCs.
--   It is publicly available and free.
-
+-   It is publicly available and free and is distributed under the terms of the GNU General Public License.
+-   If you would like to contribute changes to the EPA CMAQ repository, use the following steps 
+    1. Create a github account https://github.com/
+    2. Send an e-mail to cmas-git@unc.edu specifying your github user name, and request that you be added as an outside collaborator to the CMAS CENTER Organization.
+    3. `git clone  -b 5.2Beta https://github.com/CMASCenter/EPA-CMAQ.git` - Get a clone or copy of the CMAQ repository from the CMAS CENTER github site.
+    4.  This will make a directory called EPA-CMAQ and will contain a copy of the files from the 5.2Beta Branch 
+    5. `git status`   To confirm the status of the files in the repository and the branch that is currently checked out
+    6.  To edit the config.cmaq file take the following steps:
+`cd CMAQ`
+`vi config.cmaq`  - or use the Atom, TextWrangler or other Editor
+    7. To see what changes you made use the following command
+`git diff config.cmaq`
+    8. To stage the change use the following command.
+`git add config.cmaq`
+    9. To commit changes to the local repostitory use the command:
+`git commit -m "changed config.cmaq to fix issue X"`
+    10. To commit changes to the CMAS CENTER Github repository use the command:
+`git push` 
+    11. If you get a message that the push was rejected similar to the following:
+        ```
+        ! [rejected]        5.2Beta -> 5.2Beta (fetch first)
+          error: failed to push some refs to 'https://github.com/CMASCenter/EPA-CMAQ.git'
+          hint: Updates were rejected because the remote contains work that you do
+          hint: not have locally. This is usually caused by another repository pushing
+          hint: to the same ref. You may want to first integrate the remote changes
+          hint: (e.g., 'git pull ...') before pushing again.
+         hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+         ```
+    12. This means the files have been changed on the CMAS CENTER Github repository since you last did a clone. 
+Use the following command to get the changes that have been made to the remote git repository:
+`git pull` 
+    13. You will be asked to merge the files if there are no changes that conflict with your file changes. IF successful you will see a message similar to the following, that indicates what files were changed.
+        ```
+        Merge made by the 'recursive' strategy.
+        config.cmaq | 4 ++--
+        1 file changed, 2 insertions(+), 2 deletions(-)
+        ```
+    14. Retry the push command to place the changes that you committed to the local repository on the CMAS CENTER Github repository:
+`git push`
 
 Guidelines for Developing New CMAQ Source Code
 ----------------------------------------------
