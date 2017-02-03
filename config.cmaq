@@ -80,8 +80,8 @@
  
 #===============================================================================
  
- setenv system "`/bin/uname -i`"
- setenv bld_os "`/bin/uname -s``/bin/uname -r | cut -d. -f1`"
+ setenv system "`uname -s`"
+ setenv bld_os "`uname -s``uname -r | cut -d. -f1`"
  setenv lib_basedir $CMAQ_HOME/lib
 
 #> generate library locations
