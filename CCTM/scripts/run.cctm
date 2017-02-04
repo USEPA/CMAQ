@@ -254,7 +254,7 @@ if ( $CTM_WB_DUST == 'Y' ) then
    # Input variables for BELD3 Landuse option
    setenv DUST_LU_1 $LUpath/beld3_12CalnexBench_output_a.ncf
    setenv DUST_LU_2 $LUpath/beld4_12CalnexBench_output_tot.ncf
-   setenv MODIS_FPAR $LUPath/modis_fpar_lai_12km_20101201_20111231_daily_ioapi.ncf
+   setenv MODIS_FPAR $LUpath/CALNEX12_MODIS_GVF_LAI_daily.ioapi
 
    # Input variables for BELD4 Landuse option
    setenv BELD4_LU $LUpath/ 
