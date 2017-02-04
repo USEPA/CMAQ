@@ -80,7 +80,7 @@
  
 #===============================================================================
  
- setenv system "`uname -s`"
+ setenv system "`uname -m`"
  setenv bld_os "`uname -s``uname -r | cut -d. -f1`"
  setenv lib_basedir $CMAQ_HOME/lib
 
