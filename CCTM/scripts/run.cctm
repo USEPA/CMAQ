@@ -1,11 +1,13 @@
-#!/bin/csh -f
+#!/bin/csh
 
 # ====================== CCTMv5.2 Run Script ====================== 
-# Usage: run.cctm >&! cctm_51b.log &                                
+# Usage for single processor run: run.cctm |& tee cctm_51b.log                          
+# Usage for multiple processor run: this script is called from a bsub.cctm script
 #
 # To report problems or request help with this script/program:        
 #             http://www.cmascenter.org
 # =================================================================== 
+
  
 #> Source the config.cmaq file to set the run environment
  source ../../config.cmaq
