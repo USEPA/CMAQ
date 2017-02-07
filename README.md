@@ -16,7 +16,7 @@ This CMAQ Git archive is organized with each official public release stored as a
 To clone code from the CMAQ Git archive, specify the branch (i.e. version number) and issue the following command from within
 a working directory on your server:
 ```
-git clone -b CMAQ_v5.2 https://github.com/USEPA/CMAQ.git  
+git clone -b CMAQ_v5.2beta https://github.com/USEPA/CMAQ.git  
 ```
 
 ##CMAQ Repository Guide
@@ -24,6 +24,7 @@ Source code and scripts are organized as follows:
 * **CCTM (CMAQ Chemical Transport Model):** code and scripts for running the 3D-CTM at the heart of CMAQ.
 * **PREP:** Data preprocessing tools for important input files like initial and boundary conditions, etc.
 * **POST:** Data postprocessing tools for aggregating and evaluating CMAQ output products (e.g. Combine, Site-Compare, etc)
+* **TUTORIALS:** Short tutorials provide examples of different CMAQ features.
 * **UTIL:** Utilities for generating code and using CMAQ (e.g. chemical mechanism generation, IO-API, etc)
 
 ##Documentation
