@@ -13,8 +13,7 @@
 # =================================================================== #
 
 #> model source code repository location
- setenv CMAQ_HOME  [Add CMAQv5.2 Install Directory Here] 
- setenv CMAQ_MODEL ${CMAQ_HOME}
+ setenv CMAQ_HOME  [Add CMAQv5.2 Install Directory Here]
  setenv CMAQ_DATA  ${CMAQ_HOME}/data
 
 #===============================================================================
@@ -25,13 +24,13 @@
  setenv compiler pgi  #> options: intel, pgi, gcc
 
 #> I/O API, netCDF, and MPI libraries 
- setenv IOAPI /apps/ioapi_31/Linux2_x86pg_pgcc_nomp #> I/O API directory path
- setenv NETCDF /apps/netcdf/netcdf-4.1.1/Linux86-64-pgf90-gcc #> netCDF directory path
- setenv MPI /usr/mpi/pgi/openmpi-1.4.2 #> MPI directory path
- setenv netcdf_lib "-lnetcdf"  #> -lnetcdff -lnetcdf for netCDF v4.2.0 and later
+ setenv IOAPI /lib/ioapi_31/Linux2_x86pg_pgcc #> I/O API directory path
+ setenv NETCDF /lib/netcdf-4.1                #> netCDF directory path
+ setenv MPI /usr/mpi/pgi/openmpi-1.4.2        #> MPI directory path
+ setenv netcdf_lib "-lnetcdf"           #> -lnetcdff -lnetcdf for netCDF v4.2.0 and later
  setenv ioapi_lib "-lioapi"
  setenv pnetcdf_lib "-lpnetcdf"
- setenv mpi_lib "-lmpi"   #> -lmpich for mvapich or -lmpi for openmpi
+ setenv mpi_lib "-lmpi"                 #> -lmpich for mvapich or -lmpi for openmpi
 
 #> Compiler flags and settings
  switch ( $compiler )
@@ -116,11 +115,11 @@ if ( ! -e $NETCDF_DIR/include/netcdf.h ) then
    exit
 endif
 if ( ! -e $IOAPI_DIR/lib/libioapi.a ) then 
-   echo "ERROR: $NETCDF_DIR/lib/libioapi.a does not exist in your CMAQ_LIB directory!!! Check your installation before proceeding with CMAQ build."
+   echo "ERROR: $IOAPI_DIR/lib/libioapi.a does not exist in your CMAQ_LIB directory!!! Check your installation before proceeding with CMAQ build."
    exit
 endif
 if ( ! -e $IOAPI_DIR/include/m3utilio.mod ) then 
-   echo "ERROR: $NETCDF_DIR/include/m3utilio.mod does not exist in your CMAQ_LIB directory!!! Check your installation before proceeding with CMAQ build."
+   echo "ERROR: $IOAPI_DIR/include/m3utilio.mod does not exist in your CMAQ_LIB directory!!! Check your installation before proceeding with CMAQ build."
    exit
 endif
 

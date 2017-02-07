@@ -6,7 +6,7 @@
 # Note that this script is configured/tested for Red Hat Linux O/S    #
 # The following environment variables must be set for this script to  #
 # build an executable.                                                #
-#   setenv CMAQ_MODEL <source code Git repository>                    #
+#   setenv CMAQ_HOME  <source code Git repository>                    #
 #   setenv CMAQ_LIB   <code librarie>                                 #
 # To report problems or request help with this script/program:        #
 #             http://www.cmascenter.org/html/help.html                #
@@ -29,20 +29,12 @@
  echo "   Model repository path: $CMAQ_HOME"
  echo "            library path: $CMAQ_LIB"
 
-#> If $REPO not set, default to $CMAQ_HOME
- if ( $?REPO ) then
-    echo "         Model repository path: $REPO"
- else
-    setenv REPO $CMAQ_HOME
-    echo " default Model repository path: $REPO"
- endif
-
  set echo
 
 #> Source Code Repository
- setenv REPOROOT $REPO/PREP/icon/src  #> location of the source code for BLDMAKE
- set MODEL   = $REPOROOT             #> location of the ICON source code
- set Mechs   = $REPO/CCTM/src/MECHS  #> location of the chemistry mechanism defining files
+ set MODEL   = $CMAQ_HOME/PREP/icon/src  #> location of the ICON source code
+ setenv REPOROOT $MODEL
+ set Mechs   = $CMAQ_HOME/CCTM/src/MECHS      #> location of the chemistry mechanism defining files
 
 #>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#><#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#
 #>#>#>#>#>#>#>#>#>#>#>#>#># Begin User Input Section #<#<#<#<#<#<#<#<#<#<#<#<#<#
@@ -77,7 +69,7 @@
 #set ModType   = m3conc
 #set ModType   = tracer
 
- set ModMech   = prof_data/cb05_ae6_aq #> static boundary conditions profiles (see $CMAQ_MODEL/BCON/prof_data)
+ set ModMech   = prof_data/cb05_ae6_aq #> static boundary conditions profiles (see $CMAQ_HOME/PREP/icon/src/prof_data)
 
 #> user choices: mechanism  (see CCTM/src/MECHS for list)
 #set Mechanism = cb05tucl_ae6_aq/
@@ -97,13 +89,10 @@
  set FC = ${myFC}
  set FP = $FC
 
-#> Set IO/API version
- set IOAPI = ioapi
-
 #> Set compiler flags
  set xLib_Base  = ${CMAQ_LIB}
- set xLib_1     = $IOAPI/lib
- set xLib_2     = $IOAPI/src
+ set xLib_1     = ioapi/lib
+ set xLib_2     = ioapi/src
  set FSTD       = "${myFSTD}"
  set DBG        = "${myDBG}"
  set F_FLAGS    = "${myFFLAGS}"
@@ -115,7 +104,7 @@
  set LIB2 = "$netcdf_lib $extra_lib"
 
 #> invoke BLDMAKE for serial execution
- set Blder = "$REPO/UTIL/bldmake/src/BLDMAKE -serial -verbose"
+ set Blder = "$CMAQ_HOME/UTIL/bldmake/src/BLDMAKE -serial -verbose"
 
 #> The "BLD" directory for compiling source code (and possibly copying the code to)
  set Bld = $Base/BLD_ICON_${APPL}

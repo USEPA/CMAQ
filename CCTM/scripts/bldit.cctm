@@ -17,7 +17,7 @@
 #:#:#:#:#:#:#:#:#:#:#:# Begin User Input Section #:#:#:#:#:#:#:#:#:#:#:#
 
 #> Source Code Repository
- setenv REPOROOT $CMAQ_MODEL/CCTM/src  #> location of the CCTM source code
+ setenv REPOROOT $CMAQ_HOME/CCTM/src  #> location of the CCTM source code
  set GlobInc = $REPOROOT/ICL           #> location of the global include files
  set Mechs   = $REPOROOT/MECHS         #> location of the chemistry mechanism include files
 
@@ -45,27 +45,27 @@ set ParOpt                             #> uncomment to build a multiple processo
 #> NOTE: For the modules with multiple options, a note is provided on where to look in the CCTM
 #>   source code archive for a list of the possible settings; users may also refer to the CMAQ documentation
 
- set ModDriver = driver/wrf            #> generalized coordinate driver module (see $CMAQ_MODEL/CCTM/src/driver)
+ set ModDriver = driver/wrf            #> generalized coordinate driver module (see $CMAQ_HOME/CCTM/src/driver)
  set ModInit   = init/yamo             #> time-step initialization module 
  set ModGrid   = grid/cartesian        #> grid configuration module 
- set ModCpl    = couple/gencoor_wrf    #> unit conversion and concentration coupling module (see $CMAQ_MODEL/CCTM/src/couple)
+ set ModCpl    = couple/gencoor_wrf    #> unit conversion and concentration coupling module (see $CMAQ_HOME/CCTM/src/couple)
  set ModHadv   = hadv/yamo             #> horizontal advection module
- set ModVadv   = vadv/wrf              #> vertical advection module (see $CMAQ_MODEL/CCTM/src/vadv)
+ set ModVadv   = vadv/wrf              #> vertical advection module (see $CMAQ_HOME/CCTM/src/vadv)
  set ModHdiff  = hdiff/multiscale      #> horizontal diffusion module
- set ModVdiff  = vdiff/acm2            #> vertical diffusion module (see $CMAQ_MODEL/CCTM/src/vdiff)
- set ModDepv   = depv/m3dry            #> deposition velocity calculation module (see $CMAQ_MODEL/CCTM/src/depv)
+ set ModVdiff  = vdiff/acm2            #> vertical diffusion module (see $CMAQ_HOME/CCTM/src/vdiff)
+ set ModDepv   = depv/m3dry            #> deposition velocity calculation module (see $CMAQ_HOME/CCTM/src/depv)
  set ModEmis   = emis/emis             #> in-line emissions module
  set ModBiog   = biog/beis3            #> BEIS3 in-line emissions module 
  set ModPlmrs  = plrise/smoke          #> in-line emissions plume rise
- set ModCgrds  = spcs/cgrid_spcs_nml   #> chemistry species configuration module (see $CMAQ_MODEL/CCTM/src/spcs)
- set ModPhot   = phot/inline           #> photolysis calculation module (see $CMAQ_MODEL/CCTM/src/phot)
- set Mechanism = cb05e51_ae6_aq        #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS)
- set ModGas    = gas/ebi_${Mechanism}  #> gas-phase chemistry solver (see $CMAQ_MODEL/CCTM/src/gas)
- set ModAero   = aero/aero6            #> aerosol chemistry module (see $CMAQ_MODEL/CCTM/src/aero)
- set ModCloud  = cloud/acm_ae6         #> cloud chemistry module (see $CMAQ_MODEL/CCTM/src/cloud)
+ set ModCgrds  = spcs/cgrid_spcs_nml   #> chemistry species configuration module (see $CMAQ_HOME/CCTM/src/spcs)
+ set ModPhot   = phot/inline           #> photolysis calculation module (see $CMAQ_HOME/CCTM/src/phot)
+ set Mechanism = cb05e51_ae6_aq        #> chemical mechanism (see $CMAQ_HOME/CCTM/src/MECHS)
+ set ModGas    = gas/ebi_${Mechanism}  #> gas-phase chemistry solver (see $CMAQ_HOME/CCTM/src/gas)
+ set ModAero   = aero/aero6            #> aerosol chemistry module (see $CMAQ_HOME/CCTM/src/aero)
+ set ModCloud  = cloud/acm_ae6         #> cloud chemistry module (see $CMAQ_HOME/CCTM/src/cloud)
  set ModUtil   = util/util             #> CCTM utility modules
- set Tracer    = trac0                 #> tracer configuration directory under $CMAQ_MODEL/CCTM/src/MECHS [ default: no tracer species ]
- set ModPa     = procan/pa             #> name of process analysis include file directory under $CMAQ_MODEL/CCTM/src/ICL
+ set Tracer    = trac0                 #> tracer configuration directory under $CMAQ_HOME/CCTM/src/MECHS [ default: no tracer species ]
+ set ModPa     = procan/pa             #> name of process analysis include file directory under $CMAQ_HOME/CCTM/src/ICL
  set ModPvO3   = pv_o3                 #> potential vorticity from the free troposphee
 
 #======================================#>
@@ -104,14 +104,6 @@ set ParOpt                             #> uncomment to build a multiple processo
  echo "    Model repository base path: $CMAQ_HOME"
  echo "                  library path: $CMAQ_LIB"
 
-#> If $CMAQ_MODEL not set, default to $CMAQ_HOME
- if ( $?CMAQ_MODEL ) then
-    echo "         Model repository path: $CMAQ_MODEL"
- else
-    setenv CMAQ_MODEL $CMAQ_HOME
-    echo " default Model repository path: $CMAQ_MODEL"
- endif
-
  set BLD_OS = `uname -s`        ## Script set up for Linux only 
  if ($BLD_OS != 'Linux') then
     echo "   $BLD_OS -> wrong bldit script for host!"
@@ -138,8 +130,8 @@ if ( $?build_twoway ) then
     set ModStenex = STENEX/se
     set ModPario = PARIO
     set ModPar = par/mpi
-    set PARIO = ${CMAQ_MODEL}/PARIO
-    set STENEX = ${CMAQ_MODEL}/STENEX
+    set PARIO = ${REPOROOT}/PARIO
+    set STENEX = ${REPOROOT}/STENEX
     # MPI_INC is set in config.cmaq
  #   set PIO_INC = "${IOAPI_DIR}/src/fixed_src"
     set PAR = ( -Dparallel )
@@ -154,7 +146,7 @@ if ( $?build_twoway ) then
     set ModStenex = STENEX/noop
     set ModPar = par/par_noop
     set PARIO = "."
-    set STENEX = ${CMAQ_MODEL}/STENEX/noop
+    set STENEX = ${REPOROOT}/STENEX/noop
     set MPI_INC = "."
  #   set PIO_INC = "."
     set PAR = ""

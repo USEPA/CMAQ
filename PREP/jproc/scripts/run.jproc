@@ -23,7 +23,7 @@
  set EXEC     = JPROC_${APPL}_$EXEC_ID
 
 #> Set the working directory:
- set BASE     = $CMAQ_HOME/scripts/jproc
+ set BASE     = $CMAQ_HOME/PREP/jproc/scripts
  set BLD   = ${BASE}/BLD_$APPL
 
  cd $BASE; date; set timestamp; cat $BASE/cfg.${CFG}; echo " "; set echo

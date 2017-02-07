@@ -4,7 +4,7 @@
 EXEC = BLDMAKE
 
 FC = $(myFC)
-F_FLAGS = $(myFFLAGS)
+F_FLAGS = $(myFSTD) $(myFFLAGS)
 
 OBJS= cfg_module.o parser.o utils.o bldmake.o
 
