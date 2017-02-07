@@ -25,11 +25,11 @@ For instructions on installing CMAQ from tarballs, see [Chapter 5](CMAQ_OGD_ch05
 
 Edit the file `CMAQv5.2/config.cmaq` to configure the CMAQ installation for the local computing architecture and compilers.
 
-'1.' Set the script variable `CMAQ_HOME` to point the installation directory location of CMAQ on your Linux system.
+*1.* Set the script variable `CMAQ_HOME` to point the installation directory location of CMAQ on your Linux system.
 
-'2.' Set the script variable `compiler` for one of the supported compilers.
+*2.* Set the script variable `compiler` for one of the supported compilers.
 
-'3.' Install the CMAQ libraries
+*3.* Install the CMAQ libraries
 
 The CMAQ build scripts require the following libraries and INCLUDE files to be available in the CMAQ_LIB directory: 
 
@@ -45,11 +45,11 @@ The config.cmaq script will automatically link the required libraries into the C
 
 For example, if your netCDF libraries and includes files are installed in /usr/local/netcdf, set NETCDF to /usr/local/netcdf. Similarly, if your I/O API library is installed in /home/cmaq/ioapi/Linux2_x86_64ifort, set IOAPI to /home/cmaq/ioapi/Linux2_x86_64ifort. 
 
-'4.' Check the names of the I/O API and netCDF libraries using the `ioapi_lib` and `netcdf_lib` script variables.
+*4.* Check the names of the I/O API and netCDF libraries using the `ioapi_lib` and `netcdf_lib` script variables.
 
-'5.' Check the name of the MPI library using the `mpi` script variable. For MVAPICH use `-lmpich`; for openMPI use `-lmpi`.
+*5.* Check the name of the MPI library using the `mpi` script variable. For MVAPICH use `-lmpich`; for openMPI use `-lmpi`.
 
-'6.' Invoke the settings in the configuration script: `source $CMAQ_HOME/config.cmaq`
+*6.* Invoke the settings in the configuration script: `source $CMAQ_HOME/config.cmaq`
 
 ### Compiling CMAQ ###
 
