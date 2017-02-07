@@ -22,9 +22,12 @@
 #-------------------------------------------------------------------------------
 
 #> Set the compiler
- setenv compiler intel  #> options: intel, pgi, gcc
+ setenv compiler pgi  #> options: intel, pgi, gcc
 
 #> I/O API, netCDF, and MPI libraries 
+ setenv IOAPI /apps/ioapi_31/Linux2_x86pg_pgcc_nomp #> I/O API directory path
+ setenv NETCDF /apps/netcdf/netcdf-4.1.1/Linux86-64-pgf90-gcc #> netCDF directory path
+ setenv MPI /usr/mpi/pgi/openmpi-1.4.2 #> MPI directory path
  setenv netcdf_lib "-lnetcdf"  #> -lnetcdff -lnetcdf for netCDF v4.2.0 and later
  setenv ioapi_lib "-lioapi"
  setenv pnetcdf_lib "-lpnetcdf"
@@ -93,6 +96,33 @@
 
  if ( ! -d $CMAQ_LIB ) mkdir -p $CMAQ_LIB
  if ( ! -d $CMAQ_DATA) mkdir -p $CMAQ_DATA
+ if ( ! -d $CMAQ_LIB/mpi) ln -s $MPI $CMAQ_LIB/mpi
+ if ( ! -d $NETCDF_DIR ) ln -s $NETCDF $NETCDF_DIR
+ if ( ! -d $IOAPI_DIR ) then 
+    mkdir $IOAPI_DIR
+    ln -s $IOAPI $IOAPI_DIR/lib
+    ln -s $IOAPI $IOAPI_DIR/include
+    ln -s $IOAPI/../ioapi/fixed_src $IOAPI_DIR/src
+ endif
+
+#> check for netcdf and I/O API libs/includes, error if they don't exist
+
+if ( ! -e $NETCDF_DIR/lib/libnetcdf.a ) then 
+   echo "ERROR: $NETCDF_DIR/lib/libnetcdf.a does not exist in your CMAQ_LIB directory!!! Check your installation before proceeding with CMAQ build."
+   exit
+endif
+if ( ! -e $NETCDF_DIR/include/netcdf.h ) then 
+   echo "ERROR: $NETCDF_DIR/include/netcdf.h does not exist in your CMAQ_LIB directory !!! Check your installation before proceeding with CMAQ build."
+   exit
+endif
+if ( ! -e $IOAPI_DIR/lib/libioapi.a ) then 
+   echo "ERROR: $NETCDF_DIR/lib/libioapi.a does not exist in your CMAQ_LIB directory!!! Check your installation before proceeding with CMAQ build."
+   exit
+endif
+if ( ! -e $IOAPI_DIR/include/m3utilio.mod ) then 
+   echo "ERROR: $NETCDF_DIR/include/m3utilio.mod does not exist in your CMAQ_LIB directory!!! Check your installation before proceeding with CMAQ build."
+   exit
+endif
 
 #> set executable id
  setenv EXEC_ID ${bld_os}_${system}${compiler}

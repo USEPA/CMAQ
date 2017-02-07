@@ -105,7 +105,7 @@ setenv FL_ERR_STOP N         #> stop on inconsistent input files
 setenv PROMPTFLAG F          #> turn on I/O-API PROMPT*FILE interactive mode [ options: T | F ]
 setenv IOAPI_OFFSET_64 NO    #> support large timestep records (>2GB/timestep record) [ options: YES | NO ]
 
-#> AeroSprint Controls
+#> Aerosol Diagnostics Controls
 setenv CTM_AVISDIAG N        #> diagnostic file [ default: N ]
 setenv CTM_PMDIAG N          #> What is this [ default: Y ]
 setenv CTM_APMDIAG N         #> What is this [ default: Y ]
@@ -116,7 +116,6 @@ setenv AVG_FILE_ENDTIME N    #> What is this [ default: N ]
 #> Diagnostic Output Flags
 setenv CTM_CKSUM Y           #> cksum report [ default: Y ]
 setenv CLD_DIAG N            #> cloud diagnostic file [ default: N ]
-setenv CTM_AERDIAG Y         #> aerosol diagnostic file [ default: N ]
 setenv CTM_PHOTDIAG N        #> photolysis diagnostic file [ default: N ]
 setenv CTM_SSEMDIAG N        #> sea-salt emissions diagnostic file [ default: N ]
 setenv CTM_DUSTEM_DIAG N     #> windblown dust emissions diagnostic file [ default: N ]; ignore if CTM_WB_DUST = N
@@ -128,17 +127,6 @@ setenv B3GTS_DIAG N          #> beis mass emissions diagnostic file [ default: N
 setenv PT3DDIAG N            #> optional 3d point source emissions diagnostic file [ default: N]; ignore if CTM_PT3DEMIS = N
 setenv PT3DFRAC N            #> optional layer fractions diagnostic (play) file(s) [ default: N]; ignore if CTM_PT3DEMIS = N
 setenv REP_LAYER_MIN -1      #> Minimum layer for reporting plume rise info [ default: -1 ]
-
-#> MPI Optimization Flags 
-setenv MPI_SM_POOL 16000     #> increase shared memory pool in case many MPI_SEND headers
-setenv MP_EAGER_LIMIT 65536  #> set MPI message passing buffer size to max
-setenv MP_SINGLE_THREAD yes  #> optimizate for single threaded applications [ default: no ]
-setenv MP_STDOUTMODE ordered #> order output by the processor ID 
-setenv MP_LABELIO yes        #> label output by processor ID [ default: no ]
-setenv MP_SHARED_MEMORY yes  #> force use of shared memory for tasks on same node [ default: no ]
-setenv MP_ADAPTER_USE shared #> share the MP adapter with other jobs 
-setenv MP_CPU_USE multiple   #> share the node with multiple users/jobs
-setenv MP_CSS_INTERRUPT yes  #> specify whether arriving packets generate interrupts [ default: no ]
 
 set DISP = delete            #> [ delete | update | keep ] existing output files
 
