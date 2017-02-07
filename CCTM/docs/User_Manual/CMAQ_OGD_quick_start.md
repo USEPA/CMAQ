@@ -7,7 +7,7 @@ CMAQ Installation Quick Start Guide
 
 The following support software are required for compiling and running CMAQ.  
 
-1. Fortran and C compilers, e.g., [Intel](https://software.intel.com/en-us/fortran-compilers), [Portland Group](http://www.pgroup.com), [Gnu](Gfortran)
+1. Fortran and C compilers, e.g., [Intel](https://software.intel.com/en-us/fortran-compilers), [Portland Group](http://www.pgroup.com), [Gnu](https://gcc.gnu.org/wiki/GFortran)
 2. [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
 3. [I/O API](http://www.cmascenter.org/ioapi)
 4. [netCDF](http://www.unidata.ucar.edu/software/netcdf/)
@@ -15,9 +15,9 @@ The following support software are required for compiling and running CMAQ.
 
 ### Install CMAQ and Required Libraries ###
 
-In the directory where you would like to install CMAQ, issue the following command to clone the official EPA GitHub repository for CMAQv5.2:
+In the directory where you would like to install CMAQ, issue the following command to clone the CMAS CENTER GitHub repository for CMAQv5.2 Beta:
 
-`git clone -b 5.2 https://github.com/USEPA/CMAQ`
+`git clone -b 5.2Beta https://github.com/CMASCenter/EPA-CMAQ.git`
 
 For instructions on installing CMAQ from tarballs, see [Chapter 5](CMAQ_OGD_ch05_sys_req.md).
 
@@ -25,31 +25,31 @@ For instructions on installing CMAQ from tarballs, see [Chapter 5](CMAQ_OGD_ch05
 
 Edit the file `CMAQv5.2/config.cmaq` to configure the CMAQ installation for the local computing architecture and compilers.
 
-1. Set the script variable `CMAQ_HOME` to point the installation directory location of CMAQ on your Linux system.
-2. Set the script variable `compiler` for one of the supported compilers.
-3. Set the names of the I/O API and netCDF libraries using the `ioapi_lib` and `netcdf_lib` script variables.
-4. Set the name of the MPI library using the `mpi` script variable. For MVAPICH use `-lmpich`; for openMPI use `-lmpi`.
-5. Invoke the settings in the configuration script: `source $CMAQ_HOME/config.cmaq`
+*1.* Set the script variable `CMAQ_HOME` to point the installation directory location of CMAQ on your Linux system.
 
-#### Install the CMAQ libraries
+*2.* Set the script variable `compiler` for one of the supported compilers.
 
-You must install or link the netCDF, I/O API, and MPICH libraries into the CMAQ_LIB directory. The CMAQ compilation scripts assume that the netCDF library and INCLUDE files reside in the `$CMAQ_LIB/netCDF` directory. For example, if your netCDF libraries and includes files are installed in /usr/local/netcdf, link this directory into the CMAQ library directory:
+*3.* Install the CMAQ libraries
 
-`cd $CMAQ_LIB`<br>
-`ln –s /usr/local/netcdf netcdf`
+The CMAQ build scripts require the following libraries and INCLUDE files to be available in the CMAQ_LIB directory: 
 
-The CMAQ compilation scripts assume that the I/O API library resides in the `$CMAQ_LIB/ioapi` directory. For example, if you are using an x86_64 architecture and the Portland Group Fortran compiler and your I/O API installation is located in /usr/lib/ioapi_31:
+- netCDF library and INCLUDE files are located in the `$CMAQ_LIB/netcdf` directory
+- I/O API library and module files are located in the `$CMAQ_LIB/ioapi` directory
+- MPI library and INCLUDE files are located in the `$CMAQ_LIB/mpi` directory
 
-`mkdir $CMAQ_LIB/ioapi`<br>
-`cd $CMAQ_LIB/ioapi`<br>
-`ln –s /usr/lib/ioapi_31/Linux2_x86pg_pgcc_nomp lib`<br>
-`ln –s /usr/lib/ioapi_31/Linux2_x86pg_pgcc_nomp include`<br>
-`ln –s /usr/lib/ioapi_31/ioapi/fixed_src src`
+The config.cmaq script will automatically link the required libraries into the CMAQ_LIB directory. Set the locations of the netCDF, I/O API, and MPI installations on your Linux system with the following config.cmaq environment variables:
 
-The CMAQ compilation scripts assume that an MPI library and INCLUDE files reside in the `$CMAQ_LIB/mpi` directory. For example, if you are using OpenMPI located in /usr/mpi/pgi/openmpi:
+- `setenv IOAPI`: the location of the I/O API installation on your system.
+- `setenv NETCDF`: the location of the netCDF installation on your system.
+- `setenv MPI`: the location of the MPI (OpenMPI or MVAPICH) on your system.
 
-`cd $CMAQ_LIB`<br>
-` ln –s /usr/mpi/pgi/openmpi mpi`
+For example, if your netCDF libraries and includes files are installed in /usr/local/netcdf, set NETCDF to /usr/local/netcdf. Similarly, if your I/O API library is installed in /home/cmaq/ioapi/Linux2_x86_64ifort, set IOAPI to /home/cmaq/ioapi/Linux2_x86_64ifort. 
+
+*4.* Check the names of the I/O API and netCDF libraries using the `ioapi_lib` and `netcdf_lib` script variables.
+
+*5.* Check the name of the MPI library using the `mpi` script variable. For MVAPICH use `-lmpich`; for openMPI use `-lmpi`.
+
+*6.* Invoke the settings in the configuration script: `source $CMAQ_HOME/config.cmaq`
 
 ### Compiling CMAQ ###
 
@@ -61,13 +61,13 @@ Compile the model builder, bldmake:
 Create the model executables for ICON, BCON, and CCTM:
 
 `cd $CMAQ_HOME/PREP/icon/scripts`<br>
-`bldit.icon`
+`./bldit.icon |& tee bldit.icon.log`
 
 `cd $CMAQ_HOME/PREP/bcon/scripts`<br>
-`bldit.bcon`
+`./bldit.bcon`
 
 `cd $CMAQ_HOME/CCTM/scripts`<br>
-`bldit.cctm`
+`./bldit.cctm`
 
 ### Install the CMAQ input reference/benchmark data
 
@@ -90,7 +90,7 @@ Run BCON to produce boundary conditions:
 `cd $CMAQ_HOME/PREP/bcon/scripts`<br>
 `./run.bcon >&! bcon.log &`
 
-Check the ICON and BCON log file to ensure that the programs completed successfully.
+Check the ICON and BCON log file to ensure that the programs completed successfully. Note that CMAQ test simulation doesn't actually require that ICON and BCON be run; the test input data include CCTM-ready initial and boundary conditions files. 
 
 #### Configure the CCTM script for MPI
 

@@ -1,0 +1,6 @@
+**/*.log
+**/*.o
+**/BLD*
+**/*.mod
+data
+lib

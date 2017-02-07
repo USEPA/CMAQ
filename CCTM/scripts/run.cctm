@@ -1,11 +1,13 @@
-#!/bin/csh -f
+#!/bin/csh
 
 # ====================== CCTMv5.2 Run Script ====================== 
-# Usage: run.cctm >&! cctm_51b.log &                                
+# Usage for single processor run: run.cctm |& tee cctm_51b.log                          
+# Usage for multiple processor run: this script is called from a bsub.cctm script
 #
 # To report problems or request help with this script/program:        
 #             http://www.cmascenter.org
 # =================================================================== 
+
  
 #> Source the config.cmaq file to set the run environment
  source ../../config.cmaq
@@ -242,7 +244,7 @@ if ( $CTM_WB_DUST == 'Y' ) then
    # Input variables for BELD3 Landuse option
    setenv DUST_LU_1 $LUpath/beld3_12CalnexBench_output_a.ncf
    setenv DUST_LU_2 $LUpath/beld4_12CalnexBench_output_tot.ncf
-   setenv MODIS_FPAR $LUPath/modis_fpar_lai_12km_20101201_20111231_daily_ioapi.ncf
+   setenv MODIS_FPAR $LUpath/CALNEX12_MODIS_GVF_LAI_daily.ioapi
 
    # Input variables for BELD4 Landuse option
    setenv BELD4_LU $LUpath/ 

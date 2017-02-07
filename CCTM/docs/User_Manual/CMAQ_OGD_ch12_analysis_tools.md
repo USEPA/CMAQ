@@ -127,8 +127,8 @@ Variables from input files are defined by their name followed by its file number
 
 Examples of possible expressions are shown in the sample SPECIES_DEF files distributed with the CMAQ_TOOLS package.
 
-<a id="hrday"><a/>
-## hrday
+<a id="hr2day"><a/>
+## hr2day
 
 This program creates gridded I/O API files with daily values from gridded I/O API files containing hourly values.
 
@@ -144,7 +144,8 @@ HROFFSET      constant hour offset between desired time zone and GMT to use when
               file is GMT, this should be set to 5 (default 0).  
 START_HOUR    starting hour to use when computing daily values (default 0)
 END_HOUR      ending hour to use when computing daily values (default 23)
-TEMPERATURE   temperature variable to be used in the @MAXT operation (default TEMP2)
+HOURS_8HRMAX  number of 8hr values to use when computing daily maximum 8hr ozone, allowed values are 24 (use all 8-hr averages with starting hours from 0 - 23 hr local time) and 27 (use only the 17 8-hr averages with starting hours from 7 - 23 hr local time)
+SPECIES_1     define species (format: "Name, units, From_species, Operation")
 INFILE        input IOAPI file name with hourly values. Supported map projections are Lambert conformal, polar stereographic, and lat/lon
 OUTFILE       output IOAPI file name with computed daily values</code></pre>
 

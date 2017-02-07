@@ -50,8 +50,6 @@ CMAQ requires all of the programs listed in [Table 5‑1](#Table5-1). This list 
 |GFORT|Gnu Fortran compiler|[<http://gcc.gnu.org/fortran/>](http://gcc.gnu.org/fortran/)|
 |GCC|Gnu C compiler|[<http://gcc.gnu.org/>](http://gcc.gnu.org/)|
 |***Code Libraries***| | |
-|STENEX|CMAQ stencil exchange library for parallel job management|Contained in the standard CMAQ distribution available at [<http://www.cmascenter.org>](http://www.cmascenter.org/)
-|PARIO|CMAQ parallel input/output management library|"|
 |OpenMPI|Library for the message passing interface; used for multiprocessor CMAQ simulations|[<https://www.open-mpi.org>](https://www.open-mpi.org)|
 |MPICH|Library for the message passing interface; used for multiprocessor CMAQ simulations|[<http://www.mcs.anl.gov/research/projects/mpich2/>](http://www.mcs.anl.gov/research/projects/mpich2/)|
 |netCDF|Network Common Data Form library for controlling CMAQ file formats|[<http://www.unidata.ucar.edu/software/netcdf/>](http://www.unidata.ucar.edu/software/netcdf/)|
