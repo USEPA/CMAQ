@@ -17,5 +17,5 @@ $(EXEC): $(OBJS)
 	$(FC) -c $(F_FLAGS) $<
 
 clean:
-	rm *.o *.mod $EXEC
+	rm *.o *.mod $(EXEC)
 
