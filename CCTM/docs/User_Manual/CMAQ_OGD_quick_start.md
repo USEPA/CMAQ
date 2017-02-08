@@ -31,7 +31,7 @@ Edit the file `CMAQv5.2/config.cmaq` to configure the CMAQ installation for the 
 
 *3.* Install the CMAQ libraries
 
-The CMAQ build scripts require the following libraries and INCLUDE files to be available in the CMAQ_LIB directory: 
+The CMAQ build scripts require the following libraries and INCLUDE files to be available in the CMAQ_LIB directory (Note the CMAQ_LIB gets set automatically by the config.cmaq script, where `CMAQ_LIB = $CMAQ_HOME/lib`): 
 
 - netCDF library and INCLUDE files are located in the `$CMAQ_LIB/netcdf` directory
 - I/O API library and module files are located in the `$CMAQ_LIB/ioapi` directory
@@ -83,12 +83,12 @@ To run the test simulation for the various CMAQ programs, change directories to 
 Run ICON to produce initial conditions:
 
 `cd $CMAQ_HOME/PREP/icon/scripts`<br>
-`./run.icon >&! icon.log &`
+`./run.icon |& tee icon.log`
 
 Run BCON to produce boundary conditions:
 
 `cd $CMAQ_HOME/PREP/bcon/scripts`<br>
-`./run.bcon >&! bcon.log &`
+`./run.bcon |& tee bcon.log`
 
 Check the ICON and BCON log file to ensure that the programs completed successfully. Note that CMAQ test simulation doesn't actually require that ICON and BCON be run; the test input data include CCTM-ready initial and boundary conditions files. 
 
@@ -103,7 +103,7 @@ Edit the CCTM run script (run.cctm) for the MPI configuration that you will use:
 `setenv NPROCS 6`<br>
 `setenv NPCOL_NPROW “3 2”`
 
-Most clustered multiprocessor systems require a command to start the MPI run-time environment. The default CCTM run script uses the *mpirun* command. Consult your system administrator to find out how to invoke MPI when running multiprocessor applications. F
+Most clustered multiprocessor systems require a command to start the MPI run-time environment. The default CCTM run script uses the *mpirun* command. Consult your system administrator to find out how to invoke MPI when running multiprocessor applications.
 
 For single-processor computing, set NPROCS to 1 and NPCOL_NPROW to “1 1"
 
@@ -112,9 +112,9 @@ For single-processor computing,
 `setenv NPROCS 1`<br>
 `setenv NPCOL_NPROW to “1 1"`
 
-After configuring the MPI settings for your Linux system, run the CCTM:
+After configuring the MPI settings for your Linux system, using the following command to run the CCTM. Per the note above, different Linux systems have different requirements for submitting MPI jobs.  The command below is an example of how to submit the CCTM run script and may differ depending on the MPI requirements of your Linux system. 
 
-`./run.cctm >&! cctm.log &`
+`./run.cctm |& tee cctm.log`
 
 ***
 
