@@ -297,8 +297,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                   YCP( S ) = MAX( ZERO, YCP( S ) )
                   AERROR( S ) = ABS( YC(S)-YCP(S) ) 
                   RERROR( S ) = AERROR( S ) / ABS( YC(S)+YCP(S) )
-!                  IF( RERROR( S ) .GT. RTOL(S) .OR. AERROR( S ) .GT. 1.0D-5 )THEN
-                  IF( RERROR( S ) .GT. RTOL(S)  )THEN
+                   IF( RERROR( S ) .GT. RTOL(S) .OR. AERROR( S ) .GT. 1.0D-5 )THEN
+!                 IF( RERROR( S ) .GT. RTOL(S)  )THEN
                      LEBI_CONV     = .FALSE.
                      LEBISPFL( S ) = .TRUE.
                   END IF
