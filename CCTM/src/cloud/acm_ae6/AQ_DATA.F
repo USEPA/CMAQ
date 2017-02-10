@@ -713,7 +713,7 @@ C Local Variables:
       Integer spc
 
       Do spc = 1, ngas      
-         If ( srggas( spc )%name .Eq. Trim( vname ) ) Then
+         If ( srggas( spc )%name .Eq. vname ) Then
             idx = spc
             ! Write( *,'(a,i5)' ) vname, idx
             Return
@@ -751,7 +751,7 @@ C Local Variables:
       Do spc = 1, naer
          Do n = 1, nmodes
             ! Write( *,'(a,i5)' ) vname, spc
-            If ( srgaer( spc )%name( n ) .Eq. Trim( vname ) ) Then
+            If ( srgaer( spc )%name( n ) .Eq. vname ) Then
                idx = spc
                ! Write( *,'(a,i5)' ) vname, idx
                Return

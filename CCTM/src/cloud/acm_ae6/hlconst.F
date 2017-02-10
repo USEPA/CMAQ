@@ -416,7 +416,7 @@ C-----------------------------------------------------------------------
 
       SPC = 0
       DO S = 1, MXSPCS
-        IF( TRIM( CNAME ) .EQ. TRIM( SUBNAME( S ) ) )THEN
+        IF( CNAME .EQ. SUBNAME( S ) )THEN
             SPC = S
             EXIT
         END IF
@@ -454,7 +454,7 @@ C...assign a value for clminus.  use 2.0 mM based on Lin and Pehkonene, 1998, JG
         CLMINUS   = 2.0E-03                ! chlorine ion conc [CL-]
         CLMINUSI  = 1.0 / CLMINUS          ! 1 / CLMINUS
 
-        CHECK_NAME: SELECT CASE ( TRIM( CNAME ) )
+        CHECK_NAME: SELECT CASE ( CNAME )
 
         CASE ('SO2')            !   SO2H2O <=> HSO3- + H+
                                 ! & HSO3- <=> SO3= + H+

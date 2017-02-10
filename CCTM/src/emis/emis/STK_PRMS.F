@@ -177,7 +177,7 @@ C-----------------------------------------------------------------------
             STIME = STIME3D
 
             DO V = 1, NVARS3D
-               IF ( TRIM( VNAME3D( V ) ) .EQ. 'ACRESBURNED' ) FIRE_ON( N ) = .TRUE.
+               IF ( VNAME3D( V ) .EQ. 'ACRESBURNED' ) FIRE_ON( N ) = .TRUE.
             END DO
 
             ALLOCATE ( XLOCA( NSRC( N ) ), STAT = ASTAT )

@@ -602,7 +602,7 @@ C Local Variables:
       Integer         :: spc
 
       Do spc = 1, n_vapor
-         If ( Trim( vaporspc( spc )%name ) .Eq. Trim( vname ) ) Then
+         If ( vaporspc( spc )%name .Eq. vname ) Then
             ndx = spc
             Return
          End If
@@ -640,7 +640,7 @@ C Local Variables:
 
       Do spc = 1, n_orgprod
          ! If ( Index( orgprod( spc )%name, Trim( vname ) ) .Gt. 0 ) Then
-         If ( Trim( orgprod( spc )%name ) .Eq. Trim( vname ) ) Then
+         If ( orgprod( spc )%name .Eq. vname ) Then
             ndx = spc
             ! Write( *,'(a,i5)' ) vname, ndx
             Return
