@@ -641,6 +641,7 @@ C...begin read
      &             'the reference data! '
              ERROR_FLAG = .TRUE.
              CALL M3WARN ( PNAME, 0, 0, MSG )
+             CYCLE
           END IF
           IP_REF = PHOT_MAP( IP_MAP )
           PHOTOLYSIS_RATE( IPHOT ) = PNAME_MAP( IP_MAP )
@@ -649,7 +650,7 @@ C...begin read
 !***  is referenced in other sections of the code.  if so, then set
 !***  the appropriate pointers for later processing
 
-           SELECT CASE ( TRIM( PHOTOLYSIS_RATE( IPHOT ) ) )
+           SELECT CASE ( PHOTOLYSIS_RATE( IPHOT ) )
               CASE( 'O3O3P', 'O3O3P_SAPRC99', 'O3O3P_06', 'O3_O3P_IUPAC04', 'O3O3P_NASA06', 'O3_O3P_IUPAC10' )
                     LO3O3P = IPHOT
               CASE( 'NO2', 'NO2_SAPRC99', 'NO2_06', 'NO2_RACM2', 'NO2_IUPAC10' )
@@ -662,7 +663,7 @@ C...begin read
                     LMGLY_ADJ = IPHOT
               CASE(  'MGLY_ABS' )
                     LMGLY_ABS = IPHOT
-              CASE( 'ACETONE', 'CH3COCH3_RACM2' )
+              CASE( 'ACETONE', 'CH3COCH3_RACM2', 'ACET_IUPAC10' )
                     IF( NWL .EQ. NWL_ACETONE_FJX ) LACETONE  = IPHOT
               CASE( 'HCHOR_06', 'HCHO_R_SAPRC99', 'HCHO_RAD_RACM2', 'FORM_R_IUPAC10', 'HCHO_R_MCMv32' )
                     LHCHOR_06 = IPHOT
@@ -968,7 +969,7 @@ C...begin read
      &         OPTICS_EXPECT, RADIUS_LIQUID( ITT_LOAD ),
      &         ( LIQUID_EXTINCT( ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_OPTICS )
 #endif
-            IF ( TRIM( OPTICS_EXPECT ) .NE. TRIM( QUANTITY ) ) THEN
+            IF ( OPTICS_EXPECT .NE. QUANTITY ) THEN
                MSG =  'Optical quantity read ' // TRIM( OPTICS_EXPECT )
      &             // ' does match expected quantity, ' // TRIM( QUANTITY )
                CALL M3WARN( PNAME, 0, 0, MSG )
@@ -993,7 +994,7 @@ C...begin read
      &         OPTICS_EXPECT, RADIUS_LIQUID( ITT_LOAD ),
      &         ( LIQUID_ASYMFACT( ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_OPTICS )
 #endif
-            IF ( TRIM( OPTICS_EXPECT ) .NE. TRIM( QUANTITY ) ) THEN
+            IF ( OPTICS_EXPECT .NE. QUANTITY ) THEN
                MSG =  'Optical quantity read ' // TRIM( OPTICS_EXPECT )
      &             // ' does match expected quantity, ' // TRIM( QUANTITY )
                CALL M3WARN( PNAME, 0, 0, MSG )
@@ -1018,7 +1019,7 @@ C...begin read
      &         OPTICS_EXPECT, RADIUS_LIQUID( ITT_LOAD ),
      &         ( LIQUID_COALBEDO( ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_OPTICS )
 #endif
-            IF ( TRIM( OPTICS_EXPECT ) .NE. TRIM( QUANTITY ) ) THEN
+            IF ( OPTICS_EXPECT .NE. QUANTITY ) THEN
                MSG =  'Optical quantity read ' // TRIM( OPTICS_EXPECT )
      &             // ' does match expected quantity, ' // TRIM( QUANTITY )
                CALL M3WARN( PNAME, 0, 0, MSG )
@@ -1066,7 +1067,7 @@ C...begin read
      &         OPTICS_EXPECT, DIAMETER_ICE( ITT_LOAD ),
      &         ( ICE_EXTINCT( ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_OPTICS )
 #endif
-            IF ( TRIM( OPTICS_EXPECT ) .NE. TRIM( QUANTITY ) ) THEN
+            IF ( OPTICS_EXPECT .NE. QUANTITY ) THEN
                MSG =  'Optical quantity read ' // TRIM( OPTICS_EXPECT )
      &             // ' does match expected quantity, ' // TRIM( QUANTITY )
                CALL M3WARN( PNAME, 0, 0, MSG )
@@ -1091,7 +1092,7 @@ C...begin read
      &         OPTICS_EXPECT, DIAMETER_ICE( ITT_LOAD ),
      &         ( ICE_ASYMFACT( ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_OPTICS )
 #endif
-            IF ( TRIM( OPTICS_EXPECT ) .NE. TRIM( QUANTITY ) ) THEN
+            IF ( OPTICS_EXPECT .NE. QUANTITY ) THEN
                MSG =  'Optical quantity read ' // TRIM( OPTICS_EXPECT )
      &             // ' does match expected quantity, ' // TRIM( QUANTITY )
                CALL M3WARN( PNAME, 0, 0, MSG )
@@ -1116,7 +1117,7 @@ C...begin read
      &         OPTICS_EXPECT, DIAMETER_ICE( ITT_LOAD ),
      &         ( ICE_COALBEDO( ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_OPTICS )
 #endif
-            IF ( TRIM( OPTICS_EXPECT ) .NE. TRIM( QUANTITY ) ) THEN
+            IF ( OPTICS_EXPECT .NE. QUANTITY ) THEN
                MSG =  'Optical quantity read ' // TRIM( OPTICS_EXPECT )
      &             // ' does match expected quantity, ' // TRIM( QUANTITY )
                CALL M3WARN( PNAME, 0, 0, MSG )
@@ -1141,7 +1142,7 @@ C...begin read
      &         OPTICS_EXPECT, DIAMETER_ICE( ITT_LOAD ),
      &         ( ICE_DELTRANS( ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_OPTICS )
 #endif
-            IF ( TRIM( OPTICS_EXPECT ) .NE. TRIM( QUANTITY ) ) THEN
+            IF ( OPTICS_EXPECT .NE. QUANTITY ) THEN
                MSG =  'Optical quantity read ' // TRIM( OPTICS_EXPECT )
      &             // ' does match expected quantity, ' // TRIM( QUANTITY )
                CALL M3WARN( PNAME, 0, 0, MSG )
@@ -1960,7 +1961,7 @@ C-----------------------------------------------------------------------
                         CSQY_ADJUST( IPHOT ) = BIACETYL
                      CASE ( 'HCHO_M_MCMv32', 'HCHOM_06', 'HCHO_M_SAPRC99', 'HCHO_MOL_RACM2', 'FORM_R_IUPAC10' )  ! 'CH2O -> H2 + CO'
                         CSQY_ADJUST( IPHOT ) = FORMALDEHYDE_MOLECULAR
-                     CASE (  'ACET_06', 'ACETONE', 'CH3COCH3_RACM2' ) ! 'CH3COCH3 -> products'
+                     CASE (  'ACET_06', 'ACETONE', 'CH3COCH3_RACM2', 'ACET_IUPAC10' ) ! 'CH3COCH3 -> products'
                         CSQY_ADJUST( IPHOT ) = ACETONE
                      CASE (  'KETONE'  )
                         CSQY_ADJUST( IPHOT ) = KETONE_LEGACY

@@ -17,9 +17,8 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/smvgear/DEGRADE_SETUP_TOX.F,v 1.6 2011/10/21 16:11:12 yoj Exp $
+C $Header$
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -32,20 +31,15 @@ C  FUNCTION:  Define arrays that identify species within CGRID used
 C             based on input arrays
 C
 C  REVISION HISTORY: 07/29/05 : B.Hutzell - Initial version
-C                    01/08/07 : S.Roselle - Corrected minimum length for
-C                               species name (LEN_NAME)
-C                    28 Jun 10 J.Young: convert for Namelist redesign
-C                    29 Mar 11 S.Roselle: Replaced I/O API include files
-C                               with UTILIO_DEFN
-C                    29 Sep 11 B.Hutzell added CYCLE statements to allow 
-C                              optional degraded species when it is not in
-C                              namelists
+C                    06 May 11: B.Hutzell: convert for Namelist redesign
+C                    09 May 11: B.Hutzell: enabled a degraded species to
+C                               be missing from namelists
 C
 C**********************************************************************
 
-      USE GRID_CONF    ! vertical and horizontal domain specs
-      USE CGRID_SPCS   ! CGRID mechanism species
-      USE UTILIO_DEFN
+      USE CGRID_SPCS   ! CGRID species number and offsets
+      USE UTILIO_DEFN  ! IOAPI declarations and definitions
+
 
       IMPLICIT NONE
 
@@ -55,22 +49,22 @@ C.....INCLUDES:
 
 C..declare and define variables used by maps and data
 
-      CHARACTER(16), PARAMETER :: BLANK = ' '  ! default value for characters
-
       INTEGER, PARAMETER :: N_REACT      = 30    ! number of  species being degraded
       INTEGER, PARAMETER :: N_UNI_LOSS   = 1     ! Number of Unimolecular Loss Processes
       INTEGER, PARAMETER :: N_BI_LOSS    = 5     ! Number of Bimolcular Loss processes
       INTEGER, PARAMETER :: N_TRI_LOSS   = 2     ! Number of Bimolcular Loss processes
       INTEGER, PARAMETER :: N_PHOTO_LOSS = 2     ! Number of Photolysis Loss processes
+
 ! Total number of Loss processes      
       INTEGER, PARAMETER :: N_PROCESSES  = N_UNI_LOSS
      &                                   + N_BI_LOSS
      &                                   + N_PHOTO_LOSS
      &                                   + N_TRI_LOSS
-      
+
+      CHARACTER(16), PARAMETER :: BLANK = ' '  ! default value for characters
 
       INTEGER, SAVE :: N_PHOTO_TAB    ! Number of photolysis rates in mechanism
-      INTEGER, SAVE :: N_REACT_FOUND  ! Number of react species found in namelists
+      INTEGER, SAVE :: N_REACT_FOUND  ! Number ofreact species found in namelists
 
 C..looping data
 
@@ -112,7 +106,7 @@ C..looping data
       REAL(8), ALLOCATABLE :: A_PHOTO    ( :,: ) ! multiplier of photolysis rates
       REAL,    ALLOCATABLE :: PHOTO_YIELD( :,: ) ! production yield
 
-      REAL(8), ALLOCATABLE :: RATE_CONST( :,:,: )
+      REAL(8), ALLOCATABLE :: RATE_CONST( :,: )
       REAL(8), ALLOCATABLE :: RATE_YIELD( :,: )
 
       REAL(8)              :: EFFECTIVE_ZERO
@@ -127,21 +121,17 @@ C..arrays to store indices to CGRID
 
 C..saved cell concentrations
 
-      REAL(8), ALLOCATABLE :: PREV_CONC( :,: )
-      REAL(8), ALLOCATABLE :: CURR_CONC( :,: )
-      REAL(8), ALLOCATABLE :: TEMP( : )        ! cell temperature [ K ]
-      REAL(8), ALLOCATABLE :: INV_TEMP( : )    ! reciprocal of cell temperature [ 1/K ]
-      REAL(8), ALLOCATABLE :: NUMB_DENS( : )   ! cell air number density [ 1/CM^3 ]
-      REAL(8), ALLOCATABLE :: CONV_FACT( : )   ! conversion factor from ppm to molecules/cm^3
+      REAL( 8 ), ALLOCATABLE :: PREV_CONC( : )
+      REAL( 8 ), ALLOCATABLE :: CURR_CONC( : )
+      REAL( 8 )              :: TEMP                ! cell temperature [ K ]
+      REAL( 8 )               :: NUMB_DENS           ! cell air number density [ 1/CM^3 ]
 
-
-      REAL(8), ALLOCATABLE :: DELT_CONC( :,: ) ! changes predicted by degrade routine
-
-      INTEGER              :: NUM_CELLS        ! number of cells in BLOCK
+      REAL(8), ALLOCATABLE :: DELT_CONC( : )   ! changes predicted by degrade routine
 
 C**********************************************************************
 
       CONTAINS
+      
 
          SUBROUTINE DEGRADE_MAP( JDATE, JTIME, LOGDEV )
 C**********************************************************************
@@ -168,11 +158,11 @@ C.....ARGUMENTS:
 
 C.....PARAMETERS:
 
-         REAL(8), PARAMETER :: TEMP_298K  = 298.15D0       ! K
+         REAL(8), PARAMETER :: TEMP_298K  = 298.15        ! K
 
 C.....LOCAL VARIABLES:
 
-         CHARACTER(  16 ) :: PNAME =  'DEGRADE_MAP    '     ! procedure name
+         CHARACTER(  16 ) :: PNAME =  'DEGRADE_MAP    '     ! name of routine
          CHARACTER(  16 ) :: EMTPTY
          CHARACTER(  16 ) :: WNAME                          ! SCRATCH variable
          CHARACTER(  16 ) :: VNAME( N_PROCESSES+1 )         ! SCRATCH variable
@@ -198,7 +188,7 @@ C..Quality control on pairs of Reactant and Products
 
          N_REACT_FOUND = 0
 
-         LOOP_REACT: DO I = 1, N_REACT
+         LOOP_REACT : DO I = 1, N_REACT
 
             VNAME( 1 ) = REACT( I )
 
@@ -270,18 +260,16 @@ C..Set up indices that point to concentrations in CGRID.
                      N = INDEX1( WNAME, N_NR_SPC, NR_SPC )
                      MARKER = NR_STRT
                      IF ( N == 0 ) THEN
-#ifdef verbose_gas
-                        WRITE( XMSG,* ) WNAME( 1:LEN_NAME ), ' is not '
-     &                       // 'in gas or nonreactive species table so '
+#ifdef verbose_gas                     
+                        WRITE( LOGDEV,'(a)' ) TRIM( WNAME ), ' is not '
+     &                       // 'in gas or nonreactive species table.'
      &                       // 'its loss processes not calculated '
-!                        CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-                         CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-#endif
-                         RXTANT_MAP( I ) = -1
-                         CYCLE
+#endif                        
+                        RXTANT_MAP( I ) = -1
+                        CYCLE
                      ENDIF
                   ENDIF
-
+         
                   N_REACT_FOUND = N_REACT_FOUND + 1
 
                ELSE

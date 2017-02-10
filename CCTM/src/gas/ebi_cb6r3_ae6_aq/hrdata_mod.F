@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the CB6R3 family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, May 25, 2016
+C  REVISION HISTORY: Created by EBI solver program, Oct 31, 2016
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables for solution
 C*************************************************************************
@@ -42,6 +42,8 @@ c..EBI solver fixed parameters
       INTEGER, PARAMETER    ::  NEBITER       = 1000     ! No. of iterations for EBI
       INTEGER, PARAMETER    ::  MAX_CELLS_EBI = 1        ! max # cells in local conc arrays
       REAL( 8 ), PARAMETER  ::  DELTAT        = 2.5D+00  ! EBI time step
+!      REAL( 8 ), PARAMETER  ::  DELTAT        = 1.25D+00  ! EBI time step
+!      REAL( 8 ), PARAMETER  ::  DELTAT        = 6.25D-01  ! EBI time step
 
 c..Mechanism specific variables
       INTEGER   N_SPEC       ! No. of species in mechanism
@@ -57,12 +59,16 @@ c..Control flags
       LOGICAL   L_AE_VRSN    ! Flag for aerosol version of mech
       LOGICAL   L_AQ_VRSN    ! Flag for aqueous chemistry version of mech
 
+  ! SWITCH for calling DEGRADE routine
+      LOGICAL, SAVE :: CALL_DEG = .TRUE.
 
 c..Miscellaneous variables
       INTEGER   LOGDEV        ! Unit number of output log
       INTEGER   N_EBI_IT      ! No. of iterations for EBI
       INTEGER   N_EBI_STEPS   ! No. of time steps for EBI
       INTEGER   N_INR_STEPS   ! No. of inner time steps for EBI
+  
+      INTEGER, SAVE ::   MODEL_SPECIES ! No. of species in CGRID
 
       REAL( 8 )    EBI_TMSTEP          ! Time step for EBI loops (min)
 
@@ -85,6 +91,7 @@ c...Allocatable arrays
 
       REAL( 8 ), ALLOCATABLE ::  RXRAT( : )     ! Reaction rates
       REAL( 8 ), ALLOCATABLE ::  RTOL(  : )        ! Species tolerances
+      REAL( 8 ), ALLOCATABLE ::  YCCELL( : )       ! ALL Species in cgrid
       REAL( 8 ), ALLOCATABLE ::  PROD(  : )     ! Prod of species
       REAL( 8 ), ALLOCATABLE ::  LOSS(  : )     ! Loss of species
       REAL( 8 ), ALLOCATABLE ::  PNEG(  : )! Negative production rates
@@ -250,5 +257,14 @@ c..Species indices
       INTEGER, PARAMETER :: VSVOO2           =  138
       INTEGER, PARAMETER :: VSVOO3           =  139
       INTEGER, PARAMETER :: VSVOO1           =  140
+      INTEGER, PARAMETER :: FORM_PRIMARY     =  141
+      INTEGER, PARAMETER :: ALD2_PRIMARY     =  142
+      INTEGER, PARAMETER :: BUTADIENE13      =  143
+      INTEGER, PARAMETER :: ACROLEIN         =  144
+      INTEGER, PARAMETER :: ACRO_PRIMARY     =  145
+      INTEGER, PARAMETER :: TOLU             =  146
+      INTEGER, PARAMETER :: HG               =  147
+      INTEGER, PARAMETER :: HGIIAER          =  148
+      INTEGER, PARAMETER :: HGIIGAS          =  149
 
       END MODULE HRDATA
