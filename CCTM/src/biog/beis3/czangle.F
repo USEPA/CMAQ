@@ -62,7 +62,7 @@ C Last updated: $Date: 2012/03/28 16:05:37 $
 C----------------------------------------------------------------------
 
       USE UTILIO_DEFN
-      USE ASX_DATA_MOD, Only: Grid_Data
+      USE ASX_DATA_MOD, Only: MET_INITIALIZED, INIT_MET, Grid_Data
 
       IMPLICIT NONE
 
@@ -119,6 +119,8 @@ C compute sine of lat and lon first time through
 
          ALLOCATE( COSLAT( NX,NY ), STAT=IOS )
          CALL CHECKMEM( IOS, 'COSLAT', PNAME )
+
+         IF( .NOT. MET_INITIALIZED )CALL INIT_MET ( JDATE, JTIME, .FALSE., .FALSE., .FALSE. )
 
          DO R = 1, NY
             DO C = 1, NX

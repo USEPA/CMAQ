@@ -496,6 +496,10 @@ C Indices of required species
       Integer :: acors_idx
       Integer :: aseacat_idx
 
+C Flag if optional species present
+      Logical :: ae6isoa = .False.
+      Logical :: ae6hg   = .False.
+
 C Optional Species
       Character( 16 ), Private, Parameter :: req_ietet  = 'AIETET'
       Character( 16 ), Private, Parameter :: req_ieos   = 'AIEOS'
@@ -505,12 +509,12 @@ C Optional Species
       Character( 16 ), Private, Parameter :: req_phgj   = 'APHGJ'
 
 C Indices of Optional species
-      Integer :: aietet_idx
-      Integer :: aieos_idx
-      Integer :: adim_idx
-      Integer :: aimga_idx
-      Integer :: aimos_idx
-      Integer :: aphgj_idx
+      Integer :: aietet_idx = 0
+      Integer :: aieos_idx  = 0
+      Integer :: adim_idx   = 0
+      Integer :: aimga_idx  = 0
+      Integer :: aimos_idx  = 0
+      Integer :: aphgj_idx  = 0
 
       Real, Allocatable :: aerospc_mw( : )     ! aero species M.W. (from AE_SPC Namelist) [ g/mol ]
       Real, Allocatable :: aerospc_conc( :,: ) ! aero species concentration [ ug/m^3 ]
@@ -579,8 +583,9 @@ C Emissions mapping
       Character( 16 ) :: pmem_units             ! units for PM emissions for all species
 
       Logical, Save :: V51_SOA_mechanism   = .False. !
+      Logical, Save :: AE_eflag            = .False. ! error flag for AERO_DATA
 C Private variables for loading from and unloading to CGRID array
-      Logical, Private, Save :: mapped = .False.
+      Logical, Private, Save :: mapped    = .False.
       Character( 16 ), Private, Save :: pname = 'Aero_Data'
 
       Contains
@@ -608,8 +613,8 @@ C-----------------------------------------------------------------------
       Implicit None
 
 C Local Variables:
-      Character( 120 ) :: xmsg
-      Character( 120 ) :: xmsg2
+      Character( 256 ) :: xmsg
+      Character( 256 ) :: xmsg2
       Real    :: mole_weight( n_aerolist )
       Integer :: aerolist_map  ( n_aerolist,n_mode )
       Integer :: aerospc_tolist( n_aerolist )
@@ -631,6 +636,7 @@ C Local Variables:
 
       Integer dust_org1, dust_org2
       Logical ae6isoa
+      Logical ae6hg
       Logical dust_match
       Logical error_flag
 
@@ -642,7 +648,7 @@ C Local Variables:
       n_aerospc      = 0.0 ! Number of Used Aerosol Chemical Species
       aerolist_map   = 0   ! Pointer from aerolist to CGRID
       aerospc_tolist = 0   ! Pointer from aerospc to aerolist
-      error_flag = .False.
+      AE_eflag       = .False.
 
 C Build mapping to CGRID for each species in the master AeroList
       Do spc = 1, n_aerolist
@@ -673,7 +679,7 @@ C Build mapping to CGRID for each species in the master AeroList
                      Write( xmsg,* ) 'New Value(', n, ') = ', ae_molwt( n ),
      &                               'Expected value(', spc, ')= ', mole_weight( spc )
                      Call m3warn( pname, 0, 0, xmsg )
-                     error_flag = .True.
+                     AE_eflag  = .True.
                   End If
                   ! Add the map from CGRID to AeroList
                   aerolist_map( spc,m ) = ae_strt - 1 + n
@@ -728,8 +734,8 @@ C Build mapping to CGRID for each species in the master AeroList
             ! Check that this is true.
             If ( aerospc( spc )%name( n )(1:) .Ne. ' ' .And.
      &           aerolist_map( aerospc_tolist( spc ),n ) .Eq. 0 ) Then
-               error_flag = .True.
                Write( xmsg2,* ) (' ', Trim( aerolist( spc )%name( m ) ), ' ', m = 1, n_mode )
+               AE_eflag  = .True.
                Write( xmsg,* ) 'FATAL ERROR: Linked set of tracers, ',
      &                    Trim( xmsg2 ),', is missing species, ',
      &                    Trim( aerolist( spc )%name( n ) )
@@ -755,8 +761,10 @@ C Build mapping to CGRID for aero # and surf area variables
          n = index1( aeromode( m )%num_name , n_ae_spc, ae_spc )
          If ( n .Eq. 0 ) Then
             xmsg = 'Species ' // Trim( aeromode( m )%num_name )
-     &           //' in aeronum name is not in AE_SPC'
-            Call m3exit( pname, 0, 0, xmsg, xstat3 )
+     &           //' is not in AE namelist'
+            AE_eflag  = .True.
+            Call m3warn( pname, 0, 0, xmsg )
+!            Call m3exit( pname, 0, 0, xmsg, xstat3 )
          Else
             aeronum_map( m ) = ae_strt - 1 + n
          End If
@@ -764,8 +772,10 @@ C Build mapping to CGRID for aero # and surf area variables
          n = index1( aeromode( m )%srf_name , n_ae_spc, ae_spc )
          If ( n .Eq. 0 ) Then
             xmsg = 'species ' // Trim( aeromode( m )%srf_name )
-     &           // ' in aerosrf name is not in AE_SPC'
-            Call m3exit( pname, 0, 0, xmsg, xstat3 )
+     &           // ' is not in AE namelist'
+            AE_eflag  = .True.
+            Call m3warn( pname, 0, 0, xmsg )
+!            Call m3exit( pname, 0, 0, xmsg, xstat3 )
          Else
             aerosrf_map( m ) = ae_strt - 1 + n
          End If
@@ -797,16 +807,28 @@ C Find indices of required species
       End If
 
       If ( Index( mechname, 'SAPRC07TIC_AE6I' ) .Gt. 0 ) Then
-         ae6isoa = .True.
+         ae6isoa     = .True.
+         aietet_idx  = findAero( req_ietet, ae6isoa )
+         aieos_idx   = findAero( req_ieos,  ae6isoa )
+         adim_idx    = findAero( req_dim,   ae6isoa )
+         aimga_idx   = findAero( req_imga,  ae6isoa )
+         aimos_idx   = findAero( req_imos,  ae6isoa )
       Else
-         ae6isoa = .False.
+         aietet_idx  = 0
+         aieos_idx   = 0
+         adim_idx    = 0
+         aimga_idx   = 0
+         aimos_idx   = 0
+         ae6isoa     = .False.
       End If
-      aietet_idx  = findAero( req_ietet, ae6isoa )
-      aieos_idx   = findAero( req_ieos,  ae6isoa )
-      adim_idx    = findAero( req_dim,   ae6isoa )
-      aimga_idx   = findAero( req_imga,  ae6isoa )
-      aimos_idx   = findAero( req_imos,  ae6isoa )
-      aphgj_idx   = findAero( req_phgj,  .False. )
+
+      aphgj_idx = findAero( req_phgj,  .False. )
+      If ( aphgj_idx .Gt. 0 ) Then
+         ae6hg     = .True.
+      Else
+         aphgj_idx = 0 
+         ae6hg     = .False.
+      End If
 
 C Adjust Dust Emissions list for Organic Species, if running with semivolatile POA
       If ( Index( mechname, 'NVPOA' ) .Eq. 0 ) Then
@@ -926,15 +948,16 @@ C Adjust Dust Emissions list for Organic Species, if running with semivolatile P
       Write( logdev,'( 5x, a, i4 )' ) 'acors_idx:  ', acors_idx
       Write( logdev,'( 5x, a, i4 )' ) 'apncom_idx: ', apncom_idx
       Write( logdev,'( 5x, a, i4 )' ) 'aseacat_idx:', aseacat_idx
-      Write( logdev,'( 5x, a, i4 )' ) 'aietet_idx: ', aietet_idx
-      Write( logdev,'( 5x, a, i4 )' ) 'aieos_idx:  ', aieos_idx
-      ! Optional
-      Write( logdev,'( 5x, a, i4 )' ) 'adim_idx:   ', adim_idx
-      Write( logdev,'( 5x, a, i4 )' ) 'aimga_idx:  ', aimga_idx
-      Write( logdev,'( 5x, a, i4 )' ) 'aimos_idx:  ', aimos_idx
-      If ( aphgj_idx .Gt. 0 ) Then
+      If( ae6isoa )Then
+          Write( logdev,'( 5x, a, i4 )' ) 'aietet_idx: ', aietet_idx
+          Write( logdev,'( 5x, a, i4 )' ) 'aieos_idx:  ', aieos_idx
+          Write( logdev,'( 5x, a, i4 )' ) 'adim_idx:   ', adim_idx
+          Write( logdev,'( 5x, a, i4 )' ) 'aimga_idx:  ', aimga_idx
+          Write( logdev,'( 5x, a, i4 )' ) 'aimos_idx:  ', aimos_idx
+      End If      
+      If ( ae6hg ) Then
           Write( logdev,'( 5x, a, i4 )' ) 'aphgj_idx:  ', aphgj_idx
-      else
+      Else 
           Write( logdev,'( 5x, a, i4 )' ) 'PHGJ not found so aphgj_idx: ', aphgj_idx
       End If
 #endif
@@ -957,11 +980,20 @@ C compute aeromode_minNum and aeromode_minM2
          aeromode_minM2( m ) = aeromode_minNum( m ) *
      &             def_diam( m )**2 * Exp( 2.0 * Log( def_sigma_g( m ) )**2 )
       End do
- 
+
+      if( AE_eflag )Then
+         Write(logdev,99901) Trim( mechname )
+         xmsg = 'The above FATAL errors found.'
+         Call m3exit( pname, 0, 0, xmsg, xstat3 )
+      End If 
+
       mapped = .True.
 
       Write( logdev,'( 5x, a )' ) ' --- Aero Species Mapped ---'
 
+99901 Format( 'FATAL Error(s) found in the AE namelist used. Check that ' 
+     &     /  'this AE namelist contains the above required data as the file in '
+     &     /  'the respository version of the mechanism: ', a )
       Return
       End Subroutine map_aero
 
@@ -1288,6 +1320,7 @@ C Local Variables:
       Character( 80 ) :: xmsg
       Integer spc, n
 
+      idx = 0
 C Find the substring vname in aerospc( spc )%name( n )
       Do n = 1, n_mode
          Do spc = 1, n_aerospc
@@ -1299,15 +1332,16 @@ C Find the substring vname in aerospc( spc )%name( n )
       End Do
 
       If ( .Not. required ) Then
-         idx = 0
-         xmsg =  pname // 'Optional Species '
-     &       // Trim( vname ) // ' Not found in aerospc names array'
-         Call m3mesg( xmsg )
+         xmsg = ' NOT FATAL: Optional Species '
+     &       // Trim( vname ) // ' Not found in AE namelist.'
+         write(logdev,'(/ a / )')xmsg
          Return
       End If
 
-      xmsg = 'Required Species ' // Trim( vname ) // ' Not found in aerospc names array'
-      Call m3exit( pname, 0, 0, xmsg, xstat3 )
+      xmsg = 'FATAL: Required Species ' // Trim( vname ) // ' Not found in AE namelist'
+      AE_eflag  = .True.
+      Call m3warn( pname, 0, 0, xmsg )
+!     Call m3exit( pname, 0, 0, xmsg, xstat3 )
 
       Return
       End Function findAero

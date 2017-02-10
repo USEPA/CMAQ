@@ -1221,6 +1221,12 @@
               END IF
             END DO
 
+            IF( .NOT. SUCCESS ) WRITE(LOGDEV,99901)TRIM( MECHNAME )
+
+99901       FORMAT( / 'FATAL error(s) found in the namelists used. Check that ' &
+     &     /  'these namelists contain the above data as the respective files ' &
+     &     /  'in the respository version of the mechanism: ' , A )
+
          RETURN
 
          END FUNCTION MAP_CHEMISTRY_SPECIES
