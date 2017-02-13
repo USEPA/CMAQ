@@ -61,8 +61,8 @@ C-----------------------------------------------------------------------
       End Type precursor_type
 
       Type ( precursor_type ), Private :: precursor( n_precursor ) = (/
-C                       Name      RxnCounter  Update
-C                    ----------   ----------  ------
+C                       Name    RxnCounter  Update  Required
+C                    ---------   ---------- ------  ------
      & precursor_type( 'NO2    ', .False. , .True., .True.  ),
      & precursor_type( 'N2O5   ', .False. , .True., .True.  ),
      & precursor_type( 'HNO3   ', .False. , .True., .True.  ),
