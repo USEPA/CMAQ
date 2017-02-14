@@ -1379,7 +1379,7 @@ C Constrain caer to values between conmin and ctotf
             aerospc_conc( indx, 1:n_mode ) = conmin
             Do im = 1, n_mode
               If ( .Not. aero_missing( indx,im ) ) Then
-                  caer( im ) =  conmin + caer( im )
+                  caer( i ) =  conmin + caer( i )
               End If
             End Do
         End Do
