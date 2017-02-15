@@ -61,8 +61,8 @@ C-----------------------------------------------------------------------
       End Type precursor_type
 
       Type ( precursor_type ), Private :: precursor( n_precursor ) = (/
-C                       Name      RxnCounter  Update
-C                    ----------   ----------  ------
+C                       Name    RxnCounter  Update  Required
+C                    ---------   ---------- ------  ------
      & precursor_type( 'NO2    ', .False. , .True., .True.  ),
      & precursor_type( 'N2O5   ', .False. , .True., .True.  ),
      & precursor_type( 'HNO3   ', .False. , .True., .True.  ),
@@ -228,7 +228,8 @@ C Find indices of required species
 
       If( Precursor_eflag )Then
          Write(logdev,99901) Trim( mechname )
-         xmsg = 'The above FATAL errors found.'
+             xmsg = 'The FATAL errors found in namelist used. Check '
+     &          //  'the log of exiting processor if more details are needed.'
          Call m3exit( pname, 0, 0, xmsg, xstat3 )
       End If 
 

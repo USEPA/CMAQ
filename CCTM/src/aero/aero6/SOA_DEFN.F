@@ -579,7 +579,8 @@ C Reactive variables that store their production rates (orgprod)
 
          If( AE_eflag .Or. SOA_eflag .Or. RXNS_eflag )Then
              If( AE_eflag .Or. SOA_eflag )Write(logdev,99901)Trim( mechname )
-             xmsg = 'The above FATAL errors found.'
+             xmsg = 'The FATAL errors found in namelist used. Check '
+     &          //  'the log of exiting processor if more details are needed.'
              Call m3exit( pname, 0, 0, xmsg, xstat3 )
          End If 
 
@@ -1433,7 +1434,7 @@ C Constrain caer to values between conmin and ctotf
             aerospc_conc( indx, 1:n_mode ) = conmin
             Do im = 1, n_mode
               If ( .Not. aero_missing( indx,im ) ) Then
-                  caer( im ) =  conmin + caer( im )
+                  caer( i ) =  conmin + caer( i )
               End If
             End Do
         End Do

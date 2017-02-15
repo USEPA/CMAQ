@@ -983,7 +983,8 @@ C compute aeromode_minNum and aeromode_minM2
 
       if( AE_eflag )Then
          Write(logdev,99901) Trim( mechname )
-         xmsg = 'The above FATAL errors found.'
+             xmsg = 'The FATAL errors found in namelist used. Check '
+     &         //  'the log of exiting processor if more details are needed.'
          Call m3exit( pname, 0, 0, xmsg, xstat3 )
       End If 
 
