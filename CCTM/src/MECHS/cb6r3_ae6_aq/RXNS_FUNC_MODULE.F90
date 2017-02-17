@@ -945,25 +945,25 @@
 !  Reaction Label POA_AGE10       
              RKI( NCELL,  297) =   4.0000D-11 * CFACT 
 !  Reaction Label T01             
-             RKI( NCELL,  298) =   9.0000D-12 * CFACT 
+             RKI( NCELL,  298) =  CFACT * ARRHENUIS_T03( INV_TEMP,  5.4000D-12,   1.3500D+02 )
 !  Reaction Label T02             
-             RKI( NCELL,  299) =   5.8000D-16 * CFACT 
+             RKI( NCELL,  299) =   5.5000D-16 * CFACT 
 !  Reaction Label T03             
              RKI( NCELL,  300) =  CFACT * ARRHENUIS_T03( INV_TEMP,  3.4000D-11,  -1.6000D+03 )
 !  Reaction Label TCL1            
              RKI( NCELL,  303) =  CFACT * ARRHENUIS_T03( INV_TEMP,  8.2000D-11,  -3.4000D+01 )
 !  Reaction Label T06             
-             RKI( NCELL,  304) =  CFACT * ARRHENUIS_T03( INV_TEMP,  5.6000D-12,   2.7000D+02 )
+             RKI( NCELL,  304) =  CFACT * ARRHENUIS_T03( INV_TEMP,  4.7000D-12,   3.4500D+02 )
 !  Reaction Label T07             
-             RKI( NCELL,  305) =  CFACT * ARRHENUIS_T03( INV_TEMP,  1.4000D-12,  -1.9000D+03 )
+             RKI( NCELL,  305) =  CFACT * ARRHENUIS_T03( INV_TEMP,  1.4000D-12,  -1.8600D+03 )
 !  Reaction Label T08             
              RKI( NCELL,  306) =  CFACT * ARRHENUIS_T03( INV_TEMP,  1.8000D-11,  -1.1000D+03 )
 !  Reaction Label TCL2            
              RKI( NCELL,  308) =   7.9000D-11 * CFACT 
 !  Reaction Label T10             
-             RKI( NCELL,  309) =  CFACT * ARRHENUIS_T03( INV_TEMP,  1.4000D-11,   4.2400D+02 )
+             RKI( NCELL,  309) =  CFACT * ARRHENUIS_T03( INV_TEMP,  1.4800D-11,   4.4800D+02 )
 !  Reaction Label T11             
-             RKI( NCELL,  310) =  CFACT * ARRHENUIS_T03( INV_TEMP,  8.2000D-15,  -2.0700D+03 )
+             RKI( NCELL,  310) =  CFACT * ARRHENUIS_T03( INV_TEMP,  1.3400D-14,  -2.2830D+03 )
 !  Reaction Label T12             
              RKI( NCELL,  311) =   1.7900D-13 * CFACT 
 !  Reaction Label TCL3            
@@ -973,7 +973,7 @@
 !  Reaction Label T14             
              RKI( NCELL,  314) =   2.6100D-19 * CFACT 
 !  Reaction Label T15             
-             RKI( NCELL,  315) =  CFACT * ARRHENUIS_T03( INV_TEMP,  1.7000D-11,  -3.1310D+03 )
+             RKI( NCELL,  315) =   1.1500D-15 * CFACT 
 !  Reaction Label TCL4            
              RKI( NCELL,  317) =   2.3700D-10 * CFACT 
 !  Reaction Label T17             
@@ -981,11 +981,11 @@
 !  Reaction Label T18             
              RKI( NCELL,  319) =   2.6100D-19 * CFACT 
 !  Reaction Label T19             
-             RKI( NCELL,  320) =  CFACT * ARRHENUIS_T03( INV_TEMP,  1.7000D-11,  -3.1310D+03 )
+             RKI( NCELL,  320) =   1.1500D-15 * CFACT 
 !  Reaction Label TCL5            
              RKI( NCELL,  322) =   2.3700D-10 * CFACT 
 !  Reaction Label T21             
-             RKI( NCELL,  323) =  CFACT * ARRHENUIS_T03( INV_TEMP,  1.8000D-12,   3.5500D+02 )
+             RKI( NCELL,  323) =  CFACT * ARRHENUIS_T03( INV_TEMP,  1.8000D-12,   3.4000D+02 )
 !  Reaction Label TCL6            
              RKI( NCELL,  324) =   6.1000D-11 * CFACT 
 !  Reaction Label HG1             
@@ -1221,7 +1221,13 @@
               END IF
             END DO
 
-            IF( .NOT. SUCCESS ) WRITE(LOGDEV,99901)TRIM( MECHNAME )
+            IF( SUCCESS )RETURN
+
+            WRITE(LOGDEV,99901)TRIM( MECHNAME )
+            XMSG = 'The FATAL errors found in namelist used. Check ' &
+      &          //  'the log of exiting processor if more details are needed.'
+            CALL M3WARN('MAP_CHEMISTRY_SPECIES',0,0,XMSG)
+             
 
 99901       FORMAT( / 'FATAL error(s) found in the namelists used. Check that ' &
      &     /  'these namelists contain the above data as the respective files ' &
