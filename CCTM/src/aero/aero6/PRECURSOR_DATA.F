@@ -158,6 +158,10 @@ C Local Variables:
 
       logdev = setup_logdev()
 
+C If the species are mapped already, skip the mapping algorithm
+      If ( mapped ) Return
+
+C Initialize Precursor Map Variables
       precursor_mw = 0.0d0
       precursor_map = 0
 
@@ -274,9 +278,7 @@ C Local Variables:
       Integer         :: n
       Integer         :: spc
 
-      If ( .Not. mapped ) Then
-         Call map_precursor()
-      End If
+      Call map_precursor()
 
 C Compute gas conversion constant
       gasconv = Real( airdens * inv_mwair, 8 )
