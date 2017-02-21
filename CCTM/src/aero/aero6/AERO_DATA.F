@@ -140,9 +140,9 @@ C Geometric mean diameter by volume (or mass) of emitted particles in
 C each mode [ m ].  See paragraph #14 of Binkowski & Roselle (2003)
 C 09/17/14 change by Kathleen Fahey - see Revision History, above
       Real,    Parameter :: dgvem( n_mode ) = (/ 0.06E-6, 0.28E-6, 6.0E-6 /)
-      Real,    Parameter :: def_diam( n_mode )   = (/ 1.0E-8,   7.0E-8,   1.0E-6 /)  ! default background mean diameter for each mode
-      Real,    Parameter :: min_diam_g( n_mode ) = (/ 1.0E-9,  10.0E-9,  70.0E-9 /)
-      Real,    Parameter :: max_diam_g( n_mode ) = (/ 10.0E-9, 70.0E-9, 100.0E-6 /)
+      Real,    Parameter :: def_diam( n_mode )   = (/ 15.0E-9, 80.0E-9,  600.0E-9 /)  ! default background mean diameter for each mode
+      Real,    Parameter :: min_diam_g( n_mode ) = (/ 1.0E-9,  30.0E-9,  120.0E-9 /)
+      Real,    Parameter :: max_diam_g( n_mode ) = (/ 30.0E-9, 120.0E-9, 100.0E-6 /)
 
 C Geometric standard deviation of emitted particles in each mode, as
 C described in paragraph #14 of Binkowski & Roselle (2003)
@@ -150,7 +150,7 @@ C 09/17/14 change by Kathleen Fahey - see Revision History, above
       Real,    Parameter :: sgem( n_mode )        = (/ 1.7, 1.7, 2.2 /)
       Real,    Parameter :: def_sigma_g( n_mode ) = (/ 1.70, 2.0, 2.2 /)       ! default background sigma-g for each mode
       Real,    Parameter :: min_sigma_g = 1.05
-      Real,    Parameter :: max_sigma_g = 2.50
+      Real,    Parameter :: max_sigma_g = 2.5001
 
 C Flag to obtain coagulation coefficients
 C by analytical approximation (True) or by Gauss-Hermite quadrature (False)

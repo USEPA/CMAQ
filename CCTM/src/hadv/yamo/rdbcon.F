@@ -110,6 +110,7 @@ C Local variables:
       CHARACTER( 96 )  :: XMSG = ' '
       CHARACTER( 199 ) :: XMSG2 = ' '
       INTEGER          :: STAT
+      LOGICAL          :: LSTAT
 
       INTEGER, SAVE :: N_SPC_ADV
       INTEGER       :: LMODE    !Identifies the problematic mode from
@@ -406,18 +407,18 @@ C Read & interpolate boundary concentrations
       
       !Check Aerosol Size Distributions and Warn 
       !the User if They Are Not Robust
+      LSTAT = .FALSE.
       DO BND = 1,NBNDY
         CALL CHECK_AERO_ICBC( BCON( BND,STRT:FINI ), STAT, AER_PAR, LMODE )
         IF ( STAT .EQ. 1 ) THEN
-          WRITE( XMSG2, '(A52,I1)' ),
-     &       'Error Applying Aerosol Boundary Conditions for mode ',LMODE
-          CALL M3WARN( 'Read BCs', MDATE, MTIME, XMSG2 )
+          LSTAT = .TRUE.
 #ifdef verbose_rdbcon
-          WRITE ( *, '(7x,A20,I1,A42,/,9x,A51,/,9x,A22,I4,2x,I2,/,
+          WRITE ( 6, '(7x,A55,I1,/,7x,A20,I1,A42,/,9x,A51,/,9x,A22,I4,2x,I2,/,
      &                 9x,A19,1x,A3,8x,A2,8x,A2,8x,A2,8x,A2,/,
      &                 27x,E8.1,1x,E8.1,1x,E8.1,1x,E8.1,4x,F4.1,/,
      &                 9x,A19,1x,A3,8x,A2,8x,A2,8x,A2,8x,A2,/,
      &                 27x,E8.1,1x,E8.1,1x,E8.1,1x,E8.1,4x,F4.1)'),
+     &               'Warning: Applying Aerosol Boundary Conditions for mode ',LMODE,
      &               'The Offending Mode (',LMODE,') had diameter and/or sigma out of bounds.',
      &               'It was overwritten by changing the Num and SrfArea.',
      &               'Grid Cell(Horz,Vert): ',BND, LVL,
@@ -426,6 +427,15 @@ C Read & interpolate boundary concentrations
 #endif
         ENDIF
       END DO
+      !Print warning if any aerosol BCs violated the size distribution parameters
+      IF ( LSTAT ) THEN    
+          WRITE( XMSG2, '(A55,A17,I2,A51,A5)' ),
+     &       'Applying fix to aerosol Boundary Conditions for aerosol',
+     &       ' modes at layer: ',LVL,
+     &       '. Turn on verbose_rdcon preprocessor flag to learn ',
+     &       'more.'
+          CALL M3WARN( 'Read BCs', MDATE, MTIME, XMSG2 )
+      END IF
 
 #ifdef verbose_rdbcon
       if ( lvl .eq. 1 ) then
