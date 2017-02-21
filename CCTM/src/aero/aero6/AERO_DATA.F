@@ -618,7 +618,7 @@ C Build mapping to CGRID for each species in the master AeroList
             If ( aerolist( spc )%name( m )(1:1) .Ne. ' ' ) Then
                ! This place on the AeroList has a potential species in
                ! it. Check to see if it is in the namelist
-               n = index1( aerolist( spc )%name( m ), n_ae_spc, ae_spc )
+               n = index1( aerolist( spc )%name( m ) , n_ae_spc, ae_spc )
 
                If ( n .Ne. 0 ) Then
                   ! Species is in the Master List and on the NameList
@@ -673,7 +673,6 @@ C Build mapping to CGRID for each species in the master AeroList
          aerospc( spc ) = aerolist( l )   ! Map AeroList to AeroSpc
          aerospc_mw( spc ) = mole_weight( l )
 
-         Write( xmsg2,* ) (' ', Trim( aerolist( spc )%name( m ) ), ' ', m = 1, n_mode )
          Do n = 1,n_mode
             ! Map the Modal-Dependent CGRID Pointers from AeroSpc to AeroList
             aerospc_map( spc, n ) = aerolist_map( l, n )
@@ -693,6 +692,7 @@ C Build mapping to CGRID for each species in the master AeroList
             If ( aerospc( spc )%name( n )(1:) .Ne. ' ' .And.
      &           aerolist_map( aerospc_tolist( spc ),n ) .Eq. 0 ) Then
                error_flag = .True.
+               Write( xmsg2,* ) (' ', Trim( aerolist( spc )%name( m ) ), ' ', m = 1, n_mode )
                Write( xmsg,* ) 'FATAL ERROR: Linked set of tracers, ',
      &                    Trim( xmsg2 ),', is missing species, ',
      &                    Trim( aerolist( spc )%name( n ) )
@@ -715,7 +715,7 @@ C Build mapping to CGRID for aero # and surf area variables
       aerosrf_map = 0
 
       Do m = 1, n_mode
-         n = index1( Trim( aeromode( m )%num_name ), n_ae_spc, ae_spc )
+         n = index1( aeromode( m )%num_name , n_ae_spc, ae_spc )
          If ( n .Eq. 0 ) Then
             xmsg = 'Species ' // Trim( aeromode( m )%num_name )
      &           //' in aeronum name is not in AE_SPC'
@@ -727,7 +727,7 @@ C Build mapping to CGRID for aero # and surf area variables
             lbcmode( m,n ) = .True.
          End If
 
-         n = index1( Trim( aeromode( m )%srf_name ), n_ae_spc, ae_spc )
+         n = index1( aeromode( m )%srf_name , n_ae_spc, ae_spc )
          If ( n .Eq. 0 ) Then
             xmsg = 'species ' // Trim( aeromode( m )%srf_name )
      &           // ' in aerosrf name is not in AE_SPC'
@@ -932,7 +932,7 @@ C are the same and set pmem_units
 
       Do v = 1, n_aerospc
          If ( aerospc( v )%emis( 1:1 ) .Ne. ' ' ) Then
-            indx = index1( Trim( aerospc( v )%emis ), nvars3d, vname3d )
+            indx = index1( aerospc( v )%emis, nvars3d, vname3d )
             If ( indx .Le. 0 ) Then
                xmsg1 = Trim( xmsg1 ) // crlf() // blank10
      &               // Trim( aerospc( v )%emis )
@@ -1195,7 +1195,7 @@ C Local Variables:
 C Find the substring vname in aerospc( spc )%name( n )
       Do n = 1, n_mode
          Do spc = 1, n_aerospc
-            If ( Index( aerospc( spc )%name( n ), Trim( vname ) ) .Gt. 0 ) Then
+            If ( Index( aerospc( spc )%name( n ), trim(vname) ) .Gt. 0 ) Then
                idx = spc
                Return
             End If

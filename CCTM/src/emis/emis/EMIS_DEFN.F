@@ -623,7 +623,7 @@ C                                       vvvvvvv - emis surrogate names
             END IF
 ! subtract the fertilizer emissions from the NEI for use in the NH3 bidirectional
 ! exchange model JOB
-            IF ( ABFLUX .AND. TRIM( NR_EMIS( S ) ) .EQ. 'NH3' ) THEN
+            IF ( ABFLUX .AND. NR_EMIS( S ) .EQ. 'NH3' ) THEN
                FERT = 0.0   ! array assignment
                IF ( .NOT. INTERPX( EMIS_1, 'NH3_FERT', PNAME,
      &                          STARTCOL,ENDCOL, STARTROW,ENDROW, 1,EMLYRS,
