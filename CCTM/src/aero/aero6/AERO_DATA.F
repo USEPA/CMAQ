@@ -140,11 +140,17 @@ C Geometric mean diameter by volume (or mass) of emitted particles in
 C each mode [ m ].  See paragraph #14 of Binkowski & Roselle (2003)
 C 09/17/14 change by Kathleen Fahey - see Revision History, above
       Real,    Parameter :: dgvem( n_mode ) = (/ 0.06E-6, 0.28E-6, 6.0E-6 /)
+      Real,    Parameter :: def_diam( n_mode )   = (/ 15.0E-9, 80.0E-9,  600.0E-9 /)  ! default background mean diameter for each mode
+      Real,    Parameter :: min_diam_g( n_mode ) = (/ 1.0E-9,  30.0E-9,  120.0E-9 /)
+      Real,    Parameter :: max_diam_g( n_mode ) = (/ 30.0E-9, 120.0E-9, 100.0E-6 /)
 
 C Geometric standard deviation of emitted particles in each mode, as
 C described in paragraph #14 of Binkowski & Roselle (2003)
 C 09/17/14 change by Kathleen Fahey - see Revision History, above
-      Real,    Parameter :: sgem( n_mode ) = (/ 1.7, 1.7, 2.2 /)
+      Real,    Parameter :: sgem( n_mode )        = (/ 1.7, 1.7, 2.2 /)
+      Real,    Parameter :: def_sigma_g( n_mode ) = (/ 1.70, 2.0, 2.2 /)       ! default background sigma-g for each mode
+      Real,    Parameter :: min_sigma_g = 1.05
+      Real,    Parameter :: max_sigma_g = 2.5001
 
 C Flag to obtain coagulation coefficients
 C by analytical approximation (True) or by Gauss-Hermite quadrature (False)
@@ -481,10 +487,6 @@ C                  ----------  -------  -------- -------  ------
      &   mode_type('NUMACC ', 'SRFACC ', conmin,  conmin, conmin),
      &   mode_type('NUMCOR ', 'SRFCOR ', conmin,  conmin, conmin)/)
 
-      Real, Parameter :: min_sigma_g = 1.05
-      Real, Parameter :: max_sigma_g = 2.50
-      Real, Parameter :: def_sigma_g( n_mode ) = (/ 1.70, 2.0, 2.2 /)       ! default background sigma-g for each mode
-      Real, Parameter :: def_diam( n_mode ) = (/ 1.0E-8, 7.0E-8, 1.0E-6 /)  ! default background mean diameter for each mode
 
       Real          :: moment0_conc( n_mode )     ! 0th moment concentration
       Real          :: moment2_conc( n_mode )     ! 2nd moment concentration
@@ -524,6 +526,19 @@ C Emissions mapping
       Character( 16 ) :: pmem_units             ! units for PM emissions for all species
 
       Logical, Save :: V51_SOA_mechanism   = .False. !
+
+C IC/BC Correction Mapping
+      !The following vectors store masks of the aerosol species
+      !identities. For example, LBCNUM stores 1's for every species that
+      !represents an aerosol number concentration and 0's otherwise.
+      !   LBCNUM - Number Concentration
+      !   LBCSURF - Surface Area Concentration
+      !   LBCMASS - Mass Concentration
+      !   LBCMODE - Mask for each aerosol mode
+      LOGICAL, ALLOCATABLE, SAVE :: LBCNUM(:), LBCSRF(:), LBCMASS(:),
+     &                        LBCMODE(:,:)
+      INTEGER, ALLOCATABLE, SAVE :: AEROCGRID_RHO( : ) !
+      
 C Private variables for loading from and unloading to CGRID array
       Logical, Private, Save :: mapped = .False.
       Character( 16 ), Private, Save :: pname = 'Aero_Data'
@@ -587,6 +602,15 @@ C Local Variables:
       aerospc_tolist = 0   ! Pointer from aerospc to aerolist
       error_flag = .False.
 
+      allocate( aerocgrid_rho( n_ae_trns ), lbcnum( n_ae_trns ),
+     &          lbcsrf( n_ae_trns ), lbcmass( n_ae_trns ),
+     &          lbcmode( n_mode,n_ae_trns ) )
+      aerocgrid_rho = 0
+      lbcnum = .False.
+      lbcsrf = .False.
+      lbcmass= .False.
+      lbcmode= .False.
+
 C Build mapping to CGRID for each species in the master AeroList
       Do spc = 1, n_aerolist
          Do m = 1, n_mode   ! Loop through modes
@@ -620,6 +644,10 @@ C Build mapping to CGRID for each species in the master AeroList
                   End If
                   ! Add the map from CGRID to AeroList
                   aerolist_map( spc,m ) = ae_strt - 1 + n
+                  lbcmode( m,n ) = .True.
+                  lbcmass( n ) = .True.
+                  !Map the CGRID Aerosol Species to their Densities
+                  aerocgrid_rho( n ) = aerolist( spc )%density
 
                End If
             End If
@@ -694,6 +722,9 @@ C Build mapping to CGRID for aero # and surf area variables
             Call m3exit( pname, 0, 0, xmsg, xstat3 )
          Else
             aeronum_map( m ) = ae_strt - 1 + n
+            aerocgrid_rho( n ) = 1.0
+            lbcnum( n ) = .True.
+            lbcmode( m,n ) = .True.
          End If
 
          n = index1( Trim( aeromode( m )%srf_name ), n_ae_spc, ae_spc )
@@ -703,6 +734,9 @@ C Build mapping to CGRID for aero # and surf area variables
             Call m3exit( pname, 0, 0, xmsg, xstat3 )
          Else
             aerosrf_map( m ) = ae_strt - 1 + n
+            aerocgrid_rho( n ) = 1.0
+            lbcsrf( n ) = .True.
+            lbcmode( m,n ) = .True.
          End If
       End Do
 
@@ -1309,7 +1343,125 @@ C     moment [ m**2/m**3 ]
       Return
       End Subroutine calcmoments
 
+C
+C-----------------------------------------------------------------------
+      Subroutine CHECK_AERO_ICBC( IBCON, STAT, AER_PAR, LMODE )
+
+C Subroutine corrects the scale factors for number, surface area when a 
+C change has happened to the mass of any boundary condition species.
+C Eventually this code should perform a similar operation for the
+C initial conditions, but this is somewhat complicated and needs to be
+C thought through more.
+C
+C Inputs:  IBCON - the actual initial or boundary conditions from the
+C                  calling routine
+C          ICBC_FAC - The scale factor used to modify IBCON right before
+C                     this routine is called
+C
+C 11 May 16  B.Murphy  Program Written
+C
+C-----------------------------------------------------------------------
+      Use AEROMET_DATA, only : pi, pi6
+
+      Implicit None
+
+      REAL, INTENT(INOUT) :: IBCON( : )
+      INTEGER, INTENT(OUT) :: STAT     ! 0 - Distribution is ok
+                                       ! 1 - Distribution is problematic
+      REAL, INTENT(OUT) :: AER_PAR( 2, N_MODE, 5 ) !Track the modal parameters   (N, M2, M3, dg, sg) -Before
+                                                   !before and after the BC      (N, M2, M3, dg, sg) -After
+                                                   !check routine               
+      INTEGER, INTENT(OUT) :: LMODE  !Identifies the problematic mode
+
+C Local variables:
+
+      INTEGER   :: IMODE, J
+      REAL      :: NUM, M2, M3, l2sg, dg, sg
+      REAL, Parameter :: KGPMG = 1.0E-9 !Kilogram per microgram m-3
+
+      LMODE   = 0
+      STAT    = 0
+      AER_PAR = 0.0
+
+      !Loop Through Each Aerosol Mode. Sum up the third moment, then
+      !calculate the Dg and Sg of the mode and check to make sure they
+      !are valid
+      DO IMODE = 1,N_MODE
+         NUM = SUM( IBCON( : ), MASK = ( LBCMODE( IMODE,: ) .AND. LBCNUM ) )
+         M2  = SUM( IBCON( : ), MASK = ( LBCMODE( IMODE,: ) .AND. LBCSRF ) ) / pi
+
+         M3 = SUM( IBCON( : ) / AEROCGRID_RHO / pi6, MASK = ( LBCMASS .AND. LBCMODE( IMODE,: ) )  )
+
+         AER_PAR ( 1, IMODE, 1 ) = NUM
+         AER_PAR ( 1, IMODE, 2 ) = M2
+         AER_PAR ( 1, IMODE, 3 ) = M3
+         AER_PAR ( 1, IMODE, 4 ) = 0.    !dg
+         AER_PAR ( 1, IMODE, 5 ) = 0.    !sg
+
+         IF ( M3 .LT. 1.0e-30 ) THEN
+             STAT = 2
+             LMODE = IMODE
+         ELSE IF ( NUM .LT. 1.0e-30 .OR. M2 .LT. 1.0e-30 ) THEN
+             STAT = 1
+             LMODE = IMODE
+         ELSE
+             l2sg = ( 1./3. * LOG( NUM ) + 2./3. * LOG( M3 ) - LOG( M2 ))
+             dg   = ( M3 / ( NUM * EXP( 4.5 * l2sg ) ) ) ** (1./3.)
+             sg   = EXP( SQRT( l2sg ) )
+             AER_PAR( 1, IMODE, 4 ) = dg
+             AER_PAR( 1, IMODE, 5 ) = sg
+
+             IF ( sg .LT. MIN_SIGMA_G .OR. sg .GT. MAX_SIGMA_G .OR.
+     &            dg .LT. MIN_DIAM_G( IMODE )  .OR. dg .GT. MAX_DIAM_G( IMODE ) ) THEN
+                  STAT = 1
+                  LMODE = IMODE
+             ENDIF
+         ENDIF
+
+         !Save Modal Properties After the Check
+         AER_PAR( 2, IMODE, 1 ) = NUM
+         AER_PAR( 2, IMODE, 2 ) = M2
+         AER_PAR( 2, IMODE, 3 ) = M3
+         AER_PAR( 2, IMODE, 4 ) = dg
+         AER_PAR( 2, IMODE, 5 ) = sg
+
+         IF ( STAT .EQ. 1 ) THEN
+           !Rewrite Boundary Condition Number and Mass to Satisfy
+           !Default Size Parameters
+           l2sg = ( LOG( DEF_SIGMA_G( IMODE ) ) ) ** 2
+           NUM = M3 / ( EXP( 4.5 * l2sg ) ) / ( DEF_DIAM( IMODE ) ) ** 3
+           dg   = ( M3 / ( NUM * EXP( 4.5 * l2sg ) ) ) ** (1./3.)
+           sg   = EXP( SQRT( l2sg ) )
+           
+           !First Number Concentration
+           WHERE( LBCMODE( IMODE,: ) .AND. LBCNUM ) IBCON = NUM
+           
+           !Then Surface Area Concentration
+           M2 = EXP( 1./3. * LOG( NUM ) + 2./3. * LOG( M3 ) - l2sg ) * pi
+           WHERE( LBCMODE( IMODE,: ) .AND. LBCSRF ) IBCON = M2 
+         
+           !Save Modal Properties After the Check
+           AER_PAR( 2, IMODE, 1 ) = NUM
+           AER_PAR( 2, IMODE, 2 ) = M2
+           AER_PAR( 2, IMODE, 3 ) = M3
+           AER_PAR( 2, IMODE, 4 ) = dg
+           AER_PAR( 2, IMODE, 5 ) = sg
+
+         ELSEIF ( STAT .EQ. 2 ) THEN
+           WHERE( LBCMODE( IMODE,: ) .AND. LBCNUM ) IBCON = conmin  !Number
+           WHERE( LBCMODE( IMODE,: ) .AND. LBCSRF ) IBCON = conmin  !Second Moment
+           WHERE( LBCMODE( IMODE,: ) .AND. LBCMASS) IBCON = conmin  !Third Moment
+           !Save Modal Properties After the Check
+           AER_PAR( 2, IMODE, 1 ) = conmin
+           AER_PAR( 2, IMODE, 2 ) = conmin
+           AER_PAR( 2, IMODE, 3 ) = conmin
+           AER_PAR( 2, IMODE, 4 ) = 0.
+           AER_PAR( 2, IMODE, 5 ) = 0.
+         ENDIF
+
+      ENDDO
+
+      End Subroutine CHECK_AERO_ICBC
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
       End Module aero_data
-
