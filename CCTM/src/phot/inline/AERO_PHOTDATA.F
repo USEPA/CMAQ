@@ -304,7 +304,7 @@ C ***    Create map for refactive index for each species
 
                      IF ( CORE_SHELL ) THEN
                         DO V = 1, NUMB_COR_SPCS
-                           IF ( TRIM(AEROSPC( SPC )%NAME( N )) .EQ. TRIM(CORE_SPCS( V )) ) THEN
+                           IF ( AEROSPC( SPC )%NAME( N ) .EQ. CORE_SPCS( V ) ) THEN
                                IS_CORE_SPCS( SPC, N ) = .TRUE.
                            END IF
                         END DO
