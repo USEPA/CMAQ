@@ -192,6 +192,7 @@ C Get CGRID offsets
 
       SYNCSTEP = TIME2SEC( TSTEP( 2 ) )
 
+      LSTAT = .FALSE.
       DO 301 LVL = 1, NLAYS
 
          STEP = TIME2SEC ( ASTEP( LVL ) )
@@ -202,18 +203,8 @@ C Get CGRID offsets
 
 101      CONTINUE
 
-         LSTAT = .FALSE.
          CALL RDBCON ( FDATE, FTIME, ASTEP( LVL ), LVL, BCON, LSTAT )
 
-         !Print warning if any aerosol BCs violated the size distribution parameters
-         IF ( LSTAT ) THEN    
-            WRITE( XMSG2, '(A55,A57,A5)' ),
-     &            'Applying fix to aerosol Boundary Conditions for aerosol',
-     &            ' modes. Turn on verbose_rdcon preprocessor flag to learn ',
-     &            'more.'
-            CALL M3WARN( 'Read BCs', MDATE, MTIME, XMSG2 )
-         END IF
- 
 
 !        write( logdev,* ) ' lvl, fdate, ftime: ', lvl, fdate, ftime
 
@@ -264,6 +255,16 @@ C Get CGRID offsets
          END IF
 
 301   CONTINUE
-
+ 
+      !Print warning if any aerosol BCs violated the size distribution parameters
+      IF ( LSTAT ) THEN    
+            WRITE( XMSG2, '(A55,A57,A5)' ),
+     &            'Applying fix to aerosol Boundary Conditions for aerosol',
+     &            ' modes. Turn on verbose_rdcon preprocessor flag to learn ',
+     &            'more.'
+            CALL M3WARN( 'Read BCs', MDATE, MTIME, XMSG2 )
+      END IF
+ 
+ 
       RETURN
       END
