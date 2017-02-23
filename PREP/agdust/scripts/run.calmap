@@ -1,20 +1,20 @@
 #!/bin/csh -f 
 
 #> Source the config.cmaq file to set the run environment
- source ../config.cmaq
+ source ../../../config.cmaq
 
-#> Check that M3DATA is set:
- if ( ! -e $M3DATA ) then
-    echo "   $M3DATA path does not exist"
+#> Check that CMAQ_DATA is set:
+ if ( ! -e $CMAQ_DATA ) then
+    echo "   $CMAQ_DATA path does not exist"
     exit 1
  endif
- echo " "; echo " Input data path, M3DATA set to $M3DATA"; echo " "
+ echo " "; echo " Input data path, CMAQ_DATA set to $CMAQ_DATA"; echo " "
 
- set BASE = $M3HOME/scripts/calmap
- set OUT = $M3DATA/crop
+ set BASE = $CMAQ_HOME/PREP/agdust
+ set OUT = $CMAQ_DATA/crop
 
- setenv GRID_CRO_2D $M3DATA/mcip/GRIDCRO2D_110701
- setenv BELD01      $M3DATA/dust/beld3_12CalnexBench_output_a.ncf
+ setenv GRID_CRO_2D $CMAQ_DATA/mcip/GRIDCRO2D_110701
+ setenv BELD01      $CMAQ_DATA/dust/beld3_12CalnexBench_output_a.ncf
 
  setenv EXTN 12CalnexBench
  setenv CROPMAP01 $OUT/BeginPlanting_$EXTN

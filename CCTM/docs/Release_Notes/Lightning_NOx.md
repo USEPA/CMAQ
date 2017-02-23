@@ -32,22 +32,64 @@ Output Diagnostic Files (optional):
 
 Run Script Configurations:  
 
-+ setenv LTNGNO "InLine"  
-+ setenv LTNGPARAM Y  
-+ setenv USE_NLDN Y  
-+ setenv LTNGOUT1 $OUTDIR/${EXEC}"\_LTNGDIAG1".${CTM_APPL}  
-+ setenv LTNGOUT2 $OUTDIR/${EXEC}"\_LTNGDIAG2".${CTM_APPL}  
-+ if($USE_NLDN == 'Y') then  
-    setenv NLDN_STRIKES $NLDN_LTpath/NLDN.12US1.${today}.ioapi  
-  else  
-    setenv LOG_START 2.0  (RC value to transit linear to log linear)  
-  endif  
-+ setenv LTNGPARMS_FILE $IN_LTpath/LTNG_AllParms_12US1.ncf
+There are four options for the CCTM lightning NOx module.
+
+### 1. No Lightning NOx ###
+CMAQ will not generate NO from lightning. 
+
+Settings:
+```
+setenv CTM_LTNG_NO N or unsetenv CTM_LTNG_NO
+```
+
+### 2. Lightning NOx from a 4-D file ###
+This option reads in NO defined as a rate of production (moles/sec) for each model layer at each timestep. 
+
+Settings:
+```
+setenv CTM_LTNG_NO Y
+setenv LTNGNO [4-D netCDF file of lightning NO emissions]
+```
+
+### 3. Lightning NOx Interpolated from the Convective Precipitation Rate ###
+As described above, this option is based on a regression relationship between multi-years’ WRF generated convective rainfall and observed NLDN lightning strike data. Recommended for applications where NLDN data are not available to calculate lightning NOx emissions. The variable LOG_START defines the convective precipation rate (RC) at which to transition from a linear to log-linear relationship between precipitation and lightning flashes.
+
+Settings: 
+```
+setenv CTM_LTNG_NO Y
+setenv LTNGNO Inline
+setenv LTNGPARAM  N
+setenv USE_NLDN N
+setenv LOG_START 2.0
+```
+
+### 4. Lightning NOx Derived from Hourly NLDN Flash Counts ###
+This option uses hourly flash counts to ensure that the seasonal lightning totals match observed lightning totals. 
+
+Settings: 
+```
+setenv CTM_LTNG_NO Y
+setenv LTNGNO Inline
+setenv LTNGPARAM  Y
+setenv USE_NLDN Y
+setenv LTNGPARMS_FILE [netCDF file of lightning parameters*]
+setenv NLDN_STRIKES [netCDF file of hourly strike counts]
+```
 
 Gridded NLDN Lightning Strike Data:
 
-Hourly data over the CONUS 12km domain in IOAPI format (direct input to CMAQ) are available and able to provide data for any other domains if domain description files are provided. Contact Daiwen Kang (kang.daiwen@epa.gov, 919-541-4587) for details.
+Hourly data over the CONUS 12km domain in I/O API netCDF format (direct input to CMAQ) are available and able to provide data for any other domains if domain description files are provided. Contact Daiwen Kang (kang.daiwen@epa.gov, 919-541-4587) for details.
 
+Lightning Parameters File:
+
+Time-independent I/O API netCDF file with the following variables.
+
+- monthly flash totals per CMAQ grid cell
+- a grid-cell specific scaling factor for calculating flashes using the convective precipitation rate, such that the calculated flash count matches the monthly total
+- ratio of intercloud to cloud to ground flashes
+- moles of NO per cloud to ground flash
+- moles of NO per inter-could flash
+- mask for offshore flashes -- to remove spurious flashes over the ocean
 
 ## References:
 NA

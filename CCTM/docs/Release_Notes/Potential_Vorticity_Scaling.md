@@ -22,6 +22,12 @@ driver/wrf/sciproc.F
 driver/yamo/sciproc.F  
 pv_o3/pvo3.F  
 
+## Additional Notes:
+
+Three-dimensional Potential Vorticity (PV) fields are read from the METRCRO3D file. MCIP can write PV to METCRO3D by turning it on in the namelist using the script variable “LPV”.  If LPV is 1, then PV will be calculated and output. Note that by default, MCIP does not output PV fields to METCRO3D.
+ 
+In the coupled WRF-CMAQ configuration (one-way or two-way coupled), the O3-PV scaling can be invoked by setting the environment variable CTM_TURN_ON_PV to .TRUE. (Note that the default is .FALSE.).
+
 ## References:
 
 Carmichael, G. R., Uno, I., Phadnis, M. J., Zhang, Y., and Sunwoo, Y.: Tropospheric ozone production and transport in the springtime in east Asia. J. Geophys. Res., 103(D9), 10649-10671, 1998.  

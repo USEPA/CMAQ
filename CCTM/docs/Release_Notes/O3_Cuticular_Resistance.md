@@ -22,7 +22,7 @@ emis/emis/LTNG_DEFN.F
 
 ## References:
 
-Altimir et al., 2006
+Altimir, N., Kolari, P., Tuovinen, J.P., Vesala, T., Bäck, J., Suni, T., Kulmala, M., Hari, P., 2006.  Foliage surface ozone  deposition:  a role for surface  moisture?  Biogeosciences 3, 1 e 20.: [link](http://www.biogeosciences.net/3/209/2006/bg-3-209-2006.pdf)
 
 -----
 ## Internal Records:

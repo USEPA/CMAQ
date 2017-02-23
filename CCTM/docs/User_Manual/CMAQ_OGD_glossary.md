@@ -1,5 +1,5 @@
 
-[<< Previous Chapter](CMAQ_OGD_ch14_appendix.md) - [Home](CMAQ_OGD_index.md)
+[<< Previous Chapter](CMAQ_OGD_appendix_A.md) - [Home](README.md)
 
 GLOSSARY
 ========
@@ -28,7 +28,7 @@ GLOSSARY
 
 **Conforming datasets.** Conforming datasets are in I/O API format. Most programs (models, visualization and analysis routines) in the CMAQ system are able to read and write conforming datasets. This capability eliminates the need for data conversion, even within a distributed computing environment.
 
-**Conforming programs.** Conforming programs generally use the I/O API library routines for reading and writing data. Key data structures are defined by globally shared information. You define this critical data structure information once, and it is automatically made available for use in conforming code throughout the system. This globally shared information is permanently stored as objects in an object data base. In Models-3, these objects are a stored collection of related information, such as grid dimensions and resolution, coordinate system definitions, chemical mechanism species, and reactions.
+**Conforming programs.** Conforming programs generally use the I/O API library routines for reading and writing data. Key data structures are defined by globally shared information. You define this critical data structure information once, and it is automatically made available for use in conforming code throughout the system. This globally shared information is permanently stored as objects in an object data base. In CMAQ, these objects are a stored collection of related information, such as grid dimensions and resolution, coordinate system definitions, chemical mechanism species, and reactions.
 
 '''Cross point. '''Grid point where all scalars are defined.
 
@@ -76,11 +76,11 @@ GLOSSARY
 
 **Hydrostatic.** Used to indicate to a model that it is to assume that the atmosphere is in hydrostatic equilibrium (i.e., surfaces of constant pressure and constant mass coincide and are horizontal throughout). Complete balance exists between the force of gravity and the pressure force.
 
-**Hypertext link.** A hypertext link is a specially designated word or phrase displayed in text that has been saved in Hypertext Markup Language (HTML) format. A hypertext link provides nonsequential access to other entries in a document set. In Models-3, the Help facility is done using hypertext. Hypertext linking is done to all help entries.
+**Hypertext link.** A hypertext link is a specially designated word or phrase displayed in text that has been saved in Hypertext Markup Language (HTML) format. A hypertext link provides nonsequential access to other entries in a document set. In CMAQ, the Help facility is done using hypertext. Hypertext linking is done to all help entries.
 
-**Input/Output Applications Programming Interface (I/O API).** A software library that reads and writes files. It uses an internal data format that is machine independent and that conforms to the widely used University Corporation for Atmospheric Research Network Common Data Format (netCDF). The I/O API files contain self-describing headers with complete information that is necessary to use and interpret the data contained in the file. The Models-3 I/O API format is slightly more restrictive than the standard netCDF format regarding how the header infor­ma­tion must be written. The I/O API library provides a variety of data structure types and a set of reusable access routines that offer selective direct access to the data in terms that are meaningful to the environmental modeler. Supported data types include gridded, boundary, vertical profile, grid nest, time series, and event-driven. For additional information on the I/O API, see Chapter 4.
+**Input/Output Applications Programming Interface (I/O API).** A software library that reads and writes files. It uses an internal data format that is machine independent and that conforms to the widely used University Corporation for Atmospheric Research Network Common Data Format (netCDF). The I/O API files contain self-describing headers with complete information that is necessary to use and interpret the data contained in the file. The I/O API format is slightly more restrictive than the standard netCDF format regarding how the header infor­ma­tion must be written. The I/O API library provides a variety of data structure types and a set of reusable access routines that offer selective direct access to the data in terms that are meaningful to the environmental modeler. Supported data types include gridded, boundary, vertical profile, grid nest, time series, and event-driven. For additional information on the I/O API, see Chapter 4.
 
-'''Internal. '''With respect to Models-3 data, internal means that the data are available within the software; the user does not have to provide them. Examples incude look-up tables, ranges, and lists of state/county names.
+'''Internal. '''With respect to CMAQ data, internal means that the data are available within the software; the user does not have to provide them. Examples incude look-up tables, ranges, and lists of state/county names.
 
 **Inventory Data Analyzer (IDA).** Program used for input and quality control checks of emission inventories.
 
@@ -88,7 +88,7 @@ GLOSSARY
 
 **Irix.** Operating system for SGI computers.
 
-**Keyword.** A keyword is a word or phrase, up to 40 characters long, that can be used to locate an entity in help text or a Models-3 object (e.g., dataset, program, study, or model) using a Find screen.
+**Keyword.** A keyword is a word or phrase, up to 40 characters long, that can be used to locate an entity in help text or a CMAQ object (e.g., dataset, program, study, or model) using a Find screen.
 
 **Layer collapsing.** A procedure in which the layer structure prepared by a meteorological model is modified by reducing the number of layers. '**'This is not recommended.** ''
 
@@ -118,9 +118,9 @@ GLOSSARY
 
 **Modeling system.** A set of computational models and associated data processors that together provide for the simulation of processes of interest.
 
-**Models-3 components.** The various subsystems within the Models-3 framework. Each component is represented by its own icon. The available components are Dataset Manager, Model Builder, Program Manager, Science Manager, Strategy Manager, Study Planner, and Tools Manager.
+**CMAQ components.** The various subsystems within the CMAQ framework. Each component is represented by its own icon. The available components are Dataset Manager, Model Builder, Program Manager, Science Manager, Strategy Manager, Study Planner, and Tools Manager.
 
-**Models-3.** The third-generation air quality modeling system. It is a flexible system that addresses multiple air quality issues, such as regional- and urban-scale oxidant and acid deposition.
+**CMAQ.** The third-generation air quality modeling system. It is a flexible system that addresses multiple air quality issues, such as regional- and urban-scale oxidant and acid deposition.
 
 **Module.** A subset that is part of a larger program (such as a meteorological model, an emissions model, or CMAQ). In a modular program, all modules of a particular type (e.g., those that compute dry deposition) are interchangeable, allowing you to replace one module with another to determine, for example, how each module affects modeling results. Examples of modules include science modules and analysis and visualization modules.
 
@@ -132,7 +132,7 @@ GLOSSARY
 
 **Nested grids.** Nesting refers to fitting a finer-resolution grid over part of a coarser-resolution grid. The finer-resolution grid receives information (such as boundary conditions) from the coarser-grid simulation.
 
-**Nonconforming datasets.** Nonconforming datasets are ones that are not in I/O API format. They can be used in the Models-3 framework by programs that are specifically designed to read those datasets. When nonconforming datasets and programs are used, however, you must know how to match programs and datasets, and which data formats and programs are transportable to different machine architectures. Those considerations are automatically managed by the Models‑3 framework for those who use conforming datasets and conforming programs.
+**Nonconforming datasets.** Nonconforming datasets are ones that are not in I/O API format. They can be used in the CMAQ framework by programs that are specifically designed to read those datasets. When nonconforming datasets and programs are used, however, you must know how to match programs and datasets, and which data formats and programs are transportable to different machine architectures. Those considerations are automatically managed by the Models‑3 framework for those who use conforming datasets and conforming programs.
 
 **Nonhydrostatic.** Used to indicate that the model does not assume that the atmosphere is in hydrostatic equilibrium. Air is not assumed to have only horizontal motion relative to the earth.
 
@@ -172,7 +172,7 @@ GLOSSARY
 
 **Source.** With respect to air pollution, a point, area, or mobile source that produces and/or emits air pollutants.
 
-**Speciation.** In Models-3, speciation refers to using one of the chemical mechanisms available with Models-3 to disaggregate a chemical substance (pollutant) into simpler compounds.
+**Speciation.** In CMAQ, speciation refers to using one of the chemical mechanisms available with CMAQ to disaggregate a chemical substance (pollutant) into simpler compounds.
 
 **Species.** Typically, a chemical substance or group of related substances whose behavior is modeled during environmental simulation modeling.
 
@@ -182,7 +182,7 @@ GLOSSARY
 
 **Surface fluxes.** The exchange of material, energy, or momentum between the surface of the earth and the atmosphere.
 
-**Time step.** A time step is a fixed unit of time. A model may have one or more internal time steps for various processors. In the Models-3 framework, a time step is used to indicate the length of time between output of variables from the model or a process within the model. Another term might be “output time interval.”
+**Time step.** A time step is a fixed unit of time. A model may have one or more internal time steps for various processors. In the CMAQ framework, a time step is used to indicate the length of time between output of variables from the model or a process within the model. Another term might be “output time interval.”
 
 **Troposphere.** The troposphere is the lowest portion of Earth's atmosphere. It contains approximately 75% of the atmosphere's mass and almost all of its water vapor and aerosols. The average depth of the troposphere is about 11 km (7 miles) in the middle latitudes. It is deeper in the tropical regions (up to 20 km [12 miles]) and shallower near the poles (about 7 km [4 miles] in summer, indistinct in winter). Within the troposphere, temperature decreases with altitude. The lowest part of the troposphere, where friction with the Earth's surface influences air flow, is the planetary boundary layer (PBL). This layer is typically a few hundred meters to 2 km (1.2 miles) deep, depending on the landform and time of day. The border between the troposphere and stratosphere is called the tropopause. Above this layer is a temperature inversion—that is, in the stratosphere temperature increases with altitude.
 
@@ -192,8 +192,8 @@ GLOSSARY
 
 <references/>
 
-[1] <sup>Future\\ efforts\\ toward\\ fourth-generation\\ systems\\ will\\ extend\\ linkages\\ and\\ process\\ feedback\\ to\\ include\\ air,\\ water,\\ land,\\ and\\ biota\\ to\\ provide\\ a\\ more\\ holistic\\ approach\\ to\\ simulating\\ transport\\ and\\ fate\\ of\\ chemicals\\ and\\ nutrients\\ throughout\\ an\\ ecosystem</sup>
+[1] <sup>Future efforts toward fourth-generation systems will extend linkages and process feedback to include air, water, land, and biota to provide a more holistic approach to simulating transport and fate of chemicals and nutrients throughout an ecosystem</sup>
 
-[2] <sup>The\\ CVS\\ ''modules\\ ''file\\ has\\ no\\ intrinsic\\ relationship\\ with\\ the\\ CMAQ\\ classes/module\\ design\\ implementation.</sup>
+[2] <sup>The CVS ''modules ''file has no intrinsic relationship with the CMAQ classes/module design implementation.</sup>
 
-[<< Previous Chapter](CMAQ_OGD_ch14_appendix.md) - [Home](CMAQ_OGD_index.md)
+[<< Previous Chapter](CMAQ_OGD_appendix_A.md) - [Home](README.md)

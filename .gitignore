@@ -1,0 +1,7 @@
+**/*.log
+**/*.o
+**/BLD*
+**/*.mod
+data
+lib
+CTM_LOG*

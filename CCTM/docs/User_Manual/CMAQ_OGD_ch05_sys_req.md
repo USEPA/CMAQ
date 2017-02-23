@@ -50,8 +50,6 @@ CMAQ requires all of the programs listed in [Table 5‑1](#Table5-1). This list 
 |GFORT|Gnu Fortran compiler|[<http://gcc.gnu.org/fortran/>](http://gcc.gnu.org/fortran/)|
 |GCC|Gnu C compiler|[<http://gcc.gnu.org/>](http://gcc.gnu.org/)|
 |***Code Libraries***| | |
-|STENEX|CMAQ stencil exchange library for parallel job management|Contained in the standard CMAQ distribution available at [<http://www.cmascenter.org>](http://www.cmascenter.org/)
-|PARIO|CMAQ parallel input/output management library|"|
 |OpenMPI|Library for the message passing interface; used for multiprocessor CMAQ simulations|[<https://www.open-mpi.org>](https://www.open-mpi.org)|
 |MPICH|Library for the message passing interface; used for multiprocessor CMAQ simulations|[<http://www.mcs.anl.gov/research/projects/mpich2/>](http://www.mcs.anl.gov/research/projects/mpich2/)|
 |netCDF|Network Common Data Form library for controlling CMAQ file formats|[<http://www.unidata.ucar.edu/software/netcdf/>](http://www.unidata.ucar.edu/software/netcdf/)|
@@ -145,7 +143,7 @@ Note that for multiprocessor applications it is recommended that the Fortran MPI
 
 | **Variable Name** | **Suggested Value** |
 |:-----------------:|:-------------------|
-|`CMAQ_HOME`|The central CMAQ installation directory. For example, if you installed the CMAQ source code in the directory `/home/user/CMAQ` set CMAQ_HOME with `export CMAQ_HOME=/home/user/CMAQ` for bash or `setenv M3HOME /home/user/CMAQ` for csh; note that this variable is M3HOME prior to CMAQv5.2|
+|`CMAQ_HOME`|The central CMAQ installation directory. For example, if you installed the CMAQ source code in the directory `/home/user/CMAQ` set CMAQ_HOME with `export CMAQ_HOME=/home/user/CMAQ` for bash or `setenv CMAQ_HOME /home/user/CMAQ` for csh; note that this variable is M3HOME prior to CMAQv5.2|
 |`CMAQ_DATA`|Automatically set by config.cmaq; note that this variable is M3DATA prior to CMAQv5.2|
 |`CMAQ_LIB`|Automatically set by config.cmaq; note that this variable is M3LIB prior to CMAQv5.2|
 |`M3MODEL`|Automatically set by config.cmaq; deprecated in CMAQv5.2|

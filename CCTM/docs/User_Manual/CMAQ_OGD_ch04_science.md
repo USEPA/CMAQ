@@ -19,7 +19,7 @@ CMAQ has been developed to meet the needs of both the research and application c
 </center>
 CMAQ can be employed for regulatory applications by using approved standard configurations of the modeling platform that represent the best available modeling technology at a given time. At the same time, the CMAQ modeling system is also a useful tool for the model developer. It is unique in that its components are designed in a flexible, modular fashion with a user interface; model developers can use these design features to create complex modeling situations and scenarios, or to develop entirely new models using a standardized coding framework. Model developers can also perform sensitivity analyses on newly developed modules and perform comparisons with existing systems.
 
-This chapter summarizes the CMAQ modeling system framework and science features in various components of the CMAQ system, including MCIP, ICON, BCON, JPROC, CHEMMECH, PROCAN, and CCTM. More detailed discussions on these features can be found in [Byun and Ching (1999)](https://www.cmascenter.org/cmaq/science_documentation/) and Byun and Schere (2006). The [next chapter](CMAQ_OGD_ch05_sys_req.md) discusses the CMAQ user interface for building and running CMAQ.
+This chapter summarizes the CMAQ modeling system framework and science features in various components of the CMAQ system, including MCIP, ICON, BCON, JPROC, CHEMMECH, and CCTM. More detailed discussions on these features can be found in [Byun and Ching (1999)](https://www.cmascenter.org/cmaq/science_documentation/) and Byun and Schere (2006). The [next chapter](CMAQ_OGD_ch05_sys_req.md) discusses the CMAQ user interface for building and running CMAQ.
 
 Features Implemented to Achieve the Goals of CMAQ
 -------------------------------------------------
@@ -110,7 +110,7 @@ The input data for CCTM are developed using the four input processors shown in g
 
 The choices for these options and how they are selected for each of the CMAQ programs are detailed in [Chapter 7](CMAQ_OGD_ch07_programs_libraries.md).
 
-CMAQ uses the MCIP software to prepare the meteorological fields for CCTM. The ICON and BCON processors generate the initial and boundary conditions for a CCTM simulation. JPROC computes the photolysis rates that are used when simulating photochemical reactions in CCTM. Emissions for CMAQ must be prepared with a data processing system that generates emissions for direct input to CCTM. Brief descriptions of the various CMAQ input processors are presented in this section. Also described are two processors (CHEMMECH and PROCAN) not shown in [Figure 4.2](#Figure4-2).
+CMAQ uses the MCIP software to prepare the meteorological fields for CCTM. The ICON and BCON processors generate the initial and boundary conditions for a CCTM simulation. JPROC computes the photolysis rates that are used when simulating photochemical reactions in CCTM. Emissions for CMAQ must be prepared with a data processing system that generates emissions for direct input to CCTM. Brief descriptions of the various CMAQ input processors are presented in this section. Also described is the CHEMMECH processor, not shown in [Figure 4.2](#Figure4-2).
 
 ## MCIP: Meteorology-Chemistry Interface Processor
 

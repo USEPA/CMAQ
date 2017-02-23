@@ -1,29 +1,29 @@
-[Home](CMAQ_OGD_index.md)
+[Home](README.md)
 
 CMAQ Operational Guidance document
 ==
 List of Figures
 --
 
-[Figure 2‑1. CMAQ Modeling Framework](CMAQ_OGD_ch04_science.md#Figure2-1)
+[Figure 4‑1. CMAQ Modeling Framework](CMAQ_OGD_ch04_science.md#Figure4-1)
 
-[Figure 2-2. CMAQ Chemistry-Transport Model (CCTM) and input processors](CMAQ_OGD_ch04_science.md#Figure2-2)
+[Figure 4-2. CMAQ Chemistry-Transport Model (CCTM) and input processors](CMAQ_OGD_ch04_science.md#Figure4-2)
 
-[Figure 2-3. Meteorology preprocessing for CMAQ with MCIP](CMAQ_OGD_ch04_science.md#Figure2-3)
+[Figure 4-3. Meteorology preprocessing for CMAQ with MCIP](CMAQ_OGD_ch04_science.md#Figure4-3)
 
-[Figure 2-4. Initial and boundary conditions preprocessing for CMAQ](CMAQ_OGD_ch04_science.md#Figure2-4)
+[Figure 4-4. Initial and boundary conditions preprocessing for CMAQ](CMAQ_OGD_ch04_science.md#Figure4-4)
 
-[Figure 2-5. Clear-sky photolysis rate preprocessing for CMAQ](CMAQ_OGD_ch04_science.md#Figure2-5)
+[Figure 4-5. Clear-sky photolysis rate preprocessing for CMAQ](CMAQ_OGD_ch04_science.md#Figure4-5)
 
-[Figure 2-6. Invoking new/modified gas-phase chemical mechanisms in CMAQ](CMAQ_OGD_ch04_science.md#Figure2-6)
+[Figure 4-6. Invoking new/modified gas-phase chemical mechanisms in CMAQ](CMAQ_OGD_ch04_science.md#Figure4-6)
 
-[Figure 2-7 Process analysis implementation in the CMAQ modeling system](CMAQ_OGD_ch04_science.md#Figure2-7)
+[Figure 4-7 Process analysis implementation in the CMAQ modeling system](CMAQ_OGD_ch04_science.md#Figure4-7)
 
-[Figure 2-8 Lightning data preprocessor for CCTM](CMAQ_OGD_ch04_science.md#Figure2-8)
+[Figure 4-8 Lightning data preprocessor for CCTM](CMAQ_OGD_ch04_science.md#Figure4-8)
 
-[Figure 2-9 Crop calendar data preprocessor for the CCTM](CMAQ_OGD_ch04_science.md#Figure2-9)
+[Figure 4-9 Crop calendar data preprocessor for the CCTM](CMAQ_OGD_ch04_science.md#Figure4-9)
 
-[Figure 2-10. CMAQ chemistry-transport model and associated preprocessors](CMAQ_OGD_ch04_science.md#Figure2-10)
+[Figure 4-10. CMAQ chemistry-transport model and associated preprocessors](CMAQ_OGD_ch04_science.md#Figure4-10)
 
 [Figure 7‑1.CMAQ core programs](CMAQ_OGD_ch07_programs_libraries.md#Figure7-1)
 
@@ -45,7 +45,9 @@ List of Figures
 
 [Figure 7‑10. PROCAN input and output files](CMAQ_OGD_ch07_programs_libraries.md#Figure7-10)
 
-[Figure 9-1. CMAQ benchmark grid](CMAQ_OGD_ch09_grid_defn.md#Figure9-1)
+[Figure 9-1. CMAQ Horizontal grid Convention](CMAQ_OGD_ch09_grid_defn.md#Figure9-1)
+
+[Figure 9-2. CMAQ benchmark grid](CMAQ_OGD_ch09_grid_defn.md#Figure9-2)
 
 [Figure 10-1. 36-km four-day modeling period IC/BC schematic](CMAQ_OGD_ch10_new_simulation.md#Figure10-1)
 
@@ -58,6 +60,8 @@ List of Figures
 [Table 5‑2. Optional support software for CMAQ](CMAQ_OGD_ch05_sys_req.md#Table5-2)
 
 [Table 5‑3. NetCDF and I/O API compilation options for CMAQ](CMAQ_OGD_ch05_sys_req.md#Table5-3)
+
+[Table 5‑4. Config.cmaq Configuration Variables](CMAQ_OGD_ch05_sys_req.md#Table5-4)
 
 [Table 6-1. Possible Time Step Structures in I/O API Files](CMAQ_OGD_ch06_req_lib.md#Table6-1)
 
@@ -145,4 +149,4 @@ List of Figures
 
 [Table 8‑12. OMI data format](CMAQ_OGD_ch08_input_files.md#Table8-12)
 
-[Home](CMAQ_OGD_index.md)
+[Home](README.md)
