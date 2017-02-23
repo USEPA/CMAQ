@@ -1382,6 +1382,8 @@ C Local variables:
       LMODE   = 0
       STAT    = 0
       AER_PAR = 0.0
+      dg      = 0.0
+      sg      = 0.0
 
       !Loop Through Each Aerosol Mode. Sum up the third moment, then
       !calculate the Dg and Sg of the mode and check to make sure they
@@ -1395,8 +1397,8 @@ C Local variables:
          AER_PAR ( 1, IMODE, 1 ) = NUM
          AER_PAR ( 1, IMODE, 2 ) = M2
          AER_PAR ( 1, IMODE, 3 ) = M3
-         AER_PAR ( 1, IMODE, 4 ) = 0.    !dg
-         AER_PAR ( 1, IMODE, 5 ) = 0.    !sg
+         AER_PAR ( 1, IMODE, 4 ) = 0.    
+         AER_PAR ( 1, IMODE, 5 ) = 0.    
 
          IF ( M3 .LT. 1.0e-30 ) THEN
              STAT = 2

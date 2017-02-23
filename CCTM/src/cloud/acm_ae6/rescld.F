@@ -726,9 +726,9 @@ C...set cgrid to the ending concentrations
                   END IF
                 END DO
 
-              END IF
-            END DO
-          END IF
+              END IF        ! Sum( QC,QR,QG ) > 0.00005 ?
+            END DO       ! lay
+          END IF      ! QCRGCOL > 0 ?
 
         END DO   ! col
       END DO   ! row
