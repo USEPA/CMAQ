@@ -112,6 +112,7 @@ C Local Variables:
       integer, save :: logdev
 
       CHARACTER( 96 ) :: XMSG = ' '
+      CHARACTER( 199 ) :: XMSG2 = ' '
 
       INTEGER      STEP                         ! ASTEP( L ), (dt) in sec
       INTEGER      DSTEP                        ! dt accumulator
@@ -125,9 +126,10 @@ C Local Variables:
 C Required interface for allocatable array dummy arguments
 
       INTERFACE
-         SUBROUTINE RDBCON ( FDATE, FTIME, TSTEP, LVL, BCON )
+         SUBROUTINE RDBCON ( FDATE, FTIME, TSTEP, LVL, BCON, LSTAT )
             INTEGER, INTENT( IN )  :: FDATE, FTIME, TSTEP, LVL
             REAL,    INTENT( OUT ) :: BCON( :,: )
+            LOGICAL, INTENT( INOUT ) :: LSTAT
          END SUBROUTINE RDBCON
          SUBROUTINE X_PPM ( CGRID, FDATE, FTIME, TSTEP, LVL, BCON )
             REAL, POINTER          :: CGRID( :,:,:,: )
@@ -261,7 +263,7 @@ C Get CGRID offsets
      &            'Applying fix to aerosol Boundary Conditions for aerosol',
      &            ' modes. Turn on verbose_rdcon preprocessor flag to learn ',
      &            'more.'
-            CALL M3WARN( 'Read BCs', MDATE, MTIME, XMSG2 )
+            CALL M3WARN( 'Read BCs', FDATE, FTIME, XMSG2 )
       END IF
  
  
