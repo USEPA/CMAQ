@@ -74,7 +74,7 @@ C Arguments:
       INTEGER, INTENT( IN ) :: LVL         ! layer
 !     REAL           BCON( NBNDY,NLAYS,* )  ! boundary concentrations
       REAL,    INTENT( OUT ) :: BCON( :,: ) ! boundary concentrations
-      LOGICAL, INTENT( OUT ) :: LSTAT       ! Flag for identifying Aerosol BC flaws
+      LOGICAL, INTENT( INOUT ) :: LSTAT       ! Flag for identifying Aerosol BC flaws
 
 C Parameters:
       REAL, PARAMETER :: KGPMG = 1.0E-09  ! Kg / micro-gram

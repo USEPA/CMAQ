@@ -205,7 +205,6 @@ C Get CGRID offsets
 
          CALL RDBCON ( FDATE, FTIME, ASTEP( LVL ), LVL, BCON, LSTAT )
 
-
 !        write( logdev,* ) ' lvl, fdate, ftime: ', lvl, fdate, ftime
 
          IF ( XYFIRST ) THEN
