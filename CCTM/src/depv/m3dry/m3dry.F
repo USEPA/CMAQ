@@ -377,27 +377,27 @@ C-----------------------------------------------------------------
             IF ( .NOT. use_depspc( l ) ) CYCLE maploop
             n = n + 1
 
-            If ( TRIM( depspc( l ) ) .EQ. 'NO2' ) THEN
+            If ( depspc( l ) .EQ. 'NO2' ) THEN
                l_NO2 = l
                n_NO2 = n
             End If
-            If ( TRIM( depspc( l ) ) .EQ. 'HONO' ) THEN
+            If ( depspc( l ) .EQ. 'HONO' ) THEN
                l_HONO = l
                n_HONO = n
             End If
-            If ( TRIM( depspc( l ) ) .EQ. 'O3' ) THEN
+            If ( depspc( l ) .EQ. 'O3' ) THEN
                l_O3 = l
                n_O3 = n
             End If
-            If ( TRIM( depspc( l ) ) .EQ. 'NH3' ) THEN
+            If ( depspc( l ) .EQ. 'NH3' ) THEN
                l_NH3 = l
                n_NH3 = n
             End If
-            If ( TRIM( depspc( l ) ) .EQ. 'HG' ) THEN
+            If ( depspc( l ) .EQ. 'HG' ) THEN
                l_HG = l
                n_HG = n
             End If
-            If ( TRIM( depspc( l ) ) .EQ. 'HGIIGAS' ) THEN
+            If ( depspc( l ) .EQ. 'HGIIGAS' ) THEN
                l_HGII = l
                n_HGII = n
             End If
@@ -824,7 +824,7 @@ c        Iodide in sea-water based on SST  (mol /dm-3)
                            lv     = lv0 - dlvdt * ctemp2
                            cp_air = 1004.67 * ( 1.0 + 0.84 * q2p0cr )               ! [J/kg/K]
                            tw     = ( ( 4.71E4 * cp_air / lv ) - 0.870 ) + stdtemp  ! [K]
-                           IF ( TRIM( depspc( l ) ) .EQ. 'HG' ) THEN  ! elemental mercury gas
+                           IF ( depspc( l ) .EQ. 'HG' ) THEN  ! elemental mercury gas
                               rsurfj( j,l,c,r ) = 1.0E30
                            ELSE
                               heff  = hlconst( subname( l ), tw, effective, hplus_h2o )

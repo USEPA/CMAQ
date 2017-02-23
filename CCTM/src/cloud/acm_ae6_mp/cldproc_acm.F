@@ -476,7 +476,7 @@ C...share wet deposition with bidirectional surface exchange algorithms
 
       IF ( HGBIDI ) THEN
         DO VAR = 1, N_GC_WDEP
-           IF ( TRIM( GC_WDEP( VAR ) ) .EQ. 'HG' ) THEN
+           IF ( GC_WDEP( VAR ) .EQ. 'HG' ) THEN
              DO ROW = 1, MY_NROWS
                 DO COL = 1, MY_NCOLS
                    ACCM_WDEP = TOT_DEP( COL, ROW, VAR ) 
@@ -485,7 +485,7 @@ C...share wet deposition with bidirectional surface exchange algorithms
                 END DO
              END DO
            END IF
-           IF ( TRIM( GC_WDEP( VAR ) ) .EQ. 'HGIIGAS' ) THEN
+           IF ( GC_WDEP( VAR ) .EQ. 'HGIIGAS' ) THEN
              DO ROW = 1, MY_NROWS
                 DO COL = 1, MY_NCOLS
                    ACCM_WDEP = TOT_DEP( COL, ROW, VAR ) 
