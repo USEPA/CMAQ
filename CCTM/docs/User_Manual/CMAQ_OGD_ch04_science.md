@@ -50,15 +50,20 @@ Science Modules:
 -   Gas-phase chemical reaction solver (*gas*)
 -   Aqueous-phase reactions and cloud mixing (*cloud*)
 -   Aerosol dynamics and size distributions (*aero*)
+-   Potential vorticity scaling for stratosphere/troposphere exchange (*pv_o3*)
+-   Meteorology-chemistry coupling (*twoway*)
 
 Control/Utility Modules:
 
 -   Model data flow and synchronizing of fractional time steps (*driver*)
 -   Model horizontal grid system (*grid*)
--   Unit conversion (*cpl*)
+-   Unit conversion (*couple*)
 -   Initialization (*init*)
+-   MPI/parallelization (*par*)
 -   CGRID configuration (*cgrds*)
--   Process analysis (*pa*)
+-   Process analysis (*procan*)
+-   Species namelist utilities (*spcs*)
+-   Miscellaneous functions (*util*)
 
 Data Estimation Modules:
 
@@ -69,7 +74,7 @@ In-line Emissions Modules:
 
 -   Calculate emissions (biogenics, dust, lightning, sea salt, plume rise) in-line (*emis*)
 -   In-line BEIS3 biogenic emissions (*biog*)
--   In-line plume rise (*plmrs*)
+-   In-line plume rise (*plrise*)
 
 The CMAQ modularity makes it easy to modify or introduce a specific scientific process in CCTM. For example, the *gas* module contains several options for different gas-phase chemistry solvers that can be used to optimize model performance. Without the modular structure, changes to just one scientific process could entail having to modify source code throughout CCTM, thereby greatly increasing the risk of human error.
 
@@ -131,11 +136,11 @@ Using output fields from the meteorological model, MCIP performs the following f
 
 ## ICON and BCON: The initial and boundary conditions processors
 
-To perform air quality simulations, both initial and boundary conditions are required. Initial conditions (calculated in ICON) are needed to provide concentrations of individual chemical species for the first time step throughout the modeling domain. Boundary conditions (calculated in BCON) are needed to provide concentrations of individual chemical species at the lateral boundaries of the modeling domain. In a single run of each processor, ICON and BCON can generate these concentrations for all of the chemical species required by CMAQ. ICON and BCON require a file that specifies the concentrations of various chemical species in the troposphere and specification of the photochemical chemical and aerosol mechanisms that will be used in the supported CCTM simulation. These processors require two inputs [Figure 4‑4](#Figure4-4): a concentration file for the chemical species to be simulated, and the chemical mechanism. 
+To perform air quality simulations, both initial and boundary conditions are required. Initial conditions (calculated in ICON) are needed to provide concentrations of individual chemical species for the first time step throughout the modeling domain. Boundary conditions (calculated in BCON) are needed to provide concentrations of individual chemical species at the lateral boundaries of the modeling domain. In a single run of each processor, ICON and BCON can generate these concentrations for all of the chemical species required by CMAQ. ICON and BCON require a file that specifies the concentrations of various chemical species in the troposphere and specification of the photochemical chemical and aerosol mechanisms that will be used in the supported CCTM simulation. These processors require two inputs [Figure 4‑4](#Figure4-4): a concentration file for the chemical species to be simulated, and the chemical mechanism.
 
 ***Concentration file:*** The concentration file used in ICON and BCON can come from one of two sources:
 
--   A time-independent set of vertical concentration profiles that are dependent upon the chemical mechanism being used. This approach is usually taken when no other information about the initial and boundary concentrations is available. CMAQ is currently distributed with IC and BC profiles for the CB05, SAPRC-07T, and SAPRC-99 photochemical mechanisms and the CMAQ AERO6 aerosol module. These files are set at the four boundaries (north, east, south, west) of the computational grid and are thus fixed in space.
+-   A time-independent set of vertical concentration profiles that are dependent upon the chemical mechanism being used. This approach is usually taken when no other information about the initial and boundary concentrations is available. CMAQ is currently distributed with IC and BC profiles for the CB05, RACM2, SAPRC-07T, and SAPRC-99 photochemical mechanisms and the CMAQ AERO6 aerosol module. These files are set at the four boundaries (north, east, south, west) of the computational grid and are thus fixed in space.
 
 -   Existing CCTM 3-D concentration fields. Usually, this option is selected when performing a nested model simulation and modeling results from a previous CCTM simulation are available from a coarser-grid-resolution simulation. Existing CCTM concentration fields are also used when a CCTM simulation is extended in time in a separate run step. Unlike the profiles discussed in the previous bullet, these CCTM concentration files are spatially and temporally resolved.
 
@@ -146,7 +151,7 @@ To perform air quality simulations, both initial and boundary conditions are req
 <center>**Figure 4‑4. Initial and boundary conditions preprocessing for CMAQ**
 
 
-***Chemical mechanism:*** Both the vertical concentration profiles and the CCTM concentration fields have specific chemical mechanisms associated with them, which are a function of how the files were originally generated. Either a generic ASCII input profile or an existing CCTM 3-D concentration file can be used to generate initial and boundary conditions for the CCTM. The user must consider the gas-phase chemical mechanism and aerosol module being used for the CCTM simulation when configuring ICON and BCON. CMAQ includes ASCII input profiles for the CB05, SAPRC-07T, and SAPRC-99 photochemical mechanisms and the CMAQ AERO6 aerosol module. Existing CCTM 3‑D concentration fields could have been generated using several different chemical mechanisms.
+***Chemical mechanism:*** Both the vertical concentration profiles and the CCTM concentration fields have specific chemical mechanisms associated with them, which are a function of how the files were originally generated. Either a generic ASCII input profile or an existing CCTM 3-D concentration file can be used to generate initial and boundary conditions for the CCTM. The user must consider the gas-phase chemical mechanism and aerosol module being used for the CCTM simulation when configuring ICON and BCON. CMAQ includes ASCII input profiles for the RACM2, CB05, SAPRC-07T, and SAPRC-99 photochemical mechanisms and the CMAQ AERO6 aerosol module. Existing CCTM 3‑D concentration fields could have been generated using several different chemical mechanisms.
 
 The chemical mechanism used in the CCTM and the CMAQ input processors must be consistent with the mechanism used to generate the concentration fields input to ICON and BCON. In other words, users must generated initial and boundary conditions using the same chemical mechanism that will be used for the CCTM simulation.
 
@@ -178,17 +183,6 @@ Gas-phase chemical mechanisms are implemented in CMAQ using Fortran namelist and
 <center>**Figure 4‑6. Invoking new/modified gas-phase chemical mechanisms in CMAQ**
 
 The benefit of the namelist approach to defining the CMAQ mechanisms is that the mechanism definition becomes a run-time configuration option as opposed to a compiled configuration. With careful modification to the namelist file, the user can add or subtract species being saved to the output file and apply across-the-board scaling factors to input emissions species without having to recompile CCTM. The namelist approach for defining chemical mechanisms is applicable only to CCTM; the standard INCLUDE file approach is required for ICON, BCON, and JPROC.
-
-## PROCAN: Process-analysis preprocessor
-
-Process analysis (PA) is an accounting system that tracks the quantitative effects of the individual chemical and physical processes that combine to produce the predicted hourly species concentrations output from a CTM simulation. The CMAQ CTM and other Eulerian grid models output concentration fields that are solutions of systems of partial differential equations for the time-rate of change in species concentrations due to a series of individual physical and chemical processes; these results are then combined to obtain a cumulative hourly concentration. PA tracks the mass throughput of these individual processes and provides quantitative information about how each process affected the predicted hourly species concentrations. PA is an optional configuration in CMAQ that is implemented by compiling CCTM with Fortran INCLUDE files that define PA configuration options. A PA-instrumented version of CCTM outputs additional files that contain hourly concentrations by physical and/or chemical process for selected model species.
-
-PROCAN is the PA preprocessor in the CMAQ modeling system. As shown in [Figure 4-7](#Figure4-7) PROCAN takes as input a configuration file (Pacp.inp) that is used to define the model species and processes to be tracked using PA, and outputs three INCLUDE files (PA\_CMN.EXT, PA\_CTL.EXT, and PA_DAT.EXT) that are used when compiling CCTM.
-
-<a id="Figure4-7"></a><center>
-![](./images/Figure4-7.png "Figure4-7.png")
-</center>
-<center>**Figure 4‑7. Process analysis implementation in the CMAQ modeling system**</center>
 
 ## LTNG_2D_DATA: Lightning flash count preprocessor
 
@@ -334,7 +328,7 @@ The CMAQ user interface that is distributed with the model source code consists 
 
 CMAQ source code can be viewed and downloaded from the [EPA CMAQ GitHub repository](https://github.com/USEPA/CMAQ). Alternatively, tarballs can be downloaded from [the CMAS Center website](https://www.cmascenter.org/cmaq/index.cfm). Each of CMAQ’s programs has separate build and run scripts. The build scripts are used to compile the source code into binary executables. The run scripts are used to set the required environment variables and execute the CMAQ programs. The user can manipulate the CMAQ scripts using a Linux text editor such as [emacs](https://en.wikipedia.org/wiki/Emacs), [gedit](https://en.wikipedia.org/wiki/Gedit), [nano](https://en.wikipedia.org/wiki/GNU_nano), or [vi](https://en.wikipedia.org/wiki/Vi). There are certain options that need to be set at compilation, and some that can be set before running a simulation. Details about using the scripts to build and run CMAQ are described in [Section 5](#CMAQ_System_Requirements_and_Installation), with further details in [Section 7](#CMAQ_Programs_and_Libraries).
 
-The CMAS Center currently fully supports CMAQ on Linux systems using the Gnu, Portland Group, and Intel Fortran compilers. The CMAS Center no longer supports compiling and running CMAQ on other UNIX operating systems.
+The CMAS Center currently supports CMAQ on Linux systems using the Gnu, Portland Group, and Intel Fortran compilers. Community members are encouraged to share their experiences porting CMAQ to other operating systems and compilers.
 
 **CMAQ users are strongly urged** to use the *same* Fortran compiler for *all* components of the CMAQ system, including the netCDF and I/O API libraries on which CMAQ depends.
 

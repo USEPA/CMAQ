@@ -65,12 +65,12 @@ The general steps for installation on a Linux system with, C-shell, GCC and Gfor
 
 ```
 ### Set up your Linux system environment
-$ setenv CC = gcc
-$ setenv CPPFLAGS = -DNDEBUG –DgFortran
-$ setenv CFLAGS = -O
-$ setenv FC = gfortran
-$ setenv FFLAGS = -O –w
-$ setenv CXX = g++
+$ setenv CC gcc
+$ setenv CPPFLAGS  '-DNDEBUG –DgFortran'
+$ setenv CFLAGS  -O
+$ setenv FC  gfortran
+$ setenv FFLAGS  '-O –w'
+$ setenv CXX  g++
 
 ## Install netCDF-C
 $ wget ftp://ftp.unidata.ucar.edu/pub/netcdf/netcdf-4.4.1.1.tar.gz
