@@ -1,4 +1,4 @@
-CMAQ_Dev
+CMAQv5.2
 ========
 
 Community Multiscale Air Quality Model [US EPA Website](https://www.epa.gov/air-research/community-multi-scale-air-quality-cmaq-modeling-system-air-quality-management)
@@ -12,10 +12,11 @@ computing techniques in an open-source framework to deliver fast, technically so
 particulates, toxics, and acid deposition.
 
 ##Getting the CMAQ Repository
-The publically available CMAQ Git repository is organized with each official public release stored as a branch in the USEPA/CMAQ repository.
-To download code, scripts, and documentation from the CMAQ Git repository, specify the branch (i.e. version number) and issue the following command from within a working directory on your server. For example to get the 5.2Beta version in a local repository that you've named CMAQ_v5.2Beta:
+This CMAQ Git archive is organized with each official public release stored as a branch on the main USEPA/CMAQ repository.
+To clone code from the CMAQ Git archive, specify the branch (i.e. version number) and issue the following command from within
+a working directory on your server:
 ```
-git clone -b 5.2Beta https://github.com/USEPA/CMAQ.git CMAQ_v5.2Beta  
+git clone -b CMAQ_v5.2 https://github.com/USEPA/CMAQ.git  
 ```
 
 ##CMAQ Repository Guide
