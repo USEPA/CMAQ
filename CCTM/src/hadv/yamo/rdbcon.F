@@ -25,7 +25,7 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
  
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE RDBCON ( JDATE, JTIME, TSTEP, LVL, BCON )
+      SUBROUTINE RDBCON ( JDATE, JTIME, TSTEP, LVL, BCON, LSTAT )
 
 C-----------------------------------------------------------------------
 C Function:
@@ -74,6 +74,7 @@ C Arguments:
       INTEGER, INTENT( IN ) :: LVL         ! layer
 !     REAL           BCON( NBNDY,NLAYS,* )  ! boundary concentrations
       REAL,    INTENT( OUT ) :: BCON( :,: ) ! boundary concentrations
+      LOGICAL, INTENT( INOUT ) :: LSTAT       ! Flag for identifying Aerosol BC flaws
 
 C Parameters:
       REAL, PARAMETER :: KGPMG = 1.0E-09  ! Kg / micro-gram
@@ -110,7 +111,6 @@ C Local variables:
       CHARACTER( 96 )  :: XMSG = ' '
       CHARACTER( 199 ) :: XMSG2 = ' '
       INTEGER          :: STAT
-      LOGICAL          :: LSTAT
 
       INTEGER, SAVE :: N_SPC_ADV
       INTEGER       :: LMODE    !Identifies the problematic mode from
@@ -407,7 +407,6 @@ C Read & interpolate boundary concentrations
       
       !Check Aerosol Size Distributions and Warn 
       !the User if They Are Not Robust
-      LSTAT = .FALSE.
       DO BND = 1,NBNDY
         CALL CHECK_AERO_ICBC( BCON( BND,STRT:FINI ), STAT, AER_PAR, LMODE )
         IF ( STAT .EQ. 1 ) THEN
@@ -427,15 +426,6 @@ C Read & interpolate boundary concentrations
 #endif
         ENDIF
       END DO
-      !Print warning if any aerosol BCs violated the size distribution parameters
-      IF ( LSTAT ) THEN    
-          WRITE( XMSG2, '(A55,A17,I2,A51,A5)' ),
-     &       'Applying fix to aerosol Boundary Conditions for aerosol',
-     &       ' modes at layer: ',LVL,
-     &       '. Turn on verbose_rdcon preprocessor flag to learn ',
-     &       'more.'
-          CALL M3WARN( 'Read BCs', MDATE, MTIME, XMSG2 )
-      END IF
 
 #ifdef verbose_rdbcon
       if ( lvl .eq. 1 ) then
