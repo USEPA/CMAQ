@@ -233,7 +233,7 @@ C arrays
                TLAI = SLAI( C,R,I ) 
 
 C Adjust methanol based on T. Pierce recommendation (1-16-03)
-               IF ( TRIM( BTMP ) == 'METH' ) THEN
+               IF ( BTMP == 'METH' ) THEN
                   TLAI = MAX( 3.0, TLAI )
                END IF
 

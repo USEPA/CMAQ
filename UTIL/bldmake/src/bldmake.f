@@ -33,6 +33,7 @@
 !                      rather than GLOBAL_MODULES
 !     Oct 2015 J.Young: Rework to make macros in the makefile for libs and
 !                       compiler "I" references; get rid of the CVS option.
+!     Jan 2016 D.Wong: Fixed the include path of mpif.h
 !-------------------------------------------------------------------------------
 
       Program bldmake
@@ -680,7 +681,12 @@
           If ( pos .Gt. 0 .And. pathStr( i ) .Ne. ' ' ) Then
             pos2 = pos + Len_Trim( pathStr( i ) )
             If ( pos .Eq. 1 ) Then
-              path = '$(' // Trim( pathMacro( Map ) ) // ')' // path( pos2: )
+              j = Index( path, 'mpi')
+              if (j .eq. 0) then
+                 path = '$(' // Trim( pathMacro( Map ) ) // ')' // path( pos2: )
+              else
+                 path = path(3:)
+              end if
               Exit
             Else
               If ( twoway ) Then

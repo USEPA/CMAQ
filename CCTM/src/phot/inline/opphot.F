@@ -204,6 +204,26 @@ C...CSA Variables, Units and Descriptions for RJ_FILE
          VDESC3D( N ) = 'broad band reflection for clear sky at top of atmosphere'
          VTYPE3D( N ) = M3REAL
 
+         N = N + 1
+         VNAME3D( N ) = 'TROPO_O3_EXCEED'
+         UNITS3D( N ) = 'Rel. Fraction'
+         VDESC3D( N ) = 'Average Exceedance of modeled ozone column from max fraction of Total Column'
+         VTYPE3D( N ) = M3REAL
+
+         N = N + 1
+         VNAME3D( N ) = 'N_EXCEED_TROPO3'
+         UNITS3D( N ) = 'per TSTEP'
+         VDESC3D( N ) = 'Number of exceedances to tropospheric ozone column'
+         VTYPE3D( N ) = M3REAL
+
+!         N = N + 1
+!         VNAME3D( N ) = 'MIN_FRAC_STRATO3'
+!         UNITS3D( N ) = 'NONE'
+!         VDESC3D( N ) = 'Minimum fraction of total ozone column density above the top pressure level'
+!         VTYPE3D( N ) = M3REAL
+
+
+
          DO JWL = 1, NWL
 
 C...assumes that lamba in nanometers is on order of 100 or less

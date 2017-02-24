@@ -22,10 +22,14 @@ DDEP_HONO          ,kg/ha     ,HONO[1]
 WDEP_HONO          ,kg/ha     ,HONO[2]
 DDEP_HNO3          ,kg/ha     ,HNO3[1]
 WDEP_HNO3          ,kg/ha     ,HNO3[2]
-DDEP_NTR           ,kg/ha     ,RNO3[1]
-WDEP_NTR           ,kg/ha     ,RNO3[2]
-DDEP_PANT          ,kg/ha     ,PAN[1]+PAN2[1]+PBZN[1]+MAPAN[1]
-WDEP_PANT          ,kg/ha     ,PAN[2]+PAN2[2]+PBZN[2]+MAPAN[2]
+DDEP_NTR           ,kg/ha     ,ISOPND[1]+ISOPNB[1]+NIT1[1]+NISOPOOH[1]+MVKN[1]     \
+                               +MACRN[1]+ETHLN[1]+RNO3I[1]+PROPNN[1]+ISOPNN[1] \
+                               +RNO3[1]+MTNO3[1]
+WDEP_NTR           ,kg/ha     ,ISOPND[2]+ISOPNB[2]+NIT1[2]+NISOPOOH[2]+MVKN[2]     \
+                               +MACRN[2]+ETHLN[2]+RNO3I[2]+PROPNN[2]+ISOPNN[2] \
+                               +RNO3[2]+MTNO3[2]
+DDEP_PANT          ,kg/ha     ,PAN[1]+PAN2[1]+PBZN[1]+MAPAN[1]+IMAPAN[1]
+WDEP_PANT          ,kg/ha     ,PAN[2]+PAN2[2]+PBZN[2]+MAPAN[2]+IMAPAN[2]
 DDEP_NH3           ,kg/ha     ,NH3[1]
 WDEP_NH3           ,kg/ha     ,NH3[2]
 DDEP_SO2           ,kg/ha     ,SO2[1]
@@ -53,7 +57,10 @@ DDEP_AOCIJ         ,kg-C/ha   , APOCI[1]       + APOCJ[1]                       
                                +ATRP1J[1]/1.84 + ATRP2J[1]/1.83 + ASQTJ[1]/1.52      \
                                +AALK1J[1]/1.56 + AALK2J[1]/1.42                      \
                                +AORGCJ[1]/2.00 + AOLGBJ[1]/2.10 + AOLGAJ[1]/2.50     \
-                               +APAH1J[1]/1.63 + APAH2J[1]/1.49 + APAH3J[1]/1.77     
+                               +APAH1J[1]/1.63 + APAH2J[1]/1.49 + APAH3J[1]/1.77     \
+                               +AIETETJ[1]/2.27 + AIEOSJ[1]/3.6   + ADIMJ[1]/2.07    \
+                               +AIMGAJ[1]/2.5   + AIMOSJ[1]/4.17  + AMTNO3J[1]/1.9   \
+                               +AISOPNNJ[1]/3.8 + AMTHYDJ[1]/1.54 + AGLYJ[1]/2.13   
 
 ! Sodium
 DDEP_ANAJ          ,kg/ha     ,ANAJ[1]
@@ -133,8 +140,8 @@ DD_OXN_TNO3        ,kgN/ha    ,0.22222*HNO3[1] + 0.22581*ANO3I[1] + 0.22581*ANO3
 WD_OXN_TNO3        ,kgN/ha    ,0.22581*WDEP_TNO3[0]
 DD_OXN_PANT        ,kgN/ha    ,0.11570*DDEP_PANT[0] 
 WD_OXN_PANT        ,kgN/ha    ,0.11570*WDEP_PANT[0]
-DD_OXN_ORGN        ,kgN/ha    ,0.10770*(DDEP_NTR[0])
-WD_OXN_ORGN        ,kgN/ha    ,0.10770*(WDEP_NTR[0])
+DD_OXN_ORGN        ,kgN/ha    ,0.10770*(DDEP_NTR[0])+0.10770*ISOPNN[1]
+WD_OXN_ORGN        ,kgN/ha    ,0.10770*(WDEP_NTR[0])+0.10770*ISOPNN[2]
 DD_OXN_OTHR        ,kgN/ha    ,0.25926*N2O5[1] + 0.29787*HONO[1]
 WD_OXN_OTHR        ,kgN/ha    ,0.25926*N2O5[2] + 0.29787*HONO[2]+0.177720*HNO4[2]+0.1717*CLNO2[2]
 DD_OXN_TOT         ,kgN/ha    ,DD_OXN_NOX[0] + DD_OXN_TNO3[0] + DD_OXN_PANT[0] + DD_OXN_ORGN[0] + DD_OXN_OTHR[0]

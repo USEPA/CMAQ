@@ -182,7 +182,7 @@ C-----------------------------------------------------------------------
                I = 0
                DO J = 1, NVARS3D
 C The FIRENAM_FIREVAR to match use in PT3D_DEFN
-                  IF ( TRIM( VNAME3D( J ) ) .EQ. 'HFLUX' ) THEN
+                  IF ( VNAME3D( J ) .EQ. 'HFLUX' ) THEN
                      FIRENAM( N )%ARRY( 1 ) = VNAME3D( J )
                      CYCLE
                   END IF
