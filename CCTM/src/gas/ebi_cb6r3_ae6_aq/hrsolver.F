@@ -417,9 +417,6 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 
       RETURN
 
-91000 FORMAT( 'WARNING: EBI solver in cell (',2(I4,','),I4,') Init.Conc. for ', 
-     &         A16, ' = ', ES12.4,' ppmV')
-
 91000 FORMAT( 'WARNING: EBI solver in cell (',2(I4,','),I4,') Init.Conc. for ',
      &         A16, ' = ', ES12.4,' ppmV')
 

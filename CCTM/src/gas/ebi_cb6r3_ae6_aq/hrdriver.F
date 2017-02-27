@@ -264,12 +264,6 @@ C Define processor offsets
          PECOL_OFFSET = COLSD_PE( 1, MYPE+1 ) - 1
          PEROW_OFFSET = ROWSD_PE( 1, MYPE+1 ) - 1
 
-
-C Define processor offsets
-
-         PECOL_OFFSET = COLSD_PE( 1, MYPE+1 ) - 1
-         PEROW_OFFSET = ROWSD_PE( 1, MYPE+1 ) - 1
-
 C.. Get fractional seawater coverage from the OCEAN file.
 
          ALLOCATE( OPEN_ZONE( NCOLS, NROWS ), SURF_ZONE( NCOLS, NROWS ) )
