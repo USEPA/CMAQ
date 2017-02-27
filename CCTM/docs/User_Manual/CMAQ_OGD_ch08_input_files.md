@@ -221,7 +221,7 @@ The namelist files contain header information that describe which class of speci
 ||<center> 16 </center>|<center> CONC </center>|<center> Yes/No </center>|Concentration output file switch|
 | … | ...| ...|... | Repeat for the number of gas-phase pollutants in the mechanism being modeling|
 
-The namelist files for the other pollutant classes have similar configurations as the gas-phase species configuration shown in [Table 8-4](#Table8-4). For an example see this [link](https://github.com/CMASCenter/EPA-CMAQ/blob/5.2Beta/CCTM/src/MECHS/cb05e51_ae6_aq/GC_cb05e51_ae6_aq.nml) to the GC namelist species file for the cb05e51_ae6_aq mechanism.
+The namelist files for the other pollutant classes have similar configurations as the gas-phase species configuration shown in [Table 8-4](#Table8-4). For an example see this [link](../../src/MECHS/cb05e51_ae6_aq/GC_cb05e51_ae6_aq.nml) to the GC namelist species file for the cb05e51_ae6_aq mechanism.
 
 <a id=ic_profile></a>
 ### IC_PROFILE: Initial conditions vertical profiles
@@ -489,7 +489,7 @@ O3_STRAT            CS  380.000 6.685868E-19  2.568540E-19  9.962031E-20  4.3306
 O3_STRAT            CS  420.000 6.685868E-19  2.568540E-19  9.962031E-20  4.330621E-20  5.286344E-21  4.086261E-23  1.663175E-21
 ```
 
-See this [link](https://github.com/CMASCenter/EPA-CMAQ/blob/5.2Beta/CCTM/src/MECHS/cb05e51_ae6_aq/CSQY_DATA_cb05e51_ae6_aq) for an complete CSQY file for the cb05e51_ae6_aq mechanism.
+See this [link](../../src/MECHS/cb05e51_ae6_aq/CSQY_DATA_cb05e51_ae6_aq) for an complete CSQY file for the cb05e51_ae6_aq mechanism.
 
 <a id=et></a>
 ### ET: Extraterrestrial irradiance
@@ -514,7 +514,7 @@ ET is the logical name for the ASCII data file containing extraterrestrial radia
 ||<center> B </center>|<center> Extra–terrestrial Irradiance </center>|<center> Real or Exp </center>|Estimation of the photon flux reaching the exterior of the earth’s atmosphere; units = photons cm<sup>-2</sup> second<sup>-1</sup> (required)|
 |<center> n+X </center>|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|
 
-See this [link](https://github.com/CMASCenter/EPA-CMAQ/blob/5.2Beta/UTIL/inline_phot_preproc/photolysis_CSQY_data/ETirradiance.dat) for an example ET file.
+See this [link](../../../UTIL/inline_phot_preproc/photolysis_CSQY_data/ETirradiance.dat) for an example ET file.
 A sample of the important sections of an ET file is shown below.
 
 ` ! Extraterrestrial Irradiance`
@@ -536,7 +536,7 @@ The first data section of the PROFILES file is divided into 228 (19x3x4) data bl
 
 The second data section in the PROFILES file contains monthly average Dobson values. The data are organized in 12 rows (January through December) and 19 columns (90°N to 80°N through 80°S to 90°S).
 
-The last data section in the PROFILES file contains vertical profiles from the 1976 U.S. Standard Atmosphere of temperature, air density, ozone concentrations, and aerosol attenuation coefficients. The data are organized in 51 rows, corresponding to altitude (0 to 50 km), with four columns per row for each of the four variables. See this [link](https://github.com/CMASCenter/EPA-CMAQ/blob/5.2Beta/UTIL/inline_phot_preproc/photolysis_CSQY_data/PROFILES.dat) for an example PROFILES file. A detailed description of the file format is provided in [Table 8‑9](#Table8-9).
+The last data section in the PROFILES file contains vertical profiles from the 1976 U.S. Standard Atmosphere of temperature, air density, ozone concentrations, and aerosol attenuation coefficients. The data are organized in 51 rows, corresponding to altitude (0 to 50 km), with four columns per row for each of the four variables. See this [link](../../../UTIL/inline_phot_preproc/photolysis_CSQY_data/PROFILES.dat) for an example PROFILES file. A detailed description of the file format is provided in [Table 8‑9](#Table8-9).
 
 <a id=Table8-9></a>
 
@@ -610,7 +610,7 @@ O2ABS is the logical name for the ASCII data file containing absorption cross se
 
 Used by: JPROC
 
-O3ABS is the logical name for the ASCII data file containing absorption cross section and quantum yield data for O<sub>3</sub> photolysis. The data in this file are listed as a function of wavelength. For an example see this [link](https://github.com/CMASCenter/EPA-CMAQ/blob/5.2Beta/UTIL/inline_phot_preproc/photolysis_CSQY_data/O3O1D_JPL06-2) This file follows the same format as the CSQY files described in this [section](#csqy).
+O3ABS is the logical name for the ASCII data file containing absorption cross section and quantum yield data for O<sub>3</sub> photolysis. The data in this file are listed as a function of wavelength. For an example see this [link](../../../UTIL/inline_phot_preproc/photolysis_CSQY_data/O3O1D_JPL06-2) This file follows the same format as the CSQY files described in this [section](#csqy).
 
 <a id=inmetfiles></a>
 ### InMetFiles: List of MM5 or WRF‑ARW output files
