@@ -380,6 +380,7 @@ R5
          
                WRITE( LOGDEV, 92040 ) C, R, L
 
+               WRITE( LOGDEV, 92060 )
                DO S = 1, NUMB_MECH_SPC
                   IF( LEBISPFL( S ) ) WRITE( LOGDEV, 92080 ) CHEMISTRY_SPC( S ),
      &            YC0(S), YCP(S)

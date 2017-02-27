@@ -30,13 +30,13 @@ C**********************************************************************
 C
 C  FUNCTION: EBI solver
 C
-C  PRECONDITIONS: For the CB6R3 family of mechanisms
+C  PRECONDITIONS: For the CB6MP family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRRATES, HRG1, HRG2, HRG3
 C                                     HRG4, HRPRODLOSS
 C                                     DEGRADE
 C
-C  REVISION HISTORY: Created by EBI solver program, Oct 31, 2016
+C  REVISION HISTORY: Created by EBI solver program, Feb 14, 2017
 C   21 Jun 10 J.Young: convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised 1) to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files and 2) to use
@@ -235,6 +235,7 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 
             ITER_SUBSTEP: DO ITER = 1, NEBITER  ! iteration loop solving for sub time-step
 
+
                N_EBI_IT = N_EBI_IT + 1
                CALL HRRATES
 
@@ -301,18 +302,15 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
                DO S = 1, NUMB_MECH_SPC
                   LEBISPFL( S ) = .FALSE.
-                  YCP( S )    = MAX( ZERO, YCP( S ) )
-!                 AERROR( S ) = ABS( YC(S)-YCP(S) ) 
-                  AERROR( S ) = ABS( YC(S)-YCP(S) ) 
+                  YCP( S ) = MAX( ZERO, YCP( S ) )
+                  AERROR( S ) = ABS( YC(S)-YCP(S) )
                   RERROR( S ) = AERROR( S ) / ABS( YC(S)+YCP(S) )
-!                  IF(ABS(YC(S)-YCP(S)) .GT. ABS( RTOL(S)*(YC(S)+YCP(S) ))THEN
-!                  IF( RERROR( S ) .GT. 1.0D0 )THEN
-!                  IF( RERROR( S ) .GT. RTOL(S) .OR. AERROR( S ) .GT. 1.0D-5 )THEN
-                  IF( RERROR( S ) .GT. RTOL(S)  )THEN
+                   IF( RERROR( S ) .GT. RTOL(S) .OR. AERROR( S ) .GT. 1.0D-5 )THEN
+!                 IF( RERROR( S ) .GT. RTOL(S)  )THEN
                      LEBI_CONV     = .FALSE.
                      LEBISPFL( S ) = .TRUE.
                   END IF
-c..test if predictions growing too large 
+c..test if predictions growing too large
                   IF( YCP( S ) .GT. MAXPRED .AND. NOTMAX( S ) ) THEN
                      MXFL          = .TRUE.
                      LEBI_CONV     = .FALSE.
@@ -394,7 +392,6 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
                DO S = 1, NUMB_MECH_SPC
                   IF( LEBISPFL( S ) ) WRITE( LOGDEV, 92080 ) CHEMISTRY_SPC( S ),
      &            YC0(S), YCP(S)
-!     &            YC0(S), YCP(S), 100.0D0*RERROR(S)
                END DO
 
                MSG = 'ERROR: Stopping because of EBI convergence failures'
@@ -421,6 +418,9 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
       RETURN
 
 91000 FORMAT( 'WARNING: EBI solver in cell (',2(I4,','),I4,') Init.Conc. for ', 
+     &         A16, ' = ', ES12.4,' ppmV')
+
+91000 FORMAT( 'WARNING: EBI solver in cell (',2(I4,','),I4,') Init.Conc. for ',
      &         A16, ' = ', ES12.4,' ppmV')
 
 92000 FORMAT( 'WARNING: EBI Euler convergence failure' /

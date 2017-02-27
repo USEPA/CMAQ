@@ -94,7 +94,7 @@ TYPE_MATRIX =
 'CAT1:124.1:::::::PHENOL:1:::Yes:::Yes',
 'CRON:153.1:::::::2-CRESOL:1:::Yes:::Yes',
 'OPAN:161:::VD_PAN:1:::MPAN:1:::Yes:Yes:Yes:Yes',
-'ECH4:16:CH4:1:VD_CO:0.035:::METHANE:1:::Yes:Yes:Yes:Yes',
+'ECH4:16:CH4:1:VD_METHANE:0.035:::METHANE:1:::Yes:Yes:Yes:Yes',
 'CL2:71:CL2:1:VD_CL2:1:::CL2:1:::Yes:Yes:Yes:Yes',
 'CL:35.5::::::::::::::Yes',
 'HOCL:52.5:::VD_HOCL:1:::HOCL:1:::Yes:Yes:Yes:Yes',

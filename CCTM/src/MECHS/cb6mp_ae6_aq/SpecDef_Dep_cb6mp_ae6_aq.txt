@@ -132,6 +132,26 @@ WDEP_KJK           ,kg/ha     ,AKJ[2]+AKK_W[0]
 DDEP_MNJ           ,kg/ha     ,AMNJ[1]
 WDEP_MNJ           ,kg/ha     ,AMNJ[2]
 
+! lead
+DDEP_LEAD          ,kg/ha     ,APBI[1] + APBJ[1] + APBK[1]
+WDEP_LEAD          ,kg/ha     ,APBI[2] + APBJ[2] + APBK[2]
+
+! Arsenic
+DDEP_ARSENIC        ,kg/ha     ,AASI[1] + AASJ[1] + AASK[1]
+WDEP_ARSENIC        ,kg/ha     ,AASI[2] + AASJ[2] + AASK[2]
+
+! Trivalent Chromium
+DDEP_CRIII         ,kg/ha     ,ACR_IIII[1] + ACR_IIIJ[1] + ACR_IIIK[1]
+WDEP_CRIII         ,kg/ha     ,ACR_IIII[2] + ACR_IIIJ[2] + ACR_IIIK[2]
+
+! Hexavalent Chromium
+DDEP_CRVI          ,kg/ha     ,ACR_VII[1] + ACR_VIJ[1] + ACR_VIK[1]
+WDEP_CRVI          ,kg/ha     ,ACR_VII[2] + ACR_VIJ[2] + ACR_VIK[2]
+
+! Gas plus Aerosol Mercury Deposition
+DDEP_HG           ,kg/ha     ,APHGI[1] + APHGJ[1] + APHGK[1] + HG[1] + HGIIGAS[1]
+WDEP_HG           ,kg/ha     ,APHGI[2] + APHGJ[2] + APHGK[2] + HG[2] + HGIIGAS[2]
+
 WDEP_PNA           ,kg/ha     ,PNA[2]
 RT                 ,cm        ,RN[3] + RC[3]
 

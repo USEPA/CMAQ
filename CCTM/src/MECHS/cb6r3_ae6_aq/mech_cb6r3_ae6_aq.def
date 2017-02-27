@@ -18,6 +18,17 @@
 !   7.  HG  
 !   8.  HGIIAER 
 !   9. HGIIGAS 
+! 2-13-17 DJL - updated some of the HAPs reactions to be consistent with CB6r3
+!   1.  FORM_PRIMARY+OH and +NO3 (<T01> and <T02>) changed to match 
+!               FORM+OH and +NO3 (<R96> and <R100>)
+!   2.  ALD2_PRIMARY+OH and +NO3 (<T06> and <T07>) changed to match 
+!               ALD2+OH and +NO3 (<R106> and <R107>)
+!   3.  BUTADIENE13+OH and +O3 (<T10> and <T11>) fixed small Ea error 
+!               and match Calvert value
+!   4.  ACROLEIN+NO3 (<T15>) and ACRO_PRIMARY+NO3 (<T19>) corrected because 
+!            rate in the reference (Cabanas) did not match Arrhenius equation. 
+!            Now both use Calvert recommendation.  
+!   5.  TOLU+OH (<T21>) now matches TOL+OH (<R180>) which was updated in CB6
 !---------------------------------
 CB6R3_AE6_AQ
 
@@ -502,32 +513,32 @@ REACTIONS[CM] =
       + 0.2667 * VSVOO3                   #4.0e-11;         
 
 ! MP extra species
-< T01>  FORM_PRIMARY + OH      = OH                   # 9.0E-12;
-< T02>  FORM_PRIMARY + NO3     = NO3                  # 5.8E-16;
+< T01>  FORM_PRIMARY + OH      = OH                   # 5.40E-12@-135;
+< T02>  FORM_PRIMARY + NO3     = NO3                  # 5.50E-16;
 < T03>  FORM_PRIMARY + O       = O                    # 3.4E-11 @ 1600;
 < T04>  FORM_PRIMARY           =                      # 1.0/<FORM_R_IUPAC10>;
 < T05>  FORM_PRIMARY           =                      # 1.0/<FORM_M_IUPAC10>;
 <TCL1>  FORM_PRIMARY + CL      = CL                   # 8.2E-11 @ 34;
-< T06>  ALD2_PRIMARY + OH      = OH                   # 5.6E-12 @ -270;
-< T07>  ALD2_PRIMARY + NO3     = NO3                  # 1.4E-12 @ 1900;
+< T06>  ALD2_PRIMARY + OH      = OH                   # 4.70E-12@-345;
+< T07>  ALD2_PRIMARY + NO3     = NO3                  # 1.40E-12@1860;
 < T08>  ALD2_PRIMARY + O       = O                    # 1.8E-11 @ 1100;
 < T09>  ALD2_PRIMARY           =                      # 1.0/<ALD2_R_IUPAC10>;
 <TCL2>  ALD2_PRIMARY + CL      = CL                   # 7.9E-11;
-< T10>  BUTADIENE13 + OH       = OH  + 0.58*ACROLEIN  # 1.4E-11 @ -424.;
-< T11>  BUTADIENE13 + O3       = O3  + 0.52*ACROLEIN  # 8.2E-15 @ 2070.;
+< T10>  BUTADIENE13 + OH       = OH  + 0.58*ACROLEIN  # 1.48E-11@-448.;
+< T11>  BUTADIENE13 + O3       = O3  + 0.52*ACROLEIN  # 1.34E-14@2283.;
 < T12>  BUTADIENE13 + NO3      = NO3 + 0.045*ACROLEIN  # 1.79E-13;
 <TCL3>  BUTADIENE13 + CL       = CL  + 0.58*ACROLEIN  # 2.51E-10;
 < T13>  ACRO_PRIMARY + OH  = OH                   # 2.0E-11;
 < T14>  ACRO_PRIMARY + O3  = O3                   # 2.61E-19;
-< T15>  ACRO_PRIMARY + NO3 = NO3                  # 1.7E-11 @ 3131.;
+< T15>  ACRO_PRIMARY + NO3 = NO3                  # 1.15E-15;
 < T16>  ACRO_PRIMARY       =                      # 1.0/<ACRO_09>;
 <TCL4>  ACRO_PRIMARY + CL  = CL                   # 2.37E-10;
 < T17>  ACROLEIN + OH          = OH                   # 2.0E-11;
 < T18>  ACROLEIN + O3          = O3                   # 2.61E-19;
-< T19>  ACROLEIN + NO3         = NO3                  # 1.7E-11 @ 3131.;
+< T19>  ACROLEIN + NO3         = NO3                  # 1.15E-15;
 < T20>  ACROLEIN               =                      # 1.0/<ACRO_09>;
 <TCL5>  ACROLEIN + CL          = CL                   # 2.37E-10;
-< T21>  TOLU + OH              = OH                   # 1.8E-12 @ -355.;
+< T21>  TOLU + OH              = OH                   # 1.80E-12@-340.;
 <TCL6>  TOLU + CL              = CL                   # 6.1E-11;
 <HG1> HG + O3   = 0.5*HGIIAER + 0.5*HGIIGAS + O3      # 2.11E-18 @ 1256.5;
 <HG2> HG + CL2  = HGIIGAS + CL2                       # 2.6E-18;
