@@ -199,9 +199,6 @@ C mapping variables used for loading and unloading to CGRID array
       Integer, Private, Save :: logdev
       Integer, Private, External :: setup_logdev
 
-      Integer, Private, Save :: logdev
-      Integer, Private, External :: setup_logdev
-
       Contains
 
 C-----------------------------------------------------------------------
