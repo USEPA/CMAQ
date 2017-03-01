@@ -1,3 +1,4 @@
+
 **/*.log
 **/*.o
 **/BLD*
@@ -5,3 +6,4 @@
 data
 lib
 CTM_LOG*
+UTIL/bldmake/src/BLDMAKE

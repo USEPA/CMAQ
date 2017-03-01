@@ -943,13 +943,13 @@ C------------------------------------------------------------------------------
          ! convert to added concentration in ppm assuming it remains at the surface
             WDEP_LOAD = WDEP_LOAD/ZSURF/GH2ONM3*MWWAT
 
-            IF( TRIM(CSE) .EQ. 'HG      ' ) THEN
+            IF( CSE .EQ. 'HG      ' ) THEN
 
                CMEDIA( C,R,1 ) = CMEDIA( C,R,1 ) + WDEP_LOAD
 
             END IF
 
-            IF( TRIM(CSE) .EQ. 'HGIIGAS ' ) THEN
+            IF( CSE .EQ. 'HGIIGAS ' ) THEN
 
                CMEDIA( C,R,2 ) = CMEDIA( C,R,2 ) + WDEP_LOAD
 

@@ -338,6 +338,8 @@ C  Defines mapping from CGRID for species concentration and moments.
 C  Revision History:
 C     First version was coded in May 2010 by Steve Howard with
 C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
+C     Jan 2017: Additional error check added to avoid array out of
+C     bounds when additional aerosol species are added. HOT Pye.
 C-----------------------------------------------------------------------
 
       Use cgrid_spcs          ! CGRID mechanism species
@@ -581,6 +583,10 @@ C...Create the pointers from CGRID to the aerosol species needed by AQCHEM
                   Call m3mesg( xmsg )
                Else
                   Do isrg = 1, nsrgaer( iaer,n )
+                     If ( isrg .Gt. mxsrg ) Then
+                        xmsg = 'lsrg will index out of bounds. Increase mxsrg in AQ_DATA.F'
+                        Call m3exit( 'AQ_DATA', 0, 0, xmsg, xstat3 )
+                     End If
                      lsrgaer( iaer,n,isrg ) = lsrg( isrg )
 #ifdef verbose_cloud
                      write( logdev,1113 ) cgrid2aq_name( lsrgaer( iaer,n,isrg ) ),
@@ -746,7 +752,7 @@ C Local Variables:
       Integer spc
 
       Do spc = 1, ngas      
-         If ( srggas( spc )%name .Eq. Trim( vname ) ) Then
+         If ( srggas( spc )%name .Eq. vname ) Then
             idx = spc
             ! Write( *,'(a,i5)' ) vname, idx
             Return
@@ -784,7 +790,7 @@ C Local Variables:
       Do spc = 1, naer
          Do n = 1, nmodes
             ! Write( *,'(a,i5)' ) vname, spc
-            If ( srgaer( spc )%name( n ) .Eq. Trim( vname ) ) Then
+            If ( srgaer( spc )%name( n ) .Eq. vname ) Then
                idx = spc
                ! Write( *,'(a,i5)' ) vname, idx
                Return
