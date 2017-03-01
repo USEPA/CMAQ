@@ -48,8 +48,6 @@
 #> user choice: copy source files
  set CopySrc        # copy the source files into the BLD directory
 
-#set Opt = verbose  # show requested commands as they are executed
-
 #> user choice: make a Makefile
  #set MakeFileOnly   # builds a Makefile to make the model, but does not compile -
                     # comment out to also compile the model (default if not set)
