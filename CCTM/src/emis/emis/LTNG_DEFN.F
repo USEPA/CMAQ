@@ -472,13 +472,13 @@ C        INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
 
 !C Open output file (mol/s)
                IF ( IO_PE_INCLUSIVE ) THEN
-                  IF ( .NOT. OPEN3( DNAME1, FSNEW3, PNAME ) ) THEN
+                  IF ( .NOT. OPEN3( DNAME1, FSUNKN3, PNAME ) ) THEN
                      XMSG = 'Could not open ' // TRIM( DNAME1 )
                      CALL M3EXIT( PNAME, LDATE, LTIME, XMSG, XSTAT1 )
                   END IF
                   NLAYS3D = 1
                   VDESC3D( 1 ) = 'Column NO produced from lightning'
-                  IF ( .NOT. OPEN3( DNAME2, FSNEW3, PNAME ) ) THEN
+                  IF ( .NOT. OPEN3( DNAME2, FSUNKN3, PNAME ) ) THEN
                      XMSG = 'Could not open ' // TRIM( DNAME2 )
                      CALL M3EXIT( PNAME, LDATE, LTIME, XMSG, XSTAT1 )
                   END IF

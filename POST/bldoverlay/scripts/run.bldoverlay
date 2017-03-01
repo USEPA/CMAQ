@@ -1,45 +1,32 @@
 #!/bin/csh -f
 
-
-# ====================== HR2DAYv5.1 Run Script ======================
-# Usage: run.hr2day >&! hr2day_V51.log &
+# ====================== Bldoverlayv5.2 Run Script ======================
+# Usage: run.bldoverlay >&! bldoverlay_V52.log &
 #
 # To report problems or request help with this script/program:
-#             http://www.cmascenter.org
+#             foley.kristen@epa.gov
 # ===================================================================
 
 #> Source the config.cmaq file to set the run environment
- source ../../config.cmaq
-
-#> Check that M3DATA is set: 
- if ( ! -e $M3DATA ) then
-    echo "   $M3DATA path does not exist"
-    exit 1
-    endif
- echo " "; echo " Input data path, M3DATA set to $M3DATA"; echo " "
-
- set APPL = D51a
- set MECH = cb05e51_ae6_aq 
- set EXEC = BLDOVERLAY_${APPL}_$EXEC_ID
+ source ../../../config.cmaq
 
 #> Set the working directory
  set BASE  = $cwd      
-#set BASE  = $M3HOME/scripts/combine
- set BLD   = ${BASE}/BLD_$APPL
+ set APPL = v52b
 
- cd $BASE; date; set timestamp; cat $BASE/cfg.${APPL}; echo " "; set echo
+ cd $BASE; date; set timestamp; echo " "; set echo
 
  setenv IOAPI_ISPH 20
 
 #> define time window
- setenv START_DATE 2011182
- setenv END_DATE   2011183  
+ setenv SDATE 2011182
+ setenv EDATE 2011183  
 
 #> set file type
  setenv FILETYPE OBS
 
 #> set overlay type to one of the following: (HOURLY, DAILY, 1HRMAX, 8HRMAX) 
- setenv OLAYTYPE HOURLY
+ setenv OLAYTYPE 1HRMAX
 
 #> Number of 8hr values to use when computing daily maximum 8hr ozone.
 #> Allowed values are 24 (use all 8-hr averages with starting hours 
@@ -55,7 +42,7 @@
 #> location of time zone data file, tz.csv (this is a required input file
 #> when using OLAYTYPE HOURLY since hourly observations need to be shifted
 #> from local time to GMT
- setenv TZFILE tz.csv
+ setenv TZFILE ../inputs/tz.csv
 
 #> species label to be used in overlay file
  setenv SPECIES 'O3,PM25,NO2'
@@ -64,12 +51,10 @@
  setenv UNITS 'ppb,ug/m^3,ppb'
 
 #> set input and output files
- setenv INFILE ozone_overlay_input_sample.csv
+ setenv INFILE ../inputs/ozone_overlay_input_sample.csv
 
- setenv OUTFILE overlay20110701.ncf
+ setenv OUTFILE ../outputs/overlay20110701.ncf
+
 
 #> Executable call:
- /usr/bin/time $BLD/$EXEC
-
-
-echo run complete, output = ${OUTFILE}
+ $BASE/BLD_${APPL}/BLDOVERLAY_${APPL}_${EXEC_ID}

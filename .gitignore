@@ -1,2 +1,9 @@
+
+**/*.log
+**/*.o
+**/BLD*
+**/*.mod
+data
+lib
+CTM_LOG*
 UTIL/bldmake/src/BLDMAKE
-./.gitignore

@@ -5,9 +5,9 @@
 ## Brief Description
 
 The upper bound on the root of the equation solved in SOA_DEFN.F (equation 19 in Pye et al., 2016) by the bisection method was adjusted. The upper bound corresponds to all semivolatile organic moles and nonvolatile organic moles in the particle.
-In the event of cold temperatures, the saturation concentrations may be very low which indicates all semivolatiles are in the particle and the upper bound is the correct root of the equation. Due to calculations in single precision, 
+In the event of cold temperatures, the saturation concentrations may be very low, indicating that all semivolatiles are in the particle and the upper bound is the correct root of the equation. Due to calculations in single precision,
 it is possible for the function to not change sign if the upper bound is slightly below the total aerosol moles. This fix increases the upper bound a tiny amount to make sure the function changes sign
-in the interval between the lower bound (only nonvolatile moles) and upper bound (all moles). 
+in the interval between the lower bound (only nonvolatile moles) and upper bound (all moles).
 
 ## Significance and Impact
 
@@ -25,7 +25,7 @@ Pye, H. O. T., Murphy, B. N., Xu, L., Ng, N. L., Carlton, A. G., Guo, H., Weber,
 ## Internal Records:
 #### Relevant Pull Requests:
 [PR #118](https://github.com/usepa/cmaq_dev/pull/118) superceeds  
-[PR #111](https://github.com/usepa/cmaq_dev/pull/111) 
+[PR #111](https://github.com/usepa/cmaq_dev/pull/111)
 
 
 #### Commit IDs:
