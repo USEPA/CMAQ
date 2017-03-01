@@ -65,7 +65,7 @@
        setenv myFC mpif90
        setenv myCC gcc
        setenv myFSTD "-O3 -funroll-loops -finit-character=32"
-       setenv myDBG  " -Wall -O0 -g $DBG1 $DBG2"
+       setenv myDBG  " -Wall -O0 -g -traceback"
        setenv myFFLAGS "-ffixed-form -ffixed-line-length-132 -O3 -funroll-loops -finit-character=32"
        setenv myFRFLAGS "-ffree-form -ffree-line-length-none -O3 -funroll-loops -finit-character=32"
        setenv myCFLAGS "-O2"

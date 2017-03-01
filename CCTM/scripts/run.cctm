@@ -64,7 +64,7 @@ setenv GRIDDESC $CMAQ_DATA/mcip/GRIDDESC  #> grid description file
 
 setenv AVG_CONC_SPCS "O3 NO CO NO2 ASO4I ASO4J NH3" #> ACONC file species; comment or set to "ALL" to write all species to ACONC
 setenv ACONC_BLEV_ELEV " 1 1"  #> ACONC file layer range; comment to write all layers to ACONC
-#setenv ACONC_END_TIME Y        #> override default beginning ACON timestamp [ default: N ]
+#setenv AVG_FILE_ENDTIME Y        #> override default ACONC timestamp [ default: N ]
 
 setenv EXECUTION_ID $EXEC    #> define the model execution id
 
@@ -102,18 +102,16 @@ setenv PA_BROW_EROW "10 195"
 setenv PA_BLEV_ELEV "1  4"
 
 #> I/O Controls
-setenv IOAPI_LOG_WRITE F     #> turn on excess WRITE3 logging [ options: T | F ]
-setenv FL_ERR_STOP N         #> stop on inconsistent input files
-setenv PROMPTFLAG F          #> turn on I/O-API PROMPT*FILE interactive mode [ options: T | F ]
-setenv IOAPI_OFFSET_64 NO    #> support large timestep records (>2GB/timestep record) [ options: YES | NO ]
+setenv IOAPI_LOG_WRITE F     #> turn on excess WRITE3 logging [ default: Y ]
+setenv FL_ERR_STOP N         #> stop on inconsistent input files [ default: N ]
+setenv PROMPTFLAG F          #> turn on I/O-API PROMPT*FILE interactive mode  [ default: N ]
+setenv IOAPI_OFFSET_64 NO    #> support large timestep records (>2GB/timestep record)  [ default: N ]
 
 #> Aerosol Diagnostics Controls
-setenv CTM_AVISDIAG N        #> diagnostic file [ default: N ]
-setenv CTM_PMDIAG N          #> What is this [ default: Y ]
-setenv CTM_APMDIAG N         #> What is this [ default: Y ]
+setenv CTM_AVISDIAG N        #> create hourly average visibility diagnostic file [ default: N ]
+setenv CTM_PMDIAG N          #> create aerosol diagnostics and properties file  [ default: Y ]
+setenv CTM_APMDIAG N         #> create houlry average aerosol diagnostics and properties file  [ default: Y ]
 setenv APMDIAG_BLEV_ELEV "1 3" #> layer range for average pmdiag
-setenv APMDIAG_BLEV_ELEV ""  #> layer range for average pmdiag = NLAYS
-setenv AVG_FILE_ENDTIME N    #> What is this [ default: N ]
 
 #> Diagnostic Output Flags
 setenv CTM_CKSUM Y           #> cksum report [ default: Y ]
@@ -123,12 +121,7 @@ setenv CTM_SSEMDIAG N        #> sea-salt emissions diagnostic file [ default: N 
 setenv CTM_DUSTEM_DIAG N     #> windblown dust emissions diagnostic file [ default: N ]; ignore if CTM_WB_DUST = N
 setenv CTM_DEPV_FILE N       #> deposition velocities diagnostic file [ default: N ]
 setenv VDIFF_DIAG_FILE N     #> vdiff & possibly aero grav. sedimentation diagnostic file [ default: N ]
-setenv LTNGDIAG Y            #> lightning diagnostic file [ default: N ]
 setenv CTM_AOD Y             #> AOD diagnostic file [ default: N ]
-setenv B3GTS_DIAG N          #> beis mass emissions diagnostic file [ default: N ]
-setenv PT3DDIAG N            #> optional 3d point source emissions diagnostic file [ default: N]; ignore if CTM_PT3DEMIS = N
-setenv PT3DFRAC N            #> optional layer fractions diagnostic (play) file(s) [ default: N]; ignore if CTM_PT3DEMIS = N
-setenv REP_LAYER_MIN -1      #> Minimum layer for reporting plume rise info [ default: -1 ]
 
 set DISP = delete            #> [ delete | update | keep ] existing output files
 
@@ -189,21 +182,27 @@ else
    set CASE = 12CalnexBench_cb05e51_G20_CB05E51
    set EMISfile  = emis_mole_all_${YMD}_${CASE}.ncf #> Surface emissions
    setenv NPTGRPS 5          #> Number of elevated source groups
+   setenv CTM_EMLAYS          #> Number of layers into which emissions will be injected
 
    setenv STK_GRPS_01 $IN_PTpath/stack_groups_ptnonipm_${STKCASEG}.ncf
    setenv STK_GRPS_02 $IN_PTpath/stack_groups_ptegu_${STKCASEG}.ncf
    setenv STK_GRPS_03 $IN_PTpath/stack_groups_othpt_${STKCASEG}.ncf
    setenv STK_GRPS_04 $IN_PTpath/stack_groups_ptfire_${YMD}_${STKCASEG}.ncf
    setenv STK_GRPS_05 $IN_PTpath/stack_groups_pt_oilgas_${STKCASEG}.ncf
-   setenv LAYP_STTIME $STTIME
-   setenv LAYP_NSTEPS $NSTEPS
 
    setenv STK_EMIS_01 $IN_PTpath/inln_mole_ptnonipm_${YMD}_${STKCASEE}.ncf
    setenv STK_EMIS_02 $IN_PTpath/inln_mole_ptegu_${YMD}_${STKCASEE}.ncf
    setenv STK_EMIS_03 $IN_PTpath/inln_mole_othpt_${YMD}_${STKCASEE}.ncf
    setenv STK_EMIS_04 $IN_PTpath/inln_mole_ptfire_${YMD}_${STKCASEE}.ncf
    setenv STK_EMIS_05 $IN_PTpath/inln_mole_pt_oilgas_${YMD}_${STKCASEE}.ncf
+
    setenv LAYP_STDATE $STDATE
+   setenv LAYP_STTIME $STTIME
+   setenv LAYP_NSTEPS $NSTEPS
+ 
+   setenv PT3DDIAG N            #> optional 3d point source emissions diagnostic file [ default: N]; ignore if CTM_PT3DEMIS = N
+   setenv PT3DFRAC N            #> optional layer fractions diagnostic (play) file(s) [ default: N]; ignore if CTM_PT3DEMIS = N
+   setenv REP_LAYER_MIN -1      #> Minimum layer for reporting plume rise info [ default: -1 ]
 endif
 
 #> Lightning NOx configuration
@@ -218,6 +217,7 @@ if ( $CTM_LTNG_NO == 'Y' ) then
    else
       setenv LOG_START 2.0   #> RC value to transit linear to log linear
    endif
+   setenv LTNGDIAG Y            #> lightning diagnostic file [ default: N ]
    setenv LTNGPARMS_FILE $CMAQ_DATA/lightning/LTNG_Parms_Calnex.ncf #> lightning parameter file; ignore if LTNGPARAM = N
    setenv LTNGOUT1 $OUTDIR/$EXEC.LTNGHRLY.${CFG}_${YMD} #> hourly average lightning NO; ignore if LTNGDIAG = N
    setenv LTNGOUT2 $OUTDIR/$EXEC.LTNGCOL.${CFG}_${YMD}  #> column total lightning NO; ignore if LTNGDIAG = N
@@ -236,6 +236,7 @@ if ( $CTM_BIOGEMIS == 'Y' ) then
    setenv SUMMER_YN     N     # Use summer normalized emissions? [ default: Y ]
    setenv PX_VERSION    Y     # MCIP is PX version? [ default: N ]
    setenv INITIAL_RUN Y # non-existent or not using SOILINP [ default: N ]; default uses SOILINP
+   setenv B3GTS_DIAG N        # beis mass emissions diagnostic file [ default: N ]
    setenv SOILINP $OUTDIR/$EXEC.SOILINP.${CFG}_${YMD}  # Biogenic NO soil input file; ignore if INITIAL_RUN = Y
 endif
 
