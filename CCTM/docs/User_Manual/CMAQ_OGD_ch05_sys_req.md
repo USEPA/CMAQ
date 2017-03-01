@@ -281,24 +281,24 @@ ICON and BCON can be configured for different chemical mechanisms and for differ
 Use the following commands to compile ICON and BCON:
 
 `cd $CMAQ_HOME/PREP/ICON`<br>
-`bldit.icon`
+`bldit.icon |& tee build.icon.log`
 
 `cd $CMAQ_HOME/PREP/BCON`<br>
-`bldit.bcon`
+`bldit.bcon |& tee build.bcon.log`
 
 Like the program Bldmake, MCIP is compiled using a Fortran Makefile.
 
 Use the following commands to compile MCIP:
 
 `cd $CMAQ_HOME/PREP/mcip/src`<br>
-`make`
+`make |& tee make.mcip.log`
 
 The CCTM has multiple configuration options that can be changed to optimize model performance for different applications. In addition to selecting the chemical mechanism to model gas-phase chemistry, the user can also select from several different science modules. The science configuration options for CCTM are discussed in detail in [Chapter 4](CMAQ_OGD_ch04_science.md) and [Chapter 7](CMAQ_OGD_ch07_programs_libraries.md). The distribution CCTM build script is configured to create a multiprocessor executable for the installation test simulation. For multiprocessor applications, CMAQ uses the message passing interface (MPI) to manage communication between processors in a clustered multiprocessor computing environment. The location of the MPI include and library files on your Linux system are specified in the config.cmaq script.
 
 For single-processor (serial) systems, configure the CCTM build script to create a single-processor executable by commenting out the line that activates the variable “ParOpt” of the CCTM build script. Use the following commands to compile CCTM:
 
 `cd $CMAQ_HOME/CCTM/scripts`<br>
-`bldit.cctm`
+`bldit.cctm |& tee build.cctm.log`
 
 Although not used for the installation test simulation, the programs JPROC and PROCAN can also be compiled using Bldmake. The programs CHEMMECH and CALMAP are also not needed for the test simulation but can be compiled using Makefiles.
 

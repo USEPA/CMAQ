@@ -3,7 +3,7 @@
 ***
 **Operational Guidance for the Community Multiscale Air Quality (CMAQ) Modeling System**
 ==
-**Version 5.2 (2016 Release)**
+**Version 5.2 (2017 Release)**
 
 Prepared in cooperation with the
 Community Modeling and Analysis System

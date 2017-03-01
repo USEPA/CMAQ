@@ -6,8 +6,7 @@
 
 The input files for CMAQ consist of a domain definition file for all programs; two sets of file options for both ICON and BCON; two types of input files (WRF/MM5 and terrain) for MCIP; five mandatory and one optional input file for JPROC; and for CCTM, emissions, initial conditions, and boundary conditions files, six files that define the meteorological conditions to be simulated, and a photolysis rates file. For most CCTM input, a separate data set is required for each horizontal domain that is modeled. When CMAQ is configured for in-line emissions and deposition, there are additional emissions input files that are required. CMAQ output files include a basic set of files with aerosol and gas-phase species concentrations, wet and dry deposition estimates, and visibility metrics, and an auxiliary set of output files for diagnosing model performance and in-line-calculated emissions.
 
-CMAQ Input Files
-----------------
+## CMAQ Input Files
 
 This section describes each of the input files required by the various CMAQ programs. The section begins with a description of the grid definition file, which is used by several CMAQ programs, and then goes through a program-by-program listing of the CMAQ input file requirements. [Table 8‑1](#Table8-1) lists the source, file type, and temporal and spatial dimensions of each CMAQ input file. Sample disk space requirements for a desired input data set can easily be calculated from the information in [Table 8‑1](#Table8-1); each data record is four bytes. The I/O API file sizes can be calculated using the number of variables in a CMAQ file and the spatial and temporal coverage of the data. The user should consult the CMAQ release notes for additional file information.
 
@@ -18,67 +17,69 @@ This section describes each of the input files required by the various CMAQ prog
 |**File Name**|**File Type**|**Time-Dependence**|**Spatial Dimensions**|**Source**|
 |---|---|---|---|---|
 |**General**| | | | |
-|[GRIDDESC](#griddesc)(horizontal domain definition)|ASCII|n/a|n/a|user/MCIP
-|[gc_matrix.nml](#matrix_nml)|ASCII|n/a|n/a|user/CSV2NML
-|[ae_matrix.nml](#matrix_nml)|ASCII|n/a|n/a|user/CSV2NML
-|[nr_matrix.nml](#matrix_nml)|ASCII|n/a|n/a|user/CSV2NML
-|[tr_matrix.nml](#matrix_nml)|ASCII|n/a|n/a|user/CSV2NML
+|[GRIDDESC](#griddesc)|ASCII|n/a|n/a|user/MCIP
+|[gc_matrix.nml](#matrix_nml)|ASCII|n/a|n/a|CSV2NML
+|[ae_matrix.nml](#matrix_nml)|ASCII|n/a|n/a|CSV2NML
+|[nr_matrix.nml](#matrix_nml)|ASCII|n/a|n/a|CSV2NML
+|[tr_matrix.nml](#matrix_nml)|ASCII|n/a|n/a|CSV2NML
 |**ICON**| | | | |
-|[IC_PROFILE](#ic_profile)(initial conditions vertical profiles)|ASCII|Annual|n/a|user|
-|[CTM_CONC_1](#ctm_conc_1)(CCTM concentration files)|GRDDED3|Hourly|X*Y*Z|CCTM|
-|[MET_CRO_3D](#met_cro_3d) (3‑D meteorological cross-point fields)|GRDDED3|Hourly|X*Y*Z|MCIP
+|[IC_PROFILE](#ic_profile)|ASCII|Annual|n/a|user|
+|[CTM_CONC_1](#ctm_conc_1)|GRDDED3|Hourly|X*Y*Z|CCTM|
+|[MET_CRO_3D](#met_cro_3d) |GRDDED3|Hourly|X*Y*Z|MCIP
 |**BCON**| | | | |
-|[BC_PROFILE](#bc_profile) (boundary conditions vertical profiles)|ASCII|Annual|n/a|user
-|[CTM_CONC_1](#ctm_conc_1) (CCTM concentration files)|GRDDED3|Hourly|X*Y*Z|CCTM
-|[MET_CRO_3D](#met_cro_3d) (3‑D meteorological cross-point fields)|GRDDED3|Hourly|X*Y*Z|MCIP|
+|[BC_PROFILE](#bc_profile) |ASCII|Annual|n/a|user
+|[CTM_CONC_1](#ctm_conc_1) |GRDDED3|Hourly|X*Y*Z|CCTM
+|[MET_CRO_3D](#met_cro_3d) |GRDDED3|Hourly|X*Y*Z|MCIP|
 |**JPROC**| | | | |
-|[ET](#et) (extraterrestrial irradiance)|ASCII|Annual|n/a|user
-|[PROFILES](#profiles) (default atmospheric profiles)|ASCII|Annual|n/a|user
-|[O2ABS](#o2abs) (O2 absorption)|ASCII|Annual|n/a|user
-|[O3ABS](#o3abs) (O3 absorption)|ASCII|Annual|n/a|user
-|[TOMS](#toms) (total ozone mapping spectrometer data)|ASCII|varies|n/a|user
-|[CSQY](#csqy) (absorption cross section and quantum yields)|ASCII| Annual|n/a| User
+|[ET](#et) |ASCII|Annual|n/a|user
+|[PROFILES](#profiles) |ASCII|Annual|n/a|user
+|[O2ABS](#o2abs) |ASCII|Annual|n/a|user
+|[O3ABS](#o3abs) |ASCII|Annual|n/a|user
+|[TOMS](#toms) |ASCII|varies|n/a|user
+|[CSQY](#csqy) |ASCII| Annual|n/a| User
 |**MCIP**| | | | |
-|[InMetFiles](#inmetfiles) (list of MM5 or WRF‑ARW output files)|Binary or netCDF| typically hourly, but sometimes sub-hourly| X*Y*Z| MM5 or WRF‑ARW
-|[InTerFile](#interfile) (MM5 terrain file)|Binary| n/a| X*Y | MM5
-|[InSatFiles](#insatfiles)||||| |
+|[InMetFiles](#inmetfiles) |Binary or netCDF| typically hourly, but sometimes sub-hourly| X*Y*Z| MM5 or WRF‑ARW
+|[InTerFile](#interfile) |Binary| n/a| X*Y | MM5 or WRF
+|[InSatFiles](#insatfiles)||||Spatial Allocator|
 |**CCTM** | | | | |
-|[INIT_CONC_1](#init_conc_1) (initial conditions)| GRDDED3 | Time-invariant | X*Y*Z | ICON/CCTM
-|[BNDY_CONC_1](#bndy_conc_1) (boundary conditions)| BNDARY3 | Hourly |[2(X+1)+2(Y+1)]*Z | BCON
-|[JTABLE](#jtable) (photolysis rates look-up table)| ASCII | Daily | n/a | JPROC
+|[INIT_CONC_1](#init_conc_1) | GRDDED3 | Time-invariant | X*Y*Z | ICON/CCTM
+|[BNDY_CONC_1](#bndy_conc_1) | BNDARY3 | Hourly |[2(X+1)+2(Y+1)]*Z | BCON
+|[JTABLE](#jtable) | ASCII | Daily | n/a | JPROC
 |[OMI](#omi) | ASCII | daily | n/a ||
-|[EMIS_1](#emis_1) (Emissions)| GRDDED3 | Hourly | X*Y*Z | SMOKE
-|[OCEAN_1](#ocean_1) (sea salt mask)| GRDDED3 | Time-invariant | X*Y | |Spatial Allocator
-|[GSPRO](#gspro) (speciation profiles)| ASCII | Time-invariant | N/a | User
-|[B3GRD](#b3grd) (grid-normalized biogenic emissions)| GRDDED3 | Time-invariant | X*Y | SMOKE
-|[BIOSEASON](#bioseason) (freeze dates)|GRDDED3 |Time-invariant | X*Y | Metscan
-|[STK_GRPS_##](#stk_grps) (stack groups)| GRDDED3 |Time-invariant|X*Y | SMOKE
-|[STK_EMIS_##](#stk_emis) (point-source emissions)| GRDDED3 | Hourly | X*Y | SMOKE
+|[EMIS_1](#emis_1) | GRDDED3 | Hourly | X*Y*Z | SMOKE
+|[OCEAN_1](#ocean_1) | GRDDED3 | Time-invariant | X*Y |Spatial Allocator
+|[GSPRO](#gspro) | ASCII | Time-invariant | N/a | User
+|[B3GRD](#b3grd) | GRDDED3 | Time-invariant | X*Y | SMOKE
+|[BIOSEASON](#bioseason) |GRDDED3 |Time-invariant | X*Y | Metscan
+|[STK_GRPS_nn](#stk_grps) | GRDDED3 |Time-invariant|X*Y | SMOKE
+|[STK_EMIS_nn](#stk_emis) | GRDDED3 | Hourly | X*Y | SMOKE
 |[DUST_LU_1](#dust_lu_1)|GRDDED3 | Time-invariant | X*Y | Spatial Allocator
 |[DUST_LU_2](#dust_lu_1)|GRDDED3 | Time-invariant | X*Y | Spatial Allocator
+|[MODIS_FPAR](#modis_fpar)|GRDDED3 | Time-invariant | X*Y | Spatial Allocator
 |[CROPMAP01](#cropmap01)| GRDDED3 | Time-invariant | X*Y | Cropcal
 |[CROPMAP04](#cropmap04)| GRDDED3 | Time-invariant | X*Y | Cropcal
 |[CROPMAP08](#cropmap08)|GRDDED3 | Time-invariant | X*Y | Cropcal
-|[LTNGNO](#ltngno)|<center> GRDDED3 </center>|<center> Hourly </center>|<center> X*Y*Z </center>|<center> User
-|[LTNGPARM_FILE](#ltngparm_file)| GRDDED3 | Monthly | X*Y |LTNG_2D_DATA
-|[BELD4_LU](beld4_lu)|<center> GRDDED3 </center>|<center> Time-invariant </center>|<center> X*Y
-|[E2C_SOIL](#e2c_soil)|<center> GRDDED3 </center>|<center> Time-invariant </center>|<center> X*Y
-|[E2C_FERT](#e2c_fert)|<center> GRDDED3 </center>|<center> Time-invariant </center>|<center> X*Y
-|[INIT_MEDC_1](#init_medc_1)|<center> GRDDED3 </center>||<center> X*Y </center>||
-|[INIT_GASC_1](#init_gasc_1)|<center> GRDDED3 </center>||<center> X*Y </center>||
-|[INIT_AERO_1](#init_aero_1)|<center> GRDDED3 </center>||<center> X*Y </center>||
-|[INIT_NONR_1](#init_nonr_1)|<center> GRDDED3 </center>||<center> X*Y </center>||
-|[INIT_TRAC_1](#init_trac_1)|<center> GRDDED3 </center>||<center> X*Y </center>||
-|[GRID_CRO_2D](#grid_cro_2d) (2‑D grid cross-point fields)|<center> GRDDED3 </center>|<center> Time-invariant </center>|<center> X*Y </center>|<center> MCIP
-|[GRID_CRO_3D](#grid_cro_3d) (3‑D grid cross-point fields)|<center> GRDDED3 </center>|<center> Time-invariant </center>|<center> X*Y*Z </center>|<center> MCIP
-|[GRID_BDY_2D](#grid_bdy_2D) (2‑D grid cross-point fields)|<center> GRDDED3 </center>|<center> Time-invariant </center>|<center> PERIM*Z </center>|<center> MCIP
-|[GRID_DOT_2D](#grid_dot_2d) (2‑D grid dot-point fields)|<center> GRDDED3 </center>|<center> Time-invariant </center>|<center> (X+1)*(Y+1) </center>|<center> MCIP
-|[MET_BDY_2D](#met_bdy_2d) (2‑D meteorological boundary input)|<center> BNDARY3 </center>|<center> Hourly </center>|<center> ??? </center>|<center> MCIP
-|[MET_BDY_3D](#met_bdy_3d) (3‑D meteorological boundary input)|<center> BNDARY3 </center>|<center> Hourly </center>|<center> PERIM*Z </center>|<center> MCIP
-|[MET_CRO_2D](#met_cro_2d) (2‑D meteorological cross-point fields)|<center> GRDDED3 </center>|<center> Hourly </center>|<center> X*Y </center>|<center> MCIP
-|[MET_CRO_3D](#met_cro_3d) (3‑D meteorological cross-point fields)|<center> GRDDED3 </center>|<center> Hourly </center>|<center> X*Y*Z </center>|<center> MCIP
-|[MET_DOT_3D](#met_dot_3d) (3‑D meteorological dot-point fields)|<center> GRDDED3 </center>|<center> Hourly </center>|<center> (X+1)*(Y+1)*Z </center>|<center> MCIP
-</center>|
+|[LTNGNO](#ltngno)| GRDDED3 | Hourly | X*Y*Z | User|
+|[NLDN_STRIKES](#nldn_strikes)| GRDDED3 | Monthly | X*Y ||
+|[LTNGPARMS_FILE](#ltngparm_file)| GRDDED3 | Monthly | X*Y ||
+|[BELD4_LU](beld4_lu)| GRDDED3 | Time-invariant |X*Y||
+|[E2C_SOIL](#e2c_soil)| GRDDED3 |center> Time-invariant | X*Y||
+|[E2C_FERT](#e2c_fert)| GRDDED3 | Time-invariant |X*Y||
+|[MEDIA_CONC](#init_medc_1)| GRDDED3 || X*Y ||
+|[INIT_GASC_1](#init_gasc_1)| GRDDED3 || X*Y ||
+|[INIT_AERO_1](#init_aero_1)| GRDDED3 || X*Y ||
+|[INIT_NONR_1](#init_nonr_1)| GRDDED3 || X*Y ||
+|[INIT_TRAC_1](#init_trac_1)| GRDDED3 || X*Y ||
+|[GRID_CRO_2D](#grid_cro_2d) | GRDDED3 | Time-invariant | X*Y | MCIP
+|[GRID_CRO_3D](#grid_cro_3d) | GRDDED3 | Time-invariant | X*Y*Z | MCIP
+|[GRID_BDY_2D](#grid_bdy_2D) | GRDDED3 | Time-invariant | PERIM*Z | MCIP
+|[GRID_DOT_2D](#grid_dot_2d) | GRDDED3 | Time-invariant | (X+1)*(Y+1) | MCIP
+|[MET_BDY_2D](#met_bdy_2d) | BNDARY3 | Hourly | ??? | MCIP
+|[MET_BDY_3D](#met_bdy_3d) | BNDARY3 | Hourly | PERIM*Z | MCIP
+|[MET_CRO_2D](#met_cro_2d) | GRDDED3 | Hourly | X*Y | MCIP
+|[MET_CRO_3D](#met_cro_3d) | GRDDED3 | Hourly | X*Y*Z | MCIP
+|[MET_DOT_3D](#met_dot_3d) | GRDDED3 | Hourly | (X+1)*(Y+1)*Z | MCIP
+
 
 <a id=griddesc></a>
 ### GRIDDESC: Horizontal domain definition
@@ -99,14 +100,14 @@ The grid description section ([Table 8-3](#Table8-3)) consists of text records t
 
 | **Line**| **Column**| **Name** | **Type** | **Description**|
 |---|---|---|---|---|
-|1|A|<center> Header </center>|<center> String </center>|Single-quote-delimited header describing section contents; may be blank, i.e., ' '|
-|2|A|<center> COORD-NAME </center>|<center> String </center>|Name of the coordinate description (required); single quote delimited|
-|3|A|<center> COORDTYPE </center>|<center> Int </center>|I/O API index defining the map projection type (required)| |<center>
-|3|B| P_ALP </center>|<center> Double </center>|First map projection descriptive parameter (dependent on projection type)| |<center>
-|3|C| P_BET </center>|<center> Double </center>|Second map projection descriptive parameter (dependent on projection type)| |<center>  
-|3|D| P_GAM </center>|<center> Double </center>|Third map projection descriptive parameter (dependent on projection type)| |<center>  
-|3|E|<center> XCENT </center>|<center> Double </center>|Longitude for coordinate system center| | 
-|3|F|<center> YCENT </center>|<center> Double </center>|Latitude for coordinate system center|
+|1|A| Header | String |Single-quote-delimited header describing section contents; may be blank, i.e., ' '|
+|2|A| COORD-NAME | String |Name of the coordinate description (required); single quote delimited|
+|3|A| COORDTYPE | Int |I/O API index defining the map projection type (required)| |
+|3|B| P_ALP | Double |First map projection descriptive parameter (dependent on projection type)| |
+|3|C| P_BET | Double |Second map projection descriptive parameter (dependent on projection type)| |  
+|3|D| P_GAM | Double |Third map projection descriptive parameter (dependent on projection type)| |  
+|3|E| XCENT | Double |Longitude for coordinate system center| | 
+|3|F| YCENT | Double |Latitude for coordinate system center|
 
 <a id=Table8-3></a>
 
@@ -114,7 +115,7 @@ The grid description section ([Table 8-3](#Table8-3)) consists of text records t
 
 |**Line** | **Column** | **Name** | **Type** | **Description**|
 |---|---|---|---|---|
-| 1 | A | Header </center>|<center> String|Single-quote-delimited header describing section contents; may be blank, i.e., ' '|
+| 1 | A | Header | String|Single-quote-delimited header describing section contents; may be blank, i.e., ' '|
 | 2 | A | GRID-NAME | String |Name of the horizontal grid (required); single quote delimited|
 | 3 | A | COORD-NAME| String |Name of the coordinate description in the previous section (required); single quote delimited|
 | 3 | B | XORIG | Double |X-coordinate for lower-left (southwest) corner of the grid with respect to (XCENT,YCENT) (dependent on projection type)|
@@ -123,7 +124,7 @@ The grid description section ([Table 8-3](#Table8-3)) consists of text records t
 |3 | E | YCELL | Double|Y-coordinate grid cell size (dependent on projection type)|
 |3 | F | NCOLS | Int |Number of horizontal grid columns (dependent on projection type)|
 |3 | G | NROWS | Int |Number of horizontal grid rows (dependent on projection type)|
-|3 | H </center>|<center> NTHIK </center>|<center> Int </center>|Boundary perimeter thickness (number of cells) (optional)|
+|3 | H | NTHIK | Int |Boundary perimeter thickness (number of cells) (optional)|
 
 Each data record in these files consists of two or three list-formatted lines (i.e., items are separated by either blanks or commas). Name fields are quoted strings, and appear on the first of these lines. Numeric fields are given in double precision, and occur on either the second line or the second and third lines (this allows you to organize the text so that it is easily viewed in a text editor without running off-screen). The records have the following organization, depending upon whether they are in the first or second segment of GRIDDESC:
 
@@ -164,9 +165,9 @@ The horizontal coordinate section (first section) in this example GRIDDESC file 
 The example grid definition section above describes a grid named “M_32_99TUT02”. The definition of the grid begins with a reference to a coordinate name from the coordinate definition section of the file; in this example, the coordinate named “LAM_40N100W” is referenced in the grid definition. The next two parameters in the grid definition (XORIG and YORIG) are the east-west and north-south offsets from XCENT and YCENT in meters (WRF-ARW usages may differ). The next two parameters (XCELL and YCELL) are the horizontal grid spacing in meters for the X and Y directions (i.e., delta‑x and delta‑y). The next two parameters (NCOLS and NROWS) are the numbers of grid cells in the X and Y directions. The grid definition concludes with the number of boundary cells, NTHIK, which is typically set to 1.
 
 <a id=matrix_nml></a>
-### [gc|ae|nr|tr]_matrix.nml: Species namelist files
+### {gc|ae|nr|tr}_matrix.nml: Species namelist files
 
-Used by: BCON, CCTM, ICON, JPROC, PROCAN
+Used by: BCON, CCTM, ICON, JPROC
 
 Namelist look-up tables for different classes of simulated pollutants are used to define the parameters of different model species during the execution of the CMAQ programs. Gas-phase (gc), aerosol (ae), non-reactive (nr), and tracer (tr) species namelist files contain parameters for the model species that are included in these different classifications. The species namelist files are used to control how the different CMAQ programs and processes handle the model species. The namelist files define the following processes for each model species:
 
@@ -194,31 +195,31 @@ The namelist files contain header information that describe which class of speci
 
 | **Line**| **Column** |**Name** | **Type**| **Description** |
 |---|---|---|---|---|
-|<center> 1 </center>||<center> !Revision Control System(RCS file) |
-|<center> 2 </center>||<center> Header: filename, version, date/time, author |
-|<center> 4 </center>||<center> File type </center>|<center> String </center>|&GC_nml|
-|<center> 6 </center>||<center> Number of surrogate params </center>|<center> String </center>|n_surr1 = x, where x is the number of ????|
-|<center> 7 </center>||<center> Number of ???? params </center>|<center> String </center>|n_surr2 = x, where x is the number of ????|
-|<center> 8 </center>||<center> Number of control params </center>|<center> String </center>|n_ctrl = x, where x is the number of ????|
-|<center> 10 </center>||<center> Header ID </center>|<center> String </center>|TYPE_HEADER =|
-|<center> 11 </center>||<center> HEADER </center>|<center> String </center>|Abbreviated names of file columns, enclosed by single quotes|
-|<center>  12 </center>||<center> Matrix ID </center>|<center> String </center>|TYPE_MATRIX =|
-|<center> 13 </center>|<center> 1 </center>|<center> SPC </center>|<center> String </center>|CMAQ pollutant name, i.e. NO, HNO3, PAR; dependent on chemical mechanism|
-||<center> 2 </center>|<center> MOLWT </center>|<center> Integer </center>|Pollutant molecular weight|
-||<center> 3 </center>|<center> EMIS_SUR </center>|<center> String </center>|Emissions species name for the CMAQ pollutant|
-||<center> 4 </center>|<center> EMIS_FAC </center>|<center> Real </center>|Scaling factor for input emissions|
-||<center> 5 </center>|<center> DEPV_SUR </center>|<center> String </center>|Deposition velocity variable name for the CMAQ pollutant|
-||<center> 6 </center>|<center> DEPV_FAC </center>|<center> Real </center>|Scaling factor for the deposition velocity|
-||<center> 7 </center>|<center> ICBC_SUR </center>|<center> String </center>|IC/BC species name for the CMAQ pollutant|
-||<center> 8 </center>|<center> ICBC_FAC </center>|<center> Real </center>|Scaling factor for the IC/BC concentration|
-||<center> 9 </center>|<center> SCAV_SUR </center>|<center> String </center>||
-||<center> 10 </center>|<center> SCAV_FAC </center>|<center> Real </center>||
-||<center> 11 </center>|<center> G2AE_SUR </center>|<center> String </center>|Gas-to-aerosol transformation species|
-||<center> 12 </center>|<center> G2AQ_SUR </center>|<center> String </center>|Gas-to-aqueous transformation species|
-||<center> 13 </center>|<center> TRNS </center>|<center> Yes/No </center>|Transport switch|
-||<center> 14 </center>|<center> DDEP </center>|<center> Yes/No </center>|Dry deposition output file switch|
-||<center> 15 </center>|<center> WDEP </center>|<center> Yes/No </center>|Wet deposition output file switch|
-||<center> 16 </center>|<center> CONC </center>|<center> Yes/No </center>|Concentration output file switch|
+| 1 || !Revision Control System(RCS file) |
+| 2 || Header: filename, version, date/time, author |
+| 4 || File type | String |&GC_nml|
+| 6 || Number of surrogate params | String |n_surr1 = x, where x is the number of ????|
+| 7 || Number of ???? params | String |n_surr2 = x, where x is the number of ????|
+| 8 || Number of control params | String |n_ctrl = x, where x is the number of ????|
+| 10 || Header ID | String |TYPE_HEADER =|
+| 11 || HEADER | String |Abbreviated names of file columns, enclosed by single quotes|
+|  12 || Matrix ID | String |TYPE_MATRIX =|
+| 13 | 1 | SPC | String |CMAQ pollutant name, i.e. NO, HNO3, PAR; dependent on chemical mechanism|
+|| 2 | MOLWT | Integer |Pollutant molecular weight|
+|| 3 | EMIS_SUR | String |Emissions species name for the CMAQ pollutant|
+|| 4 | EMIS_FAC | Real |Scaling factor for input emissions|
+|| 5 | DEPV_SUR | String |Deposition velocity variable name for the CMAQ pollutant|
+|| 6 | DEPV_FAC | Real |Scaling factor for the deposition velocity|
+|| 7 | ICBC_SUR | String |IC/BC species name for the CMAQ pollutant|
+|| 8 | ICBC_FAC | Real |Scaling factor for the IC/BC concentration|
+|| 9 | SCAV_SUR | String ||
+|| 10 | SCAV_FAC | Real ||
+|| 11 | G2AE_SUR | String |Gas-to-aerosol transformation species|
+|| 12 | G2AQ_SUR | String |Gas-to-aqueous transformation species|
+|| 13 | TRNS | Yes/No |Transport switch|
+|| 14 | DDEP | Yes/No |Dry deposition output file switch|
+|| 15 | WDEP | Yes/No |Wet deposition output file switch|
+|| 16 | CONC | Yes/No |Concentration output file switch|
 | … | ...| ...|... | Repeat for the number of gas-phase pollutants in the mechanism being modeling|
 
 The namelist files for the other pollutant classes have similar configurations as the gas-phase species configuration shown in [Table 8-4](#Table8-4). For an example see this [link](https://github.com/CMASCenter/EPA-CMAQ/blob/5.2Beta/CCTM/src/MECHS/cb05e51_ae6_aq/GC_cb05e51_ae6_aq.nml) to the GC namelist species file for the cb05e51_ae6_aq mechanism.
@@ -244,41 +245,43 @@ A detailed description of the vertical profile file format for initial condition
 
 |**Line**|**Column**|**Name**|**Type**|**Description**|
 |---|---|---|---|---|
-|<center> 1-3 </center>||<center> Text Header </center>|<center> String </center>|Text description of the contents and source of the initial conditions file (optional)|
-|<center> 4 </center>|<center> A </center>|<center> NUM_SIGMA_LVL </center>|<center> Int </center>|Number of sigma levels contained in the file (required)|
-||<center> B </center>|<center> NUM_POLL </center>|<center> Int </center>|Number of pollutants contained in the file (required)|
-||<center> C </center>|<center> SIGMA_LVL </center>|<center> Real </center>|Vertical coordinate values of sigma-p levels; number of values (n+1) is one more than the NUM_SIGMA_LVL (n) (required)|
-|<center> 4 </center>|<center> n </center>|<center> ...  </center>|<center> ...  </center>|...|
-|<center> 5 </center>|<center> A </center>|<center> STDATE </center>|<center> String </center>|Julian start date of the file, YYYYDDD (optional)|
-||<center> B </center>|<center> STTIME </center>|<center> String </center>|Start time of the file, HH (optional)|
-|<center> 6 </center>|<center> 1-10 </center>|<center> SPECIES1 </center>|<center> String </center>|Pollutant name, enclosed in double quotes (required)|
-||<center> 12-20 </center>|<center> LAYER1_IC </center>|<center> Exp </center>|IC concentration for species 1 in lowest sigma layer (required)|
-||<center> 23-31 </center>|<center> LAYER2_IC </center>|<center> Exp </center>|IC concentration for species 1 in 2nd sigma layer (required)|
-||<center> 34-42 </center>|<center> LAYER3_IC </center>|<center> Exp </center>|IC concentration for species 1 in 3rd sigma layer (required)|
-||<center> 45-53 </center>|<center> LAYER4_IC </center>|<center> Exp </center>|IC concentration for species 1 in 4th sigma layer (required)|
-||<center> ...  </center>|<center> LAYERX_IC </center>|<center> Exp </center>|IC concentration for species 1 in Xth sigma layer (required)|
- |<center> 7 </center>|<center> 1-10 </center>|<center> SPECIES2 </center>|<center> String </center>|Pollutant name, enclosed in double quotes (required)|
-||<center> 12-20 </center>|<center> LAYER1_IC </center>|<center> Exp </center>|IC concentration for species 2 in lowest sigma layer (required)|
-||<center> 23-31 </center>|<center> LAYER2_IC </center>|<center> Exp </center>|IC concentration for species 2 in 2nd sigma layer (required)|
-||<center> 34-42 </center>|<center> LAYER3_IC </center>|<center> Exp </center>|IC concentration for species 2 in 3rd sigma layer (required)|
-||<center> 45-53 </center>|<center> LAYER4_IC </center>|<center> Exp </center>|IC concentration for species 2 in 4th sigma layer (required)|
-||<center> ...  </center>|<center> LAYERX_IC </center>|<center> Exp </center>|IC concentration for species 2 in Xth sigma layer (required)|
-|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|...|
-|<center> Z </center>|<center> 1-10 </center>|<center> SPECIESZ </center>|<center> String </center>|Pollutant name, enclosed in double quotes (required)|
-|<center> ...  </center>|<center> 12-20 </center>|<center> LAYER1_IC </center>|<center> Exp </center>|IC concentration for species Z in lowest sigma layer (required)|
-|<center> ...  </center>|<center> 23-31 </center>|<center> LAYER2_IC </center>|<center> Exp </center>|IC concentration for species Z in 2nd sigma layer (required)|
-|<center> ...  </center>|<center> 34-42 </center>|<center> LAYER3_IC </center>|<center> Exp </center>|IC concentration for species Z in 3rd sigma layer (required)|
-|<center> ...  </center>|<center> 45-53 </center>|<center> LAYER4_IC </center>|<center> Exp </center>|IC concentration for species Z in 4th sigma layer (required)|
-|<center> ...  </center>|<center> ...  </center>|<center> LAYERX_IC </center>|<center> Exp </center>|IC concentration for species Z in Xth sigma layer (required)|
+| 1-3 || Text Header | String |Text description of the contents and source of the initial conditions file (optional)|
+| 4 | A | NUM_SIGMA_LVL | Int |Number of sigma levels contained in the file (required)|
+|| B | NUM_POLL | Int |Number of pollutants contained in the file (required)|
+|| C | SIGMA_LVL | Real |Vertical coordinate values of sigma-p levels; number of values (n+1) is one more than the NUM_SIGMA_LVL (n) (required)|
+| 4 | n | ...  | ...  |...|
+| 5 | A | STDATE | String |Julian start date of the file, YYYYDDD (optional)|
+|| B | STTIME | String |Start time of the file, HH (optional)|
+| 6 | 1-10 | SPECIES1 | String |Pollutant name, enclosed in double quotes (required)|
+|| 12-20 | LAYER1_IC | Exp |IC concentration for species 1 in lowest sigma layer (required)|
+|| 23-31 | LAYER2_IC | Exp |IC concentration for species 1 in 2nd sigma layer (required)|
+|| 34-42 | LAYER3_IC | Exp |IC concentration for species 1 in 3rd sigma layer (required)|
+|| 45-53 | LAYER4_IC | Exp |IC concentration for species 1 in 4th sigma layer (required)|
+|| ...  | LAYERX_IC | Exp |IC concentration for species 1 in Xth sigma layer (required)|
+ | 7 | 1-10 | SPECIES2 | String |Pollutant name, enclosed in double quotes (required)|
+|| 12-20 | LAYER1_IC | Exp |IC concentration for species 2 in lowest sigma layer (required)|
+|| 23-31 | LAYER2_IC | Exp |IC concentration for species 2 in 2nd sigma layer (required)|
+|| 34-42 | LAYER3_IC | Exp |IC concentration for species 2 in 3rd sigma layer (required)|
+|| 45-53 | LAYER4_IC | Exp |IC concentration for species 2 in 4th sigma layer (required)|
+|| ...  | LAYERX_IC | Exp |IC concentration for species 2 in Xth sigma layer (required)|
+| ...  | ...  | ...  | ...  |...|
+| Z | 1-10 | SPECIESZ | String |Pollutant name, enclosed in double quotes (required)|
+| ...  | 12-20 | LAYER1_IC | Exp |IC concentration for species Z in lowest sigma layer (required)|
+| ...  | 23-31 | LAYER2_IC | Exp |IC concentration for species Z in 2nd sigma layer (required)|
+| ...  | 34-42 | LAYER3_IC | Exp |IC concentration for species Z in 3rd sigma layer (required)|
+| ...  | 45-53 | LAYER4_IC | Exp |IC concentration for species Z in 4th sigma layer (required)|
+| ...  | ...  | LAYERX_IC | Exp |IC concentration for species Z in Xth sigma layer (required)|
 
 A sample of the four sections of an IC_PROFILE file is shown below.
 
-` Example initial condition: The vertical coordinate of the model to generate`
-` these i.c. is the terrain-following sigma coordinate. `
-` The number of sigma layers and defined sigma levels are listed below. `
-` 6 55 1.00 0.98 0.93 0.84 0.60 0.30 0.00`
-` 1988180 00`
-` "SO2 " 0.300E-03 0.200E-03 0.100E-03 0.100E-03 0.200E-04 0.100E-04`
+```
+Example initial condition: The vertical coordinate of the model to generate
+these i.c. is the terrain-following sigma coordinate. 
+The number of sigma layers and defined sigma levels are listed below. 
+ 6 55 1.00 0.98 0.93 0.84 0.60 0.30 0.00
+1988180 00
+"SO2 " 0.300E-03 0.200E-03 0.100E-03 0.100E-03 0.200E-04 0.100E-04
+```
 
 <a id=bc_profile></a>
 ### BC_PROFILE: Boundary conditions vertical profiles
@@ -302,40 +305,44 @@ A detailed description of the vertical profile file format for boundary conditio
 |**Line**|**Column**|**Name**|**Type**|**Description**|
 |---|---|---|---|---|
 | 1-3 || Text Header | String |Text description of the contents and source of the initial conditions file (optional) |
-|<center> 4 </center>|<center> A </center>|<center> NUM_SIGMA_LVL </center>|<center> Int </center>|Number of sigma levels contained in the file (required)|
-||<center> B </center>|<center> NUM_POLL </center>|<center> Int </center>|Number of pollutants contained in the file (required)|
-||<center> C </center>|<center> SIGMA_LVL </center>|<center> Real </center>|Vertical coordinate values of sigma-p levels; number of values (n+1) is one more than the NUM_SIGMA_LVL (n) (required)|
-|<center> 4 </center>|<center> n </center>|<center> ...  </center>|<center> ...  </center>|...|
-|<center> 5 </center>|<center> A </center>|<center> STDATE </center>|<center> String </center>|Julian start date of the file, YYYYDDD (optional)|
-||<center> B </center>|<center> STTIME </center>|<center> String </center>|Start time of the file, HH (optional)|
-|<center> 6 </center>|<center> A </center>|<center> Direction </center>|<center> String </center>|North, South, East, West; indicates the boundary described by the subsequent data section (required)|
-|<center> 7 </center>|<center> 1-10 </center>|<center> SPECIES1 </center>|<center> String </center>|Pollutant name, enclosed in double quotes (required)|
-||<center> 12-20 </center>|<center> LAYER1_BC </center>|<center> Exp </center>|BC concentration for species 1 in lowest sigma layer (required)|
-||<center> 23-31 </center>|<center> LAYER2_BC </center>|<center> Exp </center>|BC concentration for species 1 in 2nd sigma layer (required)|
-||<center> 34-42 </center>|<center> LAYER3_BC </center>|<center> Exp </center>|BC concentration for species 1 in 3rd sigma layer (required)|
-||<center> 45-53 </center>|<center> LAYER4_BC </center>|<center> Exp </center>|BC concentration for species 1 in 4th sigma layer (required)|
-||<center> ...  </center>|<center> LAYERX_BC </center>|<center> Exp </center>|BC concentration for species 1 in Xth sigma layer (required)|
-|<center> 8 </center>|<center> 1-10 </center>|<center> SPECIES2 </center>|<center> String </center>|Pollutant name, enclosed in double quotes (required)|
-||<center> 12-20 </center>|<center> LAYER1_BC </center>|<center> Exp </center>|BC concentration for species 2 in lowest sigma layer (required)|
-||<center> 23-31 </center>|<center> LAYER2_BC </center>|<center> Exp </center>|BC concentration for species 2 in 2nd sigma layer (required)|
-||<center> 34-42 </center>|<center> LAYER3_BC </center>|<center> Exp </center>|BC concentration for species 2 in 3rd sigma layer (required)|
-||<center> 45-53 </center>|<center> LAYER4_BC </center>|<center> Exp </center>|BC concentration for species 2 in 4th sigma layer (required)|
-||<center> ...  </center>|<center> LAYERX_BC </center>|<center> Exp </center>|BC concentration for species 2 in Xth sigma layer (required)|
-|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|...|
-|<center> Y </center>|<center> A </center>|<center> Direction </center>|<center> String </center>|North, South, East, West; indicates the horizontal boundary described by the subsequent data section (required)|
-|<center> Z+1 </center>|<center> 1-10 </center>|<center> SPECIESZ </center>|<center> String </center>|Pollutant name, enclosed in double quotes (required)|
-|<center> ...  </center>|<center> 12-20 </center>|<center> LAYER1_BC </center>|<center> Exp </center>|BC concentration for species Z in lowest sigma layer (required)|
-|<center> ...  </center>|<center> 23-31 </center>|<center> LAYER2_BC </center>|<center> Exp </center>|BC concentration for species Z in 2nd sigma layer (required)|
-|<center> ...  </center>|<center> 34-42 </center>|<center> LAYER3_BC </center>|<center> Exp </center>|BC concentration for species Z in 3rd sigma layer (required)|
-|<center> ...  </center>|<center> 45-53 </center>|<center> LAYER4_BC </center>|<center> Exp </center>|BC concentration for species Z in 4th sigma layer (required)|
-|<center> ...  </center>|<center> ...  </center>|<center> LAYERX_BC </center>|<center> Exp </center>|BC concentration for species Z in Xth sigma layer (required)|
+| 4 | A | NUM_SIGMA_LVL | Int |Number of sigma levels contained in the file (required)|
+|| B | NUM_POLL | Int |Number of pollutants contained in the file (required)|
+|| C | SIGMA_LVL | Real |Vertical coordinate values of sigma-p levels; number of values (n+1) is one more than the NUM_SIGMA_LVL (n) (required)|
+| 4 | n | ...  | ...  |...|
+| 5 | A | STDATE | String |Julian start date of the file, YYYYDDD (optional)|
+|| B | STTIME | String |Start time of the file, HH (optional)|
+| 6 | A | Direction | String |North, South, East, West; indicates the boundary described by the subsequent data section (required)|
+| 7 | 1-10 | SPECIES1 | String |Pollutant name, enclosed in double quotes (required)|
+|| 12-20 | LAYER1_BC | Exp |BC concentration for species 1 in lowest sigma layer (required)|
+|| 23-31 | LAYER2_BC | Exp |BC concentration for species 1 in 2nd sigma layer (required)|
+|| 34-42 | LAYER3_BC | Exp |BC concentration for species 1 in 3rd sigma layer (required)|
+|| 45-53 | LAYER4_BC | Exp |BC concentration for species 1 in 4th sigma layer (required)|
+|| ...  | LAYERX_BC | Exp |BC concentration for species 1 in Xth sigma layer (required)|
+| 8 | 1-10 | SPECIES2 | String |Pollutant name, enclosed in double quotes (required)|
+|| 12-20 | LAYER1_BC | Exp |BC concentration for species 2 in lowest sigma layer (required)|
+|| 23-31 | LAYER2_BC | Exp |BC concentration for species 2 in 2nd sigma layer (required)|
+|| 34-42 | LAYER3_BC | Exp |BC concentration for species 2 in 3rd sigma layer (required)|
+|| 45-53 | LAYER4_BC | Exp |BC concentration for species 2 in 4th sigma layer (required)|
+|| ...  | LAYERX_BC | Exp |BC concentration for species 2 in Xth sigma layer (required)|
+| ...  | ...  | ...  | ...  |...|
+| Y | A | Direction | String |North, South, East, West; indicates the horizontal boundary described by the subsequent data section (required)|
+| Z+1 | 1-10 | SPECIESZ | String |Pollutant name, enclosed in double quotes (required)|
+| ...  | 12-20 | LAYER1_BC | Exp |BC concentration for species Z in lowest sigma layer (required)|
+| ...  | 23-31 | LAYER2_BC | Exp |BC concentration for species Z in 2nd sigma layer (required)|
+| ...  | 34-42 | LAYER3_BC | Exp |BC concentration for species Z in 3rd sigma layer (required)|
+| ...  | 45-53 | LAYER4_BC | Exp |BC concentration for species Z in 4th sigma layer (required)|
+| ...  | ...  | LAYERX_BC | Exp |BC concentration for species Z in Xth sigma layer (required)|
 
-A sample of the important sections of a BC_PROFILE file is shown below.  ` 6 55 1.00 0.98 0.93 0.84 0.60 0.30 0.00`
-` 1988180 00`
-` North`
-` "SO2 " 0.300E-03 0.200E-03 0.100E-03 0.100E-03 0.200E-04 0.100E-04`
-` West`
-` "SO2 " 0.300E-03 0.200E-03 0.100E-03 0.100E-03 0.200E-04 0.100E-04`
+A sample of the important sections of a BC_PROFILE file is shown below.
+
+``` 
+6 55 1.00 0.98 0.93 0.84 0.60 0.30 0.00
+1988180 00
+ North
+ "SO2 " 0.300E-03 0.200E-03 0.100E-03 0.100E-03 0.200E-04 0.100E-04
+ West
+ "SO2 " 0.300E-03 0.200E-03 0.100E-03 0.100E-03 0.200E-04 0.100E-04
+```
 
 <a name="ctm_conc_1"></a>
 ### CTM_CONC_1: CCTM concentration files
@@ -359,62 +366,65 @@ The ASCII-formatted CSQY files begin with the number and a list of the applicabl
 
 |**Line** | **Column** | **Name** | **Type** | **Description** |
 |---|---|---|---|---|
-|<center> 1 </center>|<center> A </center>|<center> CSQY Mechanism Table Name </center>|<center> String </center>|Text name indicating this is the CSQY for the Mechanism Specified.  This name is cross-referenced in the chemical mechanism description and INCLUDE files (required)|
-|<center> 1 </center>|<center> A </center>|<center> NPHOTAB </center>|<center> String </center>|Number of Photolysis Reactions|
-|<center> 2 </center>|<center> A </center>|<center> Comments </center>|<center> String </center>|Preceded by "!", Individual Reaction Rates Listed below|
-|<center> 3 </center>|<center> A  </center>|<center> Name </center>|<center> String</center>|<center> Reaction Name  </center>|
+| 1 | A | CSQY Mechanism Table Name | String |Text name indicating this is the CSQY for the Mechanism Specified.  This name is cross-referenced in the chemical mechanism description and INCLUDE files (required)|
+| 1 | A | NPHOTAB | String |Number of Photolysis Reactions|
+| 2 | A | Comments | String |Preceded by "!", Individual Reaction Rates Listed below|
+| 3 | A  | Name | String| Reaction Name  |
 | repeat for all (NPHOTAB) reaction names|
-|<center> 3+NPHOTAB </center>|<center> A </center>|<center> Name </center>|<center> String </center>|Reaction Name|
-|<center> 3+NPHOTAB+1 </center>|<center> A </center>|<center> NTEMP</center>|<center> Int or Real </center>|Number of Temperature Bands|
-<center> 3+NPHOTAB+2 </center>|<center> A </center>|<center> Number| Integer | Index of temperature |
-||<center> B </center>|<center> TEMP </center>| Real | Temperature in Kelvin|
+| 3+NPHOTAB | A | Name | String |Reaction Name|
+| 3+NPHOTAB+1 | A | NTEMP| Int or Real |Number of Temperature Bands|
+| 3+NPHOTAB+2 | A | Number| Integer | Index of temperature |
+|| B | TEMP | Real | Temperature in Kelvin|
 | repeat for all NTEMP values|
-|<center> 3+NPHOTAB+NTEMP </center>|<center> A </center>|<center> Comments </center>|<center> String </center>|Preceded by "!", column header: I,      START_WL_BIN(nm),    EFFECT_WL_BIN_(nm),       END_WL_BIN_(nm), photon_flux(cm-2*s-1), |
-|<center> 3+NPHOTAB+NTEMP+1 </center>|<center> A </center>|<center> Number of Inline Photolysis Bands</center>|<center> Integer </center>| |
-||<center> B </center>|<center> Start Wavelength </center>|<center> Real </center>|Start Wavelength for Bin |
-||<center> C </center>|<center> Effect Wavelength </center>|<center> Real </center>|Effect Wavelength for Bin |
-||<center> D </center>|<center> End Wavelength </center>|<center> Real </center>|End Wavelength for Bin |
-||<center> E </center>|<center> Photon Flux</center>|<center> Real </center>|Photon Flux |
-|<center> 3+NPHOTAB+NTEMP+2 </center>|<center> A </center>|<center> Comments </center>|<center> String </center>|Preceded by "!", CS  = absorption cross sections averaged over UCI Solar Flux|
-|<center> 3+NPHOTAB+NTEMP+3 </center>|<center> A </center>|<center> Comments </center>|<center> String </center>|Preceded by "!", QY  = quantum yields averaged over UCI Solar Flux|
-|<center> 3+NPHOTAB+NTEMP+4 </center>|<center> A </center>|<center> Comments </center>|<center> String </center>|Preceded by "!", EQY = eCS*eQY/CS averaged over Solar Flux and 77 bins in UCI Model|
-|<center> 3+NPHOTAB+NTEMP+5 </center>|<center> A </center>|<center> Comments </center>|<center> String </center>|Preceded by "!", header for reactions, CS or EQY, and Wavelength Bins|
-|<center> 3+NPHOTAB+NTEMP+6</center>|<center> A </center>|<center>Reaction Name </center>|<center> String </center>|Reaction Name|
-||<center> B </center>|<center> Quantity </center>|<center> String </center>|CS |
-||<center> C </center>|<center> TEMP</center>|<center> Real </center>| Temperature|
-||<center> D </center>|<center> WBIN (1) </center>|<center> Real or EXP </center>| Absorption Cross Section (CS)  Value for BIN 1|
-||<center> E </center>|<center> WBIN (2)  </center>|<center> Real or EXP  </center>|Absorption Cross Section (CS) Value for BIN 2|
-||<center> F </center>|<center> WBIN (3)  </center>|<center> Real or EXP  </center>|Absorption Cross Section (CS) Value for BIN 3|
-||<center> G </center>|<center> WBIN (4)  </center>|<center> Real or EXP  </center>|Absorption Cross Section (CS) Value for BIN 4|
-||<center> H </center>|<center> WBIN (5)  </center>|<center> Real or EXP  </center>|Absorption Cross Section (CS) Value for BIN 5|
-||<center> I </center>|<center> WBIN (6)  </center>|<center> Real or EXP  </center>|Absorption Cross Section (CS) Value for BIN 6|
-||<center> J </center>|<center> WBIN (7)  </center>|<center> Real or EXP  </center>|Absorption Cross Section (CS) Value for BIN 7|
-|<center> 3+NPHOTAB+NTEMP+7 </center>|<center> A </center>|<center>Reaction Name </center>|<center> String </center>|Reaction Name|
-||<center> B </center>|<center> Quantity </center>|<center> String </center>|EQY |
-||<center> C </center>|<center> TEMP</center>|<center> Real </center>| Temperature|
-||<center> D </center>|<center> WBIN (1) </center>|<center> Real or EXP </center>| Absorption Cross Section (EQY)  Value for BIN 1|||<center> E </center>|<center> WBIN (2)  </center>|<center> Real or EXP  </center>|Absorption Cross Section (EQY) Value for BIN 2|
-||<center> F </center>|<center> WBIN (3)  </center>|<center> Real or EXP  </center>|Absorption Cross Section (EQY) Value for BIN 3|
-||<center> G </center>|<center> WBIN (4)  </center>|<center> Real or EXP  </center>|Absorption Cross Section (EQY) Value for BIN 4|
-||<center> H </center>|<center> WBIN (5)  </center>|<center> Real or EXP  </center>|Absorption Cross Section (EQY) Value for BIN 5|
-||<center> I </center>|<center> WBIN (6)  </center>|<center> Real or EXP  </center>|Absorption Cross Section (EQY) Value for BIN 6|
-||<center> J </center>|<center> WBIN (7)  </center>|<center> Real or EXP  </center>|Absorption Cross Section (EQY) Value for BIN 7|
+| 3+NPHOTAB+NTEMP | A | Comments | String |Preceded by "!", column header: I,      START_WL_BIN(nm),    EFFECT_WL_BIN_(nm),       END_WL_BIN_(nm), photon_flux(cm-2*s-1), |
+| 3+NPHOTAB+NTEMP+1 | A | Number of Inline Photolysis Bands| Integer | |
+|| B | Start Wavelength | Real |Start Wavelength for Bin |
+|| C | Effect Wavelength | Real |Effect Wavelength for Bin |
+|| D | End Wavelength | Real |End Wavelength for Bin |
+|| E | Photon Flux| Real |Photon Flux |
+| 3+NPHOTAB+NTEMP+2 | A | Comments | String |Preceded by "!", CS  = absorption cross sections averaged over UCI Solar Flux|
+| 3+NPHOTAB+NTEMP+3 | A | Comments | String |Preceded by "!", QY  = quantum yields averaged over UCI Solar Flux|
+| 3+NPHOTAB+NTEMP+4 | A | Comments | String |Preceded by "!", EQY = eCS*eQY/CS averaged over Solar Flux and 77 bins in UCI Model|
+| 3+NPHOTAB+NTEMP+5 | A | Comments | String |Preceded by "!", header for reactions, CS or EQY, and Wavelength Bins|
+| 3+NPHOTAB+NTEMP+6| A |Reaction Name | String |Reaction Name|
+|| B | Quantity | String |CS |
+|| C | TEMP| Real | Temperature|
+|| D | WBIN (1) | Real or EXP | Absorption Cross Section (CS)  Value for BIN 1|
+|| E | WBIN (2)  | Real or EXP  |Absorption Cross Section (CS) Value for BIN 2|
+|| F | WBIN (3)  | Real or EXP  |Absorption Cross Section (CS) Value for BIN 3|
+|| G | WBIN (4)  | Real or EXP  |Absorption Cross Section (CS) Value for BIN 4|
+|| H | WBIN (5)  | Real or EXP  |Absorption Cross Section (CS) Value for BIN 5|
+|| I | WBIN (6)  | Real or EXP  |Absorption Cross Section (CS) Value for BIN 6|
+|| J | WBIN (7)  | Real or EXP  |Absorption Cross Section (CS) Value for BIN 7|
+| 3+NPHOTAB+NTEMP+7 | A |Reaction Name | String |Reaction Name|
+|| B | Quantity | String |EQY |
+|| C | TEMP| Real | Temperature|
+|| D | WBIN (1) | Real or EXP | Absorption Cross Section (EQY)  Value for BIN 1|
+|| E | WBIN (2)  | Real or EXP  |Absorption Cross Section (EQY) Value for BIN 2|
+|| F | WBIN (3)  | Real or EXP  |Absorption Cross Section (EQY) Value for BIN 3|
+|| G | WBIN (4)  | Real or EXP  |Absorption Cross Section (EQY) Value for BIN 4|
+|| H | WBIN (5)  | Real or EXP  |Absorption Cross Section (EQY) Value for BIN 5|
+|| I | WBIN (6)  | Real or EXP  |Absorption Cross Section (EQY) Value for BIN 6|
+|| J | WBIN (7)  | Real or EXP  |Absorption Cross Section (EQY) Value for BIN 7|
 |<repeat for 6 temperature bands and for each of the 26 reactions)|
-|<center> n-11 </center>|<center> A </center>|<center> Comments </center>|<center> String </center>|Preceded by "!", Ozone Cross-Section for Stratospheric Opacity based on Table 4-5 in|
-|<center> n-10 </center>|<center> A </center>|<center> Comments </center>|<center> String </center>|Chemical Kinetics and Photochemical Data for Use in Atmospheric|
-|<center> n-9 </center>|<center> A </center>|<center> Comments </center>|<center> String </center>|Studies Evaluation Number 15. Sander et. al: NASA-JPL 2006|
-|<center> n-8 </center>|<center> A </center>|<center>NTEMP_STRAT </center>|<center> Int </center>|Number of Temperature Bins in Stratosphere|
-|<center> n-7 </center>|<center> A </center>|<center> Comments </center>|<center> String </center>|Preceded by "!", Header|
-|<center> n-6 </center>|<center> A </center>|<center>Reaction Name </center>|<center> String </center>|Stratospheric Reaction Name|
-||<center> B </center>|<center> Quantity </center>|<center> String </center>|CS |
-||<center> C </center>|<center> TEMP</center>|<center> Real </center>| Temperature|
-||<center> D </center>|<center> WBIN (1) </center>|<center> Real or EXP </center>| Absorption Cross Section (CS)  Value for BIN 1|||<center> E </center>|<center> WBIN (2)  </center>|<center> Real or EXP  </center>|Absorption Cross Section (CS) Value for BIN 2|
-||<center> F </center>|<center> WBIN (3)  </center>|<center> Real or EXP  </center>|Absorption Cross Section (CS) Value for BIN 3|
-||<center> G </center>|<center> WBIN (4)  </center>|<center> Real or EXP  </center>|Absorption Cross Section (CS) Value for BIN 4|
-||<center> H </center>|<center> WBIN (5)  </center>|<center> Real or EXP  </center>|Absorption Cross Section (CS) Value for BIN 5|
-||<center> I </center>|<center> WBIN (6)  </center>|<center> Real or EXP  </center>|Absorption Cross Section (CS) Value for BIN 6|
-||<center> J </center>|<center> WBIN (7)  </center>|<center> Real or EXP  </center>|Absorption Cross Section (CS) Value for BIN 7|
+| n-11 | A | Comments | String |Preceded by "!", Ozone Cross-Section for Stratospheric Opacity based on Table 4-5 in|
+| n-10 | A | Comments | String |Chemical Kinetics and Photochemical Data for Use in Atmospheric|
+| n-9 | A | Comments | String |Studies Evaluation Number 15. Sander et. al: NASA-JPL 2006|
+| n-8 | A |NTEMP_STRAT | Int |Number of Temperature Bins in Stratosphere|
+| n-7 | A | Comments | String |Preceded by "!", Header|
+| n-6 | A |Reaction Name | String |Stratospheric Reaction Name|
+|| B | Quantity | String |CS |
+|| C | TEMP| Real | Temperature|
+|| D | WBIN (1) | Real or EXP | Absorption Cross Section (CS)  Value for BIN 1|
+|| E | WBIN (2)  | Real or EXP  |Absorption Cross Section (CS) Value for BIN 2|
+|| F | WBIN (3)  | Real or EXP  |Absorption Cross Section (CS) Value for BIN 3|
+|| G | WBIN (4)  | Real or EXP  |Absorption Cross Section (CS) Value for BIN 4|
+|| H | WBIN (5)  | Real or EXP  |Absorption Cross Section (CS) Value for BIN 5|
+|| I | WBIN (6)  | Real or EXP  |Absorption Cross Section (CS) Value for BIN 6|
+|| J | WBIN (7)  | Real or EXP  |Absorption Cross Section (CS) Value for BIN 7|
 
-Portion of the 
+An example of the CSQY table is shown below.
+
 ```Tcsh
 Table for Mechanism = CB05E51_AE6_AQ
 NPHOTAB =   26
@@ -468,10 +478,10 @@ NO2_IUPAC10         CS  250.000 9.461621E-20  1.352675E-19  1.763276E-19  2.1397
 NO2_IUPAC10        EQY  250.000 1.000000E+00  1.000000E+00  1.000000E+00  1.000000E+00  1.000000E+00  7.971660E-01  4.545939E-02
 NO2_IUPAC10         CS  270.000 9.488729E-20  1.351377E-19  1.755867E-19  2.116595E-19  3.375671E-19  5.692984E-19  3.737961E-21
 NO2_IUPAC10        EQY  270.000 1.000000E+00  1.000000E+00  1.000000E+00  1.000000E+00  1.000000E+00  8.052323E-01  6.065865E-02
-NO2_IUPAC10         CS  290.000 9.515838E-20  1.350079E-19  1.748457E-19  2.093432E-19  3.307068E-19  5.663012E-19  3.718430E-21 
-NO2_IUPAC10        EQY  290.000 1.000000E+00  1.000000E+00  1.000000E+00  1.000000E+00  1.000000E+00  8.132986E-01  7.585791E-02 
-NO2_IUPAC10         CS  310.000 9.521259E-20  1.349819E-19  1.746975E-19  2.088799E-19  3.293347E-19  5.657017E-19  3.714523E-21 
-NO2_IUPAC10        EQY  310.000 1.000000E+00  1.000000E+00  1.000000E+00  1.000000E+00  1.000000E+00  8.165251E-01  8.193760E-02 
+NO2_IUPAC10         CS  290.000 9.515838E-20  1.350079E-19  1.748457E-19  2.093432E-19  3.307068E-19  5.663012E-19  3.718430E-21
+NO2_IUPAC10        EQY  290.000 1.000000E+00  1.000000E+00  1.000000E+00  1.000000E+00  1.000000E+00  8.132986E-01  7.585791E-02
+NO2_IUPAC10         CS  310.000 9.521259E-20  1.349819E-19  1.746975E-19  2.088799E-19  3.293347E-19  5.657017E-19  3.714523E-21
+NO2_IUPAC10        EQY  310.000 1.000000E+00  1.000000E+00  1.000000E+00  1.000000E+00  1.000000E+00  8.165251E-01  8.193760E-02
 repeat (6 temperature bands  x 2 (CS or EQY) lines for each of the 26 reactions:
 ...
 ...
@@ -504,26 +514,28 @@ ET is the logical name for the ASCII data file containing extraterrestrial radia
 
 | **Line** | **Column** | **Name** | **Type** | **Description**|
 |---|---|---|---|---|
-|<center> 1 </center>|<center> A </center>|<center> Comments </center>|<center> String </center>|Preceded by "!", comment lines describe the file contents and document the source of the data (optional)|
-|<center> n </center>|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|
-|<center> n + 1 </center>|<center> A </center>|<center> Data Location </center>|<center> String </center>|Field indicating the location of the data as measured across the wavelength band; possible answers: beginning, ending, centered, point (required)|
-|<center> n + 2 </center>|<center> A </center>|<center> Multiplier </center>|<center> String </center>|Multiplication factor to apply to photolysis rate equation; line begins with FAC=; factor listed in real or exponential format (required)|
-|<center> n+3 </center>|<center> A </center>|<center> Wavelength </center>|<center> Int or Real </center>|Wavelength corresponding to ET data; units = nm (required)|
-||<center> B </center>|<center> Extra–terrestrial Irradiance </center>|<center> Real or Exp </center>|Estimation of the photon flux reaching the exterior of the earth’s atmosphere; units = photons cm<sup>-2</sup> second<sup>-1</sup> (required)|
-|<center> n+4 </center>|<center> A </center>|<center> Wavelength </center>|<center> Int </center>|Wavelength corresponding to ET data; units = nm (required)|
-||<center> B </center>|<center> Extra–terrestrial Irradiance </center>|<center> Real or Exp </center>|Estimation of the photon flux reaching the exterior of the earth’s atmosphere; units = photons cm<sup>-2</sup> second<sup>-1</sup> (required)|
-|<center> n+X </center>|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|
+| 1 | A | Comments | String |Preceded by "!", comment lines describe the file contents and document the source of the data (optional)|
+| n | ...  | ...  | ...  | ...  |
+| n + 1 | A | Data Location | String |Field indicating the location of the data as measured across the wavelength band; possible answers: beginning, ending, centered, point (required)|
+| n + 2 | A | Multiplier | String |Multiplication factor to apply to photolysis rate equation; line begins with FAC=; factor listed in real or exponential format (required)|
+| n+3 | A | Wavelength | Int or Real |Wavelength corresponding to ET data; units = nm (required)|
+|| B | Extra–terrestrial Irradiance | Real or Exp |Estimation of the photon flux reaching the exterior of the earth’s atmosphere; units = photons cm<sup>-2</sup> second<sup>-1</sup> (required)|
+| n+4 | A | Wavelength | Int |Wavelength corresponding to ET data; units = nm (required)|
+|| B | Extra–terrestrial Irradiance | Real or Exp |Estimation of the photon flux reaching the exterior of the earth’s atmosphere; units = photons cm<sup>-2</sup> second<sup>-1</sup> (required)|
+| n+X | ...  | ...  | ...  | ...  |
 
 See this [link](https://github.com/CMASCenter/EPA-CMAQ/blob/5.2Beta/UTIL/inline_phot_preproc/photolysis_CSQY_data/ETirradiance.dat) for an example ET file.
 A sample of the important sections of an ET file is shown below.
 
-` ! Extraterrestrial Irradiance`
-` ! Taken from the RADM data---derived from the WMO 1985 report Table 7-4`
-` ! Format: wl, et_irradBeginning`
-` ! With FAC, units are (photons cm-2 s-1)`
-` FAC=1.0`
-` 185.185 3.620E+11`
-` 186.916 4.730E+11`
+```
+ ! Extraterrestrial Irradiance
+ ! Taken from the RADM data---derived from the WMO 1985 report Table 7-4
+ ! Format: wl, et_irradBeginning
+ ! With FAC, units are (photons cm-2 s-1)
+ FAC=1.0
+ 185.185 3.620E+11
+ 186.916 4.730E+11
+```
 
 <a id=profiles></a>
 ### PROFILES: Atmospheric vertical profiles
@@ -544,37 +556,37 @@ The last data section in the PROFILES file contains vertical profiles from the 1
 
 | **Line** | **Column**| **Name**|**Type**|**Description**|
 |---|---|---|---|---|
-|<center> 1 </center>|<center> A </center>|<center> Ozone concentration at Season 1, Latitude 1, Level 1 </center>|<center> Exp (E10.3) </center>|Ozone measurements as a function of season, latitude, and vertical level; units = molecules cm<sup>-3</sup> (required)|
-||<center> B </center>|<center> Ozone concentration at Season 1, Latitude 1, Level 2 </center>|<center> Exp (E10.3) </center>|Ozone measurements as a function of season, latitude, and vertical level; units = molecules cm<sup>-3</sup> (required)|
-|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|...|
-|<center> 127 </center>|<center> A </center>|<center> Ozone concentration at Season 1, Latitude 19, Level 1 </center>|<center> Exp (E10.3) </center>|Ozone measurements as a function of season, latitude, and vertical level; units = molecules cm<sup>-3</sup> (required)|
-||<center> B </center>|<center> Ozone concentration at Season 1, Latitude 19, Level 2 </center>|<center> Exp (E10.3) </center>|Ozone measurements as a function of season, latitude, and vertical level; units = molecules cm<sup>-3</sup> (required)|
-|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|...|
-|<center> 134 </center>|<center> A </center>|<center> Temperature profiles at Season 1, Latitude 1, Level 1 </center>|<center> Exp (E10.3) </center>|Temperature measurements as a function of season, latitude, and vertical level; units = K (required)|
-||<center> B </center>|<center> Temperature profiles at Season 1, Latitude 1, Level 2 </center>|<center> Exp (E10.3) </center>|Temperature measurements as a function of season, latitude, and vertical level; units = K (required)|
-|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|...|
-|<center> 260 </center>|<center> A </center>|<center> Temperature profiles at Season 1, Latitude 19, Level 1 </center>|<center> Exp (E10.3) </center>|Temperature measurements as a function of season, latitude, and vertical level; units = K (required)|
-||<center> B </center>|<center> Temperature profiles at Season 1, Latitude 19, Level 2 </center>|<center> Exp (E10.3) </center>|Temperature measurements as a function of season, latitude, and vertical level; units = K (required)|
-|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|...|
-|<center> 267 </center>|<center> A </center>|<center> Air density profiles at Season 1, Latitude 1, Level 1 </center>|<center> Exp (E10.3) </center>|Air density measurements as a function of month, latitude, and vertical level; units = molecules cm<sup>-3</sup> (required)|
-||<center> B </center>|<center> Air density profiles at Season 1, Latitude 1, Level 2 </center>|<center> Exp (E10.3) </center>|Air density measurements as a function of month, latitude, and vertical level; units = molecules cm<sup>-3</sup> (required)|
-|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|...|
-|<center> 393 </center>|<center> A </center>|<center> Air density profiles at Season 1, Latitude 19, Level 1 </center>|<center> Exp (E10.3) </center>|Air density measurements as a function of season, latitude, and vertical level; units = molecules cm<sup>-3</sup> (required)|
-||<center> B </center>|<center> Air density profiles at Season 1, Latitude 19, Level 2 </center>|<center> Exp (E10.3) </center>|Air density measurements as a function of season, latitude, and vertical level; units = molecules cm<sup>-3</sup> (required)|
-|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|...|
-|<center> 1596 </center>|<center> A </center>|<center> Air density profiles at Season 4, Latitude 19, Level 51 </center>|<center> Exp (E10.3) </center>|Air density measurements as a function of season, latitude, and vertical level; units = molecules cm<sup>-3</sup> (required)|
-|<center> 1597 </center>|<center> A </center>|<center> Average Dobson Values at Latitude 1, Month 1 </center>|<center> Real </center>|Average Dobson value as a function of latitude and month (required)|
-|<center> 1597 </center>|<center> B </center>|<center> Average Dobson Values at Latitude 2, Month 1 </center>|<center> Real </center>|Average Dobson value as a function of latitude and month (required)|
-|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|...|
-|<center> 1608 </center>|<center> A </center>|<center> Average Dobson Values at Latitude 19, Month 12 </center>|<center> Real </center>|Average Dobson value as a function of latitude and month (required)|
-|<center> 1609 </center>|<center> A </center>|<center> Air Temperature at Level 1 </center>|<center> Real </center>|Air temperature for a standard atmospheric profile; units = K (required)|
-||<center> B </center>|<center> Air Density at Level 1 </center>|<center> Real or Exp </center>|Air Density for a standard atmospheric profile; units = molecules cm<sup>-3</sup>(required)|
-||<center> C </center>|<center> Ozone Concentration at Level 1 </center>|<center> Real or Exp </center>|Ozone concentration for a standard atmospheric profile; units = molecules cm<sup>-3</sup>(required)|
-||<center> D </center>|<center> Aerosol Attenuation at Level 1 </center>|<center> Real or Exp </center>|Aerosol attenuation coefficient for a standard atmospheric profile; units = km<sup>-1</sup>(required)|
-|<center> 1659 </center>|<center> A </center>|<center> Air Temperature at Level 51 </center>|<center> Real </center>|Air temperature for a standard atmospheric profile, units = K (required)|
-||<center> B </center>|<center> Air Pressure at Level 51 </center>|<center> Real or Exp </center>|Air pressure for a standard atmospheric profile, units = molecules cm<sup>-3</sup>(required)|
-||<center> C </center>|<center> Ozone Concentration at Level 51 </center>|<center> Real or Exp </center>|Ozone concentration for a standard atmospheric profile, units = molecules cm<sup>-3</sup>(required)|
-||<center> D </center>|<center> Aerosol Attenuation at Level 51 </center>|<center> Real or Exp </center>|Aerosol attenuation coefficient for a standard atmospheric profile; units = km<sup>-1</sup>(required)|
+| 1 | A | Ozone concentration at Season 1, Latitude 1, Level 1 | Exp (E10.3) |Ozone measurements as a function of season, latitude, and vertical level; units = molecules cm<sup>-3</sup> (required)|
+|| B | Ozone concentration at Season 1, Latitude 1, Level 2 | Exp (E10.3) |Ozone measurements as a function of season, latitude, and vertical level; units = molecules cm<sup>-3</sup> (required)|
+| ...  | ...  | ...  | ...  |...|
+| 127 | A | Ozone concentration at Season 1, Latitude 19, Level 1 | Exp (E10.3) |Ozone measurements as a function of season, latitude, and vertical level; units = molecules cm<sup>-3</sup> (required)|
+|| B | Ozone concentration at Season 1, Latitude 19, Level 2 | Exp (E10.3) |Ozone measurements as a function of season, latitude, and vertical level; units = molecules cm<sup>-3</sup> (required)|
+| ...  | ...  | ...  | ...  |...|
+| 134 | A | Temperature profiles at Season 1, Latitude 1, Level 1 | Exp (E10.3) |Temperature measurements as a function of season, latitude, and vertical level; units = K (required)|
+|| B | Temperature profiles at Season 1, Latitude 1, Level 2 | Exp (E10.3) |Temperature measurements as a function of season, latitude, and vertical level; units = K (required)|
+| ...  | ...  | ...  | ...  |...|
+| 260 | A | Temperature profiles at Season 1, Latitude 19, Level 1 | Exp (E10.3) |Temperature measurements as a function of season, latitude, and vertical level; units = K (required)|
+|| B | Temperature profiles at Season 1, Latitude 19, Level 2 | Exp (E10.3) |Temperature measurements as a function of season, latitude, and vertical level; units = K (required)|
+| ...  | ...  | ...  | ...  |...|
+| 267 | A | Air density profiles at Season 1, Latitude 1, Level 1 | Exp (E10.3) |Air density measurements as a function of month, latitude, and vertical level; units = molecules cm<sup>-3</sup> (required)|
+|| B | Air density profiles at Season 1, Latitude 1, Level 2 | Exp (E10.3) |Air density measurements as a function of month, latitude, and vertical level; units = molecules cm<sup>-3</sup> (required)|
+| ...  | ...  | ...  | ...  |...|
+| 393 | A | Air density profiles at Season 1, Latitude 19, Level 1 | Exp (E10.3) |Air density measurements as a function of season, latitude, and vertical level; units = molecules cm<sup>-3</sup> (required)|
+|| B | Air density profiles at Season 1, Latitude 19, Level 2 | Exp (E10.3) |Air density measurements as a function of season, latitude, and vertical level; units = molecules cm<sup>-3</sup> (required)|
+| ...  | ...  | ...  | ...  |...|
+| 1596 | A | Air density profiles at Season 4, Latitude 19, Level 51 | Exp (E10.3) |Air density measurements as a function of season, latitude, and vertical level; units = molecules cm<sup>-3</sup> (required)|
+| 1597 | A | Average Dobson Values at Latitude 1, Month 1 | Real |Average Dobson value as a function of latitude and month (required)|
+| 1597 | B | Average Dobson Values at Latitude 2, Month 1 | Real |Average Dobson value as a function of latitude and month (required)|
+| ...  | ...  | ...  | ...  |...|
+| 1608 | A | Average Dobson Values at Latitude 19, Month 12 | Real |Average Dobson value as a function of latitude and month (required)|
+| 1609 | A | Air Temperature at Level 1 | Real |Air temperature for a standard atmospheric profile; units = K (required)|
+|| B | Air Density at Level 1 | Real or Exp |Air Density for a standard atmospheric profile; units = molecules cm<sup>-3</sup>(required)|
+|| C | Ozone Concentration at Level 1 | Real or Exp |Ozone concentration for a standard atmospheric profile; units = molecules cm<sup>-3</sup>(required)|
+|| D | Aerosol Attenuation at Level 1 | Real or Exp |Aerosol attenuation coefficient for a standard atmospheric profile; units = km<sup>-1</sup>(required)|
+| 1659 | A | Air Temperature at Level 51 | Real |Air temperature for a standard atmospheric profile, units = K (required)|
+|| B | Air Pressure at Level 51 | Real or Exp |Air pressure for a standard atmospheric profile, units = molecules cm<sup>-3</sup>(required)|
+|| C | Ozone Concentration at Level 51 | Real or Exp |Ozone concentration for a standard atmospheric profile, units = molecules cm<sup>-3</sup>(required)|
+|| D | Aerosol Attenuation at Level 51 | Real or Exp |Aerosol attenuation coefficient for a standard atmospheric profile; units = km<sup>-1</sup>(required)|
 
 <a id=toms></a>
 ### TOMS: Total ozone mapping spectrometer data
@@ -591,12 +603,12 @@ A detailed description of the file format is provided in [Table 8‑10](#Table8-
 
 |**Line** | **Column**| **Name** | **Type**| **Description** |
 |---|---|---|---|---|
-|<center> 1 </center>|<center> A </center>|<center> Julian Day </center>|<center> Int </center>|Julian start day of the file, DDD; preceded by 6 blank spaces (required)|
-||<center> B </center>|<center> Year </center>|<center> Int </center>|Start year of the file, YYYY; preceded by 9 blank spaces (required)|
-|<center> 2 </center>||<center> Header </center>|<center> String </center>|80-character line describing the contents of the file (if omitted, needs line placeholder)|
-|<center> 3 </center>||<center> Header </center>|<center> String </center>|80-character line describing the contents of the file (if omitted, needs line placeholder)|
-|<center> 4 </center>|<center> A </center>|<center> TOMS Data </center>|<center> Int </center>|TOMS ozone measurements as a function of longitude and latitude, ###; line starts with a space, then space-delimited 25 values per line (required)|
-|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|<center> ...  </center>|
+| 1 | A | Julian Day | Int |Julian start day of the file, DDD; preceded by 6 blank spaces (required)|
+|| B | Year | Int |Start year of the file, YYYY; preceded by 9 blank spaces (required)|
+| 2 || Header | String |80-character line describing the contents of the file (if omitted, needs line placeholder)|
+| 3 || Header | String |80-character line describing the contents of the file (if omitted, needs line placeholder)|
+| 4 | A | TOMS Data | Int |TOMS ozone measurements as a function of longitude and latitude, ###; line starts with a space, then space-delimited 25 values per line (required)|
+| ...  | ...  | ...  | ...  | ...  |
 
 <a id=o2abs></a>
 ### O2ABS: Molecular oxygen absorption cross-section data
@@ -620,11 +632,11 @@ Used by: MCIP
 MCIP can read MM5 (version 3) binary output files (MMOUT) and WRF‑ARW netCDF-based files to generate I/O API-formatted netCDF files for input to CMAQ and emissions modeling. For details about the format of the MMOUT files, visit the MM5 homepage at [<http://www.mmm.ucar.edu/mm5>](http://www.mmm.ucar.edu/mm5). For information about the format of the WRF output files, visit the WRF‑ARW homepage at [<http://www.mmm.ucar.edu/wrf/users>](http://www.mmm.ucar.edu/wrf/users).
 
 <a id=interfile></a>
-### InTerFile: MM5 terrain file
+### InTerFile: Terrain file
 
 Used by: MCIP
 
-MM5 output file containing fractional land use data. This file is generated by the MM5 program TERRAIN.
+MM5 or WRF output file  containing fractional land use data. This file is generated by the MM5 program TERRAIN and the WRF program GEOGRID.
 
 <a id=insatfiles></a>
 ### InSatFiles: GOES cloud data file
@@ -777,44 +789,44 @@ OMI ozone column data by latitude and longitude for use in the inline photolysis
 
 | **Line** | **Column** | **Name** | **Type** | **Description**|
 |---|---|---|---|---|
-|<center> 1 </center>||<center> Header </center>||Header with names for each column|
-|<center> 2 </center>|<center> A </center>|<center> Yeardate </center>|<center> Real </center>|YYYY.??? or YYYY.???? formatted date field.|
-||<center> B </center>|<center> Latitude 1 </center>|<center> Int </center>|80 North latitude|
-||<center> C </center>|<center> Longitude 1 </center>|<center> Int </center>|180.0Z longitude ozone column (DU)|
-||<center> D </center>|<center> Longitude 2 </center>|<center> Int </center>|157.5W longitude ozone column (DU)|
-||<center> E </center>|<center> Longitude 3 </center>|<center> Int </center>|135.0W longitude ozone column (DU)|
-||<center> F </center>|<center> Longitude 4 </center>|<center> Int </center>|112.5W longitude ozone column (DU)|
-||<center> G </center>|<center> Longitude 5 </center>|<center> Int </center>|090.0W longitude ozone column (DU)|
-||<center> H </center>|<center> Longitude 6 </center>|<center> Int </center>|067.5W longitude ozone column (DU)|
-||<center> I </center>|<center> Longitude 7 </center>|<center> Int </center>|045.0W longitude ozone column (DU)|
-||<center> J </center>|<center> Longitude 8 </center>|<center> Int </center>|022.5W longitude ozone column (DU)|
-||<center> K </center>|<center> Longitude 9 </center>|<center> Int </center>|000.0Z longitude ozone column (DU)|
-||<center> L </center>|<center> Longitude 10 </center>|<center> Int </center>|022.5E longitude ozone column (DU)|
-||<center> M </center>|<center> Longitude 11 </center>|<center> Int </center>|045.0E longitude ozone column (DU)|
-||<center> N </center>|<center> Longitude 12 </center>|<center> Int </center>|067.5E longitude ozone column (DU)|
-||<center> O </center>|<center> Longitude 13 </center>|<center> Int </center>|090.0E longitude ozone column (DU)|
-||<center> P </center>|<center> Longitude 14 </center>|<center> Int </center>|112.5E longitude ozone column (DU)|
-||<center> Q </center>|<center> Longitude 15 </center>|<center> Int </center>|135.0E longitude ozone column (DU)|
-||<center> R </center>|<center> Longitude 16 </center>|<center> Int </center>|157.5E longitude ozone column (DU)|
-||<center> S </center>|<center> Longitude 17 </center>|<center> Int </center>|180.0Z longitude ozone column (DU)|
-|<center> 3 </center>|<center> A </center>|<center> Yeardate </center>|<center> Real </center>|YYYY.??? or YYYY.???? formatted date field.|
-||<center> B </center>|<center> Latitude 2 </center>|<center> Int </center>|70 North latitude|
-||<center> C </center>|<center> Longitude 1 </center>|<center> Int </center>|180.0Z longitude ozone column (DU)|
-|<center> … </center>|<center> … </center>|<center> … </center>|<center> … </center>|<center> … </center>|
-||<center> S </center>|<center> Longitude 17 </center>|<center> Int </center>|180.0Z longitude ozone column (DU)|
-|<center> 4 </center>|<center> A </center>|<center> Yeardate </center>|<center> Real </center>|YYYY.??? or YYYY.???? formatted date field.|
-||<center> B </center>|<center> Latitude 3 </center>|<center> Int </center>|60 North latitude|
-||<center> C </center>|<center> Longitude 1 </center>|<center> Int </center>|180.0Z longitude ozone column (DU)|
-|<center> … </center>|<center> … </center>|<center> … </center>|<center> … </center>|<center> … </center>|
-||<center> S </center>|<center> Longitude 17 </center>|<center> Int </center>|180.0Z longitude ozone column (DU)|
-|<center> 5 </center>|<center> A </center>|<center> Yeardate </center>|<center> Real </center>|YYYY.??? or YYYY.???? formatted date field.|
-||<center> B </center>|<center> Latitude 4 </center>|<center> Int </center>|50 North latitude|
-||<center> C </center>|<center> Longitude 1 </center>|<center> Int </center>|180.0Z longitude ozone column (DU)|
-|<center> … </center>|<center> … </center>|<center> … </center>|<center> … </center>|<center> … </center>|
-||<center> S </center>|<center> Longitude 17 </center>|<center> Int </center>|180.0Z longitude ozone column (DU)|
-|…|…|…|…|<center> Repeat for total of 17 latitudes of data </center>
-|…|…|…|…|<center> Repeat for (1978-2008) there are ~48 days (4 days per month) of data </center>
-|…|…|…|…|<center> Repeat for (2009-2015) there are 365 days of data </center>
+| 1 || Header ||Header with names for each column|
+| 2 | A | Yeardate | Real |YYYY.??? or YYYY.???? formatted date field.|
+|| B | Latitude 1 | Int |80 North latitude|
+|| C | Longitude 1 | Int |180.0Z longitude ozone column (DU)|
+|| D | Longitude 2 | Int |157.5W longitude ozone column (DU)|
+|| E | Longitude 3 | Int |135.0W longitude ozone column (DU)|
+|| F | Longitude 4 | Int |112.5W longitude ozone column (DU)|
+|| G | Longitude 5 | Int |090.0W longitude ozone column (DU)|
+|| H | Longitude 6 | Int |067.5W longitude ozone column (DU)|
+|| I | Longitude 7 | Int |045.0W longitude ozone column (DU)|
+|| J | Longitude 8 | Int |022.5W longitude ozone column (DU)|
+|| K | Longitude 9 | Int |000.0Z longitude ozone column (DU)|
+|| L | Longitude 10 | Int |022.5E longitude ozone column (DU)|
+|| M | Longitude 11 | Int |045.0E longitude ozone column (DU)|
+|| N | Longitude 12 | Int |067.5E longitude ozone column (DU)|
+|| O | Longitude 13 | Int |090.0E longitude ozone column (DU)|
+|| P | Longitude 14 | Int |112.5E longitude ozone column (DU)|
+|| Q | Longitude 15 | Int |135.0E longitude ozone column (DU)|
+|| R | Longitude 16 | Int |157.5E longitude ozone column (DU)|
+|| S | Longitude 17 | Int |180.0Z longitude ozone column (DU)|
+| 3 | A | Yeardate | Real |YYYY.??? or YYYY.???? formatted date field.|
+|| B | Latitude 2 | Int |70 North latitude|
+|| C | Longitude 1 | Int |180.0Z longitude ozone column (DU)|
+| … | … | … | … | … |
+|| S | Longitude 17 | Int |180.0Z longitude ozone column (DU)|
+| 4 | A | Yeardate | Real |YYYY.??? or YYYY.???? formatted date field.|
+|| B | Latitude 3 | Int |60 North latitude|
+|| C | Longitude 1 | Int |180.0Z longitude ozone column (DU)|
+| … | … | … | … | … |
+|| S | Longitude 17 | Int |180.0Z longitude ozone column (DU)|
+| 5 | A | Yeardate | Real |YYYY.??? or YYYY.???? formatted date field.|
+|| B | Latitude 4 | Int |50 North latitude|
+|| C | Longitude 1 | Int |180.0Z longitude ozone column (DU)|
+| … | … | … | … | … |
+|| S | Longitude 17 | Int |180.0Z longitude ozone column (DU)|
+|…|…|…|…| Repeat for total of 17 latitudes of data </center>
+|…|…|…|…| Repeat for (1978-2008) there are ~48 days (4 days per month) of data </center>
+|…|…|…|…| Repeat for (2009-2015) there are 365 days of data </center>
 
 <a id="emis_1"><a/>
 ### EMIS_1: Emissions
@@ -844,32 +856,32 @@ The speciation profile file, GSPRO, contains the factors that are used to separa
 
 Used by: CCTM – inline-emissions version only
 
-An I/O API GRDDED3 file of gridded, normalized biogenic emissions (in grams of carbon or nitrogen per hour, depending on the species) and leaf area index. The B3GRD file contains normalized emissions calculated with both summer and winter emissions factors. The B3GRD file is generated with the SMOKE program NORMBEIS3 using gridded land use data. For additional information about creating the B3GRD file, see the [NORMBEIS3 documentation](https://www.cmascenter.org/smoke/documentation/4.0/html/ch06s12.html) in the SMOKE users’ manual. 
+An I/O API GRDDED3 file of gridded, normalized biogenic emissions (in grams of carbon or nitrogen per hour, depending on the species) and leaf area index. The B3GRD file contains normalized emissions calculated with both summer and winter emissions factors. The B3GRD file is generated with the SMOKE program NORMBEIS3 using gridded land use data. For additional information about creating the B3GRD file, see the [NORMBEIS3 documentation](https://www.cmascenter.org/smoke/documentation/4.0/html/ch06s12.html) in the SMOKE users’ manual.
 
 <a id="bioseason"><a/>
 ### BIOSEASON: Freeze dates
 
 Used by: CCTM – inline-emissions version only
 
-The BIOSEASON switch file is an I/O API GRDDED3 file used to indicate which biogenic emissions factor to use on each day in a given year for every grid cell in the modeling domain. This file can be created using the Metscan utility program that is distributed with SMOKE. The BIOSEASON file is time-dependent and usually contains data for an entire year (365 or 366 days). It uses one variable, SEASON, which is either 0 (grid cell should use winter factors for current day) or 1 (grid cell should use summer factors for current day). For additional information about creating the BIOSEASON file, see the [Metscan documentation](https://www.cmascenter.org/smoke/documentation/4.0/html/ch05s03s10.html) in the SMOKE user’s manual. 
+The BIOSEASON switch file is an I/O API GRDDED3 file used to indicate which biogenic emissions factor to use on each day in a given year for every grid cell in the modeling domain. This file can be created using the Metscan utility program that is distributed with SMOKE. The BIOSEASON file is time-dependent and usually contains data for an entire year (365 or 366 days). It uses one variable, SEASON, which is either 0 (grid cell should use winter factors for current day) or 1 (grid cell should use summer factors for current day). For additional information about creating the BIOSEASON file, see the [Metscan documentation](https://www.cmascenter.org/smoke/documentation/4.0/html/ch05s03s10.html) in the SMOKE user’s manual.
 
 <a id="stk_grps"><a/>
-### STK_GRPS_##: Stack groups
+### STK_GRPS_nn: Stack groups
 
 Used by: CCTM – in-line emissions version only
 
 The ## mark is unique and represents the sector identification.
 
-The stack groups file is an I/O API netCDF file containing stack parameters for elevated sources. This file can be created using the SMOKE program ELEVPOINT. For additional information about creating the stack groups file, see the [ELEVPOINT documentation](https://www.cmascenter.org/smoke/documentation/4.0/html/ch06s03.html) in the SMOKE user’s manual 
+The stack groups file is an I/O API netCDF file containing stack parameters for elevated sources. This file can be created using the SMOKE program ELEVPOINT. For additional information about creating the stack groups file, see the [ELEVPOINT documentation](https://www.cmascenter.org/smoke/documentation/4.0/html/ch06s03.html) in the SMOKE user’s manual
 
 <a id="stk_emis"><a/>
-### STK_EMIS_##: Point source emissions
+### STK_EMIS_nn: Point source emissions
 
 Used by: CCTM – inline emissions version only
 
 The ## mark is unique and represents the sector identification.
 
-The elevated-point-source emissions file is an I/O API GRDDED3 file with emissions for point sources to be treated as elevated sources by CCTM. The emissions in this file are distributed through the vertical model layers using a plume-rise algorithm contained in CCTM. The elevated-point-source emissions file can be creating using SMOKE. For additional information about preparing point-source emissions for using the CMAQ in-line plume rise calculation, see the [ELEVPOINT documentation](https://www.cmascenter.org/smoke/documentation/4.0/html/ch06s03.html) in the SMOKE user’s manual. 
+The elevated-point-source emissions file is an I/O API GRDDED3 file with emissions for point sources to be treated as elevated sources by CCTM. The emissions in this file are distributed through the vertical model layers using a plume-rise algorithm contained in CCTM. The elevated-point-source emissions file can be creating using SMOKE. For additional information about preparing point-source emissions for using the CMAQ in-line plume rise calculation, see the [ELEVPOINT documentation](https://www.cmascenter.org/smoke/documentation/4.0/html/ch06s03.html) in the SMOKE user’s manual.
 
 <a id="dust_lu_1"><a/>
 ### DUST_LU_1: Gridded land cover/land use
@@ -911,6 +923,13 @@ The gridded land cover/land use (LCLU) file is an I/O API GRDDED3 file of BELD3 
 
 This variable is used in combination with the variables in the DUST_LU_1 file to determine canopy scavenging factors for estimating dust emission in the model. This file can be created for North America using the Spatial Allocator and BELD3 tiles. The DUST_LU_2 file corresponds to the “tot” output file from the Spatial Allocator. See the chapter on [creating biogenic inputs to SMOKE](https://www.cmascenter.org/sa-tools/documentation/4.2/html/raster/Raster_Users_Guide_4_2.htm#_Toc389118706) of the Spatial Allocator User’s Guide for details
 
+<a id="modis_fpar"><a/>
+### MODIS_FPAR: MODIS vegetation coverage
+
+Used by: CCTM – in-line dust emission version only
+
+[EPA: Add Description]
+
 <a id="cropmap01"><a/>
 ### CROPMAP01: Gridded planting start dates
 
@@ -940,23 +959,28 @@ Used by: CCTM – lightning NO<sub>x</sub> version only
 The lightning NO<sub>x</sub> emissions file is an I/O API GRDDED3 file with 3-d (row x col x layer) hourly NO emissions (moles/s) interpolated to the modeling domain. This is a lightning NO emissions file calculated off-line for input to CMAQ.
 
 <a id="ltngparm_file"><a/>
-### LTNGPARM_FILE: Lightning parameters file
+### LTNGPARMS_FILE: Lightning parameters file
 
 Used by: CCTM – lightning NO<sub>x</sub> version only
 
-The lightning parameters file is used for calculating in-line NO emissions from lightning using convective precipitation rates. The LTNG_2D_DATA processor that is part of the CMAQ distribution package produces the I/O API GRDDED3 lightning parameters file. This file contains the following variables interpolated to the modeling grid:
+The lightning parameters file is used for calculating in-line NO emissions from hourly observed strike counts. This file contains the following variables interpolated to the modeling grid:
 
--   STRKCNT (unitless): Lightning flash count
--   NLDNstrk (km<sup>2</sup>/day): Monthly flash totals (normalized to day<sup>-1</sup>) from NLDN input data
--   LTstrk (km<sup>2</sup>/day): Monthly flash totals (normalized to day<sup>-1</sup>) in each CMAQ grid cell calculated as the convective precipitation rate (RC) x STRKCNT
--   NLDNstrk (km<sup>2</sup>/day): Monthly flash totals from the input NLDN data
--   LTratio (unitless): Grid-cell scaling factors for calculating flashes using the convective precipitation rate. These scaling factors ensure that the calculated flash count matches the monthly total.
--   ICCG (unitless): Ratio of intercloud to cloud-to-ground flashes
+-   SLOPE (unitless): linear equation parameter for estimating NO emissions from hourly flash counts
+-   INTERCEPT: linear equation parameter for estimating NO emissions from hourly flash counts
+-   SLOPE_lg: logarithmic equation parameter for estimating NO emissions from hourly flash counts
+-   INTERCEPT_lg: logarithmic equation parameter for estimating NO emissions from hourly flash counts
+-   ICCG_SUM (unitless): Ratio of intercloud to cloud-to-ground flashes during the summer season
+-   ICCG_WIN (unitless): Ratio of intercloud to cloud-to-ground flashes during the winter season
 -   OCNMASK (unitless): Land/water mask to remove spurious flashes over the ocean.
--   MOLSN (molN): moles of N per cloud-to-ground flash
--   MOLSNIC (molN): moles of N per intercloud flash
 
-The lightning parameter file can be created from lightning network flash detections, MCIP output data and intercloud to cloud-to-ground ratios. The University of Maryland prepared National Lightning Detection Network (NLDN) flash frequencies for North American for the years 2002-2010. These data are available from the [CMAS Center Data Clearinghouse](ftp://ftp.unc.edu/pub/cmas/DATA/NLDN_CMAQ/).
+<a id="nldn_strikes"><a/>
+### NLDN_STRIKES: Hourly observed lightning strikes
+
+Used by: CCTM – lightning NO<sub>x</sub> version only
+
+The NLDN lightning strikes file is used for calculating in-line NO emissions from hourly observed strike counts. This file contains the following variables interpolated to the modeling grid:
+
+-   NLDNstrk (km-2): hourly flash counts per sq. km.
 
 <a id="beld4_lu"><a/>
 ### BELD4_LU – Fractional crop distributions
@@ -993,22 +1017,15 @@ Used by: CCTM
 
 The GRID_CRO_2D time-independent file contains surface fields at cross points (i.e., at cell centers). It is created by MCIP and used by CCTM. The following variables are in this file:
 
-LAT:latitude (degrees, where Northern Hemisphere is positive)
-
-LON:longitude (degrees, where Western Hemisphere is negative)
-
-MSFX2:squared map-scale factor (m<sup>2</sup> m<sup>‑2</sup>)
-
-HT:terrain elevation (m)
-
-DLUSE:dominant land use (category)
-
-LWMASKland-water mask (1=land, 0=water)
-
-PURB:urban percentage if cell is based on land (percent)
-
-LUFRAC_01: land use fraction of NLCD40: Evergreen Needleleaf Forest
-LUFRAC_XX: <repeated for 40 land use fractions>
+-   LAT: latitude (degrees, where Northern Hemisphere is positive)
+-   LON: longitude (degrees, where Western Hemisphere is negative)
+-   MSFX2: squared map-scale factor (m<sup>2</sup> m<sup>‑2</sup>)
+-   HT: terrain elevation (m)
+-   DLUSE: dominant land use (category)
+-   LWMASK: land-water mask (1=land, 0=water)
+-   PURB: urban percentage if cell is based on land (percent)
+-   LUFRAC_01: land use fraction of NLCD40: Evergreen Needleleaf Forest
+-   LUFRAC_XX: <repeated for 40 land use fractions>
 
 <a id="grid_dot_2d"><a/>
 ### GRID_DOT_2D: Two-dimensional grid dot-point fields
@@ -1017,18 +1034,16 @@ Used by: CCTM
 
 The GRID_DOT_2D time-independent file contains surface fields at dot points (i.e., at cell corners). It is created by MCIP and used by CCTM. The following variables are in the GRID_DOT_2D file:
 
-LAT:latitude (degrees, where Northern Hemisphere is positive)
-
-LON:longitude (degrees, where Western Hemisphere is negative)
-
-MSFD2:squared map scale factor (m<sup>2</sup> m<sup>‑2</sup>)
+-   LAT: latitude (degrees, where Northern Hemisphere is positive)
+-   LON: longitude (degrees, where Western Hemisphere is negative)
+-   MSFD2: squared map scale factor (m<sup>2</sup> m<sup>‑2</sup>)
 
 <a id="grid_cro_3d"><a/>
-### GRID_CRO_3D: Three-dimensional grid cross-point fields 
+### GRID_CRO_3D: Three-dimensional grid cross-point fields
 Used by: CCTM
 
 The GRID_CRO_3D time-independent file contains surface fields at cross points (i.e., at cell centers) that vary by height. It is created by MCIP and used by CCTM for the PT3D. The following variables are in this file:
-add content 
+add content
 
 <a id="met_bdy_2d"><a/>
 ### MET_BDY_2D: Two-dimensional meteorological boundary input
@@ -1043,37 +1058,22 @@ Used by: CCTM
 
 The MET_BDY_3D time-dependent file contains 3-D meteorological descriptions at the lateral boundaries (on cross points). It is created by MCIP and used by CCTM and PDM. The following variables may be in the MET_BDY_3D file:
 
-JACOBF:total Jacobian at layer face (m)
-
-JACOBM:total Jacobian at layer middle (m)
-
-DENSA_J:Jacobian-weighted total air density [ J m<sup>‑2</sup>] (kg m<sup>‑2</sup>)
-
-WHAT_JD:Jacobian- and density-weighted vertical contravariant velocity (kg m<sup>‑1</sup> s<sup>‑1</sup>)
-
-TA:air temperature (K)
-
-QV:water vapor mixing ratio (kg kg<sup>‑1</sup>)
-
-<PRES:air> pressure (Pa)
-
-DENS:air density (kg m<sup>‑3</sup>)
-
-WWIND:vertical velocity (m s<sup>‑1</sup>)
-
-ZH:midlayer height above ground (m)
-
-ZF:full layer height above ground (m)
-
-QC:cloud water mixing ratio (kg kg<sup>‑1</sup>)
-
-QR:rain water mixing ratio (kg kg<sup>‑1</sup>)
-
-QI:ice mixing ratio (kg kg<sup>‑1</sup>)
-
-QS:snow mixing ratio (kg kg<sup>‑1</sup>)
-
-QG:graupel mixing ratio (kg kg<sup>‑1</sup>)
+-   JACOBF: total Jacobian at layer face (m)
+-   JACOBM: total Jacobian at layer middle (m)
+-   DENSA_J: Jacobian-weighted total air density [ J m<sup>‑2</sup>] (kg m<sup>‑2</sup>)
+-   WHAT_JD: Jacobian- and density-weighted vertical contravariant velocity (kg m<sup>‑1</sup> s<sup>‑1</sup>)
+-   TA: air temperature (K)
+-   QV: water vapor mixing ratio (kg kg<sup>‑1</sup>)
+-   PRES: air pressure (Pa)
+-   DENS: air density (kg m<sup>‑3</sup>)
+-   WWIND: vertical velocity (m s<sup>‑1</sup>)
+-   ZH: midlayer height above ground (m)
+-   ZF: full layer height above ground (m)
+-   QC: cloud water mixing ratio (kg kg<sup>‑1</sup>)
+-   QR: rain water mixing ratio (kg kg<sup>‑1</sup>)
+-   QI: ice mixing ratio (kg kg<sup>‑1</sup>)
+-   QS: snow mixing ratio (kg kg<sup>‑1</sup>)
+-   QG: graupel mixing ratio (kg kg<sup>‑1</sup>)
 
 <a id="met_cro_2d"><a/>
 ### MET_CRO_2D: Two-dimensional meteorological cross-point fields
@@ -1082,131 +1082,71 @@ Used by: CCTM
 
 The MET_CRO_2D time-dependent file contains surface and other 2-D meteorological fields at cross points (i.e., at cell centers). It is created by MCIP and used by CCTM and PDM. The following variables may be in the MET_CRO_2D file:
 
-PRSFC:surface pressure (Pa)
-
-JACOBS:total Jacobian at surface (m)
-
-USTAR:cell-averaged horizontal friction velocity (m s<sup>‑1</sup>)
-
-WSTAR:convective velocity scale (m s<sup>‑1</sup>)
-
-PBL:planetary boundary layer height (m)
-
-ZRUF:surface roughness length (m)
-
-MOLI:inverse Monin-Obukhov length (m<sup>‑1</sup>)
-
-QFX:latent heat flux (W m<sup>‑2</sup>)
-
-HFX:sensible heat flux (W m<sup>‑2</sup>)
-
-RADYNI:inverse aerodynamic resistance (m s<sup>‑1</sup>)
-
-RBNDYI:inverse laminar boundary layer resistance (m s<sup>‑1</sup>)
-
-RSTOMI:inverse bulk stomatal resistance (m s<sup>‑1</sup>)
-
-TEMPG:skin temperature at ground (K)
-
-TEMP10:10‑m temperature (K)
-
-TEMP1P5:1.5‑m temperature (K)
-
-WSPD10:10‑m wind speed (m s<sup>‑1</sup>)
-
-WDIR10:10‑m wind direction (m s<sup>‑1</sup>)
-
-GLW:longwave radiation at ground (W m<sup>‑2</sup>)
-
-GSW:solar radiation absorbed at ground (W m<sup>‑2</sup>)
-
-RGRND:solar radiation reaching the surface (W m<sup>‑2</sup>)
-
-RN:incremental (per output time step) nonconvective precipitation (cm)
-
-RC:incremental (per output time step) convective precipitation (cm)
-
-CFRAC:total cloud fraction (fraction)
-
-WBAR:average liquid water content of clouds (g m<sup>‑3</sup>)
-
-CLDT:cloud-top layer height (m)
-
-CLDB:cloud-bottom layer height (m)
-
-SNOCOV:snow cover (1 = yes, 0 = no)
-
-TEMP2:2‑m temperature (K)
-
-SOIM1:volumetric soil moisture in top cm (m<sup>3</sup> m<sup>‑3</sup>)
-
-SOIM2:volumetric soil moisture in top m (m<sup>3</sup> m<sup>‑3</sup>)
-
-SOIT1:soil temperature in top cm (K)
-
-SOIT2:soil temperature in top m (K)
-
-SLTYP:soil texture type (category)
-
-LAI:leaf-area index (area area<sup>‑1</sup>)
+-   PRSFC:surface pressure (Pa)
+-   JACOBS:total Jacobian at surface (m)
+-   USTAR:cell-averaged horizontal friction velocity (m s<sup>‑1</sup>)
+-   WSTAR:convective velocity scale (m s<sup>‑1</sup>)
+-   PBL:planetary boundary layer height (m)
+-   ZRUF:surface roughness length (m)
+-   MOLI:inverse Monin-Obukhov length (m<sup>‑1</sup>)
+-   QFX:latent heat flux (W m<sup>‑2</sup>)
+-   HFX:sensible heat flux (W m<sup>‑2</sup>)
+-   RADYNI:inverse aerodynamic resistance (m s<sup>‑1</sup>)
+-   RBNDYI:inverse laminar boundary layer resistance (m s<sup>‑1</sup>)
+-   RSTOMI:inverse bulk stomatal resistance (m s<sup>‑1</sup>)
+-   TEMPG:skin temperature at ground (K)
+-   TEMP10:10‑m temperature (K)
+-   TEMP1P5:1.5‑m temperature (K)
+-   WSPD10:10‑m wind speed (m s<sup>‑1</sup>)
+-   WDIR10:10‑m wind direction (m s<sup>‑1</sup>)
+-   GLW:longwave radiation at ground (W m<sup>‑2</sup>)
+-   GSW:solar radiation absorbed at ground (W m<sup>‑2</sup>)
+-   RGRND:solar radiation reaching the surface (W m<sup>‑2</sup>)
+-   RN:incremental (per output time step) nonconvective precipitation (cm)
+-   RC:incremental (per output time step) convective precipitation (cm)
+-   CFRAC:total cloud fraction (fraction)
+-   WBAR:average liquid water content of clouds (g m<sup>‑3</sup>)
+-   CLDT:cloud-top layer height (m)
+-   CLDB:cloud-bottom layer height (m)
+-   SNOCOV:snow cover (1 = yes, 0 = no)
+-   TEMP2:2‑m temperature (K)
+-   SOIM1:volumetric soil moisture in top cm (m<sup>3</sup> m<sup>‑3</sup>)
+-   SOIM2:volumetric soil moisture in top m (m<sup>3</sup> m<sup>‑3</sup>)
+-   SOIT1:soil temperature in top cm (K)
+-   SOIT2:soil temperature in top m (K)
+-   SLTYP:soil texture type (category)
+-   LAI:leaf-area index (area area<sup>‑1</sup>)
 
 The following deposition velocities are calculated by MCIP3 by default and written to the MET_CRO_2D file:
 
-VD_SO2:deposition velocities for SO<sub>2</sub> (m s<sup>‑1</sup>)
-
-VD_SULF:deposition velocities for SO<sub>4</sub> (m s<sup>‑1</sup>)
-
-VD_NO2:deposition velocities for NO<sub>2</sub> (m s<sup>‑1</sup>)
-
-VD_NO: deposition velocities for NO (m s<sup>‑1</sup>)
-
-VD_O3:deposition velocities for O<sub>3</sub> (m s<sup>‑1</sup>)
-
-VD_HNO3:deposition velocities for HNO<sub>3</sub> (m s<sup>‑1</sup>)
-
-VD_H2O2:deposition velocities for H<sub>2</sub>O<sub>2</sub> (m s<sup>‑1</sup>)
-
-VD_ALD:deposition velocities for ALD (m s<sup>‑1</sup>)
-
-VD_HCHO:deposition velocities for HCHO (m s<sup>‑1</sup>)
-
-VD_OP:deposition velocities for OP (m s<sup>‑1</sup>)
-
-VD_PAA:deposition velocities for PAA (m s<sup>‑1</sup>)
-
-VD_ORA:deposition velocities for ORA (m s<sup>‑1</sup>)
-
-VD_NH3:deposition velocities for NH<sub>3</sub> (m s<sup>‑1</sup>)
-
-VD_PAN:deposition velocities for PAN (m s<sup>‑1</sup>)
-
-VD_HONO:deposition velocities for HONO (m s<sup>‑1</sup>)
-
-VD_CO:deposition velocities for CO (m s<sup>‑1</sup>)
-
-VD_METHANOL:deposition velocities for methanol (m s<sup>‑1</sup>)
-
-VD_N2O5:deposition velocities for N<sub>2</sub>O<sub>5</sub> (m s<sup>‑1</sup>)
-
-VD_NO3:deposition velocities for NO<sub>3</sub> (m s<sup>‑1</sup>)
-
-VD_GEN_ALD:deposition velocities for generic aldehyde (m s<sup>‑1</sup>)
-
-VD_CL2:deposition velocities for CL2 (m s<sup>‑1</sup>)
-
-VD_HOCL:deposition velocities for HOCL (m s<sup>‑1</sup>)
-
-VD_HCL:deposition velocities for HCL (m s<sup>‑1</sup>)
-
-VD_FMCL:deposition velocities for FMCL (m s<sup>‑1</sup>)
-
-VD_ICL1:deposition velocities for ICL1 (m s<sup>‑1</sup>)
-
-VD_ICL2:deposition velocities for ICL2 (m s<sup>‑1</sup>)
-
-VD_HG:deposition velocities for HG (m s<sup>‑1</sup>)
-
-VD_HGIIGAS:deposition velocities for HGIIGAS (m s<sup>‑1</sup>)
+-   VD_SO2:deposition velocities for SO<sub>2</sub> (m s<sup>‑1</sup>)
+-   VD_SULF:deposition velocities for SO<sub>4</sub> (m s<sup>‑1</sup>)
+-   VD_NO2:deposition velocities for NO<sub>2</sub> (m s<sup>‑1</sup>)
+-   VD_NO: deposition velocities for NO (m s<sup>‑1</sup>)
+-   VD_O3:deposition velocities for O<sub>3</sub> (m s<sup>‑1</sup>)
+-   VD_HNO3:deposition velocities for HNO<sub>3</sub> (m s<sup>‑1</sup>)
+-   VD_H2O2:deposition velocities for H<sub>2</sub>O<sub>2</sub> (m s<sup>‑1</sup>)
+-   VD_ALD:deposition velocities for ALD (m s<sup>‑1</sup>)
+-   VD_HCHO:deposition velocities for HCHO (m s<sup>‑1</sup>)
+-   VD_OP:deposition velocities for OP (m s<sup>‑1</sup>)
+-   VD_PAA:deposition velocities for PAA (m s<sup>‑1</sup>)
+-   VD_ORA:deposition velocities for ORA (m s<sup>‑1</sup>)
+-   VD_NH3:deposition velocities for NH<sub>3</sub> (m s<sup>‑1</sup>)
+-   VD_PAN:deposition velocities for PAN (m s<sup>‑1</sup>)
+-   VD_HONO:deposition velocities for HONO (m s<sup>‑1</sup>)
+-   VD_CO:deposition velocities for CO (m s<sup>‑1</sup>)
+-   VD_METHANOL:deposition velocities for methanol (m s<sup>‑1</sup>)
+-   VD_N2O5:deposition velocities for N<sub>2</sub>O<sub>5</sub> (m s<sup>‑1</sup>)
+-   VD_NO3:deposition velocities for NO<sub>3</sub> (m s<sup>‑1</sup>)
+-   VD_GEN_ALD:deposition velocities for generic aldehyde (m s<sup>‑1</sup>)
+-   VD_CL2:deposition velocities for CL2 (m s<sup>‑1</sup>)
+-   VD_HOCL:deposition velocities for HOCL (m s<sup>‑1</sup>)
+-   VD_HCL:deposition velocities for HCL (m s<sup>‑1</sup>)
+-   VD_FMCL:deposition velocities for FMCL (m s<sup>‑1</sup>)
+-   VD_ICL1:deposition velocities for ICL1 (m s<sup>‑1</sup>)
+-   VD_ICL2:deposition velocities for ICL2 (m s<sup>‑1</sup>)
+-   VD_HG:deposition velocities for HG (m s<sup>‑1</sup>)
+-   VD_HGIIGAS:deposition velocities for HGIIGAS (m s<sup>‑1</sup>)
 
 
 <a id="met_cro_3d"><a/>
@@ -1216,72 +1156,80 @@ Used by: CCTM, ICON, BCON
 
 The MET_CRO_3D time-dependent file contains 3-D meteorological descriptions at cross points (i.e., at cell centers). It is created by MCIP and used by CCTM, ICON, BCON, and PDM. The variables that may exist in MET_CRO_3D are the same as those that may be in MET_BDY_3D.
 <a id="met_dot_3d"><a/>
+
 ### MET_DOT_3D: Three-dimensional meteorological dot-point fields
 
 Used by: CCTM
 
 The MET_DOT_3D time-dependent file contains 3-D meteorological descriptions at dot points (i.e., at cell corners) and at cell faces. It is created by MCIP and used by CCTM and PDM. The following variables may be in the MET_DOT_3D file:
 
-UWIND:u-component of horizontal wind (m s<sup>‑1</sup>) [dot points; Arakawa-B grid]]
+-   UWIND: u-component of horizontal wind (m s<sup>‑1</sup>) [dot points; Arakawa-B grid]]
+-   VWIND: v-component of horizontal wind (m s<sup>‑1</sup>) [dot points; Arakawa-B grid]
+-   UHAT_JD: contravariant-U*Jacobian*density (kg m<sup>‑1</sup> s<sup>‑1</sup>) [cell faces; Arakawa-C grid]
+-   VHAT_JD: contravariant-V*Jacobian*density (kg m<sup>‑1</sup> s<sup>‑1</sup>) [cell faces; Arakawa-C grid]
 
-VWIND:v-component of horizontal wind (m s<sup>‑1</sup>) [dot points; Arakawa-B grid]
+## Basic CCTM Output Files
 
-UHAT_JD:contravariant-U*Jacobian*density (kg m<sup>‑1</sup> s<sup>‑1</sup>) [cell faces; Arakawa-C grid]
-
-VHAT_JD:contravariant-V*Jacobian*density (kg m<sup>‑1</sup> s<sup>‑1</sup>) [cell faces; Arakawa-C grid]
-
-Basic CCTM Output Files
------------------------
-
-The previous section described the output files from JPROC, ICON, BCON, and MCIP that are input to CCTM. In this section, details on the CCTM output files are provided. Except for JPROC (which creates ASCII files), all CMAQ programs produce output files that adhere to the I/O API netCDF format (Chapter 4). The I/O API-formatted CMAQ output files are three-dimensional, gridded, time-stepped binary files that contain headers with metadata describing the file contents. These machine-independent and network transparent binary files are transferable between different computer architectures. In addition to model data output, CMAQ can optionally produce log files that contain the standard output from the various CMAQ processors. If the log file option is not selected by the user, CMAQ will write all of the log information to the screen along with the standard error, which can be captured to a text file using basic UNIXsyntax.
+The previous section described the output files from JPROC, ICON, BCON, and MCIP that are input to CCTM. In this section, details on the CCTM output files are provided. Except for JPROC (which creates ASCII files), all CMAQ programs produce output files that adhere to the I/O API netCDF format (Chapter 4). The I/O API-formatted CMAQ output files are three-dimensional, gridded, time-stepped binary files that contain headers with metadata describing the file contents. These machine-independent and network transparent binary files are transferable between different computer architectures. In addition to model data output, CMAQ can optionally produce log files that contain the standard output from the various CMAQ processors. If the log file option is not selected by the user, CMAQ will write all of the log information to the screen along with the standard error, which can be captured to a text file using basic UNIX syntax.
 
 <a id="cmaq_output_log"><a/>
 ### CMAQ output log
 
 All of the CMAQ processors generate standard output and standard error during execution. For all of the processors other than CCTM, this diagnostic output information can be captured to a log file at execution using a UNIX redirect command. For example, to capture the standard output and error of a BCON simulation, use the following command:
-```Tcsh
+
+```
 run.bcon >& bcon_e1a.log
 ```
 
-For CCTM, the LOGFILE environment variable allows users to specify the name of a log file for capturing the standard output from the program. If this variable is not set, the standard output is written to the terminal and can be captured using the UNIXredirect command (“>”), as shown in the example above.
+For CCTM, the LOGFILE environment variable allows users to specify the name of a log file for capturing the standard output from the program. If this variable is not set, the standard output is written to the terminal and can be captured using the UNIX redirect command (“>”), as shown in the example above.
 
 <a id="conc"><a/>
-### CONC: CCTM hourly instantaneous concentration file
+### CTM_CONC_1: CCTM hourly instantaneous concentration file
 
 The 3-D CCTM hourly concentration file (CONC) is the most commonly referenced CCTM output file. Containing gas-phase species mixing ratios (ppmV) and aerosol species concentra­tions (µg m<sup>‑3</sup>), CONC files include instantaneous model species concentrations at the end of each model hour. The number and types of species contained in the CONC files depend on the chemical mechanism and aerosol model configurations that are selected when CCTM is compiled. The species concentration INCLUDE files (CONC.EXT) within the mechanism INCLUDE directories list the species that are written to the CONC files for each mechanism configuration. The GC_CONC.EXT file lists the gas-phase species, the AE_CONC.EXT file lists the aerosol species, and the NR_CONC lists the nonreactive (inert) species written to the CONC file. Species can be removed from the CONC.EXT files to reduce the number of species that are written to, and thus the size of, the CONC file.
 
 <a id="cgrid"><a/>
-### CGRID: CCTM restart file
+### CTM_CGRID_1: CCTM restart file
 
 The 3-D CCTM ending concentration file (CGRID) is the CCTM restart file. Containing gas-phase species mixing ratios (ppmV) and aerosol species concentrations (µg m<sup>‑3</sup>), the CGRID file includes model species concentrations at the end of each simulation period. The number and types of species contained in the output CGRID files depend on the chemical mechanism and aerosol model configurations that are selected when CCTM is compiled. This file can be used to initialize CCTM from the simulation period that the model completed. For example, if the CCTM is configure to produce daily output files, a CGRID file will be written out at the end of each simulation day.
 
 <a id="aconc"><a/>
-### ACONC: CCTM hourly average concentration file
+### CTM_ACONC_1: CCTM hourly average concentration file
 
 The 3-D CCTM integral average concentration file (ACONC) contains average model species concentrations for each model hour, as opposed to instantaneous concentrations at the end of each output time step. The species written to the ACONC file are set by the user in the CCTM run script using the variable AVG_CONC_SPCS. The model layers that are used to calculate the integral average concentration are also set in the CCTM run script using the variable ACONC_BLEV_ELEV, where BLEV corresponds to the bottom layer number and ELEV corresponds to the top layer number. An example setting for the ACONC_BLEV_ELEV variable is “1 6”, which defines layers 1 through 6 as the vertical extent over which to calculate hourly average concentrations.
 
 <a id="drydep"><a/>
-### DRYDEP: CCTM hourly cumulative dry deposition file
+### CTM_DRY_DEP_1: CCTM hourly cumulative dry deposition file
 
 The 2-D CCTM dry deposition file (DRYDEP) includes cumulative hourly dry deposition fluxes (kg hectare<sup>‑1</sup>) for selected model species. CCTM calculates dry deposition for all of the species listed in the dry deposition INCLUDE files within the mechanism INCLUDE directories. Dry deposition INCLUDE files exist for gas-phase species (GC_DDEP.EXT), aerosol species (AE_DDEP.EXT), and inert model species (NR_DDEP.EXT). Species can be removed from the DDEP.EXT files to adjust the number of species that undergo the dry deposition process and are written to the DRYDEP output file.
 
 <a id="wetdep"><a/>
-### WETDEP: CCTM hourly cumulative wet deposition file
+### CTM_WETDEP_1: CCTM hourly cumulative wet deposition file
 
 The 2-D CCTM wet deposition file (WETDEP) includes cumulative hourly wet deposition fluxes (kg hectare<sup>‑1</sup>) for selected model species. CCTM calculates wet deposition for all of the species listed in the wet deposition INCLUDE files within the mechanism INCLUDE directories. Wet deposition INCLUDE files exist for gas-phase species (GC_WDEP.EXT), aerosol species (AE_WDEP.EXT), and inert model species (NR_WDEP.EXT). Species can be removed from the WDEP.EXT files to adjust the number of species that undergo the wet deposition process and are written to the WETDEP output file.
 
 <a id="aerovis"><a/>
-### AEROVIS: CCTM hourly instantaneous visibility metrics
+### CTM_VIS_1: CCTM hourly instantaneous visibility metrics
 
-The 2-D CCTM visibility file (AEROVIS) contains hourly Mie and reconstructed visual range coefficients (km<sup>‑1</sup>) and normalized extinction coefficients (deciviews).
+The 2-D CCTM visibility file contains hourly Mie and reconstructed visual range coefficients (km<sup>‑1</sup>) and normalized extinction coefficients (deciviews).
 
-Diagnostic and Advanced CMAQ Output Files
------------------------------------------
+<a id="aerovis"><a/>
+### CTM_AVIS_1: CCTM hourly average visibility metrics
+
+The 2-D CCTM visibility file contains hourly Mie and reconstructed visual range coefficients (km<sup>‑1</sup>) and normalized extinction coefficients (deciviews).
+
+
+## Diagnostic and Advanced CMAQ Output Files
 
 Along with the basic outputs detailed in the previous section, CMAQ can be configured to output several auxiliary files for diagnosing model performance.
 
-<a id="aerodiam"><a/>
-### AERODIAM: Instantaneous hourly aerosol diameter file
+<a id="pmdiag"><a/>
+### CTM_PMDIAG_1: Instantaneous hourly aerosol diagnostics file
+
+This diagnostic file contains information on the geometric mean diameters and geometric standard deviations for the lognormal modes.
+
+<a id="pamdiag"><a/>
+### CTM_APMDIAG_1: Average hourly aerosol diagnostics file
 
 This diagnostic file contains information on the geometric mean diameters and geometric standard deviations for the lognormal modes.
 
@@ -1302,22 +1250,6 @@ Add content
 ### CTM_DUST_EMIS_1
 Add content
 
-<a id="ctm_vis_1"><a/>
-### CTM_VIS_1
-Add content
-
-<a id="ctm_avis_1"><a/>
-### CTM_AVIS_1
-Add content
-
-<a id="ctm_pmdiag_1"><a/>
-### CTM_PMDIAG_1
-Add content
-
-<a id="ctm_apmdiag_1"><a/>
-### CTM_APMDIAG_1
-Add content
-
 <a id="ctm_aod_1"><a/>
 ### CTM_AOD_1
 Add content
@@ -1330,62 +1262,13 @@ Add content
 ### CTM_IRR_[1-3] Process analysis output – integrated reaction rates
 The 3-D CCTM integrated reaction rate file (IRR) contains hourly concentrations of selected model output species in terms of the gas-phase chemistry pathways that contributed to the predicted concentration at each hour. For each grid cell in the process analysis domain (which is most likely a subset of the full modeling domain), the IRR file shows the hourly change in species concentration that is due to particular gas-phase chemistry reactions or reaction groups. The process analysis preprocessor, PROCAN (Section 2.2.6), is used to select the process analysis domain, the model species for which to capture process analysis information, and the chemistry reactions or groups of reactions to track during the process analysis.
 
-
-<a id="a_conc_1"><a/>
-### A_CONC_1
-Add content
-
-<a id="s_cgrid"><a/>
-### S_CGRID
-Add content
-
-<a id="init_gasc_1"><a/>
-### INIT_GASC_1
-Add content
-
-<a id="init_aero_1"><a/>
-### INIT_AERO_1
-Add content
-
-<a id="init_nonr_1"><a/>
-### INIT_NONR_1
-Add content
-
-<a id="init_trac_1"><a/>
-### INIT_TRAC_1
-Add content
-
-<a id="bndy_gasc_1"><a/>
-### BNDY_GASC_1
-Add content
-
-<a id="bndy_aero_1"><a/>
-### BNDY_AERO_1
-Add content
-
-<a id="bndy_nonr_1"><a/>
-### BNDY_NONR_1
-Add content
-
-<a id="bndy_trac_1"><a/>
-### BNDY_TRAC_1
-Add content
-
-<a id="emis_trac_1"><a/>
-### EMIS_TRAC_1
-Add content
-
 <a id="floor"><a/>
 ### FLOOR: concentration-reset diagnostics file
 
 FLOOR files are optional output diagnostic files which list specific gridboxes/timesteps in which species with `-ve` concentrations are reset to zero.
 
 <a id="init_medc_1"><a/>
-### INIT_MEDC_1 Used to get fertilizer from the previous month to estimate soil NH4+
-Add content
-
-<a id="media_conc"><a/>
-### MEDIA_CONC  Used by bidirectional NH3 flux model in CMAQ
+### MEDIA_CONC: Bidirectional soil NH4+ restart file
 Add content
 
 <a id="ctm_depv_mos"><a/>
@@ -1393,15 +1276,15 @@ Add content
 Add content
 
 <a id="ctm_dry_dep_mos"><a/>
-### CTM_DRY_DEPV_MOS 
+### CTM_DRY_DEPV_MOS
 Add content
 
 <a id="ctm_dry_depv_fst"><a/>
-### CTM_DRY_DEPV_FST 
+### CTM_DRY_DEPV_FST
 Add content
 
 <a id="ctm_depv_fst"><a/>
-### CTM_DEPV_FST 
+### CTM_DEPV_FST
 Add content
 
 <a id="ctm_vdiff_diag"><a/>
@@ -1447,6 +1330,6 @@ The 2-D CCTM wet deposition file (WETDEP2) includes cumulative hourly wet deposi
 
 In CMAQ, wet deposition is calculated separately for resolved (grid-scale) clouds and for convective (subgrid) clouds. The WETDEP1 files contain the total wet deposition, i.e., the sum of both resolved-scale and subgrid-scale deposition. The WETDEP2 file contains only subgrid-scale deposition, plus some cloud diagnostic variables.
 
-
+***
 [<< Previous Chapter](CMAQ_OGD_ch07_programs_libraries.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch09_grid_defn.md)<br>
 CMAQ Operational Guidance Document (c) 2016<br>

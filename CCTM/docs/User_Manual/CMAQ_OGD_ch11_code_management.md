@@ -7,8 +7,7 @@
 
 As a public domain model, CMAQ is the product of contributions from many developers, whose numbers are only expected to increase with the number of users worldwide. Some degree of standardization is necessary for management and archiving of these development versions, as well as to compile and execute the code once it is ready for use, and to submit it to the CMAS Center for archiving and benchmark testing. This chapter provides guidance on source code manage­ment, coding guidelines for new code development, the compilation of new source code using the build scripts, and guidelines for writing shell scripts usable by CMAQ. Much of this informa­tion is derived from Chapter 18 (Young, 1999) in Byun and Ching (1999), with updates where appropriate, particularly for new versions of the model code and for the Fortran 90 standard. The chapter also includes the procedure that is in place for distributing code versions other than the operational CMAQ that are submitted to the development code archives.
 
-Source Code Management
-----------------------
+## Source Code Management
 
 ### The need for a configuration-management tool
 
@@ -26,21 +25,21 @@ Faced with a large and growing community that uses and develops a wide variety o
 
 ### Choice of a configuration-management tool
 
-Prior to CMAQ version=5.0.2, CMAQ developers used [CVS](https://en.wikipedia.org/wiki/Concurrent_Versions_System) for versioning, and distributed tarballs included CVS artifacts (e.g., files with names ending with ',v'). Starting with version=5.0.2, CMAQ developers switched to [git](https://en.wikipedia.org/wiki/Git_%28software%29).
+Prior to CMAQ version 5.0.2, CMAQ developers used [CVS](https://en.wikipedia.org/wiki/Concurrent_Versions_System) for versioning, and distributed tarballs included CVS artifacts (e.g., files with names ending with ',v'). Starting with version 5.0.2, CMAQ developers switched to [git](https://en.wikipedia.org/wiki/Git_%28software%29).
 
 ### git Explained
 
 git is a version control system that supports distributed workflows.  Every Git directory is a full repository with complete history and version tracking.  
 -   It works on virtually all UNIX and Linux platforms and on many PCs.
 -   It is publicly available and free and is distributed under the terms of the GNU General Public License.
--   If you would like to contribute changes to the EPA CMAQ repository, use the following steps 
+-   If you would like to contribute changes to the EPA CMAQ repository, use the following steps
     1. Create a github account https://github.com/
     2. Send an e-mail to cmas-git@unc.edu specifying your github user name, and request that you be added as an outside collaborator to the CMAS CENTER Organization.
     3. `git clone  -b 5.2Beta https://github.com/CMASCenter/EPA-CMAQ.git` - Get a clone or copy of the CMAQ repository from the CMAS CENTER github site.
-    4.  This will make a directory called EPA-CMAQ and will contain a copy of the files from the 5.2Beta Branch 
+    4.  This will make a directory called EPA-CMAQ and will contain a copy of the files from the 5.2Beta Branch
     5. `git status`   To confirm the status of the files in the repository and the branch that is currently checked out
-    6.  To edit the config.cmaq file take the following steps:
-`cd CMAQ`
+    6.  To edit the config.cmaq file take the following steps:<br>
+`cd EPA-CMAQ`<br>
 `vi config.cmaq`  - or use the Atom, TextWrangler or other Editor
     7. To see what changes you made use the following command
 `git diff config.cmaq`
@@ -49,7 +48,7 @@ git is a version control system that supports distributed workflows.  Every Git 
     9. To commit changes to the local repostitory use the command:
 `git commit -m "changed config.cmaq to fix issue X"`
     10. To commit changes to the CMAS CENTER Github repository use the command:
-`git push` 
+`git push`
     11. If you get a message that the push was rejected similar to the following:
         ```
         ! [rejected]        5.2Beta -> 5.2Beta (fetch first)
@@ -60,9 +59,9 @@ git is a version control system that supports distributed workflows.  Every Git 
           hint: (e.g., 'git pull ...') before pushing again.
          hint: See the 'Note about fast-forwards' in 'git push --help' for details.
          ```
-    12. This means the files have been changed on the CMAS CENTER Github repository since you last did a clone. 
+    12. This means the files have been changed on the CMAS CENTER Github repository since you last did a clone.
 Use the following command to get the changes that have been made to the remote git repository:
-`git pull` 
+`git pull`
     13. You will be asked to merge the files if there are no changes that conflict with your file changes. IF successful you will see a message similar to the following, that indicates what files were changed.
         ```
         Merge made by the 'recursive' strategy.
@@ -72,8 +71,7 @@ Use the following command to get the changes that have been made to the remote g
     14. Retry the push command to place the changes that you committed to the local repository on the CMAS CENTER Github repository:
 `git push`
 
-Guidelines for Developing New CMAQ Source Code
-----------------------------------------------
+## Guidelines for Developing New CMAQ Source Code
 
 ### Object-oriented concepts
 
@@ -116,7 +114,7 @@ To maintain the object-oriented concepts implemented in the CMAQ system design, 
 At the submodule level, there are no strict I/O or coding standards. Here it is envisioned that individual researchers/programmers use their own coding styles for their algorithms. However, the following suggestions are offered to facilitate the potential incorporation of a module into the CMAQ system:
 
 -   In general, it is expected that MKS units are used for input and output variables, as these units have been standardized throughout the CMAQ system. Within a submodule subroutine, whatever units are most convenient can be used. However, the developer must be responsible for any unit conversions to MKS for input and output, and thus avoid potential errors.
--   For efficiency and performance considerations, operations may need to be done on groups of grid cells (a block of cells) at a time. If there are ''N ''cells in the block and the entire domain contains ''M ''cells, then the entire domain can be decomposed into ''M/N *blocks. The default value of N is set to 500. For operations in the horizontal (*x,y''), the cell constraint becomes X×Y≤N, where ''X *= number of cells in the*x''-direction, and *Y*= number of cells in the y-direction. For operations in both the horizontal and vertical, the constraint becomes X×Y×Z≤N, where ''Z *= number of cells in the*z''-direction. There may be some operations, such as for some horizontal advection schemes, where this decomposition into blocks becomes more difficult or impossible.
+-   For efficiency and performance considerations, operations may need to be done on groups of grid cells (a block of cells) at a time. If there are N cells in the block and the entire domain contains M cells, then the entire domain can be decomposed into M/N blocks. The default value of N is set to 500. For operations in the horizontal (x,y), the cell constraint becomes X×Y≤N, where X = number of cells in the x-direction, and Y = number of cells in the y-direction. For operations in both the horizontal and vertical, the constraint becomes X×Y×Z≤N, where Z = number of cells in the z-direction. There may be some operations, such as for some horizontal advection schemes, where this decomposition into blocks becomes more difficult or impossible.
 
 ### Documentation guidelines
 
@@ -191,7 +189,7 @@ C Parameters:
 
 C External Functions: None
 
-C Local Variables: 
+C Local Variables:
       CHARACTER( 16 ), SAVE :: PNAME = 'VDIFFPROC'
       CHARACTER( 16 ), SAVE :: AERO_GRAV_SETL = 'CTM_GRAV_SETL'
       CHARACTER( 80 ) :: VARDESC                ! env variable description
@@ -207,7 +205,7 @@ C Local Variables:
 
       REAL, ALLOCATABLE, SAVE :: CNGRD( :,:,:,: )    ! cgrid aero in mixing ratio
       REAL, ALLOCATABLE, SAVE :: DDEP     ( :,:,: )   ! ddep accumulator
-      REAL, ALLOCATABLE, SAVE :: ICMP     ( :,:,: )   ! component flux accumlator 
+      REAL, ALLOCATABLE, SAVE :: ICMP     ( :,:,: )   ! component flux accumlator
       REAL, ALLOCATABLE, SAVE :: DDEPJ    ( :,:,:,: ) ! ddep for mosaic
       REAL, ALLOCATABLE, SAVE :: DDEPJ_FST( :,:,:,: ) ! ddep for stomtal/cuticular pathway
 
@@ -562,12 +560,12 @@ C If last call this hour:  write accumulated depositions:
                END DO       
             ENDIF
 
-         END DO 
+         END DO
 
          WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
      &         'Timestep written to', CTM_DRY_DEP_1,
      &         'for date and time', MDATE, MTIME
-         
+
 C Write vdiff diagnostics
          IF ( VDIFFDIAG ) THEN
             IF ( GRAV_SETL ) THEN   ! Write vsed diagnostics
@@ -661,7 +659,7 @@ C Write other diagnostics
             NTICS = 0
 
          END IF
-         
+
          IF ( MOSAIC ) THEN
 
             DO V = 1, N_SPC_DDEP
@@ -716,7 +714,7 @@ C Write other diagnostics
                      XMSG = 'Could not write ' // CTM_DRY_DEP_FST // ' file'
                      CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
                   END IF
-             
+
                END DO
 
                WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
@@ -729,8 +727,8 @@ C Write other diagnostics
 
          IF ( ABFLUX .OR. HGBIDI ) THEN    
             CALL WRASX_MEDIA( MDATE, MTIME, ABFLUX )
-         END IF 
- 
+         END IF
+
          IF ( LIPR ) THEN
             DO V = 1, N_SPC_DEPV
                DO R = 1, MY_NROWS
@@ -757,7 +755,7 @@ C re-set dry deposition array to zero
       END
 ```
 
-**Footnotes:**
+**Notes:**
 
 1. Header comments - Highly recommended for internal documentation.
 2. USE <module name> includes the Fortran source file specified.
@@ -783,37 +781,18 @@ C re-set dry deposition array to zero
 22. Illustrates writing to an I/O API file within a module.
 23. Subroutine end
 
-Compiling CMAQ with New Source Code
------------------------------------
+## Compiling CMAQ with New Source Code
 
 The following steps are recommended for compiling CMAQ when a new module has been developed. The procedure creates a Makefile, which can then be modified to add the new module in the appropriate class, but the same steps can be used to obtain a configuration file that can be similarly modified to add the new module.
 
--   On the computational platform of choice, create a working directory for the model download.
--   Download the appropriate tar file CMAQv5.tar.gz from the CMAS web site ([www.cmascenter.org](http://www.cmascenter.org/)) for the chosen platform. Users must register before proceeding with the download steps.
--   Untar the file using the command:
-
-`tar xvfz CMAQv5.tar.gz`
-
-This will expand a directory labeled *scripts* that contains all the scripts necessary to compile and run CMAQ.
-
--   Either install the CMAQ source code and libraries (Chapter 3) or create links to the CMAQ models and libraries as follows:
-
-`ln –s <models directory> models`
-
-` ln –s <lib directory> lib`
-
--   In the $CMAQ_HOME/CCTM/scripts/ subdirectory, modify a file called bldit.cctm as follows:
-
-uncomment the line “set MakeOpt” by removing the leading ‘#’ character.
-
--   Execute the bldit.cctm script. This creates a Makefile as well as a configuration file in the subdirectory $CMAQ_HOME/CCTM/scripts/CCTM_v52_{compiler}, where the model code has been copied.
+-   On the computational platform of choice, install CMAQ using Git.
+-   In the $CMAQ_HOME/CCTM/scripts/ subdirectory, modify a file called bldit.cctm by uncommenting the line “set MakeOpt” (remove the leading ‘#’ character).
+-   Execute the bldit.cctm script. This creates a Makefile as well as a configuration file in the subdirectory $CMAQ_HOME/CCTM/scripts/BLD_CCTM_v52b_{compiler}, where the model code has been copied.
 -   The Makefile can be modified to compile and link the new module by specifying <full path name>.o for the object file that needs to be linked in. It is essential that a source file with the corresponding name (with extension “.F”) reside in the same directory as the specified path name for the object file.
 -   Issue the “make” command to compile the source code into an executable.
 
-> make –f Makefile
 
-Guidelines to Writing Shell Scripts for CMAQ
---------------------------------------------
+## Guidelines to Writing Shell Scripts for CMAQ
 
 To run a model executable, various UNIX environment variables must be set in the shell that invokes the execute command. Generally, these variables involve the modeling scenario start date and time, the run duration, the output time step interval, various internal code flags that differ among the models, and all the input and output logical (symbolic) file names. There are various ways that external file names can be referenced in the source code, and UNIX platforms can link them by using environment variables. There are I/O API utility functions that allow users to easily access these variables in the code in a generic and portable manner. An additional feature that is provided through the I/O API is the ability to declare a file “volatile” by appending a -v flag in the shell’s declaration for the environment variable. By doing this, the I/O API will cause the netCDF file to update (sync) its disk copy after every write and thereby update the netCDF header. Otherwise, netCDF (I/O API) file headers are not updated until the files are closed. This feature is useful, for example, for allowing a user to analyze an open netCDF file using visualization tools while the model is executing. It is also useful in case of a system crash. A CCTM model can be restarted at the scenario time step after the last successful write using the aborted output file as the input initial data.
 
@@ -822,12 +801,12 @@ The following is a sample run script that can be downloaded from the CMAS web si
 ```Tcsh
 #!/bin/csh -f
 
-# ====================== CCTMv5.1 Run Script ====================== 
+# ====================== CCTMv5.1 Run Script ======================
 # Usage: run.cctm >&! cctm_D51a.log &                                
 #
 # To report problems or request help with this script/program:        
 #             http://www.cmascenter.org
-# =================================================================== 
+# ===================================================================
 
 #> Source the config.cmaq file to set the run environment
  source ../../config.cmaq.pgi
@@ -891,15 +870,15 @@ setenv EXECUTION_ID $EXEC    #> define the model execution id
 #> Sychronization Time Step and Tolerance Options
 setenv CTM_MAXSYNC 300       #> max sync time step (sec) [ default: 720 ]
 setenv CTM_MINSYNC  60       #> min sync time step (sec) [ default: 60 ]
-setenv SIGMA_SYNC_TOP 0.7    #> top sigma level thru which sync step determined [ default: 0.7 ] 
+setenv SIGMA_SYNC_TOP 0.7    #> top sigma level thru which sync step determined [ default: 0.7 ]
 #setenv ADV_HDIV_LIM 0.95     #> maximum horiz. div. limit for adv step adjust [ default: 0.9 ]
 setenv CTM_ADV_CFL 0.95      #> max CFL [ default: 0.75]
-#setenv RB_ATOL 1.0E-09       #> global ROS3 solver abs tol [ default: 1.0E-07 ] 
+#setenv RB_ATOL 1.0E-09       #> global ROS3 solver abs tol [ default: 1.0E-07 ]
 
 #> Science Options
 setenv CTM_WB_DUST N         #> use inline windblown dust emissions [ default: Y ]
 setenv CTM_ERODE_AGLAND Y    #> use agricultural activity for windblown dust [ default: N ]; ignore if CTM_WB_DUST = N
-setenv CTM_WBDUST_BELD BELD3 #> landuse database for identifying dust source regions [ default: BELD3 ]; ignore if CTM_WB_DUST = N 
+setenv CTM_WBDUST_BELD BELD3 #> landuse database for identifying dust source regions [ default: BELD3 ]; ignore if CTM_WB_DUST = N
 setenv CTM_LTNG_NO Y         #> turn on lightning NOx [ default: N ]
 setenv CTM_WVEL Y            #> save derived vertical velocity component to conc file [ default: N ]
 setenv KZMIN Y               #> use Min Kz option in edyintb [ default: Y ], otherwise revert to Kz0UT
@@ -951,14 +930,14 @@ setenv PT3DDIAG N            #> optional 3d point source emissions diagnostic fi
 setenv PT3DFRAC N            #> optional layer fractions diagnostic (play) file(s) [ default: N]; ignore if CTM_PT3DEMIS = N
 setenv REP_LAYER_MIN -1      #> Minimum layer for reporting plume rise info [ default: -1 ]
 
-#> MPI Optimization Flags 
+#> MPI Optimization Flags
 setenv MPI_SM_POOL 16000     #> increase shared memory pool in case many MPI_SEND headers
 setenv MP_EAGER_LIMIT 65536  #> set MPI message passing buffer size to max                                          
 setenv MP_SINGLE_THREAD yes  #> optimizate for single threaded applications [ default: no ]
-setenv MP_STDOUTMODE ordered #> order output by the processor ID 
+setenv MP_STDOUTMODE ordered #> order output by the processor ID
 setenv MP_LABELIO yes        #> label output by processor ID [ default: no ]
 setenv MP_SHARED_MEMORY yes  #> force use of shared memory for tasks on same node [ default: no ]
-setenv MP_ADAPTER_USE shared #> share the MP adapter with other jobs 
+setenv MP_ADAPTER_USE shared #> share the MP adapter with other jobs
 setenv MP_CPU_USE multiple   #> share the node with multiple users/jobs
 setenv MP_CSS_INTERRUPT yes  #> specify whether arriving packets generate interrupts [ default: no ]
 
@@ -968,12 +947,12 @@ set DISP = delete            #> [ delete | update | keep ] existing output files
 #> Input/Output Directories
 # =====================================================================
 
-set ICpath    = $CMAQ_DATA/icon      #> initial conditions input directory 
+set ICpath    = $CMAQ_DATA/icon      #> initial conditions input directory
 set BCpath    = $CMAQ_DATA/bcon      #> boundary conditions input directory
 set EMISpath  = $CMAQ_DATA/emis      #> surface emissions input directory
 set IN_PTpath = $CMAQ_DATA/emis      #> elevated emissions input directory (in-line point only)
 set IN_LTpath = $CMAQ_DATA/lightning #> lightning NOx input directory
-set METpath   = $CMAQ_DATA/mcip      #> meteorology input directory 
+set METpath   = $CMAQ_DATA/mcip      #> meteorology input directory
 set JVALpath  = $CMAQ_DATA/jproc     #> offline photolysis rate table directory
 set OMIpath   = $CMAQ_HOME/CCTM/src/phot/inline #> ozone columne data for the photolysis model                      
 set LUpath    = $CMAQ_DATA/dust      #> BELD landuse data for windblown dust model
@@ -992,7 +971,7 @@ set ICFILE = CCTM_D51a_Linux2_x86_64intel_CGRID.CMAQ51-BENCHMARK_20110630
 #> Boundary conditions
 set BCFILE = BCON_D51a_12CalnexBench_20110701
 
-#> Off-line photolysis rates 
+#> Off-line photolysis rates
 set JVALfile  = JTABLE_${STDATE}
 
 #> Ozone column data
@@ -1001,7 +980,7 @@ set OMIfile   = OMI_1979_to_2015.dat
 #> Optics file
 set OPTfile = PHOT_OPTICS.dat
 
-#> MCIP meteorology files 
+#> MCIP meteorology files
 set EXTN = 110701
 setenv GRID_DOT_2D $METpath/GRIDDOT2D_${EXTN}                                                                       
 setenv GRID_CRO_2D $METpath/GRIDCRO2D_${EXTN}
@@ -1010,7 +989,7 @@ setenv MET_CRO_3D $METpath/METCRO3D_${EXTN}
 setenv MET_DOT_3D $METpath/METDOT3D_${EXTN}
 setenv MET_BDY_3D $METpath/METBDY3D_${EXTN}
 
-#> Emissions files 
+#> Emissions files
 
 if ( $CTM_PT3DEMIS == 'N' ) then
    set EMISfile  = e3d.${YMD}.12EUS1_279X240.cb05soa.24.ncf #> Offline 3d emissions file name
@@ -1148,7 +1127,7 @@ endif
 #> set floor file (neg concs)
 setenv FLOOR_FILE $BASE/FLOOR_${CTM_APPL}
 
-#> create output directory 
+#> create output directory
 if ( ! -d "$OUTDIR" ) mkdir -p $OUTDIR
 
 #> look for existing log files
@@ -1218,7 +1197,7 @@ endif
 #> Executable call for single PE, uncomment to invoke
  /usr/bin/time  $BLD/$EXEC
 
-#> Executable call for multi PE, configure for your system 
+#> Executable call for multi PE, configure for your system
 # set MPI = /usr/local/intel/impi/3.2.2.006/bin64
 # set MPIRUN = $MPI/mpirun
 # time $MPIRUN -r ssh -np $NPROCS $BLD/$EXEC
@@ -1227,22 +1206,21 @@ endif
  exit
 ```
 
-Testing and Distribution of Development Source Code
----------------------------------------------------
+## Testing and Distribution of Development Source Code
 
 The CMAS Center collects, tests, and distributes various operational and development versions of CMAQ through the web site [<http://www.cmaq-model.org>](http://www.cmaq-model.org/). An archive of official releases (both current and past) and development versions of CMAQ is available to the user community. The CMAQ-MADRID and CMAQ-AMSTERDAM developed by AER, Inc. under funding from the Electric Power Research Institute can be downloaded from this archive. As a benefit to the CMAQ community, CMAS periodically updates its documentation on testing such development code versions to include additional feedback as it becomes available, based on users’ experiences with these versions. Questions or comments about development versions of CMAQ such as CMAQ-MADRID should be directed to the developers at AER. Questions or comments about downloading the source code and associated documentation, and on the software development guidelines, may be directed to [<http://www.cmascenter.org>](http://www.cmascenter.org/).
 
 Based on the insights gained from the testing and archiving of a development version of the model such as CMAQ-MADRID, CMAS recom­mends the following steps as the minimum level of coding and testing practices to be adopted by developers wishing to contribute code to the public CMAQ archive:
 
-1. To make the best use of the CMAQ features in developing new code, the developer should review the coding conventions that are provided in the previous sections of this chapter. [Also see [<http://www.epa.gov/asmdnerl/CMAQ/CMAQscienceDoc.html>](http://www.epa.gov/asmdnerl/CMAQ/CMAQscienceDoc.html)].
-*New code should be built using the current operational CMAQ version as a template whenever possible. This will facilitate consistency in coding practices, including naming conventions, in-line documentation, and the specification of compile time versus run-time parameters.
-2. Before submitting source code to the CMAS Center, the developer should verify that the code is consistent with the operational CMAQ version from which it was built, especially in the use of common INCLUDE files (such as horizontal and vertical grid definition files) and run-time parameter settings. Mixing code from different operational versions of the CMAQ model within the same development code version can lead to problems in using the generalized CMAQ scripts.
-3.  Comprehensive documentation or other references to peer-reviewed literature should be provided for any new science algorithms include in the source code (see Section 9.2.5).
-4.  The developer must document the computational platform used for the testing, including type and speed of the processor(s), the compiler version used, and CPU usage. It is recommended that developers use any combination of the above for testing code intended for release through the CMAS Center, to facilitate benchmarking and portability testing by CMAS staff. Any documentation on potential differences in model outputs between different computing platforms would be useful for end-users who may not be able to duplicate the platform on which the model was initially developed and tested. To this end, code testing and documentation of test results by developers, using more than one platform if available, are highly desirable.
-5.  The developer should provide all input data for the test case so that interested users may attempt to run the code and reproduce the results on their own platforms.
-6.  It is recommended that benchmark results from the testing be provided for at least one 5‑day simulation. Shorter simulations do not provide adequate results from which to discern model trends beyond the spin-up period.
-7.  When making incremental changes to model science, the developer should provide documentation of the results, including (a) the results for all variables that show a deviation of greater than 1.0e10<sup>‑6</sup> ppm for the gas-phase species or 1.0e10<sup>‑4</sup> µg m<sup>‑3</sup> for the particulate species from the base model results for the same case, (b) an analysis of what was done to understand these differences, and (c) conclusions of the analysis.
-8.  Note that more than one simulation may be necessary to adequately demonstrate seasonal or regional biases, if any, in the results. It is also understood that with models still under development, the analysis may not resolve all differences from the operational model results. It is recommended that these unresolved issues also be documented.
+1. To make the best use of the CMAQ features in developing new code, the developer should review the coding conventions that are provided in the previous sections of this chapter. Also see [the EPA CMAQ Science Document](http://www.epa.gov/asmdnerl/CMAQ/CMAQscienceDoc.html)].
+2. New code should be built using the current operational CMAQ version as a template whenever possible. This will facilitate consistency in coding practices, including naming conventions, in-line documentation, and the specification of compile time versus run-time parameters.
+3. Before submitting source code to the CMAS Center, the developer should verify that the code is consistent with the operational CMAQ version from which it was built, especially in the use of common INCLUDE files (such as horizontal and vertical grid definition files) and run-time parameter settings. Mixing code from different operational versions of the CMAQ model within the same development code version can lead to problems in using the generalized CMAQ scripts.
+4.  Comprehensive documentation or other references to peer-reviewed literature should be provided for any new science algorithms include in the source code.
+5.  The developer must document the computational platform used for the testing, including type and speed of the processor(s), the compiler version used, and CPU usage. It is recommended that developers use any combination of the above for testing code intended for release through the CMAS Center, to facilitate benchmarking and portability testing by CMAS staff. Any documentation on potential differences in model outputs between different computing platforms would be useful for end-users who may not be able to duplicate the platform on which the model was initially developed and tested. To this end, code testing and documentation of test results by developers, using more than one platform if available, are highly desirable.
+6.  The developer should provide all input data for the test case so that interested users may attempt to run the code and reproduce the results on their own platforms.
+7.  It is recommended that benchmark results from the testing be provided for at least one 5‑day simulation. Shorter simulations do not provide adequate results from which to discern model trends beyond the spin-up period.
+8.  When making incremental changes to model science, the developer should provide documentation of the results, including (a) the results for all variables that show a deviation of greater than 1.0e10<sup>‑6</sup> ppm for the gas-phase species or 1.0e10<sup>‑4</sup> µg m<sup>‑3</sup> for the particulate species from the base model results for the same case, (b) an analysis of what was done to understand these differences, and (c) conclusions of the analysis.
+9.  Note that more than one simulation may be necessary to adequately demonstrate seasonal or regional biases, if any, in the results. It is also understood that with models still under development, the analysis may not resolve all differences from the operational model results. It is recommended that these unresolved issues also be documented.
 
 Model developers are also recommended to check the CMAS website to see if there are any additional guidelines that have been recommended since the first set listed above.
 

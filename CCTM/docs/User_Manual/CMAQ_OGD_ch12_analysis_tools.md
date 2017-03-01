@@ -10,7 +10,28 @@ This page briefly describes several of these software utilities and provides lin
 
 Two classes of analysis tools are presented here
 - [Command line utilities](#cmdtools) for manipulating CMAQ input/output data
+  - [netCDF](#netcdf)
+  - [appendwrf](#appendwrf)
+  - [bldoverlay](#bldoverlay)
+  - [combine](#combine)
+  - [hr2day](#hr2day)
+  - [merge_aqs_species](#merge_aqs_species)
+  - [sitecmp](#sitecmp)
+  - [sitecmp_dailyo3](#sitecmp_dailyo3)
+  - [writesite](#writesite)
+  - [m3tools](#m3tools)
+  - [netCDF Operators](#nco)
+
+
 - [Visualization tools](#viztools) for graphical display of CMAQ input/output data
+  - [VERDI](#verdi)
+  - [AMET](#amet)
+  - [PAVE](#pave)
+  - [IDV](#idv)
+  - [NCL](#ncl)
+
+
+  -----------
 
 <a id="netcdf"><a/>
 ### netCDF
@@ -521,6 +542,7 @@ An overview of the various netCDF operators is given below.
 <a id="viztools"><a/>
 Visualization Tools
 -------------------------------
+<a id="verdi"></a>
 ### Visualization Environment for Rich Data Interpretation (VERDI)
 
 [http://www.verdi-tool.org](http://www.verdi-tool.org/)
