@@ -91,7 +91,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       NIPRVAR = 0
       DO NIPR = 1, N_IPR_SPC
-         IF ( LEN( TRIM( IPR_SPNAM( NIPR ) ) ) .GT. 11 ) THEN
+         IF ( LEN_TRIM( IPR_SPNAM( NIPR ) ) .GT. 11 ) THEN
             WRITE( *,* ) ' '
             WRITE( MSG, 94030 ) TRIM( IPR_SPNAM( NIPR ) )
             CALL M3MESG( MSG )

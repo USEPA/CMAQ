@@ -1,8 +1,9 @@
-[Home](CMAQ_OGD_index.md) - [Next Chapter >>](CMAQ_OGD_ch02_overview.md)
+[Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch02_overview.md)
 <center>
+***
 **Operational Guidance for the Community Multiscale Air Quality (CMAQ) Modeling System**
 ==
-**Version 5.2 (2016 Release)**
+**Version 5.2 (2017 Release)**
 
 Prepared in cooperation with the
 Community Modeling and Analysis System
@@ -39,13 +40,13 @@ With weather conditions contributing the primary physical driving forces in the 
 -   Maximum vertical grid extent (model top)
 -   Temporal extent (the starting and ending dates and times and the meteorology update frequency)
 
-To obtain inputs on emissions, CMAQ relies on an emissions model to estimate the magnitude, location, and temporal variability of pollution sources. Open-source models such as the Sparse Matrix Operator Kernel Emissions (SMOKE) model (IE, 2008) ([<http://www.smoke-model.org/>](http://www.smoke-model.org/)) are available for computing emissions inputs to CMAQ from emissions inventories. These emissions inputs must be on the same horizontal and vertical spatial scales and cover the same time period as are used in the air quality model simulation. The emissions inputs to CMAQ must also represent volatile organic compound (VOC) emissions using a chemical parameterization supported by CMAQ; currently supported photochemical mechanisms are recent versions of the Carbon Bond mechanism, the Statewide Air Pollution Research Center (SAPRC) mechanism, and the Regional Atmospheric Chemistry Mechanism (RACM). Additional details about the gas-phase chemistry in CMAQ are provided in [the OGD section on CMAQ Chemistry and Transport Modules](#CMAQ_Chemistry-Transport_Model_Science_Modules) and in Byun and Ching (1999), Byun and Schere (2006). Those two sources also describe the primary aerosol emissions species that are supported by CMAQ (“aerosol” refers to particulate matter [tiny solid or liquid particles] suspended in the atmosphere.).
+To obtain inputs on emissions, CMAQ relies on an emissions model to estimate the magnitude, location, and temporal variability of pollution sources. Open-source models such as the Sparse Matrix Operator Kernel Emissions (SMOKE) model (IE, 2008) ([<http://www.smoke-model.org/>](http://www.smoke-model.org/)) are available for computing emissions inputs to CMAQ from emissions inventories. These emissions inputs must be on the same horizontal and vertical spatial scales and cover the same time period as are used in the air quality model simulation. The emissions inputs to CMAQ must also represent volatile organic compound (VOC) emissions using a chemical parameterization supported by CMAQ; currently supported photochemical mechanisms are recent versions of the Carbon Bond mechanism, the Statewide Air Pollution Research Center (SAPRC) mechanism, and the Regional Atmospheric Chemistry Mechanism (RACM). Additional details about the gas-phase chemistry in CMAQ are provided in [the OGD section on CMAQ Chemistry and Transport Modules](CMAQ_OGD_ch02_overview.md#CMAQ_Chemistry-Transport_Model_Science_Modules) and in Byun and Ching (1999), Byun and Schere (2006). Those two sources also describe the primary aerosol emissions species that are supported by CMAQ (“aerosol” refers to particulate matter [tiny solid or liquid particles] suspended in the atmosphere.).
 
 
 > *Note: CMAQ Output File Format<br>*
 > CMAQ uses a modified version of the netCDF file format.
 > Although CMAQ output is described as being in the netCDF format,
-> it is actually a hybrid format of the I/O API and the netCDF. 
+> it is actually a [hybrid format of the I/O API and the netCDF](https://www.cmascenter.org/ioapi/). 
 
 CMAQ was designed from the start as a community model. “Community modeling” is the concept that air quality model development should be a collective effort by a broad community of developers. By adopting a standardized modeling architecture, the air quality modeling community can focus its efforts on creating software enhancements and new science modules. CMAQ’s modular structure facilitates customization and open-source development by the community. Using the [Input/Output Applications Programming Interface (I/O API) library](https://www.cmascenter.org/ioapi) to control the internal and external data flows to the model, and the [network Common Data Form (netCDF) library](http://www.unidata.ucar.edu/software/netcdf) to control the input and output file formats, CMAQ is based around a transparent and platform-independent code infrastructure that promotes extensibility. The modularity of CMAQ also leads to multiple science configuration options (i.e., how various processes are represented) that model users can choose from when setting up new simulations. The trade-off for this flexibility is complexity in the model configuration; the model user is faced with hundreds of different configuration combinations when designing new simulations. To avoid confusing new CMAQ users, this document provides guidance on a basic configuration to use for getting started with the model. For experienced air quality model users, the multiple configuration combinations available provide a high level of flexibility for optimizing model performance for different air quality model applications.
 
@@ -65,5 +66,6 @@ CMAQ is designed to meet the needs of the multiple groups contained within the a
 
 [CMAQ OGD Acronyms](CMAQ_OGD_acronyms.md)
 --
-
-[Home](CMAQ_OGD_index.md) - [Next Chapter >>](CMAQ_OGD_ch02_overview.md)
+***
+[Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch02_overview.md)<br>
+CMAQ Operational Guidance Document (c) 2016<br>

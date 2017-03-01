@@ -1,29 +1,28 @@
 #! /bin/csh -f
 
-# ====================== COMBINEv5.1 Run Script =====================
-# Usage: run.combine.aconc >&! combine_V51.aconc.log &
+# ====================== COMBINEv5.2 Run Script =====================
+# Usage: run.combine.aconc >&! combine_V52.aconc.log &
 #
 # To report problems or request help with this script/program:
 #             http://www.cmascenter.org
 # ===================================================================
 
 #> Source the config.cmaq file to set the run environment
- source ../../config.cmaq
+ source ../../../config.cmaq
 
-#> Check that M3DATA is set: 
- if ( ! -e $M3DATA ) then
-    echo "   $M3DATA path does not exist"
+#> Check that CMAQ_DATA is set: 
+ if ( ! -e $CMAQ_DATA ) then
+    echo "   $CMAQ_DATA path does not exist"
     exit 1
     endif
- echo " "; echo " Input data path, M3DATA set to $M3DATA"; echo " "
+ echo " "; echo " Input data path, CMAQ_DATA set to $CMAQ_DATA"; echo " "
 
- set APPL = D51a
+ set APPL = v52b
  set MECH = cb05e51_ae6_aq 
  set EXEC = COMBINE_${APPL}_$EXEC_ID
 
 #> Set the working directory
  set BASE  = $cwd      
-#set BASE  = $M3HOME/scripts/combine
  set BLD   = ${BASE}/BLD_$APPL
 
  cd $BASE; date; set timestamp; cat $BASE/cfg.${APPL}; echo " "; set echo
@@ -38,7 +37,7 @@
  setenv GENSPEC N
 
 #> Define name of species definition file
- setenv SPECIES_DEF spec_def_files/species_aconc_CMAQ5.1_${MECH}_CAPS.txt
+ setenv SPECIES_DEF spec_def_files/SpecDef_${MECH}.txt
 
 #> Needed julian day values by month (apply for leap year only)
 if ( $MONTH == 01 ) then
@@ -73,19 +72,20 @@ else
 endif
 
 #> Define name of output file.
- setenv OUTFILE ${M3DATA}/cctm/postprocess/CCTM_${APPL}_${EXEC_ID}_COMBINE_ACONC.CMAQ51-BENCHMARK_$YEAR$MONTH
+ setenv OUTFILE ${CMAQ_DATA}/cctm/combine/CCTM_${APPL}_${EXEC_ID}_COMBINE_ACONC.CMAQ52-BENCHMARK_$YEAR$MONTH
 
- env
+ if ( ! -d ${CMAQ_DATA}/cctm/combine ) mkdir ${CMAQ_DATA}/cctm/combine
 
  ls -l $BLD/$EXEC
 
  foreach day ($days)
 
 #> Extract the first layer of the AERODIAM file.  
- setenv INFILE ${M3DATA}/cctm/CCTM_${APPL}_${EXEC_ID}_AERODIAM.CMAQ51-BENCHMARK_$YEAR$MONTH$day
- setenv AERODIAM_L1 ${M3DATA}/cctm/postprocess/CCTM_${APPL}_${EXEC_ID}_AERODIAM.CMAQ51-BENCHMARK_$YEAR$MONTH$day.layer1
+ setenv INFILE ${CMAQ_DATA}/cctm/CCTM_${APPL}_${EXEC_ID}.PMDIAG.BENCHMARK_$YEAR$MONTH$day
 
- /usr/bin/time ${IOAPI_DIR}/lib/m3xtract << ieof
+ setenv AERODIAM_L1 ${CMAQ_DATA}/cctm/combine/CCTM_${APPL}_${EXEC_ID}.PMDIAG.BENCHMARK_$YEAR$MONTH$day.layer1
+
+m3xtract << ieof
 INFILE
 1
 -1
@@ -99,9 +99,9 @@ ieof
 #> The shifted file will go from hour 0 to hour 23 in order to correspond to the ACONC file which contains hourly averages
 #> time stamped at the top of the hour.
  setenv INFILE ${AERODIAM_L1}
- setenv AERODIAM_TS ${M3DATA}/cctm/postprocess/CCTM_${APPL}_${EXEC_ID}_AERODIAM.CMAQ51-BENCHMARK_$YEAR$MONTH$day.shift
+ setenv AERODIAM_TS ${CMAQ_DATA}/cctm/combine/CCTM_${APPL}_${EXEC_ID}.PMDIAG.BENCHMARK_$YEAR$MONTH$day.shift
 
- /usr/bin/time ${IOAPI_DIR}/lib/m3tshift << ieof
+m3tshift << ieof
 INFILE
 
 
@@ -113,10 +113,10 @@ AERODIAM_TS
 ieof
  
 #> Define name of input files needed for combine program.
-   setenv INFILE1 ${M3DATA}/cctm/CCTM_${APPL}_${EXEC_ID}_ACONC.CMAQ51-BENCHMARK_$YEAR$MONTH$day
-   setenv INFILE2 ${M3DATA}/mcip/METCRO3D_$MET_YEAR$MONTH$day
+   setenv INFILE1 ${CMAQ_DATA}/cctm/CCTM_${APPL}_${EXEC_ID}.ACONC.BENCHMARK_$YEAR$MONTH$day
+   setenv INFILE2 ${CMAQ_DATA}/mcip/METCRO3D_$MET_YEAR$MONTH$day
    setenv INFILE3 ${AERODIAM_TS}
-   setenv INFILE4 ${M3DATA}/mcip/METCRO2D_$MET_YEAR$MONTH$day
+   setenv INFILE4 ${CMAQ_DATA}/mcip/METCRO2D_$MET_YEAR$MONTH$day
  
 #> Executable call:
    /usr/bin/time $BLD/$EXEC

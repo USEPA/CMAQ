@@ -2,14 +2,14 @@
 
 **Author/P.O.C.:**, [Ben Murphy](mailto:murphy.benjamin@epa.gov), Computational Exposure Division, U.S. EPA
 
-## Brief Description 
+## Brief Description
 The numerical treatment of aerosol water has been made consistent throughout the aerosol module. It has been noted for some time that, due to the large amount of mass and fast equilibration times, transporting the second moment with aerosol water included caused numerical instabilities. Thus, the contribution of aerosol water to the second moment is 'removed' before exiting the aerosol module -- a fixed mode width is assumed for this calculation. As a result, at times it was not clear in code when the locally defined second and third moments referred to the 'wet' moments and when they referred to the 'dry' moments.
 
 The code has been updated with a new routine and a flag that identify the state of the second and third moments and easily convert between the two.
 
 ## Significance and Impact
 
-This effects the stability of the mode widths (standard deviation). It`s overall effect on aerosol concentrations is mixed.
+This affects the stability of the mode widths (standard deviation). It's overall effect on aerosol concentrations is mixed.
 
 ## Affected Files:
   aero/aero6/AEROSOL_CHEMISTRY.F  
@@ -41,13 +41,13 @@ This effects the stability of the mode widths (standard deviation). It`s overall
   phot/inline/AERO_PHOTDATA.F  
   vdiff/acm2/aero_sedv.F  
 
-## References: 
+## References:
   NA
 
 -----
 ## Internal Records:
 
-### Relevant Pull Requests: 
+### Relevant Pull Requests:
   [PR #63](https://github.com/usepa/cmaq_dev/pull/63)  
   [PR #97](https://github.com/usepa/cmaq_dev/pull/97)  
   [PR #70](https://github.com/usepa/cmaq_dev/pull/70)  
@@ -75,6 +75,3 @@ This effects the stability of the mode widths (standard deviation). It`s overall
   25f033395ceaec41775dfcbb1b0228c1f7178d96  
   b98829fa5e7b30f8e3ff2ca1327e7ac1d70f8b2b  
   03fed13b114955cd9c759213e8b6a19c1f7af9bd  
-
-
-

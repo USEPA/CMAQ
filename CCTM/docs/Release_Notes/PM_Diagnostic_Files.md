@@ -1,14 +1,13 @@
-# Update and Enhancement of PM Diagnostic Files 
+# Update and Enhancement of PM Diagnostic Files
 
 **Author/P.O.C.:**, [David Wong](mailto:wong.david@epa.gov), Computational Exposure Division, U.S. EPA
 
-## Brief Description 
+## Brief Description
 
-To compute an average value of various PM diagnostic variables which are defined in PMDIAG_DATA.F and four visibility diagnostic variables bases on user predefined time interval. It will follow the behaviour of ACONC file to output data to the top or bottom of the "hour".  
+This update computes an average value of various PM diagnostic variables that are defined in PMDIAG_DATA.F and four visibility diagnostic variables based on a time interval predefined by the user. It will follow the behaviour of ACONC file to output data to the top or bottom of the "hour".  
 
  Options:  
   -- user can define a subset of PM diagnostic variables  
-  -- user can define a vertical layer range  
   -- user can define a vertical layer range  
 
 Name changes:
@@ -26,11 +25,11 @@ Name changes:
    -- CTM_AERDIAG to CTM_PMDIAG  
    -- AERDIAG to PMDIAG  
 
- * AEROSOL_CHEMISTRY.F
+ * AEROSOL_CHEMISTRY.F  
    -- CTM_AERDIAG with CTM_PMDIAG  
    -- AERDIAG with PMDIAG  
 
-New environmental variable:
+New environmental variables:
 
  * run script  
    -- CTM_APMDIAG  
@@ -40,7 +39,7 @@ New environmental variable:
 
 Misc:
 
- * run script
+ * run script  
    -- added AAV1file  
    -- added APMD1file  
 
@@ -51,7 +50,7 @@ Misc:
 
 ## Significance and Impact
 
-This update ensures consistency among the major output files for aerosol and aerosol chemistry related variables. It also makes possible the user selection of instantaneous OR hourly averaged aerosol diagnostic species.
+This update ensures consistency among the major output files for variables related to aerosols and aerosol chemistry. It also enables the user to select instantaneous OR hourly averaged aerosol diagnostic species.
 
 ## Affected Files:  
 
@@ -65,14 +64,14 @@ AEROSOL_CHEMISTRY.F
 PMDIAG_DATA.F  
 
 
-## References: 
+## References:
 
 NA
 
 -----
 ## Internal Records:
 
-### Relevant Pull Requests: 
+### Relevant Pull Requests:
   [PR #82](https://github.com/usepa/cmaq_dev/pull/82)
   [PR #102](https://github.com/usepa/cmaq_dev/pull/102)
   [PR #104](https://github.com/usepa/cmaq_dev/pull/104)

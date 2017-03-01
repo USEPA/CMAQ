@@ -1,29 +1,28 @@
 
-[<< Previous Chapter](CMAQ_OGD_ch01_intro.md) - [Home](CMAQ_OGD_index.md) - [Next Chapter >>](CMAQ_OGD_ch03_features.md)
-
-Overview of CMAQ System Components
+[<< Previous Chapter](CMAQ_OGD_ch01_intro.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch03_features.md)
+***
+2. Overview of CMAQ System Components
 ==================================
 
 CMAQ is a suite of Fortran 90 programs that work in concert to estimate ozone, PM, toxic compounds, and acid deposition throughout the troposphere. The five main CMAQ programs are
 
--   The initial conditions processor (ICON)
--   The boundary conditions processor (BCON)
--   The clear-sky photolysis rate calculator (JPROC)
--   The Meteorology-Chemistry Interface Processor (MCIP)
--   The CMAQ Chemistry-Transport Model (CCTM)
+-   The initial conditions processor [ICON](#icon)
+-   The boundary conditions processor [BCON](#bcon)
+-   The clear-sky photolysis rate calculator [JPROC](#jproc)
+-   The Meteorology-Chemistry Interface Processor [MCIP](#mcip)
+-   The CMAQ Chemistry-Transport Model [CCTM](#cctm)
 
 Ancillary support programs distributed with CMAQ include
 
--   The code builder/manager (Bldmake)
--   The chemical mechanism compiler (CHEMMECH)
--   EBI chemistry solver builder (CREATE_EBI)
--   The process analysis preprocessor (PROCAN)
+-   The code builder/manager [Bldmake](#bldmake)
+-   The chemical mechanism compiler [CHEMMECH](#chemmech)
+-   EBI chemistry solver builder [CREATE_EBI](#create_ebi)
 
-The following sections describe the CMAQ system concept, followed by [details of the programs listed above](#Summary_descriptions_of_the_major_CMAQ_programs "wikilink").
+The following sections describe the CMAQ system concept, followed by [details of the programs listed above](#summary-descriptions-of-the-major-cmaq-programs).
 
 ### Installation overview
 
-All CMAQ source code is distributed as [gzip](https://en.wikipedia.org/wiki/Gzip)'ed [tarballs](https://en.wikipedia.org/wiki/Tar_%28computing%29#Format_details). Prior to CMAQ version 5.0.2, CMAQ developers used [CVS](https://en.wikipedia.org/wiki/Concurrent_Versions_System) for source code management, and distributed tarballs (except for MCIP) were CVS archives. Starting with version 5.0.2, CMAQ developers switched to [git](https://en.wikipedia.org/wiki/Git_%28software%29). All versions of CMAQ from 4.7.1 to the present are available on the [U.S. EPA GitHub repository](https://github.com/USEPA/CMAQ).
+Prior to CMAQ version 5.0.2, CMAQ developers used [CVS](https://en.wikipedia.org/wiki/Concurrent_Versions_System) for source code management, and distributed [tarballs](https://en.wikipedia.org/wiki/Tar_%28computing%29#Format_details) (except for MCIP) were CVS archives. Starting with version 5.0.2, CMAQ developers switched to [git](https://en.wikipedia.org/wiki/Git_%28software%29). All versions of CMAQ from 4.7.1 to the present are available on the [U.S. EPA GitHub repository](https://github.com/USEPA/CMAQ).
 
 CMAQ source codes are used to build "executables": binary files that consist of instructions that have been translated from their original [source code](http://www.linfo.org/sourcecode.html) (e.g., Fortran) into [machine code](http://www.linfo.org/machine_code.html) (also called machine language or object code) so that they are ready to be run (executed). Executable files are created through the use of a specialized program called a [compiler](http://www.linfo.org/compiler.html).
 
@@ -41,19 +40,19 @@ Users need not install git to install CMAQ. Tarballs of all source code and scri
 
 #### Installing from CVS-based tarballs (CMAQ version 5.0.1 and earlier)
 
-CVS must be installed on the user’s Linux system before installing CMAQ versions earlier than 5.0.2. When the distributed CMAQ tar file is unpacked, a CVS directory tree is installed on the user’s machine that contains archived copies of the CMAQ source code. The CMAQ program Bldmake controls the extraction of copies of CMAQ source code from CVS based on the configuration options specified by the user in UNIX C-shell scripts. After exporting the CMAQ source code from CVS, Bldmake then invokes a Fortran 90 compiler to compile the CMAQ source code into binary object files and link them with the necessary precompiled libraries to create binary CMAQ executables. C and Fortran 90 compilers must be installed on the user’s Linux system in order to create CMAQ executables.
+CVS must be installed on the user’s Linux system before installing CMAQ versions earlier than 5.0.2. When the distributed CMAQ tar file is unpacked, a CVS directory tree is installed on the user’s machine that contains archived copies of the CMAQ source code. The CMAQ program Bldmake controls the extraction of copies of CMAQ source code from CVS based on the configuration options specified by the user in C-shell build scripts. After exporting the CMAQ source code from CVS, Bldmake then invokes a Fortran 90 compiler to compile the CMAQ source code into binary object files and link them with the necessary precompiled libraries to create binary CMAQ executables. C and Fortran 90 compilers must be installed on the user’s Linux system in order to create CMAQ executables.
 
 MCIP was not distributed in a CVS archive. Instead, when older CMAQ versions are downloaded, MCIP appears in its own directory with source code and Makefiles for installation.
 
 ### Configuration options
 
-Because the model infrastructure was designed to promote modularity, the user must create new CMAQ executables for each suite of science configuration options for all programs except MCIP. There are too many combinations of the various chemical mechanisms, horizontal and vertical transport schemes, cloud routines, and chemistry solvers in the CMAQ science configuration to include efficiently in a single executable. The requirement to recompile CMAQ with each science configuration change is offset by the flexibility to add new science to the model or simply to switch between different model configurations. This point about modularity is most pertinent to CCTM, although there are configuration options that must be selected when compiling the other CMAQ programs as well.
+Because the model infrastructure was designed to promote modularity, the user must create new CMAQ executables for each suite of science configuration options for all programs except MCIP. There are too many combinations of the various chemical mechanisms, horizontal and vertical transport schemes, cloud routines, and chemistry solvers in the CMAQ science configuration to include efficiently in a single executable. The requirement to recompile CMAQ with each science configuration change is offset by the flexibility to add new science to the model or to switch between different model configurations. This point about modularity is most pertinent to CCTM, although there are configuration options that must be selected when compiling the other CMAQ programs as well.
 
-In addition to compile-time configuration options with CMAQ, there are also execution-time configuration options (options that are chosen when the model is run versus when it is compiled). The horizontal domain configuration and the vertical coordinate system are dynamic features in CMAQ that are independent of the executable. In other words, a user can employ a single executable for a simulation that uses any of the supported map projections or grid definitions, without having to recompile the source code into a new executable. A description of which CMAQ options must be selected at compilation versus at execution are is included in [Chapter 7: CMAQ Programs and Libraries](#Files.2C_configuration.2C_and_environment_variables_2 "wikilink").
+In addition to compile-time configuration options with CMAQ, there are also execution-time configuration options (options that are chosen when the model is run versus when it is compiled). The horizontal domain configuration and the vertical coordinate system are dynamic features in CMAQ that are independent of the executable. In other words, a user can employ a single executable for a simulation that uses any of the supported map projections or grid definitions, without having to recompile the source code into a new executable. A description of which CMAQ options must be selected at compilation versus at execution are is included in [Chapter 7: CMAQ Programs and Libraries](CMAQ_OGD_ch07_programs_libraries.md#CCTM).
 
 ### Chemistry-transport model conceptual formulation
 
-As the chemistry-transport model (CTM) component of CMAQ, CCTM is the final program to be run in the CMAQ modeling sequence. There are four other main programs that prepare input data for CCTM (i.e., ICON, BCON, JPROC, and MCIP). Before describing each of the CMAQ programs [in Chapter 3](##Summary_descriptions_of_the_major_CMAQ_programs "wikilink"), we present a conceptual formulation of CMAQ and Eulerian air quality modeling to provide a framework for understanding the purposes of the various programs and their relationships to each other and to the overall system.
+As the chemistry-transport model (CTM) component of CMAQ, CCTM is the final program to be run in the CMAQ modeling sequence. There are four other main programs that prepare input data for CCTM (i.e., ICON, BCON, JPROC, and MCIP). Before describing each of the CMAQ programs in the [summary description section](CMAQ_OGD_ch02_overview.md#summary-descriptions-of-the-major-cmaq-programs), we present a conceptual formulation of CMAQ and Eulerian air quality modeling to provide a framework for understanding the purposes of the various programs and their relationships to each other and to the overall system.
 
 Eulerian CTMs use coupled ordinary differential equations (ODEs) to predict changes in pollutant concentrations throughout a three-dimensional grid that is fixed in space. The following processes affect changes in the predicted concentrations in each grid cell:
 
@@ -65,7 +64,7 @@ Eulerian CTMs use coupled ordinary differential equations (ODEs) to predict chan
 
 Mathematically, these processes relate to the concentration change in each grid cell over time (*∂C/∂t*) through the *continuity equation,* which is presented in simplified form below:
 
-<pre><code>∂C/∂t = Adv + Diff +R<sub>c</sub> + E<sub>c</sub> – S<sub>c</sub>
+<pre><code>∂C/∂t = Adv + Diff + R<sub>c</sub> + E<sub>c</sub> – S<sub>c</sub>
 
 where,
 Adv = advection
@@ -82,47 +81,66 @@ The Eulerian representation of the area to be modeled is a series of contiguous 
 
 In the context of air quality modeling, inline processes refer to those processes that are run at the same time as the chemistry-transport model.  The major advantage of including processes inline to the CCTM is that the simulation of one parameter can feedback to the simulation of one or more other parameters. For example, by including the photolysis rate calculations inline in the CCTM, the rates will be influenced by the radiative impacts of the simulated aerosol loading. Other inline features to the CCTM, such as emissions processing, provide efficiency advantages to the modeling operation and facilitate coupled meteorology-chemistry modeling. CMAQ version 5.0 and forward supports emissions calculations for biogenic sources, windblown dust, seasalt, and point source plume rise in the CCTM.
 
+User\'s must be careful to avoid double counting emissions when designing an inline CCTM simulation. The CCTM does not have the ability to identify which emissions sources were calculated offline and are being input to the model. For example, including biogenic emissions in the input emissions files and configuring the CCTM to calculate the biogenic emissions inline is redundant and will produce erroneous double counting of the emissions source.
+
+Photolysis rates may also be calculated inline in the CCTM. **When the CCTM is configuring to calculate photolysis rates inline, the preprocessing program JPROC is no longer a required part of the CMAQ modeling sequence.**  
+
 ### Summary descriptions of the major CMAQ programs
 
-The major CMAQ components and ancillary programs are described below. More detailed discussions on the formulations of the above CMAQ programs are available in [Section 4](#Overview_of_the_Science_in_the_CMAQ_Modeling_System "wikilink") below, in Byun and Ching (1999), and in Byun and Schere (2006). Note that
+The major CMAQ components and ancillary programs are described below. More detailed discussions on the formulations of the CMAQ programs are available in [Chapter 4](CMAQ_OGD_ch04_science.md), in Byun and Ching (1999), and in Byun and Schere (2006).
 
--   the following listing is in the order that you, as a user, would run them.
--   the [CHEMMECH](#Chemical_Mechanism_Compiler_.28CHEMMECH.29 "wikilink") component is for use only by advanced users who wish to define a new or modified chemical mechanism for CMAQ--most users will not need to run it.
+Note that the following list of programs is generally the order in which the CMAQ programs are run.
 
+<a id="bldmake"></a>
 #### Model Builder (Bldmake)
 
-Bldmake provides an interface to the CVS source code archive for exporting the source code, and to the Fortran 90 compiler for building binary executables. Because Bldmake is required to create all of the CMAQ executables except MCIP (which has its own Makefile procedure), it is the first program that needs to be compiled after installing the CMAQ source code on your system. In addition to creating executables, it also provides the option to generate a Linux Makefile. These are particularly useful for porting the CMAQ code to new operating systems, testing new code in a development environment, or trouble-shooting problems with CMAQ compilation or execution.
+Bldmake provides an interface to CMAQ source code repository, and to the Fortran 90 compiler for building binary executables. Because Bldmake is required to create all of the CMAQ executables except MCIP (which has its own Makefile procedure), it is the first program that needs to be compiled after installing the CMAQ source code on your system. In addition to creating executables, it also provides the option to generate a Linux Makefile. These are particularly useful for porting the CMAQ code to new operating systems, testing new code in a development environment, or trouble-shooting problems with CMAQ compilation or execution.
 
+<a id="jproc"></a>
 #### Photolysis Rate Processor (JPROC)
 
-JPROC calculates chemical-mechanism-specific clear-sky photolysis rates at fixed altitudes, solar hour angles, and latitude bands from tabulated absorption cross section and quantum yield (CSQY) data. While CMAQ is distributed with CSQY data that support the default chemical mechanisms, updating or adding new CSQY data is straightforward. The only configuration option required for JPROC is the selection of the chemical mechanism to use in the modeling. Output from JPROC is an ASCII look-up table of photolysis rates that CCTM uses to calculate gas-phase chemical transformations and pollutant concentrations.
+JPROC calculates chemical-mechanism-specific clear-sky photolysis rates at fixed altitudes, solar hour angles, and latitude bands from tabulated absorption cross section and quantum yield (CSQY) data. CMAQ is distributed with CSQY data that support the default chemical mechanisms. The only configuration option required for JPROC is the selection of the chemical mechanism to use in the modeling. Output from JPROC is an ASCII look-up table of photolysis rates that CCTM uses to calculate gas-phase chemical transformations and pollutant concentrations.
 
+*JPROC is not required if the CCTM is configured to run with inline photolysis rate calculations.*
+
+<a id="icon"></a>
 #### Initial Conditions Processor (ICON)
 
-ICON generates a gridded binary netCDF file of the chemical conditions in the modeling domain for the first hour of a simulation. It can generate these initial conditions from either an ASCII file of vertically resolved concentration profiles (distributed with CMAQ) or from an existing CCTM output file. If the profiles in an ASCII file do not have the same vertical structure as the CCTM configuration to be used, ICON will interpolate the data to a vertical structure consistent with CCTM’s. Using an existing CCTM output file to generate initial conditions is applicable when extrapolating initial conditions from a coarse to a fine grid simulation, as may occur when setting up nested simulations (simulations with finer-resolution grids that cover part of coarser-resolution grids). The configuration options for ICON include selecting the chemical mechanism to model, defining the horizontal and vertical grids, and choosing whether the initial conditions are generated from an ASCII profile or from an existing CCTM output file.
+ICON generates a gridded binary netCDF file of the chemical conditions in the modeling domain for the first hour of a simulation. It can generate these initial conditions from either an ASCII file of vertically resolved concentration profiles (distributed with CMAQ) or from an existing CCTM output file. If the profiles in an ASCII file do not have the same vertical structure as the CCTM configuration to be used, ICON will interpolate the data to a vertical structure consistent with CCTM’s. Using an existing CCTM output file to generate initial conditions is applicable when extrapolating initial conditions from a coarse to a fine grid simulation, as may occur when setting up nested simulations (simulations with finer-resolution grids that cover part of coarser-resolution grids). As discussed in [Chapter 7](CMAQ_OGD_ch07_programs_libraries.md#icon), the configuration options for ICON include selecting the chemical mechanism to model, defining the horizontal and vertical grids, and choosing whether the initial conditions are generated from an ASCII profile or from an existing CCTM output file.
 
+<a id="bcon"></a>
 #### Boundary Conditions Processor (BCON)
 
-BCON generates a gridded binary netCDF file of the chemical conditions along the horizontal boundaries of the modeling domain. These boundary conditions can be either static or time-varying, and (as with ICON) can be generated from either an ASCII file of vertically resolved concentration profiles or from an existing CCTM output file. Also as with ICON, BCON will interpolate the data in ASCII profiles to a vertical resolution that is consistent with the CCTM configuration. BCON differs from ICON, however, in that it can generate time-varying (i.e., dynamic) boundary conditions. Dynamic boundary conditions are typically extracted either from CCTM outputs from a coarse-grid simulation for nested simulations or from a CCTM simulation using a global-scale model. The file structure of the ASCII input profiles can also support the creation of dynamic boundary conditions, but generally these files are used only for creating static data. The configuration options for BCON include selecting the chemical mechanism to model, defining the horizontal and vertical grids, and choosing whether the boundary conditions are generated from an ASCII profile or from an existing CCTM output file.
+BCON generates a gridded binary netCDF file of the chemical conditions along the horizontal boundaries of the modeling domain. These boundary conditions can be either static or time-varying, and (as with ICON) can be generated from either an ASCII file of vertically resolved concentration profiles or from an existing CCTM output file. Also as with ICON, BCON will interpolate the data in ASCII profiles to a vertical resolution that is consistent with the CCTM configuration. BCON differs from ICON, however, in that it can generate time-varying (i.e., dynamic) boundary conditions. Dynamic boundary conditions are typically extracted either from CCTM outputs from a coarse-grid simulation for nested simulations or from a CCTM simulation using a global-scale model. The file structure of the ASCII input profiles can also support the creation of dynamic boundary conditions, but generally these files are used only for creating static data. The configuration options for BCON include selecting the chemical mechanism to model, defining the horizontal and vertical grids, and choosing whether the boundary conditions are generated from an ASCII profile or from an existing CCTM output file. (discussed further in [Chapter 7](CMAQ_OGD_ch07_programs_libraries.md#bcon))
 
+BCON is only used to create boundary conditions inputs for the CCTM from an ASCII profile file or from an existing CCTM output file.  Users are responsible for preparing CCTM input boundary conditions from other sources, such as global chemistry transport models.
+
+<a id="mcip"></a>
 #### Meteorology-Chemistry Interface Processor (MCIP)
 
-MCIP uses output files from the MM5 or WRF meteorological models to create netCDF-formatted input meteorology data that are used by SMOKE (the emissions processor that computes emissions inputs to CMAQ) and by CMAQ. MCIP prepares and diagnoses all meteorological fields that are required for SMOKE and CCTM. In addition, MCIP is currently used to calculate the time-varying, species-dependent dry deposition velocities that are used in CCTM. MCIP can be used to uniformly trim cells off the horizontal boundary of the domain defined by the meteorological model, or to window in on a subset of that domain. MCIP can also decrease the vertical resolution of the meteorological data by “layer collapsing,” although this option should be used with caution as it can degrade the quality of the data if used incorrectly. Configuration options for MCIP include the time periods over which to extract data from the meteorological model output files, horizontal and vertical grid definitions, and selections for calculating dry deposition velocities and integrating satellite cloud observations into MCIP output.
+MCIP uses output files from the MM5 or WRF meteorological models to create netCDF-formatted input meteorology data that are used by SMOKE (the emissions processor that computes emissions inputs to CMAQ) and by CMAQ. MCIP prepares and diagnoses all meteorological fields that are required for SMOKE and CCTM. In addition, MCIP is currently used to calculate the time-varying, species-dependent dry deposition velocities that are used in CCTM. MCIP can be used to uniformly trim cells off the horizontal boundary of the domain defined by the meteorological model, or to window in on a subset of that domain. MCIP can also decrease the vertical resolution of the meteorological data by “layer collapsing,” although this option should be used with caution as it can degrade the quality of the data if used incorrectly. Configuration options for MCIP include the time periods over which to extract data from the meteorological model output files, horizontal and vertical grid definitions, and selections for calculating dry deposition velocities and integrating satellite cloud observations into MCIP output. (discussed further in [Chapter 7](CMAQ_OGD_ch07_programs_libraries.md#mcip))
 
+<a id="cctm"></a>
 #### CMAQ Chemistry-Transport Model (CCTM)
 
-CCTM integrates the output from the preprocessing programs described above (JPROC, BCON, ICON, and MCIP), as well as CMAQ-ready emissions inputs (e.g., output from SMOKE), to simulate continuous atmospheric chemical conditions. The modeled concentrations of relevant species can be captured for output at a user-definable time frequency (typically hourly). The CCTM output files are all binary netCDF files of gridded and temporally resolved air pollutant information, such as gas- and aerosol-phase species mixing ratios, hourly wet and dry deposition values, visibility metrics, and integral-averaged concentrations. The spatial and temporal coverages of CCTM are dictated by the input meteorology information. The science configuration is specific to each application of the model and can be adjusted to optimize model performance both computationally and in the numerical reproduction of observed air quality trends. Configuration options for CCTM include the temporal coverage of the simulation, the chemical mechanism to use in the modeling, the physics scheme to use for modeling pollutant transport, heterogeneous and aqueous chemistry options, and diagnostic options (such as process analysis, discussed in the next paragraph). CCTM has the largest number of configuration options of all the CMAQ programs.
+CCTM integrates the output from the preprocessing programs described above (JPROC, BCON, ICON, and MCIP), as well as CMAQ-ready emissions inputs (e.g., output from SMOKE), to simulate continuous atmospheric chemical conditions. The modeled concentrations of relevant species can be captured for output at a user-defined time frequency (typically hourly). The CCTM output files are all binary netCDF files of gridded and temporally resolved air pollutant information, such as gas- and aerosol-phase species mixing ratios, hourly wet and dry deposition values, visibility metrics, and integral-averaged concentrations.
 
-#### Process Analysis Preprocessor (PROCAN)
+The spatial and temporal coverages of CCTM are dictated by the input meteorology information. The science configuration is specific to each application of the model and can be adjusted to optimize model performance both computationally and in the numerical reproduction of observed air quality trends. Configuration options for CCTM include the temporal coverage of the simulation, the chemical mechanism to use in the modeling, the physics scheme to use for modeling pollutant transport, heterogeneous and aqueous chemistry options, inline processing options, and diagnostic options (such as process analysis, discussed in the next paragraph). CCTM has the largest number of configuration options of all the CMAQ programs. (discussed further in [Chapter 7](CMAQ_OGD_ch07_programs_libraries.md#cctm))
 
-Process analysis is a technique used to trace the source(s) of a chemical species within a simulation. PROCAN generates Fortran INCLUDE files for building a version of CCTM that can calculate integrated process rates and/or integrated reaction rates (discussed in Section 8.3); these rates can then be used for diagnosing the chemical behavior of CMAQ simulations. This preprocessor uses an input configuration file to select the process analysis options desired, and outputs three INCLUDE files that are used to compile a version of CCTM that is instrumented for process analysis.
-
+<a id="chemmech"></a>
 #### Chemical Mechanism Compiler (CHEMMECH)
 
-This program creates chemical mechanism INCLUDE files for CMAQ from a mechanism definition file. Chemical mechanisms are represented in CMAQ through a series of INCLUDE files that contain mechanistic and kinetic parameters that describe a photochemical mechanism. CHEMMECH creates these INCLUDE files from an ASCII mechanism-definition file that represents the chemistry as sequential equations of reactants, products, and reaction rate information. This program is needed to modify reactions’ stoichiometry or kinetics in the existing mechanisms, to add new species and reactions, and to implement entirely new chemical mechanisms in CMAQ.
+This program creates chemical mechanism namelist files for CMAQ from a mechanism definition file. Chemical mechanisms are represented in CMAQ through a series of namelist files that contain mechanistic and kinetic parameters that describe a photochemical mechanism. CHEMMECH creates the namelist files from an ASCII mechanism-definition file that represents the chemistry as sequential equations of reactants, products, and reaction rate information. This program is needed to modify reaction stoichiometry or kinetics in the existing mechanisms, to add new species and reactions, and to implement entirely new chemical mechanisms in CMAQ.
 
-#### Lightning Data Preprocessor (LTNG\_2D\_DATA)
+<a id="create_ebi"></a>
+#### EBI chemistry solver builder (CREATE_EBI)
+
+The Euler Backward Iterative (EBI) chemistry solver is an optimized numerical solver for CCTM photochemical mechanisms. As the EBI solver is optimized for a specific chemistry mechanism configuration, a new version of the EBI solver is required for new CCTM photochemical mechanisms.  The program CREATE_EBI is a CCTM source code generator for new mechanism versions. Mechanism input files for CREATE_EBI are produced by the CMAQ program CHEMMECH. The source code generated by CREATE_EBI may be used to compile a new version of the CCTM for use with updated chemistry namelist files created with CHEMMECH.
+
+#### Lightning Data Preprocessor (LTNG_2D_DATA)
 
 This program reads lightning flash count data from the National Lightning Detection Network (NLDN) and creates a CCTM input file to use for simulations that include lightning NO<sub>x</sub> emissions.
+***
+[<< Previous Chapter](CMAQ_OGD_ch01_intro.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch03_features.md)<br>
 
-[<< Previous Chapter](CMAQ_OGD_ch01_intro.md) - [Home](CMAQ_OGD_index.md) - [Next Chapter >>](CMAQ_OGD_ch03_features.md)
+CMAQ Operational Guidance Document (c) 2016<br>

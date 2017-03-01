@@ -1,6 +1,6 @@
 #!/bin/csh
 
-# ===================== MERGE_AQS_SPECIES_v5.1 Run Script =====================
+# ===================== MERGE_AQS_SPECIES_v5.2 Run Script =====================
 # Usage: run.merge.aqs.species >&! run.merge.aqs.species.log &
 #
 # To report problems or request help with this script/program:

@@ -476,7 +476,7 @@ C If last call this hour:  write accumulated depositions:
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
             END IF
     
-            IF ( ABFLUX .AND. TRIM( DDEP_SPC( V ) ) .EQ. 'NH3' ) THEN
+            IF ( ABFLUX .AND. DDEP_SPC( V ) .EQ. 'NH3' ) THEN
                DO I = 1, LCMP 
                   DO R = 1, MY_NROWS
                      DO C = 1, MY_NCOLS

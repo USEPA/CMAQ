@@ -8,11 +8,6 @@
 #             http://www.cmascenter.org                               #
 # =================================================================== #
 
-#> USEPA sol users:
-#> You must "module load" the correct compiler (intel, gcc, or pgi) based
-#> on the config.cmaq choice. For example:
-#> module load intel/13.1 openmpi-1.8.1/intel-13.1 netcdf-4.3.0/intel-13.1
-
  set BLD_OS = `uname -s`        ## Script set up for Linux only 
  if ($BLD_OS != 'Linux') then
     echo "   $BLD_OS -> wrong bldit script for host!"
@@ -22,19 +17,19 @@
 #> Source the config.cmaq file to set the build environment
  source ../../../config.cmaq
 
-#> Check for M3HOME and M3LIB settings:
- if ( ! -e $M3HOME || ! -e $M3LIB ) then
-    echo "   $M3HOME or $M3LIB directory not found"
+#> Check for CMAQ_HOME and CMAQ_LIB settings:
+ if ( ! -e $CMAQ_HOME || ! -e $CMAQ_LIB ) then
+    echo "   $CMAQ_HOME or $CMAQ_LIB directory not found"
     exit 1
  endif
- echo "   Model repository path: $M3HOME"
- echo "            library path: $M3LIB"
+ echo "   Model repository path: $CMAQ_HOME"
+ echo "            library path: $CMAQ_LIB"
 
-#> If $REPO not set, default to $M3HOME
+#> If $REPO not set, default to $CMAQ_HOME
  if ( $?REPO ) then
     echo "         Model repository path: $REPO"
  else
-    setenv REPO $M3HOME
+    setenv REPO $CMAQ_HOME
     echo " default Model repository path: $REPO"
  endif
 
@@ -49,7 +44,7 @@
 
 #> user choices: base working directory and application ID
  set Base = $cwd                         #> working directory
- set APPL = D51a                         #> model configuration ID
+ set APPL = v52b                         #> model configuration ID
  set EXEC = COMBINE_${APPL}_${EXEC_ID}   #> executable name for this application
  set CFG  = cfg.$EXEC                    #> BLDMAKE configuration file name
 
@@ -57,7 +52,7 @@
 #set CopySrc                            #> copy the source files into the BLD directory
 
 #> user choice: make a Makefile
- set MakeFileOnly   # builds a Makefile to make the model, but does not compile -
+# set MakeFileOnly   # builds a Makefile to make the model, but does not compile -
                     # comment out to also compile the model (default if not set)
 
 #===============================================================================
@@ -74,12 +69,12 @@
  set FP = $FC
 
 #> Set IO/API version
- set IOAPI = ioapi_3.1
+ set IOAPI = ioapi
 
 #> Set compiler flags
- set xLib_Base  = ${M3LIB}
- set xLib_1     = $IOAPI/Linux2_${system}${compiler_ext}
- set xLib_2     = $IOAPI/ioapi/fixed_src
+ set xLib_Base  = ${CMAQ_LIB}
+ set xLib_1     = $IOAPI/lib
+ set xLib_2     = netcdf/include
  set FSTD       = "${myFSTD}"
  set DBG        = "${myDBG}"
  set F_FLAGS    = "${myFFLAGS}"
@@ -87,8 +82,8 @@
  set CPP_FLAGS  = ""
  set LINK_FLAGS = "${myLINK_FLAG}"
 
- set LIB1 = "-lioapi"
- set LIB2 = "-lnetcdff -lnetcdf"
+ set LIB1 = "${ioapi_lib}"
+ set LIB2 = "${netcdf_lib}"
 
 #> invoke BLDMAKE for serial execution
  set Blder = "$REPO/UTIL/bldmake/src/BLDMAKE -serial -verbose"

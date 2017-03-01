@@ -1,6 +1,6 @@
 #!/bin/csh -f
 
-# ====================== JPROCv5.1 Build Script ===================== 
+# ====================== JPROCv5.2 Build Script ===================== 
 # Usage: bldit.jproc >&! bldit.jproc.log                              
 # Requirements: I/O API & netCDF libraries; a Fortran compiler
 #
@@ -9,25 +9,26 @@
 # =================================================================== 
 
 #> Source the config.cmaq file to set the build environment
- source ../config.cmaq
+ source ../../../config.cmaq
  set echo
 
 #:#:#:#:#:#:#:#:#:#:#:# Begin User Input Section #:#:#:#:#:#:#:#:#:#:#:#
 
 #> Source Code Repository 
- setenv REPOROOT $M3MODEL/JPROC        #> location of the JPROC source code
- set GlobInc = $M3MODEL/CCTM/ICL       #> location of the global include files
- set Mechs   = $M3MODEL/CCTM/MECHS     #> location of the chemistry mechanism include files
+ set MODEL = $CMAQ_HOME/PREP/jproc/src        #> location of the JPROC source code
+ setenv REPOROOT $MODEL
+ set GlobInc = $CMAQ_HOME/CCTM/src/ICL        #> location of the global include files
+ set Mechs   = $CMAQ_HOME/CCTM/src/MECHS      #> location of the chemistry mechanism include files
 
 #> Working directory and application IDs
  set Base = $cwd                       #> working directory for compiling the source code
- set APPL  = D51a                      #> model configuration ID
- set MODEL = JPROC_${APPL}_$EXEC_ID    #> executable name
- set CFG   = cfg.$MODEL                #> configuration file name
+ set APPL = v52                       #> model configuration ID
+ set EXEC = JPROC_${APPL}_$EXEC_ID    #> executable name
+ set CFG  = cfg.$EXEC                #> configuration file name
 
 #> Controls for managing the source code compilation
  set CopySrc                           #> copy the source files into a working irectory
-#set MakeFileOnly                      #> uncomment to build a Makefile, but do not compile; comment out to compile the model (default if not set)
+# set MakeFileOnly                      #> uncomment to build a Makefile, but do not compile; comment out to compile the model (default if not set)
 
 #======================================#>
 #> JPROC Science Modules
@@ -35,9 +36,9 @@
 #> NOTE: For the modules with multiple options, a note is provided on where to look in the
 #>   source code archive for a list of the possible settings; users may also refer to the CMAQ documentation
 
- set ModDriver = jproc_table
- set Mechanism = cb05e51_ae6_aq        #> chemical mechanism (see $M3MODEL/CCTM/MECHS)
- set Tracer    = trac0                 #> tracer configuration directory under $M3MODEL/CCTM/MECHS [ default: no tracer species ]
+ set ModCommon = common
+ set Mechanism = cb05e51_ae6_aq        #> chemical mechanism (see $CMAQ_HOME/CCTM/MECHS)
+ set Tracer    = trac0                 #> tracer configuration directory under $CMAQ_HOME/CCTM/MECHS [ default: no tracer species ]
  set ModMisc = $Mechs/$Mechanism/RXNS_DATA_MODULE.F90
 
 #======================================#>
@@ -47,30 +48,29 @@
 
  set FC = ${myFC}                      #> path of Fortan compiler; set in config.cmaq
  set FP = $FC                          #> path of Fortan preprocessor; set in config.cmaq
- set Blder = $M3LIB/bldmake            #> location of model builder executable
-
-#> Libraries/include files
- set LIOAPI   = "${IOAPI_DIR}/lib ${ioapi_lib}"      #> I/O API library directory
- set IOAPIMOD = "${IOAPI_DIR}/include"               #> I/O API module directory
- set NETCDF   = "${NETCDF_DIR}/lib ${netcdf_lib}"    #> netCDF library directory
+ set Blder = "$CMAQ_HOME/UTIL/bldmake/src/BLDMAKE -serial -verbose"  #> location of model builder executable
 
 #> Set compiler flags
- set F_FLAGS    = "${myFFLAGS} -I ${IOAPIMOD} -I."
- set F90_FLAGS  = "${myFRFLAGS} -I ${IOAPIMOD} -I."
+ set xLib_Base  = ${CMAQ_LIB}
+ set xLib_1     = ioapi/lib
+ set xLib_2     = ioapi/src
+ set FSTD       = "${myFSTD}"
+ set DBG        = "${myDBG}"
+ set F_FLAGS    = "${myFFLAGS}"
+ set F90_FLAGS  = "${myFRFLAGS}"
  set CPP_FLAGS  = ""
  set C_FLAGS    = "${myCFLAGS} -DFLDMN"
  set LINK_FLAGS = "${myLINK_FLAG}"
 
 #:#:#:#:#:#:#:#:#:#:#:# End of User Input Section :#:#:#:#:#:#:#:#:#:#:#:#:#
 
-#> Check for M3HOME and M3LIB settings:
- if ( ! -e $M3HOME || ! -e $M3LIB || ! -e $M3MODEL ) then
-    echo "   M3HOME, M3LIB, or M3MODEL directory not found"
+#> Check for CMAQ_HOME and CMAQ_LIB settings:
+ if ( ! -e $CMAQ_HOME || ! -e $CMAQ_LIB  ) then
+    echo "   CMAQ_HOME or CMAQ_LIB directory not found"
     exit 1
  endif
- echo "    Model repository base path: $M3HOME"
- echo "                  library path: $M3LIB"
- echo "              source code path: $M3MODEL"
+ echo "    Model repository base path: $CMAQ_HOME"
+ echo "                  library path: $CMAQ_LIB"
  
  set BLD_OS = `uname -s`        ## Script set up for Linux only 
  if ($BLD_OS != 'Linux') then
@@ -90,9 +90,8 @@
  endif
  cd $Bld
 
- set LIB1 = "-L${LIOAPI}"
- set LIB2 = "-L${NETCDF}"
- set LIBS = "$LIB1 $LIB2 ${extra_lib}"
+ set LIB1 = "$ioapi_lib"
+ set LIB2 = "$netcdf_lib $extra_lib"
 
  source $Base/relinc.jproc
  if ( $status ) exit 1
@@ -105,36 +104,55 @@
  set quote = '"'
 
  echo                                                               > $Cfile
- echo "model       $MODEL;"                                        >> $Cfile
+ echo "model       $EXEC;"                                         >> $Cfile
  echo                                                              >> $Cfile
- echo "FPP         $FP;"                                           >> $Cfile
+ echo "repo        $MODEL;"                                        >> $Cfile
+ echo                                                              >> $Cfile
+ echo "mechanism   $Mechanism;"                                    >> $Cfile
+ echo                                                              >> $Cfile
+ echo "lib_base    $xLib_Base;"                                    >> $Cfile
+ echo                                                              >> $Cfile
+ echo "lib_1       $xLib_1;"                                       >> $Cfile
+ echo                                                              >> $Cfile
+ echo "lib_2       $xLib_2;"                                       >> $Cfile
  echo                                                              >> $Cfile
  set text = "$quote$CPP_FLAGS$quote;"
  echo "cpp_flags   $text"                                          >> $Cfile
  echo                                                              >> $Cfile
  echo "f_compiler  $FC;"                                           >> $Cfile
  echo                                                              >> $Cfile
+ echo "fstd        $quote$FSTD$quote;"                             >> $Cfile
+ echo                                                              >> $Cfile
+ echo "dbg         $quote$DBG$quote;"                              >> $Cfile
+ echo                                                              >> $Cfile
  echo "f_flags     $quote$F_FLAGS$quote;"                          >> $Cfile
  echo                                                              >> $Cfile
  echo "f90_flags   $quote$F90_FLAGS$quote;"                        >> $Cfile
  echo                                                              >> $Cfile
- echo "c_flags     $quote$C_FLAGS$quote;"                          >> $Cfile
- echo                                                              >> $Cfile
  echo "link_flags  $quote$LINK_FLAGS$quote;"                       >> $Cfile
  echo                                                              >> $Cfile
- echo "libraries   $quote$LIBS$quote;"                             >> $Cfile
+ #echo "libraries   $quote$LIBS$quote;"                             >> $Cfile
+ echo "ioapi       $quote$LIB1$quote;"                             >> $Cfile
+ echo                                                              >> $Cfile
+ echo "netcdf      $quote$LIB2$quote;"                             >> $Cfile
  echo                                                              >> $Cfile
 
  set text="// mechanism:"
  echo "$text ${Mechanism}"                                         >> $Cfile
- echo "// model repository: ${M3MODEL}"                            >> $Cfile
+ echo "// model repository: ${REPOROOT}"                           >> $Cfile
  echo                                                              >> $Cfile
  echo "include SUBST_CONST      $ICL_CONST/CONST.EXT;"             >> $Cfile
 
- set text = "jproc_table"
- echo "// options are" $text                                       >> $Cfile
- echo "Module ${ModDriver};"                                       >> $Cfile
+ set text = "common"
+ echo "// required" $text                                          >> $Cfile
+ echo "Module ${ModCommon};"                                       >> $Cfile
  echo                                                              >> $Cfile
+
+
+# set text = "jproc_table"
+# echo "// options are" $text                                       >> $Cfile
+# echo "Module ${ModDriver};"                                       >> $Cfile
+# echo                                                              >> $Cfile
 
  if ( $?ModMisc ) then
     echo "MISC ${ModMisc};"                                      >> $Cfile

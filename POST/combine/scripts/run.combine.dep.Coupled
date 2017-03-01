@@ -10,19 +10,19 @@
 #> Source the config.cmaq file to set the run environment
  source ../../config.cmaq
 
-#> Check that M3DATA is set: 
- if ( ! -e $M3DATA ) then
-    echo "   $M3DATA path does not exist"
+#> Check that CMAQ_DATA is set: 
+ if ( ! -e $CMAQ_DATA ) then
+    echo "   $CMAQ_DATA path does not exist"
     exit 1
     endif
- echo " "; echo " Input data path, M3DATA set to $M3DATA"; echo " "
+ echo " "; echo " Input data path, CMAQ_DATA set to $CMAQ_DATA"; echo " "
 
  set APPL = D51a
  set EXEC = COMBINE_${APPL}_$EXEC_ID
 
 #> Set the working directory
  set BASE  = $cwd      
-#set BASE  = $M3HOME/scripts/combine
+#set BASE  = $CMAQ_HOME/scripts/combine
  set BLD   = ${BASE}/BLD_$APPL
 
  cd $BASE; date; set timestamp; cat $BASE/cfg.${APPL}; echo " "; set echo
