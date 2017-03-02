@@ -43,11 +43,12 @@ C           24 Aug 2015: H.Pye: Added IEPOX and HACET with Donna Schwede
 C           26 Jan 2016: H. Pye added info for SOA SVOCs
 C           24 Mar 2016: G. Sarwar: added iodine and bromine species
 C           26 Sep 2016: D. Wong: removed unnecessary use module statements
+C           29 Dec 2015: H.Pye: added new monoterpene SOA surrogates
 
 C-----------------------------------------------------------------------
 
       INTEGER, PARAMETER :: LDDEP = 4
-      INTEGER, PARAMETER :: LTOTG = 100
+      INTEGER, PARAMETER :: LTOTG = 107
       INTEGER, PARAMETER :: LCMP  = 8
       CHARACTER( 16 )    :: DEPV_METHOD
 
@@ -182,6 +183,13 @@ C-------------------------------------------------------------------------------
          DEPSPC( 98 ) = 'BRCL            '
          DEPSPC( 99 ) = 'DMS             '
          DEPSPC( 100) = 'MSA             '
+         DEPSPC( 101) = 'SVMT1           '
+         DEPSPC( 102) = 'SVMT2           '
+         DEPSPC( 103) = 'SVMT3           '
+         DEPSPC( 104) = 'SVMT4           '
+         DEPSPC( 105) = 'SVMT5           '
+         DEPSPC( 106) = 'SVMT6           '
+         DEPSPC( 107) = 'SVMT7           '
 
          N_USE_DEPSPC = 0
          USE_DEPSPC = .FALSE.   ! array

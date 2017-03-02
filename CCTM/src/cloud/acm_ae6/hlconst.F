@@ -109,7 +109,7 @@ C...........INCLUDES and their descriptions
 
 C...........PARAMETERS and their descriptions:
 
-      INTEGER, PARAMETER :: MXSPCS = 200     ! Number of substances
+      INTEGER, PARAMETER :: MXSPCS = 207     ! Number of substances
       INTEGER, PARAMETER :: MXDSPCS = 19     ! Number of dissociating species
 
 C...pointers for the dissociation constants (array B and D)
@@ -378,6 +378,13 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA SUBNAME(198), A(198), E(198) / 'CHLOROPRENE     ', 4.760E+00, 0.0E+00 / ! Sander ACP 2015, Mackay et al. (1993)
       DATA SUBNAME(199), A(199), E(199) / 'METHCHLORIDE    ', 1.320E-01, 3.3E+03 / ! Sander ACP 2015, Sander et al. (2011)
       DATA SUBNAME(200), A(200), E(200) / 'CARBSULFIDE     ', 2.130E-02, 3.3E+03 / ! Sander ACP 2015, Warneck Williams (2012)
+      DATA SUBNAME(201), A(201), E(201) / 'SVMT1           ', 7.1E+11,  6.0E+03 /   ! est based on Hodzic 2014 GRL
+      DATA SUBNAME(202), A(202), E(202) / 'SVMT2           ', 8.9E+10,  6.0E+03 /   ! est based on Hodzic 2014 GRL
+      DATA SUBNAME(203), A(203), E(203) / 'SVMT3           ', 1.1E+10,  6.0E+03 /   ! est based on Hodzic 2014 GRL
+      DATA SUBNAME(204), A(204), E(204) / 'SVMT4           ', 1.4E+09,  6.0E+03 /   ! est based on Hodzic 2014 GRL
+      DATA SUBNAME(205), A(205), E(205) / 'SVMT5           ', 1.8E+08,  6.0E+03 /   ! est based on Hodzic 2014 GRL
+      DATA SUBNAME(206), A(206), E(206) / 'SVMT6           ', 2.2E+07,  6.0E+03 /   ! est based on Hodzic 2014 GRL
+      DATA SUBNAME(207), A(207), E(207) / 'SVMT7           ', 2.8E+06,  6.0E+03 /   ! est based on Hodzic 2014 GRL
 
 
       DATA B( LSO2   ), D( LSO2   ) / 1.30E-02,  1.96E+03 /  ! SO2*H2O<=>HSO3+H     : Smith and Martell (1976)

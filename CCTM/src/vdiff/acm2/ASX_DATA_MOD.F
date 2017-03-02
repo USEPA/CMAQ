@@ -370,6 +370,13 @@ C Land use information:
       DATA subname( 98), dif0( 98), ar( 98), meso( 98), lebas( 98) / 'BRCL            ', 0.0966,    1.0,      0.0,  51.6/
       DATA subname( 99), dif0( 99), ar( 99), meso( 99), lebas( 99) / 'DMS             ', 0.0926,    2.0,      0.0,  77.4/
       DATA subname(100), dif0(100), ar(100), meso(100), lebas(100) / 'MSA             ', 0.0896,    2.0,      0.0,  77.4/
+      DATA subname(101), dif0(101), ar(101), meso(101), lebas(101) / 'SVMT1           ', 0.0424,   20.0,      0.0, 355.2/
+      DATA subname(102), dif0(102), ar(102), meso(102), lebas(102) / 'SVMT2           ', 0.0556,   20.0,      0.0, 236.8/
+      DATA subname(103), dif0(103), ar(103), meso(103), lebas(103) / 'SVMT3           ', 0.0583,   20.0,      0.0, 214.6/
+      DATA subname(104), dif0(104), ar(104), meso(104), lebas(104) / 'SVMT4           ', 0.0587,   20.0,      0.0, 229.4/
+      DATA subname(105), dif0(105), ar(105), meso(105), lebas(105) / 'SVMT5           ', 0.0619,   20.0,      0.0, 207.2/
+      DATA subname(106), dif0(106), ar(106), meso(106), lebas(106) / 'SVMT6           ', 0.0624,   20.0,      0.0, 222.0/
+      DATA subname(107), dif0(107), ar(107), meso(107), lebas(107) / 'SVMT7           ', 0.0661,   20.0,      0.0, 199.8/
 
       CONTAINS
 
