@@ -175,8 +175,9 @@ C Open the emissions file (for gas chem, aerosols and non-reactive species)
      &              UNITSCK .NE. 'MOLES/SEC' .AND.
      &              UNITSCK .NE. 'MOLE/SEC'  .AND.
      &              UNITSCK .NE. 'MOL/SEC'   .AND.
-     &              ( INDEX( MECHNAME, 'NVPOA' ) .NE. 0 .OR. 
-     &                GC_EMIS( N ) .NE. 'POC' )   ) THEN
+     &              ( INDEX( MECHNAME, 'NVPOA' ) .NE. 0 .OR.  ! If the semivolatile POA mechanism
+     &                GC_EMIS( N ) .NE. 'POC' )   ) THEN      ! is active, then some gas-phase species
+                                                              ! will be scaled off of POC
                   XMSG = 'GC units incorrect on ' // EMIS_1 //' for species ' // GC_EMIS( N )
                   !CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
                   CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
