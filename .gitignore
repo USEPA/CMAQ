@@ -1,2 +1,7 @@
+#BLDMAKE compiled objects
 UTIL/bldmake/src/BLDMAKE
-./.gitignore
+UTIL/bldmake/src/bldmake.o
+UTIL/bldmake/src/cfg_module.o
+UTIL/bldmake/src/modelcfg.mod
+UTIL/bldmake/src/parser.o
+UTIL/bldmake/src/utils.o
