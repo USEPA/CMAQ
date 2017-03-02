@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-
 # Compiled source #
 ###################
 *.com
@@ -41,7 +39,12 @@ ehthumbs.db
 Thumbs.db
 *.swp
 *bak
-MECHS/saprc07tic_ae6_aq-original
-UTIL/*/output/*201*
+
+# BLDMAKE compiled objects #
+############################
 UTIL/bldmake/src/BLDMAKE
-./.gitignore
+UTIL/bldmake/src/bldmake.o
+UTIL/bldmake/src/cfg_module.o
+UTIL/bldmake/src/modelcfg.mod
+UTIL/bldmake/src/parser.o
+UTIL/bldmake/src/utils.o
