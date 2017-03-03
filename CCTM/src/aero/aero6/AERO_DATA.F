@@ -586,7 +586,6 @@ C Emissions mapping
 
       Logical, Save :: V51_SOA_mechanism   = .False. !
       Logical, Save :: AE_eflag            = .False. ! error flag for AERO_DATA
-
 C IC/BC Correction Mapping
       !The following vectors store masks of the aerosol species
       !identities. For example, LBCNUM stores 1's for every species that
@@ -762,7 +761,6 @@ C Build mapping to CGRID for each species in the master AeroList
             ! Check that this is true.
             If ( aerospc( spc )%name( n )(1:) .Ne. ' ' .And.
      &           aerolist_map( aerospc_tolist( spc ),n ) .Eq. 0 ) Then
-               Write( xmsg2,* ) (' ', Trim( aerolist( spc )%name( m ) ), ' ', m = 1, n_mode )
                AE_eflag  = .True.
                Write( xmsg,* ) 'FATAL ERROR: Linked set of tracers, ',
      &                    Trim( xmsg2 ),', is missing species, ',
