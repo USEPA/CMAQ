@@ -240,7 +240,7 @@ ARSENIC_PM25    ,ng/m3     ,1000.0*(AASI[1]*PM25AT[3]+AASJ[1]*PM25AC[3]+AASK[1]*
 
 !Mercuric PM species
 HG_PM10         ,ng/m3     ,1000.0*(APHGI[1]+APHGJ[1]+APHGK[1])      
-HG_PM25         ,ng/m3     ,1000.0*(APHGI[1]*PM25AT[3]+APHGJ[1]*PM25AC[3]+APHGK[1]*PM25CO[3])  
+HG_PM25         ,ng/m3     ,1000.0*(APHGI[1]*PM25AT[3]+APHGJ[1]*PM25AC[3]+APHGK[1]*PM25CO[3])  
 
 !! OM/OC ratios
 AOMOCRAT_PRI    ,none      ,APOMIJ[0]/APOCIJ[0] 
