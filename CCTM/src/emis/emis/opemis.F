@@ -37,6 +37,7 @@ C                        removed deprecated TRIMLEN
       USE VGRD_DEFN           ! vertical layer specifications
       USE CGRID_SPCS          ! CGRID mechanism species
       USE UTILIO_DEFN
+      USE RXNS_DATA, only : MECHNAME
 
       IMPLICIT NONE
 
@@ -174,7 +175,10 @@ C Open the emissions file (for gas chem, aerosols and non-reactive species)
      &              UNITSCK .NE. 'MOL/S'     .AND.
      &              UNITSCK .NE. 'MOLES/SEC' .AND.
      &              UNITSCK .NE. 'MOLE/SEC'  .AND.
-     &              UNITSCK .NE. 'MOL/SEC' ) THEN
+     &              UNITSCK .NE. 'MOL/SEC'   .AND.
+     &              ( INDEX( MECHNAME, 'NVPOA' ) .NE. 0 .OR.  ! If the semivolatile POA mechanism
+     &                GC_EMIS( N ) .NE. 'POC' )   ) THEN      ! is active, then some gas-phase species
+                                                              ! will be scaled off of POC
                   XMSG = 'GC units incorrect on ' // EMIS_1 //' for species ' // GC_EMIS( N )
                   !CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
                   CALL M3WARN( PNAME, JDATE, JTIME, XMSG )

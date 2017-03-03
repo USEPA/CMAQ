@@ -26,9 +26,10 @@
 !   14 Aug 14 J.Young: added vdiff and grav. settling diagnostic files
 !   3  Nov 2015 G. Sarwar deleted CHLOROPHYLL since it is not used
 !   3  Nov 2015 G. Sarwar added CTM_MGEM_1 output files
+!   1  Feb 2017 D. Kang Added CTM_LTNGDIAG_1 and CTM_LTNGDIAG_2 for Lightning
 !.......................................................................
 
-      INTEGER, PARAMETER :: N_FILES = 72
+      INTEGER, PARAMETER :: N_FILES = 74
 
       CHARACTER( 16 ) :: LGCL_NAME( N_FILES ) 
       LOGICAL            IN_MODE( N_FILES )
@@ -56,6 +57,8 @@
       CHARACTER( 16 ) :: CTM_PMDIAG_1
       CHARACTER( 16 ) :: CTM_APMDIAG_1
       CHARACTER( 16 ) :: CTM_AOD_1
+      CHARACTER( 16 ) :: CTM_LTNGDIAG_1
+      CHARACTER( 16 ) :: CTM_LTNGDIAG_2
       CHARACTER( 16 ) :: CTM_IPR_1
       CHARACTER( 16 ) :: CTM_IPR_2
       CHARACTER( 16 ) :: CTM_IPR_3
@@ -130,6 +133,8 @@
       DATA CTM_PMDIAG_1     / 'CTM_PMDIAG_1    ' /
       DATA CTM_APMDIAG_1    / 'CTM_APMDIAG_1   ' /
       DATA CTM_AOD_1        / 'CTM_AOD_1       ' /
+      DATA CTM_LTNGDIAG_1   / 'CTM_LTNGDIAG_1  ' /
+      DATA CTM_LTNGDIAG_2   / 'CTM_LTNGDIAG_2  ' /
       DATA CTM_IPR_1        / 'CTM_IPR_1       ' /
       DATA CTM_IPR_2        / 'CTM_IPR_2       ' /
       DATA CTM_IPR_3        / 'CTM_IPR_3       ' /
@@ -252,5 +257,7 @@
       DATA LGCL_NAME( 70 ), IN_MODE( 70 )    / 'CTM_MGEM_1      ', .FALSE. /
       DATA LGCL_NAME( 71 ), IN_MODE( 71 )    / 'CTM_APMDIAG_1   ', .FALSE. /
       DATA LGCL_NAME( 72 ), IN_MODE( 72 )    / 'CTM_AVIS_1      ', .FALSE. /
+      DATA LGCL_NAME( 73 ), IN_MODE( 73 )    / 'CTM_LTNGDIAG_1  ', .FALSE. /
+      DATA LGCL_NAME( 74 ), IN_MODE( 74 )    / 'CTM_LTNGDIAG_2  ', .FALSE. /
 
 !................   end   FILES3_CTM.EXT   .............................

@@ -266,6 +266,7 @@ C Miscellaneous variables
 C ----------------------------------------------------------------------
 
          LOGDEV = SETUP_LOGDEV()
+         SUCCESS = .TRUE.
 
 C *** Map data modules
          CALL MAP_AERO()
@@ -296,9 +297,10 @@ C *** set up for dust emission processing
             IF ( STATUS .NE. 0 ) THEN
                XMSG = 'VDEMIS_AE memory allocation failed'
                CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-               SUCCESS = .FALSE.; RETURN
+               SUCCESS = .FALSE.
+            ELSE
+               VDEMIS_AE = 0.0   ! array assignment
             END IF
-            VDEMIS_AE = 0.0   ! array assignment
          END IF
 
 C *** Calculate factors for converting 3rd moment emission rates into number
@@ -447,13 +449,25 @@ C *** scaling to 0.0
            VARDESC = 'Flag for Ignoring the pcSOA species'
            ZERO_PCSOA = ENVYN( CTM_ZERO_PCSOA, VARDESC, ZERO_PCSOA, STATUS )
 
+                        
+           V = INDEX1( 'PCVOC', N_GC_SPC, GC_SPC )
+           IF ( V .LT. 1 ) THEN
+             WRITE(LOGDEV,99901)'PCVOC','PCVOC',TRIM( MECHNAME )
+             SUCCESS = .FALSE.
+           END IF
            IF ( ZERO_PCSOA ) THEN
              ! Find the index for the pcVOC species in the emissions
              ! scale-factor vector
-             V = INDEX1( 'PCVOC', N_GC_SPC, GC_SPC )
-             S = FINDEX( V, N_GC_EMIS, GC_EMIS_MAP )
-             GC_EMIS_FAC( S ) = 0.0
-           ENDIF
+             IF ( V .GT. 0 ) THEN
+                S = FINDEX( V, N_GC_EMIS, GC_EMIS_MAP )
+                IF ( S .GT. 0 )THEN
+                   GC_EMIS_FAC( S ) = 0.0
+                ELSE
+                  WRITE(LOGDEV,99902)'PCVOC'
+!                  SUCCESS = .FALSE.
+                END IF
+             END IF
+          END IF
 
 C *** Assign Volaitlity Distribution to Primary Orgnaic Vapor Species
            ! Find the Index for Each Vapor and alter the emissions scaling
@@ -464,9 +478,19 @@ C *** Assign Volaitlity Distribution to Primary Orgnaic Vapor Species
            DO IPOA = 1,N_VBS_BIN
              VNAME = 'V' // POA_NAME( IPOA )
              V = INDEX1( VNAME, N_GC_SPC, GC_SPC )
-             S = FINDEX( V, N_GC_EMIS, GC_EMIS_MAP )
-             GC_EMIS_FAC( S ) = GC_EMIS_FAC( S ) * POA_OP_VF( IPOA ) * 
-     &                          (1.0 - POA_AMF( IPOA ) ) / GC_MOLWT( V )
+             IF ( V .LT. 1 ) THEN
+                WRITE(LOGDEV,99901)TRIM( VNAME ), TRIM( VNAME ), TRIM( MECHNAME )
+                SUCCESS = .FALSE.
+             ELSE
+                S = FINDEX( V, N_GC_EMIS, GC_EMIS_MAP )
+                IF ( S .GT. 0 )THEN
+                   GC_EMIS_FAC( S ) = GC_EMIS_FAC( S ) * POA_OP_VF( IPOA ) * 
+     &                                (1.0 - POA_AMF( IPOA ) ) / GC_MOLWT( V )
+                ELSE
+                   WRITE(LOGDEV,99902)TRIM( VNAME )
+!                  SUCCESS = .FALSE.
+                END IF
+             END IF
            END DO
          ENDIF
 
@@ -480,9 +504,13 @@ C *** Map aerosol number emission species and set across-the-board adjustment fa
             write( logdev,* ) 'num_map: ', n, num_map( n ), aeromode( n )%num_name, num_fac( n )
 #endif
             IF ( NUM_MAP( N ) .EQ. 0 ) THEN
-               XMSG = 'Could not find ' // TRIM( AEROMODE( N )%NUM_NAME )
-     &              // ' in AE_EMIS table'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+               XMSG = 'FATAL: Cannot find species and emission surrogate for ' 
+     &             // TRIM( AEROMODE( N )%NUM_NAME )
+     &             // ' in AE namelist. Check against repository version of '
+     &             // ' the file.'
+!               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+               CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+               SUCCESS = .FALSE.
             END IF
          END DO
 
@@ -496,9 +524,13 @@ C *** Map aerosol surface emission species and set across-the-board adjustment f
             write( logdev,* ) 'srf_map: ', n, srf_map( n ), aeromode( n )%srf_name, srf_fac( n )
 #endif
             IF ( SRF_MAP( N ) .EQ. 0 ) THEN
-               XMSG = 'Could not find ' // TRIM( AEROMODE( N )%SRF_NAME )
-     &              // ' in AE_EMIS table'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+               XMSG = 'FATAL: Cannot find species and emission surrogate for ' 
+     &             // TRIM( AEROMODE( N )%SRF_NAME )
+     &             // ' in AE namelist. Check against repository version of '
+     &             // ' the file.'
+!               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+               CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+               SUCCESS = .FALSE.
             END IF
          END DO
 
@@ -568,8 +600,10 @@ C *** get index of SO4 emissions
 
          IF ( VPSO4 .EQ. 0 ) THEN
             XMSG = 'Cannot define index for SO4 emissions: '
-     &           // 'aerospc%emis='' '' in AERO_DATA.F'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+     &           // 'aerospc%emis='' '' in AERO_DATA.F. Check if AE '
+     &           // 'namelist is missing lines for ASO4I, ASO4J, and ASO4K'
+            CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+            SUCCESS = .FALSE.
          END IF
 
 C *** Get length and width of each grid cell
@@ -604,8 +638,11 @@ C     already opened.
      &             PMEM_UNITS .EQ. 'kg/hr' ) THEN
             CONVEM_PM_MASS = GPKG * MGPG / 3600.0  ! (kg/hr) -> (ug/s)
          ELSE
-            XMSG = 'Units incorrect on ' // EMIS_1
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+            XMSG = 'FATAL: Units incorrect on ' // EMIS_1 //
+     &             ' for aerosol species.'
+!            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+            CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+            SUCCESS = .FALSE.
          END IF
 
          DO L = 1, PM_EMLYRS
@@ -619,7 +656,13 @@ C *** Get domain window info from input files
          CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
      &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
 
-         SUCCESS = .TRUE.; RETURN
+99901     FORMAT(/'FATAL: GC namelist used does not include species, ', A, 
+     &         / 'Check this namelist contains the same information '
+     &         / 'for ', A,' as the repository version of the GC namelist for '
+     &         / 'the ', A, ' mechanism.' )
+99902     FORMAT(/'WARNING: GC namelist line for ', A, ' does not include an emissions '
+     &         / 'surrogate. Simulation cannot evaluate the effect from zeroing out its '
+     &         / 'emissions.')
 
          END FUNCTION  AERO_EMIS_INIT
 
