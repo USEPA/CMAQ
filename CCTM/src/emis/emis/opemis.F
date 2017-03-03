@@ -37,6 +37,7 @@ C                        removed deprecated TRIMLEN
       USE VGRD_DEFN           ! vertical layer specifications
       USE CGRID_SPCS          ! CGRID mechanism species
       USE UTILIO_DEFN
+      USE RXNS_DATA, only : MECHNAME
 
       IMPLICIT NONE
 

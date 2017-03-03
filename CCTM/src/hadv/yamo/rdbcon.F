@@ -408,8 +408,8 @@ C Read & interpolate boundary concentrations
       !Check Aerosol Size Distributions and Warn 
       !the User if They Are Not Robust
       DO BND = 1,NBNDY
-        CALL CHECK_AERO_ICBC( BCON( BND,STRT:FINI ), STAT, AER_PAR, LMODE )
-        IF ( STAT .EQ. 1 ) THEN
+        CALL CHECK_AERO_ICBC( BCON( BND,STRT:FINI ), "KGM3", STAT, AER_PAR, LMODE )
+        IF ( STAT .GT. 0 ) THEN
           LSTAT = .TRUE.
 #ifdef verbose_rdbcon
           WRITE ( 6, '(7x,A55,I1,/,7x,A20,I1,A42,/,9x,A51,/,9x,A22,I4,2x,I2,/,
