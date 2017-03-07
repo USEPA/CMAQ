@@ -35,7 +35,7 @@ C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRRATES, HRG1, HRG2, HRG3
 C                                     HRG4, HRPRODLOSS
 C
-C  REVISION HISTORY: Created by EBI solver program, May 25, 2016
+C  REVISION HISTORY: Created by EBI solver program, Mar  7, 2017
 C   21 Jun 10 J.Young: convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised 1) to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files and 2) to use
@@ -302,7 +302,7 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
                   WRITE( LOGDEV, 92009 ) C, R, L
                   DO S = 1, N_SPEC
                      IF( LEBISPFL( S ) )WRITE( LOGDEV, 92010 )TRIM( CHEMISTRY_SPC( S ) )
-                  END DO 
+                  END DO
                ELSE
                   WRITE( LOGDEV, 92000 ) C, R, L, NBKUPS
                END IF

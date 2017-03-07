@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the CB6R3 family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, PHOT, HRCALCKS, HRSOLVER
 C
-C  REVISION HISTORY: Created by EBI solver program, May 25, 2016
+C  REVISION HISTORY: Created by EBI solver program, Mar  7, 2017
 C                       Based on the algorithm in "Test of Two Numerical
 C                       Schemes for Use in Atmospheric Transport-Chemistry
 C                       Models", O. Hertel, R. Berkowicz, J. Christensen,
@@ -351,10 +351,9 @@ C.. Get pressure in Pascals
          CALL M3EXIT ( PNAME, JDATE, JTIME, MSG, XSTAT1 )
       END IF
 
-C.. Get photolysis rates in /min
+C.. Get photolysis rates in 1/min
       CALL PHOT ( MIDDATE, MIDTIME, JDATE, JTIME, TSTEP, RJ )
-C.. Get Heteorogeneous rates and Update Aerosol Properties (Moments, D
-C   and sigma)
+C.. Get Heteorogeneous rates and Update Aerosol Distribution Properties
       CALL HETCHEM_RATES( TA, PRES, QV, CGRID )
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -436,9 +435,8 @@ c..Update concentration array
          END DO
       END DO
 
-      !Update Aerosol Surface Area
+!  Update Aerosol Surface Area
       CALL HETCHEM_UPDATE_AERO( CGRID )
-
 
 #ifdef hrstats
       AVGEBI = SUMEBI / REAL( NCOLS * NROWS * NLAYS )
