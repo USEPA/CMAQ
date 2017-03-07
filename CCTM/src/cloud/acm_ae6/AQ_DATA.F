@@ -558,6 +558,10 @@ C...Create the pointers from CGRID to the aerosol species needed by AQCHEM
                   Call m3mesg( xmsg )
                Else
                   Do isrg = 1, nsrgaer( iaer,n )
+                     If ( isrg .Gt. mxsrg ) Then
+                        xmsg = 'lsrg will index out of bounds. Increase mxsrg in AQ_DATA.F'
+                        Call m3exit( 'AQ_DATA', 0, 0, xmsg, xstat3 )
+                     End If
                      lsrgaer( iaer,n,isrg ) = lsrg( isrg )
 #ifdef verbose_cloud
                      write( logdev,1113 ) cgrid2aq_name( lsrgaer( iaer,n,isrg ) ),
