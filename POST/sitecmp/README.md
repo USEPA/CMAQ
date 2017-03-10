@@ -10,7 +10,9 @@ This Fortran program generates a csv (comma separated values) file that compares
  TABLE_TYPE  dataset type {IMPROVE, CASTNET, STN, NADP, MDN, SEARCH,
              DEARS, AIRMON, OUT_TABLE}
  M3_FILE_n   ioapi input files containing modeled species data (max of 12). 
-             Supported map projections are Lambert conformal, polar stereographic, and lat/lon
+             [Note: Supported map projections are Lambert conformal, polar stereographic, and lat/lon.
+             If an ioapi file is supplied that has a projection not in this list the program will 
+             stop with an error message.]
  SITE_FILE   input file containing site information for each monitor (site-id, longitude, latitude, 
              and optionally time zone offset between local time and GMT) (tab delimited)
  IN_TABLE    input file with observed data (comma delimited with header)
