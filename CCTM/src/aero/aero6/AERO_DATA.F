@@ -542,7 +542,7 @@ C IC/BC Correction Mapping
       !   LBCMODE - Mask for each aerosol mode
       LOGICAL, ALLOCATABLE, SAVE :: LBCNUM(:), LBCSRF(:), LBCMASS(:),
      &                        LBCMODE(:,:)
-      INTEGER, ALLOCATABLE, SAVE :: AEROCGRID_RHO( : ) !
+      INTEGER, ALLOCATABLE, SAVE :: AEROCGRID_RHOINV( : ) !
       
 C Private variables for loading from and unloading to CGRID array
       Logical, Private, Save :: mapped    = .False.
@@ -611,10 +611,10 @@ C Local Variables:
       def_l2sg( : )  = ( LOG( def_sigma_g( : ) ) ) ** 2
       
 
-      allocate( aerocgrid_rho( n_ae_trns ), lbcnum( n_ae_trns ),
+      allocate( aerocgrid_rhoinv( n_ae_trns ), lbcnum( n_ae_trns ),
      &          lbcsrf( n_ae_trns ), lbcmass( n_ae_trns ),
      &          lbcmode( n_mode,n_ae_trns ) )
-      aerocgrid_rho = 0
+      aerocgrid_rhoinv = 0
       lbcnum = .False.
       lbcsrf = .False.
       lbcmass= .False.
@@ -654,9 +654,9 @@ C Build mapping to CGRID for each species in the master AeroList
                   ! Add the map from CGRID to AeroList
                   aerolist_map( spc,m ) = ae_strt - 1 + n
                   lbcmode( m,n ) = .True.
-                  lbcmass( n ) = .True.
+                  If ( .Not. aerolist( spc)%tracer ) lbcmass( n ) = .True.
                   !Map the CGRID Aerosol Species to their Densities
-                  aerocgrid_rho( n ) = aerolist( spc )%density
+                  aerocgrid_rhoinv( n ) = 1.0 / aerolist( spc )%density
 
                End If
             End If
@@ -732,7 +732,7 @@ C Build mapping to CGRID for aero # and surf area variables
 !            Call m3exit( pname, 0, 0, xmsg, xstat3 )
          Else
             aeronum_map( m ) = ae_strt - 1 + n
-            aerocgrid_rho( n ) = 1.0
+            aerocgrid_rhoinv( n ) = 1.0
             lbcnum( n ) = .True.
             lbcmode( m,n ) = .True.
          End If
@@ -746,7 +746,7 @@ C Build mapping to CGRID for aero # and surf area variables
 !            Call m3exit( pname, 0, 0, xmsg, xstat3 )
          Else
             aerosrf_map( m ) = ae_strt - 1 + n
-            aerocgrid_rho( n ) = 1.0
+            aerocgrid_rhoinv( n ) = 1.0
             lbcsrf( n ) = .True.
             lbcmode( m,n ) = .True.
          End If
@@ -1398,18 +1398,24 @@ C
 C 11 May 16  B.Murphy  Program Written
 C
 C-----------------------------------------------------------------------
-      Use AEROMET_DATA, only : pi, pi6
+      Use AEROMET_DATA, only : pi, f6pi
 
       Implicit None
 
       REAL, INTENT(INOUT)        :: IBCON( : )
-      CHARACTER(4), INTENT( IN ) :: AE_MASS_UNIT  ! UGM3 or KGM3
+      LOGICAL, INTENT( IN ) :: AE_MASS_UNIT  ! 1 for KGM3 input
+                                             ! 0 for UGM3 input
       INTEGER, INTENT(OUT)       :: STAT     ! 0 - Distribution is ok
                                              ! 1 - Distribution is problematic
       REAL, INTENT(OUT) :: AER_PAR( 2, N_MODE, 5 ) !Track the modal parameters   (N, M2, M3, dg, sg) -Before
                                                    !before and after the BC      (N, M2, M3, dg, sg) -After
                                                    !check routine               
       INTEGER, INTENT(OUT) :: LMODE  !Identifies the problematic mode
+
+      PARAMETER  :: F1PI = 1.0 / pi
+      PARAMETER  :: ONE_THIRD  = 1.0 / 3.0
+      PARAMETER  :: TWO_THIRDS = 2.0 / 3.0
+
 
 C Local variables:
 
@@ -1423,18 +1429,18 @@ C Local variables:
       dg      = 0.0
       sg      = 0.0
        
-      CALL MAP_AERO() 
+      CALL MAP_AERO()
 
       !Loop Through Each Aerosol Mode. Sum up the third moment, then
       !calculate the Dg and Sg of the mode and check to make sure they
       !are valid
       DO IMODE = 1,N_MODE
          NUM = SUM( IBCON( : ), MASK = ( LBCMODE( IMODE,: ) .AND. LBCNUM ) )
-         M2  = SUM( IBCON( : ), MASK = ( LBCMODE( IMODE,: ) .AND. LBCSRF ) ) / pi
+         M2  = SUM( IBCON( : ), MASK = ( LBCMODE( IMODE,: ) .AND. LBCSRF ) ) * F1PI
 
-         M3 = SUM( IBCON( : ) / AEROCGRID_RHO / pi6, MASK = ( LBCMASS .AND. LBCMODE( IMODE,: ) )  )
+         M3 = SUM( IBCON( : ) * AEROCGRID_RHOINV * F6PI, MASK = ( LBCMASS .AND. LBCMODE( IMODE,: ) )  )
 
-         IF ( AE_MASS_UNIT .EQ. "UGM3" ) M3 = M3 * KGPMG
+         IF ( AE_MASS_UNIT ) M3 = M3 * KGPMG
 
          AER_PAR ( 1, IMODE, 1 ) = NUM
          AER_PAR ( 1, IMODE, 2 ) = M2
@@ -1449,14 +1455,14 @@ C Local variables:
              STAT = 3
              LMODE = IMODE
          ELSE                  
-             l2sg = ( 1./3. * LOG( NUM ) + 2./3. * LOG( M3 ) - LOG( M2 ))
+             l2sg = ( ONE_THIRD * LOG( NUM ) + TWO_THIRDS * LOG( M3 ) - LOG( M2 ))
 
              IF ( l2sg .LT. MIN_L2SG .OR. l2sg .GT. MAX_L2SG ) THEN 
                   STAT = 2
                   LMODE = IMODE
              ELSE
 
-                  dg   = ( M3 / ( NUM * EXP( 4.5 * l2sg ) ) ) ** (1./3.)
+                  dg   = ( M3 / NUM * EXP( -4.5 * l2sg ) )  ** ( ONE_THIRD )
                   sg   = EXP( SQRT( l2sg ) )
                   AER_PAR( 1, IMODE, 4 ) = dg
                   AER_PAR( 1, IMODE, 5 ) = sg
@@ -1479,16 +1485,16 @@ C Local variables:
            !Rewrite Boundary Condition Number and Surface Area to Satisfy
            !Default Size Parameters
            l2sg = DEF_L2SG( IMODE )
-           NUM = M3 / ( EXP( 4.5 * l2sg ) ) / ( DEF_DIAM( IMODE ) ) ** 3
-           dg   = ( M3 / ( NUM * EXP( 4.5 * l2sg ) ) ) ** (1./3.)
+           NUM = M3 * ( EXP( -4.5 * l2sg ) ) / ( DEF_DIAM( IMODE ) ) ** 3
+           dg   = ( M3 / NUM * EXP( -4.5 * l2sg ) ) ** ( ONE_THIRD )
            sg   = EXP( SQRT( l2sg ) )
            
            !First Number Concentration
            WHERE( LBCMODE( IMODE,: ) .AND. LBCNUM ) IBCON = NUM
            
            !Then Surface Area Concentration
-           M2 = EXP( 1./3. * LOG( NUM ) + 2./3. * LOG( M3 ) - l2sg )
-           WHERE( LBCMODE( IMODE,: ) .AND. LBCSRF ) IBCON = M2 * pi
+           M2 = EXP( ONE_THIRD * LOG( NUM ) + TWO_THIRDS * LOG( M3 ) - l2sg )
+           WHERE( LBCMODE( IMODE,: ) .AND. LBCSRF ) IBCON = M2 * F1PI
          
            !Save Modal Properties After the Check
            AER_PAR( 2, IMODE, 1 ) = NUM
