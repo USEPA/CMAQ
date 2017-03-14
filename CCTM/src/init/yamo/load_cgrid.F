@@ -55,6 +55,7 @@ C-----------------------------------------------------------------------
       USE CGRID_SPCS            ! CGRID mechanism species
       USE UTILIO_DEFN
       USE RXNS_DATA, ONLY : MECHNAME
+      USE AERO_DATA, ONLY : CHECK_AERO_ICBC, N_MODE
 
       IMPLICIT NONE
 
@@ -121,27 +122,38 @@ C for XTRACT3
       REAL      :: DBUFF( NCOLS,NROWS,NLAYS )
       REAL      :: DBUFF_TMP( NCOLS,NROWS,NLAYS )
 
-      INTEGER      SPC_STRT
+      INTEGER      SPC_STRT, SPC_FINI         ! Species Indices
       INTEGER      N_SPCS                     ! no. of species for this call
       INTEGER      NDX                        ! loop copy of INDX
       INTEGER      ISUR                       ! surrogate index
       INTEGER, ALLOCATABLE, SAVE :: INDX( : ) ! Variable indices for all IC species
       REAL,    ALLOCATABLE, SAVE :: ICBC_FAC( : ) ! Factor to be applied to ICs
-      INTEGER      C, R, L, SPC, V            ! loop counters
+      INTEGER      C, R, L, SPC, V, J         ! loop counters
       INTEGER      ASPC                       ! CGRID RHOJ pointer
       INTEGER      NCOLSDENS, NROWSDENS       ! local for DENS
+      INTEGER      STAT                       ! Status reported by Aerosol Dist Checker
+
+      INTEGER       :: LMODE    !Identifies the problematic mode from
+                                !the BC Check routine
+      REAL          :: AER_PAR( 2, N_MODE,5 )  !Modal parameter after the BC 
+                                               !check (N, dg, sg)
+                                               !      (N, M2, M3) - Before
+                                               !      (N, M2, M3) - After
+ 
 
       CHARACTER( 16 ) :: PNAME = 'LOAD_CGRID'
       CHARACTER( 16 ) :: VNAME
       CHARACTER( 16 ) :: ICNAME_TMP
       CHARACTER( 16 ) :: CONCMIN
       CHARACTER( 96 ) :: XMSG = ' '
+      CHARACTER(199 ) :: XMSG2 = ' '
       CHARACTER( 40 ) :: CHWARN = 'Domain extents different from model for '
       CHARACTER( 24 ) :: ESTR1 = 'No IC found for species '
       CHARACTER( 34 ) :: ESTR2 = ' '
       CHARACTER( 34 ) :: ESTR3 = ' '
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
+      LOGICAL       :: LSTAT
 
       INTEGER, SAVE :: LOGDEV
 
@@ -236,7 +248,7 @@ C if there`s a surrogate name, CGRID_SPCS handles setting GC_ICBC_FAC
                   CALL M3MESG( XMSG )
                END IF
             END IF
-C If there is no surrogate or it can''t be found, look for the (main) species name on the IC file
+C If there is no surrogate or it cannot be found, look for the (main) species name on the IC file
             If ( ISUR .EQ. 0 .OR. NDX .EQ. 0 ) THEN
                NDX = INDEX1( GC_SPC( SPC ), NVARS3D, VNAME3D )
                IF ( NDX .NE. 0 ) THEN
@@ -448,6 +460,7 @@ C IOFDESC common now loaded with FNAME header
          END IF   ! INDX .GT. 0
 
       END DO
+ 
 
       IF ( N_SPCS .NE. 0 ) WRITE( LOGDEV,'(/ 5X, A)' )
      &                            SPC_CAT // ' loaded into CGRID'
@@ -480,6 +493,43 @@ C Load RHOJ for transport and mixing ratio advection adjustment
       END IF
 
       IF ( SPC_CAT .EQ. 'AE' ) THEN
+ 
+         ! Check Aerosol Size Distributions and Warn the User if They Are Not Robust
+         SPC_STRT = AE_STRT
+         SPC_FINI = AE_STRT + N_AE_SPC - 1
+         LSTAT    = .FALSE.
+         DO L = 1, NLAYS
+         DO R = 1, MY_NROWS
+         DO C = 1, MY_NCOLS
+            CALL CHECK_AERO_ICBC( CGRID( C,R,L,SPC_STRT:SPC_FINI ), .TRUE., STAT, AER_PAR, LMODE )
+            IF ( STAT .GT. 0 ) THEN
+               LSTAT = .TRUE.
+#ifdef verbose_loadcgrid
+               WRITE ( 6, '(7x,A55,I1,/,7x,A20,I1,A42,/,9x,A51,/,9x,A24,I3,2x,I3,2x,I2,/,
+     &                 9x,A19,1x,A3,8x,A2,8x,A2,8x,A2,8x,A2,/,
+     &                 27x,E8.1,1x,E8.1,1x,E8.1,1x,E8.1,4x,F4.1,/,
+     &                 9x,A19,1x,A3,8x,A2,8x,A2,8x,A2,8x,A2,/,
+     &                 27x,E8.1,1x,E8.1,1x,E8.1,1x,E8.1,4x,F4.1)'),
+     &               'Warning: Applying Aerosol Initial Conditions for mode ',LMODE,
+     &               'The Offending Mode (',LMODE,') had diameter and/or sigma out of bounds.',
+     &               'It was overwritten by changing the Num and SrfArea.',
+     &               'Grid Cell(Col,Row,Lay): ',C,R,L,
+     &               'Modal Props Before:','Num','M2','M3','Dg','Sg',(AER_PAR(1,LMODE,j),j=1,5),
+     &               'Modal Props After: ','Num','M2','M3','Dg','Sg',(AER_PAR(2,LMODE,j),j=1,5)
+#endif
+            ENDIF
+         END DO
+         END DO
+         END DO
+
+         !Print warning if any aerosol ICs violated the size distribution parameters
+         IF ( LSTAT ) THEN    
+             WRITE( XMSG2, '(A55,A57,A5)' ),
+     &            'Applying fix to aerosol Initial Conditions for aerosol',
+     &            ' modes. Turn on verbose_loadcgrid preprocessor flag to learn ',
+     &            'more.'
+             CALL M3WARN( 'Read ICs', JDATE, JTIME, XMSG2 )
+         END IF
 
 C are ASO4J IC`s available on the file?
 
