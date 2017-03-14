@@ -501,7 +501,7 @@ C Load RHOJ for transport and mixing ratio advection adjustment
          DO L = 1, NLAYS
          DO R = 1, MY_NROWS
          DO C = 1, MY_NCOLS
-            CALL CHECK_AERO_ICBC( CGRID( C,R,L,SPC_STRT:SPC_FINI ), .FALSE., STAT, AER_PAR, LMODE )
+            CALL CHECK_AERO_ICBC( CGRID( C,R,L,SPC_STRT:SPC_FINI ), .TRUE., STAT, AER_PAR, LMODE )
             IF ( STAT .GT. 0 ) THEN
                LSTAT = .TRUE.
 #ifdef verbose_loadcgrid

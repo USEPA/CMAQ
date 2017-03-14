@@ -542,7 +542,7 @@ C IC/BC Correction Mapping
       !   LBCMODE - Mask for each aerosol mode
       LOGICAL, ALLOCATABLE, SAVE :: LBCNUM(:), LBCSRF(:), LBCMASS(:),
      &                        LBCMODE(:,:)
-      INTEGER, ALLOCATABLE, SAVE :: AEROCGRID_RHOINV( : ) !
+      REAL, ALLOCATABLE, SAVE :: AEROCGRID_RHOINV( : ) !
       
 C Private variables for loading from and unloading to CGRID array
       Logical, Private, Save :: mapped    = .False.
@@ -614,7 +614,7 @@ C Local Variables:
       allocate( aerocgrid_rhoinv( n_ae_trns ), lbcnum( n_ae_trns ),
      &          lbcsrf( n_ae_trns ), lbcmass( n_ae_trns ),
      &          lbcmode( n_mode,n_ae_trns ) )
-      aerocgrid_rhoinv = 0
+      aerocgrid_rhoinv = 0.
       lbcnum = .False.
       lbcsrf = .False.
       lbcmass= .False.
@@ -1403,8 +1403,8 @@ C-----------------------------------------------------------------------
       Implicit None
 
       REAL, INTENT(INOUT)        :: IBCON( : )
-      LOGICAL, INTENT( IN ) :: AE_MASS_UNIT  ! 1 for KGM3 input
-                                             ! 0 for UGM3 input
+      LOGICAL, INTENT( IN ) :: AE_MASS_UNIT  ! FALSE for KGM3 input
+                                             ! TRUE  for UGM3 input
       INTEGER, INTENT(OUT)       :: STAT     ! 0 - Distribution is ok
                                              ! 1 - Distribution is problematic
       REAL, INTENT(OUT) :: AER_PAR( 2, N_MODE, 5 ) !Track the modal parameters   (N, M2, M3, dg, sg) -Before

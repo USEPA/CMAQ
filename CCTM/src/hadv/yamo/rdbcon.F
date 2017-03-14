@@ -408,7 +408,7 @@ C Read & interpolate boundary concentrations
       !Check Aerosol Size Distributions and Warn 
       !the User if They Are Not Robust
       DO BND = 1,NBNDY
-        CALL CHECK_AERO_ICBC( BCON( BND,STRT:FINI ), .TRUE., STAT, AER_PAR, LMODE )
+        CALL CHECK_AERO_ICBC( BCON( BND,STRT:FINI ), .FALSE., STAT, AER_PAR, LMODE )
         IF ( STAT .GT. 0 ) THEN
           LSTAT = .TRUE.
 #ifdef verbose_rdbcon
