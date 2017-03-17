@@ -165,7 +165,7 @@ C... create output file
 C... Allocate memory for data arrays
       Allocate( tzoffset(NCOLS3D, NROWS3D) )
       Allocate( offset(NCOLS3D, NROWS3D) )
-      Allocate( hrValues (0:42, NCOLS3D, NROWS3D) )
+      Allocate( hrValues (-36:66, NCOLS3D, NROWS3D) )
       Allocate( dayValues (NCOLS3D, NROWS3D) )
 
       ! set tzoffset array values 
@@ -204,7 +204,7 @@ C... reload file description from INFILE
 
 C... start loop to read and process each variable
       do n = 1, NSPECVAR
-        hr1 = 0
+        hr1 = -36
         curDate = SDATE3D
         curTime = STIME3D
         hrValues = BADVAL3
@@ -217,7 +217,8 @@ C... start loop to read and process each variable
           offset = tzoffset
           offset = offset + hroffset 
           if(useDST .and. isDSTime(cDate)) offset = offset - 1   ! adjustment for daylight savings time
-          Do h=hr1,42
+	  call NEXTIME(cDate,cTime,0) !reformat to make sure hours are between 0 and 23
+          Do h=hr1,66
             rstatus = .false.
             hrValues(h,:,:) = BADVAL3
             if( (SECSDIFF(firstDate, firstTime, cdate, ctime) .ge. 0)
@@ -286,7 +287,7 @@ C... start loop to read and process each variable
           endif
 
           ! copy current day's values to next day
-          do h = 0, 18
+          do h = -36, 42
             hrValues( h,:,:) = hrvalues(h+24,:,:) 
             enddo
 
@@ -296,7 +297,7 @@ C... start loop to read and process each variable
           ! if current date at noon is past last date and time, then exit loop
           if(SECSDIFF(curDate, 120000, lastDate, lastTime) .le. 0) EXIT
 
-          hr1 = 19
+          hr1 = 43
           endDo  ! end (time-step-loop)
 
         enddo  ! var loop
@@ -318,7 +319,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IMPLICIT NONE
 
 C... arguments
-      Real hrValues(0:42, NCOLS3D, NROWS3D)
+      Real hrValues(-36:66, NCOLS3D, NROWS3D)
       Real dayValues(NCOLS3D, NROWS3D)
       Integer tzoffset(NCOLS3D, NROWS3D)
       Integer startHr, endHr
@@ -360,7 +361,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IMPLICIT NONE
 
 C... arguments
-      Real hrValues(0:42, NCOLS3D, NROWS3D)
+      Real hrValues(-36:66, NCOLS3D, NROWS3D)
       Real dayValues(NCOLS3D, NROWS3D)
       Integer tzoffset(NCOLS3D, NROWS3D)
       Integer startHr, endHr
@@ -403,7 +404,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IMPLICIT NONE
 
 C... arguments
-      Real hrValues(0:42, NCOLS3D, NROWS3D)
+      Real hrValues(-36:66, NCOLS3D, NROWS3D)
       Real dayValues(NCOLS3D, NROWS3D)
       Integer tzoffset(NCOLS3D, NROWS3D)
       Integer startHr, endHr
@@ -445,7 +446,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IMPLICIT NONE
 
 C... arguments
-      Real hrValues(0:42, NCOLS3D, NROWS3D)
+      Real hrValues(-36:66, NCOLS3D, NROWS3D)
       Real dayValues(NCOLS3D, NROWS3D)
       Integer tzoffset(NCOLS3D, NROWS3D)
       Integer startHr, endHr
@@ -493,7 +494,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IMPLICIT NONE
 
 C... arguments
-      Real hrValues(0:42, NCOLS3D, NROWS3D)
+      Real hrValues(-36:66, NCOLS3D, NROWS3D)
       Real dayValues(NCOLS3D, NROWS3D)
       Integer tzoffset(NCOLS3D, NROWS3D)
       Integer startHr, endHr
@@ -535,7 +536,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IMPLICIT NONE
 
 C... arguments
-      Real hrValues(0:42, NCOLS3D, NROWS3D)
+      Real hrValues(-36:66, NCOLS3D, NROWS3D)
       Real dayValues(NCOLS3D, NROWS3D)
       Integer tzoffset(NCOLS3D, NROWS3D)
       Integer startHr, endHr
@@ -583,7 +584,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IMPLICIT NONE
 
 C... arguments
-      Real hrValues(0:42, NCOLS3D, NROWS3D)
+      Real hrValues(-36:66, NCOLS3D, NROWS3D)
       Real dayValues(NCOLS3D, NROWS3D)
       Integer tzoffset(NCOLS3D, NROWS3D)
       Integer curDate
@@ -611,7 +612,7 @@ C... first pass
         first = .false.
         Call ENVSTR('TEMPERATURE','Temperature species used in @MAXT operation',
      &              'TEMP2', tempvar, status)  
-        Allocate ( tvalues(0:42, NCOLS3D, NROWS3D) )
+        Allocate ( tvalues(-36:66, NCOLS3D, NROWS3D) )
 
         ! Compute last date and time to process                    
         firstdate = SDATE3D
@@ -626,7 +627,7 @@ C... read temperature values and fill tvalues array
       cdate = curDate
       ctime = 0
       tvalues = BADVAL3
-      do h=0,42
+      do h=-36,66
         if( (SECSDIFF(firstDate, firstTime, cdate, ctime) .ge. 0)
      &    .and. (SECSDIFF(cdate, ctime, lastDate, lastTime) .ge. 0) ) then
           if(.not.READ3('INFILE', tempvar, 1, cdate, ctime, tvalues(h,:,:)) ) then
@@ -672,7 +673,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IMPLICIT NONE
 
 C... arguments
-      Real hrValues(0:42, NCOLS3D, NROWS3D)
+      Real hrValues(-36:66, NCOLS3D, NROWS3D)
       Real dayValues(NCOLS3D, NROWS3D)
       Integer tzoffset(NCOLS3D, NROWS3D)
       Integer curDate
@@ -716,7 +717,7 @@ C... first pass
         first = .false.
         Call ENVSTR('OZONE','Ozone species used in @8HRMAXO3 operation',
      &              'O3', ozonevar, status)  
-        Allocate ( O3values(0:42, NCOLS3D, NROWS3D) )
+        Allocate ( O3values(-36:66, NCOLS3D, NROWS3D) )
 
         ! Compute last date and time to process                    
         firstdate = SDATE3D
@@ -731,7 +732,7 @@ C... read ozone values and fill tvalues array
       cdate = curDate
       ctime = 0
       O3values = BADVAL3
-      do h=0,42
+      do h=-36,66
         if( (SECSDIFF(firstDate, firstTime, cdate, ctime) .ge. 0)
      &    .and. (SECSDIFF(cdate, ctime, lastDate, lastTime) .ge. 0) ) then
           if(.not.READ3('INFILE', ozonevar, 1, cdate, ctime, O3values(h,:,:)) ) then
@@ -818,7 +819,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IMPLICIT NONE
 
 C... arguments
-      Real hrValues(0:42, NCOLS3D, NROWS3D)
+      Real hrValues(-36:66, NCOLS3D, NROWS3D)
       Real dayValues(NCOLS3D, NROWS3D)
       Integer tzoffset(NCOLS3D, NROWS3D)
       Integer startHr, endHr
@@ -864,7 +865,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IMPLICIT NONE
 
 C... arguments
-      Real hrValues(0:42, NCOLS3D, NROWS3D)
+      Real hrValues(-36:66, NCOLS3D, NROWS3D)
       Real dayValues(NCOLS3D, NROWS3D)
       Integer tzoffset(NCOLS3D, NROWS3D)
       Logical partDay
@@ -957,7 +958,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IMPLICIT NONE
 
 C... arguments
-      Real hrValues(0:42, NCOLS3D, NROWS3D)
+      Real hrValues(-36:66, NCOLS3D, NROWS3D)
       Real dayValues(NCOLS3D, NROWS3D)
       Integer tzoffset(NCOLS3D, NROWS3D)
       Logical partDay
@@ -1060,7 +1061,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IMPLICIT NONE
 
 C... arguments
-      Real hrValues(0:42, NCOLS3D, NROWS3D)
+      Real hrValues(-36:66, NCOLS3D, NROWS3D)
       Real dayValues(NCOLS3D, NROWS3D)
       Integer tzoffset(NCOLS3D, NROWS3D)
       Character*(*) units
@@ -1110,7 +1111,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IMPLICIT NONE
 
 C... arguments
-      Real hrValues(0:42, NCOLS3D, NROWS3D)
+      Real hrValues(-36:66, NCOLS3D, NROWS3D)
       Real dayValues(NCOLS3D, NROWS3D)
       Integer tzoffset(NCOLS3D, NROWS3D)
       Character*(*) units
