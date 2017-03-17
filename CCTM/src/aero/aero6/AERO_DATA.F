@@ -151,6 +151,7 @@ C 09/17/14 change by Kathleen Fahey - see Revision History, above
       Real,    Parameter :: def_sigma_g( n_mode ) = (/ 1.70, 2.0, 2.2 /)       ! default background sigma-g for each mode
       Real,    Parameter :: min_sigma_g = 1.05
       Real,    Parameter :: max_sigma_g = 2.5001
+      Real,    Save      :: def_l2sg( n_mode ), max_l2sg, min_l2sg   
 
 C Flag to obtain coagulation coefficients
 C by analytical approximation (True) or by Gauss-Hermite quadrature (False)
@@ -447,6 +448,10 @@ C Indices of required species
       Integer :: acors_idx
       Integer :: aseacat_idx
 
+C Flag if optional species present
+      Logical :: ae6isoa = .False.
+      Logical :: ae6hg   = .False.
+
 C Optional Species
       Character( 16 ), Private, Parameter :: req_ietet  = 'AIETET'
       Character( 16 ), Private, Parameter :: req_ieos   = 'AIEOS'
@@ -456,12 +461,12 @@ C Optional Species
       Character( 16 ), Private, Parameter :: req_phgj   = 'APHGJ'
 
 C Indices of Optional species
-      Integer :: aietet_idx
-      Integer :: aieos_idx
-      Integer :: adim_idx
-      Integer :: aimga_idx
-      Integer :: aimos_idx
-      Integer :: aphgj_idx
+      Integer :: aietet_idx = 0
+      Integer :: aieos_idx  = 0
+      Integer :: adim_idx   = 0
+      Integer :: aimga_idx  = 0
+      Integer :: aimos_idx  = 0
+      Integer :: aphgj_idx  = 0
 
       Real, Allocatable :: aerospc_mw( : )     ! aero species M.W. (from AE_SPC Namelist) [ g/mol ]
       Real, Allocatable :: aerospc_conc( :,: ) ! aero species concentration [ ug/m^3 ]
@@ -526,7 +531,7 @@ C Emissions mapping
       Character( 16 ) :: pmem_units             ! units for PM emissions for all species
 
       Logical, Save :: V51_SOA_mechanism   = .False. !
-
+      Logical, Save :: AE_eflag            = .False. ! error flag for AERO_DATA
 C IC/BC Correction Mapping
       !The following vectors store masks of the aerosol species
       !identities. For example, LBCNUM stores 1's for every species that
@@ -537,10 +542,10 @@ C IC/BC Correction Mapping
       !   LBCMODE - Mask for each aerosol mode
       LOGICAL, ALLOCATABLE, SAVE :: LBCNUM(:), LBCSRF(:), LBCMASS(:),
      &                        LBCMODE(:,:)
-      INTEGER, ALLOCATABLE, SAVE :: AEROCGRID_RHO( : ) !
+      REAL, ALLOCATABLE, SAVE :: AEROCGRID_RHOINV( : ) !
       
 C Private variables for loading from and unloading to CGRID array
-      Logical, Private, Save :: mapped = .False.
+      Logical, Private, Save :: mapped    = .False.
       Character( 16 ), Private, Save :: pname = 'Aero_Data'
 
       Contains
@@ -569,8 +574,8 @@ C-----------------------------------------------------------------------
       Implicit None
 
 C Local Variables:
-      Character( 120 ) :: xmsg
-      Character( 120 ) :: xmsg2
+      Character( 256 ) :: xmsg
+      Character( 256 ) :: xmsg2
       Real    :: mole_weight( n_aerolist )
       Integer :: aerolist_map  ( n_aerolist,n_mode )
       Integer :: aerospc_tolist( n_aerolist )
@@ -590,7 +595,7 @@ C Local Variables:
 
       Integer dust_org1, dust_org2
       Logical ae6isoa
-      Logical error_flag
+      Logical ae6hg
 
       logdev = setup_logdev()
       mole_weight = 0.0
@@ -600,12 +605,16 @@ C Local Variables:
       n_aerospc      = 0.0 ! Number of Used Aerosol Chemical Species
       aerolist_map   = 0   ! Pointer from aerolist to CGRID
       aerospc_tolist = 0   ! Pointer from aerospc to aerolist
-      error_flag = .False.
+      AE_eflag       = .False.
+      max_l2sg       = ( LOG( max_sigma_g ) ) ** 2
+      min_l2sg       = ( LOG( min_sigma_g ) ) ** 2
+      def_l2sg( : )  = ( LOG( def_sigma_g( : ) ) ) ** 2
+      
 
-      allocate( aerocgrid_rho( n_ae_trns ), lbcnum( n_ae_trns ),
+      allocate( aerocgrid_rhoinv( n_ae_trns ), lbcnum( n_ae_trns ),
      &          lbcsrf( n_ae_trns ), lbcmass( n_ae_trns ),
      &          lbcmode( n_mode,n_ae_trns ) )
-      aerocgrid_rho = 0
+      aerocgrid_rhoinv = 0.
       lbcnum = .False.
       lbcsrf = .False.
       lbcmass= .False.
@@ -640,14 +649,14 @@ C Build mapping to CGRID for each species in the master AeroList
                      Write( xmsg,* ) 'New Value(', n, ') = ', ae_molwt( n ),
      &                               'Expected value(', spc, ')= ', mole_weight( spc )
                      Call m3warn( pname, 0, 0, xmsg )
-                     error_flag = .True.
+                     AE_eflag  = .True.
                   End If
                   ! Add the map from CGRID to AeroList
                   aerolist_map( spc,m ) = ae_strt - 1 + n
                   lbcmode( m,n ) = .True.
-                  lbcmass( n ) = .True.
+                  If ( .Not. aerolist( spc)%tracer ) lbcmass( n ) = .True.
                   !Map the CGRID Aerosol Species to their Densities
-                  aerocgrid_rho( n ) = aerolist( spc )%density
+                  aerocgrid_rhoinv( n ) = 1.0 / aerolist( spc )%density
 
                End If
             End If
@@ -691,8 +700,7 @@ C Build mapping to CGRID for each species in the master AeroList
             ! Check that this is true.
             If ( aerospc( spc )%name( n )(1:) .Ne. ' ' .And.
      &           aerolist_map( aerospc_tolist( spc ),n ) .Eq. 0 ) Then
-               error_flag = .True.
-               Write( xmsg2,* ) (' ', Trim( aerolist( spc )%name( m ) ), ' ', m = 1, n_mode )
+               AE_eflag  = .True.
                Write( xmsg,* ) 'FATAL ERROR: Linked set of tracers, ',
      &                    Trim( xmsg2 ),', is missing species, ',
      &                    Trim( aerolist( spc )%name( n ) )
@@ -718,11 +726,13 @@ C Build mapping to CGRID for aero # and surf area variables
          n = index1( aeromode( m )%num_name , n_ae_spc, ae_spc )
          If ( n .Eq. 0 ) Then
             xmsg = 'Species ' // Trim( aeromode( m )%num_name )
-     &           //' in aeronum name is not in AE_SPC'
-            Call m3exit( pname, 0, 0, xmsg, xstat3 )
+     &           //' is not in AE namelist'
+            AE_eflag  = .True.
+            Call m3warn( pname, 0, 0, xmsg )
+!            Call m3exit( pname, 0, 0, xmsg, xstat3 )
          Else
             aeronum_map( m ) = ae_strt - 1 + n
-            aerocgrid_rho( n ) = 1.0
+            aerocgrid_rhoinv( n ) = 1.0
             lbcnum( n ) = .True.
             lbcmode( m,n ) = .True.
          End If
@@ -730,11 +740,13 @@ C Build mapping to CGRID for aero # and surf area variables
          n = index1( aeromode( m )%srf_name , n_ae_spc, ae_spc )
          If ( n .Eq. 0 ) Then
             xmsg = 'species ' // Trim( aeromode( m )%srf_name )
-     &           // ' in aerosrf name is not in AE_SPC'
-            Call m3exit( pname, 0, 0, xmsg, xstat3 )
+     &           // ' is not in AE namelist'
+            AE_eflag  = .True.
+            Call m3warn( pname, 0, 0, xmsg )
+!            Call m3exit( pname, 0, 0, xmsg, xstat3 )
          Else
             aerosrf_map( m ) = ae_strt - 1 + n
-            aerocgrid_rho( n ) = 1.0
+            aerocgrid_rhoinv( n ) = 1.0
             lbcsrf( n ) = .True.
             lbcmode( m,n ) = .True.
          End If
@@ -766,16 +778,28 @@ C Find indices of required species
       End If
 
       If ( Index( mechname, 'SAPRC07TIC_AE6I' ) .Gt. 0 ) Then
-         ae6isoa = .True.
+         ae6isoa     = .True.
+         aietet_idx  = findAero( req_ietet, ae6isoa )
+         aieos_idx   = findAero( req_ieos,  ae6isoa )
+         adim_idx    = findAero( req_dim,   ae6isoa )
+         aimga_idx   = findAero( req_imga,  ae6isoa )
+         aimos_idx   = findAero( req_imos,  ae6isoa )
       Else
-         ae6isoa = .False.
+         aietet_idx  = 0
+         aieos_idx   = 0
+         adim_idx    = 0
+         aimga_idx   = 0
+         aimos_idx   = 0
+         ae6isoa     = .False.
       End If
-      aietet_idx  = findAero( req_ietet, ae6isoa )
-      aieos_idx   = findAero( req_ieos,  ae6isoa )
-      adim_idx    = findAero( req_dim,   ae6isoa )
-      aimga_idx   = findAero( req_imga,  ae6isoa )
-      aimos_idx   = findAero( req_imos,  ae6isoa )
-      aphgj_idx   = findAero( req_phgj,  .False. )
+
+      aphgj_idx = findAero( req_phgj,  .False. )
+      If ( aphgj_idx .Gt. 0 ) Then
+         ae6hg     = .True.
+      Else
+         aphgj_idx = 0 
+         ae6hg     = .False.
+      End If
 
 C Adjust Dust Emissions for Organic Species, if running with semivolatile POA
       dust_spc = dust_spc_list
@@ -830,15 +854,16 @@ C Adjust Dust Emissions for Organic Species, if running with semivolatile POA
       Write( logdev,'( 5x, a, i4 )' ) 'acors_idx:  ', acors_idx
       Write( logdev,'( 5x, a, i4 )' ) 'apncom_idx: ', apncom_idx
       Write( logdev,'( 5x, a, i4 )' ) 'aseacat_idx:', aseacat_idx
-      Write( logdev,'( 5x, a, i4 )' ) 'aietet_idx: ', aietet_idx
-      Write( logdev,'( 5x, a, i4 )' ) 'aieos_idx:  ', aieos_idx
-      ! Optional
-      Write( logdev,'( 5x, a, i4 )' ) 'adim_idx:   ', adim_idx
-      Write( logdev,'( 5x, a, i4 )' ) 'aimga_idx:  ', aimga_idx
-      Write( logdev,'( 5x, a, i4 )' ) 'aimos_idx:  ', aimos_idx
-      If ( aphgj_idx .Gt. 0 ) Then
+      If( ae6isoa )Then
+          Write( logdev,'( 5x, a, i4 )' ) 'aietet_idx: ', aietet_idx
+          Write( logdev,'( 5x, a, i4 )' ) 'aieos_idx:  ', aieos_idx
+          Write( logdev,'( 5x, a, i4 )' ) 'adim_idx:   ', adim_idx
+          Write( logdev,'( 5x, a, i4 )' ) 'aimga_idx:  ', aimga_idx
+          Write( logdev,'( 5x, a, i4 )' ) 'aimos_idx:  ', aimos_idx
+      End If      
+      If ( ae6hg ) Then
           Write( logdev,'( 5x, a, i4 )' ) 'aphgj_idx:  ', aphgj_idx
-      else
+      Else 
           Write( logdev,'( 5x, a, i4 )' ) 'PHGJ not found so aphgj_idx: ', aphgj_idx
       End If
 #endif
@@ -861,11 +886,21 @@ C compute aeromode_minNum and aeromode_minM2
          aeromode_minM2( m ) = aeromode_minNum( m ) *
      &             def_diam( m )**2 * Exp( 2.0 * Log( def_sigma_g( m ) )**2 )
       End do
- 
+
+      if( AE_eflag )Then
+         Write(logdev,99901) Trim( mechname )
+             xmsg = 'The FATAL errors found in namelist used. Check '
+     &         //  'the log of exiting processor if more details are needed.'
+         Call m3exit( pname, 0, 0, xmsg, xstat3 )
+      End If 
+
       mapped = .True.
 
       Write( logdev,'( 5x, a )' ) ' --- Aero Species Mapped ---'
 
+99901 Format( 'FATAL Error(s) found in the AE namelist used. Check that ' 
+     &     /  'this AE namelist contains the above required data as the file in '
+     &     /  'the respository version of the mechanism: ', a )
       Return
       End Subroutine map_aero
 
@@ -1192,6 +1227,7 @@ C Local Variables:
       Character( 80 ) :: xmsg
       Integer spc, n
 
+      idx = 0
 C Find the substring vname in aerospc( spc )%name( n )
       Do n = 1, n_mode
          Do spc = 1, n_aerospc
@@ -1203,15 +1239,16 @@ C Find the substring vname in aerospc( spc )%name( n )
       End Do
 
       If ( .Not. required ) Then
-         idx = 0
-         xmsg =  pname // 'Optional Species '
-     &       // Trim( vname ) // ' Not found in aerospc names array'
-         Call m3mesg( xmsg )
+         xmsg = ' NOT FATAL: Optional Species '
+     &       // Trim( vname ) // ' Not found in AE namelist.'
+         write(logdev,'(/ a / )')xmsg
          Return
       End If
 
-      xmsg = 'Required Species ' // Trim( vname ) // ' Not found in aerospc names array'
-      Call m3exit( pname, 0, 0, xmsg, xstat3 )
+      xmsg = 'FATAL: Required Species ' // Trim( vname ) // ' Not found in AE namelist'
+      AE_eflag  = .True.
+      Call m3warn( pname, 0, 0, xmsg )
+!     Call m3exit( pname, 0, 0, xmsg, xstat3 )
 
       Return
       End Function findAero
@@ -1345,7 +1382,7 @@ C     moment [ m**2/m**3 ]
 
 C
 C-----------------------------------------------------------------------
-      Subroutine CHECK_AERO_ICBC( IBCON, STAT, AER_PAR, LMODE )
+      Subroutine CHECK_AERO_ICBC( IBCON, AE_MASS_UNIT, STAT, AER_PAR, LMODE )
 
 C Subroutine corrects the scale factors for number, surface area when a 
 C change has happened to the mass of any boundary condition species.
@@ -1361,17 +1398,24 @@ C
 C 11 May 16  B.Murphy  Program Written
 C
 C-----------------------------------------------------------------------
-      Use AEROMET_DATA, only : pi, pi6
+      Use AEROMET_DATA, only : pi, f6pi
 
       Implicit None
 
-      REAL, INTENT(INOUT) :: IBCON( : )
-      INTEGER, INTENT(OUT) :: STAT     ! 0 - Distribution is ok
-                                       ! 1 - Distribution is problematic
+      REAL, INTENT(INOUT)        :: IBCON( : )
+      LOGICAL, INTENT( IN ) :: AE_MASS_UNIT  ! FALSE for KGM3 input
+                                             ! TRUE  for UGM3 input
+      INTEGER, INTENT(OUT)       :: STAT     ! 0 - Distribution is ok
+                                             ! 1 - Distribution is problematic
       REAL, INTENT(OUT) :: AER_PAR( 2, N_MODE, 5 ) !Track the modal parameters   (N, M2, M3, dg, sg) -Before
                                                    !before and after the BC      (N, M2, M3, dg, sg) -After
                                                    !check routine               
       INTEGER, INTENT(OUT) :: LMODE  !Identifies the problematic mode
+
+      REAL, PARAMETER  :: F1PI = 1.0 / pi
+      REAL, PARAMETER  :: ONE_THIRD  = 1.0 / 3.0
+      REAL, PARAMETER  :: TWO_THIRDS = 2.0 / 3.0
+
 
 C Local variables:
 
@@ -1382,40 +1426,52 @@ C Local variables:
       LMODE   = 0
       STAT    = 0
       AER_PAR = 0.0
+      dg      = 0.0
+      sg      = 0.0
+       
+      CALL MAP_AERO()
 
       !Loop Through Each Aerosol Mode. Sum up the third moment, then
       !calculate the Dg and Sg of the mode and check to make sure they
       !are valid
       DO IMODE = 1,N_MODE
          NUM = SUM( IBCON( : ), MASK = ( LBCMODE( IMODE,: ) .AND. LBCNUM ) )
-         M2  = SUM( IBCON( : ), MASK = ( LBCMODE( IMODE,: ) .AND. LBCSRF ) ) / pi
+         M2  = SUM( IBCON( : ), MASK = ( LBCMODE( IMODE,: ) .AND. LBCSRF ) ) * F1PI
 
-         M3 = SUM( IBCON( : ) / AEROCGRID_RHO / pi6, MASK = ( LBCMASS .AND. LBCMODE( IMODE,: ) )  )
+         M3 = SUM( IBCON( : ) * AEROCGRID_RHOINV * F6PI, MASK = ( LBCMASS .AND. LBCMODE( IMODE,: ) )  )
+
+         IF ( AE_MASS_UNIT ) M3 = M3 * KGPMG
 
          AER_PAR ( 1, IMODE, 1 ) = NUM
          AER_PAR ( 1, IMODE, 2 ) = M2
          AER_PAR ( 1, IMODE, 3 ) = M3
-         AER_PAR ( 1, IMODE, 4 ) = 0.    !dg
-         AER_PAR ( 1, IMODE, 5 ) = 0.    !sg
+         AER_PAR ( 1, IMODE, 4 ) = 0.    
+         AER_PAR ( 1, IMODE, 5 ) = 0.    
 
          IF ( M3 .LT. 1.0e-30 ) THEN
-             STAT = 2
+             STAT = 4
              LMODE = IMODE
          ELSE IF ( NUM .LT. 1.0e-30 .OR. M2 .LT. 1.0e-30 ) THEN
-             STAT = 1
+             STAT = 3
              LMODE = IMODE
-         ELSE
-             l2sg = ( 1./3. * LOG( NUM ) + 2./3. * LOG( M3 ) - LOG( M2 ))
-             dg   = ( M3 / ( NUM * EXP( 4.5 * l2sg ) ) ) ** (1./3.)
-             sg   = EXP( SQRT( l2sg ) )
-             AER_PAR( 1, IMODE, 4 ) = dg
-             AER_PAR( 1, IMODE, 5 ) = sg
+         ELSE                  
+             l2sg = ( ONE_THIRD * LOG( NUM ) + TWO_THIRDS * LOG( M3 ) - LOG( M2 ))
 
-             IF ( sg .LT. MIN_SIGMA_G .OR. sg .GT. MAX_SIGMA_G .OR.
-     &            dg .LT. MIN_DIAM_G( IMODE )  .OR. dg .GT. MAX_DIAM_G( IMODE ) ) THEN
-                  STAT = 1
+             IF ( l2sg .LT. MIN_L2SG .OR. l2sg .GT. MAX_L2SG ) THEN 
+                  STAT = 2
                   LMODE = IMODE
-             ENDIF
+             ELSE
+
+                  dg   = ( M3 / NUM * EXP( -4.5 * l2sg ) )  ** ( ONE_THIRD )
+                  sg   = EXP( SQRT( l2sg ) )
+                  AER_PAR( 1, IMODE, 4 ) = dg
+                  AER_PAR( 1, IMODE, 5 ) = sg
+
+                  IF ( dg .LT. MIN_DIAM_G( IMODE )  .OR. dg .GT. MAX_DIAM_G( IMODE ) ) THEN
+                      STAT = 1
+                      LMODE = IMODE
+                  ENDIF
+              ENDIF     
          ENDIF
 
          !Save Modal Properties After the Check
@@ -1425,20 +1481,20 @@ C Local variables:
          AER_PAR( 2, IMODE, 4 ) = dg
          AER_PAR( 2, IMODE, 5 ) = sg
 
-         IF ( STAT .EQ. 1 ) THEN
-           !Rewrite Boundary Condition Number and Mass to Satisfy
+         IF ( STAT .GT. 0 .AND. STAT .LT. 4 ) THEN
+           !Rewrite Boundary Condition Number and Surface Area to Satisfy
            !Default Size Parameters
-           l2sg = ( LOG( DEF_SIGMA_G( IMODE ) ) ) ** 2
-           NUM = M3 / ( EXP( 4.5 * l2sg ) ) / ( DEF_DIAM( IMODE ) ) ** 3
-           dg   = ( M3 / ( NUM * EXP( 4.5 * l2sg ) ) ) ** (1./3.)
+           l2sg = DEF_L2SG( IMODE )
+           NUM = M3 * ( EXP( -4.5 * l2sg ) ) / ( DEF_DIAM( IMODE ) ) ** 3
+           dg   = ( M3 / NUM * EXP( -4.5 * l2sg ) ) ** ( ONE_THIRD )
            sg   = EXP( SQRT( l2sg ) )
            
            !First Number Concentration
            WHERE( LBCMODE( IMODE,: ) .AND. LBCNUM ) IBCON = NUM
            
            !Then Surface Area Concentration
-           M2 = EXP( 1./3. * LOG( NUM ) + 2./3. * LOG( M3 ) - l2sg ) * pi
-           WHERE( LBCMODE( IMODE,: ) .AND. LBCSRF ) IBCON = M2 
+           M2 = EXP( ONE_THIRD * LOG( NUM ) + TWO_THIRDS * LOG( M3 ) - l2sg )
+           WHERE( LBCMODE( IMODE,: ) .AND. LBCSRF ) IBCON = M2 * F1PI
          
            !Save Modal Properties After the Check
            AER_PAR( 2, IMODE, 1 ) = NUM
@@ -1447,7 +1503,7 @@ C Local variables:
            AER_PAR( 2, IMODE, 4 ) = dg
            AER_PAR( 2, IMODE, 5 ) = sg
 
-         ELSEIF ( STAT .EQ. 2 ) THEN
+         ELSEIF ( STAT .EQ. 4 ) THEN
            WHERE( LBCMODE( IMODE,: ) .AND. LBCNUM ) IBCON = conmin  !Number
            WHERE( LBCMODE( IMODE,: ) .AND. LBCSRF ) IBCON = conmin  !Second Moment
            WHERE( LBCMODE( IMODE,: ) .AND. LBCMASS) IBCON = conmin  !Third Moment
