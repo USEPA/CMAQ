@@ -61,8 +61,8 @@ NO              ,ppbV      ,1000.0*NO[1]
 NO2             ,ppbV      ,1000.0*NO2[1]
 NOX             ,ppbV      ,1000.0*(NO[1] + NO2[1])
 ANO3_PPB	,ppbV      ,(ANO3I[1]+ANO3J[1]+ANO3K[1])/(DENS[2]*(62.0/28.97))
-NTR             ,ppbV      ,1000.0*(NTROH[1]+NTRALK[1]+NTRCN[1]+NTRCNOH[1]+NTRM[1]+NTRI[1]+NTRPX[1])
-PANS            ,ppbV      ,1000.0*(PAN[1]+PANX[1]+OPAN[1]+MAPAN[1])
+NTR             ,ppbV      ,1000.0*(NTR1[1]+NTR2[1]+INTR[1])
+PANS            ,ppbV      ,1000.0*(PAN[1]+PANX[1]+OPAN[1])
 NOY             ,ppbV      ,1000.0* ( NO[1]+NO2[1]+NO3[1]+2*N2O5[1]+HONO[1]+HNO3[1]+PNA[1] \
                                      +CRON[1]+CRNO[1]+CRN2[1]+CRPX[1]+CLNO2[1]) \
                                      +PANS[0]+NTR[0]+ANO3_PPB[0]
@@ -81,6 +81,7 @@ VOC             ,ppbC      ,1000.0* ( PAR[1]      + 2.0*ETH[1]  + MEOH[1]     + 
                                      +2.0*ALD2[1] + 2.0*ETHA[1] + 4.0*IOLE[1] + 2.0*ALDX[1]  \
                                      +5.0*ISOP[1] + 10.0*TERP[1]+ 10.0*NAPH[1])
 XYL             ,ppbV      ,1000.0*XYLMN[1]
+
 
 !Additional Global, Regional and Urban Toxic gases
 ACROLEIN        ,ug/m3     ,1000.0*(ACROLEIN[1]*1.9365*DENS[2]) 

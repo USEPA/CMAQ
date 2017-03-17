@@ -29,12 +29,12 @@ C**********************************************************************
 C
 C  FUNCTION: Driver subroutine for Euler Backward Iterative solver
 C
-C  PRECONDITIONS: For the CB6MP family of mechanisms
+C  PRECONDITIONS: For the CB6R3 family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, PHOT, HRCALCKS, HRSOLVER
 C                                     FIND_DEGRADED, INIT_DEGRADE, FINAL_DEGRADE
 C
-C  REVISION HISTORY: Created by EBI solver program, Feb 14, 2017
+C  REVISION HISTORY: Created by EBI solver program, Mar 10, 2017
 C                       Based on the algorithm in "Test of Two Numerical
 C                       Schemes for Use in Atmospheric Transport-Chemistry
 C                       Models", O. Hertel, R. Berkowicz, J. Christensen,

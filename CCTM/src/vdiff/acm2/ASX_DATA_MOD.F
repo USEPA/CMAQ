@@ -379,6 +379,7 @@ C Land use information:
       DATA subname(102), dif0(102), ar(102), meso(102), lebas(102) / 'ACRYACID        ',0.0908,    2.0,      0.0,  63.2/ 
       DATA subname(103), dif0(103), ar(103), meso(103), lebas(103) / 'CARBSULFIDE     ',0.1240,    5.0,      0.0,  51.5/ 
       DATA subname(104), dif0(104), ar(104), meso(104), lebas(104) / 'ACETONITRILE    ',0.1280,    5.0,      0.0,  52.3/ 
+      DATA subname(105), dif0(105), ar(105), meso(105), lebas(105) / '6_NITRO_O_CRESOL',0.0664,   16.0,      0.0, 155.0/ ! dif0, equation 9-22. Scwarzenbach et. (1993) Env. Org. Chem.
 
       CONTAINS
 

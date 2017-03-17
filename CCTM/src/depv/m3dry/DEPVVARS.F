@@ -46,7 +46,7 @@ C           24 Mar 2016: G. Sarwar: added iodine and bromine species
 C-----------------------------------------------------------------------
 
       INTEGER, PARAMETER :: LDDEP = 4
-      INTEGER, PARAMETER :: LTOTG = 104
+      INTEGER, PARAMETER :: LTOTG = 105
       INTEGER, PARAMETER :: LCMP  = 8
       CHARACTER( 16 )    :: DEPV_METHOD
 
@@ -185,6 +185,7 @@ C-------------------------------------------------------------------------------
          DEPSPC( 102) = 'ACRYACID        '
          DEPSPC( 103) = 'CARBSULFIDE     '
          DEPSPC( 104) = 'ACETONITRILE    ' 
+         DEPSPC( 105) = 'METH_NIT_PHEN   ' ! 6-methyl-2-nitrophenol aka 6-nitro-o-cresol
 
          N_USE_DEPSPC = 0
          USE_DEPSPC = .FALSE.   ! array
