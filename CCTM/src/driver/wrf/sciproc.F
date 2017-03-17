@@ -203,13 +203,15 @@ C Synchronization Step Physical Processes Sequence
       IF ( LIPR ) CALL PA_UPDATE ( 'VDIF', CGRID, JDATE, JTIME, TSTEP )
 
 C couple CGRID for advection and horizontal diffusion
+C The COUPLE_WRF routine converts aerosol mass from ug/m3 to kg/m3. The 
+C DECOUPL_WRF routine converts it back to ug/m3.
 
       CALL COUPLE_WRF ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'COUPLE_WRF', CGRID, JDATE, JTIME )
 
       CALL SUBST_BARRIER()
       CALL HADV ( CGRID, JDATE, JTIME, TSTEP, ASTEP )
-!     IF ( CKSUM ) CALL CKSUMMER ( 'HADV', CGRID, JDATE, JTIME )
+      IF ( CKSUM ) CALL CKSUMMER ( 'HADV', CGRID, JDATE, JTIME )
       IF ( LIPR ) CALL PA_UPDATE ( 'HADV', CGRID, JDATE, JTIME, TSTEP )
 
       CALL ZADV ( CGRID, JDATE, JTIME, TSTEP )
