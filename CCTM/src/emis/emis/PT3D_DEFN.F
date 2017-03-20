@@ -87,6 +87,10 @@ C Output layer fractions, dimensioned NSRC, emlays, and for diagnostic file
 C debugging zplume
       REAL,    ALLOCATABLE, SAVE :: ZPLUM( :,: ) ! has to be 2D for play file
 
+C Comprehensive List of Species Names Occurring on Any Emission File
+      CHARACTER( 16 ), ALLOCATABLE, SAVE :: EMISS_SPC( : )
+      TYPE( CARRY1 ),  ALLOCATABLE, SAVE :: PNTSRC_SPCNAME( : )
+
 C Stack emissions for sources within domain
       REAL,    ALLOCATABLE, SAVE :: STKEM( : )   ! per source local stk emis
       INTEGER,              SAVE :: EMLYRS       ! no. of emis layers

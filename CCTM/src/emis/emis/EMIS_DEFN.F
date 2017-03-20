@@ -48,6 +48,9 @@ C     24 Feb 16 B.Murphy: Generalize scaling of point source species based on
 C                         mapping model species, not point source species
 C     03 Mar 16 B.Gantt/G. Sarwar: incorporated halogen emissions
 C     08 Aug 2016 B.Murphy: Neglect fire emissions for pcVOC
+C     12 Jan 2017 B.Murphy: Remove warning when model species are not
+C                           read in correctly. Invoke error and model stop when model 
+C                           species are not found on any emission file
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications      
@@ -62,9 +65,13 @@ C-----------------------------------------------------------------------
       INTEGER,              SAVE :: N_SPC_EMIS ! global emissions species
       INTEGER,              SAVE :: EMLAYS     ! no. of emis integration layers
                                                ! EMLAYS must be .LT. NLAYS
-      INTEGER,              SAVE :: EMLYRS     ! no. of layers on base emis input file -
+      INTEGER,              SAVE :: EMLYRS     ! no. of layers on base emis input file
+      CHARACTER( 16 ), ALLOCATABLE, SAVE :: TRACSPC( : )  ! Variables from Tracer Emission File
+      CHARACTER( 16 ), ALLOCATABLE, SAVE :: AREASPC( : )  ! Variables from Area Emission File
 
-      PUBLIC VDEMIS, N_SPC_EMIS, EMLAYS, EMLYRS, EMIS_INIT, GET_EMIS
+      PUBLIC VDEMIS, N_SPC_EMIS, EMLAYS, EMLYRS, TRACSPC, AREASPC,  ! Variables
+     &       EMIS_INIT, GET_EMIS,                                   ! Routines
+      
 #ifdef verbose_emis_defn
       public semis
 #endif
@@ -148,20 +155,19 @@ C-----------------------------------------------------------------------
             DX2 = YCELL_GD        ! in m.
          END IF
 
-C In-line biogenic emissions?
+C Initialize Online Biogenic Emissions
          IF ( .NOT. BEIS_INIT( JDATE, JTIME, TSTEP ) ) THEN
             XMSG = 'Failure initializing biogenics emissions module'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
-C In-line marine gas emissions?
-
+C Initialize Online Marine Gas Emissions
          IF ( .NOT. MGEMIS_INIT( JDATE, JTIME, TSTEP ) ) THEN
             XMSG = 'Failure initializing marine gas emissions module'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
-C Open Emissions files
+C Open Area Emissions files
          CALL OPEMIS ( JDATE, JTIME, N_GC_EMIS, EM_TRAC, CONVEM, EMLAYS )
 
 C Get number of emissions layers
@@ -188,7 +194,7 @@ C Get number of emissions layers
 1009     FORMAT( / 10X, 'Number of Emissions Layers:         ', I3
      &           / 10X, 'out of total Number of Model Layers:', I3 )
 
-C lightning NO emissions?
+C Initialize Online Lightning NOx Emissions
          IF ( .NOT. LTNG_INIT( JDATE, JTIME, TSTEP, EMLAYS ) ) THEN
             XMSG = 'Failure initializing lightning emissions module'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -254,8 +260,23 @@ C Map Emissions Surrogates to Global Variables
      &                                       v, emis_map( v ), emis_spc( v )
          end do
 #endif
+ 
+C Combined Gas Emssions Conversion Factor
+         CNVTE = CMLMR * CONVEM * MWAIR / ( DX1 * DX2 )
 
-C 3D point source emissions (N_SPC_EMIS+1 serves as the null map for PTEM_MAP)
+C Calculate Indices for Pointing Pollutant Types to Vector Bounds in
+C Master EArea Emissions Array
+         STRT_GC = 1
+         FINI_GC = N_GC_EMIS
+         STRT_AE = N_GC_EMIS + 1
+         FINI_AE = N_GC_EMIS + NEMIS_AE
+         STRT_NR = N_GC_EMIS + NEMIS_AE + 1
+         FINI_NR = N_GC_EMIS + NEMIS_AE + N_NR_EMIS
+         STRT_TR = N_GC_EMIS + NEMIS_AE + N_NR_EMIS + 1
+         FINI_TR = N_GC_EMIS + NEMIS_AE + N_NR_EMIS + N_TR_EMIS
+ 
+C Initialize 3D Point Source Emissions 
+C (N_SPC_EMIS+1 serves as the null map for PTEM_MAP)
          IF ( .NOT. PT3D_INIT( N_SPC_EMIS, EMLAYS, JDATE, JTIME, TSTEP ) ) THEN
             XMSG = 'Failure initializing plume rise emissions module'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -278,11 +299,18 @@ C 3D point source emissions (N_SPC_EMIS+1 serves as the null map for PTEM_MAP)
             EMLYRS = EMLAYS
          END IF
 
+C Check the Emissions Species Available on the Input Files Against the
+C Surrogates Identified by the User via the Namelists and Stop the model
+C or Print Warnings if Mistakes Are Made.
+         CALL EMISS_SPC_CHECK
+
+C Warn the User if there are No Emissions Species On Any File         
          IF ( N_SPC_EMIS .LE. 0 ) THEN
             XMSG = 'There are no emissions: VDEMIS is set to zero' ! below
             CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
          END IF
 
+C Allocate Buffer space for Reading Emissions
          ALLOCATE ( BUFF( NCOLS,NROWS,EMLYRS ), STAT = STATUS )
          ALLOCATE ( BUFF2( NCOLS,NROWS,EMLYRS ), STAT = STATUS )
          IF ( STATUS .NE. 0 ) THEN
@@ -292,6 +320,7 @@ C 3D point source emissions (N_SPC_EMIS+1 serves as the null map for PTEM_MAP)
          END IF
          BUFF = 0.0   ! array assignment
 
+C Allocate Buffer Space For Reading Fertilizer Emissions for MOSAIC
          IF ( ABFLUX ) THEN
             ALLOCATE ( FERT( NCOLS,NROWS,EMLYRS ), STAT = STATUS )
             IF ( STATUS .NE. 0 ) THEN
@@ -301,20 +330,8 @@ C 3D point source emissions (N_SPC_EMIS+1 serves as the null map for PTEM_MAP)
             END IF
             FERT = 0.0   ! array assignment
          END IF
-C combined gas emssions conversion factor
 
-         CNVTE = CMLMR * CONVEM * MWAIR / ( DX1 * DX2 )
-
-         STRT_GC = 1
-         FINI_GC = N_GC_EMIS
-         STRT_AE = N_GC_EMIS + 1
-         FINI_AE = N_GC_EMIS + NEMIS_AE
-         STRT_NR = N_GC_EMIS + NEMIS_AE + 1
-         FINI_NR = N_GC_EMIS + NEMIS_AE + N_NR_EMIS
-         STRT_TR = N_GC_EMIS + NEMIS_AE + N_NR_EMIS + 1
-         FINI_TR = N_GC_EMIS + NEMIS_AE + N_NR_EMIS + N_TR_EMIS
-
-C RETURN FROM INITIALIZATION
+C Return From Initialization
          SUCCESS = .TRUE.; RETURN
 
          END FUNCTION EMIS_INIT
@@ -393,10 +410,10 @@ C                                       vvvvvvv - emis surrogate names
             IF ( .NOT. INTERPX( EMIS_1, GC_EMIS( S ), PNAME,
      &                          STARTCOL,ENDCOL, STARTROW,ENDROW, 1,EMLYRS,
      &                          JDATE, JTIME, BUFF ) ) THEN
-               XMSG = 'Could not read '
-     &              // TRIM( GC_EMIS( S ) ) // ' from ' // EMIS_1
+               !XMSG = 'Could not read '
+       !&              // TRIM( GC_EMIS( S ) ) // ' from ' // EMIS_1
 !              CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-               CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+               !CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
             END IF
 
             !READ Non-Carbon Organic Matter From Gas Emissions
@@ -405,10 +422,10 @@ C                                       vvvvvvv - emis surrogate names
                  IF ( .NOT. INTERPX( EMIS_1, 'PNCOM', PNAME,
      &                          STARTCOL,ENDCOL, STARTROW,ENDROW, 1,EMLYRS,
      &                          JDATE, JTIME, BUFF2 ) ) THEN
-                 XMSG = 'Could not read '
-     &               // TRIM( GC_EMIS( S ) ) // ' from ' // EMIS_1
+                 !XMSG = 'Could not read '
+       !&               // TRIM( GC_EMIS( S ) ) // ' from ' // EMIS_1
 !                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-                 CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+             !    CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
               END IF  
               BUFF = BUFF + BUFF2
             ENDIF
@@ -617,9 +634,9 @@ C                                       vvvvvvv - emis surrogate names
             IF ( .NOT. INTERPX( EMIS_1, NR_EMIS( S ), PNAME,
      &                          STARTCOL,ENDCOL, STARTROW,ENDROW, 1,EMLYRS,
      &                          JDATE, JTIME, BUFF ) ) THEN
-               XMSG = 'Could not read '
-     &              // TRIM( NR_EMIS( S ) ) // ' from ' // EMIS_1
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+           !    XMSG = 'Could not read '
+       !&              // TRIM( NR_EMIS( S ) ) // ' from ' // EMIS_1
+        !       CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 ! subtract the fertilizer emissions from the NEI for use in the NH3 bidirectional
 ! exchange model JOB
@@ -733,5 +750,86 @@ C accounts for emissions species names as a subset of the vert. diffused species
          RETURN
 
          END SUBROUTINE GET_EMIS
+
+
+C-----------------------------------------------------------------------
+         SUBROUTINE EMIS_SPC_CHECK
+
+C Check the chemical species from the namelists and AERO_DATA against
+C the species that are available on the actual emissions input files. If
+C they do not agree, print warngings or crash the program depending on
+C how severe the error is.
+C
+C    16 Mar 2017  B.Murphy     Created Subroutine
+C-----------------------------------------------------------------------
+
+         USE BEIS_DEFN, only : BIOGEMIS  ! Online Biogenic Emissions Env Variable
+         USE BIOG_EMIS, only : EMSPC     ! Emitted CMAQ-Species from BEIS
+         USE MGEMIS,    only : MGEM,     ! Flag for Marine Gas Emissions
+     &                         MG_SPC    ! Emitted Marine Gas CMAQ-Species
+         USE LTNG_DEFN, only : LTNG_NO,  ! Flag for Lightning Emissions
+     &                         LTSPC     ! Lightning Emitted Species (i.e. 'NO')
+         USE PT3D_DEFN, only : PT3DEMIS  ! Flag for Point Source Emissions
+         USE STK_EMIS,  only : STKSPC    ! Species from Point Source Emissions
+
+
+
+C Find Upper Bound on Number of Possible Species
+         ! Gridded Area and Tracer Sources
+         NTRSPC  = LEN( TRACSPC )
+         NARSPC  = LEN( AREASPC )
+
+         ! Point Sources
+         IF ( PT3DEMIS ) THEN
+             NPTFILE = LEN( PT3DEMIS )
+             NPTSPC  = SUM( STKSPC( : )%LEN )
+         END IF
+
+         ! Biogenic Sources
+         IF ( BIOGEMIS ) NBIOSPC = LEN( EMPSC )
+
+         ! Marine Gas Sources
+         IF ( MGEMIS ) NMGSPC = LEN( MG_SPC )
+
+         ! Lightning Sources
+         IF ( LTNG_NO ) NLTSPC = LEN( LTSPC )
+
+         ! Dust Sources
+         IF (       ) NDSTSPC = LEN(  )
+         
+         ! Sum Species from Each Source Category
+         NEMIS_SPC = NTRSPC + NARSPC + NPTSPC + NBIOSPC + NMGSPC + NLTSPC
+
+         ! Build the master list of all area, point, bio, sea spray and
+         ! lightning source species
+         ! stkspc( N )%ARRY and stkspc( N )%LEN
+         ! tracspc
+         ! areaspc
+         ! emspc
+         ! mg_spc
+         ! ltspc
+         ! stkspc
+
+
+
+
+         ! Print the contents of all the sources to the log file
+
+
+         ! Compare with Gas, Aerosol, Nonreactive, and Tracer Species
+         ! Loop over namelist species
+         !   If a match is found, great, tally one for the emission file
+         !      species and cycle back
+         !   If no match is found, crash the model, if the env variable
+         !      is not set
+         ! 
+         ! Loop through emission file species. Print a warning for the
+         ! ones that are not used.
+
+
+
+
+
+         END SUBROUTINE EMIS_SPC_CHECK
 
       END MODULE EMIS_DEFN

@@ -37,7 +37,8 @@ C                        removed deprecated TRIMLEN
       USE VGRD_DEFN           ! vertical layer specifications
       USE CGRID_SPCS          ! CGRID mechanism species
       USE UTILIO_DEFN
-      USE RXNS_DATA, only : MECHNAME
+      USE RXNS_DATA, only : MECHNAME 
+      USE EMIS_DEFN, only : TRACSPC, AREASPC
 
       IMPLICIT NONE
 
@@ -85,6 +86,12 @@ C Open the tracer emissions file
 
          ELSE
 
+            ! Save Tracer Variables for Use in Emissions Species Check
+            ! Routine
+            ALLOCATE ( TRACSPC( LEN(VNAME3D) ), STAT = STATUS )
+            TRACSPC = VNAME3D
+
+            ! Assign Tracer Emissions Species
             EM_TRAC = .TRUE.
             IF ( .NOT. DESC3( EMIS_TRAC_1 ) ) THEN
                XMSG = 'Could not get '// EMIS_TRAC_1 // ' file description'
@@ -122,7 +129,6 @@ C Open the tracer emissions file
 
       END IF   ! tracer emissions
 
-!     IF ( NEMIS + N_AE_EMIS + N_NR_EMIS + N_TR_EMIS .GT. 0 ) THEN
       IF ( NEMIS + N_NR_EMIS .GT. 0 ) THEN
 
 C Open the emissions file (for gas chem, aerosols and non-reactive species)
@@ -137,6 +143,12 @@ C Open the emissions file (for gas chem, aerosols and non-reactive species)
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
          END IF
 
+         ! Save Area Source Species Names For Use in Emissions Species
+         ! Check Routine
+         ALLOCATE ( AREASPC( LEN(VNAME3D) ), STAT = STATUS )
+         AREASPC = VNAME3D
+
+         ! Assign Area Source Emission Species
          IF ( EMLAYS .EQ. 0 ) THEN
             EMLAYS = NLAYS3D
          ELSE
