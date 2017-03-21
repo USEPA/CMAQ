@@ -6,7 +6,7 @@
 
 
 ! --------- Photochemical Mechanism Reactions, Rates, etc. DAT ---------
-! Source file: /home/hwo/CCTM_git_repository/UTIL/chemmech/input/cb6mp_ae6_aq/mech_cb6mp_ae6_aq.def
+! Source file: /home/hwo/CCTM_git_repository/CCTM/src/MECHS/cb6r3_ae6_aq/mech_cb6r3_ae6_aq.def
 ! for Mechanism Name: CB6R3_AE6_AQ                    
 
 ! This file is used to create mechanism data and functions
@@ -1696,8 +1696,8 @@
      &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
      &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 6   
      &        1.00000,    0.50000,    0.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.14280,    1.14280,    1.00000,    1.00000, & ! 7   
-     &        0.85714,    0.85714,    1.00000,    1.00000,    0.50000, & ! +   
+     &        1.00000,    0.85710,    1.14290,    0.85710,    1.14290, & ! 7   
+     &        0.71430,    0.71430,    0.80000,    0.90000,    0.50000, & ! +   
      &        0.50000,    1.50000,    1.42860,    1.42860,    1.71430, & ! 8   
      &        1.71430,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
      &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 9   
@@ -1944,7 +1944,7 @@
      &        0.30000,    0.70000,    0.00000,    0.37000,    1.00000, & ! +   
      &        0.20000,    0.19500,    0.15000,    0.04000,    0.10000, & ! 4   
      &        0.00000,    0.50000,    0.04000,    0.00000,    0.25000, & ! +   
-     &        0.81800,    0.12000,    0.80000,    0.07200,    0.00000, & ! 5   
+     &        0.81800,    0.12000,    0.80000,    1.07200,    0.00000, & ! 5   
      &        0.35000,    0.03000,    0.26900,    0.17000,    0.14200, & ! +   
      &        0.20800,    0.02900,    0.00000,    0.00000,    0.00000, & ! 6   
      &        0.82500,    0.82500,    0.66000,    0.82500,    0.18500, & ! +   
@@ -2840,7 +2840,7 @@
 !    SPECIAL      = Names of special rate coefficients
 !    NSPECIAL_RXN = Number of reactions with special rates
 !    ISPECIAL     = Pointers to reactions using special rates and their special rate coefficients
-!    MAXSPECTERMS = Max Number of each term type in  special rate coefficients
+!    MAXSPECTERMS = Max Number of terms type used by special rate coefficients
 !    KC_COEFFS    = Coefficients of standard rate coefficients  times concentration terms 
 !    INDEX_KTERMS  = Pointers to standard rate coefficients in  special rate coefficients
 !    INDEX_CTERMS  = Pointers to species concentrations in  special rate coefficients
@@ -2857,7 +2857,7 @@
 ! Special Rate information not available ...
       CHARACTER( 16 )    :: SPECIAL( 1 )
 
-      INTEGER, PARAMETER :: MAXSPECTERMS = 700
+      INTEGER, PARAMETER :: MAXSPECTERMS =   1
       REAL( 8 )          :: KC_COEFFS( NSPECIAL + 1, MAXSPECTERMS)
       INTEGER            :: INDEX_KTERMS( NSPECIAL + 1, MAXSPECTERMS)
       INTEGER            :: INDEX_CTERMS( NSPECIAL + 1, MAXSPECTERMS)

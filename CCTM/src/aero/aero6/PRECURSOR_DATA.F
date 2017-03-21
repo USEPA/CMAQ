@@ -156,10 +156,10 @@ C Local Variables:
       Integer          :: n
       Integer          :: spc
 
-      logdev = setup_logdev()
-
 C If the species are mapped already, skip the mapping algorithm
       If ( mapped ) Return
+
+      logdev = setup_logdev()
 
 C Initialize Precursor Map Variables
       precursor_mw = 0.0d0

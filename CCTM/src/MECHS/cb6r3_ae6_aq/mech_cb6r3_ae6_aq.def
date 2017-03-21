@@ -29,6 +29,11 @@
 !            rate in the reference (Cabanas) did not match Arrhenius equation. 
 !            Now both use Calvert recommendation.  
 !   5.  TOLU+OH (<T21>) now matches TOL+OH (<R180>) which was updated in CB6
+! 03-10-17 B.Hutzell
+!   1. changed the RO2 yield in the ISOP + RO2 reaction from 0.072 to 1.072
+!      based on a error in the CAMX cb6r3 report
+!   2. updated the oligomerization reactions to be consistent with the 
+!      saprc07tic_ae6_aq mechanism.
 !---------------------------------
 CB6R3_AE6_AQ
 
@@ -214,7 +219,7 @@ REACTIONS[CM] =
                 # 7.43E-13@-700;
 <R153> ISO2 + C2O3 = 0.598*FORM + 1.0*ISPD + 0.728*HO2 + 0.072*XO2H + 0.8*MEO2 
                      + 0.2*AACD + 0.872*RO2  # 1.00E+0*K<R58>;
-<R154> ISO2 + RO2 = 0.598*FORM + 1.0*ISPD + 0.728*HO2 + 0.072*XO2H + 0.072*RO2 
+<R154> ISO2 + RO2 = 0.598*FORM + 1.0*ISPD + 0.728*HO2 + 0.072*XO2H + 1.072*RO2 
                  # 1.0*K<R70>;
 <R155> ISO2 = HO2 + HPLD # 3.30E+9@8300;
 <R156> ISOP + O3 = 0.6*FORM + 0.65*ISPD + 0.15*ALDX + 0.2*CXO3 + 0.35*PAR 
@@ -449,21 +454,21 @@ REACTIONS[CM] =
 <HET_MGLY> MGLY = AGLYJ # 1.0~<HETERO_MGLY>;
 
 ! oligomerization reaction for secondary organic aerosols
-<OLIG_XYLENE1>    AXYL1J = 1.1428*AOLGAJ  # 9.48816E-6;
-<OLIG_XYLENE2>    AXYL2J = 1.1428*AOLGAJ  # 9.48816E-6;
-<OLIG_TOLUENE1>   ATOL1J = 1.0000*AOLGAJ  # 9.48816E-6;
-<OLIG_TOLUENE2>   ATOL2J = 1.0000*AOLGAJ  # 9.48816E-6;
-<OLIG_BENZENE1>   ABNZ1J = 0.85714*AOLGAJ # 9.48816E-6;
-<OLIG_BENZENE2>   ABNZ2J = 0.85714*AOLGAJ # 9.48816E-6;
-<OLIG_TERPENE1>   ATRP1J = 1.0000*AOLGBJ  # 9.48816E-6;
-<OLIG_TERPENE2>   ATRP2J = 1.0000*AOLGBJ  # 9.48816E-6;
-<OLIG_ISOPRENE1>  AISO1J = 0.50*AOLGBJ    # 9.48816E-6;
-<OLIG_ISOPRENE2>  AISO2J = 0.50*AOLGBJ    # 9.48816E-6;
-<OLIG_SESQT1>     ASQTJ  = 1.50*AOLGBJ    # 9.48816E-6;
-<OLIG_PAH1>       APAH1J = 1.4286*AOLGAJ  # 9.48816E-6;
-<OLIG_PAH2>       APAH2J = 1.4286*AOLGAJ  # 9.48816E-6;
-<OLIG_ALK1>       AALK1J = 1.7143*AOLGAJ  # 9.48816E-6;
-<OLIG_ALK2>       AALK2J = 1.7143*AOLGAJ  # 9.48816E-6;
+<OLIG_XYLENE1>    AXYL1J = 0.8571*AOLGAJ # 9.48816E-6;
+<OLIG_XYLENE2>    AXYL2J = 1.1429*AOLGAJ # 9.48816E-6;
+<OLIG_TOLUENE1>   ATOL1J = 0.8571*AOLGAJ # 9.48816E-6;
+<OLIG_TOLUENE2>   ATOL2J = 1.1429*AOLGAJ # 9.48816E-6;
+<OLIG_BENZENE1>   ABNZ1J = 0.7143*AOLGAJ # 9.48816E-6;
+<OLIG_BENZENE2>   ABNZ2J = 0.7143*AOLGAJ # 9.48816E-6;
+<OLIG_TERPENE1>   ATRP1J = 0.8*AOLGBJ # 9.48816E-6;
+<OLIG_TERPENE2>   ATRP2J = 0.9*AOLGBJ # 9.48816E-6;
+<OLIG_ISOPRENE1>  AISO1J = 0.50*AOLGBJ # 9.48816E-6;
+<OLIG_ISOPRENE2>  AISO2J = 0.50*AOLGBJ # 9.48816E-6;
+<OLIG_SESQT1>     ASQTJ  = 1.50*AOLGBJ # 9.48816E-6;
+<OLIG_PAH1>       APAH1J = 1.4286*AOLGAJ # 9.48816E-6;
+<OLIG_PAH2>       APAH2J = 1.4286*AOLGAJ # 9.48816E-6;
+<OLIG_ALK1>       AALK1J = 1.7143*AOLGAJ # 9.48816E-6;
+<OLIG_ALK2>       AALK2J = 1.7143*AOLGAJ # 9.48816E-6;
 
 ! Formation of Potential Combustion SOA (pcSOA)
 <PCSOA>  PCVOC + OH       = OH  + PCSOARXN  # 1.25E-11;

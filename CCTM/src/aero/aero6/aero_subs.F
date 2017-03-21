@@ -1569,7 +1569,7 @@ C *** Assign H+ Concentration to each Mode
       ELSE
           AEROSPC_CONC( AH3OP_IDX, 1:2 ) = CONMIN
       END IF
-      AEROSPC_CONC( AH3OP_IDX, 3 ) = 1.0D+6 * HPLUS( 3 )  ! Coarse mode H+ concentration
+      AEROSPC_CONC( AH3OP_IDX, 3 ) = HPLUS( 3 ) * AEROSPC_MW( ah3op_idx ) ! Coarse mode H+ concentration in ug/m3
 
 C *** Update the third moments, geometric mean diameters, geometric 
 C     standard deviations, modal mass totals, and modal particle 
