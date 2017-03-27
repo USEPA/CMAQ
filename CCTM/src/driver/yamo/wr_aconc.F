@@ -42,6 +42,7 @@ C                        A_CONC_1 and put it in opaconc.F
 C                      Added a section of code to allow non IO processors
 C                        to open A_CONC_1
 C   19 May 16 D.Wong: renamed ACONC_END_TIME to AVG_FILE_ENDTIME
+C   27 Mar 17 D.Wong: removed redundant parallel_io ifdef construct
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -104,11 +105,7 @@ C Override default beginning time timestamp for ACONC?
          END IF
 
          IF ( .NOT. IO_PE_INCLUSIVE ) THEN
-#ifdef parallel_io
             IF ( .NOT. OPEN3( A_CONC_1, FSREAD3, PNAME ) ) THEN
-#else
-            IF ( .NOT. OPEN3( A_CONC_1, FSREAD3, PNAME ) ) THEN
-#endif
                XMSG = 'Could not open ' // A_CONC_1 // ' file for update'
                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
