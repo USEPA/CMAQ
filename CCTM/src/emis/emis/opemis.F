@@ -65,6 +65,7 @@ C Local variables:
 
       LOGICAL ::   WRFLG = .FALSE.
       INTEGER      LOGDEV
+      INTEGER      STATUS
       INTEGER      V, N, S        ! induction variables
 
 C-----------------------------------------------------------------------
@@ -88,8 +89,8 @@ C Open the tracer emissions file
 
             ! Save Tracer Variables for Use in Emissions Species Check
             ! Routine
-            ALLOCATE ( TRACSPC( LEN(VNAME3D) ), STAT = STATUS )
-            TRACSPC = VNAME3D
+            ALLOCATE ( TRACSPC( NVARS3D ), STAT = STATUS )
+            TRACSPC = VNAME3D( 1:NVARS3D )
 
             ! Assign Tracer Emissions Species
             EM_TRAC = .TRUE.
@@ -145,8 +146,8 @@ C Open the emissions file (for gas chem, aerosols and non-reactive species)
 
          ! Save Area Source Species Names For Use in Emissions Species
          ! Check Routine
-         ALLOCATE ( AREASPC( LEN(VNAME3D) ), STAT = STATUS )
-         AREASPC = VNAME3D
+         ALLOCATE ( AREASPC( NVARS3D ), STAT = STATUS )
+         AREASPC = VNAME3D( 1:NVARS3D )
 
          ! Assign Area Source Emission Species
          IF ( EMLAYS .EQ. 0 ) THEN
