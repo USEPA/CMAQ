@@ -293,9 +293,6 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA SUBNAME(117), A(117), E(117) / 'N-HEXANE        ', 6.18E-04, 3.8E+03 /  ! Sander, ACP, 2015, Abraham Matteoli (1988)
       DATA SUBNAME(118), A(118), E(118) / 'PROPANAL        ', 1.64E+00, 5.4E+03 /  ! Staudinger and Roberts (2001)
       DATA SUBNAME(119), A(119), E(119) / 'STYRENE         ', 2.74E-01, 0.0E+00 /  ! Sander, ACP, 2015, Kim and Kim (2014)
-
-      DATA SUBNAME(119), A(119), E(119) / 'STYRENE         ', 3.82E-01, 4.4E+03 /  ! Staudinger and Roberts (2001)
-
       DATA SUBNAME(120), A(120), E(120) / '124TRIMETH_BENZE', 1.50E-01, 4.3E+03 /  ! Hanson et al. (1995)
       DATA SUBNAME(121), A(121), E(121) / 'CHLOROACETALDEHY', 4.18E+01, 0.0E+00 /  ! Bond Estimate by EPA SUITE PROGRAM  (2007)
       DATA SUBNAME(122), A(122), E(122) / 'CHLOROACETONE   ', 3.82E-01, 0.0E+00 /  ! Staudinger and Roberts (2001)
