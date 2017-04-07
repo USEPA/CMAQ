@@ -1,7 +1,7 @@
 [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch02_overview.md)
 <center>
-***
 
+* * *
 
 Operational Guidance for the Community Multiscale Air Quality (CMAQ) Modeling System
 =======
