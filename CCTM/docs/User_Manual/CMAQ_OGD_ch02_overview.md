@@ -37,7 +37,7 @@ There are two options for obtaining CMAQ source code from GibHub.
 
 #### Installing from git-based tarballs (CMAQ version 5.0.2 and later)
 
-Users need not install git to install CMAQ. Tarballs of all source code and scripts are available from the CMAS Center. The files contained in these tarballs do not have any source-code-management artifacts.
+Users need not install git to install CMAQ. Zip archives of the source code and scripts are available from Git Hub. Click the "Clone or download" botton on the [U.S. EPA GitHub repository](https://github.com/USEPA/CMAQ) and select "Download ZIP" to get a zip file of the full CMAQ repository, including scripts and source code. Unzip this file on the Linux file system directory where you would like to install CMAQ. 
 
 #### Installing from CVS-based tarballs (CMAQ version 5.0.1 and earlier)
 
