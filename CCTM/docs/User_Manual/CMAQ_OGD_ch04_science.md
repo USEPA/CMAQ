@@ -1,7 +1,7 @@
 [<< Previous Chapter](CMAQ_OGD_ch03_features.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch05_sys_req.md)
-***
-4. Overview of the Science in the CMAQ Modeling System
-===================================================
+* * *
+
+# 4. Overview of the Science in the CMAQ Modeling System #
 
 As discussed in [Chapter 1](CMAQ_OGD_ch01_intro.md), CMAQ is a multipollutant, multiscale air quality modeling system that estimates the transport and chemistry of ozone, PM, toxic airborne pollutants (referred to as “air toxics”), visibility, and acidic and nutrient pollutant species. CMAQ includes state-of-the-art technical and computational techniques to simulate air quality from urban to global scales. It can model complex atmospheric processes affecting transformation, transport, and deposition of air pollutants using a system architecture that is designed for fast and efficient computing. While superceded by several science updates since its release, the [Science Algorithms of the EPA Models-3 Community Multiscale Air Quality Modeling System](https://www.cmascenter.org/cmaq/science_documentation/) continues to be important reference for the science and design of CMAQ. [Chapter 3](CMAQ_OGD_cho03_features.md) includes links to descriptions of the updates made to CMAQ by release version.
 
@@ -9,14 +9,10 @@ CMAQ has been developed to meet the needs of both the research and application c
 
 <a id="Figure4-1"></a>
 
-<center>
 ![](./images/Figure4-1.png "Figure4-1.png")
 
-</center>
-<center>
 **Figure 4‑1. CMAQ Modeling Framework**
 
-</center>
 CMAQ can be employed for regulatory applications by using approved standard configurations of the modeling platform that represent the best available modeling technology at a given time. At the same time, the CMAQ modeling system is also a useful tool for the model developer. It is unique in that its components are designed in a flexible, modular fashion with a user interface; model developers can use these design features to create complex modeling situations and scenarios, or to develop entirely new models using a standardized coding framework. Model developers can also perform sensitivity analyses on newly developed modules and perform comparisons with existing systems.
 
 This chapter summarizes the CMAQ modeling system framework and science features in various components of the CMAQ system, including MCIP, ICON, BCON, JPROC, CHEMMECH, and CCTM. More detailed discussions on these features can be found in [Byun and Ching (1999)](https://www.cmascenter.org/cmaq/science_documentation/) and Byun and Schere (2006). The [next chapter](CMAQ_OGD_ch05_sys_req.md) discusses the CMAQ user interface for building and running CMAQ.

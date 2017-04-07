@@ -1,9 +1,8 @@
 
 [<< Previous Chapter](CMAQ_OGD_ch02_overview.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch04_science.md)<br>
-***
+* * *
 
-3. CMAQ Features
-=========
+# 3. CMAQ Features #
 
 Features of CMAQ for Application Users
 -------------------------------------------------
@@ -35,6 +34,7 @@ Each release version of CMAQ contains new features and improvements over the pre
 
 **New Features by CMAQ version**
 
+[Version 5.2](../../ReleaseNotes/README.md)<br>
 <a href="https://www.airqualitymodeling.org/index.php/CMAQ_version_5.1_(November_2015_release)_Technical_Documentation">Version 5.1</a><br>
 <a href="https://www.airqualitymodeling.org/index.php/CMAQ_version_5.0.2_(April_2014_release)_Technical_Documentation">Version 5.0.2 </a><br>
 <a href="https://www.airqualitymodeling.org/index.php/CMAQ_version_5.0.1_(July_2012_release)_Technical_Documentation">Version 5.0.1</a><br>
