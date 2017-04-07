@@ -3,7 +3,8 @@
 * * *
 
 2. Overview of CMAQ System Components
-=======
+========
+
 
 CMAQ is a suite of Fortran 90 programs that work in concert to estimate ozone, PM, toxic compounds, and acid deposition throughout the troposphere. The five main CMAQ programs are
 
