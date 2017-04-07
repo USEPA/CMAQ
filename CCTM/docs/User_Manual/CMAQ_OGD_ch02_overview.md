@@ -1,8 +1,9 @@
 
 [<< Previous Chapter](CMAQ_OGD_ch01_intro.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch03_features.md)
-***
+* * *
+
 2. Overview of CMAQ System Components
-==================================
+=======
 
 CMAQ is a suite of Fortran 90 programs that work in concert to estimate ozone, PM, toxic compounds, and acid deposition throughout the troposphere. The five main CMAQ programs are
 
@@ -32,7 +33,7 @@ There are two options for obtaining CMAQ source code from GibHub.
 1. Download a zipped code archive from the GitHub web client
 2. Clone the repository directly to a Linux server using the command line. For example, to download CMAQ version 5.1, issue the following command (this assumes that git is installed on your system):
 
-  <pre><code>git clone -b 5.1 https://github.com/USEPA/CMAQ.git CMAQ_v5.1</code></pre>
+  <pre><code>git clone -b 5.2Gamma https://github.com/USEPA/CMAQ.git CMAQ_v5.2Gamma</code></pre>
 
 #### Installing from git-based tarballs (CMAQ version 5.0.2 and later)
 
