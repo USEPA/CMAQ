@@ -1,13 +1,13 @@
 
 [<< Previous Chapter](CMAQ_OGD_ch13_support.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_glossary.md)
-
+* * * 
 
 Appendix A – CMAQ Chemical Mechanisms and Species
 =================================================
 
 <a id=TableA-2></a>
 
-<center> **Table A‑2. CB05tucl species** </center>
+**Table A‑2. CB05tucl species** 
 
 |Species|Description|MW|
 |---|---|---|

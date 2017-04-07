@@ -56,9 +56,9 @@ The CMAS Center is available on the web at [<http://www.cmascenter.org>](http://
 
 <a id=Table11-1></a>
 
-<center> **Table 11‑1. CMAS contact information and important links** </center>
+**Table 11‑1. CMAS contact information and important links** 
 
-|<center> **Resource** </center>|<center> **Link** </center>|
+| **Resource**| **Link** |
 |---|---|
 |Main website|[<http://www.cmascenter.org>](http://www.cmascenter.org/)|
 |General Questions|<cmas@unc.edu>|
