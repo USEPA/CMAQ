@@ -14,10 +14,11 @@ particulates, toxics, and acid deposition.
 The CMAQ Git repository is organized with each official public release stored as a branch on the public GitHub USEPA CMAQ repository.
 To clone code from the CMAQ Git repository, specify the branch (i.e. version number) and issue the following command from within a working directory on your server. For example, to get the 5.2Beta version in a local repository that you've named CMAQ_v5.2Beta:
 ```
-git clone -b 5.2Beta https://github.com/USEPA/CMAQ.git CMAQ_v5.2Beta
+git clone -b 5.2Gamma https://github.com/USEPA/CMAQ.git CMAQ_v5.2Gamma
 ```
 The release versions of CMAQ that are currently available on Git Hub include:
 
+* [v5.2Gamma (February 2017)](https://github.com/USEPA/CMAQ/tree/5.2Gamma)
 * [v5.2Beta (October 2016)](https://github.com/USEPA/CMAQ/tree/5.2Beta)
 * [v5.1   (December 2015)](https://github.com/USEPA/CMAQ/tree/5.1)
 * [v5.0.2 (April 2014)](https://github.com/USEPA/CMAQ/tree/5.0.2)
