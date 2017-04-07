@@ -1,8 +1,8 @@
 
 [<< Previous Chapter](CMAQ_OGD_ch07_programs_libraries.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch09_grid_defn.md)
-***
-8. CMAQ Input and Output Files
-==========
+* * *
+
+# 8. CMAQ Input and Output Files #
 
 The input files for CMAQ consist of a domain definition file for all programs; two sets of file options for both ICON and BCON; two types of input files (WRF/MM5 and terrain) for MCIP; five mandatory and one optional input file for JPROC; and for CCTM, emissions, initial conditions, and boundary conditions files, six files that define the meteorological conditions to be simulated, and a photolysis rates file. For most CCTM input, a separate data set is required for each horizontal domain that is modeled. When CMAQ is configured for in-line emissions and deposition, there are additional emissions input files that are required. CMAQ output files include a basic set of files with aerosol and gas-phase species concentrations, wet and dry deposition estimates, and visibility metrics, and an auxiliary set of output files for diagnosing model performance and in-line-calculated emissions.
 
@@ -12,7 +12,7 @@ This section describes each of the input files required by the various CMAQ prog
 
 <a id=Table8-1></a>
 
-<center>**Table 8‑1. CMAQ input files**</center>
+**Table 8‑1. CMAQ input files**
 
 |**File Name**|**File Type**|**Time-Dependence**|**Spatial Dimensions**|**Source**|
 |---|---|---|---|---|
@@ -96,7 +96,7 @@ The grid description section ([Table 8-3](#Table8-3)) consists of text records t
 
 <a id=Table8-2></a>
 
-<center> **Table 8‑2. Coordinate sytem description segment of GRIDDESC**</center>
+ **Table 8‑2. Coordinate sytem description segment of GRIDDESC**
 
 | **Line**| **Column**| **Name** | **Type** | **Description**|
 |---|---|---|---|---|
@@ -111,7 +111,7 @@ The grid description section ([Table 8-3](#Table8-3)) consists of text records t
 
 <a id=Table8-3></a>
 
-<center> **Table 8‑3. Grid definition segment of GRIDDESC**</center>
+ **Table 8‑3. Grid definition segment of GRIDDESC**
 
 |**Line** | **Column** | **Name** | **Type** | **Description**|
 |---|---|---|---|---|
@@ -191,7 +191,7 @@ The namelist files contain header information that describe which class of speci
 
 <a id=Table8-4></a>
 
-<center> **Table 8‑4. GC species namelist file format** </center>
+ **Table 8‑4. GC species namelist file format** 
 
 | **Line**| **Column** |**Name** | **Type**| **Description** |
 |---|---|---|---|---|
@@ -241,7 +241,7 @@ A detailed description of the vertical profile file format for initial condition
 
 <a id=Table8-5></a>
 
-<center> **Table 8-5. IC_PROFILE format description** </center>
+ **Table 8-5. IC_PROFILE format description** 
 
 |**Line**|**Column**|**Name**|**Type**|**Description**|
 |---|---|---|---|---|
@@ -300,7 +300,7 @@ A detailed description of the vertical profile file format for boundary conditio
 
 <a id=Table8-6></a>
 
-<center> **Table 8-6. BC_PROFILE format description** </center>
+**Table 8-6. BC_PROFILE format description** 
 
 |**Line**|**Column**|**Name**|**Type**|**Description**|
 |---|---|---|---|---|
@@ -362,7 +362,7 @@ The ASCII-formatted CSQY files begin with the number and a list of the applicabl
 
 <a id=Table8-7></a>
 
-<center> **Table 8-7. CSQY format description** </center>
+**Table 8-7. CSQY format description** 
 
 |**Line** | **Column** | **Name** | **Type** | **Description** |
 |---|---|---|---|---|
@@ -510,7 +510,7 @@ ET is the logical name for the ASCII data file containing extraterrestrial radia
 
 <a id=Table8-8></a>
 
-<center> **Table 8-8 ET file format description** </center>
+**Table 8-8 ET file format description** 
 
 | **Line** | **Column** | **Name** | **Type** | **Description**|
 |---|---|---|---|---|
@@ -552,7 +552,7 @@ The last data section in the PROFILES file contains vertical profiles from the 1
 
 <a id=Table8-9></a>
 
-<center> **Table 8-9. PROFILES file format description.** </center>
+ **Table 8-9. PROFILES file format description.** 
 
 | **Line** | **Column**| **Name**|**Type**|**Description**|
 |---|---|---|---|---|
@@ -599,7 +599,7 @@ A detailed description of the file format is provided in [Table 8‑10](#Table8-
 
 <a id=Table8-10></a>
 
-<center> '''Table 8-10 TOMS Data Profile ''' </center>
+'''Table 8-10 TOMS Data Profile ''' 
 
 |**Line** | **Column**| **Name** | **Type**| **Description** |
 |---|---|---|---|---|
@@ -654,20 +654,13 @@ CMAQ boundary condition data are of the BNDARY3 file type. Produced by the bound
 
 Each species being modeled should be in the BNDY_CONC_1 file. If some modeled species are not contained in this file, the boundary condition for these species will default to the value 1 × 10<sup>‑30</sup>. The perimeter of the CMAQ domain is 1 cell wide, where the number of boundary cells = (2*NROW)+(2*NCOL)+4. [Figure 8-2](#Figure8-2) is a graphical example of the CMAQ boundary conditions file; the west and north boundaries have ozone values of 0.035 ppmV, while the east and south boundaries have values of 0.030 ppmV.
 
-<center>
 ![](./images/Figure8-1.png "Figure8-1.png")
-</center>
-<center>
+
 **Figure 8-1. Illustration of CMAQ boundary condition file**
 
-</center>
-<center>
 ![](./images/Figure8-2.png "Figure8-2.png")
-</center>
-<center>
-**Figure 8-2. Graphical example of a CMAQ gridded boundary conditions file**
 
-</center>
+**Figure 8-2. Graphical example of a CMAQ gridded boundary conditions file**
 
 <a id="init_conc_1"><a/>
 ### INIT_CONC_1: Initial conditions
@@ -676,14 +669,10 @@ Used by: CCTM
 
 The initial concentrations of each species being modeled must be input to CMAQ. The initial conditions input file type is GRDDED3 and does not vary with time. The file data are looped in this manner: by column, by row, by layer, by variable. Initial conditions files have the same structure as concentration files, so the predicted concentrations from the last hour of day 1 can be used to initialize the following day’s simulation. This gives CMAQ users the flexibility to segment simulations in any way they choose. [Figure 8-3](#Figure8-3) is a graphical example of the CMAQ initial conditions file. The file shows spatially varying data that can be used to initialize a following run beginning at the time shown (i.e., June 25, 1996 0:00:00).
 
-<center>
 <Image:>
 
-</center>
-<center>
 **Figure 8-3. Graphical example of a CMAQ gridded initial conditions file**
 
-</center>
 
 <a id="jtable"><a/>
 ### JTABLE: Photolysis rates look-up table
@@ -698,7 +687,7 @@ The data section of the file contains data blocks that are mapped to the header 
 
 <a id=Table8-11></a>
 
-<center> **Table 8-11. JTABLE file format description** </center>
+**Table 8-11. JTABLE file format description** 
 
 | **Line** | **Column** |**Name** | **Type** | **Description** |
 |---|---|---|---|---|
@@ -785,7 +774,7 @@ OMI ozone column data by latitude and longitude for use in the inline photolysis
 
 <a id=Table8-12></a>
 
-<center> **Table 8‑12. OMI data format** </center>
+**Table 8‑12. OMI data format** 
 
 | **Line** | **Column** | **Name** | **Type** | **Description**|
 |---|---|---|---|---|
@@ -824,9 +813,9 @@ OMI ozone column data by latitude and longitude for use in the inline photolysis
 || C | Longitude 1 | Int |180.0Z longitude ozone column (DU)|
 | … | … | … | … | … |
 || S | Longitude 17 | Int |180.0Z longitude ozone column (DU)|
-|…|…|…|…| Repeat for total of 17 latitudes of data </center>
-|…|…|…|…| Repeat for (1978-2008) there are ~48 days (4 days per month) of data </center>
-|…|…|…|…| Repeat for (2009-2015) there are 365 days of data </center>
+|…|…|…|…| Repeat for total of 17 latitudes of data 
+|…|…|…|…| Repeat for (1978-2008) there are ~48 days (4 days per month) of data 
+|…|…|…|…| Repeat for (2009-2015) there are 365 days of data 
 
 <a id="emis_1"><a/>
 ### EMIS_1: Emissions

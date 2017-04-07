@@ -1,8 +1,8 @@
 
 [<< Previous Chapter](CMAQ_OGD_ch05_sys_req.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch07_programs_libraries.md)
-***
-6. Required Libraries
-==================
+* * *
+
+# 6. Required Libraries #
 
 The CMAQ programs require a set of third-party libraries that must be installed on the users system before CMAQ can be compiled and run. These libraries control the data flow through CMAQ, define the binary file formats used by the CMAQ input and output files, and control how CMAQ functions in a multiple-processor computing environment. The [Input/Output Applications Programming Interface (I/O API)](#IOAPI) and the [Network Common Data Form (netCDF)](#NCF) are required for all applications of CMAQ. The [Message Passing Interface (MPI)](#MPI) is only required for multiple-processor applications of CCTM. Brief descriptions of these three libraries are provided in this section. For additional information, including how to compile and configure these libraries, refer to the documentation associated with each library.
 
@@ -34,9 +34,7 @@ All files manipulated by the I/O API may have multiple variables and multiple la
 
 <a id=Table6-1></a>
 
-<center>
 **Table 6‑1. Possible Time Step Structures in I/O API Files**
-</center>
 
 |**File Type**|**Description**|
 |:-----------:|:-------------|
@@ -46,9 +44,7 @@ All files manipulated by the I/O API may have multiple variables and multiple la
 
 <a id=Table6-2></a>
 
-<center>
 **Table 6‑2. Possible Data Type Structures in I/O API Files**
-</center>
 
 |**File Type**|**Magic Number**|**Data Type**|**Description**|
 |---|---|---|---|
@@ -80,9 +76,7 @@ where:
 
 <a id=Table6-3></a>
 
-<center>
 **Table 6‑3. Possible values for OPEN(3) FSTATUS**
-</center>
 
 |**FSTATUS**|**Value**|**Description**|
 |:---------:|:-------:|:-------------:|
@@ -120,9 +114,7 @@ There are four routines with varying kinds of selectivity used to read or otherw
 
 <a id=Table6-4></a>
 
-<center>
 **Table 6‑4. IO API data retrieval routines**
-</center>
 
 |**Routine**|**Description**|
 |---|---|
@@ -177,9 +169,7 @@ Data files in the CMAQ system can be easily manipulated by using the I/O API uti
 
 <a id=Table6-5></a>
 
-<center>
 **Table 6‑5. I/O API data manipulation utilities**
-</center>
 
 |Utility|Description|
 |:---------:|:-----------|

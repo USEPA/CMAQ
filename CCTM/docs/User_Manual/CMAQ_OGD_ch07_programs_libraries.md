@@ -1,8 +1,8 @@
 
 [<< Previous Chapter](CMAQ_OGD_ch06_req_lib.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch08_input_files.md)
-***
-7. CMAQ Programs and Libraries
-===========================
+* * *
+
+# 7. CMAQ Programs and Libraries #
 
 Contents
 * [Overview](#Overview)
@@ -36,14 +36,10 @@ CMAQ includes several "in-line" options to support coupling between meteorology 
 
 <a id=Figure7-1></a>
 
-<center>
 ![](./images/Figure7-1.png "Figure7-1.png")
 
-</center>
-<center>
 **Figure 7‑1.CMAQ core programs**
 
-</center>
 
 [MCIP](#mcip) is the first program in the CMAQ distribution package that a user should run when setting up a new simulation. MCIP is used to preprocess the data from a meteorological model for CMAQ and SMOKE.
 
@@ -78,10 +74,9 @@ CCTM can also be forced with chemical boundary conditions downscaled from global
 
 <a id=Figure7-2></a>
 
-<center>
 ![](./images/Figure7-2.png "Figure7-2.png")<br>
 
-**Figure 7‑2. BCON input and output files**</center>
+**Figure 7‑2. BCON input and output files**
 
 <br>
 When BCON is run, it converts a data file of chemical ambient concentrations to BCs on a predefined model grid. Through the specification of the *ModInpt* variable in the BCON run script, BCON will input either an ASCII vertical profile file (BC_PROFILE) or an existing CCTM concentration file (CTM_CONC_1); the choice depends on how the user compiled the model. The BC input file provided by the user must have chemical speciation that is consistent with the mechanism configuration of the BCON executable. For example, if BCON was compiled to create BCs using the CB05 mechanism, the input BC profile data must be in terms of the CB05 mechanism. CMAQ is distributed with ASCII vertical profiles representing clean continental BCs for North America for the following chemical mechanisms: cb05e51_ae6_aq, saprc07tb_ae6_aq and racm2_aq6_aq. It is the user’s responsibility to generate BC inputs for other mechanism configurations.
@@ -91,7 +86,7 @@ The horizontal grid and vertical layer structures for BCON are defined at execut
 #### BCON input files ####
 
 <a id=Table7-1></a>
-<center>**Table 7‑1. BCON input files**</center>
+**Table 7‑1. BCON input files**
 
 |**File Name**|**Format**|**Description**|
 |---|---|---|
@@ -110,7 +105,7 @@ The horizontal grid and vertical layer structures for BCON are defined at execut
 
 <a id=Table7-2></a>
 
-<center>**Table 7‑2. BCON output files**</center>
+**Table 7‑2. BCON output files**
 
 |**File Name**|**Format**|**Description**|
 |---|---|---|
@@ -249,15 +244,13 @@ Figure 7-3 shows that Calmap reads five input files to produce eight outputs, on
 
 <a id=Figure7-3></a>
 
-<center>
 ![](./images/Figure7-3.png "Figure7-3.png")
 
-</center>
-<center>**Figure 7‑3. Calmap input and output files**</center>
+**Figure 7‑3. Calmap input and output files**
 
 #### Calmap input files
 
-<center>**Table 7‑3. Calmap input files**</center>
+**Table 7‑3. Calmap input files**
 
 |**File Name**|**Format**|**Description**|
 |---|---|---|
@@ -269,7 +262,7 @@ Figure 7-3 shows that Calmap reads five input files to produce eight outputs, on
 
 #### Calmap output files
 
-<center>**Table 7‑4. Calmap output files**</center>
+**Table 7‑4. Calmap output files**
 
 |**File Name**|**Format**|**Description**|
 |---|---|---|
@@ -341,20 +334,16 @@ Both in-line emissions and photolysis are invoked through compile-time configura
 
 <a id=Figure7-4></a>
 
-<center>
 ![](./images/Figure7-4.png "Figure7-4.png")
 
-</center>
-<center>
 **Figure 7‑4. CCTM input and output files**
 
-</center>
 
 #### CCTM input files
 
 <a id=Table7-5></a>
 
-<center>**Table7‑5. Required CCTM input files**</center>
+**Table7‑5. Required CCTM input files**
 
 |**File Name**|**Format**|**Description**|
 |---|---|---|
@@ -379,7 +368,7 @@ Both in-line emissions and photolysis are invoked through compile-time configura
 
 <a id=Table7-6></a>
 
-<center>**Table 7‑6. Optional CCTM input files**</center>
+**Table 7‑6. Optional CCTM input files**
 
 |File Name|Format|Description|
 |---------|------|-----------|
@@ -410,7 +399,7 @@ Both in-line emissions and photolysis are invoked through compile-time configura
 
 <a id=Table7-7></a>
 
-<center>**Table 7‑7. CCTM base output files**</center>
+**Table 7‑7. CCTM base output files**
 
 |File Name|Format|Description|
 |---------|------|-----------|
@@ -423,7 +412,7 @@ Both in-line emissions and photolysis are invoked through compile-time configura
 
 <a id=Table7-8></a>
 
-<center>**Table 7‑8. CCTM optional output files**</center>
+**Table 7‑8. CCTM optional output files**
 
 |File Name|Format|Description|
 |---------|------|-----------|
@@ -1017,8 +1006,8 @@ See [Chapter 9](CMAQ_OGD_ch09_grid_defn.md) for details on how to update existin
 
 <a id=Figure7-5></a>
 
-<center>![](./images/Figure7-5.png "Figure7-5.png")</center>
-<center>**Figure 7‑5. CHEMMECH and CSV2NML input and output files (Update this Image)**</center>
+![](./images/Figure7-5.png "Figure7-5.png")
+**Figure 7‑5. CHEMMECH and CSV2NML input and output files (Update this Image)**
 
 <br>
 <p>To implement a new mechanism in CMAQ, start with a mechanism definition (mech.def) file and CSV species files from an existing mechanism in the model. Edit the mech.def file to include the new reactions, species, and reaction rates and provide this new mech.def file as input to CHEMMECH. Edit the CSV species files to include the new species and provide these files as input to CSV2NML. Detailed examples of updating an existing mechanism and adding a new mechanism to CMAQ are provided in [Chapter 9](CMAQ_OGD_ch09_grid_defn.md). Neither CHEMMECH nor CSV2NML requires horizontal grid, vertical layer, or temporal settings.</p>
@@ -1027,7 +1016,7 @@ See [Chapter 9](CMAQ_OGD_ch09_grid_defn.md) for details on how to update existin
 
 <a id=Table7-9></a>
 
-<center>**Table 7-9. CHEMMECH input files**</center>
+**Table 7-9. CHEMMECH input files**
 
 |**File Name**|**Format**|**Description**|
 |---|---|---|
@@ -1037,7 +1026,7 @@ See [Chapter 9](CMAQ_OGD_ch09_grid_defn.md) for details on how to update existin
 
 <a id=Table7-10></a>
 
-<center>**Table 7‑10. CHEMMECH output files**</center>
+**Table 7‑10. CHEMMECH output files**
 
 |File Name|Format|Description|
 |---------|------|-----------|
@@ -1051,7 +1040,7 @@ The location of the CHEMMECH output files is set in the run script by the variab
 
 Detailed descriptions of the formats of the files shown in [Table 7-11](#Table5-9) are provided in [Chapter 8](CMAQ_OGD_ch08_input_files.md). <a id=Table7-11></a>
 
-<center>**Table 7‑11. CSV2NML input files**</center>
+**Table 7‑11. CSV2NML input files**
 
 |**File Name**|**Format**|**Description**|
 |---|---|---|
@@ -1062,7 +1051,7 @@ Detailed descriptions of the formats of the files shown in [Table 7-11](#Table5-
 #### CSV2NML output files
 
 <a id=Table7-12></a>
-<center>**Table 7‑12. CSV2NML output files**</center>
+**Table 7‑12. CSV2NML output files**
 
 |**File Name**|**Format**|**Description**|
 |---|---|---|
@@ -1159,7 +1148,7 @@ To implement a new mechanism in CMAQ, start with a mechanism definition (mech.de
 
 <a id=Table7-13></a>
 
-<center>**Table 7-13. CREATE_EBI input files**</center>
+**Table 7-13. CREATE_EBI input files**
 
 |**File Name**|**Format**|**Description**|
 |---|---|---|
@@ -1169,7 +1158,7 @@ To implement a new mechanism in CMAQ, start with a mechanism definition (mech.de
 
 <a id=Table7-14></a>
 
-<center>**Table 7‑14. CREATE_EBI output files**</center>
+**Table 7‑14. CREATE_EBI output files**
 
 |File Name|Format|Description|
 |---------|------|-----------|
@@ -1360,11 +1349,9 @@ CCTM can also be forced with initial conditions downscaled from global chemistry
 
 <a id=Figure7-6></a>
 
-<center>
 ![](./images/Figure7-6.png "Figure7-6.png")
 
-</center>
-<center>**Figure 7‑6. ICON input and output files**</center>
+**Figure 7‑6. ICON input and output files**
 
 <br>
 When ICON is run, it converts a data file of chemical ambient concentrations to ICs on a predefined model grid. Through the specification of the *ModType* variable in the ICON run script, ICON will input either an ASCII vertical profile file (IC_PROFILE) or an existing CCTM concentration file (CTM_CONC_1); the choice depends on how the user compiled the model. The IC input file provided by the user must have chemical speciation that is consistent with the mechanism configuration of the ICON executable. For example, if ICON was compiled to create ICs using the CB05 mechanism, the input IC profile data must be in terms of the CB05 mechanism. CMAQ is distributed with ASCII vertical profiles representing clean continental ICs for North America for the following chemical mechanisms: cb05_ae6_aq, saprc07tb_ae6_aq, racm2_aq6_aq, and saprc99_ae6_aq. It is the user’s responsibility to generate IC inputs for other mechanism configurations.
@@ -1375,7 +1362,7 @@ The horizontal grid and vertical layer structures for ICON are defined at execut
 
 <a id=Table7-15></a>
 
-<center>**Table 7‑15. ICON input files**</center>
+**Table 7‑15. ICON input files**
 
 |**File Name**|**Format**|**Description**|
 |---|---|---|
@@ -1394,7 +1381,7 @@ The horizontal grid and vertical layer structures for ICON are defined at execut
 
 <a id=Table7-16></a>
 
-<center>**Table 7‑16. ICON output files**</center>
+**Table 7‑16. ICON output files**
 
 |**File Name**|**Format**|**Description**|
 |---|---|---|
@@ -1535,7 +1522,7 @@ To implement new CSQY data in CMAQ, start with individual CSQY data files for ea
 
 <a id=Table7-17></a>
 
-<center>**Table 7-17. INLINE_PHOT_PREPROC input files**</center>
+**Table 7-17. INLINE_PHOT_PREPROC input files**
 
 |**File Name**|**Format**|**Description**|
 |---|---|---|
@@ -1554,7 +1541,7 @@ To implement new CSQY data in CMAQ, start with individual CSQY data files for ea
 
 <a id=Table7-18></a>
 
-<center>**Table 7‑18. INLINE_PHOT_PREPROC output files**</center>
+**Table 7‑18. INLINE_PHOT_PREPROC output files**
 
 |File Name|Format|Description|
 |---------|------|-----------|
@@ -1641,20 +1628,17 @@ CCTM includes an in-line photolysis option that calculates photolysis rates usin
 
 <a id=Figure7-7></a>
 
-<center>
 ![](./images/Figure7-7.png "Figure7-7.png")
 
-</center>
-<center>
 **Figure 7‑7. JPROC input and output files**
 
-</center>
 While JPROC does not require any technical configuration at execution, such as domain specifications, there are several required and optional input files that the user must provide to the program. For the selected photochemical mechanism, the user must provide a set of molecular absorption CSQY data files that are consistent with the photolysis reactions in the mechanism. CMAQ is distributed with a full set of CSQY files for the Carbon Bond, SAPRC, and RACM photochemical mechanism versions supported by the model. If new mechanisms are added to CMAQ, the user must produce the appropriate CSQY data files for the added mechanism. The user also has the option of using the default atmospheric profiles contained in the PROFILES input file or using Total Ozone Mapping Spectrometer (TOMS) data to replace the climatologically derived ozone column data in the PROFILES file.
 
 #### JPROC input files
 
 <a id=Table7-19></a>
-<center>**Table 7‑19. JPROC input files**</center>
+
+**Table 7‑19. JPROC input files**
 
 |**File Name**|**Format**|**Description**|
 |---|---|---|
@@ -1669,7 +1653,7 @@ While JPROC does not require any technical configuration at execution, such as d
 
 <a id=Table7-20></a>
 
-<center>**Table 7‑20. JPROC output files**</center>
+**Table 7‑20. JPROC output files**
 
 |**File Name**|**Format**|**Description**|
 |---|---|---|
@@ -1923,20 +1907,16 @@ MCIP can extract both temporal and spatial subsets of the input meteorology file
 
 <a id=Figure7-9></a>
 
-<center>
 ![](./images/Figure7-9.png "Figure7-9.png")
 
-</center>
-<center>
 **Figure 7‑9. MCIP input and output files**
 
-</center>
 
 #### MCIP Input Files
 
 <a id=Table7-19></a>
 
-<center>**Table 7‑21. MCIP input files**</center>
+**Table 7‑21. MCIP input files**
 
 |**File Name**|**Format**|**Description**|
 |---|---|---|
@@ -1948,7 +1928,7 @@ MCIP can extract both temporal and spatial subsets of the input meteorology file
 
 <a id=Table7-20></a>
 
-<center>**Table 7‑22. MCIP output files**</center>
+**Table 7‑22. MCIP output files**
 
 |**File Name**|**Format**|**Description**|
 |---|---|---|
