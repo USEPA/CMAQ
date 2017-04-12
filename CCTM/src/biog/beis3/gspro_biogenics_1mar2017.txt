@@ -7,6 +7,7 @@
 #EXPORT_DATE=Tue Jan 17 15:05:41 EST 2012
 #EXPORT_VERSION_NAME=Initial Version
 #EXPORT_VERSION_NUMBER=0
+# This version is based on BEIS 3.6.1
 #Fields included:
 # mechanism code (BIOG_SPRO=SPNPRF); BEIS species name (POLNAM); 
 # model species name (SPECNM); moles of model species (SPLTFAC);
