@@ -4,7 +4,7 @@ sitecmp_dailyo3
 This Fortran program generates a csv (comma separated values) file that compares various daily ozone metrics computed from hourly CMAQ generated and observed ozone concentrations. The metrics included in the output file are daily maximum 1-hr ozone concentrations, daily maximum 1-hr ozone concentrations in the nine cells surrounding a monitor, time of occurrence of daily maximum 1-hr ozone concentrations, daily maximum 8-hr ozone concentrations, daily maximum 8-hr ozone concentrations in the nine cells surrounding a monitor, time of occurrence of daily maximum 8-hr ozone concentrations, the daily W126 ozone value, and the daily SUM06 ozone value. 
 
 
-##Environment variables used:
+## Environment variables used:
 ```
  M3_FILE_n      IOAPI input file(s) containing hourly modeled ozone values (max of 12). 
                 [Note: Supported map projections are Lambert conformal, polar stereographic, and lat/lon.
@@ -26,7 +26,7 @@ This Fortran program generates a csv (comma separated values) file that compares
  OUT_TABLE      file for output data with columns of paired observed and modeled daily ozone metrics
 ```
 
-##Environment Variables (not required):
+## Environment Variables (not required):
 ```
  START_DATE     starting date of time period to process (YYYYJJJ)
  START_TIME     starting time of time period to process (HHMMSS)
@@ -55,7 +55,7 @@ This Fortran program generates a csv (comma separated values) file that compares
 
 ```
 
-##File formats:
+## File formats:
 ```
  SITE_FILE - tab delimited text file containing site-id, longitude,
              latitude, and optionally time zone offset between local time and GMT
@@ -72,7 +72,7 @@ This Fortran program generates a csv (comma separated values) file that compares
              modeled values
 ```
 
-##To run:
+## To run:
 Edit the sample run script (run.sitecmp_dailyo3), then run:
 ```
  run.sitecmp_dailyo3|& tee sitecmp_dailyo3.log
