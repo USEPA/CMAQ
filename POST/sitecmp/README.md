@@ -4,7 +4,7 @@ sitecmp
 This Fortran program generates a csv (comma separated values) file that compares CMAQ generated concentrations with an observed dataset.
 
 
-##Environment variables used:
+## Environment variables used:
 
 ```
  TABLE_TYPE  dataset type {IMPROVE, CASTNET, STN, NADP, MDN, SEARCH,
@@ -20,7 +20,7 @@ This Fortran program generates a csv (comma separated values) file that compares
              values
 ```
 
-##Environment Variables (not required):
+## Environment Variables (not required):
 ```
  PRECIP      defines the precipitation field used in WETDEP and
              WETCON calculations (default="Precip")
@@ -38,7 +38,7 @@ This Fortran program generates a csv (comma separated values) file that compares
              were pre-processed with a utility like m3tshift (default 0)
 ```
 
-##Species definitions: 
+## Species definitions: 
 Defines the data columns for your output file. Each can specify the observed and modeled variables of the species you are analyzing. These definitions are specified by environment variables [species-type]_[1-50], where species type is one of the following {AERO, GAS, WETCON, WETDEP, PREC}. See the sample run scripts for additional examples beyond those listed below.
 ```
  format: [Obs_expression], [Obs_units], [Mod_expression], [Mod_unit], [Variable_name]
@@ -80,7 +80,7 @@ Defines the data columns for your output file. Each can specify the observed and
                 (this defines a character field to copy only from the observed field,
                 no units or modeled species are used)
 ```
-##File formats:
+## File formats:
 ```
  SITE_FILE - tab delimited text file containing site-id, longitude,
              latitude, and optionally time zone offset between local time and GMT
@@ -137,7 +137,7 @@ Defines the data columns for your output file. Each can specify the observed and
              modeled values
 ```
 
-##To run:
+## To run:
 Edit the sample run script (run.sitecmp*), then run:
 ```
  run.sitecmp |& tee sitecmp.log
