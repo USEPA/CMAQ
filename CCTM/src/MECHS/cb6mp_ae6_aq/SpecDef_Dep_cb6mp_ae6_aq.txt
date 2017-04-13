@@ -24,8 +24,8 @@ DDEP_HNO3          ,kg/ha     ,HNO3[1]
 WDEP_HNO3          ,kg/ha     ,HNO3[2]
 DDEP_NTR           ,kg/ha     ,INTR[1]+ NTR1[1] + NTR2[1]
 WDEP_NTR           ,kg/ha     ,INTR[2]+ NTR1[2] + NTR2[2]
-DDEP_PANT          ,kg/ha     ,PAN[1] + PANX[1] + OPAN[1] + MAPAN[1]
-WDEP_PANT          ,kg/ha     ,PAN[2] + PANX[2] + OPAN[2] + MAPAN[2]
+DDEP_PANT          ,kg/ha     ,PAN[1] + PANX[1] + OPAN[1]
+WDEP_PANT          ,kg/ha     ,PAN[2] + PANX[2] + OPAN[2]
 DDEP_NH3           ,kg/ha     ,NH3[1]
 WDEP_NH3           ,kg/ha     ,NH3[2]
 DDEP_SO2           ,kg/ha     ,SO2[1]
@@ -45,7 +45,11 @@ DDEP_ASO4IJ        ,kg/ha     ,ASO4I[1] + ASO4J[1]
 DDEP_ASO4K         ,kg/ha     ,ASO4K[1]
 WDEP_ASO4IJK       ,kg/ha     ,ASO4I[2] + ASO4J[2] + ASO4K[2]
 DDEP_AECIJ	       ,kg/ha     ,AECI[1] +AECJ[1]
-DDEP_AOCIJ         ,kg-C/ha   , APOCI[1]       + APOCJ[1]                            \ 
+DDEP_AOCIJ         ,kg-C/ha    , ALVPO1I[1]/1.39 + ASVPO1I[1]/1.32 + ASVPO2I[1]/1.26  \
+                               +ALVPO1J[1]/1.39 + ASVPO1J[1]/1.32 + ASVPO2J[1]/1.26  \
+                               +ASVPO3J[1]/1.21 + AIVPO1J[1]/1.17                    \
+                               +ALVOO1I[1]/2.27 + ALVOO2I[1]/2.06                    \
+                               +ASVOO1I[1]/1.88 + ASVOO2I[1]/1.73                    \
                                +AXYL1J[1]/2.42 + AXYL2J[1]/1.93 + AXYL3J[1]/2.30     \
                                +ATOL1J[1]/2.26 + ATOL2J[1]/1.82 + ATOL3J[1]/2.70     \
                                +ABNZ1J[1]/2.68 + ABNZ2J[1]/2.23 + ABNZ3J[1]/3.00     \
@@ -53,7 +57,10 @@ DDEP_AOCIJ         ,kg-C/ha   , APOCI[1]       + APOCJ[1]                       
                                +ATRP1J[1]/1.84 + ATRP2J[1]/1.83 + ASQTJ[1]/1.52      \
                                +AALK1J[1]/1.56 + AALK2J[1]/1.42                      \
                                +AORGCJ[1]/2.00 + AOLGBJ[1]/2.10 + AOLGAJ[1]/2.50     \
-                               +APAH1J[1]/1.63 + APAH2J[1]/1.49 + APAH3J[1]/1.77     
+                               +APAH1J[1]/1.63 + APAH2J[1]/1.49 + APAH3J[1]/1.77     \
+                               +ALVOO1J[1]/2.27+ ALVOO2J[1]/2.06+ ASVOO1J[1]/1.88    \
+                               +ASVOO2J[1]/1.73+ ASVOO3J[1]/1.60                     \
+                               +APCSOJ[1] /2.00 
 
 DDEP_SSSO4J        ,kg/ha     ,0.2514*ANAJ[1]
 DDEP_SSSO4K        ,kg/ha     ,0.2514*ANAK_D[0]
@@ -124,6 +131,26 @@ WDEP_KJK           ,kg/ha     ,AKJ[2]+AKK_W[0]
 ! Manganese
 DDEP_MNJ           ,kg/ha     ,AMNJ[1]
 WDEP_MNJ           ,kg/ha     ,AMNJ[2]
+
+! lead
+DDEP_LEAD          ,kg/ha     ,APBI[1] + APBJ[1] + APBK[1]
+WDEP_LEAD          ,kg/ha     ,APBI[2] + APBJ[2] + APBK[2]
+
+! Arsenic
+DDEP_ARSENIC        ,kg/ha     ,AASI[1] + AASJ[1] + AASK[1]
+WDEP_ARSENIC        ,kg/ha     ,AASI[2] + AASJ[2] + AASK[2]
+
+! Trivalent Chromium
+DDEP_CRIII         ,kg/ha     ,ACR_IIII[1] + ACR_IIIJ[1] + ACR_IIIK[1]
+WDEP_CRIII         ,kg/ha     ,ACR_IIII[2] + ACR_IIIJ[2] + ACR_IIIK[2]
+
+! Hexavalent Chromium
+DDEP_CRVI          ,kg/ha     ,ACR_VII[1] + ACR_VIJ[1] + ACR_VIK[1]
+WDEP_CRVI          ,kg/ha     ,ACR_VII[2] + ACR_VIJ[2] + ACR_VIK[2]
+
+! Gas plus Aerosol Mercury Deposition
+DDEP_HG           ,kg/ha     ,APHGI[1] + APHGJ[1] + APHGK[1] + HG[1] + HGIIGAS[1]
+WDEP_HG           ,kg/ha     ,APHGI[2] + APHGJ[2] + APHGK[2] + HG[2] + HGIIGAS[2]
 
 WDEP_PNA           ,kg/ha     ,PNA[2]
 RT                 ,cm        ,RN[3] + RC[3]

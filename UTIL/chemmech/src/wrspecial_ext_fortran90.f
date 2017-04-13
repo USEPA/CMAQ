@@ -16,8 +16,8 @@ C INPUTS
 
 C LOCAL
 
-      REAL( 8 )       :: WREXT_COEFFS( MAXSPECTERMS)
-      INTEGER         :: WREXT_INDEX(  MAXSPECTERMS)
+      REAL( 8 )       :: WREXT_COEFFS( MSPECTERMS)
+      INTEGER         :: WREXT_INDEX(  MSPECTERMS)
 
       INTEGER, EXTERNAL :: JUNIT
       EXTERNAL NAMEVAL
@@ -76,7 +76,7 @@ C LOCAL
      &        /'!', 4X, 'NSPECIAL_RXN = Number of reactions with special rates'
      &        /'!', 4X, 'ISPECIAL     = Pointers to reactions using special rates'
      &              1X, 'and their special rate coefficients'
-     &        /'!', 4X, 'MAXSPECTERMS = Max Number of each term type in ',
+     &        /'!', 4X, 'MAXSPECTERMS = Max Number of terms type used by',
      &              1X, 'special rate coefficients', 
      &        /'!', 4X, 'KC_COEFFS    = Coefficients of standard rate coefficients ', 
      &              1X, 'times concentration terms '
@@ -179,8 +179,8 @@ C        RETURN
       END IF
 
       LUNOUT = WRUNIT
-
-      WRITE( LUNOUT, 4401 ) MAXSPECTERMS
+ 
+      WRITE( LUNOUT, 4401 ) MSPECTERMS
 4401  FORMAT( /6X, 'INTEGER, PARAMETER', 1X, ':: MAXSPECTERMS =', I4 )
 
       WRITE( LUNOUT, 4402 )
@@ -212,34 +212,40 @@ c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 
 
 3350  LUNOUT = WRUNIT
+ 
+
       
       DO 3701 ISPC = 1, NSPECIAL
 
          WRITE( LUNOUT, 3407 )ISPC
 3407     FORMAT( /6X, 'DATA ( KC_COEFFS( ', I3, ',IRXXN ), IRXXN = 1, MAXSPECTERMS ) / & ' )
 
-         DO I = 1, MAXSPECTERMS
+         DO I = 1, MSPECTERMS
             WREXT_COEFFS( I ) = KC_COEFFS( ISPC, I )
          END DO
-         CALL WRBF12D_FORTRAN90( LUNOUT, 5, MAXSPECTERMS, WREXT_COEFFS, 'D' )
+         CALL WRBF12D_FORTRAN90( LUNOUT, 5, MSPECTERMS, WREXT_COEFFS, 'D' )
 
          WRITE( LUNOUT, 3408 ) ISPC
 3408     FORMAT( /6X, 'DATA ( INDEX_KTERMS(' I3, ',  IRXXN), IRXXN = 1, MAXSPECTERMS ) / & ' )
         
-         DO I = 1, MAXSPECTERMS
+         DO I = 1, MSPECTERMS
             WREXT_INDEX( I ) = INDEX_KTERM( ISPC, I)
          ENDDO
        
-         CALL WRBF6_FORTRAN90( LUNOUT, 10, MAXSPECTERMS, WREXT_INDEX )
+         CALL WRBF6_FORTRAN90( LUNOUT, 10, MSPECTERMS, WREXT_INDEX )
 
          WRITE( LUNOUT, 3409 ) ISPC
 3409     FORMAT( /6X, 'DATA ( INDEX_CTERMS(' I3, ',  IRXXN), IRXXN = 1, MAXSPECTERMS ) / & ' )
         
-         DO I = 1, MAXSPECTERMS
-            WREXT_INDEX( I ) = INDEX_CTERM( ISPC, I)
+         DO I = 1, MSPECTERMS
+            IF( INDEX_CTERM( ISPC, I) .GT. 0 )THEN
+               WREXT_INDEX( I ) = INDEX_CTERM( ISPC, I)
+            ELSE
+               WREXT_INDEX( I ) = 0 
+            END IF
          ENDDO
        
-         CALL WRBF6_FORTRAN90( LUNOUT, 10, MAXSPECTERMS, WREXT_INDEX )
+         CALL WRBF6_FORTRAN90( LUNOUT, 10, MSPECTERMS, WREXT_INDEX )
 
 3701   CONTINUE
 
@@ -248,19 +254,19 @@ c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
          WRITE( LUNOUT, 3410 )ISPC
 3410     FORMAT( /6X, 'DATA ( OPERATOR_COEFFS( ', I3, ',IRXXN ), IRXXN = 1, MAXSPECTERMS ) / & ' )
 
-         DO I = 1, MAXSPECTERMS
+         DO I = 1, MSPECTERMS
             WREXT_COEFFS( I ) = OPERATOR_COEFFS( ISPC, I )
          END DO
-         CALL WRBF12D_FORTRAN90( LUNOUT, 5, MAXSPECTERMS, WREXT_COEFFS, 'D' )
+         CALL WRBF12D_FORTRAN90( LUNOUT, 5, MSPECTERMS, WREXT_COEFFS, 'D' )
 
          WRITE( LUNOUT, 3411 ) ISPC
 3411     FORMAT( /6X, 'DATA ( OPERATORS(' I3, ',  IRXXN), IRXXN = 1, MAXSPECTERMS ) / & ' )
         
-         DO I = 1, MAXSPECTERMS
+         DO I = 1, MSPECTERMS
             WREXT_INDEX( I ) = OPERATORS( ISPC, I)
          ENDDO
        
-         CALL WRBF6_FORTRAN90( LUNOUT, 10, MAXSPECTERMS, WREXT_INDEX )
+         CALL WRBF6_FORTRAN90( LUNOUT, 10, MSPECTERMS, WREXT_INDEX )
 
 3702   CONTINUE
 

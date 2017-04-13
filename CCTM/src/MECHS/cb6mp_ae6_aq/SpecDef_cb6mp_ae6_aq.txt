@@ -36,7 +36,6 @@
 /
 /new species    ,units     ,expression
 
-! v5.1 site compare-ready quantities
 ! Gases
 ALD2            ,ppbV      ,1000.0*ALD2[1]
 ALDX            ,ppbV      ,1000.0*ALDX[1]
@@ -64,7 +63,7 @@ NOX             ,ppbV      ,1000.0*(NO[1] + NO2[1])
 ANO3_PPB	,ppbV      ,(ANO3I[1]+ANO3J[1]+ANO3K[1])/(DENS[2]*(62.0/28.97))
 NTR             ,ppbV      ,1000.0*(NTR1[1]+NTR2[1]+INTR[1])
 PANS            ,ppbV      ,1000.0*(PAN[1]+PANX[1]+OPAN[1])
-NOY             ,ppbV      ,1000.0* ( NO[1]+NO2[1]+NO3[1]+2*N2O5[1]+HONO[1]+HNO3[1]+PNA[1] \
+NOY             ,ppbV      ,1000.0* (NO[1]+NO2[1]+NO3[1]+2*N2O5[1]+HONO[1]+HNO3[1]+PNA[1] \
                                      +CRON[1]+CLNO2[1]) \
                                      +PANS[0]+NTR[0]+ANO3_PPB[0]
 O3              ,ppbV      ,1000.0*O3[1]
@@ -83,18 +82,52 @@ VOC             ,ppbC      ,1000.0* ( PAR[1]      + 2.0*ETH[1]  + MEOH[1]     + 
                                      +5.0*ISOP[1] + 10.0*TERP[1]+ 10.0*NAPH[1])
 XYL             ,ppbV      ,1000.0*XYLMN[1]
 
-!Additional Toxic gases
-!ACROLEIN        ,ug/m3     ,1000.0*(ACROLEIN[1]*1.9365*DENS[2]) 
-!ACRO_PRIMARY    ,ug/m3     ,1000.0*(ACRO_PRIMARY*1.9365*DENS[2]) 
-!ALD2_PRIMARY    ,ug/m3     ,1000.0*(ALD2_PRIMARY[1]*1.5188*DENS[2])     
-!FORM_PRIMARY    ,ug/m3     ,1000.0*(FORM_PRIMARY[1]*1.0356*DENS[2])  
-!BUTADIENE13     ,ug/m3     ,1000.0*(BUTADIENE13[1]*1.8674*DENS[2]) 
-!HCL             ,ppbV      ,1000.0*HCL[1]                           
-!TOLUENE         ,ppbV      ,1000.0*TOLU[1]                           
+
+!Additional Global, Regional and Urban Toxic gases
+ACROLEIN        ,ug/m3     ,1000.0*(ACROLEIN[1]*1.9365*DENS[2]) 
+ACRO_PRIMARY    ,ug/m3     ,1000.0*(ACRO_PRIMARY*1.9365*DENS[2]) 
+ALD2_PRIMARY    ,ug/m3     ,1000.0*(ALD2_PRIMARY[1]*1.5188*DENS[2])     
+FORM_PRIMARY    ,ug/m3     ,1000.0*(FORM_PRIMARY[1]*1.0356*DENS[2])  
+BUTADIENE13     ,ug/m3     ,1000.0*(BUTADIENE13[1]*1.8674*DENS[2]) 
+HCL             ,ppbV      ,1000.0*HCL[1]                           
+TOLUENE         ,ppbV      ,1000.0*TOLU[1]                           
+ACRYLONITRILE   ,ug/m3     ,1000.0*(ACRYLONITRILE[1]*1.8329*DENS[2])        
+BR2_C2_12       ,ug/m3     ,1000.0*(BR2_C2_12[1]*6.4860*DENS[2])    
+CHCL3           ,ug/m3     ,1000.0*(CHCL3[1]*4.1215*DENS[2])      
+CL_ETHE         ,ug/m3     ,1000.0*(CL_ETHE[1]*2.1574*DENS[2])   
+CL2             ,ppbV      ,1000.0*CL2[1]                       
+CL2_C2_12       ,ug/m3     ,1000.0*(CL2_C2_12[1]*3.4173*DENS[2])  
+CL2_ME          ,ug/m3     ,1000.0*(CL2_ME[1]*2.9306*DENS[2])    
+CL3_ETHE        ,ug/m3     ,1000.0*(CL3_ETHE[1]*4.5357*DENS[2]) 
+CL4_ETHE        ,ug/m3     ,1000.0*(CL4_ETHE[1]*5.7232*DENS[2])  
+CL4_ETHANE1122  ,ug/m3     ,1000.0*(CL4_ETHANE1122[1]*5.7956*DENS[2])  
+CARBONTET       ,ug/m3     ,1000.0*(CARBONTET[1]*5.3089*DENS[2])      
+DICHLOROBENZENE ,ug/m3     ,1000.0*(DICHLOROBENZENE[1]*5.069*DENS[2])  
+DICHLOROPROPENE ,ug/m3     ,1000.0*(DICHLOROPROPENE[1]*3.8316*DENS[2]) 
+ETOH            ,ppbV      ,1000.0*ETOH[1]           
+ETOX            ,ug/m3     ,1000.0*(ETOX[1]*1.5223*DENS[2])  
+HEXAMETHY_DIIS  ,ug/m3     ,1000.0*(HEXAMETHY_DIIS[1]*5.8000*DENS[2]) 
+HYDRAZINE       ,ug/m3     ,1000.0*(HYDRAZINE[1]*3.3793*DENS[2])     
+MEOH            ,ppbV      ,1000.0*MEOH[1]                          
+XYLENE		,ppbV      ,1000.0*XYLENE[1]                       
+MAL_ANHYDRIDE   ,ug/m3     ,1000.0*(MAL_ANHYDRIDE[1]*3.3843*DENS[2])  
+NAPHTHALENE     ,ug/m3     ,1000.0*(NAPHTHALENE[1]*4.4253*DENS[2])   
+PROPDICHLORIDE  ,ug/m3     ,1000.0*(PROPDICHLORIDE[1]*3.9006*DENS[2])  
+QUINOLINE       ,ug/m3     ,1000.0*(QUINOLINE[1]*4.4598*DENS[2])      
+TOL_DIIS        ,ug/m3     ,1000.0*(TOL_DIIS[1]*6.0069*DENS[2])     
+TRIETHYLAMINE   ,ug/m3     ,1000.0*(TRIETHYLAMINE[1]*3.4986*DENS[2])  
+ACETONITRILE    ,ug/m3     ,1000.0*(ACETONITRILE[1]*1.4155*DENS[2])  
+STYRENE         ,ug/m3     ,1000.0*(STYRENE[1]*3.5914*DENS[2])      
+ACRYACID        ,ug/m3     ,1000.0*(ACRYACID[1]*2.4849*DENS[2])    
+HEXANE          ,ug/m3     ,1000.0*(HEXANE[1]*2.9717*DENS[2])     
+METHCHLORIDE    ,ug/m3     ,1000.0*(METHCHLORIDE[1]*1.7410*DENS[2])  
+CARBSULFIDE     ,ug/m3     ,1000.0*(CARBSULFIDE[1]*2.0714*DENS[2])  
+CHLOROPRENE     ,ug/m3     ,1000.0*(CHLOROPRENE[1]*3.0530*DENS[2]) 
+ETHYLBENZENE    ,ug/m3     ,1000.0*(ETHYLBENZENE[1]*3.6610*DENS[2])  
 
 !Mercuric gas species
-!HG_0            ,ng/m3     ,1000.0*(HG[1]*8.3330*DENS[2]*1000.0)       
-!HG_II           ,ng/m3     ,1000.0*(HGIIGAS[1]*8.3330*DENS[2]*1000.0) 
+HG_0            ,ng/m3     ,1000.0*(HG[1]*8.3330*DENS[2]*1000.0)       
+HG_II           ,ng/m3     ,1000.0*(HGIIGAS[1]*8.3330*DENS[2]*1000.0) 
 
 ! Particles
 !! Crustal Elements
@@ -180,6 +213,34 @@ AORGAJ          ,ug/m3     ,AXYL1J[1]+AXYL2J[1]+AXYL3J[1]+ATOL1J[1]+ATOL2J[1]+AT
                            +ASVOO2J[1]+ASVOO3J[1]+APCSOJ[1]   
 AORGBJ          ,ug/m3     ,AISO1J[1]+AISO2J[1]+AISO3J[1]+ATRP1J[1]+ATRP2J[1]+ASQTJ[1]+AOLGBJ[1]
 AORGCJ          ,ug/m3     ,AORGCJ[1]
+
+!Deisel PM Species
+DIESEL_PM10     ,ng/m3     ,1000.0*(ADE_OTHRI[1]+ADE_OTHRJ[1]+ADE_ECI[1]+ADE_ECJ[1]+ADE_OCI[1]+ADE_OCJ[1]+ADE_SO4J[1]+ADE_NO3J[1]+ADE_K[1])
+DIESEL_PM25  	,ng/m3     ,1000.0*(ADE_OTHRI[1]*PM25AT[3]+ADE_OTHRJ[1]*PM25AC[3]+ADE_ECI[1]*PM25AT[3]+ADE_ECJ[1]*PM25AC[3]+ADE_OCI[1]*PM25AT[3]+ADE_OCJ[1]*PM25AC[3]+ADE_SO4J[1]*PM25AC[3]+ADE_NO3J[1]*PM25AC[3]+ADE_K[1]*PM25CO[3])  
+
+!Toxic Metallic PM species
+BERYLLIUM_PM10  ,ng/m3     ,1000.0*(ABEI[1]+ABEJ[1]+ABEK[1]) 
+BERYLLIUM_PM25  ,ng/m3     ,1000.0*(ABEI[1]*PM25AT[3]+ABEJ[1]*PM25AC[3]+ABEK[1]*PM25CO[3]) 
+CADMIUM_PM10    ,ng/m3     ,1000.0*(ACDI[1]+ACDJ[1]+ACDK[1])                              
+CADMIUM_PM25    ,ng/m3     ,1000.0*(ACDI[1]*PM25AT[3]+ACDJ[1]*PM25AC[3]+ACDK[1]*PM25CO[3]) 
+CR_III_PM10     ,ng/m3     ,1000.0*(ACR_IIII[1]+ACR_IIIJ[1]+ACR_IIIK[1])                  
+CR_III_PM25     ,ng/m3     ,1000.0*(ACR_IIII[1]*PM25AT[3]+ACR_IIIJ[1]*PM25AC[3]+ACR_IIIK[1]*PM25CO[3])   
+CR_VI_PM10      ,ng/m3     ,1000.0*(ACR_VII[1]+ACR_VIJ[1]+ACR_VIK[1])                                   
+CR_VI_PM25      ,ng/m3     ,1000.0*(ACR_VII[1]*PM25AT[3]+ACR_VIJ[1]*PM25AC[3]+ACR_VIK[1]*PM25CO[3])    
+CHROMIUM_PM10   ,ng/m3     ,1000.0*(ACR_IIII[1]+ACR_IIIJ[1]+ACR_IIIK[1]+ACR_VII[1]+ACR_VIJ[1]+ACR_VIK[1])     
+CHROMIUM_PM25   ,ng/m3     ,1000.0*(ACR_IIII[1]*PM25AT[3]+ACR_IIIJ[1]*PM25AC[3]+ACR_IIIK[1]*PM25CO[3]+ACR_VII[1]*PM25AT[3]+ACR_VIJ[1]*PM25AC[3]+ACR_VIK[1]*PM25CO[3])  
+LEAD_PM10       ,ng/m3     ,1000.0*(APBI[1]+APBJ[1]+APBK[1])  
+LEAD_PM25       ,ng/m3     ,1000.0*(APBI[1]*PM25AT[3]+APBJ[1]*PM25AC[3]+APBK[1]*PM25CO[3]) 
+MANGANESE_PM10  ,ng/m3     ,1000.0*(AMN_HAPSI[1]+AMN_HAPSJ[1]+AMN_HAPSK[1])          
+MANGANESE_PM25  ,ng/m3     ,1000.0*(AMN_HAPSI[1]*PM25AT[3]+AMN_HAPSJ[1]*PM25AC[3]+AMN_HAPSK[1]*PM25CO[3]) 
+NICKEL_PM10     ,ng/m3     ,1000.0*(ANII[1]+ANIJ[1]+ANIK[1])                                             
+NICKEL_PM25     ,ng/m3     ,1000.0*(ANII[1]*PM25AT[3]+ANIJ[1]*PM25AC[3]+ANIK[1]*PM25CO[3])    
+ARSENIC_PM10    ,ng/m3     ,1000.0*(AASI[1]+AASJ[1]+AASK[1])                                 
+ARSENIC_PM25    ,ng/m3     ,1000.0*(AASI[1]*PM25AT[3]+AASJ[1]*PM25AC[3]+AASK[1]*PM25CO[3])  
+
+!Mercuric PM species
+HG_PM10         ,ng/m3     ,1000.0*(APHGI[1]+APHGJ[1]+APHGK[1])      
+HG_PM25         ,ng/m3     ,1000.0*(APHGI[1]*PM25AT[3]+APHGJ[1]*PM25AC[3]+APHGK[1]*PM25CO[3])  
 
 !! OM/OC ratios
 AOMOCRAT_PRI    ,none      ,APOMIJ[0]/APOCIJ[0] 
