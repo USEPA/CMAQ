@@ -172,7 +172,7 @@ c..HO2
 
 c..HONO
       HONO  = NAME_INDEX( MECH_HONO, N_SPECIES, SPECIES )
-      IF( HO2 .NE. 0 ) THEN
+      IF( HONO .NE. 0 ) THEN
          N = N +1
          GRP_SPC( N ) = MECH_HONO
       ELSE

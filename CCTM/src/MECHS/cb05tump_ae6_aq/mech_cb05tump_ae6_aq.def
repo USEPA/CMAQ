@@ -782,7 +782,7 @@ REACTIONS[CM] =
 <HG2> HG + CL2  = HGIIGAS + CL2                       # 2.6E-18;
 <HG3> HG + H2O2 = HGIIGAS + H2O2                      # 8.5E-19;
 <HG4> HG + OH   = 0.5*HGIIAER + 0.5*HGIIGAS + OH      # 7.7E-14;
-<HG5> HG + CL  + M  = 0.5*HG + 0.5*HGIIGAS + M + CL   # 2.25E-33 @ 680.0;
+<HG5> HG + CL  + M  = 0.5*HG + 0.5*HGIIGAS + M + CL   # 2.25E-33 @ -680.0;
 
 END MECH
 
