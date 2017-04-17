@@ -1,9 +1,8 @@
 <
 [<< Previous Chapter](CMAQ_OGD_ch10_new_simulation.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch12_analysis_tools.md)
-***
+* * *
 
-11. Code Management and Development
-===============================
+# 11. Code Management and Development #
 
 As a public domain model, CMAQ is the product of contributions from many developers, whose numbers are only expected to increase with the number of users worldwide. Some degree of standardization is necessary for management and archiving of these development versions, as well as to compile and execute the code once it is ready for use, and to submit it to the CMAS Center for archiving and benchmark testing. This chapter provides guidance on source code manage­ment, coding guidelines for new code development, the compilation of new source code using the build scripts, and guidelines for writing shell scripts usable by CMAQ. Much of this informa­tion is derived from Chapter 18 (Young, 1999) in Byun and Ching (1999), with updates where appropriate, particularly for new versions of the model code and for the Fortran 90 standard. The chapter also includes the procedure that is in place for distributing code versions other than the operational CMAQ that are submitted to the development code archives.
 
@@ -128,10 +127,8 @@ Appropriate documentation is critical to the ease of use and maintainability of 
 
 The following example from CMAQ v4.7 illustrates a science process class-driver Fortran 90 subroutine. Code developers should follow this template, where appropriate, to maximize the benefit from the design concepts implemented in CMAQ. This template is generic and demonstrates many of the available features. Some class drivers and most other subprograms within a module may not have, nor require, most or any of these features. (The numbers at the left-hand margin refer to footnotes and are not part of the code, and the text within “< >” indicates code removed from the example for brevity in this section)
 
-<center>
 **Example of Science Process Class-Driver**
 
-</center>
 
 ```Fortran
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

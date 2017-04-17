@@ -1,8 +1,11 @@
 [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch02_overview.md)
 <center>
-***
-**Operational Guidance for the Community Multiscale Air Quality (CMAQ) Modeling System**
-==
+
+* * *
+
+Operational Guidance for the Community Multiscale Air Quality (CMAQ) Modeling System
+=======
+
 **Version 5.2 (2017 Release)**
 
 Prepared in cooperation with the
@@ -44,22 +47,22 @@ To obtain inputs on emissions, CMAQ relies on an emissions model to estimate the
 
 
 > *Note: CMAQ Output File Format<br>*
-> CMAQ uses a modified version of the netCDF file format.
-> Although CMAQ output is described as being in the netCDF format,
-> it is actually a [hybrid format of the I/O API and the netCDF](https://www.cmascenter.org/ioapi/). 
+> CMAQ uses a modified version of the netCDF file format.
+> Although CMAQ output is described as being in the netCDF format,
+> it is actually a [hybrid format of the I/O API and the netCDF](https://www.cmascenter.org/ioapi/).
 
-CMAQ was designed from the start as a community model. “Community modeling” is the concept that air quality model development should be a collective effort by a broad community of developers. By adopting a standardized modeling architecture, the air quality modeling community can focus its efforts on creating software enhancements and new science modules. CMAQ’s modular structure facilitates customization and open-source development by the community. Using the [Input/Output Applications Programming Interface (I/O API) library](https://www.cmascenter.org/ioapi) to control the internal and external data flows to the model, and the [network Common Data Form (netCDF) library](http://www.unidata.ucar.edu/software/netcdf) to control the input and output file formats, CMAQ is based around a transparent and platform-independent code infrastructure that promotes extensibility. The modularity of CMAQ also leads to multiple science configuration options (i.e., how various processes are represented) that model users can choose from when setting up new simulations. The trade-off for this flexibility is complexity in the model configuration; the model user is faced with hundreds of different configuration combinations when designing new simulations. To avoid confusing new CMAQ users, this document provides guidance on a basic configuration to use for getting started with the model. For experienced air quality model users, the multiple configuration combinations available provide a high level of flexibility for optimizing model performance for different air quality model applications.
+CMAQ was designed from the start as a community model. “Community modeling” is the concept that air quality model development should be a collective effort by a broad community of developers. By adopting a standardized modeling architecture, the air quality modeling community can focus its efforts on creating software enhancements and new science modules. CMAQ's modular structure facilitates customization and open-source development by the community. Using the [Input/Output Applications Programming Interface (I/O API) library](https://www.cmascenter.org/ioapi) to control the internal and external data flows to the model, and the [network Common Data Form (netCDF) library](http://www.unidata.ucar.edu/software/netcdf) to control the input and output file formats, CMAQ is based around a transparent and platform-independent code infrastructure that promotes extensibility. The modularity of CMAQ also leads to multiple science configuration options (i.e., how various processes are represented) that model users can choose from when setting up new simulations. The trade-off for this flexibility is complexity in the model configuration; the model user is faced with hundreds of different configuration combinations when designing new simulations. To avoid confusing new CMAQ users, this document provides guidance on a basic configuration to use for getting started with the model. For experienced air quality model users, the multiple configuration combinations available provide a high level of flexibility for optimizing model performance for different air quality model applications.
 
 CMAQ is designed to meet the needs of the multiple groups contained within the air quality modeling community: research and regulatory modelers, algorithm and science module developers, air quality forecasters, and planners and policy makers. While each of these groups has distinct individual requirements for CMAQ, they also share a common need for an efficient, transparent, and scientifically credible tool to simulate air pollution formation and transport. To address these individual and common needs, CMAQ development and maintenance have the following goals:
 
-1.  *Scientific Integrity* – Ensure that the model remains state-of-the-science through subjecting it to [regular peer reviews](https://www.cmascenter.org/r-and-d/cmaq-review-process.cfm)
-2.  *Community Development* – Utilize a design that encourages innovations and enhancements by all members of the air quality modeling community
-3.  *Multiscale Modeling* – Provide adequate technical formulations to address air quality issues on multiple spatial scales, from urban to hemispheric
-4.  *One-Atmosphere Design* – Provide robust and integrated science for modeling multiple, coupled air quality issues in a single simulation
-5.  *Modularity* – Maintain flexibility to add new, or select from existing, science modules to optimize model performance for specific applications
-6.  *Transparency* – Utilize programming practices that promote understanding of the model formulation at the source-code level
-7.  *Computational Efficiency* – Provide scientifically acceptable results without compro­mising the speed at which the results are generated
-8.  *Open-Source Design* – Enable no-cost distribution and application by the modeling community
+1.  *Scientific Integrity*. Ensure that the model remains state-of-the-science through subjecting it to [regular peer reviews](https://www.cmascenter.org/r-and-d/cmaq-review-process.cfm)
+2.  *Community Development*. Utilize a design that encourages innovations and enhancements by all members of the air quality modeling community
+3.  *Multiscale Modeling*. Provide adequate technical formulations to address air quality issues on multiple spatial scales, from urban to hemispheric
+4.  *One-Atmosphere Design*. Provide robust and integrated science for modeling multiple, coupled air quality issues in a single simulation
+5.  *Modularity*. Maintain flexibility to add new, or select from existing, science modules to optimize model performance for specific applications
+6.  *Transparency*. Utilize programming practices that promote understanding of the model formulation at the source-code level
+7.  *Computational Efficiency*. Provide scientifically acceptable results without compro­mising the speed at which the results are generated
+8.  *Open-Source Design*. Enable no-cost distribution and application by the modeling community
 
 [CMAQ OGD List Tables and Figures](CMAQ_OGD_tables_figures.md)
 --
