@@ -1,17 +1,35 @@
 # Created 19 Mar 2009 by Chris Allen.
+# Revised April 2017 for compatibility with CMAQv5.2
 # This GSPRO component contains only biogenic profiles. The profiles were originally in
 # the EMF dataset "gspro_static_cmaq", version 8 (16mar2009). They were moved to a 
 # new dataset so that biogenic-only species do not appear in the model-ready files
 # for non-biogenic sectors that have pre-speciated VOC in the inventory (specifically,
 # 2005ck_05b othpt).
-#EXPORT_DATE=Tue Jan 17 15:05:41 EST 2012
-#EXPORT_VERSION_NAME=Initial Version
-#EXPORT_VERSION_NUMBER=0
 # This version is based on BEIS 3.6.1
-#Fields included:
-# mechanism code (BIOG_SPRO=SPNPRF); BEIS species name (POLNAM); 
-# model species name (SPECNM); moles of model species (SPLTFAC);
-# MW weight in carbons BEIS (SDIV); mass split to model by C (SMFAC)
+#
+# Definition of Fields:
+# Mechanism Code 
+#    Maps to BIOG_SPRO in the CMAQ run-script
+#    Maps to SPNPRF inside CMAQ
+#    Options -
+#      B10C5: CB05-based mechanisms
+#      B10C6: CB6r3-based mechanisms
+#      B10RD: RACM2-based mechanisms
+#      B10SP: SAPRC07t-based mechanisms
+# POLNAM
+#    Name of Specific VOC emitted by 
+#    biogenic source;
+# SPECNM
+#    CMAQ Biogeninc Emissions species name;
+# SPLTFAC (mol/mol)
+#    Conversion factor from moles of BEIS VOC
+#    species to moles of CMAQ emissions species;
+# SDIV (g/mol)
+#    Mass of carbon atoms in the BEIS molecule;
+# SMFAC (dimensionless)
+#    BEIS VOC Molecular weight divided by the 
+#    mass of the carbon atoms in the molecule;
+#
 B10C5;"ACET";"PAR";3.0;36.0;1.6111
 B10C5;"ACTAC";"AACD";1.0;24.0;2.5
 B10C5;"ACTAL";"ALD2";1.0;24.0;1.8333
