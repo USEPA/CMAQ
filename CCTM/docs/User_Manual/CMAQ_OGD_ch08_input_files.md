@@ -167,25 +167,25 @@ The example grid definition section above describes a grid named “M_32_99TUT02
 <a id=matrix_nml></a>
 ### {gc|ae|nr|tr}_matrix.nml: Species namelist files
 
-Used by: BCON, CCTM, ICON, JPROC
+Used by: BCON, CCTM, ICON, CHEMMECH
 
 Namelist look-up tables for different classes of simulated pollutants are used to define the parameters of different model species during the execution of the CMAQ programs. Gas-phase (gc), aerosol (ae), non-reactive (nr), and tracer (tr) species namelist files contain parameters for the model species that are included in these different classifications. The species namelist files are used to control how the different CMAQ programs and processes handle the model species. The namelist files define the following processes for each model species:
 
--   Emissions surrogate – which (if any) emitted species is the pollutant mapped to
+-   Emissions surrogate – which (if any) emitted species is the pollutant mapped to; For GC, NR, and TR species, the variables names in the emission files determine the allowed surrogate values; For AE species, the model source code determines the allowed values.
 -   Emissions factor – if the pollutant is mapped to an emitted species, uniformly apply a scaling factor to the emissions
--   Deposition velocity – which (if any) deposition velocity is the deposition velocity for the pollutant mapped to
+-   Deposition velocity – which (if any) deposition velocity is the deposition velocity for the pollutant mapped to; Allowed velocities are specified within the model source code.
 -   Deposition velocity factor – if the pollutant is mapped to a deposition velocity, uniformly apply a scaling factor to this velocity
--   Initial/boundary conditions – which (if any) initial and boundary condition species is the pollutant mapped to
+-   Initial/boundary conditions – which initial and boundary condition species is the pollutant mapped to; if not specified, this will default to the species name
 -   IC/BC Factor – if the pollutant is mapped to an initial/boundary condition species, uniformly apply a scaling factor to the concentrations
--   Scavenging - which (if any) species is the pollutant mapped to for scavenging
+-   Scavenging - which (if any) species is the pollutant mapped to; Allowed scavenging surrogates are specified within the model source code.
 -   Scavenging factor - if the pollutant is mapped to an species for scavenging, uniformly apply a scaling factor to the scavenging rate
--   Gas-to-aerosol conversion – does the pollutant undergo heterogeneous transformation from the gas-phase to the aerosol-phase
--   Gas-to-aqueous conversion – does the pollutant undergo heterogeneous transformation from the gas-phase to the liquid phase
--   Aerosol-to-aqueous conversion – does the pollutant undergo heterogeneous transformation from the aerosol-phase to the liquid phase
--   Transport – is the pollutant transported by advection and diffustion in the model
--   Dry deposition – Write the pollutant to the dry deposition output file
--   Wet deposition – Write the pollutant to the wet deposition output file
--   Concentration – Write the pollutant to the instantaneous concentration output file
+-   Gas-to-aerosol conversion – which (if any) aerosol chemistry species does the gas phase pollutant concentration go into for transformation from the gas-phase to the aerosol-phase
+-   Gas-to-aqueous Surrogate – which (if any) cloud chemistry species does the gas pollutant concentration go into for simulating chemistry within cloud water
+-   Aerosol-to-aqueous Surrogate – which (if any) cloud chemistry species does the aerosol pollutant concentration go into for simulating chemistry within cloud water
+-   Transport – is the pollutant transported by advection and diffusion in the model?
+-   Dry deposition – Write the pollutant to the dry deposition output file?
+-   Wet deposition – Write the pollutant to the wet deposition output file?
+-   Concentration – Write the pollutant to the instantaneous concentration output file?
 
 The namelist files contain header information that describe which class of species are contained in the file, the number of parameters contained in the file, headers describing the parameter fields, and then a series of rows with configuration parameters for every model species. [Table 8‑4](#Table8-4) contains the namelist file format for the gas-phase (GC) species namelist file. The namelist files for the other species classifications (AE, NR, TR) are similar to the format shown in [Table 8‑4](#Table8-4).
 
@@ -212,8 +212,8 @@ The namelist files contain header information that describe which class of speci
 || 6 | DEPV_FAC | Real |Scaling factor for the deposition velocity|
 || 7 | ICBC_SUR | String |IC/BC species name for the CMAQ pollutant|
 || 8 | ICBC_FAC | Real |Scaling factor for the IC/BC concentration|
-|| 9 | SCAV_SUR | String ||
-|| 10 | SCAV_FAC | Real ||
+|| 9 | SCAV_SUR | String |Wet Deposition Scavenging Coefficient|
+|| 10 | SCAV_FAC | Real |Scaling factor for Scavenging |
 || 11 | G2AE_SUR | String |Gas-to-aerosol transformation species|
 || 12 | G2AQ_SUR | String |Gas-to-aqueous transformation species|
 || 13 | TRNS | Yes/No |Transport switch. Note: Instead of using one column labeled "TRNS" to turn on/off both advection and diffusion for a pollutant, two separate columns labeled "ADV" and "DIFF" can be used to switch on/off advection and diffusion separately|
