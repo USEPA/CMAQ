@@ -171,7 +171,7 @@ Used by: BCON, CCTM, ICON, CHEMMECH
 
 Namelist look-up tables for different classes of simulated pollutants are used to define the parameters of different model species during the execution of the CMAQ programs. Gas-phase (gc), aerosol (ae), non-reactive (nr), and tracer (tr) species namelist files contain parameters for the model species that are included in these different classifications. The species namelist files are used to control how the different CMAQ programs and processes handle the model species. The namelist files define the following processes for each model species:
 
--   Emissions surrogate – which (if any) emitted species is the pollutant mapped to; For GC, NR, and TR species, the variables names in the emission files determine the allowed surrogate values; For AE species, the model source code determines the allowed values.
+-   Emissions surrogate – which (if any) emitted species is the pollutant mapped to; For GC, NR, and TR species, the variable names in the emission files determine the allowed surrogate values; For AE species, the model source code determines the allowed values.
 -   Emissions factor – if the pollutant is mapped to an emitted species, uniformly apply a scaling factor to the emissions
 -   Deposition velocity – which (if any) deposition velocity is the deposition velocity for the pollutant mapped to; Allowed velocities are specified within the model source code.
 -   Deposition velocity factor – if the pollutant is mapped to a deposition velocity, uniformly apply a scaling factor to this velocity
