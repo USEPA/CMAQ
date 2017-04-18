@@ -20,7 +20,7 @@
 #    Name of Specific VOC emitted by 
 #    biogenic source;
 # SPECNM
-#    CMAQ Biogeninc Emissions species name;
+#    CMAQ Biogenic Emissions species name;
 # SPLTFAC (mol/mol)
 #    Conversion factor from moles of BEIS VOC
 #    species to moles of CMAQ emissions species;
