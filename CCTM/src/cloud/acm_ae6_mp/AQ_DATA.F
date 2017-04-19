@@ -386,10 +386,10 @@ C Local Variable used to determine what optional TX to add to surrogates
       
 C-----------------------------------------------------------------------
 
-      logdev = setup_logdev()
 
       If ( Firstcall ) Then
          Firstcall = .False.
+         logdev    = setup_logdev()
       Else
          Return
       End if

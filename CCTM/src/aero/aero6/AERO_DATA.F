@@ -324,9 +324,28 @@ C For the wind-blown dust speciation factors, we used the median of the Desert S
 C profiles 3398, 3403, 3408, and 3413 for the J mode from the SPECIATE database and
 C profiles 3399, 3404, 3409, and 3414 for coarse PM. (G. Pouliot - private communication)
 C See Ref. (4), above and https://cfpub.epa.gov/si/speciate/
+! For toxic metal species, more recent sources were consulted because the above profiles give large uncertainties in their 
+! speciation factors
+! For the air toxics version of manganese, nickel, chromium(III), arsenic, and lead:
+!    Table 2 in Y. Su, and R. Yang., Background concentrations of elements in surface soils and 
+!    their changes as affected by agriculture use in the desert-oasis ecotone in the middle of Heihe
+!    River Basin, North-west China, Journal of Geochemical Exploration, 98, 2008, 57–64 was used.
+!    The table represents natural desert soils prior to cultivation. Note that all chromium is 
+!    to be trivalent based on assuming low pH or anoxics conditions. 
+! For cadmium:
+!    The background mixing ratio was used from Table 3 in Su, C., Jiang, L.,and Zhang, W., 
+!    A review on heavy metal contamination in the soil worldwide: Situation, impact and 
+!    remediation techniques, Environmental Skeptics and Critics, 2014, 3(2): 24-38. 
+!    The table reviews worldwide cultivation soils.
+! For mercury:
+!    Table 2 in D. Obrist et al., A synthesis of terrestrial mercury in the western United States: 
+!    Spatial distribution defined by land cover and plant productivity, Science of the Total Environment, 
+!    568, 2016, 522–535.
+!    Factors were based on mixing ratios for barren and cultivated land cover type
+! Speciation factors between j and k modes were assumed constant because no data was found.
 
 C maximum number of chemical species in windblown dust aerosol
-      Integer, Parameter :: ndust_list = 33
+      Integer, Parameter :: ndust_list = 26
       Integer            :: ndust_spc
 
        
@@ -352,46 +371,23 @@ C                                           Aitken     accum       coarse       
      &   emis_table( 'Water         ', (/'         ','AH2OJ    ','AH2OK    '/), (/ 0.0, 0.00541, 0.00637/) ),   ! Water
      &   emis_table( 'Undefined Mass', (/'         ','AOTHRJ   ','         '/), (/ 0.0, 0.48319, 0.0    /) ),   ! Other
      &   emis_table( 'Non-Anion Dust', (/'         ','         ','ASOIL    '/), (/ 0.0, 0.0,     0.95358/) ),   ! Non-Anion Dust
-! For toxic metal species, more recent sources were consulted because the above profiles give large uncertainties in their 
-! speciation factors
-! For the air toxics version of manganese, nickel, chromium(III), arsenic, and lead:
-!    Table 2 in Y. Su, and R. Yang., Background concentrations of elements in surface soils and 
-!    their changes as affected by agriculture use in the desert-oasis ecotone in the middle of Heihe
-!    River Basin, North-west China, Journal of Geochemical Exploration, 98, 2008, 57–64 was used.
-!    The table represents natural desert soils prior to cultivation. Note that all chromium is 
-!    to be trivalent based on assuming low pH or anoxics conditions. 
-! For cadmium:
-!    The background mixing ratio was used from Table 3 in Su, C., Jiang, L.,and Zhang, W., 
-!    A review on heavy metal contamination in the soil worldwide: Situation, impact and 
-!    remediation techniques, Environmental Skeptics and Critics, 2014, 3(2): 24-38. 
-!    The table reviews worldwide cultivation soils.
-! For mercury:
-!    Table 2 in D. Obrist et al., A synthesis of terrestrial mercury in the western United States: 
-!    Spatial distribution defined by land cover and plant productivity, Science of the Total Environment, 
-!    568, 2016, 522–535.
-!    Factors were based on mixing ratios for barren and cultivated land cover type
-! Speciation factors between j and k modes were assumed constant because no data was found.
-     &   emis_table( 'Air Toxics Mn ', (/'         ','AMN_HAPSJ','         '/), (/ 0.0, 0.00041, 0.0    /) ),   ! Air toxics Manganese J mode
-     &   emis_table( 'Air Toxics Mn ', (/'         ','         ','AMN_HAPSK'/), (/ 0.0, 0.0    , 0.00041/) ),   ! Air toxics Manganese K mode
-     &   emis_table( 'Nickel        ', (/'         ','ANIJ     ','         '/), (/ 0.0, 2.0E-05, 0.0    /) ),   ! Nickel J mode
-     &   emis_table( 'Nickel        ', (/'         ','         ','ANIK     '/), (/ 0.0, 0.0    , 2.0E-05/) ),   ! Nickel K mode
-     &   emis_table( 'Chromium III  ', (/'         ','ACR_IIIJ ','         '/), (/ 0.0, 5.6E-05, 0.0    /) ),   ! Trivalent Chromium J mode
-     &   emis_table( 'Chromium III  ', (/'         ','         ','ACR_IIIK '/), (/ 0.0, 0.0    , 5.6E-05/) ),   ! Trivalent Chromium K mode
-     &   emis_table( 'Arsenic       ', (/'         ','AASJ     ','         '/), (/ 0.0, 5.5E-06, 0.0    /) ),   ! Arsenic J mode
-     &   emis_table( 'Arsenic       ', (/'         ','         ','AASK     '/), (/ 0.0, 0.0    , 5.5E-06/) ),   ! Arsenic K mode
-     &   emis_table( 'Lead          ', (/'         ','APBJ     ','         '/), (/ 0.0, 1.6E-05, 0.0    /) ),   ! Lead J mode
-     &   emis_table( 'Lead          ', (/'         ','         ','APBK     '/), (/ 0.0, 0.0    , 1.6E-05/) ),   ! Lead K mode
-     &   emis_table( 'Cadmium       ', (/'         ','ACDJ     ','         '/), (/ 0.0, 9.7E-08, 0.0    /) ),   ! Cadmium J mode
-     &   emis_table( 'Cadmium       ', (/'         ','         ','ACDK     '/), (/ 0.0, 0.0    , 9.7E-08/) ),   ! Cadmium  K mode
-     &   emis_table( 'Mercury       ', (/'         ','APHGJ    ','         '/), (/ 0.0, 1.4E-08, 0.0    /) ),   ! Mercury J mode
-     &   emis_table( 'Mercury       ', (/'         ','         ','APHGK    '/), (/ 0.0, 0.0   , 1.4E-08/) ) /)  ! Mercury K mode
+     &   emis_table( 'Air Toxics Mn ', (/'         ','AMN_HAPSJ','AMN_HAPSK'/), (/ 0.0, 0.00041, 0.00041/) ),   ! Air toxics Manganese J and K mode
+     &   emis_table( 'Nickel        ', (/'         ','ANIJ     ','ANIK     '/), (/ 0.0, 2.0E-05, 2.0E-05/) ),   ! Nickel J and K mode
+     &   emis_table( 'Chromium III  ', (/'         ','ACR_IIIJ ','ACR_IIIK '/), (/ 0.0, 5.6E-05, 5.6E-05/) ),   ! Trivalent Chromium J and K mode
+     &   emis_table( 'Arsenic       ', (/'         ','AASJ     ','AASK     '/), (/ 0.0, 5.5E-06, 5.5E-06/) ),   ! Arsenic J and K mode
+     &   emis_table( 'Lead          ', (/'         ','APBJ     ','APBK     '/), (/ 0.0, 1.6E-05, 1.6E-05/) ),   ! Lead J and K mode
+     &   emis_table( 'Cadmium       ', (/'         ','ACDJ     ','ACDK     '/), (/ 0.0, 9.7E-08, 9.7E-08/) ),   ! Cadmium J and K mode
+     &   emis_table( 'Mercury       ', (/'         ','APHGJ    ','APHGK    '/), (/ 0.0, 1.4E-08, 1.4E-08/) ) /) ! Mercury J and K mode
 
       Type( emis_table ), Allocatable :: dust_spc( : )
 
 C Sea-Salt Speciation factors based on seawater composition:
+! For toxic metal species, Use Table 1 in K.W. Bruland and M.C. Lohan, 6.02 - Controls of Trace Metals in Seawater, 
+! In Treatise on Geochemistry, edited by Heinrich D. Holland and Karl K. Turekian, Pergamon, Oxford, 2003, Pages 23-47,
+! ISBN 9780080437514, http://dx.doi.org/10.1016/B0-08-043751-6/06105-3.
 
 C number of chemical species in seawater aerosol composition
-      integer, parameter :: nsea_spc = 23
+      integer, parameter :: nsea_spc = 15
 
       Type( emis_table ), Parameter :: sea_spc( nsea_spc ) = (/
 C                        -------- name --------                -------- spcfac --------
@@ -403,25 +399,14 @@ C                         Aitken    accum     coarse             Aitken  accum  
      &   emis_table( 'Magnesium     ', (/'         ','AMGJ     ','         '/), (/ 0.0, 0.03680, 0.0    /) ),   ! Magnesium
      &   emis_table( 'Potassium     ', (/'         ','AKJ      ','         '/), (/ 0.0, 0.01140, 0.0    /) ),   ! Potassium
      &   emis_table( 'SeaSalt_Cation', (/'         ','         ','ASEACAT  '/), (/ 0.0, 0.0    , 0.36860/) ),   ! Sea-Salt Cations
-! For toxic metal species, Use Table 1 in K.W. Bruland and M.C. Lohan, 6.02 - Controls of Trace Metals in Seawater, 
-! In Treatise on Geochemistry, edited by Heinrich D. Holland and Karl K. Turekian, Pergamon, Oxford, 2003, Pages 23-47,
-! ISBN 9780080437514, http://dx.doi.org/10.1016/B0-08-043751-6/06105-3.
-     &   emis_table( 'Chromium IV   ', (/'         ','ACR_VIJ  ','         '/), (/ 0.0, 5.95E-9, 0.0    /) ),   ! accumaltion mode Hexavalent Chromium
-     &   emis_table( 'Nickel        ', (/'         ','ANIJ     ','         '/), (/ 0.0, 1.34E-8, 0.0    /) ),   ! accumaltion mode Nickle
-     &   emis_table( 'Arsenic       ', (/'         ','AASJ     ','         '/), (/ 0.0, 4.93E-8, 0.0    /) ),   ! accumaltion mode Arsenic
-     &   emis_table( 'Beryllium     ', (/'         ','ABEJ     ','         '/), (/ 0.0, 5.2E-11, 0.0    /) ),   ! accumaltion mode Beryllium
-     &   emis_table( 'Mercury       ', (/'         ','APHGJ    ','         '/), (/ 0.0, 5.8E-12, 0.0    /) ),   ! accumaltion mode Mercury
-     &   emis_table( 'Lead          ', (/'         ','APBJ     ','         '/), (/ 0.0, 6.0E-11, 0.0    /) ),   ! accumaltion mode Lead
-     &   emis_table( 'Cadmium       ', (/'         ','ACDJ     ','         '/), (/ 0.0, 1.93E-9, 0.0    /) ),   ! accumaltion mode cadmium
-     &   emis_table( 'Air Toxics Mn ', (/'         ','AMN_HAPSJ','         '/), (/ 0.0, 4.7E-11, 0.0    /) ),   ! accumaltion mode Air toxics Manganese
-     &   emis_table( 'Chromium IV   ', (/'         ','         ','ACR_VIK  '/), (/ 0.0, 0.0    , 5.95E-9/) ),   ! coarse mode Hexavalent Chromium 
-     &   emis_table( 'Nickel        ', (/'         ','         ','ANIK     '/), (/ 0.0, 0.0    , 1.34E-8/) ),   ! coarse mode Nickle
-     &   emis_table( 'Arsenic       ', (/'         ','         ','AASK     '/), (/ 0.0, 0.0    , 4.93E-8/) ),   ! coarse mode Arsenic
-     &   emis_table( 'Beryllium     ', (/'         ','         ','ABEK     '/), (/ 0.0, 0.0    , 5.2E-11/) ),   ! coarse mode Beryllium
-     &   emis_table( 'Mercury       ', (/'         ','         ','APHGK    '/), (/ 0.0, 0.0    , 5.8E-12/) ),   ! coarse mode Mercury
-     &   emis_table( 'Lead          ', (/'         ','         ','APBK     '/), (/ 0.0, 0.0    , 6.0E-11/) ),   ! coarse mode Lead
-     &   emis_table( 'Cadmium       ', (/'         ','         ','ACDK     '/), (/ 0.0, 0.0    , 1.93E-9/) ),   ! coarse mode cadmium
-     &   emis_table( 'Air Toxics Mn ', (/'         ','         ','AMN_HAPSK'/), (/ 0.0, 0.0    , 4.7E-11/) ) /) ! coarse mode Air toxics Manganese
+     &   emis_table( 'Chromium IV   ', (/'         ','ACR_VIJ  ','ACR_VIK  '/), (/ 0.0, 5.95E-9, 5.95E-9/) ),   ! accumaltion and coarse mode Hexavalent Chromium
+     &   emis_table( 'Nickel        ', (/'         ','ANIJ     ','ANIK     '/), (/ 0.0, 1.34E-8, 1.34E-8/) ),   ! accumaltion and coarse mode Nickle
+     &   emis_table( 'Arsenic       ', (/'         ','AASJ     ','AASK     '/), (/ 0.0, 4.93E-8, 4.93E-8/) ),   ! accumaltion and coarse mode Arsenic
+     &   emis_table( 'Beryllium     ', (/'         ','ABEJ     ','ABEK     '/), (/ 0.0, 5.2E-11, 5.2E-11/) ),   ! accumaltion and coarse mode Beryllium
+     &   emis_table( 'Mercury       ', (/'         ','APHGJ    ','APHGK    '/), (/ 0.0, 5.2E-11, 5.2E-11/) ),   ! accumaltion and coarse mode Mercury
+     &   emis_table( 'Lead          ', (/'         ','APBJ     ','APBK     '/), (/ 0.0, 6.0E-11, 6.0E-11/) ),   ! accumaltion and coarse mode Lead
+     &   emis_table( 'Cadmium       ', (/'         ','ACDJ     ','ACDK     '/), (/ 0.0, 1.93E-9, 1.93E-9/) ),   ! accumaltion and coarse mode cadmium
+     &   emis_table( 'Air Toxics Mn ', (/'         ','AMN_HAPSJ','AMN_HAPSK'/), (/ 0.0, 4.7E-11, 4.7E-11/) ) /) ! accumaltion and coarse mode Air toxics Manganese
  
       Real, Allocatable, Save :: aerospc_ssf( :,: )
 
@@ -655,10 +640,11 @@ C Local Variables:
       Logical dust_match
       Logical error_flag
 
-      logdev = setup_logdev()
-      mole_weight = 0.0
 
       If ( mapped ) Return
+
+      logdev      = setup_logdev()
+      mole_weight = 0.0
 
       n_aerospc      = 0.0 ! Number of Used Aerosol Chemical Species
       aerolist_map   = 0   ! Pointer from aerolist to CGRID
@@ -899,7 +885,7 @@ C Adjust Dust Emissions list for Organic Species, if running with semivolatile P
       End If
 
 ! Determine map between aero_spc dust emissions and the dust emission listndust_spc
-      Allocate( dustlist_map( ndust_list ) )
+      Allocate( dustlist_map( n_aerolist ) )
       dustlist_map   = 0   ! Pointer identifies to use dust emission table
 
       ndust_spc = 0
