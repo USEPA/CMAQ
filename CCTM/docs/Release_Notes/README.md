@@ -8,7 +8,7 @@ The Community Multiscale Air Quality (CMAQ) Model version 5.2 is a major update 
 
 # Base Documentation  
 [Building and running CMAQv5.2](../User_Manual/CMAQ_OGD_ch05_sys_req.md)  
-[Building and running WRF-CMAQ Two Way Model](http://www.airqualitymodeling.org/index.php?title=CMAQv5.1_Two-way_model_release_notes)
+[Building and running WRF-CMAQ Two Way Model](Two_Way_Coupled_WRF-CMAQ.md)
 
 -----
 # Summary of CMAQv5.2 Updates
