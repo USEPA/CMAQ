@@ -1,7 +1,7 @@
 [<< Previous Chapter](CMAQ_OGD_ch04_science.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch06_req_lib.md)
-***
-5. CMAQ Installation and System Requirements
-=========================================
+* * *
+
+# 5. CMAQ Installation and System Requirements #
 
 This section describes how to set up and install CMAQ on a Linux system.  The installation instructions in this section guide the user through obtaining the CMAQ source code and installing it on your system. Brief instructions for running the CMAQ benchmark case and benchmarking the model are also addressed. Here, the term “benchmarking” refers to the process of verifying that a model has installed correctly on a new computer. CMAQ is distributed with a reference dataset that can be used to benchmark the CMAQ installation; in the distribution, output data from CMAQ are bundled with the input data (including emissions and meteorology) that can be used to reproduce the reference results.
 
@@ -129,7 +129,7 @@ Compiler flag consistency between the Fortran and C compilers used to build netC
 |I/O API 32-bit|BIN = Linux2_x86ifort|BIN = Linux2_x86pg_pgcc_nomp|N/A|
 |I/O API 64-bit|BIN = Linux2_x86_64ifort|BIN = Linux2_x86_64pg_pgcc_nomp|BIN = Linux2_x86_64gfort|
 
-</center>
+
 #### config.cmaq
 
 Consistency of configuration variables is critical for building CMAQ itself, not just its libraries. Accordingly CMAQ includes the configuration script `config.cmaq` to help enforce consistent environment settings for CMAQ and its associated libraries [Table 5-4](#Table5-4) lists the `config.cmaq` variables defined for the build process and suggests values to which to set those variables.

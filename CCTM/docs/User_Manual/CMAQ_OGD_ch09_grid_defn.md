@@ -1,7 +1,7 @@
 [<< Previous Chapter](CMAQ_OGD_ch08_input_files.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch10_new_simulation.md)
-***
-9. Defining Grids, Layers, and Chemistry
-==============================================
+* * *
+
+# 9. Defining Grids, Layers, and Chemistry #
 
 This chapter describes how to define new horizontal grids, vertical layers, and chemical mechanisms in CMAQ. These specifications apply to multiple programs in the CMAQ modeling system, including ICON, BCON, JPROC, and CCTM. When configuring new simulations, users must define the location, extent, and structure of the horizontal and vertical grids, and the chemical mechanism for representing pollutant chemical transformations. CMAQ contains several default options for these parameters that can be used as templates for setting up new configurations. Before deciding to create definitions for new grids and mechanisms, check to see whether the existing options are sufficient for your model simulation. If a predefined choice is not appro­priate, then follow the steps described in this section to create a new definition.
 
@@ -32,19 +32,15 @@ Grid conventions are specified (at length) by the [I/O API](https://www.cmascent
 
 <a id=Figure9-1></a>
 
-<center>
 ![Figure 9-1. relating cross and dot grids](./images/CMAQ_IOAPI_dot_and_point_grids.jpeg)
 
-</center>
-
-<br>
 "Cross-point" is often abbreviated *CRO*, as in `GRID_CRO_2D`. "Dot-point" is often abbreviated *DOT*, as in `MET_DOT_3D`. Similarly, the user should be aware of the grid's [projection](https://en.wikipedia.org/wiki/Map_projection) units. Usually meters, except when using [lat-lon coordinate systems](https://en.wikipedia.org/wiki/Geographic_coordinates#Geographic_latitude_and_longitude).
 
 The terms associated with I/O API grid definitions are listed in [Table 9-1](#Table9-1).
 
 <a id=Table9-1></a>
 
-<center> **Table 9-1. I/O API Grid Type Terms** </center>
+ **Table 9-1. I/O API Grid Type Terms** 
 
 |Term|Definition|
 |----|----------|
@@ -105,11 +101,7 @@ The MCIP variables X0 and Y0 set the number of grid cells to "trim" from the WRF
 
 <a id=Figure9-2></a>
 
-<center>
 ![Figure 9-2. BTRIM Example](./images/BTRIM_Example.png)
-
-</center>
-
 
 #### Further information on horizontal grids
 

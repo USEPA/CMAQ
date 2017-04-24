@@ -1,7 +1,7 @@
 [<< Previous Chapter](CMAQ_OGD_ch12_analysis_tools.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_appendix_A.md)
-***
-13. CMAQ Support Resources
-============
+* * *
+
+# 13. CMAQ Support Resources #
 
 Technical and operational user support for CMAQ are available free of charge from the Community Modeling and Analysis System Center ([<http://www.cmascenter.org>](http://www.cmascenter.org/)). The CMAS Center offers an e-mail help desk, and community listservs for posting questions about CMAQ. In addition to these community-based resources, the CMAS Center offers fee-based trainings, and provides a documentation library for CMAQ that includes operational and technical guidance manuals as well as references to primary literature involving CMAQ.
 
@@ -56,9 +56,9 @@ The CMAS Center is available on the web at [<http://www.cmascenter.org>](http://
 
 <a id=Table11-1></a>
 
-<center> **Table 11‑1. CMAS contact information and important links** </center>
+**Table 11‑1. CMAS contact information and important links** 
 
-|<center> **Resource** </center>|<center> **Link** </center>|
+| **Resource**| **Link** |
 |---|---|
 |Main website|[<http://www.cmascenter.org>](http://www.cmascenter.org/)|
 |General Questions|<cmas@unc.edu>|

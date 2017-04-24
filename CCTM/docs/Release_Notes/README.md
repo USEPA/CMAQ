@@ -7,8 +7,8 @@ for information on the technical features of this version.
 The Community Multiscale Air Quality (CMAQ) Model version 5.2 is a major update to CMAQ that includes several changes to the science algorithms in the base model.  CMAQ v5.2 was developed by the U.S. EPA with contributions from other research partners. Summarized below are the main enhancements to the modeling system since the previous release, CMAQ v5.1.
 
 # Base Documentation  
-[Building and running CMAQv5.2](http://www.airqualitymodeling.org/index.php?title=CMAQv5.1_Readme_file)  
-[Building and running WRF-CMAQ Two Way Model](http://www.airqualitymodeling.org/index.php?title=CMAQv5.1_Two-way_model_release_notes)
+[Building and running CMAQv5.2](../User_Manual/CMAQ_OGD_ch05_sys_req.md)  
+[Building and running WRF-CMAQ Two Way Model](Two_Way_Coupled_WRF-CMAQ.md)
 
 -----
 # Summary of CMAQv5.2 Updates
@@ -88,6 +88,7 @@ CCTM can now do process analysis with Integrated Process Rates (IPR) and/or Inte
   * [Distribution of SpecDef files and SpecDef_Dep files into mechanism sub-modules](Misc_Aerosol_Operation_Updates.md)
 
 ## Two-way Coupled WRF-CMAQ
+  * [Building the two-way coupled WRF-CMAQ model](Two_Way_Coupled_WRF-CMAQ.md)
 
 ## Instrumented Models
 The instrumented versions of CMAQv5.2 (e.g. CMAQ-DDM) will be release at a later date.
@@ -97,6 +98,5 @@ None
 
 -----
 # Release Testing
-[we need to get testing going]
 
-The CMAQv5.2 release package was tested with the Portland Group 15.7, Intel 16.0, and GNU Fortran 4.8.1 compilers.  In addition to different serial and parallel configurations, the release was tested under different science configurations. See the details of the [CMAQv5.1 Release Test Results](http://www.airqualitymodeling.org/index.php?title=CMAQv5.1_Readme_file#Testing_Procedures), including run times for different compiler configurations.
+The CMAQv5.2 release package was tested with the Portland Group 15.7, Intel 16.0, and GNU Fortran 4.8.1 compilers.  In addition to different serial and parallel configurations, the release was tested under different science configurations. See the details of the [CMAQv5.2 Release Test Results][https://www.airqualitymodeling.org/index.php/CMAQ_version_5.2beta_(February_2017_release)_Technical_Documentation].
