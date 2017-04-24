@@ -4,20 +4,6 @@
 
 # 7. CMAQ Programs and Libraries #
 
-Contents
-* [Overview](#Overview)
-* [BCON](#bcon)
-* [Calmap](#calmap)
-* [CCTM](#cctm)
-* [CHEMMECH and CSV2NML](#chemmech)
-* [CREATE_EBI](#create_ebi)
-* [ICON](#icon)
-* [INLINE_PHOT_PREPROC](#inline_phot_preproc)
-* [JPROC](#jproc)
-* [MCIP](#mcip)
-
-
-<a id="Overview"></a>
 Overview
 --------
 
@@ -55,7 +41,6 @@ In addition to the core programs shown in [Figure 7‑1](#Figure7-1), the CMAQ d
 
 This chapter provides detailed descriptions of the CMAQ programs and utilities. Information about the third-party libraries used by CMAQ—such as I/O API, netCDF, and MPI are available in [Chapter 6](CMAQ_OGD_ch06_req_lib.md). When viewing the tables that list each program’s input and output files, recall that the various I/O API file formats shown are also described in [Chapter 6](CMAQ_OGD_ch06_req_lib.md).
 
----------
 
 <a id="BCON"></a>
 ## BCON
@@ -74,11 +59,11 @@ CCTM can also be forced with chemical boundary conditions downscaled from global
 
 <a id=Figure7-2></a>
 
-![](./images/Figure7-2.png "Figure7-2.png")<br>
+![](./images/Figure7-2.png "Figure7-2.png")  
 
 **Figure 7‑2. BCON input and output files**
 
-<br>
+
 When BCON is run, it converts a data file of chemical ambient concentrations to BCs on a predefined model grid. Through the specification of the *ModInpt* variable in the BCON run script, BCON will input either an ASCII vertical profile file (BC_PROFILE) or an existing CCTM concentration file (CTM_CONC_1); the choice depends on how the user compiled the model. The BC input file provided by the user must have chemical speciation that is consistent with the mechanism configuration of the BCON executable. For example, if BCON was compiled to create BCs using the CB05 mechanism, the input BC profile data must be in terms of the CB05 mechanism. CMAQ is distributed with ASCII vertical profiles representing clean continental BCs for North America for the following chemical mechanisms: cb05e51_ae6_aq, saprc07tb_ae6_aq and racm2_aq6_aq. It is the user’s responsibility to generate BC inputs for other mechanism configurations.
 
 The horizontal grid and vertical layer structures for BCON are defined at execution through the input of a grid description (GRIDDESC) file and a meteorology cross-point 3‑D (MET_CRO_3D) file, respectively. BCON interpolates between the input vertical layer structure and output layer structure if they are different.
@@ -90,16 +75,16 @@ The horizontal grid and vertical layer structures for BCON are defined at execut
 
 |**File Name**|**Format**|**Description**|
 |---|---|---|
-|BC_PROFILE|ASCII|Vertical chemical profiles from which to derive boundary conditions; this file is created by the user; used only when the BC environment variable is set to “profile”|
-|CTM_CONC_1|GRDDED3|CMAQ concentration file from which to derive boundary conditions; this file is output from CCTM; used only when the BC environment variable is set to “m3conc”|
-|MET_CRO_3D_CRS|GRDDED3|Name and location of the coarse-grid MET_CRO_3D file that is required for creating the vertical grid structure if this structure changes between nested simulations; this file is output by MCIP|
-|MET_CRO_3D_FIN|GRDDED3|Name and location of the fine-grid MET_CRO_3D file that is required if the vertical grid structure changes between nested simulations; this file is output by MCIP|
-|GRIDDESC|ASCII|Horizontal grid description file for defining the model grid; this file is output by MCIP or can be created by the user|
-|LAYER_FILE|GRDDED3|3-D cross-point meteorology (METCRO3D) file for defining the vertical layer structure of the model grid; this file is output by MCIP|
-|gc_matrix.nml|ASCII|Namelist file for defining the gas-phase species that are input to the model through the boundary|
-|ae_matrix.nml|ASCII|Namelist file for defining the aerosol species that are input to the model through the boundary|
-|nr_matrix.nml|ASCII|Namelist file for defining the non-reactive species that are input to the model through the boundary|
-|tr_matrix.nml|ASCII|Namelist file for defining the tracer species that are input to the model through the boundary|
+|`BC_PROFILE`|`ASCII`|Vertical chemical profiles from which to derive boundary conditions; this file is created by the user; used only when the BC environment variable is set to “profile”|
+|`CTM_CONC_1`|`GRDDED3`|CMAQ concentration file from which to derive boundary conditions; this file is output from CCTM; used only when the BC environment variable is set to “m3conc”|
+|`MET_CRO_3D_CRS`|`GRDDED3`|Name and location of the coarse-grid MET_CRO_3D file that is required for creating the vertical grid structure if this structure changes between nested simulations; this file is output by MCIP|
+|`MET_CRO_3D_FIN`|`GRDDED3`|Name and location of the fine-grid `MET_CRO_3D` file that is required if the vertical grid structure changes between nested simulations; this file is output by MCIP|
+|`GRIDDESC`|`ASCII`|Horizontal grid description file for defining the model grid; this file is output by MCIP or can be created by the user|
+|`LAYER_FILE`|`GRDDED3`|3-D cross-point meteorology `METCRO3D` file for defining the vertical layer structure of the model grid; this file is output by MCIP|
+|`gc_matrix.nml`|`ASCII`|Namelist file for defining the gas-phase species that are input to the model through the boundary|
+|`ae_matrix.nml`|`ASCII`|Namelist file for defining the aerosol species that are input to the model through the boundary|
+|`nr_matrix.nml`|`ASCII`|Namelist file for defining the non-reactive species that are input to the model through the boundary|
+|`tr_matrix.nml`|`ASCII`|Namelist file for defining the tracer species that are input to the model through the boundary|
 
 #### BCON output files ####
 
@@ -117,20 +102,20 @@ The default location of the BCON output files is the `$CMAQ_DATA/bcon` directory
 
 The configuration options listed here are set during compilation of the BCON executable. When these options are invoked they create a binary executable that is fixed to the specified configuration. To change these options you must recompile BCON and create a new executable.
 
--   `CopySrc`<br>
+-   `CopySrc`  
     Uncomment to copy the source code into a working build (BLD) directory. If commented, onlhy the compiled object and executable files will be placed in the BLD directory.
 
--   `MakeFileOnly`<br>
+-   `MakeFileOnly`  
     Uncomment to build a Makefile to compile the executable. Comment out to both create a Makefile and compile.
 
--   `ModType: [default: module profile]`<br>
+-   `ModType: [default: module profile]`  
     Defines the format of the boundary conditions input files to be used by BCON.
-    -   `m3conc`: input a CCTM CONC file; used for nested simulations or windows of a parent domain
+    -   `m3conc`: input a `CCTM CONC` file; used for nested simulations or windows of a parent domain
     -   `profile`: input an ASCII vertical profiles file
     -   `tracer`: use the tracer namelist file to create BCs of tagged tracer species
 
 
--  `Mechanism: [default: cb05e51_ae6_aq]`<br>
+-  `Mechanism: [default: cb05e51_ae6_aq]`  
     Specifies the gas-phase, aerosol, and aqueous-phase chemical mechanisms for which to create boundary conditions. The choices for the *Mechanism* variable are the mechanism directory names under the `$CMAQ_HOME/CCTM/src/MECHS` directory. Also see the [Mechanism Definitions Table](../Release_Notes/CMAQv5.2_Mechanisms.md)). Examples include:
     -   `cb6r3_ae6_aq`: CB6, revision 3 gas-phase mechanism, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM Other, aqueous/cloud chemistry
     -   `cb05e51_ae6_aq`: CB05 gas-phase mechanism with CMAQv5.1 updates, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM Other, aqueous/cloud chemistry
@@ -140,7 +125,7 @@ The configuration options listed here are set during compilation of the BCON exe
     -  `racm2_ae6_aq`: RACM2 gas-phase mechanism with toluene updates and sixth-generation CMAQ aerosol mechanism
 
 
--   `Tracer [default trac0] `<br>
+-   `Tracer [default trac0] `  
     Specifies tracer species. Invoking inert tracer species in CMAQ requires defining the tracers using namelist files and compiling the CMAQ programs with these files. The setting for this module corresponds to the directory name in the $CMAQ_HOME/CCTM/src/MECHS directory that contains the namelist files for the tracer configuration. The default setting is to not use any tracers.
     - `trac[n]`
 
@@ -148,64 +133,64 @@ The configuration options listed here are set during compilation of the BCON exe
 
 The environment variables listed here are invoked during execution of the program and are set in the BCON run script.
 
--   `APPL [default: None]`<br>
+-   `APPL [default: None]`  
     BCON executable identifier. Must match APPL Variable setting in the BCON build script.
 
--   `CFG [default: None]`<br>
+-   `CFG [default: None]`  
     Configuration identifier for the BCON simulation.
 
--   `MECH [default: None]`<br>
+-   `MECH [default: None]`  
     CMAQ chemical mechanism. Must match Mechanism variable setting in the BCON build script.
 
--   `EXEC: [default: BCON_${APPL}_${EXECID}]`<br>
+-   `EXEC: [default: BCON_${APPL}_${EXECID}]`  
     Executable to use for the simulation. The variable CFG is set in the BCON run script. The variable EXECID is set in the config.cmaq configuration file.
 
--   `GRIDDESC: [default: $CMAQ_HOME/scripts/GRIDDESC1]`<br>
+-   `GRIDDESC: [default: $CMAQ_HOME/scripts/GRIDDESC1]`  
     Grid description file for setting the horizontal grid definition.
 
--   `GRID_NAME: [default:CMAQ-BENCHMARK]`<br>
+-   `GRID_NAME: [default:CMAQ-BENCHMARK]`  
     Name of the grid definition contained in the GRIDDESC file that specifies the horizontal grid for the current application of the model.
 
--   `IOAPI_ISPH: [default: 20]`<br>
+-   `IOAPI_ISPH: [default: 20]`  
     I/O API setting for spheroid type. See I/O API documentation for [setsphere](https://www.cmascenter.org/ioapi/documentation/3.1/html/SETSPHERE.html) for more information.
 
--   `IOAPI_OFFSET_64: [default: NO]`<br>
+-   `IOAPI_OFFSET_64: [default: NO]`  
     I/O API setting for large time-step records. If your output time step is going to produce data that are >2GB per time step, then this needs to be set to YES.
 
--   `LAYER_FILE:[default: none]`<br>
+-   `LAYER_FILE:[default: none]`  
     Name and location of a MET_CRO_3D file for specifying the vertical layer structure for the current application of the model.
 
--   `gc_matrix.nml: [default: none]`<br>
+-   `gc_matrix.nml: [default: none]`  
     Gas-phase species namelist file. This file is used to configure the gas-phase species that will be output by BCON.
 
--   `ae_matrix.nml: [default: none]`<br>
+-   `ae_matrix.nml: [default: none]`  
     Aerosol-phase species namelist file. This file is used to configure the aerosol-phase species that will be output by BCON
 
--   `nr_matrix.nml: [default: none]`<br>
+-   `nr_matrix.nml: [default: none]`  
     Nonreactive species namelist file. This file is used to configure the nonreactive species that will be output by BCON
 
--   `tr_matrix.nml: [default: none]`<br>
+-   `tr_matrix.nml: [default: none]`  
     Tracer species namelist file. This file is used to configure the tracer species that will be output by BCON
 
 -   `OUTDIR: [default: $CMAQ_HOME/data/bcon]`
     Output data directory.
 
--   `BC:`<br>
+-   `BC:`  
     Sets the input file type. The setting of this variable determines how the run script sets the input and output environment variables.
     -   `profile`: sets the output file name to include the tag “profile” in the name; uses the variable BC_PROFILE to point to an ASCII vertical profile file for input to BCON.
-    -   `m3conc`: used for nested simulations; sets the output file name to include a start date in the name; uses the variable CTM_CONC_1 to point to a CCTM CONC file for input to BCON.
+    -   `m3conc`: used for nested simulations; sets the output file name to include a start date in the name; uses the variable `CTM_CONC_1` to point to a CCTM CONC file for input to BCON.
 
 
--   `DATE:`<br>
+-   `DATE:`  
     Sets the Julian date to use in naming the BCON output file for nested runs.
 
--   `SDATE:[default: ${DATE}]`<br>
+-   `SDATE:[default: ${DATE}]`  
     Julian start date for extracting boundary conditions from a CCTM CONC file for a nested simulation. If SDATE is not set, it will be set automatically from the CTM_CONC_1 file.
 
--   `STIME: [default: 000000 ]`<br>
+-   `STIME: [default: 000000 ]`  
     Start time for extracting boundary conditions from a CCTM CONC file for a nested simulation. If STIME is not set, it will be set automatically from the CTM_CONC_1 file.
 
--   `RUNLEN: [default: 240000]`<br>
+-   `RUNLEN: [default: 240000]`  
     Number of hours of boundary conditions to extract from a CCTM CONC file for a nested simulation. If RUNLEN is not set, it will be set automatically from the CTM_CONC_1 file.
 
 ### Compiling and Running ###
@@ -219,19 +204,23 @@ The environment variables listed here are invoked during execution of the progra
 -   Configure the BCON build script for your application by setting the compilation configuration variables described above.
 -   Invoke the build script to create an executable:
 
-`cd $CMAQ_HOME/PREP/bcon/scripts/`<br>
-`./bldit.bcon |& tee build.bcon.log`
+```
+cd $CMAQ_HOME/PREP/bcon/scripts/
+./bldit.bcon |& tee build.bcon.log
+```
 
 #### Run BCON ####
 
 Set the run script settings according to the execution configuration variables described above. Run BCON to produce boundary conditions for the CCTM:
 
-`cd $CMAQ_HOME/PREP/BCON`<br>
-`./run.bcon |& tee bcon.log`
+```
+cd $CMAQ_HOME/PREP/BCON
+./run.bcon |& tee bcon.log
+```
 
 ---------
 
-<a id="Calmap"></a>
+<a id=Calmap></a>
 ## Calmap
 
 ### Description
@@ -296,9 +285,11 @@ Directory path and names of Calmap output files. The CROPMAP01, CROPMAP04, and C
 
 Calmap is compiled with a Makefile. The configuration options in the Makefile include only the compiler and compiler flags to use for building the executable. The Makefile is located in the directory with the Calmap source code (`$CMAQ_HOME/PREP/agdust/src`). To compile Calmap, source the config.cmaq file and invoke the Makefile at the command line:
 
-`cd $CMAQ_HOME/PREP/agdust/src/`<br>
-`source $CMAQ_HOME/config.cmaq`<br>
-`./make |& tee make.calmap.log`
+```
+cd $CMAQ_HOME/PREP/agdust/src/
+source $CMAQ_HOME/config.cmaq
+./make |& tee make.calmap.log
+```
 
 To port Calmap to different compilers, change the compiler names, locations, and flags in the config.cmaq script.
 
@@ -307,13 +298,14 @@ To port Calmap to different compilers, change the compiler names, locations, and
 
 Set the run script settings according to the execution configuration variables described above. Run Calmap to produce crop calendar input for the CCTM inline windblown dust model:
 
-`cd $CMAQ_HOME/PREP/agdust`<br>
-`./run.calmap |& tee run.calmap.log`
-
+```
+cd $CMAQ_HOME/PREP/agdust
+./run.calmap |& tee run.calmap.log
+```
 
 --------
 
-<a id="CCTM"></a>
+<a id=CCTM></a>
 ## CCTM
 
 ### Description
@@ -416,28 +408,28 @@ Both in-line emissions and photolysis are invoked through compile-time configura
 
 |File Name|Format|Description|
 |---------|------|-----------|
-|CTM_SSEMIS_1|GRDDED3|Hourly 2-D sea salt emissions; set the variable CTM_SSEMDIAG to “Y” in the CCTM to run script to write this file|
-|CTM_WET_DEP_2|GRDDED3|Name and location of hourly 2-D cloud diagnostics file; set the variable CLD_DIAG to “Y” in the CCTM run script to write this file|
-|CTM_DEPV_DIAG|GRDDED3|Hourly 2-D in-line deposition diagnostics file; output when in-line deposition is activated by setting CTM_ILDEPV to “Y” and the variable CTM_DEPV_FILE is set to “T” or “Y” in the CCTM run script|
-|CTM_IPR\__[1-3]|GRDDED3|Hourly 2-D or 3-D integrated process rate (IPR) files; multiple files written when CCTM is configured to run with IPR|
-|CTM_IRR\__[1-3]|GRDDED3|Hourly 2-D or 3-D integrated reaction rate (IRR) files; multiple files written when CCTM is configured to run with IRR|
-|CTM_RJ\__[1-2]|GRDDED3|Hourly photolysis diagnostic output file; multiple files written when there are a large number of photolytic reactions in a chemical mechanism; set the variable CTM_PHOTDIAG to “Y” in the CCTM run script to write this file|
-|B3GTS_S|GRDDED3|Hourly biogenic emissions file; output when in-line biogenic emissions processing is activated by setting CTM_BIOGEMIS to “Y” and the variable B3GTS_DIAG is set to “Y” in the CCTM run script|
-|SOILOUT|GRDDED3|Hourly soil NO emissions file; output when in-line biogenic emissions processing is activated by setting CTM_BIOGEMIS to “Y”|
-|CTM_DUST_EMIS_1|GRDDED3|Hourly 2-D dust emissions file; output when the CCTM dust module is activated by setting CTM_WB_DUST to “Y” and the variable CTM_DUSTEM_DIAG is set to “Y” in the CCTM run script|
-|LTNGOUT1|GRDDED3|Hourly average 3-D lighting NO emissions file; output when the CCTM lightning module is activated by setting CTM_LTNG_NO to “Y” and the variable LTNGDIAG is set to “Y” in the CCTM run script|
-|LTNGOUT2|GRDDED3|Hourly column toal NO lighting emissions file; output when the CCTM lightning module is activated by setting CTM_LTNG_NO to “Y” and the variable LTNGDIAG is set to “Y” in the CCTM run script|
-|CTM_PT3D_DIAG|GRDDED3|Hourly 3-D point-source emissions file; output when in-line emissions processing is activated by setting CTM_PT3DEMIS to “Y” and the variable PT3DDIAG is set to “Y” in the CCTM run script|
-|PLAY_SRCID_NAME|GRDDED3|Hourly 3-D layer fractions file; output when in-line emissions processing is activated by setting CTM_PT3DEMIS to “Y” and the variable PT3DFRAC is set to “Y” in the CCTM run script|
-|CTM_DRY_DEP_MOS|GRDDED3||
-|CTM_DRY_DEP_FST|GRDDED3||
-|MEDIA_CONC|GRDDED3|Hourly mercury deposition output file; output when bidirectional mercury flux is activated by setting the variable CTM_HGBIDI to “Y” in the CCTM run script|
-|CTM_VDIFF_DIAG|GRDDED3|Hourly vertical diffusion diagnostic data; activate by setting the variable VDFF_DIAG_FILE to "Y" in the CCTM run script|
-|CTM_VSED_DIAG|GRDDED3|Hourly gravitational settling diagnostic data; activate by setting the variable VDFF_DIAG_FILE to "Y" in the CCTM run script|
-|CTM_AOD_1|GRDDED3|Hourly aerosol optical depth estimates; activate by setting the variable CTM_AOD to "Y" in the CCTM run script|
-|CTM_AVIS_1|GRDDED3|Hourly-averaged 3-D visibility metrics; set the variable CTM_AVISDIAG to “Y” in the CCTM run script to write this file|
-|CTM_PMDIAG_1|GRDDED3|Hourly instantaneous 3-D aerosol diagnostics for conditions at the top of the hour; dp and sigmas for Aitken and accumulation mode aerosol species; set the variable CTM_PMDIAG to “Y” in the CCTM run script to write this file|
-|CTM_APMDIAG_1|GRDDED3|Hourly average 3-D aerosol diagnostics; dp and sigmas for Aitken and accumulation mode aerosol species; set the variable CTM_APMDIAG to “Y” in the CCTM run script to write this file|
+|`CTM_SSEMIS_1`|`GRDDED3`|Hourly 2-D sea salt emissions; set the variable `CTM_SSEMDIAG` to “Y” in the CCTM to run script to write this file|
+|`CTM_WET_DEP_2`|`GRDDED3`|Name and location of hourly 2-D cloud diagnostics file; set the variable `CLD_DIAG` to “Y” in the CCTM run script to write this file|
+|`CTM_DEPV_DIAG`|`GRDDED3`|Hourly 2-D in-line deposition diagnostics file; output when in-line deposition is activated by setting `CTM_ILDEPV` to “Y” and the variable `CTM_DEPV_FILE` is set to “T” or “Y” in the CCTM run script|
+|`CTM_IPR__[1-3]`|`GRDDED3`|Hourly 2-D or 3-D integrated process rate (IPR) files; multiple files written when CCTM is configured to run with IPR|
+|`CTM_IRR__[1-3]`|`GRDDED3`|Hourly 2-D or 3-D integrated reaction rate (IRR) files; multiple files written when CCTM is configured to run with IRR|
+|`CTM_RJ__[1-2]`|`GRDDED3`|Hourly photolysis diagnostic output file; multiple files written when there are a large number of photolytic reactions in a chemical mechanism; set the variable `CTM_PHOTDIAG` to “Y” in the CCTM run script to write this file|
+|`B3GTS_S`|`GRDDED3`|Hourly biogenic emissions file; output when in-line biogenic emissions processing is activated by setting `CTM_BIOGEMIS` to “Y” and the variable B3GTS_DIAG is set to “Y” in the CCTM run script|
+|`SOILOUT`|`GRDDED3`|Hourly soil NO emissions file; output when in-line biogenic emissions processing is activated by setting `CTM_BIOGEMIS` to “Y”|
+|`CTM_DUST_EMIS_1`|`GRDDED3`|Hourly 2-D dust emissions file; output when the CCTM dust module is activated by setting `CTM_WB_DUST` to “Y” and the variable `CTM_DUSTEM_DIAG` is set to “Y” in the CCTM run script|
+|`LTNGOUT1`|`GRDDED3`|Hourly average 3-D lighting NO emissions file; output when the CCTM lightning module is activated by setting `CTM_LTNG_NO` to “Y” and the variable `LTNGDIAG` is set to “Y” in the CCTM run script|
+|`LTNGOUT2`|`GRDDED3`|Hourly column total NO lighting emissions file; output when the CCTM lightning module is activated by setting `CTM_LTNG_NO` to “Y” and the variable `LTNGDIAG` is set to “Y” in the CCTM run script|
+|`CTM_PT3D_DIAG`|`GRDDED3`|Hourly 3-D point-source emissions file; output when in-line emissions processing is activated by setting `CTM_PT3DEMIS` to “Y” and the variable `PT3DDIAG` is set to “Y” in the CCTM run script|
+|`PLAY_SRCID_NAME`|`GRDDED3`|Hourly 3-D layer fractions file; output when in-line emissions processing is activated by setting `CTM_PT3DEMIS` to “Y” and the variable `PT3DFRAC` is set to “Y” in the CCTM run script|
+|`CTM_DRY_DEP_MOS`|`GRDDED3`||
+|`CTM_DRY_DEP_FST`|`GRDDED3`||
+|`MEDIA_CONC`|`GRDDED3`|Hourly mercury deposition output file; output when bidirectional mercury flux is activated by setting the variable CTM_HGBIDI to “Y” in the CCTM run script|
+|`CTM_VDIFF_DIAG`|`GRDDED3`|Hourly vertical diffusion diagnostic data; activate by setting the variable `VDFF_DIAG_FILE` to "Y" in the CCTM run script|
+|`CTM_VSED_DIAG`|`GRDDED3`|Hourly gravitational settling diagnostic data; activate by setting the variable `VDFF_DIAG_FILE` to "Y" in the CCTM run script|
+|`CTM_AOD_1`|`GRDDED3`|Hourly aerosol optical depth estimates; activate by setting the variable `CTM_AOD` to "Y" in the CCTM run script|
+|`CTM_AVIS_1`|`GRDDED3`|Hourly-averaged 3-D visibility metrics; set the variable `CTM_AVISDIAG` to “Y” in the CCTM run script to write this file|
+|`CTM_PMDIAG_1`|`GRDDED3`|Hourly instantaneous 3-D aerosol diagnostics for conditions at the top of the hour; dp and sigmas for Aitken and accumulation mode aerosol species; set the variable `CTM_PMDIAG` to “Y” in the CCTM run script to write this file|
+|`CTM_APMDIAG_1`|`GRDDED3`|Hourly average 3-D aerosol diagnostics; dp and sigmas for Aitken and accumulation mode aerosol species; set the variable `CTM_APMDIAG` to “Y” in the CCTM run script to write this file|
 
 The default location of the CCTM output files is the `$CMAQ_HOME/data/cctm` directory, controlled by the `OUTDIR` variable in the run script. The default naming convention for all CCTM output files uses the `EXEC` and `APPL` environment variables in the file name. All of the variables for naming the CCTM outputs are set in the run script.
 
@@ -494,8 +486,6 @@ The following configuration settings may have multiple options. Select one optio
     -  `couple/gencoor`<br>
     Coupling scheme compatible with the Yamartino advection scheme; select this option when ModDriver is set to *ctm_yamo*.
 
-<!-- -   `ModAdjc: [default: // Yamartino option]`
-    Mass conservation error adjustment scheme. Corrects for mass inconsistencies arising from how the input meteorology treats density and wind fields. This adjustment is required only if the air-density-based scheme for mass-conserving advection is selected. Not used in CMAQv5 because the Yamartino advection scheme is mass conserving. -->
 
 -    `ModHadv: [default: hadv/yamo]`<br>
       Horizontal advection module.  Currently only the Yamartino global mass-conserving hoizontal advection scheme is supported.
@@ -519,14 +509,14 @@ The following configuration settings may have multiple options. Select one optio
     Vertical diffusion and surface exchange module. Do not change this module setting.
     -   `vdiff/acm2`<br>
     calculate vertical diffusion using the Asymmetric Convective Model version 2 (ACM2)
-    <!-- -   *acm2_mp*: use ACM2 vertical diffusion instrumented for multipollutant modeling -->
+
 
 
 -   `ModDepv: [default: depv/m3dry]`<br>
     Deposition velocity calculation module. Do not change this module setting.
     -   `depv/m3dry`<br>
     CMAQ dry deposition velocity routine
-    <!-- -   *m3dry_mp*: CMAQ dry deposition velocity routine instrumented for multipollutant modeling -->
+
 
 
 -   `ModEmis: [default: emis/emis]`<br>
@@ -564,7 +554,7 @@ Calculate in-line plume rise for large point sources using the Briggs algorithm 
 
 
 -   `Tracer [default trac0] `<br>
-    Specifies tracer species. Invoking inert tracer species in CMAQ requires defining the tracers using namelist files and compiling the CMAQ programs with these files. The setting for this module corresponds to the directory name in the $CMAQ_HOME/CCTM/src/MECHS directory that contains the namelist files for the tracer configuration. The default setting is to not use any tracers.
+    Specifies tracer species. Invoking inert tracer species in CMAQ requires defining the tracers using namelist files and compiling the CMAQ programs with these files. The setting for this module corresponds to the directory name in the ``$CMAQ_HOME/CCTM/src/MECHS` directory that contains the namelist files for the tracer configuration. The default setting is to not use any tracers.
     - `trac[n]`
 
 
@@ -580,15 +570,15 @@ Calculate in-line plume rise for large point sources using the Briggs algorithm 
 
 -   `ModAero: [default: aero6]`<br>
     CMAQ aerosol module.
-    <!-- -   *aero5*: fifth-generation modal CMAQ aerosol model with extensions for sea salt emissions and thermodynamics; includes a new formulation for secondary organic aerosol yields -->
+
     -   `aero6`<br>
     sixth-generation modal CMAQ aerosol model with extensions for sea salt emissions and thermodynamics; includes a new formulation for secondary organic aerosol yields
-    <!-- -   *aero6_mp*: sixth-generation CMAQ aerosol model including air toxics; this is the multipollutant mechanism in CMAQv5 (prior to CMAQv5.2) -->
+
 
 
 -   `ModCloud: [default: cloud/acm_ae6]`<br>
     CMAQ cloud module for modeling the impacts of clouds on deposition, mixing, photolysis, and aqueous chemistry.
-    <!-- -   *cloud_acm_ae5*: ACM cloud processor that uses the ACM methodology to compute convective mixing with heterogeneous chemistry for AERO5 -->
+
     -   `cloud/acm_ae6`<br>
     ACM cloud processor that uses the ACM methodology to compute convective mixing with heterogeneous chemistry for AERO6
     -   `cloud/acm_ae6_mp`<br>
@@ -596,7 +586,7 @@ Calculate in-line plume rise for large point sources using the Briggs algorithm 
     -   `cloud/acm_ae6_kmt`<br>
     ACM cloud processor that uses the ACM methodology to compute convective mixing with heterogeneous chemistry for AERO6 and aqueous chemistry with kinetic mass transfer and Rosenbrock solver
     -   `cloud/acm_ae6i_kmti`<br>
-    ACM cloud processor that uses the ACM methodology to compute convective mixing with heterogeneous chemistry for AERO6 and aqueous chemistry with kinetic mass transfer and Rosenbrock solver with an extension to simulate the aqueous phase formation of SOA in cloud droplets (see: [CMAQv5.1 Aqueous Chemistry](https://www.airqualitymodeling.org/index.php/CMAQv5.1_Aqueous_Chemistry))
+    ACM cloud processor that uses the ACM methodology to compute convective mixing with heterogeneous chemistry for AERO6 and aqueous chemistry with kinetic mass transfer and Rosenbrock solver with an extension to simulate the aqueous phase formation of SOA in cloud droplets, see: [CMAQv5.1 Aqueous Chemistry](https://www.airqualitymodeling.org/index.php/CMAQv5.1_Aqueous_Chemistry)
 
 
 -   `ModUtil: [default: util]`<br>
@@ -607,9 +597,6 @@ Calculate in-line plume rise for large point sources using the Briggs algorithm 
 -   `ModPvO3: [default: pv_o3]`
     Potential vorticity parameterization for free-troposphere exhange of ozone. This option is configured using the potvorO3 variable in the CCTM build script. Do not change this module setting.
     - `pv_o3`
-
-<!-- -   `PABase = $GlobInc`
-    Specifies the base directory location of the process analysis INCLUDE files to use when compiling CCTM. -->
 
 -   `ModPa: [default: procan/pa]`<br>
     Process analsis is controlled in the CCTM run script. Do not change this module setting.
@@ -973,19 +960,23 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   Configure the CCTM build script for your application by setting the compilation configuration variables described above.
 -   Invoke the build script to create an executable:
 
-`cd $CMAQ_HOME/CCTM/scripts`<br>
-`./bldit.cctm |& tee build.cctm.log`
+```
+cd $CMAQ_HOME/CCTM/scripts
+./bldit.cctm |& tee build.cctm.log
+```
 
 #### Run CCTM ####
 
 Set the run script settings according to the execution configuration variables described above. Run CCTM using the following command:
 
-`cd $CMAQ_HOME/CCTM/scripts`<br>
-`./run.cctm |& tee run.cctm.log`
+```
+cd $CMAQ_HOME/CCTM/scripts
+./run.cctm |& tee run.cctm.log
+```
 
 --------
 
-<a id="CHEMMECH"></a>
+<a id=CHEMMECH></a>
 ## CHEMMECH and CSV2NML
 
 ### Description
@@ -1104,8 +1095,10 @@ The environment variables listed here are invoked at run time and are set in the
 
 To compile CHEMMECH, run the build script:
 
-`cd $CMAQ_HOME/UTIL/chemmech/scripts`<br>
-`./bldit.chemmech |& tee build.chemmech.log`
+```
+cd $CMAQ_HOME/UTIL/chemmech/scripts
+./bldit.chemmech |& tee build.chemmech.log
+```
 
 To port CHEMMECH to different compilers, change the compiler names, locations, and flags in the config.cmaq script.
 
@@ -1131,7 +1124,7 @@ There is also a script to convert an existing namelist file to a CSV
 
 --------
 
-<a id="CREATE_EBI"></a>
+<a id=CREATE_EBI></a>
 ## CREATE_EBI
 
 ### Description
@@ -1316,8 +1309,10 @@ The environment variables listed here are invoked at run time and are set in the
 
 To compile CREATE_EBI, invoke the build file at the command line:
 
-`cd $CMAQ_HOME/UTIL/create_ebi/scripts`<br>
-`./bldit.create_ebi |& tee build.create_ebi.log`
+```
+cd $CMAQ_HOME/UTIL/create_ebi/scripts
+./bldit.create_ebi |& tee build.create_ebi.log
+```
 
 To port CREATE_EBI to different compilers, change the `COMPILER` variable in the bldit script.
 
@@ -1325,9 +1320,10 @@ To port CREATE_EBI to different compilers, change the `COMPILER` variable in the
 
 Set the run script settings according to the execution configuration variables described above. Run CREATE_EBI using the following command:
 
-`cd $CMAQ_HOME/UTIL/create_ebi/scripts`<br>
-`./run.create_ebi |& tee run.create_ebi.log`
-
+```
+cd $CMAQ_HOME/UTIL/create_ebi/scripts
+./run.create_ebi |& tee run.create_ebi.log
+```
 
 ---------
 
@@ -1493,19 +1489,23 @@ The environment variables listed here are invoked during execution of the progra
 -   Configure the ICON build script for your application by setting the compilation configuration variables described above.
 -   Invoke the build script to create an executable:
 
-`cd $CMAQ_HOME/PREP/icon/scripts/`<br>
-`./bldit.icon |& tee build.icon.log`
+```
+cd $CMAQ_HOME/PREP/icon/scripts
+./bldit.icon |& tee build.icon.log
+```
 
 #### Run ICON ####
 
 Set the run script settings according to the execution configuration variables described above. Run ICON to produce initial conditions for the CCTM:
 
-`cd $CMAQ_HOME/PREP/icon/scripts`<br>
-`./run.icon |& tee icon.log`
+```
+cd $CMAQ_HOME/PREP/icon/scripts
+./run.icon |& tee icon.log
+```
 
 --------
 
-<a id="INLINE_PHOT"></a>
+<a id=INLINE_PHOT></a>
 ## INLINE_PHOT_PREPROC
 
 ### Description
@@ -1598,8 +1598,10 @@ The environment variables listed here are invoked at run time and are set in the
 
 To compile CREATE_EBI, invoke the build file at the command line:
 
-`cd $CMAQ_HOME/UTIL/create_ebi/scripts`<br>
-`./bldit.create_ebi |& tee build.create_ebi.log`
+```
+cd $CMAQ_HOME/UTIL/create_ebi/scripts
+./bldit.create_ebi |& tee build.create_ebi.log`
+```
 
 To port CREATE_EBI to different compilers, change the `COMPILER` variable in the bldit script.
 
@@ -1607,13 +1609,14 @@ To port CREATE_EBI to different compilers, change the `COMPILER` variable in the
 
 Set the run script settings according to the execution configuration variables described above. Run CREATE_EBI using the following command:
 
-`cd $CMAQ_HOME/UTIL/create_ebi/scripts`<br>
-`./run.create_ebi |& tee run.create_ebi.log`
-
+```
+cd $CMAQ_HOME/UTIL/create_ebi/scripts
+./run.create_ebi |& tee run.create_ebi.log
+```
 
 --------
 
-<a id="JPROC"></a>
+<a id=JPROC></a>
 ## JPROC
 
 ### Description
@@ -1730,167 +1733,7 @@ Set the run script settings according to the execution configuration variables d
 
 --------
 
-<!-- -
-<a id="LTNG_2D_DATA"></a>
-LTNG_2D_DATA
-
-### Description
-
-Lightning is the largest source of nitrogen in the upper troposphere. NO<sub>x</sub> produced by lightning influences ambient nitrogen concentrations and wet deposition of total nitrates within the boundary layer. To simulate the impacts of lightning NO<sub>x</sub> emissions on ambient gas and particle concentrations and on deposition, CMAQv5 is instrumented with a lightning NO<sub>x</sub> module. CCTM can either read in an input file of lightning NO<sub>x</sub> emissions that were calculated off-line or it can compute lightning NO emissions in-line during a simulation. The in-line emissions can be calculated either directly from lightning flash counts estimated from the convective precipitation field in the input meteorology or by using a combination of observed flash counts and simulated convective precipitation. The former approach is recommended for hemispheric-scale simulations or when no flash count data are available, while the latter approach is recommended for all simulations at less than 50-km horizontal grid resolutions. The [National Lightning Detection Network](http://gcmd.nasa.gov/records/GCMD_NLDN.html) (NLDN) is a source of flash count data for North America.
-
-This section describes how to prepare input parameter files for calculating lightning NO<sub>x</sub> emissions in-line in CCTM. If off-line lightning NO<sub>x</sub> emissions are preferred, it is the responsibility of the user to prepare a 4-D (row x col x layer x hour) I/O API netCDF file of lightning NO emissions with units of moles/s.
-
-The program LTNG_2D_DATA prepares the input parameter file for estimating lightning NO emissions in-line with CCTM. The statistical package [R](http://en.wikipedia.org/wiki/R_%28software%29) is used as a preprocessor to LTNG_2D_DATA to prepare two input files to the program:
-
--   a land/ocean mask file
--   a file with ratios of intercloud to cloud-to-ground flashes
-
-LTNG_2D_DATA reads those input files, plus
-
--   A [MET_CRO_2D](#MET_CRO_2D:_Two-dimensional_meteorological_cross-point_fields) file from MCIP
--   An I/O API netCDF file of monthly flash densities gridded to your modeling domain. 12-km continental U.S. monthly flash densities are available from the [CMAS Data Clearinghouse](https://www.cmascenter.org/download/data/nldn.cfm).
--   If those are not available, the program NLDN_2D (packaged with LTNG_2D_DATA) can produce them from raw hourly flash counts from the [NLDN](http://gcmd.nasa.gov/records/GCMD_NLDN.html).
-
-LTNG_2D_DATA outputs [a parameters file](#LTNG_2D_DATA_output_files).
-
-[Figure 7-8](#Figure7-8) shows the input and output files for LTNG_2D_DATA. The preprocessor Fortran program NLDN_2D inputs a text file of NLDN flash count data and a MET_CRO_2D file and outputs an I/O API netCDF file for input to LTNG_2D_DATA. The R batch script ocean_mask.R reads a MET_CRO_2D file to create an ocean mask CSV file on the modeling grid. The R batch script iccg.R reads a MET_CRO_2D file and a flash ratio text file and outputs a CSV-formatted flash ratio file on the modeling grid. The outputs of these processes are used by LTNG_2D_DATA, along with a MET_CRO_2D file, to produce a lightning NO<sub>x</sub> parameters file for input to CCTM. The MET_CRO_2D file must be consistent across all of the programs associated with LTNG_2D_DATA.
-
-<a id=Figure7-8></a>
-
-<center>
-![](./images/Figure7-8.png "Figure7-8.png")
-
-</center>
-<center>
-**Figure 7‑8. LTNG_2D_DATA input and output files**
-
-</center>
-### LTNG_2D_DATA input files
-
-<a id=Table7-17></a>
-
-<center>**Table 7‑17. LTNG_2D_DATA input files**</center>
-
-|**File Name**|**Format**|**Description**|
-|---|---|---|
-|NLDNFILE|GRDDED3|NLDN monthly flash totals, aka monthly average strike density; contains the variable, NLDNstrk, that is the number of flashes per month in each grid cell|
-|OCEANMASK|CSV|Ocean mask file; 1 = land, 0 = open ocean. Can be built by `ocean_mask.R` from [MET_CRO_2D](#MET_CRO_2D:_Two-dimensional_meteorological_cross-point_fields)|
-|ICCG|CSV|Intercloud to cloud-to-ground ratios by model grid cell. Example ICCG files are in the [CMAQ distribution](#Installing_CMAQ_on_your_system) @ `$CMAQ_HOME/data/lightning/input/`|
-|METFILE|GRDDED3|MET_CRO_2D file from MCIP; must include convective precipitation (RC) and cloud-top variables (CLDT)|
-
-Example LTNG_2D_DATA inputs for North America can be found at the [CMAS Data Clearinghouse](https://www.cmascenter.org/download/data/nldn.cfm): the NLDN monthly flash total files there are named `NLDN.$YYYY.$MM.ioapi`. To rebuild them,
-
-1.  Obtain raw hourly flash counts from the [NLDN](http://gcmd.nasa.gov/records/GCMD_NLDN.html)
-2.  [Install CMAQ](#Installing_CMAQ_on_your_system)
-3.  Follow the directions in `$CMAQ_HOME/PREP/ltng/docs/README`
-    1.  Build `NLDN_2D` using `$CMAQ_HOME/PREP/ltng/src/Makefile.NLDN_2D`
-    2.  Run `$CMAQ_HOME/PREP/ltng/scripts/run.NLDN_2D.csh`
-    3.  Copy the resulting output to `$CMAQ_HOME/data/lightning/flash_data/monthly_flash_density/`
-
-### LTNG_2D_DATA compilation options
-
-All model configuration options for LTNG_2D_DATA and NLDN_2D are set during execution. System compiler options must be set in the provided Linux Makefile to build the program for different operating system/compiler combinations. Example compiler paths, flags, and library locations are provided in the default. The R scripts ocean_mask.R and iccg.R require that the netCDF and RGDAL packages be compiled and linked in with your R installation.
-
-### LTNG_2D_DATA execution options
-
-The environment variables listed here are invoked during execution of the program and are set in the LTNG_2D_DATA run script.
-
--   `CREATE_OCEANMASK: [default: Y]`<br>
-    Setting to run the R script that generates the ocean mask file for the modeling domain. This time-independent file needs to be generated only once per modeling domain.
-
--   `CREATE_FLASHRATIOS: [default: Y]`<br>
-    Setting to run the R script that generates the flash ratios file for the modeling domain. This time-independent file needs to be generated only once per modeling domain.
-
--   `CREATE_NLDN2DDATA: [default: Y]`<br>
-    Setting to run the LTNG_2D_DATA program to prepare a monthly lightning NO<sub>x</sub> file for input to CCTM.
-
--   `CREATE_PLOTS: [default: Y]`<br>
-    Setting to run the R script that generates plots of the lightning NO<sub>x</sub> variables in the LTNG_2D_DATA output file.
-
--   `BASE: [default: $cwd]`<br>
-    Base directory for the LTNG_2D_DATA installation.
-
--   `RScript: [default: $BASE/R-scripts]`<br>
-    Base directory for the installation of the R scripts used to support LTNG_2D_DATA.
-
--   `OUTDIR: [default: $CMAQ_HOME/data/lightning]`<br>
-    Directory for the LTNG_2D_DATA output files.
-
--   `months: [example: 06]`<br>
-    Array of months (##) for which to create flash count data.
-
--   `year: [example: 2006]`<br>
-    Year (####) for which to create flash count data.
-
--   `METFILE: [default: none]`<br>
-    Meteorology data file containing hourly convective precipitation (RC) and cloud-top (CLDT) variables. This file can be either the MCIP output file MET_CRO_2D or an extraction of this file that contains only those two variables.
-
--   `OCEANMASKIMG: [default: $BASE/R-out/ocean_mask.png]`<br>
-    Ocean mask image file. Produced only if CREATE_OCEANMASK = Y.
-
--   `OCEANMASKFILE: [default: $BASE/R-out/ocean_mask.csv]`<br>
-    Ocean mask file for input to LTNG_2D_DATA. Produced only if CREATE_OCEANMASK = Y.
-
--   `ICCGIN: [default: $BASE/input/iccg.Boccippio.summer.txt]`<br>
-    Seasonal (summer/winter) intercloud to cloud-to-ground ratio file. Needed only if CREATE_FLASHRATIOS = Y.
-
--   `ICCG: [default: $BASE/R-out/iccg.interpolate.csv]`<br>
-    Intercloud to cloud-to-ground ratio file for input to LTNG_2D_DATA. Produced only if CREATE_FLASHRATIOS = Y.
-
--   `ICCGIMG: [default: $BASE/R-out/iccg.png]`<br>
-    Intercloud to cloud-ground ratios image file. Produced only if CREATE_FLASHRATIOS = Y.
-
--   `NLDNFILE: [default: none]`<br>
-    Monthly flash density file output from the program NLDN_2D gridded to the same modeling domain as METFILE. Needed only if CREATE_NLDN2DDDATA = Y.
-
--   `STRIKE_FACTOR: [default: 147.0]`<br>
-    Needed only if CREATE_NLDN2DDDATA = Y
-
--   `MOLES_N_CG: [default: 500.0]`<br>
-    Moles of nitrogen per cloud-to-ground flash. Needed only if CREATE_NLDN2DDDATA = Y
-
--   `MOLES_N_IC: [default: 500.0]`<br>
-    Moles of nitrogen per intercloud flash. Needed only if CREATE_NLDN2DDDATA = Y
-
--   `OUTFILE: [default: $OUTDIR/LTNG_RATIO.$year.$month.ioapi]`<br>
-    Lightning NO<sub>x</sub> parameters output from the program LTNG_2D_DATA. Produced only if CREATE_NLDN2DDATA = Y.
-
--   `PLOTNOx: [default: $BASE/R-out/plot_LNOx_params.pdf]`<br>
-    Lightning NO<sub>x</sub> parameters image file. Produced only if CREATE_NLDN2DDATA = Y and CREATE_PLOTS = Y.
-
-### LTNG_2D_DATA output files
-
-<a id=Table7-18></a>
-<center>**Table 7‑18. LTNG_2D_DATA output files**</center>
-
-|**File Name**|**Format**|**Description**|
-|---|---|---|
-|`OUTFILE`|`GRDDED3`|Monthly lightning NO<sub>x</sub> parameters file for input to CCTM simulations with in-line lightning emissions; the default naming convention of this file is LTNG_RATIO.$YEAR.$MM.ioapi.|
-
-The output files have the following fields (with units):
-
-1.  STRKCNT (unitless): Lightning flash count
-2.  NLDNstrk (km<sup>2</sup>/day): Monthly flash totals (normalized to day<sup>-1</sup>) from NLDN input data
-3.  LTstrk (km<sup>2</sup>/day): Monthly flash totals (normalized to day<sup>-1</sup>) in each CMAQ grid cell calculated as the convective precipitation rate (RC) x STRKCNT
-4.  NLDNstrk (km<sup>2</sup>/day): Monthly flash totals from the input NLDN data
-5.  LTratio (unitless): Grid-cell scaling factors for calculating flashes using the convective precipitation rate. These scaling factors ensure that the calculated flash count matches the monthly total.
-6.  ICCG (unitless): Ratio of intercloud to cloud-to-ground flashes
-7.  OCNMASK (unitless): Land/water mask to remove spurious flashes over the ocean.
-8.  MOLSN (molN): moles of N per cloud-to-ground flash
-9.  MOLSNIC (molN): moles of N per intercloud flash
-
-The default location of the LTNG_2D_DATA output files is the `$CMAQ_HOME/data/lightning` directory, controlled by the `OUTDIR` variable in the run script. To build these CCTM parameter files,
-
-1.  [Install CMAQ](#Installing_CMAQ_on_your_system)
-2.  Obtain or build [NLDN gridded monthly flash counts](#LTNG_2D_DATA_input_files)
-3.  Follow the directions in `$CMAQ_HOME/scripts/lnox/README`
-    1.  Build `LTNG_2D_DATA` using `$CMAQ_HOME/scripts/lnox/src/Makefile.LTNG_2D_DATA`
-    2.  Run `$CMAQ_HOME/scripts/lnox/run.LTNG_2D.csh`
-    3.  Compare your output to reference results in `$CMAQ_HOME/data/ref/lnox`
-
---------
--->
-<a id="MCIP"></a>
+<a id=MCIP></a>
 ## MCIP
 
 ### Description
@@ -2086,7 +1929,7 @@ Set the run script settings according to the execution configuration variables d
 ---------
 
 
-<a id="References_Chapter7"></a>
+<a id=References_Chapter7></a>
 ## References for Chapter 7: CMAQ Programs and Libraries
 
 Arya, P., 1984: Parametric relations for the atmospheric boundary layer. Bound.-Layer Meteor., 30, 57–73.

@@ -7,22 +7,22 @@
 The CMAQ programs require a set of third-party libraries that must be installed on the users system before CMAQ can be compiled and run. These libraries control the data flow through CMAQ, define the binary file formats used by the CMAQ input and output files, and control how CMAQ functions in a multiple-processor computing environment. The [Input/Output Applications Programming Interface (I/O API)](#IOAPI) and the [Network Common Data Form (netCDF)](#NCF) are required for all applications of CMAQ. The [Message Passing Interface (MPI)](#MPI) is only required for multiple-processor applications of CCTM. Brief descriptions of these three libraries are provided in this section. For additional information, including how to compile and configure these libraries, refer to the documentation associated with each library.
 
 <a name="IOAPI"></a>
-[Input/Output Applications Programming Interface (I/O API)](https://www.cmascenter.org/ioapi/)
+[Input/Output Applications Programming Interface (I/O API)](https://www.cmascenter.org/ioapi)
 ---------------------------------------------------------
 
-The Models-3 Input/Output Applications Programming Interface (I/O API) is an environmental software development library that provides an interface with the data involved in CMAQ applications (Coats, 2005). The I/O API is the core input/output framework of the CMAQ programs, providing a set of commonly used subroutines for passing information between source code modules and for reading and writing data files. Users should download the latest code for the I/O API from [<https://www.cmascenter.org/ioapi>](https://www.cmascenter.org/ioapi/). In addition to providing the input/output framework for CMAQ, the I/O API forms part of the binary file format used by the CMAQ programs. ***Starting with CMAQ version 5.0, the I/O API version 3.1 or newer is required to compile and run CMAQ.***
+The Models-3 Input/Output Applications Programming Interface (I/O API) is an environmental software development library that provides an interface with the data involved in CMAQ applications (Coats, 2005). The I/O API is the core input/output framework of the CMAQ programs, providing a set of commonly used subroutines for passing information between source code modules and for reading and writing data files. Users should download the latest code for the I/O API from the [website](https://www.cmascenter.org/ioapi). In addition to providing the input/output framework for CMAQ, the I/O API forms part of the binary file format used by the CMAQ programs. ***Starting with CMAQ version 5.0, the I/O API version 3.1 or newer is required to compile and run CMAQ.***
 
 The CMAQ input and output files use a hybrid Network Common Data Form (netCDF)-I/O API file format. The netCDF is described below. The CMAQ data files all use the netCDF convention of self-describing, selective direct access, meaning the modeling system can be more efficient by reading only the necessary parts of the data files. Additionally, netCDF files are portable across computing platforms. This means that the same file can be read, for example, on a Sun workstation, a Red Hat Linux workstation, and on Mac OSX. The I/O API component of the file format is the way that spatial information is defined in the CMAQ data files. The I/O API convention of defining horizontal grids is to use a combination of the map projection and an offset from the projection center to the southwest corner of the modeling domain. After defining the southwest corner of the domain, or the “offset” from the projection center, the I/O API grid definition specifies the size of the horizontal grid cells and the number of cells in the X and Y directions. An additional benefit of the I/O API is that an expansive set of data manipulation utilities and statistical analysis programs is available to evaluate and postprocess the binary CMAQ input/output data files.
 
-For CMAQ users using preconfigured applications of the model, the I/O API system can be essentially transparent. For users who plan to modify the code or implement updated modules for research purposes, a few key elements of the I/O API should be understood, and they are discussed below. This section covers only the barest of necessities in terms of a CMAQ user’s interaction with I/O API. For more detailed information about developing new modules for CMAQ using the I/O API code libraries, please refer to the [I/O API User's Manual](https://www.cmascenter.org/ioapi/documentation/all_versions/html/).
+For CMAQ users using preconfigured applications of the model, the I/O API system can be essentially transparent. For users who plan to modify the code or implement updated modules for research purposes, a few key elements of the I/O API should be understood, and they are discussed below. This section covers only the barest of necessities in terms of a CMAQ user’s interaction with I/O API. For more detailed information about developing new modules for CMAQ using the I/O API code libraries, please refer to the [I/O API User's Manual](https://www.cmascenter.org/ioapi/documentation/all_versions/html).
 
 ### Files, Logical Names, and Physical Names
 
 The I/O API stores and retrieves data using files and virtual files, which have (optionally) multiple time steps of multiple layers of multiple variables. Files are formatted internally so that they are machine- and network-independent. This behavior is unlike Fortran files, whose internal formats are platform-specific, which means that the files do not transfer using the File Transfer Protocol (FTP) or Network File System (NFS)-mount very well. Each I/O API file has an internal description, consisting of the file type, the grid and coordinate descriptions, and a set of descriptions for the file variables (i.e., names, unit specifications, and text descriptions). According to the I/O API format, files and variables are referred to by names, layers are referred to by numbers (from 1 to the greatest number of layers in the file), and dates and times are stored as integers, using the coding formats *YYYYDDD* (commonly called “JDATE”) and *HHMMSS* (commonly called “JTIME”), where
 
-`YYYYDAY = (1000 \* Year) + Julian Day`
+`YYYYDAY = (1000 * Year) + Julian Day`
 
-`HHMMSS = (10000 \* Hour) + (100 \* Minute) + Seconds`
+`HHMMSS = (10000 * Hour) + (100 * Minute) + Seconds`
 
 Rather than forcing the programmer and program-user to deal with hard-coded file names or hard-coded unit numbers, the I/O API utilizes the concept of logical file names. The modelers can define the logical names as properties of a program, and then at run-time the logical names can be linked to the actual file name using environment variables. For programming purposes, the only limitations are that file names cannot contain blank spaces and must be at most 16 characters long. When a modeler runs a program that uses the I/O API, environment variables must be used to set the values for the program’s logical file names. Additional details of how the CMAQ programs use I/O API environment variables are discussed in  [Chapter 7](CMAQ_OGD_ch07_programs_libraries.md). The remainder of this section explains some of the rudimentary details of programming in an environment using I/O API data files.
 
@@ -48,10 +48,10 @@ All files manipulated by the I/O API may have multiple variables and multiple la
 
 |**File Type**|**Magic Number**|**Data Type**|**Description**|
 |---|---|---|---|
-|CUSTOM3|-1|Custom|User-dimensioned array of REAL\*4s that the system reads/writes reliably|
+|CUSTOM3|-1|Custom|User-dimensioned array of REAL*4s that the system reads/writes reliably|
 |DCTNRY3|0|Dictionary|Data type stores and retrieves parts of an FDESC.EXT file description|
-|GRDDED3|1|Gridded|Dimension as REAL\*4 ARRAY (NCOLS, NROWS, NLAYS, NVARS)|
-|BNDARY3|2|Boundary|Dimension as REAL\*4 ARRAY (SIZE, NLAYS, NVARS)|
+|GRDDED3|1|Gridded|Dimension as REAL*4 ARRAY (NCOLS, NROWS, NLAYS, NVARS)|
+|BNDARY3|2|Boundary|Dimension as REAL*4 ARRAY (SIZE, NLAYS, NVARS)|
 |IDDATA3|3|ID-reference|Used to store lists of data, such as pollution monitoring observations|
 |PROFIL3|4|Vertical profile|Used to store lists of vertical data, such as rawinsonde observations|
 |GRNEST3|5|Nested grid|Preliminary and experimental implementation for storing multiple grids, which need not in fact have any particular relationship with each other beyond using the same coordinate system|
@@ -186,10 +186,10 @@ Data files in the CMAQ system can be easily manipulated by using the I/O API uti
 |UTMTOOL|coordinate conversions and grid-related computations for lat/lon, Lambert, and UTM|
 
 <a id="NCF"></a>
-[Network Common Data Form (netCDF)](http://www.unidata.ucar.edu/software/netcdf/)
+[Network Common Data Form (netCDF)](http://www.unidata.ucar.edu/software/netcdf)
 ---------------------------------
 
-The Network Common Data Form (netCDF) is a set of software libraries and machine-independent data formats that support the creation, access, and sharing of array-oriented scientific data (Unidata, 2009). The netCDF library provides an implementation of the netCDF interface for several different programming languages. The netCDF is used in CMAQ to define the format and data structure of the binary input and output files. CMAQ input and output files are self-describing netCDF-format files in which the file headers have all the dimensioning and descriptive information needed to define the resident data. Users should download the latest code for the netCDF from [<http://www.unidata.ucar.edu/software/netcdf>](http://www.unidata.ucar.edu/software/netcdf). Compilation and configuration information for the netCDF is available through the Unidata website.
+The Network Common Data Form (netCDF) is a set of software libraries and machine-independent data formats that support the creation, access, and sharing of array-oriented scientific data (Unidata, 2009). The netCDF library provides an implementation of the netCDF interface for several different programming languages. The netCDF is used in CMAQ to define the format and data structure of the binary input and output files. CMAQ input and output files are self-describing netCDF-format files in which the file headers have all the dimensioning and descriptive information needed to define the resident data. Users should download the latest code for the NetCDF from the [NetCDF website](http://www.unidata.ucar.edu/software/netcdf). Compilation and configuration information for the NetCDF is available through the Unidata website.
 
 <a id="MPI"></a>
 Message Passing Interface Library (MPI)
@@ -203,9 +203,9 @@ The Message Passing Interface (MPI) is a standard library specification for mess
 References for Chapter 6: Required Libraries
 ------------------------------------------
 
-Coats, C., 2005: The EDSS/Models-3 I/O API. [Available online at [<https://www.cmascenter.org/ioapi/>](https://www.cmascenter.org/ioapi/)]
+Coats, C., 2005: The EDSS/Models-3 I/O API. [Available online at the [I/O API website](https://www.cmascenter.org/ioapi)]
 
-Unidata, 2009: NetCDF. [Available online at <http://www.unidata.ucar.edu/software/netcdf>]
+Unidata, 2009: NetCDF. [Available online at [NetCDF website](http://www.unidata.ucar.edu/software/netcdf)
 ***
 [<< Previous Chapter](CMAQ_OGD_ch05_sys_req.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch07_programs_libraries.md)
 CMAQ Operational Guidance Document (c) 2016<br>

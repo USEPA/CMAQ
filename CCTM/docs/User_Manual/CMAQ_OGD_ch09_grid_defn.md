@@ -91,13 +91,15 @@ Figure 9-2 shows an example of how the BTRIM calculation works for windowing WRF
 
 The MCIP variables X0 and Y0 set the number of grid cells to "trim" from the WRF to domain to get to the MCIP domain lower left corner. Adding "1" in each of these calculations accounts for the addition of the MCIP lateral boundary.
 
-`X0 = |(WRF X origin - MCIP X origin)|/(Grid Resolution) + 1`<br>
-`X0 = |(-600,000 - 108,000)|/12,000 + 1`<br>
+```
+`X0 = |(WRF X origin - MCIP X origin)|/(Grid Resolution) + 1`
+`X0 = |(-600,000 - 108,000)|/12,000 + 1`
 `X0 = 60`
 
-`Y0 = |(WRF Y origin - MCIP Y origin)|/(Grid Resolution) + 1`<br>`
-`Y0 = |(-1,680,000 - -1,620,000)|/12,000 + 1`<br>
+`Y0 = |(WRF Y origin - MCIP Y origin)|/(Grid Resolution) + 1`
+`Y0 = |(-1,680,000 - -1,620,000)|/12,000 + 1`
 `Y0 = 6`
+```
 
 <a id=Figure9-2></a>
 
