@@ -16,7 +16,6 @@
  setenv CTM_WET_DEP_1   "$OUTDIR/$WD1file -v"
  setenv CTM_WET_DEP_2   "$OUTDIR/$WD2file -v"
  setenv CTM_VIS_1       "$OUTDIR/$AV1file -v"
-#setenv CTM_DIAM_1      "$OUTDIR/$AD1file -v"   <- replaced by CTM_PMDIAG_1
  setenv CTM_RJ_1        "$OUTDIR/$RJ1file -v"
  setenv CTM_RJ_2        "$OUTDIR/$RJ2file -v"
  setenv CTM_SSEMIS_1    "$OUTDIR/$SSEfile -v"
@@ -39,6 +38,8 @@
  setenv CTM_AVIS_1      "$OUTDIR/$AV2file -v"
  setenv CTM_PMDIAG_1    "$OUTDIR/$AD1file -v"
  setenv CTM_APMDIAG_1   "$OUTDIR/$AD2file -v"
+ setenv CTM_LTNGDIAG_1  "$OUTDIR/$LTNGfile1 -v"
+ setenv CTM_LTNGDIAG_2  "$OUTDIR/$LTNGfile2 -v"
 
  set flist = ( $S_CGRID\
                $CTM_CONC_1\
@@ -71,7 +72,9 @@
                $CTM_VIS_1\
                $CTM_AVIS_1\
                $CTM_PMDIAG_1\
-               $CTM_APMDIAG_1 )
+               $CTM_APMDIAG_1\
+	       $CTM_LTNGDIAG_1\
+	       $CTM_LTNGDIAG_2\ )
  unalias rm 
  foreach file ( $flist )
     if ( $file != '-v' ) then
