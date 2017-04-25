@@ -47,7 +47,7 @@ The main CMAQ release repository is located here. Users should refer to this rep
 
 <https://github.com/USEPA/CMAQ>
 
-Users who wish to implement a new feature, and have that feature merged into the CMAQ repository should follow the instructions on code requirements and repository layout as an CMAQ developer would. Forks should be made of this release repository. New features will have to undergo a code review before any merge onto the release repository.  Instructions on using it to add a feature are in this (insert link) section.
+Users who wish to implement a new feature, and have that feature merged into the CMAQ repository should follow the instructions on code requirements and repository layout as an CMAQ developer would. Forks should be made of this release repository. Developers will use GitHub commands to add, commit, and push code to their forked repository.  Once their forked version of the repository code has undergone checks for code consistency, benchmark testing, and model output validation, and documentation including release notes, they may submit a pull request to the CMAQ-Release maintainer. New features will have to undergo a code review before any merge onto the release repository.  Instructions on using it to add a feature are in this (insert link) section.
 
 ## External CMAS Public CMAQ-Release Repository
 
@@ -196,6 +196,7 @@ CMAQ Code Introduction
 
 ### Parallelization Strategy
 
+
 Contributions Life-cycle
 ==================================
 
@@ -215,6 +216,26 @@ gives a general overview of the process. Some details related to this life-
 cycle will be described in the following sections.
 
 Code level requirements are described in chapter 5.
+
+Fork CMAQ-Release Code
+===============================
+- Obtain an account on GitHub
+- visit EPA/CMAQ page
+<https://github.com/USEPA/CMAQ>
+- in the upper right hand corner of the page is a button
+     + hover over the Fork button, and you should see a Tooltip that says "Fork your own copy of EPA/CMAQ to your account
+- visit your github account
+<https://github.com>
+     + on the right are two lists
+            - Repositories you contribute to
+            - Your repositories
+     + click on the CMAQ repository under your repositories to view your forked CMAQ-Release version
+
+- Tips for managing your fork
+      + if your fork is behind the EPA's you can bring it up to date using the following instructions
+<https://help.github.com/articles/syncing-a-fork/>
+
+
 
 
 Development Strategy
@@ -238,9 +259,9 @@ The U.S. EPA Calnex 12km domain July 2, 2011 testing dataset is provided with th
 
 ## Testing 
 
-- Developers need to test using multiple compilers, multiple processor configurations, and singel processor configuration runs for single day to verify answers match.
+- Developers need to test using multiple compilers, multiple processor configurations, and singel processor configuration runs for single day to verify answers match the previous stable release, and/or that the answers are computationally and physically reasonable.
 - Developers need to share results of tests and request review of the documentation prior to a merge.
-- Developers of CMAQ need reviews from multiple CMAQ maintainers prior to a merge.
+- Developers of CMAQ code will need to request review from the CMAQ maintainers by submitting a pull request, and requesting a merge.
 
 Two classes of tests:
 
@@ -303,9 +324,31 @@ Compiler flags:
 
 ## Merging Code
 
-- Commit code and documentation to your fork
-- Submit pull request
-- Development within a science module should follow the practices of that module, for documentation etc.
+### Submit changes to your forked repository on Github
+- Use git to commit code and documentation to your fork 
+
+      + View a list of files that have been modified in your local repository
+
+              git status
+
+      + Add files that have been modified, to be traced in your local git repository
+
+              git add new_module_file 
+
+      + Commit files that have been added to your local git repository
+
+              git commit -m "new module edits"
+
+      + Transfer the files from your local repository to your forked repository
+
+              git push
+
+### Submit pull request
+
+- use GitHub Website to view your CMAQ-Release Fork
+- go to the branch that you have committed code, example: 5.2gamma
+- Submit a pull request
+  
 
 Copyright Information
 ==================================
