@@ -75,7 +75,7 @@ The horizontal grid and vertical layer structures for BCON are defined at execut
 **Table 7‑1. BCON input files**
 
 |**File Name**|**Format**|**Description**|
-|---|---|---|
+|-------------|--------|--------------------------------------------------------------|
 |`BC_PROFILE`|`ASCII`|Vertical chemical profiles from which to derive boundary conditions; this file is created by the user; used only when the BC environment variable is set to “profile”|
 |`CTM_CONC_1`|`GRDDED3`|CMAQ concentration file from which to derive boundary conditions; this file is output from CCTM; used only when the BC environment variable is set to “m3conc”|
 |`MET_CRO_3D_CRS`|`GRDDED3`|Name and location of the coarse-grid MET_CRO_3D file that is required for creating the vertical grid structure if this structure changes between nested simulations; this file is output by MCIP|
@@ -94,7 +94,7 @@ The horizontal grid and vertical layer structures for BCON are defined at execut
 **Table 7‑2. BCON output files**
 
 |**File Name**|**Format**|**Description**|
-|---|---|---|
+|--------------|-----------|------------------------------------------------------------------|
 |`BNDY_CONC_1`|`BNDARY3`|Name and location of the gridded boundary conditions data output on the model grid defined by `GRID_NAME`|
 
 The default location of the BCON output files is the `$CMAQ_DATA/bcon` directory, controlled by the `OUTDIR` variable in the run script. The default naming convention for all BCON output files uses the `APPL` and `GRID_NAME` environment variables in the file name. For boundary conditions created from existing `CCTM CONC` files, the Julian date is also used in the file name through the `DATE` environment variable. All of the file-naming variables for `BCON` outputs are set in the run script.
@@ -211,7 +211,7 @@ The preprocessor program Calmap produces gridded planting start dates, planting 
 **Table 7‑3. Calmap input files**
 
 |**File Name**|**Format**|**Description**|
-|---|---|---|
+|-------------|----------|---------------------------------------------------------|
 |GRID_CRO_2D|GRDDED3|Name and location of the time-independent 2-D cross-point meteorology file; output by MCIP|
 |BELD01|GRDDED3|BELD land use “A” data file for calculating windblown dust emissions; produced with BELD land use tiles and the Spatial Allocator|
 |CPCALED|ASCII|Calendar of agricultural activities by state|
@@ -223,7 +223,7 @@ The preprocessor program Calmap produces gridded planting start dates, planting 
 **Table 7‑4. Calmap output files**
 
 |**File Name**|**Format**|**Description**|
-|---|---|---|
+|-----------|---------|-------------------------------------------------------|
 |CROPMAP01|GRDDED3|Name and location of the gridded planting start dates file.|
 |CROPMAP02|GRDDED3|Name and location of the gridded ??? start dates file; not used by the CCTM.|
 |CROPMAP03|GRDDED3|Name and location of the gridded ??? dates file; not used by the CCTM|
@@ -300,7 +300,7 @@ Both in-line emissions and photolysis are invoked through compile-time configura
 **Table7‑5. Required CCTM input files**
 
 |**File Name**|**Format**|**Description**|
-|---|---|---|
+|-----------------------------|-----------|---------------------------------------------------|
 |`GRIDDESC`|`ASCII`|Map projection and grid definitions|
 |`OCEAN_1`|`GRDDED3`|Name and location of the time-independent 2-D file for defining the fraction of each model grid cell covered by open ocean|
 |`EMIS_1`|`GRDDED3`|Name and location of the time-dependent 2-D or 3-D emission file speciated for a particular gas-phase chemical mechanism and PM model; output from an emission model, such as SMOKE or CONCEPT|
@@ -325,7 +325,7 @@ Both in-line emissions and photolysis are invoked through compile-time configura
 **Table 7‑6. Optional CCTM input files**
 
 |File Name|Format|Description|
-|---------|------|-----------|
+|---------------|--------|-------------------------------------------------------------------|
 |XJ_DATA|ASCII|Name and location of the daily clear-sky photolysis rates file speciated for a particular gas-phase chemical mechanism; output from JPROC - only needed for offline photolysis configuration|
 |STK_GRPS_nn|GRDDED3|Stack parameter file for calculating inline plume rise for point source emissions - nn refers to the sector ID number, where there could be multiple point source stack groups used in a single simulation; produced by the SMOKE program Elevpoint|
 |STK_EMIS_nn|GRDDED3|Emissions for elevated point sources - nn refers to the sector ID number, where there could be multiple point source sectors used in a single simulation; produced by the SMOKE program Smkmerge|
@@ -355,7 +355,7 @@ Both in-line emissions and photolysis are invoked through compile-time configura
 **Table 7‑7. CCTM base output files**
 
 |File Name|Format|Description|
-|---------|------|-----------|
+|-------------------|----------|-------------------------------------------------------------|
 |CTM_CONC_1|GRDDED3|Hourly 3-D instantaneous gas- and aerosol-phase pollutant estimates|
 |S_CGRID|GRDDED3|Simulation-ending 3-D full CGRID (gas- and aerosol-phase pollutants) concentrations for use as a restart file|
 |A_CONC_1|GRDDED3|Hourly 2-D or 3-D integral average gas- and aerosol-phase pollutant estimates|
@@ -368,7 +368,7 @@ Both in-line emissions and photolysis are invoked through compile-time configura
 **Table 7‑8. CCTM optional output files**
 
 |File Name|Format|Description|
-|---------|------|-----------|
+|----------------|-----------|-----------------------------------------------------------------|
 |`CTM_SSEMIS_1`|`GRDDED3`|Hourly 2-D sea salt emissions; set the variable `CTM_SSEMDIAG` to “Y” in the CCTM to run script to write this file|
 |`CTM_WET_DEP_2`|`GRDDED3`|Name and location of hourly 2-D cloud diagnostics file; set the variable `CLD_DIAG` to “Y” in the CCTM run script to write this file|
 |`CTM_DEPV_DIAG`|`GRDDED3`|Hourly 2-D in-line deposition diagnostics file; output when in-line deposition is activated by setting `CTM_ILDEPV` to “Y” and the variable `CTM_DEPV_FILE` is set to “T” or “Y” in the CCTM run script|
@@ -879,7 +879,7 @@ To implement a new mechanism in CMAQ, start with a mechanism definition (mech.de
 **Table 7-9. CHEMMECH input files**
 
 |**File Name**|**Format**|**Description**|
-|---|---|---|
+|---------------|------|------------------------------------------------------|
 |MCFL (mech.def)|ASCII|CMAQ mechanism definition file; photochemical mechanism listing with both mechanistic and kinetic information about all reactions that compose a chemical mechanism|
 
 #### CHEMMECH output files
@@ -889,7 +889,7 @@ To implement a new mechanism in CMAQ, start with a mechanism definition (mech.de
 **Table 7‑10. CHEMMECH output files**
 
 |File Name|Format|Description|
-|---------|------|-----------|
+|------------|----------|-----------------------------------------------------|
 |RXCM.EXT|ASCII|Mechanism common INCLUDE file; lists all of the chemical mechanism variables and parameters|
 |RXDT.EXT|ASCII|Mechanism data INCLUDE file; chemical mechanism definition formatted as DATA blocks to be read in as CMAQ source code|
 |SPCS.EXT|ASCII|Species INCLUDE file; not used|
@@ -905,7 +905,7 @@ Detailed descriptions of the formats of the files shown in [Table 7-11](#Table5-
 **Table 7‑11. CSV2NML input files**
 
 |**File Name**|**Format**|**Description**|
-|---|---|---|
+|--------|--------|--------------------------------------------------------------------------|
 |GC.csv|ASCII|Gas-phase species process parameters. This file defines the source and sink processes that impact the concentrations of every gas-phase species in the chemical mechanism.|
 |AE.csv|ASCII|Aerosol-phase species process parameters. This file defines the source and sink processes that impact the concentrations of every aerosol-phase species in the chemical mechanism.|
 |NR.csv|ASCII|Nonreactive species process parameters. This file defines the source and sink processes that impact the concentrations of every nonreactive species in the chemical mechanism.|
@@ -917,7 +917,7 @@ Detailed descriptions of the formats of the files shown in [Table 7-11](#Table5-
 **Table 7‑12. CSV2NML output files**
 
 |**File Name**|**Format**|**Description**|
-|---|---|---|
+|--------|--------|--------------------------------------------------------------------------|
 |GC.nml|ASCII|Gas-phase species process parameters. This file defines the source and sink processes that impact the concentrations of every gas-phase species in the chemical mechanism|
 |AE.nml|ASCII|Aerosol-phase species process parameters. This file defines the source and sink processes that impact the concentrations of every aerosol-phase species in the chemical mechanism|
 |NR.nml|ASCII|Nonreactive species process parameters. This file defines the source and sink processes that impact the concentrations of every nonreactive species in the chemical mechanism|
@@ -1008,7 +1008,7 @@ To implement a new mechanism in CMAQ, start with a mechanism definition (mech.de
 **Table 7-13. CREATE_EBI input files**
 
 |**File Name**|**Format**|**Description**|
-|---|---|---|
+|-----------------|-------|----------------------------------------------------------|
 |RXNS_DATA_SRC.F90|ASCII|CMAQ mechanism reaction listing in Fortran 90 format; output from the program CHEMMECH|
 
 #### CREATE_EBI output files
@@ -1018,7 +1018,7 @@ To implement a new mechanism in CMAQ, start with a mechanism definition (mech.de
 **Table 7‑14. CREATE_EBI output files**
 
 |File Name|Format|Description|
-|---------|------|-----------|
+|---------------|-------------|-------------------------------------------------------|
 |\*.F|ASCII F90|Fortran 90 source code for the CCTM EBI chemistry solver|
 |RXNS_DATA_MODULE.F90|ASCII F90|Mechanism data Fortran source file; chemical mechanism definition formatted as DATA blocks to be read in as CMAQ source code|
 
@@ -1188,7 +1188,7 @@ The horizontal grid and vertical layer structures for ICON are defined at execut
 **Table 7‑15. ICON input files**
 
 |**File Name**|**Format**|**Description**|
-|---|---|---|
+|-----------|-------|-----------------------------------------------------------------------|
 |IC_PROFILE|ASCII|Vertical chemical profiles from which to derive initial conditions; this file is created by the user; used only when the IC environment variable is set to “profile”|
 |CTM_CONC_1|GRDDED3|Name and location of the CMAQ concentration file from which to derive initial conditions; this file is output from CCTM; used only when the BC environment variable is set to “m3conc”|
 |MET_CRO_3D_CRS|GRDDED3|Name and location of the coarse-grid MET_CRO_3D file that is required for creating the vertical grid structure if this structure changes between nested simulations; this file is output by MCIP|
@@ -1207,7 +1207,7 @@ The horizontal grid and vertical layer structures for ICON are defined at execut
 **Table 7‑16. ICON output files**
 
 |**File Name**|**Format**|**Description**|
-|---|---|---|
+|------------|-----------|---------------------------------------------------------------|
 |INIT_CONC_1|`GRDDED3`|Name and location of the gridded initial conditions data output on the model grid defined by `GRID_NAME`|
 
 The default location of the ICON output files is the `$CMAQ_DATA/icon` directory, controlled by the `OUTDIR` variable in the run script. The default naming convention for all ICON output files uses the `APPL` and `GRID_NAME` environment variables in the file name. For initial conditions created from existing `CCTM CONC` files, the Julian date is also used in the file name through the `DATE` environment variable. All of the file-naming variables for `ICON` outputs are set in the run script.
@@ -1327,7 +1327,7 @@ To implement new CSQY data in CMAQ, start with individual CSQY data files for ea
 **Table 7-17. INLINE_PHOT_PREPROC input files**
 
 |**File Name**|**Format**|**Description**|
-|---|---|---|
+|--------------------|------|------------------------------------------------------------|
 |RXNS_DATA_MODULE.F90|ASCII|CMAQ mechanism reaction listing in Fortran 90 format; output from the program CHEMMECH|
 |CSQY_DATA_RAW|ASCII|Directory of photolysis reaction-specific absorption cross section and quantum yield data as a function of wavelength|
 |WVBIN_FILE|ASCII|Wavelength bins for which to include CSQY data|
@@ -1346,7 +1346,7 @@ To implement new CSQY data in CMAQ, start with individual CSQY data files for ea
 **Table 7‑18. INLINE_PHOT_PREPROC output files**
 
 |File Name|Format|Description|
-|---------|------|-----------|
+|------------|---------|------------------------------------------------------------|
 |CSQY_DATA|ASCII|Tabulated CSQY data as a function of temperature and wavelength bin|
 |PHOT_OPTICS|ASCII|Wavelength, Optical and Surface Albedo Parameters for CMAQ In-Line Photolysis calculation.|
 
@@ -1438,7 +1438,7 @@ While JPROC does not require any technical configuration at execution, such as d
 **Table 7‑19. JPROC input files**
 
 |**File Name**|**Format**|**Description**|
-|---|---|---|
+|---------|--------|----------------------------------------------------------------------|
 |ET|ASCII|Extraterrestrial radiation as a function of wavelength|
 |PROFILES|ASCII|Seasonal vertical profiles of ozone concentrations, aerosol attenuation, temperature, air density and Dobson values|
 |TOMS|ASCII|Total ozone column measurements from the Total Ozone Mapping Spectrometer instrument aboard the sun-synchronous polar orbiting Nimbus satellite|
@@ -1453,7 +1453,7 @@ While JPROC does not require any technical configuration at execution, such as d
 **Table 7‑20. JPROC output files**
 
 |**File Name**|**Format**|**Description**|
-|---|---|---|
+|---------------|--------|----------------------------------------------------------------|
 |`JTABLE_$Date`|`ASCII`|Daily clear-sky photolysis rates file|
 
 The default location of the JPROC output files is the `$CMAQ_HOME/data/jproc` directory, controlled by the `OUTDIR` variable in the run script. The default naming convention for all JPROC output files uses the Date environment variable in the file name, which is aliased to the `STDATE` environment variable in the run script.
@@ -1549,7 +1549,7 @@ MCIP can extract both temporal and spatial subsets of the input meteorology file
 **Table 7‑21. MCIP input files**
 
 |**File Name**|**Format**|**Description**|
-|---|---|---|
+|------------|------------------------------|-----------------------------------------------------|
 |InMetFiles|binary (MM5) or netCDF (WRF‑ARW)|List of MM5 or WRF‑ARW output files for input to MCIP|
 |InTerFile|binary|MM5 Terrain file with fractional land use categories; used for calculating land-use-dependent vertical diffusivity. Not necessary with WRF‑ARW; this information is included in the WRF-ARW met file.|
 |InSatFiles||GOES satellite cloud data|
@@ -1561,7 +1561,7 @@ MCIP can extract both temporal and spatial subsets of the input meteorology file
 **Table 7‑22. MCIP output files**
 
 |**File Name**|**Format**|**Description**|
-|---|---|---|
+|---------|--------|------------------------------------------------------------------|
 |GRIDDESC|ASCII|Grid description file with coordinate and grid definition information|
 |GRID_BDY_2D|BNDARY3|Time-independent 2-D boundary meteorology file|
 |GRID_CRO_2D|GRDDED3|Time-independent 2-D cross-point meteorology file|

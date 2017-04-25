@@ -15,7 +15,7 @@ This section describes each of the input files required by the various CMAQ prog
 **Table 8‑1. CMAQ input files**
 
 |**File Name**|**File Type**|**Time-Dependence**|**Spatial Dimensions**|**Source**|
-|---|---|---|---|---|
+|----------------------------|------|----|----|-----------------------------------|
 |**General**| | | | |
 |[GRIDDESC](#griddesc)|ASCII|n/a|n/a|user/MCIP
 |[gc_matrix.nml](#matrix_nml)|ASCII|n/a|n/a|CSV2NML
@@ -46,39 +46,39 @@ This section describes each of the input files required by the various CMAQ prog
 |[BNDY_CONC_1](#bndy_conc_1) | BNDARY3 | Hourly |[2(X+1)+2(Y+1)]*Z | BCON
 |[JTABLE](#jtable) | ASCII | Daily | n/a | JPROC
 |[OMI](#omi) | ASCII | daily | n/a ||
-|[EMIS_1](#emis_1) | GRDDED3 | Hourly | X*Y*Z | SMOKE
-|[OCEAN_1](#ocean_1) | GRDDED3 | Time-invariant | X*Y |Spatial Allocator
+|[EMIS_1](#emis_1) | GRDDED3 | Hourly | X\*Y\*Z | SMOKE
+|[OCEAN_1](#ocean_1) | GRDDED3 | Time-invariant | X\*Y |Spatial Allocator
 |[GSPRO](#gspro) | ASCII | Time-invariant | N/a | User
-|[B3GRD](#b3grd) | GRDDED3 | Time-invariant | X*Y | SMOKE
-|[BIOSEASON](#bioseason) |GRDDED3 |Time-invariant | X*Y | Metscan
-|[STK_GRPS_nn](#stk_grps) | GRDDED3 |Time-invariant|X*Y | SMOKE
-|[STK_EMIS_nn](#stk_emis) | GRDDED3 | Hourly | X*Y | SMOKE
-|[DUST_LU_1](#dust_lu_1)|GRDDED3 | Time-invariant | X*Y | Spatial Allocator
-|[DUST_LU_2](#dust_lu_1)|GRDDED3 | Time-invariant | X*Y | Spatial Allocator
-|[MODIS_FPAR](#modis_fpar)|GRDDED3 | Time-invariant | X*Y | Spatial Allocator
-|[CROPMAP01](#cropmap01)| GRDDED3 | Time-invariant | X*Y | Cropcal
-|[CROPMAP04](#cropmap04)| GRDDED3 | Time-invariant | X*Y | Cropcal
-|[CROPMAP08](#cropmap08)|GRDDED3 | Time-invariant | X*Y | Cropcal
-|[LTNGNO](#ltngno)| GRDDED3 | Hourly | X*Y*Z | User|
-|[NLDN_STRIKES](#nldn_strikes)| GRDDED3 | Monthly | X*Y ||
-|[LTNGPARMS_FILE](#ltngparm_file)| GRDDED3 | Monthly | X*Y ||
-|[BELD4_LU](beld4_lu)| GRDDED3 | Time-invariant |X*Y||
-|[E2C_SOIL](#e2c_soil)| GRDDED3 |center> Time-invariant | X*Y||
-|[E2C_FERT](#e2c_fert)| GRDDED3 | Time-invariant |X*Y||
-|[MEDIA_CONC](#init_medc_1)| GRDDED3 || X*Y ||
-|[INIT_GASC_1](#init_gasc_1)| GRDDED3 || X*Y ||
-|[INIT_AERO_1](#init_aero_1)| GRDDED3 || X*Y ||
-|[INIT_NONR_1](#init_nonr_1)| GRDDED3 || X*Y ||
-|[INIT_TRAC_1](#init_trac_1)| GRDDED3 || X*Y ||
-|[GRID_CRO_2D](#grid_cro_2d) | GRDDED3 | Time-invariant | X*Y | MCIP
-|[GRID_CRO_3D](#grid_cro_3d) | GRDDED3 | Time-invariant | X*Y*Z | MCIP
-|[GRID_BDY_2D](#grid_bdy_2D) | GRDDED3 | Time-invariant | PERIM*Z | MCIP
-|[GRID_DOT_2D](#grid_dot_2d) | GRDDED3 | Time-invariant | (X+1)*(Y+1) | MCIP
+|[B3GRD](#b3grd) | GRDDED3 | Time-invariant | X\*Y | SMOKE
+|[BIOSEASON](#bioseason) |GRDDED3 |Time-invariant | X\*Y | Metscan
+|[STK_GRPS_nn](#stk_grps) | GRDDED3 |Time-invariant|X\*Y | SMOKE
+|[STK_EMIS_nn](#stk_emis) | GRDDED3 | Hourly | X\*Y | SMOKE
+|[DUST_LU_1](#dust_lu_1)|GRDDED3 | Time-invariant | X\*Y | Spatial Allocator
+|[DUST_LU_2](#dust_lu_1)|GRDDED3 | Time-invariant | X\*Y | Spatial Allocator
+|[MODIS_FPAR](#modis_fpar)|GRDDED3 | Time-invariant | X\*Y | Spatial Allocator
+|[CROPMAP01](#cropmap01)| GRDDED3 | Time-invariant | X\*Y | Cropcal
+|[CROPMAP04](#cropmap04)| GRDDED3 | Time-invariant | X\*Y | Cropcal
+|[CROPMAP08](#cropmap08)|GRDDED3 | Time-invariant | X\*Y | Cropcal
+|[LTNGNO](#ltngno)| GRDDED3 | Hourly | X\*Y\*Z | User|
+|[NLDN_STRIKES](#nldn_strikes)| GRDDED3 | Monthly | X\*Y ||
+|[LTNGPARMS_FILE](#ltngparm_file)| GRDDED3 | Monthly | X\*Y ||
+|[BELD4_LU](beld4_lu)| GRDDED3 | Time-invariant |X\*Y||
+|[E2C_SOIL](#e2c_soil)| GRDDED3 |center> Time-invariant | X\*Y||
+|[E2C_FERT](#e2c_fert)| GRDDED3 | Time-invariant |X\*Y||
+|[MEDIA_CONC](#init_medc_1)| GRDDED3 || X\*Y ||
+|[INIT_GASC_1](#init_gasc_1)| GRDDED3 || X\*Y ||
+|[INIT_AERO_1](#init_aero_1)| GRDDED3 || X\*Y ||
+|[INIT_NONR_1](#init_nonr_1)| GRDDED3 || X\*Y ||
+|[INIT_TRAC_1](#init_trac_1)| GRDDED3 || X\*Y ||
+|[GRID_CRO_2D](#grid_cro_2d) | GRDDED3 | Time-invariant | X\*Y | MCIP
+|[GRID_CRO_3D](#grid_cro_3d) | GRDDED3 | Time-invariant | X\*Y\*Z | MCIP
+|[GRID_BDY_2D](#grid_bdy_2D) | GRDDED3 | Time-invariant | PERIM\*Z | MCIP
+|[GRID_DOT_2D](#grid_dot_2d) | GRDDED3 | Time-invariant | (X+1)\*(Y+1) | MCIP
 |[MET_BDY_2D](#met_bdy_2d) | BNDARY3 | Hourly | ??? | MCIP
-|[MET_BDY_3D](#met_bdy_3d) | BNDARY3 | Hourly | PERIM*Z | MCIP
-|[MET_CRO_2D](#met_cro_2d) | GRDDED3 | Hourly | X*Y | MCIP
-|[MET_CRO_3D](#met_cro_3d) | GRDDED3 | Hourly | X*Y*Z | MCIP
-|[MET_DOT_3D](#met_dot_3d) | GRDDED3 | Hourly | (X+1)*(Y+1)*Z | MCIP
+|[MET_BDY_3D](#met_bdy_3d) | BNDARY3 | Hourly | PERIM\*Z | MCIP
+|[MET_CRO_2D](#met_cro_2d) | GRDDED3 | Hourly | X\*Y | MCIP
+|[MET_CRO_3D](#met_cro_3d) | GRDDED3 | Hourly | X\*Y\*Z | MCIP
+|[MET_DOT_3D](#met_dot_3d) | GRDDED3 | Hourly | (X+1)\*(Y+1)\*Z | MCIP
 
 
 <a id=griddesc></a>
@@ -99,7 +99,7 @@ The grid description section ([Table 8-3](#Table8-3)) consists of text records t
  **Table 8‑2. Coordinate sytem description segment of GRIDDESC**
 
 | **Line**| **Column**| **Name** | **Type** | **Description**|
-|---|---|---|---|---|
+|---|---|----------|----------|--------------------------------------------------------|
 |1|A| Header | String |Single-quote-delimited header describing section contents; may be blank, i.e., ' '|
 |2|A| COORD-NAME | String |Name of the coordinate description (required); single quote delimited|
 |3|A| COORDTYPE | Int |I/O API index defining the map projection type (required)| |
@@ -114,7 +114,7 @@ The grid description section ([Table 8-3](#Table8-3)) consists of text records t
  **Table 8‑3. Grid definition segment of GRIDDESC**
 
 |**Line** | **Column** | **Name** | **Type** | **Description**|
-|---|---|---|---|---|
+|----|----|----------|----------|-----------------------------------------------------|
 | 1 | A | Header | String|Single-quote-delimited header describing section contents; may be blank, i.e., ' '|
 | 2 | A | GRID-NAME | String |Name of the horizontal grid (required); single quote delimited|
 | 3 | A | COORD-NAME| String |Name of the coordinate description in the previous section (required); single quote delimited|
@@ -194,7 +194,7 @@ The namelist files contain header information that describe which class of speci
  **Table 8‑4. GC species namelist file format**
 
 | **Line**| **Column** |**Name** | **Type**| **Description** |
-|---|---|---|---|---|
+|---------|------------|----------|----------|--------------------------------------------|
 | 1 || !Revision Control System(RCS file) |
 | 2 || Header: filename, version, date/time, author |
 | 4 || File type | String |&GC_nml|
@@ -244,7 +244,7 @@ A detailed description of the vertical profile file format for initial condition
  **Table 8-5. IC_PROFILE format description**
 
 |**Line**|**Column**|**Name**|**Type**|**Description**|
-|---|---|---|---|---|
+|----|-------------|----------|---------|------------------------------------------------------|
 | 1-3 || Text Header | String |Text description of the contents and source of the initial conditions file (optional)|
 | 4 | A | NUM_SIGMA_LVL | Int |Number of sigma levels contained in the file (required)|
 || B | NUM_POLL | Int |Number of pollutants contained in the file (required)|
@@ -303,7 +303,7 @@ A detailed description of the vertical profile file format for boundary conditio
 **Table 8-6. BC_PROFILE format description**
 
 |**Line**|**Column**|**Name**|**Type**|**Description**|
-|---|---|---|---|---|
+|-----|------------|----------|----------|---------------------------------------------|
 | 1-3 || Text Header | String |Text description of the contents and source of the initial conditions file (optional) |
 | 4 | A | NUM_SIGMA_LVL | Int |Number of sigma levels contained in the file (required)|
 || B | NUM_POLL | Int |Number of pollutants contained in the file (required)|
@@ -365,7 +365,7 @@ The ASCII-formatted CSQY files begin with the number and a list of the applicabl
 **Table 8-7. CSQY format description**
 
 |**Line** | **Column** | **Name** | **Type** | **Description** |
-|---|---|---|---|---|
+|----|----|--------------------------|---------|-----------------------------------------|
 | 1 | A | CSQY Mechanism Table Name | String |Text name indicating this is the CSQY for the Mechanism Specified.  This name is cross-referenced in the chemical mechanism description and INCLUDE files (required)|
 | 1 | A | NPHOTAB | String |Number of Photolysis Reactions|
 | 2 | A | Comments | String |Preceded by "!", Individual Reaction Rates Listed below|
@@ -376,7 +376,7 @@ The ASCII-formatted CSQY files begin with the number and a list of the applicabl
 | 3+NPHOTAB+2 | A | Number| Integer | Index of temperature |
 || B | TEMP | Real | Temperature in Kelvin|
 | repeat for all NTEMP values|
-| 3+NPHOTAB+NTEMP | A | Comments | String |Preceded by "!", column header: I,      START_WL_BIN(nm),    EFFECT_WL_BIN_(nm),       END_WL_BIN_(nm), photon_flux(cm-2*s-1), |
+| 3+NPHOTAB+NTEMP | A | Comments | String |Preceded by "!", column header: I,      START_WL_BIN(nm),    EFFECT_WL_BIN_(nm),       END_WL_BIN_(nm), photon_flux(cm-2\*s-1), |
 | 3+NPHOTAB+NTEMP+1 | A | Number of Inline Photolysis Bands| Integer | |
 || B | Start Wavelength | Real |Start Wavelength for Bin |
 || C | Effect Wavelength | Real |Effect Wavelength for Bin |
@@ -384,7 +384,7 @@ The ASCII-formatted CSQY files begin with the number and a list of the applicabl
 || E | Photon Flux| Real |Photon Flux |
 | 3+NPHOTAB+NTEMP+2 | A | Comments | String |Preceded by "!", CS  = absorption cross sections averaged over UCI Solar Flux|
 | 3+NPHOTAB+NTEMP+3 | A | Comments | String |Preceded by "!", QY  = quantum yields averaged over UCI Solar Flux|
-| 3+NPHOTAB+NTEMP+4 | A | Comments | String |Preceded by "!", EQY = eCS*eQY/CS averaged over Solar Flux and 77 bins in UCI Model|
+| 3+NPHOTAB+NTEMP+4 | A | Comments | String |Preceded by "!", EQY = eCS\*eQY/CS averaged over Solar Flux and 77 bins in UCI Model|
 | 3+NPHOTAB+NTEMP+5 | A | Comments | String |Preceded by "!", header for reactions, CS or EQY, and Wavelength Bins|
 | 3+NPHOTAB+NTEMP+6| A |Reaction Name | String |Reaction Name|
 || B | Quantity | String |CS |
@@ -513,7 +513,7 @@ ET is the logical name for the ASCII data file containing extraterrestrial radia
 **Table 8-8 ET file format description**
 
 | **Line** | **Column** | **Name** | **Type** | **Description**|
-|---|---|---|---|---|
+|-----|-----|-------------|------------|-----------------------------------------------------|
 | 1 | A | Comments | String |Preceded by "!", comment lines describe the file contents and document the source of the data (optional)|
 | n | ...  | ...  | ...  | ...  |
 | n + 1 | A | Data Location | String |Field indicating the location of the data as measured across the wavelength band; possible answers: beginning, ending, centered, point (required)|
@@ -555,7 +555,7 @@ The last data section in the PROFILES file contains vertical profiles from the 1
  **Table 8-9. PROFILES file format description.**
 
 | **Line** | **Column**| **Name**|**Type**|**Description**|
-|---|---|---|---|---|
+|-----|-------|-------------------------------------|----------|----------------------------------------|
 | 1 | A | Ozone concentration at Season 1, Latitude 1, Level 1 | Exp (E10.3) |Ozone measurements as a function of season, latitude, and vertical level; units = molecules cm<sup>-3</sup> (required)|
 || B | Ozone concentration at Season 1, Latitude 1, Level 2 | Exp (E10.3) |Ozone measurements as a function of season, latitude, and vertical level; units = molecules cm<sup>-3</sup> (required)|
 | ...  | ...  | ...  | ...  |...|
@@ -602,7 +602,7 @@ A detailed description of the file format is provided in [Table 8‑10](#Table8-
 '''Table 8-10 TOMS Data Profile '''
 
 |**Line** | **Column**| **Name** | **Type**| **Description** |
-|---|---|---|---|---|
+|-----|--------|-------|-------|--------------------------------------------------------------------|
 | 1 | A | Julian Day | Int |Julian start day of the file, DDD; preceded by 6 blank spaces (required)|
 || B | Year | Int |Start year of the file, YYYY; preceded by 9 blank spaces (required)|
 | 2 || Header | String |80-character line describing the contents of the file (if omitted, needs line placeholder)|
@@ -690,7 +690,7 @@ The data section of the file contains data blocks that are mapped to the header 
 **Table 8-11. JTABLE file format description**
 
 | **Line** | **Column** |**Name** | **Type** | **Description** |
-|---|---|---|---|---|
+|----|--------|-------|--------|------------------------------------------------|
 |1|A|JVDATE|String|Julian date of the file; YYYYDDD (required)|
 ||B|Comment|String|Description of the Julian date field (optional)|
 |2|A|JVHT|Int|Number of vertical levels covered by the data (required)|
@@ -777,7 +777,7 @@ OMI ozone column data by latitude and longitude for use in the inline photolysis
 **Table 8‑12. OMI data format**
 
 | **Line** | **Column** | **Name** | **Type** | **Description**|
-|---|---|---|---|---|
+|-----|-----|------|-----|-----------------------------------|
 | 1 || Header ||Header with names for each column|
 | 2 | A | Yeardate | Real |YYYY.??? or YYYY.???? formatted date field.|
 || B | Latitude 1 | Int |80 North latitude|
