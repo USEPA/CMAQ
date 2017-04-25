@@ -106,7 +106,7 @@ CMAQ uses the MCIP software to prepare the meteorological fields for CCTM. The I
 
 ## MCIP: Meteorology-Chemistry Interface Processor
 
-MCIP uses output files from a meteorological model, such as the <a href="http://www.wrf-model.org">Weather Research Forecast Model (WRF)</a>, to create netCDF-formatted input meteorology files that are used by the emissions model that computes emissions inputs to CMAQ, and by CCTM within CMAQ.
+MCIP uses output files from a meteorological model, such as the [Weather Research Forecast Model (WRF)](http://www.wrf-model.org), to create netCDF-formatted input meteorology files that are used by the emissions model that computes emissions inputs to CMAQ, and by CCTM within CMAQ.
 
 <a id="Figure4-3"></a>
 

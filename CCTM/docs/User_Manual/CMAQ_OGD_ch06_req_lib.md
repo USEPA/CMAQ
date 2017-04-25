@@ -1,4 +1,3 @@
-
 [<< Previous Chapter](CMAQ_OGD_ch05_sys_req.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch07_programs_libraries.md)
 * * *
 
@@ -6,7 +5,8 @@
 
 The CMAQ programs require a set of third-party libraries that must be installed on the users system before CMAQ can be compiled and run. These libraries control the data flow through CMAQ, define the binary file formats used by the CMAQ input and output files, and control how CMAQ functions in a multiple-processor computing environment. The [Input/Output Applications Programming Interface (I/O API)](#IOAPI) and the [Network Common Data Form (netCDF)](#NCF) are required for all applications of CMAQ. The [Message Passing Interface (MPI)](#MPI) is only required for multiple-processor applications of CCTM. Brief descriptions of these three libraries are provided in this section. For additional information, including how to compile and configure these libraries, refer to the documentation associated with each library.
 
-<a name="IOAPI"></a>
+<a name=IOAPI></a>
+
 [Input/Output Applications Programming Interface (I/O API)](https://www.cmascenter.org/ioapi)
 ---------------------------------------------------------
 
@@ -20,9 +20,10 @@ For CMAQ users using preconfigured applications of the model, the I/O API system
 
 The I/O API stores and retrieves data using files and virtual files, which have (optionally) multiple time steps of multiple layers of multiple variables. Files are formatted internally so that they are machine- and network-independent. This behavior is unlike Fortran files, whose internal formats are platform-specific, which means that the files do not transfer using the File Transfer Protocol (FTP) or Network File System (NFS)-mount very well. Each I/O API file has an internal description, consisting of the file type, the grid and coordinate descriptions, and a set of descriptions for the file variables (i.e., names, unit specifications, and text descriptions). According to the I/O API format, files and variables are referred to by names, layers are referred to by numbers (from 1 to the greatest number of layers in the file), and dates and times are stored as integers, using the coding formats *YYYYDDD* (commonly called “JDATE”) and *HHMMSS* (commonly called “JTIME”), where
 
-`YYYYDAY = (1000 * Year) + Julian Day`
-
-`HHMMSS = (10000 * Hour) + (100 * Minute) + Seconds`
+```
+YYYYDAY = (1000 * Year) + Julian Day
+HHMMSS = (10000 * Hour) + (100 * Minute) + Seconds
+```
 
 Rather than forcing the programmer and program-user to deal with hard-coded file names or hard-coded unit numbers, the I/O API utilizes the concept of logical file names. The modelers can define the logical names as properties of a program, and then at run-time the logical names can be linked to the actual file name using environment variables. For programming purposes, the only limitations are that file names cannot contain blank spaces and must be at most 16 characters long. When a modeler runs a program that uses the I/O API, environment variables must be used to set the values for the program’s logical file names. Additional details of how the CMAQ programs use I/O API environment variables are discussed in  [Chapter 7](CMAQ_OGD_ch07_programs_libraries.md). The remainder of this section explains some of the rudimentary details of programming in an environment using I/O API data files.
 
@@ -48,10 +49,10 @@ All files manipulated by the I/O API may have multiple variables and multiple la
 
 |**File Type**|**Magic Number**|**Data Type**|**Description**|
 |---|---|---|---|
-|CUSTOM3|-1|Custom|User-dimensioned array of REAL*4s that the system reads/writes reliably|
+|CUSTOM3|-1|Custom|User-dimensioned array of REAL4s that the system reads/writes reliably|
 |DCTNRY3|0|Dictionary|Data type stores and retrieves parts of an FDESC.EXT file description|
-|GRDDED3|1|Gridded|Dimension as REAL*4 ARRAY (NCOLS, NROWS, NLAYS, NVARS)|
-|BNDARY3|2|Boundary|Dimension as REAL*4 ARRAY (SIZE, NLAYS, NVARS)|
+|GRDDED3|1|Gridded|Dimension as REAL4 ARRAY (NCOLS, NROWS, NLAYS, NVARS)|
+|BNDARY3|2|Boundary|Dimension as REAL4 ARRAY (SIZE, NLAYS, NVARS)|
 |IDDATA3|3|ID-reference|Used to store lists of data, such as pollution monitoring observations|
 |PROFIL3|4|Vertical profile|Used to store lists of vertical data, such as rawinsonde observations|
 |GRNEST3|5|Nested grid|Preliminary and experimental implementation for storing multiple grids, which need not in fact have any particular relationship with each other beyond using the same coordinate system|
@@ -64,13 +65,15 @@ All files manipulated by the I/O API may have multiple variables and multiple la
 
 The I/O API function `OPEN3` is used to open both new and existing files. `OPEN3` is a Fortran logical function that returns TRUE when it succeeds and FALSE when it fails.
 
-`LOGICAL FUNCTION OPEN3( FNAME, FSTATUS, PGNAME )`
-
+```
+LOGICAL FUNCTION OPEN3( FNAME, FSTATUS, PGNAME )
+```
 where:
-
-`FNAME (CHARACTER) = file name for query`<br>
-`FSTATUS (INTEGER) = see possible values in Table 6-3`<br>
-`PGNAME (CHARACTER) = name of calling program`
+```
+FNAME (CHARACTER) = file name for query
+FSTATUS (INTEGER) = see possible values in Table 6-3
+PGNAME (CHARACTER) = name of calling program
+```
 
 `OPEN3` maintains considerable audit trail information in the file header automatically, and automates various logging activities. The arguments to `OPEN3` are the name of the file, an integer FSTATUS indicating the type of open operation, and the caller's name for logging and audit-trail purposes. `OPEN3` can be called many times for the same file. FSTATUS values are defined for CMAQ in PARMS3.EXT and are also listed in [Table 6-3](#Table6-3).
 
@@ -80,33 +83,33 @@ where:
 
 |**FSTATUS**|**Value**|**Description**|
 |:---------:|:-------:|:-------------:|
-|FSREAD3|1|for READ-ONLY access to an existing file|
-|FSRDWR3|2|for READ/WRITE/UPDATE access to an existing file|
-|FSNEW3|3|for READ/WRITE access to create a new file (file must not yet exist)|
-|FSUNKN3|4|for READ/WRITE/UPDATE access to a file whose existence is unknown|
-|FSCREA3|5|for CREATE/TRUNCATE/READ/WRITE access to files|
+|FSREAD3|1|for READONLY access to an existing file|
+|FSRDWR3|2|for READ,WRITE,UPDATE access to an existing file|
+|FSNEW3|3|for READ,WRITE access to create a new file, file must not yet exist|
+|FSUNKN3|4|for READ,WRITE,UPDATE access to a file whose existence is unknown|
+|FSCREA3|5|for CREATE,TRUNCATE,READ,WRITE access to files|
 
 In the last three cases, “new” “unknown” and “create/truncate,” the code developer may fill in the file description from the INCLUDE file FDESC3.EXT to define the structure for the file, and then call `OPEN3`. If the file does not exist in either of these cases, `OPEN3` will use the information to create a new file according to your specifications, and open it for read/write access. In the “unknown” case, if the file already exists, `OPEN3` will perform a consistency check between your supplied file description and the description found in the file’s own header, and will return TRUE (and leave the file open) only if the two are consistent.
 
 An example of how to use the `OPEN3` function is shown below (from the CMAQ INITSCEN subroutine). This program segment checks for the existence of a CCTM concentration (CTM_CONC_1) file, which if found will be open read-write-update. If the CCTM CONC file is not found, a warning message will be generated.
 
-<pre><code>
+```
 IF ( .NOT. OPEN3( CTM_CONC_1, FSRDWR3, PNAME ) ) THEN
 MSG = 'Could not open ' // CTM_CONC_1 // ' file for update - '
 & // 'try to open new'
 CALL M3MESG( MSG )
 END IF
-</code></pre>
+```
 
 File descriptions (i.e., I/O API file type, dimensions, start date, start time, etc.) can be obtained by using `DESC3`, which is an I/O API Fortran logical function. When `DESC3` is called, the complete file description is placed in the standard file description data structures in FDESC3.EXT . Note that the file must have been opened prior to calling `DESC3`. A typical Fortran use of `DESC3` is:
 
-<pre><code>
+```
 IF ( .NOT. DESC3( ' myfile' ) ) THEN
-... error message
+!... error message
 ELSE
-... DESC3 commons now contain the file description
-END IF`
-</code></pre>
+!... DESC3 commons now contain the file description
+END IF
+```
 
 ### Reading Data Files in I/O API
 
@@ -125,43 +128,44 @@ There are four routines with varying kinds of selectivity used to read or otherw
 
 Because it optimizes the interpolation problem for the user, `INTERP3` is probably the most useful of these routines. An `INTERP3` call to read/interpolate the variable HNO3 to 1230 GMT on February 4, 1995, is outlined below.
 
-<pre><code>
+```
 CHARACTER*16 FNAME, VNAME
 REAL*4 ARRAY( NCOLS, NROWS, NLAYS )
 ...
 IF ( .NOT. INTERP3('myfile','HNO3',1995035,123000,NCOLS*NROWS*NLAYS,ARRAY)) THEN
 ... (some kind of error happened--deal with it here)
 END IF
-</code></pre>
+```
 
 With `READ3` and `XTRACT3`, you can use the “magic values” `ALLVAR3` (= ‘ALL’, as defined in PARMS3.EXT ) or `ALLAYS3` (= -1, as also defined in PARMS3.EXT) as the variable name and/or layer number to read all variables or all layers from the file, respectively. For time-independent files, the date and time arguments are ignored.
 
 ### Writing Data Files in I/O API
 
 CMAQ module developers should use the logical function *WRITE3* to write data to files. For gridded, boundary, and custom files, the code may write either one time step of one variable at a time, or one entire time step of data at a time (in which case, use the “magic value” ALLVAR3 as the variable name). For ID-referenced, profile, and grid-nest files, the code must write an entire time step at a time.
-
-`LOGICAL FUNCTION WRITE3( FNAME, VNAME, JDATE, JTIME, BUFFER)`<br>
-
+```
+LOGICAL FUNCTION WRITE3( FNAME, VNAME, JDATE, JTIME, BUFFER)
+```
 where:
-
-`FNAME (CHARACTER) = file name for query`<br>
-`VNAME (CHARACTER) = variable name (or ALLVAR3 (='ALL'))`<br>
-`JDATE (INTEGER) = date, formatted YYYYDDD`<br>
-`JTIME (INTEGER) = time, formatted HHMMSS`<br>
-`BUFFER(*) = array holding output data`<br>
+```
+FNAME (CHARACTER) = file name for query
+VNAME (CHARACTER) = variable name (or ALLVAR3 (='ALL'))
+JDATE (INTEGER) = date, formatted YYYYDDD
+JTIME (INTEGER) = time, formatted HHMMSS
+BUFFER(*) = array holding output data
+```
 
 `WRITE3` writes data for the variable with name VNAME, for the date and time (i.e., JDATE and JTIME) to an I/O API-formatted data file with logical name FNAME. For time-independent files, JDATE and JTIME are ignored. If VNAME is the “magic name” `ALLVAR3`, `WRITE3` writes all variables. If FNAME is a dictionary file, `WRITE3` treats VNAME as a dictionary index (and ignores JDATE and JTIME). A typical `WRITE3` call to write data for a given date and time might look like this:
 
-<pre><code>
+```
 REAL*4 ARRAY( NCOLS, NROWS, NLAYS, NVARS )
-...
+!...
 IF ( .NOT. WRITE3( 'myfile', 'HNO3', JDATE, JTIME, ARRAY ) ) THEN
-...(some kind of error happened--deal with it here)
+!...(some kind of error happened--deal with it here)
 END IF
 IF ( .NOT. WRITE3( 'afile', 'ALL', JDATE, JTIME, ARRAYB ) ) THEN
-...(some kind of error happened--deal with it here)
+!...(some kind of error happened--deal with it here)
 END IF
-</code></pre>
+```
 
 ### CMAQ-Related I/O API Utilities
 
@@ -185,13 +189,15 @@ Data files in the CMAQ system can be easily manipulated by using the I/O API uti
 |VERTOT|compute vertical-column totals of variables in a file|
 |UTMTOOL|coordinate conversions and grid-related computations for lat/lon, Lambert, and UTM|
 
-<a id="NCF"></a>
+<a id=NCF></a>
+
 [Network Common Data Form (netCDF)](http://www.unidata.ucar.edu/software/netcdf)
 ---------------------------------
 
 The Network Common Data Form (netCDF) is a set of software libraries and machine-independent data formats that support the creation, access, and sharing of array-oriented scientific data (Unidata, 2009). The netCDF library provides an implementation of the netCDF interface for several different programming languages. The netCDF is used in CMAQ to define the format and data structure of the binary input and output files. CMAQ input and output files are self-describing netCDF-format files in which the file headers have all the dimensioning and descriptive information needed to define the resident data. Users should download the latest code for the NetCDF from the [NetCDF website](http://www.unidata.ucar.edu/software/netcdf). Compilation and configuration information for the NetCDF is available through the Unidata website.
 
-<a id="MPI"></a>
+<a id=MPI></a>
+
 Message Passing Interface Library (MPI)
 -----------------------------------------
 
@@ -202,10 +208,7 @@ The Message Passing Interface (MPI) is a standard library specification for mess
 
 References for Chapter 6: Required Libraries
 ------------------------------------------
-
-Coats, C., 2005: The EDSS/Models-3 I/O API. [Available online at the [I/O API website](https://www.cmascenter.org/ioapi)]
-
-Unidata, 2009: NetCDF. [Available online at [NetCDF website](http://www.unidata.ucar.edu/software/netcdf)
+Coats, C., 2005: The EDSS/Models-3 I/O API. Available online at the [I/O API website](https://www.cmascenter.org/ioapi)
+Unidata, 2009: NetCDF. Available online at [NetCDF website](http://www.unidata.ucar.edu/software/netcdf)
 ***
-[<< Previous Chapter](CMAQ_OGD_ch05_sys_req.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch07_programs_libraries.md)
-CMAQ Operational Guidance Document (c) 2016<br>
+[<< Previous Chapter](CMAQ_OGD_ch05_sys_req.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch07_programs_libraries.md) CMAQ Operational Guidance Document (c) 2016
