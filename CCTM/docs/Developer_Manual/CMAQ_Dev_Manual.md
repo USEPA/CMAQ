@@ -58,96 +58,100 @@ A fork of the main CMAQ-Release release repository that is used for testing and 
 The CMAQ-Dev and CMAQ-Release repository directories for the base model are all laid out as follows.
 
 - CCTM
-  - docs
-    - Releaase_Notes
-    - User_Manual
-    - Developer_Manual
-  - scripts
-  - src
-    - ICL
-    - MECHS
-    - PARIO
-    - STENEX
-    - areo
-      - aero6
-    - biog
-      - beis3
-    - cloud
-      - acm_ae6
-      - acm_ae6_kmt
-      - acm_ae6_mp
-      - acm_ae6i_kmti
-    - couple
-      - gencoor
-      - gencoor_wrf
-    - depv
-      - m3dry
-    - driver
-      - wrf
-      - yamo
-    - emis
-      - emis
-    - gas
-      - ebi_cb05e51_ae6_aq
-      - ebi_cb05e51_ae6nvPOA_aq
-      - ebi_cb05eh51_ae6_aq
-      - ebi_cb05mp51_ae6_aq
-      - ebi_cb05tucl_ae6_aq
-      - ebi_cb05tump_ae6_aq
-      - ebi_cb6r3_ae6_aq
-      - ebi_cb6r3_ae6nvPOA_aq
-      - ebi_racm2_ae6_aq
-      - ebi_saprc07tb_ae6_aq
-      - ebi_saprc07tc_ae6_aq
-      - ebi_saprc07tc_ae6nvPOA_aq
-      - ebi_saprc07tic_ae6i_aq
-      - ebi_saprc07tic_ae6invPOA_aq
-      - ros3
-      - smvgear
-    - grid
-      - cartesian
-    - hadv
-      - yamo
-    - hdiff
-      - multiscale
-    - init
-      - yamo
-    - par
-      - mpi
-      - par_noop
-    - phot
-      - inline
-      - table
-    - plrise
-      - smoke
-    - procan
-      - pa
-    - pv_o3
-    - spcs
-    - twoway
-    - util
-      - util
-    - vadv
-      - wrf
-      - yamo
-    - vdiff
-      - acm2
+
+     + docs
+
+         * Releaase_Notes
+         * User_Manual
+         * Developer_Manual
+
+     + scripts
+     + src
+         * ICL
+         * MECHS
+         * PARIO
+         * STENEX
+         * areo
+
+               - aero6
+         * biog
+         * beis3
+         * cloud
+               - acm_ae6
+               - acm_ae6_kmt
+               - acm_ae6_mp
+               - acm_ae6i_kmti
+         * couple
+               - gencoor
+               - gencoor_wrf
+         * depv
+               - m3dry
+         * driver
+               - wrf
+               - yamo
+         * emis
+               - emis
+         * gas
+               - ebi_cb05e51_ae6_aq
+               - ebi_cb05e51_ae6nvPOA_aq
+               - ebi_cb05eh51_ae6_aq
+               - ebi_cb05mp51_ae6_aq
+               - ebi_cb05tucl_ae6_aq
+               - ebi_cb05tump_ae6_aq
+               - ebi_cb6r3_ae6_aq
+               - ebi_cb6r3_ae6nvPOA_aq
+               - ebi_racm2_ae6_aq
+               - ebi_saprc07tb_ae6_aq
+               - ebi_saprc07tc_ae6_aq
+               - ebi_saprc07tc_ae6nvPOA_aq
+               - ebi_saprc07tic_ae6i_aq
+               - ebi_saprc07tic_ae6invPOA_aq
+               - ros3
+               - smvgear
+         * grid
+               - cartesian
+         * hadv
+               - yamo
+         * hdiff
+               - multiscale
+         * init
+               - yamo
+         * par
+               - mpi
+               - par_noop
+         * phot
+               - inline
+               - table
+         * plrise
+               - smoke
+         * procan
+                                                                              - pa
+         * pv_o3
+         * spcs
+         * twoway
+         * util
+                - util
+         * vadv
+                - wrf
+                - yamo
+         * vdiff
+                - acm2
 - POST
-  - appendwrf
-  - bldoverlay
-  - block_extract
-  - combine
-  - hr2day
-  - merge_aqs_species
-  - sitecmp
-  - sitecmp_dailyo3
-  - writesite
+    + appendwrf
+    + bldoverlay
+    + block_extract
+    + combine
+    + hr2day
+    + merge_aqs_species
+    + sitecmp
+    + sitecmp_dailyo3
+    + writesite
 - PREP
-  - agdust
-  - bcon
-  - icon
-  - jproc
-  - mcip
+    + agdust
+    + bcon
+    + icon
+    + jproc
+    + mcip
 - Tutorials
 - UTIL
 
@@ -216,9 +220,7 @@ Code level requirements are described in chapter 5.
 Development Strategy
 ==================================
 
-As developers of CMAQ, we attempt to make the code look as uniform as
-we can across the entire code-base. In order to enforce this, there are a set
-of guidelines developers should follow.
+As developers of CMAQ, we attempt to make the code look as uniform as we can across the entire code-base. In order to enforce this, there are a set of guidelines developers should follow.
 
 ## Code Consistency
 
@@ -230,8 +232,11 @@ of guidelines developers should follow.
 - Variable names should be upper case, with underscores in place of spaces).
 - In general, variable names should be self-descriptive (e.g. NCELLS rather than N).
 
+## Benchmark Dataset
+The U.S. EPA Calnex 12km domain July 2, 2011 testing dataset is provided with the CMAQ-Dev Release. This dataset is distributed with CMAQv5.2gamma to use for benchmarking the model installation. 
 
-## Benchmarking and Testing
+
+## Testing 
 
 - Developers need to test using multiple compilers, multiple processor configurations, and singel processor configuration runs for single day to verify answers match.
 - Developers need to share results of tests and request review of the documentation prior to a merge.
@@ -255,11 +260,33 @@ Compiler flags:
 
 
 <a id=Table5-1></a>
-### Testing Manifest Table Example
+### Compilation Testing Manifest Table (Example)
 |**Scenario**|**Compiler**|**netCDF**|**I/O API**|**MPI_YN(#P)**|**MPI**|**CMAQv5.1 Timing(HH:MM:SS)**|**CMAQ New Project Timing(HH:MM:SS)**| Notes|
-|----------------|---------|---------|---------|----|-----|----|----|
-|Gfortran Serial|Gfortran version 4.8.1| 4.3.3|3.1 (Nov 2015)|N|N/A|8:19:51|7:35:30|UNC module gcc/4.8.1|
-|Gfortran MVAPICH2|Gfortran version 4.8.1|4.3.2|3.1 (Nov 2015) |Y (16)|mvapich2-1.7|0:45:55|0:42:40| |
+|--------------|-----------|---------|---------|---------|-------------|----------------|-------------|
+|Gfortran Serial|Gfortran version 4.8.1| 4.3.3|3.1(11/15)|N|N/A|8:19:51|7:35:30|UNC module gcc/4.8.1|
+|Gfortran MVAPICH2|Gfortran version 4.8.1|4.3.2|3.1(11/15) |Y (16)|mvapich2-1.7|0:45:55|0:42:40| |
+|Intel Serial|Intel Fortran version 16.2.0 |4.3.2|3.1(11/15)|N |N/A |6:01:42|5:10:16|UNC module intel/16.2|
+|Intel OpenMPI (EPA Config)|Intel Fortran v15.0.0|4.3.2|3.1(11/15)|Y (16)|openMPI-1.42|0:34:27|UNC module openmpi_intel/15.0|
+|Intel OpenMPI|Intel Fortran v16.2.0|4.3.2|3.1(11/15)|Y (16)|openMPI-1.4.2|0:35:29|UNC module openmpi_intel/16.2| 
+|Intel MVAPICH2|Intel Fortran v16.2.0|4.3.2|3.1(11/15)|Y (16)|mvapich2-1.7|0:36:34|UNC module mvapich2_intel/16.2| 
+|Portland Serial|PG Fortran v16.1|4.3.2|3.1(11/15)|N|N/A|7:33:36|6:26:31|UNC module pgi/16.1|
+|Portland OpenMPI|PGI Fortran v15.7|4.3.2|3.1(11/15)|Y (16)|openMPI-1.4.2|0:40:20|0:36:16|UNC module openmpi_pgi/15.7|
+
+
+<a id=Table5-2></a>
+### Configuration Testing Manifest Table (Example)
+|**Scenario**|**Description**|**Mechanism**|**Notes**|**Timing(16PE)H:MM:SS**|
+|----------------|-------------------|--------------------|--------------------|----------|
+|Benchmark Case|Online emissions processing, inline photolysis, inline lightning from MCIP RC, no windblown dust, surface HONO, bidirectional NH3 and Hg, no potential vorticity scaling|cb05e51_ae6_aq |Done; LTNGNO InLine, LTNGPARM = N, LOG_START = 2.0|0:40:20|
+|Halogen Chemistry|Same as Benchmark case with halogen chemistry enabled|cb05eh51_ae6_aq|Done. Turned off the diagnostic file logging.|0:47:40| 
+|No Bidi|Same as Benchmark with Hg and NH3 BiDi deactivated|cb05e51_ae6_aq|Done. set CTM_HGBIDI = N; set ABFLUX = N |0:37:21|
+|Process Analysis|Benchmark case with IPR and IRR|ros3|Done. Switch to Rosenbrock solver because EBI solver not supported by PA module; ran with inline process analysis|0:54:10|
+|MOSAIC|Benchmark case with MOSAIC and additional stomatal flux files activated|cb05e51_ae6_aq |Done. set CTM_MOSAIC = Y; set CTM_FST = Y|0:44:02 |
+|New Mechanism Test |Benchmark case with toluene and chlorine chemistry |cb05tucl_ae6_aq|Done. |0:40:30 |
+|Potential vorticity UTLS exchange|Benchmark case with scaling for STE|cb05e51_ae6_aq|Uncomment potvortO3 in build. Need PV variable in METCRO3D file |0:38:03|
+|Dust|Benchmark case with dust, including new MODIS FP input|cb05e51_ae6_aq|Done. setenv CTM_WB_DUST Y; setenv CTM_ERODE_AGLAND Y; setenv CTM_WBDUST_BELD BELD3 |0:38:28|
+|Hourly NLDN|Benchmark with lightning NOx calculated using hourly bNLDN strikes |cb05e51_ae6_aq |Done; LTNGNO InLine, LTNGPARM = Y, USE_NLDN Y|0:40:18 |
+|POA Sensitivity|Benchmark with new POA mechanism |cb05e51_ae6nvPOA_aq|Done|0:34:42 |
 
 ## Verification of Model output
 
