@@ -235,7 +235,37 @@ Fork CMAQ-Release Code
       + if your fork is behind the EPA's you can bring it up to date using the following instructions
 <https://help.github.com/articles/syncing-a-fork/>
 
+Locally Clone the Newly Created Fork
+==================================
+Follow these instructions:
 
+- On GitHub, navigate to the main page of the repository.
+
+- Under the repository name, click Clone or download.
+
+- In the Clone with HTTPs section, click to copy the clone URL for the repository. 
+
+- Open a Terminal on your computer
+
+- Change the current working directory to the location where you want the cloned directory to be made
+
+- Type git clone, and then paste the URL you copied in Step 2.
+
+    ```
+    git clone https://github.com/YOUR-USERNAME/YOUR-REPOSITORY
+    ```
+
+
+Develop a Branch
+==================================
+
+- Create a new branch on your local machine and switch to this branch 
+
+      git checkout -b [name_of_your_new_branch]
+
+- Change to this branch (make it your working branch)
+  
+      git checkout [name_of_your_new_branch]
 
 
 Development Strategy
