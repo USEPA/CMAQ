@@ -262,7 +262,7 @@ Compiler flags:
 <a id=Table5-1></a>
 ### Compilation Testing Manifest Table (Example)
 |**Scenario**|**Compiler**|**netCDF**|**I/O API**|**MPI_YN(#P)**|**MPI**|**CMAQv5.1 Timing(HH:MM:SS)**|**CMAQ New Project Timing(HH:MM:SS)**| Notes|
-|--------------|-----------|---------|---------|---------|-------------|----------------|-------------|
+|--------------|-----------|---------|---------|---------|-------------|----------------|-------------|------------|
 |Gfortran Serial|Gfortran version 4.8.1| 4.3.3|3.1(11/15)|N|N/A|8:19:51|7:35:30|UNC module gcc/4.8.1|
 |Gfortran MVAPICH2|Gfortran version 4.8.1|4.3.2|3.1(11/15) |Y (16)|mvapich2-1.7|0:45:55|0:42:40| |
 |Intel Serial|Intel Fortran version 16.2.0 |4.3.2|3.1(11/15)|N |N/A |6:01:42|5:10:16|UNC module intel/16.2|
