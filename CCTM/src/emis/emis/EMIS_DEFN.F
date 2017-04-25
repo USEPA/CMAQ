@@ -65,14 +65,14 @@ C-----------------------------------------------------------------------
       INTEGER,              SAVE :: N_SPC_EMIS ! global emissions species
       INTEGER,              SAVE :: EMLAYS     ! no. of emis integration layers
                                                ! EMLAYS must be .LT. NLAYS
-      LOGICAL,              SAVE :: NO_EMISCHK ! Let model proceed even if Emis Surrogates 
+      LOGICAL,              SAVE :: EMISCHK ! Let model proceed even if Emis Surrogates 
                                                !are not properly defined
       INTEGER,              SAVE :: EMLYRS     ! no. of layers on base emis input file
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: TRACSPC( : )  ! Variables from Tracer Emission File
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: AREASPC( : )  ! Variables from Area Emission File
 
       PUBLIC VDEMIS, N_SPC_EMIS, EMLAYS, EMLYRS, TRACSPC, AREASPC,  ! Variables
-     &       EMIS_INIT, GET_EMIS, NO_EMISCHK                        ! Routines
+     &       EMIS_INIT, GET_EMIS, EMISCHK                           ! Routines
       
 #ifdef verbose_emis_defn
       public semis
@@ -304,7 +304,7 @@ C (N_SPC_EMIS+1 serves as the null map for PTEM_MAP)
 C Check the Emissions Species Available on the Input Files Against the
 C Surrogates Identified by the User via the Namelists and Stop the model
 C or Print Warnings if Mistakes Are Made.
-         NO_EMISCHK = .FALSE.   ! Env Variable Default
+         EMISCHK = .TRUE.   ! Env Variable Default
          CALL EMIS_SPC_CHECK( JDATE, JTIME )
 
 C Warn the User if there are No Emissions Species On Any File         
@@ -415,7 +415,7 @@ C                                       vvvvvvv - emis surrogate names
      &                          JDATE, JTIME, BUFF ) ) THEN
                XMSG = 'Could not read '
      &              // TRIM( GC_EMIS( S ) ) // ' from ' // EMIS_1
-               IF ( NO_EMISCHK ) CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+               IF ( .NOT. EMISCHK ) CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
             END IF
 
             !READ Non-Carbon Organic Matter From Gas Emissions
@@ -426,7 +426,7 @@ C                                       vvvvvvv - emis surrogate names
      &                          JDATE, JTIME, BUFF2 ) ) THEN
                  XMSG = 'Could not read '
      &               // TRIM( GC_EMIS( S ) ) // ' from ' // EMIS_1
-                 IF ( NO_EMISCHK ) CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+                 IF ( .NOT. EMISCHK ) CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
               END IF  
               BUFF = BUFF + BUFF2
             ENDIF
@@ -637,7 +637,7 @@ C                                       vvvvvvv - emis surrogate names
      &                          JDATE, JTIME, BUFF ) ) THEN
                XMSG = 'Could not read '
      &              // TRIM( NR_EMIS( S ) ) // ' from ' // EMIS_1
-               IF ( NO_EMISCHK ) 
+               IF ( .NOT. EMISCHK ) 
      &            CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
             END IF
 ! subtract the fertilizer emissions from the NEI for use in the NH3 bidirectional
@@ -648,7 +648,7 @@ C                                       vvvvvvv - emis surrogate names
      &                          STARTCOL,ENDCOL, STARTROW,ENDROW, 1,EMLYRS,
      &                          JDATE, JTIME, FERT ) ) THEN
                   XMSG = 'Could not read NH3_FERT from' // EMIS_1
-                  IF ( NO_EMISCHK ) 
+                  IF ( .NOT. EMISCHK ) 
      &                 CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
                END IF
                DO R = 1, MY_NROWS
@@ -694,7 +694,7 @@ C                                               vvvvvvv - emis surrogate names
      &                             JDATE, JTIME, BUFF ) ) THEN
                   XMSG = 'Could not read  ' // TRIM( TR_EMIS( S ) )
      &                 //' from ' // EMIS_TRAC_1
-                  IF ( NO_EMISCHK )
+                  IF ( .NOT. EMISCHK )
      &                 CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
                END IF
                CNVTI = CNVTP * TR_EMIS_FAC( S )
@@ -806,9 +806,9 @@ C-----------------------------------------------------------------------
 
          INTEGER, ALLOCATABLE    :: EMIS_IND( : )
 
-         CHARACTER( 16 ), SAVE :: CTM_NO_EMISCHK = 'CTM_NO_EMISCHK'    ! Let model proceed even if
-                                                                       ! Emissions surrogates are
-                                                                       ! not properly defined
+         CHARACTER( 16 ), SAVE :: CTM_EMISCHK = 'CTM_EMISCHK'    ! Let model proceed even if
+                                                                 ! Emissions surrogates are
+                                                                 ! not properly defined
          CHARACTER( 16 )  :: PNAME = 'EMIS_SPC_CHECK'
          CHARACTER( 80 )  :: VARDESC
          INTEGER          :: STATUS
@@ -819,7 +819,7 @@ C and allowing the model to proceed.
          LOGDEV = INIT3()
          VARDESC    = "Let model proceed even if there are emission"
      &              //" surrogates that do not appear on any input file."
-         NO_EMISCHK = ENVYN( CTM_NO_EMISCHK, VARDESC, NO_EMISCHK, STATUS )
+         EMISCHK = ENVYN( CTM_EMISCHK, VARDESC, EMISCHK, STATUS )
          IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
          IF ( STATUS .EQ. 1 ) THEN
             XMSG = 'Environment variable improperly formatted'
@@ -1074,17 +1074,20 @@ C Compare with Gas, Aerosol, Nonreactive, and Tracer Species
 C Stop the Model if Any Emissions Surrogate Species are
 C Missing from All Emission Input Sources
          IF ( LERROR ) THEN
-           IF ( NO_EMISCHK ) THEN
-              WRITE( LOGDEV, '(/,A70,/,A61,/,A42)'), 
-     &               '***WARNING***: The problems with your emissions surrogates need to be ',
-     &               'resolved but you have invoked the CTM_NO_EMISCHK environment',
-     &               'variable. You may continue, but be warned.'
+           IF ( .NOT. EMISCHK ) THEN
+              WRITE( LOGDEV, '(/,A68,/,A72,/,A18)'), 
+     &               '***WARNING***: The problems with your emissions surrogates should be ',
+     &               'resolved but you have set the CTM_EMISCHK environment variable to False. ',
+     &               'CMAQ will proceed.'
 
            ELSE     
-              WRITE( LOGDEV, '(/,A66,/,A52,/,A53)'), 
-     &               '***WARNING***: The problems with your emissions surrogates must be ',
-     &               'resolved for CMAQ to continue, or you may invoke the ',
-     &               ' CTM_NO_EMISCHK environment variable at your own risk.'
+              WRITE( LOGDEV, '(/,A68,/,A71,/,A69,/,A73,/,A53,/,A42)'), 
+     &               '***WARNING***: One or more emission surrogates are missing from all ',
+     &               'emission sources. In order to continue, please remove those surrogates ',
+     &               'from the namelist (GC, NR, or TR) they appear in or from the aerosol ',
+     &               'data table in AERO_DATA if the surrogate is for aerosols. These problems ',
+     &               'must be resolved for CMAQ to run, or you can set the ',
+     &               'CTM_EMISCHK environment variable to False.'
 
               XMSG = 'Every emission surrogate species must be present from '
      &             //'at least one input source.'
