@@ -1,7 +1,7 @@
 CMAQv5.2 Developer Manual
 ==
 
-This manual is an operational guidance document for users of the [Community Multiscale Air Quality (CMAQ)](http://www.epa.gov/cmaq) modeling system, and is designed to support developers. CMAQ developers should be comfortable with Linux scripting conventions and be proficient with the Fortran programming language. Developers need to have an understanding of the atmospheric structure, and the physical and chemical processes that occur in the atmosphere.
+This manual is designed to help developers of the [Community Multiscale Air Quality (CMAQ)](http://www.epa.gov/cmaq) modeling system. CMAQ developers should be comfortable with Linux scripting conventions and be proficient with the Fortran programming language. Developers need to have an understanding of the atmospheric structure, and the physical and chemical processes that occur in the atmosphere.
 
 The following sections are included in this manual:
 
