@@ -337,7 +337,8 @@ One of the variable branch types that developers will see in the shared reposito
 Development Branches
 ---------------------------------
 
-Due to the requirement that anything merged into develop can be released at any point in time, a group of developers can decide they want to begin the release process at any point in time. The guidelines for the release process are as follows, however the exibility of these guidelines is at the discretion of the group performing the release.
+(need to review and revise)
+Due to the requirement that anything merged into develop can be released at any point in time, a group of developers can decide they want to begin the release process at any point in time. The guidelines for the release process are as follows, however the flexibility of these guidelines is at the discretion of the group performing the release.
 
 From any point in time, the soonest date that can be targeted for release is 1 month from the current date.  
 
@@ -351,12 +352,12 @@ the targeted date of release as soon as they have one selected.
 Version Numbers
 =================================
 
-(review and edit!)
+(review and edit this entire section!)
 
-Final Release Version
+Release Version
 ---------------------
 CMAQ will have a number versioning system for release version, using major, minor, and sub-minor increments.
-For example, 5.02  In this case, the first digit (major version), second digit (minor version), and third digit (patch version) ( refers to an official final release version. 
+For example, 5.02  In this case, the first digit (major version), second digit (minor version), and third digit (patch version) ( refers to an stable release version. 
 
 Development Version
 ---------------------
@@ -364,8 +365,7 @@ CMAQ combines the number versioning system with an alphanumeric string that incr
 5.2 alpha, 5.2 beta, 5.2 gamma refers to intermediate bug fixes of the development version that after completing testing and review, will be released as 5.2.
 
 Referring to the branching strategy, coordinated releases occur when a release branch is created of off develop and merged back into
-develop and master. 
-While an intermediate bug fix happens when a branch is created from a master and merged back into master and develop.
+develop and master.  While an intermediate bug fix happens when a branch is created from a master and merged back into master and develop.
 
 The minor version (second digit) of CMAQ increments when a bug fix branch is merged into master. These merges never include feature additions to any of the cores or shared framework.
 
@@ -374,6 +374,7 @@ The major version (first digit) of CMAQ increments when a release branch is merg
 
 Development Strategy
 ==================================
+(review and edit!)
 
 As developers of CMAQ, we attempt to make the code look as uniform as we can across the entire code-base. In order to enforce this, there are a set of guidelines developers should follow.
 
