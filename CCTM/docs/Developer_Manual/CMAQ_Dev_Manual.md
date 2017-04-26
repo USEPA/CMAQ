@@ -37,11 +37,13 @@ The CMAQ project contains several repositories. Some of the repositories are pri
 
 The main CMAQ repositories are described in this section
 
-## Internal EPA Private CMAQ-Dev Repository
+Internal EPA Private CMAQ-Dev Repository
+------------------------------------
 
 This will be where CMAQ development by EPA employees occurs. This is a private repository for development efforts by employees of EPA.
 
-## External EPA Public CMAQ-Release Repository
+External EPA Public CMAQ-Release Repository
+------------------------------------
 
 The main CMAQ release repository is located here. Users should refer to this repository for bug fixes, issues, and major releases for CMAQ.
 
@@ -49,11 +51,14 @@ The main CMAQ release repository is located here. Users should refer to this rep
 
 Users who wish to implement a new feature, and have that feature merged into the CMAQ repository should follow the instructions on code requirements and repository layout as an CMAQ developer would. Forks should be made of this release repository. Developers will use GitHub commands to add, commit, and push code to their forked repository.  Once their forked version of the repository code has undergone checks for code consistency, benchmark testing, and model output validation, and documentation including release notes, they may submit a pull request to the CMAQ-Release maintainer. New features will have to undergo a code review before any merge onto the release repository.  Instructions on using it to add a feature are in this (insert link) section.
 
-## External CMAS Public CMAQ-Release Repository
+External CMAS Public CMAQ-Release Repository
+----------------------------------
 
 A fork of the main CMAQ-Release release repository that is used for testing and documenation by the CMAS Center.
 
-## Repository Layouts
+
+Repository Layouts
+==================================
 
 The CMAQ-Dev and CMAQ-Release repository directories for the base model are all laid out as follows.
 
@@ -191,10 +196,12 @@ The 6 month advance allows time for the CMAQ base model to be fully tested and v
 CMAQ Code Introduction
 ==================================
 
-## General Code Introduction
+General Code Introduction
+----------------------------------
 
 
-### Parallelization Strategy
+Parallelization Strategy
+----------------------------------
 
 
 Contributions Life-cycle
@@ -217,7 +224,7 @@ cycle will be described in the following sections.
 
 
 Design Documents
-==============================
+----------------------------------
 Design documents are recommended for projects that contribute signficant changes to either an existing science module or to create a new capability within CMAQ.  They should clearly describe the justication for the project, and the changes and impacts of the project.  
 
 Core maintainers reserve the right to deny a pull request that lacks a design document.  
@@ -226,7 +233,7 @@ Developers can refer to xxx and xxx for examples of design documents that have b
 
 
 Fork CMAQ-Release Code
-===============================
+----------------------------------
 - Obtain an account on GitHub
 - visit EPA/CMAQ page
 <https://github.com/USEPA/CMAQ>
@@ -244,7 +251,7 @@ Fork CMAQ-Release Code
 <https://help.github.com/articles/syncing-a-fork/>
 
 Locally Clone the Newly Created Fork
-==================================
+----------------------------------
 Follow these instructions:
 
 - On GitHub, navigate to the main page of the repository.
@@ -265,7 +272,7 @@ Follow these instructions:
 
 
 Create a new Branch
-==================================
+----------------------------------
 
 - Create a new branch on your local machine and switch to this branch 
 
@@ -276,22 +283,58 @@ Create a new Branch
       git checkout [name_of_your_new_branch]
 
 
-Branch Strategy
-=================================
+Merging Code
+----------------------------------
+
+## Submit changes to your forked repository on Github
+- Use git to commit code and documentation to your fork
+
+      + View a list of files that have been modified in your local repository
+
+              git status
+
+      + Add files that have been modified, to be traced in your local git repository
+
+              git add new_module_file
+      + Commit files that have been added to your local git repository
+
+              git commit -m "new module edits"
+
+      + Transfer the files from your local repository to your forked repository
+
+              git push
+
+Pull requests
+----------------------------------
+
+- use GitHub Website to view your CMAQ-Release Fork
+- go to the branch that you have committed code, example: 5.2gamma
+- Submit a pull request
+
+
+
+Branches 
+========================
 As a developer, most work will be completed in a branch. This branch can be one of several types of branches. To give an overview of the current branching strategy, please see this [link](http://nvie.com/posts/a-successful-git-branching-model/).  
 
 The name of a branch should be descriptive and tell where the feature addition will be. For example, if the branch is intended to implement multiple blocks, the majority of its work would take place in framework.  A good name for the branch would then be framework/multiple blocks.  
 
 
+Feature Branches
+--------------------------------
 - review this language..
 Feature branches should only be created from the develop branch. This allows a cleaner work flow when planning releases. Any features that have been merged onto develop can be staged for release. This means, if you submit a pull request for a feature to be merged onto the CMAQ version of develop, you are giving consent for it to be included in the next coordinated release.
 
 
 Release Branches
-=================================
+----------------------------------
 (need to review this text from MPAS developer document and compare the MPAS method to the method currently used by EPA, and then make edits here.)
 
 One of the variable branch types that developers will see in the shared repository is a release branch. This release branch is used to prepare the code for a new release, and comes with some guidelines of use.  As per the branch document listed in section XX, release branches should branch from develop. Once they are complete, they are merged into both develop and master. After they are merged into master, that commit is tagged with a new version number, and then pushed into the CMAQ-Release repository for a public release.  A feature branch can be thought of as a feature freeze. Once the release branch is created, no new features can make it into the next release. The only commits that can be appended to a release branch are clean up and bug fix commits.
+
+
+Development Branches
+---------------------------------
 
 Due to the requirement that anything merged into develop can be released at any point in time, a group of developers can decide they want to begin the release process at any point in time. The guidelines for the release process are as follows, however the exibility of these guidelines is at the discretion of the group performing the release.
 
@@ -327,7 +370,8 @@ Development Strategy
 
 As developers of CMAQ, we attempt to make the code look as uniform as we can across the entire code-base. In order to enforce this, there are a set of guidelines developers should follow.
 
-## Code Consistency
+Code Consistency
+------------------------------
 
 (review and edit!)
 - Each science module has a name and abbreviation, and for each method within each science module there is a defined abbreviation.  For example:
@@ -338,11 +382,13 @@ As developers of CMAQ, we attempt to make the code look as uniform as we can acr
 - Variable names should be upper case, with underscores in place of spaces).
 - In general, variable names should be self-descriptive (e.g. NCELLS rather than N).
 
-## Benchmark Dataset
+Benchmark Dataset
+------------------------------
 The U.S. EPA Calnex 12km domain July 2, 2011 testing dataset is provided with the CMAQ-Dev Release. This dataset is distributed with CMAQv5.2gamma to use for benchmarking the model installation. 
 
 
-## Testing 
+Testing 
+------------------------------
 
 - Developers need to test using multiple compilers, multiple processor configurations, and singel processor configuration runs for single day to verify answers match the previous stable release, and/or that the answers are computationally and physically reasonable.
 - Developers need to share results of tests and request review of the documentation prior to a merge.
@@ -394,7 +440,9 @@ Compiler flags:
 |Hourly NLDN|Benchmark with lightning NOx calculated using hourly bNLDN strikes |cb05e51_ae6_aq |Done; LTNGNO InLine, LTNGPARM = Y, USE_NLDN Y|0:40:18 |
 |POA Sensitivity|Benchmark with new POA mechanism |cb05e51_ae6nvPOA_aq|Done|0:34:42 |
 
-## Verification of Model output
+
+Verification of Model output
+------------------------------
 
 ### m3diff
 - see min, max, mean differences between two different model runs
@@ -402,39 +450,40 @@ Compiler flags:
 - absolute difference plots for multiple variables, timesteps, layers (see spatial differences)
 ### 1:1 Scatter Plots
 -
-## Documentation
+
+
+Documentation
+==============================
+
+Documentation that is provided and updated for each release version of CMAQ.
+
+Release Notes
+-----------------------------
 
 - Subroutines and modules should be appropriately documented. CMAQ code use git tags to facilitate creation of Release Notes.
 - Provide an example of how the EPA creates their Release Notes
 
-## Merging Code
+Operational Guidance Manual
+----------------------------
+- Comprehensive User Manual 
 
-### Submit changes to your forked repository on Github
-- Use git to commit code and documentation to your fork 
+Science Manual
+---------------
+- provides citation and additional information about science modules
 
-      + View a list of files that have been modified in your local repository
+Developer Manual
+---------------------------
+- provides instructions on how to contribute code for CMAQ 
 
-              git status
 
-      + Add files that have been modified, to be traced in your local git repository
+Design Documents
+---------------------------
+- provides information about proposed code contributions by the author(s) of the contribution. 
 
-              git add new_module_file 
 
-      + Commit files that have been added to your local git repository
-
-              git commit -m "new module edits"
-
-      + Transfer the files from your local repository to your forked repository
-
-              git push
-
-Pull requests
-================================
-
-- use GitHub Website to view your CMAQ-Release Fork
-- go to the branch that you have committed code, example: 5.2gamma
-- Submit a pull request
-  
+Tutorials
+--------------------------
+- provides instructions on how to run CMAQ for provided datasets. 
 
 Copyright Information
 ==================================
