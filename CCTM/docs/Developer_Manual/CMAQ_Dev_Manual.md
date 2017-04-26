@@ -216,6 +216,15 @@ gives a general overview of the process. Some details related to this life-
 cycle will be described in the following sections.
 
 
+Design Documents
+==============================
+Design documents are recommended for projects that contribute signficant changes to either an existing science module or to create a new capability within CMAQ.  They should clearly describe the justication for the project, and the changes and impacts of the project.  
+
+Core maintainers reserve the right to deny a pull request that lacks a design document.  
+
+Developers can refer to xxx and xxx for examples of design documents that have been previously completed and approved. 
+
+
 Fork CMAQ-Release Code
 ===============================
 - Obtain an account on GitHub
@@ -265,6 +274,53 @@ Create a new Branch
 - Change to this branch (make it your working branch)
   
       git checkout [name_of_your_new_branch]
+
+
+Branch Strategy
+=================================
+As a developer, most work will be completed in a branch. This branch can be one of several types of branches. To give an overview of the current branching strategy, please see this [link](http://nvie.com/posts/a-successful-git-branching-model/).  
+
+The name of a branch should be descriptive and tell where the feature addition will be. For example, if the branch is intended to implement multiple blocks, the majority of its work would take place in framework.  A good name for the branch would then be framework/multiple blocks.  
+
+
+- review this language..
+Feature branches should only be created from the develop branch. This allows a cleaner work ow when planning releases. Any features that have been merged onto develop can be staged for release. This means, if you submit a pull request for a feature to be merged onto the CMAQ version of develop, you are giving consent for it to be included in the next coordinated
+release.
+
+
+Release Branches
+=================================
+- need to review this text from MPAS developer document and compare the MPAS method to the method currently used by EPA, and then make edits here.
+
+One of the variable branch types that developers will see in the shared repository is a release branch. This release branch is used to prepare the code for a new release, and comes with some guidelines of use.  As per the branch document listed in section 3.4, release branches should branch from develop. Once they are complete, they are merged into both develop and master. After they are merged into master, that commit is tagged with a new version number, and then pushed into the CMAQ-Release repository for a public release.  A feature branch can be thought of as a feature freeze. Once the release branch is created, no new features can make it into the next release. The only commits that can be appended to a release branch are clean up and bug fix commits.
+
+Due to the requirement that anything merged into develop can be re- leased at any point in time, a group of developers can decide they want to begin the release process at any point in time. The guidelines for the release process are as follows, however the exibility of these guidelines is at the discretion of the group performing the release.
+
+From any point in time, the soonest date that can be targeted for release is 1 month from the current date.  
+
+Once a release date is selected, it should be anounced to the CMAQ developers list to alert all core developers.
+
+There is a minimum lag time of 2 weeks between the announcement of a release date, and the creation of a release branch. This is to allow developers to finish any projects that are close to being complete, that they would like to be part of the next release.
+
+After the 2 weeks are up, a release branch can be created from the tip of the develop branch.  The first commit to a release branch should be updating the version numbers.  The maximum time a release branch is allowed to exist is 2 weeks.  After the release branch has been in existence for 2 weeks, it is assumed all core maintainer groups are finished with any edits to prepare for release. At this point, the release branch is complete.  The release branch is then merged into master and develop.  The commit on master is tagged with the new version number.  The master branch is then pushed to the CMAQ-Release repository.  These guidelines lay out a minimum amount of time a release cycle should consume. However, the core group that intends to release should announce
+the targeted date of release as soon as they have one selected.
+
+Version Numbers
+=================================
+
+- need to review and edit!
+
+CMAQ will have a two number versioning system for final release, with alpha, beta, gamma for development release. 
+For example, 5.2.  In this case, the first digit and second digets refers to a final release.  
+5.2 alpha, beta, gamma refers to intermediate bug fixes of the development version.
+
+Referring to the branching strategy, coordinated releases occur when a release branch is created of off develop and merged back into
+develop and master. 
+While an intermediate bug fix happens when a branch is created from a master and merged back into master and develop.
+
+The minor version (second digit) of CMAQ increments when a bug fix branch is merged into master. These merges never include feature additions to any of the cores or shared framework.
+
+The major version (first digit) of CMAQ increments when a release branch is merged into master. A release branch includes all of the features that were present on the develop branch when it was created. The release branch persists for some period of time to allow core developers to "clean up" any issues they have prior to release. After the grace period, the release branch is merged into master and develop and the major version of CMAQ increments by 1, while the minor version is reset to 0.
 
 
 Development Strategy
@@ -372,7 +428,8 @@ Compiler flags:
 
               git push
 
-### Submit pull request
+Pull requests
+================================
 
 - use GitHub Website to view your CMAQ-Release Fork
 - go to the branch that you have committed code, example: 5.2gamma
