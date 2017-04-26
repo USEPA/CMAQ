@@ -211,11 +211,10 @@ The repositories are all hosted on github.  The typical life-cycle of a project 
 7. Push complete branch to remote fork.
 8. Submit a pull request to merge branch on fork to ??
 
-Projects don't have to follow this example verbatim, but this at least
+Project contributions don't have to follow this example verbatim, but this at least
 gives a general overview of the process. Some details related to this life-
 cycle will be described in the following sections.
 
-Code level requirements are described in chapter 5.
 
 Fork CMAQ-Release Code
 ===============================
