@@ -29,6 +29,17 @@ To contribute source code to the CMAQ Public repository, create a fork of the EP
 -   Have you reviewed the development strategy including code consistency, benchmarking, configuration testing, compiler testing, model output validation, documentation and merging?
 -   Are you able to provide ongoing support and technical guidance for your proposed contribution?
 
+CMAQ Code Introduction
+==================================
+(add content)
+
+General Code Introduction
+----------------------------------
+(add content)
+
+Parallelization Strategy
+----------------------------------
+(add content)
 
 Repository Descriptions
 ==================================
@@ -194,17 +205,6 @@ The 6 month advance allows time for the CMAQ base model to be fully tested and v
       - Advanced Plume Treatment (CMAQ-APT)
 
 
-CMAQ Code Introduction
-==================================
-
-General Code Introduction
-----------------------------------
-
-
-Parallelization Strategy
-----------------------------------
-
-
 Contributions Life-cycle
 ==================================
 
@@ -353,9 +353,15 @@ Version Numbers
 
 (review and edit!)
 
-CMAQ will have a two number versioning system for release version, with th an alphanumeric string denoting the development version.
-For example, 5.2.  In this case, the first digit and second digets refers to an official release version. 
-5.2 alpha, 5.2 beta, 5.2 gamma refers to intermediate bug fixes of the development version.
+Final Release Version
+---------------------
+CMAQ will have a number versioning system for release version, using major, minor, and sub-minor increments.
+For example, 5.02  In this case, the first digit (major version), second digit (minor version), and third digit (patch version) ( refers to an official final release version. 
+
+Development Version
+---------------------
+CMAQ combines the number versioning system with an alphanumeric string that increments using the greek alphabet to denote the development version.
+5.2 alpha, 5.2 beta, 5.2 gamma refers to intermediate bug fixes of the development version that after completing testing and review, will be released as 5.2.
 
 Referring to the branching strategy, coordinated releases occur when a release branch is created of off develop and merged back into
 develop and master. 
@@ -500,4 +506,4 @@ Current CMAQ github maintainers are as follows:
 - Ben Murphy, EPA Public CMAQ-Release Repository
 - Zac Adelman, CMAS-Center Public CMAQ-Release Repository
 
-CMAQ Operational Guidance Document (c) 2016
+CMAQ Developer Manual (c) 2016
