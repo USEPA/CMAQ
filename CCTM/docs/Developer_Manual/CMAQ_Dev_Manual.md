@@ -226,8 +226,7 @@ cycle will be described in the following sections.
 
 Design Documents
 ----------------------------------
-Design documents are recommended for projects that contribute signficant changes to either an existing science module or to create a new capability within CMAQ.  They should clearly describe the justication for the project, and the changes and impacts of the project.  
-
+Design documents are recommended for projects that contribute signficant changes to either an existing science module or to create a new feature within CMAQ.  They should clearly describe the justication for the project, and the changes and impacts of the project.  
 Core maintainers reserve the right to deny a pull request that lacks a design document.  
 
 Developers can refer to xxx and xxx for examples of design documents that have been previously completed and approved. 
@@ -358,21 +357,27 @@ Version Numbers
 
 Release Version
 ---------------------
-CMAQ will have a number versioning system for release version, using major, minor, and sub-minor increments.
-For example, 5.02  In this case, the first digit (major version), second digit (minor version), and third digit (patch version) ( refers to an stable release version. 
+CMAQ will have a number versioning system for each release version branch, using major, minor, and sub-minor increments.
+For example, 5.02  In this case, the first digit (major version), second digit (minor version), and third digit (patch version) refers to an stable release version. 
 
 Development Version
 ---------------------
-CMAQ combines the number versioning system with an alphanumeric string that increments using the greek alphabet to denote the development version.
+CMAQ combines the number versioning system with an alphanumeric string that increments using the greek alphabet to denote each development version branch.
 5.2 alpha, 5.2 beta, 5.2 gamma refers to intermediate bug fixes of the development version that after completing testing and review, will be released as 5.2.
 
+(this needs to be edited, as we are not merging back to master, and we don't have a development branch...)
 Referring to the branching strategy, coordinated releases occur when a release branch is created of off develop and merged back into
 develop and master.  While an intermediate bug fix happens when a branch is created from a master and merged back into master and develop.
 
-The minor version (second digit) of CMAQ increments when a bug fix branch is merged into master. These merges never include feature additions to any of the cores or shared framework.
+The patch version (third digit) of CMAQ increments with a new bug fix branch.These minor versions never include feature additions to any of the science modules or shared framework.
 
-The major version (first digit) of CMAQ increments when a release branch is merged into master. A release branch includes all of the features that were present on the develop branch when it was created. The release branch persists for some period of time to allow core developers to "clean up" any issues they have prior to release. After the grace period, the release branch is merged into master and develop and the major version of CMAQ increments by 1, while the minor version is reset to 0.
+The minor version (second digit) of CMAQ increments when a new development branch has been developed. A release branch includes all of the features that were present on the development branch when it was created. The development branch persists for some period of time to allow core developers to "clean up" any issues they have prior to release. After the grace period, the development branch is merged into the release and the minor version of CMAQ increments by 1, while the patch version is reset to 0. 
 
+The major version (first digit) of CMAQ increments when significant development changes are proposed. 
+
+Maintenance Version
+---------------------
+All versions that have been released as a stable version number are retained on the github as branches, beginning from version 4.7.1.
 
 Development Strategy
 ==================================
