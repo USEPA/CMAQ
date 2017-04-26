@@ -1,4 +1,4 @@
-**Developer Manual for the Community Multiscale Air Quality (CMAQ) Modeling System**
+**Developer Guide for the Community Multiscale Air Quality (CMAQ) Modeling System**
 =
 **Version 5.2 (2017 Release)**
 
@@ -10,7 +10,7 @@ Chapel Hill, NC
 
 Disclaimer
 --
-The information in this Developer Manual has been funded wholly or in part by the United States Environmental Protection Agency. The draft version of this document has not been subjected to the Agency’s peer and administrative review, nor has it been approved for publication as an EPA document. The draft document is currently being edited and reviewed by the Community Modeling and Analysis System Center; this content has not yet been reviewed or approved by the EPA. Mention of trade names or commercial products does not constitute endorsement or recommendation for use.
+The information in this Developer Guide has been funded wholly or in part by the United States Environmental Protection Agency. The draft version of this document has not been subjected to the Agency’s peer and administrative review, nor has it been approved for publication as an EPA document. The draft document is currently being edited and reviewed by the Community Modeling and Analysis System Center; this content has not yet been reviewed or approved by the EPA. Mention of trade names or commercial products does not constitute endorsement or recommendation for use.
 
 Introduction
 =================================
@@ -79,7 +79,7 @@ The CMAQ-Dev and CMAQ-Release repository directories for the base model are all 
 
          * Releaase_Notes
          * User_Manual
-         * Developer_Manual
+         * Developer_Guide
          * Design_Documents
 
      + scripts
@@ -478,15 +478,15 @@ Release Notes
 - Subroutines and modules should be appropriately documented. CMAQ code use git tags to facilitate creation of Release Notes.
 - Provide an example of how the EPA creates their Release Notes
 
-Operational Guidance Manual
+Operational Guidance Manual 
 ----------------------------
 - Comprehensive User Manual 
 
-Science Manual
+Science Guide
 ---------------
 - provides citation and additional information about science modules
 
-Developer Manual
+Developer Guide 
 ---------------------------
 - provides instructions on how to contribute code for CMAQ 
 
@@ -514,4 +514,4 @@ Current CMAQ github maintainers are as follows:
 - Ben Murphy, EPA Public CMAQ-Release Repository
 - Zac Adelman, CMAS-Center Public CMAQ-Release Repository
 
-CMAQ Developer Manual (c) 2016
+CMAQ Developer Guide (c) 2017
