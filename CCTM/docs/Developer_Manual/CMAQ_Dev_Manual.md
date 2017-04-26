@@ -161,7 +161,7 @@ Development Life-cycle
 
 EPA target schedule for CMAQ includes a final stable release of the base model that is available 6 months prior to the availability of the instrumented versions of the code.  
 
-Prior to the final release, the model is released to the public as a development version that is not intended for regulatory or research application use.
+Prior to the release version, the model is released to the public as a development version that is not intended for regulatory or research application use.
 
 The purpose of releasing the development version to the public is to give community members a deadline by which to submit their code for inclusion into the base model and to encourage the community to assist with configuration testing, compiler testing, benchmarking and verification of model output to help improve the code, scripts and documentation prior to a final release.  
 
@@ -284,17 +284,16 @@ The name of a branch should be descriptive and tell where the feature addition w
 
 
 - review this language..
-Feature branches should only be created from the develop branch. This allows a cleaner work ow when planning releases. Any features that have been merged onto develop can be staged for release. This means, if you submit a pull request for a feature to be merged onto the CMAQ version of develop, you are giving consent for it to be included in the next coordinated
-release.
+Feature branches should only be created from the develop branch. This allows a cleaner work flow when planning releases. Any features that have been merged onto develop can be staged for release. This means, if you submit a pull request for a feature to be merged onto the CMAQ version of develop, you are giving consent for it to be included in the next coordinated release.
 
 
 Release Branches
 =================================
-- need to review this text from MPAS developer document and compare the MPAS method to the method currently used by EPA, and then make edits here.
+(need to review this text from MPAS developer document and compare the MPAS method to the method currently used by EPA, and then make edits here.)
 
-One of the variable branch types that developers will see in the shared repository is a release branch. This release branch is used to prepare the code for a new release, and comes with some guidelines of use.  As per the branch document listed in section 3.4, release branches should branch from develop. Once they are complete, they are merged into both develop and master. After they are merged into master, that commit is tagged with a new version number, and then pushed into the CMAQ-Release repository for a public release.  A feature branch can be thought of as a feature freeze. Once the release branch is created, no new features can make it into the next release. The only commits that can be appended to a release branch are clean up and bug fix commits.
+One of the variable branch types that developers will see in the shared repository is a release branch. This release branch is used to prepare the code for a new release, and comes with some guidelines of use.  As per the branch document listed in section XX, release branches should branch from develop. Once they are complete, they are merged into both develop and master. After they are merged into master, that commit is tagged with a new version number, and then pushed into the CMAQ-Release repository for a public release.  A feature branch can be thought of as a feature freeze. Once the release branch is created, no new features can make it into the next release. The only commits that can be appended to a release branch are clean up and bug fix commits.
 
-Due to the requirement that anything merged into develop can be re- leased at any point in time, a group of developers can decide they want to begin the release process at any point in time. The guidelines for the release process are as follows, however the exibility of these guidelines is at the discretion of the group performing the release.
+Due to the requirement that anything merged into develop can be released at any point in time, a group of developers can decide they want to begin the release process at any point in time. The guidelines for the release process are as follows, however the exibility of these guidelines is at the discretion of the group performing the release.
 
 From any point in time, the soonest date that can be targeted for release is 1 month from the current date.  
 
@@ -308,11 +307,11 @@ the targeted date of release as soon as they have one selected.
 Version Numbers
 =================================
 
-- need to review and edit!
+(review and edit!)
 
-CMAQ will have a two number versioning system for final release, with alpha, beta, gamma for development release. 
-For example, 5.2.  In this case, the first digit and second digets refers to a final release.  
-5.2 alpha, beta, gamma refers to intermediate bug fixes of the development version.
+CMAQ will have a two number versioning system for release version, with th an alphanumeric string denoting the development version.
+For example, 5.2.  In this case, the first digit and second digets refers to an official release version. 
+5.2 alpha, 5.2 beta, 5.2 gamma refers to intermediate bug fixes of the development version.
 
 Referring to the branching strategy, coordinated releases occur when a release branch is created of off develop and merged back into
 develop and master. 
@@ -330,6 +329,7 @@ As developers of CMAQ, we attempt to make the code look as uniform as we can acr
 
 ## Code Consistency
 
+(review and edit!)
 - Each science module has a name and abbreviation, and for each method within each science module there is a defined abbreviation.  For example:
 - The science module named horizontal advection has the abreviation hadv and the available method is abbreviated as yamo.
 - The science module named vertical advection has the abreviation vadv, and the available methods are abbreviated as wrf and yamo.
