@@ -51,7 +51,7 @@ Users who wish to implement a new feature, and have that feature merged into the
 
 ## External CMAS Public CMAQ-Release Repository
 
-A fork of the main CMAQ-Release release repository that is used for testing and documenation by the CMAS Center Employees.
+A fork of the main CMAQ-Release release repository that is used for testing and documenation by the CMAS Center.
 
 ## Repository Layouts
 
@@ -163,7 +163,7 @@ EPA target schedule for CMAQ includes a final stable release of the base model t
 
 Prior to the final release, the model is released to the public as a development version that is not intended for regulatory or research application use.
 
-The purpose of releasing the development version to the public is to encourage the community to assist with configuration testing, compiler testing, benchmarking and verification of model output to help improve the code, scripts and documentation prior to a final release.  
+The purpose of releasing the development version to the public is to give community members a deadline by which to submit their code for inclusion into the base model and to encourage the community to assist with configuration testing, compiler testing, benchmarking and verification of model output to help improve the code, scripts and documentation prior to a final release.  
 
 The 6 month advance allows time for the CMAQ base model to be fully tested and vetted prior to beginning updates to the instrumented versions that are dependent on and incrementally added to the base model package.
 
@@ -256,7 +256,7 @@ Follow these instructions:
     ```
 
 
-Develop a Branch
+Create a new Branch
 ==================================
 
 - Create a new branch on your local machine and switch to this branch 
