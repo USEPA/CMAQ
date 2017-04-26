@@ -390,8 +390,8 @@ C number of chemical species in seawater aerosol composition
       integer, parameter :: nsea_spc = 15
 
       Type( emis_table ), Parameter :: sea_spc( nsea_spc ) = (/
-C                        -------- name --------                -------- spcfac --------
-C                         Aitken    accum     coarse             Aitken  accum   coarse
+C                     -description--            -------- name --------                -------- spcfac --------
+C                                           Aitken    accum     coarse             Aitken  accum   coarse
      &   emis_table( 'Sulfate       ', (/'         ','ASO4J    ','ASO4K    '/), (/ 0.0, 0.07760, 0.07760/) ),   ! Sulfate
      &   emis_table( 'Chlorine      ', (/'         ','ACLJ     ','ACLK     '/), (/ 0.0, 0.55380, 0.55380/) ),   ! Chlorine
      &   emis_table( 'Sodium        ', (/'         ','ANAJ     ','         '/), (/ 0.0, 0.30860, 0.0    /) ),   ! Sodium
@@ -619,7 +619,7 @@ C Local Variables:
       Integer :: aerolist_map  ( n_aerolist,n_mode )
       Integer :: aerospc_tolist( n_aerolist )
 
-      Integer, Allocatable :: dustlist_map( : )
+      Integer, Allocatable :: aerospc_in_dustlist( : )
 
       Integer l, m, n, spc, isea, idust
       Real    so4fac
@@ -885,8 +885,8 @@ C Adjust Dust Emissions list for Organic Species, if running with semivolatile P
       End If
 
 ! Determine map between aero_spc dust emissions and the dust emission listndust_spc
-      Allocate( dustlist_map( n_aerolist ) )
-      dustlist_map   = 0   ! Pointer identifies to use dust emission table
+      Allocate( aerospc_in_dustlist( n_aerolist ) )
+      aerospc_in_dustlist   = 0   ! Pointer identifies to use dust emission table
 
       ndust_spc = 0
       Do spc = 1, n_aerospc ! Loop through user-requested chemical species
@@ -913,7 +913,7 @@ C Adjust Dust Emissions list for Organic Species, if running with semivolatile P
             End Do
             If( dust_match )Then
                 ndust_spc = ndust_spc + 1
-                dustlist_map( ndust_spc ) = idust
+                aerospc_in_dustlist( ndust_spc ) = idust
 #ifdef verbose_aero
                 Write( logdev,'(a,1x,a)')'Dust Emissions Added to ',
      &          Trim( dust_spc_list( ndust_spc )%description )  // ' '
@@ -931,7 +931,7 @@ C Adjust Dust Emissions list for Organic Species, if running with semivolatile P
          Write(logdev,99949)
 #endif
          Do spc = 1, ndust_spc
-            idust = dustlist_map( spc )
+            idust = aerospc_in_dustlist( spc )
             dust_spc( spc ) = dust_spc_list( idust )
             Do m = 1, n_mode
                If( len_trim( dust_spc( spc )%name( m ) ) .lt. 1 )cycle
@@ -949,7 +949,7 @@ C Adjust Dust Emissions list for Organic Species, if running with semivolatile P
 99950 Format(i3,1X,a16,11X,es12.4)
 #endif
 
-      Deallocate( dustlist_map )
+      Deallocate( aerospc_in_dustlist )
 
 #ifdef verbose_aero
       ! Mandatory Species

@@ -83,9 +83,9 @@ C-----------------------------------------------------------------------
 
       Type( vapor_type ), Save :: vaporlist( n_vapor_list ) = (/
 C
-C                        Name          Alpha       CStar          Enth     SOA               Decay     Drog
-C                                                                          Name       Origin           Name
-C                      -------        -------     --------     -------    ------       --     ----     -------
+C                   Name       Alpha     CStar    Enth      SOA          Decay    Drog
+C                                                          Name    Origin         Name
+C                  -------    -------   -------- -------  ------     --   ----   -------
      & vapor_type('SV_ALK1 ',  0.0334,   0.1472,  53.0E3, 'AALK1J ', 'A', 12.0, 'ALKRXN  '),
      & vapor_type('SV_ALK2 ',  0.2164,  51.8775,  53.0E3, 'AALK2J ', 'A', 12.0, 'ALKRXN  '),
      & vapor_type('SV_XYL1 ',  0.0310,   1.3140,  32.0E3, 'AXYL1J ', 'A',  8.0, 'XYLNRXN '),
