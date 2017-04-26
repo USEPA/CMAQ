@@ -69,6 +69,7 @@ The CMAQ-Dev and CMAQ-Release repository directories for the base model are all 
          * Releaase_Notes
          * User_Manual
          * Developer_Manual
+         * Design_Documents
 
      + scripts
      + src
