@@ -326,6 +326,8 @@ Feature Branches
 - review this language..
 Feature branches should only be created from the develop branch. This allows a cleaner work flow when planning releases. Any features that have been merged onto develop can be staged for release. This means, if you submit a pull request for a feature to be merged onto the CMAQ version of develop, you are giving consent for it to be included in the next coordinated release.
 
+(are the instrumented versions of CMAQ considered to be Feature Branches? If so, describe these as an example of a feature branch.)
+
 
 Release Branches
 ----------------------------------
