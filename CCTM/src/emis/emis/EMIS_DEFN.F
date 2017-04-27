@@ -801,7 +801,7 @@ C-----------------------------------------------------------------------
          LOGICAL, ALLOCATABLE    :: L_EMIS_SPC( : ), 
      &                         GC_EMIS_MISSING( : ), AE_EMIS_MISSING( : ),
      &                         NR_EMIS_MISSING( : ), TR_EMIS_MISSING( : ),
-     &                         AERO_EMIS_MISSING( : ),
+     &                         AERO_EMIS_MISSING( : ), TMP( : ),
      &                         EMIS_MASK( : ), BIO_IND( : )
 
          INTEGER, ALLOCATABLE    :: EMIS_IND( : )
@@ -869,6 +869,9 @@ C Find Upper Bound on Number of Possible Species
          ! Print a Table of Species from Every Emissions Source
          WRITE( LOGDEV, '(/,A31,A42)' ),'CHECKING COMPATABILITY BETWEEN ',
      &                  'INTERNAL SPECIES LIST AND EMISSIONS INPUTS' 
+         WRITE( LOGDEV, '(A55,/,A58)' ),
+     &                  'The following tables list the chemical species present ',
+     &                  'on each emission file or from each online emission source.' 
 
          ! Tracer Species
          STRT = 0
@@ -929,7 +932,7 @@ C Find Upper Bound on Number of Possible Species
          ! Lightning Species (NO)
          IF ( NLTSPC .GT. 0 ) THEN
            EMIS_SPCS( STRT+1 ) = LTSPC
-           WRITE( LOGDEV, '(/,A26,I3,A8,/,5(5x,A8))' ),
+           WRITE( LOGDEV, '(/,A21,I3,A8,/,5(5x,A8))' ),
      &           'Lightning Emissions: ',NLTSPC,' Species',
      &           LTSPC
            STRT = STRT + NLTSPC
@@ -952,6 +955,34 @@ C Reduce EMIS_SPCS to just unique values
          ALLOCATE( EMIS_SPC_UNIQUE( NEMIS_SPC_UNIQUE ) )
          EMIS_SPC_UNIQUE = EMIS_SPCS( EMIS_IND )
          
+C Print out the Tables of Gas, Aerosol, Nonreactive and Tracer Species
+C for reference
+         WRITE( LOGDEV, '(/A57,/,A54)' ),
+     &                  'The following tables list the emission surrogate species ',
+     &                  'present in each namelist or in the aerosol data table.' 
+         
+         IF ( N_GC_EMIS .GT. 0 )
+     &        WRITE( LOGDEV, '(/,A13,I3,A8,/,5(5x,A8))' ),
+     &               'GC Namelist: ',N_GC_EMIS,' Species',GC_EMIS(1:N_GC_EMIS)
+         
+         IF ( N_AEROSPC .GT. 0 ) THEN
+              ALLOCATE( AERO_EMIS_WRITE( COUNT( AEROSPC%EMIS .NE. "" ) ) )
+              AERO_EMIS_WRITE = PACK( AEROSPC%EMIS, AEROSPC%EMIS .NE. "" )
+              WRITE( LOGDEV, '(/,A16,I3,A8,/,5(5x,A8))' ),
+     &               'AeroData Table: ',COUNT( AEROSPC%EMIS .NE. "" ),
+     &               ' Species',AERO_EMIS_WRITE
+              DEALLOCATE( AERO_EMIS_WRITE )
+         END IF
+         
+         IF ( N_NR_EMIS .GT. 0 )
+     &        WRITE( LOGDEV, '(/,A13,I3,A8,/,5(5x,A8))' ),
+     &               'NR Namelist: ',N_NR_EMIS,' Species',NR_EMIS(1:N_NR_EMIS)
+         
+         IF ( N_TR_EMIS .GT. 0 )
+     &        WRITE( LOGDEV, '(/,A13,I3,A8,/,5(5x,A8))' ),
+     &               'TR Namelist: ',N_TR_EMIS,' Species',TR_EMIS(1:N_TR_EMIS)
+
+
 
 C Compare with Gas, Aerosol, Nonreactive, and Tracer Species
          ! Initialize variables for tracking surrogate matches
