@@ -36,6 +36,7 @@
 /
 /new species    ,units     ,expression
 
+! v5.1 site compare-ready quantities
 ! Gases
 ALD2            ,ppbV      ,1000.0*ALD2[1]
 ALDX            ,ppbV      ,1000.0*ALDX[1]
