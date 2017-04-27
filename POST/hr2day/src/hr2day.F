@@ -730,7 +730,8 @@ C... first pass
     
 C... read ozone values and fill tvalues array
       cdate = curDate
-      ctime = 0
+      ctime = -36 * 10000
+      call NEXTIME(cDate,cTime,0) !reformat to make sure hours are between 0 and 23
       O3values = BADVAL3
       do h=-36,66
         if( (SECSDIFF(firstDate, firstTime, cdate, ctime) .ge. 0)
@@ -757,7 +758,8 @@ C... start loops to find max 8-hr and save sum of hrValues
             sum = 0
             count = 0
             Do i = 0,7
-              if( O3values(h+i,c,r) .gt. BADVAL3 ) then
+              if(( O3values(h+i,c,r) .gt. BADVAL3 ) .and.
+     *           ( hrValues(h+i,c,r) .gt. BADVAL3 )) then
                 o3sum = o3sum + O3values(h+i,c,r)
                 sum = sum + hrValues(h+i,c,r)
                 count = count + 1
@@ -781,7 +783,8 @@ C... start loops to find max 8-hr and save sum of hrValues
             sum = 0
             count = 0
             Do i = 0,7
-              if( O3values(h+i,c,r) .gt. BADVAL3 ) then
+              if(( O3values(h+i,c,r) .gt. BADVAL3 ) .and.
+     *           ( hrValues(h+i,c,r) .gt. BADVAL3 )) then
                 o3sum = o3sum + O3values(h+i,c,r)
                 sum = sum + hrValues(h+i,c,r)
                 count = count + 1
