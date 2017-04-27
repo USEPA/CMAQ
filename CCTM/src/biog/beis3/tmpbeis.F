@@ -145,16 +145,17 @@ C Logical names and unit numbers:
       CHARACTER( 16 ), SAVE :: MNAME   ! logical name for MET_CRO_2D
 
 C Other variables:
-      INTEGER, SAVE :: IHR       ! current simulation hour
-      INTEGER          IOS       ! IO or memory allocation status
-      INTEGER, SAVE :: LDATE     ! previous simulation date
-      INTEGER, SAVE :: MDATE     ! test date to update beis diag avg
-      INTEGER, SAVE :: MTIME     ! test time to update beis diag avg
-      INTEGER, SAVE :: SDATE     ! scenario start date
-      INTEGER, SAVE :: STIME     ! scenario start time
-      INTEGER, SAVE :: NSTEPS    ! run duration
-      INTEGER, SAVE :: NTICS = 0 ! no. of substeps within an output tstep
-      INTEGER          PARTYPE   ! method number to calculate PAR
+      INTEGER, SAVE :: IHR        ! current simulation hour
+      INTEGER          IOS        ! IO or memory allocation status
+      INTEGER, SAVE :: LDATE      ! previous simulation date
+      INTEGER, SAVE :: MDATE      ! test date to update beis diag avg
+      INTEGER, SAVE :: MTIME      ! test time to update beis diag avg
+      INTEGER, SAVE :: SDATE      ! scenario start date
+      INTEGER, SAVE :: STIME      ! scenario start time
+      INTEGER, SAVE :: NSTEPS     ! run duration
+      INTEGER, SAVE :: NTICS = 0  ! no. of substeps within an output tstep
+      INTEGER, SAVE :: WSTEP  = 0 ! local write counter
+      INTEGER          PARTYPE    ! method number to calculate PAR
       INTEGER, SAVE :: LOGDEV
       INTEGER          C, R, I, J, K, S  ! loop counters and subscripts
 
@@ -575,7 +576,8 @@ C Speciate emissions
 #endif
 
       NTICS = NTICS + 1
-      LASTTIC = NTICS .EQ. TIME2SEC( TSTEP( 1 ) ) / TIME2SEC( TSTEP( 2 ) )
+      WSTEP = WSTEP + TIME2SEC( TSTEP( 2 ) )
+      LASTTIC = WSTEP .GE. TIME2SEC( TSTEP( 1 ) )
 
       IF ( BEMIS_DIAG ) THEN
          IF ( NTICS .EQ. 1 ) THEN
@@ -622,20 +624,14 @@ C Speciate emissions
      &            'for date and time', MDATE, MTIME
             EMISS = 0.0   ! array
             CALL NEXTIME( MDATE, MTIME, TSTEP( 1 ) )
+            WSTEP = 0
          END IF
       END IF
 
 C Save date
       LDATE = JDATE
 
-      IF ( IHR .LT. NSTEPS ) THEN
-         IF ( LASTTIC ) THEN
-            NTICS = 0
-         END IF
-         RETURN
-      ELSE IF ( NTICS .LT. TIME2SEC( TSTEP( 1 ) ) / TIME2SEC( TSTEP( 2 ) ) ) THEN
-         RETURN
-      END IF
+      RETURN
 
 C------------------  FORMAT  STATEMENTS   ------------------------------
 
