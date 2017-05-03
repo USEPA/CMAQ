@@ -10,10 +10,11 @@
 #> CMAQv5.1 Mechanism Options: cb05tucl_ae6_aq cb05tump_ae6_aq cb05e51_ae6_aq saprc07tb_ae6_aq saprc07tc_ae6_aq  saprc07tic_ae6i_aq   racm2_ae6_aq 
  set Mechanism = racm2_ae6_aq          #> CMAQ mechanism ID
 
- set Xpath = ${BASE}/src               #> Executable directory
- set EXEC  = CHEMMECH                  #> Executable name
- set Opath = ${BASE}"/output/"${Mechanism}   #> Output Directory
- set Mpath = ${BASE}/input/${Mechanism}  #> Directory with mechanism definitions
+ set Xpath = ${BASE}/src                         #> Executable directory
+ set EXEC  = CHEMMECH                            #> Executable name
+ set Opath = ${BASE}"/output/"${Mechanism}       #> Output Directory
+ set Mpath  = ../../CCTM/src/MECHS/${Mechanism}  #> Repository Directory with mechanism definitions
+#set Mpath = ${BASE}/input/${Mechanism}          #> User Defined Directory with mechanism definitions
  
 #> option use CMAQ species namelists to determine CGRID species indices
  setenv USE_SPCS_NAMELISTS T
