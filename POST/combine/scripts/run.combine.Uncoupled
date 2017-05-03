@@ -28,15 +28,12 @@
  set MM   = `date -ud "${START_DAY}" +%m`
  set YYYY = `date -ud "${START_DAY}" +%Y`
  
-#> Set the location of your CMAQ repo.  This is needed to find the correct species definition files.
- set REPO_HOME  = /work/MOD3EVAL/fib/CMAQ_Dev  
-
 #> Set location of species definition files for concentration and deposition species.
- setenv SPEC_CONC $REPO_HOME/POST/combine/scripts/spec_def_files/SpecDef_${MECH}.txt
- setenv SPEC_DEP  $REPO_HOME/POST/combine/scripts/spec_def_files/SpecDef_Dep_${MECH}.txt
+ setenv SPEC_CONC /work/MOD3DEV/bmurphy/Models/cmaq/New_Scripts/Test_Build/BLD_CCTM_v52b_intel/SpecDef_${MECH}.txt
+ setenv SPEC_DEP  /work/MOD3DEV/bmurphy/Models/cmaq/New_Scripts/Test_Build/BLD_CCTM_v52b_intel/SpecDef_Dep_${MECH}.txt
 
 #> Set location where combine file will be written 
- setenv OUTDIR	$REPO_HOME/POST/combine/scripts
+ setenv OUTDIR	/work/MOD3DEV/cmaq_bench_data/SE52BENCH/POST
 
 #> Set location of combine executable.
  setenv BINDIR /home/css/CMAQ-Tools/scripts/combine
@@ -93,7 +90,7 @@
  setenv SPECIES_DEF $SPEC_DEP
  
 #> Define name of output file to save average hourly concentration.
- setenv OUTFILE ${OUTDIR}/CCTM_${APPL}_${EXEC_ID}_COMBINE_DEP.CMAQ52-BENCHMARK_$MM$YY
+ setenv OUTFILE ${OUTDIR}/CCTM_${APPL}_${EXEC_ID}_COMBINE_DEP.CMAQ52-BENCHMARK_$MM$YYYY
  if (-e $OUTFILE) echo "warning: note $OUTFILE already exists"
 
  #> Loop through all days between START_DAY and END_DAY
