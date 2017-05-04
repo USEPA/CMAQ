@@ -24,16 +24,15 @@
  set START_DAY = "2011-07-01"
  set END_DAY   = "2011-07-09"
 
-#> Extract month and year from start date to be used in naming of output file.
- set MM   = `date -ud "${START_DAY}" +%m`
- set YYYY = `date -ud "${START_DAY}" +%Y`
+#> Set location of CMAQ repo.  This will be used to point to the correct species definition files.
+ set REPO_HOME = /work/MOD3EVAL/fib/CMAQ_Dev
  
 #> Set location of species definition files for concentration and deposition species.
- setenv SPEC_CONC /work/MOD3DEV/bmurphy/Models/cmaq/New_Scripts/Test_Build/BLD_CCTM_v52b_intel/SpecDef_${MECH}.txt
- setenv SPEC_DEP  /work/MOD3DEV/bmurphy/Models/cmaq/New_Scripts/Test_Build/BLD_CCTM_v52b_intel/SpecDef_Dep_${MECH}.txt
+ setenv SPEC_CONC $REPO_HOME/POST/combine/scripts/spec_def_files/SpecDef_${MECH}.txt
+ setenv SPEC_DEP  $REPO_HOME/POST/combine/scripts/spec_def_files/SpecDef_Dep_${MECH}.txt
 
 #> Set location where combine file will be written 
- setenv OUTDIR	/work/MOD3DEV/cmaq_bench_data/SE52BENCH/POST
+ setenv OUTDIR /work/MOD3DEV/cmaq_bench_data/SE52BENCH/POST
 
 #> Set location of combine executable.
  setenv BINDIR /home/css/CMAQ-Tools/scripts/combine
@@ -48,10 +47,6 @@
 #> Set the species definition file for concentration species.
  setenv SPECIES_DEF $SPEC_CONC
  
-#> Define name of output file to save average hourly concentration.
- setenv OUTFILE ${OUTDIR}/CCTM_${APPL}_${EXEC_ID}_COMBINE_ACONC.CMAQ52-BENCHMARK_$MM$YYYY
- if (-e $OUTFILE) echo "warning: note $OUTFILE already exists"
-
  #> Loop through all days between START_DAY and END_DAY
  set CURRENT_DAY = ${START_DAY}
  set STOP_DAY = `date -ud "${END_DAY}+1days" +%Y-%m-%d`
@@ -62,8 +57,12 @@
   set YY = `date -ud "${CURRENT_DAY}" +%y`
   set MM = `date -ud "${CURRENT_DAY}" +%m`
   set DD = `date -ud "${CURRENT_DAY}" +%d`
-#> for files that are indexed with Julian day:
-#  set YYYYJJJ = `date -ud "${CURRENT_DAY}" +%Y%j` 
+ #> for files that are indexed with Julian day:
+ #  set YYYYJJJ = `date -ud "${CURRENT_DAY}" +%Y%j` 
+
+ #> Define name of output file to save average hourly concentration.
+ #> A new file will be created for each month/year.
+  setenv OUTFILE ${OUTDIR}/CCTM_${APPL}_${EXEC_ID}_COMBINE_ACONC.CMAQ52-BENCHMARK_$MM$YYYY
 
  #> Define name of input files needed for combine program.
  #> File [1]: CMAQ conc/aconc file
@@ -89,10 +88,6 @@
 #> Set the species definition file for concentration species.
  setenv SPECIES_DEF $SPEC_DEP
  
-#> Define name of output file to save average hourly concentration.
- setenv OUTFILE ${OUTDIR}/CCTM_${APPL}_${EXEC_ID}_COMBINE_DEP.CMAQ52-BENCHMARK_$MM$YYYY
- if (-e $OUTFILE) echo "warning: note $OUTFILE already exists"
-
  #> Loop through all days between START_DAY and END_DAY
  set CURRENT_DAY = ${START_DAY}
  set STOP_DAY = `date -ud "${END_DAY}+1days" +%Y-%m-%d`
@@ -106,11 +101,14 @@
 #> for files that are indexed with Julian day:
 #  set YYYYJJJ = `date -ud "${CURRENT_DAY}" +%Y%j` 
 
+ #> Define name of output file to save average hourly concentration.
+ #> A new file will be created for each month/year.
+  setenv OUTFILE ${OUTDIR}/CCTM_${APPL}_${EXEC_ID}_COMBINE_DEP.CMAQ52-BENCHMARK_$MM$YYYY
+
  #> Define name of input files needed for combine program.
  #> File [1]: CMAQ DRYDEP file
  #> File [2]: CMAQ WETDEP file
  #> File [3]: MCIP METCRO2D
-
   setenv INFILE1 $M3DATA/CCTM_${APPL}.DRYDEP.${EXEC_ID}_$YYYY$MM$DD
   setenv INFILE2 $M3DATA/CCTM_${APPL}.WETDEP1.${EXEC_ID}_$YYYY$MM$DD
   setenv INFILE3 $METDATA/METCRO2D_$YY$MM$DD
