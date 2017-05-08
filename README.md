@@ -1,7 +1,9 @@
 CMAQv5.2 Gamma
 ========
 
-The Gamma version of CMAQ includes the most up-to-date publically available code updates in preparation for the stable release of CMAQv5.2 in June 2017. It is an update to the CMAQv5.2Beta version with minor code additions and bug fixes that have been identified by EPA, the CMAS team, and the larger CMAQ community. Users wanting to test the CMAQv5.2 code before its release should utilize this Gamma version.
+**Intent of this CMAQ version:** The Gamma version of CMAQ includes the most up-to-date publically available code updates in preparation for the stable release of CMAQv5.2 in June 2017. It is an update to the CMAQv5.2Beta version with minor code additions and bug fixes that have been identified by EPA, the CMAS team, and the larger CMAQ community. Users wanting to test the CMAQv5.2 code before its release should utilize this Gamma version.
+
+## CMAQ Overview
 
 Community Multiscale Air Quality Model [US EPA Website](https://www.epa.gov/air-research/community-multi-scale-air-quality-cmaq-modeling-system-air-quality-management)
 
