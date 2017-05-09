@@ -134,7 +134,10 @@ C..Scratch Local Variables:
       REAL( 8 )  CHEMSTEP     ! Chemistry integration interval (min)
 
 
-      INTEGER     GXOFF, GYOFF            ! global origin offset from file
+      INTEGER       :: GXOFF, GYOFF            ! global origin offset from file
+
+      INTEGER, SAVE :: PECOL_OFFSET        ! Local Column Offset for processor
+      INTEGER, SAVE :: PEROW_OFFSET        ! Local Column Offset for processor
 C for INTERPX
       INTEGER, SAVE :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2
       INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
@@ -266,6 +269,11 @@ c..If emissions processing requested stop
          OPEN( UNIT=ISTFL, FILE='iterstat.dat' )
          WRITE( ISTFL, 94020 )
 #endif
+C Define processor offsets
+
+         PECOL_OFFSET = COLSD_PE( 1, MYPE+1 ) - 1
+         PEROW_OFFSET = ROWSD_PE( 1, MYPE+1 ) - 1
+
 
 C.. Get fractional seawater coverage from the OCEAN file.
 
@@ -463,7 +471,7 @@ c..Get rate constants
 c..Call EBI solver
                N_EBI_IT = 0
 
-               CALL HRSOLVER( JDATE, JTIME, C, R, L )
+               CALL HRSOLVER( JDATE, JTIME, (C+PECOL_OFFSET), (R+PEROW_OFFSET), L )
 
 #ifdef hrstats 
                MXEBI  = MAX( MXEBI, N_EBI_IT )

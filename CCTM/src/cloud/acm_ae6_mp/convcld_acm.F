@@ -1657,10 +1657,6 @@ C...Now do changes in cloudy layers:
 
 299     CONTINUE
         
-        DO VAR = 1, N_SPC_WDEP+8
-          CONV_DEP( COL,ROW,VAR ) = 0.0
-        END DO
-
 301     CONTINUE        !  end loop on columns COL
 311   CONTINUE        !  end loop on rows    ROW
 
