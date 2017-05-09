@@ -22,7 +22,8 @@
 
 set MECH = ` echo ${GC_NAME}_${AE_NAME}_${AQ_NAME} |  tr 'a-zA-Z' 'A-Za-z' `
 
-set REP  = ${BASE}/input/${MECH}
+ set REP  = ../../CCTM/src/MECHS    #> Repository Directory with mechanism data module
+#set REP  = ${BASE}/input/${MECH}   #> User Defined Directory with mechanism data module
 
 
 #uses CMAQ version 5.1 of these include files for chemical mechanism
