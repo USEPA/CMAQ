@@ -1,6 +1,8 @@
 [<< Previous Chapter](CMAQ_OGD_ch06_req_lib.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch08_input_files.md)
 * * *
 
+<a id=Chapter_7></a>
+
 # 7. CMAQ Programs and Libraries #
 
 Overview
