@@ -244,10 +244,13 @@ C Land use information:
                                                    ! Wesely 1989 eq 6.
       Character( 16 ) :: subname  ( ltotg )        ! for subroutine HLCONST
 
+      Logical, Save :: MET_INITIALIZED = .false.
       Real,    Save :: CONVPA             ! Pressure conversion factor file units to Pa
       Logical, Save :: MINKZ     
       Logical, Save :: CSTAGUV            ! Winds are available with C stagger?
       Logical, Save :: ifwr     = .false.
+
+      Public        :: INIT_MET
 
       Logical, Private, Save :: ifsst    = .false.
       Logical, Private, Save :: ifq2     = .false.
@@ -420,6 +423,8 @@ C for INTERPX
 C-----------------------------------------------------------------------
 
          LOGDEV = INIT3()
+
+         If( MET_INITIALIZED )Return
 
 !> Allocate buffers
          ALLOCATE ( BUFF1D( NLAYS ),
@@ -833,6 +838,8 @@ C-----------------------------------------------------------------------
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End If
          
+         MET_INITIALIZED = .true.
+
          Return
          End Subroutine INIT_MET
 

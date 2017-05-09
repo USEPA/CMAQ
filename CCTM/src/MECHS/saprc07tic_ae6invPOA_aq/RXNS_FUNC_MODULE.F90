@@ -2435,6 +2435,20 @@
               END IF
             END DO
 
+            IF( SUCCESS )RETURN
+
+            WRITE(LOGDEV,99901)TRIM( MECHNAME )
+            WRITE(XMSG,99902)TRIM( MECHNAME )
+            CALL M3WARN('MAP_CHEMISTRY_SPECIES',0,0,XMSG)
+             
+
+99901       FORMAT( / 'FATAL error(s) found in the namelists used. Check that ' &
+     &     /  'these namelists contain the above data as the respective files ' &
+     &     /  'in the respository version of the mechanism: ' , A )
+99902       FORMAT( / 'FATAL error(s) found in the namelists used. Check that ' &
+     &     /  'these namelists contain the data as the respective files ' &
+     &     /  'in the respository version of the mechanism: ' , A )
+
          RETURN
 
          END FUNCTION MAP_CHEMISTRY_SPECIES

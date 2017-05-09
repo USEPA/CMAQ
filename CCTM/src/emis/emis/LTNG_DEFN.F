@@ -44,6 +44,10 @@
 !C    16 Aug 2016 D.Kang: Updating the Lightning NO calculation with NLDN hourly
 !C                        data directly and using NLDN-RC log linear relationship,
 !C                        completely changing the data input process   
+!C     1 Feb 2017 D.Kang: Modify the parameter (linear-log linear regression)scheme to
+!C                        set log-linear when RC is greater than the
+!C                        exp(log-intercept), and move the LTNOx
+!C                        production rate to environmental variable to be set in run script
 !C----------------------------------------------------------------------
 
       IMPLICIT NONE
@@ -59,9 +63,9 @@
       CHARACTER( 16 ), PARAMETER :: LTSPC = 'NO'
 !C lightning log linear regression parameters with RC 
       REAL            :: SQUAREKM
-      REAL, SAVE      :: scl_factor
-      REAL, PARAMETER :: MOLSNCG = 350
-      REAL, PARAMETER :: MOLSNIC = 350
+      REAL, SAVE      :: SCL_FACTOR
+      REAL, SAVE :: MOLSNCG
+      REAL, SAVE :: MOLSNIC
 
       LOGICAL, SAVE :: LPARAM     ! flag to use lightning NO parameters file
       LOGICAL, SAVE :: NLDNSTRIKE     ! flag to use NLDN STRIKE directly 
@@ -71,9 +75,6 @@
 
 !C file name for off line lightning NO input; set to "InLine" for inline production
       CHARACTER( 16 ), SAVE :: LNAME
-!C file name for lightning NO diagnostic output
-      CHARACTER( 16 ), SAVE :: DNAME1 = 'LTNGOUT1'
-      CHARACTER( 16 ), SAVE :: DNAME2 = 'LTNGOUT2'
 !C file name for inline lightning parameters, (only used if LNAME = "InLine")
       CHARACTER( 16 ), SAVE :: ANAME
       CHARACTER( 16 ), SAVE :: ONAME
@@ -145,7 +146,6 @@ C        INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
          INTEGER :: COL, ROW     ! local col and row variable 
 !C Local Variables:
          CHARACTER( 16 ), SAVE :: CTM_LTNG_NO = 'CTM_LTNG_NO'  ! env var Cflag
-         CHARACTER( 16 ), SAVE :: LOG_START = 'LOG_START'  ! the
 !C value to start log linear regression  
          CHARACTER( 16 )       :: PNAME = 'LTNG_INIT'
          CHARACTER( 80 )       :: VARDESC   ! env variable description
@@ -188,7 +188,9 @@ C        INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
 
          VARDESC = 'Flag for lightning emissions'
          LTNG_NO = ENVYN( CTM_LTNG_NO, VARDESC, .FALSE., STATUS )
-         SCL_FACTOR = ENVREAL( LOG_START, VARDESC, 0.9, STATUS )
+         VARDESC = 'Flag for lightning NO production rate'
+         MOLSNCG = ENVREAL( 'MOLSNCG', VARDESC, 350.0, STATUS )
+         MOLSNIC = ENVREAL( 'MOLSNIC', VARDESC, 350.0, STATUS )
          IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
          IF ( STATUS .EQ. 1 ) THEN
             XMSG = 'Environment variable improperly formatted'
@@ -246,9 +248,6 @@ C        INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
                XMSG = 'Using lightning NO parameters file'
                CALL M3MSG2( XMSG )
 !C Open lightning parameters file?
-               ANAME = PROMPTMFILE(
-     &                    'Enter name for NLDN STRIKE Parameters',
-     &                    FSREAD3, 'NLDN_STRIKES', PNAME )
                ONAME = PROMPTMFILE(
      &                    'Enter name for lightning parameters file',
      &                    FSREAD3, 'LTNGPARMS_FILE', PNAME )
@@ -256,11 +255,15 @@ C        INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
      &                    'Enter name for gridded met input file',
      &                    FSREAD3, 'MET_CRO_2D', PNAME )
 !C Read description of normalized emissions file
-               IF ( .NOT. OPEN3( ANAME, FSREAD3, PNAME ) ) THEN
-                  CALL M3ERR( PNAME, 0, 0,
-     &           'Could not open NLDN Parameter FILE', .TRUE.)
+               IF(NLDNSTRIKE) THEN
+                  ANAME = PROMPTMFILE(
+     &                    'Enter name for NLDN STRIKE Parameters',
+     &                    FSREAD3, 'NLDN_STRIKES', PNAME )
+                  IF ( .NOT. OPEN3( ANAME, FSREAD3, PNAME ) ) THEN
+                     CALL M3ERR( PNAME, 0, 0,
+     &              'Could not open NLDN Parameter FILE', .TRUE.)
+                  END IF
                END IF
-
                IF( .not. open3(MNAME,fsread3,pname)) THEN
                   call m3err(pname, 0, 0,
      &            'Could not open MET_CRO_2D', .TRUE.)
@@ -472,14 +475,14 @@ C        INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
 
 !C Open output file (mol/s)
                IF ( IO_PE_INCLUSIVE ) THEN
-                  IF ( .NOT. OPEN3( DNAME1, FSUNKN3, PNAME ) ) THEN
-                     XMSG = 'Could not open ' // TRIM( DNAME1 )
+                  IF ( .NOT. OPEN3( CTM_LTNGDIAG_1, FSUNKN3, PNAME ) ) THEN
+                     XMSG = 'Could not open ' // TRIM( CTM_LTNGDIAG_1 )
                      CALL M3EXIT( PNAME, LDATE, LTIME, XMSG, XSTAT1 )
                   END IF
                   NLAYS3D = 1
                   VDESC3D( 1 ) = 'Column NO produced from lightning'
-                  IF ( .NOT. OPEN3( DNAME2, FSUNKN3, PNAME ) ) THEN
-                     XMSG = 'Could not open ' // TRIM( DNAME2 )
+                  IF ( .NOT. OPEN3( CTM_LTNGDIAG_2, FSUNKN3, PNAME ) ) THEN
+                     XMSG = 'Could not open ' // TRIM( CTM_LTNGDIAG_2 )
                      CALL M3EXIT( PNAME, LDATE, LTIME, XMSG, XSTAT1 )
                   END IF
 
@@ -662,8 +665,9 @@ C statement function for ERF approximation
      &                       / ( 60.0 * 60.0 ) ! get time units right:emisions are in the unit of moles/s
                      ELSE
                         IF ( LTNG_RC( COL,ROW,INDX ) .GT. 0 ) THEN
+                           SCL_FACTOR = EXP(INTERCEPT_lg(COL, ROW))
                            IF ( LTNG_RC( COL,ROW,INDX ) .GT. SCL_FACTOR .AND.
-     &                        ( CJDATE .GT. 151 .AND. CJDATE .LT. 244 ) ) THEN
+     &                        OCEAN_MASK( COL,ROW ) > 0.2 ) THEN
                               COLUMN_LTNG_NO( COL,ROW ) =
      &                         ( EXP( SLOPE_LG( COL,ROW ) * LOG( LTNG_RC( COL,ROW,INDX ) )
      &                           + INTERCEPT_LG( COL,ROW) )
@@ -790,20 +794,20 @@ C statement function for ERF approximation
                   DIVFAC = 1.0 / FLOAT( NTICS )
                   VDEMIS_DIAG = VDEMIS_DIAG * DIVFAC   ! array assignment
 
-                  IF ( .NOT. WRITE3( DNAME1, LTSPC, LDATE, LTIME, VDEMIS_DIAG ) )  THEN
-                     XMSG = 'Could not write to ' // TRIM( DNAME1 )
+                  IF ( .NOT. WRITE3( CTM_LTNGDIAG_1, LTSPC, LDATE, LTIME, VDEMIS_DIAG ) )  THEN
+                     XMSG = 'Could not write to ' // TRIM( CTM_LTNGDIAG_1 )
                      CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
                   ELSE
                      WRITE( LOGDEV,94040 )
-     &                    'Timestep written to', TRIM( DNAME1 ),
+     &                    'Timestep written to', TRIM( CTM_LTNGDIAG_1 ),
      &                    'for date and time', LDATE, LTIME
                   END IF
-                  IF ( .NOT. WRITE3( DNAME2, LTSPC, LDATE, LTIME, COLUMN_LTNG_NO ) )  THEN
-                     XMSG = 'Could not write to ' // TRIM( DNAME2 )
+                  IF ( .NOT. WRITE3( CTM_LTNGDIAG_2, LTSPC, LDATE, LTIME, COLUMN_LTNG_NO ) )  THEN
+                     XMSG = 'Could not write to ' // TRIM( CTM_LTNGDIAG_2 )
                      CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
                   ELSE
                      WRITE( LOGDEV,94040 )
-     &                    'Timestep written to', TRIM( DNAME2 ),
+     &                    'Timestep written to', TRIM( CTM_LTNGDIAG_2 ),
      &                    'for date and time', LDATE, LTIME
                   END IF
 
