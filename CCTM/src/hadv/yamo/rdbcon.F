@@ -25,7 +25,7 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
  
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE RDBCON ( JDATE, JTIME, TSTEP, LVL, BCON, LSTAT )
+      SUBROUTINE RDBCON ( JDATE, JTIME, TSTEP, LVL, BCON )
 
 C-----------------------------------------------------------------------
 C Function:
@@ -59,7 +59,6 @@ C-----------------------------------------------------------------------
       USE CGRID_SPCS           ! CGRID mechanism species
       USE UTILIO_DEFN
       USE RXNS_DATA, ONLY : MECHNAME
-      USE AERO_DATA, only : CHECK_AERO_ICBC, N_MODE
 
       IMPLICIT NONE
  
@@ -74,7 +73,6 @@ C Arguments:
       INTEGER, INTENT( IN ) :: LVL         ! layer
 !     REAL           BCON( NBNDY,NLAYS,* )  ! boundary concentrations
       REAL,    INTENT( OUT ) :: BCON( :,: ) ! boundary concentrations
-      LOGICAL, INTENT( INOUT ) :: LSTAT       ! Flag for identifying Aerosol BC flaws
 
 C Parameters:
       REAL, PARAMETER :: KGPMG = 1.0E-09  ! Kg / micro-gram
@@ -108,25 +106,17 @@ C Local variables:
       REAL,            ALLOCATABLE, SAVE :: BCFAC( : )   ! Scale factor for BCs
       LOGICAL,         ALLOCATABLE, SAVE :: ONFILE( : )  ! BC species on the file
 
-      CHARACTER( 96 )  :: XMSG = ' '
-      CHARACTER( 199 ) :: XMSG2 = ' '
-      INTEGER          :: STAT
+      CHARACTER( 96 ) :: XMSG = ' '
 
       INTEGER, SAVE :: N_SPC_ADV
-      INTEGER       :: LMODE    !Identifies the problematic mode from
-                                !the BC Check routine
-      REAL          :: AER_PAR( 2, N_MODE,5 )  !Modal parameter after the BC 
-                                               !check (N, dg, sg)
-                                               !      (N, M2, M3) - Before
-                                               !      (N, M2, M3) - After
 
       INTEGER   MDATE             ! mid-advection date
       INTEGER   MTIME             ! mid-advection time
       INTEGER   STEP              ! advection time step in seconds
 
       INTEGER   BND, VAR, SPC     ! loop counters
-      INTEGER   COL, ROW, IMODE   ! loop counters
-      INTEGER   STRT, FINI, IAER, J
+      INTEGER   COL, ROW          ! loop counters
+      INTEGER   STRT, FINI
       INTEGER   ALLOCSTAT
 
       INTEGER   COUNT             ! Counter for constructing boundary arrays
@@ -134,6 +124,9 @@ C Local variables:
       INTEGER   GXOFF, GYOFF      ! global origin offset from file
       LOGICAL, SAVE :: WINDOW = .FALSE. ! posit same file and global
                                         ! processing domain
+
+      LOGICAL, EXTERNAL :: PINTERPB
+
 C for INTERPX
       INTEGER, SAVE :: STRTCOL,   ENDCOL,   STRTROW,   ENDROW
       INTEGER       :: STRTCOLMC, ENDCOLMC, STRTROWMC, ENDROWMC
@@ -160,7 +153,7 @@ C-----------------------------------------------------------------------
          logdev = init3()
 #endif
 
-         WRITE( CONCMIN,'(1PE9.2)' ) CMIN
+         WRITE( CONCMIN,'(1PE8.2)' ) CMIN
 
          CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
      &                   STRTCOLMC, ENDCOLMC, STRTROWMC, ENDROWMC )
@@ -299,17 +292,17 @@ C Fill in DENSJ array for boundaries
 
 
          VNAME = 'JACOBM'
-         IF ( .NOT. INTERPB ( MET_BDY_3D, VNAME, PNAME,
+         IF ( .NOT. PINTERPB ( MET_BDY_3D, VNAME, PNAME,
      &                        MDATE, MTIME, NBNDY*NLAYS,
-     &                        JACOBM_BND ) ) THEN
+     &                        JACOBM_BND, LVL ) ) THEN
             XMSG = 'Could not read' // VNAME // ' from ' // MET_BDY_3D
             CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
          END IF
 
          VNAME = 'DENSA_J'
-         IF ( .NOT. INTERPB ( MET_BDY_3D, VNAME, PNAME,
+         IF ( .NOT. PINTERPB ( MET_BDY_3D, VNAME, PNAME,
      &                        MDATE, MTIME, NBNDY*NLAYS,
-     &                        RHOJ_BND ) ) THEN
+     &                        RHOJ_BND, LVL ) ) THEN
             XMSG = 'Could not read ' // VNAME // ' from ' // MET_BDY_3D
             CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
          END IF
@@ -325,8 +318,8 @@ C Read & interpolate boundary concentrations
       DO 141 VAR = STRT, FINI
          IF ( ONFILE( VAR ) ) THEN
             BBUF = 0.0   ! array assignment
-            IF ( .NOT. INTERPB( BNDY_GASC_1, BCNAME( VAR ), PNAME,
-     &                          MDATE, MTIME, NBNDY*NLAYS, BBUF ) ) THEN
+            IF ( .NOT. PINTERPB( BNDY_GASC_1, BCNAME( VAR ), PNAME,
+     &                          MDATE, MTIME, NBNDY*NLAYS, BBUF, LVL ) ) THEN
                XMSG = 'Could not read ' // TRIM( BCNAME( VAR ) ) // ' from '
      &              // BNDY_GASC_1
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
@@ -364,8 +357,8 @@ C Read & interpolate boundary concentrations
          SPC = SPC + 1
          IF ( ONFILE( VAR ) ) THEN
             BBUF = 0.0   ! array assignment
-            IF ( .NOT. INTERPB ( BNDY_AERO_1, BCNAME( VAR ), PNAME,
-     &                           MDATE, MTIME, NBNDY*NLAYS, BBUF ) ) THEN
+            IF ( .NOT. PINTERPB ( BNDY_AERO_1, BCNAME( VAR ), PNAME,
+     &                           MDATE, MTIME, NBNDY*NLAYS, BBUF, LVL ) ) THEN
                XMSG = 'Could not read ' // TRIM( BCNAME ( VAR ) ) // ' from '
      &              // BNDY_AERO_1
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
@@ -375,8 +368,8 @@ C Read & interpolate boundary concentrations
                IF ( BCNAME( VAR )( 1:4 ) .EQ. 'APOC' ) THEN 
                   IF ( INDEX( MECHNAME,"NVPOA" ) .EQ. 0 ) THEN
                     BCNAME_TMP = 'APNCOM' // BCNAME( VAR )( 5:5 )
-                    IF ( .NOT. INTERPB ( BNDY_AERO_1, BCNAME_TMP, PNAME,
-     &                         MDATE, MTIME, NBNDY*NLAYS, BBUF_TMP ) ) THEN
+                    IF ( .NOT. PINTERPB ( BNDY_AERO_1, BCNAME_TMP, PNAME,
+     &                         MDATE, MTIME, NBNDY*NLAYS, BBUF_TMP, LVL ) ) THEN
                        XMSG = 'Could not read ' // TRIM( BCNAME_TMP ) 
      &                        // ' from ' // BNDY_AERO_1
                        CALL M3WARN( PNAME, MDATE, MTIME, XMSG ) 
@@ -401,31 +394,11 @@ C Read & interpolate boundary concentrations
                 
             END IF
          ELSE
-            BCON( 1:NBNDY,VAR ) = CMIN
+            DO BND = 1, NBNDY
+               BCON( BND,VAR ) = CMIN
+            END DO
          END IF
 151   CONTINUE
-      
-      !Check Aerosol Size Distributions and Warn 
-      !the User if They Are Not Robust
-      DO BND = 1,NBNDY
-        CALL CHECK_AERO_ICBC( BCON( BND,STRT:FINI ), .FALSE., STAT, AER_PAR, LMODE )
-        IF ( STAT .GT. 0 ) THEN
-          LSTAT = .TRUE.
-#ifdef verbose_rdbcon
-          WRITE ( 6, '(7x,A55,I1,/,7x,A20,I1,A42,/,9x,A51,/,9x,A22,I4,2x,I2,/,
-     &                 9x,A19,1x,A3,8x,A2,8x,A2,8x,A2,8x,A2,/,
-     &                 27x,E8.1,1x,E8.1,1x,E8.1,1x,E8.1,4x,F4.1,/,
-     &                 9x,A19,1x,A3,8x,A2,8x,A2,8x,A2,8x,A2,/,
-     &                 27x,E8.1,1x,E8.1,1x,E8.1,1x,E8.1,4x,F4.1)'),
-     &               'Warning: Applying Aerosol Boundary Conditions for mode ',LMODE,
-     &               'The Offending Mode (',LMODE,') had diameter and/or sigma out of bounds.',
-     &               'It was overwritten by changing the Num and SrfArea.',
-     &               'Grid Cell(Horz,Vert): ',BND, LVL,
-     &               'Modal Props Before:','Num','M2','M3','Dg','Sg',(AER_PAR(1,LMODE,j),j=1,5),
-     &               'Modal Props After: ','Num','M2','M3','Dg','Sg',(AER_PAR(2,LMODE,j),j=1,5)
-#endif
-        ENDIF
-      END DO
 
 #ifdef verbose_rdbcon
       if ( lvl .eq. 1 ) then
@@ -445,8 +418,8 @@ C Read & interpolate boundary concentrations
       DO 161 VAR = STRT, FINI
          IF ( ONFILE( VAR ) ) THEN
             BBUF = 0.0   ! array assignment
-            IF ( .NOT. INTERPB ( BNDY_NONR_1, BCNAME( VAR ), PNAME,
-     &                           MDATE, MTIME, NBNDY*NLAYS, BBUF ) ) THEN
+            IF ( .NOT. PINTERPB ( BNDY_NONR_1, BCNAME( VAR ), PNAME,
+     &                           MDATE, MTIME, NBNDY*NLAYS, BBUF, LVL ) ) THEN
                XMSG = 'Could not read ' // TRIM( BCNAME( VAR ) ) // ' from '
      &              // BNDY_NONR_1
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
@@ -481,8 +454,8 @@ C Read & interpolate boundary concentrations
       DO 171 VAR = STRT, FINI
          IF ( ONFILE( VAR ) ) THEN
             BBUF = 0.0   ! array assignment
-            IF ( .NOT. INTERPB ( BNDY_TRAC_1, BCNAME( VAR ), PNAME,
-     &                           MDATE, MTIME, NBNDY*NLAYS, BBUF ) ) THEN
+            IF ( .NOT. PINTERPB ( BNDY_TRAC_1, BCNAME( VAR ), PNAME,
+     &                           MDATE, MTIME, NBNDY*NLAYS, BBUF, LVL ) ) THEN
                XMSG = 'Could not read ' // TRIM( BCNAME( VAR ) ) // ' from '
      &              // BNDY_TRAC_1
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
