@@ -1,7 +1,13 @@
+
+<!-- BEGIN COMMENT -->
+
 [<< Previous Chapter](CMAQ_OGD_ch04_science.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch06_req_lib.md)
+
+<!-- END COMMENT -->
+
 * * *
 
-# 5. CMAQ Installation and System Requirements #
+# CMAQ Installation and System Requirements #
 
 This section describes how to set up and install CMAQ on a Linux system.  The installation instructions in this section guide the user through obtaining the CMAQ source code and installing it on your system. Brief instructions for running the CMAQ benchmark case and benchmarking the model are also addressed. Here, the term “benchmarking” refers to the process of verifying that a model has installed correctly on a new computer. CMAQ is distributed with a reference dataset that can be used to benchmark the CMAQ installation; in the distribution, output data from CMAQ are bundled with the input data (including emissions and meteorology) that can be used to reproduce the reference results.
 
@@ -422,5 +428,9 @@ The system configuration parameters used to generate the benchmark reference dat
 
 ***
 
+<!-- BEGIN COMMENT -->
+
 [<< Previous Chapter](CMAQ_OGD_ch04_science.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch06_req_lib.md)<br>
 CMAQ Operational Guidance Document (c) 2016<br>
+
+<!-- END COMMENT -->

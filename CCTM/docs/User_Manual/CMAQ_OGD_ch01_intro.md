@@ -1,4 +1,10 @@
+
+<!-- BEGIN COMMENT -->
+
 [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch02_overview.md)
+
+<!-- END COMMENT -->
+
 <center>
 
 * * *
@@ -70,5 +76,11 @@ CMAQ is designed to meet the needs of the multiple groups contained within the a
 [CMAQ OGD Acronyms](CMAQ_OGD_acronyms.md)
 --
 ***
+
+<!-- BEGIN COMMENT -->
+
 [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch02_overview.md)<br>
 CMAQ Operational Guidance Document (c) 2016<br>
+
+<!-- END COMMENT -->
+

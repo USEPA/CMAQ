@@ -1,5 +1,9 @@
+<!-- BEGIN COMMENT -->
 
 [<< Previous Chapter](CMAQ_OGD_ch13_support.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_glossary.md)
+
+<!-- END COMMENT -->
+
 * * * 
 
 Appendix A – CMAQ Chemical Mechanisms and Species
@@ -10,7 +14,7 @@ Appendix A – CMAQ Chemical Mechanisms and Species
 **Table A‑2. CB05tucl species** 
 
 |Species|Description|MW|
-|---|---|---|
+|----------|-------------------------|---------------------------------|
 |AACD|Acetic and higher acids|<div align="right"> 60 </div>|
 |ALD2|Acetaldehyde|<div align="right"> 44 </div>|
 |ALDX|Propionaldehyde and higher aldehydes|<div align="right"> 44 </div>|
@@ -92,4 +96,8 @@ Appendix A – CMAQ Chemical Mechanisms and Species
 |XYLNRXN|Counter species for computing SOA from XYL under high NOx conditions|<div align="right"> 155 </div>|
 |XYLRO2|First generation SOA intermediate from XYL oxidation|<div align="right"> 155 </div>|
 
+<!-- BEGIN COMMENT -->
+
 [<< Previous Chapter](CMAQ_OGD_ch13_support.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_glossary.md)
+
+<!-- END COMMENT -->

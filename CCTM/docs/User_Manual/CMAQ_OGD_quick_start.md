@@ -1,4 +1,9 @@
+<!-- BEGIN COMMENT -->
+
 [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch01_intro.md)
+
+<!-- END COMMENT -->
+
 ***
 
 ## CMAQ Installation Quick Start Guide
@@ -142,5 +147,9 @@ After configuring the MPI settings for your Linux system, using the following co
 
 ***
 
+<!-- BEGIN COMMENT -->
+
 [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch01_intro.md)  
 CMAQ Operational Guidance Document (c) 2016  
+
+<!-- END COMMENT -->

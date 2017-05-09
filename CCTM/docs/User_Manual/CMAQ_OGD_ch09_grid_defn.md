@@ -1,7 +1,12 @@
+<!-- BEGIN COMMENT -->
+
 [<< Previous Chapter](CMAQ_OGD_ch08_input_files.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch10_new_simulation.md)
+
+<!-- END COMMENT -->
+
 * * *
 
-# 9. Defining Grids, Layers, and Chemistry #
+# Defining Grids, Layers, and Chemistry #
 
 This chapter describes how to define new horizontal grids, vertical layers, and chemical mechanisms in CMAQ. These specifications apply to multiple programs in the CMAQ modeling system, including ICON, BCON, JPROC, and CCTM. When configuring new simulations, users must define the location, extent, and structure of the horizontal and vertical grids, and the chemical mechanism for representing pollutant chemical transformations. CMAQ contains several default options for these parameters that can be used as templates for setting up new configurations. Before deciding to create definitions for new grids and mechanisms, check to see whether the existing options are sufficient for your model simulation. If a predefined choice is not appro­priate, then follow the steps described in this section to create a new definition.
 
@@ -169,5 +174,9 @@ When mechanisms are modified or created in CMAQ, new namelist files must be crea
 -   The Rosenbrock and SMVGEAR solvers are mechanism-independent choices of chemistry solvers for the CCTM.
 -   When adding new species to CMAQ, it is important to check that the sources of these new species into the modeling domain are accounted for correctly in the mechanism definition files. If species are added to the domain through the emissions files, the namelist files that define the mechanism species must contain these new species.
 
+<!-- BEGIN COMMENT -->
+
 [<< Previous Chapter](CMAQ_OGD_ch08_input_files.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch10_new_simulation.md)<br>
 CMAQ Operational Guidance Document (c) 2016<br>
+
+<!-- END COMMENT -->

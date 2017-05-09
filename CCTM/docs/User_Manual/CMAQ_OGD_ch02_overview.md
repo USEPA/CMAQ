@@ -1,8 +1,12 @@
+<!-- BEGIN COMMENT -->
 
 [<< Previous Chapter](CMAQ_OGD_ch01_intro.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch03_features.md)
+
+<!-- END COMMENT -->
+
 * * *
 
-# 2. Overview of CMAQ System Components #
+# Overview of CMAQ System Components #
 
 
 CMAQ is a suite of Fortran 90 programs that work in concert to estimate ozone, PM, toxic compounds, and acid deposition throughout the troposphere. The five main CMAQ programs are
@@ -152,6 +156,10 @@ The Euler Backward Iterative (EBI) chemistry solver is an optimized numerical so
 
 This program reads lightning flash count data from the National Lightning Detection Network (NLDN) and creates a CCTM input file to use for simulations that include lightning NO<sub>x</sub> emissions.
 ***
-[<< Previous Chapter](CMAQ_OGD_ch01_intro.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch03_features.md)<br>
 
+<!-- BEGIN COMMENT -->
+
+[<< Previous Chapter](CMAQ_OGD_ch01_intro.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch03_features.md)<br>
 CMAQ Operational Guidance Document (c) 2016<br>
+
+<!-- END COMMENT -->

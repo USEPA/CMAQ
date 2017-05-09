@@ -1,4 +1,8 @@
+<!-- BEGIN COMMENT -->
+
 [Home](README.md)
+
+<!-- END COMMENT -->
 
 CMAQ Operational Guidance document
 ==
@@ -149,4 +153,8 @@ List of Figures
 
 [Table 8‑12. OMI data format](CMAQ_OGD_ch08_input_files.md#Table8-12)
 
+<!-- BEGIN COMMENT -->
+
 [Home](README.md)
+
+<!-- END COMMENT -->
