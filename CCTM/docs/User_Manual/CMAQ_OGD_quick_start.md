@@ -1,7 +1,7 @@
 [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch01_intro.md)
 ***
-CMAQ Installation Quick Start Guide
-=========================================
+
+## CMAQ Installation Quick Start Guide
 
 ### System Checks ###
 
