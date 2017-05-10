@@ -146,7 +146,7 @@ The chemical mechanism used in the CCTM and the CMAQ input processors must be co
 
 ICON and BCON can linearly interpolate input concentration profiles from the horizontal or vertical coordinate system used in the profiles to the one needed for the model simulation, if the input data are in the standard I/O API format. If the interpolation is between two different vertical coordinate systems, the mid-layer height of each vertical layer must also be available.
 
-The current ICON and BCON processors cannot generate initial and boundary conditions for the CMAQ model from hemispheric and global model results.  A separate processor (GEOS2CMAQ) is available for generating boundary conditions for the CMAQ model using the GEOSSCHEM model results.  Another processor is also available for generating boundary conditions for the regional CMAQ model using the hemispheric CMAQ model results.  These processors will be released in FY2018. Please contact us if you need the processors prior to the official release.
+The current ICON and BCON processors cannot generate initial and boundary conditions for the CMAQ model from hemispheric and global model results.  A separate processor (GEOS2CMAQ) is available for generating boundary conditions for the CMAQ model using the GEOSSCHEM model results.  Another processor is also available for generating boundary conditions for the regional CMAQ model using the hemispheric CMAQ model results.  These processors are under development and will be released at a later date. Please contact us if you need the processors now.
 
 ## CHEMMECH: Chemical mechanism compiler
 
@@ -295,8 +295,7 @@ As a tool for identifying the relative importance of individual chemical and phy
 - As a tool for model development, PA can help evaluate the effect of modifications made to a model or process module
 - For QA purposes, PA can be used to help identify compensating or unresolved errors in the model or input data which may not be reflected in the total change in concentration. For example, if an error in the emissions input data causes the model to calculate negative concentration values in an intermediate step, this could be masked in the final predicted concentrations if compensated for by larger positive values resulting from the chemistry calculations.
 
-If the user activates PA during CMAQ runtime (CTM_PROCAN=Y), the PA input file (PACM_INFILE) specifies whether IPR, IRR or both analyses are performed, and defines which variables are required for each analysis. The IRR parameters are highly customizable and can be easily modified for new chemical mechanisms, but must be checked carefully before running to ensure that they correspond to the mechanism being used.  The PA_REPORT output file should always be reviewed to verify that the calculations are being performed correctly.    
-Note that PA in CMAQ will only work with either the Rosenbrock or the SMVGEAR solvers.
+If the user activates PA during CMAQ runtime (CTM_PROCAN=Y), the PA input file (PACM_INFILE) specifies whether IPR, IRR or both analyses are performed, and defines which variables are required for each analysis. The IRR parameters are highly customizable and can be easily modified for new chemical mechanisms, but must be checked carefully before running to ensure that they correspond to the mechanism being used.  The PA_REPORT output file should always be reviewed to verify that the calculations are being performed correctly. Note that while the IPR option can be run with any of the chemical solvers, use of IRR in CMAQ requires either the Rosenbrock or the SMVGEAR solvers
 
 The CMAQ User Interface
 -----------------------
