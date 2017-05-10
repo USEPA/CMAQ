@@ -5,8 +5,6 @@
 
 <!-- END COMMENT -->
 
-* * *
-
 # CMAQ Features #
 
 Features of CMAQ for Application Users
@@ -51,7 +49,6 @@ Each release version of CMAQ contains new features and improvements over the pre
 [Version 4.2](https://www.airqualitymodeling.org/index.php/MCIP_version_4.2_Release_Notes)<br>
 [Version 4.1](https://www.airqualitymodeling.org/index.php/MCIP_version_4.1_Release_Notes)<br>
 
-***
 
 <!-- BEGIN COMMENT --
 >

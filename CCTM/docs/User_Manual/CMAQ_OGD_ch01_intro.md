@@ -7,7 +7,6 @@
 
 <center>
 
-* * *
 
 Operational Guidance for the Community Multiscale Air Quality (CMAQ) Modeling System
 =======
@@ -75,7 +74,6 @@ CMAQ is designed to meet the needs of the multiple groups contained within the a
 
 [CMAQ OGD Acronyms](CMAQ_OGD_acronyms.md)
 --
-***
 
 <!-- BEGIN COMMENT -->
 

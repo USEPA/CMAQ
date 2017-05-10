@@ -4,8 +4,6 @@
 
 <!-- END COMMENT -->
 
-* * *
-
 # Analysis Tools for CMAQ #
 
 Several tools are freely available for visualizing, analyzing, and evaluating CMAQ inputs and outputs. The list includes CMAQ utility tools, m3tools, PAVE, VERDI, Panoply, the Atmospheric Model Evaluation Tool (AMET), netCDF Operators (NCO), UNIDATA Integrated Data Viewer (IDV), and the NCAR Command-line Language (NCL). Several other commercial packages, including MATLAB and IDL, also support the analysis and visualization of CMAQ inputs and outputs. Most visualization and analysis software that supports netCDF file formats will work with CMAQ output data.
@@ -637,7 +635,6 @@ NCL comes with numerous predefined functions and resources that the user can eas
 `load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"`
 
 NCL also has a capability to call external Fortran or C routines. This is enabled through an NCL wrapper script called WRAPIT. The wrapper file is a C program that describes all of the arguments and passes them back and forth between the function/procedure the user wants to call, and the NCL script that is calling it. Thus, when the user invokes WRAPIT on the Fortran code that needs to be called from NCL, it creates a special C wrapper file, compiles it and the Fortran file, and generates a \*.so file that the user can then load into NCL using the "external" statement.
-***
 
 <!-- BEGIN COMMENT -->
 

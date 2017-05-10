@@ -5,7 +5,6 @@
 
 <!-- END COMMENT -->
 
-* * *
 
 # Required Libraries #
 
@@ -216,7 +215,6 @@ References for Chapter 6: Required Libraries
 ------------------------------------------
 Coats, C., 2005: The EDSS/Models-3 I/O API. Available online at the [I/O API website](https://www.cmascenter.org/ioapi)
 Unidata, 2009: NetCDF. Available online at [NetCDF website](http://www.unidata.ucar.edu/software/netcdf)
-***
 
 <!-- BEGIN COMMENT -->
 

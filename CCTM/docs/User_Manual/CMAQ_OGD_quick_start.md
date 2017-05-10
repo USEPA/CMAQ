@@ -4,8 +4,6 @@
 
 <!-- END COMMENT -->
 
-***
-
 ## CMAQ Installation Quick Start Guide
 
 ### System Checks ###
@@ -144,8 +142,6 @@ After configuring the MPI settings for your Linux system, using the following co
 ```
 ./run.cctm |& tee cctm.log
 ```
-
-***
 
 <!-- BEGIN COMMENT -->
 

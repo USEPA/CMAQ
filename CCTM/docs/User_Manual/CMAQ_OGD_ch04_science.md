@@ -4,7 +4,6 @@
 
 <!-- END COMMENT -->
 
-* * *
 
 # Overview of the Science in the CMAQ Modeling System #
 
@@ -374,9 +373,9 @@ Schwartz, S.E., 1986: Mass transport considerations pertinent to aqueous-phase r
 Tonnesen, G.S., Dennis, R.L., 2000: Analysis of radical propagation efficiency to assess ozone sensitivity to hydrocarbons and NO x : 1. Local indicators of instantaneous odd oxygen production sensitivity, *J. Geophys. Res.*, **105(D7)**, 9213-9225. 
 
 National Oceanic and Atmospheric Administration, 1976: *U.S. Standard Atmosphere*, U.S. Government Printing Office, Washington, DC, NOAA‑S/T76‑1562.
-***
 
 <!-- BEGIN COMMENT -->
+
 [<< Previous Chapter](CMAQ_OGD_ch03_features.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch05_sys_req.md)<br>
 CMAQ Operational Guidance Document (c) 2016<br>
 

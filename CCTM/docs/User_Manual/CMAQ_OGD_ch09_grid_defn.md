@@ -4,8 +4,6 @@
 
 <!-- END COMMENT -->
 
-* * *
-
 # Defining Grids, Layers, and Chemistry #
 
 This chapter describes how to define new horizontal grids, vertical layers, and chemical mechanisms in CMAQ. These specifications apply to multiple programs in the CMAQ modeling system, including ICON, BCON, JPROC, and CCTM. When configuring new simulations, users must define the location, extent, and structure of the horizontal and vertical grids, and the chemical mechanism for representing pollutant chemical transformations. CMAQ contains several default options for these parameters that can be used as templates for setting up new configurations. Before deciding to create definitions for new grids and mechanisms, check to see whether the existing options are sufficient for your model simulation. If a predefined choice is not appro­priate, then follow the steps described in this section to create a new definition.
@@ -48,7 +46,7 @@ The terms associated with I/O API grid definitions are listed in [Table 9-1](#Ta
  **Table 9-1. I/O API Grid Type Terms** 
 
 |Term|Definition|
-|----|----------|
+|------------|-------------------------------------------------------------------------|
 |origin|lower left corner of the cell at column=row=1|
 |`X_ORIG`|X coordinate of the grid origin (in projection units)|
 |`Y_ORIG` |  Y coordinate of the grid origin (in projection units)|

@@ -4,8 +4,6 @@
 
 <!-- END COMMENT -->
 
-* * *
-
 # Developing New CMAQ Simulations #
 
 For application users of CMAQ, the CMAQ model builder Bldmake is used only at the beginning of a simulation to compile executables for a specific science configuration. Since the horizontal grid and vertical layer structure are defined dynamically at execution of the model, there is typically no need to recompile the programs when changing these parameters. Compilation is required only when either developing CMAQ simulations for the first time or when the chemistry/science configuration within the model is changed.
@@ -124,7 +122,6 @@ GEOS-CHEM (2009) <http://wiki.seas.harvard.edu/geos-chem/index.php/Main_Page>
 
 MOZART (2009), <http://www.mpimet.mpg.de/en/wissenschaft/modelle/mozart.html>
 
-***
 
 <!-- BEGIN COMMENT -->
 

@@ -4,8 +4,6 @@
 
 <!-- END COMMENT -->
 
-* * *
-
 GLOSSARY
 ========
 

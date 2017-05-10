@@ -4,8 +4,6 @@
 
 <!-- END COMMENT -->
 
-* * *
-
 # CMAQ Input and Output Files #
 
 The input files for CMAQ consist of a domain definition file for all programs; two sets of file options for both ICON and BCON; two types of input files (WRF/MM5 and terrain) for MCIP; five mandatory and one optional input file for JPROC; and for CCTM, emissions, initial conditions, and boundary conditions files, six files that define the meteorological conditions to be simulated, and a photolysis rates file. For most CCTM input, a separate data set is required for each horizontal domain that is modeled. When CMAQ is configured for in-line emissions and deposition, there are additional emissions input files that are required. CMAQ output files include a basic set of files with aerosol and gas-phase species concentrations, wet and dry deposition estimates, and visibility metrics, and an auxiliary set of output files for diagnosing model performance and in-line-calculated emissions.
@@ -1323,7 +1321,6 @@ The 2-D CCTM wet deposition file (WETDEP2) includes cumulative hourly wet deposi
 
 In CMAQ, wet deposition is calculated separately for resolved (grid-scale) clouds and for convective (subgrid) clouds. The WETDEP1 files contain the total wet deposition, i.e., the sum of both resolved-scale and subgrid-scale deposition. The WETDEP2 file contains only subgrid-scale deposition, plus some cloud diagnostic variables.
 
-***
 
 <!-- BEGIN COMMENT -->
 
