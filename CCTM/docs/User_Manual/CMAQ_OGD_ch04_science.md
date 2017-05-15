@@ -48,6 +48,8 @@ Science Modules:
 -   Aerosol dynamics and size distributions (*aero*)
 -   Potential vorticity scaling for stratosphere/troposphere exchange (*pv_o3*)
 -   Meteorology-chemistry coupling (*twoway*)
+-   Deposition velocity estimation (*depv*)
+-   Photolytic rate computation (*phot*)
 
 Control/Utility Modules:
 
@@ -60,11 +62,6 @@ Control/Utility Modules:
 -   Process analysis (*procan*)
 -   Species namelist utilities (*spcs*)
 -   Miscellaneous functions (*util*)
-
-Data Estimation Modules:
-
--   Deposition velocity estimation (*depv*)
--   Photolytic rate computation (*phot*)
 
 In-line Emissions Modules:
 
