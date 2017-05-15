@@ -17,9 +17,9 @@ DDEP_NO2           ,kg/ha     ,NO2[1]
 WDEP_NO2           ,kg/ha     ,NO2[2]
 DDEP_NO            ,kg/ha     ,NO[1]
 WDEP_NO            ,kg/ha     ,NO[2]
-DDEP_FORM	       ,kg/ha     ,HCHO[1] ! formaldehyde is HCHO RACM2
-WDEP_FORM	       ,kg/ha     ,HCHO[2] ! formaldehyde is HCHO RACM2
-DDEP_H2O2	       ,kg/ha     ,H2O2[1]
+DDEP_FORM          ,kg/ha     ,HCHO[1] ! formaldehyde is HCHO RACM2
+WDEP_FORM          ,kg/ha     ,HCHO[2] ! formaldehyde is HCHO RACM2
+DDEP_H2O2          ,kg/ha     ,H2O2[1]
 WDEP_H2O2          ,kg/ha     ,H2O2[2]
 DDEP_N2O5          ,kg/ha     ,N2O5[1]
 WDEP_N2O5          ,kg/ha     ,N2O5[2]
