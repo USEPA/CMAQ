@@ -2041,15 +2041,7 @@ to  the requirements of the user-defined spatial surrogates.  Each area source c
 which has been assigned to a spatial surrogate (k) can be allocated to grid cells (1,  m) through the 
 application of Equation 4-11. 
 * 
-ratloij,k,I,m 
-
-aceeij,k',I,m - aceeij,k' 
-
-(4-11) 
-
--
-
-. 
+aceei,j,k',l,m = aceei,j,k' * ratloij,k,I,m  (4-11) 
 
 where  i is the index on states 
 
@@ -2063,31 +2055,20 @@ ratio is the gridded surrogate ratio by state/county/surrogate/cell
 
 Each surrogate is computed through the application of Equations 4-12 and 4-13. 
 
-surtotij,k = ~1  ~m attributeij,k,I,m 
+surtotij,k = ~1  ~m attributeij,k,I,m  (4-12)
 
-ratioij,k,I,m =  attributeij,k,I,m I surtotij,k 
+ratioij,k,I,m =  attributeij,k,I,m I surtotij,k  (4-13)
 
 where: 
 
 i is the index on states 
 j is the index on counties within the states 
-
-(4-12) 
-
-(4-13) 
-
 k is the spatial surrogate index 
 1 is the x cell index 
 m is the y cell index 
 surtot is the total value of a surrogate within specified (inde:xed) states and 
-counties 
-attribute is the gridded value of the surrogate attribute by 
-
-state/county/surrogate/cell 
-
-ratio is the gridded surrogate ratio for specified (indexed) states/counties/ 
-
-surrogates/cells 
+counties attribute is the gridded value of the surrogate attribute by state/county/surrogate/cell 
+ratio is the gridded surrogate ratio for specified (indexed) states/counties/surrogates/cells 
 
 In the case of census data or other area-based or length-based surrogate information, it is 
 necessary to area-apportion or length-apportion the surrogate (such as population or housing) 
