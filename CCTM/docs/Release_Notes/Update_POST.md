@@ -25,7 +25,16 @@
     
 ## Affected Files:
     
-
+POST/bldoverlay/src/bldoverlay.F
+POST/bldoverlay/src/getTZ.F
+POST/bldoverlay/src/parser.F
+POST/combine/src/module_file.F
+POST/combine/src/module_specdef.F
+POST/hr2day/src/hr2day.F
+POST/sitecmp/src/module_spec.F
+POST/sitecmp_dailyo3/module_envvar.F
+POST/sitecmp_dailyo3/process.F
+POST/writesite/src/module_spec.F
 
 ## References:    
 
