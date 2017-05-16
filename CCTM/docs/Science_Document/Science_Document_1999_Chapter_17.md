@@ -101,7 +101,7 @@ selection are provided in sections 17.3,  17.4, and 17.5.  Section 17.6 contains
 application and evaluation of the methodology using one particular air quality parameter (bcxt  ), 
 and section  17. 7 provides a summary and discussion. 
 
-17.1.1  Background 
+### 17.1.1  Background 
 
 In support of studies mandated by the 1990 Clean Air Act Amendments, the Models-3 
 Community Multiscale Air Quality (CMAQ) model is used by EPA Program Offices to estimate 
@@ -367,7 +367,7 @@ effeets;
 
 :··.·· 
 
-17.1.2  Objectives 
+### 17.1.2  Objectives 
 
 The present objectives differ somewhat from those which motivated the earlier research.  RADM 
 was primarily designed to address issues involving acidic deposition.  CMAQ addresses a more 
@@ -482,7 +482,7 @@ ii'",,,,
 
 ·.·.'. 
 
-17.2.1  Basic Elements of the Methodology 
+### 17.2.1  Basic Elements of the Methodology 
 
 Simply stated, the methods that we have employed involve the determination of meteorologically 
 representative categories, the selection of events from those categories, and the use of evaluative 
@@ -580,7 +580,7 @@ episode selection methodology,  and as evaluative tools to assess the effectiven
 approach.  These parameters include visibility (as represented by the be,J,  temperature, and 
 relative humidity.  Their specific roles are discussed in more detail in the following sections. 
 
-17.2.2  Rationale, Scope, and Limitations 
+### 17.2.2  Rationale, Scope, and Limitations 
 
 As stated previously, the approach to selecting an aggregation and episode scheme is based upon 
 the definition of meteorological categories that account for a significant proportion of the 
@@ -634,7 +634,7 @@ Jl:,:1111111'
 
 llh 
 
-17.2.3  Strategy 
+### 17.2.3  Strategy 
 
 The basic strategy used for the selection of events to support aggregation-based estimation is 
 described in the steps outlined below.  The term "cluster" describes a collection of events that are 
@@ -1684,7 +1684,7 @@ efficiency of stratified sampling with proportional allocation is 2.25/0.64=3.52
 allocation is more efficient than equal allocation in the sense that it leads to lower variances and 
 therefore tighter confidence intervals bounding the estimated mean. 
 
-17 .4.4  Results 
+### 17.4.4  Results 
 
 Tables 17-2 ( a-b) and  17-3  present mean relative efficiencies associated with annual means of the 
 daily noontime temperature, relative humidity,  and extinction coefficient, as estimated using 
@@ -2966,7 +2966,7 @@ continental wind field  data, with respect to the outcome measures used here.  W
 allocation ofRADM events is considered, the superiority of proportional allocation associated 
 with the continental analysis is further elevated. 
 
-17.5  Refinement of the Sampling Approach 
+## 17.5  Refinement of the Sampling Approach 
 
 Based, in part,  on the results discussed in section 17.4, a stratified sampling scheme involving 
 seasonal clustering based upon four distinct seasons was selected for further consideration and 
@@ -3002,7 +3002,7 @@ in modeling.
 
 , 
 
-17.5.1  Determination of Appropriate Numbers of Strata and Events 
+### 17.5.1  Determination of Appropriate Numbers of Strata and Events 
 
 The analysis proceeded under the assumption that, in order to satisfy the goal of matching or 
 exceeding the performance of the RADM 30-event stratification scheme, a minimum of30 events 
@@ -4129,7 +4129,7 @@ Year·
 
 5 
 
-17.6  Application and Evaluation 
+## 17.6  Application and Evaluation 
 
 In this section,  examples of the aggregation calculation for annual mean concentrations and total 
 wet depositions,  applicable to this sample of events,  are provided.  Following this example is a 
@@ -4137,7 +4137,7 @@ description of an evaluation exercise in which the aggregation calculation was c
 extinction coefficient, and the aggregated estimates were compared to the actual values based on 
 data from all of the days in the period. 
 
-17.6.1  Application of the Aggregation Procedure 
+### 17.6.1  Application of the Aggregation Procedure 
 
 Aggregation calculations will be applied to model-based depositions and concentrations obtained 
 for each sampled event, to achieve unbiased estimates for annual and seasonal means and other 
@@ -4300,7 +4300,7 @@ T.W .. ~ ~xpression can be thought of as a weighted sum in which the model-estim
 counted three times in the calculated sum (due to the use of3-day events) and that the strata are 
 defined over a nine-year period. 
 
-17.6.2  Evaluation 
+### 17.6.2  Evaluation 
 
 In order to determine the effectiveness of the aggregation technique and subsequent episode 
 selection, comparisons were made between the observed mean bcxis for the period  1984-1992 and 
@@ -4344,7 +4344,7 @@ in variance does not appear to be spatially biased,  but rather exhibits a rando
 the domain.  This is represented in Figure 17-31  by the scattering of the larger biases (i.e.  biases> 
 5.0%) evenly across the domain. 
 
-17.7  Summary and Discussion 
+## 17.7  Summary and Discussion 
 
 The objective of this research was to develop a new aggregation approach and set of events to 
 support model-based distributional estimates of air quality parameters (acidic deposition, air 
@@ -4532,7 +4532,7 @@ The evaluative parameters were selected for their known associations with many a
 parameters of interest, thus suggesting that the clusters should also be effective in defining strata 
 from which events can be selected to estimate those air quality parameters. 
 
-17.8  References 
+## 17.8  References 
 
 Brook, J.R., P.J.  Samson, and S.  Sillman,  l 995a. Aggregation of selected three-day periods to 
 estimate annual and seasonal wet deposition totals for sulfate, nitrate, and acidity.  Part I:  A 

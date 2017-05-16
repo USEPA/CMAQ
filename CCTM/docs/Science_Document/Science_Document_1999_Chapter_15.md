@@ -25,25 +25,7 @@ are discussed.
 Corresponding author address: Jeffrey Young, MD-80, Research Triangle Park, NC 27711.  E-mail: 
 yoj@hpcc.epa.gov 
 
-1
-'111 
-1
-
-'1111111 
-
-EPA/600/R-99/030 
-
-'llllllluill, 
-
-...  is':o 
-
 i>11oGR.AM coN'TRoL PRocEssING IN Mon'ELs-3 , 
-
-,;:1111111111 
-
-"I 
-
-"111 
 
 Program control processing (PCP) refers to setting up internal arrays and mappings, global 
 parameters, and data linkages to establish the complete problem domain in which the programs, 
@@ -123,7 +105,7 @@ generates the required global Fortran include files.  The use of global Fortran 
 notion of "Global Name Table Data," and the design concepts that govern _this  implementation 
 are discussed in Chapter 18, Sections 18.5 and  18.7. 
 
-15.1  Domain Configuration 
+## 15.1  Domain Configuration 
 
 The computational domain configuration data are contained in three include files: 
 
@@ -171,9 +153,7 @@ The grid name used for header description data in I/O API files (discussed in
 Section 15 .2). 
 
 
-15.2 
-
-Input/Output Applications Programming Interface 
+## 15.2 Input/Output Applications Programming Interface 
 
 Input and output data access for the CMAQ system is accomplished mainly through the 
 Input/Output Applications Programmer's Interface (I/O API) sub-system [1].  The CMAQ system 
@@ -249,9 +229,9 @@ I
 XSTAT3.EXT- Exit codes for the 1/0 API M3EXIT function.  Generally, M3EXIT is 
 called from any subroutine that produces a fatal error during 1/0 API  access. 
 
-15.3  Other CCTM Configuration Control 
+## 15.3  Other CCTM Configuration Control 
 
-15.3.1  CCTM Process Analysis 
+### 15.3.1  CCTM Process Analysis 
 
 Th~ Models-3(~MA.Q system provides a diagnostic tool that allows a user to probe into the way 
 the science processing is actually being executed in the CCTM.  The process analysis tool 
@@ -331,7 +311,7 @@ blocks for computational data.
 PA_ DAT.EXT - Data statements containing values for the variables needed to fill  in the 
 common blocks in PA  CTM.EXT. 
 
-15.3.2  CCTM Fixed Data 
+### 15.3.2  CCTM Fixed Data 
 
 The Models-3/CMAQ system can deal with other types of global include files and reference 
 them from a user-supplied full  path to build a model.  The following three categories of global 
@@ -374,10 +354,10 @@ processor (cpp) #ifdef directive, one or the other include file is actually incl
 code is compiled.  The cpp directive is set by the user during the model building phase. 
 The reader is referred to Chapter 18, Section 18.5 for more details. 
 
-15.4  Generalized Chemistry 
+## 15.4  Generalized Chemistry 
 
 
-15.4.1  Design 
+### 15.4.1  Design 
 
 In the past, a particular chemical mechanism was generally "hardwired" into a chemical transport 
 model with mechanism parameters and variables embedded in the solver codes.  Implementing 
@@ -456,7 +436,7 @@ SMVGEAR and QSSA, which are described in detail in Chapter 8.  The use of genera
 solvers precludes some code optimizations that can increase performance, but significantly 
 facilitates implementing new or altered chemical mechanisms. 
 
-15.4.2  Operation 
+### 15.4.2  Operation 
 
 The CMAQ system accounts for chemistry in three forms:  gas phase, aerosols (liquid and solid 
 phase), and the aqueous phase.  Therefore, the Models-3 framework controls certain aspects of 
@@ -627,7 +607,7 @@ phase, aqueous phase, solid and liquid aerosols).
 
 Tracer spe:ies - si~lar linkages to any of the above. 
 
-15.4.3  Supported Reaction Types 
+### 15.4.3  Supported Reaction Types 
 
 In this section we describe the types of gas-phase chemical reactions supported by the 
 generalized mechanism processor, MP, in the current version of the Models-3/CMAQ system. 
@@ -752,7 +732,7 @@ II.
 
 , "  
 
-,,  15.4.5  Chemical Species Include Files 
+### 15.4.5  Chemical Species Include Files 
 
 ,·.,, 
 
@@ -838,73 +818,11 @@ Models-3 User Manual describes the details of how to enter data into these table
 The following sections describe all the standard include files that are generated from the species 
 tB;~l~,,~ .ar.d th~ Jiel!!::lvior o(Jhe i:nodels wh,en ?Cces~ing the data declared in the include files. 
 
-15.4.5.1 
-
-1111111!!!'•',, 
-
-111::11111 
-
-!1111111!!!1111' 
-
-',, 111
-
-:111111!!!!!!' 
-
-llrr:!!!ll!1111!'' 
-
-: .. '!"11111111 
-
-Gas-Phase Reactions 
-
-' 
-
-111!,, 
-
-111
-
-, 
-
-,,,,,,, 
-
-' 
-
-' 
-
-'''••''• 
-
-'', 
-
-1111111:!,'', 
-
-Th~ gas-phase reactions data are required in the CCTM by the gas-phase chemistry solvers and 
+#### 15.4.5.1 Gas-Phase Reactions 
+The gas-phase reactions data are required in the CCTM by the gas-phase chemistry solvers and 
 the subroutine PHOT, which calculates the photolysis rate constants.  These data are also 
 required in JPROC, the processor model that calculates the table-based photolysis rates (see 
 Chapter 14).  There are two include files associated with this data: 
-
-"1111111111111" 
-
-. """ 
-
-:11111'111,I!,' 
-111111" 
-
-1111'' 
-111
-11111111!
-
-'! 
-
-• 
-
-, 
-
-,llll"''' 
-
-',,,;:ll""lllllll' 
-
-,  llllll"ll'r,,,:: .. , 
-
-\,,::·,Jlllll!llllllllllllll' 
 
 RXCM.EXT - contains all the declarations, parameter statements and array definitions 
 I  associ'atec:f Wiih the gas-phase chemistry reactions.  This file also contains three named 
@@ -989,9 +907,7 @@ codes.  In addition, by setting the dimensioning value to one (Fortran does not 
 compiled codes do not waste memory, a typical problem when coding in Fortran with some pre(cid:173)
 determined maximum dimension to hopefully account for all cases. 
 
-15.4.5.2 
-
-Model Species 
+#### 15.4.5.2 Model Species 
 
 The framework generates four model species include files that together contain the names and 
 molecular weights of all the chemical species available globally to the model. 
@@ -1018,9 +934,7 @@ The next three sections describe include files that are associated with data acc
 from external files.  The data are referenced from 1/0 API files  by means of file variable names 
 that are contained in headers in each of the files. 
 
-15.4.5.3 
-
-Emissions 
+#### 15.4.5.3 Emissions 
 
 The CCTM reads the emissions data from an 1/0 API file produced by ECIP using the surrogate 
 name concept discussed above.  The data are read by file variable names (surrogates) and stored 
@@ -1152,11 +1066,7 @@ TR_SPC.EXT).
 
 1111111111 
 
-15.4.5.4 
-
-'"'II 
-
-Initial and Boundary Conditions 
+#### 15.4.5.4 Initial and Boundary Conditions 
 
 For both the initial and boundary concentrations the CCTM reads I/O API input data by variable 
 n3Jpe reference .. ~  The processing first checks to see if the model species name is on the file and 
@@ -1199,9 +1109,7 @@ name table (in TR_SPC.EXT)
 ',11111111, 
 ,111"1 
 
-15.4.5.5 
-
-Dry Deposition 
+#### 15.4.5.5 Dry Deposition 
 
 The following include files are used to read in dry deposition velocities from an VO  API file 
 produced by the meteorology-chemistry input processor, MCIP.  Using the surrogate name 
@@ -1232,9 +1140,7 @@ TR_DEPV.EXT- tracer deposition velocity surrogate species names with scale facto
 and indices that point to the positions of the species in the model species name table (in 
 TR_SPC.EXT). 
 
-15.4.5.6 
-
-Wet Scavenging 
+#### 15.4.5.6 Wet Scavenging 
 
 In both the scavenging and the cross-phase linkages it is necessary to set up a mapping from the 
 gas-phase species to the generic species names that are associated with aerosols and aqueous(cid:173)
@@ -1268,24 +1174,7 @@ TR_SPC.EXT).
 
 Cross-Phase Linkage 
 
-15.4.5.7 
-• 
-
-1111,,,," 
-
-,1,,,,,, 
-
-• 
-
-• 
-
-• 
-
-• 
-
-• 
-
-• 
+#### 15.4.5.7 
 
 GC_GiAE.EXT- surrogate names for gas-phase model species that participate in aerosol 
 chemistry with scale factors and indices that point to the positions of the species in the 
@@ -1317,9 +1206,7 @@ TR_T2AQ.EXT- surrogate names for tracer species that participate in aqueous-phas
 chemistry with scale factors and indices that point to the positions of the species in the 
 modetspecies name table (in TR_SPC.EXT). 
 
-15.4.5.8 
-
-Operational Choices 
+#### 15.4.5.8 Operational Choices 
 
 The Models-3 framework provides the capability of allowing the user to control how some of the 
 processing is carried out with respect to the chemical species in the CCTM.  The following lists 
@@ -1463,9 +1350,7 @@ species name table (in TR_SPC.EXT).
 
 111111111 
 
-15.4.5.9 
-
-Tracer Species 
+#### 15.4.5.9 Tracer Species 
 
 The use of tracer species is purely user-determined.  An application with tracers can provide the 
 modeler withinsights into how the model is simulating various physical processes, like 
@@ -1475,7 +1360,7 @@ and boundary tracer concentrations, must be created in the corresponding 1/0 API
 specialized data creation is outside the scope of the Models-3  framework and must be carried out 
 by the user in conjunction with the application that is being modeled. 
 
-15.6  Conclusion 
+## 15.6  Conclusion 
 
 In this chapter we have described how PCP helps to establish modularity and consistency for 
 particular applications of models in the CMAQ system.  The Models-3 framework processing, 
@@ -1485,7 +1370,7 @@ irpplementations of the science and codes or to execute different applications a
 implementation of the concepts in the program control processing helps to establish a true "one(cid:173)
 atrnosphere" approach to modeling. 
 
-15.7  References 
+## 15.7  References 
 
 ': 
 

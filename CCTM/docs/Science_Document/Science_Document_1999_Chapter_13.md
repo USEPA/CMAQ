@@ -30,26 +30,9 @@ addressed.
 •Corresponding author address: Gerald L. Gipson, MD-80, Research Triangle Park, NC 27711.  E-mail: 
 ggb@hpcc.epa.gov 
 
-13.0  TlIE INITIAL CONCENTRATION AND BOUNDARY CONDITION 
-PROCESSORS 
+## 13.0  TlIE INITIAL CONCENTRATION AND BOUNDARY CONDITION PROCESSORS 
 
-13.l 
-
-Introduction 
-
-1 
-
-"
-
-"""" 
-
-'"'' 
-
-lll,,,"!1111 
-
-'"""""""""' 
-
-'''""""'' 
+## 13.l Introduction 
 
 The solution of partial and ordinary differential equations that arise in air quality models requires 
 both initial concentrations (ICs) and boundary conditio~s (BCs). This chapter describes the 
@@ -61,99 +44,8 @@ requires that the concentrations of all model species within each grid cell in t
 be specified for the start of the simulation.  Concentrations of all model species at the boundaries 
 of the modeling domain throughout the simulation are required as BCs to the CCTM.  The 
 e~~hasis in tiiis chapter is on how the ICs and BCs are generated rather than on how they are 
-u5ed in the CCTM.  The reader is referred to Chapter 5 for a discussion of the latter. 
 
-'''''''""'"' 
-
-111111,,,,'"' 
-
-11'"'"'1
-' 
-
-''''''''"" 
-
-"""' 
-
-""'" 
-
-' 
-
-1111'' 
-,,',,' 
-:1::"ul' 
-I
-
-1
-
-, 
-
-' '  
-
-'111111111;,llll 
-
-•:: 
-
-:1111 
-
-'l,"'1111111' 
-·:i111::11 
-:, 
-
-ll··.11.1''. 
-•lll'"'ll,'' 
-
-, 
-
-" 
-
-' 
-
-'" 
-
-' 
-
-,,; 
-
-• 
-
-' 
-
-I 
-
-'""' 
-
-'11"' 
-
-1 
-' 
-
-' 
-
-' 
-·:,, 
-;,,· 
-
-11,:.11 
-
-' 
-
-1 
-
-,, 
-
-' 
-
-:1.1111 
-
-'1111:' 
-
-1111111111111111 
-
-"'I,,,, 
-
-·:: ... 1111111111111111· 
-
-,The ICON and BCON processors have been designed to process data as automatically as 
+The ICON and BCON processors have been designed to process data as automatically as 
 possible.  Users should be aware of certain operational assumptions that are employed by the two 
 processors alldthe CCTM to insure that their applications are performed in the intended manner, 
 however.  The discussion below begins with a brief overview of the processors and their 
@@ -162,7 +54,7 @@ processing are then presented, including the input sources, spatial· interpolat
 processing, and mechanism conversions.  The last section provides a brief overview of how the 
 ICON and BCON processors are applied. 
 
-13.2  O'\'crview of the ICON and BCON Processors 
+## 13.2  Overview of the ICON and BCON Processors 
 
 II 
 
@@ -210,9 +102,7 @@ BCON processors will generate up to two additional files to hold the outputs.  I
 output variables are needed, however, code modifications will need to be made to the ICON and 
 BCON processors and the CCTM to accommodate the additional variables. 
 
-13.3 
-
-Input Sources 
+## 13.3 Input Sources 
 
 The ICON and BCON processors generate IC and BC files from one of three input sources.  The 
 first is a time invariant set of vertical concentration profiles.  The second source of input data 
@@ -225,7 +115,7 @@ eventually fed to the CCTM must be standard Models-3 IO/API gridded concentratio
 boundary concentration files.  The reader is referred to 10/API documentation for a description of 
 the structure and format of those files (EPA, 1998). 
 
-13.3.1  Time Invariant Concentration Profiles 
+### 13.3.1  Time Invariant Concentration Profiles 
 
 This section describes the manner in which the ICON and BCON processors generate ICs and 
 BCs from predefined, vertical concentration profiles.  The CMAQ system contains a set of 
@@ -324,7 +214,7 @@ require that these names be specified explicitly, a line corresponding to the ed
 be included and the processors expect the data for each edge to be input in the order shown in 
 Table 13-2 (i.e., north, east, south, and west). 
 
-13.3.2  CCTM Concentration files 
+### 13.3.2  CCTM Concentration files 
 
 Both the ICON and BCON processors can be configured to generate ICs and BCs from existing 
 Models-3 IO/API 3-dimensional, gridded, concentration files.  This situation typically arises when 
@@ -355,7 +245,7 @@ would produce 25 time steps on the output file, one for the start and 24 for eac
 subsequent simulation hours.  The manner in which the time controls are set is described in the 
 Models-3 User Manual (EPA,  1998). 
 
-13.3.3  Tracer Species 
+### 13.3.3  Tracer Species 
 
 The ICON and BCON processors also contain the capability to generate ICs and BCs for special 
 tracer species that can be used to investigate the accuracy of the various transport and diffusion 
@@ -470,7 +360,7 @@ set to 50 in the  ICON and BCON processor.  With these signals, the addition of 
 will yield mound A. Thus, the degree to which hA  - (h8+ he) differs from zero in an advection test 
 provides a measure of the nonlinearity of the advection algorithm. 
 
-13.4  Spatial Interpolation 
+## 13.4  Spatial Interpolation 
 
 Both the ICON and BCON processors are designed to account for differences in spatial resolution 
 between the input files and the IC/BC output files on an automatic basis.  As described in 
@@ -489,7 +379,7 @@ but have different extents or resolutions.
 
 · 
 
-13.4.1  Horizontal Interpolation 
+### 13.4.1  Horizontal Interpolation 
 
 Horizontal interpolation is required when a CCTM concentration file  is being used as input to 
 either ICON or BCON and the horizontal coordinate system of the input file  differs from that 
@@ -576,15 +466,7 @@ d~1•  n0i1 ha~·e 1i1~11'""1)~"1111fue same type.
 
 ' 
 
-13.4.2  Vertical Interpolation 
-
-, 
-
-::1111
-
-, ,  
-
-11111111111111111, 
+### 13.4.2  Vertical Interpolation 
 
 IQ,,some applications, the ICON and BCON may be required to generate ICs and BCs for a 
 vertical grid system that is different from the one used for the input file.  The CCTM is capable of 
@@ -678,9 +560,7 @@ Thus, the meteorological data files containing the layer heights in meters above
 be available for both the input and output grids before the ICON and BCON processors can be 
 used. 
 
-13.5 
-
-ICON/BCON Species Processing 
+## 13.5 ICON/BCON Species Processing 
 
 The selection of species that are to be modeled and thus require I Cs and BCs is controlled by the 
 Program Control Processor (PCP).  A detailed description of that processor is contained in 
@@ -859,7 +739,7 @@ these logs to insure that the desired species mapping has been performed.  Furth
 output log lists those species for which the lower threshold limits are used, and these should be 
 checked to insure that the ICs/BCs for an important species have not been omitted. 
 
-13.6  Mechanism Conversions 
+## 13.6  Mechanism Conversions 
 
 The vertical profile data and the CCTM concentration file data that were described above 
 normally correspond to one gas-phase, chemical mechanism.  For example, the predefined, 
@@ -940,9 +820,7 @@ ope line~  E?~h ce>,vversio~ rl!,l~ myst conclude with a semicolon, and the last
 "END;".  Finally, the input files are read in a free form input that generally ignores white spaces 
 betv.·een species names, coefficients, operators and line terminators. 
 
-13.7 
-
-ICON/BCON Applications 
+## 13.7 ICON/BCON Applications 
 
 This section provides an overview of how the ICON and BCON processors are applied in 
 practice.  Applications are normally carried out in two steps: compilation (or building) and 
@@ -969,7 +847,7 @@ format.  The BCON processor requires both a starting date and time and a run dur
 For detailed information on compiling and running these processors,  the reader is referred to the 
 Models-3  User Manual (EPA,  1998). 
 
-13.8  References 
+## 13.8  References 
 
 EPA,  1998.  Models-3  Volume 9b:  User Manual, Draft EPA report, U.S. Environmental 
 Protection Agency, Research Triangle Park, N.C. 

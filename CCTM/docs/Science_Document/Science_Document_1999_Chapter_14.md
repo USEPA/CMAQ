@@ -3,7 +3,7 @@ Chapter 14
 
 PHOTOLYSIS RA TES FOR CMAQ 
 
-Shawn J. Roselle," Kenneth L. Schere,"* and Jonathan E. Pleim ·· 
+Shawn J. Roselle, Kenneth L. Schere, and Jonathan E. Pleim
 
 Atmospheric Modeling Division 
 
@@ -28,20 +28,17 @@ mechanism.  Within CMAQ, photolysis rates for individual grid cells are interpol
 look-up table in subroutine PHOT.  PHOT also uses a parameterization to correct the clear-sky 
 photolysis rates for cloud cover. 
 
-·on assignment from  the National Oceanic and Atmospheric Administration, U.S. Department of Commerce. 
+on assignment from  the National Oceanic and Atmospheric Administration, U.S. Department of Commerce. 
 Corresponding author address:  Shawn Roselle,  MD-80, Research Triangle Park, NC 27711. E-mail: 
 sjr@hpcc.epa.gov  . 
 
-.. On assignment from  the National Oceanic and Atmospheric Administration, U.S. Department of Commerce. 
+On assignment from  the National Oceanic and Atmospheric Administration, U.S. Department of Commerce. 
 
 
-14.0  PHOTOLYSIS RATES FOR CMAQ 
+## 14.0  PHOTOLYSIS RATES FOR CMAQ 
 
-,, 
 
-'lllllllllllllh 
-
-14!1  Background 
+## 14.1  Background 
 
 Many chemical reactions in the atmosphere are initiated by the photodissociation of numerous 
 tn,J,.~e gases.  These photodissociative reactions are responsible for most of the smog buildup 
@@ -111,7 +108,7 @@ model time, and are corrected for cloud cover.· This approach is computationall
 been shown by Madronich (1987) to give clear-sky photolysis rates within the uncertainty of the 
 surface-based measurements. 
 
-14.2  Preprocessor JPROC: Calculate Clear-sky Photolysis Rate Table 
+## 14.2  Preprocessor JPROC: Calculate Clear-sky Photolysis Rate Table 
 
 Preprocessor JPROC calculates a table of clear-sky photolysis rates (or J-values) for a specific 
 date.  The table is dimensioned by latitude, altitude, and time.  Currently, J-values are calculated 
@@ -285,7 +282,7 @@ mechanism version 2 (RADM2) (Stockwell et al.,  1990), and the SAPRC mechanism (
 test other data, including the revisions suggested by NASA (DeMore et al.,  1994).  Table  14.1 
 lists the photolysis reactions for the RADM2 mechanism. 
 
-14.3  Subroutine PHOT: Table Interpolation and Cloud Attenuation 
+## 14.3  Subroutine PHOT: Table Interpolation and Cloud Attenuation 
 
 shbroutine PHOT within the CCTM has two basic functions,  including intel1Jolation of the clear(cid:173)
 sky photolysis rate table and application of a cloud correction factor to the clear-sky values.  The 
@@ -335,7 +332,7 @@ the clear sky photolysis rates to account for the presence of clouds.  In the cu
 implementation, all cloud types (including clouds composed of ice crystals) are treated the same 
 using the above outlined procedure. 
 
-14.4  Summary 
+## 14.4  Summary 
 
 The current method for calculating photolysis rates in CMAQ, which was derived from RADM, 
 uses a preprocessor to compute a look-up table and a subroutine within the chemistry transport 
@@ -346,7 +343,7 @@ the two-stream model with a more comprehensive multi-stream radiative transfer m
 et al.,  1988).  Other absorption cross section and quantum yield data will be added or updated 
 using the DeMore et al.  (1997) revisions. 
 
-14.5  References 
+## 14.5  References 
 
 Carter, W.P .L., 1990: A detailed mechanism for the gas-phase atmospheric reactions of organic 
 compounds, Atmos.  Environ., 24(A), 481-518. 

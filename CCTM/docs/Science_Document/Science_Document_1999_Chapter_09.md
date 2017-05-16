@@ -47,9 +47,7 @@ jug@hpcc.epa.gov
 
 PLUME-IN-GRID ~,;REATMENT OF MAJOR POINT SOURCE EMISSIONS 
 
-9.1 
-
-Introduction 
+## 9.1 Introduction 
 
 Significant emissions of anthropogenic nitrogen oxides (NO,J and sulfur oxides (SO,J are released 
 from individual elevated point sources into the atmosphere at various levels.  These major point 
@@ -133,9 +131,7 @@ modeling components are also presented.  Their solutions form the basis of the p
 simulations of sub grid scale plumes as implemented in the principal algorithms of the PinG 
 modeling components. 
 
-9.2 
-
-Overview of the Conceptual Framework of the Plume-in-Grid Tre~.~ment 
+## 9.2 Overview of the Conceptual Framework of the Plume-in-Grid Tre~.~ment 
 
 The PinG technique is intended for the largest point sources, designated as major elevated point 
 source emissions (!\1EPSEs),  which are isolated from notable area emission sources.  A complete 
@@ -212,11 +208,9 @@ the vertical extent of a plume is also generally confined, which lessens the pos
 speed shear.  Nevertheless, this condition is identified and appropriately handled by the PinG 
 components. 
 
-9.3 
+## 9.3 Formulation of the Plume-in-Grid Modeling Components 
 
-Formulation of the Plume-in-Grid Modeling Components 
-
-9.3.1  Description of the Plume Dynamics Model 
+### 9.3.1  Description of the Plume Dynamics Model 
 
 The PDM was developed to serve as a processor program in order to provide data needed for the 
 CCTM/PinG simulation.  Therefore, the PDM and the PinG module are closely linked through 
@@ -229,11 +223,7 @@ computational time a function of the number ofMEPSEs simulated.  In addition, th
 simulation period is currently limited to 24 hours.  Therefore, a single simulation of the CCTM 
 with PinG is also limited to a 24-hour time period.  ·· 
 
-9.3.1.1 
-
-!I· 
-
-Aspects of Plume Rise of MEPSE Sources 
+#### 9.3.1.1 Aspects of Plume Rise of MEPSE Sources 
 
 .,. 
 
@@ -282,9 +272,7 @@ greater physical dimensions which contribute to higher plume rise heights.
 
 •• 
 
-9.3.1.2 
-
-Plume Dispersion Methods 
+#### 9.3.1.2 Plume Dispersion Methods 
 
 A key aspect of modeling a subgrid scale reactive plume, as noted earlier, is the importance of 
 realistically specifying plume dimensions during travel time downwind.  Practical methods have 
@@ -601,9 +589,7 @@ extensive evaluation of these dispersion methods in PDM is planned against field
 obtained in the vicinity of major point sources in the Nashville, Tennessee area during the 
 Southern Oxidant Study experimental period in the summer of 1995. 
 
-9.3.1.3 
-
-Plume Transport 
+#### 9.3.1.3 Plume Transport 
 
 With the updated plume top and bottom heights,  the mean wind components are determined by 
 averaging the winds over the layers spanned by the plume from hb  to hT.  This approach is 
@@ -613,11 +599,9 @@ time interval.  In addition, the positions of the plume edges at the bottom and 
 in order to derive grid indices for later use in applying the proper grid cell concentrations for 
 boundary conditions of each plume section. 
 
-9.3.2  Formulation of the Plume-in-Grid Module 
+### 9.3.2  Formulation of the Plume-in-Grid Module 
 
-9.3.2.1 
-
-Overview of the Plume Conceptual Framework 
+#### 9.3.2.1 Overview of the Plume Conceptual Framework 
 
 The Lagrangian plume model described originally by Gillani (1986) provided the conceptual basis 
 for the Models-3  PinG module.  However, the computer algorit~s .in the C~!Mf,,,J:>inG have,, !ii, 
@@ -669,9 +653,7 @@ the PinG has been prescribed to be equal in the current setup of the module, the
 been generalized to allow for unequal plume cell widths and a different number of cells on the l~ft 
 and right sides of the plume centerline as described in Gillani (1986). 
 
-9.3.2.2 
-
-Formulation of the Plume Mass Balance Equation 
+#### 9.3.2.2 Formulation of the Plume Mass Balance Equation 
 
 The relevant processes, as noted in Figure 9-7,  have been incorporated into the plume equation 
 for the mass balance of individual species.  They include dilution and entrainment due to vertical 
@@ -730,9 +712,7 @@ to the grid solution whenever conditions exist (e.g., precipitation) which the P
 cannot adequately accommodate.  This issue will be addressed in more detail in the section on 
 plume handover. 
 
-9.3.2.3 
-
-Treatment of Plume Expansion and Diffusion Processes 
+#### 9.3.2.3 Treatment of Plume Expansion and Diffusion Processes 
 
 Dispersion affects the mass balance of a plume cell as a result of dilution and 
 entrainment/detrainment processes related to the lateral and vertical expansion of a plume cros~:-
@@ -1800,21 +1780,7 @@ Southern Oxidant Study 1995 experimental intensive program c:qnduc:ted in the Na
 Tennessee area.  The evaluation will assess the capability of the PinG components to treat 
 pollutant plumes and determine the impacts on the regional grid concentrations. 
 
-"'""' 
-
-""""'" 
-
-' 
-
-'!I: 
-
-9.4 
-
-Summary 
-
-,,, 
-
-111111 
+## 9.4 Summary 
 
 A plume-in-grid technique has been developed for use in the Models-3  Community Multiscale Air 
 Quality modeling system.  The key algorithms include a plume dynamics Model (PDM) processor 
@@ -1831,9 +1797,7 @@ planned using the 1995  Southern Oxidant Study-Nashville experimental plume datt
 advancements and refinements of the initial  plume-in-grid algorithms are anticipated and upgraded 
 algorithms will be reflected in upcoming releases. 
 
-9.5 
-
-References 
+## 9.5 References 
 
 Arya, P.,  1984:  Parametric relations for the atmospheric boundary layer.  Boundary-Layer 
 Meteorol.,30, 57-73. 

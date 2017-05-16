@@ -72,9 +72,7 @@ representation, and the fmal section describes the mathematical procedures used 
 CCTM to solye the equations that arise from the mathematical representation of gas-phase 
 chemistry. 
 
-8.1 
-
-Background 
+## 8.1 Background 
 
 A chemical mechanism is a collection of reactions that transforms reactants into products, 
 including all important intermediates.  Chemical mechanisms developed for air quality modeling 
@@ -117,12 +115,6 @@ when depicting organic reactions.  Although chemical mechanisms differ in the ma
 organic species are represented, the mechanism developer usually chooses some distinguishable 
 organic property to group similar organics into classes that reduce both the number of mechanism 
 species and reactions.  The three most common representations include the lumped structure 
-
-8-3 
-
-I 
-I 
-
 technique, the surrogate species approach, and the lumped species method.  In the lumped 
 structure appr6'ach, organic compounds are apportioned to one or more mechanism species on the 
 basis of chemical bond type associated with individual carbon atoms (Whitten et al., 1980).  In the 
@@ -164,9 +156,7 @@ that are inclugedi!l the m~chanism (Jeffries et al.,  1993).  Thus, it may be po
 chemical representations without greatly increasing the size of the basic mechanism, and this 
 could be a future enhancement to the treatment of gas-phase chemistry in the CMAQ system. 
 
-8.2 
-
-Chemical Mechanisms in the CMAQ System 
+## 8.2 Chemical Mechanisms in the CMAQ System 
 
 This section includes summary descriptions of the two basic chemical mechanisms included in the 
 CMAQ system -- the CB4 (Gery et al.,  1989) and the RADM2 (Stockwell et al., 1990).  Since the 
@@ -190,7 +180,7 @@ extensions.  Complete listings of all mechanisms currently available in the CMAQ
 included in Appendix 8A. The last portion of this section briefly discusses changing the base 
 mechanism or their variants or adding new mechanisms to the CMAQ system. 
 
-8.2.1  CB4 Mechanism 
+### 8.2.1  CB4 Mechanism 
 
 The CB4 mechanism is a lumped structure type that is the fourth in a series of carbon-bond 
 mechanisms, and differs from its predecessors notably in the detail of the organic compound 
@@ -238,7 +228,7 @@ temperature and. pressure dependent rate constants.  Since the top of the CCTM d
 e~tend toh~ights that makes pressure dependencies important, the CMAQ version incorporates 
 the original expressions rather than the derived ones .. 
 
-8.2.2  RADM2 Mechanism 
+### 8.2.2  RADM2 Mechanism 
 
 The RADM2 mechanism is a lumped species type that uses a reactivity based weighting scheme to 
 adjust for lumping (Stockwell et al.,  1990).  It has evolved from the original RADMl mechanism 
@@ -298,7 +288,7 @@ the CCTM is assumed to be constant at 4.5xl013  molecules/cc.  Thus, methane was
 reactant in the reaction of OH with methane and the corresponding rate constant changed from 
 second-order to pseudo first-order using the assumed CCTM methane concentration. 
 
-8.2.3  SAPRC-97 Mechanism 
+### 8.2.3  SAPRC-97 Mechanism 
 
 The SAPRC-97 mechanism (Carter, 1997) employs the lumped surrogate species approach, but 
 offers the capability to incorporate semi-explicit chemistry of selected organics.  The SAPRC 
@@ -325,7 +315,7 @@ mechanism that will be added to the CMAQ system, listings for this mechanism are
 in Appendix 8A.  Documentation will be provided when the CMAQ version is made available 
 however. 
 
-8.2.4  Extended Mechanisms 
+### 8.2.4  Extended Mechanisms 
 
 I 
 
@@ -468,7 +458,7 @@ used in the RADM2 mechanism extension.
 
 ' 
 
-8.2.4.2 Isoprene Extensions 
+#### 8.2.4.2 Isoprene Extensions 
 
 I 
 
@@ -493,7 +483,7 @@ been linked to aerosols and aqueous chemistry as well.  It should also be noted 
 chemistry incorporated in the CMAQ CB4 mechanism corresponds to the Carter I-product form, 
 but the 4-product form is not available for the CB4 mechanism in the CMAQ system 
 
-8.2.4.3 Aqueous Chemistry Extensions 
+#### 8.2.4.3 Aqueous Chemistry Extensions 
 
 The base RADM2 mechanism does not have to be modified to link it to the aqueous chemistry 
 processes since the aqueous processes in the CMAQ system are similar to those incorporated in 
@@ -510,7 +500,7 @@ pathways for it are not included in the mechanism.  Second, the production ofMHP
 overstated since it is produced by an operator that includes radicals other than the methylperoxy 
 radical (Gery et al.,  1987). 
 
-8.2.5  Changing or Adding Mechanisms in CMAQ 
+### 8.2.5  Changing or Adding Mechanisms in CMAQ 
 
 As noted in the introduction to this chapter, the CMAQ system has been instrumented with a 
 generalized chemical mechanism processor to facilitate making changes to existing mechanisms or 
@@ -574,9 +564,7 @@ will not be necessary to make any changes to that mechanism.
 
 ' 
 
-8.3 
-
-Reaction Kinetics 
+## 8.3 Reaction Kinetics 
 
 ' 
 i 
@@ -589,7 +577,7 @@ that are used in those expressions, with special emphasis placed on the conventi
 CMAQ system. The reader may also wish to refer to Chapter 15 and EPA ( 1998) for details on 
 how mechanism data are entered in the CMAQ system. 
 
-8.3.1  Reaction Rates 
+### 8.3.1  Reaction Rates 
 
 The rate of a chemical reaction l (r1)  can be expressed as the product of a rate constant (k1)  and a 
 term that is dependent on the concentrations of the reactants: 
@@ -660,7 +648,7 @@ will not include the 0 2  concentration in the reaction rate calculation.  In th
 mechanism developer must specify a pseudo first-order rate constant for the reaction.  The same 
 convention also applies to H20. 
 
-8.3.2  Rate Constant Expressions 
+### 8.3.2  Rate Constant Expressions 
 
 As shown in Equation 8-3, the rate of reaction is related to the concentration term by a constant 
 of proportionality k1•  The rate constant k1 can take many forms depending upon the characteristics 
@@ -839,13 +827,13 @@ k  =  k  I  Ae(-EIT}
 . (8-10) 
 
 In Equation 8-10, k1 is the rate constant for the fo1ward reaction forming a species, and the ' 
-denominator is an Arrhenius-like form for _the equilibrium constant. These reaction rate 
+denominator is an Arrhenius-like form for the equilibrium constant. These reaction rate 
 coefficient types are used, for example,  for the decomposition of pernitric acid and 
 nitrogen pentoxide (i.e., HN04 ....  H02 + N02  and. N20 5  ....  N02 + N03). In the CMAQ 
 system, A, E, and the corresponding forward reaction must be specified.  Either set of 
 units may be used with this form. 
 
-8.4  Mathematical Modeling 
+## 8.4  Mathematical Modeling 
 
 This section describes the mathematical modeling concepts used in the CCTM to simulate gas(cid:173)
 phase chemical reactions.  The first sub-section describes the fundamental equations that must be 
@@ -853,7 +841,7 @@ solved and some of the difficulties encountered in obtaining solutions to them. 
 sections describe the two gas-phase chemistry solvers that are currently available in the CCTM. 
 The last sub-section summarizes some of the important solver characteristfos. 
 
-8.4.1  Governing Equations 
+### 8.4.1  Governing Equations 
 
 "II 
 
@@ -921,12 +909,8 @@ is simply a zeroth:order production  rate.  Thus, for the discussions that follo
 term P, is assumed to include an emission source term if species i is emitted and emissions are 
 in9luded in gas-phase chemistry. 
 
-8-16 
-
 The system of non-linear, ordinary differential equations (OD Es) arising from Equation'8-11 for N 
 species can be expressed as follows: 
-
-EP A/600/R-99/030 
 
 dC. 
 - '  =  P.(c,t)  - L.(c,t) C.  = J;1(c,t) 
@@ -980,7 +964,7 @@ been designed to be computationally efficient, they still consume 50 to 90% of t
 used in a model simulation.  Thus, obtaining a numerical solution to Equation 8-14a,b is normally 
 the most computationally intensive portion of the CCTM. 
 
-8.4.2  SMVGEAR 
+### 8.4.2  SMVGEAR 
 
 I 
 
@@ -1021,7 +1005,7 @@ I
 
 '" 
 
-8.4.2.1  Standard Gear Algorithm 
+#### 8.4.2.1  Standard Gear Algorithm 
 
 The Gear algorithm is one of a class of methods referred to as backward differentiation formulae 
 (BDF).  The generalized BDF that forms the basis for Gear's method can be expressed as follows: 
@@ -1205,7 +1189,7 @@ I
 
 I 
 
-8.4.2.2 Vectorized Gear Algorithm 
+#### 8.4.2.2 Vectorized Gear Algorithm 
 
 Jacobson and Turco (1994) have modified the Gear algorithm to incorporate additional 
 computational ~fficiencies that can achieve speedups on the order of 100 on vector computers. 
@@ -1287,7 +1271,7 @@ CCTM implementation of SMVGEAR, the relative tolerance and absolute tolerances h
 preset to 10·3 and 10·9 ppm, respectively.  However, these values can be changed by the user 
 relatively easily in the CCTM as described in EPA (1998). 
 
-8.4.3  QSSA Solver 
+### 8.4.3  QSSA Solver 
 
 The QSSA solver is a low order, explicit solver that exhibits good stability for stiff systems. 
 Although less accurate than the Gear solver, it is still a reasonably accurate, fast solver that is 
@@ -1524,7 +1508,7 @@ optimizations are described in Chapter 19.
 
 I 
 
-8.4.4  Summary 
+### 8.4.4  Summary 
 
 Gear type solvers have generally been considered the most accurate for gas chemistry, 
 representing ''exact solutions" (provided the controlling numerical tolerances are sufficiently 
@@ -1552,9 +1536,7 @@ both the prediction accuracy and the efficiency of obtaining a solution.  Note a
 solver can be used with any of the CMAQ chemical mechanisms that were described in section 
 8.2. 
 
-8.5 
-
-References 
+## 8.5 References 
 
 Atkinson R., Lloyd A.  C.  and Winges L. (1982) An updated chemical mechanism for 
 hydrocarbon/NO:x/S02 photooxidations suitable for inclusion in atmospheric simulation models. 

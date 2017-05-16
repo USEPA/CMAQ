@@ -145,21 +145,11 @@ to set up grids/domains and environmental variables for different runtime option
 L 
 
 
-111",I' 
-
-" '   ' 
-
-'111,.111' 
-
-I',,," 
-
-111111· 
-
 FUNCI10NS 1 - - - - . i  
 
 MCIP 
 
-O""rvicw  (S<ctlcn  12.1) 
+## 12.1 Overview
 
 OPERA TIO 
 (Sudan 12.5) 
@@ -190,17 +180,12 @@ Dnm.iin
 
 (Sudan 12.5.4) 
 
-1111,~,:" 
-
-'111111111:, 
 
 Figure 12-1.  Contents and Structure of Chapter 12 
 
 • 
 
-12.1.1 
-
-M CIP  Functions 
+### 12.1.1 MCIP  Functions 
 
 One of MCIP' s functions is to translate meteorological parameters from the output of a mesoscale 
 model (e.g., MMS) to the Models-3 1/0 API format (CoatS,  1996), which is required for 
@@ -302,17 +287,7 @@ MCIP writes the bulk of its two- and three-dimensional meteorological and geophy
 in a transportable binary format using the Models-3 input/output applications program interface 
 (110 API) library. 
 
-12.1.2 
-
-MCIP's  Data  Dependency 
-
-11111111111 
-
-1 
-
-'l11, 
-
-•II"' 
+### 12.1.2 MCIP's  Data  Dependency 
 
 MCIP processes meteorological model output files in order to provide environmental data needed 
 for the other computational subsystems in Models-3 CMAQ.  Landuse data is also required to 
@@ -322,37 +297,7 @@ turbulence and surface exchange characteristics.  When the meteorological model 
 riecessafy information, it can be passed through the MCIP as well.  The inputs for MCIP consist of 
 operational inputs and meteorological model output files.  These inputs are described below. 
 
-111111i:::i1111 
-
-''1111111' 
-
-"'"' 
-
-,1,' 
-
-"" 
-
-" 
-
-" 
-
-"' 
-
-'" 
-
-' 
-
-' 
-
-' 
-
-" 
-
-,1 
-
-12.1.2.1 
-
-Environmental  Variable  Inputs 
+#### 12.1.2.1 Environmental  Variable  Inputs 
 
 The user can select a computational path among the internal process options and define parameters 
 in MCIP output files by specifying several UNIX environmental variables.  These settings allow 
@@ -364,42 +309,7 @@ coordinates in terms of the meteorological model grid definition, determines sim
 duration of the MCIP, and assigns appropriate landuse data file typ~.  Refer to Section 12-5 and 
 Table  l2~10 for the details of the UNIX environmental variables used in MCIP for these settings. 
 
-111111 
-
-11111111111'" 
-
-I' 
-
-'I 
-
-' 
-
-'• 
-
-'II'" 
-
-11 
-
-12.1.2.2 
-
-M~teorology Model  Outputs 
-
-,, 
-'I' 
-11·, 
-,,11,,111' 
-
-I 
-
-"'' 
-
-'1,,, 
-
-11111111 
-
-"'111111""'" 
-
-'lullllli, 
+#### 12.1.2.2 Meteorology Model  Outputs 
 
 It is anticipated that MCIP will include a unique set of reader modules for a variety of 
 tjjeteorological models.  Most of the idiosyncrasies of meteorological data from a specific 
@@ -407,25 +317,7 @@ meteorological model should be resolved in this module.  They include the number
 foformation on the data such as where they are stored and in what format, etc.  In the following, 
 we provide a description of the output files from MM5 as an example. 
 
-" '  
-
-"'"'"" 
-
-"""""" 
-
-' '  
-
-"" 
-
-" 
-
-" 
-
-'" 
-
-' 
-
-Standard  MMS  output 
+Standard  MM5  output 
 
 ~e s~d,~~,,,~,;? time-st~pped grid-domain output contains most of the key meteorological data 
 written by the MM5 subroutine OUTI AP.  Each time-step includes a header record.  This header is 
@@ -444,9 +336,7 @@ to process CMAQ dry deposition module options and the second file is not activel
 the CCTM does not yet support a corresponding aqueous-phase Kain-Fritsch cloud mixing 
 module. 
 
-12.1.2.3 
-
-Landuse  Data 
+### 12.1.2.3 Landuse  Data 
 
 MCIP requires landuse data that define surface characteristics in order to compute dry deposition 
 velocities and other PBL parameters.  Depending on the PBL and dry deposition modules desired, 
@@ -677,9 +567,7 @@ domain.  In the near future, MMS will be upgraded to allow use of the USGS land 
 characteristic data as an option.  When the CMAQ dry deposition algorithm is used and necessary 
 J?BL parameters are provided by the MMS directly, LUPROC will not be needed. 
 
-12.1.3 
-
-Computational  Structure 
+### 12.1.3 Computational  Structure 
 
 'the MClp d~Ja flpw diagram, Figure 12-2, shows the key processing sequences.  First, MCIP 
 executes the one-time processes such as:  reading the header, processing other operational 
@@ -777,10 +665,7 @@ height form is used as the vertical coordinate.  Many parts of current MCIP code
 differences in the vertical coordinate specifically.  In the following we provide technical 
 information related with coordinates and grids used in MCIP. 
 
-I 
-12.2.1 
-
-' ' :M:~teorological Data  Types 
+### 12.2.1 Meteorological Data Types 
 
 Many different combinations of approximations are used for describing the atmosphere in 
 meteorological models.  Therefore, classification of MCIP output parameters based on detailed 
@@ -852,14 +737,9 @@ The Models-3 I/O API requires individual data components to have exactly the sam
 spatial dimensions in a file.  Because the flux-point data and dot-point data both need additional 
 column or row positions, we can combine them together in a so-called DOT file, which is larger 
 than the CRO file by one cell for each horizontal direction.  It is important to note that because the 
-
-12-10 
-
 flux points are different from the dot-points, they must be shifted by a half cell east or north 
 (depending on whether they are square-point or triangle-point flux values) for graphical 
 visualization of the flux-point parameters. 
-
-EPN600/R-991030 
 
 Figure 12-3.  Two Different Grid Point Definitions, Arakawa C- and B-grids, Used in MCIP. 
 u and v are horizontal wind components, s represents a scalar quantity, and pis density of air.  For 
@@ -929,7 +809,6 @@ Figure 12-4.  Computational Grid Points and Corresponding Indices Used in MCIP.
 Markers are for dot points (e), cross points ( X), x-direction flux points (0), y-direction flux 
 points (.0.), and vertical cross point at layer interface ( ®). 
 
-12-11 
 
 '':,, 
 
@@ -1023,7 +902,6 @@ I
 
 "I,' 
 
-12-12 
 
 NTHIK 
 
@@ -1363,7 +1241,6 @@ W(l-NTHIK:O, 1-NTHIK:NROWS)
 Figure 12-5.  Grid Data Structure for Models-3/CMAQ Showing Main Grid and Boundary 
 Components.  Here NTHIK=2, NCOLS=IO, NROWS=10 are used for the illustration. 
 
-12-13 
 
 WA1600IR-99t()30  . 
 
@@ -1594,11 +1471,9 @@ MET_CR0_3D
 MEf_DOT_3D 
 MET_BDY_3D 
 
-12.2.2 
+### 12.2.2 
 
-12.2.2.1 
-
-Horizontal  Coordinates  and  Grid 
+#### 12.2.2.1 Horizontal  Coordinates  and  Grid 
 
 MCIP can be configured with horizontal coordinates based on conformal map projections, such as 
 Lambert Conformal, Polar Sterographic, and Mercator.  Table 12-4 summarizes the necessary 
@@ -1611,16 +1486,11 @@ CS?lu~-:--Vi~,~) ~.? ~-S ~,row-w~~e) dir~.~tions.  Although a rectangular cell s
 by the 1/0 API, the fractional time splitting approach used for the modularization of CTM 
 processes requires use of square grid to maintain the accuracy of the finite differencing algorithms 
 consistently.  The effect of different horizontal coordinate is reflected in the values of the map scale 
-
-12-14 
-
 factor.  Because of the need to couple the map scale factor (m) with other state variables and wind 
 components, MCIP provides map scale factor for both the dot- and cross-points. 
 
 Table 12-4.  Map Scale Factors and Parameters Defining Horizontal Coordinates in Models-3 I/O 
 API (Coats,  1996) 
-
-EPA/600/R-991030 
 
 Map Parameters 
 
@@ -1740,9 +1610,7 @@ from the UTM coordinate
 origin. 
 (.i 1,i2 )are in meters 
 
-12.2.2.2 
-
-Vertical  Coordinates  and  Grid 
+#### 12.2.2.2 Vertical  Coordinates  and  Grid 
 
 The Models-3 CMAQ system allows many popular vertical coordinates used in meteorological 
 models.  We expect that the Models-3 I/O API will be extended to include several other vertical 
@@ -1891,9 +1759,7 @@ A
 
 Equation  12-9 shows thatp0 (z)  is a monotonic, but nonlinear, function of z. 
 
-12.2.3 
-
-Modification  of  Grid  Structure 
+### 12.2.3 Modification  of  Grid  Structure 
 
 In CMAQ, the horizontal and vertical coordinate information (such as the map projection 
 parameters) for CTM simulation domains are required to be exactly the same as (or a derivative of) 
@@ -1916,7 +1782,7 @@ members (multi-stage nesting domains) of the grid family.  Only with a limited m
 allowed to modify the grids in the vertical directions because of the concern that ad hoc 
 interpolation may destroy the integrity of the meteorological data. 
 
-12.2.3.1  Windowing 
+#### 12.2.3.1  Windowing 
 
 The windowing functions in MCIP extract MM5 output for a CCTM window domain.  As a rule of 
 thumb, a CCTM uses a smaller computational domain than the domain used by meteorological 
@@ -2368,7 +2234,7 @@ I
 
 ~ 
 
-12.2.3.2  Horizontal  Interpolation 
+#### 12.2.3.2  Horizontal  Interpolation 
 
 A horizontal interpolation function is provided to help users generate higher resolution data than the 
 input meteorological data.  This function is used when higher resolution emissions data is available 
@@ -2389,9 +2255,7 @@ meteorological model runs.  It should be noted that the interpolated temperature
 profiles result in different estimations of cloud parameters (such as cloud bottom and top heights, 
 fractions, liquid water contents) as determined by the diagnostic Anthes-Kuo cloud routine. 
 
-12.2.3.3 
-
-Vertical  Layer  Collapsing 
+#### 12.2.3.3 Vertical  Layer  Collapsing 
 
 A vertical collapsing function is supplied to generate a smaller data set for testing CTM in a smaller 
 computer system.  If desired, MCIP collapses MMS profile data for the coarse vertical resolution 
@@ -2665,17 +2529,13 @@ parameterization.  They include precipitation rate, cloud fraction, and cloud ba
 MCIP also provides estimated dry deposition velocities for various chemical species in the RADM 
 and carbon bond 4 (CB-4) mechanisms. 
 
-12.3.1 
-
-PBL  Parameters 
+### 12.3.1 PBL  Parameters 
 
 Depending on the user option, MCIP either passes through MM5 predicted surface and PBL 
 parameters or estimates them us the MM5 profile data and detailed landuse information.  The 
 algorithms used for the diagnostic computation of PBL parameters are provided below. 
 
-12.3.1.1 
-
-Surface  Flux  Related  Parameters 
+#### 12.3.1.1 Surface  Flux  Related  Parameters 
 
 We utilize a diagnostic method based on similarity theory to estimate the turbulence flux related 
 parameters.  When the meteorological model uses very high vertical resolution and the thickness of 
@@ -2970,9 +2830,7 @@ respectively).
 
 ,,111111 
 
-12.3.1.2 
-
-Estimation  of  Surface  Fluxes  Using  PBL  Profile  Functions 
+#### 12.3.1.2 Estimation  of  Surface  Fluxes  Using  PBL  Profile  Functions 
 
 Occasionally meteorological models use the lowest model layer thicker than 40 m or so.  Under 
 this condition, it becomes difficult to believe that the lowest layer always belongs to the smface 
@@ -3092,9 +2950,7 @@ by the analytical solutions of flux-profile relationships described earlier.  Th
 and(}*  using Equations  12-28 and 12-29, with the Newton-Raphson iteration.  Equation  12-29 is 
 then used to estimate temperatures at heights  1.5 m and 10 min MCIP. 
 
-12.3.1.3 
-
-Utilization  of  Sub-grid  Scale  Landuse  Information 
+#### 12.3.1.3 Utilization  of  Sub-grid  Scale  Landuse  Information 
 
 Accurate description of atmospheric turbulence is one of the important elements in modeling the 
 deposition of pollutants.  For Eulerian air quality models, grid-average surface roughness based on 
@@ -3458,9 +3314,7 @@ It is difficult to expect that U:  is a physical quantity that can be added line
 implemented both Equations 12-43 and  12-47 as a user option.  Results of the comparison of the 
 two recommended methods should be available as the model evaluation project progresses. 
 
-12.3.1.4 
-
-Boundary  Layer  Heights 
+#### 12.3.1.4 Boundary  Layer  Heights 
 
 Boundary layer height is a key parameter that determines the domain of atmospheric turbulence in 
 which pollutants disperse.  It is used as a fundamental scaling parameter for the similarity theory in 
@@ -3799,9 +3653,7 @@ EP A/600/R-99/030
 
 (12-63b) 
 
-12.3.2 
-
-Dry  Deposition  Velocities 
+### 12.3.2 Dry  Deposition  Velocities 
 
 The term dry deposition represents a complex sequence of atmospheric phenomena resulting in the 
 removal of pollutants from the atmosphere to the surface of the earth.  The rate of transfer of 
@@ -3815,9 +3667,7 @@ the knowledge of dry deposition velocities enables fluxes to be estimated from a
 concentrations.  Two dry deposition estimation methods, that from Wesely (1989) currently as 
 implemented in CMAQ, and the new Models-3/CMAQ approach are presented. 
 
-12.3.2.1 
-
-RADM  Method 
+#### 12.3.2.1 RADM  Method 
 
 The RADM dry deposition module in MCIP calculates deposition velocities of sixteen chemical 
 species (Table 12-7).  It requires various ancillary 2-D meteorology fields such as the PBL height, 
@@ -3967,7 +3817,6 @@ is
 
 111 
 
-12-38 
 
 Ambient Concentration 
 
@@ -4176,8 +4025,6 @@ where subsci,:ipt Sand 0  are for S02 and 0 3, respectively.  All of these value
 resistance that depends on the canopy height) are landuse dependent and listed in Table 2 of 
 Wesely (1989). 
 
-12-40 
-
 Table 12-7.  Gaseous Species Treated in RADM Dry Deposition Module and Their Properties 
 Relevant to Estimating Resistance Components as Implemented in MCIP 
 (Modified from Wesely,  1989.) 
@@ -4289,7 +4136,7 @@ fnx
 0.1 
 0.0 
 
-12.3.2.2  Models-3/CMAQ  Dry  Deposition  Model 
+#### 12.3.2.2  Models-3/CMAQ  Dry  Deposition  Model 
 
 The Models-3/CMAQ dry deposition (M3DDEP) module estimates dry deposition velocities 
 according to the same electrical resistance analog represented by Equation  12-64.  M3DDEP uses 
@@ -4377,8 +4224,6 @@ J1ltiO of molecular diffusivities for water vapor and the chemical species:
 
 (12-76) 
 
-12-42 
-
 Ambient Concentration 
 
 Leaf 
@@ -4399,7 +4244,6 @@ In general, the bulk stomata} resistance is related to leaf based stomatal resis
 where Psis a shelter factor to account for shading in denser canopies.  For water vapor and many 
 chemical species, such as 0 3  and S027  rm  is assumed to be zero, however, for many less soluble 
 
-12-43 
 
 (12-77) 
 
@@ -4587,35 +4431,6 @@ is the result of Equation  12-78 without the effects of humidity ( g 'st  = F /r
 solution of a quadratic equation which can be computed, once all the other components of Equation 
 12-78 have been determined.  F3  is equal to RHs but with a minimum imposed at 0.25. 
 
-12-45 
-
-111111!!!:,,,, 
-
-· 
-
-1111111111 
-
-1111111111 
-
-'
-
-1 11111;,1 
-
-,· 
-
-11111111 
-
-111111 
-
-I' 
-
-8rnoi:~nt 8umidity 
-
-1 
-
-1
-!!:i11::
-l:",111 
 
 = 1/ga 
 
@@ -5069,9 +4884,7 @@ fraction from evapotranspiration, and ozone dry deposition, over com and soybean
 1996; Pleim et al.,  1997).  These studies are continuing and are being extended to other chemical 
 species (S02), and land-use types (deciduous and coniferous forests). 
 
-12.3.3 
-
-Cloud  Parameters  and  Solar  Radiation 
+### 12.3.3 Cloud  Parameters  and  Solar  Radiation 
 
 Cloud information is developed and used in  many different ways throughout the Models-3 CMAQ 
 system.  For example, MM5 includes parameterizations related with subgrid convective clouds, 
@@ -5095,9 +4908,7 @@ version used.  In addition, grid resolved cloud water and rain water are propaga
 from the MM5 output to CMAQ for use in aqueous chemistry and for photolysis calculations at the 
 4 km grid resolution. 
 
-12.3.3.1 
-
-Cloud  Coverage 
+#### 12.3.3.1 Cloud  Coverage 
 
 The fractional cloud coverage scheme currently used in MCIP is the same as used in MM5PX and 
 similar to the scheme used in the standard MM5.  Cloud cover fraction ( fck)  above the boundary 
@@ -5201,9 +5012,7 @@ where a = 0. 7 exp[ (p - Pic1) I 8] + 0.2  and  Pic1  is the pressure (in KPa) a
 level according to Warner (1970).  The layer liquid cloud water values are then vertically averaged 
 in the same way as fractional coverage (Equation  12-90). 
 
-12.3.3.2 
-
-Computation  of  Solar  Radiation  Components 
+#### 12.3.3.2 Computation  of  Solar  Radiation  Components 
 
 To meet air quality modeling needs, MCIP outputs several parameters related with radiation at the 
 surface including: incident surface shortwave radiation (Rcmd),  absorbed surface shortwave 
@@ -5283,17 +5092,8 @@ coordinates in such a way to ensure consistencies among the meteorological data.
 ccm be maintajnec:!: µiroughout CCTM simulations when appropriate temporal interpolation methods 
 '  d 
 ~'~use ·· 
-12.4.1 
 
-Thermodynamic  Variables:  Pressure,  Density  and  Entropy 
-
-,,1,,111:! 
-
-111111:1"' 
-
-0 
-
-.. :111111111 
+### 12.4.1 Thermodynamic  Variables:  Pressure,  Density  and  Entropy 
 
 To facilitate mass-consistent interpolation among the them1odynamic variables, the governing set 
 of equations for the fully compressible atmosphere is used in the CMAQ system.  The system 
@@ -5388,9 +5188,7 @@ r
 
 Pv  =  l+rp. 
 
-12.4.1.2 
-
-Entropy 
+#### 12.4.1.2 Entropy 
 
 (12-97) 
 
@@ -5531,9 +5329,7 @@ I
 where a=6 l0.94, h=l 7.625, c=243.04 and E(r::)  is in Pascal.  With this information we can 
 evaluate the integration constants, and thus the entropy using Equation 12-99. 
 
-12.4.2 
-
-Vertical  Jacobian  and  Layer  Height 
+### 12.4.2 Vertical  Jacobian  and  Layer  Height 
 
 In  the CCTM, Jacobian is used for the definition of vertical and horizontal coordinates/grid system 
 at ,svery model synchronization time step.  The Jacobian characterizes the coordinate transformation 
@@ -5545,9 +5341,7 @@ JaGobian change.
 
 '1111, 
 
-12.4.2.1 
-
-Jacobian  for  Coordinate  Transformation 
+#### 12.4.2.1 Jacobian  for  Coordinate  Transformation 
 
 The vertical Jacobian defines the coordinate transformation rules.  For a vertical coordinate  £ 3  = ~ , 
 where <;,  is a monotonically increasing function of height, the Jacobian is related with the 
@@ -5815,9 +5609,7 @@ middle is obtained for 1 s; k -5.K with:
 They are stored in the MET_CR0_3D file as the Jacobian-weighted total air density and water 
 vapor density, and entropy, respectively. 
 
-12.4.2.2 
-
-Layer  Heights 
+#### 12.4.2.2 Layer  Heights 
 
 ~ .. CMAQ, la~:r ~~ights are computed using the basic definition of the geopotential height in terms 
 0~11,~aco~i3:11 ~~11~1~~~2 of re~xing .on the coordinate-specific analytic equations, such as a hypsometric 
@@ -5934,9 +5726,7 @@ Note that bothz~+ 1 ' 2  and  z~ are stored either in the GRID_CR0_3D file for t
 vertical coordinate, or in the file MET_CR0_3D for time dependent one.  Because  z~+ 1 ' 2 lk=O is 
 always zero for the terrain-influenced coordinates, it is not stored in any of MCIP files. 
 
-12.4.3 
-
-Contravariant  Velocity  Components 
+### 12.4.3 Contravariant  Velocity  Components 
 
 The generalized CCTM requires a set of contravariant velocity components to simulate numerical 
 advection.  Contravariant velocity components are scaled components of the wind vectors for the 
@@ -5944,9 +5734,7 @@ transformed coordinates.  When the true velocity components (i.e., wind componen
 tangential coordinates) are predicted in a meteorological model, they need to be transformed 
 accordingly. 
 
-12.4.3.1 
-
-Horizontal  Wind  Components 
+#### 12.4.3.1 Horizontal  Wind  Components 
 
 MM5 predicts horizontal wind velocity components defined on the spherical earth in the coupled 
 form with the surface pressure scale  p • .  First, we need to de-couple the surface pressure scale as 
@@ -6013,9 +5801,7 @@ I
 
 " 
 
-12.4.3.2 
-
-Vertical  Wind  Component 
+#### 12.4.3.2 Vertical  Wind  Component 
 
 In most meteorological models with terrain-influenced coordinates, the contravariant vertical 
 v~Iocity components are not computed directly because of the complex representation of the 
@@ -6241,8 +6027,7 @@ I
 
 1' 
 
-12.4.4 
-Parameters 
+### 12.4.4 Parameters 
 
 Mass  Consistent  Temporal  Interpolation  of  Meteorological 
 
@@ -6356,8 +6141,7 @@ the interpolated wind components are obtained by dividing the results with  (pJ 
 When density and wind data are not collocated, the above procedure may incur spatial interpolation 
 errors. 
 
-12.4.S 
-Meteorological  Data  for  MMS 
+### 12.4.S Meteorological  Data  for  MM5
 
 Optional  Conversion  of  Nonhydrostatic  Data  to  Hydrostatic 
 
@@ -6455,7 +6239,7 @@ llh
 
 111111, 
 
-12.5  Operation  of MCIP 
+## 12.5  Operation  of MCIP 
 
 Because MCIP is a Models-3 conformant processor, it needs to be compiled and executed using a 
 Models-3 build command (m3bld) with a configuration file.  It requires the grid-domain object 
@@ -6467,9 +6251,7 @@ be found in Chapter 7 of the EPA Third-Generation Air Quality Modeling System Us
 Also, the User Manual Tutorial for the initial public release of Models-3 provides step-:by-step 
 instructions for running MCIP with a set of sample examples. 
 
-12.5.1 
-
-MCIP  Modules 
+### 12.5.1 MCIP  Modules 
 
 MCIP code is archived with CVS (Concurrent Version System) (Cederqvist,  1993) in the Models-
 3/CMAQ system.  Currently, eleven module classes are defined for MCIP.  The classification 
@@ -6478,9 +6260,7 @@ meteorological inputs and process options are needed to link with the CCTM, appr
 from different classes can be used.  Refer to Table 12-9 for the details of module descriptions and 
 associated source code. 
 
-12.5.2 
-
-Building  MCIP 
+### 12.5.2 Building  MCIP 
 
 The MCIP code conforms to the Models-3 coding standard.  It is designed to be compiled using 
 m3bld with a configuration file.  Refer to Appendix  12C for a sample MCIP configuration file. 
@@ -6660,9 +6440,7 @@ MDciUTCOM.EXT
 
 Executing  MCIP 
 
-12.5.3.1 
-
-Run  Script  Command  File 
+#### 12.5.3.1 Run  Script  Command  File 
 
 As with other interfaces, an execution run script is used to define key environmental variables 
 prescribing run-time characteristics and linkage between logical file names specified in the codes 
@@ -6683,9 +6461,7 @@ MM5 header and in COORD.EXT, MCIP suggests a new set of (IO, JO) or (XORIG, YORI
 values.  Make sure to set NDEP to correspond to the number of lowest input layers being collapsed 
 into the lowest output model layer, so aerodynamic resistances are computed accordingly. 
 
-12.5.3.2 
-
-Input  Files  for  MM5  Data  Processing 
+#### 12.5.3.2 Input  Files  for  MM5  Data  Processing 
 
 Logical names of input files are described below: 
 
@@ -6707,9 +6483,7 @@ characteristic data base used as input to LUPROC is not enough to cover the desi
 domain, dominant landuse file LANDUSE_DOMAIN# from TERRAIN, a preprocessor 
 for MM5 system, can be used. 
 
-12.5.3.3 
-
-Input  Files  for  1/0  API  Meteorological  Data  Processing 
+#### 12.5.3.3 Input  Files  for  1/0  API  Meteorological  Data  Processing 
 
 MCIP can be used to extract meteorology data for a smaller window domain, to collapse number of 
 layers, or to process meteorological data already in I/O API format further.  It treats gridded input 
@@ -7034,9 +6808,7 @@ output filename for MET  CRO  2D
 output filename for MET  CRO  3D 
 output filename for MET  DOT  3D 
 
-12.5.4 
-
-Defining  Grid  and  Domain  for  MCIP 
+### 12.5.4 Defining  Grid  and  Domain  for  MCIP 
 
 , .,.  Ml\.15  Grid  and  Domain  Definitions 
 
@@ -7426,9 +7198,7 @@ Table 12-11  as follows:
 Most of the time, the above MM5 domain definitions are provided by the MM5 modelers and 
 Models-3/CMAQ users do not have to re-compute them. 
 
-12.5.4.2 
-
-CMAQ  Grid  Definitions 
+#### 12.5.4.2 CMAQ  Grid  Definitions 
 
 The horizontal grid structure used for the MM5 serves as the parent grid for the CCTM domains. 
 To define a CCTM grid, number of cells to be excluded from the parent domain must be 
@@ -7575,7 +7345,7 @@ wish to link other meteorological models may need to modify and introduce approp
 modules. 
 
 
-12. 7  References 
+## 12.7  References 
 
 Alduchov, 0. A. and R. E. Eskridge,  1996: Improved Magnus form approximation of saturation 
 
@@ -8158,7 +7928,7 @@ Multiscale Air Quality (CMAQ) Modeling System, edited by D. W. Byun and J. K. S.
 Ching, 1999. 
 
 
-Appendix  12A 
+## Appendix  12A 
 
 MCIP Output Data 
 

@@ -3,7 +3,7 @@ Chapter 3
 
 DEVELOPING METEOROLOGICAL FIELDS 
 
-Tanya L. Otte* 
+Tanya L. Otte
 
 Atmospheric Modeling Division 
 
@@ -26,15 +26,13 @@ modeling.  Other meteorological models are being considered for compatibility wi
 are not provided with the initial release.  The application of MMS with CMAQ is described in 
 Chapter 3. 
 
-*on assignment from the National Oceanic and Atmospheric Administration, U.S. Department. of Commerce. 
+\*on assignment from the National Oceanic and Atmospheric Administration, U.S. Department. of Commerce. 
 Corresponding author address: Tanya L. Otte, MD-80, Research Triangle Park, NC 27711.  Email: 
 tlotte@hpcc.epa.gov 
 
 DEVELOPING METEOROLOGICAL FIELDS 
 
-3.1 
-
-Credits and Disclaimers for Use of MM5 
+## 3.1 Credits and Disclaimers for Use of MM5 
 
 The Fifth-Generation Pennsylvania State University/National Center for Atmospheric Research 
 (NCAR) Mesoscale Model (MM5) was developed in cooperation with Penn State and the 
@@ -64,14 +62,14 @@ operated by UCAR and is sponsored by the National Science Foundation.  Any publi
 research that uses data from the NCAR archive shall credit the maintainers of the archive.  In 
 addition, the original source(s) of data shall be acknowledged. 
 
-3.2  Meteorology Model Pre-Processing 
+## 3.2  Meteorology Model Pre-Processing 
 
 Before the meteorology model can be run, several smaller ("pre-processing") programs must be 
 run to set up the domain for the simulation and to generate a set of initial and boundary 
 conditions for the meteorology model.  The pre-processing programs are briefly described in this 
 section. 
 
-3.2.1  Defining the Simulation Domain (TERRAIN) 
+### 3.2.1  Defining the Simulation Domain (TERRAIN) 
 
 Domains for the meteorology simulations are defined by several primary parameters: number of. 
 grid points in each horizontal dimension, grid spacing, center latitude, center longitude, map 
@@ -85,7 +83,7 @@ specification (e.g., deciduous forest, desert, water).  Future versions of TERRA
 additional diurnal, seasonal, and location-specific information.  The TERRAIN program is 
 thoroughly described by Guo and Chen (1994). 
 
-3.2.2  Processing the Meteorological Background Fields (DATAGRID) 
+### 3.2.2  Processing the Meteorological Background Fields (DATAGRID) 
 
 After the simulation domain has been established, the program DATA GRID is run to process the 
 meteorological background fields.  DATA GRID generates first-guess fields for the model 
@@ -98,7 +96,7 @@ snow files by interpolating the analyses to the simulation domain.  Lastly, DATA
 map-scale factors and Coriolis parameters at each grid point to be used by MM5.  The 
 DATA GRID program is thoroughly described by Manning and Haagenson (1992). 
 
-3.2.3  Objective Analysis (RA WINS) 
+### 3.2.3  Objective Analysis (RA WINS) 
 
 The program RA WINS performs an objective analysis by blending the first-guess fields generated 
 by DATAGRID with upper-air and surface observations.  There are four objective analysis 
@@ -133,7 +131,7 @@ surfaces (generally mandatory levels plus some additional surfaces).  RAWINS is 
 prepare the analyses for the analysis nudging in the simulation model.  The RA WINS program is 
 thoroughly described by Manning and Haagenson (1992). 
 
-3.2.4  Setting the Initial and Boundary Conditions (INTERP) 
+### 3.2.4  Setting the Initial and Boundary Conditions (INTERP) 
 
 The "standard" INTERP program sets the initial and boundary conditions for the meteorology 
 simulation.  The analyses from RA WINS are interpolated to MM5 's staggered grid configuration 
@@ -148,9 +146,7 @@ INTERP can also be used for "one-way nesting," where the MMS output from one mod
 interpolated to provide initial and boundary conditions for the nested run.  This is a "non(cid:173)
 standard" use of the INT ERP program, but it is commonly used to support air quality modeling. 
 
-3.3 
-
-The Meteorology Model (MMS) 
+## 3.3 The Meteorology Model (MM5) 
 
 The following subsections include brief summaries of the science and options that are available in 
 MM5.  Thorough descriptions of the standard MM5 options are found in Grell et al.  (1994) and 
@@ -162,7 +158,7 @@ is maintained'by NCAR.  Caution should be exercised· when deviating.from the ve
 that is included with Models-3.  Refer to Section 3.5 for a summary of changes to MM5 for 
 CMAQ. 
 
-3.3.1  Brief History 
+### 3.3.1  Brief History 
 
 MM5 is the Fifth-Generation Penn State/NCAR Mesoscale Model.  It has evolved from the 
 model used by Anthes in the early 1970s, described by Anthes and Warner (1978).  The 
@@ -175,7 +171,7 @@ on workstation-based MM5 simulations.  The Cray version of MM5 provided on the M
 installation tape has been tested on the EPA's Cray C90.  A workstation-based version of MM5 
 may be used with subsequent releases ofModels-3. 
 
-3.3.2  Horizontal and Vertical Grid 
+### 3.3.2  Horizontal and Vertical Grid 
 
 The coordinate system for MM5 is (x, y, sigma-p).  The x and y dimensions are a regular lattice 
 of equally spaced points (delta-x = delta-y =horizontal gr.id spacing, in kilometers) forming rows 
@@ -194,7 +190,7 @@ domain, while the cross points are offset by 0.5 grid point in both the x and y 
 that the interpolation of the variables to the staggered grid is done automatically within the 
 INTERP program. 
 
-3.3.3  Prognostic Equations 
+### 3.3.3  Prognostic Equations 
 
 MM5 is based on primitive physical equations of momentum, thermodynamics, and moisture. 
 The state variables are temperature, specific humidity, grid-relative wind components, and 
@@ -206,7 +202,7 @@ perturbations from the reference state.  MM5 is not mass-conserving in the non-h
 mode.  The vertical (sigma) coordinate is defined as a function of pressure.  The model's 
 prognostic equations are thoroughly discussed in Grell et al. (1994) and Dudhia et al. (1998). 
 
-3.3.3.1 Time  Differencing 
+#### 3.3.3.1 Time  Differencing 
 
 The hydrostatic and non~J:iydrostatic versions of MM5 use different time differencing schemes to 
 filter the fast waves from the prognostic solutions in the model.  In the non-hydrostatic model, a 
@@ -215,7 +211,7 @@ waves in the model solution.  In the hydrostatic model, a split-explicit scheme 
 (1981) is used to control gravity waves in the model solution.  The time differencing in MMS is 
 discussed at length in Grell et al. (1994) and Dudhia et al. (1998). 
 
-3.3.3.2 Lateral Boundary Conditions 
+#### 3.3.3.2 Lateral Boundary Conditions 
 
 There are five options for lateral boundary conditions in MMS: fixed, relaxation, time dependent, 
 time and inflow/outflow dependent, and sponge.  The lateral boundaries in MMS  consist of 
@@ -227,13 +223,13 @@ processed in DATA GRID and INTERP.  When the one-way nest option is selected, th
 boundary conditions for nested domains are interpolated from the simulation on the parent 
 domain. 
 
-3.3.4  Model Physics 
+### 3.3.4  Model Physics 
 
 Several model physics options in MM5 are briefly noted below.  The model physics options are 
 further discussed and compared in Dudhia et al. (1998).  The descriptions of the model physics 
 options are largely taken from Dudhia et al (1998), and other pertinent references are noted. 
 
-3.3.4.1 Radiation 
+#### 3.3.4.1 Radiation 
 
 There are five atmospheric radiation cooling schemes available in MM5. 
 
@@ -270,7 +266,7 @@ scheme is suitable for larger grid scales and probably more accurate for long ti
 integration (e.g., climate modeling).  It also provid1es radiative fluxes at the surface.  (See 
 Hack et al.,  1993.) 
 
-3.3.4.2 Convective Parameterization 
+#### 3.3.4.2 Convective Parameterization 
 
 There are currently six convective parameterization schemes in MM5.  There is also the option 
 for no convective parameterization and an independent option for shallow convection.  The 
@@ -278,8 +274,6 @@ convective parameterization schemes have been designed for use at various simula
 they are not entirely interchangeable.  For example, each scheme uses different assumptions for 
 convective coverage on the sub-grid-scale and for the convective trigger function.  The convective 
 parameterization schemes also differ greatly in CPU usage and memory requirements. 
-
-3-7 
 
 The Anthes-Kuo scheme is based on moisture convergence and is mostly applicable to 
 larger grid scales (i.e., greater than 30 km).  This scheme tends to produce more convective 
@@ -320,15 +314,13 @@ The "no convective parameterization" option (e.g., explicitly resolved convectio
 the grid scale) is also available.  This option is generally used for simulations on domains 
 with horizontal grid spacing smaller than 10 km. 
 
-3-8 
-
 The Shallow Convection scheme is an independent option that handles non(cid:173)
 precipitating clouds that are assumed to be uniform and to have strong entrainment, a 
 small radius, and no downdrafts.  This scheme is based on the Grell and Arakawa(cid:173)
 Schubert schemes.  There is also an equilibrium assumption between cloud strength and 
 sub-grid boundary layer forcing. 
 
-3.3.4.3 Planetary Boundary Layer Processes 
+#### 3.3.4.3 Planetary Boundary Layer Processes 
 
 Four planetary boundary layer (PBL) parameterization schemes are available in MM5.  These 
 parameterizations are most different in the turbulent closure assumptions that are used.  The 
@@ -361,7 +353,7 @@ representation of the counter-gradient term and a first-order eddy diffusivity (
 in the well-mixed PBL.  This scheme has been taken from the National Centers for 
 Environmental Prediction's (NCEP's) MRF model.  (See Hong and Pan, 1996.) 
 
-3.3.4.4 Surface Layer Processes 
+#### 3.3.4.4 Surface Layer Processes 
 
 The surface layer processes with the Blackadar and MRF PBL schemes have been parameterized 
 with fluxes of momentum, sensible heat, and latent heat, following Zhang and Anthes (1982). 
@@ -386,7 +378,7 @@ characteristics (particularly vegetation parameters) that are currently assigned
 based on land use specification, as well as a more detailed land use and soil type classification 
 database. 
 
-3.3.4.5 Resolvable-Scale Microphysics Schemes 
+#### 3.3.4.5 Resolvable-Scale Microphysics Schemes 
 
 There are six resolvable-scale (explicit grid-scale) microphysics schemes in MM5.  There is also 
 an option for a "dry" model run.  The microphysics schemes have been designed with varying 
@@ -435,7 +427,7 @@ hail.  This scheme is suitable for cloud-resolving scales.  (See Tao and Simpson
 
 • 
 
-3.3.5  Nesting 
+### 3.3.5  Nesting 
 
 MMS can simulate nested domains of finer resolutions ·within the primary simulation domain.  In 
 MMS, the software is configured to enable up to nine nests (ten domains) within a particular run. 
@@ -465,7 +457,7 @@ resolution domain, its nest will be a 12-km resolution domain.  This is strictly
 nest, but is largely held as a standard for the one-way nests in MMS.  The nest ratio restricts the 
 number of grid points in each dimension of the nest domains to a multiple of 3, plus 1. 
 
-3.3.6  Four-Dimensional Data Assimilation 
+### 3.3.6  Four-Dimensional Data Assimilation 
 
 The four-dimensional data assimilation (FDDA) scheme included in MMS iis based on 
 Newtonian relaxation or "nudging".  Nudging is a continuous form of FDDA where artificial 

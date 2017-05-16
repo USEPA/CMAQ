@@ -5,7 +5,7 @@ FUNDAMENTALS OF ONE-ATMOSPHERE DYNAMICS
 
 FOR MULTISCALE AIR QUALITY MODELING 
 
-Daewon W. Byun* 
+Daewon W. Byun
 
 Atmospheric Modeling Division 
 
@@ -15,8 +15,6 @@ U.S. Envitonmental Protection Agency
 Research Triangle Park, NC 27711 
 
 ABSTRACT 
-
-y 
 
 This chapter provides essential information needed for the proper use of meteorological data in 
 air quality modeling systems.  Sources of meteorological data are diverse and many difficulties 
@@ -78,9 +76,7 @@ Byun (1999a and b) and others are complementary information to them.  It include
 correction methods, mass conservative temporal interpolation method, and the coupling 
 paradigm for meteorology and chemical transport models. 
 
-5.1 
-
-Governing Equations and Approximations for the Atmosphere 
+## 5.1 Governing Equations and Approximations for the Atmosphere 
 
 In most weather prediction models, temperature and pressure, as well as moisture variables, are 
 used to represent thermodynamics of the system.  Often these thermodynamic parameters are 
@@ -101,7 +97,7 @@ Here, density and entropy are used as the primary thermodynamic variables.  For 
 dry adiabatic atmosphere is considered.  Most of the discussions in this section should be 
 extensible for moist atmosphere if Ooyama's approach is followed. 
 
-5.1.1  Governing Equations in a Generalized CurviliEtear Coordinate System 
+### 5.1.1  Governing Equations in a Generalized CurviliEtear Coordinate System 
 
 Using tensor notation, the governing set of equations for the dry atmosphere in a generalized 
 curvilinear coordinate system can be written as: 
@@ -359,7 +355,7 @@ dz
 
 , 
 
-where v z;  = ia I ax1z;=C01L<t  + ja I dy'z;=const. 
+where v z; =ia I ax1z;=C01L<t  + ja I dy\'z;=const. 
 
 The conservation equations for air density, entropy density, and tracer concentrations are found 
 to be: 
@@ -387,7 +383,7 @@ s  P
 
 (5-13) 
 
-5.1.2  Assumptions of Atmospheric Dynamics 
+### 5.1.2  Assumptions of Atmospheric Dynamics 
 
 In this subsection, several popular assumptions used in meteorological models are reviewed. 
 Here, the dynamic and thermodynamic assumptions are discussed separately because they have 
@@ -396,7 +392,7 @@ should be aware of the inseparable nature of the dynamics and thermodynamics of 
 atmosphere.  This study focuses on the impact of basic assumptions of the mass conservation 
 issues and limits ()f applications in air quality applications. 
 
-5.1.2.1 Boussinesq Approximation 
+#### 5.1.2.1 Boussinesq Approximation 
 
 The crux of the Boussinesq approximation is that variation in density is important only when it is 
 combined as a factor with the acceleration of gravity. Originally, it was applied for studying 
@@ -428,7 +424,7 @@ multiscale atmospheric studies, this approximation may be used only in the
 parameterization of the surface fluxes where the density can be treated essentially 
 independent of height. 
 
-5.1.2.2 Nondivergent Flow Field Assumption 
+#### 5.1.2.2 Nondivergent Flow Field Assumption 
 
 Essentially, this is an assumption about flow characteristics.  The basis of this assumption is 
 purely dynamic although an incompressible assumption leads to the nondivergent flow 
@@ -457,7 +453,7 @@ becomes identical to the nondivergent wind flow assumption used in a meteorologi
 When the vertical Jacobian is a function of air density, the dependency of the wind on the density 
 distribution cannot be ignored. 
 
-5.1.2.3 Incompressible Atmosphere Assumption 
+#### 5.1.2.3 Incompressible Atmosphere Assumption 
 
 This is an assumption about the thermodynamic characteristics of air.  The equation of state 
 describes how density is affected by the changes in pressure and temperature fields. The 
@@ -567,7 +563,7 @@ fields, it cannot be used to estimate the mass consistency error in the meteorol
 the other hand, the diagnostic relations applicable for the famHy of hydrostatic pressure 
 coordinates based on total air density maintain the consistency in wind and air density fields. 
 
-5.1.2.4 Anelastic Atmosphere Assumption 
+#### 5.1.2.4 Anelastic Atmosphere Assumption 
 
 Another popular limiting approximation applied in meteorological modeling is the anelastic 
 assumption.  It simplifies the continuity equation as a diagnostic relation for the momentum 
@@ -610,7 +606,7 @@ density of air, not on just the reference density, it does not simplify the poll
 equation and the concentration distribution represented in density units cannot be interchanged 
 with trace species mixing ratio. 
 
-5.1.2.5 Hydrostatic Atmosphere Approximation 
+#### 5.1.2.5 Hydrostatic Atmosphere Approximation 
 
 Perhaps one of the most popular assumptions of atmospheric dynamics used in meteorological 
 models is the hydrostatic approximation.  In the case of a hydrostatic atmosphere, the 
@@ -650,9 +646,7 @@ approximation of the mass continuity equation.  Choices of the assumptions from 
 groups have been used to simplify atmospheric motions, although some of the combinations, 
 such as compressible but hydrostatic atmosphere, are rarely used in atmospheric studies. 
 
-5.2 
-
-Choice of Vertical Coordinate System for Air Quality Modeling 
+## 5.2 Choice of Vertical Coordinate System for Air Quality Modeling 
 
 Figure 5-1  provides a pedigree of vertical coordinates used in many atmospheric models. 
 Definitions of the coordinates are provided in Tables 5-1, 5-2 and 5-3.  The hierarchy of 
@@ -1207,7 +1201,7 @@ p
 
 hydrostatic 
 
-.with  <J"p, 
+.with <J p, 
 11u;;  = (j p1Jsfc 
 
 P(5-9) or, P(5-9') with Eq.(5-IO)for 
@@ -1215,9 +1209,7 @@ perturbation component when i/u  ,
 p 
 p  provided 
 
-5.3 
-
-Coupling of Meteorology and Air Quality 
+## 5.3 Coupling of Meteorology and Air Quality 
 
 Characteristics of air quality model simulations are heavily dependent on the quality of the 
 meteorological data.  Meteorological data for air quality can be provided either by diagnostic 
@@ -1226,7 +1218,7 @@ models with or without four-dimensional data assimilation (FDDA).  Readers are r
 Seaman (1999) for a state-of-science review on this topic.  In the next section a dynamic 
 modeling with FDDA approach, which is used in the Models-3 CMAQ system, is described. 
 
-5.3.1  Meteorolo~cal Data for Air Quality Modeling 
+### 5.3.1  Meteorolo~cal Data for Air Quality Modeling 
 
 Meteorological simulations are applied to drive a CTM for solving atmospheric diffusion 
 equations for trace species.  For regional scale simulations, whose problem size is continental 
@@ -1249,7 +1241,7 @@ These alternative data sources are promising because of the wealth of observatio
 the reanalysis and the availability of long-term meteorological characterization data suitable for 
 seasonal or annual assessment studies. 
 
-5.3.2  Off-line and On-line Modeling Paradigms 
+### 5.3.2  Off-line and On-line Modeling Paradigms 
 
 Air quality models are run many times to understand the effects of emissions control strategies 
 on the pollutant concentrations using the same meteorological data.  A non-coupled prognostic 
@@ -1385,8 +1377,6 @@ effects
 • Excellent for studying feedback of 
 met. and air quality 
 
-5-20 
-
 Off-line Modeling 
 
 QJ.1-line Modeling 
@@ -1419,8 +1409,6 @@ Data
 ~ 
 
 Figure 5-2.  Current On-line and Off-line Air Quality Modeling Paradigms  · 
-
-5-21 
 
 Met., Landuse, 
 & Assimilation 
@@ -1473,7 +1461,7 @@ Figure 5-3.  Proposed One-atmosphere Air Quality Modeling Paradigms.  Double arr
 lines represent possibility of two-way coupling. The coupling of independent modeling 
 components is accomplished through the 1/0 API linking the cooperating executables. 
 
-5.4  Mass Conservation 
+## 5.4  Mass Conservation 
 
 For air quality simulations, mass conservation is the most important physical constraint.  This is 
 because it is unreali.stic to have injection of primary pollutant mass through any other means than 
@@ -1482,7 +1470,7 @@ primary and secondary pollutants will jeopardize the correct simulation of react
 species.  Therefore, conserving mass of a passive primary trace species is a necessary property of 
 an air quality model. 
 
-5.4.1  Mass Consistency in Meteorological Data 
+### 5.4.1  Mass Consistency in Meteorological Data 
 
 The main objective of many meteorological models has been to predict synoptic or mesoscale 
 weather phenomena.  Therefore, major design considerations are focused on such issues 
@@ -1552,7 +1540,7 @@ Data output time steps are too large to capture the dynamic variations in the
 meteorological models.  If temporally averaged data are provided from the meteorology 
 model this problem can be minimized (Scamarock, 1998). 
 
-5.4.2  Techniques for Mass Conservation in Air Quality Models 
+### 5.4.2  Techniques for Mass Conservation in Air Quality Models 
 
 As presented in Byun (1999b ), species mixing ratios ( ci Ip) is a useful conserved quantity for 
 photochemical Eulerian air quality modeling, in particular.  In limited area atmospheric modeling 
@@ -1596,7 +1584,7 @@ S
 
 where superscripts cor, int, and Trepresent corrected, transported (advected), and interpolated 
 quantities, respectively.  It should be noted that  ls in Equation 5-25 must not be canceled out 
-even for a coordinate with time independent  J_.  because the spatial variation of the Jacobian must 
+even for a coordinate with time independent  J.  because the spatial variation of the Jacobian must 
 be taken into account for the numerical advection.  In the event the total air mass in the 
 computational domain fluctuates, this correction procedure would affect air quality predictions. 
 In general, the air quality prediction can be as good as the density prediction of the 
@@ -1651,7 +1639,7 @@ must be corrected before air quality simulations with the wind-field adjustment 
 mixing ratio correction method Equation 5-25 should be applied to compensate the numerical 
 differences in advection processes between meteorological and air quality models. 
 
-5.4.3  Temporal Interpolation of Meteorological Data 
+### 5.4.3  Temporal Interpolation of Meteorological Data 
 
 Byun (1999b) discusses a mass-conservative temporal interpolation method to complement the 
 mass inconsistency correction.  Temporal interpolations of density and velocity data are often 
@@ -1693,9 +1681,7 @@ equation, linear interpolation of the tendency may be more appropriate.  Then,  
 interpolation time step must be estimated in such a way that satisfies the continuity as well as the 
 tendency term (Byun 1999b ). 
 
-5.5 
-
-Conclusion 
+## 5.5 Conclusion 
 
 In this chapter I attempted to bridge the information gap between dynamic meteorologists and air 
 quality modelers and to promote the proper use of meteorological information in air quality 

@@ -7,7 +7,7 @@ AIR QUALITY (CMAQ) CHEMICAL TRANSPORT MODEL IN GENERALIZED
 
 COORDINATES 
 
-Daewon W. Byun,* Jeffrey Young,** and Jonathan Pleim ** 
+Daewon W. Byun, Jeffrey Young, and Jonathan Pleim
 
 Atmospheric Modeling Division 
 
@@ -37,7 +37,7 @@ characteristics.  Users can not only choose transport algorithms from optional m
 in CMAQ, but also are encouraged to experiment with their own algorithms to test different 
 numerical schemes for air quality simulations. 
 
-* On assignment from the National Oceanic and Atmospheric Administration, U.S. Department of Commerce. 
+\* On assignment from the National Oceanic and Atmospheric Administration, U.S. Department of Commerce. 
 Corresponding author address: Daewon W. Byun, MD-80, Research Triangle Park, NC 27711. 
 E-mail: bdx@hpcc.epa.gov 
 
@@ -110,9 +110,7 @@ primary species and secondary species are quite distinct).  Also, the schemes sh
 in the use of computer time and storage.  Selected numerical transport algorithms for horizontal 
 and vertical advection and for vertical and horizontal diffusion are described below.· 
 
-7.1 
-
-Numerical Advection Algorithms 
+## 7.1 Numerical Advection Algorithms 
 
 Numerical advection algorithms for air quality models should satisfy several computational 
 requirements. 
@@ -313,7 +311,7 @@ classification.
 
 ' 
 
-7.1.3  Description of Advection Schemes in CCTM 
+### 7.1.3  Description of Advection Schemes in CCTM 
 
 In this section we describe the schemes that are available with the first release of the CCTM 
 codes in the following order: the piecewise parabolic method (PPM), the Bott scheme (BOT), 
@@ -351,7 +349,7 @@ adjustments are either applied implicitly through the solution or explicitly as 
 to the linear solution.  There is extensive literature on both solution algorithms (linear and 
 nonlinear) and explicit nonlinear mechanisms. 
 
-7.1.3.1 Piecewise Parabolic Method (PPM) 
+#### 7.1.3.1 Piecewise Parabolic Method (PPM) 
 
 In the piecewise parabolic method (Colella and Woodward, 1984) the concentration distribution 
 is assumed to be parabolic in any given grid cell.  In terms of the grid cell average concentration cpj 
@@ -426,7 +424,7 @@ sources.
 
 ,, 
 
-7.1.3.2 Bott Scheme (BOT) 
+#### 7.1.3.2 Bott Scheme (BOT) 
 
 ~e numerical scheme introduced in Bott (1989) is a positive definite scheme with small 
 numerical diffusion.  The distribution of the concentration within the cell is represented by a 
@@ -500,7 +498,7 @@ Cell
 
 cpl 
 
-7.1.3.3 Yamartino-Blackman Cubic Scheme (YAM) 
+#### 7.1.3.3 Yamartino-Blackman Cubic Scheme (YAM) 
 
 Yamartino (1993) presents another finite volume scheme where the interpolating polynomial is a 
 cubic spline: 
@@ -536,8 +534,6 @@ J
 
 ' 
 
-7-10 
-
 The positivity of <p/1J)  is ensured by various mechanisms.  First, when <fJ.j  is a local minimum, a 
 donor-cell scheme is used instead of the cubic spline.  Second, the spline is spectrally limited by 
 the relation: 
@@ -558,7 +554,7 @@ the ratio for the upwind cell of the cell concentration (i.e., concentration at 
 average concentration.  Finally, a mildly diffusive filter is applied in an attempt to block the 
 depletion of donor cells.  Y amartino' s scheme is not monotonic and can generate new maxima. 
 
-7.1.4  Treatment of Boundary Conditions 
+### 7.1.4  Treatment of Boundary Conditions 
 
 Mathematically, the advection equation is a first-order hyperbolic partial differential equation, so 
 it accepts only inflow boundary conditions.  Physically, the solution is not affected by the 
@@ -630,7 +626,7 @@ Figure 7-1.  Outflow boundary condition.  Cell 0 is outside the domain.  Vertica
 denotes the domain boundary and the vertical dotted lines denote the cell interfaces. The 
 advection sc~eme computes concentrations for Cells 1, 2, 3, and so on. 
 
-7.1.5  Test of Algorithms with Idealized Linear Horizontal Flow Fields 
+### 7.1.5  Test of Algorithms with Idealized Linear Horizontal Flow Fields 
 
 Typically, the performances of advection schemes are measured and compared with each other 
 m;ing test cases with idealized flow fields.  These ideal flow tests have analytic solutions and 
@@ -681,7 +677,7 @@ Measure of distribution error (best when 0.0)
 To account for the total mass correctly, the concentration should be coupled with the Jacobian of the grid system 
 & Peak ratio alone is not a meaningful criteria unless the positions of the computed and actual peaks are also given. 
 
-7.1.5.1 Advection of One-nhnensional Pulses 
+#### 7.1.5.1 Advection of One-nhnensional Pulses 
 
 Various tests have been conducted in the literati.ire with pulses of different shapes advected with 
 uniform velocity.  We conducted tests using a Gaussian sngnal of exactly 88x width with 100 
@@ -885,7 +881,7 @@ diffusive nature of BOT-M, we chose PPM for a number of demonstration executions
 al.,  1998).  Similar testing with BOT and YAM is underway.  We intend to integrate other 
 methods into the CCTM at a later time. 
 
-7.1.6  Vertical Advection 
+### 7.1.6  Vertical Advection 
 
 Algorithms in the CCTM for vertical advection are essentially the same as those for the one(cid:173)
 dimensional horizontal algorithms.  However, the vertical advection is performed in terms of the 
@@ -925,7 +921,7 @@ which requires equal spacing in the computational domain, is used for horizontal
 numerical algorithm that allows irregular spacing (e.g., BOT and PPM) would need to be used for 
 vertical advection. 
 
-7.1.7  Adjustment of Mass Conservation Error 
+### 7.1.7  Adjustment of Mass Conservation Error 
 
 ' 
 
@@ -1349,7 +1345,7 @@ _
 h-----
 <l>h(zl L) 
 
-where u* is the surface friction velocity. 
+where u/* is the surface friction velocity. 
 
 For the PBL (above the surface layer), eddy diffusivity is parameterized with: 
 

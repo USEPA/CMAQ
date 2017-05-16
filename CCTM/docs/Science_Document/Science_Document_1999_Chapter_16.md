@@ -5,7 +5,7 @@ PROCESS ANALYSIS
 
 Human Exposure and Atmospheric Sciences Division 
 
-Gerald L. Gipson* 
+Gerald L. Gipson
 
 National Exposure Research Laboratory 
 U.S. Environmental Protection Agency 
@@ -29,7 +29,7 @@ procedures used to apply each technique in the CMAQ system are also described.
 •Corresponding author address: Gerald L. Gipson, MD-80, Research Triangle Park, NC 27711.  E-mail: 
 ggb@hpcc.epa.gov 
 
-16.0  PROCESS ANALYSIS 
+## 16.0  PROCESS ANALYSIS 
 
 Major fur{~iion of 8.ir pollution models is to predict the spatial ru1'<l"'temporal distributions of 
 ambient air pollutants and other species.  For complex Eulerian grid models, output concentration 
@@ -100,9 +100,7 @@ in their entirety here.  Nevertheless, some of the command syntax and some simpl
 presented in the discussions that follow to illustrate how the P ACP is used to set up a particular 
 process analysis. 
 
-16.1 
-
-Integrated Process Rate Analysis 
+## 16.1 Integrated Process Rate Analysis 
 
 The governing equation for Eulerian models is the species continuity equation.  Application of 
 the continuity equation to a group of chemically reactive species res~lts in a system of partial 
@@ -115,15 +113,13 @@ analyses.  The first two subsections deal with the calculation and use of IPRs i
 two subsections describe the CMAQ implementation of IPR analysis and the use of the PACP to 
 set up an IPR analysis. 
 
-16.1.1  Computation of Integrated Process Rates 
+### 16.1.1  Computation of Integrated Process Rates 
 
 All Eulerian models utilize the technique of operator splitting.  As a result, it is relatively easy to 
 obtain quantitative information about the contribution of individual processes to total 
 concentrations.  In operator splitting, solutions to the system of PD Es are obtained by separating 
 the continuity equation for each species into several simpler PDEs or ordinary differential 
 equations (OD Es) that give the impact of only one or two processes.  These simpler PDEs or 
-
-16-3 
 
 qp~ ~~,,,~!:,~ s2!,:ve~,~eparately to arrive at the final concentration.  To illustrate, consider the 
 simple case of two-dimensional horizontal advection of a single species in the absence of any 
@@ -390,7 +386,7 @@ the IPRs for most processes would change ifthe order of the model's operators wa
 even if only one of the operators was changed.  Thus, the additive property for IPRs holds only 
 for a particular application of the model. 
 
-16.1.2  Example IPR Analyses 
+### 16.1.2  Example IPR Analyses 
 
 The tabulation and subsequent output of IP Rs provide the user with quantitative information on 
 the  effects of individual processes, and these can be examined and depicted in a number of ways. 
@@ -430,7 +426,7 @@ I
 
 " , , 
 
-16.1.3  Implementation of IPR Analysis in the CMAQ System 
+### 16.1.3  Implementation of IPR Analysis in the CMAQ System 
 . 
 
 .  ~ 
@@ -485,7 +481,7 @@ concentration fields and the IPRs.  Finally, the IPR output files are standard M
 gridded files, and can be viewed with the Models-3 visualization tools described in Models-3 User 
 Manual (EPA,  1998). 
 
-16.1.4  Use of the PACP to set up an IPR Analysis 
+### 16.1.4  Use of the PACP to set up an IPR Analysis 
 
 This section illustrates how the PACP can be used to generate the IPR data for an analysis. 
 Details on formatting inputs and using the PACP are contained in the Models-3 User Manual 
@@ -698,9 +694,7 @@ mechanism that is being used (command 3). Thus, commands 1through5 with command 
 modified to collect all IPRs for ozone would provide some very basic process analysis information 
 on the formatio of ozone during a simulation. 
 
-16.2 
-
-Integrated Reaction Rate Analysis 
+## 16.2 Integrated Reaction Rate Analysis 
 
 The second major component of process analysis is IRR analysis.  It is applied to investigate gas(cid:173)
 phase chemical transformations that are simulated in the model.  Its primary use to date has been 
@@ -712,7 +706,7 @@ aqueous chemistry as well, and this is an area for future enhancement in the CCT
 remainder of this section describes how the IRRs are calculated and generated in the CMAQ 
 system. 
 
-16.2.l  Computation oflntegrated Reaction Rates 
+### 16.2.l  Computation oflntegrated Reaction Rates 
 
 As described in Chapter 8, the simulation of atmospheric chemistry is a key component of a 
 photochemical air quality model.  The operator splitting techniques that are used in Eulerian 
@@ -778,7 +772,7 @@ reset to zero.  In the CCTM, the IRR output is synchronized with the outputs for
 concentration fields and the integrated process rates.  Thus, just like the IPRs, the IRRs that are 
 output represent the integral of the reaction rates over the output time interval. 
 
-16.2.2  Example IRR Analyses 
+### 16.2.2  Example IRR Analyses 
 
 Most IRR analysis performed to date has been devoted to  studying mechanistic processes that 
 affect tropospheric ozone formation.  One method that has been used involves analyzing two 
@@ -931,7 +925,7 @@ Tonnesen and Jeffries,  1994).  It can be expected that many other types oflRR a
 developed, especially as newer and possibly more complex chemical mechanisms are developed 
 and used in models. 
 
-16.2.3  Implementation of IRR Analysis the CMAQ system 
+### 16.2.3  Implementation of IRR Analysis the CMAQ system 
 
 As described in Chapter 8, the CMAQ system is designed to treat chemical mechanisms in a 
 generalized manner.  Since a specific chemical mechanism is not embedded in the CCTM, a 
@@ -973,7 +967,7 @@ generated in fairly routine model applications, whereas IRRs for each reaction w
 for  exploratory analyses.  The form of the outputs is controlled by the P ACP commands that are 
 described next. 
 
-16.2.4  Use of the PACP to set up an IRR Analysis 
+### 16.2.4  Use of the PACP to set up an IRR Analysis 
 
 As with IPR analysis, the IRR outputs that are generated by the CCTM are controlled by 
 commands and special operators that are processed by the PACP.  The global commands that 
@@ -1316,28 +1310,12 @@ all chemical reactions.  Several of the reaction sums that are defined here are 
 they generate the net effect of a few reactions on the production or loss of a few particular 
 species.  Most of the others are used to define special quantities.  For example, the defined 
 RXNSUM  newM02 in Exhibit 16-4 corresponds to the production of new M02, where new 
-refers to an initiation reaction for the radical M02.  As is apparent from the IRR_ OUTPUT 
+refers to an initiation reaction for the radical M02.  As is apparent from the IRR_OUTPUT 
 commands in the subsequent blocks, the cycle and reaction-sum names are referenced fairly 
-fr~uently ..... . 
-
-''"" 
-
-" 
-
-""""' 
-
-, 
-
-" 
-
-" 
-
-, 
-
--
+frequently.
 
 All of the remaining blocks of commands in Exhibit 16-4 contain the commands for IRR outputs. 
-Again, one IRR output is generated for each IRR_ OUTPUT command, and the outputs that are 
+Again, one IRR output is generated for each IRR_OUTPUT command, and the outputs that are 
 produced correspond to the chemical parameters listed in Table 16-2.  As indicated above, each 
 output is generated by the defined linear combination of predefined cycles, reaction sums, special 
 IRR operators, and/or specified reaction IRRs referenced by reaction label.  It should be evident 
@@ -1399,7 +1377,7 @@ II•'
 remembered that these are throughputs calculated by integrating reaction rates over the output 
 time interval, and not simply abundances at a particular time. 
 
-16.3  Conclusion 
+## 16.3  Conclusion 
 
 Process Analysis is a diagnostic method for evaluating the inner workings of a model.  Although 
 specific types of techniques have been performed and used in the past, new ways of examining 
@@ -1435,7 +1413,7 @@ no process analysis will be generated in this configuration.  Any  process analy
 in the Science Manager of the Models-3 framework.  The reader is referred to the Models-3 User 
 Manual (EPA, 1998) for details on how this is done. 
 
-16.4  References 
+## 16.4  References 
 
 J~g, J.  C., H. E. Jeffries, D. Byun, and J. E. Pleim,  l 995a. "Sensitivity of Ozone to Model Grid 
 11111,, Resolution - I. Application of High-resolution Regional Acid Deposition Model", Atmospheric 

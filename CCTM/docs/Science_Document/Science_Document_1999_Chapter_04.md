@@ -3,7 +3,7 @@ Chapter 4
 
 EMISSION SUBSYSTEM 
 
-William G. Benjey* and James i\'1.  Godowitch** 
+William G. Benjey and James i\'1.  Godowitch
 
 Atmospheric Modeling Division 
 
@@ -39,16 +39,14 @@ Emission Projection Processor to estimate emission data for use in modeling futu
 scenarios.  Finally, the quality control report and output file options contained in the Output 
 Processor are described. 
 
-*on assignment from the National Oceanic and Atmospheric Administration, U.S. Department of Commerce. 
+\*on assignment from the National Oceanic and Atmospheric Administration, U.S. Department of Commerce. 
 Corresponding author address: Bill Benjey, MD-80. Research Triangle Park, NC 27711.  E-mail: 
 benjey@hpcc.epa.gov 
 
 ••on assignment from the National Oceanic and Atmospheric Administration, U.S. Department of Commerce. 
 
 
-4.0 
-
-EMISSION SUBSYSTEM 
+## 4.0 EMISSION SUBSYSTEM 
 
 The rationale for the Models-3 air quality emission processor is rooted in the need to estimate, 
 organize, and process emission inventory data for regulatory and scientific analysis and modeling. 
@@ -64,9 +62,7 @@ These items are described in Volume 7, Volume 8, and Volume 9B, respectively of 
 documentation set.  For example, processor names, environment variables, and flow diagrams are 
 given in Chapter 6 of the Models-3  Volume 9B:  User Manual. 
 
-4.1 
-
-Emission Inventory Processors 
+## 4.1 Emission Inventory Processors 
 
 In the Models-3 framework, MEPPS imports, quality controls, and processes emission inventory 
 data for either direct regulatory analysis or input to a chemical transport model.  The MEPPS also 
@@ -77,15 +73,13 @@ Processing is accomplished using a combination of FORTRAN, SAS®, and ARC/INFO®
 programs. The emission processor results are translated into the NetCDF I/O API format by the 
 MEPPS Output Processor. 
 
-4.1.1  Discussion 
+### 4.1.1  Discussion 
 
 The MEPPS builds on lessons from and functionalities of previous software developed for 
 processing emission inventories.  The capabilities and design decisions in MEPPS are placed in the 
 context of emission inventory developments. 
 
-4.1.1.1 
-
-The Role of Emission Inventory Processing for Chemical Transport Modeling 
+#### 4.1.1.1 The Role of Emission Inventory Processing for Chemical Transport Modeling 
 
 Historically, there have been many air quality emission data bases which were compiled and used 
 for the purposes of regulatory or scientific assessment of emissions, including spatial and temporal 
@@ -112,14 +106,6 @@ al.,1989), the 1990 EPA Interim National Emission Inventory (U.S. EPA, 1993; U.S
 1994), and the 1990 Ozone Transport Assessment Group inventory (Ozone Transport 
 Assessment Group, 1997). Most emission inventories are organized into four traditional general 
 groups of emission types: 
-
-• 
-
-• 
-
-• 
-
-• 
 
 Point sources, which are emission sources attributable to discrete emission points, usually 
 a stack.  The data include pollutant, source category code, stack parameters (height, 
@@ -179,7 +165,7 @@ annual inventory.  The projected inventory is then processed through the entire 
 processing sequence.  Preparation of detailed regional emission inventory data for regional 
 modeling using this traditional approach may take weeks or month. 
 
-4.1.l.2 
+#### 4.1.l.2 
 
 Function and Place of the Emission Processor in the Models-3 Framework 
 
@@ -312,7 +298,7 @@ Manager
 
 .I 
 
-(1~A*) 
+(1~A\*) 
 
 ECIP 
 
@@ -323,13 +309,13 @@ C11AQ is  Community Multi scale Air Quality Model
 l:v.IBPPS is Models-3 Emission Processing and Projection System 
 MCIP is  Meteorology-Chemistry Interface Processor 
 ECIP is Emissions-Chemistry Interface Process or 
-*ID Ai s Inventory Data Analyzer 
-*File Converter is  generic to the Models-3 system 
-*IDA and File Converter are optional  (used for new data) 
+\*ID Ai s Inventory Data Analyzer 
+\*File Converter is  generic to the Models-3 system 
+\*IDA and File Converter are optional  (used for new data) 
 
 Figure 4-3 Relationship of Principal Models-3 Framework Components 
 
-4.1.1.3 
+#### 4.1.1.3 
 
 Rationale for the Basis of the Initial Version of MEPPS 
 
@@ -374,69 +360,18 @@ with UAM, could be modified to be fully compliant with the object-oriented Model
 Additional analysis and quality control tools are being designed for SMOKE, and initial work has 
 begun to adapt it to the Models-3 framework. 
 
-4-8 
-
 Table 4-1.  Emission Processor Selection Factors for the Initial Public Release ofModels-3 
 
-EP N6001R-99/030 
-
-·· ...... ·  ·: 
-
-·. 
 
 Facfors···· 
 
-II'  ••..•. · .•···  . .  •:: 
-
-• • ..  ••  • 
-
-•  :·  < •. 
-
-.•. 
 E@$$ioll J>ro~~ssh1g.. 
 Systeni ~P~) •' •·. ·· ·,:· ····  ·  \ 
-· 
-
-· · · 
-
-· 
-
-·.  : .•.... · ..••.••  ••.:·• ••.••.  :: 
-:.·.· .•  : .... 
-· Fl~xibfo R~gfoijaJ 
-~~~sioJ)J\.1.)~d~lin.g . 
-· 
-
-•·  $Yst~m(F~t)sj •· 
-
-,· 
-
-:;::::.;·: 
 
 Acquisition Cost of Source 
 Code1 
 
 II  None 
-
-(G"./ :.'/d·:<a· :E•·. •· 
-•:.  · eoco  e  .  Jlllss1on 
-
-.;·.  \.:. 
-
-. / .... 
-
-s'··  .  ).:M··::· •.:·t···}::•.•::··< 
-·  parse  a rix·<  . 
-
-i~i!~fj~·~teni.  . · ~!~~:~~i~l ... ··· ·· 
-
-·  o::·> 
-
-· ·· 
-
-·  · 
-
-~yst~m<  · · 
 ·I NIA 
 
 I None 
@@ -483,7 +418,7 @@ allocation would be added
 II  Work station with UNIX 
 
 operating system 
-II  Established system used by_ 
+II  Established system used by
 EPA, state, and local agencies·  U.S. EPA m regional 
 
 I IBM Mainframe system 
@@ -608,7 +543,7 @@ User-defined point-source emission data are extracted and prepared for use in ve
 layered (three-dimensional) emission files to be used with the plume dynamics module of 
 the Models-3 system. 
 
-4.1.2  General MEPPS Structure 
+### 4.1.2  General MEPPS Structure 
 
 The MEPPS is normally used as an integral part of the Models-3 framework from high-level 
 menu-driven screens and pick-lists. 
@@ -665,9 +600,7 @@ MEPRO module projects emission inventory data to future years while applying con
 projected emission data can be read by EMPRO for further processing if modeling of a projected 
 case is desired 
 
-4.2 
-
-The MEPPS Emission ,Processing System 
+## 4.2 The MEPPS Emission ,Processing System 
 
 Although MEPPS is a significant advance in emission inventory data processing, it is continually 
 being improved.  The following sections describe the scientific rationale for the 1998 (first public 
@@ -681,8 +614,6 @@ documentation for those models is referenced.  MEPPS was developed to meet emiss
 processing needs specified in Models-3  Volume  7:  Design Requirements of the Models-3 
 docun1entation set, as amended.  The design requirements for emission inventory processing are 
 based on the emission data input requirements of chemical transport models, and on the needs of 
-
-4-12 
 
 MCIP 
 
@@ -860,7 +791,7 @@ Flow rate
 Flow rate must not be more than 10 percent different from flow 
 
 >0.5 and < 50 ft. 
-< 0.2 *Height 
+< 0.2 \*Height 
 >1.0 and <1,250 ft. 
 >50 and <2,000°F 
 > 1 and <1000 ft/sec 
@@ -978,8 +909,8 @@ IO/API files containing information needed by the rest of the Models-3 system (s
 Section 7.3  ofthis volume and Section 2.3.1  of the User Manual).  In MEPPS, 
 meteorology data are needed to model hourly biogenic and mobile source emissions 
 (Sections 4.2.4.1  and 4.2.4.2).  The MEPPS uses four of the files provided by MCIP, 
-named MET_CR0_2D_ xx, MET_CR0_3D_ xx, GRID_DOT_2D_ xx, and 
-MET_DOT_3D_ xx.  The terms "CRO" and "DOT" refer to the cross and dot points of 
+named MET\_CR0\_2D\_xx, MET\_CR0\_3D\_xx, GRID_DOT_2D_xx, and 
+MET_DOT_3D_xx.  The terms "CRO" and "DOT" refer to the cross and dot points of 
 grids, respectively, and the suffixes "xx" are study specific identifiers.  Refer to Chapter 12 
 for the details of the grid system definitions. 
 
@@ -997,7 +928,7 @@ organic emission stream.  This adjustment is included as an option when importin
 using INPRO.  The default is "yes" - perform the adjustment.  More details are given in the 
 speciation discussion in Section 4.2.5. 
 
-4.2.3  Processing Procedure 
+### 4.2.3  Processing Procedure 
 
 A detailed description of the processing procedure is given in Chapter 6 of the Models-3  Volume 
 9B:  User Manual.  Briefly, EMPRO receives point- and area-source emission data from INPRO 
@@ -1008,9 +939,7 @@ biogenic, mobile) of emission data because of the spatial and temporal resolutio
 method of estimation.  The gridded, temporally allocated and speciated data are passed to 
 OUTPRO where they are merged into output files in the NetCDF VO API format. 
 
-4.2.3.1 
-
-Spatial Allocation of Emission Data 
+#### 4.2.3.1 Spatial Allocation of Emission Data 
 
 The emission inventory data are usually provided by discrete point sources or by political units 
 (typically counties in the United States).  In order to prepare the  data for use in air quality models 
@@ -1732,9 +1661,7 @@ variable.  Example gives an example of what might be entered for each data item.
 provides descriptive text about the data item, supported units, and a list of valid values that each 
 data item recognizes -- valid values and units are listed in parentheses. 
 
-4.2.3.2 
-
-Temporal Allocation of Emission Data 
+#### 4.2.3.2 Temporal Allocation of Emission Data 
 
 Emission data that are based on annual, seasonal, weekly, or daily values must be temporally 
 allocated (usually disaggregated) to hourly data for compatibility with the time scale of episodic 
@@ -1780,9 +1707,7 @@ data.
 Further details concerning temporal allocatipn are discussed as part of the following descriptions 
 of the basis for processing each basic type of emission source. 
 
-4.2.3.3 
-
-Point Source Emission Data Processing 
+#### 4.2.3.3 Point Source Emission Data Processing 
 
 The point-source emission processor prepares gridded, temporally allocated point-source 
 emission estimates suitable for speciation and reformatting for input to Models-3 framework for 
@@ -2052,9 +1977,7 @@ hremisi = aceekg * prot:, i = 1, ... 24
 
 where  prof is an array of day-specific, hourly temporal factors 
 
-4.2.3.4 
-
-Area Source Emission Data Processing 
+#### 4.2.3.4 Area Source Emission Data Processing 
 
 The area-source ·emission data processor prepares area-source emission estimates for speciation 
 (lumped-model or discrete speciation) and reformatting for input to CMAQ or other Models-3 
@@ -2149,8 +2072,6 @@ where:
 i is the index on states 
 j is the index on counties within the states 
 
-4-31 
-
 (4-12) 
 
 (4-13) 
@@ -2199,7 +2120,7 @@ states and counties
 
 arealeng is the gridded value of the specified (indexed) locale of interest by  state/ 
 county /surrogate/cell 
-ap _ratio is the gridded ratio of the locale of interest specifa:d (by indices) states/ 
+ap ratio is the gridded ratio of the locale of interest specifa:d (by indices) states/ 
 
 counties/locales/cell 
 
@@ -2213,14 +2134,12 @@ As a check for Equations 4-14 through 4-16, the following must be true:
 
 Temporal Allocation 
 
-4-32 
-
 Temporal allocation of area source emission data is performed in an identical.manner as described 
 for point source processing in Section 4.2.3.3, although it is almost always necessary to use 
 default temporal allocation profiles.  Please refer to that section for a discussion of temporal 
 allocation of area sources. 
 
-4.2.4  Modeled Emission Data 
+### 4.2.4  Modeled Emission Data 
 
 Emission data from available emission inventories are spatially and temporally allocated as 
 described in the preceding paragraphs.  Many anthropogenic area and point sources of emissions 
@@ -2232,9 +2151,7 @@ quality modeling.  The two principal kinds of sources for which hourly emission 
 modeled are mobile sources and biogenic sources.  In both cases, MEPPS takes hourly 
 meteorological data from  MCIP output derived from MM5. 
 
-4.2.4.1 
-
-Biogenic Emissions 
+#### 4.2.4.1 Biogenic Emissions 
 
 Hourly biogenic emission rates for biogenic VOC compounds (including  isoprenes, 
 monoterpenes, and soil NO) for each grid cell are estimated using the Biogenic Emission 
@@ -6614,9 +6531,7 @@ monoterpene, and "other" (unspecified); along with NO to the EMPRO speciation pr
 where they are grouped with chemical species from other source types dep1::nding upon the 
 conventions of either the CB4 or RADM2 speciation split factors (Section 4.2.5). 
 
-4.2.4.2 
-
-Mobile Source Emissions 
+#### 4.2.4.2 Mobile Source Emissions 
 
 Emissions from mobile sources to the air are established as one of the primary contributors to 
 pollution problems in many localities.  Unlike many anthropogenic emissions, mobile source 
@@ -8778,7 +8693,7 @@ When processing mobile particulate emission data, the input and output data of P
 assigned to and summed within each grid cell in the same fashion given in detail under the 
 Gridding VMT discussion of the implementation of the Mobile Sa model (above). 
 
-4.2.5  Chemical Speciation of Emission Data 
+### 4.2.5  Chemical Speciation of Emission Data 
 
 Chemical transport models, such as CMAQ, require that emission data be provided for either 
 individual species or specific species groups or "lumped" species.  This is necessary so that the 
@@ -10107,7 +10022,7 @@ l.O
 
 1.0 
 
-4.2.6  Output Processor (OUTPRO) 
+### 4.2.6  Output Processor (OUTPRO) 
 
 The results ofMEPPS processing must be in a form that is useful to the Models-3 framework and 
 readily evaluated for the substantive content and quality of the data.  The OUTPRO proce~ses 
@@ -10463,9 +10378,7 @@ computation at the stack and for higher layers for s < 10·5
 
 • 
 
-4.4.2.3 
-
-Plume Rise Treatment for Neutral Conditions 
+#### 4.4.2.3 Plume Rise Treatment for Neutral Conditions 
 
 .. , 
 
@@ -10489,9 +10402,7 @@ algorithm of ECIP,  the neutral plume rise equation is also solved during other 
 in the layers aloft.  A comparison between the two plume rise estimates is made and the lower 
 value is selected before proceeding. 
 
-4.4.2.4 
-
-Special Conditions 
+#### 4.4.2.4 Special Conditions 
 
 For the cases when Fb =  0,  plume rise can occur due to momentum provided by the exit velocity 
 of the plume out of the stack.  Therefore, a momentum rise formula (Turner, 1985) has also been 

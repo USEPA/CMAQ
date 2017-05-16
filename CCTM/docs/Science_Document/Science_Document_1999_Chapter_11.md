@@ -3,7 +3,7 @@ Chapter 11
 
 CLOUD DYNAMICS AND CHEMISTRY 
 
-Shawn J. Roselle* and Francis S. Binkowski** 
+Shawn J. Roselle and Francis S. Binkowski
 
 Atmospheric Modeling Division 
 
@@ -28,9 +28,9 @@ sjr@hpcc.epa.gov
 
 .. On assignment from the National Oceanic and Atmospheric Administration, U.S. Department of Commerce. 
 
-11.0  CLOUD DYNAMICS AND CHEMISTRY 
+## 11.0  CLOUD DYNAMICS AND CHEMISTRY 
 
-11.1  Background 
+## 11.1  Background 
 
 Clouds play an important role in boundary layer meteorology and air quality.  Convective clouds 
 transport pollutants vertically, allowing an exchange of air between the boundary layer and the 
@@ -48,19 +48,7 @@ includes parameterizations for several types of clouds, including sub-grid conve
 (precipitating and non-precipitating) and grid-scale resolved clouds.  It includes an aqueous 
 chemistry model for sulfur, and includes a simple mechanism for scavenging. 
 
-,,,,,, 
-
-,,1111 
-
-,,. 
-
-,, 
-
-1111, 
-
-''II, 
-
-11.2  Model Description 
+## 11.2  Model Description 
 
 The cloud model can be divided into two main components, including the sub-grid cloud model 
 (subcld)  and the resolved cloud model (rescld).  For large horizontal grid resolutions, the grid 
@@ -90,9 +78,9 @@ influence of sub-grid clouds are instituted once an hour while the resolved clou
 concentrations every synchronization timestep.  Each subcomponent of the cloud model is . 
 described in detail below. 
 
-11-2 
+## 11-2 
 
-11.2.1  Subgrid Convective Cloud Scheme 
+### 11.2.1  Subgrid Convective Cloud Scheme 
 
 om; 
 Ot 
@@ -219,9 +207,7 @@ is computed by:
 where cfrac is the fractional cloud coverage. There are variations on this equation for below 
 cloud, above cloud, and for nonprecipitating clouds. 
 
-11.2.1.1 
-
-Scavenging and Wet Deposition 
+#### 11.2.1.1 Scavenging and Wet Deposition 
 
 Pollutant scavenging is calculated by two methods, depending upon whether the pollutant 
 participates in the cloud water chemistry and on the liquid water content.  (1) For those pollutants 
@@ -340,9 +326,7 @@ Deposition amounts are accumulated for each of the modeled species, but the user
 which species are written to the output file.  This is handled in the Program Control Processor 
 (see Chapter fs).  ,,, 
 
-11.2.1.2 
-
-Aqueous Chemistry 
+#### 11.2.1.2 Aqueous Chemistry 
 
 The aqueous chemistry model evolved from the original RADM inodel (Chang et al.,  1987; and 
 \Va.leek and Taylor, 1986).  The model considers the absorption of chemical compounds into the 
@@ -389,7 +373,7 @@ peroxy acetic acid
 
 H2S04 
 
-11.2.2  Resolved Cloud Scheme 
+### 11.2.2  Resolved Cloud Scheme 
 
 Aerosols 
 
@@ -486,7 +470,7 @@ do not have the information to do precipitation fluxes.  Even if a complete clou
 model was developed within CMAQ, there is no guarantee that it would be consistent with what 
 was done in MMS. 
 
-11.3  Conclusions 
+## 11.3  Conclusions 
 
 One of the concepts for Models-3 was that multiple modules may exist for each physical process 
 of the air quality model.  The implementation described here is the first module available for 
@@ -501,7 +485,7 @@ ch~mistry calculations.  The current implementation of the cloud model in CMAQ w
 evaluated using available datasets and will be used as a reference for evaluating future cloud 
 modules for CMAQ. 
 
-11.4  References 
+## 11.4  References 
 
 Betts, A.K. and M.J. Miller,  1986.  A new convective adjustment scheme.  Part II:  Single column 
 tests using GA TE wave, BO MEX, A TEX, and arctic air- mass data sets.  Quarterly J.  Roy. 

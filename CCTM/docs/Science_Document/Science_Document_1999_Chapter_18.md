@@ -26,13 +26,9 @@ Corresponding author address: Jeffrey Young, MD-80, Research Triangle Park, NC 2
 yoj@hpcc.epa.gov 
 
 
-18.0 
+## 18.0 INTEGRATION OF SCIENCE CODES INTO MODELS-3 
 
-INTEGRATION OF SCIENCE CODES INTO MODELS-3 
-
-18.l 
-
-Introduction 
+## 18.l Introduction 
 
 Integration of the Community Multiscale Air Quality (CMAQ) science into the Models-3 design 
 ~aradigm takes place at the level of transforming the science, described by systems of partial 
@@ -145,9 +141,9 @@ address Models-3 compliant coding practice and how to ensure code development th
 
 11:  confonnant to the Models-3 system. 
 
-18.2  Classes and Modules 
+## 18.2  Classes and Modules 
 
-18.2.1  Operational Design 
+### 18.2.1  Operational Design 
 
 'Ql~"""'g~sign concept of code classes is used to facilitate the plug&play capability in the Models-
 3/CMAQ system.  Science process modules are grouped into classes that are primarily based on 
@@ -308,7 +304,7 @@ pa
 gencoor 
 util 
 
-18.2.2  CGRID 
+### 18.2.2  CGRID 
 
 To facilitate the science processing for the different chemistries involved in CMAQ, the 
 concentration field array CORID, is partitioned into four species classes: gas chemistry, aerosols, 
@@ -474,7 +470,7 @@ files.  These coding standards have not been propagated to the level below the c
 the sub-module level there are no strict 1/0 or coding standards, however we offer suggestions to 
 facilitate the potential incorporation of a module into the Models-3 system in Section 18.8 below. 
 
-18.2.4  Synchronization Time Step 
+#### 18.2.4  Synchronization Time Step 
 
 There are many different time scales that are important in modeling.  The CCTM deals with four 
 levels of time stepping: 
@@ -548,9 +544,7 @@ lower limit as possible but still evenly divide2 the lower limit.
 
 If none of these criteria can be satisfied, reports the issue and aborts the execution. 
 
-18.3 
-
-Input/Output Applications Programming Interface 
+## 18.3 Input/Output Applications Programming Interface 
 
 ··  · :" 
 
@@ -681,41 +675,9 @@ manipulation tasks, including statistical analysis, file comparison, and data ex
 18.8.3 below illustrates the use of some of these utilities in coding practice, and the web site [5] 
 provides background materials, a user manual, and a tutorial. 
 
-18.4  Code Configuration Management 
+## 18.4  Code Configuration Management 
 
-1111" 
-
-,1111111111'·'1" 
-
-1111111111111111, 
-
-''1111111, 
-
-•111111, 
-
-'Ill'  ,111111'" 
-
-llllllllli, 
-
-'I"" 
-
-,lllllllllllllllr"' 
-
-"'1111111111111111111111111 
-
-1  ::1111111 
-
-18.4.1  The Need 
-
-1 
-
-Ill 
-
-'I 
-
-"I 
-
-II 
+### 18.4.1  The Need 
 
 ~~~151~,,,~~!!,!,,,~ lfi!l~e ~d growing community that uses and develops a wide variety of programs, 
 
@@ -813,7 +775,7 @@ automatically assigns unique revision identifiers.
 The repository is  located where it is conveniently accessible to all pertinent users, and it 
 is maintained by an administrator who sets and enforces general access rules. 
 
-18.4.2  The Tool 
+### 18.4.2  The Tool 
 
 There are many configuration management tools both free and commercially available.  We 
 chose The Concurrent Versions System (CVS) [1]  mainly because of its versatility.  CVS 
@@ -861,7 +823,7 @@ various CVS commands.  This can be useful to force naming conventions of tags, o
 bug-tracking software, etc.  Thus CVS adds power and features that are attractive for the 
 ModelsS-3/CMAQ system. 
 
-18.4.3  The Repository 
+### 18.4.3  The Repository 
 
 The repository structure, that is, the UNIX directory hierarchy, follows the class/module 
 
@@ -1128,14 +1090,14 @@ model.  Similar trees exist for each of the generic models.  The RCS  files are 
 history files that contain the change tables to reconstruct the actual source code according to a 
 specific revision identifier.  Also note that the tree closely follows the organization of classes and 
 modules for the CCTM described in Table  18-1, and contains alternate modules within the 
-classes.  In particular, most classes contain a "no-operation" (_noop) module that allows a user to 
+classes.  In particular, most classes contain a "no-operation" (\_noop) module that allows a user to 
 essentially turn off that particular science process modeling.  This is useful, for example in 
 debugging, where rapid turn-around is important, and a computationally demanding module that 
 is not needed can be bypassed. 
 
-18.5  How a Model is Constructed 
+## 18.5  How a Model is Constructed 
 
-18.5.1  Object Oriented Concepts 
+### 18.5.1  Object Oriented Concepts 
 
 To make the Models-3/CMAQ system robust and flexible, object oriented concepts were 
 incorporated into the design of the CMAQ system.  Incorporating these ideas into the design 
@@ -1150,7 +1112,7 @@ created at compile time.  However, to encourage a user community that will be co
 for future enhancements, every attempt has been made to adhere to  the Fortran 77 standard.  In 
 the future, the use of other implementation languages such as Fortran 90 will be considered. 
 
-18.5.2  Global Name Table Data 
+### 18.5.2  Global Name Table Data 
 
 In order to implement modularity and data-independence, we have employed design ideas that 
 draw heavily from the object-oriented concept of inheritance and code re-use.  The data 
@@ -1204,7 +1166,7 @@ file can be generated either by the Models-3  system or by the user folloWing a 
 In addition to the global include files, the configuration file contains module commands that tell 
 m3bld to extract the codes for that module from the model code repository for compilation. 
 
-18.5.3  Build Template 
+### 18.5.3  Build Template 
 
 The following exhibit is an example of a configuration file that m3bld would use to  build a 
 model executable: (The numerals at the left-hand margin are labels for the legend and are not 
@@ -1668,7 +1630,7 @@ revision  flag.
 For additional information on this implementation, the reader is referred to the Model Building 
 Tool described in Fine et al.  [3]. 
 
-18.6  How a Model is Executed 
+## 18.6  How a Model is Executed 
 
 In order to run a model executable, various UNIX environment variables must be set in the shell 
 that invokes the execute command.  Generally, these involve the modeling scenario start date and 
@@ -1688,7 +1650,7 @@ visualization tools while the model is executing.  It is also useful  in case of
 CCTi\.1  model can be restarted at the scenario time step after the last successful write using the 
 aborted output file as the input initial data. 
 
-18.7  Using the Models-3 Framework 
+## 18.7  Using the Models-3 Framework 
 
 The Modcls-3  framework simplifies the model building and model execution tasks, especially if 
 key objects have been pre-defined.  Thus if a user is conducting a study that uses the same 
@@ -1722,9 +1684,9 @@ input and output data.  The Models-3  component that performs this function  is 
 Study Planner allows a user to specify input data sets, executables, and UNIX environment 
 variables, and to initiate (possibly multiple) model runs. 
 
-18.8  Conformant Code 
+## 18.8  Conformant Code 
 
-18.8.1  Thin Interface 
+## 18.8.1  Thin Interface 
 
 As mentioned above in section  18.5.1  , the Models-3/CMAQ system was designed to  be robust 
 and flexible with respect to the interchange of modules and the elimination of cross-module data 
@@ -1764,7 +1726,7 @@ The encapsulation design makes the CMAQ system safer and enables the transaction
 plug&play capability.  This design also makes it easier for a user to  trace data and usage within a 
 module, particularly at the class-driver level. 
 
-18.8.2  Coding Rules 
+### 18.8.2  Coding Rules 
 
 In order to maintain the object oriented concepts implemented in the CMAQ system design, we 
 have established a small set of coding rules that apply for those that develop CMAQ science and 
@@ -1834,7 +1796,7 @@ becomes Xx Y x Z ~ N, where Z=  number of cells in the z-direction. There may be
 operations, such as for some horizontal advection schemes, where this decomposition 
 into blocks becomes more difficult or impossible. 
 
-18.8.3  Science Process Code Template 
+### 18.8.3  Science Process Code Template 
 
 The following demonstrates what a science process class-driver Fortran 77 subroutine might look 
 like.  We recommend that a code developer follows this template, where appropriate, to get 
@@ -2416,7 +2378,7 @@ function.
 - Main  computational  loop  over  the  horizontal  grid. 
 - Time  step  loop  over  sub-synchronization  time  step  intervals. 
 
-18.8.4  Robustness and Computational Efficiency 
+### 18.8.4  Robustness and Computational Efficiency 
 
 Scientists, while working in their discipline, are generally not interested in the physical situations 
 that don't significantly affect the phenomena they are studying and modeling.  Typically, the 
@@ -2440,7 +2402,7 @@ performance is nevertheless a critical issue and must be addressed.  Otherwise s
 sound models will not be of much general use if they take an inordinate amount of time to 
 execute. 
 
-18.9  Conclusion 
+## 18.9  Conclusion 
 
 The CMAQ system has been designed and implemented in such a way that its integration into 
 Models-3 allows access to the extensive functionality of the Models-3 framework.  Users can 
@@ -2450,7 +2412,7 @@ their requirements.
 We have integrated the CMAQ codes into the Models-3 system by following the basic set of 
 guidelines and rules presented in this chapter. 
 
-18.'10  References 
+## 18.10  References 
 
 [ 1]  http://interactivate.com/public/cvswebsites/cvs _toc.html, http://www.cyclic.com/cvs/, and 
 the UNIX man pages 

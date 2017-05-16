@@ -1,4 +1,4 @@
-Chapter2 
+Chapter 2 
 ==============
 
 MODELS-3 ARCHITECTURE: A UNIFYING FRAMEWORK FOR 
@@ -43,12 +43,9 @@ novak.joan@epamail.epa.gov
 
 .. On assignment from the National Oceanic and Atmospheric Administration, U.S. Department of Commerce. 
 
-2.0  MODELS-3 ARCHITECTURE: A UNIFYING FRAMEWORK FOR 
-ENVIRONMENTAL MODELING AND ASSESSMENT 
+## 2.0  MODELS-3 ARCHITECTURE: A UNIFYING FRAMEWORK FOR ENVIRONMENTAL MODELING AND ASSESSMENT 
 
-2.1 
-
-Introduction 
+## 2.1 Introduction 
 
 Models-3 is a flexible software system designed to simplify the development and use of 
 environmental assessment and decision support tools for a wide range of applications from 
@@ -72,9 +69,7 @@ community framework for continual advancement and use of environmental assessmen
 Capabilities and design features of the Models-3 framework provide more flexibility in data 
 handling, modeling, visualization and analysis. 
 
-2.2 
-
-Overview of the Models-3 Framework 
+## 2.2 Overview of the Models-3 Framework 
 
 The Models-3 framework contains components that assist I) the model user with air quality 
 modeling studies and analysis of results, and  2)  the model developer with creating, testing, and 
@@ -83,7 +78,7 @@ to simplify and integrate the development and use of complex environmental model
 with air quality and deposition models.  The function of each framework component is described 
 below. 
 
-2.2.1  Dataset  Manager 
+### 2.2.1  Dataset  Manager 
 
 Dataset Manager provides the user with the capability to register files for use with the modeling 
 and analysis programs within the Models-3 framework. The registration process involves entering 
@@ -102,7 +97,7 @@ will automatically move selected data to the host where it is needed for a model
 Dataset Manager also provides standard  capabilities such as deleting, copying, archiving, and 
 restoring files and metadata. 
 
-2.2.2  Program Manager 
+### 2.2.2  Program Manager 
 
 Program Manager allows the user to register, update, and  search for executable programs and/or 
 scripts to make them available for use in defining studies within the Study Planner component. 
@@ -117,7 +112,7 @@ activated, to facilitate tracking output from numerous program executions.  Reco
 configurations for standard domains are preregistered in the system, eliminating the need for the 
 typical user to deal with the details of program registration. 
 
-2.2.3  Study Planner 
+### 2.2.3  Study Planner 
 
 Study Planner allows the user to define a study and control the execution of its associated 
 processes. A study is a collection of plans and properties that are necessary to describe and 
@@ -136,7 +131,7 @@ change the dataset annotations by selecting, through a file browser, appropriate
 for execution. The Study Planner provides capabilities to create new  studies, copy and modify 
 existing studies, and delete existing studies. 
 
-2.2.4  Strategy Manager 
+### 2.2.4  Strategy Manager 
 
 Strategy Manager provides the capability to estimate point-, area-, and mobile-source emissions 
 for future years and to determine the relative effectiveness of specified control scenarios. The user 
@@ -150,7 +145,7 @@ organic compounds.  Strategy Manager is based on EPA's Multiple Projection Syste
 data processor is included to process the National Emissions Trend (NET) inventory (URL 
 http://www.epa.gov/oar/oagpsD data format. 
 
-2.2.5  Tool Manager 
+### 2.2.5  Tool Manager 
 
 Tool Manager provides access to third-party applications (tools) that are registered with the 
 Models-3 framework. Third-party applications that are currently available include Models-3 
@@ -160,9 +155,7 @@ Explorer™, DXDriver, and VisDriver. Tool Manager allows the user to add tools 
 that will help with the user's  work.  A file converter is included to convert between ASCII, SAS, 
 and 1/0 API files. 
 
-2.2.5.1 
-
-Emissions Processing 
+#### 2.2.5.1 Emissions Processing 
 
 The majority of the emissions processing needed to support air quality model applications can be 
 prepared through minor modifications to pre-specified emissions plans in the Study Planner. 
@@ -185,9 +178,7 @@ choices for interactively changing parameters and reviewing results in all of th
 components. The global science specifications created by the user in Science Manager are 
 accessible from within MEPPS to ensure consistency when desired. 
 
-2.2.5.2 
-
-Visualization and Analysis Tools 
+#### 2.2.5.2 Visualization and Analysis Tools 
 
 Several freely available visualization tools are accessible from the Models-3 framework as well as 
 commercial vis;ualization and statistics packages, such as IBM Visualization Data Explorer™ and 
@@ -206,9 +197,9 @@ The Package for Analysis and Visualization for Environmental data (PA VE), devel
 North Carolina Supercomputing Center ofMCNC, allows the user to visualize 2-D multi-variate, 
 gridded environmental data with smooth tile plots,3-D mesh plots, time series line and bar plots, 
 vertical cross sections, wind vectors, and scatter plots.  More information can be found at 
-http://www.iceis.mcnc.org/EDS Sf pave_ doc/Pave.html. 
+http://www.iceis.mcnc.org/EDS Sf pave_doc/Pave.html. 
 
-Vis SD 
+Vis 5D 
 
 Vis5D, a public domain package developed at the University of Wisconsin Space Science and 
 Engineering Center,  provides interactive visualization of large five-dimensional gridded datasets -
@@ -229,7 +220,7 @@ integrated reaction rates predicted over space and time in the air quality model
 visualization capabilities for scalar and vector quantities, 2-D and 3-D graphs have also been 
 integrated through the  DXDriver interface. 
 
-2.2.6  Science Manager 
+### 2.2.6  Science Manager 
 
 Critical model specifications typically found hardwired in air quality model codes, such as details 
 of the horizontal coordinate system, specification of horizontal grid dimensions, vertical layers, 
@@ -255,7 +246,7 @@ present in source emission profiles associated with Source Classification Codes 
 chemical mechanism specification will propagate to the emission processing subsystem to enable 
 generation of emission species consistent with the newly defined chemical mechanism. 
 
-2.2. 7  Model Builder 
+### 2.2.7  Model Builder 
 
 The Models-3 framework facilitates the interchange of science components within a model, 
 customization of the  chemistry mechanism, and changes in the modeling domain, horizontal grid 
@@ -268,7 +259,7 @@ contained in a named c<;mfiguration file.  After the needed science components a
 model developer uses Model Builder to select from available science ·specifications and 
 configuration files to create· a single custom model executable. 
 
-2.2.8  Source Code Manager 
+### 2.2.8  Source Code Manager 
 
 CMAQ source code is distributed. with the Models-3 framework  to provide the user flexibility to 
 create a model for a user specified domain  or to allow a user to build a new ·executable with a 
@@ -281,7 +272,7 @@ model developers.  Source· Code Manager is based on Concurrent Versions System
 management and tracks the history and version numbers for all source code changes.  These 
 version numbers become part of the history information associated with each output file; 
 
-2.2.9  Framework Administrator 
+### 2.2.9  Framework Administrator 
 
 The Framework Administrator subsystem menu allows the Models-3 system administrator to 
 manipulate system lists and to access administrative functions of other Models-3 subsystems. 

@@ -7,7 +7,7 @@ COMMUNITY  MULTISCALE  AIR  QUALITY  (CMAQ)  CHEMICAL  TRANSPORT
 
 MODEL 
 
-Daewon  W.  Byun*  and  Jeffrey  Young** 
+Daewon  W.  Byun  and  Jeffrey  Young
 
 Atmospheric Modeling Division, 
 
@@ -16,7 +16,7 @@ U.S. Environmental Protection Agency
 
 Research Triangle Park, NC 27711 
 
-M. Talat Odman"** 
+M. Talat Odman
 
 MCNC-Environmental Programs 
 
@@ -156,9 +156,7 @@ horizontal and vertical directions (i.e., quasi-orthogonal in transformed coordi
 
 • 
 
-6.1 
-
-Derivation of the Atmospheric Diffusion Equation 
+## 6.1 Derivation of the Atmospheric Diffusion Equation 
 
 In Chapter 5, we derived the species continuity equation in generalized coordinates.  It is given 
 as: 
@@ -395,8 +393,6 @@ and
 
 (6-13) 
 
-6-6 
-
 Rewriting Equation 6-7 with Equations 6-12 and 6-13, and separating the diagonal and off(cid:173)
 diagonal diffusion terms with an explicit description of the source terms, one can obtain the 
 governing atmospheric diffusion equation in the generalized coordinates where the turbulent flux 
@@ -597,9 +593,7 @@ where cp; =..[Yep;= U1:, I m2 )<fJ;·  In writing Equation 6-18, we have explici
 directly relate to science process modules implemented in the CMAQ.  Equation 6-18 is similar 
 to the conservation equation in the generalized coordinates as suggested by Toon et al. (1988). 
 
-6.2 
-
-Representation of Science Processes  in  CMAQ Modeling System 
+## 6.2 Representation of Science Processes  in  CMAQ Modeling System 
 
 This section describes how the CMAQ modeling system is structured to accommodate many 
 different science process modules that provide a one-atmosphere, multiscale and multi-pollutant 
@@ -607,7 +601,7 @@ modeling capability to the CMAQ system.  First, we describe the modularity conce
 science processes implemented in the current version of CMAQ.  Then the governing fractional 
 time-step formulation for each science process is presented. 
 
-6.2.1  Supporting Models and Interface Processors 
+### 6.2.1  Supporting Models and Interface Processors 
 
 Key supporting models for the current version of the CMAQ modeling system are the 
 Mesoscale Model Version 5 (MM5) (Seaman et al.,  1995)and Models-3 Emissions Processing 
@@ -646,7 +640,7 @@ numerical solver, processor analysis, and input/output routines.  The lowest mea
 modularization level is the isolation of sections of code that can benefit from machine dependent 
 optimization. 
 
-6.2.2  Modularity Concept of CMAQ 
+### 6.2.2  Modularity Concept of CMAQ 
 
 To allow for both the continuous improvement of science and for the addition of new capabilities 
 in. a unified fashion, it is critical to have efficient modular schemes in the CMAQ design. 
@@ -852,7 +846,7 @@ Chapter 12
 Chapter 14 
 
 
-6.2.3  Description of Science Processes 
+### 6.2.3  Description of Science Processes 
 
 In this section we describe individual science processes, shown in Figure 6-1, associated with the 
 groups of individual terms in the governing diffusion equation.  Note that different concentration 
@@ -869,7 +863,7 @@ Data
 Figure 6-2.  Data Dependencies Among Modules in CCTM.  P and Sk represent a science process 
 module and the related subroutines for the module, respectively. (From Byun et al.,  1995.) 
 
-6.2.3.1 Driver Class for CCTM 
+#### 6.2.3.1 Driver Class for CCTM 
 
 The key function of the driver class module is hosting the science processors.  It is responsible 
 for coordinating model integration time (synchronizing :fractional-time steps of science process 
@@ -1074,7 +1068,7 @@ density versus mixing ratio.  The classes INIT and COUPLE are introduced just fo
 convenience of code management from the point of view of science process modularity, and they 
 should be considered as part of the DRIVER class modules. 
 
-6.2.3.2 Advection Processes for CCTM: HADV, V ADV and ADJCON 
+#### 6.2.3.2 Advection Processes for CCTM: HADV, V ADV and ADJCON 
 
 For convenience, the advection process is divided into horizontal and vertical components.  This 
 distinction is possible because the mean atmospheric motion is mostly in horizontal planes. 
@@ -1467,7 +1461,7 @@ the vertical qiffusion in terms, of molar mixing ratio are equivalent ~() those 
 mixing ratio,  q1 •  Refer to Chapter 7 for details of the computational algorithms for HDIFF and 
 VDIFF. 
 
-6.2.3.4 Gas-phase Chemistry Process for CCTM 
+#### 6.2.3.4 Gas-phase Chemistry Process for CCTM 
 Instead of directly computing the time rate of change of <p;, as is given by: 
 
 (6-34), 
@@ -1523,7 +1517,7 @@ supplied.  It is possible to include emissions either in the gas-phase chemistry
 diffusion process.  It is preferable that the emissions are interpolated with the same temporal 
 interpolation schemes used in the transport processes. 
 
-6.2.3.5 Aerosol Process Class for CCTM 
+#### 6.2.3.5 Aerosol Process Class for CCTM 
 
 The fractional time step implementation solves for the effe:cts of aerosol chemistry and dynamics 
 on trace gas and aerosol species concentrations with: 
@@ -1553,7 +1547,7 @@ nucleat,ion in i:i. sulfuric acid/water vapor system; ( 4) the production of an 
 component from gas-phase precursors; and (5) particle coagulation and condensation growth. 
 Refer to Chapter 10 for details on aerosol process implemented in CCTM. 
 
-6.2.3.6 Emissions Process for CCTM 
+#### 6.2.3.6 Emissions Process for CCTM 
 
 ' 
 
@@ -1631,12 +1625,6 @@ transformation of emissions in mass units into the molar units for the lumped sp
 introduce misrepresentation of emissions amount.  The data for the fractional compositions of 
 the categorized hydrocarbon species are available in the emissions processor, Models-3 
 Emissions Projection and Processing System (MEPPS) (See Chapter 4).  Thus, when emissions 
-
-] 
-
-6-24 
-
-
 data are processed in [mole  s-1
 emissions process is represented as: 
 
@@ -1650,7 +1638,7 @@ at  emiss  M;  P
 An additional benefit is that the same transformation rule can be applied when emissions are 
 included either in the vertical diffusion or in the chemistry. 
 
-6.2.3.7 Cloud Mixing and Aqueous-phase Chemistry (CLOUD) for CCTM 
+#### 6.2.3.7 Cloud Mixing and Aqueous-phase Chemistry (CLOUD) for CCTM 
 
 The rate of change in pollutant concentrations due to cloud processes is given by: 
 
@@ -1698,16 +1686,12 @@ at  resc/d
 
 See Chapter 11  for details of the cloud process descriptions. 
 
-6.2.3.8 Plume-in-Grid Process (PING) for CCTM 
+#### 6.2.3.8 Plume-in-Grid Process (PING) for CCTM 
 
 Anthropogenic precursors of the tropospheric loading of ozone, aerosols, and acidic species are 
 largely emitted from major point sources, mobile sources, and urban-industrial area sources.  In 
 particular, inadequate spatial resolution of the major point source emissions can cause inaccurate 
 predictions of air quality in regional and urban Eulerian air quality models.  A plume-in-grid 
-
-6-25 
-
-EPA/600/R-99/030 
 
 (PinG) approach in CCTM provides a more re~listic treatment of the subgrid scale physical and 
 chemical processes for major elevated point source emitters (MEPSEs). 
@@ -1739,9 +1723,7 @@ volume 8V.  Currently, only gaseous species are treated with the PING module. Re
 referred to Chapter 9 for the details.  The work for the inclusion of particulates in the PING 
 process has been started. 
 
-6.3 
-
-Equivalent Model Formulations for Different Vertical Coordinates 
+## 6.3 Equivalent Model Formulations for Different Vertical Coordinates 
 
 Because the CCTM is based on a generalized coordinate system, it is possible to emulate the 
 governing equations of other popular Eulerian air quality models.  For most urban and regional 
@@ -1756,10 +1738,6 @@ The generalized governing conservation equation for trace species, written in th
 form, is given in Equation 6-18.  The same equation in eddy-diffusion form, in which the 
 components of the eddy diffusivity tensor are represented in terms of those in Cartesian 
 coordinates, is given below: 
-
-6-26 
-
-EPA/600/R-99/030 
 
 (6-47) 
 
@@ -1796,11 +1774,6 @@ reference pressure coordinate is used in SAQM (Chang et al.,  1997), which is de
 consistent with the nonhydrostatic MM5 meteorological model.  The terrain-influenced time 
 dependent hydrostatic pressure coordinate is used in RADM (Chang et al.,  1987).  It is the same 
 coordinate used for MM4 or MM5 hydrostatic applications.  Step-mountain eta coordinate is 
-
-6-27 
-
-EPA/600/R-99/030 
-
 used for NCJ3f' s Eta meteorological model (Black, 1994, and Mesinger et al., 1988), but no 
 operational alr quality model using the.eta coordinate is available. 
 
@@ -1923,9 +1896,7 @@ Po(O)- Pr
 
 .<Jc 
 
-6.4 
-
-Nesting Techniques 
+## 6.4 Nesting Techniques 
 
 The nested grid CTM is needed to provide the required high resolution simulations.  At present, 
 Models-3 CMAQ allows only static grid nesting.  In static grid nesting, finer grids (FGs) are 
@@ -1941,11 +1912,6 @@ procedure is not implemented in the CMAQ system.
 
 In' one-way nesting, the primary concern is the mass conservation at the grid, interface where 
 boundary conditions are input to the FG using the CG solution.  The advective flux at the inflow 
-
-6-28 
-
-EPA/600/R-991030 
-
 boundaries of the FG is the flux as determined by the CG solution that passes through this 
 interface.  We also allow for time variation of the flux during the CG time step.  This is 
 performed by computing the departure point of the last particle passing through the interface for 
@@ -1977,11 +1943,6 @@ Figure 6-5.  Static Grid Nesting Used in CMAQ System
 The CCTM provides a static nesting (see Figure 6-5) capability while maintaining a high level of 
 modularity by separately processing object codes for different grid domains and by enforcing the 
 protocol that each module r~ads its required input data independently from others.  The scheme 
-
-6-29 
-
-EPA/600/R-99/030 
-
 is also applicable for multiple and multi-level grid nesting.  Multi-level nesting is a natural 
 extension of the single static grid nesting.  Figure 6-6 presents a schema for multi-level nesting, 
 where three-levels are illustrated.  The feedback processes update coarser grid concentrations at 
@@ -2066,13 +2027,7 @@ boundary conditions
 
 Figure 6-6.  Schematics for Multi-level Nesting (three levels illustrated) 
 
-6-30 
-
-EPA/600/R-991030 
-
-6.5 
-
-Summary 
+## 6.5 Summary 
 
 The CMAQ system achieves multi-pollutant and multiscale capabilities by combining several 
 distinct modeling techniques.  The generalized governing conservation equations of the CCTM 
@@ -2094,9 +2049,7 @@ As mentioned above, there remain a few implementation tasks, such as development
 modules for two-way nesting and adaptation of anholonomic coordinates (e.g., latitude(cid:173)
 longitude ), which will provide additional functionalities in CCTM. 
 
-6.6 
-
-References 
+## 6.6 References 
 
 Alapaty, K., R.  Mathur, and T.  Odman,  1998: Intercomparison of spatial interpolation schemes 
 for use in nested grid models. Mon.  Wea.  Rev.  126, 243-249. 

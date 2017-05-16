@@ -31,7 +31,7 @@ also included in this chapter.
 Corresponding author address: Francis S.  Binkowski, MD-80, Research Triangle Park, NC 27711.  E-mail: 
 fzb@hpcc.epa.gov 
 
-10.0  AEROSOLS IN MODELS-3 CMAQ 
+## 10.0  AEROSOLS IN MODELS-3 CMAQ 
 Inclusion of aerosol particles in an air quality model presents several challenges.  Amo~g these 
 are the differences between the physical characteristics of gases and particles.  In treating gases 
 in an air quality model, the size of the gas molecules is not usually of primary importance.  In 
@@ -128,14 +128,14 @@ visual range is an important air quality related value, the aerosol component al
 estimates of visual range and aerosol extinction coefficient. 
 
 
-10.1  Aerosol Dynamics 
+## 10.1  Aerosol Dynamics 
 
 The particle dynamics of this aerosol distribution are described fully in Whitby et al. (1991) and 
 Whitby and McMurry 1997); therefore, only a brief summary of the method is given here. 
 
 (Note: In the following equations repeated subscripts are not summed.) 
 
-10.1.1  Modal Definitions 
+### 10.1.1  Modal Definitions 
 
 Given a lognormal distribution defined as 
 
@@ -241,7 +241,7 @@ Nexp  2ln crg
 The prediction equations for number, second moment and species mass are given in Section 
 10.1.4. 
 
-10.1.2  New Particle Production by Nucleation 
+### 10.1.2  New Particle Production by Nucleation 
 
 The CMAQ aerosol component has a choice of two particle production mechanisms, those of 
 Harrington and Kreidenweis (l 998a,b) and Kulmala et al.  (1998). Both of these methods predict 
@@ -283,7 +283,7 @@ dt
 where d3.5 is the diameter of the 3.5 nm particle and pis the density of the particle (taken as 
 sulfuric acid) at ambient relative humidity (Nair and Vohra, 1975). 
 
-10.1.3  Primary Emissions 
+### 10.1.3  Primary Emissions 
 
 The EPA emission inventoryfor PM2.s  ~d PM 10  does not currently contain inforil1ation about  " 
 neither size distribution nor chemical speciation.  In the CMAQ work, the assumption is that the 
@@ -379,7 +379,7 @@ to the aerosol module. Assigning fractional amounts of emitted PM2.5 and PM 10  
 species in Table 10-1  is a matter of ongoing discussions with those responsible for preparing the 
 national emissions inventory. 
 
-10.1.4  Numerical Solvers 
+### 10.1.4  Numerical Solvers 
 
 The numerical solvers for the two fine particle modes in the Models-3 aerosol component have 
 been modified from those in RPM, which followed from Whitby et al. (1991).  The major 
@@ -635,15 +635,7 @@ wr
 The solution is by an Euler forward step. The equation for coarse mode number is similar 
 because coagulation is ignored for the coarse mode, and is also solved by an Euler forward step. 
 
-10.1.5  Mode Merging by Renaming 
-
-111 
-
-, 
-
-, 
-
-" 
+### 10.1.5  Mode Merging by Renaming 
 
 In Binkowski and Shankar (1995), the Aitken mode diameters grew over the simulation periqd to 
 become as large as those in the accumulation mode.  While this is probably true in nature, it  , 
@@ -808,7 +800,7 @@ where particles are reassigned in the moving center concept of a bin model.  Whe
 grow beyond the boundaries of their size bin, they are reassigned to a larger bin and averaged 
 with the new bin. 
 
-10.2  Aerosol Dry Deposition 
+## 10.2  Aerosol Dry Deposition 
 
 The rate of dry deposition of particle zero111  and third moment to the earth's surface provides the 
 lower boundary condition for the vertical diffusion of aerosol number and species mass, 
@@ -818,7 +810,7 @@ deposited separately using the dry deposition velocity for the third moment.  Th
 is omitted for the coarse mode particles in both the zero•h and third moment dry deposition 
 velocities.  See Binkowski and Shankar (1995) Equations A25 through A34 for details. 
 
-10.3  Cloud Processing of Aerosols 
+##10.3  Cloud Processing of Aerosols 
 
 Clouds are formed when the relative humidity reaches a value at which existing aerosol particles 
 are activated. That is, they pass through a potential barrier and grow rapidly from a few 
@@ -1056,7 +1048,7 @@ sulfate; [ 8S04]prod  is the amount of new sulfate produced by aqueous chemistrJ
 
 1'' 
 
-10.4  Aerosol Chemistry 
+## 10.4  Aerosol Chemistry 
 
 11111111". 
 
@@ -1137,7 +1129,7 @@ sulfuric acid and the organic species are passed from the photochemical componen
 component.  The formation rates of aerosol mass (in terms of the reaction rates of the precursors) 
 are taken frorri  Pandis et al.  (1992).  These factors are given in Table 10-3. 
 
-10.5  Visibility 
+## 10.5  Visibility 
 
 Visibility is usually defined to mean the furthest distance one can see and identify an object in 
 the atmosphere.  For a detailed presentation on the concepts of visibility, see Malm (1979).  In a 
@@ -1276,9 +1268,7 @@ was deemed to be too large at the present time.  The relative humidity correctio
 obtained from a table of corrections with entries at one- percent intervals.  The methodology for 
 the corrections is given in Malm et al. (1994). 
 
-10.6 
-
-Summary 
+## 10.6 Summary 
 
 The CMAQ aerosol component is a major GXtension of the RPM.  Addition of the coarse mode 
 and primary emissions now allow both PM2.5  and PM 10  to be treated.  Ongoing work will 
@@ -1301,7 +1291,7 @@ atmospheric observations from selected field studies in which aerosol particles 
 Comparison with routine visual range observations during the field study periods will provide an 
 additional method of evaluation. 
 
-10. 7  References 
+## 10.7  References 
 
 Binkowski F.  S., and U.  Shankar, The regional particulate model  1.  Model description and 
 preliminary results. J  Geophys.  Res.,  100, D12, 26191-26209,  1995. 
@@ -1328,10 +1318,6 @@ regional acid deposition model and engineering model, NAP AP SOSff Report 4,  in
 Acid Precipitation Assessment Program, Acidic Deposition: State of Science and Technology, 
 Volume I,  Washington, D.C., 1990 .. ,, 
 
-··· 
-
-111111 
-
 Chaumerliac, N., Evaluation des Termes de Captation Dynamique dans un Modele 
 Tridimensionel  a Mesoechelle de  Lessivage de L 'Atmosphere,  These Presentee a L'Universite de 
 Clermont II, U.E.R. de Recherche Scientifique et Technique, 1984. 
@@ -1348,23 +1334,13 @@ sulfuric acid solutions and hydrates from  15 to 300 K,  j  Amer.  Chem.  Soc., 
 Harrington, D.  Y.  and S.  M.  Kreidenweis, Simulations of sulfate aerosol dynamics: Part I model 
 description, Atmos.  Environ.,  32,  1691-1700, 1998a. 
 
-'' 
-
-·· 
-
 Harrington, D.  Y. 'and S.  M.  Kreidenweis, Simulations of sulfate aerosol dynamiCs: Part II  model 
 intercomparison, Atmos.  Environ.,  1701-1709, 1998b. 
 Jacobson, M.Z. Development and application of a new air pollution modeling system-II. Aerosol 
 module structure and design, Atmos.  Environ., 31, 131-144, 1997. 
 
-'"'' 
-
-I 
-
 Kim,Y. P., J.  H.  Seinfeld, and  P. Saxena, Atmospheric gas-aerosol equilibrium I. 
 Thermodynamic model, Aerosol Sci.  and Technol.,  19,  157-181, 1993a. 
-
-..,. 
 
 Kim,Y.  P., J.  H.  Seinfeld, a~d P.  S~ena, Atmospheric gas-ae:osol equilibri~m I~. An~lysis ~l 
 common approximations and activity coefficient calculation methods, Aerosol Sci.  and Teclmol., 
@@ -1437,19 +1413,6 @@ Sisler, J.  Personal Communication
 
 SHnn, W. G. ~., R~te-limiting aspects of in-cloud scavenging, J.  Atmos.  Sci., 31,  1172-
 1173, 1974. 
-
-~ 
-Ii' 
-
-. 
-
-Ill, 
-
-,,111111 
-
-,1111 
-
-11111" 
 
 Spann, J.  F. and C.  B. Richardson, Measurement of the water cycle in mixed ammonium acid 
 sulfate particles, Atmos.  Environ.,  19, 919-825, 1985. 
