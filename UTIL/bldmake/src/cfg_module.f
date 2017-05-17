@@ -134,6 +134,13 @@
       Character( FLD_LEN ) :: netcdf
       Character( FLD_LEN ) :: mpich
 
+! library locations
+      Character( FLD_LEN ) :: ioapi_mod_dir
+      Character( FLD_LEN ) :: ioapi_incl_dir
+      Character( FLD_LEN ) :: ioapi_lib_dir
+      Character( FLD_LEN ) :: netcdf_lib_dir
+      Character( FLD_LEN ) :: mpi_lib_dir
+
 ! misc module number for local files
       Integer :: miscMod
 
