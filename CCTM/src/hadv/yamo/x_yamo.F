@@ -352,7 +352,9 @@ C direction to receive from: NORTH,SOUTH,EAST,WEST       X     X      X
             END IF
 
 C check adjusted velocities for Courant limited max timestep
-            DTCFL = MIN ( DTCFL, 0.9 * DX1 / ABS( VELX( COL ) ) )
+            IF (VELX(COL) .NE. 0.0) THEN
+               DTCFL = MIN ( DTCFL, 0.9 * DX1 / ABS( VELX( COL ) ) )
+            END IF
 
 !           if ( velx( col ) .lt. 0.0 ) then
 !              if ( adjfac .lt. 0.70 .or. adjfac .gt. 1.36 ) then
