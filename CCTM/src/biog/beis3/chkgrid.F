@@ -124,11 +124,12 @@ C Check settings that must be consistent for exact grid match
      &        NR .NE. NROWS            .OR.
      &        DBLERR( XORIG3D, XORIG ) .OR.
      &        DBLERR( YORIG3D, YORIG ) ) THEN
-            SUCCESS = .FALSE.
-            MESG = 'ERROR: Columns, rows, x-origin, or ' //
+            SUCCESS = .TRUE.
+            MESG = 'WARNING: Columns, rows, x-origin, or ' //
      &             'y-origin for ' // FNAME // ' in ' //
      &             CRLF() // BLANK10 // FILETYPE // 
-     &             ' are inconsistent with initialized values.'
+     &             ' are inconsistent with GRID NAME: ' // 
+     &             TRIM( GRDNM )
             CALL M3MSG2( MESG ) 
          END IF
 #endif
@@ -149,7 +150,8 @@ C Check settings that must be consistent for grids and subgrids
             MESG = 'ERROR: Grid type, cell sizes, or ' //
      &             'grid projection for ' // FNAME // ' in '//
      &              CRLF() // BLANK10 // FILETYPE // 
-     &             ' are inconsistent with initialized values.'
+     &             ' are inconsistent with with GRID NAME: ' 
+     &             // TRIM( GRDNM )
             CALL M3MSG2( MESG ) 
          END IF
 
@@ -165,7 +167,7 @@ C based on the cell sizes
             MESG = 'ERROR: Grid origins not compatible ' //
      &             'between ' // FNAME // ' in ' // 
      &             CRLF() // BLANK10 // FILETYPE // 
-     &             ' and initialized values.'
+     &             ' and set by GRID NAME: ' // TRIM( GRDNM )
             CALL M3MSG2( MESG ) 
          END IF
 
@@ -181,15 +183,18 @@ C If file has different origin from the subgrid...
                IF ( XOFF .NE. XO .OR.
      &              YOFF .NE. YO ) THEN
                   SUCCESS = .FALSE.
-                  MESG = 'ERROR: Subgrid offset for ' //
+                  MESG = 'WARNING: Subgrid offset for ' //
      &                   FNAME // ' in ' // CRLF() // BLANK10// 
      &                   FILETYPE // 'is ' //
-     &                  'inconsistent with initialized values.'
+     &                  'inconsistent with with GRID NAME: ' 
+     &                   // TRIM( GRDNM )
                   CALL M3MSG2( MESG ) 
                END IF
 
 C If file has same origin as subgrid
             ELSE
+
+
 
 C Check that current subgrid is the same as the previous subgrid
                IF ( NC .NE. NCOLS            .OR.
@@ -197,11 +202,11 @@ C Check that current subgrid is the same as the previous subgrid
      &              DBLERR( XORIG3D, XORIG ) .OR.
      &              DBLERR( YORIG3D, YORIG ) ) THEN
                   SUCCESS = .FALSE.
-                  MESG = 'ERROR: Columns, rows, x-origin, ' //
+                  MESG = 'WARNING: Columns, rows, x-origin, ' //
      &                   'or y-origin for ' // FNAME // ' in ' 
      &                   // CRLF() // BLANK10 // FILETYPE // 
      &                   'are inconsistent with values from ' // 
-     &                   GRDNM
+     &                   TRIM( GRDNM)
                   CALL M3MSG2( MESG ) 
                END IF
 
@@ -253,8 +258,8 @@ C Store initial grid information
          NROWS = NR
 
          MESG = 'NOTE: Grid settings initialized using ' // 
-     &          FNAME // ' in ' // CRLF() // BLANK10 // 
-     &          FILETYPE
+     &          TRIM( FNAME ) // ' in ' // CRLF() // BLANK10 // 
+     &          FILETYPE // ' GRID NAME: ' // TRIM( GRDNM )
 
          CALL M3MSG2( MESG )
 
@@ -264,7 +269,7 @@ C Store initial grid information
 
          MESG = 'ERROR: Grid parameters for ' // FNAME // ' in ' //
      &          CRLF() // BLANK10 // FILETYPE //
-     &          ' are inconsistent with initialized values.'
+     &          ' are inconsistent with GRID NAME: ' // TRIM( GRDNM )
          CALL M3MSG2( MESG )
 
       END IF

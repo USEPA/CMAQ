@@ -1,50 +1,58 @@
-# Compiled source #
-###################
-*.com
-*.class
-*.dll
-*.exe
+# general files to ignore
+
+### Fortran ###
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
 *.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
 *.so
+*.dylib
+*.dll
+
+# Fortran module files
 *.mod
+*.smod
 
-# Packages #
-############
-# it's better to unpack these files and commit the raw source
-# git has its own built in compression methods
-*.7z
-*.dmg
-*.gz
-*.iso
-*.jar
-*.rar
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+#archives
 *.tar
-*.zip
-see.txt
+*.gz
 
-# Logs and databases #
-######################
+#file unique to repository
+BLD*
 *.log
-*.sql
-*.sqlite
+*_bak
+BLDMAKE*
+CHEMMECH*
+JPROC_*
+ICON_*
+BCON_*
+UTIL/chemmech/input
+UTIL/chemmech/output
+UTIL/create_ebi/output
+UTIL/create_ebi/input
+UTIL/inline_phot_preproc/output
+UTIL/inline_phot_preproc/input
+UTIL/*/bldrun*
 
-# OS generated files #
-######################
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-*.swp
-*bak
-
-# BLDMAKE compiled objects #
-############################
-UTIL/bldmake/src/BLDMAKE
-UTIL/bldmake/src/bldmake.o
-UTIL/bldmake/src/cfg_module.o
-UTIL/bldmake/src/modelcfg.mod
-UTIL/bldmake/src/parser.o
-UTIL/bldmake/src/utils.o
+#unique to user; below section unlikely to add and commit to repository

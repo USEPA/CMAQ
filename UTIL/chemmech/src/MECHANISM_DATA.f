@@ -43,6 +43,7 @@
          INTEGER         :: ISPECIAL( MAXSPECRXNS,2 )
          INTEGER         :: NSPECIAL
          CHARACTER( 16 ) :: SPECIAL( MAXSPECRXNS )
+         INTEGER         :: MSPECTERMS                 ! highest number of terms in the expressions
 
          INTEGER         :: NKC_TERMS(  MAXSPECRXNS )
          CHARACTER( 16 ) :: KC_TERMS(   MAXSPECRXNS,  MAXSPECTERMS, 2)
@@ -91,13 +92,13 @@ c.. Variables for steady-state species
 
          CHARACTER( 16 ) RXLABEL( MAXRXNUM )   ! label for rx 
 
-         CHARACTER( 120 ) :: EQNAME_SPCS
-         CHARACTER( 120 ) :: EQNAME_RXDT
-         CHARACTER( 120 ) :: EQNAME_RXCM
-         CHARACTER( 120 ) :: FNAME_MODULE
-         CHARACTER( 120 ) :: FNAME_DATA_MODULE
-         CHARACTER( 120 ) :: FNAME_FUNC_MODULE
-         CHARACTER( 120 ) :: OUTDIR 
+         CHARACTER( 586 ) :: EQNAME_SPCS
+         CHARACTER( 586 ) :: EQNAME_RXDT
+         CHARACTER( 586 ) :: EQNAME_RXCM
+         CHARACTER( 586 ) :: FNAME_MODULE
+         CHARACTER( 586 ) :: FNAME_DATA_MODULE
+         CHARACTER( 586 ) :: FNAME_FUNC_MODULE
+         CHARACTER( 586 ) :: OUTDIR 
 
          INTEGER        ::  EXUNIT_SPCS
          INTEGER        ::  EXUNIT_RXDT
@@ -290,6 +291,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             
             NSPECIAL     = 0
             NSPECIAL_RXN = 0
+            MSPECTERMS   = 1
 
             DO ISPC = 1, MAXSPECRXNS
                ISPECIAL( ISPC,1 ) = 0

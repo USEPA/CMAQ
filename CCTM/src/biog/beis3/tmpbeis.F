@@ -81,7 +81,7 @@ C Pathname: $Source: /project/yoj/arc/CCTM/src/biog/beis3/tmpbeis.F,v $
 C Last updated: $Date: 2011/10/21 16:10:18 $ 
 C-----------------------------------------------------------------------
 
-      USE HGRD_DEFN             ! horizontal domain specifications
+      USE GRID_CONF             ! horizontal & vertical domain specifications
       USE UTILIO_DEFN
       USE BIOG_EMIS             ! beis
 
@@ -175,6 +175,9 @@ C Other variables:
 C for XTRACT3
       INTEGER       :: STRTCOLNB3, ENDCOLNB3, STRTROWNB3, ENDROWNB3  ! Normalized BEIS3
       INTEGER, SAVE :: STRTCOLBS,  ENDCOLBS,  STRTROWBS,  ENDROWBS   ! BIOSEASON
+      INTEGER, SAVE :: STRTCOLG,   ENDCOLG,   STRTROWG,   ENDROWG    ! GRID_CRO_2D
+      INTEGER, SAVE :: STRTCOLM,   ENDCOLM,   STRTROWM,   ENDROWM    ! MET_CRO_2D
+      INTEGER, SAVE :: STRTCOLD,   ENDCOLD,   STRTROWD,   ENDROWD    ! diagnostic
 
 #ifdef verbose_tmpbeis
       REAL,    ALLOCATABLE, SAVE :: EMISX( : )
@@ -265,7 +268,7 @@ C Check grid definition
             IF ( .NOT. CHKGRID( BNAME ) ) THEN
                MESG = 'Grid in file "' // TRIM( BNAME ) //
      &                '" does not match previously set grid.'
-               CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+               CALL M3WARN( PNAME, 0, 0, MESG )
             END IF
 
 C Get domain decomp info for the bioseasons switch file
@@ -299,8 +302,12 @@ C Check that grid description matches BGRD file
          IF ( .NOT. CHKGRID( MNAME ) ) THEN
             MESG = 'Grid in file "' // TRIM( MNAME )
      &           // '" does not match previously set grid.'
-            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+            CALL M3WARN( PNAME, 0, 0, MESG )
          END IF
+
+C Get domain decomp info for the bioseasons switch file
+         CALL SUBHFILE ( MNAME, GXOFF, GYOFF,
+     &                   STRTCOLM, ENDCOLM, STRTROWM, ENDROWM )
 
 C Write emissions diagnostic file?
          BEMIS_DIAG = ENVYN( 'B3GTS_DIAG', 'Write emissions diagnostic file?',
@@ -308,17 +315,34 @@ C Write emissions diagnostic file?
            
          IF ( BEMIS_DIAG ) THEN
 C Build description for, and open beis diagnostic file
-C (all but variables-table and horizontal domain in description is borrowed from MNAME)
             MDATE = SDATE; MTIME = STIME
             CALL NEXTIME( MDATE, MTIME, TSTEP( 1 ) )
+
+            GDNAM3D = GRID_NAME  ! from HGRD_DEFN
             SDATE3D = MDATE
             STIME3D = MTIME
             TSTEP3D = TSTEP( 1 )
-            XORIG3D = XORIG_GD
-            YORIG3D = YORIG_GD
             NCOLS3D = GL_NCOLS
             NROWS3D = GL_NROWS
-            NLAYS3D = 1
+            NLAYS3D =     1
+            NTHIK3D =     1
+            GDTYP3D = GDTYP_GD
+            P_ALP3D = P_ALP_GD
+            P_BET3D = P_BET_GD
+            P_GAM3D = P_GAM_GD
+            XORIG3D = XORIG_GD
+            YORIG3D = YORIG_GD
+            XCENT3D = XCENT_GD
+            YCENT3D = YCENT_GD
+            XCELL3D = XCELL_GD
+            YCELL3D = YCELL_GD
+            VGTYP3D = VGTYP_GD
+            VGTOP3D = VGTOP_GD
+
+            DO I = 1, NLAYS3D + 1
+               VGLVS3D( I ) = VGLVS_GD( I )
+            END DO
+  
 !           NVARS3D = MSPCS
             NVARS3D = N_SPC_BIOG
 
