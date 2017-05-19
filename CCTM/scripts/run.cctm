@@ -52,8 +52,8 @@
 # ==================================================================
 
 #> Choose compiler and set up CMAQ environment with correct 
-#> libraries using config.cmaq
- setenv compiler gcc             #> Options: intel | gcc | pgi
+#> libraries using config.cmaq. Options: intel | gcc | pgi
+ setenv compiler intel 
  source config.cmaq
 
 #> Set General Parameters for Labeling the Simulation
