@@ -40,8 +40,7 @@
 # =======================================================================
 
 #> Source Code Repository Location
- #setenv REPO_HOME $CMAQ_HOME/CMAQ
- setenv REPO_HOME /home/bmurphy/cmaq_src
+ setenv REPO_HOME $CMAQ_HOME/CMAQ
  setenv CCTM_SRC $REPO_HOME/CCTM/src  #> location of the CCTM source code
  set GlobInc = $CCTM_SRC/ICL           #> location of the global include files
  set Mechs   = $CCTM_SRC/MECHS         #> location of the chemistry mechanism include files
