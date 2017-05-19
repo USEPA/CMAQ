@@ -4,7 +4,7 @@
 
 #> CMAQv5.1 Mechanism Options: cb05tucl_ae6_aq cb05tump_ae6_aq cb05e51_ae6_aq saprc07tb_ae6_aq saprc07tc_ae6_aq  saprc07tic_ae6i_aq   racm2_ae6_aq 
  set Mechanism = racm2_ae6_aq          #> CMAQ mechanism ID
-#set BASE  = ../../../CCTM/src/MECHS
+ set REPO  = ../../CCTM/src/MECHS      #> Repository Directory with all mechanism data modules
  set BASE  = $cwd
  set XBASE = $BASE
 
@@ -14,7 +14,8 @@
  set OUTDIR = $BASE/output/csqy_table_${Mechanism}-${day}-${COMPILER}
 
 #> specify directory containing the mechanism modules or include files
- setenv GC_INC $BASE/input/$Mechanism
+ setenv GC_INC $REPO/$Mechanism         #> Repository Directory with the above mechanism data modules 
+#setenv GC_INC $BASE/input/$Mechanism   #> User Defined Directory with the above mechanism data modules
 
 #> use RXNS_DATA_MODULE, comment out if CMAQ v5.02 and keep if CMAQ v5.1 or higher
  setenv USE_RXNS_MODULES T
