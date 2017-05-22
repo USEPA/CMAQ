@@ -36,7 +36,7 @@ WDEP_NH3           ,kg/ha     ,NH3[2]
 DDEP_SO2           ,kg/ha     ,SO2[1]
 DDEP_O3            ,kg/ha     ,O3[1]
 WDEP_O3            ,kg/ha     ,O3[2]
-WDEP_PNA           ,kg/ha     ,PNA[2]   ! Peroxy-Nitric Acid
+WDEP_PNA           ,kg/ha     ,HNO4[2]   
 
 !---------------------------------------------------!
 !------------- Aerosol Deposition ------------------!

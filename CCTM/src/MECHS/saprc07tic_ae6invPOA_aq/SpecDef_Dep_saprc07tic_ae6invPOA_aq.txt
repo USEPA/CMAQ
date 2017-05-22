@@ -3,7 +3,7 @@
 #layer         1
 
 / File [1]: DRYDEP
-/ File [2]: WETDEP
+/ File [2]: WETDEP1
 / File [3]: METCRO2D
 /
 /new species       ,units     ,expression
@@ -40,7 +40,7 @@ WDEP_NH3           ,kg/ha     ,NH3[2]
 DDEP_SO2           ,kg/ha     ,SO2[1]
 DDEP_O3            ,kg/ha     ,O3[1]
 WDEP_O3            ,kg/ha     ,O3[2]
-WDEP_PNA           ,kg/ha     ,PNA[2]   ! Peroxy-Nitric Acid
+WDEP_PNA           ,kg/ha     ,HNO4[2]
 
 !---------------------------------------------------!
 !------------- Aerosol Deposition ------------------!
@@ -70,18 +70,6 @@ DDEP_AOCIJ         ,kg-C/ha   ,APOCI[1]       + APOCJ[1]                        
                               +AIMGAJ[1]/2.5   + AIMOSJ[1]/4.17  + AMTNO3J[1]/1.9   \
                               +AISOPNNJ[1]/3.8 + AMTHYDJ[1]/1.54 + AGLYJ[1]/2.13  
 
-!DDEP_SSSO4J        ,kg/ha     ,0.2514*ANAJ[1]
-!DDEP_SSSO4K        ,kg/ha     ,0.2514*DDEP_ANAK[0]
-!WDEP_SSSO4JK       ,kg/ha     ,0.2514*ANAJ[2] + 0.2514*WDEP_ANAK[0]
-
-
-!-----------------------------------------------------!
-!-------- Total (Gas + Aerosol) Deposition -----------!
-!-----------------------------------------------------!
-DDEP_NHX           ,kg/ha     ,ANH4I[1] + ANH4J[1] + ANH4K[1] + 1.059*NH3[1]
-WDEP_NHX           ,kg/ha     ,ANH4I[2] + ANH4J[2] + ANH4K[2] + 1.059*NH3[2]
-WDEP_TSO4          ,kg/ha     ,ASO4I[2] + ASO4J[2] + ASO4K[2] + 1.5*SO2[2]
-
 !! Sodium
 DDEP_ANAJ          ,kg/ha     ,ANAJ[1]
 DDEP_ANAK          ,kg/ha     ,0.8373*ASEACAT[1]+0.0626*ASOIL[1]+0.0023*ACORS[1]
@@ -89,6 +77,10 @@ DDEP_ANAJK         ,kg/ha     ,DDEP_ANAJ[0] + DDEP_ANAK[0]
 WDEP_ANAK          ,kg/ha     ,0.8373*ASEACAT[2]+0.0626*ASOIL[2]+0.0023*ACORS[2]
 WDEP_ANAJK         ,kg/ha     ,ANAJ[2] + WDEP_ANAK[0]
 TDEP_ANAJK         ,kg/ha     ,DDEP_ANAJK[0] + WDEP_ANAJK[0]
+
+DDEP_SSSO4J        ,kg/ha     ,0.2514*ANAJ[1]
+DDEP_SSSO4K        ,kg/ha     ,0.2514*DDEP_ANAK[0]
+WDEP_SSSO4JK       ,kg/ha     ,0.2514*ANAJ[2] + 0.2514*WDEP_ANAK[0]
 
 !! Chloride
 DDEP_ACLJ          ,kg/ha     ,ACLJ[1]
@@ -141,6 +133,12 @@ WDEP_KJK           ,kg/ha     ,AKJ[2]+WDEP_KK[0]
 DDEP_MNJ           ,kg/ha     ,AMNJ[1]
 WDEP_MNJ           ,kg/ha     ,AMNJ[2]
 
+!-----------------------------------------------------!
+!-------- Total (Gas + Aerosol) Deposition -----------!
+!-----------------------------------------------------!
+DDEP_NHX           ,kg/ha     ,ANH4I[1] + ANH4J[1] + ANH4K[1] + 1.059*NH3[1]
+WDEP_NHX           ,kg/ha     ,ANH4I[2] + ANH4J[2] + ANH4K[2] + 1.059*NH3[2]
+WDEP_TSO4          ,kg/ha     ,ASO4I[2] + ASO4J[2] + ASO4K[2] + 1.5*SO2[2]
 
 !---------------------------------------------------!
 !------------- Nitrogen Deposition -----------------!

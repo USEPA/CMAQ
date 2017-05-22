@@ -50,7 +50,7 @@ WDIR10          ,deg       ,WDIR10[4]
 !-------------------------------------------!
 !--------------- Gases ---------------------!
 !-------------------------------------------!
-ALD2            ,ppbV      ,1000.0*ALD2[1]
+ALD2            ,ppbV      ,1000.0*CCHO[1]
 BENZENE         ,ppbV      ,1000.0*BENZENE[1]
 CO              ,ppbV      ,1000.0*CO[1]
 ETH             ,ppbV      ,1000.0*ETHENE[1]
@@ -77,6 +77,8 @@ ISOPNTOT        ,ppbV      ,1000.0*(ISOPND[1]+ISOPNB[1]+NIT1[1]+NISOPOOH[1]+MVKN
                            +MACRN[1]+ETHLN[1]+RNO3I[1]+PROPNN[1]+2.0*ISOPNN[1])
 ANTOT           ,ppbv      ,ISOPNTOT[0]+(RNO3[1]+MTNO3[1])*1000.0
 NTR             ,ppbV      ,ISOPNTOT[0]+1000.0*(RNO3[1]+MTNO3[1])
+PANTOT          ,ppbv      ,(PAN[1]+PAN2[1]+PBZN[1]+MAPAN[1]+IMAPAN[1])*1000.0
+CLNTOT          ,ppbV      ,1000.*(CLNO[1]+CLONO[1]+CLNO2[1]+CLONO2[1])
 NOY             ,ppbV      ,1000.0*(NO[1]+NO2[1]+NO3[1]+2*N2O5[1]+HONO[1]+HNO3[1]+HNO4[1])+ANTOT[0]+PANTOT[0]+CLNTOT[0]+ANO3_PPB[0]
 NOY_NOPM        ,ppbV      ,1000.0*(NO[1]+NO2[1]+NO3[1]+2*N2O5[1]+HONO[1]+HNO3[1]+HNO4[1])+ANTOT[0]+PANTOT[0]+CLNTOT[0]
 O3              ,ppbV      ,1000.0*O3[1]
@@ -159,12 +161,12 @@ ASOCJ           ,ugC/m3    ,AXYL1J[1]/2.42 + AXYL2J[1]/1.93 + AXYL3J[1]/2.30 \
                            +AIMGAJ[1]/2.5   + AIMOSJ[1]/4.17  + AMTNO3J[1]/1.9 \
                            +AISOPNNJ[1]/3.8 + AMTHYDJ[1]/1.54 + AGLYJ[1]/2.13  
                             
-ASOMIJ           ,ug/m3    ,AXYL1J[1]+AXYL2J[1]+AXYL3J[1]+ATOL1J[1]+ATOL2J[1]+ATOL3J[1] \
+ASOMJ           ,ug/m3     ,AXYL1J[1]+AXYL2J[1]+AXYL3J[1]+ATOL1J[1]+ATOL2J[1]+ATOL3J[1] \
                            +ABNZ1J[1]+ABNZ2J[1]+ABNZ3J[1]+AISO1J[1]+AISO2J[1]+AISO3J[1] \
                            +ATRP1J[1]+ATRP2J[1]+ASQTJ[1]+AALK1J[1]+AALK2J[1]            \
                            +AORGCJ[1]+AOLGBJ[1]+AOLGAJ[1] \
                            +APAH1J[1]+APAH2J[1]+APAH3J[1]+AIETETJ[1]+AIEOSJ[1]+ADIMJ[1] \
-                           +AIMGAJ[1]+AIMOSJ[1]+AMTNO3J[1]+AISOPNNJ[1]+AMTHYDJ[1]+AGLYJ[1] \
+                           +AIMGAJ[1]+AIMOSJ[1]+AMTNO3J[1]+AISOPNNJ[1]+AMTHYDJ[1]+AGLYJ[1] 
 AOCI            ,ugC/m3    ,APOCI[1]
 AOCJ            ,ugC/m3    ,APOCJ[1]  + ASOCJ[0]
 AOCIJ           ,ugC/m3    ,APOCIJ[0] + ASOCJ[0]
@@ -201,10 +203,10 @@ ATOTJ           ,ug/m3     ,ASO4J[1]+ANO3J[1]+ANH4J[1]+ANAJ[1]+ACLJ[1] \
 ATOTK           ,ug/m3     ,ASOIL[1]+ACORS[1]+ASEACAT[1]+ACLK[1]+ASO4K[1] \
                            +ANO3K[1]+ANH4K[1]
 ATOTIJ          ,ug/m3     ,ATOTI[0]+ATOTJ[0]
-ATOTIJK         ,ug/m3     ,PMIJ[0]+ATOTK[0]
+ATOTIJK         ,ug/m3     ,ATOTI[0]+ATOTJ[0]+ATOTK[0]
 
 !! Unspeciated PM including non-carbon organic mass
-AUNSPEC1IJ      ,ug/m3     ,PMIJ[0] - (ASOILJ[0] + ANO3IJ[0] + ASO4IJ[0] + ANH4IJ[0] \
+AUNSPEC1IJ      ,ug/m3     ,ATOTIJ[0] - (ASOILJ[0] + ANO3IJ[0] + ASO4IJ[0] + ANH4IJ[0] \
                                       +AOCIJ[0]  + AECIJ[0]  + ANAIJ[0]  + ACLIJ[0])
 !! Non-Carbon Organic Mass
 ANCOMIJ         ,ug/m3     ,AOMIJ[0]-AOCIJ[0]
@@ -263,11 +265,11 @@ PMC_NA          ,ug/m3     ,ANAIJ[0]+ANAK[0]-PM25_NA[0]
 PMC_NH4         ,ug/m3     ,ANH4I[1]+ANH4J[1]+ANH4K[1]-PM25_NH4[0]
 PMC_NO3         ,ug/m3     ,ANO3I[1]+ANO3J[1]+ANO3K[1]-PM25_NO3[0]
 PMC_SO4         ,ug/m3     ,ASO4I[1]+ASO4J[1]+ASO4K[1]-PM25_SO4[0]
-PMC_TOT         ,ug/m3     ,PMIJK[0]-PM25_TOT[0]
+PMC_TOT         ,ug/m3     ,ATOTIJK[0]-PM25_TOT[0]
 
 !! FRM PM Equivalent Calculation
 !! This section calculates the FRM applicable PM species, PMIJ_FRM and
-!! PM25_FRM. The intermediate variablse K...ANH4IJ_loss are needed to 
+!! PM25_FRM. The intermediate variables K...ANH4IJ_loss are needed to 
 !! calculate the final quantities.
 K               ,ppb^2	   ,exp(118.87-24084/TEMP2[4]-6.025*log(TEMP2[4]))
 P1              ,          ,exp(8763/TEMP2[4]+19.12*log(TEMP2[4])-135.94)
@@ -281,7 +283,7 @@ PM25_NO3_loss   ,ug/m3     ,max_NO3_loss[0]<=PM25_NO3[0] ? max_NO3_loss[0] : PM2
 ANO3IJ_loss     ,ug/m3     ,max_NO3_loss[0]<=ANO3IJ[0] ? max_NO3_loss[0] : ANO3IJ[0]
 PM25_NH4_loss   ,ug/m3     ,PM25_NO3_loss[0]*(18/62)
 ANH4IJ_loss     ,ug/m3     ,ANO3IJ_loss[0]*(18/62)
-PMIJ_FRM        ,ug/m3     ,PMIJ[0]-(ANO3IJ_loss[0]+ANH4IJ_loss[0]) \
+PMIJ_FRM        ,ug/m3     ,ATOTIJ[0]-(ANO3IJ_loss[0]+ANH4IJ_loss[0]) \
                             +0.24*(ASO4IJ[0]+ANH4IJ[0]-ANH4IJ_loss[0])+0.5
 PM25_FRM        ,ug/m3     ,PM25_TOT[0]-(PM25_NO3_loss[0]+PM25_NH4_loss[0]) \
                             +0.24*(PM25_SO4[0]+PM25_NH4[0]-PM25_NH4_loss[0])+0.5
