@@ -243,10 +243,10 @@ ATOTJ           ,ug/m3     ,ASO4J[1]+ANO3J[1]+ANH4J[1]+ANAJ[1]+ACLJ[1] \
 ATOTK           ,ug/m3     ,ASOIL[1]+ACORS[1]+ASEACAT[1]+ACLK[1]+ASO4K[1] \
                            +ANO3K[1]+ANH4K[1]
 ATOTIJ          ,ug/m3     ,ATOTI[0]+ATOTJ[0]
-ATOTIJK         ,ug/m3     ,PMIJ[0]+ATOTK[0]
+ATOTIJK         ,ug/m3     ,ATOTIJ[0]+ATOTK[0]
 
 !! Unspeciated PM including non-carbon organic mass
-AUNSPEC1IJ      ,ug/m3     ,PMIJ[0] - (ASOILJ[0] + ANO3IJ[0] + ASO4IJ[0] + ANH4IJ[0] \
+AUNSPEC1IJ      ,ug/m3     ,ATOTIJ[0] - (ASOILJ[0] + ANO3IJ[0] + ASO4IJ[0] + ANH4IJ[0] \
                                       +AOCIJ[0]  + AECIJ[0]  + ANAIJ[0]  + ACLIJ[0])
 !! Non-Carbon Organic Mass
 ANCOMIJ         ,ug/m3     ,AOMIJ[0]-AOCIJ[0]
@@ -305,7 +305,7 @@ PMC_NA          ,ug/m3     ,ANAIJ[0]+ANAK[0]-PM25_NA[0]
 PMC_NH4         ,ug/m3     ,ANH4I[1]+ANH4J[1]+ANH4K[1]-PM25_NH4[0]
 PMC_NO3         ,ug/m3     ,ANO3I[1]+ANO3J[1]+ANO3K[1]-PM25_NO3[0]
 PMC_SO4         ,ug/m3     ,ASO4I[1]+ASO4J[1]+ASO4K[1]-PM25_SO4[0]
-PMC_TOT         ,ug/m3     ,PMIJK[0]-PM25_TOT[0]
+PMC_TOT         ,ug/m3     ,ATOTIJK[0]-PM25_TOT[0]
 
 !! Deisel PM Species
 DIESEL_PM10     ,ng/m3     ,1000.0*(ADE_OTHRI[1]+ADE_OTHRJ[1]+ADE_ECI[1]+ADE_ECJ[1]+ADE_OCI[1]+ADE_OCJ[1]+ADE_SO4J[1]+ADE_NO3J[1]+ADE_K[1])
@@ -351,7 +351,7 @@ PM25_NO3_loss   ,ug/m3     ,max_NO3_loss[0]<=PM25_NO3[0] ? max_NO3_loss[0] : PM2
 ANO3IJ_loss     ,ug/m3     ,max_NO3_loss[0]<=ANO3IJ[0] ? max_NO3_loss[0] : ANO3IJ[0]
 PM25_NH4_loss   ,ug/m3     ,PM25_NO3_loss[0]*(18/62)
 ANH4IJ_loss     ,ug/m3     ,ANO3IJ_loss[0]*(18/62)
-PMIJ_FRM        ,ug/m3     ,PMIJ[0]-(ANO3IJ_loss[0]+ANH4IJ_loss[0]) \
+PMIJ_FRM        ,ug/m3     ,ATOTIJ[0]-(ANO3IJ_loss[0]+ANH4IJ_loss[0]) \
                             +0.24*(ASO4IJ[0]+ANH4IJ[0]-ANH4IJ_loss[0])+0.5
 PM25_FRM        ,ug/m3     ,PM25_TOT[0]-(PM25_NO3_loss[0]+PM25_NH4_loss[0]) \
                             +0.24*(PM25_SO4[0]+PM25_NH4[0]-PM25_NH4_loss[0])+0.5
