@@ -1,20 +1,16 @@
 &EPA 
 
-""'"""" ... ,.cm:::<> 
 Environmental Protection 
 Agency 
 
-umce ot Hesearch and 
-Development 
+Office of Research and Development 
 Washington DC 20460 
 
 EPA/600/R-99/030 
 March 1999 
 
-Science Alg<>rithms of the 
-EPA Models-3 Community 
-Multiscale Aiir Quality 
-(CMAQ) Modeling System 
+Science Algorithms of the EPA Models-3 Community 
+Multiscale Aiir Quality (CMAQ) Modeling System 
 
 United States 
 Environmental Protection 
@@ -44,54 +40,25 @@ U.S. Environmental Protection Agency
 
 Research Triangle Park, NC 27711 
 
-*On assignment from the National Oceanic and Atmospheric Administration, U.S. Department of 
-Commerce 
-
-@  Printed on Recycled Paper 
+On assignment from the National Oceanic and Atmospheric Administration, U.S. Department of Commerce @  Printed on Recycled Paper 
 
 DISCLAIMER 
 
 BP A/600/R-99/030 
 
-The information in this document has been funded wholly. or in part by the United States 
-Environmental Protection Agency.  It has been subjected to the Agency's peer and administrative 
-review, and has been approved for publication as an EPA document.  Mention of trade names or 
-commercial products does not constitute endorsement nor recommendation for use. 
+The information in this document has been funded wholly. or in part by the United States Environmental Protection Agency.  It has been subjected to the Agency's peer and administrative review, and has been approved for publication as an EPA document.  Mention of trade names or commercial products does not constitute endorsement nor recommendation for use. 
 
 FOREWORD 
 
-The Models-3 Community Multiscale Air Quality (CMAQ) modeling system has been developed 
-under the leadership of the Atmospheric Modeling Division of the EPA National Exposure 
-Research Laboratory in Research Triangle Park, NC.  This new generation of modeling software 
-was under development for seven years and was made available in June 1998 without charge for 
-use by air quality regulators, policy makers, industry, and scientists to address multiscale, 
-multi-pollutant air quality concerns. 
+The Models-3 Community Multiscale Air Quality (CMAQ) modeling system has been developed under the leadership of the Atmospheric Modeling Division of the EPA National Exposure Research Laboratory in Research Triangle Park, NC.  This new generation of modeling software was under development for seven years and was made available in June 1998 without charge for use by air quality regulators, policy makers, industry, and scientists to address multiscale, multi-pollutant air quality concerns. 
 
-Models-3/CMAQ has a unique framework and science design that enables scientists and 
-regulators to build their own modeling system to suit their needs.  Users can access pre-installed 
-modeling systems provided by the EPA or can incorporate their own modeling systems to work 
-within the existing framework software. 
+Models-3/CMAQ has a unique framework and science design that enables scientists and regulators to build their own modeling system to suit their needs.  Users can access pre-installed modeling systems provided by the EPA or can incorporate their own modeling systems to work within the existing framework software. 
 
-This direct user involvement is key to the concept of a community modeling and analysis 
-system.  This approach to model development, application, and analysis leverages the 
-community's complementary talents and resources to set new standards for rapid incorporation of 
-better science into air quality model applications.  The resulting comprehensive system forms the 
-foundation upon which the community, including governments, industry, academia, and other 
-stakeholders, can collaborate in the examination of issues and the subsequent development of 
-strategies that meet society challenges of environmental protection. 
+This direct user involvement is key to the concept of a community modeling and analysis system.  This approach to model development, application, and analysis leverages the community's complementary talents and resources to set new standards for rapid incorporation of better science into air quality model applications.  The resulting comprehensive system forms the foundation upon which the community, including governments, industry, academia, and other stakeholders, can collaborate in the examination of issues and the subsequent development of strategies that meet society challenges of environmental protection. 
 
-The release of Models-3/CMAQ is one of the many steps which we hope will unite the 
-community under the common goal of advancing our knowledge and abilities to tackle critical 
-problems of the future in far more effective ways than have been attempted in the past. 
-Scientifically sound modeling systems, developed and supported by the community, are one 
-method of achieving this goal. 
+The release of Models-3/CMAQ is one of the many steps which we hope will unite the community under the common goal of advancing our knowledge and abilities to tackle critical problems of the future in far more effective ways than have been attempted in the past.  Scientifically sound modeling systems, developed and supported by the community, are one method of achieving this goal. 
 
-The June 1998 release of the Models-3/CMAQ computer code was accompanied by a User 
-Manual [EP A-600/R-98/069(b)] to serve as a reference on how to use the software system.  This 
-Science Document is the counterpart to the User Manual in that it presents the peer reviewed 
-scientific bases for the Models-3/CMAQ modeling systems.  This document also includes 
-components such as interface processors, process analysis routines, and the present and planned 
-evaluation program. 
+The June 1998 release of the Models-3/CMAQ computer code was accompanied by a User Manual [EP A-600/R-98/069(b)] to serve as a reference on how to use the software system.  This Science Document is the counterpart to the User Manual in that it presents the peer reviewed scientific bases for the Models-3/CMAQ modeling systems.  This document also includes components such as interface processors, process analysis routines, and the present and planned evaluation program.  
 
 F. A.  Schiermeier 
 March 1999 
@@ -117,8 +84,7 @@ EXECUTIVE SUMMARY  .................................................. ES-1
 1.3 
 1.4 
 
-INTRODUCTION TO THE MODELS-3 FRAMEWORK AND THE 
-COMMUNITY MULTISCALE AIR QUALITY MODEL (CMAQ) 
+INTRODUCTION TO THE MODELS-3 FRAMEWORK AND THE COMMUNITY MULTISCALE AIR QUALITY MODEL (CMAQ) 
 (J.  Ching and D.  Byun) 
 Abstract  . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  1-1 
 1.0 
