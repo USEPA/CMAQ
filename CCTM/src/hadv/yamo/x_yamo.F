@@ -50,6 +50,7 @@ C   21 Jun 2010: Jeff Young: convert for Namelist redesign
 C   16 Feb 2011: Shawn Roselle: replaced I/O API include files with UTILIO_DEFN
 C   26 Aug 2015: Jon Pleim: Add CFL correction for yamo
 C   19 Oct 2015: Jeff Young: Remove stmnt func to resolve PGI compiler error
+C   17 May 2017: David Wong: Added a logic to avoid division of zero for variable VELX
 C-----------------------------------------------------------------------
 
       USE HGRD_DEFN             ! horizontal domain specifications
@@ -352,7 +353,9 @@ C direction to receive from: NORTH,SOUTH,EAST,WEST       X     X      X
             END IF
 
 C check adjusted velocities for Courant limited max timestep
-            DTCFL = MIN ( DTCFL, 0.9 * DX1 / ABS( VELX( COL ) ) )
+            IF (VELX(COL) .NE. 0.0) THEN
+               DTCFL = MIN ( DTCFL, 0.9 * DX1 / ABS( VELX( COL ) ) )
+            END IF
 
 !           if ( velx( col ) .lt. 0.0 ) then
 !              if ( adjfac .lt. 0.70 .or. adjfac .gt. 1.36 ) then

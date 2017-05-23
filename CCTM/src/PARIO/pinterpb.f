@@ -58,6 +58,8 @@ C             allocating new memory space
 C       Modified 02/23/2011 by Shawn Roselle
 C          -- Replaced I/O API include files with M3UTILIO; removed
 C             deprecated TRIMLEN
+C       Modified 05/18/2017 by David Wong
+C          -- added a logic to reduce number of calls to OPEN3 and DESC3
  
 C Argument List Description:
 C In:
@@ -128,6 +130,7 @@ C Include Files
 
 !     INCLUDE 'PIODECL3.EXT'     ! I/O definitions and declarations
       INCLUDE 'PIOGRID.EXT'      ! Parallel grid-related variables
+      INCLUDE 'STATE3.EXT'
 !     INCLUDE 'PINTERPB.EXT'     ! Variables for parallel file reading
   
 C Arguments:
@@ -182,7 +185,7 @@ C Local Variables:
       INTEGER        NLAYS        ! Local PE layer dimension of VARRAY
       INTEGER        NBNDY        ! Local PE boundary dimension of VARRAY
       INTEGER        MBUFSIZE     ! Message buffer size
-      INTEGER, SAVE :: LOGDEV     ! Unit number for log file
+      INTEGER, SAVE :: LLOGDEV    ! Unit number for log file
       INTEGER        STATUS       ! Status returned from routine ENVYN
 
       SAVE  MBUFSIZE
@@ -190,6 +193,15 @@ C Local Variables:
       CHARACTER( 80 ) :: MSG      ! Buffer for building error messages
       CHARACTER( 16 ) :: FIL16    ! Scratch area for file-name
       CHARACTER( 16 ) :: VAR16    ! Scratch area for vble-name
+
+      CHARACTER( 16 ), SAVE :: FIL16_OLD   ! previous file name
+      INTEGER :: F_FID                     ! file id associated with incoming FILNAME
+      INTEGER :: F_FTYPE                   ! file type of incoming FILNAME
+      INTEGER :: C_FTYPE                   ! current file type within DESC3
+      CHARACTER( 16 ) :: F_VNAME           ! frist variable name in the incoming FILNAME
+      CHARACTER( 16 ) :: C_VNAME           ! current first variable name within DESC3
+
+      INTEGER, EXTERNAL :: NAME2FID
 
       LOGICAL        NEWVAR       ! Flag to indicate new variable
 
@@ -207,7 +219,8 @@ C........................................................................
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
 
-         LOGDEV = INIT3()
+         FIL16_OLD = ' '
+         LLOGDEV = INIT3()
 
 C Allocate memory for read and message buffers
 
@@ -248,20 +261,36 @@ C Initialize (static) character*33 array VLISTHD
 C Open the file
 
       FIL16 = FILNAME
-      IF ( .NOT. OPEN3( FIL16, FSREAD3, 'PINTERPB' ) ) THEN
-         MSG = 'Could not open '// TRIM( FIL16 )
-         CALL M3WARN ( 'PINTERPB', JDATE, JTIME, MSG )
-         PINTERPB = .FALSE.; RETURN
+
+      F_FID  = NAME2FID( FIL16 )
+      IF (F_FID .NE. 0) THEN
+         F_VNAME = VLIST3( 1, F_FID )
+         F_FTYPE = FTYPE3(F_FID)
+      ELSE
+         F_VNAME = ' '
+         F_FTYPE = -1
       END IF
+
+      C_VNAME = VNAME3D( 1 )
+      C_FTYPE = FTYPE3D
+
+      IF ((FIL16 .NE. FIL16_OLD) .OR.(F_VNAME .NE. C_VNAME) .OR. (F_FTYPE .NE. C_FTYPE)) THEN
+         IF ( .NOT. OPEN3( FIL16, FSREAD3, 'PINTERPB' ) ) THEN
+            MSG = 'Could not open '// TRIM( FIL16 )
+            CALL M3WARN ( 'PINTERPB', JDATE, JTIME, MSG )
+            PINTERPB = .FALSE.; RETURN
+         END IF
 
 C Get the file description
 
-      IF ( .NOT. DESC3( FIL16 ) ) THEN
-         MSG = 'Could not get '// TRIM( FIL16 ) //
-     &         ' file description'
-         CALL M3WARN ( 'PINTERPB', JDATE, JTIME, MSG )
-         PINTERPB = .FALSE.; RETURN
+         IF ( .NOT. DESC3( FIL16 ) ) THEN
+            MSG = 'Could not get '// TRIM( FIL16 ) //
+     &            ' file description'
+            CALL M3WARN ( 'PINTERPB', JDATE, JTIME, MSG )
+            PINTERPB = .FALSE.; RETURN
+         END IF
       END IF
+      FIL16_OLD = FIL16
 
 C Check that variable is on file
 
@@ -442,7 +471,7 @@ C Check calling dimension against file header dimensions
 
          IF ( NLAYS .NE. NLAYS3D ) THEN
             MSG = 'Mismatch between VSIZE and file dimensions.'
-            WRITE( LOGDEV,9020 ) VSIZE, NBNDY, NLAYS3D 
+            WRITE( LLOGDEV,9020 ) VSIZE, NBNDY, NLAYS3D 
             CALL M3WARN ( 'PINTERPB', JDATE, JTIME, MSG )
             PINTERPB = .FALSE.; RETURN
          END IF
