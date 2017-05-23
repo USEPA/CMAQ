@@ -1,3 +1,9 @@
+<!-- BEGIN COMMENT --> 
+
+[<< Previous Chapter](CMAQ_Science_Ch_03.md) - [Home](README.md) - [Next Chapter >>](CMAQ_Science_Ch_05.md)
+
+<!-- END COMMENT -->
+
 Chapter 4 
 =============
 
@@ -10830,3 +10836,11 @@ Soils in the United States, J.  Gaffes.  Res., 97, 7511-7519.
 
 Yienger, J.J. and  H. Levy II, 1995: Empirical Model of Global Soil-Biogenic Nox Emissions, J. 
 Gaffes.  Res., 100, No. D6, 11447-11464. 
+
+<!-- BEGIN COMMENT -->
+
+[<< Previous Chapter](CMAQ_Science_Ch_03.md) - [Home](README.md) - [Next Chapter >>](CMAQ_Science_Ch_05.md)<br>
+CMAQ Science Document (c) 1999<br>
+
+<!-- END COMMENT -->
+

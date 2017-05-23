@@ -1,3 +1,9 @@
+<!-- BEGIN COMMENT --> 
+
+[<< Previous Chapter](CMAQ_Science_Ch_06.md) - [Home](README.md) - [Next Chapter >>](CMAQ_Science_Ch_08.md)
+
+<!-- END COMMENT -->
+
 Chapter 7 
 ==============
 
@@ -3662,3 +3668,11 @@ different computing platforms are not.ed.
 ggb@hpcc.epa.gov 
 
 ··on assignment from the National Oceanic and Atmospheric Administration, U.S. Department of Commerce. 
+
+<!-- BEGIN COMMENT -->
+
+[<< Previous Chapter](CMAQ_Science_Ch_06.md) - [Home](README.md) - [Next Chapter >>](CMAQ_Science_Ch_08.md)<br>
+CMAQ Science Document (c) 1999<br>
+
+<!-- END COMMENT -->
+

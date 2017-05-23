@@ -1,6 +1,6 @@
 <!-- BEGIN COMMENT -->
 
-[<< Previous Chapter](Science_1999_Ch_01.md) - [Home](README.md) - [Next Chapter >>](Science_1999_Ch_03.md)
+[<< Previous Chapter](CMAQ_Science_Ch_01.md) - [Home](README.md) - [Next Chapter >>](CMAQ_Science_Ch_03.md)
 
 <!-- END COMMENT -->
 
@@ -444,7 +444,7 @@ Office of Research and Development, by Alpine Geophysics, Boulder, CO (1994).
 
 <!-- BEGIN COMMENT -->
 
-[<< Previous Chapter](Science_1999_Ch_01.md) - [Home](README.md) - [Next Chapter >>](Science_1999_Ch_03.md)<br>
+[<< Previous Chapter](CMAQ_Science_Ch_01.md) - [Home](README.md) - [Next Chapter >>](CMAQ_Science_Ch_03.md)<br>
 CMAQ Science Document (c) 1999<br>
 
 <!-- END COMMENT -->

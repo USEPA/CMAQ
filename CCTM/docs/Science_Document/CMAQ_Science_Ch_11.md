@@ -1,3 +1,9 @@
+<!-- BEGIN COMMENT --> 
+
+[<< Previous Chapter](CMAQ_Science_Ch_10.md) - [Home](README.md) - [Next Chapter >>](CMAQ_Science_Ch_12.md)
+
+<!-- END COMMENT -->
+
 Chapter 11 
 ===========
 
@@ -528,3 +534,11 @@ in a mesoscale model. Mon.  Wea.  Rev., 125, 252-278.
 
 Weisman, L.M., W.C. Skamarock and J.B. Klemp,  1997.  The resolution dependence of 
 explicitly modeled convective systems, Mon.  Wea.  Rev., 125, 527-548. 
+
+<!-- BEGIN COMMENT -->
+
+[<< Previous Chapter](CMAQ_Science_Ch_10.md) - [Home](README.md) - [Next Chapter >>](CMAQ_Science_Ch_12.md)<br>
+CMAQ Science Document (c) 1999<br>
+
+<!-- END COMMENT -->
+

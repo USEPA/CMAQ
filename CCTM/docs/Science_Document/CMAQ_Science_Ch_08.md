@@ -1,3 +1,9 @@
+<!-- BEGIN COMMENT --> 
+
+[<< Previous Chapter](CMAQ_Science_Ch_07.md) - [Home](README.md) - [Next Chapter >>](CMAQ_Science_Ch_09.md)
+
+<!-- END COMMENT -->
+
 Chapter 8
 =================
 
@@ -20379,3 +20385,11 @@ k(200)  =  1.0000E-13
 
 
 PLUME-IN-GRID TREATMENT OF MAJOR POINT SOURCE EMISSIONS 
+
+<!-- BEGIN COMMENT -->
+
+[<< Previous Chapter](CMAQ_Science_Ch_07.md) - [Home](README.md) - [Next Chapter >>](CMAQ_Science_Ch_09.md)<br>
+CMAQ Science Document (c) 1999<br>
+
+<!-- END COMMENT -->
+

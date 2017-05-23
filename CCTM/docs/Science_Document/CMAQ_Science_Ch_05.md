@@ -1,3 +1,9 @@
+<!-- BEGIN COMMENT --> 
+
+[<< Previous Chapter](CMAQ_Science_Ch_04.md) - [Home](README.md) - [Next Chapter >>](CMAQ_Science_Ch_06.md)
+
+<!-- END COMMENT -->
+
 Chapter 5
 ================
 
@@ -2426,3 +2432,11 @@ obtain the continuity equation in differential equation fonn for the time-depend
 coordinate as follows: 
 
 - (5A-37) 
+
+<!-- BEGIN COMMENT -->
+
+[<< Previous Chapter](CMAQ_Science_Ch_04.md) - [Home](README.md) - [Next Chapter >>](CMAQ_Science_Ch_06.md)<br>
+CMAQ Science Document (c) 1999<br>
+
+<!-- END COMMENT -->
+

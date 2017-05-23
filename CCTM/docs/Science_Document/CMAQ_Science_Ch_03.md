@@ -1,3 +1,9 @@
+<!-- BEGIN COMMENT -->
+
+[<< Previous Chapter](CMAQ_Science_Ch_02.md) - [Home](README.md) - [Next Chapter >>](CMAQ_Science_Ch_04.md)
+
+<!-- END COMMENT -->
+
 Chapter 3 
 =======================
 
@@ -687,3 +693,11 @@ Zhang, D.-L., and R. A. Anthes, 1982: A high-resolution model of the planetary b
 
 Zhang, D.-L., H.-R. Chang, N. L.  Seaman, T. T. Warner, and J.  M; Fritsch, 1986: A two-way 
 interactive nesting procedure with variable terrain resolution.  Mon.  Wea.  Rev., 114, 1330-1339. 
+
+<!-- BEGIN COMMENT -->
+
+[<< Previous Chapter](CMAQ_Science_Ch_02.md) - [Home](README.md) - [Next Chapter >>](CMAQ_Science_Ch_04.md)<br>
+CMAQ Science Document (c) 1999<br>
+
+<!-- END COMMENT -->
+
