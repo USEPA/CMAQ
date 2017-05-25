@@ -303,11 +303,11 @@
 
       Write( lfn, '(/" LIB = ",a)' ) Trim( lib_base )
       Write( lfn, '( " include_path = -I $(LIB)/",a,1x,a)' ) Trim( lib_1 ), backslash 
-      If ( serial ) Then
-         Write( lfn, '( "                -I $(LIB)/",a,1x,a)' ) Trim( lib_2 )
-      Else
+      If ( l_lib_3 ) Then
          Write( lfn, '( "                -I $(LIB)/",a,1x,a)' ) Trim( lib_2 ), backslash 
          Write( lfn, '( "                -I $(LIB)/",a)' )      Trim( lib_3 )
+      Else
+         Write( lfn, '( "                -I $(LIB)/",a,1x,a)' ) Trim( lib_2 )
       End If
 
       Write( lfn, '(/" WARN = ")' )
