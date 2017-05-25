@@ -387,7 +387,7 @@ Both in-line emissions and photolysis are invoked through compile-time configura
 |CROPMAP08|GRDDED3|Gridded harvesting end dates for estimating dust emissions from erodible cropland; produced by the CMAQ preprocessor Cropcal|
 |LTNGNO|GRDDED3|Lightning NO emissions file with rate of production (moles/sec) for each model layer at each time step|
 |NLDN_STRIKES|GRDDED3|Hourly observed lightning strikes (km<sup>-2</sup>) gridded to the CCTM domain.|
-|LTNGPARMS_FILE|GRDDED3|Time-independent, gridded lightning parameters file that includes monthly flash count totals, scaling factors for calculating flashes using the convective precipitation rate, ratio of intercloud to cloud-to-ground flashes, and moles of NO per flash|
+|LTNGPARMS_FILE|GRDDED3|Time-independent, gridded lightning parameters file that includes the regression parameters derived from historical NLDN observations and WRF predicted convective precipitations using Kain-Fritsch convective scheme, ocean masks, and the ratio of intercloud to cloud-to-ground flashes|
 |BELD4_LU|GRDDED3|BELD4 land use file with fractional crop distributions gridded to the modeling domain|
 |E2C_SOIL|GRDDED3|EPIC soil properties file for each crop type gridded to the modeling domain. This time-independent file contains the soil pH for each agricultural crop being modeled for the 1‑cm surface layer and 10-cm tilled layer|
 |E2C_FERT|GRDDED3|EPIC crop type file gridded to the modeling domain. This file contains the initial soil ammonium concentrations for the first day of the simulation estimated by EPIC and the fertilizer application depth and rate|
@@ -425,8 +425,8 @@ Both in-line emissions and photolysis are invoked through compile-time configura
 |B3GTS_S|GRDDED3|Hourly biogenic emissions file; output when in-line biogenic emissions processing is activated by setting CTM_BIOGEMIS to “Y” and the variable B3GTS_DIAG is set to “Y” in the CCTM run script|
 |SOILOUT|GRDDED3|Hourly soil NO emissions file; output when in-line biogenic emissions processing is activated by setting CTM_BIOGEMIS to “Y”|
 |CTM_DUST_EMIS_1|GRDDED3|Hourly 2-D dust emissions file; output when the CCTM dust module is activated by setting CTM_WB_DUST to “Y” and the variable CTM_DUSTEM_DIAG is set to “Y” in the CCTM run script|
-|LTNGOUT1|GRDDED3|Hourly average 3-D lighting NO emissions file; output when the CCTM lightning module is activated by setting CTM_LTNG_NO to “Y” and the variable LTNGDIAG is set to “Y” in the CCTM run script|
-|LTNGOUT2|GRDDED3|Hourly column toal NO lighting emissions file; output when the CCTM lightning module is activated by setting CTM_LTNG_NO to “Y” and the variable LTNGDIAG is set to “Y” in the CCTM run script|
+|CTM_LTNG_DIAG1|GRDDED3|Hourly average 3-D lighting NO emissions file; output when the CCTM lightning module is activated by setting CTM_LTNG_NO to “Y” and the variable LTNGDIAG is set to “Y” in the CCTM run script|
+|CTM_LTNG_DIAG2|GRDDED3|Hourly column toal NO lighting emissions file; output when the CCTM lightning module is activated by setting CTM_LTNG_NO to “Y” and the variable LTNGDIAG is set to “Y” in the CCTM run script|
 |CTM_PT3D_DIAG|GRDDED3|Hourly 3-D point-source emissions file; output when in-line emissions processing is activated by setting CTM_PT3DEMIS to “Y” and the variable PT3DDIAG is set to “Y” in the CCTM run script|
 |PLAY_SRCID_NAME|GRDDED3|Hourly 3-D layer fractions file; output when in-line emissions processing is activated by setting CTM_PT3DEMIS to “Y” and the variable PT3DFRAC is set to “Y” in the CCTM run script|
 |CTM_DRY_DEP_MOS|GRDDED3||
