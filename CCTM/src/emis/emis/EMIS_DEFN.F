@@ -1016,7 +1016,7 @@ C Compare with Gas, Aerosol, Nonreactive, and Tracer Species
                 ALLOCATE( GC_EMIS_WRITE( COUNT( GC_EMIS_MISSING ) ))
                 GC_EMIS_WRITE = PACK( GC_EMIS(1:N_GC_EMIS), GC_EMIS_MISSING )
 
-                WRITE( LOGDEV, '(/,A48,/,2x,A51,/,2x,A42,/,5(5x,A8))'),
+                WRITE( LOGDEV, '(/,A48,/,2x,A51,/,2x,A42,/,5(5x,A16))'),
      &             'The following GAS emission surrogate species are',
      &             'not present from any of the Area, Point, Biogenic,',
      &             'Marine Gas, or Lightning emissions sources:',
@@ -1044,7 +1044,7 @@ C Compare with Gas, Aerosol, Nonreactive, and Tracer Species
                 ALLOCATE( AERO_EMIS_WRITE( COUNT( AERO_EMIS_MISSING ) ) ) 
                 AERO_EMIS_WRITE = PACK( AEROSPC%EMIS, AERO_EMIS_MISSING )
 
-                WRITE( LOGDEV, '(/A40,/,2x,A52,/,2x,A53,/,5(5x,A8))'),
+                WRITE( LOGDEV, '(/A40,/,2x,A52,/,2x,A53,/,5(5x,A16))'),
      &             'The following AEROSOL emission surrogate',
      &             'species are not present from any of the Area, Point,',
      &             'Biogenic, Marine Gas, or Lightning emissions sources:',
@@ -1072,7 +1072,7 @@ C Compare with Gas, Aerosol, Nonreactive, and Tracer Species
                 ALLOCATE( NR_EMIS_WRITE( COUNT( NR_EMIS_MISSING ) ) ) 
                 NR_EMIS_WRITE = PACK( NR_EMIS(1:N_NR_EMIS), NR_EMIS_MISSING )
 
-                WRITE( LOGDEV, '(/,A45,/,A53,/,A54,/,5(5x,A8))'),
+                WRITE( LOGDEV, '(/,A45,/,A53,/,A54,/,5(5x,A16))'),
      &             'The following NONREACTIVE emission surrogate ',
      &             'species are not present from any of the Area, Point, ',
      &             'Biogenic, Marine Gas, or Lightning emissions sources: ',
@@ -1100,7 +1100,7 @@ C Compare with Gas, Aerosol, Nonreactive, and Tracer Species
                 ALLOCATE( TR_EMIS_WRITE( COUNT( TR_EMIS_MISSING ) ) ) 
                 TR_EMIS_WRITE = PACK( TR_EMIS(1:N_TR_EMIS), TR_EMIS_MISSING )
 
-                WRITE( LOGDEV, '(/,A40,/,A53,/,A54,/,5(5x,A8))'),
+                WRITE( LOGDEV, '(/,A40,/,A53,/,A54,/,5(5x,A16))'),
      &             'The following TRACER emission surrogate ',
      &             'species are not present from any of the Area, Point, ',
      &             'Biogenic, Marine Gas, or Lightning emissions sources: ',
@@ -1108,44 +1108,60 @@ C Compare with Gas, Aerosol, Nonreactive, and Tracer Species
                 LERROR = .TRUE.
              END IF
          END IF
-        
-C Stop the Model if Any Emissions Surrogate Species are
-C Missing from All Emission Input Sources
-         IF ( LERROR ) THEN
-           IF ( .NOT. EMISCHK ) THEN
-              WRITE( LOGDEV, '(/,A68,/,A72,/,A18)'), 
-     &               '***WARNING***: The problems with your emissions surrogates should be ',
-     &               'resolved but you have set the CTM_EMISCHK environment variable to False. ',
-     &               'CMAQ will proceed.'
-
-           ELSE     
-              WRITE( LOGDEV, '(/,A68,/,A71,/,A69,/,A73,/,A53,/,A42)'), 
-     &               '***WARNING***: One or more emission surrogates are missing from all ',
-     &               'emission sources. In order to continue, please remove those surrogates ',
-     &               'from the namelist (GC, NR, or TR) they appear in or from the aerosol ',
-     &               'data table in AERO_DATA if the surrogate is for aerosols. These problems ',
-     &               'must be resolved for CMAQ to run, or you can set the ',
-     &               'CTM_EMISCHK environment variable to False.'
-
-              XMSG = 'Every emission surrogate species must be present from '
-     &             //'at least one input source.'
-              CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-           END IF
-         END IF
 
 C Print a warning for each emissions file species that is not used.
          N_UNUSED = COUNT( .NOT. L_EMIS_SPC )
          IF ( N_UNUSED .GT. 0 ) THEN 
            ALLOCATE( EMIS_SPC_UNUSED( N_UNUSED ) )
-           EMIS_SPC_UNUSED = PACK( EMIS_SPC_UNIQUE, .NOT.L_EMIS_SPC ) 
-
-           WRITE( LOGDEV, '(/,A55,/,A34,I3,A8,/,4(2x,A16))'),
-     &            'ATTENTION: The following emission species are available',
-     &            'from the inputs but are not used: ',N_UNUSED,' Species',
-     &            EMIS_SPC_UNUSED
-           WRITE( LOGDEV, * )
-           WRITE( LOGDEV, * )
+           EMIS_SPC_UNUSED = PACK( EMIS_SPC_UNIQUE,( .NOT. L_EMIS_SPC ) ) 
          END IF
+        
+C Stop the Model if Any Emissions Surrogate Species are
+C Missing from All Emission Input Sources
+         IF ( LERROR ) THEN
+           IF ( .NOT. EMISCHK ) THEN
+              WRITE( LOGDEV, '(4(/,A))') 
+     &               '************************WARNING***********************:',
+     &               'One or more emissions surrogates assigned to model species ',
+     &               'are not found in emissions sources but the CTM_EMISCHK ',
+     &               'environment variable set to False so simulation will proceed.'
+
+              WRITE( LOGDEV, '(/,A55,/,A34,I3,A8,/,4(2x,A16))')
+     &              'ATTENTION: The following emission species are available',
+     &              'from the inputs but are not used: ',N_UNUSED,' Species',
+     &              EMIS_SPC_UNUSED
+
+             WRITE( LOGDEV, * )
+             WRITE( LOGDEV, * )
+              XMSG = 'For optimal predictions, species with the missing surrogates '
+     &             //'should have a surrogate found in at least one source.'
+              CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+           ELSE     
+              WRITE( LOGDEV, '(3(/,A),/,5(/,A),/,A,2(/,A))') 
+     &               '*************************ERROR**********************:',
+     &               'One or more emission surrogates assigned to model species ',
+     &               'are not found in emission sources.',
+     &               'Use one of the below options to continue.', 
+     &               '1) Change or remove the missing GC, NR and TR emissions surrogates from the',
+     &               'namelists where they are defined OR if missing surrogates are for aerosol species,',
+     &               'change or remove these surrogates from aerosol data table defined in AERO_DATA.F',
+     &               'then recompile.',
+     &               'or',
+     &               '2) Change CTM_EMISCHK environment variable to False (F) in the runscript',
+     &               'if model predictions are acceptable without using the above emissions.'
+
+              WRITE( LOGDEV, '(/,A55,/,A34,I3,A8,/,4(2x,A16))')
+     &             'ATTENTION: The following emission species are available',
+     &             'from the inputs but are not used: ',N_UNUSED,' Species',
+     &              EMIS_SPC_UNUSED
+              WRITE( LOGDEV, * )
+              WRITE( LOGDEV, * )
+              XMSG = 'Species with the missing surrogates ' 
+     &             //'must have a surrogate found in at least one source.'
+              CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+           END IF
+         END IF
+
 
 
          END SUBROUTINE EMIS_SPC_CHECK
