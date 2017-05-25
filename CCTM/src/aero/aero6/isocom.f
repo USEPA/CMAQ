@@ -175,10 +175,12 @@ C
       SUBROUTINE ISOROPIA (WI, RHI, TEMPI,  CNTRL,
      &                     WT, GAS, AERLIQ, AERSLD, SCASI, OTHER)
       INCLUDE 'isrpia.inc'
+      INTEGER NCTRL, NOTHER
       PARAMETER (NCTRL=2,NOTHER=9)
       CHARACTER SCASI*15
       DIMENSION WI(NCOMP), WT(NCOMP),   GAS(NGASAQ),  AERSLD(NSLDS),
      &          AERLIQ(NIONS+NGASAQ+2), CNTRL(NCTRL), OTHER(NOTHER)
+      INTEGER   I
 C
 C *** PROBLEM TYPE (0=FOREWARD, 1=REVERSE) ******************************
 C
@@ -190,7 +192,8 @@ C
 C
 C *** SOLVE FOREWARD PROBLEM ********************************************
 C
-50    IF (IPROB.EQ.0) THEN
+C50    IF (IPROB.EQ.0) THEN
+      IF (IPROB.EQ.0) THEN
          IF (WI(1)+WI(2)+WI(3)+WI(4)+WI(5)+WI(6)+WI(7)+WI(8) .LE. TINY)
      &           THEN                                                 !Everything=0
             CALL INIT1 (WI, RHI, TEMPI)
@@ -385,7 +388,7 @@ C
       SUBROUTINE SETPARM (WFTYPI,  IACALCI, EPSI, MAXITI, NSWEEPI, 
      &                    EPSACTI, NDIVI, NADJI)
       INCLUDE 'isrpia.inc'
-      INTEGER  WFTYPI
+      INTEGER  WFTYPI, IACALCI, MAXITI, NSWEEPI, NDIVI, NADJI
 C
 C *** SETUP SOLUTION PARAMETERS *****************************************
 C
@@ -426,7 +429,7 @@ C
       SUBROUTINE GETPARM (WFTYPI,  IACALCI, EPSI, MAXITI, NSWEEPI, 
      &                    EPSACTI, NDIVI, NADJI)
       INCLUDE 'isrpia.inc'
-      INTEGER  WFTYPI
+      INTEGER  WFTYPI, IACALCI, MAXITI, NSWEEPI, NDIVI, NADJI
 C
 C *** GET SOLUTION PARAMETERS *******************************************
 C
@@ -1004,8 +1007,10 @@ C
       SUBROUTINE INIT1 (WI, RHI, TEMPI)
       INCLUDE 'isrpia.inc'
       DIMENSION WI(NCOMP)
-      REAL      IC,GII,GI0,XX,LN10
+C      REAL      IC,GII,GI0,XX,LN10
+      REAL      LN10
       PARAMETER (LN10=2.3025851)
+      INTEGER   I, IRH
 C
 C *** SAVE INPUT VARIABLES IN COMMON BLOCK ******************************
 C
@@ -1286,8 +1291,10 @@ C
       SUBROUTINE INIT2 (WI, RHI, TEMPI)
       INCLUDE 'isrpia.inc'
       DIMENSION WI(NCOMP)
-      REAL      IC,GII,GI0,XX,LN10
+C      REAL      IC,GII,GI0,XX,LN10
+      REAL      LN10
       PARAMETER (LN10=2.3025851)
+      INTEGER   I, IRH
 C
 C *** SAVE INPUT VARIABLES IN COMMON BLOCK ******************************
 C
@@ -1583,8 +1590,10 @@ C
       SUBROUTINE ISOINIT3 (WI, RHI, TEMPI)
       INCLUDE 'isrpia.inc'
       DIMENSION WI(NCOMP)
-      REAL      IC,GII,GI0,XX,LN10
+C      REAL      IC,GII,GI0,XX,LN10
+      REAL      LN10
       PARAMETER (LN10=2.3025851)
+      INTEGER   I, IRH
 C
 C *** SAVE INPUT VARIABLES IN COMMON BLOCK ******************************
 C
@@ -1954,8 +1963,10 @@ C
       SUBROUTINE INIT4 (WI, RHI, TEMPI)
       INCLUDE 'isrpia.inc'
       DIMENSION WI(NCOMP)
-      REAL      IC,GII,GI0,XX,LN10
+C      REAL      IC,GII,GI0,XX,LN10
+      REAL      LN10
       PARAMETER (LN10=2.3025851)
+      INTEGER   I, IRH
 C
 C *** SAVE INPUT VARIABLES IN COMMON BLOCK ******************************
 C
@@ -2698,9 +2709,14 @@ C
 C=======================================================================
 C
       DOUBLE PRECISION FUNCTION GETASR (SO4I, RHI)
+      
+      INTEGER NSO4S, NRHS, NASRD
       PARAMETER (NSO4S=14, NRHS=20, NASRD=NSO4S*NRHS)
+
+      REAL ASRAT, ASSO4, RAT, WF
       COMMON /ASRC/ ASRAT(NASRD), ASSO4(NSO4S)
       DOUBLE PRECISION SO4I, RHI
+      INTEGER A1, IA1, INDS, INDR, INDSH, INDSL, IPOSH, IPOSL
 CCC
 CCC *** SOLVE USING FULL COMPUTATIONS, NOT LOOK-UP TABLES **************
 CCC
@@ -2712,11 +2728,11 @@ CCC         CALL INIT1 (WI, RHI, TEMPI)   ! Re-initialize COMMON BLOCK
 C
 C *** CALCULATE INDICES ************************************************
 C
-      RAT    = SO4I/1.E-9    
+      RAT    = REAL( SO4I/1.D-9, 4 )
       A1     = INT(ALOG10(RAT))                   ! Magnitude of RAT
       IA1    = INT(RAT/2.5/10.0**A1)
 C
-      INDS   = 4.0*A1 + MIN(IA1,4)
+      INDS   = 4*A1 + MIN(IA1,4)
       INDS   = MIN(MAX(0, INDS), NSO4S-1) + 1     ! SO4 component of IPOS
 C
       INDR   = INT(99.0-RHI*100.0) + 1
@@ -2729,7 +2745,7 @@ C
       IPOSL  = (INDSL-1)*NRHS + INDR              ! Low position in array
       IPOSH  = (INDSH-1)*NRHS + INDR              ! High position in array
 C
-      WF     = (SO4I-ASSO4(INDSL))/(ASSO4(INDSH)-ASSO4(INDSL) + 1e-7)
+      WF     = (REAL(SO4I,4)-ASSO4(INDSL))/(ASSO4(INDSH)-ASSO4(INDSL) + 1e-7)
       WF     = MIN(MAX(WF, 0.0), 1.0)
 C
       GETASR = WF*ASRAT(IPOSH) + (1.0-WF)*ASRAT(IPOSL)
@@ -2755,8 +2771,13 @@ C
 C=======================================================================
 C
       BLOCK DATA AERSR
+      INTEGER NSO4S, NRHS, NASRD
       PARAMETER (NSO4S=14, NRHS=20, NASRD=NSO4S*NRHS)
+
+      REAL ASRAT, ASSO4
       COMMON /ASRC/ ASRAT(NASRD), ASSO4(NSO4S)
+
+      INTEGER I
 C
       DATA ASSO4/1.0E-9, 2.5E-9, 5.0E-9, 7.5E-9, 1.0E-8,
      &           2.5E-8, 5.0E-8, 7.5E-8, 1.0E-7, 2.5E-7, 
@@ -3141,7 +3162,8 @@ C
       SUBROUTINE CALCNHA
       INCLUDE 'isrpia.inc'
       DOUBLE PRECISION M1, M2, M3
-      CHARACTER ERRINF*40     
+      CHARACTER ERRINF*40  
+      INTEGER ISLV
 C
 C *** SPECIAL CASE; WATER=ZERO ******************************************
 C
@@ -3218,7 +3240,8 @@ CC      ENDIF
 C
 C *** EFFECT ON LIQUID PHASE ********************************************
 C
-50    MOLAL(1) = MOLAL(1) + (DELNO+DELCL)  ! H+   CHANGE
+C50    MOLAL(1) = MOLAL(1) + (DELNO+DELCL)  ! H+   CHANGE
+      MOLAL(1) = MOLAL(1) + (DELNO+DELCL)  ! H+   CHANGE
       MOLAL(4) = MOLAL(4) + DELCL          ! CL-  CHANGE
       MOLAL(7) = MOLAL(7) + DELNO          ! NO3- CHANGE
 C
@@ -3699,6 +3722,7 @@ C
      &               A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17
 C
       CHARACTER SC*1
+      INTEGER   I
 C
 C *** CALCULATE ION PAIR CONCENTRATIONS ACCORDING TO SPECIFIC CASE ****
 C
@@ -3978,6 +4002,7 @@ C
       SUBROUTINE CALCMDRH (RHI, RHDRY, RHLIQ, DRYCASE, LIQCASE)
       INCLUDE 'isrpia.inc'
       EXTERNAL DRYCASE, LIQCASE
+      INTEGER  I
 C
 C *** FIND WEIGHT FACTOR **********************************************
 C
@@ -4127,6 +4152,7 @@ C
       SUBROUTINE CALCMDRH2 (RHI, RHDRY, RHLIQ, DRYCASE, LIQCASE)
       INCLUDE 'isrpia.inc'
       EXTERNAL DRYCASE, LIQCASE
+      INTEGER  I
 C
 C *** FIND WEIGHT FACTOR **********************************************
 C
@@ -4339,6 +4365,7 @@ C
       SUBROUTINE CALCMDRP (RHI, RHDRY, RHLIQ, DRYCASE, LIQCASE)
       INCLUDE 'isrpia.inc'
       EXTERNAL DRYCASE, LIQCASE
+      INTEGER  I
 C
 C *** FIND WEIGHT FACTOR **********************************************
 C
@@ -4473,6 +4500,7 @@ C
       SUBROUTINE CALCMDRPII (RHI, RHDRY, RHLIQ, DRYCASE, LIQCASE)
       INCLUDE 'isrpia.inc'
       EXTERNAL DRYCASE, LIQCASE
+      INTEGER  I
 C
 C *** FIND WEIGHT FACTOR **********************************************
 C
@@ -4752,6 +4780,7 @@ C
       SUBROUTINE CALCACT
       INCLUDE 'isrpia.inc'
 C
+      INTEGER IACALCI, IPROBI, METSTBLI, NADJI
       COMMON /DRVINP/ WI(8), RHI, TEMPI, IPROBI, METSTBLI, IACALCI,
      &                NADJI
 C
@@ -4789,9 +4818,10 @@ C
       SUBROUTINE CALCACT4
       INCLUDE 'isrpia.inc'
 C
-      REAL EX10
+C      REAL EX10
       REAL G0(6,4),ZPL,ZMI,AGAMA,SION,H,CH,F1(6),F2A(4),F2B(4)
       DOUBLE PRECISION MPL, XIJ, YJI
+      INTEGER I, J
       DATA G0/24*0D0/
 
 C
@@ -4814,9 +4844,9 @@ C *** CALCULATE IONIC ACTIVITY OF SOLUTION *****************************
 C
       IONIC=0.0
       DO 30 I=1,NIONS
-         IONIC=IONIC + MOLAL(I)*Z(I)*Z(I)
+         IONIC=IONIC + REAL( MOLAL(I)*Z(I)*Z(I), 4 )
 30    CONTINUE
-      IONIC = MAX(MIN(0.5*IONIC/WATER,100.d0), TINY)
+      IONIC = MAX(MIN(0.5*IONIC/REAL(WATER,4),100.0), REAL(TINY,4))
 C
 C *** CALCULATE BINARY ACTIVITY COEFFICIENTS ***************************
 C
@@ -4837,7 +4867,7 @@ C
 C
 C *** CALCULATE MULTICOMPONENT ACTIVITY COEFFICIENTS *******************
 C
-      AGAMA = 0.511*(298.0/TEMP)**1.5    ! Debye Huckel const. at T
+      AGAMA = 0.511*(298.0/REAL(TEMP,4))**1.5    ! Debye Huckel const. at T
       SION  = SQRT(IONIC)
       H     = AGAMA*SION/(1+SION)
 C
@@ -4850,10 +4880,10 @@ C
       F1(6)=0.0
 C
       DO 110 I=1,3
-         ZPL = Z(I)
+         ZPL = REAL( Z(I), 4 )
          MPL = MOLAL(I)/WATER
          DO 110 J=1,4
-            ZMI   = Z(J+3)
+            ZMI   = REAL( Z(J+3), 4 )
             CH    = 0.25*(ZPL+ZMI)*(ZPL+ZMI)/IONIC
             XIJ   = CH*MPL
             YJI   = CH*MOLAL(J+3)/WATER
@@ -4862,10 +4892,10 @@ C
 110   CONTINUE
 C
       DO 330 I=4,6
-         ZPL = Z(I+4)
+         ZPL = REAL( Z(I+4), 4 )
          MPL = MOLAL(I+4)/WATER
          DO 330 J=1,4
-            ZMI   = Z(J+3)
+            ZMI   = REAL( Z(J+3), 4 )
             IF (J.EQ.3) THEN
                IF (I.EQ.4 .OR. I.EQ.6) THEN
                GO TO 330
@@ -4962,9 +4992,11 @@ C
       SUBROUTINE CALCACT3
       INCLUDE 'isrpia.inc'
 C
-      REAL EX10, URF
+C      REAL EX10
+      REAL URF
       REAL G0(6,4),ZPL,ZMI,AGAMA,SION,H,CH,F1(3),F2(4)
       DOUBLE PRECISION MPL, XIJ, YJI
+      INTEGER I, J
       PARAMETER (URF=0.5)
       DATA G0/24*0D0/
 C      PARAMETER (LN10=2.30258509299404568402D0)
@@ -4987,9 +5019,9 @@ C *** CALCULATE IONIC ACTIVITY OF SOLUTION *****************************
 C
       IONIC=0.0
       DO 30 I=1,7
-         IONIC=IONIC + MOLAL(I)*Z(I)*Z(I)
+         IONIC=IONIC + REAL(MOLAL(I)*Z(I)*Z(I), 4 )
 30    CONTINUE
-      IONIC = MAX(MIN(0.5*IONIC/WATER,100.d0), TINY)
+      IONIC = MAX(MIN(0.5*IONIC/REAL(WATER,4),100.0), REAL(TINY,4))
 C
 C *** CALCULATE BINARY ACTIVITY COEFFICIENTS ***************************
 C
@@ -5009,7 +5041,7 @@ C
 C
 C *** CALCULATE MULTICOMPONENT ACTIVITY COEFFICIENTS *******************
 C
-      AGAMA = 0.511*(298.0/TEMP)**1.5    ! Debye Huckel const. at T
+      AGAMA = 0.511*(298.0/REAL(TEMP,4))**1.5    ! Debye Huckel const. at T
       SION  = SQRT(IONIC)
       H     = AGAMA*SION/(1+SION)
 C
@@ -5020,10 +5052,10 @@ C
       F2(4)=0.0
 C
       DO 110 I=1,3
-         ZPL = Z(I)
+         ZPL = REAL( Z(I), 4 )
          MPL = MOLAL(I)/WATER
          DO 110 J=1,4
-            ZMI   = Z(J+3)
+            ZMI   = REAL( Z(J+3), 4 )
             CH    = 0.25*(ZPL+ZMI)*(ZPL+ZMI)/IONIC
             XIJ   = CH*MPL
             YJI   = CH*MOLAL(J+3)/WATER
@@ -5106,10 +5138,12 @@ C
       SUBROUTINE CALCACT2
       INCLUDE 'isrpia.inc'
 C
-      REAL EX10, URF
+C      REAL EX10, URF
+      REAL URF
       REAL G0(6,4),ZPL,ZMI,AGAMA,SION,H,CH,F1(3),F2(4)
       DOUBLE PRECISION MPL, XIJ, YJI
       PARAMETER (URF=0.5)
+      INTEGER   I, J
       DATA G0/24*0D0/
 C      PARAMETER (LN10=2.30258509299404568402D0)
 C
@@ -5139,9 +5173,9 @@ C
       MOLAL(2) = ZERO
       MOLAL(4) = ZERO
       DO 30 I=1,7
-         IONIC=IONIC + MOLAL(I)*Z(I)*Z(I)
+         IONIC=IONIC + REAL( MOLAL(I)*Z(I)*Z(I), 4 )
 30    CONTINUE
-      IONIC = MAX(MIN(0.5*IONIC/WATER,100.d0), TINY)
+      IONIC = MAX(MIN(0.5*IONIC/REAL(WATER,4),100.0), REAL(TINY,4))
 C
 C *** CALCULATE BINARY ACTIVITY COEFFICIENTS ***************************
 C
@@ -5160,7 +5194,7 @@ C
 C
 C *** CALCULATE MULTICOMPONENT ACTIVITY COEFFICIENTS *******************
 C
-      AGAMA = 0.511*(298.0/TEMP)**1.5    ! Debye Huckel const. at T
+      AGAMA = 0.511*(298.0/REAL(TEMP,4))**1.5    ! Debye Huckel const. at T
       SION  = SQRT(IONIC)
       H     = AGAMA*SION/(1+SION)
 C
@@ -5171,10 +5205,10 @@ C
       F2(4)=0.0
 C
       DO 110 I=1,3,2
-         ZPL = Z(I)
+         ZPL = REAL( Z(I), 4 )
          MPL = MOLAL(I)/WATER
          DO 110 J=2,4
-            ZMI   = Z(J+3)
+            ZMI   = REAL( Z(J+3), 4 )
             CH    = 0.25*(ZPL+ZMI)*(ZPL+ZMI)/IONIC
             XIJ   = CH*MPL
             YJI   = CH*MOLAL(J+3)/WATER
@@ -5282,9 +5316,11 @@ C
       SUBROUTINE CALCACT1
       INCLUDE 'isrpia.inc'
 C
-      REAL EX10, URF
+C      REAL EX10
+      REAL URF
       REAL G0(6,4),ZPL,ZMI,AGAMA,SION,H,CH,F1(3),F2(4)
       DOUBLE PRECISION MPL, XIJ, YJI
+      INTEGER I, J
       PARAMETER (URF=0.5)
       DATA G0/24*0D0/
 C      PARAMETER (LN10=2.30258509299404568402D0)
@@ -5316,9 +5352,9 @@ C
       MOLAL(4) = ZERO
       MOLAL(7) = ZERO
       DO 30 I=1,7
-         IONIC=IONIC + MOLAL(I)*Z(I)*Z(I)
+         IONIC=IONIC + REAL( MOLAL(I)*Z(I)*Z(I), 4 )
 30    CONTINUE
-      IONIC = MAX(MIN(0.5*IONIC/WATER,100.d0), TINY)
+      IONIC = MAX(MIN(0.5*IONIC/REAL( WATER,4 ),100.0), REAL(TINY,4))
 C
 C *** CALCULATE BINARY ACTIVITY COEFFICIENTS ***************************
 C
@@ -5337,7 +5373,7 @@ C
 C
 C *** CALCULATE MULTICOMPONENT ACTIVITY COEFFICIENTS *******************
 C
-      AGAMA = 0.511*(298.0/TEMP)**1.5    ! Debye Huckel const. at T
+      AGAMA = 0.511*(298.0/REAL( TEMP,4 ))**1.5    ! Debye Huckel const. at T
       SION  = SQRT(IONIC)
       H     = AGAMA*SION/(1+SION)
 C
@@ -5348,10 +5384,10 @@ C
       F2(4)=0.0
 C
       DO 110 I=1,3,2
-         ZPL = Z(I)
+         ZPL = REAL( Z(I),4 )
          MPL = MOLAL(I)/WATER
          DO 110 J=2,3
-            ZMI   = Z(J+3)
+            ZMI   = REAL( Z(J+3), 4 )
             CH    = 0.25*(ZPL+ZMI)*(ZPL+ZMI)/IONIC
             XIJ   = CH*MPL
             YJI   = CH*MOLAL(J+3)/WATER
@@ -5457,6 +5493,7 @@ C=======================================================================
 C
       SUBROUTINE RSTGAM
       INCLUDE 'isrpia.inc'
+      INTEGER I
 C
       DO 10 I=1, NPAIR
          GAMA(I) = 0.1
@@ -5522,7 +5559,12 @@ C
       SUBROUTINE KMFUL4 (IONIC,TEMP,G01,G02,G03,G04,G05,G06,G07,G08,G09,
      &                             G10,G11,G12,G15,G16,G17,G18,G19,G20,
      &                             G21,G22,G23)
-      REAL Ionic, TEMP
+      REAL Ionic, TEMP, SION, CF1, CF2, TC, TI
+      REAL G01,G02,G03,G04,G05,G06,G07,G08,G09, 
+     &     G10,G11,G12,G15,G16,G17,G18,G19,G20,  
+     &     G21,G22,G23 
+      REAL Z01,Z02,Z03,Z04,Z05,Z06,Z07,Z08,Z10,Z11,Z15,Z16,Z17,Z19,Z20,
+     &     Z21,Z22,Z23
       DATA Z01,Z02,Z03,Z04,Z05,Z06,Z07,Z08,Z10,Z11,Z15,Z16,Z17,Z19,Z20,
      &     Z21,Z22,Z23/1, 2, 1, 2, 1, 1, 2, 1, 1, 1, 2, 2, 2, 1, 1, 4,
      &                 2, 2/
@@ -5603,7 +5645,9 @@ C=======================================================================
 C
       SUBROUTINE KMFUL3 (IONIC,TEMP,G01,G02,G03,G04,G05,G06,G07,G08,G09,
      &                  G10,G11,G12)
-      REAL Ionic, TEMP
+      REAL Ionic, TEMP, SION, CF1, CF2, TC, TI
+      REAL G01,G02,G03,G04,G05,G06,G07,G08,G09,G10,G11,G12
+      REAL Z01,Z02,Z03,Z04,Z05,Z06,Z07,Z08,Z10,Z11
       DATA Z01,Z02,Z03,Z04,Z05,Z06,Z07,Z08,Z10,Z11
      &    /1,  2,  1,  2,  1,  1,  2,  1,  1,  1/
 C
@@ -5663,8 +5707,10 @@ C
 C=======================================================================
 C
       SUBROUTINE KMFUL2 (IONIC,TEMP,G04,G05,G07,G08,G09,G10)
-      REAL Ionic, TEMP
-      REAL G06, G11
+      REAL Ionic, TEMP, SION, TC, TI
+      REAL G06,G11,G04,G05,G07,G08,G09,G10
+      REAL CF1, CF2
+      REAL Z01,Z02,Z03,Z04,Z05,Z06,Z07,Z08,Z10,Z11
       DATA Z01,Z02,Z03,Z04,Z05,Z06,Z07,Z08,Z10,Z11
      &    /1,  2,  1,  2,  1,  1,  2,  1,  1,  1/
 C
@@ -5728,8 +5774,10 @@ C
 C=======================================================================
 C
       SUBROUTINE KMFUL1 (IONIC,TEMP,G04,G07,G08,G09)
-      REAL Ionic, TEMP
-      REAL G06, G08, G11
+      REAL Ionic, TEMP, SION, TC, TI
+      REAL G06, G08, G11, G04, G07, G09
+      REAL CF1, CF2
+      REAL Z01,Z02,Z03,Z04,Z05,Z06,Z07,Z08,Z10,Z11
       DATA Z01,Z02,Z03,Z04,Z05,Z06,Z07,Z08,Z10,Z11
      &    /1,  2,  1,  2,  1,  1,  2,  1,  1,  1/
 C
@@ -5795,7 +5843,7 @@ C=======================================================================
 C
       SUBROUTINE MKBI(Q,IONIC,SION,ZIP,BI)
 C
-      REAL IONIC
+      REAL IONIC, Q, SION, ZIP, BI, B, C, XX
 C
       B=.75-.065*Q
       C= 1.0
@@ -5825,7 +5873,11 @@ C=======================================================================
 C
       SUBROUTINE KMTAB (IN,TEMP,G01,G02,G03,G04,G05,G06,G07,G08,G09,G10,
      &                  G11,G12,G15,G16,G17,G18,G19,G20,G21,G22,G23)
+      REAL G01,G02,G03,G04,G05,G06,G07,G08,G09,G10,
+     &     G11,G12,G13,G14,G15,G16,G17,G18,G19,G20,
+     &     G21,G22,G23 
       REAL IN, Temp, binarray (23)
+      INTEGER IND
 C
 C *** Find temperature range
 C
@@ -5916,9 +5968,18 @@ C
 C=======================================================================
 C
       SUBROUTINE KM198 (IONIC, BINARR)
+      INTEGER IPOS
 C
 C *** Common block definition
 C
+       REAL       
+     &BNC01M,BNC02M,BNC03M,BNC04M,
+     &BNC05M,BNC06M,BNC07M,BNC08M,
+     &BNC09M,BNC10M,BNC11M,BNC12M,
+     &BNC13M,BNC14M,BNC15M,BNC16M,
+     &BNC17M,BNC18M,BNC19M,BNC20M,
+     &BNC21M,BNC22M,BNC23M
+
       COMMON /KMC198/
      &BNC01M(  561),BNC02M(  561),BNC03M(  561),BNC04M(  561),
      &BNC05M(  561),BNC06M(  561),BNC07M(  561),BNC08M(  561),
@@ -5973,6 +6034,14 @@ C
 C
 C *** Common block definition
 C
+      REAL       
+     &BNC01M,BNC02M,BNC03M,BNC04M,
+     &BNC05M,BNC06M,BNC07M,BNC08M,
+     &BNC09M,BNC10M,BNC11M,BNC12M,
+     &BNC13M,BNC14M,BNC15M,BNC16M,
+     &BNC17M,BNC18M,BNC19M,BNC20M,
+     &BNC21M,BNC22M,BNC23M
+
       COMMON /KMC198/
      &BNC01M(  561),BNC02M(  561),BNC03M(  561),BNC04M(  561),
      &BNC05M(  561),BNC06M(  561),BNC07M(  561),BNC08M(  561),
@@ -5980,7 +6049,7 @@ C
      &BNC13M(  561),BNC14M(  561),BNC15M(  561),BNC16M(  561),
      &BNC17M(  561),BNC18M(  561),BNC19M(  561),BNC20M(  561),
      &BNC21M(  561),BNC22M(  561),BNC23M(  561)
-
+ 
 C
 C *** NaCl
 C
@@ -7567,9 +7636,18 @@ C
 C=======================================================================
 C
       SUBROUTINE KM223 (IONIC, BINARR)
+      INTEGER IPOS
 C
 C *** Common block definition
 C
+       REAL       
+     &BNC01M,BNC02M,BNC03M,BNC04M,
+     &BNC05M,BNC06M,BNC07M,BNC08M,
+     &BNC09M,BNC10M,BNC11M,BNC12M,
+     &BNC13M,BNC14M,BNC15M,BNC16M,
+     &BNC17M,BNC18M,BNC19M,BNC20M,
+     &BNC21M,BNC22M,BNC23M
+
       COMMON /KMC223/
      &BNC01M(  561),BNC02M(  561),BNC03M(  561),BNC04M(  561),
      &BNC05M(  561),BNC06M(  561),BNC07M(  561),BNC08M(  561),
@@ -7624,6 +7702,15 @@ C
 C
 C *** Common block definition
 C
+       REAL       
+     &BNC01M,BNC02M,BNC03M,BNC04M,
+     &BNC05M,BNC06M,BNC07M,BNC08M,
+     &BNC09M,BNC10M,BNC11M,BNC12M,
+     &BNC13M,BNC14M,BNC15M,BNC16M,
+     &BNC17M,BNC18M,BNC19M,BNC20M,
+     &BNC21M,BNC22M,BNC23M
+ 
+
       COMMON /KMC223/
      &BNC01M(  561),BNC02M(  561),BNC03M(  561),BNC04M(  561),
      &BNC05M(  561),BNC06M(  561),BNC07M(  561),BNC08M(  561),
@@ -9218,9 +9305,18 @@ C
 C=======================================================================
 C
       SUBROUTINE KM248 (IONIC, BINARR)
+      INTEGER IPOS
 C
 C *** Common block definition
 C
+       REAL       
+     &BNC01M,BNC02M,BNC03M,BNC04M,
+     &BNC05M,BNC06M,BNC07M,BNC08M,
+     &BNC09M,BNC10M,BNC11M,BNC12M,
+     &BNC13M,BNC14M,BNC15M,BNC16M,
+     &BNC17M,BNC18M,BNC19M,BNC20M,
+     &BNC21M,BNC22M,BNC23M
+
       COMMON /KMC248/
      &BNC01M(  561),BNC02M(  561),BNC03M(  561),BNC04M(  561),
      &BNC05M(  561),BNC06M(  561),BNC07M(  561),BNC08M(  561),
@@ -9275,6 +9371,14 @@ C
 C
 C *** Common block definition
 C
+       REAL       
+     &BNC01M,BNC02M,BNC03M,BNC04M,
+     &BNC05M,BNC06M,BNC07M,BNC08M,
+     &BNC09M,BNC10M,BNC11M,BNC12M,
+     &BNC13M,BNC14M,BNC15M,BNC16M,
+     &BNC17M,BNC18M,BNC19M,BNC20M,
+     &BNC21M,BNC22M,BNC23M
+
       COMMON /KMC248/
      &BNC01M(  561),BNC02M(  561),BNC03M(  561),BNC04M(  561),
      &BNC05M(  561),BNC06M(  561),BNC07M(  561),BNC08M(  561),
@@ -10869,9 +10973,18 @@ C
 C=======================================================================
 C
       SUBROUTINE KM273 (IONIC, BINARR)
+      INTEGER IPOS
 C
 C *** Common block definition
 C
+       REAL       
+     &BNC01M,BNC02M,BNC03M,BNC04M,
+     &BNC05M,BNC06M,BNC07M,BNC08M,
+     &BNC09M,BNC10M,BNC11M,BNC12M,
+     &BNC13M,BNC14M,BNC15M,BNC16M,
+     &BNC17M,BNC18M,BNC19M,BNC20M,
+     &BNC21M,BNC22M,BNC23M
+
       COMMON /KMC273/
      &BNC01M(  561),BNC02M(  561),BNC03M(  561),BNC04M(  561),
      &BNC05M(  561),BNC06M(  561),BNC07M(  561),BNC08M(  561),
@@ -10926,6 +11039,14 @@ C
 C
 C *** Common block definition
 C
+       REAL       
+     &BNC01M,BNC02M,BNC03M,BNC04M,
+     &BNC05M,BNC06M,BNC07M,BNC08M,
+     &BNC09M,BNC10M,BNC11M,BNC12M,
+     &BNC13M,BNC14M,BNC15M,BNC16M,
+     &BNC17M,BNC18M,BNC19M,BNC20M,
+     &BNC21M,BNC22M,BNC23M
+
       COMMON /KMC273/
      &BNC01M(  561),BNC02M(  561),BNC03M(  561),BNC04M(  561),
      &BNC05M(  561),BNC06M(  561),BNC07M(  561),BNC08M(  561),
@@ -12520,9 +12641,18 @@ C
 C=======================================================================
 C
       SUBROUTINE KM298 (IONIC, BINARR)
+      INTEGER IPOS
 C
 C *** Common block definition
 C
+       REAL       
+     &BNC01M,BNC02M,BNC03M,BNC04M,
+     &BNC05M,BNC06M,BNC07M,BNC08M,
+     &BNC09M,BNC10M,BNC11M,BNC12M,
+     &BNC13M,BNC14M,BNC15M,BNC16M,
+     &BNC17M,BNC18M,BNC19M,BNC20M,
+     &BNC21M,BNC22M,BNC23M
+
       COMMON /KMC298/
      &BNC01M(  561),BNC02M(  561),BNC03M(  561),BNC04M(  561),
      &BNC05M(  561),BNC06M(  561),BNC07M(  561),BNC08M(  561),
@@ -12577,6 +12707,14 @@ C
 C
 C *** Common block definition
 C
+       REAL       
+     &BNC01M,BNC02M,BNC03M,BNC04M,
+     &BNC05M,BNC06M,BNC07M,BNC08M,
+     &BNC09M,BNC10M,BNC11M,BNC12M,
+     &BNC13M,BNC14M,BNC15M,BNC16M,
+     &BNC17M,BNC18M,BNC19M,BNC20M,
+     &BNC21M,BNC22M,BNC23M
+
       COMMON /KMC298/
      &BNC01M(  561),BNC02M(  561),BNC03M(  561),BNC04M(  561),
      &BNC05M(  561),BNC06M(  561),BNC07M(  561),BNC08M(  561),
@@ -14171,9 +14309,18 @@ C
 C=======================================================================
 C
       SUBROUTINE KM323 (IONIC, BINARR)
+      INTEGER IPOS
 C
 C *** Common block definition
 C
+       REAL       
+     &BNC01M,BNC02M,BNC03M,BNC04M,
+     &BNC05M,BNC06M,BNC07M,BNC08M,
+     &BNC09M,BNC10M,BNC11M,BNC12M,
+     &BNC13M,BNC14M,BNC15M,BNC16M,
+     &BNC17M,BNC18M,BNC19M,BNC20M,
+     &BNC21M,BNC22M,BNC23M
+
       COMMON /KMC323/
      &BNC01M(  561),BNC02M(  561),BNC03M(  561),BNC04M(  561),
      &BNC05M(  561),BNC06M(  561),BNC07M(  561),BNC08M(  561),
@@ -14228,6 +14375,14 @@ C
 C
 C *** Common block definition
 C
+       REAL       
+     &BNC01M,BNC02M,BNC03M,BNC04M,
+     &BNC05M,BNC06M,BNC07M,BNC08M,
+     &BNC09M,BNC10M,BNC11M,BNC12M,
+     &BNC13M,BNC14M,BNC15M,BNC16M,
+     &BNC17M,BNC18M,BNC19M,BNC20M,
+     &BNC21M,BNC22M,BNC23M
+
       COMMON /KMC323/
      &BNC01M(  561),BNC02M(  561),BNC03M(  561),BNC04M(  561),
      &BNC05M(  561),BNC06M(  561),BNC07M(  561),BNC08M(  561),
@@ -15831,6 +15986,7 @@ CC
 CC***********************************************************************
 CC
       SUBROUTINE CHRBLN (STR, IBLK)
+      INTEGER IBLK, I, ILEN
 CC
 CC***********************************************************************
       CHARACTER*(*) STR
@@ -15873,6 +16029,7 @@ CC
 CC
 CC***********************************************************************
       CHARACTER CHR*(*)
+      INTEGER I, I1, I2
 C
       I1  = LEN(CHR)             ! Total length of string
       CALL CHRBLN(CHR,I2)        ! Position of last non-blank character
@@ -15917,6 +16074,7 @@ CC
 CC*************************************************************************
 CC
       SUBROUTINE RPLSTR (STRING, OLD, NEW, IERR)
+      INTEGER IERR, ILO, IP
 CC
 CC***********************************************************************
       CHARACTER STRING*(*), OLD*(*), NEW*(*)
@@ -15982,7 +16140,7 @@ CC
 CC***********************************************************************
       CHARACTER PROMPT*(*), PRFMT*(*), BUFFER*128
       DOUBLE PRECISION DEF, VAR
-      INTEGER IERR
+      INTEGER IERR, IEND
 C
       IERR = 0
 C
@@ -16043,6 +16201,7 @@ CC
 CC***********************************************************************
 CC
       SUBROUTINE Pushend (Iunit)
+      INTEGER IUNIT
 CC
 CC***********************************************************************
 C
@@ -16096,6 +16255,7 @@ CC
       SUBROUTINE Appendext (Filename, Defext, Overwrite)
 CC
 CC***********************************************************************
+      INTEGER IDOT, IEND
       CHARACTER*(*) Filename, Defext
       LOGICAL       Overwrite
 C
@@ -16151,6 +16311,7 @@ C
       PARAMETER (EXPON=1.D0/3.D0,     ZERO=0.D0, THET1=120.D0/180.D0,
      &           THET2=240.D0/180.D0, PI=3.1415926535897932, EPS=1D-50)
       DOUBLE PRECISION  X(3)
+      INTEGER ISLV, I, IX
 C
 C *** SPECIAL CASE : QUADRATIC*X EQUATION *****************************
 C
@@ -16248,6 +16409,7 @@ C
       SUBROUTINE POLY3B (A1, A2, A3, RTLW, RTHI, ROOT, ISLV)
 C
       IMPLICIT DOUBLE PRECISION (A-H, O-Z)
+      INTEGER MAXIT, NDIV, I, ISLV
       PARAMETER (ZERO=0.D0, EPS=1D-15, MAXIT=100, NDIV=5)
 C
       FUNC(X) = X**3.d0 + A1*X**2.0 + A2*X + A3
@@ -16394,6 +16556,7 @@ C *** Common block definition
 C
       REAL AINT10, ADEC10
       COMMON /EXPNC/ AINT10(20), ADEC10(200)
+      INTEGER I
 C
 C *** Integer part
 C
@@ -16471,6 +16634,7 @@ C
       SUBROUTINE PUSHERR (IERR,ERRINF)
       INCLUDE 'isrpia.inc'
       CHARACTER ERRINF*(*)
+      INTEGER IERR
 C
 C *** SAVE ERROR CODE IF THERE IS ANY SPACE ***************************
 C
@@ -16504,9 +16668,10 @@ C
       SUBROUTINE ISERRINF (ERRSTKI, ERRMSGI, NOFERI, STKOFLI)
       INCLUDE 'isrpia.inc'
       CHARACTER ERRMSGI*40
-      INTEGER   ERRSTKI
+      INTEGER   ERRSTKI, NOFERI
       LOGICAL   STKOFLI
       DIMENSION ERRMSGI(NERRMX), ERRSTKI(NERRMX)
+      INTEGER   I
 C
 C *** OBTAIN WHOLE ERROR STACK ****************************************
 C
@@ -16539,6 +16704,7 @@ C=======================================================================
 C
       SUBROUTINE ERRSTAT (IO,IERR,ERRINF)
       INCLUDE 'isrpia.inc'
+      INTEGER   IO, IERR, IEND, IOK
       CHARACTER CER*4, NCIS*29, NCIF*27, NSIS*26, NSIF*24, ERRINF*(*)
       DATA NCIS /'NO CONVERGENCE IN SUBROUTINE '/,
      &     NCIF /'NO CONVERGENCE IN FUNCTION '  /,
@@ -16721,6 +16887,7 @@ C
      &                    GRT)
       INCLUDE 'isrpia.inc'
       CHARACTER VERSI*(*)
+      INTEGER NCMP, NION, NAQGAS, NSOL, NERR
 C
 C *** ASSIGN INFO *******************************************************
 C

@@ -126,7 +126,7 @@ C Private variables for loading and unloading to CGRID array
       Integer, Private, Save :: logdev
       Integer, Private, External :: setup_logdev
 
-      Character( 16 ), Private, Save :: pname = 'precursor_data       '
+      Character( 16 ), Private, Save :: pname = 'precursor_data'
 
       Contains
 
@@ -152,7 +152,6 @@ C----------------------------------------------------------------------
 
 C Local Variables:
       Character( 180 ) :: xmsg
-      Real( 8 )        :: vtmp
       Integer          :: n
       Integer          :: spc
 

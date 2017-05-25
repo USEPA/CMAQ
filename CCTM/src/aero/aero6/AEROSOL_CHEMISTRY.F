@@ -422,7 +422,7 @@ C *** Local Variables
 
       REAL( 8 )       :: INV_DIFF_BRONO2  ! reciprocal molecular diffusivity [m2/sec]
       INTEGER, SAVE   :: IMAE_IDX
-      INTEGER, SAVE   :: IHMML_IDX
+      !INTEGER, SAVE   :: IHMML_IDX
       INTEGER, SAVE   :: NO3_IDX
       INTEGER, SAVE   :: GLY_IDX
       INTEGER, SAVE   :: MGLY_IDX
