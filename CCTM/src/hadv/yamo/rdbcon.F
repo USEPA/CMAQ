@@ -25,7 +25,7 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
  
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE RDBCON ( JDATE, JTIME, TSTEP, LVL, BCON )
+      SUBROUTINE RDBCON ( JDATE, JTIME, TSTEP, LVL, BCON, LSTAT )
 
 C-----------------------------------------------------------------------
 C Function:
@@ -59,6 +59,7 @@ C-----------------------------------------------------------------------
       USE CGRID_SPCS           ! CGRID mechanism species
       USE UTILIO_DEFN
       USE RXNS_DATA, ONLY : MECHNAME
+      USE AERO_DATA, only : CHECK_AERO_ICBC, N_MODE
 
       IMPLICIT NONE
  
@@ -73,6 +74,7 @@ C Arguments:
       INTEGER, INTENT( IN ) :: LVL         ! layer
 !     REAL           BCON( NBNDY,NLAYS,* )  ! boundary concentrations
       REAL,    INTENT( OUT ) :: BCON( :,: ) ! boundary concentrations
+      LOGICAL, INTENT( INOUT ) :: LSTAT       ! Flag for identifying Aerosol BC flaws
 
 C Parameters:
       REAL, PARAMETER :: KGPMG = 1.0E-09  ! Kg / micro-gram
@@ -106,17 +108,25 @@ C Local variables:
       REAL,            ALLOCATABLE, SAVE :: BCFAC( : )   ! Scale factor for BCs
       LOGICAL,         ALLOCATABLE, SAVE :: ONFILE( : )  ! BC species on the file
 
-      CHARACTER( 96 ) :: XMSG = ' '
+      CHARACTER( 96 )  :: XMSG = ' '
+      CHARACTER( 199 ) :: XMSG2 = ' '
+      INTEGER          :: STAT
 
       INTEGER, SAVE :: N_SPC_ADV
+      INTEGER       :: LMODE    !Identifies the problematic mode from
+                                !the BC Check routine
+      REAL          :: AER_PAR( 2, N_MODE,5 )  !Modal parameter after the BC 
+                                               !check (N, dg, sg)
+                                               !      (N, M2, M3) - Before
+                                               !      (N, M2, M3) - After
 
       INTEGER   MDATE             ! mid-advection date
       INTEGER   MTIME             ! mid-advection time
       INTEGER   STEP              ! advection time step in seconds
 
       INTEGER   BND, VAR, SPC     ! loop counters
-      INTEGER   COL, ROW          ! loop counters
-      INTEGER   STRT, FINI
+      INTEGER   COL, ROW, IMODE   ! loop counters
+      INTEGER   STRT, FINI, IAER, J
       INTEGER   ALLOCSTAT
 
       INTEGER   COUNT             ! Counter for constructing boundary arrays
@@ -150,7 +160,7 @@ C-----------------------------------------------------------------------
          logdev = init3()
 #endif
 
-         WRITE( CONCMIN,'(1PE8.2)' ) CMIN
+         WRITE( CONCMIN,'(1PE9.2)' ) CMIN
 
          CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
      &                   STRTCOLMC, ENDCOLMC, STRTROWMC, ENDROWMC )
@@ -391,11 +401,31 @@ C Read & interpolate boundary concentrations
                 
             END IF
          ELSE
-            DO BND = 1, NBNDY
-               BCON( BND,VAR ) = CMIN
-            END DO
+            BCON( 1:NBNDY,VAR ) = CMIN
          END IF
 151   CONTINUE
+      
+      !Check Aerosol Size Distributions and Warn 
+      !the User if They Are Not Robust
+      DO BND = 1,NBNDY
+        CALL CHECK_AERO_ICBC( BCON( BND,STRT:FINI ), .FALSE., STAT, AER_PAR, LMODE )
+        IF ( STAT .GT. 0 ) THEN
+          LSTAT = .TRUE.
+#ifdef verbose_rdbcon
+          WRITE ( 6, '(7x,A55,I1,/,7x,A20,I1,A42,/,9x,A51,/,9x,A22,I4,2x,I2,/,
+     &                 9x,A19,1x,A3,8x,A2,8x,A2,8x,A2,8x,A2,/,
+     &                 27x,E8.1,1x,E8.1,1x,E8.1,1x,E8.1,4x,F4.1,/,
+     &                 9x,A19,1x,A3,8x,A2,8x,A2,8x,A2,8x,A2,/,
+     &                 27x,E8.1,1x,E8.1,1x,E8.1,1x,E8.1,4x,F4.1)'),
+     &               'Warning: Applying Aerosol Boundary Conditions for mode ',LMODE,
+     &               'The Offending Mode (',LMODE,') had diameter and/or sigma out of bounds.',
+     &               'It was overwritten by changing the Num and SrfArea.',
+     &               'Grid Cell(Horz,Vert): ',BND, LVL,
+     &               'Modal Props Before:','Num','M2','M3','Dg','Sg',(AER_PAR(1,LMODE,j),j=1,5),
+     &               'Modal Props After: ','Num','M2','M3','Dg','Sg',(AER_PAR(2,LMODE,j),j=1,5)
+#endif
+        ENDIF
+      END DO
 
 #ifdef verbose_rdbcon
       if ( lvl .eq. 1 ) then

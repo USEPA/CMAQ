@@ -313,11 +313,7 @@ C Check that grid description matches B3GRD file
          IF ( .NOT. CHKGRID( MNAME ) ) THEN
             MESG = 'Grid in file "' // TRIM( MNAME )
      &           // '" does not match grid in file ' // TRIM( NNAME ) // '"'
-#ifdef twoway
             CALL M3WARN( PNAME, 0, 0, MESG )
-#else
-            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
-#endif
          END IF
 
 C Allocate memory for data and read

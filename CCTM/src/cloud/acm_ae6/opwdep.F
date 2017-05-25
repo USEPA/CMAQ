@@ -158,7 +158,6 @@ C Try to open existing wet deposition file for update
 
               SDATE3D = JDATE
               STIME3D = 10000 * ( JTIME / 10000 )     !  clear MMSS fields
-              !TSTEP3D = 010000   ! 1-hour timesteps (hhmmss)
               TSTEP3D = TSTEP     
               CALL NEXTIME ( SDATE3D, STIME3D, TSTEP3D ) !  on the next hour
 
@@ -275,7 +274,7 @@ C Try to open existing wet deposition file for update
 
                  SDATE3D = JDATE
                  STIME3D = 10000 * ( JTIME / 10000 )     !  clear MMSS fields
-                 TSTEP3D = 010000   ! 1-hour timesteps (hhmmss)
+                 TSTEP3D = TSTEP     
                  CALL NEXTIME ( SDATE3D, STIME3D, TSTEP3D ) !  on the next hour
 
                  NVARS3D = N_SPC_WDEP + 8 + 4

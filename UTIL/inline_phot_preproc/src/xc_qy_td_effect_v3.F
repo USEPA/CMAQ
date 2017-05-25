@@ -773,7 +773,7 @@
 
 
            REPLACE = .TRUE.
-         CASE( 'GLYOX_R_CRI', 'GLYOX_M_CRI' )
+         CASE( 'GLY_R_IUPAC10', 'GLYOX_R_CRI', 'GLYOX_M_CRI' )
 
 
            DO IW = 1, NW
@@ -1008,7 +1008,7 @@ C       by a multiplication factor in the mechanism definition file
 
             REPLACE = .TRUE.
 
-      CASE( 'MGLY-06' , 'BACL-07', 'MGLY_06' , 'BACL_07', 'MGLY_IUPAC04')
+      CASE( 'MGLY-06' , 'BACL-07', 'MGLY_06' , 'BACL_07', 'MGLY_IUPAC04', 'MGLY_IUPAC10' )
 
 ! temperature/density correction to quantum yield
 

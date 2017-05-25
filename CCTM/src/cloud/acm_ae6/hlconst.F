@@ -85,6 +85,11 @@ C  H.Pye      01/26/2016 added SOA SVOCs
 C  G.Sarwar   03/24/15  added iodine and bromine species
 C  H.Pye      05/31/16  updated IEPOX H-law from 2.7e6 to 3.0e7 M/atm
 C                       to reflect Nguyen et al. 2014.
+C  W.Hutzell  09/16/16  1) removed HCHO dissociation because its henry's
+C                        constant already accounts for the effect.
+C                       2) added henry's constant for compounds 194 thru
+C                        199 representing several toxic air pollutants
+C  
 C  D. Luecken 09/21/2016 
 C       1. added HAPs in 194-200; 
 C       2. modified existing HEXANE (19),N-HEXANE (117), and STYRENE (119); 
@@ -109,7 +114,7 @@ C...........INCLUDES and their descriptions
 
 C...........PARAMETERS and their descriptions:
 
-      INTEGER, PARAMETER :: MXSPCS = 200     ! Number of substances
+      INTEGER, PARAMETER :: MXSPCS = 201     ! Number of substances
       INTEGER, PARAMETER :: MXDSPCS = 19     ! Number of dissociating species
 
 C...pointers for the dissociation constants (array B and D)
@@ -288,9 +293,6 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA SUBNAME(117), A(117), E(117) / 'N-HEXANE        ', 6.18E-04, 3.8E+03 /  ! Sander, ACP, 2015, Abraham Matteoli (1988)
       DATA SUBNAME(118), A(118), E(118) / 'PROPANAL        ', 1.64E+00, 5.4E+03 /  ! Staudinger and Roberts (2001)
       DATA SUBNAME(119), A(119), E(119) / 'STYRENE         ', 2.74E-01, 0.0E+00 /  ! Sander, ACP, 2015, Kim and Kim (2014)
-
-      DATA SUBNAME(119), A(119), E(119) / 'STYRENE         ', 3.82E-01, 4.4E+03 /  ! Staudinger and Roberts (2001)
-
       DATA SUBNAME(120), A(120), E(120) / '124TRIMETH_BENZE', 1.50E-01, 4.3E+03 /  ! Hanson et al. (1995)
       DATA SUBNAME(121), A(121), E(121) / 'CHLOROACETALDEHY', 4.18E+01, 0.0E+00 /  ! Bond Estimate by EPA SUITE PROGRAM  (2007)
       DATA SUBNAME(122), A(122), E(122) / 'CHLOROACETONE   ', 3.82E-01, 0.0E+00 /  ! Staudinger and Roberts (2001)
@@ -378,7 +380,7 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA SUBNAME(198), A(198), E(198) / 'CHLOROPRENE     ', 4.760E+00, 0.0E+00 / ! Sander ACP 2015, Mackay et al. (1993)
       DATA SUBNAME(199), A(199), E(199) / 'METHCHLORIDE    ', 1.320E-01, 3.3E+03 / ! Sander ACP 2015, Sander et al. (2011)
       DATA SUBNAME(200), A(200), E(200) / 'CARBSULFIDE     ', 2.130E-02, 3.3E+03 / ! Sander ACP 2015, Warneck Williams (2012)
-
+      DATA SUBNAME(201), A(201), E(201) / '6_NITRO_O_CRESOL', 2.938E+01, 0.0E+00 / ! 6-methyl-2-nitrophenol from Sander ACP 2015, Tremp et. al (1992)
 
       DATA B( LSO2   ), D( LSO2   ) / 1.30E-02,  1.96E+03 /  ! SO2*H2O<=>HSO3+H     : Smith and Martell (1976)
       DATA B( LHSO3  ), D( LHSO3  ) / 6.60E-08,  1.50E+03 /  ! HSO3<=>SO3+H         : Smith and Martell (1976)
@@ -412,7 +414,7 @@ C-----------------------------------------------------------------------
 
       SPC = 0
       DO S = 1, MXSPCS
-        IF( TRIM( CNAME ) .EQ. TRIM( SUBNAME( S ) ) )THEN
+        IF( CNAME .EQ. SUBNAME( S ) )THEN
             SPC = S
             EXIT
         END IF
@@ -450,7 +452,7 @@ C...assign a value for clminus.  use 2.0 mM based on Lin and Pehkonene, 1998, JG
         CLMINUS   = 2.0E-03                ! chlorine ion conc [CL-]
         CLMINUSI  = 1.0 / CLMINUS          ! 1 / CLMINUS
 
-        CHECK_NAME: SELECT CASE ( TRIM( CNAME ) )
+        CHECK_NAME: SELECT CASE ( CNAME )
 
         CASE ('SO2')            !   SO2H2O <=> HSO3- + H+
                                 ! & HSO3- <=> SO3= + H+

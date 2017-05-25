@@ -112,6 +112,7 @@ C Local Variables:
       integer, save :: logdev
 
       CHARACTER( 96 ) :: XMSG = ' '
+      CHARACTER( 199 ) :: XMSG2 = ' '
 
       INTEGER      STEP                         ! ASTEP( L ), (dt) in sec
       INTEGER      DSTEP                        ! dt accumulator
@@ -120,13 +121,15 @@ C Local Variables:
       INTEGER      SYNCSTEP
 
       INTEGER      COL, ROW, LVL                ! loop counters
+      LOGICAL      LSTAT
 
 C Required interface for allocatable array dummy arguments
 
       INTERFACE
-         SUBROUTINE RDBCON ( FDATE, FTIME, TSTEP, LVL, BCON )
+         SUBROUTINE RDBCON ( FDATE, FTIME, TSTEP, LVL, BCON, LSTAT )
             INTEGER, INTENT( IN )  :: FDATE, FTIME, TSTEP, LVL
             REAL,    INTENT( OUT ) :: BCON( :,: )
+            LOGICAL, INTENT( INOUT ) :: LSTAT
          END SUBROUTINE RDBCON
          SUBROUTINE X_PPM ( CGRID, FDATE, FTIME, TSTEP, LVL, BCON )
             REAL, POINTER          :: CGRID( :,:,:,: )
@@ -191,6 +194,7 @@ C Get CGRID offsets
 
       SYNCSTEP = TIME2SEC( TSTEP( 2 ) )
 
+      LSTAT = .FALSE.
       DO 301 LVL = 1, NLAYS
 
          STEP = TIME2SEC ( ASTEP( LVL ) )
@@ -201,7 +205,7 @@ C Get CGRID offsets
 
 101      CONTINUE
 
-         CALL RDBCON ( FDATE, FTIME, ASTEP( LVL ), LVL, BCON )
+         CALL RDBCON ( FDATE, FTIME, ASTEP( LVL ), LVL, BCON, LSTAT )
 
 !        write( logdev,* ) ' lvl, fdate, ftime: ', lvl, fdate, ftime
 
@@ -252,6 +256,16 @@ C Get CGRID offsets
          END IF
 
 301   CONTINUE
-
+ 
+      !Print warning if any aerosol BCs violated the size distribution parameters
+      IF ( LSTAT ) THEN    
+            WRITE( XMSG2, '(A55,A57,A5)' ),
+     &            'Applying fix to aerosol Boundary Conditions for aerosol',
+     &            ' modes. Turn on verbose_rdcon preprocessor flag to learn ',
+     &            'more.'
+            CALL M3WARN( 'Read BCs', FDATE, FTIME, XMSG2 )
+      END IF
+ 
+ 
       RETURN
       END

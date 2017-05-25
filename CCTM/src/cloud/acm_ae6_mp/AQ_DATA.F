@@ -386,10 +386,10 @@ C Local Variable used to determine what optional TX to add to surrogates
       
 C-----------------------------------------------------------------------
 
-      logdev = setup_logdev()
 
       If ( Firstcall ) Then
          Firstcall = .False.
+         logdev    = setup_logdev()
       Else
          Return
       End if
@@ -753,7 +753,7 @@ C Local Variables:
       Integer spc
 
       Do spc = 1, ngas      
-         If ( srggas( spc )%name .Eq. Trim( vname ) ) Then
+         If ( srggas( spc )%name .Eq. vname ) Then
             idx = spc
             ! Write( *,'(a,i5)' ) vname, idx
             Return
@@ -791,7 +791,7 @@ C Local Variables:
       Do spc = 1, naer
          Do n = 1, nmodes
             ! Write( *,'(a,i5)' ) vname, spc
-            If ( srgaer( spc )%name( n ) .Eq. Trim( vname ) ) Then
+            If ( srgaer( spc )%name( n ) .Eq. vname ) Then
                idx = spc
                ! Write( *,'(a,i5)' ) vname, idx
                Return
@@ -834,7 +834,7 @@ C..Includes:
 C..Functions:
 
 C..Parameters:
-      Real, Parameter :: cmin = 1.0E-25   ! minimum concentration for most species
+      Real, Parameter :: cmin = 1.0E-34   ! minimum concentration for most species
 
 C..Arguments:
       Real, Intent( Out ) :: aeconcmin( : ) ! array of minimum concentrations
