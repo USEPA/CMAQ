@@ -1120,24 +1120,25 @@ C Stop the Model if Any Emissions Surrogate Species are
 C Missing from All Emission Input Sources
          IF ( LERROR ) THEN
            IF ( .NOT. EMISCHK ) THEN
-              WRITE( LOGDEV, '(4(/,A))') 
+              WRITE( LOGDEV, '(5(/,A))') 
      &               '************************WARNING***********************:',
      &               'One or more emissions surrogates assigned to model species ',
      &               'are not found in emissions sources but the CTM_EMISCHK ',
-     &               'environment variable set to False so simulation will proceed.'
+     &               'environment variable set to False so simulation will proceed.',
+     &               '*******************************************************'
 
               WRITE( LOGDEV, '(/,A55,/,A34,I3,A8,/,4(2x,A16))')
      &              'ATTENTION: The following emission species are available',
      &              'from the inputs but are not used: ',N_UNUSED,' Species',
      &              EMIS_SPC_UNUSED
 
-             WRITE( LOGDEV, * )
-             WRITE( LOGDEV, * )
+              WRITE( LOGDEV, * )
+              WRITE( LOGDEV, * )
               XMSG = 'For optimal predictions, species with the missing surrogates '
      &             //'should have a surrogate found in at least one source.'
               CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
            ELSE     
-              WRITE( LOGDEV, '(3(/,A),/,5(/,A),/,A,2(/,A))') 
+              WRITE( LOGDEV, '(3(/,A),/,5(/,A),/,A,4(/,A))') 
      &               '*************************ERROR**********************:',
      &               'One or more emission surrogates assigned to model species ',
      &               'are not found in emission sources.',
@@ -1148,7 +1149,8 @@ C Missing from All Emission Input Sources
      &               'then recompile.',
      &               'or',
      &               '2) Change CTM_EMISCHK environment variable to False (F) in the runscript',
-     &               'if model predictions are acceptable without using the above emissions.'
+     &               'if model predictions are acceptable without using the above emissions.',
+     &               '*****************************************************'
 
               WRITE( LOGDEV, '(/,A55,/,A34,I3,A8,/,4(2x,A16))')
      &             'ATTENTION: The following emission species are available',
