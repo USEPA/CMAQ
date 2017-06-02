@@ -128,14 +128,14 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 C...check if starting or ending dates where defined
         if( sDate .ne. 0 ) then
-          if( SECSDIFF (startDate, startTime, SDATE3D, STIME3D) .gt. 0 ) then
+          if( SECSDIFF (startDate, startTime, sDate, sTime) .gt. 0 ) then
             startDate = sDate  
             startTime = sTime  
             endif
           endif
 
         if( eDate .ne. 0 ) then
-          if( SECSDIFF (endDate, endTime, eDate, sTime) .lt. 0 ) then
+          if( SECSDIFF (endDate, endTime, eDate, eTime) .lt. 0 ) then
             endDate = eDate  
             endTime = eTime  
             endif
