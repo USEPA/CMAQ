@@ -698,9 +698,14 @@ C******************************************************************************
          Integer xtype, ndims, natts
          Logical match
 
-         Character*16 :: reqDimNa3D(4)=(/'west_east', 'south_north', 'bottom_top', 'Time' /)
+         Character*16 :: reqDimNa3D(4)=(/'west_east  ', 
+     &                                   'south_north',
+     &                                   'bottom_top ',
+     &                                   'Time       ' /)
          Integer      :: reqDimid3D(4)
-         Character*16 :: reqDimNa2D(3)=(/'west_east', 'south_north', 'Time' /)
+         Character*16 :: reqDimNa2D(3)=(/'west_east  ', 
+     &                                   'south_north',
+     &                                   'Time       ' /)
          Integer      :: reqDimid2D(3)
 	 
 	 character*19, allocatable :: timestamp(:)

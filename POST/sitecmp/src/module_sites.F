@@ -189,7 +189,7 @@ C**********************************************************************
 
          OPEN(unit=lfn, file=IN_TABLE, status='old', iostat=status)
          if(status.ne.0) then
-           MSG = 'Cannot open site file:' // trim(IN_TABLE)
+           MSG = 'Cannot open IN_TABLE:' // trim(IN_TABLE)
            CALL M3ERR( PNAME, 0, 0, MSG, .TRUE. )
            endif
 
