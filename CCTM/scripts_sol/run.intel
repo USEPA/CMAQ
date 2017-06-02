@@ -163,6 +163,7 @@
  setenv REP_LAYER_MIN      -1  # Minimum layer for reporting plume rise info [-1]
 #setenv RB_ATOL        1.0E-09 # global ROS3 solver abs tol (overide 1.0E-07 default)
 
+ setenv CTM_EMISCHK         Y  # Emissions Surrogate Species Error Checking [Y]
  setenv PROMPTFLAG          F  # turn off I/O-API PROMPT*FILE interactive mode
 #setenv CTM_CKSUM           N  # cksum report [Y]
 #setenv KZMIN               N  # use Min Kz option in edyintb [Y], otherwise revert to Kz0UT
@@ -204,6 +205,7 @@
 #setenv CTM_PHOTDIAG        Y  # photolysis rate diagnostic [N]
 
 #> new flags for AeroSprint
+ setenv CTM_ZERO_PCSOA      F  # Zero out emission of PCSOA precursor gas [F]
 #setenv CTM_AVISDIAG        Y  # diagnostic file [N]
  setenv CTM_PMDIAG          N  # not really a diagnostic file [Y]
 #setenv CTM_APMDIAG         Y  # diagnostic file [N]
