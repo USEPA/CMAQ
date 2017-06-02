@@ -35,7 +35,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, May 25, 2016
+C  REVISION HISTORY: Created by EBI solver program, May 26, 2017
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 
@@ -2950,14 +2950,14 @@ C***********************************************************************
       LOSS(  ACLK         ) =                 RXRAT( 720 )      ! ACLK+H2NO3PK=CLNO2
 
       PROD(  AXYL1J       ) =   0.0D0
-      LOSS(  AXYL1J       ) =                 RXRAT( 722 )      ! AXYL1J=0.1143D+01*AOLGAJ
+      LOSS(  AXYL1J       ) =                 RXRAT( 722 )      ! AXYL1J=0.8571D+00*AOLGAJ
 
-      PROD(  AOLGAJ       ) =    1.1428D+00 * RXRAT( 722 )      ! AXYL1J=0.1143D+01*AOLGAJ
-     &                      +    1.1428D+00 * RXRAT( 723 )      ! AXYL2J=0.1143D+01*AOLGAJ
-     &                      +                 RXRAT( 724 )      ! ATOL1J=AOLGAJ
-     &                      +                 RXRAT( 725 )      ! ATOL2J=AOLGAJ
-     &                      +    8.5714D-01 * RXRAT( 726 )      ! ABNZ1J=0.8571D+00*AOLGAJ
-     &                      +    8.5714D-01 * RXRAT( 727 )      ! ABNZ2J=0.8571D+00*AOLGAJ
+      PROD(  AOLGAJ       ) =    8.5710D-01 * RXRAT( 722 )      ! AXYL1J=0.8571D+00*AOLGAJ
+     &                      +    1.1429D+00 * RXRAT( 723 )      ! AXYL2J=0.1143D+01*AOLGAJ
+     &                      +    8.5710D-01 * RXRAT( 724 )      ! ATOL1J=0.8571D+00*AOLGAJ
+     &                      +    1.1429D+00 * RXRAT( 725 )      ! ATOL2J=0.1143D+01*AOLGAJ
+     &                      +    7.1430D-01 * RXRAT( 726 )      ! ABNZ1J=0.7143D+00*AOLGAJ
+     &                      +    7.1430D-01 * RXRAT( 727 )      ! ABNZ2J=0.7143D+00*AOLGAJ
      &                      +    1.4286D+00 * RXRAT( 733 )      ! APAH1J=0.1429D+01*AOLGAJ
      &                      +    1.4286D+00 * RXRAT( 734 )      ! APAH2J=0.1429D+01*AOLGAJ
      &                      +    1.7143D+00 * RXRAT( 735 )      ! AALK1J=0.1714D+01*AOLGAJ
@@ -2968,29 +2968,29 @@ C***********************************************************************
       LOSS(  AXYL2J       ) =                 RXRAT( 723 )      ! AXYL2J=0.1143D+01*AOLGAJ
 
       PROD(  ATOL1J       ) =   0.0D0
-      LOSS(  ATOL1J       ) =                 RXRAT( 724 )      ! ATOL1J=AOLGAJ
+      LOSS(  ATOL1J       ) =                 RXRAT( 724 )      ! ATOL1J=0.8571D+00*AOLGAJ
 
       PROD(  ATOL2J       ) =   0.0D0
-      LOSS(  ATOL2J       ) =                 RXRAT( 725 )      ! ATOL2J=AOLGAJ
+      LOSS(  ATOL2J       ) =                 RXRAT( 725 )      ! ATOL2J=0.1143D+01*AOLGAJ
 
       PROD(  ABNZ1J       ) =   0.0D0
-      LOSS(  ABNZ1J       ) =                 RXRAT( 726 )      ! ABNZ1J=0.8571D+00*AOLGAJ
+      LOSS(  ABNZ1J       ) =                 RXRAT( 726 )      ! ABNZ1J=0.7143D+00*AOLGAJ
 
       PROD(  ABNZ2J       ) =   0.0D0
-      LOSS(  ABNZ2J       ) =                 RXRAT( 727 )      ! ABNZ2J=0.8571D+00*AOLGAJ
+      LOSS(  ABNZ2J       ) =                 RXRAT( 727 )      ! ABNZ2J=0.7143D+00*AOLGAJ
 
       PROD(  ATRP1J       ) =   0.0D0
-      LOSS(  ATRP1J       ) =                 RXRAT( 728 )      ! ATRP1J=AOLGBJ
+      LOSS(  ATRP1J       ) =                 RXRAT( 728 )      ! ATRP1J=0.8000D+00*AOLGBJ
 
-      PROD(  AOLGBJ       ) =                 RXRAT( 728 )      ! ATRP1J=AOLGBJ
-     &                      +                 RXRAT( 729 )      ! ATRP2J=AOLGBJ
+      PROD(  AOLGBJ       ) =    8.0000D-01 * RXRAT( 728 )      ! ATRP1J=0.8000D+00*AOLGBJ
+     &                      +    9.0000D-01 * RXRAT( 729 )      ! ATRP2J=0.9000D+00*AOLGBJ
      &                      +    5.0000D-01 * RXRAT( 730 )      ! AISO1J=0.5000D+00*AOLGBJ
      &                      +    5.0000D-01 * RXRAT( 731 )      ! AISO2J=0.5000D+00*AOLGBJ
      &                      +    1.5000D+00 * RXRAT( 732 )      ! ASQTJ=0.1500D+01*AOLGBJ
       LOSS(  AOLGBJ       ) =   0.0D0
 
       PROD(  ATRP2J       ) =   0.0D0
-      LOSS(  ATRP2J       ) =                 RXRAT( 729 )      ! ATRP2J=AOLGBJ
+      LOSS(  ATRP2J       ) =                 RXRAT( 729 )      ! ATRP2J=0.9000D+00*AOLGBJ
 
       PROD(  AISO1J       ) =   0.0D0
       LOSS(  AISO1J       ) =                 RXRAT( 730 )      ! AISO1J=0.5000D+00*AOLGBJ
