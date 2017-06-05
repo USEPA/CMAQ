@@ -1,8 +1,10 @@
+<!-- BEGIN COMMENT -->
 
 [<< Previous Chapter](CMAQ_OGD_ch07_programs_libraries.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch09_grid_defn.md)
-* * *
 
-# 8. CMAQ Input and Output Files #
+<!-- END COMMENT -->
+
+# CMAQ Input and Output Files #
 
 The input files for CMAQ consist of a domain definition file for all programs; two sets of file options for both ICON and BCON; two types of input files (WRF/MM5 and terrain) for MCIP; five mandatory and one optional input file for JPROC; and for CCTM, emissions, initial conditions, and boundary conditions files, six files that define the meteorological conditions to be simulated, and a photolysis rates file. For most CCTM input, a separate data set is required for each horizontal domain that is modeled. When CMAQ is configured for in-line emissions and deposition, there are additional emissions input files that are required. CMAQ output files include a basic set of files with aerosol and gas-phase species concentrations, wet and dry deposition estimates, and visibility metrics, and an auxiliary set of output files for diagnosing model performance and in-line-calculated emissions.
 
@@ -15,7 +17,7 @@ This section describes each of the input files required by the various CMAQ prog
 **Table 8‑1. CMAQ input files**
 
 |**File Name**|**File Type**|**Time-Dependence**|**Spatial Dimensions**|**Source**|
-|---|---|---|---|---|
+|----------------------------|------|----|----|-----------------------------------|
 |**General**| | | | |
 |[GRIDDESC](#griddesc)|ASCII|n/a|n/a|user/MCIP
 |[gc_matrix.nml](#matrix_nml)|ASCII|n/a|n/a|CSV2NML
@@ -46,39 +48,39 @@ This section describes each of the input files required by the various CMAQ prog
 |[BNDY_CONC_1](#bndy_conc_1) | BNDARY3 | Hourly |[2(X+1)+2(Y+1)]*Z | BCON
 |[JTABLE](#jtable) | ASCII | Daily | n/a | JPROC
 |[OMI](#omi) | ASCII | daily | n/a ||
-|[EMIS_1](#emis_1) | GRDDED3 | Hourly | X*Y*Z | SMOKE
-|[OCEAN_1](#ocean_1) | GRDDED3 | Time-invariant | X*Y |Spatial Allocator
+|[EMIS_1](#emis_1) | GRDDED3 | Hourly | X\*Y\*Z | SMOKE
+|[OCEAN_1](#ocean_1) | GRDDED3 | Time-invariant | X\*Y |Spatial Allocator
 |[GSPRO](#gspro) | ASCII | Time-invariant | N/a | User
-|[B3GRD](#b3grd) | GRDDED3 | Time-invariant | X*Y | SMOKE
-|[BIOSEASON](#bioseason) |GRDDED3 |Time-invariant | X*Y | Metscan
-|[STK_GRPS_nn](#stk_grps) | GRDDED3 |Time-invariant|X*Y | SMOKE
-|[STK_EMIS_nn](#stk_emis) | GRDDED3 | Hourly | X*Y | SMOKE
-|[DUST_LU_1](#dust_lu_1)|GRDDED3 | Time-invariant | X*Y | Spatial Allocator
-|[DUST_LU_2](#dust_lu_1)|GRDDED3 | Time-invariant | X*Y | Spatial Allocator
-|[MODIS_FPAR](#modis_fpar)|GRDDED3 | Time-invariant | X*Y | Spatial Allocator
-|[CROPMAP01](#cropmap01)| GRDDED3 | Time-invariant | X*Y | Cropcal
-|[CROPMAP04](#cropmap04)| GRDDED3 | Time-invariant | X*Y | Cropcal
-|[CROPMAP08](#cropmap08)|GRDDED3 | Time-invariant | X*Y | Cropcal
-|[LTNGNO](#ltngno)| GRDDED3 | Hourly | X*Y*Z | User|
-|[NLDN_STRIKES](#nldn_strikes)| GRDDED3 | Monthly | X*Y ||
-|[LTNGPARMS_FILE](#ltngparm_file)| GRDDED3 | Monthly | X*Y ||
-|[BELD4_LU](beld4_lu)| GRDDED3 | Time-invariant |X*Y||
-|[E2C_SOIL](#e2c_soil)| GRDDED3 |center> Time-invariant | X*Y||
-|[E2C_FERT](#e2c_fert)| GRDDED3 | Time-invariant |X*Y||
-|[MEDIA_CONC](#init_medc_1)| GRDDED3 || X*Y ||
-|[INIT_GASC_1](#init_gasc_1)| GRDDED3 || X*Y ||
-|[INIT_AERO_1](#init_aero_1)| GRDDED3 || X*Y ||
-|[INIT_NONR_1](#init_nonr_1)| GRDDED3 || X*Y ||
-|[INIT_TRAC_1](#init_trac_1)| GRDDED3 || X*Y ||
-|[GRID_CRO_2D](#grid_cro_2d) | GRDDED3 | Time-invariant | X*Y | MCIP
-|[GRID_CRO_3D](#grid_cro_3d) | GRDDED3 | Time-invariant | X*Y*Z | MCIP
-|[GRID_BDY_2D](#grid_bdy_2D) | GRDDED3 | Time-invariant | PERIM*Z | MCIP
-|[GRID_DOT_2D](#grid_dot_2d) | GRDDED3 | Time-invariant | (X+1)*(Y+1) | MCIP
+|[B3GRD](#b3grd) | GRDDED3 | Time-invariant | X\*Y | SMOKE
+|[BIOSEASON](#bioseason) |GRDDED3 |Time-invariant | X\*Y | Metscan
+|[STK_GRPS_nn](#stk_grps) | GRDDED3 |Time-invariant|X\*Y | SMOKE
+|[STK_EMIS_nn](#stk_emis) | GRDDED3 | Hourly | X\*Y | SMOKE
+|[DUST_LU_1](#dust_lu_1)|GRDDED3 | Time-invariant | X\*Y | Spatial Allocator
+|[DUST_LU_2](#dust_lu_1)|GRDDED3 | Time-invariant | X\*Y | Spatial Allocator
+|[MODIS_FPAR](#modis_fpar)|GRDDED3 | Time-invariant | X\*Y | Spatial Allocator
+|[CROPMAP01](#cropmap01)| GRDDED3 | Time-invariant | X\*Y | Cropcal
+|[CROPMAP04](#cropmap04)| GRDDED3 | Time-invariant | X\*Y | Cropcal
+|[CROPMAP08](#cropmap08)|GRDDED3 | Time-invariant | X\*Y | Cropcal
+|[LTNGNO](#ltngno)| GRDDED3 | Hourly | X\*Y\*Z | User|
+|[NLDN_STRIKES](#nldn_strikes)| GRDDED3 | Monthly | X\*Y ||
+|[LTNGPARMS_FILE](#ltngparm_file)| GRDDED3 | Monthly | X\*Y ||
+|[BELD4_LU](beld4_lu)| GRDDED3 | Time-invariant |X\*Y||
+|[E2C_SOIL](#e2c_soil)| GRDDED3 |center> Time-invariant | X\*Y||
+|[E2C_FERT](#e2c_fert)| GRDDED3 | Time-invariant |X\*Y||
+|[MEDIA_CONC](#init_medc_1)| GRDDED3 || X\*Y ||
+|[INIT_GASC_1](#init_gasc_1)| GRDDED3 || X\*Y ||
+|[INIT_AERO_1](#init_aero_1)| GRDDED3 || X\*Y ||
+|[INIT_NONR_1](#init_nonr_1)| GRDDED3 || X\*Y ||
+|[INIT_TRAC_1](#init_trac_1)| GRDDED3 || X\*Y ||
+|[GRID_CRO_2D](#grid_cro_2d) | GRDDED3 | Time-invariant | X\*Y | MCIP
+|[GRID_CRO_3D](#grid_cro_3d) | GRDDED3 | Time-invariant | X\*Y\*Z | MCIP
+|[GRID_BDY_2D](#grid_bdy_2D) | GRDDED3 | Time-invariant | PERIM\*Z | MCIP
+|[GRID_DOT_2D](#grid_dot_2d) | GRDDED3 | Time-invariant | (X+1)\*(Y+1) | MCIP
 |[MET_BDY_2D](#met_bdy_2d) | BNDARY3 | Hourly | ??? | MCIP
-|[MET_BDY_3D](#met_bdy_3d) | BNDARY3 | Hourly | PERIM*Z | MCIP
-|[MET_CRO_2D](#met_cro_2d) | GRDDED3 | Hourly | X*Y | MCIP
-|[MET_CRO_3D](#met_cro_3d) | GRDDED3 | Hourly | X*Y*Z | MCIP
-|[MET_DOT_3D](#met_dot_3d) | GRDDED3 | Hourly | (X+1)*(Y+1)*Z | MCIP
+|[MET_BDY_3D](#met_bdy_3d) | BNDARY3 | Hourly | PERIM\*Z | MCIP
+|[MET_CRO_2D](#met_cro_2d) | GRDDED3 | Hourly | X\*Y | MCIP
+|[MET_CRO_3D](#met_cro_3d) | GRDDED3 | Hourly | X\*Y\*Z | MCIP
+|[MET_DOT_3D](#met_dot_3d) | GRDDED3 | Hourly | (X+1)\*(Y+1)\*Z | MCIP
 
 
 <a id=griddesc></a>
@@ -99,7 +101,7 @@ The grid description section ([Table 8-3](#Table8-3)) consists of text records t
  **Table 8‑2. Coordinate sytem description segment of GRIDDESC**
 
 | **Line**| **Column**| **Name** | **Type** | **Description**|
-|---|---|---|---|---|
+|---|---|----------|----------|--------------------------------------------------------|
 |1|A| Header | String |Single-quote-delimited header describing section contents; may be blank, i.e., ' '|
 |2|A| COORD-NAME | String |Name of the coordinate description (required); single quote delimited|
 |3|A| COORDTYPE | Int |I/O API index defining the map projection type (required)| |
@@ -114,7 +116,7 @@ The grid description section ([Table 8-3](#Table8-3)) consists of text records t
  **Table 8‑3. Grid definition segment of GRIDDESC**
 
 |**Line** | **Column** | **Name** | **Type** | **Description**|
-|---|---|---|---|---|
+|----|----|----------|----------|-----------------------------------------------------|
 | 1 | A | Header | String|Single-quote-delimited header describing section contents; may be blank, i.e., ' '|
 | 2 | A | GRID-NAME | String |Name of the horizontal grid (required); single quote delimited|
 | 3 | A | COORD-NAME| String |Name of the coordinate description in the previous section (required); single quote delimited|
@@ -191,10 +193,10 @@ The namelist files contain header information that describe which class of speci
 
 <a id=Table8-4></a>
 
- **Table 8‑4. GC species namelist file format** 
+ **Table 8‑4. GC species namelist file format**
 
 | **Line**| **Column** |**Name** | **Type**| **Description** |
-|---|---|---|---|---|
+|---------|------------|----------|----------|--------------------------------------------|
 | 1 || !Revision Control System(RCS file) |
 | 2 || Header: filename, version, date/time, author |
 | 4 || File type | String |&GC_nml|
@@ -241,10 +243,10 @@ A detailed description of the vertical profile file format for initial condition
 
 <a id=Table8-5></a>
 
- **Table 8-5. IC_PROFILE format description** 
+ **Table 8-5. IC_PROFILE format description**
 
 |**Line**|**Column**|**Name**|**Type**|**Description**|
-|---|---|---|---|---|
+|----|-------------|----------|---------|------------------------------------------------------|
 | 1-3 || Text Header | String |Text description of the contents and source of the initial conditions file (optional)|
 | 4 | A | NUM_SIGMA_LVL | Int |Number of sigma levels contained in the file (required)|
 || B | NUM_POLL | Int |Number of pollutants contained in the file (required)|
@@ -300,10 +302,10 @@ A detailed description of the vertical profile file format for boundary conditio
 
 <a id=Table8-6></a>
 
-**Table 8-6. BC_PROFILE format description** 
+**Table 8-6. BC_PROFILE format description**
 
 |**Line**|**Column**|**Name**|**Type**|**Description**|
-|---|---|---|---|---|
+|-----|------------|----------|----------|---------------------------------------------|
 | 1-3 || Text Header | String |Text description of the contents and source of the initial conditions file (optional) |
 | 4 | A | NUM_SIGMA_LVL | Int |Number of sigma levels contained in the file (required)|
 || B | NUM_POLL | Int |Number of pollutants contained in the file (required)|
@@ -362,10 +364,10 @@ The ASCII-formatted CSQY files begin with the number and a list of the applicabl
 
 <a id=Table8-7></a>
 
-**Table 8-7. CSQY format description** 
+**Table 8-7. CSQY format description**
 
 |**Line** | **Column** | **Name** | **Type** | **Description** |
-|---|---|---|---|---|
+|----|----|--------------------------|---------|-----------------------------------------|
 | 1 | A | CSQY Mechanism Table Name | String |Text name indicating this is the CSQY for the Mechanism Specified.  This name is cross-referenced in the chemical mechanism description and INCLUDE files (required)|
 | 1 | A | NPHOTAB | String |Number of Photolysis Reactions|
 | 2 | A | Comments | String |Preceded by "!", Individual Reaction Rates Listed below|
@@ -376,7 +378,7 @@ The ASCII-formatted CSQY files begin with the number and a list of the applicabl
 | 3+NPHOTAB+2 | A | Number| Integer | Index of temperature |
 || B | TEMP | Real | Temperature in Kelvin|
 | repeat for all NTEMP values|
-| 3+NPHOTAB+NTEMP | A | Comments | String |Preceded by "!", column header: I,      START_WL_BIN(nm),    EFFECT_WL_BIN_(nm),       END_WL_BIN_(nm), photon_flux(cm-2*s-1), |
+| 3+NPHOTAB+NTEMP | A | Comments | String |Preceded by "!", column header: I,      START_WL_BIN(nm),    EFFECT_WL_BIN_(nm),       END_WL_BIN_(nm), photon_flux(cm-2\*s-1), |
 | 3+NPHOTAB+NTEMP+1 | A | Number of Inline Photolysis Bands| Integer | |
 || B | Start Wavelength | Real |Start Wavelength for Bin |
 || C | Effect Wavelength | Real |Effect Wavelength for Bin |
@@ -384,7 +386,7 @@ The ASCII-formatted CSQY files begin with the number and a list of the applicabl
 || E | Photon Flux| Real |Photon Flux |
 | 3+NPHOTAB+NTEMP+2 | A | Comments | String |Preceded by "!", CS  = absorption cross sections averaged over UCI Solar Flux|
 | 3+NPHOTAB+NTEMP+3 | A | Comments | String |Preceded by "!", QY  = quantum yields averaged over UCI Solar Flux|
-| 3+NPHOTAB+NTEMP+4 | A | Comments | String |Preceded by "!", EQY = eCS*eQY/CS averaged over Solar Flux and 77 bins in UCI Model|
+| 3+NPHOTAB+NTEMP+4 | A | Comments | String |Preceded by "!", EQY = eCS\*eQY/CS averaged over Solar Flux and 77 bins in UCI Model|
 | 3+NPHOTAB+NTEMP+5 | A | Comments | String |Preceded by "!", header for reactions, CS or EQY, and Wavelength Bins|
 | 3+NPHOTAB+NTEMP+6| A |Reaction Name | String |Reaction Name|
 || B | Quantity | String |CS |
@@ -510,10 +512,10 @@ ET is the logical name for the ASCII data file containing extraterrestrial radia
 
 <a id=Table8-8></a>
 
-**Table 8-8 ET file format description** 
+**Table 8-8 ET file format description**
 
 | **Line** | **Column** | **Name** | **Type** | **Description**|
-|---|---|---|---|---|
+|-----|-----|-------------|------------|-----------------------------------------------------|
 | 1 | A | Comments | String |Preceded by "!", comment lines describe the file contents and document the source of the data (optional)|
 | n | ...  | ...  | ...  | ...  |
 | n + 1 | A | Data Location | String |Field indicating the location of the data as measured across the wavelength band; possible answers: beginning, ending, centered, point (required)|
@@ -552,10 +554,10 @@ The last data section in the PROFILES file contains vertical profiles from the 1
 
 <a id=Table8-9></a>
 
- **Table 8-9. PROFILES file format description.** 
+ **Table 8-9. PROFILES file format description.**
 
 | **Line** | **Column**| **Name**|**Type**|**Description**|
-|---|---|---|---|---|
+|-----|-------|-------------------------------------|----------|----------------------------------------|
 | 1 | A | Ozone concentration at Season 1, Latitude 1, Level 1 | Exp (E10.3) |Ozone measurements as a function of season, latitude, and vertical level; units = molecules cm<sup>-3</sup> (required)|
 || B | Ozone concentration at Season 1, Latitude 1, Level 2 | Exp (E10.3) |Ozone measurements as a function of season, latitude, and vertical level; units = molecules cm<sup>-3</sup> (required)|
 | ...  | ...  | ...  | ...  |...|
@@ -599,10 +601,10 @@ A detailed description of the file format is provided in [Table 8‑10](#Table8-
 
 <a id=Table8-10></a>
 
-'''Table 8-10 TOMS Data Profile ''' 
+'''Table 8-10 TOMS Data Profile '''
 
 |**Line** | **Column**| **Name** | **Type**| **Description** |
-|---|---|---|---|---|
+|-----|--------|-------|-------|--------------------------------------------------------------------|
 | 1 | A | Julian Day | Int |Julian start day of the file, DDD; preceded by 6 blank spaces (required)|
 || B | Year | Int |Start year of the file, YYYY; preceded by 9 blank spaces (required)|
 | 2 || Header | String |80-character line describing the contents of the file (if omitted, needs line placeholder)|
@@ -629,7 +631,7 @@ O3ABS is the logical name for the ASCII data file containing absorption cross se
 
 Used by: MCIP
 
-MCIP can read MM5 (version 3) binary output files (MMOUT) and WRF‑ARW netCDF-based files to generate I/O API-formatted netCDF files for input to CMAQ and emissions modeling. For details about the format of the MMOUT files, visit the MM5 homepage at [<http://www.mmm.ucar.edu/mm5>](http://www.mmm.ucar.edu/mm5). For information about the format of the WRF output files, visit the WRF‑ARW homepage at [<http://www.mmm.ucar.edu/wrf/users>](http://www.mmm.ucar.edu/wrf/users).
+MCIP can read MM5 (version 3) binary output files (MMOUT) and WRF‑ARW netCDF-based files to generate I/O API-formatted netCDF files for input to CMAQ and emissions modeling. For details about the format of the MMOUT files, visit the [MM5 homepage](http://www.mmm.ucar.edu/mm5). For information about the format of the WRF output files, visit the [WRF‑ARW homepage](http://www.mmm.ucar.edu/wrf/users).
 
 <a id=interfile></a>
 ### InTerFile: Terrain file
@@ -645,7 +647,7 @@ Used by: MCIP
 
 [EPA: need a description of this file]
 
-<a id="bndy_conc_1"><a/>
+<a id=bndy_conc_1></a>
 ### BNDY_CONC_1: Boundary conditions
 
 Used by: CCTM
@@ -654,15 +656,15 @@ CMAQ boundary condition data are of the BNDARY3 file type. Produced by the bound
 
 Each species being modeled should be in the BNDY_CONC_1 file. If some modeled species are not contained in this file, the boundary condition for these species will default to the value 1 × 10<sup>‑30</sup>. The perimeter of the CMAQ domain is 1 cell wide, where the number of boundary cells = (2*NROW)+(2*NCOL)+4. [Figure 8-2](#Figure8-2) is a graphical example of the CMAQ boundary conditions file; the west and north boundaries have ozone values of 0.035 ppmV, while the east and south boundaries have values of 0.030 ppmV.
 
-![](./images/Figure8-1.png "Figure8-1.png")
+``![](./images/Figure8-1.png "Figure8-1.png")``
 
 **Figure 8-1. Illustration of CMAQ boundary condition file**
 
-![](./images/Figure8-2.png "Figure8-2.png")
+``![](./images/Figure8-2.png "Figure8-2.png")``
 
 **Figure 8-2. Graphical example of a CMAQ gridded boundary conditions file**
 
-<a id="init_conc_1"><a/>
+<a id=init_conc_1></a>
 ### INIT_CONC_1: Initial conditions
 
 Used by: CCTM
@@ -674,7 +676,7 @@ The initial concentrations of each species being modeled must be input to CMAQ. 
 **Figure 8-3. Graphical example of a CMAQ gridded initial conditions file**
 
 
-<a id="jtable"><a/>
+<a id=jtable></a>
 ### JTABLE: Photolysis rates look-up table
 
 Used by: CCTM
@@ -687,10 +689,10 @@ The data section of the file contains data blocks that are mapped to the header 
 
 <a id=Table8-11></a>
 
-**Table 8-11. JTABLE file format description** 
+**Table 8-11. JTABLE file format description**
 
 | **Line** | **Column** |**Name** | **Type** | **Description** |
-|---|---|---|---|---|
+|----|--------|-------|--------|------------------------------------------------|
 |1|A|JVDATE|String|Julian date of the file; YYYYDDD (required)|
 ||B|Comment|String|Description of the Julian date field (optional)|
 |2|A|JVHT|Int|Number of vertical levels covered by the data (required)|
@@ -765,7 +767,7 @@ A sample of the important sections of a JTABLE file is shown below.
 ` 5.0964761E-01 4.9923715E-01 4.6422747E-01 4.0129572E-01 3.0394882E-01`
 ` 1.6590215E-01 3.2829735E-02 0.0000000E+00 0.0000000E+00`
 
-<a id="omi"><a/>
+<a id=omi></a>
 ### OMI: Ozone Monitoring Instrument Column Data
 
 Used by: CCTM
@@ -774,10 +776,10 @@ OMI ozone column data by latitude and longitude for use in the inline photolysis
 
 <a id=Table8-12></a>
 
-**Table 8‑12. OMI data format** 
+**Table 8‑12. OMI data format**
 
 | **Line** | **Column** | **Name** | **Type** | **Description**|
-|---|---|---|---|---|
+|-----|-----|------|-----|-----------------------------------|
 | 1 || Header ||Header with names for each column|
 | 2 | A | Yeardate | Real |YYYY.??? or YYYY.???? formatted date field.|
 || B | Latitude 1 | Int |80 North latitude|
@@ -813,11 +815,11 @@ OMI ozone column data by latitude and longitude for use in the inline photolysis
 || C | Longitude 1 | Int |180.0Z longitude ozone column (DU)|
 | … | … | … | … | … |
 || S | Longitude 17 | Int |180.0Z longitude ozone column (DU)|
-|…|…|…|…| Repeat for total of 17 latitudes of data 
-|…|…|…|…| Repeat for (1978-2008) there are ~48 days (4 days per month) of data 
-|…|…|…|…| Repeat for (2009-2015) there are 365 days of data 
+|…|…|…|…| Repeat for total of 17 latitudes of data
+|…|…|…|…| Repeat for (1978-2008) there are ~48 days (4 days per month) of data
+|…|…|…|…| Repeat for (2009-2015) there are 365 days of data
 
-<a id="emis_1"><a/>
+<a id=emis_1></a>
 ### EMIS_1: Emissions
 
 Used by: CCTM
@@ -826,35 +828,35 @@ CMAQ can accept emissions inputs from a variety of emissions models and preproce
 
 The emissions file sorts the emitted gas-phase and aerosol species by grid cell and time. The file type is GRDDED3, and the units are in moles per second (moles s<sup>‑1</sup>) for gas-phase species and grams per second (g s<sup>‑1</sup>) for aerosol species. The file data are looped as follows: by column, by row, by layer, by variable, and by input time step. CMAQ does not artificially distinguish between surface and elevated emissions sources; elevated sources are provided to CMAQ as vertically resolved emissions. For CCTM configurations that do not use in-line emissions calculations, all emissions estimates are contained within a single input emission file for each day. In v4.7, CMAQ now has the capability to process point-source, sea salt, and biogenic emissions in-line. The supplemental input files to use for calculating the in-line emissions are described in the CMAQv4.7 release notes.
 
-<a id="ocean_1"><a/>
+<a id=ocean_1></a>
 ### OCEAN_1: Sea salt mask
 
 Used by: CCTM
 
 The CMAQ aerosol models AERO5 and AERO6 can compute sea salt emissions from both open ocean grid cells and surf zone grid cells. The addition of the surf zone option simulates the elevated emissions rates of sea salt in coastal regions where wave action occurs. The OCEAN_1 file contains data on the fraction of each grid cell that is either open ocean (OPEN) or in the surf zone (SURF). When CCTM is compiled with AERO5 or AERO6, it will expect the OCEAN_1 file as input.
 
-<a id="gspro"><a/>
+<a id=gspro></a>
 ### GSPRO: Speciation profiles
 
 Used by: CCTM – inline emissions version only
 
 The speciation profile file, GSPRO, contains the factors that are used to separate aggregated inventory pollutant emissions totals into emissions of model species in the form required by CMAQ. If only biogenic emissions are being calculated in-line in CMAQ, the GSPRO file used by CCTM needs to contain split factors only for the biogenic VOC emissions that are input in the B3GRD file. If other emissions sources are being calculated by CCTM, VOC split factors for these other sources must be included in the GSPRO file. The GSPRO file format is listed in the SMOKE user’s manual, see: [GSPRO documentation](https://www.cmascenter.org/smoke/documentation/4.0/html/ch08s05s02.html).
 
-<a id="b3grd"><a/>
+<a id=b3grd></a>
 ### B3GRD: Gridded, normalized biogenic emissions
 
 Used by: CCTM – inline-emissions version only
 
 An I/O API GRDDED3 file of gridded, normalized biogenic emissions (in grams of carbon or nitrogen per hour, depending on the species) and leaf area index. The B3GRD file contains normalized emissions calculated with both summer and winter emissions factors. The B3GRD file is generated with the SMOKE program NORMBEIS3 using gridded land use data. For additional information about creating the B3GRD file, see the [NORMBEIS3 documentation](https://www.cmascenter.org/smoke/documentation/4.0/html/ch06s12.html) in the SMOKE users’ manual.
 
-<a id="bioseason"><a/>
+<a id=bioseason></a>
 ### BIOSEASON: Freeze dates
 
 Used by: CCTM – inline-emissions version only
 
 The BIOSEASON switch file is an I/O API GRDDED3 file used to indicate which biogenic emissions factor to use on each day in a given year for every grid cell in the modeling domain. This file can be created using the Metscan utility program that is distributed with SMOKE. The BIOSEASON file is time-dependent and usually contains data for an entire year (365 or 366 days). It uses one variable, SEASON, which is either 0 (grid cell should use winter factors for current day) or 1 (grid cell should use summer factors for current day). For additional information about creating the BIOSEASON file, see the [Metscan documentation](https://www.cmascenter.org/smoke/documentation/4.0/html/ch05s03s10.html) in the SMOKE user’s manual.
 
-<a id="stk_grps"><a/>
+<a id=stk_grps></a>
 ### STK_GRPS_nn: Stack groups
 
 Used by: CCTM – in-line emissions version only
@@ -863,7 +865,7 @@ The ## mark is unique and represents the sector identification.
 
 The stack groups file is an I/O API netCDF file containing stack parameters for elevated sources. This file can be created using the SMOKE program ELEVPOINT. For additional information about creating the stack groups file, see the [ELEVPOINT documentation](https://www.cmascenter.org/smoke/documentation/4.0/html/ch06s03.html) in the SMOKE user’s manual
 
-<a id="stk_emis"><a/>
+<a id=stk_emis></a>
 ### STK_EMIS_nn: Point source emissions
 
 Used by: CCTM – inline emissions version only
@@ -872,7 +874,7 @@ The ## mark is unique and represents the sector identification.
 
 The elevated-point-source emissions file is an I/O API GRDDED3 file with emissions for point sources to be treated as elevated sources by CCTM. The emissions in this file are distributed through the vertical model layers using a plume-rise algorithm contained in CCTM. The elevated-point-source emissions file can be creating using SMOKE. For additional information about preparing point-source emissions for using the CMAQ in-line plume rise calculation, see the [ELEVPOINT documentation](https://www.cmascenter.org/smoke/documentation/4.0/html/ch06s03.html) in the SMOKE user’s manual.
 
-<a id="dust_lu_1"><a/>
+<a id=dust_lu_1></a>
 ### DUST_LU_1: Gridded land cover/land use
 
 Used by: CCTM – in-line dust emission version only
@@ -901,7 +903,7 @@ The gridded land cover/land use (LCLU) file is an I/O API GRDDED3 file of BELD3 
 
 These categories are used to determine dust source locations and canopy scavenging factors for estimating dust emission in the model. This file can be created for North America using the Spatial Allocator and BELD4 tiles. The DUST_LU_1 file corresponds to the “a” output file from the Spatial Allocator. See the chapter on [creating biogenic inputs to SMOKE](https://www.cmascenter.org/sa-tools/documentation/4.2/html/raster/Raster_Users_Guide_4_2.htm#_Toc389118706) of the Spatial Allocator User’s Guide for details.
 
-<a id="dust_lu_2"><a/>
+<a id=dust_lu_2></a>
 ### DUST_LU_2: Gridded land cover/land use
 
 Used by: CCTM – in-line dust emission version only
@@ -912,42 +914,42 @@ The gridded land cover/land use (LCLU) file is an I/O API GRDDED3 file of BELD3 
 
 This variable is used in combination with the variables in the DUST_LU_1 file to determine canopy scavenging factors for estimating dust emission in the model. This file can be created for North America using the Spatial Allocator and BELD3 tiles. The DUST_LU_2 file corresponds to the “tot” output file from the Spatial Allocator. See the chapter on [creating biogenic inputs to SMOKE](https://www.cmascenter.org/sa-tools/documentation/4.2/html/raster/Raster_Users_Guide_4_2.htm#_Toc389118706) of the Spatial Allocator User’s Guide for details
 
-<a id="modis_fpar"><a/>
+<a id=modis_fpar></a>
 ### MODIS_FPAR: MODIS vegetation coverage
 
 Used by: CCTM – in-line dust emission version only
 
 [EPA: Add Description]
 
-<a id="cropmap01"><a/>
+<a id=cropmap01></a>
 ### CROPMAP01: Gridded planting start dates
 
 Used by: [CCTM](#CMAQ_Chemistry-Transport_Model_.28CCTM.29) – in-line dust emission version with crops only
 
 The gridded planting start dates file is an I/O API GRDDED3 file of planting start dates for various crops interpolated to the modeling domain. The variables in this file are planting start dates for different crop types, where each variable is an integer representing the number of days after January 1 that planting stops for each crop. The CMAQ preprocessing program [CALMAP](#CALMAP:_Crop_calendar_map_preprocessor) reads a crop activity calendar and a [GRID_CRO_2D](#grid_cro_2d) file to generate the CROPMAP08 file.
 
-<a id="cropmap04"><a/>
+<a id=cropmap04></a>
 ### CROPMAP04: Gridded planting end dates
 
 Used by: [CCTM](#CMAQ_Chemistry-Transport_Model_.28CCTM.29) – in-line dust emission version with crops only
 
 The gridded planting end dates file is an I/O API GRDDED3 file of planting end dates for various crops interpolated to the modeling domain. The variables in this file are planting end dates for different crop types, where each variable is an integer representing the number of days after January 1 that planting stops for each crop. The CMAQ preprocessing program [CALMAP](#CALMAP:_Crop_calendar_map_preprocessor) reads a crop activity calendar and a [GRID_CRO_2D](#grid_cro_2d) file to generate the CROPMAP08 file.
 
-<a id="cropmap08"><a/>
+<a id=cropmap08></a>
 ### CROPMAP08: Gridded harvesting end dates
 
 Used by: [CCTM](#CMAQ_Chemistry-Transport_Model_.28CCTM.29) – in-line dust emission version with crops only
 
 The gridded harvesting end dates file is an I/O API GRDDED3 file of harvesting end dates for various crops interpolated to the modeling domain. The variables in this file are harvesting end dates for different crop types, where each variable is an integer representing the number of days after January 1 that harvesting stops for each crop. The CMAQ preprocessing program [CALMAP](#CALMAP:_Crop_calendar_map_preprocessor) reads a crop activity calendar and a [GRID_CRO_2D](#grid_cro_2d) file to generate the CROPMAP08 file.
 
-<a id="ltngno"><a/>
+<a id=ltngno></a>
 ### LTNGNO: Lightning NOx emissions
 
 Used by: CCTM – lightning NO<sub>x</sub> version only
 
 The lightning NO<sub>x</sub> emissions file is an I/O API GRDDED3 file with 3-d (row x col x layer) hourly NO emissions (moles/s) interpolated to the modeling domain. This is a lightning NO emissions file calculated off-line for input to CMAQ.
 
-<a id="ltngparm_file"><a/>
+<a id=ltngparm_file></a>
 ### LTNGPARMS_FILE: Lightning parameters file
 
 Used by: CCTM – lightning NO<sub>x</sub> version only
@@ -962,7 +964,7 @@ The lightning parameters file is used for calculating in-line NO emissions from 
 -   ICCG_WIN (unitless): Ratio of intercloud to cloud-to-ground flashes during the winter season
 -   OCNMASK (unitless): Land/water mask to remove spurious flashes over the ocean.
 
-<a id="nldn_strikes"><a/>
+<a id=nldn_strikes></a>
 ### NLDN_STRIKES: Hourly observed lightning strikes
 
 Used by: CCTM – lightning NO<sub>x</sub> version only
@@ -971,35 +973,35 @@ The NLDN lightning strikes file is used for calculating in-line NO emissions fro
 
 -   NLDNstrk (km-2): hourly flash counts per sq. km.
 
-<a id="beld4_lu"><a/>
+<a id=beld4_lu></a>
 ### BELD4_LU – Fractional crop distributions
 
 Used by: CCTM – bidirectional NH<sub>3</sub> flux version only
 
 Add content
 
-<a id="e2c_soil"><a/>
+<a id="e2c_soil"></a>
 ### E2C_SOIL – EPIC soil properties
 
 Used by: CCTM – bidirectional NH<sub>3</sub> flux version only
 
 Add content
 
-<a id="e2c_fert"><a/>
+<a id="e2c_fert"></a>
 ### E2C_FERT – EPIC crop types and fertilizer application
 
 Used by: CCTM – bidirectional NH<sub>3</sub> flux version only
 
 Add content
 
-<a id="init_medc_1"><a/>
+<a id="init_medc_1"></a>
 ### INIT_MEDC_1 – Soil initial conditions file
 
 Used by: CCTM – bidirectional NH<sub>3</sub> flux version only
 
 The ASXfile output for the previous day from the bidirectional NH<sub>3</sub> model is used to initialize the soil conditions for each simulation day.
 
-<a id="grid_cro_2d"><a/>
+<a id="grid_cro_2d"></a>
 ### GRID_CRO_2D: Two-dimensional grid cross-point fields
 
 Used by: CCTM
@@ -1016,7 +1018,7 @@ The GRID_CRO_2D time-independent file contains surface fields at cross points (i
 -   LUFRAC_01: land use fraction of NLCD40: Evergreen Needleleaf Forest
 -   LUFRAC_XX: <repeated for 40 land use fractions>
 
-<a id="grid_dot_2d"><a/>
+<a id=grid_dot_2d></a>
 ### GRID_DOT_2D: Two-dimensional grid dot-point fields
 
 Used by: CCTM
@@ -1027,20 +1029,20 @@ The GRID_DOT_2D time-independent file contains surface fields at dot points (i.e
 -   LON: longitude (degrees, where Western Hemisphere is negative)
 -   MSFD2: squared map scale factor (m<sup>2</sup> m<sup>‑2</sup>)
 
-<a id="grid_cro_3d"><a/>
+<a id=grid_cro_3d></a>
 ### GRID_CRO_3D: Three-dimensional grid cross-point fields
 Used by: CCTM
 
 The GRID_CRO_3D time-independent file contains surface fields at cross points (i.e., at cell centers) that vary by height. It is created by MCIP and used by CCTM for the PT3D. The following variables are in this file:
 add content
 
-<a id="met_bdy_2d"><a/>
+<a id=met_bdy_2d></a>
 ### MET_BDY_2D: Two-dimensional meteorological boundary input
 
 Used by: CCTM
 add content
 
-<a id="met_bdy_3d"><a/>
+<a id=met_bdy_3d></a>
 ### MET_BDY_3D: Three-dimensional meteorological boundary input
 
 Used by: CCTM
@@ -1064,7 +1066,7 @@ The MET_BDY_3D time-dependent file contains 3-D meteorological descriptions at t
 -   QS: snow mixing ratio (kg kg<sup>‑1</sup>)
 -   QG: graupel mixing ratio (kg kg<sup>‑1</sup>)
 
-<a id="met_cro_2d"><a/>
+<a id=met_cro_2d></a>
 ### MET_CRO_2D: Two-dimensional meteorological cross-point fields
 
 Used by: CCTM
@@ -1138,13 +1140,13 @@ The following deposition velocities are calculated by MCIP3 by default and writt
 -   VD_HGIIGAS:deposition velocities for HGIIGAS (m s<sup>‑1</sup>)
 
 
-<a id="met_cro_3d"><a/>
+<a id=met_cro_3d></a>
 ### MET_CRO_3D: Three-dimensional meteorological cross-point fields
 
 Used by: CCTM, ICON, BCON
 
 The MET_CRO_3D time-dependent file contains 3-D meteorological descriptions at cross points (i.e., at cell centers). It is created by MCIP and used by CCTM, ICON, BCON, and PDM. The variables that may exist in MET_CRO_3D are the same as those that may be in MET_BDY_3D.
-<a id="met_dot_3d"><a/>
+<a id=met_dot_3d></a>
 
 ### MET_DOT_3D: Three-dimensional meteorological dot-point fields
 
@@ -1161,7 +1163,7 @@ The MET_DOT_3D time-dependent file contains 3-D meteorological descriptions at d
 
 The previous section described the output files from JPROC, ICON, BCON, and MCIP that are input to CCTM. In this section, details on the CCTM output files are provided. Except for JPROC (which creates ASCII files), all CMAQ programs produce output files that adhere to the I/O API netCDF format (Chapter 4). The I/O API-formatted CMAQ output files are three-dimensional, gridded, time-stepped binary files that contain headers with metadata describing the file contents. These machine-independent and network transparent binary files are transferable between different computer architectures. In addition to model data output, CMAQ can optionally produce log files that contain the standard output from the various CMAQ processors. If the log file option is not selected by the user, CMAQ will write all of the log information to the screen along with the standard error, which can be captured to a text file using basic UNIX syntax.
 
-<a id="cmaq_output_log"><a/>
+<a id=cmaq_output_log></a>
 ### CMAQ output log
 
 All of the CMAQ processors generate standard output and standard error during execution. For all of the processors other than CCTM, this diagnostic output information can be captured to a log file at execution using a UNIX redirect command. For example, to capture the standard output and error of a BCON simulation, use the following command:
@@ -1172,37 +1174,37 @@ run.bcon >& bcon_e1a.log
 
 For CCTM, the LOGFILE environment variable allows users to specify the name of a log file for capturing the standard output from the program. If this variable is not set, the standard output is written to the terminal and can be captured using the UNIX redirect command (“>”), as shown in the example above.
 
-<a id="conc"><a/>
+<a id=conc></a>
 ### CTM_CONC_1: CCTM hourly instantaneous concentration file
 
 The 3-D CCTM hourly concentration file (CONC) is the most commonly referenced CCTM output file. Containing gas-phase species mixing ratios (ppmV) and aerosol species concentra­tions (µg m<sup>‑3</sup>), CONC files include instantaneous model species concentrations at the end of each model hour. The number and types of species contained in the CONC files depend on the chemical mechanism and aerosol model configurations that are selected when CCTM is compiled. The species concentration INCLUDE files (CONC.EXT) within the mechanism INCLUDE directories list the species that are written to the CONC files for each mechanism configuration. The GC_CONC.EXT file lists the gas-phase species, the AE_CONC.EXT file lists the aerosol species, and the NR_CONC lists the nonreactive (inert) species written to the CONC file. Species can be removed from the CONC.EXT files to reduce the number of species that are written to, and thus the size of, the CONC file.
 
-<a id="cgrid"><a/>
+<a id=cgrid></a>
 ### CTM_CGRID_1: CCTM restart file
 
 The 3-D CCTM ending concentration file (CGRID) is the CCTM restart file. Containing gas-phase species mixing ratios (ppmV) and aerosol species concentrations (µg m<sup>‑3</sup>), the CGRID file includes model species concentrations at the end of each simulation period. The number and types of species contained in the output CGRID files depend on the chemical mechanism and aerosol model configurations that are selected when CCTM is compiled. This file can be used to initialize CCTM from the simulation period that the model completed. For example, if the CCTM is configure to produce daily output files, a CGRID file will be written out at the end of each simulation day.
 
-<a id="aconc"><a/>
+<a id=aconc></a>
 ### CTM_ACONC_1: CCTM hourly average concentration file
 
 The 3-D CCTM integral average concentration file (ACONC) contains average model species concentrations for each model hour, as opposed to instantaneous concentrations at the end of each output time step. The species written to the ACONC file are set by the user in the CCTM run script using the variable AVG_CONC_SPCS. The model layers that are used to calculate the integral average concentration are also set in the CCTM run script using the variable ACONC_BLEV_ELEV, where BLEV corresponds to the bottom layer number and ELEV corresponds to the top layer number. An example setting for the ACONC_BLEV_ELEV variable is “1 6”, which defines layers 1 through 6 as the vertical extent over which to calculate hourly average concentrations.
 
-<a id="drydep"><a/>
+<a id=drydep></a>
 ### CTM_DRY_DEP_1: CCTM hourly cumulative dry deposition file
 
 The 2-D CCTM dry deposition file (DRYDEP) includes cumulative hourly dry deposition fluxes (kg hectare<sup>‑1</sup>) for selected model species. CCTM calculates dry deposition for all of the species listed in the dry deposition INCLUDE files within the mechanism INCLUDE directories. Dry deposition INCLUDE files exist for gas-phase species (GC_DDEP.EXT), aerosol species (AE_DDEP.EXT), and inert model species (NR_DDEP.EXT). Species can be removed from the DDEP.EXT files to adjust the number of species that undergo the dry deposition process and are written to the DRYDEP output file.
 
-<a id="wetdep"><a/>
+<a id=wetdep></a>
 ### CTM_WETDEP_1: CCTM hourly cumulative wet deposition file
 
 The 2-D CCTM wet deposition file (WETDEP) includes cumulative hourly wet deposition fluxes (kg hectare<sup>‑1</sup>) for selected model species. CCTM calculates wet deposition for all of the species listed in the wet deposition INCLUDE files within the mechanism INCLUDE directories. Wet deposition INCLUDE files exist for gas-phase species (GC_WDEP.EXT), aerosol species (AE_WDEP.EXT), and inert model species (NR_WDEP.EXT). Species can be removed from the WDEP.EXT files to adjust the number of species that undergo the wet deposition process and are written to the WETDEP output file.
 
-<a id="aerovis"><a/>
+<a id=aerovis></a>
 ### CTM_VIS_1: CCTM hourly instantaneous visibility metrics
 
 The 2-D CCTM visibility file contains hourly Mie and reconstructed visual range coefficients (km<sup>‑1</sup>) and normalized extinction coefficients (deciviews).
 
-<a id="aerovis"><a/>
+<a id=aerovis></a>
 ### CTM_AVIS_1: CCTM hourly average visibility metrics
 
 The 2-D CCTM visibility file contains hourly Mie and reconstructed visual range coefficients (km<sup>‑1</sup>) and normalized extinction coefficients (deciviews).
@@ -1212,113 +1214,117 @@ The 2-D CCTM visibility file contains hourly Mie and reconstructed visual range 
 
 Along with the basic outputs detailed in the previous section, CMAQ can be configured to output several auxiliary files for diagnosing model performance.
 
-<a id="pmdiag"><a/>
+<a id=pmdiag></a>
 ### CTM_PMDIAG_1: Instantaneous hourly aerosol diagnostics file
 
 This diagnostic file contains information on the geometric mean diameters and geometric standard deviations for the lognormal modes.
 
-<a id="pamdiag"><a/>
+<a id=pamdiag></a>
 ### CTM_APMDIAG_1: Average hourly aerosol diagnostics file
 
 This diagnostic file contains information on the geometric mean diameters and geometric standard deviations for the lognormal modes.
 
-<a id="b3gts_s"><a/>
+<a id=b3gts_s></a>
 ### B3GTS_S: Biogenic emissions diagnostic file
 
 This optional 2-D CCTM hourly output file contains calculated biogenic emissions in mass units. The B3GTS_S file will be produced only if in-line biogenic emissions are being calculated by CCTM and if the B3GTS_DIAG variable is turned on.
 
-<a id="ctm_depv_diag"><a/>
+<a id=ctm_depv_diag></a>
 ### CTM_DEPV_DIAG: CCTM inline deposition diagnostics file
 Add content
 
-<a id="ctm_pt3d_diag"><a/>
+<a id=ctm_pt3d_diag></a>
 ### CTM_PT3D_DIAG: CCTM PT3D diagnostics file
 Add content
 
-<a id="dust_emis"><a/>
+<a id=dust_emis></a>
 ### CTM_DUST_EMIS_1
 Add content
 
-<a id="ctm_aod_1"><a/>
+<a id=ctm_aod_1></a>
 ### CTM_AOD_1
 Add content
 
-<a id="ctm_ipr"><a/>
+<a id=ctm_ipr></a>
 ### CTM_IPR_[1-3]
 Add content
 
-<a id="ctm_irr"><a/>
+<a id=ctm_irr></a>
 ### CTM_IRR_[1-3] Process analysis output – integrated reaction rates
 The 3-D CCTM integrated reaction rate file (IRR) contains hourly concentrations of selected model output species in terms of the gas-phase chemistry pathways that contributed to the predicted concentration at each hour. For each grid cell in the process analysis domain (which is most likely a subset of the full modeling domain), the IRR file shows the hourly change in species concentration that is due to particular gas-phase chemistry reactions or reaction groups. The process analysis preprocessor, PROCAN (Section 2.2.6), is used to select the process analysis domain, the model species for which to capture process analysis information, and the chemistry reactions or groups of reactions to track during the process analysis.
 
-<a id="floor"><a/>
+<a id=floor></a>
 ### FLOOR: concentration-reset diagnostics file
 
 FLOOR files are optional output diagnostic files which list specific gridboxes/timesteps in which species with `-ve` concentrations are reset to zero.
 
-<a id="init_medc_1"><a/>
+<a id=init_medc_1></a>
 ### MEDIA_CONC: Bidirectional soil NH4+ restart file
 Add content
 
-<a id="ctm_depv_mos"><a/>
+<a id=ctm_depv_mos></a>
 ### CTM_DEPV_MOS
 Add content
 
-<a id="ctm_dry_dep_mos"><a/>
+<a id=ctm_dry_dep_mos></a>
 ### CTM_DRY_DEPV_MOS
 Add content
 
-<a id="ctm_dry_depv_fst"><a/>
+<a id=ctm_dry_depv_fst></a>
 ### CTM_DRY_DEPV_FST
 Add content
 
-<a id="ctm_depv_fst"><a/>
+<a id=ctm_depv_fst></a>
 ### CTM_DEPV_FST
 Add content
 
-<a id="ctm_vdiff_diag"><a/>
+<a id=ctm_vdiff_diag></a>
 ### CTM_VDIFF_DIAG
 Add content
 
-<a id="ctm_vsed_diag"><a/>
+<a id=ctm_vsed_diag></a>
 ### CTM_VSED_DIAG
 Add content
 
-<a id="ltngout"><a/>
+<a id=ltngout></a>
 ### LTNGOUT
 
 Add content
 
-<a id="pa"><a/>
+<a id=pa></a>
 ### PA: Process analysis output – integrated process rate file
 
 The 3-D CCTM integrated process rate file (PA) contains hourly concentrations of selected model output species in terms of the model process that contributed to the concentration in each grid cell at each hour. For each grid cell in the process analysis domain (which is most likely a subset of the full modeling domain), the PA file shows the hourly change in species concentration that is due to the major model processes, such as horizontal and vertical advection, chemistry, and wet deposition. The process analysis preprocessor, PROCAN (Section 2.2.6), is used to select the process analysis domain, the model species for which to capture process analysis information, and the model processes to track during the process analysis.
 
-<a id="play_srcid"><a/>
+<a id=play_srcid></a>
 ### PLAY_SRCID
 Add content
 
-<a id="ctm_rj"><a/>
+<a id=ctm_rj></a>
 ### CTM_RJ_[1,2]: In-line photolysis output – gridded photolysis rates
 
 The photolysis diagnostic output files (RJ) contain the photolysis rates calculated by CCTM when the in-line photolysis option is used.
-<a id="soilout"><a/>
+<a id=soilout></a>
 ### SOILOUT
 
 Name and location of hourly soil NO emissions file; output when in-line biogenic emissions processing is activated by setting CTM_BIOGEMIS to “T” or “Y”.
 
-<a id="ctm_ssemis_1"><a/>
+<a id=ctm_ssemis_1></a>
 ### CTM_SSEMIS_1: Sea salt emissions diagnostic file
 
 This optional 2-D CCTM hourly output file contains calculated sea salt emissions. The SSEMIS file will be produced by CCTM only if the AERO5 aerosol mechanism is being used and if the CTM_SSEMDIAG variable is turned on.
 
-<a id="ctm_wet_dep_2"><a/>
+<a id=ctm_wet_dep_2></a>
 ### CTM_WET_DEP_2: CCTM cloud diagnostics file
 
 The 2-D CCTM wet deposition file (WETDEP2) includes cumulative hourly wet deposition fluxes (kg hectare<sup>‑1</sup>) for selected model species. CCTM calculates wet deposition for all of the species listed in the wet deposition INCLUDE files within the mechanism INCLUDE directories. Wet deposition INCLUDE files exist for gas-phase species (GC_WDEP.EXT), aerosol species (AE_WDEP.EXT), and inert model species (NR_WDEP.EXT). Species can be removed from the WDEP.EXT files to adjust the number of species that undergo the wet deposition process. These extra species are written to the WETDEP2 output file.
 
 In CMAQ, wet deposition is calculated separately for resolved (grid-scale) clouds and for convective (subgrid) clouds. The WETDEP1 files contain the total wet deposition, i.e., the sum of both resolved-scale and subgrid-scale deposition. The WETDEP2 file contains only subgrid-scale deposition, plus some cloud diagnostic variables.
 
-***
-[<< Previous Chapter](CMAQ_OGD_ch07_programs_libraries.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch09_grid_defn.md)<br>
-CMAQ Operational Guidance Document (c) 2016<br>
+
+<!-- BEGIN COMMENT -->
+
+[<< Previous Chapter](CMAQ_OGD_ch07_programs_libraries.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch09_grid_defn.md)  
+CMAQ Operational Guidance Document (c) 2016  
+
+<!-- END COMMENT -->

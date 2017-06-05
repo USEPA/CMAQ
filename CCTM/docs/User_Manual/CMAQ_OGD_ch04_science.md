@@ -1,7 +1,11 @@
-[<< Previous Chapter](CMAQ_OGD_ch03_features.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch05_sys_req.md)
-* * *
+<!-- BEGIN COMMENT -->
 
-# 4. Overview of the Science in the CMAQ Modeling System #
+[<< Previous Chapter](CMAQ_OGD_ch03_features.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch05_sys_req.md)
+
+<!-- END COMMENT -->
+
+
+# Overview of the Science in the CMAQ Modeling System #
 
 As discussed in [Chapter 1](CMAQ_OGD_ch01_intro.md), CMAQ is a multipollutant, multiscale air quality modeling system that estimates the transport and chemistry of ozone, PM, toxic airborne pollutants (referred to as “air toxics”), acidic and nutrient pollutant species as well as estimates of visibility degradation and deposition totals. CMAQ includes state-of-the-art technical and computational techniques to simulate air quality from urban to global scales. It can model complex atmospheric processes affecting transformation, transport, and deposition of air pollutants using a system architecture that is designed for fast and efficient computing. While superceded by several science updates since its release, the [Science Algorithms of the EPA Models-3 Community Multiscale Air Quality Modeling System](https://www.cmascenter.org/cmaq/science_documentation/) continues to be important reference for the science and design of CMAQ. [Chapter 3](CMAQ_OGD_cho03_features.md) includes links to descriptions of the updates made to CMAQ by release version.
 
@@ -107,6 +111,7 @@ CMAQ uses the MCIP software to prepare the meteorological fields for CCTM. The I
 ## MCIP: Meteorology-Chemistry Interface Processor
 
 MCIP ingests output files from meteorological models, including the <a href="http://www.wrf-model.org">Weather Research and Forecasting Model (WRF)</a> and the <a href="http://www2.mmm.ucar.edu/mm5/">Fifth-Generation Penn State/NCAR Mesoscale Model (MM5)</a>, to create meteorology files that are used within the CMAQ Modeling System.  The goal of MCIP is to use as much of the data directly from the meteorological model to ensure physical consistency in the atmospheric state used by the CMAQ Modeling System.  The output from MCIP is in the standard I/O API format that is used within the CMAQ Modeling System.  MCIP output files can be used by the emissions processor (e.g., for meteorologically varying temperatures for mobile emissions) and by the CCTM to define the atmospheric conditions.  An overview of MCIP can be found in Otte and Pleim (2010).
+
 
 <a id="Figure4-3"></a>
 
@@ -379,6 +384,10 @@ Schwartz, S.E., 1986: Mass transport considerations pertinent to aqueous-phase r
 Tonnesen, G.S., Dennis, R.L., 2000: Analysis of radical propagation efficiency to assess ozone sensitivity to hydrocarbons and NO x : 1. Local indicators of instantaneous odd oxygen production sensitivity, *J. Geophys. Res.*, **105(D7)**, 9213-9225. 
 
 National Oceanic and Atmospheric Administration, 1976: *U.S. Standard Atmosphere*, U.S. Government Printing Office, Washington, DC, NOAA‑S/T76‑1562.
-***
+
+<!-- BEGIN COMMENT -->
+
 [<< Previous Chapter](CMAQ_OGD_ch03_features.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch05_sys_req.md)<br>
 CMAQ Operational Guidance Document (c) 2016<br>
+
+<!-- END COMMENT -->

@@ -1,6 +1,8 @@
+<!-- BEGIN COMMENT -->
 
 [<< Previous Chapter](CMAQ_OGD_appendix_A.md) - [Home](README.md)
-* * *
+
+<!-- END COMMENT -->
 
 GLOSSARY
 ========
@@ -197,4 +199,8 @@ GLOSSARY
 
 [2] <sup>The CVS ''modules ''file has no intrinsic relationship with the CMAQ classes/module design implementation.</sup>
 
+<!-- BEGIN COMMENT -->
+
 [<< Previous Chapter](CMAQ_OGD_appendix_A.md) - [Home](README.md)
+
+<!-- END COMMENT -->

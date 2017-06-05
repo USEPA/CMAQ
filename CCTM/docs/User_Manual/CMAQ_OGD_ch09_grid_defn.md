@@ -1,7 +1,10 @@
-[<< Previous Chapter](CMAQ_OGD_ch08_input_files.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch10_new_simulation.md)
-* * *
+<!-- BEGIN COMMENT -->
 
-# 9. Defining Grids, Layers, and Chemistry #
+[<< Previous Chapter](CMAQ_OGD_ch08_input_files.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch10_new_simulation.md)
+
+<!-- END COMMENT -->
+
+# Defining Grids, Layers, and Chemistry #
 
 This chapter describes how to define new horizontal grids, vertical layers, and chemical mechanisms in CMAQ. These specifications apply to multiple programs in the CMAQ modeling system, including ICON, BCON, JPROC, and CCTM. When configuring new simulations, users must define the location, extent, and structure of the horizontal and vertical grids, and the chemical mechanism for representing pollutant chemical transformations. CMAQ contains several default options for these parameters that can be used as templates for setting up new configurations. Before deciding to create definitions for new grids and mechanisms, check to see whether the existing options are sufficient for your model simulation. If a predefined choice is not appro­priate, then follow the steps described in this section to create a new definition.
 
@@ -43,7 +46,7 @@ The terms associated with I/O API grid definitions are listed in [Table 9-1](#Ta
  **Table 9-1. I/O API Grid Type Terms** 
 
 |Term|Definition|
-|----|----------|
+|------------|-------------------------------------------------------------------------|
 |origin|lower left corner of the cell at column=row=1|
 |`X_ORIG`|X coordinate of the grid origin (in projection units)|
 |`Y_ORIG` |  Y coordinate of the grid origin (in projection units)|
@@ -91,13 +94,15 @@ Figure 9-2 shows an example of how the BTRIM calculation works for windowing WRF
 
 The MCIP variables X0 and Y0 set the number of grid cells to "trim" from the WRF to domain to get to the MCIP domain lower left corner. Adding "1" in each of these calculations accounts for the addition of the MCIP lateral boundary.
 
-`X0 = |(WRF X origin - MCIP X origin)|/(Grid Resolution) + 1`<br>
-`X0 = |(-600,000 - 108,000)|/12,000 + 1`<br>
+```
+`X0 = |(WRF X origin - MCIP X origin)|/(Grid Resolution) + 1`
+`X0 = |(-600,000 - 108,000)|/12,000 + 1`
 `X0 = 60`
 
-`Y0 = |(WRF Y origin - MCIP Y origin)|/(Grid Resolution) + 1`<br>`
-`Y0 = |(-1,680,000 - -1,620,000)|/12,000 + 1`<br>
+`Y0 = |(WRF Y origin - MCIP Y origin)|/(Grid Resolution) + 1`
+`Y0 = |(-1,680,000 - -1,620,000)|/12,000 + 1`
 `Y0 = 6`
+```
 
 <a id=Figure9-2></a>
 
@@ -167,5 +172,9 @@ When mechanisms are modified or created in CMAQ, new namelist files must be crea
 -   The Rosenbrock and SMVGEAR solvers are mechanism-independent choices of chemistry solvers for the CCTM.
 -   When adding new species to CMAQ, it is important to check that the sources of these new species into the modeling domain are accounted for correctly in the mechanism definition files. If species are added to the domain through the emissions files, the namelist files that define the mechanism species must contain these new species.
 
+<!-- BEGIN COMMENT -->
+
 [<< Previous Chapter](CMAQ_OGD_ch08_input_files.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch10_new_simulation.md)<br>
 CMAQ Operational Guidance Document (c) 2016<br>
+
+<!-- END COMMENT -->

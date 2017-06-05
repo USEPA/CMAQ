@@ -1,8 +1,10 @@
+<!-- BEGIN COMMENT -->
 
 [<< Previous Chapter](CMAQ_OGD_ch11_code_management.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch13_support.md)
-* * *
 
-# 12. Analysis Tools for CMAQ #
+<!-- END COMMENT -->
+
+# Analysis Tools for CMAQ #
 
 Several tools are freely available for visualizing, analyzing, and evaluating CMAQ inputs and outputs. The list includes CMAQ utility tools, m3tools, PAVE, VERDI, Panoply, the Atmospheric Model Evaluation Tool (AMET), netCDF Operators (NCO), UNIDATA Integrated Data Viewer (IDV), and the NCAR Command-line Language (NCL). Several other commercial packages, including MATLAB and IDL, also support the analysis and visualization of CMAQ inputs and outputs. Most visualization and analysis software that supports netCDF file formats will work with CMAQ output data.
 
@@ -34,6 +36,7 @@ Two classes of analysis tools are presented here
   -----------
 
 <a id="netcdf"><a/>
+
 ### netCDF
 
 [http://www.unidata.ucar.edu/software/netcdf/](http://www.unidata.ucar.edu/software/netcdf/)
@@ -53,6 +56,7 @@ where:
 -n name is used to specify a different name for the network Common data form Description Language (CDL) description than the default.
 
 <a id="cmdtools"><a/>
+
 Command Line Data Processors
 -------------
 
@@ -63,6 +67,7 @@ Command Line Data Processors
 Several post-processing tools (Fortran-based) are provided along with the CMAQ code/scripts distribution. These are located in the $CMAQ_HOME/POST directory in the CMAQ distribution. These tools work directly with the CMAQ outputs and help in processing, formatting, and preparing datasets from various ambient monitoring networks for subsequent evaluation. These networks include the EPA Air Quality System (AQS)AIRS-AQS, Interagency Monitoring of Protected Visual Environments (IMPROVE), Clean Air Status Trends Network (CASTNET), Speciated Trends Network (STN), National Atmospheric Deposition Program (NADP), Mercury Deposition Network (MDN) and the Southeast Aerosol Research and Characterization Study (SEARCH). The various CMAQ utility tools are described below.
 
 <a id="appendwrf"><a/>
+
 ## appendwrf
 
 This program concatenates variables from multiple WRF input or output files into a single file along the Time (unlimited) dimension. This can be useful in cases where a user may have WRF input or output files that were generated for shorter time periods and wants to combine them into files with longer (e.g. monthly) duration.
@@ -74,6 +79,7 @@ Environment variables used:
 `OUTFILE`       output file name
 
 <a id="bldoverlay"><a/>
+
 ## bldoverlay
 
 This program creates an observation overlay file that can be imported into either PAVE or VERDI. It requires as input a file containing observed data in a specific format, and then creates a PAVE/VERDI compatible overlay file.
@@ -105,10 +111,12 @@ SITES format:
 Set to create a static site file using the value set by VALUE (default is 1). The format is a tab delimited file with the structure Site_ID Longitude Latitude.
 
 <a id="block_extract"><a/>
+
 ## block_extract
 -  add content here
 
 <a id="combine"><a/>
+
 ## combine
 
 This program combines fields from a set of IOAPI or wrfout input files to an output file. The file assigned to environmental variable SPECIES_DEF defines the new species variables and how they are constructed. This means that all the species listed in the SPECIES_DEF files need to be output when CMAQ is being run. One option is to set the ACONC (or CONC) output to be all species.
@@ -149,6 +157,7 @@ Variables from input files are defined by their name followed by its file number
 Examples of possible expressions are shown in the sample SPECIES_DEF files distributed with the CMAQ_TOOLS package.
 
 <a id="hr2day"><a/>
+
 ## hr2day
 
 This program creates gridded I/O API files with daily values from gridded I/O API files containing hourly values.
@@ -215,6 +224,7 @@ setenv SPECIES_3 "ASO4J_MAX,ug/m3,ASO4J,MAX" (computes the daily maximum value o
                                               to OUTFILE as ASO4J_MAX with units ug/m3)</code></pre>
 
 <a id="merge_aqs_species"><a/>
+
 ## merge_aqs_species
 
 This program creates a merged AQS data file from pre-generated files posted on the EPA's AQS website (link below). The user must specify the location where the merged files should be created, the base location of the downloaded AQS files (it is then assumed the files will be in sub-directories from the base directory of /YYYY/hourly and YYYY/daily). The user must also specify the year (YYYY) and whether merging daily or hourly files (the script must be run separately for each time average).
@@ -262,6 +272,7 @@ hourly:"PM25","PM10","O3","CO","SO2","NO","NO2","NOX","NOY","Pressure","RH",
 "Toluene","Butadiene","Isoprene","Ethane","Ethylene","SO4","NO3","OC","EC"</code></pre>
 
 <a id="sitecmp"><a/>
+
 ## sitecmp
 
 This program generates a csv (comma separated values) file that compares CMAQ generated concentrations with an observed dataset.
@@ -393,6 +404,7 @@ OUT_TABLE - output (csv) text file containing columns of paired observed and
             modeled values</code></pre>
 
 <a id="sitecmp_dailyo3"><a/>
+
 ## sitecmp_dailyo3
 
 This program generates a csv (comma separated values) file that compares various daily ozone metrics computed from hourly CMAQ generated and observed ozone concentrations. The metrics included in the output file are daily maximum 1-hr ozone concentrations, daily maximum 1-hr ozone concentrations in the nine cells surrounding a monitor, time of occurrence of daily maximum 1-hr ozone concentrations, daily maximum 8-hr ozone concentrations, daily maximum 8-hr ozone concentrations in the nine cells surrounding a monitor, time of occurrence of daily maximum 8-hr ozone concentrations, the daily W126 ozone value, and the daily SUM06 ozone value.
@@ -447,6 +459,7 @@ OUT_TABLE - output (csv) text file containing columns of paired observed and
             modeled values</code></pre>
 
 <a id="writesite"><a/>
+
 ## writesite
 
 This program generates a csv file from an IOAPI data file for a set of species at defined site locations.
@@ -481,6 +494,7 @@ Environment Variables (not required):
             (ioapi default is 8)</code></pre>
 
 <a id="m3tools"><a/>
+
 ### M3tools
 
 [<https://www.cmascenter.org/ioapi/>](https://www.cmascenter.org/ioapi/)
@@ -517,6 +531,7 @@ A list of these utility programs and brief descriptions is provided below.
 -   **vertot**: Computes vertical-column totals of variables in a file
 
 <a id="nco"><a/>
+
 ### netCDF Operators (NCO)
 [http://nco.sourceforge.net/](http://nco.sourceforge.net/)
 
@@ -540,9 +555,11 @@ An overview of the various netCDF operators is given below.
 -   **ncwa (netCDF Weighted Averager)**: ncwa averages variables in a single file over arbitrary dimensions, with options to specify weights, masks, and normalization.
 
 <a id="viztools"><a/>
+
 Visualization Tools
 -------------------------------
 <a id="verdi"></a>
+
 ### Visualization Environment for Rich Data Interpretation (VERDI)
 
 [http://www.verdi-tool.org](http://www.verdi-tool.org/)
@@ -550,6 +567,7 @@ Visualization Tools
 The Visualization Environment for Rich Data Interpretation (VERDI) is a flexible and modular Java-based visualization software tool that allows users to visualize multivariate gridded environmental datasets created by environmental modeling systems such as SMOKE, CMAQ and WRF, namely gridded concentration and deposition fields that users need to visualize and compare with observational data both spatially and temporally. VERDI has been designed keeping most of the functionality of PAVE in mind, and hence can help users analyze and visualize model outputs in a very similar vein, using both command-line driven scripts as well as using a Graphical User Interface (GUI). Further, VERDI is under active development to enhance its features beyond PAVE.
 
 <a id="amet"><a/>
+
 ### Atmospheric Model Evaluation Tool (AMET)
 
 [http://www.cmascenter.org](http://www.cmascenter.org/)
@@ -559,6 +577,7 @@ The Atmospheric Model Evaluation Tool (AMET) is a suite of software designed to 
 The basic structure of AMET consists of two ''fields ''and two *processes*. The two fields (scientific topics) are MET and AQ, corresponding to meteorology and air quality data. The two processes (actions) are database population and analysis. Database population refers to the underlying structure of AMET; after the observations and model data are paired in space and time, the pairs are inserted into a MySQL database. Analysis refers to the statistical evaluation of these pairings and their subsequent plotting. Practically, a user may be interested in using only one of the fields (either MET or AQ), or may be interested in using both fields. That decision is based on the scope of the study. The three main software components of AMET are MySQL (an open-source database software system), R (a free software environment for statistical computing and graphics), and perl (an open-source, cross-platform programming language).
 
 <a id="pave"><a/>
+
 ### Package for Analyses and Visualization of Environmental Data (PAVE)
 
 [http://paved.sourceforge.net](http://paved.sourceforge.net/)
@@ -575,6 +594,7 @@ PAVE is a flexible and distributed application to visualize multivariate gridded
 PAVE is very widely used by the air quality modeling community, and it can produce various types of plots, including scatter plots, time-series plots, 2-D tile plots, 3-D surface plots, bar plots, wind-vector plots, etc. The source code for PAVE is also distributed under the terms of the GNU General Public License Version 2. PAVE can be run at the Linux command prompt, and the various commands/options can be invoked using the graphical user interface (GUI), or all of them can be stored in a script file and executed by running the script. However, note that PAVE is not being updated any more, and CMAS has ceased support for PAVE, and encourages the user community to move towards VERDI (discussed next).
 
 <a id="idv"><a/>
+
 ### Integrated Data Viewer (IDV)
 
 [http://www.unidata.ucar.edu/software/idv/](http://www.unidata.ucar.edu/software/idv/)
@@ -590,6 +610,7 @@ IDV includes the capability to read I/O API netCDF formatted files and a scrip
 `runIDV capture.isl`
 
 <a id="ncl"><a/>
+
 ## NCAR Command Language (NCL)
 [http://www.ncl.ucar.edu](http://www.ncl.ucar.edu/)
 
@@ -614,6 +635,10 @@ NCL comes with numerous predefined functions and resources that the user can eas
 `load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"`
 
 NCL also has a capability to call external Fortran or C routines. This is enabled through an NCL wrapper script called WRAPIT. The wrapper file is a C program that describes all of the arguments and passes them back and forth between the function/procedure the user wants to call, and the NCL script that is calling it. Thus, when the user invokes WRAPIT on the Fortran code that needs to be called from NCL, it creates a special C wrapper file, compiles it and the Fortran file, and generates a \*.so file that the user can then load into NCL using the "external" statement.
-***
+
+<!-- BEGIN COMMENT -->
+
 [<< Previous Chapter](CMAQ_OGD_ch11_code_management.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch13_support.md)<br>
 CMAQ Operational Guidance Document (c) 2016<br>
+
+<!-- END COMMENT -->

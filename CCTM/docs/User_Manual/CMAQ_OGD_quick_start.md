@@ -1,7 +1,10 @@
+<!-- BEGIN COMMENT -->
+
 [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch01_intro.md)
-***
-CMAQ Installation Quick Start Guide
-=========================================
+
+<!-- END COMMENT -->
+
+## CMAQ Installation Quick Start Guide
 
 ### System Checks ###
 
@@ -10,14 +13,16 @@ The following support software are required for compiling and running CMAQ.
 1. Fortran and C compilers, e.g., [Intel](https://software.intel.com/en-us/fortran-compilers), [Portland Group](http://www.pgroup.com), [Gnu](https://gcc.gnu.org/wiki/GFortran)
 2. [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
 3. [I/O API](http://www.cmascenter.org/ioapi)
-4. [netCDF](http://www.unidata.ucar.edu/software/netcdf/)
-5. Message Passing Interface (MPI), e.g., [OpenMPI](https://www.open-mpi.org) or [MVAPICH2](http://www.mcs.anl.gov/research/projects/mpich2/).
+4. [netCDF](http://www.unidata.ucar.edu/software/netcdf)
+5. Message Passing Interface (MPI), e.g., [OpenMPI](https://www.open-mpi.org) or [MVAPICH2](http://www.mcs.anl.gov/research/projects/mpich2).
 
 ### Install CMAQ and Required Libraries ###
 
 In the directory where you would like to install CMAQ, issue the following command to clone the CMAS CENTER GitHub repository for CMAQv5.2 Beta:
 
-`git clone -b 5.2Gamma https://github.com/CMASCenter/EPA-CMAQ.git CMAQ_v5.2Gamma`
+```
+git clone -b 5.2Gamma https://github.com/CMASCenter/EPA-CMAQ.git CMAQ_v5.2Gamma
+```
 
 For instructions on installing CMAQ from tarballs, see [Chapter 5](CMAQ_OGD_ch05_sys_req.md).
 
@@ -55,26 +60,36 @@ For example, if your netCDF libraries and includes files are installed in /usr/l
 
 Compile the model builder, bldmake:
 
-`cd $CMAQ_HOME/UTIL/bldmake/src`<br>
-`make`
+```
+cd $CMAQ_HOME/UTIL/bldmake/src
+make
+```
 
 Create the model executables for ICON, BCON, and CCTM:
 
-`cd $CMAQ_HOME/PREP/icon/scripts`<br>
-`./bldit.icon |& tee bldit.icon.log`
+```
+cd $CMAQ_HOME/PREP/icon/scripts
+./bldit.icon |& tee bldit.icon.log
+```
 
-`cd $CMAQ_HOME/PREP/bcon/scripts`<br>
-`./bldit.bcon`
+```
+cd $CMAQ_HOME/PREP/bcon/scripts
+./bldit.bcon
+```
 
-`cd $CMAQ_HOME/CCTM/scripts`<br>
-`./bldit.cctm`
+```
+cd $CMAQ_HOME/CCTM/scripts
+./bldit.cctm
+```
 
 ### Install the CMAQ input reference/benchmark data
 
 Dwnloaded the CMAQ reference data from the [CMAS Center Software Clearinghouse](https://www.cmascenter.org/download/software.cfm) and copy to `$CMAQ_HOME`. Navigate to the `$CMAQ_HOME` directory, unzip and untar the `CMAQv5.2.DATA.tar.gz` file:
 
-`cd $CMAQ_HOME`<br>
-`tar xvzf CMAQv5.2.DATA.tar.gz`
+```
+cd $CMAQ_HOME
+tar xvzf CMAQv5.2.DATA.tar.gz
+```
 
 ### Running the CMAQ Installation Test Simulation
 
@@ -82,13 +97,17 @@ To run the test simulation for the various CMAQ programs, change directories to 
 
 Run ICON to produce initial conditions:
 
-`cd $CMAQ_HOME/PREP/icon/scripts`<br>
-`./run.icon |& tee icon.log`
+```
+cd $CMAQ_HOME/PREP/icon/scripts
+./run.icon |& tee icon.log
+```
 
 Run BCON to produce boundary conditions:
 
-`cd $CMAQ_HOME/PREP/bcon/scripts`<br>
-`./run.bcon |& tee bcon.log`
+```
+cd $CMAQ_HOME/PREP/bcon/scripts
+./run.bcon |& tee bcon.log
+```
 
 Check the ICON and BCON log file to ensure that the programs completed successfully. Note that CMAQ test simulation doesn't actually require that ICON and BCON be run; the test input data include CCTM-ready initial and boundary conditions files. 
 
@@ -96,12 +115,16 @@ Check the ICON and BCON log file to ensure that the programs completed successfu
 
 For an MPI configuration with 6 processors,
 
-`cd $CMAQ_HOME/CCTM/scripts`<br>
+```
+cd $CMAQ_HOME/CCTM/scripts
+```
 
 Edit the CCTM run script (run.cctm) for the MPI configuration that you will use:
 
-`setenv NPROCS 6`<br>
-`setenv NPCOL_NPROW “3 2”`
+```
+setenv NPROCS 6
+setenv NPCOL_NPROW “3 2”
+```
 
 Most clustered multiprocessor systems require a command to start the MPI run-time environment. The default CCTM run script uses the *mpirun* command. Consult your system administrator to find out how to invoke MPI when running multiprocessor applications.
 
@@ -109,14 +132,20 @@ For single-processor computing, set NPROCS to 1 and NPCOL_NPROW to “1 1"
 
 For single-processor computing,
 
-`setenv NPROCS 1`<br>
-`setenv NPCOL_NPROW to “1 1"`
+```
+setenv NPROCS 1
+setenv NPCOL_NPROW to “1 1"
+```
 
 After configuring the MPI settings for your Linux system, using the following command to run the CCTM. Per the note above, different Linux systems have different requirements for submitting MPI jobs.  The command below is an example of how to submit the CCTM run script and may differ depending on the MPI requirements of your Linux system. 
 
-`./run.cctm |& tee cctm.log`
+```
+./run.cctm |& tee cctm.log
+```
 
-***
+<!-- BEGIN COMMENT -->
 
-[Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch01_intro.md)<br>
-CMAQ Operational Guidance Document (c) 2016<br>
+[Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch01_intro.md)  
+CMAQ Operational Guidance Document (c) 2016  
+
+<!-- END COMMENT -->

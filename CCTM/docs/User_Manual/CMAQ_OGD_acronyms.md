@@ -1,4 +1,8 @@
+<!-- BEGIN COMMENT -->
+
 [Home](README.md)
+
+<!-- END COMMENT -->
 
 CMAQ Operational Guidance document
 ==
@@ -92,4 +96,8 @@ Acronyms
 |WRF|Weather Research and Forecasting model|
 |WRF-ARW|Weather Research and Forecasting model – Advanced Research WRF|
 
+<!-- BEGIN COMMENT -->
+
 [Home](README.md)
+
+<!-- END COMMENT -->

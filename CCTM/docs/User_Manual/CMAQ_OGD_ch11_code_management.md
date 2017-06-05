@@ -1,8 +1,10 @@
-<
-[<< Previous Chapter](CMAQ_OGD_ch10_new_simulation.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch12_analysis_tools.md)
-* * *
+<!-- BEGIN COMMENT -->
 
-# 11. Code Management and Development #
+[<< Previous Chapter](CMAQ_OGD_ch10_new_simulation.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch12_analysis_tools.md)
+
+<!-- END COMMENT -->
+
+# Code Management and Development #
 
 As a public domain model, CMAQ is the product of contributions from many developers, whose numbers are only expected to increase with the number of users worldwide. Some degree of standardization is necessary for management and archiving of these development versions, as well as to compile and execute the code once it is ready for use, and to submit it to the CMAS Center for archiving and benchmark testing. This chapter provides guidance on source code manage­ment, coding guidelines for new code development, the compilation of new source code using the build scripts, and guidelines for writing shell scripts usable by CMAQ. Much of this informa­tion is derived from Chapter 18 (Young, 1999) in Byun and Ching (1999), with updates where appropriate, particularly for new versions of the model code and for the Fortran 90 standard. The chapter also includes the procedure that is in place for distributing code versions other than the operational CMAQ that are submitted to the development code archives.
 
@@ -1230,6 +1232,10 @@ J. Rumbaugh, M. Blaha, W. Premerlani, F. Eddy, and W. Lorensen, 1991: Object-Ori
 
 Young, J. O.,'' ''Integration of Science Code into Models-3, 1999. In *Science Algorithms of the EPA Models-3 Community Multiscale Air Quality (CMAQ) Modeling System*, D. W. Byun and J. K. S. Ching (ed.), EPA/600/R-99/030, U. S. EPA, Research Triangle Park, NC.
 
-***
+
+<!-- BEGIN COMMENT -->
+
 [<< Previous Chapter](CMAQ_OGD_ch10_new_simulation.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch12_analysis_tools.md)<br>
 CMAQ Operational Guidance Document (c) 2016<br>
+
+<!-- END COMMENT -->
