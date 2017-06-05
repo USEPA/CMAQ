@@ -52,7 +52,7 @@ C
 C   mpif.h
 C -----------------------------------------------------------------------------
 
-	module se_global_max_module
+        module se_global_max_module
 
         use se_pe_info_ext
 
@@ -67,46 +67,46 @@ C -----------------------------------------------------------------------------
 C -----------------------------------------------------------------------------
         function se_global_imax (var) result (se_global_imax_result)
 
-	implicit none
+        implicit none
 
         integer :: se_global_imax_result
-	integer, intent(in) :: var
+        integer, intent(in) :: var
 
-	include "mpif.h"
+        include "mpif.h"
 
-	integer :: max, error
+        integer :: max, error
 
-	call mpi_reduce (var, max, 1, mpi_integer, MPI_MAX, 0, 
+        call mpi_reduce (var, max, 1, mpi_integer, MPI_MAX, 0, 
      &                   se_worker_comm, error)
 
         call mpi_bcast (max, 1, mpi_integer, 0, se_worker_comm, error)
 
         se_global_imax_result = max
 
-	return
-	end function se_global_imax
+        return
+        end function se_global_imax
 
 C -----------------------------------------------------------------------------
         function se_global_rmax (var) result (se_global_rmax_result)
 
-	implicit none
+        implicit none
 
         real :: se_global_rmax_result
-	real, intent(in) :: var
+        real, intent(in) :: var
 
-	include "mpif.h"
+        include "mpif.h"
 
-	real :: max
+        real :: max
         integer :: error
 
-	call mpi_reduce (var, max, 1, mpi_real, MPI_MAX, 0, 
+        call mpi_reduce (var, max, 1, mpi_real, MPI_MAX, 0, 
      &                   se_worker_comm, error)
 
         call mpi_bcast (max, 1, mpi_real, 0, se_worker_comm, error)
 
         se_global_rmax_result = max
 
-	return
-	end function se_global_rmax
+        return
+        end function se_global_rmax
 
-	end module se_global_max_module
+        end module se_global_max_module
