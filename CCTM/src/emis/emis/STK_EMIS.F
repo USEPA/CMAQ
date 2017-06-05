@@ -181,13 +181,14 @@ C-----------------------------------------------------------------------
                CALL CHECKMEM( ASTAT, 'FIRENAM', PNAME )
                I = 0
                DO J = 1, NVARS3D
-C The FIRENAM_FIREVAR to match use in PT3D_DEFN
                   IF ( VNAME3D( J ) .EQ. 'HFLUX' ) THEN
+                     ! Use HFLUX to determine Fire sources in PT3D_DEFN via
+                     ! the FIRENAM variable
                      FIRENAM( N )%ARRY( 1 ) = VNAME3D( J )
-                     CYCLE
+                  ELSE
+                     I = I + 1
+                     STKSPC( N )%ARRY( I ) = VNAME3D( J )
                   END IF
-                  I = I + 1
-                  STKSPC( N )%ARRY( I ) = VNAME3D( J )
                END DO
                FIRENAM( N )%LEN = NVARS_FIRE
                FIREVAR( N )%LEN1 = LEN1
