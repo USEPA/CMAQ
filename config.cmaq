@@ -23,9 +23,14 @@
    source /etc/profile.d/modules.csh 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~ End EPA ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#> model source code repository location
- setenv CMAQ_HOME  /home/bmurphy/cmaq_repos/New_Scripts/CMAQv52_Scripts
- setenv CMAQ_DATA  ${CMAQ_HOME}/data
+#> Model source code repository location
+ setenv CMAQ_HOME $cwd   #This is working directory where the scripts
+                         #will create links to libraries and folders
+                         #for build directories, etc. The default is 
+                         #to make this folder one level higher than the 
+                         #top level of your CMAQ repo.
+ setenv CMAQ_DATA ${CMAQ_HOME}/data
+ setenv CMAQ_REPO ${CMAQ_HOME}/CMAQ_REPO
 
 #===============================================================================
 #> architecture & compiler specific settings
