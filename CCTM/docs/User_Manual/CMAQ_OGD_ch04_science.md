@@ -165,13 +165,7 @@ The current ICON and BCON processors cannot generate initial and boundary condit
 
 The release version of CMAQ includes all necessary chemical mechanism information for a set of pre-configured atmospheric chemistry parameterizations. Users must choose which mechanism they would like to use for their simulation and compile each CMAQ program accordingly. Advanced users who wish to generate new chemical mechanism information for use in CMAQ can use the program CHEMMECH to convert a mechanism listing file into the files needed by CMAQ.
 
-Gas-phase chemical mechanisms are implemented in CMAQ using Fortran namelist and INCLUDE files. These files are in a machine-readable ASCII format and include all of the mechanism parameters required, including gas-phase species, reaction stoichiometry, and kinetics information. To invoke chemical mechanisms in CMAQ, these files are included in the compilation of the various CMAQ programs to generate mechanism-specific executables. CHEMMECH takes a mechanism definition file, often named “mech.def”, and generates the mechanism and species INCLUDE and namelist files that define the chemistry parameters for the CMAQ programs. The file “mech.def” is an ASCII file that is easy to understand and modify. [Figure 4-6](#Figure4-6) shows the relationship between CHEMMECH and other parts of the CMAQ modeling system.
-
-<a id="Figure4-6"></a>
-
-![](./images/Figure4-6.png "Figure4-6.png")
-
-**Figure 4‑5. Invoking new/modified gas-phase chemical mechanisms in CMAQ**
+Gas-phase chemical mechanisms are implemented in CMAQ using Fortran namelist and INCLUDE files. These files are in a machine-readable ASCII format and include all of the mechanism parameters required, including gas-phase species, reaction stoichiometry, and kinetics information. To invoke chemical mechanisms in CMAQ, these files are included in the compilation of the various CMAQ programs to generate mechanism-specific executables. CHEMMECH takes a mechanism definition file, often named “mech.def”, and generates the mechanism and species INCLUDE and namelist files that define the chemistry parameters for the CMAQ programs. The file “mech.def” is an ASCII file that is easy to understand and modify. 
 
 The benefit of the namelist approach to defining the CMAQ mechanisms is that the mechanism definition becomes a run-time configuration option as opposed to a compiled configuration. With careful modification to the namelist file, the user can add or subtract species being saved to the output file and apply across-the-board scaling factors to input emissions species without having to recompile CCTM. The namelist approach for defining chemical mechanisms is applicable only to CCTM; the standard INCLUDE file approach is required for ICON, BCON, and JPROC.
 
@@ -179,34 +173,28 @@ The benefit of the namelist approach to defining the CMAQ mechanisms is that the
 
 CMAQ is instrumented to estimate the impacts of NO from lightning on air quality. Details of the CCTM lightning NO capability are described in [Chapter 7](CMAQ_OGD_ch07_programs_libraries.md) and in the [CMAQv5 Technical Documentation](http://www.cmaq-model.org/cmaqwiki/index.php?title=CMAQv5.0_Lightning_NO). The NO from lightning NO can either be generated inline or read in as an external input file that contains 3-D NO data. There are two ways to generate inline lightning NO production: 1) use observed lightning flash count from National Lightning Detection Network (NLDN). The NLDN flash count data have been gridded into 12 km CMAQ domain with hourly intervals and these gridded data will be publically released through CMAS center. 2) use linear (log-linear) parameters derived based on historical NLDN data and model predicted convective precipitations for Kain-Fritsch convective scheme when the observed NLDN data are not available (such as air quality forecast and future climate applications). The parameter file also contains the ocean mask and ICCG data (climatological data for the ratio between inter-cloud to cloud-to-ground flashes); the ocean mask and ICCG data are used in both inline production schemes. This parameter file will be available together with the NLDN hourly flash data. The default lightning NO production rate is set to 350 moles per flash for both CG and IC flashes, but these values can be modified through environmental variables (MOLSNCG and MOLSNIC).
 
-<a id="Figure4-8"></a>
-
-![](./images/Figure4-8.png "Figure4-8.png")
-
-**Figure 4‑6. Lightning data preprocessor for CCTM**
-
 ## CALMAP: Crop calendar map preprocessor
 
 CMAQ has the capability to estimate windblown dust emissions in-line in the CCTM. The CMAQ dust emissions module uses land cover/land use data to identify dust source regions. The dust module includes a feature to estimate dust blown off by the wind (as opposed to anthropogenic dust emissions) from agricultural areas and the impacts of planting and harvesting cycles on available erodible lands that affect dust emissions. Calmap is a preprocessor to the CCTM that uses crop calendar information to produce gridded crop planting and harvesting dates for input to the CMAQ dust module. 
 
-[Figure 4-9](#Figure4-9) is a Calmap schematic showing the data flow through the software. CALMAP reads grid information from the GRIDCRO2D meteorology file (MCIP output), land cover/land use data from [BELD3](https://www.epa.gov/air-emissions-modeling/biogenic-emissions-landuse-database-version-3-beld3), and crop calendar data to produce files of planting start dates, planting end dates, and harvesting end dates for different crop types interpolated to the modeling grid. These files are input to the CCTM when it is configured to estimate windblown dust and simulate the impacts of agricultural activity on the windblown dust emissions.
+[Figure 4-5](#Figure4-9) is a Calmap schematic showing the data flow through the software. CALMAP reads grid information from the GRIDCRO2D meteorology file (MCIP output), land cover/land use data from [BELD3](https://www.epa.gov/air-emissions-modeling/biogenic-emissions-landuse-database-version-3-beld3), and crop calendar data to produce files of planting start dates, planting end dates, and harvesting end dates for different crop types interpolated to the modeling grid. These files are input to the CCTM when it is configured to estimate windblown dust and simulate the impacts of agricultural activity on the windblown dust emissions.
 
 <a id="Figure4-9"></a>
 
 ![](./images/Figure4-9.png "Figure4-9.png")
 
-**Figure 4‑7. Crop calendar data preprocessor for the CCTM**
+**Figure 4‑5. Crop calendar data preprocessor for the CCTM**
 
 CCTM: The CMAQ Chemistry-Transport Model
 ----
 
-[Figure 4‑8](#Figure4-10) illustrates the CMAQ modeling system used to simulate the chemistry and transport of pollutants. This figure also shows how CMAQ relates to other parts of an air quality modeling system: the meteorological model, emissions model, and analysis software. To perform a model simulation, CMAQ needs input data, including meteorological and emissions data. Using this information, CCTM simulates each of the atmospheric processes that affect the transport, transformation, and removal of ozone, particulate matter, and other pollutants. CMAQ uses state-of-the-science techniques to simulate these processes, as described below.
+[Figure 4‑6](#Figure4-10) illustrates the CMAQ modeling system used to simulate the chemistry and transport of pollutants. This figure also shows how CMAQ relates to other parts of an air quality modeling system: the meteorological model, emissions model, and analysis software. To perform a model simulation, CMAQ needs input data, including meteorological and emissions data. Using this information, CCTM simulates each of the atmospheric processes that affect the transport, transformation, and removal of ozone, particulate matter, and other pollutants. CMAQ uses state-of-the-science techniques to simulate these processes, as described below.
 
 <a id=Figure4-10></a>
 
 ![](./images/Figure4-10.png "Figure4-10.png")
 
-**Figure 4-8. CMAQ chemistry-transport model and associated preprocessors**
+**Figure 4-6. CMAQ chemistry-transport model and associated preprocessors**
 
 ### Gas-phase chemistry solvers
 
