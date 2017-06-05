@@ -38,7 +38,7 @@ C                    11/27/01 by David Wong
 C                      -- include a new module: noop_bndy_copy_module
 C --------------------------------------------------------------------------
 
-	module noop_modules
+        module noop_modules
 
           use noop_init_module
           use noop_term_module

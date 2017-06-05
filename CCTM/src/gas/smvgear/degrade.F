@@ -109,7 +109,7 @@ C..Update concentrations except degraded species
          DO I = 1, N_REACT
             IF( RXTANT_MAP( I ) .EQ. J )CYCLE LOOP_UPDATE0
          END DO
-         DO I_CELL = 1, NUM_CELLS	       
+         DO I_CELL = 1, NUM_CELLS               
             CURR_CONC( I_CELL, J ) = CBLK( I_CELL, J )
          ENDDO
       ENDDO LOOP_UPDATE0
@@ -119,7 +119,7 @@ C..Loop over each reactant
       LOOP_REACT: DO I = 1, N_REACT
 
          I_RXT = RXTANT_MAP( I )
-	 
+         
          IF( I_RXT < 0 )CYCLE LOOP_REACT
 
 
@@ -208,7 +208,7 @@ C..Loop over each reactant
                   DELT_CONC( I_CELL, I_PROD ) = -(LOSS_RATE( I_CELL, J ) * NET_LIFE ( I_CELL ))
      &                                        *  DELT_CONC( I_CELL, I_RXT )
               ELSE
-	          DELT_CONC( I_CELL, I_PROD ) = 0.0D0
+                  DELT_CONC( I_CELL, I_PROD ) = 0.0D0
               ENDIF
             ENDDO
          ENDDO LOOP_PROD

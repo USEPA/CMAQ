@@ -34,7 +34,7 @@ C
 C   Orginal version: 11/05/99 by David Wong
 C --------------------------------------------------------------------------
 
-	module noop_data_copy_module
+        module noop_data_copy_module
 
         implicit none
 
