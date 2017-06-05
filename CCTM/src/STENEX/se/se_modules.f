@@ -42,7 +42,7 @@ C                      -- include a new module: se_twoway_comm_module for
 C                         the WRF-CMAQ twoway model
 C --------------------------------------------------------------------------
 
-	module se_modules
+        module se_modules
 
           use se_init_module
           use se_term_module

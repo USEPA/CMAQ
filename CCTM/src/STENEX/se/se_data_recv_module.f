@@ -63,13 +63,13 @@
 
           implicit none
 
-	  interface se_data_recv
+          interface se_data_recv
             module procedure se_1d_data_recv,
      &                       se_2d_data_recv, se_2de_data_recv,
      &                       se_3d_data_recv, se_3de_data_recv,
      &                       se_4d_data_recv, se_4de_data_recv,
      &                       se_5d_data_recv
-	  end interface
+          end interface
 
           contains
 
