@@ -52,8 +52,6 @@ Science Modules:
 -   Aerosol dynamics and size distributions (*aero*)
 -   Potential vorticity scaling for stratosphere/troposphere exchange (*pv_o3*)
 -   Meteorology-chemistry coupling (*twoway*)
--   Deposition velocity estimation (*depv*)
--   Photolytic rate computation (*phot*)
 
 Control/Utility Modules:
 
@@ -66,6 +64,11 @@ Control/Utility Modules:
 -   Process analysis (*procan*)
 -   Species namelist utilities (*spcs*)
 -   Miscellaneous functions (*util*)
+
+Data Estimation Modules:
+
+-   Deposition velocity estimation (*depv*)
+-   Photolytic rate computation (*phot*)
 
 In-line Emissions Modules:
 
@@ -107,7 +110,8 @@ CMAQ uses the MCIP software to prepare the meteorological fields for CCTM. The I
 
 ## MCIP: Meteorology-Chemistry Interface Processor
 
-MCIP uses output files from a meteorological model, such as the [Weather Research Forecast Model (WRF)](http://www.wrf-model.org), to create netCDF-formatted input meteorology files that are used by the emissions model that computes emissions inputs to CMAQ, and by CCTM within CMAQ.
+MCIP ingests output files from meteorological models, including the <a href="http://www.wrf-model.org">Weather Research and Forecasting Model (WRF)</a> and the <a href="http://www2.mmm.ucar.edu/mm5/">Fifth-Generation Penn State/NCAR Mesoscale Model (MM5)</a>, to create meteorology files that are used within the CMAQ Modeling System.  The goal of MCIP is to use as much of the data directly from the meteorological model to ensure physical consistency in the atmospheric state used by the CMAQ Modeling System.  The output from MCIP is in the standard I/O API format that is used within the CMAQ Modeling System.  MCIP output files can be used by the emissions processor (e.g., for meteorologically varying temperatures for mobile emissions) and by the CCTM to define the atmospheric conditions.  An overview of MCIP can be found in Otte and Pleim (2010).
+
 
 <a id="Figure4-3"></a>
 
@@ -118,11 +122,19 @@ MCIP uses output files from a meteorological model, such as the [Weather Researc
 
 Using output fields from the meteorological model, MCIP performs the following functions:
 
--   Extracts meteorological model output that is specific to the CCTM horizontal grid domain. CCTM uses a smaller computational domain that is entirely contained within the computational domain of the meteorological model, and the lateral boundaries from the meteorological model are generally not used by CCTM.
--   Processes all required meteorological fields for CCTM and the emissions model. The meteorological information, such as atmospheric temperature, pressure, humidity, and winds produced by the meteorological model, is put into a form required by CMAQ.
--   “Collapses” meteorological model vertical layers, if coarser vertical resolution data are desired for a given CCTM run.  To do this, MCIP uses mass-weighted averaging on higher-vertical-resolution meteorological model output.
--   Computes cloud top, cloud base, liquid water content, and cloud coverage for cumuliform clouds using simple convective schemes. The cloud parameters influence CCTM aqueous-phase chemistry and cloud mixing (Walcek and Taylor, 1986; Chang et al., 1987). First, the cloud base is determined as the lifting condensation level computed from the highest saturated equivalent potential temperature below 700 mb. Then, the cloud top is computed by following a saturated adiabatic lapse rate from cloud base until it reaches a temperature five degrees cooler than the surrounding environment. Once the top and bottom of the cloud are determined, MCIP constructs a vertical profile of the adiabatic liquid water mixing ratio as the difference between the saturated mixing ratio at each level and the source-level mixing ratio. MCIP obtains the cloud coverage fraction by iteratively solving the equations governing the conservation of total water mass and energy conservation for cloud-top mixing, commensurate with the temperature profile.
-- Outputs meteorological and geophysical files in the netCDF format, for input to SMOKE and CMAQ.
+-   Processes all required meteorological fields for CCTM and the emissions model.  Meteorological fields such as atmospheric temperature, pressure, humidity, and winds are taken directly from the meteorological model (i.e., "passed through").  Additional fields that are required by the CCTM but are not part of the meteorological model's output stream are computed within MCIP from the available meteorological fields.
+-    Extracts meteorological model output on the computational domain that is prescribed for the CCTM.  The CCTM typically uses a smaller computational domain than the meteorological model, and the lateral boundaries from the meteorological model are generally not used by CCTM.
+-   Optionally reduces the number of vertical layers from the meteorological model to the CCTM using "layer collapsing".  To do this, MCIP uses mass-weighted averaging on higher-vertical-resolution meteorological model output.
+-   Computes cloud top, cloud base, liquid water content, and cloud coverage for cumuliform clouds using simple convective schemes. The cloud parameters influence CCTM aqueous-phase chemistry and cloud mixing (Walcek and Taylor, 1986; Chang et al., 1987).
+-   Outputs several files in I/O API format that contain meteorological and geospatial information used by emissions processing and the CCTM.
+
+
+MCIP is written in FORTRAN, and it runs on a single processor in a Unix/Linux environment.  MCIP is driven by a C-shell script with several run-time options that are defined through a FORTRAN namelist.  It is typical to use MCIP to process hourly output fields from the meteorological model for each one-day period.
+
+
+MCIP is often updated concurrently with the CCTM.  The changes to MCIP are documented with each update to the software, and a "Frequently Asked Questions" (FAQ) file exists that is specific to MCIP.
+
+
 
 ## ICON and BCON: The initial and boundary conditions processors
 
@@ -147,13 +159,13 @@ The chemical mechanism used in the CCTM and the CMAQ input processors must be co
 
 ICON and BCON can linearly interpolate input concentration profiles from the horizontal or vertical coordinate system used in the profiles to the one needed for the model simulation, if the input data are in the standard I/O API format. If the interpolation is between two different vertical coordinate systems, the mid-layer height of each vertical layer must also be available.
 
-The current ICON and BCON processors cannot generate initial and boundary conditions for the CMAQ model from hemispheric and global model results.  A separate processor (GEOS2CMAQ) is available for generating boundary conditions for the CMAQ model using the GEOSSCHEM model results.  Another processor is also available for generating boundary conditions for the regional CMAQ model using the hemispheric CMAQ model results.  These processors are under development and will be released at a later date. Please contact us if you need the processors now.
+The current ICON and BCON processors cannot generate initial and boundary conditions for the CMAQ model from hemispheric and global model results.  A separate processor (GEOS2CMAQ) is available for generating boundary conditions for the CMAQ model using the GEOSSCHEM model results.  Another processor is also available for generating boundary conditions for the regional CMAQ model using the hemispheric CMAQ model results.  These processors will be released in FY2018. Please contact us if you need the processors prior to the official release.
 
 ## CHEMMECH: Chemical mechanism compiler
 
-The release version of CMAQ includes all necessary chemical mechanism information for the pre-configured atmospheric chemistry reactions sets or mechanisms in a released version of CMAQ. Users choose which mechanism to use for compiling and running the CCTM executable. CCTM implements a chemical mechanism by using its namelist and FORTRAN modules. The files are in ASCII format and include the mechanism parameters required such as the species, reaction stoichiometry, and kinetics information. The module files are used to compile the CCTM executable while the namelists are read by CCTM at run time. 
+The release version of CMAQ includes all necessary chemical mechanism information for a set of pre-configured atmospheric chemistry parameterizations. Users must choose which mechanism they would like to use for their simulation and compile each CMAQ program accordingly. Advanced users who wish to generate new chemical mechanism information for use in CMAQ can use the program CHEMMECH to convert a mechanism listing file into the files needed by CMAQ.
 
-Advanced users who wish to generate a new chemical mechanism have to use the CHEMMECH utility to convert the mechanism into the files needed by the CCTM program. CHEMMECH uses a mechanism definition file, often named “mech.def”, and optionally the mechanism namelist files to generate FORTRAN modules. The “mech.def” is an ASCII file that uses a rigid syntax to define reactions and their rate constants. [Figure 4-6](#Figure4-6) shows the relationship between CHEMMECH and other parts of the CMAQ modeling system.
+Gas-phase chemical mechanisms are implemented in CMAQ using Fortran namelist and INCLUDE files. These files are in a machine-readable ASCII format and include all of the mechanism parameters required, including gas-phase species, reaction stoichiometry, and kinetics information. To invoke chemical mechanisms in CMAQ, these files are included in the compilation of the various CMAQ programs to generate mechanism-specific executables. CHEMMECH takes a mechanism definition file, often named “mech.def”, and generates the mechanism and species INCLUDE and namelist files that define the chemistry parameters for the CMAQ programs. The file “mech.def” is an ASCII file that is easy to understand and modify. [Figure 4-6](#Figure4-6) shows the relationship between CHEMMECH and other parts of the CMAQ modeling system.
 
 <a id="Figure4-6"></a>
 
@@ -161,7 +173,7 @@ Advanced users who wish to generate a new chemical mechanism have to use the CHE
 
 **Figure 4‑5. Invoking new/modified gas-phase chemical mechanisms in CMAQ**
 
-This approach defining the CMAQ chemical mechanisms allows the chemical reactions and their species to be a fixed part of the executable code. Modifications to the namelists can change predictions saved to the output files, deposition processes of species, emissions inputs and other options for species without recompiling the executable. The namelists defining a chemical mechanism are used by CCTM as well as the ICON and BCON pre-processors. The FORTRAN modules are required to run JPROC and utility programs such as create_ebi and inline_phot_preproc.
+The benefit of the namelist approach to defining the CMAQ mechanisms is that the mechanism definition becomes a run-time configuration option as opposed to a compiled configuration. With careful modification to the namelist file, the user can add or subtract species being saved to the output file and apply across-the-board scaling factors to input emissions species without having to recompile CCTM. The namelist approach for defining chemical mechanisms is applicable only to CCTM; the standard INCLUDE file approach is required for ICON, BCON, and JPROC.
 
 ## Lightning NO processing in CMAQ
 
@@ -198,17 +210,29 @@ CCTM: The CMAQ Chemistry-Transport Model
 
 ### Gas-phase chemistry solvers
 
-To determine the time dependent concentrations of species described by a chemical mechanism, the CCTM uses numerical methods to solve ordinary differential equations representing the chemical transformations. Three solution methods are available and differ in terms of accuracy, generalization, and computational efficiency, i.e. model run times . They include the Rosenbrock (ROS3) solver (Sandu et al., 1997), the Euler Backward Iterative (EBI) solver (Hertel et al., 1993), and the Sparse Matrix Vectorized GEAR (SMVGEAR) solver (Jacobson and Turco, 1994). SMVGEAR and ROS3 are considered more accurate, in the order listed. Both solutions are labeled as “generalized” because using either only requires the mechanism’s namelist and FORTRAN modules. The EBI solver is more computationally efficient but is less accurate and is not a “generalized” solver so each chemical mechanism requires its own EBI solver. CMAQ includes EBI solvers for each mechanism definitions file releases with a model version. Consult the CMAQ release notes for what mechanisms are in a specific version. If a user creates or modifies a chemical mechanism, they have to create a new EBI solver by the using the create_ebi utility.  
+Various modules for simulating tropospheric gas-phase chemistry within CMAQ have been developed. Gas-phase chemistry can be simulated in CMAQ with the CB6, CB05, SAPRC-07, or RACM photochemical mechanisms.
+
+To compute time-varying species concentrations and their rates of formation or depletion, differential equations governing chemical reaction kinetics and species conservation need to be solved for the entire species set. CCTM uses special techniques called numerical chemistry solvers to solve the set of stiff ODE's representing the non-linear chemistry in an accurate and efficient manner.
+
+Regarding these solvers, various solution algorithms for the chemical kinetics have been investigated in terms of the optimal balance of accuracy, generalization, and computational efficiency that is required for this component of the atmospheric system. CCTM currently contains three options for solving gas-phase chemical transformations: the Rosenbrock (ROS3) solver (Sandu et al., 1997), the Euler Backward Iterative (EBI) solver (Hertel et al., 1993), and the Sparse Matrix Vectorized GEAR (SMVGEAR) solver (Jacobson and Turco, 1994).
+
+CMAQ includes options for simulating the chemistry of chlorine, mercury, and other toxic compounds in a multipollutant (mp) version of the CB05. See the CMAQ release notes for the latest version of the model for addition details on the gas-phase chemistry options.
 
 ### Photolysis
 
-Photolysis or photodissociation energize and break apart compounds in several key of chemical processes in the atmosphere. It plays in the formation of ozone and particular material that affect human health. Computing the rate of photolysis reactions therefore strongly influences how well an air quality model simulates reality. 
+Photolysis (or photodissociation) of trace gases initiates most chemical reactions that take place in the atmosphere. Photolysis splits gas-phase chemical species using energy from sunlight. Photolysis is involved in the formation of smog, an air pollution problem that affects human, animal, and plant health. Simulating photochemical reactions accurately is therefore a key issue that strongly influences air quality model performance.
 
-The calculation of a photolysis rate must include multiple influences. Clouds, surface features, atmospheric gas and aerosols affect photolysis rates because each scatter and absorb light. A given photolysis reaction depends on molecular properties of the compound involved. Two properties describe the dependence. The absorption cross section represents the effective molecular area of a compound for absorbing solar radiation. The quantum yield gives the chance that the molecule that dissociates after absorbing the radiation.  Each property depends on the wavelength of the incident radiation, as well as air temperature and density. 
+CCTM uses state-of-the-science techniques to simulate photolytic reactions in the PHOT module. Photolysis reactions and their rates of reaction are driven by sunlight. Similar to kinetic reaction rates for nonphotochemical reactions, the photolysis rate quantifies how much reactant is produced from a photolytic reaction in a given amount of time. The calculation of a photolysis rate must include multiple influences:
 
-The in-line method (Binkowski et al., 2007) is the preferred method for calculating photolysis rates in the CCTM program of CMAQ model system. The method uses aerosol and ozone predicted within a simulation to calculate the solar radiation. Two input files support the calculation. The PHOT_OPTICS file describe the optical properties of clouds, aerosols, and the earth’s surface. The OMI file is used to determine how much light is absorbed by atmosphere above the model domain. Both files are included in the released version of CMAQ. Calculating photolysis rates uses an additional input file called the CSQY_DATA file. It contains the cross sections and quantum yields of photolysis rates in a given chemical mechanism.  CSQY_DATA files are provided for all chemical mechanisms in a released version of CMAQ. If a user creates a mechanism using new or additional photolysis rates, they have to create a new CSQY_DATA file. The inline_phot_preproc utility produces this file based on the FORTRAN modules describing the mechanism (see the section on the CHEMMECH utility) and individual files describing the absorption cross-section and quantum yields described for each photolysis reaction.  
+The rate of photolysis is a function of the amount of solar radiation (called actinic flux), which varies based on the time of day, season, latitude, and terrestrial features. The amount of solar radiation is also affected by the amount of cloudiness and by aerosol absorption and scattering in the atmosphere.
 
-The CMAQ modeling system includes an additional method to calculate photolysis rates based on look-up tables. The tables give a mechanism’s photolysis rates under cloud free conditions based on a fixed meridional cross-sections of atmospheric composition, temperature, density and aerosols. Each table represents rates as a function altitude, latitude and the hour angle of the sun on a specified Julian date. In model simulations, the method interpolates rates in the table for the date and corrects them to account for clouds described by the meteorological input files. The JPROC pre-processor creates the table based on the FORTRAN modules describing the chemical mechanism. The pre-processor also requires files describing each photolysis rates.
+The photolysis rate also depends on species-specific molecular properties like the absorption cross section (the effective molecular area of a particular species when absorbing solar radiation, which results in a shadow region behind the particle) and quantum yield (the number of molecules that dissociate for each light photon incident on the atmosphere). These molecular properties depend on the wavelength of the incident radiation and the temperature (and hence, on the available photon energy). Thus, estimating the photolysis rate is further complicated by these temperature and wavelength dependencies.
+
+The CMAQ modeling system includes an advanced photolysis model (JPROC) to calculate temporally varying photolysis rates for use in simulating photolysis in CCTM.
+
+An in-line photolysis module (Binkowski et al., 2007) was included in CMAQ beginning with version 4.7. The in-line photolysis calculations account for the presence of ambient PM and ozone predicted by CMAQ and use these estimates to adjust the actinic flux, rather than relying on a look-up table of static background PM and ozone values. The in-line method for calculating photolysis rates also uses newer values of the absorption cross sections and quantum yields than those in the table look-up version, and these new values are corrected for ambient temperature. The extinction coefficients for the ambient aerosols are explicitly calculated using a new, efficient parametric algorithm derived from explicit integration of Mie calculations over the lognormal size distributions. Refractive indices are calculated based upon the categories of chemical species present (i.e., water soluble, insoluble, soot-like, water, and sea salt).
+
+The JPROC module does not need to be run if the in-line photolysis method is used. With the in-line configuration, photolysis rates are calculated internally by CCTM and there is no need for the clear-sky look-up tables produced by JPROC.
 
 ### Advection and diffusion
 
@@ -267,8 +291,8 @@ Several features are included in CMAQ that improve or enhance the simulation of 
 
 CMAQ includes several in-line options for calculating and processing emissions in the CCTM. The in-line emissions options in CMAQv5 include the following:
 
--   The BEIS3 biogenic emissions model can be used to calculate emissions from vegetation and soils.   This biogenic model is based on the same model that is included in SMOKE.  User documentation for BEIS can be found in [Chapter 6.17 of the SMOKE manual](https://www.cmascenter.org/smoke/documentation/4.5/html/ch06s17.html). The temporal allocation of the biogenic emissions in included in CMAQ. However, the calculation of the gridded normalized emissions for winter and summer is a time independent calculation and must be done with normbeis3 prior to running the inline biogenic option in CMAQ. The user must either provide a BIOSEASON file for simulations that are not summer only or winter only (e.g. multiple seasons, spring, fall) or set the SUMMER_YN flag to Y for summer or N for winter. Without the BIOSEASON file, all biogenic emissions will be calculated using summer factors or winter factors.  Additional, when using the inline biogenic option, the user must point to the SOILOUT file from one day’s simulation as the SOILINP file for the next day. The user must also decide whether to write over SOILOUT files from previous days or create a uniquely named SOILOUT file for each day. The latter approach is recommended if the user wishes to retain the capability to restart simulations in the middle of a sequence of simulations.
--   Plume rise can be calculated for large point sources.  Plume rise can be calculated in-line within CMAQ provided the emission files have been processed with SMOKE for in-line processing.  The NPTGRPS sets the number of “sectors” for which the user wishes to provide a stack_groups file and an inline emissions file.  Optionally, the user can request 2 optional output diagnostic files that include a 3-D file the emissions with plume rise included and a layer fractions (PLAY) file that includes the fractional amount of emission per model layer.
+-   The BEIS3 biogenic emissions model can be used to calculate emissions from vegetation and soils
+-   Plume rise can be calculated for large point sources
 -   Windblown dust emissions can be estimated using meteorology and land-cover data
 -   Updated sea salt emissions. In AERO6 sea salt emissions in the accumulation mode are speciated into Na, Cl, SO4, Ca, K, and Mg. All cations in the coarse-mode sea salt (i.e., Na, Ca, K, and Mg) are lumped into a species called ASEACAT.
 
@@ -284,7 +308,8 @@ As a tool for identifying the relative importance of individual chemical and phy
 - As a tool for model development, PA can help evaluate the effect of modifications made to a model or process module
 - For QA purposes, PA can be used to help identify compensating or unresolved errors in the model or input data which may not be reflected in the total change in concentration. For example, if an error in the emissions input data causes the model to calculate negative concentration values in an intermediate step, this could be masked in the final predicted concentrations if compensated for by larger positive values resulting from the chemistry calculations.
 
-If the user activates PA during CMAQ runtime (CTM_PROCAN=Y), the PA input file (PACM_INFILE) specifies whether IPR, IRR or both analyses are performed, and defines which variables are required for each analysis. The IRR parameters are highly customizable and can be easily modified for new chemical mechanisms, but must be checked carefully before running to ensure that they correspond to the mechanism being used.  The PA_REPORT output file should always be reviewed to verify that the calculations are being performed correctly. Note that while the IPR option can be run with any of the chemical solvers, use of IRR in CMAQ requires either the Rosenbrock or the SMVGEAR solvers
+If the user activates PA during CMAQ runtime (CTM_PROCAN=Y), the PA input file (PACM_INFILE) specifies whether IPR, IRR or both analyses are performed, and defines which variables are required for each analysis. The IRR parameters are highly customizable and can be easily modified for new chemical mechanisms, but must be checked carefully before running to ensure that they correspond to the mechanism being used.  The PA_REPORT output file should always be reviewed to verify that the calculations are being performed correctly.    
+Note that PA in CMAQ will only work with either the Rosenbrock or the SMVGEAR solvers.
 
 The CMAQ User Interface
 -----------------------
@@ -339,6 +364,8 @@ Jacobson, M., and R. P. Turco, 1994: SMVGEAR: A sparse-matrix, vectorized Gear c
 Jiang, W., S. Smyth, É. Giroux, H. Roth, and D. Yin, 2006: Differences between CMAQ fine mode particle and PM<sub>2.5</sub> concentrations and their impact on model performance evaluation in the lower Fraser valley. *Atmos. Environ*., **40**, 4973–4985.
 
 Murphy, B. N., et al., 2017: Semivolatile POA and parameterized total combustion SOA in CMAQv5.2: impacts on source strength and partitioning. *Atmospheric Chemistry and Physics Discussions,* 2017: 1-44.
+
+Otte, T. L., and J. E. Pleim, 2010: The Meteorology-Chemistry Interface Processor (MCIP) for the CMAQ modeling system: updates through MCIPv3.4.1. *Geoscientific Model Development*, **3**, 243-256.
 
 Pleim, J. E., and J. S. Chang, 1992: A non‑local closure model in the convective boundary layer. *Atmos. Environ,*. **26A**, 965–981.
 
