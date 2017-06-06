@@ -268,12 +268,13 @@ CMAQ’s standard cloud chemistry treatment estimates sulfate production from fi
 
 ### Deposition
 
-Several features are included in CMAQ that improve or enhance the simulation of dry deposition processes in the model:
+CMAQ optionally calculates the wet and dry deposition of chemical species.  Information on the algorithms used can be found in Pleim and Ran (2011), Bash et al 92013), and Pleim et al (2013).  For deposition to be considered in a model run, the entry in the namelist file must indicate a deposition surrogate species and a deposition factor.  The default namelist files contain the standard configuration for known deposition of species.  For wet deposition, the scavenging factor (SCAV_FAC) should be set to 1 and the surrogate species (SCAV_SUR) must be one of the chemicals listed in the HLCONST.F subroutine.  If the chemical does not have an appropriate surrogate species listed in the HLCONST.F subroutine, one may be added to the model source code.  For dry deposition, the deposition factor (DEPV_FAC) should be set to 1 and the deposition velcoity surrogate (DEPV_SUR) should be set to one of the species listed in the DEPVDEFN.F subroutine.  The species listed in this file are further cross-referenced to a table in ASX_DATA_MOD.F wehre the diffusivity in air, reactivity, mesophyll resistance, LeBas molar volume, and wet surface scavenging surrogate are specified. The wet surface scavenging surrogate must be a chemical in the HLCONST.F subroutine and is typically the same species that is used for wet deposition of the chemical.  If a proper deposition velocity surrogate species does not exist in the tables, one can be added to the model source code.
 
--   Bidirectional modules for ammonia and mercury simulate two-way exchange between the atmosphere and the surface for these species (as opposed to only deposition). The mercury bidirectional module is part of the CMAQv5 multipollutant configuration.
--   CMAQ MOSAIC is a configuration that outputs land use specific deposition velocities and fluxes.
--   Mesophyll resistance improves the deposition calculations for insoluble atmospheric gases.
--   The effects of HONO heterogeneous chemistry on deposition velocities were removed in CMAQv5.0.
+A runtime flag in the CMAQ model controls whether the bidirectional modeules for ammonia and mercury are invoked.  The bidirectional modules simulate two-way exchange between the atmosphere and the surface for these species (as opposed to only deposition). The mercury bidirectional module is part of the CMAQv5 multipollutant configuration. To use the bidirectional option for ammonia, additional input file are required.  The files are created from the Environmental Policy Integrated Climate (EPIC) model. There are two time independent files which provide information on the soil and the landcover.  A time dependent file contains information on fertilizer application. 
+
+An additional configuration option related to deposition is the CMAQ_MOSAIC runtime option.  This option outputs land use specific deposition velocities and fluxes.
+
+In previous versions of CMAQ, the effects of HONO heterogeneous chemistry on deposition velocities were included.  These effects were removed in CMAQv5.0.
 
 ### Emissions
 
@@ -312,6 +313,8 @@ The CMAS Center currently supports CMAQ on Linux systems using the Gnu, Portland
 
 References for Chapter 4: Science Overview
 -----------------------------------------------
+
+Bash, J. O., E. J. Cooter, R. L. Dennis, J. T. Walker, and J. E. Pleim, 2013: Evaluation of a regional air-quality model with bidirectional NH3 exchange coupled to an agroecosystem model. "Biogeosciences*, **10**, 1635-1645.
 
 Binkowski, F.S., and U. Shankar, 1995: The Regional Particulate Model: Part I. Model description and preliminary results. *J. Geophys. Res*., **100**, 26 191–26 209.
 
@@ -355,7 +358,11 @@ Murphy, B. N., et al., 2017: Semivolatile POA and parameterized total combustion
 
 Otte, T. L., and J. E. Pleim, 2010: The Meteorology-Chemistry Interface Processor (MCIP) for the CMAQ modeling system: updates through MCIPv3.4.1. *Geoscientific Model Development*, **3**, 243-256.
 
-Pleim, J. E., and J. S. Chang, 1992: A non‑local closure model in the convective boundary layer. *Atmos. Environ,*. **26A**, 965–981.
+Pleim, J.E., J. O. Bash, J. T. Walker, and E. J. Cooter, 2013. *J. Geophys. Res.*, **118**, 3794-3806.
+
+Pleim, J. E., and J. S. Chang, 1992: A non‑local closure model in the convective boundary layer. *Atmos. Environ.*, **26A**, 965–981.
+
+Pleim, J.E., and L. Ran, 2011: Surface Flux Modeling for Air Quality Applications. *Atmosphere*, **2**, 271-302.
 
 Pleim, J. E., A. Xiu, P. L. Finkelstein, and T. L. Otte, 2001: A coupled land-surface and dry deposition model and comparison to field measurements of surface heat, moisture, and ozone fluxes. *Water Air Soil Pollut. Focus*, **1**, 243–252.
 
