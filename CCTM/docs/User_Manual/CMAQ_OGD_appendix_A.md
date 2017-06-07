@@ -13,5 +13,5 @@ Appendix A – CMAQ Chemical Mechanisms and Species Tables
 
 **Table A‑1. Species Table for cb05e51_ae6_aq Mechanism**
 
-[cb05e51_ae6_aq_species Table](cb05e51_ae6_aq/cb05e51_ae6_aq_species_table.md)
+[cb05e51_ae6_aq_species Table](Appendix_A/cb05e51_ae6_aq/cb05e51_ae6_aq_species_table.md)
 
