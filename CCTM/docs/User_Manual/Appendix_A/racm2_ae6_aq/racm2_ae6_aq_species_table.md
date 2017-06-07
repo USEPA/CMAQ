@@ -1,6 +1,6 @@
 The mechanism uses the below model species.
 
-**Table A‑3. Mechanism for cb05e51_ae6_aq uses the following species.**
+**Table A‑3. Mechanism for racm2_ae6_aq uses the following species.**
 
 | **Name** | **Defintion** | **Phase** | **Molecular Weight** |
 |-----------|--------------------------------------|-----------------|------------------|
