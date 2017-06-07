@@ -101,7 +101,7 @@ C..Update concentrations except degraded species
                 CYCLE LOOP_NEW
             END IF
          ENDDO
-	 CURR_CONC( I ) = CBLK( I ) 
+         CURR_CONC( I ) = CBLK( I ) 
       ENDDO LOOP_NEW
       
       DELT_CONC = 0.0D0
@@ -125,7 +125,7 @@ C..Loop over each reactant
 
          I_RXT = RXTANT_MAP( I )
          IF( I_RXT < 0 )CYCLE LOOP_REACT
-	 
+
 
          IF( CURR_CONC( I_RXT ) <= CONMIN )CYCLE LOOP_REACT
 
@@ -145,7 +145,7 @@ C..Loop over each reactant
             ELSE
                LOSS_RATE( J ) = 0.5D0 * RATE_CONST( I, J )
      &                        * ( PREV_CONC( I_RAD ) + CURR_CONC( I_RAD ) )
-	    ENDIF
+            ENDIF
          ENDDO LOOP_BIRATE
 
          L = 0
@@ -169,11 +169,11 @@ C..Loop over each reactant
          LOOP_RATE :  DO J = 1, N_PROCESSES
                NET_RATE = NET_RATE + LOSS_RATE( J )
          ENDDO LOOP_RATE
-	 	 
+
          IF ( NET_RATE * DT .LE. 1.0D-20 ) CYCLE LOOP_REACT
 
-         NET_LIFE = 1.0D0 / NET_RATE	 
-	 
+         NET_LIFE = 1.0D0 / NET_RATE
+
          TRANS = CURR_CONC( I_RXT ) * ( 1.0D0 - DEXP( -NET_RATE * DT ) )
 
          IF ( TRANS <= CONMIN ) CYCLE LOOP_REACT
