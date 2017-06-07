@@ -66,7 +66,7 @@ C.....LOCAL VARIABLES:
 
       REAL(8), SAVE ::  CONV_M2N       ! factor to convert ppm times mass density in [kg/m^3]
                                        ! into number density in [molecules/cm^3]
-      
+                                       
       REAL(8)       ::  CONV_FACT      ! conversion factor from ppm to molecules/cm^3
       REAL(8)       ::  INV_TEMP       ! reciprocal of temperature, [K^-1]
 
@@ -81,7 +81,7 @@ C**********************************************************************
 
 
          MASS_TO_NUMBER = REAL( 1.0E-3*AVO / MWAIR, 8 )
- 
+         
          CONV_M2N       = 1.0D-6 * MASS_TO_NUMBER
 
          ISIZE = SIZE( CBLK )

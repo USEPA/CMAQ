@@ -125,7 +125,7 @@ C..Loop over each reactant
 
          I_RXT = RXTANT_MAP( I )
          IF( I_RXT < 0 )CYCLE LOOP_REACT
-
+         
 
          IF( CURR_CONC( I_RXT ) <= CONMIN )CYCLE LOOP_REACT
 
@@ -169,11 +169,11 @@ C..Loop over each reactant
          LOOP_RATE :  DO J = 1, N_PROCESSES
                NET_RATE = NET_RATE + LOSS_RATE( J )
          ENDDO LOOP_RATE
-
+                  
          IF ( NET_RATE * DT .LE. 1.0D-20 ) CYCLE LOOP_REACT
 
-         NET_LIFE = 1.0D0 / NET_RATE
-
+         NET_LIFE = 1.0D0 / NET_RATE         
+         
          TRANS = CURR_CONC( I_RXT ) * ( 1.0D0 - DEXP( -NET_RATE * DT ) )
 
          IF ( TRANS <= CONMIN ) CYCLE LOOP_REACT
