@@ -22,7 +22,7 @@ C RCS file, release, date & time of last delta, author, state, [and locker]
 C $Header: /project/yoj/arc/CCTM/src/couple/gencoor_wrf/couple.F,v 1.4 2011/10/21 16:10:30 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
-C @(#)couple.F	1.1 /project/mod3/CMAQ/src/convert/couple/SCCS/s.couple.F 03 Jun 1997 11:41:33
+C @(#)couple.F  1.1 /project/mod3/CMAQ/src/convert/couple/SCCS/s.couple.F 03 Jun 1997 11:41:33
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE COUPLE ( CGRID, JDATE, JTIME, TSTEP )

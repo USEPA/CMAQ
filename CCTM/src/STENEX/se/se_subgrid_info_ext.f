@@ -43,7 +43,7 @@ C se_subgrid_recv_ind  -- holding row (first two entries) and column (second
 C                         two entries) dimensions of data for receiving
 C --------------------------------------------------------------------------
 
-	module se_subgrid_info_ext
+        module se_subgrid_info_ext
 
           integer :: se_my_subgrid_beglev
           integer :: se_my_subgrid_endlev

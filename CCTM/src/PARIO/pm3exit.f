@@ -163,7 +163,7 @@ C.......  Abort all parallel tasks.
           CALL MPI_ABORT( MPI_COMM_WORLD, ERRCODE, IERROR )
 !         CALL MPI_FINALIZE( IERROR )
 
-	  STOP
+          STOP
 
       ELSE    !  exitstat = 0:  successful completion.
 

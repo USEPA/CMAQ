@@ -80,7 +80,7 @@ C     se_my_ncols by se_my_nrows = 4 x 6 for PE 2, 4, and 6
 C     se_my_ncols by se_my_nrows = 4 x 5 for PE 3, 5, and 7
 C --------------------------------------------------------------------------
 
-	module se_domain_info_ext
+        module se_domain_info_ext
 
           integer :: se_gl_ncols
           integer :: se_gl_nrows
@@ -104,4 +104,4 @@ C --------------------------------------------------------------------------
           integer :: se_my_nlaysp1
           integer :: se_my_nspcsp1
  
-	end module se_domain_info_ext
+        end module se_domain_info_ext
