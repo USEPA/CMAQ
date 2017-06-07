@@ -9,8 +9,9 @@ Information is taken directly from the mech_saprc07tic_ae6i_aq.def file. Reactio
 *For rate constants with the form A~<''HETERO''>, k equals A times the heterogeneous rate constant, ''HETERO''.
 *For rate constants with the form A*K<''RCONST''>, k equals A times the previously defined rate constant, ''RCONST''.
 *Units of rate constants give reactions rates in units of molecules cm<sup>-3</sup> s<sup>-1</sup>. Note that T equals air temperature in degrees K in the below table.
-Check the [[saprc07tic_species_table|species table]] for the reactants and products used the below reactions.
+Check the [saprc07tic_species_table](saprc07tic_ae6i_aq_species_table.md) for the reactants and products used the below reactions.
 
+**Table A‑10. Mechanism for saprc07tic_ae6i_aq uses the following reactions.**
 
 | **Label** | **Reaction** | **Rate Const** | **Notes** | **Reference** |
 |-----------|--------------------------------------|-----------------|------------------|----------------------|

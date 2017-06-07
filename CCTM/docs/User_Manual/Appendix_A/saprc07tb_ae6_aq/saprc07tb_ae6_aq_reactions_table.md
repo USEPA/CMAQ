@@ -26,7 +26,9 @@ Information is taken directly from the mech.def file.
 **RO22NN = RO2NO3 + RO2RO3 + 0.5*RO2RO2
 where [''species''] equals the concentration of a mechanism ''species'' at the beginning of the integration time-step for the chemistry's numerical solver.
 
-Check the [[sapc07t_species_table|species table]] for the reactants and products used the below reactions.
+Check the [sapc07t_species_table](saprc07tb_ae6_aq_species_table.md) for the reactants and products used the below reactions.
+
+**Table A‑6. Mechanism for saprc07tb_ae6_aq uses the following species.**
 
 | **Label** |  **Reaction** | **Rate Const** | **Notes** | **Reference** |
 |-----------|--------------------------------------|-----------------|------------------|----------------------|

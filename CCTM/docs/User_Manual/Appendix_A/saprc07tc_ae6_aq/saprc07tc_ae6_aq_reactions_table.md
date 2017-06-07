@@ -14,7 +14,9 @@ Information is taken directly from the mech.def file.
 
 *Units of rate constants give reactions rates in units of molecules cm<sup>-3</sup> s<sup>-1</sup>. Note that T equals air temperature in degrees K in the below table.
 
-Check the [[sapc07t_species_table|species table]] for the reactants and products used the below reactions.
+Check the [sapc07t_species_table](saprc07tc_ae6_aq_species_table.md) for the reactants and products used the below reactions.
+
+**Table A‑8. Mechanism for saprc07tc_ae6_aq uses the following reactions.**
 
 | **Label** | **Reaction** | **Rate Const** | **Notes** | **Reference** |
 |-----------|--------------------------------------|-----------------|------------------|----------------------|

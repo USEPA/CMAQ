@@ -16,6 +16,7 @@ Information is taken directly from the mech.def file. cb05e51 and cb05mp51 are i
 
 Check the [[cb05e51_species_table|species table]] for the reactants and products used the below reactions.
 
+**Table A‑2. Mechanism for cb05e51_ae6_aq uses the following reactions.**
 
 | **Label** | **Reaction** | **Rate Const** | **Notes** | **Reference** |
 |-----------|--------------------------------------|-----------------|------------------|----------------------|
