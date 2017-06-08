@@ -633,7 +633,7 @@ REACTIONS[CM] =
 
 <CL24>  CL   + NO2         = CLNO2                    # 1.80E-31^-2.00&
                                                         1.00E-10^-1.00&
-                                          							0.60&1.0;
+                                                        0.60&1.0;
 <CL25>  CLNO2              = CL  + NO2                # 1.0/<CLNO2>;
 
 <SA01>  TOLRO2  + NO      = NO  + TOLNRXN             # 2.70e-12@-360;

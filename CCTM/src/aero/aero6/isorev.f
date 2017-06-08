@@ -783,10 +783,10 @@ C
             SCASE = 'L8'
             CALL CALCL8            ! CASO4,K2SO4
 C
-	 ELSEIF (DRK2SO4.LE.RH) THEN
+         ELSEIF (DRK2SO4.LE.RH) THEN
             SCASE = 'L9'
             CALL CALCL9            ! CaSO4
-	 ENDIF
+         ENDIF
        ENDIF
 C
       CALL CALCNHP                ! MINOR SPECIES: HNO3, HCl

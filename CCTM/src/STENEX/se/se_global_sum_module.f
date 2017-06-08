@@ -68,113 +68,113 @@ C -----------------------------------------------------------------------------
 
         use se_pe_info_ext
 
-	implicit none
+        implicit none
 
         integer :: se_global_isum_result
         integer, intent(in) :: var
 
-	include "mpif.h"
+        include "mpif.h"
 
-	integer :: sum, error
+        integer :: sum, error
 
-	call mpi_reduce (var, sum, 1, mpi_integer, mpi_sum, 0,
+        call mpi_reduce (var, sum, 1, mpi_integer, mpi_sum, 0,
      &                   se_worker_comm, error)
 
         if (se_myworker_pe .eq. 0) then
            se_global_isum_result = sum
-	end if
+        end if
 
         call mpi_bcast (se_global_isum_result, 1, mpi_integer, 0, 
      &                  se_worker_comm, error)
 
-	return
-	end function se_global_isum
+        return
+        end function se_global_isum
 
 C -----------------------------------------------------------------------------
         function se_global_rsum (var) result (se_global_rsum_result)
 
         use se_pe_info_ext
 
-	implicit none
+        implicit none
 
         real :: se_global_rsum_result
         real, intent(in) :: var
 
-	include "mpif.h"
+        include "mpif.h"
 
-	real sum
+        real sum
         integer error
 
-	call mpi_reduce (var, sum, 1, mpi_real, mpi_sum, 0,
+        call mpi_reduce (var, sum, 1, mpi_real, mpi_sum, 0,
      &                   se_worker_comm, error)
 
         if (se_myworker_pe .eq. 0) then
            se_global_rsum_result = sum
-	end if
+        end if
 
         call mpi_bcast (se_global_rsum_result, 1, mpi_real, 0, 
      &                  se_worker_comm, error)
 
-	return
-	end function se_global_rsum
+        return
+        end function se_global_rsum
 
 C -----------------------------------------------------------------------------
         function se_global_iasum (var) result (se_global_iasum_result)
 
         use se_pe_info_ext
 
-	implicit none
+        implicit none
 
         integer, intent(in) :: var(:)
         integer :: se_global_iasum_result(size(var))
 
-	include "mpif.h"
+        include "mpif.h"
 
-	integer :: sum(size(var)), error, n
+        integer :: sum(size(var)), error, n
 
         n = size(var)
 
-	call mpi_reduce (var, sum, n, mpi_integer, mpi_sum, 0,
+        call mpi_reduce (var, sum, n, mpi_integer, mpi_sum, 0,
      &                   se_worker_comm, error)
 
         if (se_myworker_pe .eq. 0) then
            se_global_iasum_result = sum
-	end if
+        end if
 
         call mpi_bcast (se_global_iasum_result, n, mpi_integer, 0, 
      &                  se_worker_comm, error)
 
-	return
-	end function se_global_iasum
+        return
+        end function se_global_iasum
 
 C -----------------------------------------------------------------------------
         function se_global_rasum (var) result (se_global_rasum_result)
 
         use se_pe_info_ext
 
-	implicit none
+        implicit none
 
         real, intent(in) :: var(:)
         real :: se_global_rasum_result(size(var))
 
-	include "mpif.h"
+        include "mpif.h"
 
-	real sum(size(var))
+        real sum(size(var))
         integer error, n
 
         n = size(var)
 
-	call mpi_reduce (var, sum, n, mpi_real, mpi_sum, 0,
+        call mpi_reduce (var, sum, n, mpi_real, mpi_sum, 0,
      &                   se_worker_comm, error)
 
         if (se_myworker_pe .eq. 0) then
            se_global_rasum_result = sum
-	end if
+        end if
 
         call mpi_bcast (se_global_rasum_result, n, mpi_real, 0, 
      &                  se_worker_comm, error)
 
-	return
-	end function se_global_rasum
+        return
+        end function se_global_rasum
 
         end module se_global_sum_module

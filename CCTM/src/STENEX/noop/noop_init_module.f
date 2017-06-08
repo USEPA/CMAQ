@@ -51,11 +51,11 @@ C                    11/05/99 by David Wong
 C                      -- recode using F90 syntax
 C -----------------------------------------------------------------------------
 
-	subroutine noop_init (numprocs, nprow, npcol, gl_nrows, 
+        subroutine noop_init (numprocs, nprow, npcol, gl_nrows, 
      $                        gl_ncols, gl_nlays, gl_nspcs, my_pe,
      $                        mndis, medis, msdis, mwdis, data_ori, geo_ori)
 
-	implicit none
+        implicit none
 
         integer, intent(in) :: numprocs, nprow, npcol
         integer, intent(in) :: gl_nrows, gl_ncols, gl_nlays, gl_nspcs

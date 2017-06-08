@@ -36,7 +36,7 @@ C   se_msdis -- maximun displacement in the south direction
 C   se_mwdis -- maximun displacement in the west direction
 C --------------------------------------------------------------------------
 
-	module se_disp_info_ext
+        module se_disp_info_ext
 
           integer :: se_mndis, se_medis, se_msdis, se_mwdis
 

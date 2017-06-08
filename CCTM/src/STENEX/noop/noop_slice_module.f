@@ -35,7 +35,7 @@ C   Orginal version: 11/05/99 by David Wong
 C   Add integer data 12/20/00 by Jeff Young
 C --------------------------------------------------------------------------
 
-	module noop_slice_module
+        module noop_slice_module
 
         implicit none
 
@@ -67,7 +67,7 @@ C --------------------------------------------------------------------------
         integer, intent(in) :: sourcepe, destpe, dim, from, to
         integer, intent(in) :: data(:)
 
-	end subroutine noop_slice1i 
+        end subroutine noop_slice1i 
 
 C --------------------------------------------------------------------------
 C Purpose:
@@ -88,7 +88,7 @@ C --------------------------------------------------------------------------
         integer, intent(in) :: sourcepe, destpe, dim, from, to
         real, intent(in) :: data(:)
 
-	end subroutine noop_slice1r 
+        end subroutine noop_slice1r 
 
 C --------------------------------------------------------------------------
 C Purpose:
@@ -151,7 +151,7 @@ C --------------------------------------------------------------------------
         integer, intent(in) :: sourcepe, destpe, dim, from, to
         integer, intent(in) :: data(:, :, :)
 
-	end subroutine noop_slice3i 
+        end subroutine noop_slice3i 
 
 C --------------------------------------------------------------------------
 C Purpose:
@@ -172,7 +172,7 @@ C --------------------------------------------------------------------------
         integer, intent(in) :: sourcepe, destpe, dim, from, to
         real, intent(in) :: data(:, :, :)
 
-	end subroutine noop_slice3r 
+        end subroutine noop_slice3r 
 
 C --------------------------------------------------------------------------
 C Purpose:
