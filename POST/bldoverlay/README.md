@@ -6,10 +6,12 @@ This Fortran program creates an observation overlay file that can be imported in
 ##Environment variables used:
 
 ```
+ IOAPI_ISPH    projection sphere type (use type #20 to match WRF/CMAQ)
+               (the default for this program is 20, overriding the ioapi default of 8) 
  SDATE         start date in the format: YYYYDDD
  EDATE         end date in the format: YYYYDDD
- FILETYPE      type of input file to be used (see information below).  Choices are: OBS, SITES (default is OBS)
- OLAYTYPE      type of data for the overlay output file.  If input data is daily this should be set to DAILY.
+ FILETYPE      Type of input file to be used (see information below).  Choices are: OBS, SITES (default is OBS)
+ OLAYTYPE      Type of data for the overlay output file.  If input data is daily this should be set to DAILY.
                If input data is hourly choices are: HOURLY, 1HRMAX, 8HRMAX
  SPECIES       list of names of the species in the input file (e.g. setenv SPECIES 'O3,NO,CO')
  UNITS         list of units of the species in the input file (e.g. setenv UNITS 'ppb,ppb,ppb')
@@ -19,6 +21,7 @@ This Fortran program creates an observation overlay file that can be imported in
                Allowed values are 24 (use all 8-hr averages with starting hours 
                from 0 - 23 hr local time) and 17 (use only the 17 8-hr averages
                with starting hours from 7 - 23 hr local time) (default is 24)
+ MISS_CHECK    set days with incomplete data coverage to missing when computing daily maximum 8-hr averages (TRUE/FALSE)
  VALUE         static value to use as "observed" concentration for SITES filetype (default is 1)
  OUTFILE       name of overlay file to create
 ```
