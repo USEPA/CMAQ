@@ -50,7 +50,7 @@ Each release version of CMAQ contains new features and improvements over the pre
 [Version 4.1](https://www.airqualitymodeling.org/index.php/MCIP_version_4.1_Release_Notes)<br>
 
 
-<!-- BEGIN COMMENT -- > 
+<!-- BEGIN COMMENT -->
 
 [<< Previous Chapter](CMAQ_OGD_ch02_overview.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch04_science.md)<br> CMAQ Operational Guidance Document (c) 2016<br>
 
