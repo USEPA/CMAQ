@@ -55,12 +55,17 @@ CMAQ requires all of the programs listed in [Table 5‑1](#Table5-1). This list 
 |***Code Libraries***| | |
 |OpenMPI|Library for the message passing interface; used for multiprocessor CMAQ simulations|[<https://www.open-mpi.org>](https://www.open-mpi.org)|
 |MPICH|Library for the message passing interface; used for multiprocessor CMAQ simulations|[<http://www.mcs.anl.gov/research/projects/mpich2/>](http://www.mcs.anl.gov/research/projects/mpich2/)|
-|netCDF|Network Common Data Form library for controlling CMAQ file formats|[<http://www.unidata.ucar.edu/software/netcdf/>](http://www.unidata.ucar.edu/software/netcdf/)|
+|netCDF|Network Common Data Form library for controlling CMAQ file formats\*|[<http://www.unidata.ucar.edu/software/netcdf/>](http://www.unidata.ucar.edu/software/netcdf/)|
 |I/O API|Input/Output Application Programming Interface for controlling internal and external communications|[<https://www.cmascenter.org/ioapi/>](https://www.cmascenter.org/ioapi/)|
 |LAPACK|Linear algebra packages for use with the bidirectional mercury module|[<http://www.netlib.org/lapack/>](http://www.netlib.org/lapack/)|
 |BLAS|Basic Linear Algebra Subprograms|[<http://netlib.org/blas/>](http://netlib.org/blas/)|
 |***For versions prior to CMAQ-5.0.2***|
 |CVS|Concurrent Versions System for managing the distributed archive of the CMAQ source code|[<http://ximbiot.com/cvs/cvshome/>](http://ximbiot.com/cvs/cvshome/) or your host's package management system|
+
+> *Note: CMAQ Output File Format*
+> CMAQ uses a modified version of the netCDF file format.
+> Although CMAQ output is described as being in the netCDF format,
+> it is actually a [hybrid format of the I/O API and the netCDF](https://www.cmascenter.org/ioapi/).
 
 
 <a id=Table5-2></a>
