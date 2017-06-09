@@ -39,8 +39,7 @@ CMAQ requires all of the programs listed in [Table 5‑1](#Table5-1). This list 
 | **Software** | **Description** | **Source** |
 |-------------------|-----------------------------|--------------------------------|
 |***CMAQ Programs***|||
-|Bldmake|Executable builder for source code compilation|Contained in the standard CMAQ distribution available at [<http://www.cmascenter.org>](http://www.cmascenter.org/) Release notes and documentation available at [<http://www.cmaq-model.org>](http://www.cmaq-model.org/)|
-|JPROC|Photolysis rate preprocessor| "|
+|Bldmake|Executable builder for source code compilation|Contained in the standard CMAQ distribution available at [<https://github.com/USEPA/CMAQ/tree/5.2>](https://github.com/USEPA/CMAQ/tree/5.2) Release notes and documentation available at [<https://github.com/USEPA/CMAQ/tree/5.2/CCTM/docs/Release_Notes/>](https://github.com/USEPA/CMAQ/tree/5.2/CCTM/docs/Release_Notes)|
 |ICON|Initial conditions preprocessor|" |
 |BCON|Boundary conditions preprocessor|"|
 |MCIP|Meteorology-Chemistry Interface Processor| "|
@@ -336,7 +335,7 @@ cd $CMAQ_HOME/CCTM/scripts
 bldit.cctm |& tee build.cctm.log
 ```
 
-Although not used for the installation test simulation, the programs JPROC and PROCAN can also be compiled using Bldmake. The programs CHEMMECH and CALMAP are also not needed for the test simulation but can be compiled using Makefiles.
+Although not used for the installation test simulation, the program PROCAN can also be compiled using Bldmake. The programs CHEMMECH and CALMAP are also not needed for the test simulation but can be compiled using Makefiles.
 
 ### Running the CMAQ Installation Test Simulation
 
