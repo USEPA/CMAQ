@@ -44,7 +44,7 @@ C   26 Sep 16: D. Wong: removed repeated SEAICE interpx statement
 C Marine gas Emissions Rates
       REAL, ALLOCATABLE, SAVE :: VDEMIS_MG( :,:,: )   ! marine gas emission rates [moles/s]
 
-      PUBLIC NMGSPC, VDEMIS_MG, MGSPC_MAP, MGEMIS_INIT, GET_MGEMIS, MGEM
+      PUBLIC NMGSPC, VDEMIS_MG, MGSPC_MAP, MGEMIS_INIT, GET_MGEMIS, MGEM, MG_SPC
       PRIVATE
 
       INTEGER, SAVE              :: LGC_O3            ! pointer to O3 in CGRID

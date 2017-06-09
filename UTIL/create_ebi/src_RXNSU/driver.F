@@ -71,7 +71,7 @@ C**********************************************************************
 
       IF( N_SS_SPC .GT. 0 ) THEN
           MSG = TRIM( PNAME )
-     & 	     // ': ERROR: Mechanism uses steady state or equilibrium '
+     &       // ': ERROR: Mechanism uses steady state or equilibrium '
      &       // 'solution for specific species. The utility is '
      &       // 'disabled in the version of the EBI code generator.' 
           WRITE(LOGDEV,'(a)')TRIM(MSG)

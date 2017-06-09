@@ -279,7 +279,7 @@ REACTIONS[CM] =
 ! updated PAN products from photolysis to match CB6
 !< R90>  PAN                = C2O3      + NO2          # 1.0/<PAN_IUPAC04>;
 < R90>  PAN                = 0.6*NO2 + 0.6*C2O3 
-			+ 0.4*NO3 +0.4*MEO2            # 1.0/<PAN_IUPAC10>;
+                             + 0.4*NO3 +0.4*MEO2            # 1.0/<PAN_IUPAC10>;
 !added OH yield of 44% as recommended in IUPAC
 !< R91>  C2O3 + HO2         = 0.800*PACD  
 !                             + 0.200*AACD 

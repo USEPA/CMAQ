@@ -67,47 +67,47 @@ C -----------------------------------------------------------------------------
 C -----------------------------------------------------------------------------
         function se_global_imin (var) result (se_global_imin_result)
 
-	implicit none
+        implicit none
 
         integer :: se_global_imin_result
         integer, intent(in) :: var
 
-	include "mpif.h"
+        include "mpif.h"
 
-	integer min
+        integer min
         integer error
 
-	call mpi_reduce (var, min, 1, mpi_integer, MPI_MIN, 0, 
+        call mpi_reduce (var, min, 1, mpi_integer, MPI_MIN, 0, 
      &                   se_worker_comm, error)
 
         call mpi_bcast (min, 1, mpi_integer, 0, se_worker_comm, error)
 
         se_global_imin_result = min
 
-	return
-	end function se_global_imin
+        return
+        end function se_global_imin
 
 C -----------------------------------------------------------------------------
         function se_global_rmin (var) result (se_global_rmin_result)
 
-	implicit none
+        implicit none
 
         real :: se_global_rmin_result
         real, intent(in) :: var
 
-	include "mpif.h"
+        include "mpif.h"
 
-	real min
+        real min
         integer error
 
-	call mpi_reduce (var, min, 1, mpi_real, MPI_MIN, 0, 
+        call mpi_reduce (var, min, 1, mpi_real, MPI_MIN, 0, 
      &                   se_worker_comm, error)
 
         call mpi_bcast (min, 1, mpi_real, 0, se_worker_comm, error)
 
         se_global_rmin_result = min
 
-	return
-	end function se_global_rmin
+        return
+        end function se_global_rmin
 
         end module se_global_min_module
