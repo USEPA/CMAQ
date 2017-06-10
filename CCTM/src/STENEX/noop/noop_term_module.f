@@ -40,9 +40,9 @@ C --------------------------------------------------------------------------
 
           contains
 
-	  subroutine noop_term 
+          subroutine noop_term 
 
-  	  implicit none
+          implicit none
 
           return
           end subroutine noop_term 

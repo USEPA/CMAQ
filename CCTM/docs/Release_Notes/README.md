@@ -84,6 +84,7 @@ CCTM can now do process analysis with Integrated Process Rates (IPR) and/or Inte
 
 ## Tools & Utilities
   * [Distribution of SpecDef files and SpecDef_Dep files into mechanism sub-modules](Misc_Aerosol_Operation_Updates.md)
+  * [Updates to post-processing tools bldoverlay, combine, hr2day, sitecmp, sitecmp_dailyo3, writesite](Update_POST.md)
 
 ## Two-way Coupled WRF-CMAQ
 
