@@ -260,7 +260,7 @@ C Get CGRID offsets
       IF ( LSTAT ) THEN    
             WRITE( XMSG2, '(A55,A57,A5)' ),
      &            'Applying fix to aerosol Boundary Conditions for aerosol',
-     &            ' modes. Turn on verbose_rdcon preprocessor flag to learn ',
+     &            ' modes. Turn on verbose_rdbcon preprocessor flag to learn ',
      &            'more.'
             CALL M3WARN( 'Read BCs', FDATE, FTIME, XMSG2 )
       END IF
