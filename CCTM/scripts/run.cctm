@@ -15,8 +15,8 @@
 #> recommended for executing the runscript on the cluster at the 
 #> National Computing Center used primarily by EPA.
 #PBS -j oe
-#PBS -l walltime=00:40:00
-#PBS -l nodes=1:ppn=8
+#PBS -l walltime=10:00:00
+#PBS -l nodes=4:ppn=8
 #PBS -N CMAQ_Bench
 #PBS -q mod3dev
 #PBS -W group_list=mod3dev
@@ -65,14 +65,14 @@
                                                        
 #> Define RUNID as any combination of parameters above or others. By default,
 #> this information will be collected into this one string, $RUNID, for easy
-#> referencing in other scripts.
- setenv RUNID  ${VRSN}_${APPL}
+#> referencing in output binaries and log files as well as in other scripts.
+ setenv RUNID  ${VRSN}_${compiler}_${APPL}
 
 #> Set the build directory (this is where the CMAQ executable
 #> is located by default).
  set BLD      = $CMAQ_HOME/BLD_CCTM_${VRSN}_${compiler}
  set EXEC     = CCTM_${VRSN}.bin  
- cat $BLD/$EXEC.cfg; echo "    "; set echo
+ cat $BLD/CCTM_${VRSN}.cfg; echo "    "; set echo
 
 #> Set Working, Input, and Output Directories
  setenv WORKDIR ${PBS_O_WORKDIR}   #> Working Directory. Where the runscript is.
@@ -87,9 +87,9 @@
 # =====================================================================
 
 #> Set Start and End Days for looping
- setenv NEW_START TRUE             #> Set to FALSE for model restart
+ setenv NEW_START TRUE            #> Set to FALSE for model restart
  set START_DATE = "2011-07-01"     #> beginning date (July 1, 2011)
- set END_DATE   = "2011-07-01"     #> ending date    (July 14, 2011)
+ set END_DATE   = "2011-07-14"     #> ending date    (July 14, 2011)
 
 #> Set Timestepping Parameters
 set STTIME     = 000000            #> beginning GMT time (HHMMSS)
@@ -100,7 +100,7 @@ set TSTEP      = 010000            #> output time step interval (HHMMSS)
 if ( $PROC == serial ) then
    setenv NPCOL_NPROW "1 1"; set NPROCS   = 1 # single processor setting
 else
-   @ NPCOL  =  2; @ NPROW =  4
+   @ NPCOL  =  4; @ NPROW =  8
    @ NPROCS = $NPCOL * $NPROW
    setenv NPCOL_NPROW "$NPCOL $NPROW"; 
 endif
@@ -158,6 +158,9 @@ setenv CTM_GRAV_SETL Y       #> vdiff aerosol gravitational sedimentation [ defa
 setenv CTM_BIOGEMIS Y        #> calculate in-line biogenic emissions [ default: N ]
 setenv CTM_PT3DEMIS Y        #> calculate in-line plume rise for elevated point emissions 
                              #>    [ default: N ]
+setenv ZERO_PCSOA N          #> when svPOA is invoked, this flag allows the user to zero
+                             #> out pcSOA since it is an uncertain, top-down species. It
+                             #> is suggested to use pcSOA [ default: N ]
 
 #> Process Analysis Options
 setenv CTM_PROCAN N          #> use process analysis [ default: N]
@@ -245,7 +248,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   set YYYYJJJ = $TODAYJ
 
   #> Calculate Yesterday's Date
-  set YESTERDAY = `date -ud "${TODAYG}-1days" +%Y%j` #> Convert YYYY-MM-DD to YYYYJJJ
+  set YESTERDAY = `date -ud "${TODAYG}-1days" +%Y%m%d` #> Convert YYYY-MM-DD to YYYYJJJ
 
 # =====================================================================
 #> Input Files (Some are Day-Dependent)
