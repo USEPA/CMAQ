@@ -20,7 +20,6 @@
 #PBS -N CMAQ_Bench
 #PBS -q mod3dev
 #PBS -W group_list=mod3dev
-##PBS -o /home/bmurphy/cmaq_repos/New_Scripts/Test_Build
 
 #> The following commands output information from the batch
 #> scheduler to the log files for traceability.
