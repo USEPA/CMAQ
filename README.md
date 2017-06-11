@@ -1,7 +1,9 @@
-CMAQv5.2 Gamma
+CMAQv5.2 (Unofficial -- Final Release expected June 21, 2017)
 ========
 
-**Intent of this CMAQ version:** The Gamma version of CMAQ includes the most up-to-date publically available code updates in preparation for the stable release of CMAQv5.2 in June 2017. It is an update to the CMAQv5.2Beta version with minor code additions and bug fixes that have been identified by EPA, the CMAS team, and the larger CMAQ community. Users wanting to test the CMAQv5.2 code before its release should utilize this Gamma version.
+**Intent of this CMAQ version:** This 5.2 branch of CMAQ includes the most up-to-date publically available code updates in preparation for the stable release of CMAQv5.2 on June 21, 2017. It is an update to the CMAQv5.2Gamma version with minor code additions and bug fixes that have been identified by EPA, the CMAS team, and the larger CMAQ community. Users wanting to test the CMAQv5.2 code before its release should utilize this 5.2 version. 
+
+Do NOTE that this code is NOT OFFICIAL until the actual release date.
 
 ## CMAQ Overview
 
@@ -20,7 +22,7 @@ This CMAQ Git archive is organized with each official public release stored as a
 To clone code from the CMAQ Git archive, specify the branch (i.e. version number) and issue the following command from within
 a working directory on your server:
 ```
-git clone -b 5.2Gamma https://github.com/USEPA/CMAQ.git CMAQ_v5.2Gamma
+git clone -b 5.2 https://github.com/USEPA/CMAQ.git CMAQ_REPO
 ```
 
 ## CMAQ Repository Guide
