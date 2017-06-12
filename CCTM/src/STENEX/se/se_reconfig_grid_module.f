@@ -40,7 +40,7 @@
 !                      -- use array copy mechanism when communicates to itself
 ! --------------------------------------------------------------------------
 
-	module se_reconfig_grid_module
+        module se_reconfig_grid_module
 
         implicit none
 
@@ -545,7 +545,7 @@ C --------------------------------------------------------------------------
 
         implicit none
 
-	include "mpif.h"
+        include "mpif.h"
 
         integer, intent(in) :: nprow1, npcol1, nprow2, npcol2
         real, intent(in)  :: data1(:, :)
@@ -799,4 +799,4 @@ c          end if
         return
         end subroutine se_reconfig_data_copy4
 
-	end module se_reconfig_grid_module
+        end module se_reconfig_grid_module

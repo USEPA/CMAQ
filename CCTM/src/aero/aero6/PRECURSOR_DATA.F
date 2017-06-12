@@ -156,8 +156,6 @@ C Local Variables:
       Integer          :: n
       Integer          :: spc
 
-      
-
 C If the species are mapped already, skip the mapping algorithm
       If ( mapped ) Return
 

@@ -43,14 +43,14 @@ C --------------------------------------------------------------------------
 
           contains
 
-	  subroutine se_term 
+          subroutine se_term 
 
-	  use se_pe_info_ext
-	  use se_domain_info_ext
+          use se_pe_info_ext
+          use se_domain_info_ext
           use se_reconfig_grid_info_ext
           use se_subgrid_info_ext
 
-  	  implicit none
+          implicit none
 
           if (allocated(ranks)) then
              deallocate(ranks)

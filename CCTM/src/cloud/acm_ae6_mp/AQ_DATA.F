@@ -386,10 +386,10 @@ C Local Variable used to determine what optional TX to add to surrogates
       
 C-----------------------------------------------------------------------
 
-      logdev = setup_logdev()
 
       If ( Firstcall ) Then
          Firstcall = .False.
+         logdev    = setup_logdev()
       Else
          Return
       End if
@@ -834,7 +834,7 @@ C..Includes:
 C..Functions:
 
 C..Parameters:
-      Real, Parameter :: cmin = 1.0E-25   ! minimum concentration for most species
+      Real, Parameter :: cmin = 1.0E-34   ! minimum concentration for most species
 
 C..Arguments:
       Real, Intent( Out ) :: aeconcmin( : ) ! array of minimum concentrations

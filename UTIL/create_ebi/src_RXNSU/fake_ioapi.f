@@ -90,12 +90,12 @@ C***********************************************************************
 
 C...........   ARGUMENTS and their descriptions:
 
-        CHARACTER*(*)	STRING
+        CHARACTER*(*) STRING
 
 
 C...........   SCRATCH LOCAL VARIABLES and their descriptions:
 
-        INTEGER  	L, K
+        INTEGER       L, K
 
 
 C***********************************************************************

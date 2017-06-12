@@ -279,7 +279,7 @@ REACTIONS[CM] =
 ! updated PAN products from photolysis to match CB6
 !< R90>  PAN                = C2O3      + NO2          # 1.0/<PAN_IUPAC04>;
 < R90>  PAN                = 0.6*NO2 + 0.6*C2O3 
-			+ 0.4*NO3 +0.4*MEO2            # 1.0/<PAN_IUPAC10>;
+                             + 0.4*NO3 +0.4*MEO2            # 1.0/<PAN_IUPAC10>;
 !added OH yield of 44% as recommended in IUPAC
 !< R91>  C2O3 + HO2         = 0.800*PACD  
 !                             + 0.200*AACD 
@@ -1012,7 +1012,7 @@ REACTIONS[CM] =
 <HG2> HG + CL2  = HGIIGAS + CL2                       # 2.6E-18;
 <HG3> HG + H2O2 = HGIIGAS + H2O2                      # 8.5E-19;
 <HG4> HG + OH   = 0.5*HGIIAER + 0.5*HGIIGAS + OH      # 7.7E-14;
-<HG5> HG + CL  + M  = 0.5*HG + 0.5*HGIIGAS + M + CL   # 2.25E-33 @ 680.0;
+<HG5> HG + CL  + M  = 0.5*HG + 0.5*HGIIGAS + M + CL   # 2.25E-33 @ -680.0;
 
 
 END MECH

@@ -641,6 +641,7 @@ C...begin read
      &             'the reference data! '
              ERROR_FLAG = .TRUE.
              CALL M3WARN ( PNAME, 0, 0, MSG )
+             CYCLE
           END IF
           IP_REF = PHOT_MAP( IP_MAP )
           PHOTOLYSIS_RATE( IPHOT ) = PNAME_MAP( IP_MAP )
@@ -662,7 +663,7 @@ C...begin read
                     LMGLY_ADJ = IPHOT
               CASE(  'MGLY_ABS' )
                     LMGLY_ABS = IPHOT
-              CASE( 'ACETONE', 'CH3COCH3_RACM2' )
+              CASE( 'ACETONE', 'CH3COCH3_RACM2', 'ACET_IUPAC10' )
                     IF( NWL .EQ. NWL_ACETONE_FJX ) LACETONE  = IPHOT
               CASE( 'HCHOR_06', 'HCHO_R_SAPRC99', 'HCHO_RAD_RACM2', 'FORM_R_IUPAC10', 'HCHO_R_MCMv32' )
                     LHCHOR_06 = IPHOT
@@ -1960,7 +1961,7 @@ C-----------------------------------------------------------------------
                         CSQY_ADJUST( IPHOT ) = BIACETYL
                      CASE ( 'HCHO_M_MCMv32', 'HCHOM_06', 'HCHO_M_SAPRC99', 'HCHO_MOL_RACM2', 'FORM_R_IUPAC10' )  ! 'CH2O -> H2 + CO'
                         CSQY_ADJUST( IPHOT ) = FORMALDEHYDE_MOLECULAR
-                     CASE (  'ACET_06', 'ACETONE', 'CH3COCH3_RACM2' ) ! 'CH3COCH3 -> products'
+                     CASE (  'ACET_06', 'ACETONE', 'CH3COCH3_RACM2', 'ACET_IUPAC10' ) ! 'CH3COCH3 -> products'
                         CSQY_ADJUST( IPHOT ) = ACETONE
                      CASE (  'KETONE'  )
                         CSQY_ADJUST( IPHOT ) = KETONE_LEGACY
@@ -1968,7 +1969,7 @@ C-----------------------------------------------------------------------
                         CSQY_ADJUST( IPHOT ) = KETONE_RACM2
                      CASE ( 'GLYH2_RACM2', 'GLYF_RACM2', 'GLYHX_RACM2', 'MGLY_RACM2'  ) ! glyoxal treatement from W. Stockwell sbox
                         CSQY_ADJUST( IPHOT ) = GLYOXAL_RACM2
-                     CASE ( 'GLYOX_R_CRI', 'GLYOX_M_CRI'  ) ! glyoxal treatement based on IUPAC 2013 datasheet
+                     CASE ( 'GLYOX_R_CRI', 'GLYOX_M_CRI', 'GLY_R_IUPAC10'  ) ! glyoxal treatement based on IUPAC 2013 datasheet
                         CSQY_ADJUST( IPHOT ) = GLYOXAL_IUPAC_2013
                      CASE (  'MGLY_ADJ',  'MGLY_ABS' )
                         CSQY_ADJUST( IPHOT ) = METHYL_GLYOXAL_LEGACY

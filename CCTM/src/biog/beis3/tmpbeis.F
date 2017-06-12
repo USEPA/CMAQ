@@ -81,7 +81,7 @@ C Pathname: $Source: /project/yoj/arc/CCTM/src/biog/beis3/tmpbeis.F,v $
 C Last updated: $Date: 2011/10/21 16:10:18 $ 
 C-----------------------------------------------------------------------
 
-      USE HGRD_DEFN             ! horizontal domain specifications
+      USE GRID_CONF             ! horizontal & vertical domain specifications
       USE UTILIO_DEFN
       USE BIOG_EMIS             ! beis
 
@@ -145,16 +145,17 @@ C Logical names and unit numbers:
       CHARACTER( 16 ), SAVE :: MNAME   ! logical name for MET_CRO_2D
 
 C Other variables:
-      INTEGER, SAVE :: IHR       ! current simulation hour
-      INTEGER          IOS       ! IO or memory allocation status
-      INTEGER, SAVE :: LDATE     ! previous simulation date
-      INTEGER, SAVE :: MDATE     ! test date to update beis diag avg
-      INTEGER, SAVE :: MTIME     ! test time to update beis diag avg
-      INTEGER, SAVE :: SDATE     ! scenario start date
-      INTEGER, SAVE :: STIME     ! scenario start time
-      INTEGER, SAVE :: NSTEPS    ! run duration
-      INTEGER, SAVE :: NTICS = 0 ! no. of substeps within an output tstep
-      INTEGER          PARTYPE   ! method number to calculate PAR
+      INTEGER, SAVE :: IHR        ! current simulation hour
+      INTEGER          IOS        ! IO or memory allocation status
+      INTEGER, SAVE :: LDATE      ! previous simulation date
+      INTEGER, SAVE :: MDATE      ! test date to update beis diag avg
+      INTEGER, SAVE :: MTIME      ! test time to update beis diag avg
+      INTEGER, SAVE :: SDATE      ! scenario start date
+      INTEGER, SAVE :: STIME      ! scenario start time
+      INTEGER, SAVE :: NSTEPS     ! run duration
+      INTEGER, SAVE :: NTICS  = 0 ! no. of substeps within an output tstep
+      INTEGER, SAVE :: WSTEP  = 0 ! local write counter
+      INTEGER          PARTYPE    ! method number to calculate PAR
       INTEGER, SAVE :: LOGDEV
       INTEGER          C, R, I, J, K, S  ! loop counters and subscripts
 
@@ -170,10 +171,13 @@ C Other variables:
       CHARACTER(  16 ) :: VAR        ! variable name
       CHARACTER(  16 ) :: PNAME = 'TMPBEIS312'   ! prodedure name
 
-      INTEGER      GXOFF, GYOFF           ! global origin offset from file
+      INTEGER       :: GXOFF, GYOFF           ! global origin offset from file
 C for XTRACT3
       INTEGER       :: STRTCOLNB3, ENDCOLNB3, STRTROWNB3, ENDROWNB3  ! Normalized BEIS3
       INTEGER, SAVE :: STRTCOLBS,  ENDCOLBS,  STRTROWBS,  ENDROWBS   ! BIOSEASON
+      INTEGER, SAVE :: STRTCOLG,   ENDCOLG,   STRTROWG,   ENDROWG    ! GRID_CRO_2D
+      INTEGER, SAVE :: STRTCOLM,   ENDCOLM,   STRTROWM,   ENDROWM    ! MET_CRO_2D
+      INTEGER, SAVE :: STRTCOLD,   ENDCOLD,   STRTROWD,   ENDROWD    ! diagnostic
 
 #ifdef verbose_tmpbeis
       REAL,    ALLOCATABLE, SAVE :: EMISX( : )
@@ -181,33 +185,31 @@ C for XTRACT3
 #endif
 
       INTERFACE
-
-      SUBROUTINE CZANGLE( JDATE, JTIME, NX, NY, COSZEN )
-         INTEGER, INTENT( IN )  :: JDATE
-         INTEGER, INTENT( IN )  :: JTIME
-         INTEGER, INTENT( IN )  :: NX
-         INTEGER, INTENT( IN )  :: NY
-         REAL,    INTENT( OUT ) :: COSZEN( :,: )
-      END SUBROUTINE CZANGLE
-      SUBROUTINE BEIS3( JDATE, JTIME, NX, NY, MSPCS, COSZEN, SEMIS,
-     &                  SLAI, BIPOL )
-         INTEGER, INTENT( IN ) :: JDATE
-         INTEGER, INTENT( IN ) :: JTIME
-         INTEGER, INTENT( IN ) :: NX
-         INTEGER, INTENT( IN ) :: NY
-         INTEGER, INTENT( IN ) :: MSPCS
-         REAL,    INTENT( IN ) :: COSZEN( :,: )
-         REAL,    INTENT( IN ) :: SEMIS ( :,:,: )
-         REAL,    INTENT( IN ) :: SLAI  ( :,:,: )
-         REAL,    INTENT( OUT ) :: BIPOL( :,:,: )
-      END SUBROUTINE BEIS3
-      SUBROUTINE HRNO( JDATE, JTIME, TSTEP, NOPOL )
-         INTEGER, INTENT( IN )  :: JDATE
-         INTEGER, INTENT( IN )  :: JTIME
-         INTEGER, INTENT( IN )  :: TSTEP( 3 )
-         REAL,    INTENT( OUT ) :: NOPOL( :,: )
-      END SUBROUTINE HRNO
-
+         SUBROUTINE CZANGLE( JDATE, JTIME, NX, NY, COSZEN )
+            INTEGER, INTENT( IN )  :: JDATE
+            INTEGER, INTENT( IN )  :: JTIME
+            INTEGER, INTENT( IN )  :: NX
+            INTEGER, INTENT( IN )  :: NY
+            REAL,    INTENT( OUT ) :: COSZEN( :,: )
+         END SUBROUTINE CZANGLE
+         SUBROUTINE BEIS3( JDATE, JTIME, NX, NY, MSPCS, COSZEN, SEMIS,
+     &                     SLAI, BIPOL )
+            INTEGER, INTENT( IN ) :: JDATE
+            INTEGER, INTENT( IN ) :: JTIME
+            INTEGER, INTENT( IN ) :: NX
+            INTEGER, INTENT( IN ) :: NY
+            INTEGER, INTENT( IN ) :: MSPCS
+            REAL,    INTENT( IN ) :: COSZEN( :,: )
+            REAL,    INTENT( IN ) :: SEMIS ( :,:,: )
+            REAL,    INTENT( IN ) :: SLAI  ( :,:,: )
+            REAL,    INTENT( OUT ) :: BIPOL( :,:,: )
+         END SUBROUTINE BEIS3
+         SUBROUTINE HRNO( JDATE, JTIME, TSTEP, NOPOL )
+            INTEGER, INTENT( IN )  :: JDATE
+            INTEGER, INTENT( IN )  :: JTIME
+            INTEGER, INTENT( IN )  :: TSTEP( 3 )
+            REAL,    INTENT( OUT ) :: NOPOL( :,: )
+         END SUBROUTINE HRNO
       END INTERFACE
 
 C-----------------------------------------------------------------------
@@ -264,7 +266,7 @@ C Check grid definition
             IF ( .NOT. CHKGRID( BNAME ) ) THEN
                MESG = 'Grid in file "' // TRIM( BNAME ) //
      &                '" does not match previously set grid.'
-               CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+               CALL M3WARN( PNAME, 0, 0, MESG )
             END IF
 
 C Get domain decomp info for the bioseasons switch file
@@ -298,8 +300,12 @@ C Check that grid description matches BGRD file
          IF ( .NOT. CHKGRID( MNAME ) ) THEN
             MESG = 'Grid in file "' // TRIM( MNAME )
      &           // '" does not match previously set grid.'
-            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+            CALL M3WARN( PNAME, 0, 0, MESG )
          END IF
+
+C Get domain decomp info for the bioseasons switch file
+         CALL SUBHFILE ( MNAME, GXOFF, GYOFF,
+     &                   STRTCOLM, ENDCOLM, STRTROWM, ENDROWM )
 
 C Write emissions diagnostic file?
          BEMIS_DIAG = ENVYN( 'B3GTS_DIAG', 'Write emissions diagnostic file?',
@@ -307,17 +313,34 @@ C Write emissions diagnostic file?
            
          IF ( BEMIS_DIAG ) THEN
 C Build description for, and open beis diagnostic file
-C (all but variables-table and horizontal domain in description is borrowed from MNAME)
             MDATE = SDATE; MTIME = STIME
             CALL NEXTIME( MDATE, MTIME, TSTEP( 1 ) )
+
+            GDNAM3D = GRID_NAME  ! from HGRD_DEFN
             SDATE3D = MDATE
             STIME3D = MTIME
             TSTEP3D = TSTEP( 1 )
-            XORIG3D = XORIG_GD
-            YORIG3D = YORIG_GD
             NCOLS3D = GL_NCOLS
             NROWS3D = GL_NROWS
-            NLAYS3D = 1
+            NLAYS3D =     1
+            NTHIK3D =     1
+            GDTYP3D = GDTYP_GD
+            P_ALP3D = P_ALP_GD
+            P_BET3D = P_BET_GD
+            P_GAM3D = P_GAM_GD
+            XORIG3D = XORIG_GD
+            YORIG3D = YORIG_GD
+            XCENT3D = XCENT_GD
+            YCENT3D = YCENT_GD
+            XCELL3D = XCELL_GD
+            YCELL3D = YCELL_GD
+            VGTYP3D = VGTYP_GD
+            VGTOP3D = VGTOP_GD
+
+            DO I = 1, NLAYS3D + 1
+               VGLVS3D( I ) = VGLVS_GD( I )
+            END DO
+  
 !           NVARS3D = MSPCS
             NVARS3D = N_SPC_BIOG
 
@@ -574,8 +597,9 @@ C Speciate emissions
       END DO
 #endif
 
-      NTICS = NTICS + 1
-      LASTTIC = NTICS .EQ. TIME2SEC( TSTEP( 1 ) ) / TIME2SEC( TSTEP( 2 ) )
+      NTICS   =   NTICS + 1
+      WSTEP   =   WSTEP + TIME2SEC( TSTEP( 2 ) )
+      LASTTIC = ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) )
 
       IF ( BEMIS_DIAG ) THEN
          IF ( NTICS .EQ. 1 ) THEN
@@ -622,20 +646,14 @@ C Speciate emissions
      &            'for date and time', MDATE, MTIME
             EMISS = 0.0   ! array
             CALL NEXTIME( MDATE, MTIME, TSTEP( 1 ) )
+            WSTEP = 0
          END IF
       END IF
 
 C Save date
       LDATE = JDATE
 
-      IF ( IHR .LT. NSTEPS ) THEN
-         IF ( LASTTIC ) THEN
-            NTICS = 0
-         END IF
-         RETURN
-      ELSE IF ( NTICS .LT. TIME2SEC( TSTEP( 1 ) ) / TIME2SEC( TSTEP( 2 ) ) ) THEN
-         RETURN
-      END IF
+      RETURN
 
 C------------------  FORMAT  STATEMENTS   ------------------------------
 

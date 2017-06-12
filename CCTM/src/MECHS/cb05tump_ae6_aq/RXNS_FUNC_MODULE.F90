@@ -915,7 +915,7 @@
 !  Reaction Label HG4             
              RKI( NCELL,  289) =   7.7000D-14 * CFACT 
 !  Reaction Label HG5             
-             RKI( NCELL,  290) =  CFACT_SQU * ARRHENUIS_T03( INV_TEMP,  2.2500D-33,  -6.8000D+02 )
+             RKI( NCELL,  290) =  CFACT_SQU * ARRHENUIS_T03( INV_TEMP,  2.2500D-33,  6.8000D+02 )
 
         END DO  
 !  Multiply rate constants by [M], [O2], [N2], [H2O], [H2], or [CH4]

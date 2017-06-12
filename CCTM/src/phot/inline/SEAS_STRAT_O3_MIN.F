@@ -2538,7 +2538,7 @@
                   END IF
                END DO FIND_ILEV
            END IF
-	    
+            
 ! get meridian cross-section of fraction O3 column at PTOP
            IF( ILEV .EQ. 0 .OR. ILEV .GE. NLEV_PROFILE )THEN ! only interpolate over time
               ILEV = MAX( ILEV, 1 )
@@ -2548,19 +2548,19 @@
      &                                   +   DTIME_LOWER * FRAC_O3_COLUMN( ILAT, ILEV, ITIME_UPPER ) )
               END DO
            ELSE ! interpolate over time and between pressure levels 
-              LEV_UPPER = ILEV + 1
-              LEV_LOWER = ILEV
-              DLEV_UPPER = ( LEV_PROFILE( LEV_UPPER ) - PTOP )
-              DLEV_LOWER = ( PTOP - LEV_PROFILE( LEV_LOWER ) )
+              ILEV_UPPER = ILEV + 1
+              ILEV_LOWER = ILEV
+              DLEV_UPPER = ( LEV_PROFILE( ILEV_UPPER ) - PTOP )
+              DLEV_LOWER = ( PTOP - LEV_PROFILE( ILEV_LOWER ) )
               NORMALIZE  = FREQ_PROFILE / ( LEV_PROFILE( ILEV + 1 ) - LEV_PROFILE( ILEV ) ) 
               DO ILAT = 1, NLAT_PROFILE 
                  QLOWER = DLEV_UPPER 
-     &                   * ( DTIME_UPPER * FRAC_O3_COLUMN( ILAT, LEV_LOWER, ITIME_LOWER )
-     &                   +   DTIME_LOWER * FRAC_O3_COLUMN( ILAT, LEV_LOWER, ITIME_UPPER ) )
+     &                  * ( DTIME_UPPER * FRAC_O3_COLUMN( ILAT, ILEV_LOWER, ITIME_LOWER )
+     &                  +   DTIME_LOWER * FRAC_O3_COLUMN( ILAT, ILEV_LOWER, ITIME_UPPER ) )
                  QUPPER = DLEV_LOWER
-     &                   * ( DTIME_UPPER * FRAC_O3_COLUMN( ILAT, LEV_UPPER, ITIME_LOWER )
-     &                   +   DTIME_LOWER * FRAC_O3_COLUMN( ILAT, LEV_UPPER, ITIME_UPPER ) )
-	         XCROSS_PROFILE( ILAT ) = NORMALIZE * ( QLOWER + QUPPER )
+     &                  * ( DTIME_UPPER * FRAC_O3_COLUMN( ILAT, ILEV_UPPER, ITIME_LOWER )
+     &                  +   DTIME_LOWER * FRAC_O3_COLUMN( ILAT, ILEV_UPPER, ITIME_UPPER ) )
+                 XCROSS_PROFILE( ILAT ) = NORMALIZE * ( QLOWER + QUPPER )
               END DO
            END IF
                       
