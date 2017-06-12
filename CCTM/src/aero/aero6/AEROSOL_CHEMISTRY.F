@@ -422,7 +422,7 @@ C *** Local Variables
 
       REAL( 8 )       :: INV_DIFF_BRONO2  ! reciprocal molecular diffusivity [m2/sec]
       INTEGER, SAVE   :: IMAE_IDX
-      INTEGER, SAVE   :: IHMML_IDX
+      !INTEGER, SAVE   :: IHMML_IDX
       INTEGER, SAVE   :: NO3_IDX
       INTEGER, SAVE   :: GLY_IDX
       INTEGER, SAVE   :: MGLY_IDX
@@ -734,7 +734,7 @@ C *** to compute RH & molecular kinetic factors
                ADJUST_DIFF = REAL( ( TEMP( C,R,L ) * INV_STDTEMP ) ** 1.75 * ( STDATMPA / PRESS( C,R,L ) ), 8 )
 
                IF ( PRESENT( DENS ) ) THEN
-                  PPM_FACTOR  = 1.0E-3 * MWAIR / DENS( C,R,L )
+                  PPM_FACTOR  = 1.0D-3 * REAL( MWAIR / DENS( C,R,L ), 8 )
                ELSE
                   PPM_FACTOR  = UGM3_CONV_FAC * REAL( TEMP( C,R,L ) / PRESS( C,R,L ), 8 )
                END IF
@@ -753,10 +753,10 @@ C *** set up variables needed for calculating KN2O5 and YIELD_CLNO2
                DO N = 1, N_MODE
 C *** estimate the "wet third moments" from moment3_conc
 C     Note: this is the H2O concentration from previous time step
-                  WET_M3( N ) = MOMENT3_CONC( N ) 
+                  WET_M3( N ) = REAL( MOMENT3_CONC( N ), 8 )
 C *** calculate "wet second moment" assuming that H2O does not
 C     affect the geometric standard deviation
-                  WET_M2( N ) = MOMENT2_CONC( N ) 
+                  WET_M2( N ) = REAL( MOMENT2_CONC( N ), 8 ) 
 C *** The "wet" geometric mean (same as median) diameter was updated in
 C     getpar. It is stored in aeromode_diam
 C *** calculate effective diameter (this is actually the mean) using Eq 3 of Pleim et al (1995)

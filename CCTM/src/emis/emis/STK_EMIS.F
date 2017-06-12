@@ -85,7 +85,7 @@ c     END TYPE CARRY1
          INTEGER, INTENT( IN )         :: JDATE, JTIME
          LOGICAL SUCCESS
 
-         INTEGER I, J, N, NGRPS, LEN1, LEN2, V
+         INTEGER I, J, N, NGRPS, LEN1, LEN2
 
          INTEGER ASTAT
          CHARACTER( 96 ) :: XMSG = ' '

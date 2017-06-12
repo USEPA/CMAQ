@@ -42,7 +42,7 @@ C Fundamental constants
       Real,      Parameter :: f6pi = 6.0 / pi
       Real( 8 ), Parameter :: dpi6 = dpi / 6.0D0
       Real,      Parameter :: pi6 = pi / 6.0
-      Real( 8 ), Parameter :: boltzmann = rgasuniv / avo  ! [ J/K ]
+      Real( 8 ), Parameter :: boltzmann = drgasuniv / davo  ! [ J/K ]
 
 C Concentration lower limit used for gas species
       Real,      Parameter :: min_gasconc = 1.0E-30        ! [ ug/m^3 ]

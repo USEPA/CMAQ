@@ -91,11 +91,11 @@ C Advected species dimension
 
       INTEGER, SAVE :: N_SPC_ADV
 
-#ifdef parallel
+! #ifdef parallel
       INTEGER, PARAMETER :: SWP = 3
-#else
-      INTEGER, PARAMETER :: SWP = 1
-#endif
+! #else
+!     INTEGER, PARAMETER :: SWP = 1
+! #endif
  
 C File Variables:
  
@@ -160,11 +160,11 @@ C Required interface for allocatable array dummy arguments
             REAL,            INTENT( OUT )    :: UHAT( :,: )
          END SUBROUTINE HCONTVEL
          SUBROUTINE HPPM ( NI, NJ, CON, VEL, DT, DS, ORI ) 
-#ifdef parallel
+! #ifdef parallel
             INTEGER, PARAMETER                :: SWP = 3
-#else
-            INTEGER, PARAMETER                :: SWP = 1
-#endif
+! #else
+!           INTEGER, PARAMETER                :: SWP = 1
+! #endif
             INTEGER,         INTENT( IN )     :: NI, NJ
             REAL,            INTENT( IN OUT ) :: CON( 1-SWP:,1: )
             REAL,            INTENT( IN )     :: VEL( : )
@@ -345,7 +345,9 @@ C direction to receive from: NORTH,SOUTH,EAST,WEST       X     X      X
             END IF
 
 C check adjusted velocities for Courant limited max timestep
-            DTCFL = MIN ( DTCFL, 0.9 * DX2 / ABS( VELY( ROW ) ) )
+            IF (VELY( ROW ) .NE. 0.0) THEN
+               DTCFL = MIN ( DTCFL, 0.9 * DX2 / ABS( VELY( ROW ) ) )
+            END IF
 
 !           if ( vely( row ) .lt. 0.0 ) then
 !              if ( adjfac .lt. 0.70 .or. adjfac .gt. 1.36 ) then

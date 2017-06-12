@@ -108,7 +108,6 @@ C...........Local Variables
 
       INTEGER       COL              ! column subscript indices
       INTEGER       FINI             ! ending position
-      INTEGER       L                ! loop counter
       INTEGER       LAY              ! layer subscript indices
       INTEGER       MDATE            ! middle of this time step
       INTEGER       MTIME            ! middle of this time step
