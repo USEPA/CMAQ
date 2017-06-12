@@ -27,7 +27,7 @@ C RCS file, release, date & time of last delta, author, state, [and locker]
 C $Header$
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
-C @(#)JUNIT.F	1.1 /project/mod3/MECH/src/driver/mech/SCCS/s.JUNIT.F 02 Jan 1997 15:26:48
+C @(#)JUNIT.F       1.1 /project/mod3/MECH/src/driver/mech/SCCS/s.JUNIT.F 02 Jan 1997 15:26:48
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       INTEGER FUNCTION JUNIT ()

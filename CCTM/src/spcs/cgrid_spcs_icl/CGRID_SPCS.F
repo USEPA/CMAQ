@@ -96,7 +96,7 @@ c init routine to set the CGRID species locations
          function cgrid_spcs_init() result ( success )
             use UTILIO_DEFN
             use RXNS_DATA           ! chemical mechanism data
-	    
+            
             implicit none
 
 

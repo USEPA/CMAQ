@@ -286,7 +286,7 @@ C                  ---------   ---------   ---------    --------- ------- + + + 
      & spcs_type((/'AMN_HAPSI','AMN_HAPSJ','         '/), cm_set, 2200.0, F,F,T,  0,  0.0, 0.0,F, 'DUST  ','MANGANESE_F  ',es_fin),
      & spcs_type((/'         ','         ','AMN_HAPSK'/), cm_set, 2200.0, F,F,T,  0,  0.0, 0.0,F, 'DUST  ','MANGANESE_C  ',es_cor),
      & spcs_type((/'APHGI    ','APHGJ    ','         '/), cm_set, 2200.0, F,F,T,  0,  0.0, 0.0,F, 'DUST  ','PHGI         ',es_fin),
-     & spcs_type((/'         ','         ','APHGK    '/), cm_set, 2200.0, F,F,T,  0,  0.0, 0.0,F, 'DUST  ','             ',es_0),
+     & spcs_type((/'         ','         ','APHGK    '/), cm_set, 2200.0, F,F,T,  0,  0.0, 0.0,F, 'DUST  ','             ',es_cor),
      & spcs_type((/'AASI     ','AASJ     ','         '/), cm_set, 2200.0, F,F,T,  0,  0.0, 0.0,F, 'DUST  ','ARSENIC_F    ',es_fin),
      & spcs_type((/'         ','         ','AASK     '/), cm_set, 2200.0, F,F,T,  0,  0.0, 0.0,F, 'DUST  ','ARSENIC_C    ',es_cor)
      & /)
@@ -315,6 +315,7 @@ C Primary Organic Aerosol Volatility Distributions
 C number of lognormal modes in windblown dust aerosol = n_mode
 C - but only accumulation and coarse modes used
       Type emis_table
+         Character( 16 ) :: description
          Character( 16 ) :: name  ( n_mode )
          Real            :: spcfac( n_mode )
       End type emis_table
@@ -323,50 +324,89 @@ C For the wind-blown dust speciation factors, we used the median of the Desert S
 C profiles 3398, 3403, 3408, and 3413 for the J mode from the SPECIATE database and
 C profiles 3399, 3404, 3409, and 3414 for coarse PM. (G. Pouliot - private communication)
 C See Ref. (4), above and https://cfpub.epa.gov/si/speciate/
+! For toxic metal species, more recent sources were consulted because the above profiles give large uncertainties in their 
+! speciation factors
+! For the air toxics version of manganese, nickel, chromium(III), arsenic, and lead:
+!    Table 2 in Y. Su, and R. Yang., Background concentrations of elements in surface soils and 
+!    their changes as affected by agriculture use in the desert-oasis ecotone in the middle of Heihe
+!    River Basin, North-west China, Journal of Geochemical Exploration, 98, 2008, 57–64 was used.
+!    The table represents natural desert soils prior to cultivation. Note that all chromium is 
+!    to be trivalent based on assuming low pH or anoxics conditions. 
+! For cadmium:
+!    The background mixing ratio was used from Table 3 in Su, C., Jiang, L.,and Zhang, W., 
+!    A review on heavy metal contamination in the soil worldwide: Situation, impact and 
+!    remediation techniques, Environmental Skeptics and Critics, 2014, 3(2): 24-38. 
+!    The table reviews worldwide cultivation soils.
+! For mercury:
+!    Table 2 in D. Obrist et al., A synthesis of terrestrial mercury in the western United States: 
+!    Spatial distribution defined by land cover and plant productivity, Science of the Total Environment, 
+!    568, 2016, 522–535.
+!    Factors were based on mixing ratios for barren and cultivated land cover type
+! Speciation factors between j and k modes were assumed constant because no data was found.
 
-C number of chemical species in windblown dust aerosol
-      Integer, Parameter :: ndust_spc = 19
+C maximum number of chemical species in windblown dust aerosol
+      Integer, Parameter :: ndust_list = 26
+      Integer            :: ndust_spc
 
-      Type( emis_table ), Parameter :: dust_spc_list( ndust_spc ) = (/
-C                        -------- name --------         -------- spcfac --------
-C                      Aitken    accum     coarse        Aitken  accum   coarse
-     &   emis_table( (/'       ','ASO4J  ','ASO4K  '/), (/ 0.0, 0.02250, 0.02655/) ),   ! Sulfate
-     &   emis_table( (/'       ','ANO3J  ','ANO3K  '/), (/ 0.0, 0.00020, 0.00160/) ),   ! Nitrate
-     &   emis_table( (/'       ','ACLJ   ','ACLK   '/), (/ 0.0, 0.00945, 0.01190/) ),   ! Chlorine
-     &   emis_table( (/'       ','ANH4J  ','       '/), (/ 0.0, 0.00005, 0.0    /) ),   ! Ammonium
-     &   emis_table( (/'       ','ANAJ   ','       '/), (/ 0.0, 0.03935, 0.0    /) ),   ! Sodium
-     &   emis_table( (/'       ','ACAJ   ','       '/), (/ 0.0, 0.07940, 0.0    /) ),   ! Calcium
-     &   emis_table( (/'       ','AMGJ   ','       '/), (/ 0.0, 0.01900, 0.0    /) ),   ! Magnesium
-     &   emis_table( (/'       ','AKJ    ','       '/), (/ 0.0, 0.03770, 0.0    /) ),   ! Potassium
-     &   emis_table( (/'       ','APOCJ  ','       '/), (/ 0.0, 0.01075, 0.0    /) ),   ! Organic Carbon
-     &   emis_table( (/'       ','APNCOMJ','       '/), (/ 0.0, 0.00430, 0.0    /) ),   ! Non-Carbon Organic Matter
-     &   emis_table( (/'       ','AECJ   ','       '/), (/ 0.0, 0.0,     0.0    /) ),   ! Elemental Carbon
-     &   emis_table( (/'       ','AFEJ   ','       '/), (/ 0.0, 0.03355, 0.0    /) ),   ! Iron
-     &   emis_table( (/'       ','AALJ   ','       '/), (/ 0.0, 0.05695, 0.0    /) ),   ! Aluminum
-     &   emis_table( (/'       ','ASIJ   ','       '/), (/ 0.0, 0.19425, 0.0    /) ),   ! Silicon
-     &   emis_table( (/'       ','ATIJ   ','       '/), (/ 0.0, 0.00280, 0.0    /) ),   ! Titanium
-     &   emis_table( (/'       ','AMNJ   ','       '/), (/ 0.0, 0.00115, 0.0    /) ),   ! Manganese
-     &   emis_table( (/'       ','AH2OJ  ','AH2OK  '/), (/ 0.0, 0.00541, 0.00637/) ),   ! Water
-     &   emis_table( (/'       ','AOTHRJ ','       '/), (/ 0.0, 0.48319, 0.0    /) ),   ! Other
-     &   emis_table( (/'       ','       ','ASOIL  '/), (/ 0.0, 0.0,     0.95358/) ) /) ! Non-Anion Dust
+       
+      Type( emis_table ) :: dust_spc_list( ndust_list ) = (/
+C                    --description--           -------- name --------             -------- spcfac --------
+C                                           Aitken     accum       coarse          Aitken  accum   coarse
+     &   emis_table( 'Sulfate       ', (/'         ','ASO4J    ','ASO4K    '/), (/ 0.0, 0.02250, 0.02655/) ),   ! Sulfate
+     &   emis_table( 'Nitrate       ', (/'         ','ANO3J    ','ANO3K    '/), (/ 0.0, 0.00020, 0.00160/) ),   ! Nitrate
+     &   emis_table( 'Chlorine      ', (/'         ','ACLJ     ','ACLK     '/), (/ 0.0, 0.00945, 0.01190/) ),   ! Chlorine
+     &   emis_table( 'Ammonium      ', (/'         ','ANH4J    ','         '/), (/ 0.0, 0.00005, 0.0    /) ),   ! Ammonium
+     &   emis_table( 'Sodium        ', (/'         ','ANAJ     ','         '/), (/ 0.0, 0.03935, 0.0    /) ),   ! Sodium
+     &   emis_table( 'Calcium       ', (/'         ','ACAJ     ','         '/), (/ 0.0, 0.07940, 0.0    /) ),   ! Calcium
+     &   emis_table( 'Magnesium     ', (/'         ','AMGJ     ','         '/), (/ 0.0, 0.01900, 0.0    /) ),   ! Magnesium
+     &   emis_table( 'Potassium     ', (/'         ','AKJ      ','         '/), (/ 0.0, 0.03770, 0.0    /) ),   ! Potassium
+     &   emis_table( 'Org. Carbon   ', (/'         ','APOCJ    ','         '/), (/ 0.0, 0.01075, 0.0    /) ),   ! Organic Carbon
+     &   emis_table( 'NonCarbon Org.', (/'         ','APNCOMJ  ','         '/), (/ 0.0, 0.00430, 0.0    /) ),   ! Non-Carbon Organic Matter
+     &   emis_table( 'Black Carbon  ', (/'         ','AECJ     ','         '/), (/ 0.0, 0.0,     0.0    /) ),   ! Black or Elemental Carbon
+     &   emis_table( 'Iron          ', (/'         ','AFEJ     ','         '/), (/ 0.0, 0.03355, 0.0    /) ),   ! Iron
+     &   emis_table( 'Aluminum      ', (/'         ','AALJ     ','         '/), (/ 0.0, 0.05695, 0.0    /) ),   ! Aluminum
+     &   emis_table( 'Silcon        ', (/'         ','ASIJ     ','         '/), (/ 0.0, 0.19425, 0.0    /) ),   ! Silicon
+     &   emis_table( 'Titanum       ', (/'         ','ATIJ     ','         '/), (/ 0.0, 0.00280, 0.0    /) ),   ! Titanium
+     &   emis_table( 'Manganese     ', (/'         ','AMNJ     ','         '/), (/ 0.0, 0.00115, 0.0    /) ),   ! Manganese
+     &   emis_table( 'Water         ', (/'         ','AH2OJ    ','AH2OK    '/), (/ 0.0, 0.00541, 0.00637/) ),   ! Water
+     &   emis_table( 'Undefined Mass', (/'         ','AOTHRJ   ','         '/), (/ 0.0, 0.48319, 0.0    /) ),   ! Other
+     &   emis_table( 'Non-Anion Dust', (/'         ','         ','ASOIL    '/), (/ 0.0, 0.0,     0.95358/) ),   ! Non-Anion Dust
+     &   emis_table( 'Air Toxics Mn ', (/'         ','AMN_HAPSJ','AMN_HAPSK'/), (/ 0.0, 0.00041, 0.00041/) ),   ! Air toxics Manganese J and K mode
+     &   emis_table( 'Nickel        ', (/'         ','ANIJ     ','ANIK     '/), (/ 0.0, 2.0E-05, 2.0E-05/) ),   ! Nickel J and K mode
+     &   emis_table( 'Chromium III  ', (/'         ','ACR_IIIJ ','ACR_IIIK '/), (/ 0.0, 5.6E-05, 5.6E-05/) ),   ! Trivalent Chromium J and K mode
+     &   emis_table( 'Arsenic       ', (/'         ','AASJ     ','AASK     '/), (/ 0.0, 5.5E-06, 5.5E-06/) ),   ! Arsenic J and K mode
+     &   emis_table( 'Lead          ', (/'         ','APBJ     ','APBK     '/), (/ 0.0, 1.6E-05, 1.6E-05/) ),   ! Lead J and K mode
+     &   emis_table( 'Cadmium       ', (/'         ','ACDJ     ','ACDK     '/), (/ 0.0, 9.7E-08, 9.7E-08/) ),   ! Cadmium J and K mode
+     &   emis_table( 'Mercury       ', (/'         ','APHGJ    ','APHGK    '/), (/ 0.0, 1.4E-08, 1.4E-08/) ) /) ! Mercury J and K mode
 
-      Type( emis_table ), Save :: dust_spc( ndust_spc )
+      Type( emis_table ), Allocatable :: dust_spc( : )
 
 C Sea-Salt Speciation factors based on seawater composition:
+! For toxic metal species, Use Table 1 in K.W. Bruland and M.C. Lohan, 6.02 - Controls of Trace Metals in Seawater, 
+! In Treatise on Geochemistry, edited by Heinrich D. Holland and Karl K. Turekian, Pergamon, Oxford, 2003, Pages 23-47,
+! ISBN 9780080437514, http://dx.doi.org/10.1016/B0-08-043751-6/06105-3.
 
 C number of chemical species in seawater aerosol composition
-      integer, parameter :: nsea_spc = 7
+      integer, parameter :: nsea_spc = 15
 
       Type( emis_table ), Parameter :: sea_spc( nsea_spc ) = (/
-C                        -------- name --------         -------- spcfac --------
-C                      Aitken    accum     coarse        Aitken  accum   coarse
-     &   emis_table( (/'       ','ASO4J  ','ASO4K  '/), (/ 0.0, 0.07760, 0.07760/) ),   ! Sulfate
-     &   emis_table( (/'       ','ACLJ   ','ACLK   '/), (/ 0.0, 0.55380, 0.55380/) ),   ! Chlorine
-     &   emis_table( (/'       ','ANAJ   ','       '/), (/ 0.0, 0.30860, 0.0    /) ),   ! Sodium
-     &   emis_table( (/'       ','ACAJ   ','       '/), (/ 0.0, 0.01180, 0.0    /) ),   ! Calcium
-     &   emis_table( (/'       ','AMGJ   ','       '/), (/ 0.0, 0.03680, 0.0    /) ),   ! Magnesium
-     &   emis_table( (/'       ','AKJ    ','       '/), (/ 0.0, 0.01140, 0.0    /) ),   ! Potassium
-     &   emis_table( (/'       ','       ','ASEACAT'/), (/ 0.0, 0.0    , 0.36860/) ) /) ! Sea-Salt Cations
+C                     -description--            -------- name --------                -------- spcfac --------
+C                                           Aitken    accum     coarse             Aitken  accum   coarse
+     &   emis_table( 'Sulfate       ', (/'         ','ASO4J    ','ASO4K    '/), (/ 0.0, 0.07760, 0.07760/) ),   ! Sulfate
+     &   emis_table( 'Chlorine      ', (/'         ','ACLJ     ','ACLK     '/), (/ 0.0, 0.55380, 0.55380/) ),   ! Chlorine
+     &   emis_table( 'Sodium        ', (/'         ','ANAJ     ','         '/), (/ 0.0, 0.30860, 0.0    /) ),   ! Sodium
+     &   emis_table( 'Calcium       ', (/'         ','ACAJ     ','         '/), (/ 0.0, 0.01180, 0.0    /) ),   ! Calcium
+     &   emis_table( 'Magnesium     ', (/'         ','AMGJ     ','         '/), (/ 0.0, 0.03680, 0.0    /) ),   ! Magnesium
+     &   emis_table( 'Potassium     ', (/'         ','AKJ      ','         '/), (/ 0.0, 0.01140, 0.0    /) ),   ! Potassium
+     &   emis_table( 'SeaSalt_Cation', (/'         ','         ','ASEACAT  '/), (/ 0.0, 0.0    , 0.36860/) ),   ! Sea-Salt Cations
+     &   emis_table( 'Chromium IV   ', (/'         ','ACR_VIJ  ','ACR_VIK  '/), (/ 0.0, 5.95E-9, 5.95E-9/) ),   ! accumaltion and coarse mode Hexavalent Chromium
+     &   emis_table( 'Nickel        ', (/'         ','ANIJ     ','ANIK     '/), (/ 0.0, 1.34E-8, 1.34E-8/) ),   ! accumaltion and coarse mode Nickle
+     &   emis_table( 'Arsenic       ', (/'         ','AASJ     ','AASK     '/), (/ 0.0, 4.93E-8, 4.93E-8/) ),   ! accumaltion and coarse mode Arsenic
+     &   emis_table( 'Beryllium     ', (/'         ','ABEJ     ','ABEK     '/), (/ 0.0, 5.2E-11, 5.2E-11/) ),   ! accumaltion and coarse mode Beryllium
+     &   emis_table( 'Mercury       ', (/'         ','APHGJ    ','APHGK    '/), (/ 0.0, 5.8E-11, 5.8E-11/) ),   ! accumaltion and coarse mode Mercury
+     &   emis_table( 'Lead          ', (/'         ','APBJ     ','APBK     '/), (/ 0.0, 6.0E-11, 6.0E-11/) ),   ! accumaltion and coarse mode Lead
+     &   emis_table( 'Cadmium       ', (/'         ','ACDJ     ','ACDK     '/), (/ 0.0, 1.93E-9, 1.93E-9/) ),   ! accumaltion and coarse mode cadmium
+     &   emis_table( 'Air Toxics Mn ', (/'         ','AMN_HAPSJ','AMN_HAPSK'/), (/ 0.0, 4.7E-11, 4.7E-11/) ) /) ! accumaltion and coarse mode Air toxics Manganese
  
       Real, Allocatable, Save :: aerospc_ssf( :,: )
 
@@ -570,7 +610,6 @@ C-----------------------------------------------------------------------
       Use cgrid_spcs            ! CGRID mechanism species
       Use aeromet_data
       Use utilio_defn
-
       Implicit None
 
 C Local Variables:
@@ -579,6 +618,8 @@ C Local Variables:
       Real    :: mole_weight( n_aerolist )
       Integer :: aerolist_map  ( n_aerolist,n_mode )
       Integer :: aerospc_tolist( n_aerolist )
+
+      Integer, Allocatable :: aerospc_in_dustlist( : )
 
       Integer l, m, n, spc, isea, idust
       Real    so4fac
@@ -596,11 +637,14 @@ C Local Variables:
       Integer dust_org1, dust_org2
       Logical ae6isoa
       Logical ae6hg
+      Logical dust_match
+      Logical error_flag
 
-      logdev = setup_logdev()
-      mole_weight = 0.0
 
       If ( mapped ) Return
+
+      logdev      = setup_logdev()
+      mole_weight = 0.0
 
       n_aerospc      = 0.0 ! Number of Used Aerosol Chemical Species
       aerolist_map   = 0   ! Pointer from aerolist to CGRID
@@ -682,6 +726,9 @@ C Build mapping to CGRID for each species in the master AeroList
          aerospc( spc ) = aerolist( l )   ! Map AeroList to AeroSpc
          aerospc_mw( spc ) = mole_weight( l )
 
+#ifdef verbose_aero
+         If( spc .eq. 1 )Write(logdev,99948)
+#endif
          Do n = 1,n_mode
             ! Map the Modal-Dependent CGRID Pointers from AeroSpc to AeroList
             aerospc_map( spc, n ) = aerolist_map( l, n )
@@ -691,9 +738,14 @@ C Build mapping to CGRID for each species in the master AeroList
                Do m = 1, n_mode
                   If ( sea_spc( isea )%name( m ) .Eq. aerospc( spc )%name( n ) ) Then
                      aerospc_ssf( n, spc ) = sea_spc( isea )%spcfac( m )
+#ifdef verbose_aero
+                      If ( sea_spc( isea )%spcfac( m ) .Lt. conmin )Cycle
+                      Write(logdev,99950)spc,sea_spc( isea )%name( m ),sea_spc( isea )%spcfac( m )
+#endif
                   End If
                End Do
             End Do
+
 
             ! If a user invokes a chemical species, they should have the
             ! same modes present as is indicated in the table above.
@@ -801,20 +853,18 @@ C Find indices of required species
          ae6hg     = .False.
       End If
 
-C Adjust Dust Emissions for Organic Species, if running with semivolatile POA
-      dust_spc = dust_spc_list
-
+C Adjust Dust Emissions list for Organic Species, if running with semivolatile POA
       If ( Index( mechname, 'NVPOA' ) .Eq. 0 ) Then
          ! Find Indices for Nonvolatile Organics
-         Do idust = 1, ndust_spc
-            If ( Index( dust_spc( idust )%name( 2 ), 'APOCJ' ) .Gt. 0 ) dust_org1 = idust
-            If ( Index( dust_spc( idust )%name( 2 ), 'APNCOMJ') .Gt. 0 ) dust_org2 = idust
+         Do idust = 1, ndust_list
+            If ( Index( dust_spc_list( idust )%name( 2 ), 'APOCJ' ) .Gt. 0 ) dust_org1 = idust
+            If ( Index( dust_spc_list( idust )%name( 2 ), 'APNCOMJ') .Gt. 0 ) dust_org2 = idust
          End Do
 
          ! Compute Total Organic Dust Scale Factor and O:C Ratio
          ! The dust OM:OC should equal 1.4 if it consistent with Simon and Bhave (2011).
-         dust_POC = dust_spc( dust_org1 )%spcfac( 2 )
-         dust_PNC = dust_spc( dust_org2 )%spcfac( 2 )
+         dust_POC = dust_spc_list( dust_org1 )%spcfac( 2 )
+         dust_PNC = dust_spc_list( dust_org2 )%spcfac( 2 )
          dust_OMOC = ( dust_POC + dust_PNC ) / dust_POC
          dust_OC = 12.0 / 15.0 * dust_OMOC - 14.0 / 15.0
 
@@ -828,11 +878,78 @@ C Adjust Dust Emissions for Organic Species, if running with semivolatile POA
          dust_OOA = 1.0 / ( 1.0 + ( dust_OC - OOA_OC ) / ( POA_OC - dust_OC ) )
 
          ! Assign new names and speciation to dust table
-         dust_spc( dust_org1 )%name( 2 ) = 'ALVPO1J'
-         dust_spc( dust_org2 )%name( 2 ) = 'ALVOO2J'
-         dust_spc( dust_org1 )%spcfac( 2 ) = dust_POA * ( dust_POC + dust_PNC )
-         dust_spc( dust_org2 )%spcfac( 2 ) = dust_OOA * ( dust_POC + dust_PNC )
+         dust_spc_list( dust_org1 )%name( 2 ) = 'ALVPO1J'
+         dust_spc_list( dust_org2 )%name( 2 ) = 'ALVOO2J'
+         dust_spc_list( dust_org1 )%spcfac( 2 ) = dust_POA * ( dust_POC + dust_PNC )
+         dust_spc_list( dust_org2 )%spcfac( 2 ) = dust_OOA * ( dust_POC + dust_PNC )
       End If
+
+! Determine map between aero_spc dust emissions and the dust emission listndust_spc
+      Allocate( aerospc_in_dustlist( n_aerolist ) )
+      aerospc_in_dustlist   = 0   ! Pointer identifies to use dust emission table
+
+      ndust_spc = 0
+      Do spc = 1, n_aerospc ! Loop through user-requested chemical species
+         Do idust = 1, ndust_list ! loop through dust list
+#ifdef verbose_aero
+            xmsg = ' '
+#endif
+            dust_match = .False.
+            Do m = 1, n_mode
+               If( aero_missing(spc,m) )Cycle
+               If ( dust_spc_list( idust )%name( m ) .Eq. aerospc( spc )%name( m ) ) Then
+#ifdef verbose_aero
+                   Select Case( m )
+                     Case( 1 )
+                        xmsg = 'Aitken'
+                     Case( 2 )
+                        xmsg = Trim( xmsg ) // ' Accum.'
+                     Case( 3 ) 
+                       xmsg = Trim( xmsg ) // ' Coarse'
+                   End Select
+#endif
+                   dust_match = .True.
+               End If
+            End Do
+            If( dust_match )Then
+                ndust_spc = ndust_spc + 1
+                aerospc_in_dustlist( ndust_spc ) = idust
+#ifdef verbose_aero
+                Write( logdev,'(a,1x,a)')'Dust Emissions Added to ',
+     &          Trim( dust_spc_list( ndust_spc )%description )  // ' '
+     &          // Trim( xmsg ) // ' mode(s)'
+#endif
+            End If
+         End Do
+      End Do
+
+      If( ndust_spc .Gt. 0 )Then
+! build dust_spc type from selected list elements
+         Allocate( dust_spc( ndust_spc ) )
+         n = 0
+#ifdef verbose_aero
+         Write(logdev,99949)
+#endif
+         Do spc = 1, ndust_spc
+            idust = aerospc_in_dustlist( spc )
+            dust_spc( spc ) = dust_spc_list( idust )
+            Do m = 1, n_mode
+               If( len_trim( dust_spc( spc )%name( m ) ) .lt. 1 )cycle
+               n = n + 1
+#ifdef verbose_aero
+               Write(logdev,99950)n,dust_spc( spc )%name( m ),dust_spc( spc )%spcfac( m )
+#endif
+            End Do
+         End Do
+      End If
+
+#ifdef verbose_aero
+99948 Format(/ '_I_',1X,'Aero_Species____','SeaSalt_Emiss_Speciation')
+99949 Format(/ '_I_',1X,'Aero_Species____','Dust_Emiss_Speciation')
+99950 Format(i3,1X,a16,11X,es12.4)
+#endif
+
+      Deallocate( aerospc_in_dustlist )
 
 #ifdef verbose_aero
       ! Mandatory Species

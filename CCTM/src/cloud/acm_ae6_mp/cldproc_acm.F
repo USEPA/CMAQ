@@ -116,6 +116,7 @@ C...........Local Variables
       INTEGER       MTIME            ! middle of this time step
       INTEGER       NDATE            ! middle of this time step
       INTEGER       NTIME            ! middle of this time step
+      INTEGER, SAVE :: WSTEP  = 0    ! local write counter
       INTEGER, SAVE :: NNAE          ! number of #/m3 species
       INTEGER, SAVE :: NQAE          ! number of ug/m3 species
       INTEGER, SAVE :: NSAE          ! number of m2/m3 species
@@ -499,12 +500,12 @@ C...share wet deposition with bidirectional surface exchange algorithms
 
 C...now check to see if it's time to write the deposition file
 
-      CALL NEXTIME ( MDATE, MTIME, TSTEP( 2 ) ) ! set mdate:mtime to next tstep
-      NDATE = JDATE
-      NTIME = 10000 * ( JTIME / 10000 )     !  clear MMSS fields
-      CALL NEXTIME ( NDATE, NTIME, 10000 )   ! set Ndate:Ntime to next hour
-
-      IF ( ( MDATE .EQ. NDATE ) .AND. ( MTIME .GE. NTIME ) ) THEN
+      WSTEP = WSTEP + TIME2SEC( TSTEP( 2 ) )
+      IF ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) ) THEN
+        NDATE = JDATE
+        NTIME = JTIME
+        CALL NEXTIME( NDATE, NTIME, TSTEP( 2 ) )
+        WSTEP = 0
 
         DO VAR = 1, N_SPC_WDEP + 1
           DO ROW = 1, MY_NROWS
