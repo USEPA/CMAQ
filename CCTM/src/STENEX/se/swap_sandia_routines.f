@@ -39,7 +39,7 @@ c inter-processor swap within a 1d array
       real send(*)           ! 1st value to be sent
       real recv(*)           ! 1st value to be received
       integer n1             ! # of values to send in 1d array
-      integer dir	     ! direction to recv from: NSEW
+      integer dir            ! direction to recv from: NSEW
 
       integer i
       integer recvproc, sendproc
@@ -99,7 +99,7 @@ c inter-processor swap within a 2d array
       real recv(*)           ! 1st value to be received
       integer n1,n2          ! # of values to send in each dim of 2d array
       integer dim1           ! 1st dimension of 2d array
-      integer dir	     ! direction to recv from: NSEW
+      integer dir            ! direction to recv from: NSEW
 
       integer i,j,m,n,ntotal,offset_ij
       integer recvproc,sendproc
@@ -174,7 +174,7 @@ c inter-processor swap within a 3d array
       real recv(*)           ! 1st value to be received
       integer n1,n2,n3       ! # of values to send in each dim of 3d array
       integer dim1,dim2      ! 1st and 2nd dimensions of 3d array
-      integer dir	     ! direction to recv from: NSEW
+      integer dir            ! direction to recv from: NSEW
 
       integer i,j,k,m,n,ntotal,offset_ij,offset_jk
       integer recvproc,sendproc
@@ -254,11 +254,11 @@ c inter-processor swap within a 4d array
 
 !     real send(*)           ! 1st value to be sent
 !     real recv(*)           ! 1st value to be received
-      real send(:,:,:,:)           ! 1st value to be sent
-      real recv(:,:,:,:)           ! 1st value to be received
+      real send(:,:,:,:)     ! 1st value to be sent
+      real recv(:,:,:,:)     ! 1st value to be received
       integer n1,n2,n3,n4    ! # of values to send in each dim of 4d array
       integer dim1,dim2,dim3 ! 1st,2nd,3rd dimensions of 4d array
-      integer dir	     ! direction to recv from: NSEW
+      integer dir            ! direction to recv from: NSEW
 
       integer i,j,k,l,m,n,ntotal,offset_ij,offset_jk,offset_kl
       integer recvproc,sendproc
