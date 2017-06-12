@@ -61,24 +61,24 @@
 !          data    -- variable that sends data to other processors
 ! --------------------------------------------------------------------------
 
-	module se_data_send_module
+        module se_data_send_module
 
           use se_pe_info_ext
 
           implicit none
 
-	  interface se_data_send
+          interface se_data_send
             module procedure se_1d_data_send,
      &                       se_2d_data_send, se_2de_data_send,
      &                       se_3d_data_send, se_3de_data_send,
      &                       se_4d_data_send, se_4de_data_send,
      &                       se_5d_data_send
-	  end interface
+          end interface
 
           contains
 
 ! --------------------------------------------------------------------------
-	subroutine se_1d_data_send (data, sind, send_to, dir_ind, tag, request)
+        subroutine se_1d_data_send (data, sind, send_to, dir_ind, tag, request)
 
         implicit none
         include "mpif.h"
@@ -108,7 +108,7 @@
 
         deallocate (sarray)
 
-	end subroutine se_1d_data_send
+        end subroutine se_1d_data_send
 
 ! -----------------------------------------------------------------------------
         subroutine se_2d_data_send (data, sind, send_to, dir_ind, tag, request)
@@ -145,7 +145,7 @@
 
         deallocate (sarray)
 
-	end subroutine se_2d_data_send
+        end subroutine se_2d_data_send
 
 ! -----------------------------------------------------------------------------
         subroutine se_2de_data_send (data, sind, send_to, dir_ind, tag, request)
@@ -182,7 +182,7 @@
 
         deallocate (sarray)
 
-	end subroutine se_2de_data_send
+        end subroutine se_2de_data_send
 
 ! -----------------------------------------------------------------------------
         subroutine se_3d_data_send (data, sind, send_to, dir_ind, tag, request)
@@ -261,7 +261,7 @@
 
         deallocate (sarray)
 
-	end subroutine se_3de_data_send
+        end subroutine se_3de_data_send
 
 ! -----------------------------------------------------------------------------
         subroutine se_4d_data_send (data, sind, send_to, dir_ind, tag, request)
@@ -304,7 +304,7 @@
 
         deallocate (sarray)
 
-	end subroutine se_4d_data_send
+        end subroutine se_4d_data_send
 
 ! -----------------------------------------------------------------------------
         subroutine se_4de_data_send (data, sind, send_to, dir_ind, tag, request)
@@ -345,7 +345,7 @@
 
         deallocate (sarray)
 
-	end subroutine se_4de_data_send
+        end subroutine se_4de_data_send
 
 ! -----------------------------------------------------------------------------
         subroutine se_5d_data_send (data, sind, send_to, dir_ind, tag, request)
@@ -391,6 +391,6 @@
 
         deallocate (sarray)
 
-	end subroutine se_5d_data_send
+        end subroutine se_5d_data_send
 
         end module se_data_send_module
