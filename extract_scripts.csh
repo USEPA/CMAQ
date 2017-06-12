@@ -76,14 +76,14 @@
 #===============================================================================
 #> Copy config.cmaq
 #===============================================================================
- cp config.cmaq $Origin/config.cmaq
+ cp config_cmaq.csh $Origin/config_cmaq.csh
 
 #===============================================================================
 #> Copy CCTM scripts
 #===============================================================================
  if ( $EXT_CCTM == 'Y' ) then
-    cp CCTM/scripts/bldit.cctm $Origin/bldit.cctm
-    cp CCTM/scripts/run.cctm $Origin/run.cctm
+    cp CCTM/scripts/bldit_cctm.csh $Origin/bldit_cctm.csh
+    cp CCTM/scripts/run_cctm.csh $Origin/run_cctm.csh
  endif
  
 #===============================================================================
@@ -94,8 +94,8 @@
        mkdir -pv $Origin/tools/combine
     endif
 
-    cp POST/combine/scripts/bldit.combine  $Origin/tools/combine/bldit.combine
-    cp POST/combine/scripts/run.combine    $Origin/tools/combine/run.combine
+    cp POST/combine/scripts/bldit_combine.csh  $Origin/tools/combine/bldit_combine.csh
+    cp POST/combine/scripts/run_combine.csh    $Origin/tools/combine/run_combine.csh
  endif
 
 #===============================================================================
