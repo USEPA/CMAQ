@@ -49,7 +49,7 @@
  set Origin  = $cwd                    #> location of bldit script. The BLD_* directory will be 
                                        #> under this location
  set VRSN  = v52                       #> model configuration ID
- set EXEC  = CCTM_${VRSN}.bin          #> executable name
+ set EXEC  = CCTM_${VRSN}.exe          #> executable name
  set CFG   = CCTM_${VRSN}.cfg          #> configuration file name
 
 #> Controls for managing the source code and MPI compilation
@@ -117,7 +117,7 @@ set ParOpt                             #> uncomment to build a multiple processo
  set FC = ${myFC}                      #> path of Fortan compiler; set in config.cmaq
  set FP = $FC                          #> path of Fortan preprocessor; set in config.cmaq
  set CC = ${myCC}                      #> path of C compiler; set in config.cmaq
- set BLDER = $Origin/Tools/bldmake/BLDMAKE_${compiler} #> location of model builder executable
+ set BLDER = $Origin/tools/bldmake/BLDMAKE_${compiler} #> location of model builder executable
 
 #> Libraries/include files
 # set LIOAPI   = "${IOAPI_DIR}/lib ${ioapi_lib}"      #> I/O API library directory
@@ -528,21 +528,21 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
 
     #> Create a Tools Directory in which to keep BLDMAKE
     cd $Origin
-    if ( ! -d Tools/bldmake ) mkdir -pv Tools/bldmake
+    if ( ! -d tools/bldmake ) mkdir -pv tools/bldmake
 
     #> Copy all BLDMAKE files from the CMAQ Repo if none exist in
-    #> Tools/bldmake already. If BLDMAKE won't compile, try erasing
-    #> the diles in Tools/bldmake so that this utility will copy new
+    #> tools/bldmake already. If BLDMAKE won't compile, try erasing
+    #> the diles in tools/bldmake so that this utility will copy new
     #> ones from the repo.
-    cp --no-clobber ${CMAQ_REPO}/UTIL/bldmake/src/* Tools/bldmake/
+    cp --no-clobber ${CMAQ_REPO}/UTIL/bldmake/src/* tools/bldmake/
 
     #> Clean BLDMAKE directory
-    cd Tools/bldmake
+    cd tools/bldmake
     rm *.o *.mod $BLDER
 
     #> Set BLDER to Default Path
     set BLDEXE = "BLDMAKE_${compiler}"
-    set BLDDIR = "$Origin/Tools/bldmake/"
+    set BLDDIR = "$Origin/tools/bldmake"
     set BLDER  = "${BLDDIR}/${BLDEXE}"
 
     #> Compile BLDMAKE source code

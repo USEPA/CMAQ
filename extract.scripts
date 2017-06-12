@@ -19,18 +19,28 @@
 #> Default Assumed Tree Structure:
 #>   CMAQv5.2 (Origin / Working Directory )
 #>     --> CMAQ_REPO (Source Code Repository )
-#>     --> config.cmaq
-#>     --> bldit.cctm
-#>     --> run.cctm
+#>     --> config.cmaq.csh
+#>     --> bldit.cctm.csh
+#>     --> run.cctm.csh
 #>     --> BLD_CCTM... (CCTM Build Directories)
 #>          --> Source code, object files
 #>          --> Makefile
-#>     --> Tools
+#>     --> tools
 #>          --> bldmake
-#>          --> Combine
+#>          --> combine
+#>              bldit.combine.csh
+#>              run.combine.csh
 #>              --> BLD_COMBINE... (Combine Build Directories)
 #>     --> lib (links to libraries created by config.cmaq)
 #>
+
+#> This section allows users to choose explicitly which tools
+#> to make available from the repo. For each selected tool,
+#> extract_scripts.csh will copy any build and run scritps
+#> out of the repo for you. Set each to [Y/N]
+ set EXT_CCTM    = Y
+ set EXT_COMBINE = Y
+
 
 #> model source code repository location 
  set REPO_HOME = $cwd
@@ -71,15 +81,22 @@
 #===============================================================================
 #> Copy CCTM scripts
 #===============================================================================
- cp CCTM/scripts/bldit.cctm $Origin/bldit.cctm
- cp CCTM/scripts/run.cctm $Origin/run.cctm
+ if ( $EXT_CCTM == 'Y' ) then
+    cp CCTM/scripts/bldit.cctm $Origin/bldit.cctm
+    cp CCTM/scripts/run.cctm $Origin/run.cctm
+ endif
  
 #===============================================================================
 #> Copy Combine Post-Processor scripts
 #===============================================================================
- cp POST/combine/scripts/bldit.combine $Origin/bldit.combine
- cp POST/combine/scripts/run.combine $Origin/run.combine
+ if ( $EXT_COMBINE == 'Y' ) then
+    if ( ! -e "$Origin/tools/combine" ) then
+       mkdir -pv $Origin/tools/combine
+    endif
 
+    cp POST/combine/scripts/bldit.combine  $Origin/tools/combine/bldit.combine
+    cp POST/combine/scripts/run.combine    $Origin/tools/combine/run.combine
+ endif
 
 #===============================================================================
 #> Exit the Script

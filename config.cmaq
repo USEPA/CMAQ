@@ -29,7 +29,6 @@
                          #for build directories, etc. The default is 
                          #to make this folder one level higher than the 
                          #top level of your CMAQ repo.
- setenv CMAQ_DATA ${CMAQ_HOME}/data
  setenv CMAQ_REPO ${CMAQ_HOME}/CMAQ_REPO
 
 #===============================================================================
@@ -89,9 +88,7 @@
     
         #> Compiler Aliases and Flags
         setenv myFC mpiifort
-        #setenv myFC mpif90       #> In order to use mpif90 on Sol, the user also needs to
-        #setenv MPICH_F90 ifort   #> set MPICH_F90 to specify ifort so that Fortran is used
-        setenv myCC icc           #> to compile the source.
+        setenv myCC icc       
         setenv myFSTD "-O3"
         setenv myDBG  "-g -check bounds -check uninit -fpe0 -fno-alias -ftrapuv -traceback"
         setenv myLINK_FLAG "-openmp"
@@ -197,7 +194,6 @@
  setenv IOAPI_DIR   $CMAQ_LIB/ioapi
 
  if ( ! -d $CMAQ_LIB ) mkdir -p $CMAQ_LIB
- if ( ! -d $CMAQ_DATA) mkdir -p $CMAQ_DATA
  if ( ! -d $CMAQ_LIB/mpi) ln -s $MPI_LIB_DIR $CMAQ_LIB/mpi
  if ( ! -d $NETCDF_DIR )  ln -s $NETCDF_LIB_DIR $NETCDF_DIR
  if ( ! -d $IOAPI_DIR ) then 

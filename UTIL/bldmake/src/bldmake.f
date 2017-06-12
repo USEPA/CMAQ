@@ -292,8 +292,8 @@
       Write( lfn, '("#      $(LIB)/ioapi/modules -> ",a)' ) Trim( ioapi_mod_dir )
       Write( lfn, '("#      $(LIB)/ioapi/include_files -> ",a)' ) Trim( ioapi_incl_dir )
       Write( lfn, '("#      $(LIB)/ioapi/lib -> ",a)' ) Trim( ioapi_lib_dir )
-      Write( lfn, '("#      $(LIB)/mpi -> ",a)' ) Trim( netcdf_lib_dir )
-      Write( lfn, '("#      $(LIB)/netcdf -> ",a)' ) Trim( mpi_lib_dir )
+      Write( lfn, '("#      $(LIB)/mpi -> ",a)' ) Trim( mpi_lib_dir )
+      Write( lfn, '("#      $(LIB)/netcdf -> ",a)' ) Trim( netcdf_lib_dir )
 
       ! Begin Makefile Commands
       Write( lfn, '(/" EXEC = ",a)' ) Trim( model )
