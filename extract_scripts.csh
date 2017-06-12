@@ -42,9 +42,6 @@
  set Origin = $cwd
  #set Origin  [User-Specified Location]
 
-#> Return to repository top-level directory
- cd $REPO_HOME
-
 #> Check that the host system is Linux-based
  set BLD_OS = `uname -s`
  if ($BLD_OS != 'Linux') then
@@ -62,6 +59,9 @@
     endif
  endif
 
+#> Return to repository top-level directory
+ cd $REPO_HOME
+
 
 #===============================================================================
 #> Copy config.cmaq
@@ -78,8 +78,14 @@
 #> Copy Combine Post-Processor scripts
 #===============================================================================
  cp POST/combine/scripts/bldit.combine $Origin/bldit.combine
- cp POST/combine/scripts/run.combine $Origin/run.ccombine
+ cp POST/combine/scripts/run.combine $Origin/run.combine
 
+
+#===============================================================================
+#> Exit the Script
+#===============================================================================
+ echo "Configuration and Run Scripts have been Extracted and placed in: $Origin"
+ echo "You may now edit these scripts to conform to your system and run options."
 
  exit
  
