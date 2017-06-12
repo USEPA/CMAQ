@@ -256,9 +256,15 @@ CMAQ’s standard cloud chemistry treatment estimates sulfate production from fi
 
 ### Deposition
 
-CMAQ optionally calculates the wet and dry deposition of chemical species.  Information on the algorithms used can be found in Pleim and Ran (2011), Bash et al 92013), and Pleim et al (2013).  For deposition to be considered in a model run, the entry in the namelist file must indicate a deposition surrogate species and a deposition factor.  The default namelist files contain the standard configuration for known deposition of species.  For wet deposition, the scavenging factor (SCAV_FAC) should be set to 1 and the surrogate species (SCAV_SUR) must be one of the chemicals listed in the HLCONST.F subroutine.  If the chemical does not have an appropriate surrogate species listed in the HLCONST.F subroutine, one may be added to the model source code.  For dry deposition, the deposition factor (DEPV_FAC) should be set to 1 and the deposition velcoity surrogate (DEPV_SUR) should be set to one of the species listed in the DEPVDEFN.F subroutine.  The species listed in this file are further cross-referenced to a table in ASX_DATA_MOD.F wehre the diffusivity in air, reactivity, mesophyll resistance, LeBas molar volume, and wet surface scavenging surrogate are specified. The wet surface scavenging surrogate must be a chemical in the HLCONST.F subroutine and is typically the same species that is used for wet deposition of the chemical.  If a proper deposition velocity surrogate species does not exist in the tables, one can be added to the model source code.
+CMAQ optionally calculates the wet and dry deposition of chemical species.  Information on the algorithms used can be found in Pleim and Ran (2011), Bash et al (2013), and Pleim et al (2013).  For deposition to be considered in a model run, the entry in the namelist file must indicate a deposition surrogate species and a deposition factor.  The default namelist files contain the standard configuration for known deposition of species.  For wet deposition, the scavenging factor (SCAV_FAC) should be set to 1 and the surrogate species (SCAV_SUR) must be one of the chemicals listed in the HLCONST.F subroutine.  If the chemical does not have an appropriate surrogate species listed in the HLCONST.F subroutine, one may be added to the model source code.  For dry deposition, the deposition factor (DEPV_FAC) should be set to 1 and the deposition velcoity surrogate (DEPV_SUR) should be set to one of the species listed in the DEPVDEFN.F subroutine.  The species listed in this file are further cross-referenced to a table in ASX_DATA_MOD.F where the diffusivity in air, reactivity, mesophyll resistance, LeBas molar volume, and wet surface scavenging surrogate are specified. The wet surface scavenging surrogate must be a chemical in the HLCONST.F subroutine and is typically the same species that is used for wet deposition of the chemical.  If a proper deposition velocity surrogate species does not exist in the tables, one can be added to the model source code.
 
-A runtime flag in the CMAQ model controls whether the bidirectional modeules for ammonia and mercury are invoked.  The bidirectional modules simulate two-way exchange between the atmosphere and the surface for these species (as opposed to only deposition). The mercury bidirectional module is part of the CMAQv5 multipollutant configuration. To use the bidirectional option for ammonia, additional input file are required.  The files are created from the Environmental Policy Integrated Climate (EPIC) model. There are two time independent files which provide information on the soil and the landcover.  A time dependent file contains information on fertilizer application. 
+A runtime flag in the CMAQ model controls whether the bidirectional modeules for ammonia and mercury are invoked.  The bidirectional modules simulate two-way exchange between the atmosphere and the surface for these species (as opposed to only deposition). The mercury bidirectional module (Bash 2010) is part of the CMAQv5 multipollutant configuration. To use the bidirectional option for ammonia, additional input file are required.  The files are created from the Environmental Policy Integrated Climate (EPIC) model (Cooter et al., 2012). There are two time independent files which provide information on the soil and the landcover.  A time dependent file contains information on fertilizer application method and amount. 
+
+<a id=Figure4-11></a>
+
+![](./images/Figure4-11.png "Figure4-11.png")
+
+**Figure 4‑7. Data flow between EPIC, the meteorological model, and CMAQ from Cooter et al. (2012)**
 
 An additional configuration option related to deposition is the CMAQ_MOSAIC runtime option.  This option outputs land use specific deposition velocities and fluxes.
 
@@ -301,13 +307,15 @@ The CMAS Center currently supports CMAQ on Linux systems using the Gnu, Portland
 References for Chapter 4: Science Overview
 -----------------------------------------------
 
-Bash, J. O., E. J. Cooter, R. L. Dennis, J. T. Walker, and J. E. Pleim, 2013: Evaluation of a regional air-quality model with bidirectional NH3 exchange coupled to an agroecosystem model. "Biogeosciences*, **10**, 1635-1645.
+Bash, J. O., E. J. Cooter, R. L. Dennis, J. T. Walker, and J. E. Pleim, 2013: Evaluation of a regional air-quality model with bidirectional NH3 exchange coupled to an agroecosystem model. *Biogeosciences*, **10**, 1635-1645.
+
+Bash, J.O., 2010, Description and initial simulation of a dynamic bi-directional air-surface exchange model for mercury in CMAQ, *J. Geophys. Res.*, **115**, D06305
 
 Binkowski, F.S., and U. Shankar, 1995: The Regional Particulate Model: Part I. Model description and preliminary results. *J. Geophys. Res*., **100**, 26 191–26 209.
 
-Binkowski, F. S., and S. J. Roselle, 2003: Models-3 Community Multiscale Air Quality (CMAQ) model aerosol component. 1. Model description. ''J. Geophys. Res., '**'108,** 4183, <doi:10.1029/2001JD001409>.
+Binkowski, F. S., and S. J. Roselle, 2003: Models-3 Community Multiscale Air Quality (CMAQ) model aerosol component. 1. Model description. ''J. Geophys. Res., **108**, 4183, <doi:10.1029/2001JD001409>.
 
-Binkowski, F.S, , S. Arunachalam, Z. Adelman, and J. Pinto, Examining photolysis rates with a prototype on-line photolysis module in CMAQ, 2007, *J. Appl. Meteor. and Clim.*. 46, 1252-1256, doi: 10.1175/JAM2531.1
+Binkowski, F.S, , S. Arunachalam, Z. Adelman, and J. Pinto, Examining photolysis rates with a prototype on-line photolysis module in CMAQ, 2007, *J. Appl. Meteor. and Clim.*. **46**, 1252-1256, doi: 10.1175/JAM2531.1
 
 Byun, D. W., 1999: Dynamically consistent formulations in meteorological and air quality models for Multiscale atmospheric studies. Part I: Governing equations in a generalized coordinate system. *J. Atmos. Sci*., **56**, 3789–3807.
 
@@ -321,7 +329,9 @@ Carlton, A.G., P.V. Bhave, S.L. Napelenok, E.O. Edney, G. Sarwar, R.W. Pinder, G
 
 Chang, J. S., P. B. Middleton, W. R. Stockwell, C. J. Walcek, J. E. Pleim, H. H. Lansford, F. S. Binkowski, S. Madronich, N. L. Seaman, D. R. Stauffer, D. Byun, J. N. McHenry, P. J. Samson, and H. Hass, 1990: The regional acid deposition model and engineering model, *Acidic Deposition: State of Science and Technology*, Report 4, National Acid Precipitation Assessment Program.
 
-Colella, P., and P. L. Woodward, 1984: The piecewise parabolic method (PPM) for gas-dynamical simulations. *J. Comput. Phys*.,'' '**'54**, 174–201.
+Colella, P., and P. L. Woodward, 1984: The piecewise parabolic method (PPM) for gas-dynamical simulations. *J. Comput. Phys*.,'' **54**, 174–201.
+
+Cooter, E.J., Bash, J.O., Benson V., Ran, L.-M., 2012, Linking agricultural management and air-quality models for regional to national-scale nitrogen deposition assessments, *Biogeosciences*, **9**, 4023-4035
 
 Damian, V., A. Sandu, M. Damian, F. Potra, and G.R. Carmichael, 2002: The Kinetic PreProcessor KPP -- A Software Environment for Solving Chemical Kinetics, *Computers and Chemical Engineering*, **26**, 1567-1579.
 
@@ -333,7 +343,7 @@ Elterman, L., R. Wexler, and D. T. Chang, 1969: Features of tropospheric and str
 
 Fahey, K.M., A.G. Carlton, H.O.T. Pye, J. Baek, W.T. Hutzell, C.O. Stanier, K.R. Baker, K.W. Appel, M. Jaoui, J.H. Offenberg, 2017: A framework for expanding aqueous chemistry in the Community Multiscale Air Quality (CMAQ) model version 5.1, *Geosci. Model Dev.*, **10**, 1587-1605.
 
-Fountoukis, C and A. Nenes, 2007: ISORROPIA II: A computational efficient thermodynamic equilibrium model for K+-Ca2+-Mg2+-NH4+-Na+-SO42—NO3—Cl—H2O aerosols, ''Atmos. Chem. And Phys., '**'7**, 4639-4659.
+Fountoukis, C and A. Nenes, 2007: ISORROPIA II: A computational efficient thermodynamic equilibrium model for K+-Ca2+-Mg2+-NH4+-Na+-SO42—NO3—Cl—H2O aerosols, ''Atmos. Chem. And Phys., **7**, 4639-4659.
 
 Hertel O., R. Berkowicz, J. Christensen, and O. Hov, 1993: Test of two numerical schemes for use in atmospheric transport-chemistry models. *Atmos. Environ.*, **27A**, 2591–2611
 
@@ -353,7 +363,7 @@ Pleim, J.E., and L. Ran, 2011: Surface Flux Modeling for Air Quality Application
 
 Pleim, J. E., A. Xiu, P. L. Finkelstein, and T. L. Otte, 2001: A coupled land-surface and dry deposition model and comparison to field measurements of surface heat, moisture, and ozone fluxes. *Water Air Soil Pollut. Focus*, **1**, 243–252.
 
-Pleim, J, 2007: A combined local and nonlocal closure model for the atmospheric boundary layer. Part I: model description and testing, *J. of Appl Met. and Climatology*, 46, 1383-1395
+Pleim, J, 2007: A combined local and nonlocal closure model for the atmospheric boundary layer. Part I: model description and testing, *J. of Appl Met. and Climatology*, **46**, 1383-1395
 
 Pye, H.O.T., R.W. Pinder, I.R. Piletic, Y. Xie, S.L. Capps, Y.H. Lin, J.D. Surratt, Z.F. Zhang, A. Gold, D.J. Luecken, W.T. Hutzell, M. Jaoui, J.H. Offenberg, T.E. Kleindienst, M. Lewandowski, E.O. Edney, 2013: Epoxide pathways improve model predictions of isoprene markers and reveal key role of acidity in aerosol formation, *Environ. Sci. Technol.*, **47(19)**, 11056-11064.
 
