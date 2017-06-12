@@ -18,10 +18,10 @@ The following support software are required for compiling and running CMAQ.
 
 ### Install CMAQ and Required Libraries ###
 
-In the directory where you would like to install CMAQ, issue the following command to clone the CMAS CENTER GitHub repository for CMAQv5.2 Beta:
+In the directory where you would like to install CMAQ, issue the following command to clone the EPA GitHub repository for CMAQv5.2:
 
 ```
-git clone -b 5.2Gamma https://github.com/CMASCenter/EPA-CMAQ.git CMAQ_v5.2Gamma
+git clone -b 5.2 https://github.com/USEPA/CMAQ.git CMAQv5.2
 ```
 
 For instructions on installing CMAQ from tarballs, see [Chapter 5](CMAQ_OGD_ch05_sys_req.md).
