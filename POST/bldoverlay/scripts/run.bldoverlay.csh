@@ -40,29 +40,35 @@
  setenv compiler intel 
  source config.cmaq
 
-#> Set General Parameters for Labeling the Simulation
- set EXEC_ID = SE52BENCH
-
-#> Set the build directory for appendwrf if this was not set above 
-#> (this is where the bldoverlay executable is located by default).
- if ( ! -e $BINDIR ) then
-  setenv BINDIR $CMAQ_HOME/Tools/appendwrf/BLD_APPENDWRF_${compiler}
+#> Set the build directory if this was not set above 
+#> (this is where the
+ executable is located by default).
+ if ( ! -e ${BINDIR} ) then
+  setenv BINDIR ${CMAQ_HOME}/Tools/bldoverlay/BLDOVERLAY_${compiler}
  endif
 
+#> Set the name of the executable.
+ setenv EXEC bldoverlay.exe
+
 #> Set location of CMAQ repo.  This will be used to point to the time zone file
-#> needed to run bldoverlay.
+#> needed to run bldoverlay.  The v5.2 repo also contains a sample input file.
  setenv REPO_HOME  [Add location of CMAQv5.2 repository here]
 
 # =====================================================================
-#> COMBINE Configuration Options
+#> BLDOVERLAY Configuration Options
 # =====================================================================
 
 #> Projection sphere type used by I/OAPI (use type #20 to match WRF/CMAQ)
  setenv IOAPI_ISPH 20
 
 #> define time window
- setenv SDATE 2011182
- setenv EDATE 2011183  
+ set START_DATE = "2011-07-1"     #> beginning date (July 1, 2011)
+ set END_DATE   = "2011-07-2"     #> ending date    (July 2, 2011)
+
+#> Convert START_DATE and END_DATE to Julian day.
+#> (required format for bldoverlay SDATE and EDATE environment variables)
+ setenv SDATE `date -ud "${START_DATE}" +%Y%j`
+ setenv EDATE `date -ud "${END_DATE}" +%Y%j` 
 
 #> set file type
  setenv FILETYPE OBS
@@ -84,7 +90,7 @@
 #> location of time zone data file, tz.csv (this is a required input file
 #> when using OLAYTYPE HOURLY since hourly observations need to be shifted
 #> from local time to GMT)
- setenv TZFILE $REPO_HOME/POST/bldoverlay/inputs/tz.csv
+ setenv TZFILE ${REPO_HOME}/POST/bldoverlay/inputs/tz.csv
 
 #> species label to be used in overlay file
  setenv SPECIES 'O3,PM25,NO2'
@@ -92,12 +98,13 @@
 #> species units
  setenv UNITS 'ppb,ug/m^3,ppb'
 
-#> set input and output files
- setenv INFILE ozone_overlay_input_sample.csv
- setenv OUTFILE overlay20110701.ncf
+#> set input and output files.  A sample input file is provided with the CMAQv5.2 release.
+ setenv INFILE ${REPO_HOME}/POST/bldoverlay/inputs/ozone_overlay_input_sample.csv
+ setenv OUTFILE overlay_${START_DATE}_${END_DATE}.ncf
 
-#> Executable call:
- $BINDIR/bldoverlay.exe
+#> Executable call: 
+${BINDIR}/${EXEC}
 
-echo run complete, output = ${OUTFILE}
+
+ exit()
 

@@ -8,19 +8,6 @@
 #             http://www.cmascenter.org  (CMAS Website)
 # ===================================================================
 
-#> Source the config.cmaq file to set the run environment
- source config.cmaq
-
- set EXEC_ID = SE52BENCH
-
-#> Set the working directory
- set BASE  = $cwd      
-#set BASE  = $CMAQ_HOME/scripts/appendwrf
- set BLD   = ${BASE}/BLD_$APPL
-
- cd $BASE; date; set timestamp; cat $BASE/cfg.${APPL}; echo " "; set echo
-
-
 # ~~~~~~~~~~~~~~~~~~~~~~~~ Start EPA ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 #> Portable Batch System - The following specifications are 
@@ -52,14 +39,14 @@
  setenv compiler intel 
  source config.cmaq
 
-#> Set General Parameters for Labeling the Simulation
- set EXEC_ID = SE52BENCH
-
-#> Set the build directory for appendwrf if this was not set above 
-#> (this is where the appendwrf executable is located by default).
- if ( ! -e $BINDIR ) then
-  setenv BINDIR $CMAQ_HOME/Tools/appendwrf/BLD_APPENDWRF_${compiler}
+#> Set the build directory if this was not set above 
+#> (this is where the executable is located by default).
+ if ( ! -e ${BINDIR} ) then
+  setenv BINDIR ${CMAQ_HOME}/Tools/appendwrf/APPENDWRF_${compiler}
  endif
+
+#> Set the name of the executable.
+ setenv EXEC appendwrf.exe
 
 #> Set input and output directories
  set INDIR  = [Add location of input directory]
@@ -73,17 +60,17 @@
 
 ### set input and output files
 
- setenv INFILE_1 ${INDIR}/06May30/wrfbdy_d01
- setenv INFILE_2 ${INDIR}/06Jun04/wrfbdy_d01
- setenv INFILE_3 ${INDIR}/06Jun09/wrfbdy_d01
+ setenv INFILE_1 ${INDIR}/[add location of wrf input or output file]
+ setenv INFILE_2 ${INDIR}/[add location of wrf input or output file]
+ setenv INFILE_3 ${INDIR}/[add location of wrf input or output file]
 
- setenv OUTFILE ${OUTDIR}/APPENDWRF_wrfbdy_d01
+ setenv OUTFILE ${OUTDIR}/APPENDWRF_sample_file.ncf
+
 
 #> Executable call:
- /usr/bin/time $BINDIR/appendwrf.exe
+ ${BINDIR}/${EXEC}
 
- 
- date
+
  exit()
 
 
