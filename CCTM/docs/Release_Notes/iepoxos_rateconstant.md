@@ -4,7 +4,7 @@
 
 ## Brief Description
 
-IEPOX uptake to aqueous particles results in 2-methyltetrols, organosulfates, and other species. The organosulfate formation rate constant was updated to use the IEPOXOS:tetrol relative value from Piletic et al. (2013). Thus the aqueous organosulfate formation rate constant was updated to 8.83 x 10<sup>-3</sup> M<sup>-2</sup> s<sup>-1</sup>. We believe the old value was less accurate because it was based on nitrate and did not properly reflect the increased nucleophilic strength of sulfate vs water. This update was implmented in Pye et al. (2017).
+IEPOX uptake to aqueous particles results in 2-methyltetrols, organosulfates, and other species. The organosulfate formation rate constant was updated to use the IEPOXOS:tetrol relative value from Piletic et al. (2013). Thus the aqueous organosulfate formation rate constant was updated to 8.83 x 10<sup>-3</sup> M<sup>-2</sup> s<sup>-1</sup>. We believe the old value was less accurate because it was based on nitrate and did not properly reflect the increased nucleophilic strength of sulfate vs water. This update was implemented in Pye et al. (2017).
 
 
 ## Significance and Impact
