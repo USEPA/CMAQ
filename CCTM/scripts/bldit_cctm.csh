@@ -31,7 +31,7 @@
  endif
  
 #> Source the config.cmaq file to set the build environment
- source ./config.cmaq
+ source ./config_cmaq.csh
 
  set echo
 

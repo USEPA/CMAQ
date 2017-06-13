@@ -19,17 +19,17 @@
 #> Default Assumed Tree Structure:
 #>   CMAQv5.2 (Origin / Working Directory )
 #>     --> CMAQ_REPO (Source Code Repository )
-#>     --> config.cmaq.csh
-#>     --> bldit.cctm.csh
-#>     --> run.cctm.csh
+#>     --> config_cmaq.csh
+#>     --> bldit_cctm.csh
+#>     --> run_cctm.csh
 #>     --> BLD_CCTM... (CCTM Build Directories)
 #>          --> Source code, object files
 #>          --> Makefile
 #>     --> tools
 #>          --> bldmake
 #>          --> combine
-#>              bldit.combine.csh
-#>              run.combine.csh
+#>              bldit_combine.csh
+#>              run_combine.csh
 #>              --> BLD_COMBINE... (Combine Build Directories)
 #>     --> lib (links to libraries created by config.cmaq)
 #>

@@ -37,7 +37,7 @@
 
 #> Source the config.cmaq file to set the build environment
  cd ../../
- source ./config.cmaq
+ source ./config_cmaq.csh
  cd tools/combine
 
 #> Source Code Repository

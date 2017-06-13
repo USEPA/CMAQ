@@ -54,7 +54,7 @@
 #> Choose compiler and set up CMAQ environment with correct 
 #> libraries using config.cmaq. Options: intel | gcc | pgi
  setenv compiler intel 
- source config.cmaq
+ source config_cmaq.csh
 
 #> Set General Parameters for Configuring the Simulation
  set VRSN      = v52               #> Code Version
