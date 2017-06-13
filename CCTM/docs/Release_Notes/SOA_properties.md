@@ -4,7 +4,7 @@
 
 ## Brief Description
 
-Several properties of semivolatile SOA species (aerosol and nonreactives) were updated: number of carbon atoms per molecule, density, organic-mass-to-organic-carbon (OM/OC) ratio (now in species definition file), and molecular weights. In addition, unique dry and wet deposition surrogates were implemented for each semivolatile species. See Pye et al. (2016) for how updated properties were determined.
+Several properties of semivolatile SOA species (aerosol and nonreactives) were updated: number of carbon atoms per molecule, density, organic-mass-to-organic-carbon (OM/OC) ratio (now in species definition file), and molecular weights. In addition, unique dry and wet deposition surrogates were implemented for each semivolatile species. See Pye et al. (2017) for how updated properties were determined.
 
 ## Significance and Impact
 
@@ -29,7 +29,7 @@ MECHS/\*/mech.def
 
 ## References
 
-Pye, H. O. T., Murphy, B. N., Xu, L., Ng, N. L., Carlton, A. G., Guo, H., Weber, R., Vasilakos, P., Appel, K. W., Budisulistiorini, S. H., Surratt, J. D., Nenes, A., Hu, W., Jimenez, J. L., Isaacman-VanWertz, G., Misztal, P. K., and Goldstein, A. H.: On the implications of aerosol liquid water and phase separation for organic aerosol mass, Atmos. Chem. Phys. Discuss., doi:10.5194/acp-2016-719, in review, 2016. [link](http://www.atmos-chem-phys-discuss.net/acp-2016-719/)
+Pye, H. O. T., Murphy, B. N., Xu, L., Ng, N. L., Carlton, A. G., Guo, H., Weber, R., Vasilakos, P., Appel, K. W., Budisulistiorini, S. H., Surratt, J. D., Nenes, A., Hu, W., Jimenez, J. L., Isaacman-VanWertz, G., Misztal, P. K., and Goldstein, A. H.: On the implications of aerosol liquid water and phase separation for organic aerosol mass, Atmos. Chem. Phys., 17, 343-369, doi:10.5194/acp-17-343-2017, 2017. [link](http://www.atmos-chem-phys.net/17/343/2017/)
 
 -----
 ## Internal Records:
