@@ -24,7 +24,7 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~ End EPA ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #> Model source code repository location
- setenv CMAQ_HOME $cwd   #This is working directory where the scripts
+ setenv CMAQ_WORK $cwd   #This is working directory where the scripts
                          #will create links to libraries and folders
                          #for build directories, etc. The default is 
                          #to make this folder one level higher than the 

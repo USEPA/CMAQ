@@ -46,8 +46,6 @@
  setenv REPOROOT $CCTM_SRC
 
 #> Working directory and Version IDs
- set Origin  = $cwd                    #> location of bldit script. The BLD_* directory will be 
-                                       #> under this location
  set VRSN  = v52                       #> model configuration ID
  set EXEC  = CCTM_${VRSN}.exe          #> executable name
  set CFG   = CCTM_${VRSN}.cfg          #> configuration file name
@@ -117,7 +115,7 @@ set ParOpt                             #> uncomment to build a multiple processo
  set FC = ${myFC}                      #> path of Fortan compiler; set in config.cmaq
  set FP = $FC                          #> path of Fortan preprocessor; set in config.cmaq
  set CC = ${myCC}                      #> path of C compiler; set in config.cmaq
- set BLDER = $Origin/tools/bldmake/BLDMAKE_${compiler} #> location of model builder executable
+ set BLDER = $CMAQ_WORK/tools/bldmake/BLDMAKE_${compiler} #> location of model builder executable
 
 #> Libraries/include files
 # set LIOAPI   = "${IOAPI_DIR}/lib ${ioapi_lib}"      #> I/O API library directory
@@ -238,7 +236,7 @@ set ParOpt                             #> uncomment to build a multiple processo
 
 #> Set and create the "BLD" directory for checking out and compiling 
 #> source code. Move current directory to that build directory.
- set Bld = $Origin/BLD_CCTM_${VRSN}_${compiler}
+ set Bld = $CMAQ_WORK/BLD_CCTM_${VRSN}_${compiler}
  if ( ! -e "$Bld" ) then
     mkdir $Bld
  else
@@ -527,7 +525,7 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  if ( $?CompileBLDMAKE || ! -f $BLDER ) then
 
     #> Create a Tools Directory in which to keep BLDMAKE
-    cd $Origin
+    cd $CMAQ_WORK
     if ( ! -d tools/bldmake ) mkdir -pv tools/bldmake
 
     #> Copy all BLDMAKE files from the CMAQ Repo if none exist in
@@ -541,8 +539,8 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
     rm *.o *.mod $BLDER
 
     #> Set BLDER to Default Path
-    set BLDEXE = "BLDMAKE_${compiler}"
-    set BLDDIR = "$Origin/tools/bldmake"
+    set BLDEXE = "bldmake_${compiler}"
+    set BLDDIR = "$CMAQ_WORK/tools/bldmake"
     set BLDER  = "${BLDDIR}/${BLDEXE}"
 
     #> Compile BLDMAKE source code

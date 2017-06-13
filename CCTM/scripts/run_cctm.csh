@@ -70,12 +70,12 @@
 
 #> Set the build directory (this is where the CMAQ executable
 #> is located by default).
- set BLD      = ${CMAQ_HOME}/BLD_CCTM_${VRSN}_${compiler}
+ set BLD      = ${CMAQ_WORK}/BLD_CCTM_${VRSN}_${compiler}
  set EXEC     = CCTM_${VRSN}.exe  
  cat $BLD/CCTM_${VRSN}.cfg; echo "    "; set echo
 
 #> Set Working, Input, and Output Directories
- setenv WORKDIR ${CMAQ_HOME}       #> Working Directory. Where the runscript is.
+ setenv WORKDIR ${CMAQ_WORK}       #> Working Directory. Where the runscript is.
  setenv INPDIR  /work/MOD3DEV/cmaq_benchmark/SE52BENCH/single_day/cctm_input #> Input Directory
  setenv OUTDIR  ${WORKDIR}/output_CCTM_${RUNID}     #> Output Directory
  setenv LOGDIR  ${OUTDIR}          #> Log Directory Location
@@ -108,7 +108,7 @@ endif
 #> Vertical extent
 set NZ         = 35
 
-#setenv LOGFILE $CMAQ_HOME/$RUNID.log  #> log file name; uncomment to write standard output to a log, otherwise write to screen
+#setenv LOGFILE $CMAQ_WORK/$RUNID.log  #> log file name; uncomment to write standard output to a log, otherwise write to screen
 
 setenv GRID_NAME SE52BENCH         #> check GRIDDESC file for GRID_NAME options
 setenv GRIDDESC $INPDIR/GRIDDESC   #> grid description file

@@ -48,11 +48,10 @@
 #===============================================================================
 
 #> User choices: working directory and application ID
- set Origin   = $CMAQ_HOME                 #> top-level CMAQ directory
  set CMB_HOME = $cwd                       #> working directory
- set APPL     = v52                        #> model configuration ID
- set EXEC     = COMBINE_${APPL}.exe        #> executable name for this application
- set CFG      = COMBINE_${APPL}.cfg        #> BLDMAKE configuration file name
+ set VRSN     = v52                        #> model version
+ set EXEC     = combine_${VRSN}.exe        #> executable name for this application
+ set CFG      = combine_${VRSN}.cfg        #> BLDMAKE configuration file name
  set BLDER    = ${CMB_HOME}/BLDMAKE_${compiler} #> location of makefile builder executable 
 
 #> user choice: copy source files
@@ -93,7 +92,7 @@
 #> Set up the combine build directory under the Tools directory
 #> for checking out and compiling source code
 #============================================================================================
- set Bld = ${CMB_HOME}/BLD_COMBINE_${APPL}_${compiler}
+ set Bld = ${CMB_HOME}/BLD_combine_${VRSN}_${compiler}
 
  if ( ! -e "$Bld" ) then
     mkdir -pv $Bld
@@ -166,7 +165,7 @@
   if ( $?CompileBLDMAKE || ! -f $BLDER ) then
 
      #> Create a Tools Directory in which to keep BLDMAKE
-     cd $Origin
+     cd $CMAQ_WORK
      if ( ! -d tools/bldmake ) mkdir -pv tools/bldmake
 
      #> Copy all BLDMAKE files from the CMAQ Repo if none exist in
@@ -180,8 +179,8 @@
      rm *.o *.mod $BLDER
    
      #> Set BLDER to Default Path
-     set BLDEXE = "BLDMAKE_${compiler}"
-     set BLDDIR = "$Origin/tools/bldmake"
+     set BLDEXE = "bldmake_${compiler}"
+     set BLDDIR = "$CMAQ_WORK/tools/bldmake"
      set BLDER  = "${BLDDIR}/${BLDEXE}"
    
      #> Compile BLDMAKE source code
