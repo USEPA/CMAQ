@@ -337,8 +337,8 @@ C                          '12345678901234567890'
                            pHfac1 = 10.0 ** (-pHs1( c,r,l ) )
                            pHfac2 = 10.0 ** (-pHs2( c,r,l ) )
                         Else
-                           pHfac1 = 0.0
-                           pHfac2 = 0.0
+                           pHfac1 = 1.0
+                           pHfac2 = 1.0
                         End If
 ! convert units from kg/ha N to mol/l
                         If ( pHs1( c,r,l )   .Gt. 4.0       .And.
@@ -445,11 +445,9 @@ C                          '12345678901234567890'
                            pHfac1 = 10.0 ** (-pHs1( c,r,l ) )
                            pHfac2 = 10.0 ** (-pHs2( c,r,l ) )
                         Else
-                           pHfac1 = 0.0
-                           pHfac2 = 0.0
+                           pHfac1 = 1.0
+                           pHfac2 = 1.0
                         End If
-                     !pHfac1 = 10.0 ** (-pHs1( c,r,l ) )
-                     !pHfac2 = 10.0 ** (-pHs2( c,r,l ) )
 ! convert units from kg/ha N to mol/l 
                      If ( Index( Beld_Names( l ), '_ir' ) .Gt. 0 ) Then
                         frac_ir( c,r ) = frac_ir( c,r ) + Beld_ag( c,r,l )
