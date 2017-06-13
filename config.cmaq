@@ -49,7 +49,7 @@
 #> Also, if compiled for running w/ parallel_io, pnetcdf-1.4.1/intel-13.1
 #> module load intel/15.0 netcdf-4.3.2/intel-15.0 openmpi-1.10.2/intel-15.0
        setenv compiler_ext ifort
-       setenv myFC mpifort
+       setenv myFC mpiifort
        setenv myCC icc
        setenv myFSTD "-O3 -fno-alias -mp1 -fp-model source -mcmodel=medium -shared-intel"
        setenv myDBG  "-g -check bounds -check uninit -fpe0 -fno-alias -ftrapuv -traceback"
