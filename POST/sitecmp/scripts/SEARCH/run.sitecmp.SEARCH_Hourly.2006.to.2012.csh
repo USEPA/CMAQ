@@ -1,31 +1,39 @@
 #! /bin/csh -f
 
-# ===================== SITECMP_v5.1 Run Script =====================
-# Usage: run.sitecmp >&! sitecmp_V51.log &
+# ===================== SITECMP_v5.2 Run Script =====================
+# Usage: run.sitecmp.csh >&! sitecmp_V52.log &
 #
 # To report problems or request help with this script/program:
+#             http://www.epa.gov/cmaq    (EPA CMAQ Website)
 #             http://www.cmascenter.org
 # ===================================================================
 
-#> Source the config.cmaq file to set the run environment
- source ../../config.cmaq
 
-#> Check that M3DATA is set: 
- if ( ! -e $M3DATA ) then
-    echo "   $M3DATA path does not exist"
-    exit 1
-    endif
- echo " "; echo " Input data path, M3DATA set to $M3DATA"; echo " "
+# ~~~~~~~~~~~~~~~~~~~~~~~~ Start EPA ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+#> Portable Batch System - The following specifications are 
+#> recommended for executing the runscript on the cluster at the 
+#> National Computing Center used primarily by EPA.
+#PBS -N run.sitecmp.csh
+#PBS -l walltime=1:30:00
+#PBS -l nodes=login
+#PBS -q singlepe 
+#PBS -V
+#PBS -m n
+#PBS -j oe
+#PBS -o ./sitecmp.log
 
- set APPL = D51a
- set EXEC = SITECMP_${APPL}_$EXEC_ID
+#> Configure the system environment
+# source /etc/profile.d/modules.csh 
+#> Set location of combine executable.
+# setenv BINDIR /home/css/CMAQ-Tools/scripts/sitecmp
+#
+# ~~~~~~~~~~~~~~~~~~~~~~~~~ End EPA ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#> Set the working directory
- set BASE  = $cwd      
-#set BASE  = $M3HOME/scripts/sitecmp
- set BLD   = ${BASE}/BLD_$APPL
 
- cd $BASE; date; set timestamp; cat $BASE/cfg.${APPL}; echo " "; set echo
+# ==================================================================
+#> Runtime Environment Options
+# ==================================================================
 
 #> Set TABLE TYPE
  setenv TABLE_TYPE CASTNET
@@ -70,10 +78,15 @@
 #>> End Species List <<#
 
 #> define time window
- setenv START_DATE 2011182
- setenv END_DATE   2011213  
+ setenv SDATE = "2011-07-1"    #> beginning date (July 1, 2011)
+ setenv EDATE   = "2011-07-2"  #> ending date    (July 2, 2011)
  setenv START_TIME 0      
  setenv END_TIME   230000   
+
+#> Convert SDATE and EDATE to Julian day.
+#> (required format for sitecmp START_DATE and END_DATE environment variables)
+ setenv START_DATE `date -ud "${SDATE}" +%Y%j`
+ setenv END_DATE `date -ud "${EDATE}" +%Y%j` 
 
 #> define the PRECIP variable
  setenv PRECIP RT
@@ -91,31 +104,37 @@
 #> This should only be non-zero if the M3_FILE_n files were pre-processed with a utility like m3tshift (default 0).
  setenv TIME_SHIFT 0
 
-
-
-
 #############################################################
 #  Input files
 #############################################################
 
 #> ioapi input files containing VNAMES (max of 10)
- setenv M3_FILE_1 $M3DATA/cctm/CCTM_${APPL}_Linux2_x86_64intel_COMBINE_ACONC.CMAQ51-BENCHMARK_20110701
+ setenv M3_FILE_1 [Add location of input file, e.g. COMBINE_ACONC file.]
 
 #> SITE FILE containing site-id, longitude, latitude, time zone (tab delimited)
- setenv SITE_FILE $M3DATA/obs_data/site_files/SEARCH_sites.txt
+#> This file can be downloaded from the CMAS Center Data clearinghouse 
+#> under the heading "2000-2014 North American Air Quality Observation Data":
+#> https://www.cmascenter.org/download/data.cfm
+#> AQS site file is located in AMET12_SITE_FILES.tar.gz
+ setenv SITE_FILE SEARCH_sites.txt
 
 #> input table containing site-id, time-period, and data fields
- setenv IN_TABLE $M3DATA/obs_data/2011/SEARCH_hourly_data_2011.csv
+#> AQS obs data in the format needed for sitecmp are available 
+#> from the CMAS Center Data clearinghouse under the heading "2000-2014 North American Air Quality Observation Data":
+#> https://www.cmascenter.org/download/data.cfm
+#> Hourly AQS observations are located in AMET12_OBSDATA_YYYY.tar.gz for year YYYY.
+ setenv IN_TABLE SEARCH_hourly_data_2011.csv
 
 #############################################################
 #  Output files
 #############################################################
 
 #> output table (comma delimited text file importable to Excel)
- setenv OUT_TABLE SERACH_Hourly_CMAQ_v51.csv
+ setenv OUT_TABLE SEARCH_Hourly_CMAQ_v52.csv
 
 #> Executable call:
-   /usr/bin/time $BLD/$EXEC
- 
- date
+ ${BINDIR}/${EXEC}
+   
  exit()
+
+
