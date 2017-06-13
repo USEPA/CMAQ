@@ -39,7 +39,10 @@
 #> Choose compiler and set up CMAQ environment with correct 
 #> libraries using config.cmaq. Options: intel | gcc | pgi
  setenv compiler intel 
- source config.cmaq
+ source ../../config.cmaq
+
+#> Set the model version
+ set VRSN = v52
 
 #> Set General Parameters for Labeling the Simulation
  set MECH = cb6r3_ae6_aq          #> Mechanism ID
@@ -48,11 +51,11 @@
 #> Set the build directory if this was not set above 
 #> (this is where the CMAQ executable is located by default).
  if ( ! -e $BINDIR ) then
-  setenv BINDIR $CMAQ_HOME/Tools/Combine/BLD_COMBINE_${compiler}
+  setenv BINDIR $CMAQ_HOME/Tools/Combine/BLD_combine_${VRSN}_${compiler}
  endif
 
 #> Set the name of the executable.
- setenv EXEC combine.exe
+ setenv EXEC combine_${VRSN}.exe
 
 #> Set location of CMAQ repo.  This will be used to point to the correct species definition files.
   setenv REPO_HOME  [Add location of CMAQv5.2 repository here]

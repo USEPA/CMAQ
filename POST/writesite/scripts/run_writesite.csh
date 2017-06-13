@@ -36,16 +36,19 @@
 #> Choose compiler and set up CMAQ environment with correct 
 #> libraries using config.cmaq. Options: intel | gcc | pgi
  setenv compiler intel 
- source config.cmaq
+  source ../../config.cmaq
+
+#> Set the model version
+ set VRSN = v52
 
 #> Set the build directory if this was not set above 
 #> (this is where the executable is located by default).
  if ( ! -e ${BINDIR} ) then
-  setenv BINDIR ${CMAQ_HOME}/Tools/writesite/WRITESITE_${compiler}
+  setenv BINDIR ${CMAQ_WORK}/Tools/writesite/BLD_writesite_${VRSN}_${compiler}
  endif
 
 #> Set the name of the executable.
- setenv EXEC writesite.exe
+ setenv EXEC writesite_${VRSN}.exe
 
 #> Set location of CMAQ repo.  This will be used to point to the time zone file
 #> needed to run bldoverlay.  The v5.2 repo also contains a sample SITE_FILE text file.

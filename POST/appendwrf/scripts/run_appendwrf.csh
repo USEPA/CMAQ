@@ -37,16 +37,19 @@
 #> Choose compiler and set up CMAQ environment with correct 
 #> libraries using config.cmaq. Options: intel | gcc | pgi
  setenv compiler intel 
- source config.cmaq
+ source ../../config.cmaq
+
+#> Set the model version
+ set VRSN = v52
 
 #> Set the build directory if this was not set above 
 #> (this is where the executable is located by default).
  if ( ! -e ${BINDIR} ) then
-  setenv BINDIR ${CMAQ_HOME}/Tools/appendwrf/APPENDWRF_${compiler}
+  setenv BINDIR ${CMAQ_WORK}/Tools/appendwrf/BLD_appendwrf_${VRSN}_${compiler}
  endif
 
 #> Set the name of the executable.
- setenv EXEC appendwrf.exe
+ setenv EXEC appendwrf_${VRSN}.exe
 
 #> Set input and output directories
  set INDIR  = [Add location of input directory]
@@ -64,7 +67,7 @@
  setenv INFILE_2 ${INDIR}/[add location of wrf input or output file]
  setenv INFILE_3 ${INDIR}/[add location of wrf input or output file]
 
- setenv OUTFILE ${OUTDIR}/APPENDWRF_sample_file.ncf
+ setenv OUTFILE ${OUTDIR}/APPENDWRF_sample_file.nc
 
 
 #> Executable call:

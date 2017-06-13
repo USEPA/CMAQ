@@ -38,16 +38,19 @@
 #> Choose compiler and set up CMAQ environment with correct 
 #> libraries using config.cmaq. Options: intel | gcc | pgi
  setenv compiler intel 
- source config.cmaq
+ source ../../config.cmaq
 
+#> Set the model version
+
+ set VRSN = v52
 #> Set the build directory if this was not set above 
 #> (this is where the bldoverlay executable is located by default).
  if ( ! -e ${BINDIR} ) then
-  setenv BINDIR ${CMAQ_HOME}/Tools/block_extract/BLOCK_EXTRACT_${compiler}
+  setenv BINDIR ${CMAQ_HOME}/Tools/block_extract/BLD_block_extract_${VRSN}_${compiler}
  endif
 
 #> Set the name of the executable.
- setenv EXEC block_extract.exe
+ setenv EXEC block_extract_${VRSN}.exe
 
 # =====================================================================
 #> BLOCK_EXTRACT Configuration Options

@@ -1,7 +1,7 @@
 #! /bin/csh -f
 
 # ===================== SITECMP_DAILYO3_v5.2 Run Script =============
-# Usage: run.sitecmp_dailyo3_CASTNET.csh >&! sitecmp_dailyo3_V52.log &
+# Usage: run.sitecmp_dailyo3_AQS.csh >&! sitecmp_dailyo3_V52.log &
 #
 # To report problems or request help with this script/program:
 #             http://www.epa.gov/cmaq    (EPA CMAQ Website)
@@ -38,16 +38,19 @@
 #> Choose compiler and set up CMAQ environment with correct 
 #> libraries using config.cmaq. Options: intel | gcc | pgi
  setenv compiler intel 
- source config.cmaq
+ source ../../config.cmaq
+
+#> Set the model version
+ set VRSN = v52
 
 #> Set the build directory if this was not set above 
 #> (this is where the executable is located by default).
  if ( ! -e ${BINDIR} ) then
-  setenv BINDIR ${CMAQ_HOME}/Tools/sitecmp_dailyo3/SITECMP_DAILYO3_${compiler}
+  setenv BINDIR ${CMAQ_WORK}/Tools/sitecmp_dailyo3/BLD_sitecmp_dailyo3_${VRSN}_${compiler}
  endif
 
 #> Set the name of the executable.
- setenv EXEC sitecmp_dailyo3.exe
+ setenv EXEC sitecmp_dailyo3_${VRSN}.exe
 
 
 # =====================================================================
@@ -58,19 +61,24 @@
  setenv IOAPI_ISPH 20
 
 #> define obs species 
- setenv OBS_SPECIES OZONE
+ setenv OBS_SPECIES O3
 
 #> define model species
  setenv OZONE "1*O3,ppb"
 
 #> Ozone convert factor (ppm to ppb)
- setenv OBS_FACTOR "1"        # Multiply by 1000 to convert ppm to ppb
+ setenv OBS_FACTOR "1"    # Multiply by 1000 to convert ppm to ppb
 
 #> define time window
- setenv START_DATE 2011182
- setenv END_DATE   2011213  
+ setenv SDATE = "2011-07-1"    #> beginning date (July 1, 2011)
+ setenv EDATE   = "2011-07-2"  #> ending date    (July 2, 2011)
  setenv START_TIME 0      
  setenv END_TIME   230000   
+
+#> Convert SDATE and EDATE to Julian day.
+#> (required format for sitecmp START_DATE and END_DATE environment variables)
+ setenv START_DATE `date -ud "${SDATE}" +%Y%j`
+ setenv END_DATE `date -ud "${EDATE}" +%Y%j` 
 
 #> Number of 8hr values to use when computing daily maximum 8hr ozone.
 #> Allowed values are 24 (use all 8-hr averages with starting hours 
@@ -89,10 +97,8 @@
 #> This should only be non-zero if the M3_FILE_n files were pre-processed with a utility like m3tshift (default 0).
  setenv TIME_SHIFT 0
 
-#> indicate whether or not to check QA flag
- setenv QA_FLAG_CHECK Y 
- setenv QA_FLAG_HEADER "OZONE_F" 
- setenv QA_FLAG_VALUES "BCDFIMP" 
+#> indicate whether or not to check QA flag 
+ setenv QA_FLAG_CHECK N  
 
 #> set missing value string
  setenv MISSING '-999'
@@ -112,24 +118,25 @@
 #> This file can be downloaded from the CMAS Center Data clearinghouse 
 #> under the heading "2000-2014 North American Air Quality Observation Data":
 #> https://www.cmascenter.org/download/data.cfm
-#> CASTNET site file is located in AMET12_SITE_FILES.tar.gz
- setenv SITE_FILE CASTNET_sites.txt
+#> AQS site file is located in AMET12_SITE_FILES.tar.gz
+ setenv SITE_FILE AQS_sites.txt
 
 #> input table containing site-id, time-period, and data fields
-#> CASTNET obs data in the format needed for sitecmp_dailyo3 are available 
+#> AQS obs data in the format needed for sitecmp_dailyo3 are available 
 #> from the CMAS Center Data clearinghouse under the heading "2000-2014 North American Air Quality Observation Data":
 #> https://www.cmascenter.org/download/data.cfm
-#> Hourly CASTNET observations are located in AMET12_OBSDATA_YYYY.tar.gz for year YYYY.
- setenv IN_TABLE CASTNET_hourly_data_2011.csv
+#> Hourly AQS observations are located in AMET12_OBSDATA_YYYY.tar.gz for year YYYY.
+ setenv IN_TABLE AQS_hourly_data_2011.csv
 
 #############################################################
 #  Output files
 #############################################################
 
 #> output table (comma delimited text file importable to Excel)
- setenv OUT_TABLE CASTNET_Daily_CMAQ_v52.csv
+ setenv OUT_TABLE AQS_Daily_CMAQ_${VRSN}.csv
+
 
 #> Executable call:
  ${BINDIR}/${EXEC}
- 
+
  exit()
