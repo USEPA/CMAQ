@@ -28,10 +28,10 @@ The directories under $CMAQ_HOME/CCTM/src/gas contain the Fortran source codes f
 ## CMAQ v5.2 Mechanism Listing
 The table below lists the chemistry mechanisms available in CMAQ v5.2.  The entries in the MECHS Module column correspond to the `Mechanism` setting in the CMAQ build scripts. The entries in this column link to documentation for each mechanism.   The next two columns in the table define the aerosol and cloud modules that are compatible with each mechanism. The last column links to the mechanism definition, showing the details of the stoichiometry and kinetics of each mechanism.
 
-|**MECHS Module**|**Aerosol Module**|**Cloud Module**|**Mechanism Definition**|
-|---|---|---|---|
-| [cb05e51_ae6_aq](https://www.airqualitymodeling.org/index.php/CMAQ_v5.1_CB05_updates) | aero6 | acm_ae6 or acm_ae6_kmt|[mech_cb05e51_ae6_aq.def](https://github.com/USEPA/CMAQ/blob/5.2Beta/CCTM/src/MECHS/cb05e51_ae6_aq/mech_cb05e51_ae6_aq.def)|
-| [cb05e51_ae6nvPOA_aq](https://github.com/CMASCenter/EPA-CMAQ/blob/5.2Beta/CCTM/docs/Release_Notes/SemiVolPOA_pcSOA.md) | aero6 | acm_ae6 or acm_ae6_kmt|[mech_cb05e51_ae6nvPOA_aq.def](https://github.com/USEPA/CMAQ/blob/5.2Beta/CCTM/src/MECHS/cb05e51_ae6nvPOA_aq/mech_cb05e51_ae6nvPOA_aq.def) |
+|**MECHS Module**|**Aerosol Module**|**Cloud Module**|**Mechanism Definition**|**Species Table**|
+|---|---|---|---|---|
+| [cb05e51_ae6_aq](https://www.airqualitymodeling.org/index.php/CMAQ_v5.1_CB05_updates) | aero6 | acm_ae6 or acm_ae6_kmt|[mech_cb05e51_ae6_aq.def](../../src/MECHS/cb05e51_ae6_aq/mech_cb05e51_ae6_aq.def)|[cb05e51_ae6_aq_species_table](../../../DOCS/User_Manual/Appendix_A/cb05e51_ae6_aq/cb05e51_ae6_aq_species_table.md)
+| [cb05e51_ae6nvPOA_aq](SemiVolPOA_pcSOA.md) | aero6 | acm_ae6 or acm_ae6_kmt|[mech_cb05e51_ae6nvPOA_aq.def](../../src/MECHS/cb05e51_ae6nvPOA_aq/mech_cb05e51_ae6nvPOA_aq.def) |
 | [cb05eh51_ae6_aq](https://github.com/CMASCenter/EPA-CMAQ/blob/5.2Beta/CCTM/docs/Release_Notes/Halogen_Chemistry.md) | aero6 | acm_ae6 or acm_ae6_kmt| [mech_cb05eh51_ae6_aq.def](https://github.com/USEPA/CMAQ/blob/5.2Beta/CCTM/src/MECHS/cb05eh51_ae6_aq/mech_cb05eh51_ae6_aq.def) |
 | [cb05mp51_ae6_aq](https://www.airqualitymodeling.org/index.php/CMAQ_v5.1_cb05mp51_ae6_aq) | aero6 | acm_ae6_mp|[cb05mp51_ae6_aq.def](https://github.com/USEPA/CMAQ/blob/5.2Beta/CCTM/src/MECHS/cb05mp51_ae6_aq/cb05mp51_ae6_aq.def) |
 | cb05tucl_ae6_aq [v5.0](https://www.airqualitymodeling.org/index.php/CMAQv5.0_Chemistry_Notes#CB05TUCL) [v5.1](https://www.airqualitymodeling.org/index.php/CMAQ_v5.1_CB05_updates#CB05tucl_Mechanism_Updates) | aero6 | acm_ae6 or acm_ae6_kmt|[mech_cb05tucl_ae6_aq.def](https://github.com/USEPA/CMAQ/blob/5.2Beta/CCTM/src/MECHS/cb05tucl_ae6_aq/mech_cb05tucl_ae6_aq.def) |
