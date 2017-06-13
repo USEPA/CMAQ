@@ -29,7 +29,7 @@
                          #for build directories, etc. The default is 
                          #to make this folder one level higher than the 
                          #top level of your CMAQ repo.
- setenv CMAQ_REPO ${CMAQ_HOME}/CMAQ_REPO
+ setenv CMAQ_REPO ${CMAQ_WORK}/CMAQ_REPO
 
 #===============================================================================
 #> architecture & compiler specific settings
