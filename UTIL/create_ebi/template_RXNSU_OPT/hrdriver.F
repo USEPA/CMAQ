@@ -24,7 +24,7 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
        SUBROUTINE CHEM( CGRID, JDATE, JTIME, TSTEP )
-
+soli-restore_cb05tucl_mechanism
 C**********************************************************************
 C
 C  FUNCTION: Driver subroutine for Euler Backward Iterative solver
@@ -88,8 +88,9 @@ C..Arguments:
       INTEGER TSTEP( 3 )      ! Time step vector (HHMMSS)
 
 C..Parameters:
-      REAL, PARAMETER :: CONCMIN = 1.0E-30               ! minimum species concentration allowed
-      REAL, PARAMETER :: MAOMV   = 1.0E6 * MWAIR / MWWAT ! Mol Wt of air over Mol Wt of water times 1.0E6
+      REAL( 8 ), PARAMETER :: DCONMIN = 1.0D-30               ! minimum species concentration allowed
+      REAL,      PARAMETER :: CONCMIN = 1.0E-30               ! minimum species concentration allowed
+      REAL,      PARAMETER :: MAOMV   = 1.0E6 * MWAIR / MWWAT ! Mol Wt of air over Mol Wt of water times 1.0E6
 
 C..External Functions:
 
@@ -483,11 +484,11 @@ c..Call EBI solver
 c..Update concentration array
                DO SPC = 1, NUMB_MECH_SPC
                   S = CGRID_INDEX( SPC )
-                  IF( CONVERT_CONC( SPC ) )THEN 
-                      CGRID( C,R,L,S ) = MAX( REVERSE_CONV( SPC ) * DENS( C,R,L )
-     &                                 * REAL( YC( SPC ), 4), CONCMIN)
+                  IF( CONVERT_CONC( SPC ) )THEN
+                      CGRID( C,R,L,S ) = REAL( REVERSE_CONV( SPC ) * DENS( C,R,L )
+     &                                 * MAX( YC( SPC ), DCONMIN), 4)
                   ELSE
-                      CGRID( C,R,L,S ) = MAX( REAL( YC( SPC ), 4), CONCMIN)
+                      CGRID( C,R,L,S ) = REAL( MAX( YC( SPC ), DCONMIN), 4)
                   END IF
                END DO
 
