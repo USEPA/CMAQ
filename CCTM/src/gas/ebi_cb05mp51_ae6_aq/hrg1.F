@@ -30,11 +30,11 @@ C
 C  FUNCTION: To solve for the concentration of NO2, NO, O3, and O3P
 C            algebraically.
 C
-C  PRECONDITIONS: For the CB05MP51 family of mechanisms
+C  PRECONDITIONS: For the CB05mp51 family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, May 27, 2016
+C  REVISION HISTORY: Created by EBI solver program, May 26, 2017
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C**********************************************************************
