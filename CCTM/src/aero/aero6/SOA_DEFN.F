@@ -1388,8 +1388,14 @@ C Constrain caer to values between conmin and ctotf
 
            ! Calculate total change in OA Species Concentration
            dcaer( i ) = caer( i ) - caer0( i )  
+
+           If ( soa_aeroMap( i ) .Lt. 1 ) Cycle
+           indx = soa_aeroMap( i )
+
+           ! Sum the total aerosol mass of this compound across all
+           ! aerosol modes
            totaer = max( sum( aerospc_conc( indx,: ) , mask = 
-     &                   .NOT.aero_missing( indx,: ) ), conmin )
+     &                 .NOT.aero_missing( indx,: ) ), conmin )
     
            ! Transfer the semivolatile mass
            Do im = 1,2
@@ -1406,13 +1412,13 @@ C Constrain caer to values between conmin and ctotf
      &                + dcaer( i ) * GR3FRAC( i,im )
               End If
            End Do
-
         End Do  ! Partitioning Vapor Loop
  
       Else   ! threshold not exceeded; no material transferred to aerosol phase
         
         caer = 0.0
         Do i = 1, n_vapor
+            If ( soa_aeroMap( i ) .Lt. 1 ) Cycle
             indx = soa_aeroMap( i )
             aerospc_conc( indx, 1:n_mode ) = conmin
             Do im = 1, n_mode
