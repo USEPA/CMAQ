@@ -4,28 +4,23 @@
 
 ## Brief Description
 
-The CMAQv5.2 Two-Way Model is an online meteorology-chemistry model that simulates the two-way feedback between meteorology and chemistry in a single simulation. Coupled with the Weather Research Forecast Model version 3.8 (WRFv3.8), the CMAQv5.2 Two-Way Model, or WRF-CMAQ, simulates the interactions of estimated aerosol mass on incoming shortwave radiation.
+The new two-way coupled WRF-CMAQ model which is based on WRF 3.8 and CMAQ 5.2, is an online meteorology-chemistry model that simulates the two-way feedback between meteorology and chemistry. The feeback focuses on the interactions of estimated aerosol mass on incoming shortwave radiation.
 
-The current release of the WRF-CMAQ model supports only the RRTMG radiation scheme for short wave aerosol direct effect. It does not simulate the effects of aerosols on long wave radiation and cannot be used with the CAM radiation scheme. This release also uses a core-shell model to perform the aerosol optics calculation rather than the volume mixing technique used in the previous version of WRF-CMAQ. This version of the model also only supports the CB05 chemical mechanism and AE6 aerosol mechanism (cb05tucl_ae6_aq).
 
 ## Build Instructions
 
-A twoway model tarball, twoway.tar.gz, is required to construct the twoway. This file can be download at the ftp site: -A twoway model tarball, twoway.tar.gz, is required to construct the twoway. This file can be download at the ftp site ???. A build instruction is included. A build instruction is included.
+A twoway model tarball, twoway.tar.gz, is required to construct the twoway. This file can be download at ftp://newftp.epa.gov/exposure/CMAQ/V5_2/WRF-CMAQ_Coupled_Model/. A build instruction is included in this tarball under script subdirectory.
 
 
 ## Run Instructions
-A sample run script, run.wrf38_cctm52, and a test dataset can be found in the same ftp site. 
+A test dataset can be found in the same ftp site. A sample run script, twoway_model_run_script, is in the twoway.tar.gz under script subdirectory.
 
 ## WRF-CMAQ Input/Output Data
 
 The WRF-CMAQ benchmark data provide examples of the files needed to run the model. The general list of inputs required for WRF-CMAQ include,
 
-* REAL outputs
-required: wrfbdy, wrfinput, wrflowinp
-optional: wrffdda, wrfsfdda, wrfrstrt
-* CMAQ inputs
-required: emissions (CB05ae6 speciation), IC, BC, OMI, ocean file
-optional: lightning NOx, gridded landuse for inline biogenics and windblown dust
+* REAL outputs :: wrfbdy, wrflowinp, wrffdda, wrfsfdda, wrfrstrt
+* CMAQ inputs  :: emissions, IC, BC, OMI, ocean file
 
 WRF-CMAQ outputs standard WRF (wrfout) and CMAQ output files.
 

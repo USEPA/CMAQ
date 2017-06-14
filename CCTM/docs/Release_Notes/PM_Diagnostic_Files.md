@@ -4,7 +4,7 @@
 
 ## Brief Description
 
-This update computes an average value of various PM diagnostic variables that are defined in PMDIAG_DATA.F and four visibility diagnostic variables based on a time interval predefined by the user. It will follow the behaviour of ACONC file to output data to the top or bottom of the "hour".  
+This update allows for an average value of various PM diagnostic variables that are defined in PMDIAG_DATA.F and four visibility diagnostic variables based on a time interval predefined by the user. It will follow the behaviour of ACONC file to output data to the top or bottom of the "hour".  
 
  Options:  
   -- user can define a subset of PM diagnostic variables  
@@ -16,9 +16,6 @@ Name changes:
    -- AERODIAM to PMDIAG  
    -- CTM_AERDIAG to CTM_PMDIAG  
    -- AD1 to PMD1  
-   -- AD1file to PMD1file  
-
- * outck_bidi.q  
    -- AD1file to PMD1file  
 
  * aero_driver.F  
@@ -41,12 +38,7 @@ Misc:
 
  * run script  
    -- added AAV1file  
-   -- added APMD1file  
-
- * outck_bidi.q  
-   -- added CTM_AVIS_1  
-   -- added CTM_ADIAM_1  
-
+   -- added APMD1file   
 
 ## Significance and Impact
 
@@ -54,14 +46,22 @@ This update ensures consistency among the major output files for variables relat
 
 ## Affected Files:  
 
-run script  
-outck_bidi.q  
+run script   
 FILES_CTM.EXT  
 aero_driver.F  
 opadiam.F  
 opavis.F  
 AEROSOL_CHEMISTRY.F  
 PMDIAG_DATA.F  
+
+## Environment Variable:
+
+In order to output aerosol and/or visibility diagnotic file, you need to set envirnonment varialbes CTM_APMDIAG and CTM_AVISDIAG accordingly and both with default value N. Environment variable AVG_FILE_ENDTIME, which has default value N, is used to switch from top to bottom of hour. User can specify a particular layer range with environment variable APMDIAG_BLEV_ELEV. Here is a specific example:
+
+  setenv AVG_FILE_ENDTIME     Y
+  setenv CTM_APMDIAG          Y  
+  setenv CTM_AVISDIAG         Y 
+  setenv APMDIAG_BLEV_ELEV " 1 3"  
 
 
 ## References:
