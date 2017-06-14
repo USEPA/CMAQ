@@ -6,7 +6,7 @@
 
 In CMAQ v5.1, only saprc07tic_aero6i allowed for the formation of glyoxal (GLY) and methylglyoxal (MGLY) SOA in aqueous accumulation mode particles (AGLYJ).
  SOA from GLY+MGLY uptake onto particles was added to CB6. In addition, the uptake
-coefficient of MGLY was updated by scaling the uptake coefficient for GLY using the Henry's law coefficients to reflect the lower solubility of MGLY than GLY.
+coefficient of MGLY was updated by scaling the uptake coefficient for GLY using the Henry's law coefficients to reflect the lower solubility of MGLY than GLY. This was implemented in Pye et al. (2017).
 
 ## Significance and Impact
 
@@ -28,7 +28,7 @@ gas/ebi_saprc07tic_ae6i_aq/\*.F
 
 ## References
 
-NA
+Pye, H. O. T., Murphy, B. N., Xu, L., Ng, N. L., Carlton, A. G., Guo, H., Weber, R., Vasilakos, P., Appel, K. W., Budisulistiorini, S. H., Surratt, J. D., Nenes, A., Hu, W., Jimenez, J. L., Isaacman-VanWertz, G., Misztal, P. K., and Goldstein, A. H.: On the implications of aerosol liquid water and phase separation for organic aerosol mass, Atmos. Chem. Phys., 17, 343-369, doi:10.5194/acp-17-343-2017, 2017. [link](http://www.atmos-chem-phys.net/17/343/2017/)
 
 -----
 ## Internal Records:
