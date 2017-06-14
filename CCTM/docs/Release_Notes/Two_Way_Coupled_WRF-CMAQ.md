@@ -10,7 +10,7 @@ The current release of the WRF-CMAQ model supports only the RRTMG radiation sche
 
 ## Build Instructions
 
-A twoway model tarball, twoway.tar.gz, is required to construct the twoway. This file can be download at the ftp site ???. A build instruction is included.
+A twoway model tarball, twoway.tar.gz, is required to construct the twoway. This file can be download at the ftp site: -A twoway model tarball, twoway.tar.gz, is required to construct the twoway. This file can be download at the ftp site ???. A build instruction is included. A build instruction is included.
 
 
 ## Run Instructions

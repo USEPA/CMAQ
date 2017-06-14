@@ -95,7 +95,7 @@ CCTM can now do process analysis with Integrated Process Rates (IPR) and/or Inte
 The instrumented versions of CMAQv5.2 (e.g. CMAQ-DDM) will be release at a later date.
 
 ## Community Contributions
-None
+New code to allow for multiple fire emission input files was contributed by Dr. Yongtao Hu from Georgia Tech University.
 
 -----
 # Release Testing
