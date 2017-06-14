@@ -414,6 +414,9 @@ C determine if gas-phase IEPOX uptake occurs for the mechanism
                orgprod( 4 )%parent     = 'TOL'
                orgprod( 5 )%parent     = 'TOL'
                IEPOX_SOA_mechanism = .True.
+            Else If( INDEX(MECHNAME, 'CB05TUCL') .Gt. 0) Then
+               orgprod( 2 )%parent = 'XYLMN'
+               orgprod( 3 )%parent = 'XYLMN'
             Else If( INDEX(MECHNAME, 'CB05E51') .Gt. 0) Then
                orgprod( 2 )%parent = 'XYLMN'
                orgprod( 3 )%parent = 'XYLMN'
@@ -426,7 +429,7 @@ C determine if gas-phase IEPOX uptake occurs for the mechanism
                orgprod( 2 )%parent = 'XYLMN'
                orgprod( 3 )%parent = 'XYLMN'
                IEPOX_SOA_mechanism = .True.
-            Else If( INDEX( MECHNAME, 'CB05' ) .Eq. 0 ) Then
+            Else 
                xmsg =  'FATAL: The ' // MECHNAME // ' mechanism '
      &             // ' is not supported in this version of the model.'
      &             // ' Change CCTM build script to use a mechanism based on '

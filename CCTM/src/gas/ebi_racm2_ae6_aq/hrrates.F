@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the RACM2 family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, May 25, 2016
+C  REVISION HISTORY: Created by EBI solver program, May 26, 2017
 C
 C***********************************************************************
       USE HRDATA
