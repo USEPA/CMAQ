@@ -36,7 +36,9 @@
  endif
 
 #> Source the config.cmaq file to set the build environment
- source ./config.cmaq
+ cd ../../
+ source ./config_cmaq.csh
+ cd tools/combine
 
 #> Source Code Repository
  setenv REPOROOT ${CMAQ_REPO}/POST/combine  #> location of the source code for BLDMAKE
@@ -46,11 +48,11 @@
 #===============================================================================
 
 #> User choices: working directory and application ID
- set Origin = $cwd                       #> working directory
- set APPL   = v52                        #> model configuration ID
- set EXEC   = COMBINE_${APPL}.bin        #> executable name for this application
- set CFG    = cfg.$EXEC                  #> BLDMAKE configuration file name
- set BLDER  = $Origin/Tools/bldmake/BLDMAKE_${compiler} #> location of makefile builder executable 
+ set CMB_HOME = $cwd                       #> working directory
+ set VRSN     = v52                        #> model version
+ set EXEC     = combine_${VRSN}.exe        #> executable name for this application
+ set CFG      = combine_${VRSN}.cfg        #> BLDMAKE configuration file name
+ set BLDER    = ${CMB_HOME}/BLDMAKE_${compiler} #> location of makefile builder executable 
 
 #> user choice: copy source files
  set CopySrc         #> copy the source files into the BLD directory
@@ -90,7 +92,7 @@
 #> Set up the combine build directory under the Tools directory
 #> for checking out and compiling source code
 #============================================================================================
- set Bld = $Origin/Tools/Combine/BLD_COMBINE_${APPL}_${compiler}
+ set Bld = ${CMB_HOME}/BLD_combine_${VRSN}_${compiler}
 
  if ( ! -e "$Bld" ) then
     mkdir -pv $Bld
@@ -103,10 +105,16 @@
 
  cd $Bld
 
+#> Check for previous run
+ if ( -e "$Bld/${CFG}" ) then
+    echo "   >>> previous ${CFG} exists, re-naming to ${CFG}.old <<<"
+    mv $Bld/${CFG} $Bld/${CFG}.old
+ endif
+
 #============================================================================================
 #> Make the config file
 #============================================================================================
- set Cfile = $CFG
+ set Cfile = ${Bld}/$CFG
  set quote = '"'
 
  echo                                                               > $Cfile
@@ -140,7 +148,7 @@
 #echo "libraries   $quote$LIBS$quote;"                             >> $Cfile
  echo "ioapi       $quote$LIB2$quote;"                             >> $Cfile
  echo                                                              >> $Cfile
- echo "netcdf      $quote$netcdf_lib$quote;"                             >> $Cfile
+ echo "netcdf      $quote$netcdf_lib$quote;"                       >> $Cfile
 
  set text = "combine"
  echo "// options are" $text                                       >> $Cfile
@@ -157,22 +165,22 @@
   if ( $?CompileBLDMAKE || ! -f $BLDER ) then
 
      #> Create a Tools Directory in which to keep BLDMAKE
-     cd $Origin
-     if ( ! -d Tools/bldmake ) mkdir -pv Tools/bldmake
+     cd $CMAQ_WORK
+     if ( ! -d tools/bldmake ) mkdir -pv tools/bldmake
 
      #> Copy all BLDMAKE files from the CMAQ Repo if none exist in
-     #> Tools/bldmake already. If BLDMAKE won't compile, try erasing
-     #> the diles in Tools/bldmake so that this utility will copy new
+     #> tools/bldmake already. If BLDMAKE won't compile, try erasing
+     #> the diles in tools/bldmake so that this utility will copy new
      #> ones from the repo.
-     cp --no-clobber ${REPO_HOME}/UTIL/bldmake/src/* Tools/bldmake/
+     cp --no-clobber ${CMAQ_REPO}/UTIL/bldmake/src/* tools/bldmake/
 
      #> Clean BLDMAKE directory
-     cd Tools/bldmake
+     cd tools/bldmake
      rm *.o *.mod $BLDER
    
      #> Set BLDER to Default Path
-     set BLDEXE = "BLDMAKE_${compiler}"
-     set BLDDIR = "$Origin/Tools/bldmake/"
+     set BLDEXE = "bldmake_${compiler}"
+     set BLDDIR = "$CMAQ_WORK/tools/bldmake"
      set BLDER  = "${BLDDIR}/${BLDEXE}"
    
      #> Compile BLDMAKE source code
@@ -231,26 +239,5 @@
     echo "   *** failure in $Blder ***"
     exit 1
  endif
-
-#> CHeck for previous run
- if ( -e "$Origin/${CFG}" ) then
-    echo "   >>> previous ${CFG} exists, re-naming to ${CFG}.old <<<"
-    mv $Origin/${CFG} $Origin/${CFG}.old
- endif
-
-#> Do something with git
- #cd $REPOROOT
- #set brnch = `git branch`
- #unset echo
- #@ i = 0
- #while ( $i < $#brnch )
- #   @ i++
- #   if ( "$brnch[$i]" == "*" ) @ l = $i + 1
- #end
- #set rep = `echo $cwd | tr "/" "#"`
- #set rln = "repo:${rep},branch:${brnch[$l]},compiler:${compiler}"
- #set ref = $Bld/$rln
- #/bin/touch $ref
- #if ( -d $REPOROOT/branch ) /bin/cp $REPOROOT/branch/branch.* $Bld
 
  exit
