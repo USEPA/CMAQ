@@ -414,6 +414,9 @@ C determine if gas-phase IEPOX uptake occurs for the mechanism
                orgprod( 4 )%parent     = 'TOL'
                orgprod( 5 )%parent     = 'TOL'
                IEPOX_SOA_mechanism = .True.
+            Else If( INDEX(MECHNAME, 'CB05TUCL') .Gt. 0) Then
+               orgprod( 2 )%parent = 'XYLMN'
+               orgprod( 3 )%parent = 'XYLMN'
             Else If( INDEX(MECHNAME, 'CB05E51') .Gt. 0) Then
                orgprod( 2 )%parent = 'XYLMN'
                orgprod( 3 )%parent = 'XYLMN'
@@ -426,7 +429,7 @@ C determine if gas-phase IEPOX uptake occurs for the mechanism
                orgprod( 2 )%parent = 'XYLMN'
                orgprod( 3 )%parent = 'XYLMN'
                IEPOX_SOA_mechanism = .True.
-            Else If( INDEX( MECHNAME, 'CB05' ) .Eq. 0 ) Then
+            Else 
                xmsg =  'FATAL: The ' // MECHNAME // ' mechanism '
      &             // ' is not supported in this version of the model.'
      &             // ' Change CCTM build script to use a mechanism based on '
@@ -1171,12 +1174,12 @@ C Compute 3rd moment, 2nd moment. moment_conc arrays are wet
       m2wet_init( : ) = moment2_conc( 1:2 )
         
       GR3( :,: ) = 0.0
-      m0_init( : )    = moment0_conc( 1:2 )
-      m2wet_initD( : ) = DBLE( m2wet_init( 1:2 ) )
+      m0_init( : )    = Real( moment0_conc( 1:2 ), 8 )
+      m2wet_initD( : ) = Real( m2wet_init( 1:2 ), 8 )
 
       Do im = 1,2
         m1wet_init( im ) = m0_init( im ) * aeromode_diam( im ) * 
-     &                         exp( 0.5 * aeromode_lnsg( im ) ** 2 )
+     &                         exp( 0.5d0 * aeromode_lnsg( im ) ** 2.0d0 )
 
         Do i = 1, n_vapor
           If ( aero_missing( soa_aeroMap( i ),im ) ) Cycle
@@ -2042,7 +2045,7 @@ C    all dimensions now depend upon N only
       INTEGER I, IMAX, J, K
       REAL AAMAX, DUM, SUM, VV( N )
 
-      D = 1
+      D = 1.0
       DO I = 1, N
          AAMAX = 0.0
          DO J = 1, N

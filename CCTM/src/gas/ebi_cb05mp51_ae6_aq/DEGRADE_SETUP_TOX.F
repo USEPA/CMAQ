@@ -49,14 +49,19 @@ C.....INCLUDES:
 
 C..declare and define variables used by maps and data
 
-      CHARACTER(16), PARAMETER :: BLANK = ' '  ! default value for characters
+      INTEGER, PARAMETER :: N_REACT      = 30    ! number of  species being degraded
+      INTEGER, PARAMETER :: N_UNI_LOSS   = 1     ! Number of Unimolecular Loss Processes
+      INTEGER, PARAMETER :: N_BI_LOSS    = 5     ! Number of Bimolcular Loss processes
+      INTEGER, PARAMETER :: N_TRI_LOSS   = 2     ! Number of Bimolcular Loss processes
+      INTEGER, PARAMETER :: N_PHOTO_LOSS = 2     ! Number of Photolysis Loss processes
 
-      INTEGER :: N_REACT           ! Maxumim number of  species being degraded
-      INTEGER :: N_UNI_LOSS        ! Number of Unimolecular Loss Processes
-      INTEGER :: N_BI_LOSS         ! Number of Bimolcular Loss processes
-      INTEGER :: N_TRI_LOSS        ! Number of Bimolcular Loss processes
-      INTEGER :: N_PHOTO_LOSS      ! Number of Photolysis Loss processes
-      INTEGER :: N_PROCESSES       ! Total number of Loss processes
+! Total number of Loss processes      
+      INTEGER, PARAMETER :: N_PROCESSES  = N_UNI_LOSS
+     &                                   + N_BI_LOSS
+     &                                   + N_PHOTO_LOSS
+     &                                   + N_TRI_LOSS
+
+      CHARACTER(16), PARAMETER :: BLANK = ' '  ! default value for characters
 
       INTEGER, SAVE :: N_PHOTO_TAB    ! Number of photolysis rates in mechanism
       INTEGER, SAVE :: N_REACT_FOUND  ! Number ofreact species found in namelists
@@ -85,17 +90,17 @@ C..looping data
 
       REAL(8), ALLOCATABLE :: UNIRATE  ( :,: ) ! rate for unimolecular decay for react(i) [molecules/sec^1]
       REAL(8), ALLOCATABLE :: UNI_ACT  ( :,: ) ! activation energy for UNIRATE(I) [K]. Positive if exothermic
-      REAL,    ALLOCATABLE :: UNI_TEXP ( :,: ) ! exponent of Temperature
+      REAL(8), ALLOCATABLE :: UNI_TEXP ( :,: ) ! exponent of Temperature
       REAL,    ALLOCATABLE :: UNI_YIELD( :,: ) ! production yield
 
       REAL(8), ALLOCATABLE :: BIRATE  ( :,: )  ! degradation rates for bimolecular reactions,  [cm^3/(sec*molecules)]
       REAL(8), ALLOCATABLE :: BI_ACT  ( :,: )  ! activation energy for BIRATE(I) [K]. Positive if exothermic
-      REAL,    ALLOCATABLE :: BI_TEXP ( :,: )  ! exponent of Temperature
+      REAL(8), ALLOCATABLE :: BI_TEXP ( :,: )  ! exponent of Temperature
       REAL,    ALLOCATABLE :: BI_YIELD( :,: )  ! production yield
 
       REAL(8), ALLOCATABLE :: TRIRATE  ( :,: ) ! degradation rates for trimolecular reactions,  [cm^3/(sec*molecules)]
       REAL(8), ALLOCATABLE :: TRI_ACT  ( :,: ) ! activation energy for TRIRATE(I) [K]. Positive if exothermic
-      REAL,    ALLOCATABLE :: TRI_TEXP ( :,: ) ! exponent of Temperature
+      REAL(8), ALLOCATABLE :: TRI_TEXP ( :,: ) ! exponent of Temperature
       REAL,    ALLOCATABLE :: TRI_YIELD( :,: ) ! production yield
 
       REAL(8), ALLOCATABLE :: A_PHOTO    ( :,: ) ! multiplier of photolysis rates
@@ -103,6 +108,8 @@ C..looping data
 
       REAL(8), ALLOCATABLE :: RATE_CONST( :,: )
       REAL(8), ALLOCATABLE :: RATE_YIELD( :,: )
+
+      REAL(8)              :: EFFECTIVE_ZERO
 
 C..arrays to store indices to CGRID
 
@@ -254,11 +261,9 @@ C..Set up indices that point to concentrations in CGRID.
                      MARKER = NR_STRT
                      IF ( N == 0 ) THEN
 #ifdef verbose_gas                     
-                        WRITE( LOGDEV,* ) WNAME( 1:LEN_NAME ), ' is not '
+                        WRITE( LOGDEV,'(a)' ) TRIM( WNAME ), ' is not '
      &                       // 'in gas or nonreactive species table.'
      &                       // 'its loss processes not calculated '
-!                        CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-                        CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
 #endif                        
                         RXTANT_MAP( I ) = -1
                         CYCLE
@@ -481,10 +486,10 @@ C..set value in map
          WRITE( LOGDEV,* ) BLANK
 
 1000     FORMAT(A20,1X,A5,1X,A20,1X,2(A20,1X,A5,1X),A12,1X,A20,1X,A5)
-1100     FORMAT(A20,1X,I5,1X,A20,1X,2(21X,6X),E12.4,1X,A20,1X,I5)
-1200     FORMAT(A20,1X,I5,1X,A20,1X,A20,1X,I5,1X,21X,6X,E12.4,1X,A20,1X,I5)
-1300     FORMAT(A20,1X,I5,1X,A20,1X,2(A20,1X,I5,1X),E12.4,1X,A20,1X,I5)
-1400     FORMAT(A20,1X,I5,1X,A20,1X,2(A20,1X,A5,1X),E12.4,1X,A20,1X,I5)
+1100     FORMAT(A20,1X,I5,1X,A20,1X,2(21X,6X),ES12.4,1X,A20,1X,I5)
+1200     FORMAT(A20,1X,I5,1X,A20,1X,A20,1X,I5,1X,21X,6X,ES12.4,1X,A20,1X,I5)
+1300     FORMAT(A20,1X,I5,1X,A20,1X,2(A20,1X,I5,1X),ES12.4,1X,A20,1X,I5)
+1400     FORMAT(A20,1X,I5,1X,A20,1X,2(A20,1X,A5,1X),ES12.4,1X,A20,1X,I5)
 1600     FORMAT('       DEGRADED      ',' Index',
      &              '       Process      ','        Cause A      ',
      &              ' Index', '       Cause B      ',' Index',

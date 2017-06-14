@@ -1434,11 +1434,11 @@ C     moment [ m**2/m**3 ]
                 call m3warn( pname_loc, 0, 0, xmsg )
             End If
 
-            wetsumM3 = 0.0
+            wetsumM3 = 0.0d0
             Do spc = 1, n_aerospc
                If ( aerospc( spc )%tracer .Or. aero_missing(spc,n) ) Cycle
-               factor = 1.0E-9 * f6pi / aerospc( spc )%density
-               wetsumM3  = wetsumM3 + factor * aerospc_conc( spc,n )
+               factor = Real( 1.0E-9 * f6pi / aerospc( spc )%density, 8 )
+               wetsumM3  = wetsumM3 + factor * Real( aerospc_conc( spc,n ), 8 )
             End Do
             m3( n ) = Max ( Real( wetsumM3, 4 ), aeromode( n )%min_m3conc )
             If ( wet_moments_flag ) Then
@@ -1470,12 +1470,12 @@ C     moment [ m**2/m**3 ]
                 Call m3warn( pname_loc, 0, 0, xmsg )
             End If
 
-            drysumM3 = 0.0
+            drysumM3 = 0.0d0
             Do spc = 1, n_aerospc
                If ( aerospc( spc )%tracer .Or. aero_missing(spc,n) .Or.
      &              aerospc( spc )%no_M2Wet  ) Cycle
-               factor = 1.0E-9 * f6pi / aerospc( spc )%density
-               drysumM3  = drysumM3 + factor * aerospc_conc( spc,n )
+               factor = Real( 1.0E-9 * f6pi /  aerospc( spc )%density, 8 )
+               drysumM3  = drysumM3 + factor * Real( aerospc_conc( spc,n ), 8 )
             End Do
             m3( n ) = Max ( Real( drysumM3, 4 ), aeromode( n )%min_m3conc )
             If ( wet_moments_flag) Then

@@ -1134,7 +1134,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI1HI-PSI1LO)/FLOAT(NDIV)
+      DX = (PSI1HI-PSI1LO)/REAL(NDIV, 8)
       DO 10 I=1,NDIV
          X2 = MAX(X1-DX, ZERO)
          Y2 = FUNCN2 (X2)
@@ -3924,7 +3924,7 @@ C
 C *** CALCULATE SOLIDS **************************************************
 C
       CNA2SO4 = WAER(2)
-      FRNA    = MAX (WAER(1)-2*CNA2SO4, ZERO)
+      FRNA    = MAX (WAER(1)-2.0d0*CNA2SO4, ZERO)
 C
       CNH42S4 = ZERO
 C
