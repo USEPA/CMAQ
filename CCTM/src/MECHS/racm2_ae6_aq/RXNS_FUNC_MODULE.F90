@@ -1374,7 +1374,7 @@
             XMSG = 'The FATAL errors found in namelist used. Check ' &
       &          //  'the log of exiting processor if more details are needed.'
             CALL M3WARN('MAP_CHEMISTRY_SPECIES',0,0,XMSG)
-             
+
 
 99901       FORMAT( / 'FATAL error(s) found in the namelists used. Check that ' &
      &     /  'these namelists contain the above data as the respective files ' &
