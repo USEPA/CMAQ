@@ -1040,13 +1040,13 @@ C
          T0  = 298.15d0
          T0T = T0/TEMP
          COEF= 1.0d0+LOG(T0T)-T0T
-         XK1 = XK1 *EXP(  8.85*(TOT-1.0d0) + 25.140*COEF)
-         XK21= XK21*EXP( 13.79*(TOT-1.0d0) -  5.393*COEF)
-         XK22= XK22*EXP( -1.50*(TOT-1.0d0) + 26.920*COEF)
-         XK7 = XK7 *EXP( -2.65*(TOT-1.0d0) + 38.570*COEF)
-         XK12= XK12*EXP( -2.87*(TOT-1.0d0) + 15.830*COEF)
-         XK13= XK13*EXP( -5.19*(TOT-1.0d0) + 54.400*COEF)
-         XKW = XKW *EXP(-22.52*(TOT-1.0d0) + 26.920*COEF)
+         XK1 = XK1 *EXP(  8.85d0*(TOT-1.0d0) + 25.140d0*COEF)
+         XK21= XK21*EXP( 13.79d0*(TOT-1.0d0) -  5.393d0*COEF)
+         XK22= XK22*EXP( -1.50d0*(TOT-1.0d0) + 26.920d0*COEF)
+         XK7 = XK7 *EXP( -2.65d0*(TOT-1.0d0) + 38.570d0*COEF)
+         XK12= XK12*EXP( -2.87d0*(TOT-1.0d0) + 15.830d0*COEF)
+         XK13= XK13*EXP( -5.19d0*(TOT-1.0d0) + 54.400d0*COEF)
+         XKW = XKW *EXP(-22.52d0*(TOT-1.0d0) + 26.920d0*COEF)
       ENDIF
       XK2 = XK21*XK22       
 C
