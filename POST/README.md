@@ -3,7 +3,10 @@ Post-processing Tools
 
 ## Overview
 The following utility programs are provided to process and prepare data for model evaluation.  Documentation for each utility is provided in the README files within each subdirectory.  Note that in previous CMAQ releases these utlities have been located under "models/TOOLS".
-Additional updates to these utilities are scheduled to conicide with the release of CMAQv5.2 in June of 2017.
+
+## Release Notes for version 5.2
+The following link summarizes the main updates to these utility programs since the previous release (CMAQ v5.1).
+* [Updates to post-processing tools in CMAQv5.2](../CCTM/docs/Release_Notes/Update_POST.md)
 
 ## Utility Programs
 * **appendwrf**:  user can concatenate variables from multiple WRF input or output files into a single file along the time (unlimited) dimension.
