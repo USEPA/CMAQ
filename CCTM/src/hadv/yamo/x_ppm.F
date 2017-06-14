@@ -86,11 +86,11 @@ C Advected species dimension
 
       INTEGER, SAVE :: N_SPC_ADV
 
-#ifdef parallel
+! #ifdef parallel
       INTEGER, PARAMETER :: SWP = 3
-#else
-      INTEGER, PARAMETER :: SWP = 1
-#endif
+! #else
+!     INTEGER, PARAMETER :: SWP = 1
+! #endif
 
 C File Variables:
 
@@ -146,11 +146,11 @@ C Required interface for allocatable array dummy arguments
             REAL,    INTENT( OUT )        :: UHAT( :,: )
          END SUBROUTINE HCONTVEL
          SUBROUTINE HPPM ( NI, NJ, CON, VEL, DT, DS, ORI )
-#ifdef parallel
+! #ifdef parallel
             INTEGER, PARAMETER         :: SWP = 3
-#else
-            INTEGER, PARAMETER         :: SWP = 1
-#endif
+! #else
+!           INTEGER, PARAMETER         :: SWP = 1
+! #endif
             INTEGER,   INTENT( IN )    :: NI, NJ
             REAL,      INTENT( INOUT ) :: CON( 1-SWP:,1: )
             REAL,      INTENT( IN )    :: VEL( : )
@@ -336,17 +336,9 @@ C PPM scheme
             A2C = ADV_MAP( SPC )
             DO COL = 1, MY_NCOLS
                CGRID( COL,ROW,LVL,A2C ) = CONX( COL,SPC )
-!              if ( conx( col,spc ) .le. 0.0 )
-!    &            write( logdev,2019 ) ftime, col, row, lvl, spc, conx(col,spc )
             END DO
          END DO
 
-!        do col = 1, my_ncols
-!           if ( conx( col,n_spc_adv ) .le. 0.0 ) then
-!              write( logdev,2019 ) ftime, col, row, lvl,
-!    &                              conx( col,n_spc_adv )
-!           end if
-!        end do
 !019  format( 'x_ppm# date, time, col, row, lvl, conx: ',
 !    &         2I7, 3I4, 1pe12.3 )
 2019  format( 'x_ppm# time, c, r, l, s, conx: ',

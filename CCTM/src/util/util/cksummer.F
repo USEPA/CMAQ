@@ -86,7 +86,7 @@ C Local variables:
       INTEGER, SAVE :: LOGDEV         ! FORTRAN unit number for log file
 
       CHARACTER( 16 ), SAVE :: PNAME = 'CKSUMMER'
-      CHARACTER( 96 ) :: XMSG = ' '
+      !CHARACTER( 96 ) :: XMSG = ' '
       CHARACTER(  8 ) :: APPL = 'CTM_APPL'
       CHARACTER( 48 ) :: EQNAME
       CHARACTER(  6 ) :: PRESTR = 'FLOOR_'
@@ -97,7 +97,7 @@ C Local variables:
 
       LOGICAL ::  RDONLY = .FALSE.
       LOGICAL ::  FMTTED = .TRUE.
-      INTEGER     STATUS       !  ENVSTR status
+      !INTEGER     STATUS       !  ENVSTR status
 
       INTEGER     S, V, L, C, R
       REAL( 8 ) :: DBL_CKSUM
@@ -153,7 +153,7 @@ C-----------------------------------------------------------------------
                END DO
             END DO
 
-            GC_CKSUM = DBL_CKSUM
+            GC_CKSUM = REAL( DBL_CKSUM, 4 )
  
          ELSE
 
@@ -189,7 +189,7 @@ C-----------------------------------------------------------------------
                END DO
             END DO
 
-            AE_CKSUM = DBL_CKSUM
+            AE_CKSUM = REAL( DBL_CKSUM, 4 )
   
          ELSE
 
@@ -225,7 +225,7 @@ C-----------------------------------------------------------------------
                END DO
             END DO
 
-            NR_CKSUM = DBL_CKSUM
+            NR_CKSUM = REAL( DBL_CKSUM, 4 )
   
          ELSE
 
@@ -261,7 +261,7 @@ C-----------------------------------------------------------------------
                END DO
             END DO
 
-            TR_CKSUM = DBL_CKSUM
+            TR_CKSUM = REAL( DBL_CKSUM, 4 )
   
          ELSE
 

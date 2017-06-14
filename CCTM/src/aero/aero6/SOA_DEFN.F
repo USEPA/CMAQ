@@ -233,7 +233,7 @@ C Arguments:
       Real, Intent( In ) :: conc( : )
 
 C Local Variables:
-      Character( 256 ) :: xmsg
+      Character( 300 ) :: xmsg
       Real            :: gasconv
       Real            :: vtmp
       Integer         :: n, g
@@ -623,7 +623,7 @@ C Adjust ALK orgprod for fraction that produces SOA
      &         / 'in GC or NR namelist used. Required for modeling vapor, ', a / )
 99904 Format(1X,'aerosol product from namelist species: ', a /)
 99905 Format(1X,'aerosol by-product from namelist species : ', a /)
-99906 Format(1X,'precursor from namelist species : ', a /)
+C99906 Format(1X,'precursor from namelist species : ', a /)
   
 
       Return
@@ -1063,6 +1063,7 @@ C Arguments:
 
 C Local variables:
       Logical, Save :: first_time = .True.
+      Integer, Save :: logdev
       Character( 300 ) :: xmsg
       Integer       :: i, im, indx
 
@@ -1124,6 +1125,9 @@ C Variables used in equilibrium partitioning calculations
       Real faer              ! fraction of total in aerosol, intermediate value
       Logical check          ! flag to indicate if NEWT subroutine
                              ! converged to a spurious root
+      Real totaer            ! total aerosol-phase mass of each semivolaitle component
+      Real Phi               ! mass fraction of a semivolatile component
+                             ! in each mode
 
 C Variables for updating 2nd and 3rd moments
       Real(8) m0_init( 2 )  ! initial 0 moment, wet [ mom/m3 ]
@@ -1182,7 +1186,7 @@ C Compute 3rd moment, 2nd moment. moment_conc arrays are wet
           
           Call HCOND3( m0_init( im ), m1wet_init( im ),
      &                 m2wet_initD( im ), Dv_org, alphorg, cbar_org(i), GRtmp )
-          GR3( i,im ) = GRtmp( 2 )
+          GR3( i,im ) = Real( GRtmp( 2 ), 4 )
         End Do
       End Do
       
@@ -1319,7 +1323,7 @@ C Check If gas/particle equilibrium can be established
       If ( ( threshold .Gt. 1.0 ) .Or. ( totorgsw .Gt. threshmin ) ) Then
 
 C Perform one of two methods for partitioning
-       If ( newtpartition ) Then
+        If ( newtpartition ) Then
 
 C METHOD1
 C Calculate new SOA by partitioning. This method uses a globally convergent
@@ -1355,7 +1359,7 @@ C        Solve for total number of organic moles in aerosol (hotp 7/5/11)
          upb       = upb * ( 1.0 + 1e-7*n_vapor ) ! prevent numerical issues
          If ( abs( upb - lowb ) .Lt. threshmin ) Then
             ! no SOA to partition
-            orgmoles = ( lowb + upb ) / 2.0D0
+            orgmoles = ( lowb + upb ) / 2.0
          Else
             orgmoles  = soabisect( lowb, upb, totorgsw, c0, ctotf, vapor_mw )
          End If
@@ -1367,10 +1371,10 @@ C        Determine concentration of each semivoltile (hotp 7/5/11)
          End Do
 
 C End SOA paritioning solver METHOD selection
-       End If
+        End If
 
 C Constrain caer to values between conmin and ctotf
-         Do i = 1, n_vapor
+        Do i = 1, n_vapor
 
            If ( caer( i ) .Lt. 0.0 ) Then
                   Write( logdev,* ) 'caer negative at i: ', i, caer( i ),
@@ -1385,49 +1389,31 @@ C Constrain caer to values between conmin and ctotf
                caer( i ) = ctotf( i )
            End If
 
-           dcaer( i ) = caer( i ) - caer0( i )   ! Change in each species conc.
+           ! Calculate total change in OA Species Concentration
+           dcaer( i ) = caer( i ) - caer0( i )  
+           totaer = max( sum( aerospc_conc( indx,: ) , mask = 
+     &                   .NOT.aero_missing( indx,: ) ), conmin )
     
-           ! Check for overshoot in any of the specific modes
-           If ( soa_aeroMap( i ) .Ge. 1 ) Then
-              indx = soa_aeroMap( i )
+           ! Transfer the semivolatile mass
+           Do im = 1,2
+              If ( aero_missing( soa_aeroMap( i ),im ) ) Cycle
+              If ( dcaer( i ) .lt. 0.0 ) Then
+                 ! Evaporate using mode-dependent mass fraction
+                 Phi = aerospc_conc( indx,im ) / totaer
+                 aerospc_conc( indx,im ) = 
+     &                aerospc_conc( indx,im ) + dcaer( i ) * Phi
+              Else
+                 ! Condense using mode-dependent condensaiton flux 
+                 ! fraction
+                 aerospc_conc( indx,im ) = aerospc_conc( indx,im ) 
+     &                + dcaer( i ) * GR3FRAC( i,im )
+              End If
+           End Do
 
-              ! Transfer the semivolatile mass
-              Do im = 1,2
-                If ( aero_missing( soa_aeroMap( i ),im ) ) Cycle
-                aerospc_conc( indx,im ) = 
-     &               aerospc_conc( indx,im ) + dcaer( i ) * GR3FRAC( i,im )
-              End Do
-        
-              ! Check to make sure none of the modes went negative
-              If ( .Not. aero_missing( soa_aeroMap( i ),1 ) .And.
-     &             .Not. aero_missing( soa_aeroMap( i ),2 ) ) Then
-                 If ( aerospc_conc( indx,1 ) .Lt. 0.0 ) Then
-                    aerospc_conc( indx,2 ) = aerospc_conc( indx,2 ) 
-     &                     + aerospc_conc( indx,1 ) 
-                    aerospc_conc( indx,1 ) = 0.0
-                 End If
-                 If ( aerospc_conc( indx,2 ) .Lt. 0.0 ) Then
-                    aerospc_conc( indx,1 ) = aerospc_conc( indx,1 ) 
-     &                     + aerospc_conc( indx,2 ) 
-                    aerospc_conc( indx,2 ) = 0.0
-                    If ( aerospc_conc( indx,1 ) .Lt. 0.0 ) Then
-                       If ( abs(aerospc_conc( indx,1 ) ) .lt. 1.0e-15 ) Then
-                          aerospc_conc( indx,1 ) = 0.0
-                       Else
-                          Write( xmsg,'( A56,/,A11,I2,A9,E12.5,A9,E12.5 )' ) 
-     &                       ' *** Too Much Evaporation from Existing Organic Aerosol:',
-     &                       ' SOA Spcs: ',i,' Mode 1: ',aerospc_conc( indx,1 ),
-     &                       ' Mode 2: ',aerospc_conc( indx,2 )
-                          Call m3exit( pname, 0, 0, xmsg, xstat3 )
-                       End If
-                    End If   
-                 End If
-             End If
-           End If
-         End Do
+        End Do  ! Partitioning Vapor Loop
  
       Else   ! threshold not exceeded; no material transferred to aerosol phase
-!LooK_HeRe 
+        
         caer = 0.0
         Do i = 1, n_vapor
             indx = soa_aeroMap( i )

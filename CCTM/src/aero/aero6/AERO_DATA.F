@@ -638,15 +638,13 @@ C Local Variables:
       Logical ae6isoa
       Logical ae6hg
       Logical dust_match
-      Logical error_flag
-
 
       If ( mapped ) Return
 
       logdev      = setup_logdev()
       mole_weight = 0.0
 
-      n_aerospc      = 0.0 ! Number of Used Aerosol Chemical Species
+      n_aerospc      = 0   ! Number of Used Aerosol Chemical Species
       aerolist_map   = 0   ! Pointer from aerolist to CGRID
       aerospc_tolist = 0   ! Pointer from aerospc to aerolist
       AE_eflag       = .False.
@@ -1041,7 +1039,7 @@ C Local Variables:
       Character( 16 ), Save :: pname = 'map_pmemis'
       Character( 512 )      :: xmsg1
       Character( 1024 )     :: xmsg2
-      Character( 10 )       :: units
+      Character( 16 )       :: units
 
       Integer :: indx
       Integer :: v
@@ -1446,7 +1444,7 @@ C     moment [ m**2/m**3 ]
             If ( wet_moments_flag ) Then
                m2( n ) = initialM2
             Else
-               m2( n ) = initialM2 * ( Real( wetsumM3, 4 ) / initialM3 ) ** two3rds
+               m2( n ) = initialM2 * ( Real( wetsumM3, 4 ) / initialM3 ) ** Real( two3rds, 4 )
             End if
          End Do
 
@@ -1481,7 +1479,7 @@ C     moment [ m**2/m**3 ]
             End Do
             m3( n ) = Max ( Real( drysumM3, 4 ), aeromode( n )%min_m3conc )
             If ( wet_moments_flag) Then
-               m2( n ) = initialM2 * ( Real( drysumM3, 4 ) / initialM3 ) ** two3rds
+               m2( n ) = initialM2 * ( Real( drysumM3, 4 ) / initialM3 ) ** Real( two3rds, 4 )
             Else ! already dry
                m2( n ) = initialM2
             End If
@@ -1536,7 +1534,7 @@ C-----------------------------------------------------------------------
 
 C Local variables:
 
-      INTEGER   :: IMODE, J
+      INTEGER   :: IMODE
       REAL      :: NUM, M2, M3, l2sg, dg, sg
       REAL, Parameter :: KGPMG = 1.0E-9 !Kilogram per microgram m-3
 
