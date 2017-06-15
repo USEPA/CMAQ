@@ -89,8 +89,8 @@
         #> Compiler Aliases and Flags
         setenv myFC mpiifort
         setenv myCC icc       
-        setenv myFSTD "-O3"
-        setenv myDBG  "-g -check bounds -check uninit -fpe0 -fno-alias -ftrapuv -traceback"
+        setenv myFSTD "-O3 -fno-alias -mp1 -fp-model source"
+        setenv myDBG  "-O0 -g -check bounds -check uninit -fpe0 -fno-alias -ftrapuv -traceback"
         setenv myLINK_FLAG "-openmp"
         setenv myFFLAGS "-fixed -132"
         setenv myFRFLAGS "-free"
@@ -125,12 +125,12 @@
         setenv myFC mpifort 
         setenv myCC pgcc
         setenv myLINK_FLAG ""
-        setenv myFSTD ""
-        setenv myDBG  "-g -Mbounds -Mchkptr -traceback -Ktrap=fp"
-        setenv myFFLAGS "-Mfixed -O3 -Mextend -mcmodel=medium"
-        setenv myFRFLAGS "-Mfree -O3 -Mextend -mcmodel=medium"
+        setenv myFSTD "-O3"
+        setenv myDBG  "-O0 -g -Mbounds -Mchkptr -traceback -Ktrap=fp"
+        setenv myFFLAGS "-Mfixed -Mextend -mcmodel=medium"
+        setenv myFRFLAGS "-Mfree -Mextend -mcmodel=medium"
         setenv myCFLAGS "-O2"
-        setenv extra_lib "-lextra"
+        setenv extra_lib "-lcurl"
         setenv mpi_lib "-lmpi"   #> -lmpich for mvapich or -lmpi for openmpi
     
         breaksw
@@ -156,10 +156,10 @@
         #> Compiler Aliases and Flags
         setenv myFC mpifort
         setenv myCC gcc
-        setenv myFSTD "-O3 -funroll-loops -finit-character=32"
-        setenv myDBG  " -Wall -O0 -g -fimplicit-none -fcheck=all -fbacktrace"
-        setenv myFFLAGS "-ffixed-form -ffixed-line-length-132 -O3 -funroll-loops -finit-character=32"
-        setenv myFRFLAGS "-ffree-form -ffree-line-length-none -O3 -funroll-loops -finit-character=32"
+        setenv myFSTD "-O3 -funroll-loops -finit-character=32 -Wtabs -Wsurprising"
+        setenv myDBG  "-Wall -O0 -g -fcheck=all -fimplicit-none -ffpe-trap=invalid,zero,overflow -fbacktrace"
+        setenv myFFLAGS "-ffixed-form -ffixed-line-length-132 -funroll-loops -finit-character=32"
+        setenv myFRFLAGS "-ffree-form -ffree-line-length-none -funroll-loops -finit-character=32"
         setenv myCFLAGS "-O2"
         setenv myLINK_FLAG ""
         setenv extra_lib ""
