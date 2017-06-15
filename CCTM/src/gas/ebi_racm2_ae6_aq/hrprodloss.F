@@ -35,7 +35,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, May 25, 2016
+C  REVISION HISTORY: Created by EBI solver program, May 26, 2017
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 
@@ -1510,14 +1510,14 @@ C***********************************************************************
       LOSS(  AISO3J   ) =   0.0D0
 
       PROD(  AXYL1J   ) =   0.0D0
-      LOSS(  AXYL1J   ) =                 RXRAT( 382 )      ! AXYL1J=0.1143D+01*AOLGAJ
+      LOSS(  AXYL1J   ) =                 RXRAT( 382 )      ! AXYL1J=0.8571D+00*AOLGAJ
 
-      PROD(  AOLGAJ   ) =    1.1428D+00 * RXRAT( 382 )      ! AXYL1J=0.1143D+01*AOLGAJ
-     &                  +    1.1428D+00 * RXRAT( 383 )      ! AXYL2J=0.1143D+01*AOLGAJ
-     &                  +                 RXRAT( 384 )      ! ATOL1J=AOLGAJ
-     &                  +                 RXRAT( 385 )      ! ATOL2J=AOLGAJ
-     &                  +    8.5714D-01 * RXRAT( 386 )      ! ABNZ1J=0.8571D+00*AOLGAJ
-     &                  +    8.5714D-01 * RXRAT( 387 )      ! ABNZ2J=0.8571D+00*AOLGAJ
+      PROD(  AOLGAJ   ) =    8.5710D-01 * RXRAT( 382 )      ! AXYL1J=0.8571D+00*AOLGAJ
+     &                  +    1.1429D+00 * RXRAT( 383 )      ! AXYL2J=0.1143D+01*AOLGAJ
+     &                  +    8.5710D-01 * RXRAT( 384 )      ! ATOL1J=0.8571D+00*AOLGAJ
+     &                  +    1.1429D+00 * RXRAT( 385 )      ! ATOL2J=0.1143D+01*AOLGAJ
+     &                  +    7.1430D-01 * RXRAT( 386 )      ! ABNZ1J=0.7143D+00*AOLGAJ
+     &                  +    7.1430D-01 * RXRAT( 387 )      ! ABNZ2J=0.7143D+00*AOLGAJ
      &                  +    1.4286D+00 * RXRAT( 393 )      ! APAH1J=0.1429D+01*AOLGAJ
      &                  +    1.4286D+00 * RXRAT( 394 )      ! APAH2J=0.1429D+01*AOLGAJ
      &                  +    1.7143D+00 * RXRAT( 395 )      ! AALK1J=0.1714D+01*AOLGAJ
@@ -1528,29 +1528,29 @@ C***********************************************************************
       LOSS(  AXYL2J   ) =                 RXRAT( 383 )      ! AXYL2J=0.1143D+01*AOLGAJ
 
       PROD(  ATOL1J   ) =   0.0D0
-      LOSS(  ATOL1J   ) =                 RXRAT( 384 )      ! ATOL1J=AOLGAJ
+      LOSS(  ATOL1J   ) =                 RXRAT( 384 )      ! ATOL1J=0.8571D+00*AOLGAJ
 
       PROD(  ATOL2J   ) =   0.0D0
-      LOSS(  ATOL2J   ) =                 RXRAT( 385 )      ! ATOL2J=AOLGAJ
+      LOSS(  ATOL2J   ) =                 RXRAT( 385 )      ! ATOL2J=0.1143D+01*AOLGAJ
 
       PROD(  ABNZ1J   ) =   0.0D0
-      LOSS(  ABNZ1J   ) =                 RXRAT( 386 )      ! ABNZ1J=0.8571D+00*AOLGAJ
+      LOSS(  ABNZ1J   ) =                 RXRAT( 386 )      ! ABNZ1J=0.7143D+00*AOLGAJ
 
       PROD(  ABNZ2J   ) =   0.0D0
-      LOSS(  ABNZ2J   ) =                 RXRAT( 387 )      ! ABNZ2J=0.8571D+00*AOLGAJ
+      LOSS(  ABNZ2J   ) =                 RXRAT( 387 )      ! ABNZ2J=0.7143D+00*AOLGAJ
 
       PROD(  ATRP1J   ) =   0.0D0
-      LOSS(  ATRP1J   ) =                 RXRAT( 388 )      ! ATRP1J=AOLGBJ
+      LOSS(  ATRP1J   ) =                 RXRAT( 388 )      ! ATRP1J=0.8000D+00*AOLGBJ
 
-      PROD(  AOLGBJ   ) =                 RXRAT( 388 )      ! ATRP1J=AOLGBJ
-     &                  +                 RXRAT( 389 )      ! ATRP2J=AOLGBJ
+      PROD(  AOLGBJ   ) =    8.0000D-01 * RXRAT( 388 )      ! ATRP1J=0.8000D+00*AOLGBJ
+     &                  +    9.0000D-01 * RXRAT( 389 )      ! ATRP2J=0.9000D+00*AOLGBJ
      &                  +    5.0000D-01 * RXRAT( 390 )      ! AISO1J=0.5000D+00*AOLGBJ
      &                  +    5.0000D-01 * RXRAT( 391 )      ! AISO2J=0.5000D+00*AOLGBJ
      &                  +    1.5000D+00 * RXRAT( 392 )      ! ASQTJ=0.1500D+01*AOLGBJ
       LOSS(  AOLGBJ   ) =   0.0D0
 
       PROD(  ATRP2J   ) =   0.0D0
-      LOSS(  ATRP2J   ) =                 RXRAT( 389 )      ! ATRP2J=AOLGBJ
+      LOSS(  ATRP2J   ) =                 RXRAT( 389 )      ! ATRP2J=0.9000D+00*AOLGBJ
 
       PROD(  AISO1J   ) =   0.0D0
       LOSS(  AISO1J   ) =                 RXRAT( 390 )      ! AISO1J=0.5000D+00*AOLGBJ

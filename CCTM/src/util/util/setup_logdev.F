@@ -53,7 +53,7 @@ C   12 Aug 15 D.Wong:   Replaced SUBST_MPI with mpif.h
       CHARACTER( 48 ) :: EQNAME
       CHARACTER(  8 ) :: PRESTR = 'CTM_LOG_'
       CHARACTER(  3 ) :: CMYPE
-      CHARACTER( 96 ) :: IOLOGEQ
+      CHARACTER(300 ) :: IOLOGEQ
       CHARACTER(  8 ) :: APPL = 'CTM_APPL'
 
       INTEGER :: ERROR, MYPE
