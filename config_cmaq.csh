@@ -157,7 +157,8 @@
         setenv myFC mpifort
         setenv myCC gcc
         setenv myFSTD "-O3 -funroll-loops -finit-character=32 -Wtabs -Wsurprising"
-        setenv myDBG  "-Wall -O0 -g -fcheck=all -fimplicit-none -ffpe-trap=invalid,zero,overflow -fbacktrace"
+#        setenv myDBG  "-Wall -O0 -g -fcheck=all -fimplicit-none -ffpe-trap=invalid,zero,overflow -fbacktrace"
+        setenv myDBG  "-Wall -O0 -g -fcheck=all -ffpe-trap=invalid,zero,overflow -fbacktrace"
         setenv myFFLAGS "-ffixed-form -ffixed-line-length-132 -funroll-loops -finit-character=32"
         setenv myFRFLAGS "-ffree-form -ffree-line-length-none -funroll-loops -finit-character=32"
         setenv myCFLAGS "-O2"
