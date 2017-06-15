@@ -464,7 +464,7 @@ C
       SUBROUTINE ISRP4F (WI, RHI, TEMPI)
       INCLUDE 'isrpia.inc'
       DIMENSION WI(NCOMP)
-      DOUBLE PRECISION NAFRI, NO3FRI, NO3FR
+      DOUBLE PRECISION NAFRI, NO3FRI
 C
 C *** ADJUST FOR TOO LITTLE AMMONIUM AND CHLORIDE ***********************
 C
@@ -750,7 +750,7 @@ C
             SCASE = 'L9'
             CALL CALCL9            ! CaSO4
          ENDIF
-      ENDIF
+       ENDIF
 C
       CALL CALCNHA                ! MINOR SPECIES: HNO3, HCl
       CALL CALCNH3                !                NH3
@@ -816,7 +816,6 @@ C=======================================================================
 C
       SUBROUTINE CALCA2
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
 C *** SETUP PARAMETERS ************************************************
 C
@@ -838,7 +837,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (OMEHI-OMELO)/REAL(NDIV, 8)
+      DX = (OMEHI-OMELO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = MAX(X1-DX, OMELO)
          Y2 = FUNCA2 (X2)
@@ -896,7 +895,6 @@ C
       DOUBLE PRECISION FUNCTION FUNCA2 (OMEGI)
       INCLUDE 'isrpia.inc'
       DOUBLE PRECISION LAMDA
-      INTEGER I
 C
 C *** SETUP PARAMETERS ************************************************
 C
@@ -1001,7 +999,6 @@ C=======================================================================
 C
       SUBROUTINE CALCB4
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
 C *** SOLVE EQUATIONS **************************************************
 C
@@ -1073,7 +1070,7 @@ C
 C    
 C *** CALCULATE EQUIVALENT AMOUNT OF HSO4 AND SO4 ***********************
 C
-      X = MAX(2.0d0*W(2)-W(3), ZERO)   ! Equivalent NH4HSO4
+      X = MAX(2*W(2)-W(3), ZERO)   ! Equivalent NH4HSO4
       Y = MAX(W(3)  -W(2), ZERO)   ! Equivalent NH42SO4
 C
 C *** CALCULATE SPECIES ACCORDING TO RELATIVE ABUNDANCE OF HSO4 *********
@@ -1125,7 +1122,6 @@ C=======================================================================
 C
       SUBROUTINE CALCB3A (TLC, TNH42S4)
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       CALAOU = .TRUE.         ! Outer loop activity calculation flag
       ZLO    = ZERO           ! MIN DISSOLVED (NH4)2SO4
@@ -1140,7 +1136,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO ***********************
 C
-      DZ = (ZHI-ZLO)/REAL(NDIV, 8)
+      DZ = (ZHI-ZLO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          Z2 = Z1+DZ
          Y2 = FUNCB3A (Z2, TLC, TNH42S4)
@@ -1217,7 +1213,6 @@ C
       DOUBLE PRECISION FUNCTION FUNCB3A (ZK, Y, X)
       INCLUDE 'isrpia.inc'
       DOUBLE PRECISION KK
-      INTEGER I
 C
 C *** SOLVE EQUATIONS ; WITH ITERATIONS FOR ACTIVITY COEF. ************
 C
@@ -1233,7 +1228,7 @@ C
          MOLAL (1) = KK                ! HI
          MOLAL (5) = KK+ZK+Y           ! SO4I
          MOLAL (6) = MAX (Y-KK, TINY)  ! HSO4I
-         MOLAL (3) = 3.0d0*Y+2.0d0*ZK        ! NH4I
+         MOLAL (3) = 3.0*Y+2*ZK        ! NH4I
          CNH42S4   = X-ZK              ! Solid (NH4)2SO4
          CALL CALCMR                   ! Water content
 C
@@ -1282,7 +1277,6 @@ C
       SUBROUTINE CALCB3B (Y, X)
       INCLUDE 'isrpia.inc'
       DOUBLE PRECISION KK
-      INTEGER I
 C
       CALAOU = .FALSE.        ! Outer loop activity calculation flag
       FRST   = .FALSE.
@@ -1342,7 +1336,7 @@ C
 C    
 C *** CALCULATE EQUIVALENT AMOUNT OF HSO4 AND SO4 ***********************
 C
-      X = MAX(2.0d0*W(2)-W(3), TINY)   ! Equivalent NH4HSO4
+      X = MAX(2*W(2)-W(3), TINY)   ! Equivalent NH4HSO4
       Y = MAX(W(3)  -W(2), TINY)   ! Equivalent NH42SO4
 C
 C *** CALCULATE SPECIES ACCORDING TO RELATIVE ABUNDANCE OF HSO4 *********
@@ -1511,7 +1505,6 @@ C=======================================================================
 C
       SUBROUTINE CALCB2B (TLC,TNH4HS4)
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       CALAOU = .TRUE.       ! Outer loop activity calculation flag
       ZLO    = ZERO
@@ -1526,7 +1519,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO ************************
 C
-      DX = (ZHI-ZLO)/REAL(NDIV,8)
+      DX = (ZHI-ZLO)/NDIV
       DO 10 I=1,NDIV
          X2 = X1-DX
          Y2 = FUNCB2B (X2,TNH4HS4,TLC)
@@ -1602,7 +1595,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCB2B (X,TNH4HS4,TLC)
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
 C *** SOLVE EQUATIONS **************************************************
 C
@@ -1720,7 +1712,7 @@ C
 C
 C *** SETUP PARAMETERS ************************************************
 C
-      X = 2.0d0*W(2)-W(3)       ! Equivalent NH4HSO4
+      X = 2*W(2)-W(3)       ! Equivalent NH4HSO4
       Y = W(3)-W(2)         ! Equivalent (NH4)2SO4
 C
 C *** CALCULATE COMPOSITION *******************************************
@@ -1838,7 +1830,6 @@ C
       SUBROUTINE CALCC2
       INCLUDE 'isrpia.inc'
       DOUBLE PRECISION LAMDA, KAPA
-      INTEGER I
 C
       CALAOU =.TRUE.         ! Outer loop activity calculation flag
       FRST   =.TRUE.
@@ -1899,7 +1890,6 @@ C
       SUBROUTINE CALCC1
       INCLUDE 'isrpia.inc'
       DOUBLE PRECISION KLO, KHI
-      INTEGER I
 C
       CALAOU = .TRUE.    ! Outer loop activity calculation flag
       KLO    = TINY    
@@ -1914,7 +1904,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO ***********************
 C
-      DX = (KHI-KLO)/REAL(NDIV, 8)
+      DX = (KHI-KLO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = X1+DX
          Y2 = FUNCC1 (X2)
@@ -1995,7 +1985,6 @@ C
       DOUBLE PRECISION FUNCTION FUNCC1 (KAPA)
       INCLUDE 'isrpia.inc'
       DOUBLE PRECISION KAPA, LAMDA
-      INTEGER I
 C
 C *** SOLVE EQUATIONS **************************************************
 C
@@ -2008,7 +1997,7 @@ C
          PAR2  = XK12*(WATER/GAMA(9))**2.0
          BB    = PSI + PAR1
          CC    =-PAR1*(PSI+KAPA)
-         LAMDA = 0.5d0*(-BB+SQRT(BB*BB-4.0d0*CC))
+         LAMDA = 0.5*(-BB+SQRT(BB*BB-4*CC))
 C
 C *** SAVE CONCENTRATIONS IN MOLAL ARRAY *******************************
 C
@@ -2059,7 +2048,6 @@ C=======================================================================
 C
       SUBROUTINE CALCD3
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -2104,7 +2092,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI4HI-PSI4LO)/REAL(NDIV, 8)
+      DX = (PSI4HI-PSI4LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = X1+DX
          CALL RSTGAMP            ! reinitialize activity coefficients (slc.1.2012)
@@ -2205,7 +2193,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCD3 (P4)
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -2295,7 +2282,6 @@ C=======================================================================
 C
       SUBROUTINE CALCD2
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -2340,7 +2326,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX   = (PSI4HI-PSI4LO)/REAL(NDIV, 8)
+      DX   = (PSI4HI-PSI4LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = X1+DX
          CALL RSTGAMP            ! reinitialize activity coefficients (slc.1.2012)
@@ -2446,7 +2432,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCD2 (P4)
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -2648,7 +2633,6 @@ C=======================================================================
 C
       SUBROUTINE CALCG5
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       DOUBLE PRECISION LAMDA
       COMMON /CASEG/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, LAMDA,
@@ -2682,7 +2666,7 @@ ccc      IF (WATER .LE. TINY) RETURN                    ! No water
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI6HI-PSI6LO)/REAL(NDIV, 8)
+      DX = (PSI6HI-PSI6LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = X1+DX 
          Y2 = FUNCG5A (X2)
@@ -2762,7 +2746,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCG5A (X)
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       DOUBLE PRECISION LAMDA
       COMMON /CASEG/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, LAMDA,
@@ -2868,7 +2851,6 @@ C=======================================================================
 C
       SUBROUTINE CALCG4
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       DOUBLE PRECISION LAMDA
       COMMON /CASEG/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, LAMDA,
@@ -2901,7 +2883,7 @@ CCC      IF (WATER .LE. TINY) RETURN                    ! No water
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI6HI-PSI6LO)/REAL(NDIV, 8)
+      DX = (PSI6HI-PSI6LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2  = X1+DX
          Y2  = FUNCG4A (X2)
@@ -2981,7 +2963,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCG4A (X)
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       DOUBLE PRECISION LAMDA, NAI, NH4I, NO3I
       COMMON /CASEG/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, LAMDA,
@@ -3112,7 +3093,6 @@ C=======================================================================
 C
       SUBROUTINE CALCG3
       INCLUDE 'isrpia.inc'
-      INTEGER I
       EXTERNAL CALCG1A, CALCG4
 C
 C *** REGIME DEPENDS ON THE EXISTANCE OF WATER AND OF THE RH ************
@@ -3172,7 +3152,6 @@ C
       SUBROUTINE CALCG3A
       INCLUDE 'isrpia.inc'
 C
-      INTEGER I, ISLV
       DOUBLE PRECISION LAMDA
       COMMON /CASEG/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, LAMDA,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7,
@@ -3203,7 +3182,7 @@ CCC      IF (WATER .LE. TINY) RETURN                    ! No water
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI6HI-PSI6LO)/REAL(NDIV, 8)
+      DX = (PSI6HI-PSI6LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2  = X1+DX 
          Y2  = FUNCG3A (X2)
@@ -3303,7 +3282,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCG3A (X)
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       DOUBLE PRECISION LAMDA
       COMMON /CASEG/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, LAMDA,
@@ -3414,7 +3392,6 @@ C=======================================================================
 C
       SUBROUTINE CALCG2
       INCLUDE 'isrpia.inc'
-      INTEGER I
       EXTERNAL CALCG1A, CALCG3A, CALCG4
 C
 C *** REGIME DEPENDS ON THE EXISTANCE OF NITRATES ***********************
@@ -3488,7 +3465,6 @@ C=======================================================================
 C
       SUBROUTINE CALCG2A
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       DOUBLE PRECISION LAMDA
       COMMON /CASEG/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, LAMDA,
@@ -3520,7 +3496,7 @@ CCC      IF (WATER .LE. TINY) GOTO 50               ! No water
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI6HI-PSI6LO)/REAL(NDIV, 8)
+      DX = (PSI6HI-PSI6LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = X1+DX 
          Y2 = FUNCG2A (X2)
@@ -3621,7 +3597,6 @@ C
       DOUBLE PRECISION FUNCTION FUNCG2A (X)
       INCLUDE 'isrpia.inc'
 C
-      INTEGER I, ISLV
       DOUBLE PRECISION LAMDA
       COMMON /CASEG/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, LAMDA,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7,
@@ -3945,7 +3920,6 @@ C=======================================================================
 C
       SUBROUTINE CALCH6
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -3978,7 +3952,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI6HI-PSI6LO)/REAL(NDIV, 8)
+      DX = (PSI6HI-PSI6LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = X1+DX 
          Y2 = FUNCH6A (X2)
@@ -4058,7 +4032,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCH6A (X)
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -4171,7 +4144,6 @@ C=======================================================================
 C
       SUBROUTINE CALCH5
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -4213,7 +4185,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI6HI-PSI6LO)/REAL(NDIV, 8)
+      DX = (PSI6HI-PSI6LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = X1+DX 
          Y2 = FUNCH5A (X2)
@@ -4293,7 +4265,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCH5A (X)
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -4418,7 +4389,6 @@ C=======================================================================
 C
       SUBROUTINE CALCH4
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -4460,7 +4430,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI6HI-PSI6LO)/REAL(NDIV, 8)
+      DX = (PSI6HI-PSI6LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = X1+DX 
          Y2 = FUNCH4A (X2)
@@ -4540,7 +4510,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCH4A (X)
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -4690,7 +4659,6 @@ C=======================================================================
 C
       SUBROUTINE CALCH3
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -4732,7 +4700,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI6HI-PSI6LO)/REAL(NDIV, 8)
+      DX = (PSI6HI-PSI6LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = X1+DX 
          Y2 = FUNCH3A (X2)
@@ -4812,7 +4780,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCH3A (X)
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -5029,7 +4996,6 @@ C=======================================================================
 C
       SUBROUTINE CALCH2A
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -5062,7 +5028,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI6HI-PSI6LO)/REAL(NDIV, 8)
+      DX = (PSI6HI-PSI6LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = X1+DX 
          Y2 = FUNCH2A (X2)
@@ -5142,7 +5108,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCH2A (X)
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -5358,7 +5323,7 @@ C *** CALCULATE NON VOLATILE SOLIDS ***********************************
 C
       CNA2SO4 = W(2)
       CNH42S4 = ZERO
-      NAFR    = MAX (W(1)-2.0d0*CNA2SO4, ZERO)
+      NAFR    = MAX (W(1)-2*CNA2SO4, ZERO)
       CNANO3  = MIN (NAFR, W(4))
       NO3FR   = MAX (W(4)-CNANO3, ZERO)
       CNACL   = MIN (MAX(NAFR-CNANO3, ZERO), W(5))
@@ -5495,7 +5460,6 @@ C=======================================================================
 C
       SUBROUTINE CALCI6
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -5589,7 +5553,6 @@ C=======================================================================
 C
       SUBROUTINE CALCI5
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -5639,7 +5602,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI4HI-PSI4LO)/REAL(NDIV, 8)
+      DX = (PSI4HI-PSI4LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = X1-DX
          Y2 = FUNCI5A (X2)
@@ -5715,7 +5678,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCI5A (P4)
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -5798,7 +5760,6 @@ C=======================================================================
 C
       SUBROUTINE CALCI4
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -5848,7 +5809,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI4HI-PSI4LO)/REAL(NDIV, 8)
+      DX = (PSI4HI-PSI4LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = X1-DX
          Y2 = FUNCI4A (X2)
@@ -5924,7 +5885,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCI4A (P4)
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -6019,7 +5979,6 @@ C=======================================================================
 C
       SUBROUTINE CALCI3
       INCLUDE 'isrpia.inc'
-      INTEGER I
       EXTERNAL CALCI1A, CALCI4
 C
 C *** FIND DRY COMPOSITION **********************************************
@@ -6079,7 +6038,6 @@ C=======================================================================
 C
       SUBROUTINE CALCI3A
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -6122,7 +6080,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI2HI-PSI2LO)/REAL(NDIV, 8)
+      DX = (PSI2HI-PSI2LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = MAX(X1-DX, PSI2LO)
          Y2 = FUNCI3A (X2)
@@ -6189,7 +6147,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCI3A (P2)
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -6224,7 +6181,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI4HI-PSI4LO)/REAL(NDIV, 8)
+      DX = (PSI4HI-PSI4LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = MAX(X1-DX, PSI4LO)
          Y2 = FUNCI3B (X2)
@@ -6293,7 +6250,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCI3B (P4)
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -6391,7 +6347,6 @@ C=======================================================================
 C
       SUBROUTINE CALCI2
       INCLUDE 'isrpia.inc'
-      INTEGER I
       EXTERNAL CALCI1A, CALCI3A
 C
 C *** FIND DRY COMPOSITION **********************************************
@@ -6450,7 +6405,6 @@ C=======================================================================
 C
       SUBROUTINE CALCI2A
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -6493,7 +6447,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI2HI-PSI2LO)/REAL(NDIV, 8)
+      DX = (PSI2HI-PSI2LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = MAX(X1-DX, PSI2LO)
          Y2 = FUNCI2A (X2)
@@ -6563,7 +6517,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCI2A (P2)
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -6790,7 +6743,6 @@ C=======================================================================
 C
       SUBROUTINE CALCJ3
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       DOUBLE PRECISION LAMDA, KAPA
 C
@@ -6869,7 +6821,6 @@ C=======================================================================
 C
       SUBROUTINE CALCJ2
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       DOUBLE PRECISION LAMDA, KAPA
       COMMON /CASEJ/ CHI1, CHI2, CHI3, LAMDA, KAPA, PSI1, PSI2, PSI3, 
@@ -6895,7 +6846,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI1HI-PSI1LO)/REAL(NDIV, 8)
+      DX = (PSI1HI-PSI1LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = X1-DX
          Y2 = FUNCJ2 (X2)
@@ -6971,7 +6922,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCJ2 (P1)
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       DOUBLE PRECISION LAMDA, KAPA
       COMMON /CASEJ/ CHI1, CHI2, CHI3, LAMDA, KAPA, PSI1, PSI2, PSI3, 
@@ -7053,7 +7003,6 @@ C=======================================================================
 C
       SUBROUTINE CALCJ1
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       DOUBLE PRECISION LAMDA, KAPA
       COMMON /CASEJ/ CHI1, CHI2, CHI3, LAMDA, KAPA, PSI1, PSI2, PSI3, 
@@ -7080,7 +7029,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI1HI-PSI1LO)/REAL(NDIV, 8)
+      DX = (PSI1HI-PSI1LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = X1-DX
          Y2 = FUNCJ1 (X2)
@@ -7156,7 +7105,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCJ1 (P1)
       INCLUDE 'isrpia.inc'
-      INTEGER I
       DOUBLE PRECISION LAMDA, KAPA
       COMMON /CASEJ/ CHI1, CHI2, CHI3, LAMDA, KAPA, PSI1, PSI2, PSI3, 
      &               A1,   A2,   A3
@@ -7237,9 +7185,8 @@ C=======================================================================
 C
       SUBROUTINE CALCO7
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
-      DOUBLE PRECISION LAMDA, NAFR
+      DOUBLE PRECISION LAMDA
       COMMON /CASEO/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, LAMDA, PSI1, PSI2, PSI3, PSI4, PSI5,
      &               PSI6, PSI7, PSI8, PSI9,  A1,  A2,  A3,  A4,
@@ -7290,7 +7237,7 @@ ccc      IF (WATER .LE. TINY) RETURN                    ! No water
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI6HI-PSI6LO)/REAL(NDIV, 8)
+      DX = (PSI6HI-PSI6LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = X1+DX
          Y2 = FUNCO7 (X2)
@@ -7366,7 +7313,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCO7 (X)
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       DOUBLE PRECISION LAMDA
       COMMON /CASEO/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
@@ -7485,9 +7431,8 @@ C=======================================================================
 C
       SUBROUTINE CALCO6
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
-      DOUBLE PRECISION LAMDA, NAFR
+      DOUBLE PRECISION LAMDA
       COMMON /CASEO/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, LAMDA, PSI1, PSI2, PSI3, PSI4, PSI5,
      &               PSI6, PSI7, PSI8, PSI9,  A1,  A2,  A3,  A4,
@@ -7536,7 +7481,7 @@ ccc      IF (WATER .LE. TINY) RETURN                    ! No water
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI6HI-PSI6LO)/REAL(NDIV, 8)
+      DX = (PSI6HI-PSI6LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = X1+DX
          Y2 = FUNCO6 (X2)
@@ -7612,7 +7557,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCO6 (X)
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       DOUBLE PRECISION LAMDA
       COMMON /CASEO/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
@@ -7747,9 +7691,8 @@ C=======================================================================
 C
       SUBROUTINE CALCO5
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
-      DOUBLE PRECISION LAMDA, NAFR
+      DOUBLE PRECISION LAMDA
       COMMON /CASEO/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, LAMDA, PSI1, PSI2, PSI3, PSI4, PSI5,
      &               PSI6, PSI7, PSI8, PSI9,  A1,  A2,  A3,  A4,
@@ -7797,7 +7740,7 @@ ccc      IF (WATER .LE. TINY) RETURN                    ! No water
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI6HI-PSI6LO)/REAL(NDIV, 8)
+      DX = (PSI6HI-PSI6LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = X1+DX
          Y2 = FUNCO5 (X2)
@@ -7873,7 +7816,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCO5 (X)
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       DOUBLE PRECISION LAMDA
       COMMON /CASEO/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
@@ -8017,9 +7959,8 @@ C=======================================================================
 C
       SUBROUTINE CALCO4
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
-      DOUBLE PRECISION LAMDA, NAFR
+      DOUBLE PRECISION LAMDA
       COMMON /CASEO/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, LAMDA, PSI1, PSI2, PSI3, PSI4, PSI5,
      &               PSI6, PSI7, PSI8, PSI9,  A1,  A2,  A3,  A4,
@@ -8066,7 +8007,7 @@ CCC      IF (WATER .LE. TINY) GOTO 50               ! No water
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI6HI-PSI6LO)/REAL(NDIV, 8)
+      DX = (PSI6HI-PSI6LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = X1+DX
          Y2 = FUNCO4 (X2)
@@ -8163,7 +8104,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCO4 (X)
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       DOUBLE PRECISION LAMDA
       COMMON /CASEO/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
@@ -8297,7 +8237,6 @@ C=======================================================================
 C
       SUBROUTINE CALCO3
       INCLUDE 'isrpia.inc'
-      INTEGER I
       EXTERNAL CALCO1A, CALCO4
 C
 C *** REGIME DEPENDS ON THE EXISTANCE OF WATER AND OF THE RH ************
@@ -8355,9 +8294,8 @@ C=======================================================================
 C
       SUBROUTINE CALCO3A
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
-      DOUBLE PRECISION LAMDA, NAFR
+      DOUBLE PRECISION LAMDA
       COMMON /CASEO/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, LAMDA, PSI1, PSI2, PSI3, PSI4, PSI5,
      &               PSI6, PSI7, PSI8, PSI9, A1,  A2,  A3,  A4,
@@ -8400,7 +8338,7 @@ CCC      IF (WATER .LE. TINY) GOTO 50               ! No water
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI6HI-PSI6LO)/REAL(NDIV, 8)
+      DX = (PSI6HI-PSI6LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = X1+DX
          Y2 = FUNCO3A (X2)
@@ -8496,7 +8434,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCO3A (X)
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       DOUBLE PRECISION LAMDA
       COMMON /CASEO/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
@@ -8642,7 +8579,6 @@ C=======================================================================
 C
       SUBROUTINE CALCO2
       INCLUDE 'isrpia.inc'
-      INTEGER I
       EXTERNAL CALCO1A, CALCO3A, CALCO4
 C
 C *** REGIME DEPENDS ON THE EXISTANCE OF NITRATES ***********************
@@ -8715,9 +8651,8 @@ C=======================================================================
 C
       SUBROUTINE CALCO2A
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
-      DOUBLE PRECISION LAMDA, NAFR
+      DOUBLE PRECISION LAMDA
       COMMON /CASEO/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, LAMDA, PSI1, PSI2, PSI3, PSI4, PSI5,
      &               PSI6, PSI7, PSI8, PSI9,  A1,  A2,  A3,  A4,
@@ -8760,7 +8695,7 @@ CCC      IF (WATER .LE. TINY) GOTO 50               ! No water
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO ***********************
 C
-      DX = (PSI6HI-PSI6LO)/REAL(NDIV, 8)
+      DX = (PSI6HI-PSI6LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = X1+DX
          Y2 = FUNCO2A (X2)
@@ -8856,7 +8791,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCO2A (X)
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       DOUBLE PRECISION LAMDA
       COMMON /CASEO/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
@@ -9223,7 +9157,6 @@ C=======================================================================
 C
       SUBROUTINE CALCM8
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -9265,7 +9198,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI6HI-PSI6LO)/REAL(NDIV, 8)
+      DX = (PSI6HI-PSI6LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = X1+DX
          Y2 = FUNCM8 (X2)
@@ -9345,7 +9278,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCM8 (X)
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -9470,7 +9402,6 @@ C=======================================================================
 C
       SUBROUTINE CALCM7
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -9512,7 +9443,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI6HI-PSI6LO)/REAL(NDIV, 8)
+      DX = (PSI6HI-PSI6LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = X1+DX
          Y2 = FUNCM7 (X2)
@@ -9590,7 +9521,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCM7 (X)
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -9723,7 +9653,6 @@ C=======================================================================
 C
       SUBROUTINE CALCM6
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -9765,7 +9694,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI6HI-PSI6LO)/REAL(NDIV, 8)
+      DX = (PSI6HI-PSI6LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = X1+DX
          Y2 = FUNCM6 (X2)
@@ -9842,7 +9771,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCM6 (X)
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -10003,7 +9931,6 @@ C=======================================================================
 C
       SUBROUTINE CALCM5
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -10045,7 +9972,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI6HI-PSI6LO)/REAL(NDIV, 8)
+      DX = (PSI6HI-PSI6LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = X1+DX
          Y2 = FUNCM5 (X2)
@@ -10122,7 +10049,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCM5 (X)
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -10283,7 +10209,6 @@ C=======================================================================
 C
       SUBROUTINE CALCM4
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -10334,7 +10259,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI6HI-PSI6LO)/REAL(NDIV, 8)
+      DX = (PSI6HI-PSI6LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = X1+DX
          Y2 = FUNCM4 (X2)
@@ -10411,7 +10336,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCM4 (X)
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -10601,7 +10525,6 @@ C=======================================================================
 C
       SUBROUTINE CALCM3
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -10652,7 +10575,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI6HI-PSI6LO)/REAL(NDIV, 8)
+      DX = (PSI6HI-PSI6LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = X1+DX
          Y2 = FUNCM3 (X2)
@@ -10729,7 +10652,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCM3 (X)
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -10995,7 +10917,6 @@ C=======================================================================
 C
       SUBROUTINE CALCM2A
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -11037,7 +10958,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI6HI-PSI6LO)/REAL(NDIV, 8)
+      DX = (PSI6HI-PSI6LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = X1+DX
          Y2 = FUNCM2A (X2)
@@ -11114,7 +11035,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCM2A (X)
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -11533,7 +11453,6 @@ C=======================================================================
 C
       SUBROUTINE CALCP13
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -11597,7 +11516,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI6HI-PSI6LO)/REAL(NDIV, 8)
+      DX = (PSI6HI-PSI6LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = X1+DX
          Y2 = FUNCP13 (X2)
@@ -11676,7 +11595,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCP13 (X)
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -11836,7 +11754,6 @@ C=======================================================================
 C
       SUBROUTINE CALCP12
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -11900,7 +11817,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI6HI-PSI6LO)/REAL(NDIV, 8)
+      DX = (PSI6HI-PSI6LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = X1+DX
          Y2 = FUNCP12 (X2)
@@ -11979,7 +11896,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCP12 (X)
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -12154,7 +12070,6 @@ C=======================================================================
 C
       SUBROUTINE CALCP11
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -12218,7 +12133,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI6HI-PSI6LO)/REAL(NDIV, 8)
+      DX = (PSI6HI-PSI6LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = X1+DX
          Y2 = FUNCP11 (X2)
@@ -12297,7 +12212,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCP11 (X)
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -12480,7 +12394,6 @@ C=======================================================================
 C
       SUBROUTINE CALCP10
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -12544,7 +12457,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI6HI-PSI6LO)/REAL(NDIV, 8)
+      DX = (PSI6HI-PSI6LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = X1+DX
          Y2 = FUNCP10 (X2)
@@ -12623,7 +12536,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCP10 (X)
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -12806,7 +12718,6 @@ C=======================================================================
 C
       SUBROUTINE CALCP9
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -12870,7 +12781,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI6HI-PSI6LO)/REAL(NDIV, 8)
+      DX = (PSI6HI-PSI6LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = X1+DX
          Y2 = FUNCP9 (X2)
@@ -12949,7 +12860,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCP9 (X)
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -13138,7 +13048,6 @@ C=======================================================================
 C
       SUBROUTINE CALCP8
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -13202,7 +13111,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI6HI-PSI6LO)/REAL(NDIV, 8)
+      DX = (PSI6HI-PSI6LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = X1+DX
          Y2 = FUNCP8 (X2)
@@ -13281,7 +13190,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCP8 (X)
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -13498,7 +13406,6 @@ C=======================================================================
 C
       SUBROUTINE CALCP7
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -13562,7 +13469,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI6HI-PSI6LO)/REAL(NDIV, 8)
+      DX = (PSI6HI-PSI6LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = X1+DX
          Y2 = FUNCP7 (X2)
@@ -13641,7 +13548,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCP7 (X)
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -13867,7 +13773,6 @@ C=======================================================================
 C
       SUBROUTINE CALCP6
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -13931,7 +13836,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI6HI-PSI6LO)/REAL(NDIV, 8)
+      DX = (PSI6HI-PSI6LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = X1+DX
          Y2 = FUNCP6 (X2)
@@ -14010,7 +13915,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCP6 (X)
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -14247,7 +14151,6 @@ C=======================================================================
 C
       SUBROUTINE CALCP5
       INCLUDE 'isrpia.inc'
-      INTEGER I
       EXTERNAL CALCP1A, CALCP6
 C
 C *** REGIME DEPENDS ON THE EXISTANCE OF WATER AND OF THE RH ************
@@ -14307,7 +14210,6 @@ C=======================================================================
 C
       SUBROUTINE CALCP5A
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -14371,7 +14273,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI6HI-PSI6LO)/REAL(NDIV, 8)
+      DX = (PSI6HI-PSI6LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = X1+DX
          Y2 = FUNCP5 (X2)
@@ -14450,7 +14352,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCP5 (X)
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -14715,7 +14616,6 @@ C=======================================================================
 C
       SUBROUTINE CALCP4
       INCLUDE 'isrpia.inc'
-      INTEGER I
       EXTERNAL CALCP1A, CALCP5A
 C
 C *** REGIME DEPENDS ON THE EXISTANCE OF WATER AND OF THE RH ************
@@ -14774,7 +14674,6 @@ C=======================================================================
 C
       SUBROUTINE CALCP4A
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -14838,7 +14737,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI6HI-PSI6LO)/REAL(NDIV, 8)
+      DX = (PSI6HI-PSI6LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = X1+DX
          Y2 = FUNCP4 (X2)
@@ -14916,7 +14815,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCP4 (X)
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -15181,7 +15079,6 @@ C=======================================================================
 C
       SUBROUTINE CALCP3
       INCLUDE 'isrpia.inc'
-      INTEGER I
       EXTERNAL CALCP1A, CALCP4A
 C
 C *** REGIME DEPENDS ON THE EXISTANCE OF WATER AND OF THE RH ************
@@ -15241,7 +15138,6 @@ C=======================================================================
 C
       SUBROUTINE CALCP3A
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -15305,7 +15201,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI6HI-PSI6LO)/REAL(NDIV, 8)
+      DX = (PSI6HI-PSI6LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = X1+DX
          Y2 = FUNCP3 (X2)
@@ -15384,7 +15280,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCP3 (X)
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -15657,7 +15552,6 @@ C
 C
       SUBROUTINE CALCP2
       INCLUDE 'isrpia.inc'
-      INTEGER I
       EXTERNAL CALCP1A, CALCP3A, CALCP4A, CALCP5A, CALCP6
 C
 C *** FIND DRY COMPOSITION **********************************************
@@ -15743,7 +15637,6 @@ C=======================================================================
 C
       SUBROUTINE CALCP2A
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -15807,7 +15700,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI6HI-PSI6LO)/REAL(NDIV, 8)
+      DX = (PSI6HI-PSI6LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = X1+DX
          Y2 = FUNCP2A (X2)
@@ -15886,7 +15779,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCP2A (X)
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -16368,7 +16260,6 @@ C=======================================================================
 C
       SUBROUTINE CALCL9
       INCLUDE 'isrpia.inc'
-      INTEGER I
       DOUBLE PRECISION LAMDA
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -16476,8 +16367,7 @@ C=======================================================================
 C
       SUBROUTINE CALCL8
       INCLUDE 'isrpia.inc'
-      INTEGER I
-C      DOUBLE PRECISION LAMDA
+      DOUBLE PRECISION LAMDA
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
      &               CHI16, CHI17, PSI1, PSI2, PSI3, PSI4, PSI5, PSI6,
@@ -16530,7 +16420,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI6HI-PSI6LO)/REAL(NDIV, 8)
+      DX = (PSI6HI-PSI6LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = X1-DX
          Y2 = FUNCL8 (X2)
@@ -16603,7 +16493,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCL8 (P6)
       INCLUDE 'isrpia.inc'
-      INTEGER I
       DOUBLE PRECISION LAMDA
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -16695,8 +16584,7 @@ C=======================================================================
 C
       SUBROUTINE CALCL7
       INCLUDE 'isrpia.inc'
-      INTEGER I
-C      DOUBLE PRECISION LAMDA
+      DOUBLE PRECISION LAMDA
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
      &               CHI16, CHI17, PSI1, PSI2, PSI3, PSI4, PSI5, PSI6,
@@ -16749,7 +16637,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI4HI-PSI4LO)/REAL(NDIV, 8)
+      DX = (PSI4HI-PSI4LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = X1-DX
          CALL RSTGAMP            ! reinitialize activity coefficients (slc.1.2012)
@@ -16823,7 +16711,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCL7 (P4)
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
       DOUBLE PRECISION LAMDA
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -16934,8 +16821,7 @@ C=======================================================================
 C
       SUBROUTINE CALCL6
       INCLUDE 'isrpia.inc'
-      INTEGER I
-      !DOUBLE PRECISION LAMDA
+      DOUBLE PRECISION LAMDA
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
      &               CHI16, CHI17, PSI1, PSI2, PSI3, PSI4, PSI5, PSI6,
@@ -16988,7 +16874,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI4HI-PSI4LO)/REAL(NDIV, 8)
+      DX = (PSI4HI-PSI4LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = X1-DX
          CALL RSTGAMP            ! reinitialize activity coefficients (slc.1.2012)
@@ -17062,7 +16948,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCL6 (P4)
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
       DOUBLE PRECISION LAMDA
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -17173,8 +17058,7 @@ C=======================================================================
 C
       SUBROUTINE CALCL5
       INCLUDE 'isrpia.inc'
-      INTEGER I
-      !DOUBLE PRECISION LAMDA
+      DOUBLE PRECISION LAMDA
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
      &               CHI16, CHI17, PSI1, PSI2, PSI3, PSI4, PSI5, PSI6,
@@ -17229,7 +17113,7 @@ C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
 
-      DX = (PSI4HI-PSI4LO)/REAL(NDIV, 8)
+      DX = (PSI4HI-PSI4LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = MAX(X1-DX, PSI4LO)
          CALL RSTGAMP            ! reinitialize activity coefficients (slc.1.2012)
@@ -17304,7 +17188,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCL5 (P4)
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
       DOUBLE PRECISION LAMDA
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -17425,8 +17308,7 @@ C=======================================================================
 C
       SUBROUTINE CALCL4
       INCLUDE 'isrpia.inc'
-      INTEGER I
-      !DOUBLE PRECISION LAMDA
+      DOUBLE PRECISION LAMDA
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
      &               CHI16, CHI17, PSI1, PSI2, PSI3, PSI4, PSI5, PSI6,
@@ -17479,7 +17361,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI4HI-PSI4LO)/REAL(NDIV, 8)
+      DX = (PSI4HI-PSI4LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = X1-DX
          CALL RSTGAMP            ! reinitialize activity coefficients (slc.1.2012)
@@ -17554,7 +17436,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCL4 (P4)
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
       DOUBLE PRECISION LAMDA
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -17683,7 +17564,6 @@ C=======================================================================
 C
       SUBROUTINE CALCL3
       INCLUDE 'isrpia.inc'
-      INTEGER I
       EXTERNAL CALCL1A, CALCL4
 C
 C *** FIND DRY COMPOSITION *********************************************
@@ -17741,8 +17621,7 @@ C=======================================================================
 C
       SUBROUTINE CALCL3A
       INCLUDE 'isrpia.inc'
-      INTEGER I
-      !DOUBLE PRECISION LAMDA
+      DOUBLE PRECISION LAMDA
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
      &               CHI16, CHI17, PSI1, PSI2, PSI3, PSI4, PSI5, PSI6,
@@ -17790,7 +17669,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI2HI-PSI2LO)/REAL(NDIV, 8)
+      DX = (PSI2HI-PSI2LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = MAX(X1-DX, PSI2LO)
          CALL RSTGAMP            ! reinitialize activity coefficients (slc.1.2012)
@@ -17858,8 +17737,7 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCL3A (P2)
       INCLUDE 'isrpia.inc'
-      INTEGER I
-      !DOUBLE PRECISION LAMDA
+      DOUBLE PRECISION LAMDA
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
      &               CHI16, CHI17, PSI1, PSI2, PSI3, PSI4, PSI5, PSI6,
@@ -17894,7 +17772,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI4HI-PSI4LO)/REAL(NDIV, 8)
+      DX = (PSI4HI-PSI4LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = MAX(X1-DX, PSI4LO)
          CALL RSTGAMP            ! reinitialize activity coefficients (slc.1.2012)
@@ -17967,7 +17845,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCL3B (P4)
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
       DOUBLE PRECISION LAMDA
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -18095,7 +17972,6 @@ C=======================================================================
 C
       SUBROUTINE CALCL2
       INCLUDE 'isrpia.inc'
-      INTEGER I
       EXTERNAL CALCL1A, CALCL3A
 C
 C *** FIND DRY COMPOSITION **********************************************
@@ -18153,8 +18029,7 @@ C=======================================================================
 C
       SUBROUTINE CALCL2A
       INCLUDE 'isrpia.inc'
-      INTEGER I
-      !DOUBLE PRECISION LAMDA
+      DOUBLE PRECISION LAMDA
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
      &               CHI16, CHI17, PSI1, PSI2, PSI3, PSI4, PSI5, PSI6,
@@ -18199,7 +18074,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI2HI-PSI2LO)/REAL(NDIV, 8)
+      DX = (PSI2HI-PSI2LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = MAX(X1-DX, PSI2LO)
          CALL RSTGAMP            ! reinitialize activity coefficients (slc.1.2012)
@@ -18267,8 +18142,7 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCL2A (P2)
       INCLUDE 'isrpia.inc'
-      INTEGER I
-      !DOUBLE PRECISION LAMDA
+      DOUBLE PRECISION LAMDA
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
      &               CHI16, CHI17, PSI1, PSI2, PSI3, PSI4, PSI5, PSI6,
@@ -18306,7 +18180,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI4HI-PSI4LO)/REAL(NDIV, 8)
+      DX = (PSI4HI-PSI4LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = MAX(X1-DX, PSI4LO)
          CALL RSTGAMP            ! reinitialize activity coefficients (slc.1.2012)
@@ -18378,7 +18252,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCL2B (P4)
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
       DOUBLE PRECISION LAMDA
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -18654,7 +18527,6 @@ C=======================================================================
 C
       SUBROUTINE CALCK4
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       DOUBLE PRECISION LAMDA, KAPA
       COMMON /CASEK/ CHI1,CHI2,CHI3,CHI4,LAMDA,KAPA,PSI1,PSI2,PSI3,
@@ -18741,7 +18613,6 @@ C=======================================================================
 C
       SUBROUTINE CALCK3
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       DOUBLE PRECISION LAMDA, KAPA
       COMMON /CASEK/ CHI1,CHI2,CHI3,CHI4,LAMDA,KAPA,PSI1,PSI2,PSI3,
@@ -18770,7 +18641,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI3HI-PSI3LO)/REAL(NDIV, 8)
+      DX = (PSI3HI-PSI3LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = X1-DX
          CALL RSTGAMP            ! reinitialize activity coefficients (slc.1.2012)
@@ -18843,7 +18714,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCK3 (P1)
       INCLUDE 'isrpia.inc'
-      INTEGER I
       DOUBLE PRECISION LAMDA, KAPA
       COMMON /CASEK/ CHI1,CHI2,CHI3,CHI4,LAMDA,KAPA,PSI1,PSI2,PSI3,
      &               A1,   A2,   A3,   A4
@@ -18931,7 +18801,6 @@ C=======================================================================
 C
       SUBROUTINE CALCK2
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       DOUBLE PRECISION LAMDA, KAPA
       COMMON /CASEK/ CHI1,CHI2,CHI3,CHI4,LAMDA,KAPA,PSI1,PSI2,PSI3,
@@ -18960,7 +18829,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI3HI-PSI3LO)/REAL(NDIV, 8)
+      DX = (PSI3HI-PSI3LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = X1-DX
          CALL RSTGAMP            ! reinitialize activity coefficients (slc.1.2012)
@@ -19032,7 +18901,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCK2 (P1)
       INCLUDE 'isrpia.inc'
-      INTEGER I
       DOUBLE PRECISION LAMDA, KAPA
       COMMON /CASEK/ CHI1,CHI2,CHI3,CHI4,LAMDA,KAPA,PSI1,PSI2,PSI3,
      &               A1,   A2,   A3,   A4
@@ -19121,7 +18989,6 @@ C=======================================================================
 C
       SUBROUTINE CALCK1
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       DOUBLE PRECISION LAMDA, KAPA
       COMMON /CASEK/ CHI1,CHI2,CHI3,CHI4,LAMDA,KAPA,PSI1,PSI2,PSI3,
@@ -19151,7 +19018,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI3HI-PSI3LO)/REAL(NDIV, 8)
+      DX = (PSI3HI-PSI3LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = X1-DX
          CALL RSTGAMP            ! reinitialize activity coefficients (slc.1.2012)
@@ -19224,7 +19091,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCK1 (P1)
       INCLUDE 'isrpia.inc'
-      INTEGER I
       DOUBLE PRECISION LAMDA, KAPA
       COMMON /CASEK/ CHI1,CHI2,CHI3,CHI4,LAMDA,KAPA,PSI1,PSI2,PSI3,
      &               A1,   A2,   A3,   A4

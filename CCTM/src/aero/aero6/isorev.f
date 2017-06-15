@@ -316,7 +316,6 @@ C=======================================================================
 C
       SUBROUTINE ISRP3R (WI, RHI, TEMPI)
       INCLUDE 'isrpia.inc'
-      INTEGER I
       DIMENSION WI(NCOMP)
       LOGICAL   TRYLIQ
 ccC
@@ -543,7 +542,6 @@ C=======================================================================
 C
       SUBROUTINE ISRP4R (WI, RHI, TEMPI)
       INCLUDE 'isrpia.inc'
-      INTEGER I
       DIMENSION WI(NCOMP)
       LOGICAL   TRYLIQ
 ccC
@@ -789,7 +787,7 @@ C
             SCASE = 'L9'
             CALL CALCL9            ! CaSO4
          ENDIF
-      ENDIF
+       ENDIF
 C
       CALL CALCNHP                ! MINOR SPECIES: HNO3, HCl
       CALL CALCNH3P               !                NH3
@@ -862,7 +860,6 @@ C=======================================================================
 C
       SUBROUTINE CALCS2
       INCLUDE 'isrpia.inc'
-      INTEGER I
       DOUBLE PRECISION NH4I, NH3GI, NH3AQ
 C
 C *** SETUP PARAMETERS ************************************************
@@ -986,7 +983,6 @@ C=======================================================================
 C
       SUBROUTINE CALCN3
       INCLUDE 'isrpia.inc'
-      INTEGER I
       DOUBLE PRECISION NH4I, NO3I, NH3AQ, NO3AQ
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
@@ -1103,7 +1099,6 @@ C=======================================================================
 C
       SUBROUTINE CALCN2
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -1134,7 +1129,7 @@ C
 C
 C *** ROOT TRACKING ; FOR THE RANGE OF HI AND LO **********************
 C
-      DX = (PSI1HI-PSI1LO)/REAL(NDIV, 8)
+      DX = (PSI1HI-PSI1LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = MAX(X1-DX, ZERO)
          Y2 = FUNCN2 (X2)
@@ -1208,7 +1203,6 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION FUNCN2 (P1)
       INCLUDE 'isrpia.inc'
-      INTEGER I
       DOUBLE PRECISION NH4I, NO3I, NH3AQ, NO3AQ
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
@@ -1420,7 +1414,6 @@ C=======================================================================
 C
       SUBROUTINE CALCQ5
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ
 C
@@ -1572,7 +1565,6 @@ C=======================================================================
 C
       SUBROUTINE CALCQ4
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       LOGICAL PSCONV1
       DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ
@@ -1809,7 +1801,6 @@ C=======================================================================
 C
       SUBROUTINE CALCQ3A
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       LOGICAL PSCONV1, PSCONV6
       DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ
@@ -2079,7 +2070,6 @@ C=======================================================================
 C
       SUBROUTINE CALCQ2A
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       LOGICAL PSCONV1, PSCONV4, PSCONV6
       DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ
@@ -2445,7 +2435,6 @@ C=======================================================================
 C
       SUBROUTINE CALCR6
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ
 C
@@ -2597,7 +2586,6 @@ C=======================================================================
 C
       SUBROUTINE CALCR5
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       LOGICAL PSCONV
       DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ
@@ -2850,7 +2838,6 @@ C=======================================================================
 C
       SUBROUTINE CALCR4A
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       LOGICAL PSCONV1, PSCONV4
       DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ
@@ -3125,7 +3112,6 @@ C=======================================================================
 C
       SUBROUTINE CALCR3A
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       LOGICAL PSCONV1, PSCONV3, PSCONV4
       DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ
@@ -3480,7 +3466,6 @@ C=======================================================================
 C
       SUBROUTINE CALCR2A
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       LOGICAL PSCONV1, PSCONV2, PSCONV3, PSCONV4
       DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ
@@ -3924,7 +3909,7 @@ C
 C *** CALCULATE SOLIDS **************************************************
 C
       CNA2SO4 = WAER(2)
-      FRNA    = MAX (WAER(1)-2.0d0*CNA2SO4, ZERO)
+      FRNA    = MAX (WAER(1)-2*CNA2SO4, ZERO)
 C
       CNH42S4 = ZERO
 C
@@ -3975,7 +3960,6 @@ C=======================================================================
 C
       SUBROUTINE CALCV7
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
 C
@@ -4153,7 +4137,6 @@ C=======================================================================
 C
       SUBROUTINE CALCV6
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       LOGICAL PSCONV7
       DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
@@ -4365,7 +4348,6 @@ C=======================================================================
 C
       SUBROUTINE CALCV5
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       LOGICAL PSCONV7, PSCONV1
       DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
@@ -4602,7 +4584,6 @@ C=======================================================================
 C
       SUBROUTINE CALCV4
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       LOGICAL PSCONV7, PSCONV1
       DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
@@ -4891,7 +4872,6 @@ C=======================================================================
 C
       SUBROUTINE CALCV3A
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       LOGICAL PSCONV7, PSCONV1, PSCONV6
       DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
@@ -5214,7 +5194,6 @@ C=======================================================================
 C
       SUBROUTINE CALCV2A
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       LOGICAL PSCONV7, PSCONV1, PSCONV6, PSCONV4
       DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
@@ -5598,7 +5577,6 @@ C=======================================================================
 C
       SUBROUTINE CALCV1A
       INCLUDE 'isrpia.inc'
-      DOUBLE PRECISION NAFR
 C
 C *** CALCULATE SOLIDS **************************************************
 C
@@ -5657,7 +5635,6 @@ C=======================================================================
 C
       SUBROUTINE CALCU8
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
 C
@@ -5841,7 +5818,6 @@ C=======================================================================
 C
       SUBROUTINE CALCU7
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       LOGICAL PSCONV7
       DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
@@ -6072,7 +6048,6 @@ C=======================================================================
 C
       SUBROUTINE CALCU6
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       LOGICAL PSCONV7, PSCONV1
       DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
@@ -6327,7 +6302,6 @@ C=======================================================================
 C
       SUBROUTINE CALCU5
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       LOGICAL PSCONV7, PSCONV1
       DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
@@ -6639,7 +6613,6 @@ C=======================================================================
 C
       SUBROUTINE CALCU4A
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       LOGICAL PSCONV7, PSCONV1, PSCONV4
       DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
@@ -6989,7 +6962,6 @@ C=======================================================================
 C
       SUBROUTINE CALCU3A
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       LOGICAL PSCONV7, PSCONV1, PSCONV4, PSCONV3
       DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
@@ -7430,7 +7402,6 @@ C=======================================================================
 C
       SUBROUTINE CALCU2A
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       LOGICAL PSCONV7, PSCONV1, PSCONV4, PSCONV3, PSCONV5
       DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
@@ -8008,10 +7979,8 @@ C=======================================================================
 C
       SUBROUTINE CALCW13
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
-      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI,
-     &                 KCL
+      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -8200,11 +8169,9 @@ C=======================================================================
 C
       SUBROUTINE CALCW12
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       LOGICAL PSCONV9
-      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI,
-     &                 KCL
+      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -8428,11 +8395,9 @@ C=======================================================================
 C
       SUBROUTINE CALCW11
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       LOGICAL PSCONV9, PSCONV13
-      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI,
-     &                 KCL
+      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -8683,11 +8648,9 @@ C=======================================================================
 C
       SUBROUTINE CALCW10
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       LOGICAL PSCONV9, PSCONV13
-      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI,
-     &                 KCL
+      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -8940,11 +8903,9 @@ C=======================================================================
 C
       SUBROUTINE CALCW9
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       LOGICAL PSCONV9, PSCONV13, PSCONV14
-      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI,
-     &                 KCL
+      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -9221,11 +9182,9 @@ C=======================================================================
 C
       SUBROUTINE CALCW8
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       LOGICAL PSCONV9, PSCONV13, PSCONV14, PSCONV5
-      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI,
-     &                 KCL
+      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -9526,11 +9485,9 @@ C=======================================================================
 C
       SUBROUTINE CALCW7
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       LOGICAL PSCONV9, PSCONV13, PSCONV14, PSCONV5, PSCONV7
-      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI,
-     &                 KCL
+      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -9857,11 +9814,9 @@ C=======================================================================
 C
       SUBROUTINE CALCW6
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       LOGICAL PSCONV9, PSCONV13, PSCONV14, PSCONV5, PSCONV7, PSCONV8
-      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI,
-     &                 KCL
+      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -10212,7 +10167,6 @@ C=======================================================================
 C
       SUBROUTINE CALCW5
       INCLUDE 'isrpia.inc'
-      INTEGER I
 C
       EXTERNAL CALCW1A, CALCW6
 C
@@ -10273,11 +10227,9 @@ C=======================================================================
 C
       SUBROUTINE CALCW5A
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       LOGICAL PSCONV9, PSCONV13, PSCONV14, PSCONV5, PSCONV7, PSCONV8
-      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI,
-     &                 KCL
+      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -10628,7 +10580,6 @@ C=======================================================================
 C
       SUBROUTINE CALCW4
       INCLUDE 'isrpia.inc'
-      INTEGER I
       EXTERNAL CALCW1A, CALCW5A
 C
 C *** REGIME DEPENDS ON THE EXISTANCE OF WATER AND OF THE RH ************
@@ -10688,11 +10639,9 @@ C=======================================================================
 C
       SUBROUTINE CALCW4A
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       LOGICAL PSCONV9, PSCONV13, PSCONV14, PSCONV5, PSCONV7, PSCONV8
-      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI,
-     &                 KCL
+      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -11044,7 +10993,6 @@ C=======================================================================
 C
       SUBROUTINE CALCW3
       INCLUDE 'isrpia.inc'
-      INTEGER I
       EXTERNAL CALCW1A, CALCW4A
 C
 C *** REGIME DEPENDS ON THE EXISTANCE OF WATER AND OF THE RH ************
@@ -11110,11 +11058,9 @@ C=======================================================================
 C
       SUBROUTINE CALCW3A
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       LOGICAL PSCONV9, PSCONV13, PSCONV14, PSCONV5, PSCONV7, PSCONV8
-      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI,
-     &                 KCL
+      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
@@ -11475,7 +11421,6 @@ C
 C
       SUBROUTINE CALCW2
       INCLUDE 'isrpia.inc'
-      INTEGER I
       EXTERNAL CALCW1A, CALCW3A, CALCW4A, CALCW5A, CALCW6
 C
 C *** FIND DRY COMPOSITION **********************************************
@@ -11561,11 +11506,9 @@ C=======================================================================
 C
       SUBROUTINE CALCW2A
       INCLUDE 'isrpia.inc'
-      INTEGER I, ISLV
 C
       LOGICAL PSCONV9, PSCONV13, PSCONV14, PSCONV5, PSCONV7, PSCONV8
-      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI,
-     &                 KCL
+      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
 C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
