@@ -1,7 +1,7 @@
 #! /bin/csh -f
 
 # ==================== COMBINEv5.2 Build Script ===================== #
-# Usage: bldit_combine.csh >&! bldit_combine.log                          #
+# Usage: bldit_combine.csh >&! bldit_combine.log                      #
 # Requirements: I/O API & netCDF libraries; a Fortran compiler        #
 #                                                                     #
 # To report problems or request help with this script/program:        #
