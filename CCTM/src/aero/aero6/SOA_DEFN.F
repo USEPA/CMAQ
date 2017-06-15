@@ -1376,8 +1376,10 @@ C End SOA paritioning solver METHOD selection
 C Constrain caer to values between conmin and ctotf
         Do i = 1, n_vapor
 
-           If ( soa_aeroMap( i ) .Lt. 1 ) Cycle
-           indx = soa_aeroMap( i )
+           If ( soa_aeroMap( i ) .Lt. 1 )Then
+               caer( i ) = 0.0
+               Cycle
+           End If
 
            If ( caer( i ) .Lt. 0.0 ) Then
                   Write( logdev,* ) 'caer negative at i: ', i, caer( i ),
@@ -1391,6 +1393,8 @@ C Constrain caer to values between conmin and ctotf
                Write( logdev,* ) 'caer reset to ctotf'
                caer( i ) = ctotf( i )
            End If
+
+           indx = soa_aeroMap( i )
 
            ! Calculate total change in OA Species Concentration
            dcaer( i ) = caer( i ) - caer0( i )  
