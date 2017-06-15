@@ -283,7 +283,7 @@ C Compute gas conversion constant
       gasconv = Real( airdens * inv_mwair, 8 )
 
 C Copy grid cell concentrations of precursor species
-      precursor_conc = 0.0
+      precursor_conc = 0.0d0
 
       Do spc = 1, n_precursor
          n = precursor_map( spc )

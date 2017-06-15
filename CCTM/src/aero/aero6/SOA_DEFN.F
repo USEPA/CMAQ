@@ -1174,12 +1174,12 @@ C Compute 3rd moment, 2nd moment. moment_conc arrays are wet
       m2wet_init( : ) = moment2_conc( 1:2 )
         
       GR3( :,: ) = 0.0
-      m0_init( : )    = moment0_conc( 1:2 )
-      m2wet_initD( : ) = DBLE( m2wet_init( 1:2 ) )
+      m0_init( : )    = Real( moment0_conc( 1:2 ), 8 )
+      m2wet_initD( : ) = Real( m2wet_init( 1:2 ), 8 )
 
       Do im = 1,2
         m1wet_init( im ) = m0_init( im ) * aeromode_diam( im ) * 
-     &                         exp( 0.5 * aeromode_lnsg( im ) ** 2 )
+     &                         exp( 0.5d0 * aeromode_lnsg( im ) ** 2.0d0 )
 
         Do i = 1, n_vapor
           If ( aero_missing( soa_aeroMap( i ),im ) ) Cycle
@@ -1391,8 +1391,14 @@ C Constrain caer to values between conmin and ctotf
 
            ! Calculate total change in OA Species Concentration
            dcaer( i ) = caer( i ) - caer0( i )  
+
+           If ( soa_aeroMap( i ) .Lt. 1 ) Cycle
+           indx = soa_aeroMap( i )
+
+           ! Sum the total aerosol mass of this compound across all
+           ! aerosol modes
            totaer = max( sum( aerospc_conc( indx,: ) , mask = 
-     &                   .NOT.aero_missing( indx,: ) ), conmin )
+     &                 .NOT.aero_missing( indx,: ) ), conmin )
     
            ! Transfer the semivolatile mass
            Do im = 1,2
@@ -1409,13 +1415,13 @@ C Constrain caer to values between conmin and ctotf
      &                + dcaer( i ) * GR3FRAC( i,im )
               End If
            End Do
-
         End Do  ! Partitioning Vapor Loop
  
       Else   ! threshold not exceeded; no material transferred to aerosol phase
         
         caer = 0.0
         Do i = 1, n_vapor
+            If ( soa_aeroMap( i ) .Lt. 1 ) Cycle
             indx = soa_aeroMap( i )
             aerospc_conc( indx, 1:n_mode ) = conmin
             Do im = 1, n_mode
@@ -2039,7 +2045,7 @@ C    all dimensions now depend upon N only
       INTEGER I, IMAX, J, K
       REAL AAMAX, DUM, SUM, VV( N )
 
-      D = 1
+      D = 1.0
       DO I = 1, N
          AAMAX = 0.0
          DO J = 1, N
