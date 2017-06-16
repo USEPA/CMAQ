@@ -35,15 +35,12 @@ C
 C=======================================================================
 C
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-
-      INTEGER NCOMP, NIONS, NGASAQ, NSLDS, NPAIR, NZSR, NERRMX
-
       PARAMETER (NCOMP=8,NIONS=10,NGASAQ=3,NSLDS=19,NPAIR=23,NZSR=100,
      &           NERRMX=25)
 C
 C *** INPUT VARIABLES **************************************************
 C
-      INTEGER METSTBL, IPROB, NADJ
+      INTEGER METSTBL
       COMMON /INPT/ W(NCOMP), WAER(NCOMP), TEMP, RH, IPROB, METSTBL,
      &              NADJ
 C
@@ -78,8 +75,7 @@ C
 C *** VARIABLES FOR LIQUID AEROSOL PHASE *******************************
 C
       DOUBLE PRECISION MOLAL, MOLALR, M0
-      DOUBLE PRECISION IONIC
-      INTEGER IACALC
+      REAL IONIC
       LOGICAL CALAOU, CALAIN, FRST, DRYF
       COMMON /IONS/ MOLAL(NIONS), MOLALR(NPAIR), GAMA(NPAIR), ZZ(NPAIR),
      &              Z(NIONS),     GAMOU(NPAIR),  GAMIN(NPAIR),M0(NPAIR),
@@ -118,7 +114,6 @@ C
       COMMON /CASE/ SULRATW, SULRAT, SODRAT, SO4RAT, CRNARAT, CRRAT,
      &              SCASE
 C
-      INTEGER MAXIT, NSWEEP, NDIV, ICLACT
       COMMON /SOLN/ EPS, MAXIT, NSWEEP, NDIV, ICLACT
 C
 C *** ERROR SYSTEM *****************************************************
