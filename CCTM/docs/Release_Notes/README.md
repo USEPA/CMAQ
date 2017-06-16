@@ -1,12 +1,9 @@
 CMAQv5.2 Release Notes - October 2016
 =====================================
 
-Refer to the CMAQv5.0 [Technical Documentation](https://www.airqualitymodeling.org/index.php/CMAQ_version_5.0_(February_2012_release)_Technical_Documentation)
-for information on the technical features of this version.  
-
 The Community Multiscale Air Quality (CMAQ) Model version 5.2 is a major update to CMAQ that includes several changes to the science algorithms in the base model.  CMAQ v5.2 was developed by the U.S. EPA with contributions from other research partners. Summarized below are the main enhancements to the modeling system since the previous release, CMAQ v5.1.
 
-# Base Documentation  
+# Getting Started with CMAQ  
 [Building and running CMAQv5.2](../User_Manual/CMAQ_OGD_ch05_sys_req.md)  
 [Building and running WRF-CMAQ Two Way Model](Two_Way_Coupled_WRF-CMAQ.md)
 
@@ -15,7 +12,7 @@ The Community Multiscale Air Quality (CMAQ) Model version 5.2 is a major update 
 
 ## Chemistry
 ### Photochemistry
-There are 11 unique gas-phase chemical mechanisms in CMAQv5.2. These are all located in the MECHS/ folder and may be invoked when building the model and Makefile. Variations of Carbon Bond 5 (CB05), Carbon Bond 6 (CB6), RACM2, and SAPRC07 are all available. Specific science updates include the following:  
+There are 10 unique gas-phase chemical mechanisms in CMAQv5.2. These are all located in the MECHS/ folder and may be invoked when building the model and Makefile. Variations of Carbon Bond 5 (CB05), Carbon Bond 6 (CB6), RACM2, and SAPRC07 are all available. Specific science updates include the following:  
   * [CMAQv5.2 Photochemical Mechanisms](CMAQv5.2_Mechanisms.md)
   * [Implementation of CB6r3](CB6_release_notes.md)
   * [Implementation of CB05eh51: Bromine and Iodine Chemistry](Halogen_Chemistry.md)  
@@ -39,9 +36,8 @@ The aerosol module has undergone significant changes that affect both its struct
   * [Update to Speciation of coarse-mode aerosol](Coarse_Aerosol_Speciation.md)
 
 The following structural updates ensure consistent treatment of aerosols in CMAQv5.2 and flexibility as the code is developed in the future:
-  * [New flexibility in Aero_Data table](aero6_6i_6mp_consolidation.md)
+  * [Consolidation of aero module and increased flexibility in AERO_DATA table](aero6_6i_6mp_consolidation.md)
   * [Consistent treatment of aerosol water contribution to second and third aerosol moments](Aerosol_Moment_Consistency.md)
-  * [Consolidation of aero module](aero6_6i_6mp_consolidation.md)
 
 The following updates affect application of CMAQ aerosol components to observation data:
   * [PM Diagnsotic files have been enhanced to provide more detailed and robust information about CMAQ particulate properties](PM_Diagnostic_Files.md)
@@ -87,9 +83,6 @@ CCTM can now do process analysis with Integrated Process Rates (IPR) and/or Inte
 ## Tools & Utilities
   * [Distribution of SpecDef files and SpecDef_Dep files into mechanism sub-modules](Misc_Aerosol_Operation_Updates.md)
   * [Updates to post-processing tools bldoverlay, combine, hr2day, sitecmp, sitecmp_dailyo3, writesite](Update_POST.md)
-
-## Two-way Coupled WRF-CMAQ
-  * [Building the two-way coupled WRF-CMAQ model](Two_Way_Coupled_WRF-CMAQ.md)
 
 ## Instrumented Models
 The instrumented versions of CMAQv5.2 (e.g. CMAQ-DDM) will be release at a later date.
