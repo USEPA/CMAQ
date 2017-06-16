@@ -56,7 +56,7 @@ These minor updates/bug fixes were necessary:
 
 ### Lightning Interactions
   * [Lightning NO<sub>x</sub> generation has been updated to leverage existing lightning fields for hindsight cases and an improved parameterization for future cases](Lightning_NOx.md)
-  * [Fix hard-coded time-step for lightning NO<sub>x</sub> generation](Wet_Dep_Update.md)
+  * Fix hard-coded time-step for lightning NO<sub>x</sub> generation
 
 ## Transport Processes
   * [The scaling of ozone in the upper troposphere has been corrected using an approach relying on potential vorticity](Potential_Vorticity_Scaling.md)
