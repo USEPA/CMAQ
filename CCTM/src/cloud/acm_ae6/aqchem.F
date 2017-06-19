@@ -292,7 +292,7 @@ C...........Local Variables (scalars):
       REAL( 8 ) :: HSO4COR         ! coarse HSO4 concn in cloudwater (mol/liter)
       REAL( 8 ) :: HTST            !
       REAL( 8 ) :: K               ! K conc in cloudwater (mol/liter)
-      REAL( 8 ) :: LGTEMP          ! log of TEMP
+      !REAL( 8 ) :: LGTEMP          ! log of TEMP
       REAL( 8 ) :: MG              !
       REAL( 8 ) :: MGLYH           ! Henry's Law Constant for methylglyoxal
       REAL( 8 ) :: MGLYL           ! MGLY conc in cloud water (mol/liter)
@@ -310,7 +310,7 @@ C...........Local Variables (scalars):
       REAL( 8 ) :: NH4             ! NH4+ conc in cloudwater (mol/liter)
       REAL( 8 ) :: NH4ACC          ! NH4 acc conc in cloudwater (mol/liter)
       REAL( 8 ) :: NH4COR          ! NH4 coarse conc in cloudwater (mol/liter)
-      REAL( 8 ) :: NITAER          ! total aerosol nitrate
+      !REAL( 8 ) :: NITAER          ! total aerosol nitrate
       REAL( 8 ) :: NO3             ! NO3 conc in cloudwater (mol/liter)
       REAL( 8 ) :: NO3ACC          ! NO3 acc conc in cloudwater (mol/liter)
       REAL( 8 ) :: NO3COR          ! NO3 coarse conc in cloudwater (mol/liter)
@@ -339,7 +339,7 @@ C...........Local Variables (scalars):
       REAL( 8 ) :: PRIM            ! PRIMARY acc+akn aerosol in cloudwater (mol/liter)
 !     REAL( 8 ) :: PRIMCOR         ! PRIMARY coarse aerosol in cloudwater (mol/liter)
       REAL( 8 ) :: PSO2F           ! gas only SO2 partial pressure (atm)
-      REAL( 8 ) :: RATE            !
+      !REAL( 8 ) :: RATE            !
       REAL( 8 ) :: RECIPA1         !
       REAL( 8 ) :: RECIPA2         !
       REAL( 8 ) :: RECIPAP1        ! one over pressure (/atm)
@@ -370,7 +370,7 @@ C...........Local Variables (scalars):
 !     REAL( 8 ) :: THO             ! total hydroxyl radical available for oxidation
       REAL( 8 ) :: TGLY            ! total glyoxal available for oxidation
       REAL( 8 ) :: TMGLY           ! total methylglyoxal available for oxidation
-      REAL( 8 ) :: TOTOX           !
+      !REAL( 8 ) :: TOTOX           !
       REAL( 8 ) :: TH2O2
       REAL( 8 ) :: TO3
       REAL( 8 ) :: TMHP
@@ -454,7 +454,7 @@ C...........External Functions:
       REAL, EXTERNAL :: HLCONST
 
 !For Varaible used by TXHG Version
-      LOGICAL, SAVE :: TRUST_TXHG_CHEM = .TRUE.  ! allow effects for TXHG version on ion and ph
+      !LOGICAL, SAVE :: TRUST_TXHG_CHEM = .TRUE.  ! allow effects for TXHG version on ion and ph
       REAL( 8 ) :: TRACER           ! TRACER acc+akn aerosol in cloudwater (mol/liter)
       REAL( 8 ) :: TRACERCOR        ! TRACER coarse aerosol in cloudwater (mol/liter)
       REAL( 8 ) :: HGFINE           ! mercury PM acc+akn aerosol in cloudwater (mol/liter)
@@ -1602,7 +1602,7 @@ C...Compute for Aerosol species in  TXHG Version
 
 C...store the amount of hydrogen deposition
 
-      HPWDEP = WETDEP( LACL )
+      HPWDEP = REAL( WETDEP( LACL ), 4 )
 
       RETURN
 
@@ -1612,5 +1612,5 @@ C...formats
      &       'TS6=', F10.5, 'DTW(0)=', F10.5, 'CTHK1=', F10.5,
      &       'WTAVG=', F10.5 )
 
-1002  FORMAT( 65(1X, ES12.4, 4X) )
+C1002  FORMAT( 65(1X, ES12.4, 4X) )
       END

@@ -6,7 +6,7 @@
 
 
 ! --------- Photochemical Mechanism Reactions, Rates, etc. DAT ---------
-! Source file: /work/MOD3DEV/bmurphy/Models/cmaq/CMAQv5.1_Ben/models/CCTM_Github/MECHS/saprc07tc_ae6_aq/mech.def
+! Source file: ../../CCTM/src/MECHS/saprc07tc_ae6_aq/mech_saprc07tc_ae6_aq.def
 ! for Mechanism Name: SAPRC07TC_AE6_AQ                
 
 ! This file is used to create mechanism data and functions
@@ -3978,8 +3978,8 @@
      &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
      &        0.00000,    1.00000,    0.50000,    1.00000,    1.00000, & ! 1   
      &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        0.00000,    1.14280,    1.14280,    1.00000,    1.00000, & ! 2   
-     &        0.85714,    0.85714,    1.00000,    1.00000,    0.50000, & ! +   
+     &        0.00000,    0.85710,    1.14290,    0.85710,    1.14290, & ! 2   
+     &        0.71430,    0.71430,    0.80000,    0.90000,    0.50000, & ! +   
      &        0.50000,    1.50000,    1.42860,    1.42860,    1.71430, & ! 3   
      &        1.71430,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
      &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 4   
@@ -8262,7 +8262,7 @@
 !    SPECIAL      = Names of special rate coefficients
 !    NSPECIAL_RXN = Number of reactions with special rates
 !    ISPECIAL     = Pointers to reactions using special rates and their special rate coefficients
-!    MAXSPECTERMS = Max Number of each term type in  special rate coefficients
+!    MAXSPECTERMS = Max Number of terms type used by special rate coefficients
 !    KC_COEFFS    = Coefficients of standard rate coefficients  times concentration terms 
 !    INDEX_KTERMS  = Pointers to standard rate coefficients in  special rate coefficients
 !    INDEX_CTERMS  = Pointers to species concentrations in  special rate coefficients
@@ -8279,7 +8279,7 @@
 ! Special Rate information not available ...
       CHARACTER( 16 )    :: SPECIAL( 1 )
 
-      INTEGER, PARAMETER :: MAXSPECTERMS =  10
+      INTEGER, PARAMETER :: MAXSPECTERMS =   1
       REAL( 8 )          :: KC_COEFFS( NSPECIAL + 1, MAXSPECTERMS)
       INTEGER            :: INDEX_KTERMS( NSPECIAL + 1, MAXSPECTERMS)
       INTEGER            :: INDEX_CTERMS( NSPECIAL + 1, MAXSPECTERMS)

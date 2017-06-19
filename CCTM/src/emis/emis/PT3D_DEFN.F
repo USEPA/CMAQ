@@ -749,6 +749,7 @@ C Local variables:
          INTEGER          LPBL       ! first L: ZF(L) above mixing layer - ONLY for REPORT
          INTEGER          LSTK       ! first L: ZF(L) > STKHT
          INTEGER          SRC        ! source pointer in this proc sub-domain
+         INTEGER          MY_DELTA   ! total number of sources on this processor
          REAL             LFRC       ! intermediate LFRAC
          REAL             MV         ! mininum LFRAC 
          REAL             PSFC       ! surface pressure [Pa]
@@ -976,8 +977,9 @@ C Ensure that the model and stack groups emissions timestamp dates stay synchron
      &                    ' from ' // TRIM( STKENAME( N ) )
                      CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
                   END IF
-                  STKEMIS( N )%ARRY( 1,V ) = STKEMIS( N )%ARRY( 1,V ) 
-     &                                     + STKEMIS_TOO( N )%ARRY( 1,V )
+                  MY_DELTA = MY_END_SRC( N ) - MY_STRT_SRC( N ) + 1
+                  STKEMIS( N )%ARRY( 1:MY_DELTA,V ) = STKEMIS( N )%ARRY( 1:MY_DELTA,V ) 
+     &                                     + STKEMIS_TOO( N )%ARRY( 1:MY_DELTA,V )
                END IF
             END DO
 
@@ -999,13 +1001,14 @@ C Ensure that the model and stack groups emissions timestamp dates stay synchron
                      IF ( .NOT. INTERPX( STKENAME( N ), 'PNCOM', PNAME,
      &                                   1,1, MY_STRT_SRC( N ),MY_END_SRC( N ), 1,1,
      &                                   LOC_STKDATE, JTIME,
-     &                                   FIREVAR_TOO( 1 )%ARRY( 1,V ) ) ) THEN
+     &                                   FIREVAR_TOO( N )%ARRY( 1,V ) ) ) THEN
                         XMSG = 'Could not read ' // TRIM( VNAME ) //
      &                         ' from ' // TRIM( STKENAME( N ) )
                         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
                      END IF
-                     FIREVAR( N )%ARRY( 1,V ) = FIREVAR( N )%ARRY( 1,V )
-     &                                        + FIREVAR_TOO( N )%ARRY( 1,V )
+                     MY_DELTA = MY_END_SRC( N ) - MY_STRT_SRC( N ) + 1
+                     FIREVAR( N )%ARRY( 1:MY_DELTA,V ) = FIREVAR( N )%ARRY( 1:MY_DELTA,V )
+     &                                        + FIREVAR_TOO( N )%ARRY( 1:MY_DELTA,V )
                   END IF
                END DO
                DO S = 1, MY_NSRC( N )
