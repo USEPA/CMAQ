@@ -458,7 +458,8 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
          STRAT_O3_COLUMN = DU_TO_CONC * REAL( TOTAL_O3_COLUMN )
 !         STRAT_O3_COLMIN = 0.10 * STRAT_O3_COLUMN
          STRAT_O3_COLMIN = MIN_STRATO3_FRAC * STRAT_O3_COLUMN
-        SUCCESS = .TRUE.
+         SUCCESS = .TRUE.
+         TROPO_O3_COLUMN = 0.0
          DO L = NLAYS, 1, -1
             DELTA_O3_COLUMN = 100.0 * BLKO3( L ) * BLKDZ( L )
             STRAT_O3_COLUMN = STRAT_O3_COLUMN - DELTA_O3_COLUMN
