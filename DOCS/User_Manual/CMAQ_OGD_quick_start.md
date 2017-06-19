@@ -18,76 +18,74 @@ The following support software are required for compiling and running CMAQ.
 
 ### Install CMAQ and Required Libraries ###
 
-In the directory where you would like to install CMAQ, create the directory CMAQ_v5.2 and then issue the following command to clone the EPA GitHub repository for CMAQv5.2:
+In the directory where you would like to install CMAQ, create the directory issue the following command to clone the EPA GitHub repository for CMAQv5.2:
 
 ```
-git clone -b 5.2 https://github.com/USEPA/CMAQ.git CMAQ_v5.2
+git clone -b 5.2 https://github.com/USEPA/CMAQ.git CMAQ_REPO
 ```
 
 For instructions on installing CMAQ from tarballs, see [Chapter 5](CMAQ_OGD_ch05_sys_req.md).
 
 #### Configure the CMAQ build environment
 
-Edit the file `CMAQv5.2/config.cmaq` to configure the CMAQ installation for the local computing architecture and compilers.
+*1.* In the top level of CMAQ_REPO, execute the script extraction utility.
+```
+./extract_scripts.csh
+```
+By default, this script will copy configuration, build and run scripts from the repo to the folder the repo is located in (i.e. one level up). An arbitrary folder can be selected by the user by modifying the `CMAQ_WORK` variable in extract_scripts.csh.
 
-*1.* Set the script variable `CMAQ_HOME` to point the installation directory location of CMAQ on your Linux system.
+*2.* Install the CMAQ libraries
 
-*2.* Set the script variable `compiler` for one of the supported compilers.
-
-*3.* Install the CMAQ libraries
-
-The CMAQ build scripts require the following libraries and INCLUDE files to be available in the CMAQ_LIB directory (Note the CMAQ_LIB gets set automatically by the config.cmaq script, where `CMAQ_LIB = $CMAQ_HOME/lib`): 
+The CMAQ build scripts require the following libraries and INCLUDE files to be available in the CMAQ_LIB directory (Note the CMAQ_LIB gets set automatically by the config_cmaq.csh script, where `CMAQ_LIB = $CMAQ_HOME/lib`): 
 
 - netCDF library and INCLUDE files are located in the `$CMAQ_LIB/netcdf` directory
 - I/O API library and module files are located in the `$CMAQ_LIB/ioapi` directory
 - MPI library and INCLUDE files are located in the `$CMAQ_LIB/mpi` directory
 
-The config.cmaq script will automatically link the required libraries into the CMAQ_LIB directory. Set the locations of the netCDF, I/O API, and MPI installations on your Linux system with the following config.cmaq environment variables:
+The config_cmaq.csh script will automatically link the required libraries into the CMAQ_LIB directory. Set the locations of the netCDF, I/O API, and MPI installations on your Linux system with the following config_cmaq.csh environment variables:
 
-- `setenv IOAPI`: the location of the I/O API installation on your system.
+- `setenv IOAPI_MOD`: the location of the I/O API module files on your system.
+- `setenv IOAPI_INCL`: the location of the I/O API include files on your system.
+- `setenv IOAPI_LIB`: the location of compiled I/O API libraries on your system.
 - `setenv NETCDF`: the location of the netCDF installation on your system.
 - `setenv MPI`: the location of the MPI (OpenMPI or MVAPICH) on your system.
 
-For example, if your netCDF libraries and includes files are installed in /usr/local/netcdf, set NETCDF to /usr/local/netcdf. Similarly, if your I/O API library is installed in /home/cmaq/ioapi/Linux2_x86_64ifort, set IOAPI to /home/cmaq/ioapi/Linux2_x86_64ifort. 
+For example, if your netCDF libraries and includes files are installed in /usr/local/netcdf, set `NETCDF` to /usr/local/netcdf. Similarly, if your I/O API library is installed in /home/cmaq/ioapi/Linux2_x86_64ifort, set `IOAPI_LIB` to /home/cmaq/ioapi/Linux2_x86_64ifort. 
 
-*4.* Check the names of the I/O API and netCDF libraries using the `ioapi_lib` and `netcdf_lib` script variables.
+*3.* Check the names of the I/O API and netCDF libraries using the `ioapi_lib` and `netcdf_lib` script variables.
 
-*5.* Check the name of the MPI library using the `mpi` script variable. For MVAPICH use `-lmpich`; for openMPI use `-lmpi`.
+*4.* Check the name of the MPI library using the `mpi` script variable. For MVAPICH use `-lmpich`; for openMPI use `-lmpi`.
 
-*6.* Invoke the settings in the configuration script: `source $CMAQ_HOME/config.cmaq`
+Links to these libraries will automatically be created when you run any of the build or run scripts. To manually (this is optional) create these libraries, execute the config_cmaq.csh script, identifying the compiler in the command line [intel | gcc | pgi]:
+```
+./config_cmaq.csh [compiler]
+```
 
 ### Compiling CMAQ ###
-
-Compile the model builder, bldmake:
-
-```
-cd $CMAQ_HOME/UTIL/bldmake/src
-make
-```
 
 Create the model executables for ICON, BCON, and CCTM:
 
 ```
-cd $CMAQ_HOME/PREP/icon/scripts
+cd $CMAQ_WORK/PREP/icon/scripts
 ./bldit.icon |& tee bldit.icon.log
 ```
 
 ```
-cd $CMAQ_HOME/PREP/bcon/scripts
-./bldit.bcon
+cd $CMAQ_WORK/PREP/bcon/scripts
+./bldit.bcon [compiler]
 ```
 
 ```
-cd $CMAQ_HOME/CCTM/scripts
-./bldit.cctm
+cd $CMAQ_WORK
+./bldit_cctm.csh [compiler]
 ```
 
 ### Install the CMAQ input reference/benchmark data
 
-Dwnloaded the CMAQ reference data from the [CMAS Center Software Clearinghouse](https://www.cmascenter.org/download/software.cfm) and copy to `$CMAQ_HOME`. Navigate to the `$CMAQ_HOME` directory, unzip and untar the `CMAQv5.2.DATA.tar.gz` file:
+Dwnloaded the CMAQ reference data from the [CMAS Center Software Clearinghouse](https://www.cmascenter.org/download/software.cfm) and copy to `$CMAQ_WORK`. Navigate to the `$CMAQ_WORK` directory, unzip and untar the `CMAQv5.2.DATA.tar.gz` file:
 
 ```
-cd $CMAQ_HOME
+cd $CMAQ_WORK
 tar xvzf CMAQv5.2.DATA.tar.gz
 ```
 
@@ -98,14 +96,14 @@ To run the test simulation for the various CMAQ programs, change directories to 
 Run ICON to produce initial conditions:
 
 ```
-cd $CMAQ_HOME/PREP/icon/scripts
+cd $CMAQ_WORK/PREP/icon/scripts
 ./run.icon |& tee icon.log
 ```
 
 Run BCON to produce boundary conditions:
 
 ```
-cd $CMAQ_HOME/PREP/bcon/scripts
+cd $CMAQ_WORK/PREP/bcon/scripts
 ./run.bcon |& tee bcon.log
 ```
 
@@ -116,10 +114,10 @@ Check the ICON and BCON log file to ensure that the programs completed successfu
 For an MPI configuration with 6 processors,
 
 ```
-cd $CMAQ_HOME/CCTM/scripts
+cd $CMAQ_WORK
 ```
 
-Edit the CCTM run script (run.cctm) for the MPI configuration that you will use:
+Edit the CCTM run script (run_cctm.csh) for the MPI configuration that you will use:
 
 ```
 setenv NPROCS 6
@@ -140,7 +138,7 @@ setenv NPCOL_NPROW to “1 1"
 After configuring the MPI settings for your Linux system, using the following command to run the CCTM. Per the note above, different Linux systems have different requirements for submitting MPI jobs.  The command below is an example of how to submit the CCTM run script and may differ depending on the MPI requirements of your Linux system. 
 
 ```
-./run.cctm |& tee cctm.log
+./run_cctm.csh |& tee cctm.log
 ```
 
 <!-- BEGIN COMMENT -->
