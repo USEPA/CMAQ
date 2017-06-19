@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the CB05TUCL family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, May 25, 2016
+C  REVISION HISTORY: Created by EBI solver program, May 26, 2017
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C**********************************************************************
@@ -76,12 +76,12 @@ c..Production of C2O3 (except from PAN )
      &   +                 RXRAT(  84 )      ! ALD2+OH=C2O3
      &   +                 RXRAT(  85 )      ! ALD2+NO3=C2O3+HNO3
      &   +                 RXRAT(  95 )      ! PACD+OH=C2O3
-     &   +                 RXRAT( 155 )      ! OH+MGLY=C2O3+XO2
-     &   +                 RXRAT( 156 )      ! MGLY=C2O3+HO2+CO
-     &   +    2.1000D-01 * RXRAT( 161 )      ! OH+ISPD=0.2100D+00*C2O3+...
-     &   +    1.1400D-01 * RXRAT( 162 )      ! O3+ISPD=0.1140D+00*C2O3+...
-     &   +    9.6700D-01 * RXRAT( 164 )      ! ISPD=0.9670D+00*C2O3+...
-     &   +                 RXRAT( 189 )      ! CL+ALD2=C2O3+HCL
+     &   +                 RXRAT( 156 )      ! OH+MGLY=C2O3+XO2
+     &   +                 RXRAT( 157 )      ! MGLY=C2O3+HO2+CO
+     &   +    2.1000D-01 * RXRAT( 162 )      ! OH+ISPD=0.2100D+00*C2O3+...
+     &   +    1.1400D-01 * RXRAT( 163 )      ! O3+ISPD=0.1140D+00*C2O3+...
+     &   +    9.6700D-01 * RXRAT( 165 )      ! ISPD=0.9670D+00*C2O3+...
+     &   +                 RXRAT( 190 )      ! CL+ALD2=C2O3+HCL
 
 c..Loss frequency of C2O3 ( not including C2O3 + C2O3 )
       L8 =                 RKI(  87 ) * YC( NO       )   ! C2O3+NO=MEO2+NO2

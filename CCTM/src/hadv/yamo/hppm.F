@@ -148,17 +148,17 @@ C----------------------------------------------------------------------
 
 C Includes:
       
-#ifdef parallel
+! #ifdef parallel
       INTEGER, PARAMETER :: SWP = 3
       INTEGER, PARAMETER :: X1 = 1
       INTEGER, PARAMETER :: X2 = 2
       INTEGER, PARAMETER :: X3 = 3
-#else
-      INTEGER, PARAMETER :: SWP = 1
-      INTEGER, PARAMETER :: X1 = 0
-      INTEGER, PARAMETER :: X2 = 0
-      INTEGER, PARAMETER :: X3 = 0
-#endif
+! #else
+!     INTEGER, PARAMETER :: SWP = 1
+!     INTEGER, PARAMETER :: X1 = 0
+!     INTEGER, PARAMETER :: X2 = 0
+!     INTEGER, PARAMETER :: X3 = 0
+! #endif
 
 C Arguments:
  
@@ -242,27 +242,27 @@ C depending on the sign of the velocity.
       FM( 1:NI+1,: ) = 0.0
       FP( 0:NI,: ) = 0.0
 
-#ifndef parallel
+! #ifndef parallel
 C If PE near bottom or left domain boundary...
 C Zeroth order polynomial at the boundary cells
 C First order polynomial at the next cells, no monotonicity constraint needed
-      IF ( BNDY_LO_PE ) THEN
-         DO S = 1, NSPCS
-            CM( 1,S ) = CON( 1,S )
-            CM( 2,S ) = 0.5 * ( CON( 1,S ) + CON( 2,S ) )
-         END DO
-      END IF
+!     IF ( BNDY_LO_PE ) THEN
+!        DO S = 1, NSPCS
+!           CM( 1,S ) = CON( 1,S )
+!           CM( 2,S ) = 0.5 * ( CON( 1,S ) + CON( 2,S ) )
+!        END DO
+!     END IF
 
 C If PE near top or right domain boundary...
 C Zeroth order polynomial at the boundary cells
 C First order polynomial at the next cells, no monotonicity constraint needed
-      IF ( BNDY_HI_PE ) THEN
-         DO S = 1, NSPCS
-            CM( NI+1,S ) = CON( NI,S )
-            CM( NI,S )   = 0.5 * ( CON( NI,S ) + CON( NI-1,S ) )
-         END DO
-      END IF
-#endif
+!     IF ( BNDY_HI_PE ) THEN
+!        DO S = 1, NSPCS
+!           CM( NI+1,S ) = CON( NI,S )
+!           CM( NI,S )   = 0.5 * ( CON( NI,S ) + CON( NI-1,S ) )
+!        END DO
+!     END IF
+! #endif
       
 C Second order polynomial inside the domain
       
@@ -340,16 +340,26 @@ C overshoot cases - Equation (1.10)
 
 C Compute fluxes from the parabolic distribution as in Equation (1.12)
 
-#ifdef parallel
-         I = 0
-         IF ( VEL( I+1 ) .GT. 0.0 ) THEN
-            Y = VEL( I+1 ) * DT
-            X = Y / DS
-            FP( I,S ) = Y * ( CR( I ) - 0.5 * X * ( DC( I,S )
-     &                - C6( I ) * ( 1.0 - TWO3RDS * X ) ) )
-         END IF
-#endif
+! #ifdef parallel
+!        I = 0
+!        IF ( VEL( I+1 ) .GT. 0.0 ) THEN
+!           Y = VEL( I+1 ) * DT
+!           X = Y / DS
+!           FP( I,S ) = Y * ( CR( I ) - 0.5 * X * ( DC( I,S )
+!    &                - C6( I ) * ( 1.0 - TWO3RDS * X ) ) )
+!        END IF
+! #endif
       
+!        IF ( BNDY_LO_PE ) THEN
+            I = 0
+            IF ( VEL( I+1 ) .GT. 0.0 ) THEN
+               Y = VEL( I+1 ) * DT
+               X = Y / DS
+               FP( I,S ) = Y * ( CR( I ) - 0.5 * X * ( DC( I,S )
+     &                   - C6( I ) * ( 1.0 - TWO3RDS * X ) ) )
+            END IF
+!        END IF
+
          DO I = 1, NI
 
 C function for mass leaving interval I at lower face (I-1/2)
@@ -371,15 +381,24 @@ C function for mass leaving interval I at upper face (I+1/2)
 
          END DO   ! I
 
-#ifdef parallel
-         I = NI + 1
-         IF ( VEL( I ) .LT. 0.0 ) THEN
-            Y = -VEL( I ) * DT
-            X = Y / DS
-            FM( I,S ) = Y * ( CL( I ) + 0.5 * X * ( DC( I,S )
-     &                + C6( I ) * ( 1.0 - TWO3RDS * X ) ) )
-         END IF
-#endif
+! #ifdef parallel
+!        I = NI + 1
+!        IF ( VEL( I ) .LT. 0.0 ) THEN
+!           Y = -VEL( I ) * DT
+!           X = Y / DS
+!           FM( I,S ) = Y * ( CL( I ) + 0.5 * X * ( DC( I,S )
+!    &                + C6( I ) * ( 1.0 - TWO3RDS * X ) ) )
+!        END IF
+! #endif
+!        IF ( BNDY_HI_PE ) THEN
+            I = NI + 1
+            IF ( VEL( I ) .LT. 0.0 ) THEN
+               Y = -VEL( I ) * DT
+               X = Y / DS
+               FM( I,S ) = Y * ( CL( I ) + 0.5 * X * ( DC( I,S )
+     &                   + C6( I ) * ( 1.0 - TWO3RDS * X ) ) )
+            END IF
+!        END IF
 
       END DO   ! S
 
