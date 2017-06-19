@@ -76,30 +76,31 @@
 #>
 #> The expression is in the form:
 #>       [factor1]*Obs_name1 [+][-] [factor2]*Obs_name2 ...
- setenv GAS_1 "O3,ppb,O3,ppb,O3"                 
- setenv GAS_2 "NOY,ppb,NOY,ppb,NOY"              
- setenv GAS_3 "NO2,ppb,NO2,ppb,NO2"              
- setenv GAS_4 "NOX,ppb,NO+NO2,ppb,NOX"           
- setenv GAS_5 "CO,ppb,CO,ppb,CO"                 
- setenv GAS_6 "SO2,ppb,SO2,ppb,SO2"              
- setenv GAS_7 "PM25,ug/m3,PMIJ,ug/m3,PM_TOT"     
- setenv GAS_8 "PM25,ug/m3,PMIJ_FRM,ug/m3,PM_FRM" 
- setenv GAS_9 "PM10,ug/m3,PM10,ug/m3,PM10"       
- setenv GAS_10 "Isoprene,ppb,ISOP,ppb,Isoprene"  
- setenv GAS_11 "Ethylene,ppb,ETH,ppb,Ethylene"   
- setenv GAS_12 "Ethane,ppb,ETHA,ppb,Ethane"      
- setenv GAS_13 "Toluene,ppb,TOL,ppb,Toluene"     
- setenv GAS_14 "Temperature,C,SFC_TMP,C,SFC_TMP" 
- setenv GAS_15 "RH,%,RH,%,RH"                    
- setenv GAS_16 "Wind_Speed,m/s,WSPD10,m/s,WSPD10"
- setenv GAS_17 ",,PBLH,m,PBLH"                   
- setenv GAS_18 ",,SOL_RAD,watts/m2,Solar_Rad"    
- setenv GAS_19 ",,10*precip,mm/hr,precip"       
+ setenv GAS_1 "O3,ppb,O3,ppb,O3" 
+ setenv GAS_2 "NO,ppb,NO,ppb,NO"              
+ setenv GAS_3 "NOY,ppb,NOY,ppb,NOY"              
+ setenv GAS_4 "NO2,ppb,NO2,ppb,NO2"              
+ setenv GAS_5 "NOX,ppb,NO+NO2,ppb,NOX"           
+ setenv GAS_6 "CO,ppb,CO,ppb,CO"                 
+ setenv GAS_7 "SO2,ppb,SO2,ppb,SO2"              
+ setenv GAS_8 "PM25,ug/m3,PMIJ,ug/m3,PM_TOT"     
+ setenv GAS_9 "PM25,ug/m3,PMIJ_FRM,ug/m3,PM_FRM" 
+ setenv GAS_10 "PM10,ug/m3,PM10,ug/m3,PM10"       
+ setenv GAS_11 "Isoprene,ppb,ISOP,ppb,Isoprene"  
+ setenv GAS_12 "Ethylene,ppb,ETH,ppb,Ethylene"   
+ setenv GAS_13 "Ethane,ppb,ETHA,ppb,Ethane"      
+ setenv GAS_14 "Toluene,ppb,TOL,ppb,Toluene"     
+ setenv GAS_15 "Temperature,C,SFC_TMP,C,SFC_TMP" 
+ setenv GAS_16 "RH,%,RH,%,RH"                    
+ setenv GAS_17 "Wind_Speed,m/s,WSPD10,m/s,WSPD10"
+ setenv GAS_18 ",,PBLH,m,PBLH"                   
+ setenv GAS_19 ",,SOL_RAD,watts/m2,Solar_Rad"    
+ setenv GAS_20 ",,10*precip,mm/hr,precip"       
    
 #> PM2.5 Sharp Cutoff Species
 #> Requires preprocessing using AERODIAM file
- setenv GAS_20 "PM25,ug/m3,PM25_TOT,ug/m3,PM25_TOT"
- setenv GAS_21 "PM25,ug/m3,PM25_FRM,,PM25_FRM"     
+ setenv GAS_21 "PM25,ug/m3,PM25_TOT,ug/m3,PM25_TOT"
+ setenv GAS_22 "PM25,ug/m3,PM25_FRM,,PM25_FRM"     
 #>> End Species List <<#
 
 # ~~~~~~~~~~~~ END NETWORK SPECIFIC SECTION ~~~~~~~~~~~~~~~~~~~~~~~~~
