@@ -971,9 +971,9 @@ C-----------------------------------------------------------------------
 !***now calculate right ascension (Alpha) Use this method to get the
 !***  correct quadrant.
 
-         NUM = COS( EPSILON ) * SIN( LAMDA ) ! numerator
-         DEN = COS( LAMDA )          ! denominator
-         ALPHA = ATAN( NUM / DEN )
+         NUM = REAL( COS( EPSILON ) * SIN( LAMDA ), 8 ) ! numerator
+         DEN = REAL( COS( LAMDA ), 8 )                  ! denominator
+         ALPHA = REAL( ATAN( NUM / DEN ), 4)
 
 !***force right ascension to be between 0 and twopi
 

@@ -315,7 +315,7 @@
                Else
                   index = int(t(k)-179.0)
                End If
-               corr = t(k) - int( t(k) )      ! temperatures of retab values differ by one degree K
+               corr = t(k) - aint( t(k) )      ! temperatures of retab values differ by one degree K
                dge(k) = retab(index) + (retab(index+1)-retab(index))*corr
 
 ! Convert from effective radius to generalized effective size (*1.0315; Fu et al. 1996)
@@ -348,12 +348,12 @@
             real,    intent( in    ) :: iwc( : )   ! cloud ice water content, g/m3
 
 ! ice water coefficients (Ebert and Curry,1992, JGR, 97, 3831-3836)     
-            real, save :: abari(4) = (/ 3.448d-03, 3.448d-03,3.448d-03,3.4480d-03/)
-            real, save :: bbari(4) = (/ 2.431d+00, 2.431d+00,2.431d+00,2.4310d+00/)
-            real, save :: cbari(4) = (/ 1.000d-05, 1.10d-04 ,1.861d-02,4.6658d-01/)
-            real, save :: dbari(4) = (/ 0.000d+00, 1.405d-05,8.328d-04,2.0500d-05/)
-            real, save :: ebari(4) = (/ 7.661d-01, 0.773d+00,0.794d+00,0.9595d+00/)
-            real, save :: fbari(4) = (/ 5.851d-04, 5.665d-04,7.267d-04,1.0760d-04/)
+            real, save :: abari(4) = (/ 3.448e-03, 3.448e-03,3.448e-03,3.4480e-03/)
+            real, save :: bbari(4) = (/ 2.431e+00, 2.431e+00,2.431e+00,2.4310e+00/)
+            real, save :: cbari(4) = (/ 1.000e-05, 1.10e-04 ,1.861e-02,4.6658e-01/)
+            real, save :: dbari(4) = (/ 0.000e+00, 1.405e-05,8.328e-04,2.0500e-05/)
+            real, save :: ebari(4) = (/ 7.661e-01, 0.773e+00,0.794e+00,0.9595e+00/)
+            real, save :: fbari(4) = (/ 5.851e-04, 5.665e-04,7.267e-04,1.0760e-04/)
 
 ! Local:
             real    factor
