@@ -52,17 +52,6 @@ C**********************************************************************
 
 C**********************************************************************
 
-      N_REACT   = 21
-
-      N_UNI_LOSS   = 1    ! Number of Unimolecular Loss Processes
-      N_BI_LOSS    = 5    ! Number of Bimolecular Loss processes
-      N_TRI_LOSS   = 2    ! Number of trimolecular Loss processes
-      N_PHOTO_LOSS = 2    ! Number of Photolysis Loss processes
-
-      N_PROCESSES  = N_UNI_LOSS
-     &             + N_BI_LOSS
-     &             + N_PHOTO_LOSS
-     &             + N_TRI_LOSS
 
 C..looping data
 
@@ -121,17 +110,17 @@ C..arrays to store indices to CGRID
 
       UNI_ACT   = 0.0D0
       UNIRATE   = 0.0D0
-      UNI_TEXP  = 0.0
+      UNI_TEXP  = 0.0D0
       UNI_YIELD = 0.0
 
       BI_ACT   = 0.0D0
       BIRATE   = 0.0D0
-      BI_TEXP  = 0.0
+      BI_TEXP  = 0.0D0
       BI_YIELD = 0.0
 
       TRI_ACT   = 0.0D0
       TRIRATE   = 0.0D0
-      TRI_TEXP  = 0.0
+      TRI_TEXP  = 0.0D0
       TRI_YIELD = 0.0
 
       A_PHOTO     = 0.0D0
@@ -164,7 +153,6 @@ C.. ACRYLONITRILE
       BICAUSE(1,1:5) = (/'OH ','HO ','O3 ','NO3','CL '/)
       BIRATE(1,1:5)  = (/ 4.8D-12, 4.8D-12, 1.9D-19, 6.3D-18, 5.2D-14/)
       BI_ACT(1,1:5)  = (/   0.0D0,   0.0D0, 0.0D0, 0.0D0, -1.4D+3/)
-      BI_TEXP(1,1:5) = (/      0.,       0.,   0.,    0.,      0./)
 
 C.. CARBON TETRACHLORIDE
 
@@ -175,7 +163,6 @@ C.. CARBON TETRACHLORIDE
       BICAUSE(2,1:5) = (/'OH ','HO ','O3 ','NO3','CL '/)
       BIRATE(2,1:5)  = (/ 1.0D-12, 1.0D-12, 0.0D0, 0.0D0, 9.55D-11/)
       BI_ACT(2,1:5)  = (/2300.0D0,2300.0D0, 0.0D0, 0.0D0, 7.80D+03/)
-      BI_TEXP(2,1:5) = (/      0.,       0.,   0.,    0.,       0./)
 
 C.. PROPYLENE DICHLORIDE
 
@@ -186,7 +173,6 @@ C.. PROPYLENE DICHLORIDE
       BICAUSE(3,1:5) = (/'OH ','HO ','O3 ','NO3','CL '/)
       BIRATE(3,1:5)  = (/ 2.2D-13, 2.2D-13, 0.0D0, 0.0D0, 1.1D-11/)
       BI_ACT(3,1:5)  = (/   0.0D0,   0.0D0, 0.0D0, 0.0D0, 0.0D0/)
-      BI_TEXP(3,1:5) = (/      0.,       0.,   0.,    0.,    0./)
 
 C.. DICHLORIPROPENE
 
@@ -197,7 +183,6 @@ C.. DICHLORIPROPENE
       BICAUSE(4,1:4) = (/'OH ','HO ','O3 ','NO3'/)
       BIRATE(4,1:4)  = (/1.04D-11, 1.04D-11, 4.10D-19, 0.0D0/)
       BI_ACT(4,1:4)  = (/   0.0D0,    0.0D0, 0.0D0, 0.0D0/)
-      BI_TEXP(4,1:4) = (/      0.,       0., 0., 0./)
 
 C.. 1,1,2,2TETRACHLOROETHANE
 
@@ -208,7 +193,6 @@ C.. 1,1,2,2TETRACHLOROETHANE
       BICAUSE(5,1:5) = (/'OH ','HO ','O3 ','NO3','CL '/)
       BIRATE(5,1:5)  = (/2.46D-13, 2.46D-13, 0.0D0, 0.0D0, 1.91D-13/)
       BI_ACT(5,1:5)  = (/   0.0D0,    0.0D0, 0.0D0, 0.0D0, 0.00D0/)
-      BI_TEXP(5,1:5) = (/      0.,       0.,    0.,    0.,     0./)
 
 C.. CHLOROFORM
 
@@ -219,7 +203,7 @@ C.. CHLOROFORM
       BICAUSE(6,1:5) = (/'OH ','HO ','O3 ','NO3','CL '/)
       BIRATE(6,1:5)  = (/6.30D-18, 6.30D-18, 0.0D0, 0.0D0, 4.9D-12/)
       BI_ACT(6,1:5)  = (/  504.D0,   504.D0, 0.0D0, 0.0D0, 1.24D+3/)
-      BI_TEXP(6,1:5) = (/      2.,       2.,    0.,    0.,      0./)
+      BI_TEXP(6,1:2) = (/   2.0D0,    2.0D0/)
 
 C.. 1,2DIBROMOETHANE
 
@@ -230,7 +214,7 @@ C.. 1,2DIBROMOETHANE
       BICAUSE(7,1:4) = (/'OH ','HO ','O3 ','NO3'/)
       BIRATE(7,1:4)  = (/1.03D-17, 1.03D-17, 0.0D0, 0.0D0/)
       BI_ACT(7,1:4)  = (/  422.D0,   422.D0, 0.0D0, 0.0D0/)
-      BI_TEXP(7,1:4) = (/      2.,       2., 0., 0./)
+      BI_TEXP(7,1:2) = (/   2.0D0,    2.0D0/)
 
 C.. 1,2DICHLOROTHANE
 
@@ -241,7 +225,7 @@ C.. 1,2DICHLOROTHANE
       BICAUSE(8,1:5) = (/'OH ','HO ','O3 ','NO3','CL '/)
       BIRATE(8,1:5)  = (/1.10D-17, 1.10D-17, 0.0D0, 0.0D0, 4.93D-11/)
       BI_ACT(8,1:5)  = (/  409.D0,   409.D0, 0.0D0, 0.0D0, 1.09D+3/)
-      BI_TEXP(8,1:5) = (/      2.,       2.,    0.,    0.,      0./)
+      BI_TEXP(8,1:2) = (/   2.0D0,    2.0D0/)
 
 C.. ETHYLENE OXIDE
 
@@ -252,7 +236,6 @@ C.. ETHYLENE OXIDE
       BICAUSE(9,1:5) = (/'OH ','HO ','O3 ','NO3','CL '/)
       BIRATE(9,1:5)  = (/7.60D-14, 7.60D-14, 0.0D0, 0.0D0, 5.0D-12/)
       BI_ACT(9,1:5)  = (/   0.0D0,    0.0D0, 0.0D0, 0.0D0, 0.0D0/)
-      BI_TEXP(9,1:5) = (/      0.,       0.,    0.,    0.,    0./)
 
 C.. METHYLENE CHLORIDE
 
@@ -263,7 +246,7 @@ C.. METHYLENE CHLORIDE
       BICAUSE(10,1:5) = (/'OH ','HO ','O3 ','NO3','CL '/)
       BIRATE(10,1:5)  = (/8.54D-18, 8.54D-18, 0.0D0, 0.0D0, 2.81D-11/)
       BI_ACT(10,1:5)  = (/  500.D0,   500.D0, 0.0D0, 0.0D0, 1.3D+3/)
-      BI_TEXP(10,1:5) = (/      2.,      2.,     0.,    0.,    0./)
+      BI_TEXP(10,1:2) = (/   2.0D0,    2.0D0/)
 
 C.. PERCHLOROETHYLENE
 
@@ -274,7 +257,7 @@ C.. PERCHLOROETHYLENE
       BICAUSE(11,1:5) = (/'OH ','HO ','O3 ','NO3','CL '/)
       BIRATE(11,1:5)  = (/9.64D-12, 9.64D-12, 0.0D0, 0.0D0, 3.72D-8/)
       BI_ACT(11,1:5)  = (/ 1209.D0,  1209.D0, 0.0D0, 0.0D0, 0.0D0/)
-      BI_TEXP(11,1:5) = (/      0.,       0.,    0.,     0., -1.2/)
+      BI_TEXP(11,1:5) = (/   0.0D0,    0.0D0, 0.0D0, 0.0D0,-1.2D0/)
 
 C.. TRICHLOROETHYLENE
 
@@ -285,7 +268,6 @@ C.. TRICHLOROETHYLENE
       BICAUSE(12,1:5) = (/'OH ','HO ','O3 ','NO3','CL '/)
       BIRATE(12,1:5)  = (/5.63D-13, 5.63D-13, 0.0D0, 0.0D0, 8.07D-11/)
       BI_ACT(12,1:5)  = (/ -427.D0,  -427.D0, 0.0D0, 0.0D0, 0.0D0/)
-      BI_TEXP(12,1:5) = (/      0.,       0.,    0.,    0.,    0./)
 
 C.. VINYL CHLORIDE
 
@@ -296,7 +278,6 @@ C.. VINYL CHLORIDE
       BICAUSE(13,1:5) = (/'OH ','HO ','O3 ','NO3', 'CL '/)
       BIRATE(13,1:5)  = (/1.69D-12, 1.69D-12, 0.0D0,1.84D-13, 1.27D-10/)
       BI_ACT(13,1:5)  = (/ -422.D0,  -422.D0, 0.0D0, 1764.D0, 0.0D0/)
-      BI_TEXP(13,1:5) = (/      0.,       0.,    0.,      0.,    0./)
 
 C.. NAPHTHALENE
 
@@ -313,49 +294,103 @@ C.. QUINOLINE
       REACT(15)       = 'QUINOLINE'
       BICAUSE(15,1:4) = (/'OH ','HO ','O3 ','NO2'/)
       BIRATE(15,1:4)  = (/1.16D-11, 1.16D-11, 1.00D-19, 1.60D-20/)
-      BI_ACT(15,1:4)  = (/   0.0D0,    0.0D0,    0.0D0,    0.0D0/)
 
 C.. HEXAMETHYLENE DIISOCAYNATE
 
       REACT(16)       = 'HEXAMETHY_DIIS'
       BICAUSE(16,1:2) = (/'OH ','HO '/)
       BIRATE(16,1:2)  = (/7.94D-12, 7.94D-12/)
-      BI_ACT(16,1:2)  = (/   0.0D0,    0.0D0/)
 
 C.. HYDRAZINE
 
       REACT(17)       = 'HYDRAZINE'
       BICAUSE(17,1:3) = (/'OH ','HO ','O3 '/)
       BIRATE(17,1:3)  = (/3.60D-11, 3.60D-11, 3.00D-17/)
-      BI_ACT(17,1:3)  = (/   0.0D0,    0.0D0,    0.0D0/)
 
 C.. MALEIC ANHYDRIDE
 
       REACT(18)       = 'MAL_ANHYDRIDE'
       BICAUSE(18,1:3) = (/'OH  ','HO  ','NO3 '/)
       BIRATE(18,1:3)  = (/1.45D-12, 1.45D-12, 1.02D-13/)
-      BI_ACT(18,1:3)  = (/   0.0D0,    0.0D0,    0.0D0/)
 
 C.. TOULENE DIISOCYANATE 
 
       REACT(19)       = 'TOL_DIIS'
       BICAUSE(19,1:2) = (/'OH ','HO '/)
       BIRATE(19,1:2)  = (/7.41D-12, 7.41D-12/)
-      BI_ACT(19,1:2)  = (/   0.0D0,    0.0D0/)
 
 C.. TRIETHYLAMINE
 
       REACT(20)       = 'TRIETHYLAMINE'
       BICAUSE(20,1:5) = (/'OH  ','HO  ','O   ','O3P ', 'O3  '/)
       BIRATE(20,1:5)  = (/3.60D-11, 3.60D-11, 1.09D-11, 1.09D-11, 7.84D-18/)
-      BI_ACT(20,1:5)  = (/   0.0D0,    0.0D0,    0.0D0,    0.0D0, 0.0D0/)
 
 C.. P-DICHLOROBENZENE 
 
       REACT(21)       = 'DICHLOROBENZENE'
       BICAUSE(21,1:2) = (/'OH ','HO '/)
       BIRATE(21,1:2)  = (/3.60D-13, 3.60D-13/)
-      BI_ACT(21,1:2)  = (/   0.0D0,    0.0D0/)
+
+C.. XYLENE
+
+      REACT(22)       = 'XYLENE         '
+      BICAUSE(22,1:3) = (/'OH','OH','CL'/)
+      BIRATE(22,1:3)  = (/1.717D-11,                  1.717D-11,         1.433D-10/)
+
+C.. STYRENE
+
+      REACT(23)       = 'STYRENE        '
+      BICAUSE(23,1:4) = (/'OH','OH','O3','CL'/)
+      BIRATE(23,1:4)  = (/1.02D-11, 1.02D-11, 1.51D-13, 3.6D-10/)
+      BI_ACT(23,1:2)  = (/    532.0D0,   532.0D0/)
+
+C.. ACETONITRILE
+
+      REACT(24)       = 'ACETONITRILE   '
+      BICAUSE(24,1:3) = (/'OH','OH','CL'/)
+      BIRATE(24,1:3)  = (/          8.31D-13,          8.31D-13,          1.60D-11/)
+      BI_ACT(24,1:3)  = (/          1080.0D0,          1080.0D0,          2140.0D0/)
+
+C.. ACRYACID
+
+      REACT(25)       = 'ACRYACID       '
+      BICAUSE(25,1:4) = (/'OH','OH','O3','CL'/)
+      BIRATE(25,1:4)  = (/1.75D-11, 1.75D-11, 6.50D-19, 4.00D-10/)
+
+C.. HEXANE 
+ 
+      REACT(26)       = 'HEXANE         '
+      BICAUSE(26,1:3) = (/'OH','OH','CL'/)
+      BIRATE(26,1:3)  = (/          1.98D-11,          1.91D-11,          3.30D-10/)
+      BI_ACT(26,1:2)  = (/           394.0D0,           394.0D0/)
+
+C.. METHCHLORIDE
+ 
+      REACT(27)       = 'METHCHLORIDE   '
+      BICAUSE(27,1:3) = (/'OH','OH','CL'/)
+      BIRATE(27,1:3)  = (/          2.10D-12,          2.10D-12,          1.80D-11/)
+      BI_ACT(27,1:3)  = (/          1210.0D0,          1210.0D0,            1081D0/)
+
+C.. CARBSULFIDE
+
+      REACT(28)       = 'CARBSULFIDE    '
+      BICAUSE(28,1:3) = (/'OH','OH','O3'/)
+      BIRATE(28,1:3)  = (/          1.10D-13,          1.10D-13,           3.01D-16/)
+      BI_ACT(28,1:2)  = (/          1200.0D0,          1200.0D0/)
+
+C.. CHLOROPRENE
+
+      REACT(29)       = 'CHLOROPRENE    '
+      BICAUSE(29,1:5) = (/'OH ','OH ','O3 ','NO3','CL '/)
+      BIRATE(29,1:5)  = (/          6.20D-11,          6.20D-11,          1.40D-16,
+     &                              3.60D-13,          3.62D-10/)
+
+C.. ETHYLBENZENE
+
+      REACT(30)       = 'ETHYLBENZENE   '
+      BICAUSE(30,1:4) = (/'OH ','OH ','NO3','CL '/)
+      BIRATE(30,1:4)  = (/          7.00D-12,          7.00D-12,          5.70D-16,
+     &                              1.15D-10/)
 
       RETURN
       END

@@ -99,6 +99,7 @@
       Character( FLN_LEN ) :: lib_1
       Character( FLN_LEN ) :: lib_2
       Character( FLN_LEN ) :: lib_3
+      Logical              :: l_lib_3
 
       Character( FLN_LEN ) :: fstd
       Character( FLN_LEN ) :: dbg
@@ -134,6 +135,13 @@
       Character( FLD_LEN ) :: netcdf
       Character( FLD_LEN ) :: mpich
 
+! library locations
+      Character( FLD_LEN ) :: ioapi_mod_dir
+      Character( FLD_LEN ) :: ioapi_incl_dir
+      Character( FLD_LEN ) :: ioapi_lib_dir
+      Character( FLD_LEN ) :: netcdf_lib_dir
+      Character( FLD_LEN ) :: mpi_lib_dir
+
 ! misc module number for local files
       Integer :: miscMod
 
@@ -168,6 +176,7 @@
       n_includes = 0
       n_modules = 0
       miscMod = 0
+      l_lib_3 = .FALSE.
 
       model = 'a.out'
 
@@ -290,6 +299,7 @@
         End If
 
         If ( key .Eq. 'LIB_3' ) Then
+          l_lib_3 = .TRUE.
           lib_3 = fields(2)
           If ( verbose ) Write( *, '("LIB_3 set to ",a)' ) Trim( lib_3 )
           Cycle

@@ -129,11 +129,11 @@ c *** ranges for acceptable values of LOG( sigma_g).
       REAL, SAVE :: ESGC16     !
 
       REAL          COEF       !
-      REAL          DIFF0      ! aerosol diffusivities
-      REAL          DIFF2      ! aerosol diffusivities
+      !REAL          DIFF0      ! aerosol diffusivities
+      !REAL          DIFF2      ! aerosol diffusivities
       REAL          DIFF3      ! aerosol diffusivities
-      REAL          PE0        ! Peclet numbers
-      REAL          PE2        ! Peclet numers
+      !REAL          PE0        ! Peclet numbers
+      !REAL          PE2        ! Peclet numers
       REAL          PE3        ! Peclet numbers
       REAL          COEF2      !
       REAL          COEF3      !

@@ -30,7 +30,7 @@
 !  subroutine body starts at line  76
 !
 !  FUNCTION:  apply a 4-band sparse matrix to an array ("layered vector")
-!	      as used for bilinear interpolation of meteorology in LAYPOINT
+!             as used for bilinear interpolation of meteorology in LAYPOINT
 !
 !  NOTE:  Transposes from I/O subscript order V( M,P )
 !         to computational subscript order    C( P,N )
@@ -39,7 +39,7 @@
 !       to a list of locations having grid-normal coordinates <X(S),Y(S)>:
 !       let C(S) and R(S) be INT( X(S) ) and INT( Y(S) ), P(S) and Q(S)
 !       be AMOD( X(S), 1.0 ) and AMOD( Y(S), 1.0 ).  Then IX has the 
-!	single-indexing subscripts into the grid for the cell=corners
+!       single-indexing subscripts into the grid for the cell=corners
 !       surrounding the <X(S),Y(S)>
 !           IX(1,S) = C + NC * ( R - 1 ) + 1
 !           IX(2,S) = C + NC * ( R - 1 ) 

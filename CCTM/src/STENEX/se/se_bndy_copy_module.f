@@ -42,7 +42,7 @@ C          Modified: 08/24/11 by David Wong
 C                      -- eliminated data and geo orientation
 C --------------------------------------------------------------------------
 
-	module se_bndy_copy_module
+        module se_bndy_copy_module
 
         implicit none
 
@@ -80,29 +80,29 @@ C   i, j       -- loop indexes
 C   k          -- location indicator
 C --------------------------------------------------------------------------
 
-	subroutine se_bndy_copy_pat (dirstr, send_to, recv_from)
+        subroutine se_bndy_copy_pat (dirstr, send_to, recv_from)
 
         use se_bndy_copy_info_ext
 !       use se_ori_ext
         use se_internal_util_module
 
-	implicit none
+        implicit none
 
         character (len = 16), intent(in) :: dirstr
-	integer, intent(out) :: send_to (8), recv_from (8)
+        integer, intent(out) :: send_to (8), recv_from (8)
 
         integer :: i, j, k
         integer :: rdirection (8), sdirection(8)
-	
+        
 C -- extract inform from input strings
 
         read (dirstr, 10) (sdirection(i), i=1, 8)
  10     format (8i2)
 
 C -- figuring out send direction pattern
-	do i = 1, 8
+        do i = 1, 8
            rdirection(i) = sdirection(mod(i+3,8)+1)
-	end do
+        end do
 
 C -- determine where data is receiving from
 C -- first: N, E, S, and W
@@ -226,14 +226,14 @@ C    status        -- MPI waiting status
 C    error         -- MPI call return error code
 C --------------------------------------------------------------------------
 
-	subroutine se_bndy_copy2 (data, dispstr, dirstr, str)
+        subroutine se_bndy_copy2 (data, dispstr, dirstr, str)
 
         use se_data_send_module
         use se_data_recv_module
         use se_internal_util_module
         use se_pe_info_ext
 
-	implicit none
+        implicit none
 
         include "mpif.h"
 
@@ -251,7 +251,7 @@ C --------------------------------------------------------------------------
         character (len = 80) :: loc_str
         integer :: request, status(MPI_STATUS_SIZE), error
 
-	if (present(str)) then
+        if (present(str)) then
            loc_str = str
            shift(2:4:2) = 1
            call se_string_to_integer (loc_str, shift, num_shift)
@@ -259,9 +259,9 @@ C --------------------------------------------------------------------------
            num_shift = 0
         end if
 
-	call se_bndy_copy_pat (dirstr, send_to, recv_from)
+        call se_bndy_copy_pat (dirstr, send_to, recv_from)
 
-	call se_bndy_up_low2 (dispstr, sind, rind, shift, num_shift)
+        call se_bndy_up_low2 (dispstr, sind, rind, shift, num_shift)
 
         send_to_ptr => send_to
         recv_from_ptr => recv_from
@@ -335,15 +335,15 @@ C    i         -- loop index
 C    loc_shift -- local adjustment of dummy argument shift
 C --------------------------------------------------------------------------
 
-	subroutine se_bndy_up_low2 (dispstr, sind, rind, shift, num_shift)
+        subroutine se_bndy_up_low2 (dispstr, sind, rind, shift, num_shift)
 
-	use se_domain_info_ext
+        use se_domain_info_ext
 !       use se_ori_ext
         use se_internal_util_module
 
-	implicit none
+        implicit none
 
-	integer, intent(inout) :: sind(2,2,8), rind(2,2,8)
+        integer, intent(inout) :: sind(2,2,8), rind(2,2,8)
         character (len = 12), intent(in) :: dispstr
         integer, intent(in) :: shift(4), num_shift
 
@@ -436,7 +436,7 @@ C -- ( receiving ) determine ghost cells indexes configuration
            end do
 !       end if
 
-	return
+        return
         end subroutine se_bndy_up_low2
 
 C --------------------------------------------------------------------------
@@ -459,17 +459,17 @@ C
 C   Out: array     -- array with low and high indexes of each dimension
 C --------------------------------------------------------------------------
 
-	subroutine store2 (array, direction, i1, i2, j1, j2)
+        subroutine store2 (array, direction, i1, i2, j1, j2)
 
-	integer, intent(out) :: array (2,2,8) 
+        integer, intent(out) :: array (2,2,8) 
         integer, intent(in) :: direction, i1, i2, j1, j2
 
-	  array(1,1,direction) = i1
-	  array(2,1,direction) = i2
-  	  array(1,2,direction) = j1
-	  array(2,2,direction) = j2
+          array(1,1,direction) = i1
+          array(2,1,direction) = i2
+          array(1,2,direction) = j1
+          array(2,2,direction) = j2
 
         return
-	end subroutine store2
+        end subroutine store2
 
         end module se_bndy_copy_module

@@ -79,7 +79,7 @@ C   se_data_recv_module
 C
 C --------------------------------------------------------------------------
 
-	module se_data_copy_module
+        module se_data_copy_module
 
         implicit none
 
@@ -92,21 +92,21 @@ C --------------------------------------------------------------------------
         contains
 
 C --------------------------------------------------------------------------
-	subroutine se_2d_data_copy (data1, data2)
+        subroutine se_2d_data_copy (data1, data2)
 
-	use se_subgrid_info_ext
-	use se_pe_info_ext
+        use se_subgrid_info_ext
+        use se_pe_info_ext
         use se_data_send_module
         use se_data_recv_module
 
-	implicit none
+        implicit none
 
-	include "mpif.h"
+        include "mpif.h"
 
-	real, intent(in) :: data1(:, :)
-	real, intent(out) :: data2(:, :)
+        real, intent(in) :: data1(:, :)
+        real, intent(out) :: data2(:, :)
 
-	integer :: sdir, rdir, tag
+        integer :: sdir, rdir, tag
         integer :: request, status(MPI_STATUS_SIZE), error
 
         do sdir = 0, se_numworkers-1
@@ -141,7 +141,7 @@ c             end if
            end if
         end do
 
-	return
+        return
         end subroutine se_2d_data_copy
 
 C --------------------------------------------------------------------------
@@ -205,20 +205,20 @@ c             end if
         end subroutine se_2de_data_copy
 
 C --------------------------------------------------------------------------
-	subroutine se_3d_data_copy (data1, data2)
+        subroutine se_3d_data_copy (data1, data2)
 
-	use se_subgrid_info_ext
+        use se_subgrid_info_ext
         use se_domain_info_ext
-	use se_pe_info_ext
+        use se_pe_info_ext
         use se_data_send_module
         use se_data_recv_module
 
-	implicit none
+        implicit none
 
         include "mpif.h"
 
-	real, intent(in) :: data1(:, :, :)
-	real, intent(out) :: data2(:, :, :)
+        real, intent(in) :: data1(:, :, :)
+        real, intent(out) :: data2(:, :, :)
 
         integer :: i, sdir, rdir, tag
         integer :: request, status(MPI_STATUS_SIZE), error
@@ -265,23 +265,23 @@ c             end if
 
         end do
 
-	return
+        return
         end subroutine se_3d_data_copy
 
 C --------------------------------------------------------------------------
-	subroutine se_3de_data_copy (data1, data2, spc)
+        subroutine se_3de_data_copy (data1, data2, spc)
 
-	use se_subgrid_info_ext
-	use se_pe_info_ext
+        use se_subgrid_info_ext
+        use se_pe_info_ext
         use se_data_send_module
         use se_data_recv_module
 
-	implicit none
+        implicit none
 
         include "mpif.h"
 
-	real, intent(in) :: data1(:, :, :, :)
-	real, intent(out) :: data2(:, :, :)
+        real, intent(in) :: data1(:, :, :, :)
+        real, intent(out) :: data2(:, :, :)
         integer, intent(in) :: spc
 
         integer :: i, sdir, rdir, tag
@@ -332,24 +332,24 @@ c             end if
            end if
         end do
 
-	return
+        return
         end subroutine se_3de_data_copy
 
 C --------------------------------------------------------------------------
-	subroutine se_4d_data_copy (data1, data2)
+        subroutine se_4d_data_copy (data1, data2)
 
-	use se_subgrid_info_ext
-	use se_pe_info_ext
+        use se_subgrid_info_ext
+        use se_pe_info_ext
         use se_domain_info_ext
         use se_data_send_module
         use se_data_recv_module
 
-	implicit none
+        implicit none
 
         include "mpif.h"
 
-	real, intent(in) :: data1(:, :, :, :)
-	real, intent(out) :: data2(:, :, :, :)
+        real, intent(in) :: data1(:, :, :, :)
+        real, intent(out) :: data2(:, :, :, :)
 
         integer :: i, sdir, rdir, tag
         integer :: request, status(MPI_STATUS_SIZE), error
@@ -401,23 +401,23 @@ c             end if
            end if
         end do
 
-	return
+        return
         end subroutine se_4d_data_copy
 
 C --------------------------------------------------------------------------
-	subroutine se_4de_data_copy (data1, data2, spc, des)
+        subroutine se_4de_data_copy (data1, data2, spc, des)
 
-	use se_subgrid_info_ext
-	use se_pe_info_ext
+        use se_subgrid_info_ext
+        use se_pe_info_ext
         use se_data_send_module
         use se_data_recv_module
 
-	implicit none
+        implicit none
 
         include "mpif.h"
 
-	real, intent(in) :: data1(:, :, :, :)
-	real, intent(out) :: data2(:, :, :, :)
+        real, intent(in) :: data1(:, :, :, :)
+        real, intent(out) :: data2(:, :, :, :)
         integer, intent(in) :: spc, des
 
         integer :: i, sdir, rdir, tag
@@ -471,7 +471,7 @@ c             end if
            end if
         end do
 
-	return
+        return
         end subroutine se_4de_data_copy
 
         end module se_data_copy_module

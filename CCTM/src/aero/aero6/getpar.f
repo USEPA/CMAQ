@@ -82,7 +82,6 @@ C Local Variables:
       Real( 8 ) :: lxfm2       ! ln(M2); used in Sg calcs
       Real( 8 ) :: l2sg        ! square of ln(Sg); used in diameter calcs
       Real      :: es36        ! exp(4.5*l2sg); used in diameter calcs
-      Real      :: m3augm      ! temp variable for wet 3rd moment calcs
 
       Real( 8 ), Parameter :: one3d = 1.0D0 / 3.0D0
       Real( 8 ), Parameter :: two3d = 2.0D0 / 3.0D0

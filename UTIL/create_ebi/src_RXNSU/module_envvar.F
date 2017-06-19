@@ -505,11 +505,10 @@ c         LERROR = .FALSE.
            CALL DATE_AND_TIME(VALUES=VALUES)
 
            WRITE(  DD,'(I2)') VALUES(3)
-!	   DD = '00' 
+!          DD = '00' 
            WRITE(YYYY,'(I4)') (0 + VALUES(1))
 
           PRINT*,MONS(VALUES(2)) // DD // YYYY(1:4) 
-!	  print*,VALUES(:)
           DATE = MONS(VALUES(2)) // ' ' // DD // ', ' // YYYY(1:4)
 
         END SUBROUTINE GET_DDMONYY
