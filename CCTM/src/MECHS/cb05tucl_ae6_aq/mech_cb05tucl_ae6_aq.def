@@ -115,6 +115,9 @@ CB05TUCL_AE6_AQ
 !  -Added a simple halogen chemistry over sea-water
 ! Golam Sarwar 6/25/15
 !  -Revised the simple halogen chemistry over sea-water using results of two-way CMAQ model and detailed halogen chemistry   
+! 05-25-17 B.Hutzell
+!   1. updated the oligomerization reactions to be consistent with the 
+!      saprc07tic_ae6_aq mechanism.
 !----------------------------------80 Characters Wide---------------------------
 REACTIONS[CM] =
 
@@ -448,13 +451,23 @@ REACTIONS[CM] =
                              + ALDX                  # 1.1E-11;
 <R152>  OPO3 + NO2         = OPAN                    # 1.1E-11;
 <R153>  OPAN               = OPO3 + NO2              # 1.0E-4;
-<R154>  OH   + XYL         = 0.700*HO2   
+
+<R154a>  OH   + XYLMN         = 0.700*HO2   
                              + 0.500*XO2  
                              + 0.200*CRES  
                              + 0.800*MGLY 
                              + 1.100*PAR   
                              + 0.300*TO2 
                              + 1.0*XYLRO2             # 1.7E-11 @ -116.;
+<R154b>  OH   + NAPH       = 0.700*HO2   
+                             + 0.500*XO2  
+                             + 0.200*CRES  
+                             + 0.800*MGLY 
+                             + 1.100*PAR   
+                             + 0.300*TO2 
+                             + 1.0*PAHRO2             # 1.7E-11 @ -116.;
+
+
 <R155>  OH   + MGLY        = XO2       + C2O3         # 1.8E-11;
 <R156>  MGLY               = C2O3      
                              + HO2      
@@ -629,7 +642,7 @@ REACTIONS[CM] =
                              + 0.88*XO2 
                              + 0.88*HO2
                              + 0.12*XO2N              # 6.1E-11;
-<CL23>  CL   + XYL        = HCL 
+<CL23>  CL   + XYLMN        = HCL 
                              + 0.84*XO2 
                              + 0.84*HO2
                              + 0.16*XO2N              # 1.2E-10;                             
@@ -637,6 +650,7 @@ REACTIONS[CM] =
                                                         1.00E-10^-1.00&
                                                         0.60&1.0;
 <CL25>  CLNO2              = CL  + NO2                # 1.0/<CLNO2>;
+
 <SA01>  TOLRO2  + NO      = NO  + TOLNRXN             # 2.70e-12@-360;
 <SA02>  TOLRO2  + HO2     = HO2 + TOLHRXN             # 1.90e-13@-1300;
 <SA03>  XYLRO2  + NO      = NO  + XYLNRXN             # 2.70e-12@-360;
@@ -647,6 +661,9 @@ REACTIONS[CM] =
 <SA08>  SESQ + O3         = O3  + SESQRXN             # 1.16E-14;
 <SA09>  SESQ + OH         = OH  + SESQRXN             # 1.97E-10;
 <SA10>  SESQ + NO3        = NO3 + SESQRXN             # 1.90E-11;
+<SA11>  PAHRO2  + NO      = NO  + PAHNRXN             # 2.70e-12@-360;
+<SA12>  PAHRO2  + HO2     = HO2 + PAHHRXN             # 1.90e-13@-1300; 
+<SA13>  SOAALK  + OH      = OH  + 0.47*ALKRXN         # 2.70e-12@-374;
 
 ! inorganic heteorogeneous reactions from hetchem version 5.0.2
 

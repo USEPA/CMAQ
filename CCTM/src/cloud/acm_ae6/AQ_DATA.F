@@ -346,9 +346,9 @@ C Local Variables:
       Integer :: n_cgrid2aq
       Integer :: ios
 C Local Variable used to determine what optional TX to add to surrogates
-      Logical :: found_all_modes
-      Integer :: n_missing_tx
-      Integer :: n_which_txadd( nadd_tx )
+      !Logical :: found_all_modes
+      !Integer :: n_missing_tx
+      !Integer :: n_which_txadd( nadd_tx )
 
       Logical, Save :: Firstcall = .True.
       
@@ -678,12 +678,12 @@ C...For TXHG version
 
       Write( logdev,'( / 5x, a / )' ) ' --- AQCHEM Gas and Aerosol Species Mapped ---'
 
-1005  Format( / "GASES" / "NGAS = ", i3 / "    name   "," backgrd" // )
-1007  Format( a16, 1x, f8.2 )
-1009  Format( / "AEROSOLS" / "NAER = ", i3 / "    name(1)   ", "    name(2)   ",
-     &        "    name(3)   ", " dens ", " backgrd" // )
-1111  Format( 3(a16,1x), f6.0, 2(1x, f8.2) )
-1113  Format( a16, 1x, i4, 1x, a16, 1x, i4, 1x, i4)     
+C1005  Format( / "GASES" / "NGAS = ", i3 / "    name   "," backgrd" // )
+C1007  Format( a16, 1x, f8.2 )
+C1009  Format( / "AEROSOLS" / "NAER = ", i3 / "    name(1)   ", "    name(2)   ",
+C     &        "    name(3)   ", " dens ", " backgrd" // )
+C1111  Format( 3(a16,1x), f6.0, 2(1x, f8.2) )
+C1113  Format( a16, 1x, i4, 1x, a16, 1x, i4, 1x, i4)     
 1114  Format( / "   CGRID_SPC    ", 1x, "SPC ", 1x, "   SURROGATE   ", 1x, "ISRG", 1x, "IDX " )
 
       Return
@@ -711,6 +711,7 @@ C Local Variables:
       Character( 80 ) :: xmsg
       Integer spc
 
+      idx = 0
       Do spc = 1, ngas      
          If ( srggas( spc )%name .Eq. vname ) Then
             idx = spc
@@ -747,6 +748,7 @@ C Local Variables:
       Character( 80 ) :: xmsg
       Integer spc, n
 
+      idx = 0
       Do spc = 1, naer
          Do n = 1, nmodes
             ! Write( *,'(a,i5)' ) vname, spc
@@ -799,7 +801,7 @@ C..Arguments:
       Real, Intent( Out ) :: aeconcmin( : ) ! array of minimum concentrations
 
 C..Local Variables:
-      Character( 16 ) :: pname = 'SET_AECONCMIN'   ! program name
+      !Character( 16 ) :: pname = 'SET_AECONCMIN'   ! program name
 
       Integer m        ! mode loop counter
       Integer n        ! aerospc loop counter

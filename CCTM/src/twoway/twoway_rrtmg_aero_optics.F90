@@ -38,17 +38,17 @@ end interface
                                          0.295408975151 /)
                                          
 !B.Hutzell Five point quadature IGH = 5
-       real(8), parameter :: ghxi_5(5) = (/ -2.02018287046,  &
-                                            -0.958572464614, & 
-                                             0.00000000000,  &
-                                             0.958572464614, &
-                                             2.02018287046 /)
+       real(8), parameter :: ghxi_5(5) = (/ -2.02018287046d0,  &
+                                            -0.958572464614d0, & 
+                                             0.00000000000d0,  &
+                                             0.958572464614d0, &
+                                             2.02018287046d0 /)
 
-       real(8), parameter :: ghwi_5(5) = (/ 0.019953242059,   &
-                                            0.393619323152,   &
-                                            0.945308720483,   &
-                                            0.393619323152,   &
-                                            0.019953242059 /)
+       real(8), parameter :: ghwi_5(5) = (/ 0.019953242059d0,   &
+                                            0.393619323152d0,   &
+                                            0.945308720483d0,   &
+                                            0.393619323152d0,   &
+                                            0.019953242059d0 /)
 
                                          
 
@@ -160,7 +160,7 @@ contains
 !       in calling routine!
 
        integer, parameter :: MXNANG=10, NMXX=600000   ! FSB new limits
-       real*8, parameter  :: PII = 3.1415916536
+       real*8, parameter  :: PII = 3.1415916536D0
        real*8, parameter  :: ONE = 1.0D0, TWO = 2.0D0
 
 ! Local variables:
@@ -171,7 +171,7 @@ contains
        real*8     :: TWO_N_M_ONE, TWO_N_P_ONE, EN1, FACTOR
        complex*16 :: AN,AN1,BN,BN1,DREFRL,XI,XI1,Y, Y1, DREFRL1
        complex*16 :: D(NMXX), FAC1, FAC2
-       complex    :: XBACK
+       complex*16   :: XBACK
 
 !***********************************************************************
 ! Subroutine BHMIE is the Bohren-Huffman Mie scattering subroutine
@@ -222,11 +222,11 @@ contains
 ! IF(NANG.GT.MXNANG)STOP'***Error: NANG > MXNANG in bhmie'
 !      IF (NANG .LT. 2) NANG = 2
 
-       DX = X
+       DX = REAL( X, 8 )
 ! FSB Define reciprocals so that divisions can be replaced by multiplications.      
        DX1  = ONE / DX
        DXX1 = DX1 * DX1
-       DREFRL = REFREL
+       DREFRL = DCMPLX( REFREL ) 
        DREFRL1 = ONE / DREFRL
        Y = DX * DREFRL
        Y1 = ONE / Y
@@ -234,8 +234,8 @@ contains
  
 !*** Series expansion terminated after NSTOP terms
 !    Logarithmic derivatives calculated from NMX on down
-       XSTOP = X + 4.0 * X**0.3333 + 2.0
-       NMX  = MAX(XSTOP,YMOD) + 15
+       XSTOP = REAL( X + 4.0 * X**0.3333 + 2.0, 8)
+       NMX  = INT( MAX(XSTOP,YMOD) ) + 15
 
 ! BTD experiment 91/1/15: add one more term to series and compare results
 !      NMX=AMAX1(XSTOP,YMOD)+16
@@ -243,7 +243,7 @@ contains
 ! for a=1.0micron SiC grain.  When NMX increased by 1, only a single
 ! computed number changed (out of 4*7001) and it only changed by 1/8387
 ! conclusion: we are indeed retaining enough terms in series!
-       NSTOP = XSTOP
+       NSTOP = INT( XSTOP )
        FACTOR = 1.0D0
  
        IF (NMX .GT. NMXX) THEN
@@ -263,7 +263,7 @@ contains
        D(NMX) = DCMPLX(0.0D0,0.0D0)
        NN = NMX - 1
        DO N = 1,NN
-          EN  = NMX - N + 1
+          EN  = REAL(NMX - N + 1, 8 )
 ! FSB In the following division by Y has been replaced by 
 !     multiplication by Y1, the reciprocal of Y.          
           D(NMX-N) = ( EN * Y1 ) - (ONE / ( D(NMX-N+1) + EN * Y1)) 
@@ -281,11 +281,11 @@ contains
        GSCA =  0.0D0
        QEXT =  0.0D0
        P    = -ONE
-       XBACK = (0.0,0.0)
+       XBACK = (0.0d0,0.0d0)
 
 ! FSB Start main loop       
        DO N = 1,NSTOP
-          EN        = N
+          EN        = REAL( N, 8)
           EN1       = ONE / EN
           TWO_N_M_ONE = TWO * EN - ONE
 ! for given N, PSI  = psi_n        CHI  = chi_n
@@ -309,21 +309,20 @@ contains
 !     get common factor
           TWO_N_P_ONE = (TWO * EN + ONE)
           QEXT = QEXT + (TWO_N_P_ONE) * (REAL(AN) + REAL(BN) ) 
-          QSCA = QSCA + (TWO_N_P_ONE) * ( ABS(AN)**2 + ABS(BN)**2 )
+          QSCA = QSCA + (TWO_N_P_ONE) * ( ABS(AN)**2+ ABS(BN)**2 )
           
 ! FSB calculate XBACK from B & H Page 122          
-          FACTOR = -1.0 * FACTOR  ! calculate (-1.0 ** N)
+          FACTOR = -1.0d0 * FACTOR  ! calculate (-1.0 ** N)
           XBACK = XBACK + (TWO_N_P_ONE) * factor * (AN - BN)
           
 ! FSB calculate asymmetry factor   
-       
-          GSCA = GSCA + ((TWO_N_P_ONE)/(EN * (EN + ONE))) *     &
-                 (REAL(AN)*REAL(BN)+IMAG(AN)*IMAG(BN))
+           GSCA = GSCA + REAL( ((TWO_N_P_ONE)/(EN * (EN + ONE))) *     &
+                 (REAL(AN)*REAL(BN)+IMAG(AN)*IMAG(BN)))
 
           IF (N .GT. 1)THEN
-             GSCA = GSCA + (EN - EN1) *                         &
+             GSCA = GSCA + REAL( (EN - EN1) *                         &
                     (REAL(AN1)*REAL(AN) + IMAG(AN1)*IMAG(AN) +  &
-                     REAL(BN1)*REAL(BN) + IMAG(BN1)*IMAG(BN))
+                     REAL(BN1)*REAL(BN) + IMAG(BN1)*IMAG(BN)))
           ENDIF
 
 !*** Store previous values of AN and BN for use in computation of g=<cos(theta)>
@@ -342,13 +341,13 @@ contains
 !*** Have summed sufficient terms.
 
 !    Now compute QQSCA,QQEXT,QBACK,and GSCA
-       GSCA  = TWO * GSCA / QSCA  
+       GSCA  = REAL( TWO / QSCA )  * GSCA
 
 ! FSB in the following, divisions by DX * DX has been replaced by
 !      multiplication by DXX1 the reciprocal of 1.0 / (DX *DX)           
-       QQSCA = TWO * QSCA * DXX1
-       QQEXT = TWO * QEXT * DXX1 
-       QBACK = REAL ( 0.5 * XBACK * CONJG(XBACK) ) * DXX1  ! B&H Page 122
+       QQSCA = REAL( TWO * QSCA * DXX1 )
+       QQEXT = REAL( TWO * QEXT * DXX1 ) 
+       QBACK = REAL( REAL ( 0.5d0 * XBACK * CONJG(XBACK), 8 ) * DXX1 )  ! B&H Page 122
 
        END subroutine BHMIE
 
@@ -751,7 +750,7 @@ contains
 ! FSB start code
        mag = sqrt( n * n + k * k )
        modalf = mag * xx
-       y  = xx ! convert to real*8
+       y  = REAL( xx, 8 ) ! convert to real*8
 ! FSB get powers of y        
        y2 = y * y
        y3 = y2 * y
@@ -776,7 +775,7 @@ contains
 
         
 ! FSB explicitly calculate complex refrative index m        
-       m = cmplx(n,-k)
+       m = dcmplx(n,-k)
 ! FSB get powers and functions of m        
        m2 = m * m
        m4 = m2 * m2
@@ -805,12 +804,12 @@ contains
 ! FSB Get bext from Penndorf (1962a) Equation (7) up to x4 
 !     consistent with equation (8)
 !     We have then divided through by x and integrated analytically
-       bext = four * P2 + ( 2.4d0 * (P1 * Q2 + P2 * Q1 ) +  twothrds * S2          &
-              + twofifteenths * V2 ) * x2 + ( eightthirds * ( P1SQ - P2SQ ) ) * x3
+       bext = REAL( four * P2 + ( 2.4d0 * (P1 * Q2 + P2 * Q1 ) +  twothrds * S2          &
+            + twofifteenths * V2 ) * x2 + ( eightthirds * ( P1SQ - P2SQ ) ) * x3, 4 )
 
 ! FSB get bscat from Penndorf Equation (9) up to x4 
 !     we have divided through by x and integrated analytically
-       bscat = eightthirds * ( P1SQ + P2SQ ) * x3
+       bscat = REAL( eightthirds * ( P1SQ + P2SQ ) * x3 )
 ! FSB calculate babs
 !      babs = bext - bscat
 
@@ -874,7 +873,7 @@ contains
        gQs = four_225 * abs(P)**2 * ( AA + BB + CC )
       
 ! FSB calculate asymmetry factor and adjust with empirical term.      
-       g = (gQs / Qs)      
+       g = REAL(gQs / Qs)
 !  FSB now multiply by three_pi_two  get output  values        
        bext  = three_pi_two * bext  
        bscat = three_pi_two * bscat 
@@ -1571,7 +1570,7 @@ contains
        RCY2   = c_div(ONE, Y2)
        refrel = c_div(rfrel2, rfrel1)
        ystop  = y + 4.0 * y**0.3333 + 2.0
-       nstop  = ystop
+       nstop  = INT( ystop )
 
 !         -----------------------------------------------------------
 !              series terminated after nstop terms
@@ -1605,7 +1604,7 @@ contains
 
 ! FSB Start main loop      
        DO n = 1, nstop
-          rn = n
+          rn = REAL( n, 8 )
           RN1 = ONE / RN
           TWO_N_M_ONE = TWO * RN - ONE
           TWO_N_P_ONE = TWO * RN + ONE
@@ -1726,9 +1725,9 @@ contains
   
 !*** Have summed sufficient terms.
 !    Now compute QQSCA,QQEXT,QBACK,and GSCA
-       GGSCA = TWO * GSCA / qsca  
-       QQSCA = TWO * qsca * RYY
-       QQEXT = TWO * qext * RYY
+       GGSCA = REAL( TWO * GSCA / qsca )
+       QQSCA = REAL( TWO * qsca * RYY )
+       QQEXT = REAL( TWO * qext * RYY )
 !      QBACK = 0.5 * REAL ( ( xback * conjg(xback) ) * RYY )
 
        QBACK = 0.5 * real((xback%real_part**2 + xback%imag_part**2) * RYY)
@@ -2143,7 +2142,7 @@ contains
        complex*16 :: AN,AN1,BN,BN1,DREFRL,XI,XI1,Y, Y1, DREFRL1
        complex*16 :: D(NMX)
        complex*16 :: FAC1, FAC2
-       complex    :: XBACK
+       complex*16 :: XBACK
 
 !***********************************************************************
 ! Subroutine BHMIE is the Bohren-Huffman Mie scattering subroutine
@@ -2235,7 +2234,7 @@ contains
        D(NMX) = COMPLEX_DZERO
        NN = NMX - 1
        DO N = 1,NN
-          EN  = NMX - N + 1
+          EN  = REAL( NMX - N + 1, 8 )
 ! FSB In the following division by Y has been replaced by 
 !     multiplication by Y1, the reciprocal of Y.          
           D(NMX-N) = ( EN * Y1 ) - (ONE / ( D(NMX-N+1) + EN * Y1)) 
@@ -2253,11 +2252,11 @@ contains
        GSCA =  0.0D0
        QEXT =  0.0D0
        P    = -ONE
-       XBACK = COMPLEX_ZERO
+       XBACK = COMPLEX_DZERO
 
 ! FSB Start main loop       
        DO N = 1,NSTOP
-          EN        = N
+          EN        = REAL( N, 8 )
           EN1       = ONE / EN
           TWO_N_M_ONE = TWO * EN - ONE
 ! for given N, PSI  = psi_n        CHI  = chi_n
@@ -2284,18 +2283,18 @@ contains
           QSCA = QSCA + (TWO_N_P_ONE) * ( ABS(AN)**2 + ABS(BN)**2 )
           
 ! FSB calculate XBACK from B & H Page 122          
-          FACTOR = -1.0 * FACTOR  ! calculate (-1.0 ** N)
+          FACTOR = -1.0d0 * FACTOR  ! calculate (-1.0 ** N)
           XBACK = XBACK + (TWO_N_P_ONE) * factor * (AN - BN)
           
 ! FSB calculate asymmetry factor   
        
-          GSCA = GSCA + ((TWO_N_P_ONE)/(EN * (EN + ONE))) *     &
-                 (REAL(AN)*REAL(BN)+IMAG(AN)*IMAG(BN))
+          GSCA = GSCA + REAL((TWO_N_P_ONE)/(EN * (EN + ONE)) *     &
+                 (REAL(AN)*REAL(BN)+IMAG(AN)*IMAG(BN)))
 
           IF (N .GT. 1)THEN
-             GSCA = GSCA + (EN - EN1) *                         &
+             GSCA = GSCA + REAL((EN - EN1) *                         &
                     (REAL(AN1)*REAL(AN) + IMAG(AN1)*IMAG(AN) +  &
-                     REAL(BN1)*REAL(BN) + IMAG(BN1)*IMAG(BN))
+                     REAL(BN1)*REAL(BN) + IMAG(BN1)*IMAG(BN)))
           ENDIF
 
 !*** Store previous values of AN and BN for use in computation of g=<cos(theta)>
@@ -2314,13 +2313,13 @@ contains
 !*** Have summed sufficient terms.
 
 !    Now compute QQSCA,QQEXT,QBACK,and GSCA
-       GSCA  = TWO * GSCA / QSCA  
+       GSCA  = REAL( TWO / QSCA ) * GSCA
 
 ! FSB in the following, divisions by DX * DX has been replaced by
 !      multiplication by DXX1 the reciprocal of 1.0 / (DX *DX)           
-       QQSCA = TWO * QSCA * DXX1
-       QQEXT = TWO * QEXT * DXX1 
-       QBACK = REAL ( 0.5 * XBACK * CONJG(XBACK) ) * DXX1  ! B&H Page 122
+       QQSCA = REAL( TWO * QSCA * DXX1 )
+       QQEXT = REAL( TWO * QEXT * DXX1 )
+       QBACK = REAL( REAL( 0.5D0 * XBACK * CONJG(XBACK), 8 ) * DXX1 ) ! B&H Page 122
 
        END subroutine BHMIE_FLEXI
 
