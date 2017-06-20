@@ -125,12 +125,13 @@
         setenv myLINK_FLAG ""
         setenv myFSTD "-O3"
         setenv myDBG  "-O0 -g -Mbounds -Mchkptr -traceback -Ktrap=fp"
-        setenv myFFLAGS "-Mfixed -Mextend -mcmodel=medium"
-        setenv myFRFLAGS "-Mfree -Mextend -mcmodel=medium"
+        setenv myFFLAGS "-Mfixed -Mextend -mcmodel=medium -tp px"
+        setenv myFRFLAGS "-Mfree -Mextend -mcmodel=medium -tp px"
         setenv myCFLAGS "-O2"
-        #setenv extra_lib "-lcurl"
-        setenv extra_lib "-lextra"
-        setenv mpi_lib "-lmpi"   #> -lmpich for mvapich or -lmpi for openmpi
+        #setenv extra_lib "-lextra"
+        #setenv mpi_lib "-lmpi"   #> -lmpich for mvapich or -lmpi for openmpi
+        setenv extra_lib ""
+        setenv mpi_lib ""   #> -lmpich for mvapich or -lmpi for openmpi
     
         breaksw
     
