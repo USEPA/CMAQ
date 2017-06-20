@@ -22,7 +22,7 @@ C RCS file, release, date & time of last delta, author, state, [and locker]
 C $Header: /project/work/rep/PARIO/src/interpol.f,v 1.5 2011/03/30 18:13:01 sjr Exp $
 
       LOGICAL FUNCTION INTERPOL ( DATE, TIME, DATE1, TIME1, DATE2, TIME2,
-     &                            NUMVALS, VALSIN1, VALSIN2, VALSOUT )
+     &                            NUMVALS, VALSIN1, VALSIN2, VALSOUT, S_IND, E_IND )
 C ....................................................................
  
 C  PURPOSE:  Interpolates data given at times DATE1:TIME1 and
@@ -75,16 +75,17 @@ C .......................................................................
 
 C ARGUMENTS:
 
-      INTEGER    DATE                  ! Date to interpolate to (YYYYDDD).
-      INTEGER    TIME                  ! Time to interpolate to (HHMMSS).
-      INTEGER    DATE1                 ! Beginning date (for VALSIN1).
-      INTEGER    TIME1                 ! Beginning time (for VALSIN1).
-      INTEGER    DATE2                 ! Ending date (for VALSIN2).
-      INTEGER    TIME2                 ! Ending time (for VALSIN2).
-      INTEGER    NUMVALS               ! Number of values to interpolate.
-      REAL       VALSIN1( NUMVALS )    ! Values at DATE1:TIME1.
-      REAL       VALSIN2( NUMVALS )    ! Values at DATE2:TIME2.
-      REAL       VALSOUT( NUMVALS )    ! Interpolated values.
+      INTEGER, INTENT(IN) :: DATE                  ! Date to interpolate to (YYYYDDD).
+      INTEGER, INTENT(IN) :: TIME                  ! Time to interpolate to (HHMMSS).
+      INTEGER, INTENT(IN) :: DATE1                 ! Beginning date (for VALSIN1).
+      INTEGER, INTENT(IN) :: TIME1                 ! Beginning time (for VALSIN1).
+      INTEGER, INTENT(IN) :: DATE2                 ! Ending date (for VALSIN2).
+      INTEGER, INTENT(IN) :: TIME2                 ! Ending time (for VALSIN2).
+      INTEGER, INTENT(IN) :: NUMVALS               ! Number of values to interpolate.
+      REAL, INTENT(IN)    :: VALSIN1( NUMVALS )    ! Values at DATE1:TIME1.
+      REAL, INTENT(IN)    :: VALSIN2( NUMVALS )    ! Values at DATE2:TIME2.
+      REAL, INTENT(OUT)   :: VALSOUT( NUMVALS )    ! Interpolated values.
+      INTEGER, INTENT(IN), OPTIONAL :: S_IND, E_IND
 
 C LOCAL VARIABLES: 
 
@@ -146,9 +147,15 @@ C Logic above ensures DTVALSIN positive and P,Q in [0,1]
 
 C Interpolate the data
 
-      DO I = 1, NUMVALS
-         VALSOUT( I ) = P * VALSIN1( I ) + Q * VALSIN2( I )
-      END DO
+      IF (PRESENT(S_IND)) THEN
+         DO I = S_IND, E_IND
+            VALSOUT( I ) = P * VALSIN1( I ) + Q * VALSIN2( I )
+         END DO
+      ELSE
+         DO I = 1, NUMVALS
+            VALSOUT( I ) = P * VALSIN1( I ) + Q * VALSIN2( I )
+         END DO
+      END IF
 
       RETURN
       END
