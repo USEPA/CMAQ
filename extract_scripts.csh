@@ -4,7 +4,7 @@
 # Requirements: CMAQ git source code repository                       #
 #                                                                     #
 # To report problems or request help with this script/program:        #
-#             http://www.cmascenter.org/help_desk.cfm                 #
+#             http://www.cmascenter.org/help-desk.cfm                 #
 # =================================================================== #
 
 #> This script may be executed when first downloading or cloning the CMAQ
