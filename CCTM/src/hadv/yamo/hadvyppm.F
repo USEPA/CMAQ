@@ -107,7 +107,7 @@ C Local Variables:
 
       CHARACTER( 16 ) :: PNAME = 'HADVYPPM'
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
-      LOGICAL XYFIRST
+      LOGICAL, ALLOCATABLE, SAVE :: XYFIRST( : )
 
       integer, save :: logdev
 
@@ -171,6 +171,13 @@ C-----------------------------------------------------------------------
          FIRSTIME = .FALSE.
          logdev = init3 ()
 
+         ALLOCATE( XYFIRST( NLAYS ), STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating XYFIRST'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+         XYFIRST( : ) = .TRUE.
+
 C Get CGRID offsets
 
          N_SPC_ADV = N_GC_TRNS + N_AE_TRNS + N_NR_TRNS + N_TR_ADV + 1
@@ -201,17 +208,15 @@ C Get CGRID offsets
          DSTEP = STEP
          FDATE = JDATE
          FTIME = JTIME
-         XYFIRST = .TRUE.
 
 101      CONTINUE
 
          CALL RDBCON ( FDATE, FTIME, ASTEP( LVL ), LVL, BCON, LSTAT )
-
 !        write( logdev,* ) ' lvl, fdate, ftime: ', lvl, fdate, ftime
 
-         IF ( XYFIRST ) THEN
+         IF ( XYFIRST( LVL ) ) THEN
 
-            XYFIRST = .FALSE.
+            XYFIRST( LVL ) = .FALSE.
 
             DO ROW = 1, MY_NROWS
                DO COL = 1, MY_NCOLS
@@ -230,7 +235,7 @@ C Get CGRID offsets
 
          ELSE
 
-            XYFIRST = .TRUE.
+            XYFIRST( LVL ) = .TRUE.
 
             DO ROW = 1, MY_NROWS
                DO COL = 1, MY_NCOLS
@@ -261,7 +266,7 @@ C Get CGRID offsets
       IF ( LSTAT ) THEN    
             WRITE( XMSG2, '(A55,A57,A5)' ),
      &            'Applying fix to aerosol Boundary Conditions for aerosol',
-     &            ' modes. Turn on verbose_rdcon preprocessor flag to learn ',
+     &            ' modes. Turn on verbose_rdbcon preprocessor flag to learn ',
      &            'more.'
             CALL M3WARN( 'Read BCs', FDATE, FTIME, XMSG2 )
       END IF

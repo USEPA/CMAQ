@@ -107,19 +107,17 @@
 
       # ~~~~~~~~~~~~~~~~~~~~~~~~ Start EPA ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
       #> The following module combinations are available on Sol:
-      #>    module load  pgi/14.7  openmpi-1.8.2/pgi-14.7  netcdf-4.3.2/pgi-14.7
-      #>    module load  pgi/15.3  openmpi-1.8.6/pgi-15.3  netcdf-4.3.3/pgi-15.3
         module purge
         module load modules 
-        module load pgi/14.7  openmpi-1.8.2/pgi-14.7  netcdf-4.3.2/pgi-14.7 ioapi-3.1/pgi-14.7
+        module load pgi/15.3  openmpi-1.8.6/pgi-15.3  netcdf-4.3.3/pgi-15.3 ioapi-3.1_150122/pgi-15.3
       # ~~~~~~~~~~~~~~~~~~~~~~~~~ End EPA ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     
         #> I/O API, netCDF, and MPI library locations
-        setenv IOAPI_MOD_DIR  /home/wdx/lib/x86_64/pgi/ioapi_3.1/Linux2_x86_64pg  #> I/O API directory path
-        setenv IOAPI_INCL_DIR /home/wdx/lib/x86_64/pgi/ioapi_3.1/ioapi/fixed_src  #> I/O API directory path
-        setenv IOAPI_LIB_DIR  /home/wdx/lib/x86_64/pgi/ioapi_3.1/Linux2_x86_64pg  #> I/O API directory path
-        setenv NETCDF_LIB_DIR /home/wdx/lib/x86_64/pgi/netcdf                     #> netCDF directory path
-        setenv MPI_LIB_DIR    /home/wdx/lib/x86_64/pgi/mpich                      #> MPI directory path
+        setenv IOAPI_MOD_DIR  /home/wdx/lib_sol/x86_64/pgi-15.3/ioapi_3.1/Linux2_x86_64pg  #> I/O API directory path
+        setenv IOAPI_INCL_DIR /home/wdx/lib_sol/x86_64/pgi-15.3/ioapi_3.1/ioapi/fixed_src  #> I/O API directory path
+        setenv IOAPI_LIB_DIR  /home/wdx/lib_sol/x86_64/pgi-15.3/ioapi_3.1/Linux2_x86_64pg  #> I/O API directory path
+        setenv NETCDF_LIB_DIR /home/wdx/lib_sol/x86_64/pgi-15.3/netcdf                     #> netCDF directory path
+        setenv MPI_LIB_DIR    /home/wdx/lib_sol/x86_64/pgi-15.3/mpich                      #> MPI directory path
     
         #> Compiler Aliases and Flags
         setenv myFC mpifort 
@@ -127,11 +125,13 @@
         setenv myLINK_FLAG ""
         setenv myFSTD "-O3"
         setenv myDBG  "-O0 -g -Mbounds -Mchkptr -traceback -Ktrap=fp"
-        setenv myFFLAGS "-Mfixed -Mextend -mcmodel=medium"
-        setenv myFRFLAGS "-Mfree -Mextend -mcmodel=medium"
+        setenv myFFLAGS "-Mfixed -Mextend -mcmodel=medium -tp px"
+        setenv myFRFLAGS "-Mfree -Mextend -mcmodel=medium -tp px"
         setenv myCFLAGS "-O2"
-        setenv extra_lib "-lcurl"
-        setenv mpi_lib "-lmpi"   #> -lmpich for mvapich or -lmpi for openmpi
+        #setenv extra_lib "-lextra"
+        #setenv mpi_lib "-lmpi"   #> -lmpich for mvapich or -lmpi for openmpi
+        setenv extra_lib ""
+        setenv mpi_lib ""   #> -lmpich for mvapich or -lmpi for openmpi
     
         breaksw
     
@@ -143,22 +143,22 @@
       #>    module load  gcc/4.9.1  openmpi-1.8.1/gcc-4.9.1  netcdf-4.3.1/gcc-4.4.7 ioapi-3.1/gcc-4.4.7
         module purge
         module load modules 
-        module load  gcc/4.9.1  openmpi-1.8.1/gcc-4.9.1  netcdf-4.3.1/gcc-4.4.7  ioapi-3.1/gcc-4.4.7
+        module load  gcc/4.9.1  openmpi-1.8.1/gcc-4.9.1  netcdf-4.4.1/gcc-4.4.7  ioapi-3.1/gcc-4.4.7
       # ~~~~~~~~~~~~~~~~~~~~~~~~~ End EPA ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     
         #> I/O API, netCDF, and MPI library locations
         setenv IOAPI_MOD_DIR  /home/wdx/lib/x86_64/gcc/ioapi_3.1/Linux2_x86_64gfort  #> I/O API directory path
         setenv IOAPI_INCL_DIR /home/wdx/lib/x86_64/gcc/ioapi_3.1/ioapi/fixed_src     #> I/O API directory path
         setenv IOAPI_LIB_DIR  /home/wdx/lib/x86_64/gcc/ioapi_3.1/Linux2_x86_64gfort  #> I/O API directory path
-        setenv NETCDF_LIB_DIR /usr/local/apps/netcdf-4.3.1/gcc-4.4.7                 #> netCDF directory path
+        setenv NETCDF_LIB_DIR /usr/local/apps/netcdf-4.4.1/gcc-4.4.7                 #> netCDF directory path
         setenv MPI_LIB_DIR    /usr/local/apps/openmpi-1.8.1/gcc-4.9.1                #> MPI directory path
     
         #> Compiler Aliases and Flags
         setenv myFC mpifort
         setenv myCC gcc
         setenv myFSTD "-O3 -funroll-loops -finit-character=32 -Wtabs -Wsurprising"
-#        setenv myDBG  "-Wall -O0 -g -fcheck=all -fimplicit-none -ffpe-trap=invalid,zero,overflow -fbacktrace"
         setenv myDBG  "-Wall -O0 -g -fcheck=all -ffpe-trap=invalid,zero,overflow -fbacktrace"
+        #setenv myDBG  "$myDBG -fimplicit-none"
         setenv myFFLAGS "-ffixed-form -ffixed-line-length-132 -funroll-loops -finit-character=32"
         setenv myFRFLAGS "-ffree-form -ffree-line-length-none -funroll-loops -finit-character=32"
         setenv myCFLAGS "-O2"
