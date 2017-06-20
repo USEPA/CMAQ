@@ -38,7 +38,7 @@
 #> Choose compiler and set up CMAQ environment with correct 
 #> libraries using config.cmaq. Options: intel | gcc | pgi
  setenv compiler intel 
- source ../../config.cmaq
+ source ../../config_cmaq.csh
 
 #> Set the model version
 
