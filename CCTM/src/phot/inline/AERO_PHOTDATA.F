@@ -675,8 +675,8 @@ C*** factor for aerosols.
 
                IF ( DGN_CORE .GT. 0.0 .AND. DGN_CORE / DGN_SHELL .LT. 0.999 ) THEN
 
-                  VOL_CORE  = PI6 * CORE_MOMENT3( MODE,L )
-                  VOL_SHELL = PI6 * SHELL_MOMENT3( MODE,L )
+                  VOL_CORE  = PI6 * REAL( CORE_MOMENT3( MODE,L ), 4 )
+                  VOL_SHELL = PI6 * REAL( SHELL_MOMENT3( MODE,L ), 4 )
 
                   NR_CORE  = CMPLX( AE_NR_CORE( MODE,L,V ), AE_NI_CORE( MODE,L,V ) )
 
