@@ -22,6 +22,7 @@ This CMAQ Git archive is organized with each official public release stored as a
 To clone code from the CMAQ Git archive, specify the branch (i.e. version number) and issue the following command from within
 a working directory on your server:
 ```
+mkdir CMAQ_REPO
 git clone -b 5.2 https://github.com/USEPA/CMAQ.git CMAQ_REPO
 ```
 
