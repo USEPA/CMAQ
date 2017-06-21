@@ -4,21 +4,14 @@
 
 ## Brief Description
 
-This update implements the scaling of the O3 cuticular resistance between dry and wet values to account for physisorbed H2O on the cuticular surfaces (Altimir et al., 2006). This was not correctly implemented in CMAQv5.1 and the wet cuticular value was used only for vegetation wet from dew or precipitation.
+This update implements the scaling of the O3 cuticular resistance between dry and wet values to account for physisorbed H2O on the cuticular surfaces (Altimir et al., 2006). In earlier version of CMAQ the wet cuticular value was used only for vegetation wet from dew or precipitation. This update has a relative humidity dependence where it is assumed that moisture will phsisorb to the cuticle at relative humidities greater than 70%. The resistance is linearly interpolated betwen dry and wet cuticle values between 70% and 100% RH. 
 
 ## Significance and Impact
 
 This update will result in lower O3 concentrations, particularly in the morning, by approximately 5%.
 
 ## Affected Files:  
-cloud/acm_ae6/cldproc_acm.F  
-cloud/acm_ae6/convcld_acm.F  
-cloud/acm_ae6/rescld.F  
-cloud/acm_ae6_mp/cldproc_acm.F  
-cloud/acm_ae6_mp/convcld_acm.F  
-cloud/acm_ae6_mp/rescld.F  
 depv/m3dry/m3dry.F  
-emis/emis/LTNG_DEFN.F  
 
 ## References:
 
