@@ -10,15 +10,15 @@
 #> This script may be executed when first downloading or cloning the CMAQ
 #> repository. The routine will copy important script including config.cmaq,
 #> bldit.cctm, and run.cctm as well as scripts for other utilities into 
-#> an CMAQ_WORK working directory of the user's choice.
+#> an CMAQ_HOME working directory of the user's choice.
 #>
 #> The default location of the working directory is one level up from 
 #> the repository top level. This script should be executed within the repo
 #> as the locations of various scripts are relative to its assumed location.
 #>
 #> Default Assumed Tree Structure:
-#>   CMAQv5.2 (CMAQ_WORK / Working Directory )  
-#>     --> CMAQ_REPO (may be located outside CMAQ_WORK)
+#>   CMAQv5.2 (CMAQ_HOME / Working Directory )  
+#>     --> CMAQ_REPO (may be located outside CMAQ_HOME)
 #>     --> config_cmaq.csh
 #>     --> bldit_cctm.csh
 #>     --> run_cctm.csh
@@ -53,9 +53,7 @@
 #> Default location for CMAQ model build is one directory above
 #> the repository. The user may also set their own preferred 
 #> directory.
- cd ../
- set CMAQ_WORK = $cwd
- #set CMAQ_WORK  [User-Specified Location]
+ set CMAQ_HOME = ~/cmaq_repos/New_Scripts/Test_Build6
 
 #> Check that the host system is Linux-based
  set BLD_OS = `uname -s`
@@ -64,11 +62,11 @@
     exit 1
  endif
 
-#> Check to make sure $CMAQ_WORK exists
- if ( ! -e "$CMAQ_WORK" ) then
-    mkdir -pv $CMAQ_WORK
+#> Check to make sure $CMAQ_HOME exists
+ if ( ! -e "$CMAQ_HOME" ) then
+    mkdir -pv $CMAQ_HOME
  else
-    if ( ! -d "$CMAQ_WORK" ) then
+    if ( ! -d "$CMAQ_HOME" ) then
        echo "   *** target exists, but not a directory ***"
        exit 1
     endif
@@ -81,32 +79,36 @@
 #===============================================================================
 #> Copy config.cmaq
 #===============================================================================
- cp config_cmaq.csh $CMAQ_WORK/config_cmaq.csh
+ cp config_cmaq.csh $CMAQ_HOME/config_cmaq.csh
+ sed -i '/setenv CMAQ_REPO \$CMAQ_HOME/c\ setenv CMAQ_REPO '"$REPO_HOME" $CMAQ_HOME/config_cmaq.csh
 
 #===============================================================================
 #> Copy CCTM scripts
 #===============================================================================
  if ( $EXT_CCTM == 'Y' ) then
-    cp CCTM/scripts/bldit_cctm.csh $CMAQ_WORK/bldit_cctm.csh
-    cp CCTM/scripts/run_cctm.csh $CMAQ_WORK/run_cctm.csh
+    if ( ! -e "$CMAQ_HOME/CCTM/scripts" ) then
+       mkdir -pv $CMAQ_HOME/CCTM/scripts
+    endif
+    cp CCTM/scripts/bldit_cctm.csh $CMAQ_HOME/CCTM/scripts/bldit_cctm.csh
+    cp CCTM/scripts/run_cctm.csh $CMAQ_HOME/CCTM/scripts/run_cctm.csh
  endif
  
 #===============================================================================
 #> Copy Combine Post-Processor scripts
 #===============================================================================
  if ( $EXT_COMBINE == 'Y' ) then
-    if ( ! -e "$CMAQ_WORK/tools/combine" ) then
-       mkdir -pv $CMAQ_WORK/tools/combine
+    if ( ! -e "$CMAQ_HOME/POST/combine/scripts" ) then
+       mkdir -pv $CMAQ_HOME/POST/combine/scripts
     endif
 
-    cp POST/combine/scripts/bldit_combine.csh  $CMAQ_WORK/tools/combine/bldit_combine.csh
-    cp POST/combine/scripts/run_combine.csh    $CMAQ_WORK/tools/combine/run_combine.csh
+    cp POST/combine/scripts/bldit_combine.csh  $CMAQ_HOME/POST/combine/scripts/bldit_combine.csh
+    cp POST/combine/scripts/run_combine.csh    $CMAQ_HOME/POST/combine/scripts/run_combine.csh
  endif
 
 #===============================================================================
 #> Exit the Script
 #===============================================================================
- echo "Configuration and Run Scripts have been Extracted and placed in: $CMAQ_WORK"
+ echo "Configuration and Run Scripts have been Extracted and placed in: $CMAQ_HOME"
  echo "You may now edit these scripts to conform to your system and run options."
 
  exit

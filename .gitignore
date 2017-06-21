@@ -38,6 +38,9 @@
 *.tar
 *.gz
 
+#library symbolic links
+lib/
+
 #file unique to repository
 BLD*
 *.log

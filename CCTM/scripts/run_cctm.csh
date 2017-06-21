@@ -8,45 +8,6 @@
 #             http://www.cmascenter.org  (CMAS Website)
 # ===================================================================  
 
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~ Start EPA ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#
-#> Portable Batch System - The following specifications are 
-#> recommended for executing the runscript on the cluster at the 
-#> National Computing Center used primarily by EPA.
-#PBS -j oe
-#PBS -l walltime=10:00:00
-#PBS -l nodes=1:ppn=8
-#PBS -N CMAQ_Bench
-#PBS -q mod3dev
-#PBS -W group_list=mod3dev
-##PBS -o /home/bmurphy/cmaq_repos/New_Scripts/Test_Build
-
-#> The following commands output information from the batch
-#> scheduler to the log files for traceability.
-   if ( $?PBS_JOBID ) then
-      echo Job ID is $PBS_JOBID
-      echo Queue is $PBS_O_QUEUE
-      echo Host is $PBS_O_HOST
-      echo Nodefile is $PBS_NODEFILE
-      cat $PBS_NODEFILE | pr -o5 -4 -t
-      #> Switch to the working directory. By default,
-      #>   PBS launches processes from your home directory.
-      echo Working directory is $PBS_O_WORKDIR
-      cd $PBS_O_WORKDIR
-   endif
-   echo '>>>>>> start model run at ' `date`
-
-#> Configure the system environment and set up the module 
-#> capability
-   limit stacksize unlimited
-   source /etc/profile.d/modules.csh 
-   module load allinea   #> Load this module for using the 
-                         #> debugger (DDT) or the profiler (MAP).
-#
-# ~~~~~~~~~~~~~~~~~~~~~~~~~ End EPA ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
 # ==================================================================
 #> Runtime Environment Options
 # ==================================================================
@@ -54,7 +15,17 @@
 #> Choose compiler and set up CMAQ environment with correct 
 #> libraries using config.cmaq. Options: intel | gcc | pgi
  setenv compiler intel 
- source config_cmaq.csh
+
+#> Source the config.cmaq file to set the build environment
+ # Absolute path to this script, e.g. /home/user/bin/foo.csh
+ set SCRIPT=`readlink -f "$0"`
+ # Absolute path this script is in, thus /home/user/bin
+ set SCRIPTPATH=`dirname "$SCRIPT"`
+ cd $SCRIPTPATH/../.. 
+ setenv CMAQ_HOME $cwd 
+
+ source ./config_cmaq.csh
+
 
 #> Set General Parameters for Configuring the Simulation
  set VRSN      = v52               #> Code Version
@@ -70,14 +41,14 @@
 
 #> Set the build directory (this is where the CMAQ executable
 #> is located by default).
- set BLD      = ${CMAQ_WORK}/BLD_CCTM_${VRSN}_${compiler}
+ set BLD      = ${CMAQ_HOME}/CCTM/scripts/BLD_CCTM_${VRSN}_${compiler}
  set EXEC     = CCTM_${VRSN}.exe  
  cat $BLD/CCTM_${VRSN}.cfg; echo "    "; set echo
 
 #> Set Working, Input, and Output Directories
- setenv WORKDIR ${CMAQ_WORK}       #> Working Directory. Where the runscript is.
- setenv INPDIR  /work/MOD3DEV/cmaq_benchmark/SE52BENCH/single_day/cctm_input #> Input Directory
- setenv OUTDIR  ${WORKDIR}/output_CCTM_${RUNID}     #> Output Directory
+ setenv WORKDIR ${CMAQ_HOME}/CCTM/scripts       #> Working Directory. Where the runscript is.
+ setenv OUTDIR  ${WORKDIR}/output_CCTM_${RUNID} #> Output Directory
+ setenv INPDIR  ${CMAQ_DATA}       #> Input Directory
  setenv LOGDIR  ${OUTDIR}          #> Log Directory Location
  setenv NMLpath ${BLD}             #> Location of Namelists. Common places are: 
                                    #>   ${WORKDIR} | ${CCTM_SRC}/MECHS/${MECH} | ${BLD}
@@ -100,7 +71,7 @@ set TSTEP      = 010000            #> output time step interval (HHMMSS)
 if ( $PROC == serial ) then
    setenv NPCOL_NPROW "1 1"; set NPROCS   = 1 # single processor setting
 else
-   @ NPCOL  =  1; @ NPROW =  8
+   @ NPCOL  =  4; @ NPROW =  2
    @ NPROCS = $NPCOL * $NPROW
    setenv NPCOL_NPROW "$NPCOL $NPROW"; 
 endif
@@ -108,7 +79,7 @@ endif
 #> Vertical extent
 set NZ         = 35
 
-#setenv LOGFILE $CMAQ_WORK/$RUNID.log  #> log file name; uncomment to write standard output to a log, otherwise write to screen
+#setenv LOGFILE $CMAQ_HOME/$RUNID.log  #> log file name; uncomment to write standard output to a log, otherwise write to screen
 
 setenv GRID_NAME SE52BENCH         #> check GRIDDESC file for GRID_NAME options
 setenv GRIDDESC $INPDIR/GRIDDESC   #> grid description file
@@ -498,21 +469,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #> Executable call for multi PE, configure for your system 
   # set MPI = /usr/local/intel/impi/3.2.2.006/bin64
   # set MPIRUN = $MPI/mpirun
-  # time $MPIRUN -r ssh -np $NPROCS $BLD/$EXEC
-
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~ Start EPA ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-  #> Default Executable for multiprocessor Run
-  time mpirun -np $NPROCS $BLD/$EXEC
-
-  #> Executable for running with Allinea Map Profiler Active
-  # map --profile mpirun -np $NPROCS $BLD/$EXEC
-  
-  #> Executable for running with Allinea DDT Debugger Active
-  # ddt mpirun -np $NPROCS $BLD/$EXEC
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~ End EPA ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  time $MPIRUN -r ssh -np $NPROCS $BLD/$EXEC
 
   date
 
