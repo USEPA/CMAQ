@@ -167,17 +167,6 @@ setenv PT3DDIAG N            #> optional 3d point source emissions diagnostic fi
 setenv PT3DFRAC N            #> optional layer fractions diagnostic (play) file(s) [ default: N]; ignore if CTM_PT3DEMIS = N
 setenv REP_LAYER_MIN -1      #> Minimum layer for reporting plume rise info [ default: -1 ]
 
-#> MPI Optimization Flags 
-setenv MPI_SM_POOL 16000     #> increase shared memory pool in case many MPI_SEND headers
-setenv MP_EAGER_LIMIT 65536  #> set MPI message passing buffer size to max
-setenv MP_SINGLE_THREAD yes  #> optimizate for single threaded applications [ default: no ]
-setenv MP_STDOUTMODE ordered #> order output by the processor ID 
-setenv MP_LABELIO yes        #> label output by processor ID [ default: no ]
-setenv MP_SHARED_MEMORY yes  #> force use of shared memory for tasks on same node [ default: no ]
-setenv MP_ADAPTER_USE shared #> share the MP adapter with other jobs 
-setenv MP_CPU_USE multiple   #> share the node with multiple users/jobs
-setenv MP_CSS_INTERRUPT yes  #> specify whether arriving packets generate interrupts [ default: no ]
-
 set DISP = delete            #> [ delete | update | keep ] existing output files
 
 # =====================================================================

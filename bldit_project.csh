@@ -15,7 +15,7 @@
 #> Default location for CMAQ model build is one directory above
 #> the repository. The user may also set their own preferred 
 #> directory.
- set CMAQ_HOME = ~/cmaq_repos/New_Scripts/Test_Build6
+ set CMAQ_HOME = /home/username/cmaq_project
 
 #> This section allows users to choose explicitly which tools
 #> to make available from the repo. For each selected tool,
@@ -224,7 +224,7 @@
 
 #===============================================================================
  # Insert Job Scheduler Preface into Run Scripts for those working inside EPA
- source /work/MOD3DEV/cmaq_common/pbs_run.csh
+ source /work/MOD3DEV/cmaq_common/pbs_run.csh  #>>> Comment Out if not at EPA
 
 #===============================================================================
 #> Exit the Script
