@@ -12,13 +12,6 @@
 #             http://www.cmascenter.org/help_desk.cfm                 #
 # =================================================================== #
 
-#> Detect location of config_cmaq.csh
- # Absolute path to this script, e.g. /home/user/bin/foo.csh
- set SCRIPT=`readlink -f "$0"`
- # Absolute path this script is in, thus /home/user/bin
- set SCRIPTPATH=`dirname "$SCRIPT"`
-
-
 #> Critical Folder Locations
  # CMAQ_HOME - this is where the config_cmaq.csh script is located. It
  # is also the root directory for all the executables. It may include 
@@ -26,9 +19,7 @@
  # may, on the other hand, be outside the repository if the user has 
  # created a separate project directory where they wish to put build-
  # and run-scripts as well as executables.
- if ( ! $?CMAQ_HOME ) then 
-   setenv CMAQ_HOME $SCRIPTPATH
- endif
+ setenv CMAQ_HOME $cwd
 
  # CMAQ_REPO - this is always the location of the CMAQ repository that
  # the user will pull from to create exectuables. If the user is building
@@ -66,6 +57,8 @@
       echo "       Example:> ./config.cmaq [compiler]"
       echo "       Options: intel | gcc | pgi"
       exit
+    else if ( ! $?compilerVrsn ) then
+      setenv compilerVrsn Empty
     endif
  else
     #> More than two inputs were given. Exit this script just to

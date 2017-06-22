@@ -15,18 +15,12 @@
 #> Choose compiler and set up CMAQ environment with correct 
 #> libraries using config.cmaq. Options: intel | gcc | pgi
  setenv compiler intel 
- #setenv compilerVrsn 13.1
+ setenv compilerVrsn 13.1
 
 #> Source the config.cmaq file to set the build environment
- # Absolute path to this script, e.g. /home/user/bin/foo.csh
- set SCRIPT=`readlink -f "$0"`
- # Absolute path this script is in, thus /home/user/bin
- set SCRIPTPATH=`dirname "$SCRIPT"`
- cd $SCRIPTPATH/../.. 
- setenv CMAQ_HOME $cwd 
-
+ cd ../..
  source ./config_cmaq.csh
-
+ cd CCTM/scripts
 
 #> Set General Parameters for Configuring the Simulation
  set VRSN      = v52               #> Code Version
@@ -470,7 +464,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #> Executable call for multi PE, configure for your system 
   # set MPI = /usr/local/intel/impi/3.2.2.006/bin64
   # set MPIRUN = $MPI/mpirun
-  time $MPIRUN -r ssh -np $NPROCS $BLD/$EXEC
+  time mpirun -r ssh -np $NPROCS $BLD/$EXEC
 
   date
 
