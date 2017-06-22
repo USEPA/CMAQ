@@ -9,28 +9,6 @@
 #             http://www.cmascenter.org
 # ===================================================================
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~ Start EPA ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#
-#> Portable Batch System - The following specifications are 
-#> recommended for executing the runscript on the cluster at the 
-#> National Computing Center used primarily by EPA.
-#PBS -N run.bldoverlay.csh
-#PBS -l walltime=1:30:00
-#PBS -l nodes=login
-#PBS -q singlepe 
-#PBS -V
-#PBS -m n
-#PBS -j oe
-#PBS -o ./bldoverlay.log
-
-#> Configure the system environment
-# source /etc/profile.d/modules.csh 
-#> Set location of combine executable.
-# setenv BINDIR /home/css/CMAQ-Tools/scripts/bldoverlay
-#
-# ~~~~~~~~~~~~~~~~~~~~~~~~~ End EPA ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
 # ==================================================================
 #> Runtime Environment Options
 # ==================================================================
@@ -38,7 +16,10 @@
 #> Choose compiler and set up CMAQ environment with correct 
 #> libraries using config.cmaq. Options: intel | gcc | pgi
  setenv compiler intel 
- source ../../config_cmaq.csh
+ #setenv compilerVrsn 13.1 
+
+ cd ../../..
+ source ./config_cmaq.csh
 
 #> Set the model version
  set VRSN = v52
@@ -47,7 +28,7 @@
 #> (this is where the
  executable is located by default).
  if ( ! -e ${BINDIR} ) then
-  setenv BINDIR ${CMAQ_HOME}/Tools/bldoverlay/BLD_bldoverlay_${VRSN}_${compiler}
+  setenv BINDIR ${CMAQ_HOME}/POST/bldoverlay/scripts/BLD_bldoverlay_${VRSN}_${compiler}
  endif
 
 #> Set the name of the executable.
@@ -55,7 +36,7 @@
 
 #> Set location of CMAQ repo.  This will be used to point to the time zone file
 #> needed to run bldoverlay.  The v5.2 repo also contains a sample input file.
- setenv REPO_HOME  [Add location of CMAQv5.2 repository here]
+ setenv REPO_HOME ${CMAQ_REPO}
 
 # =====================================================================
 #> BLDOVERLAY Configuration Options
@@ -65,8 +46,8 @@
  setenv IOAPI_ISPH 20
 
 #> define time window
- set START_DATE = "2011-07-1"     #> beginning date (July 1, 2011)
- set END_DATE   = "2011-07-2"     #> ending date    (July 2, 2011)
+ set START_DATE = "2011-07-01"     #> beginning date (July 1, 2011)
+ set END_DATE   = "2011-07-02"     #> ending date    (July 2, 2011)
 
 #> Convert START_DATE and END_DATE to Julian day.
 #> (required format for bldoverlay SDATE and EDATE environment variables)

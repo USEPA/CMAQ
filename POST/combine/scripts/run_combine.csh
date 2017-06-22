@@ -19,13 +19,7 @@
  #setenv compilerVrsn 13.1
 
  #> Source the config.cmaq file to set the build environment
- # Absolute path to this script, e.g. /home/user/bin/foo.csh
- set SCRIPT=`readlink -f "$0"`
- # Absolute path this script is in, thus /home/user/bin
- set SCRIPTPATH=`dirname "$SCRIPT"`
- cd $SCRIPTPATH/../../..
- setenv CMAQ_HOME $cwd
-
+ cd ../../..
  source ./config_cmaq.csh
        
 #> Set the model version
@@ -45,7 +39,7 @@
  setenv EXEC combine_${VRSN}.exe
 
 #> Set location of CMAQ repo.  This will be used to point to the correct species definition files.
- setenv REPO_HOME  [Add location of CMAQv5.2 repository here]
+ setenv REPO_HOME  ${CMAQ_REPO}
 
 #> Set working, input and output directories
  setenv METDIR     ${CMAQ_DATA}/met/mcip            #> Met Output Directory

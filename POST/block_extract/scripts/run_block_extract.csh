@@ -9,28 +9,6 @@
 #             http://www.cmascenter.org
 # ===================================================================
 
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~ Start EPA ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#
-#> Portable Batch System - The following specifications are 
-#> recommended for executing the runscript on the cluster at the 
-#> National Computing Center used primarily by EPA.
-#PBS -N run.block_extract.csh
-#PBS -l walltime=1:30:00
-#PBS -l nodes=login
-#PBS -q singlepe 
-#PBS -V
-#PBS -m n
-#PBS -j oe
-#PBS -o ./block_extract.log
-
-#> Configure the system environment
-# source /etc/profile.d/modules.csh 
-#> Set location of combine executable.
-# setenv BINDIR /home/css/CMAQ-Tools/scripts/block_extract
-#
-# ~~~~~~~~~~~~~~~~~~~~~~~~~ End EPA ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 # ==================================================================
 #> Runtime Environment Options
 # ==================================================================
@@ -38,15 +16,18 @@
 #> Choose compiler and set up CMAQ environment with correct 
 #> libraries using config.cmaq. Options: intel | gcc | pgi
  setenv compiler intel 
- source ../../config_cmaq.csh
+ setenv compilerVrsn 13.1
+
+ cd ../../..
+ source ./config_cmaq.csh
 
 #> Set the model version
-
  set VRSN = v52
+
 #> Set the build directory if this was not set above 
 #> (this is where the bldoverlay executable is located by default).
  if ( ! -e ${BINDIR} ) then
-  setenv BINDIR ${CMAQ_HOME}/Tools/block_extract/BLD_block_extract_${VRSN}_${compiler}
+  setenv BINDIR ${CMAQ_HOME}/POST/block_extract/scripts/BLD_block_extract_${VRSN}_${compiler}
  endif
 
 #> Set the name of the executable.

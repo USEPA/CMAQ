@@ -10,34 +10,12 @@
 #> This script may be executed when first downloading or cloning the CMAQ
 #> repository. The routine will copy important script including config.cmaq,
 #> bldit.cctm, and run.cctm as well as scripts for other utilities into 
-#> an CMAQ_HOME working directory of the user's choice.
+#> a $CMAQ_HOME project directory of the user's choice.
 #>
-#> The default location of the working directory is one level up from 
-#> the repository top level. This script should be executed within the repo
-#> as the locations of various scripts are relative to its assumed location.
-#>
-#> Default Assumed Tree Structure:
-#>   CMAQv5.2 (CMAQ_HOME / Working Directory )  
-#>     --> CMAQ_REPO (may be located outside CMAQ_HOME)
-#>     --> config_cmaq.csh
-#>     --> bldit_cctm.csh
-#>     --> run_cctm.csh
-#>     --> BLD_CCTM... (CCTM Build Directories)
-#>          --> Source code, object files
-#>          --> Makefile
-#>     --> tools
-#>          --> bldmake
-#>          --> combine
-#>              bldit_combine.csh
-#>              run_combine.csh
-#>              --> BLD_COMBINE... (Combine Build Directories)
-#>          --> sitecmp
-#>              bldit_sitecmp.csh
-#>              run_sitecmp.csh
-#>              --> BLD_SITECMP...
-#>          --> [Other Tools]
-#>     --> lib (links to libraries created by config.cmaq)
-#>
+#> Default location for CMAQ model build is one directory above
+#> the repository. The user may also set their own preferred 
+#> directory.
+ set CMAQ_HOME = ~/cmaq_repos/New_Scripts/Test_Build6
 
 #> This section allows users to choose explicitly which tools
 #> to make available from the repo. For each selected tool,
@@ -60,16 +38,11 @@
  set EXT_HR2DAY = Y
  set EXT_SITECMP = Y
  set EXT_SITECMP_DAILYO3 = Y
- set EXT_WRTIESITE = Y
+ set EXT_WRITESITE = Y
 
 
 #> model source code repository location 
  set REPO_HOME = $cwd
-
-#> Default location for CMAQ model build is one directory above
-#> the repository. The user may also set their own preferred 
-#> directory.
- set CMAQ_HOME = ~/cmaq_repos/New_Scripts/Test_Build6
 
 #> Check that the host system is Linux-based
  set BLD_OS = `uname -s`
@@ -155,7 +128,7 @@
 #===============================================================================
  if ( $EXT_MCIP == 'Y' ) then
     if ( ! -e "$CMAQ_HOME/PREP/mcip/scripts" ) then
-       mkdir -pv $CMAQ_HOME/PREP/ic/ICON/scripts
+       mkdir -pv $CMAQ_HOME/PREP/mcip/scripts
     endif
     cp PREP/mcip/scripts/run_mcip.csh $CMAQ_HOME/PREP/mcip/scripts/
  endif
@@ -174,78 +147,79 @@
 #===============================================================================
 #> Copy Appendwrf Post-Processor scripts
 #===============================================================================
- if ( $EXT_COMBINE == 'Y' ) then
-    if ( ! -e "$CMAQ_HOME/POST/combine/scripts" ) then
-       mkdir -pv $CMAQ_HOME/POST/combine/scripts
+ if ( $EXT_APPENDWRF == 'Y' ) then
+    if ( ! -e "$CMAQ_HOME/POST/appendwrf/scripts" ) then
+       mkdir -pv $CMAQ_HOME/POST/appendwrf/scripts
     endif
-    cp POST/combine/scripts/bldit_combine.csh  $CMAQ_HOME/POST/combine/scripts/bldit_combine.csh
-    cp POST/combine/scripts/run_combine.csh    $CMAQ_HOME/POST/combine/scripts/run_combine.csh
+    cp POST/appendwrf/scripts/bldit_appendwrf.csh  $CMAQ_HOME/POST/appendwrf/scripts/bldit_appendwrf.csh
+    cp POST/appendwrf/scripts/run_appendwrf.csh    $CMAQ_HOME/POST/appendwrf/scripts/run_appendwrf.csh
  endif
 
 #===============================================================================
 #> Copy bldoverlay Post-Processor scripts
 #===============================================================================
- if ( $EXT_COMBINE == 'Y' ) then
-    if ( ! -e "$CMAQ_HOME/POST/combine/scripts" ) then
-       mkdir -pv $CMAQ_HOME/POST/combine/scripts
+ if ( $EXT_BLDOVERLAY == 'Y' ) then
+    if ( ! -e "$CMAQ_HOME/POST/bldoverlay/scripts" ) then
+       mkdir -pv $CMAQ_HOME/POST/bldoverlay/scripts
     endif
-    cp POST/combine/scripts/bldit_combine.csh  $CMAQ_HOME/POST/combine/scripts/bldit_combine.csh
-    cp POST/combine/scripts/run_combine.csh    $CMAQ_HOME/POST/combine/scripts/run_combine.csh
+    cp POST/bldoverlay/scripts/bldit_bldoverlay.csh  $CMAQ_HOME/POST/bldoverlay/scripts/bldit_bldoverlay.csh
+    cp POST/bldoverlay/scripts/run_bldoverlay.csh    $CMAQ_HOME/POST/bldoverlay/scripts/run_bldoverlay.csh
  endif
 
 #===============================================================================
 #> Copy block_extract Post-Processor scripts
 #===============================================================================
- if ( $EXT_COMBINE == 'Y' ) then
-    if ( ! -e "$CMAQ_HOME/POST/combine/scripts" ) then
-       mkdir -pv $CMAQ_HOME/POST/combine/scripts
+ if ( $EXT_BLOCK_EXTRACT == 'Y' ) then
+    if ( ! -e "$CMAQ_HOME/POST/block_extract/scripts" ) then
+       mkdir -pv $CMAQ_HOME/POST/block_extract/scripts
     endif
-    cp POST/combine/scripts/bldit_combine.csh  $CMAQ_HOME/POST/combine/scripts/bldit_combine.csh
-    cp POST/combine/scripts/run_combine.csh    $CMAQ_HOME/POST/combine/scripts/run_combine.csh
+    cp POST/block_extract/scripts/bldit_block_extract.csh  $CMAQ_HOME/POST/block_extract/scripts/bldit_block_extract.csh
+    cp POST/block_extract/scripts/run_block_extract.csh    $CMAQ_HOME/POST/block_extract/scripts/run_block_extract.csh
  endif
 
 #===============================================================================
 #> Copy hr2day Post-Processor scripts
 #===============================================================================
- if ( $EXT_COMBINE == 'Y' ) then
-    if ( ! -e "$CMAQ_HOME/POST/combine/scripts" ) then
-       mkdir -pv $CMAQ_HOME/POST/combine/scripts
+ if ( $EXT_HR2DAY == 'Y' ) then
+    if ( ! -e "$CMAQ_HOME/POST/hr2day/scripts" ) then
+       mkdir -pv $CMAQ_HOME/POST/hr2day/scripts
     endif
-    cp POST/combine/scripts/bldit_combine.csh  $CMAQ_HOME/POST/combine/scripts/bldit_combine.csh
-    cp POST/combine/scripts/run_combine.csh    $CMAQ_HOME/POST/combine/scripts/run_combine.csh
+    cp POST/hr2day/scripts/bldit_hr2day.csh  $CMAQ_HOME/POST/hr2day/scripts/bldit_hr2day.csh
+    cp POST/hr2day/scripts/run_hr2day.csh    $CMAQ_HOME/POST/hr2day/scripts/run_hr2day.csh
  endif
 
 #===============================================================================
 #> Copy sitecmp Post-Processor scripts
 #===============================================================================
- if ( $EXT_COMBINE == 'Y' ) then
-    if ( ! -e "$CMAQ_HOME/POST/combine/scripts" ) then
-       mkdir -pv $CMAQ_HOME/POST/combine/scripts
+ if ( $EXT_SITECMP == 'Y' ) then
+    if ( ! -e "$CMAQ_HOME/POST/sitecmp/scripts" ) then
+       mkdir -pv $CMAQ_HOME/POST/sitecmp/scripts
     endif
-    cp POST/combine/scripts/bldit_combine.csh  $CMAQ_HOME/POST/combine/scripts/bldit_combine.csh
-    cp POST/combine/scripts/run_combine.csh    $CMAQ_HOME/POST/combine/scripts/run_combine.csh
+    cp POST/sitecmp/scripts/bldit_sitecmp.csh  $CMAQ_HOME/POST/sitecmp/scripts/
+    cp POST/sitecmp/scripts/run_sitecmp_AQS_Hourly.csh    $CMAQ_HOME/POST/sitecmp/scripts/
  endif
 
 #===============================================================================
 #> Copy sitecmp_dailyo3 Post-Processor scripts
 #===============================================================================
- if ( $EXT_COMBINE == 'Y' ) then
-    if ( ! -e "$CMAQ_HOME/POST/combine/scripts" ) then
-       mkdir -pv $CMAQ_HOME/POST/combine/scripts
+ if ( $EXT_SITECMP_DAILYO3 == 'Y' ) then
+    if ( ! -e "$CMAQ_HOME/POST/sitecmp_dailyo3/scripts" ) then
+       mkdir -pv $CMAQ_HOME/POST/sitecmp_dailyo3/scripts
     endif
-    cp POST/combine/scripts/bldit_combine.csh  $CMAQ_HOME/POST/combine/scripts/bldit_combine.csh
-    cp POST/combine/scripts/run_combine.csh    $CMAQ_HOME/POST/combine/scripts/run_combine.csh
+    cp POST/sitecmp_dailyo3/scripts/bldit_sitecmp_dailyo3.csh  $CMAQ_HOME/POST/sitecmp_dailyo3/scripts/
+    cp POST/sitecmp_dailyo3/scripts/run_sitecmp_dailyo3_AQS.csh $CMAQ_HOME/POST/sitecmp_dailyo3/scripts/
+    cp POST/sitecmp_dailyo3/scripts/run_sitecmp_dailyo3_CASTNET.csh $CMAQ_HOME/POST/sitecmp_dailyo3/scripts/
  endif
 
 #===============================================================================
 #> Copy writesite Post-Processor scripts
 #===============================================================================
- if ( $EXT_COMBINE == 'Y' ) then
-    if ( ! -e "$CMAQ_HOME/POST/combine/scripts" ) then
-       mkdir -pv $CMAQ_HOME/POST/combine/scripts
+ if ( $EXT_WRITESITE == 'Y' ) then
+    if ( ! -e "$CMAQ_HOME/POST/writesite/scripts" ) then
+       mkdir -pv $CMAQ_HOME/POST/writesite/scripts
     endif
-    cp POST/combine/scripts/bldit_combine.csh  $CMAQ_HOME/POST/combine/scripts/bldit_combine.csh
-    cp POST/combine/scripts/run_combine.csh    $CMAQ_HOME/POST/combine/scripts/run_combine.csh
+    cp POST/writesite/scripts/bldit_writesite.csh  $CMAQ_HOME/POST/writesite/scripts/bldit_writesite.csh
+    cp POST/writesite/scripts/run_writesite.csh    $CMAQ_HOME/POST/writesite/scripts/run_writesite.csh
  endif
 
 #===============================================================================
