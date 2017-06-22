@@ -44,7 +44,23 @@
 #> extract_scripts.csh will copy any build and run scritps
 #> out of the repo for you. Set each to [Y/N]
  set EXT_CCTM    = Y
+
+ # Pre-processing Tools
+ set EXT_AGDUST = Y
+ set EXT_BCON = Y
+ set EXT_ICON = Y
+ set EXT_LTNG = Y
+ set EXT_MCIP = Y
+ 
+ # Post-Processing Tools
  set EXT_COMBINE = Y
+ set EXT_APPENDWRF = Y
+ set EXT_BLDOVERLAY = Y
+ set EXT_BLOCK_EXTRACT = Y
+ set EXT_HR2DAY = Y
+ set EXT_SITECMP = Y
+ set EXT_SITECMP_DAILYO3 = Y
+ set EXT_WRTIESITE = Y
 
 
 #> model source code repository location 
