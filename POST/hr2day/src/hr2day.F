@@ -62,7 +62,7 @@ C local variables
       integer c, r, n, h, i 
       integer tzadj, hr1
       integer curdate, curtime, cdate, ctime
-      integer firstdate, firsttime, lastdate, lasttime, runlen
+      integer first_date, first_time, last_date, last_time, runlen
       real x,y,longitude,latitude
       integer hroffset
       integer startHr, endHr
@@ -115,12 +115,12 @@ c
       endif
 
 C... Compute last date and time to process                    
-      firstdate = SDATE3D
-      firsttime = STIME3D                                      
-      lastdate = SDATE3D
-      lasttime = STIME3D                                      
+      first_date = SDATE3D
+      first_time = STIME3D                                      
+      last_date = SDATE3D
+      last_time = STIME3D                                      
       runlen = SEC2TIME( (MXREC3D-1) * TIME2SEC( TSTEP3D ))
-      Call NEXTIME( lastdate, lasttime, runlen ) 
+      Call NEXTIME( last_date, last_time, runlen ) 
 
 C... get species definitions from system variables
       Call loadSpecies()
@@ -221,8 +221,8 @@ C... start loop to read and process each variable
           Do h=hr1,66
             rstatus = .false.
             hrValues(h,:,:) = BADVAL3
-            if( (SECSDIFF(firstDate, firstTime, cdate, ctime) .ge. 0)
-     &    .and. (SECSDIFF(cdate, ctime, lastDate, lastTime) .ge. 0) ) then
+            if( (SECSDIFF(first_date, first_time, cdate, ctime) .ge. 0)
+     &    .and. (SECSDIFF(cdate, ctime, last_date, last_time) .ge. 0) ) then
               Call evaluate(SPECVARS(n)%EXPRESSION, cdate, ctime, 1, NCOLS3D*NROWS3D, hrValues(h,:,:))
               endif
             Call NEXTIME(cDate, cTime, 10000)
@@ -295,7 +295,7 @@ C... start loop to read and process each variable
           Call NEXTIME(curdate, curtime, 240000) 
 
           ! if current date at noon is past last date and time, then exit loop
-          if(SECSDIFF(curDate, 120000, lastDate, lastTime) .le. 0) EXIT
+          if(SECSDIFF(curDate, 120000, last_date, last_time) .le. 0) EXIT
 
           hr1 = 43
           endDo  ! end (time-step-loop)
@@ -594,10 +594,10 @@ C... arguments
 C... local variables
       Integer status
       Logical, save :: first=.true.  
-      Integer, save :: firstDate
-      Integer, save :: firstTime
-      Integer, save :: lastDate
-      Integer, save :: lastTime
+      Integer, save :: first_date
+      Integer, save :: first_time
+      Integer, save :: last_date
+      Integer, save :: last_time
 
       Character*(16) tempvar
       Real, save,allocatable :: tvalues(:,:,:)
@@ -615,12 +615,12 @@ C... first pass
         Allocate ( tvalues(-36:66, NCOLS3D, NROWS3D) )
 
         ! Compute last date and time to process                    
-        firstdate = SDATE3D
-        firsttime = STIME3D                                      
-        lastdate = SDATE3D
-        lasttime = STIME3D                                      
+        first_date = SDATE3D
+        first_time = STIME3D                                      
+        last_date = SDATE3D
+        last_time = STIME3D                                      
         runlen = SEC2TIME( (MXREC3D-1) * TIME2SEC( TSTEP3D ))
-        Call NEXTIME( lastdate, lasttime, runlen ) 
+        Call NEXTIME( last_date, last_time, runlen ) 
         endif   ! first pass
     
 C... read temperature values and fill tvalues array
@@ -628,8 +628,8 @@ C... read temperature values and fill tvalues array
       ctime = 0
       tvalues = BADVAL3
       do h=-36,66
-        if( (SECSDIFF(firstDate, firstTime, cdate, ctime) .ge. 0)
-     &    .and. (SECSDIFF(cdate, ctime, lastDate, lastTime) .ge. 0) ) then
+        if( (SECSDIFF(first_date, first_time, cdate, ctime) .ge. 0)
+     &    .and. (SECSDIFF(cdate, ctime, last_date, last_time) .ge. 0) ) then
           if(.not.READ3('INFILE', tempvar, 1, cdate, ctime, tvalues(h,:,:)) ) then
             Write(*,'(''Cannot read temperature data for @MAXT operation'')')
             endif
@@ -681,10 +681,10 @@ C... arguments
 
 C... local variables
       Logical, save :: first=.true.  
-      Integer, save :: firstDate
-      Integer, save :: firstTime
-      Integer, save :: lastDate
-      Integer, save :: lastTime
+      Integer, save :: first_date
+      Integer, save :: first_time
+      Integer, save :: last_date
+      Integer, save :: last_time
 
       Character*(16) ozonevar
       Real, save,allocatable :: O3values(:,:,:)
@@ -720,12 +720,12 @@ C... first pass
         Allocate ( O3values(-36:66, NCOLS3D, NROWS3D) )
 
         ! Compute last date and time to process                    
-        firstdate = SDATE3D
-        firsttime = STIME3D                                      
-        lastdate = SDATE3D
-        lasttime = STIME3D                                      
+        first_date = SDATE3D
+        first_time = STIME3D                                      
+        last_date = SDATE3D
+        last_time = STIME3D                                      
         runlen = SEC2TIME( (MXREC3D-1) * TIME2SEC( TSTEP3D ))
-        Call NEXTIME( lastdate, lasttime, runlen ) 
+        Call NEXTIME( last_date, last_time, runlen ) 
         endif   ! first pass
     
 C... read ozone values and fill tvalues array
@@ -734,8 +734,8 @@ C... read ozone values and fill tvalues array
       call NEXTIME(cDate,cTime,0) !reformat to make sure hours are between 0 and 23
       O3values = BADVAL3
       do h=-36,66
-        if( (SECSDIFF(firstDate, firstTime, cdate, ctime) .ge. 0)
-     &    .and. (SECSDIFF(cdate, ctime, lastDate, lastTime) .ge. 0) ) then
+        if( (SECSDIFF(first_date, first_time, cdate, ctime) .ge. 0)
+     &    .and. (SECSDIFF(cdate, ctime, last_date, last_time) .ge. 0) ) then
           if(.not.READ3('INFILE', ozonevar, 1, cdate, ctime, O3values(h,:,:)) ) then
             Write(*,'(''Cannot read Ozone data for @8HRMAXO3 operation'')')
             endif

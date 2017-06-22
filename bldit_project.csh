@@ -77,7 +77,8 @@
 
 
 #===============================================================================
-#> Copy config.cmaq
+#> Copy config_cmaq.csh to Project directory and insert correct location
+#> of the repository these scripts are coming from.
 #===============================================================================
  cp config_cmaq.csh $CMAQ_HOME/config_cmaq.csh
  sed -i '/setenv CMAQ_REPO \$CMAQ_HOME/c\ setenv CMAQ_REPO '"$REPO_HOME" $CMAQ_HOME/config_cmaq.csh
@@ -104,6 +105,10 @@
     cp POST/combine/scripts/bldit_combine.csh  $CMAQ_HOME/POST/combine/scripts/bldit_combine.csh
     cp POST/combine/scripts/run_combine.csh    $CMAQ_HOME/POST/combine/scripts/run_combine.csh
  endif
+
+
+ # Insert Job Scheduler Preface into Run Scripts for those working inside EPA
+ source /work/MOD3DEV/cmaq_common/pbs_run.csh
 
 #===============================================================================
 #> Exit the Script

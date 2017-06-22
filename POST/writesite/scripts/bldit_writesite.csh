@@ -1,12 +1,19 @@
 #! /bin/csh -f
 
-# ==================== COMBINEv5.2 Build Script ===================== #
-# Usage: bldit_combine.csh >&! bldit_combine.log                      #
+# ==================== WRITESITEv5.2 Build Script ===================== #
+# Usage: bldit_writesite.csh >&! bldit_writesite.log                          #
 # Requirements: I/O API & netCDF libraries; a Fortran compiler        #
 #                                                                     #
 # To report problems or request help with this script/program:        #
 #             http://www.cmascenter.org                               #
 # =================================================================== #
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~ Start EPA ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#> #> Note to development and evaluation teams running at NCC:
+#> You must "module load" the correct modules for intel, PGI, or gfortran.
+#> Invoke modules capability for use in config.cmaq
+   source /etc/profile.d/modules.csh
+# ~~~~~~~~~~~~~~~~~~~~~~~~~ End EPA ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # =======================================================================
 #> Preliminary error checking and environment configuration
@@ -22,11 +29,6 @@
 #> Set Compiler Identity by User Input: Options -> intel | pgi | gcc
  if ( $#argv == 1 ) then
    setenv compiler $argv[1]
-   setenv compilerVrsn Empty
- else if ( $#argv == 2 ) then
-   #> Compiler Name and Version have been provided
-   setenv compiler $1
-   setenv compilerVrsn $2
  else
    echo "usage: $0 <compiler>"
    echo " where <compiler> is intel, pgi or gcc"
@@ -34,27 +36,23 @@
  endif
 
 #> Source the config.cmaq file to set the build environment
- # Absolute path to this script, e.g. /home/user/bin/foo.csh
- set SCRIPT=`readlink -f "$0"`
- # Absolute path this script is in, thus /home/user/bin
- set SCRIPTPATH=`dirname "$SCRIPT"`
- cd $SCRIPTPATH/../../..
- setenv CMAQ_HOME $cwd
- 
+ cd ../../
  source ./config_cmaq.csh
+ cd tools/writesite
 
 #> Source Code Repository
- setenv REPOROOT ${CMAQ_REPO}/POST/combine  #> location of the source code for COMBINE
+ setenv REPOROOT ${CMAQ_REPO}/POST/writesite  #> location of the source code for WRITESITE
 
 #===============================================================================
 #> Begin User Input Section 
 #===============================================================================
 
 #> User choices: working directory and application ID
+ set CMB_HOME = $cwd                       #> working directory
  set VRSN     = v52                        #> model version
- set EXEC     = combine_${VRSN}.exe        #> executable name for this application
- set CFG      = combine_${VRSN}.cfg        #> BLDMAKE configuration file name
- setenv BLDER   ${CMAQ_HOME}/UTIL/bldmake/bldmake_${compiler}.exe #> location of makefile builder executable 
+ set EXEC     = writesite_${VRSN}.exe        #> executable name for this application
+ set CFG      = writesite_${VRSN}.cfg        #> BLDMAKE configuration file name
+ set BLDER    = ${CMB_HOME}/BLDMAKE_${compiler} #> location of makefile builder executable 
 
 #> user choice: copy source files
  set CopySrc         #> copy the source files into the BLD directory
@@ -64,7 +62,7 @@
 
 # set CompileBLDMAKE  #> Recompile the BLDMAKE utility from source
                      #>   comment out to use an existing BLDMAKE executable
- set ModDriver = src #> COMBINE Modules
+ set ModDriver = src #> WRITESITE Modules
 
 
 #============================================================================================
@@ -73,7 +71,7 @@
 #============================================================================================
 
 #> Set full path of Fortran 90 compiler
- setenv FC ${myFC}
+ set FC = ${myFC}
  set FP = $FC
 
 #> Set IO/API version
@@ -82,7 +80,7 @@
 #> Set compiler flags
  set FSTD       = "${myFSTD}"
  set DBG        = "${myDBG}"
- setenv F_FLAGS   "${myFFLAGS}"
+ set F_FLAGS    = "${myFFLAGS}"
  set F90_FLAGS  = "${myFRFLAGS}"
  set CPP_FLAGS  = ""      #> Fortran Preprocessor Flags
  set LINK_FLAGS = "${myLINK_FLAG}"  #> Link Flags
@@ -91,10 +89,10 @@
 
 
 #============================================================================================
-#> Set up the combine build directory under the Tools directory
+#> Set up the writesite build directory under the Tools directory
 #> for checking out and compiling source code
 #============================================================================================
- set Bld = ${CMAQ_HOME}/POST/combine/scripts/BLD_combine_${VRSN}_${compiler}
+ set Bld = ${CMB_HOME}/BLD_writesite_${VRSN}_${compiler}
 
  if ( ! -e "$Bld" ) then
     mkdir -pv $Bld
@@ -152,7 +150,7 @@
  echo                                                              >> $Cfile
  echo "netcdf      $quote$netcdf_lib$quote;"                       >> $Cfile
 
- set text = "combine"
+ set text = "writesite"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModDriver};"                                       >> $Cfile
  echo                                                              >> $Cfile
@@ -165,9 +163,47 @@
 
 #> Recompile BLDMAKE from source if requested or if it does not exist
   if ( $?CompileBLDMAKE || ! -f $BLDER ) then
-     cd ${CMAQ_REPO}/UTIL/bldmake/scripts
-     ./bldit_bldmake.csh
-  endif
+
+     #> Create a Tools Directory in which to keep BLDMAKE
+     cd $CMAQ_WORK
+     if ( ! -d tools/bldmake ) mkdir -pv tools/bldmake
+
+     #> Copy all BLDMAKE files from the CMAQ Repo if none exist in
+     #> tools/bldmake already. If BLDMAKE won't compile, try erasing
+     #> the diles in tools/bldmake so that this utility will copy new
+     #> ones from the repo.
+     cp --no-clobber ${CMAQ_REPO}/UTIL/bldmake/src/* tools/bldmake/
+
+     #> Clean BLDMAKE directory
+     cd tools/bldmake
+     rm *.o *.mod $BLDER
+   
+     #> Set BLDER to Default Path
+     set BLDEXE = "bldmake_${compiler}"
+     set BLDDIR = "$CMAQ_WORK/tools/bldmake"
+     set BLDER  = "${BLDDIR}/${BLDEXE}"
+   
+     #> Compile BLDMAKE source code
+     set flist = (\
+          ${BLDDIR}/cfg_module.f\
+          ${BLDDIR}/bldmake.f\
+          ${BLDDIR}/parser.f\
+          ${BLDDIR}/utils.f )
+   
+     foreach file ( $flist )
+        $FC -c $F_FLAGS $file
+     end
+   
+     #> Compile BLDMAKE
+     $FC *.o -o $BLDEXE
+     if( ! -e $BLDEXE ) then
+         echo " "; echo " ***ERROR*** BLDMAKE Compile failed"; echo " "
+         exit 1
+     endif
+     chmod 755 $BLDEXE
+     echo " "; echo " Finish building $BLDEXE "
+
+ endif
  
 #> Relocate to the BLD_* directory
   cd $Bld 

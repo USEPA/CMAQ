@@ -1,124 +1,164 @@
 #! /bin/csh -f
-#PBS -N combine.aconc.uncoupled.csh
-#PBS -l walltime=10:00:00
-#PBS -l nodes=login
-#PBS -q singlepe 
-#PBS -V
-#PBS -m n
-#PBS -j oe
-#PBS -o ./combine_V51.aconc.uncoupled.log
 
-#> Set location of CMAQ output (can also come from config.cmaq file)
- setenv M3DATA	/work/MOD3DEV/cmaq_bench_data/SE52BENCH/OUTPUT
 
-#> Set location of Met output 
- setenv METDATA /work/MOD3DEV/cmaq_bench_data/SE52BENCH/INPUT/met/mcip
+# ====================== COMBINE Run Script ======================== 
+# Usage: run.combine.uncoupled.csh >&! combine_v52_uncoupled.log &                                
+#
+# To report problems or request help with this script/program:     
+#             http://www.epa.gov/cmaq    (EPA CMAQ Website)
+#             http://www.cmascenter.org  (CMAS Website)
+# ===================================================================  
 
-#> Set naming ids of simulation.
- set APPL = v52b
- set MECH = cb6r3_ae6_aq 
- #(EXEC_ID can also come from config.cmaq file)
- set EXEC_ID = CMAQ52b_mpi_SE52BENCH.35.2013ef_13g_s07
+# ==================================================================
+#> Runtime Environment Options
+# ==================================================================
 
-#> Timestep run parameters.
- set START_DAY = "2011-07-01"
- set END_DAY   = "2011-07-09"
+#> Choose compiler and set up CMAQ environment with correct
+#> libraries using config.cmaq. Options: intel | gcc | pgi
+ setenv compiler intel
+ #setenv compilerVrsn 13.1
+
+ #> Source the config.cmaq file to set the build environment
+ # Absolute path to this script, e.g. /home/user/bin/foo.csh
+ set SCRIPT=`readlink -f "$0"`
+ # Absolute path this script is in, thus /home/user/bin
+ set SCRIPTPATH=`dirname "$SCRIPT"`
+ cd $SCRIPTPATH/../../..
+ setenv CMAQ_HOME $cwd
+
+ source ./config_cmaq.csh
+       
+#> Set the model version
+ set VRSN = v52
+
+#> Set General Parameters for Labeling the Simulation
+ set MECH = cb6r3_ae6_aq          #> Mechanism ID
+ set APPL = v52_intel_SE52BENCH	  #> Application Name (e.g. Code version, compiler, gridname, emissions, etc.)
+
+#> Set the build directory if this was not set above 
+#> (this is where the CMAQ executable is located by default).
+ if ( ! -e $BINDIR ) then
+  setenv BINDIR $CMAQ_HOME/POST/combine/scripts/BLD_combine_${VRSN}_${compiler}
+ endif
+
+#> Set the name of the executable.
+ setenv EXEC combine_${VRSN}.exe
 
 #> Set location of CMAQ repo.  This will be used to point to the correct species definition files.
- set CMAQ_REPO = /work/MOD3EVAL/fib/CMAQ_Dev
+ setenv REPO_HOME  [Add location of CMAQv5.2 repository here]
+
+#> Set working, input and output directories
+ setenv METDIR     ${CMAQ_DATA}/met/mcip            #> Met Output Directory
+ setenv CCTMOUTDIR ${CMAQ_DATA}/output_CCTM_${APPL} #> CCTM Output Directory
+ setenv POSTDIR    ${CMAQ_DATA}/POST                #> Location where combine file will be written
+
+
+# =====================================================================
+#> COMBINE Configuration Options
+# =====================================================================
+
+#> Set Start and End Days for looping
+ set START_DATE = "2011-07-01"     #> beginning date (July 10, 2011)
+ set END_DATE   = "2011-07-14"     #> ending date    (July 14, 2011)
  
 #> Set location of species definition files for concentration and deposition species.
- setenv SPEC_CONC $CMAQ_REPO/POST/combine/scripts/spec_def_files/SpecDef_${MECH}.txt
- setenv SPEC_DEP  $CMAQ_REPO/POST/combine/scripts/spec_def_files/SpecDef_Dep_${MECH}.txt
-
-#> Set location where combine file will be written 
- setenv OUTDIR /work/MOD3DEV/cmaq_bench_data/SE52BENCH/POST
-
-#> Set location of combine executable.
- setenv BINDIR /home/css/CMAQ-Tools/scripts/combine
+ setenv SPEC_CONC $REPO_HOME/POST/combine/scripts/spec_def_files/SpecDef_${MECH}.txt
+ setenv SPEC_DEP  $REPO_HOME/POST/combine/scripts/spec_def_files/SpecDef_Dep_${MECH}.txt
 
 #> Use GENSPEC switch to generate a new specdef file (does not generate output file).
  setenv GENSPEC N
 
+
 # =====================================================================
-# Run combine to yield all desired concentrations (ACONC file)
+#> Begin Loop Through Simulation Days to Create ACONC File
 # =====================================================================
 
 #> Set the species definition file for concentration species.
  setenv SPECIES_DEF $SPEC_CONC
  
- #> Loop through all days between START_DAY and END_DAY
- set CURRENT_DAY = ${START_DAY}
- set STOP_DAY = `date -ud "${END_DAY}+1days" +%Y-%m-%d`
-  
- while ($CURRENT_DAY != ${STOP_DAY})
+#> Loop through all days between START_DAY and END_DAY
+ set TODAYG = ${START_DATE}
+ set TODAYJ = `date -ud "${START_DATE}" +%Y%j` #> Convert YYYY-MM-DD to YYYYJJJ
+ set STOP_DAY = `date -ud "${END_DATE}" +%Y%j` #> Convert YYYY-MM-DD to YYYYJJJ
 
-  set YYYY = `date -ud "${CURRENT_DAY}" +%Y`
-  set YY = `date -ud "${CURRENT_DAY}" +%y`
-  set MM = `date -ud "${CURRENT_DAY}" +%m`
-  set DD = `date -ud "${CURRENT_DAY}" +%d`
- #> for files that are indexed with Julian day:
- #  set YYYYJJJ = `date -ud "${CURRENT_DAY}" +%Y%j` 
+ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
+ 
+  #> Retrieve Calendar day Information
+   set YYYY = `date -ud "${TODAYG}" +%Y`
+   set YY = `date -ud "${TODAYG}" +%y`
+   set MM = `date -ud "${TODAYG}" +%m`
+   set DD = `date -ud "${TODAYG}" +%d`
+  #> for files that are indexed with Julian day:
+   #  set YYYYJJJ = `date -ud "${TODAYG}" +%Y%j` 
 
- #> Define name of output file to save average hourly concentration.
- #> A new file will be created for each month/year.
-  setenv OUTFILE ${OUTDIR}/CCTM_${APPL}_${EXEC_ID}_COMBINE_ACONC.CMAQ52-BENCHMARK_$MM$YYYY
+  #> Define name of combine output file to save hourly average concentration.
+  #> A new file will be created for each month/year.
+   setenv OUTFILE ${POSTDIR}/COMBINE_ACONC_${APPL}_$MM$YYYY
 
- #> Define name of input files needed for combine program.
- #> File [1]: CMAQ conc/aconc file
- #> File [2]: MCIP METCRO3D file
- #> File [3]: CMAQ APMDIAG file
- #> File [4]: MCIP METCRO2D file
-  setenv INFILE1 $M3DATA/CCTM_${APPL}.ACONC.${EXEC_ID}_$YYYY$MM$DD
-  setenv INFILE2 $METDATA/METCRO3D_$YY$MM$DD
-  setenv INFILE3 $M3DATA/CCTM_${APPL}.APMDIAG.${EXEC_ID}_$YYYY$MM$DD
-  setenv INFILE4 $METDATA/METCRO2D_$YY$MM$DD
+  #> Define name of input files needed for combine program.
+  #> File [1]: CMAQ conc/aconc file
+  #> File [2]: MCIP METCRO3D file
+  #> File [3]: CMAQ APMDIAG file
+  #> File [4]: MCIP METCRO2D file
+   setenv INFILE1 $CCTMOUTDIR/CCTM_ACONC_${APPL}_$YYYY$MM$DD
+   setenv INFILE2 $METDIR/METCRO3D_$YY$MM$DD
+   setenv INFILE3 $CCTMOUTDIR/CCTM_APMDIAG_${APPL}_$YYYY$MM$DD
+   setenv INFILE4 $METDIR/METCRO2D_$YY$MM$DD
 
-  set CURRENT_DAY = `date -ud "${CURRENT_DAY}+1days" +%Y-%m-%d`
+  #> Executable call:
+   ${BINDIR}/${EXEC}
 
- #> Executable call:
-  $BINDIR/combine.exe
+  #> Increment both Gregorian and Julian Days
+   set TODAYG = `date -ud "${TODAYG}+1days" +%Y-%m-%d` #> Add a day for tomorrow
+   set TODAYJ = `date -ud "${TODAYG}" +%Y%j` #> Convert YYYY-MM-DD to YYYYJJJ
 
- end
+ end #Loop to the next Simulation Day
 
- # =====================================================================
-# Run combine to yield all desired deposition totals (DEP file)
+
+# =====================================================================
+#> Begin Loop Through Simulation Days to Create DEP File
 # =====================================================================
 
 #> Set the species definition file for concentration species.
  setenv SPECIES_DEF $SPEC_DEP
  
- #> Loop through all days between START_DAY and END_DAY
- set CURRENT_DAY = ${START_DAY}
- set STOP_DAY = `date -ud "${END_DAY}+1days" +%Y-%m-%d`
-  
- while ($CURRENT_DAY != ${STOP_DAY})
+#> Loop through all days between START_DAY and END_DAY
+ set TODAYG = ${START_DATE}
+ set TODAYJ = `date -ud "${START_DATE}" +%Y%j` #> Convert YYYY-MM-DD to YYYYJJJ
+ set STOP_DAY = `date -ud "${END_DATE}" +%Y%j` #> Convert YYYY-MM-DD to YYYYJJJ
 
-  set YYYY = `date -ud "${CURRENT_DAY}" +%Y`
-  set YY = `date -ud "${CURRENT_DAY}" +%y`
-  set MM = `date -ud "${CURRENT_DAY}" +%m`
-  set DD = `date -ud "${CURRENT_DAY}" +%d`
-#> for files that are indexed with Julian day:
-#  set YYYYJJJ = `date -ud "${CURRENT_DAY}" +%Y%j` 
-
- #> Define name of output file to save average hourly concentration.
- #> A new file will be created for each month/year.
-  setenv OUTFILE ${OUTDIR}/CCTM_${APPL}_${EXEC_ID}_COMBINE_DEP.CMAQ52-BENCHMARK_$MM$YYYY
-
- #> Define name of input files needed for combine program.
- #> File [1]: CMAQ DRYDEP file
- #> File [2]: CMAQ WETDEP file
- #> File [3]: MCIP METCRO2D
-  setenv INFILE1 $M3DATA/CCTM_${APPL}.DRYDEP.${EXEC_ID}_$YYYY$MM$DD
-  setenv INFILE2 $M3DATA/CCTM_${APPL}.WETDEP1.${EXEC_ID}_$YYYY$MM$DD
-  setenv INFILE3 $METDATA/METCRO2D_$YY$MM$DD
-
-  set CURRENT_DAY = `date -ud "${CURRENT_DAY}+1days" +%Y-%m-%d`
-
- #> Executable call:
-  $BINDIR/combine.exe
-
- end
+ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
  
- date
+  #> Retrieve Calendar day Information
+   set YYYY = `date -ud "${TODAYG}" +%Y`
+   set YY = `date -ud "${TODAYG}" +%y`
+   set MM = `date -ud "${TODAYG}" +%m`
+   set DD = `date -ud "${TODAYG}" +%d`
+  #> for files that are indexed with Julian day:
+   #  set YYYYJJJ = `date -ud "${TODAYG}" +%Y%j` 
+
+  #> Define name of combine output file to save hourly total deposition.
+  #> A new file will be created for each month/year.
+   setenv OUTFILE ${POSTDIR}/COMBINE_DEP_${APPL}_$MM$YYYY
+
+  #> Define name of input files needed for combine program.
+  #> File [1]: CMAQ DRYDEP file
+  #> File [2]: CMAQ WETDEP file
+  #> File [3]: MCIP METCRO2D
+  #> File [4]: {empty}
+   setenv INFILE1 $CCTMOUTDIR/CCTM_DRYDEP_${APPL}_$YYYY$MM$DD
+   setenv INFILE2 $CCTMOUTDIR/CCTM_WETDEP1_${APPL}_$YYYY$MM$DD
+   setenv INFILE3 $METDIR/METCRO2D_$YY$MM$DD
+   setenv INFILE4
+
+  #> Executable call:
+   ${BINDIR}/${EXEC}
+
+  #> Increment both Gregorian and Julian Days
+   set TODAYG = `date -ud "${TODAYG}+1days" +%Y-%m-%d` #> Add a day for tomorrow
+   set TODAYJ = `date -ud "${TODAYG}" +%Y%j` #> Convert YYYY-MM-DD to YYYYJJJ
+
+ end #Loop to the next Simulation Day
+
+ 
  exit()

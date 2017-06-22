@@ -15,6 +15,7 @@
 #> Choose compiler and set up CMAQ environment with correct 
 #> libraries using config.cmaq. Options: intel | gcc | pgi
  setenv compiler intel 
+ #setenv compilerVrsn 13.1
 
 #> Source the config.cmaq file to set the build environment
  # Absolute path to this script, e.g. /home/user/bin/foo.csh
@@ -47,7 +48,7 @@
 
 #> Set Working, Input, and Output Directories
  setenv WORKDIR ${CMAQ_HOME}/CCTM/scripts       #> Working Directory. Where the runscript is.
- setenv OUTDIR  ${WORKDIR}/output_CCTM_${RUNID} #> Output Directory
+ setenv OUTDIR  ${CMAQ_DATA}/output_CCTM_${RUNID} #> Output Directory
  setenv INPDIR  ${CMAQ_DATA}       #> Input Directory
  setenv LOGDIR  ${OUTDIR}          #> Log Directory Location
  setenv NMLpath ${BLD}             #> Location of Namelists. Common places are: 
