@@ -197,7 +197,7 @@ CMAQ has the capability to estimate windblown dust emissions in-line in the CCTM
 
 ### Gas-Phase Chemistry
 
-See the [CMAQv5.2 release notes](https://github.com/USEPA/CMAQ/tree/5.2/CCTM/docs/Release_Notes#chemistry) for updates on the chemistry algorithms in CMAQ. 
+See the [CMAQv5.2 release notes](https://github.com/USEPA/CMAQ/tree/5.2/CCTM/docs/Release_Notes/README.md#chemistry) for updates on the chemistry algorithms in CMAQ. 
 
 #### Gas-phase chemistry solvers
 
@@ -215,7 +215,7 @@ The CMAQ modeling system includes an additional method to calculate photolysis r
 
 ### Pollution Transport
 
-See the [CMAQv5.2 release notes](https://github.com/USEPA/CMAQ/tree/5.2/CCTM/docs/Release_Notes#transport) for updates on the transport algorithms in CMAQ. 
+See the [CMAQv5.2 release notes](https://github.com/USEPA/CMAQ/tree/5.2/CCTM/docs/Release_Notes/README.md#transport) for updates on the transport algorithms in CMAQ. 
 
 Pollutant transport includes both advection and sub-grid-scale diffusion. Advection has to do with pollutant transport that is due to the mean wind fields, while diffusion involves sub-grid-scale turbulent mixing of pollutants. If a pollutant plume is transported primarily by advection, then it may travel a long distance without much change in pollutant concentrations. On the other hand, if a plume is transported primarily by diffusion, then the pollutants will mix more quickly and nearer to the source, which will result in substantial changes to pollutant concentrations.
 
@@ -235,7 +235,7 @@ Horizontal diffusion is implemented with a single eddy diffusion algorithm that 
 
 ### Particulate matter (aerosols) ###
 
-See the [CMAQv5.2 release notes](https://github.com/USEPA/CMAQ/tree/5.2/CCTM/docs/Release_Notes#chemistry) for updates on the aerosol chemistry algorithms in CMAQ. 
+See the [CMAQv5.2 release notes](https://github.com/USEPA/CMAQ/tree/5.2/CCTM/docs/Release_Notes/README.md#chemistry) for updates on the aerosol chemistry algorithms in CMAQ. 
 
 Within the air quality community, atmospheric aerosol particles are referred to as particulate matter (PM). PM can be either primary (directly emitted) or secondary (formed in the atmosphere) and from natural or anthropogenic (man-made) sources. Secondary sources include gas-phase oxidation of SO<sub>2</sub> to sulfate, condensation of ammonia and nitrate, and oxidation of gas-phase VOCs such as isoprene, monoterpenes, aromatics, and alkanes. Cloud processes also contribute to the formation of PM; for example, aqueous oxidation of sulfur dioxide in cloud droplets is a significant pathway for production of particulate sulfate. CCTM represents PM using three interacting lognormal distributions, or modes. Two modes (Aitken and accumulation) are generally less than 2.5 microns in diameter while the coarse mode contains significant amounts of mass above 2.5 microns. PM<sub>2.5</sub> and PM<sub>10</sub>, species aggregate metrics within the NAAQS, can be obtained from the model mass concentration and size distribution information.
 
@@ -255,7 +255,7 @@ Further discussion on the scientific improvements to the CMAQ PM treatment is av
 
 ### Clouds and aqueous-phase chemistry ###
 
-See the [CMAQv5.2 release notes](https://github.com/USEPA/CMAQ/tree/5.2/CCTM/docs/Release_Notes#chemistry) for updates on the heterogeneous chemistry algorithms in CMAQ. 
+See the [CMAQv5.2 release notes](https://github.com/USEPA/CMAQ/tree/5.2/CCTM/docs/Release_Notes/README.md#chemistry) for updates on the heterogeneous chemistry algorithms in CMAQ. 
 
 Clouds are an important component of air quality modeling and play a key role in aqueous chemical reactions, vertical mixing of pollutants, and removal of pollutants by wet deposition. Clouds also indirectly affect pollutant concentrations by altering the solar radiation, which in turn affects photochemical pollutants (such as ozone) and the flux of biogenic emissions. The cloud module in
 CMAQ performs several functions related to cloud physics and chemistry. Three types of clouds are modeled in CMAQ: sub-grid convective precipitating clouds, sub-grid nonprecipitating clouds, and grid-resolved clouds. The meteorological model provides information about grid-resolved clouds, with no additional cloud dynamics considered in CMAQ. For the two types of sub-grid clouds, the cloud module in CCTM vertically redistributes pollutants, calculates in-cloud and precipitation scavenging, performs
@@ -265,7 +265,7 @@ CMAQ’s standard cloud chemistry treatment estimates sulfate production from fi
 
 ### Deposition
 
-See the [CMAQv5.2 release notes](https://github.com/USEPA/CMAQ/tree/5.2/CCTM/docs/Release_Notes#exchange) for updates on the air-surface exchange algorithms in CMAQ. 
+See the [CMAQv5.2 release notes](https://github.com/USEPA/CMAQ/tree/5.2/CCTM/docs/Release_Notes/README.md#exchange) for updates on the air-surface exchange algorithms in CMAQ. 
 
 CMAQ optionally calculates the wet and dry deposition of chemical species.  Information on the algorithms used can be found in Pleim and Ran (2011), Bash et al (2013), and Pleim et al (2013).  For deposition to be considered in a model run, the entry in the namelist file must indicate a deposition surrogate species and a deposition factor.  The default namelist files contain the standard configuration for known deposition of species.  For wet deposition, the scavenging factor (SCAV_FAC) should be set to 1 and the surrogate species (SCAV_SUR) must be one of the chemicals listed in the HLCONST.F subroutine.  If the chemical does not have an appropriate surrogate species listed in the HLCONST.F subroutine, one may be added to the model source code.  For dry deposition, the deposition factor (DEPV_FAC) should be set to 1 and the deposition velcoity surrogate (DEPV_SUR) should be set to one of the species listed in the DEPVDEFN.F subroutine.  The species listed in this file are further cross-referenced to a table in ASX_DATA_MOD.F where the diffusivity in air, reactivity, mesophyll resistance, LeBas molar volume, and wet surface scavenging surrogate are specified. The wet surface scavenging surrogate must be a chemical in the HLCONST.F subroutine and is typically the same species that is used for wet deposition of the chemical.  If a proper deposition velocity surrogate species does not exist in the tables, one can be added to the model source code.
 
@@ -283,7 +283,7 @@ In previous versions of CMAQ, the effects of HONO heterogeneous chemistry on dep
 
 ### Emissions
 
-See the [CMAQv5.2 release notes](https://github.com/USEPA/CMAQ/tree/5.2/CCTM/docs/Release_Notes#emissions) for updates on the emissions algorithms in CMAQ. 
+See the [CMAQv5.2 release notes](https://github.com/USEPA/CMAQ/tree/5.2/CCTM/docs/Release_Notes/README.md#emissions) for updates on the emissions algorithms in CMAQ. 
 
 CMAQ includes several in-line options for calculating and processing emissions in the CCTM. The in-line emissions options in CMAQv5 include the following:
 
@@ -294,7 +294,7 @@ CMAQ includes several in-line options for calculating and processing emissions i
 
 ### Process analysis
 
-See the [CMAQv5.2 release notes](https://github.com/USEPA/CMAQ/tree/5.2/CCTM/docs/Release_Notes#procan) for updates on the process analysis algorithms in CMAQ. 
+See the [CMAQv5.2 release notes](https://github.com/USEPA/CMAQ/tree/5.2/CCTM/docs/Release_Notes/README.md#procan) for updates on the process analysis algorithms in CMAQ. 
 
 Process analysis (PA) is a technique for separating out and quantifying the contributions of individual physical and chemical processes to the changes in the predicted concentrations of a pollutant.  PA does not have to be activated in a CMAQ simulation but including PA provides additional information that can be useful in interpreting CMAQ results. PA has two components:  Integrated process rate (IPR) analysis and Integrated Reaction Rate (IRR) analysis.  IPR analysis quantifies the individual physical processes of advection, diffusion, emissions, dry deposition, aerosol processes, and cloud processes) and the overall impact of chemical processes.  IRR analysis allows the output of individual chemical reaction rates or user-specified combinations of chemical reactions and species cycling.  
 
