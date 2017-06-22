@@ -96,6 +96,7 @@
         setenv myFRFLAGS "-free"
         setenv myCFLAGS "-O2"
         setenv extra_lib "-lcurl"
+        #setenv extra_lib ""
         setenv mpi_lib ""    #> No Library specification needed for mpiifort
                              #> -lmpich for mvapich 
                              #> -lmpi for openmpi
@@ -149,7 +150,8 @@
         setenv myCFLAGS "-O2"
         setenv myLINK_FLAG ""
         setenv extra_lib ""
-        setenv mpi_lib "-lmpi_mpifh"   #> -lmpich for mvapich or -lmpi for openmpi
+        #setenv mpi_lib "-lmpi_mpifh"   #> -lmpich for mvapich or -lmpi for openmpi
+        setenv mpi_lib ""   #> -lmpich for mvapich or -lmpi for openmpi
     
         breaksw
 
@@ -176,7 +178,7 @@
  setenv lib_basedir $CMAQ_HOME/lib
 
 #> Generate Library Locations
- setenv CMAQ_LIB    ${lib_basedir}/${system}/${compiler}
+ setenv CMAQ_LIB    ${lib_basedir}/${system}/${compiler}_${compilerVrsn}
  setenv MPI_INCL    $CMAQ_LIB/mpi/include
  setenv NETCDF_DIR  $CMAQ_LIB/netcdf
  setenv PNETCDF_DIR $CMAQ_LIB/pnetcdf

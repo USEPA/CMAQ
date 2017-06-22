@@ -321,6 +321,9 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
     echo "lib_3       ${quote}mpi/include -I.$quote;"              >> $Cfile
     echo                                                           >> $Cfile
  endif
+ echo                                                              >> $Cfile
+ echo "lib_4       ioapi/lib;"                                     >> $Cfile
+ echo                                                              >> $Cfile
  set text = "$quote$CPP_FLAGS $PAR $POT $STX1 $STX2$quote;"
  echo "cpp_flags   $text"                                          >> $Cfile
  echo                                                              >> $Cfile

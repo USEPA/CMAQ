@@ -349,7 +349,7 @@
         Write( *, '("  CPP Flags defined")' )
       End If
 
-      Write( lfn, '(/" IOAPI  = -L$(LIB)/",a,1x,a)' ) Trim( lib_1 ), Trim( ioapi )
+      Write( lfn, '(/" IOAPI  = -L$(LIB)/",a,1x,a)' ) Trim( lib_4 ), Trim( ioapi )
       Write( lfn, '( " NETCDF = -L$(LIB)/",a,1x,a)' ) "netcdf/lib", Trim( netcdf )
       If ( serial ) Then
          Write( lfn, '( " LIBRARIES = $(IOAPI) $(NETCDF)")' )
