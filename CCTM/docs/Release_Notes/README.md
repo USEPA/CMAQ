@@ -10,6 +10,7 @@ The Community Multiscale Air Quality (CMAQ) Model version 5.2 is a major update 
 -----
 # Summary of CMAQv5.2 Updates
 
+<a id="chemistry"></a>
 ## Chemistry
 ### Photochemistry
 There are 10 unique gas-phase chemical mechanisms in CMAQv5.2. These are all located in the MECHS/ folder and may be invoked when building the model and Makefile. Variations of Carbon Bond 5 (CB05), Carbon Bond 6 (CB6), RACM2, and SAPRC07 are all available. Specific science updates include the following:  
@@ -58,9 +59,11 @@ These minor updates/bug fixes were necessary:
   * [Lightning NO<sub>x</sub> generation has been updated to leverage existing lightning fields for hindsight cases and an improved parameterization for future cases](Lightning_NOx.md)
   * Fix hard-coded time-step for lightning NO<sub>x</sub> generation
 
+<a id="transport"></a>
 ## Transport Processes
   * [The scaling of ozone in the upper troposphere has been corrected using an approach relying on potential vorticity](Potential_Vorticity_Scaling.md)
 
+<a id="exchange"></a>
 ## Air-Surface Exchange
 ### Windblown Dust Emissions
   * [A major improvement was made to the windblown dust generation parameterization](Windblown_Dust_Emis.md)
@@ -73,9 +76,11 @@ Important parameters for soluble gases have been updated to better represent res
 The following minor update repairs an error in the wet deposition calculation:
   * [Correct an intent declaration that resulted in errors when th emodel was not run at one hour intervals](Wet_Dep_Update.md)
 
+<a id="emissions"></a>
 ## Emission Updates
 CMAQ can now read multiple files for fire point sources into the model and apply them to the bulk species emissions rates.
 
+<a id="procan"></a>
 ## Process Analysis
 CCTM can now do process analysis with Integrated Process Rates (IPR) and/or Integrated Reactions Rates (IRR) as a run-time option.
   * [Optional inline IPR and IRR process analysis](inline_procan.md)
