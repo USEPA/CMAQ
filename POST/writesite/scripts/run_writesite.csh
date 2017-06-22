@@ -87,8 +87,9 @@
  setenv SPECIES_1 O3
 
 #> set input and output files
- setenv INFILE  [Add location of input file, e.g. COMBINE_ACONC file.]
- setenv OUTFILE O3.csv
+ setenv INFILE  ${CMAQ_DATA}/POST/COMBINE_ACONC_201107.nc
+        #[Add location of input file, e.g. COMBINE_ACONC file.]
+ setenv OUTFILE ${CMAQ_DATA}/POST/O3.csv
 
 #> Executable call:
  ${BINDIR}/${EXEC}

@@ -84,7 +84,7 @@
 
 #> set input and output files.  A sample input file is provided with the CMAQv5.2 release.
  setenv INFILE ${REPO_HOME}/POST/bldoverlay/inputs/ozone_overlay_input_sample.csv
- setenv OUTFILE overlay_${START_DATE}_${END_DATE}.nc
+ setenv OUTFILE ${CMAQ_DATA}/overlay_${START_DATE}_${END_DATE}.nc
 
 #> Executable call: 
 ${BINDIR}/${EXEC}

@@ -79,8 +79,9 @@
  setenv SPECIES_1 "O3,ppbV,O3,8HRMAX"
 
 #> set input and output files
- setenv INFILE [Add location of input file, e.g. COMBINE_ACONC file.]
- setenv OUTFILE dailymaxozone.nc
+ setenv INFILE ${CMAQ_DATA}/POST/COMBINE_ACONC_201107.nc
+          #[Add location of input file, e.g. COMBINE_ACONC file.]
+ setenv OUTFILE ${CMAQ_DATA}/POST/dailymaxozone.nc
 
 #> Executable call:
  ${BINDIR}/${EXEC}

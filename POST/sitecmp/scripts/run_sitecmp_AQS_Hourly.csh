@@ -117,7 +117,8 @@
 #############################################################
 
 #> ioapi input files containing VNAMES (max of 10)
- setenv M3_FILE_1 [Add location of input file, e.g. COMBINE_ACONC file.]
+ setenv M3_FILE_1 ${CMAQ_DATA}/POST/COMBINE_ACONC_201107.nc
+         #[Add location of input file, e.g. COMBINE_ACONC file.]
 
 #> SITE FILE containing site-id, longitude, latitude, time zone (tab delimited)
 #> This file can be downloaded from the CMAS Center Data clearinghouse 
@@ -138,7 +139,7 @@
 #############################################################
 
 #> output table (comma delimited text file importable to Excel)
- setenv OUT_TABLE AQS_Hourly_CMAQ_${VRSN}.csv
+ setenv OUT_TABLE ${CMAQ_DATA}/POST/AQS_Hourly_CMAQ_${VRSN}.csv
 
 #> Executable call:
  ${BINDIR}/${EXEC}

@@ -32,8 +32,8 @@
  setenv EXEC appendwrf_${VRSN}.exe
 
 #> Set input and output directories
- set INDIR  = [Add location of input directory]
- set OUTDIR = [Add location of output directory]
+ set INDIR  = ${CMAQ_DATA}/met/mcip
+ set OUTDIR = ${CMAQ_DATA}/appendwrf
 
 
 # =====================================================================

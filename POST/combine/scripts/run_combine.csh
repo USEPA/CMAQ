@@ -1,6 +1,5 @@
 #! /bin/csh -f
 
-
 # ====================== COMBINE Run Script ======================== 
 # Usage: run.combine.uncoupled.csh >&! combine_v52_uncoupled.log &                                
 #

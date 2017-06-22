@@ -67,7 +67,8 @@
   setenv HILEV         1
  
 #> First IOAPI input file.
-  setenv M3_FILE_1  [Add location of input file, e.g. COMBINE_ACONC file.]
+  setenv M3_FILE_1  ${CMAQ_DATA}/POST/COMBINE_ACONC_201107.nc 
+          #[Add location of input file, e.g. COMBINE_ACONC file.]
 # setenv M3_FILE_2  additional files up to 99.
   
 #> Output text file.
