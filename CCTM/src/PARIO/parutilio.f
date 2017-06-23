@@ -97,28 +97,30 @@ C...Interface
             END FUNCTION GTNDXHDV
 
             LOGICAL FUNCTION INTERPOL( DATE, TIME, DATE1, TIME1, DATE2, TIME2,
-     &                                 NUMVALS, VALSIN1, VALSIN2, VALSOUT )
-               INTEGER :: NUMVALS
-               INTEGER :: DATE
-               INTEGER :: TIME
-               INTEGER :: DATE1
-               INTEGER :: TIME1
-               INTEGER :: DATE2
-               INTEGER :: TIME2
-               REAL    :: VALSIN1( NUMVALS )
-               REAL    :: VALSIN2( NUMVALS )
-               REAL    :: VALSOUT( NUMVALS )
+     &                                 NUMVALS, VALSIN1, VALSIN2, VALSOUT, S_IND, E_IND )
+               INTEGER, INTENT(IN) :: NUMVALS
+               INTEGER, INTENT(IN) :: DATE
+               INTEGER, INTENT(IN) :: TIME
+               INTEGER, INTENT(IN) :: DATE1
+               INTEGER, INTENT(IN) :: TIME1
+               INTEGER, INTENT(IN) :: DATE2
+               INTEGER, INTENT(IN) :: TIME2
+               REAL, INTENT(IN)    :: VALSIN1( NUMVALS )
+               REAL, INTENT(IN)    :: VALSIN2( NUMVALS )
+               REAL, INTENT(OUT)   :: VALSOUT( NUMVALS )
+               INTEGER, INTENT(IN), OPTIONAL :: S_IND, E_IND
             END FUNCTION INTERPOL
 
             LOGICAL FUNCTION PINTERPB( FILNAME, VARNAME, CALLER, JDATE, JTIME,
-     &                                  VSIZE, VARRAY )
-               INTEGER       :: VSIZE
-               CHARACTER(16) :: FILNAME
-               CHARACTER(*)  :: VARNAME
-               CHARACTER(*)  :: CALLER
-               INTEGER       :: JDATE
-               INTEGER       :: JTIME
-               REAL          :: VARRAY( VSIZE )
+     &                                  VSIZE, VARRAY, LVL )
+               INTEGER, INTENT(IN)       :: VSIZE
+               CHARACTER(16), INTENT(IN) :: FILNAME
+               CHARACTER(*), INTENT(IN)  :: VARNAME
+               CHARACTER(*), INTENT(IN)  :: CALLER
+               INTEGER, INTENT(IN)       :: JDATE
+               INTEGER, INTENT(IN)       :: JTIME
+               REAL, INTENT(OUT)         :: VARRAY( VSIZE )
+               INTEGER, INTENT(IN), OPTIONAL :: LVL
             END FUNCTION PINTERPB
 
             LOGICAL FUNCTION PIO_INIT( colrow, gl_ncols, gl_nrows, nlays,

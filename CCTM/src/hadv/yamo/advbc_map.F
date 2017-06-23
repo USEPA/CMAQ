@@ -84,7 +84,8 @@ C Local variables:
       INTEGER    ISUR                 ! Surrogate index
       INTEGER    ITRNS                ! Transport species index
       INTEGER    SPC, VAR             ! loop copunters
-      INTEGER    LOGDEV, IERR
+      INTEGER, SAVE ::  LOGDEV
+      INTEGER    IERR
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
 
 C Map advected species to bc`s

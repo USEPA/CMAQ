@@ -187,16 +187,16 @@
 !     of the prior year
 
         if ( tdate .ge. enddate ) then
-          tdate_temp = real( int( enddate ) ) + ( tdate - real( int( tdate ) ) )
+          tdate_temp = aint( enddate ) + ( tdate - aint( tdate ) )
           if ( tdate_temp .gt. enddate ) then
             tdate_temp = tdate_temp - 1.0
           end if
           jenddate = int( enddate ) * 1000
      &             + int( ( 1.0 / yr2day( int( enddate ) ) )
-     &                  * ( enddate - int( enddate ) ) )
+     &                  * ( enddate - aint( enddate ) ) )
           jtdate_temp = int( tdate_temp ) * 1000
      &                + nint( ( 1.0 / yr2day( int( tdate_temp ) ) )
-     &                 * ( tdate_temp - int( tdate_temp ) ) )
+     &                 * ( tdate_temp - aint( tdate_temp ) ) )
           xmsg = 'Requested date is beyond available data on OMI file:  <' 
      &           // dt2str( jenddate, 0 )
           call m3warn ( pname, jdate, 0, xmsg )
@@ -217,10 +217,10 @@
           end if
           jstdate = int( stdate ) * 1000
      &            + int( ( 1.0 / yr2day( int( stdate ) ) )
-     &               * ( stdate - int( stdate ) ) )
+     &               * ( stdate - aint( stdate ) ) )
           jtdate_temp = int( tdate_temp ) * 1000
      &                + nint( ( 1.0 / yr2day( int( tdate_temp ) ) )
-     &                 * ( tdate_temp - real( int( tdate_temp ) ) ) )
+     &                 * ( tdate_temp - aint( tdate_temp ) ) )
           xmsg = 'Requested date preceeds available data on OMI file:  >' 
      &           // dt2str( jstdate, 0 )
           call m3warn ( pname, jdate, 0, xmsg )
@@ -243,7 +243,7 @@
           end if
           jtdate_temp = int( tdate_temp ) * 1000
      &                + nint( ( 1.0 / yr2day( int( tdate_temp ) ) )
-     &                 * ( tdate_temp - int( tdate_temp ) ) )
+     &                 * ( tdate_temp - aint( tdate_temp ) ) )
           xmsg = 'Requested date falls within satellite data'
      &           // ' measurement gap: 24 Nov 1994 - 22 Jul 1996'
           call m3warn ( pname, jdate, 0, xmsg )
