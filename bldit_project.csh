@@ -224,7 +224,7 @@
 
 #===============================================================================
  # Insert Job Scheduler Preface into Run Scripts for those working inside EPA
- source /work/MOD3DEV/cmaq_common/pbs_run.csh  #>>> Comment Out if not at EPA
+ #source /work/MOD3DEV/cmaq_common/pbs_run.csh  #>>> Comment Out if not at EPA
 
 #===============================================================================
 #> Exit the Script
