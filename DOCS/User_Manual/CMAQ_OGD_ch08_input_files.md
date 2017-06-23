@@ -368,7 +368,7 @@ The ASCII-formatted CSQY files begin with the number and a list of the applicabl
 
 |**Line** | **Column** | **Name** | **Type** | **Description** |
 |----|----|--------------------------|---------|-----------------------------------------|
-| 1 | A | CSQY Mechanism Table Name | String |Text name indicating this is the CSQY for the Mechanism Specified.  This name is cross-referenced in the chemical mechanism description and INCLUDE files (required)|
+| 1 | A | CSQY Mechanism Table Name | String |Text name indicating this is the CSQY for the Mechanism Specified.  This name is cross-referenced in the chemical mechanism description files (required)|
 | 1 | A | NPHOTAB | String |Number of Photolysis Reactions|
 | 2 | A | Comments | String |Preceded by "!", Individual Reaction Rates Listed below|
 | 3 | A  | Name | String| Reaction Name  |
@@ -985,14 +985,87 @@ Add content
 
 Used by: CCTM – bidirectional NH<sub>3</sub> flux version only
 
-Add content
+This 3-D  file is created by the EPIC model via the FEST-C interface and contains soil properties for Layer 1 (0 to 1 cm depth) and Layer 2 (1 cm to 100 cm depth) for each crop and soil combination in each grid cell.  The following variables are in this file:
+
+-   L1_SoilNum: Soil Number (none)
+-   L1_Bulk_D: Layer1 Bulk Density (t/m**3)
+-   L1_Wilt_P: Layer1 Wilting Point(m/m)
+-   L1_Field_C: Layer1 Field Capacity (m/m)
+-   L1_Porosity: Layer1 Porosity (%)
+-   L1_PH: Layer1 PH (none)
+-   L1_Cation: Layer1 Cation Ex (cmol/kg )
+-   L2_Bulk_D: Layer2 Bulk Density (t/m**3)
+-   L2_Wilt_P: Layer2 Wilting Point (m/m)
+-   L2_Field_C: Layer2 Field Capacity (m/m)
+-   L2_Porosity: Layer2 Porosity (%)
+-   L2_PH: Layer2 PH (none)
+-   L2_Cation: Layer2 Cation Ex (cmol/kg)
 
 <a id="e2c_fert"></a>
 ### E2C_FERT – EPIC crop types and fertilizer application
 
 Used by: CCTM – bidirectional NH<sub>3</sub> flux version only
 
-Add content
+This is a 3-D daily file created by the EPIC model via the FEST-C interface and contains information on fertilizer application rate and depth for each crop and soil combination in each grid cell.  The file contains many more variables than are used by CMAQ. he following variables are in this file:
+
+-   QNO3: N Loss in Surface Runoff (kg/ha)
+-   SSFN: N in Subsurface Flow (kg/ha)
+-   PRKN: N Loss in Percolate (kg/ha)
+-   DN: N-NO3 Denitrification (kg/ha)
+-   DN2: N-N2O from NO3 Denitrification (kg/ha)
+-   AVOL: N-NH3 Emission (kg/ha)
+-   HMN: OC Change by Soil Respiration (kg/ha)
+-   NFIX: N Fixation (kg/ha)
+-   YP: P Loss with Sediment (kg/ha)
+-   QAP: Labile P Loss in Runoff (kg/ha)
+-   YON: N Loss with Sediment (kg/ha)
+-   YW: Wind Erosion (ton/ha)
+-   Q: Runoff (mm)
+-   HUSC: Heat Unit Schedule (none)
+-   HU_BASE0: Base Heat Unit (none)
+-   HU_FRAC: Heat Unit fraction (none)
+-   L1_DEP: Layer1 Depth (m)
+-   L1_BD: Layer1 Bulk Density (t/m**3)
+-   L1_NO3: Layer1 N - Nitrate (kg/ha)
+-   L1_NH3: Layer1 N - Ammonia (kg/ha)
+-   L1_ON: Layer1 Organic N (kg/ha)
+-   L1_P: Layer1 Mineral P (kg/ha)
+-   L1_OP: Layer1 Organic P (kg/ha)
+-   L1_C: Layer1 Carbon (kg/ha)
+-   L1_NITR: Layer1 N - Nitrified NH3 (kg/ha)
+-   L2_DEP: Layer2 Depth (m)
+-   L2_BD: Layer2 Bulk Density (t/m**3)
+-   L2_NO3: Layer2 N - Nitrate (kg/ha)
+-   L2_NH3: Layer2 N - Ammonia (kg/ha)
+-   L2_ON: Layer2 Organic N (kg/ha)
+-   L2_P: Layer2 Mineral P (kg/ha)
+-   L2_OP: Layer2 Organic P (kg/ha)
+-   L2_C: Layer2 Carbon (kg/ha)
+-   L2_NITR: Layer2 N - Nitrified NH3 (kg/ha)
+-   T1_DEP: Layert (Total Soil Profile) Depth (m)
+-   T1_BD: Layert Bulk Density (t/m**3)
+-   T1_NO3: Layert N - Nitrate (kg/ha)
+-   T1_NH3: Layert N - Ammonia (kg/ha)
+-   T1_ON: Layert Organic N (kg/ha)
+-   T1_P: Layert Mineral P (kg/ha)
+-   T1_OP: Layert Organic P (kg/ha)
+-   T1_C: Layert Carbon (kg/ha)
+-   T1_NITR: Layert N - Nitrified NH3 (kg/ha)
+-   L1_ANO3: Layer1 N-NO3 AppRate (kg/ha)
+-   L1_ANH3: Layer1 N-NH3 AppRate (kg/ha
+-   L1_AON: Layer1 ON AppRate (kg/ha)
+-   L1_AMP: Layer1 MP AppRate (kg/ha)
+-   L1_AOP: Layer1 OP AppRate (kg/ha)
+-   L2_ANO3: Layer2 N-NO3 AppRate (kg/ha)
+-   L2_ANH3: Layer2 N-NH3 AppRate (kg/ha)
+-   L2_AON: Layer2 ON AppRate (kg/ha)
+-   L2_AMP: Layer2 MP AppRate (kg/ha)
+-   L2_AOP: Layer2 OP AppRate (kg/ha)
+-   UN1: N Uptake by Crop (kg/ha)
+-   HUI: Heat Unit Index (none)
+-   LAI: Leaf Area Index (none)
+-   CPHT: Crop Height (m)
+
 
 <a id="init_medc_1"></a>
 ### INIT_MEDC_1 – Soil initial conditions file
@@ -1073,71 +1146,71 @@ Used by: CCTM
 
 The MET_CRO_2D time-dependent file contains surface and other 2-D meteorological fields at cross points (i.e., at cell centers). It is created by MCIP and used by CCTM and PDM. The following variables may be in the MET_CRO_2D file:
 
--   PRSFC:surface pressure (Pa)
--   JACOBS:total Jacobian at surface (m)
--   USTAR:cell-averaged horizontal friction velocity (m s<sup>‑1</sup>)
--   WSTAR:convective velocity scale (m s<sup>‑1</sup>)
--   PBL:planetary boundary layer height (m)
--   ZRUF:surface roughness length (m)
--   MOLI:inverse Monin-Obukhov length (m<sup>‑1</sup>)
--   QFX:latent heat flux (W m<sup>‑2</sup>)
--   HFX:sensible heat flux (W m<sup>‑2</sup>)
--   RADYNI:inverse aerodynamic resistance (m s<sup>‑1</sup>)
--   RBNDYI:inverse laminar boundary layer resistance (m s<sup>‑1</sup>)
--   RSTOMI:inverse bulk stomatal resistance (m s<sup>‑1</sup>)
--   TEMPG:skin temperature at ground (K)
--   TEMP10:10‑m temperature (K)
--   TEMP1P5:1.5‑m temperature (K)
--   WSPD10:10‑m wind speed (m s<sup>‑1</sup>)
--   WDIR10:10‑m wind direction (m s<sup>‑1</sup>)
--   GLW:longwave radiation at ground (W m<sup>‑2</sup>)
--   GSW:solar radiation absorbed at ground (W m<sup>‑2</sup>)
--   RGRND:solar radiation reaching the surface (W m<sup>‑2</sup>)
--   RN:incremental (per output time step) nonconvective precipitation (cm)
--   RC:incremental (per output time step) convective precipitation (cm)
--   CFRAC:total cloud fraction (fraction)
--   WBAR:average liquid water content of clouds (g m<sup>‑3</sup>)
--   CLDT:cloud-top layer height (m)
--   CLDB:cloud-bottom layer height (m)
--   SNOCOV:snow cover (1 = yes, 0 = no)
--   TEMP2:2‑m temperature (K)
--   SOIM1:volumetric soil moisture in top cm (m<sup>3</sup> m<sup>‑3</sup>)
--   SOIM2:volumetric soil moisture in top m (m<sup>3</sup> m<sup>‑3</sup>)
--   SOIT1:soil temperature in top cm (K)
--   SOIT2:soil temperature in top m (K)
--   SLTYP:soil texture type (category)
--   LAI:leaf-area index (area area<sup>‑1</sup>)
+-   PRSFC: surface pressure (Pa)
+-   JACOBS: total Jacobian at surface (m)
+-   USTAR: cell-averaged horizontal friction velocity (m s<sup>‑1</sup>)
+-   WSTAR: convective velocity scale (m s<sup>‑1</sup>)
+-   PBL: planetary boundary layer height (m)
+-   ZRUF: surface roughness length (m)
+-   MOLI: inverse Monin-Obukhov length (m<sup>‑1</sup>)
+-   QFX: latent heat flux (W m<sup>‑2</sup>)
+-   HFX: sensible heat flux (W m<sup>‑2</sup>)
+-   RADYNI: inverse aerodynamic resistance (m s<sup>‑1</sup>)
+-   RBNDYI: inverse laminar boundary layer resistance (m s<sup>‑1</sup>)
+-   RSTOMI: inverse bulk stomatal resistance (m s<sup>‑1</sup>)
+-   TEMPG: skin temperature at ground (K)
+-   TEMP10: 10‑m temperature (K)
+-   TEMP1P5: 1.5‑m temperature (K)
+-   WSPD10: 10‑m wind speed (m s<sup>‑1</sup>)
+-   WDIR10: 10‑m wind direction (m s<sup>‑1</sup>)
+-   GLW: longwave radiation at ground (W m<sup>‑2</sup>)
+-   GSW: solar radiation absorbed at ground (W m<sup>‑2</sup>)
+-   RGRND: solar radiation reaching the surface (W m<sup>‑2</sup>)
+-   RN: incremental (per output time step) nonconvective precipitation (cm)
+-   RC: incremental (per output time step) convective precipitation (cm)
+-   CFRAC: total cloud fraction (fraction)
+-   WBAR: average liquid water content of clouds (g m<sup>‑3</sup>)
+-   CLDT: cloud-top layer height (m)
+-   CLDB: cloud-bottom layer height (m)
+-   SNOCOV: snow cover (1 = yes, 0 = no)
+-   TEMP2: 2‑m temperature (K)
+-   SOIM1: volumetric soil moisture in top cm (m<sup>3</sup> m<sup>‑3</sup>)
+-   SOIM2: volumetric soil moisture in top m (m<sup>3</sup> m<sup>‑3</sup>)
+-   SOIT1: soil temperature in top cm (K)
+-   SOIT2: soil temperature in top m (K)
+-   SLTYP: soil texture type (category)
+-   LAI: leaf-area index (area area<sup>‑1</sup>)
 
 The following deposition velocities are calculated by MCIP3 by default and written to the MET_CRO_2D file:
 
--   VD_SO2:deposition velocities for SO<sub>2</sub> (m s<sup>‑1</sup>)
--   VD_SULF:deposition velocities for SO<sub>4</sub> (m s<sup>‑1</sup>)
--   VD_NO2:deposition velocities for NO<sub>2</sub> (m s<sup>‑1</sup>)
+-   VD_SO2: deposition velocities for SO<sub>2</sub> (m s<sup>‑1</sup>)
+-   VD_SULF: deposition velocities for SO<sub>4</sub> (m s<sup>‑1</sup>)
+-   VD_NO2: deposition velocities for NO<sub>2</sub> (m s<sup>‑1</sup>)
 -   VD_NO: deposition velocities for NO (m s<sup>‑1</sup>)
--   VD_O3:deposition velocities for O<sub>3</sub> (m s<sup>‑1</sup>)
--   VD_HNO3:deposition velocities for HNO<sub>3</sub> (m s<sup>‑1</sup>)
--   VD_H2O2:deposition velocities for H<sub>2</sub>O<sub>2</sub> (m s<sup>‑1</sup>)
--   VD_ALD:deposition velocities for ALD (m s<sup>‑1</sup>)
--   VD_HCHO:deposition velocities for HCHO (m s<sup>‑1</sup>)
--   VD_OP:deposition velocities for OP (m s<sup>‑1</sup>)
--   VD_PAA:deposition velocities for PAA (m s<sup>‑1</sup>)
--   VD_ORA:deposition velocities for ORA (m s<sup>‑1</sup>)
--   VD_NH3:deposition velocities for NH<sub>3</sub> (m s<sup>‑1</sup>)
--   VD_PAN:deposition velocities for PAN (m s<sup>‑1</sup>)
--   VD_HONO:deposition velocities for HONO (m s<sup>‑1</sup>)
--   VD_CO:deposition velocities for CO (m s<sup>‑1</sup>)
--   VD_METHANOL:deposition velocities for methanol (m s<sup>‑1</sup>)
--   VD_N2O5:deposition velocities for N<sub>2</sub>O<sub>5</sub> (m s<sup>‑1</sup>)
--   VD_NO3:deposition velocities for NO<sub>3</sub> (m s<sup>‑1</sup>)
--   VD_GEN_ALD:deposition velocities for generic aldehyde (m s<sup>‑1</sup>)
--   VD_CL2:deposition velocities for CL2 (m s<sup>‑1</sup>)
--   VD_HOCL:deposition velocities for HOCL (m s<sup>‑1</sup>)
--   VD_HCL:deposition velocities for HCL (m s<sup>‑1</sup>)
--   VD_FMCL:deposition velocities for FMCL (m s<sup>‑1</sup>)
--   VD_ICL1:deposition velocities for ICL1 (m s<sup>‑1</sup>)
--   VD_ICL2:deposition velocities for ICL2 (m s<sup>‑1</sup>)
--   VD_HG:deposition velocities for HG (m s<sup>‑1</sup>)
--   VD_HGIIGAS:deposition velocities for HGIIGAS (m s<sup>‑1</sup>)
+-   VD_O3: deposition velocities for O<sub>3</sub> (m s<sup>‑1</sup>)
+-   VD_HNO3: deposition velocities for HNO<sub>3</sub> (m s<sup>‑1</sup>)
+-   VD_H2O2: deposition velocities for H<sub>2</sub>O<sub>2</sub> (m s<sup>‑1</sup>)
+-   VD_ALD: deposition velocities for ALD (m s<sup>‑1</sup>)
+-   VD_HCHO: deposition velocities for HCHO (m s<sup>‑1</sup>)
+-   VD_OP: deposition velocities for OP (m s<sup>‑1</sup>)
+-   VD_PAA: deposition velocities for PAA (m s<sup>‑1</sup>)
+-   VD_ORA: deposition velocities for ORA (m s<sup>‑1</sup>)
+-   VD_NH3: deposition velocities for NH<sub>3</sub> (m s<sup>‑1</sup>)
+-   VD_PAN: deposition velocities for PAN (m s<sup>‑1</sup>)
+-   VD_HONO: deposition velocities for HONO (m s<sup>‑1</sup>)
+-   VD_CO: deposition velocities for CO (m s<sup>‑1</sup>)
+-   VD_METHANOL: deposition velocities for methanol (m s<sup>‑1</sup>)
+-   VD_N2O5: deposition velocities for N<sub>2</sub>O<sub>5</sub> (m s<sup>‑1</sup>)
+-   VD_NO3: deposition velocities for NO<sub>3</sub> (m s<sup>‑1</sup>)
+-   VD_GEN_ALD: deposition velocities for generic aldehyde (m s<sup>‑1</sup>)
+-   VD_CL2: deposition velocities for CL2 (m s<sup>‑1</sup>)
+-   VD_HOCL: deposition velocities for HOCL (m s<sup>‑1</sup>)
+-   VD_HCL: deposition velocities for HCL (m s<sup>‑1</sup>)
+-   VD_FMCL: deposition velocities for FMCL (m s<sup>‑1</sup>)
+-   VD_ICL1: deposition velocities for ICL1 (m s<sup>‑1</sup>)
+-   VD_ICL2: deposition velocities for ICL2 (m s<sup>‑1</sup>)
+-   VD_HG: deposition velocities for HG (m s<sup>‑1</sup>)
+-   VD_HGIIGAS: deposition velocities for HGIIGAS (m s<sup>‑1</sup>)
 
 
 <a id=met_cro_3d></a>
@@ -1177,7 +1250,7 @@ For CCTM, the LOGFILE environment variable allows users to specify the name of a
 <a id=conc></a>
 ### CTM_CONC_1: CCTM hourly instantaneous concentration file
 
-The 3-D CCTM hourly concentration file (CONC) is the most commonly referenced CCTM output file. Containing gas-phase species mixing ratios (ppmV) and aerosol species concentra­tions (µg m<sup>‑3</sup>), CONC files include instantaneous model species concentrations at the end of each model hour. The number and types of species contained in the CONC files depend on the chemical mechanism and aerosol model configurations that are selected when CCTM is compiled. The species concentration INCLUDE files (CONC.EXT) within the mechanism INCLUDE directories list the species that are written to the CONC files for each mechanism configuration. The GC_CONC.EXT file lists the gas-phase species, the AE_CONC.EXT file lists the aerosol species, and the NR_CONC lists the nonreactive (inert) species written to the CONC file. Species can be removed from the CONC.EXT files to reduce the number of species that are written to, and thus the size of, the CONC file.
+The 3-D CCTM hourly concentration file (CONC) is the most commonly referenced CCTM output file. Containing gas-phase species mixing ratios (ppmV) and aerosol species concentra­tions (µg m<sup>‑3</sup>), CONC files include instantaneous model species concentrations at the end of each model hour. The number and types of species contained in the CONC files depend on the chemical mechanism and aerosol model configurations that are selected when CCTM is compiled. The FORTRAN NameLists within the mechanism directories list the modeled species, and contain a column that specifies which species are written to the CONC files. The GC_*mechname*.nml file lists the gas-phase species, the AE_*mechname*.nml file lists the aerosol species, and the NR_*mechname*.nml lists the nonreactive (inert) species. Species can be removed from the CONC file by editing the CONC column in the NameList file(s) to reduce the number of species that are written to, and thus the size of the CONC file.
 
 <a id=cgrid></a>
 ### CTM_CGRID_1: CCTM restart file
@@ -1192,12 +1265,12 @@ The 3-D CCTM integral average concentration file (ACONC) contains average model 
 <a id=drydep></a>
 ### CTM_DRY_DEP_1: CCTM hourly cumulative dry deposition file
 
-The 2-D CCTM dry deposition file (DRYDEP) includes cumulative hourly dry deposition fluxes (kg hectare<sup>‑1</sup>) for selected model species. CCTM calculates dry deposition for all of the species listed in the dry deposition INCLUDE files within the mechanism INCLUDE directories. Dry deposition INCLUDE files exist for gas-phase species (GC_DDEP.EXT), aerosol species (AE_DDEP.EXT), and inert model species (NR_DDEP.EXT). Species can be removed from the DDEP.EXT files to adjust the number of species that undergo the dry deposition process and are written to the DRYDEP output file.
+The 2-D CCTM dry deposition file (DRYDEP) includes cumulative hourly dry deposition fluxes (kg hectare<sup>‑1</sup>) for selected model species. CCTM calculates dry deposition for all of the species listed in the dry deposition column of the FORTRAN Namelist files within the mechanism directories. The GC_*mechname*.nml file lists the gas-phase species, the AE_*mechname*.nml file lists the aerosol species, and the NR_*mechname*.nml lists the nonreactive (inert) species. Species can be removed from the dry deposition file by editing the DDEP column in the NameList file(s).
 
 <a id=wetdep></a>
 ### CTM_WETDEP_1: CCTM hourly cumulative wet deposition file
 
-The 2-D CCTM wet deposition file (WETDEP) includes cumulative hourly wet deposition fluxes (kg hectare<sup>‑1</sup>) for selected model species. CCTM calculates wet deposition for all of the species listed in the wet deposition INCLUDE files within the mechanism INCLUDE directories. Wet deposition INCLUDE files exist for gas-phase species (GC_WDEP.EXT), aerosol species (AE_WDEP.EXT), and inert model species (NR_WDEP.EXT). Species can be removed from the WDEP.EXT files to adjust the number of species that undergo the wet deposition process and are written to the WETDEP output file.
+The 2-D CCTM wet deposition file (WETDEP) includes cumulative hourly wet deposition fluxes (kg hectare<sup>‑1</sup>) for selected model species. CCTM calculates wet deposition for all of the species listed in the wet deposition column of the FORTRAN Namelist files within the mechanism directories. The GC_*mechname*.nml file lists the gas-phase species, the AE_*mechname*.nml file lists the aerosol species, and the NR_*mechname*.nml lists the nonreactive (inert) species. Species can be removed from the wet deposition file by editing the WDEP column in the NameList file(s).
 
 <a id=aerovis></a>
 ### CTM_VIS_1: CCTM hourly instantaneous visibility metrics
@@ -1231,7 +1304,8 @@ This optional 2-D CCTM hourly output file contains calculated biogenic emissions
 
 <a id=ctm_depv_diag></a>
 ### CTM_DEPV_DIAG: CCTM inline deposition diagnostics file
-Add content
+
+This 2-D CCTM file contains the deposition velocity (m/s) for each chemical species calculated for the final time step for the hour.
 
 <a id=ctm_pt3d_diag></a>
 ### CTM_PT3D_DIAG: CCTM PT3D diagnostics file
@@ -1264,19 +1338,23 @@ Add content
 
 <a id=ctm_depv_mos></a>
 ### CTM_DEPV_MOS
-Add content
+
+This 3-D CCTM file contains the deposition velocity (m s<sup>‑1</sup>) for the final time step of the hour for each land use type within a grid cell.
 
 <a id=ctm_dry_dep_mos></a>
-### CTM_DRY_DEPV_MOS
-Add content
+### CTM_DRY_DEP_MOS
+
+This 3-D CCTM file contains the total deposition (kg hectare<sup>‑1</sup>) for the hour for each land use type within each grid cell.
 
 <a id=ctm_dry_depv_fst></a>
-### CTM_DRY_DEPV_FST
-Add content
+### CTM_DRY_DEP_FST
+
+This 3-D CCTM file contains the total deposition (kg hectare<sup>‑1</sup>) through the stomatal pathway for the hour for each land use type within each grid cell.
 
 <a id=ctm_depv_fst></a>
 ### CTM_DEPV_FST
-Add content
+
+This 3-D CCTM file contains the deposition velocity (m s<sup>‑1</sup>) through the stomatal pathway for the final time step of the hour for each land use type within a grid cell.
 
 <a id=ctm_vdiff_diag></a>
 ### CTM_VDIFF_DIAG
@@ -1317,10 +1395,7 @@ This optional 2-D CCTM hourly output file contains calculated sea salt emissions
 <a id=ctm_wet_dep_2></a>
 ### CTM_WET_DEP_2: CCTM cloud diagnostics file
 
-The 2-D CCTM wet deposition file (WETDEP2) includes cumulative hourly wet deposition fluxes (kg hectare<sup>‑1</sup>) for selected model species. CCTM calculates wet deposition for all of the species listed in the wet deposition INCLUDE files within the mechanism INCLUDE directories. Wet deposition INCLUDE files exist for gas-phase species (GC_WDEP.EXT), aerosol species (AE_WDEP.EXT), and inert model species (NR_WDEP.EXT). Species can be removed from the WDEP.EXT files to adjust the number of species that undergo the wet deposition process. These extra species are written to the WETDEP2 output file.
-
-In CMAQ, wet deposition is calculated separately for resolved (grid-scale) clouds and for convective (subgrid) clouds. The WETDEP1 files contain the total wet deposition, i.e., the sum of both resolved-scale and subgrid-scale deposition. The WETDEP2 file contains only subgrid-scale deposition, plus some cloud diagnostic variables.
-
+In CMAQ, wet deposition is calculated separately for resolved (grid-scale) clouds and for convective (subgrid) clouds. The WETDEP1 file contains the total wet deposition, i.e., the sum of both resolved-scale and subgrid-scale deposition. The WETDEP2 file contains only subgrid-scale deposition, plus some cloud diagnostic variables.  The 2-D CCTM wet deposition file (WETDEP2) includes cumulative hourly wet deposition fluxes (kg hectare<sup>‑1</sup>) for selected model species. CCTM calculates wet deposition for all of the species listed in the wet deposition column of the FORTRAN Namelist files within the mechanism directories. The GC_*mechname*.nml file lists the gas-phase species, the AE_*mechname*.nml file lists the aerosol species, and the NR_*mechname*.nml lists the nonreactive (inert) species. Species can be removed from the wet deposition file by editing the WDEP column in the NameList file(s).
 
 <!-- BEGIN COMMENT -->
 

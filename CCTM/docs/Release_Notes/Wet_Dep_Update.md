@@ -1,54 +1,21 @@
-# Accumulated Wet Deposition Update
+# WRF-CMAQ Accumulated Wet Deposition Update
 
 **Author/P.O.C.:**, [Jesse Bash](mailto:bash.jesse@epa.gov), Computational Exposure Division, U.S. EPA
 
 ## Brief Description
 
-The CMAQ model now contains detailed halogen (bromine and iodine) chemistry. Sarwar et al. (2015) examined the impacts of halogen chemistry without and with the photolysis of higher iodine oxides. The inclusion of the photolysis of higher iodine oxides substantially reduces ozone and is not included in the model. The halogen chemistry without the photolysis of higher iodine is included in the model. The halogen chemistry in CMAQ follows the description of Sarwar et al. (2015) with the following three changes: (1) Rate constants of the several iodine reactions in Sarwar et al. (2015) contained special expressions which have been replaced with rate constants from Sherwen et al. (2016) (2) Sarwar et al. (2015) calculated photolysis rates of halogen species using ratios of other chemical species following the Comprehensive Air quality Model with extensions (Yarwood et al. 2012). These photolysis rates are now directly calculated using absorption cross-section and quantum yield data (3) Br2 emissions are a function of sea-salt production rates which are calculated in the aerosol module of CMAQ. Sarwar et al. (2015) calculated Br2 emissions independent of the sea-salt production rates in the aerosol module of CMAQ which are now calculated using the sea-salt production rates in the aerosol module of CMAQ.
+There was approximately a 30% systematic under estimation of wet deposition for all species when running the WRF-CMAQ coupled model and the output of wet deposition fields were hard coded for one hour. The wet deposition bug in the WRF-CMAQ coupled model was related to the writing of the output time step in cldproc_acm.F and setting the accumulated hour wet deposition for a grid cell to zero if the precipitation rate or cloud fraction fell below their respective threshold values in cldproc_acm.F. The logic governing the write time in cldproc_acm.F was revised by copying the logic in the aerosol and vdiff code for diagnostic outputs. The portion of the code in cldproc_acm.F where the accumulated wet deposition array was set to zero was removed because this array is re-initialized to zero at each time the output file is written. This was a redundant operation that was hardcoded for hourly meteorological inputs. opwdep.F was also modified to allow the WDEP2 diagnostic file to support a user defined output time step.
 
 ## Significance and Impact
 
-Halogen chemistry reduces mean ozone by 2-6 ppbv over seawater and 2-4 ppbv over some areas of land. The inclusion of the halogen chemistry increases model runtime by > 25%.
-
+WRF-CMAQ coupled wet deposition results running with a 5 minute communication between WRF and CMAQ were increased by approximately 30% for all species. This matches offline simulation much better with approximately a ±5% difference between online and offline deposition fields for the simulation day tested. All WRF-CMAQ simulations to date are impacted by this bug.
 
 ## Affected Files:
-
-MECHS/cb05eh51_ae6_aq/AE_cb05eh51_ae6_aq.nml   
-MECHS/cb05eh51_ae6_aq/CSQY_DATA_cb05eh51_ae6_aq  
-MECHS/cb05eh51_ae6_aq/GC_cb05eh51_ae6_aq.nml  
-MECHS/cb05eh51_ae6_aq/NR_cb05eh51_ae6_aq.nml  
-MECHS/cb05eh51_ae6_aq/RXNS_DATA_MODULE.F90   
-MECHS/cb05eh51_ae6_aq/RXNS_FUNC_MODULE.F90   
-MECHS/cb05eh51_ae6_aq/Species_Table_TR_0.nml   
-MECHS/cb05eh51_ae6_aq/mech_CB05eh51.def   
-gas/ebi_cb05eh51_ae6_aq/hrdata_mod.F   
-gas/ebi_cb05eh51_ae6_aq/hrdriver.F   
-gas/ebi_cb05eh51_ae6_aq/hrg1.F   
-gas/ebi_cb05eh51_ae6_aq/hrg2.F   
-gas/ebi_cb05eh51_ae6_aq/hrg3.F   
-gas/ebi_cb05eh51_ae6_aq/hrg4.F   
-gas/ebi_cb05eh51_ae6_aq/hrinit.F   
-gas/ebi_cb05eh51_ae6_aq/hrprodloss.F   
-gas/ebi_cb05eh51_ae6_aq/hrrates.F     
-gas/ebi_cb05eh51_ae6_aq/hrsolver.F   
-emis/emis/MGEMIS.F   
-emis/emis/SSEMIS.F   
-emis/emis/EMIS_DEFN.F   
-vdiff/acm2/ASX_DATA_MOD.F   
-vdiff/acm2/vdiffproc.F   
-aero/aero6/AEROSOL_CHEMISTRY.F   
-aero/aero6/SOA_DEFN.F   
-cloud/acm_ae6/hlconst.F   
-depv/m3dry/DEPVVARS.F   
-ICL/fixed/filenames/FILES_CTM.EXT    
-
-
-## References:
-
-Sarwar, et al.: Impact of enhanced ozone deposition and halogen chemistry on tropospheric ozone over the Northern Hemisphere, Environmental Science & Technology, 49(15):9203-9211, 2015.   
-Yarwood et al.: Improving CAMx performance in simulating ozone transport from the Gulf of Mexico, Final Report for the Texas Commission on Environmental Quality; Project No. 0626408I, 2012.   
-Sherwen et al.:  Iodine’s impact on tropospheric oxidants: a global model study in GEOS-Chem, Atmospheric Chemistry & Physics, 16, 1161–1186, 2016.  
-
+CCTM/src/cloud/acm_ae6/cldproc_acm.F
+CCTM/src/cloud/acm_ae6/convcld_acm.F
+CCTM/src/cloud/acm_ae6/opwdep.F
+CCTM/src/cloud/acm_ae6_mp/cldproc_acm.F
+CCTM/src/cloud/acm_ae6_mp/convcld_acm.F
 -----
 ## Internal Records:
 

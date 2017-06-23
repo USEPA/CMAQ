@@ -3,59 +3,22 @@
 **Author/P.O.C.:**, [Jesse Bash](mailto:bash.jesse@epa.gov), Computational Exposure Division, U.S. EPA
 
 ## Brief Description
-
-The CMAQ model now contains detailed halogen (bromine and iodine) chemistry. Sarwar et al. (2015) examined the impacts of halogen chemistry with and without the photolysis of higher iodine oxides. The inclusion of the photolysis of higher iodine oxides substantially reduces ozone and is not included in the model. The halogen chemistry without the photolysis of higher iodine is included in the model.
-
-The halogen chemistry in CMAQ follows the description of Sarwar et al. (2015) with the following three changes:
-1. Rate constants of the several iodine reactions in Sarwar et al. (2015) contained special expressions which have been replaced with rate constants from Sherwen et al. (2016).
-2. Sarwar et al. (2015) calculated photolysis rates of halogen species using ratios of other chemical species following the Comprehensive Air quality Model with extensions (CAMx) (Yarwood et al. 2012). These photolysis rates are now directly calculated using absorption cross-section and quantum yield data. 
-3. Br2 emissions are a function of sea-salt production rates that are calculated in the aerosol module of CMAQ. Sarwar et al. (2015) calculated Br2 emissions independent of the sea-salt production rates in the aerosol module of CMAQ which are now calculated using the sea-salt production rates in the same CMAQ module.
+CMAQ overestimated the sub-grid shallow convective clouds over the ocean. This change introduced a scale dependent lower and upper RH threshold for shallow convective clouds over land and water. The parameterization was largely taken from WRF 3.7 and follows Sundqvist et al. 1989 using the formulation of Mocko and Cotton 1995. This resulted in changing the humidity threshold in convcld_acm.F and introducing a scale dependency on the humidity thresholds. 
 
 ## Significance and Impact
 
-+ Halogen chemistry reduces mean ozone by 2-6 ppbv over seawater and 2-4 ppbv over some areas of land.
-+ The inclusion of the halogen chemistry increases model runtime by greater than 25%.
-
+The cloud reflectivity estimated by CMAQ now more closely match those estimated by WRF and measured by GOES. The change in the cloud cover can both increase surface ozone due to increased photolysis or decrease due to a reduction in mixing from aloft. Generally, the changes resulted in a slight reduction (~1ppb) in estimated O3 concentrations along the Gulf Coast. 
 
 ## Affected Files:
 
-MECHS/cb05eh51_ae6_aq/AE_cb05eh51_ae6_aq.nml   
-MECHS/cb05eh51_ae6_aq/CSQY_DATA_cb05eh51_ae6_aq  
-MECHS/cb05eh51_ae6_aq/GC_cb05eh51_ae6_aq.nml  
-MECHS/cb05eh51_ae6_aq/NR_cb05eh51_ae6_aq.nml  
-MECHS/cb05eh51_ae6_aq/RXNS_DATA_MODULE.F90   
-MECHS/cb05eh51_ae6_aq/RXNS_FUNC_MODULE.F90   
-MECHS/cb05eh51_ae6_aq/Species_Table_TR_0.nml   
-MECHS/cb05eh51_ae6_aq/mech_CB05eh51.def   
-gas/ebi_cb05eh51_ae6_aq/hrdata_mod.F   
-gas/ebi_cb05eh51_ae6_aq/hrdriver.F   
-gas/ebi_cb05eh51_ae6_aq/hrg1.F   
-gas/ebi_cb05eh51_ae6_aq/hrg2.F   
-gas/ebi_cb05eh51_ae6_aq/hrg3.F   
-gas/ebi_cb05eh51_ae6_aq/hrg4.F   
-gas/ebi_cb05eh51_ae6_aq/hrinit.F   
-gas/ebi_cb05eh51_ae6_aq/hrprodloss.F   
-gas/ebi_cb05eh51_ae6_aq/hrrates.F     
-gas/ebi_cb05eh51_ae6_aq/hrsolver.F   
-emis/emis/MGEMIS.F   
-emis/emis/SSEMIS.F   
-emis/emis/EMIS_DEFN.F   
-vdiff/acm2/ASX_DATA_MOD.F   
-vdiff/acm2/vdiffproc.F   
-aero/aero6/AEROSOL_CHEMISTRY.F   
-aero/aero6/SOA_DEFN.F   
-cloud/acm_ae6/hlconst.F   
-depv/m3dry/DEPVVARS.F   
-ICL/fixed/filenames/FILES_CTM.EXT    
-
+CCTM/src/cloud/acm_ae6/convcld_acm.F
+CCTM/src/cloud/acm_ae6_mp/convcld_acm.F
 
 ## References:
 
-Sarwar, et al.: Impact of enhanced ozone deposition and halogen chemistry on tropospheric ozone over the Northern Hemisphere, Environmental Science & Technology, 49(15):9203-9211, 2015.  
+Sundqvist, H., Berge, E., Kristjansson, J.E.: Condensation and Cloud Parameterization Studies with a Mesoscale Numerical Weather Prediction Model, Mon. Wea. Rev., 117, 1641-1657
 
-Sherwen et al.:  Iodine’s impact on tropospheric oxidants: a global model study in GEOS-Chem, Atmospheric Chemistry & Physics, 16, 1161–1186, 2016.
-
-Yarwood et al.: Improving CAMx performance in simulating ozone transport from the Gulf of Mexico, Final Report for the Texas Commission on Environmental Quality; Project No. 0626408I, 2012.   
+Mocko, D.M., Cotton, W.R.: Evaluation of Fractional Cloudiness Parameterizations for Use in a Mesoscale Model, J. Atmos. Sci., 52(16), 2884-2901
 
 -----
 ## Internal Records:

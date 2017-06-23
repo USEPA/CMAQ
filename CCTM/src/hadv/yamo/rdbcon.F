@@ -134,6 +134,7 @@ C Local variables:
       INTEGER   GXOFF, GYOFF      ! global origin offset from file
       LOGICAL, SAVE :: WINDOW = .FALSE. ! posit same file and global
                                         ! processing domain
+
 C for INTERPX
       INTEGER, SAVE :: STRTCOL,   ENDCOL,   STRTROW,   ENDROW
       INTEGER       :: STRTCOLMC, ENDCOLMC, STRTROWMC, ENDROWMC
@@ -299,17 +300,29 @@ C Fill in DENSJ array for boundaries
 
 
          VNAME = 'JACOBM'
+#ifdef parallel
+         IF ( .NOT. INTERPB ( MET_BDY_3D, VNAME, PNAME,
+     &                        MDATE, MTIME, NBNDY*NLAYS,
+     &                        JACOBM_BND, LVL ) ) THEN
+#else
          IF ( .NOT. INTERPB ( MET_BDY_3D, VNAME, PNAME,
      &                        MDATE, MTIME, NBNDY*NLAYS,
      &                        JACOBM_BND ) ) THEN
+#endif
             XMSG = 'Could not read' // VNAME // ' from ' // MET_BDY_3D
             CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
          END IF
 
          VNAME = 'DENSA_J'
+#ifdef parallel
+         IF ( .NOT. INTERPB ( MET_BDY_3D, VNAME, PNAME,
+     &                        MDATE, MTIME, NBNDY*NLAYS,
+     &                        RHOJ_BND, LVL ) ) THEN
+#else
          IF ( .NOT. INTERPB ( MET_BDY_3D, VNAME, PNAME,
      &                        MDATE, MTIME, NBNDY*NLAYS,
      &                        RHOJ_BND ) ) THEN
+#endif
             XMSG = 'Could not read ' // VNAME // ' from ' // MET_BDY_3D
             CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
          END IF
@@ -325,8 +338,13 @@ C Read & interpolate boundary concentrations
       DO 141 VAR = STRT, FINI
          IF ( ONFILE( VAR ) ) THEN
             BBUF = 0.0   ! array assignment
+#ifdef parallel
+            IF ( .NOT. INTERPB( BNDY_GASC_1, BCNAME( VAR ), PNAME,
+     &                          MDATE, MTIME, NBNDY*NLAYS, BBUF, LVL ) ) THEN
+#else
             IF ( .NOT. INTERPB( BNDY_GASC_1, BCNAME( VAR ), PNAME,
      &                          MDATE, MTIME, NBNDY*NLAYS, BBUF ) ) THEN
+#endif
                XMSG = 'Could not read ' // TRIM( BCNAME( VAR ) ) // ' from '
      &              // BNDY_GASC_1
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
@@ -364,8 +382,13 @@ C Read & interpolate boundary concentrations
          SPC = SPC + 1
          IF ( ONFILE( VAR ) ) THEN
             BBUF = 0.0   ! array assignment
+#ifdef parallel
+            IF ( .NOT. INTERPB ( BNDY_AERO_1, BCNAME( VAR ), PNAME,
+     &                           MDATE, MTIME, NBNDY*NLAYS, BBUF, LVL ) ) THEN
+#else
             IF ( .NOT. INTERPB ( BNDY_AERO_1, BCNAME( VAR ), PNAME,
      &                           MDATE, MTIME, NBNDY*NLAYS, BBUF ) ) THEN
+#endif
                XMSG = 'Could not read ' // TRIM( BCNAME ( VAR ) ) // ' from '
      &              // BNDY_AERO_1
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
@@ -375,8 +398,13 @@ C Read & interpolate boundary concentrations
                IF ( BCNAME( VAR )( 1:4 ) .EQ. 'APOC' ) THEN 
                   IF ( INDEX( MECHNAME,"NVPOA" ) .EQ. 0 ) THEN
                     BCNAME_TMP = 'APNCOM' // BCNAME( VAR )( 5:5 )
+#ifdef parallel
+                    IF ( .NOT. INTERPB ( BNDY_AERO_1, BCNAME_TMP, PNAME,
+     &                         MDATE, MTIME, NBNDY*NLAYS, BBUF_TMP, LVL ) ) THEN
+#else
                     IF ( .NOT. INTERPB ( BNDY_AERO_1, BCNAME_TMP, PNAME,
      &                         MDATE, MTIME, NBNDY*NLAYS, BBUF_TMP ) ) THEN
+#endif
                        XMSG = 'Could not read ' // TRIM( BCNAME_TMP ) 
      &                        // ' from ' // BNDY_AERO_1
                        CALL M3WARN( PNAME, MDATE, MTIME, XMSG ) 
@@ -445,8 +473,13 @@ C Read & interpolate boundary concentrations
       DO 161 VAR = STRT, FINI
          IF ( ONFILE( VAR ) ) THEN
             BBUF = 0.0   ! array assignment
+#ifdef parallel
+            IF ( .NOT. INTERPB ( BNDY_NONR_1, BCNAME( VAR ), PNAME,
+     &                           MDATE, MTIME, NBNDY*NLAYS, BBUF, LVL ) ) THEN
+#else
             IF ( .NOT. INTERPB ( BNDY_NONR_1, BCNAME( VAR ), PNAME,
      &                           MDATE, MTIME, NBNDY*NLAYS, BBUF ) ) THEN
+#endif
                XMSG = 'Could not read ' // TRIM( BCNAME( VAR ) ) // ' from '
      &              // BNDY_NONR_1
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
@@ -481,8 +514,13 @@ C Read & interpolate boundary concentrations
       DO 171 VAR = STRT, FINI
          IF ( ONFILE( VAR ) ) THEN
             BBUF = 0.0   ! array assignment
+#ifdef parallel
+            IF ( .NOT. INTERPB ( BNDY_TRAC_1, BCNAME( VAR ), PNAME,
+     &                           MDATE, MTIME, NBNDY*NLAYS, BBUF, LVL ) ) THEN
+#else
             IF ( .NOT. INTERPB ( BNDY_TRAC_1, BCNAME( VAR ), PNAME,
      &                           MDATE, MTIME, NBNDY*NLAYS, BBUF ) ) THEN
+#endif
                XMSG = 'Could not read ' // TRIM( BCNAME( VAR ) ) // ' from '
      &              // BNDY_TRAC_1
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
