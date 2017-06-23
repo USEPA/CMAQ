@@ -6,8 +6,14 @@
 
 # CMAQ Input and Output Files #
 
-The input files for CMAQ consist of a domain definition file for all programs; two sets of file options for both ICON and BCON; two types of input files (WRF/MM5 and terrain) for MCIP; five mandatory and one optional input file for JPROC; and for CCTM, emissions, initial conditions, and boundary conditions files, six files that define the meteorological conditions to be simulated, and a photolysis rates file. For most CCTM input, a separate data set is required for each horizontal domain that is modeled. When CMAQ is configured for in-line emissions and deposition, there are additional emissions input files that are required. CMAQ output files include a basic set of files with aerosol and gas-phase species concentrations, wet and dry deposition estimates, and visibility metrics, and an auxiliary set of output files for diagnosing model performance and in-line-calculated emissions.
+[Jump to Input Files](#inputs)<br>
+[Jump to CCTM Output Files](#outputs)
 
+The input files for CMAQ consist of a domain definition file for all programs; two sets of file options for both ICON and BCON; two types of input files (WRF/MM5 and terrain) for MCIP; five mandatory and one optional input file for JPROC; and for CCTM, emissions, initial conditions, and boundary conditions files, six files that define the meteorological conditions to be simulated, and a photolysis rates file. For most CCTM input, a separate data set is required for each horizontal domain that is modeled. When CMAQ is configured for in-line emissions and deposition, there are additional emissions input files that are required.
+
+CMAQ output files include a basic set of files with aerosol and gas-phase species concentrations, wet and dry deposition estimates, and visibility metrics, and an auxiliary set of output files for diagnosing model performance and in-line-calculated emissions.
+
+<a id=inputs></a>
 ## CMAQ Input Files
 
 This section describes each of the input files required by the various CMAQ programs. The section begins with a description of the grid definition file, which is used by several CMAQ programs, and then goes through a program-by-program listing of the CMAQ input file requirements. [Table 8‑1](#Table8-1) lists the source, file type, and temporal and spatial dimensions of each CMAQ input file. Sample disk space requirements for a desired input data set can easily be calculated from the information in [Table 8‑1](#Table8-1); each data record is four bytes. The I/O API file sizes can be calculated using the number of variables in a CMAQ file and the spatial and temporal coverage of the data. The user should consult the CMAQ release notes for additional file information.
@@ -601,7 +607,7 @@ A detailed description of the file format is provided in [Table 8‑10](#Table8-
 
 <a id=Table8-10></a>
 
-'''Table 8-10 TOMS Data Profile '''
+ ** Table 8-10 TOMS Data Profile **
 
 |**Line** | **Column**| **Name** | **Type**| **Description** |
 |-----|--------|-------|-------|--------------------------------------------------------------------|
@@ -1232,17 +1238,58 @@ The MET_DOT_3D time-dependent file contains 3-D meteorological descriptions at d
 -   UHAT_JD: contravariant-U*Jacobian*density (kg m<sup>‑1</sup> s<sup>‑1</sup>) [cell faces; Arakawa-C grid]
 -   VHAT_JD: contravariant-V*Jacobian*density (kg m<sup>‑1</sup> s<sup>‑1</sup>) [cell faces; Arakawa-C grid]
 
-## Basic CCTM Output Files
+<a id=outputs></a>
+## CCTM Output Files
 
 The previous section described the output files from JPROC, ICON, BCON, and MCIP that are input to CCTM. In this section, details on the CCTM output files are provided. Except for JPROC (which creates ASCII files), all CMAQ programs produce output files that adhere to the I/O API netCDF format (Chapter 4). The I/O API-formatted CMAQ output files are three-dimensional, gridded, time-stepped binary files that contain headers with metadata describing the file contents. These machine-independent and network transparent binary files are transferable between different computer architectures. In addition to model data output, CMAQ can optionally produce log files that contain the standard output from the various CMAQ processors. If the log file option is not selected by the user, CMAQ will write all of the log information to the screen along with the standard error, which can be captured to a text file using basic UNIX syntax.
+
+<a id=Table8-13></a>
+**Table 8-13. CMAQ Output files**
+
+|**File Name**|**File Type**|**Time-Dependence**|**Spatial Dimensions**|
+|----------------------------|------|----|-----------------------------------|
+|**General**| | | |
+|[Output Log](#cmaq_output_log)|ASCII|n/a|n/a
+|[CTM_CONC_1](#conc)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]*Z
+|[CTM_CGRID_1](#cgrid)|GRDDED3|1-hour|[2(X+1)+2(Y+1)]*Z
+|[CTM_ACONC_1](#aconc)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]*Z
+|[CTM_DRY_DEP_1](#drydep)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]*Z
+|[CTM_WETDEP_1](#wetdep)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]*Z
+|[CTM_VIS_1](#vis)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]*Z
+|[CTM_AVIS_1](#avis)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]*Z
+|**Diagnostic and Advanced**| | | |
+|[CTM_PMDIAG_1](#pmdiag)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]*Z
+|[CTM_APMDIAG_1](#apmdiag)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]*Z
+|[B3GTS_S](#b3gts)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
+|[CTM_DEPV_DIAG](#depv)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
+|[CTM_PT3D_DIAG](#pt3d)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]*Z
+|[CTM_DUST_EMIS_1](#dust)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
+|[CTM_AOD_1](#aod)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]*Z
+|[CTM_IPR_1-3](#ipr)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]*Z
+|[CTM_IRR_1-3](#irr)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]*Z
+|[FLOOR](#floor)|ASCII|Hourly|n/a
+|[MEDIA_CONC](#media)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
+|[CTM_DEPV_MOS](#depv_mos)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
+|[CTM_DRY_DEPV_MOS](#dry_depv_mos)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
+|[CTM_DEPV_FST](#depv_fst)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
+|[CTM_DRY_DEPV_FST](#dry_depv_fst)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
+|[CTM_VDIFF_DIAG](#vdiff_diag)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
+|[CTM_VSED_DIAG](#vsed_diag)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
+|[LTNG_HOURLY](#ltnghourly)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]*Z
+|[LTNG_COL](#ltngcol)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
+|[PLAY_SRCID](#play_srcid)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
+|[CTM_RJ_1-2](#ctm_rj)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
+|[SOILOUT](#soilout)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
+|[CTM_SSEMIS_1](#ssemis)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
+|[CTM_WETDEP_2](#wetdep2)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
 
 <a id=cmaq_output_log></a>
 ### CMAQ output log
 
-All of the CMAQ processors generate standard output and standard error during execution. For all of the processors other than CCTM, this diagnostic output information can be captured to a log file at execution using a UNIX redirect command. For example, to capture the standard output and error of a BCON simulation, use the following command:
+All of the CMAQ processors generate standard output and standard error during execution. For all of the processors other than CCTM, this diagnostic output information can be captured to a log file at execution using a UNIX redirect command. For example, to capture the standard output and error of a CCTM simulation, use the following command:
 
 ```
-run.bcon >& bcon_e1a.log
+run.cctm |& tee cctm.log
 ```
 
 For CCTM, the LOGFILE environment variable allows users to specify the name of a log file for capturing the standard output from the program. If this variable is not set, the standard output is written to the terminal and can be captured using the UNIX redirect command (“>”), as shown in the example above.
@@ -1272,12 +1319,12 @@ The 2-D CCTM dry deposition file (DRYDEP) includes cumulative hourly dry deposit
 
 The 2-D CCTM wet deposition file (WETDEP) includes cumulative hourly wet deposition fluxes (kg hectare<sup>‑1</sup>) for selected model species. CCTM calculates wet deposition for all of the species listed in the wet deposition INCLUDE files within the mechanism INCLUDE directories. Wet deposition INCLUDE files exist for gas-phase species (GC_WDEP.EXT), aerosol species (AE_WDEP.EXT), and inert model species (NR_WDEP.EXT). Species can be removed from the WDEP.EXT files to adjust the number of species that undergo the wet deposition process and are written to the WETDEP output file.
 
-<a id=aerovis></a>
+<a id=vis></a>
 ### CTM_VIS_1: CCTM hourly instantaneous visibility metrics
 
 The 2-D CCTM visibility file contains hourly Mie and reconstructed visual range coefficients (km<sup>‑1</sup>) and normalized extinction coefficients (deciviews).
 
-<a id=aerovis></a>
+<a id=avis></a>
 ### CTM_AVIS_1: CCTM hourly average visibility metrics
 
 The 2-D CCTM visibility file contains hourly Mie and reconstructed visual range coefficients (km<sup>‑1</sup>) and normalized extinction coefficients (deciviews).
@@ -1292,51 +1339,51 @@ Along with the basic outputs detailed in the previous section, CMAQ can be confi
 
 This diagnostic file contains information on the geometric mean diameters and geometric standard deviations for the lognormal modes.
 
-<a id=pamdiag></a>
+<a id=apmdiag></a>
 ### CTM_APMDIAG_1: Average hourly aerosol diagnostics file
 
 This diagnostic file contains information on the geometric mean diameters and geometric standard deviations for the lognormal modes.
 
-<a id=b3gts_s></a>
+<a id=b3gts></a>
 ### B3GTS_S: Biogenic emissions diagnostic file
 
 This optional 2-D CCTM hourly output file contains calculated biogenic emissions in mass units. The B3GTS_S file will be produced only if in-line biogenic emissions are being calculated by CCTM and if the B3GTS_DIAG variable is turned on.
 
-<a id=ctm_depv_diag></a>
+<a id=depv></a>
 ### CTM_DEPV_DIAG: CCTM inline deposition diagnostics file
 
 This 2-D CCTM file contains the deposition velocity (m/s) for each chemical species calculated for the final time step for the hour.
 
-<a id=ctm_pt3d_diag></a>
+<a id=pt3d></a>
 ### CTM_PT3D_DIAG: CCTM PT3D diagnostics file
 Add content
 
-<a id=dust_emis></a>
+<a id=dust></a>
 ### CTM_DUST_EMIS_1
-Add content
+This optional 2-D CCTM hourly output file contains calculated dust emissions in mass units. The DUST_EMIS_1 file will be produced only if in-line windblown dust emissions are being calculated by CCTM and if the CTM_DUSTEM_DIAG variable is turned on.
 
-<a id=ctm_aod_1></a>
+<a id=aod></a>
 ### CTM_AOD_1
-Add content
+Aerosol optical depths calculated by the CCTM. This file will only be produced if CTM_AOD=Y in the CCTM run script.
 
-<a id=ctm_ipr></a>
-### CTM_IPR_[1-3]
-Add content
+<a id=ipr></a>
+### CTM\_IPR_[1-3]
+The 3-D CCTM integrated process rate files (IPR) contains hourly concentrations of selected model output species in terms of the model process that contributed to the predicted concentration at each hour. For each grid cell in the process analysis domain (which is most likely a subset of the full modeling domain), the IPR file shows the hourly change in species concentration that is due to particular source/sink processes in the model. The input file procan.inp is used to set the model species for which to capture process analysis information, and the processes to track during the process analysis.
 
-<a id=ctm_irr></a>
-### CTM_IRR_[1-3] Process analysis output – integrated reaction rates
-The 3-D CCTM integrated reaction rate file (IRR) contains hourly concentrations of selected model output species in terms of the gas-phase chemistry pathways that contributed to the predicted concentration at each hour. For each grid cell in the process analysis domain (which is most likely a subset of the full modeling domain), the IRR file shows the hourly change in species concentration that is due to particular gas-phase chemistry reactions or reaction groups. The process analysis preprocessor, PROCAN (Section 2.2.6), is used to select the process analysis domain, the model species for which to capture process analysis information, and the chemistry reactions or groups of reactions to track during the process analysis.
+<a id=irr></a>
+### CTM\_IRR_[1-3] Process analysis output – integrated reaction rates
+The 3-D CCTM integrated reaction rate file (IRR) contains hourly concentrations of selected model output species in terms of the gas-phase chemistry pathways that contributed to the predicted concentration at each hour. For each grid cell in the process analysis domain (which is most likely a subset of the full modeling domain), the IRR file shows the hourly change in species concentration that is due to particular gas-phase chemistry reactions or reaction groups. The input file procan.inp is used to select the process analysis domain, the model species for which to capture process analysis information, and the chemistry reactions or groups of reactions to track during the process analysis.
 
 <a id=floor></a>
 ### FLOOR: concentration-reset diagnostics file
 
-FLOOR files are optional output diagnostic files which list specific gridboxes/timesteps in which species with `-ve` concentrations are reset to zero.
+FLOOR files are optional output diagnostic files which list specific gridboxes/timesteps in which species with negative concentrations are reset to zero.
 
-<a id=init_medc_1></a>
+<a id=media></a>
 ### MEDIA_CONC: Bidirectional soil NH4+ restart file
 Add content
 
-<a id=ctm_depv_mos></a>
+<a id=depv_mos></a>
 ### CTM_DEPV_MOS
 
 This 3-D CCTM file contains the deposition velocity (m/s) for the final time step of the hour for each land use type within a grid cell.
@@ -1351,48 +1398,46 @@ This 3-D CCTM file contains the total deposition (kg/ha) for the hour for each l
 
 This 3-D CCTM file contains the total deposition (kg/ha) through the stomatal pathway for the hour for each land use type within each grid cell.
 
-<a id=ctm_depv_fst></a>
+<a id=depv_fst></a>
 ### CTM_DEPV_FST
 
 This 3-D CCTM file contains the deposition velocity (m/s) trhough the stomatal pathway for the final time step of the hour for each land use type within a grid cell.
 
-<a id=ctm_vdiff_diag></a>
+<a id=vdiff_diag></a>
 ### CTM_VDIFF_DIAG
 Add content
 
-<a id=ctm_vsed_diag></a>
+<a id=vsed_diag></a>
 ### CTM_VSED_DIAG
 Add content
 
-<a id=ltngout></a>
-### LTNGOUT
+<a id=ltnghourly></a>
+### LTNG_HOURLY
+Hourly 3-D lightning NO emissions calculated in-line by the CCTM.
 
-Add content
-
-<a id=pa></a>
-### PA: Process analysis output – integrated process rate file
-
-The 3-D CCTM integrated process rate file (PA) contains hourly concentrations of selected model output species in terms of the model process that contributed to the concentration in each grid cell at each hour. For each grid cell in the process analysis domain (which is most likely a subset of the full modeling domain), the PA file shows the hourly change in species concentration that is due to the major model processes, such as horizontal and vertical advection, chemistry, and wet deposition. The process analysis preprocessor, PROCAN (Section 2.2.6), is used to select the process analysis domain, the model species for which to capture process analysis information, and the model processes to track during the process analysis.
+<a id=ltngcol></a>
+### LTNG_COL
+Hourly column-total lightning NO emissions calculated in-line by the CCTM.
 
 <a id=play_srcid></a>
 ### PLAY_SRCID
 Add content
 
 <a id=ctm_rj></a>
-### CTM_RJ_[1,2]: In-line photolysis output – gridded photolysis rates
-
+### CTM\_RJ_[1-2]: In-line photolysis output – gridded photolysis rates
 The photolysis diagnostic output files (RJ) contain the photolysis rates calculated by CCTM when the in-line photolysis option is used.
+
 <a id=soilout></a>
 ### SOILOUT
 
 Name and location of hourly soil NO emissions file; output when in-line biogenic emissions processing is activated by setting CTM_BIOGEMIS to “T” or “Y”.
 
-<a id=ctm_ssemis_1></a>
+<a id=ssemis></a>
 ### CTM_SSEMIS_1: Sea salt emissions diagnostic file
 
 This optional 2-D CCTM hourly output file contains calculated sea salt emissions. The SSEMIS file will be produced by CCTM only if the AERO5 aerosol mechanism is being used and if the CTM_SSEMDIAG variable is turned on.
 
-<a id=ctm_wet_dep_2></a>
+<a id=wetdep2></a>
 ### CTM_WET_DEP_2: CCTM cloud diagnostics file
 
 The 2-D CCTM wet deposition file (WETDEP2) includes cumulative hourly wet deposition fluxes (kg hectare<sup>‑1</sup>) for selected model species. CCTM calculates wet deposition for all of the species listed in the wet deposition INCLUDE files within the mechanism INCLUDE directories. Wet deposition INCLUDE files exist for gas-phase species (GC_WDEP.EXT), aerosol species (AE_WDEP.EXT), and inert model species (NR_WDEP.EXT). Species can be removed from the WDEP.EXT files to adjust the number of species that undergo the wet deposition process. These extra species are written to the WETDEP2 output file.

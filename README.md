@@ -21,14 +21,15 @@ particulates, toxics, and acid deposition.
 This CMAQ Git archive is organized with each official public release stored as a branch on the main USEPA/CMAQ repository.
 To clone code from the CMAQ Git archive, specify the branch (i.e. version number) and issue the following command from within
 a working directory on your server:
+
 ```
-mkdir CMAQ_REPO
 git clone -b 5.2 https://github.com/USEPA/CMAQ.git CMAQ_REPO
 ```
 
 ## CMAQ Repository Guide
 Source code and scripts are organized as follows:
-* **CCTM (CMAQ Chemical Transport Model):** code and scripts for running the 3D-CTM at the heart of CMAQ.
+* **CCTM (CMAQ Chemical Transport Model):** code and scripts for running the 3D-CTM at the heart of CMAQ; also includes technical release notes for the release version of CMAQ.
+* **DOCS:** CMAQ User's Guide, developers guidance, and tutorials.
 * **PREP:** Data preprocessing tools for important input files like initial and boundary conditions, etc.
 * **POST:** Data postprocessing tools for aggregating and evaluating CMAQ output products (e.g. Combine, Site-Compare, etc)
 * **TUTORIALS:** Short tutorials provide examples of different CMAQ features.
