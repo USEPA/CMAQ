@@ -6,14 +6,8 @@
 
 # CMAQ Input and Output Files #
 
-[Jump to Input Files](#inputs)<br>
-[Jump to CCTM Output Files](#outputs)
+The input files for CMAQ consist of a domain definition file for all programs; two sets of file options for both ICON and BCON; two types of input files (WRF/MM5 and terrain) for MCIP; five mandatory and one optional input file for JPROC; and for CCTM, emissions, initial conditions, and boundary conditions files, six files that define the meteorological conditions to be simulated, and a photolysis rates file. For most CCTM input, a separate data set is required for each horizontal domain that is modeled. When CMAQ is configured for in-line emissions and deposition, there are additional emissions input files that are required. CMAQ output files include a basic set of files with aerosol and gas-phase species concentrations, wet and dry deposition estimates, and visibility metrics, and an auxiliary set of output files for diagnosing model performance and in-line-calculated emissions.
 
-The input files for CMAQ consist of a domain definition file for all programs; two sets of file options for both ICON and BCON; two types of input files (WRF/MM5 and terrain) for MCIP; five mandatory and one optional input file for JPROC; and for CCTM, emissions, initial conditions, and boundary conditions files, six files that define the meteorological conditions to be simulated, and a photolysis rates file. For most CCTM input, a separate data set is required for each horizontal domain that is modeled. When CMAQ is configured for in-line emissions and deposition, there are additional emissions input files that are required.
-
-CMAQ output files include a basic set of files with aerosol and gas-phase species concentrations, wet and dry deposition estimates, and visibility metrics, and an auxiliary set of output files for diagnosing model performance and in-line-calculated emissions.
-
-<a id=inputs></a>
 ## CMAQ Input Files
 
 This section describes each of the input files required by the various CMAQ programs. The section begins with a description of the grid definition file, which is used by several CMAQ programs, and then goes through a program-by-program listing of the CMAQ input file requirements. [Table 8‑1](#Table8-1) lists the source, file type, and temporal and spatial dimensions of each CMAQ input file. Sample disk space requirements for a desired input data set can easily be calculated from the information in [Table 8‑1](#Table8-1); each data record is four bytes. The I/O API file sizes can be calculated using the number of variables in a CMAQ file and the spatial and temporal coverage of the data. The user should consult the CMAQ release notes for additional file information.
@@ -374,7 +368,7 @@ The ASCII-formatted CSQY files begin with the number and a list of the applicabl
 
 |**Line** | **Column** | **Name** | **Type** | **Description** |
 |----|----|--------------------------|---------|-----------------------------------------|
-| 1 | A | CSQY Mechanism Table Name | String |Text name indicating this is the CSQY for the Mechanism Specified.  This name is cross-referenced in the chemical mechanism description and INCLUDE files (required)|
+| 1 | A | CSQY Mechanism Table Name | String |Text name indicating this is the CSQY for the Mechanism Specified.  This name is cross-referenced in the chemical mechanism description files (required)|
 | 1 | A | NPHOTAB | String |Number of Photolysis Reactions|
 | 2 | A | Comments | String |Preceded by "!", Individual Reaction Rates Listed below|
 | 3 | A  | Name | String| Reaction Name  |
@@ -607,7 +601,7 @@ A detailed description of the file format is provided in [Table 8‑10](#Table8-
 
 <a id=Table8-10></a>
 
- ** Table 8-10 TOMS Data Profile **
+'''Table 8-10 TOMS Data Profile '''
 
 |**Line** | **Column**| **Name** | **Type**| **Description** |
 |-----|--------|-------|-------|--------------------------------------------------------------------|
@@ -991,86 +985,86 @@ Add content
 
 Used by: CCTM – bidirectional NH<sub>3</sub> flux version only
 
-This 3-D  file is created by the EPIC model via the FEST-C interface and contains soil properties for Layer 1 (0 to 1 cm depth) and Layer 2 (1 cm to 100 cm depth) for each crop and soil combination in each grid cell.  Additional information on the EPIC model and the FEST-C interface are available at https://www.cmascenter.org/fest-c/. The following variables are in this file:
+This 3-D  file is created by the EPIC model via the FEST-C interface and contains soil properties for Layer 1 (0 to 1 cm depth) and Layer 2 (1 cm to 100 cm depth) for each crop and soil combination in each grid cell.  The following variables are in this file:
 
--   L1_SoilNum: Soil Number (none)
--   L1_Bulk_D: Layer1 Bulk Density (t/m**3)
--   L1_Wilt_P: Layer1 Wilting Point(m/m)
--   L1_Field_C: Layer1 Field Capacity (m/m)
--   L1_Porosity: Layer1 Porosity (%)
--   L1_PH: Layer1 PH (none)
--   L1_Cation: Layer1 Cation Ex (cmol/kg )
--   L2_Bulk_D: Layer2 Bulk Density (t/m**3)
--   L2_Wilt_P: Layer2 Wilting Point (m/m)
--   L2_Field_C: Layer2 Field Capacity (m/m)
--   L2_Porosity: Layer2 Porosity (%)
--   L2_PH: Layer2 PH (none)
--   L2_Cation: Layer2 Cation Ex (cmol/kg)
+L1_SoilNum: Soil Number (none)
+L1_Bulk_D: Layer1 Bulk Density (t/m**3)
+L1_Wilt_P: Layer1 Wilting Point(m/m)
+L1_Field_C: Layer1 Field Capacity (m/m)
+L1_Porosity: Layer1 Porosity (%)
+L1_PH: Layer1 PH (none)
+L1_Cation: Layer1 Cation Ex (cmol/kg )
+L2_Bulk_D: Layer2 Bulk Density (t/m**3)
+L2_Wilt_P: Layer2 Wilting Point (m/m)
+L2_Field_C: Layer2 Field Capacity (m/m)
+L2_Porosity: Layer2 Porosity (%)
+L2_PH: Layer2 PH (none)
+L2_Cation: Layer2 Cation Ex (cmol/kg)
 
 <a id="e2c_fert"></a>
 ### E2C_FERT – EPIC crop types and fertilizer application
 
 Used by: CCTM – bidirectional NH<sub>3</sub> flux version only
 
-This is a 3-D daily file created by the EPIC model via the FEST-C interface and contains information on fertilizer application rate and depth for each crop and soil combination in each grid cell.   Additional information on the EPIC model and the FEST-C interface are available at https://www.cmascenter.org/fest-c/. The file contains many more variables than are used by CMAQ. The following variables are in this file:
+This is a 3-D daily file created by the EPIC model via the FEST-C interface and contains information on fertilizer application rate and depth for each crop and soil combination in each grid cell.  The file contains many more variables than are used by CMAQ. he following variables are in this file:
 
--   QNO3: N Loss in Surface Runoff (kg/ha)
--   SSFN: N in Subsurface Flow (kg/ha)
--   PRKN: N Loss in Percolate (kg/ha)
--   DN: N-NO3 Denitrification (kg/ha)
--   DN2: N-N2O from NO3 Denitrification (kg/ha)
--   AVOL: N-NH3 Emission (kg/ha)
--   HMN: OC Change by Soil Respiration (kg/ha)
--   NFIX: N Fixation (kg/ha)
--   YP: P Loss with Sediment (kg/ha)
--   QAP: Labile P Loss in Runoff (kg/ha)
--   YON: N Loss with Sediment (kg/ha)
--   YW: Wind Erosion (ton/ha)
--   Q: Runoff (mm)
--   HUSC: Heat Unit Schedule (none)
--   HU_BASE0: Base Heat Unit (none)
--   HU_FRAC: Heat Unit fraction (none)
--   L1_DEP: Layer1 Depth (m)
--   L1_BD: Layer1 Bulk Density (t/m**3)
--   L1_NO3: Layer1 N - Nitrate (kg/ha)
--   L1_NH3: Layer1 N - Ammonia (kg/ha)
--   L1_ON: Layer1 Organic N (kg/ha)
--   L1_P: Layer1 Mineral P (kg/ha)
--   L1_OP: Layer1 Organic P (kg/ha)
--   L1_C: Layer1 Carbon (kg/ha)
--   L1_NITR: Layer1 N - Nitrified NH3 (kg/ha)
--   L2_DEP: Layer2 Depth (m)
--   L2_BD: Layer2 Bulk Density (t/m**3)
--   L2_NO3: Layer2 N - Nitrate (kg/ha)
--   L2_NH3: Layer2 N - Ammonia (kg/ha)
--   L2_ON: Layer2 Organic N (kg/ha)
--   L2_P: Layer2 Mineral P (kg/ha)
--   L2_OP: Layer2 Organic P (kg/ha)
--   L2_C: Layer2 Carbon (kg/ha)
--   L2_NITR: Layer2 N - Nitrified NH3 (kg/ha)
--   T1_DEP: Layert (Total Soil Profile) Depth (m)
--   T1_BD: Layert Bulk Density (t/m**3)
--   T1_NO3: Layert N - Nitrate (kg/ha)
--   T1_NH3: Layert N - Ammonia (kg/ha)
--   T1_ON: Layert Organic N (kg/ha)
--   T1_P: Layert Mineral P (kg/ha)
--   T1_OP: Layert Organic P (kg/ha)
--   T1_C: Layert Carbon (kg/ha)
--   T1_NITR: Layert N - Nitrified NH3 (kg/ha)
--   L1_ANO3: Layer1 N-NO3 AppRate (kg/ha)
--   L1_ANH3: Layer1 N-NH3 AppRate (kg/ha
--   L1_AON: Layer1 ON AppRate (kg/ha)
--   L1_AMP: Layer1 MP AppRate (kg/ha)
--   L1_AOP: Layer1 OP AppRate (kg/ha)
--   L2_ANO3: Layer2 N-NO3 AppRate (kg/ha)
--   L2_ANH3: Layer2 N-NH3 AppRate (kg/ha)
--   L2_AON: Layer2 ON AppRate (kg/ha)
--   L2_AMP: Layer2 MP AppRate (kg/ha)
--   L2_AOP: Layer2 OP AppRate (kg/ha)
--   UN1: N Uptake by Crop (kg/ha)
--   HUI: Heat Unit Index (none)
--   LAI: Leaf Area Index (none)
--   CPHT: Crop Height (m)
+QNO3: N Loss in Surface Runoff (kg/ha)
+SSFN: N in Subsurface Flow (kg/ha)
+PRKN: N Loss in Percolate (kg/ha)
+DN: N-NO3 Denitrification (kg/ha)
+DN2: N-N2O from NO3 Denitrification (kg/ha)
+AVOL: N-NH3 Emission (kg/ha)
+HMN: OC Change by Soil Respiration (kg/ha)
+NFIX: N Fixation (kg/ha)
+YP: P Loss with Sediment (kg/ha)
+QAP: Labile P Loss in Runoff (kg/ha)
+YON: N Loss with Sediment (kg/ha)
+YW: Wind Erosion (ton/ha)
+Q: Runoff (mm)
+HUSC: Heat Unit Schedule (none)
+HU_BASE0: Base Heat Unit (none)
+HU_FRAC: Heat Unit fraction (none)
+L1_DEP: Layer1 Depth (m)
+L1_BD: Layer1 Bulk Density (t/m**3)
+L1_NO3: Layer1 N - Nitrate (kg/ha)
+L1_NH3: Layer1 N - Ammonia (kg/ha)
+L1_ON: Layer1 Organic N (kg/ha)
+L1_P: Layer1 Mineral P (kg/ha)
+L1_OP: Layer1 Organic P (kg/ha)
+L1_C: Layer1 Carbon (kg/ha)
+L1_NITR: Layer1 N - Nitrified NH3 (kg/ha)
+L2_DEP: Layer2 Depth (m)
+L2_BD: Layer2 Bulk Density (t/m**3)
+L2_NO3: Layer2 N - Nitrate (kg/ha)
+L2_NH3: Layer2 N - Ammonia (kg/ha)
+L2_ON: Layer2 Organic N (kg/ha)
+L2_P: Layer2 Mineral P (kg/ha)
+L2_OP: Layer2 Organic P (kg/ha)
+L2_C: Layer2 Carbon (kg/ha)
+L2_NITR: Layer2 N - Nitrified NH3 (kg/ha)
+T1_DEP: Layert (Total Soil Profile) Depth (m)
+T1_BD: Layert Bulk Density (t/m**3)
+T1_NO3: Layert N - Nitrate (kg/ha)
+T1_NH3: Layert N - Ammonia (kg/ha)
+T1_ON: Layert Organic N (kg/ha)
+T1_P: Layert Mineral P (kg/ha)
+T1_OP: Layert Organic P (kg/ha)
+T1_C: Layert Carbon (kg/ha)
+T1_NITR: Layert N - Nitrified NH3 (kg/ha)
+L1_ANO3: Layer1 N-NO3 AppRate (kg/ha)
+L1_ANH3: Layer1 N-NH3 AppRate (kg/ha
+L1_AON: Layer1 ON AppRate (kg/ha)
+L1_AMP: Layer1 MP AppRate (kg/ha)
+L1_AOP: Layer1 OP AppRate (kg/ha)
+L2_ANO3: Layer2 N-NO3 AppRate (kg/ha)
+L2_ANH3: Layer2 N-NH3 AppRate (kg/ha)
+L2_AON: Layer2 ON AppRate (kg/ha)
+L2_AMP: Layer2 MP AppRate (kg/ha)
+L2_AOP: Layer2 OP AppRate (kg/ha)
+UN1: N Uptake by Crop (kg/ha)
+HUI: Heat Unit Index (none)
+LAI: Leaf Area Index (none)
+CPHT: Crop Height (m)
 
 
 <a id="init_medc_1"></a>
@@ -1238,58 +1232,17 @@ The MET_DOT_3D time-dependent file contains 3-D meteorological descriptions at d
 -   UHAT_JD: contravariant-U*Jacobian*density (kg m<sup>‑1</sup> s<sup>‑1</sup>) [cell faces; Arakawa-C grid]
 -   VHAT_JD: contravariant-V*Jacobian*density (kg m<sup>‑1</sup> s<sup>‑1</sup>) [cell faces; Arakawa-C grid]
 
-<a id=outputs></a>
-## CCTM Output Files
+## Basic CCTM Output Files
 
 The previous section described the output files from JPROC, ICON, BCON, and MCIP that are input to CCTM. In this section, details on the CCTM output files are provided. Except for JPROC (which creates ASCII files), all CMAQ programs produce output files that adhere to the I/O API netCDF format (Chapter 4). The I/O API-formatted CMAQ output files are three-dimensional, gridded, time-stepped binary files that contain headers with metadata describing the file contents. These machine-independent and network transparent binary files are transferable between different computer architectures. In addition to model data output, CMAQ can optionally produce log files that contain the standard output from the various CMAQ processors. If the log file option is not selected by the user, CMAQ will write all of the log information to the screen along with the standard error, which can be captured to a text file using basic UNIX syntax.
-
-<a id=Table8-13></a>
-**Table 8-13. CMAQ Output files**
-
-|**File Name**|**File Type**|**Time-Dependence**|**Spatial Dimensions**|
-|----------------------------|------|----|-----------------------------------|
-|**General**| | | |
-|[Output Log](#cmaq_output_log)|ASCII|n/a|n/a
-|[CTM_CONC_1](#conc)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]*Z
-|[CTM_CGRID_1](#cgrid)|GRDDED3|1-hour|[2(X+1)+2(Y+1)]*Z
-|[CTM_ACONC_1](#aconc)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]*Z
-|[CTM_DRY_DEP_1](#drydep)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]*Z
-|[CTM_WETDEP_1](#wetdep)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]*Z
-|[CTM_VIS_1](#vis)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]*Z
-|[CTM_AVIS_1](#avis)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]*Z
-|**Diagnostic and Advanced**| | | |
-|[CTM_PMDIAG_1](#pmdiag)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]*Z
-|[CTM_APMDIAG_1](#apmdiag)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]*Z
-|[B3GTS_S](#b3gts)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
-|[CTM_DEPV_DIAG](#depv)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
-|[CTM_PT3D_DIAG](#pt3d)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]*Z
-|[CTM_DUST_EMIS_1](#dust)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
-|[CTM_AOD_1](#aod)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]*Z
-|[CTM_IPR_1-3](#ipr)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]*Z
-|[CTM_IRR_1-3](#irr)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]*Z
-|[FLOOR](#floor)|ASCII|Hourly|n/a
-|[MEDIA_CONC](#media)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
-|[CTM_DEPV_MOS](#depv_mos)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
-|[CTM_DRY_DEPV_MOS](#dry_depv_mos)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
-|[CTM_DEPV_FST](#depv_fst)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
-|[CTM_DRY_DEPV_FST](#dry_depv_fst)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
-|[CTM_VDIFF_DIAG](#vdiff_diag)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
-|[CTM_VSED_DIAG](#vsed_diag)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
-|[LTNG_HOURLY](#ltnghourly)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]*Z
-|[LTNG_COL](#ltngcol)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
-|[PLAY_SRCID](#play_srcid)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
-|[CTM_RJ_1-2](#ctm_rj)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
-|[SOILOUT](#soilout)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
-|[CTM_SSEMIS_1](#ssemis)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
-|[CTM_WETDEP_2](#wetdep2)|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
 
 <a id=cmaq_output_log></a>
 ### CMAQ output log
 
-All of the CMAQ processors generate standard output and standard error during execution. For all of the processors other than CCTM, this diagnostic output information can be captured to a log file at execution using a UNIX redirect command. For example, to capture the standard output and error of a CCTM simulation, use the following command:
+All of the CMAQ processors generate standard output and standard error during execution. For all of the processors other than CCTM, this diagnostic output information can be captured to a log file at execution using a UNIX redirect command. For example, to capture the standard output and error of a BCON simulation, use the following command:
 
 ```
-run.cctm |& tee cctm.log
+run.bcon >& bcon_e1a.log
 ```
 
 For CCTM, the LOGFILE environment variable allows users to specify the name of a log file for capturing the standard output from the program. If this variable is not set, the standard output is written to the terminal and can be captured using the UNIX redirect command (“>”), as shown in the example above.
@@ -1297,7 +1250,7 @@ For CCTM, the LOGFILE environment variable allows users to specify the name of a
 <a id=conc></a>
 ### CTM_CONC_1: CCTM hourly instantaneous concentration file
 
-The 3-D CCTM hourly concentration file (CONC) is the most commonly referenced CCTM output file. Containing gas-phase species mixing ratios (ppmV) and aerosol species concentra­tions (µg m<sup>‑3</sup>), CONC files include instantaneous model species concentrations at the end of each model hour. The number and types of species contained in the CONC files depend on the chemical mechanism and aerosol model configurations that are selected when CCTM is compiled. The species concentration INCLUDE files (CONC.EXT) within the mechanism INCLUDE directories list the species that are written to the CONC files for each mechanism configuration. The GC_CONC.EXT file lists the gas-phase species, the AE_CONC.EXT file lists the aerosol species, and the NR_CONC lists the nonreactive (inert) species written to the CONC file. Species can be removed from the CONC.EXT files to reduce the number of species that are written to, and thus the size of, the CONC file.
+The 3-D CCTM hourly concentration file (CONC) is the most commonly referenced CCTM output file. Containing gas-phase species mixing ratios (ppmV) and aerosol species concentra­tions (µg m<sup>‑3</sup>), CONC files include instantaneous model species concentrations at the end of each model hour. The number and types of species contained in the CONC files depend on the chemical mechanism and aerosol model configurations that are selected when CCTM is compiled. The FORTRAN NameLists within the mechanism directories list the modeled species, and contain a column that specifies which species are written to the CONC files. The GC_*mechname*.nml file lists the gas-phase species, the AE_*mechname*.nml file lists the aerosol species, and the NR_*mechname*.nml lists the nonreactive (inert) species. Species can be removed from the CONC file by editing the CONC column in the NameList file(s) to reduce the number of species that are written to, and thus the size of the CONC file.
 
 <a id=cgrid></a>
 ### CTM_CGRID_1: CCTM restart file
@@ -1312,19 +1265,19 @@ The 3-D CCTM integral average concentration file (ACONC) contains average model 
 <a id=drydep></a>
 ### CTM_DRY_DEP_1: CCTM hourly cumulative dry deposition file
 
-The 2-D CCTM dry deposition file (DRYDEP) includes cumulative hourly dry deposition fluxes (kg hectare<sup>‑1</sup>) for selected model species. CCTM calculates dry deposition for all of the species listed in the dry deposition INCLUDE files within the mechanism INCLUDE directories. Dry deposition INCLUDE files exist for gas-phase species (GC_DDEP.EXT), aerosol species (AE_DDEP.EXT), and inert model species (NR_DDEP.EXT). Species can be removed from the DDEP.EXT files to adjust the number of species that undergo the dry deposition process and are written to the DRYDEP output file.
+The 2-D CCTM dry deposition file (DRYDEP) includes cumulative hourly dry deposition fluxes (kg hectare<sup>‑1</sup>) for selected model species. CCTM calculates dry deposition for all of the species listed in the dry deposition column of the FORTRAN Namelist files within the mechanism directories. The GC_*mechname*.nml file lists the gas-phase species, the AE_*mechname*.nml file lists the aerosol species, and the NR_*mechname*.nml lists the nonreactive (inert) species. Species can be removed from the dry deposition file by editing the DDEP column in the NameList file(s).
 
 <a id=wetdep></a>
 ### CTM_WETDEP_1: CCTM hourly cumulative wet deposition file
 
-The 2-D CCTM wet deposition file (WETDEP) includes cumulative hourly wet deposition fluxes (kg hectare<sup>‑1</sup>) for selected model species. CCTM calculates wet deposition for all of the species listed in the wet deposition INCLUDE files within the mechanism INCLUDE directories. Wet deposition INCLUDE files exist for gas-phase species (GC_WDEP.EXT), aerosol species (AE_WDEP.EXT), and inert model species (NR_WDEP.EXT). Species can be removed from the WDEP.EXT files to adjust the number of species that undergo the wet deposition process and are written to the WETDEP output file.
+The 2-D CCTM wet deposition file (WETDEP) includes cumulative hourly wet deposition fluxes (kg hectare<sup>‑1</sup>) for selected model species. CCTM calculates wet deposition for all of the species listed in the wet deposition column of the FORTRAN Namelist files within the mechanism directories. The GC_*mechname*.nml file lists the gas-phase species, the AE_*mechname*.nml file lists the aerosol species, and the NR_*mechname*.nml lists the nonreactive (inert) species. Species can be removed from the wet deposition file by editing the WDEP column in the NameList file(s).
 
-<a id=vis></a>
+<a id=aerovis></a>
 ### CTM_VIS_1: CCTM hourly instantaneous visibility metrics
 
 The 2-D CCTM visibility file contains hourly Mie and reconstructed visual range coefficients (km<sup>‑1</sup>) and normalized extinction coefficients (deciviews).
 
-<a id=avis></a>
+<a id=aerovis></a>
 ### CTM_AVIS_1: CCTM hourly average visibility metrics
 
 The 2-D CCTM visibility file contains hourly Mie and reconstructed visual range coefficients (km<sup>‑1</sup>) and normalized extinction coefficients (deciviews).
@@ -1339,111 +1292,110 @@ Along with the basic outputs detailed in the previous section, CMAQ can be confi
 
 This diagnostic file contains information on the geometric mean diameters and geometric standard deviations for the lognormal modes.
 
-<a id=apmdiag></a>
+<a id=pamdiag></a>
 ### CTM_APMDIAG_1: Average hourly aerosol diagnostics file
 
 This diagnostic file contains information on the geometric mean diameters and geometric standard deviations for the lognormal modes.
 
-<a id=b3gts></a>
+<a id=b3gts_s></a>
 ### B3GTS_S: Biogenic emissions diagnostic file
 
 This optional 2-D CCTM hourly output file contains calculated biogenic emissions in mass units. The B3GTS_S file will be produced only if in-line biogenic emissions are being calculated by CCTM and if the B3GTS_DIAG variable is turned on.
 
-<a id=depv></a>
+<a id=ctm_depv_diag></a>
 ### CTM_DEPV_DIAG: CCTM inline deposition diagnostics file
 
 This 2-D CCTM file contains the deposition velocity (m/s) for each chemical species calculated for the final time step for the hour.
 
-<a id=pt3d></a>
+<a id=ctm_pt3d_diag></a>
 ### CTM_PT3D_DIAG: CCTM PT3D diagnostics file
 Add content
 
-<a id=dust></a>
+<a id=dust_emis></a>
 ### CTM_DUST_EMIS_1
-This optional 2-D CCTM hourly output file contains calculated dust emissions in mass units. The DUST_EMIS_1 file will be produced only if in-line windblown dust emissions are being calculated by CCTM and if the CTM_DUSTEM_DIAG variable is turned on.
+Add content
 
-<a id=aod></a>
+<a id=ctm_aod_1></a>
 ### CTM_AOD_1
-Aerosol optical depths calculated by the CCTM. This file will only be produced if CTM_AOD=Y in the CCTM run script.
+Add content
 
-<a id=ipr></a>
-### CTM\_IPR_[1-3]
-The 3-D CCTM integrated process rate files (IPR) contains hourly concentrations of selected model output species in terms of the model process that contributed to the predicted concentration at each hour. For each grid cell in the process analysis domain (which is most likely a subset of the full modeling domain), the IPR file shows the hourly change in species concentration that is due to particular source/sink processes in the model. The input file procan.inp is used to set the model species for which to capture process analysis information, and the processes to track during the process analysis.
+<a id=ctm_ipr></a>
+### CTM_IPR_[1-3]
+Add content
 
-<a id=irr></a>
-### CTM\_IRR_[1-3] Process analysis output – integrated reaction rates
-The 3-D CCTM integrated reaction rate file (IRR) contains hourly concentrations of selected model output species in terms of the gas-phase chemistry pathways that contributed to the predicted concentration at each hour. For each grid cell in the process analysis domain (which is most likely a subset of the full modeling domain), the IRR file shows the hourly change in species concentration that is due to particular gas-phase chemistry reactions or reaction groups. The input file procan.inp is used to select the process analysis domain, the model species for which to capture process analysis information, and the chemistry reactions or groups of reactions to track during the process analysis.
+<a id=ctm_irr></a>
+### CTM_IRR_[1-3] Process analysis output – integrated reaction rates
+The 3-D CCTM integrated reaction rate file (IRR) contains hourly concentrations of selected model output species in terms of the gas-phase chemistry pathways that contributed to the predicted concentration at each hour. For each grid cell in the process analysis domain (which is most likely a subset of the full modeling domain), the IRR file shows the hourly change in species concentration that is due to particular gas-phase chemistry reactions or reaction groups. The process analysis preprocessor, PROCAN (Section 2.2.6), is used to select the process analysis domain, the model species for which to capture process analysis information, and the chemistry reactions or groups of reactions to track during the process analysis.
 
 <a id=floor></a>
 ### FLOOR: concentration-reset diagnostics file
 
-FLOOR files are optional output diagnostic files which list specific gridboxes/timesteps in which species with negative concentrations are reset to zero.
+FLOOR files are optional output diagnostic files which list specific gridboxes/timesteps in which species with `-ve` concentrations are reset to zero.
 
-<a id=media></a>
+<a id=init_medc_1></a>
 ### MEDIA_CONC: Bidirectional soil NH4+ restart file
 Add content
 
-<a id=depv_mos></a>
+<a id=ctm_depv_mos></a>
 ### CTM_DEPV_MOS
 
-This 3-D CCTM file contains the deposition velocity (m/s) for the final time step of the hour for each land use type within a grid cell.
+This 3-D CCTM file contains the deposition velocity (m s<sup>‑1</sup>) for the final time step of the hour for each land use type within a grid cell.
 
 <a id=ctm_dry_dep_mos></a>
 ### CTM_DRY_DEP_MOS
 
-This 3-D CCTM file contains the total deposition (kg/ha) for the hour for each land use type within each grid cell.
+This 3-D CCTM file contains the total deposition (kg hectare<sup>‑1</sup>) for the hour for each land use type within each grid cell.
 
 <a id=ctm_dry_depv_fst></a>
 ### CTM_DRY_DEP_FST
 
-This 3-D CCTM file contains the total deposition (kg/ha) through the stomatal pathway for the hour for each land use type within each grid cell.
+This 3-D CCTM file contains the total deposition (kg hectare<sup>‑1</sup>) through the stomatal pathway for the hour for each land use type within each grid cell.
 
-<a id=depv_fst></a>
+<a id=ctm_depv_fst></a>
 ### CTM_DEPV_FST
 
-This 3-D CCTM file contains the deposition velocity (m/s) trhough the stomatal pathway for the final time step of the hour for each land use type within a grid cell.
+This 3-D CCTM file contains the deposition velocity (m s<sup>‑1</sup>) through the stomatal pathway for the final time step of the hour for each land use type within a grid cell.
 
-<a id=vdiff_diag></a>
+<a id=ctm_vdiff_diag></a>
 ### CTM_VDIFF_DIAG
 Add content
 
-<a id=vsed_diag></a>
+<a id=ctm_vsed_diag></a>
 ### CTM_VSED_DIAG
 Add content
 
-<a id=ltnghourly></a>
-### LTNG_HOURLY
-Hourly 3-D lightning NO emissions calculated in-line by the CCTM.
+<a id=ltngout></a>
+### LTNGOUT
 
-<a id=ltngcol></a>
-### LTNG_COL
-Hourly column-total lightning NO emissions calculated in-line by the CCTM.
+Add content
+
+<a id=pa></a>
+### PA: Process analysis output – integrated process rate file
+
+The 3-D CCTM integrated process rate file (PA) contains hourly concentrations of selected model output species in terms of the model process that contributed to the concentration in each grid cell at each hour. For each grid cell in the process analysis domain (which is most likely a subset of the full modeling domain), the PA file shows the hourly change in species concentration that is due to the major model processes, such as horizontal and vertical advection, chemistry, and wet deposition. The process analysis preprocessor, PROCAN (Section 2.2.6), is used to select the process analysis domain, the model species for which to capture process analysis information, and the model processes to track during the process analysis.
 
 <a id=play_srcid></a>
 ### PLAY_SRCID
 Add content
 
 <a id=ctm_rj></a>
-### CTM\_RJ_[1-2]: In-line photolysis output – gridded photolysis rates
-The photolysis diagnostic output files (RJ) contain the photolysis rates calculated by CCTM when the in-line photolysis option is used.
+### CTM_RJ_[1,2]: In-line photolysis output – gridded photolysis rates
 
+The photolysis diagnostic output files (RJ) contain the photolysis rates calculated by CCTM when the in-line photolysis option is used.
 <a id=soilout></a>
 ### SOILOUT
 
 Name and location of hourly soil NO emissions file; output when in-line biogenic emissions processing is activated by setting CTM_BIOGEMIS to “T” or “Y”.
 
-<a id=ssemis></a>
+<a id=ctm_ssemis_1></a>
 ### CTM_SSEMIS_1: Sea salt emissions diagnostic file
 
 This optional 2-D CCTM hourly output file contains calculated sea salt emissions. The SSEMIS file will be produced by CCTM only if the AERO5 aerosol mechanism is being used and if the CTM_SSEMDIAG variable is turned on.
 
-<a id=wetdep2></a>
+<a id=ctm_wet_dep_2></a>
 ### CTM_WET_DEP_2: CCTM cloud diagnostics file
 
-The 2-D CCTM wet deposition file (WETDEP2) includes cumulative hourly wet deposition fluxes (kg hectare<sup>‑1</sup>) for selected model species. CCTM calculates wet deposition for all of the species listed in the wet deposition INCLUDE files within the mechanism INCLUDE directories. Wet deposition INCLUDE files exist for gas-phase species (GC_WDEP.EXT), aerosol species (AE_WDEP.EXT), and inert model species (NR_WDEP.EXT). Species can be removed from the WDEP.EXT files to adjust the number of species that undergo the wet deposition process. These extra species are written to the WETDEP2 output file.
-
-In CMAQ, wet deposition is calculated separately for resolved (grid-scale) clouds and for convective (subgrid) clouds. The WETDEP1 files contain the total wet deposition, i.e., the sum of both resolved-scale and subgrid-scale deposition. The WETDEP2 file contains only subgrid-scale deposition, plus some cloud diagnostic variables.
-
+In CMAQ, wet deposition is calculated separately for resolved (grid-scale) clouds and for convective (subgrid) clouds. The WETDEP1 file contains the total wet deposition, i.e., the sum of both resolved-scale and subgrid-scale deposition. The WETDEP2 file contains only subgrid-scale deposition, plus some cloud diagnostic variables.  The 2-D CCTM wet deposition file (WETDEP2) includes cumulative hourly wet deposition fluxes (kg hectare<sup>‑1</sup>) for selected model species. CCTM calculates wet deposition for all of the species listed in the wet deposition column of the FORTRAN Namelist files within the mechanism directories. The GC_*mechname*.nml file lists the gas-phase species, the AE_*mechname*.nml file lists the aerosol species, and the NR_*mechname*.nml lists the nonreactive (inert) species. Species can be removed from the wet deposition file by editing the WDEP column in the NameList file(s).
 
 <!-- BEGIN COMMENT -->
 
