@@ -48,7 +48,7 @@
  set VRSN     = v52                        #> model version
  set EXEC     = sitecmp_dailyo3_${VRSN}.exe        #> executable name for this application
  set CFG      = sitecmp_dailyo3_${VRSN}.cfg        #> BLDMAKE configuration file name
- set BLDER    = ${CMAQ_HOME}/UTIL/bldmake/bldmake_${compiler} #> location of makefile builder executable 
+ setenv BLDER   ${CMAQ_HOME}/UTIL/bldmake/bldmake_${compiler}.exe #> location of makefile builder executable 
 
 #> user choice: copy source files
  set CopySrc         #> copy the source files into the BLD directory
@@ -125,6 +125,8 @@
  echo "lib_2       ioapi/include_files;"                           >> $Cfile
  echo                                                              >> $Cfile
  echo "lib_3       netcdf/include;"                                >> $Cfile
+ echo                                                              >> $Cfile
+ echo "lib_4       ioapi/lib;"                                     >> $Cfile
  echo                                                              >> $Cfile
  set text = "$quote$CPP_FLAGS$quote;"
  echo "cpp_flags   $text"                                          >> $Cfile

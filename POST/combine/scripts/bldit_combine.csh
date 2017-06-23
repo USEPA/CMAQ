@@ -126,6 +126,8 @@
  echo                                                              >> $Cfile
  echo "lib_3       netcdf/include;"                                >> $Cfile
  echo                                                              >> $Cfile
+ echo "lib_4       ioapi/lib;"                                     >> $Cfile
+ echo                                                              >> $Cfile
  set text = "$quote$CPP_FLAGS$quote;"
  echo "cpp_flags   $text"                                          >> $Cfile
  echo                                                              >> $Cfile

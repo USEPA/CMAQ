@@ -15,8 +15,7 @@
 #> Default location for CMAQ model build is one directory above
 #> the repository. The user may also set their own preferred 
 #> directory.
-# set CMAQ_HOME = /home/username/cmaq_project
- set CMAQ_HOME = ~/cmaq_repos/New_Scripts/Test_Build7
+ set CMAQ_HOME = /home/username/cmaq_project
 
 #> This section allows users to choose explicitly which tools
 #> to make available from the repo. For each selected tool,
