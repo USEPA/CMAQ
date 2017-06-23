@@ -100,6 +100,7 @@
       Character( FLN_LEN ) :: lib_2
       Character( FLN_LEN ) :: lib_3
       Logical              :: l_lib_3
+      Character( FLN_LEN ) :: lib_4
 
       Character( FLN_LEN ) :: fstd
       Character( FLN_LEN ) :: dbg
@@ -304,7 +305,14 @@
           If ( verbose ) Write( *, '("LIB_3 set to ",a)' ) Trim( lib_3 )
           Cycle
         End If
+ 
+        If ( key .Eq. 'LIB_4' ) Then
+          lib_4 = fields(2)
+          If ( verbose ) Write( *, '("LIB_4 set to ",a)' ) Trim( lib_4 )
+          Cycle
+        End If
 
+ 
 ! check for Fortran compilers
         If ( key .Eq. 'F_COMPILER' ) Then
           f_compiler = fields(2)

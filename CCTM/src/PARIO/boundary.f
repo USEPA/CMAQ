@@ -97,7 +97,7 @@ C LOCAL VARIABLES:
        INTEGER   GE_SKIP     ! Reference index into GARRAY for east boundary
        INTEGER   GN_SKIP     ! Reference index into GARRAY for north boundary
        INTEGER   GW_SKIP     ! Reference index into GARRAY for west boundary
- 
+
 C .......................................................................
 
 C Define useful values. Names beginning with L refer to
@@ -130,7 +130,7 @@ C the local grid, those with G refer to the global grid.
 
 C Construct SOUTH boundary
 
-      LARRAY = 0.0   ! array assignment
+!     LARRAY = 0.0   ! array assignment
 
       IF ( SOUTH_PE .EQ. -1 ) THEN
          DO IL = 1, NLAYS
