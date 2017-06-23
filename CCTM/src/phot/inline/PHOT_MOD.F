@@ -458,7 +458,8 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
          STRAT_O3_COLUMN = DU_TO_CONC * REAL( TOTAL_O3_COLUMN )
 !         STRAT_O3_COLMIN = 0.10 * STRAT_O3_COLUMN
          STRAT_O3_COLMIN = MIN_STRATO3_FRAC * STRAT_O3_COLUMN
-        SUCCESS = .TRUE.
+         SUCCESS = .TRUE.
+         TROPO_O3_COLUMN = 0.0
          DO L = NLAYS, 1, -1
             DELTA_O3_COLUMN = 100.0 * BLKO3( L ) * BLKDZ( L )
             STRAT_O3_COLUMN = STRAT_O3_COLUMN - DELTA_O3_COLUMN
@@ -1231,16 +1232,16 @@ C-----------------------------------------------------------------------
 
       DO J = 1, NLAYS
 !***  K = NLAYS - J +1
-         RPSINZ  = ( RE + ZD( J ) ) * SINZEN
+         RPSINZ  = REAL( ( RE + ZD( J ) ) * SINZEN , 8 )
          RPSINZ2 = RPSINZ * RPSINZ
 
          IF ( J .LT. NLAYS ) THEN
-            RJ   = RE + ZD( J )
-            RJP1 = RE + ZD( J + 1 )
+            RJ   = REAL( RE + ZD( J ), 8 )
+            RJP1 = REAL( RE + ZD( J + 1 ), 8 )
             DHJ  = DZI( J )
          ELSE
-            RJ   = RE + ZD( J )
-            RJP1 = RE
+            RJ   = REAL( RE + ZD( J ), 8)
+            RJP1 = REAL( RE, 8 )
             DHJ  = DZI( J )
          END IF
 
@@ -1251,7 +1252,7 @@ C-----------------------------------------------------------------------
 
 !***This is equation B1 from Dahlbeck and Stamnes (1991)
 
-         DSJ = ABS( GB - GA )
+         DSJ = ABS( REAL(GB - GA, 4 ) )
 
 !***this is the slant path (Chapman) function.
 
@@ -1347,12 +1348,12 @@ C-----------------------------------------------------------------------
 
 !***  calculate ds/dh of every layer starting at the top
 
-      RPSINZ  = ( REARTH + ZTOA ) * SINZEN
+      RPSINZ  = REAL( ( REARTH + ZTOA ) * SINZEN, 8 )
       RPSINZ2 = RPSINZ * RPSINZ
 
 !!sjr RJ = RE + ZTOA
-      RJ = REARTH + ZTOA
-      RJP1 = RE + ZTOM
+      RJ   = REAL( REARTH + ZTOA, 8 )
+      RJP1 = REAL( RE + ZTOM, 8 )
 
 !***define GA and GB
 
@@ -1361,7 +1362,7 @@ C-----------------------------------------------------------------------
 
 !***This is equation B1 from Dahlbeck and Stamnes (1991)
 
-      DSJ = GB - GA
+      DSJ = REAL( GB - GA, 4 )
 
 !***this is the slant path (Chapman) function.
 

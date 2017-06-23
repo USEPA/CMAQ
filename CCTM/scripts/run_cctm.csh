@@ -8,45 +8,6 @@
 #             http://www.cmascenter.org  (CMAS Website)
 # ===================================================================  
 
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~ Start EPA ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#
-#> Portable Batch System - The following specifications are 
-#> recommended for executing the runscript on the cluster at the 
-#> National Computing Center used primarily by EPA.
-#PBS -j oe
-#PBS -l walltime=10:00:00
-#PBS -l nodes=1:ppn=8
-#PBS -N CMAQ_Bench
-#PBS -q mod3dev
-#PBS -W group_list=mod3dev
-##PBS -o /home/bmurphy/cmaq_repos/New_Scripts/Test_Build
-
-#> The following commands output information from the batch
-#> scheduler to the log files for traceability.
-   if ( $?PBS_JOBID ) then
-      echo Job ID is $PBS_JOBID
-      echo Queue is $PBS_O_QUEUE
-      echo Host is $PBS_O_HOST
-      echo Nodefile is $PBS_NODEFILE
-      cat $PBS_NODEFILE | pr -o5 -4 -t
-      #> Switch to the working directory. By default,
-      #>   PBS launches processes from your home directory.
-      echo Working directory is $PBS_O_WORKDIR
-      cd $PBS_O_WORKDIR
-   endif
-   echo '>>>>>> start model run at ' `date`
-
-#> Configure the system environment and set up the module 
-#> capability
-   limit stacksize unlimited
-   source /etc/profile.d/modules.csh 
-   module load allinea   #> Load this module for using the 
-                         #> debugger (DDT) or the profiler (MAP).
-#
-# ~~~~~~~~~~~~~~~~~~~~~~~~~ End EPA ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
 # ==================================================================
 #> Runtime Environment Options
 # ==================================================================
@@ -54,7 +15,12 @@
 #> Choose compiler and set up CMAQ environment with correct 
 #> libraries using config.cmaq. Options: intel | gcc | pgi
  setenv compiler intel 
- source config_cmaq.csh
+ setenv compilerVrsn 13.1
+
+#> Source the config.cmaq file to set the build environment
+ cd ../..
+ source ./config_cmaq.csh
+ cd CCTM/scripts
 
 #> Set General Parameters for Configuring the Simulation
  set VRSN      = v52               #> Code Version
@@ -70,14 +36,14 @@
 
 #> Set the build directory (this is where the CMAQ executable
 #> is located by default).
- set BLD      = ${CMAQ_WORK}/BLD_CCTM_${VRSN}_${compiler}
+ set BLD      = ${CMAQ_HOME}/CCTM/scripts/BLD_CCTM_${VRSN}_${compiler}
  set EXEC     = CCTM_${VRSN}.exe  
  cat $BLD/CCTM_${VRSN}.cfg; echo "    "; set echo
 
 #> Set Working, Input, and Output Directories
- setenv WORKDIR ${CMAQ_WORK}       #> Working Directory. Where the runscript is.
- setenv INPDIR  /work/MOD3DEV/cmaq_benchmark/SE52BENCH/single_day/cctm_input #> Input Directory
- setenv OUTDIR  ${WORKDIR}/output_CCTM_${RUNID}     #> Output Directory
+ setenv WORKDIR ${CMAQ_HOME}/CCTM/scripts       #> Working Directory. Where the runscript is.
+ setenv OUTDIR  ${CMAQ_DATA}/output_CCTM_${RUNID} #> Output Directory
+ setenv INPDIR  ${CMAQ_DATA}       #> Input Directory
  setenv LOGDIR  ${OUTDIR}          #> Log Directory Location
  setenv NMLpath ${BLD}             #> Location of Namelists. Common places are: 
                                    #>   ${WORKDIR} | ${CCTM_SRC}/MECHS/${MECH} | ${BLD}
@@ -100,7 +66,7 @@ set TSTEP      = 010000            #> output time step interval (HHMMSS)
 if ( $PROC == serial ) then
    setenv NPCOL_NPROW "1 1"; set NPROCS   = 1 # single processor setting
 else
-   @ NPCOL  =  1; @ NPROW =  8
+   @ NPCOL  =  4; @ NPROW =  2
    @ NPROCS = $NPCOL * $NPROW
    setenv NPCOL_NPROW "$NPCOL $NPROW"; 
 endif
@@ -108,7 +74,7 @@ endif
 #> Vertical extent
 set NZ         = 35
 
-#setenv LOGFILE $CMAQ_WORK/$RUNID.log  #> log file name; uncomment to write standard output to a log, otherwise write to screen
+#setenv LOGFILE $CMAQ_HOME/$RUNID.log  #> log file name; uncomment to write standard output to a log, otherwise write to screen
 
 setenv GRID_NAME SE52BENCH         #> check GRIDDESC file for GRID_NAME options
 setenv GRIDDESC $INPDIR/GRIDDESC   #> grid description file
@@ -200,17 +166,6 @@ setenv B3GTS_DIAG Y          #> beis mass emissions diagnostic file [ default: N
 setenv PT3DDIAG N            #> optional 3d point source emissions diagnostic file [ default: N]; ignore if CTM_PT3DEMIS = N
 setenv PT3DFRAC N            #> optional layer fractions diagnostic (play) file(s) [ default: N]; ignore if CTM_PT3DEMIS = N
 setenv REP_LAYER_MIN -1      #> Minimum layer for reporting plume rise info [ default: -1 ]
-
-#> MPI Optimization Flags 
-setenv MPI_SM_POOL 16000     #> increase shared memory pool in case many MPI_SEND headers
-setenv MP_EAGER_LIMIT 65536  #> set MPI message passing buffer size to max
-setenv MP_SINGLE_THREAD yes  #> optimizate for single threaded applications [ default: no ]
-setenv MP_STDOUTMODE ordered #> order output by the processor ID 
-setenv MP_LABELIO yes        #> label output by processor ID [ default: no ]
-setenv MP_SHARED_MEMORY yes  #> force use of shared memory for tasks on same node [ default: no ]
-setenv MP_ADAPTER_USE shared #> share the MP adapter with other jobs 
-setenv MP_CPU_USE multiple   #> share the node with multiple users/jobs
-setenv MP_CSS_INTERRUPT yes  #> specify whether arriving packets generate interrupts [ default: no ]
 
 set DISP = delete            #> [ delete | update | keep ] existing output files
 
@@ -498,21 +453,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #> Executable call for multi PE, configure for your system 
   # set MPI = /usr/local/intel/impi/3.2.2.006/bin64
   # set MPIRUN = $MPI/mpirun
-  # time $MPIRUN -r ssh -np $NPROCS $BLD/$EXEC
-
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~ Start EPA ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-  #> Default Executable for multiprocessor Run
-  time mpirun -np $NPROCS $BLD/$EXEC
-
-  #> Executable for running with Allinea Map Profiler Active
-  # map --profile mpirun -np $NPROCS $BLD/$EXEC
-  
-  #> Executable for running with Allinea DDT Debugger Active
-  # ddt mpirun -np $NPROCS $BLD/$EXEC
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~ End EPA ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  time mpirun -r ssh -np $NPROCS $BLD/$EXEC
 
   date
 
