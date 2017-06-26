@@ -26,7 +26,7 @@ This tutorial assumes you have already downloaded, installed, and compiled the C
 Put the CMAQ test data into the CMAQ_HOME directory on your Linux system. From the CMAQv5.2 installation directory, use the following commands to install the data:
 
 ```
-source config.cmaq
+source config_cmaq.csh
 cd $CMAQ_HOME/data
 mv /path of downloaded data/CMAQv5.2_Benchmark_SingleDay_Input.tar.gz .
 mv /path of downloaded data/CMAQv5.2_Benchmark_SingleDay_Output.tar.gz .
