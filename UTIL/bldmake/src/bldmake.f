@@ -282,7 +282,20 @@
       Write( lfn, '("#   Using GIT repository [",a,"]")' ) Trim( repo )
       If ( Trim( mechanism ) .Ne. 'X' )
      &   Write( lfn, '("#   With mechanism [",a,"]")' )    Trim( mechanism )
+      ! Document Explicit Library Paths
+      Call GETENV( 'IOAPI_MOD_DIR',  ioapi_mod_dir )
+      Call GETENV( 'IOAPI_INCL_DIR', ioapi_incl_dir )
+      Call GETENV( 'IOAPI_LIB_DIR',  ioapi_lib_dir )
+      Call GETENV( 'NETCDF_LIB_DIR', netcdf_lib_dir )
+      Call GETENV( 'MPI_LIB_DIR',    mpi_lib_dir )
+      Write( lfn, '("#   Library Paths:")' ) 
+      Write( lfn, '("#      $(LIB)/ioapi/modules -> ",a)' ) Trim( ioapi_mod_dir )
+      Write( lfn, '("#      $(LIB)/ioapi/include_files -> ",a)' ) Trim( ioapi_incl_dir )
+      Write( lfn, '("#      $(LIB)/ioapi/lib -> ",a)' ) Trim( ioapi_lib_dir )
+      Write( lfn, '("#      $(LIB)/mpi -> ",a)' ) Trim( mpi_lib_dir )
+      Write( lfn, '("#      $(LIB)/netcdf -> ",a)' ) Trim( netcdf_lib_dir )
 
+      ! Begin Makefile Commands
       Write( lfn, '(/" EXEC = ",a)' ) Trim( model )
 
       Write( lfn, '(/" FC = ",a)' ) Trim( f_compiler )
@@ -290,11 +303,11 @@
 
       Write( lfn, '(/" LIB = ",a)' ) Trim( lib_base )
       Write( lfn, '( " include_path = -I $(LIB)/",a,1x,a)' ) Trim( lib_1 ), backslash 
-      If ( serial ) Then
-         Write( lfn, '( "                -I $(LIB)/",a,1x,a)' ) Trim( lib_2 )
-      Else
+      If ( l_lib_3 ) Then
          Write( lfn, '( "                -I $(LIB)/",a,1x,a)' ) Trim( lib_2 ), backslash 
          Write( lfn, '( "                -I $(LIB)/",a)' )      Trim( lib_3 )
+      Else
+         Write( lfn, '( "                -I $(LIB)/",a,1x,a)' ) Trim( lib_2 )
       End If
 
       Write( lfn, '(/" WARN = ")' )
@@ -336,7 +349,7 @@
         Write( *, '("  CPP Flags defined")' )
       End If
 
-      Write( lfn, '(/" IOAPI  = -L$(LIB)/",a,1x,a)' ) Trim( lib_1 ), Trim( ioapi )
+      Write( lfn, '(/" IOAPI  = -L$(LIB)/",a,1x,a)' ) Trim( lib_4 ), Trim( ioapi )
       Write( lfn, '( " NETCDF = -L$(LIB)/",a,1x,a)' ) "netcdf/lib", Trim( netcdf )
       If ( serial ) Then
          Write( lfn, '( " LIBRARIES = $(IOAPI) $(NETCDF)")' )

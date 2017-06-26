@@ -1,21 +1,19 @@
 CMAQv5.2 Release Notes - October 2016
 =====================================
 
-Refer to the CMAQv5.0 [Technical Documentation](https://www.airqualitymodeling.org/index.php/CMAQ_version_5.0_(February_2012_release)_Technical_Documentation)
-for information on the technical features of this version.  
-
 The Community Multiscale Air Quality (CMAQ) Model version 5.2 is a major update to CMAQ that includes several changes to the science algorithms in the base model.  CMAQ v5.2 was developed by the U.S. EPA with contributions from other research partners. Summarized below are the main enhancements to the modeling system since the previous release, CMAQ v5.1.
 
-# Base Documentation  
+# Getting Started with CMAQ  
 [Building and running CMAQv5.2](../User_Manual/CMAQ_OGD_ch05_sys_req.md)  
 [Building and running WRF-CMAQ Two Way Model](Two_Way_Coupled_WRF-CMAQ.md)
 
 -----
 # Summary of CMAQv5.2 Updates
 
+<a id="chemistry"></a>
 ## Chemistry
 ### Photochemistry
-There are 11 unique gas-phase chemical mechanisms in CMAQv5.2. These are all located in the MECHS/ folder and may be invoked when building the model and Makefile. Variations of Carbon Bond 5 (CB05), Carbon Bond 6 (CB6), RACM2, and SAPRC07 are all available. Specific science updates include the following:  
+There are 10 unique gas-phase chemical mechanisms in CMAQv5.2. These are all located in the MECHS/ folder and may be invoked when building the model and Makefile. Variations of Carbon Bond 5 (CB05), Carbon Bond 6 (CB6), RACM2, and SAPRC07 are all available. Specific science updates include the following:  
   * [CMAQv5.2 Photochemical Mechanisms](CMAQv5.2_Mechanisms.md)
   * [Implementation of CB6r3](CB6_release_notes.md)
   * [Implementation of CB05eh51: Bromine and Iodine Chemistry](Halogen_Chemistry.md)  
@@ -39,9 +37,8 @@ The aerosol module has undergone significant changes that affect both its struct
   * [Update to Speciation of coarse-mode aerosol](Coarse_Aerosol_Speciation.md)
 
 The following structural updates ensure consistent treatment of aerosols in CMAQv5.2 and flexibility as the code is developed in the future:
-  * [New flexibility in Aero_Data table](aero6_6i_6mp_consolidation.md)
+  * [Consolidation of aero module and increased flexibility in AERO_DATA table](aero6_6i_6mp_consolidation.md)
   * [Consistent treatment of aerosol water contribution to second and third aerosol moments](Aerosol_Moment_Consistency.md)
-  * [Consolidation of aero module](aero6_6i_6mp_consolidation.md)
 
 The following updates affect application of CMAQ aerosol components to observation data:
   * [PM Diagnsotic files have been enhanced to provide more detailed and robust information about CMAQ particulate properties](PM_Diagnostic_Files.md)
@@ -60,11 +57,13 @@ These minor updates/bug fixes were necessary:
 
 ### Lightning Interactions
   * [Lightning NO<sub>x</sub> generation has been updated to leverage existing lightning fields for hindsight cases and an improved parameterization for future cases](Lightning_NOx.md)
-  * [Fix hard-coded time-step for lightning NO<sub>x</sub> generation](Wet_Dep_Update.md)
+  * Fix hard-coded time-step for lightning NO<sub>x</sub> generation
 
+<a id="transport"></a>
 ## Transport Processes
   * [The scaling of ozone in the upper troposphere has been corrected using an approach relying on potential vorticity](Potential_Vorticity_Scaling.md)
 
+<a id="exchange"></a>
 ## Air-Surface Exchange
 ### Windblown Dust Emissions
   * [A major improvement was made to the windblown dust generation parameterization](Windblown_Dust_Emis.md)
@@ -77,9 +76,11 @@ Important parameters for soluble gases have been updated to better represent res
 The following minor update repairs an error in the wet deposition calculation:
   * [Correct an intent declaration that resulted in errors when th emodel was not run at one hour intervals](Wet_Dep_Update.md)
 
+<a id="emissions"></a>
 ## Emission Updates
 CMAQ can now read multiple files for fire point sources into the model and apply them to the bulk species emissions rates.
 
+<a id="procan"></a>
 ## Process Analysis
 CCTM can now do process analysis with Integrated Process Rates (IPR) and/or Integrated Reactions Rates (IRR) as a run-time option.
   * [Optional inline IPR and IRR process analysis](inline_procan.md)
@@ -87,9 +88,6 @@ CCTM can now do process analysis with Integrated Process Rates (IPR) and/or Inte
 ## Tools & Utilities
   * [Distribution of SpecDef files and SpecDef_Dep files into mechanism sub-modules](Misc_Aerosol_Operation_Updates.md)
   * [Updates to post-processing tools bldoverlay, combine, hr2day, sitecmp, sitecmp_dailyo3, writesite](Update_POST.md)
-
-## Two-way Coupled WRF-CMAQ
-  * [Building the two-way coupled WRF-CMAQ model](Two_Way_Coupled_WRF-CMAQ.md)
 
 ## Instrumented Models
 The instrumented versions of CMAQv5.2 (e.g. CMAQ-DDM) will be release at a later date.
@@ -100,4 +98,4 @@ New code to allow for multiple fire emission input files was contributed by Dr. 
 -----
 # Release Testing
 
-The CMAQv5.2 release package was tested with the Portland Group 15.7, Intel 16.0, and GNU Fortran 4.8.1 compilers.  In addition to different serial and parallel configurations, the release was tested under different science configurations. See the details of the [CMAQv5.2 Release Test Results][https://www.airqualitymodeling.org/index.php/CMAQ_version_5.2beta_(February_2017_release)_Technical_Documentation].
+The CMAQv5.2 release package was tested with the Portland Group 15.7, Intel 16.0, and GNU Fortran 4.8.1 compilers.  In addition to different serial and parallel configurations, the release was tested under different science configurations. See the details of the [CMAQv5.2 Release Test Results](https://www.airqualitymodeling.org/index.php/CMAQ_version_5.2beta_(February_2017_release)_Technical_Documentation).
