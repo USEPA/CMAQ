@@ -117,9 +117,9 @@ cd $CMAQ_HOME/CCTM/scripts
 ./bldit_cctm.csh [compiler]
 ```
 
-### Run the CCTM Benchmark Script
+### Run the CCTM Benchmark Script ( run)
 
-The default CCTM script in the CMAQ installation is configured to run the benchmark case. You will need to have compiled the CMAQ model builder (Bldmake) and installed the I/O API, netCDF, and MPI libraries before preceding with this step (See [CMAQ OGD Chapter 5](https://github.com/USEPA/CMAQ/blob/5.2/CCTM/docs/User_Manual/CMAQ_OGD_ch05_sys_req.md)).  Use the following commands to run the CCTM benchmark script:
+The default CCTM script in the CMAQ installation is configured to run the benchmark case. You will need to have compiled the CMAQ model builder (Bldmake) and installed the I/O API, netCDF, and MPI libraries before preceding with this step (See [CMAQ OGD Chapter 5](https://github.com/USEPA/CMAQ/blob/5.2/CCTM/docs/User_Manual/CMAQ_OGD_ch05_sys_req.md)).  Use the following commands to run the CCTM benchmark script for a non-mpi run:
 
 ```
 cd $CMAQ_HOME/CCTM/scripts
@@ -128,13 +128,14 @@ run_cctm.csh |& tee run.benchmark.log
 
 ### Confirm that the Benchmark Simulation Completed
 
-To confirm that the benchmark case ran to completion view the run.benchmark.log file. A successful run will contain the following line at the bottom of the log:
+To confirm that the benchmark case ran to completion view the run.benchmark.log file for a non-MPI run, for MPI runs, check each of the CTM_LOG_[ProcessorID]*.log files. A successful run will contain the following line at the bottom of the log:
 
 ``>>---->  Program completed successfully  <----<<``
 
+Note: If you are running on multiple processors the log file for each processor is also moved to the benchmark output directory $CMAQ_DATA/output_CCTM_v52_[compiler]_SE52BENCH and named CTM_LOG_[ProcessorID].v52_gcc_SE52BENCH_20110701 files.
+
 The benchmark output results will have been placed in $CMAQ_DATA/output_CCTM_v52_[compiler]_SE52BENCH and should include 23 netCDF-type files: ACONC, AOD_DIAG, APMDIAG, APMVIS, B3GTS_S, CGRID, CONC, DEPV, DRYDEP, DUSTEMIS, LTNGCOL, LTNGHRLY, MEDIA_CONC, PHOTDIAG1, PHOTDIAG2, PMVIS, SOILOUT, SSEMIS, VDIFF, VSED, WETDEP1, and WETDEP2.
 
-If you are running on multiple processors the CTM_LOG files will also be moved to the output directory: $CMAQ_DATA/output_CCTM_v52_[compiler]_SE52BENCH.
 
 Common errors in a CCTM simulation include the following:
 - Incorrect paths to input files. Look in the CCTM screen output (capture in your log file) for an Error message about an input file not being found.  
