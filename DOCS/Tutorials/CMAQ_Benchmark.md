@@ -132,7 +132,7 @@ To confirm that the benchmark case ran to completion view the run.benchmark.log 
 
 ``>>---->  Program completed successfully  <----<<``
 
-Note: If you are running on multiple processors the log file for each processor is also moved from the $CMAQ_HOME/CCTM/scripts directory to the benchmark output directory $CMAQ_DATA/output_CCTM_v52_[compiler]_SE52BENCH and these log files have the name convention CTM_LOG_[ProcessorID.v52_[compiler]_[CASE]_[RUNDATE].log, ie. CTM_LOG_[ProcessorID].v52_gcc_SE52BENCH_20110701.
+Note: If you are running on multiple processors the log file for each processor is also moved from the $CMAQ_HOME/CCTM/scripts directory to the benchmark output directory "$CMAQ_DATA/output_CCTM_v52_[compiler]_SE52BENCH" and these log files have the name convention "CTM_LOG_[ProcessorID.v52_[compiler]_[CASE]_[RUNDATE].log", ie. "CTM_LOG_[ProcessorID].v52_gcc_SE52BENCH_20110701".
 
 The benchmark output results will have been placed in $CMAQ_DATA/output_CCTM_v52_[compiler]_SE52BENCH and should include 23 netCDF-type files: ACONC, AOD_DIAG, APMDIAG, APMVIS, B3GTS_S, CGRID, CONC, DEPV, DRYDEP, DUSTEMIS, LTNGCOL, LTNGHRLY, MEDIA_CONC, PHOTDIAG1, PHOTDIAG2, PMDIAG, PMVIS, SOILOUT, SSEMIS, VDIFF, VSED, WETDEP1, and WETDEP2.
 
