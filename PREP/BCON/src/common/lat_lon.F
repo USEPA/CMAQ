@@ -112,6 +112,24 @@ C***********************************************************************
          Y = Y0 + FLOAT( ROW ) * SNGL( YCELL )
          CALL UTM2LL( X, Y, ZONE, LON, LAT )
 
+      ELSE IF ( GDTYP .EQ. EQMGRD3 ) THEN   ! Equatorial mercator Coordinates
+         print *,P_ALP,P_BET,P_GAM,XCENT,YCENT
+         IF ( .NOT. SETEQM( SNGL( 1. ),        !  first, initialize
+     &                      SNGL( P_BET ),        !  for EQM2LL()
+     &                      SNGL( P_GAM ),
+     &                      SNGL( XCENT ),
+     &                      SNGL( YCENT ) ) ) THEN
+            MSG = 'Equatorial merc proj setup error for CTM CONC file'
+            CALL M3EXIT( PNAME, 0, 0, MSG, 2 )
+         END IF
+
+         X = X0 + FLOAT( COL ) * SNGL( XCELL )
+         Y = Y0 + FLOAT( ROW ) * SNGL( YCELL )
+         IF ( .NOT. EQM2LL( X, Y, LON, LAT ) ) THEN
+            MSG = 'Equatorial merc conversion error for CTM CONC file'
+            CALL M3EXIT( PNAME, 0, 0, MSG, 2 )
+         END IF 
+
       ELSE                                   !  Unsupported Coordinates
 
          WRITE( MSG, 94000) GDTYP

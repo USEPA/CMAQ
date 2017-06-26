@@ -28,7 +28,6 @@
  set EXT_AGDUST = Y
  set EXT_BCON = Y
  set EXT_ICON = Y
- set EXT_LTNG = Y
  set EXT_MCIP = Y
  
  # Post-Processing Tools
@@ -112,16 +111,6 @@
        mkdir -pv $CMAQ_HOME/PREP/ICON/scripts
     endif
     cp PREP/ICON/scripts/bldit_icon.csh $CMAQ_HOME/PREP/ICON/scripts/bldit_icon.csh
- endif
-
-#===============================================================================
-#> Copy LTNG scripts
-#===============================================================================
- if ( $EXT_LTNG == 'Y' ) then
-    if ( ! -e "$CMAQ_HOME/PREP/ltng/scripts" ) then
-       mkdir -pv $CMAQ_HOME/PREP/ltng/scripts
-    endif
-    cp PREP/ltng/scripts/* $CMAQ_HOME/PREP/ltng/scripts/
  endif
 
 #===============================================================================
