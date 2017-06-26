@@ -74,6 +74,7 @@ mv /path of downloaded data/CMAQv5.2_Benchmark_SingleDay_Input.tar.gz .
 mv /path of downloaded data/CMAQv5.2_Benchmark_SingleDay_Output.tar.gz .
 tar xvzf CMAQv5.2_Benchmark_SingleDay_Input.tar.gz
 tar xvzf CMAQv5.2_Benchmark_SingleDay_Output.tar.gz
+```
 
 ### Build the preprocessor executables
 
