@@ -10,30 +10,6 @@ Benchmarking refers to a simulation that is used to verify that the software is 
 - Following Fortran compiler upgrades
 - Following netCDF or I/O API library upgrades
 
-This tutorial assumes you have already downloaded, installed, and compiled the CMAQ model on your server. For further instructions on those processes, see [Chapter 5 of the CMAQ Operational Guidance Document (OGD)](https://github.com/USEPA/CMAQ/blob/5.2/CCTM/docs/User_Manual/CMAQ_OGD_ch05_sys_req.md).
-
-### Download CMAQ Test Data
-
-- Download CMAQ test input data by navigating to https://www.cmascenter.org/ and logging into the site using the “Log In” shortcut on the top horizontal menu.
-- Click the “Software” pulldown menu on the horizontal menu bar and choose “CMAQ”.
-- Click “DOWNLOAD” on the right-hand side of the page and choose CMAQv5.2, platform, and compiler for your machine and click submit.
-- Choose the Base Model release package and click submit. This page will display links for the source code, benchmark data and utilities.
-- Click "Download" for the CMAQ benchmark input data and CMAQ benchmark output data.
-
-
-### Install CMAQ Test Data
-
-Put the CMAQ test data into the CMAQ_HOME directory on your Linux system. From the CMAQv5.2 installation directory, use the following commands to install the data:
-
-```
-source config_cmaq.csh
-cd $CMAQ_HOME/data
-mv /path of downloaded data/CMAQv5.2_Benchmark_SingleDay_Input.tar.gz .
-mv /path of downloaded data/CMAQv5.2_Benchmark_SingleDay_Output.tar.gz .
-tar xvzf CMAQv5.2_Benchmark_SingleDay_Input.tar.gz 
-tar xvzf CMAQv5.2_Benchmark_SingleDay_Output.tar.gz
-```
-
 ### Install CMAQ and Required Libraries
 
 In the directory where you would like to install CMAQ, create the directory issue the following command to clone the EPA GitHub repository for CMAQv5.2:
@@ -77,6 +53,27 @@ Links to these libraries will automatically be created when you run any of the b
 ./config_cmaq.csh [compiler]
 ```
 
+
+### Download CMAQ Test Data
+
+- Download CMAQ test input data by navigating to https://www.cmascenter.org/ and logging into the site using the ?~@~\Log In?~@~] shortcut on the top horizontal menu.
+- Click the ?~@~\Software?~@~] pulldown menu on the horizontal menu bar and choose ?~@~\CMAQ?~@~].
+- Click ?~@~\DOWNLOAD?~@~] on the right-hand side of the page and choose CMAQv5.2, platform, and compiler for your machine and click submit.
+- Choose the Base Model release package and click submit. This page will display links for the source code, benchmark data and utilities.
+- Click "Download" for the CMAQ benchmark input data and CMAQ benchmark output data.
+
+
+### Install CMAQ Test Data
+
+Put the CMAQ test data into the CMAQ_HOME directory on your Linux system. From the CMAQv5.2 installation directory, use the following commands to install the data:
+
+```
+source config_cmaq.csh
+cd $CMAQ_HOME/data
+mv /path of downloaded data/CMAQv5.2_Benchmark_SingleDay_Input.tar.gz .
+mv /path of downloaded data/CMAQv5.2_Benchmark_SingleDay_Output.tar.gz .
+tar xvzf CMAQv5.2_Benchmark_SingleDay_Input.tar.gz
+tar xvzf CMAQv5.2_Benchmark_SingleDay_Output.tar.gz
 
 ### Build the preprocessor executables
 
