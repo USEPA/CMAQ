@@ -98,20 +98,20 @@
 #> Copy BCON scripts
 #===============================================================================
  if ( $EXT_BCON == 'Y' ) then
-    if ( ! -e "$CMAQ_HOME/PREP/bc/BCON/scripts" ) then
-       mkdir -pv $CMAQ_HOME/PREP/bc/BCON/scripts
+    if ( ! -e "$CMAQ_HOME/PREP/BCON/scripts" ) then
+       mkdir -pv $CMAQ_HOME/PREP/BCON/scripts
     endif
-    cp PREP/bc/BCON/scripts/bldit_bcon.csh $CMAQ_HOME/PREP/bc/BCON/scripts/bldit_bcon.csh
+    cp PREP/BCON/scripts/bldit_bcon.csh $CMAQ_HOME/PREP/BCON/scripts/bldit_bcon.csh
  endif
 
 #===============================================================================
 #> Copy ICON scripts
 #===============================================================================
  if ( $EXT_ICON == 'Y' ) then
-    if ( ! -e "$CMAQ_HOME/PREP/ic/ICON/scripts" ) then
-       mkdir -pv $CMAQ_HOME/PREP/ic/ICON/scripts
+    if ( ! -e "$CMAQ_HOME/PREP/ICON/scripts" ) then
+       mkdir -pv $CMAQ_HOME/PREP/ICON/scripts
     endif
-    cp PREP/ic/ICON/scripts/bldit_icon.csh $CMAQ_HOME/PREP/ic/ICON/scripts/bldit_icon.csh
+    cp PREP/ICON/scripts/bldit_icon.csh $CMAQ_HOME/PREP/ICON/scripts/bldit_icon.csh
  endif
 
 #===============================================================================
