@@ -27,7 +27,7 @@ Put the CMAQ test data into the CMAQ_HOME directory on your Linux system. From t
 
 ```
 source config.cmaq
-cd $CMAQ_HOME
+cd $CMAQ_HOME/data
 mv /path of downloaded data/CMAQv5.2_Benchmark_SingleDay_Input.tar.gz .
 mv /path of downloaded data/CMAQv5.2_Benchmark_SingleDay_Output.tar.gz .
 tar xvzf CMAQv5.2_Benchmark_SingleDay_Input.tar.gz 
@@ -81,7 +81,7 @@ Links to these libraries will automatically be created when you run any of the b
 ### Build the preprocessor executables
 
 ```
-cd $CMAQ_HOME/PREP/bcon/scripts
+cd $CMAQ_HOME/PREP/icon/scripts
 ./bldit.icon [compiler]
 ```
 
@@ -128,13 +128,13 @@ run_cctm.csh |& tee run.benchmark.log
 
 ### Confirm that the Benchmark Simulation Completed
 
-To confirm that the benchmark case ran to completion view the run.benchmark.log file for a non-MPI run, for MPI runs, check each of the CTM_LOG_[ProcessorID]*.log files. A successful run will contain the following line at the bottom of the log:
+To confirm that the benchmark case ran to completion view the run.benchmark.log file for a non-MPI run, for MPI runs, check each of the CTM_LOG_[ProcessorID]*.log files. A successful run will contain the following line at the bottom of the log(s):
 
 ``>>---->  Program completed successfully  <----<<``
 
-Note: If you are running on multiple processors the log file for each processor is also moved to the benchmark output directory $CMAQ_DATA/output_CCTM_v52_[compiler]_SE52BENCH and named CTM_LOG_[ProcessorID].v52_gcc_SE52BENCH_20110701 files.
+Note: If you are running on multiple processors the log file for each processor is also moved from the $CMAQ_HOME/CCTM/scripts directory to the benchmark output directory $CMAQ_DATA/output_CCTM_v52_[compiler]_SE52BENCH and these log files have the name convention CTM_LOG_[ProcessorID.v52_[compiler]_[CASE]_[RUNDATE].log, ie. CTM_LOG_[ProcessorID].v52_gcc_SE52BENCH_20110701.
 
-The benchmark output results will have been placed in $CMAQ_DATA/output_CCTM_v52_[compiler]_SE52BENCH and should include 23 netCDF-type files: ACONC, AOD_DIAG, APMDIAG, APMVIS, B3GTS_S, CGRID, CONC, DEPV, DRYDEP, DUSTEMIS, LTNGCOL, LTNGHRLY, MEDIA_CONC, PHOTDIAG1, PHOTDIAG2, PMVIS, SOILOUT, SSEMIS, VDIFF, VSED, WETDEP1, and WETDEP2.
+The benchmark output results will have been placed in $CMAQ_DATA/output_CCTM_v52_[compiler]_SE52BENCH and should include 23 netCDF-type files: ACONC, AOD_DIAG, APMDIAG, APMVIS, B3GTS_S, CGRID, CONC, DEPV, DRYDEP, DUSTEMIS, LTNGCOL, LTNGHRLY, MEDIA_CONC, PHOTDIAG1, PHOTDIAG2, PMDIAG, PMVIS, SOILOUT, SSEMIS, VDIFF, VSED, WETDEP1, and WETDEP2.
 
 
 Common errors in a CCTM simulation include the following:
