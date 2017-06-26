@@ -56,9 +56,9 @@ Links to these libraries will automatically be created when you run any of the b
 
 ### Download CMAQ Test Data
 
-- Download CMAQ test input data by navigating to https://www.cmascenter.org/ and logging into the site using the ?~@~\Log In?~@~] shortcut on the top horizontal menu.
-- Click the ?~@~\Software?~@~] pulldown menu on the horizontal menu bar and choose ?~@~\CMAQ?~@~].
-- Click ?~@~\DOWNLOAD?~@~] on the right-hand side of the page and choose CMAQv5.2, platform, and compiler for your machine and click submit.
+- Download CMAQ test input data by navigating to https://www.cmascenter.org/ and logging into the site using the Log In shortcut on the top horizontal menu.
+- Click the Software pulldown menu on the horizontal menu bar and choose CMAQ.
+- Click DOWNLOAD on the right-hand side of the page and choose CMAQv5.2, platform, and compiler for your machine and click submit.
 - Choose the Base Model release package and click submit. This page will display links for the source code, benchmark data and utilities.
 - Click "Download" for the CMAQ benchmark input data and CMAQ benchmark output data.
 
