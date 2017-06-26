@@ -22,7 +22,7 @@ For instructions on installing CMAQ from tarballs, see [Chapter 5](CMAQ_OGD_ch05
 
 #### Configure the CMAQ build environment
 
-*1.* By default, this script will copy configuration, build and run scripts from the repo. An arbitrary folder can be selected by the user by modifying the `CMAQ_HOME` variable in extract_scripts.csh.
+*1.* By default, this script will copy configuration, build and run scripts from the repo. An arbitrary folder can be selected by the user by modifying the `CMAQ_HOME` variable in config_cmaq.csh.
 
 *2.* Install the CMAQ libraries and specify their location in the config_cmaq.csh script.
 
