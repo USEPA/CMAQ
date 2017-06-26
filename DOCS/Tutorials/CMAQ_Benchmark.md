@@ -28,10 +28,10 @@ Put the CMAQ test data into the CMAQ_HOME directory on your Linux system. From t
 ```
 source config.cmaq
 cd $CMAQ_HOME
-mv /path of downloaded data/DATA.CMAQv5.2.tar.gz .
-mv /path of downloaded data/DATA_REF.CMAQv5.2.tar.gz .
-tar xvzf DATA.CMAQv5.2.tar.gz
-tar xvzf DATA_REF.CMAQv5.2.tar.gz
+mv /path of downloaded data/CMAQv5.2_Benchmark_SingleDay_Input.tar.gz .
+mv /path of downloaded data/CMAQv5.2_Benchmark_SingleDay_Output.tar.gz .
+tar xvzf CMAQv5.2_Benchmark_SingleDay_Input.tar.gz 
+tar xvzf CMAQv5.2_Benchmark_SingleDay_Output.tar.gz
 ```
 
 ### Install CMAQ and Required Libraries
@@ -132,7 +132,7 @@ To confirm that the benchmark case ran to completion view the run.benchmark.log 
 
 ``>>---->  Program completed successfully  <----<<``
 
-The benchmark output results will have been placed in $CMAQ_DATA/cctm/ and should include fifteen netCDF-type files: ACONC, AERODIAM, AEROVIS, B3GTS_S, CGRID, CONC, DEPV, DRYDEP, MEDIA_CONC, PHOTDIAG1, PHOTDIAG2, SOILOUT, SSEMIS, WETDEP1, and WETDEP2.
+The benchmark output results will have been placed in $CMAQ_DATA/SE52BENCH/ and should include fifteen netCDF-type files: ACONC, AERODIAM, AEROVIS, B3GTS_S, CGRID, CONC, DEPV, DRYDEP, MEDIA_CONC, PHOTDIAG1, PHOTDIAG2, SOILOUT, SSEMIS, WETDEP1, and WETDEP2.
 
 Common errors in a CCTM simulation include the following:
 - Incorrect paths to input files. Look in the CCTM screen output (capture in your log file) for an Error message about an input file not being found.  
