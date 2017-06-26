@@ -318,7 +318,7 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo "lib_2       ioapi/include_files;"                           >> $Cfile
  echo                                                              >> $Cfile
  if ( $?ParOpt ) then
-    echo "lib_3       ${quote}mpi/include -I.$quote;"              >> $Cfile
+    echo "lib_3       ${quote}mpi -I.$quote;"              >> $Cfile
     echo                                                           >> $Cfile
  endif
  echo                                                              >> $Cfile

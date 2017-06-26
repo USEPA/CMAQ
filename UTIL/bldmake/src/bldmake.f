@@ -282,6 +282,12 @@
       Write( lfn, '("#   Using GIT repository [",a,"]")' ) Trim( repo )
       If ( Trim( mechanism ) .Ne. 'X' )
      &   Write( lfn, '("#   With mechanism [",a,"]")' )    Trim( mechanism )
+
+      ! Document Explicit Compiler Execution Paths
+      Write( lfn, '("#   Full Compiler Paths when Makefile was Built:")' ) 
+      Write( lfn, '("#       FC = ",a)' ) Trim( f_compiler_path )
+      Write( lfn, '("#       CC = ",a)' ) Trim( c_compiler_path )
+
       ! Document Explicit Library Paths
       Call GETENV( 'IOAPI_MOD_DIR',  ioapi_mod_dir )
       Call GETENV( 'IOAPI_INCL_DIR', ioapi_incl_dir )
