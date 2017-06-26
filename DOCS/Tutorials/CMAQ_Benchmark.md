@@ -86,7 +86,7 @@ cd $CMAQ_HOME/PREP/bcon/scripts
 ```
 
 ```
-cd $CMAQ_HOME
+cd $CMAQ_HOME/PREP/bcon/scripts
 ./bldit.bcon [compiler]
 ```
 
@@ -132,7 +132,9 @@ To confirm that the benchmark case ran to completion view the run.benchmark.log 
 
 ``>>---->  Program completed successfully  <----<<``
 
-The benchmark output results will have been placed in $CMAQ_DATA/SE52BENCH/ and should include fifteen netCDF-type files: ACONC, AERODIAM, AEROVIS, B3GTS_S, CGRID, CONC, DEPV, DRYDEP, MEDIA_CONC, PHOTDIAG1, PHOTDIAG2, SOILOUT, SSEMIS, WETDEP1, and WETDEP2.
+The benchmark output results will have been placed in $CMAQ_DATA/output_CCTM_v52_[compiler]_SE52BENCH and should include 23 netCDF-type files: ACONC, AOD_DIAG, APMDIAG, APMVIS, B3GTS_S, CGRID, CONC, DEPV, DRYDEP, DUSTEMIS, LTNGCOL, LTNGHRLY, MEDIA_CONC, PHOTDIAG1, PHOTDIAG2, PMVIS, SOILOUT, SSEMIS, VDIFF, VSED, WETDEP1, and WETDEP2.
+
+If you are running on multiple processors the CTM_LOG files will also be moved to the output directory: $CMAQ_DATA/output_CCTM_v52_[compiler]_SE52BENCH.
 
 Common errors in a CCTM simulation include the following:
 - Incorrect paths to input files. Look in the CCTM screen output (capture in your log file) for an Error message about an input file not being found.  
