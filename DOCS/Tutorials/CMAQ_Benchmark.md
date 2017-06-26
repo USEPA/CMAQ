@@ -2,7 +2,7 @@
 ### Running the CMAQ Test Case (Benchmarking) ###
 Purpose: This tutorial describes how to run the CMAQ test case and use the result to verify the installation of the software.
 
-CMAQv5.2 is distributed with a complete set of input files required for running the CCTM. These data provide useful examples of the input files needed to run the CCTM. They can also be used to `benchmark` new installations of the software.
+CMAQv5.2 is distributed with a complete set of input files required for running the CCTM. These data provide useful examples of the input files needed to run the CCTM. They can also be used to benchmark new installations of the software.
 
 Benchmarking refers to a simulation that is used to verify that the software is installed correctly.  Benchmarking CMAQ is recommended in the following circumstances:
 - Installation on a new server     
@@ -46,7 +46,7 @@ For instructions on installing CMAQ from tarballs, see [Chapter 5](CMAQ_OGD_ch05
 
 #### Configure the CMAQ build environment
 
-*1.* By default, this script will copy configuration, build and run scripts from the repo. An arbitrary folder can be selected by the user by modifying the `CMAQ_WORK` variable in extract_scripts.csh.
+*1.* By default, this script will copy configuration, build and run scripts from the repo. An arbitrary folder can be selected by the user by modifying the `CMAQ_HOME` variable in extract_scripts.csh.
 
 *2.* Install the CMAQ libraries and specify their location in the config_cmaq.csh script.
 
@@ -81,12 +81,12 @@ Links to these libraries will automatically be created when you run any of the b
 ### Build the preprocessor executables
 
 ```
-cd $CMAQ_WORK/PREP/bcon/scripts
+cd $CMAQ_HOME/PREP/bcon/scripts
 ./bldit.icon [compiler]
 ```
 
 ```
-cd $CMAQ_WORK
+cd $CMAQ_HOME
 ./bldit.bcon [compiler]
 ```
 
@@ -97,14 +97,14 @@ To run the test simulation for the various CMAQ preprocessor programs, change di
 Run ICON to produce initial conditions:
 
 ```
-cd $CMAQ_WORK/PREP/icon/scripts
+cd $CMAQ_HOME/PREP/icon/scripts
 ./run.icon |& tee icon.log
 ```
 
 Run BCON to produce boundary conditions:
 
 ```
-cd $CMAQ_WORK/PREP/bcon/scripts
+cd $CMAQ_HOME/PREP/bcon/scripts
 ./run.bcon |& tee bcon.log
 ```
 
@@ -113,7 +113,7 @@ Check the ICON and BCON log file to ensure that the programs completed successfu
 ### Build the CMAQ executable
 
 ```
-cd $CMAQ_WORK
+cd $CMAQ_HOME/CCTM/scripts
 ./bldit_cctm.csh [compiler]
 ```
 
@@ -122,8 +122,8 @@ cd $CMAQ_WORK
 The default CCTM script in the CMAQ installation is configured to run the benchmark case. You will need to have compiled the CMAQ model builder (Bldmake) and installed the I/O API, netCDF, and MPI libraries before preceding with this step (See [CMAQ OGD Chapter 5](https://github.com/USEPA/CMAQ/blob/5.2/CCTM/docs/User_Manual/CMAQ_OGD_ch05_sys_req.md)).  Use the following commands to run the CCTM benchmark script:
 
 ```
-cd $M3HOME/scripts/cctm
-run.cctm |& tee run.benchmark.log
+cd $CMAQ_HOME/CCTM/scripts
+run_cctm.csh |& tee run.benchmark.log
 ```
 
 ### Confirm that the Benchmark Simulation Completed
