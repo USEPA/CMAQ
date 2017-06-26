@@ -6,35 +6,8 @@
 
 * * *
 
-# CMAQv5.2 Photochemical Mechanisms
-
-**Author/P.O.C.:**, [Golam Sarwar] (mailto:sarwar.golam@epa.gov), National Exposure Research Laboratory, U.S. EPA
-
-## Mechanism Definitions
-
-Photochemical mechanisms define the chemical reactions that destroy or produce gas and aerosol species.  The modeled chemical species used in each mechanism are listed in three CMAQ files:
-- GC namelist for the gas-phase species
-- AE namelist for the aerosol species
-- NR namelist for the non-reactive species
-- TR namelist for tracer species
-
-The photochemical mechanism does not define the reactions and species used in cloud chemistry.
-
-The directories under $CMAQ_HOME/CCTM/src/MECHS contain files that define the chemical species and their reactions for each of the CMAQ chemistry mechanisms. Along with the GC, AE, and NR namelists, a set of other files are used to define the CMAQ mechanisms:
-- The CSQY_DATA_*mechanism* file contains data used for in-line photolysis rates calculations
-- The mech.def file lists the photochemical reactions.
-- The RXNS.F90 files are machine-generated, Fortran source code implementations of the CMAQ mechanisms. The CMAQ utility CHEMMECH uses the mech.def file to generate the RXNS.F90 files for use in compiling the different CMAQ programs.
-- The trac file contains the TR namelists for configuring CMAQ to run with inert tracer species.
-
-## Chemistry Solvers
-
-The directories under $CMAQ_HOME/CCTM/src/gas contain the Fortran source codes for numerical solvers to calculate species concentrations using the different CMAQ chemical mechanisms.
-
-- The ros3 and smvgear solvers work for any mechanism and are based on Rosenbrock and Gear methods, respectively.
-- The ebi_*mechanism* solver only works for the specified *mechanism*. They are optimized solvers based on a Backward Euler Iteration (EBI) method and analytical solutions.
-
-## CMAQ v5.2 Mechanism Listing
-The table below lists the chemistry mechanisms available in CMAQ v5.2.  The entries in the MECHS Module column correspond to the `Mechanism` setting in the CMAQ build scripts. The entries in this column link to documentation for each mechanism.   The next two columns in the table define the aerosol and cloud modules that are compatible with each mechanism. The last column links to the mechanism definition, showing the details of the stoichiometry and kinetics of each mechanism.
+## Appendix A: CMAQ v5.2 Mechanism Table 
+The table below lists the chemistry mechanisms available in CMAQ v5.2.  The entries in the MECHS Module column correspond to the `Mechanism` setting in the CMAQ build scripts. The entries in this column link to documentation for each mechanism.   The next two columns in the table define the aerosol and cloud modules that are compatible with each mechanism. The fourth column links to the mechanism definition, showing the details of the stoichiometry and kinetics of each mechanism, the last column links to the species tables from Appendix A.
 
 |**MECHS Module**|**Aerosol Module**|**Cloud Module**|**Mechanism Definition**|**Species Table**|
 |---|---|---|---|---|
