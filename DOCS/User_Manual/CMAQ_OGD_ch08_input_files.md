@@ -65,9 +65,9 @@ This section describes each of the input files required by the various CMAQ prog
 |[NLDN_STRIKES](#nldn_strikes)| GRDDED3 | Monthly | X\*Y ||
 |[LTNGPARMS_FILE](#ltngparm_file)| GRDDED3 | Monthly | X\*Y ||
 |[BELD4_LU](beld4_lu)| GRDDED3 | Time-invariant |X\*Y||
-|[E2C_SOIL](#e2c_soil)| GRDDED3 |center> Time-invariant | X\*Y||
-|[E2C_FERT](#e2c_fert)| GRDDED3 | Time-invariant |X\*Y||
-|[MEDIA_CONC](#init_medc_1)| GRDDED3 || X\*Y ||
+|[E2C_SOIL](#e2c_soil)| GRDDED3 | Time-invariant | X\*Y||
+|[E2C_FERT](#e2c_fert)| GRDDED3 | Daily |X\*Y||
+|[MEDIA_CONC](#init_medc_1)| GRDDED3 |Hourly| X\*Y ||
 |[INIT_GASC_1](#init_gasc_1)| GRDDED3 || X\*Y ||
 |[INIT_AERO_1](#init_aero_1)| GRDDED3 || X\*Y ||
 |[INIT_NONR_1](#init_nonr_1)| GRDDED3 || X\*Y ||
@@ -1072,7 +1072,7 @@ This is a 3-D daily file created by the EPIC model via the FEST-C interface and 
 
 Used by: CCTM – bidirectional NH<sub>3</sub> flux version only
 
-The ASXfile output for the previous day from the bidirectional NH<sub>3</sub> model is used to initialize the soil conditions for each simulation day.
+The ASXfile output for the previous day from the bidirectional NH<sub>3</sub> and/or Hg model is used to initialize the soil conditions for each simulation day. This file contains soil NH4 concentrations, soil pH, and Soil, vegetation and water Hg.
 
 <a id="grid_cro_2d"></a>
 ### GRID_CRO_2D: Two-dimensional grid cross-point fields
@@ -1334,7 +1334,8 @@ FLOOR files are optional output diagnostic files which list specific gridboxes/t
 
 <a id=init_medc_1></a>
 ### MEDIA_CONC: Bidirectional soil NH4+ restart file
-Add content
+
+This 2-D CCTM file contains the the soil NH<sub>4</sub> and pH concentrations if using the bidirectional NH<sub>3</sub> option and/or the soil, vegetation and water Hg concentrations. This file is used to initialize the next day of the model simulation.
 
 <a id=ctm_depv_mos></a>
 ### CTM_DEPV_MOS
