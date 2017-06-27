@@ -1,67 +1,57 @@
-#! /bin/csh -f
+#!/bin/csh -f
 
-# ====================== BCONv5.2 Build Script ====================== #
-# Usage: bldit.bcon >&! bldit.bcon.log                                #
-# Requirements: I/O API & netCDF libs, Git, and a Fortran compiler    #
-# Note that this script is configured/tested for Red Hat Linux O/S    #
-# The following environment variables must be set for this script to  #
-# build an executable.                                                #
-#   setenv MODEL < Git repository source code >                       #
-#   setenv M3LIB   <code libraries>                                   #
-# To report problems or request help with this script/program:        #
-#             http://www.cmascenter.org/html/help.html                #
-# =================================================================== #
+# ====================== BCONv5.2 Build Script ====================== 
+# Usage: bldit_bcon.csh >&! bldit.bcon.log                                
+# Requirements: I/O API & netCDF libs and a Fortran compiler    
+# Note that this script is configured/tested for Red Hat Linux O/S    
+#
+# To report problems or request help with this script/program:        
+#             http://www.cmascenter.org
+# ===================================================================
 
- set BLD_OS = `uname -s`        ## Script set up for Linux only 
- if ($BLD_OS != 'Linux') then
-    echo "   $BLD_OS -> wrong bldit script for host!"
-    exit 1
+#> Set Compiler Identity by User Input: Options -> intel | pgi | gcc
+ if ( $#argv == 1 ) then
+    setenv compiler $argv[1]
+    setenv compilerVrsn Empty
+ else if ( $#argv == 2 ) then
+    #> Compiler Name and Version have been provided
+    setenv compiler $1
+    setenv compilerVrsn $2
+ else
+    echo "usage: $0 <compiler>"
+    echo " where <compiler> is intel, pgi or gcc"
+    exit(2)
  endif
 
 #> Source the config.cmaq file to set the build environment
- source ../../../../config.cmaq
-
-#> Check for M3HOME and M3LIB settings:
- if ( ! -e $M3HOME || ! -e $M3LIB ) then 
-    echo "   $M3HOME or $M3LIB directory not found"
-    exit 1
- endif
- echo "   Model repository path: $M3HOME"
- echo "            library path: $M3LIB"
-
-#> If $REPO not set, default to $M3HOME
- if ( $?REPO ) then
-    echo "         Model repository path: $REPO"
- else
-    setenv REPO $M3HOME
-    echo " default Model repository path: $REPO"
- endif
+ cd ../../../
+ source ./config_cmaq.csh
 
  set echo
 
-#> Source Code Repository
- setenv REPOROOT $REPO/PREP/bc/BCON/src  #> location of the source code for BLDMAKE
- set MODEL = $REPOROOT             #> location of the BCON source code
- set Mechs = $REPO/CCTM/src/MECHS  #> location of the chemistry mechanism defining files
+# =======================================================================
+#> Begin User Input Section
+# =======================================================================
 
-#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#><#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#
-#>#>#>#>#>#>#>#>#>#>#>#>#># Begin User Input Section #<#<#<#<#<#<#<#<#<#<#<#<#<#
+#> Source Code Locations
+ set BCON_SRC = ${CMAQ_REPO}/PREP/bcon/src #> location of the BCON source code
+ setenv REPOROOT $BCON_SRC
+ set Mechs = ${CMAQ_REPO}/CCTM/src/MECHS   #> location of the chemistry mechanism defining files
 
-#> user choices: base working directory and application ID
- set Base = $cwd                    #> working directory
- set APPL = v52_profile             #> model configuration ID
-#set APPL = v52_m3conc              #> model configuration ID
- set EXEC = BCON_${APPL}_$EXEC_ID   #> executable name for this application
- set CFG  = cfg.$EXEC               #> BLDMAKE configuration file name
+#> Working directory and Version IDs
+ set VRSN  = v52                    #> Code Version
+ set INPT = profile                 #> Input data type: profile or m3conc?
+ set EXEC = BCON_${VRSN}_$INPT.exe  #> executable name for this application
+ set CFG  = BCON_${VRSN}_$INPT.cfg  #> BLDMAKE configuration file name
 
-#> user choice: copy source files
- set CopySrc        # copy the source files into the BLD directory
-
-#set Opt = verbose  # show requested commands as they are executed
-
-#> user choice: make a Makefile
- set MakeFileOnly   # builds a Makefile to make the model, but does not compile -
-                    # comment out to also compile the model (default if not set)
+#> Controls for managing the source code and MPI compilation
+set CompileBLDMAKE                     #> Recompile the BLDMAKE utility from source
+                                       #>   comment out to use an existing BLDMAKE executable
+set CopySrc                            #> copy the source files into the BLD directory
+#set CopySrcTree                       #> copy the source files and directory tree into the build directory
+#set Opt = verbose                     #> show requested commands as they are executed
+#set MakeFileOnly                      #> uncomment to build a Makefile, but do not compile; 
+                                       #>   comment out to compile the model (default if not set)
 
 #>==============================================================================
 #> BCON Science Modules selection
@@ -76,7 +66,8 @@
 #set ModType   = m3conc
 #set ModType   = tracer
 
-#> user choices: mechanism  (see CCTM/src/MECHS for list)
+ set ModMech   = prof_data/cb05_ae6_aq #> static boundary conditions profiles (see $CMAQ_HOME/PREP/bcon/src/prof_data)
+
 #set Mechanism = cb05tucl_ae6_aq/
 #set Mechanism = cb05tump_ae6_aq/
  set Mechanism = cb05e51_ae6_aq/
@@ -93,14 +84,16 @@
 #> Set full path of Fortran 90 compiler
  set FC = ${myFC}
  set FP = $FC
-
-#> Set IO/API version
- set IOAPI = ioapi_3.1
+ setenv BLDER ${CMAQ_HOME}/UTIL/bldmake/bldmake_${compiler}.exe   #> name of model builder executable
 
 #> Set compiler flags
- set xLib_Base  = ${M3LIB}
- set xLib_1     = $IOAPI/Linux2_${system}${compiler_ext}
- set xLib_2     = $IOAPI/ioapi/fixed_src
+ set xLib_Base  = ${CMAQ_LIB}
+ set xLib_1     = ioapi/modules
+ set xLib_2     = ioapi/include_files
+ set xLib_4     = ioapi/lib
+ #set xLib_Base  = ${CMAQ_LIB}
+ #set xLib_1     = ${IOAPI_DIR}/lib 
+ #set xLib_2     =  ${IOAPI_DIR}/include
  set FSTD       = "${myFSTD}"
  set DBG        = "${myDBG}"
  set F_FLAGS    = "${myFFLAGS}"
@@ -108,14 +101,37 @@
  set CPP_FLAGS  = ""
  set LINK_FLAGS = "${myLINK_FLAG}"
 
- set LIB1 = "-lioapi"
- set LIB2 = "-lnetcdff -lnetcdf"
+ set LIB1 = "$ioapi_lib"
+ set LIB2 = "$netcdf_lib $extra_lib"
 
-#> invoke BLDMAKE for serial execution
- set Blder = "$REPO/UTIL/bldmake/src/BLDMAKE -serial -verbose"
+#============================================================================================
+#> Implement User Input
+#============================================================================================
 
-#> The "BLD" directory for compiling source code (and possibly copying the code to)
- set Bld = $Base/BLD_BCON_${APPL}
+#> Check for CMAQ_REPO and CMAQ_LIB settings:
+ if ( ! -e $CMAQ_REPO || ! -e $CMAQ_LIB ) then
+    echo "   $CMAQ_REPO or $CMAQ_LIB directory not found"
+    exit 1
+ endif
+ echo "    Model repository base path: $CMAQ_REPO"
+ echo "                  library path: $CMAQ_LIB"
+
+#> If $CMAQ_MODEL is not set, default to $CMAQ_REPO
+ if ( $?CMAQ_MODEL ) then
+    echo "         Model repository path: $CMAQ_MODEL"
+ else
+
+#> This script was written for Linux hosts only. If
+#> the host system is not Linux, produce an error and stop
+ set BLD_OS = `uname -s`       
+ if ($BLD_OS != 'Linux') then
+    echo "   $BLD_OS -> wrong bldit script for host!"
+    exit 1
+ endif
+
+#> Set and create the "BLD" directory for checking out and compiling 
+#> source code. Move current directory to that build directory.
+ set Bld = $CMAQ_HOME/PREP/bcon/scripts/BLD_BCON_${VRSN}_${INPT}_${compiler}
  if ( ! -e "$Bld" ) then
     mkdir $Bld
  else
@@ -124,19 +140,7 @@
        exit 1
     endif
  endif
-
  cd $Bld
-
-#source $Base/relinc.bcon
-#if ( $status ) exit 1
-
-#set ICL_MECH  = $Mechs/$Mechanism
-#set ICL_TRAC  = $Mechs/$Tracer
-
-#if ( $?CopySrc ) then
-#   /bin/cp -fp ${ICL_MECH}/*    ${Bld}
-#   /bin/cp -fp ${ICL_TRAC}/*    ${Bld}
-#endif
 
  if ( $?CopySrc ) then
     /bin/cp -fp $Mechs/$Mechanism/*.nml $Bld
@@ -148,13 +152,13 @@
 
 #> make the config file
 
- set Cfile = $CFG
+ set Cfile = $CFG.bld
  set quote = '"'
 
  echo                                                               > $Cfile
  echo "model       $EXEC;"                                         >> $Cfile
  echo                                                              >> $Cfile
- echo "repo        $MODEL;"                                        >> $Cfile
+ echo "repo        $BCON_SRC;"                                        >> $Cfile
  echo                                                              >> $Cfile
  echo "mechanism   $Mechanism;"                                    >> $Cfile
  echo                                                              >> $Cfile
@@ -163,6 +167,8 @@
  echo "lib_1       $xLib_1;"                                       >> $Cfile
  echo                                                              >> $Cfile
  echo "lib_2       $xLib_2;"                                       >> $Cfile
+ echo                                                              >> $Cfile
+ echo "lib_4       $xLib_4;"                                       >> $Cfile
  echo                                                              >> $Cfile
  set text = "$quote$CPP_FLAGS$quote;"
  echo "cpp_flags   $text"                                          >> $Cfile
@@ -187,13 +193,7 @@
 
  set text="// mechanism:"
  echo "$text ${Mechanism}"                                         >> $Cfile
- echo "// project repository location: ${MODEL}"                   >> $Cfile
- echo                                                              >> $Cfile
-#if ( $compiler == gfort ) then
-#  set ICL_MECH = '.'
-#endif
-#echo "include SUBST_RXCMMN     $ICL_MECH/RXCM.EXT;"               >> $Cfile
-#echo "include SUBST_RXDATA     $ICL_MECH/RXDT.EXT;"               >> $Cfile
+ echo "// project repository location: ${BCON_SRC}"                >> $Cfile
  echo                                                              >> $Cfile
 
  set text = "common"
@@ -206,14 +206,33 @@
  echo "Module ${ModType};"                                         >> $Cfile
  echo                                                              >> $Cfile
 
+ set text = "cb05, saprc99, saprc07t"
+ echo "// options are" $text                                       >> $Cfile
+ echo "Module ${ModMech};"                                         >> $Cfile
+ echo                                                              >> $Cfile
+
  if ( $?ModMisc ) then
     echo "Module ${ModMisc};"                                      >> $Cfile
     echo                                                           >> $Cfile
  endif
 
-#> make the makefile or the model executable
+# ============================================================================
+#> Create Makefile and Model Executable
+# ============================================================================
 
  unalias mv rm
+
+#> Recompile BLDMAKE from source if requested or if it does not exist
+ if ( $?CompileBLDMAKE || ! -f $BLDER ) then
+   cd ${CMAQ_REPO}/UTIL/bldmake/scripts
+   ./bldit_bldmake.csh
+ endif
+ set Blder = "$BLDER -serial -verbose"
+
+#> Relocate to the BLD_* directory 
+ cd $Bld
+
+#> Run BLDMAKE Utility
  if ( $?MakeFileOnly ) then
     if ( $?CopySrc ) then
        $Blder -makefo $Cfile
@@ -228,31 +247,24 @@
        $Blder -git_local $Cfile
     endif
  endif
- mv Makefile $Bld/Makefile.$compiler
+
+#> Rename Makefile to specify compiler option and link back to Makefile
+ mv Makefile Makefile.$compiler
  if ( -e Makefile.$compiler && -e Makefile ) rm Makefile
  ln -s Makefile.$compiler Makefile
 
+#> Alert user of error in BLDMAKE if it ocurred
  if ( $status != 0 ) then
     echo "   *** failure in $Blder ***"
     exit 1
  endif
- if ( -e "$Base/${CFG}" ) then
-    echo "   >>> previous ${CFG} exists, re-naming to ${CFG}.old <<<"
-    mv $Base/${CFG} $Base/${CFG}.old
- endif
 
- cd $MODEL
- set brnch = `git branch`
- unset echo
- @ i = 0
- while ( $i < $#brnch )
-    @ i++
-    if ( "$brnch[$i]" == "*" ) @ l = $i + 1
- end
- set rep = `echo $cwd | tr "/" "#"`
- set rln = "repo:${rep},branch:${brnch[$l]},compiler:${compiler}"
- set ref = $Bld/$rln
- /bin/touch $ref
- if ( -d $MODEL/branch ) /bin/cp $MODEL/branch/branch.* $Bld
+#> Preserve old Config file, if it exists, before moving new one to 
+#> build directory.
+ if ( -e "$Bld/${CFG}" ) then
+    echo "   >>> previous ${CFG} exists, re-naming to ${CFG}.old <<<"
+    mv $Bld/${CFG} $Bld/${CFG}.old
+ endif
+ mv ${CFG}.bld $Bld/${CFG}
 
  exit
