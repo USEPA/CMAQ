@@ -1533,16 +1533,16 @@ The environment variables listed here are invoked during execution of the progra
 -   Configure the JPROC build script for your application by setting the compilation configuration variables described above.
 -   Invoke the build script to create an executable:
 
-`cd $CMAQ_HOME/PREP/jproc/scripts`
-`./bldit.jproc |& tee build.jproc.log`
+`cd $CMAQ_HOME/UTIL/jproc/scripts`
+`./bldit_jproc.csh |& tee build_jproc.log`
 
 #### Run JPROC ####
 
 Set the run script settings according to the execution configuration variables described above. Run JPROC to produce offline clear-sky photolysis rates for the CCTM:
 
 ```
-cd $CMAQ_HOME/PREP/jproc/scripts
-./run.jproc |& tee run.jproc.log
+cd $CMAQ_HOME/UTIL/jproc/scripts
+./run_jproc.csh |& tee run_jproc.log
 ```
 
 
@@ -1706,8 +1706,8 @@ To port MCIP to different compilers, change the compiler names, locations, and f
 Set the run script settings according to the execution configuration variables described above. Run MCIP to produce meteorology input data for the CCTM:
 
 ```
-cd $CMAQ_HOME/PREP/mcip
-./run.mcip |& tee run.mcip.log
+cd $CMAQ_HOME/PREP/mcip/scripts
+./run_mcip.csh |& tee run_mcip.log
 ```
 
 ---------
