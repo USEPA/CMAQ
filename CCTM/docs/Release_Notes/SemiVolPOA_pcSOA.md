@@ -93,7 +93,7 @@ emis/emis/PT3D_DEFN.F
 
 ## References:
 
-{Are there any references, especially pertaining to the studies cited?}
+Murphy, B. N., Woody, M. C., Jimenez, J. L., Carlton, A. M. G., Hayes, P. L., Liu, S., Ng, N. L., Russell, L. M., Setyan, A., Xu, L., Young, J., Zaveri, R. A., Zhang, Q., and Pye, H. O. T.: Semivolatile POA and parameterized total combustion SOA in CMAQv5.2: impacts on source strength and partitioning, Atmos. Chem. Phys. Discuss., https://doi.org/10.5194/acp-2017-193, in review, 2017.
 
 -----
 ## Internal Records:
