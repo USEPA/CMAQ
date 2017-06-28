@@ -84,6 +84,8 @@ SUBROUTINE pblsup
 !                        both values differ from CPD used by CMAQ (in CONST.EXT)
 !                        and given in MCIP's const_mod.f90.  (T. Spero)
 !           17 Sep 2015  Changed IFMOLACM to IFMOLPX.  (T. Spero)
+!           01 Mar 2017  Corrected the reference longitude for the wind
+!                        direction calculation for both MM5 and WRF.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE mcipparm
@@ -164,7 +166,7 @@ SUBROUTINE pblsup
                          xvv_d(c,rp1,1) + xvv_d(cp1,rp1,1) )
           xwspd10(c,r) = SQRT((uns * uns) + (vns * vns))
           CALL wind (uns, vns, xwspd10(c,r), xwdir10(c,r),  &
-                     xlonc(c,r), met_x_centd, met_cone_fac)
+                     xlonc(c,r), met_proj_clon, met_cone_fac)
         ENDDO
       ENDDO
 
@@ -178,7 +180,7 @@ SUBROUTINE pblsup
           vns = 0.5 * ( xvv_t(c,r,1) + xvv_t(c,rp1,1) )
           xwspd10(c,r) = SQRT((uns * uns) + (vns * vns))
           CALL wind (uns, vns, xwspd10(c,r), xwdir10(c,r),  &
-                     xlonc(c,r), met_x_centd, met_cone_fac)
+                     xlonc(c,r), met_proj_clon, met_cone_fac)
         ENDDO
       ENDDO
 
@@ -324,7 +326,7 @@ SUBROUTINE pblsup
         ! directional shear assumed between layer-1 and surface).
 
         CALL wind (ulev1, vlev1, xwspd10(c,r), xwdir10(c,r),  &
-                   xlonc(c,r), met_x_centd, met_cone_fac)
+                   xlonc(c,r), met_proj_clon, met_cone_fac)
 
         IF ( .NOT. ifw10m ) THEN
           ztemp = 10.0  ! [m]
