@@ -505,16 +505,16 @@ Calculate in-line plume rise for large point sources using the Briggs algorithm 
 -   `Tracer [default trac0] `  
     Specifies tracer species. Invoking inert tracer species in CMAQ requires defining the tracers using namelist files and compiling the CMAQ programs with these files. The setting for this module corresponds to the directory name in the ``$CMAQ_HOME/CCTM/src/MECHS` directory that contains the namelist files for the tracer configuration. The default setting is to not use any tracers.
     - `trac[n]`
--   `ModGas: [default: gas/ebi]`  
+-   `ModGas: [default: gas/ebi_${Mechanism}]`  
      Gas-phase chemistry solver module.
      -  `smvgear`  
      use the SMVGEAR chemistry solver
      -  `ros3`  
-     use the Rosenbrock chemistry solver
+     use gas/the Rosenbrock chemistry solver
      -  `ebi`  
      use the Euler Backward Iterative solver
 -   `ModAero: [default: aero6]`  
-    CMAQ aerosol module.
+    CMAQ aero/aerosol module.
     -   `aero6`  
     sixth-generation modal CMAQ aerosol model with extensions for sea salt emissions and thermodynamics; includes a new formulation for secondary organic aerosol yields
 -   `ModCloud: [default: cloud/acm_ae6]`  
@@ -530,57 +530,61 @@ Calculate in-line plume rise for large point sources using the Briggs algorithm 
 -   `ModUtil: [default: util]`  
     CMAQ utility modules. Do not change this module setting.
     -  `util/util`
+-   `Tracer: [default: trac0]`
+     Add chemically inert tracers to the CCTM, default no tracer species.
+-   `ModPa: [default: procan/pa]`
+    Process analsis is controlled in the CCTM run script. Do not change this module setting.
+     - `procan/pa`
 -   `ModPvO3: [default: pv_o3]`
     Potential vorticity parameterization for free-troposphere exhange of ozone. This option is configured using the potvorO3 variable in the CCTM build script. Do not change this module setting.
     - `pv_o3`
--   `ModPa: [default: procan/pa]`  
-    Process analsis is controlled in the CCTM run script. Do not change this module setting.
-     - `procan/pa`
 
 #### Execution Configuration Variables
 
 The environment variables listed below are invoked during execution of the CCTM and are set in the CCTM run script.
 
+-   `compiler [default: intel]`
+-   `compilerVrsn [default: 13.1]`
+-   `VRSN [default: v52]`
 -   `PROC [default: mpi]`   
 Sets if the CCTM will run in multi-processor or serial mode.
     - `mpi`  
     Use MPI multi-processor configuration. Additional configuration settings are required when selecting `mpi`. The CCTM must have been built to support MPI. The run script requires settings for the number of processors and other MPI configuration variables required by the Linux system.
     - `serial`  
     Run the CCTM in serial, single-processor mode.
--   `APPL [default: None]`  
-    CCTM executable identifier. Must match APPL Variable setting in the CCTM build script.
--   `CFG [default: None]`  
-    Configuration identifier for the CCTM simulation.
--   `MECH [default: None]`  
+-   `MECH [default: None]`
     CMAQ chemical mechanism. Must match Mechanism variable setting in the CCTM build script.
+-   `EMIS [default: 2013ef]`
+-   `APPL [default: SE52BENCH]`  
+    CCTM executable identifier. Must match APPL Variable setting in the CCTM build script.
+-   `RUNID [default: $VRSN_compiler_APPL]
 -   `EXEC [default: CCTM_$APPL_$EXECID]`  
     The name of the CCTM executable.
 
 ##### MPI Configuration
-
 -   `NPCOL_NPROW [default: 1 1]`  
     The numbers of columns and rows for decomposing the modeling domain in an MPI configuration. The product of this pair of numbers must equal the total number of processors allocated to the CCTM simulation. For serial or single-processor MPI runs set to `1 1`. For multi-processor simulations, the number of columns (i.e, the first number in the pair) should be greater than or equal to the number of rows.  For example, for an 8 processor MPI simulation, set to `4 2`
 -   `NPROCS [default: 1]`  
     Number of processors to allocate for the CCTM simulation; equal to the product of NPCOL x NPROW. For serial or single-processor MPI runs set to `1`, otherwise set to the product of the two numbers used in NPCOL_NPROW.
 
+##### Vertical extent
+-    `NZ [default: 35]
+      Set the number of vertical layers. 
+
 ##### Timestep Configuration
 
--   `STDATE`  
-    Simulation start date in Julian format (YYYYDDD)
+-   `NEW_START_TRUE [default: TRUE]`
+     For a model restart set to FALSE
+-   `START_DATE`  
+    Simulation start date in Gregorian format (YYYY-MM-DD)
+-   `END_DATE`
+    Simulation end date in Gregorian format (YYYY-MM-DD)
 -   `STTIME`  
     Simulation start time (HHMMSS)
 -   `NSTEPS [default: 240000]`  
     Number of simulation time steps (HHMMSS)
 -   `TSTEP [default: 010000]`  
     Simulation output time step interval (HHMMSS)
--   `YEAR `  
-    Simulation year specified using 4 digits (YYYY)
--   `MONTH`  
-    Simulation Month specified using 2 digits (MM)
--   `DAY`  
-    Simulation Day specified using 2 digits (DD)
--   `YMD`  
-    Year+Month+Day; automatically calculated by the script
 
 ##### CCTM Configuration Options
 
@@ -590,7 +594,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Name of the grid definition contained in the GRIDDESC file that specifies the horizontal grid for the current application of the model.
 -   `GRIDDESC [default: $CMAQ_HOME/scripts/GRIDDESC1]`  
     Grid description file for setting the horizontal grid definition.
--   `CTM_APPL [default: $APPL]`  
+-   `CTM_APPL [default: ${RUNID}_${YYYYMMDD}]`  
     CCTM log file naming extension.
 -   `CONC_SPCS [if commented out, all species]`  
     Model species to be written to the CCTM CONC file.
@@ -600,7 +604,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Model species for calculating integral average concentrations for each output time step. Options can be any of the standard output species that are written to the CCTM CONC file. The species in this list will be written to the ACONC output file.
 -   `ACONC_BLEV_ELEV [default: if commented out, all layers]`  
     Vertical model layer range for integral average concentrations; this variable sets the lower and upper layers over which to calculate integral average concentrations. For example, setting this variable to “1 5” will produce integral average concentrations for model layers 1 through 5.
--   `AVG_FILE_ENDTIME [default: N]`  
+-   `ACONC_END_TIME [default: N]`  
     Change the time stamp of the ACONC file output time step from the default of the beginning of the hour to the end of the hour.
     - `Y`: Set the time stamp to the end of each hour.
     - `N`: Set the time stamp to the beginning of the hour.
@@ -609,22 +613,24 @@ Sets if the CCTM will run in multi-processor or serial mode.
 
 ##### Synchronization Time Step and Tolerance Options
 
--   `CTM_MAXSYNC [default: 720]`  
+-   `CTM_MAXSYNC [default: 300]`  
     Maximum synchronization time step in seconds
 -   `CTM_MINSYNC [default: 60]`  
     Minimum synchronization time step in seconds
 -   `SIGMA_SYNC_TOP [default: .70]`  
     Top sigma level thru which sync step determined
--   `CTM_ADV_CFL [default: .75]`  
+-   `ADV_HDIV_LIM [default: .95]`
+     Maximum horizontal division limit for advection time step adjustment
+-   `CTM_ADV_CFL [default: .95]`  
     Maximum Courant–Friedrichs–Lewy (cfl) condition
--   `RB_ATOL [default: 1.0E-07]`  
+-   `RB_ATOL [default: 1.0E-09]`  
     Global Rosenbrock (ROS3) chemistry solver absolute tolerance
 
 ##### Science Options
 
 -   `CTM_WB_DUST [default: Y]`  
     Setting to calculate in-line windblown dust emissions in CCTM. Setting this variable to Y requires the availability of gridded land use input files that include the following BELD USGS land use classifications: shrubland, shrubgrass, and sprsbarren. See [Chapter 8](CMAQ_OGD_ch08_input_files.md#Table8-1) for a description of the DUST_LU_1 and DUST_LU_2 input files. Comment out variable or set to Y to turn on; set to N to turn off.
--   `CTM_ERODE_AGLAND [default: N]`  
+-   `CTM_ERODE_AGLAND [default: Y]`  
     Setting to use optional erodible agricultural land classifications for computing windblown dust emissions from agricultural land. Setting this variable to Y requires the availability of gridded crop timing data that describe planting start dates, planting end dates, and harvesting end dates for 18 crop types. See [Chapter 8](CMAQ_OGD_ch08_input_files.md#Table8-1) for a description of the CROPMAP01, CROPMAP04, and CROPMAP08 input files. If CTM_WB_DUST is set to N, this setting will be ignored. Set to Y to turn on; comment out variable or set to N to turn off.
 -    `CTM_WBDUST_BELD [default: BELD3]`  
     Landuse database for identifying dust source regions;  ignore if CTM_WB_DUST = N
@@ -634,7 +640,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Use BELD4 landuse data
 -   `CTM_LTNG_NO [default: Y]`  
     Setting to activate lightning NO emissions. Setting this variable to Y requires additional variables to define the configuration of the lightning NO emissions calculation. See the settings for LTNGNO, LTNGPARAMS, NLDN_STRIKES, and LTNGDIAG below. Set to Y to turn on; comment out variable or set to N to turn off.
--   `CTM_WVEL [default: N]`  
+-   `CTM_WVEL [default: Y]`  
     Setting to output the CCTM-calculated vertical velocities to the CONC file. Set to Y to turn on; comment out variable or set to N to turn off.
 -   `KZMIN [default: Y]`  
     If KZMIN is set to Y, CCTM will read the urban land use fraction variable (PURB) from the GRID_CRO_2D meteorology file and use this information to determine the minimum eddy diffusivity in each grid cell. In CMAQv5, grid cells that are predominantly urban use a KZMIN value of 1.0 m<sup>2</sup>/s and non-urban cells use a value of 0.01 m<sup>2</sup>/s. If this variable is set to N, the PURB variable will not be used and a uniform KZMIN value of 1.0 m<sup>2</sup>/s will be used throughout the modeling domain.
@@ -644,7 +650,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Calculate land use specific deposition velocities and fluxes.
 -   `CTM_FST [default: N]`  
     Use MOSAIC method to get land-use specific stomatal flux.
--   `CTM_ABFLUX [default: N]`  
+-   `CTM_ABFLUX [default: Y]`  
     Activate fertilizer ammonia bidirectional flux for in-line emissions and deposition velocities. If CTM_ILDEPV is set to N this variable is ignored. Setting this variable to Y requires four additional input files that include gridded fractional crop distributions (B4LU_file), soil properties (E2C_Soilfile), fertilizer conditions (E2C_Fertfile), and an agricultural soil initial conditions file (INIT_MEDC_1). Activation of this setting will produce additional variables in the output dry deposition file. See [Chapter 8](CMAQ_OGD_ch08_input_files.md#Table8-1) for a description of the required input files. Set to Y to turn on; comment out or set to N to turn off.
 -   `CTM_HGBIDI [default: N]`  
     Activate mercury bidirectional flux for in-line emissions and deposition velocities. If CTM_ILDEPV is set to N this variable is ignored. Activation of this setting will produce additional variables in the output dry deposition file. Set to Y to turn on; comment out or set to N to turn off.
@@ -654,8 +660,10 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Activate gravitational sedimentation for aerosols. Comment out or set to Y to turn on; set to N to turn off.
 -   `CTM_BIOGEMIS [default: Y]`  
     Calculate biogenic emissions. Comment out or set to Y to turn on; set to N to turn off.  If this option is activated, several additional variables must be set (see the In-line biogenic emissions configuration settings)     
--   `CTM_PT3DEMIS [default: N]`  
+-   `CTM_PT3DEMIS [default: Y]`  
     Calculate plume rise for elevated point sources. Set to Y to turn on; comment out or set N to turn off. If this option is activated several additional variables must be set (see the Inline emissions configuration settings) following variables must be set.
+-   `CTM_ZERO_PCSOA [default: N]`
+     Turn off the emissions of the VOC precursor to pcSOA. The CMAQ dev team recommends leaving pcSOA mass in the model for production runs.
 
 ##### Process analysis options
 
@@ -1485,7 +1493,7 @@ The configuration options listed here are set during compilation of the JPROC ex
     Uncomment to copy the source code into a working build (BLD) directory. If commented, onlhy the compiled object and executable files will be placed in the BLD directory.
 -   `MakefileOnly`
     Uncomment to build a Makefile to compile the executable. Comment out to create a Makefile and compile.
--  `Mechanism: [default: cb05e51_ae6_aq]`  
+-  `Mechanism: [default: cb6r3_ae6_aq]`  
     Specifies the gas-phase, aerosol, and aqueous-phase chemical mechanisms for which to create initial conditions. The choices for the *Mechanism* variable are the mechanism directory names under the `$CMAQ_HOME/CCTM/src/MECHS` directory. Also see the [Mechanism Definitions Table](../Release_Notes/CMAQv5.2_Mechanisms.md)). Examples include:
     -   `cb6r3_ae6_aq`: CB6, revision 3 gas-phase mechanism, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM Other, aqueous/cloud chemistry
     -   `cb05e51_ae6_aq`: CB05 gas-phase mechanism with CMAQv5.1 updates, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM Other, aqueous/cloud chemistry
