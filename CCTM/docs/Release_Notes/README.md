@@ -1,4 +1,4 @@
-CMAQv5.2 Release Notes - October 2016
+CMAQv5.2 Release Notes 
 =====================================
 
 The Community Multiscale Air Quality (CMAQ) Model version 5.2 is a major update to CMAQ that includes several changes to the science algorithms in the base model.  CMAQ v5.2 was developed by the U.S. EPA with contributions from other research partners. Summarized below are the main enhancements to the modeling system since the previous release, CMAQ v5.1.
@@ -58,8 +58,7 @@ These minor updates/bug fixes were necessary:
 
 ### Lightning Interactions
   * [Lightning NO<sub>x</sub> generation has been updated to leverage existing lightning fields for hindsight cases and an improved parameterization for future cases](Lightning_NOx.md)
-  * Fix hard-coded time-step for lightning NO<sub>x</sub> generation
-
+ 
 <a id="transport"></a>
 ## Transport Processes
   * [The scaling of ozone in the upper troposphere has been corrected using an approach relying on potential vorticity](Potential_Vorticity_Scaling.md)

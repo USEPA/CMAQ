@@ -142,6 +142,7 @@ SUBROUTINE setgriddefs
 !                        be consistent with other ACM2 physics in WRF.
 !                        (T. Spero)
 !           17 Sep 2015  Changed IFMOLACM to IFMOLPX.  (T. Spero)
+!           23 Jun 2017  Added MET_HYBRID setting to log output.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE mcipparm
@@ -747,6 +748,13 @@ SUBROUTINE setgriddefs
     yesno = 'NOT'
   ENDIF
   WRITE (*,f6150) '3D RESOLVED CLOUD FRACTION', TRIM(yesno)
+
+  IF ( met_hybrid > 0 ) THEN
+    yesno = ' '
+  ELSE
+    yesno = 'NOT'
+  ENDIF
+  WRITE (*,f6180) 'HYBRID VERTICAL COORDINATE (WRF ONLY)', TRIM(yesno)
 
   WRITE (*,'(/)')
   WRITE (*,f6200) 'Met   ', metcol,  metrow,  metlay

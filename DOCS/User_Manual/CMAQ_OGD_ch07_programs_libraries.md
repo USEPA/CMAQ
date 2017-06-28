@@ -144,7 +144,7 @@ The environment variables listed here are invoked during execution of the progra
 -   `MECH [default: None]`
     CMAQ chemical mechanism. Must match Mechanism variable setting in the BCON build script.
 -   `EXEC: [default: BCON_${APPL}_${EXECID}]`
-    Executable to use for the simulation. The variable CFG is set in the BCON run script. The variable EXECID is set in the config.cmaq configuration file.
+    Executable to use for the simulation. The variable CFG is set in the BCON run script. The variable EXECID is set in the config_cmaq.csh configuration file.
 -   `GRIDDESC: [default: $CMAQ_HOME/scripts/GRIDDESC1]`
     Grid description file for setting the horizontal grid definition.
 -   `GRID_NAME: [default:CMAQ-BENCHMARK]`
@@ -182,7 +182,7 @@ The environment variables listed here are invoked during execution of the progra
 [Chapter 5](CMAQ_OGD_ch05_sys_req.md) provides an overview of how to install and compile the CMAQ pre-processor programs for a test simulation. Follow those steps (summarized below) to compile new versions of BCON.
 
 1. Compile Bldmake, the CMAQ source code and compilation management program. This needs to be done only once—the first time CMAQ is installed.
--   Configure the BCON use the config.cmaq script, which points to the available I/O API and netCDF libraries.
+-   Configure the BCON use the config_cmaq.csh script, which points to the available I/O API and netCDF libraries.
 -   Configure the BCON build script for your application by setting the compilation configuration variables described above.
 -   Invoke the build script to create an executable.
 
@@ -259,11 +259,11 @@ The environment variables listed here are invoked during execution of the progra
 
 #### Compile Calmap
 
-Calmap is compiled with a Makefile. The configuration options in the Makefile include only the compiler and compiler flags to use for building the executable. The Makefile is located in the directory with the Calmap source code `$CMAQ_HOME/PREP/agdust/src`. To compile Calmap, source the config.cmaq file and invoke the Makefile at the command line.
+Calmap is compiled with a Makefile. The configuration options in the Makefile include only the compiler and compiler flags to use for building the executable. The Makefile is located in the directory with the Calmap source code `$CMAQ_HOME/PREP/agdust/src`. To compile Calmap, source the config_cmaq.csh file and invoke the Makefile at the command line.
 
 ```
 cd $CMAQ_HOME/PREP/agdust/src
-source $CMAQ_HOME/config.cmaq
+source $CMAQ_HOME/config_cmaq.csh
 ./make |& tee make.calmap.log
 ```
 
@@ -274,8 +274,8 @@ To port Calmap to different compilers, change the compiler names, locations, and
 Set the run script settings according to the execution configuration variables described above. Run Calmap to produce crop calendar input for the CCTM inline windblown dust model:
 
 ```
-cd $CMAQ_HOME/PREP/agdust
-./run.calmap |& tee run.calmap.log
+cd $CMAQ_HOME/PREP/agdust/scripts
+./run_calmap.csh |& tee run_calmap.log
 ```
 
 --------
@@ -747,7 +747,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 
 ##### Lightning NOx configuration
 
-[CMAQ Lightning NOx Module Documentation](../Release_Notes/Lightning_NOx.md)
+[CMAQ Lightning NOx Module Documentation](../../CCTM/docs/Release_Notes/Lightning_NOx.md)
 
 -   `LTNGNO [default:InLine]`  
     Setting to define whether the lightning emissions calculation will be in-line or off-line. This variable can be set to a gridded netCDF file of lightning NO emissions to use emissions calculated with a preprocessor outside of CCTM. Setting this variable to “inline” activates the in-line emissions calculation in CCTM and requires the LTNGPARMS variable (see below) to define the configuration of the in-line emissions.
@@ -842,7 +842,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 [Chapter 5](CMAQ_OGD_ch05_sys_req.md) provides an overview of how to install and compile the CMAQ pre-processor programs for a test simulation. Follow those steps (summarized below) to compile new versions of CCTM.
 
 1. Compile Bldmake, the CMAQ source code and compilation management program. This needs to be done only once—the first time CMAQ is installed.
--   Configure the CCTM build script to use the config.cmaq script, which points to the available `I/O API` and `netCDF` libraries.
+-   Configure the CCTM build script to use the config_cmaq.csh script, which points to the available `I/O API` and `netCDF` libraries.
 -   Configure the CCTM build script for your application by setting the compilation configuration variables described above.
 -   Invoke the build script to create an executable:
 
@@ -857,7 +857,7 @@ Set the run script settings according to the execution configuration variables d
 
 ```
 cd $CMAQ_HOME/CCTM/scripts
-./run.cctm |& tee run.cctm.log
+./run_cctm.csh |& tee run_cctm.log
 ```
 
 --------
@@ -973,10 +973,10 @@ To compile CHEMMECH, run the build script:
 
 ```
 cd $CMAQ_HOME/UTIL/chemmech/scripts
-./bldit.chemmech |& tee build.chemmech.log
+./bldit_chemmech.csh |& tee bldit_chemmech.log
 ```
 
-To port CHEMMECH to different compilers, change the compiler names, locations, and flags in the config.cmaq script.
+To port CHEMMECH to different compilers, change the compiler names, locations, and flags in the config_cmaq.csh script.
 
 #### Run Chemmech ####
 
@@ -984,7 +984,7 @@ Set the run script settings according to the execution configuration variables d
 
 ```
 cd $CMAQ_HOME/UTIL/chemmech/scripts
-./run.chemmech |& tee run.chemmech.log
+./run_chemmech.csh |& tee run_chemmech.log
 ```
 
 #### CSV2NML usage
@@ -993,14 +993,14 @@ The CSV2NML script is configured to read in a CSV file from the command line and
 
 ```
 cd $CMAQ_HOME/UTIL/nml/scripts
-./csv2nml GC.CSV
+./csv2nml.csh GC.CSV
 ```
 
 There is also a script to convert an existing namelist file to a CSV
 
 ```
 cd $CMAQ_HOME/UTIL/nml/scripts
-./nml2csv GC.nml
+./nml2csv.csh GC.nml
 ```
 
 --------
@@ -1161,7 +1161,7 @@ To compile CREATE_EBI, invoke the build file at the command line:
 
 ```
 cd $CMAQ_HOME/UTIL/create_ebi/scripts
-./bldit.create_ebi |& tee build.create_ebi.log
+./bldit.create_ebi.csh |& tee build.create_ebi.log
 ```
 
 To port CREATE_EBI to different compilers, change the `COMPILER` variable in the bldit script.
@@ -1171,7 +1171,7 @@ To port CREATE_EBI to different compilers, change the `COMPILER` variable in the
 Set the run script settings according to the execution configuration variables described above. Run CREATE_EBI using the following command.
 ```
 cd $CMAQ_HOME/UTIL/create_ebi/scripts
-./run.create_ebi |& tee run.create_ebi.log
+./run.create_ebi.csh |& tee run.create_ebi.log
 ```
 
 ---------
@@ -1266,8 +1266,8 @@ The environment variables listed here are invoked during execution of the progra
     Configuration identifier for the ICON simulation.
 -   `MECH [default: None]`  
     CMAQ chemical mechanism. Must match Mechanism variable setting in the ICON build script.
--   `EXEC: [default: ICON_${APPL}_${EXECID}]`  
-    Executable to use for the simulation. The variable CFG is set in the ICON run script. The variable EXECID is set in the config.cmaq configuration file.
+-   `EXEC: [default: ICON_${APPL}_${EXECID}.exe]`  
+    Executable to use for the simulation. The variable CFG is set in the ICON run script. The variable EXECID is set in the config_cmaq.csh configuration file.
 -   `GRIDDESC: [default: $CMAQ_HOME/scripts/GRIDDESC1]`  
     Grid description file for setting the horizontal grid definition.
 -   `GRID_NAME: [default:CMAQ-BENCHMARK]`  
@@ -1306,7 +1306,7 @@ The environment variables listed here are invoked during execution of the progra
 [Chapter 5](CMAQ_OGD_ch05_sys_req.md) provides an overview of how to install and compile the CMAQ pre-processor programs for a test simulation. Follow those steps (summarized below) to compile new versions of ICON.
 
 1. Compile Bldmake, the CMAQ source code and compilation management program. This needs to be done only once—the first time CMAQ is installed.
--   Configure the ICON use the config.cmaq script, which points to the available I/O API and netCDF libraries.
+-   Configure the ICON use the config_cmaq.csh script, which points to the available I/O API and netCDF libraries.
 -   Configure the ICON build script for your application by setting the compilation configuration variables described above.
 -   Invoke the build script to create an executable:
 
@@ -1428,7 +1428,6 @@ cd $CMAQ_HOME/UTIL/create_ebi/scripts
 ./run.create_ebi |& tee run.create_ebi.log
 ```
 
-<!---
 <a id=JPROC></a>
 
 ## JPROC
@@ -1437,7 +1436,7 @@ cd $CMAQ_HOME/UTIL/create_ebi/scripts
 
 The program JPROC calculates daily clear-sky photolysis rates from look-up tables of molecular absorption cross-section and quantum yield (CSQY) data, and climatologically derived ozone-column and optical depth data. The outputs from JPROC are ASCII look-up tables of daily clear-sky photolysis rates for photochemical reactions in a selected gas-phase photochemical mechanism at different altitudes, latitudes, and hours from noon. The photochemical mechanism from which these rates are derived is selected during compilation of JPROC. The altitudes (meters), latitudes (degrees), and hour angles (from noon) for which the rates are derived are hardwired in the JPROC source code.
 
-CCTM includes an in-line photolysis option that calculates photolysis rates using predicted ozone and aerosols. JPROC is not needed if the in-line photolysis option is selected in CCTM (*ModPhot* set to inline). JPROC is required to produce daily photolysis rate look-up tables if CCTM is compiled with *ModPhot* set to table.
+CCTM currently uses an in-line photolysis option that calculates photolysis rates using predicted ozone and aerosols. JPROC is notused for the default configuration of ModPhot set to  phot/inline). JPROC is required to produce daily photolysis rate look-up tables if CCTM is compiled with *ModPhot* set to phot/table.
 
 ### Files, configuration, and environment variables
 
@@ -1509,7 +1508,7 @@ The environment variables listed here are invoked during execution of the progra
 -   `MECH [default: None]`  
     CMAQ chemical mechanism. Must match Mechanism variable setting in the JPROC build script.
 -   `EXEC: [default: JPROC_${APPL}_${EXECID}]`  
-    Executable to use for the simulation. The variable CFG is set in the JPROC run script. The variable EXECID is set in the config.cmaq configuration file.
+    Executable to use for the simulation. The variable CFG is set in the JPROC run script. The variable EXECID is set in the config_cmaq.csh configuration file.
 -   `STDATE`  
     Start Julian date (YYYYDDD) for computing clear sky photolysis rates.
 -   `ENDATE`  
@@ -1522,7 +1521,7 @@ The environment variables listed here are invoked during execution of the progra
 [Chapter 5](CMAQ_OGD_ch05_sys_req.md) provides an overview of how to install and compile the CMAQ programs for the tutorial simulation. Follow the steps outlined in Chapter 5 (summarized below) to compile new versions of JPROC:
 
 1.   Compile Bldmake, the CMAQ source code and compilation management program. This needs to be done only once—the first time CMAQ is installed.
--   Cnfigure the JPROC build script to use the config.cmaq script, which points to the available I/O API and netCDF libraries.
+-   Cnfigure the JPROC build script to use the config_cmaq.csh script, which points to the available I/O API and netCDF libraries.
 -   Configure the JPROC build script for your application by setting the compilation configuration variables described above.
 -   Invoke the build script to create an executable:
 
@@ -1537,7 +1536,7 @@ Set the run script settings according to the execution configuration variables d
 cd $CMAQ_HOME/PREP/jproc/scripts
 ./run.jproc |& tee run.jproc.log
 ```
----->
+
 
 --------
 
@@ -1684,15 +1683,15 @@ The environment variables listed here are invoked during execution of the progra
 
 [Chapter 5](CMAQ_OGD_ch05_sys_req.md) provides an overview of how to install and compile the CMAQ programs for the tutorial simulation. Follow the steps outlined in Chapter 5 (summarized below) to compile new versions of **MCIP**.
 
-MCIP is compiled with a Makefile. The configuration options in the Makefile include only the compiler and compiler flags to use for building the executable. The Makefile is located in the directory with the MCIP source code (`$CMAQ_HOME/PREP/mcip/src`). To compile MCIP, source the config.cmaq file and invoke the Makefile at the command line:
+MCIP is compiled with a Makefile. The configuration options in the Makefile include only the compiler and compiler flags to use for building the executable. The Makefile is located in the directory with the MCIP source code (`$CMAQ_HOME/PREP/mcip/src`). To compile MCIP, source the config_cmaq.csh file and invoke the Makefile at the command line:
 
 ```
 cd $CMAQ_HOME/PREP/mcip/src/
-source $CMAQ_HOME/config.cmaq
+source $CMAQ_HOME/config_cmaq.csh
 ./make |& tee make.mcip.log
 ```
 
-To port MCIP to different compilers, change the compiler names, locations, and flags in the config.cmaq script.
+To port MCIP to different compilers, change the compiler names, locations, and flags in the config_cmaq.csh script.
 
 #### Run MCIP ####
 

@@ -34,12 +34,12 @@
      #> Create Object Files
      cd $BLDSRCDIR
      foreach file ( $flist )
-        $FC -c $F_FLAGS $file.f -o $BLDDIR/$file.o
+        $myFC -c $myFFLAGS $file.f -o $BLDDIR/$file.o
      end
   
      #> Compile BLDMAKE
      cd $BLDDIR
-     $FC *.o -o $BLDEXE
+     $myFC *.o -o $BLDEXE
      if( ! -e $BLDEXE ) then
          echo " "; echo " ***ERROR*** BLDMAKE Compile failed"; echo " "
          exit 1

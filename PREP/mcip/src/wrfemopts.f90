@@ -35,6 +35,8 @@ SUBROUTINE wrfemopts (txt_cupa, txt_microphys, txt_lwrad, txt_swrad,  &
 !           23 Aug 2013  Updated for WRFv3.4.1 and WRFv3.5 optoins.  (T. Otte)
 !           27 Apr 2015  Updated for WRFv3.6, WRFv3.6.1, and WRFv3.7.1
 !                        options.  (T. Spero)
+!           20 Jun 2017  Updated for WRFv3.8, WRFv3.8.1, and WRFv3.9
+!                        options.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE metinfo
@@ -80,6 +82,8 @@ SUBROUTINE wrfemopts (txt_cupa, txt_microphys, txt_lwrad, txt_swrad,  &
       txt_cupa = 'Tiedtke'
     CASE ( 7 )
       txt_cupa = 'Zhang-McFarlane (CESM)'
+    CASE ( 10 )
+      txt_cupa = 'Modified K-F with PDF trigger'
     CASE ( 11 )
       txt_cupa = 'Multi-Scale Kain-Fritsch'
     CASE ( 14 )
@@ -145,6 +149,10 @@ SUBROUTINE wrfemopts (txt_cupa, txt_microphys, txt_lwrad, txt_swrad,  &
       txt_microphys = 'HUJI spectral bin -- fast'
     CASE ( 32 )
       txt_microphys = 'HUJI spectral bin -- full'
+    CASE ( 50 )
+      txt_microphys = 'P3 1-category'
+    CASE ( 51 )
+      txt_microphys = 'P3 1-cat + dbl-mom cld water'
     CASE ( 95 )
       txt_microphys = 'Ferrier (old Eta) NAM'
     CASE ( 98 )
