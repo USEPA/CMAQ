@@ -16,7 +16,7 @@
   cloud/acm_ae6/aqchem.F
 
 ## References: 
-  H. Simon et al., The development and uses of EPA's SPECIATE database, Atmos. Poll. Res., 1, 196-206, 2010. 
+  H. Simon et al., The development and uses of EPA's SPECIATE database, Atmos. Poll. Res., 1, 196-206, 2010.  
   N. Upadhyay et al., Size-differentiated chemical composition of re-suspended soil dust from the desert southwest United States, Aerosol Air Qual. Res., 15, 387-398, 2015, https://doi.org/10.4209/aaqr.2013.07.0253.
  
 -----
