@@ -36,7 +36,7 @@ Output Diagnostic Files (optional):
 Run Script Configurations:  
 
 There are four options for the CCTM lightning NOx module.
-
+For retropective model simulations, Option 4 will give the most accurate results. Best results will be achieved if lightning assimilation is also used in the met model.
 ### 1. No Lightning NOx ###
 CMAQ will not generate NO from lightning. 
 
