@@ -15,7 +15,7 @@
 #> Default location for CMAQ model build is one directory above
 #> the repository. The user may also set their own preferred 
 #> directory.
- set CMAQ_HOME = /home/username/cmaq_project
+ set CMAQ_HOME = /proj/ie/proj/staff/lizadams/CMAQv52/git_cempd/mvapich2_intel_15.0
 
 #> This section allows users to choose explicitly which tools
 #> to make available from the repo. For each selected tool,
@@ -97,20 +97,22 @@
 #> Copy BCON scripts
 #===============================================================================
  if ( $EXT_BCON == 'Y' ) then
-    if ( ! -e "$CMAQ_HOME/PREP/bc/BCON/scripts" ) then
-       mkdir -pv $CMAQ_HOME/PREP/bc/BCON/scripts
+    if ( ! -e "$CMAQ_HOME/PREP/bcon/scripts" ) then
+       mkdir -pv $CMAQ_HOME/PREP/bcon/scripts
     endif
-    cp PREP/bc/BCON/scripts/bldit_bcon.csh $CMAQ_HOME/PREP/bc/BCON/scripts/bldit_bcon.csh
+    cp PREP/bcon/scripts/bldit_bcon.csh $CMAQ_HOME/PREP/bcon/scripts/bldit_bcon.csh
+    cp PREP/bcon/scripts/run_bcon.csh $CMAQ_HOME/PREP/bcon/scripts/run_bcon.csh
  endif
 
 #===============================================================================
 #> Copy ICON scripts
 #===============================================================================
  if ( $EXT_ICON == 'Y' ) then
-    if ( ! -e "$CMAQ_HOME/PREP/ic/ICON/scripts" ) then
-       mkdir -pv $CMAQ_HOME/PREP/ic/ICON/scripts
+    if ( ! -e "$CMAQ_HOME/PREP/icon/scripts" ) then
+       mkdir -pv $CMAQ_HOME/PREP/icon/scripts
     endif
-    cp PREP/ic/ICON/scripts/bldit_icon.csh $CMAQ_HOME/PREP/ic/ICON/scripts/bldit_icon.csh
+    cp PREP/icon/scripts/bldit_icon.csh $CMAQ_HOME/PREP/icon/scripts/bldit_icon.csh
+    cp PREP/icon/scripts/run_icon.csh $CMAQ_HOME/PREP/icon/scripts/run_icon.csh
  endif
 
 #===============================================================================
