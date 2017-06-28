@@ -138,6 +138,10 @@ SUBROUTINE rdwrfem (mcip_now)
 !           17 Sep 2015  Changed IFMOLACM to IFMOLPX.  (T. Spero)
 !           30 Oct 2015  Changed WRITE statements for printing sampled data to
 !                        log file to eliminate warning messages.  (T. Spero)
+!           22 Nov 2016  Changed urban model variable FRC_URB to FRC_URB2D to
+!                        be consistent with its use in WRF.  (T. Spero)
+!           21 Apr 2017  Updated SFZ0 for MODIS so that category 21 is "Lake".
+!                        (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE date_pack
@@ -233,13 +237,13 @@ SUBROUTINE rdwrfem (mcip_now)
   REAL, PARAMETER :: sfz0modsum ( 33 ) = &  ! summer [cm]
     (/ 50.0,  50.0,  50.0,  50.0,  50.0,   5.0,  6.0,   5.0,   &
        15.0,  12.0,  30.0,  15.0,  80.0,  14.0,  0.1,   1.0,   &
-        0.01, 30.0,  15.0,  10.0,  80.0,  80.0,  80.0,  80.0,  &
+        0.01, 30.0,  15.0,  10.0,   0.01, 80.0,  80.0,  80.0,  &
        80.0,  80.0,  80.0,  80.0,  80.0,  80.0,  80.0,  80.0,  80.0 /)
 
   REAL, PARAMETER :: sfz0modwin ( 33 ) = &  ! winter [cm]
     (/ 50.0,  50.0,  50.0,  50.0,  20.0,   1.0,   1.0,   1.0,  &
        15.0,  50.0,  30.0,   5.0,  80.0,   5.0,   0.1,   1.0,  &
-        0.01, 10.0,  30.0,  15.0,  80.0,  80.0,  80.0,  80.0,  &
+        0.01, 10.0,  30.0,  15.0,   0.01, 80.0,  80.0,  80.0,  &
        80.0,  80.0,  80.0,  80.0,  80.0,  80.0,  80.0,  80.0,  80.0 /)
 
   REAL, PARAMETER :: sfz0nlcd50sum ( 50 ) = &  ! summer [cm]
@@ -1541,14 +1545,14 @@ SUBROUTINE rdwrfem (mcip_now)
       ENDIF
     ENDIF
     IF ( met_urban_phys >= 1 ) THEN  ! urban canopy model used
-      CALL get_var_2d_real_cdf (cdfid, 'FRC_URB', dum2d, it, rcode)
+      CALL get_var_2d_real_cdf (cdfid, 'FRC_URB2D', dum2d, it, rcode)
       IF ( rcode == nf90_noerr ) THEN
         frc_urb(1:nxm,1:nym) = dum2d(:,:)
         frc_urb(nx,:) = frc_urb(nxm,:)
         frc_urb(:,ny) = frc_urb(:,nym)
-        WRITE (*,f6000) 'FRC_URB  ', frc_urb(lprt_metx, lprt_mety), 'fraction'
+        WRITE (*,f6000) 'FRC_URB2D', frc_urb(lprt_metx, lprt_mety), 'fraction'
       ELSE
-        WRITE (*,f9400) TRIM(pname), 'FRC_URB', TRIM(nf90_strerror(rcode))
+        WRITE (*,f9400) TRIM(pname), 'FRC_URB2D', TRIM(nf90_strerror(rcode))
       ENDIF
     ENDIF
     IF ( lpv > 0 ) THEN
