@@ -1382,7 +1382,7 @@ The location of the INLINE_PHOT_PREPROC output files is set in the run script by
 
 #### Compilation Configuration Variables
 
--  `Mechanism: [default: cb05e51_ae6_aq]`  
+-  `Mechanism: [default: cb6r3_ae6_aq]`  
     Specifies the gas-phase, aerosol, and aqueous-phase chemical mechanisms for which to create initial conditions. The choices for the *Mechanism* variable are the mechanism directory names under the `$CMAQ_HOME/CCTM/src/MECHS` directory. Also see the [Mechanism Definitions Table](../Release_Notes/CMAQv5.2_Mechanisms.md)). Examples include:
     -   `cb6r3_ae6_aq`: CB6, revision 3 gas-phase mechanism, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM Other, aqueous/cloud chemistry
     -   `cb05e51_ae6_aq`: CB05 gas-phase mechanism with CMAQv5.1 updates, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM Other, aqueous/cloud chemistry
