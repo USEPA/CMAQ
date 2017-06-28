@@ -27,7 +27,7 @@ Input Files:
 1. Hourly gridded NLDN lightning strike data (24 hours/day).  
 2. Parameter file – ocean mask, climatological IC/CG ratios, and parameters for parameterization scheme when NLDN data are not available (e.g. forecast and future climate studies). Details to be presented next  
 
-[Download hourly NLDN data and a parameter file](https://drive.google.com/drive/folders/0B2kjxCwKICxUVXBtemhXenhxOWM?usp=sharing) on a CONUS 12km domain for 2004-2013 from the CMAS Center.
+[Download hourly NLDN data and a parameter file](https://www.cmascenter.org/download/data/nldn.cfm) on a CONUS 12km domain for 2004-2013 from the CMAS Center.
 
 Output Diagnostic Files (optional):  
 1. Vertical profile (3D)  
