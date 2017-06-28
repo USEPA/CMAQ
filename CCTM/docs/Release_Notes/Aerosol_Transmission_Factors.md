@@ -4,7 +4,7 @@
 
 ## Brief Description
 
-The code currently outputs a factor (one for each mode) quantifying the sharp cutoff for PM2.5. It does so by converting the Aerodynamic Diameter Bound (2.5 um) to Stokes Diameter (used inside CMAQ) with an approximation to the slip correction factor adjustment. These factors are output in the AERODIAM file, if requested. Factors have been added for calculating the sharp cutoff for PM1 and PM10. There was a concern that the numeric approximation used (Jiang et al., 2004) would not be applicable at small sizes. It was found that it is indeed fine to apply at small sizes and so the calculations can be easily transcribed. The subroutine is renamed AERO_INLET.
+CMAQv5.1 already output a factor (one for each mode) quantifying the fraction of the mode that is part of PM2.5. It does so by converting the Aerodynamic Diameter Bound (2.5 um) to Stokes Diameter (used inside CMAQ) with an approximation to the slip correction factor adjustment. These factors are output in the AERODIAM file, if requested. Factors have been added for calculating the sharp cutoff for PM1 and PM10. There was a concern that the numeric approximation used (Jiang et al., 2006) would not be applicable at small sizes. It was found that it is indeed fine to apply at small sizes and so the calculations can be easily transcribed. The subroutine is renamed AERO_INLET.
 
 A new subroutine has also been added (AERO_AMS) that calculates the transmission factor for each mode as if it were sampled by an AMS (with an aerodynamic lens). Several details are considered:
 
@@ -16,7 +16,7 @@ Finally, the output for modal composite densities was added to the AERODIAM (now
 
 ## Significance and Impact
 
-(significance and impact on modeled results and runtime)
+The significance of this improvement will depend on the size of the particles involves (i.e. larger particles will have much less contribution in the PM1 or AMS cutoff regimes). As the description of CMAQ particle size distirbutions continues to improve, these factors will be important to invoke to build confidence that the correct quantities are predicted by the model.
 
 ## Affected Files:
 aero/aero6/aero_driver.F  
@@ -28,7 +28,7 @@ aero/aero6/opdiam.F
 
 1. DeCarlo et al., Particle Morphology and Density Characterization by Combined Mobility and Aerodynamic Diameter Measurements. Part 1: Theory, Aerosol Sci. and Technology, 38:1185-1205, 2004.
 2. Ensberg et al., Inorganic and black carbon aerosols in the Los Angeles Basin during CalNex, Journ. Geophys. Res., 2013.
-3. Jiang et al., 2004.
+3. Jiang, Weimin, et al. "Differences between CMAQ fine mode particle and PM 2.5 concentrations and their impact on model performance evaluation in the lower Fraser valley." Atmospheric Environment 40.26 (2006): 4973-4985.
 
 -----
 ## Internal Records:
