@@ -40,7 +40,7 @@ The following structural updates ensure consistent treatment of aerosols in CMAQ
   * [Consolidation of aero module and increased flexibility in AERO_DATA table](aero6_6i_6mp_consolidation.md)
   * [Consistent treatment of aerosol water contribution to second and third aerosol moments](Aerosol_Moment_Consistency.md)
 
-The following updates affect application of CMAQ aerosol components to observation data:
+The following updates affect how aerosol concentrations from CMAQ output may be interpreted when evaluated against observation data:
   * [PM Diagnsotic files have been enhanced to provide more detailed and robust information about CMAQ particulate properties](PM_Diagnostic_Files.md)
   * [Transmission Factors for PM<sub>1</sub> and AMS size-dependent collection have been added and are output in the diagnostic routine](Aerosol_Transmission_Factors.md)
   * [The estimation of AOD and visibility have been updated with the recent version of the IMPROVE equations](AOD_Visibility.md)
