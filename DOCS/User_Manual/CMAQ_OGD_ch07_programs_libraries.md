@@ -1428,7 +1428,6 @@ cd $CMAQ_HOME/UTIL/create_ebi/scripts
 ./run.create_ebi |& tee run.create_ebi.log
 ```
 
-<!---
 <a id=JPROC></a>
 
 ## JPROC
@@ -1437,7 +1436,7 @@ cd $CMAQ_HOME/UTIL/create_ebi/scripts
 
 The program JPROC calculates daily clear-sky photolysis rates from look-up tables of molecular absorption cross-section and quantum yield (CSQY) data, and climatologically derived ozone-column and optical depth data. The outputs from JPROC are ASCII look-up tables of daily clear-sky photolysis rates for photochemical reactions in a selected gas-phase photochemical mechanism at different altitudes, latitudes, and hours from noon. The photochemical mechanism from which these rates are derived is selected during compilation of JPROC. The altitudes (meters), latitudes (degrees), and hour angles (from noon) for which the rates are derived are hardwired in the JPROC source code.
 
-CCTM includes an in-line photolysis option that calculates photolysis rates using predicted ozone and aerosols. JPROC is not needed if the in-line photolysis option is selected in CCTM (*ModPhot* set to inline). JPROC is required to produce daily photolysis rate look-up tables if CCTM is compiled with *ModPhot* set to table.
+CCTM currently uses an in-line photolysis option that calculates photolysis rates using predicted ozone and aerosols. JPROC is notused for the default configuration of ModPhot set to  phot/inline). JPROC is required to produce daily photolysis rate look-up tables if CCTM is compiled with *ModPhot* set to phot/table.
 
 ### Files, configuration, and environment variables
 
@@ -1537,7 +1536,7 @@ Set the run script settings according to the execution configuration variables d
 cd $CMAQ_HOME/PREP/jproc/scripts
 ./run.jproc |& tee run.jproc.log
 ```
----->
+
 
 --------
 
