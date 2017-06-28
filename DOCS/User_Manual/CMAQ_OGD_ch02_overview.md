@@ -21,6 +21,7 @@ Utility programs distributed with CMAQ include
 -   EBI chemistry solver builder [create_ebi](#create_ebi)
 -   The inline photolysis preprocessor [inline_phot_preproc](#inline_phot_preproc)
 -   The namelist converter [nml](#nml)
+-   The preprocessing program [jproc](#jproc) 
 
 The following sections describe the CMAQ system concept, followed by [details of the programs listed above](#summary-descriptions-of-the-major-cmaq-programs).
 
@@ -146,6 +147,9 @@ The inline photolysis preprocessor creates photolysis reaction parameter tables 
 
 <a id="nml"></a>
 The nml program converts chemical mechanism csv output files from chemmech to the namelist files required by the CMAQ programs.
+
+<a id="jproc"></a>
+JPROC calculates daily clear-sky photolysis rates from look-up tables of molecular absorption cross-section and quantum yield (CSQY) data, and climatologically derived ozone-column and optical depth data.
 
 <!-- BEGIN COMMENT -->
 
