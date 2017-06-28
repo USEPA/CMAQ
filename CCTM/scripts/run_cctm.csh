@@ -167,7 +167,8 @@ setenv PT3DDIAG N            #> optional 3d point source emissions diagnostic fi
 setenv PT3DFRAC N            #> optional layer fractions diagnostic (play) file(s) [ default: N]; ignore if CTM_PT3DEMIS = N
 setenv REP_LAYER_MIN -1      #> Minimum layer for reporting plume rise info [ default: -1 ]
 
-set DISP = delete            #> [ delete | update | keep ] existing output files
+set DISP = delete            #> [ delete | keep ] existing output files
+
 
 # =====================================================================
 #> Input Directories and Filenames
@@ -338,7 +339,6 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 # =====================================================================
 #> Output Files
 # =====================================================================
-
   #> set output file name extensions
   setenv CTM_APPL ${RUNID}_${YYYYMMDD} 
   #> set output file names
@@ -383,17 +383,53 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #> create output directory 
   if ( ! -d "$OUTDIR" ) mkdir -p $OUTDIR
 
-  #> look for existing log files                              
-  set test = `ls CTM_LOG_???.${CTM_APPL}`
-  if ( "$test" != "" ) then
-     if ( $DISP == 'delete' ) then
-       echo " ancillary log files being deleted"
-       foreach file ( $test )
-          echo " deleting $file"
-          rm $file
-       end
-     else
+  #> look for existing log files and output files
+  set log_test = `ls CTM_LOG_???.${CTM_APPL}`
+  set OUT_FILES = "${FLOOR_FILE} ${S_CGRID} ${CTM_CONC_1} ${A_CONC_1} ${MEDIA_CONC}         \
+             ${CTM_DRY_DEP_1} $CTM_DEPV_DIAG $CTM_PT3D_DIAG $B3GTS_S $SOILOUT $CTM_WET_DEP_1\
+             $CTM_WET_DEP_2 $CTM_VIS_1 $CTM_AVIS_1 $CTM_PMDIAG_1 $CTM_APMDIAG_1             \
+             $CTM_RJ_1 $CTM_RJ_2 $CTM_SSEMIS_1 $CTM_DUST_EMIS_1 $CTM_IPR_1 $CTM_IPR_2       \
+             $CTM_IPR_3 $CTM_IRR_1 $CTM_IRR_2 $CTM_IRR_3 $CTM_DRY_DEP_MOS                   \
+             $CTM_DRY_DEP_FST $CTM_DEPV_MOS $CTM_DEPV_FST $CTM_VDIFF_DIAG $CTM_VSED_DIAG    \
+             $CTM_AOD_1 $CTM_LTNGDIAG_1 $CTM_LTNGDIAG_2"
+  set OUT_FILES = `echo $OUT_FILES | sed "s; -v;;g" `
+  echo $OUT_FILES
+  set out_test = `ls $OUT_FILES` 
+
+  #> delete previous output if requested
+  if ( $DISP == 'delete' ) then
+     #> remove previous log files
+     echo " ancillary log files being deleted"
+     foreach file ( $log_test )
+        echo " deleting $file"
+        /bin/rm -f $file  
+     end
+
+     #> remove previous output files
+     echo " output files being deleted"
+     foreach file ( $out_test )
+        echo " deleting $file"
+        /bin/rm -f $file  
+     end
+
+  else
+     #> remove previous log files
+     if ( "$log_test" != "" ) then
        echo "*** Logs exist - run ABORTED ***"
+       echo "*** To overide, set $DISP == delete in run_cctm.csh ***"
+       echo "*** and these files will be automatically deleted. ***"
+       exit 1
+     endif
+
+     #> remove previous output files
+     if ( "$out_test" != "" ) then
+       echo "*** Output Files Exist - run will be ABORTED ***"
+       foreach file ( $out_test )
+          echo " cannot delete $file"
+          /bin/rm -f $file  
+       end
+       echo "*** To overide, set $DISP == delete in run_cctm.csh ***"
+       echo "*** and these files will be automatically deleted. ***"
        exit 1
      endif
   endif
