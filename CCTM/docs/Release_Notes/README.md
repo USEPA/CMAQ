@@ -39,6 +39,7 @@ The aerosol module has undergone significant changes that affect both its struct
 The following structural updates ensure consistent treatment of aerosols in CMAQv5.2 and flexibility as the code is developed in the future:
   * [Consolidation of aero module and increased flexibility in AERO_DATA table](aero6_6i_6mp_consolidation.md)
   * [Consistent treatment of aerosol water contribution to second and third aerosol moments](Aerosol_Moment_Consistency.md)
+  * [Check for feasible aerosol size distirbution properties from initial and boundary conditions](IC_BC_Aerosol_Size_Conditioner.md)
 
 The following updates affect how aerosol concentrations from CMAQ output may be interpreted when evaluated against observation data:
   * [PM Diagnsotic files have been enhanced to provide more detailed and robust information about CMAQ particulate properties](PM_Diagnostic_Files.md)
@@ -78,7 +79,14 @@ The following minor update repairs an error in the wet deposition calculation:
 
 <a id="emissions"></a>
 ## Emission Updates
-CMAQ can now read multiple files for fire point sources into the model and apply them to the bulk species emissions rates.
+CMAQ can now read multiple files for fire point sources into the model and apply them to the bulk species emissions rates:
+  * [Multiple fire inputs capability](Multiple_Fire_Inputs.md)
+
+Improvements to speciation and error checking:  
+  * [Online speciation of biogenic VOCs from BEIS is now available and customizable](GSPRO.md)
+  * [Mapping of emissions input species names to internal CMAQ surrogates is checked and will produce warnings if inconsistent](Emissions_Check.md)
+
+
 
 <a id="procan"></a>
 ## Process Analysis
@@ -86,8 +94,10 @@ CCTM can now do process analysis with Integrated Process Rates (IPR) and/or Inte
   * [Optional inline IPR and IRR process analysis](inline_procan.md)
 
 ## Tools & Utilities
+  * [Update to run and build scripts for the CCTM and all pre- and post-processing tools](runscripts.md)
   * [Distribution of updated SpecDef files and SpecDef_Dep files in mechanism sub-modules](Misc_Aerosol_Operation_Updates.md)
   * [Updates to post-processing tools bldoverlay, combine, hr2day, sitecmp, sitecmp_dailyo3, writesite](Update_POST.md)
+  * [Update to logic for mapping initial and boundary condition surrogates to internal CMAQ species](ICBC_Surrogate_Preference.md)
 
 ## Instrumented Models
 The instrumented versions of CMAQv5.2 (e.g. CMAQ-DDM) will be release at a later date.

@@ -3,7 +3,9 @@
 **Author/P.O.C.:**, [Chris Nolte](mailto:nolte.chris@epa.gov), U.S. EPA
 
 ## Brief Description 
-  Constant values for speciation factors, which used to occur throughout various routines (e.g., VOLINORG, AERO_EMIS, AQCHEM) have been placed into the AERO_DATA module for easy reference. Also, the speciation factor for Mg has been changed from an implicit value of 0.0 to 0.017, consistent with Upadhyay et al.  
+  Constant values for speciation factors, which used to occur throughout various routines (e.g., VOLINORG, AERO_EMIS, AQCHEM) have been placed into the AERO_DATA module for easy reference. Also, the speciation factor for Mg has been changed from an implicit value of 0.0 to 0.017, consistent with Upadhyay et al. 
+
+  POA from dust sources is distributed among the fresh POA and oxidation products of POA in order to conserve both the total dust POA mass and its degree of oxygenation.
 
 ## Significance and Impact
   Small potential impact of ASOIL contribution to PM composition during large dust events. Little to no impact on long-term trends.
