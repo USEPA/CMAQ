@@ -245,7 +245,7 @@ set CopySrc                            #> copy the source files into the BLD dir
 
 #> Rename Makefile to specify compiler option and link back to Makefile
  mv Makefile Makefile.$compiler
- if ( -e Makefile.$compiler && -e Makefile ) rm Makefile
+ # if ( -e Makefile.$compiler && -e Makefile ) rm Makefile
  ln -s Makefile.$compiler Makefile
  
  if ( $status != 0 ) then

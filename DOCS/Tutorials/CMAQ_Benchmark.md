@@ -80,12 +80,12 @@ tar xvzf CMAQv5.2_Benchmark_SingleDay_Output.tar.gz
 
 ```
 cd $CMAQ_HOME/PREP/icon/scripts
-./bldit.icon [compiler]
+./bldit_icon.csh [compiler] [version] |& tee ./bldit_icon.log
 ```
 
 ```
 cd $CMAQ_HOME/PREP/bcon/scripts
-./bldit.bcon [compiler]
+./bldit_bcon.csh [compiler] [version] |& tee ./bldit_bcon.log
 ```
 
 ### Run the preprocessor executables
@@ -96,14 +96,14 @@ Run ICON to produce initial conditions:
 
 ```
 cd $CMAQ_HOME/PREP/icon/scripts
-./run.icon |& tee icon.log
+./run_icon.csh |& tee run_icon.log
 ```
 
 Run BCON to produce boundary conditions:
 
 ```
 cd $CMAQ_HOME/PREP/bcon/scripts
-./run.bcon |& tee bcon.log
+./run_bcon.csh |& tee run_bcon.log
 ```
 
 Check the ICON and BCON log file to ensure that the programs completed successfully. Note that CMAQ test simulation "doesn't" actually require that ICON and BCON be run; the test input data include CCTM-ready initial and boundary conditions files.
