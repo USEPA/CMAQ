@@ -6,7 +6,6 @@ CMAQv5.2 (Unofficial -- Final Release expected June 30, 2017)
 Do NOTE that this code is NOT OFFICIAL until the actual release date.
 
 ## CMAQ Overview
-
 Community Multiscale Air Quality Model [US EPA Website](https://www.epa.gov/cmaq)
 
 CMAQ is an active open-source development project of the U.S. EPA Computational Exposure Division
