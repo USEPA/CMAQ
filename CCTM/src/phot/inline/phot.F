@@ -249,8 +249,8 @@ C...modules
 
       REAL                    :: TOTAL_O3_COLUMN ! total ozone column density, DU
       
-      REAL,              SAVE :: JYEAR          = 0 ! year
-      REAL,              SAVE :: JD_STRAT_O3MIN = 0 ! Julian day (YYYYDDD) of min fraction for stratos ozone
+      REAL,              SAVE :: JYEAR          = 0.0 ! year
+      REAL,              SAVE :: JD_STRAT_O3MIN = 0.0 ! Julian day (YYYYDDD) of min fraction for stratos ozone
 
       INTEGER, PARAMETER  :: DAYS( 12 ) = (/ 0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30 /)
       INTEGER, SAVE       :: IMONTH = 0
@@ -438,7 +438,7 @@ C...modules
  
             N_EXCEED_TROPO3 = 0.0
             TROPO_O3_EXCEED = 0.0
-            TSTEP_COUNT     = 0.0
+            TSTEP_COUNT     = 0
 
             DIAG_WVL( 1 )    = 1
             DIAG_WVL( N_DIAG_WVL ) = NWL
@@ -526,7 +526,7 @@ C...modules
          MAX_TROPOO3_FRAC = MAX( 1.0 - MONTH_STRAT_03_FRAC, 0.0 )
          WRITE( LOGDEV,*)'PHOT: MIN_STRATO3_FRAC = ',MIN_STRATO3_FRAC 
          
-         JD_STRAT_O3MIN = JDATE
+         JD_STRAT_O3MIN = REAL( JDATE, 4)
       END IF
 !...initialize variables tracking whether stratosphere ozone column satisfies
 !...climatological averages.

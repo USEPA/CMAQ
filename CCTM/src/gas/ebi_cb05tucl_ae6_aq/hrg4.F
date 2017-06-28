@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the CB05TUCL family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, May 25, 2016
+C  REVISION HISTORY: Created by EBI solver program, May 26, 2017
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C**********************************************************************
@@ -99,17 +99,17 @@ c..Loss frequency of NO3 ( except NO3 + NO3 if present )
      &    +                 RKI( 136 ) * YC( CRON     )   ! NO3+CRON=CRNO+HNO3
      &    +                 RKI( 146 ) * YC( OPEN     )   ! NO3+OPEN=OPO3+HNO3
      &    +                 RKI( 148 ) * YC( CAT1     )   ! NO3+CAT1=CRO+HNO3
-     &    +                 RKI( 160 ) * YC( ISOP     )   ! NO3+ISOP=0.2000D+...
-     &    +                 RKI( 163 ) * YC( ISPD     )   ! NO3+ISPD=0.3570D+...
-     &    +                 RKI( 168 ) * YC( TERP     )   ! NO3+TERP=0.4700D+...
+     &    +                 RKI( 161 ) * YC( ISOP     )   ! NO3+ISOP=0.2000D+...
+     &    +                 RKI( 164 ) * YC( ISPD     )   ! NO3+ISPD=0.3570D+...
+     &    +                 RKI( 169 ) * YC( TERP     )   ! NO3+TERP=0.4700D+...
 
 c..Loss frequency of N2O5
       L16 =                 RKI(  19 )                    ! N2O5=0.2000D+01*HNO3
      &    +                 RKI(  20 )                    ! N2O5=0.2000D+01*HNO3
      &    +                 RKI(  21 )                    ! N2O5=NO3+NO2
      &    +                 RKI(  53 )                    ! N2O5=NO2+NO3
-     &    +                 RKI( 208 )                    ! N2O5=HNO3+H2NO3PIJ
-     &    +                 RKI( 209 )                    ! N2O5=HNO3+H2NO3PK
+     &    +                 RKI( 212 )                    ! N2O5=HNO3+H2NO3PIJ
+     &    +                 RKI( 213 )                    ! N2O5=HNO3+H2NO3PK
 
 c..K15_15, R15_16, and R16_15 terms
       K15_15  = RKI(  50 ) * DTC

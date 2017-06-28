@@ -19,13 +19,13 @@ Check the [[cb05e51_species_table|species table]] for the reactants and products
 **Table A‑2. Mechanism for cb05e51_ae6_aq uses the following reactions.**
 
 | **Label** | **Reaction** | **Rate Const** | **Notes** | **Reference** |
-|-----------|--------------------------------------|-----------------|------------------|----------------------|
-|<R1>|NO2 = NO + O|1.0/<NO2_IUPAC10>| | |
-|<R2>|O + O2 + M = O3 + M|6.0E-34*(T/300)<sup>(-2.4)</sup>| | |
-|<R3>|O3 + NO = NO2|3.0E-12*exp<sup>(-1500.0/T)</sup>| | |
-|<R4>|O + NO2 = NO|5.6E-12*exp<sup>(180.0/T)</sup>| | |
-|<R5>|O + NO2 = NO3|k<sub>0</sub>=2.5E-31*(T/300)<sup>(-1.8)</sup>, k<sub>inf</sub>=2.2E-11*(T/300)<sup>(-0.7)</sup>, F=0.6, n=1| | |
-|<R6>|O + NO = NO2|k<sub>0</sub>=9.0E-32*(T/300)<sup>(-1.5)</sup>, k<sub>inf</sub>=3.0E-11, F=0.6, n=1 | | |
+|---|--------------------------------|--------------------------|------------------|----------------------|
+|``<R1>``|NO2 = NO + O|1.0/``<NO2_IUPAC10>``| | |
+|``<R2>``|O + O2 + M = O3 + M|6.0E-34*(T/300)<sup>(-2.4)</sup>| | |
+|``<R3>``|O3 + NO = NO2|3.0E-12*exp<sup>(-1500.0/T)</sup>| | |
+|``<R4>``|O + NO2 = NO|5.6E-12*exp<sup>(180.0/T)</sup>| | |
+|``<R5>``|O + NO2 = NO3|k<sub>0</sub>=2.5E-31*(T/300)<sup>(-1.8)</sup>, k<sub>inf</sub>=2.2E-11*(T/300)<sup>(-0.7)</sup>, F=0.6, n=1| | |
+|``<R6>``|O + NO = NO2|k<sub>0</sub>=9.0E-32*(T/300)<sup>(-1.5)</sup>, k<sub>inf</sub>=3.0E-11, F=0.6, n=1 | | |
 |<R7>|NO2 + O3 = NO3|1.2E-13*exp<sup>(-2450/T)</sup>| | |
 |<R8>|O3 = O|1.0/<O3_O3P_IUPAC10>| | |
 |<R9>|O3 = O1D|1.0/<O3_O1D_IUPAC10>| | |

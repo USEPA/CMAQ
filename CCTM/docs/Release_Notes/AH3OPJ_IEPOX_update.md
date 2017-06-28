@@ -12,7 +12,7 @@ To improve model performance, we implemented a Henry's law coefficient for IEPOX
 
 ## Significance and Impact
 
-IEPOX-derived SOA is estimated to increase by only 3% compared to before this update as a result of compensating modifications. See Pye et al. (2016) for performance of IEPOX SOA and 2-methyltetrols in CMAQ with this update.
+IEPOX-derived SOA is estimated to increase by only 3% compared to before this update as a result of compensating modifications. See Pye et al. (2017) for performance of IEPOX SOA and 2-methyltetrols in CMAQ with this update.
 
 ## Affected Files
 
@@ -23,7 +23,7 @@ cloud/acm_ae6/hlconst.F
 
 Nguyen, T. B., Coggon, M. M., Bates, K. H., Zhang, X., Schwantes, R. H., Schilling, K. A., Loza, C. L., Flagan, R. C., Wennberg, P. O., and Seinfeld, J. H.: Organic aerosol formation from the reactive uptake of isoprene epoxydiols (IEPOX) onto non-acidified inorganic seeds, Atmos. Chem. Phys., 14, 3497-3510, doi:10.5194/acp-14-3497-2014, 2014. [link](http://www.atmos-chem-phys.net/14/3497/2014/)
 
-Pye, H. O. T., Murphy, B. N., Xu, L., Ng, N. L., Carlton, A. G., Guo, H., Weber, R., Vasilakos, P., Appel, K. W., Budisulistiorini, S. H., Surratt, J. D., Nenes, A., Hu, W., Jimenez, J. L., Isaacman-VanWertz, G., Misztal, P. K., and Goldstein, A. H.: On the implications of aerosol liquid water and phase separation for organic aerosol mass, Atmos. Chem. Phys. Discuss., doi:10.5194/acp-2016-719, in review, 2016. [link](http://www.atmos-chem-phys-discuss.net/acp-2016-719/)
+Pye, H. O. T., Murphy, B. N., Xu, L., Ng, N. L., Carlton, A. G., Guo, H., Weber, R., Vasilakos, P., Appel, K. W., Budisulistiorini, S. H., Surratt, J. D., Nenes, A., Hu, W., Jimenez, J. L., Isaacman-VanWertz, G., Misztal, P. K., and Goldstein, A. H.: On the implications of aerosol liquid water and phase separation for organic aerosol mass, Atmos. Chem. Phys., 17, 343-369, doi:10.5194/acp-17-343-2017, 2017. [link](http://www.atmos-chem-phys.net/17/343/2017/)
 
 -----
 ## Internal Records:

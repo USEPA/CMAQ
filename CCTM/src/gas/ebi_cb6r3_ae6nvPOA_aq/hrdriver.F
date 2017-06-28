@@ -431,10 +431,10 @@ c..Update concentration array
                DO SPC = 1, NUMB_MECH_SPC
                   S = CGRID_INDEX( SPC )
                   IF( CONVERT_CONC( SPC ) )THEN
-                      CGRID( C,R,L,S ) = MAX( REVERSE_CONV( SPC ) * DENS( C,R,L )
-     &                                 * REAL( YC( SPC ), 4), CONCMIN)
+                      CGRID( C,R,L,S ) = REAL( REVERSE_CONV( SPC ) * DENS( C,R,L )
+     &                                 * MAX( YC( SPC ), DCONMIN), 4)
                   ELSE
-                      CGRID( C,R,L,S ) = MAX( REAL( YC( SPC ), 4), CONCMIN)
+                      CGRID( C,R,L,S ) = REAL( MAX( YC( SPC ), DCONMIN), 4)
                   END IF
                END DO
 

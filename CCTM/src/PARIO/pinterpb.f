@@ -22,7 +22,7 @@ C RCS file, release, date & time of last delta, author, state, [and locker]
 C $Header: /project/work/rep/PARIO/src/pinterpb.f,v 1.6 2011/03/30 18:13:01 sjr Exp $
 
       LOGICAL FUNCTION PINTERPB ( FILNAME, VARNAME, CALLER,
-     &                            JDATE, JTIME, VSIZE, VARRAY )
+     &                            JDATE, JTIME, VSIZE, VARRAY, LVL )
 C.....................................................................
  
 C Purpose:   Performs Models-3 file-variable interpolation in a
@@ -58,6 +58,8 @@ C             allocating new memory space
 C       Modified 02/23/2011 by Shawn Roselle
 C          -- Replaced I/O API include files with M3UTILIO; removed
 C             deprecated TRIMLEN
+C       Modified 05/18/2017 by David Wong
+C          -- added a logic to reduce number of calls to OPEN3 and DESC3
  
 C Argument List Description:
 C In:
@@ -120,6 +122,7 @@ C........................................................................
 
       USE PINTERPB_MODULE
       USE M3UTILIO              ! i/o api
+      USE PARUTILIO, ONLY : GROWBUF, GTNDXHDV, INTERPOL, READBNDY
 
       IMPLICIT NONE
 
@@ -127,35 +130,38 @@ C Include Files
 
 !     INCLUDE 'PIODECL3.EXT'     ! I/O definitions and declarations
       INCLUDE 'PIOGRID.EXT'      ! Parallel grid-related variables
+      INCLUDE 'STATE3.EXT'
 !     INCLUDE 'PINTERPB.EXT'     ! Variables for parallel file reading
   
 C Arguments:
 
-      CHARACTER( 16 ) :: FILNAME ! Name of file to be read
-      CHARACTER( * )  :: VARNAME ! File variable name
-      CHARACTER( * )  :: CALLER  ! Name of calling routine
-      INTEGER        JDATE       ! Current Julian date (YYYYDDD)
-      INTEGER        JTIME       ! Current time (HHMMSS)
-      INTEGER        VSIZE       ! Size of VARRAY
-      REAL           VARRAY( VSIZE ) ! Interpolated values. See note (1) above
+      CHARACTER( 16 ), INTENT(IN) :: FILNAME ! Name of file to be read
+      CHARACTER( * ), INTENT(IN)  :: VARNAME ! File variable name
+      CHARACTER( * ), INTENT(IN)  :: CALLER  ! Name of calling routine
+      INTEGER, INTENT(IN)         :: JDATE       ! Current Julian date (YYYYDDD)
+      INTEGER, INTENT(IN)         :: JTIME       ! Current time (HHMMSS)
+      INTEGER, INTENT(IN)         :: VSIZE       ! Size of VARRAY
+      REAL, INTENT(OUT)           :: VARRAY( VSIZE ) ! Interpolated values. See note (1) above
+      INTEGER, INTENT(IN), OPTIONAL :: LVL       ! level
 
 C External Functions:
 
-      LOGICAL        READBNDY    ! Reads boundary file variables
-      LOGICAL        INTERPOL    ! Linear interpolation
+!     LOGICAL        READBNDY    ! Reads boundary file variables
+!     LOGICAL        INTERPOL    ! Linear interpolation
 !     LOGICAL        ALLOBBUF    ! Allocate memory for read buffers
 !     LOGICAL        ALLOMBUF    ! Allocation for buffer management arrays
-      LOGICAL        GROWBUF     ! Extends memory for file-variable buffers
+!     LOGICAL        GROWBUF     ! Extends memory for file-variable buffers
 
-      EXTERNAL       READBNDY, INTERPOL           ! Parallel M3IO library
+!     EXTERNAL       READBNDY    ! Parallel M3IO library
+!     EXTERNAL       READBNDY, INTERPOL           ! Parallel M3IO library
 !     EXTERNAL       ALLOBBUF, ALLOMBUF, GROWBUF  ! Memory allocation library
-      EXTERNAL       GROWBUF                      ! Memory allocation library
+!     EXTERNAL       GROWBUF                      ! Memory allocation library
 !     EXTERNAL       ALLOBBUF, ALLOMBUF           ! Memory allocation library
 !     EXTERNAL       SETINT, SETFLT               ! Utilities library
 
 C Internal Functions:
 
-      LOGICAL        GTNDXHDV    ! Get index of variable from list
+!     LOGICAL        GTNDXHDV    ! Get index of variable from list
 
 C Local Variables:
 
@@ -179,7 +185,7 @@ C Local Variables:
       INTEGER        NLAYS        ! Local PE layer dimension of VARRAY
       INTEGER        NBNDY        ! Local PE boundary dimension of VARRAY
       INTEGER        MBUFSIZE     ! Message buffer size
-      INTEGER, SAVE :: LOGDEV     ! Unit number for log file
+      INTEGER, SAVE :: LLOGDEV    ! Unit number for log file
       INTEGER        STATUS       ! Status returned from routine ENVYN
 
       SAVE  MBUFSIZE
@@ -188,11 +194,23 @@ C Local Variables:
       CHARACTER( 16 ) :: FIL16    ! Scratch area for file-name
       CHARACTER( 16 ) :: VAR16    ! Scratch area for vble-name
 
+      CHARACTER( 16 ), SAVE :: FIL16_OLD   ! previous file name
+      INTEGER :: F_FID                     ! file id associated with incoming FILNAME
+      INTEGER :: F_FTYPE                   ! file type of incoming FILNAME
+      INTEGER :: C_FTYPE                   ! current file type within DESC3
+      CHARACTER( 16 ) :: F_VNAME           ! frist variable name in the incoming FILNAME
+      CHARACTER( 16 ) :: C_VNAME           ! current first variable name within DESC3
+
+      INTEGER, EXTERNAL :: NAME2FID
+
       LOGICAL        NEWVAR       ! Flag to indicate new variable
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE.    ! First pass flag
 
       INTEGER        LOC1, LOC2, LOC3
+      INTEGER, SAVE :: S_IND, E_IND, LSIZE
+
+      INTEGER :: LSIZE2
 
 C........................................................................
 
@@ -201,11 +219,13 @@ C........................................................................
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
 
-         LOGDEV = INIT3()
+         FIL16_OLD = ' '
+         LLOGDEV = INIT3()
 
 C Allocate memory for read and message buffers
 
-         MBUFSIZE = 2*BTHICK * ( GNCOLS + GNROWS + 2*BTHICK ) * GNLAYS
+         LSIZE    = 2*BTHICK * ( GNCOLS + GNROWS + 2*BTHICK )
+         MBUFSIZE = LSIZE * GNLAYS
          ALLOCATE ( MSGBUFHD( MBUFSIZE ), STAT = IERROR )
          IF ( IERROR .NE. 0 ) THEN
             MSG = 'Error allocating MSGBUFHD.'
@@ -241,20 +261,36 @@ C Initialize (static) character*33 array VLISTHD
 C Open the file
 
       FIL16 = FILNAME
-      IF ( .NOT. OPEN3( FIL16, FSREAD3, 'PINTERPB' ) ) THEN
-         MSG = 'Could not open '// TRIM( FIL16 )
-         CALL M3WARN ( 'PINTERPB', JDATE, JTIME, MSG )
-         PINTERPB = .FALSE.; RETURN
+
+      F_FID  = NAME2FID( FIL16 )
+      IF (F_FID .NE. 0) THEN
+         F_VNAME = VLIST3( 1, F_FID )
+         F_FTYPE = FTYPE3(F_FID)
+      ELSE
+         F_VNAME = ' '
+         F_FTYPE = -1
       END IF
+
+      C_VNAME = VNAME3D( 1 )
+      C_FTYPE = FTYPE3D
+
+      IF ((FIL16 .NE. FIL16_OLD) .OR.(F_VNAME .NE. C_VNAME) .OR. (F_FTYPE .NE. C_FTYPE)) THEN
+         IF ( .NOT. OPEN3( FIL16, FSREAD3, 'PINTERPB' ) ) THEN
+            MSG = 'Could not open '// TRIM( FIL16 )
+            CALL M3WARN ( 'PINTERPB', JDATE, JTIME, MSG )
+            PINTERPB = .FALSE.; RETURN
+         END IF
 
 C Get the file description
 
-      IF ( .NOT. DESC3( FIL16 ) ) THEN
-         MSG = 'Could not get '// TRIM( FIL16 ) //
-     &         ' file description'
-         CALL M3WARN ( 'PINTERPB', JDATE, JTIME, MSG )
-         PINTERPB = .FALSE.; RETURN
+         IF ( .NOT. DESC3( FIL16 ) ) THEN
+            MSG = 'Could not get '// TRIM( FIL16 ) //
+     &            ' file description'
+            CALL M3WARN ( 'PINTERPB', JDATE, JTIME, MSG )
+            PINTERPB = .FALSE.; RETURN
+         END IF
       END IF
+      FIL16_OLD = FIL16
 
 C Check that variable is on file
 
@@ -425,16 +461,23 @@ C Read the buffer if necessary
          NBNDY = 2*BTHICK * ( NUMCOLS + NUMROWS + 2*BTHICK )
          NLAYS = VSIZE / NBNDY
 
+         IF (PRESENT(LVL)) THEN
+            LSIZE2 = VSIZE / NLAYS
+            S_IND = (LVL - 1) * LSIZE2 + 1
+            E_IND = S_IND + LSIZE2 - 1
+         END IF
+
 C Check calling dimension against file header dimensions
 
          IF ( NLAYS .NE. NLAYS3D ) THEN
             MSG = 'Mismatch between VSIZE and file dimensions.'
-            WRITE( LOGDEV,9020 ) VSIZE, NBNDY, NLAYS3D 
+            WRITE( LLOGDEV,9020 ) VSIZE, NBNDY, NLAYS3D 
             CALL M3WARN ( 'PINTERPB', JDATE, JTIME, MSG )
             PINTERPB = .FALSE.; RETURN
          END IF
 
          IF ( RFLAG .NE. 0 ) THEN
+
             IF ( .NOT. READBNDY( FIL16, VAR16, VX,
      &                           NBNDY, NLAYS, DATE,
      &                           TIME, RFLAG, FLIP ) ) THEN
@@ -462,27 +505,38 @@ C for interpolated values
       LOC2 = MOD( 1+FLIP, 2 )
       LOC3 = BUFPOSHD( VX )
 
-      IF ( .NOT. INTERPOL ( JDATE, JTIME, DATE( 1 ), TIME( 1 ),
-     &                      DATE( 2 ), TIME( 2 ), VSIZE,
-     &                      BUFFERHD( LOC3 )%MEM( LOC1 )%DATA_PTR,
-     &                      BUFFERHD( LOC3 )%MEM( LOC2 )%DATA_PTR,
-     &                      MSGBUFHD ) ) THEN
-         MSG = 'Subroutine INTERPOL failed.'
-         CALL M3WARN ( 'PINTERPB', JDATE, JTIME, MSG )
-         PINTERPB = .FALSE.; RETURN
-
-      ELSE        ! Interpolation was successful. Store values
-
-C Store the interpolated values from MSGBUFHD into VARRAY
-
-         DO I = 1, VSIZE
-            VARRAY( I ) = MSGBUFHD( I )
-         END DO
-
-      END IF     ! if ( .not. interpol )
+      IF (PRESENT(LVL)) THEN
+         IF ( .NOT. INTERPOL ( JDATE, JTIME, DATE( 1 ), TIME( 1 ),
+     &                         DATE( 2 ), TIME( 2 ), VSIZE,
+     &                         BUFFERHD( LOC3 )%MEM( LOC1 )%DATA_PTR,
+     &                         BUFFERHD( LOC3 )%MEM( LOC2 )%DATA_PTR,
+     &                         MSGBUFHD, S_IND, E_IND ) ) THEN
+            MSG = 'Subroutine INTERPOL failed.'
+            CALL M3WARN ( 'PINTERPB', JDATE, JTIME, MSG )
+            PINTERPB = .FALSE.; RETURN
+         ELSE
+            DO I = S_IND, E_IND
+               VARRAY( I ) = MSGBUFHD( I )
+            END DO
+         END IF
+      ELSE
+         IF ( .NOT. INTERPOL ( JDATE, JTIME, DATE( 1 ), TIME( 1 ),
+     &                         DATE( 2 ), TIME( 2 ), VSIZE,
+     &                         BUFFERHD( LOC3 )%MEM( LOC1 )%DATA_PTR,
+     &                         BUFFERHD( LOC3 )%MEM( LOC2 )%DATA_PTR,
+     &                         MSGBUFHD ) ) THEN
+            MSG = 'Subroutine INTERPOL failed.'
+            CALL M3WARN ( 'PINTERPB', JDATE, JTIME, MSG )
+            PINTERPB = .FALSE.; RETURN
+         ELSE
+            DO I = 1, VSIZE
+               VARRAY( I ) = MSGBUFHD( I )
+            END DO
+         END IF
+      END IF
 
       RETURN
 
 9020  FORMAT ( /5X, 'VSIZE= ', I5, ' NBNDY = ', I5, ' NLAYS3D = ', I5 /)
 
-      END    ! Logical function PINTERPB
+      END FUNCTION PINTERPB

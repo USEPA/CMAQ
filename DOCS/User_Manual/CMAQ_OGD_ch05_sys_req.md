@@ -11,8 +11,7 @@ This section describes how to set up and install CMAQ on a Linux system.  The in
 
 After benchmarking has been successfully completed, the CMAQ system can be configured for other simulations. The same steps that are required to build the model for the benchmark case apply to building it for new simulations. Configuring CMAQ for new applications is covered in [Chapter 10](CMAQ_OGD_ch10_new_simulation.md).
 
-System Recommendations
-----------------------
+## System Recommendations
 
 All of the CMAQ programs are written in Fortran and are optimized for use on computers running a version of the Linux operating system (OS). Most personal computers (PCs) running a Linux OS are sufficiently powerful to handle basic CMAQ applications. However, to use CMAQ in a production environment where multiple iterations of the model will be executed for different spatial domains and/or emissions control strategies, either a cluster of multiprocessor PCs on a high-end network or an expandable rack-mounted Linux server is recommended.
 
@@ -22,9 +21,9 @@ CMAQ is distributed and supported for executing on Linux operating systems with 
 
 The minimum hardware requirements for running the CMAQ benchmark case are:
 
--   PC with a single 1.0 GHz processor with a Linux operating system OS
+-   Linux PC with a single processor
 -   1 GB RAM
--   10 GB hard drive storage (Note: the benchmark simulation requires 3 GB of free storage capacity).
+-   100 GB hard drive storage 
 
 Recommendations on production-level hardware configurations for CMAQ are available on the CMAS Center [Hardware Blog](https://www.airqualitymodeling.org/index.php/CMAS_Hardware_Blog).
 
@@ -110,6 +109,7 @@ Starting with CMAQv5.2, the structure of the CMAQ distribution includes:
 - PREP - Input pre-processor (e.g., ICON, BCON, MCIP) source code and scripts
 - UTIL - Utility software (e.g., BLDMAKE, CHEMMECH, NML) source code and scripts
 - POST - Post-processing and analysis software (e.g., COMBINE, HR2DAY, BLDOVERLAY) source code and scripts
+- DOCS - This User's Manual, tutorials, and developers guidance 
 
 ### Notes on the CMAQ directory structure
 

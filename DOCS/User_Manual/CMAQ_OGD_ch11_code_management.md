@@ -35,42 +35,45 @@ git is a version control system that supports distributed workflows.  Every Git 
 -   It is publicly available and free and is distributed under the terms of the GNU General Public License.
 -   If you would like to contribute changes to the EPA CMAQ repository, use the following steps
     1. Create a github account https://github.com/
-    2. Send an e-mail to cmas-git@unc.edu specifying your github user name, and request that you be added as an outside collaborator to the CMAS CENTER Organization.
-    3. `git clone  -b 5.2Beta https://github.com/CMASCenter/EPA-CMAQ.git` - Get a clone or copy of the CMAQ repository from the CMAS CENTER github site.
-    4.  This will make a directory called EPA-CMAQ and will contain a copy of the files from the 5.2Beta Branch
-    5. `git status`   To confirm the status of the files in the repository and the branch that is currently checked out
-    6.  To edit the config.cmaq file take the following steps:<br>
-`cd EPA-CMAQ`<br>
+    2. Go to the EPA github site and Fork your own copy of the EPA CMAQ to your github account
+    3. create a directory called CMAQv5.2 on the machine where you would like to obtain a copy of the code
+    4. `git clone -b 5.2 https://github.com/<your github name>/CMAQ.git CMAQv5.2` - Get a clone or copy of the 5.2 branch of the CMAQ repository from your github site.
+    5.  This will place a copy of the files from the 5.2 Branch into the CMAQv5.2 directory
+    6.  `cd CMAQv5.2` go into the CMAQv5.2 directory
+    7. `git status`   To confirm the status of the files in the repository and the branch that is currently checked out
+    8.  To edit the config.cmaq file take the following steps:<br>
 `vi config.cmaq`  - or use the Atom, TextWrangler or other Editor
-    7. To see what changes you made use the following command
+    9. To see what changes you made use the following command
 `git diff config.cmaq`
-    8. To stage the change use the following command.
+    10. To stage the change use the following command.
 `git add config.cmaq`
-    9. To commit changes to the local repostitory use the command:
+    11. To commit changes to the local repostitory use the command:
 `git commit -m "changed config.cmaq to fix issue X"`
-    10. To commit changes to the CMAS CENTER Github repository use the command:
+    12. To commit changes to your Github repository use the command:
 `git push`
-    11. If you get a message that the push was rejected similar to the following:
+    13. If you get a message that the push was rejected similar to the following:
         ```
-        ! [rejected]        5.2Beta -> 5.2Beta (fetch first)
-          error: failed to push some refs to 'https://github.com/CMASCenter/EPA-CMAQ.git'
+        ! [rejected]        5.2 -> 5.2 (fetch first)
+          error: failed to push some refs to 'https://github.com/CEMPD/CMAQ.git'
           hint: Updates were rejected because the remote contains work that you do
           hint: not have locally. This is usually caused by another repository pushing
           hint: to the same ref. You may want to first integrate the remote changes
           hint: (e.g., 'git pull ...') before pushing again.
          hint: See the 'Note about fast-forwards' in 'git push --help' for details.
          ```
-    12. This means the files have been changed on the CMAS CENTER Github repository since you last did a clone.
+    14. This means the files have been changed on your Github repository since you last did a clone.
 Use the following command to get the changes that have been made to the remote git repository:
 `git pull`
-    13. You will be asked to merge the files if there are no changes that conflict with your file changes. IF successful you will see a message similar to the following, that indicates what files were changed.
+    15. You will be asked to merge the files if there are no changes that conflict with your file changes. IF successful you will see a message similar to the following, that indicates what files were changed.
         ```
         Merge made by the 'recursive' strategy.
         config.cmaq | 4 ++--
         1 file changed, 2 insertions(+), 2 deletions(-)
         ```
-    14. Retry the push command to place the changes that you committed to the local repository on the CMAS CENTER Github repository:
+    16. Retry the push command to place the changes that you committed to the local repository on your Github repository:
 `git push`
+    17. Go to the fork of the EPA CMAQ on your github page and submit a pull request to ask that the changes that you have made be incorporated into the EPA github site.
+
 
 ## Guidelines for Developing New CMAQ Source Code
 
