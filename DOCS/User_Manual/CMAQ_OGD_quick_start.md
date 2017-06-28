@@ -26,16 +26,31 @@ git clone -b 5.2 https://github.com/USEPA/CMAQ.git CMAQ_REPO
 
 For instructions on installing CMAQ from tarballs, see [Chapter 5](CMAQ_OGD_ch05_sys_req.md).
 
-#### Configure the CMAQ build environment
+### Check Out A new Branch in the CMAQ Repository ###
 
-*1.* In the top level of CMAQ_REPO, execute the script extraction utility.
+Checking out a new branch is a good idea even if you are not doing code development, per se. It is likely that you will want to retrieve new updates in the future, and an easy way to do this is through the master branch in the git repo. Thus it is beneficial to leave it unperturbed if possible.
 ```
-./extract_scripts.csh
+cd CMAQ_REPO
+git checkout -b my_branch
 ```
-By default, this script will copy configuration, build and run scripts from the repo to the folder the repo is located in (i.e. one level up). An arbitrary folder can be selected by the user by modifying the `CMAQ_WORK` variable in extract_scripts.csh.
 
-*2.* Install the CMAQ libraries
+### Configure the CMAQ build environment
 
+The user has two options for building an environment. She or he may build and run CMAQ components directly in the repository structure (object files and executables will be ignored with .gitignore), or they may extract the build and run scripts out of the repository and work in a separate location. If you would like to build directly in the repository, skip to "Install the CMAQ Libraries" below.
+
+#### Build and run in a user-specified directory outside of the repository
+In the top level of CMAQ_REPO, the bldit_project.csh script will automatically replicate the CMAQ folder structure and copy every build and run script out of the repository so that you may modify them freely without version control.
+
+In bldit_project.csh, modify the variable $CMAQ_HOME to identify the folder that you would like to install the CMAQ package under. For example:
+```
+set CMAQ_HOME = /home/username/CMAQ_v5.2
+```
+Now execute the script.
+```
+./bldit_project.csh
+```
+
+### Install the CMAQ Libraries
 The CMAQ build scripts require the following libraries and INCLUDE files to be available in the CMAQ_LIB directory (Note the CMAQ_LIB gets set automatically by the config_cmaq.csh script, where `CMAQ_LIB = $CMAQ_HOME/lib`): 
 
 - netCDF library and INCLUDE files are located in the `$CMAQ_LIB/netcdf` directory
@@ -52,13 +67,17 @@ The config_cmaq.csh script will automatically link the required libraries into t
 
 For example, if your netCDF libraries and includes files are installed in /usr/local/netcdf, set `NETCDF` to /usr/local/netcdf. Similarly, if your I/O API library is installed in /home/cmaq/ioapi/Linux2_x86_64ifort, set `IOAPI_LIB` to /home/cmaq/ioapi/Linux2_x86_64ifort. 
 
-*3.* Check the names of the I/O API and netCDF libraries using the `ioapi_lib` and `netcdf_lib` script variables.
+*1.* Check the names of the I/O API and netCDF libraries using the `ioapi_lib` and `netcdf_lib` script variables.
 
-*4.* Check the name of the MPI library using the `mpi` script variable. For MVAPICH use `-lmpich`; for openMPI use `-lmpi`.
+*2.* Check the name of the MPI library using the `mpi` script variable. For MVAPICH use `-lmpich`; for openMPI use `-lmpi`.
 
-Links to these libraries will automatically be created when you run any of the build or run scripts. To manually (this is optional) create these libraries, execute the config_cmaq.csh script, identifying the compiler in the command line [intel | gcc | pgi]:
+Links to these libraries will automatically be created when you run any of the build or run scripts. To manually create these libraries (this is optional), execute the config_cmaq.csh script, identifying the compiler in the command line [intel | gcc | pgi]:
 ```
 ./config_cmaq.csh [compiler]
+```
+You may also identify the version of the compiler if you wish it to be identified in build directory and executable names. This is optional. For example:
+```
+./config_cmaq.csh intel 17.0
 ```
 
 ### Compiling CMAQ ###
@@ -66,55 +85,35 @@ Links to these libraries will automatically be created when you run any of the b
 Create the model executables for ICON, BCON, and CCTM:
 
 ```
-cd $CMAQ_WORK/PREP/icon/scripts
+cd $CMAQ_HOME/PREP/icon/scripts
 ./bldit.icon |& tee bldit.icon.log
 ```
 
 ```
-cd $CMAQ_WORK/PREP/bcon/scripts
+cd $CMAQ_HOME/PREP/bcon/scripts
 ./bldit.bcon [compiler]
 ```
 
 ```
-cd $CMAQ_WORK
+cd $CMAQ_HOME
 ./bldit_cctm.csh [compiler]
 ```
 
 ### Install the CMAQ input reference/benchmark data
 
-Dwnloaded the CMAQ reference data from the [CMAS Center Software Clearinghouse](https://www.cmascenter.org/download/software.cfm) and copy to `$CMAQ_WORK`. Navigate to the `$CMAQ_WORK` directory, unzip and untar the `CMAQv5.2.DATA.tar.gz` file:
+Download the CMAQ reference data from the [CMAS Center Software Clearinghouse](https://www.cmascenter.org/download/software.cfm) and copy to `$CMAQ_HOME`. Navigate to the `$CMAQ_HOME` directory, unzip and untar the `CMAQv5.2.DATA.tar.gz` file:
 
 ```
-cd $CMAQ_WORK
+cd $CMAQ_HOME
 tar xvzf CMAQv5.2.DATA.tar.gz
 ```
 
-### Running the CMAQ Installation Test Simulation
-
-To run the test simulation for the various CMAQ programs, change directories to the location of each program and execute the run script.
-
-Run ICON to produce initial conditions:
-
-```
-cd $CMAQ_WORK/PREP/icon/scripts
-./run.icon |& tee icon.log
-```
-
-Run BCON to produce boundary conditions:
-
-```
-cd $CMAQ_WORK/PREP/bcon/scripts
-./run.bcon |& tee bcon.log
-```
-
-Check the ICON and BCON log file to ensure that the programs completed successfully. Note that CMAQ test simulation doesn't actually require that ICON and BCON be run; the test input data include CCTM-ready initial and boundary conditions files. 
-
-#### Configure the CCTM script for MPI
+### Configure the CCTM script for MPI
 
 For an MPI configuration with 6 processors,
 
 ```
-cd $CMAQ_WORK
+cd $CMAQ_HOME
 ```
 
 Edit the CCTM run script (run_cctm.csh) for the MPI configuration that you will use:
