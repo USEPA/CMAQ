@@ -68,8 +68,8 @@ This section describes each of the input files required by the various CMAQ prog
 |[CROPMAP04](#cropmap04)| GRDDED3 | Time-invariant | X\*Y | Cropcal
 |[CROPMAP08](#cropmap08)|GRDDED3 | Time-invariant | X\*Y | Cropcal
 |[LTNGNO](#ltngno)| GRDDED3 | Hourly | X\*Y\*Z | User|
-|[NLDN_STRIKES](#nldn_strikes)| GRDDED3 | Monthly | X\*Y ||
-|[LTNGPARMS_FILE](#ltngparm_file)| GRDDED3 | Monthly | X\*Y ||
+|[NLDN_STRIKES](#nldn_strikes)| GRDDED3 | Hourly | X\*Y ||
+|[LTNGPARMS_FILE](#ltngparm_file)| GRDDED3 | Time-invariant | X\*Y ||
 |[BELD4_LU](beld4_lu)| GRDDED3 | Time-invariant |X\*Y||
 |[E2C_SOIL](#e2c_soil)| GRDDED3 | Time-invariant | X\*Y||
 |[E2C_FERT](#e2c_fert)| GRDDED3 | Daily |X\*Y||
