@@ -53,7 +53,7 @@ These minor updates/bug fixes were necessary:
 ### Aqueous and Heterogeneous Chemistry
   * [The subgrid non-precipitating shallow convective cloud treatment was updated to have scale-independent critical RH values consistent with the WRF meteorological model](Subgrid_Shallow_Conv_Cloud.md)
   * [AQCHEM-KMT(I) has been updated to be consistent with updates to the aerosol module](AQCHEM-KMT.md)
-  * [Tracer species options have been implemented into the standard acm_cld module so that the user can choose to invoke them without negotiating which acm_cld module to use](aero6_6i_6mp_consolidation.md)
+  * [The previously separate aerosol modules (aero6, aero6i and aero6i_mp) have been consolidated so that only one module is needed](aero6_6i_6mp_consolidation.md)
 
 ### Lightning Interactions
   * [Lightning NO<sub>x</sub> generation has been updated to leverage existing lightning fields for hindsight cases and an improved parameterization for future cases](Lightning_NOx.md)
