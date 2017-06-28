@@ -132,9 +132,9 @@ The script below uses the `combine` program to add species O3_BC, O3_BC_50BC, an
 ```
 #!/bin/csh
 
-#> Location of CMAQv5.1 benchmark case
- set M3DATA = /home/sjr/dev/cmaqv51/data
- set OUTDIR = /work/MOD3EVAL/css/tmp
+#> Location of CMAQv5.2 benchmark case
+ set CMAQ_DATA = $CMAQ_HOME/data
+ set OUTDIR = $REPO_HOME/POST/combine/scripts/spec_def_files/
 
 #> Set the working directory
  set BASE  = $cwd      
@@ -153,21 +153,22 @@ The script below uses the `combine` program to add species O3_BC, O3_BC_50BC, an
 
 #> Define name of new species definition file to be created
 
- setenv SPECIES_DEF ${OUTDIR}/species_BCON_D51a_12CalnexBench.txt
+ setenv SPECIES_DEF ${OUTDIR}/SpecDef_BCON_tracer.txt
 
  if (-e ${SPECIES_DEF}) 'rm' ${SPECIES_DEF}
 
-#> Define name of output file.
-
-
- ls -l /home/kfoley/CMAQ-Tools/bin/combine.exe
+#> Set the build directory if this was not set above 
+#> (this is where the CMAQ executable is located by default).
+ if ( ! -e $BINDIR ) then
+  setenv BINDIR $CMAQ_HOME/POST/combine/scripts/BLD_combine_${VRSN}_${compiler}        
+ endif                   
 
 
 #> Define name of input and output files needed for combine program.
 
-   setenv INFILE1 ${M3DATA}/bcon/BCON_D51a_12CalnexBench_$YEAR$MONTH$DAY
+   setenv INFILE1 ${M3DATA}/SE52BENCH/icbc/BCON_$YEAR$MONTH$DAY_bench.nc
 
-   setenv OUTFILE ${OUTDIR}/BCON_D51a_12CalnexBench_added_tracer_$YEAR$MONTH$DAY
+   setenv OUTFILE ${OUTDIR}/SE52BENCH/icbc/BCON_$YEAR$MONTH$DAY_added_tracer.nc
 
 
 #> Executable call:
@@ -176,26 +177,26 @@ The script below uses the `combine` program to add species O3_BC, O3_BC_50BC, an
 #> species contained in the existing boundary condition file. OUTFILE is not
 #> created
 
-   /usr/bin/time /home/kfoley/CMAQ-Tools/bin/combine.exe
+   /usr/bin/time $BINDIR/combine.${VRSN}.exe
 
 #>
 #> define the tracer species to be added to the boundary condition file using the
 #> "combine" specdef syntax
 #>
 
-   echo "O3_BC            ,ppmV            ,O3[1], Variable O3_BC"            >! ${OUTDIR}/species_def_tracer.txt
-   echo "O3_BC_50PC       ,ppmV            ,0.5 * O3[1], Variable O3_BC_50PC" >> ${OUTDIR}/species_def_tracer.txt
-   echo "CO_BC            ,ppmV            ,CO[1], Variable CO_BC"            >> ${OUTDIR}/species_def_tracer.txt
+   echo "O3_BC            ,ppmV            ,O3[1], Variable O3_BC"            >! ${OUTDIR}/SpecDef_tracer.txt
+   echo "O3_BC_50PC       ,ppmV            ,0.5 * O3[1], Variable O3_BC_50PC" >> ${OUTDIR}/SpecDef_tracer.txt
+   echo "CO_BC            ,ppmV            ,CO[1], Variable CO_BC"            >> ${OUTDIR}/SpecDef_tracer.txt
 
 #>
 #> concatenate the specdep file containing the existing species and the file
 #> containing the additional tracer species
 #>
 
-cat ${SPECIES_DEF} ${OUTDIR}/species_def_tracer.txt >! ${OUTDIR}/species_BCON_D51a_12CalnexBench_added_tracer.txt
+cat ${SPECIES_DEF} ${OUTDIR}/SpecDef_tracer.txt >! ${OUTDIR}/SpecDef_BCON_added_tracer.txt
 
 #> Redefine the name of specdef file
- setenv SPECIES_DEF ${OUTDIR}/species_BCON_D51a_12CalnexBench_added_tracer.txt
+ setenv SPECIES_DEF ${OUTDIR}/SpecDef_BCON_added_tracer.txt
 
 #> Reset the GENSPEC switch to not generate a new specdef file but to generate an output file
  setenv GENSPEC N
@@ -206,7 +207,7 @@ cat ${SPECIES_DEF} ${OUTDIR}/species_def_tracer.txt >! ${OUTDIR}/species_BCON_D5
 #> and an output file containing all the original species
 #> as well as the added tracer species is created
 
-   /usr/bin/time /home/kfoley/CMAQ-Tools/bin/combine.exe
+   /usr/bin/time $BINDIR/combine.${VRSN}.exe
 
 #>
 #> Remove the temporary file with the tracer definitions
@@ -225,9 +226,9 @@ The script below uses the `combine` program to add species O3_IC and ICT_50PB to
 ```
 #!/bin/csh
 
-#> Location of CMAQv5.1 benchmark case
- set M3DATA = /home/sjr/dev/cmaqv51/data
- set OUTDIR = /work/MOD3EVAL/css/tmp
+#> Location of CMAQv5.2 benchmark case
+ set CMAQ_DATA = $CMAQ_HOME/data
+ set OUTDIR = $CMAQ_DATA/SE52BENCH
 
 #> Set the working directory
  set BASE  = $cwd      
@@ -236,8 +237,8 @@ The script below uses the `combine` program to add species O3_IC and ICT_50PB to
 
 #> Timestep run parameters.
  set YEAR     = 2011
- set MONTH    = 06
- set DAY      = 30
+ set MONTH    = 07
+ set DAY      = 01 
  set MET_YEAR = 11
 
 #> Use GENSPEC switch to generate a new specdef file (does not generate output file).
@@ -246,22 +247,16 @@ The script below uses the `combine` program to add species O3_IC and ICT_50PB to
 
 #> Define name of new species definition file to be created
 
- setenv SPECIES_DEF ${OUTDIR}/species_CGRID_D51a_12CalnexBench.txt
+ setenv SPECIES_DEF ${OUTDIR}/SpecDef_CGRID_SE52BENCH.txt
 
  if (-e ${SPECIES_DEF}) 'rm' ${SPECIES_DEF}
-
-#> Define name of output file.
-
- env
-
- ls -l /home/kfoley/CMAQ-Tools/bin/combine.exe
 
 
 #> Define name of input and output files needed for combine program.
 
-   setenv INFILE1 ${M3DATA}/icon/CCTM_D51a_Linux2_x86_64intel_CGRID.CMAQ51-BENCHMARK_$YEAR$MONTH$DAY
+   setenv INFILE1 ${CMAQ_DATA}/SE52BENCH/ref_output/cctm/CCTM_CGRID_v52_intel_SE52BENCH_$YEAR$MONTH$DAY.nc
 
-   setenv OUTFILE ${OUTDIR}/CCTM_D51a_Linux2_x86_64intel_CGRID.CMAQ51-BENCHMARK_added_tracer_$YEAR$MONTH$DAY
+   setenv OUTFILE ${OUTDIR}/SE52BENCH/CCTM_CGRID_v52_intel_SE52BENCH_added_tracer_$YEAR$MONTH$DAY.nc
 
 
 #> Executable call:
@@ -270,7 +265,7 @@ The script below uses the `combine` program to add species O3_IC and ICT_50PB to
 #> species contained in the existing boundary condition file. OUTFILE is not
 #> created
 
-   /usr/bin/time /home/kfoley/CMAQ-Tools/bin/combine.exe
+   /usr/bin/time $BINDIR/combine.${VRSN}.exe
 
 #>
 #> define the tracer species to be added to the boundary condition file using the
@@ -299,13 +294,13 @@ cat ${SPECIES_DEF} ${OUTDIR}/species_def_tracer.txt >! ${OUTDIR}/species_CGRID_D
 #> and an output file containing all the original species
 #> as well as the added tracer species is created
 
-   /usr/bin/time /home/kfoley/CMAQ-Tools/bin/combine.exe
+   /usr/bin/time $BINDIR/combine.${VRSN}.exe
 
 #>
 #> Remove the temporary file with the tracer definitions
 #>
 
-'rm' ${OUTDIR}/species_def_tracer.txt
+'rm' ${OUTDIR}/SpecDef_tracer.txt
 
  date
  exit()
