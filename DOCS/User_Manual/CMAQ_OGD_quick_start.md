@@ -26,6 +26,14 @@ git clone -b 5.2 https://github.com/USEPA/CMAQ.git CMAQ_REPO
 
 For instructions on installing CMAQ from tarballs, see [Chapter 5](CMAQ_OGD_ch05_sys_req.md).
 
+### Check Out A new Branch in the CMAQ Repository ###
+
+Checking out a new branch is a good idea even if you are not doing code development, per se. It is likely that you will want to retrieve new updates in the future, and an easy way to do this is through the master branch in the git repo. Thus it is beneficial to leave it unperturbed if possible.
+```
+cd CMAQ_REPO
+git checkout -b my_branch
+```
+
 ### Configure the CMAQ build environment
 
 The user has two options for building an environment. She or he may build and run CMAQ components directly in the repository structure (object files and executables will be ignored with .gitignore), or they may extract the build and run scripts out of the repository and work in a separate location. If you would like to build directly in the repository, skip to "Install the CMAQ Libraries" below.
