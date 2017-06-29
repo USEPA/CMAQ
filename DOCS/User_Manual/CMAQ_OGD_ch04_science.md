@@ -179,9 +179,9 @@ CMAQ has the capability to estimate windblown dust emissions in-line in the CCTM
 
 [Figure 4-5](#Figure4-9) is a Calmap schematic showing the data flow through the software. CALMAP reads grid information from the GRIDCRO2D meteorology file (MCIP output), land cover/land use data from [BELD3](https://www.epa.gov/air-emissions-modeling/biogenic-emissions-landuse-database-version-3-beld3), and crop calendar data to produce files of planting start dates, planting end dates, and harvesting end dates for different crop types interpolated to the modeling grid. These files are input to the CCTM when it is configured to estimate windblown dust and simulate the impacts of agricultural activity on the windblown dust emissions.
 
-<a id="Figure4-9"></a>
+<a id="Figure4-5"></a>
 
-![](./images/Figure4-9.png "Figure4-9.png")
+![](./images/Figure4-9.png "Figure4-5.png")
 
 **Figure 4‑5. Crop calendar data preprocessor for the CCTM**
 
@@ -189,9 +189,9 @@ CMAQ has the capability to estimate windblown dust emissions in-line in the CCTM
 
 [Figure 4‑6](#Figure4-10) illustrates the CMAQ modeling system used to simulate the chemistry and transport of pollutants. This figure also shows how CMAQ relates to other parts of an air quality modeling system: the meteorological model, emissions model, and analysis software. To perform a model simulation, CMAQ needs input data, including meteorological and emissions data. Using this information, CCTM simulates each of the atmospheric processes that affect the transport, transformation, and removal of ozone, particulate matter, and other pollutants. CMAQ uses state-of-the-science techniques to simulate these processes, as described below.
 
-<a id=Figure4-10></a>
+<a id=Figure4-6></a>
 
-![](./images/Figure4-10.png "Figure4-10.png")
+![](./images/Figure4-10.png "Figure4-6.png")
 
 **Figure 4-6. CMAQ chemistry-transport model and associated preprocessors**
 
@@ -271,9 +271,9 @@ CMAQ optionally calculates the wet and dry deposition of chemical species.  Info
 
 A runtime flag in the CMAQ model controls whether the bidirectional modeules for ammonia and mercury are invoked.  The bidirectional modules simulate two-way exchange between the atmosphere and the surface for these species (as opposed to only deposition). The mercury bidirectional module (Bash 2010) is part of the CMAQv5 multipollutant configuration. To use the bidirectional option for ammonia, additional input file are required.  The files are created from the Environmental Policy Integrated Climate (EPIC) model (Cooter et al., 2012). There are two time independent files which provide information on the soil and the landcover.  A time dependent file contains information on fertilizer application method and amount. 
 
-<a id=Figure4-11></a>
+<a id=Figure4-7></a>
 
-![](./images/Figure4-11.png "Figure4-11.png")
+![](./images/Figure4-11.png "Figure4-7.png")
 
 **Figure 4‑7. Data flow between EPIC, the meteorological model, and CMAQ from Cooter et al. (2012)**
 
