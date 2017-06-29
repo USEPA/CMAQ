@@ -382,28 +382,28 @@ Both in-line emissions and photolysis are invoked through compile-time configura
 
 |File Name|Format|Description|
 |---------|------|-----------|
-|CTM_SSEMIS_1|GRDDED3|Hourly 2-D sea salt emissions; set the variable CTM_SSEMDIAG to “Y” in the CCTM to run script to write this file|
-|CTM_WET_DEP_2|GRDDED3|Name and location of hourly 2-D cloud diagnostics file; set the variable CLD_DIAG to “Y” in the CCTM run script to write this file|
-|CTM_DEPV_DIAG|GRDDED3|Hourly 2-D in-line deposition diagnostics file; output when in-line deposition is activated by setting CTM_ILDEPV to “Y” and the variable CTM_DEPV_FILE is set to “T” or “Y” in the CCTM run script|
-|CTM_IPR\__[1-3]|GRDDED3|Hourly 2-D or 3-D integrated process rate (IPR) files; multiple files written when CCTM is configured to run with IPR|
-|CTM_IRR\__[1-3]|GRDDED3|Hourly 2-D or 3-D integrated reaction rate (IRR) files; multiple files written when CCTM is configured to run with IRR|
-|CTM_RJ\__[1-2]|GRDDED3|Hourly photolysis diagnostic output file; multiple files written when there are a large number of photolytic reactions in a chemical mechanism; set the variable CTM_PHOTDIAG to “Y” in the CCTM run script to write this file|
-|B3GTS_S|GRDDED3|Hourly biogenic emissions file; output when in-line biogenic emissions processing is activated by setting CTM_BIOGEMIS to “Y” and the variable B3GTS_DIAG is set to “Y” in the CCTM run script|
-|SOILOUT|GRDDED3|Hourly soil NO emissions file; output when in-line biogenic emissions processing is activated by setting CTM_BIOGEMIS to “Y”|
-|CTM_DUST_EMIS_1|GRDDED3|Hourly 2-D dust emissions file; output when the CCTM dust module is activated by setting CTM_WB_DUST to “Y” and the variable CTM_DUSTEM_DIAG is set to “Y” in the CCTM run script|
-|CTM_LTNG_DIAG1|GRDDED3|Hourly average 3-D lighting NO emissions file; output when the CCTM lightning module is activated by setting CTM_LTNG_NO to “Y” and the variable LTNGDIAG is set to “Y” in the CCTM run script|
-|CTM_LTNG_DIAG2|GRDDED3|Hourly column toal NO lighting emissions file; output when the CCTM lightning module is activated by setting CTM_LTNG_NO to “Y” and the variable LTNGDIAG is set to “Y” in the CCTM run script|
-|CTM_PT3D_DIAG|GRDDED3|Hourly 3-D point-source emissions file; output when in-line emissions processing is activated by setting CTM_PT3DEMIS to “Y” and the variable PT3DDIAG is set to “Y” in the CCTM run script|
-|PLAY_SRCID_NAME|GRDDED3|Hourly 3-D layer fractions file; output when in-line emissions processing is activated by setting CTM_PT3DEMIS to “Y” and the variable PT3DFRAC is set to “Y” in the CCTM run script|
+|CTM_SSEMIS_1|GRDDED3|Hourly 2-D sea salt emissions; set the variable `CTM_SSEMDIAG` to `Y` within the CCTM to run script to write this file|
+|CTM_WET_DEP_2|GRDDED3|Name and location of hourly 2-D cloud diagnostics file; set the variable `CLD_DIAG` to `Y` in the CCTM run script to write this file|
+|CTM_DEPV_DIAG|GRDDED3|Hourly 2-D in-line deposition diagnostics file; output when in-line deposition is activated by setting `CTM_ILDEPV` to `Y` and the variable `CTM_DEPV_FILE` is set to `T` or `Y` in the CCTM run script|
+|CTM_IPR\_[1-3]|GRDDED3|Hourly 2-D or 3-D integrated process rate (IPR) files; multiple files written when CCTM is configured to run with IPR|
+|CTM_IRR\_[1-3]|GRDDED3|Hourly 2-D or 3-D integrated reaction rate (IRR) files; multiple files written when CCTM is configured to run with IRR|
+|CTM_RJ\_[1-2]|GRDDED3|Hourly photolysis diagnostic output file; multiple files written when there are a large number of photolytic reactions in a chemical mechanism; set the variable `CTM_PHOTDIAG` to `Y` in the CCTM run script to write this file|
+|B3GTS_S|GRDDED3|Hourly biogenic emissions file; output when in-line biogenic emissions processing is activated by setting `CTM_BIOGEMIS` to `Y` and the variable B3GTS_DIAG is set to “Y” in the CCTM run script|
+|SOILOUT|GRDDED3|Hourly soil NO emissions file; output when in-line biogenic emissions processing is activated by setting `CTM_BIOGEMIS` to `Y`|
+|CTM_DUST_EMIS_1|GRDDED3|Hourly 2-D dust emissions file; output when the CCTM dust module is activated by setting `CTM_WB_DUST` to `Y` and the variable `CTM_DUSTEM_DIAG` is set to `Y` in the CCTM run script|
+|CTM_LTNG_DIAG1|GRDDED3|Hourly average 3-D lighting NO emissions file; output when the CCTM lightning module is activated by setting `CTM_LTNG_NO` to `Y` and the variable LTNGDIAG is set to “Y” in the CCTM run script|
+|CTM_LTNG_DIAG2|GRDDED3|Hourly column toal NO lighting emissions file; output when the CCTM lightning module is activated by setting `CTM_LTNG_NO` to `Y` and the variable LTNGDIAG is set to “Y” in the CCTM run script|
+|CTM_PT3D_DIAG|GRDDED3|Hourly 3-D point-source emissions file; output when in-line emissions processing is activated by setting `CTM_PT3DEMIS` to `Y` and the variable PT3DDIAG is set to “Y” in the CCTM run script|
+|PLAY_SRCID_NAME|GRDDED3|Hourly 3-D layer fractions file; output when in-line emissions processing is activated by setting `CTM_PT3DEMIS` to `Y` and the variable `PT3DFRAC` is set to `Y` in the CCTM run script|
 |CTM_DRY_DEP_MOS|GRDDED3||
 |CTM_DRY_DEP_FST|GRDDED3||
-|MEDIA_CONC|GRDDED3|Hourly mercury deposition output file; output when bidirectional mercury flux is activated by setting the variable CTM_HGBIDI to “Y” in the CCTM run script|
-|CTM_VDIFF_DIAG|GRDDED3|Hourly vertical diffusion diagnostic data; activate by setting the variable VDFF_DIAG_FILE to "Y" in the CCTM run script|
-|CTM_VSED_DIAG|GRDDED3|Hourly gravitational settling diagnostic data; activate by setting the variable VDFF_DIAG_FILE to "Y" in the CCTM run script|
-|CTM_AOD_1|GRDDED3|Hourly aerosol optical depth estimates; activate by setting the variable CTM_AOD to "Y" in the CCTM run script|
-|CTM_AVIS_1|GRDDED3|Hourly-averaged 3-D visibility metrics; set the variable CTM_AVISDIAG to “Y” in the CCTM run script to write this file|
-|CTM_PMDIAG_1|GRDDED3|Hourly instantaneous 3-D aerosol diagnostics for conditions at the top of the hour; dp and sigmas for Aitken and accumulation mode aerosol species; set the variable CTM_PMDIAG to “Y” in the CCTM run script to write this file|
-|CTM_APMDIAG_1|GRDDED3|Hourly average 3-D aerosol diagnostics; dp and sigmas for Aitken and accumulation mode aerosol species; set the variable CTM_APMDIAG to “Y” in the CCTM run script to write this file|
+|MEDIA_CONC|GRDDED3|Hourly mercury deposition output file; output when bidirectional mercury flux is activated by setting the variable `CTM_HGBIDI` to `Y` in the CCTM run script|
+|CTM_VDIFF_DIAG|GRDDED3|Hourly vertical diffusion diagnostic data; activate by setting the variable `VDFF_DIAG_FILE` to `Y` in the CCTM run script|
+|CTM_VSED_DIAG|GRDDED3|Hourly gravitational settling diagnostic data; activate by setting the variable `VDFF_DIAG_FILE` to `Y` in the CCTM run script|
+|CTM_AOD_1|GRDDED3|Hourly aerosol optical depth estimates; activate by setting the variable `CTM_AOD` to `Y` in the CCTM run script|
+|CTM_AVIS_1|GRDDED3|Hourly-averaged 3-D visibility metrics; set the variable `CTM_AVISDIAG` to `Y` in the CCTM run script to write this file|
+|CTM_PMDIAG_1|GRDDED3|Hourly instantaneous 3-D aerosol diagnostics for conditions at the top of the hour; dp and sigmas for Aitken and accumulation mode aerosol species; set the variable `CTM_PMDIAG` to `Y` in the CCTM run script to write this file|
+|CTM_APMDIAG_1|GRDDED3|Hourly average 3-D aerosol diagnostics; dp and sigmas for Aitken and accumulation mode aerosol species; set the variable `CTM_APMDIAG` to `Y` in the CCTM run script to write this file|
 
 
 The default location of the CCTM output files is the `$CMAQ_HOME/data/cctm` directory, controlled by the `OUTDIR` variable in the run script. The default naming convention for all CCTM output files uses the `EXEC` and `APPL` environment variables in the file name. All of the variables for naming the CCTM outputs are set in the run script.
@@ -634,7 +634,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `CTM_ERODE_AGLAND [default: Y]`  
     Setting to use optional erodible agricultural land classifications for computing windblown dust emissions from agricultural land. Setting this variable to Y requires the availability of gridded crop timing data that describe planting start dates, planting end dates, and harvesting end dates for 18 crop types. See [Chapter 8](CMAQ_OGD_ch08_input_files.md#Table8-1) for a description of the CROPMAP01, CROPMAP04, and CROPMAP08 input files. If CTM_WB_DUST is set to N, this setting will be ignored. Set to Y to turn on; comment out variable or set to N to turn off.
 -   `CTM_WBDUST_BELD [default: BELD3]` 
-    Landuse database for identifying dust source regions;  ignore if CTM_WB_DUST = N
+    Landuse database for identifying dust source regions;  ignore if `CTM_WB_DUST = N`
     - `BELD3`  
     Use BELD3 landuse data
     - `BELD4`
