@@ -63,7 +63,7 @@ This section describes each of the input files required by the various CMAQ prog
 |[STK_EMIS_nn](#stk_emis) | GRDDED3 | Hourly | X\*Y | SMOKE
 |[DUST_LU_1](#dust_lu_1)|GRDDED3 | Time-invariant | X\*Y | Spatial Allocator
 |[DUST_LU_2](#dust_lu_1)|GRDDED3 | Time-invariant | X\*Y | Spatial Allocator
-|[MODIS_FPAR](#modis_fpar)|GRDDED3 | Time-invariant | X\*Y | Spatial Allocator
+|[MODIS_FPAR](#modis_fpar)|GRDDED3 | Daily | X\*Y | Spatial Allocator
 |[CROPMAP01](#cropmap01)| GRDDED3 | Time-invariant | X\*Y | Cropcal
 |[CROPMAP04](#cropmap04)| GRDDED3 | Time-invariant | X\*Y | Cropcal
 |[CROPMAP08](#cropmap08)|GRDDED3 | Time-invariant | X\*Y | Cropcal
@@ -82,7 +82,6 @@ This section describes each of the input files required by the various CMAQ prog
 |[GRID_CRO_3D](#grid_cro_3d) | GRDDED3 | Time-invariant | X\*Y\*Z | MCIP
 |[GRID_BDY_2D](#grid_bdy_2D) | GRDDED3 | Time-invariant | PERIM\*Z | MCIP
 |[GRID_DOT_2D](#grid_dot_2d) | GRDDED3 | Time-invariant | (X+1)\*(Y+1) | MCIP
-|[MET_BDY_2D](#met_bdy_2d) | BNDARY3 | Hourly | ??? | MCIP
 |[MET_BDY_3D](#met_bdy_3d) | BNDARY3 | Hourly | PERIM\*Z | MCIP
 |[MET_CRO_2D](#met_cro_2d) | GRDDED3 | Hourly | X\*Y | MCIP
 |[MET_CRO_3D](#met_cro_3d) | GRDDED3 | Hourly | X\*Y\*Z | MCIP
@@ -925,7 +924,7 @@ This variable is used in combination with the variables in the DUST_LU_1 file to
 
 Used by: CCTM – in-line dust emission version only
 
-[EPA: Add Description]
+MODIS_FPAR file is an I/O API file with 2-d (row x col) daily values of Fraction of Photosynthetically Active Radiation (FPAR) from MODIS instrument interpolated to the modeling domain. It is required to obtain a dynamic vegetation fraction used by the in-line windblown dust emission module.
 
 <a id=cropmap01></a>
 ### CROPMAP01: Gridded planting start dates
@@ -1113,12 +1112,6 @@ The GRID_DOT_2D time-independent file contains surface fields at dot points (i.e
 Used by: CCTM
 
 The GRID_CRO_3D time-independent file contains surface fields at cross points (i.e., at cell centers) that vary by height. It is created by MCIP and used by CCTM for the PT3D. The following variables are in this file:
-add content
-
-<a id=met_bdy_2d></a>
-### MET_BDY_2D: Two-dimensional meteorological boundary input
-
-Used by: CCTM
 add content
 
 <a id=met_bdy_3d></a>
