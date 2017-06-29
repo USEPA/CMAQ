@@ -9,11 +9,10 @@ The new two-way coupled WRF-CMAQ model which is based on WRF 3.8 and CMAQ 5.2, i
 
 ## Build Instructions
 
-A twoway model tarball, twoway.tar.gz, is required to construct the twoway. This file can be download at ftp://newftp.epa.gov/exposure/CMAQ/V5_2/WRF-CMAQ_Coupled_Model/. A build instruction is included in this tarball under script subdirectory.
-
+Directions and code for constructing the WRF-CMAQ coupled model is available from the CMAS Center Software Clearinghouse. From http://www.cmascenter.org, select Download -> Software -> CMAQ and choose version 5.2 to download the coupled model tarball, twoway.tar.gz.
 
 ## Run Instructions
-A test dataset can be found in the same ftp site. A sample run script, twoway_model_run_script, is in the twoway.tar.gz under script subdirectory.
+A test dataset is also available from the CMAS Center Software Clearinghouse (wrf_38_cmaq_52_input.tar.gz, wrf_38_cmaq_52_output.tar.gz). A sample run script, twoway_model_run_script, is in the twoway.tar.gz under script subdirectory.
 
 ## WRF-CMAQ Input/Output Data
 
