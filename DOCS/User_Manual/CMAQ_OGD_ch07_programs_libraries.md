@@ -454,9 +454,9 @@ The following configuration settings may have multiple options. Select one optio
 -   `ModCpl: [default: couple/gencoor_wrf]`  
     Mass coupling concentration converstion module options. Unit conversion and concentration coupling module.
     -   `couple/gencoor_wrf`  
-    Coupling scheme compatible with the WRF-based advection scheme; select this option when ModDriver is set to `driver/wrf`
+    Coupling scheme compatible with the WRF-based advection scheme; select this option when `ModDriver` is set to `driver/wrf`
     -  `couple/gencoor`  
-    Coupling scheme compatible with the Yamartino advection scheme; select this option when ModDriver is set to `driver/yamo`.  
+    Coupling scheme compatible with the Yamartino advection scheme; select this option when `ModDriver` is set to `driver/yamo`.  
 
 -    `ModHadv: [default: hadv/yamo]`  
       Horizontal advection module.  Currently only the Yamartino global mass-conserving hoizontal advection scheme is supported.
@@ -469,7 +469,7 @@ The following configuration settings may have multiple options. Select one optio
     -   `vadv/yamo`  
     use the global mass-conserving scheme to calculate vertical advection
 -   `ModHdiff: [default: hdiff/multiscale]`  
-    The only option in CMAQv5 for the horizontal diffusion module is *hdiff/multiscale*, which uses a diffusion coefficient based on local wind deformation. Do not change this module setting.
+    The only option in CMAQv5 for the horizontal diffusion module is `hdiff/multiscale`, which uses a diffusion coefficient based on local wind deformation. Do not change this module setting.
     -   `hdiff/multiscale`  
 -   `ModVdiff: [default: vdiff/acm2]`  
     Vertical diffusion and surface exchange module. Do not change this module setting.
@@ -557,7 +557,8 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `EMIS [default: 2013ef]`
 -   `APPL [default: SE52BENCH]`  
     CCTM executable identifier. Must match APPL Variable setting in the CCTM build script.
--   `RUNID [default: $VRSN_compiler_APPL]
+-   `RUNID [default: $VRSN_compiler_APPL]`
+    Run ID used to track version number, compiler, and application case name.
 -   `EXEC [default: CCTM_$APPL_$EXECID]`  
     The name of the CCTM executable.
 
@@ -568,7 +569,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Number of processors to allocate for the CCTM simulation; equal to the product of NPCOL x NPROW. For serial or single-processor MPI runs set to `1`, otherwise set to the product of the two numbers used in NPCOL_NPROW.
 
 ##### Vertical extent
--    `NZ [default: 35]
+-    `NZ [default: 35]`
       Set the number of vertical layers. 
 
 ##### Timestep Configuration
@@ -632,11 +633,11 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Setting to calculate in-line windblown dust emissions in CCTM. Setting this variable to Y requires the availability of gridded land use input files that include the following BELD USGS land use classifications: shrubland, shrubgrass, and sprsbarren. See [Chapter 8](CMAQ_OGD_ch08_input_files.md#Table8-1) for a description of the DUST_LU_1 and DUST_LU_2 input files. Comment out variable or set to Y to turn on; set to N to turn off.
 -   `CTM_ERODE_AGLAND [default: Y]`  
     Setting to use optional erodible agricultural land classifications for computing windblown dust emissions from agricultural land. Setting this variable to Y requires the availability of gridded crop timing data that describe planting start dates, planting end dates, and harvesting end dates for 18 crop types. See [Chapter 8](CMAQ_OGD_ch08_input_files.md#Table8-1) for a description of the CROPMAP01, CROPMAP04, and CROPMAP08 input files. If CTM_WB_DUST is set to N, this setting will be ignored. Set to Y to turn on; comment out variable or set to N to turn off.
--    `CTM_WBDUST_BELD [default: BELD3]`  
+-   `CTM_WBDUST_BELD [default: BELD3]`
     Landuse database for identifying dust source regions;  ignore if CTM_WB_DUST = N
     - `BELD3`  
     Use BELD3 landuse data
-    - `BELD4`  
+    - `BELD4`
     Use BELD4 landuse data
 -   `CTM_LTNG_NO [default: Y]`  
     Setting to activate lightning NO emissions. Setting this variable to Y requires additional variables to define the configuration of the lightning NO emissions calculation. See the settings for LTNGNO, LTNGPARAMS, NLDN_STRIKES, and LTNGDIAG below. Set to Y to turn on; comment out variable or set to N to turn off.
@@ -1261,7 +1262,7 @@ The configuration options listed here are set during compilation of the ICON exe
     -   `saprc07tb_ae6_aq`: SAPRC-07 gas-phase mechanism with toluene updates and sixth-generation CMAQ aerosol mechanism
     -  `racm2_ae6_aq`: RACM2 gas-phase mechanism with toluene updates and sixth-generation CMAQ aerosol mechanism
 -   `Tracer [default trac0] `  
-    Specifies tracer species. Invoking inert tracer species in CMAQ requires defining the tracers using namelist files and compiling the CMAQ programs with these files. The setting for this module corresponds to the directory name in the $CMAQ_HOME/CCTM/src/MECHS directory that contains the namelist files for the tracer configuration. The default setting is to not use any tracers.
+    Specifies tracer species. Invoking inert tracer species in CMAQ requires defining the tracers using namelist files and compiling the CMAQ programs with these files. The setting for this module corresponds to the directory name in the `$CMAQ_HOME/CCTM/src/MECHS` directory that contains the namelist files for the tracer configuration. The default setting is to not use any tracers.
     - `trac[n]`
 
 #### Execution Configuration Variables ####
@@ -1502,7 +1503,7 @@ The configuration options listed here are set during compilation of the JPROC ex
     -   `saprc07tb_ae6_aq`: SAPRC-07 gas-phase mechanism with toluene updates and sixth-generation CMAQ aerosol mechanism
     -  `racm2_ae6_aq`: RACM2 gas-phase mechanism with toluene updates and sixth-generation CMAQ aerosol mechanism
 -   `Tracer [default trac0] `  
-      Specifies tracer species. Invoking inert tracer species in CMAQ requires defining the tracers using namelist files and compiling the CMAQ programs with these files. The setting for this module corresponds to the directory name in the $CMAQ_HOME/CCTM/src/MECHS directory that contains the namelist files for the tracer configuration. The default setting is to not use any tracers.
+      Specifies tracer species. Invoking inert tracer species in CMAQ requires defining the tracers using namelist files and compiling the CMAQ programs with these files. The setting for this module corresponds to the directory name in the `$CMAQ_HOME/CCTM/src/MECHS` directory that contains the namelist files for the tracer configuration. The default setting is to not use any tracers.
       - `trac[n]`
 
 #### Execution Configuration variables
