@@ -349,9 +349,9 @@ Both in-line emissions and photolysis are invoked through compile-time configura
 |DUST_LU_1|GRDDED3|BELD land use “A” data file for calculating windblown dust emissions; produced with BELD land use tiles and the Spatial Allocator|
 |DUST_LU_2|GRDDED3|BELD land use “TOT” data file for calculating windblown dust emissions; produced with BELD land use tiles and the Spatial Allocator|
 |MODIS_FPAR|GRDDED3|MODIS derived time-varying vegetation land cover data. Can be generated with the [Spatial Allocator Raster Tools](https://github.com/CMASCenter/Spatial-Allocator/blob/master/docs/User_Manual/SA_ch04_raster.md).|
-|CROPMAP01|GRDDED3|Gridded planting start dates for estimating dust emissions from erodible cropland; produced by the CMAQ preprocessor Cropcal|
-|CROPMAP04|GRDDED3|Gridded planting end dates for estimating dust emissions from erodible cropland; produced by the CMAQ preprocessor Cropcal|
-|CROPMAP08|GRDDED3|Gridded harvesting end dates for estimating dust emissions from erodible cropland; produced by the CMAQ preprocessor Cropcal|
+|CROPMAP01|GRDDED3|Gridded planting start dates for estimating dust emissions from erodible cropland; produced by the CMAQ preprocessor [Calmap](#Calmap)||
+|CROPMAP04|GRDDED3|Gridded planting end dates for estimating dust emissions from erodible cropland; produced by the CMAQ preprocessor [Calmap](#Calmap)|
+|CROPMAP08|GRDDED3|Gridded harvesting end dates for estimating dust emissions from erodible cropland; produced by the CMAQ preprocessor [Calmap](#Calmap)|
 |LTNGNO|GRDDED3|Lightning NO emissions file with rate of production (moles/sec) for each model layer at each time step|
 |NLDN_STRIKES|GRDDED3|Hourly observed lightning strikes (km<sup>-2</sup>) gridded to the CCTM domain.|
 |LTNGPARMS_FILE|GRDDED3|Time-independent, gridded lightning parameters file that includes the regression parameters derived from historical NLDN observations and WRF predicted convective precipitations using Kain-Fritsch convective scheme, ocean masks, and the ratio of intercloud to cloud-to-ground flashes|
@@ -552,12 +552,12 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Use MPI multi-processor configuration. Additional configuration settings are required when selecting `mpi`. The CCTM must have been built to support MPI. The run script requires settings for the number of processors and other MPI configuration variables required by the Linux system.
     - `serial`  
     Run the CCTM in serial, single-processor mode.
--   `MECH [default: None]`
+-   `MECH [default: None]` 
     CMAQ chemical mechanism. Must match Mechanism variable setting in the CCTM build script.
 -   `EMIS [default: 2013ef]`
 -   `APPL [default: SE52BENCH]`  
     CCTM executable identifier. Must match APPL Variable setting in the CCTM build script.
--   `RUNID [default: $VRSN_compiler_APPL]`
+-   `RUNID [default: $VRSN_compiler_APPL]` 
     Run ID used to track version number, compiler, and application case name.
 -   `EXEC [default: CCTM_$APPL_$EXECID]`  
     The name of the CCTM executable.
@@ -569,12 +569,12 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Number of processors to allocate for the CCTM simulation; equal to the product of NPCOL x NPROW. For serial or single-processor MPI runs set to `1`, otherwise set to the product of the two numbers used in NPCOL_NPROW.
 
 ##### Vertical extent
--    `NZ [default: 35]`
+-    `NZ [default: 35]` 
       Set the number of vertical layers. 
 
 ##### Timestep Configuration
 
--   `NEW_START_TRUE [default: TRUE]`
+-   `NEW_START_TRUE [default: TRUE]` 
      For a model restart set to FALSE
 -   `START_DATE`  
     Simulation start date in Gregorian format (YYYY-MM-DD)
@@ -620,7 +620,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Minimum synchronization time step in seconds
 -   `SIGMA_SYNC_TOP [default: .70]`  
     Top sigma level thru which sync step determined
--   `ADV_HDIV_LIM [default: .95]`
+-   `ADV_HDIV_LIM [default: .95]` 
      Maximum horizontal division limit for advection time step adjustment
 -   `CTM_ADV_CFL [default: .95]`  
     Maximum Courant–Friedrichs–Lewy (cfl) condition
@@ -633,7 +633,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Setting to calculate in-line windblown dust emissions in CCTM. Setting this variable to Y requires the availability of gridded land use input files that include the following BELD USGS land use classifications: shrubland, shrubgrass, and sprsbarren. See [Chapter 8](CMAQ_OGD_ch08_input_files.md#Table8-1) for a description of the DUST_LU_1 and DUST_LU_2 input files. Comment out variable or set to Y to turn on; set to N to turn off.
 -   `CTM_ERODE_AGLAND [default: Y]`  
     Setting to use optional erodible agricultural land classifications for computing windblown dust emissions from agricultural land. Setting this variable to Y requires the availability of gridded crop timing data that describe planting start dates, planting end dates, and harvesting end dates for 18 crop types. See [Chapter 8](CMAQ_OGD_ch08_input_files.md#Table8-1) for a description of the CROPMAP01, CROPMAP04, and CROPMAP08 input files. If CTM_WB_DUST is set to N, this setting will be ignored. Set to Y to turn on; comment out variable or set to N to turn off.
--   `CTM_WBDUST_BELD [default: BELD3]`
+-   `CTM_WBDUST_BELD [default: BELD3]` 
     Landuse database for identifying dust source regions;  ignore if CTM_WB_DUST = N
     - `BELD3`  
     Use BELD3 landuse data
@@ -893,8 +893,8 @@ See [Chapter 9](CMAQ_OGD_ch09_grid_defn.md) for details on how to update existin
 
 <a id=Figure7-5></a>
 
-![](./images/Figure7-5.png "Figure7-5.png")
-**Figure 7‑5. CHEMMECH and CSV2NML input and output files (Update this Image)**
+![](./images/Figure7-5.png "Figure7-5.png") 
+**Figure 7‑5. CHEMMECH and CSV2NML input and output files)**
 
 To implement a new mechanism in CMAQ, start with a mechanism definition (mech.def) file and CSV species files from an existing mechanism in the model. Edit the mech.def file to include the new reactions, species, and reaction rates and provide this new mech.def file as input to CHEMMECH. Edit the CSV species files to include the new species and provide these files as input to CSV2NML. Detailed examples of updating an existing mechanism and adding a new mechanism to CMAQ are provided in [Chapter 9](CMAQ_OGD_ch09_grid_defn.md). Neither CHEMMECH nor CSV2NML requires horizontal grid, vertical layer, or temporal settings.
 
@@ -1022,7 +1022,7 @@ cd $CMAQ_HOME/UTIL/nml/scripts
 
 The program CREATE_EBI generates Fortran source code for the mechanism-dependent Euler Backward Iterative (EBI) solver. This utility program allows users to create new EBI solver code when mechanisms are modified or added to CMAQ. The source code generated by CREATE_EBI should be used to build versions of the CCTM that use the new or modified chemistry mechanisms.
 
-See [Chapter 9](CMAQ_OGD_ch09_grid_defn.md)) for details on how to update existing mechanisms or create new mechanisms in CMAQ.
+See [Chapter 9](CMAQ_OGD_ch09_grid_defn.md) for details on how to update existing mechanisms or create new mechanisms in CMAQ.
 
 ### Files, configuration, and environment variables
 
