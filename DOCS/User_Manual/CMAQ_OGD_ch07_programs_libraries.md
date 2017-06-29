@@ -333,6 +333,8 @@ Both in-line emissions and photolysis are invoked through compile-time configura
 |nr_matrix.nml|ASCII|Namelist file for defining the non-reactive species that are input to the model through the boundary|
 |tr_matrix.nml|ASCII|Namelist file for defining the tracer species that are input to the model through the boundary|
 
+#### CCTM optional input files
+
 <a id=Table7-6></a>
 
 **Table 7‑6. Optional CCTM input files**
