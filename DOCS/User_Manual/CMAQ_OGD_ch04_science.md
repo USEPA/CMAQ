@@ -179,6 +179,7 @@ CMAQ has the capability to estimate windblown dust emissions in-line in the CCTM
 
 [Figure 4-5](#Figure4-9) is a Calmap schematic showing the data flow through the software. CALMAP reads grid information from the GRIDCRO2D meteorology file (MCIP output), land cover/land use data from [BELD3](https://www.epa.gov/air-emissions-modeling/biogenic-emissions-landuse-database-version-3-beld3), and crop calendar data to produce files of planting start dates, planting end dates, and harvesting end dates for different crop types interpolated to the modeling grid. These files are input to the CCTM when it is configured to estimate windblown dust and simulate the impacts of agricultural activity on the windblown dust emissions.
 
+
 <a id="Figure4-5"></a>
 
 ![](./images/Figure4-9.png "Figure4-5.png")
