@@ -19,11 +19,11 @@
 
  set APPL     = v52 
  set CFG      = CMAQ-BENCHMARK
- set MECH     = cb05e51_ae6_aq 
+ set MECH     = cb6r3_ae6_aq 
  set EXEC     = JPROC_${APPL}_$EXEC_ID
 
 #> Set the working directory:
- set BASE     = $CMAQ_HOME/PREP/jproc/scripts
+ set BASE     = $CMAQ_HOME/UTIL/jproc/scripts
  set BLD   = ${BASE}/BLD_$APPL
 
  cd $BASE; date; set timestamp; cat $BASE/cfg.${CFG}; echo " "; set echo

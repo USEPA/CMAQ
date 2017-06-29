@@ -15,7 +15,7 @@
 #:#:#:#:#:#:#:#:#:#:#:# Begin User Input Section #:#:#:#:#:#:#:#:#:#:#:#
 
 #> Source Code Repository 
- set MODEL = $CMAQ_HOME/PREP/jproc/src        #> location of the JPROC source code
+ set MODEL = $CMAQ_HOME/UTIL/jproc/src        #> location of the JPROC source code
  setenv REPOROOT $MODEL
  set GlobInc = $CMAQ_HOME/CCTM/src/ICL        #> location of the global include files
  set Mechs   = $CMAQ_HOME/CCTM/src/MECHS      #> location of the chemistry mechanism include files
@@ -37,7 +37,7 @@
 #>   source code archive for a list of the possible settings; users may also refer to the CMAQ documentation
 
  set ModCommon = common
- set Mechanism = cb05e51_ae6_aq        #> chemical mechanism (see $CMAQ_HOME/CCTM/MECHS)
+ set Mechanism = cb6r3_ae6_aq        #> chemical mechanism (see $CMAQ_HOME/CCTM/MECHS)
  set Tracer    = trac0                 #> tracer configuration directory under $CMAQ_HOME/CCTM/MECHS [ default: no tracer species ]
  set ModMisc = $Mechs/$Mechanism/RXNS_DATA_MODULE.F90
 

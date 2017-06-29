@@ -894,7 +894,7 @@ See [Chapter 9](CMAQ_OGD_ch09_grid_defn.md) for details on how to update existin
 <a id=Figure7-5></a>
 
 ![](./images/Figure7-5.png "Figure7-5.png")  
-**Figure 7‑5. CHEMMECH and CSV2NML input and output files)**
+**Figure 7‑5. CHEMMECH and CSV2NML input and output files**
 
 To implement a new mechanism in CMAQ, start with a mechanism definition (mech.def) file and CSV species files from an existing mechanism in the model. Edit the mech.def file to include the new reactions, species, and reaction rates and provide this new mech.def file as input to CHEMMECH. Edit the CSV species files to include the new species and provide these files as input to CSV2NML. Detailed examples of updating an existing mechanism and adding a new mechanism to CMAQ are provided in [Chapter 9](CMAQ_OGD_ch09_grid_defn.md). Neither CHEMMECH nor CSV2NML requires horizontal grid, vertical layer, or temporal settings.
 
@@ -1516,8 +1516,8 @@ The environment variables listed here are invoked during execution of the progra
     Configuration identifier for the JPROC simulation.
 -   `MECH [default: None]`  
     CMAQ chemical mechanism. Must match Mechanism variable setting in the JPROC build script.
--   `EXEC: [default: JPROC_${APPL}_${EXECID}]`  
-    Executable to use for the simulation. The variable CFG is set in the JPROC run script. The variable EXECID is set in the config_cmaq.csh configuration file.
+-   `EXEC: [default: JPROC_${APPL}_${EXEC_ID}]`  
+    Executable to use for the simulation. The variable CFG is set in the JPROC run script. The variable EXEC_ID is set in the config_cmaq.csh configuration file.
 -   `STDATE`  
     Start Julian date (YYYYDDD) for computing clear sky photolysis rates.
 -   `ENDATE`  
