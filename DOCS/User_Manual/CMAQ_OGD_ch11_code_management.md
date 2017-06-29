@@ -41,19 +41,20 @@ git is a version control system that supports distributed workflows.  Every Git 
     5.  This will place a copy of the files from the 5.2 Branch into the CMAQv5.2 directory
     6.  `cd CMAQv5.2` go into the CMAQv5.2 directory
     7. `git status`   To confirm the status of the files in the repository and the branch that is currently checked out
-    8.  To edit the config.cmaq file take the following steps:<br>
-`vi config.cmaq`  - or use the Atom, TextWrangler or other Editor
-    9. To see what changes you made use the following command
-`git diff config.cmaq`
-    10. To stage the change use the following command.
-`git add config.cmaq`
-    11. To commit changes to the local repostitory use the command:
-`git commit -m "changed config.cmaq to fix issue X"`
-    12. To commit changes to your Github repository use the command:
+    8. `git checkout -b 5.2_update` To copy the 5.2 branch into a new branch called 5.2_update
+    9.  To edit the config_cmaq.csh file take the following steps:<br>
+`vi config_cmaq.csh`  - or use the Atom, TextWrangler or other Editor
+    10. To see what changes you made use the following command
+`git diff config_cmaq.csh`
+    11. To stage the change use the following command.
+`git add config_cmaq.csh`
+    12. To commit changes to the local repostitory use the command:
+`git commit -m "changed config_cmaq.csh to fix issue X"`
+    13. To commit changes to your Github repository on the branch 5.2_update use the command:
 `git push`
-    13. If you get a message that the push was rejected similar to the following:
+    14. If you get a message that the push was rejected similar to the following:
         ```
-        ! [rejected]        5.2 -> 5.2 (fetch first)
+        ! [rejected]        5.2_update -> 5.2_update (fetch first)
           error: failed to push some refs to 'https://github.com/CEMPD/CMAQ.git'
           hint: Updates were rejected because the remote contains work that you do
           hint: not have locally. This is usually caused by another repository pushing
@@ -61,18 +62,18 @@ git is a version control system that supports distributed workflows.  Every Git 
           hint: (e.g., 'git pull ...') before pushing again.
          hint: See the 'Note about fast-forwards' in 'git push --help' for details.
          ```
-    14. This means the files have been changed on your Github repository since you last did a clone.
+    15. This means the files have been changed on your Github repository since you last did a clone.
 Use the following command to get the changes that have been made to the remote git repository:
 `git pull`
-    15. You will be asked to merge the files if there are no changes that conflict with your file changes. IF successful you will see a message similar to the following, that indicates what files were changed.
+    16. You will be asked to merge the files if there are no changes that conflict with your file changes. IF successful you will see a message similar to the following, that indicates what files were changed.
         ```
         Merge made by the 'recursive' strategy.
-        config.cmaq | 4 ++--
+        config_cmaq.csh | 4 ++--
         1 file changed, 2 insertions(+), 2 deletions(-)
         ```
-    16. Retry the push command to place the changes that you committed to the local repository on your Github repository:
+    17. Retry the push command to place the changes that you committed to the local repository on your Github repository:
 `git push`
-    17. Go to the fork of the EPA CMAQ on your github page and submit a pull request to ask that the changes that you have made be incorporated into the EPA github site.
+    18. Go to the fork of the EPA CMAQ on your github page and submit a pull request to ask that the changes that you have made be incorporated into the EPA github site.
 
 
 ## Guidelines for Developing New CMAQ Source Code
@@ -799,7 +800,7 @@ The following steps are recommended for compiling CMAQ when a new module has bee
 To run a model executable, various UNIX environment variables must be set in the shell that invokes the execute command. Generally, these variables involve the modeling scenario start date and time, the run duration, the output time step interval, various internal code flags that differ among the models, and all the input and output logical (symbolic) file names. There are various ways that external file names can be referenced in the source code, and UNIX platforms can link them by using environment variables. There are I/O API utility functions that allow users to easily access these variables in the code in a generic and portable manner. An additional feature that is provided through the I/O API is the ability to declare a file “volatile” by appending a -v flag in the shell’s declaration for the environment variable. By doing this, the I/O API will cause the netCDF file to update (sync) its disk copy after every write and thereby update the netCDF header. Otherwise, netCDF (I/O API) file headers are not updated until the files are closed. This feature is useful, for example, for allowing a user to analyze an open netCDF file using visualization tools while the model is executing. It is also useful in case of a system crash. A CCTM model can be restarted at the scenario time step after the last successful write using the aborted output file as the input initial data.
 
 The following is a sample run script that can be downloaded from the CMAS web site. The build and run scripts are part of the downloaded tar file from this site.
-
+(NEED TO UPDATE)
 ```Tcsh
 #!/bin/csh -f
 
@@ -810,8 +811,8 @@ The following is a sample run script that can be downloaded from the CMAS web si
 #             http://www.cmascenter.org
 # ===================================================================
 
-#> Source the config.cmaq file to set the run environment
- source ../../config.cmaq.pgi
+#> Source the config_cmaq.csh file to set the run environment
+ source ../../config_cmaq.csh
 
 #> Check that CMAQ_DATA is set:
  if ( ! -e $CMAQ_DATA ) then
