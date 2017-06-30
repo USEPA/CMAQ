@@ -86,8 +86,9 @@ C..Arguments:
       INTEGER TSTEP( 3 )      ! Time step vector (HHMMSS)
 
 C..Parameters:
-      REAL, PARAMETER :: CONCMIN = 1.0E-30               ! minimum species concentration allowed
-      REAL, PARAMETER :: MAOMV   = 1.0E6 * MWAIR / MWWAT ! Mol Wt of air over Mol Wt of water times
+      REAL( 8 ), PARAMETER :: DCONMIN = 1.0D-30               ! minimum species concentration allowed
+      REAL,      PARAMETER :: CONCMIN = 1.0E-30               ! minimum species concentration allowed
+      REAL,      PARAMETER :: MAOMV   = 1.0E6 * MWAIR / MWWAT ! Mol Wt of air over Mol Wt of water times
 
 C..External Functions:
 

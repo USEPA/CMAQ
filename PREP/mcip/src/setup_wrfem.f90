@@ -133,6 +133,11 @@ SUBROUTINE setup_wrfem (cdfid, ctmlays)
 !                        the "corrector" part of the predictor-corrector in
 !                        WRF/ACM2.  (T. Spero)
 !           17 Sep 2015  Changed IFMOLACM to IFMOLPX.  (T. Spero)
+!           21 Apr 2017  Added MODIS category 21 as "Lake".  (T. Spero)
+!           23 Jun 2017  Added a check for WRF's hybrid vertical coordinate
+!                        in WRFv3.9 and beyond.  Currently disabled MCIP when
+!                        that coordinate is detected.  To be implemented in
+!                        a later release of MCIP.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE metinfo
@@ -289,6 +294,13 @@ SUBROUTINE setup_wrfem (cdfid, ctmlays)
     & /, 1x, '***   DID NOT FIND FRACTIONAL LAND USE IN wrfout', &
     & /, 1x, '***   AND DID NOT FIND GEOGRID FILE' &
     & /, 1x, '***   -- WILL NOT USE FRACTIONAL LAND USE DATA' &
+    & /, 1x, 70('*'))"
+
+  CHARACTER(LEN=256), PARAMETER :: f9900 = "(/, 1x, 70('*'), &
+    & /, 1x, '*** SUBROUTINE: ', a, &
+    & /, 1x, '***   HYBRID VERTICAL COORDINATE DETECTED IN WRF!!!', &
+    & /, 1x, '***   MCIP AND CMAQ HAVE NOT BEEN TESTED WITH THIS OPTION YET!', &
+    & /, 1x, '***   -- TO BE IMPLEMENTED LATER', &
     & /, 1x, 70('*'))"
 
 !-------------------------------------------------------------------------------
@@ -571,7 +583,11 @@ SUBROUTINE setup_wrfem (cdfid, ctmlays)
           met_lu_water = 17
           met_lu_ice   = 15
           met_lu_urban = 13
-          met_lu_lake  = -1
+          IF ( wrfversion(18:22) >= "V3.8" ) THEN  ! WRFv3.8 or later
+            met_lu_lake = 21
+          ELSE
+            met_lu_lake = -1
+          ENDIF
         CASE ( "NLC" )  ! NLCD/MODIS combined system
           IF ( met_lu_src(4:6) == "D40") THEN
             nummetlu     = 40
@@ -745,8 +761,6 @@ SUBROUTINE setup_wrfem (cdfid, ctmlays)
       CALL graceful_stop (pname)
     ENDIF
   ENDIF
-
-  print*,'+++ met_pcp_incr = ', met_pcp_incr
 
 !-------------------------------------------------------------------------------
 ! Extract WRF start date and time information.
@@ -1326,6 +1340,29 @@ SUBROUTINE setup_wrfem (cdfid, ctmlays)
     ENDIF
   ELSE
     ifcld3d = .FALSE. ! 3D cloud fraction is not if the file
+  ENDIF
+
+!-------------------------------------------------------------------------------
+! Determine if the hybrid vertical coordinate has been used in WRF.  It is
+! available as of WRFv3.9.  Currently it has not been tested with CMAQ and
+! additional modifications would be required to handle some of the variable
+! transformations in metvars2ctm.f90, as well as layer collapsing.
+! +++ For now, flag this as a problem.
+!-------------------------------------------------------------------------------
+
+  IF ( wrfversion(18:19) >= "V9") THEN
+    rcode = nf90_get_att (cdfid, nf90_global, 'HYBRID_OPT', met_hybrid)
+    IF ( rcode == nf90_noerr ) THEN
+      IF ( met_hybrid > 0 ) THEN
+        WRITE (*,f9900) TRIM(pname)
+        CALL graceful_stop (pname)
+      ELSE
+        WRITE (*,f9400) TRIM(pname), 'HYBRID_OPT', TRIM(nf90_strerror(rcode))
+        CALL graceful_stop (pname)
+      ENDIF
+    ENDIF
+  ELSE
+    met_hybrid = -1
   ENDIF
 
 END SUBROUTINE setup_wrfem

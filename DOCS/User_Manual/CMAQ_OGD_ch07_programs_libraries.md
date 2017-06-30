@@ -758,7 +758,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 
 ##### Lightning NOx configuration
 
-[CMAQ Lightning NOx Module Documentation](../Release_Notes/Lightning_NOx.md)
+[CMAQ Lightning NOx Module Documentation](../../CCTM/docs/Release_Notes/Lightning_NOx.md)
 
 -   `LTNGNO [default:InLine]`  
     Setting to define whether the lightning emissions calculation will be in-line or off-line. This variable can be set to a gridded netCDF file of lightning NO emissions to use emissions calculated with a preprocessor outside of CCTM. Setting this variable to “inline” activates the in-line emissions calculation in CCTM and requires the LTNGPARMS variable (see below) to define the configuration of the in-line emissions.

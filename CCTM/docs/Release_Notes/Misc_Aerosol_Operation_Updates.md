@@ -1,5 +1,4 @@
-# Miscellaneous Updates to Aerosol Operation in CMAQ
-
+# Update and homogenize Species Definition Files for Post-processing CMAQ output variables
 **Author/P.O.C.:**, [Ben Murphy](mailto:murphy.benjamin@epa.gov), Computational Exposure Division, U.S. EPA
 
 ## Brief Description
