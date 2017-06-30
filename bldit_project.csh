@@ -15,7 +15,7 @@
 #> Default location for CMAQ model build is one directory above
 #> the repository. The user may also set their own preferred 
 #> directory.
- set CMAQ_HOME = /home/username/cmaq_project
+ set CMAQ_HOME = /proj/ie/proj/staff/lizadams/CMAQv5.2_TEST
 
 #> This section allows users to choose explicitly which tools
 #> to make available from the repo. For each selected tool,
@@ -111,6 +111,7 @@
        mkdir -pv $CMAQ_HOME/PREP/icon/scripts
     endif
     cp PREP/icon/scripts/bldit_icon.csh $CMAQ_HOME/PREP/icon/scripts/bldit_icon.csh
+    cp PREP/icon/scripts/run_icon.csh $CMAQ_HOME/PREP/icon/scripts/run_icon.csh
  endif
 
 #===============================================================================
