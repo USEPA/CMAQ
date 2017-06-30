@@ -1395,7 +1395,12 @@ This 3-D CCTM file contains the deposition velocity (m s<sup>-1</sup>) through t
 
 <a id=ctm_vdiff_diag></a>
 ### CTM_VDIFF_DIAG
-The VDIFF_DIAG file provides diagnostic output of acm2 parameters and sedimentation velocities.
+The VDIFF_DIAG file provides diagnostic output of vertical dispersion parameters.  It is controlled by the VDIFF_DIAG_FILE environment variable.
+
+
+<a id=ctm_vsed_diag></a>
+### CTM_VSED_DIAG
+The VSED_DIAG file provides diagnostic output of particle gravitational settling velocities.  It is controlled by the VDIFF_DIAG_FILE environment variable and activated when gravitational sedimentation is turned on. 
 
 <a id=ltnghourly></a>
 ### LTNG_HOURLY
