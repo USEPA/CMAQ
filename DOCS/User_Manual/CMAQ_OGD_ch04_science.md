@@ -13,7 +13,7 @@ CMAQ has been developed to meet the needs of both the research and application c
 
 <a id="Figure4-1"></a>
 
-![](./images/Figure4-1.png "Figure4-1.png")
+![Figure 4.1:CMAQ Interchangeable Modules](./images/Figure4-1.png "Figure4-1.png")
 
 **Figure 4‑1. CMAQ Modeling Framework**
 
