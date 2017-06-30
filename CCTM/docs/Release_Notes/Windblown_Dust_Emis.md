@@ -67,7 +67,7 @@ Run geogrid.exe to create a “geo_em.d01.nc” file containing re-gridded FPAR 
 
 #### 2. Create daily MODIS FPAR and LAI data
 
-Next create daily data from a monthly “geo_em.d01.nc” file. A sample ncl code (monthly_to_daily.ncl) is included in the CMAQ_v52/UTIL/dust directory.
+Next create daily data from a monthly “geo_em.d01.nc” file. A sample ncl code (monthly_to_daily.ncl) is included in the CMAQ_v52/PREP/wbdust directory.
 
 Input: geo_em.d01.nc
 Output: MODIS_FPAR_LAI_daily.nc
@@ -75,7 +75,7 @@ Output: MODIS_FPAR_LAI_daily.nc
 
 #### 3. Create I/O API netCDF Formatted Files
 
-As the CMAQ input data need to be in the I/O API netCDF format, A conversion program (dpp) is provided (see CMAQ_v52/UTIL/dust directory) to convert WRF NetCDF file to the I/O API netCDF format.
+As the CMAQ input data need to be in the I/O API netCDF format, A conversion program (dpp) is provided (see CMAQ_v52/PREP/wbdust directory) to convert WRF NetCDF file to the I/O API netCDF format.
 
 ```
 ./dpp -cw "40" -s "MODIS_FPAR_T MODIS_LAI_T" MODIS_FPAR_LAI_daily.nc MODIS_FPAR_LAI_daily.nc.ioapi
