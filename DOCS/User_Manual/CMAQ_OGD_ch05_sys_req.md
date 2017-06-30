@@ -225,25 +225,29 @@ When you source the config_cmaq.csh script the CMAQ directories, including all r
 
 After you have downloaded the CMAQ reference data from the [CMAS Center Software Clearinghouse](https://www.cmascenter.org/download/software.cfm), navigate to the `$CMAQ_HOME` directory, unzip and untar the `CMAQv5.2.DATA.tar.gz` file:
 
-`cd $CMAQ_HOME`<br>
-`tar xvzf CMAQv5.2.DATA.tar.gz`
+```
+cd $CMAQ_HOME
+tar xvzf CMAQv5.2.DATA.tar.gz
+```
 
 This will produce the following subdirectories:
 
-  `CMAQv5.2/data/`<br>
-  `bcon/`<br>
-  `bidi/`<br>
-  `cctm/`<br>
-  `crop/`<br>
-  `dust/`<br>
-  `emis/`<br>
-  `icon/`<br>
-  `lightning/`<br>
-  `mcip/`<br>
-  `ocean/`<br>
-  `raw/`<br>
-  `phot/`<br>
-  `raw/`<br>
+```
+CMAQv5.2/data/
+  bcon/
+  bidi/
+  cctm/
+  crop/
+  dust/
+  emis/
+  icon/
+  lightning/
+  mcip/
+  ocean/
+  raw/
+  phot/
+  raw/
+```
 
 #### Install the CMAQ libraries ####
 
@@ -299,8 +303,8 @@ All of the CMAQ programs other than CCTM are run in single-processor mode. CCTM 
 ##### Compile Bldmake #####
 
 ```
-cd $CMAQ_HOME/UTIL/bldmake/src
-make
+As of CMAQv5.2, this is done automatically as part of building bcon, icon, or cctm.
+
 ```
 
 ##### Compile the CMAQ programs #####
