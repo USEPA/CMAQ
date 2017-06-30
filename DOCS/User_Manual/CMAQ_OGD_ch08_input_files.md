@@ -983,7 +983,8 @@ The NLDN lightning strikes file is used for calculating in-line NO emissions fro
 
 Used by: CCTM – bidirectional NH<sub>3</sub> flux version only
 
-Add content
+BELD4 land use file with fractional crop distributions gridded to the modeling domain.
+
 
 <a id="e2c_soil"></a>
 ### E2C_SOIL – EPIC soil properties
@@ -1106,13 +1107,6 @@ The GRID_DOT_2D time-independent file contains surface fields at dot points (i.e
 -   LAT: latitude (degrees, where Northern Hemisphere is positive)
 -   LON: longitude (degrees, where Western Hemisphere is negative)
 -   MSFD2: squared map scale factor (m<sup>2</sup> m<sup>-2</sup>)
-
-<a id=grid_cro_3d></a>
-### GRID_CRO_3D: Three-dimensional grid cross-point fields
-Used by: CCTM
-
-The GRID_CRO_3D time-independent file contains surface fields at cross points (i.e., at cell centers) that vary by height. It is created by MCIP and used by CCTM for the PT3D. The following variables are in this file:
-add content
 
 <a id=met_bdy_3d></a>
 ### MET_BDY_3D: Three-dimensional meteorological boundary input
@@ -1351,7 +1345,7 @@ This 2-D CCTM file contains the deposition velocity (m/s) for each chemical spec
 
 <a id=pt3d></a>
 ### CTM_PT3D_DIAG: CCTM PT3D diagnostics file
-Add content
+The PT3D diagnostics file records the 3-D point source emissions as a linear average over the output timestep.
 
 <a id=dust></a>
 ### CTM_DUST_EMIS_1
@@ -1401,11 +1395,12 @@ This 3-D CCTM file contains the deposition velocity (m s<sup>-1</sup>) through t
 
 <a id=ctm_vdiff_diag></a>
 ### CTM_VDIFF_DIAG
-Add content
+The VDIFF_DIAG file provides diagnostic output of vertical dispersion parameters.  It is controlled by the VDIFF_DIAG_FILE environment variable.
 
-<a id=vsed_diag></a>
+
+<a id=ctm_vsed_diag></a>
 ### CTM_VSED_DIAG
-Add content
+The VSED_DIAG file provides diagnostic output of particle gravitational settling velocities.  It is controlled by the VDIFF_DIAG_FILE environment variable and activated when gravitational sedimentation is turned on. 
 
 <a id=ltnghourly></a>
 ### LTNG_HOURLY
@@ -1414,10 +1409,6 @@ Hourly 3-D lightning NO emissions calculated in-line by the CCTM.
 <a id=ltngcol></a>
 ### LTNG_COL
 Hourly column-total lightning NO emissions calculated in-line by the CCTM.
-
-<a id=play_srcid></a>
-### PLAY_SRCID
-Add content
 
 <a id=ctm_rj></a>
 ### CTM\_RJ_[1-2]: In-line photolysis output – gridded photolysis rates

@@ -188,7 +188,7 @@ The environment variables listed here are invoked during execution of the progra
 
 ```
 cd $CMAQ_HOME/PREP/bcon/scripts/
-./bldit_bcon.csh |& tee build_bcon.log
+./bldit_bcon.csh [compiler] [version] |& tee build_bcon.log
 ```
 
 #### Run BCON ####
@@ -859,7 +859,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 
 ```
 cd $CMAQ_HOME/CCTM/scripts
-./bldit_cctm.csh |& tee build_cctm.log
+./bldit_cctm.csh [compiler] [version] |& tee build_cctm.log
 ```
 
 #### Run CCTM ####
@@ -984,7 +984,7 @@ To compile CHEMMECH, run the build script:
 
 ```
 cd $CMAQ_HOME/UTIL/chemmech/scripts
-./bldit_chemmech.csh |& tee bldit_chemmech.log
+./bldit_chemmech.csh [compiler] [version] |& tee bldit_chemmech.log
 ```
 
 To port CHEMMECH to different compilers, change the compiler names, locations, and flags in the config_cmaq.csh script.
@@ -1323,7 +1323,7 @@ The environment variables listed here are invoked during execution of the progra
 
 ```
 cd $CMAQ_HOME/PREP/icon/scripts
-./bldit_icon.csh |& tee build_icon.log
+./bldit_icon.csh [compiler] [version] |& tee build_icon.log
 ```
 
 #### Run ICON ####
@@ -1538,7 +1538,7 @@ The environment variables listed here are invoked during execution of the progra
 
 ```
 cd $CMAQ_HOME/UTIL/jproc/scripts
-./bldit_jproc.csh |& tee build_jproc.log
+./bldit_jproc.csh [compiler] [version] |& tee build_jproc.log
 ```
 
 #### Run JPROC ####

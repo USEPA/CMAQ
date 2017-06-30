@@ -24,7 +24,7 @@ In the directory where you would like to install CMAQ, create the directory issu
 git clone -b 5.2 https://github.com/USEPA/CMAQ.git CMAQ_REPO
 ```
 
-For instructions on installing CMAQ from tarballs, see [Chapter 5](CMAQ_OGD_ch05_sys_req.md).
+For instructions on installing CMAQ from Zip files, see [Chapter 5](CMAQ_OGD_ch05_sys_req.md).
 
 ### Check Out a new Branch in the CMAQ Repository ###
 
@@ -53,19 +53,19 @@ Now execute the script.
 ### Install the CMAQ Libraries
 The CMAQ build scripts require the following libraries and INCLUDE files to be available in the CMAQ_LIB directory (Note the CMAQ_LIB gets set automatically by the config_cmaq.csh script, where `CMAQ_LIB = $CMAQ_HOME/lib`): 
 
-- netCDF library and INCLUDE files are located in the `$CMAQ_LIB/netcdf` directory
+- netCDF library files are located in the `$CMAQ_LIB/netcdf/lib` directory
 - I/O API library and module files are located in the `$CMAQ_LIB/ioapi` directory
 - MPI library and INCLUDE files are located in the `$CMAQ_LIB/mpi` directory
 
 The config_cmaq.csh script will automatically link the required libraries into the CMAQ_LIB directory. Set the locations of the netCDF, I/O API, and MPI installations on your Linux system with the following config_cmaq.csh environment variables:
 
-- `setenv IOAPI_MOD`: the location of the I/O API module files on your system.
-- `setenv IOAPI_INCL`: the location of the I/O API include files on your system.
-- `setenv IOAPI_LIB`: the location of compiled I/O API libraries on your system.
-- `setenv NETCDF`: the location of the netCDF installation on your system.
-- `setenv MPI`: the location of the MPI (OpenMPI or MVAPICH) on your system.
+- `setenv IOAPI_MOD_DIR`: the location of the I/O API module files on your system.
+- `setenv IOAPI_INCL_DIR`: the location of the I/O API include files on your system.
+- `setenv IOAPI_LIB_DIR`: the location of compiled I/O API libraries on your system.
+- `setenv NETCDF_LIB_DIR`: the location of the netCDF installation on your system.
+- `setenv MPI_LIB_DIR`: the location of the MPI (OpenMPI or MVAPICH) on your system.
 
-For example, if your netCDF libraries and includes files are installed in /usr/local/netcdf, set `NETCDF` to /usr/local/netcdf. Similarly, if your I/O API library is installed in /home/cmaq/ioapi/Linux2_x86_64ifort, set `IOAPI_LIB` to /home/cmaq/ioapi/Linux2_x86_64ifort. 
+For example, if your netCDF libraries are installed in /usr/local/netcdf/lib, set `NETCDF` to /usr/local/netcdf/lib. Similarly, if your I/O API library is installed in /home/cmaq/ioapi/Linux2_x86_64ifort, set `IOAPI_LIB` to /home/cmaq/ioapi/Linux2_x86_64ifort. 
 
 *1.* Check the names of the I/O API and netCDF libraries using the `ioapi_lib` and `netcdf_lib` script variables.
 
@@ -73,11 +73,11 @@ For example, if your netCDF libraries and includes files are installed in /usr/l
 
 Links to these libraries will automatically be created when you run any of the build or run scripts. To manually create these libraries (this is optional), execute the config_cmaq.csh script, identifying the compiler in the command line [intel | gcc | pgi]:
 ```
-./config_cmaq.csh [compiler]
+source config_cmaq.csh [compiler]
 ```
 You may also identify the version of the compiler if you wish it to be identified in build directory and executable names. This is optional. For example:
 ```
-./config_cmaq.csh intel 17.0
+source config_cmaq.csh intel 17.0
 ```
 
 ### Compiling CMAQ ###
@@ -85,27 +85,28 @@ You may also identify the version of the compiler if you wish it to be identifie
 Create the model executables for ICON, BCON, and CCTM:
 
 ```
-cd $CMAQ_HOME/PREP/icon/scripts
-./bldit.icon |& tee bldit.icon.log
+cd $CMAQ_HOME/PREP/icon/scripts
+./bldit_icon.csh [compiler] [version] |& tee bldit.icon.log
 ```
 
 ```
-cd $CMAQ_HOME/PREP/bcon/scripts
-./bldit.bcon [compiler]
+cd $CMAQ_HOME/PREP/bcon/scripts
+./bldit_bcon.csh [compiler] [version] |& tee bldit.bcon.log
 ```
 
 ```
-cd $CMAQ_HOME
-./bldit_cctm.csh [compiler]
+cd $CMAQ_HOME/CCTM/scripts
+./bldit_cctm.csh [compiler] [version] |& tee bldit.cctm.log
 ```
 
 ### Install the CMAQ input reference/benchmark data
 
-Download the CMAQ reference data from the [CMAS Center Software Clearinghouse](https://www.cmascenter.org/download/software.cfm) and copy to `$CMAQ_HOME`. Navigate to the `$CMAQ_HOME` directory, unzip and untar the `CMAQv5.2.DATA.tar.gz` file:
+Download the CMAQ single day reference data from the [CMAS Center Software Clearinghouse](https://www.cmascenter.org/download/software.cfm) and copy to `$CMAQ_DATA`. Navigate to the `$CMAQ_DATA` directory, unzip and untar the single day benchmark input and output files:
 
 ```
-cd $CMAQ_HOME
-tar xvzf CMAQv5.2.DATA.tar.gz
+cd $CMAQ_DATA
+tar xvzf CMAQv5.2_Benchmark_SingleDay_Input.tar.gz
+tar xvzf CMAQv5.2_Benchmark_SingleDay_Output.tar.gz
 ```
 
 ### Configure the CCTM script for MPI
@@ -113,31 +114,27 @@ tar xvzf CMAQv5.2.DATA.tar.gz
 For an MPI configuration with 6 processors,
 
 ```
-cd $CMAQ_HOME
+cd $CMAQ_HOME/CCTM/scripts
 ```
 
 Edit the CCTM run script (run_cctm.csh) for the MPI configuration that you will use:
 
 ```
-setenv NPROCS 6
-setenv NPCOL_NPROW “3 2”
+@ NPCOL 3 ; @ NPROW = 2
 ```
 
 Most clustered multiprocessor systems require a command to start the MPI run-time environment. The default CCTM run script uses the *mpirun* command. Consult your system administrator to find out how to invoke MPI when running multiprocessor applications.
 
-For single-processor computing, set NPROCS to 1 and NPCOL_NPROW to “1 1"
-
-For single-processor computing,
+For single-processor computing, set NPCOL_NPROW to 1 1:
 
 ```
-setenv NPROCS 1
-setenv NPCOL_NPROW to “1 1"
+setenv NPCOL_NPROW 1 1
 ```
 
 After configuring the MPI settings for your Linux system, using the following command to run the CCTM. Per the note above, different Linux systems have different requirements for submitting MPI jobs.  The command below is an example of how to submit the CCTM run script and may differ depending on the MPI requirements of your Linux system. 
 
 ```
-./run_cctm.csh |& tee cctm.log
+./run_cctm.csh |& tee cctm.log
 ```
 
 <!-- BEGIN COMMENT -->
