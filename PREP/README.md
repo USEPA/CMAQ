@@ -2,7 +2,7 @@ Pre-processing Tools
 ========
 
 ## Overview
-The following programs are provided to process and prepare input data for the CMAQ Chemistry Transport Model.  Documentation for these programs is provided in the [CMAQ Operational Guidance](https://github.com/USEPA/CMAQ/blob/5.2/DOCS/User_Manual/README.md).  
+The following programs are provided to process and prepare input data for the CMAQ Chemistry Transport Model.  Documentation for these programs is provided in the [CMAQ Operational Guidance](../DOCS/User_Manual/README.md).  
 
 ## Pre-processing Programs
 * **Calmap (agdust)**:  produces gridded planting start dates, planting end dates, and harvesting end dates for different crop types for estimating the impacts of agricultural activities on windblown dust emissions
