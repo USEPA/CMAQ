@@ -37,7 +37,7 @@ Each release version of CMAQ contains new features and improvements over the pre
 
 **New Features by CMAQ version**
 
-[Version 5.2](../Release_Notes/README.md)<br>
+[Version 5.2](https://github.com/USEPA/CMAQ/blob/5.2/CCTM/docs/Release_Notes/README.md)<br>
 [Version 5.1](https://www.airqualitymodeling.org/index.php/CMAQ_version_5.1_November_2015_release_Technical_Documentation)<br>
 [Version 5.0.2](https://www.airqualitymodeling.org/index.php/CMAQ_version_5.0.2_April_2014_release_Technical_Documentation)<br>
 [Version 5.0.1](https://www.airqualitymodeling.org/index.php/CMAQ_version_5.0.1_July_2012_release_Technical_Documentation)<br>

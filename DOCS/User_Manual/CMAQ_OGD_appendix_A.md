@@ -7,7 +7,7 @@
 * * *
 
 ## Appendix A: CMAQ v5.2 Mechanism Table 
-The table below lists the chemistry mechanisms available in CMAQ v5.2.  The entries in the MECHS Module column correspond to the `Mechanism` setting in the CMAQ build scripts. The entries in this column link to documentation for each mechanism.   The next two columns in the table define the aerosol and cloud modules that are compatible with each mechanism. The fourth column links to the mechanism definition, showing the details of the stoichiometry and kinetics of each mechanism, the last column links to the species tables from Appendix A.
+The table below lists the chemistry mechanisms available in CMAQ v5.2.  The entries in the MECHS Module column correspond to the `Mechanism` setting in the CMAQ build scripts. The entries in this column link to documentation for each mechanism.   The next two columns in the table define the aerosol and cloud modules that are compatible with each mechanism. The fourth column links to the mechanism definition, showing the details of the stoichiometry and kinetics of each mechanism, the last column links to the species tables from Appendix A.  See the [CMAQv5.2 release notes](https://github.com/USEPA/CMAQ/blob/5.2/CCTM/docs/Release_Notes/CMAQv5.2_Mechanisms.md) for additional information on photochemical mechanisms in CMAQ. 
 
 |**MECHS Module**|**Aerosol Module**|**Cloud Module**|**Mechanism Definition**|**Species Table**|
 |----------------------------------------------------------|------------------|-----------------------|--------------------|---------------------------|
