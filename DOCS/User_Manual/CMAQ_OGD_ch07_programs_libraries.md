@@ -1323,7 +1323,7 @@ The environment variables listed here are invoked during execution of the progra
 
 ```
 cd $CMAQ_HOME/PREP/icon/scripts
-./bldit.icon |& tee build.icon.log
+./bldit_icon.csh |& tee build_icon.log
 ```
 
 #### Run ICON ####
@@ -1332,7 +1332,7 @@ Set the run script settings according to the execution configuration variables d
 
 ```
 cd $CMAQ_HOME/PREP/icon/scripts
-./run.icon |& tee icon.log
+./run_icon.csh |& tee run_icon.log
 ```
 
 --------
