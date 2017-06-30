@@ -111,6 +111,7 @@
        mkdir -pv $CMAQ_HOME/PREP/icon/scripts
     endif
     cp PREP/icon/scripts/bldit_icon.csh $CMAQ_HOME/PREP/icon/scripts/bldit_icon.csh
+    cp PREP/icon/scripts/run_icon.csh $CMAQ_HOME/PREP/icon/scripts/run_icon.csh
  endif
 
 #===============================================================================
