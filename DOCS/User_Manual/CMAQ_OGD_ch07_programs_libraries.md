@@ -383,7 +383,7 @@ Both in-line emissions and photolysis are invoked through compile-time configura
 **Table 7‑8. CCTM optional output files**
 
 |File Name|Format|Description|
-|---------------------|----------------------|-------------------------------------------------------------------|
+|------------------------------|----------------------|-------------------------------------------------------------------|
 |CTM_SSEMIS_1|GRDDED3|Hourly 2-D sea salt emissions; set the variable `CTM_SSEMDIAG` to `Y` within the CCTM to run script to write this file|
 |CTM_WET_DEP_2|GRDDED3|Name and location of hourly 2-D cloud diagnostics file; set the variable `CLD_DIAG` to `Y` in the CCTM run script to write this file|
 |CTM_DEPV_DIAG|GRDDED3|Hourly 2-D in-line deposition diagnostics file; output when in-line deposition is activated by setting `CTM_ILDEPV` to `Y` and the variable `CTM_DEPV_FILE` is set to `T` or `Y` in the CCTM run script|
