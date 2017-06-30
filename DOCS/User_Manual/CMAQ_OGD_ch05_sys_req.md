@@ -235,19 +235,12 @@ After you have downloaded the CMAQ benchmark data from the [CMAS Center Software
 
 This will produce the following subdirectories:
 
-  `bcon/`<br>
-  `bidi/`<br>
-  `cctm/`<br>
-  `crop/`<br>
-  `dust/`<br>
+  `icbc/`<br>
+  `land/`<br>
   `emis/`<br>
-  `icon/`<br>
   `lightning/`<br>
-  `mcip/`<br>
-  `ocean/`<br>
-  `raw/`<br>
-  `phot/`<br>
-  `raw/`<br>
+  `met/mcip/`<br>
+  `met/wrf`<br>
   
 You are now ready to use the CMAQ build scripts to create Linux binary executables.
 
@@ -361,7 +354,7 @@ The CMAQ benchmark test case is a single day simulation for July 1, 2011 on a 80
 -   Chemistry solver: EBI
 -   Aerosol module: AERO6
 -   Cloud module: ACM
--   Mechanism: cb05e51_ae6_aq
+-   Mechanism: cb6r3_ae6_aq
 -   Lightning NOx emissions calculated with hourly NLDN strike data
 -   Dynamic vertical diffusivity
 -   In-line deposition velocities
