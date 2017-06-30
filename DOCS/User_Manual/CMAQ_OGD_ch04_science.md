@@ -5,7 +5,7 @@
 <!-- END COMMENT -->
 
 
-# Overview of the Science in the CMAQ Modeling System #
+# Science Overview #
 
 As discussed in [Chapter 1](CMAQ_OGD_ch01_intro.md), CMAQ is a multipollutant, multiscale air quality modeling system that estimates the transport and chemistry of ozone, PM, toxic airborne pollutants (referred to as “air toxics”), acidic and nutrient pollutant species as well as estimates of visibility degradation and deposition totals. CMAQ includes state-of-the-art technical and computational techniques to simulate air quality from urban to global scales. It can model complex atmospheric processes affecting transformation, transport, and deposition of air pollutants using a system architecture that is designed for fast and efficient computing. While superceded by several science updates since its release, the [Science Algorithms of the EPA Models-3 Community Multiscale Air Quality Modeling System](https://www.cmascenter.org/cmaq/science_documentation/) continues to be important reference for the science and design of CMAQ. [Chapter 3](CMAQ_OGD_cho03_features.md) of this guide includes links to descriptions of the updates made to CMAQ by release version.
 
@@ -13,7 +13,7 @@ CMAQ has been developed to meet the needs of both the research and application c
 
 <a id="Figure4-1"></a>
 
-![](./images/Figure4-1.png "Figure4-1.png")
+![Figure 4.1:CMAQ Interchangeable Modules](./images/Figure4-1.png "Figure4-1.png")
 
 **Figure 4‑1. CMAQ Modeling Framework**
 
@@ -81,14 +81,14 @@ The CMAQ modularity makes it easy to modify or introduce a specific scientific p
 
 The CMAQ system was designed to minimize the potential for model simulation error in several significant ways:
 
-- The [formal CMAQ peer review process](https://www.cmascenter.org/r-and-d/cmaq-review-process.cfm) implemented by the EPA ensures that the model retains scientific credibility. Also, informal “review” of the modeling system occurs day-to-day as the broad international user community applies CMAQ for a wide variety of scientific questions and in locations other than North America.
+- The [formal CMAQ peer review process](https://www.epa.gov/cmaq/cmaq-publications-and-peer-review) implemented by the EPA ensures that the model retains scientific credibility. Also, informal “review” of the modeling system occurs day-to-day as the broad international user community applies CMAQ for a wide variety of scientific questions and in locations other than North America.
 - The modularity of the scientific processes in CMAQ makes modifications and adaptations to the user’s needs more straightforward. The potential for error is minimized because the user is not required to change code or declare variables within program modules outside the one of immediate interest.
 
 ## CMAQ Input Processors
 
 CCTM uses data from other models and CMAQ input processing programs as input for model simulations [Figure 4-2](#Figure4-2).
 
-<a id=Figure4-2></a>
+<a id="Figure4-2"></a>
 
 ![](./images/Figure4-2.png "Figure4-2.png")
 
@@ -170,7 +170,7 @@ This approach defining the CMAQ chemical mechanisms allows the chemical reaction
 ### Lightning NO processing in CMAQ
 
 CMAQ is instrumented to estimate the impacts of NO emissions from lightning on air quality. Details of the CCTM lightning NO capability are described in [Chapter 7](CMAQ_OGD_ch07_programs_libraries.md) and in the [CMAQv52 Release Notes](../../CCTM/docs/Release_Notes/Lightning_NOx.md). Emissions of lightning NO can either be generated inline or read in as an external input file that contains 3-D NO data. There are two ways to estimate lightning NO emissions in the CCTM: 
-* Use observed hourly lightning flash count data from National Lightning Detection Network (NLDN); NLDN flash counts for the years 2002-2016 gridded to 12 km resolution are available from the CMAS center. A lightning parameter file also contains the ocean mask and ICCG data (climatological data for the ratio between inter-cloud to cloud-to-ground flashes); the ocean mask and ICCG data are used in both inline production schemes. The parameter file is available with the NLDN hourly flash data. The default lightning NO production rate is set to 350 moles per flash for both CG and IC flashes, but these values can be modified through the CCTM environment variables (MOLSNCG and MOLSNIC). [Download hourly NLDN data and a parameter file for the U.S.](https://drive.google.com/drive/folders/0B2kjxCwKICxUVXBtemhXenhxOWM?usp=sharing)
+* Use observed hourly lightning flash count data from National Lightning Detection Network (NLDN); NLDN flash counts for the years 2002-2016 gridded to 12 km resolution are available from the CMAS center. A lightning parameter file also contains the ocean mask and ICCG data (climatological data for the ratio between inter-cloud to cloud-to-ground flashes); the ocean mask and ICCG data are used in both inline production schemes. The parameter file is available with the NLDN hourly flash data. The default lightning NO production rate is set to 350 moles per flash for both CG and IC flashes, but these values can be modified through the CCTM environment variables (MOLSNCG and MOLSNIC). [Download hourly NLDN data and a parameter file for the U.S.](https://www.cmascenter.org/download/data/nldn.cfm)
 * Use linear (log-linear) parameters derived from historical NLDN data and model predicted convective precipitation from the Kain-Fritsch convective scheme. This options is available when observed hourly flash count data (e.g., NLDN) are not available, such as air quality forecasts and future climate applications. 
 
 ### CALMAP: Crop calendar map preprocessor
@@ -179,9 +179,10 @@ CMAQ has the capability to estimate windblown dust emissions in-line in the CCTM
 
 [Figure 4-5](#Figure4-9) is a Calmap schematic showing the data flow through the software. CALMAP reads grid information from the GRIDCRO2D meteorology file (MCIP output), land cover/land use data from [BELD3](https://www.epa.gov/air-emissions-modeling/biogenic-emissions-landuse-database-version-3-beld3), and crop calendar data to produce files of planting start dates, planting end dates, and harvesting end dates for different crop types interpolated to the modeling grid. These files are input to the CCTM when it is configured to estimate windblown dust and simulate the impacts of agricultural activity on the windblown dust emissions.
 
-<a id="Figure4-9"></a>
 
-![](./images/Figure4-9.png "Figure4-9.png")
+<a id="Figure4-5"></a>
+
+![](./images/Figure4-9.png "Figure4-5.png")
 
 **Figure 4‑5. Crop calendar data preprocessor for the CCTM**
 
@@ -189,9 +190,9 @@ CMAQ has the capability to estimate windblown dust emissions in-line in the CCTM
 
 [Figure 4‑6](#Figure4-10) illustrates the CMAQ modeling system used to simulate the chemistry and transport of pollutants. This figure also shows how CMAQ relates to other parts of an air quality modeling system: the meteorological model, emissions model, and analysis software. To perform a model simulation, CMAQ needs input data, including meteorological and emissions data. Using this information, CCTM simulates each of the atmospheric processes that affect the transport, transformation, and removal of ozone, particulate matter, and other pollutants. CMAQ uses state-of-the-science techniques to simulate these processes, as described below.
 
-<a id=Figure4-10></a>
+<a id="Figure4-6"></a>
 
-![](./images/Figure4-10.png "Figure4-10.png")
+![](./images/Figure4-10.png "Figure4-6.png")
 
 **Figure 4-6. CMAQ chemistry-transport model and associated preprocessors**
 
@@ -271,9 +272,9 @@ CMAQ optionally calculates the wet and dry deposition of chemical species.  Info
 
 A runtime flag in the CMAQ model controls whether the bidirectional modeules for ammonia and mercury are invoked.  The bidirectional modules simulate two-way exchange between the atmosphere and the surface for these species (as opposed to only deposition). The mercury bidirectional module (Bash 2010) is part of the CMAQv5 multipollutant configuration. To use the bidirectional option for ammonia, additional input file are required.  The files are created from the Environmental Policy Integrated Climate (EPIC) model (Cooter et al., 2012). There are two time independent files which provide information on the soil and the landcover.  A time dependent file contains information on fertilizer application method and amount. 
 
-<a id=Figure4-11></a>
+<a id="Figure4-7"></a>
 
-![](./images/Figure4-11.png "Figure4-11.png")
+![](./images/Figure4-11.png "Figure4-7.png")
 
 **Figure 4‑7. Data flow between EPIC, the meteorological model, and CMAQ from Cooter et al. (2012)**
 

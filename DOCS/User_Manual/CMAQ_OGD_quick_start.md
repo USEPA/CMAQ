@@ -26,7 +26,7 @@ git clone -b 5.2 https://github.com/USEPA/CMAQ.git CMAQ_REPO
 
 For instructions on installing CMAQ from tarballs, see [Chapter 5](CMAQ_OGD_ch05_sys_req.md).
 
-### Check Out A new Branch in the CMAQ Repository ###
+### Check Out a new Branch in the CMAQ Repository ###
 
 Checking out a new branch is a good idea even if you are not doing code development, per se. It is likely that you will want to retrieve new updates in the future, and an easy way to do this is through the master branch in the git repo. Thus it is beneficial to leave it unperturbed if possible.
 ```

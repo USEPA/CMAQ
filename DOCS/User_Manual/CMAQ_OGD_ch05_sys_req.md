@@ -340,7 +340,7 @@ After configuring the MPI settings for your Linux system, run the CCTM:
 
 ```
 cd $CMAQ_HOME/CCTM/scripts
-./run_cctm.csh |& tee cctm_log
+./run_cctm.csh |& tee run_cctm.log
 ```
 
 
