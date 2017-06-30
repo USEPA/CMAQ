@@ -195,11 +195,13 @@ In the directory where you would like to install CMAQ, unzip, and untar the mode
 
 Both of these installation options will produce the following subdirectories on your Linux system:
 
-`CMAQv5.2/CCTM`<br>
-`CMAQv5.2/PREP`<br>
-`CMAQv5.2/POST`<br>
-`CMAQv5.2/UTIL`<br>
-`CMAQv5.2/DOCS`<br>
+```
+CMAQv5.2/CCTM
+CMAQv5.2/PREP  
+CMAQv5.2/POST  
+CMAQv5.2/UTIL
+CMAQv5.2/DOCS
+```
 
 #### Set up the central CMAQ configuration script ####
 
