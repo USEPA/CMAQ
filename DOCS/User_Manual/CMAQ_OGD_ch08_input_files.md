@@ -106,7 +106,7 @@ The grid description section ([Table 8-3](#Table8-3)) consists of text records t
  **Table 8-2. Coordinate sytem description segment of GRIDDESC**
 
 | **Line**| **Column**| **Name** | **Type** | **Description**|
-|---|---|----------------|----------|--------------------------------------------------------|
+|-------|----------|----------------|----------|--------------------------------------------------------|
 |1|A| Header | String |Single-quote-delimited header describing section contents; may be blank, i.e., ' '|
 |2|A| COORD-NAME | String |Name of the coordinate description (required); single quote delimited|
 |3|A| COORDTYPE | Int |I/O API index defining the map projection type (required)| |
@@ -121,7 +121,7 @@ The grid description section ([Table 8-3](#Table8-3)) consists of text records t
  **Table 8-3. Grid definition segment of GRIDDESC**
 
 |**Line** | **Column** | **Name** | **Type** | **Description**|
-|----|----|----------|----------|-----------------------------------------------------|
+|-----------|----------|----------|----------|-----------------------------------------------------|
 | 1 | A | Header | String|Single-quote-delimited header describing section contents; may be blank, i.e., ' '|
 | 2 | A | GRID-NAME | String |Name of the horizontal grid (required); single quote delimited|
 | 3 | A | COORD-NAME| String |Name of the coordinate description in the previous section (required); single quote delimited|
@@ -201,7 +201,7 @@ The namelist files contain header information that describe which class of speci
  **Table 8-4. GC species namelist file format**
 
 | **Line**| **Column** |**Name** | **Type**| **Description** |
-|---------|------------|----------|----------|--------------------------------------------|
+|-----|-----|----------------------|----------|--------------------------------------------|
 | 1 || !Revision Control System(RCS file) |
 | 2 || Header: filename, version, date/time, author |
 | 4 || File type | String |&GC_nml|
@@ -251,7 +251,7 @@ A detailed description of the vertical profile file format for initial condition
  **Table 8-5. IC_PROFILE format description**
 
 |**Line**|**Column**|**Name**|**Type**|**Description**|
-|----|-------------|----------|---------|------------------------------------------------------|
+|---------|-------------|--------------------------|---------|------------------------------------------------------|
 | 1-3 || Text Header | String |Text description of the contents and source of the initial conditions file (optional)|
 | 4 | A | NUM_SIGMA_LVL | Int |Number of sigma levels contained in the file (required)|
 || B | NUM_POLL | Int |Number of pollutants contained in the file (required)|
@@ -310,7 +310,7 @@ A detailed description of the vertical profile file format for boundary conditio
 **Table 8-6. BC_PROFILE format description**
 
 |**Line**|**Column**|**Name**|**Type**|**Description**|
-|-----|------------|----------|----------|---------------------------------------------|
+|--------|------------|--------------------|----------|---------------------------------------------|
 | 1-3 || Text Header | String |Text description of the contents and source of the initial conditions file (optional) |
 | 4 | A | NUM_SIGMA_LVL | Int |Number of sigma levels contained in the file (required)|
 || B | NUM_POLL | Int |Number of pollutants contained in the file (required)|
@@ -372,7 +372,7 @@ The ASCII-formatted CSQY files begin with the number and a list of the applicabl
 **Table 8-7. CSQY format description**
 
 |**Line** | **Column** | **Name** | **Type** | **Description** |
-|----|----|--------------------------|---------|-----------------------------------------|
+|--------------------------|----|--------------------------|---------|-----------------------------------------|
 | 1 | A | CSQY Mechanism Table Name | String |Text name indicating this is the CSQY for the Mechanism Specified.  This name is cross-referenced in the chemical mechanism description files (required)|
 | 1 | A | NPHOTAB | String |Number of Photolysis Reactions|
 | 2 | A | Comments | String |Preceded by "!", Individual Reaction Rates Listed below|
@@ -562,7 +562,7 @@ The last data section in the PROFILES file contains vertical profiles from the 1
  **Table 8-9. PROFILES file format description.**
 
 | **Line** | **Column**| **Name**|**Type**|**Description**|
-|-----|-------|-------------------------------------|----------|----------------------------------------|
+|---------|-------|-------------------------------------|----------|----------------------------------------|
 | 1 | A | Ozone concentration at Season 1, Latitude 1, Level 1 | Exp (E10.3) |Ozone measurements as a function of season, latitude, and vertical level; units = molecules cm<sup>-3</sup> (required)|
 || B | Ozone concentration at Season 1, Latitude 1, Level 2 | Exp (E10.3) |Ozone measurements as a function of season, latitude, and vertical level; units = molecules cm<sup>-3</sup> (required)|
 | ...  | ...  | ...  | ...  |...|

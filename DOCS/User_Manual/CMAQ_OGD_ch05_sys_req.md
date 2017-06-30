@@ -189,11 +189,13 @@ In the directory where you would like to install CMAQ, unzip, and untar the mode
 
 Both of these installation options (i.e. cloning the repo or downloading and unpacking the tarball) will produce the following subdirectories on your Linux system:
 
-`CMAQv5.2/CCTM`<br>
-`CMAQv5.2/PREP`<br>
-`CMAQv5.2/POST`<br>
-`CMAQv5.2/UTIL`<br>
-`CMAQv5.2/DOCS`<br>
+```
+CMAQv5.2/CCTM
+CMAQv5.2/PREP  
+CMAQv5.2/POST  
+CMAQv5.2/UTIL
+CMAQv5.2/DOCS
+```
 
 #### Set up the central CMAQ configuration script ####
 
@@ -253,6 +255,13 @@ For all CMAQ programs (other than MCIP), the program Bldmake is used to compile 
 Note that every build and run script will source the config_cmaq.csh configuration script in order to ensure consistency in computing environment conditions. When executing each script, you will need to specify the compiler and (if desired) the compiler version as documented above for the config_cmaq.csh execution.
 
 All of the CMAQ programs other than CCTM are run in single-processor mode. CCTM may be run either in single-processor (serial) mode or in parallel on multiple processors. Program-specific compilation instructions are provided below. These compilation instructions are for building executables for simulating the test data sets distributed with CMAQ. Additional information about the configuration options for the various CMAQ programs is provided in [Chapter 4](CMAQ_OGD_ch04_science.md) and [Chapter 7](CMAQ_OGD_ch07_programs_libraries.md).
+
+##### Compile Bldmake #####
+
+```
+As of CMAQv5.2, this is done automatically as part of building bcon, icon, or cctm.
+
+```
 
 ##### Compile the CMAQ programs #####
 
