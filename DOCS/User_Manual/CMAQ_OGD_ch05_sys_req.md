@@ -171,7 +171,7 @@ Use the following steps to install CMAQ (with examples using a C-shell environme
 
 #### Obtain CMAQ source codes ####
 
-CMAQ source code can be installed either using git or from tarballs downloaded from the CMAS Center. Both options are described here.
+CMAQ source code can be installed either using git or from tarballs downloaded from the git repository hosted by GitHub. Both options are described here.
 
 ##### Git Installation #####
 
@@ -181,13 +181,13 @@ In the directory where you would like to install CMAQ, issue the following comma
 
 ##### Tarball Installation #####
 
-Tarballs of the CMAQ source code are available from both the public GitHub repository and the [CMAS Center Software Clearinghouse](https://www.cmascenter.org/download/software.cfm). In addition to the source code, reference input/output data for testing the installation of the software are available only from the CMAS Center; *data are not available through GitHub*. You must register/login to access the source codes and data from the CMAS Center.
+Tarballs of the CMAQ source code are available from both the public GitHub repository, the [EPA CMAQ website](https://www.epa.gov/cmaq/access-cmaq-source-code) and the [CMAS Center Software Clearinghouse](https://www.cmascenter.org/download/software.cfm). In addition to the source code, reference input/output data for testing the installation of the software are available from the CMAS Center; *data are not available through GitHub*. You must register/login to access the source codes and data from the CMAS Center.
 
 In the directory where you would like to install CMAQ, unzip, and untar the model distribution file:
 
 `tar xvzf CMAQv5.2.tar.gz`
 
-Both of these installation options will produce the following subdirectories on your Linux system:
+Both of these installation options (i.e. cloning the repo or downloading and unpacking the tarball) will produce the following subdirectories on your Linux system:
 
 `CMAQv5.2/CCTM`<br>
 `CMAQv5.2/PREP`<br>
@@ -199,30 +199,42 @@ Both of these installation options will produce the following subdirectories on 
 
 Edit the file `CMAQv5.2/config_cmaq.csh` to configure the CMAQ installation for the local computing architecture and compilers.
 
-The first step in editing `CMAQv5.2/config_cmaq.csh` is to set the environment variable `CMAQ_HOME` to point the installation directory location of CMAQ on your Linux system.
+The environment variable `CMAQ_HOME` will always point to the current directory of the config_cmaq.csh script. There is no need to modify this variable.
 
-Under the “architecture & compiler specific settings” section of the script set the compiler and libraries that you will use to build the CMAQ executables. There are three example compiler configurations built into the config_cmaq.csh script: (1) Intel Fortran (intel), (2) Portland Group Fortran (pgi), and (3) Gnu Fortran (gcc). Set the script variable `compiler` for one of the supported compilers.
+Under the “architecture & compiler specific settings” section of the script set the compiler and libraries that you will use to build the CMAQ executables. There are three example compiler configurations built into the config_cmaq.csh script: (1) Intel Fortran (intel), (2) Portland Group Fortran (pgi), and (3) Gnu Fortran (gcc). The script is configured to accept the compiler name as a command line option or to look for an evironment variable called `compiler` to be already set. If neither of these requirements are met, the script will abort. The user may also specify the version number of the compiler after specifying the compiler brand. This is stored in the `compilerVrsn` variable and is added to the names used for the build directories and executables if it exists.
 
 Set the names of the I/O API and netCDF libraries using the `ioapi_lib` and `netcdf_lib` script variables. You may also choose to set the pnetcdf_lib if you are using parallel netCDF.  Note that for version 4.2 of the netCDF and later, you need to provide both the C and Fortran versions of the netCDF library, in this order: `-lnetcdff -lnetcdf`
 
 Set the name of the MPI library using the `mpi` script variable. For MVAPICH use `-lmpich`; for openMPI use `-lmpi`. If you are using another MPI library, use the variable `mpi` to set the name of the library.
 
-Save and exit from the config_cmaq.csh file and use the source command to invoke the settings in the file:
+Save and exit from the config_cmaq.csh file. If you wish to manually source the script to set up library links, etc, you may do so:
 
-`source CMAQv5.2/config_cmaq.csh`
+`source ./config_cmaq.csh [compiler]`  or  `source ./config_cmaq.csh [compiler] [cpmilerVrsn[`
 
 When you source the config_cmaq.csh script the CMAQ directories, including all required libraries will be installed in the CMAQ working directory.  If you encounter errors about libraries not being found, check the settings of the config_cmaq.csh script variables IOAPI, NETCDF, or MPI to ensure that they are correctly point to the locations of these libraries on your Linux system.
 
+#### Install the CMAQ libraries ####
+
+When you sourced the config_cmaq.csh script above, the directory `CMAQ_LIB` was automatically created along with symbolic links to the I/O API, netCDF, and MPI libraries on your Linux system.  The links to libraries and include files that were installed in this directory are based on the locations you specified in the config_cmaq.csh script. The locations of the libraries in the CMAQ working directory will be based on the compiler that you selected for your CMAQ build. For example, if you are running on an x86_64 architecture with the Portland Group Fortran compiler, the config_cmaq.csh script will set `CMAQ_LIB` to `$CMAQ_HOME/lib/x86_64/pgi`.
+
+A listing of the netCDF directory under `CMAQ_LIB` should show the three subdirectories of the native netCDF installation:
+
+```
+bin/
+include/
+lib/
+```
+
+The CMAQ compilation scripts assume that the I/O API library resides in the `$CMAQ_LIB/ioapi` directory. If I/O API is installed elsewhere on your system, create a symbolic link in `$CMAQ_LIB/ioapi`. For example, if you are using an x86_64 architecture and the Portland Group Fortran compiler and your I/O API installation is located in /usr/lib/ioapi_31:
+
 #### Install the CMAQ input reference/benchmark data ####
 
-After you have downloaded the CMAQ reference data from the [CMAS Center Software Clearinghouse](https://www.cmascenter.org/download/software.cfm), navigate to the `$CMAQ_HOME` directory, unzip and untar the `CMAQv5.2.DATA.tar.gz` file:
+After you have downloaded the CMAQ benchmark data from the [CMAS Center Software Clearinghouse](https://www.cmascenter.org/download/software.cfm), navigate to the `$CMAQ_HOME/data` directory, unzip and untar the `CMAQv5.2.DATA.tar.gz` file:
 
-`cd $CMAQ_HOME`<br>
 `tar xvzf CMAQv5.2.DATA.tar.gz`
 
 This will produce the following subdirectories:
 
-  `CMAQv5.2/data/`<br>
   `bcon/`<br>
   `bidi/`<br>
   `cctm/`<br>
@@ -236,46 +248,7 @@ This will produce the following subdirectories:
   `raw/`<br>
   `phot/`<br>
   `raw/`<br>
-
-#### Install the CMAQ libraries ####
-
-When you sourced the config_cmaq.csh script above, the directory `CMAQ_LIB` was automatically created along with symbolic links to the I/O API, netCDF, and MPI libraries on your Linux system.  The library and include files that were installed in this directory are based on the locations you specified in the config_cmaq.csh script. The locations of the libraries in the CMAQ working directory will be based on the compiler that you selected for your CMAQ build. For example, if you are running on an x86_64 architecture with the Portland Group Fortran compiler, the config_cmaq.csh script will set `CMAQ_LIB` to `$CMAQ_HOME/lib/x86_64/pgi`.
-
-<!---
-You must install or link the netCDF, I/O API, and MPICH libraries, which may exist elsewhere on your system in the CMAQ_LIB directory. The CMAQ compilation scripts assume that the netCDF library and INCLUDE files reside in the `$CMAQ_LIB/netCDF` directory. If netCDF is installed elsewhere on your system, create a symbolic link in $CMAQ_LIB/netcdf. For example, if your netCDF libraries and includes files are installed in /usr/local/netcdf, link this directory into the CMAQ library directory:
-
-```
-cd $CMAQ_LIB
-ln –s /usr/local/netcdf netcdf
-```
-
-A listing of the netCDF directory under `CMAQ_LIB` should show the three subdirectories of the native netCDF installation:
-
-```
-bin/
-include/
-lib/
-```
-
-The CMAQ compilation scripts assume that the I/O API library resides in the `$CMAQ_LIB/ioapi` directory. If I/O API is installed elsewhere on your system, create a symbolic link in `$CMAQ_LIB/ioapi`. For example, if you are using an x86_64 architecture and the Portland Group Fortran compiler and your I/O API installation is located in /usr/lib/ioapi_31:
-
-```
-mkdir $CMAQ_LIB/ioapi
-cd $CMAQ_LIB/ioapi
-ln –s /usr/lib/ioapi_31/Linux2_x86pg_pgcc_nomp lib
-ln –s /usr/lib/ioapi_31/Linux2_x86pg_pgcc_nomp include
-ln –s /usr/lib/ioapi_31/ioapi/fixed_src src
-```
-
-You will need to confirm that there is a similar set of I/O API directories on your Linux system and follow the example above to set up the CMAQ_LIB directory for the I/O API.
-
-The CMAQ compilation scripts assume that an MPI library and INCLUDE files reside in the `$CMAQ_LIB/mpi` directory. Create a symbolic link to the MPI installation on your system. For example, if you are using OpenMPI located in /usr/mpi/pgi/openmpi:
-
-```
-cd $CMAQ_LIB
-ln –s /vusr/mpi/pgi/openmpi mpi
-```
-
+  
 You are now ready to use the CMAQ build scripts to create Linux binary executables.
 
 --->
@@ -284,16 +257,9 @@ You are now ready to use the CMAQ build scripts to create Linux binary executabl
 
 For all CMAQ programs (other than MCIP), the program Bldmake is used to compile the source code into executables. The first step in the compilation of CMAQ is to compile Bldmake. Bldmake will then be used to compile the CMAQ programs.  *Note that the compiler paths and flags are all set in the config_cmaq.csh script and then passed along to the build scripts*. None of the CMAQ build scripts contain compiler settings. Instead, the build scripts for each program reference the config_cmaq.csh script using the Linux command “source”. See [Table 5-4](#Table5-4) for a description of the compilation flags in the config_cmaq.csh script.
 
-**Before proceeding confirm that you have run the command `source config_cmaq.csh`**
+Note that every build and run script will source the config_cmaq.csh configuration script in order to ensure consistency in computing environment conditions. When executing each script, you will need to specify the compiler and (if desired) the compiler version as documented above for the config_cmaq.csh execution.
 
 All of the CMAQ programs other than CCTM are run in single-processor mode. CCTM may be run either in single-processor (serial) mode or in parallel on multiple processors. Program-specific compilation instructions are provided below. These compilation instructions are for building executables for simulating the test data sets distributed with CMAQ. Additional information about the configuration options for the various CMAQ programs is provided in [Chapter 4](CMAQ_OGD_ch04_science.md) and [Chapter 7](CMAQ_OGD_ch07_programs_libraries.md).
-
-##### Compile Bldmake #####
-
-```
-cd $CMAQ_HOME/UTIL/bldmake/src
-make
-```
 
 ##### Compile the CMAQ programs #####
 
@@ -305,10 +271,10 @@ Use the following commands to compile ICON and BCON:
 
 ```
 cd $CMAQ_HOME/PREP/icon
-bldit.icon |& tee build.icon.log
+bldit_icon.csh |& tee build_icon.log
 
 cd $CMAQ_HOME/PREP/bcon
-bldit.bcon |& tee build.bcon.log
+bldit_bcon.csh |& tee build_bcon.log
 ```
 
 Like the program Bldmake, MCIP is compiled using a Fortran Makefile.
@@ -327,10 +293,10 @@ For single-processor (serial) systems, configure the CCTM build script to create
 
 ```
 cd $CMAQ_HOME/CCTM/scripts
-bldit.cctm |& tee build.cctm.log
+bldit_cctm.csh |& tee build_cctm.log
 ```
 
-Although not used for the installation test simulation, the program PROCAN can also be compiled using Bldmake. The programs CHEMMECH and CALMAP are also not needed for the test simulation but can be compiled using Makefiles.
+The programs CHEMMECH and CALMAP are also not needed for the test simulation but can be compiled using Makefiles.
 
 ### Running the CMAQ Installation Test Simulation
 
@@ -342,41 +308,39 @@ Run ICON to produce initial conditions:
 
 ```
 cd $CMAQ_HOME/PREP/icon
-./run.icon |& tee run.icon.log
+./run_icon.csh |& tee run_icon.log
 ```
 
 Run BCON to produce boundary conditions:
 
 ```
 cd $CMAQ_HOME/PREP/bcon
-./run.bcon |& tee run.bcon.log
+./run_bcon.csh |& tee run_bcon.log
 ```
 
 Check the ICON and BCON log file to ensure that the programs completed successfully.
 
-The CCTM is configured by default to run in multiprocessor mode. This mode requires run time settings that specify the number of processors to allocate to the simulation and the location of the MPI initialization command (mpirun) on your system. Set the number of processors to use for the simulation by setting the NPROCS environment variable in the run.cctm script. You must also set the domain decomposition configuration by setting the variable NPCOL_NPROW. The number of processors (NPROCS) must be equal to the product of the two values selected for NPCOL_NPROW. For example, if you have a system with six processors available to run CMAQ, set NPROCS to 6 and NPCOL_NPROW equal to “3 2”.
+The CCTM is configured by default to run in multiprocessor mode. This mode requires run time settings that specify the number of processors to allocate to the simulation and the location of the MPI initialization command (mpirun) on your system. Set the number of processors to use for the simulation by setting the NPROCS environment variable in the run.cctm script. You must also set the domain decomposition configuration by setting the variables NPCOL and NPROW.
 
 For an MPI configuration with 6 processors,
 
 ```
-setenv NPROCS 6
-setenv NPCOL_NPROW “3 2”
+@ NPCOL = 3; @ NPROW = 2
 ```
 
-Most clustered multiprocessor systems require a command to start the MPI run-time environment. The default CCTM run script uses the *mpirun* command. Consult your system administrator to find out how to invoke MPI when running multiprocessor applications. For single-processor computing, set NPROCS to 1 and NPCOL_NPROW to “1 1"
+Most clustered multiprocessor systems require a command to start the MPI run-time environment. The default CCTM run script uses the *mpirun* command. Consult your system administrator to find out how to invoke MPI when running multiprocessor applications. For single-processor computing, set NPROCS to 1, NPCOL to 1, and NPROW to 1
 
 For single-processor computing,
 
 ```
-setenv NPROCS 1
-setenv NPCOL_NPROW to “1 1"
+@ NPCOL = 1; @ NPROW = 1
 ```
 
 After configuring the MPI settings for your Linux system, run the CCTM:
 
 ```
 cd $CMAQ_HOME/CCTM/scripts
-./run.cctm |& tee cctm.log
+./run_cctm.csh |& tee cctm_log
 ```
 
 
@@ -386,7 +350,7 @@ Benchmarking is the process of confirming that the model source code compiles an
 
 #### CMAQ benchmark parameters
 
-The CMAQ benchmark test case is a single day simulation for July 1, 2011 on a 72 column x 100 row x 35 layer 12-km resolution domain over California (CALNEX12 domain). The CCTM configuration parameters for the benchmark test case include the following:
+The CMAQ benchmark test case is a single day simulation for July 1, 2011 on a 80 column x 100 row x 35 layer 12-km resolution domain over California (CALNEX12 domain). The CCTM configuration parameters for the benchmark test case include the following:
 
 -   Multiprocessor simulation
 -   Horizontal advection: Yamo
