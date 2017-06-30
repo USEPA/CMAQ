@@ -1,4 +1,4 @@
-CMAQv5.2 (Unofficial -- Final Release expected June 30, 2017)
+CMAQv5.2
 ========
 
 **Intent of this CMAQ version:** This 5.2 branch of CMAQ includes the most up-to-date publically available code updates in preparation for the stable release of CMAQv5.2 on June 30, 2017. It is an update to the CMAQv5.2Gamma version with minor code additions and bug fixes that have been identified by EPA, the CMAS team, and the larger CMAQ community. Users wanting to test the CMAQv5.2 code before its release should utilize this 5.2 version. 
