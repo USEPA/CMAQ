@@ -1,16 +1,11 @@
-CMAQv5.2 (Unofficial -- Final Release expected June 30, 2017)
+CMAQv5.2
 ========
 
-**Intent of this CMAQ version:** This 5.2 branch of CMAQ includes the most up-to-date publically available code updates in preparation for the stable release of CMAQv5.2 on June 30, 2017. It is an update to the CMAQv5.2Gamma version with minor code additions and bug fixes that have been identified by EPA, the CMAS team, and the larger CMAQ community. Users wanting to test the CMAQv5.2 code before its release should utilize this 5.2 version. 
-
-Do NOTE that this code is NOT OFFICIAL until the actual release date.
-
-## CMAQ Overview
-Community Multiscale Air Quality Model [US EPA Website](https://www.epa.gov/cmaq)
+Community Multiscale Air Quality Model US EPA CMAQ Website: (https://www.epa.gov/cmaq).
 
 CMAQ is an active open-source development project of the U.S. EPA Computational Exposure Division
 that consists of a suite of programs for conducting air quality model simulations.
-CMAQ is supported by the CMAS Center (http://www.cmascenter.org).
+CMAQ is supported by the CMAS Center: (http://www.cmascenter.org).
 
 CMAQ combines current knowledge in atmospheric science and air quality modeling with multi-processor
 computing techniques in an open-source framework to deliver fast, technically sound estimates of ozone,

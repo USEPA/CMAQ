@@ -7,7 +7,7 @@
 
 # CMAQ Installation and System Requirements #
 
-This section describes how to set up and install CMAQ on a Linux system.  The installation instructions in this section guide the user through obtaining the CMAQ source code and installing it on your system. Brief instructions for running the CMAQ benchmark case and benchmarking the model are also addressed. Here, the term “benchmarking” refers to the process of verifying that a model has installed correctly on a new computer. CMAQ is distributed with a reference dataset that can be used to benchmark the CMAQ installation; in the distribution, output data from CMAQ are bundled with the input data (including emissions and meteorology) that can be used to reproduce the reference results.
+This section describes how to set up and install CMAQ on a Linux system.  The installation instructions in this section guide the user through obtaining the CMAQ source code and installing it on his or her system. Brief instructions for running the CMAQ benchmark case and benchmarking the model are also addressed. Here, the term “benchmarking” refers to the process of verifying that a model has installed correctly on a new computer. CMAQ is distributed with a reference dataset that can be used to benchmark the CMAQ installation. This distribution includes input data (e.g. emissions, land use, meteorology, etc) and reference output data from a CMAQ tun so that results may be compared.
 
 After benchmarking has been successfully completed, the CMAQ system can be configured for other simulations. The same steps that are required to build the model for the benchmark case apply to building it for new simulations. Configuring CMAQ for new applications is covered in [Chapter 10](CMAQ_OGD_ch10_new_simulation.md).
 
@@ -38,7 +38,7 @@ CMAQ requires all of the programs listed in [Table 5‑1](#Table5-1). This list 
 | **Software** | **Description** | **Source** |
 |-------------------|-----------------------------|--------------------------------|
 |***CMAQ Programs***|||
-|Bldmake|Executable builder for source code compilation|Contained in the standard CMAQ distribution available at [<https://github.com/USEPA/CMAQ/tree/5.2>](https://github.com/USEPA/CMAQ/tree/5.2) Release notes and documentation available at [<https://github.com/USEPA/CMAQ/tree/5.2/CCTM/docs/Release_Notes/>](https://github.com/USEPA/CMAQ/tree/5.2/CCTM/docs/Release_Notes)|
+|Bldmake|Executable builder for source code compilation|Contained in the standard CMAQ distribution available in the [CMAQv5.2 branch of the CMAQ repo](https://github.com/USEPA/CMAQ/tree/5.2). [Release notes](https://github.com/USEPA/CMAQ/tree/5.2/CCTM/docs/Release_Notes) and [documentation](https://github.com/bnmurphy/CMAQ/blob/5.2/DOCS/User_Manual/CMAQ_OGD_ch07_programs_libraries.md) are available.|
 |ICON|Initial conditions preprocessor|" |
 |BCON|Boundary conditions preprocessor|"|
 |MCIP|Meteorology-Chemistry Interface Processor| "|
@@ -91,31 +91,24 @@ Several steps are required to prepare your Linux system for compiling and runnin
 
 1. Check for Fortran and C compilers on your Linux system.  Install if they are not available.  
 2. [Install Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) (or CVS for older versions of CMAQ).
-3. Download the source and install the [I/O API](http://www.cmascenter.org/ioapi) and [netCDF](http://www.unidata.ucar.edu/software/netcdf/) libraries. Follow the instructions in the documentation for each library on how to build them for your Linux system. Note: It is highly recommended that you use the same compiler for these libraries as you will use to build the CMAQ programs.
+3. Download the  [I/O API](http://www.cmascenter.org/ioapi) and [netCDF](http://www.unidata.ucar.edu/software/netcdf/) source and install those libraries. Follow the instructions in the documentation for each library on how to build them for your Linux system. Note: It is highly recommended that you use the same compiler for these libraries as you will use to build the CMAQ programs.
 4. Install a Message Passing Interface (MPI) library on your Linux system.
-5. Download the CMAQ source code and scripts from either the [EPA GitHub Repository](https://github.com/USEPA/CMAQ) or the CMAS Center ([<http://www.cmascenter.org>](http://www.cmascenter.org/)). After registering to download CMAQ on the CMAS Center Software Clearinghouse, users are redirected to a page that contains links to download Linux tar files of the CMAQ code, scripts, and benchmark data along with various documents describing the installation and execution processes. *Note that GitHub only provides access to source codes and scripts.  Benchmark input and output data may only be downloaded from the CMAS Center.*
+5. Download the CMAQ source code and scripts from either the [EPA GitHub Repository](https://github.com/USEPA/CMAQ) or the CMAS Center ([<http://www.cmascenter.org>](http://www.cmascenter.org/)). After registering to download CMAQ on the CMAS Center Software Clearinghouse, users are redirected to a page that contains links to download Linux tar files of the CMAQ code, scripts, and benchmark data along with various documents describing the installation and execution processes. *Note that GitHub only provides access to source codes and scripts.  Benchmark input and output data may only be downloaded from EPA or the CMAS Center.*
 
 ### Distribution contents
 
-The CMAQ distribution includes the following components:
-
-- MODELS - CMAQ source code and libraries
-- SCRIPTS - C-shell scripts to build and execute the CMAQ models
-- INPUT DATA - datasets necessary to run the tutorial/benchmark case.
-- REF DATA - reference output data to compare with datasets produced by the tutorial on a Linux workstation
-
-Starting with CMAQv5.2, the structure of the CMAQ distribution includes:
-- CCTM - Chemistry Transport Model source code and scripts
-- PREP - Input pre-processor (e.g., ICON, BCON, MCIP) source code and scripts
+Starting with CMAQv5.2, the structure of the CMAQ repository includes:
+- CCTM - Chemistry Transport Model source code, scripts, and release notes
+- PREP - Input pre-processing software (e.g., ICON, BCON, MCIP) source code and scripts
 - UTIL - Utility software (e.g., BLDMAKE, CHEMMECH, NML) source code and scripts
 - POST - Post-processing and analysis software (e.g., COMBINE, HR2DAY, BLDOVERLAY) source code and scripts
 - DOCS - This User's Manual, tutorials, and developers guidance 
 
 ### Notes on the CMAQ directory structure
 
-The CMAQ installation includes a dataset for benchmarking the modeling system. Unpacking the various tar files of the distribution in a `CMAQ_HOME` (formerly M3HOME prior to CMAQv5.2) directory installs the CMAQ source code, scripts, and benchmark data files in a directory structure recognized by the default run and build scripts. The `CMAQ_HOME` directory is an arbitrary base location of the CMAQ installation on your Linux system for a specific application. It's up to the user to decide where to install CMAQ and to assign this location to the `CMAQ_HOME` environment variable in the CMAQ build scripts.
+When cloning the repository or unpacking the tar file of the CMAQ distribution, the top-level directory is recognized by the default build and run scripts as `CMAQ_HOME` (formerly M3HOME prior to CMAQv5.2). This directory is an arbitrary base location of the CMAQ installation on your Linux system for a specific application. It's up to the user to decide where to install CMAQ. If the user will build and run CMAQ within the repository folder structure, then `CMAQ_HOME` does not need to be set explicitly. If on the other hand, the user wishes to extract the build and run scripts and compile the model outside of the repository, then `CMAQ_HOME` will need to be specified in `bldit_project.csh`. Executing `bldit_project.csh` will automatically perform this extraction and create a CMAQ folder structure under the locatino now specified by `CMAQ_HOME`.
 
-Under `CMAQ_HOME`, the `data` directory contains the input and output data for the model, and the `lib` directory contains the compiled binary library files required to build the CMAQ executables. The CMAQ scripts use the following environment variables to alias the locations of these directories:
+Under `CMAQ_HOME`, the `data` directory serves as a container for the input and output data for the model, and the `lib` directory contains links to the compiled binary library files required to build the CMAQ executables. The CMAQ scripts use the following environment variables to alias the locations of these directories:
 
 `CMAQ_LIB   = $CMAQ_HOME/lib` (M3LIB before CMAQv5.2)<br>
 `CMAQ_DATA  = $CMAQ_HOME/data` (M3DATA before CMAQv5.2)
@@ -155,6 +148,7 @@ Note that for multiprocessor applications it is recommended that the Fortran MPI
 |`CMAQ_LIB`|Automatically set by config_cmaq.csh; note that this variable is M3LIB prior to CMAQv5.2|
 |`M3MODEL`|Automatically set by config_cmaq.csh; deprecated in CMAQv5.2|
 |`compiler`|Set the Fortran compiler type that you will use to compile CMAQ; choices are intel, pgi, or gcc|
+|`compilerVrsn`|(Optional) Set the Fortran compiler version number that you will use to compile CMAQ; if you employ this variable, it will be appended to the compiler type when naming build directories and executables|
 |`IOAPI_MOD_DIR`|Location of the I/O API modules installation on your Linux system|
 |`IOAPI_INCL_DIR`|Location of the I/O API include file installation on your Linux system|
 |`IOAPI_LIB_DIR`|Location of the I/O API library installation on your Linux system|
@@ -179,7 +173,7 @@ Use the following steps to install CMAQ (with examples using a C-shell environme
 
 #### Obtain CMAQ source codes ####
 
-CMAQ source code can be installed either using git or from tarballs downloaded from the CMAS Center. Both options are described here.
+CMAQ source code can be installed either using git or from tarballs downloaded from the git repository hosted by GitHub. Both options are described here.
 
 ##### Git Installation #####
 
@@ -189,7 +183,7 @@ In the directory where you would like to install CMAQ, issue the following comma
 
 ##### Zipfile Installation #####
 
-Zipfiles of the CMAQ source code are available from the public GitHub repository. Click the button "Clone or download" from https://github.com/USEPA/CMAQ/tree/5.2 and select "Download ZIP" to download a Zipfile of the CMAQv5.2 repository. 
+Zipfiles of the CMAQ source code are available from the public GitHub repository. Click the button "Clone or download" from https://github.com/USEPA/CMAQ/tree/5.2 and select "Download ZIP" to download a Zipfile of the CMAQv5.2 repository. Alternatively, you may download the zipfile from the [EPA CMAQ website](https://www.epa.gov/cmaq/access-cmaq-source-code).
 
 Reference input/output data for testing the installation of the software are available from the CMAS Center; *data are not available through GitHub*. You must register/login to access the source codes and data from the CMAS Center.
 
@@ -197,9 +191,19 @@ In the directory where you would like to install CMAQ, unzip the model distribut
 
 `unzip CMAQ-5.2.zip`
 
-The Git and zipfile installation options will produce slightly different subdirectories on your Linux system. The base installation directory using the git clone commmand will be `CMAQ_REPO`; the directory from the zipfile will be `CMAQ-5.2`.  The subesquent instructions in this guide will be based on the git clone installation. For Zipfile installations, replace CMAQ_REPO with CMAQ-v5.2 in the instructions that follow. 
+The following directories will be created:
 
-CMAQ will install into the following directories:
+```
+CMAQ-5.2/CCTM
+CMAQ-5.2/PREP
+CMAQ-5.2/POST
+CMAQ-5.2/UTIL
+CMAQ-5.2/DOCS
+```
+
+The Git and zipfile installation options will produce slightly different subdirectories on your Linux system. The base installation directory using the git clone commmand will be `CMAQ_REPO`; the directory from the zipfile will be `CMAQ-5.2`.  The subesquent instructions in this guide will be based on the git clone installation. For Zipfile installations, replace CMAQ_REPO with CMAQ-v5.2 in the instructions that follow. The differences in the directory names highlights the difference in functionality between the two options. Cloning the repository gives the user access to the full repository and its history, while downloading the zip file will only give access to version 5.2.
+
+Using the git clone option, CMAQ will install into the following directories:
 
 ```
 CMAQ_REPO/CCTM
@@ -249,7 +253,6 @@ You may also identify the version of the compiler if you wish it to be identifie
 ```
 source config_cmaq.csh intel 17.0
 ```
-
 When you source the config_cmaq.csh script the CMAQ directories, including all required libraries will be installed in the CMAQ working directory.  If you encounter errors about libraries not being found, check the settings of the config_cmaq.csh script variables IOAPI, NETCDF, or MPI to ensure that they are correctly point to the locations of these libraries on your Linux system.
 
 #### Install the CMAQ input reference/benchmark data ####
@@ -270,20 +273,19 @@ This will produce the following subdirectories:
   land/
   lightning/
   met/
-  ref_output/
 ```
 
 #### Compiling CMAQ ####
 
 For all CMAQ programs (other than MCIP), the program Bldmake is used to compile the source code into executables. The first step in the compilation of CMAQ is to compile Bldmake. Bldmake will then be used to compile the CMAQ programs.  *Note that the compiler paths and flags are all set in the config_cmaq.csh script and then passed along to the build scripts*. None of the CMAQ build scripts contain compiler settings. Instead, the build scripts for each program reference the config_cmaq.csh script using the Linux command “source”. See [Table 5-4](#Table5-4) for a description of the compilation flags in the config_cmaq.csh script.
 
-**Before proceeding confirm that you have run the command `source config_cmaq.csh`**
+Note that every build and run script will source the config_cmaq.csh configuration script in order to ensure consistency in computing environment conditions. When executing each script, you will need to specify the compiler and (if desired) the compiler version as documented above for the config_cmaq.csh execution.
 
 All of the CMAQ programs other than CCTM are run in single-processor mode. CCTM may be run either in single-processor (serial) mode or in parallel on multiple processors. Program-specific compilation instructions are provided below. These compilation instructions are for building executables for simulating the test data sets distributed with CMAQ. Additional information about the configuration options for the various CMAQ programs is provided in [Chapter 4](CMAQ_OGD_ch04_science.md) and [Chapter 7](CMAQ_OGD_ch07_programs_libraries.md).
 
 ##### Compile Bldmake #####
 
-In CMAQv5.2 bldmake is compiled automatically the first time you run any of the CMAQ build scripts. If you prefer to run the build as a separate step, the bldmake build script is in $CMAQ_REPO/UTIL/bldmake/scripts.
+In CMAQv5.2, bldmake is compiled automatically the first time you run any of the CMAQ build scripts. If you prefer to run the build as a separate step, the bldmake build script is in $CMAQ_REPO/UTIL/bldmake/scripts.
 
 ##### Compile the CMAQ programs #####
 
@@ -325,7 +327,7 @@ cd $CMAQ_HOME/CCTM/scripts
 bldit_cctm.csh [compiler] [version] |& tee build_cctm.log
 ```
 
-Although not used for the installation test simulation, the program PROCAN can also be compiled using Bldmake. The programs CHEMMECH and CALMAP are also not needed for the test simulation but can be compiled using Makefiles.
+The programs CHEMMECH and CALMAP are also not needed for the test simulation but can be compiled using Makefiles.
 
 ### Running the CMAQ Installation Test Simulation
 
@@ -344,7 +346,7 @@ Run BCON to produce boundary conditions:
 
 ```
 cd $CMAQ_HOME/PREP/bcon
-./run_bcon.csh |& tee run.bcon.log
+./run_bcon.csh |& tee run_bcon.log
 ```
 
 Check the ICON and BCON log file to ensure that the programs completed successfully.
@@ -354,15 +356,15 @@ The CCTM is configured by default to run in multiprocessor mode. This mode requi
 For an MPI configuration with 6 processors,
 
 ```
-@ NPCOL 3 ; @ NPROW = 2
+@ NPCOL = 3; @ NPROW = 2
 ```
 
-Most clustered multiprocessor systems require a command to start the MPI run-time environment. The default CCTM run script uses the *mpirun* command. Consult your system administrator to find out how to invoke MPI when running multiprocessor applications. For single-processor computing, set NPROCS to 1 and NPCOL_NPROW to “1 1"
+Most clustered multiprocessor systems require a command to start the MPI run-time environment. The default CCTM run script uses the *mpirun* command. Consult your system administrator to find out how to invoke MPI when running multiprocessor applications. For single-processor computing, set NPROCS to 1, NPCOL to 1, and NPROW to 1
 
-For single-processor computing, set NPCOL_NPROW to 1 1:
+For single-processor computing, set NPCOL_NPROW to "1 1":
 
 ```
-setenv NPCOL_NPROW 1 1
+setenv NPCOL_NPROW "1 1"
 ```
 
 After configuring the MPI settings for your Linux system, using the following command to run the CCTM. Per the note above, different Linux systems have different requirements for submitting MPI jobs.  The command below is an example of how to submit the CCTM run script and may differ depending on the MPI requirements of your Linux system. 
@@ -375,7 +377,6 @@ After configuring the MPI settings for your Linux system, using the following co
 Benchmarking is the process of confirming that the model source code compiles and executes correctly on a new computer system. CMAQ should be benchmarked on a computing system before the model is used for research or regulatory applications on that system. The purpose of benchmarking is to ensure that there are no inconsistencies introduced into the model solution from local system parameters, such as compilers, processors, or operating systems. While differences are expected in the CMAQ results produced by different operating systems, hardware, and compilers, these differences should be small and within the numerical error of the model. Input and output reference data are packaged with CMAQ to use for benchmarking the model on new systems. After running the test case packaged with the source code, compare the results against the reference data provided in the CMAQ distribution.
 
 #### CMAQ benchmark parameters
-
 The CMAQ benchmark test case is a single day simulation for July 1, 2011 on a 100 column x 80 row x 35 layer 12-km resolution domain over the southeast U.S. The CCTM configuration parameters for the benchmark test case include the following:
 
 -   Multiprocessor simulation

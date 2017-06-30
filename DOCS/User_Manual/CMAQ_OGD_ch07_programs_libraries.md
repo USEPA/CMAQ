@@ -181,14 +181,14 @@ The environment variables listed here are invoked during execution of the progra
 
 [Chapter 5](CMAQ_OGD_ch05_sys_req.md) provides an overview of how to install and compile the CMAQ pre-processor programs for a test simulation. Follow those steps (summarized below) to compile new versions of BCON.
 
-1. Compile Bldmake, the CMAQ source code and compilation management program. This needs to be done only once—the first time CMAQ is installed.
--   Configure the BCON use the config_cmaq.csh script, which points to the available I/O API and netCDF libraries.
+1. Bldmake will be automatically compiled the first time a CMAQ program (ICON, BCON, CCTM) is compiled.
+-   Configure the config_cmaq.csh script, which points to the available I/O API and netCDF libraries.
 -   Configure the BCON build script for your application by setting the compilation configuration variables described above.
 -   Invoke the build script to create an executable.
 
 ```
 cd $CMAQ_HOME/PREP/bcon/scripts/
-./bldit.bcon |& tee build.bcon.log
+./bldit_bcon.csh |& tee build_bcon.log
 ```
 
 #### Run BCON ####
@@ -197,7 +197,7 @@ Set the run script settings according to the execution configuration variables d
 
 ```
 cd $CMAQ_HOME/PREP/BCON
-./run.bcon |& tee bcon.log
+./run_bcon.csh |& tee run_bcon.log
 ```
 
 <a id="Calmap"></a>
@@ -340,7 +340,7 @@ Both in-line emissions and photolysis are invoked through compile-time configura
 **Table 7‑6. Optional CCTM input files**
 
 |File Name|Format|Description|
-|---------------|--------|-------------------------------------------------------------------|
+|---------------------|-------------------|-------------------------------------------------------------------|
 |XJ_DATA|ASCII|Name and location of the daily clear-sky photolysis rates file speciated for a particular gas-phase chemical mechanism; output from JPROC - only needed for offline photolysis configuration|
 |STK_GRPS_nn|GRDDED3|Stack parameter file for calculating inline plume rise for point source emissions - nn refers to the sector ID number, where there could be multiple point source stack groups used in a single simulation; produced by the SMOKE program Elevpoint|
 |STK_EMIS_nn|GRDDED3|Emissions for elevated point sources - nn refers to the sector ID number, where there could be multiple point source sectors used in a single simulation; produced by the SMOKE program Smkmerge|
@@ -383,7 +383,7 @@ Both in-line emissions and photolysis are invoked through compile-time configura
 **Table 7‑8. CCTM optional output files**
 
 |File Name|Format|Description|
-|--------------|-------------|-------------------------------------------------------------------|
+|------------------------------|----------------------|-------------------------------------------------------------------|
 |CTM_SSEMIS_1|GRDDED3|Hourly 2-D sea salt emissions; set the variable `CTM_SSEMDIAG` to `Y` within the CCTM to run script to write this file|
 |CTM_WET_DEP_2|GRDDED3|Name and location of hourly 2-D cloud diagnostics file; set the variable `CLD_DIAG` to `Y` in the CCTM run script to write this file|
 |CTM_DEPV_DIAG|GRDDED3|Hourly 2-D in-line deposition diagnostics file; output when in-line deposition is activated by setting `CTM_ILDEPV` to `Y` and the variable `CTM_DEPV_FILE` is set to `T` or `Y` in the CCTM run script|
@@ -859,7 +859,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 
 ```
 cd $CMAQ_HOME/CCTM/scripts
-./bldit.cctm |& tee build.cctm.log
+./bldit_cctm.csh |& tee build_cctm.log
 ```
 
 #### Run CCTM ####
@@ -1037,7 +1037,7 @@ To implement a new mechanism in CMAQ, start with a mechanism definition (mech.de
 **Table 7-13. CREATE_EBI input files**
 
 |**File Name**|**Format**|**Description**|
-|------------------------|----------|----------------------------------------------------------|
+|----------------------------------|----------|----------------------------------------------------------|
 |RXNS_DATA_SRC.F90|ASCII|CMAQ mechanism reaction listing in Fortran 90 format; output from the program CHEMMECH|
 
 
@@ -1048,7 +1048,7 @@ To implement a new mechanism in CMAQ, start with a mechanism definition (mech.de
 **Table 7‑14. CREATE_EBI output files**
 
 |File Name|Format|Description|
-|------------------------|---------------|-------------------------------------------------------|
+|---------------------------------------|---------------|-------------------------------------------------------|
 |\*.F|ASCII F90|Fortran 90 source code for the CCTM EBI chemistry solver|
 |RXNS_DATA_MODULE.F90|ASCII F90|Mechanism data Fortran source file; chemical mechanism definition formatted as DATA blocks to be read in as CMAQ source code|
 
@@ -1323,7 +1323,7 @@ The environment variables listed here are invoked during execution of the progra
 
 ```
 cd $CMAQ_HOME/PREP/icon/scripts
-./bldit.icon |& tee build.icon.log
+./bldit_icon.csh |& tee build_icon.log
 ```
 
 #### Run ICON ####
@@ -1332,7 +1332,7 @@ Set the run script settings according to the execution configuration variables d
 
 ```
 cd $CMAQ_HOME/PREP/icon/scripts
-./run.icon |& tee icon.log
+./run_icon.csh |& tee run_icon.log
 ```
 
 --------

@@ -10,5 +10,3 @@ The following documents are available for the CMAQ v5.2 release:
 
 - [Tutorials](Tutorials/README.md): A series of short tutorials provide practical examples of how to set up and run CMAQ. 
 
-- [Developer Guide](Developer_Guide/README.md): This document shows developers how to obtain and contribute code to the CMAQ modeling system.
-

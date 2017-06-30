@@ -43,7 +43,7 @@
 #> Set Working, Input, and Output Directories
  setenv WORKDIR ${CMAQ_HOME}/CCTM/scripts       #> Working Directory. Where the runscript is.
  setenv OUTDIR  ${CMAQ_DATA}/output_CCTM_${RUNID} #> Output Directory
- setenv INPDIR  ${CMAQ_DATA}       #> Input Directory
+ setenv INPDIR  ${CMAQ_DATA}/SE52BENCH/single_day/cctm_input  #> Input Directory
  setenv LOGDIR  ${OUTDIR}          #> Log Directory Location
  setenv NMLpath ${BLD}             #> Location of Namelists. Common places are: 
                                    #>   ${WORKDIR} | ${CCTM_SRC}/MECHS/${MECH} | ${BLD}
@@ -55,7 +55,7 @@
 #> Set Start and End Days for looping
  setenv NEW_START TRUE            #> Set to FALSE for model restart
  set START_DATE = "2011-07-01"     #> beginning date (July 1, 2011)
- set END_DATE   = "2011-07-14"     #> ending date    (July 14, 2011)
+ set END_DATE   = "2011-07-01"     #> ending date    (July 14, 2011)
 
 #> Set Timestepping Parameters
 set STTIME     = 000000            #> beginning GMT time (HHMMSS)
