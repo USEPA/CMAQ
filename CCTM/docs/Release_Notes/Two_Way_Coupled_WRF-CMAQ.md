@@ -4,7 +4,7 @@
 
 ## Brief Description
 
-The new two-way coupled WRF-CMAQ model which is based on WRF 3.8 and CMAQ 5.2, is an online meteorology-chemistry model that simulates the two-way feedback between meteorology and chemistry. The feeback focuses on the interactions of estimated aerosol mass on incoming shortwave radiation.
+The new two-way coupled WRF-CMAQ model which is based on WRF 3.8 and CMAQ 5.2, is an online meteorology-chemistry model that simulates the two-way feedback between meteorology and chemistry. The feedback focuses on the interactions of estimated aerosol mass on incoming shortwave radiation.
 
 
 ## Build Instructions
@@ -55,19 +55,19 @@ The new two-way coupled WRF-CMAQ model which is based on WRF 3.8 and CMAQ 5.2, i
 - Compile the twoway model by typing `compile em_real >& mylog`. This might take some time for completion and you can monitor size changes of file, mylog. If compilation is done successfully, you can find main/wrf.exe file.
 
 ## WRF-CMAQ Input/Output Data and Run Instructions
-A test dataset is available from the [CMAS Center Software Clearinghouse](https://www.cmascenter.org/download/software/cmaq/cmaq_5-2.cfm?DB=TRUE) (WRFv3.8_CMAQv5.2_Input.tar.gz, WRFv3.8_CMAQv5.2_Output.tar.gz). Once you unpack the file, you can store in anywhere you want.  
+A test dataset is available from the [CMAS Center Software Clearinghouse](https://www.cmascenter.org/download/software/cmaq/cmaq_5-2.cfm?DB=TRUE) (WRFv3.8_CMAQv5.2_Input.tar.gz, WRFv3.8_CMAQv5.2_Output.tar.gz). Once you unpack the files, you can store them anywhere you want.  
 
 A sample run script, twoway_model_run_script, is in the WRFv3.8_CMAQv5.2_TwoWay_Model.tar.gz under the script subdirectory.
 In order to use this script to run the WRF-CMAQ two-way model, you need to modify two variables: WRF_DIR and INPDIR.
     In general, the area in between
 
-       `# ##### begin user define area #####`
+`# ##### begin user define area #####`
 
-    and
+and
 
-       `# ##### end user define area #####`
+`# ##### end user define area #####`
 
-    can be modified to suit a particular simulation.
+can be modified to suit a particular simulation.
 
 The WRF-CMAQ benchmark data provide examples of the files needed to run the model. The general list of inputs required for WRF-CMAQ include,
 
