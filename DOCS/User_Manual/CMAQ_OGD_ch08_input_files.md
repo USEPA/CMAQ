@@ -106,7 +106,7 @@ The grid description section ([Table 8-3](#Table8-3)) consists of text records t
  **Table 8-2. Coordinate sytem description segment of GRIDDESC**
 
 | **Line**| **Column**| **Name** | **Type** | **Description**|
-|---|---|----------------|----------|--------------------------------------------------------|
+|-------|----------|----------------|----------|--------------------------------------------------------|
 |1|A| Header | String |Single-quote-delimited header describing section contents; may be blank, i.e., ' '|
 |2|A| COORD-NAME | String |Name of the coordinate description (required); single quote delimited|
 |3|A| COORDTYPE | Int |I/O API index defining the map projection type (required)| |
@@ -121,7 +121,7 @@ The grid description section ([Table 8-3](#Table8-3)) consists of text records t
  **Table 8-3. Grid definition segment of GRIDDESC**
 
 |**Line** | **Column** | **Name** | **Type** | **Description**|
-|----|----|----------|----------|-----------------------------------------------------|
+|-----------|----------|----------|----------|-----------------------------------------------------|
 | 1 | A | Header | String|Single-quote-delimited header describing section contents; may be blank, i.e., ' '|
 | 2 | A | GRID-NAME | String |Name of the horizontal grid (required); single quote delimited|
 | 3 | A | COORD-NAME| String |Name of the coordinate description in the previous section (required); single quote delimited|
@@ -201,7 +201,7 @@ The namelist files contain header information that describe which class of speci
  **Table 8-4. GC species namelist file format**
 
 | **Line**| **Column** |**Name** | **Type**| **Description** |
-|---------|------------|----------|----------|--------------------------------------------|
+|-----|-----|----------------------|----------|--------------------------------------------|
 | 1 || !Revision Control System(RCS file) |
 | 2 || Header: filename, version, date/time, author |
 | 4 || File type | String |&GC_nml|
