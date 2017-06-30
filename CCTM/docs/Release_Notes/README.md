@@ -4,11 +4,7 @@ CMAQv5.2 Release Notes
 The Community Multiscale Air Quality (CMAQ) Model version 5.2 is a major update to CMAQ that includes several changes to the science algorithms in the base model.  CMAQ v5.2 was developed by the U.S. EPA with contributions from other research partners. Summarized below are the main enhancements to the modeling system since the previous release, CMAQ v5.1.
 
 # Getting Started with CMAQ  
-<<<<<<< HEAD
-[Building and running CMAQv5.2](https://github.com/USEPA/CMAQ/blob/5.2/DOCS/User_Manual/CMAQ_OGD_ch05_sys_req.md)  
-=======
 [Building and running CMAQv5.2](../../../DOCS/User_Manual/CMAQ_OGD_ch05_sys_req.md)  
->>>>>>> dd324653c891626411e8894b4fa2c480e1854813
 [Building and running WRF-CMAQ Two Way Model](Two_Way_Coupled_WRF-CMAQ.md)
 
 -----
