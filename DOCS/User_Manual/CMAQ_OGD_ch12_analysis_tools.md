@@ -13,13 +13,14 @@ This page briefly describes several of these software utilities and provides lin
 Two classes of analysis tools are presented here
 - [Command line utilities](#cmdtools) for manipulating CMAQ input/output data
   - [netCDF](#netcdf)
-  - [appendwrf](#appendwrf)
-  - [bldoverlay](#bldoverlay)
-  - [combine](#combine)
-  - [hr2day](#hr2day)
-  - [sitecmp](#sitecmp)
-  - [sitecmp_dailyo3](#sitecmp_dailyo3)
-  - [writesite](#writesite)
+  - [appendwrf](#post_tools)
+  - [bldoverlay](#post_tools)
+  - [block_extract](#post_tools)
+  - [combine](#post_tools)
+  - [hr2day](#post_tools)
+  - [sitecmp](#post_tools)
+  - [sitecmp_dailyo3](#post_tools)
+  - [writesite](#post_tools)
   - [m3tools](#m3tools)
   - [netCDF Operators](#nco)
 
@@ -33,6 +34,9 @@ Two classes of analysis tools are presented here
 
 
   -----------
+  
+Command Line Data Processors
+-------------
 
 <a id="netcdf"><a/>
 
@@ -56,75 +60,24 @@ where:
 
 <a id="cmdtools"><a/>
 
-Command Line Data Processors
--------------
-
 ### CMAQ Utility Tools
 
-[https://github.com/USEPA/CMAQ](https://github.com/USEPA/CMAQ/tree/5.2)
+[https://github.com/USEPA/CMAQ](https://github.com/USEPA/CMAQ)
 
-Several post-processing tools (Fortran-based) are provided along with the CMAQ code/scripts distribution. These are located in the $CMAQ_HOME/POST directory in the CMAQ distribution. These tools work directly with the CMAQ outputs and help in processing, formatting, and preparing datasets from various ambient monitoring networks for subsequent evaluation. These networks include the EPA Air Quality System (AQS)AIRS-AQS, Interagency Monitoring of Protected Visual Environments (IMPROVE), Clean Air Status Trends Network (CASTNET), Speciated Trends Network (STN), National Atmospheric Deposition Program (NADP), Mercury Deposition Network (MDN) and the Southeast Aerosol Research and Characterization Study (SEARCH). The various CMAQ utility tools are described below.
+Several Fortran-based post-processing tools are provided along with the CMAQ code/scripts distribution. These are located in the $CMAQ_HOME/POST directory in the CMAQ distribution (version 5.2 and later). These tools work directly with the CMAQ outputs and help in processing, formatting, and preparing datasets from various ambient monitoring networks for subsequent evaluation. These networks include the EPA Air Quality System (AQS)AIRS-AQS, Interagency Monitoring of Protected Visual Environments (IMPROVE), Clean Air Status Trends Network (CASTNET), Speciated Trends Network (STN), National Atmospheric Deposition Program (NADP), Mercury Deposition Network (MDN) and the Southeast Aerosol Research and Characterization Study (SEARCH). The formatted observation data files needed for running the sitecmp and sitecmp_dailyo3 utilities are available for 2000 through 2014 from the CMAS Center Data Clearinghouse under the heading "2000-2014 North American Air Quality Observation Data": https://www.cmascenter.org/download/data.cfm.
 
-<a id="appendwrf"><a/>
+The various CMAQ utility tools are described below.  Documentation and sample run scripts are provided in the [$CMAQ_HOME/POST](https://github.com/USEPA/CMAQ/tree/5.2) directory for each utility.
 
-## appendwrf
-
-This program concatenates variables from multiple WRF input or output files into a single file along the Time (unlimited) dimension. This can be useful in cases where a user may have WRF input or output files that were generated for shorter time periods and wants to combine them into files with longer (e.g. monthly) duration.
-
-[Additional documentation can be found in the README file for appendwrf.](../../POST/appendwrf/README.md)  
-
-## bldoverlay
-
-This program creates an observation overlay file that can be imported into either PAVE or VERDI. It requires as input a file containing observed data in a specific format, and then creates a PAVE/VERDI compatible overlay file.
-
-[Additional documentation can be found in the README file for bldoverlay.](../../POST/bldoverlay/README.md)  
-
+<a id="post_tools"><a/>
+-   **appendwrf**: This program concatenates variables from multiple WRF input or output files into a single file along the Time (unlimited) dimension. This can be useful in cases where a user may have WRF input or output files that were generated for shorter time periods and wants to combine them into files with longer (e.g. monthly) duration.
 <a id="block_extract"><a/>
-
-## block_extract
-
-This  program extracts time series of 1 or more variables from 1 or more (up to 99) IOAPI files for a specified range of cells. 
-
-[Additional documentation can be found in the README file for block_extract.](../../POST/block_extract/README.md)  
-
-<a id="combine"><a/>
-
-## combine
-
-This program combines fields from a set of IOAPI or wrfout input files to an output file. The file assigned to environmental variable SPECIES_DEF defines the new species variables and how they are constructed. This means that all the species listed in the SPECIES_DEF files need to be output when CMAQ is being run. One option is to set the ACONC (or CONC) output to be all species.
-
-[Additional documentation can be found in the README file for combine.](../../POST/combine/README.md)  
-
-<a id="hr2day"><a/>
-
-## hr2day
-
-This program creates gridded I/O API files with daily values (e.g. daily average, daily sum, maximum daily 8-hr average) from gridded I/O API files containing hourly values.
-
-[Additional documentation can be found in the README file for hr2day.](../../POST/hr2day/README.md)  
-
-## sitecmp
-
-This program generates a csv (comma separated values) file that compares CMAQ generated concentrations with an observed dataset.
-
-[Additional documentation can be found in the README file for sitecmp.](../../POST/sitecmp/README.md)  
-
-
-<a id="sitecmp_dailyo3"><a/>
-
-## sitecmp_dailyo3
-
-This program generates a csv (comma separated values) file that compares various daily ozone metrics computed from hourly CMAQ generated and observed ozone concentrations. The metrics included in the output file are daily maximum 1-hr ozone concentrations, daily maximum 1-hr ozone concentrations in the nine cells surrounding a monitor, time of occurrence of daily maximum 1-hr ozone concentrations, daily maximum 8-hr ozone concentrations, daily maximum 8-hr ozone concentrations in the nine cells surrounding a monitor, time of occurrence of daily maximum 8-hr ozone concentrations, the daily W126 ozone value, and the daily SUM06 ozone value.
-
-[Additional documentation can be found in the README file for sitecmp_dailyo3.](../../POST/sitecmp_dailyo3/README.md)  
-
-<a id="writesite"><a/>
-
-## writesite
-
-This program generates a csv file from an IOAPI data file for a set of species at defined site locations.
-
-[Additional documentation can be found in the README file for writesite.](../../POST/writesite/README.md)  
+-   **bldoverlay**: This program creates an observation overlay file that can be imported into either PAVE or VERDI. It requires as input a file containing observed data in a specific format, and then creates a PAVE/VERDI compatible overlay file.
+-   **block_extract**: This  program extracts time series of 1 or more variables from 1 or more (up to 99) IOAPI files for a specified range of cells. 
+- **combine**:This program combines fields from a set of IOAPI or wrfout input files to an output file. The file assigned to environmental variable SPECIES_DEF defines the new species variables and how they are constructed. This means that all the species listed in the SPECIES_DEF files need to be output when CMAQ is being run. One option is to set the ACONC (or CONC) output to be all species.
+-   **hr2day**: This program creates gridded I/O API files with daily values (e.g. daily average, daily sum, maximum daily 8-hr average) from gridded I/O API files containing hourly values.
+- **sitecmp**: This program generates a csv (comma separated values) file that compares CMAQ generated concentrations with an observed dataset.
+-   **sitecmp_dailyo3**: This program generates a csv (comma separated values) file that compares various daily ozone metrics computed from hourly CMAQ generated and observed ozone concentrations. The metrics included in the output file are daily maximum 1-hr ozone concentrations, daily maximum 1-hr ozone concentrations in the nine cells surrounding a monitor, time of occurrence of daily maximum 1-hr ozone concentrations, daily maximum 8-hr ozone concentrations, daily maximum 8-hr ozone concentrations in the nine cells surrounding a monitor, time of occurrence of daily maximum 8-hr ozone concentrations, the daily W126 ozone value, and the daily SUM06 ozone value.
+-   **writesite**: This program generates a csv file from an IOAPI data file for a set of species at defined site locations.
 
 <a id="m3tools"><a/>
 
