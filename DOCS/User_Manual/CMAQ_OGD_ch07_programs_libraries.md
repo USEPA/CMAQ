@@ -383,7 +383,7 @@ Both in-line emissions and photolysis are invoked through compile-time configura
 **Table 7‑8. CCTM optional output files**
 
 |File Name|Format|Description|
-|---------|------|-----------|
+|--------------|-------------|-------------------------------------------------------------------|
 |CTM_SSEMIS_1|GRDDED3|Hourly 2-D sea salt emissions; set the variable `CTM_SSEMDIAG` to `Y` within the CCTM to run script to write this file|
 |CTM_WET_DEP_2|GRDDED3|Name and location of hourly 2-D cloud diagnostics file; set the variable `CLD_DIAG` to `Y` in the CCTM run script to write this file|
 |CTM_DEPV_DIAG|GRDDED3|Hourly 2-D in-line deposition diagnostics file; output when in-line deposition is activated by setting `CTM_ILDEPV` to `Y` and the variable `CTM_DEPV_FILE` is set to `T` or `Y` in the CCTM run script|
@@ -1037,7 +1037,7 @@ To implement a new mechanism in CMAQ, start with a mechanism definition (mech.de
 **Table 7-13. CREATE_EBI input files**
 
 |**File Name**|**Format**|**Description**|
-|-----------------|-------|----------------------------------------------------------|
+|------------------------|----------|----------------------------------------------------------|
 |RXNS_DATA_SRC.F90|ASCII|CMAQ mechanism reaction listing in Fortran 90 format; output from the program CHEMMECH|
 
 
@@ -1048,7 +1048,7 @@ To implement a new mechanism in CMAQ, start with a mechanism definition (mech.de
 **Table 7‑14. CREATE_EBI output files**
 
 |File Name|Format|Description|
-|---------------|-------------|-------------------------------------------------------|
+|------------------------|---------------|-------------------------------------------------------|
 |\*.F|ASCII F90|Fortran 90 source code for the CCTM EBI chemistry solver|
 |RXNS_DATA_MODULE.F90|ASCII F90|Mechanism data Fortran source file; chemical mechanism definition formatted as DATA blocks to be read in as CMAQ source code|
 
@@ -1218,7 +1218,7 @@ The horizontal grid and vertical layer structures for ICON are defined at execut
 **Table 7‑15. ICON input files**
 
 |**File Name**|**Format**|**Description**|
-|-----------|-------|-----------------------------------------------------------------------|
+|---------------------|-------------|-----------------------------------------------------------------------|
 |IC_PROFILE|ASCII|Vertical chemical profiles from which to derive initial conditions; this file is created by the user; used only when the IC environment variable is set to “profile”|
 |CTM_CONC_1|GRDDED3|Name and location of the CMAQ concentration file from which to derive initial conditions; this file is output from CCTM; used only when the BC environment variable is set to “m3conc”|
 |MET_CRO_3D_CRS|GRDDED3|Name and location of the coarse-grid MET_CRO_3D file that is required for creating the vertical grid structure if this structure changes between nested simulations; this file is output by MCIP|
@@ -1358,7 +1358,7 @@ To implement new CSQY data in CMAQ, start with individual CSQY data files for ea
 **Table 7-17. INLINE_PHOT_PREPROC input files**
 
 |**File Name**|**Format**|**Description**|
-|--------------------|------|------------------------------------------------------------|
+|----------------------------|------------|------------------------------------------------------------|
 |RXNS_DATA_MODULE.F90|ASCII|CMAQ mechanism reaction listing in Fortran 90 format; output from the program CHEMMECH|
 |CSQY_DATA_RAW|ASCII|Directory of photolysis reaction-specific absorption cross section and quantum yield data as a function of wavelength|
 |WVBIN_FILE|ASCII|Wavelength bins for which to include CSQY data|
@@ -1377,7 +1377,7 @@ To implement new CSQY data in CMAQ, start with individual CSQY data files for ea
 **Table 7‑18. INLINE_PHOT_PREPROC output files**
 
 |File Name|Format|Description|
-|------------|---------|------------------------------------------------------------|
+|----------------|------------|------------------------------------------------------------|
 |CSQY_DATA|ASCII|Tabulated CSQY data as a function of temperature and wavelength bin|
 |PHOT_OPTICS|ASCII|Wavelength, Optical and Surface Albedo Parameters for CMAQ In-Line Photolysis calculation.|
 
@@ -1584,7 +1584,7 @@ MCIP can extract both temporal and spatial subsets of the input meteorology file
 
 |**File Name**|**Format**|**Description**|
 |------------|------------------------------|-----------------------------------------------------|
-|InMetFiles|binary (MM5) or netCDF (WRF‑ARW)|List of MM5 or WRF‑ARW output files for input to MCIP|
+|InMetFiles|binary (MM5) or netCDF (WRF\‑ARW)|List of MM5 or WRF‑ARW output files for input to MCIP|
 |InTerFile|binary|MM5 Terrain file with fractional land use categories; used for calculating land-use-dependent vertical diffusivity. Not necessary with WRF‑ARW; this information is included in the WRF-ARW met file.|
 |InSatFiles||GOES satellite cloud data|
 
@@ -1595,7 +1595,7 @@ MCIP can extract both temporal and spatial subsets of the input meteorology file
 **Table 7‑22. MCIP output files**
 
 |**File Name**|**Format**|**Description**|
-|---------|--------|------------------------------------------------------------------|
+|--------------------|-----------------|------------------------------------------------------------------|
 |GRIDDESC|ASCII|Grid description file with coordinate and grid definition information|
 |GRID_BDY_2D|BNDARY3|Time-independent 2-D boundary meteorology file|
 |GRID_CRO_2D|GRDDED3|Time-independent 2-D cross-point meteorology file|

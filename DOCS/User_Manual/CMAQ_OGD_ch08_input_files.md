@@ -23,7 +23,7 @@ This section describes each of the input files required by the various CMAQ prog
 **Table 8-1. CMAQ input files**
 
 |**File Name**|**File Type**|**Time-Dependence**|**Spatial Dimensions**|**Source**|
-|----------------------------|------|----|----|-----------------------------------|
+|-------------------------|----------------|----------------|----------------|-----------------------------------|
 |**General**| | | | |
 |[GRIDDESC](#griddesc)|ASCII|n/a|n/a|user/MCIP
 |[gc_matrix.nml](#matrix_nml)|ASCII|n/a|n/a|CSV2NML
@@ -106,7 +106,7 @@ The grid description section ([Table 8-3](#Table8-3)) consists of text records t
  **Table 8-2. Coordinate sytem description segment of GRIDDESC**
 
 | **Line**| **Column**| **Name** | **Type** | **Description**|
-|---|---|----------|----------|--------------------------------------------------------|
+|---|---|----------------|----------|--------------------------------------------------------|
 |1|A| Header | String |Single-quote-delimited header describing section contents; may be blank, i.e., ' '|
 |2|A| COORD-NAME | String |Name of the coordinate description (required); single quote delimited|
 |3|A| COORDTYPE | Int |I/O API index defining the map projection type (required)| |
