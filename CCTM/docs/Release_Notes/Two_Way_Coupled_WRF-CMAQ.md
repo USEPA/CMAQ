@@ -9,88 +9,65 @@ The new two-way coupled WRF-CMAQ model which is based on WRF 3.8 and CMAQ 5.2, i
 
 ## Build Instructions
 
-- Download WRF 3.8 and unzip it (recommend command: tar xfz the_zip_file) 
-   At the end of this step, you will see a new directory WRFV3 and rename it 
+- Download WRF 3.8 and unzip it (recommend command: `tar xfz the_zip_file`). At the end of this step, you will see a new directory WRFV3 and rename it 
    to WRFV38.
-- Configure WRF by typing configure (this creates a configure.wrf file)
+- Configure WRF by typing `configure`. This creates a configure.wrf file.
 - If you have never done WRF configure before, here are some guidelines:
-* if the configure script does not find the NETCDF path, follow the prompt to enter the explicit NETCDF include path and library path
-* option selection determines by choosing an approriate compiler vendor and hardware description on right most column of the displayed option table and intercept with with the third column (dmpar)
-       example: for INTEL (ifort/icc), selection is 15
-* in the compile for nesting section, choose the default value
-
+   1. If the configure script does not find the NETCDF path, follow the prompt to enter the explicit NETCDF include path and library path.
+   2. Option selection determines by choosing an approriate compiler vendor and hardware description on right most column of the displayed option table and intercept with the third column (dmpar).  Example: for INTEL (ifort/icc), selection is 15.
+   3. In the compile for nesting section, choose the default value.
 - Download IOAPI_3.1 (or IOAPI 3.2) and install it.
+- Go through regular building CMAQ model process. Make sure bldit.cctm script  have:
 
-- Go through regular building CMAQ model process. Make sure bldit.cctm
-   script  have:
+    `set MakeFileOnly` line uncomment out
+    
+    `set build_twoway` line uncomment out
 
-    "set MakeFileOnly" line uncomment out
-    "set build_twoway" line uncomment out
+- After running the blidit.cctm script, rename BLD_\* as cmaq and move it into WRFV38 directory.
 
-   After running the blidit.cctm script, rename BLD_* as cmaq and move it 
-   into WRFV38 directory.
-
- - Download twoway.tar.gz from the CMAS Center Software Clearinghouse and unzip it. A twoway directory is formed and move it inside WRFV38 as well.. From http://www.cmascenter.org, select Download -> Software -> CMAQ and choose version 5.2 to download the coupled model tarball, twoway.tar.gz.
+ - Download coupled model tarball from the CMAS Center Software Clearinghouse. From http://www.cmascenter.org, select Download -> Software -> CMAQ and choose version 5.2 to download the file WRFv3.8_CMAQv5.2_TwoWay_Model.tar.gz.  Unzip the tarball and then move the twoway directory inside WRFV38 as well.
+ 
 - Go into directory WRFV38 and execute the following command: 
 
-   twoway/assemble 
+   `twoway/assemble` 
 
    This command will update all necessary files in WRF and CMAQ to create 
    the twoway model. You can find the original files inside twoway/misc/orig 
    directory.
 
-   Note: 
-   
+- Note:  
    1. You might need to edit the IOAPI and MPI paths in configure.wrf base on 
       the location of those two libraries on your system.
 
    2. You can also replace the netCDF link with explicit netCDF path under
       LIB_EXTERNAL and NETCDFPATH. Copy configure.wrf to configure.wrf.saved.
-      Once you have this done and in the future if you type "clean -a", you
-      can restore the configure file by "cp configure.wrf.saved configure.wrf"
+      Once you have this done and in the future if you type `clean -a`, you
+      can restore the configure file by `cp configure.wrf.saved configure.wrf`
       without going through configure step again.
 
    3. In the future, when you bring in a newer version of cmaq, you just
-      need to type
+      need to type:
 
-      twoway/assemble m
+      `twoway/assemble m`
 
-      and a Makefile.twoway will be created inside that new cmaq directory
+      and a Makefile.twoway will be created inside that new cmaq directory.
 
-- Compile the twoway model by typing "compile em_real >& mylog". This might
-   take some time for completion and you can monitor size changes of file,
-   mylog. If compilation is done successfully, you can find main/wrf.exe file.
+- Compile the twoway model by typing `compile em_real >& mylog`. This might take some time for completion and you can monitor size changes of file, mylog. If compilation is done successfully, you can find main/wrf.exe file.
 
-Note: 
+## WRF-CMAQ Input/Output Data and Run Instructions
+A test dataset is available from the [CMAS Center Software Clearinghouse](https://www.cmascenter.org/download/software/cmaq/cmaq_5-2.cfm?DB=TRUE) (WRFv3.8_CMAQv5.2_Input.tar.gz, WRFv3.8_CMAQv5.2_Output.tar.gz). Once you unpack the file, you can store in anywhere you want.  
 
- 1. A one day test dataset is also available for download from your browser at:
+A sample run script, twoway_model_run_script, is in the WRFv3.8_CMAQv5.2_TwoWay_Model.tar.gz under the script subdirectory.
+In order to use this script to run the WRF-CMAQ two-way model, you need to modify two variables: WRF_DIR and INPDIR.
+    In general, the area in between
 
-    ftp://newftp.epa.gov/exposure/CMAQ/V5_2/WRF-CMAQ_Coupled_Model/
-
-    Once you unpack the file, you can store in anywhere you want.
-
- 2. a run script, twoway_model_run_script is in twoway/script inside twoway.tar.gz
-
-    In order to use this script to run the WRF-CMAQ two-way model, you need to
-    modify two variables: WRF_DIR and INPDIR.
-
-    In general, the area in bwtween
-
-       '# ##### begin user define area #####'
+       `# ##### begin user define area #####`
 
     and
 
-       '# ##### end user define area #####'
+       `# ##### end user define area #####`
 
     can be modified to suit a particular simulation.
-
-If you have any question, please contact David Wong at wong.david-c@epa.gov
-
-
-## Run Instructions
-A test dataset is also available from the CMAS Center Software Clearinghouse (wrf_38_cmaq_52_input.tar.gz, wrf_38_cmaq_52_output.tar.gz). A sample run script, twoway_model_run_script, is in the twoway.tar.gz under script subdirectory.
-
-## WRF-CMAQ Input/Output Data
 
 The WRF-CMAQ benchmark data provide examples of the files needed to run the model. The general list of inputs required for WRF-CMAQ include,
 
@@ -98,6 +75,8 @@ The WRF-CMAQ benchmark data provide examples of the files needed to run the mode
 * CMAQ inputs  :: emissions, IC, BC, OMI, ocean file
 
 WRF-CMAQ outputs standard WRF (wrfout) and CMAQ output files.
+
+If you have any question, please contact David Wong at wong.david-c@epa.gov
 
 ## References:
 
