@@ -311,10 +311,10 @@ Use the following commands to compile ICON and BCON:
 
 ```
 cd $CMAQ_HOME/PREP/icon
-bldit.icon |& tee build.icon.log
+bldit_icon.csh |& tee build_icon.log
 
 cd $CMAQ_HOME/PREP/bcon
-bldit.bcon |& tee build.bcon.log
+bldit_bcon.csh |& tee build.bcon.log
 ```
 
 Like the program Bldmake, MCIP is compiled using a Fortran Makefile.
@@ -333,7 +333,7 @@ For single-processor (serial) systems, configure the CCTM build script to create
 
 ```
 cd $CMAQ_HOME/CCTM/scripts
-bldit.cctm |& tee build.cctm.log
+bldit_cctm.csh |& tee build_cctm.log
 ```
 
 Although not used for the installation test simulation, the program PROCAN can also be compiled using Bldmake. The programs CHEMMECH and CALMAP are also not needed for the test simulation but can be compiled using Makefiles.
@@ -348,14 +348,14 @@ Run ICON to produce initial conditions:
 
 ```
 cd $CMAQ_HOME/PREP/icon
-./run.icon |& tee run.icon.log
+./run_icon.csh |& tee run_icon.log
 ```
 
 Run BCON to produce boundary conditions:
 
 ```
 cd $CMAQ_HOME/PREP/bcon
-./run.bcon |& tee run.bcon.log
+./run_bcon.csh |& tee run.bcon.log
 ```
 
 Check the ICON and BCON log file to ensure that the programs completed successfully.
@@ -382,7 +382,7 @@ After configuring the MPI settings for your Linux system, run the CCTM:
 
 ```
 cd $CMAQ_HOME/CCTM/scripts
-./run.cctm |& tee cctm.log
+./run_cctm.csh |& tee run_cctm.log
 ```
 
 

@@ -5,7 +5,7 @@
 <!-- END COMMENT -->
 
 
-# Overview of the Science in the CMAQ Modeling System #
+# Science Overview #
 
 As discussed in [Chapter 1](CMAQ_OGD_ch01_intro.md), CMAQ is a multipollutant, multiscale air quality modeling system that estimates the transport and chemistry of ozone, PM, toxic airborne pollutants (referred to as “air toxics”), acidic and nutrient pollutant species as well as estimates of visibility degradation and deposition totals. CMAQ includes state-of-the-art technical and computational techniques to simulate air quality from urban to global scales. It can model complex atmospheric processes affecting transformation, transport, and deposition of air pollutants using a system architecture that is designed for fast and efficient computing. While superceded by several science updates since its release, the [Science Algorithms of the EPA Models-3 Community Multiscale Air Quality Modeling System](https://www.cmascenter.org/cmaq/science_documentation/) continues to be important reference for the science and design of CMAQ. [Chapter 3](CMAQ_OGD_cho03_features.md) of this guide includes links to descriptions of the updates made to CMAQ by release version.
 
@@ -13,7 +13,7 @@ CMAQ has been developed to meet the needs of both the research and application c
 
 <a id="Figure4-1"></a>
 
-![](./images/Figure4-1.png "Figure4-1.png")
+![Figure 4.1:CMAQ Interchangeable Modules](./images/Figure4-1.png "Figure4-1.png")
 
 **Figure 4‑1. CMAQ Modeling Framework**
 
