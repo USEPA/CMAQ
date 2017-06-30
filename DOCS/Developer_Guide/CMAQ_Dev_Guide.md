@@ -31,11 +31,10 @@ To contribute source code to the CMAQ Public repository, create a fork of the EP
 
 CMAQ Code Introduction
 ==================================
-(add content)
+CMAQ is written in Fortran, and has an I/O layer that uses netCDF and IO/API libraries.
 
 General Code Introduction
 ----------------------------------
-(add content)
 
 Parallelization Strategy
 ----------------------------------
@@ -65,7 +64,7 @@ Users who wish to implement a new feature, and have that feature merged into the
 External CMAS Public CMAQ-Release Repository
 ----------------------------------
 
-A fork of the main CMAQ-Release release repository that is used for testing and documenation by the CMAS Center.
+A fork of the main CMAQ-Release release repository that is used for testing and documentation.
 
 
 Repository Layouts
@@ -73,15 +72,11 @@ Repository Layouts
 
 The CMAQ-Dev and CMAQ-Release repository directories for the base model are all laid out as follows.
 
+- bldit_project.csh
+- config_cmaq.csh
 - CCTM
-
      + docs
-
          * Releaase_Notes
-         * User_Manual
-         * Developer_Guide
-         * Design_Documents
-
      + scripts
      + src
          * ICL
@@ -141,7 +136,7 @@ The CMAQ-Dev and CMAQ-Release repository directories for the base model are all 
          * plrise
                - smoke
          * procan
-                                                                              - pa
+                - pa
          * pv_o3
          * spcs
          * twoway
@@ -168,8 +163,17 @@ The CMAQ-Dev and CMAQ-Release repository directories for the base model are all 
     + icon
     + jproc
     + mcip
-- Tutorials
+- DOCS
+    + Tutorials
+    + Developer_Guide
+    + User_Manual
 - UTIL
+    + bldmake
+    + chemmech
+    + create_ebi
+    + inline_phot_preproc
+    + jproc
+    + nml
 
 
 Development Life-cycle
@@ -210,13 +214,13 @@ Contributions Life-cycle
 The repositories are all hosted on github.  The typical life-cycle of a project is as follows:
 
 1. Create a design document for the project.  
-2. Visit appropriate repository website.
+2. Visit EPA's repository website https://github.com/USEPA/.
 3. Create a fork of the repository.
 4. Locally clone the newly created fork.
-5. Create a branch within the fork, for the new feature or bug x.
+5. Create a branch within the fork, for the new feature or bug.
 6. Develop branch.
 7. Push complete branch to remote fork.
-8. Submit a pull request to merge branch on fork to ??
+8. Submit a pull request to merge branch on fork to EPA's github site: https://github.com/USEPA/ 
 
 Project contributions don't have to follow this example verbatim, but this at least
 gives a general overview of the process. Some details related to this life-
@@ -253,33 +257,45 @@ Locally Clone the Newly Created Fork
 ----------------------------------
 Follow these instructions:
 
-- On GitHub, navigate to the main page of the repository.
+1. On GitHub, navigate to the main page of the repository https://github.com/USEPA/.
 
-- Under the repository name, click Clone or download.
+2.  In the upper right of the page click on Fork this Repository
 
-- In the Clone with HTTPs section, click to copy the clone URL for the repository. 
+3.  You will be prompted by GitHub to tell what Github Repostitory to fork it to "Where should we fork this repository?" 
 
-- Open a Terminal on your computer
+4.  Go to the newly Forked Repository on your GitHub page.
 
-- Change the current working directory to the location where you want the cloned directory to be made
+5.  In the Clone with HTTPs section, click to copy the clone URL for this forked repository. 
 
-- Type git clone, and then paste the URL you copied in Step 2.
+6.  Open a Terminal on your computer
+
+7.  Change the current working directory to the location where you want the cloned directory to be made
+
+8.  Type git clone, and then paste the URL you copied in Step 5.
 
     ```
     git clone https://github.com/YOUR-USERNAME/YOUR-REPOSITORY
     ```
 
+Switch to the current release Branch
+----------------------------------
+     git checkout 5.2
+
 
 Create a new Branch
 ----------------------------------
 
-- Create a new branch on your local machine and switch to this branch 
+- Create a new branch on your local machine (git makes a copy of the 5.2 branch) and switch to this branch 
 
       git checkout -b [name_of_your_new_branch]
+
+- Example `git checkout -b 5.2_develop_new
 
 - Change to this branch (make it your working branch)
   
       git checkout [name_of_your_new_branch]
+
+- Example `git checkout 5.2_develop_new`
 
 
 Merging Code
@@ -306,8 +322,8 @@ Merging Code
 Pull requests
 ----------------------------------
 
-- use GitHub Website to view your CMAQ-Release Fork
-- go to the branch that you have committed code, example: 5.2gamma
+- use GitHub Website to view your CMAQ Fork
+- go to the branch that you have committed code, example: 5.2_develop_new 
 - Submit a pull request
 
 
@@ -324,12 +340,9 @@ Feature Branches
 - review this language..
 Feature branches should only be created from the develop branch. This allows a cleaner work flow when planning releases. Any features that have been merged onto develop can be staged for release. This means, if you submit a pull request for a feature to be merged onto the CMAQ version of develop, you are giving consent for it to be included in the next coordinated release.
 
-(are the instrumented versions of CMAQ considered to be Feature Branches? If so, describe these as an example of a feature branch.)
-
 
 Release Branches
 ----------------------------------
-(need to review this text from MPAS developer document and compare the MPAS method to the method currently used by EPA, and then make edits here.)
 
 One of the variable branch types that developers will see in the shared repository is a release branch. This release branch is used to prepare the code for a new release, and comes with some guidelines of use.  As per the branch document listed in section XX, release branches should branch from develop. Once they are complete, they are merged into both develop and master. After they are merged into master, that commit is tagged with a new version number, and then pushed into the CMAQ-Release repository for a public release.  A feature branch can be thought of as a feature freeze. Once the release branch is created, no new features can make it into the next release. The only commits that can be appended to a release branch are clean up and bug fix commits.
 
@@ -337,27 +350,19 @@ One of the variable branch types that developers will see in the shared reposito
 Development Branches
 ---------------------------------
 
-(need to review and revise)
-Due to the requirement that anything merged into develop can be released at any point in time, a group of developers can decide they want to begin the release process at any point in time. The guidelines for the release process are as follows, however the flexibility of these guidelines is at the discretion of the group performing the release.
-
-From any point in time, the soonest date that can be targeted for release is 1 month from the current date.  
-
 Once a release date is selected, it should be anounced to the CMAQ developers list to alert all core developers.
 
-There is a minimum lag time of 2 weeks between the announcement of a release date, and the creation of a release branch. This is to allow developers to finish any projects that are close to being complete, that they would like to be part of the next release.
-
-After the 2 weeks are up, a release branch can be created from the tip of the develop branch.  The first commit to a release branch should be updating the version numbers.  The maximum time a release branch is allowed to exist is 2 weeks.  After the release branch has been in existence for 2 weeks, it is assumed all core maintainer groups are finished with any edits to prepare for release. At this point, the release branch is complete.  The release branch is then merged into master and develop.  The commit on master is tagged with the new version number.  The master branch is then pushed to the CMAQ-Release repository.  These guidelines lay out a minimum amount of time a release cycle should consume. However, the core group that intends to release should announce
-the targeted date of release as soon as they have one selected.
 
 Version Numbers
 =================================
 
-(review and edit this entire section!)
+5.2
+5.2Gamma
+5.2Beta
 
 Release Version
 ---------------------
-CMAQ will have a number versioning system for each release version branch, using major, minor, and sub-minor increments.
-For example, 5.02  In this case, the first digit (major version), second digit (minor version), and third digit (patch version) refers to an stable release version. 
+CMAQ will have a number versioning system for each release version branch, using major and alpha, beta, gamma increments.
 
 Development Version
 ---------------------
@@ -380,7 +385,6 @@ All versions that have been released as a stable version number are retained on 
 
 Development Strategy
 ==================================
-(review and edit!)
 
 As developers of CMAQ, we attempt to make the code look as uniform as we can across the entire code-base. In order to enforce this, there are a set of guidelines developers should follow.
 
@@ -398,7 +402,7 @@ Code Consistency
 
 Benchmark Dataset
 ------------------------------
-The U.S. EPA Calnex 12km domain July 2, 2011 testing dataset is provided with the CMAQ-Dev Release. This dataset is distributed with CMAQv5.2gamma to use for benchmarking the model installation. 
+The U.S. EPA Calnex 12km domain July 2, 2011 testing dataset is provided with the CMAQ-Dev Release. This dataset is distributed with CMAQv5.2 to use for benchmarking the model installation. 
 
 
 Testing 

@@ -42,7 +42,7 @@ CMAQ includes several "in-line" options to support coupling between meteorology 
 --->
 [CCTM](#cctm) is run last in the sequence of programs. All of the other CMAQ programs, and the emissions and meteorological models, are used to prepare the inputs to CCTM. By using data that are synchronized for a particular modeling time period, model grid, vertical layer configuration, and chemical parameterization, CCTM can produce estimates of pollutant concentrations, wet and dry deposition rates, and visibility metrics.
 
-In addition to the core programs shown in [Figure 7‑1 CMAQ Core Programs](#Figure7-1), the CMAQ distribution package also includes utilities `($CMAQ_HOME/UTIL)` and post-processors `($CMAQ_HOME/POST)` for utilizing additional technical and diagnostic features in CMAQ. The CMAQ utility programs [CHEMMECH](#chemmech) [CSV2NML](#chemmech), [CREATE_EBI](#create_ebi), and [INLINE_PHOT_PREPROC](#inline_phot_preproc), and [JPROC](#jproc) are used to modify or prepare new chemical mechanisms for CMAQ. The CMAQ preprocessor [CALMAP](#calmap) creates maps of the crop calendar for use in estimating windblown dust emissions. The CMAQ post-processors are described in the [CMAQv5.1 documentation](https://www.airqualitymodeling.org/index.php/CMAQv5.1_Tools_and_Utilities) and are used to prepare CMAQ output data for analysis.
+In addition to the core programs shown in [Figure 7‑1 CMAQ Core Programs](#Figure7-1), the CMAQ distribution package also includes utilities `($CMAQ_HOME/UTIL)` and post-processors `($CMAQ_HOME/POST)` for utilizing additional technical and diagnostic features in CMAQ. The CMAQ utility programs [CHEMMECH](#chemmech) [CSV2NML](#chemmech), [CREATE_EBI](#create_ebi), and [INLINE_PHOT_PREPROC](#inline_phot_preproc), and [JPROC](#jproc) are used to modify or prepare new chemical mechanisms for CMAQ. The CMAQ preprocessor [CALMAP](#calmap) creates maps of the crop calendar for use in estimating windblown dust emissions. The CMAQ post-processors are described in the [CMAQv5.2 documentation](https://github.com/USEPA/CMAQ/blob/5.2/POST/README.md) and are used to prepare CMAQ output data for analysis.
 
 This chapter provides detailed descriptions of the CMAQ programs and utilities. Information about the third-party libraries used by CMAQ—such as I/O API, netCDF, and MPI are available in [Chapter 6](CMAQ_OGD_ch06_req_lib.md). When viewing the tables that list each program’s input and output files, recall that the various I/O API file formats shown are also described in [Chapter 6](CMAQ_OGD_ch06_req_lib.md).
 
@@ -122,7 +122,7 @@ The configuration options listed here are set during compilation of the BCON exe
     -   `profile`: input an ASCII vertical profiles file
     -   `tracer`: use the tracer namelist file to create BCs of tagged tracer species
 -  `Mechanism: [default: cb05e51_ae6_aq]`  
-    Specifies the gas-phase, aerosol, and aqueous-phase chemical mechanisms for which to create boundary conditions. The choices for the `Mechanism` variable are the mechanism directory names under the `$CMAQ_HOME/CCTM/src/MECHS` directory. Also see the [Mechanism Definitions Table](../Release_Notes/CMAQv5.2_Mechanisms.md)). Examples include:
+    Specifies the gas-phase, aerosol, and aqueous-phase chemical mechanisms for which to create boundary conditions. The choices for the `Mechanism` variable are the mechanism directory names under the `$CMAQ_HOME/CCTM/src/MECHS` directory. Also see the [Mechanism Definitions Table](https://github.com/USEPA/CMAQ/blob/5.2/DOCS/User_Manual/CMAQ_OGD_appendix_A.md)). Examples include:
     -   `cb6r3_ae6_aq`: CB6, revision 3 gas-phase mechanism, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM Other, `aqueous/cloud` chemistry
     -   `cb05e51_ae6_aq`: CB05 gas-phase mechanism with CMAQv5.1 updates, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM Other, `aqueous/cloud` chemistry
     -   `cb05tucl_ae6_aq`: CB05 gas-phase mechanism with active chlorine chemistry, updated toluene mechanism, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM Other, `aqueous/cloud` chemistry
@@ -383,7 +383,7 @@ Both in-line emissions and photolysis are invoked through compile-time configura
 **Table 7‑8. CCTM optional output files**
 
 |File Name|Format|Description|
-|---------|------|-----------|
+|--------------|-------------|-------------------------------------------------------------------|
 |CTM_SSEMIS_1|GRDDED3|Hourly 2-D sea salt emissions; set the variable `CTM_SSEMDIAG` to `Y` within the CCTM to run script to write this file|
 |CTM_WET_DEP_2|GRDDED3|Name and location of hourly 2-D cloud diagnostics file; set the variable `CLD_DIAG` to `Y` in the CCTM run script to write this file|
 |CTM_DEPV_DIAG|GRDDED3|Hourly 2-D in-line deposition diagnostics file; output when in-line deposition is activated by setting `CTM_ILDEPV` to `Y` and the variable `CTM_DEPV_FILE` is set to `T` or `Y` in the CCTM run script|
@@ -414,7 +414,7 @@ The default location of the CCTM output files is the `$CMAQ_HOME/data/cctm` dire
 
 The configuration options listed here are set during compilation of the CCTM executable. When these options are invoked they create a binary executable that is fixed to the specified configuration. To change these options you must recompile CCTM and create a new executable.
 
-Several of the CCTM science modules have more than one option.  Brief descriptions of these options are provided here.  For details on the science of the different options refer to the [CMAQ Release Notes](../Release_Notes/README.md).
+Several of the CCTM science modules have more than one option.  Brief descriptions of these options are provided here.  For details on the science of the different options refer to the [CMAQ Release Notes](../../CCTM/docs/Release_Notes/README.md).
 
 The following five options are invoked by uncommenting the line in the CCTM build script.  Comment the line in the script using a "#" to turn the option off.
 
@@ -503,9 +503,9 @@ Calculate in-line plume rise for large point sources using the Briggs algorithm 
     -   `phot/table`  
     calculate clear-sky photolysis rates off-line using the CMAQ program JPROC; provide daily photolysis rate look-up tables to CCTM
 -   `Mechanism: [default: cb05e51_ae6_aq`]  
-    Chemistry mechanism for gas, aerosol, and aqueous chemistry. See the [CMAQ Mechanism Definitions Table](../Release_Notes/CMAQv5.2_Mechanisms.md) for a listing of the mechanism choices that are available in CMAQv5.2.
+    Chemistry mechanism for gas, aerosol, and aqueous chemistry. See the [CMAQ Mechanism Definitions Table(https://github.com/USEPA/CMAQ/blob/5.2/DOCS/User_Manual/CMAQ_OGD_appendix_A.md) for a listing of the mechanism choices that are available in CMAQv5.2.
 -   `Tracer [default trac0] `  
-    Specifies tracer species. Invoking inert tracer species in CMAQ requires defining the tracers using namelist files and compiling the CMAQ programs with these files. The setting for this module corresponds to the directory name in the ``$CMAQ_HOME/CCTM/src/MECHS` directory that contains the namelist files for the tracer configuration. The default setting is to not use any tracers.
+    Specifies tracer species. Invoking inert tracer species in CMAQ requires defining the tracers using namelist files and compiling the CMAQ programs with these files. The setting for this module corresponds to the directory name in the ``$CMAQ_HOME/CCTM/src/MECHS`` directory that contains the namelist files for the tracer configuration. The default setting is to not use any tracers.
     - `trac[n]`
 -   `ModGas: [default: gas/ebi_${Mechanism}]`  
      Gas-phase chemistry solver module.
@@ -823,7 +823,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 ##### Windblown dust emissions configuration
 
 
-[CMAQ Windblown Dust Module Documentation](../Release_Notes/Windblown_Dust_Emis.md)
+[CMAQ Windblown Dust Module Documentation](https://github.com/USEPA/CMAQ/blob/5.2/CCTM/docs/Release_Notes/Windblown_Dust_Emis.md)
 -   `DUST_LU_1`  
     Input BELD "A" landuse netCDF file gridded to the modeling domain. Used if `CTM_WBDUST_BELD` is set to BELD3.
 
@@ -1037,7 +1037,7 @@ To implement a new mechanism in CMAQ, start with a mechanism definition (mech.de
 **Table 7-13. CREATE_EBI input files**
 
 |**File Name**|**Format**|**Description**|
-|-----------------|-------|----------------------------------------------------------|
+|------------------------|----------|----------------------------------------------------------|
 |RXNS_DATA_SRC.F90|ASCII|CMAQ mechanism reaction listing in Fortran 90 format; output from the program CHEMMECH|
 
 
@@ -1048,7 +1048,7 @@ To implement a new mechanism in CMAQ, start with a mechanism definition (mech.de
 **Table 7‑14. CREATE_EBI output files**
 
 |File Name|Format|Description|
-|---------------|-------------|-------------------------------------------------------|
+|------------------------|---------------|-------------------------------------------------------|
 |\*.F|ASCII F90|Fortran 90 source code for the CCTM EBI chemistry solver|
 |RXNS_DATA_MODULE.F90|ASCII F90|Mechanism data Fortran source file; chemical mechanism definition formatted as DATA blocks to be read in as CMAQ source code|
 
@@ -1218,7 +1218,7 @@ The horizontal grid and vertical layer structures for ICON are defined at execut
 **Table 7‑15. ICON input files**
 
 |**File Name**|**Format**|**Description**|
-|-----------|-------|-----------------------------------------------------------------------|
+|---------------------|-------------|-----------------------------------------------------------------------|
 |IC_PROFILE|ASCII|Vertical chemical profiles from which to derive initial conditions; this file is created by the user; used only when the IC environment variable is set to “profile”|
 |CTM_CONC_1|GRDDED3|Name and location of the CMAQ concentration file from which to derive initial conditions; this file is output from CCTM; used only when the BC environment variable is set to “m3conc”|
 |MET_CRO_3D_CRS|GRDDED3|Name and location of the coarse-grid MET_CRO_3D file that is required for creating the vertical grid structure if this structure changes between nested simulations; this file is output by MCIP|
@@ -1256,7 +1256,7 @@ The configuration options listed here are set during compilation of the ICON exe
     -   `profile`: input an ASCII vertical profiles file
     -   `tracer`: use the tracer namelist file to create ICs of tagged tracer species
 -  `Mechanism: [default: cb05e51_ae6_aq]`  
-    Specifies the gas-phase, aerosol, and aqueous-phase chemical mechanisms for which to create initial conditions. The choices for the *Mechanism* variable are the mechanism directory names under the `$CMAQ_HOME/CCTM/src/MECHS` directory. Also see the [Mechanism Definitions Table](../Release_Notes/CMAQv5.2_Mechanisms.md)). Examples include:
+    Specifies the gas-phase, aerosol, and aqueous-phase chemical mechanisms for which to create initial conditions. The choices for the *Mechanism* variable are the mechanism directory names under the `$CMAQ_HOME/CCTM/src/MECHS` directory. Also see the [Mechanism Definitions Table](https://github.com/USEPA/CMAQ/blob/5.2/CCTM/docs/Release_Notes/CMAQv5.2_Mechanisms.md)). Examples include:
     -   `cb6r3_ae6_aq`: CB6, revision 3 gas-phase mechanism, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM Other, aqueous/cloud chemistry
     -   `cb05e51_ae6_aq`: CB05 gas-phase mechanism with CMAQv5.1 updates, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM Other, aqueous/cloud chemistry
     -   `cb05tucl_ae6_aq`: CB05 gas-phase mechanism with active chlorine chemistry, updated toluene mechanism, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM Other, aqueous/cloud chemistry
@@ -1358,7 +1358,7 @@ To implement new CSQY data in CMAQ, start with individual CSQY data files for ea
 **Table 7-17. INLINE_PHOT_PREPROC input files**
 
 |**File Name**|**Format**|**Description**|
-|--------------------|------|------------------------------------------------------------|
+|----------------------------|------------|------------------------------------------------------------|
 |RXNS_DATA_MODULE.F90|ASCII|CMAQ mechanism reaction listing in Fortran 90 format; output from the program CHEMMECH|
 |CSQY_DATA_RAW|ASCII|Directory of photolysis reaction-specific absorption cross section and quantum yield data as a function of wavelength|
 |WVBIN_FILE|ASCII|Wavelength bins for which to include CSQY data|
@@ -1377,7 +1377,7 @@ To implement new CSQY data in CMAQ, start with individual CSQY data files for ea
 **Table 7‑18. INLINE_PHOT_PREPROC output files**
 
 |File Name|Format|Description|
-|------------|---------|------------------------------------------------------------|
+|----------------|------------|------------------------------------------------------------|
 |CSQY_DATA|ASCII|Tabulated CSQY data as a function of temperature and wavelength bin|
 |PHOT_OPTICS|ASCII|Wavelength, Optical and Surface Albedo Parameters for CMAQ In-Line Photolysis calculation.|
 
@@ -1386,7 +1386,7 @@ The location of the INLINE_PHOT_PREPROC output files is set in the run script by
 #### Compilation Configuration Variables
 
 -  `Mechanism: [default: cb6r3_ae6_aq]`  
-    Specifies the gas-phase, aerosol, and aqueous-phase chemical mechanisms for which to create initial conditions. The choices for the *Mechanism* variable are the mechanism directory names under the `$CMAQ_HOME/CCTM/src/MECHS` directory. Also see the [Mechanism Definitions Table](../Release_Notes/CMAQv5.2_Mechanisms.md)). Examples include:
+    Specifies the gas-phase, aerosol, and aqueous-phase chemical mechanisms for which to create initial conditions. The choices for the *Mechanism* variable are the mechanism directory names under the `$CMAQ_HOME/CCTM/src/MECHS` directory. Also see the [Mechanism Definitions Table](https://github.com/USEPA/CMAQ/blob/5.2/CCTM/docs/Release_Notes/CMAQv5.2_Mechanisms.md)). Examples include:
     -   `cb6r3_ae6_aq`: CB6, revision 3 gas-phase mechanism, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM Other, aqueous/cloud chemistry
     -   `cb05e51_ae6_aq`: CB05 gas-phase mechanism with CMAQv5.1 updates, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM Other, aqueous/cloud chemistry
     -   `cb05tucl_ae6_aq`: CB05 gas-phase mechanism with active chlorine chemistry, updated toluene mechanism, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM Other, aqueous/cloud chemistry
@@ -1403,7 +1403,7 @@ The location of the INLINE_PHOT_PREPROC output files is set in the run script by
 
 The environment variables listed here are invoked at run time and are set in the CREATE_EBI run script.
 -  `Mechanism: [default: cb05e51_ae6_aq]`  
-    Specifies the gas-phase, aerosol, and aqueous-phase chemical mechanisms for which to create initial conditions. The choices for the *Mechanism* variable are the mechanism directory names under the `$CMAQ_HOME/CCTM/src/MECHS` directory. Also see the [Mechanism Definitions Table](../Release_Notes/CMAQv5.2_Mechanisms.md)). Examples include:
+    Specifies the gas-phase, aerosol, and aqueous-phase chemical mechanisms for which to create initial conditions. The choices for the *Mechanism* variable are the mechanism directory names under the `$CMAQ_HOME/CCTM/src/MECHS` directory. Also see the [Mechanism Definitions Table](https://github.com/USEPA/CMAQ/blob/5.2/CCTM/docs/Release_Notes/CMAQv5.2_Mechanisms.md)). Examples include:
     -   `cb6r3_ae6_aq`: CB6, revision 3 gas-phase mechanism, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM Other, aqueous/cloud chemistry
     -   `cb05e51_ae6_aq`: CB05 gas-phase mechanism with CMAQv5.1 updates, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM Other, aqueous/cloud chemistry
     -   `cb05tucl_ae6_aq`: CB05 gas-phase mechanism with active chlorine chemistry, updated toluene mechanism, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM Other, aqueous/cloud chemistry
@@ -1497,7 +1497,7 @@ The configuration options listed here are set during compilation of the JPROC ex
 -   `MakefileOnly`
     Uncomment to build a Makefile to compile the executable. Comment out to create a Makefile and compile.
 -  `Mechanism: [default: cb6r3_ae6_aq]`  
-    Specifies the gas-phase, aerosol, and aqueous-phase chemical mechanisms for which to create initial conditions. The choices for the *Mechanism* variable are the mechanism directory names under the `$CMAQ_HOME/CCTM/src/MECHS` directory. Also see the [Mechanism Definitions Table](../Release_Notes/CMAQv5.2_Mechanisms.md)). Examples include:
+    Specifies the gas-phase, aerosol, and aqueous-phase chemical mechanisms for which to create initial conditions. The choices for the *Mechanism* variable are the mechanism directory names under the `$CMAQ_HOME/CCTM/src/MECHS` directory. Also see the [Mechanism Definitions Table](https://github.com/USEPA/CMAQ/blob/5.2/CCTM/docs/Release_Notes/CMAQv5.2_Mechanisms.md)). Examples include:
     -   `cb6r3_ae6_aq`: CB6, revision 3 gas-phase mechanism, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM Other, aqueous/cloud chemistry
     -   `cb05e51_ae6_aq`: CB05 gas-phase mechanism with CMAQv5.1 updates, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM Other, aqueous/cloud chemistry
     -   `cb05tucl_ae6_aq`: CB05 gas-phase mechanism with active chlorine chemistry, updated toluene mechanism, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM Other, aqueous/cloud chemistry
@@ -1584,7 +1584,7 @@ MCIP can extract both temporal and spatial subsets of the input meteorology file
 
 |**File Name**|**Format**|**Description**|
 |------------|------------------------------|-----------------------------------------------------|
-|InMetFiles|binary (MM5) or netCDF (WRF‑ARW)|List of MM5 or WRF‑ARW output files for input to MCIP|
+|InMetFiles|binary (MM5) or netCDF (WRF\‑ARW)|List of MM5 or WRF‑ARW output files for input to MCIP|
 |InTerFile|binary|MM5 Terrain file with fractional land use categories; used for calculating land-use-dependent vertical diffusivity. Not necessary with WRF‑ARW; this information is included in the WRF-ARW met file.|
 |InSatFiles||GOES satellite cloud data|
 
@@ -1595,7 +1595,7 @@ MCIP can extract both temporal and spatial subsets of the input meteorology file
 **Table 7‑22. MCIP output files**
 
 |**File Name**|**Format**|**Description**|
-|---------|--------|------------------------------------------------------------------|
+|--------------------|-----------------|------------------------------------------------------------------|
 |GRIDDESC|ASCII|Grid description file with coordinate and grid definition information|
 |GRID_BDY_2D|BNDARY3|Time-independent 2-D boundary meteorology file|
 |GRID_CRO_2D|GRDDED3|Time-independent 2-D cross-point meteorology file|
@@ -1646,7 +1646,7 @@ The environment variables listed here are invoked during execution of the progra
 -   `InTerFile [default: None]`  
     Name and location of input MM5 TERRAIN or WRF Geogrid file
 -   `LPV: [default: 0]`  
-    Compute and output potential vorticity. This must be activated to support the [CCTM O3 potential vorticity scaling](../ReleaseNotes/Potential_Vorticity_Scaling.md).
+    Compute and output potential vorticity. This must be activated to support the [CCTM O3 potential vorticity scaling](../../CCTM/docs/ReleaseNotes/Potential_Vorticity_Scaling.md).
     -   `0`: Do not compute and output potential vorticity
     -   `1`: Compute and output potential vorticity
 -   `LWOUT [default: 0]`  

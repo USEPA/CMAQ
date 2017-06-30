@@ -17,11 +17,11 @@ List of Figures
 
 [Figure 4-4. Initial and boundary conditions preprocessing for CMAQ](CMAQ_OGD_ch04_science.md#Figure4-4)
 
-[Figure 4-5 Crop calendar data preprocessor for the CCTM](CMAQ_OGD_ch04_science.md#Figure4-9)
+[Figure 4-5 Crop calendar data preprocessor for the CCTM](CMAQ_OGD_ch04_science.md#Figure4-5)
 
-[Figure 4-6. CMAQ chemistry-transport model and associated preprocessors](CMAQ_OGD_ch04_science.md#Figure4-10)
+[Figure 4-6. CMAQ chemistry-transport model and associated preprocessors](CMAQ_OGD_ch04_science.md#Figure4-6)
 
-[Figure 4-7. Data flow between EPIC, the meteorological model, and CMAQ from Cooter et al. (2012)](CMAQ_OGD_ch04_science.md#Figure4-11.png)
+[Figure 4-7. Data flow between EPIC, the meteorological model, and CMAQ from Cooter et al. (2012)](CMAQ_OGD_ch04_science.md#Figure4-7)
 
 [Figure 7‑1.CMAQ core programs](CMAQ_OGD_ch07_programs_libraries.md#Figure7-1)
 
