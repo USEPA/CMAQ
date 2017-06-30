@@ -27,7 +27,6 @@
  set EXT_AGDUST = Y
  set EXT_BCON = Y
  set EXT_ICON = Y
- set EXT_LTNG = Y
  set EXT_MCIP = Y
  
  # Post-Processing Tools
@@ -97,30 +96,21 @@
 #> Copy BCON scripts
 #===============================================================================
  if ( $EXT_BCON == 'Y' ) then
-    if ( ! -e "$CMAQ_HOME/PREP/bc/BCON/scripts" ) then
-       mkdir -pv $CMAQ_HOME/PREP/bc/BCON/scripts
+    if ( ! -e "$CMAQ_HOME/PREP/bcon/scripts" ) then
+       mkdir -pv $CMAQ_HOME/PREP/bcon/scripts
     endif
-    cp PREP/bc/BCON/scripts/bldit_bcon.csh $CMAQ_HOME/PREP/bc/BCON/scripts/bldit_bcon.csh
+    cp PREP/bcon/scripts/bldit_bcon.csh $CMAQ_HOME/PREP/bcon/scripts/bldit_bcon.csh
+    cp PREP/bcon/scripts/run_bcon.csh $CMAQ_HOME/PREP/bcon/scripts/run_bcon.csh
  endif
 
 #===============================================================================
 #> Copy ICON scripts
 #===============================================================================
  if ( $EXT_ICON == 'Y' ) then
-    if ( ! -e "$CMAQ_HOME/PREP/ic/ICON/scripts" ) then
-       mkdir -pv $CMAQ_HOME/PREP/ic/ICON/scripts
+    if ( ! -e "$CMAQ_HOME/PREP/icon/scripts" ) then
+       mkdir -pv $CMAQ_HOME/PREP/icon/scripts
     endif
-    cp PREP/ic/ICON/scripts/bldit_icon.csh $CMAQ_HOME/PREP/ic/ICON/scripts/bldit_icon.csh
- endif
-
-#===============================================================================
-#> Copy LTNG scripts
-#===============================================================================
- if ( $EXT_LTNG == 'Y' ) then
-    if ( ! -e "$CMAQ_HOME/PREP/ltng/scripts" ) then
-       mkdir -pv $CMAQ_HOME/PREP/ltng/scripts
-    endif
-    cp PREP/ltng/scripts/* $CMAQ_HOME/PREP/ltng/scripts/
+    cp PREP/icon/scripts/bldit_icon.csh $CMAQ_HOME/PREP/icon/scripts/bldit_icon.csh
  endif
 
 #===============================================================================

@@ -1,13 +1,13 @@
-#! /bin/csh -f
+#!/bin/csh -f
 
-# ======================= ICONv5.2 Build Script ===================== #
-# Usage: bldit.icon >&! bldit.icon.log                                #
+# ====================== JPROCv5.1 Build Script ===================== #
+# Usage: bldit.jproc >&! bldit.jproc.log                              #
 # Requirements: I/O API & netCDF libs, Git, and a Fortran compiler    #
 # Note that this script is configured/tested for Red Hat Linux O/S    #
 # The following environment variables must be set for this script to  #
 # build an executable.                                                #
 #   setenv M3MODEL <source code Git repository>                       #
-#   setenv M3LIB   <code librarie>                                    #
+#   setenv M3LIB   <code libraries>                                   #
 # To report problems or request help with this script/program:        #
 #             http://www.cmascenter.org/html/help.html                #
 # =================================================================== #
@@ -19,7 +19,7 @@
  endif
 
 #> Source the config.cmaq file to set the build environment
- source ../../../../config.cmaq
+ source ../../../config.cmaq
 
 #> Check for M3HOME and M3LIB settings:
  if ( ! -e $M3HOME || ! -e $M3LIB ) then
@@ -40,22 +40,21 @@
  set echo
 
 #> Source Code Repository
- setenv REPOROOT $REPO/PREP/ic/ICON/src  #> location of the source code for BLDMAKE
- set MODEL   = $REPOROOT             #> location of the ICON source code
- set Mechs   = $REPO/CCTM/src/MECHS  #> location of the chemistry mechanism defining files
+ setenv REPOROOT $REPO/PREP/jproc  #> location of the source code for BLDMAKE
+ set MODEL = $REPOROOT/src         #> location of the BCON source code
+ set Mechs = $REPO/CCTM/src/MECHS  #> location of the chemistry mechanism defining files
 
 #>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#><#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#
 #>#>#>#>#>#>#>#>#>#>#>#>#># Begin User Input Section #<#<#<#<#<#<#<#<#<#<#<#<#<#
 
 #> user choices: base working directory and application ID
  set Base = $cwd                    #> working directory
-#set APPL = v52_profile             #> model configuration ID
- set APPL = v52_m3conc              #> model configuration ID
- set EXEC = ICON_${APPL}_$EXEC_ID   #> executable name for this application
+ set APPL = D52a                    #> model configuration ID
+ set EXEC = JPROC_${APPL}_$EXEC_ID  #> executable name for this application
  set CFG  = cfg.$EXEC               #> BLDMAKE configuration file name
-
+ 
 #> user choice: copy source files
- set CopySrc        # copy the source files into the BLD directory
+#set CopySrc        # copy the source files into the BLD directory
 
 #set Opt = verbose  # show requested commands as they are executed
 
@@ -64,33 +63,18 @@
                     # comment out to also compile the model (default if not set)
 
 #>==============================================================================
-#> ICON Science Modules selection
-#> NOTE: For the modules with multiple choices, choose by uncommenting.
-#> look in the BCON source code repository or refer to the CMAQ documentation
-#> for other possible options. Be careful. Not all options work together.
+#> JPROC Science Modules
+#> NOTE: For the chemisty Mechanism options, look in $Mechs
+#>   source code
 #>==============================================================================
 
-#> user choices: various modules
-
- set ModCommon = common
-
- set ModType   = profile
- set ModType   = m3conc
-#set ModType   = tracer
-
-#> user choices: mechanism  (see CCTM/src/MECHS for list)
-#set Mechanism = cb05tucl_ae6_aq/
-#set Mechanism = cb05tump_ae6_aq/
- set Mechanism = cb05e51_ae6_aq/
-#set Mechanism = cb05mp51_ae6_aq/
-#set Mechanism = saprc07tb_ae6_aq/
-#set Mechanism = saprc07tc_ae6_aq/
-#set Mechanism = saprc07tic_ae6i_aq/
-#set Mechanism = racm2_ae6_aq/
- set Tracer    = trac0               # default: no tracer species
+ set ModDriver = src
+ set Mechanism = cb05e51_ae6_aq        #> chemical mechanism
+ set Tracer    = trac0                 #> default: no tracer species
+ set ModMisc   = $Mechs/$Mechanism/RXNS_DATA_MODULE.F90
 
 #>#>#>#>#>#>#>#>#>#>#>#>#>#> End User Input Section #<#<#<#<#<#<#<#<#<#<#<#<#<#
-#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#
+#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#
 
 #> Set full path of Fortran 90 compiler
  set FC = ${myFC}
@@ -117,7 +101,7 @@
  set Blder = "$REPO/UTIL/bldmake/src/BLDMAKE -serial -verbose"
 
 #> The "BLD" directory for compiling source code (and possibly copying the code to)
- set Bld = $Base/BLD_ICON_${APPL}
+ set Bld = $Base/BLD_JPROC_${APPL}
  if ( ! -e "$Bld" ) then
     mkdir $Bld
  else
@@ -129,28 +113,17 @@
 
  cd $Bld
 
-#source $Base/relinc.icon
+#source $Base/relinc.bcon
 #if ( $status ) exit 1
 
-#set ICL_MECH  = $Mechs/$Mechanism
-#set ICL_TRAC  = $Mechs/$Tracer
-
-#if ( $?CopySrc ) then
-#   /bin/cp -fp ${ICL_MECH}/*    ${Bld}
-#   /bin/cp -fp ${ICL_TRAC}/*    ${Bld}
-#endif
-
+ set ICL_CONST = $REPO/CCTM/src/ICL/fixed/const/CONST.EXT
  if ( $?CopySrc ) then
-    /bin/cp -fp $Mechs/$Mechanism/*.nml $Bld
-    /bin/cp -fp $Mechs/$Tracer/*.nml $Bld
- else
-    /bin/ln -s $Mechs/$Mechanism/*.nml $Bld
-    /bin/ln -s $Mechs/$Tracer/*.nml $Bld
+    /bin/cp -fp $ICL_CONST $Bld
  endif
 
 #> make the config file
 
- set Cfile = ${CFG}
+ set Cfile = $CFG
  set quote = '"'
 
  echo                                                               > $Cfile
@@ -189,32 +162,21 @@
 
  set text="// mechanism:"
  echo "$text ${Mechanism}"                                         >> $Cfile
- echo "// project repository location: ${MODEL}"                   >> $Cfile
+ echo "// model repository: ${MODEL}"                              >> $Cfile
  echo                                                              >> $Cfile
+ echo "include SUBST_CONST $ICL_CONST;"                           >> $Cfile
 
-#if ( $compiler == gfort ) then 
-#   set ICL_MECH = '.'
-#endif
-#echo "include SUBST_RXCMMN     $ICL_MECH/RXCM.EXT;"               >> $Cfile
-#echo "include SUBST_RXDATA     $ICL_MECH/RXDT.EXT;"               >> $Cfile
- echo                                                              >> $Cfile
-
- set text = "common"
- echo "// required" $text                                       >> $Cfile
- echo "Module ${ModCommon};"                                       >> $Cfile
- echo                                                              >> $Cfile
-
- set text = "profile, m3conc, tracer"
+ set text = "jproc_table"
  echo "// options are" $text                                       >> $Cfile
- echo "Module ${ModType};"                                         >> $Cfile
+ echo "Module ${ModDriver};"                                       >> $Cfile
  echo                                                              >> $Cfile
 
  if ( $?ModMisc ) then
-    echo "Module ${ModMisc};"                                      >> $Cfile
+    echo "MISC ${ModMisc};"                                        >> $Cfile
     echo                                                           >> $Cfile
  endif
 
-#> make the makefile or the model executable
+#> make the Makefile or the model executable
 
  unalias mv rm
  if ( $?MakeFileOnly ) then
@@ -259,3 +221,4 @@
  if ( -d $MODEL/branch ) /bin/cp $MODEL/branch/branch.* $Bld
 
  exit
+

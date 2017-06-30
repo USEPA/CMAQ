@@ -6,7 +6,7 @@
 
 Mounting evidence from field and laboratory observations coupled with atmospheric model analysis shows that primary combustion emissions of organic compounds exhibit a broad spectrum of volatility, leading to dynamic partitioning of these compounds, especially in the early stages of their atmospheric lifetime. The most recent version of CMAQ v5.2 accounts for the semivolatle partitioning and gas-phase aging of these primary organic aerosol (POA) compounds consistent with experimentally derived parameterizations.
 
-We include a new surrogate species, potential-combustion secondary organic aerosol (pcSOA). It provides a cumulative representation of the SOA from combustion sources that could be missing from current chemical transport model predictions. The reasons for this missing mass likely include:  
+We include a new surrogate species, potential secondary organic aerosol from combustion (pcSOA). It provides a cumulative representation of the SOA from combustion sources that could be missing from current chemical transport model predictions. The reasons for this missing mass likely include:  
 1. Missing intermediate volatility organic compound (IVOC) emissions in current inventories.  
 2. Multigenerational aging of organic vapor products from known SOA precursors (e.g., toluene, alkanes).  
 3. Underestimation of SOA yields due to vapor losses at the walls in smog chamber experiments.  
@@ -93,7 +93,7 @@ emis/emis/PT3D_DEFN.F
 
 ## References:
 
-{Are there any references, especially pertaining to the studies cited?}
+Murphy, B. N., Woody, M. C., Jimenez, J. L., Carlton, A. M. G., Hayes, P. L., Liu, S., Ng, N. L., Russell, L. M., Setyan, A., Xu, L., Young, J., Zaveri, R. A., Zhang, Q., and Pye, H. O. T.: Semivolatile POA and parameterized total combustion SOA in CMAQv5.2: impacts on source strength and partitioning, Atmos. Chem. Phys. Discuss., https://doi.org/10.5194/acp-2017-193, in review, 2017.
 
 -----
 ## Internal Records:

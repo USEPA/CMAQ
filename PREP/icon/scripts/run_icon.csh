@@ -1,14 +1,25 @@
 #!/bin/csh -f
 
-# ======================= BCONv5.1 Run Script ======================== 
-# Usage: run.bcon >&! bcon.D51a.log &                                  
+# ======================= ICONv5.2 Run Script ========================
+# Usage: run.icon.csh >&! icon_v52.log &                                   
 #
-# To report problems or request help with this script/program:        
+# To report problems or request help with this script/program:         
 #             http://www.cmascenter.org
 # ==================================================================== 
 
-#> Source the config.cmaq file to set the run environment
- source ../../../config.cmaq
+# ==================================================================
+#> Runtime Environment Options
+# ==================================================================
+
+#> Choose compiler and set up CMAQ environment with correct 
+#> libraries using config.cmaq. Options: intel | gcc | pgi
+ setenv compiler intel 
+ setenv compilerVrsn 15.0
+
+#> Source the config_cmaq file to set the run environment
+ pushd ../../../
+ source ./config_cmaq.csh
+ popd
 
 #> Check that CMAQ_DATA is set:
  if ( ! -e $CMAQ_DATA ) then
@@ -17,24 +28,24 @@
  endif
  echo " "; echo " Input data path, CMAQ_DATA set to $CMAQ_DATA"; echo " "
 
- set APPL     = v52_profile
- set CFG      = CMAQ-BENCHMARK
- set MECH     = cb05e51_ae6_aq 
- set EXEC     = BCON_${APPL}_$EXEC_ID
+#> Set General Parameters for Configuring the Simulation
+ set VRSN     = v52                     #> Code Version
+ set APPL     = SE52BENCH               #> Application Name
+ set INPT     = profile                 #> Input data type: profile or m3conc?
+ set MECH     = cb05e51_ae6_aq          #> Mechanism ID
 
-#> Set the working directory
- set BASE     = $CMAQ_HOME/PREP/bcon/scripts
- set BLD      = ${BASE}/BLD_BCON_$APPL
-
- cd $BASE; date; set timestamp; cat $BASE/cfg.${CFG}; echo " "; set echo
+#> Set the working directory:
+ set BLD      = ${CMAQ_HOME}/PREP/icon/scripts/BLD_ICON_${VRSN}_${INPT}_${compiler}
+ set EXEC     = ICON_${VRSN}_$INPT.exe  
+ cat $BLD/ICON_${VRSN}_$INPT.cfg; echo " "; set echo
 
 #> Horizontal grid definition 
- setenv GRID_NAME 12CalnexBench           #> check GRIDDESC file for GRID_NAME options
- setenv GRIDDESC $CMAQ_DATA/mcip/GRIDDESC    #> grid description file 
+ setenv GRID_NAME SE52BENCH               #> check GRIDDESC file for GRID_NAME options
+ setenv GRIDDESC $CMAQ_DATA/$APPL/met/mcip/GRIDDESC #> grid description file 
  setenv IOAPI_ISPH 20                     #> GCTP spheroid, use 20 for WRF-based modeling
 
 #> Vertical layer definition
- setenv LAYER_FILE $CMAQ_DATA/mcip/METCRO3D_110701 #>METCRO3D file from MCIP
+ setenv LAYER_FILE $CMAQ_DATA/$APPL/met/mcip/METCRO3D_110701.nc #>METCRO3D file from MCIP
 
 #> I/O Controls
  setenv IOAPI_LOG_WRITE F     #> turn on excess WRITE3 logging [ options: T | F ]
@@ -42,28 +53,28 @@
  setenv EXECUTION_ID $EXEC    #> define the model execution id
 
 # =====================================================================
-#> BCON Configuration Options
+#> ICON Configuration Options
 #
-# BCON can be run in one of two modes:                                     
-#     1) use default profile inputs (BC = profile)
-#     2) use CMAQ CTM concentration files for nested runs (BC = m3conc)     
+# ICON can be run in one of two modes:                                     
+#     1) use default profile inputs (IC = profile)
+#     2) use CMAQ CTM concentration files for nested runs (IC = m3conc)     
 # =====================================================================
 
- set BC = profile      #> either profile or m3conc 
+ set IC = profile      #> either profile or m3conc 
  set DATE = 2001182    #> only needed for nested runs
 
 # =====================================================================
 #> Input/Output Directories
 # =====================================================================
 
- set OUTDIR   = $CMAQ_DATA/bcon       #> output file directory
+ set OUTDIR   = $CMAQ_DATA/icon       #> output file directory
 
 # =====================================================================
 #> Input Files
 #  
-#  Profile Mode (BC = profile)
-#     BC_PROFILE = static/default BC profiles 
-#  Nesting mode (BC = m3conc)
+#  Profile Mode (IC = profile)
+#     IC_PROFILE = static/default IC profiles 
+#  Nesting mode (IC = m3conc)
 #     CTM_CONC_1 = the CTM concentration file for the coarse domain          
 #     MET_CRO_3D_CRS = the MET_CRO_3D met file for the coarse domain
 #                  only set if  or if the vertical grid type is   
@@ -72,33 +83,32 @@
 #                  only set if the vertical grid type is changed between  
 #                  nests                                                     
 #                                                                            
-# NOTE: If SDATE (yyyyddd), STIME (hhmmss) and RUNLEN (hhmmss) are not set,  
-#       these variables will be set from the input CTM_CONC_1 file           
+# NOTE: SDATE (yyyyddd) and STIME (hhmmss) must always be set           
 # =====================================================================
- 
- if ( $BC == profile ) then
-    setenv BC_PROFILE      $BLD/bc_profile_CB05.dat
- endif
 
- if ( $BC == m3conc ) then 
+ if ( $IC == profile ) then
+    setenv IC_PROFILE      $BLD/ic_profile_CB05.dat
+ endif
+ 
+ if ( $IC == m3conc ) then 
     setenv CTM_CONC_1 $CMAQ_DATA/cctm/CCTM_d1bCONC.d1b
     setenv MET_CRO_3D_CRS
     setenv MET_CRO_3D_FIN
-#    setenv SDATE           ${DATE}
-#    setenv STIME           000000
-#    setenv RUNLEN          240000
+    setenv SDATE           ${DATE}
+    setenv STIME           000000
  endif
 
 # =====================================================================
 #> Output Files
 # =====================================================================
- 
- if ( $BC == profile ) then
-    setenv BNDY_CONC_1    "$OUTDIR/BCON_${APPL}_${CFG}_profile -v"
+
+
+ if ( $IC == profile ) then
+    setenv INIT_CONC_1    "$OUTDIR/ICON_${VRSN}_${APPL}_profile -v"
     endif
- if ( $BC == m3conc ) then 
+ if ( $IC == m3conc ) then 
     set DATE = 2011182  # July 1, 2011
-    setenv BNDY_CONC_1    "$OUTDIR/BCON_${APPL}_${CFG}_${DATE} -v"
+    setenv INIT_CONC_1    "$OUTDIR/ICON_${VRSN}_${APPL}_${DATE} -v"
  endif
 
 #>- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

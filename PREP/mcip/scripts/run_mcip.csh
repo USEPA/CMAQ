@@ -51,9 +51,9 @@
 
 source $CMAQ_HOME/config.cmaq
 
-set APPL       = 110701   
+set APPL       = 110702   
 set CoordName  = LamCon_40N_97W # 16-character maximum
-set GridName   = 12benchCA     # 16-character maximum
+set GridName   = SE52BENCH     # 16-character maximum
 
 set DataPath   = $CMAQ_DATA
 set InMetDir   = $DataPath/wrf
@@ -82,7 +82,9 @@ set WorkDir    = $OutDir
 #
 #-----------------------------------------------------------------------
 
-set InMetFiles = ( $InMetDir/wrfout_d01_2011-06-30_00:00:00.ncf3 )
+set InMetFiles = ( $InMetDir/subset_wrfout_d01_2011-07-01_00:00:00 \
+                   $InMetDir/subset_wrfout_d01_2011-07-02_00:00:00 \
+                   $InMetDir/subset_wrfout_d01_2011-07-03_00:00:00 )
 
 set IfTer      = "F"
 set InTerFile  = $InTerDir/geo_em.d01.nc
@@ -117,8 +119,8 @@ set LSAT    = 0
 #   INTVL:       Frequency of output [minutes]
 #-----------------------------------------------------------------------
 
-set MCIP_START = 2011-07-01-00:00:00.0000  # [UTC]
-set MCIP_END   = 2011-07-02-00:00:00.0000  # [UTC]
+set MCIP_START = 2011-07-02-00:00:00.0000  # [UTC]
+set MCIP_END   = 2011-07-03-00:00:00.0000  # [UTC]
 
 set INTVL      = 60 # [min]
 
@@ -155,7 +157,7 @@ set MKGRID = T
 #     information in X0, Y0, NCOLS, and NROWS.
 #-----------------------------------------------------------------------
 
-set BTRIM = -1
+set BTRIM = 0
 
 #-----------------------------------------------------------------------
 # Define MCIP subset domain.  (Only used if BTRIM = -1.  Otherwise,
@@ -413,14 +415,14 @@ end
 setenv IOAPI_CHECK_HEADERS  T
 setenv EXECUTION_ID         $PROG
 
-setenv GRID_BDY_2D          $OutDir/GRIDBDY2D_${APPL}
-setenv GRID_CRO_2D          $OutDir/GRIDCRO2D_${APPL}
-setenv GRID_CRO_3D          $OutDir/GRIDCRO3D_${APPL}
-setenv GRID_DOT_2D          $OutDir/GRIDDOT2D_${APPL}
-setenv MET_BDY_3D           $OutDir/METBDY3D_${APPL}
-setenv MET_CRO_2D           $OutDir/METCRO2D_${APPL}
-setenv MET_CRO_3D           $OutDir/METCRO3D_${APPL}
-setenv MET_DOT_3D           $OutDir/METDOT3D_${APPL}
+setenv GRID_BDY_2D          $OutDir/GRIDBDY2D_${APPL}.nc
+setenv GRID_CRO_2D          $OutDir/GRIDCRO2D_${APPL}.nc
+setenv GRID_CRO_3D          $OutDir/GRIDCRO3D_${APPL}.nc
+setenv GRID_DOT_2D          $OutDir/GRIDDOT2D_${APPL}.nc
+setenv MET_BDY_3D           $OutDir/METBDY3D_${APPL}.nc
+setenv MET_CRO_2D           $OutDir/METCRO2D_${APPL}.nc
+setenv MET_CRO_3D           $OutDir/METCRO3D_${APPL}.nc
+setenv MET_DOT_3D           $OutDir/METDOT3D_${APPL}.nc
 
 #-----------------------------------------------------------------------
 # Execute MCIP.

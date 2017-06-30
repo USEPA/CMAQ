@@ -107,6 +107,7 @@ SUBROUTINE setup_mm5v3 (ctmlays)
 !           21 Aug 2015  Fill new logical variable IFMOLACM as "false" because
 !                        it pertains to WRF/ACM2 only.  (T. Spero)
 !           17 Sep 2015  Changed IFMOLACM to IFMOLPX.  (T. Spero)
+!           22 Jun 2017  Added default value for MET_HYBRID.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE files
@@ -452,6 +453,8 @@ SUBROUTINE setup_mm5v3 (ctmlays)
       met_snow_opt   = bhi(16,13)   ! snow option (0=off, 1=yes/no, 2=liq equiv)
 
       met_urban_phys = 0            ! urban canopy model (WRF only; always "no")
+
+      met_hybrid     = -1           ! hybrid vert coord (WRF only; always "no")
 
       met_fdda_3dan  = bhi(1,16)    ! 3d analysis nudging?  1=yes, 0=no
       met_fdda_sfan  = bhi(6,16)    ! sfc analysis nudging?  1=yes, 0=no

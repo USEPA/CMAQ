@@ -91,7 +91,7 @@
         setenv myCC icc       
         setenv myFSTD "-O3 -fno-alias -mp1 -fp-model source"
         setenv myDBG  "-O0 -g -check bounds -check uninit -fpe0 -fno-alias -ftrapuv -traceback"
-        setenv myLINK_FLAG ""
+        setenv myLINK_FLAG "-openmp"
         setenv myFFLAGS "-fixed -132"
         setenv myFRFLAGS "-free"
         setenv myCFLAGS "-O2"
@@ -114,9 +114,10 @@
         setenv MPI_LIB_DIR    mpi_lib_pgi    #> MPI directory path
     
         #> Compiler Aliases and Flags
-        setenv myFC mpifort 
+        setenv myFC mpif90 
+        #setenv myFC mpifort 
         setenv myCC pgcc
-        setenv myLINK_FLAG ""
+        setenv myLINK_FLAG "-openmp"
         setenv myFSTD "-O3"
         setenv myDBG  "-O0 -g -Mbounds -Mchkptr -traceback -Ktrap=fp"
         setenv myFFLAGS "-Mfixed -Mextend -mcmodel=medium -tp px"
@@ -140,7 +141,8 @@
         setenv MPI_LIB_DIR    mpi_lib_gcc    #> MPI directory path
     
         #> Compiler Aliases and Flags
-        setenv myFC mpifort
+        setenv myFC mpif90
+        #setenv myFC mpifort
         setenv myCC gcc
         setenv myFSTD "-O3 -funroll-loops -finit-character=32 -Wtabs -Wsurprising"
         setenv myDBG  "-Wall -O0 -g -fcheck=all -ffpe-trap=invalid,zero,overflow -fbacktrace"
@@ -148,7 +150,7 @@
         setenv myFFLAGS "-ffixed-form -ffixed-line-length-132 -funroll-loops -finit-character=32"
         setenv myFRFLAGS "-ffree-form -ffree-line-length-none -funroll-loops -finit-character=32"
         setenv myCFLAGS "-O2"
-        setenv myLINK_FLAG ""
+        setenv myLINK_FLAG "-openmp"
         setenv extra_lib ""
         #setenv mpi_lib "-lmpi_mpifh"   #> -lmpich for mvapich or -lmpi for openmpi
         setenv mpi_lib ""   #> -lmpich for mvapich or -lmpi for openmpi
@@ -165,6 +167,11 @@
 #> Apply Specific Module and Library Location Settings for those working inside EPA
  #source /work/MOD3DEV/cmaq_common/cmaq_env.csh  #>>> Comment out if not at EPA
 
+#> Add The Complier Version Number to the Compiler String if it's not empty
+ if ( $compilerVrsn != "Empty" ) then
+    setenv compiler ${compiler}${compilerVrsn}
+ endif
+
 #===============================================================================
  
 #> I/O API, netCDF, and MPI libraries
@@ -178,15 +185,16 @@
  setenv lib_basedir $CMAQ_HOME/lib
 
 #> Generate Library Locations
- setenv CMAQ_LIB    ${lib_basedir}/${system}/${compiler}_${compilerVrsn}
- setenv MPI_INCL    $CMAQ_LIB/mpi/include
+ setenv CMAQ_LIB    ${lib_basedir}/${system}/${compiler}
+ setenv MPI_DIR    $CMAQ_LIB/mpi
  setenv NETCDF_DIR  $CMAQ_LIB/netcdf
  setenv PNETCDF_DIR $CMAQ_LIB/pnetcdf
  setenv IOAPI_DIR   $CMAQ_LIB/ioapi
 
  if ( ! -d $CMAQ_LIB ) mkdir -p $CMAQ_LIB
  if ( ! -d $CMAQ_LIB/mpi) ln -s $MPI_LIB_DIR $CMAQ_LIB/mpi
- if ( ! -d $NETCDF_DIR )  ln -s $NETCDF_LIB_DIR $NETCDF_DIR
+ if ( ! -d $NETCDF_DIR )  mkdir $NETCDF_DIR
+    ln -s $NETCDF_LIB_DIR $NETCDF_DIR/lib
  if ( ! -d $IOAPI_DIR ) then 
     mkdir $IOAPI_DIR
     ln -s $IOAPI_MOD_DIR  $IOAPI_DIR/modules
@@ -197,10 +205,6 @@
 #> Check for netcdf and I/O API libs/includes, error if they don't exist
  if ( ! -e $NETCDF_DIR/lib/libnetcdf.a ) then 
     echo "ERROR: $NETCDF_DIR/lib/libnetcdf.a does not exist in your CMAQ_LIB directory!!! Check your installation before proceeding with CMAQ build."
-    exit
- endif
- if ( ! -e $NETCDF_DIR/include/netcdf.h ) then 
-    echo "ERROR: $NETCDF_DIR/include/netcdf.h does not exist in your CMAQ_LIB directory !!! Check your installation before proceeding with CMAQ build."
     exit
  endif
  if ( ! -e $IOAPI_DIR/lib/libioapi.a ) then 
