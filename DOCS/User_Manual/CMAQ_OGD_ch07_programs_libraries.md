@@ -181,14 +181,14 @@ The environment variables listed here are invoked during execution of the progra
 
 [Chapter 5](CMAQ_OGD_ch05_sys_req.md) provides an overview of how to install and compile the CMAQ pre-processor programs for a test simulation. Follow those steps (summarized below) to compile new versions of BCON.
 
-1. Compile Bldmake, the CMAQ source code and compilation management program. This needs to be done only once—the first time CMAQ is installed.
--   Configure the BCON use the config_cmaq.csh script, which points to the available I/O API and netCDF libraries.
+1. Bldmake will be automatically compiled the first time a CMAQ program (ICON, BCON, CCTM) is compiled.
+-   Configure the config_cmaq.csh script, which points to the available I/O API and netCDF libraries.
 -   Configure the BCON build script for your application by setting the compilation configuration variables described above.
 -   Invoke the build script to create an executable.
 
 ```
 cd $CMAQ_HOME/PREP/bcon/scripts/
-./bldit.bcon |& tee build.bcon.log
+./bldit_bcon.csh |& tee build_bcon.log
 ```
 
 #### Run BCON ####
@@ -197,7 +197,7 @@ Set the run script settings according to the execution configuration variables d
 
 ```
 cd $CMAQ_HOME/PREP/BCON
-./run.bcon |& tee bcon.log
+./run_bcon.csh |& tee run_bcon.log
 ```
 
 <a id="Calmap"></a>
@@ -859,7 +859,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 
 ```
 cd $CMAQ_HOME/CCTM/scripts
-./bldit.cctm |& tee build.cctm.log
+./bldit_cctm.csh |& tee build_cctm.log
 ```
 
 #### Run CCTM ####
@@ -1048,7 +1048,7 @@ To implement a new mechanism in CMAQ, start with a mechanism definition (mech.de
 **Table 7‑14. CREATE_EBI output files**
 
 |File Name|Format|Description|
-|------------------------|---------------|-------------------------------------------------------|
+|---------------------------------------|---------------|-------------------------------------------------------|
 |\*.F|ASCII F90|Fortran 90 source code for the CCTM EBI chemistry solver|
 |RXNS_DATA_MODULE.F90|ASCII F90|Mechanism data Fortran source file; chemical mechanism definition formatted as DATA blocks to be read in as CMAQ source code|
 
