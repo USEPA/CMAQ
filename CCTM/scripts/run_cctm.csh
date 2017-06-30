@@ -313,9 +313,6 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      setenv DUST_LU_2 $LUpath/beld4_12US1_459X299_output_tot_bench.nc
      setenv MODIS_FPAR $LUpath/modis_bench.nc
 
-     # Input variables for BELD4 Landuse option
-     setenv BELD4_LU $LUpath/beld4_12US1_459X299_output_tot_bench.nc 
-     # All other Landuse options (USGS24, MODIS_NOAH, MODIS, NLCD50, NLCD40) read the GRID_CRO_2D file
      if ( $CTM_ERODE_AGLAND == 'Y' ) then
         setenv CROPMAP01 ${INPDIR}/land/BeginPlanting_12km_bench.nc
         setenv CROPMAP04 ${INPDIR}/land/EndPlanting_12km_bench.nc
