@@ -28,20 +28,19 @@ For instructions on installing CMAQ from tarballs, see [Chapter 5](CMAQ_OGD_ch05
 
 The CMAQ build scripts require the following libraries and INCLUDE files to be available in the CMAQ_LIB directory (Note the CMAQ_LIB gets set automatically by the config_cmaq.csh script, where `CMAQ_LIB = $CMAQ_HOME/lib`):
 
-- netCDF library and INCLUDE files are located in the `$CMAQ_LIB/netcdf` directory
+- netCDF library files are located in the `$CMAQ_LIB/netcdf/lib` directory
 - I/O API library and module files are located in the `$CMAQ_LIB/ioapi` directory
 - MPI library and INCLUDE files are located in the `$CMAQ_LIB/mpi` directory
 
 The config_cmaq.csh script will automatically link the required libraries into the CMAQ_LIB directory. Set the locations of the netCDF, I/O API, and MPI installations on your Linux system with the following config_cmaq.csh environment variables:
 
-- `setenv IOAPI_MOD`: the location of the I/O API module files on your system.
-- `setenv IOAPI_INCL`: the location of the I/O API include files on your system.
-[1] 14370                                                                              1,1           Top
-- `setenv IOAPI_LIB`: the location of compiled I/O API libraries on your system.       
-- `setenv NETCDF`: the location of the netCDF installation on your system.
-- `setenv MPI`: the location of the MPI (OpenMPI or MVAPICH) on your system.
+- `setenv IOAPI_MOD_DIR`: the location of the I/O API module files on your system.
+- `setenv IOAPI_INCL_DIR`: the location of the I/O API include files on your system.
+- `setenv IOAPI_LIB_DIR`: the location of compiled I/O API libraries on your system.       
+- `setenv NETCDF_LIB_DIR`: the location of the netCDF installation on your system.
+- `setenv MPI_LIB_DIR`: the location of the MPI (OpenMPI or MVAPICH) on your system.
 
-For example, if your netCDF libraries and includes files are installed in /usr/local/netcdf, set `NETCDF` to /usr/local/netcdf. Similarly, if your I/O API library is installed in /home/cmaq/ioapi/Linux2_x86_64ifort, set `IOAPI_LIB` to /home/cmaq/ioapi/Linux2_x86_64ifort.
+For example, if your netCDF library files are installed in /usr/local/netcdf/lib, set `NETCDF_LIB_DIR` to /usr/local/netcdf/lib. Similarly, if your I/O API library is installed in /home/cmaq/ioapi/Linux2_x86_64ifort, set `IOAPI_LIB_DIR` to /home/cmaq/ioapi/Linux2_x86_64ifort.
 
 *3.* Check the names of the I/O API and netCDF libraries using the `ioapi_lib` and `netcdf_lib` script variables.
 
@@ -50,7 +49,7 @@ For example, if your netCDF libraries and includes files are installed in /usr/l
 Links to these libraries will automatically be created when you run any of the build or run scripts. To manually (this is optional) create these libraries, execute the config_cmaq.csh script, identifying the compiler in the command line [intel | gcc | pgi]:
 
 ```
-./config_cmaq.csh [compiler]
+source config_cmaq.csh [compiler]
 ```
 
 
@@ -59,8 +58,7 @@ Links to these libraries will automatically be created when you run any of the b
 - Download CMAQ test input data by navigating to https://www.cmascenter.org/ and logging into the site using the Log In shortcut on the top horizontal menu.
 - Click the Software pulldown menu on the horizontal menu bar and choose CMAQ.
 - Click DOWNLOAD on the right-hand side of the page and choose CMAQv5.2, platform, and compiler for your machine and click submit.
-- Choose the Base Model release package and click submit. This page will display links for the source code, benchmark data and utilities.
-- Click "Download" for the CMAQ benchmark input data and CMAQ benchmark output data.
+- Click "Download Datasets" for the CMAQ benchmark input data and CMAQ benchmark output data.
 
 
 ### Install CMAQ Test Data
@@ -80,12 +78,12 @@ tar xvzf CMAQv5.2_Benchmark_SingleDay_Output.tar.gz
 
 ```
 cd $CMAQ_HOME/PREP/icon/scripts
-./bldit_icon.csh [compiler] [version] |& tee ./bldit_icon.log
+./bldit_icon.csh [compiler] [version] |& tee bldit_icon.log
 ```
 
 ```
 cd $CMAQ_HOME/PREP/bcon/scripts
-./bldit_bcon.csh [compiler] [version] |& tee ./bldit_bcon.log
+./bldit_bcon.csh [compiler] [version] |& tee bldit_bcon.log
 ```
 
 ### Run the preprocessor executables
@@ -106,27 +104,32 @@ cd $CMAQ_HOME/PREP/bcon/scripts
 ./run_bcon.csh |& tee run_bcon.log
 ```
 
-Check the ICON and BCON log file to ensure that the programs completed successfully. Note that CMAQ test simulation "doesn't" actually require that ICON and BCON be run; the test input data include CCTM-ready initial and boundary conditions files.
+Check the ICON and BCON log file to ensure that the programs completed successfully. Note that CMAQ benchmark simulation "doesn't" actually require that ICON and BCON be run; the test input data include CCTM-ready initial and boundary conditions files.
 
 ### Build the CMAQ executable
 
 ```
 cd $CMAQ_HOME/CCTM/scripts
-./bldit_cctm.csh [compiler]
+./bldit_cctm.csh [compiler] [version] |& tee bldit_cctm.log
 ```
 
 ### Run the CCTM Benchmark Script
 
-The default CCTM script in the CMAQ installation is configured to run the benchmark case. You will need to have compiled the CMAQ model builder (Bldmake) and installed the I/O API, netCDF, and MPI libraries before preceding with this step (See [CMAQ OGD Chapter 5](https://github.com/USEPA/CMAQ/blob/5.2/CCTM/docs/User_Manual/CMAQ_OGD_ch05_sys_req.md)).  Use the following commands to run the CCTM benchmark script for a non-mpi run:
+The default CCTM script in the CMAQ installation is configured to run the single-day benchmark case. You will need to have compiled the CMAQ model builder (Bldmake) and installed the I/O API, netCDF, and MPI libraries before preceding with this step (See [CMAQ OGD Chapter 5](https://github.com/USEPA/CMAQ/blob/5.2/CCTM/docs/User_Manual/CMAQ_OGD_ch05_sys_req.md)).  Use the following command to run the CCTM benchmark script:
 
 ```
 cd $CMAQ_HOME/CCTM/scripts
 run_cctm.csh |& tee run.benchmark.log
 ```
+Note that the CCTM run script will need to be configured for the message passing interface (MPI) configuration on your system, including the domain decomposition and number of processors (NPROCS) to use. The default script has an example of how to submit an MPI job:
+
+```
+time mpirun -r ssh -np $NPROCS $BLD/$EXEC
+```
 
 ### Confirm that the Benchmark Simulation Completed
 
-To confirm that the benchmark case ran to completion view the run.benchmark.log file for a non-MPI run, for MPI runs, check each of the CTM_LOG_[ProcessorID]*.log files. A successful run will contain the following line at the bottom of the log(s):
+To confirm that the benchmark case ran to completion view the run.benchmark.log file. For MPI runs, check each of the CTM_LOG_[ProcessorID]*.log files. A successful run will contain the following line at the bottom of the log(s):
 
 ``>>---->  Program completed successfully  <----<<``
 
