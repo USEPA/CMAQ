@@ -38,7 +38,7 @@ CMAQ requires all of the programs listed in [Table 5‑1](#Table5-1). This list 
 | **Software** | **Description** | **Source** |
 |-------------------|-----------------------------|--------------------------------|
 |***CMAQ Programs***|||
-|Bldmake|Executable builder for source code compilation|Contained in the standard CMAQ distribution available in the [CMAQv5.2 branch of the CMAQ repo](https://github.com/USEPA/CMAQ/tree/5.2). [Release notes](https://github.com/USEPA/CMAQ/tree/5.2/CCTM/docs/Release_Notes) and [documentation](https://github.com/bnmurphy/CMAQ/blob/5.2/DOCS/User_Manual/CMAQ_OGD_ch07_programs_libraries.md) are available.|
+|Bldmake|Executable builder for source code compilation|Contained in the standard CMAQ distribution available in the [CMAQv5.2 branch of the CMAQ repo](https://github.com/USEPA/CMAQ/tree/5.2). [Release notes](https://github.com/USEPA/CMAQ/tree/5.2/CCTM/docs/Release_Notes) and [documentation](https://github.com/USEPA/CMAQ/blob/5.2/DOCS/User_Manual/CMAQ_OGD_ch07_programs_libraries.md) are available.|
 |ICON|Initial conditions preprocessor|" |
 |BCON|Boundary conditions preprocessor|"|
 |MCIP|Meteorology-Chemistry Interface Processor| "|
