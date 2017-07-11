@@ -1,16 +1,16 @@
-# Set the M3LIB environment variable before running this Makefile 
+# Source the config.cmaq script before running this Makefile 
  
  MODEL   = CALMAP 
 
- IOAPI   = $(M3LIB)/ioapi
- LIOAPI  = -L$(IOAPI)/lib -lioapi
- LNETCDF = -L$(M3LIB)/netcdf/lib -lnetcdf
- LIBS    = $(LIOAPI) $(LNETCDF) -lcurl
- FC      = ifort 
- FSTD    = -fixed -extend_source -fno-alias -nowarn
- DBG     = -g -check bounds -fpe0 -check uninit -ftrapuv -traceback
- F_FLAGS = $(FSTD) -O3 -mp1 -I. -I$(IOAPI)/include -c
- L_FLAGS = -openmp 
+ IOAPI   = $(CMAQ_LIB)/ioapi
+ LIOAPI  = -L$(IOAPI)/lib $(ioapi_lib)
+ LNETCDF = -L$(CMAQ_LIB)/netcdf/lib $(netcdf_lib)
+ LIBS    = $(LIOAPI) $(LNETCDF) $(extra_lib) 
+ FC      = $(myFC) 
+ FSTD    = $(myFSTD) $(myFFLAGS)
+ DBG     = $(myDBG)
+ F_FLAGS = $(FSTD) -I. -I$(IOAPI)/include -c
+ L_FLAGS = $(myLINK_FLAG)
  CPP_FLAGS = 
  INCLUDES = 
 

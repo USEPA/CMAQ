@@ -43,7 +43,7 @@
 #> Set Working, Input, and Output Directories
  setenv WORKDIR ${CMAQ_HOME}/CCTM/scripts       #> Working Directory. Where the runscript is.
  setenv OUTDIR  ${CMAQ_DATA}/output_CCTM_${RUNID} #> Output Directory
- setenv INPDIR  ${CMAQ_DATA}       #> Input Directory
+ setenv INPDIR  ${CMAQ_DATA}/SE52BENCH/single_day/cctm_input  #> Input Directory
  setenv LOGDIR  ${OUTDIR}          #> Log Directory Location
  setenv NMLpath ${BLD}             #> Location of Namelists. Common places are: 
                                    #>   ${WORKDIR} | ${CCTM_SRC}/MECHS/${MECH} | ${BLD}
@@ -55,7 +55,7 @@
 #> Set Start and End Days for looping
  setenv NEW_START TRUE            #> Set to FALSE for model restart
  set START_DATE = "2011-07-01"     #> beginning date (July 1, 2011)
- set END_DATE   = "2011-07-14"     #> ending date    (July 14, 2011)
+ set END_DATE   = "2011-07-01"     #> ending date    (July 14, 2011)
 
 #> Set Timestepping Parameters
 set STTIME     = 000000            #> beginning GMT time (HHMMSS)
@@ -313,9 +313,6 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      setenv DUST_LU_2 $LUpath/beld4_12US1_459X299_output_tot_bench.nc
      setenv MODIS_FPAR $LUpath/modis_bench.nc
 
-     # Input variables for BELD4 Landuse option
-     setenv BELD4_LU $LUpath/beld4_12US1_459X299_output_tot_bench.nc 
-     # All other Landuse options (USGS24, MODIS_NOAH, MODIS, NLCD50, NLCD40) read the GRID_CRO_2D file
      if ( $CTM_ERODE_AGLAND == 'Y' ) then
         setenv CROPMAP01 ${INPDIR}/land/BeginPlanting_12km_bench.nc
         setenv CROPMAP04 ${INPDIR}/land/EndPlanting_12km_bench.nc
@@ -385,13 +382,13 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 
   #> look for existing log files and output files
   set log_test = `ls CTM_LOG_???.${CTM_APPL}`
-  set OUT_FILES = "${FLOOR_FILE} ${S_CGRID} ${CTM_CONC_1} ${A_CONC_1} ${MEDIA_CONC}         \
+  set OUT_FILES = (${FLOOR_FILE} ${S_CGRID} ${CTM_CONC_1} ${A_CONC_1} ${MEDIA_CONC}         \
              ${CTM_DRY_DEP_1} $CTM_DEPV_DIAG $CTM_PT3D_DIAG $B3GTS_S $SOILOUT $CTM_WET_DEP_1\
              $CTM_WET_DEP_2 $CTM_VIS_1 $CTM_AVIS_1 $CTM_PMDIAG_1 $CTM_APMDIAG_1             \
              $CTM_RJ_1 $CTM_RJ_2 $CTM_SSEMIS_1 $CTM_DUST_EMIS_1 $CTM_IPR_1 $CTM_IPR_2       \
              $CTM_IPR_3 $CTM_IRR_1 $CTM_IRR_2 $CTM_IRR_3 $CTM_DRY_DEP_MOS                   \
              $CTM_DRY_DEP_FST $CTM_DEPV_MOS $CTM_DEPV_FST $CTM_VDIFF_DIAG $CTM_VSED_DIAG    \
-             $CTM_AOD_1 $CTM_LTNGDIAG_1 $CTM_LTNGDIAG_2"
+             $CTM_AOD_1 $CTM_LTNGDIAG_1 $CTM_LTNGDIAG_2)
   set OUT_FILES = `echo $OUT_FILES | sed "s; -v;;g" `
   echo $OUT_FILES
   set out_test = `ls $OUT_FILES` 
