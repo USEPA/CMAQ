@@ -100,18 +100,21 @@
       Character( FLN_LEN ) :: lib_2
       Character( FLN_LEN ) :: lib_3
       Logical              :: l_lib_3
+      Character( FLN_LEN ) :: lib_4
 
       Character( FLN_LEN ) :: fstd
       Character( FLN_LEN ) :: dbg
       
 ! compilers and flags
       Character( FLN_LEN ) :: f_compiler   ! Fortran compiler
+      Character( FLN_LEN ) :: f_compiler_path ! Fortran compiler path
       Character( FLN_LEN ) :: f_flags      ! .f, .F
       Character( FLN_LEN ) :: Fflags       ! .F
       Character( FLN_LEN ) :: F90flags     ! .F90
       Character( FLN_LEN ) :: f90_flags    ! .f90, .F90
 
       Character( FLN_LEN ) :: c_compiler   ! c compiler
+      Character( FLN_LEN ) :: c_compiler_path   ! c compiler path
       Character( FLN_LEN ) :: c_flags
 
       Character( FLN_LEN ) :: cpp          ! pre_compiler
@@ -180,7 +183,7 @@
 
       model = 'a.out'
 
-      f_compiler = 'Ifort'
+      f_compiler = 'mpiifort'
       c_compiler = 'cc'
       cpp = ' '
       linker = ' '
@@ -304,7 +307,14 @@
           If ( verbose ) Write( *, '("LIB_3 set to ",a)' ) Trim( lib_3 )
           Cycle
         End If
+ 
+        If ( key .Eq. 'LIB_4' ) Then
+          lib_4 = fields(2)
+          If ( verbose ) Write( *, '("LIB_4 set to ",a)' ) Trim( lib_4 )
+          Cycle
+        End If
 
+ 
 ! check for Fortran compilers
         If ( key .Eq. 'F_COMPILER' ) Then
           f_compiler = fields(2)
@@ -446,12 +456,12 @@
 ! set compilers to full path names
       If ( f_compiler(1:1) .Ne. '/' ) Then
         Call which( f_compiler, field, status )
-        If ( status .Eq. 0 ) f_compiler = field
+        If ( status .Eq. 0 ) f_compiler_path = field
       End If 
 
       If ( c_compiler(1:1) .Ne. '/' ) Then
         Call which( c_compiler, field, status )
-        If ( status .Eq. 0 ) c_compiler = field
+        If ( status .Eq. 0 ) c_compiler_path = field
       End If 
 
 ! set defaults

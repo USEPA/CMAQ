@@ -38,7 +38,14 @@
 *.tar
 *.gz
 
+#temporary files
+*.swp
+
+#library symbolic links
+lib/
+
 #file unique to repository
+CTM_LOG*
 BLD*
 *.log
 *_bak

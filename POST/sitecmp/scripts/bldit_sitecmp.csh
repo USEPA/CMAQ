@@ -1,7 +1,7 @@
 #! /bin/csh -f
 
-# ==================== COMBINEv5.2 Build Script ===================== #
-# Usage: bldit_combine.csh >&! bldit_combine.log                      #
+# ==================== SITECMPv5.2 Build Script ===================== #
+# Usage: bldit_sitecmp.csh >&! bldit_sitecmp.log                          #
 # Requirements: I/O API & netCDF libraries; a Fortran compiler        #
 #                                                                     #
 # To report problems or request help with this script/program:        #
@@ -27,6 +27,7 @@
    #> Compiler Name and Version have been provided
    setenv compiler $1
    setenv compilerVrsn $2
+
  else
    echo "usage: $0 <compiler>"
    echo " where <compiler> is intel, pgi or gcc"
@@ -38,7 +39,7 @@
  source ./config_cmaq.csh
 
 #> Source Code Repository
- setenv REPOROOT ${CMAQ_REPO}/POST/combine  #> location of the source code for COMBINE
+ setenv REPOROOT ${CMAQ_REPO}/POST/sitecmp  #> location of the source code for SITECMP
 
 #===============================================================================
 #> Begin User Input Section 
@@ -46,8 +47,8 @@
 
 #> User choices: working directory and application ID
  set VRSN     = v52                        #> model version
- set EXEC     = combine_${VRSN}.exe        #> executable name for this application
- set CFG      = combine_${VRSN}.cfg        #> BLDMAKE configuration file name
+ set EXEC     = sitecmp_${VRSN}.exe        #> executable name for this application
+ set CFG      = sitecmp_${VRSN}.cfg        #> BLDMAKE configuration file name
  setenv BLDER   ${CMAQ_HOME}/UTIL/bldmake/bldmake_${compiler}.exe #> location of makefile builder executable 
 
 #> user choice: copy source files
@@ -58,7 +59,7 @@
 
 # set CompileBLDMAKE  #> Recompile the BLDMAKE utility from source
                      #>   comment out to use an existing BLDMAKE executable
- set ModDriver = src #> COMBINE Modules
+ set ModDriver = src #> SITECMP Modules
 
 
 #============================================================================================
@@ -85,10 +86,10 @@
 
 
 #============================================================================================
-#> Set up the combine build directory under the POST directory
+#> Set up the sitecmp build directory under the Tools directory
 #> for checking out and compiling source code
 #============================================================================================
- set Bld = ${CMAQ_HOME}/POST/combine/scripts/BLD_combine_${VRSN}_${compiler}
+ set Bld = ${CMAQ_HOME}/POST/sitecmp/scripts/BLD_sitecmp_${VRSN}_${compiler}
 
  if ( ! -e "$Bld" ) then
     mkdir -pv $Bld
@@ -148,7 +149,7 @@
  echo                                                              >> $Cfile
  echo "netcdf      $quote$netcdf_lib$quote;"                       >> $Cfile
 
- set text = "combine"
+ set text = "sitecmp"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModDriver};"                                       >> $Cfile
  echo                                                              >> $Cfile
@@ -160,10 +161,10 @@
  unalias mv rm
 
 #> Recompile BLDMAKE from source if requested or if it does not exist
-  if ( $?CompileBLDMAKE || ! -f $BLDER ) then
-     cd ${CMAQ_REPO}/UTIL/bldmake/scripts
-     ./bldit_bldmake.csh
-  endif
+ if ( $?CompileBLDMAKE || ! -f $BLDER ) then
+    cd ${CMAQ_REPO}/UTIL/bldmake/scripts
+    ./bldit_bldmake.csh
+ endif
  
 #> Relocate to the BLD_* directory
   cd $Bld 

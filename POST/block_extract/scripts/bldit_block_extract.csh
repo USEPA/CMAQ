@@ -1,7 +1,7 @@
 #! /bin/csh -f
 
-# ==================== COMBINEv5.2 Build Script ===================== #
-# Usage: bldit_combine.csh >&! bldit_combine.log                      #
+# ==================== BLOCK_EXTRACTv5.2 Build Script ===================== #
+# Usage: bldit_block_extract.csh >&! bldit_block_extract.log                          #
 # Requirements: I/O API & netCDF libraries; a Fortran compiler        #
 #                                                                     #
 # To report problems or request help with this script/program:        #
@@ -38,7 +38,7 @@
  source ./config_cmaq.csh
 
 #> Source Code Repository
- setenv REPOROOT ${CMAQ_REPO}/POST/combine  #> location of the source code for COMBINE
+ setenv REPOROOT ${CMAQ_REPO}/POST/block_extract  #> location of the source code for BLOCK_EXTRACT
 
 #===============================================================================
 #> Begin User Input Section 
@@ -46,8 +46,8 @@
 
 #> User choices: working directory and application ID
  set VRSN     = v52                        #> model version
- set EXEC     = combine_${VRSN}.exe        #> executable name for this application
- set CFG      = combine_${VRSN}.cfg        #> BLDMAKE configuration file name
+ set EXEC     = block_extract_${VRSN}.exe        #> executable name for this application
+ set CFG      = block_extract_${VRSN}.cfg        #> BLDMAKE configuration file name
  setenv BLDER   ${CMAQ_HOME}/UTIL/bldmake/bldmake_${compiler}.exe #> location of makefile builder executable 
 
 #> user choice: copy source files
@@ -58,7 +58,7 @@
 
 # set CompileBLDMAKE  #> Recompile the BLDMAKE utility from source
                      #>   comment out to use an existing BLDMAKE executable
- set ModDriver = src #> COMBINE Modules
+ set ModDriver = src #> BLOCK_EXTRACT Modules
 
 
 #============================================================================================
@@ -85,10 +85,10 @@
 
 
 #============================================================================================
-#> Set up the combine build directory under the POST directory
+#> Set up the block_extract build directory under the Tools directory
 #> for checking out and compiling source code
 #============================================================================================
- set Bld = ${CMAQ_HOME}/POST/combine/scripts/BLD_combine_${VRSN}_${compiler}
+ set Bld = ${CMAQ_HOME}/POST/block_extract/scripts/BLD_block_extract_${VRSN}_${compiler}
 
  if ( ! -e "$Bld" ) then
     mkdir -pv $Bld
@@ -148,7 +148,7 @@
  echo                                                              >> $Cfile
  echo "netcdf      $quote$netcdf_lib$quote;"                       >> $Cfile
 
- set text = "combine"
+ set text = "block_extract"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModDriver};"                                       >> $Cfile
  echo                                                              >> $Cfile
@@ -161,8 +161,8 @@
 
 #> Recompile BLDMAKE from source if requested or if it does not exist
   if ( $?CompileBLDMAKE || ! -f $BLDER ) then
-     cd ${CMAQ_REPO}/UTIL/bldmake/scripts
-     ./bldit_bldmake.csh
+    cd ${CMAQ_REPO}/UTIL/bldmake/scripts
+    ./bldit_bldmake.csh
   endif
  
 #> Relocate to the BLD_* directory
