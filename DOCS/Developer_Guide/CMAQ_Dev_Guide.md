@@ -2,7 +2,7 @@
 =
 **Version 5.2 (2017 Release)**
 
-Prepared in cooperation with the: 
+Prepared in cooperation with the:  
 Community Modeling and Analysis System  
 Institute for the Environment  
 University of North Carolina at Chapel Hill  
@@ -15,11 +15,11 @@ The information in this Developer Guide has been funded wholly or in part by the
 Introduction and Executive Summary
 ====================================
 
-This document is intended to describe general development practices within the CMAQ Modeling Community. The information contained should be read prior to starting a project within the CMAQ framework. Instructions can be used by EPA developers, CMAS-Center developers, or external developers. Notes specific to external developers are made where relevant.
+This document is intended to describe general development practices within the CMAQ Modeling Community. The information contained should be read prior to starting a project within the CMAQ framework. Instructions can be used by EPA developers, CMAS-Center developers, or external developers.  
 
 The public CMAQ release repository is located on GitHub (<https://github.com/USEPA/CMAQ>). 
 Users should refer to this repository for bug fixes, issues, documentation and major releases for CMAQ. 
-Developers intent on submitting code changes should contact the EPA CMAQ development team as soon as possible to discuss their motivation and plans for submitting the code change. 
+Developers interested in submitting code changes should contact the EPA CMAQ development team as soon as possible to discuss their motivation and plans for submitting the code change. 
 
 First, the developer should 'fork' the release repository. 
 Developers shall use standard git commands to create a feature branch off of the master branch, and to add and commit changes to that feature branch, not the master branch.
@@ -29,7 +29,7 @@ Once their feature branch meets requirements for code consistency, benchmark tes
 
 Submitted bug fixes and science features will undergo a code review within EPA before being merged into the release repository. 
 Depending on the size, scope, and importance of the feature, the CMAQ development team may or may not agree to support the feature through future releases. 
-Decisions regarding ongoing support will be made on a case-by-case basis.
+Decisions regarding ongoing support will be made on a case-by-case basis with input from the developer who submits the feature.
 
 The following sections outline this code development and review process for CMAQ in greater detail.  
 
@@ -42,6 +42,10 @@ Prior to the public release of each major CMAQ version, the unofficial source co
 3. a role in helping to test, troubleshoot, and debug the unoffical code before the stable release.
 4. a reasonable amount of time to ensure the new version is compatible with any features the member may have submitted in the past.  
 5. a reasonable amount of time to complete any pending feature submissions they would like to submit for the stable release.
+
+## Version Numbering
+
+### Public Release Versions
 
 Version Numbering
 ----------------------
