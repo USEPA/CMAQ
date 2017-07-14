@@ -232,9 +232,6 @@ C *** variables to set up for "dry transport "
       REAL M3_WET( N_MODE ), M3_DRY( N_MODE )   ! third moment with and without water
       REAL M2_WET( N_MODE ), M2_DRY( N_MODE )   ! second moment with and without water
 
-C *** if LIMIT_Sg = T, atkn & accum std. dev. are not changed by GETPAR
-      LOGICAL, PARAMETER :: LIMIT_Sg = .FALSE.
-
 C *** variables aerosol diagnostic file flag
       INTEGER      STATUS            ! ENV... status
       CHARACTER( 80 ) :: VARDESC     ! environment variable description

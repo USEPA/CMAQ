@@ -14,8 +14,10 @@
 
 #> Choose compiler and set up CMAQ environment with correct 
 #> libraries using config.cmaq. Options: intel | gcc | pgi
- setenv compiler intel 
- setenv compilerVrsn 13.1
+ if ( ! $?compiler ) then 
+   setenv compiler intel 
+   setenv compilerVrsn 13.1
+ endif
 
 #> Source the config.cmaq file to set the build environment
  cd ../..

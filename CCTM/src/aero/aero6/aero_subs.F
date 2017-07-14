@@ -278,7 +278,7 @@ C *** Variables for mode merging
 C *** local variables
       INTEGER      SPC        ! loop counter
       INTEGER      N          ! loop counter
-      LOGICAL   :: LIMIT_Sg = .FALSE.
+      !LOGICAL   :: LIMIT_Sg = .FALSE.
 
       integer, save :: logdev 
       logical, save :: firstime = .true.
@@ -855,7 +855,7 @@ C     mass partitioning between the modes
       INTEGER ISTEP                       ! loop index, mass transfer time step loop
       INTEGER ISP                         ! loop index, species loop
       INTEGER, SAVE :: LOGDEV 
-      LOGICAL, PARAMETER :: LIMIT_Sg = .TRUE.   ! fix Sg at current value?
+      !LOGICAL, PARAMETER :: LIMIT_Sg = .TRUE.   ! fix Sg at current value?
       LOGICAL TrustIso                    ! For negative vap. press., TrustIso = F
 
 C *** Local Saved Variables 
