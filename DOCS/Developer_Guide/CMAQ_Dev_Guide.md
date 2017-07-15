@@ -7,15 +7,20 @@ Prepared in cooperation with the:
 Community Modeling and Analysis System  
 Institute for the Environment  
 University of North Carolina at Chapel Hill  
-Chapel Hill, NC
+Chapel Hill, NC  
 </p>
 
 ## Disclaimer
 The information in this Developer Guide has been funded wholly or in part by the United States Environmental Protection Agency. The draft version of this document has not been subjected to the Agency’s peer and administrative review, nor has it been approved for publication as an EPA document. The draft document is currently being edited and reviewed by the Community Modeling and Analysis System Center. Mention of trade names or commercial products does not constitute endorsement or recommendation for use.
 
-# Introduction and Executive Summary
-This document is intended to describe general development practices within the CMAQ Modeling Community. The information contained should be read prior to starting a project within the CMAQ framework. Instructions can be used by EPA developers, CMAS-Center developers, or external developers.  
+# Introduction and Motivation
+The evolution and robustness of CMAQ depends on contributions from the vibrant CMAS community. 
+The developmet team at EPA is excited to work with potential contributors and integrate community submissions into the CMAQ code base. 
+In order to facilitate this process, we describe in this document our development process and how external developers may make submit new code features.
 
+The information contained should be read prior to starting a project within the CMAQ framework. Instructions can be used by EPA developers, CMAS-Center developers, or external developers.  
+
+# Summary of Developer Workflow
 The public CMAQ release repository is located on GitHub (<https://github.com/USEPA/CMAQ>). 
 Users should refer to this repository for bug fixes, issues, documentation and major releases for CMAQ. 
 Developers interested in submitting code changes should contact the EPA CMAQ development team as soon as possible to discuss their motivation and plans for submitting the code change. 
@@ -56,12 +61,12 @@ Modifications to the publically released version without incrementing are prohib
 The unofficial (or beta) version of the code will first be vetted internally and then released generally 6 months in advance of the stable CMAQ release; this period is known as the "beta-phase". 
 Version numbering for the beta series will append the letter 'b' and an incrementing number to the expected version number of the stable release. 
 For example, before the hypothetical release of CMAQv14.3 the following series of version numbers would be expected:  
-   v14.3.b0  (First tested internal EPA version)
-   v14.3.b1  (Reslease to public after minor changes)
-   v14.3.b2  (....incremental testing, ....)
-   v14.3.b3  (....bug squashing, and  ...)
-   v14.3.b4  (....documentation updates...)
-   v14.3     (Stable Public Release)  
+&nbsp;&nbsp;&nbsp;v14.3.b0  (First tested internal EPA version)  
+&nbsp;&nbsp;&nbsp;v14.3.b1  (Reslease to public after minor changes)  
+&nbsp;&nbsp;&nbsp;v14.3.b2  (....incremental testing, ....)  
+&nbsp;&nbsp;&nbsp;v14.3.b3  (....bug squashing, and  ...)  
+&nbsp;&nbsp;&nbsp;v14.3.b4  (....documentation updates...)  
+&nbsp;&nbsp;&nbsp;v14.3     (Stable Public Release)  
 The number of beta versions is variable among releases. After public release, the instrumented versions of the code (e.g. DDM, ISAM, STM, etc) shall be expected within approximately 6 months to 1 year. 
 
 ## Making Contributions
