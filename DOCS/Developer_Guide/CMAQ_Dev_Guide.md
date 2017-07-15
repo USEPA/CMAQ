@@ -38,23 +38,22 @@ The following sections outline this code development and review process for CMAQ
 
 # Development Life-cycle
 ## Public Release Versions
-CMAQ will have a number versioning system for each release version branch, using major, minor, and sub-minor increments.
-For example, 14.0.2  In this case, the first number (major version), second number (minor version), and third number (patch version) refers to a stable release version. 
+CMAQ uses a number versioning system for each release version branch, with major, minor, and sub-minor increments.
+For example, in the case of hypothetical version 14.0.2 the first number (major version), second number (minor version), and third number (patch version) refers to a stable release version. 
 
-The patch version (third number) of CMAQ increments with a new bug fix branch. These minor, interim versions never include feature additions to any of the science modules or shared framework.
-
-The minor version (second number) of CMAQ increments when one or many new science developments have been adpoted. Although these changes may significantly affect model results, the model will still be generally compatible with inputs developed for versions of the same major number.
+The patch version (third number) of CMAQ increments with a new bug fix branch. These minor, interim versions never include feature additions to any of the science modules or shared framework.  
+The minor version (second number) of CMAQ increments when one or many new science developments have been adpoted. Although these changes may significantly affect model results, the model will still be generally compatible with inputs developed for versions of the same major number.  
 The major version (first number) of CMAQ increments when significant development changes to the code base have been adopted such that backward compatibility or comparability is no longer expected.
 
 Modifications to the publically released version without incrementing are prohibited in order to ensure consistency among published literature referring to a particular model version. 
 
 ## Development Versions
 Prior to the public release of each major CMAQ version, the unofficial source code is released to the public as a development version that is not intended for regulatory or research application use. The purpose of releasing the development version to the public is to give community members:  
-1. an opportunity to comment on the code improvements made in the new version.  
-2. the ability to take advantage of improvements for preliminary studies of their own interest.
-3. a role in helping to test, troubleshoot, and debug the unoffical code before the stable release.
-4. a reasonable amount of time to ensure the new version is compatible with any features the member may have submitted in the past.  
-5. a reasonable amount of time to complete any pending feature submissions they would like to submit for the stable release.
+-  a reasonable amount of time to complete any pending feature submissions they would like to submit for the stable release.  
+-  a role in helping to test, troubleshoot, and debug the unoffical code before the stable release.  
+-  an opportunity to comment on the code improvements made in the new version.  
+-  the ability to take advantage of improvements for preliminary studies of their own interest.  
+-  a reasonable amount of time to ensure the new version is compatible with any features the member may have submitted in the past.  
 
 The unofficial (or beta) version of the code will first be vetted internally and then released generally 6 months in advance of the stable CMAQ release; this period is known as the "beta-phase". 
 Version numbering for the beta series will append the letter 'b' and an incrementing number to the expected version number of the stable release. 
@@ -71,9 +70,8 @@ The number of beta versions is variable among releases. After public release, th
 
 # Making Contributions
 ## Get in touch
-Community members with an idea for a code contribution are encouraged to contact the EPA development team well before the beta-phase in order to plan appropriately for the testing and inclusion of the new feature. The team may be interested in knowing the following information:
--   What science module or bug do you intend to address?
--   What work do you intend to contribute to CMAQ?
+Community members with an idea for a code contribution are encouraged to contact the EPA development team well before the beta-phase in order to plan appropriately for the testing and inclusion of the new feature. The team may be interested in knowing information including but not limited to the following:
+-   What science module or bug do you intend to address? What work do you intend to contribute to CMAQ?
 -   Are you comfortable with the development strategy including code consistency, benchmarking, configuration testing, compiler testing, model output validation, documentation and merging?
 -   Are you able to provide ongoing support and technical guidance for your proposed contribution?
  
