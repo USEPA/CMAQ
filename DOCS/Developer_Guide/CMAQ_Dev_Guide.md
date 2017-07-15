@@ -3,12 +3,10 @@
 **Version 5.2 (2017 Release)**
 
 Prepared in cooperation with the:  
-<p align="center">
-Community Modeling and Analysis System  
-Institute for the Environment  
-University of North Carolina at Chapel Hill  
-Chapel Hill, NC  
-</p>
+<p align="center">  Community Modeling and Analysis System  </p>
+<p align="center">  Institute for the Environment  </p>
+<p align="center">  University of North Carolina at Chapel Hill  </p>
+<p align="center">  Chapel Hill, NC  </p>
 
 ## Disclaimer
 The information in this Developer Guide has been funded wholly or in part by the United States Environmental Protection Agency. The draft version of this document has not been subjected to the Agency’s peer and administrative review, nor has it been approved for publication as an EPA document. The draft document is currently being edited and reviewed by the Community Modeling and Analysis System Center. Mention of trade names or commercial products does not constitute endorsement or recommendation for use.
@@ -28,7 +26,8 @@ Developers interested in submitting code changes should contact the EPA CMAQ dev
 First, the developer should 'fork' the release repository. 
 Developers shall use standard git commands to create a feature branch off of the master branch, and to add and commit changes to that feature branch, not the master branch.
 
-In order to have that feature merged into the CMAQ repository, the developer should follow the instructions on code requirements and repository layout as described in the CMAQ Operational Guidance Document, particularly [Chapter 11](https://github.com/USEPA/CMAQ/blob/5.2/DOCS/User_Manual/CMAQ_OGD_ch11_code_management.md).
+In order to have that feature merged into the CMAQ repository, the developer should follow the instructions on code requirements and repository layout as described in the CMAQ Operational Guidance Document, particularly [Chapter 11](https://github.com/USEPA/CMAQ/blob/5.2/DOCS/User_Manual/CMAQ_OGD_ch11_code_management.md). 
+Documentation of the feature's assumptions and results is a very important part of a meanignful code submission. Developers are encouraged to publish the use of their feature in a peer-reviewed journal before submission.
 Once their feature branch meets requirements for code consistency, benchmark testing, model output evaluation, and documentation including release notes, they may push that branch back to their 'fork' of the CMAQ repository and submit a pull request, with thorough comments, to the CMAQ public repository.  
 
 Submitted bug fixes and science features will undergo a code review within EPA before being merged into the release repository. 
@@ -61,18 +60,20 @@ Modifications to the publically released version without incrementing are prohib
 The unofficial (or beta) version of the code will first be vetted internally and then released generally 6 months in advance of the stable CMAQ release; this period is known as the "beta-phase". 
 Version numbering for the beta series will append the letter 'b' and an incrementing number to the expected version number of the stable release. 
 For example, before the hypothetical release of CMAQv14.3 the following series of version numbers would be expected:  
-&nbsp;&nbsp;&nbsp;v14.3.b0  (First tested internal EPA version)  
-&nbsp;&nbsp;&nbsp;v14.3.b1  (Reslease to public after minor changes)  
-&nbsp;&nbsp;&nbsp;v14.3.b2  (....incremental testing, ....)  
-&nbsp;&nbsp;&nbsp;v14.3.b3  (....bug squashing, and  ...)  
-&nbsp;&nbsp;&nbsp;v14.3.b4  (....documentation updates...)  
-&nbsp;&nbsp;&nbsp;v14.3     (Stable Public Release)  
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v14.3.b0  (First tested internal EPA version)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v14.3.b1  (Reslease to public after minor changes)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v14.3.b2  (....incremental testing, ....)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v14.3.b3  (....bug squashing, and  ...)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v14.3.b4  (....documentation updates...)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v14.3     (Stable Public Release)  
+
 The number of beta versions is variable among releases. After public release, the instrumented versions of the code (e.g. DDM, ISAM, STM, etc) shall be expected within approximately 6 months to 1 year. 
 
 ## Making Contributions
 ### Get in touch
 Community members with an idea for a code contribution are encouraged to contact the EPA development team well before the beta-phase in order to plan appropriately for the testing and inclusion of the new feature. The team may be interested in knowing the following information:
--   What science module do you intend to develop?
+-   What science module or bug do you intend to address?
 -   What work do you intend to contribute to CMAQ?
 -   Are you comfortable with the development strategy including code consistency, benchmarking, configuration testing, compiler testing, model output validation, documentation and merging?
 -   Are you able to provide ongoing support and technical guidance for your proposed contribution?
@@ -90,7 +91,6 @@ Developers should follow the guidance at [GitHub Help](https://help.github.com/)
 
 ### Code Review
 CMAQ Developers at EPA will review all code submissions in order to ensure code stability and consistency, and prevent degradation of model performance. After review, the EPA team will either accept the submission, recommend specific improvements to the submission, or in some cases reject the submission. To avoid outright rejection, we urge developers to contact the EPA team early in the development process and maintain contact throughout to help ensure the submission is compatible with the CMAQ code base and is an attractive addition.  
-
 
 #### Code Consistency
 Please refer to the Operational Guidance Document, [Chapter 11](https://github.com/USEPA/CMAQ/blob/5.2/DOCS/User_Manual/CMAQ_OGD_ch11_code_management.md), under the section titled "Guidelines for Developing New CMAQ Source Code".
@@ -123,14 +123,19 @@ Several tools exist to document the effects of compiler choice and code change o
 **1:1 Scatter Plots -** Plot the differences between two model runs in a concise layout. 
 Contact cmas@unc.edu for more information about 1:1 Scatter plot tools. 
 
-# Ongoing Feature Support
-Depending on the size, scope, and importance of the feature, the CMAQ development team may or may not agree to support the feature through future releases. For example, bug fixes and minor, but helpful changes to the existing code will likely be incorporated into the general code base and supported. Large code additions, like a new process module or an instrumented version of CMAQ may require more effort to support than can be provided by resources of the EPA Office of Research and Development. However, if the feature is particularly of interest for the CMAQ user community, it may be supported. Decisions regarding ongoing support will be made on a case-by-case basis.
+#### Documentation Requirements
+Documentation is of course an integral part of the integration of any new feature into the CMAQ code base. The following products are helpful for expediting the review and integration process:
+-   Developers are encouraged to publish the use of their proposed feature in a peer-reviewed journal before submitting it to the CMAQ public repository.
+-   A Release Note written by the developer which describes the motivation, algorithm and impacts of the submission is required to ensure proper documentation of CMAQ.
 
-# Documentation
+CMAQ Documentation Resources:  
 Documentation for CMAQv5.2 is available at https://github.com/USEPA/CMAQ/tree/5.2/DOCS. Materials include:
 -   an Operational Guidance Document which describes code structure and regular operation of the model.
--   Release Notes describing code improvements relevant for this model release. Developers should include a Release Note with their submission to ensure proper documentation of CMAQ.
+-   Release Notes describing code improvements relevant for this model release. 
 -   several Tutorials that give specific instruction for common tasks like running CMAQ or adding chemical tracers.
+
+# Ongoing Feature Support
+Depending on the size, scope, and importance of the feature, the CMAQ development team may or may not agree to support the feature through future releases. For example, bug fixes and minor, but helpful changes to the existing code will likely be incorporated into the general code base and supported. Large code additions, like a new process module or an instrumented version of CMAQ may require more effort to support than can be provided by resources of the EPA Office of Research and Development. However, if the feature is particularly of interest for the CMAQ user community, it may be supported. Decisions regarding ongoing support will be made on a case-by-case basis.
 
 # Copyright Information
 Contact EPA (CMAQ_Team@epa.gov) with questions and concerns.
@@ -144,9 +149,6 @@ Compiler flags:
 - PGI: -Mfixed -O3 -Mextend
 - GCC: -ffixed-form -ffixed-line-length-132 -O3 -funroll-loops -finit-character=32
 - Intel: -fixed -132 -O3 -override-limits -fno-alias -mp1 -fp-model precise -fp-model source -shared-intel -openmp
-
-- In the Intel Basic Test: -fixed -132 -O3 -openmp
-- In the NoOpt Tests: -O0 with extend source and fixed line length flags
 
 <a id=Table5-1></a>
 ### Compilation Testing Manifest Table (Example)
