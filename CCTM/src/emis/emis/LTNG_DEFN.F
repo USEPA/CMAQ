@@ -49,6 +49,10 @@
 !C                        exp(log-intercept), and move the LTNOx
 !C                        production rate to environmental variable to be set in run script
 !C    18 Apr 2017 D. Kang: Make this routine compatible with the two-way coupled model
+!C    17 Jul 2017 D. Wong: In subroutine GET_LTNG: 
+!C                         * implemented a bug fix for determining 
+!C                           LASTTIC base on accumulation of time step, TSTEP(2)
+!C                         * called SUBHFILE only once to improve code efficiency
 !C----------------------------------------------------------------------
 
       IMPLICIT NONE
@@ -571,6 +575,9 @@ C        INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
          LOGICAL, SAVE         :: R_READY = .TRUE.
          REAL,    ALLOCATABLE  :: COLUMN_LTNG_NO( :,: ) ! column total NO
 
+         INTEGER, SAVE :: TOT_TSTEP
+         LOGICAL :: FIRSTIME = .TRUE.
+
 C statement function for ERF approximation
          REAL :: ERF                ! ERF approx. statement function
          REAL :: X                  ! dummy argument for ERF
@@ -586,8 +593,12 @@ C statement function for ERF approximation
             DTSTEP = TIME2SEC( TSTEP( 1 ) ) / TIME2SEC( TSTEP( 2 ) ) 
             !C Open me filet
 !C Get domain window info for met_cro_2d file
-            CALL SUBHFILE ( RNAME, GXOFF, GYOFF,
-     &              STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2 )
+            IF (FIRSTIME) THEN
+               CALL SUBHFILE ( RNAME, GXOFF, GYOFF,
+     &                         STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2 )
+               TOT_TSTEP = 0
+               FIRSTIME = .FALSE.
+            END IF
 
             WRITE( SJDATE, '(I7)') JDATE
             READ( SJDATE, '(4X, I3)') CJDATE
@@ -778,10 +789,12 @@ C statement function for ERF approximation
 
 !C Determine the time to read and/or write the hourly files
             NTICS = NTICS + 1
-            LASTTIC = NTICS .EQ. TIME2SEC( TSTEP( 1 ) ) / TIME2SEC( TSTEP( 2 ) )
+            TOT_TSTEP = TOT_TSTEP + TIME2SEC( TSTEP( 2 ) ) 
+            LASTTIC = TOT_TSTEP .GE. 3600
             IF ( LASTTIC ) THEN
                MTICS = NTICS
                NTICS = 0
+               TOT_TSTEP = 0
                CALL NEXTIME( LDATE, LTIME, TSTEP( 1 ) )
                R_READY = .TRUE.
             END IF
