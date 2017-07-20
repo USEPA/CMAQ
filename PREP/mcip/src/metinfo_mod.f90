@@ -62,6 +62,7 @@ MODULE metinfo
 !           26 Nov 2014  Added variables for land use indices associated with
 !                        ice, lake, and urban (MET_LU_ICE, MET_LU_LAKE, and
 !                        MET_LU_URBAN).  (T. Spero)
+!           22 Jun 2017  Added MET_HYBRID.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   IMPLICIT NONE
@@ -116,6 +117,7 @@ MODULE metinfo
 
   INTEGER           :: met_cumulus     ! cumulus parameterization scheme
   INTEGER           :: met_expl_moist  ! explicit moist physics scheme
+  INTEGER           :: met_hybrid      ! hybrid vertical coordinate in met?
   INTEGER           :: met_lu_ice      ! ice index in land use
   INTEGER           :: met_lu_lake     ! lake index in land use
   INTEGER           :: met_lu_urban    ! urban index in land use

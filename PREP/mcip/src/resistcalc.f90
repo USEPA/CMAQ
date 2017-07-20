@@ -68,6 +68,8 @@ SUBROUTINE resistcalc
 !                        NLCD40.  Values for RST are taken from WRFv3.4
 !                        module_sf_pxlsm_data.F.  F2 values for NLCD40 are
 !                        adapted from F2 values for NLCD50.  (T. Otte)
+!           21 Apr 2017  Updated F2 for MODIS for category 21 as "Lake".
+!                        (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE mcipparm
@@ -114,7 +116,7 @@ SUBROUTINE resistcalc
   REAL, PARAMETER :: f2defmod ( 33 ) = &
     (/   0.90,   0.90,   0.90,   0.90,   0.90,   0.50,   0.50,   0.60,  &
          0.60,   0.70,   0.99,   0.93,   0.80,   0.85,   0.99,   0.30,  &
-         1.00,   0.50,   0.60,   0.20,   0.00,   0.00,   0.00,   0.00,  &
+         1.00,   0.50,   0.60,   0.20,   1.00,   0.00,   0.00,   0.00,  &
          0.00,   0.00,   0.00,   0.00,   0.00,   0.00,   0.84,   0.82,   0.80 /)
 
   REAL, PARAMETER :: rstmod ( 33 ) = &

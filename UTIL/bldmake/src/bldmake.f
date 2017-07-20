@@ -360,6 +360,7 @@
       If ( serial ) Then
          Write( lfn, '( " LIBRARIES = $(IOAPI) $(NETCDF)")' )
       Else
+!         Write( lfn, '( " MPICH  = -L$(LIB)/",a,1x,a)' ) "mpich/lib", Trim( mpich )
          Write( lfn, '( " MPICH  = -L$(LIB)/",a,1x,a)' ) "mpi/lib", Trim( mpich )
          Write( lfn, '( " LIBRARIES = $(IOAPI) $(NETCDF) $(MPICH)")' )
       End If
