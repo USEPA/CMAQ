@@ -119,6 +119,8 @@
       INTEGER, SAVE    :: GXOFF, GYOFF   ! global origin offset from file
       INTEGER, SAVE    :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
 
+      INTEGER :: FILE_TSTEP
+
       CONTAINS
 
 !C======================================================================
@@ -290,6 +292,9 @@ C        INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
                CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
                SUCCESS = .FALSE.; RETURN
             END IF
+
+            FILE_TSTEP = TIME2SEC ( TSTEP3D )
+
             IF(NLDNSTRIKE) THEN
                   XMSG = 'Using hourly NLDN Strike data'
                   CALL M3MSG2( XMSG )
@@ -790,7 +795,7 @@ C statement function for ERF approximation
 !C Determine the time to read and/or write the hourly files
             NTICS = NTICS + 1
             TOT_TSTEP = TOT_TSTEP + TIME2SEC( TSTEP( 2 ) ) 
-            LASTTIC = TOT_TSTEP .GE. 3600
+            LASTTIC = TOT_TSTEP .GE. FILE_TSTEP
             IF ( LASTTIC ) THEN
                MTICS = NTICS
                NTICS = 0
