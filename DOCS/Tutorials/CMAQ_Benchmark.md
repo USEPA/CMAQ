@@ -18,7 +18,7 @@ In the directory where you would like to install CMAQ, create the directory issu
 git clone -b 5.2 https://github.com/USEPA/CMAQ.git CMAQ_REPO
 ```
 
-For instructions on installing CMAQ from tarballs, see [Chapter 5](CMAQ_OGD_ch05_sys_req.md).
+For instructions on installing CMAQ from tarballs, see [Chapter 5](../User_Manual/CMAQ_OGD_ch05_sys_req.md).
 
 #### Configure the CMAQ build environment
 
