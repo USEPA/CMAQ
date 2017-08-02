@@ -16,7 +16,7 @@ The evolution and robustness of CMAQ depends on contributions from the vibrant C
 The development team at EPA is excited to work with potential contributors and integrate community submissions into the CMAQ code base. 
 In order to facilitate this process, we describe in this document our development process and how external developers may submit new code features.
 
-The information contained here should be read prior to starting a project within the CMAQ framework. Instructions can be used by EPA developers, CMAS-Center developers, or external developers.  
+The information contained here should be read prior to starting a project within the CMAQ framework. Instructions are tailored for external developers but can also be used by developers in the CMAS-Center or within EPA.  
 
 # Summary of Developer Workflow
 The public CMAQ release repository is located on GitHub (<https://github.com/USEPA/CMAQ>). 
