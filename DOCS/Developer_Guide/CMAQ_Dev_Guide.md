@@ -1,6 +1,6 @@
 **Developer Guide for the Community Multiscale Air Quality (CMAQ) Modeling System**
 =
-**Version 5.2 (2017 Release)**
+**Consistent with CMAQ model version 5.2 (2017 Release)**
 
 Prepared in cooperation with the:  
 <p align="center">  Community Modeling and Analysis System  </p>
@@ -48,7 +48,8 @@ The major version (first number) of CMAQ increments when significant development
 Modifications to the publically released version without incrementing are prohibited in order to ensure consistency among published literature referring to a particular model version. 
 
 ## Development Versions
-Prior to the public release of each major CMAQ version, the unofficial source code is released to the public as a development version that is not intended for regulatory or research application use. The purpose of releasing the development version to the public is to give community members:  
+Prior to the public release of each major CMAQ version, the unofficial source code is released to the public as a development version that is not intended for regulatory or research application use. 
+The purpose of releasing the development version to the public is to give community members:  
 -  a reasonable amount of time to complete any pending feature submissions they would like to submit for the stable release.  
 -  a role in helping to test, troubleshoot, and debug the unoffical code before the stable release.  
 -  an opportunity to comment on the code improvements made in the new version.  
@@ -56,6 +57,7 @@ Prior to the public release of each major CMAQ version, the unofficial source co
 -  a reasonable amount of time to ensure the new version is compatible with any features the member may have submitted in the past.  
 
 The unofficial (or beta) version of the code will first be vetted internally and then released generally 6 months in advance of the stable CMAQ release; this period is known as the "beta-phase". 
+At this time, EPA will announce the deadline for community contributions. This deadline will be chosen in order to balance both the time needed by developers to submit their contributions and the time needed by EPA to incorporate submissions before public release. 
 Version numbering for the beta series will append the letter 'b' and an incrementing number to the expected version number of the stable release. 
 For example, before the hypothetical release of CMAQv14.3 the following series of version numbers would be expected:  
 
@@ -66,7 +68,8 @@ For example, before the hypothetical release of CMAQv14.3 the following series o
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v14.3.b4  (....documentation updates...)  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v14.3     (Stable Public Release)  
 
-The number of beta versions is variable among releases. After public release, the instrumented versions of the code (e.g. DDM, ISAM, STM, etc) shall be expected within approximately 6 months to 1 year. 
+The number of beta versions is variable among releases.  
+After public release, the instrumented versions of the code (e.g. DDM, ISAM, STM, etc) shall be expected within approximately 6 months to 1 year. 
 
 # Making Contributions
 ## Get in touch
@@ -85,6 +88,8 @@ Developers should follow the guidance at [GitHub Help](https://help.github.com/)
 -   add and commit changes to the new feature branch: https://www.atlassian.com/git/tutorials/saving-changes  
 -   push the feature branch to the forked repo: https://help.github.com/articles/pushing-to-a-remote/  
 -   submit a pull request to the public CMAQ repo: https://help.github.com/articles/creating-a-pull-request-from-a-fork/  
+
+Developers should run and test their new feature before submitting the pull request so that the results of the test can be included in the documentation of the pull request.
 
 ## Code Review
 CMAQ Developers at EPA will review all code submissions in order to ensure code stability and consistency, and prevent degradation of model performance. After review, the EPA team will either accept the submission, recommend specific improvements to the submission, or in some cases reject the submission. To avoid outright rejection, we urge developers to contact the EPA team early in the development process and maintain contact throughout to help ensure the submission is compatible with the CMAQ code base and is an attractive addition.  
@@ -116,9 +121,8 @@ The developer should consider submitting similar information with their pull req
 
 Several tools exist to document the effects of compiler choice and code change on model results. Examples include:
 **m3diff -** Quantify min, max, mean differences between two different model runs
-**VERDI -** Create absolute difference plots for multiple variables, timesteps, layers (see spatial differences)
-**1:1 Scatter Plots -** Plot the differences between two model runs in a concise layout. 
-Contact cmas@unc.edu for more information about 1:1 Scatter plot tools. 
+**VERDI -** Create absolute difference plots for multiple variables, timesteps, layers (see spatial differences)  
+In addition, we recommend utilizing **1:1 Scatter Plots** to demonstrate the differences between two model runs in a concise layout.  
 
 ### Documentation Requirements
 Documentation is of course an integral part of the integration of any new feature into the CMAQ code base. The following products are helpful for expediting the review and integration process:
