@@ -9,7 +9,7 @@
 # Note that this script was configured/tested on Red Hat Linux O/S    #
 #                                                                     #
 # To report problems or request help with this script/program:        #
-#             http://www.cmascenter.org/help_desk.cfm                 #
+#             http://www.cmascenter.org/help-desk.cfm                 #
 # =================================================================== #
 
 #> Critical Folder Locations
@@ -165,7 +165,7 @@
  endsw
  
 #> Apply Specific Module and Library Location Settings for those working inside EPA
- source /work/MOD3DEV/cmaq_common/cmaq_env.csh  #>>> Comment out if not at EPA
+ #source /work/MOD3DEV/cmaq_common/cmaq_env.csh  #>>> Comment out if not at EPA
 
 #> Add The Complier Version Number to the Compiler String if it's not empty
  if ( $compilerVrsn != "Empty" ) then

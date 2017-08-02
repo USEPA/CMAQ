@@ -1,9 +1,66 @@
 CHANGES for MCIP
 
+MCIP Version 4.4 (23 June 2017)
+
+- Changed name of run script to "run_mcip.csh" and changed names of MCIP output
+  files referenced in the script to have the extension ".nc" for consistency
+  with other changes in the CMAQ system.
+
+  New file:       mcip4/run_mcip.csh
+
+  Deleted file:   mcip4/run.mcip
+
+
+- Made minor changes related to WRF implementation of MODIS land use with
+  category 21 representing "lake".
+
+  Changed files:  mcip4/rdwrfem.f90
+                  mcip4/resistcalc.f90
+                  mcip4/setup_wrfem.f90
+
+
+- Corrected error in the calculation of 10-m wind speed from WRF simulations.
+  Previous version inadvertently used longitude from center of the domain
+  instead of the reference longitude for the projection.  Should not affect
+  CMAQ simulations because WDIR10 is not used.
+
+  Changed files:  mcip4/pblsup.f90
+
+
+- Refined coding to increase robustness under different compilers.
+
+  Changed files:  mcip4/gridout.f90
+
+
+- Changed reference to WRF variable for fraction of urban area from FRC_URB
+  to FRC_URB2D to be consistent with its usage in WRF.
+
+  Changed files:  mcip4/rdwrfem.f90
+
+
+- Updated metadata for new physics options in WRFv3.8, WRFv3.8.1, and WRFv3.9.
+
+  Changed files:  mcip4/wrfemopts.f90
+
+
+- Now determine whether the hybrid vertical coordinate was used in WRF; the
+  option is available as of WRFv3.9.  Currently disable option to use MCIP
+  and CMAQ with hybrid vertical coordinate until additional modifications
+  and testing are performed.
+
+  Changed files:  mcip4/metinfo_mod.f90
+                  mcip4/setgriddefs.f90
+                  mcip4/setup_mm5v3.f90
+                  mcip4/setup_wrfem.f90
+
+
+- Updated release stamp.
+
+  Changed files:  mcip4/mcipparm_mod.f90
+
 --------------------------------------------------------------------------------
 
 MCIP Version 4.3 (6 November 2015)
-
 
 - Updated to accommodate optional lake category in WRF USGS and MODIS land use
   classifications.  Moved definitions of land use indices from getluse.f90 to

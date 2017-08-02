@@ -78,3 +78,6 @@ Edit the sample run script (run.sitecmp_dailyo3), then run:
  run.sitecmp_dailyo3|& tee sitecmp_dailyo3.log
 ```
 Check the log file to ensure complete and correct execution without errors.
+
+Sample run scripts has been provided for matching model data to ozone observations from AQS and CASTNET. The formatted observation data files needed for running the sitecmp_dailyo3 utility are available for 2000 through 2014 from the CMAS Center Data Clearinghouse under the heading "2000-2014 North American Air Quality Observation Data": https://www.cmascenter.org/download/data.cfm.
+
