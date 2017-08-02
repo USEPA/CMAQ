@@ -13,7 +13,7 @@ The information in this Developer Guide has been funded wholly or in part by the
 
 # Motivation
 The evolution and robustness of CMAQ depends on contributions from the vibrant CMAS community. 
-The developmet team at EPA is excited to work with potential contributors and integrate community submissions into the CMAQ code base. 
+The development team at EPA is excited to work with potential contributors and integrate community submissions into the CMAQ code base. 
 In order to facilitate this process, we describe in this document our development process and how external developers may submit new code features.
 
 The information contained here should be read prior to starting a project within the CMAQ framework. Instructions can be used by EPA developers, CMAS-Center developers, or external developers.  
@@ -27,7 +27,7 @@ First, the developer should 'fork' the release repository.
 Developers shall use standard git commands to create a feature branch off of the master branch, and to add and commit changes to that feature branch, not the master branch.
 
 In order to have that feature merged into the CMAQ repository, the developer should follow the instructions on code requirements and repository layout as described in the CMAQ Operational Guidance Document, particularly [Chapter 11](https://github.com/USEPA/CMAQ/blob/5.2/DOCS/User_Manual/CMAQ_OGD_ch11_code_management.md). 
-Documentation of the feature's assumptions and results is a very important part of a meanignful code submission. Developers are encouraged to publish the use of their feature in a peer-reviewed journal before submission.
+Documentation of the feature's assumptions and results is a very important part of a meaningful code submission. Developers are encouraged to publish the use of their feature in a peer-reviewed journal before submission.
 Once their feature branch meets requirements for code consistency, benchmark testing, model output evaluation, and documentation including release notes, they may push that branch back to their 'fork' of the CMAQ repository and submit a pull request, with thorough comments, to the CMAQ public repository.  
 
 Submitted bug fixes and science features will undergo a code review within EPA before being merged into the release repository. 
@@ -42,7 +42,7 @@ CMAQ uses a number versioning system for each release version branch, with major
 For example, in the case of hypothetical version 14.0.2 the first number (major version), second number (minor version), and third number (patch version) refers to a stable release version. 
 
 The patch version (third number) of CMAQ increments with a new bug fix branch. These minor, interim versions never include feature additions to any of the science modules or shared framework.  
-The minor version (second number) of CMAQ increments when one or many new science developments have been adpoted. Although these changes may significantly affect model results, the model will still be generally compatible with inputs developed for versions of the same major number.  
+The minor version (second number) of CMAQ increments when one or many new science developments have been adopted. Although these changes may significantly affect model results, the model will still be generally compatible with inputs developed for versions of the same major number.  
 The major version (first number) of CMAQ increments when significant development changes to the code base have been adopted such that backward compatibility or comparability is no longer expected.
 
 Modifications to the publically released version without incrementing are prohibited in order to ensure consistency among published literature referring to a particular model version. 
@@ -51,7 +51,7 @@ Modifications to the publically released version without incrementing are prohib
 Prior to the public release of each major CMAQ version, the unofficial source code is released to the public as a development version that is not intended for regulatory or research application use. 
 The purpose of releasing the development version to the public is to give community members:  
 -  a reasonable amount of time to complete any pending feature submissions they would like to submit for the stable release.  
--  a role in helping to test, troubleshoot, and debug the unoffical code before the stable release.  
+-  a role in helping to test, troubleshoot, and debug the unofficial code before the stable release.  
 -  an opportunity to comment on the code improvements made in the new version.  
 -  the ability to take advantage of improvements for preliminary studies of their own interest.  
 -  a reasonable amount of time to ensure the new version is compatible with any features the member may have submitted in the past.  
@@ -62,7 +62,7 @@ Version numbering for the beta series will append the letter 'b' and an incremen
 For example, before the hypothetical release of CMAQv14.3 the following series of version numbers would be expected:  
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v14.3.b0  (First tested internal EPA version)  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v14.3.b1  (Reslease to public after minor changes)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v14.3.b1  (Release to public after minor changes)  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v14.3.b2  (....incremental testing, ....)  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v14.3.b3  (....bug squashing, and  ...)  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v14.3.b4  (....documentation updates...)  
@@ -158,9 +158,9 @@ Compiler flags:
 |Gfortran Serial|Gfortran version 4.8.1| 4.3.3|3.1(11/15)|N|N/A|8:19:51|7:35:30|UNC module gcc/4.8.1|
 |Gfortran MVAPICH2|Gfortran version 4.8.1|4.3.2|3.1(11/15) |Y (16)|mvapich2-1.7|0:45:55|0:42:40| |
 |Intel Serial|Intel Fortran version 16.2.0 |4.3.2|3.1(11/15)|N |N/A |6:01:42|5:10:16|UNC module intel/16.2|
-|Intel OpenMPI (EPA Config)|Intel Fortran v15.0.0|4.3.2|3.1(11/15)|Y (16)|openMPI-1.42|0:34:27|UNC module openmpi_intel/15.0|
-|Intel OpenMPI|Intel Fortran v16.2.0|4.3.2|3.1(11/15)|Y (16)|openMPI-1.4.2|0:35:29|UNC module openmpi_intel/16.2| 
-|Intel MVAPICH2|Intel Fortran v16.2.0|4.3.2|3.1(11/15)|Y (16)|mvapich2-1.7|0:36:34|UNC module mvapich2_intel/16.2| 
+|Intel OpenMPI (EPA Config)|Intel Fortran v15.0.0|4.3.2|3.1(11/15)|Y (16)|openMPI-1.42|0:34:27| |UNC module openmpi_intel/15.0|
+|Intel OpenMPI|Intel Fortran v16.2.0|4.3.2|3.1(11/15)|Y (16)|openMPI-1.4.2|0:35:29| |UNC module openmpi_intel/16.2| 
+|Intel MVAPICH2|Intel Fortran v16.2.0|4.3.2|3.1(11/15)|Y (16)|mvapich2-1.7|0:36:34| |UNC module mvapich2_intel/16.2| 
 |Portland Serial|PG Fortran v16.1|4.3.2|3.1(11/15)|N|N/A|7:33:36|6:26:31|UNC module pgi/16.1|
 |Portland OpenMPI|PGI Fortran v15.7|4.3.2|3.1(11/15)|Y (16)|openMPI-1.4.2|0:40:20|0:36:16|UNC module openmpi_pgi/15.7|
 
