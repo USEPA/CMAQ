@@ -118,7 +118,7 @@ It is important for the user community that CMAQ always compile with Intel Fortr
 If a developer has access to more than one compiler, it is critical that they test all of them. Some errors will cause different behaviors depending on the choice of compiler and may not be detectable with all of the compilers.
 See appendix 1 for an example of a Compiler Test.  
 
-#### Model Performance Testing
+#### Model Performance Tests
 Configuration tests use one compiler to test the impact of a model change on results.
 See appendix 2 for an example of important information to collect when testing science options. 
 The developer should consider submitting similar information with their pull request.
@@ -169,7 +169,7 @@ Compiler flags:
 |Portland Serial|PG Fortran v16.1|4.3.2|3.1(11/15)|N|N/A|7:33:36|6:26:31|UNC module pgi/16.1|
 |Portland OpenMPI|PGI Fortran v15.7|4.3.2|3.1(11/15)|Y (16)|openMPI-1.4.2|0:40:20|0:36:16|UNC module openmpi_pgi/15.7|
 
-## Appendix 2: Compiler Tests 
+## Appendix 2: Model Performance Test Metadata 
 |**Scenario**|**Description**|**Mechanism**|**Notes**|**Timing(16PE)H:MM:SS**|
 |----------------|-------------------|--------------------|--------------------|----------|
 |Benchmark Case|Online emissions processing, inline photolysis, inline lightning from MCIP RC, no windblown dust, surface HONO, bidirectional NH3 and Hg, no potential vorticity scaling|cb05e51_ae6_aq |Done; LTNGNO InLine, LTNGPARM = N, LOG_START = 2.0|0:40:20|
