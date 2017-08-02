@@ -23,7 +23,7 @@ The public CMAQ release repository is located on GitHub (<https://github.com/USE
 Users should refer to this repository for bug fixes, issues, documentation and major releases for CMAQ. 
 Developers interested in submitting code changes should contact the EPA CMAQ development team as soon as possible to discuss their motivation and plans for submitting the code change.  
 
-First, the developer should *fork* the release repository. 
+To begin, the developer should *fork* the release repository. 
 Developers should use standard git commands to create a *feature* branch from the master branch, and to add and commit changes to that *feature* branch, not the master branch.
 
 In order to facilitate incorporation of their contribution, the developer should follow the instructions on code requirements and repository layout as described in the CMAQ Operational Guidance Document, particularly [Chapter 11](https://github.com/USEPA/CMAQ/blob/5.2/DOCS/User_Manual/CMAQ_OGD_ch11_code_management.md). 
