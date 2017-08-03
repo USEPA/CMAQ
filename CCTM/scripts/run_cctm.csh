@@ -14,8 +14,10 @@
 
 #> Choose compiler and set up CMAQ environment with correct 
 #> libraries using config.cmaq. Options: intel | gcc | pgi
- setenv compiler intel 
- setenv compilerVrsn 13.1
+ if ( ! $?compiler ) then
+   setenv compiler intel 
+   setenv compilerVrsn 13.1
+ endif
 
 #> Source the config.cmaq file to set the build environment
  cd ../..
@@ -44,7 +46,7 @@
  setenv WORKDIR ${CMAQ_HOME}/CCTM/scripts       #> Working Directory. Where the runscript is.
  setenv OUTDIR  ${CMAQ_DATA}/output_CCTM_${RUNID} #> Output Directory
  setenv INPDIR  ${CMAQ_DATA}/SE52BENCH/single_day/cctm_input  #> Input Directory
- setenv LOGDIR  ${OUTDIR}          #> Log Directory Location
+ setenv LOGDIR  ${OUTDIR}/LOGS     #> Log Directory Location
  setenv NMLpath ${BLD}             #> Location of Namelists. Common places are: 
                                    #>   ${WORKDIR} | ${CCTM_SRC}/MECHS/${MECH} | ${BLD}
 
@@ -495,6 +497,9 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 # ===================================================================
 
   #> Save Log Files and Move on to Next Simulation Day
+  if (! -e $LOGDIR ) then
+    mkdir $LOGDIR
+  endif
   mv CTM_LOG_???.${CTM_APPL} $LOGDIR
 
   #> The next simulation day will, by definition, be a restart

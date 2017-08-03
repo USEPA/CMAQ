@@ -1,1 +1,0 @@
-../../../../CCTM/src/MECHS/cb05tump_ae6_aq/SpecDef_cb05tump_ae6_aq.txt
