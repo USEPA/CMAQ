@@ -61,7 +61,7 @@ The unofficial (or ***beta***) version of the code will first be vetted internal
 At this time, EPA will announce the deadline for community contributions. This deadline will be chosen in order to balance both the time needed by developers to submit their contributions and the time needed by EPA to incorporate submissions before public release. 
 Version numbering for the beta series will append the letter 'b' and an incrementing number to the expected version number of the stable release. 
 The number of beta versions is variable among releases. 
-For example, before the hypothetical release of CMAQv14.3 the following series of version numbers would be expected:  
+For example, before the hypothetical release of CMAQv14.3 the following series of version numbers could be expected:  
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v14.3.b0  (First tested internal EPA version)  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v14.3.b1  (Release to public after minor changes)  
