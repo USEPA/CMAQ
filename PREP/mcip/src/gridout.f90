@@ -80,6 +80,10 @@ SUBROUTINE gridout (sdate, stime)
 !                        with F90 protected intrinsic.  Improved error
 !                        handling.  (T. Otte)
 !           07 Sep 2011  Updated disclaimer.  (T. Otte)
+!           17 Nov 2016  Changed IF/THEN/ELSE block for urban canopy array to
+!                        avoid segmentation fault on some compilers where
+!                        second conditional was based on an unallocated array.
+!                        Initialized IFRCURB to 0.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE metinfo
@@ -99,7 +103,7 @@ SUBROUTINE gridout (sdate, stime)
   REAL,    SAVE,      ALLOCATABLE   :: dumaray0    ( : , : , : , : )
   REAL,    SAVE,      ALLOCATABLE   :: dumaray1    ( : , : , : , : )
   INTEGER                           :: idx
-  INTEGER                           :: ifrcurb
+  INTEGER                           :: ifrcurb     = 0
   INTEGER                           :: ilu
   CHARACTER(LEN=63)                 :: ifmt1
   INTEGER                           :: k
@@ -234,14 +238,16 @@ SUBROUTINE gridout (sdate, stime)
       units3d(idx) = 'FRACTION'
       vdesc3d(idx) = TRIM(xludesc(ilu))
     ENDDO
-  ELSE IF ( ( met_urban_phys >= 1 ) .AND. ( MAXVAL(frc_urb) > 0.0 ) ) THEN
-    ifrcurb = 1
-    idx     = gc2index + 1
-    nvars3d = idx + nummetlu
-    vtype3d(idx) = m3real
-    vname3d(idx) = 'PURB'
-    units3d(idx) = 'PERCENT'
-    vdesc3d(idx) = 'urban percent of cell based on land'  
+  ELSE IF ( met_urban_phys >= 1 ) THEN
+    IF ( MAXVAL(frc_urb) > 0.0 )  THEN
+      ifrcurb = 1
+      idx     = gc2index + 1
+      nvars3d = idx + nummetlu
+      vtype3d(idx) = m3real
+      vname3d(idx) = 'PURB'
+      units3d(idx) = 'PERCENT'
+      vdesc3d(idx) = 'urban percent of cell based on land'  
+    ENDIF
   ENDIF
 
   ! Write GRID_CRO_2D header.

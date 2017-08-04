@@ -2,13 +2,18 @@
 
 **Author/P.O.C.:**, [Golam Sarwar](mailto:sarwar.golam@epa.gov), Computational Exposure Division, U.S. EPA
 
-## Brief Description 
+## Brief Description
 
-The CMAQ model now contains detailed halogen (bromine and iodine) chemistry. Sarwar et al. (2015) examined the impacts of halogen chemistry without and with the photolysis of higher iodine oxides. The inclusion of the photolysis of higher iodine oxides substantially reduces ozone and is not included in the model. The halogen chemistry without the photolysis of higher iodine is included in the model. The halogen chemistry in CMAQ follows the description of Sarwar et al. (2015) with the following three changes: (1) Rate constants of the several iodine reactions in Sarwar et al. (2015) contained special expressions which have been replaced with rate constants from Sherwen et al. (2016) (2) Sarwar et al. (2015) calculated photolysis rates of halogen species using ratios of other chemical species following the Comprehensive Air quality Model with extensions (Yarwood et al. 2012). These photolysis rates are now directly calculated using absorption cross-section and quantum yield data (3) Br2 emissions are a function of sea-salt production rates which are calculated in the aerosol module of CMAQ. Sarwar et al. (2015) calculated Br2 emissions independent of the sea-salt production rates in the aerosol module of CMAQ which are now calculated using the sea-salt production rates in the aerosol module of CMAQ. 
+The CMAQ model now contains detailed halogen (bromine and iodine) chemistry. Sarwar et al. (2015) examined the impacts of halogen chemistry both with and without the photolysis of higher iodine oxides. The inclusion of the photolysis of higher iodine oxides substantially reduces ozone and is not included in the model. The halogen chemistry without the photolysis of higher iodine is included in the model.
+
+The halogen chemistry in CMAQ follows the description of Sarwar et al. (2015) with the following three changes:  
+1. Rate constants of the several iodine reactions in Sarwar et al. (2015) contained special expressions which have been replaced with rate constants from Sherwen et al. (2016).  
+2. Sarwar et al. (2015) calculated photolysis rates of halogen species using ratios of other chemical species following the Comprehensive Air quality Model with extensions (CAMx) (Yarwood et al., 2012). These photolysis rates are now directly calculated using absorption cross-section and quantum yield data.  
+3. Br2 emissions are a function of sea-salt production rates that are calculated in the aerosol module of CMAQ. This method is different from Sarwar et al. (2015) that calculated Br2 emissions independent of the sea-salt production rates in the aerosol module of CMAQ.  
 
 ## Significance and Impact
 
-Halogen chemistry reduces mean ozone by 2-6 ppbv over seawater and 2-4 ppbv over some areas of land. The inclusion of the halogen chemistry increases model runtime by > 25%. 
+Halogen chemistry reduces mean ozone by 2-6 ppbv over seawater and 2-4 ppbv over some areas of land. The inclusion of the halogen chemistry increases model runtime by > 25%.
 
 
 ## Affected Files:
@@ -43,16 +48,18 @@ depv/m3dry/DEPVVARS.F
 ICL/fixed/filenames/FILES_CTM.EXT    
 
 
-## References: 
+## References:
 
-Sarwar, et al.: Impact of enhanced ozone deposition and halogen chemistry on tropospheric ozone over the Northern Hemisphere, Environmental Science & Technology, 49(15):9203-9211, 2015.   
-Yarwood et al.: Improving CAMx performance in simulating ozone transport from the Gulf of Mexico, Final Report for the Texas Commission on Environmental Quality; Project No. 0626408I, 2012.   
-Sherwen et al.:  Iodine’s impact on tropospheric oxidants: a global model study in GEOS-Chem, Atmospheric Chemistry & Physics, 16, 1161–1186, 2016.  
+Sarwar, et al. Impact of enhanced ozone deposition and halogen chemistry on tropospheric ozone over the Northern Hemisphere, Environmental Science & Technology, 49(15):9203-9211, 2015.   
+
+Sherwen et al.  Iodine’s impact on tropospheric oxidants: a global model study in GEOS-Chem, Atmospheric Chemistry & Physics, 16, 1161–1186, 2016.  
+
+Yarwood et al. Final Report: Improving CAMx Performance in Simulating Ozone Transport from the Gulf of Mexico,  prepared for Texas Commission on Environmental Quality; Project No. 0626408I, 2012.  
 
 -----
 ## Internal Records:
 
-### Relevant Pull Requests: 
+### Relevant Pull Requests:
   [PR #30](https://github.com/usepa/cmaq_dev/pull/30)
 
 ### Commit IDs:

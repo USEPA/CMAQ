@@ -234,6 +234,8 @@ C Local variables:
          integer, save :: strtcol, endcol, strtrow, endrow
          integer  jdatemod
 
+         type( diag_type ), allocatable :: diagnm_swap( : )
+
          interface
             subroutine cropcal ( jdate, jtime, agland )
             integer, intent( in )  :: jdate, jtime
@@ -457,8 +459,19 @@ C...append diagnostic variables with mass emissions species
                do i = 1, ndust_spc
                   n = len_trim( dust_spc( i )%name( j ) )
                   if( n .lt. 1  )cycle ! assumes cmaq species names atleast one character long
-                  idiag = idiag + 1
-                  diagnm( idiag )%var   = dust_spc( i )%name( j )
+                  n = 0
+                  do k = 1, idiag   ! determine if dust emissions is already added to diagnostic output
+                     if( dust_spc( i )%name( j ) .Eq. diagnm( k )%var )Then
+                         n = k
+                         exit
+                     end if
+                  end do
+                  if( n .gt. 0  )then ! skip already added 
+                      cycle
+                  else 
+                      idiag = idiag + 1
+                      diagnm( idiag )%var = dust_spc( i )%name( j )
+                  end if
                   diagnm( idiag )%units = 'g/m**3/s'
                   Select Case( j ) ! assumes only two aerosol modes dust emissions
 !                    Case( 1 )
@@ -475,6 +488,27 @@ C...append diagnostic variables with mass emissions species
      &                                   // Trim( dust_spc( i )%description )
                end do
             end do
+            
+! remove unused space in diagnm by deallocated and reallocating to idiag value
+            allocate( diagnm_swap( ndust_diag ), stat = status )
+            if ( status .ne. 0 ) then
+               xmsg = '*** Failure allocating DIAGNM_SWAP'
+               call m3warn( pname, jdate, jtime, xmsg )
+               success = .false.; return
+            end if
+            diagnm_swap = diagnm
+
+            deallocate( diagnm )
+
+            ndust_diag = idiag
+            allocate( diagnm( ndust_diag ), stat = status )
+            if ( status .ne. 0 ) then
+               xmsg = '*** Failure reallocating DIAGNM'
+               call m3warn( pname, jdate, jtime, xmsg )
+               success = .false.; return
+            end if
+            diagnm( 1:ndust_diag ) = diagnm_swap( 1:ndust_diag )
+            deallocate( diagnm_swap )
 
             sdate = envint( 'CTM_STDATE', 'Scenario Start (YYYYJJJ)', 0, status )
             stime = envint( 'CTM_STTIME', 'Scenario Start (HHMMSS)', 0, status )
@@ -574,7 +608,7 @@ C Arguments:
          integer, intent( in ) :: jtime      ! current model time, coded HHMMSS
          integer, intent( in ) :: tstep      ! output time step
          integer, intent( in ) :: ndust_var
-         type( diag_type ), intent( in ) :: dust_var( ndust_var )
+         type( diag_type ), intent( in ) :: dust_var( : )
 
 C Local variables:
          character( 16 ) :: pname = 'OPDUST_EMIS'
@@ -1303,6 +1337,18 @@ C Then reset the emissions array and local write counter.
                end if
                call nextime( mdate, mtime, tstep( 1 ) )
 
+#ifdef verbose_wbdust
+               sdiagv = sdiagv / float( wstep )   ! array assignment
+               write( logdev,2015 ) jdate, jtime
+               do v = 1, ndust_diag
+                  if ( diagnm( v )%var(1:4) .ne. 'ANUM' ) then
+                     write( logdev,2019 ) v, diagnm( v )%var, sdiagv( v )
+                  else
+                     write( logdev,2023 ) v, diagnm( v )%var, sdiagv( v )
+                  end if
+               end do
+               sdiagv = 0.0   ! array assignment
+#endif
                do v = 1, ndust_diag
                   do r = 1, my_nrows
                      do c = 1, my_ncols
@@ -1320,18 +1366,6 @@ C Then reset the emissions array and local write counter.
                write( logdev,'( /5x, 2( a, 1x ), i8, ":", i6.6 )' )
      &               'Timestep written to CTM_DUST_EMIS_1',
      &               'for date and time', mdate, mtime
-#ifdef verbose_wbdust
-               sdiagv = sdiagv / float( wstep )   ! array assignment
-               write( logdev,2015 ) jdate, jtime
-               do v = 1, ndust_diag
-                  if ( diagnm( v )%var(1:4) .ne. 'ANUM' ) then
-                     write( logdev,2019 ) v, diagnm( v )%var, sdiagv( v )
-                  else
-                     write( logdev,2023 ) v, diagnm( v )%var, sdiagv( v )
-                  end if
-               end do
-               sdiagv = 0.0   ! array assignment
-#endif
                wstep = 0
                dustbf = 0.0   ! array assignment
             end if   !  time to write

@@ -120,7 +120,7 @@ MODULE mcipparm
 !           08 Sep 2015  Updated release stamp.  (T. Spero)
 !           17 Sep 2015  Changed IFMOLACM to IFMOLPX.  Updated release stamp.
 !                        (T. Spero)
-!           06 Nov 2015  Updated release stamp.  (T. Spero)
+!           20 Jun 2017  Updated release stamp.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE m3utilio, ONLY: mxdesc3
@@ -242,7 +242,7 @@ MODULE mcipparm
 
   CHARACTER(LEN=80)                 :: fdesc      ( mxdesc3 )
   CHARACTER(LEN=16),  PARAMETER     :: progname   = 'MCIP'
-  CHARACTER(LEN=10),  PARAMETER     :: vdate      = '11/06/2015'
-  CHARACTER(LEN=8),   PARAMETER     :: ver        = 'V4.3'
+  CHARACTER(LEN=10),  PARAMETER     :: vdate      = '06/23/2017'
+  CHARACTER(LEN=8),   PARAMETER     :: ver        = 'V4.4'
 
 END MODULE mcipparm

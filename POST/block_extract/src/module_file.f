@@ -14,7 +14,6 @@ C*************************************************************************
 
       INTEGER N_M3FILES                     ! No. of input Models-3 files
 
-!      INTEGER, PARAMETER :: MXM3FLS = 10    ! Max no. of input
       INTEGER, PARAMETER :: MXM3FLS = 99    ! Max no. of input
 
       CHARACTER*16  M3_FLNAME( MXM3FLS )    ! Names of Models-3 file
@@ -36,14 +35,10 @@ C
 C  REVISION HISTORY: Prototype created by Jerry Gipson, July, 1999
 C
 C*************************************************************************
+         USE M3UTILIO
          USE ENV_VARS
 
          IMPLICIT NONE
-
-C..INCLUDES:
-         INCLUDE 'PARMS3.EXT'     ! IOAPI parameters
-         INCLUDE 'FDESC3.EXT'     ! IOAPI file description
-         INCLUDE 'IODECL3.EXT'    ! IOAPI declarations
 
 C..ARGUMENTS: None
 

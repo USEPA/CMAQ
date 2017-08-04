@@ -1,5 +1,5 @@
 
-      PROGRAM BLOCK_TSERIES
+      PROGRAM BLOCK_EXTRACT
 
 C**********************************************************************
 C
@@ -13,6 +13,7 @@ C
 C  REVISION HISTORY: Created by Jerry Gipson, September, 2000
 C
 C**********************************************************************
+      USE M3UTILIO
       USE ENV_VARS
       USE M3FILES
       USE GRID_DATA
@@ -20,11 +21,6 @@ C**********************************************************************
 
 
       IMPLICIT NONE 
-
-C..INCLUDES:  
-      INCLUDE 'PARMS3.EXT'     ! IOAPI parameters
-      INCLUDE 'FDESC3.EXT'     ! IOAPI file description
-      INCLUDE 'IODECL3.EXT'    ! IOAPI declarations
       
 C..ARGUMENTS:
 

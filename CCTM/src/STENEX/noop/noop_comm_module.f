@@ -34,7 +34,7 @@ C
 C   Orginal version: 11/05/99 by David Wong
 C --------------------------------------------------------------------------
 
-	module noop_comm_module
+       module noop_comm_module
 
         implicit none
 
@@ -59,11 +59,11 @@ C                    11/05/99 by David Wong
 C                      -- recode using F90 syntax
 C --------------------------------------------------------------------------
 
-	subroutine noop_pe_comm1 (data, dispstr, dirstr, str)
+        subroutine noop_pe_comm1 (data, dispstr, dirstr, str)
 
-	implicit none
+        implicit none
 
-	real, intent(in) :: data(:)
+        real, intent(in) :: data(:)
         character (len = 16), intent(in) :: dirstr
         character (len = 12), intent(in) :: dispstr
         character (len = *), optional, intent(in) :: str
@@ -82,9 +82,9 @@ C                    11/05/99 by David Wong
 C                      -- recode using F90 syntax
 C --------------------------------------------------------------------------
 
-	subroutine noop_pe_comm2 (data, dispstr, dirstr, str)
+        subroutine noop_pe_comm2 (data, dispstr, dirstr, str)
 
-	implicit none
+        implicit none
 
         real, intent(in) :: data(:, :)
         character (len = 16), intent(in) :: dirstr
@@ -105,9 +105,9 @@ C                    11/05/99 by David Wong
 C                      -- recode using F90 syntax
 C --------------------------------------------------------------------------
 
-	subroutine noop_pe_comm2e (data, dispstr, dirstr, flag, str)
+        subroutine noop_pe_comm2e (data, dispstr, dirstr, flag, str)
 
-	implicit none
+        implicit none
 
         real, intent(in) :: data(:, :)
         character (len = 16), intent(in) :: dirstr
@@ -129,16 +129,16 @@ C                    11/05/99 by David Wong
 C                      -- recode using F90 syntax
 C --------------------------------------------------------------------------
 
-	subroutine noop_pe_comm3 (data, dispstr, dirstr, str)
+        subroutine noop_pe_comm3 (data, dispstr, dirstr, str)
 
-	implicit none
+        implicit none
 
         real, intent(in) :: data(:, :, :)
         character (len = 16), intent(in) :: dirstr
         character (len = 12), intent(in) :: dispstr
         character (len = *), optional, intent(in) :: str
 
-	end subroutine noop_pe_comm3 
+        end subroutine noop_pe_comm3 
 
 C --------------------------------------------------------------------------
 C Purpose:
@@ -152,9 +152,9 @@ C                    11/05/99 by David Wong
 C                      -- recode using F90 syntax
 C --------------------------------------------------------------------------
 
-	subroutine noop_pe_comm3e (data, dispstr, dirstr, flag, str)
+        subroutine noop_pe_comm3e (data, dispstr, dirstr, flag, str)
 
-	implicit none
+        implicit none
 
         real, intent(in) :: data(:, :, :)
         character (len = 16), intent(in) :: dirstr
@@ -162,7 +162,7 @@ C --------------------------------------------------------------------------
         integer, intent(in) :: flag
         character (len = *), optional, intent(in) :: str
 
-	end subroutine noop_pe_comm3e 
+        end subroutine noop_pe_comm3e 
 
 C --------------------------------------------------------------------------
 C Purpose:
@@ -176,15 +176,15 @@ C                    11/05/99 by David Wong
 C                      -- recode using F90 syntax
 C --------------------------------------------------------------------------
 
-	subroutine noop_pe_comm4 (data, dispstr, dirstr, str)
+        subroutine noop_pe_comm4 (data, dispstr, dirstr, str)
 
-	implicit none
+        implicit none
 
         real, intent(in) :: data(:, :, :, :)
         character (len = 16), intent(in) :: dirstr
         character (len = 12), intent(in) :: dispstr
         character (len = *), optional, intent(in) :: str
 
-	end subroutine noop_pe_comm4 
+        end subroutine noop_pe_comm4 
 
         end module noop_comm_module

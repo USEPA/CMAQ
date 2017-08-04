@@ -40,7 +40,7 @@ C se_grid1_map  -- mapping info of grid 1
 C se_grid2_map  -- mapping info of grid 2
 C --------------------------------------------------------------------------
 
-	module se_reconfig_grid_info_ext
+        module se_reconfig_grid_info_ext
 
           integer, allocatable, save, target :: se_reconfig_grid_send_ind(:,:,:)
           integer, allocatable, save, target :: se_reconfig_grid_recv_ind(:,:,:)

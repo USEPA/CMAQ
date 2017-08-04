@@ -166,10 +166,10 @@ C...compute start time data and frequency of annual cycle considering leap year
 
             STDATE = MDATE
             STTIME = MTIME
-            STRTHR = FLOAT( MTIME / 10000 )
+            STRTHR =  MTIME / 10000
             JYEAR  = FLOAT( MDATE / 1000 )   !   Check this more carefully
 
-            IF ( MOD( JYEAR, 4.0 ) .EQ. 0 ) THEN
+            IF ( MOD( JYEAR, 4.0 ) .EQ. 0.0 ) THEN
                JYFREQ = 2.0 * PI / 366.0
             ELSE
                JYFREQ = 2.0 * PI / 365.0
@@ -703,11 +703,11 @@ C...Read & Interpolate SNOCOV
 
 C...Calculate current hour in GMT and julian day
 
-            CURRENT_HOUR = STRTHR
-     &                   + FLOAT( SECSDIFF( STDATE, STTIME, MDATE, MTIME ) )
+            CURRENT_HOUR = REAL( STRTHR, 4 )
+     &                   + REAL( SECSDIFF( STDATE, STTIME, MDATE, MTIME ), 4 )
      &                   / 3600.0
 
-            JULIAN_DAY   = FLOAT( MOD( MDATE, 1000 ) )
+            JULIAN_DAY   = REAL(MOD( MDATE, 1000 ), 4 )
 
 C...Calculate cosines of the zenith angles
 

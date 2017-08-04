@@ -162,7 +162,7 @@ C Back substitution:
 
 C Update concentrations
           DO K = KB, CLTOP
-            VCI( K,S ) = UI( K )
+            VCI( K,S ) = REAL( UI( K ), 4 )
           END DO
 
 1000    CONTINUE   ! end loop for species

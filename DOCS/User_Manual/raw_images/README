@@ -1,0 +1,10 @@
+The raw images are OmniGraffle documents. It should be straightforward to copy objects so that consistent formatting is used when creating new images. All images are on a white rectangle of a standard size. This allows the images to be exported at standard resolutions for PDF and HTML use.
+
+Exporting the images
+----
+Select the white background rectangle of the desired figure.
+Choose File->Export... 
+Set Format to "JPEG bitmap image".
+Set the Export Area to "Current Selection" and then switch it to "Region". This will set the region to match the selected area.
+For PDF images, set Bitmap Resolution to 300 dots per inch. For HTML images, set Bitmap Resolution to 72 dots per inch.
+The JPEG images are stored in /afs/isis/depts/cep/emc/proj/smoke/docs/manual/current/xml/images/ by chapter.

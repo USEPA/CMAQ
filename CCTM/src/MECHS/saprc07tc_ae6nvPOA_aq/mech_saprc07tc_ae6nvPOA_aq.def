@@ -93,6 +93,9 @@
 ! 
 ! 08/27/15 B.Hutzell update coefficients for ozone loss based on a parameterization 
 ! of marine halogen chemistry. Their changes recommended by G. Sarwar on 06/25/15
+! 05-25-17 B.Hutzell
+!   1. updated the oligomerization reactions to be consistent with the 
+!      saprc07tic_ae6_aq mechanism.
 
 SAPRC07TC_AE6NVPOA_AQ 
 

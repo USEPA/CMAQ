@@ -1,33 +1,26 @@
-# Updates to the OMI data file 
-    
+# Updates to the OMI data file
+
 **Author/P.O.C.:**, [William T. Hutzell](mailto:hutzell.bill@epa.gov), Computational Exposure Division, U.S. EPA    
-    
+
 ## Brief Description
 
-The changes update the total OMI ozone column data used to calculate photolysis rates and to better inform when the
-simulated troposhere ozone column exceeds the OMI column. New data is added that has higher (daily) temporal resolution
-of the total ozone column and replaces missing values on a given date with values from the last available date.
-Previously, the OMI file denoted missing values by negative one. The file's name also changed to reflect the full
-calendar years covered.  
+Two changes to CMAQv5.2 are described here. First, the total OMI ozone column data that are used to calculate photolysis rates are changed. New data have higher (daily) temporal resolution of the total ozone column. Second, the OMI file in prior versions of CMAQ denoted missing values by negative one (-1). The new method, however, replaces missing values on a given date with values from the last available date. The file's name was also changed to reflect the full calendar years covered.
 
-This update also modifies the error messages when the simulated troposhere ozone column exceeds the OMI column. The new
-message states the OMI and Modeled Troposhere Ozone Columns.
+This update also modifies the error messages when the simulated tropospheric ozone column exceeds the OMI column.
 
 Note that this update also includes earlier changes to **phot/inline/CSQY_DATA.F**. It adds to number cases for pressure
 and temperature corrections to quantum yields. The changes were added for future developments in photochemical
 mechanisms such as using CRI and MCM mechanisms.    
-    
+
 ## Significance and Impact
-    
-The change replaces the file OMI.dat with OMI_1979_to_2015.dat so the user has to change the value of **OMI** enviroment 
-variable in their run script.
-    
-Test simulations during January and July 2011 show the mean change in ozone predictions less than 1 ppbV but changed hourly
-predictions up to plus or minus 4 ppbV at isolated locations. Analysis indicates that changes in O1D production were the
-cause via its resultant effect on OH concentrations.  
-    
+
+The change replaces the file OMI.dat with OMI_1979_to_2015.dat so the user has to change the value of the **OMI** environment variable in the run script.
+
+Test simulations during January and July 2011 showed the mean  in ozone predictions changed less than 1 ppbV. However, hourly predictions changed
+by up to plus or minus 4 ppbV at isolated locations. Analysis indicated that changes in O1D production caused changes in OH concentrations.  
+
 ## Affected Files:
-    
+
 aero/aero6/SOA_DEFN.F  
 phot/inline/CSQY_DATA.F  
 phot/inline/OMI.dat (deleted)  
@@ -43,12 +36,12 @@ None
 
 -----
 ## Internal Records:
-    
+
 ### Relevant Pull Requests:
   [PR #100](https://github.com/USEPA/CMAQ_Dev/pull/100)
 
 ### Commit IDs:
-    
+
 c6bf48c7aa3498d9de58da2322c8ae5ea2e3fe83  
 d5312ebd925a5fd2cb2d0b3f79ecca39702107f7  
 304492d7d0a45c9bad21f566fc9f92ecd93af8ed  
@@ -77,4 +70,3 @@ b0734ea99b51f07b9d15edb0bfc48839c72fbc16
 dc098cd364b19629e64733e1f006d89803eea843  
 6a7bb8972de7350332da1bd2246eeb7708addfee  
 7f07f4f15f5e1b85459530d782faf2d061fe56bb  
-    

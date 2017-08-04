@@ -8,9 +8,12 @@ C  PRECONDITIONS: None
 C 
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by Jerry Gipson, September, 2000
-C                   
+C  REVISION HISTORY: 
+C      Created by Jerry Gipson, September, 2000
+C      Modified by Chris Nolte, June 2017 to change the way variable name
+C         consistency is checked across multiple CTM files.             
 C*************************************************************************
+      USE M3UTILIO
       USE ENV_VARS
       USE M3FILES
       USE GRID_DATA
@@ -18,17 +21,11 @@ C*************************************************************************
 
       IMPLICIT NONE     
 
-C..INCLUDE FILES:
-      INCLUDE 'PARMS3.EXT'     ! IOAPI parameters
-      INCLUDE 'FDESC3.EXT'     ! IOAPI file description
-      INCLUDE 'IODECL3.EXT'    ! IOAPI declarations
-
 C..ARGUMENTS: NONE
 
 C..PARAMETERS: NONE
 
 C..EXTERNAL FUNCTIONS:
-      INTEGER INDEX1          ! Get index on string in a list of strings
       INTEGER TRIMLEN         ! Get last non-blank character pos in string
 
 C..SAVED LOCAL VARIABLES: NONE
@@ -46,25 +43,6 @@ C**********************************************************************
 
       LERROR = .FALSE.
 
-
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c  Check to see that requested variable is on all files
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      DO N = 1, N_M3FILES
-
-         IF( .NOT. DESC3 ( M3_FLNAME( N ) ) ) THEN
-            MSG = 'Could not read DESC of  ' // M3_FLNAME( N ) 
-     &         // ' file'
-            CALL M3ERR( PNAME, 0, 0, MSG, .TRUE. )
-         ENDIF
-
-         IF( INDEX1( VNAME, NVARS3D, VNAME3D ) .EQ. 0 ) THEN
-            WRITE( LOGUNIT, 94445 ) VNAME( 1 : TRIMLEN( VNAME ) ),
-     &                              M3_FLNAME( N )
-            LERROR = .TRUE.
-         ENDIF
-
-      ENDDO
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Set default column, row & level indices

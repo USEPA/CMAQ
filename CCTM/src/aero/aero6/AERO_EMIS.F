@@ -570,6 +570,13 @@ C *** Map windblown dust emission species
                      IF ( IDX .NE. 0 ) THEN
                         EM_MAP( IDX,N ) = INDEX1( AEROSPC( IDX )%NAME( N ), N_AE_EMIS, AE_EMIS )
                         DUST_MAP( IDX,N ) = S
+                     ELSE
+                        WRITE( XMSG, '(A43,A23,A8,A11,A62,A53)' ), 'Cannot find aerosol species to accomodate ',
+     &                         'dust emission species: ', DUST_SPC( S )%NAME( N ), '. You must ',
+     &                         'provide a prognostic variable for this species in both the AE ',
+     &                         'namelist and the AERO_DATA table in order to proceed.'
+                        CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+                        SUCCESS = .FALSE.
                      END IF
 #ifdef Verbose1
                   write( logdev,* ) 'dust_map: ', n, s, dust_map( idx,n ), aerospc( idx )%name( n )

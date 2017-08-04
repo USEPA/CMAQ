@@ -99,18 +99,22 @@
       Character( FLN_LEN ) :: lib_1
       Character( FLN_LEN ) :: lib_2
       Character( FLN_LEN ) :: lib_3
+      Logical              :: l_lib_3
+      Character( FLN_LEN ) :: lib_4
 
       Character( FLN_LEN ) :: fstd
       Character( FLN_LEN ) :: dbg
       
 ! compilers and flags
       Character( FLN_LEN ) :: f_compiler   ! Fortran compiler
+      Character( FLN_LEN ) :: f_compiler_path ! Fortran compiler path
       Character( FLN_LEN ) :: f_flags      ! .f, .F
       Character( FLN_LEN ) :: Fflags       ! .F
       Character( FLN_LEN ) :: F90flags     ! .F90
       Character( FLN_LEN ) :: f90_flags    ! .f90, .F90
 
       Character( FLN_LEN ) :: c_compiler   ! c compiler
+      Character( FLN_LEN ) :: c_compiler_path   ! c compiler path
       Character( FLN_LEN ) :: c_flags
 
       Character( FLN_LEN ) :: cpp          ! pre_compiler
@@ -133,6 +137,13 @@
       Character( FLD_LEN ) :: ioapi
       Character( FLD_LEN ) :: netcdf
       Character( FLD_LEN ) :: mpich
+
+! library locations
+      Character( FLD_LEN ) :: ioapi_mod_dir
+      Character( FLD_LEN ) :: ioapi_incl_dir
+      Character( FLD_LEN ) :: ioapi_lib_dir
+      Character( FLD_LEN ) :: netcdf_lib_dir
+      Character( FLD_LEN ) :: mpi_lib_dir
 
 ! misc module number for local files
       Integer :: miscMod
@@ -168,10 +179,11 @@
       n_includes = 0
       n_modules = 0
       miscMod = 0
+      l_lib_3 = .FALSE.
 
       model = 'a.out'
 
-      f_compiler = 'Ifort'
+      f_compiler = 'mpiifort'
       c_compiler = 'cc'
       cpp = ' '
       linker = ' '
@@ -290,11 +302,19 @@
         End If
 
         If ( key .Eq. 'LIB_3' ) Then
+          l_lib_3 = .TRUE.
           lib_3 = fields(2)
           If ( verbose ) Write( *, '("LIB_3 set to ",a)' ) Trim( lib_3 )
           Cycle
         End If
+ 
+        If ( key .Eq. 'LIB_4' ) Then
+          lib_4 = fields(2)
+          If ( verbose ) Write( *, '("LIB_4 set to ",a)' ) Trim( lib_4 )
+          Cycle
+        End If
 
+ 
 ! check for Fortran compilers
         If ( key .Eq. 'F_COMPILER' ) Then
           f_compiler = fields(2)
@@ -436,12 +456,12 @@
 ! set compilers to full path names
       If ( f_compiler(1:1) .Ne. '/' ) Then
         Call which( f_compiler, field, status )
-        If ( status .Eq. 0 ) f_compiler = field
+        If ( status .Eq. 0 ) f_compiler_path = field
       End If 
 
       If ( c_compiler(1:1) .Ne. '/' ) Then
         Call which( c_compiler, field, status )
-        If ( status .Eq. 0 ) c_compiler = field
+        If ( status .Eq. 0 ) c_compiler_path = field
       End If 
 
 ! set defaults
