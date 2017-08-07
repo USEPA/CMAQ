@@ -53,6 +53,10 @@
 !C                         * implemented a bug fix for determining 
 !C                           LASTTIC base on accumulation of time step, TSTEP(2)
 !C                         * called SUBHFILE only once to improve code efficiency
+!C    02 Aug 2017 D. Wong: In subroutine GET_LTNG: 
+!C                         * removed block of code that computes CDATE and CTIME
+!C                         * replaced CDATE and CTIME with JDATE and JTIME, respectively 
+!C                           when calling INTERPX
 !C----------------------------------------------------------------------
 
       IMPLICIT NONE
@@ -119,7 +123,9 @@
       INTEGER, SAVE    :: GXOFF, GYOFF   ! global origin offset from file
       INTEGER, SAVE    :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
 
-      INTEGER :: FILE_TSTEP
+      INTEGER :: LIGHTNING_FILE_TSTEP, 
+     &           LIGHTNING_FILE_SDATE,
+     &           LIGHTNING_FILE_STIME
 
       CONTAINS
 
@@ -286,21 +292,24 @@ C        INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
      &                    'Enter name for gridded met input file',
      &                    FSREAD3, 'MET_CRO_2D', PNAME )
 !C Read description of normalized emissions file
-            IF ( .NOT. DESC3( RNAME ) ) THEN
-               XMSG = 'Could not get description of file "'
-     &              // TRIM( RNAME ) // '"'
-               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-               SUCCESS = .FALSE.; RETURN
-            END IF
-
-            FILE_TSTEP = TIME2SEC ( TSTEP3D )
-
             IF(NLDNSTRIKE) THEN
                   XMSG = 'Using hourly NLDN Strike data'
                   CALL M3MSG2( XMSG )
                   ANAME = PROMPTMFILE(
      &                    'Enter name for NLDN STRIKE Parameters',
      &                    FSREAD3, 'NLDN_STRIKES', PNAME )
+
+               IF ( .NOT. DESC3( ANAME ) ) THEN
+                  XMSG = 'Could not get description of file "'
+     &                 // TRIM( ANAME ) // '"'
+                  CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+                  SUCCESS = .FALSE.; RETURN
+               END IF
+
+               LIGHTNING_FILE_TSTEP = TIME2SEC ( TSTEP3D )
+               LIGHTNING_FILE_SDATE = SDATE3D
+               LIGHTNING_FILE_STIME = STIME3D
+
             ELSE
                  XMSG = 'Using derived parameters for KF scheme '
                  CALL M3MSG2( XMSG )
@@ -572,7 +581,6 @@ C        INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
 
          INTEGER, SAVE :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2
 
-         INTEGER               :: CDATE, CTIME
          INTEGER               :: CJDATE
          INTEGER               :: DTSTEP
          CHARACTER( 7 )        :: SJDATE
@@ -608,22 +616,12 @@ C statement function for ERF approximation
             WRITE( SJDATE, '(I7)') JDATE
             READ( SJDATE, '(4X, I3)') CJDATE
 
-            IF ( .NOT. CURRSTEP( JDATE, JTIME, SDATE3D, STIME3D, TSTEP3D,
-     &                           CDATE, CTIME ) ) THEN
-               XMSG = 'Cannot get step-starting date and time'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-            END IF
-
-            WRITE( LOGDEV,'(5X,A,I7.7,1X,I6.6)')'LNOx production step-starting date and time: ',
-     &      CDATE, CTIME
-
-            CALL NEXTIME ( CDATE, CTIME, TSTEP3D )  ! set mdate:mtime to Cthe hour
 !C read in the hourly lightning strike file
 #ifdef twoway
             IF(.NOT. NLDNSTRIKE ) THEN
               IF ( .NOT. INTERPX( RNAME, RC_NAME, PNAME,
      &                       STRTCOLMC2,ENDCOLMC2,STRTROWMC2,ENDROWMC2, 1,1,
-     &                       CDATE, CTIME, LTNG_RC) ) THEN
+     &                       JDATE, JTIME, LTNG_RC) ) THEN
                      XMSG = 'Could not read LTNG_RC from ' // TRIM(RNAME)
                      CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
               END IF
@@ -632,7 +630,7 @@ C statement function for ERF approximation
             END IF
             IF ( .NOT. INTERPX( RNAME, 'PRSFC', PNAME,
      &                       STRTCOLMC2,ENDCOLMC2,STRTROWMC2,ENDROWMC2, 1,1, 
-     &                       CDATE, CTIME, LTNG_PRSFC ) ) THEN
+     &                       JDATE, JTIME, LTNG_PRSFC ) ) THEN
                      XMSG = 'TwoWay: Could not extract PRSFC from ' // TRIM(RNAME)
                      WRITE( LOGDEV,'(5X,A,I7.7,1X,I6.6)')'For ',
      &               LDATE, LTIME
@@ -795,7 +793,7 @@ C statement function for ERF approximation
 !C Determine the time to read and/or write the hourly files
             NTICS = NTICS + 1
             TOT_TSTEP = TOT_TSTEP + TIME2SEC( TSTEP( 2 ) ) 
-            LASTTIC = TOT_TSTEP .GE. FILE_TSTEP
+            LASTTIC = TOT_TSTEP .GE. LIGHTNING_FILE_TSTEP
             IF ( LASTTIC ) THEN
                MTICS = NTICS
                NTICS = 0
