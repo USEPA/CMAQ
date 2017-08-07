@@ -36,7 +36,7 @@ WDEP_NH3           ,kg/ha     ,NH3[2]
 DDEP_SO2           ,kg/ha     ,SO2[1]
 DDEP_O3            ,kg/ha     ,O3[1]
 WDEP_O3            ,kg/ha     ,O3[2]
-WDEP_PNA           ,kg/ha     ,PNA[2]   ! Peroxy-Nitric Acid
+WDEP_PNA           ,kg/ha     ,PNA[2]   
 
 !---------------------------------------------------!
 !------------- Aerosol Deposition ------------------!
@@ -94,7 +94,7 @@ TDEP_ANAJK         ,kg/ha     ,DDEP_ANAJK[0] + WDEP_ANAJK[0]
 DDEP_ACLJ          ,kg/ha     ,ACLJ[1]
 DDEP_ACLK          ,kg/ha     ,ACLK[1]
 DDEP_ACLJK         ,kg/ha     ,ACLJ[1] + ACLK[1]
-WDEP_TCL           ,kg/ha     ,0.972*HCL[2]+0.435*CLNO2[2] + ACLJ[2] + ACLK[2]
+WDEP_TCL           ,kg/ha     ,0.972*HCL[2]+CL2[2] + ACLJ[2] + ACLK[2] + 0.6758*HOCL[1]
 TDEP_CL            ,kg/ha     ,DDEP_ACLJK[0] + WDEP_TCL[0]
 
 !! Calcium

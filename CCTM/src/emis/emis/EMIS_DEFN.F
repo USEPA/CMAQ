@@ -843,6 +843,7 @@ C Find Upper Bound on Number of Possible Species
          NDSTSPC = 0
          NTRSPC  = 0
          NARSPC  = 0
+         NPTSPC  = 0
 
          ! Gridded Area and Tracer Sources 
          IF ( N_TR_EMIS .GT. 0 ) THEN

@@ -24,7 +24,6 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
        SUBROUTINE CHEM( CGRID, JDATE, JTIME, TSTEP )
-soli-restore_cb05tucl_mechanism
 C**********************************************************************
 C
 C  FUNCTION: Driver subroutine for Euler Backward Iterative solver
