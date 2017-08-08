@@ -4,9 +4,8 @@ CMAQv5.2 Known Issues
 This directory contains descriptions and solutions for Known Issues in the [Community Multiscale Air Quality (CMAQ)](http://www.epa.gov/cmaq) modeling system.
 The following issues have been recognized for CMAQv5.2
 
-## [Example] Problematic Bug in XXX Module
-*Issue ID: CMAQv5.2-i1*  
-Date: 2017-8-8
+## [Example] *CMAQv5.2-i1:* Problematic Bug in XXX Module
+Date: 2017-8-8  
 Contact: Developer A
 
 ### Description  
@@ -26,9 +25,8 @@ should be changed to:
 different code
 ```
 
-## [Example] Unstable Solver for Calculating AAA
-*Issue ID: CMAQv5.2-i2*  
-Date: 2017-8-8
+## [Example] *CMAQv5.2-i2:* Unstable Solver for Calculating AAA
+Date: 2017-8-8  
 Contact: Developer B
 
 ### Description  
