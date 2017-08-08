@@ -4,40 +4,39 @@ CMAQv5.2 Known Issues
 This directory contains descriptions and solutions for Known Issues in the [Community Multiscale Air Quality (CMAQ)](http://www.epa.gov/cmaq) modeling system.
 The following issues have been recognized for CMAQv5.2
 
-## [Example] Problematic Bug in Transport Module
+## [Example] Problematic Bug in XXX Module
 *Issue ID: CMAQv5.2-i1*  
 Date: 2017-8-8
-Contact: David Wong
+Contact: Developer A
 
 ### Description  
-An error was discovered in an advection routine, y_ppm, which leads to species not being transported correctly between neighboring decomposition domains. The most problematic situations arise when...
+EXAMPLE: An error was discovered in an XXX routine, which leads... The most problematic situations arise when...
 
 ### Scope and Impact
-This issue affects all species but only for high wind speeds when transport...
+This issue affects YYY species but only under these conditions....
 
 
 ### Solution
-In y_ppm.F, line XXX:
+In XXX.F, line ZZZ:
 ```
 some code
 ```
-should be chaged to:
+should be changed to:
 ```
 different code
 ```
 
-## [Example] Unstable Solver for Organic Aerosol Partitioing
+## [Example] Unstable Solver for Calculating AAA
 *Issue ID: CMAQv5.2-i2*  
 Date: 2017-8-8
-Contact: Havala Pye
+Contact: Developer B
 
 ### Description  
-The bisection solver that calculates the partitioning of organic aerosol relies on precise numerics when there is very little organic mass in the system. Thus, the precision of the input bounds to the algorithm becomes significant, and needs to be improved...
+The BBB solver that calculates AAA relies on precise numerics when there is very little mass in the system. Thus, the precision of the input bounds to the algorithm becomes significant, and needs to be improved...
 
 ### Scope and Impact
-This issue affects onle organic aerosol compounds at extremely low concetrations (below 1e-4 ug m-3).
+This issue affects only compounds at extremely low concentrations (below CCC ug m-3).
 
 ### Solution
-Because of extensive line changes we provide an update to SOA_DEFN.F in the folder named CMAQv5.2-i2
+Because of extensive line changes we provide an update to BBB.F in the folder named CMAQv5.2-i2
  
-
