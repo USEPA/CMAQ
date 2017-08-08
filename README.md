@@ -34,6 +34,7 @@ Release notes and Code documentation are included within this repository (they a
 
 [CMAQv5.2 Documentation](DOCS/README.md)   
 [CMAQv5.2 Release Notes](CCTM/docs/Release_Notes/README.md)   
+[CMAQv5.2 Known Issues](CCTM/docs/Known_Issues/README.md)   
 
 ## CMAQ Test Cases
 Benchmark/tutorial input and output data for each CMAQ release version are available from the CMAS Center Software Clearinghouse. From http://www.cmascenter.org, select Download -> Software -> CMAQ and choose the version to get the tutorial data.  
