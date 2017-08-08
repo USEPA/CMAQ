@@ -29,7 +29,7 @@ different code
 ## [Example] Unstable Solver for Organic Aerosol Partitioing
 *Issue ID: CMAQv5.2-i2*  
 Date: 2017-8-8
-Contact: David Wong
+Contact: Havala Pye
 
 ### Description  
 The bisection solver that calculates the partitioning of organic aerosol relies on precise numerics when there is very little organic mass in the system. Thus, the precision of the input bounds to the algorithm becomes significant, and needs to be improved...
