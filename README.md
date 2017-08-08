@@ -23,7 +23,7 @@ git clone -b 5.2 https://github.com/USEPA/CMAQ.git CMAQ_REPO
 ## CMAQ Repository Guide
 Source code and scripts are organized as follows:
 * **CCTM (CMAQ Chemical Transport Model):** code and scripts for running the 3D-CTM at the heart of CMAQ; also includes technical release notes for the release version of CMAQ.
-* **DOCS:** CMAQ User's Guide, developers guidance, and tutorials.
+* **DOCS:** CMAQ User's Guide, developers guidance, tutorials and known issues.
 * **PREP:** Data preprocessing tools for important input files like initial and boundary conditions, etc.
 * **POST:** Data postprocessing tools for aggregating and evaluating CMAQ output products (e.g. Combine, Site-Compare, etc)
 * **TUTORIALS:** Short tutorials provide examples of different CMAQ features.
@@ -34,7 +34,7 @@ Release notes and Code documentation are included within this repository (they a
 
 [CMAQv5.2 Documentation](DOCS/README.md)   
 [CMAQv5.2 Release Notes](CCTM/docs/Release_Notes/README.md)   
-[CMAQv5.2 Known Issues](CCTM/docs/Known_Issues/README.md)   
+[CMAQv5.2 Known Issues](DOCS/Known_Issues/README.md)   
 
 ## CMAQ Test Cases
 Benchmark/tutorial input and output data for each CMAQ release version are available from the CMAS Center Software Clearinghouse. From http://www.cmascenter.org, select Download -> Software -> CMAQ and choose the version to get the tutorial data.  
