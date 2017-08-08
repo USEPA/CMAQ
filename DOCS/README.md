@@ -10,3 +10,5 @@ The following documents are available for the CMAQ v5.2 release:
 
 - [Tutorials](Tutorials/README.md): A series of short tutorials provide practical examples of how to set up and run CMAQ. 
 
+- [Known Issues](Known_Issues/README.md): A comprehensive list of the issues that have been identified and solved, but not incorporated, in the current release version of CMAQ. Recommended solutions are provided with each issue entry.
+
