@@ -31,7 +31,7 @@
 
 #> Set the build directory if this was not set above 
 #> (this is where the CMAQ executable is located by default).
- if ( ! -e $BINDIR ) then
+ if ( ! $?BINDIR ) then
   setenv BINDIR $CMAQ_HOME/POST/combine/scripts/BLD_combine_${VRSN}_${compiler}
  endif
 
@@ -46,7 +46,7 @@
  setenv CCTMOUTDIR ${CMAQ_DATA}/output_CCTM_${APPL} #> CCTM Output Directory
  setenv POSTDIR    ${CMAQ_DATA}/POST                #> Location where combine file will be written
 
-  if ( ! -e $POSTDIR ) then
+  if ( ! $?POSTDIR ) then
 	  mkdir $POSTDIR
   endif
 
@@ -92,7 +92,7 @@
 
   #> Define name of combine output file to save hourly average concentration.
   #> A new file will be created for each month/year.
-   setenv OUTFILE ${POSTDIR}/COMBINE_ACONC_${APPL}_$MM$YYYY
+   setenv OUTFILE ${POSTDIR}/COMBINE_ACONC_${APPL}_$MM$YYYY.nc
 
   #> Define name of input files needed for combine program.
   #> File [1]: CMAQ conc/aconc file
@@ -100,9 +100,9 @@
   #> File [3]: CMAQ APMDIAG file
   #> File [4]: MCIP METCRO2D file
    setenv INFILE1 $CCTMOUTDIR/CCTM_ACONC_${APPL}_$YYYY$MM$DD.nc
-   setenv INFILE2 $METDIR/METCRO3D_$YY$MM$DD
-   setenv INFILE3 $CCTMOUTDIR/CCTM_APMDIAG_${APPL}_$YYYY$MM$DD
-   setenv INFILE4 $METDIR/METCRO2D_$YY$MM$DD
+   setenv INFILE2 $METDIR/METCRO3D_$YY$MM$DD.nc
+   setenv INFILE3 $CCTMOUTDIR/CCTM_APMDIAG_${APPL}_$YYYY$MM$DD.nc
+   setenv INFILE4 $METDIR/METCRO2D_$YY$MM$DD.nc
 
   #> Executable call:
    ${BINDIR}/${EXEC}
