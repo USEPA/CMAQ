@@ -16,12 +16,11 @@
 #> libraries using config.cmaq. Options: intel | gcc | pgi
  if ( ! $?compiler ) then
    setenv compiler intel 
-   setenv compilerVrsn 13.1
  endif
 
 #> Source the config.cmaq file to set the build environment
  cd ../..
- source ./config_cmaq.csh
+ source ./config_cmaq.csh $compiler
  cd CCTM/scripts
 
 #> Set General Parameters for Configuring the Simulation
@@ -34,11 +33,11 @@
 #> Define RUNID as any combination of parameters above or others. By default,
 #> this information will be collected into this one string, $RUNID, for easy
 #> referencing in output binaries and log files as well as in other scripts.
- setenv RUNID  ${VRSN}_${compiler}_${APPL}
+ setenv RUNID  ${VRSN}_${compilerString}_${APPL}
 
 #> Set the build directory (this is where the CMAQ executable
 #> is located by default).
- set BLD      = ${CMAQ_HOME}/CCTM/scripts/BLD_CCTM_${VRSN}_${compiler}
+ set BLD      = ${CMAQ_HOME}/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}
  set EXEC     = CCTM_${VRSN}.exe  
  cat $BLD/CCTM_${VRSN}.cfg; echo "    "; set echo
 
