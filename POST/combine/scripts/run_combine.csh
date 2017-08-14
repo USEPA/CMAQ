@@ -92,7 +92,7 @@
 
   #> Define name of combine output file to save hourly average concentration.
   #> A new file will be created for each month/year.
-   setenv OUTFILE ${POSTDIR}/COMBINE_ACONC_${APPL}_$MM$YYYY.nc
+   setenv OUTFILE ${POSTDIR}/COMBINE_ACONC_${APPL}_$YYYY$MM.nc
 
   #> Define name of input files needed for combine program.
   #> File [1]: CMAQ conc/aconc file
@@ -138,7 +138,7 @@
 
   #> Define name of combine output file to save hourly total deposition.
   #> A new file will be created for each month/year.
-   setenv OUTFILE ${POSTDIR}/COMBINE_DEP_${APPL}_$MM$YYYY
+   setenv OUTFILE ${POSTDIR}/COMBINE_DEP_${APPL}_$YYYY$MM
 
   #> Define name of input files needed for combine program.
   #> File [1]: CMAQ DRYDEP file
