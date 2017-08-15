@@ -26,7 +26,7 @@
 
 #> Set the build directory if this was not set above 
 #> (this is where the bldoverlay executable is located by default).
- if ( ! -e ${BINDIR} ) then
+ if ( ! $?BINDIR ) then
   setenv BINDIR ${CMAQ_HOME}/POST/block_extract/scripts/BLD_block_extract_${VRSN}_${compiler}
  endif
 
