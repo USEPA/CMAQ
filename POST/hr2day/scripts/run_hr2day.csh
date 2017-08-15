@@ -25,7 +25,7 @@
 
 #> Set the build directory if this was not set above 
 #> (this is where the executable is located by default).
- if ( ! -e ${BINDIR} ) then
+ if ( ! $?BINDIR ) then
   setenv BINDIR ${CMAQ_HOME}/POST/hr2day/scripts/BLD_hr2day_${VRSN}_${compiler}
  endif
 
