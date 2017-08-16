@@ -138,6 +138,9 @@
     endif
     cp POST/combine/scripts/bldit_combine.csh  $CMAQ_HOME/POST/combine/scripts/bldit_combine.csh
     cp POST/combine/scripts/run_combine.csh    $CMAQ_HOME/POST/combine/scripts/run_combine.csh
+    mkdir $CMAQ_HOME/POST/combine/scripts/spec_def_files
+    cp -L POST/combine/scripts/spec_def_files/SpecDef* $CMAQ_HOME/POST/combine/scripts/spec_def_files
+
  endif
 
 #===============================================================================
