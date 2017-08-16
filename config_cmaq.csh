@@ -192,9 +192,10 @@
  setenv PNETCDF_DIR $CMAQ_LIB/pnetcdf
  setenv IOAPI_DIR   $CMAQ_LIB/ioapi
 
+#> Create Symbolic Links to Libraries
  if ( ! -d $CMAQ_LIB ) mkdir -p $CMAQ_LIB
  if (   -e $MPI_DIR  ) rm -rf $MPI_DIR
-      ln -s $MPI_LIB_DIR $MPI_DIR
+     ln -s $MPI_LIB_DIR $MPI_DIR
  if ( ! -d $NETCDF_DIR )  mkdir $NETCDF_DIR
  if ( ! -e $NETCDF_DIR/lib ) ln -s $NETCDF_LIB_DIR $NETCDF_DIR/lib
  if ( ! -d $IOAPI_DIR ) then 
