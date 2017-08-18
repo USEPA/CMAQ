@@ -35,8 +35,8 @@ C     16 Jan 2007 J.Young: initial implementation
 C     16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C     30 Apr 2016 J.Young: add multiple fire source capability, in affiliation with
 C                          Yongtao Hu (Georgia Tech)
-C     22 Jun 2016 B.Murphy & J.Young: Added STKEMIS_TOO and FIREVAR_TOO to accomodate
-C                                     non-volatile POA mechanism
+C     22 Jun 2016 B.Murphy & J.Young: Added STKEMIS_TOO to accomodate
+C                                     semivolatile POA mechanism
 C-----------------------------------------------------------------------
 
       USE UDTYPES, ONLY: RARRY2, CARRY1
@@ -49,28 +49,14 @@ C-----------------------------------------------------------------------
 
       LOGICAL,        ALLOCATABLE, SAVE :: FIREFLAG( : )    ! which is the fire file?
 
-c     TYPE :: RARRY2
-c        REAL,    POINTER :: ARRY( :,: )
-c        INTEGER          :: LEN1, LEN2
-c     END TYPE RARRY2
-
-c     TYPE :: CARRY1
-c        CHARACTER( 16 ), POINTER :: ARRY( : )
-c        INTEGER                  :: LEN
-c     END TYPE CARRY1
-
       TYPE( RARRY2 ), ALLOCATABLE, SAVE :: STKEMIS( : )   ! stack emissions [mol/s]
       TYPE( RARRY2 ), ALLOCATABLE, SAVE :: STKEMIS_TOO( : )   ! stack emissions [mol/s]
       TYPE( CARRY1 ), ALLOCATABLE, SAVE :: STKSPC( : )    ! emitted species names
-      TYPE( RARRY2 ), ALLOCATABLE, SAVE :: FIREVAR( : )   ! fire variables, 2 assumed
-      TYPE( RARRY2 ), ALLOCATABLE, SAVE :: FIREVAR_TOO( : )   ! stack emissions [mol/s]
-      TYPE( CARRY1 ), ALLOCATABLE, SAVE :: FIRENAM( : )   ! fire variable names
+      TYPE( RARRY2 ), ALLOCATABLE, SAVE :: FIREVAR( : )   ! fire variables, just H-Flux
 
- !    INTEGER, PARAMETER                :: FGRPS = 1      ! assuming one fire sector
       INTEGER FGRPS
 
       INTEGER,        ALLOCATABLE, SAVE :: STKDATE( : )   ! src grp timestamp date
-!     INTEGER,        ALLOCATABLE, SAVE :: STKTIME( : )   ! src grp timestamp time
       INTEGER,        ALLOCATABLE, SAVE :: SYNCOFF( : )   ! src grp timestamp date offset
 
       CONTAINS
@@ -107,9 +93,6 @@ C-----------------------------------------------------------------------
          ALLOCATE ( STKDATE( NGRPS ), STAT = ASTAT )
          CALL CHECKMEM( ASTAT, 'STKDATE', PNAME )
 
-!        ALLOCATE ( STKTIME( NGRPS ), STAT = ASTAT )
-!        CALL CHECKMEM( ASTAT, 'STKTIME', PNAME )
-
          ALLOCATE ( SYNCOFF( NGRPS ), STAT = ASTAT )
          CALL CHECKMEM( ASTAT, 'SYNCOFF', PNAME )
 
@@ -127,11 +110,6 @@ C-----------------------------------------------------------------------
 
          ALLOCATE ( FIREVAR( FGRPS ), STAT = ASTAT )
          CALL CHECKMEM( ASTAT, 'FIREVAR', PNAME )
-         ALLOCATE ( FIREVAR_TOO( FGRPS ), STAT = ASTAT )
-         CALL CHECKMEM( ASTAT, 'FIREVAR_TOO', PNAME )
-
-         ALLOCATE ( FIRENAM( FGRPS ), STAT = ASTAT )
-         CALL CHECKMEM( ASTAT, 'FIRENAM', PNAME )
 
          DO N = 1, NGRPS
 
@@ -148,13 +126,14 @@ C-----------------------------------------------------------------------
             END IF
 
             STKDATE( N ) = SDATE3D
-!           STKTIME( N ) = STIME3D
             SYNCOFF( N ) = SECSDIFF( JDATE,JTIME, STKDATE( N ),JTIME )
             NSRC_EMIS( N ) = NROWS3D
             NVARS_EMIS( N ) = NVARS3D
             LEN1 = NSRC_EMIS( N )
             LEN2 = NVARS_EMIS( N )
             DO I = 1, LEN2
+               ! Use HFLUX to determine Fire sources in PT3D_DEFN via
+               ! the FIRENAM variable
                IF ( VNAME3D( I ) .EQ. 'HFLUX' ) FIREFLAG( N ) = .TRUE.
             END DO
             IF ( FIREFLAG( N ) ) THEN   ! subtract off 'HFLUX'
@@ -174,27 +153,17 @@ C-----------------------------------------------------------------------
             CALL CHECKMEM( ASTAT, 'STKSPC', PNAME )
 
             IF ( FIREFLAG( N ) ) THEN   ! subtract and save off 'HFLUX'
-               ALLOCATE ( FIREVAR( N )%ARRY( LEN1,NVARS_FIRE ), STAT = ASTAT )
-               ALLOCATE ( FIREVAR_TOO( N )%ARRY( LEN1,NVARS_FIRE ), STAT = ASTAT )
+               ALLOCATE ( FIREVAR( N )%ARRY( LEN1 ), STAT = ASTAT )
                CALL CHECKMEM( ASTAT, 'FIREVAR', PNAME )
-               ALLOCATE ( FIRENAM( N )%ARRY( NVARS_FIRE ), STAT = ASTAT )
-               CALL CHECKMEM( ASTAT, 'FIRENAM', PNAME )
                I = 0
                DO J = 1, NVARS3D
-                  IF ( VNAME3D( J ) .EQ. 'HFLUX' ) THEN
-                     ! Use HFLUX to determine Fire sources in PT3D_DEFN via
-                     ! the FIRENAM variable
-                     FIRENAM( N )%ARRY( 1 ) = VNAME3D( J )
-                  ELSE
+                  IF ( VNAME3D( J ) .NE. 'HFLUX' ) THEN
                      I = I + 1
                      STKSPC( N )%ARRY( I ) = VNAME3D( J )
                   END IF
                END DO
-               FIRENAM( N )%LEN = NVARS_FIRE
                FIREVAR( N )%LEN1 = LEN1
-               FIREVAR( N )%LEN2 = NVARS_FIRE
             ELSE
-!              STKSPC( N )%ARRY = VNAME3D   ! array
                DO J = 1, STKSPC( N )%LEN
                   STKSPC( N )%ARRY( J ) = VNAME3D( J )
                END DO

@@ -58,9 +58,6 @@ C-----------------------------------------------------------------------
       IMPLICIT NONE
 
       REAL,    ALLOCATABLE, SAVE :: VDEMIS( :,:,:,: ) ! total emissions array
-#ifdef verbose_emis_defn
-      real,    allocatable, save :: semis( :,:,: )
-#endif
 
       INTEGER,              SAVE :: N_SPC_EMIS ! global emissions species
       INTEGER,              SAVE :: EMLAYS     ! no. of emis integration layers
@@ -74,9 +71,6 @@ C-----------------------------------------------------------------------
       PUBLIC VDEMIS, N_SPC_EMIS, EMLAYS, EMLYRS, TRACSPC, AREASPC,  ! Variables
      &       EMIS_INIT, GET_EMIS, EMISCHK                           ! Routines
       
-#ifdef verbose_emis_defn
-      public semis
-#endif
       PRIVATE
                                            ! a 2d file if inline, otherwise a 3d file
       INTEGER, SAVE :: NEMIS_AE   ! no. of aero emis species
@@ -94,11 +88,6 @@ C-----------------------------------------------------------------------
       INTEGER, SAVE :: SDATE, STIME  ! scenario start date/time (beis)
       INTEGER       :: LDATE, LTIME  ! step start date/time (beis)
       INTEGER, SAVE :: NDATE, NTIME  ! step next date/time (beis)
-
-#ifdef verbose_emis_defn
-      character( 16 ), allocatable, save :: emis_spc( : ) ! global emis surrogates
-      integer,         allocatable, save :: emis_map( : )  ! name map to CGRID
-#endif
 
       CONTAINS
 
@@ -138,9 +127,6 @@ C Local Variables:
          CHARACTER( 80 ) :: VARDESC   ! env variable description
          CHARACTER( 120 ) :: XMSG = ' '
          INTEGER V, LOGDEV, STATUS
-#ifdef verbose_emis_defn
-         integer s
-#endif
 
 C-----------------------------------------------------------------------
 
@@ -156,6 +142,9 @@ C-----------------------------------------------------------------------
             DX1 = XCELL_GD        ! in m.
             DX2 = YCELL_GD        ! in m.
          END IF
+
+C Combined Gas Emssions Conversion Factor
+         CNVTE = CMLMR * CONVEM * MWAIR / ( DX1 * DX2 )
 
 C Initialize Online Biogenic Emissions
          IF ( .NOT. BEIS_INIT( JDATE, JTIME, TSTEP ) ) THEN
@@ -202,81 +191,6 @@ C Initialize Online Lightning NOx Emissions
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
-C Initialize Aerosol Emissions         
-         IF ( N_AE_SPC .GT. 0 ) THEN
-            WRITE( LOGDEV,'( /5X, A )' ) 'Aerosol Emissions Processing in '
-     &                                // 'Vertical diffusion ...'
-            NEMIS_AE = N_AE_EMIS  ! from CGRID_SPCS (originally, AE_EMIS.EXT)
-            CALL MAP_PMEMIS ( )   ! set up PM emitted species mapping
-         ELSE
-            NEMIS_AE = 0
-         END IF
-
-         PM_EMLYRS = EMLAYS   ! set PM_EMLYRS in AERO_EMIS module
-
-         IF ( .NOT. AERO_EMIS_INIT( JDATE, JTIME, TSTEP, NEMIS_AE ) ) THEN
-            XMSG = 'Failure initializing aerosol emissions module'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
-C Map Emissions Surrogates to Global Variables
-         N_SPC_EMIS = N_GC_EMIS
-     &              + NEMIS_AE
-     &              + N_NR_EMIS
-     &              + N_TR_EMIS
-
-#ifdef verbose_emis_defn
-         allocate ( emis_spc ( n_spc_emis+1 ),
-     &              emis_map ( n_spc_emis+1 ), stat = status )
-         if ( status .ne. 0 ) then
-            xmsg = 'emis_spc or emis_map memory allocation failed'
-            call m3warn ( pname, jdate, jtime, xmsg )
-            success = .false.; return
-         end if
-         emis_spc = ' '   ! array assignment
-         emis_map = 0     ! array assignment
-
-         s = 0
-         do v = 1, n_gc_emis
-            s = s + 1
-            emis_spc( s ) = gc_emis( v )
-            emis_map( s ) = gc_strt - 1 + gc_emis_map( v )
-         end do 
-         do v = 1, n_ae_emis
-            s = s + 1
-            emis_spc( s ) = ae_emis( v )
-            emis_map( s ) = ae_strt - 1 + ae_emis_map( v )
-         end do
-         do v = 1, n_nr_emis
-            s = s + 1
-            emis_spc( s ) = nr_emis( v )
-            emis_map( s ) = nr_strt - 1 + nr_emis_map( v )
-         end do
-         do v = 1, n_tr_emis
-            s = s + 1
-            emis_spc( s ) = tr_emis( v )
-            emis_map( s ) = tr_strt - 1 + tr_emis_map( v )
-         end do
-         do v = 1, n_spc_emis   ! debug
-            write( logdev,'(a,2i4,3x,a)' ) ' v, emis_map(v), emis_spc(v): ',
-     &                                       v, emis_map( v ), emis_spc( v )
-         end do
-#endif
- 
-C Combined Gas Emssions Conversion Factor
-         CNVTE = CMLMR * CONVEM * MWAIR / ( DX1 * DX2 )
-
-C Calculate Indices for Pointing Pollutant Types to Vector Bounds in
-C Master EArea Emissions Array
-         STRT_GC = 1
-         FINI_GC = N_GC_EMIS
-         STRT_AE = N_GC_EMIS + 1
-         FINI_AE = N_GC_EMIS + NEMIS_AE
-         STRT_NR = N_GC_EMIS + NEMIS_AE + 1
-         FINI_NR = N_GC_EMIS + NEMIS_AE + N_NR_EMIS
-         STRT_TR = N_GC_EMIS + NEMIS_AE + N_NR_EMIS + 1
-         FINI_TR = N_GC_EMIS + NEMIS_AE + N_NR_EMIS + N_TR_EMIS
- 
 C Initialize 3D Point Source Emissions 
 C (N_SPC_EMIS+1 serves as the null map for PTEM_MAP)
          IF ( .NOT. PT3D_INIT( N_SPC_EMIS, EMLAYS, JDATE, JTIME, TSTEP ) ) THEN
@@ -284,55 +198,42 @@ C (N_SPC_EMIS+1 serves as the null map for PTEM_MAP)
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
-         ALLOCATE ( VDEMIS( N_SPC_EMIS+1,EMLAYS,NCOLS,NROWS ),
-#ifdef verbose_emis_defn
-     &              semis( emlays,my_ncols,my_nrows ),
-#endif
-     &              STAT = STATUS )
+C Initialize Aerosol Emissions         
+         IF ( .NOT. AERO_EMIS_INIT( JDATE, JTIME, TSTEP, NEMIS_AE ) ) THEN
+            XMSG = 'Failure initializing aerosol emissions module'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+ 
+                   
+C Map the Emissions Species Available on the Input Files To the
+C Surrogates Identified by the User via the Namelists and Stop the model
+C or Print Warnings if Mistakes Are Made.
+         CALL EMIS_SPC_MAP( JDATE, JTIME )
+
+C Allocate Space for Master Emissions Computation
+         ALLOCATE ( VDEMIS( N_EMIS_SPC,EMLAYS,NCOLS,NROWS ),STAT = STATUS )
          IF ( STATUS .NE. 0 ) THEN
             XMSG = 'VDEMIS memory allocation failed'
             CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
             SUCCESS = .FALSE.; RETURN
          END IF
-
-         IF ( PT3DEMIS ) THEN
-            EMLYRS = 1
-         ELSE
-            EMLYRS = EMLAYS
-         END IF
-
-C Check the Emissions Species Available on the Input Files Against the
-C Surrogates Identified by the User via the Namelists and Stop the model
-C or Print Warnings if Mistakes Are Made.
-         EMISCHK = .TRUE.   ! Env Variable Default
-         CALL EMIS_SPC_CHECK( JDATE, JTIME )
-
-C Warn the User if there are No Emissions Species On Any File         
-         IF ( N_SPC_EMIS .LE. 0 ) THEN
-            XMSG = 'There are no emissions: VDEMIS is set to zero' ! below
-            CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-         END IF
-
+ 
 C Allocate Buffer space for Reading Emissions
-         ALLOCATE ( BUFF( NCOLS,NROWS,EMLYRS ), STAT = STATUS )
-         ALLOCATE ( BUFF2( NCOLS,NROWS,EMLYRS ), STAT = STATUS )
+         ALLOCATE ( BUFF( NCOLS,NROWS,EMLAYS ), STAT = STATUS )
          IF ( STATUS .NE. 0 ) THEN
             XMSG = 'BUFF memory allocation failed'
             CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
             SUCCESS = .FALSE.; RETURN
          END IF
-         BUFF = 0.0   ! array assignment
+         BUFF = 0.0   
 
-C Allocate Buffer Space For Reading Fertilizer Emissions for MOSAIC
-         IF ( ABFLUX ) THEN
-            ALLOCATE ( FERT( NCOLS,NROWS,EMLYRS ), STAT = STATUS )
-            IF ( STATUS .NE. 0 ) THEN
-               XMSG = 'FERT memory allocation failed'
-               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-               SUCCESS = .FALSE.; RETURN
-            END IF
-            FERT = 0.0   ! array assignment
-         END IF
+         ALLOCATE ( BUFF2( NCOLS,NROWS,EMLAYS ), STAT = STATUS )
+          IF ( STATUS .NE. 0 ) THEN
+            XMSG = 'BUFF memory allocation failed'
+            CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+            SUCCESS = .FALSE.; RETURN
+         END IF 
+         BUFF2= 0.0   
 
 C Return From Initialization
          SUCCESS = .TRUE.; RETURN
@@ -381,10 +282,6 @@ C Local Variables:
 
          CHARACTER( 16 ) :: PNAME = 'GET_EMIS'
          CHARACTER( 120 ) :: XMSG = ' '
-#ifdef verbose_emis_defn
-         integer, save :: logdev
-         real sumem
-#endif
          LOGICAL, SAVE :: FIRSTIME = .TRUE.
          INTEGER          GXOFF, GYOFF         ! global origin offset from file
          INTEGER, SAVE :: STARTCOL, ENDCOL, STARTROW, ENDROW
@@ -393,98 +290,112 @@ C-----------------------------------------------------------------------
 
          IF ( FIRSTIME ) THEN
             FIRSTIME = .FALSE.
-#ifdef verbose_emis_defn
-            logdev = init3()
-#endif
 C Get domain decomp info from the emissions file
             CALL SUBHFILE ( EMIS_1, GXOFF, GYOFF, STARTCOL, ENDCOL, STARTROW, ENDROW )
             CNVTP = CONVPA * CNVTE
 
          END IF    !FirstTime
 
-C read & interpolate emissions (create VDEMIS in the species class order)
+C Read & Interpolate Emissions 
 
-         VDEMIS = 0.0   ! array assignment
+         VDEMIS     = 0.0   ! array assignment
 
-         DO V = STRT_GC, FINI_GC
-            S = V + 1 - STRT_GC
+          DO ISPC = 1, N_EMIS_SPC 
+            VNAME = EM_ARSPEC( ISPC )
+            IF ( VNAME .EQ. '' ) CYCLE
+
             BUFF = 0.0   ! array assignment
 C                                       vvvvvvv - emis surrogate names
-            IF ( .NOT. INTERPX( EMIS_1, GC_EMIS( S ), PNAME,
-     &                          STARTCOL,ENDCOL, STARTROW,ENDROW, 1,EMLYRS,
+            IF ( .NOT. INTERPX( EMIS_1, VNAME, PNAME,
+     &                          STARTCOL,ENDCOL, STARTROW,ENDROW, 1,ARLYRS,
      &                          JDATE, JTIME, BUFF ) ) THEN
                XMSG = 'Could not read '
-     &              // TRIM( GC_EMIS( S ) ) // ' from ' // EMIS_1
+     &              // TRIM( VNAME ) // ' from ' // EMIS_1
                IF ( .NOT. EMISCHK ) CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
             END IF
 
             !READ Non-Carbon Organic Matter From Gas Emissions
-            IF ( GC_EMIS( S ) .EQ. 'POC' ) THEN
+            IF ( VNAME .EQ. 'POC' ) THEN
                  BUFF2 = 0.0
                  IF ( .NOT. INTERPX( EMIS_1, 'PNCOM', PNAME,
-     &                          STARTCOL,ENDCOL, STARTROW,ENDROW, 1,EMLYRS,
+     &                          STARTCOL,ENDCOL, STARTROW,ENDROW, 1,ARLYRS,
      &                          JDATE, JTIME, BUFF2 ) ) THEN
                  XMSG = 'Could not read '
-     &               // TRIM( GC_EMIS( S ) ) // ' from ' // EMIS_1
+     &               // TRIM( VNAME ) // ' from ' // EMIS_1
                  IF ( .NOT. EMISCHK ) CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
               END IF  
               BUFF = BUFF + BUFF2
             ENDIF
+ 
+            ! READ Sulfuric Acid From Gas Emissions and Assign to Aerosols
+            IF ( VNAME .EQ. 'PSO4' ) THEN
+                 BUFF2 = 0.0
+                 IF ( .NOT. INTERPX( EMIS_1, 'SULF', PNAME,
+     &                          STARTCOL,ENDCOL, STARTROW,ENDROW, 1,ARLYRS,
+     &                          JDATE, JTIME, BUFF2 ) ) THEN
+                 XMSG = 'Could not read '
+     &               // TRIM( VNAME ) // ' from ' // EMIS_1
+                 IF ( .NOT. EMISCHK ) CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+              END IF  
+              BUFF = BUFF + BUFF2 * REAL( PRECURSOR_MW( SULF_IDX ), 4 )
+            ENDIF
+ 
+            ! Zero Out Sulfuric Acid Emissions Since they have been
+            ! added to particulate sulfate
+            IF ( VNAME .EQ. 'SULF' ) THEN
+              BUFF = 0.0
+            END IF
 
-
-            CNVTI = CNVTP * GC_EMIS_FAC( S )
-
-C reactive gases (conversion to ppmv/s) VDEMIS in this order from RDEMIS
-C "Stores read an entire cache line, modify the target, then write back the
-C  entire line. Thus, non-consecutive stores are worse than non-consecutive
-C  loads."
+            ! Subtract Fertilizer Emissions from NH3 source if running
+            ! BIDIrectional Exchange Module
+            IF ( ABFLUX .AND. VNAME .EQ. 'NH3' ) THEN
+               BUFF2 = 0.0   ! array assignment
+               IF ( .NOT. INTERPX( EMIS_1, 'NH3_FERT', PNAME,
+     &                          STARTCOL,ENDCOL, STARTROW,ENDROW, 1,ARLYRS,
+     &                          JDATE, JTIME, BUFF2 ) ) THEN
+                  XMSG = 'Could not read NH3_FERT from' // EMIS_1
+                  IF ( .NOT. EMISCHK ) 
+     &                 CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+               END IF
+               BUFF( C,R,1 ) = BUFF( C,R,1 ) - BUFF2( C,R,1 )
+               IF ( ANY( BUFF ) .LT. 0.0 ) THEN
+                    XMSG = 'Negative values in NH3 emissions' 
+     &                       //'Error in NH3 Bidi emissions'                          
+                    CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+               END IF
+            END IF ! ABFLUX & Ammonia
+ 
+C Store all emissions in mol/sec or g/sec and convert to ppmv/s later) 
             DO R = 1, MY_NROWS
                DO C = 1, MY_NCOLS
-                  DO L = 1, EMLYRS
-                     CNVTC = CNVTI * Grid_Data%RDX3F( L ) * Met_Data%RRHOJ( C,R,L )
-                     VDEMIS( V,L,C,R ) = VDEMIS( V,L,C,R )
-     &                                 + CNVTC * BUFF( C,R,L )
+                  DO L = 1, ARLYRS
+                     VDEMIS_TMP( ISPC,L,C,R ) = EM_FAC_AR( ISPC ) * BUFF( C,R,L )
                   END DO
                END DO
             END DO
 
-#ifdef verbose_emis_defn
-            write( logdev,* ) '  GC EMIS: ', s, '  ', gc_emis( s )
-#endif
+           END DO   ! ISPC
 
-         END DO   ! V
+           !CALL AEROSOL DISTRIBUTION ROUTINE
+           VDEMIS = VDEMIS + VDEMIS_TMP
 
 C Retrieve BEIS Emissions
 
          IF ( BIOGEMIS ) THEN
-
             CALL GET_BEIS ( JDATE, JTIME, TSTEP )
 
 C tmpbeis312 is based on hourly input - need to interpolate return value
-C merge: VDEMIS_BI in mol/hr. Convert to ppm/sec
+C merge: VDEMIS_BI in mol/sec. Convert to ppm/sec
 
-#ifdef verbose_emis_defn
-            do s = 1, mspcs
-               v = beis_map( s )
-               if ( v .gt. 0 ) then
-                  write( logdev,* ) '  BEIS_MAP: ', s, v, '  ', gc_emis( v ), gc_emis_fac( v )
-               end if
-            end do
-#endif
-            L = 1
-            CNVTI = CONVPA * CNVTE * Grid_Data%RDX3F( L )  ! per sec
             DO R = 1, MY_NROWS
                DO C = 1, MY_NCOLS
-                  CNVTC = CNVTI * Met_Data%RRHOJ( C,R,L )
-                  N = 0
-                  DO S = 1, MSPCS
-                     V = BEIS_MAP( S )
+                  DO ISPC = 1, N_EMIS_SPC
+                     V = BEIS_MAP( ISPC )
                      IF ( V .GT. 0 ) THEN
-                        N = N + 1
-                        VDEMIS( V,L,C,R ) = VDEMIS( V,L,C,R )
-     &                                    + CNVTC * GC_EMIS_FAC( V )
-     &                                            * VDEMIS_BI( N,C,R )
-                      END IF
+                        VDEMIS( ISPC,1,C,R ) = VDEMIS( ISPC,1,C,R )
+     &                                    + EM_FAC_BEIS( ISPC )
+     &                                            * VDEMIS_BI( V,C,R )
+                     END IF
                   END DO
                END DO
             END DO
@@ -495,18 +406,14 @@ C marine gas emissions
          IF ( MGEM ) THEN
             CALL GET_MGEMIS ( JDATE, JTIME, TSTEP, CGRID )
 
-            L = 1
-            CNVTI = CONVPA * CNVTE * Grid_Data%RDX3F( L )  ! per sec
             DO R = 1, MY_NROWS
                DO C = 1, MY_NCOLS
-                 CNVTC = CNVTI * Met_Data%RRHOJ( C,R,L )
-                  N = 0
-                  DO S = 1, NMGSPC
-                     V = MGSPC_MAP( S )
+                  DO ISPC = 1, N_EMIS_SPC
+                     V = MGSPC_MAP( ISPC )
                      IF ( V .GT. 0 ) THEN
-                        N = N + 1
-                        VDEMIS( V,L,C,R ) = VDEMIS( V,L,C,R )
-     &                                    + CNVTC * GC_EMIS_FAC( V ) * VDEMIS_MG( N,C,R)
+                        VDEMIS( ISPC,1,C,R ) = VDEMIS( ISPC,1,C,R )
+     &                                    + EM_FAC_MG( ISPC ) 
+     &                                            * VDEMIS_MG( V,C,R)
                       END IF
                   END DO
                END DO
@@ -522,11 +429,9 @@ C lightning NO
             DO R = 1, MY_NROWS
                DO C = 1, MY_NCOLS
                   DO L = 1, EMLAYS
-                     CNVTI = CONVPA * CNVTE * Grid_Data%RDX3F( L )  ! per sec
-                     CNVTC = CNVTI * Met_Data%RRHOJ( C,R,L )
-                     V = LTNG_MAP
-                     VDEMIS( V,L,C,R ) = VDEMIS( V,L,C,R )
-     &                                 + CNVTC * GC_EMIS_FAC( V )
+                     ISPC = INDEX1( 'NO', N_EMIS_SPC, EMIS_SPEC )
+                     VDEMIS( ISPC,L,C,R ) = VDEMIS( ISPC,L,C,R )
+     &                                 +  EM_FAC_LTNG( ISPC )
      &                                         * VDEMIS_LT( C,R,L )
                   END DO
                END DO
@@ -534,7 +439,7 @@ C lightning NO
 
          END IF
 
-C plume rise
+C Point Sources
 
          IF ( PT3DEMIS ) THEN
             CALL GET_PT3D_EMIS ( JDATE, JTIME, TSTEP )
@@ -543,211 +448,59 @@ C merge: VDEMIS_PT in mol/sec. Convert to ppm/sec
 C If aerosols, then the PM emissions obtained from GET_PT3D_EMIS need to be
 C accessed by GET_AERO_EMIS to be "speciated" and merged with the AE emissions.
 
-            S_STRT = 1; S_END = N_GC_EMIS
-            IF ( INDEX( MECHNAME, 'NVPOA' ) .EQ. 0 ) THEN
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
-                     DO L = 1, EMLAYS
-                        CNVTC = CNVTP * Grid_Data%RDX3F( L ) * Met_Data%RRHOJ( C,R,L )
-                        DO S = S_STRT, S_END
-                           V = SPC_PTEM_MAP( S ) ! <- pointer to non-PM (non-aerosol) species
-                           N = PTEM_MAP( S )     ! <- pointer to non-PM emissions
-                           IF ( V .LT. 1 ) CYCLE
-                           VDEMIS( V,L,C,R ) = VDEMIS( V,L,C,R )
-     &                                       + CNVTC * SPC_PTEM_FAC( S )
-     &                                       * VDEMIS_PT( C,R,L,N )
-                           IF ( GC_SPC( GC_EMIS_MAP( S ) ) .EQ. 'PCVOC' ) THEN
-                              VDEMIS( V,L,C,R ) = VDEMIS( V,L,C,R ) 
-     &                                          - CNVTC * SPC_PTEM_FAC( S )
-     &                                          * VDEMIS_PT_FIRE( C,R,L,N )
-                           END IF
-                        END DO
-                     END DO
-                  END DO
-               END DO
-
-            ELSE ! Remove pcSOA from fire point sources. Biomass burning sources
-                 ! contributing to pcSOA cause enormous OA plumes.
-
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
-                     DO L = 1, EMLAYS
-                        CNVTC = CNVTP * Grid_Data%RDX3F( L ) * Met_Data%RRHOJ( C,R,L )
-                        DO S = S_STRT, S_END
-                           V = SPC_PTEM_MAP( S ) ! <- pointer to non-PM (non-aerosol) species
-                           N = PTEM_MAP( S )     ! <- pointer to non-PM emissions
-                           IF ( V .LT. 1 ) CYCLE
-                           VDEMIS( V,L,C,R ) = VDEMIS( V,L,C,R )
-     &                                       + CNVTC * SPC_PTEM_FAC( S )
-     &                                       * VDEMIS_PT( C,R,L,N )
-                        END DO
-                     END DO
-                  END DO
-               END DO
-
-            END IF
-
-            S_STRT = S_END + 1; S_END = N_GC_EMIS + N_NR_EMIS + N_TR_EMIS
             DO R = 1, MY_NROWS
                DO C = 1, MY_NCOLS
                   DO L = 1, EMLAYS
-                     CNVTC = CNVTP * Grid_Data%RDX3F( L ) * Met_Data%RRHOJ( C,R,L )
-                     DO S = S_STRT, S_END
-                        V = SPC_PTEM_MAP( S ) ! <- pointer to non-PM (non-aerosol) species
-                        N = PTEM_MAP( S )     ! <- pointer to non-PM emissions
-                        IF ( V .LT. 1 ) CYCLE
-                        VDEMIS( V,L,C,R ) = VDEMIS( V,L,C,R )
-     &                                    + CNVTC * SPC_PTEM_FAC( S )
-     &                                    * VDEMIS_PT( C,R,L,N )
+                     DO ISPC = 1, N_EMIS_SPC
+                        VDEMIS( ISPC,L,C,R ) = VDEMIS( ISPC,L,C,R ) + VDEMIS_PT( C,R,L,ISPC )
                      END DO
                   END DO
                END DO
             END DO
-
          END IF
 
-C aerosol emissions - all units conversions done in GET_AERO_EMIS for aerosols
+C Aerosol Emissions - all units conversions done in GET_AERO_EMIS for aerosols
 C GET_AERO_EMIS in f90 module AERO_EMIS
 
          IF ( N_AE_SPC .GT. 0 ) THEN
             CALL GET_AERO_EMIS ( JDATE, JTIME, TSTEP, VDEMIS )
+         END IF
+             
+C Tracer Gases (conversion to ppmv/s)
+         DO ISPC = 1, N_EMIS_SPC
+            VNAME = EM_TRSPEC( ISPC )
+            IF ( VNAME .EQ. '' ) CYCLE
+            BUFF = 0.0   ! array assignment
+C                                            vvvvvvv - emis surrogate names
+            IF ( .NOT. INTERPX( EMIS_TRAC_1, VNAME, PNAME,
+     &                          STARTCOL,ENDCOL, STARTROW,ENDROW, 1,EMLAYS,
+     &                          JDATE, JTIME, BUFF ) ) THEN
+               XMSG = 'Could not read  ' // TRIM( VNAME )
+     &              //' from ' // EMIS_TRAC_1
+               IF ( .NOT. EMISCHK ) CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+            END IF
 
             DO R = 1, MY_NROWS
                DO C = 1, MY_NCOLS
                   DO L = 1, EMLAYS
-                     DO V = STRT_AE, FINI_AE
-                        S = V + 1 - STRT_AE
-                        VDEMIS( V,L,C,R ) = VDEMIS( V,L,C,R )
-     &                                    + VDEMIS_AE( S,L,C,R )
-                     END DO
+                     VDEMIS( ISPC,L,C,R ) = EM_FAC_TR( ISPC ) * BUFF( C,R,L )
                   END DO
                END DO
             END DO
-
-         END IF
-
-C non-reactive gases (conversion to ppmv/s) VDEMIS in this order from RDEMIS
-
-         DO V = STRT_NR, FINI_NR
-            S = V + 1 - STRT_NR
-            BUFF = 0.0   ! array assignment
-C                                       vvvvvvv - emis surrogate names
-            IF ( .NOT. INTERPX( EMIS_1, NR_EMIS( S ), PNAME,
-     &                          STARTCOL,ENDCOL, STARTROW,ENDROW, 1,EMLYRS,
-     &                          JDATE, JTIME, BUFF ) ) THEN
-               XMSG = 'Could not read '
-     &              // TRIM( NR_EMIS( S ) ) // ' from ' // EMIS_1
-               IF ( .NOT. EMISCHK ) 
-     &            CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-            END IF
-! subtract the fertilizer emissions from the NEI for use in the NH3 bidirectional
-! exchange model JOB
-            IF ( ABFLUX .AND. NR_EMIS( S ) .EQ. 'NH3' ) THEN
-               FERT = 0.0   ! array assignment
-               IF ( .NOT. INTERPX( EMIS_1, 'NH3_FERT', PNAME,
-     &                          STARTCOL,ENDCOL, STARTROW,ENDROW, 1,EMLYRS,
-     &                          JDATE, JTIME, FERT ) ) THEN
-                  XMSG = 'Could not read NH3_FERT from' // EMIS_1
-                  IF ( .NOT. EMISCHK ) 
-     &                 CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-               END IF
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
-                     BUFF( C,R,1 ) = BUFF( C,R,1 ) - FERT( C,R,1 )
-                     IF ( BUFF( C,R,1 ) .LT. 0.0 ) THEN
-                        XMSG = 'Negative values in NH3 emissions' 
-     &                       //'Error in NH3 Bidi emissions'                          
-                        CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-                     END IF
-                  END DO
-               END DO    
-            END IF ! ABFLUX
-
-            CNVTI = CNVTP * NR_EMIS_FAC( S )
-
-            DO R = 1, MY_NROWS
-               DO C = 1, MY_NCOLS
-                  DO L = 1, EMLYRS
-                     CNVTC = CNVTI * Grid_Data%RDX3F( L ) * Met_Data%RRHOJ( C,R,L )
-                     VDEMIS( V,L,C,R ) = VDEMIS( V,L,C,R )
-     &                                 + CNVTC * BUFF( C,R,L )
-                  END DO
-               END DO
-            END DO
-
-#ifdef verbose_emis_defn
-            write( logdev,* ) '  NR EMIS: ', s, '  ', nr_emis( s )
-#endif
-
          END DO
 
-C tracer gases (conversion to ppmv/s)
-
-         IF ( EM_TRAC ) THEN
-
-            DO V = STRT_TR, FINI_TR
-               S = V + 1 - STRT_TR
-               BUFF = 0.0   ! array assignment
-C                                               vvvvvvv - emis surrogate names
-               IF ( .NOT. INTERPX( EMIS_TRAC_1, TR_EMIS( S ), PNAME,
-     &                             STARTCOL,ENDCOL, STARTROW,ENDROW, 1,EMLYRS,
-     &                             JDATE, JTIME, BUFF ) ) THEN
-                  XMSG = 'Could not read  ' // TRIM( TR_EMIS( S ) )
-     &                 //' from ' // EMIS_TRAC_1
-                  IF ( .NOT. EMISCHK )
-     &                 CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-               END IF
-               CNVTI = CNVTP * TR_EMIS_FAC( S )
-
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
-                     DO L = 1, EMLYRS
-                        CNVTC = CNVTI * Grid_Data%RDX3F( L ) * Met_Data%RRHOJ( C,R,L )
-                        VDEMIS( V,L,C,R ) = CNVTC * BUFF( C,R,L )
-                     END DO
-                  END DO
+C Convert All Emissions From mol/s to ppmv/s
+         DO R = 1, MY_NROWS
+            DO C = 1, MY_NCOLS
+               DO L = 1, EMLAYS
+                  !MAKE SURE TO IGNORE AEROSOL NUMBER AND SURFACE AREA 
+                  CNVTC = CNVTP * Grid_Data%RDX3F( L ) * Met_Data%RRHOJ( C,R,L )
+                  VDEMIS( :,L,C,R ) = ( CNVTC * VDEMIS( :,L,C,R ), 
+     &                                  MASK = .NOT.(AERONUM .OR. AEROSRF) ) 
                END DO
-
-#ifdef verbose_emis_defn
-               write( logdev,* ) '  TR EMIS: ', s, '  ', tr_emis( s )
-#endif
-
             END DO
-
-         END IF
-
-C zero out emissions values for species not included in diffused list ...
-C accounts for emissions species names as a subset of the vert. diffused species list
-
-         VDEMIS( N_SPC_EMIS+1,:,:,: ) = 0.0
-
-#ifdef verbose_emis_defn
-!        v = index1 ( 'NO', n_gc_emis, gc_emis )
-!        semis = vdemis( v,:,:,: )   ! all layers
-!        write( logdev,* ) '  sumVDEMIS( NO ): ', sum( semis )
-         write( logdev,'(/"@@@0 ", i8, i7.6)') jdate, jtime
-         l = 1
-         do v = strt_gc, fini_gc
-            s = v + 1 - strt_gc
-            sumem = 0.0
-            do r = 1, my_nrows
-               do c = 1, my_ncols
-                  sumem = sumem + vdemis( v,l,c,r )
-               end do
-            end do
-            write( logdev,'("@@@2 ", a, g16.6)') gc_emis( s ), sumem
-         end do
-         do v = strt_nr, fini_nr
-            s = v + 1 - strt_nr
-            sumem = 0.0
-            do r = 1, my_nrows
-               do c = 1, my_ncols
-                  sumem = sumem + vdemis( v,l,c,r )
-               end do
-            end do
-            write( logdev,'("@@@3 ", a, g16.6)') nr_emis( s ), sumem
-         end do
-#endif
+         END DO
+ 
 
          RETURN
 
@@ -755,7 +508,7 @@ C accounts for emissions species names as a subset of the vert. diffused species
 
 
 C-----------------------------------------------------------------------
-         SUBROUTINE EMIS_SPC_CHECK( JDATE, JTIME )
+         SUBROUTINE EMIS_SPC_MAP( JDATE, JTIME )
 
 C Check the chemical species from the namelists and AERO_DATA against
 C the species that are available on the actual emissions input files. If
@@ -765,11 +518,13 @@ C
 C    16 Mar 2017  B.Murphy     Created Subroutine
 C-----------------------------------------------------------------------
 
-         USE BEIS_DEFN, only : BIOGEMIS  ! Online Biogenic Emissions Env Variable
-         USE BIOG_EMIS, only : EMSPC,    ! Emitted CMAQ-Species from BEIS
+         USE BEIS_DEFN, only : BIOGEMIS, ! Online Biogenic Emissions Env Variable
+     &                         BEIS_MAP  ! Map from BEIS Species to EM_SPEC
+         USE BIOG_EMIS, only : EMSPC => BG_SPC, ! Emitted CMAQ-Species from BEIS
      &                         MSPCS     ! Number of Emitted Species
          USE MGEMIS,    only : MGEM,     ! Flag for Marine Gas Emissions
-     &                         MG_SPC    ! Emitted Marine Gas CMAQ-Species
+     &                         MG_SPC,   ! Emitted Marine Gas CMAQ-Species
+     &                         MGSPC_MAP ! Map from Marine Gas Emissions to EM_SPEC
          USE LTNG_DEFN, only : LTNG_NO,  ! Flag for Lightning Emissions
      &                         LTSPC     ! Lightning Emitted Species (i.e. 'NO')
          USE PT3D_DEFN, only : PT3DEMIS, ! Flag for Point Source Emissions
@@ -779,7 +534,7 @@ C-----------------------------------------------------------------------
          USE CGRID_SPCS, only: N_GC_EMIS, N_AE_EMIS, N_NR_EMIS, N_TR_EMIS,
      &                         GC_EMIS,   AE_EMIS,   NR_EMIS,   TR_EMIS
          USE AERO_DATA, only : N_MODE, AEROSPC,  ! Aerosol Properties Table
-     &                         N_AEROSPC
+     &                         N_AEROSPC, AEROMODE
 
          IMPLICIT NONE
 
@@ -795,7 +550,7 @@ C-----------------------------------------------------------------------
          CHARACTER( 16 ), ALLOCATABLE  :: NR_EMIS_WRITE( : )
          CHARACTER( 16 ), ALLOCATABLE  :: TR_EMIS_WRITE( : )
          CHARACTER( 16 ), ALLOCATABLE  :: AERO_EMIS_WRITE( : )
-         CHARACTER( 16 ), ALLOCATABLE  :: EMSPC_WRITE( : )
+         CHARACTER( 16 ), ALLOCATABLE  :: BG_SPC_WRITE( : )
          CHARACTER( 16 ), ALLOCATABLE  :: EMIS_SPC_UNUSED( : )
 
          INTEGER    :: STRT, PTSTRT, ISPC, IPT, JPT, IDX, LOGDEV, IX
@@ -816,12 +571,14 @@ C-----------------------------------------------------------------------
          CHARACTER( 80 )  :: VARDESC
          INTEGER          :: STATUS
          CHARACTER( 200 ) :: XMSG
-
+ 
+ 
 C Retrieve Environment Variable Letting User Ignore this Check
 C and allowing the model to proceed.
-         LOGDEV = INIT3()
+         EMISCHK = .TRUE.  ! Default True for Emissions Check
          VARDESC    = "Let model proceed even if there are emission"
      &              //" surrogates that do not appear on any input file."
+         LOGDEV = INIT3()
          EMISCHK = ENVYN( CTM_EMISCHK, VARDESC, EMISCHK, STATUS )
          IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
          IF ( STATUS .EQ. 1 ) THEN
@@ -836,7 +593,7 @@ C and allowing the model to proceed.
          END IF
 
 
-C Find Upper Bound on Number of Possible Species
+C Find Numbers of Species Available From Emissions Sources
          NBIOSPC = 0
          NMGSPC  = 0
          NLTSPC  = 0
@@ -851,7 +608,7 @@ C Find Upper Bound on Number of Possible Species
          ELSE
            NTRSPC  = 0
          END IF
-         NARSPC  = SIZE( AREASPC, DIM=1 )
+         NARSPC  = SUM( AREASPC( : )%LEN
 
          ! Point Sources
          IF ( PT3DEMIS ) THEN
@@ -880,6 +637,7 @@ C Find Upper Bound on Number of Possible Species
          WRITE( LOGDEV, '(A55,/,A58)' ),
      &                  'The following tables list the chemical species present ',
      &                  'on each emission file or from each online emission source.' 
+
 
          ! Tracer Species
          STRT = 0
@@ -916,15 +674,15 @@ C Find Upper Bound on Number of Possible Species
 
          ! Biogenic Species
          IF ( NBIOSPC .GT. 0 ) THEN
-           EMIS_SPCS( STRT+1:STRT+NBIOSPC ) = EMSPC( 1:NBIOSPC )
+           EMIS_SPCS( STRT+1:STRT+NBIOSPC ) = BG_SPC( 1:NBIOSPC )
            ALLOCATE( BIO_IND( NBIOSPC ) )
-           BIO_IND = EMSPC .NE. ''
-           ALLOCATE( EMSPC_WRITE( COUNT( BIO_IND ) ) )
-           EMSPC_WRITE = PACK( EMSPC, BIO_IND )
+           BIO_IND = BG_SPC .NE. ''
+           ALLOCATE( BG_SPC_WRITE( COUNT( BIO_IND ) ) )
+           BG_SPC_WRITE = PACK( BG_SPC, BIO_IND )
            
            WRITE( LOGDEV, '(/,A20,I3,A8,/,4(2x,A16))' ),
      &           'Biogenic Emissions: ',COUNT( BIO_IND ),' Species',
-     &           EMSPC_WRITE
+     &           BG_SPC_WRITE
            STRT = STRT + NBIOSPC
          END IF
          
@@ -991,12 +749,236 @@ C for reference
      &               'TR Namelist: ',N_TR_EMIS,' Species',TR_EMIS(1:N_TR_EMIS)
 
 
+C Find the Number and Collect Names of CMAQ Species with Emissions Species
+         N_EMIS_SPC = N_GC_EMIS + N_AE_EMIS + N_NR_EMIS + N_TR_EMIS
 
-C Compare with Gas, Aerosol, Nonreactive, and Tracer Species
-         ! Initialize variables for tracking surrogate matches
+C Warn the User if there are No Emissions Species On Any File         
+         IF ( N_EMIS_SPC .LE. 0 ) THEN
+            XMSG = 'There are no emissions: VDEMIS is set to zero' ! below
+            CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+         END IF
+
+         ! Populate EM_SPEC Array with CMAQ Internal Species that will have
+         ! Emissions
+         ALLOCATE( EM_SPEC( N_EMIS_SPEC )
+         ALLOCATE( EM_MASK_AERO( N_EMIS_SPEC )
+         EM_MASK_AERO = .FALSE.
+         ISPC = 0
+         DO IGC = 1,N_GC_EMIS
+             ISPC = ISPC + 1
+             EM_SPEC( ISPC ) = GC_SPC( GC_EMIS_MAP( IGC ) )
+         END DO
+         DO IAE = 1,N_AE_EMIS
+             ISPC = ISPC + 1
+             EM_SPEC( ISPC ) = AE_SPC( AE_EMIS_MAP( IAE ) )
+             EM_MASK_AERO( ISPC ) = .TRUE.
+         END DO
+         DO INR = 1,N_NR_EMIS
+             ISPC = ISPC + 1
+             EM_SPEC( ISPC ) = NR_SPC( NR_EMIS_MAP( INR ) )
+         END DO
+         DO ITR = 1,N_TR_EMIS
+             ISPC = ISPC + 1
+             EM_SPEC( ISPC ) = TR_SPC( TR_EMIS_MAP( IGC ) )
+         END DO
+
+
+         ! Populate EM_SPEC_BUFF Array with Master List of All Requested
+         ! Emissions Species
+         ALLOCATE( EM_SPEC_BUFF( N_EMIS_SPEC )
+         EM_SPEC_BUFF( 1:N_GC_EMIS ) = GC_EMIS( 1:N_GC_EMIS )     !Gases
+         EM_FAC_BUFF ( 1:N_GC_EMIS ) = GC_EMIS_FAC( 1:N_GC_EMIS )     !Gases
+         N = N_GC_EMIS
+         EM_SPEC_BUFF( N+1:N+N_AE_EMIS ) = AE_EMIS( 1:N_AE_EMIS ) !Aerosols
+         EM_FAC_BUFF ( N+1:N+N_AE_EMIS ) = AE_EMIS_FAC( 1:N_AE_EMIS ) !Aerosols
+         N = N + N_AE_EMIS
+         EM_SPEC_BUFF( N+1:N+N_NR_EMIS ) = NR_EMIS( 1:N_NR_EMIS ) !Non-Reactives
+         EM_FAC_BUFF ( N+1:N+N_NR_EMIS ) = NR_EMIS_FAC( 1:N_NR_EMIS ) !Non-Reactives
+         N = N + N_NR_EMIS
+         EM_SPEC_BUFF( N+1:N+N_TR_EMIS ) = TR_EMIS( 1:N_TR_EMIS ) !Tracers
+         EM_FAC_BUFF ( N+1:N+N_TR_EMIS ) = TR_EMIS_FAC( 1:N_TR_EMIS ) !Tracers
+ 
+         ! Determine which aerosol species emissions are for number and 
+         ! surface area. Create maps from Emission Surrogate Species to 
+         ! the number and surface area of each mode. This is referenced to the 
+         DO IM = 1,N_MODE
+             IDX = INDEX1( AEROMODE( IM )%NUM_NAME, N_EMIS_SPC, EM_SPEC_BUFF )
+             IF ( IDX .GT. 0 ) THEN
+                 ! Found Aerosol Number for this Mode
+                 MAP_NUMtoEM( IM ) = IDX
+             ELSE
+                 WRITE( XMSG, '(A,I1)'),'Can not find Number Emissions for Mode ',IM 
+                 CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+             END IF
+             IDX = INDEX1( AEROMODE( IM )%SRF_NAME, N_EMIS_SPC, EM_SPEC_BUFF )
+             IF ( IDX .GT. 0 ) THEN
+                 ! Found Aerosol Number for this Mode
+                 MAP_SRFtoEM( IM ) = IDX
+             ELSE
+                 WRITE( XMSG, '(A,I1)'),'Can not find Surface Area Emissions for Mode ',IM 
+                 CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+             END IF 
+         END DO
+
+         ! Determine the Aerosol Chemical and Size Identity of Each CMAQ 
+         ! species so that a map can be built to go from CMAQ species to
+         ! aerosol type and mode.
+         DO IAERO = 1,N_AEROSPC
+             DO IM = 1,N_MODE
+                 IDX = INDEX1( AEROSPC( IAERO )%NAME( IM ), N_EMIS_SPC, EM_SPEC )
+                 IF ( IDX .GT. 0 ) THEN
+                     ! Load Maps from EM_SPEC to Aerosol Type and Mode
+                     MAP_EMtoAERO( IDX ) = IAERO
+                     MAP_EMtoMODE( IDX ) = IM
+
+                     ! Load Map for Reduced Size PM Emission Rate Buffer
+                     MAP_EMBUFF( IAERO,IM ) = IDX
+                 END IF
+                 ! Load Size Distribution Factors
+                 EMWT_PROF( IAERO,IM ) = AEROSPC( IAERO )%EMIS_SPLIT( IM )
+             END DO
+         END DO
+
+         ! Apply Uniform Volatility Distribution Across All Sources
+         ! This algorithm distributes the factors across affected
+         ! particles and vapors using parameters from AERO_DATA.
+         DO ISPC = 1,N_EMIS_SPC
+           IF ( EM_SPEC_BUFF( ISPC ) .EQ. 'POC' ) THEN
+             DO IPOA = 1,N_VBS_BIN
+               IF ( EM_SPEC( ISPC )(2:6) .EQ. POA_NAME( IPOA ) ) THEN
+                 IF ( EM_MASK_AERO ) THEN
+                   EM_FAC_BUFF( ISPC ) = EM_FAC_BUFF( ISPC )
+     &                                 * POA_OP_VF( IPOA ) * POA_AMF( IPOA ) 
+                 ELSE
+                   EM_FAC_BUFF( ISPC ) = EM_FAC_BUFF( ISPC ) * POA_OP_VF( IPOA )
+     &                                 * (1.0 - POA_AMF( IPOA ) ) / GC_MOLWT( V )
+                 END IF
+               END IF
+             END DO
+           END IF
+         END DO    
+ 
+         ! Populate Arrays Mapping CMAQ Species to Species on Files
+         ! For each emission source, check to see which Emissions
+         ! species are actually represented. Overwrite the entry with a
+         ! blank if the species is not present from the source/file. If
+         ! there is a species not found on any file or a species on a
+         ! file that is never used, trigger an error (if EMISCHK is
+         ! TRUE).
+         ALLOCATE( EM_ARSPEC( N_EMIS_SPC ) )
+         ALLOCATE( EM_PTSPEC( N_EMIS_SPC, NPTGRPS ) )
+         IF ( BIOGEMIS ) ALLOCATE( EM_BGSPEC( N_EMIS_SPC ) )
+         IF ( MGE      ) ALLOCATE( EM_MGSPEC( N_EMIS_SPC ) )
+         IF ( LTNG_NO  ) ALLOCATE( EM_LTSPEC( N_EMIS_SPC ) )
+
          ALLOCATE( L_EMIS_SPC( NEMIS_SPC_UNIQUE ) )
          L_EMIS_SPC = .FALSE.
          LERROR = .FALSE.
+
+         ! Populate the Emissions Species on the Area Emission Map
+         DO ISPC = 1,N_EMIS_SPC
+             IDX = INDEX1( EM_SPEC_BUFF( ISPC ), NARSPC, AREASPC )
+             IF ( IDX .GT. 0 ) THEN
+                 ! A match for this surrogate is found
+                 EM_ARSPEC( ISPC ) = EM_SPEC_BUFF( ISPC )
+                 EM_FAC_AR( ISPC ) = EM_FAC_BUFF ( ISPC )
+
+                 ! Mark this species as found on the master list
+                 IDX = INDEX1( EM_SPEC( ISPC ), NEMIS_SPC_UNIQUE, EMIS_SPC_UNIQUE )
+                 L_EMIS_SPC( IDX ) = .TRUE.
+             END IF
+         END DO
+         IF ( ALL( EM_ARSPEC ) .EQ. '' ) THEN
+            WRITE( LOGDEV, '(/,A61)'),
+     &         'There are no matching surrogates for the Area Emissions File.',
+         END IF
+
+         ! Populate the Emissions Species on the Point Emission Maps
+         DO IPT = 1,NPTGRPS
+            DO ISPC = 1,N_EMIS_SPC
+
+               IDX = INDEX1( EM_SPEC_BUFF( ISPC ), STKSPC( IPT )%LEN, STKSPC( IPT )%ARRY )
+               IF ( IDX .GT. 0 ) THEN
+                   ! A match for this surrogate is found
+                   EM_PTSPEC( ISPC,IPT ) = EM_SPEC_BUFF( ISPC )
+                   EM_FAC_PT( ISPC,IPT ) = EM_FAC_BUFF ( ISPC )
+
+                   ! Mark this species as found on the master list
+                   IDX = INDEX1( EM_SPEC( ISPC ), NEMIS_SPC_UNIQUE, EMIS_SPC_UNIQUE )
+                   L_EMIS_SPC( IDX ) = .TRUE.
+               END IF
+            END DO
+            IF ( ALL( EM_PTSPEC( :,IPT ) ) .EQ. '' ) THEN
+               WRITE( LOGDEV, '(/,A39,/,A22,I2)'),
+     &            'There are no matching surrogates for the',
+     &            'Point Emissions File: ', IPT 
+            END IF
+         END DO
+ 
+         ! Populate the Emissions Species from the Online Biogenic
+         ! Emission Module (BEIS)
+         IF ( NBIOSPC .GT. 0 ) THEN
+            DO ISPC = 1,N_EMIS_SPC
+               IDX = INDEX1( EM_SPEC_BUFF( ISPC ), NBIOSPC, BG_SPC )
+               IF ( IDX .GT. 0 ) THEN
+                   ! A match for this surrogate is found
+                   BEIS_MAP( IDX ) = ISPC
+                   EM_FAC_BG( ISPC ) = EM_FAC_BUFF ( ISPC )
+
+                   ! Mark this species as found on the master list
+                   IDX = INDEX1( EM_SPEC( ISPC ), NEMIS_SPC_UNIQUE, EMIS_SPC_UNIQUE )
+                   L_EMIS_SPC( IDX ) = .TRUE.
+               END IF
+            END DO
+            IF ( ALL( EM_BGSPEC ) .EQ. '' ) THEN
+               WRITE( LOGDEV, '(/,A67)'),
+     &            'There are no matching surrogates for the Biogenic Emissions Module.',
+            END IF
+         END IF
+ 
+         ! Populate the Emissions Species from the Online Marine
+         ! Gas Emission Module
+         IF ( NMGSPC .GT. 0 ) THEN
+            DO ISPC = 1,N_EMIS_SPC
+               IDX = INDEX1( EM_SPEC_BUFF( ISPC ), NMGSPC, MG_SPC )
+               IF ( IDX .GT. 0 ) THEN
+                   ! A match for this surrogate is found
+                   MGSPC_MAP( IDX ) = ISPC
+                   EM_FAC_MG( ISPC ) = EM_FAC_BUFF ( ISPC )
+
+                   ! Mark this species as found on the master list
+                   IDX = INDEX1( EM_SPEC( ISPC ), NEMIS_SPC_UNIQUE, EMIS_SPC_UNIQUE )
+                   L_EMIS_SPC( IDX ) = .TRUE.
+               END IF
+            END DO
+            IF ( ALL( EM_MGSPEC ) .EQ. '' ) THEN
+               WRITE( LOGDEV, '(/,A69)'),
+     &            'There are no matching surrogates for the Marine Gas Emissions Module.',
+            END IF
+         END IF
+ 
+         ! Populate the Emissions Species from the Lightning NO Emission Module
+         IF ( NLTSPC .GT. 0 ) THEN
+            DO ISPC = 1,N_EMIS_SPC
+               IDX = INDEX1( EM_SPEC_BUFF( ISPC ), NLTSPC, LTSPC )
+               IF ( IDX .GT. 0 ) THEN
+                   ! A match for this surrogate is found
+                   EM_LTSPEC( ISPC ) = EM_SPEC_BUFF( ISPC )
+                   EM_FAC_LT( ISPC ) = EM_FAC_BUFF ( ISPC )
+
+                   ! Mark this species as found on the master list
+                   IDX = INDEX1( EM_SPEC( ISPC ), NEMIS_SPC_UNIQUE, EMIS_SPC_UNIQUE )
+                   L_EMIS_SPC( IDX ) = .TRUE.
+               END IF
+            END DO
+            IF ( ALL( EM_LTSPEC ) .EQ. '' ) THEN
+               WRITE( LOGDEV, '(/,A67)'),
+     &            'There are no matching surrogates for the Lightning NO Emissions Module.',
+            END IF
+         END IF
+ 
+C Compare with Gas, Aerosol, Nonreactive, and Tracer Species
+         ! Initialize variables for tracking surrogate matches
 
          ! Check Compatability with Gas Emissions Surrogates
          IF ( N_GC_EMIS .GT. 0 ) THEN
@@ -1005,13 +987,7 @@ C Compare with Gas, Aerosol, Nonreactive, and Tracer Species
 
              DO ISPC = 1,N_GC_EMIS
                 IDX = INDEX1( GC_EMIS( ISPC ), NEMIS_SPC_UNIQUE, EMIS_SPC_UNIQUE )
-                IF ( IDX .GT. 0 ) THEN
-                   ! A match for this surrogate is found
-                   L_EMIS_SPC( IDX ) = .TRUE.
-                ELSE
-                   ! This Gas Surrogate is Missing
-                   GC_EMIS_MISSING( ISPC ) = .TRUE.
-                END IF
+                IF ( IDX .EQ. 0 ) GC_EMIS_MISSING( ISPC ) = .TRUE.
              END DO
              IF ( ANY( GC_EMIS_MISSING ) ) THEN
                 ALLOCATE( GC_EMIS_WRITE( COUNT( GC_EMIS_MISSING ) ))
@@ -1028,22 +1004,16 @@ C Compare with Gas, Aerosol, Nonreactive, and Tracer Species
           
          ! Check Compatability with Aerosol Emissions Surrogates
          IF ( N_AEROSPC .GT. 0 ) THEN 
-             ALLOCATE( AERO_EMIS_MISSING( N_AEROSPC ) )
+             ALLOCATE( AERO_EMIS_MISSING( N_AE_EMIS ) )
              AERO_EMIS_MISSING = .FALSE.
 
-             DO ISPC = 1,N_AEROSPC
-                IDX = INDEX1( AEROSPC( ISPC )%EMIS, NEMIS_SPC_UNIQUE, EMIS_SPC_UNIQUE )
-                IF ( IDX .GT. 0 ) THEN
-                   ! A match for this surrogate is found
-                   L_EMIS_SPC( IDX ) = .TRUE.
-               ELSE IF ( AEROSPC( ISPC )%EMIS .NE. "" ) THEN
-                   ! This Aerosol Surrogate is Missing
-                   AERO_EMIS_MISSING( ISPC ) = .TRUE.
-                END IF
+             DO ISPC = 1,N_AE_EMIS
+                IDX = INDEX1( AE_EMIS( ISPC ), NEMIS_SPC_UNIQUE, EMIS_SPC_UNIQUE )
+                IF ( IDX .EQ. 0 ) AERO_EMIS_MISSING( ISPC ) = .TRUE.
              END DO 
              IF ( ANY( AERO_EMIS_MISSING ) ) THEN
                 ALLOCATE( AERO_EMIS_WRITE( COUNT( AERO_EMIS_MISSING ) ) ) 
-                AERO_EMIS_WRITE = PACK( AEROSPC%EMIS, AERO_EMIS_MISSING )
+                AERO_EMIS_WRITE = PACK( AE_EMIS(1:N_AE_EMIS), AERO_EMIS_MISSING )
 
                 WRITE( LOGDEV, '(/A40,/,2x,A52,/,2x,A53,/,5(5x,A16))'),
      &             'The following AEROSOL emission surrogate',
@@ -1061,13 +1031,7 @@ C Compare with Gas, Aerosol, Nonreactive, and Tracer Species
 
              DO ISPC = 1,N_NR_EMIS
                 IDX = INDEX1( NR_EMIS( ISPC ), NEMIS_SPC_UNIQUE, EMIS_SPC_UNIQUE )
-                IF ( IDX .GT. 0 ) THEN
-                   ! A match for this surrogate is found
-                   L_EMIS_SPC( IDX ) = .TRUE.
-                ELSE
-                   ! This Nonreactive Surrogate is Missing
-                   NR_EMIS_MISSING( ISPC ) = .TRUE.
-                END IF
+                IF ( IDX .EQ. 0 ) NR_EMIS_MISSING( ISPC ) = .TRUE.
              END DO 
              IF ( ANY( NR_EMIS_MISSING ) ) THEN
                 ALLOCATE( NR_EMIS_WRITE( COUNT( NR_EMIS_MISSING ) ) ) 
@@ -1089,13 +1053,7 @@ C Compare with Gas, Aerosol, Nonreactive, and Tracer Species
 
              DO ISPC = 1,N_TR_EMIS
                 IDX = INDEX1( TR_EMIS( ISPC ), NEMIS_SPC_UNIQUE, EMIS_SPC_UNIQUE )
-                IF ( IDX .GT. 0 ) THEN
-                   ! A match for this surrogate is found
-                   L_EMIS_SPC( IDX ) = .TRUE.
-                ELSE
-                   ! This Tracer Surrogate is Missing
-                   TR_EMIS_MISSING( ISPC ) = .TRUE.
-                END IF
+                IF ( IDX .GT. 0 ) TR_EMIS_MISSING( ISPC ) = .TRUE.
              END DO 
              IF ( ANY( TR_EMIS_MISSING ) ) THEN
                 ALLOCATE( TR_EMIS_WRITE( COUNT( TR_EMIS_MISSING ) ) ) 
@@ -1145,9 +1103,7 @@ C Missing from All Emission Input Sources
      &               'are not found in emission sources.',
      &               'Use one of the below options to continue.', 
      &               '1) Change or remove the missing GC, NR and TR emissions surrogates from the',
-     &               'namelists where they are defined OR if missing surrogates are for aerosol species,',
-     &               'change or remove these surrogates from aerosol data table defined in AERO_DATA.F',
-     &               'then recompile.',
+     &               'namelists where they are defined.' 
      &               'or',
      &               '2) Change CTM_EMISCHK environment variable to False (F) in the runscript',
      &               'if model predictions are acceptable without using the above emissions.',

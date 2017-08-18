@@ -39,6 +39,7 @@ C                        removed deprecated TRIMLEN
       USE UTILIO_DEFN
       USE RXNS_DATA, only : MECHNAME 
       USE EMIS_DEFN, only : TRACSPC, AREASPC
+      USE AERO_DATA, only : AEROMODE, N_MODE, PMEM_UNITS
 
       IMPLICIT NONE
 
@@ -100,20 +101,12 @@ C Open the tracer emissions file
             END IF
 
             EMLAYS = NLAYS3D
- 
-            V = INDEX1( TR_EMIS( 1 ), NVARS3D, VNAME3D )
-            IF ( V .NE. 0 ) THEN
-               UNITSCK = UNITS3D( V )
-            ELSE
-               XMSG = 'Emissions species '
-     &              // TRIM( TR_EMIS( 1 ) )
-     &              // ' not found on ' // EMIS_1
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-            END IF
+            UNITSCK = 'BLANK'
 
-            DO N = 2, N_TR_EMIS
+            DO N = 1, N_TR_EMIS
                V = INDEX1( TR_EMIS( N ), NVARS3D, VNAME3D )
                IF ( V .NE. 0 ) THEN
+                  IF ( UNITSCK .EQ. 'BLANK' ) UNITSCK = UNITS3D( V )
                   IF ( UNITS3D( V ) .NE. UNITSCK ) THEN
                      XMSG = 'Units not uniform on ' // EMIS_TRAC_1
                      CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
@@ -160,27 +153,12 @@ C Open the emissions file (for gas chem, aerosols and non-reactive species)
             END IF
          END IF
 
-         DO N = 1, N_GC_EMIS
-            V = INDEX1( GC_EMIS( N ), NVARS3D, VNAME3D )
-            IF ( V .NE. 0 ) THEN
-               UNITSCK = UNITS3D( V )
-               S = N + 1
-               GO TO 101
-            ELSE
-               XMSG = 'Emissions species '
-     &              // TRIM( GC_EMIS( 1 ) )
-     &              // ' not found on ' // EMIS_1
-               CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-            END IF
-         END DO
-         XMSG = ' No emissions species ' // ' found on ' // EMIS_1
-         CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-
-101      CONTINUE
+         SOME_GAS_EMIS = .FALSE.
 
          DO N = S, N_GC_EMIS
             V = INDEX1( GC_EMIS( N ), NVARS3D, VNAME3D )
             IF ( V .NE. 0 ) THEN
+               SOME_GAS_EMIS = .TRUE.
                UNITSCK = UNITS3D( V )
                CALL UPCASE ( UNITSCK )
                IF ( UNITSCK .NE. 'MOLES/S'   .AND.
@@ -204,6 +182,33 @@ C Open the emissions file (for gas chem, aerosols and non-reactive species)
             END IF
          END DO
 
+         IF ( .NOT. SOME_GAS_EMIS ) THEN
+            XMSG = ' No emissions species ' // ' found on ' // EMIS_1
+            CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+         END IF
+
+         UNITSCK = 'BLANK'
+
+         DO N = 1, N_AE_EMIS
+            IF ( ANY( AEROMODE( : )%NUM_NAME .EQ. AE_EMIS( N ) ) .OR.
+    &            ANY( AEROMODE( : )%SRF_NAME .EQ. AE_EMIS( N ) ) ) CYCLE
+            V = INDEX1( AE_EMIS( N ), NVARS3D, VNAME3D )
+            IF ( V .NE. 0 ) THEN
+               IF ( UNITSCK .EQ. 'BLANK' ) UNITSCK = UNITS3D( V )
+               IF ( UNITSCK .NE. UNITS3D( V ) ) THEN
+                  XMSG = 'AE units are inconsistent on ' // EMIS_1
+                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+               END IF
+            ELSE
+               XMSG = 'Emissions species '
+     &              // TRIM( AE_EMIS( N ) )
+     &              // ' not found on ' // EMIS_1
+               CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+            END IF
+
+            PMEM_UNITS = UNITSCK
+         END DO
+ 
          DO N = 1, N_NR_EMIS
             V = INDEX1( NR_EMIS( N ), NVARS3D, VNAME3D )
             IF ( V .NE. 0 ) THEN
@@ -239,12 +244,8 @@ C Assume units = mol/s across gas and non-reactive species classes
      &              1X, 'Vertical diffusion ...' )
       END IF
 
-!     IF ( N_AE_EMIS .GT. 0 ) THEN
-!        WRFLG = .TRUE.
-!        WRITE( LOGDEV,1003 )
 1003     FORMAT( / 10X, 'Aerosol Emissions Processing in',
      &              1X, 'Vertical diffusion ...' )
-!     END IF
 
       IF ( N_NR_EMIS .GT. 0 ) THEN
          WRFLG = .TRUE.

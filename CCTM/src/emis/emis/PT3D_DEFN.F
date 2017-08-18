@@ -61,6 +61,7 @@ C                          Yongtao Hu (Georgia Tech)
 C     22 Jun 2016 B.Hutzell: Fixed issue where single emis species maps to multiple model
 C                            species
 C     08 Aug 2016 B.Murphy: Neglect fire emissions for pcVOC
+C     16 Aug 2017 B.Murphy: Pull plume height calc. to separate subroutine.
 C-----------------------------------------------------------------------
 
       USE UDTYPES           ! implementation for multiple groups of stack input files
@@ -68,11 +69,9 @@ C-----------------------------------------------------------------------
 
       LOGICAL,              SAVE :: PT3DEMIS   ! flag in-lining plume rise
       INTEGER,              SAVE :: NPTGRPS    ! no. pt src input file groups
-      REAL,    ALLOCATABLE, SAVE :: VDEMIS_PT( :,:,:,: ) ! 3D pt src non-PM emis
-      REAL,    ALLOCATABLE, SAVE :: VDEMIS_PT_FIRE( :,:,:,: ) ! 3D pt src non-PM emis
-      REAL,    ALLOCATABLE, SAVE :: PMEMIS_PT( :,:,:,: ) ! 3D pt src PM emis
+      REAL,    ALLOCATABLE, SAVE :: VDEMIS_PT( :,:,:,: ) ! 3D pt src 
 
-      PUBLIC PT3DEMIS, NPTGRPS, VDEMIS_PT, VDEMIS_PT_FIRE, PMEMIS_PT,
+      PUBLIC PT3DEMIS, NPTGRPS, VDEMIS_PT,
      &       PT3D_INIT, GET_PT3D_EMIS
       PRIVATE
 
@@ -127,7 +126,6 @@ C Point source 3d emis diagnostic file names
 !     CHARACTER( 16 ),               SAVE :: PT3DNAME
 C Point source 3d emis diagnostic integral average write buffers
       REAL,    ALLOCATABLE, SAVE :: VDEMIS_BUF( :,:,:,: )
-      REAL,    ALLOCATABLE, SAVE :: PMEMIS_BUF( :,:,:,: )
 C Diagnostic file avg factor
       REAL                       :: DIVFAC
 C Write layer fractions diagnostic file, if true
@@ -244,7 +242,6 @@ C In-line 3D point source emissions?
          END IF
 
 C Get setting from environment variables
-!        EMLAYS = ENVINT( 'SMK_EMLAYS', 'Number of emission layers', -1, IOS )
          EMLYRS = EMLAYS
 
          IPVERT = ENVINT( 'IPVERT', 'Method for vertical spread', 0, IOS )
@@ -514,28 +511,9 @@ C Initialize stack emissions data
             END IF
          END DO
 
-         IF ( .NOT. PTMAP_INIT( NPTGRPS ) ) THEN
-            XMSG = 'Could not get point source mappings'
-            CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-            SUCCESS = .FALSE.; RETURN
-         END IF
-
          ALLOCATE ( VDEMIS_PT( NCOLS,NROWS,EMLYRS,N_GSPC_EMIS ), STAT = IOS )
          CALL CHECKMEM( IOS, 'VDEMIS_PT', PNAME )
          VDEMIS_PT = 0.0   ! array assignment
-
-         ALLOCATE ( VDEMIS_PT_FIRE( NCOLS,NROWS,EMLYRS,N_GSPC_EMIS), STAT = IOS )
-         CALL CHECKMEM( IOS, 'VDEMIS_PT_FIRE', PNAME )
-         VDEMIS_PT_FIRE = 0.0   ! array assignment
-
-         N_EMIS_GAS_SPC = N_GC_EMIS + N_NR_EMIS + N_TR_EMIS
-         ALLOCATE ( EMIS_FAC( N_EMIS_GAS_SPC ), STAT = IOS )
-         CALL CHECKMEM( IOS, 'EMIS_FAC', PNAME )
-         EMIS_FAC = 1.0   ! array assignment (default)
-
-         ALLOCATE ( PMEMIS_PT( NCOLS,NROWS,EMLYRS,N_SPC_PTPM ), STAT = IOS )
-         CALL CHECKMEM( IOS, 'PMEMIS_PT', PNAME )
-         PMEMIS_PT = 0.0   ! array
 
 C Set up and open 3d point source emissions diagnostic file?
          IF ( PT3DDIAG ) THEN
@@ -546,9 +524,6 @@ C Set up and open 3d point source emissions diagnostic file?
             ALLOCATE ( VDEMIS_BUF( NCOLS,NROWS,EMLYRS,N_GSPC_EMIS ), STAT = IOS )
             CALL CHECKMEM( IOS, 'VDEMIS_BUF', PNAME )
             VDEMIS_BUF = 0.0   ! array
-            ALLOCATE ( PMEMIS_BUF( NCOLS,NROWS,EMLYRS,N_ASPC_EMIS ), STAT = IOS )
-            CALL CHECKMEM( IOS, 'PM_EMIS_BUF', PNAME )
-            PMEMIS_BUF = 0.0   ! array
             WRITE( LOGDEV,'(/5X, A /5X, A )' )
      &                        'Recording 3d point source emissions diagnostics',
 !    &                        'as an integral average over the output timestep'
@@ -885,7 +860,7 @@ C-----------------------------------------------------------------------
 #endif
          END IF
 
-C For each time step, compute the layer fractions...
+C Based on the current time step, find whether or not a report should be written
 
          WRITE( XMSG,'(A, I7.6)' )
      &   'Calculating emissions point source layer fractions for', JTIME
@@ -926,16 +901,11 @@ C Convert pt source met data to bi-linear interpolated data
          CALL PTMET_CONVT( JDATE, JTIME, NPTGRPS, EMLYRS, ZSTATIC )
 
          VDEMIS_PT = 0.0   ! array assignment
-         VDEMIS_PT_FIRE = 0.0   ! array assignment
-         PMEMIS_PT = 0.0   ! array assignment
 
          DO N = 1, NPTGRPS
 
             IF ( MY_NSRC( N ) .LE. 0 ) CYCLE
 
-            ALLOCATE( STKEM( NVARS_EMIS( N ) ), STAT = IOS )
-            CALL CHECKMEM( IOS, 'STKEM', PNAME )
-            STKEM = 0.0   ! 1-D array assignment
             IF ( PT3DFRAC ) THEN   ! Store layer fractions
                ALLOCATE( LFRAC( MY_NSRC( N ),EMLYRS ), STAT = IOS )
                CALL CHECKMEM( IOS, 'LFRAC', PNAME )
@@ -953,12 +923,17 @@ C Ensure that the model and stack groups emissions timestamp dates stay synchron
                LOC_STKDATE = STKDATE( N )
             END IF
 
-            DO V = 1, NVARS_EMIS( N )
-               VNAME = STKSPC( N )%ARRY( V )
+C Calculate Plume Heights for All Point Sources on this File
+            CALL CALC_PLUME_HEIGHT(   )
+
+C Read Emissions for all sources on File N            
+            DO ISPC = 1, N_EMIS_SPC
+               VNAME = EM_PTSPEC( ISPC,N )
+               IF ( VNAME .EQ. '' ) CYCLE
                IF ( .NOT. INTERPX( STKENAME( N ), VNAME, PNAME,
      &                             1,1, MY_STRT_SRC( N ),MY_END_SRC( N ), 1,1,
      &                             LOC_STKDATE, JTIME,
-     &                             STKEMIS( N )%ARRY( 1,V ) ) ) THEN
+     &                             STKEMIS( N )%ARRY( 1 ) ) ) THEN
                   XMSG = 'Could not read ' // TRIM( VNAME ) //
      &                   ' from ' // TRIM( STKENAME( N ) )
                   CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
@@ -970,59 +945,179 @@ C Ensure that the model and stack groups emissions timestamp dates stay synchron
                   STKEMIS_TOO( N )%ARRY = 0.0
                   IF ( .NOT. INTERPX( STKENAME( N ), 'PNCOM', PNAME,
      &                                1,1, MY_STRT_SRC( N ),MY_END_SRC( N ), 1,1,
-!    &                                STKDATE( N ), JTIME,
      &                                LOC_STKDATE, JTIME,
-     &                                STKEMIS_TOO( N )%ARRY( 1,V ) ) ) THEN
+     &                                STKEMIS_TOO( N )%ARRY( 1 ) ) ) THEN
                      XMSG = 'Could not read ' // TRIM( VNAME ) //
      &                    ' from ' // TRIM( STKENAME( N ) )
                      CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
                   END IF
                   MY_DELTA = MY_END_SRC( N ) - MY_STRT_SRC( N ) + 1
-                  STKEMIS( N )%ARRY( 1:MY_DELTA,V ) = STKEMIS( N )%ARRY( 1:MY_DELTA,V ) 
-     &                                     + STKEMIS_TOO( N )%ARRY( 1:MY_DELTA,V )
+                  STKEMIS( N )%ARRY( 1:MY_DELTA ) = STKEMIS( N )%ARRY( 1:MY_DELTA ) 
+     &                                     + STKEMIS_TOO( N )%ARRY( 1:MY_DELTA )
                END IF
-            END DO
-
-            IF ( FIREFLAG( N ) ) THEN
-               DO V = 1, NVARS_FIRE
-                  VNAME = FIRENAM( N )%ARRY( V )
-                  IF ( .NOT. INTERPX( STKENAME( N ), VNAME, PNAME,
+               
+               ! Read Sulfuric Acid Vapor and add to Sulfate Aerosol
+               IF ( VNAME .EQ. 'PSO4' ) THEN
+                  STKEMIS_TOO( N )%ARRY = 0.0
+                  IF ( .NOT. INTERPX( STKENAME( N ), 'SULF', PNAME,
      &                                1,1, MY_STRT_SRC( N ),MY_END_SRC( N ), 1,1,
      &                                LOC_STKDATE, JTIME,
-     &                                FIREVAR( N )%ARRY( 1,V ) ) ) THEN
+     &                                STKEMIS_TOO( N )%ARRY( 1 ) ) ) THEN
                      XMSG = 'Could not read ' // TRIM( VNAME ) //
-     &                      ' from ' // TRIM( STKENAME( N ) )
+     &                    ' from ' // TRIM( STKENAME( N ) )
                      CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
                   END IF
-                  ! Read Non-Carbon Organic Matter too if POC is Requested
-                  IF ( ( INDEX( MECHNAME, 'NVPOA' ) .EQ. 0 )
-     &                  .AND. VNAME .EQ. 'POC' ) THEN
-                     FIREVAR_TOO( N )%ARRY = 0.0
-                     IF ( .NOT. INTERPX( STKENAME( N ), 'PNCOM', PNAME,
-     &                                   1,1, MY_STRT_SRC( N ),MY_END_SRC( N ), 1,1,
-     &                                   LOC_STKDATE, JTIME,
-     &                                   FIREVAR_TOO( N )%ARRY( 1,V ) ) ) THEN
-                        XMSG = 'Could not read ' // TRIM( VNAME ) //
-     &                         ' from ' // TRIM( STKENAME( N ) )
-                        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-                     END IF
-                     MY_DELTA = MY_END_SRC( N ) - MY_STRT_SRC( N ) + 1
-                     FIREVAR( N )%ARRY( 1:MY_DELTA,V ) = FIREVAR( N )%ARRY( 1:MY_DELTA,V )
-     &                                        + FIREVAR_TOO( N )%ARRY( 1:MY_DELTA,V )
-                  END IF
-               END DO
+                  MY_DELTA = MY_END_SRC( N ) - MY_STRT_SRC( N ) + 1
+                  STKEMIS( N )%ARRY( 1:MY_DELTA ) = STKEMIS( N )%ARRY( 1:MY_DELTA ) 
+     &                                     + STKEMIS_TOO( N )%ARRY( 1:MY_DELTA )
+     &                                     * REAL( PRECURSOR_MW( SULF_IDX ), 4 )
+               END IF 
+
+               ! Zero Out Sulfuric Acid Emissions Since they have been
+               ! added to particulate sulfate
+               IF ( VNAME .EQ. 'SULF' ) THEN
+                  STKEMIS( N )%ARRY( 1:MY_DELTA ) = 0.0
+               END IF
+               
+               ! Zero Out pcVOC from Fire Sources
+               IF ( FIREFLAG( N ) .AND. EM_SPEC( ISPC ) .EQ. 'PCVOC' ) THEN
+                  STKEMIS( N )%ARRY( 1:MY_DELTA ) = 0.0
+               END IF
+
+C Apportion emissions to the layers
                DO S = 1, MY_NSRC( N )
                   SRC = SOURCE( N )%ARRY( S )
-                  BFLUX( N )%ARRY( S ) = FIREVAR( N )%ARRY( SRC,1 ) * BTU2M4PS3
-               END DO
+                  C = MY_STKCOL( N )%ARRY( S ); R = MY_STKROW( N )%ARRY( S )
+
+                  DO L = 1, EMLAYS
+                     LFRC = TFRAC( L )
+                     IF ( LFRC .LE. 0.0 ) CYCLE
+
+                     ! Save Emissions in Common Array
+                     VDEMIS_TMP( C,R,L,ISPC ) = VDEMIS_TMP( C,R,L,ISPC )
+     &                                 + LFRC * EM_FAC_PT( ISPC,N ) * STKEMIS( N )%ARRY( S )
+
+                  END DO  ! End Layers Loop
+               END DO  ! End Sources Loop
+            END DO ! End Loop on Species
+
+            !!CALL AEROSOL SIZE DISTRIBUTION ROUTINE
+            VDEMIS_PT = VDEMIS_PT + VDEMIS_TMP
+
+
+C Write Out Diagnostic Info            
+            IF ( PT3DFRAC .AND. WRTIME ) THEN     ! Write out layer fractions
+               IF ( .NOT. WRITE3_DISTR( PLAYNAME( N ), 'LFRAC', WDATE, WTIME,
+     &                                  MY_NSRC( N ), EMLYRS, LFRAC ) ) THEN
+                  XMSG = 'Error writing "LFRAC" to file "' //
+     &                    PLAYNAME( N )( 1:LEN_TRIM( PLAYNAME( N ) ) ) // '."'
+                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+               END IF
+               IF ( .NOT. WRITE3_DISTR( PLAYNAME( N ), 'ZPLUME', WDATE, WTIME,
+     &                                  MY_NSRC( N ), EMLYRS, ZPLUM ) ) THEN
+                  XMSG = 'Error writing "ZPLUM" to file "' //
+     &                    PLAYNAME( N )( 1:LEN_TRIM( PLAYNAME( N ) ) ) // '."'
+                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+               END IF
+               WRITE( LOGDEV,94030 )
+     &            'Timestep written to', TRIM( PLAYNAME( N ) ),
+     &            'for date and time', WDATE, WTIME
             END IF
 
-C Loop through sources and compute plume rise
+#ifdef Verbose1
+            write( logdev,* ) '   Max ZPLM(', n, ' ):', mxzplm
+#endif
+
+            IF ( PT3DFRAC ) THEN
+               DEALLOCATE( LFRAC )
+               DEALLOCATE( ZPLUM )
+            END IF
+
+         END DO   ! NPTGRPS
+
+C Write Out Diagnostic Info         
+         IF ( PT3DDIAG ) THEN  ! store 3d point source emissions
+            NTICS = NTICS + 1
+            VDEMIS_BUF = VDEMIS_BUF + VDEMIS_PT   ! array assignmnt
+#ifdef Verbose1
+            write( logdev,* ) '   ntics, jtime: ', ntics, jtime
+#endif
+            IF ( WRTIME ) THEN
+               DIVFAC = 1.0 / FLOAT( NTICS )
+#ifdef Verbose1
+               write( logdev,* ) '   ntics, divfac: ', ntics, divfac
+#endif
+ !              DO V = 1, N_EMIS_SPC
+ !                 VDEMIS_BUF( :,:,:,V ) = DIVFAC * VDEMIS_BUF( :,:,:,V )
+ !                IF ( .NOT. WRITE3( CTM_PT3D_DIAG, GSPC_EMIS( V ),
+ !    &                               WDATE, WTIME, VDEMIS_BUF( :,:,:,V ) ) ) THEN
+ !                    XMSG = 'Error writing "VDEMIS_PT" to '
+ !    &                    // CTM_PT3D_DIAG( 1:LEN_TRIM( CTM_PT3D_DIAG ) )
+ !                    CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+ !                 END IF
+ !              END DO
+               WRITE( LOGDEV,94030 )
+     &               'Timestep written to', CTM_PT3D_DIAG,
+     &               'for date and time', WDATE, WTIME
+            VDEMIS_BUF = 0.0   ! array
+            NTICS = 0
+            END IF
+         END IF
+
+         RETURN
+
+C------------------  FORMAT  STATEMENTS   ------------------------------
+
+93000    FORMAT( A / 1X, 'source', 3X, 'ht', 3X, 'lpbl', 1X, 'lbot', 1X, 'ltop',
+     &               3X, 'vel', 4X, 'windspeed', 2X, 'StkTemp', 3X, 'AmbTemp' )
+
+93040    FORMAT( 'Sources with top of plume greater than layer', I3, //,
+     &           'Src ID, ', A, ', H[m], ', 'V[m/s], ', 'Ts[K], ',
+     &           'Ta[K], ', 'U[m/s], ', 'LPBL, ', 'LTOP' )
+
+93042    FORMAT( '( I6, ",", I6.6, ",", A', I2.2, ', ","', I2.2, '(A',
+     &           I2.2, ',", ") , F6.1, ", ", F6.2, ", ", F6.1, ", ",',
+     &           'F5.1, ", ", F6.2, ", ", I3, ", ", I3 )' )
+
+93044    FORMAT( I6, ",", I6.6, F6.1, ", ", F6.2, ", ", F6.1, ", ",
+     &           F5.1, ", ", F6.2, ", ", I3, ", ", I3 )
+
+93048    FORMAT( I6, F8.2, 3I4, 4F10.2 )
+
+94010    FORMAT( 12( A, :, I8, :, 1X ) )
+94020    FORMAT( 10( A, :, I7, :, 1X ) )
+94030    FORMAT( /5X, 3( A, :, 1X ), I8, ":", I6.6 )
+
+         END SUBROUTINE GET_PT3D_EMIS
+
+C-------------- Subprograms used by GET_PT3D_EMIS ----------------------
+
+         SUBROUTINE CALC_PLUME_HEIGHT(  )
+
+
+
 
 #ifdef Verbose1
             mxzplm = 0.0
 #endif
-
+            ! If The Point File is for Fires, read and save the H-Flux Data in a
+            ! Dedicated Variable, BFLUX
+            IF ( FIREFLAG( N ) ) THEN
+               IF ( .NOT. INTERPX( STKENAME( N ), 'HFLUX', PNAME,
+     &                             1,1, MY_STRT_SRC( N ),MY_END_SRC( N ), 1,1,
+     &                             LOC_STKDATE, JTIME,
+     &                             FIREVAR( N )%ARRY( 1 ) ) ) THEN
+                  XMSG = 'Could not read ' // TRIM( VNAME ) //
+     &                   ' from ' // TRIM( STKENAME( N ) )
+                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+               END IF
+               DO S = 1, MY_NSRC( N )
+                  SRC = SOURCE( N )%ARRY( S )
+                  BFLUX( N )%ARRY( S ) = FIREVAR( N )%ARRY( SRC ) * BTU2M4PS3
+               END DO
+            END IF
+ 
+C Loop through sources and compute plume rise
             DO S = 1, MY_NSRC( N )
 
                IF ( FIREFLAG( N ) ) THEN
@@ -1257,46 +1352,11 @@ C calculate smoldering fraction:
                END IF
 
 201            CONTINUE
-
-C Apportion emissions to the layers
-
-               SRC = SOURCE( N )%ARRY( S )
-               STKEM( : ) = STKEMIS( N )%ARRY( SRC,: )   ! array of species
-
-               C = MY_STKCOL( N )%ARRY( S ); R = MY_STKROW( N )%ARRY( S )
-               DO L = 1, EMLYRS
-                  LFRC = TFRAC( L )
-                  IF ( LFRC .LE. 0.0 ) CYCLE
-
-                  DO V = 1, STKEM_MAP( N )%LEN
-                     I = GAS_MAP( N )%ARRY( V )
-                     J = STKEM_MAP( N )%ARRY( V )
-                     VDEMIS_PT( C,R,L,I ) = VDEMIS_PT( C,R,L,I )
-!    &                                    + LFRC * STKEM( J )
-     &                                    + LFRC * EMIS_FAC( V ) * STKEM( J )
-                     ! Save the fire emission rate of POC (+PNCOM) so
-                     ! that we can neglect the fire emissions for pcVOC
-                     ! in GET_EMIS.
-                     IF ( FIREFLAG( N ) ) THEN
-                        IF ( STKSPC( N )%ARRY( J ) .EQ. 'POC' ) THEN
-                           VDEMIS_PT_FIRE( C,R,L,I ) = VDEMIS_PT_FIRE( C,R,L,I )
-     &                                               + LFRC * EMIS_FAC( V ) * STKEM( J ) 
-                        END IF
-                     END IF
-                  END DO
-                  DO V = 1, STKPM_MAP( N )%LEN
-                     I = PM_MAP( N )%ARRY( V )
-                     J = STKPM_MAP( N )%ARRY( V )
-                     PMEMIS_PT( C,R,L,I ) = PMEMIS_PT( C,R,L,I )
-     &                                    + LFRC * STKEM( J )   ! emis fac applied in AERO_EMIS
-                  END DO
-
-               END DO
-
-               IF ( PT3DFRAC ) THEN   ! Store layer fractions
-                  LFRAC( S,1:EMLYRS ) = TFRAC( 1:EMLYRS )  ! array
-                  ZPLUM( S,1 ) = ZPLM
-               END IF
+ 
+            IF ( PT3DFRAC ) THEN   ! Store layer fractions
+               LFRAC( S,1:EMLYRS ) = TFRAC( 1:EMLYRS )  ! array
+               ZPLUM( S,1 ) = ZPLM
+            END IF
 
 C Possible report to REPRTLAY
                IF ( LTOP .GE. REP_LAYR .AND. RDEV( N ) .GT. 0 .AND. WRTIME ) THEN
@@ -1304,105 +1364,13 @@ C Possible report to REPRTLAY
      &                                     LBOT, LTOP, STK_VEL( N )%ARRY( S ), WSTK,
      &                                     STK_TK( N )%ARRY( S ), TSTK
                END IF
+ 
 
-            END DO    ! end loop on sources S
 
-            IF ( PT3DFRAC .AND. WRTIME ) THEN     ! Write out layer fractions
-               IF ( .NOT. WRITE3_DISTR( PLAYNAME( N ), 'LFRAC', WDATE, WTIME,
-     &                                  MY_NSRC( N ), EMLYRS, LFRAC ) ) THEN
-                  XMSG = 'Error writing "LFRAC" to file "' //
-     &                    PLAYNAME( N )( 1:LEN_TRIM( PLAYNAME( N ) ) ) // '."'
-                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-               END IF
-               IF ( .NOT. WRITE3_DISTR( PLAYNAME( N ), 'ZPLUME', WDATE, WTIME,
-     &                                  MY_NSRC( N ), EMLYRS, ZPLUM ) ) THEN
-                  XMSG = 'Error writing "ZPLUM" to file "' //
-     &                    PLAYNAME( N )( 1:LEN_TRIM( PLAYNAME( N ) ) ) // '."'
-                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-               END IF
-            WRITE( LOGDEV,94030 )
-     &            'Timestep written to', TRIM( PLAYNAME( N ) ),
-     &            'for date and time', WDATE, WTIME
-            END IF
 
-#ifdef Verbose1
-            write( logdev,* ) '   Max ZPLM(', n, ' ):', mxzplm
-#endif
+         END SUBROUTINE CALC_PLUME_HEIGHT
 
-            DEALLOCATE( STKEM )
-            IF ( PT3DFRAC ) THEN
-               DEALLOCATE( LFRAC )
-               DEALLOCATE( ZPLUM )
-            END IF
-
-         END DO   ! NPTGRPS
-
-         IF ( PT3DDIAG ) THEN  ! store 3d point source emissions
-            NTICS = NTICS + 1
-            VDEMIS_BUF = VDEMIS_BUF + VDEMIS_PT   ! array assignmnt
-            PMEMIS_BUF = PMEMIS_BUF + PMEMIS_PT   ! array assignmnt
-#ifdef Verbose1
-            write( logdev,* ) '   ntics, jtime: ', ntics, jtime
-#endif
-            IF ( WRTIME ) THEN
-               DIVFAC = 1.0 / FLOAT( NTICS )
-#ifdef Verbose1
-               write( logdev,* ) '   ntics, divfac: ', ntics, divfac
-#endif
-               DO V = 1, N_GSPC_EMIS
-                  VDEMIS_BUF( :,:,:,V ) = DIVFAC * VDEMIS_BUF( :,:,:,V )
-                  IF ( .NOT. WRITE3( CTM_PT3D_DIAG, GSPC_EMIS( V ),
-     &                               WDATE, WTIME, VDEMIS_BUF( :,:,:,V ) ) ) THEN
-                     XMSG = 'Error writing "VDEMIS_PT" to '
-     &                    // CTM_PT3D_DIAG( 1:LEN_TRIM( CTM_PT3D_DIAG ) )
-                     CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-                  END IF
-               END DO
-               DO V = 1, N_ASPC_EMIS
-                  PMEMIS_BUF( :,:,:,V ) = DIVFAC * PMEMIS_BUF( :,:,:,V )
-                  IF ( .NOT. WRITE3( CTM_PT3D_DIAG, ASPC_EMIS( V ),
-     &                               WDATE, WTIME, PMEMIS_BUF( :,:,:,V ) ) ) THEN
-                     XMSG = 'Error writing "PMEMIS_PT" to '
-     &                    // CTM_PT3D_DIAG( 1:LEN_TRIM( CTM_PT3D_DIAG ) )
-                     CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-                  END IF
-               END DO
-               WRITE( LOGDEV,94030 )
-     &               'Timestep written to', CTM_PT3D_DIAG,
-     &               'for date and time', WDATE, WTIME
-            VDEMIS_BUF = 0.0   ! array
-            PMEMIS_BUF = 0.0   ! array
-            NTICS = 0
-            END IF
-         END IF
-
-         RETURN
-
-C------------------  FORMAT  STATEMENTS   ------------------------------
-
-93000    FORMAT( A / 1X, 'source', 3X, 'ht', 3X, 'lpbl', 1X, 'lbot', 1X, 'ltop',
-     &               3X, 'vel', 4X, 'windspeed', 2X, 'StkTemp', 3X, 'AmbTemp' )
-
-93040    FORMAT( 'Sources with top of plume greater than layer', I3, //,
-     &           'Src ID, ', A, ', H[m], ', 'V[m/s], ', 'Ts[K], ',
-     &           'Ta[K], ', 'U[m/s], ', 'LPBL, ', 'LTOP' )
-
-93042    FORMAT( '( I6, ",", I6.6, ",", A', I2.2, ', ","', I2.2, '(A',
-     &           I2.2, ',", ") , F6.1, ", ", F6.2, ", ", F6.1, ", ",',
-     &           'F5.1, ", ", F6.2, ", ", I3, ", ", I3 )' )
-
-93044    FORMAT( I6, ",", I6.6, F6.1, ", ", F6.2, ", ", F6.1, ", ",
-     &           F5.1, ", ", F6.2, ", ", I3, ", ", I3 )
-
-93048    FORMAT( I6, F8.2, 3I4, 4F10.2 )
-
-94010    FORMAT( 12( A, :, I8, :, 1X ) )
-94020    FORMAT( 10( A, :, I7, :, 1X ) )
-94030    FORMAT( /5X, 3( A, :, 1X ), I8, ":", I6.6 )
-
-         END SUBROUTINE GET_PT3D_EMIS
-
-C-------------- Subprograms used by GET_PT3D_EMIS ----------------------
+C-----------------------------------------------------------------------
 
          SUBROUTINE RETRIEVE_IOAPI_HEADER( FNAME, JDATE, JTIME )
 

@@ -75,9 +75,7 @@ C-----------------------------------------------------------------------
 C aerosol emissions: [ppmv/s] for mass & number spcs, [m2/mol/s] for surface area spcs
       REAL,    ALLOCATABLE, SAVE :: VDEMIS_AE( :,:,:,: )
 
-      INTEGER :: PM_EMLYRS   ! number of vertical layers on emis file (set in EMIS_DEFN)
-
-      PUBLIC VDEMIS_AE, PM_EMLYRS, AERO_EMIS_INIT, GET_AERO_EMIS
+      PUBLIC VDEMIS_AE, AERO_EMIS_INIT, GET_AERO_EMIS
       PRIVATE
 
 C Variables for converting mass emissions rate to number emissions rate
@@ -93,29 +91,18 @@ C Variables for the thickness and volume of each grid cell
 C Emission rate of all aerosol species interpolated to current time
       REAL,    ALLOCATABLE, SAVE :: EMBUFF  ( :,:,:,: ) ! in all grid cells
       REAL,    ALLOCATABLE, SAVE :: EMTMP   ( :,:,:,: ) ! in all grid cells
-      REAL,    ALLOCATABLE, SAVE :: PM_EM   ( : )       ! in one grid cell
-      REAL,    ALLOCATABLE, SAVE :: EM_RATE ( : )       !
       REAL,    ALLOCATABLE, SAVE :: EM_PART ( :,: )     !
       INTEGER, ALLOCATABLE, SAVE :: EM_MAP  ( :,: )     ! index in namelist table
       REAL,    ALLOCATABLE, SAVE :: EM_FAC  ( :,: )     ! Namelist emissions scaling factor
-      INTEGER, ALLOCATABLE, SAVE :: NUM_MAP ( : )       !
-      REAL,    ALLOCATABLE, SAVE :: NUM_FAC ( : )       !
-      INTEGER, ALLOCATABLE, SAVE :: SRF_MAP ( : )       !
-      REAL,    ALLOCATABLE, SAVE :: SRF_FAC ( : )       !
       INTEGER, ALLOCATABLE, SAVE :: SS_MAP  ( :,: )     !
       INTEGER, ALLOCATABLE, SAVE :: DUST_MAP( :,: )     !
 
 C EMBUFF     mass emission rate input global array
 C EMTMP      temporary array for reading and summing emissions into EMBUFF
 C PM_EM      mass emission rate input localized to one grid cell
-C EM_RATE    scaled PM_EM
 C EM_PART    particulate mass emission rate in one grid cell
 C EM_MAP                 mass emission rate index in VDEMIS_AE (CGRID)
 C EM_FAC                 mass emission Namelist scaling factor for VDEMIS_AE (CGRID)
-C NUM_MAP                number emission rate index in VDEMIS_AE (CGRID)
-C NUM_FAC
-C SRF_MAP                sfc area emission rate index in VDEMIS_AE (CGRID)
-C SRF_FAC
 C SS_MAP     sea salt emission rate index in SSOUTM
 C DUST_MAP   windblown dust emission rate index in DUSTOUTM
 
@@ -136,10 +123,6 @@ C Variables for converting emission rates into molar-mixing-ratio units
 C Domain decomposition info from emission and meteorology files
       INTEGER, SAVE :: STARTCOL, ENDCOL, STARTROW, ENDROW
       INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
-
-C For handling vapor-phase sulfuric acid emissions
-      INTEGER, SAVE :: VSULF               ! index to H2SO4 in VDEMIS array
-      INTEGER, SAVE :: VPSO4               ! index to PSO4 in EM_RATE array
 
 C Miscellaneous variables
       LOGICAL, SAVE :: WB_DUST   ! flag for windblown dust option
@@ -271,7 +254,6 @@ C ----------------------------------------------------------------------
 C *** Map data modules
          CALL MAP_AERO()
          CALL MAP_PRECURSOR()
-         CALL MAP_PMEMIS()
 
 C *** set up for sea-salt emission processing
          IF ( .NOT. SSEMIS_INIT( JDATE, JTIME, TSTEP ) ) THEN
@@ -292,7 +274,7 @@ C *** set up for dust emission processing
          END IF
 
          IF ( NEMIS_AE .GT. 0 ) THEN   ! all EMLAYS
-            ALLOCATE ( VDEMIS_AE( NEMIS_AE,PM_EMLYRS,MY_NCOLS,MY_NROWS ),
+            ALLOCATE ( VDEMIS_AE( NEMIS_AE,EMLAYS,MY_NCOLS,MY_NROWS ),
      &                 STAT = STATUS )
             IF ( STATUS .NE. 0 ) THEN
                XMSG = 'VDEMIS_AE memory allocation failed'
@@ -312,63 +294,35 @@ C     emission rates.  See Equation 7b of Binkowski & Roselle (2003)
 C *** Calculate factors for converting 3rd moment emission rates into 2nd 
 C     moment emission rates.  See Equation 7c of Binkowski & Roselle (2003)
          DO N = 1, N_MODE
-!           FACTM2( N ) = EXP( 0.5 * LOG( SGEM( N ) ) ** 2 ) / DGVEM( N )
             FACSRF( N ) = PI * EXP( 0.5 * LOG( SGEM( N ) ) ** 2 ) / DGVEM( N )
          END DO
 
-C *** Find location of sulfuric acid vapor in VDEMIS array
-         VNAME = 'SULF'
-         IDX = INDEX1 ( VNAME, N_GC_EMIS, GC_EMIS )
-         IF ( IDX .NE. 0 ) THEN
-            VSULF = IDX  ! index for vapor-phase H2SO4 emissions
-         ELSE
-            XMSG = 'Could not find ' // VNAME // 'in gas table'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-         END IF
-
-C *** Allocate memory for PM_EM, EMBUFF, CELLHGT, CELLVOL, and CONVEM_PM
-         ALLOCATE ( PM_EM( N_EMIS_PM ), STAT = STATUS )
-         IF ( STATUS .NE. 0 ) THEN
-            XMSG = '*** PM_EM memory allocation failed'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-         
-         ALLOCATE ( EMBUFF( NCOLS,NROWS,PM_EMLYRS,N_EMIS_PM ),
+C *** Allocate memory for EMBUFF, CELLHGT, CELLVOL, and CONVEM_PM
+         ALLOCATE ( EMBUFF( NCOLS,NROWS,EMLAYS,N_AE_EMIS ),
      &              STAT = STATUS )
          IF ( STATUS .NE. 0 ) THEN
             XMSG = '*** EMBUFF memory allocation failed'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
     
-         ALLOCATE ( EMTMP( NCOLS,NROWS,PM_EMLYRS,1 ),
+         ALLOCATE ( EMTMP( NCOLS,NROWS,EMLAYS,1 ),
      &              STAT = STATUS )
          IF ( STATUS .NE. 0 ) THEN
             XMSG = '*** EMTMP memory allocation failed'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
-         ALLOCATE ( CONVEM_PM( PM_EMLYRS ),
-     &              CELLHGT( PM_EMLYRS ),
-     &              CELLVOL( PM_EMLYRS ), STAT = STATUS )
+         ALLOCATE ( CONVEM_PM( EMLAYS ),
+     &              CELLHGT( EMLAYS ),
+     &              CELLVOL( EMLAYS ), STAT = STATUS )
          IF ( STATUS .NE. 0 ) THEN
             XMSG = '*** CONVEM_PM, CELLHGT or CELLVOL memory allocation failed'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
          
-C *** Allocate memory for EM_RATE, EM_PART, EM_MAP, EM_FAC, NUM_MAP, NUM_FAC, SRF_MAP, SRF_FAC, SS_MAP and DUST_MAP
-         ALLOCATE ( EM_RATE( N_EMIS_PM ), STAT = STATUS )
-         IF ( STATUS .NE. 0 ) THEN
-            XMSG = '*** EM_RATE memory allocation failed'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
          ALLOCATE ( EM_PART ( N_AEROSPC, N_MODE ),
      &              EM_MAP  ( N_AEROSPC, N_MODE ),
      &              EM_FAC  ( N_AEROSPC, N_MODE ),
-     &              NUM_MAP (            N_MODE ),
-     &              NUM_FAC (            N_MODE ),
-     &              SRF_MAP (            N_MODE ),
-     &              SRF_FAC (            N_MODE ),
      &              SS_MAP  ( N_AEROSPC, N_MODE ),
      &              DUST_MAP( N_AEROSPC, N_MODE ), STAT = STATUS )
          IF ( STATUS .NE. 0 ) THEN
@@ -377,72 +331,10 @@ C *** Allocate memory for EM_RATE, EM_PART, EM_MAP, EM_FAC, NUM_MAP, NUM_FAC, SR
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
-C *** Map indices of emission species
-      write( logdev,* ) '=== aerospc em_map'
-         EM_MAP = 0  
-         DO S = 1, N_AEROSPC
-            IF ( AEROSPC( S )%EMIS .NE. ' ' ) THEN
-               ! Verify that aerospc( S )%emis is a pm emis
-               DO N = 1, N_MODE
-                  IF ( .NOT. AERO_MISSING(S,N) .AND.
-     &                 AEROSPC( S )%EMIS_SPLIT( N ) .NE. 0.0 ) THEN
-                     EM_MAP( S,N ) = INDEX1( AEROSPC( S )%NAME( N ), N_AE_EMIS, AE_EMIS )
-                     write( logdev,* ) ' ', s, n, aerospc( s )%name( n ), em_map( s,n )
-!                    if ( em_map( s,n ) .eq. 0 ) then
-!                       write( logdev,* ) '*** aerospc em_map: ', s, n, em_map( s,n )
-!                    end if
-                  END IF
-               END DO
-            END IF
-         END DO
-
-C *** set across-the-board adjustment factors (from Namelist file)
-C     Strategy: first check Namelist Emis_Fac for antrhop. emis, then check for non-zero split factor
-      write( logdev,* ) 'modified aerospc em_fac'
-         EM_FAC = 1.0 ! array assignment
-         DO S = 1, N_AEROSPC
-            IF ( AEROSPC( S )%EMIS .NE. ' ' ) THEN
-               DO N = 1, N_MODE
-                  IF ( .NOT. AERO_MISSING(S,N) ) THEN
-                     L = INDEX1( AEROSPC( S )%NAME( N ), N_AE_EMIS, AE_EMIS )
-                     IF ( L .GT. 0 ) THEN
-                        EM_FAC( S,N ) = AE_EMIS_FAC( L )
-                        ! Test for POA Species and Aggregate Volatility
-                        ! Parameters
-                        IF ( AEROSPC( S )%EMIS .EQ. 'POC' ) THEN
-                            DO IPOA = 1,N_VBS_BIN
-                               IF ( AEROSPC( S )%NAME( N )(2:6) .EQ. POA_NAME( IPOA ) ) THEN
-                                  EM_FAC( S,N ) = EM_FAC( S,N ) * POA_OP_VF( IPOA ) * POA_AMF( IPOA )
-                               ENDIF
-                            END DO
-                        ENDIF
-
-                        if ( em_fac( s,n ) .ne. 1.0 ) then
-                           write( logdev,* ) ' ', s, n, aerospc( s )%name( n ), em_fac( s,n )
-                        end if
-                     END IF
-                  END IF
-               END DO
-            ELSE
-               DO N = 1, N_MODE
-                  IF ( AEROSPC( S )%EMIS_SPLIT( N ) .NE. 0.0 ) THEN
-                     L = INDEX1( AEROSPC( S )%NAME( N ), N_AE_EMIS, AE_EMIS )
-                     IF ( AE_EMIS( L ) .NE. ' ' ) THEN
-                        EM_FAC( S,N ) = AE_EMIS_FAC( L )
-                        if ( em_fac( s,n ) .ne. 1.0 ) then
-                           write( logdev,* ) ' ', s, n, aerospc( s )%name( n ), em_fac( s,n )
-                        end if
-                     END IF
-                  END IF
-               END DO
-            END IF
-         END DO
-
-
+C *** Semivolatile POA  
          IF ( INDEX( MECHNAME,"NVPOA" ) .EQ. 0 ) THEN
-           ! Semivolatile POA  
-C *** Let the user set the pcVOC species (which makes pcSOA) emissions
-C *** scaling to 0.0
+           ! Let the user set the pcVOC species (which makes pcSOA) emissions
+           ! scaling to 0.0
            ! Retrieve the Environment Variable allowing the User to Toggle
            ! the pcVOC emissions
            ZERO_PCSOA = .FALSE.         ! default
@@ -467,72 +359,8 @@ C *** scaling to 0.0
 !                  SUCCESS = .FALSE.
                 END IF
              END IF
-          END IF
-
-C *** Assign Volaitlity Distribution to Primary Orgnaic Vapor Species
-           ! Find the Index for Each Vapor and alter the emissions scaling
-           ! to reflect the parameters in AERO_DATA. The GC_EMIS_FAC field
-           ! from the GC namelist should account for the conversion from
-           ! g/s (POC) to mol/s (Vapors). That factor is then modified
-           ! by the volatility distribution itself.
-           DO IPOA = 1,N_VBS_BIN
-             VNAME = 'V' // POA_NAME( IPOA )
-             V = INDEX1( VNAME, N_GC_SPC, GC_SPC )
-             IF ( V .LT. 1 ) THEN
-                WRITE(LOGDEV,99901)TRIM( VNAME ), TRIM( VNAME ), TRIM( MECHNAME )
-                SUCCESS = .FALSE.
-             ELSE
-                S = FINDEX( V, N_GC_EMIS, GC_EMIS_MAP )
-                IF ( S .GT. 0 )THEN
-                   GC_EMIS_FAC( S ) = GC_EMIS_FAC( S ) * POA_OP_VF( IPOA ) * 
-     &                                (1.0 - POA_AMF( IPOA ) ) / GC_MOLWT( V )
-                ELSE
-                   WRITE(LOGDEV,99902)TRIM( VNAME )
-!                  SUCCESS = .FALSE.
-                END IF
-             END IF
-           END DO
-         ENDIF
-
-C *** Map aerosol number emission species and set across-the-board adjustment factors
-         NUM_MAP = 0   ! array assignment
-         NUM_FAC = 1.0 ! array assignment
-         DO N = 1, N_MODE
-            NUM_MAP( N ) = INDEX1( AEROMODE( N )%NUM_NAME, N_AE_EMIS, AE_EMIS )
-            NUM_FAC( N ) = AE_EMIS_FAC( NUM_MAP( N ) )
-#ifdef Verbose1
-            write( logdev,* ) 'num_map: ', n, num_map( n ), aeromode( n )%num_name, num_fac( n )
-#endif
-            IF ( NUM_MAP( N ) .EQ. 0 ) THEN
-               XMSG = 'FATAL: Cannot find species and emission surrogate for ' 
-     &             // TRIM( AEROMODE( N )%NUM_NAME )
-     &             // ' in AE namelist. Check against repository version of '
-     &             // ' the file.'
-!               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-               CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-               SUCCESS = .FALSE.
-            END IF
-         END DO
-
-C *** Map aerosol surface emission species and set across-the-board adjustment factors
-         SRF_MAP = 0   ! array assignment
-         SRF_FAC = 1.0 ! array assignment
-         DO N = 1, N_MODE
-            SRF_MAP( N ) = INDEX1( AEROMODE( N )%SRF_NAME, N_AE_EMIS, AE_EMIS )
-            SRF_FAC( N ) = AE_EMIS_FAC( SRF_MAP( N ) )
-#ifdef Verbose1
-            write( logdev,* ) 'srf_map: ', n, srf_map( n ), aeromode( n )%srf_name, srf_fac( n )
-#endif
-            IF ( SRF_MAP( N ) .EQ. 0 ) THEN
-               XMSG = 'FATAL: Cannot find species and emission surrogate for ' 
-     &             // TRIM( AEROMODE( N )%SRF_NAME )
-     &             // ' in AE namelist. Check against repository version of '
-     &             // ' the file.'
-!               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-               CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-               SUCCESS = .FALSE.
-            END IF
-         END DO
+           END IF
+         END IF
 
 C *** PVB: speciate PMC (from AERO_DATA)
          N = N_MODE
@@ -546,16 +374,10 @@ C *** Map sea salt emission species
          SS_MAP = 0   ! array assignment
          DO S = 1, NSSSPC
             IDX = SSSPC_MAP( S )
-#ifdef Verbose1
-            write( logdev,* ) 'ssspc_map: ', s, idx, ssspc_map( s )
-#endif
             DO N = 2, N_MODE   ! add SEASALT indices to EM_MAP
                IF ( .NOT. AERO_MISSING( IDX,N ) ) THEN
                   EM_MAP( IDX,N ) = INDEX1( AEROSPC( IDX )%NAME( N ), N_AE_EMIS, AE_EMIS )
                   SS_MAP( IDX,N ) = S
-#ifdef Verbose1
-               write( logdev,* ) 'ss_map:    ', s, n, idx, ss_map( idx,n ), aerospc( idx )%name( n )
-#endif
                END IF
             END DO
          END DO
@@ -578,39 +400,9 @@ C *** Map windblown dust emission species
                         CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
                         SUCCESS = .FALSE.
                      END IF
-#ifdef Verbose1
-                  write( logdev,* ) 'dust_map: ', n, s, dust_map( idx,n ), aerospc( idx )%name( n )
-#endif
                   END IF
                END DO
             END DO
-         END IF
-
-#ifdef Verbose1
-         do s = 1, n_aerospc
-            do n = 1, n_mode
-               if ( em_map( s,n ) .ne. 0 ) then
-                  write( logdev,* ) 'em_map: ', n, s, em_map( s,n ), aerospc( s )%name( n ), em_fac( s,n )
-               end if
-            end do
-         end do
-#endif
-
-C *** get index of SO4 emissions
-         VPSO4 = 0
-         DO S = 1, N_EMIS_PM
-            IF ( PMEM_MAP( S ) .EQ. ASO4_IDX ) VPSO4 = S
-#ifdef Verbose1
-               write( logdev,* ) 'vpso4: ', s, pmem_map( s ), aso4_idx, vpso4
-#endif
-         END DO
-
-         IF ( VPSO4 .EQ. 0 ) THEN
-            XMSG = 'Cannot define index for SO4 emissions: '
-     &           // 'aerospc%emis='' '' in AERO_DATA.F. Check if AE '
-     &           // 'namelist is missing lines for ASO4I, ASO4J, and ASO4K'
-            CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-            SUCCESS = .FALSE.
          END IF
 
 C *** Get length and width of each grid cell
@@ -628,7 +420,7 @@ C     note: crude estimate is made for LAT/LONG coordinate systems
 C *** Get height of grid cell in each layer in sigma coordinates
 C     Multiply by grid area [m2] to obtain grid volume
          CELLAREA = DX1 * DX2
-         DO L = 1, PM_EMLYRS
+         DO L = 1, EMLAYS
             CELLHGT( L ) = X3FACE_GD( L ) - X3FACE_GD( L-1 )
             CELLVOL( L ) = CELLHGT( L ) * CELLAREA
          END DO
@@ -652,7 +444,7 @@ C     already opened.
             SUCCESS = .FALSE.
          END IF
 
-         DO L = 1, PM_EMLYRS
+         DO L = 1, EMLAYS
             CONVEM_PM( L ) = CONVEM_PM_MASS / CELLVOL( L )
          END DO
 
@@ -759,51 +551,10 @@ C Miscellaneous variables
 
 C ----------------------------------------------------------------------
 
-C *** Read aerosol emission rates from file and interpolate to the current
-C     time.  Store result in EMBUFF array.
-
-         IF ( PT3DEMIS ) THEN   ! in-line plume rise
-
-            EMBUFF = 0.0   ! array assignment
-            EMTMP  = 0.0
-
-            DO S = 1, N_EMIS_PM   ! read 2d file
-               IDX = PMEM_MAP( S )
-               IF ( .NOT. INTERPX( EMIS_1, PMEM_MAP_NAME( S ), PNAME,
-     &                           STARTCOL,ENDCOL, STARTROW,ENDROW, 1,1,
-     &                           JDATE, JTIME, EMBUFF( 1,1,1,S ) ) ) THEN
-                  XMSG = 'Could not read '
-     &               // TRIM( AEROSPC( IDX )%EMIS ) // ' from ' // EMIS_1
-                  CALL M3WARN ( PNAME, JDATE, JTIME, XMSG  )
-               END IF
-            END DO
-
-            DO S = 1, N_SPC_PTPM   ! merge inline point src PM species
-               V = PTPM_MAP( S )   ! set in PT3D_DEFN
-               DO L = 1, PM_EMLYRS
-                  DO R = 1, MY_NROWS
-                     DO C = 1, MY_NCOLS
-!                       EMBUFF( C,R,L,S ) = EMBUFF( C,R,L,S ) + PMEMIS_PT( C,R,L,V )
-                        EMBUFF( C,R,L,V ) = EMBUFF( C,R,L,V ) + PMEMIS_PT( C,R,L,S )
-                     END DO
-                  END DO
-               END DO
-            END DO
-
-         ELSE   ! read 3d file
-
-            DO S = 1, N_EMIS_PM
-               IDX = PMEM_MAP( S )
-               IF ( .NOT. INTERPX( EMIS_1, PMEM_MAP_NAME( S ), PNAME,
-     &                           STARTCOL,ENDCOL, STARTROW,ENDROW, 1,PM_EMLYRS,
-     &                           JDATE, JTIME, EMBUFF( 1,1,1,S ) ) ) THEN
-                 XMSG = 'Could not read '
-     &             // TRIM( AEROSPC( IDX )%EMIS ) // ' from ' // EMIS_1
-                 CALL M3WARN ( PNAME, JDATE, JTIME, XMSG  )
-               END IF
-            END DO
-
-         END IF
+C *** Aerosol emission rates are already in the VDEMIS Array.
+C     Distribute Aerosol Emissions in Size Space. This routine 
+C     will populate the EMBUFF_AERO, EMBUFF_NUM, and EMBUFF_SRF arrays.
+      CALL EMISS_SIZE_DIST( VDEMIS )
 
 C *** Read air density [kg/m3], atmospheric pressure [Pa], air temperature 
 C     [K], specific humidity [kg H2O / kg air], and 10m wind speed [m/s] 
@@ -819,159 +570,77 @@ C     in DENS, PRES, TA, QV, and WSPD10 arrays.
 C *** Get sea salt emissions
          CALL GET_SSEMIS ( JDATE, JTIME, TSTEP, CELLVOL( 1 ), CELLHGT( 1 ) )
 
-         IF ( WB_DUST ) THEN
 C *** Get dust emissions
+         IF ( WB_DUST ) THEN
             CALL GET_DUST_EMIS ( JDATE, JTIME, TSTEP, Met_data%RJACM( :,:,1 ), CELLHGT( 1 ) )
          END IF
 
-C *** Loop over each grid cell in layer 1
-
-         L = 1
-         DO R = 1, MY_NROWS
-            DO C = 1, MY_NCOLS
-
-C *** Store aerosol emission rates for this grid cell in a 1D array
-               DO S = 1, N_EMIS_PM
-                 PM_EM( S ) = EMBUFF( C,R,L,S )
-               END DO
-
-C *** Get grid cell values for sea salt emission rates
-C     Convert units of SSOUTM from [g/m3/s] to [ug/m3/s].
-               CR_SSM = 0.0   ! array assignment
-               DO N = 1, N_MODE
-                  DO S = 1, N_AEROSPC
-                     IF ( SS_MAP( S,N ) .NE. 0 )
-     &                  CR_SSM( S,N ) = SSOUTM( SS_MAP( S,N ),N,C,R ) * MGPG
-                  END DO
-                  CR_SSN( N ) = SSOUTN( N,C,R )
-                  CR_SSS( N ) = SSOUTS( N,C,R )
-               END DO
-
-               IF ( WB_DUST ) THEN
-C *** Get grid cell values for windblown dust emission rates
-C     Convert units of DUSTOUTM from [g//m3/s] to [ug/m3/s]
-                  CR_DUSTM = 0.0   ! array assignment
-                  DO N = 1, N_MODE
-                     DO S = 1, N_AEROSPC
-                        IF ( DUST_MAP( S,N ) .NE. 0 )
-     &                     CR_DUSTM( S,N ) = DUSTOUTM( DUST_MAP( S,N ),N,C,R ) * MGPG
-                     END DO
-                     CR_DUSTN( N ) = DUSTOUTN( N,C,R )
-                     CR_DUSTS( N ) = DUSTOUTS( N,C,R )
-                  END DO
-               END IF
-
+C *** Loop over each grid cell
+         DO L = 1, EMLAYS
+           DO R = 1, MY_NROWS
+             DO C = 1, MY_NCOLS
+ 
 C *** Calculate scaling factor for converting mass emissions into [ug/m3/s]
 C     note: RJACM converts grid heights from sigma coordinates to meters
 C     Also calculate scaling factors for converting to molar-mixing-ratio units
-               GSFAC = CONVEM_PM( L ) * Met_Data%RJACM( C,R,L )
+               GSFAC = CONVEM_PM( L ) * Met_Data%RJACM( C,R,L ) ![g/s] or [kg/hr] to [ug/m3/s]
                CONVM = MWAIR / GPKG / DENS( C,R,L )   ! [m3/mol]
                CONVN = CONVM * RAVO * 1.0E+06         ! 10^6 * [m3]
                CONVS = CONVM                          ! [m3/mol]
-
-C *** Calculate speciated mass emission rates for fine aerosol [ug/m3/s]
-               DO S = 1, N_EMIS_PM
-                  EM_RATE( S ) = PM_EM( S ) * GSFAC
+ 
+C *** Store aerosol emission rates for this grid cell in a 1D array
+               DO IAERO = 1,N_AEROSPC
+                 DO IM = 1,N_MODE
+                   EM_PART( IAERO,IM ) = EMBUFF_AERO( C,R,L,MAP_EMBUFF( IAERO,IM ) ) * GSFAC
+                 END DO
                END DO
+               EM_NUM( : )    = EMBUFF_NUM ( C,R,L,: )
+               EM_SRF( : )    = EMBUFF_SRF ( C,R,L,: )
 
-C *** Extract H2SO4 vapor emission rate from the VDEMIS array, add it to
-C     the fine-PM sulfate emissions, and remove it from the gas emissions
-               EM_RATE( VPSO4 ) = EM_RATE( VPSO4 ) + VDEMIS( VSULF,L,C,R )
-     &                          * REAL( PRECURSOR_MW( SULF_IDX ), 4 ) / CONVM
-               VDEMIS( VSULF,L,C,R ) = 0.0
+C *** Incorporate Surface Layer Processes for Layer 1 Only
+               IF ( L .EQ. 1 ) THEN
 
-C *** Assign fine-particle emission rates to the fine modes.
-C     Assume all non-seasalt-emissions of sulfate, nitrate, and unspeciated
-C     fine PM are in the accumulation mode.  Split the carbon emissions 
-C     between the Aitken and accumulation modes, as described in paragraph 
-C     #12 of Binkowski & Roselle (2003).
+C *** Get grid cell values for sea salt emission rates
+C     Convert units of SSOUTM from [g/m3/s] to [ug/m3/s].
+                 CR_SSM = 0.0   ! array assignment
+                 DO N = 1, N_MODE
+                    DO S = 1, N_AEROSPC
+                       IF ( SS_MAP( S,N ) .NE. 0 )
+     &                    CR_SSM( S,N ) = SSOUTM( SS_MAP( S,N ),N,C,R ) * MGPG
+                    END DO
+                    CR_SSN( N ) = SSOUTN( N,C,R )
+                    CR_SSS( N ) = SSOUTS( N,C,R )
+                 END DO
 
-C *** Calculate emissions rate for third moments [m3/m3/s] of each mode 
-C     (excluding sea salt and windblown dust), as in Equation 7a of
-C     Binkowski & Roselle (2003).
-               EM_PART = 0.0   ! array assignment
-               EMISM3 = 0.0    ! array assignment
-               DO S = 1, N_EMIS_PM
-                  IDX = PMEM_MAP( S )
-                  DO N = 1, N_MODE - 1
-                     EM_PART( IDX,N ) = EM_PART( IDX,N ) + 
-     &                        AEROSPC( IDX )%EMIS_SPLIT( N ) * EM_RATE( S )
-     &                            * EM_FAC( IDX,N )
-                     IF ( .NOT. AEROSPC( IDX )%TRACER ) THEN
-                        EMISM3( N ) = EMISM3( N ) + 
-     &                        AEROSPC( IDX )%EMIS_SPLIT( N ) * EM_RATE( S )
-     &                          * EM_FAC( IDX,N ) * ( F6DPIM9 / AEROSPC( IDX )%DENSITY )
-                     END IF
-                  END DO
+                 !Save Sea-Spray Emissions (Mass, Num, and Surface Area
+                 !to Aggregate Arrays
+                 EM_PART( :,: ) = EM_PART( :,: ) + CR_SSM( :,: )
+                 EM_NUM( : ) = EM_NUM( : ) + CR_SSN( : )
+                 EM_SRF( : ) = EM_SRF( : ) + CR_SSS( : )
 
-                  !Apply Emissions to Coarse Aerosol Mode
-                  N = N_MODE
-                  IF ( IDX .EQ. ASO4_IDX ) THEN
-                     EM_PART( IDX,N ) = SPFC_ASO4 * EM_RATE( S ) * EM_FAC( IDX,N )
-                  ELSE IF ( IDX .EQ. ANO3_IDX ) THEN
-                     EM_PART( IDX,N ) = SPFC_ANO3 * EM_RATE( S ) * EM_FAC( IDX,N )
-                  ELSE IF ( IDX .EQ. ACL_IDX ) THEN
-                     EM_PART( IDX,N ) = SPFC_ACL * EM_RATE( S ) * EM_FAC( IDX,N )
-                  ELSE IF ( IDX .EQ. AH2O_IDX ) THEN
-                     EM_PART( IDX,N ) = SPFC_AH2O * EM_RATE( S ) * EM_FAC( IDX,N )
-                  ELSE IF ( IDX .EQ. ACORS_IDX ) THEN
-                     EM_PART( IDX,N ) = SPFC_ACORS * EM_RATE( S ) * EM_FAC( IDX,N )
-                  ELSE
-                     EM_PART( IDX,N ) = AEROSPC( IDX )%EMIS_SPLIT( N ) 
-     &                                    * EM_RATE( S ) * EM_FAC( IDX,N )
-                  END IF
-                  IF ( .NOT. AEROSPC( IDX )%TRACER ) THEN
-                     EMISM3( N ) = EMISM3( N ) + EM_PART( IDX,N )
-     &                           * ( F6DPIM9 / AEROSPC( IDX )%DENSITY )
-                  END IF
-               END DO
 
-C *** Calculate the number emissions rate for each mode [1/m3/s], using 
-C     Equation 7b of Binkowski & Roselle (2003).
-               DO N = 1, N_MODE
-                  EM_NUM( N ) = FACNUM( N ) * EMISM3( N )
-               END DO
+C *** Get grid cell values for windblown dust emission rates
+C     Convert units of DUSTOUTM from [g/m3/s] to [ug/m3/s]
+                 IF ( WB_DUST ) THEN
+                    CR_DUSTM = 0.0   ! array assignment
+                    DO N = 1, N_MODE
+                       DO S = 1, N_AEROSPC
+                          IF ( DUST_MAP( S,N ) .NE. 0 )
+     &                       CR_DUSTM( S,N ) = DUSTOUTM( DUST_MAP( S,N ),N,C,R ) * MGPG
+                       END DO
+                       CR_DUSTN( N ) = DUSTOUTN( N,C,R )
+                       CR_DUSTS( N ) = DUSTOUTS( N,C,R )
+                    END DO
 
-C *** Calculate the surface area emissions rate for the fine modes [m2/m3/s],
-C     using Equation 7c of Binkowski & Roselle (2003).  Multiplying by PI 
-C     converts 2nd moment to surface area.
-               DO N = 1, N_MODE
-                  EM_SRF( N ) = FACSRF( N ) * EMISM3( N )
-               END DO
+                    !Save Wind-Blown Dust Emissions (Mass, Num and Surface
+                    !Area) to Aggregate Aerosol Emissions Array
+                    EM_PART( :,: ) = EM_PART( :,: ) + CR_DUSTM( :,: )
+                    EM_NUM( : ) = EM_NUM( : ) + CR_DUSTN( : )
+                    EM_SRF( : ) = EM_SRF( : ) + CR_DUSTS( : )
 
-C *** Add Sea-salt mass emissions to mode- and species-specific emissions
-C     in layer 1.  Units of CR_SSM are [ug/m3/s].  Sea-salt sulfate in the fine
-C     modes must be added to the anthropogenic sulfate emissions.  Remaining
-C     sea-salt species are not in the standard inventory.
-               DO N = 1, N_MODE
-                  DO S = 1, N_AEROSPC
-                     EM_PART( S,N ) = EM_PART( S,N ) + CR_SSM( S,N )
-                  END DO
-               END DO
+                 END IF
 
-C *** Add sea salt to the total emissions of particle number and surface area
-               DO N = 1, N_MODE
-                  EM_NUM( N ) = EM_NUM( N ) + CR_SSN( N )
-                  EM_SRF( N ) = EM_SRF( N ) + CR_SSS( N )
-               END DO
-
-               IF ( WB_DUST ) THEN
-
-C *** Add windblown dust mass emissions to mode- and species-specific
-C     emissions in layer 1.  Units of CR_DUSTM are [ug/m3/s].
-                  DO N = 1, N_MODE
-                     DO S = 1, N_AEROSPC
-                        EM_PART( S,N ) = EM_PART( S,N ) + CR_DUSTM( S,N )
-                     END DO
-                  END DO
-
-C *** Add windblown dust to the total emissions of particle number and surface area
-                  DO N = 1, N_MODE
-                     EM_NUM( N ) = EM_NUM( N ) + CR_DUSTN( N )
-                     EM_SRF( N ) = EM_SRF( N ) + CR_DUSTS( N )
-                  END DO
-
-               END IF
+               END IF  ! Layer == 1
 
 C *** Convert emission rates into molar-mixing-ratio units, as required by
 C     the vertical diffusion routines.  Mass and number emissions are converted
@@ -979,116 +648,22 @@ C     to [ppmv/s].  Note: EM_PART has units of [ug/m3/s] and mol(s)/mol(air) is
 C     1.0e6 ppmv; so 1.0e-6 ug/g cancels the 1.0e6 ppmv/[mol(s)/mol(air)].
 C     Surface area emissions are converted to [m2/mol/s].
 C     Save results in the VDEMIS_AE array.
+               DO ISPC = 1, N_EMIS_SPC
+                  IF ( MAP_EMtoAERO( ISPC ) .GT. 0 ) THEN
+                     IAERO = MAP_EMtoAERO( ISPC )
+                     IMODE = MAP_EMtoMODE( ISPC )
+                     VDEMIS( ISPC,L,C,R ) = EM_PART( IAERO,IMODE )
+     &                                    * ( CONVM / AEROSPC_MW( IAERO ) )
+                  END IF
+               END DO
                DO N = 1, N_MODE
-                  DO S = 1, N_AEROSPC
-                     IF ( EM_MAP( S,N ) .GT. 0 ) THEN
-                        VDEMIS_AE( EM_MAP( S,N ),L,C,R ) = EM_PART( S,N )
-     &                                      * ( CONVM / AEROSPC_MW( S ) )
-                     END IF
-                  END DO
-                  VDEMIS_AE( NUM_MAP( N ),L,C,R ) = EM_NUM( N ) * NUM_FAC( N ) * CONVN
-                  VDEMIS_AE( SRF_MAP( N ),L,C,R ) = EM_SRF( N ) * SRF_FAC( N ) * CONVS
+                  VDEMIS( MAP_NUMtoEM( N ),L,C,R ) = EM_NUM( N ) * CONVN
+                  VDEMIS( MAP_SRFtoEM( N ),L,C,R ) = EM_SRF( N ) * CONVS
                END DO
 
-            END DO   ! loop on MY_NCOLS
-         END DO   ! loop on MY_NROWS
-
-         DO L = 2, PM_EMLYRS
-            DO R = 1, MY_NROWS
-               DO C = 1, MY_NCOLS
-
-C *** Store aerosol emission rates for this grid cell in a 1D array
-                  DO S = 1, N_EMIS_PM
-                     PM_EM( S ) = EMBUFF( C,R,L,S )
-                  END DO
-
-C *** Calculate scaling factor for converting mass emissions into [ug/m3/s]
-C     note: RJACM converts grid heights from sigma coordinates to meters
-C     Also calculate scaling factors for converting to molar-mixing-ratio units
-                  GSFAC = CONVEM_PM( L ) * Met_Data%RJACM( C,R,L )
-                  CONVM = MWAIR / GPKG / DENS( C,R,L )   ! [m3/mol]
-                  CONVN = CONVM * RAVO * 1.0E+06         ! 10^6 * [m3]
-                  CONVS = CONVM                          ! [m3/mol]
-
-C *** Calculate speciated mass emission rates for fine aerosol [ug/m3/s]
-                  DO S = 1, N_EMIS_PM
-                     EM_RATE( S ) = PM_EM( S ) * GSFAC
-                  END DO
-
-C *** Extract H2SO4 vapor emission rate from the VDEMIS array, add it to
-C     the fine-PM sulfate emissions, and remove it from the gas emissions
-                  EM_RATE( VPSO4 ) = EM_RATE( VPSO4 ) + VDEMIS( VSULF,L,C,R )
-     &                             * REAL( PRECURSOR_MW( SULF_IDX ), 4 ) / CONVM
-                  VDEMIS( VSULF,L,C,R ) = 0.0
-
-C *** Calculate emissions rate for third moments [m3/m3/s] of each mode 
-C     (excluding sea salt), as in Equation 7a of Binkowski & Roselle (2003).
-                  EM_PART = 0.0   ! array assignment
-                  EMISM3 = 0.0    ! array assignment
-                  DO S = 1, N_EMIS_PM
-                     IDX = PMEM_MAP( S )
-                     DO N = 1, N_MODE - 1
-                        EM_PART( IDX,N ) = EM_PART( IDX,N ) + 
-     &                      AEROSPC( IDX )%EMIS_SPLIT( N ) * EM_RATE( S ) * EM_FAC( IDX,N )
-                        IF ( .NOT. AEROSPC( IDX )%TRACER ) THEN
-                           EMISM3( N ) = EMISM3( N ) + 
-     &                     AEROSPC( IDX )%EMIS_SPLIT( N ) * EM_RATE( S ) * EM_FAC( IDX,N )
-     &                        * ( F6DPIM9 / AEROSPC( IDX )%DENSITY )
-                        END IF
-                     END DO
-
-                     !Compute Coarse Mode Properties
-                     N = N_MODE
-                     IF ( IDX .EQ. ASO4_IDX ) THEN
-                        EM_PART( IDX,N ) = SPFC_ASO4 * EM_RATE( S ) * EM_FAC( IDX,N )
-                     ELSE IF ( IDX .EQ. ANO3_IDX ) THEN
-                        EM_PART( IDX,N ) = SPFC_ANO3 * EM_RATE( S ) * EM_FAC( IDX,N )
-                     ELSE IF ( IDX .EQ. ACL_IDX ) THEN
-                        EM_PART( IDX,N ) = SPFC_ACL * EM_RATE( S ) * EM_FAC( IDX,N )
-                     ELSE IF ( IDX .EQ. AH2O_IDX ) THEN
-                        EM_PART( IDX,N ) = SPFC_AH2O * EM_RATE( S ) * EM_FAC( IDX,N )
-                     ELSE IF ( IDX .EQ. ACORS_IDX ) THEN
-                        EM_PART( IDX,N ) = SPFC_ACORS * EM_RATE( S ) * EM_FAC( IDX,N )
-                     ELSE
-                        EM_PART( IDX,N ) = AEROSPC( IDX )%EMIS_SPLIT( N ) * EM_RATE( S ) * EM_FAC( IDX,N )
-                     END IF
-                     IF ( .NOT. AEROSPC( IDX )%TRACER ) THEN
-                        EMISM3( N ) = EMISM3( N ) + EM_PART( IDX,N )
-     &                              * ( F6DPIM9 / AEROSPC( IDX )%DENSITY )
-                     END IF
-                  END DO
-
-C *** Calculate the number emissions rate for each mode [1/m3/s], using 
-C     Equation 7b of Binkowski & Roselle (2003).
-                  DO N = 1, N_MODE
-                     EM_NUM( N ) = FACNUM( N ) * EMISM3( N )
-                  END DO
-
-C *** Calculate the surface area emissions rate for the fine modes [m2/m3/s],
-C     using Equation 7c of Binkowski & Roselle (2003).  Multiplying by PI 
-C     converts 2nd moment to surface area.
-                  DO N = 1, N_MODE
-                     EM_SRF( N ) = FACSRF( N ) * EMISM3( N )
-                  END DO
-
-C *** Convert emission rates into molar-mixing-ratio units, as required by
-C     the vertical diffusion routines.  Mass and number emissions are 
-C     converted to [ppmv/s].  Surface area emissions are converted to 
-C     [m2/mol/s].  Save results in the VDEMIS_AE array.
-                  DO N = 1, N_MODE
-                     DO S = 1, N_AEROSPC
-                        IF ( EM_MAP( S,N ) .GT. 0 ) THEN
-                           VDEMIS_AE( EM_MAP( S,N ),L,C,R ) = EM_PART( S,N )
-     &                                             * CONVM / AEROSPC_MW( S )
-                        END IF
-                     END DO
-                     VDEMIS_AE( NUM_MAP( N ),L,C,R ) = EM_NUM( N ) * NUM_FAC( N ) * CONVN
-                     VDEMIS_AE( SRF_MAP( N ),L,C,R ) = EM_SRF( N ) * SRF_FAC( N ) * CONVS
-                  END DO
-
-               END DO   ! loop on MY_NCOLS
-            END DO   ! loop on MY_NROWS
-         END DO   ! loop on PM_EMLYRS
+             END DO   ! loop on MY_NCOLS
+           END DO   ! loop on MY_NROWS
+         END DO  ! loop on layers 
 
 #ifdef Verbose2
          write( logdev,'(/"@@@1", i8, i7.6)') jdate, jtime
@@ -1108,5 +683,90 @@ C     [m2/mol/s].  Save results in the VDEMIS_AE array.
 
          END SUBROUTINE GET_AERO_EMIS
 
+C-----------------------------------------------------------------------
+
+         SUBROUTINE EMISS_SIZE_DIST ( VDEMIS )
+
+C  EMISS_SIZE_DIST distributes bulk aerosol emissions into size space
+C  using parameters precompiled in the AERO_DATA module. 
+C
+C  Revision History:
+
+C   16 AUG 17 BMURPHY: Created
+C                      
+C ----------------------------------------------------------------------
+
+         USE GRID_CONF
+         USE AERO_DATA, ONLY : AEROSPC, EMSD_PROF, EMWT_PROF,
+     &                         ACORS_IDX, ASO4_IDX, ANO3_IDX, ACL_IDX, AH2O_IDX
+         USE AEROMET_DATA
+
+         REAL,    INTENT( IN )  :: VDEMIS( :,:,:,: )
+         INTEGER, INTENT( IN )  :: J_EMGROUP
+         INTEGER, INTENT( IN )  :: EMAERO_LIST( : )
+
+         INTEGER :: N, S, IAERO   ! Looping Variables
+         INTEGER :: NSPC                 ! Size of EMAEROLIST
+         REAL    :: WT
+         REAL    :: EMISM3( MY_NCOLS,MY_NROWS,EMLAYS,N_MODE )
+         REAL    :: CORS_EMIS( MY_NCOLS,MY_NROWS,EMLAYS )
+         REAL, PARAMETER :: F6DPIM9 = 1.0E-9 * F6DPI  ! 1.0E-9 = Kg/ug
+
+
+C *** Initialize Variables   
+         NSPC  = SIZE( EMAERO_LIST )
+         EMBUFF_AERO = 0.0
+         EMISM3 = 0.0
+
+C *** Loop through dimensions of emissions array
+         DO ISPC = 1,N_EMIS_SPC
+             IAERO = MAP_EMtoAERO( ISPC )
+             IMODE = MAP_EMtoMODE( ISPC )
+             IF ( IAERO .EQ. 0 ) CYCLE
+                 
+             EMBUFF_AERO( :,:,:,MAP_EMBUFF( IAERO,IMODE ) ) = 
+     &       EMBUFF_AERO( :,:,:,MAP_EMBUFF( IAERO,IMODE ) )  
+     &             + EMWT_PROF( IAERO,IMODE ) * VDEMIS( ISPC,:,:,: ) 
+                 
+                 ! Sum Total Volume of Mode N
+             IF ( .NOT. AEROSPC( IAERO )%TRACER ) THEN
+                   EMISM3( :,:,:,IMODE ) = EMISM3( :,:,:,IMODE ) + 
+     &                   EMWT_PROF( IAERO,IMODE ) * VDEMIS( ISPC,:,:,: )
+     &                     * ( F6DPIM9 / AEROSPC( IAERO )%DENSITY )
+             END IF
+
+             ! Apply Speciation to Coarse Aerosol Mode Emission
+             IF ( IAERO .EQ. ACORS_IDX .AND. IMODE .EQ. N_MODE ) THEN
+                CORS_EMIS( :,:,: ) = VDEMIS( ISPC,:,:,: ) 
+                EMBUFF_AERO( :,:,:,MAP_EMBUFF( ASO4_IDX,IMODE ) ) = SPFC_ASO4  * CORS_EMIS 
+                EMBUFF_AERO( :,:,:,MAP_EMBUFF( ANO3_IDX,IMODE ) ) = SPFC_ANO3  * CORS_EMIS 
+                EMBUFF_AERO( :,:,:,MAP_EMBUFF( ACL_IDX,IMODE  ) ) = SPFC_ACL   * CORS_EMIS 
+                EMBUFF_AERO( :,:,:,MAP_EMBUFF( AH2O_IDX,IMODE ) ) = SPFC_AH2O  * CORS_EMIS 
+                EMBUFF_AERO( :,:,:,MAP_EMBUFF( ACORS_IDX,IMODE) ) = SPFC_ACORS * CORS_EMIS 
+                
+                ! Adjust 3rd Moment Summation to Account for Density
+                ! Change in dust speciation
+                EMISM3( :,:,:,IMODE ) = EMISM3( :,:,:,IMODE ) 
+     &             - CORS_EMIS( :,:,: ) * ( F6DPIM9 / AEROSPC( ACORS_IDX )%DENSITY )
+     &             + EMBUFF_AERO( :,:,:,MAP_EMBUFF( ASO4_IDX,IMODE ) )* (F6DPIM9 / AEROSPC( ASO4_IDX )%DENSITY )
+     &             + EMBUFF_AERO( :,:,:,MAP_EMBUFF( ANO3_IDX,IMODE ) )* (F6DPIM9 / AEROSPC( ANO3_IDX )%DENSITY )
+     &             + EMBUFF_AERO( :,:,:,MAP_EMBUFF( ACL_IDX,IMODE  ) )* (F6DPIM9 / AEROSPC( ACL_IDX )%DENSITY )
+     &             + EMBUFF_AERO( :,:,:,MAP_EMBUFF( AH2O_IDX,IMODE ) )* (F6DPIM9 / AEROSPC( AH2O_IDX )%DENSITY )
+     &             + EMBUFF_AERO( :,:,:,MAP_EMBUFF( ACORS_IDX,IMODE) )* (F6DPIM9 / AEROSPC( ACORS_IDX )%DENSITY )
+             END IF
+         END DO          
+
+C *** Calculate the number emissions rate for each mode [1/m3/s], using 
+C     Equation 7b of Binkowski & Roselle (2003).
+C *** Calculate the surface area emissions rate for the fine modes [m2/m3/s],
+C     using Equation 7c of Binkowski & Roselle (2003).  Multiplying by PI 
+C     converts 2nd moment to surface area.
+         DO IMODE = 1,N_MODE
+            EMBUFF_NUM( :,:,:,IMODE ) = EMISM3( :,:,:,IMODE ) * FACNUM( IMODE )
+            EMBUFF_SRF( :,:,:,IMODE ) = EMISM3( :,:,:,IMODE ) * FACSRF( IMODE )
+         END DO
+
+         END SUBROUTINE EMISS_SIZE_DIST
+ 
       END MODULE AERO_EMIS
 

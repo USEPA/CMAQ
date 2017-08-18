@@ -111,48 +111,48 @@ C In-line biogenic emissions?
             END IF
 
 C biogenics to gas-phase species map
-            ALLOCATE( BEIS_MAP( MSPCS ), STAT = STATUS )
-            IF ( STATUS .NE. 0 ) THEN
-              XMSG = 'BEIS_MAP memory allocation failed'
-               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-               SUCCESS = .FALSE.; RETURN
-            END IF
-
-            N_SPC_BIOG = 0
-            DO V = 1, MSPCS
-               K = INDEX1( EMSPC( V ), N_GC_EMIS, GC_EMIS )
-               IF ( K .GT. 0 ) THEN
-                  N_SPC_BIOG = N_SPC_BIOG + 1
-                  BEIS_MAP( V ) = K
-               ELSE
-                  WRITE( LOGDEV,'(/5X,A)' ) TRIM( EMSPC( V ) ) //
-     &                              ' not found in GC_EMIS'
-                  K = INDEX1( EMSPC( V ), N_NR_EMIS, NR_EMIS )
-                  IF ( K .GT. 0 ) THEN
-                     N_SPC_BIOG = N_SPC_BIOG + 1
-                     BEIS_MAP( V ) = N_GC_EMIS + K
-                     WRITE( LOGDEV,* ) ' '
-                  ELSE
-                     WRITE( LOGDEV,'(5X,A/)' ) TRIM( EMSPC( V ) ) //
-     &                                 ' not found in NR_EMIS either'
-                     BEIS_MAP( V ) = 0
-                  END IF
-               END IF
-            END DO
+    !        ALLOCATE( BEIS_MAP( MSPCS ), STAT = STATUS )
+    !        IF ( STATUS .NE. 0 ) THEN
+    !          XMSG = 'BEIS_MAP memory allocation failed'
+    !           CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+    !           SUCCESS = .FALSE.; RETURN
+    !        END IF
+    !
+    !        N_SPC_BIOG = 0
+    !        DO V = 1, MSPCS
+    !           K = INDEX1( EMSPC( V ), N_GC_EMIS, GC_EMIS )
+    !           IF ( K .GT. 0 ) THEN
+    !              N_SPC_BIOG = N_SPC_BIOG + 1
+    !              BEIS_MAP( V ) = K
+    !           ELSE
+    !              WRITE( LOGDEV,'(/5X,A)' ) TRIM( EMSPC( V ) ) //
+    ! &                              ' not found in GC_EMIS'
+    !              K = INDEX1( EMSPC( V ), N_NR_EMIS, NR_EMIS )
+    !              IF ( K .GT. 0 ) THEN
+    !                 N_SPC_BIOG = N_SPC_BIOG + 1
+    !                 BEIS_MAP( V ) = N_GC_EMIS + K
+    !                 WRITE( LOGDEV,* ) ' '
+    !              ELSE
+    !                 WRITE( LOGDEV,'(5X,A/)' ) TRIM( EMSPC( V ) ) //
+    ! &                                 ' not found in NR_EMIS either'
+    !                 BEIS_MAP( V ) = 0
+    !              END IF
+    !           END IF
+    !        END DO
 
 #ifdef Verbose
-            WRITE( LOGDEV,* ) ' '
-            WRITE( LOGDEV,* ) '    Spc INDEX1 BEIS_MAP EMSPC'
-            DO V = 1, MSPCS
-               K = INDEX1( EMSPC( V ), N_GC_EMIS, GC_EMIS )
-               IF ( K .LE. 0 ) THEN
-                  K = INDEX1( EMSPC( V ), N_NR_EMIS, NR_EMIS )
-               END IF
-               WRITE( LOGDEV,'( 3X, 2I5, I8, 4X, A16 )' )
-     &                        V, K, BEIS_MAP( V ), EMSPC( V )
-            END DO
+    !        WRITE( LOGDEV,* ) ' '
+    !        WRITE( LOGDEV,* ) '    Spc INDEX1 BEIS_MAP EMSPC'
+    !        DO V = 1, MSPCS
+    !           K = INDEX1( EMSPC( V ), N_GC_EMIS, GC_EMIS )
+    !           IF ( K .LE. 0 ) THEN
+    !              K = INDEX1( EMSPC( V ), N_NR_EMIS, NR_EMIS )
+    !           END IF
+    !           WRITE( LOGDEV,'( 3X, 2I5, I8, 4X, A16 )' )
+    ! &                        V, K, BEIS_MAP( V ), EMSPC( V )
+    !        END DO
 #endif
-
+    
             ALLOCATE( VDEMIS_BI( N_SPC_BIOG,MY_NCOLS,MY_NROWS ), STAT = STATUS )
             IF ( STATUS .NE. 0 ) THEN
               XMSG = 'VDEMIS_BI memory allocation failed'
