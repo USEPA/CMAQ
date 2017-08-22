@@ -375,7 +375,7 @@ C****************************************************************************
         return
         endif
 
-      Call m3err ('writeSite', 0, 0, 'Map projection setup error', .TRUE.)
+      Call m3err ('writeSite', 0, 0, 'Unsupported map projection', .TRUE.)
 
       end Subroutine SetProj
 
@@ -393,6 +393,7 @@ C****************************************************************************
 
       ! external functions
       logical LL2LAM
+      logical LL2POL
 
       !  check for LAT/LON projection
       if( gdtype .eq. 1 ) then
@@ -409,7 +410,16 @@ C****************************************************************************
         return
         endif
 
-      Call m3err ('writeSite', 0, 0, 'Map projection setup error', .TRUE.)
+      !  check for polar stereographic projection
+      if( gdtype .eq. 6 ) then
+        if(.NOT.LL2POL(longitude, latitude, x, y) ) then
+          Call m3err('writesite', 0, 0, 'Lat/Lon to polar stereographic error', .TRUE.)
+          endif
+        return
+        endif
+
+
+      Call m3err ('writeSite', 0, 0, 'Unsupported map projection', .TRUE.)
 
       end Subroutine ToProj
 
@@ -452,7 +462,7 @@ C****************************************************************************
         return
         endif
 
-      Call m3err ('writeSite', 0, 0, 'Map projection setup error', .TRUE.)
+      Call m3err ('writeSite', 0, 0, 'Unsupported map projection', .TRUE.)
 
       end Subroutine ToLL   
 
