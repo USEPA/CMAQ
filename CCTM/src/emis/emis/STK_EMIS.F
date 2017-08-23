@@ -39,7 +39,7 @@ C     22 Jun 2016 B.Murphy & J.Young: Added STKEMIS_TOO to accomodate
 C                                     semivolatile POA mechanism
 C-----------------------------------------------------------------------
 
-      USE UDTYPES, ONLY: RARRY2, CARRY1
+      USE UDTYPES, ONLY: RARRY1, CARRY1
 
       IMPLICIT NONE
 
@@ -49,10 +49,10 @@ C-----------------------------------------------------------------------
 
       LOGICAL,        ALLOCATABLE, SAVE :: FIREFLAG( : )    ! which is the fire file?
 
-      TYPE( RARRY2 ), ALLOCATABLE, SAVE :: STKEMIS( : )   ! stack emissions [mol/s]
-      TYPE( RARRY2 ), ALLOCATABLE, SAVE :: STKEMIS_TOO( : )   ! stack emissions [mol/s]
+      TYPE( RARRY1 ), ALLOCATABLE, SAVE :: STKEMIS( : )   ! stack emissions [mol/s]
+      TYPE( RARRY1 ), ALLOCATABLE, SAVE :: STKEMIS_TOO( : )   ! stack emissions [mol/s]
       TYPE( CARRY1 ), ALLOCATABLE, SAVE :: STKSPC( : )    ! emitted species names
-      TYPE( RARRY2 ), ALLOCATABLE, SAVE :: FIREVAR( : )   ! fire variables, just H-Flux
+      TYPE( RARRY1 ), ALLOCATABLE, SAVE :: FIREVAR( : )   ! fire variables, just H-Flux
 
       INTEGER FGRPS
 
@@ -141,10 +141,10 @@ C-----------------------------------------------------------------------
                NVARS_EMIS( N ) = LEN2
             END IF
 
-            STKEMIS( N )%LEN1 = LEN1
-            STKEMIS( N )%LEN2 = LEN2
-            ALLOCATE ( STKEMIS( N )%ARRY( LEN1,LEN2 ), STAT = ASTAT )
-            ALLOCATE ( STKEMIS_TOO( N )%ARRY( LEN1,LEN2 ), STAT = ASTAT )
+            STKEMIS( N )%LEN = LEN1
+            STKEMIS_TOO( N )%LEN = LEN1
+            ALLOCATE ( STKEMIS( N )%ARRY( LEN1 ), STAT = ASTAT )
+            ALLOCATE ( STKEMIS_TOO( N )%ARRY( LEN1 ), STAT = ASTAT )
             CALL CHECKMEM( ASTAT, 'STKEMIS', PNAME )
             STKEMIS( N )%ARRY = 0.0   ! array
 
@@ -162,7 +162,7 @@ C-----------------------------------------------------------------------
                      STKSPC( N )%ARRY( I ) = VNAME3D( J )
                   END IF
                END DO
-               FIREVAR( N )%LEN1 = LEN1
+               FIREVAR( N )%LEN = LEN1
             ELSE
                DO J = 1, STKSPC( N )%LEN
                   STKSPC( N )%ARRY( J ) = VNAME3D( J )

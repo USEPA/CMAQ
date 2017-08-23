@@ -59,7 +59,7 @@ C-----------------------------------------------------------------------
 
       REAL,    ALLOCATABLE, SAVE :: VDEMIS( :,:,:,: ) ! total emissions array
 
-      INTEGER,              SAVE :: N_SPC_EMIS ! global emissions species
+      INTEGER,              SAVE :: N_EMIS_SPC ! global emissions species
       INTEGER,              SAVE :: EMLAYS     ! no. of emis integration layers
                                                ! EMLAYS must be .LT. NLAYS
       LOGICAL,              SAVE :: EMISCHK ! Let model proceed even if Emis Surrogates 
@@ -68,7 +68,7 @@ C-----------------------------------------------------------------------
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: TRACSPC( : )  ! Variables from Tracer Emission File
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: AREASPC( : )  ! Variables from Area Emission File
 
-      PUBLIC VDEMIS, N_SPC_EMIS, EMLAYS, EMLYRS, TRACSPC, AREASPC,  ! Variables
+      PUBLIC VDEMIS, N_EMIS_SPC, EMLAYS, EMLYRS, TRACSPC, AREASPC,  ! Variables
      &       EMIS_INIT, GET_EMIS, EMISCHK                           ! Routines
       
       PRIVATE
@@ -192,8 +192,8 @@ C Initialize Online Lightning NOx Emissions
          END IF
 
 C Initialize 3D Point Source Emissions 
-C (N_SPC_EMIS+1 serves as the null map for PTEM_MAP)
-         IF ( .NOT. PT3D_INIT( N_SPC_EMIS, EMLAYS, JDATE, JTIME, TSTEP ) ) THEN
+C (N_EMIS_SPC+1 serves as the null map for PTEM_MAP)
+         IF ( .NOT. PT3D_INIT( N_EMIS_SPC, EMLAYS, JDATE, JTIME, TSTEP ) ) THEN
             XMSG = 'Failure initializing plume rise emissions module'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
@@ -440,14 +440,12 @@ C lightning NO
          END IF
 
 C Point Sources
-
          IF ( PT3DEMIS ) THEN
             CALL GET_PT3D_EMIS ( JDATE, JTIME, TSTEP )
 
 C merge: VDEMIS_PT in mol/sec. Convert to ppm/sec
 C If aerosols, then the PM emissions obtained from GET_PT3D_EMIS need to be
 C accessed by GET_AERO_EMIS to be "speciated" and merged with the AE emissions.
-
             DO R = 1, MY_NROWS
                DO C = 1, MY_NCOLS
                   DO L = 1, EMLAYS

@@ -70,6 +70,7 @@ C-----------------------------------------------------------------------
       LOGICAL,              SAVE :: PT3DEMIS   ! flag in-lining plume rise
       INTEGER,              SAVE :: NPTGRPS    ! no. pt src input file groups
       REAL,    ALLOCATABLE, SAVE :: VDEMIS_PT( :,:,:,: ) ! 3D pt src 
+      REAL,    ALLOCATABLE, SAVE :: VDEMIS_TMP( :,:,:,: ) ! 3D pt src 
 
       PUBLIC PT3DEMIS, NPTGRPS, VDEMIS_PT,
      &       PT3D_INIT, GET_PT3D_EMIS
@@ -87,12 +88,8 @@ C debugging zplume
       REAL,    ALLOCATABLE, SAVE :: ZPLUM( :,: ) ! has to be 2D for play file
 
 C Stack emissions for sources within domain
-      REAL,    ALLOCATABLE, SAVE :: STKEM( : )   ! per source local stk emis
       INTEGER,              SAVE :: EMLYRS       ! no. of emis layers
-
-C Gas-phase Namelist emissions factors
-      REAL,    ALLOCATABLE, SAVE :: EMIS_FAC( : )  ! per species scaling factor
-      INTEGER,              SAVE :: N_EMIS_GAS_SPC ! number of gas-phase emissions species
+      INTEGER,              SAVE :: N_EMIS_SPC   ! no. of emis species
 
 C Wildfire emissions source parameters
       TYPE( RARRY1 ), ALLOCATABLE, SAVE :: ACRES( : )   ! acres burned
@@ -155,10 +152,10 @@ C hourly stack emissions file names
 
 C=======================================================================
 
-         FUNCTION PT3D_INIT ( N_SPC_EMIS, EMLAYS, JDATE, JTIME, TSTEP )
+         FUNCTION PT3D_INIT ( N_EMIS, EMLAYS, JDATE, JTIME, TSTEP )
      &                       RESULT ( SUCCESS )
 
-C use N_SPC_EMIS+1 for non-accessed emissions
+C use N_EMIS_SPC+1 for non-accessed emissions
 
          USE GRID_CONF   ! horizontal & vertical domain specifications
          USE CGRID_SPCS  ! CGRID mechanism species
@@ -166,7 +163,6 @@ C use N_SPC_EMIS+1 for non-accessed emissions
          USE STK_EMIS    ! hourly point source emissions
          USE PTMET       ! defines met variables used in plume rise
          USE PTBILIN     ! defines bi-linear interpolation from grid to pt src locations
-         USE PTMAP       ! defines pt src species mapping to VDEMIS* arrays
          USE UTILIO_DEFN
          USE BMATVEC_MODULE
 
@@ -176,7 +172,7 @@ C Includes:
          INCLUDE SUBST_FILES_ID  ! file name parameters (for CTM_PT3D_DIAG)
 
 C Arguments:
-         INTEGER          N_SPC_EMIS ! total no. of model emissions species
+         INTEGER          N_EMIS     ! total no. of model emissions species
          INTEGER          EMLAYS     ! number of emissions layers
          INTEGER          JDATE      ! Julian date (YYYYDDD)
          INTEGER          JTIME      ! time (HHMMSS)
@@ -229,6 +225,7 @@ C-----------------------------------------------------------------------
 !        LOGDEV = INIT3()
          LOGDEV = SETUP_LOGDEV()
 
+
 C In-line 3D point source emissions?
          PT3DEMIS = ENVYN( 'CTM_PT3DEMIS',
      &                   'Flag for in-line 3d point source emissions',
@@ -243,6 +240,7 @@ C In-line 3D point source emissions?
 
 C Get setting from environment variables
          EMLYRS = EMLAYS
+         N_EMIS_SPC = N_EMIS
 
          IPVERT = ENVINT( 'IPVERT', 'Method for vertical spread', 0, IOS )
 
@@ -511,17 +509,19 @@ C Initialize stack emissions data
             END IF
          END DO
 
-         ALLOCATE ( VDEMIS_PT( NCOLS,NROWS,EMLYRS,N_GSPC_EMIS ), STAT = IOS )
+         ALLOCATE ( VDEMIS_PT( NCOLS,NROWS,EMLYRS,N_EMIS_SPC ), STAT = IOS )
          CALL CHECKMEM( IOS, 'VDEMIS_PT', PNAME )
          VDEMIS_PT = 0.0   ! array assignment
+         ALLOCATE ( VDEMIS_TMP( NCOLS,NROWS,EMLYRS,N_EMIS_SPC ), STAT = IOS )
+         CALL CHECKMEM( IOS, 'VDEMIS_TMP', PNAME )
+         VDEMIS_TMP = 0.0   ! array assignment
 
 C Set up and open 3d point source emissions diagnostic file?
          IF ( PT3DDIAG ) THEN
             NDATE = SDATE; NTIME = STIME
             CALL NEXTIME( NDATE, NTIME, TSTEP ) ! advance one output tstep
-            CALL OPPT3D_DIAG( CTM_PT3D_DIAG, NDATE, NTIME, TSTEP, EMLYRS,
-     &                        N_GSPC_EMIS, GSPC_EMIS, N_ASPC_EMIS, ASPC_EMIS )
-            ALLOCATE ( VDEMIS_BUF( NCOLS,NROWS,EMLYRS,N_GSPC_EMIS ), STAT = IOS )
+            !CALL OPPT3D_DIAG( CTM_PT3D_DIAG, NDATE, NTIME, TSTEP, EMLYRS )
+            ALLOCATE ( VDEMIS_BUF( NCOLS,NROWS,EMLYRS,N_EMIS_SPC ), STAT = IOS )
             CALL CHECKMEM( IOS, 'VDEMIS_BUF', PNAME )
             VDEMIS_BUF = 0.0   ! array
             WRITE( LOGDEV,'(/5X, A /5X, A )' )
@@ -676,7 +676,7 @@ C Compute ZSTK, DDZF
 
 C=======================================================================
 
-         SUBROUTINE GET_PT3D_EMIS ( JDATE, JTIME, TSTEP )
+         SUBROUTINE GET_PT3D_EMIS ( EM_PTSPEC, EM_FAC_PT, EM_SPEC, JDATE, JTIME, TSTEP )
 
 ! Revision History.
 !     Aug 12, 15 D. Wong: added code to handle parallel I/O implementation
@@ -691,8 +691,8 @@ C Time step part of laypoint
          USE STK_PRMS    ! stack groups file
          USE STK_EMIS    ! hourly point source emissions
          USE PTMET, P_D => PTMET_DATA
-         USE PTMAP       ! defines pt src species mapping to VDEMIS* arrays
          USE UTILIO_DEFN
+         USE PRECURSOR_DATA, ONLY : PRECURSOR_MW, SULF_IDX
 
          IMPLICIT NONE
 
@@ -701,6 +701,9 @@ C Includes:
          INCLUDE SUBST_FILES_ID  ! file name parameters (for CTM_PT3D_DIAG)
 
 C Arguments:
+         CHARACTER(16), INTENT( IN ) :: EM_PTSPEC( :,: )
+         REAL( 8 ), INTENT( IN )     :: EM_FAC_PT( :,: )
+         CHARACTER(16), INTENT( IN ) :: EM_SPEC( : )
          INTEGER               :: JDATE, JTIME
          INTEGER, INTENT( IN ) :: TSTEP( 3 )
 
@@ -747,7 +750,7 @@ C Local variables:
 
          INTEGER          IOS        ! i/o and allocate memory status
          INTEGER          L, S, V    ! counters
-         INTEGER          C, R, I, J, K, N
+         INTEGER          C, R, I, J, K, N, ISPC
 
          INTEGER, SAVE :: WSTEP = 0
          INTEGER          WDATE, WTIME
@@ -924,7 +927,7 @@ C Ensure that the model and stack groups emissions timestamp dates stay synchron
             END IF
 
 C Calculate Plume Heights for All Point Sources on this File
-            CALL CALC_PLUME_HEIGHT(   )
+            CALL CALC_PLUME_HEIGHT( LOC_STKDATE, JDATE, JTIME   )
 
 C Read Emissions for all sources on File N            
             DO ISPC = 1, N_EMIS_SPC
@@ -989,7 +992,7 @@ C Apportion emissions to the layers
                   SRC = SOURCE( N )%ARRY( S )
                   C = MY_STKCOL( N )%ARRY( S ); R = MY_STKROW( N )%ARRY( S )
 
-                  DO L = 1, EMLAYS
+                  DO L = 1, EMLYRS
                      LFRC = TFRAC( L )
                      IF ( LFRC .LE. 0.0 ) CYCLE
 
@@ -1092,14 +1095,31 @@ C------------------  FORMAT  STATEMENTS   ------------------------------
 
 C-------------- Subprograms used by GET_PT3D_EMIS ----------------------
 
-         SUBROUTINE CALC_PLUME_HEIGHT(  )
+C=======================================================================
 
+         SUBROUTINE CALC_PLUME_HEIGHT( LOC_STKDATE, JDATE, JTIME )
 
+! Revision History.
+!     Aug 18, 17 B.Murphy: Separated plume height calculation from the
+!                          point source allocation algorithm
 
+C-----------------------------------------------------------------------
 
-#ifdef Verbose1
-            mxzplm = 0.0
-#endif
+      USE STK_EMIS
+      USE STK_PRMS
+      USE UTILIO_DEFN
+
+      IMPLICIT NONE
+
+      INTEGER, INTENT( IN ) :: LOC_STKDATE
+      INTEGER               :: JDATE, JTIME
+
+      CHARACTER( 16 ) :: PNAME = 'CALC_PLUME_HEIGHT'   ! procedure name
+      CHARACTER( 16 ) :: VNAME 
+
+      INTEGER :: N, S, L, SRC
+      INTEGER :: LTOP
+
             ! If The Point File is for Fires, read and save the H-Flux Data in a
             ! Dedicated Variable, BFLUX
             IF ( FIREFLAG( N ) ) THEN
