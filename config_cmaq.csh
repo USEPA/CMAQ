@@ -168,8 +168,9 @@
  #source /work/MOD3DEV/cmaq_common/cmaq_env.csh  #>>> Comment out if not at EPA
 
 #> Add The Complier Version Number to the Compiler String if it's not empty
+ setenv compilerString ${compiler}
  if ( $compilerVrsn != "Empty" ) then
-    setenv compiler ${compiler}${compilerVrsn}
+    setenv compilerString ${compiler}${compilerVrsn}
  endif
 
 #===============================================================================
@@ -185,16 +186,18 @@
  setenv lib_basedir $CMAQ_HOME/lib
 
 #> Generate Library Locations
- setenv CMAQ_LIB    ${lib_basedir}/${system}/${compiler}
- setenv MPI_DIR    $CMAQ_LIB/mpi
+ setenv CMAQ_LIB    ${lib_basedir}/${system}/${compilerString}
+ setenv MPI_DIR     $CMAQ_LIB/mpi
  setenv NETCDF_DIR  $CMAQ_LIB/netcdf
  setenv PNETCDF_DIR $CMAQ_LIB/pnetcdf
  setenv IOAPI_DIR   $CMAQ_LIB/ioapi
 
+#> Create Symbolic Links to Libraries
  if ( ! -d $CMAQ_LIB ) mkdir -p $CMAQ_LIB
- if ( ! -d $CMAQ_LIB/mpi) ln -s $MPI_LIB_DIR $CMAQ_LIB/mpi
+ if (   -e $MPI_DIR  ) rm -rf $MPI_DIR
+     ln -s $MPI_LIB_DIR $MPI_DIR
  if ( ! -d $NETCDF_DIR )  mkdir $NETCDF_DIR
-    ln -s $NETCDF_LIB_DIR $NETCDF_DIR/lib
+ if ( ! -e $NETCDF_DIR/lib ) ln -s $NETCDF_LIB_DIR $NETCDF_DIR/lib
  if ( ! -d $IOAPI_DIR ) then 
     mkdir $IOAPI_DIR
     ln -s $IOAPI_MOD_DIR  $IOAPI_DIR/modules
@@ -217,4 +220,4 @@
  endif
 
 #> Set executable id
- setenv EXEC_ID ${bld_os}_${system}${compiler}
+ setenv EXEC_ID ${bld_os}_${system}${compilerString}

@@ -15,7 +15,6 @@
 #> Choose compiler and set up CMAQ environment with correct 
 #> libraries using config.cmaq. Options: intel | gcc | pgi
  setenv compiler intel 
- setenv compilerVrsn 13.1
 
  cd ../../..
  source ./config_cmaq.csh
@@ -26,7 +25,7 @@
 #> Set the build directory if this was not set above 
 #> (this is where the executable is located by default).
  if ( ! $?BINDIR ) then
-  setenv BINDIR ${CMAQ_HOME}/POST/sitecmp_dailyo3/scripts/BLD_sitecmp_dailyo3_${VRSN}_${compiler}
+  setenv BINDIR ${CMAQ_HOME}/POST/sitecmp_dailyo3/scripts/BLD_sitecmp_dailyo3_${VRSN}_${compilerString}
  endif
 
 #> Set the name of the executable.
