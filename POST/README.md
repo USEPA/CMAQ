@@ -2,7 +2,7 @@ Post-processing Tools
 ========
 
 ## Overview
-The following utility programs are provided to process and prepare data for model evaluation.  Documentation for each utility is provided in the README files within each subdirectory.  Note that in previous CMAQ releases these utlities have been located under "models/TOOLS".
+The following utility programs are provided to process and prepare data for model evaluation.  Documentation for each utility is provided in the README files within each subdirectory.  Note that in previous CMAQ releases these utilities have been located under "models/TOOLS".
 
 ## Release Notes for version 5.2
 The following link summarizes the main updates to these utility programs since the previous release (CMAQ v5.1).
