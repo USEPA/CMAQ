@@ -45,7 +45,7 @@
  setenv CCTMOUTDIR ${CMAQ_DATA}/output_CCTM_${APPL} #> CCTM Output Directory
  setenv POSTDIR    ${CMAQ_DATA}/POST                #> Location where combine file will be written
 
-  if ( ! $?POSTDIR ) then
+  if ( ! -e $POSTDIR ) then
 	  mkdir $POSTDIR
   endif
 
