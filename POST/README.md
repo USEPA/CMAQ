@@ -18,6 +18,9 @@ The following link summarizes the main updates to these utility programs since t
 * **[sitecmp_dailyo3](sitecmp_dailyo3/README.md)**: user can generate a csv (comma separated values) file that compares various daily ozone metrics computed from hourly CMAQ generated and observed ozone concentrations.
 * **[writesite](writesite/README.md)**: user can generate a csv file from an IOAPI data file for a set of species at defined site locations.
 
+## Observed data for model evaluation
+The formatted observation data files needed for running the sitecmp and sitecmp_dailyo3 utilities are available for 2000 through 2014 from the CMAS Center Data Clearinghouse under the heading "2000-2014 North American Air Quality Observation Data": https://www.cmascenter.org/download/data.cfm.
+
 ## A note on model-observation pairing for model evaluation
 The task of matching model simulations to observations is performed by the sitecmp and sitecmp_dailyo3 utility programs.
 
