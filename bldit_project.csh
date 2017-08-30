@@ -15,12 +15,7 @@
 #> Default location for CMAQ model build is one directory above
 #> the repository. The user may also set their own preferred 
 #> directory.
-<<<<<<< HEAD
- #set CMAQ_HOME = /home/username/cmaq_project
- set CMAQ_HOME = /home/bmurphy/cmaq_repos/CMAQv5.2_Ben/Projects/Atmos
-=======
  set CMAQ_HOME = /home/username/cmaq_project
->>>>>>> master
 
 #> This section allows users to choose explicitly which tools
 #> to make available from the repo. For each selected tool,
