@@ -19,7 +19,7 @@
 |ALD2|Acetaldehyde|Gas|44.00 |
 |ALD2_PRIMARY|Emitted Acetaldehyde|Gas|44.00 |
 |ALDX|Propionaldehyde and higher aldehydes|Gas|44.00 |
-|ALKRXN|Precursor of Terpene Aerosol Material|Gas|112.00 |
+|ALKRXN|Precursor of alkane Aerosol Material|Gas|112.00 |
 |AOLGAJ|Accumulation Mode Oligomerized Anthropogenic Material|Aerosol|176.40 |
 |AOLGBJ|Accumulation Mode Oligomerized Biogenic Material|Aerosol|252.00 |
 |APAH1J|Accumulation Mode PAH Product 1|Aerosol|243.00 |
@@ -38,8 +38,8 @@
 |AXYL2J|Accumulation Mode Xylene Product 2|Aerosol|192.00 |
 |BENZENE|Accumulation Mode Xylene Product 2|Gas|78.00 |
 |BENZRO2|Benzene hydroxyperoxy radical tracker from BENZENE and OH reaction; an aerosol precursor|Gas|127.00 |
-|BNZHRXN|Precursor of Hydro-Benzene Aerosol Material|Gas|127.00 |
-|BNZNRXN|Precursor of Nitro-Benzene Aerosol Material|Gas|127.00 |
+|BNZHRXN|Precursor of RO2+HO2 Benzene Aerosol Material|Gas|127.00 |
+|BNZNRXN|Precursor of RO2+NO Benzene Aerosol Material|Gas|127.00 |
 |BPIN|Beta-Pinene|Gas|136.30 |
 |BUTADIENE13|13-Butadience|Gas|54.00 |
 |C2O3|Acetylperoxy radical|Gas|75.00 |
@@ -138,8 +138,8 @@
 |TERP|Terpene|Gas|136.00 |
 |TO2|Toluene-hydroxyl radical adduct|Gas|173.00 |
 |TOL|Toluene and other monoalkyl aromatics|Gas|92.00 |
-|TOLHRXN|Precursor of Hydro-Toulene Aerosol Material|Gas|141.00 |
-|TOLNRXN|Precursor of Nitro-Toulene Aerosol Material|Gas|141.00 |
+|TOLHRXN|Precursor of RO2+HO2 Toulene Aerosol Material|Gas|141.00 |
+|TOLNRXN|Precursor of RO2+NO Toulene Aerosol Material|Gas|141.00 |
 |TOLRO2|Toulene hydroxyperoxy radical tracker from TOL and OH reaction;an aerosol precursor|Gas|141.00 |
 |ISOP|Isoprene|Gas|141.00 |
 |TOLU|explicit toluene as reactive tracer|Gas|92.00 |
@@ -147,7 +147,7 @@
 |XO2|NO to NO2 conversion from alkylperoxy (RO2) radical|Gas|1.00 |
 |XO2N|NO to organic nitrate conversion from alkylperoxy (RO2) radical|Gas|1.00 |
 |XO2T|operator to produce biogenic nitrate from terpene|Gas|1.00 |
-|XYLHRXN|Precursor of Hydro-Xylene Aerosol Material|Gas|155.00 |
+|XYLHRXN|Precursor ofRO2+HO2 Xylene Aerosol Material|Gas|155.00 |
 |XYLMN|model species XYL without naphthalene|Gas|106.00 |
-|XYLNRXN|Precursor of Nitro-Xylene Aerosol Material|Gas|155.00 |
+|XYLNRXN|Precursor of RO2+NO Xylene Aerosol Material|Gas|155.00 |
 |XYLRO2|Xylene hydroxyperoxy radical tracker from XYL and OH reaction; an aerosol precursor|Gas|155.00 |
