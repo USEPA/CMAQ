@@ -11,16 +11,19 @@ Current DDM-3D implementation is available for version 5.2 of the Community Mult
 
 This guide is intended to assist users of our implementation of DDM sensitivity analysis into CMAQ.  We acknowledge that our implementation is a work in progress and list cautionary notes (see Shortcomings and Unimplemented Features) that should be considered when using CMAQ-DDM. However, we have tested that for ozone chemistry and PM processes CMAQ-DDM gives results in good agreement with sensitivities calculated by differencing multiple brute-force runs of CMAQ, at a significant savings of computational time.
 
-CMAQ-DDM-3D is released as part of public release version 5.2.  Updates to the code include the migration to the most recent base model science (version 5.2), the inclusion of 2nd order sensitivity calculation for particulate matter species, and improved flexibility in the control file.
+CMAQ-DDM-3D is released as part of public release version 5.2.  Updates to the code include the migration to the most recent base model science (version 5.2). CMAQ 5.0.2 updates included 2nd order sensitivity calculation for particulate matter species, and improved flexibility in the control file.
 
 Implementation approach/methodology remains largely unchanged, so only the major changes are described in this document.
 
-## Implementation Highlight:  CMAQv5.2 High-Order DDM3D for Particulate Matter (HDDM3D/PM)
+## Implementation Highlight:  CMAQv5.2
+
+
+## Implementation Highlight:  CMAQv5.0.2 High-Order DDM3D for Particulate Matter (HDDM3D/PM)
 
 
 :Wenxian Zhang and Sergey Napelenok
 
-High-order DDM sensitivity analysis for particulate matter is implemented in CMAQv5.2.  This new feature is an important extension of the CMAQ-DDM3D and provides an advanced and efficient approach to calculate high-order sensitivity coefficients of particulate matter. The development and implementation process as well as the performance evaluation can be found in Zhang et al. (2012).
+High-order DDM sensitivity analysis for particulate matter is implemented in CMAQv5.0.2.  This new feature is an important extension of the CMAQ-DDM3D and provides an advanced and efficient approach to calculate high-order sensitivity coefficients of particulate matter. The development and implementation process as well as the performance evaluation can be found in Zhang et al. (2012).
 
 Implementation of HDDM3D/PM involves both aero6 and cloud modules. The key step of implementing HDDM3d/PM is developing high-order DDM sensitivity analysis in ISORROPIAv2.1.  The performance of the sensitivity calculation is improved by using the following approaches:     
 
@@ -47,7 +50,7 @@ Affected files: acmcld.F, aqchem.F, hrdriver.F  (CB05TUCL, SAPRC07TC, SAPRC99), 
 
 # Build Instructions
 
-The CMAQv5.2 DDM3D installation includes a build script for compiling a version of the CCTM instrumented with DDM. For installing CMAQ-DDM, first clone, and build the base version of the model. Edit this: Then download the CMAQ DDM3D tar file and untar into the CMAQv5.0.2 home directory:
+The CMAQv5.2 DDM3D installation includes a build script for compiling a version of the CCTM instrumented with DDM. For installing CMAQ-DDM, first clone, and build the base version of the model. Edit this: Then download the CMAQ DDM3D tar file and untar into the CMAQv5.2 home directory:
 
 ```
  cd $M3HOME/../
