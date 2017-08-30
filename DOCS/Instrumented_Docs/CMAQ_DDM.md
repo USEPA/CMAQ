@@ -39,22 +39,45 @@ Implementation of HDDM3D/PM involves both aero6 and cloud modules. The key step 
     * Enabled a series of studies and applications associated with the nonlinear response of particulate matter to precursors, which is a critical factor to consider in particulate matter management
     * Significantly improved the performance of first-order sensitivities of ammonium and nitrate aerosols
 
-New files: ddmsens.f, hddmsens.f
+New files: 
 
-Affected files: aero_sens.F, isocom.f, isofwd.f, aqchem.F
+```
+src/ddm3d/aero_ddmsens.f
+src/ddm3d/aero_hddmsens.f
+```
+
+Affected files: src/ddm3d/aero_sens.F, src/aero/aero6/isocom.f, src/aero/aero6/isofwd.f, src/cloud/acm_ae6/aqchem.F
 
 ## September 2014 Code Patch Release Note
 
 Minor changes to cloud module, aerosol, module, chemistry driver, and sensitivity interface file to prevent instability on some platforms, particularly with the gfortran compiler.
 
-Affected files: acmcld.F, aqchem.F, hrdriver.F  (CB05TUCL, SAPRC07TC, SAPRC99), convcld_acm.F, dact.inc, ddmsens.f, hddmsens.f, sinput.F
+Affected files: 
+
+```
+acmcld.F (can't find this file)
+src/cloud/acm_ae6/aqchem.F
+src/gas/ebi_racm2_ae6_aq/hrdriver.F (5.1.1)
+src/gas/ebi_cb6r3_ae6nvPOA_aq/hrdriver.F (5.2)
+src/gas/ebi_saprc07tic_ae6i_aq/hrdriver.F (5.1.1)
+src/gas/ebi_cb05tucl_ae6_aq/hrdriver.F (5.1.1)
+src/gas/ebi_cb05e51_ae6_aq/hrdriver.F (5.1.1)
+src/gas/ebi_saprc07tb_ae6_aq/hrdriver.F (5.1.1)
+src/gas/ebi_cb05mp51_ae6_aq/hrdriver.F (5.1.1)
+src/gas/ebi_saprc07tc_ae6_aq/hrdriver.F (5.1.1)
+src/cloud/acm_ae6/onvcld_acm.F 
+src/ddm3d/dact.inc
+src/ddm3d/aero_ddmsens.f
+src/ddm3d/aero_hddmsens.f
+src/ddm3d/sinput.F
+```
 
 # Build Instructions
 
 The CMAQv5.2 DDM3D installation includes a build script for compiling a version of the CCTM instrumented with DDM. For installing CMAQ-DDM, first clone, and build the base version of the model. Edit this: Then download the CMAQ DDM3D tar file and untar into the CMAQv5.2 home directory:
 
 ```
- cd $M3HOME/../
+ cd $CMAQ_REPO
  tar xvzf CMAQv5.0.2_DDM3D.Apr2014.tar.gz
 ```
 
