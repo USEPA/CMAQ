@@ -49,13 +49,17 @@ Affected files: acmcld.F, aqchem.F, hrdriver.F  (CB05TUCL, SAPRC07TC, SAPRC99), 
 
 The CMAQv5.2 DDM3D installation includes a build script for compiling a version of the CCTM instrumented with DDM. For installing CMAQ-DDM, first clone, and build the base version of the model. Edit this: Then download the CMAQ DDM3D tar file and untar into the CMAQv5.0.2 home directory:
 
+```
  cd $M3HOME/../
  tar xvzf CMAQv5.0.2_DDM3D.Apr2014.tar.gz
+```
 
 Use the bldit.cctm.ddm script as you would the base cctm build script.
 
+```
  cd $M3HOME/scripts/cctm_ddm
  ./bldit.cctm.ddm |& tee bldit.cctm.ddm.log
+```
 
 Note that you will need to have the libraries  (I/O API, netCDF, MPI, Stenex, and Pario) and model builder (bldmake) required by the base model to compile this version of the code. See the base model [http://www.airqualitymodeling.org/cmaqwiki/index.php?title=CMAQv5.0.2_Readme_file README] for instructions on building these components.
 
