@@ -21,3 +21,17 @@ CHARACTER( 48 ) :: EQNAME
 ```
 Increase the length of EQNAME to any desired number (e.g. 200). Note that the legnth of IOLOGEQ on line 56 should be at least 11 characters greater than the length of EQNAME. Don't exceed the Linux maximum of 255 total characters for IOLOGEQ.
 
+## *CMAQv5.2-i2:* Resolve Determination of LASTTIC in Lighting NOx Emission Module
+Date: 2017-8-30
+Contact: Daiwen Kang (kang.daiwen@epa.gov)
+
+### Description  
+
+
+### Scope and Impact
+
+
+### Solution
+Replace CCTM/src/emis/emis/LTNG_DEFN.F file in repository with the version located in the folder CMAQv5.2-i2
+ 
+
