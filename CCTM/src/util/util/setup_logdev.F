@@ -50,11 +50,14 @@ C   12 Aug 15 D.Wong:   Replaced SUBST_MPI with mpif.h
       include 'mpif.h'
 #endif
 
-      CHARACTER(200 ) :: EQNAME
+      INTEGER, PARAMETER :: MAXLEN_CCTM_APPL = 200
+      INTEGER, PARAMETER :: MAXLEN_CTM_LOG   = MAXLEN_CCTM_APPL + 11
+
       CHARACTER(  8 ) :: PRESTR = 'CTM_LOG_'
       CHARACTER(  3 ) :: CMYPE
-      CHARACTER(250 ) :: IOLOGEQ
       CHARACTER(  8 ) :: APPL = 'CTM_APPL'
+      CHARACTER( MAXLEN_CCTM_APPL ) :: EQNAME
+      CHARACTER( MAXLEN_CTM_LOG   ) :: IOLOGEQ
 
       INTEGER :: ERROR, MYPE
       INTEGER :: LOGDEV
