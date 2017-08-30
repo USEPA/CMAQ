@@ -92,7 +92,7 @@ DDM run script settings
 
 # CMAQ DDM-3D Input/Output Data
 
-Users must specify the DDM3D sensitivity parameters in the DDM Control File '''(SEN_INPUT)'''.
+Users must specify the DDM3D sensitivity parameters in the DDM Control File `SEN_INPUT`
 
 ## DDM Control File (SEN_INPUT) Description
 
