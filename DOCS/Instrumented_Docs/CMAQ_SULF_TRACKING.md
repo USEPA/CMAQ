@@ -1,6 +1,6 @@
 Release Date:
 
-#Overview
+# Overview
 
 CMAQv5.2 includes an optional diagnostic model configuration that provides detailed information on the modeled sulfur budget. This model version, referred to as the '''CMAQ-Sulfur Tracking Model (CMAQ-STM)''', tracks sulfate production from gas- and aqueous-phase chemical reactions, as well as contributions from emissions and initial and boundary conditions. Each tracked species is treated as other modeled species, undergoing transport (advection, diffusion, cloud-mixing) and removal by deposition (both wet and dry).
 
@@ -23,7 +23,7 @@ Use the bldit.cctm.stm script as you would the base cctm build script.
  ```
 Note that you will need to have the libraries  (I/O API, netCDF, MPI, Stenex, and Pario) and model builder (bldmake) required by the base model to compile this version of the code. See the base model README for instructions on building these components.
 
-##Run Instructions
+## Run Instructions
 
 A sample run script is provided in the STM release package under $M3HOME/scripts/cctm_stm.
 
@@ -59,5 +59,5 @@ ASO4AQH2O2J|ASO4J produced by aqueous-phase hydrogen peroxide oxidation reaction
 |ASO4ICBCK|ASO4K from boundary and initial conditions|
 | SULF_ICBC|Sulfuric acid vapor (SULF) from boundary and initial conditions|
 
-##Contact
+## Contact
 '''[mailto:roselle.shawn@epa.gov Shawn Roselle]''', Atmospheric Modeling and Analysis Division, U.S. EPA

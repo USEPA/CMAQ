@@ -1,6 +1,6 @@
 Original Release Date:
 
-#Overview
+# Overview
 
 
 The '''CMAQ Decoupled Direct Method in 3 Dimensions (CMAQ DDM-3D)''' is a sensitivity analysis technique for computing sensitivity coefficients simultaneously while air pollutant concentrations are being computed (see References). The sensitivity coefficients represent the change in concentration, of any modeled species at any modeled time, associated with a change in a model input (e.g., an initial condition, boundary condition or emission rate) or a parameter (e.g., a reaction rate).
@@ -15,7 +15,8 @@ CMAQ-DDM-3D is released as part of public release version 5.2.  Updates to the c
 
 Implementation approach/methodology remains largely unchanged, so only the major changes are described in this document.
 
-##Implementation Highlight:  CMAQv5.2 High-Order DDM3D for Particulate Matter (HDDM3D/PM)
+## Implementation Highlight:  CMAQv5.2 High-Order DDM3D for Particulate Matter (HDDM3D/PM)
+
 
 :Wenxian Zhang and Sergey Napelenok
 
@@ -85,11 +86,11 @@ DDM run script settings
 |DDM3D_BCS|Y/N|Use a sensitivity BC file for nested simulations|
 |SEN_INPUT||Name of the sensitivity control file|
 
-#CMAQ DDM-3D Input/Output Data
+# CMAQ DDM-3D Input/Output Data
 
 Users must specify the DDM3D sensitivity parameters in the DDM Control File '''(SEN_INPUT)'''.
 
-##DDM Control File (SEN_INPUT) Description
+## DDM Control File (SEN_INPUT) Description
 
 The DDM Control File accommodates various types of sensitivity configuration parameters for CMAQ DDM3D simulations, including the tagging of multiple emission sources. As proper formatting of this file is required, users are referred to the sample control file provided with the release for formatting examples. Sample control file packets are shown below.
 
@@ -166,7 +167,8 @@ Several sensitivities can be calculated in one simulation. In the example below,
 
 CMAQ DDM is flexible in the number of files that the code can handle and also allows for expansion to other types of emissions (currently lightning and dust are being implemented).
 
-##DDM Control File Format
+## DDM Control File Format
+
 For each sensitivity:
 1. (mandatory) The first line is the name of the sensitivity parameter; any 8-character name of the user's choosing, no leading spaces
 2. (mandatory) The next line specifies the type of sensitivity (One leading space followed by 4 capitalized characters)
@@ -204,7 +206,7 @@ For each sensitivity:
      * NOTE2: For better understanding of how this file is read, or to modify/add features, look at sinput.F in the CMAQ-DDM code.
 
 
-##DDM Input/Output Files
+## DDM Input/Output Files
 
 With the exception of the control file, CMAQ-DDM-3D requires the same input files as a normal CMAQ run.  Additional input files may be required depending on the choice of calculated sensitivity parameters.  The following table includes a list of all possible files specific to sensitivity calculations.
 
@@ -228,11 +230,11 @@ Files Specific to DDM-3D Simulations
 | BNDY_GASC_S| Input| Sensitivity field boundary conditions| BCON|
 | INIT_GASC_S| Input| Sensitivity field initial conditions| ICON|
 
-#Summary
+# Summary
 
 DDM has proven to be a very effective tool for air quality studies.  This implementation in CMAQ has been done with the intent to provide flexibility and computational efficiency, and also maintain the base CMAQ code structure. CMAQ-DDM has been found to accurately simulate sensitivity of ozone and PM species to initial conditions, boundary conditions, and emissions of precursor species. However, CMAQ-DDM remains a work in progress with known shortcomings and its accuracy has not been tested for all conceivable applications. Any errors should be reported to the contacts provided on the cover page.
 
-#References
+# References
 
 Cohan, D., Y. Hu, A. Hakami, M. T. Odman, A. Russell, 2002: Implementation of a direct sensitivity method into CMAQ. Models-3 User's Workshop, RTP, North Carolina, October 22, 2002. Available at:   www.cmascenter.org/workshop/session5/cohan_abstract.pdf
 
@@ -258,6 +260,6 @@ Yang, Y-J, J. Wilkinson, and A. Russell, 1997: Fast, direct sensitivity analysis
 
 Zhang, W., Capps, S. L., Hu, Y., Nenes, A., Napelenok, S. L., and Russell, A. G.: Development of the high-order decoupled direct method in three dimensions for particulate matter: enabling advanced sensitivity analysis in air quality models, Geosci. Model Dev., 5, 355–368, doi:10.5194/gmd-5-355-2012, 2012.
 
-#Contact
+# Contact
 
 '''[mailto:napelenok.sergey@epa.gov Sergey L. Napelenok]''', Atmospheric Modeling and Analysis Division, U.S. EPA
