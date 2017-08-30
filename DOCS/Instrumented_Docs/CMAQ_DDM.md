@@ -28,7 +28,7 @@ Implementation of HDDM3D/PM involves both aero6 and cloud modules. The key step 
 *Including the sensitivities of activity coefficients and water content in the calculation of both first- and second-order sensitivities of the aerosol species
 *Treating acidic and neutral particles in different manners to be consistent with the algorithms used by ISORROPIAv2.1
 
-###Impact of the implementation
+### Impact of the implementation
 
 
 *Extended the model's ability to account for high-order sensitivities of particulate matter
@@ -47,7 +47,7 @@ Affected files: acmcld.F, aqchem.F, hrdriver.F  (CB05TUCL, SAPRC07TC, SAPRC99), 
 
 # Build Instructions
 
-The CMAQv5.2 DDM3D installation includes a build script for compiling a version of the CCTM instrumented with DDM. For installing CMAQ-DDM, first [http://www.airqualitymodeling.org/cmaqwiki/index.php?title=CMAQv5.0.2_Readme_file#Install_the_CMAQv5.0.2_source_codes_and_scripts download, install, and build the base version of the model]. Then download the CMAQ DDM3D tar file and untar into the CMAQv5.0.2 home directory:
+The CMAQv5.2 DDM3D installation includes a build script for compiling a version of the CCTM instrumented with DDM. For installing CMAQ-DDM, first clone, and build the base version of the model. Edit this: Then download the CMAQ DDM3D tar file and untar into the CMAQv5.0.2 home directory:
 
  cd $M3HOME/../
  tar xvzf CMAQv5.0.2_DDM3D.Apr2014.tar.gz
