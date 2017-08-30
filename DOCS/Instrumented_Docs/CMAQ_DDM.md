@@ -211,6 +211,7 @@ For each sensitivity:
 With the exception of the control file, CMAQ-DDM-3D requires the same input files as a normal CMAQ run.  Additional input files may be required depending on the choice of calculated sensitivity parameters.  The following table includes a list of all possible files specific to sensitivity calculations.
 
 Files Specific to DDM-3D Simulations
+
 |File|Type|Contains|Base model analog|
 |----|----|--------|-----------------|
 | ASENS|Output| Averaged hourly sensitivities. List defined by 'AVG_CONC_SPCS' variable in the run script.|ACONC|
