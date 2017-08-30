@@ -11,7 +11,7 @@ Current DDM-3D implementation is available for version 5.2 of the Community Mult
 
 This guide is intended to assist users of our implementation of DDM sensitivity analysis into CMAQ.  We acknowledge that our implementation is a work in progress and list cautionary notes (see Shortcomings and Unimplemented Features) that should be considered when using CMAQ-DDM. However, we have tested that for ozone chemistry and PM processes CMAQ-DDM gives results in good agreement with sensitivities calculated by differencing multiple brute-force runs of CMAQ, at a significant savings of computational time.
 
-CMAQ-DDM-3D is released as part of public release version 5.2.  Updates to the code include the migration to the most recent base model science (version 5.2), the inclusion of 2nd order sensitivity calculation for particulate matter species, and improved flexibility in the control file).
+CMAQ-DDM-3D is released as part of public release version 5.2.  Updates to the code include the migration to the most recent base model science (version 5.2), the inclusion of 2nd order sensitivity calculation for particulate matter species, and improved flexibility in the control file.
 
 Implementation approach/methodology remains largely unchanged, so only the major changes are described in this document.
 
@@ -24,16 +24,16 @@ High-order DDM sensitivity analysis for particulate matter is implemented in CMA
 
 Implementation of HDDM3D/PM involves both aero6 and cloud modules. The key step of implementing HDDM3d/PM is developing high-order DDM sensitivity analysis in ISORROPIAv2.1.  The performance of the sensitivity calculation is improved by using the following approaches:     
 
-*A case-specific approach that tracks the subcase in ISORROPIAv2.1
-*Including the sensitivities of activity coefficients and water content in the calculation of both first- and second-order sensitivities of the aerosol species
-*Treating acidic and neutral particles in different manners to be consistent with the algorithms used by ISORROPIAv2.1
+    * A case-specific approach that tracks the subcase in ISORROPIAv2.1
+    * Including the sensitivities of activity coefficients and water content in the calculation of both first- and second-order sensitivities of the aerosol species
+    * Treating acidic and neutral particles in different manners to be consistent with the algorithms used by ISORROPIAv2.1
 
 ### Impact of the implementation
 
 
-*Extended the model's ability to account for high-order sensitivities of particulate matter
-*Enabled a series of studies and applications associated with the nonlinear response of particulate matter to precursors, which is a critical factor to consider in particulate matter management
-*Significantly improved the performance of first-order sensitivities of ammonium and nitrate aerosols
+    * Extended the model's ability to account for high-order sensitivities of particulate matter
+    * Enabled a series of studies and applications associated with the nonlinear response of particulate matter to precursors, which is a critical factor to consider in particulate matter management
+    * Significantly improved the performance of first-order sensitivities of ammonium and nitrate aerosols
 
 New files: ddmsens.f, hddmsens.f
 
