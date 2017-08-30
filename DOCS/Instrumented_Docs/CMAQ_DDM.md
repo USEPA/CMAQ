@@ -39,13 +39,13 @@ New files: ddmsens.f, hddmsens.f
 
 Affected files: aero_sens.F, isocom.f, isofwd.f, aqchem.F
 
-##September 2014 Code Patch Release Note
+## September 2014 Code Patch Release Note
 
 Minor changes to cloud module, aerosol, module, chemistry driver, and sensitivity interface file to prevent instability on some platforms, particularly with the gfortran compiler.
 
 Affected files: acmcld.F, aqchem.F, hrdriver.F  (CB05TUCL, SAPRC07TC, SAPRC99), convcld_acm.F, dact.inc, ddmsens.f, hddmsens.f, sinput.F
 
-#Build Instructions
+# Build Instructions
 
 The CMAQv5.2 DDM3D installation includes a build script for compiling a version of the CCTM instrumented with DDM. For installing CMAQ-DDM, first [http://www.airqualitymodeling.org/cmaqwiki/index.php?title=CMAQv5.0.2_Readme_file#Install_the_CMAQv5.0.2_source_codes_and_scripts download, install, and build the base version of the model]. Then download the CMAQ DDM3D tar file and untar into the CMAQv5.0.2 home directory:
 
@@ -59,7 +59,7 @@ Use the bldit.cctm.ddm script as you would the base cctm build script.
 
 Note that you will need to have the libraries  (I/O API, netCDF, MPI, Stenex, and Pario) and model builder (bldmake) required by the base model to compile this version of the code. See the base model [http://www.airqualitymodeling.org/cmaqwiki/index.php?title=CMAQv5.0.2_Readme_file README] for instructions on building these components.
 
-#Run Instructions
+# Run Instructions
 
 A sample run script is provided in the CMAQ DDM3D release package under $M3HOME/scripts/cctm_ddm. Along with the run time options for the base CCTM, this script includes DDM configuration options shown in Table 1. A DDM control input file is required when DDM3D is activated in the CCTM. Details on this file are included in the following section.
 
