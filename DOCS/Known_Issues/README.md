@@ -26,12 +26,29 @@ Date: 2017-8-30
 Contact: Daiwen Kang (kang.daiwen@epa.gov)
 
 ### Description  
-
+To be added.
 
 ### Scope and Impact
-
+To be added.
 
 ### Solution
 Replace CCTM/src/emis/emis/LTNG_DEFN.F file in repository with the version located in the folder CMAQv5.2-i2
  
+## *CMAQv5.2-i3:* Turn on Biogenic Emissions Seasonality By Default  
+Date: 2017-8-31  
+Contact: Ben Murphy (murphy.benjamin@epa.gov)  
+
+### Description  
+The release version of the CCTM runscript (CCTM/scripts/run_cttm.csh) instructed the model to ignore switching between summer and winter biogenic emission factors as a function of space and day. Because the default emission factor was set to winter, very little biogenic emissions from decidus plants were introduced by the model. 
+
+### Scope and Impact
+This problem must be fixed by anyone running the model for spring, summer or fall conditions. It will affect VOC, oxidant, ozone and PM predictions substantially in forrested areas.
+
+### Solution
+The runscript is currently up to date in the repository. If you are starting from scratch after Sep 1, 2017, you will not need to do anything. If you can replace your run script with the new one, it is encouraged. Otherwise simply set the following environment variables:  
+    BIOSW_YN   Y   #Will invoke the seasonality as read from the bioseason file
+    SUMMER_YN  Y   #Will default to summertime emission factors if BIOSW_YN is set to no ("N") or false ("F").  
+
+We have also updated the bioseason file for the benchmark case (Southeast US for July 1-14, 2011). This must be updated or the model will crash when attempting to read it. Please simply redownload the tarball from the CMAS center.  
+
 
