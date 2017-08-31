@@ -5,7 +5,7 @@ This directory contains descriptions and solutions for Known Issues in the [Comm
 The following issues have been recognized for CMAQv5.2
 
 ## *CMAQv5.2-i1:* Allow longer strings for CTM_LOGs
-Date: 2017-8-10
+Date: 2017-8-10  
 Contact: Ben Murphy (murphy.benjamin@epa.gov)
 
 ### Description  
@@ -22,7 +22,7 @@ CHARACTER( 48 ) :: EQNAME
 Increase the length of EQNAME to any desired number (e.g. 200). Note that the legnth of IOLOGEQ on line 56 should be at least 11 characters greater than the length of EQNAME. Don't exceed the Linux maximum of 255 total characters for IOLOGEQ.
 
 ## *CMAQv5.2-i2:* Resolve Determination of LASTTIC in Lighting NOx Emission Module
-Date: 2017-8-30
+Date: 2017-8-30  
 Contact: Daiwen Kang (kang.daiwen@epa.gov)
 
 ### Description  
