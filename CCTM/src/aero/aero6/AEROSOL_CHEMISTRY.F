@@ -427,8 +427,6 @@ C *** Local Variables
       INTEGER, SAVE   :: GLY_IDX
       INTEGER, SAVE   :: MGLY_IDX
 
-      LOGICAL      :: LIMIT_SG    ! fix coarse and accum Sg's to the input value?
-
 C *** variables for parameterization by Bertram and Thornton 
       REAL         :: ACL           ! i+j or k mode chloride, ug/m3 
       REAL         :: AH2O          ! i+j or k mode water, ug/m3          
@@ -745,8 +743,7 @@ C *** Update geometric mean diameters, geometric
 C     standard deviations, modal mass totals, and modal particle
 C     densities, based on the concentrations of M2, M0, and speciated
 C     masses.
-               LIMIT_Sg = .False.
-               CALL getpar( limIT_Sg )
+               CALL getpar( limit_Sg )
     
 C *** set up variables needed for calculating KN2O5 and YIELD_CLNO2
 
