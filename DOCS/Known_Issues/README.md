@@ -26,10 +26,10 @@ Date: 2017-8-30
 Contact: Daiwen Kang (kang.daiwen@epa.gov)
 
 ### Description  
-
+The original method to determine LASTTIC was based on TSTEP3D which is an IOAPI_3 variable and it can be changed anywhere in the code when DESC3 is called and it might change to an undesired value.
 
 ### Scope and Impact
-
+This will only impact when you want to output lightning diagnotics files.
 
 ### Solution
 Replace CCTM/src/emis/emis/LTNG_DEFN.F file in repository with the version located in the folder CMAQv5.2-i2
