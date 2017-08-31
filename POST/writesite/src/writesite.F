@@ -47,9 +47,9 @@ C local variables
       integer cdate, ctime
       integer ldate, ltime, tzoff
       integer runlen
-      character*(2048)  header1
-      character*(2048)  header2
-      character*(2048)  record
+      character*(4096)  header1
+      character*(4096)  header2
+      character*(4096)  record
       character*(16)   field
       character*(256)  infile
       character*(256)  outfile
