@@ -199,7 +199,8 @@ C (N_EMIS_SPC+1 serves as the null map for PTEM_MAP)
          END IF
 
 C Initialize Aerosol Emissions         
-         IF ( .NOT. AERO_EMIS_INIT( JDATE, JTIME, TSTEP, NEMIS_AE ) ) THEN
+         IF ( .NOT. AERO_EMIS_INIT( JDATE, JTIME, TSTEP,N_EMIS_SPC, 
+     &              NEMIS_AE, EMLAYS ) ) THEN
             XMSG = 'Failure initializing aerosol emissions module'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
@@ -461,7 +462,7 @@ C Aerosol Emissions - all units conversions done in GET_AERO_EMIS for aerosols
 C GET_AERO_EMIS in f90 module AERO_EMIS
 
          IF ( N_AE_SPC .GT. 0 ) THEN
-            CALL GET_AERO_EMIS ( JDATE, JTIME, TSTEP, VDEMIS )
+            CALL GET_AERO_EMIS ( JDATE, JTIME, TSTEP, N_EMIS_SPC, VDEMIS )
          END IF
              
 C Tracer Gases (conversion to ppmv/s)
@@ -533,6 +534,7 @@ C-----------------------------------------------------------------------
      &                         GC_EMIS,   AE_EMIS,   NR_EMIS,   TR_EMIS
          USE AERO_DATA, only : N_MODE, AEROSPC,  ! Aerosol Properties Table
      &                         N_AEROSPC, AEROMODE
+         USE AERO_EMISm only : MAP_EMBUFF
 
          IMPLICIT NONE
 

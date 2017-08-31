@@ -169,8 +169,7 @@ C Define Logical values as T and F for the aerospc table
 
 C-------------------------------------------------------------------------------------------------------
 
-
-
+       Integer, Allocatable :: EMWT_PROF( :,: )
 
 C-------------------------------------------------------------------------------------------------------
 
@@ -718,6 +717,7 @@ C Build mapping to CGRID for each species in the master AeroList
       Allocate ( aero_missing( n_aerospc, n_mode ) )
       Allocate ( aeronum_map ( n_aerospc ) )
       Allocate ( aerosrf_map ( n_aerospc ) )
+      Allocate ( emwt_prof   ( n_mode, n_aerospc ) )
 
       aerospc_ssf = 0.0
 
