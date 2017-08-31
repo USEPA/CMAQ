@@ -169,6 +169,11 @@ C Define Logical values as T and F for the aerospc table
 
 C-------------------------------------------------------------------------------------------------------
 
+
+
+
+C-------------------------------------------------------------------------------------------------------
+
       Type spcs_type
          Character( 16 ) :: name( n_mode )       ! names of aerosol species for each mode
          Real            :: min_conc( n_mode )   ! minimum concentration values for each mode

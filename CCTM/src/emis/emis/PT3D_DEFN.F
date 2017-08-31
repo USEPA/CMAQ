@@ -676,7 +676,8 @@ C Compute ZSTK, DDZF
 
 C=======================================================================
 
-         SUBROUTINE GET_PT3D_EMIS ( EM_PTSPEC, EM_FAC_PT, EM_SPEC, JDATE, JTIME, TSTEP )
+         SUBROUTINE GET_PT3D_EMIS ( EM_PTSPEC, EM_FAC_PT, EM_SPEC, 
+     &                              JDATE, JTIME, TSTEP )
 
 ! Revision History.
 !     Aug 12, 15 D. Wong: added code to handle parallel I/O implementation
@@ -686,11 +687,9 @@ C-----------------------------------------------------------------------
 C Time step part of laypoint
 
          USE RXNS_DATA, ONLY : MECHNAME !Get Chemical Mechanism Name
-         USE GRID_CONF   ! horizontal & vertical domain specifications
          USE CGRID_SPCS  ! CGRID mechanism species
          USE STK_PRMS    ! stack groups file
          USE STK_EMIS    ! hourly point source emissions
-         USE PTMET, P_D => PTMET_DATA
          USE UTILIO_DEFN
          USE PRECURSOR_DATA, ONLY : PRECURSOR_MW, SULF_IDX
 
@@ -708,11 +707,6 @@ C Arguments:
          INTEGER, INTENT( IN ) :: TSTEP( 3 )
 
 C Parameters:
-         REAL,            PARAMETER :: USTARMIN = 0.1   ! Min valid value for USTAR
-         REAL,            PARAMETER :: CONVPA = 1.0E-2  ! convert Pa to mb
-         REAL,            PARAMETER :: BTU2M4PS3 = 9.2752E-03 ! convert BTU/s to m**4/s**3
-         REAL,            PARAMETER :: BFACPHR = BTU2M4PS3 / 3600.0 ! m**4/s**3 per hour
-                                 ! assumes heat flux from fire pt src file is in BTU/hr
 
 C External functions:
          INTEGER,         EXTERNAL :: SETUP_LOGDEV
@@ -722,27 +716,11 @@ C Local variables:
          INTEGER          CDATE      ! previous step start date
          INTEGER          CTIME      ! previous step start time
          INTEGER, SAVE :: LDATE = 0  ! previous date
-         INTEGER          LBOT       ! layer containing plume bottom
          INTEGER          LTOP       ! layer containing plume top
-         INTEGER          LPBL       ! first L: ZF(L) above mixing layer - ONLY for REPORT
-         INTEGER          LSTK       ! first L: ZF(L) > STKHT
          INTEGER          SRC        ! source pointer in this proc sub-domain
          INTEGER          MY_DELTA   ! total number of sources on this processor
          REAL             LFRC       ! intermediate LFRAC
-         REAL             MV         ! mininum LFRAC 
-         REAL             PSFC       ! surface pressure [Pa]
-         REAL             TSTK       ! temperature at top of stack [K]
          REAL             TSUM       ! tmp layer frac sum for renormalizing
-         REAL             WSTK       ! wind speed  at top of stack [m/s]
-         REAL             ZBOT       ! plume bottom elevation [m]
-         REAL             ZTOP       ! plume top    elevation [m]
-         REAL             ZDIFF      ! ZTOP - ZBOT
-         REAL             DDZ        ! 1 / ZDIFF
-         REAL             ZPLM       ! plume centerline height above stack [m]
-         REAL             USTMP      ! temp storage for ustar [m/s]
-         REAL             HFLX       ! converted heat flux
-         REAL             BESIZE     ! effective size of the fire buoyant core
-         REAL             SFRACT     ! smoldering fraction size (1-BESIZE)
 
          CHARACTER(  8 ) :: CINT     ! integer to character buffer for warning messages
          CHARACTER( 16 ) :: PNAME = 'GET_PT3D_EMIS   '   ! procedure name
@@ -762,82 +740,14 @@ C Local variables:
          INTEGER, SAVE :: PRE_JDATE, LOC_STKDATE
 
          INTERFACE
-           SUBROUTINE PREPLM( FIREFLG, EMLAYS, HMIX, HTS, PSFC, TS, DDZF, QV,
-     &                        TA, UW, VW, ZH, ZF, PRES, LSTK, LPBL, TSTK,
-     &                        WSTK, DTHDZ, WSPD )
-             LOGICAL, INTENT( IN )  :: FIREFLG
-             INTEGER, INTENT( IN )  :: EMLAYS
-             REAL,    INTENT( IN )  :: HMIX
-             REAL,    INTENT( IN )  :: HTS
-             REAL,    INTENT( IN )  :: PSFC
-             REAL,    INTENT( IN )  :: TS
-             REAL,    INTENT( IN )  :: DDZF( : )
-             REAL,    INTENT( IN )  :: QV  ( : )
-             REAL,    INTENT( IN )  :: TA  ( : )
-             REAL,    INTENT( IN )  :: UW  ( : )
-             REAL,    INTENT( IN )  :: VW  ( : )
-             REAL,    INTENT( IN )  :: ZH  ( : )
-             REAL,    INTENT( IN )  :: ZF  ( : )
-             REAL,    INTENT( IN )  :: PRES( 0: )
-             INTEGER, INTENT( OUT ) :: LSTK
-             INTEGER, INTENT( OUT ) :: LPBL
-             REAL,    INTENT( OUT ) :: TSTK
-             REAL,    INTENT( OUT ) :: WSTK
-             REAL,    INTENT( OUT ) :: DTHDZ( : )
-             REAL,    INTENT( OUT ) :: WSPD ( : )
-           END SUBROUTINE PREPLM
 
-           SUBROUTINE PLMRIS( EMLAYS, LSTK, HFX, HMIX,
-     &                        STKDM, STKHT, STKTK, STKVE,
-     &                        TSTK, USTAR, DTHDZ, TA, WSPD,
-     &                        ZF, ZH, ZSTK, WSTK, ZPLM )
-             INTEGER, INTENT( IN )  :: EMLAYS
-             INTEGER, INTENT( IN )  :: LSTK
-             REAL,    INTENT( IN )  :: HFX
-             REAL,    INTENT( IN )  :: HMIX
-             REAL,    INTENT( IN )  :: STKDM
-             REAL,    INTENT( IN )  :: STKHT
-             REAL,    INTENT( IN )  :: STKTK
-             REAL,    INTENT( IN )  :: STKVE
-             REAL,    INTENT( IN )  :: TSTK
-             REAL,    INTENT( IN )  :: USTAR
-             REAL,    INTENT( IN )  :: DTHDZ( : )
-             REAL,    INTENT( IN )  :: TA   ( : )
-             REAL,    INTENT( IN )  :: WSPD ( : )
-             REAL,    INTENT( IN )  :: ZF ( 0:  )
-             REAL,    INTENT( IN )  :: ZH   ( : )
-             REAL,    INTENT( IN )  :: ZSTK ( : )
-             REAL,    INTENT( INOUT ) :: WSTK
-             REAL,    INTENT( OUT ) :: ZPLM 
-           END SUBROUTINE PLMRIS
-
-           SUBROUTINE FIRE_PLMRIS( EMLAYS, LSTK, HFX, HMIX,
-     &                             BFLX, TSTK, USTAR, DTHDZ,
-     &                             TA, WSPD, ZF, WSTK, ZPLM )
-             INTEGER, INTENT( IN )  :: EMLAYS
-             INTEGER, INTENT( IN )  :: LSTK
-             REAL,    INTENT( IN )  :: HFX
-             REAL,    INTENT( IN )  :: HMIX
-             REAL,    INTENT( IN )  :: BFLX
-             REAL,    INTENT( IN )  :: TSTK
-             REAL,    INTENT( IN )  :: USTAR
-             REAL,    INTENT( IN )  :: DTHDZ( : )
-             REAL,    INTENT( IN )  :: TA   ( : )
-             REAL,    INTENT( IN )  :: WSPD ( : )
-             REAL,    INTENT( IN )  :: ZF ( 0:  )
-             REAL,    INTENT( INOUT ) :: WSTK
-             REAL,    INTENT( OUT ) :: ZPLM
-           END SUBROUTINE FIRE_PLMRIS
-
-           SUBROUTINE PLSPRD( DTHDZ, ZF, KZ, CEFSTK, PLTOP, PLBOT )
-             REAL,    INTENT ( IN ) :: DTHDZ( : )
-             REAL,    INTENT ( IN ) :: ZF( 0:  )
-             INTEGER, INTENT ( IN ) :: KZ
-             REAL,    INTENT ( IN ) :: CEFSTK
-             REAL,    INTENT( OUT ) :: PLTOP
-             REAL,    INTENT( OUT ) :: PLBOT
-           END SUBROUTINE PLSPRD
-
+           SUBROUTINE CALC_PLUME_HEIGHT( LOC_STKDATE, JDATE, JTIME, WRTIME )
+             INTEGER, INTENT( IN ) :: LOC_STKDATE
+             INTEGER, INTENT( IN ) :: JDATE
+             INTEGER, INTENT( IN ) :: JTIME
+             LOGICAL, INTENT( IN ) :: WRTIME
+           END SUBROUTINE CALC_PLUME_HEIGHT
+ 
          END INTERFACE
 
 #ifdef Verbose1
@@ -927,7 +837,7 @@ C Ensure that the model and stack groups emissions timestamp dates stay synchron
             END IF
 
 C Calculate Plume Heights for All Point Sources on this File
-            CALL CALC_PLUME_HEIGHT( LOC_STKDATE, JDATE, JTIME   )
+            CALL CALC_PLUME_HEIGHT( LOC_STKDATE, JDATE, JTIME, WRTIME   )
 
 C Read Emissions for all sources on File N            
             DO ISPC = 1, N_EMIS_SPC
@@ -1085,10 +995,7 @@ C------------------  FORMAT  STATEMENTS   ------------------------------
 93044    FORMAT( I6, ",", I6.6, F6.1, ", ", F6.2, ", ", F6.1, ", ",
      &           F5.1, ", ", F6.2, ", ", I3, ", ", I3 )
 
-93048    FORMAT( I6, F8.2, 3I4, 4F10.2 )
 
-94010    FORMAT( 12( A, :, I8, :, 1X ) )
-94020    FORMAT( 10( A, :, I7, :, 1X ) )
 94030    FORMAT( /5X, 3( A, :, 1X ), I8, ":", I6.6 )
 
          END SUBROUTINE GET_PT3D_EMIS
@@ -1097,7 +1004,7 @@ C-------------- Subprograms used by GET_PT3D_EMIS ----------------------
 
 C=======================================================================
 
-         SUBROUTINE CALC_PLUME_HEIGHT( LOC_STKDATE, JDATE, JTIME )
+      SUBROUTINE CALC_PLUME_HEIGHT( LOC_STKDATE, JDATE, JTIME, WRTIME )
 
 ! Revision History.
 !     Aug 18, 17 B.Murphy: Separated plume height calculation from the
@@ -1105,133 +1012,243 @@ C=======================================================================
 
 C-----------------------------------------------------------------------
 
+      USE GRID_CONF   ! horizontal & vertical domain specifications
       USE STK_EMIS
       USE STK_PRMS
       USE UTILIO_DEFN
+      USE PTMET, P_D => PTMET_DATA
 
       IMPLICIT NONE
 
+C Includes:
+      INCLUDE SUBST_CONST     ! physical and mathematical constants
+
       INTEGER, INTENT( IN ) :: LOC_STKDATE
-      INTEGER               :: JDATE, JTIME
+      INTEGER, INTENT( IN ) :: JDATE, JTIME
+         
+      LOGICAL, INTENT( IN ) :: WRTIME
 
       CHARACTER( 16 ) :: PNAME = 'CALC_PLUME_HEIGHT'   ! procedure name
       CHARACTER( 16 ) :: VNAME 
+      CHARACTER(  8 ) :: CINT     ! integer to character buffer for warning messages
+
+      REAL,            PARAMETER :: USTARMIN = 0.1   ! Min valid value for USTAR
+      REAL,            PARAMETER :: CONVPA = 1.0E-2  ! convert Pa to mb
+      REAL,            PARAMETER :: BTU2M4PS3 = 9.2752E-03 ! convert BTU/s to m**4/s**3
+      REAL,            PARAMETER :: BFACPHR = BTU2M4PS3 / 3600.0 ! m**4/s**3 per hour
+                                 ! assumes heat flux from fire pt src file is in BTU/hr
+      REAL             PSFC      ! surface pressure [Pa]
+      REAL             USTMP      ! temp storage for ustar [m/s]
+      REAL             HFLX       ! converted heat flux
+      REAL             ZBOT       ! plume bottom elevation [m]
+      REAL             ZTOP       ! plume top    elevation [m]
+      REAL             ZPLM       ! plume centerline height above stack [m]
+      REAL             ZDIFF      ! ZTOP - ZBOT
+      REAL             DDZ        ! 1 / ZDIFF
+      REAL             TSTK       ! temperature at top of stack [K]
+      REAL             WSTK       ! wind speed  at top of stack [m/s]
+      REAL             MV         ! mininum LFRAC 
+      REAL             BESIZE     ! effective size of the fire buoyant core
+      REAL             SFRACT     ! smoldering fraction size (1-BESIZE)
+ 
+      INTEGER          LBOT       ! layer containing plume bottom
+      INTEGER          LPBL       ! first L: ZF(L) above mixing layer - ONLY for REPORT
+      INTEGER          LSTK       ! first L: ZF(L) > STKHT
 
       INTEGER :: N, S, L, SRC
       INTEGER :: LTOP
+      INTEGER, SAVE :: LOGDEV
+ 
+      INTERFACE
+           SUBROUTINE PREPLM( FIREFLG, EMLAYS, HMIX, HTS, PSFC, TS, DDZF, QV,
+     &                        TA, UW, VW, ZH, ZF, PRES, LSTK, LPBL, TSTK,
+     &                        WSTK, DTHDZ, WSPD )
+             LOGICAL, INTENT( IN )  :: FIREFLG
+             INTEGER, INTENT( IN )  :: EMLAYS
+             REAL,    INTENT( IN )  :: HMIX
+             REAL,    INTENT( IN )  :: HTS
+             REAL,    INTENT( IN )  :: PSFC
+             REAL,    INTENT( IN )  :: TS
+             REAL,    INTENT( IN )  :: DDZF( : )
+             REAL,    INTENT( IN )  :: QV  ( : )
+             REAL,    INTENT( IN )  :: TA  ( : )
+             REAL,    INTENT( IN )  :: UW  ( : )
+             REAL,    INTENT( IN )  :: VW  ( : )
+             REAL,    INTENT( IN )  :: ZH  ( : )
+             REAL,    INTENT( IN )  :: ZF  ( : )
+             REAL,    INTENT( IN )  :: PRES( 0: )
+             INTEGER, INTENT( OUT ) :: LSTK
+             INTEGER, INTENT( OUT ) :: LPBL
+             REAL,    INTENT( OUT ) :: TSTK
+             REAL,    INTENT( OUT ) :: WSTK
+             REAL,    INTENT( OUT ) :: DTHDZ( : )
+             REAL,    INTENT( OUT ) :: WSPD ( : )
+           END SUBROUTINE PREPLM
 
-            ! If The Point File is for Fires, read and save the H-Flux Data in a
-            ! Dedicated Variable, BFLUX
-            IF ( FIREFLAG( N ) ) THEN
-               IF ( .NOT. INTERPX( STKENAME( N ), 'HFLUX', PNAME,
-     &                             1,1, MY_STRT_SRC( N ),MY_END_SRC( N ), 1,1,
-     &                             LOC_STKDATE, JTIME,
-     &                             FIREVAR( N )%ARRY( 1 ) ) ) THEN
-                  XMSG = 'Could not read ' // TRIM( VNAME ) //
-     &                   ' from ' // TRIM( STKENAME( N ) )
-                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-               END IF
-               DO S = 1, MY_NSRC( N )
-                  SRC = SOURCE( N )%ARRY( S )
-                  BFLUX( N )%ARRY( S ) = FIREVAR( N )%ARRY( SRC ) * BTU2M4PS3
-               END DO
-            END IF
+           SUBROUTINE PLMRIS( EMLAYS, LSTK, HFX, HMIX,
+     &                        STKDM, STKHT, STKTK, STKVE,
+     &                        TSTK, USTAR, DTHDZ, TA, WSPD,
+     &                        ZF, ZH, ZSTK, WSTK, ZPLM )
+             INTEGER, INTENT( IN )  :: EMLAYS
+             INTEGER, INTENT( IN )  :: LSTK
+             REAL,    INTENT( IN )  :: HFX
+             REAL,    INTENT( IN )  :: HMIX
+             REAL,    INTENT( IN )  :: STKDM
+             REAL,    INTENT( IN )  :: STKHT
+             REAL,    INTENT( IN )  :: STKTK
+             REAL,    INTENT( IN )  :: STKVE
+             REAL,    INTENT( IN )  :: TSTK
+             REAL,    INTENT( IN )  :: USTAR
+             REAL,    INTENT( IN )  :: DTHDZ( : )
+             REAL,    INTENT( IN )  :: TA   ( : )
+             REAL,    INTENT( IN )  :: WSPD ( : )
+             REAL,    INTENT( IN )  :: ZF ( 0:  )
+             REAL,    INTENT( IN )  :: ZH   ( : )
+             REAL,    INTENT( IN )  :: ZSTK ( : )
+             REAL,    INTENT( INOUT ) :: WSTK
+             REAL,    INTENT( OUT ) :: ZPLM 
+           END SUBROUTINE PLMRIS
+
+           SUBROUTINE FIRE_PLMRIS( EMLAYS, LSTK, HFX, HMIX,
+     &                             BFLX, TSTK, USTAR, DTHDZ,
+     &                             TA, WSPD, ZF, WSTK, ZPLM )
+             INTEGER, INTENT( IN )  :: EMLAYS
+             INTEGER, INTENT( IN )  :: LSTK
+             REAL,    INTENT( IN )  :: HFX
+             REAL,    INTENT( IN )  :: HMIX
+             REAL,    INTENT( IN )  :: BFLX
+             REAL,    INTENT( IN )  :: TSTK
+             REAL,    INTENT( IN )  :: USTAR
+             REAL,    INTENT( IN )  :: DTHDZ( : )
+             REAL,    INTENT( IN )  :: TA   ( : )
+             REAL,    INTENT( IN )  :: WSPD ( : )
+             REAL,    INTENT( IN )  :: ZF ( 0:  )
+             REAL,    INTENT( INOUT):: WSTK
+             REAL,    INTENT( OUT ) :: ZPLM
+           END SUBROUTINE FIRE_PLMRIS
+
+           SUBROUTINE PLSPRD( DTHDZ, ZF, KZ, CEFSTK, PLTOP, PLBOT )
+             REAL,    INTENT ( IN ) :: DTHDZ( : )
+             REAL,    INTENT ( IN ) :: ZF( 0:  )
+             INTEGER, INTENT ( IN ) :: KZ
+             REAL,    INTENT ( IN ) :: CEFSTK
+             REAL,    INTENT( OUT ) :: PLTOP
+             REAL,    INTENT( OUT ) :: PLBOT
+           END SUBROUTINE PLSPRD
+       END INTERFACE
+      
+      ! If The Point File is for Fires, read and save the H-Flux Data in a
+      ! Dedicated Variable, BFLUX
+      IF ( FIREFLAG( N ) ) THEN
+         IF ( .NOT. INTERPX( STKENAME( N ), 'HFLUX', PNAME,
+     &                       1,1, MY_STRT_SRC( N ),MY_END_SRC( N ), 1,1,
+     &                       LOC_STKDATE, JTIME,
+     &                       FIREVAR( N )%ARRY( 1 ) ) ) THEN
+            XMSG = 'Could not read ' // TRIM( VNAME ) //
+     &             ' from ' // TRIM( STKENAME( N ) )
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+         END IF
+         DO S = 1, MY_NSRC( N )
+            SRC = SOURCE( N )%ARRY( S )
+            BFLUX( N )%ARRY( S ) = FIREVAR( N )%ARRY( SRC ) * BTU2M4PS3
+         END DO
+      END IF
  
 C Loop through sources and compute plume rise
-            DO S = 1, MY_NSRC( N )
+      DO S = 1, MY_NSRC( N )
 
-               IF ( FIREFLAG( N ) ) THEN
-                  IF ( BFLUX( N )%ARRY( S ) .LE. 0.0 ) THEN
-                     TFRAC( 1 ) = 1.0
-                     TFRAC( 2:EMLYRS ) = 0.0
-                     LTOP = 1
-                     GO TO 201
-                  END IF
-               END IF
+         IF ( FIREFLAG( N ) ) THEN
+            IF ( BFLUX( N )%ARRY( S ) .LE. 0.0 ) THEN
+               TFRAC( 1 ) = 1.0
+               TFRAC( 2:EMLYRS ) = 0.0
+               LTOP = 1
+               GO TO 201
+            END IF
+         END IF
 
-               P_D( N )%ZZF( 0 ) = 0.0
-               P_D( N )%ZZF( 1:EMLYRS ) = P_D( N )%ZF( 1:EMLYRS,S )  ! array of layers
+         P_D( N )%ZZF( 0 ) = 0.0
+         P_D( N )%ZZF( 1:EMLYRS ) = P_D( N )%ZF( 1:EMLYRS,S )  ! array of layers
 
 C Get pressures: Use SIGMA values and surface pres. p=sigma*(psfc-ptop)+ptop
-               PSFC = P_D( N )%PRSFC( S )
-               DO L = 0, EMLYRS
-                  P_D( N )%PRESF( L ) = ( VGLVSXG( L ) * ( PSFC - VGTOP_GD )
-     &                                +   VGTOP_GD ) * CONVPA
-               END DO
+         PSFC = P_D( N )%PRSFC( S )
+         DO L = 0, EMLYRS
+            P_D( N )%PRESF( L ) = ( VGLVSXG( L ) * ( PSFC - VGTOP_GD )
+     &                          +   VGTOP_GD ) * CONVPA
+         END DO
 
 C Set surface pressure (convert to mb from Pa)
-               PSFC = CONVPA * PSFC
+         PSFC = CONVPA * PSFC
 
 C Compute derived met vars needed before layer assignments
-               CALL PREPLM( FIREFLAG( N ), EMLYRS,
-     &                      P_D( N )%HMIX( S ), STK_HT( N )%ARRY( S ), PSFC,
-     &                      P_D( N )%TSFC( S ),    P_D( N )%DDZF( :,S ),
-     &                      P_D( N )%QV( :,S ),    P_D( N )%TA( :,S ),
-     &                      P_D( N )%UWIND( :,S ), P_D( N )%VWIND( :,S ),
-     &                      P_D( N )%ZH( :,S ),    P_D( N )%ZF( :,S ),
-     &                      P_D( N )%PRESF, LSTK,  LPBL, TSTK, WSTK,
-     &                      P_D( N )%DTHDZ,        P_D( N )%WSPD )
+         CALL PREPLM( FIREFLAG( N ), EMLYRS,
+     &                P_D( N )%HMIX( S ), STK_HT( N )%ARRY( S ), PSFC,
+     &                P_D( N )%TSFC( S ),    P_D( N )%DDZF( :,S ),
+     &                P_D( N )%QV( :,S ),    P_D( N )%TA( :,S ),
+     &                P_D( N )%UWIND( :,S ), P_D( N )%VWIND( :,S ),
+     &                P_D( N )%ZH( :,S ),    P_D( N )%ZF( :,S ),
+     &                P_D( N )%PRESF, LSTK,  LPBL, TSTK, WSTK,
+     &                P_D( N )%DTHDZ,        P_D( N )%WSPD )
 
 C Trap USTAR at a minimum realistic value
-               USTMP = MAX( P_D( N )%USTAR( S ), USTARMIN )
+         USTMP = MAX( P_D( N )%USTAR( S ), USTARMIN )
 
 C Convert heat flux (watts/m2 to m K /s )
-               HFLX = P_D( N )%HFX( S ) / ( CPD * P_D( N )%DENS( 1,S ) )
+         HFLX = P_D( N )%HFX( S ) / ( CPD * P_D( N )%DENS( 1,S ) )
 
-               IF ( .NOT. FIREFLAG( N ) ) THEN
-                  CALL PLMRIS( EMLYRS, LSTK, HFLX, P_D( N )%HMIX( S ),
-     &                         STK_DM( N )%ARRY( S ), STK_HT( N )%ARRY( S ),
-     &                         STK_TK( N )%ARRY( S ), STK_VEL( N )%ARRY( S ),
-     &                         TSTK, USTMP,
-     &                         P_D( N )%DTHDZ,     P_D( N )%TA( :,S ),
-     &                         P_D( N )%WSPD,      P_D( N )%ZZF,
-     &                         P_D( N )%ZH( :,S ), P_D( N )%ZSTK( :,S ),
-     &                         WSTK, ZPLM )
-               ELSE
-                  CALL FIRE_PLMRIS( EMLYRS, LSTK, HFLX, P_D( N )%HMIX( S ),
-     &                         BFLUX( N )%ARRY( S ),
-     &                         TSTK, USTMP,
-     &                         P_D( N )%DTHDZ,     P_D( N )%TA( :,S ),
-     &                         P_D( N )%WSPD,      P_D( N )%ZZF,
-     &                         WSTK, ZPLM )
-               END IF
+         IF ( .NOT. FIREFLAG( N ) ) THEN
+            CALL PLMRIS( EMLYRS, LSTK, HFLX, P_D( N )%HMIX( S ),
+     &                   STK_DM( N )%ARRY( S ), STK_HT( N )%ARRY( S ),
+     &                   STK_TK( N )%ARRY( S ), STK_VEL( N )%ARRY( S ),
+     &                   TSTK, USTMP,
+     &                   P_D( N )%DTHDZ,     P_D( N )%TA( :,S ),
+     &                   P_D( N )%WSPD,      P_D( N )%ZZF,
+     &                   P_D( N )%ZH( :,S ), P_D( N )%ZSTK( :,S ),
+     &                   WSTK, ZPLM )
+         ELSE
+            CALL FIRE_PLMRIS( EMLYRS, LSTK, HFLX, P_D( N )%HMIX( S ),
+     &                   BFLUX( N )%ARRY( S ),
+     &                   TSTK, USTMP,
+     &                   P_D( N )%DTHDZ,     P_D( N )%TA( :,S ),
+     &                   P_D( N )%WSPD,      P_D( N )%ZZF,
+     &                   WSTK, ZPLM )
+         END IF
 
 #ifdef Verbose1
-               if ( zplm .gt. mxzplm ) mxzplm = zplm
+         if ( zplm .gt. mxzplm ) mxzplm = zplm
 #endif
 
 C Determine the bottom and top heights of the plume.
-               IF ( IPVERT .EQ. 0 ) THEN
+         IF ( IPVERT .EQ. 0 ) THEN
 C Default Turner approach.  Plume thickness = amount of plume rise
 C Plume rise DH = ZPLM minus the stack height STKHT
-                  IF ( FIREFLAG( N ) ) THEN
-                     ZTOP = 1.5 * ZPLM 
-                     ZBOT = 0.5 * ZPLM
-                  ELSE
-                     ZTOP = STK_HT( N )%ARRY( S )
-     &                    + 1.5 * ( ZPLM - STK_HT( N )%ARRY( S ) )
-                     ZBOT = STK_HT( N )%ARRY( S )
-     &                    + 0.5 * ( ZPLM - STK_HT( N )%ARRY( S ) )
-                  END IF
-               ELSE
+            IF ( FIREFLAG( N ) ) THEN
+               ZTOP = 1.5 * ZPLM 
+               ZBOT = 0.5 * ZPLM
+            ELSE
+               ZTOP = STK_HT( N )%ARRY( S )
+     &              + 1.5 * ( ZPLM - STK_HT( N )%ARRY( S ) )
+               ZBOT = STK_HT( N )%ARRY( S )
+     &              + 0.5 * ( ZPLM - STK_HT( N )%ARRY( S ) )
+            END IF
+         ELSE
 C Alternative method to compute plume top/bot heights
-                  CALL PLSPRD( P_D( N )%DTHDZ, P_D( N )%ZZF, EMLYRS,
-     &                         ZPLM, ZTOP, ZBOT )
-               END IF
+            CALL PLSPRD( P_D( N )%DTHDZ, P_D( N )%ZZF, EMLYRS,
+     &                   ZPLM, ZTOP, ZBOT )
+         END IF
 
 C Set up for computing plume fractions, assuming uniform distribution in pressure
 C (~mass concentration -- minor hydrostatic assumption) from bottom to top.
 
-               IF ( ZTOP .LT. STK_HT( N )%ARRY( S ) ) THEN
-                  WRITE( CINT,'( I8 )' ) S
-                  WRITE( XMSG,94010 ) 'ERROR: Top of plume is less than '
-     &                                // 'top of stack for source:' // CINT
-                  CALL M3MESG( XMSG )
-                  WRITE( LOGDEV,* ) '    Zbot: ', ZBOT, ' Ztop: ', ZTOP
-                  WRITE( LOGDEV,* ) '    Stack Top: ', STK_HT( N )%ARRY( S ),
-     &                              ' Plume Top: ', ZPLM
-                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-               END IF
+         IF ( ZTOP .LT. STK_HT( N )%ARRY( S ) ) THEN
+            WRITE( CINT,'( I8 )' ) S
+            WRITE( XMSG,94010 ) 'ERROR: Top of plume is less than '
+     &                          // 'top of stack for source:' // CINT
+            CALL M3MESG( XMSG )
+            WRITE( LOGDEV,* ) '    Zbot: ', ZBOT, ' Ztop: ', ZTOP
+            WRITE( LOGDEV,* ) '    Stack Top: ', STK_HT( N )%ARRY( S ),
+     &                        ' Plume Top: ', ZPLM
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+         END IF
 
 C Allocate plume to layers (compute layer plume fractions)
 
@@ -1242,153 +1259,159 @@ C Compute LBOT, LTOP such that
 C  ZZF( LBOT-1 ) <= ZBOT < ZZF( LBOT ) and
 C  ZZF( LTOP-1 ) <= ZTOP < ZZF( LTOP )
 
-               DO L = 1, EMLYRS - 1
-                  IF ( ZBOT .LE. P_D( N )%ZZF( L ) ) THEN
-                     LBOT = L
-                     GO TO  122
-                  ELSE
-                     TFRAC( L ) = 0.0             ! fractions below plume
-                  END IF
-               END DO
-               LBOT = EMLYRS                      !  fallback
+         DO L = 1, EMLYRS - 1
+            IF ( ZBOT .LE. P_D( N )%ZZF( L ) ) THEN
+               LBOT = L
+               GO TO  122
+            ELSE
+               TFRAC( L ) = 0.0             ! fractions below plume
+            END IF
+         END DO
+         LBOT = EMLYRS                      !  fallback
 
 #ifdef Verbose1
-               c = my_stkcol( n )%arry( s ); r = my_stkrow( n )%arry( s )
-            write( logdev,'(a, 4i4)' ) 'Layer top at c,r, for file, source: ', c, r, n, s
+         c = my_stkcol( n )%arry( s ); r = my_stkrow( n )%arry( s )
+         write( logdev,'(a, 4i4)' ) 'Layer top at c,r, for file, source: ', c, r, n, s
 #endif
 
-122            CONTINUE                           !  loop exit:  bottom found at LBOT
+122      CONTINUE                           !  loop exit:  bottom found at LBOT
 
-               IF ( ZTOP .LE. P_D( N )%ZZF( LBOT ) ) THEN  ! plume in this layer
+         IF ( ZTOP .LE. P_D( N )%ZZF( LBOT ) ) THEN  ! plume in this layer
 
-                  TFRAC( LBOT ) = 1.0
-                  LTOP = LBOT
+            TFRAC( LBOT ) = 1.0
+            LTOP = LBOT
 
-                  DO L = LBOT + 1, EMLYRS         ! fractions above plume
-                     TFRAC( L ) = 0.0
-                  END DO
+            DO L = LBOT + 1, EMLYRS         ! fractions above plume
+               TFRAC( L ) = 0.0
+            END DO
 
-               ELSE IF ( LBOT .EQ. EMLYRS ) THEN  ! plume above top layer
+         ELSE IF ( LBOT .EQ. EMLYRS ) THEN  ! plume above top layer
 
-                  TFRAC( LBOT ) = 1.0
+            TFRAC( LBOT ) = 1.0
 
-                  DO L = 1, EMLYRS - 1            ! fractions below plume
-                     TFRAC( L ) = 0.0
-                  END DO
+            DO L = 1, EMLYRS - 1            ! fractions below plume
+               TFRAC( L ) = 0.0
+            END DO
 
-               ELSE                               ! plume crosses layers
+         ELSE                               ! plume crosses layers
 
-                  DO L = LBOT + 1, EMLYRS
-                     IF ( ZTOP .LE. P_D( N )%ZZF( L ) ) THEN
-                        LTOP = L
-                        GO TO 126
-                     END IF
-                  END DO
-                  LTOP = EMLYRS                   !  fallback
+            DO L = LBOT + 1, EMLYRS
+               IF ( ZTOP .LE. P_D( N )%ZZF( L ) ) THEN
+                  LTOP = L
+                  GO TO 126
+               END IF
+            END DO
+            LTOP = EMLYRS                   !  fallback
 
 #ifdef Verbose1
             write( logdev,'(a, 4i4)' ) '> Hit top at c,r, for file, source: ', c, r, n, s
 #endif
-126               CONTINUE
+126         CONTINUE
 
-                  ZDIFF = ZTOP - ZBOT
-                  IF ( ZDIFF .GT. 0.0 ) THEN
+            ZDIFF = ZTOP - ZBOT
+            IF ( ZDIFF .GT. 0.0 ) THEN
 
-                     DDZ  = 1.0 / ZDIFF
-                     TFRAC( LBOT ) = DDZ * ( P_D( N )%ZZF( LBOT ) - ZBOT )
-                     TFRAC( LTOP ) = DDZ * ( ZTOP - P_D( N )%ZZF( LTOP-1 ) )
+               DDZ  = 1.0 / ZDIFF
+               TFRAC( LBOT ) = DDZ * ( P_D( N )%ZZF( LBOT ) - ZBOT )
+               TFRAC( LTOP ) = DDZ * ( ZTOP - P_D( N )%ZZF( LTOP-1 ) )
 
-                  ELSE   ! ZDIFF .le. 0
+            ELSE   ! ZDIFF .le. 0
 
-                     WRITE( CINT,'( I8 )' ) S
-                     WRITE( XMSG,94020 )
-     &                  'Infinitely small plume created for source:,'
-     &                  // CINT // CRLF() // BLANK10
-     &                  // 'All emissions put in first layer.'
-                     CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-                     LBOT = 1; LTOP = 1
-                     TFRAC( LBOT ) = 1.0
+               WRITE( CINT,'( I8 )' ) S
+               WRITE( XMSG,94020 )
+     &            'Infinitely small plume created for source:,'
+     &            // CINT // CRLF() // BLANK10
+     &            // 'All emissions put in first layer.'
+               CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+               LBOT = 1; LTOP = 1
+               TFRAC( LBOT ) = 1.0
 
-                  END IF
+            END IF
 
-                  DO L = LBOT + 1, LTOP - 1       ! layers in plume
-                     TFRAC( L ) = DDZ * ( P_D( N )%ZZF( L ) - P_D( N )%ZZF( L-1 ) )
-                  END DO
+            DO L = LBOT + 1, LTOP - 1       ! layers in plume
+               TFRAC( L ) = DDZ * ( P_D( N )%ZZF( L ) - P_D( N )%ZZF( L-1 ) )
+            END DO
 
-                  DO L = LTOP + 1, EMLYRS         ! fractions above plume
-                     TFRAC( L ) = 0.0
-                  END DO
+            DO L = LTOP + 1, EMLYRS         ! fractions above plume
+               TFRAC( L ) = 0.0
+            END DO
 
-               END IF
+         END IF
 
 C If layer fractions are negative, put in the first layer
-               MV = MINVAL( TFRAC( 1:EMLYRS ) )
-               IF ( MV .LT. 0.0 ) THEN
+         MV = MINVAL( TFRAC( 1:EMLYRS ) )
+         IF ( MV .LT. 0.0 ) THEN
 
-                  WRITE( CINT,'( I8 )' ) S
-                  WRITE( XMSG,94010 ) 'WARNING: One or more negative plume '
-     &                     // 'fractions found for source:' // CINT
-     &                     // CRLF() // BLANK10 // 'Plume reset to '
-     &                     // 'put all emissions in surface layer.'
-                  CALL M3MESG( XMSG )
+            WRITE( CINT,'( I8 )' ) S
+            WRITE( XMSG,94010 ) 'WARNING: One or more negative plume '
+     &               // 'fractions found for source:' // CINT
+     &               // CRLF() // BLANK10 // 'Plume reset to '
+     &               // 'put all emissions in surface layer.'
+            CALL M3MESG( XMSG )
 
-                  TFRAC( 1 ) = 1.0
-                  TFRAC( 2:EMLYRS ) = 0.0
+            TFRAC( 1 ) = 1.0
+            TFRAC( 2:EMLYRS ) = 0.0
 
-               END IF
+         END IF
 
-               IF ( FIREFLAG( N ) ) THEN
+         IF ( FIREFLAG( N ) ) THEN
 C If source is a fire, adjust for fire smoldering effects (include fractions below LBOT)
 C calculate smoldering fraction:
 
-                  IF ( ACRES( N )%ARRY ( S ) .NE. 0.0 ) THEN
-                     BESIZE = 0.0703 * LOG( ACRES( N )%ARRY( S ) ) + 0.3
-                     BESIZE = MIN( BESIZE, 1.0 )
-                     SFRACT = 1.0 - BESIZE
-                  ELSE
-                     SFRACT = 1.0
-                     write( logdev,* ) "we can't get here: ", n, s
-                  END IF
+             IF ( ACRES( N )%ARRY ( S ) .NE. 0.0 ) THEN
+                BESIZE = 0.0703 * LOG( ACRES( N )%ARRY( S ) ) + 0.3
+                BESIZE = MIN( BESIZE, 1.0 )
+                SFRACT = 1.0 - BESIZE
+             ELSE
+                SFRACT = 1.0
+                write( logdev,* ) "we can't get here: ", n, s
+             END IF
 
-                  ZDIFF = ZBOT - P_D( N )%ZZF( 0 )   ! Note: ZDIFF redefined
-                  IF ( ZDIFF .GT. 0.0 ) THEN
-                     DDZ  = 1.0 / ZDIFF
-                     DO L = 1, LBOT - 1
-                       TFRAC( L ) = DDZ * ( P_D( N )%ZZF( L ) - P_D( N )%ZZF( L-1 ) )
-     &                            * SFRACT
-                     END DO
-                     TFRAC( LBOT ) = TFRAC( LBOT )
-     &                             + ( DDZ * ( ZBOT - P_D( N )%ZZF( LBOT-1 ) )
-     &                               - TFRAC( LBOT ) ) * SFRACT
-                  ELSE   ! LBOT = 1
-!                    TFRAC( 1:LBOT-1 ) = 0.0
-                     TFRAC( LBOT ) = TFRAC( LBOT ) * ( 1.0 - SFRACT )
-                  END IF
+             ZDIFF = ZBOT - P_D( N )%ZZF( 0 )   ! Note: ZDIFF redefined
+             IF ( ZDIFF .GT. 0.0 ) THEN
+                DDZ  = 1.0 / ZDIFF
+                DO L = 1, LBOT - 1
+                  TFRAC( L ) = DDZ * ( P_D( N )%ZZF( L ) - P_D( N )%ZZF( L-1 ) )
+     &                       * SFRACT
+                END DO
+                TFRAC( LBOT ) = TFRAC( LBOT )
+     &                        + ( DDZ * ( ZBOT - P_D( N )%ZZF( LBOT-1 ) )
+     &                          - TFRAC( LBOT ) ) * SFRACT
+             ELSE   ! LBOT = 1
+!               TFRAC( 1:LBOT-1 ) = 0.0
+                TFRAC( LBOT ) = TFRAC( LBOT ) * ( 1.0 - SFRACT )
+             END IF
 
-                  DO L = LBOT + 1, LTOP
-                     TFRAC( L ) = TFRAC( L ) * ( 1.0 - SFRACT )
-                  END DO
+             DO L = LBOT + 1, LTOP
+                TFRAC( L ) = TFRAC( L ) * ( 1.0 - SFRACT )
+             END DO
 
-               END IF
+         END IF
 
-201            CONTINUE
+201      CONTINUE
  
-            IF ( PT3DFRAC ) THEN   ! Store layer fractions
-               LFRAC( S,1:EMLYRS ) = TFRAC( 1:EMLYRS )  ! array
-               ZPLUM( S,1 ) = ZPLM
-            END IF
+         IF ( PT3DFRAC ) THEN   ! Store layer fractions
+            LFRAC( S,1:EMLYRS ) = TFRAC( 1:EMLYRS )  ! array
+            ZPLUM( S,1 ) = ZPLM
+         END IF
 
 C Possible report to REPRTLAY
-               IF ( LTOP .GE. REP_LAYR .AND. RDEV( N ) .GT. 0 .AND. WRTIME ) THEN
-                  WRITE( RDEV( N ),93048 ) S, STK_HT( N )%ARRY( S ), LPBL,
+         IF ( LTOP .GE. REP_LAYR .AND. RDEV( N ) .GT. 0 .AND. WRTIME ) THEN
+              WRITE( RDEV( N ),93048 ) S, STK_HT( N )%ARRY( S ), LPBL,
      &                                     LBOT, LTOP, STK_VEL( N )%ARRY( S ), WSTK,
      &                                     STK_TK( N )%ARRY( S ), TSTK
-               END IF
- 
+         END IF
 
 
+      END DO    ! end loop on sources S
 
-         END SUBROUTINE CALC_PLUME_HEIGHT
+
+94010 FORMAT( 12( A, :, I8, :, 1X ) )
+94020 FORMAT( 10( A, :, I7, :, 1X ) )
+93048 FORMAT( I6, F8.2, 3I4, 4F10.2 )
+
+
+      END SUBROUTINE CALC_PLUME_HEIGHT
 
 C-----------------------------------------------------------------------
 

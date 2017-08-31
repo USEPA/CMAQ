@@ -484,8 +484,7 @@ C                         arrays EMBUFF and PMEMIS_PT have incorrect index value
 C ----------------------------------------------------------------------
          USE GRID_CONF           ! horizontal & vertical domain specifications
          USE CGRID_SPCS          ! CGRID mechanism species
-         USE PT3D_DEFN, ONLY: PT3DEMIS, PMEMIS_PT ! from plume rise
-         USE PTMAP, ONLY: N_SPC_PTPM, PTPM_MAP    ! defines emissions file(s) PM mapping
+         USE PT3D_DEFN, ONLY: PT3DEMIS ! from plume rise
          USE AERO_DATA
          USE PRECURSOR_DATA
          USE SSEMIS                               ! sea-salt emissions
@@ -697,7 +696,7 @@ C
 C ----------------------------------------------------------------------
 
          USE GRID_CONF
-         USE AERO_DATA, ONLY : AEROSPC, EMSD_PROF, EMWT_PROF,
+         USE AERO_DATA, ONLY : AEROSPC, EMWT_PROF,
      &                         ACORS_IDX, ASO4_IDX, ANO3_IDX, ACL_IDX, AH2O_IDX
          USE AEROMET_DATA
 
