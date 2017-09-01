@@ -495,7 +495,7 @@ C Convert All Emissions From mol/s to ppmv/s
                   !MAKE SURE TO IGNORE AEROSOL NUMBER AND SURFACE AREA 
                   CNVTC = CNVTP * Grid_Data%RDX3F( L ) * Met_Data%RRHOJ( C,R,L )
                   VDEMIS( :,L,C,R ) = ( CNVTC * VDEMIS( :,L,C,R ), 
-     &                                  MASK = .NOT.(AERONUM .OR. AEROSRF) ) 
+     &                                  MASK = ( .NOT.(AERONUM .OR. AEROSRF) ) ) 
                END DO
             END DO
          END DO
@@ -534,7 +534,7 @@ C-----------------------------------------------------------------------
      &                         GC_EMIS,   AE_EMIS,   NR_EMIS,   TR_EMIS
          USE AERO_DATA, only : N_MODE, AEROSPC,  ! Aerosol Properties Table
      &                         N_AEROSPC, AEROMODE
-         USE AERO_EMISm only : MAP_EMBUFF
+         USE AERO_EMIS, only : MAP_EMBUFF
 
          IMPLICIT NONE
 
@@ -608,7 +608,7 @@ C Find Numbers of Species Available From Emissions Sources
          ELSE
            NTRSPC  = 0
          END IF
-         NARSPC  = SUM( AREASPC( : )%LEN
+         NARSPC  = SUM( AREASPC( : )%LEN )
 
          ! Point Sources
          IF ( PT3DEMIS ) THEN
@@ -760,8 +760,8 @@ C Warn the User if there are No Emissions Species On Any File
 
          ! Populate EM_SPEC Array with CMAQ Internal Species that will have
          ! Emissions
-         ALLOCATE( EM_SPEC( N_EMIS_SPEC )
-         ALLOCATE( EM_MASK_AERO( N_EMIS_SPEC )
+         ALLOCATE( EM_SPEC( N_EMIS_SPEC ) )
+         ALLOCATE( EM_MASK_AERO( N_EMIS_SPEC ) )
          EM_MASK_AERO = .FALSE.
          ISPC = 0
          DO IGC = 1,N_GC_EMIS
@@ -785,7 +785,7 @@ C Warn the User if there are No Emissions Species On Any File
 
          ! Populate EM_SPEC_BUFF Array with Master List of All Requested
          ! Emissions Species
-         ALLOCATE( EM_SPEC_BUFF( N_EMIS_SPEC )
+         ALLOCATE( EM_SPEC_BUFF( N_EMIS_SPEC ) )
          EM_SPEC_BUFF( 1:N_GC_EMIS ) = GC_EMIS( 1:N_GC_EMIS )     !Gases
          EM_FAC_BUFF ( 1:N_GC_EMIS ) = GC_EMIS_FAC( 1:N_GC_EMIS )     !Gases
          N = N_GC_EMIS
@@ -890,7 +890,7 @@ C Warn the User if there are No Emissions Species On Any File
          END DO
          IF ( ALL( EM_ARSPEC ) .EQ. '' ) THEN
             WRITE( LOGDEV, '(/,A61)'),
-     &         'There are no matching surrogates for the Area Emissions File.',
+     &         'There are no matching surrogates for the Area Emissions File.'
          END IF
 
          ! Populate the Emissions Species on the Point Emission Maps
@@ -932,7 +932,7 @@ C Warn the User if there are No Emissions Species On Any File
             END DO
             IF ( ALL( EM_BGSPEC ) .EQ. '' ) THEN
                WRITE( LOGDEV, '(/,A67)'),
-     &            'There are no matching surrogates for the Biogenic Emissions Module.',
+     &            'There are no matching surrogates for the Biogenic Emissions Module.'
             END IF
          END IF
  
@@ -953,7 +953,7 @@ C Warn the User if there are No Emissions Species On Any File
             END DO
             IF ( ALL( EM_MGSPEC ) .EQ. '' ) THEN
                WRITE( LOGDEV, '(/,A69)'),
-     &            'There are no matching surrogates for the Marine Gas Emissions Module.',
+     &            'There are no matching surrogates for the Marine Gas Emissions Module.'
             END IF
          END IF
  
@@ -973,7 +973,7 @@ C Warn the User if there are No Emissions Species On Any File
             END DO
             IF ( ALL( EM_LTSPEC ) .EQ. '' ) THEN
                WRITE( LOGDEV, '(/,A67)'),
-     &            'There are no matching surrogates for the Lightning NO Emissions Module.',
+     &            'There are no matching surrogates for the Lightning NO Emissions Module.'
             END IF
          END IF
  
@@ -1103,7 +1103,7 @@ C Missing from All Emission Input Sources
      &               'are not found in emission sources.',
      &               'Use one of the below options to continue.', 
      &               '1) Change or remove the missing GC, NR and TR emissions surrogates from the',
-     &               'namelists where they are defined.' 
+     &               'namelists where they are defined.', 
      &               'or',
      &               '2) Change CTM_EMISCHK environment variable to False (F) in the runscript',
      &               'if model predictions are acceptable without using the above emissions.',
