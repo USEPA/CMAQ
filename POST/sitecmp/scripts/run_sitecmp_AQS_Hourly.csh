@@ -85,8 +85,8 @@
 # ~~~~~~~~~~~~ END NETWORK SPECIFIC SECTION ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #> define time window
- setenv SDATE = "2011-07-1"    #> beginning date (July 1, 2011)
- setenv EDATE   = "2011-07-2"  #> ending date    (July 2, 2011)
+ setenv SDATE "2011-07-01"    #> beginning date (July 1, 2011)
+ setenv EDATE "2011-07-02"  #> ending date    (July 2, 2011)
  setenv START_TIME 0      
  setenv END_TIME   230000   
 
