@@ -12,7 +12,7 @@
   if ( $?CompileBLDMAKE || ! -f $BLDER ) then
 
      #> Set BLDER to Default Path
-     set BLDEXE = "bldmake_${compiler}.exe"
+     set BLDEXE = "bldmake_${compilerString}.exe"
      set BLDDIR = "$CMAQ_HOME/UTIL/bldmake"
      setenv BLDER "${BLDDIR}/${BLDEXE}"
      
