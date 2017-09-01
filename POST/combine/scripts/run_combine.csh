@@ -30,7 +30,7 @@
 
 #> Set the build directory if this was not set above 
 #> (this is where the CMAQ executable is located by default).
- if ( ! -e $BINDIR ) then
+ if ( ! $?BINDIR ) then
   setenv BINDIR $CMAQ_HOME/POST/combine/scripts/BLD_combine_${VRSN}_${compilerString}
  endif
 
