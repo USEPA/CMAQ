@@ -15,7 +15,7 @@
 #> Default location for CMAQ model build is one directory above
 #> the repository. The user may also set their own preferred 
 #> directory.
- set CMAQ_HOME = /home/username/cmaq_project
+ set CMAQ_HOME = /home/username/CMAQ_project
 
 #> This section allows users to choose explicitly which tools
 #> to make available from the repo. For each selected tool,
@@ -63,6 +63,16 @@
 #> Return to repository top-level directory
  cd $REPO_HOME
 
+#> Check for EPA Specification. If the user entered "epa" in the 
+#> command line, then commands for sourcing files on the EPA high
+#> performance computing system will be invoked, otherwise they will
+#> be ignored.
+ set IS_EPA = 0
+ if ( $#argv == 1 ) then
+   if ( $1 == "EPA" | $1 == "epa" ) then
+     set IS_EPA = 1
+   endif
+ endif
 
 #===============================================================================
 #> Copy config_cmaq.csh to Project directory and insert correct location
@@ -70,6 +80,9 @@
 #===============================================================================
  cp config_cmaq.csh $CMAQ_HOME/config_cmaq.csh
  sed -i '/setenv CMAQ_REPO \$CMAQ_HOME/c\ setenv CMAQ_REPO '"$REPO_HOME" $CMAQ_HOME/config_cmaq.csh
+ if ( $IS_EPA  ) then
+   sed -i '/source \/work\/MOD3DEV/c\ source \/work\/MOD3DEV\/cmaq_common\/cmaq_env.csh  \#>>> Comment out if not at EPA' $CMAQ_HOME/config_cmaq.csh
+ endif
 
 #===============================================================================
 #> Copy CCTM scripts
@@ -133,6 +146,9 @@
     endif
     cp POST/combine/scripts/bldit_combine.csh  $CMAQ_HOME/POST/combine/scripts/bldit_combine.csh
     cp POST/combine/scripts/run_combine.csh    $CMAQ_HOME/POST/combine/scripts/run_combine.csh
+    mkdir $CMAQ_HOME/POST/combine/scripts/spec_def_files
+    cp -L POST/combine/scripts/spec_def_files/SpecDef* $CMAQ_HOME/POST/combine/scripts/spec_def_files
+
  endif
 
 #===============================================================================
@@ -215,7 +231,9 @@
 
 #===============================================================================
  # Insert Job Scheduler Preface into Run Scripts for those working inside EPA
- #source /work/MOD3DEV/cmaq_common/pbs_run.csh  #>>> Comment Out if not at EPA
+ if ( $IS_EPA ) then
+    source /work/MOD3DEV/cmaq_common/epa_scheduler.csh  #>>> Comment Out if not at EPA
+ endif
 
 #===============================================================================
 #> Exit the Script

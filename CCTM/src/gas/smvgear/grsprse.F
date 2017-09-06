@@ -76,7 +76,7 @@ C..PARAMETERS: None
 C..EXTERNAL FUNCTIONS: None
 
 C..SAVED LOCAL VARIABLES: 
-      LOGICAL, SAVE :: LFIRST = .TRUE. ! Flag for first call to this subroutine
+      LOGICAL, SAVE :: INITIALIZED = .FALSE. ! Flag for first call to this subroutine
 
       INTEGER, SAVE :: IFNEVER = 0  ! Flag for counter initialization
       INTEGER, SAVE :: NDLMAX  = 0  ! Max # of PD loss terms in any reaction
@@ -141,20 +141,22 @@ C..SCRATCH LOCAL VARIABLES:
       INTEGER MCNTA          ! op. counter for bksub loop 2 w/o Sp. Mat.
       INTEGER MINVALU        ! Current number of PD terms in sort
       INTEGER MZ             ! # of nonzero calcs in backsub loop 2
-      INTEGER ICLO( NCS2 )   ! Pointer to # of ops in decomp loop 1
-      INTEGER JCLO( NCS2 )   ! Pointer to # of ops in decomp loop 2
-      INTEGER, ALLOCATABLE :: ISAPORL( : ) ! Count of PD terms for each species
-      INTEGER, ALLOCATABLE :: IZEROK ( : ) ! Pointer to decomp loop 1 k index
-      INTEGER, ALLOCATABLE :: IZEROI ( : ) ! Pointer to decomp loop 1 i index
-      INTEGER, ALLOCATABLE :: JZERO( : ) ! Pointer to decomp loop 2 i index
-      INTEGER NSPECT( NCS )  ! Number of species in mechanism ncs
-      INTEGER, ALLOCATABLE :: ISPARDER( :, : ) ! Indicator of a PD term in the 
-                                             ! Jacobian matrix
-      INTEGER, ALLOCATABLE :: IZILCH  ( :, : ) ! # of nonzero calcs in decomp
-                                             ! loop 1
-      INTEGER, ALLOCATABLE :: JZILCH  ( :, : ) ! # of nonzero calcs in decomp
-                                             ! loop 2
-      INTEGER, ALLOCATABLE :: LZERO   ( :, : ) ! Symbolic Jacobian matrix
+!KSPARSE
+
+      INTEGER, ALLOCATABLE :: ICLO( : )    ! Pointer to # of ops in decomp loop 1
+      INTEGER, ALLOCATABLE :: JCLO( : )    ! Pointer to # of ops in decomp loop 2
+      INTEGER, ALLOCATABLE :: IZEROI( : )  ! Pointer to decomp loop 1 i index
+      INTEGER, ALLOCATABLE :: IZEROK( : )  ! Pointer to decomp loop 1 k index
+      INTEGER, ALLOCATABLE :: JZERO ( : )  ! Pointer to decomp loop 2 i index
+      INTEGER, ALLOCATABLE :: IZILCH  ( :,: )  ! # of nonzero calcs in decomp loop 1
+      INTEGER, ALLOCATABLE :: JZILCH  ( :,: )  ! # of nonzero calcs in decomp loop 2
+      INTEGER, ALLOCATABLE :: LZERO   ( :,: )  ! Symbolic Jacobian matrix
+     
+!JSPARSE
+      
+      INTEGER, ALLOCATABLE :: ISAPORL( : )  ! Count of PD terms for each species
+      INTEGER, ALLOCATABLE :: ISPARDER( :,: )  ! Indicator of a PD term in the 
+
       INTEGER IOS            ! Allocate status
 
 C-----------------------------------------------------------------------
@@ -162,68 +164,29 @@ C-----------------------------------------------------------------------
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Initialize some variables on first call
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      IF( LFIRST ) THEN
+      IF ( INITIALIZED )THEN
+          RETURN
+      ELSE
+          INITIALIZED = .TRUE.
+      END IF 
 
-         ALLOCATE ( IZEROK( MXCOUNT2 ),
-     &              IZEROI( MXCOUNT1 ),
-     &              JZERO ( MXCOUNT1 ), STAT = IOS )
+         
+
+         ALLOCATE( ISAPORL ( NUMB_MECH_SPC ),
+     &             ISPARDER( NUMB_MECH_SPC,NUMB_MECH_SPC ), 
+     &             STAT = IOS )
          IF ( IOS .NE. 0 ) THEN
-            MSG = '*** Memory allocation failure for '
-     &          // 'IZEROK, IZEROI or JZERO'
+            MSG = '*** Memory allocation failed'
             CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
          END IF
-
-         ALLOCATE ( ISAPORL ( NUMB_MECH_SPC ),
-     &              ISPARDER( NUMB_MECH_SPC, NUMB_MECH_SPC ),
-     &              LZERO   ( NUMB_MECH_SPC, NUMB_MECH_SPC ),
-     &              IZILCH  ( NUMB_MECH_SPC, NCS2 ),
-     &              JZILCH  ( NUMB_MECH_SPC, NCS2 ), STAT = IOS )
-         IF ( IOS .NE. 0 ) THEN
-            MSG = '*** Memory allocation failure for '
-     &          // 'ISAPORL, ISPARDER, IZILCH, JZILCH, or LZERO'
-            CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
-         END IF
-
-         DO JSP = 1, NCS2
-            DO ISP = 1, NUMB_MECH_SPC
-               IZILCH( ISP, JSP ) = 0
-               JZILCH( ISP, JSP ) = 0
-               JHIZ1 ( ISP, JSP ) = 0
-               JHIZ2 ( ISP, JSP ) = 0
-               KZILCH( ISP, JSP ) = 0
-               MZILCH( ISP, JSP ) = 0
-            ENDDO
-         ENDDO
-
-         DO JSP = 1, NCS2
-            NUSERAT( JSP ) = 0
-            DO NK = 1, NRXNS
-               NDERIVL( NK, JSP ) = 0
-               NDERIVP( NK, JSP ) = 0
-            ENDDO
-         ENDDO
-         
-         DO JSP = 1, NCS
-            ISCHANG( JSP ) = 0
-         ENDDO
-         
-      ENDIF
        
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c Initialize Prod/loss and PD tabulator arrays
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       NCS12 = NCS
 
-      NSPECT( NCS ) = NUMB_MECH_SPC
-      DO ISP = 1, NSPECT( NCS )
-         ISAPORL( ISP ) = 0
-      ENDDO
-
-      DO ISP = 1, NSPECT( NCS )
-         DO ISP2 = 1, NSPECT( NCS )
-            ISPARDER( ISP, ISP2 ) = 0
-         ENDDO
-      ENDDO
+        ISAPORL  = 0
+        ISPARDER = 0
    
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Set the number of Partial derivative terms in the Jacobian and
@@ -241,8 +204,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          ENDDO
       ENDDO
 
-      DO IREACT = 1, NSPECT( NCS ) 
-         DO IPORR = 1, NSPECT( NCS )
+      DO IREACT = 1, NUMB_MECH_SPC
+         DO IPORR = 1, NUMB_MECH_SPC
             IF( ISPARDER( IPORR, IREACT ) .EQ. 1 ) 
      &          ISAPORL( IPORR ) = ISAPORL( IPORR ) + 1
          ENDDO
@@ -253,8 +216,9 @@ c  Sort the species, putting all with zero partial derivative
 c  terms at the bottom and those with fewest PD terms at top.
 c  Set arrays for species with zero PD terms
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      NOCHANG = NSPECT( NCS )
-      DO JOLD = 1, NSPECT( NCS )
+      ISCHANG = 0
+      NOCHANG = NUMB_MECH_SPC
+      DO JOLD = 1, NUMB_MECH_SPC
          IF( ISAPORL( JOLD ) .GT. 0 ) THEN
             ISCHANG( NCS ) = ISCHANG( NCS ) + 1
             JNEW = ISCHANG( NCS )
@@ -302,6 +266,7 @@ c  Fill the irm2 array using the new species order developed above.
 c  Also determine active reactions for day and then night (i.e., photo
 c  reactions determined by BTEST=.TRUE. are not included for nighttime)
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      NUSERAT = 0
       DO NRX = 1, NRXNS
          DO NR = 1, NREACT( NRX )
             IREACT = IRR( NRX, NR )
@@ -324,6 +289,48 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             ENDIF
          ENDIF
       ENDDO
+
+      DEALLOCATE( ISAPORL, ISPARDER )         
+
+      ALLOCATE( ICLO( NCS2 ),
+     &          JCLO( NCS2 ),
+     &          IZEROI( MXCOUNT1 ),
+     &          IZEROK( MXCOUNT2 ),
+     &          JZERO ( MXCOUNT1 ), STAT = IOS )
+      IF ( IOS .NE. 0 ) THEN
+         MSG = '*** Memory allocation failed'
+         CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+      END IF
+
+      ALLOCATE( LZERO   ( NUMB_MECH_SPC,NUMB_MECH_SPC ),
+     &          IZILCH  ( NUMB_MECH_SPC,NCS2 ),
+     &          JZILCH  ( NUMB_MECH_SPC,NCS2 ), STAT = IOS )
+      IF ( IOS .NE. 0 ) THEN
+         MSG = '*** Memory allocation failed'
+         CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+      END IF
+
+      
+      IZILCH  = 0
+      JZILCH  = 0
+      JHIZ1   = 0
+      JHIZ2   = 0
+      KZILCH  = 0
+      MZILCH  = 0
+
+      NDERIVL = 0
+      NDERIVP = 0
+      
+      
+      JARRAYPT = 0
+
+      IJDECA = 0
+      IKDECA = 0
+      KJDECA = 0
+
+      IJDECB = 0
+      IKDECB = 0
+      KJDECB = 0
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Do symbolic LU decomposition to determine sparse storage array
@@ -646,13 +653,21 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             EXITSTAT = 2
             CALL M3EXIT( PNAME, IZERO, IZERO, ' ', EXITSTAT ) 
          ENDIF
-  700 CONTINUE
+700   CONTINUE
+
+
+      DEALLOCATE( ICLO,
+     &            JCLO,
+     &            IZEROI,
+     &            IZEROK,
+     &            JZERO,
+     &            LZERO,       
+     &            IZILCH,  
+     &            JZILCH ) 
   
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Set some parameters for the Gear integration method 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      IF( LFIRST ) THEN 
-         LFIRST   = .FALSE. 
          MSTEP    = 3
          MAXORD   = 5
          MBETWEEN = 50
@@ -694,7 +709,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          ASET( 6, 5 ) = 175.0D0 / 1764.0D0
          ASET( 6, 6 ) =  21.0D0 / 1764.0D0
          ASET( 6, 7 ) =   1.0D0 / 1764.0D0
-      ENDIF
       RETURN
       
 C********************** FORMAT STATEMENTS ******************************      

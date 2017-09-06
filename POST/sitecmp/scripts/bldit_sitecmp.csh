@@ -49,7 +49,7 @@
  set VRSN     = v52                        #> model version
  set EXEC     = sitecmp_${VRSN}.exe        #> executable name for this application
  set CFG      = sitecmp_${VRSN}.cfg        #> BLDMAKE configuration file name
- setenv BLDER   ${CMAQ_HOME}/UTIL/bldmake/bldmake_${compiler}.exe #> location of makefile builder executable 
+ setenv BLDER   ${CMAQ_HOME}/UTIL/bldmake/bldmake_${compilerString}.exe #> location of makefile builder executable 
 
 #> user choice: copy source files
  set CopySrc         #> copy the source files into the BLD directory
@@ -89,7 +89,7 @@
 #> Set up the sitecmp build directory under the Tools directory
 #> for checking out and compiling source code
 #============================================================================================
- set Bld = ${CMAQ_HOME}/POST/sitecmp/scripts/BLD_sitecmp_${VRSN}_${compiler}
+ set Bld = ${CMAQ_HOME}/POST/sitecmp/scripts/BLD_sitecmp_${VRSN}_${compilerString}
 
  if ( ! -e "$Bld" ) then
     mkdir -pv $Bld
@@ -191,9 +191,9 @@
 
 #> Save Makefile with Compiler-dependent name and create symbolic
 #> link back to generic name.
- mv Makefile Makefile.$compiler
- if ( -e Makefile.$compiler && -e Makefile ) rm Makefile
- ln -s Makefile.$compiler Makefile
+ mv Makefile Makefile.$compilerString
+ if ( -e Makefile.$compilerString && -e Makefile ) rm Makefile
+ ln -s Makefile.$compilerString Makefile
 
 #> Check for error during makefile generation
  if ( $status != 0 ) then
