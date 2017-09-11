@@ -3,13 +3,13 @@ Original Release Date:
 # Overview
 
 
-The '''CMAQ Decoupled Direct Method in 3 Dimensions (CMAQ DDM-3D)''' is a sensitivity analysis technique for computing sensitivity coefficients simultaneously while air pollutant concentrations are being computed (see References). The sensitivity coefficients represent the change in concentration, of any modeled species at any modeled time, associated with a change in a model input (e.g., an initial condition, boundary condition or emission rate) or a parameter (e.g., a reaction rate).
+The '''CMAQ Decoupled Direct Method in 3 Dimensions (CMAQ-DDM-3D)''' is a sensitivity analysis technique for computing sensitivity coefficients simultaneously while air pollutant concentrations are being computed (see References). The sensitivity coefficients represent the change in concentration, of any modeled species at any modeled time, associated with a change in a model input (e.g., an initial condition, boundary condition or emission rate) or a parameter (e.g., a reaction rate).
 
 CMAQ-DDM-3D generates concentration outputs that are essentially identical to normal CMAQ results, while simultaneously computing sensitivity coefficients for any species concentration to a change in initial conditions, boundary conditions, or emission rates.  We have attempted to adhere to CMAQ programming conventions.  Some changes have been made to the input and output of data to keep the sensitivity output files to a reasonable size and to facilitate the necessary passing of information from mother domains to daughter domains for nested runs (see Output of Data).
 
-Current DDM-3D implementation is available for version 5.2 of the Community Multiscale Air Quality (CMAQ) model.  This version of the code has been the work of Sergey L. Napelenok and Wenxian Zhang, and based on previous release versions by Sergey L. Napelenok, Daniel Cohan, Ted Russell, Yueh-Jiun Yang, Amir Hakami and James Boylan.  This code can be compiled and executed in parallel mode identically to the base CMAQ model to take advantage of available multiprocessing capabilities.
+Current DDM-3D implementation is available for version 5.2 of the Community Multiscale Air Quality (CMAQ) model.  This version of the code has been the work of Sergey L. Napelenok, and is based on previous contributions from Wenxian Zhang, Daniel Cohan, Ted Russell, Yueh-Jiun Yang, Amir Hakami and James Boylan.  This code can be compiled and executed in parallel mode identically to the base CMAQ model to take advantage of available multiprocessing capabilities.
 
-This guide is intended to assist users of our implementation of DDM sensitivity analysis into CMAQ.  We acknowledge that our implementation is a work in progress and list cautionary notes (see Shortcomings and Unimplemented Features) that should be considered when using CMAQ-DDM. However, we have tested that for ozone chemistry and PM processes CMAQ-DDM gives results in good agreement with sensitivities calculated by differencing multiple brute-force runs of CMAQ, at a significant savings of computational time.
+This guide is intended to assist users of our implementation of DDM sensitivity analysis into CMAQ.  We acknowledge that our implementation is a work in progress and list cautionary notes (see Shortcomings and Unimplemented Features) that should be considered when using CMAQ-DDM-3D. However, we have tested that for ozone chemistry and PM processes CMAQ-DDM-3D gives results in good agreement with sensitivities calculated by differencing multiple brute-force runs of CMAQ, at a significant savings of computational time.
 
 CMAQ-DDM-3D is released as part of public release version 5.2.  Updates to the code include the migration to the most recent base model science (version 5.2). CMAQ 5.0.2 updates included 2nd order sensitivity calculation for particulate matter species, and improved flexibility in the control file.
 
@@ -17,14 +17,13 @@ Implementation approach/methodology remains largely unchanged, so only the major
 
 ## Implementation Highlight:  CMAQv5.2
 
-Add new content here.
+CMAQ-DDM-3D for model release verion 5.2 followed the same science updates and code restructuring as the base model.  No major functionality in the sensitivity model was added at this update.
 
-## Implementation Highlight:  CMAQv5.0.2 High-Order DDM3D for Particulate Matter (HDDM3D/PM)
-
+## Implementation Highlight:  CMAQv5.0.2 High-Order DDM-3D for Particulate Matter (HDDM3D/PM)
 
 :Wenxian Zhang and Sergey Napelenok
 
-High-order DDM sensitivity analysis for particulate matter is implemented in CMAQv5.0.2.  This new feature is an important extension of the CMAQ-DDM3D and provides an advanced and efficient approach to calculate high-order sensitivity coefficients of particulate matter. The development and implementation process as well as the performance evaluation can be found in Zhang et al. (2012).
+High-order DDM sensitivity analysis for particulate matter was implemented in CMAQv5.0.2.  This new feature is an important extension of the CMAQ-DDM-3D and provides an advanced and efficient approach to calculate high-order sensitivity coefficients of particulate matter. The development and implementation process as well as the performance evaluation can be found in Zhang et al. (2012).
 
 Implementation of HDDM3D/PM involves both aero6 and cloud modules. The key step of implementing HDDM3d/PM is developing high-order DDM sensitivity analysis in ISORROPIAv2.1.  The performance of the sensitivity calculation is improved by using the following approaches:     
 
@@ -33,7 +32,6 @@ Implementation of HDDM3D/PM involves both aero6 and cloud modules. The key step 
     * Treating acidic and neutral particles in different manners to be consistent with the algorithms used by ISORROPIAv2.1
 
 ### Impact of the implementation
-
 
     * Extended the model's ability to account for high-order sensitivities of particulate matter
     * Enabled a series of studies and applications associated with the nonlinear response of particulate matter to precursors, which is a critical factor to consider in particulate matter management
@@ -48,33 +46,14 @@ src/ddm3d/aero_hddmsens.f
 
 Affected files: src/ddm3d/aero_sens.F, src/aero/aero6/isocom.f, src/aero/aero6/isofwd.f, src/cloud/acm_ae6/aqchem.F
 
-## September 2014 Code Patch Release Note
+### Current status of CMAQ v5.2 High-order Implementation
 
-Minor changes to cloud module, aerosol, module, chemistry driver, and sensitivity interface file to prevent instability on some platforms, particularly with the gfortran compiler.
+Although the v5.0.2 implementation of HDDM-3D was extented to version 5.2, it should be considered a research option at this time.  The model does compile and simulates do complete without non-physical results (as of current testing). The performance compared to brute force is currently good for gaseous model species, but is objectively poor for secondary particulates.  There are issues with thermodynamics are are currently under investigaton. This fuctionality will be update to full use status in the future.
 
-Affected files: 
-
-```
-acmcld.F (can't find this file)
-src/cloud/acm_ae6/aqchem.F
-src/gas/ebi_racm2_ae6_aq/hrdriver.F (5.1.1)
-src/gas/ebi_cb6r3_ae6nvPOA_aq/hrdriver.F (5.2)
-src/gas/ebi_saprc07tic_ae6i_aq/hrdriver.F (5.1.1)
-src/gas/ebi_cb05tucl_ae6_aq/hrdriver.F (5.1.1)
-src/gas/ebi_cb05e51_ae6_aq/hrdriver.F (5.1.1)
-src/gas/ebi_saprc07tb_ae6_aq/hrdriver.F (5.1.1)
-src/gas/ebi_cb05mp51_ae6_aq/hrdriver.F (5.1.1)
-src/gas/ebi_saprc07tc_ae6_aq/hrdriver.F (5.1.1)
-src/cloud/acm_ae6/onvcld_acm.F 
-src/ddm3d/dact.inc
-src/ddm3d/aero_ddmsens.f
-src/ddm3d/aero_hddmsens.f
-src/ddm3d/sinput.F
-```
 
 # Build Instructions
 
-The CMAQv5.2 DDM3D installation includes a build script for compiling a version of the CCTM instrumented with DDM. For installing CMAQ-DDM, first clone, and build the base version of the model. Edit this: Then download the CMAQ DDM3D tar file and untar into the CMAQv5.2 home directory:
+The CMAQv5.2 DDM-3D installation includes a build script for compiling a version of the CCTM instrumented with DDM. For installing CMAQ-DDM-3D, first clone, and build the base version of the model. Edit this: Then download the CMAQ DDM3D tar file and untar into the CMAQv5.2 home directory:
 
 ```
  cd $CMAQ_REPO
@@ -92,15 +71,15 @@ Note that you will need to have the libraries  (I/O API, netCDF, MPI, Stenex, an
 
 # Run Instructions
 
-A sample run script is provided in the CMAQ DDM3D release package under $M3HOME/scripts/cctm_ddm. Along with the run time options for the base CCTM, this script includes DDM configuration options shown in Table 1. A DDM control input file is required when DDM3D is activated in the CCTM. Details on this file are included in the following section.
+A sample run script is provided in the CMAQ-DDM-3D release package under $M3HOME/scripts/cctm_ddm. Along with the run time options for the base CCTM, this script includes DDM configuration options shown in Table 1. A DDM control input file is required when DDM3D is activated in the CCTM. Details on this file are included in the following section.
 
-The CMAQ DDM3D test run uses the same input data as the base CMAQv5.2 distribution package.  To run the CMAQ DDM test case:
+The CMAQ-DDM-3D test run uses the same input data as the base CMAQv5.2 distribution package.  To run the CMAQ-DDM-3D test case:
 
-1. Download the base CMAQv5.2 distribution, including the model and input data to obtain/prepare inputs for CMAQ DDM.  
+1. Download the base CMAQv5.2 distribution, including the model and input data to obtain/prepare inputs for CMAQ-DDM-3D.  
 2. Run the ICON and BCON processors from the base model package to create initial and boundary conditions input files for the CMAQ DDM test case.
-3. Point the CMAQ DDM run script to the emissions and ICBC data from the base CMAQv5.2 distribution
+3. Point the CMAQ-DDM-3D run script to the emissions and ICBC data from the base CMAQv5.2 distribution
 4. Confirm that the run script is pointing to the DDM control input file for the test run
-5. Execute the CMAQ DDM run script the same way that you would run the base model
+5. Execute the CMAQ-DDM-3D run script the same way that you would run the base model
 
 
 DDM run script settings
@@ -117,13 +96,13 @@ DDM run script settings
 |DDM3D_BCS|Y/N|Use a sensitivity BC file for nested simulations|
 |SEN_INPUT||Name of the sensitivity control file|
 
-# CMAQ DDM-3D Input/Output Data
+# CMAQ-DDM-3D Input/Output Data
 
-Users must specify the DDM3D sensitivity parameters in the DDM Control File `SEN_INPUT`
+Users must specify the DDM-3D sensitivity parameters in the DDM-3D Control File `SEN_INPUT`
 
-## DDM Control File (SEN_INPUT) Description
+## CMAQ-DDM-3D Control File (SEN_INPUT) Description
 
-The DDM Control File accommodates various types of sensitivity configuration parameters for CMAQ DDM3D simulations, including the tagging of multiple emission sources. As proper formatting of this file is required, users are referred to the sample control file provided with the release for formatting examples. Sample control file packets are shown below.
+The DDM-3D Control File accommodates various types of sensitivity configuration parameters for CMAQ-DDM-3D simulations, including the tagging of multiple emission sources. As proper formatting of this file is required, users are referred to the sample control file provided with the release for formatting examples. Sample control file packets are shown below.
 
 Calculate the sensitivity to total emissions of a particular species (SO2 in this example):
 
@@ -164,7 +143,7 @@ Calculate the sensitivity to inline biogenic emissions:
      SPECIES
       ISOP
 
-Several sensitivities can be calculated in one simulation. In the example below, there are four sensitivities defined in this control file.  In the first (EMISSO2), DDM sensitivities would be calculated to emissions of SO2 from one gridded emissions file and two point source emissions files together.  In the second (EMISNOX), DDM sensitivities would be calculated to emissions of NOx (NO+NO2). In the third (2ENOX), higher order DDM3D sensitivities would be calculated to NOx emissions. In the fourth (RATE1), DDM sensitivities would be calculated to the rate of reaction 1 in the photochemical mechanism.
+Several sensitivities can be calculated in one simulation. In the example below, there are four sensitivities defined in this control file.  In the first (EMISSO2), DDM-3D sensitivities would be calculated to emissions of SO2 from one gridded emissions file and two point source emissions files together.  In the second (EMISNOX), DDM-3D sensitivities would be calculated to emissions of NOx (NO+NO2). In the third (2ENOX), higher order DDM3D sensitivities would be calculated to NOx emissions. In the fourth (RATE1), DDM sensitivities would be calculated to the rate of reaction 1 in the photochemical mechanism.
 
     EMISSO2     
      EMIS
@@ -196,9 +175,9 @@ Several sensitivities can be calculated in one simulation. In the example below,
      REACTION
       1
 
-CMAQ DDM is flexible in the number of files that the code can handle and also allows for expansion to other types of emissions (currently lightning and dust are being implemented).
+CMAQ-DDM-3D is flexible in the number of files that the code can handle and also allows for expansion to other types of emissions (currently lightning and dust are being implemented).
 
-## DDM Control File Format
+## DDM-3D Control File Format
 
 For each sensitivity:
 1. (mandatory) The first line is the name of the sensitivity parameter; any 8-character name of the user's choosing, no leading spaces
@@ -237,7 +216,7 @@ For each sensitivity:
      * NOTE2: For better understanding of how this file is read, or to modify/add features, look at sinput.F in the CMAQ-DDM code.
 
 
-## DDM Input/Output Files
+## DDM-3D Input/Output Files
 
 With the exception of the control file, CMAQ-DDM-3D requires the same input files as a normal CMAQ run.  Additional input files may be required depending on the choice of calculated sensitivity parameters.  The following table includes a list of all possible files specific to sensitivity calculations.
 
@@ -264,7 +243,7 @@ Files Specific to DDM-3D Simulations
 
 # Summary
 
-DDM has proven to be a very effective tool for air quality studies.  This implementation in CMAQ has been done with the intent to provide flexibility and computational efficiency, and also maintain the base CMAQ code structure. CMAQ-DDM has been found to accurately simulate sensitivity of ozone and PM species to initial conditions, boundary conditions, and emissions of precursor species. However, CMAQ-DDM remains a work in progress with known shortcomings and its accuracy has not been tested for all conceivable applications. Any errors should be reported to the contacts provided on the cover page.
+CMAQ-DDM-3D has proven to be a very effective tool for air quality studies.  This implementation in CMAQ has been done with the intent to provide flexibility and computational efficiency, and also maintain the base CMAQ code structure. CMAQ-DDM-3D has been found to accurately simulate sensitivity of ozone and PM species to initial conditions, boundary conditions, and emissions of precursor species. However, CMAQ-DDM-3D remains a work in progress with known shortcomings and its accuracy has not been tested for all conceivable applications. Any errors should be reported to the contacts provided on the cover page.
 
 # References
 
