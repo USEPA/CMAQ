@@ -24,7 +24,7 @@
 
 #> Set the build directory if this was not set above 
 #> (this is where the executable is located by default).
- if ( ! -e ${BINDIR} ) then
+ if ( ! $?BINDIR ) then
   setenv BINDIR ${CMAQ_HOME}/POST/sitecmp/scripts/BLD_sitecmp_${VRSN}_${compilerString}
  endif
 
@@ -85,8 +85,8 @@
 # ~~~~~~~~~~~~ END NETWORK SPECIFIC SECTION ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #> define time window
- setenv SDATE = "2011-07-1"    #> beginning date (July 1, 2011)
- setenv EDATE   = "2011-07-2"  #> ending date    (July 2, 2011)
+ setenv SDATE "2011-07-01"    #> beginning date (July 1, 2011)
+ setenv EDATE "2011-07-02"  #> ending date    (July 2, 2011)
  setenv START_TIME 0      
  setenv END_TIME   230000   
 
