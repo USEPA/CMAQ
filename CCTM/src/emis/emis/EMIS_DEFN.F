@@ -904,11 +904,15 @@ C Warn the User if there are No Emissions Species On Any File
          ! file that is never used, trigger an error (if EMISCHK is
          ! TRUE).
          ALLOCATE( EM_ARSPEC( N_EMIS_SPC ) )
+         EM_ARSPEC = ''
          ALLOCATE( EM_PTSPEC( N_EMIS_SPC, NPTGRPS ) )
+         EM_PTSPEC = ''
          ALLOCATE( EM_TRSPEC( N_EMIS_SPC ) )
+         EM_TRSPEC = ''
          IF ( NBIOSPC  ) ALLOCATE( BEIS_MAP( MSPCS ) )
          IF ( NMGSPC   ) ALLOCATE( MGSPC_MAP( NMGSPC ) )
          IF ( LTNG_NO  ) ALLOCATE( EM_LTSPEC( N_EMIS_SPC ) )
+         EM_LTSPEC = ''
 
          ALLOCATE( EM_FAC_AR( N_EMIS_SPC ) )
          ALLOCATE( EM_FAC_PT( N_EMIS_SPC, NPTGRPS ) )
@@ -933,7 +937,7 @@ C Warn the User if there are No Emissions Species On Any File
                  EM_FAC_AR( ISPC ) = EM_FAC_BUFF ( ISPC )
 
                  ! Mark this species as found on the master list
-                 IDX = INDEX1( EM_SPEC( ISPC ), NEMIS_SPC_UNIQUE, EMIS_SPC_UNIQUE )
+                 IDX = INDEX1( EM_ARSPEC( ISPC ), NEMIS_SPC_UNIQUE, EMIS_SPC_UNIQUE )
                  IF ( IDX .GT. 0 ) L_EMIS_SPC( IDX ) = .TRUE.
              END IF
          END DO
@@ -957,7 +961,7 @@ C Warn the User if there are No Emissions Species On Any File
                    EM_FAC_PT( ISPC,IPT ) = EM_FAC_BUFF ( ISPC )
 
                    ! Mark this species as found on the master list
-                   IDX = INDEX1( EM_SPEC( ISPC ), NEMIS_SPC_UNIQUE, EMIS_SPC_UNIQUE )
+                   IDX = INDEX1( EM_PTSPEC( ISPC,IPT ), NEMIS_SPC_UNIQUE, EMIS_SPC_UNIQUE )
                    IF ( IDX .GT. 0 ) L_EMIS_SPC( IDX ) = .TRUE.
                END IF
             END DO
@@ -984,7 +988,7 @@ C Warn the User if there are No Emissions Species On Any File
                    EM_FAC_BEIS( ISPC ) = EM_FAC_BUFF ( ISPC )
 
                    ! Mark this species as found on the master list
-                   IDX = INDEX1( EM_SPEC( ISPC ), NEMIS_SPC_UNIQUE, EMIS_SPC_UNIQUE )
+                   IDX = INDEX1( EM_SPEC_BUFF( ISPC ), NEMIS_SPC_UNIQUE, EMIS_SPC_UNIQUE )
                    IF ( IDX .GT. 0 ) L_EMIS_SPC( IDX ) = .TRUE.
                END IF
             END DO
@@ -1010,7 +1014,7 @@ C Warn the User if there are No Emissions Species On Any File
                    EM_FAC_MG( ISPC ) = EM_FAC_BUFF ( ISPC )
 
                    ! Mark this species as found on the master list
-                   IDX = INDEX1( EM_SPEC( ISPC ), NEMIS_SPC_UNIQUE, EMIS_SPC_UNIQUE )
+                   IDX = INDEX1( EM_SPEC_BUFF( ISPC ), NEMIS_SPC_UNIQUE, EMIS_SPC_UNIQUE )
                    IF ( IDX .GT. 0 ) L_EMIS_SPC( IDX ) = .TRUE.
                END IF
             END DO
@@ -1034,7 +1038,7 @@ C Warn the User if there are No Emissions Species On Any File
                    EM_FAC_LTNG( ISPC ) = EM_FAC_BUFF ( ISPC )
 
                    ! Mark this species as found on the master list
-                   IDX = INDEX1( EM_SPEC( ISPC ), NEMIS_SPC_UNIQUE, EMIS_SPC_UNIQUE )
+                   IDX = INDEX1( EM_LTSPEC( ISPC ), NEMIS_SPC_UNIQUE, EMIS_SPC_UNIQUE )
                    IF ( IDX .GT. 0 ) L_EMIS_SPC( IDX ) = .TRUE.
                END IF
             END DO
@@ -1058,7 +1062,7 @@ C Warn the User if there are No Emissions Species On Any File
                  EM_FAC_TR( ISPC ) = EM_FAC_BUFF ( ISPC )
 
                  ! Mark this species as found on the master list
-                 IDX = INDEX1( EM_SPEC( ISPC ), NEMIS_SPC_UNIQUE, EMIS_SPC_UNIQUE )
+                 IDX = INDEX1( EM_TRSPEC( ISPC ), NEMIS_SPC_UNIQUE, EMIS_SPC_UNIQUE )
                  IF ( IDX .GT. 0 ) L_EMIS_SPC( IDX ) = .TRUE.
              END IF
            END DO

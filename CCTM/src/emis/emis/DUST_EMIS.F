@@ -270,7 +270,7 @@ C...Determine map between aero_spc dust emissions and the dust emission list
             End Do
 
             If ( .NOT. dust_match ) Then
-              WRITE( XMSG, '(A43,A23,A,A11,A62,A53)' ), 'Cannot find aerosol species to accomodate ',
+              WRITE( XMSG, '(A43,A23,A,A13,A62,A53)' ), 'Cannot find aerosol species to accomodate ',
      &               'dust emission species: ', trim(dust_spc_list( idust )%NAME), '. You should ',
      &               'provide a prognostic variable for this species in both the AE ',
      &               'namelist and the AERO_DATA table in order to proceed.'
@@ -282,8 +282,6 @@ C...Determine map between aero_spc dust emissions and the dust emission list
 C...Build dust_spc type from selected list elements
          Allocate( dust_spc( ndust_spc ) )
          dust_spc = pack( dust_spc_list, map_DUSTtoAERO .GT. 0 )
-            WRITE( LOGDEV, '(I)'), MAP_DUSTtoAERO
-            WRITE( LOGDEV, '(A)'), DUST_SPC( : )%NAME
 
 C...Count the number of mass emissions species
          n_mass_emissions = 0
