@@ -262,6 +262,7 @@ C Allocate and initialize dry deposition array
          END IF
          ICMP = 0.0   ! array assignment
 
+C Allocate and initialize emissions
          IF ( .NOT. EMIS_INIT ( JDATE, JTIME, TSTEP( 1 ) ) ) THEN
             XMSG = 'Failure initializing emissions module'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -269,7 +270,7 @@ C Allocate and initialize dry deposition array
 
 C Set up for process analysis
          IF ( LIPR ) THEN
-            ALLOCATE ( EMIS_PA( NCOLS,NROWS,EMLAYS,N_SPC_EMIS+1 ), STAT = ASTAT )
+            ALLOCATE ( EMIS_PA( NCOLS,NROWS,EMLAYS,N_EMIS_SPC+1 ), STAT = ASTAT )
             IF ( ASTAT .NE. 0 ) THEN
                XMSG = 'EMIS_PA memory allocation failed'
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -348,7 +349,7 @@ C read & interpolate emissions data => VDEMIS from EMIS_DEFN module
       CALL GET_EMIS ( MDATE, MTIME, TSTEP, CONVPA, CGRID )
 
       IF ( LIPR ) THEN
-         DO S = 1, N_SPC_EMIS+1
+         DO S = 1, N_EMIS_SPC+1
             DO L = 1, EMLAYS
                DO R = 1, MY_NROWS
                   DO C = 1, MY_NCOLS

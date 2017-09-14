@@ -147,7 +147,7 @@ C hourly stack emissions file names
       CHARACTER(  16 ), ALLOCATABLE, SAVE :: STKENAME( : )
 
       CHARACTER( 240 )           :: XMSG = ' '
-
+          
       CONTAINS
 
 C=======================================================================
@@ -199,6 +199,7 @@ C Local Variables:
          INTEGER, SAVE :: NSTEPS = 1
          INTEGER          NDATE          ! next timestep file Julian date (YYYYDDD)
          INTEGER          NTIME          ! next timestep file time (HHMMSS)
+         INTEGER          N_EMIS_SPC
 
          INTEGER          LOGDEV
 
@@ -690,6 +691,7 @@ C Time step part of laypoint
          USE CGRID_SPCS  ! CGRID mechanism species
          USE STK_PRMS    ! stack groups file
          USE STK_EMIS    ! hourly point source emissions
+         USE PTMET
          USE UTILIO_DEFN
          USE PRECURSOR_DATA, ONLY : PRECURSOR_MW, SULF_IDX
 
@@ -739,17 +741,7 @@ C Local variables:
 
          INTEGER, SAVE :: PRE_JDATE, LOC_STKDATE
 
-         INTERFACE
-
-           SUBROUTINE CALC_PLUME_HEIGHT( LOC_STKDATE, JDATE, JTIME, WRTIME )
-             INTEGER, INTENT( IN ) :: LOC_STKDATE
-             INTEGER, INTENT( IN ) :: JDATE
-             INTEGER, INTENT( IN ) :: JTIME
-             LOGICAL, INTENT( IN ) :: WRTIME
-           END SUBROUTINE CALC_PLUME_HEIGHT
- 
-         END INTERFACE
-
+         
 #ifdef Verbose1
          real mxzplm
 #endif
@@ -837,7 +829,7 @@ C Ensure that the model and stack groups emissions timestamp dates stay synchron
             END IF
 
 C Calculate Plume Heights for All Point Sources on this File
-            CALL CALC_PLUME_HEIGHT( LOC_STKDATE, JDATE, JTIME, WRTIME   )
+            CALL CALC_PLUME_HEIGHT( LOC_STKDATE, JDATE, JTIME, WRTIME, N   )
 
 C Read Emissions for all sources on File N            
             DO ISPC = 1, N_EMIS_SPC
@@ -889,11 +881,13 @@ C Read Emissions for all sources on File N
                ! Zero Out Sulfuric Acid Emissions Since they have been
                ! added to particulate sulfate
                IF ( VNAME .EQ. 'SULF' ) THEN
+                  MY_DELTA = MY_END_SRC( N ) - MY_STRT_SRC( N ) + 1
                   STKEMIS( N )%ARRY( 1:MY_DELTA ) = 0.0
                END IF
                
                ! Zero Out pcVOC from Fire Sources
                IF ( FIREFLAG( N ) .AND. EM_SPEC( ISPC ) .EQ. 'PCVOC' ) THEN
+                  MY_DELTA = MY_END_SRC( N ) - MY_STRT_SRC( N ) + 1
                   STKEMIS( N )%ARRY( 1:MY_DELTA ) = 0.0
                END IF
 
@@ -1004,7 +998,7 @@ C-------------- Subprograms used by GET_PT3D_EMIS ----------------------
 
 C=======================================================================
 
-      SUBROUTINE CALC_PLUME_HEIGHT( LOC_STKDATE, JDATE, JTIME, WRTIME )
+      SUBROUTINE CALC_PLUME_HEIGHT( LOC_STKDATE, JDATE, JTIME, WRTIME, N )
 
 ! Revision History.
 !     Aug 18, 17 B.Murphy: Separated plume height calculation from the
@@ -1027,6 +1021,7 @@ C Includes:
       INTEGER, INTENT( IN ) :: JDATE, JTIME
          
       LOGICAL, INTENT( IN ) :: WRTIME
+      INTEGER, INTENT( IN ) :: N       ! Point Source File Number
 
       CHARACTER( 16 ) :: PNAME = 'CALC_PLUME_HEIGHT'   ! procedure name
       CHARACTER( 16 ) :: VNAME 
@@ -1055,7 +1050,7 @@ C Includes:
       INTEGER          LPBL       ! first L: ZF(L) above mixing layer - ONLY for REPORT
       INTEGER          LSTK       ! first L: ZF(L) > STKHT
 
-      INTEGER :: N, S, L, SRC
+      INTEGER :: S, L, SRC
       INTEGER :: LTOP
       INTEGER, SAVE :: LOGDEV
  

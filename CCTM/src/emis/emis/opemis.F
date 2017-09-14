@@ -64,6 +64,7 @@ C Local variables:
       CHARACTER( 96 ) :: XMSG
       CHARACTER( 16 ) :: UNITSCK
 
+      LOGICAL ::   SOME_GAS_EMIS
       LOGICAL ::   WRFLG = .FALSE.
       INTEGER      LOGDEV
       INTEGER      STATUS
@@ -155,7 +156,7 @@ C Open the emissions file (for gas chem, aerosols and non-reactive species)
 
          SOME_GAS_EMIS = .FALSE.
 
-         DO N = S, N_GC_EMIS
+         DO N = 1, N_GC_EMIS
             V = INDEX1( GC_EMIS( N ), NVARS3D, VNAME3D )
             IF ( V .NE. 0 ) THEN
                SOME_GAS_EMIS = .TRUE.
@@ -191,7 +192,7 @@ C Open the emissions file (for gas chem, aerosols and non-reactive species)
 
          DO N = 1, N_AE_EMIS
             IF ( ANY( AEROMODE( : )%NUM_NAME .EQ. AE_EMIS( N ) ) .OR.
-    &            ANY( AEROMODE( : )%SRF_NAME .EQ. AE_EMIS( N ) ) ) CYCLE
+     &           ANY( AEROMODE( : )%SRF_NAME .EQ. AE_EMIS( N ) ) ) CYCLE
             V = INDEX1( AE_EMIS( N ), NVARS3D, VNAME3D )
             IF ( V .NE. 0 ) THEN
                IF ( UNITSCK .EQ. 'BLANK' ) UNITSCK = UNITS3D( V )
@@ -199,6 +200,7 @@ C Open the emissions file (for gas chem, aerosols and non-reactive species)
                   XMSG = 'AE units are inconsistent on ' // EMIS_1
                   CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
                END IF
+               PMEM_UNITS = UNITSCK
             ELSE
                XMSG = 'Emissions species '
      &              // TRIM( AE_EMIS( N ) )
@@ -206,7 +208,6 @@ C Open the emissions file (for gas chem, aerosols and non-reactive species)
                CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
             END IF
 
-            PMEM_UNITS = UNITSCK
          END DO
  
          DO N = 1, N_NR_EMIS

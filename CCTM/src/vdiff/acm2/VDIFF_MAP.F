@@ -41,6 +41,7 @@ C   11 May 11 J.Bash: Modified for NH3 bidi component fluxes
 C   04 Jan 12 J.Young: Initalize char strings with blank padding
 
 C-----------------------------------------------------------------------
+      USE EMIS_DEFN, ONLY : N_EMIS_SPC
 
 C global diffusion species
       INTEGER, SAVE :: N_SPC_DIFF 
@@ -82,9 +83,6 @@ C Arguments:
          INTEGER, INTENT( IN ) :: N_SPC_DEPV ! no. of depv species
          LOGICAL SUCCESS
 
-C global emis species
-         INTEGER N_SPC_EMIS
- 
 C External Functions:
          INTEGER, EXTERNAL :: FINDEX
 
@@ -153,7 +151,7 @@ C-----------------------------------------------------------------------
             NEMIS_AE = 0
          END IF
 
-         N_SPC_EMIS = NEMIS + NEMIS_AE + N_NR_EMIS + N_TR_EMIS
+         N_EMIS_SPC = NEMIS + NEMIS_AE + N_NR_EMIS + N_TR_EMIS
 
 C create global maps to CGRID
 
@@ -166,13 +164,13 @@ C create global maps to CGRID
                   I = I + 1
                   DF2EM( N ) = S + INDX
                ELSE
-                  DF2EM( N ) = N_SPC_EMIS + 1
+                  DF2EM( N ) = N_EMIS_SPC + 1
                END IF
             END DO
          ELSE            ! emissions processing done in chem
             DO V = 1, N_GC_TRNS 
                N = N + 1
-               DF2EM( N ) = N_SPC_EMIS + 1
+               DF2EM( N ) = N_EMIS_SPC + 1
             END DO
          END IF
 
@@ -185,7 +183,7 @@ C create global maps to CGRID
                I = I + 1
                DF2EM( N ) = S + INDX
             ELSE
-               DF2EM( N ) = N_SPC_EMIS + 1
+               DF2EM( N ) = N_EMIS_SPC + 1
             END IF
          END DO
 
@@ -198,7 +196,7 @@ C create global maps to CGRID
                I = I + 1
                DF2EM( N ) = S + INDX
             ELSE
-               DF2EM( N ) = N_SPC_EMIS + 1
+               DF2EM( N ) = N_EMIS_SPC + 1
             END IF
          END DO
 
@@ -209,7 +207,7 @@ C create global maps to CGRID
             IF ( INDX .GT. 0 ) THEN
                DF2EM( N ) = S + INDX
             ELSE
-               DF2EM( N ) = N_SPC_EMIS + 1
+               DF2EM( N ) = N_EMIS_SPC + 1
             END IF
          END DO
 

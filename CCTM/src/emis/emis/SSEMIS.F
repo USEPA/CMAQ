@@ -52,14 +52,11 @@ C Sea-Salt Emissions Rates
       REAL, ALLOCATABLE, SAVE :: SSOUTN( :,:,: )    ! number emission rates [1/m3/s]
       REAL, ALLOCATABLE, SAVE :: SSOUTS( :,:,: )    ! surface-area emisrates [m2/m3/s]
 
-      PUBLIC NSSSPC, SSOUTM, SSOUTN, SSOUTS, SSSPC_MAP, SSEMIS_INIT, GET_SSEMIS
+      PUBLIC NSSSPC, SSOUTM, SSOUTN, SSOUTS, SSEMIS_INIT, GET_SSEMIS
       PRIVATE
 
 C Position of H2O in sea-salt emission arrays
       INTEGER :: KH2O
-
-C Variables for handling sea-salt emissions
-      INTEGER, ALLOCATABLE       :: SSSPC_MAP( : ) ! map to aerospc array
 
 C Variables for the sea-salt diagnostic file
       INTEGER :: NSSDIAG                ! number of species in sea-salt
@@ -299,9 +296,10 @@ C Local Variables:
 
             CHARACTER( 16 ), SAVE :: PNAME = 'SSEMIS_INIT'
             CHARACTER( 80 ) :: VARDESC
-            CHARACTER( 96 ) :: XMSG = ' '
+            CHARACTER( 250 ) :: XMSG = ' '
             INTEGER STATUS
-            INTEGER S, N, L        
+            INTEGER S, N, L, ISEA, SPC
+            LOGICAL SEA_MATCH
 
 C-----------------------------------------------------------------------
 
@@ -310,36 +308,45 @@ C-----------------------------------------------------------------------
 
 C Map aerospc data
             CALL MAP_AERO()
+             
+            ! Map The Sea-Salt Species to the AeroSpc Array
+            ALLOCATE( MAP_SEAtoAERO( NSEA_SPC+1 ) )
 
-C Determine number of sea-salt species
+            MAP_SEAtoAERO = 0
             NSSSPC = 0
-            DO S = 1, N_AEROSPC
-               IF ( AEROSPC_SSF( 2,S ) + AEROSPC_SSF( 3,S ) .GT. 0.0 ) NSSSPC = NSSSPC + 1
-            END DO
-C Include H2O
-            NSSSPC = NSSSPC + 1
 
-C Allocate mapping array
-            ALLOCATE ( SSSPC_MAP( NSSSPC ), STAT = STATUS )
-            IF ( STATUS .NE. 0 ) THEN
-               XMSG = '*** SSSPC_MAP memory allocation failed'
-               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-               SUCCESS = .FALSE.; RETURN
-            END IF
+            DO ISEA = 1, NSEA_SPC
+               SEA_MATCH = .FALSE.
+               DO SPC = 1,N_AEROSPC
+                  IF ( SEA_SPC_LIST( ISEA )%NAME .Eq. AERO_BULKNAME( SPC ) ) Then
+                     NSSSPC = NSSSPC + 1
+                     MAP_SEAtoAERO( NSSSPC ) = SPC
+                     SEA_MATCH = .TRUE.
+                  End If
+               End Do
 
-C build mapping array SSSPC_MAP
-            NSSSPC = 0
-            DO S = 1, N_AEROSPC
-               IF ( AEROSPC_SSF( 2,S ) + AEROSPC_SSF( 3,S ) .GT. 0.0 ) THEN
-                  NSSSPC = NSSSPC + 1
-                  SSSPC_MAP( NSSSPC ) = S
-               END IF
-            END DO
+               If ( .NOT. SEA_MATCH ) Then
+                 WRITE( XMSG, '(A,A,A,A,A)' ), 
+     &               'Cannot find aerosol species to accomodate sea spray emission species: ', 
+     &               Trim(SEA_SPC_LIST( ISEA )%NAME), '. You should ',
+     &               'provide a prognostic variable for this species in both the AE ',
+     &               'namelist and the AERO_DATA table in order to proceed.'
+                 CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+                 !SUCCESS = .FALSE.
+               End If
 
+            End Do
+ 
 C Include H2O to mapping
             NSSSPC = NSSSPC + 1      
             KH2O = NSSSPC
-            SSSPC_MAP( NSSSPC ) = AH2O_IDX
+            MAP_SEAtoAERO( NSSSPC ) = AH2O_IDX
+
+C...Build dust_spc type from selected list elements
+            ALLOCATE( SEA_SPC( NSSSPC ) )
+            SEA_SPC = PACK( SEA_SPC_LIST, MAP_SEAtoAERO .GT. 0 )
+            SEA_SPC( NSSSPC )%NAME = "AH2O"
+            SEA_SPC( NSSSPC )%SPCFAC( : ) = 0.0
 
 C Allocate SS arrays using NSSSPC value
             ALLOCATE ( SSOUTM( NSSSPC,N_MODE,NCOLS,NROWS ),
@@ -373,31 +380,30 @@ C Get sea-salt-emission diagnostic output file flag.
             IF ( SSEMDIAG ) THEN    ! Open the sea-salt emission diagnostic file
 C Determine number of sea-salt species For diagnostic file
             NSSDIAG = 0
-               DO S = 1, N_AEROSPC
-                  IF ( AEROSPC_SSF( 2,S ) .GT. 0.0 ) NSSDIAG = NSSDIAG + 1
-                  IF ( AEROSPC_SSF( 3,S ) .GT. 0.0 ) NSSDIAG = NSSDIAG + 1
-               END DO
+            DO ISEA = 1,NSSSPC
+              NSSDIAG = NSSDIAG + COUNT( SEA_SPC( ISEA )%SPCFAC( : ) .GT. 0. )
+            ENDDO
 C Include H2O
-               NSSDIAG = NSSDIAG + 2   !! count both J and K modes
+            NSSDIAG = NSSDIAG + 2   !! count both J and K modes
 C Include NUMBER and SURFACE_AREA to diagnostic (J & K)
-               NSSDIAG = NSSDIAG + 4
+            NSSDIAG = NSSDIAG + 4
 
 C Allocate diagnostic arrays
-               ALLOCATE ( SSOUTD( NSSDIAG ),
-     &                    WRSS_SPC( NSSDIAG ), STAT = STATUS )
-               IF ( STATUS .NE. 0 ) THEN
-                  XMSG = '*** SSOUTD or WRSS_SPC memory allocation failed'
-                  CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-                  SUCCESS = .FALSE.; RETURN
-               END IF
+            ALLOCATE ( SSOUTD( NSSDIAG ),
+     &                 WRSS_SPC( NSSDIAG ), STAT = STATUS )
+            IF ( STATUS .NE. 0 ) THEN
+               XMSG = '*** SSOUTD or WRSS_SPC memory allocation failed'
+               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+               SUCCESS = .FALSE.; RETURN
+            END IF
 
 C Build diagnostic file write buffer (WRSS_SPC) array
                NSSDIAG = 0
                DO N = 2, N_MODE
-                  DO S = 1, N_AEROSPC
-                     IF ( AEROSPC_SSF( N,S ) .GT. 0.0 ) THEN
+                  DO S = 1, NSSSPC
+                     IF ( SEA_SPC( S )%SPCFAC( N ) .GT. 0.0 ) THEN
                         NSSDIAG = NSSDIAG + 1
-                        WRSS_SPC( NSSDIAG ) = AEROSPC( S )%NAME( N )
+                        WRSS_SPC( NSSDIAG ) = AEROSPC( MAP_SEAtoAERO( S ) )%NAME( N )
                      END IF
                   END DO
 C Include H2O
@@ -732,11 +738,11 @@ C Calculate dry sea-salt [kg/m3]
                RHSUM = 0.0D0
                DO S = 1, NSSSPC
 !RHSUM and RHOSSDRY are assumed the same between J and K modes
-                  IF ( AEROSPC_SSF( 2,SSSPC_MAP( S ) ) .LT. 1.0E-30 ) CYCLE
-                  IF ( S .EQ. KH2O .OR. AEROSPC( SSSPC_MAP( S ) )%TRACER ) CYCLE !! do not include Water or tracers
+                  IF ( SEA_SPC( S )%SPCFAC( 2 ) .LT. 1.0E-30 ) CYCLE
+                  IF ( S .EQ. KH2O .OR. AEROSPC( MAP_SEAtoAERO( S ) )%TRACER ) CYCLE !! do not include Water or tracers
                   RHSUM = RHSUM
-     &                  + REAL( ( AEROSPC_SSF( 2,SSSPC_MAP( S ) ) 
-     &                          / AEROSPC( SSSPC_MAP( S ) )%DENSITY ), 8 )
+     &                  + REAL( ( SEA_SPC( S )%SPCFAC( 2 ) 
+     &                          / AEROSPC( MAP_SEAtoAERO( S ) )%DENSITY ), 8 )
                END DO
                RHOSSDRY         = 1.0D0 / RHSUM    
                SPECIFIC_VOL_H2O = 1.0D0 / REAL( AEROSPC( AH2O_IDX )%DENSITY, 8 )
@@ -895,17 +901,17 @@ C obtain speciated mass emissions.
                         SSOUTM( S,3,C,R ) = ESEASK * REAL( ( 1.0D0 - XSW ), 4 )
                      ELSE
                         SSOUTM( S,2,C,R ) = ESEASJ * REAL( XSW, 4 )
-     &                                    * AEROSPC_SSF( 2,SSSPC_MAP( S ) )
+     &                                    * SEA_SPC( S )%SPCFAC( 2 )
                         SSOUTM( S,3,C,R ) = ESEASK * REAL( XSW, 4 )
-     &                                    * AEROSPC_SSF( 3,SSSPC_MAP( S ) )
+     &                                    * SEA_SPC( S )%SPCFAC( 3 )
                      END IF
 
-                     IF( SSSPC_MAP( S ) .EQ. ana_idx )
+                     IF( MAP_SEAtoAERO( S ) .EQ. ana_idx )
      &                  Met_Data%NACL_EMIS( C,R ) = Met_Data%NACL_EMIS( C,R ) + SSOUTM( S,2,C,R ) / RLAY1HT
 C 0.80 = ratio of seasalt emisisions with d<10 um to all K-mode emisisions, 0.8373 = NA fraction in SEACAT, 0.66984 = 0.80 * 0.8373
-                     IF( SSSPC_MAP( S ) .EQ. aseacat_idx )
+                     IF( MAP_SEAtoAERO( S ) .EQ. aseacat_idx )
      &                  Met_Data%NACL_EMIS( C,R ) = Met_Data%NACL_EMIS( C,R ) + SSOUTM( S,3,C,R ) / RLAY1HT * 0.66984
-                     IF( SSSPC_MAP( S ) .EQ. acl_idx )
+                     IF( MAP_SEAtoAERO( S ) .EQ. acl_idx )
      &                  Met_Data%NACL_EMIS( C,R ) = Met_Data%NACL_EMIS( C,R ) + SSOUTM( S,2,C,R ) / RLAY1HT
      &                                                                        + SSOUTM( S,3,C,R ) / RLAY1HT * 0.80
 
@@ -951,7 +957,7 @@ C Update the SSBF array, for writing the diagnostic sea-salt-emission file.
                      V = 0
                      DO N = 2, 3
                         DO S = 1, NSSSPC
-                           IF ( S .EQ. KH2O .OR. AEROSPC_SSF( N,SSSPC_MAP( S ) ) .GT. 0 ) THEN
+                           IF ( S .EQ. KH2O .OR. SEA_SPC( S )%SPCFAC( N ) .GT. 0 ) THEN
                               V = V + 1
                               SSOUTD( V ) = SSOUTM( S,N,C,R )
                            END IF

@@ -220,14 +220,15 @@ C Local variables:
          character( 16 ) :: pname = 'DUST_EMIS_INIT'
          character( 16 ) :: vname
          character( 80 ) :: vardesc
-         character( 120 ) :: xmsg = ' '
+         character( 250 ) :: xmsg = ' '
          character( 16 ) :: modis_fpar_1 = 'MODIS_FPAR'
                             ! Fraction of Absorbed Photosynthetically Active Radiation
 
          logical :: erode_agland = .true. ! default
+         logical :: dust_match
          integer status
          integer c, r, i, j, k, l, n
-         integer idiag
+         integer idiag, idust, spc
          integer n_mass_emissions
 
          integer  gxoff, gyoff                 ! global origin offset from file
@@ -252,6 +253,46 @@ C-----------------------------------------------------------------------
          logdev = setup_logdev()
          success = .true.
 
+C...Determine map between aero_spc dust emissions and the dust emission list
+         Allocate( map_DUSTtoAERO( ndust_list ) )
+
+         map_DUSTtoAERO = 0
+         ndust_spc = 0
+
+         Do idust = 1, ndust_list ! loop through dust list
+            dust_match = .false.
+            Do spc = 1, n_aerospc ! Loop through user-requested chemical species
+               If ( dust_spc_list( idust )%name .Eq. aero_bulkname( spc ) ) Then
+                  ndust_spc = ndust_spc + 1
+                  map_DUSTtoAERO( ndust_spc ) = spc
+                  dust_match = .true.
+               End If
+            End Do
+
+            If ( .NOT. dust_match ) Then
+              WRITE( XMSG, '(A43,A23,A,A11,A62,A53)' ), 'Cannot find aerosol species to accomodate ',
+     &               'dust emission species: ', trim(dust_spc_list( idust )%NAME), '. You should ',
+     &               'provide a prognostic variable for this species in both the AE ',
+     &               'namelist and the AERO_DATA table in order to proceed.'
+              CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+              !SUCCESS = .FALSE.
+            End If
+         End Do
+
+C...Build dust_spc type from selected list elements
+         Allocate( dust_spc( ndust_spc ) )
+         dust_spc = pack( dust_spc_list, map_DUSTtoAERO .GT. 0 )
+            WRITE( LOGDEV, '(I)'), MAP_DUSTtoAERO
+            WRITE( LOGDEV, '(A)'), DUST_SPC( : )%NAME
+
+C...Count the number of mass emissions species
+         n_mass_emissions = 0
+         do i = 1, ndust_spc
+            do j = 1, n_mode
+               if( dust_spc( i )%spcfac( j )  .gt. 0. ) 
+     &               n_mass_emissions = n_mass_emissions + 1  
+            end do
+         end do                     
 
          allocate ( dustoutm( ndust_spc,n_mode,ncols,nrows ),
      &              dustoutn( n_mode,ncols,nrows ),
@@ -362,15 +403,7 @@ C Set up variable diagnostic names (from LUS_DEFN)
             vdiagnm_kvh   = diag_type( ' ', ' ', ' ' )  ! array assignment
             vdiagnm_rough = diag_type( ' ', ' ', ' ' )  ! array assignment
 
-C...Count the number of mass emissions species
-            n_mass_emissions = 0
-            do i = 1, ndust_spc
-               do j = 1, n_mode
-                  if( len_trim( dust_spc( i )%name( j ) ) .lt. 1 )cycle
-                  n_mass_emissions = n_mass_emissions + 1  
-               end do
-            end do
-            
+C...Set Up DIagnostic Species Variables
             ndust_diag = fndust_diag + 5 * n_dlcat + n_mass_emissions 
 
             do i = 1, n_dlcat
@@ -457,11 +490,10 @@ C Build the complete diagnostic name array                     n for MODIS NOAH
 C...append diagnostic variables with mass emissions species
             do j = 2, n_mode
                do i = 1, ndust_spc
-                  n = len_trim( dust_spc( i )%name( j ) )
-                  if( n .lt. 1  )cycle ! assumes cmaq species names atleast one character long
+                  if( dust_spc( i )%spcfac( j ) .eq. 0. ) cycle 
                   n = 0
                   do k = 1, idiag   ! determine if dust emissions is already added to diagnostic output
-                     if( dust_spc( i )%name( j ) .Eq. diagnm( k )%var )Then
+                     if( aerospc( map_DUSTtoAERO( i ) )%name( j ) .Eq. diagnm( k )%var )Then
                          n = k
                          exit
                      end if
@@ -470,16 +502,16 @@ C...append diagnostic variables with mass emissions species
                       cycle
                   else 
                       idiag = idiag + 1
-                      diagnm( idiag )%var = dust_spc( i )%name( j )
+                      diagnm( idiag )%var = aerospc( map_DUSTtoAERO( i ) )%name( j )
                   end if
                   diagnm( idiag )%units = 'g/m**3/s'
                   Select Case( j ) ! assumes only two aerosol modes dust emissions
 !                    Case( 1 )
 !                       diagnm( idiag )%desc = 'aitken mode' 
-                    Case( 2 )
-                       diagnm( idiag )%desc = 'accumulation mode' 
-                    Case( 3 )
-                       diagnm( idiag )%desc = 'coarse mode' 
+                     Case( 2 )
+                        diagnm( idiag )%desc = 'accumulation mode' 
+                     Case( 3 )
+                        diagnm( idiag )%desc = 'coarse mode' 
 !                    Case Default 
 !                       diagnm( idiag )%des = 'Undefined mode ' 
                     end Select
@@ -496,7 +528,7 @@ C...append diagnostic variables with mass emissions species
                call m3warn( pname, jdate, jtime, xmsg )
                success = .false.; return
             end if
-            diagnm_swap = diagnm
+            diagnm_swap = diagnm 
 
             deallocate( diagnm )
 
@@ -570,7 +602,7 @@ C mass.
          do n = 2, n_mode
             sumsplit = 0.0; sumfrac = 0.0
             do i = 1, ndust_spc
-               idx = findAero( dust_spc( i )%name( n ), .true. )
+               idx = map_DUSTtoAERO( i )
                if( aerospc( idx )%tracer )cycle
                if( dust_spc( i )%spcfac( n ) .lt. 1.0e-30 )cycle
                sumsplit = sumsplit + dust_spc( i )%spcfac( n ) ! should = 1.0
@@ -1287,14 +1319,14 @@ C 2nd moment multiplied by PI to obtain the surface area emissions rate.
                n = n + 4
                m = 0
                do v = 1, ndust_spc
-                  if ( trim( dust_spc( v )%name( 2 ) ) .ne. ' ' ) then  ! accum. mode mass emissions
+                  if ( dust_spc( v )%spcfac( 2 ) .gt. 0. ) then  ! accum. mode mass emissions
                      m = m + 1
                      diagv( m+n ) = dustoutm( v,2,c,r )
                   end if
                end do
 
                do v = 1, ndust_spc
-                  if ( trim( dust_spc( v )%name( 3 ) ) .ne. ' ' ) then  ! coarse mode mass emissions
+                  if ( dust_spc( v )%spcfac( 3 ) .gt. 0. ) then  ! coarse mode mass emissions
                      m = m + 1
                      diagv( m+n ) = dustoutm( v,3,c,r )
                   end if
