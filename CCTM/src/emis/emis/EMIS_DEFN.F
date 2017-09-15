@@ -407,7 +407,6 @@ C Store all emissions in mol/sec or g/sec and convert to ppmv/s later)
 
            END DO   ! ISPC
 
-           !CALL AEROSOL DISTRIBUTION ROUTINE
            VDEMIS = VDEMIS + VDEMIS_TMP
 
 C Retrieve BEIS Emissions
@@ -530,6 +529,10 @@ C Convert All Emissions From mol/s to ppmv/s
             END DO
          END DO
  
+C zero out emissions values for species not included in diffused list
+C ...accounts for emissions species names as a subset of the vert. diffused species list
+
+         VDEMIS( N_SPC_EMIS+1,:,:,: ) = 0.0
 
          RETURN
 
