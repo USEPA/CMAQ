@@ -169,7 +169,7 @@ C Define Logical values as T and F for the aerospc table
 
 C-------------------------------------------------------------------------------------------------------
 
-       Integer, Allocatable :: EMWT_PROF( :,: )
+       REAL, Allocatable :: EMWT_PROF( :,: )
 
 C-------------------------------------------------------------------------------------------------------
 
@@ -567,8 +567,8 @@ C Minimum 2nd moment (calculated in map_aero routine)
 
 C Mapping for loading from and unloading to CGRID array
       Integer, Allocatable :: aerospc_map( :,: )  ! indices of aero species to CGRID
-      Integer, Allocatable :: aeronum_map( : )      ! indices of aero number variable to CGRID
-      Integer, Allocatable :: aerosrf_map( : )      ! indices of aero surf area variable to CGRID
+      Integer              :: aeronum_map( n_mode )      ! indices of aero number variable to CGRID
+      Integer              :: aerosrf_map( n_mode )      ! indices of aero surf area variable to CGRID
 
 C Missing aerosol species map
       Logical, Allocatable :: aero_missing( :,: )  ! indices of aero species to CGRID
@@ -718,8 +718,6 @@ C Build mapping to CGRID for each species in the master AeroList
       Allocate ( aerospc_map  ( n_aerospc, n_mode ) )
       Allocate ( aerospc_conc ( n_aerospc, n_mode ) )
       Allocate ( aero_missing ( n_aerospc, n_mode ) )
-      Allocate ( aeronum_map  ( n_aerospc ) )
-      Allocate ( aerosrf_map  ( n_aerospc ) )
       Allocate ( emwt_prof    ( n_aerospc, n_mode ) )
 
       aero_missing( :,: ) = .True.

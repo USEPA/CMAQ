@@ -76,7 +76,8 @@ C aerosol emissions: [ppmv/s] for mass & number spcs, [m2/mol/s] for surface are
       REAL,    ALLOCATABLE, SAVE :: VDEMIS_AE( :,:,:,: )
 
       PUBLIC VDEMIS_AE, AERO_EMIS_INIT, GET_AERO_EMIS,
-     &       MAP_EMBUFF, MAP_EMtoAERO, MAP_EMtoMODE, MAP_NUMtoEM, MAP_SRFtoEM
+     &       MAP_EMBUFF, MAP_EMtoAERO, MAP_EMtoMODE, MAP_NUMtoEM, MAP_SRFtoEM,
+     &       MAP_EMtoNUM, MAP_EMtoSRF
       PRIVATE
 
 C Variables for converting mass emissions rate to number emissions rate
@@ -100,6 +101,8 @@ C Emission rate of all aerosol species interpolated to current time
       INTEGER, ALLOCATABLE, SAVE :: MAP_EMtoMODE( : )   !
       INTEGER, ALLOCATABLE, SAVE :: MAP_NUMtoEM ( : )  
       INTEGER, ALLOCATABLE, SAVE :: MAP_SRFtoEM ( : )   !
+      INTEGER, ALLOCATABLE, SAVE :: MAP_EMtoNUM ( : )  
+      INTEGER, ALLOCATABLE, SAVE :: MAP_EMtoSRF ( : )   !
 
 C EMBUFF     mass emission rate input global array
 C EMTMP      temporary array for reading and summing emissions into EMBUFF

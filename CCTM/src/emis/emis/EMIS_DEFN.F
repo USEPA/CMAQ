@@ -523,7 +523,8 @@ C Convert All Emissions From mol/s to ppmv/s
                DO L = 1, EMLAYS
                   !MAKE SURE TO IGNORE AEROSOL NUMBER AND SURFACE AREA 
                   CNVTC = CNVTP * Grid_Data%RDX3F( L ) * Met_Data%RRHOJ( C,R,L )
-                  WHERE( AERONUM_MAP .EQ. 0 .AND. AEROSRF_MAP .EQ. 0 )
+                  WHERE( MAP_EMtoNUM .EQ. 0 .AND. MAP_EMtoSRF .EQ. 0 .AND.
+     &                   MAP_EMtoAERO .EQ. 0 )
      &                   VDEMIS( :,L,C,R ) = CNVTC * VDEMIS( :,L,C,R ) 
                END DO
             END DO
@@ -532,7 +533,7 @@ C Convert All Emissions From mol/s to ppmv/s
 C zero out emissions values for species not included in diffused list
 C ...accounts for emissions species names as a subset of the vert. diffused species list
 
-         VDEMIS( N_SPC_EMIS+1,:,:,: ) = 0.0
+         VDEMIS( N_EMIS_SPC+1,:,:,: ) = 0.0
 
          RETURN
 
@@ -573,7 +574,7 @@ C-----------------------------------------------------------------------
      &                         N_AEROSPC, AEROMODE, POA_NAME, POA_OP_VF, POA_AMF,
      &                         EMWT_PROF, N_VBS_BIN
          USE AERO_EMIS, only : MAP_NUMtoEM, MAP_SRFtoEM, MAP_EMtoAERO, MAP_EMtoMODE, 
-     &                         MAP_EMBUFF
+     &                         MAP_EMBUFF,  MAP_EMtoNUM, MAP_EMtoSRF
 
          IMPLICIT NONE
 
@@ -796,7 +797,9 @@ C Warn the User if there are No Emissions Species On Any File
          ! Emissions
          ALLOCATE( EM_SPEC( N_EMIS_SPC ) )
          ALLOCATE( EM_MASK_AERO( N_EMIS_SPC ) )
+         EM_SPEC = ''
          EM_MASK_AERO = .FALSE.
+
          ISPC = 0
          DO IGC = 1,N_GC_EMIS
              ISPC = ISPC + 1
@@ -821,6 +824,9 @@ C Warn the User if there are No Emissions Species On Any File
          ! Emissions Species
          ALLOCATE( EM_SPEC_BUFF( N_EMIS_SPC ) )
          ALLOCATE( EM_FAC_BUFF( N_EMIS_SPC ) )
+         EM_SPEC_BUFF = ''
+         EM_FAC_BUFF = 0
+
          EM_SPEC_BUFF( 1:N_GC_EMIS ) = GC_EMIS( 1:N_GC_EMIS )     !Gases
          EM_FAC_BUFF ( 1:N_GC_EMIS ) = GC_EMIS_FAC( 1:N_GC_EMIS )     !Gases
          N = N_GC_EMIS
@@ -835,12 +841,21 @@ C Warn the User if there are No Emissions Species On Any File
  
          ! Determine which aerosol species emissions are for number and 
          ! surface area. Create maps from Emission Surrogate Species to 
-         ! the number and surface area of each mode. This is referenced to the 
+         ! the number and surface area of each mode. 
+         ALLOCATE( MAP_EMtoNUM( N_EMIS_SPC ) )
+         ALLOCATE( MAP_EMtoSRF( N_EMIS_SPC ) )
+         MAP_NUMtoEM = 0
+         MAP_SRFtoEM = 0
+         MAP_EMtoNUM = 0
+         MAP_EMtoSRF = 0
+
+
          DO IM = 1,N_MODE
              IDX = INDEX1( AEROMODE( IM )%NUM_NAME, N_EMIS_SPC, EM_SPEC_BUFF )
              IF ( IDX .GT. 0 ) THEN
                  ! Found Aerosol Number for this Mode
                  MAP_NUMtoEM( IM ) = IDX
+                 MAP_EMtoNUM( IDX ) = IM
              ELSE
                  WRITE( XMSG, '(A,I1)'),'Can not find Number Emissions for Mode ',IM 
                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -849,6 +864,7 @@ C Warn the User if there are No Emissions Species On Any File
              IF ( IDX .GT. 0 ) THEN
                  ! Found Aerosol Number for this Mode
                  MAP_SRFtoEM( IM ) = IDX
+                 MAP_EMtoSRF( IDX ) = IM
              ELSE
                  WRITE( XMSG, '(A,I1)'),'Can not find Surface Area Emissions for Mode ',IM 
                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -860,7 +876,11 @@ C Warn the User if there are No Emissions Species On Any File
          ! aerosol type and mode.
          ALLOCATE( MAP_EMtoAERO( N_EMIS_SPC ) )
          ALLOCATE( MAP_EMtoMODE( N_EMIS_SPC ) )
+         MAP_EMtoAERO = 0
+         MAP_EMtoMODE = 0
+         MAP_EMBUFF = 0
          N_EMBUFF = 0
+
 
          DO IAERO = 1,N_AEROSPC
              DO IM = 1,N_MODE
@@ -923,6 +943,7 @@ C Warn the User if there are No Emissions Species On Any File
          ALLOCATE( EM_FAC_MG( N_EMIS_SPC ) )
          ALLOCATE( EM_FAC_LTNG( N_EMIS_SPC ) )
          ALLOCATE( EM_FAC_TR( N_EMIS_SPC ) )
+
 
          ALLOCATE( L_EMIS_SPC( NEMIS_SPC_UNIQUE ) )
          L_EMIS_SPC = .FALSE.
