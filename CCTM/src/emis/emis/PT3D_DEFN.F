@@ -82,7 +82,7 @@ C Scenario start
 
 C Output layer fractions, dimensioned NSRC, emlays, and for diagnostic file
       REAL,    ALLOCATABLE, SAVE :: LFRAC( :,: ) ! per source local layer fractn
-      REAL,    ALLOCATABLE, SAVE :: TFRAC( : )   ! Temporary LFRAC
+      REAL,    ALLOCATABLE, SAVE :: TFRAC( :,: ) ! Temporary LFRAC
 
 C debugging zplume
       REAL,    ALLOCATABLE, SAVE :: ZPLUM( :,: ) ! has to be 2D for play file
@@ -155,8 +155,6 @@ C=======================================================================
          FUNCTION PT3D_INIT ( N_EMIS, EMLAYS, JDATE, JTIME, TSTEP )
      &                       RESULT ( SUCCESS )
 
-C use N_EMIS_SPC+1 for non-accessed emissions
-
          USE GRID_CONF   ! horizontal & vertical domain specifications
          USE CGRID_SPCS  ! CGRID mechanism species
          USE STK_PRMS    ! stack groups file
@@ -199,7 +197,6 @@ C Local Variables:
          INTEGER, SAVE :: NSTEPS = 1
          INTEGER          NDATE          ! next timestep file Julian date (YYYYDDD)
          INTEGER          NTIME          ! next timestep file time (HHMMSS)
-         INTEGER          N_EMIS_SPC
 
          INTEGER          LOGDEV
 
@@ -548,10 +545,6 @@ C Open diagnostic layer fractions file?
             SUCCESS = .FALSE.; RETURN
          END IF
 
-         ALLOCATE( TFRAC( EMLYRS ), STAT = IOS )
-         CALL CHECKMEM( IOS, 'TFRAC', PNAME )
-         TFRAC = 0.0   ! array
-
          ALLOCATE( STK_DM( NPTGRPS ), STAT = IOS )
          CALL CHECKMEM( IOS, 'STK_DM', PNAME )
 
@@ -828,6 +821,12 @@ C Ensure that the model and stack groups emissions timestamp dates stay synchron
                LOC_STKDATE = STKDATE( N )
             END IF
 
+C Allocate Array to Store the Layer Heights of All Stacks (i.e. sources)
+C from this Point Group (i.e. ptgrp)
+            ALLOCATE( TFRAC( EMLYRS,MY_NSRC( N ) ), STAT = IOS )
+            CALL CHECKMEM( IOS, 'TFRAC', PNAME )
+            TFRAC = 0.0   ! array
+
 C Calculate Plume Heights for All Point Sources on this File
             CALL CALC_PLUME_HEIGHT( LOC_STKDATE, JDATE, JTIME, WRTIME, N   )
 
@@ -897,12 +896,12 @@ C Apportion emissions to the layers
                   C = MY_STKCOL( N )%ARRY( S ); R = MY_STKROW( N )%ARRY( S )
 
                   DO L = 1, EMLYRS
-                     LFRC = TFRAC( L )
+                     LFRC = TFRAC( L,S )
                      IF ( LFRC .LE. 0.0 ) CYCLE
 
                      ! Save Emissions in Common Array
                      VDEMIS_TMP( C,R,L,ISPC ) = VDEMIS_TMP( C,R,L,ISPC )
-     &                                 + LFRC * EM_FAC_PT( ISPC,N ) * STKEMIS( N )%ARRY( S )
+     &                                 + LFRC * EM_FAC_PT( ISPC,N ) * STKEMIS( N )%ARRY( SRC )
 
                   END DO  ! End Layers Loop
                END DO  ! End Sources Loop
@@ -911,6 +910,7 @@ C Apportion emissions to the layers
             !!CALL AEROSOL SIZE DISTRIBUTION ROUTINE
             VDEMIS_PT = VDEMIS_PT + VDEMIS_TMP
 
+            DEALLOCATE( TFRAC )
 
 C Write Out Diagnostic Info            
             IF ( PT3DFRAC .AND. WRTIME ) THEN     ! Write out layer fractions
@@ -1154,8 +1154,8 @@ C Loop through sources and compute plume rise
 
          IF ( FIREFLAG( N ) ) THEN
             IF ( BFLUX( N )%ARRY( S ) .LE. 0.0 ) THEN
-               TFRAC( 1 ) = 1.0
-               TFRAC( 2:EMLYRS ) = 0.0
+               TFRAC( 1,S ) = 1.0
+               TFRAC( 2:EMLYRS,S ) = 0.0
                LTOP = 1
                GO TO 201
             END IF
@@ -1259,7 +1259,7 @@ C  ZZF( LTOP-1 ) <= ZTOP < ZZF( LTOP )
                LBOT = L
                GO TO  122
             ELSE
-               TFRAC( L ) = 0.0             ! fractions below plume
+               TFRAC( L,S ) = 0.0             ! fractions below plume
             END IF
          END DO
          LBOT = EMLYRS                      !  fallback
@@ -1273,19 +1273,19 @@ C  ZZF( LTOP-1 ) <= ZTOP < ZZF( LTOP )
 
          IF ( ZTOP .LE. P_D( N )%ZZF( LBOT ) ) THEN  ! plume in this layer
 
-            TFRAC( LBOT ) = 1.0
+            TFRAC( LBOT,S ) = 1.0
             LTOP = LBOT
 
             DO L = LBOT + 1, EMLYRS         ! fractions above plume
-               TFRAC( L ) = 0.0
+               TFRAC( L,S ) = 0.0
             END DO
 
          ELSE IF ( LBOT .EQ. EMLYRS ) THEN  ! plume above top layer
 
-            TFRAC( LBOT ) = 1.0
+            TFRAC( LBOT,S ) = 1.0
 
             DO L = 1, EMLYRS - 1            ! fractions below plume
-               TFRAC( L ) = 0.0
+               TFRAC( L,S ) = 0.0
             END DO
 
          ELSE                               ! plume crosses layers
@@ -1307,8 +1307,8 @@ C  ZZF( LTOP-1 ) <= ZTOP < ZZF( LTOP )
             IF ( ZDIFF .GT. 0.0 ) THEN
 
                DDZ  = 1.0 / ZDIFF
-               TFRAC( LBOT ) = DDZ * ( P_D( N )%ZZF( LBOT ) - ZBOT )
-               TFRAC( LTOP ) = DDZ * ( ZTOP - P_D( N )%ZZF( LTOP-1 ) )
+               TFRAC( LBOT,S ) = DDZ * ( P_D( N )%ZZF( LBOT ) - ZBOT )
+               TFRAC( LTOP,S ) = DDZ * ( ZTOP - P_D( N )%ZZF( LTOP-1 ) )
 
             ELSE   ! ZDIFF .le. 0
 
@@ -1319,22 +1319,22 @@ C  ZZF( LTOP-1 ) <= ZTOP < ZZF( LTOP )
      &            // 'All emissions put in first layer.'
                CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
                LBOT = 1; LTOP = 1
-               TFRAC( LBOT ) = 1.0
+               TFRAC( LBOT,S ) = 1.0
 
             END IF
 
             DO L = LBOT + 1, LTOP - 1       ! layers in plume
-               TFRAC( L ) = DDZ * ( P_D( N )%ZZF( L ) - P_D( N )%ZZF( L-1 ) )
+               TFRAC( L,S ) = DDZ * ( P_D( N )%ZZF( L ) - P_D( N )%ZZF( L-1 ) )
             END DO
 
             DO L = LTOP + 1, EMLYRS         ! fractions above plume
-               TFRAC( L ) = 0.0
+               TFRAC( L,S ) = 0.0
             END DO
 
          END IF
 
 C If layer fractions are negative, put in the first layer
-         MV = MINVAL( TFRAC( 1:EMLYRS ) )
+         MV = MINVAL( TFRAC( 1:EMLYRS,S ) )
          IF ( MV .LT. 0.0 ) THEN
 
             WRITE( CINT,'( I8 )' ) S
@@ -1344,8 +1344,8 @@ C If layer fractions are negative, put in the first layer
      &               // 'put all emissions in surface layer.'
             CALL M3MESG( XMSG )
 
-            TFRAC( 1 ) = 1.0
-            TFRAC( 2:EMLYRS ) = 0.0
+            TFRAC( 1,S ) = 1.0
+            TFRAC( 2:EMLYRS,S ) = 0.0
 
          END IF
 
@@ -1366,19 +1366,19 @@ C calculate smoldering fraction:
              IF ( ZDIFF .GT. 0.0 ) THEN
                 DDZ  = 1.0 / ZDIFF
                 DO L = 1, LBOT - 1
-                  TFRAC( L ) = DDZ * ( P_D( N )%ZZF( L ) - P_D( N )%ZZF( L-1 ) )
+                  TFRAC( L,S ) = DDZ * ( P_D( N )%ZZF( L ) - P_D( N )%ZZF( L-1 ) )
      &                       * SFRACT
                 END DO
-                TFRAC( LBOT ) = TFRAC( LBOT )
+                TFRAC( LBOT,S ) = TFRAC( LBOT,S )
      &                        + ( DDZ * ( ZBOT - P_D( N )%ZZF( LBOT-1 ) )
-     &                          - TFRAC( LBOT ) ) * SFRACT
+     &                          - TFRAC( LBOT,S ) ) * SFRACT
              ELSE   ! LBOT = 1
 !               TFRAC( 1:LBOT-1 ) = 0.0
-                TFRAC( LBOT ) = TFRAC( LBOT ) * ( 1.0 - SFRACT )
+                TFRAC( LBOT,S ) = TFRAC( LBOT,S ) * ( 1.0 - SFRACT )
              END IF
 
              DO L = LBOT + 1, LTOP
-                TFRAC( L ) = TFRAC( L ) * ( 1.0 - SFRACT )
+                TFRAC( L,S ) = TFRAC( L,S ) * ( 1.0 - SFRACT )
              END DO
 
          END IF
@@ -1386,7 +1386,7 @@ C calculate smoldering fraction:
 201      CONTINUE
  
          IF ( PT3DFRAC ) THEN   ! Store layer fractions
-            LFRAC( S,1:EMLYRS ) = TFRAC( 1:EMLYRS )  ! array
+            LFRAC( S,1:EMLYRS ) = TFRAC( 1:EMLYRS,S )  ! array
             ZPLUM( S,1 ) = ZPLM
          END IF
 
