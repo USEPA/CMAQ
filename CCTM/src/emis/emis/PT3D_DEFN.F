@@ -512,7 +512,6 @@ C Initialize stack emissions data
          VDEMIS_PT = 0.0   ! array assignment
          ALLOCATE ( VDEMIS_TMP( NCOLS,NROWS,EMLYRS,N_EMIS_SPC ), STAT = IOS )
          CALL CHECKMEM( IOS, 'VDEMIS_TMP', PNAME )
-         VDEMIS_TMP = 0.0   ! array assignment
 
 C Set up and open 3d point source emissions diagnostic file?
          IF ( PT3DDIAG ) THEN
@@ -802,6 +801,7 @@ C Convert pt source met data to bi-linear interpolated data
 
          DO N = 1, NPTGRPS
 
+            VDEMIS_TMP = 0.0   ! array assignment
             IF ( MY_NSRC( N ) .LE. 0 ) CYCLE
 
             IF ( PT3DFRAC ) THEN   ! Store layer fractions
@@ -1264,11 +1264,6 @@ C  ZZF( LTOP-1 ) <= ZTOP < ZZF( LTOP )
          END DO
          LBOT = EMLYRS                      !  fallback
 
-#ifdef Verbose1
-         c = my_stkcol( n )%arry( s ); r = my_stkrow( n )%arry( s )
-         write( logdev,'(a, 4i4)' ) 'Layer top at c,r, for file, source: ', c, r, n, s
-#endif
-
 122      CONTINUE                           !  loop exit:  bottom found at LBOT
 
          IF ( ZTOP .LE. P_D( N )%ZZF( LBOT ) ) THEN  ! plume in this layer
@@ -1298,9 +1293,6 @@ C  ZZF( LTOP-1 ) <= ZTOP < ZZF( LTOP )
             END DO
             LTOP = EMLYRS                   !  fallback
 
-#ifdef Verbose1
-            write( logdev,'(a, 4i4)' ) '> Hit top at c,r, for file, source: ', c, r, n, s
-#endif
 126         CONTINUE
 
             ZDIFF = ZTOP - ZBOT

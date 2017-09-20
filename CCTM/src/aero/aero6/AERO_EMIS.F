@@ -508,9 +508,6 @@ C Variables for converting emission rates into molar-mixing-ratio units
          REAL( 8 ) :: CONVN     ! conversion factor for number emissions [1e6*m3]
          REAL( 8 ) :: CONVS     ! conversion factor for surface area emissions [m3/mol]
 
-C Third moment emissions rates [m3/m3/s]
-         REAL( 8 ) :: EMISM3( N_MODE )
-
 C Number emissions rates [1/m3/s]
          REAL( 8 ) :: EM_NUM( N_MODE )
 
@@ -573,8 +570,8 @@ C *** Store aerosol emission rates for this grid cell in a 1D array
      &                   EM_PART( IAERO,IM ) = EMBUFF_AERO( L,C,R,MAP_EMBUFF( IAERO,IM ) ) * GSFAC
                  END DO
                END DO
-               EM_NUM( : )    = EMBUFF_NUM ( L,C,R,: )
-               EM_SRF( : )    = EMBUFF_SRF ( L,C,R,: )
+               EM_NUM( : )    = EMBUFF_NUM ( L,C,R,: ) * GSFAC
+               EM_SRF( : )    = EMBUFF_SRF ( L,C,R,: ) * GSFAC
 
 C *** Incorporate Surface Layer Processes for Layer 1 Only
                IF ( L .EQ. 1 ) THEN
