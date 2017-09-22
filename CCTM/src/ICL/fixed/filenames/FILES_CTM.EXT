@@ -38,7 +38,6 @@
       CHARACTER( 16 ) :: GRID_CRO_2D
       CHARACTER( 16 ) :: GRID_CRO_3D
       CHARACTER( 16 ) :: GRID_BDY_2D
-      CHARACTER( 16 ) :: EMIS_1
       CHARACTER( 16 ) :: OCEAN_1
       CHARACTER( 16 ) :: MET_BDY_2D
       CHARACTER( 16 ) :: MET_BDY_3D
@@ -76,7 +75,6 @@
       CHARACTER( 16 ) :: INIT_TRAC_1
       CHARACTER( 16 ) :: BNDY_TRAC_1
       CHARACTER( 16 ) :: DEPV_TRAC_1
-      CHARACTER( 16 ) :: EMIS_TRAC_1
       CHARACTER( 16 ) :: CTM_DEPV_DIAG
       CHARACTER( 16 ) :: CTM_PT3D_DIAG
       CHARACTER( 16 ) :: CTM_RJ_1
@@ -114,7 +112,6 @@
       DATA GRID_CRO_2D      / 'GRID_CRO_2D     ' /
       DATA GRID_CRO_3D      / 'GRID_CRO_3D     ' /
       DATA GRID_BDY_2D      / 'GRID_BDY_2D     ' /
-      DATA EMIS_1           / 'EMIS_1          ' /
       DATA OCEAN_1          / 'OCEAN_1         ' /
       DATA MET_BDY_2D       / 'MET_BDY_2D      ' /
       DATA MET_BDY_3D       / 'MET_BDY_3D      ' /
@@ -152,7 +149,6 @@
       DATA INIT_TRAC_1      / 'INIT_TRAC_1     ' /
       DATA BNDY_TRAC_1      / 'BNDY_TRAC_1     ' /
       DATA DEPV_TRAC_1      / 'DEPV_TRAC_1     ' /
-      DATA EMIS_TRAC_1      / 'EMIS_TRAC_1     ' /
       DATA CTM_DEPV_DIAG    / 'CTM_DEPV_DIAG   ' /
       DATA CTM_PT3D_DIAG    / 'CTM_PT3D_DIAG   ' /
       DATA CTM_RJ_1         / 'CTM_RJ_1        ' /
@@ -189,7 +185,6 @@
       DATA LGCL_NAME(  2 ), IN_MODE(  2 )    / 'GRID_CRO_2D     ', .TRUE. /
       DATA LGCL_NAME(  3 ), IN_MODE(  3 )    / 'GRID_CRO_3D     ', .TRUE. /
       DATA LGCL_NAME(  4 ), IN_MODE(  4 )    / 'GRID_BDY_2D     ', .TRUE. /
-      DATA LGCL_NAME(  5 ), IN_MODE(  5 )    / 'EMIS_1          ', .TRUE. /
       DATA LGCL_NAME(  6 ), IN_MODE(  6 )    / 'OCEAN_1         ', .TRUE. /
       DATA LGCL_NAME(  7 ), IN_MODE(  7 )    / 'MET_BDY_2D      ', .TRUE. /
       DATA LGCL_NAME(  8 ), IN_MODE(  8 )    / 'MET_BDY_3D      ', .TRUE. /
@@ -222,7 +217,6 @@
       DATA LGCL_NAME( 35 ), IN_MODE( 35 )    / 'INIT_TRAC_1     ', .FALSE. /
       DATA LGCL_NAME( 36 ), IN_MODE( 36 )    / 'BNDY_TRAC_1     ', .FALSE. /
       DATA LGCL_NAME( 37 ), IN_MODE( 37 )    / 'DEPV_TRAC_1     ', .FALSE. /
-      DATA LGCL_NAME( 38 ), IN_MODE( 38 )    / 'EMIS_TRAC_1     ', .FALSE. /
       DATA LGCL_NAME( 39 ), IN_MODE( 39 )    / 'CTM_DEPV_DIAG   ', .FALSE. /
       DATA LGCL_NAME( 40 ), IN_MODE( 40 )    / 'CTM_PT3D_DIAG   ', .FALSE. /
       DATA LGCL_NAME( 41 ), IN_MODE( 41 )    / 'CTM_RJ_1        ', .FALSE. /

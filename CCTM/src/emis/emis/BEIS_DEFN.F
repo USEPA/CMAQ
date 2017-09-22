@@ -39,6 +39,7 @@ C-----------------------------------------------------------------------
       LOGICAL,              SAVE :: BIOGEMIS   ! flag to in-line beis
       REAL,    ALLOCATABLE, SAVE :: VDEMIS_BI( :,:,: ) ! beis emis
       INTEGER, ALLOCATABLE, SAVE :: BEIS_MAP( : ) ! map to GC
+      CHARACTER( 16 ),      SAVE :: CTM_BIOGEMIS = 'CTM_BIOGEMIS'! env var for
 
       CONTAINS
 
@@ -60,13 +61,11 @@ C=======================================================================
 
          REAL, PARAMETER :: CMLMR = 1.0E+06       ! ppmV/Molar Mixing Ratio
 
-         CHARACTER( 16 ), SAVE :: CTM_BIOGEMIS = 'CTM_BIOGEMIS'! env var for
                                                                ! in-line beis
          CHARACTER( 16 )       :: PNAME = 'BEIS_INIT'
          CHARACTER( 80 )       :: VARDESC   ! env variable description
          CHARACTER( 120 )      :: XMSG = ' '
 
-         INTEGER N_SPC
          REAL    CONVEM               ! conversion for emissions rates to Kg/s
          INTEGER V, K, LOGDEV, STATUS
 
@@ -76,26 +75,7 @@ C-----------------------------------------------------------------------
 
          LOGDEV = INIT3()
 
-         N_SPC = N_GC_EMIS + N_NR_EMIS + N_TR_EMIS
-
 C In-line biogenic emissions?
-
-         BIOGEMIS = .FALSE.
-         VARDESC = 'Flag for in-line biogenic emissions'
-         BIOGEMIS = ENVYN( CTM_BIOGEMIS, VARDESC, BIOGEMIS, STATUS )
-         IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-         IF ( STATUS .EQ. 1 ) THEN
-            XMSG = 'Environment variable improperly formatted'
-            CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-            SUCCESS = .FALSE.; RETURN
-         ELSE IF ( STATUS .EQ. -1 ) THEN
-            XMSG = 'Environment variable set, but empty ... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-         ELSE IF ( STATUS .EQ. -2 ) THEN
-            XMSG = 'Environment variable not set ... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-         END IF
-
          IF ( BIOGEMIS ) THEN
 
             XMSG = 'Using in-line biogenic emissions option'

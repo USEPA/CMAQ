@@ -70,7 +70,6 @@ C-----------------------------------------------------------------------
       LOGICAL,              SAVE :: PT3DEMIS   ! flag in-lining plume rise
       INTEGER,              SAVE :: NPTGRPS    ! no. pt src input file groups
       REAL,    ALLOCATABLE, SAVE :: VDEMIS_PT( :,:,:,: ) ! 3D pt src 
-      REAL,    ALLOCATABLE, SAVE :: VDEMIS_TMP( :,:,:,: ) ! 3D pt src 
 
       PUBLIC PT3DEMIS, NPTGRPS, VDEMIS_PT,
      &       PT3D_INIT, GET_PT3D_EMIS
@@ -254,7 +253,7 @@ C rise algorithm
 
 C get number of different file groups (sectors)
 
-         NPTGRPS = ENVINT( 'NPTGRPS',
+         NPTGRPS = ENVINT( 'N_EMIS_PT',
      &                     'Number of file groups',
      &                      1, IOS )
 
@@ -507,11 +506,9 @@ C Initialize stack emissions data
             END IF
          END DO
 
-         ALLOCATE ( VDEMIS_PT( NCOLS,NROWS,EMLYRS,N_EMIS_SPC ), STAT = IOS )
+         ALLOCATE ( VDEMIS_PT( N_EMIS_SPC,EMLYRS,NCOLS,NROWS ), STAT = IOS )
          CALL CHECKMEM( IOS, 'VDEMIS_PT', PNAME )
          VDEMIS_PT = 0.0   ! array assignment
-         ALLOCATE ( VDEMIS_TMP( NCOLS,NROWS,EMLYRS,N_EMIS_SPC ), STAT = IOS )
-         CALL CHECKMEM( IOS, 'VDEMIS_TMP', PNAME )
 
 C Set up and open 3d point source emissions diagnostic file?
          IF ( PT3DDIAG ) THEN
@@ -669,8 +666,8 @@ C Compute ZSTK, DDZF
 
 C=======================================================================
 
-         SUBROUTINE GET_PT3D_EMIS ( EM_PTSPEC, EM_FAC_PT, EM_SPEC, 
-     &                              JDATE, JTIME, TSTEP )
+         SUBROUTINE GET_PT3D_EMIS ( EM_PTSPEC, EM_FAC, EM_SPEC, 
+     &                              JDATE, JTIME, TSTEP, ISRC )
 
 ! Revision History.
 !     Aug 12, 15 D. Wong: added code to handle parallel I/O implementation
@@ -695,10 +692,11 @@ C Includes:
 
 C Arguments:
          CHARACTER(16), INTENT( IN ) :: EM_PTSPEC( :,: )
-         REAL( 8 ), INTENT( IN )     :: EM_FAC_PT( :,: )
+         REAL( 8 ), INTENT( IN )     :: EM_FAC( :,: )
          CHARACTER(16), INTENT( IN ) :: EM_SPEC( : )
          INTEGER               :: JDATE, JTIME
          INTEGER, INTENT( IN ) :: TSTEP( 3 )
+         INTEGER, INTENT( IN ) :: N              
 
 C Parameters:
 
@@ -759,201 +757,187 @@ C-----------------------------------------------------------------------
 
 C Based on the current time step, find whether or not a report should be written
 
-         WRITE( XMSG,'(A, I7.6)' )
-     &   'Calculating emissions point source layer fractions for', JTIME
-         WRITE( LOGDEV,* ) ' '
-         CALL M3MSG2( XMSG )
-
-         IF ( LDATE .NE. JDATE ) THEN  ! write day and date to stdout & XMSG
-            CALL WRDAYMSG( JDATE, XMSG )
-            LDATE = JDATE
-            WRITE( LOGDEV,'(9X, "at time ", A)' ) HHMMSS( JTIME )
-         END IF
-         WRTIME = .FALSE.
-         WSTEP = WSTEP + TIME2SEC( TSTEP( 2 ) )
-         IF ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) ) THEN
-            WDATE = JDATE; WTIME = JTIME
-            CALL NEXTIME( WDATE, WTIME, TSTEP( 2 ) )
-            IF ( .NOT. CURRSTEP( WDATE, WTIME, SDATE, STIME, TSTEP( 1 ),
-     &                           CDATE, CTIME ) ) THEN
-               XMSG = 'Cannot get step date and time'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-            END IF
-            WDATE = CDATE; WTIME = CTIME
-            WSTEP = 0
-            WRTIME = .TRUE.
-            DO N = 1, NPTGRPS
-               IF ( RDEV( N ) .GT. 0 ) THEN    ! write day, date and time to report file
-                  WRITE( CINT,'( I8 )' ) REP_LAYR
-                  CALL WRDAYMSG( WDATE, XMSG )
-                  XMSG = XMSG( 1:LEN_TRIM( XMSG ) )
-     &                    // ' at time ' // HHMMSS( WTIME )
-     &                    // 'for ltop .ge. ' // TRIM( ADJUSTL( CINT ) )
-                  WRITE( RDEV( N ),93000 ) XMSG( 1:LEN_TRIM( XMSG ) )
-               END IF
-            END DO
-         END IF
+!         WRITE( XMSG,'(A, I7.6)' )
+!     &   'Calculating emissions point source layer fractions for', JTIME
+!         WRITE( LOGDEV,* ) ' '
+!         CALL M3MSG2( XMSG )
+!
+!         IF ( LDATE .NE. JDATE ) THEN  ! write day and date to stdout & XMSG
+!            CALL WRDAYMSG( JDATE, XMSG )
+!            LDATE = JDATE
+!            WRITE( LOGDEV,'(9X, "at time ", A)' ) HHMMSS( JTIME )
+!         END IF
+!         WRTIME = .FALSE.
+!         WSTEP = WSTEP + TIME2SEC( TSTEP( 2 ) )
+!         IF ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) ) THEN
+!            WDATE = JDATE; WTIME = JTIME
+!            CALL NEXTIME( WDATE, WTIME, TSTEP( 2 ) )
+!            IF ( .NOT. CURRSTEP( WDATE, WTIME, SDATE, STIME, TSTEP( 1 ),
+!     &                           CDATE, CTIME ) ) THEN
+!               XMSG = 'Cannot get step date and time'
+!               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+!            END IF
+!            WDATE = CDATE; WTIME = CTIME
+!            WSTEP = 0
+!            WRTIME = .TRUE.
+!            DO N = 1, NPTGRPS
+!               IF ( RDEV( N ) .GT. 0 ) THEN    ! write day, date and time to report file
+!                  WRITE( CINT,'( I8 )' ) REP_LAYR
+!                  CALL WRDAYMSG( WDATE, XMSG )
+!                  XMSG = XMSG( 1:LEN_TRIM( XMSG ) )
+!     &                    // ' at time ' // HHMMSS( WTIME )
+!     &                    // 'for ltop .ge. ' // TRIM( ADJUSTL( CINT ) )
+!                  WRITE( RDEV( N ),93000 ) XMSG( 1:LEN_TRIM( XMSG ) )
+!               END IF
+!            END DO
+!         END IF
 
 C Convert pt source met data to bi-linear interpolated data
          CALL PTMET_CONVT( JDATE, JTIME, NPTGRPS, EMLYRS, ZSTATIC )
 
+C Initialize Output Array
          VDEMIS_PT = 0.0   ! array assignment
 
-         DO N = 1, NPTGRPS
+         N = IPSRC( ISRC )
 
-            VDEMIS_TMP = 0.0   ! array assignment
-            IF ( MY_NSRC( N ) .LE. 0 ) CYCLE
+         IF ( MY_NSRC( N ) .LE. 0 ) CYCLE
 
-            IF ( PT3DFRAC ) THEN   ! Store layer fractions
-               ALLOCATE( LFRAC( MY_NSRC( N ),EMLYRS ), STAT = IOS )
-               CALL CHECKMEM( IOS, 'LFRAC', PNAME )
-               ALLOCATE( ZPLUM( MY_NSRC( N ),EMLYRS ), STAT = IOS )
-               CALL CHECKMEM( IOS, 'ZPLUM', PNAME )
-               LFRAC = 0.0   ! 2-D array - Initialize layer fraction
-               ZPLUM = 0.0   ! 2-D array - Initialize plume centroid height
-            END IF
+         IF ( PT3DFRAC ) THEN   ! Store layer fractions
+            ALLOCATE( LFRAC( MY_NSRC( N ),EMLYRS ), STAT = IOS )
+            CALL CHECKMEM( IOS, 'LFRAC', PNAME )
+            ALLOCATE( ZPLUM( MY_NSRC( N ),EMLYRS ), STAT = IOS )
+            CALL CHECKMEM( IOS, 'ZPLUM', PNAME )
+            LFRAC = 0.0   ! 2-D array - Initialize layer fraction
+            ZPLUM = 0.0   ! 2-D array - Initialize plume centroid height
+         END IF
 
 C Ensure that the model and stack groups emissions timestamp dates stay synchronized
 
-            IF ( PRE_JDATE .NE. JDATE ) THEN
-               LOC_STKDATE = STKDATE( N ) + 1
-            ELSE
-               LOC_STKDATE = STKDATE( N )
-            END IF
+         IF ( PRE_JDATE .NE. JDATE ) THEN
+            LOC_STKDATE = STKDATE( N ) + 1
+         ELSE
+            LOC_STKDATE = STKDATE( N )
+         END IF
 
 C Allocate Array to Store the Layer Heights of All Stacks (i.e. sources)
 C from this Point Group (i.e. ptgrp)
-            ALLOCATE( TFRAC( EMLYRS,MY_NSRC( N ) ), STAT = IOS )
-            CALL CHECKMEM( IOS, 'TFRAC', PNAME )
-            TFRAC = 0.0   ! array
+         ALLOCATE( TFRAC( EMLYRS,MY_NSRC( N ) ), STAT = IOS )
+         CALL CHECKMEM( IOS, 'TFRAC', PNAME )
+         TFRAC = 0.0   ! array
 
 C Calculate Plume Heights for All Point Sources on this File
-            CALL CALC_PLUME_HEIGHT( LOC_STKDATE, JDATE, JTIME, WRTIME, N   )
+         CALL CALC_PLUME_HEIGHT( LOC_STKDATE, JDATE, JTIME, WRTIME, N   )
 
 C Read Emissions for all sources on File N            
-            DO ISPC = 1, N_EMIS_SPC
-               VNAME = EM_PTSPEC( ISPC,N )
-               IF ( VNAME .EQ. '' ) CYCLE
-               IF ( .NOT. INTERPX( STKENAME( N ), VNAME, PNAME,
+         DO ISPC = 1, N_EMIS_SPC
+            VNAME = EM_PTSPEC( ISPC,N )
+            IF ( VNAME .EQ. '' ) CYCLE
+            IF ( .NOT. INTERPX( STKENAME( N ), VNAME, PNAME,
+     &                          1,1, MY_STRT_SRC( N ),MY_END_SRC( N ), 1,1,
+     &                          LOC_STKDATE, JTIME,
+     &                          STKEMIS( N )%ARRY( 1 ) ) ) THEN
+               XMSG = 'Could not read ' // TRIM( VNAME ) //
+     &                ' from ' // TRIM( STKENAME( N ) )
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+            END IF
+
+            ! Read Non-Carbon Organic Matter too if POC is Requested
+            IF ( ( INDEX( MECHNAME, 'NVPOA' ) .EQ. 0 )
+     &            .AND. ( VNAME .EQ. 'POC' ) ) THEN
+               STKEMIS_TOO( N )%ARRY = 0.0
+               IF ( .NOT. INTERPX( STKENAME( N ), 'PNCOM', PNAME,
      &                             1,1, MY_STRT_SRC( N ),MY_END_SRC( N ), 1,1,
      &                             LOC_STKDATE, JTIME,
-     &                             STKEMIS( N )%ARRY( 1 ) ) ) THEN
+     &                             STKEMIS_TOO( N )%ARRY( 1 ) ) ) THEN
                   XMSG = 'Could not read ' // TRIM( VNAME ) //
-     &                   ' from ' // TRIM( STKENAME( N ) )
+     &                 ' from ' // TRIM( STKENAME( N ) )
                   CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
                END IF
+               MY_DELTA = MY_END_SRC( N ) - MY_STRT_SRC( N ) + 1
+               STKEMIS( N )%ARRY( 1:MY_DELTA ) = STKEMIS( N )%ARRY( 1:MY_DELTA ) 
+     &                                  + STKEMIS_TOO( N )%ARRY( 1:MY_DELTA )
+            END IF
+            
+            ! Read Sulfuric Acid Vapor and add to Sulfate Aerosol
+            IF ( VNAME .EQ. 'PSO4' ) THEN
+               STKEMIS_TOO( N )%ARRY = 0.0
+               IF ( .NOT. INTERPX( STKENAME( N ), 'SULF', PNAME,
+     &                             1,1, MY_STRT_SRC( N ),MY_END_SRC( N ), 1,1,
+     &                             LOC_STKDATE, JTIME,
+     &                             STKEMIS_TOO( N )%ARRY( 1 ) ) ) THEN
+                  XMSG = 'Could not read ' // TRIM( VNAME ) //
+     &                 ' from ' // TRIM( STKENAME( N ) )
+                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+               END IF
+               MY_DELTA = MY_END_SRC( N ) - MY_STRT_SRC( N ) + 1
+               STKEMIS( N )%ARRY( 1:MY_DELTA ) = STKEMIS( N )%ARRY( 1:MY_DELTA ) 
+     &                                  + STKEMIS_TOO( N )%ARRY( 1:MY_DELTA )
+     &                                  * REAL( PRECURSOR_MW( SULF_IDX ), 4 )
+            END IF 
 
-               ! Read Non-Carbon Organic Matter too if POC is Requested
-               IF ( ( INDEX( MECHNAME, 'NVPOA' ) .EQ. 0 )
-     &               .AND. ( VNAME .EQ. 'POC' ) ) THEN
-                  STKEMIS_TOO( N )%ARRY = 0.0
-                  IF ( .NOT. INTERPX( STKENAME( N ), 'PNCOM', PNAME,
-     &                                1,1, MY_STRT_SRC( N ),MY_END_SRC( N ), 1,1,
-     &                                LOC_STKDATE, JTIME,
-     &                                STKEMIS_TOO( N )%ARRY( 1 ) ) ) THEN
-                     XMSG = 'Could not read ' // TRIM( VNAME ) //
-     &                    ' from ' // TRIM( STKENAME( N ) )
-                     CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-                  END IF
-                  MY_DELTA = MY_END_SRC( N ) - MY_STRT_SRC( N ) + 1
-                  STKEMIS( N )%ARRY( 1:MY_DELTA ) = STKEMIS( N )%ARRY( 1:MY_DELTA ) 
-     &                                     + STKEMIS_TOO( N )%ARRY( 1:MY_DELTA )
-               END IF
-               
-               ! Read Sulfuric Acid Vapor and add to Sulfate Aerosol
-               IF ( VNAME .EQ. 'PSO4' ) THEN
-                  STKEMIS_TOO( N )%ARRY = 0.0
-                  IF ( .NOT. INTERPX( STKENAME( N ), 'SULF', PNAME,
-     &                                1,1, MY_STRT_SRC( N ),MY_END_SRC( N ), 1,1,
-     &                                LOC_STKDATE, JTIME,
-     &                                STKEMIS_TOO( N )%ARRY( 1 ) ) ) THEN
-                     XMSG = 'Could not read ' // TRIM( VNAME ) //
-     &                    ' from ' // TRIM( STKENAME( N ) )
-                     CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-                  END IF
-                  MY_DELTA = MY_END_SRC( N ) - MY_STRT_SRC( N ) + 1
-                  STKEMIS( N )%ARRY( 1:MY_DELTA ) = STKEMIS( N )%ARRY( 1:MY_DELTA ) 
-     &                                     + STKEMIS_TOO( N )%ARRY( 1:MY_DELTA )
-     &                                     * REAL( PRECURSOR_MW( SULF_IDX ), 4 )
-               END IF 
-
-               ! Zero Out Sulfuric Acid Emissions Since they have been
-               ! added to particulate sulfate
-               IF ( VNAME .EQ. 'SULF' ) THEN
-                  MY_DELTA = MY_END_SRC( N ) - MY_STRT_SRC( N ) + 1
-                  STKEMIS( N )%ARRY( 1:MY_DELTA ) = 0.0
-               END IF
-               
-               ! Zero Out pcVOC from Fire Sources
-               IF ( FIREFLAG( N ) .AND. EM_SPEC( ISPC ) .EQ. 'PCVOC' ) THEN
-                  MY_DELTA = MY_END_SRC( N ) - MY_STRT_SRC( N ) + 1
-                  STKEMIS( N )%ARRY( 1:MY_DELTA ) = 0.0
-               END IF
+            ! Zero Out Sulfuric Acid Emissions Since they have been
+            ! added to particulate sulfate
+            IF ( VNAME .EQ. 'SULF' ) THEN
+               MY_DELTA = MY_END_SRC( N ) - MY_STRT_SRC( N ) + 1
+               STKEMIS( N )%ARRY( 1:MY_DELTA ) = 0.0
+            END IF
+            
+            ! Zero Out pcVOC from Fire Sources
+            IF ( FIREFLAG( N ) .AND. EM_SPEC( ISPC ) .EQ. 'PCVOC' ) THEN
+               MY_DELTA = MY_END_SRC( N ) - MY_STRT_SRC( N ) + 1
+               STKEMIS( N )%ARRY( 1:MY_DELTA ) = 0.0
+            END IF
 
 C Apportion emissions to the layers
-               DO S = 1, MY_NSRC( N )
-                  SRC = SOURCE( N )%ARRY( S )
-                  C = MY_STKCOL( N )%ARRY( S ); R = MY_STKROW( N )%ARRY( S )
+            DO S = 1, MY_NSRC( N )
+               SRC = SOURCE( N )%ARRY( S )
+               C = MY_STKCOL( N )%ARRY( S ); R = MY_STKROW( N )%ARRY( S )
 
-                  DO L = 1, EMLYRS
-                     LFRC = TFRAC( L,S )
-                     IF ( LFRC .LE. 0.0 ) CYCLE
+               DO L = 1, EMLYRS
+                  LFRC = TFRAC( L,S )
+                  IF ( LFRC .LE. 0.0 ) CYCLE
 
-                     ! Save Emissions in Common Array
-                     VDEMIS_TMP( C,R,L,ISPC ) = VDEMIS_TMP( C,R,L,ISPC )
-     &                                 + LFRC * EM_FAC_PT( ISPC,N ) * STKEMIS( N )%ARRY( SRC )
+                  ! Save Emissions in Common Array
+                  VDEMIS_PT( ISPC,L,C,R ) = VDEMIS_PT( ISPC,L,C,R )
+     &                              + LFRC * EM_FAC( ISPC,ISRC ) * STKEMIS( N )%ARRY( SRC )
 
-                  END DO  ! End Layers Loop
-               END DO  ! End Sources Loop
-            END DO ! End Loop on Species
+               END DO  ! End Layers Loop
+            END DO  ! End Sources Loop
+         END DO ! End Loop on Species
 
-            !!CALL AEROSOL SIZE DISTRIBUTION ROUTINE
-            VDEMIS_PT = VDEMIS_PT + VDEMIS_TMP
-
-            DEALLOCATE( TFRAC )
+         DEALLOCATE( TFRAC )
 
 C Write Out Diagnostic Info            
-            IF ( PT3DFRAC .AND. WRTIME ) THEN     ! Write out layer fractions
-               IF ( .NOT. WRITE3_DISTR( PLAYNAME( N ), 'LFRAC', WDATE, WTIME,
-     &                                  MY_NSRC( N ), EMLYRS, LFRAC ) ) THEN
-                  XMSG = 'Error writing "LFRAC" to file "' //
-     &                    PLAYNAME( N )( 1:LEN_TRIM( PLAYNAME( N ) ) ) // '."'
-                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-               END IF
-               IF ( .NOT. WRITE3_DISTR( PLAYNAME( N ), 'ZPLUME', WDATE, WTIME,
-     &                                  MY_NSRC( N ), EMLYRS, ZPLUM ) ) THEN
-                  XMSG = 'Error writing "ZPLUM" to file "' //
-     &                    PLAYNAME( N )( 1:LEN_TRIM( PLAYNAME( N ) ) ) // '."'
-                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-               END IF
-               WRITE( LOGDEV,94030 )
-     &            'Timestep written to', TRIM( PLAYNAME( N ) ),
-     &            'for date and time', WDATE, WTIME
+         IF ( PT3DFRAC .AND. WRTIME ) THEN     ! Write out layer fractions
+            IF ( .NOT. WRITE3_DISTR( PLAYNAME( N ), 'LFRAC', WDATE, WTIME,
+     &                               MY_NSRC( N ), EMLYRS, LFRAC ) ) THEN
+               XMSG = 'Error writing "LFRAC" to file "' //
+     &                 PLAYNAME( N )( 1:LEN_TRIM( PLAYNAME( N ) ) ) // '."'
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
             END IF
-
-#ifdef Verbose1
-            write( logdev,* ) '   Max ZPLM(', n, ' ):', mxzplm
-#endif
-
-            IF ( PT3DFRAC ) THEN
-               DEALLOCATE( LFRAC )
-               DEALLOCATE( ZPLUM )
+            IF ( .NOT. WRITE3_DISTR( PLAYNAME( N ), 'ZPLUME', WDATE, WTIME,
+     &                               MY_NSRC( N ), EMLYRS, ZPLUM ) ) THEN
+               XMSG = 'Error writing "ZPLUM" to file "' //
+     &                 PLAYNAME( N )( 1:LEN_TRIM( PLAYNAME( N ) ) ) // '."'
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
             END IF
+            WRITE( LOGDEV,94030 )
+     &         'Timestep written to', TRIM( PLAYNAME( N ) ),
+     &         'for date and time', WDATE, WTIME
+         END IF
 
-         END DO   ! NPTGRPS
+         IF ( PT3DFRAC ) THEN
+            DEALLOCATE( LFRAC )
+            DEALLOCATE( ZPLUM )
+         END IF
+
 
 C Write Out Diagnostic Info         
          IF ( PT3DDIAG ) THEN  ! store 3d point source emissions
             NTICS = NTICS + 1
             VDEMIS_BUF = VDEMIS_BUF + VDEMIS_PT   ! array assignmnt
-#ifdef Verbose1
-            write( logdev,* ) '   ntics, jtime: ', ntics, jtime
-#endif
             IF ( WRTIME ) THEN
                DIVFAC = 1.0 / FLOAT( NTICS )
-#ifdef Verbose1
-               write( logdev,* ) '   ntics, divfac: ', ntics, divfac
-#endif
  !              DO V = 1, N_EMIS_SPC
  !                 VDEMIS_BUF( :,:,:,V ) = DIVFAC * VDEMIS_BUF( :,:,:,V )
  !                IF ( .NOT. WRITE3( CTM_PT3D_DIAG, GSPC_EMIS( V ),

@@ -139,40 +139,8 @@ C-----------------------------------------------------------------------
             LOGDEV = SETUP_LOGDEV()
             SUCCESS = .TRUE.
 
-C flag for marine gas emissions; use in-line marine gas option only if CB05EH51 is used
-            IF ( INDEX( MECHNAME, 'CB05EH51' ) .GT. 0 ) then
-               MGEM = .TRUE.
-            ELSE
-               MGEM = .FALSE.
-               RETURN
-            END IF
-
-C Allocate mapping array
-    !        ALLOCATE ( MGSPC_MAP( NMGSPC ), STAT = STATUS )
-    !        IF ( STATUS .NE. 0 ) THEN
-    !           XMSG = '*** MGSPC_MAP memory allocation failed'
-    !           CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-    !           SUCCESS = .FALSE.; RETURN
-    !        END IF
-    !
-    !        DO V = 1, NMGSPC
-    !           K = INDEX1( MG_SPC( V ), N_GC_EMIS, GC_EMIS )
-    !           IF ( K .GT. 0 ) THEN
-    !              MGSPC_MAP( V ) = K
-    !           ELSE
-    !              WRITE( LOGDEV,'(/5X,A)' ) TRIM( MG_SPC( V ) ) //
-    ! &                              ' not found in GC_EMIS'
-    !              K = INDEX1( MG_SPC( V ), N_NR_EMIS, NR_EMIS )
-    !              IF ( K .GT. 0 ) THEN
-    !                 MGSPC_MAP( V ) = N_GC_EMIS + K
-    !                 WRITE( LOGDEV,* ) ' '
-    !              ELSE
-    !                 WRITE( LOGDEV,'(5X,A/)' ) TRIM( MG_SPC( V ) ) //
-    ! &                                 ' not found in NR_EMIS either'
-    !                 MGSPC_MAP( V ) = 0
-    !              END IF
-    !           END IF
-    !        END DO
+C flag for marine gas emissions; this flag is set in the subroutine EM_FILE_INIT 
+            IF ( .NOT. MGEM ) RETURN
 
 C Allocate MG arrays using NMGSPC value
             ALLOCATE ( VDEMIS_MG( NMGSPC,NCOLS,NROWS), STAT = STATUS )
