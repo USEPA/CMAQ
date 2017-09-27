@@ -1,7 +1,8 @@
-CMAQv5.2
+CMAQv5.2 DDM-3D
 ========
 
-Community Multiscale Air Quality Model US EPA CMAQ Website: (https://www.epa.gov/cmaq).
+Community Multiscale Air Quality Model US EPA CMAQ Website: (https://www.epa.gov/cmaq). 
+CMAQv5.2 DDM3-D model description: (https://www.epa.gov/cmaq/cmaq-models-0#tab-4)
 
 CMAQ is an active open-source development project of the U.S. EPA Computational Exposure Division
 that consists of a suite of programs for conducting air quality model simulations.
@@ -17,7 +18,7 @@ To clone code from the CMAQ Git archive, specify the branch (i.e. version number
 a working directory on your server:
 
 ```
-git clone -b 5.2 https://github.com/USEPA/CMAQ.git CMAQ_REPO
+git clone -b 5.2_DDM-3D https://github.com/USEPA/CMAQ.git CMAQ_REPO
 ```
 
 ## CMAQ Repository Guide
@@ -34,7 +35,8 @@ Release notes and Code documentation are included within this repository (they a
 
 [CMAQv5.2 Documentation](DOCS/README.md)   
 [CMAQv5.2 Release Notes](CCTM/docs/Release_Notes/README.md)   
-[CMAQv5.2 Known Issues](DOCS/Known_Issues/README.md)   
+[CMAQv5.2 Known Issues](DOCS/Known_Issues/README.md)  
+[CMAQv5.2 DDM-3D Documentation](DOCS/Instrumented_Docs/CMAQ_DDM.md)
 
 ## CMAQ Test Cases
 Benchmark/tutorial input and output data for each CMAQ release version are available from the CMAS Center Software Clearinghouse. From http://www.cmascenter.org, select Download -> Software -> CMAQ and choose the version to get the tutorial data.  
