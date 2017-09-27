@@ -44,6 +44,10 @@
       USE CGRID_SPCS          ! CGRID mechanism species
       USE UTILIO_DEFN
 
+#ifdef sens
+      USE DDM3D_DEFN, ONLY : NP, NPMAX, SEN_PAR
+#endif
+
       IMPLICIT NONE
 
 !...........INCLUDES
@@ -78,6 +82,10 @@
       INTEGER       VAR              ! variable subscript indices
 
       INTEGER, SAVE :: LOGDEV           ! output log unit number
+
+#ifdef sens
+      INTEGER       SENNUM           ! DDM variable counter
+#endif
 
 !-----------------------------------------------------------------------
 
@@ -247,6 +255,116 @@ C Try to open existing wet deposition file for update
               END IF
 
            END IF   ! open CTM_WET_DEP_1 read/write
+
+#ifdef sens
+!...open sensitivity depostion file
+
+           IF ( .NOT. OPEN3( CTM_SWETDEP_1, FSRDWR3, PNAME ) ) THEN
+               XMSG = 'Could not open ' // CTM_SWETDEP_1 //
+     &                ' file for update - try to open new'
+               CALL M3MESG( XMSG )
+
+C...Create sensitivity wet deposition file:
+               NVARS3D = ( N_SPC_WDEP + 1 ) * NPMAX
+
+C...define sens wet deposition output descriptors for gaseous species
+               SPC = 0
+               STRT = 1
+               FINI = N_GC_WDEP
+               DO VAR = STRT, FINI
+                 SPC = SPC + 1
+                 DO NP = 1, NPMAX
+                   SENNUM = ( SPC - 1 ) * NPMAX + NP
+                   VTYPE3D ( SENNUM ) = M3REAL
+!                  VTYPE3D ( SENNUM ) = M3DBLE
+                   VNAME3D ( SENNUM ) = TRIM( GC_WDEP( SPC )( 1:7 ) ) //'_'// SEN_PAR( NP )
+                   UNITS3D ( SENNUM ) = 'kg/hectare'
+                   VDESC3D ( SENNUM ) = 'Sens of hourly wet dep values'
+                 END DO
+               END DO
+
+C...define wet deposition output descriptors for aerosol species
+               SPC = 0
+               STRT = N_GC_WDEP + 1
+               FINI = N_GC_WDEP + N_AE_WDEP
+               DO VAR = STRT, FINI
+                  SPC = SPC + 1
+                  DO NP = 1, NPMAX
+                     SENNUM = ( NPMAX * N_GC_WDEP ) + ( SPC - 1 ) * NPMAX + NP
+                     VTYPE3D ( SENNUM ) = M3REAL
+!                    VTYPE3D ( SENNUM ) = M3DBLE
+                     VNAME3D ( SENNUM ) = TRIM( AE_WDEP( SPC )( 1:7 ) ) //'_'// SEN_PAR( NP )
+                     IF ( INDEX( AE_WDEP( SPC ), 'NUM' ) .GT. 0 ) THEN
+                        UNITS3D ( SENNUM ) = 'number/hectare'
+                     ELSE IF ( INDEX( AE_WDEP( SPC ), 'SRF' ) .GT. 0 ) THEN
+                        UNITS3D ( SENNUM ) = 'm2/hectare'
+                     ELSE
+                        UNITS3D ( SENNUM ) = 'kg/hectare'
+                     END IF
+                     VDESC3D ( SENNUM ) = 'Sens of hourly wet dep values'
+                  END DO
+               END DO
+
+C...define wet deposition output descriptors for non-reactive species
+               SPC = 0
+               STRT = N_GC_WDEP + N_AE_WDEP + 1
+               FINI = N_GC_WDEP + N_AE_WDEP + N_NR_WDEP
+               DO VAR = STRT, FINI
+                  SPC = SPC + 1
+                  DO NP = 1, NPMAX
+                     SENNUM = NPMAX * ( N_GC_WDEP + N_AE_WDEP ) + ( SPC - 1 ) * NPMAX + NP
+                     VTYPE3D ( SENNUM ) = M3REAL
+!                    VTYPE3D ( SENNUM ) = M3DBLE
+                     VNAME3D ( SENNUM ) = TRIM( NR_WDEP( SPC )( 1:7 ) ) //'_'// SEN_PAR( NP )
+                     UNITS3D ( SENNUM ) = 'kg/hectare'
+                     VDESC3D ( SENNUM ) = 'hourly wet deposition values'
+                  END DO
+               END DO
+
+C...define wet deposition output descriptors for tracer species
+               SPC = 0
+               STRT = N_GC_WDEP + N_AE_WDEP + N_NR_WDEP + 1
+               FINI = N_GC_WDEP + N_AE_WDEP + N_NR_WDEP + N_TR_WDEP
+               DO VAR = STRT, FINI
+                  SPC = SPC + 1
+                  DO NP = 1, NPMAX
+                     SENNUM = NPMAX * ( N_GC_WDEP + N_AE_WDEP + N_NR_WDEP ) + ( SPC - 1 ) * NPMAX + NP
+                     VTYPE3D ( SENNUM ) = M3REAL
+!                    VTYPE3D ( SENNUM ) = M3DBLE
+                     VNAME3D ( SENNUM ) = TRIM( TR_WDEP( SPC )( 1:7 ) ) //'_'// SEN_PAR( NP )
+                     UNITS3D ( SENNUM ) = 'kg/hectare'
+                     VDESC3D ( SENNUM ) = 'hourly wet deposition values'
+                  END DO
+               END DO
+
+C...define output descriptor for hydrogen concentration
+               VAR = N_GC_WDEP + N_AE_WDEP + N_NR_WDEP + N_TR_WDEP
+               DO NP = 1, NPMAX
+                  SENNUM = NPMAX * VAR + NP
+                  VTYPE3D ( SENNUM ) = M3REAL
+!                 VTYPE3D ( SENNUM ) = M3DBLE
+                  VNAME3D ( SENNUM ) = 'HPLUS_' // SEN_PAR( NP )
+                  UNITS3D ( SENNUM ) = 'kg/hectare'
+                  VDESC3D ( SENNUM ) = 'hourly wet deposition values'
+               END DO
+
+C...initialize the file descriptors
+               FDESC3D( 1 ) = 'Sensitivity of hourly 1-layer '
+     &                        // 'cross-point wet deposition '
+     &                        // 'from all cloud types'
+               DO L = 2 , MXDESC3
+                  FDESC3D( L ) = ' '
+               END DO
+
+C...try to open the output file new
+
+               IF ( .NOT. OPEN3( CTM_SWETDEP_1, FSNEW3, PNAME ) ) THEN
+                  XMSG = 'Could not create '// CTM_SWETDEP_1 // ' file'
+                  CALL M3EXIT ( PNAME, SDATE3D, STIME3D, XMSG, XSTAT1 )
+               END IF
+
+           END IF   ! open CTM_SWETDEP_1 read/write
+#endif
 
 !...open the diagnostic file if user asked for it
 

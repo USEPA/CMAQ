@@ -33,6 +33,7 @@ C Revision History:
 C     29 Dec 2006 J.Young: initial implementation
 C     16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C      3 Nov 2011 D.Wong: fix source location within grid determination bug
+C     27 Oct 2015 S.L.Napelenok: update for cmaq-ddm-3d v5.1.1
 C     30 Apr 2016 J.Young: add multiple fire source capability, in affiliation with
 C                          Yongtao Hu (Georgia Tech)
 C-----------------------------------------------------------------------

@@ -76,6 +76,7 @@ C                     implementation
 C                   - Added a block of code to allow non I/O processors
 C                     to open CTM_DRY_DEP_1, CTM_VSED_DIAG, CTM_VDIFF_DIAG,
 C                     CTM_DRY_DEP_MOS, and CTM_DRY_DEP_FST
+C 21 Oct 15 S.L.Napelenok: ddm-3d implementation for cmaq5.1.1
 C 03 Mar 16 G.Sarwar: updated for halogen emissions
 C 16 Sep 16 J.Young: update for inline procan (IPR)
 C-----------------------------------------------------------------------
@@ -93,6 +94,12 @@ C-----------------------------------------------------------------------
       USE SEDIMENTATION
       USE VDIFF_DIAG
       USE PA_DEFN, Only: LIPR ! Process Anaylsis control and data variables
+
+#ifdef sens
+      USE DDM3D_DEFN
+      USE S_EMIS_DEFN
+#endif 
+
 
       IMPLICIT NONE
 
@@ -157,6 +164,30 @@ C Local Variables
       INTEGER     ASTAT
       INTEGER     C, R, L, S, V, I, J, OFF      ! loop induction variables
       INTEGER     MDATE, MTIME, MSTEP           ! internal simulation date&time
+
+#ifdef sens
+      REAL, ALLOCATABLE, SAVE :: SENS       ( :,:,: )      ! secondary SENGRID expression
+c     REAL, ALLOCATABLE, SAVE :: SENDDEP( :,:,:,: )        ! ddep sens accumulator 
+c     REAL, POINTER           :: SENGRID_TEMP( :,:,:,: )   ! temp SENGRID to feed into conversion routines
+c     REAL, ALLOCATABLE, SAVE :: SNGRD( :,:,:,:,: )        ! sengrid replacement
+
+c     REAL, ALLOCATABLE, SAVE :: DVS1  ( : )               ! (N_SPC_DEPV )
+c     REAL, ALLOCATABLE, SAVE :: S_EMIS( :,:,: )           ! stores SVDEMIS*DTS
+c     REAL, ALLOCATABLE, SAVE :: SENDDBF( :,: )            ! incremental SENDDEP
+
+c     REAL, ALLOCATABLE, SAVE :: SDEPVCON( :,:,: )         ! dry deposition velocity sens
+c     REAL, ALLOCATABLE, SAVE :: SDIFFCON( :,:,: )         ! eddy diffusion coefficient sens
+
+c     LOGICAL TIMEFLAG
+c     INTEGER STRT, FINI                                   ! loop induction variables
+
+c     REAL, ALLOCATABLE, SAVE :: SDD ( :,:,: )             ! DD for sens
+c     REAL, ALLOCATABLE, SAVE :: SUU ( :,:,: )             ! UU for sens
+c     REAL SDELC
+
+c     CHARACTER( 12 ) :: SPCNAME
+      CHARACTER( 16 ) :: PARNAME              ! full name of sensitivity paramber (eg 'NO2_EMIS_NOX')
+#endif
 
       INTERFACE
          SUBROUTINE PA_UPDATE_EMIS ( PNAME, VDEMIS, JDATE, JTIME, TSTEP )
@@ -320,6 +351,26 @@ C Set up for grav. settling
             END IF   ! if Fst
          END IF   ! if Mosaic
 
+#ifdef sens
+         ALLOCATE ( S_DDEP( N_SPC_DEPV,MY_NCOLS,MY_NROWS,NPMAX ), STAT = ASTAT )
+         IF ( ASTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating S_DDEP'
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            END IF
+         S_DDEP = 0.0
+
+         ALLOCATE ( SNGRD( N_SPC_CGRID,NLAYS,MY_NCOLS,MY_NROWS,NPMAX ), STAT = ASTAT )
+         IF ( ASTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating SNGRD'
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+         SNGRD = 0.0
+
+         IF ( .NOT. S_EMIS_INIT ( JDATE, JTIME, TSTEP( 1 ) ) ) THEN
+            XMSG = 'Failure initializing sensitivity emissions module'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+#endif
       END IF   !  if Firstime
 
       MDATE = JDATE
@@ -330,6 +381,20 @@ C Set up for grav. settling
 
 C Convert non-molar mixing ratio species and re-order CGRID
       CALL CONV_CGRID ( CGRID, MDATE, MTIME, CNGRD )
+#ifdef sens
+      DO NP = 1, NPMAX
+         DO L = 1, NLAYS
+            DO R = 1, MY_NROWS
+               DO C = 1, MY_NCOLS
+                  DO S = 1, N_SPC_CGRID
+                     SENGRID_TEMP( C,R,L,S ) = SENGRID( C,R,L,NP,S )
+                  END DO
+               END DO
+            END DO
+         END DO
+         CALL CONV_CGRID ( SENGRID_TEMP,MDATE, MTIME, SNGRD(:,:,:,:,NP) )
+      END DO
+#endif
 
 C read & interpolate met data
       CALL GET_MET ( MDATE, MTIME, MSTEP, MOSAIC, ABFLUX, HGBIDI )
@@ -346,6 +411,10 @@ C Calculate the changes in the layer J-,K-mode aerosol concentrations
 
 C read & interpolate emissions data => VDEMIS from EMIS_DEFN module
       CALL GET_EMIS ( MDATE, MTIME, TSTEP, CONVPA, CGRID )
+c     CALL GET_EMIS ( MDATE, MTIME, TSTEP, CONVPA )
+#ifdef sens
+      CALL GET_SEMIS ( MDATE, MTIME, JDATE, JTIME, TSTEP, CONVPA )
+#endif
 
       IF ( LIPR ) THEN
          DO S = 1, N_SPC_EMIS+1
@@ -388,6 +457,9 @@ C EDDYV returned = Kz, where Kz is in m**2/sec
             DDEPJ = 0.0                  ! array assignment
             IF ( FST ) DDEPJ_FST = 0.0   ! array assignment
          END IF
+#ifdef sens
+         S_DDEP = 0.0
+#endif
       END IF
 
 C Calculate the change in concentration and dry dep from vertical diffusion and vsed
@@ -427,6 +499,20 @@ C Note: cngrd is the argument keyword (from the INTERFACE); CNGRD is the actual 
 
 C Revert non-molar mixing ratio species and re-order CGRID
       CALL REV_CGRID ( CNGRD, MDATE, MTIME, CGRID )
+#ifdef sens
+      DO NP = 1, NPMAX
+         CALL REV_CGRID ( SNGRD(:,:,:,:,NP), MDATE, MTIME, SENGRID_TEMP )
+         DO L = 1, NLAYS
+            DO R = 1, MY_NROWS
+               DO C = 1, MY_NCOLS
+                  DO S = 1, N_SPC_CGRID
+                     SENGRID( C,R,L,NP,S ) = SENGRID_TEMP( C,R,L,S )
+                  END DO
+               END DO
+            END DO
+         END DO
+      END DO
+#endif
 
 C If last call this hour:  write accumulated depositions:
 
@@ -446,6 +532,12 @@ C If last call this hour:  write accumulated depositions:
                   XMSG = 'Could not open ' // TRIM(CTM_DRY_DEP_1)
                   CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF
+#ifdef sens
+               IF ( .NOT. OPEN3( CTM_SDRYDEP_1, FSNONIO, PNAME ) ) THEN
+                  XMSG = 'Could not open ' // TRIM(CTM_SDRYDEP_1`)
+                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+               END IF
+#endif 
                IF ( MOSAIC ) THEN
                   IF ( .NOT. OPEN3( CTM_DRY_DEP_MOS, FSREAD3, PNAME ) ) THEN
                      XMSG = 'Could not open ' // TRIM(CTM_DRY_DEP_MOS)
@@ -496,6 +588,39 @@ C If last call this hour:  write accumulated depositions:
          WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
      &         'Timestep written to', CTM_DRY_DEP_1,
      &         'for date and time', MDATE, MTIME
+
+
+#ifdef sens
+C WT - write out dry deposition sensitivities
+         DO V = 1, N_SPC_DDEP
+            S = DD2DV( V )
+            SPCNAME = DDEP_SPC( V )( 1:12 )                       ! <- these lines have to
+            DO NP = 1, NPMAX
+               PARNAME = TRIM( SPCNAME ) //'_' // SEN_PAR( NP )  ! <- match what is in opddep.F
+               DO R = 1, MY_NROWS
+                  DO C = 1, MY_NCOLS
+                     WRDD( C,R ) = S_DDEP( S, C, R, NP )
+                  ENDDO
+               ENDDO
+
+               IF ( .NOT. WRITE3( CTM_SDRYDEP_1, PARNAME,
+     &                 MDATE, MTIME, WRDD ) ) THEN
+                  XMSG = 'Could not write ' // CTM_SDRYDEP_1 // ' file'
+                  CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+               END IF
+
+            ENDDO
+         ENDDO
+         WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
+     &         'Timestep written to', CTM_SDRYDEP_1,
+     &         'for date and time', MDATE, MTIME
+
+         S_DDEP = 0.0
+#endif
+
+
+
+
          
 C Write vdiff diagnostics
          IF ( VDIFFDIAG ) THEN

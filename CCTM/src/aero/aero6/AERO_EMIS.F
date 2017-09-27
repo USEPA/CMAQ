@@ -78,6 +78,25 @@ C aerosol emissions: [ppmv/s] for mass & number spcs, [m2/mol/s] for surface are
       INTEGER :: PM_EMLYRS   ! number of vertical layers on emis file (set in EMIS_DEFN)
 
       PUBLIC VDEMIS_AE, PM_EMLYRS, AERO_EMIS_INIT, GET_AERO_EMIS
+
+#ifdef sens
+      REAL, ALLOCATABLE, SAVE :: DENS ( :,:,: )
+      REAL,    ALLOCATABLE, SAVE :: CONVEM_PM( : ) ! into [ug/m2/sec]
+      INTEGER, SAVE :: VSULF               ! index to H2SO4 in VDEMIS array
+      INTEGER, SAVE :: VPSO4               ! index to PSO4 in EM_RATE array
+      INTEGER, ALLOCATABLE, SAVE :: EM_MAP  ( :,: )     ! index in namelist table
+      REAL,    ALLOCATABLE, SAVE :: EM_FAC  ( :,: )     ! Namelist emissions scaling factor
+      INTEGER, ALLOCATABLE, SAVE :: NUM_MAP ( : )       !
+      REAL,    ALLOCATABLE, SAVE :: NUM_FAC ( : )       !
+      INTEGER, ALLOCATABLE, SAVE :: SRF_MAP ( : )       !
+      REAL,    ALLOCATABLE, SAVE :: SRF_FAC ( : )       !
+
+      PUBLIC DENS, CONVEM_PM, VSULF, VPSO4
+      PUBLIC EM_MAP, EM_FAC, NUM_MAP, NUM_FAC, SRF_MAP, SRF_FAC
+#endif
+
+
+
       PRIVATE
 
 C Variables for converting mass emissions rate to number emissions rate
@@ -96,12 +115,14 @@ C Emission rate of all aerosol species interpolated to current time
       REAL,    ALLOCATABLE, SAVE :: PM_EM   ( : )       ! in one grid cell
       REAL,    ALLOCATABLE, SAVE :: EM_RATE ( : )       !
       REAL,    ALLOCATABLE, SAVE :: EM_PART ( :,: )     !
+#ifndef sens
       INTEGER, ALLOCATABLE, SAVE :: EM_MAP  ( :,: )     ! index in namelist table
       REAL,    ALLOCATABLE, SAVE :: EM_FAC  ( :,: )     ! Namelist emissions scaling factor
       INTEGER, ALLOCATABLE, SAVE :: NUM_MAP ( : )       !
       REAL,    ALLOCATABLE, SAVE :: NUM_FAC ( : )       !
       INTEGER, ALLOCATABLE, SAVE :: SRF_MAP ( : )       !
       REAL,    ALLOCATABLE, SAVE :: SRF_FAC ( : )       !
+#endif
       INTEGER, ALLOCATABLE, SAVE :: SS_MAP  ( :,: )     !
       INTEGER, ALLOCATABLE, SAVE :: DUST_MAP( :,: )     !
 
@@ -120,7 +141,9 @@ C SS_MAP     sea salt emission rate index in SSOUTM
 C DUST_MAP   windblown dust emission rate index in DUSTOUTM
 
 C Factor for converting aerosol emissions from input units ...
+#ifndef sens
       REAL,    ALLOCATABLE, SAVE :: CONVEM_PM( : ) ! into [ug/m2/sec]
+#endif
 
 C *** PVB: temporary hack to speciate PMC
       REAL,    SAVE :: SPFC_ACORS
@@ -138,8 +161,10 @@ C Domain decomposition info from emission and meteorology files
       INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
 
 C For handling vapor-phase sulfuric acid emissions
+#ifndef sens
       INTEGER, SAVE :: VSULF               ! index to H2SO4 in VDEMIS array
       INTEGER, SAVE :: VPSO4               ! index to PSO4 in EM_RATE array
+#endif
 
 C Miscellaneous variables
       LOGICAL, SAVE :: WB_DUST   ! flag for windblown dust option
@@ -663,6 +688,14 @@ C *** Get domain window info from input files
          CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
      &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
 
+#ifdef sens
+            ALLOCATE ( DENS( NCOLS,NROWS,NLAYS ), STAT = STATUS )
+                  IF ( STATUS .NE. 0 ) THEN
+                     XMSG = '*** DENS memory allocation failed'
+                     CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            END IF
+#endif
+
 99901     FORMAT(/'FATAL: GC namelist used does not include species, ', A, 
      &         / 'Check this namelist contains the same information '
      &         / 'for ', A,' as the repository version of the GC namelist for '
@@ -733,7 +766,9 @@ C Local variables for windblown dust emission rates (grid cell value)
          REAL( 8 ) :: GSFAC                        ! into [ug/m3/sec]
 
 C Variables interpolated from the meteorological input files
+#ifndef sens
          REAL DENS( NCOLS,NROWS,NLAYS )        ! air density [kg/m3]
+#endif
 
 C Variables for converting emission rates into molar-mixing-ratio units
          REAL, PARAMETER :: RAVO = 1.0 / AVO   ! reciprocal of Avogadro

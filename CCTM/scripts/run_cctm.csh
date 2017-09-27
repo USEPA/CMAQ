@@ -26,7 +26,7 @@
 #> Set General Parameters for Configuring the Simulation
  set VRSN      = v52               #> Code Version
  set PROC      = mpi               #> serial or mpi
- set MECH      = cb6r3_ae6_aq      #> Mechanism ID
+ set MECH      = cb6r3_ae6nvPOA_aq      #> Mechanism ID
  set EMIS      = 2013ef            #> Emission Inventory Details
  set APPL      = SE52BENCH         #> Application Name (e.g. Gridname)
                                                        
@@ -42,10 +42,11 @@
  cat $BLD/CCTM_${VRSN}.cfg; echo "    "; set echo
 
 #> Set Working, Input, and Output Directories
+ setenv GRID_NAME SE52BENCH         #> check GRIDDESC file for GRID_NAME options
  setenv WORKDIR ${CMAQ_HOME}/CCTM/scripts       #> Working Directory. Where the runscript is.
  setenv OUTDIR  ${CMAQ_DATA}/output_CCTM_${RUNID} #> Output Directory
- setenv INPDIR  ${CMAQ_DATA}/SE52BENCH/single_day/cctm_input  #> Input Directory
- setenv LOGDIR  ${OUTDIR}/LOGS     #> Log Directory Location
+ setenv INPDIR  ${CMAQ_DATA}/${GRID_NAME}       #> Input Directory
+ setenv LOGDIR  ${OUTDIR}          #> Log Directory Location
  setenv NMLpath ${BLD}             #> Location of Namelists. Common places are: 
                                    #>   ${WORKDIR} | ${CCTM_SRC}/MECHS/${MECH} | ${BLD}
 
@@ -77,7 +78,6 @@ set NZ         = 35
 
 #setenv LOGFILE $CMAQ_HOME/$RUNID.log  #> log file name; uncomment to write standard output to a log, otherwise write to screen
 
-setenv GRID_NAME SE52BENCH         #> check GRIDDESC file for GRID_NAME options
 setenv GRIDDESC $INPDIR/GRIDDESC   #> grid description file
 
 #> Output Species and Layer Options
@@ -168,8 +168,7 @@ setenv PT3DDIAG N            #> optional 3d point source emissions diagnostic fi
 setenv PT3DFRAC N            #> optional layer fractions diagnostic (play) file(s) [ default: N]; ignore if CTM_PT3DEMIS = N
 setenv REP_LAYER_MIN -1      #> Minimum layer for reporting plume rise info [ default: -1 ]
 
-set DISP = delete            #> [ delete | keep ] existing output files
-
+set DISP = delete            #> [ delete | update | keep ] existing output files
 
 # =====================================================================
 #> Input Directories and Filenames
@@ -314,6 +313,9 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      setenv DUST_LU_2 $LUpath/beld4_12US1_459X299_output_tot_bench.nc
      setenv MODIS_FPAR $LUpath/modis_bench.nc
 
+     # Input variables for BELD4 Landuse option
+     setenv BELD4_LU $LUpath/beld4_12US1_459X299_output_tot_bench.nc 
+     # All other Landuse options (USGS24, MODIS_NOAH, MODIS, NLCD50, NLCD40) read the GRID_CRO_2D file
      if ( $CTM_ERODE_AGLAND == 'Y' ) then
         setenv CROPMAP01 ${INPDIR}/land/BeginPlanting_12km_bench.nc
         setenv CROPMAP04 ${INPDIR}/land/EndPlanting_12km_bench.nc
@@ -357,8 +359,8 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv CTM_APMDIAG_1   "$OUTDIR/CCTM_APMDIAG_${CTM_APPL}.nc -v"    #> Hourly Avg. Particle Diagnostic
   setenv CTM_RJ_1        "$OUTDIR/CCTM_PHOTDIAG1_${CTM_APPL}.nc -v"  #> Photolysis Rxn Diagnostics
   setenv CTM_RJ_2        "$OUTDIR/CCTM_PHOTDIAG2_${CTM_APPL}.nc -v"  #> Photolysis Rates Output
-  setenv CTM_SSEMIS_1    "$OUTDIR/CCTM_SSEMIS_${CTM_APPL}.nc -v"     #> Sea Spray Emissions
-  setenv CTM_DUST_EMIS_1 "$OUTDIR/CCTM_DUSTEMIS_${CTM_APPL}.nc -v"   #> Dust Emissions
+  setenv CTM_SSEMIS_1    "$OUTDIR/CCTM_SSEMIS.${CTM_APPL}.nc -v"     #> Sea Spray Emissions
+  setenv CTM_DUST_EMIS_1 "$OUTDIR/CCTM_DUSTEMIS.${CTM_APPL}.nc -v"   #> Dust Emissions
   setenv CTM_IPR_1       "$OUTDIR/CCTM_PA_1_${CTM_APPL}.nc -v"       #> Process Analysis
   setenv CTM_IPR_2       "$OUTDIR/CCTM_PA_2_${CTM_APPL}.nc -v"       #> Process Analysis
   setenv CTM_IPR_3       "$OUTDIR/CCTM_PA_3_${CTM_APPL}.nc -v"       #> Process Analysis
@@ -381,55 +383,29 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #> create output directory 
   if ( ! -d "$OUTDIR" ) mkdir -p $OUTDIR
 
-  #> look for existing log files and output files
-  set log_test = `ls CTM_LOG_???.${CTM_APPL}`
-  set OUT_FILES = (${FLOOR_FILE} ${S_CGRID} ${CTM_CONC_1} ${A_CONC_1} ${MEDIA_CONC}         \
-             ${CTM_DRY_DEP_1} $CTM_DEPV_DIAG $CTM_PT3D_DIAG $B3GTS_S $SOILOUT $CTM_WET_DEP_1\
-             $CTM_WET_DEP_2 $CTM_VIS_1 $CTM_AVIS_1 $CTM_PMDIAG_1 $CTM_APMDIAG_1             \
-             $CTM_RJ_1 $CTM_RJ_2 $CTM_SSEMIS_1 $CTM_DUST_EMIS_1 $CTM_IPR_1 $CTM_IPR_2       \
-             $CTM_IPR_3 $CTM_IRR_1 $CTM_IRR_2 $CTM_IRR_3 $CTM_DRY_DEP_MOS                   \
-             $CTM_DRY_DEP_FST $CTM_DEPV_MOS $CTM_DEPV_FST $CTM_VDIFF_DIAG $CTM_VSED_DIAG    \
-             $CTM_AOD_1 $CTM_LTNGDIAG_1 $CTM_LTNGDIAG_2)
-  set OUT_FILES = `echo $OUT_FILES | sed "s; -v;;g" `
-  echo $OUT_FILES
-  set out_test = `ls $OUT_FILES` 
-
   #> delete previous output if requested
   if ( $DISP == 'delete' ) then
-     #> remove previous log files
-     echo " ancillary log files being deleted"
-     foreach file ( $log_test )
-        echo " deleting $file"
-        /bin/rm -f $file  
-     end
-
-     #> remove previous output files
-     echo " output files being deleted"
-     foreach file ( $out_test )
-        echo " deleting $file"
-        /bin/rm -f $file  
-     end
-
-  else
-     #> remove previous log files
-     if ( "$log_test" != "" ) then
-       echo "*** Logs exist - run ABORTED ***"
-       echo "*** To overide, set $DISP == delete in run_cctm.csh ***"
-       echo "*** and these files will be automatically deleted. ***"
-       exit 1
-     endif
-
-     #> remove previous output files
-     if ( "$out_test" != "" ) then
-       echo "*** Output Files Exist - run will be ABORTED ***"
-       foreach file ( $out_test )
-          echo " cannot delete $file"
+     #> look for existing log files
+     set test = `ls CTM_LOG_???.${CTM_APPL}`
+     if ( "$test" != "" ) then
+       echo " ancillary log files being deleted"
+       foreach file ( $test )
+          echo " deleting $file"
           /bin/rm -f $file  
        end
-       echo "*** To overide, set $DISP == delete in run_cctm.csh ***"
-       echo "*** and these files will be automatically deleted. ***"
+     else
+       echo "*** Logs exist - run ABORTED ***"
        exit 1
      endif
+
+     #> remove previous output files
+     /bin/rm -f $FLOOR_FILE $S_CGRID $CTM_CONC_1 $A_CONC_1 $MEDIA_CONC $CTM_DRY_DEP_1      \
+                $CTM_DEPV_DIAG $CTM_PT3D_DIAG $B3GTS_S $SOILOUT $CTM_WET_DEP_1             \
+                $CTM_WET_DEP_2 $CTM_VIS_1 $CTM_AVIS_1 $CTM_PMDIAG_1 $CTM_APMDIAG_1         \
+                $CTM_RJ_1 $CTM_RJ_2 $CTM_SSEMIS_1 $CTM_DUST_EMIS_1 $CTM_IPR_1 $CTM_IPR_2   \
+                $CTM_IPR_3 $CTM_IRR_1 $CTM_IRR_2 $CTM_IRR_3 $CTM_DRY_DEP_MOS               \
+                $CTM_DRY_DEP_FST $CTM_DEPV_MOS $CTM_DEPV_FST $CTM_VDIFF_DIAG $CTM_VSED_DIAG\
+                $CTM_AOD_1 $CTM_LTNGDIAG_1 $CTM_LTNGDIAG_2
   endif
 
   #> for the run control ...
@@ -469,6 +445,56 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      echo " $OPTICS_DATA  not found "
      exit 1
   endif
+# ===================================================================
+#> CMAQ-DDM-3D
+# ===================================================================
+
+#> sensitivity output files
+ setenv CTM_SENS_1      "$OUTDIR/$EXEC.SENGRID.${CTM_APPL} -v"
+ setenv A_SENS_1        "$OUTDIR/$EXEC.ASENS.${CTM_APPL} -v"
+ setenv CTM_SWETDEP_1   "$OUTDIR/$EXEC.SENWDEP.${CTM_APPL} -v"
+ setenv CTM_SDRYDEP_1   "$OUTDIR/$EXEC.SENDDEP.${CTM_APPL} -v"
+
+#> ddm-3d specific input files
+ set NPMAX    = 2
+ setenv SEN_INPUT /proj/ie/proj/staff/lizadams/CMAQv52_DDM/CMAQ_REPO/CCTM/scripts/sensinput.cmas.dat
+
+ setenv DDM3D_HIGH N     # allow higher-order sensitivity parameters [ T | Y | F | N ] (default is N/F)
+
+ setenv DDM3D_RGN N      # allows for a file specifying regions [ T | Y | F | N ] (default is N/F) set it below if Y/T
+ setenv REGIONS_1
+
+ setenv DDM3D_BCRGN N    # allows for a file specifying boundary regions [ T | Y | F | N ] (default is N/F) set it below if Y/T
+ setenv BCREGIONS_1
+
+ setenv DDM3D_ES Y       # emissions split into categories [ T | Y | F | N ] (default is N/F) set them below if Y/T
+
+ if ($NEW_START == true || $NEW_START == TRUE ) then
+    setenv DDM3D_RST N   # begins from sensitivities from a restart file [ T | Y | F | N ] (default is Y/T)
+    set S_ICpath =                                                                                                                               
+    set S_ICfile =                                                                                                                               
+ else                                                                                                                                            
+    setenv DDM3D_RST Y                                                                                                                           
+    set S_ICpath = $OUTDIR                                                                                                                       
+    set S_ICfile = $EXEC.SENGRID.${RUNID}_${YESTERDAY}                                                              
+ endif                                                                                                                                           
+
+  setenv DDM3D_BCS F      # use sensitivity bc file for nested runs [ T | Y | F | N ] (default is N/F)                                            
+  set S_BCpath =                                                                                                                                  
+  set S_BCfile =  
+
+ #source /work/MOD3EVAL/nsu/ddm_v52/ddm3d.q
+ #if ( $status ) exit 1
+
+  setenv CTM_NPMAX       $NPMAX
+  setenv     INIT_GASC_S     $S_ICpath/$S_ICfile
+  setenv     INIT_AERO_S     $S_ICpath/$S_ICfile
+  setenv     INIT_NONR_S     $S_ICpath/$S_ICfile
+  setenv     INIT_TRAC_S     $S_ICpath/$S_ICfile
+  setenv     BNDY_GASC_S     $S_BCpath/$S_BCfile
+  setenv     BNDY_AERO_S     $S_BCpath/$S_BCfile
+  setenv     BNDY_NONR_S     $S_BCpath/$S_BCfile
+
 
 # ===================================================================
 #> Execution Portion
@@ -496,9 +522,6 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 # ===================================================================
 
   #> Save Log Files and Move on to Next Simulation Day
-  if (! -e $LOGDIR ) then
-    mkdir $LOGDIR
-  endif
   mv CTM_LOG_???.${CTM_APPL} $LOGDIR
 
   #> The next simulation day will, by definition, be a restart

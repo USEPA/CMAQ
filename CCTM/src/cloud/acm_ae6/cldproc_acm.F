@@ -58,12 +58,16 @@ C                             CTM_WET_DEP_1 and CTM_WET_DEP_2 and put it in opwd
 C                             Added a section of code to let non I/O processors
 C                             open CTM_WET_DEP_1 and CTM_WET_DEP_2 for parallel I/O
 C                             implementation
-
+C    1 Dec 15 S.L.Napelenok:  ddm-3d implementaiton for version 5.1.1
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
       USE CGRID_SPCS          ! CGRID mechanism species
       USE UTILIO_DEFN
+
+#ifdef sens
+      USE DDM3D_DEFN
+#endif 
 
       IMPLICIT NONE
 
@@ -146,6 +150,12 @@ C...........Local Variables
       INTEGER      GXOFF, GYOFF              ! global origin offset from file
 C for INTERPX
       INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
+
+#ifdef sens
+      INTEGER SENNUM   ! counter over outputs
+      CHARACTER( 16)          :: S_DEPSPC                ! dep sens species name
+#endif
+
 
 C...........EXTERNAL FUNCTIONS
 
@@ -324,6 +334,36 @@ C...initialize the deposition array before processing clouds
            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
+#ifdef sens
+         ALLOCATE ( S_TOTDEP ( MY_NCOLS,MY_NROWS,NPMAX,N_SPC_WDEP+1 ),
+     &             STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'Failure allocating S_TOTDEP'
+           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+
+         S_TOTDEP = 0.0
+
+         ALLOCATE ( S_CONDEP( MY_NCOLS,MY_NROWS,NPMAX,N_SPC_WDEP+1 ),
+     &             STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'Failure allocating S_CONDEP'
+           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+
+         S_CONDEP = 0.0
+
+         ALLOCATE ( S_DEPWRT ( MY_NCOLS,MY_NROWS ),
+     &             STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'Failure allocating S_DEPWRT'
+           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+
+         S_DEPWRT = 0.0
+#endif
+
+
         CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
      &                  STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
 
@@ -369,6 +409,16 @@ C...  determine no. of moles of gas per moles of air by volume
             DO COL = 1, MY_NCOLS
               CGRID( COL, ROW, LAY, SPC ) = MAX( CGRID( COL, ROW, LAY, SPC )
      &                                    * 1.0E-6,  1.0E-30)
+#ifdef sens
+              DO NP = 1, NPMAX
+                IF ( CGRID( COL, ROW, LAY, SPC ) .LE. 1.0E-30 ) THEN
+                  SENGRID( COL, ROW, LAY, NP, SPC ) = 0.0
+                ELSE
+                  SENGRID( COL, ROW, LAY, NP, SPC ) = SENGRID( COL, ROW, LAY, NP, SPC ) 
+     &                                              * 1.0E-6
+                END IF
+              END DO
+#endif
             END DO
           END DO
         END DO
@@ -387,6 +437,15 @@ C...  convert to moles of aerosol per mole of air by volume
               FAC = CNV1 / DENS( COL, ROW, LAY ) / AE_MOLWT( SPC - AE_STRT + 1 )
               CCMIN = MAX( CGRID( COL, ROW, LAY, SPC ), 1.0E-30/FAC )
               CGRID( COL, ROW, LAY, SPC ) = FAC * CCMIN
+#ifdef sens
+              DO NP = 1, NPMAX
+                IF ( CGRID( COL, ROW, LAY, SPC ) .LE. 1.0E-30 ) THEN
+                   SENGRID( COL, ROW, LAY, NP, SPC ) = 0.0
+                ELSE
+                   SENGRID( COL, ROW, LAY, NP, SPC ) = FAC * SENGRID( COL, ROW, LAY, NP, SPC )
+                ENDIF
+              END DO
+#endif
             END DO
           END DO
         END DO
@@ -405,6 +464,15 @@ C...    convert to # per mole of air by volume
               FAC = CNV3 / DENS( COL, ROW, LAY )
               CCMIN = MAX( CGRID( COL, ROW, LAY, SPC ), 1.0E-30/FAC )
               CGRID( COL, ROW, LAY, SPC ) = FAC * CCMIN
+#ifdef sens
+              DO NP = 1, NPMAX
+                IF ( CGRID( COL, ROW, LAY, SPC ) .LE. 1.0E-30 ) THEN
+                   SENGRID( COL, ROW, LAY, NP, SPC ) = 0.0
+                ELSE
+                   SENGRID( COL, ROW, LAY, NP, SPC ) = FAC * SENGRID( COL, ROW, LAY, NP, SPC )
+                ENDIF
+              END DO
+#endif
             END DO
           END DO
         END DO
@@ -423,6 +491,15 @@ C...    convert to m2 per mole of air by volume
               FAC = CNV2 / DENS( COL, ROW, LAY )
               CCMIN = MAX( CGRID( COL, ROW, LAY, SPC ), 1.0E-30/FAC )
               CGRID( COL, ROW, LAY, SPC ) = FAC * CCMIN
+#ifdef sens
+              DO NP = 1, NPMAX
+                IF ( CGRID( COL, ROW, LAY, SPC ) .LE. 1.0E-30 ) THEN
+                   SENGRID( COL, ROW, LAY, NP, SPC ) = 0.0
+                ELSE
+                   SENGRID( COL, ROW, LAY, NP, SPC ) = FAC * SENGRID( COL, ROW, LAY, NP, SPC )
+                ENDIF
+              END DO
+#endif
             END DO
           END DO
         END DO
@@ -438,6 +515,16 @@ C...determine no. of moles of non-reactive gas per moles of air by volume
             DO COL = 1, MY_NCOLS
               CGRID( COL, ROW, LAY, SPC ) = MAX( CGRID( COL, ROW, LAY, SPC )
      &                                    * 1.0E-6, 1.0E-30 )
+#ifdef sens
+              DO NP = 1, NPMAX
+                IF ( CGRID( COL, ROW, LAY, SPC ) .LE. 1.0E-30 ) THEN
+                   SENGRID( COL, ROW, LAY, NP, SPC ) = 0.0
+                ELSE
+                   SENGRID( COL, ROW, LAY, NP, SPC ) = SENGRID( COL, ROW, LAY, NP, SPC )
+     &                                               * 1.0E-6
+                ENDIF
+              END DO
+#endif
             END DO
           END DO
         END DO
@@ -453,6 +540,16 @@ C...determine no. of moles of tracer gas per moles of air by volume
             DO COL = 1, MY_NCOLS
               CGRID( COL, ROW, LAY, SPC ) = MAX( CGRID( COL, ROW, LAY, SPC )
      &                                    * 1.0E-6, 1.0E-30 )
+#ifdef sens
+              DO NP = 1, NPMAX
+                IF ( CGRID( COL, ROW, LAY, SPC ) .LE. 1.0E-30 ) THEN
+                  SENGRID( COL, ROW, LAY, NP, SPC ) = 0.0
+                ELSE
+                  SENGRID( COL, ROW, LAY, NP, SPC ) = SENGRID( COL, ROW, LAY, NP, SPC ) 
+     &                                           * 1.0E-6
+                END IF
+              END DO
+#endif
             END DO
           END DO
         END DO
@@ -481,6 +578,13 @@ C...now check to see if it's time to write the deposition file
             DO COL = 1, MY_NCOLS
               TOT_DEP( COL, ROW, VAR ) = TOT_DEP ( COL, ROW, VAR )
      &                                 + CONV_DEP( COL, ROW, VAR )
+#ifdef sens
+              DO NP = 1, NPMAX
+                 S_TOTDEP( COL, ROW, NP, VAR ) =
+     &                 S_TOTDEP( COL, ROW, NP, VAR )
+     &               + S_CONDEP( COL, ROW, NP, VAR )
+              END DO
+#endif
             END DO
           END DO
         END DO
@@ -515,6 +619,114 @@ C...write data to the normal wet deposition file
      &         'Timestep written to', CTM_WET_DEP_1,
      &         'for date and time', NDATE, NTIME
 
+#ifdef sens
+C...write data to the sensitivity wet deposition file
+c gas species
+         SPC = 0
+         STRT = 1
+         FINI = N_GC_WDEP
+         DO VAR = STRT, FINI
+           SPC = SPC + 1
+           DO NP = 1, NPMAX
+             S_DEPSPC = TRIM( GC_WDEP( SPC )( 1:7 ) ) //'_'// SEN_PAR( NP )
+             DO ROW = 1, MY_NROWS
+               DO COL = 1, MY_NCOLS
+                 S_DEPWRT( COL,ROW ) = S_TOTDEP( COL,ROW,NP,VAR )
+               END DO
+             END DO
+             IF ( .NOT. WRITE3( CTM_SWETDEP_1, S_DEPSPC,
+     &                          NDATE, NTIME, S_DEPWRT ) ) THEN
+               XMSG = 'Could not write ' // CTM_SWETDEP_1 // ' file'
+               CALL M3EXIT ( PNAME, NDATE, NTIME, XMSG, XSTAT1 )
+             END IF
+           END DO
+         END DO
+
+c aerosol species
+         SPC = 0
+         STRT = N_GC_WDEP + 1
+         FINI = N_GC_WDEP + N_AE_WDEP
+         DO VAR = STRT, FINI
+           SPC = SPC + 1
+           DO NP = 1, NPMAX
+             S_DEPSPC = TRIM( AE_WDEP( SPC )( 1:7 ) ) //'_'// SEN_PAR( NP )
+             DO ROW = 1, MY_NROWS
+               DO COL = 1, MY_NCOLS
+                 S_DEPWRT( COL,ROW ) = S_TOTDEP( COL,ROW,NP,VAR )
+               END DO
+             END DO
+             IF ( .NOT. WRITE3( CTM_SWETDEP_1, S_DEPSPC,
+     &                          NDATE, NTIME, S_DEPWRT ) ) THEN
+               XMSG = 'Could not write ' // CTM_SWETDEP_1 // ' file'
+               CALL M3EXIT ( PNAME, NDATE, NTIME, XMSG, XSTAT1 )
+             END IF
+           END DO
+         END DO
+
+c non-reactive species
+         SPC = 0
+         STRT = N_GC_WDEP + N_AE_WDEP + 1
+         FINI = N_GC_WDEP + N_AE_WDEP + N_NR_WDEP
+         DO VAR = STRT, FINI
+           SPC = SPC + 1
+           DO NP = 1, NPMAX
+             S_DEPSPC = TRIM( NR_WDEP( SPC )( 1:7 ) ) //'_'// SEN_PAR( NP )
+             DO ROW = 1, MY_NROWS
+               DO COL = 1, MY_NCOLS
+                 S_DEPWRT( COL,ROW ) = S_TOTDEP( COL,ROW,NP,VAR )
+               END DO
+             END DO
+             IF ( .NOT. WRITE3( CTM_SWETDEP_1, S_DEPSPC,
+     &                          NDATE, NTIME, S_DEPWRT ) ) THEN
+               XMSG = 'Could not write ' // CTM_SWETDEP_1 // ' file'
+               CALL M3EXIT ( PNAME, NDATE, NTIME, XMSG, XSTAT1 )
+             END IF
+           END DO
+         END DO
+
+c tracer species
+         SPC = 0
+         STRT = N_GC_WDEP + N_AE_WDEP + N_NR_WDEP + 1
+         FINI = N_GC_WDEP + N_AE_WDEP + N_NR_WDEP + N_TR_WDEP
+         DO VAR = STRT, FINI
+           SPC = SPC + 1
+           DO NP = 1, NPMAX
+             S_DEPSPC = TRIM( TR_WDEP( SPC )( 1:7 ) ) //'_'// SEN_PAR( NP )
+             DO ROW = 1, MY_NROWS
+               DO COL = 1, MY_NCOLS
+                 S_DEPWRT( COL,ROW ) = S_TOTDEP( COL,ROW,NP,VAR )
+               END DO
+             END DO
+             IF ( .NOT. WRITE3( CTM_SWETDEP_1, S_DEPSPC,
+     &                          NDATE, NTIME, S_DEPWRT ) ) THEN
+               XMSG = 'Could not write ' // CTM_SWETDEP_1 // ' file'
+               CALL M3EXIT ( PNAME, NDATE, NTIME, XMSG, XSTAT1 )
+             END IF
+           END DO
+         END DO
+
+c hydrogen
+         VAR =  N_GC_WDEP + N_AE_WDEP + N_NR_WDEP + N_TR_WDEP + 1
+         DO NP = 1, NPMAX
+           S_DEPSPC = 'HPLUS_'// SEN_PAR( NP )
+           DO ROW = 1, MY_NROWS
+             DO COL = 1, MY_NCOLS
+               S_DEPWRT( COL,ROW ) = S_TOTDEP( COL,ROW,NP,VAR )
+             END DO
+           END DO
+           IF ( .NOT. WRITE3( CTM_SWETDEP_1, S_DEPSPC,
+     &                        NDATE, NTIME, S_DEPWRT ) ) THEN
+             XMSG = 'Could not write ' // CTM_SWETDEP_1 // ' file'
+             CALL M3EXIT ( PNAME, NDATE, NTIME, XMSG, XSTAT1 )
+           END IF
+         END DO
+
+        WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6)' )
+     &         'Timestep written to', CTM_SWETDEP_1,
+     &         'for date and time', NDATE, NTIME
+
+#endif
+
 C...write data to the diagnostic file if requested by the user
 
         IF ( CLD_DIAG ) THEN
@@ -536,6 +748,11 @@ C...reinitialize deposition array
         TOT_DEP  = 0.0
         CONV_DEP = 0.0
 
+#ifdef sens
+        S_TOTDEP = 0.0
+        S_CONDEP = 0.0
+#endif
+
       END IF   ! time to write
 
 C...convert units on cgrid back to original units
@@ -549,6 +766,12 @@ C...  convert to ppmV gas
             DO COL = 1, MY_NCOLS
               CGRID( COL, ROW, LAY, SPC ) = CGRID( COL, ROW, LAY, SPC )
      &                                    * 1.0E+6
+#ifdef sens
+              DO NP = 1, NPMAX
+                SENGRID( COL, ROW, LAY, NP, SPC ) =
+     &               SENGRID( COL, ROW, LAY, NP, SPC ) * 1.0E+6
+              END DO
+#endif
             END DO
           END DO
         END DO
@@ -566,6 +789,12 @@ C...convert to ug/m3 of aerosol mass
               FAC = CNV1I * DENS( COL, ROW, LAY )
               CGRID( COL, ROW, LAY, SPC ) = FAC * CGRID( COL, ROW, LAY, SPC )
      &                                    * AE_MOLWT( SPC - AE_STRT + 1 )
+#ifdef sens
+              DO NP = 1, NPMAX
+                SENGRID( COL, ROW, LAY, NP, SPC ) = FAC * SENGRID( COL, ROW, LAY, NP, SPC )
+     &                                            * AE_MOLWT( SPC - AE_STRT + 1 )
+              END DO
+#endif
             END DO
           END DO
         END DO
@@ -582,6 +811,11 @@ C...convert to #/m3 of aerosol number
             DO COL = 1, MY_NCOLS
               FAC = CNV3I * DENS( COL, ROW, LAY )
               CGRID( COL, ROW, LAY, SPC ) = FAC * CGRID( COL, ROW, LAY, SPC )
+#ifdef sens
+              DO NP = 1, NPMAX
+                SENGRID( COL, ROW, LAY, NP, SPC ) = FAC * SENGRID( COL, ROW, LAY, NP, SPC )
+              END DO
+#endif
             END DO
           END DO
         END DO
@@ -598,6 +832,11 @@ C...convert to m2/m3 of aerosol surface area
             DO COL = 1, MY_NCOLS
               FAC = CNV2I * DENS( COL, ROW, LAY )
               CGRID( COL, ROW, LAY, SPC ) = FAC * CGRID( COL, ROW, LAY, SPC )
+#ifdef sens
+              DO NP = 1, NPMAX
+                SENGRID( COL, ROW, LAY, NP, SPC ) = FAC * SENGRID( COL, ROW, LAY, NP, SPC )
+              END DO
+#endif
             END DO
           END DO
         END DO
@@ -613,6 +852,12 @@ C...convert to ppmV non-reactive gas
             DO COL = 1, MY_NCOLS
               CGRID( COL, ROW, LAY, SPC ) = CGRID( COL, ROW, LAY, SPC )
      &                                    * 1.0E+6
+#ifdef sens
+              DO NP = 1, NPMAX
+                SENGRID( COL, ROW, LAY, NP, SPC ) = SENGRID( COL, ROW, LAY, NP, SPC )
+     &                                            * 1.0E+6
+              END DO
+#endif
             END DO
           END DO
         END DO
@@ -628,6 +873,12 @@ C...convert to ppmV tracer gas
             DO COL = 1, MY_NCOLS
               CGRID( COL, ROW, LAY, SPC ) = CGRID( COL, ROW, LAY, SPC )
      &                                    * 1.0E+6
+#ifdef sens
+              DO NP = 1, NPMAX
+                SENGRID( COL, ROW, LAY, NP, SPC ) = SENGRID( COL, ROW, LAY, NP, SPC )
+     &                                           * 1.0E+6
+              END DO
+#endif
             END DO
           END DO
         END DO

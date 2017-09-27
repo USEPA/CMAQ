@@ -55,8 +55,12 @@ C   Aug 2015 D. Wong:    Replaced MYPE with IO_PE_INCLUSIVE to facilitate
 C                          parallel I/O implementation
 C                        Added a block of code to let non I/O processors to
 C                          open CTM_DEPV_DIAG in parallel I/O implementation
+C  18 Jun 17 S.L.Napelenok: ddm-3d implementation for cmaq5.2
 C-------------------------------------------------------------------------------
 
+#ifdef sens
+      USE DDM3D_DEFN, ONLY : NP, NPMAX, S_PVD, S_CGRIDL1, S_CMP, S_PLDV
+#endif
 
       IMPLICIT NONE
 
@@ -137,7 +141,7 @@ C for INTERPX
       REAL,    ALLOCATABLE, SAVE :: UCROSS( :,:,:)
       REAL,    ALLOCATABLE, SAVE :: VCROSS( :,:,:)
       REAL,    ALLOCATABLE, SAVE :: DLUSE( :,: )
-      
+     
       CONTAINS
 
 C-----------------------------------------------------------------------
@@ -259,6 +263,16 @@ C-----------------------------------------------------------------------
             CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
             SUCCESS = .FALSE.; RETURN
          END IF
+
+#ifdef sens
+         ALLOCATE ( S_PLDV( NPMAX,N_SPC_DEPV,NCOLS,NROWS ), STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating S_PLDV array'
+            CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+            SUCCESS = .FALSE.; RETURN
+         END IF
+         S_PLDV = 0.0   ! array assignment
+#endif
 
 C DEPVEL_GAS is used also for non-ILDEPV in the sgtot calculation
          ALLOCATE ( DEPVEL_GAS( N_GAS_DEPV,NCOLS,NROWS ), STAT = ALLOCSTAT )
@@ -579,6 +593,17 @@ C Identify and remove multiple occurrences of aerosol deposition velocities
                   SUCCESS = .FALSE.; RETURN
                END IF
                CGRIDL1 = 0.0   ! array assignment (PVD initalized in m3dry)
+#ifdef sens
+               ALLOCATE ( S_CGRIDL1( NPMAX,N_GAS_DEPV,NCOLS,NROWS ),
+     &                    S_PVD    ( NPMAX,N_GAS_DEPV,NCOLS,NROWS ), 
+     &                    S_CMP    ( NPMAX,LCMP,NCOLS,NROWS),STAT = ALLOCSTAT )
+               IF ( ALLOCSTAT .NE. 0 ) THEN
+                  XMSG = 'Failure allocating S_CGRIDL1, S_CMP or S_PVD arrays'
+                  CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+                  SUCCESS = .FALSE.; RETURN
+               END IF
+               S_CGRIDL1 = 0.0
+#endif
             END IF
 
 C Get diagnostic file flag.
@@ -777,6 +802,11 @@ C-----------------------------------------------------------------------
                   DO C = 1, MY_NCOLS
                      DEPV( V,C,R ) = GC_DEPV_FAC( N ) * DEPVEL_GAS( NDX,C,R )
                      PLDV( V,C,R ) = PVD( NDX,C,R )
+#ifdef sens
+                     DO NP = 1, NPMAX
+                        S_PLDV( NP,V,C,R ) = S_PVD( NP,NDX,C,R )
+                     END DO
+#endif
 #ifdef Verbose
                      if ( c .eq. cw .and. r .eq. rw ) then
                         write( logdev,1039 ) v, n, gc_depv( n ), ndx,
@@ -807,6 +837,11 @@ C-----------------------------------------------------------------------
                   DO C = 1, MY_NCOLS
                      DEPV( V,C,R ) = NR_DEPV_FAC( N ) * DEPVEL_GAS( NDX,C,R )
                      PLDV( V,C,R ) = PVD( NDX,C,R )
+#ifdef sens
+                     DO NP = 1, NPMAX
+                        S_PLDV( NP,V,C,R ) = S_PVD( NP,NDX,C,R )
+                     END DO
+#endif
 #ifdef Verbose
                      if ( c == cw .and. r == rw ) then
                         write( logdev,1039 ) v, n, nr_depv( n ), ndx,
@@ -836,6 +871,11 @@ C-----------------------------------------------------------------------
                   DO C = 1, MY_NCOLS
                      DEPV( V,C,R ) = TR_DEPV_FAC( N ) * DEPVEL_GAS( NDX,C,R )
                      PLDV( V,C,R ) = PVD( NDX,C,R )
+#ifdef sens
+                     DO NP = 1, NPMAX
+                        S_PLDV( NP,V,C,R ) = S_PVD( NP,NDX,C,R )
+                     END DO
+#endif
 #ifdef Verbose
                      if ( c == cw .and. r == rw ) then
                         write( logdev,1039 ) v, n, tr_depv( n ), ndx,

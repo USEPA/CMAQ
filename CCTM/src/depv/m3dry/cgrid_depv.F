@@ -37,11 +37,16 @@ C Revision History:
 C   Jeff Young 11 Jan 07: created
 C   21 Jun 10 J.Young: convert for Namelist redesign
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN;
+C   18 Jun 17 S.L.Napelenok: ddm-3d implementation for cmaq5.2
 C-----------------------------------------------------------------------
 
       USE CGRID_SPCS            ! CGRID mechanism species
       USE HGRD_DEFN             ! horizontal domain specifications
       USE UTILIO_DEFN
+
+#ifdef sens
+      USE DDM3D_DEFN, ONLY : NP, NPMAX, SENGRID, S_CGRIDL1
+#endif
 
 C Arguments:
 
@@ -73,6 +78,11 @@ C-----------------------------------------------------------------------
             DO R = 1, MY_NROWS
                DO C = 1, MY_NCOLS
                   CGRIDL1( NDX,C,R ) = CGRID( C,R,1,S )
+#ifdef sens
+                  DO NP = 1, NPMAX
+                     S_CGRIDL1( NP,NDX,C,R ) = SENGRID( C,R,1,NP,S )
+                  ENDDO
+#endif
                END DO
             END DO
          END IF
@@ -88,6 +98,11 @@ C-----------------------------------------------------------------------
             DO R = 1, MY_NROWS
                DO C = 1, MY_NCOLS
                   CGRIDL1( NDX,C,R ) = CGRID( C,R,1,S )
+#ifdef sens
+                  DO NP = 1, NPMAX
+                     S_CGRIDL1( NP,NDX,C,R ) = SENGRID( C,R,1,NP,S )
+                  ENDDO
+#endif
                END DO
             END DO
          END IF
@@ -103,6 +118,11 @@ C-----------------------------------------------------------------------
             DO R = 1, MY_NROWS
                DO C = 1, MY_NCOLS
                   CGRIDL1( NDX,C,R ) = CGRID( C,R,1,S )
+#ifdef sens
+                  DO NP = 1, NPMAX
+                     S_CGRIDL1( NP,NDX,C,R ) = SENGRID( C,R,1,NP,S )
+                  ENDDO
+#endif
                END DO
             END DO
          END IF

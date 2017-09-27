@@ -75,6 +75,8 @@ C             see Pitchford et al., Journal of the Air & Waste Management Associ
 C PL 05/15/16 Add "om" in spcs_type, to flag organic aerosols, which
 C             will be used to calculate total mass of organic aerosls for estimating
 C             aerosol extinction efficiency
+C SLN 07/05/16 Ddm-3d implementaiton for version 5.2
+
 
 C References:
 C 1. Eddingsaas, N. C., Vandervelde, D. G., Wennberg, P. O., "Kinetics and
@@ -108,6 +110,10 @@ C In the Fortran user-derived spcs_type, below, visual_idx is an optimal dry mas
 C extinction efficiency [m^2/g], see White, Atmos.Env., 294(10)(1990), pp 2673-1672
 C and Malm, et al., JGR, 99(D1)(1994), pp 1347-1370
 C----------------------------------------------------------------------
+#ifdef sens
+      USE DDM3D_DEFN, ONLY : NP, NPMAX
+      Use aero6_ddm3d, ONLY : s_aerospc_conc, ae_ddm3d_ready, init_aero6_ddm3d, s_aerospc_conc, npmax
+#endif 
 
       Implicit None
 
@@ -717,6 +723,11 @@ C Build mapping to CGRID for each species in the master AeroList
       Allocate ( aeronum_map ( n_aerospc ) )
       Allocate ( aerosrf_map ( n_aerospc ) )
 
+
+#ifdef sens
+      Allocate ( s_aerospc_conc( n_aerospc,n_mode,npmax ) )
+#endif
+
       aerospc_ssf = 0.0
 
       Do spc = 1, n_aerospc ! Loop through user-requested chemical species
@@ -1149,7 +1160,11 @@ C Check that all emissions units match
       End Subroutine map_pmemis
 
 C-----------------------------------------------------------------------
+#ifdef sens
+      Subroutine extract_aero( conc, minchk, s_conc, schk )
+#else
       Subroutine extract_aero( conc, minchk )
+#endif
 
 C  Extracts aerosol data into the AERO_DATA:aerospc_conc array
 C  The original idea is that the data for conc comes from CGRID
@@ -1168,6 +1183,10 @@ C-----------------------------------------------------------------------
 C Arguments:
       Real,    Intent( In ) :: conc( : )
       Logical, Intent( In ) :: minchk
+#ifdef sens
+      Real,    Intent( In ) :: s_conc( :,: )
+      Logical, Intent( In ) :: schk  ! necessary because some routines don't require sensitivity updates
+#endif
 
 C Local Variables:
       Integer m, n, spc
@@ -1176,14 +1195,39 @@ C Local Variables:
          Call map_aero()
       End If
 
+#ifdef sens
+      If ( schk ) Then
+         If ( .Not. ae_ddm3d_ready ) Then
+            Call init_aero6_ddm3d()
+         End If
+      End If
+#endif
+
 C Copy grid cell concentrations of aero species to aerospc_conc
       aerospc_conc = 0.0
+#ifdef sens
+      If ( schk ) Then
+         s_aerospc_conc = 0.0D0
+      End If
+#endif
+
       If ( minchk ) Then
          Do m = 1, n_mode
             Do spc = 1, n_aerospc
                n = aerospc_map( spc,m )
                If ( n .Ne. 0 ) Then
                   aerospc_conc( spc,m ) = Max( conc( n ), aerospc( spc )%min_conc( m ) ) ! [ug/m^3]
+#ifdef sens
+                  If ( schk ) Then
+                     Do np = 1, npmax
+                        If ( aerospc_conc( spc,m ) .Eq. aerospc( spc )%min_conc( m ) ) Then
+                           s_aerospc_conc( spc,m,np ) = 0.0D0
+                        Else
+                           s_aerospc_conc( spc,m,np ) = Real( s_conc( np,n ), 8 )
+                        End If
+                     End Do
+                  End If
+#endif
                End If
             End Do
          End Do
@@ -1193,6 +1237,13 @@ C Copy grid cell concentrations of aero species to aerospc_conc
                n = aerospc_map( spc,m )
                If ( n .Ne. 0 ) Then
                   aerospc_conc( spc,m ) = conc( n )   ! [ug/m^3]
+#ifdef sens
+                  If ( schk ) Then
+                     Do np = 1, npmax
+                        s_aerospc_conc( spc,m,np ) = Real( s_conc( np,n ), 8 )
+                     End Do
+                  End If
+#endif
                End If
             End Do
          End Do
@@ -1239,7 +1290,11 @@ C flag will be set to .true.
       End Subroutine extract_aero
 
 C-----------------------------------------------------------------------
+#ifdef sens
+      Subroutine update_aero( conc, minchk, s_conc )
+#else
       Subroutine update_aero( conc, minchk )
+#endif
 
 C  Updates conc from the AERO_DATA:aerospc_conc array.
 C  The original idea is that the data in conc updates CGRID
@@ -1260,6 +1315,9 @@ C-----------------------------------------------------------------------
 C Arguments:
       Real, Intent( Out ) :: conc( : )
       Logical, Intent( In ) :: minchk
+#ifdef sens 
+      Real,    Intent( Out ) :: s_conc( :,: )
+#endif
 
 C Local variables:
       Character( 80 ) :: xmsg
@@ -1278,6 +1336,15 @@ C Copy aerospc_conc back to grid cell concentrations
                n = aerospc_map( spc,m )
                If ( n .Ne. 0 ) Then
                     conc( n ) = Max( aerospc_conc( spc,m ), aerospc( spc )%min_conc( m ) )
+#ifdef sens
+                    Do np = 1, npmax
+                       If ( conc( n ) .Eq. aerospc( spc )%min_conc( m ) ) Then
+                          s_conc( np,n ) = 0.0
+                       Else
+                          s_conc( np,n ) = Real( s_aerospc_conc( spc,m,np ), 4 )
+                       End If
+                    End Do
+#endif
                End If
             End Do
          End Do
@@ -1287,6 +1354,11 @@ C Copy aerospc_conc back to grid cell concentrations
                n = aerospc_map( spc,m )
                If ( n .Ne. 0 ) Then
                     conc( n ) = aerospc_conc( spc,m )
+#ifdef sens
+                    Do np = 1, npmax
+                       s_conc( np,n ) = Real( s_aerospc_conc( spc,m,np ), 4 )
+                    End Do
+#endif
                End If
             End Do
          End Do

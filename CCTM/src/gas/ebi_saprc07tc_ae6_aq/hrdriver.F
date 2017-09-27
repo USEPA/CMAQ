@@ -59,7 +59,13 @@ C                        how degrade routines are used, if present
 C   02 Dec 14 B.Hutzell: 1) added terrestrial data to conduct surface
 C                        dependent reactions and 2) modified the call CALC_RCONST
 C                        routine
+C    9 Nov 15 S.L.Napelenok: ddm-3d implementaiton for version 5.1.1
 C**********************************************************************
+
+#ifdef sens
+      USE DDM3D_CHEM
+      Use DDM3D_DEFN, Only: DATENUM, STARTDATE, IPT, IDATE, IPARM, HIGH, NP, NPMAX, CKTIME
+#endif 
 
       USE HGRD_DEFN             ! horizontal domain specifications
       USE VGRD_DEFN             ! vertical layer specifications
@@ -284,6 +290,10 @@ C.. Get fractional surf-zone coverage from the OCEAN file.
 
          LFIRST = .FALSE.
 
+#ifdef sens
+         CALL INIT_DDM3D_CHEM()
+#endif
+
       END IF      ! First time
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -365,6 +375,32 @@ C.. Get photolysis rates in 1/min
 C.. Get Heteorogeneous rates and Update Aerosol Distribution Properties
       CALL HETCHEM_RATES( TA, PRES, QV, CGRID )
 
+#ifdef sens
+      DATENUM = 1 + JDATE - STARTDATE !  Set the date and hour counters used in sensitivity calls
+
+C For reaction rate sensitivities
+      DO NP = 1, NPMAX
+         IF ( IPT( NP ) .EQ. 5 ) THEN
+            CALL CKTIME( JDATE,JTIME,NP,RXNFLAG(NP) ) ! Rxnflag set to true iff ipt=5 and time, date within bounds
+            IF ( IDATE( NP, DATENUM ) .NE. 1 ) RXNFLAG( NP ) = .FALSE.
+         ELSE
+            RXNFLAG( NP ) = .FALSE.
+         END IF
+      END DO
+
+C For higher order sensitivities
+      IF ( HIGH ) THEN
+         DO RXN = 1, NRXNS
+            IF( NREACT( RXN ) .EQ. 1 ) THEN
+               ORDER1( RXN ) = .TRUE.
+            ELSE
+               ORDER1( RXN ) = .FALSE.
+            END IF
+         END DO
+      END IF
+#endif sens
+
+
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Top of loop over cells
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -438,6 +474,22 @@ c..Update concentration array
                       CGRID( C,R,L,S ) = REAL( MAX( YC( SPC ), DCONMIN), 4)
                   END IF
                END DO
+
+#ifdef sens
+               DO RXN = 1, NRXNS
+                  SRK( RXN ) = RKI( RXN )
+                  IF ( HIGH ) THEN
+                     IF ( ORDER1 (RXN ) ) THEN
+                        SRK2( RXN ) = 0.0
+                     ELSE
+                        SRK2( RXN ) = RKI( RXN )
+                     END IF
+                  END IF
+               END DO
+
+
+               CALL SOLVE_DDM3D_CHEM( C,R,L,CHEMSTEP )
+#endif
 
 
             END DO

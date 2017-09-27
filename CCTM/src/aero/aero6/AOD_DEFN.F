@@ -217,7 +217,11 @@ C         AERO_DATA.F. Moments are wet after extract_aero
 
 ! compute extinction, 1/km
 ! extract_aero will compute the wet second and third moments
+#ifdef sens
+                  call extract_aero( conc_cr( k,: ), .false., conc_cr( :,: ), .false. ) 
+#else
                   call extract_aero( conc_cr( k,: ), .false. )
+#endif
                   call getpar( .false. )
 
                   call get_extinc( airrh, ext_cr( k ) )

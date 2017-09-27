@@ -88,6 +88,9 @@ C   24 Sep 13 D.Wong:  Computed AGRID at the output mark of the model
 C                      indicated in TSTEP(1) for twoway model
 C   21 Apr 14 D.Wong:  Removed M3EXIT call in SHUT3 block
 C   07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
+C   Aug 2015 D.Wong:   Replaced MYPE with IO_PE_INCLUSIVE for parallel
+C                        I/O implementation
+C   28 Sep 15 S.Napelenok: ddm3d for cmaq5.1
 C   10 Aug 15 D.Wong:  Replaced MYPE with IO_PE_INCLUSIVE for parallel
 C                      I/O implementation
 C   10 Dec 15 D.Wong:  Moved the code which determines which processors are involved
@@ -118,6 +121,11 @@ C-----------------------------------------------------------------------
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_INIT_MODULE)
 #endif
+
+#ifdef sens
+      USE DDM3D_DEFN
+      USE S_PCGRID_DEFN
+#endif 
 
       IMPLICIT NONE
 
@@ -226,6 +234,16 @@ C Local variables:
             REAL, POINTER            :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )    :: JDATE, JTIME
          END SUBROUTINE PA_OUTPUT
+#ifdef sens
+         SUBROUTINE WR_SENGRID ( JDATE, JTIME, TSTEP )
+            IMPLICIT NONE
+            INTEGER, INTENT( IN )    :: JDATE, JTIME, TSTEP
+         END SUBROUTINE WR_SENGRID
+         SUBROUTINE WR_ASENS ( JDATE, JTIME, TSTEP )
+            IMPLICIT NONE
+            INTEGER, INTENT( IN )    :: JDATE, JTIME, TSTEP
+         END SUBROUTINE WR_ASENS
+#endif
       END INTERFACE
 
 C-----------------------------------------------------------------------
@@ -353,6 +371,28 @@ C Get avg CONC definitions, species and layer pointers (in AVG_CONC F90 module)
          CALL A_CONC_DEFN ()
          A_NLYS = ACONC_ELEV - ACONC_BLEV + 1
 
+#ifdef sens
+C Initialize ddm3d calculations
+         CALL INIT_DDM3D
+
+         IF ( .NOT. S_PCGRID_IN( NPMAX ) ) THEN
+            XMSG = 'Failure defining horizontal sens domain'
+            CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT2  )
+         END IF
+
+         SENGRID => S_PCGRID(1:MY_NCOLS,1:MY_NROWS,:,:,:)
+         SENGRID_TEMP => S_PCGRID_TEMP(1:MY_NCOLS,1:MY_NROWS,:,:)
+
+         ALLOCATE ( SAGRID( MY_NCOLS,MY_NROWS,A_NLYS,NPMAX,N_ASPCS ), STAT = STATUS)
+         IF ( STATUS .NE. 0 ) THEN
+            XMSG = 'SAGRID memory allocation failed'
+            CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
+         END IF
+
+         SAGRID = 0.0
+#endif
+
+
 C Initialize optional derived vertical velocity writes to conc file
          IF ( .NOT. WVEL_INIT () ) THEN
             XMSG = 'Failure initializing derived vertical velocity writes'
@@ -364,6 +404,10 @@ C Convention: the input file concentration units are always ppmV.
          CALL INITSCEN ( CGRID, STDATE, STTIME, TSTEP, NSTEPS )
          JDATE = STDATE; JTIME = STTIME
          CALL CKSUMMER ( 'INITSCEN', CGRID, JDATE, JTIME )
+
+#ifdef sens
+         STARTDATE = STDATE   ! save variable into DDM3D module
+#endif
 
          IF ( LIPR .OR. LIRR ) CALL PA_INIT ( CGRID, JDATE, JTIME, TSTEP )
 
@@ -433,6 +477,11 @@ C Get synchronization and advection time steps, TSTEP(2), ASTEP(L) and NREPS
                   DO R = 1, MY_NROWS
                      DO C = 1, MY_NCOLS
                         AGRID( C,R,L,V ) = CGRID( C,R,K,S )
+#ifdef sens
+                           DO NP = 1, NPMAX
+                              SAGRID( C,R,L,NP,V ) = SENGRID( C,R,K,NP,S )
+                           END DO
+#endif
                      END DO
                   END DO
                END DO
@@ -462,6 +511,12 @@ C science process sequence:
                      DO C = 1, MY_NCOLS
                         AGRID( C,R,L,V ) = AGRID( C,R,L,V )
      &                                   + 2.0 * CGRID( C,R,K,S )
+#ifdef sens
+                           DO NP = 1, NPMAX
+                              SAGRID( C,R,L,NP,V ) = SAGRID( C,R,L,NP,V )
+     &                                             + 2.0 * SENGRID( C,R,K,NP,S )
+                           END DO
+#endif
                      END DO
                   END DO
                END DO
@@ -484,6 +539,12 @@ C science process sequence:
                      DO C = 1, MY_NCOLS
                         AGRID( C,R,L,V ) = DIVFAC * ( AGRID( C,R,L,V )
      &                                   -            CGRID( C,R,K,S ) )
+#ifdef sens
+                           DO NP = 1, NPMAX
+                              SAGRID( C,R,L,NP,V ) = DIVFAC * ( SAGRID( C,R,L,NP,V )
+     &                                             -            SENGRID( C,R,K,NP,S ) )
+                           END DO
+#endif
                      END DO
                   END DO
                END DO
@@ -511,7 +572,11 @@ C write conc fields
             CALL WR_CONC ( JDATE, JTIME, TSTEP( 1 ) )
             CALL WR_ACONC ( AGRID, JDATE, JTIME, TSTEP( 1 ) )
             IF ( LIPR .OR. LIRR ) CALL PA_OUTPUT ( CGRID, JDATE, JTIME )
+#ifdef sens
+            CALL WR_ASENS ( JDATE, JTIME, TSTEP( 1 ) )
+#endif
          END IF
+
 
 #ifdef twoway
          IF ( SD_TIME_SERIES ) THEN
@@ -526,6 +591,9 @@ C write conc fields
       IF ( ( STEP_COUNT .EQ. TOTAL_STEPS ) .OR. ( TOTAL_STEPS .EQ. 0 ) ) THEN
 C write CGRID state file for subsequent runs
          CALL WR_CGRID ( CGRID, JDATE, JTIME, TSTEP( 1 ) )
+#ifdef sens
+         CALL WR_SENGRID ( JDATE, JTIME, TSTEP( 1 )  ) 
+#endif
       END IF
 
 #ifdef twoway

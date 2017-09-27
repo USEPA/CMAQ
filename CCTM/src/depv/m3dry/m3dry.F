@@ -144,7 +144,12 @@ C          14 Nov 2013  Added MPAN as an explicit species, separating it from PA
 C          28 Aug 2014  G. Sarwar: added deposition data for CLNO2
 C           7 Nov 2014  J. Bash: Modified for the restructuring of vidff. Moved constants and data to 
 C                       ASX_DATA_MOD.
+C          18 Jun 2017  S.L.Napelenok: ddm-3d implementation for cmaq5.2
 C-------------------------------------------------------------------------------
+
+#ifdef sens
+      USE DDM3D_DEFN, ONLY : NP, NPMAX, S_PVD, S_CGRIDL1, S_CMP 
+#endif
 
       USE HGRD_DEFN      ! horizontal grid specifications
       USE DEPVVARS
@@ -270,6 +275,9 @@ C For heterogenous hono on surfaces
       REAL                       :: kno2                      ! first order rate constant for the heterogenous reaction [1/s]
       REAL                       :: surf_bldg                 ! Surface area of bldgs to volume of air [-]
       REAL                       :: surf_leaf                 ! Surface area of leaves to volume of air [-]
+#ifdef sens
+      REAL                       :: s_conc_no2( NPMAX )
+#endif
 
 C-------------------------------------------------------------------------------
 C For Ammonia bi-directional flux
@@ -414,6 +422,11 @@ C-------------------------------------------------------------------------------
       depvel_gas( :,:,: ) = 0.0  ! initialize for this time period
       pvd       ( :,:,: ) = 0.0  !     "       "    "    "    "
       cmp       ( :,:,: ) = 0.0  !     "       "    "    "    " JOB
+
+#ifdef sens
+      s_pvd     ( :,:,:,: ) = 0.0
+      s_cmp     ( :,:,:,: ) = 0.0
+#endif
 
       IF ( mosaic .OR. abflux ) THEN
          depvel_gasj( :,:,:,: ) = 0.0 !     "       "    "    "    "
@@ -971,6 +984,12 @@ C Determine NO2 concentration needed for HONO production term.
                   IF ( l .EQ. l_NO2 ) THEN
                      conc_no2 = cgridl1( n,c,r )
 
+#ifdef sens
+                     DO NP = 1, NPMAX
+                        s_conc_no2( NP ) = s_cgridl1( NP, n,c,r )
+                     END DO
+#endif
+
 C Loss of NO2 via the heterogeneous reaction is accounted as additional
 C depositional loss. Add the loss of NO2 via the heterogeneous reaction
 C to the regular deposition velocity (increased dep. vel.).  This will
@@ -984,8 +1003,19 @@ C depositional loss.
 
 C Calculate production (pvd) for HONO; unit = ppm * m/s
 
+#ifdef sens
+               IF ( l .EQ. l_HONO) THEN
+                  pvd( n,c,r ) = kno2 * conc_no2 * MET_DATA%ZF( c,r,1 )
+                  DO NP = 1, NPMAX
+                     s_pvd( NP,n,c,r ) = kno2 * s_conc_no2( NP ) * MET_DATA%ZF( c,r,1 )
+                  END DO
+               END IF
+#else
                IF ( l .EQ. l_HONO)
      &            pvd( n,c,r ) = kno2 * conc_no2 * MET_DATA%ZF( c,r,1 )
+
+#endif
+
             END IF
 C--------------------------------------------------------------------------
 C Bidirectional mercury flux section

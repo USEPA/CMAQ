@@ -113,6 +113,7 @@ C                      - renamed DIAM to PMDIAG
 C  D. Wong 19 May 2016 - renamed ACONC_END_TIME to AVG_FILE_ENDTIME
 C                      - updated the way to define NUM_PMDIAG_SPC
 C                      - set CTM_PMDIAG default value to .TRUE.
+C  S. Napelenok - Dec 15 - ddm-3d implementation for cmaq5.2
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AERO ( CGRID, JDATE, JTIME, TSTEP )
 
@@ -129,6 +130,11 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       USE AEROSOL_CHEMISTRY, ONLY : GAMMA_N2O5IJ, GAMMA_N2O5K, YCLNO2IJ, YCLNO2K, 
      &                              GAMMA_IEPOX, GAMMA_IMAE, KPARTIEPOX, AERO_CHEM_SET
       USE PMDIAG_DATA_MODULE
+
+#ifdef sens
+      USE DDM3D_DEFN, ONLY : NP, NPMAX, SENGRID
+      Use aero6_ddm3d, ONLY : s_so4rate, s_precursor_conc, s_aerospc_conc, s_phg_rate
+#endif 
 
       IMPLICIT NONE
 
@@ -547,38 +553,77 @@ C *** Grid cell meteorological data.
 
 C *** Extract grid cell concentrations of aero species from CGRID
 C     into aerospc_conc in aero_data module (set minimum)
+
+#ifdef sens
+               CALL EXTRACT_AERO( CGRID( C,R,L,: ), .TRUE., SENGRID( C,R,L,:,: ), .TRUE. )
+#else
                CALL EXTRACT_AERO( CGRID( C,R,L,: ), .TRUE. )
+#endif
 
 C *** Extract grid cell concentrations of gas precursors from CGRID (ppm)
 C     into precursr_conc in precursor_data
+#ifdef sens
+               CALL EXTRACT_PRECURSOR( CGRID( C,R,L,: ), SENGRID( C,R,L,:,: ) )
+#else
                CALL EXTRACT_PRECURSOR( CGRID( C,R,L,: ) )
+#endif
 
 C *** Calculate SO4RATE stored in module
                SO4RATE = REAL( PRECURSOR_CONC( SULPRD_IDX ), 4 ) / DT
+#ifdef sens
+               DO NP = 1, NPMAX
+                  S_SO4RATE( NP ) =  S_PRECURSOR_CONC( SULPRD_IDX,NP ) / DT
+               END DO
+#endif
  
                IF ( PHGRXN_IDX .GT. 0 ) THEN
 C *** Calculate PHG_RATE stored in module
                   PHG_RATE = REAL( PRECURSOR_CONC( PHGRXN_IDX ), 4 ) / DT
+#ifdef sens
+                  DO NP = 1, NPMAX
+                     S_PHG_RATE( NP ) = REAL( S_PRECURSOR_CONC( PHGRXN_IDX, NP ), 4 ) / DT
+                  END DO
+#endif
                ELSE
                   PHG_RATE = 0.0
+#ifdef sens
+                  S_PHG_RATE = 0.0
+#endif
                END IF
 
 C *** Extract soa concentrations from CGRID and 
 C     convert M2 to wet
+#ifdef sens
+               CALL EXTRACT_SOA( CGRID( C,R,L,: ), SENGRID( C,R,L,:,: ), .TRUE. )
+#else
                CALL EXTRACT_SOA( CGRID( C,R,L,: ) )
+#endif
 
 C *** Aerosol process routines
                CALL AEROPROC( DT, C, R, L )
 
 C *** Update aerosol variables conc back into CGRID (set minimum) 
 C     and convert M2 to dry and save as surface area
+
+#ifdef sens
+               CALL UPDATE_AERO( CGRID( C,R,L,: ), .TRUE., SENGRID(C,R,L,:,: ) )
+#else
                CALL UPDATE_AERO( CGRID( C,R,L,: ), .TRUE. )
+#endif
 
 C *** Update precursor variables conc back into CGRID
+#ifdef sens
+               CALL UPDATE_PRECURSOR( CGRID( C,R,L,: ), SENGRID( C,R,L,:,: ) )
+#else
                CALL UPDATE_PRECURSOR( CGRID( C,R,L,: ) )
+#endif
 
 C *** Update gas soa concentrations back to CGRID
+#ifdef sens
+               CALL UPDATE_SOA( CGRID( C,R,L,: ), SENGRID( C,R,L,:,: ) )
+#else
                CALL UPDATE_SOA( CGRID( C,R,L,: ) )
+#endif
 
 C *** OUTPUT DIAGNOSTIC INFORMATION
 C *** Get wet moment info (dry will be converted to wet)
@@ -706,6 +751,7 @@ C *** Write dry aerosol distribution parameters to aerosol diagnostic array
                   END IF
                END IF
 #endif
+
 
             END DO ! loop on MY_COLS
          END DO ! loop on MY_ROWS
