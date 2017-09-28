@@ -22,7 +22,7 @@ git clone -b 5.2_DDM-3D https://github.com/USEPA/CMAQ.git CMAQ_REPO
 ```
 
 ## Switching branches to 5.2_DDM-3D within an existing local CMAQ Repository
-#check on the current status of their repository
+Check on the current status of your repository
 
 ```
 git status
@@ -43,7 +43,7 @@ Changes not staged for commit:
                 modified:   config_cmaq.csh
 ``` 
  
-#if there are any files that have been changed locally, that you want to save, use the following command:
+If there are any files that have been changed locally, that you want to save, use the following command:
 
 ```
 git stash
@@ -55,7 +55,7 @@ Use the following command to bring yourlocal repository up to date with the EPA 
 git pull
 ```
  
-Result: This will bring down the new branch
+Result: this will bring down the new branch
 
 ``` 
 From https://github.com/USEPA/CMAQ
@@ -70,7 +70,7 @@ Then, to use the new DDM-3D code, switch branches using the command:
 git checkout –b 5.2_DDM-3D
 ```
  
-Then use the following command to restore the files that you had modified for your local machine
+Then use the following command to restore the files that you had modified for your local machine.
 
 ```
 git stash apply
