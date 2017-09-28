@@ -12,13 +12,68 @@ CMAQ combines current knowledge in atmospheric science and air quality modeling 
 computing techniques in an open-source framework to deliver fast, technically sound estimates of ozone,
 particulates, toxics, and acid deposition.
 
-## Getting the CMAQ Repository
+## Getting the CMAQ Repository for the first time
 This CMAQ Git archive is organized with each official public release stored as a branch on the main USEPA/CMAQ repository.
 To clone code from the CMAQ Git archive, specify the branch (i.e. version number) and issue the following command from within
 a working directory on your server:
 
 ```
 git clone -b 5.2_DDM-3D https://github.com/USEPA/CMAQ.git CMAQ_REPO
+```
+
+## Switching branches to 5.2_DDM-3D within an existing local CMAQ Repository
+#check on the current status of their repository
+
+```
+git status
+```
+ 
+Result will be something like this:
+
+``` 
+On branch 5.2
+Your branch is up-to-date with 'origin/5.2'.
+ 
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+ 
+                modified:   CCTM/scripts/bldit_cctm.csh
+                modified:   CCTM/scripts/run_cctm.csh
+                modified:   config_cmaq.csh
+``` 
+ 
+#if there are any files that have been changed locally, that you want to save, use the following command:
+
+```
+git stash
+```
+ 
+Use the following command to bring yourlocal repository up to date with the EPA github site:
+
+```
+git pull
+```
+ 
+Result: This will bring down the new branch
+
+``` 
+From https://github.com/USEPA/CMAQ
+   409467d..68330b8  5.2        -> origin/5.2
+   8633653..8fa4f10  5.0.2      -> origin/5.0.2
+ * [new branch]      5.2_DDM-3D -> origin/5.2_DDM-3D
+``` 
+ 
+Then, to use the new DDM-3D code, switch branches using the command:
+
+```
+git checkout –b 5.2_DDM-3D
+```
+ 
+Then use the following command to restore the files that you had modified for your local machine
+
+```
+git stash apply
 ```
 
 ## CMAQ Repository Guide
