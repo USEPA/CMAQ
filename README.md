@@ -67,7 +67,7 @@ From https://github.com/USEPA/CMAQ
 Then, to use the new DDM-3D code, switch branches using the command:
 
 ```
-git checkout –b 5.2_DDM-3D
+git checkout 5.2_DDM-3D
 ```
  
 Then use the following command to restore the files that you had modified for your local machine.
