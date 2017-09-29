@@ -1,4 +1,4 @@
-Original Release Date:
+Original Release Date: September 29, 2017
 
 # Overview
 
