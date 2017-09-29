@@ -15,7 +15,7 @@
 #> Default location for CMAQ model build is one directory above
 #> the repository. The user may also set their own preferred 
 #> directory.
- set CMAQ_HOME = /home/username/CMAQ_Project
+ set CMAQ_HOME = /proj/ie/proj/staff/lizadams/CMAQ_v52_DDM-3D/CMAQ_REPO/mvapich2_gcc4.8.1
 
 #> This section allows users to choose explicitly which tools
 #> to make available from the repo. For each selected tool,
@@ -93,6 +93,7 @@
     endif
     cp CCTM/scripts/bldit_cctm.csh $CMAQ_HOME/CCTM/scripts/bldit_cctm.csh
     cp CCTM/scripts/run_cctm.csh $CMAQ_HOME/CCTM/scripts/run_cctm.csh
+    cp CCTM/scripts/sensinput.cmas.dat $CMAQ_HOME/CCTM/scripts/sensinput.cmas.dat
  endif
 
 #===============================================================================
