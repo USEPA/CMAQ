@@ -21,7 +21,7 @@ a working directory on your server:
 git clone -b 5.2_DDM-3D https://github.com/USEPA/CMAQ.git CMAQ_REPO
 ```
 
-## Switching branches to 5.2_DDM-3D within an existing local CMAQ Repository
+## Switching branches to 5.2_DDM-3D within an existing local CMAQ Repository (skip this section if you have already cloned the 5.2_DDM-3D branch in the step above)
 Check on the current status of your repository
 
 ```
