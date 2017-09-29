@@ -60,8 +60,14 @@ C 15 Jul 15 G. Sarwar: updated SOA from alkane, PAH, and isoprene for RACM2
 C 03/03/16  D. Luecken: added capability for CB6
 C 24 Mar 16 G. Sarwar: updated for CB05EH51
 C    May 16 B. Murphy, H. Pye: updated treatment of aerosol moments
+C 14 Dec 16 S.Napelenok: ddm-3d implementation for cmaq5.2
 C
 C-----------------------------------------------------------------------
+#ifdef sens
+      USE DDM3D_DEFN, ONLY : NP, NPMAX
+      Use aero6_ddm3d, ONLY : init_aero6_ddm3d, ae_ddm3d_ready, s_vapor_conc, s_orgprod_conc
+#endif 
+
       Implicit None
 
       Integer, Parameter :: n_vapor_list = 28   ! # of potential partitioning SVOCs
@@ -202,7 +208,11 @@ C mapping variables used for loading and unloading to CGRID array
       Contains
 
 C-----------------------------------------------------------------------
+#ifdef sens
+      Subroutine extract_soa( conc, s_conc, schk )
+#else
       Subroutine extract_soa( conc )
+#endif
 
 C  Extracts the required soa data from CGRID into the conc array.
 
@@ -231,6 +241,10 @@ C Includes:
 
 C Arguments:
       Real, Intent( In ) :: conc( : )
+#ifdef sens
+      Real, Intent( In ) :: s_conc( :,: )
+      Logical, Intent( In ) :: schk  ! necessary because some routines don't require sensitivity updates
+#endif
 
 C Local Variables:
       Character( 300 ) :: xmsg
@@ -281,6 +295,11 @@ C namelist or in the NR namelist.
      &       spc, vaporspc(spc)%name,vaporspc(spc)%soa_name,vaporspc(spc)%drog_name
 #endif
           End Do
+
+#ifdef sens
+          Allocate ( s_vapor_conc( n_vapor,npmax ) )
+          Allocate ( s_orgprod_conc( n_orgprod,npmax ) )
+#endif
 
 C Check GC or NR namelist contains precursor for each vapor used if the vapor has a
 C precursor
@@ -588,26 +607,61 @@ C Reactive variables that store their production rates (orgprod)
 
       End If     ! mapping condition
 
+#ifdef sens
+      If ( .Not. ae_ddm3d_ready ) Then
+         Call init_aero6_ddm3d()
+      End If
+#endif
+
 C Compute gas conversion constant
       gasconv = airdens * inv_mwair
 
 C Copy grid cell concentrations of vapor species
       vapor_conc = 0.0
+#ifdef sens
+      s_vapor_conc = 0.0D0
+#endif
 
       Do spc = 1, n_vapor
          n = vapor_map( spc )
          If ( n .Ne. 0 ) Then
             vtmp = gasconv * vapor_mw( spc )
             vapor_conc( spc ) = Max( conc( n ) * vtmp, min_gasconc )
+#ifdef sens 
+            If (schk ) Then
+               Do np = 1, npmax
+                  If ( vapor_conc( spc ) .Eq. min_gasconc ) Then
+                     s_vapor_conc( spc,np ) = 0.0D0
+                  Else
+                     s_vapor_conc( spc,np ) = Real( (s_conc( np,n )*vtmp),8 )
+                  End If
+               End Do
+            End If
+#endif
          End If
       End Do
 
 C Copy grid cell concentrations of ORGPROD species
       orgprod_conc = 0.0
+#ifdef sens
+      s_orgprod_conc = 0.0D0
+#endif
+
       Do spc = 1, n_orgprod
          n = orgprod_map( spc )
          If ( n .Ne. 0 ) Then
             orgprod_conc( spc ) = Max( conc( n ), min_gasconc )
+#ifdef sens 
+            If (schk ) Then
+               Do np = 1, npmax
+                  If ( orgprod_conc( spc ) .Eq. min_gasconc ) Then
+                     s_orgprod_conc( spc,np ) = 0.0D0
+                  Else
+                     s_orgprod_conc( spc,np ) = Real( s_conc( np,n ), 8 )
+                  End If
+               End Do
+            End If
+#endif
          End If
       End Do
 
@@ -630,7 +684,11 @@ C99906 Format(1X,'precursor from namelist species : ', a /)
       End Subroutine extract_soa
 
 C-----------------------------------------------------------------------
+#ifdef sens
+      Subroutine update_soa( conc, s_conc )
+#else
       Subroutine update_soa( conc )
+#endif
 
 C  Populates CGRID from the conc array with updated SOA values.
 
@@ -649,6 +707,9 @@ C-----------------------------------------------------------------------
 
 C Arguments:
       Real, Intent( Out ) :: conc( : )
+#ifdef sens
+      Real, Intent( Out ) :: s_conc( :,: )
+#endif
 
 C Local Variables:
       Character( 80 ) :: xmsg
@@ -672,6 +733,15 @@ C Copy vapor_conc back to grid cell concentrations
             vtmp = vapor_mw( spc ) * gasconv
             conc( n ) = Max ( vapor_conc( spc ) / vtmp, min_gasconc )
             ! Write( *,'(a,i5,g16.6)' ) vaporspc( spc )%name, n, conc( n )
+#ifdef sens
+            Do np = 1, npmax
+               If ( conc( n ) .Eq. min_gasconc ) Then
+                  s_conc( np,n ) = 0.0
+               Else
+                  s_conc( np,n ) = Real( (s_vapor_conc( spc,np )/vtmp), 4 )
+               End If
+            End Do
+#endif
          End If
       End Do
 
@@ -1142,6 +1212,37 @@ C Added for new SOA bisection (hotp 7/6/11)
       Real               :: lowb, upb, orgmoles      ! lower bound, upper bound, total aerosol moles
       Logical, Parameter :: newtpartition = .False.   ! true to use original method, false to use new bisection
 
+#ifdef sens
+C Sensitivity variables
+      Integer allocstat
+
+      Real( 8 ), Allocatable, Save :: s_drog( :,: )   ! change in precursor conc [ ug/m3 ]
+      Real( 8 ), Allocatable, Save :: s_totrog( :,: ) ! drog conc mapped to each SVOC [ ug/m3 ]
+      Real( 8 ), Allocatable, Save :: s_nsvpa( : )    ! particle-phase anthropogenic SVOC [ umolC/m3 ]
+      Real( 8 ), Allocatable, Save :: s_nsvpb( : )    ! particle-phase biogenic SVOC [ umolC/m3 ]
+      Real( 8 ), Allocatable, Save :: s_totorgsw( : ) ! POA + non-volatile SOA [ umole/m3 ]
+      Real( 8 ), Allocatable, Save :: s_totorg( : )   ! SOA + POA before time step [ umole/m3 ]
+      Real( 8 ), Allocatable, Save :: s_ctoti ( :,: ) ! SVOC conc before current time step [ ug/m3 ]
+      Real( 8 ), Allocatable, Save :: s_prod  ( :,: ) ! SVOC generated during current step [ ug/m3 ]
+      Real( 8 ), Allocatable, Save :: s_ctotf ( :,: ) ! SVOC conc after current time step [ ug/m3 ]
+      Real( 8 ), Allocatable, Save :: s_caer  ( :,: ) ! SVOC conc in aerosol phase [ ug/m3 ]
+      Real( 8 ), Allocatable, Save :: s_caer0 ( :,: )
+      Real( 8 ), Allocatable, Save :: s_hplus( : )    ! accumulation-mode H+ conc [ nmol/m3 ]
+      Real( 8 ), Allocatable, Save :: s_aiso12( : )   ! particle-phase isoprene SVOC [ ug/m3 ]
+      Real( 8 ), Allocatable, Save :: s_vviso( : )    ! vapor-phase isoprene SVOC [ ug/m3 ]
+      Real( 8 ), Allocatable, Save :: s_xiso3( : )    ! newly produced AISO3J [ ug/m3 ]
+      Real( 8 ), Allocatable, Save :: s_isofrac( : )  ! ratio for depletion of vapor-phase products
+
+      Real( 4 ), Allocatable, Save :: kpart( : )      ! partitioning factor caer/(ctotf)
+                                                      ! in the future,
+                                                      ! come up with a
+                                                      ! better way to do
+                                                      ! this
+      Real( 8 ), Allocatable, Save :: s_dcaer ( :,: ) ! Change in SVOC conc after partitioning happens[ ug/m3 ]
+#endif
+
+
+
 C-----------------------------------------------------------------------
 
       If ( first_time )  Then
@@ -1153,6 +1254,32 @@ C Set unit conversion and inverse mw constants
          Allocate( mw_vap_m1( n_vapor ) )
          mw_vap_m1( : ) = 1.0 / vapor_mw( : )
          mwpoa = aerospc_mw( apoc_idx )
+
+#ifdef sens
+         Allocate ( s_drog ( n_orgprod,npmax ),
+     &              s_totrog( n_vapor,npmax ),
+     &              s_nsvpa( npmax ),
+     &              s_nsvpb( npmax ),
+     &              s_totorgsw( npmax ),
+     &              s_totorg( npmax ),
+     &              s_ctoti ( n_vapor,npmax ),
+     &              s_prod  ( n_vapor,npmax ),
+     &              s_ctotf ( n_vapor,npmax ),
+     &              s_caer  ( n_vapor,npmax ),
+     &              s_caer0 ( n_vapor,npmax ),
+     &              s_hplus( npmax ),
+     &              s_aiso12( npmax ),
+     &              s_vviso( npmax ),
+     &              s_xiso3( npmax ),
+     &              s_isofrac( npmax ),
+     &              kpart( n_vapor ),
+     &              s_dcaer(n_vapor,npmax ),
+     &              stat = allocstat )
+         If ( allocstat .Ne. 0 ) Then
+            xmsg = 'Failure allocating sensitivity variables in ORGAER'
+            Call m3exit ( 'ORGAER', 0, 0, xmsg, xstat1 )
+         End If
+#endif
 
       End If ! first_time
 
@@ -1200,6 +1327,14 @@ C Compute 3rd moment, 2nd moment. moment_conc arrays are wet
 C Initialize drog from ORGPROD and change units to [ ug / m**3 ]
       drog( : ) = orgprod_conc( : ) * drog_ppm2ug( : ) * convfac
 
+#ifdef sens
+      Do i = 1, n_orgprod
+         Do np = 1, npmax
+            s_drog( i,np ) = s_orgprod_conc( i,np ) * Real ( (drog_ppm2ug( i ) * convfac), 8 )
+         End Do
+      End Do
+#endif
+
 C Assignment of drog to totrog. This moving mass from the reactive
 C gas tracer species to the array that will be multiplied by alpha
 C to give newly formed semivolatile vapors.
@@ -1207,6 +1342,11 @@ C to give newly formed semivolatile vapors.
       Do i = 1, n_vapor
          If ( drog_map( i ) .Gt. 0 ) Then
            totrog( i ) = drog( drog_map( i ) )
+#ifdef sens
+           Do np = 1, npmax
+              s_totrog( i,np ) = s_drog( drog_map( i ),np )
+           End Do
+#endif
          End If
       End Do
 
@@ -1216,6 +1356,13 @@ C Transfer non-volatile products directly to aerospc_conc array (2nd mode)
             aerospc_conc( orgprod_aeroMap( i ),2 ) =
      &      aerospc_conc( orgprod_aeroMap( i ),2 )
      &      + orgprod( i )%alphaH * drog( i )
+#ifdef sens
+            Do np = 1, npmax
+               s_aerospc_conc( orgprod_aeroMap( i ),2,np ) =
+     &         s_aerospc_conc( orgprod_aeroMap( i ),2,np )
+     &         + Real ( orgprod( i )%alphaH, 8 ) * s_drog( i,np )
+            End Do
+#endif
          End If
       End Do
 
@@ -1251,6 +1398,34 @@ C process that conserves carbon mass.
       aerospc_conc( aolgb_idx,2 ) = aerospc_conc( aolgb_idx,2 )
      &                            + 12.0 * nsvpb * ( 1.0 - expdt ) * olgrat
 
+#ifdef sens
+      s_nsvpa = 0.0
+      s_nsvpb = 0.0
+
+      Do np = 1, npmax
+
+         Do i = 1, n_vapor
+            If ( vaporspc( i )%soa_origin .Eq. 'A' )
+     &         s_nsvpa( np ) = s_nsvpa( np ) + s_aerospc_conc( soa_aeroMap( i ),2,np )
+     &               * Real ( ( mw_vap_m1( i ) * vaporspc( i )%soa_decay ), 8 )
+            If ( vaporspc( i )%soa_origin .Eq. 'B' )
+     &         s_nsvpb( np ) = s_nsvpb( np ) + s_aerospc_conc( soa_aeroMap( i ),2,np )
+     &               * Real ( ( mw_vap_m1( i ) * vaporspc( i )%soa_decay ), 8 )
+         End Do
+
+         Do i = 1, n_vapor
+            s_aerospc_conc( soa_aeroMap( i ),2,np ) =
+     &      s_aerospc_conc( soa_aeroMap( i ),2,np ) * Real ( expdt, 8 )
+         End Do
+
+         s_aerospc_conc( aolga_idx,2,np ) = s_aerospc_conc( aolga_idx,2,np )
+     &                               + 12.0D0 * s_nsvpa( np ) * Real ( ( ( 1.0 - expdt ) * olgrat ), 8 )
+         s_aerospc_conc( aolgb_idx,2,np ) = s_aerospc_conc( aolgb_idx,2,np )
+     &                               + 12.0D0 * s_nsvpb( np ) * Real ( ( ( 1.0 - expdt ) * olgrat ), 8 )
+
+      End Do
+#endif
+
 #endif
 C Compute molar concentrations of non-volatile organic material and total
 C organic material; in future code updates, molecular weights of non-volatile
@@ -1263,6 +1438,14 @@ C hard-coded values.
       If ( INDEX( MECHNAME, 'NVPOA' ) .Ne. 0 ) Then
          totorgsw = ( aerospc_conc(   apoc_idx,1 ) + aerospc_conc(   apoc_idx,2 )) / aerospc_mw( apoc_idx )
      &             +( aerospc_conc( apncom_idx,1 ) + aerospc_conc( apncom_idx,2 )) / aerospc_mw( apncom_idx )
+#ifdef sens
+      Do np = 1, npmax
+           s_totorgsw(np) = ( s_aerospc_conc(   apoc_idx,1,np ) 
+     &                    + s_aerospc_conc(   apoc_idx,2,np )) / Real( aerospc_mw(   apoc_idx ), 8 )
+     &                    + ( s_aerospc_conc( apncom_idx,1,np ) + s_aerospc_conc( apncom_idx,2,np )) 
+     &                    / Real( aerospc_mw( apncom_idx ), 8 )
+      End Do
+#endif
       End If
 
       ! Sum Up Nonvolatile OA. This is just a couple of SOA products.
@@ -1271,6 +1454,11 @@ C hard-coded values.
          If(  aerospc( i )%tracer ) Cycle
          If ( aerospc( i )%nonVol_soa ) Then
             totorgsw = totorgsw + aerospc_conc( i,2 ) / aerospc_mw( i )
+#ifdef sens
+           Do np = 1, npmax
+              s_totorgsw(np) = s_totorgsw(np) + s_aerospc_conc( i,2,np ) / Real( aerospc_mw( i ), 8 )
+           End Do
+#endif
          End If
       End Do
 
@@ -1281,6 +1469,12 @@ C hard-coded values.
          If( soa_aeroMap( i ) .lt. 1 ) Cycle
          totorg = totorg + ( aerospc_conc( soa_aeroMap( i ),2 ) + 
      &              aerospc_conc( soa_aeroMap( i ),1 ) ) * mw_vap_m1( i )
+#ifdef sens
+         Do np = 1, npmax
+           s_totorg(np) = s_totorg(np) + ( s_aerospc_conc( soa_aeroMap( i ),2,np ) +
+     &                    s_aerospc_conc( soa_aeroMap( i ),1,np ) ) * Real( mw_vap_m1( i ), 8 )
+         End Do
+#endif
       End Do
 
 C Initialize ctoti as sum of vapor-phase and particle-phase SVOCs
@@ -1291,6 +1485,14 @@ C Note: all of these CBLK species are in [ug/m**3]
      &                + aerospc_conc( soa_aeroMap( i ),1 )
          caer0( i ) = aerospc_conc( soa_aeroMap( i ),2 )  
      &                + aerospc_conc( soa_aeroMap( i ),1 )
+#ifdef sens
+         Do np = 1, npmax
+           s_ctoti( i,np ) = s_vapor_conc( i,np ) + s_aerospc_conc( soa_aeroMap( i ),2,np )  
+     &                       + s_aerospc_conc( soa_aeroMap( i ),1,np )
+           s_caer0( i,np ) = s_aerospc_conc( soa_aeroMap( i ),2,np )
+     &                     + s_aerospc_conc( soa_aeroMap( i ),1,np )
+         End Do
+#endif
       End Do
 
 C Equilibrium Partitioning Calculations
@@ -1317,6 +1519,12 @@ C    caer = ctotf / ( 1 + c0/MW / totorg )
      &              / (totorg + c0( i ) * mw_vap_m1( i ) )  
          caer( i )  = ctotf( i ) * faer                     ! initial amount in aerosol
          upb        = upb + ctotf( i) * mw_vap_m1( i )      ! upper: all moles (semi and nonvolatile)
+#ifdef sens
+         Do np = 1, npmax
+            s_prod( i,np )  = vaporspc( i )%alpha * s_totrog( i,np )
+            s_ctotf( i,np ) = s_ctoti( i,np ) + s_prod( i,np )
+         End Do
+#endif
       End Do
 
 C Check If gas/particle equilibrium can be established
@@ -1371,6 +1579,26 @@ C        Determine concentration of each semivoltile (hotp 7/5/11)
          End Do
 
 C End SOA paritioning solver METHOD selection
+
+#ifdef sens 
+c sln =-=-=-=-=-=-=  DDM-3D (approximate partioning for sensitivities)'
+         Do i = 1, n_vapor
+            If ( ctotf( i ) .gt. 0.0 ) Then
+               kpart( i ) = caer( i ) / ctotf( i )
+            Else
+               kpart( i ) = 0.5
+            Endif
+            kpart( i ) = max( min(kpart( i ),1.0), 0.0 )
+         End Do
+
+         Do np = 1, npmax
+            Do i = 1, n_vapor
+               s_caer( i,np ) = s_ctotf( i,np ) * Real( kpart( i ),8 )
+            End Do
+         End Do
+#endif
+
+
         End If
 
 C Constrain caer to values between conmin and ctotf
@@ -1386,12 +1614,22 @@ C Constrain caer to values between conmin and ctotf
      &                              ' reset to evapmin'
            End If
            caer( i ) = max( caer(i), evapmin )
+#ifdef sens
+           Do np = 1, npmax
+              s_caer( i,np ) = 0.0D0
+           End Do
+#endif
 
            If ( caer( i ) - ctotf( i ) .Gt. ctolmin ) Then
                Write( logdev,* ) 'caer-ctotf exceeds ctolmin at i = ', i
                Write( logdev,* ) 'caer: ', caer( i ), ' ctotf: ', ctotf( i )
                Write( logdev,* ) 'caer reset to ctotf'
                caer( i ) = ctotf( i )
+#ifdef sens
+               Do np = 1, npmax
+                  s_caer( i,np ) = s_ctotf( i,np )
+               End Do
+#endif
            End If
 
            indx = soa_aeroMap( i )
@@ -1412,18 +1650,37 @@ C Constrain caer to values between conmin and ctotf
                  Phi = aerospc_conc( indx,im ) / totaer
                  aerospc_conc( indx,im ) = 
      &                aerospc_conc( indx,im ) + dcaer( i ) * Phi
+#ifdef sens
+                 Do np = 1, npmax
+                    s_aerospc_conc( indx,im,np ) =
+     &                   s_aerospc_conc( indx,im,np ) + s_dcaer( i,np ) * Real( Phi, 8 )
+                 End Do
+#endif
+
               Else
                  ! Condense using mode-dependent condensaiton flux 
                  ! fraction
                  aerospc_conc( indx,im ) = aerospc_conc( indx,im ) 
      &                + dcaer( i ) * GR3FRAC( i,im )
+
+#ifdef sens
+                 Do np = 1, npmax
+                    s_aerospc_conc( indx,im,np ) =
+     &                   s_aerospc_conc( indx,im,np ) + s_dcaer( i,np ) * Real( GR3FRAC( i,im ), 8 )
+                 End Do
+#endif
+
               End If
            End Do
         End Do  ! Partitioning Vapor Loop
- 
+
       Else   ! threshold not exceeded; no material transferred to aerosol phase
         
         caer = 0.0
+#ifdef sens
+        s_caer = 0.D0
+#endif
+
         Do i = 1, n_vapor
             If ( soa_aeroMap( i ) .Lt. 1 ) Cycle
             indx = soa_aeroMap( i )
@@ -1439,7 +1696,11 @@ C Constrain caer to values between conmin and ctotf
 
 C Update Vapor-Phase Organic Species
       vapor_conc( : ) = ctotf( : ) - caer( : )
-
+#ifdef sens
+      Do np = 1, npmax
+         s_vapor_conc( :,np ) = s_ctotf( :,np ) - s_caer( :,np )
+      End Do
+#endif
 
 C Acid-induced Isoprene SOA if IEPOX uptake is not considered mechanism reactions
       If ( .Not. IEPOX_SOA_mechanism ) Then
@@ -1456,14 +1717,32 @@ C be inherited from include or namelist files to avoid hard-coded values.
          If ( aerospc( i )%tracer ) Cycle
          hplus = hplus - 1000.0 * aerospc( i )%charge * aerospc_conc( i,2 )
      &         / aerospc_mw( i )
+#ifdef sens
+         Do np = 1, npmax
+            s_hplus( np ) = s_hplus( np ) - 1000.0 * aerospc( i )%charge * s_aerospc_conc( i,2,np )
+     &         / aerospc_mw( i )
+         End Do
+#endif
       End Do
       hplus = Min( 530.0, Max ( 0.0, hplus ) ) ! restrict extrapolation
+#ifdef sens
+      If ( hplus .Eq. 530.0 .Or. hplus .Eq. 0.0 ) Then
+            s_hplus( : ) = 0.D0
+      End If
+#endif
 
 C Compute amount of acid-enhanced isoprene SOA that is produced during the current
 C time step (xiso3) using the normalized expression derived from Surratt et al. (2007)
 
       aiso12 = aerospc_conc( aiso1_idx, 2 ) + aerospc_conc( aiso2_idx, 2 )
       xiso3  = kacid * hplus * aiso12 - aerospc_conc( aiso3_idx,2 )
+#ifdef sens
+      Do np = 1, npmax
+         s_aiso12( np ) = s_aerospc_conc( aiso1_idx, 2,np ) +s_aerospc_conc( aiso2_idx, 2,np )
+         s_xiso3( np )  = Real( kacid,8 ) * ( s_hplus( np ) * aiso12 + hplus * s_aiso12( np ) ) 
+     &                  - s_aerospc_conc( aiso3_idx,2,np )
+      End Do
+#endif
 
 C Update CBLK(VISO3J) while conserving the total concentration of low-volatility
 C isoprene-derived products.  Since the acid-enhanced product is assumed to be
@@ -1481,6 +1760,30 @@ C of SO2, based on the lab experiments of Kleindienst et al. (2007)
          isofrac = vapor_conc( iso1_idx ) / vviso
          vapor_conc( iso1_idx ) = vapor_conc( iso1_idx ) - isofrac * xiso3
          vapor_conc( iso2_idx ) = vapor_conc( iso2_idx ) - ( 1.0 - isofrac ) * xiso3
+#ifdef sens
+         Do np = 1, npmax
+            s_vviso( np ) = s_vapor_conc( iso1_idx,np ) + s_vapor_conc( iso2_idx,np )
+            If ( xiso3 .Eq. vviso ) Then
+               s_xiso3( np )  = s_vviso( np )
+            End If
+            s_aerospc_conc( aiso3_idx,2,np ) = s_aerospc_conc( aiso3_idx,2,np ) + s_xiso3( np ) 
+     &                                       * Real( ( 2.7 / 1.6 ), 8 )
+            s_isofrac( np ) = ( s_vapor_conc( iso1_idx,np ) * Real( vviso,8 )
+     &                          - Real( vapor_conc( iso1_idx ), 8 ) * s_vviso( np ) )
+     &                      / ( ( Real ( vviso,8 ) )**2.0D0 )
+
+
+            s_vapor_conc( iso1_idx,np ) = s_vapor_conc( iso1_idx,np )
+     &                                  - ( s_isofrac( np ) * Real( xiso3,8 )
+     &                                      + Real( isofrac,8 ) * s_xiso3( np ) )
+
+
+            s_vapor_conc( iso2_idx,np ) = s_vapor_conc( iso2_idx,np )
+     &                                  - s_xiso3( np )
+     &                                  + ( s_isofrac( np ) * Real( xiso3,8 )
+     &                                      + Real( isofrac,8 ) * s_xiso3( np ) )
+         End Do
+#endif
       End If
 
       End If ! IEPOX not present for uptake

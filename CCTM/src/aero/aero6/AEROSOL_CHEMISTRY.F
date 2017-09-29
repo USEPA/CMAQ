@@ -37,6 +37,10 @@
 ! 10 Jun 16 B.Hutzell: reduce occurrences of numerical underflow
 !-----------------------------------------------------------------------
 
+#ifdef sens
+       USE DDM3D_DEFN, ONLY: SENGRID
+#endif
+
        IMPLICIT NONE
        
        REAL( 8 ), ALLOCATABLE :: KHETERO( :,:,:,: ) ! heterogeneous rx rates, 
@@ -711,14 +715,28 @@ C *** Calculate rate constants at each grid cell location
 C *** extract grid cell concentrations of aero species from CGRID
 C     into aerospc_conc in aero_data module
 C     also converts dry surface area to wet second moment
+#ifdef sens
+               CALL EXTRACT_AERO ( CGRID( C,R,L,: ), .TRUE., SENGRID( C,R,L,:,: ), .TRUE. )
+#else
                CALL EXTRACT_AERO ( CGRID( C,R,L,: ), .TRUE. )
+#endif
+
 
 C *** extract soa concentrations from CGRID
+#ifdef sens
+               CALL EXTRACT_SOA ( CGRID( C,R,L,: ), SENGRID( C,R,L,:,: ), .TRUE. )
+#else
                CALL EXTRACT_SOA ( CGRID( C,R,L,: ) )
+#endif
 
 C *** extract in inorganic aerosol processors
 
+
+#ifdef sens
+               CALL EXTRACT_PRECURSOR( CGRID( C,R,L,: ), SENGRID(C,R,L,:,: ) )
+#else
                CALL EXTRACT_PRECURSOR( CGRID( C,R,L,: ) ) 
+#endif
                
                AIRTEMP = REAL( TEMP( C,R,L ), 8 )
 
@@ -1230,7 +1248,11 @@ C  Called by: Gas-Phase Chemistry Driver
                ! Extract grid cell concentrations of aero species from CGRID
                ! into aerospc_conc in aero_data module
                ! also converts dry surface area to wet second moment
+#ifdef sens
+               CALL extract_aero ( CGRID( C,R,L,: ), .True., SENGRID( C,R,L,:,: ), .TRUE. )
+#else
                CALL extract_aero ( CGRID( C,R,L,: ), .True. )
+#endif
 
                ! Recalculate Dry 3rd Moment After Chemistry Processes
                ! 2nd moment hasn't been update yet.

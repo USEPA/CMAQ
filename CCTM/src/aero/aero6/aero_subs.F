@@ -191,6 +191,9 @@ C HP/BM  4/16 Removed m3_wet_flag since wet/dry status is now
 C             tracked by AERO_DATA variable. Moments are always wet in AEROPROC
 C             Updated treatment of aerosol moments
 
+C SLN 12/13/16 ddm-3d implementation for cmaq5.2
+
+
 C  REFERENCES:
 C   1. Binkowski, F.S. and U. Shankar, The regional particulate matter
 C      model 1. Model description and preliminary results, J. Geophys.
@@ -212,6 +215,11 @@ C-----------------------------------------------------------------------
       USE SOA_DEFN
       USE AEROMET_DATA
       USE UTILIO_DEFN
+
+#ifdef sens
+      USE DDM3D_DEFN, ONLY : NP, NPMAX
+      USE AERO6_DDM3D, ONLY : s_aerospc_conc, s_precursor_conc, s_so4rate, s_vapor_conc, s_orgprod_conc
+#endif
 
       IMPLICIT NONE
 
@@ -282,6 +290,11 @@ C *** local variables
 
       integer, save :: logdev 
       logical, save :: firstime = .true.
+
+#ifdef sens
+      REAL( 8 ) S_TMASS
+#endif
+
 C-----------------------------------------------------------------------
 
       if ( firstime ) then
@@ -562,6 +575,21 @@ C     intermodal coagulation.
      &                                REAL( AEROSPC_CONC( SPC,1 ) * EXPDT ) )
          AEROSPC_CONC( SPC,2 ) = MAX( AEROSPC( SPC )%MIN_CONC( 2 ),
      &                                TMASS - AEROSPC_CONC( SPC,1 ) )
+#ifdef sens
+c        DO NP = 1, NPMAX
+c           S_TMASS = S_AEROSPC_CONC( SPC,1,NP ) + S_AEROSPC_CONC( SPC,2,NP )
+c           IF ( AEROSPC_CONC( SPC,1 ) .EQ. AEROSPC( SPC )%MIN_CONC( 1 ) ) THEN
+c              S_AEROSPC_CONC( SPC,1,NP ) = 0.0D0
+c           ELSE
+c              S_AEROSPC_CONC( SPC,1,NP ) = REAL( S_AEROSPC_CONC( SPC,1,NP ) * EXPDT )
+c           END IF
+c           IF ( AEROSPC_CONC( SPC,2 ) .EQ. AEROSPC( SPC )%MIN_CONC( 2 ) ) THEN
+c              S_AEROSPC_CONC( SPC,2,NP ) = 0.0D0
+c           ELSE
+c              S_AEROSPC_CONC( SPC,2,NP ) = S_TMASS - S_AEROSPC_CONC( SPC,1,NP )
+c           END IF
+c        END DO
+#endif
       END DO
 
 C *** end of update for species mass concentrations
@@ -641,6 +669,12 @@ C     all species, even the aerosol water.
 
             AEROSPC_CONC( SPC,2 ) = AEROSPC_CONC( SPC,2 ) + AEROSPC_CONC( SPC,1 ) * FM3
             AEROSPC_CONC( SPC,1 ) = AEROSPC_CONC( SPC,1 ) * PHM3
+#ifdef sens
+c           DO NP = 1, NPMAX
+c              S_AEROSPC_CONC( SPC,2,NP ) = S_AEROSPC_CONC( SPC,2,NP ) + S_AEROSPC_CONC( SPC,1,NP ) * REAL(FM3,8)
+c              S_AEROSPC_CONC( SPC,1,NP ) = S_AEROSPC_CONC( SPC,1,NP ) * REAL(PHM3,8)
+c           END DO
+#endif
          END DO
 
       END IF ! end check on necessity for merging
@@ -660,6 +694,15 @@ C *** Set minimum value for all concentrations in the CBLK array
          DO SPC = 1, N_AEROSPC
             AEROSPC_CONC( SPC,N ) = MAX( AEROSPC_CONC( SPC,N ),
      &                                   AEROSPC( SPC )%MIN_CONC( N ) )
+#ifdef sens
+            IF ( AEROSPC_CONC( SPC,N ) .EQ. AEROSPC( SPC )%MIN_CONC( N ) ) THEN
+
+                DO NP = 1, NPMAX
+                  S_AEROSPC_CONC( SPC,N,NP ) = 0.0D0
+               END DO
+
+            ENDIF
+#endif
          END DO
       END DO
 
@@ -715,6 +758,11 @@ C    aerosols. ATMOSPHERIC CHEMISTRY AND PHYSICS. 7, 4639-4659
       USE SOA_DEFN
       USE AEROMET_DATA
       USE UTILIO_DEFN
+
+#ifdef sens
+      USE DDM3D_DEFN, ONLY : NP, NPMAX
+      USE AERO6_DDM3D, ONLY : s_so4rate, s_precursor_conc, s_xh2so4
+#endif
 
       IMPLICIT NONE
 
@@ -1039,6 +1087,18 @@ C     on Equations A21 and A23 of Binkowski & Shankar (1995).
          XH2SO4 = SO4RATE / REAL( TMP,4 )
          XH2SO4 = MAX( XH2SO4, CONMIN )
          PRECURSOR_CONC( SULF_IDX ) = REAL( XH2SO4, 8 )
+
+#ifdef sens
+         DO NP = 1, NPMAX
+            IF ( XH2SO4 .EQ. CONMIN ) THEN
+               S_XH2SO4( NP ) = 0.0D0
+            ELSE
+               S_XH2SO4( NP ) = S_SO4RATE( NP ) / REAL(TMP,8)
+            END IF
+            S_PRECURSOR_CONC( SULF_IDX, NP ) = S_XH2SO4( NP )
+         END DO
+#endif
+
 
 C *** Calculate new particle production rate for 0th, 2nd, & 3rd moments
          CALL NEWPART3 ( AIRRH, AIRTEMP, XH2SO4, SO4RATE,
@@ -1384,6 +1444,10 @@ C *** Set flags to account for mass conservation violations in ISRP3F
 #ifndef noiso
       CALL ISOROPIA( WI, RHI, TEMPI, CNTRL, WT, GAS, AERLIQ,
      &               AERSLD, SCASI, OTHER )
+
+#ifdef sens
+      CALL AERO_SENS( SCASI, WI )
+#endif
 
 C *** Save H+ concentration information in microgram/m3 for consistency
       EQLBHIJ = AERLIQ(1) * 1.0D6 * AEROSPC_MW( ah3op_idx)

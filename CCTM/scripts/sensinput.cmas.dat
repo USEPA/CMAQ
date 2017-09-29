@@ -1,0 +1,19 @@
+ENX
+ EMIS
+  GRID
+  1
+  EMIS_1
+ SPECIES
+  NO2
+  NO
+
+ESX
+ EMIS
+  GRID
+  1
+  EMIS_1
+ SPECIES
+  SO2
+
+END
+

@@ -186,7 +186,11 @@ C Set meteorological data for the grid cell.
 C extract grid cell concentrations of aero species from CGRID
 C into aerospc_conc in aero_data module
 C Also converts dry surface area to wet 2nd moment
+#ifdef sens
+         call extract_aero( cgrd( l,: ), .true., cgrd( :,: ), .false. )
+#else
          call extract_aero( cgrd( l,: ), .true. )  ! set minimum floor
+#endif
 
 C Get the geometric mean diameters and standard deviations of the
 C "wet" size distribution

@@ -1,7 +1,8 @@
-CMAQv5.2
+CMAQv5.2 DDM-3D
 ========
 
-Community Multiscale Air Quality Model US EPA CMAQ Website: (https://www.epa.gov/cmaq).
+Community Multiscale Air Quality Model US EPA CMAQ Website: (https://www.epa.gov/cmaq). 
+CMAQv5.2 DDM3-D model description: (https://www.epa.gov/cmaq/cmaq-models-0#tab-4)
 
 CMAQ is an active open-source development project of the U.S. EPA Computational Exposure Division
 that consists of a suite of programs for conducting air quality model simulations.
@@ -11,13 +12,68 @@ CMAQ combines current knowledge in atmospheric science and air quality modeling 
 computing techniques in an open-source framework to deliver fast, technically sound estimates of ozone,
 particulates, toxics, and acid deposition.
 
-## Getting the CMAQ Repository
+## Getting the CMAQ Repository for the first time
 This CMAQ Git archive is organized with each official public release stored as a branch on the main USEPA/CMAQ repository.
 To clone code from the CMAQ Git archive, specify the branch (i.e. version number) and issue the following command from within
 a working directory on your server:
 
 ```
-git clone -b 5.2 https://github.com/USEPA/CMAQ.git CMAQ_REPO
+git clone -b 5.2_DDM-3D https://github.com/USEPA/CMAQ.git CMAQ_REPO
+```
+
+## Switching branches to 5.2_DDM-3D within an existing local CMAQ Repository
+Check on the current status of your repository
+
+```
+git status
+```
+ 
+Result will be something like this:
+
+``` 
+On branch 5.2
+Your branch is up-to-date with 'origin/5.2'.
+ 
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+ 
+                modified:   CCTM/scripts/bldit_cctm.csh
+                modified:   CCTM/scripts/run_cctm.csh
+                modified:   config_cmaq.csh
+``` 
+ 
+If there are any files that have been changed locally, that you want to save, use the following command:
+
+```
+git stash
+```
+ 
+Use the following command to bring yourlocal repository up to date with the EPA github site:
+
+```
+git pull
+```
+ 
+Result: this will bring down the new branch
+
+``` 
+From https://github.com/USEPA/CMAQ
+   409467d..68330b8  5.2        -> origin/5.2
+   8633653..8fa4f10  5.0.2      -> origin/5.0.2
+ * [new branch]      5.2_DDM-3D -> origin/5.2_DDM-3D
+``` 
+ 
+Then, to use the new DDM-3D code, switch branches using the command:
+
+```
+git checkout –b 5.2_DDM-3D
+```
+ 
+Then use the following command to restore the files that you had modified for your local machine.
+
+```
+git stash apply
 ```
 
 ## CMAQ Repository Guide
@@ -34,7 +90,8 @@ Release notes and Code documentation are included within this repository (they a
 
 [CMAQv5.2 Documentation](DOCS/README.md)   
 [CMAQv5.2 Release Notes](CCTM/docs/Release_Notes/README.md)   
-[CMAQv5.2 Known Issues](DOCS/Known_Issues/README.md)   
+[CMAQv5.2 Known Issues](DOCS/Known_Issues/README.md)  
+[CMAQv5.2 DDM-3D Documentation](DOCS/Instrumented_Docs/CMAQ_DDM.md)
 
 ## CMAQ Test Cases
 Benchmark/tutorial input and output data for each CMAQ release version are available from the CMAS Center Software Clearinghouse. From http://www.cmascenter.org, select Download -> Software -> CMAQ and choose the version to get the tutorial data.  

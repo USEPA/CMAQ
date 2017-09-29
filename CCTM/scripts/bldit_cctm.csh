@@ -90,7 +90,7 @@ set ParOpt                             #> uncomment to build a multiple processo
                                        #>     (see $CMAQ_MODEL/CCTM/src/spcs)
  set ModPhot   = phot/inline           #> photolysis calculation module 
                                        #>     (see $CMAQ_MODEL/CCTM/src/phot)
- set Mechanism = cb6r3_ae6_aq        #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS)
+ set Mechanism = cb6r3_ae6nvPOA_aq     #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS)
  set ModGas    = gas/ebi_${Mechanism}  #> gas-phase chemistry solver (see $CMAQ_MODEL/CCTM/src/gas)
  set ModAero   = aero/aero6            #> aerosol chemistry module (see $CMAQ_MODEL/CCTM/src/aero)
  set ModCloud  = cloud/acm_ae6         #> cloud chemistry module (see $CMAQ_MODEL/CCTM/src/cloud)
@@ -100,6 +100,10 @@ set ParOpt                             #> uncomment to build a multiple processo
  set ModPa     = procan/pa             #> name of process analysis. Include files are in directory 
                                        #>   $CMAQ_MODEL/CCTM/src/ICL
  set ModPvO3   = pv_o3                 #> potential vorticity from the free troposphee
+
+ set Ddm3d     = ddm3d                 #> DDM-3D
+ set sens      = ( -Dsens )            #> DDM-3D
+
 
 #============================================================================================
 #> Computing System Configuration:
@@ -318,13 +322,13 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo "lib_2       ioapi/include_files;"                           >> $Cfile
  echo                                                              >> $Cfile
  if ( $?ParOpt ) then
-    echo "lib_3       ${quote}mpi -I.$quote;"              >> $Cfile
+    echo "lib_3       ${quote}mpi/include -I.$quote;"              >> $Cfile
     echo                                                           >> $Cfile
  endif
  echo                                                              >> $Cfile
  echo "lib_4       ioapi/lib;"                                     >> $Cfile
  echo                                                              >> $Cfile
- set text = "$quote$CPP_FLAGS $PAR $POT $STX1 $STX2$quote;"
+ set text = "$quote$CPP_FLAGS $PAR $sens $POT $STX1 $STX2$quote;"
  echo "cpp_flags   $text"                                          >> $Cfile
  echo                                                              >> $Cfile
  echo "f_compiler  $FC;"                                           >> $Cfile
@@ -508,6 +512,11 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo "Module ${ModUtil};"                                         >> $Cfile
  echo                                                              >> $Cfile
 
+ set text = "ddm3d"
+ echo "// options are" $text                                       >> $Cfile
+ echo "Module ${Ddm3d};"                                           >> $Cfile
+ echo                                                              >> $Cfile
+
  if ( $?ModMisc ) then
     echo "Module ${ModMisc};"                                      >> $Cfile
     echo                                                           >> $Cfile
@@ -558,9 +567,9 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  endif
 
 #> Rename Makefile to specify compiler option and link back to Makefile
- mv Makefile Makefile.$compilerString
- if ( -e Makefile.$compilerString && -e Makefile ) rm Makefile
- ln -s Makefile.$compilerString Makefile
+# mv Makefile Makefile.$compiler
+# if ( -e Makefile.$compiler && -e Makefile ) rm Makefile
+# ln -s Makefile.$compiler Makefile
 
 #> Alert user of error in BLDMAKE if it ocurred
  if ( $status != 0 ) then

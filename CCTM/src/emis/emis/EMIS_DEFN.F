@@ -65,15 +65,27 @@ C-----------------------------------------------------------------------
       INTEGER,              SAVE :: N_SPC_EMIS ! global emissions species
       INTEGER,              SAVE :: EMLAYS     ! no. of emis integration layers
                                                ! EMLAYS must be .LT. NLAYS
+
       LOGICAL,              SAVE :: EMISCHK ! Let model proceed even if Emis Surrogates 
                                                !are not properly defined
       INTEGER,              SAVE :: EMLYRS     ! no. of layers on base emis input file
+
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: TRACSPC( : )  ! Variables from Tracer Emission File
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: AREASPC( : )  ! Variables from Area Emission File
 
+#ifdef sens
+c move these here so they are visible for SEMIS_DEFN
+      LOGICAL,          SAVE :: EM_TRAC = .FALSE. ! do tracer emissions?
+      REAL,             SAVE :: CNVTE      ! combined conversion factor
+      INTEGER          GXOFF, GYOFF         ! global origin offset from file
+      INTEGER, SAVE :: STARTCOL, ENDCOL, STARTROW, ENDROW
+      REAL,    SAVE :: CNVTP         ! intermediate combined conv. factor
+      PUBLIC EM_TRAC, CNVTE, GXOFF, GYOFF, STARTCOL, ENDCOL, STARTROW, ENDROW, CNVTP
+#endif
+
       PUBLIC VDEMIS, N_SPC_EMIS, EMLAYS, EMLYRS, TRACSPC, AREASPC,  ! Variables
      &       EMIS_INIT, GET_EMIS, EMISCHK                           ! Routines
-      
+
 #ifdef verbose_emis_defn
       public semis
 #endif
@@ -81,8 +93,10 @@ C-----------------------------------------------------------------------
                                            ! a 2d file if inline, otherwise a 3d file
       INTEGER, SAVE :: NEMIS_AE   ! no. of aero emis species
 
+#ifndef sens
       LOGICAL, SAVE :: EM_TRAC = .FALSE. ! do tracer emissions?
       REAL,    SAVE :: CNVTE      ! combined conversion factor
+#endif
       REAL,    SAVE :: DT         ! TSTEP (output) in sec
 
       REAL,    ALLOCATABLE, SAVE :: BUFF( :,:,: )        ! read buffer
@@ -374,7 +388,9 @@ C Arguments:
 C Local Variables:
          REAL             CNVTC         ! combined conversion factor
          REAL             CNVTI         ! intermediate combined conv. factor
+#ifndef sens
          REAL,    SAVE :: CNVTP         ! intermediate combined conv. factor
+#endif
          REAL             DELT          ! interpolation factor
          INTEGER          C, R, L, N, S, V ! loop induction variables
          INTEGER          S_STRT, S_END ! substitute loop induction variables
@@ -386,8 +402,10 @@ C Local Variables:
          real sumem
 #endif
          LOGICAL, SAVE :: FIRSTIME = .TRUE.
+#ifndef sens
          INTEGER          GXOFF, GYOFF         ! global origin offset from file
          INTEGER, SAVE :: STARTCOL, ENDCOL, STARTROW, ENDROW
+#endif
 
 C-----------------------------------------------------------------------
 
@@ -843,7 +861,7 @@ C Find Upper Bound on Number of Possible Species
          NDSTSPC = 0
          NTRSPC  = 0
          NARSPC  = 0
-         NPTSPC  = 0
+         NPTSPC  = 0 
 
          ! Gridded Area and Tracer Sources 
          IF ( N_TR_EMIS .GT. 0 ) THEN

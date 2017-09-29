@@ -48,6 +48,7 @@ C                       Jeff Young, Sergey Napelenok, and Shawn Roselle
 C       6 03/01/11 sjr  replaced I/O API include files with UTILIO_DEFN;
 C       7 07/01/01 gs   calculate zenith angle to determine daytime and nightime 
 C                       needed for sulfur oxidation via metal catalysis
+C       8 12/03/15 sln  ddm-3d implementaiton for version 5.1.1
 C       8 09/10/11 wth  adapted for multiple pollutant model, i.e., Gas phase mercury 
 C                       PM mercury and tracer species
 C       07 Jul 14  wth: replaced mechanism include file(s) with fortran module
@@ -82,6 +83,11 @@ C-----------------------------------------------------------------------
       USE AERO_DATA      ! aerosol shared parameters
       USE AQ_DATA        ! aqueous chemistry shared parameters
       USE UTILIO_DEFN
+
+#ifdef sens
+      USE DDM3D_DEFN, ONLY : NP, NPMAX, S_POLC, S_CEND, S_REMOV, S_REMOVAC, S_HPWDEP, S_GAS, S_GASWDEP,
+     &                       S_AEROSOL, S_AERWDEP, S_WSRGGAS, S_WSRGAER
+#endif 
 
       IMPLICIT NONE
 
@@ -185,6 +191,36 @@ C...  event-statistics variables.
 
         CALL AQ_DATA_INIT()      
 
+#ifdef sens
+C... Allocate sensitivity arrays
+
+c       LOGDEV = SETUP_LOGDEV()
+
+        ALLOCATE ( S_HPWDEP( NPMAX ), STAT = NP )
+        IF ( NP .NE. 0 ) THEN
+          XMSG = 'Failure allocating S_HPWDEP'
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+        END IF
+
+        ALLOCATE ( S_GAS( NPMAX,NGAS ), S_GASWDEP( NPMAX,NGAS ), STAT = NP )
+        IF ( NP .NE. 0 ) THEN
+          XMSG = 'Failure allocating S_GAS or S_GASWDEP'
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+        END IF
+
+        ALLOCATE ( S_AEROSOL( NPMAX,NAER,NMODES ), S_AERWDEP( NPMAX,NAER,NMODES ), STAT = NP )
+        IF ( NP .NE. 0 ) THEN
+          XMSG = 'Failure allocating S_AEROSOL or S_AERWDEP'
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+        END IF
+
+        ALLOCATE ( S_WSRGGAS( NPMAX,NGAS,MXSRG ), S_WSRGAER( NPMAX,NAER,NMODES,MXSRG ), STAT = NP )
+        IF ( NP .NE. 0 ) THEN
+          XMSG = 'Failure allocating S_WSRGGAS or S_WSRGAER'
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+        END IF
+#endif
+
       END IF
 
 C...for subsequent calls, check to make sure some surrogates were
@@ -202,19 +238,44 @@ C...load gas-phase concentrations
 
       DO IGAS = 1, NGAS
 
+#ifdef sens
+        DO NP =1, NPMAX
+          S_GAS( NP, IGAS ) = 0.0D0
+        ENDDO
+#endif
+
         DO ISRG = 1, NSRGGAS( IGAS )
           PNTR = CGRID2AQ_MAP( LSRGGAS( IGAS, ISRG ) )
           GAS( IGAS ) = GAS( IGAS ) + REAL( POLC( PNTR ), 8 )
+#ifdef sens
+          DO NP = 1, NPMAX
+            S_GAS( NP, IGAS ) = S_GAS( NP, IGAS ) + S_POLC ( NP, PNTR )
+          ENDDO
+#endif
         END DO
 
         IF ( GAS( IGAS ) .GT. 0.0D0 ) THEN
           DO ISRG = 1, NSRGGAS( IGAS )
             PNTR = CGRID2AQ_MAP( LSRGGAS( IGAS, ISRG ) )
             WSRGGAS( IGAS, ISRG ) = REAL( POLC( PNTR ), 8 ) / GAS( IGAS )
+#ifdef sens
+            DO NP = 1, NPMAX
+               IF ( S_GAS( NP, IGAS ) .NE. 0.0D0 ) THEN
+                  S_WSRGGAS( NP, IGAS, ISRG ) = S_POLC( NP,PNTR ) / S_GAS(NP,IGAS)
+               ELSE
+                  S_WSRGGAS( NP, IGAS, ISRG ) = 0.0D0
+               END IF
+            END DO
+#endif
           END DO
         ELSE
           DO ISRG = 1, NSRGGAS( IGAS )
             WSRGGAS( IGAS, ISRG ) = 1.0D0 / REAL( NSRGGAS( IGAS ), 8 )
+#ifdef sens
+            DO NP = 1, NPMAX
+               S_WSRGGAS( NP, IGAS, ISRG ) = 0.0D0
+            END DO 
+#endif
           END DO
         END IF
 
@@ -222,6 +283,11 @@ C...set background values for gases if no surrogates were specified
 
         IF ( NSRGGAS( IGAS ) .EQ. 0 ) THEN
           GAS( IGAS ) = REAL( SRGGAS( IGAS )%BACKGND, 8 ) * 1.0D-6
+#ifdef sens
+          DO NP =1, NPMAX
+             S_GAS( NP, IGAS ) = 0.0D0
+          ENDDO
+#endif
         END IF
 
       END DO
@@ -237,10 +303,19 @@ C...load aerosol concentrations
 
           IF ( SRGAER( IAER )%NAME( IMODE ) .NE. ' ' ) THEN
             AEROSOL( IAER, IMODE ) = 0.0D0
-
+#ifdef sens
+            DO NP =1, NPMAX
+               S_AEROSOL( NP, IAER, IMODE ) = 0.0D0
+            ENDDO
+#endif
             DO ISRG = 1, NSRGAER( IAER, IMODE )
               PNTR = CGRID2AQ_MAP( LSRGAER( IAER, IMODE, ISRG ) )
               AEROSOL( IAER, IMODE ) = AEROSOL( IAER, IMODE ) + REAL( POLC( PNTR ), 8 )
+#ifdef sens
+              DO NP = 1, NPMAX
+                S_AEROSOL( NP, IAER, IMODE ) = S_AEROSOL( NP, IAER, IMODE ) + S_POLC( NP, PNTR )
+              ENDDO
+#endif
             END DO
 
             IF ( AEROSOL( IAER, IMODE ) .GT. 0.0D0 ) THEN
@@ -248,10 +323,26 @@ C...load aerosol concentrations
                 PNTR = CGRID2AQ_MAP( LSRGAER( IAER, IMODE, ISRG ) )
                 WSRGAER( IAER, IMODE, ISRG ) = REAL( POLC( PNTR ), 8 )
      &                                       / REAL( AEROSOL( IAER, IMODE ), 8 )
+#ifdef sens
+               DO NP = 1, NPMAX
+                  IF ( S_AEROSOL( NP, IAER, IMODE ) .NE. 0.0D0 ) THEN
+                     S_WSRGAER( NP, IAER, IMODE, ISRG ) = S_POLC( NP, PNTR )
+     &                                               / S_AEROSOL( NP, IAER, IMODE )
+                  ELSE
+                     S_WSRGAER( NP, IAER, IMODE, ISRG ) = 0.0D0
+                  END IF
+               END DO
+#endif
+
               END DO
             ELSE
               DO ISRG = 1, NSRGAER( IAER, IMODE )
                 WSRGAER( IAER, IMODE, ISRG ) = 1.0D0 / REAL( NSRGAER( IAER, IMODE ), 8 )
+#ifdef sens
+                DO NP = 1, NPMAX
+                    S_WSRGAER( NP, IAER, IMODE, ISRG ) = 0.0D0
+                ENDDO
+#endif
               END DO
             END IF
 
@@ -264,6 +355,11 @@ C...set background values for aerosols if no surrogates were specified
               ELSE
                 AEROSOL( IAER, IMODE ) = REAL( SRGAER( IAER )%BACKGND * CTHK1 / AIRM, 8 )
               END IF
+#ifdef sens
+              DO NP = 1, NPMAX
+                S_AEROSOL( NP, IAER, IMODE ) = 0.0D0
+              ENDDO
+#endif
             END IF
           END IF
         END DO
@@ -272,7 +368,11 @@ C...set background values for aerosols if no surrogates were specified
 C *** extract grid cell concentrations of aero species from CGRID
 C     into aerospc_conc in aero_data module
 
+#ifdef sens
+      CALL EXTRACT_AERO ( POLC, .FALSE., REAL(S_POLC,4), .TRUE. )
+#else
       CALL EXTRACT_AERO ( POLC, .FALSE. )
+#endif
 
 C *** Calculate pseudo aerosol 3rd moment (ignore factors that cancel in the division)
 
@@ -302,6 +402,11 @@ C...  compute the scavenging coefficient
 C...store the amount of hydrogen deposition
 
       REMOVAC = HPWDEP
+#ifdef sens
+      DO NP = 1, NPMAX
+        S_REMOVAC( NP ) = S_HPWDEP( NP )
+      END DO
+#endif
 
 C...Now, re-apportion mass back into cend/remov (cgrid-type) array
 
@@ -310,6 +415,12 @@ C...Now, re-apportion mass back into cend/remov (cgrid-type) array
           PNTR = CGRID2AQ_MAP( LSRGGAS( IGAS, ISRG ) )
           CEND ( PNTR ) = GAS    ( IGAS ) * WSRGGAS( IGAS, ISRG )
           REMOV( PNTR ) = GASWDEP( IGAS ) * WSRGGAS( IGAS, ISRG )
+#ifdef sens
+          DO NP = 1, NPMAX
+            S_CEND ( NP, PNTR ) = S_GAS    ( NP, IGAS ) * S_WSRGGAS( NP, IGAS, ISRG )
+            S_REMOV( NP, PNTR ) = S_GASWDEP( NP, IGAS ) * S_WSRGGAS( NP, IGAS, ISRG )
+          ENDDO
+#endif
         END DO
       END DO
 
@@ -320,6 +431,12 @@ C...Now, re-apportion mass back into cend/remov (cgrid-type) array
               PNTR = CGRID2AQ_MAP( LSRGAER( IAER, IMODE, ISRG ) )
               CEND ( PNTR ) = AEROSOL( IAER, IMODE ) * WSRGAER( IAER, IMODE, ISRG )
               REMOV( PNTR ) = AERWDEP( IAER, IMODE ) * WSRGAER( IAER, IMODE, ISRG )
+#ifdef sens
+              DO NP = 1, NPMAX
+                S_CEND ( NP, PNTR ) = S_AEROSOL( NP, IAER, IMODE ) * S_WSRGAER( NP, IAER, IMODE, ISRG )
+                S_REMOV( NP, PNTR ) = S_AERWDEP( NP, IAER, IMODE ) * S_WSRGAER( NP, IAER, IMODE, ISRG )
+              ENDDO
+#endif
             END DO
           END IF 
         END DO
@@ -328,7 +445,11 @@ C...Now, re-apportion mass back into cend/remov (cgrid-type) array
 C *** extract grid cell concentrations of aero species from CGRID
 C     into aerospc_conc in aero_data module
 
+#ifdef sens
+      CALL EXTRACT_AERO ( CEND, .FALSE., REAL(S_CEND,4), .TRUE. )
+#else
       CALL EXTRACT_AERO ( CEND, .FALSE. )
+#endif
 
 C *** Calculate pseudo aerosol 3rd moment (ignore factors that cancel in the division)
 

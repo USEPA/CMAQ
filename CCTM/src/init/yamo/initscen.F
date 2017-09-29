@@ -66,6 +66,7 @@ C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN;
 C                        removed deprecated TRIMLEN
 C   11 May 11 D.Wong: incorporated twoway model implementation
 C   Aug 15 D.Wong:    Added two new subroutine calls to open ACONC and WDEP files
+C   14 Oct 15 S.L.Napelenok: update for cmaq 5.1.1
 C   Dec 15 D.Wong: new routine wr_init to write the initial data to the CONC file
 C-----------------------------------------------------------------------
 
@@ -76,6 +77,11 @@ C-----------------------------------------------------------------------
       USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
+#endif
+
+#ifdef sens
+      USE DDM3D_DEFN
+      USE VGRD_DEFN, ONLY: NLAYS
 #endif
 
       IMPLICIT NONE
@@ -132,6 +138,10 @@ C  environment variable description
       integer c, r, l, s, v
 #endif
 
+#ifdef sens
+      integer COL,ROW,LAY,SPC
+#endif
+
       INTERFACE
          SUBROUTINE LOAD_CGRID ( FNAME, STDATE, STTIME, SPC_CAT, CMIN, CGRID )
             CHARACTER( 16 ), INTENT( IN ) :: FNAME
@@ -144,6 +154,14 @@ C  environment variable description
             REAL, POINTER                 :: CGRID(:,:,:,:)
             INTEGER, INTENT( IN )         :: STDATE, STTIME, TSTEP
          END SUBROUTINE WR_INIT
+#ifdef sens
+         SUBROUTINE LOAD_SENGRID ( FNAME, STDATE, STTIME, SPC_CAT )
+            IMPLICIT NONE
+            CHARACTER( 16 ), INTENT( IN ) :: FNAME
+            INTEGER, INTENT( IN )         :: STDATE, STTIME
+            CHARACTER(  2 ), INTENT( IN ) :: SPC_CAT
+         END SUBROUTINE LOAD_SENGRID
+#endif
       END INTERFACE
 
 C-----------------------------------------------------------------------
@@ -344,6 +362,78 @@ C Test opening existing conc file for update
       CALL WR_INIT ( CGRID, STDATE, STTIME, TSTEP( 1 ) )
       CALL OPACONC ( STDATE, STTIME, TSTEP( 1 ) )
       CALL OPWDEP  ( STDATE, STTIME, TSTEP( 1 ) )
+
+#ifdef sens
+      CALL OPASENS( STDATE, STTIME, TSTEP( 1 ) )
+#endif
+
+
+!     IF ( MYPE .EQ. 0 ) THEN
+!        IF ( .NOT. CLOSE3( CTM_CONC_1 ) ) THEN
+!           MSG = 'Could not close ' // CTM_CONC_1
+!           CALL M3EXIT( PNAME, STDATE, STTIME, MSG, XSTAT1 )
+!           CALL M3WARN( PNAME, STDATE, STTIME, MSG )
+!        END IF
+!     END IF
+
+
+#ifdef sens
+      IF ( RST ) THEN ! Load SENGRID from a file
+
+         IF ( N_GC_SPC .GT. 0 ) THEN
+            FNAME = INIT_GASC_S
+            CALL LOAD_SENGRID ( FNAME, STDATE, STTIME, 'GC' )
+         END IF  ! N_GC_SPC > 0
+
+         FNAME = MET_CRO_3D
+         CALL LOAD_SENGRID ( FNAME, STDATE, STTIME, 'RJ' )
+
+         IF ( N_AE_SPC .GT. 0 ) THEN
+            FNAME = INIT_AERO_S
+            CALL LOAD_SENGRID ( FNAME, STDATE, STTIME, 'AE')
+         END IF  ! N_AE_SPC > 0
+
+         IF ( N_NR_SPC .GT. 0 ) THEN
+            FNAME = INIT_NONR_S
+            CALL LOAD_SENGRID ( FNAME, STDATE, STTIME, 'NR' )
+         END IF  ! N_NR_SPC > 0
+
+         IF ( N_TR_SPC .GT. 0 ) THEN
+            FNAME = INIT_TRAC_S
+            CALL LOAD_SENGRID ( FNAME, STDATE, STTIME, 'TR' )
+         END IF  ! N_TR_SPC > 0
+
+      ELSE  ! Set to initial conditions or 0.0
+
+         DO NP = 1, NPMAX
+            IF ( IPT( NP ) .EQ. 1 ) THEN
+               DO SPC = 1, NSPCSD
+                  DO LAY = 1, NLAYS
+                     DO ROW = 1, NROWS
+                        DO COL = 1, NCOLS
+                           SENGRID( COL, ROW, LAY, NP, SPC) =
+     &                             CGRID( COL, ROW, LAY, SPC ) *
+     &                             REAL( IPARM( NP, SPC ) ) *
+     &                             IREGION( COL, ROW, LAY, NP )
+                        END DO
+                     END DO
+                  END DO
+               END DO
+            ELSE
+               DO SPC = 1, NSPCSD
+                  DO LAY = 1, NLAYS
+                     DO ROW = 1, NROWS
+                        DO COL = 1, NCOLS
+                           SENGRID( COL, ROW, LAY, NP, SPC) = 0.0
+                        END DO
+                     END DO
+                  END DO
+               END DO
+            END IF
+         END DO
+
+      END IF
+#endif
 
       CALL SUBST_BARRIER
 
