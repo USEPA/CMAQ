@@ -50,28 +50,105 @@ Affected files: src/ddm3d/aero_sens.F, src/aero/aero6/isocom.f, src/aero/aero6/i
 
 Although the v5.0.2 implementation of HDDM-3D was extented to version 5.2, it should be considered a research option at this time.  The model does compile and simulates do complete without non-physical results (as of current testing). The performance compared to brute force is currently good for gaseous model species, but is objectively poor for secondary particulates.  There are issues with thermodynamics are are currently under investigaton. This fuctionality will be update to full use status in the future.
 
+## Getting the CMAQ Repository for the first time
+This CMAQ Git archive is organized with each official public release stored as a branch on the main USEPA/CMAQ repository.
+To clone code from the CMAQ Git archive, specify the branch (i.e. version number) and issue the following command from within
+a working directory on your server:
+
+```
+git clone -b 5.2_DDM-3D https://github.com/USEPA/CMAQ.git CMAQ_REPO
+```
+
+## Switching branches to 5.2_DDM-3D within an existing local CMAQ Repository (skip these instructions step if you have already cloned the 5.2_DDM-3D branch in the step above)
+Check on the current status of your repository
+
+```
+git status
+```
+ 
+Result will be something like this:
+
+``` 
+On branch 5.2
+Your branch is up-to-date with 'origin/5.2'.
+ 
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+ 
+                modified:   CCTM/scripts/bldit_cctm.csh
+                modified:   CCTM/scripts/run_cctm.csh
+                modified:   config_cmaq.csh
+``` 
+ 
+If there are any files that have been changed locally, that you want to save, use the following command:
+
+```
+git stash
+```
+ 
+Use the following command to bring your local repository up to date with the EPA github site:
+
+```
+git pull
+```
+ 
+Result: this will bring down the new branch
+
+``` 
+From https://github.com/USEPA/CMAQ
+   409467d..68330b8  5.2        -> origin/5.2
+   8633653..8fa4f10  5.0.2      -> origin/5.0.2
+ * [new branch]      5.2_DDM-3D -> origin/5.2_DDM-3D
+``` 
+ 
+Then, to use the new DDM-3D code, switch branches using the command:
+
+```
+git checkout 5.2_DDM-3D
+```
+ 
+Then use the following command to restore the files that you had modified for your local machine.
+
+```
+git stash apply
+```
+
 
 # Build Instructions
 
-The CMAQv5.2 DDM-3D installation includes a build script for compiling a version of the CCTM instrumented with DDM. For installing CMAQ-DDM-3D, first clone, and build the base version of the model. Edit this: Then download the CMAQ DDM3D tar file and untar into the CMAQv5.2 home directory:
+The CMAQv5.2 DDM-3D installation includes a build script.
+
+
+First build a new project
+```
+ ./bldit_project.csh <project_name>
+```
+Change to this new project directory location
 
 ```
- cd $CMAQ_REPO
- tar xvzf CMAQv5.0.2_DDM3D.Apr2014.tar.gz
+cd $CMAQ_REPO/<project_name>
 ```
 
-Use the bldit.cctm.ddm script as you would the base cctm build script.
+Edit the config_cmaq.csh script to specify the path to the compiler and required libraries.
+
+Change to the CCTM/scripts directory.
 
 ```
- cd $M3HOME/scripts/cctm_ddm
+ cd $CMAQ_REPO/<project_name>/CCTM/scripts
  ./bldit.cctm.ddm |& tee bldit.cctm.ddm.log
 ```
 
-Note that you will need to have the libraries  (I/O API, netCDF, MPI, Stenex, and Pario) and model builder (bldmake) required by the base model to compile this version of the code. See the base model [http://www.airqualitymodeling.org/cmaqwiki/index.php?title=CMAQv5.0.2_Readme_file README] for instructions on building these components.
+Run the bldit_cctm.csh script 
+
+```
+ ./bldit_cctm.csh |& tee bldit_cctm_ddm.log
+```
+
 
 # Run Instructions
 
-A sample run script is provided in the CMAQ-DDM-3D release package under $M3HOME/scripts/cctm_ddm. Along with the run time options for the base CCTM, this script includes DDM configuration options shown in Table 1. A DDM control input file is required when DDM3D is activated in the CCTM. Details on this file are included in the following section.
+A sample run script is provided in the CMAQ-DDM-3D release package under $CMAQ_REPO/CCTM/scripts/run_cctm.csh. Along with the run time options for the base CCTM, this script includes DDM configuration options shown in Table 1. A DDM control input file is required when DDM3D is activated in the CCTM. Details on this file are included in the following section.
 
 The CMAQ-DDM-3D test run uses the same input data as the base CMAQv5.2 distribution package.  To run the CMAQ-DDM-3D test case:
 
