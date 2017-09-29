@@ -135,8 +135,7 @@ Edit the config_cmaq.csh script to specify the path to the compiler and required
 Change to the CCTM/scripts directory.
 
 ```
- cd $CMAQ_REPO/<project_name>/CCTM/scripts
- ./bldit.cctm.ddm |& tee bldit.cctm.ddm.log
+cd $CMAQ_REPO/<project_name>/CCTM/scripts
 ```
 
 Run the bldit_cctm.csh script 
@@ -148,7 +147,7 @@ Run the bldit_cctm.csh script
 
 # Run Instructions
 
-A sample run script is provided in the CMAQ-DDM-3D release package under $CMAQ_REPO/CCTM/scripts/run_cctm.csh. Along with the run time options for the base CCTM, this script includes DDM configuration options shown in Table 1. A DDM control input file is required when DDM3D is activated in the CCTM. Details on this file are included in the following section.
+A sample run script is provided in the CMAQ-DDM-3D release package under $CMAQ_REPO/CCTM/<project_name>/scripts/run_cctm.csh. Along with the run time options for the base CCTM, this script includes DDM configuration options shown in Table 1. A DDM control input file is required when DDM3D is activated in the CCTM. Details on this file are included in the following section.
 
 The CMAQ-DDM-3D test run uses the same input data as the base CMAQv5.2 distribution package.  To run the CMAQ-DDM-3D test case:
 
