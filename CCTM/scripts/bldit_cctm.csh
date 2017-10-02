@@ -109,7 +109,7 @@ set ParOpt                             #> uncomment to build a multiple processo
  setenv FC ${myFC}                     #> path of Fortan compiler; set in config.cmaq
  set    FP = $FC                       #> path of Fortan preprocessor; set in config.cmaq
  set    CC = ${myCC}                   #> path of C compiler; set in config.cmaq
- setenv BLDER ${CMAQ_HOME}/UTIL/bldmake/bldmake_${compiler}.exe   #> name of model builder executable
+ setenv BLDER ${CMAQ_HOME}/UTIL/bldmake/bldmake_${compilerString}.exe   #> name of model builder executable
 
 #> Libraries/include files
 # set LIOAPI   = "${IOAPI_DIR}/lib ${ioapi_lib}"      #> I/O API library directory
@@ -230,7 +230,7 @@ set ParOpt                             #> uncomment to build a multiple processo
 
 #> Set and create the "BLD" directory for checking out and compiling 
 #> source code. Move current directory to that build directory.
- set Bld = $CMAQ_HOME/CCTM/scripts/BLD_CCTM_${VRSN}_${compiler}
+ set Bld = $CMAQ_HOME/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}
  if ( ! -e "$Bld" ) then
     mkdir $Bld
  else
@@ -558,9 +558,9 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  endif
 
 #> Rename Makefile to specify compiler option and link back to Makefile
- mv Makefile Makefile.$compiler
- if ( -e Makefile.$compiler && -e Makefile ) rm Makefile
- ln -s Makefile.$compiler Makefile
+ mv Makefile Makefile.$compilerString
+ if ( -e Makefile.$compilerString && -e Makefile ) rm Makefile
+ ln -s Makefile.$compilerString Makefile
 
 #> Alert user of error in BLDMAKE if it ocurred
  if ( $status != 0 ) then

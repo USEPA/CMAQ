@@ -20,7 +20,7 @@
 
 #> Source the config.cmaq file to set the build environment
  cd ../..
- source ./config_cmaq.csh
+ source ./config_cmaq.csh $compiler
  cd CCTM/scripts
 
 #> Set General Parameters for Configuring the Simulation
@@ -33,11 +33,11 @@
 #> Define RUNID as any combination of parameters above or others. By default,
 #> this information will be collected into this one string, $RUNID, for easy
 #> referencing in output binaries and log files as well as in other scripts.
- setenv RUNID  ${VRSN}_${compiler}_${APPL}
+ setenv RUNID  ${VRSN}_${compilerString}_${APPL}
 
 #> Set the build directory (this is where the CMAQ executable
 #> is located by default).
- set BLD      = ${CMAQ_HOME}/CCTM/scripts/BLD_CCTM_${VRSN}_${compiler}
+ set BLD      = ${CMAQ_HOME}/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}
  set EXEC     = CCTM_${VRSN}.exe  
  cat $BLD/CCTM_${VRSN}.cfg; echo "    "; set echo
 
@@ -298,11 +298,10 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      setenv GSPRO      $GSPROpath/gspro_biogenics_1mar2017.txt
      setenv B3GRD      $IN_BEISpath/b3grd_bench.nc
      setenv BIOG_SPRO  B10C6 #> speciation profile to use for biogenics
-     setenv BIOSW_YN   N     #> use frost date switch [ default: Y ]
-     setenv BIOSEASON  $IN_BEISpath/bioseason.12US1.2006.09apr2012_bench.nc #> ignore season switch file if BIOSW_YN = N
-     setenv SUMMER_YN  N     #> Use summer normalized emissions? [ default: Y ]
+     setenv BIOSW_YN   Y     #> use frost date switch [ default: Y ]
+     setenv BIOSEASON  $IN_BEISpath/bioseason.cmaq.2011_12US1_wetland100.ghrsst_bench.ncf #> ignore season switch file if BIOSW_YN = N
+     setenv SUMMER_YN  Y     #> Use summer normalized emissions? [ default: Y ]
      setenv PX_VERSION Y     #> MCIP is PX version? [ default: N ]
-     setenv INITIAL_RUN Y    #> non-existent or not using SOILINP [ default: N ]; default uses SOILINP
      setenv SOILINP    $OUTDIR/CCTM_SOILOUT_${RUNID}_${YESTERDAY}.nc
                              #> Biogenic NO soil input file; ignore if INITIAL_RUN = Y
   endif
