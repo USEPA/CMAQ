@@ -1529,7 +1529,7 @@ C-----------------------------------------------------------------------
                                                    !check routine               
       INTEGER, INTENT(OUT) :: LMODE  !Identifies the problematic mode
 
-      LOGICAL          :: LSTAT
+      INTEGER          :: LSTAT
 
       REAL, PARAMETER  :: F1PI = 1.0 / pi
       REAL, PARAMETER  :: ONE_THIRD  = 1.0 / 3.0
