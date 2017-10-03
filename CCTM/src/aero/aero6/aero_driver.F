@@ -81,7 +81,7 @@ C   Jim Kelly - Apr 08 - coarse mode updates
 C   - added code to account for new species (ANH4K & SRFCOR) and variable
 C     coarse std. deviation
 C   - removed MW coding now located in AERO_INFO.f
-C   - added LIMIT_Sg flag for call to GETPAR
+C   - added FIXED_sg flag for call to GETPAR
 C   Jeff Young - Aug 10 - convert for Namelist redesign (replace include files)
 C   Steve Howard - Mar 11 - Renamed met_data to aeromet_data
 C   S.Roselle- Mar 11 - replaced I/O API include files with UTILIO_DEFN
@@ -580,7 +580,7 @@ C *** Update gas soa concentrations back to CGRID
 C *** OUTPUT DIAGNOSTIC INFORMATION
 C *** Get wet moment info (dry will be converted to wet)
                CALL calcmoments( .true. )
-               CALL GETPAR( LIMIT_Sg ) ! update AEROMODE_DIAM,DENS,SDEV
+               CALL GETPAR( FIXED_sg ) ! update AEROMODE_DIAM,DENS,SDEV
                    
 C *** Calculate volume fraction of each mode for measurement applications
                DO N = 1, N_MODE
@@ -667,7 +667,7 @@ C *** Calculate 2nd and 3rd moments of the "dry" aerosol distribution
 C     NOTE! "dry" aerosol excludes both H2O and SOA  (Jan 2004 --SJR)
 C     EXCEPT!  nonvolatile SOA is part of dry aerosol (Oct 2007 --PVB)
                CALL CALCMOMENTS( .FALSE. )
-               CALL GETPAR( LIMIT_Sg ) ! update AEROMODE_DIAM,DENS,SDEV
+               CALL GETPAR( FIXED_sg ) ! update AEROMODE_DIAM,DENS,SDEV
 
                IF ( PMDIAG .OR. APMDIAG ) THEN
                   TEMP_DATA(  1 ) = EXP( AEROMODE_LNSG( 1 ) )
