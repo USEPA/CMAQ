@@ -153,6 +153,12 @@ C 09/17/14 change by Kathleen Fahey - see Revision History, above
       Real,    Parameter :: max_sigma_g = 2.5001
       Real,    Save      :: def_l2sg( n_mode ), max_l2sg, min_l2sg   
 
+C If FIXED_sg = T, atkn & accum std. dev. are not changed by GETPAR
+C If FIXED_sg = F, the second moment will be adjusted if the standard
+C                  deviation (sigma_g) is outside of the bounds specified 
+C                  by min_sigma_g and max_sigma_g.
+      LOGICAL, PARAMETER :: FIXED_sg = .FALSE.
+
 C Flag to obtain coagulation coefficients
 C by analytical approximation (True) or by Gauss-Hermite quadrature (False)
       Logical, Parameter :: fastcoag_flag = .True.
