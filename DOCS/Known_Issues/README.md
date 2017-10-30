@@ -51,4 +51,15 @@ The runscript is currently up to date in the repository. If you are starting fro
 
 We have also updated the bioseason file for the benchmark case (Southeast US for July 1-14, 2011). This must be updated or the model will crash when attempting to read it. Please simply redownload the tarball from the CMAS center.  
 
+## *CMAQv5.2-i4:* Resolve Error When Checking Grid Compatibility in Advection Driver Setup  
+Date: 2017-10-30   
+Contact: Ben Murphy (murphy.benjamin@epa.gov)  
 
+### Description  
+When gridded inputs are used within CMAQ, the model checks to ensure that the properties of the grid are compatible. In advstep.F, the model has been yielding errors when checking that the grid spacing is consistent between the assumed grid structure and the inputs, particularly when the grid spacing is equal to a non-terminating decimal number (e.g. 1.333333... km).
+
+### Scope and Impact
+CMAQ will exit claiming that the grids are inconsistent, when they are actually compatible.
+
+### Solution  
+We have implemented a straight-forward solution that calculates the difference of the internal and input grid spacing in advstep.F. If the absolute value of this difference is greater than an assumed tolerance (i.e. 1.0E-5), then the code will error and exit as before. Replace CCTM/src/driver/yamo/advstep.F in repository with the version located under CMAQv5.2-i4.
