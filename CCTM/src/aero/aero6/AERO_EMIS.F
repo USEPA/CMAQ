@@ -625,13 +625,13 @@ C *** Apply Aerosol Size Distribution
              IM    = MAP_EMtoMODE( ISPC )
              IF ( IAERO .EQ. 0 ) CYCLE
              
-             ! Apply Size Distirbution Coefficient
+             ! Apply Size Distirbution Coefficient [ug/m3/s]
              EMIS_BUFF( :,:,: ) = EMWT_PROF( IAERO,IM ) * VDEMIS_AE( ISPC,:,:,: ) * GSFAC( :,:,: )
 
              ! Add Aerosol Emissions to Total Emission Buffer
              VDEMIS_AE( ISPC,:,:,: ) = VDEMIS_AE( ISPC,:,:,: ) + EMIS_BUFF
                
-             ! Sum Total Volume of Mode N
+             ! Sum Total Volume of Mode N [m3/m3/s]
              IF ( .NOT. AEROSPC( IAERO )%TRACER ) THEN
                    EMISM3( :,:,:,IM ) = EMISM3( :,:,:,IM ) + 
      &                   EMIS_BUFF * ( F6DPIM9 / AEROSPC( IAERO )%DENSITY )
@@ -656,14 +656,13 @@ C *** Apply Aerosol Size Distribution
      &             + VDEMIS_AE( MAP_AEROtoEM( ACORS_IDX,IM),:,:,: )* (F6DPIM9 / AEROSPC( ACORS_IDX )%DENSITY )
              END IF
 
-             ! Convert Mass Emission Rates from g/hr or kg/hr to
-             ! umol/m3/s
+             ! Convert Mass Emission Rates from [ug/m3/s] to [umol/m3/s]
              VDEMIS_AE( IDX,:,:,: ) = VDEMIS_AE( IDX,:,:,: ) / AEROSPC_MW( IAERO )
          END DO          
 
 C *** Calculate the number emissions rate for each mode [1/m3/s], using 
 C     Equation 7b of Binkowski & Roselle (2003).
-C *** Calculate the surface area emissions rate for the fine modes [m2/m3/s],
+C     Calculate the surface area emissions rate for the fine modes [m2/m3/s],
 C     using Equation 7c of Binkowski & Roselle (2003).  Multiplying by PI 
 C     converts 2nd moment to surface area.
          DO IM = 1,N_MODE
