@@ -82,7 +82,8 @@
 !                    in Pye et al. in prep for ES&T 2015
 ! 10/19/15    B.Hutzell: Renamed ACROLEIN_PRIMARY and TRIMETH_BENZ124 to ACRO_PRIMARY and TMBENZ124 for 
 !             DDM compliance
-
+!
+! 09/27/17    G.Sarwar: Removed an extra N2O5 hydrolysis reaction from the mechanism [HET_N2O5]
 
   SAPRC07TIC_AE6INVPOA_AQ
 
@@ -1619,8 +1620,6 @@ REACTIONS [CM] =
         # 1.0/<IC3ONO2>;
 
 ! iorganic heteorogeneous reactions from hetchem version 5.0.2
-
-<HET_N2O5> N2O5 = 2.0*HNO3 # 1.0~<HETERO_N2O5IJ>;
 
 <HET_N02> NO2 = 0.5*HONO + 0.5*HNO3 # 1.0~<HETERO_NO2>;
 

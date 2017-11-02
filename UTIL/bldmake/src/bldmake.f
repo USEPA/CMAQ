@@ -361,8 +361,8 @@
          Write( lfn, '( " LIBRARIES = $(IOAPI) $(NETCDF)")' )
       Else
 !         Write( lfn, '( " MPICH  = -L$(LIB)/",a,1x,a)' ) "mpich/lib", Trim( mpich )
-         Write( lfn, '( " MPICH  = -L$(LIB)/",a,1x,a)' ) "mpi/lib", Trim( mpich )
-         Write( lfn, '( " LIBRARIES = $(IOAPI) $(NETCDF) $(MPICH)")' )
+!         Write( lfn, '( " MPICH  = -L$(LIB)/",a,1x,a)' ) "mpi/lib", Trim( mpich )
+         Write( lfn, '( " LIBRARIES = $(IOAPI) $(NETCDF) ")' )
       End If
 
 !     Call writeLIB( lfn )
@@ -571,7 +571,7 @@
       Integer            :: pathInd( n_Mac ) = (/ 2, 1, 1 /)
   !   parallel & serial
       Integer, Parameter :: n_Inc = 8
-      Integer, Parameter :: pathMap( n_Inc ) = (/ 1, 1, 1, 1, 2, 2, 2, 3 /)
+      Integer, Parameter :: pathMap( n_Inc ) = (/ 1, 1, 1, 1, 3, 2, 2, 3 /)
   !   Integer, Parameter :: n_Inc = 6
   !   Integer, Parameter :: pathMap( n_Inc ) = (/ 1, 1, 1, 2, 2, 2 /)
 
@@ -669,8 +669,11 @@
           Write( lfn, '(1x)' )
           Do i = 1, n_M
             If ( pathStr( i ) .Ne. ' ' ) Then
-!             Write( lfn, '(1x,a," = ",a)' ) Trim( pathMacro(i) ), Trim( pathStr(i) )
-              Write( lfn, '(1x,a," = ",a)' ) pathMacro( i ), Trim( pathStr( i ) )
+              If ( pathMacro( i ) .EQ. "MPI_INC " ) Then
+                  Write( lfn, '(1x,a," = ",a)' ) pathMacro( i ), "$(LIB)/mpi/include"
+              Else
+                  Write( lfn, '(1x,a," = ",a)' ) pathMacro( i ), Trim( pathStr( i ) )
+              End If
             End If
           End Do
         End If
@@ -701,12 +704,7 @@
           If ( pos .Gt. 0 .And. pathStr( i ) .Ne. ' ' ) Then
             pos2 = pos + Len_Trim( pathStr( i ) )
             If ( pos .Eq. 1 ) Then
-              j = Index( path, 'mpi')
-              if (j .eq. 0) then
-                 path = '$(' // Trim( pathMacro( Map ) ) // ')' // path( pos2: )
-              else
-                 path = path(3:)
-              end if
+              path = '$(' // Trim( pathMacro( Map ) ) // ')' // path( pos2: )
               Exit
             Else
               If ( twoway ) Then
