@@ -493,8 +493,8 @@ C                            pp 601-609, April, 1996.
       INV_ESATL( TT ) = DL * DEXP( BL * ( 273.15D0 - TT ) / ( TT - 273.15D0 + CL ) )
       
       INTERFACE
-         SUBROUTINE GETPAR( LIMIT_SG  )
-           LOGICAL, INTENT( IN ) :: LIMIT_SG    ! fix coarse and accum Sg's to the input value?
+         SUBROUTINE GETPAR( FIXED_sg  )
+           LOGICAL, INTENT( IN ) :: FIXED_sg    ! fix coarse and accum Sg's to the input value?
          END SUBROUTINE GETPAR
       END INTERFACE 
   
@@ -743,7 +743,7 @@ C *** Update geometric mean diameters, geometric
 C     standard deviations, modal mass totals, and modal particle
 C     densities, based on the concentrations of M2, M0, and speciated
 C     masses.
-               CALL getpar( limit_Sg )
+               CALL getpar( FIXED_sg )
     
 C *** set up variables needed for calculating KN2O5 and YIELD_CLNO2
 
