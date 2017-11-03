@@ -37,11 +37,8 @@
 
 
 # =====================================================================
-#> BLDOVERLAY Configuration Options
+#> HR2DAY Configuration Options
 # =====================================================================
-
-#> Projection sphere type used by I/OAPI (use type #20 to match WRF/CMAQ)
- setenv IOAPI_ISPH 20
 
 #> set to use local time (default is GMT)
  setenv USELOCAL Y
@@ -50,8 +47,7 @@
  setenv USEDST N
 
 #> location of time zone data file, tz.csv (this is a required input file
-#> when using OLAYTYPE HOURLY since hourly observations need to be shifted
-#> from local time to GMT)
+#> when using USELOCAL Y to shift from GMT to local time)
  setenv TZFILE ${REPO_HOME}/POST/bldoverlay/inputs/tz.csv
 
 #> partial day calculation (computes value for last day)
