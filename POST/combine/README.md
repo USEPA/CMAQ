@@ -37,7 +37,7 @@ All other records are read as variable definition records
  field 3: formular expression (maximum of 512 characters)
  ```
 
-Formular expressions supports operators ^+-\*/ and evaluated based on mathematical order of operations, i.e., powers first, multiplication/division next and addition/subtraction last. Order of evaluation can be forced by use of parentheses. When part of an expression is enclosed in parentheses, that part is evaluated first.   Table 1. lists supported functions evalutation for each grid per each file time step Table 1. In addition, formula can use conditional statements of the form "expression_for_condition ? expresssion_if_true :  expression_if_false". Conditional statements have the higher rank if the order of formula or math operations.
+Formular expressions supports operators ^+-\*/ and are evaluated based on mathematical order of operations, i.e., powers first, multiplication/division next and addition/subtraction last. Order of evaluation can be forced by use of parentheses. When part of an expression is enclosed in parentheses, that part is evaluated first.   Table 1. lists supported functions evalutation for each grid per each file time step Table 1. In addition, formula can use conditional statements of the form "expression_for_condition ? expresssion_if_true :  expression_if_false". Conditional statements have the highest rank in the order of formular operations.
 
 Table 1. Grid Cell Functions per Output Time Step 
 
@@ -58,8 +58,8 @@ Table 1. Grid Cell Functions per Output Time Step
 | TANH(X[n])   |Hyperbolic Tangent of X[n] |   
 | INT(X[n])    |Integer Truncation of X[n] |  
 | SQRT(X[n])   |Square Root of X[n]        | 
-
-<sup>0</sup> Value of n equals an input file number or zero if X is a derived variable.
+ 
+ <sup> 0 </sup> Value of n equals an input file number or zero if X is a derived variable.
 
 Formular expresssions can also use functions (Table 2.) computed for a variable *common* to all input files so each input file *must* contain a variable named X at the timestep.
 
