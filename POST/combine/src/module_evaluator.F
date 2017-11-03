@@ -26,6 +26,10 @@ C  MODULE:  evaluates species expressions
 C             
 C***********************************************************************
       MODULE evaluator
+      
+      Public ::  evaluate
+      
+      Private
 
       Real, Private, Allocatable :: parseBuffer(:,:)
       Integer, Parameter, Private :: EXP_LEN = 1024    
@@ -33,7 +37,43 @@ C***********************************************************************
       Integer, Private :: idate
       Integer, Private :: itime  
       Integer, Private :: ilayer
-      Integer, Private :: isize 
+      Integer, Private :: isize
+      
+       Logical, Private :: eflag
+
+      Interface            
+         Subroutine getFld( record, delimiter, nth, del, field, exception )
+            CHARACTER*(*), Intent( In  ) :: record
+            CHARACTER*(*), Intent( In  ) :: delimiter
+            CHARACTER,     Intent( Out ) :: del
+            Integer,       Intent( In  ) :: nth
+            CHARACTER*(*), Intent( Out ) :: field
+            CHARACTER*(*), Optional, Intent( In ) :: exception
+         End Subroutine getFld
+         INTEGER FUNCTION getFldCount(record, delimiter, exception) Result(nfields)
+            CHARACTER*(*), Intent( In ) :: record
+            CHARACTER*(*), Intent( In ) :: delimiter
+            CHARACTER*(*), Optional, Intent( In ) :: exception
+         End FUNCTION getFldCount
+         Subroutine LeftTrim( STRING )
+            CHARACTER*(*), INTENT( INOUT ) :: STRING
+         End Subroutine LeftTrim
+         Subroutine RightTrim( STRING )
+            CHARACTER*(*), INTENT( INOUT ) :: STRING
+         End Subroutine RightTrim
+         SUBROUTINE UCASE ( STR )
+            CHARACTER, INTENT( INOUT ) :: STR*( * )
+         END SUBROUTINE UCASE
+         Subroutine replace( string, old, new )
+            Character*(*), Intent( InOut ) :: string
+            Character*(1), Intent( In    ) :: old    
+            Character*(1), Intent( In    ) :: new    
+         End Subroutine replace 
+         SUBROUTINE Remove_WhiteSpaces (text)
+            CHARACTER*(*), Intent( InOut ) :: text
+         END SUBROUTINE Remove_WhiteSpaces
+      End Interface
+
 
       CONTAINS
 
@@ -65,9 +105,13 @@ C  returns buffer array values
       itime = jtime
       ilayer = jlayer
       isize = jsize
+      eflag = .False.
     
       ! make copy of expression to modify
       expresscp = expression
+      Call Remove_WhiteSpaces(expresscp)
+!      print*,Trim(expresscp),' ',Trim(expression)
+!      expresscp = expression
 
       ! check for scientific notation (E+,E-,e+,e-) and replace with 10.0^
       call rmSciNot( expresscp )
@@ -245,8 +289,11 @@ C  subroutine to return buffer array value
       Subroutine getBuffer(field, buffer)
       IMPLICIT NONE
 
-      Character*(*) field
-      Real buffer(isize)
+      Character*(*), Intent( InOut ) :: field
+      Real,          Intent( InOut ) :: buffer(isize)
+      
+      Real,  Parameter :: Max_Exponential = 82.8931
+      
       Integer pos1, pos2, nbuf, status
       Character*(10) string
       Character*(10) func
@@ -287,23 +334,178 @@ C  subroutine to return buffer array value
 
       if( pos1.gt.1 ) then       
         func = field(1:pos1-1)
-
-        if( func.eq.'LOG' ) then
+        print*,Trim(field)
+        If( func.eq.'LOG' ) Then
+          If( MinVal(buffer) .Le. 0.0 )Then
+            write(*,'(/''**ERROR** evaluating LOG of '',es12.4)' )
+     &      MinVal(buffer)
+            KSWIT = SHUT3()
+            stop
+          End If
+          If( MaxVal(buffer) .Gt. 1.0E36 )Then
+            write(*,'(/''**WARNING** evaluating LOG of '',es12.4)' )
+     &      MaxVal(buffer)
+          End If
           buffer = LOG(buffer)
           return
-          endif
-        if( func.eq.'EXP' ) then
-          buffer = EXP(buffer)
+        End If
+        If( func.eq.'LOG10' ) Then
+          If( MinVal(buffer) .Le. 0.0 )Then
+            write(*,'(/''**ERROR** evaluating LOG10 of '',es12.4)' )
+     &      MinVal(buffer)
+            KSWIT = SHUT3()
+            stop
+          End If
+          If( MaxVal(buffer) .Gt. 1.0E36 )Then
+            write(*,'(/''**WARNING** evaluating LOG10 of '',es12.4)' )
+     &      MaxVal(buffer)
+          End If
+          buffer = LOG10(buffer)
           return
-          endif
-        if( func.eq.'SQRT' ) then
+        End If
+        If( func.eq.'EXP' ) Then
+          If( MaxVal(buffer) .Ge. Max_Exponential )Then
+            write(*,'(/''**ERROR** evaluating EXP of '',es12.4)' )
+     &      MaxVal(buffer)
+            KSWIT = SHUT3()
+            stop
+          End If
+          If( MinVal(buffer) .Le. -Max_Exponential )Then
+            write(*,'(/''**WARNING** evaluating EXP of '',es12.4)' )
+     &      MinVal(buffer)
+          End If
+          Where( buffer .Le. -Max_Exponential )
+             buffer = 0.0
+          Else Where
+             buffer = EXP(buffer)
+          End Where
+          return
+        End If
+        If( func.eq.'SIN' ) Then
+          buffer = SIN(buffer)
+          return
+        End If
+        If( func.eq.'COS' ) Then
+          buffer = COS(buffer)
+          return
+        End If
+        If( func.eq.'TAN' ) Then
+          buffer = TAN(buffer)
+          return
+        End If
+        If( func.eq.'ASIN' ) Then
+          If( MinVal(buffer) .Lt. -1.0 )Then
+            write(*,'(/''**ERROR** evaluating ASIN of '',es12.4)' )
+     &      MinVal(buffer)
+            eflag = .True.
+          End If
+          If( MaxVal(buffer) .Gt. 1.0 )Then
+            write(*,'(/''**ERROR** evaluating ASIN of '',es12.4)' )
+     &      MaxVal(buffer)
+            eflag = .True.
+          End If
+          If( eflag )Then
+            KSWIT = SHUT3()
+            stop
+          End If
+          buffer = ASIN(buffer)
+          return
+        End If
+        If( func.eq.'ACOS' ) Then
+          If( MinVal(buffer) .Lt. -1.0 )Then
+            write(*,'(/''**ERROR** evaluating ACOS of '',es12.4)' )
+     &      MinVal(buffer)
+            eflag = .True.
+          End If
+          If( MaxVal(buffer) .Gt. 1.0 )Then
+            write(*,'(/''**ERROR** evaluating ACOS of '',es12.4)' )
+     &      MaxVal(buffer)
+            eflag = .True.
+          End If
+          If( eflag )Then
+            KSWIT = SHUT3()
+            stop
+          End If
+          buffer = ACOS(buffer)
+          return
+        End If
+        If( func.eq.'ATAN' ) Then
+          buffer = ATAN(buffer)
+          return
+        End If
+        If( func.eq.'SINH' ) Then
+          If( MaxVal(buffer) .Ge. Max_Exponential )Then
+            write(*,'(/''**ERROR** evaluating SINH of '',es12.4)' )
+     &      MaxVal(buffer)
+            eflag = .True.
+          End If
+          If( MinVal(buffer) .Le. -Max_Exponential )Then
+            write(*,'(/''**ERROR** evaluating SINH of '',es12.4)' )
+     &      MinVal(buffer)
+            eflag = .True.
+          End If
+          If( eflag )Then
+            KSWIT = SHUT3()
+            stop
+          End If
+          buffer = SINH(buffer)
+          return
+        End If
+        If( func.eq.'COSH' ) Then
+          If( MaxVal(buffer) .Ge. Max_Exponential )Then
+            write(*,'(/''**ERROR** evaluating COSH of '',es12.4)' )
+     &      MaxVal(buffer)
+            eflag = .True.
+          End If
+          If( MinVal(buffer) .Le. -Max_Exponential )Then
+            write(*,'(/''**ERROR** evaluating COSH of '',es12.4)' )
+     &      MinVal(buffer)
+            eflag = .True.
+          End If
+          If( eflag )Then
+            KSWIT = SHUT3()
+            stop
+          End If
+          buffer = COSH(buffer)
+          return
+        End If
+        If( func.eq.'TANH' ) Then
+          If( MaxVal(buffer) .Ge. Max_Exponential )Then
+            write(*,'(/''**ERROR** evaluating TANH of '',es12.4)' )
+     &      MaxVal(buffer)
+            KSWIT = SHUT3()
+            stop
+          End If
+          If( MinVal(buffer) .Le. -Max_Exponential )Then
+            write(*,'(/''**ERROR** evaluating TANH of '',es12.4)' )
+     &      MinVal(buffer)
+            eflag = .True.
+          End If
+          If( eflag )Then
+            KSWIT = SHUT3()
+            stop
+          End If
+          buffer = TANH(buffer)
+          return
+        End If
+        If( func.eq.'SQRT' ) Then
+          If( MinVal(buffer) .Le. 0.0 )Then
+            write(*,'(/''**ERROR** evaluating SQRT of '',es12.4)' )
+     &      MinVal(buffer)
+            KSWIT = SHUT3()
+            stop
+          End If
           buffer = SQRT(buffer)
           return
-          endif
-        if( func.eq.'ABS' ) then
+        End If
+        If( func.eq.'AINT' .Or. func.eq.'INT') Then
+          buffer = AINT(buffer)
+          return
+        End If
+        If( func.eq.'ABS' ) Then
           buffer = ABS(buffer)
           return
-          endif
+        End If
 
         write(*,'(/''**ERROR** Invalid function name: '',a)') trim(func)
         KSWIT = SHUT3()
@@ -326,7 +528,7 @@ C
       Real buffer(isize)
 
       ! functions
-      Integer getFldCount
+!      Integer getFldCount
  
       ! local variables
       Logical, Allocatable :: flags(:)
@@ -399,7 +601,7 @@ C  subroutine to evaluate condition expression (called from eval1)
       Logical flags(isize)
 
       ! functions
-      Integer getFldCount
+!      Integer getFldCount
  
       ! local variables
       Real, Allocatable :: value1(:)
@@ -482,50 +684,46 @@ C  subroutine to evaluate condition expression (called from eval1)
       end Subroutine eval1b
 
 
-
 C  subroutine to evaluate species expression (parses major fields (+-))
       Subroutine eval2(expression, buffer)
 
       IMPLICIT NONE
 
       ! arguments
-      Character*(*) expression
-      Real buffer(isize)
+      Character*(*), Intent( In )    :: expression
+      Real,          Intent( InOut ) :: buffer(isize)
 
-      ! functions
-      Integer getFldCount
- 
       ! local variables
-      Real, Allocatable :: value(:)
-      Character*(EXP_LEN) field
+      Real,    Allocatable :: value(:)
+      Character*(EXP_LEN)  :: field
       Character operator
       Integer nmajor
       Integer n
 
-      buffer = 0.0
+      buffer = 0.0D0
       Allocate ( value(isize) )
 
       ! parse major fields (+-)
-      nmajor = getFldCount(expression, '+-')
+      nmajor = getFldCount(expression, '+-', '*/^')
 
       ! loop thru and parse each major field and evaluate
-      do n=1,nmajor
+      Do n=1,nmajor
 
-        call getFld( expression, '+-', n, operator, field ) 
+        call getFld( expression, '+-', n, operator, field, '*/^' ) 
+    
+        If( field.eq.' ' ) Then
+          value = 0.0D0
+        else
+          call eval3b( field, value)
+        End If
 
-        if( field.eq.' ' ) then
-          value = 0
-         else
-          call eval3( field, value)
-          endif
-
-        if( operator.eq.'+' ) then
+        If( operator.eq.'+' ) Then
           buffer = buffer + value
-         else
+        else
           buffer = buffer - value
-          endif
+        End If
 
-        enddo
+        End Do
 
       Deallocate (value)
       return
@@ -539,97 +737,269 @@ C  routine to compute a field of the expression (parses minor fields (*/^))
 
       ! arguments
       
-      CHARACTER*(*) expression
-      Real value(isize)
+      CHARACTER*(*), Intent( In    ) :: expression
+      Real,          Intent( InOut ) :: value(isize)
 
       Logical SHUT3
 
       ! local variables
-      Real, allocatable :: specValue(:)
-      Integer getFldCount
+      Real,    allocatable :: specValue(:)
       Character*(EXP_LEN) field
       Character      operator   
-      Integer n, nflds, status
+      Integer n, m, nflds, status
       Integer pos1, pos2, fnum
       Character*(16) funcName
       Character*(16) specName
-      real constant
+      Real    constant
       Logical KSWIT
 
       Allocate ( specValue(isize) )
       nflds = getFldCount(trim(expression), '*/^')
       value = 1.0
          
-      do n=1,nflds
+      Do n=1,nflds
         call getFld( trim(expression), '*/^', n, operator, field ) 
 
+        print*,Trim(field)
+
         ! check for buffer array
-        if( index(field,'buffer[') .gt.0 ) then
+        If( index(field,'buffer[') .gt.0 ) Then
           Call getBuffer(field, specValue)
-          if( operator.eq.'*' ) value = value * specValue
-          if( operator.eq.'/' ) value = value / specValue
-          if( operator.eq.'^' ) value = value ** specValue
+          If( operator.eq.'*' ) value = value * specValue
+          If( operator.eq.'/' ) value = value / specValue
+          If( operator.eq.'^' ) value = value ** specValue
           cycle
-          endif
+        End If
  
         ! check for species argument (special functions)
-        if( index(field,'[') .gt.0 ) then
+        If( index(field,'[') .gt.0 ) Then
   
           ! switch ! and # characters within [] brackets back to + and - characters
           Call replace(field, '!', '+')
           Call replace(field, '#', '-')
 
-          ! parse field between [ ] and check if number or species name
+          ! parse field between [ ] and check If number or species name
           pos1 = index(field, '[')
           pos2 = index(field, ']',.true.)
           specName = field(pos1+1:pos2-1)
   
           read(specName,'(i16)',iostat=status) fnum
 
-          if( status.eq.0 ) then    !! number found
+          If( status.eq.0 ) Then    !! number found
             Call readSpecies(field, specValue)
-            if( operator.eq.'*' ) value = value * specValue
-            if( operator.eq.'/' ) value = value / specValue
-            if( operator.eq.'^' ) value = value ** specValue
+            If( operator.eq.'*' ) value = value * specValue
+            If( operator.eq.'/' ) value = value / specValue
+            If( operator.eq.'^' ) value = value ** specValue
             cycle
-          else     !! species argument found
-            funcName = field(1:pos1-1)
-            Call UCASE(funcName)
-
-            status = -1
-            if( funcName .eq. 'AVG' )  Call avgSpecies( specName , specValue, status )
-            if( funcName .eq. 'SDEV' ) Call sdevSpecies( specName , specValue, status )
-            if( funcName .eq. 'MAX' )  Call maxSpecies( specName , specValue, status )
-            if( funcName .eq. 'MIN' )  Call minSpecies( specName , specValue, status )
-
-            if( status.eq.0 ) then
-              if( operator.eq.'*' ) value = value * specValue
-              if( operator.eq.'/' ) value = value / specValue
-              if( operator.eq.'^' ) value = value ** specValue
-              endif
-
-            endif 
-
-          cycle
-          endif    !! contains '['
-
-        !try to read field as number
+          End If    !! contains '['
+        End If
+      !try to read field as number
         read(field,'(f20.0)',iostat=status) constant
-        if( status.eq.0 ) then
-          if( operator.eq.'*' ) value = value * constant
-          if( operator.eq.'/' ) value = value / constant
-          if( operator.eq.'^' ) value = value ** constant
-          else
-           Write(*,'(''**Error** Invalid field encountered:'',a)') field
-           KSWIT = SHUT3()
-           stop 
-           endif                         
 
-        enddo
+        If( status.eq.0 ) Then
+             If( operator.eq.'*' ) value = value * constant
+             If( operator.eq.'/' ) value = value / constant
+             If( operator.eq.'^' ) value = value ** constant
+        Else
+             Write(*,'(''**Error** Invalid field encountered:'',a)') field
+             stop 
+        End If
+      End Do
 
       Deallocate (specValue)
       return
       end Subroutine eval3
+
+C  routine to compute a field of the expression (parses minor fields (*/^))
+      Subroutine eval3b(expression, value)
+      
+      IMPLICIT NONE
+
+      ! arguments
+      
+      CHARACTER*(*), Intent( In    ) :: expression
+      Real,          Intent( InOut ) :: value(isize)
+
+      Logical SHUT3
+
+      ! local variables
+      Real,     allocatable :: specValue(:)
+      Character*(EXP_LEN) field
+      Character      operator   
+      Integer n, nflds
+
+      Allocate ( specValue(isize) )
+!      nflds = getFldCount(trim(expression), '*/^')
+      nflds = getFldCount(trim(expression), '*/')
+      value = 1.0
+         
+      SpecValue = 0.0D0
+      Do n=1,nflds
+!        call getFld( trim(expression), '*/^', n, operator, field ) 
+        call getFld( trim(expression), '*/', n, operator, field ) 
+        call eval4(field, specValue)
+!        call GetValue(field, specValue)
+!        print*,operator,value,specValue
+
+        If( operator.eq.'*' ) value = value * specValue
+        If( operator.eq.'/' ) value = value / specValue
+!        If( operator.eq.'^' ) value = value ** specValue
+
+      End Do
+
+      Deallocate (specValue)
+      return
+      end Subroutine eval3b
+      Subroutine eval4(expression, value)
+      
+      IMPLICIT NONE
+
+      ! arguments
+      
+      CHARACTER*(*), Intent( In    ) :: expression
+      Real,           Intent( InOut ) :: value(:)
+
+      Real,    allocatable :: specValue(:)
+      Real,    allocatable :: specPower(:)
+      Character*(EXP_LEN)  :: field
+      Character(1)         :: operator   
+      Integer              :: n, pos1, nflds
+      Real    Factor
+
+      
+        
+
+      nflds = getFldCount(trim(expression), '^')
+!      value = 1.0
+!...No exponents found
+      Allocate ( specValue(isize) )
+      If( nflds .Eq. 1 )Then
+          field = expression
+          call GetValue(field, specValue)
+           value = specValue
+          Deallocate (specValue)
+          Return
+      End If
+!...check if correct number of exponents found      
+!      If( mod(nflds,2) .Ne. 0 )Then
+!          eflag = .True.
+!          Write(6,*)'Incorrect number of exponents in Formula: ', Trim(formula)
+!          Return
+!      End If
+!...compute fields with 
+      Allocate ( specPower(isize) )
+      Value = 1.0D0
+      n = nflds 
+      call getFld( trim(expression), '^', n, operator, field ) 
+      n = n - 1
+      call GetValue(field, specPower)
+      Do 
+         call getFld( trim(expression), '^', n, operator, field )
+         n = n - 1
+          If( field(1:1) .Eq. '-' )Then
+            field  = field(2:)
+            Factor = -1.0D0
+          Else
+            Factor = 1.0D0
+          End If 
+         call GetValue(field, specValue)
+         Value = Factor * specValue**SpecPower
+         If( n .Lt. 1)EXIT
+         SpecPower = Value
+      End Do
+
+      Deallocate (specValue)
+      Deallocate (specPower)
+
+      end Subroutine eval4
+
+C  routine to compute a field of the expression (parses minor fields (*/^))
+      Subroutine GetValue(expression, value)
+      
+      IMPLICIT NONE
+
+      ! arguments
+      
+      CHARACTER*(*), Intent( In    ) :: expression
+      Real,          Intent( InOut ) :: value(isize)
+
+      Logical SHUT3
+
+      ! local variables
+      Real,    allocatable :: specValue(:)
+      Character*(EXP_LEN) field
+      Character      operator   
+      Integer n, m, nflds, status
+      Integer pos1, pos2, fnum
+      Character*(16) funcName
+      Character*(16) specName
+      Real    constant
+      Real    Factor
+
+      
+        If( expression(1:1) .Eq. '-' )Then
+            field    = expression(2:)
+            Factor = -1.0D0
+        Else If( expression .Eq. '+' )Then
+            field    = expression(2:)
+            Factor = 1.0D0
+        Else            
+            field = expression
+            Factor = 1.0D0
+        End If 
+
+!...check for buffer array
+        If( index(field,'buffer[') .gt.0 ) Then
+          Call getBuffer(field, Value)
+          Value = Factor * Value
+          Return
+        End If
+        
+!...check for species argument (special functions)
+        If( index(field,'[') .gt.0 ) Then
+  
+          ! switch ! and # characters within [] brackets back to + and - characters
+          Call replace(field, '!', '+')
+          Call replace(field, '#', '-')
+
+          ! parse field between [ ] and check If number or species name
+          pos1 = index(field, '[')
+          pos2 = index(field, ']',.true.)
+          specName = field(pos1+1:pos2-1)
+  
+          read(specName,'(i16)',iostat=status) fnum
+
+          If( status.eq.0 ) Then    !! number found
+            Call readSpecies(field, Value)
+            Value = Factor * Value
+            Return
+          Else
+            funcName = field(1:pos1-1)
+            Call UCASE(funcName)
+             status = -1
+             If( funcName .eq. 'FAVG' )  Call avgSpecies(  specName , Value, status )
+             If( funcName .eq. 'FSDEV' ) Call sdevSpecies( specName , Value, status )
+             If( funcName .eq. 'FMAX' )  Call maxSpecies(  specName , Value, status )
+             If( funcName .eq. 'FMIN' )  Call minSpecies(  specName , Value, status )
+             If( status.eq.0 ) Then  
+                Value = Factor * Value
+                Return 
+             End If
+          End If    !! contains '['
+        End If
+!...try to read field as number
+        read(field,'(f20.0)',iostat=status) constant
+
+        If( status.eq.0 ) Then
+          value = Factor * constant
+          Return
+        Else
+             Write(*,'(''**Error** Invalid field encountered:'',a)') field
+             stop 
+        End If
+
+      return
+      end Subroutine GetValue
 
 
 C  Routine to read species value array for given date and time
