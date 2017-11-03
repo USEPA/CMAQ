@@ -32,7 +32,7 @@
  setenv EXEC hr2day_${VRSN}.exe
 
 #> Set location of CMAQ repo.  This will be used to point to the time zone file
-#> needed to run bldoverlay.  The v5.2 repo also contains a sample input file.
+#> needed to run bldoverlay.  
  setenv REPO_HOME ${CMAQ_REPO}
 
 
