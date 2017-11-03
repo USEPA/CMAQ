@@ -59,7 +59,7 @@ Table 1. Grid Cell Functions per Output Time Step
 | INT(X[n])    |Integer Truncation of X[n] |  
 | SQRT(X[n])   |Square Root of X[n]        | 
 
-<sup>0<\sup> Value of n equals an input file number or zero if X is a derived variable.
+<sup>0</sup> Value of n equals an input file number or zero if X is a derived variable.
 
 Formular expresssions can also use functions (Table 2.) computed for a variable *common* to all input files so each input file *must* contain a variable named X at the timestep.
 
