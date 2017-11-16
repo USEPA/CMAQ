@@ -58,6 +58,7 @@
 !C                         * replaced CDATE and CTIME with JDATE and JTIME, respectively 
 !C                           when calling INTERPX
 !C----------------------------------------------------------------------
+      USE EMIS_GLOBAL
 
       IMPLICIT NONE
 
@@ -107,6 +108,8 @@
       REAL,    ALLOCATABLE, SAVE :: ICCG        ( :,: ) ! intercloud strikes per cloud to ground strike
 !C Vertical coord values
       REAL,    ALLOCATABLE, SAVE :: VGLVSLT( : )
+!C Buffer for Reading Emissions
+      REAL,    ALLOCATABLE, SAVE :: BUFF( :,:,: )
 
 !C    scenario time/date needed for diagnostic output
       INTEGER, SAVE    :: SDATE     ! scenario start date
@@ -133,7 +136,7 @@
 !C======================================================================
 !C Initialize lightning routines
 
-         FUNCTION LTNG_INIT ( JDATE, JTIME, TSTEP, EMLAYS ) RESULT ( SUCCESS )
+         FUNCTION LTNG_INIT ( JDATE, JTIME, TSTEP ) RESULT ( SUCCESS )
 
          USE GRID_CONF ! horizontal & vertical domain specifications
          USE CGRID_SPCS         ! CGRID mechanism species
@@ -146,8 +149,6 @@
          INCLUDE SUBST_FILES_ID  ! file name parameters
 
 !C Arguments:
-C        INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
-         INTEGER, INTENT( IN ) :: EMLAYS     ! number of emissions layers
          INTEGER :: JDATE, JTIME, TSTEP
 
          LOGICAL SUCCESS
@@ -186,6 +187,10 @@ C        INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
 !C Lightning NO production
 !C Set LTNG_NO to Y or T to turn on lightning NO production
          IF ( .NOT. LTNG_NO ) RETURN
+
+!C Populate Emissions Species Record
+         EM_FILE_SPEC( ILTSRC )%LEN = 1
+         EM_FILE_SPEC( ILTSRC )%ARRY( 1 ) = "NO"
 
 !C Read in scenario time/date
          SDATE = ENVINT( 'CTM_STDATE', 'Scenario Start (YYYYJJJ)', 0, STATUS )

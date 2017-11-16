@@ -83,6 +83,7 @@ C-----------------------------------------------------------------------
       USE CGRID_SPCS          ! CGRID mechanism species
       USE GRID_CONF
       USE EMIS_DEFN          
+      USE EMIS_GLOBAL          
       USE DEPV_DEFN
       USE ASX_DATA_MOD
       USE VDIFF_MAP

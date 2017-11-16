@@ -35,6 +35,7 @@ C     20 Sep 2007 J.Young: inline DSCSPROF, eliminate MODSPRO module
 C     16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 
 C-----------------------------------------------------------------------
+      USE EMIS_GLOBAL
 
       IMPLICIT NONE
 
@@ -402,7 +403,7 @@ C Reposition sequential file for second pass
          write( logdev,* ) '    Biogenic emissions species:'
          write( logdev,* ) '    Pol POLNAMES  Spc SPCNAMES         Mspcs EMSPC'
 #endif
-C Find emitted species names
+C Find emitted CMAQ species names
          MSPCS = 0
          DO POL = 1, NSEF
             DO ISP = 1, MXSPEC
@@ -422,6 +423,11 @@ C Find emitted species names
                END IF
             END DO
          END DO
+
+C Save Species names in global array for mapping emissions
+         EM_FILE_SPEC( IBIOSRC )%LEN = MSPCS
+         ALLOCATE( EM_FILE_SPEC( IBIOSRC )%ARRY( MSPCS ) )
+         EM_FILE_SPEC( IBIOSRC )%ARRY = EMSPC
 
 C Allocate memory for storing mole- and mass-based factors
          ALLOCATE( MLFAC( MSPCS,NSEF ), STAT=IOS )
@@ -475,7 +481,6 @@ C not found (skip entry)
             SNDX = INDEX1( SPECNM, MSPCS, EMSPC )
             IF ( SNDX .GT. 0 ) THEN
                MLFAC( SNDX,PNDX ) = SPLTFAC / SDIV
-!              MSFAC( SNDX,PNDX ) = SMFAC * GM2TON
                MSFAC( SNDX,PNDX ) = SMFAC
             END IF
 

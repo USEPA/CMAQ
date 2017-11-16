@@ -34,6 +34,7 @@ C   03 Nov 15: B. Gantt and G. Sarwar: created the initial version for marine ga
 C   26 Sep 16: D. Wong: removed repeated SEAICE interpx statement
 
       USE HGRD_DEFN
+      USE EMIS_GLOBAL
 
       IMPLICIT NONE
 
@@ -44,7 +45,7 @@ C   26 Sep 16: D. Wong: removed repeated SEAICE interpx statement
 C Marine gas Emissions Rates
       REAL, ALLOCATABLE, SAVE :: VDEMIS_MG( :,:,: )   ! marine gas emission rates [moles/s]
 
-      PUBLIC NMGSPC, VDEMIS_MG, MGSPC_MAP, MGEMIS_INIT, GET_MGEMIS, MGEM, MG_SPC
+      PUBLIC NMGSPC, VDEMIS_MG, MGEMIS_INIT, GET_MGEMIS, MGEM, MG_SPC, MGSPC_MAP
       PRIVATE
 
       INTEGER, SAVE              :: LGC_O3            ! pointer to O3 in CGRID
@@ -57,6 +58,7 @@ C Variables for the marine gas diagnostic file
       REAL,    ALLOCATABLE, SAVE :: MGBF( :,:,: )     ! marine gas emiss accumulator
       REAL,    ALLOCATABLE, SAVE :: WRMG( :,: )       ! marine gas emiss write buffer
       INTEGER, SAVE              :: SDATE, STIME      ! scenario start date & time
+      INTEGER, SAVE              :: MGSPC_MAP( NMGSPC )
 
 ! Species names in the speciated marine gas-emissions
       CHARACTER( 16 ), ALLOCATABLE :: WRMG_SPC( : )   ! species names
@@ -66,7 +68,6 @@ C Variables for handling marine gas emissions
       REAL,    ALLOCATABLE, SAVE :: SZONE( :,: )   ! fractional sea
       REAL,    ALLOCATABLE, SAVE :: CHLR( :,: )    ! chlorophyll
 
-      INTEGER, ALLOCATABLE       :: MGSPC_MAP( : ) ! map to gc array
       CHARACTER( 16 ) :: MG_SPC( NMGSPC)           ! emitted species
 
       DATA  MG_SPC  /  'MB3             ',
@@ -143,6 +144,10 @@ C flag for marine gas emissions; this flag is set in the subroutine EM_FILE_INIT
             IF ( .NOT. MGEM ) RETURN
 
 C Allocate MG arrays using NMGSPC value
+            EM_FILE_SPEC( IMGSRC )%LEN = NMGSPC
+            ALLOCATE( EM_FILE_SPEC( IMGSRC )%ARRY( NMGSPC ) )
+            EM_FILE_SPEC( IMGSRC )%ARRY = MG_SPC
+
             ALLOCATE ( VDEMIS_MG( NMGSPC,NCOLS,NROWS), STAT = STATUS )
             IF ( STATUS .NE. 0 ) THEN
                XMSG = '*** VDEMIS_MG, memory allocation failed'

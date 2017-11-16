@@ -118,6 +118,7 @@ C Number of aerosol species and modes
                                                 ! 1 = Aitken
                                                 ! 2 = accumulation
                                                 ! 3 = coarse
+      Character(1), Parameter :: modesuff( n_mode ) = (/ 'I','J','K' /)
 
       Integer, Save :: n_aerospc ! number of aero species
 
@@ -354,11 +355,10 @@ C See Ref. (4), above and https://cfpub.epa.gov/si/speciate/
 ! Speciation factors between j and k modes were assumed constant because no data was found.
 
 C maximum number of chemical species in windblown dust aerosol
-      Integer, Parameter :: ndust_list = 26
-      Integer            :: ndust_spc
+      Integer, Parameter :: ndust_spc = 26
 
        
-      Type( emis_table ) :: dust_spc_list( ndust_list ) = (/
+      Type( emis_table ) :: dust_spc( ndust_spc ) = (/
 C                    --description-- --- name --    -------- spcfac --------
 C                                                    Aitken  accum   coarse
      &   emis_table( 'Sulfate       ', 'ASO4    ', (/ 0.0, 0.02250, 0.02655/) ),   ! Sulfate
@@ -388,8 +388,14 @@ C                                                    Aitken  accum   coarse
      &   emis_table( 'Cadmium       ', 'ACD     ', (/ 0.0, 9.7E-08, 9.7E-08/) ),   ! Cadmium J and K mode
      &   emis_table( 'Mercury       ', 'APHG    ', (/ 0.0, 1.4E-08, 1.4E-08/) ) /) ! Mercury J and K mode
 
-      Type( emis_table ), Allocatable, Save :: dust_spc( : )
-      INTEGER, ALLOCATABLE, SAVE :: MAP_DUSTtoAERO( : ) !
+      ! Manually Enter the mode-dependent Density of the Dust Particles using the mass fractions in 
+      ! the dust_spc table and user-defined densities for each component. You may reference the aerolist 
+      ! for densities as well. Units are [kg/m3]. The appropriate calculation is:
+      !    dust_dens = sum( frac_i ) / sum( frac_i / dens_i )
+      ! Make sure to ignore any tracer species when performing this calculation.
+      Real, Parameter :: dust_dens( n_mode ) = (/ 2200.0, 2156.55, 2536.92 /)
+
+      INTEGER, ALLOCATABLE, SAVE :: MAP_DUSTtoAERO( : ) 
 
 C Sea-Salt Speciation factors based on seawater composition:
 ! For toxic metal species, Use Table 1 in K.W. Bruland and M.C. Lohan, 6.02 - Controls of Trace Metals in Seawater, 
@@ -397,9 +403,9 @@ C Sea-Salt Speciation factors based on seawater composition:
 ! ISBN 9780080437514, http://dx.doi.org/10.1016/B0-08-043751-6/06105-3.
 
 C number of chemical species in seawater aerosol composition
-      integer, parameter :: nsea_spc = 15
+      integer, parameter :: nsea_spc = 16
 
-      Type( emis_table ), Parameter :: sea_spc_list( nsea_spc ) = (/
+      Type( emis_table ), Parameter :: sea_spc( nsea_spc ) = (/
 C                     -description--   -- name --   -------- spcfac --------
 C                                                     Aitken  accum   coarse
      &   emis_table( 'Sulfate       ', 'ASO4    ', (/ 0.0, 0.07760, 0.07760/) ),   ! Sulfate
@@ -416,46 +422,58 @@ C                                                     Aitken  accum   coarse
      &   emis_table( 'Mercury       ', 'APHG    ', (/ 0.0, 5.8E-11, 5.8E-11/) ),   ! accumaltion and coarse mode Mercury
      &   emis_table( 'Lead          ', 'APB     ', (/ 0.0, 6.0E-11, 6.0E-11/) ),   ! accumaltion and coarse mode Lead
      &   emis_table( 'Cadmium       ', 'ACD     ', (/ 0.0, 1.93E-9, 1.93E-9/) ),   ! accumaltion and coarse mode cadmium
-     &   emis_table( 'Air Toxics Mn ', 'AMN_HAPS', (/ 0.0, 4.7E-11, 4.7E-11/) ) /) ! accumaltion and coarse mode Air toxics Manganese
+     &   emis_table( 'Air Toxics Mn ', 'AMN_HAPS', (/ 0.0, 4.7E-11, 4.7E-11/) ),   ! accumaltion and coarse mode Air toxics Manganese
+     &   emis_table( 'Water         ', 'AH2O    ', (/ 0.0, 0.0    , 0.0    /) ) /) ! accumaltion and coarse mode Air toxics Manganese
+
+      ! Manually Enter the mode-dependent density of the Sea Spray Particles using the mass fractions in 
+      ! the sea_spc table and user-defined densities for each component. You may reference the aerolist 
+      ! for densities as well. Units are [kg/m3]. The appropriate calculation is:
+      !    seaspray_dens = sum( frac_i ) / sum( frac_i / dens_i )
+      ! Make sure to ignore any tracer species when performing this calculation.
+      Real, Parameter :: seaspray_dens( n_mode ) = (/ 2162.7, 2162.7, 2162.7 /)
+      Real, Parameter :: specific_vol_h2o = 0.001  !Inverse Density of Particulate Water
  
-      Type( emis_table), Allocatable, Save :: sea_spc( : )
       INTEGER, ALLOCATABLE, SAVE :: MAP_SEAtoAERO( : )  !
 
-C Constants used in other routines:
+C Constants used for simulating the ionic effects of sea-spray,
+C windblown dust and anthropogenic dust in the coarse mode. These cation
+C species are not transported individually in the domain but their
+C relative abundance is assumed to be constant and scaled to the total
+C SeaSalt_Cation, ASOIL, or Coarse-Mode Dust present.
 
       Real( 8 ), Parameter :: asoil_renorm = 1.0D0 - 0.04642D0  ! = 0.95358, same as ASOIL speciation factor in the dust_spc table above
 
-      Real( 8 ), Parameter :: ascat_na_fac = 0.8373D0    ! coarse sea-salt NA cation
+      Real( 8 ), Parameter :: ascat_na_fac = 0.8373D0    ! for NA in coarse sea-spray aerosol
       Real( 8 ), Parameter :: asoil_na_fac = 0.0626D0    ! for NA in windblown dust
       Real( 8 ), Parameter :: acors_na_fac = 0.0023D0    ! for NA in anthropogenic coarse
 
-      Real( 8 ), Parameter :: ascat_mg_fac = 0.0997D0    ! coarse sea-salt MG cation
+      Real( 8 ), Parameter :: ascat_mg_fac = 0.0997D0    ! for MG in coarse sea-spray aerosol
       Real( 8 ), Parameter :: asoil_mg_fac = 0.0170D0    ! for MG in windblown dust
       Real( 8 ), Parameter :: acors_mg_fac = 0.0032D0    ! for MG in anthropogenic coarse
 
-      Real( 8 ), Parameter :: ascat_k_fac =  0.0310D0    ! coarse sea-salt K cation
+      Real( 8 ), Parameter :: ascat_k_fac =  0.0310D0    ! for K in coarse sea-spray aerosol
       Real( 8 ), Parameter :: asoil_k_fac =  0.0242D0    ! for K in windblown dust
       Real( 8 ), Parameter :: acors_k_fac =  0.0176D0    ! for K in anthropogenic coarse
 
-      Real( 8 ), Parameter :: ascat_ca_fac = 0.0320D0    ! coarse sea-salt CA cation
+      Real( 8 ), Parameter :: ascat_ca_fac = 0.0320D0    ! for CA in coarse sea spray aerosol
       Real( 8 ), Parameter :: asoil_ca_fac = 0.0838D0    ! for CA in windblown dust
       Real( 8 ), Parameter :: acors_ca_fac = 0.0562D0    ! for CA in anthropogenic coarse
 
 
-      Real( 8 ), Parameter :: asoil_fe_fac = 0.02695D0   ! for FE in dust*
+      Real( 8 ), Parameter :: asoil_fe_fac = 0.02695D0   ! for FE in windblown dust
       Real( 8 ), Parameter :: acors_fe_fac = 0.0467D0    ! for FE in anthropogenic coarse
 
-      Real( 8 ), Parameter :: asoil_mn_fac = 0.00075D0   ! for MN in dust*
+      Real( 8 ), Parameter :: asoil_mn_fac = 0.00075D0   ! for MN in windblown dust
       Real( 8 ), Parameter :: acors_mn_fac = 0.0011D0    ! for MN in anthropogenic coarse
 
-C Coarse mode PMC speciation based on anthopogenic inventory composite from various
+C Coarse mode PMC speciation based on anthropogenic inventory composite from various
 C sources (G. Pouliot - private communication):
 
       Real( 8 ), Parameter :: acorsem_aso4_fac = 0.00100D0
       Real( 8 ), Parameter :: acorsem_ano3_fac = 0.00048D0
       Real( 8 ), Parameter :: acorsem_acl_fac  = 0.00145D0
       Real( 8 ), Parameter :: acorsem_ah2o_fac = 0.00032D0
-      Real( 8 ), Parameter :: acors_renorm = 1.0D0
+      Real( 8 ), Parameter :: acorsem_renorm   = 1.0D0
      &                                     - acorsem_aso4_fac
      &                                     - acorsem_ano3_fac
      &                                     - acorsem_acl_fac
@@ -519,7 +537,7 @@ C Indices of Optional species
       Integer :: aimos_idx  = 0
       Integer :: aphgj_idx  = 0
 
-      Character(16), Allocatable :: aero_bulkname( : )  ! aero species M.W. (from AE_SPC Namelist) [ g/mol ]
+      Character(16), Allocatable :: aero_bulkname( : )  ! aero species name without mode suffix
       Real, Allocatable :: aerospc_mw( : )     ! aero species M.W. (from AE_SPC Namelist) [ g/mol ]
       Real, Allocatable :: aerospc_conc( :,: ) ! aero species concentration [ ug/m^3 ]
 
@@ -848,15 +866,15 @@ C Find indices of required species
 C Adjust Dust Emissions list for Organic Species, if running with semivolatile POA
       If ( Index( mechname, 'NVPOA' ) .Eq. 0 ) Then
          ! Find Indices for Nonvolatile Organics
-         Do idust = 1, ndust_list
-            If ( Index( dust_spc_list( idust )%name, 'APOC' )  .Gt. 0 ) dust_org1 = idust
-            If ( Index( dust_spc_list( idust )%name, 'APNCOM') .Gt. 0 ) dust_org2 = idust
+         Do idust = 1, ndust_spc
+            If ( Index( dust_spc( idust )%name, 'APOC' )  .Gt. 0 ) dust_org1 = idust
+            If ( Index( dust_spc( idust )%name, 'APNCOM') .Gt. 0 ) dust_org2 = idust
          End Do
 
          ! Compute Total Organic Dust Scale Factor and O:C Ratio
          ! The dust OM:OC should equal 1.4 if it consistent with Simon and Bhave (2011).
-         dust_POC = dust_spc_list( dust_org1 )%spcfac( 2 )
-         dust_PNC = dust_spc_list( dust_org2 )%spcfac( 2 )
+         dust_POC = dust_spc( dust_org1 )%spcfac( 2 )
+         dust_PNC = dust_spc( dust_org2 )%spcfac( 2 )
          dust_OMOC = ( dust_POC + dust_PNC ) / dust_POC
          dust_OC = 12.0 / 15.0 * dust_OMOC - 14.0 / 15.0
 
@@ -870,10 +888,10 @@ C Adjust Dust Emissions list for Organic Species, if running with semivolatile P
          dust_OOA = 1.0 / ( 1.0 + ( dust_OC - OOA_OC ) / ( POA_OC - dust_OC ) )
 
          ! Assign new names and speciation to dust table
-         dust_spc_list( dust_org1 )%name = 'ALVPO1'
-         dust_spc_list( dust_org2 )%name = 'ALVOO2'
-         dust_spc_list( dust_org1 )%spcfac( 2 ) = dust_POA * ( dust_POC + dust_PNC )
-         dust_spc_list( dust_org2 )%spcfac( 2 ) = dust_OOA * ( dust_POC + dust_PNC )
+         dust_spc( dust_org1 )%name = 'ALVPO1'
+         dust_spc( dust_org2 )%name = 'ALVOO2'
+         dust_spc( dust_org1 )%spcfac( 2 ) = dust_POA * ( dust_POC + dust_PNC )
+         dust_spc( dust_org2 )%spcfac( 2 ) = dust_OOA * ( dust_POC + dust_PNC )
       End If
 
 C Compute common factors

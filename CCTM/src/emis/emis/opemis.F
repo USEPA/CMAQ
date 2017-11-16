@@ -25,7 +25,7 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
  
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE OPEMIS ( JDATE, JTIME, EM_TRAC, CONVEM, EMLAYS )
+      SUBROUTINE OPEMIS ( JDATE, JTIME, EM_TRAC, CONVEM )
 
 C  7 Mar 02 - J.Young: add units string variations
 C 29 Oct 05 - J.Young: dyn. layers
@@ -38,7 +38,8 @@ C                        removed deprecated TRIMLEN
       USE CGRID_SPCS          ! CGRID mechanism species
       USE UTILIO_DEFN
       USE RXNS_DATA, only : MECHNAME 
-      USE EMIS_DEFN, only : TRACSPC, AREASPC
+      USE EMIS_GLOBAL
+      USE EMIS_DEFN
       USE AERO_DATA, only : AEROMODE, N_MODE, PMEM_UNITS
 
       IMPLICIT NONE
@@ -51,7 +52,6 @@ C Arguments:
       INTEGER      JTIME      ! current model time, coded HHMMSS
       LOGICAL      EM_TRAC    ! are there tracer emissions?
       REAL         CONVEM     ! conversion for emissions rates
-      INTEGER      EMLAYS     ! emissions layers from file
 
 C External Functions:
 
@@ -67,7 +67,7 @@ C Local variables:
       LOGICAL ::   WRFLG = .FALSE.
       INTEGER      LOGDEV
       INTEGER      STATUS
-      INTEGER      V, N, S        ! induction variables
+      INTEGER      V, N, S, ISRC        ! induction variables
 
 C-----------------------------------------------------------------------
  
@@ -86,7 +86,7 @@ C Open All Tracer Emission Files
 
            WRITE( EM_FILE_NAME( ISRC ),'( "TR_EMIS_",I2.2 )' ) ITRAC
            IF ( .NOT. OPEN3( EM_FILE_NAME( ISRC ), FSREAD3, PNAME ) ) THEN
-              XMSG = 'Could not open '//  // ' file'
+              XMSG = 'Could not open tracer file'
               CALL M3MESG( XMSG )
            ELSE
 
@@ -97,7 +97,6 @@ C Open All Tracer Emission Files
              EM_FILE_SPEC( ISRC )%ARRY = VNAME3D( 1:NVARS3D )
 
              ! Assign Tracer Emissions Species
-             EM_TRAC = .TRUE.
              IF ( .NOT. DESC3( EM_FILE_NAME( ISRC ) ) ) THEN
                 XMSG = 'Could not get '// EM_FILE_NAME( ISRC ) // ' file description'
                 CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
@@ -136,7 +135,7 @@ C Open the emissions file (for gas chem, aerosols and non-reactive species)
 
            WRITE( EM_FILE_NAME( ISRC ),'( "GR_EMIS_",I2.2 )' ) IGR
            IF ( .NOT. OPEN3( EM_FILE_NAME( ISRC ), FSREAD3, PNAME ) ) THEN
-              XMSG = 'Could not open '//  // ' file'
+              XMSG = 'Could not open file ' // EM_FILE_NAME( ISRC )
               CALL M3MESG( XMSG )
            ELSE
  
@@ -148,8 +147,8 @@ C Open the emissions file (for gas chem, aerosols and non-reactive species)
            ! Save Area Source Species Names For Use in Emissions Species
            ! Check Routine
            EM_FILE_SPEC( ISRC )%LEN = NVARS3D
-           ALLOCATE ( EM_FILE_SPC( ISRC )%ARRY( NVARS3D ), STAT = STATUS )
-           EM_FILE_SPC( ISRC )%ARRY = VNAME3D( 1:NVARS3D )
+           ALLOCATE ( EM_FILE_SPEC( ISRC )%ARRY( NVARS3D ), STAT = STATUS )
+           EM_FILE_SPEC( ISRC )%ARRY = VNAME3D( 1:NVARS3D )
 
            ! Assign Area Source Emission Species
            EM_GRID_LAYS( ISRC ) = NLAYS3D
@@ -213,7 +212,7 @@ C Open the emissions file (for gas chem, aerosols and non-reactive species)
            ! Assume units = mol/s across gas and non-reactive species classes
            CONVEM = 1.0E-03  ! assuming gram-moles
 
-         END IF  ! (gas chem or non-react emissions)
+         END IF  ! (gas, aerosol or non-react emissions)
       END DO
 
 C Print Alerts that Species Emissions Will Be Treated 

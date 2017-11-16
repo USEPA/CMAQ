@@ -41,6 +41,8 @@ C-----------------------------------------------------------------------
 
       USE HGRD_DEFN
       USE AERO_DATA, ONLY: N_MODE
+      USE CGRID_SPCS,ONLY: N_AE_EMIS, AE_EMIS_MAP, AE_SPC
+      USE EMIS_GLOBAL
 
       IMPLICIT NONE
 
@@ -298,8 +300,9 @@ C Local Variables:
             CHARACTER( 80 ) :: VARDESC
             CHARACTER( 250 ) :: XMSG = ' '
             INTEGER STATUS
-            INTEGER S, N, L, ISEA, SPC
+            INTEGER S, N, L, ISEA, SPC, IM
             LOGICAL SEA_MATCH
+            CHARACTER( 16 ) :: SN
 
 C-----------------------------------------------------------------------
 
@@ -310,43 +313,35 @@ C Map aerospc data
             CALL MAP_AERO()
              
             ! Map The Sea-Salt Species to the AeroSpc Array
-            ALLOCATE( MAP_SEAtoAERO( NSEA_SPC+1 ) )
-
+            NSSSPC = NSEA_SPC + 1
+            ALLOCATE( MAP_SEAtoAERO( NSSSPC ) )
             MAP_SEAtoAERO = 0
-            NSSSPC = 0
+            ALLOCATE( MAP_AEtoSEA  ( N_AE_EMIS ) )
+            MAP_AEtoSEA = 0
 
             DO ISEA = 1, NSEA_SPC
-               SEA_MATCH = .FALSE.
+
+               ! Map to aerosol chemical species table 
+               ! This is just for retrieving the aerosol density later
                DO SPC = 1,N_AEROSPC
-                  IF ( SEA_SPC_LIST( ISEA )%NAME .Eq. AERO_BULKNAME( SPC ) ) Then
-                     NSSSPC = NSSSPC + 1
-                     MAP_SEAtoAERO( NSSSPC ) = SPC
-                     SEA_MATCH = .TRUE.
-                  End If
+                  DO IM = 2,N_MODE
+                     SN = TRIM( SEA_SPC( ISEA )%NAME ) // MODESUFF( IM )
+                     IF ( SN .Eq. AEROLIST( SPC )%NAME( 2 ) ) MAP_SEAtoAERO( ISEA ) = SPC
+                  End Do
                End Do
 
-               If ( .NOT. SEA_MATCH ) Then
-                 WRITE( XMSG, '(A,A,A,A,A)' ), 
-     &               'Cannot find aerosol species to accomodate sea spray emission species: ', 
-     &               Trim(SEA_SPC_LIST( ISEA )%NAME), '. You should ',
-     &               'provide a prognostic variable for this species in both the AE ',
-     &               'namelist and the AERO_DATA table in order to proceed.'
-                 CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-                 !SUCCESS = .FALSE.
-               End If
+               ! Map to Aerosol Emissions Species
+               DO SPC = 1,N_AE_EMIS
+                  DO IM = 2,N_MODE
+                     SN = TRIM( SEA_SPC( ISEA )%NAME ) // MODESUFF( IM )
+                     IF ( SN .Eq. AE_SPC( AE_EMIS_MAP( SPC ))) MAP_AEtoSEA( SPC ) = ISEA
+                  End Do
+               End Do
 
             End Do
  
-C Include H2O to mapping
-            NSSSPC = NSSSPC + 1      
+            ! Include H2O to mapping
             KH2O = NSSSPC
-            MAP_SEAtoAERO( NSSSPC ) = AH2O_IDX
-
-C...Build dust_spc type from selected list elements
-            ALLOCATE( SEA_SPC( NSSSPC ) )
-            SEA_SPC = PACK( SEA_SPC_LIST, MAP_SEAtoAERO .GT. 0 )
-            SEA_SPC( NSSSPC )%NAME = "AH2O"
-            SEA_SPC( NSSSPC )%SPCFAC( : ) = 0.0
 
 C Allocate SS arrays using NSSSPC value
             ALLOCATE ( SSOUTM( NSSSPC,N_MODE,NCOLS,NROWS ),
@@ -403,7 +398,7 @@ C Build diagnostic file write buffer (WRSS_SPC) array
                   DO S = 1, NSSSPC
                      IF ( SEA_SPC( S )%SPCFAC( N ) .GT. 0.0 ) THEN
                         NSSDIAG = NSSDIAG + 1
-                        WRSS_SPC( NSSDIAG ) = AEROSPC( MAP_SEAtoAERO( S ) )%NAME( N )
+                        WRSS_SPC( NSSDIAG ) = TRIM( SEA_SPC( S )%NAME ) // '_' // MODESUFF( N ) 
                      END IF
                   END DO
 C Include H2O
@@ -655,10 +650,7 @@ C Variables for calculating solute mass fraction & size-correction factors
             REAL( 8 ) :: XSW              ! fractional solute weight fraction
 
 C Density of dry sea salt [kg/m3] using volume additivity
-            REAL( 8 )       :: RHOSW            ! sea-salt particle density at ambient RH [g/m3]
-            REAL( 8 ), SAVE :: RHOSSDRY 
-            REAL( 8 ), SAVE :: RHSUM   
-            REAL( 8 ), SAVE :: SPECIFIC_VOL_H2O ! volume of aerosol water (m3/kg)   
+            REAL( 8 )       :: RHOSW( N_MODE )  ! sea-salt particle density at ambient RH [g/m3]
 
 C Maximum and minimum diameters for emission-flux integrations [m]
             REAL, PARAMETER :: DPMAX = 20.0E-6 ! upper limit used for the
@@ -733,21 +725,6 @@ C Mathematical constants; statement function for ERF approximation
 
 C----------------------------- Begin calc ------------------------------
 
-            IF ( UNINITIALIZED )THEN
-C Calculate dry sea-salt [kg/m3]
-               RHSUM = 0.0D0
-               DO S = 1, NSSSPC
-!RHSUM and RHOSSDRY are assumed the same between J and K modes
-                  IF ( SEA_SPC( S )%SPCFAC( 2 ) .LT. 1.0E-30 ) CYCLE
-                  IF ( S .EQ. KH2O .OR. AEROSPC( MAP_SEAtoAERO( S ) )%TRACER ) CYCLE !! do not include Water or tracers
-                  RHSUM = RHSUM
-     &                  + REAL( ( SEA_SPC( S )%SPCFAC( 2 ) 
-     &                          / AEROSPC( MAP_SEAtoAERO( S ) )%DENSITY ), 8 )
-               END DO
-               RHOSSDRY         = 1.0D0 / RHSUM    
-               SPECIFIC_VOL_H2O = 1.0D0 / REAL( AEROSPC( AH2O_IDX )%DENSITY, 8 )
-               UNINITIALIZED    = .FALSE.
-            END IF
 C Initialize sea-salt output buffer
             IF ( SSEMDIAG .AND. WSTEP .EQ. 0 ) SSBF = 0.0
             Met_Data%NACL_EMIS = 0.0
@@ -808,8 +785,10 @@ C Calculate solute mass fraction using Equation 1 of Zhang et al.
 
 C Calculate sea-salt-particle density [g/m3] at ambient RH, assuming
 C volume additivity of dry salt plus water
-                  RHOSW = 1.0D+3 
-     &                  / ( XSW * RHSUM + ( 1.0D0 - XSW ) * SPECIFIC_VOL_H2O )
+                  RHOSW( 2 ) = 1.0D+3 
+     &                  / ( XSW * SEASPRAY_DENS( 2 ) + ( 1.0D0 - XSW ) * SPECIFIC_VOL_H2O )
+                  RHOSW( 3 ) = 1.0D+3 
+     &                  / ( XSW * SEASPRAY_DENS( 3 ) + ( 1.0D0 - XSW ) * SPECIFIC_VOL_H2O )
 
 C Set minimum and maximum diameters for integration using the size-
 C correction factors of Zhang et al. (2005)
@@ -890,9 +869,9 @@ C scaling for wind speed, dividing by grid-cell height, and multiplying
 C by particle density.  Multiply by chemical speciation factors to
 C obtain speciated mass emissions.
 
-                  ESEASJ = VFLXRH * FRACMJ * WDSCALO * RLAY1HT * REAL( RHOSW, 4 )
+                  ESEASJ = VFLXRH * FRACMJ * WDSCALO * RLAY1HT * REAL( RHOSW( 2 ), 4 )
 
-                  ESEASK = VFLXRH * FRACMK * WDSCALO * RLAY1HT * REAL( RHOSW, 4 )
+                  ESEASK = VFLXRH * FRACMK * WDSCALO * RLAY1HT * REAL( RHOSW( 3 ), 4 )
 
                   DO S = 1, NSSSPC
                      SSOUTM( S,1,C,R ) = 0.0
@@ -908,7 +887,9 @@ C obtain speciated mass emissions.
 
                      IF( MAP_SEAtoAERO( S ) .EQ. ana_idx )
      &                  Met_Data%NACL_EMIS( C,R ) = Met_Data%NACL_EMIS( C,R ) + SSOUTM( S,2,C,R ) / RLAY1HT
-C 0.80 = ratio of seasalt emisisions with d<10 um to all K-mode emisisions, 0.8373 = NA fraction in SEACAT, 0.66984 = 0.80 * 0.8373
+                     ! 0.80 = ratio of seasalt emisisions with d<10 um to all K-mode emisisions, 
+                     ! 0.8373 = NA fraction in SEACAT
+                     ! 0.66984 = 0.80 * 0.8373
                      IF( MAP_SEAtoAERO( S ) .EQ. aseacat_idx )
      &                  Met_Data%NACL_EMIS( C,R ) = Met_Data%NACL_EMIS( C,R ) + SSOUTM( S,3,C,R ) / RLAY1HT * 0.66984
                      IF( MAP_SEAtoAERO( S ) .EQ. acl_idx )
@@ -918,8 +899,8 @@ C 0.80 = ratio of seasalt emisisions with d<10 um to all K-mode emisisions, 0.83
                   END DO
 
 C Calculate mode-specific 3rd moment emission rates [m3/m3/s]
-                  M3J = ESEASJ * F6PI / REAL( RHOSW, 4 )
-                  M3K = ESEASK * F6PI / REAL( RHOSW, 4 )
+                  M3J = ESEASJ * F6PI / REAL( RHOSW( 2 ), 4 )
+                  M3K = ESEASK * F6PI / REAL( RHOSW( 3 ), 4 )
 
 C Calculate factors for converting 3rd moment emission rates into number
 C and 2nd moment emission rates.  See Equations 7b and 7c of Binkowski &

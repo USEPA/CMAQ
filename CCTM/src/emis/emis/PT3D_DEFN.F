@@ -65,6 +65,8 @@ C     16 Aug 2017 B.Murphy: Pull plume height calc. to separate subroutine.
 C-----------------------------------------------------------------------
 
       USE UDTYPES           ! implementation for multiple groups of stack input files
+      USE EMIS_GLOBAL
+
       IMPLICIT NONE
 
       LOGICAL,              SAVE :: PT3DEMIS   ! flag in-lining plume rise
@@ -85,10 +87,6 @@ C Output layer fractions, dimensioned NSRC, emlays, and for diagnostic file
 
 C debugging zplume
       REAL,    ALLOCATABLE, SAVE :: ZPLUM( :,: ) ! has to be 2D for play file
-
-C Stack emissions for sources within domain
-      INTEGER,              SAVE :: EMLYRS       ! no. of emis layers
-      INTEGER,              SAVE :: N_EMIS_SPC   ! no. of emis species
 
 C Wildfire emissions source parameters
       TYPE( RARRY1 ), ALLOCATABLE, SAVE :: ACRES( : )   ! acres burned
@@ -151,7 +149,7 @@ C hourly stack emissions file names
 
 C=======================================================================
 
-         FUNCTION PT3D_INIT ( N_EMIS, EMLAYS, JDATE, JTIME, TSTEP )
+         FUNCTION PT3D_INIT ( JDATE, JTIME, TSTEP )
      &                       RESULT ( SUCCESS )
 
          USE GRID_CONF   ! horizontal & vertical domain specifications
@@ -169,8 +167,6 @@ C Includes:
          INCLUDE SUBST_FILES_ID  ! file name parameters (for CTM_PT3D_DIAG)
 
 C Arguments:
-         INTEGER          N_EMIS     ! total no. of model emissions species
-         INTEGER          EMLAYS     ! number of emissions layers
          INTEGER          JDATE      ! Julian date (YYYYDDD)
          INTEGER          JTIME      ! time (HHMMSS)
          INTEGER          TSTEP      ! output time step
@@ -205,8 +201,8 @@ C Local Variables:
          INTEGER :: STRTCOLMC, ENDCOLMC, STRTROWMC, ENDROWMC
 
          INTERFACE
-            SUBROUTINE DELTA_ZS( EMLYRS, MY_NSRC, SRC_MAP, STKHT, ZF, ZSTK, DDZF )
-               INTEGER, INTENT( IN )  :: EMLYRS, MY_NSRC
+            SUBROUTINE DELTA_ZS( EMLAYS, MY_NSRC, SRC_MAP, STKHT, ZF, ZSTK, DDZF )
+               INTEGER, INTENT( IN )  :: EMLAYS, MY_NSRC
                INTEGER, INTENT( IN )  :: SRC_MAP( : )
                REAL,    INTENT( IN )  :: STKHT( : )
                REAL,    INTENT( IN )  :: ZF  ( :,: )
@@ -236,14 +232,11 @@ C In-line 3D point source emissions?
          END IF
 
 C Get setting from environment variables
-         EMLYRS = EMLAYS
-         N_EMIS_SPC = N_EMIS
-
          IPVERT = ENVINT( 'IPVERT', 'Method for vertical spread', 0, IOS )
 
 C Cannot use default and cannot set to less than 4 because of limits of plume
 C rise algorithm
-         IF ( EMLYRS .LT. 4 ) THEN
+         IF ( EMLAYS .LT. 4 ) THEN
             XMSG = 'Environment variable CTM_EMLAYS must be set to ' //
      &             'a number from 4 to the ' // CRLF() // BLANK10 //
      &             'number of layers in the meteorology inputs.'
@@ -276,13 +269,13 @@ C get diagnostic files options
             IF ( REP_LAYR .LT. 1 ) THEN
                XMSG = 'NOTE: Environment variable REP_LAYR_MIN is ' //
      &                'less than 1.  Turning off reporting...'
-            ELSE IF ( REP_LAYR .GT. EMLYRS ) THEN
+            ELSE IF ( REP_LAYR .GT. EMLAYS ) THEN
                WRITE( XMSG,94010 )
      &                'NOTE: Environment variable REP_LAYR_MIN is '//
      &                'greater than the number of emissions ' //
-     &                CRLF() // BLANK10 // 'layers (', EMLYRS, '). '//
+     &                CRLF() // BLANK10 // 'layers (', EMLAYS, '). '//
      &                'Resetting to number of emissions layers.'
-               REP_LAYR = EMLYRS
+               REP_LAYR = EMLAYS
             ELSE
                WRITE( XMSG,94010 )
      &                'logging stack data for plume rise .ge. layer', REP_LAYR
@@ -422,18 +415,18 @@ C Non-hydrostatic is time-independent and hydrostatic is time-dependent.
          END IF
 
 C Compare number of meteorology layers to number of emissions layers
-         IF ( EMLYRS .LE. NLAYS ) THEN
-            WRITE( XMSG,94010 ) 'NOTE: The number of emission layers ' //
-     &                          'is', EMLYRS, ', and the maximum ' // CRLF()
-     &                          // BLANK10 // 'possible layers is', NLAYS
-            CALL M3MSG2( XMSG )
-         ELSE
-            WRITE( XMSG,94010 ) 'Resetting number of emission layers ' //
-     &                          'from', EMLYRS, 'to number of ' // CRLF() //
-     &                          BLANK10 // 'layers in the meteorology file,', NLAYS
-            CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-            EMLYRS = NLAYS
-         END IF
+!         IF ( EMLAYS .LE. NLAYS ) THEN
+!            WRITE( XMSG,94010 ) 'NOTE: The number of emission layers ' //
+!     &                          'is', EMLAYS, ', and the maximum ' // CRLF()
+!     &                          // BLANK10 // 'possible layers is', NLAYS
+!            CALL M3MSG2( XMSG )
+!         ELSE
+!            WRITE( XMSG,94010 ) 'Resetting number of emission layers ' //
+!     &                          'from', EMLAYS, 'to number of ' // CRLF() //
+!     &                          BLANK10 // 'layers in the meteorology file,', NLAYS
+!            CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+!            EMLAYS = NLAYS
+!         END IF
 
          ALLOCATE( VGLVSXG( 0:MXLAYS3 ), STAT = IOS )
          CALL CHECKMEM( IOS, 'VGLVSXG', PNAME )
@@ -506,7 +499,7 @@ C Initialize stack emissions data
             END IF
          END DO
 
-         ALLOCATE ( VDEMIS_PT( N_EMIS_SPC,EMLYRS,NCOLS,NROWS ), STAT = IOS )
+         ALLOCATE ( VDEMIS_PT( N_EMIS_SPC,EMLAYS,NCOLS,NROWS ), STAT = IOS )
          CALL CHECKMEM( IOS, 'VDEMIS_PT', PNAME )
          VDEMIS_PT = 0.0   ! array assignment
 
@@ -514,8 +507,8 @@ C Set up and open 3d point source emissions diagnostic file?
          IF ( PT3DDIAG ) THEN
             NDATE = SDATE; NTIME = STIME
             CALL NEXTIME( NDATE, NTIME, TSTEP ) ! advance one output tstep
-            !CALL OPPT3D_DIAG( CTM_PT3D_DIAG, NDATE, NTIME, TSTEP, EMLYRS )
-            ALLOCATE ( VDEMIS_BUF( NCOLS,NROWS,EMLYRS,N_EMIS_SPC ), STAT = IOS )
+            !CALL OPPT3D_DIAG( CTM_PT3D_DIAG, NDATE, NTIME, TSTEP, EMLAYS )
+            ALLOCATE ( VDEMIS_BUF( NCOLS,NROWS,EMLAYS,N_EMIS_SPC ), STAT = IOS )
             CALL CHECKMEM( IOS, 'VDEMIS_BUF', PNAME )
             VDEMIS_BUF = 0.0   ! array
             WRITE( LOGDEV,'(/5X, A /5X, A )' )
@@ -531,11 +524,11 @@ C Open diagnostic layer fractions file?
             PLAYNAME = ' '   ! array
             NDATE = SDATE; NTIME = STIME
             CALL NEXTIME( NDATE, NTIME, TSTEP ) ! advance one output tstep
-            CALL OPENLAYOUT( NDATE, NTIME, TSTEP, EMLYRS, VGLVSXG, NPTGRPS,
+            CALL OPENLAYOUT( NDATE, NTIME, TSTEP, EMLAYS, VGLVSXG, NPTGRPS,
      &                       MY_NSRC, PLAYNAME )
          END IF
 
-         IF ( .NOT. PTMET_INIT ( NPTGRPS, EMLYRS ) ) THEN
+         IF ( .NOT. PTMET_INIT ( NPTGRPS, EMLAYS ) ) THEN
             XMSG = 'Could not initialize stack met data'
             CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
             SUCCESS = .FALSE.; RETURN
@@ -631,20 +624,20 @@ C Compute per-source heights
 C Get un-gridding matrices for cross and dot point met data
                   CALL RETRIEVE_IOAPI_HEADER( GC3NAME, JDATE, JTIME )
                   CALL READGC3 ( 'X3HT0M', SDATE, STIME, XBUF )
-                  CALL BMATVECN( METCGRID, MY_NSRC( N ), EMLYRS,
+                  CALL BMATVECN( METCGRID, MY_NSRC( N ), EMLAYS,
      &                          BILIN_DATA( N )%NX,
      &                          BILIN_DATA( N )%CX,
      &                          XBUF, PTMET_DATA( N )%ZH )
 
                   CALL READGC3 ( 'X3HT0F', SDATE, STIME, XBUF )
-                  CALL BMATVECN( METCGRID, MY_NSRC( N ), EMLYRS,
+                  CALL BMATVECN( METCGRID, MY_NSRC( N ), EMLAYS,
      &                          BILIN_DATA( N )%NX,
      &                          BILIN_DATA( N )%CX,
      &                          XBUF, PTMET_DATA( N )%ZF )
 
 C Compute ZSTK, DDZF
 
-                  CALL DELTA_ZS( EMLYRS, MY_NSRC( N ),
+                  CALL DELTA_ZS( EMLAYS, MY_NSRC( N ),
      &                           SOURCE( N )%ARRY, STKHT( N )%ARRY,
      &                           PTMET_DATA( N )%ZF,
      &                           PTMET_DATA( N )%ZSTK,
@@ -666,8 +659,8 @@ C Compute ZSTK, DDZF
 
 C=======================================================================
 
-         SUBROUTINE GET_PT3D_EMIS ( EM_PTSPEC, EM_FAC, EM_SPEC, 
-     &                              JDATE, JTIME, TSTEP, ISRC )
+         SUBROUTINE GET_PT3D_EMIS ( JDATE, JTIME, TSTEP, EM_SURR_PT, 
+     &                              ISRC )
 
 ! Revision History.
 !     Aug 12, 15 D. Wong: added code to handle parallel I/O implementation
@@ -691,12 +684,10 @@ C Includes:
          INCLUDE SUBST_FILES_ID  ! file name parameters (for CTM_PT3D_DIAG)
 
 C Arguments:
-         CHARACTER(16), INTENT( IN ) :: EM_PTSPEC( :,: )
-         REAL( 8 ), INTENT( IN )     :: EM_FAC( :,: )
-         CHARACTER(16), INTENT( IN ) :: EM_SPEC( : )
+         CHARACTER(16), INTENT( IN ) :: EM_SURR_PT( : )
          INTEGER               :: JDATE, JTIME
          INTEGER, INTENT( IN ) :: TSTEP( 3 )
-         INTEGER, INTENT( IN ) :: N              
+         INTEGER, INTENT( IN ) :: ISRC
 
 C Parameters:
 
@@ -793,19 +784,19 @@ C Based on the current time step, find whether or not a report should be written
 !         END IF
 
 C Convert pt source met data to bi-linear interpolated data
-         CALL PTMET_CONVT( JDATE, JTIME, NPTGRPS, EMLYRS, ZSTATIC )
+         CALL PTMET_CONVT( JDATE, JTIME, NPTGRPS, EMLAYS, ZSTATIC )
 
 C Initialize Output Array
          VDEMIS_PT = 0.0   ! array assignment
 
          N = IPSRC( ISRC )
 
-         IF ( MY_NSRC( N ) .LE. 0 ) CYCLE
+         IF ( MY_NSRC( N ) .LE. 0 ) RETURN
 
          IF ( PT3DFRAC ) THEN   ! Store layer fractions
-            ALLOCATE( LFRAC( MY_NSRC( N ),EMLYRS ), STAT = IOS )
+            ALLOCATE( LFRAC( MY_NSRC( N ),EMLAYS ), STAT = IOS )
             CALL CHECKMEM( IOS, 'LFRAC', PNAME )
-            ALLOCATE( ZPLUM( MY_NSRC( N ),EMLYRS ), STAT = IOS )
+            ALLOCATE( ZPLUM( MY_NSRC( N ),EMLAYS ), STAT = IOS )
             CALL CHECKMEM( IOS, 'ZPLUM', PNAME )
             LFRAC = 0.0   ! 2-D array - Initialize layer fraction
             ZPLUM = 0.0   ! 2-D array - Initialize plume centroid height
@@ -821,7 +812,7 @@ C Ensure that the model and stack groups emissions timestamp dates stay synchron
 
 C Allocate Array to Store the Layer Heights of All Stacks (i.e. sources)
 C from this Point Group (i.e. ptgrp)
-         ALLOCATE( TFRAC( EMLYRS,MY_NSRC( N ) ), STAT = IOS )
+         ALLOCATE( TFRAC( EMLAYS,MY_NSRC( N ) ), STAT = IOS )
          CALL CHECKMEM( IOS, 'TFRAC', PNAME )
          TFRAC = 0.0   ! array
 
@@ -830,7 +821,7 @@ C Calculate Plume Heights for All Point Sources on this File
 
 C Read Emissions for all sources on File N            
          DO ISPC = 1, N_EMIS_SPC
-            VNAME = EM_PTSPEC( ISPC,N )
+            VNAME = EM_SURR_PT( ISPC )
             IF ( VNAME .EQ. '' ) CYCLE
             IF ( .NOT. INTERPX( STKENAME( N ), VNAME, PNAME,
      &                          1,1, MY_STRT_SRC( N ),MY_END_SRC( N ), 1,1,
@@ -893,7 +884,7 @@ C Apportion emissions to the layers
                SRC = SOURCE( N )%ARRY( S )
                C = MY_STKCOL( N )%ARRY( S ); R = MY_STKROW( N )%ARRY( S )
 
-               DO L = 1, EMLYRS
+               DO L = 1, EMLAYS
                   LFRC = TFRAC( L,S )
                   IF ( LFRC .LE. 0.0 ) CYCLE
 
@@ -910,13 +901,13 @@ C Apportion emissions to the layers
 C Write Out Diagnostic Info            
          IF ( PT3DFRAC .AND. WRTIME ) THEN     ! Write out layer fractions
             IF ( .NOT. WRITE3_DISTR( PLAYNAME( N ), 'LFRAC', WDATE, WTIME,
-     &                               MY_NSRC( N ), EMLYRS, LFRAC ) ) THEN
+     &                               MY_NSRC( N ), EMLAYS, LFRAC ) ) THEN
                XMSG = 'Error writing "LFRAC" to file "' //
      &                 PLAYNAME( N )( 1:LEN_TRIM( PLAYNAME( N ) ) ) // '."'
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
             END IF
             IF ( .NOT. WRITE3_DISTR( PLAYNAME( N ), 'ZPLUME', WDATE, WTIME,
-     &                               MY_NSRC( N ), EMLYRS, ZPLUM ) ) THEN
+     &                               MY_NSRC( N ), EMLAYS, ZPLUM ) ) THEN
                XMSG = 'Error writing "ZPLUM" to file "' //
      &                 PLAYNAME( N )( 1:LEN_TRIM( PLAYNAME( N ) ) ) // '."'
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
@@ -938,15 +929,6 @@ C Write Out Diagnostic Info
             VDEMIS_BUF = VDEMIS_BUF + VDEMIS_PT   ! array assignmnt
             IF ( WRTIME ) THEN
                DIVFAC = 1.0 / FLOAT( NTICS )
- !              DO V = 1, N_EMIS_SPC
- !                 VDEMIS_BUF( :,:,:,V ) = DIVFAC * VDEMIS_BUF( :,:,:,V )
- !                IF ( .NOT. WRITE3( CTM_PT3D_DIAG, GSPC_EMIS( V ),
- !    &                               WDATE, WTIME, VDEMIS_BUF( :,:,:,V ) ) ) THEN
- !                    XMSG = 'Error writing "VDEMIS_PT" to '
- !    &                    // CTM_PT3D_DIAG( 1:LEN_TRIM( CTM_PT3D_DIAG ) )
- !                    CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
- !                 END IF
- !              END DO
                WRITE( LOGDEV,94030 )
      &               'Timestep written to', CTM_PT3D_DIAG,
      &               'for date and time', WDATE, WTIME
@@ -1139,18 +1121,18 @@ C Loop through sources and compute plume rise
          IF ( FIREFLAG( N ) ) THEN
             IF ( BFLUX( N )%ARRY( S ) .LE. 0.0 ) THEN
                TFRAC( 1,S ) = 1.0
-               TFRAC( 2:EMLYRS,S ) = 0.0
+               TFRAC( 2:EMLAYS,S ) = 0.0
                LTOP = 1
                GO TO 201
             END IF
          END IF
 
          P_D( N )%ZZF( 0 ) = 0.0
-         P_D( N )%ZZF( 1:EMLYRS ) = P_D( N )%ZF( 1:EMLYRS,S )  ! array of layers
+         P_D( N )%ZZF( 1:EMLAYS ) = P_D( N )%ZF( 1:EMLAYS,S )  ! array of layers
 
 C Get pressures: Use SIGMA values and surface pres. p=sigma*(psfc-ptop)+ptop
          PSFC = P_D( N )%PRSFC( S )
-         DO L = 0, EMLYRS
+         DO L = 0, EMLAYS
             P_D( N )%PRESF( L ) = ( VGLVSXG( L ) * ( PSFC - VGTOP_GD )
      &                          +   VGTOP_GD ) * CONVPA
          END DO
@@ -1159,7 +1141,7 @@ C Set surface pressure (convert to mb from Pa)
          PSFC = CONVPA * PSFC
 
 C Compute derived met vars needed before layer assignments
-         CALL PREPLM( FIREFLAG( N ), EMLYRS,
+         CALL PREPLM( FIREFLAG( N ), EMLAYS,
      &                P_D( N )%HMIX( S ), STK_HT( N )%ARRY( S ), PSFC,
      &                P_D( N )%TSFC( S ),    P_D( N )%DDZF( :,S ),
      &                P_D( N )%QV( :,S ),    P_D( N )%TA( :,S ),
@@ -1175,7 +1157,7 @@ C Convert heat flux (watts/m2 to m K /s )
          HFLX = P_D( N )%HFX( S ) / ( CPD * P_D( N )%DENS( 1,S ) )
 
          IF ( .NOT. FIREFLAG( N ) ) THEN
-            CALL PLMRIS( EMLYRS, LSTK, HFLX, P_D( N )%HMIX( S ),
+            CALL PLMRIS( EMLAYS, LSTK, HFLX, P_D( N )%HMIX( S ),
      &                   STK_DM( N )%ARRY( S ), STK_HT( N )%ARRY( S ),
      &                   STK_TK( N )%ARRY( S ), STK_VEL( N )%ARRY( S ),
      &                   TSTK, USTMP,
@@ -1184,7 +1166,7 @@ C Convert heat flux (watts/m2 to m K /s )
      &                   P_D( N )%ZH( :,S ), P_D( N )%ZSTK( :,S ),
      &                   WSTK, ZPLM )
          ELSE
-            CALL FIRE_PLMRIS( EMLYRS, LSTK, HFLX, P_D( N )%HMIX( S ),
+            CALL FIRE_PLMRIS( EMLAYS, LSTK, HFLX, P_D( N )%HMIX( S ),
      &                   BFLUX( N )%ARRY( S ),
      &                   TSTK, USTMP,
      &                   P_D( N )%DTHDZ,     P_D( N )%TA( :,S ),
@@ -1211,7 +1193,7 @@ C Plume rise DH = ZPLM minus the stack height STKHT
             END IF
          ELSE
 C Alternative method to compute plume top/bot heights
-            CALL PLSPRD( P_D( N )%DTHDZ, P_D( N )%ZZF, EMLYRS,
+            CALL PLSPRD( P_D( N )%DTHDZ, P_D( N )%ZZF, EMLAYS,
      &                   ZPLM, ZTOP, ZBOT )
          END IF
 
@@ -1231,14 +1213,14 @@ C (~mass concentration -- minor hydrostatic assumption) from bottom to top.
 
 C Allocate plume to layers (compute layer plume fractions)
 
-!              CALL POSTPLM( EMLYRS, ZBOT, ZTOP, PRESF, ZZF, TA( 1,S ), ZH( 1,S ),
+!              CALL POSTPLM( EMLAYS, ZBOT, ZTOP, PRESF, ZZF, TA( 1,S ), ZH( 1,S ),
 !    &                       LTOP, TFRAC )
 
 C Compute LBOT, LTOP such that
 C  ZZF( LBOT-1 ) <= ZBOT < ZZF( LBOT ) and
 C  ZZF( LTOP-1 ) <= ZTOP < ZZF( LTOP )
 
-         DO L = 1, EMLYRS - 1
+         DO L = 1, EMLAYS - 1
             IF ( ZBOT .LE. P_D( N )%ZZF( L ) ) THEN
                LBOT = L
                GO TO  122
@@ -1246,7 +1228,7 @@ C  ZZF( LTOP-1 ) <= ZTOP < ZZF( LTOP )
                TFRAC( L,S ) = 0.0             ! fractions below plume
             END IF
          END DO
-         LBOT = EMLYRS                      !  fallback
+         LBOT = EMLAYS                      !  fallback
 
 122      CONTINUE                           !  loop exit:  bottom found at LBOT
 
@@ -1255,27 +1237,27 @@ C  ZZF( LTOP-1 ) <= ZTOP < ZZF( LTOP )
             TFRAC( LBOT,S ) = 1.0
             LTOP = LBOT
 
-            DO L = LBOT + 1, EMLYRS         ! fractions above plume
+            DO L = LBOT + 1, EMLAYS         ! fractions above plume
                TFRAC( L,S ) = 0.0
             END DO
 
-         ELSE IF ( LBOT .EQ. EMLYRS ) THEN  ! plume above top layer
+         ELSE IF ( LBOT .EQ. EMLAYS ) THEN  ! plume above top layer
 
             TFRAC( LBOT,S ) = 1.0
 
-            DO L = 1, EMLYRS - 1            ! fractions below plume
+            DO L = 1, EMLAYS - 1            ! fractions below plume
                TFRAC( L,S ) = 0.0
             END DO
 
          ELSE                               ! plume crosses layers
 
-            DO L = LBOT + 1, EMLYRS
+            DO L = LBOT + 1, EMLAYS
                IF ( ZTOP .LE. P_D( N )%ZZF( L ) ) THEN
                   LTOP = L
                   GO TO 126
                END IF
             END DO
-            LTOP = EMLYRS                   !  fallback
+            LTOP = EMLAYS                   !  fallback
 
 126         CONTINUE
 
@@ -1303,14 +1285,14 @@ C  ZZF( LTOP-1 ) <= ZTOP < ZZF( LTOP )
                TFRAC( L,S ) = DDZ * ( P_D( N )%ZZF( L ) - P_D( N )%ZZF( L-1 ) )
             END DO
 
-            DO L = LTOP + 1, EMLYRS         ! fractions above plume
+            DO L = LTOP + 1, EMLAYS         ! fractions above plume
                TFRAC( L,S ) = 0.0
             END DO
 
          END IF
 
 C If layer fractions are negative, put in the first layer
-         MV = MINVAL( TFRAC( 1:EMLYRS,S ) )
+         MV = MINVAL( TFRAC( 1:EMLAYS,S ) )
          IF ( MV .LT. 0.0 ) THEN
 
             WRITE( CINT,'( I8 )' ) S
@@ -1321,7 +1303,7 @@ C If layer fractions are negative, put in the first layer
             CALL M3MESG( XMSG )
 
             TFRAC( 1,S ) = 1.0
-            TFRAC( 2:EMLYRS,S ) = 0.0
+            TFRAC( 2:EMLAYS,S ) = 0.0
 
          END IF
 
@@ -1362,7 +1344,7 @@ C calculate smoldering fraction:
 201      CONTINUE
  
          IF ( PT3DFRAC ) THEN   ! Store layer fractions
-            LFRAC( S,1:EMLYRS ) = TFRAC( 1:EMLYRS,S )  ! array
+            LFRAC( S,1:EMLAYS ) = TFRAC( 1:EMLAYS,S )  ! array
             ZPLUM( S,1 ) = ZPLM
          END IF
 

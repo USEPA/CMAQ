@@ -70,6 +70,7 @@ C  2 Feb 16 J.Young: move dust aero speciation table to AERO_DATA
 C-----------------------------------------------------------------------
       use lus_defn
       use aero_data
+      use emis_global
 
       implicit none 
 
@@ -111,7 +112,6 @@ C of Binkowski & Roselle (2003)
       real, save :: factsrfj ! = pi * factm2j
       real, save :: factsrfk ! = pi * factm2k
 
-      real, save :: dustmode_dens( n_mode ) ! average modal density [kg/m**3]
       real       :: sumsplit, sumfrac
       integer    :: n, idx
 
@@ -199,6 +199,7 @@ C   implementation
          use aero_data        ! aerosol species definitions
          use asx_data_mod     ! meteorology data
          use utilio_defn
+         use cgrid_spcs, only: n_ae_emis, ae_spc, ae_emis_map
 
 C Arguments:
          integer, intent( in ) :: jdate   ! current model date, coded YYYYDDD
@@ -225,15 +226,16 @@ C Local variables:
                             ! Fraction of Absorbed Photosynthetically Active Radiation
 
          logical :: erode_agland = .true. ! default
-         logical :: dust_match
          integer status
          integer c, r, i, j, k, l, n
-         integer idiag, idust, spc
+         integer idiag, idust, spc, im
          integer n_mass_emissions
 
          integer  gxoff, gyoff                 ! global origin offset from file
          integer, save :: strtcol, endcol, strtrow, endrow
          integer  jdatemod
+
+         character( 16 ) :: sn
 
          type( diag_type ), allocatable :: diagnm_swap( : )
 
@@ -253,35 +255,41 @@ C-----------------------------------------------------------------------
          logdev = setup_logdev()
          success = .true.
 
-C...Determine map between aero_spc dust emissions and the dust emission list
-         Allocate( map_DUSTtoAERO( ndust_list ) )
+C...Determine maps for dust speciation
+         allocate( map_DustToAero( ndust_spc ) )
+         map_DustToAero = 0
+         allocate( map_AEtoDust( n_ae_emis ) )
+         map_AEtoDust = 0
 
-         map_DUSTtoAERO = 0
-         ndust_spc = 0
-
-         Do idust = 1, ndust_list ! loop through dust list
-            dust_match = .false.
-            Do spc = 1, n_aerospc ! Loop through user-requested chemical species
-               If ( dust_spc_list( idust )%name .Eq. aero_bulkname( spc ) ) Then
-                  ndust_spc = ndust_spc + 1
-                  map_DUSTtoAERO( ndust_spc ) = spc
-                  dust_match = .true.
-               End If
+         Do idust = 1, ndust_spc ! loop through dust list
+            ! Map to aerosol chemical species table 
+            ! This is just for retrieving the aerosol density later
+            Do spc = 1, n_aerolist 
+               Do im = 1,n_mode
+                  sn = trim( dust_spc( idust )%name ) // modesuff( im ) 
+                  If ( sn .Eq. aerolist( spc )%name( im ) )
+     &                 map_DUSTtoAERO( idust ) = spc
+               End Do
             End Do
 
-            If ( .NOT. dust_match ) Then
-              WRITE( XMSG, '(A43,A23,A,A13,A62,A53)' ), 'Cannot find aerosol species to accomodate ',
-     &               'dust emission species: ', trim(dust_spc_list( idust )%NAME), '. You should ',
-     &               'provide a prognostic variable for this species in both the AE ',
-     &               'namelist and the AERO_DATA table in order to proceed.'
-              CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-              !SUCCESS = .FALSE.
-            End If
+            ! Map to Aerosol Emissions Species
+            Do spc = 1, n_ae_emis
+               Do im = 1,n_mode 
+                  sn = trim( dust_spc( idust )%name ) // modesuff( im )
+                  If ( sn .Eq. ae_spc( ae_emis_map( spc ) ) )
+     &                 map_AEtoDUST( spc ) = idust
+               End Do
+            End Do
+
          End Do
 
-C...Build dust_spc type from selected list elements
-         Allocate( dust_spc( ndust_spc ) )
-         dust_spc = pack( dust_spc_list, map_DUSTtoAERO .GT. 0 )
+C...Populate Master Emissions Map Vector So That Diagnostics 
+C   can be printed in EMIS_MAP
+         Em_File_Spec( idustsrc )%len = ndust_spc
+         Allocate( Em_File_Spec( idustsrc )%arry( ndust_spc ) )
+         do i = 1,ndust_spc
+           Em_File_Spec( idustsrc )%arry( i ) = dust_spc(i)%name
+         end do
 
 C...Count the number of mass emissions species
          n_mass_emissions = 0
@@ -401,7 +409,7 @@ C Set up variable diagnostic names (from LUS_DEFN)
             vdiagnm_kvh   = diag_type( ' ', ' ', ' ' )  ! array assignment
             vdiagnm_rough = diag_type( ' ', ' ', ' ' )  ! array assignment
 
-C...Set Up DIagnostic Species Variables
+C...Set Up Diagnostic Species Variables
             ndust_diag = fndust_diag + 5 * n_dlcat + n_mass_emissions 
 
             do i = 1, n_dlcat
@@ -491,7 +499,7 @@ C...append diagnostic variables with mass emissions species
                   if( dust_spc( i )%spcfac( j ) .eq. 0. ) cycle 
                   n = 0
                   do k = 1, idiag   ! determine if dust emissions is already added to diagnostic output
-                     if( aerospc( map_DUSTtoAERO( i ) )%name( j ) .Eq. diagnm( k )%var )Then
+                     if( trim( dust_spc( i )%name) // modesuff( j ) .Eq. diagnm( k )%var )Then
                          n = k
                          exit
                      end if
@@ -500,7 +508,7 @@ C...append diagnostic variables with mass emissions species
                       cycle
                   else 
                       idiag = idiag + 1
-                      diagnm( idiag )%var = aerospc( map_DUSTtoAERO( i ) )%name( j )
+                      diagnm( idiag )%var = trim( dust_spc( i )%name ) // modesuff( j )
                   end if
                   diagnm( idiag )%units = 'g/m**3/s'
                   Select Case( j ) ! assumes only two aerosol modes dust emissions
@@ -593,29 +601,12 @@ C of Binkowski & Roselle (2003)
          factsrfj = pi * factm2j
          factsrfk = pi * factm2k
 
-C Calculate modal average dust particle densities (accum and coarse modes) [ kg/m**3 ]
-C The following works because the dust_spc`s are a fixed split of the total emitted
-C mass.
-         dustmode_dens( 1 ) = 0.0
-         do n = 2, n_mode
-            sumsplit = 0.0; sumfrac = 0.0
-            do i = 1, ndust_spc
-               idx = map_DUSTtoAERO( i )
-               if( aerospc( idx )%tracer )cycle
-               if( dust_spc( i )%spcfac( n ) .lt. 1.0e-30 )cycle
-               sumsplit = sumsplit + dust_spc( i )%spcfac( n ) ! should = 1.0
-               sumfrac = sumfrac + dust_spc( i )%spcfac( n ) / aerospc( idx )%density
-            end do
-            dustmode_dens( n ) = sumsplit / sumfrac
-         end do
-
 #ifdef verbose_wbdust
          write( logdev,* ) ' '
          write( logdev,* ) '    l2sgj,l2sgk:         ', l2sgj, l2sgk
          write( logdev,* ) '    factnumj,factnumk:   ', factnumj, factnumk
          write( logdev,* ) '    factm2j,factm2k:     ', factm2j, factm2k
          write( logdev,* ) '    factsrfj,factsrfk:   ', factsrfj, factsrfk
-         write( logdev,* ) '    modal avg dens(j/k): ', dustmode_dens( 2 ), dustmode_dens( 3 )
          write( logdev,* ) ' '
 #endif
 
@@ -1248,8 +1239,8 @@ C J/K mass emis rate [g/s]  (edust( 1 ) not used)
             end do
 
 C J/K 3rd moment emis rate [m3/s] (needed for number and surface)
-            m3j = edust( 2 ) * f6dpi / ( gpkg * dustmode_dens( 2 ) )
-            m3k = edust( 3 ) * f6dpi / ( gpkg * dustmode_dens( 3 ) )
+            m3j = edust( 2 ) * f6dpi / ( gpkg * dust_dens( 2 ) )
+            m3k = edust( 3 ) * f6dpi / ( gpkg * dust_dens( 3 ) )
 
 C Mode-specific emission rates of particle number [1/s]
             dustoutn( 1,c,r ) = 0.0
@@ -1331,7 +1322,6 @@ C 2nd moment multiplied by PI to obtain the surface area emissions rate.
                end do
 
                n = n + m
-
 
 C Multiply by sync step because when write to output we divide by the output step
 C to get a timestep average.

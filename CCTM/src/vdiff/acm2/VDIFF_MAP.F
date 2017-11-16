@@ -41,7 +41,7 @@ C   11 May 11 J.Bash: Modified for NH3 bidi component fluxes
 C   04 Jan 12 J.Young: Initalize char strings with blank padding
 
 C-----------------------------------------------------------------------
-      USE EMIS_DEFN, ONLY : N_EMIS_SPC
+      USE EMIS_GLOBAL, ONLY : N_EMIS_SPC
 
 C global diffusion species
       INTEGER, SAVE :: N_SPC_DIFF 
@@ -91,7 +91,6 @@ C Local variables:
          CHARACTER( 80 )  :: XMSG       ! Message text
          CHARACTER( 16 )  :: PNAME = 'VDIFF_MAP'
 
-         INTEGER NEMIS_AE
          INTEGER STRT, FINI
          INTEGER S, V, N, I, INDX
          INTEGER ALLOCSTAT
@@ -145,13 +144,9 @@ C-----------------------------------------------------------------------
             SUCCESS = .FALSE.; RETURN
          END IF
 
-         IF ( N_AE_SPC .GT. 0 ) THEN
-            NEMIS_AE = N_AE_EMIS  ! from AERO_EMIS module
-         ELSE
-            NEMIS_AE = 0
-         END IF
+         IF ( N_AE_SPC .EQ. 0 ) N_AE_EMIS = 0
 
-         N_EMIS_SPC = NEMIS + NEMIS_AE + N_NR_EMIS + N_TR_EMIS
+         N_EMIS_SPC = NEMIS + N_AE_EMIS + N_NR_EMIS + N_TR_EMIS
 
 C create global maps to CGRID
 
