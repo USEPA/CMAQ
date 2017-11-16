@@ -489,7 +489,7 @@ C  subroutine to return buffer array value
           return
         End If
         If( func.eq.'SQRT' ) Then
-          If( MinVal(buffer) .Le. 0.0 )Then
+          If( MinVal(buffer) .Lt. 0.0 )Then
             write(*,'(/''**ERROR** evaluating SQRT of '',es12.4)' )
      &      MinVal(buffer)
             KSWIT = SHUT3()
