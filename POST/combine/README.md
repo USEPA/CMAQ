@@ -37,14 +37,14 @@ All other records are read as variable definition records
  field 3: formular expression (maximum of 512 characters)
  ```
 
-Formular expressions supports operators ^+-\*/ and are evaluated based on mathematical order of operations, i.e., powers first, multiplication/division next and addition/subtraction last. Order of evaluation can be forced by use of parentheses. When part of an expression is enclosed in parentheses, that part is evaluated first.   Table 1. lists supported functions evalutation for each grid per each file time step Table 1. In addition, formula can use conditional statements of the form "expression_for_condition ? expresssion_if_true :  expression_if_false". Conditional statements have the highest rank in the order of formular operations.
+Formular expressions support operators ^+-\*/ and are evaluated based on mathematical order of operations, i.e., powers first, multiplication/division next and addition/subtraction last. Order of evaluation can be forced by use of parentheses. When part of an expression is enclosed in parentheses, that part is evaluated first.   Table 1. lists supported functions evalutated for each grid cell per each file time step. In addition, formular expressions can use conditional statements of the form "expression_for_condition ? expresssion_if_true :  expression_if_false". Conditional statements have the highest rank in the order of formular operations.
 
 Table 1. Grid Cell Functions per Output Time Step 
 
 | Name         |Result                     |    
 |:-------------|:-------------------------:|    
-| LOG(X[n])    |Nature Logrithum of X[n]   |    
-| LOG10(X[n])  |Logrithum Base 10 of X[n]  |    
+| LOG(X[n])    |Nature Logarithm of X[n]   |    
+| LOG10(X[n])  |Logarithm Base 10 of X[n]  |    
 | EXP(X[n])    |Exponential of X[n]        |    
 | SIN(X[n])    |Sine of X[n]               |    
 | COS(X[n])    |Cosine of X[n]             |     
