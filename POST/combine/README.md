@@ -43,7 +43,7 @@ Table 1. Grid Cell Functions per Output Time Step
 
 | Name         |Result                     |    
 |:-------------|:-------------------------:|    
-| LOG(X[n])    |Nature Logarithm of X[n]   |    
+| LOG(X[n])    |Natural Logarithm of X[n]   |    
 | LOG10(X[n])  |Logarithm Base 10 of X[n]  |    
 | EXP(X[n])    |Exponential of X[n]        |    
 | SIN(X[n])    |Sine of X[n]               |    
