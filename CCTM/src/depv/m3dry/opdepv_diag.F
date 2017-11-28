@@ -17,10 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/opdepv_diag.F,v 1.7 2012/01/19 14:27:23 yoj Exp $
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE OPDEPV_DIAG ( JDATE, JTIME, TSTEP,
      &                         N_GDEPV_NAMES, GDEPV_NAMES,
@@ -67,13 +63,10 @@ C Local variables:
 
       CHARACTER( 16 ) :: PNAME = 'OPDDEP_DIAG'
       CHARACTER( 96 ) :: XMSG = ' '
-      INTEGER         :: LOGDEV
 
       INTEGER      V, N, L     ! loop induction variables
 
 C-----------------------------------------------------------------------
-
-      LOGDEV = INIT3()
 
 C Try to open existing file for update
 

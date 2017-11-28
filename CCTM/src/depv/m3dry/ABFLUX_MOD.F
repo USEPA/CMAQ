@@ -17,9 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-! RCS file, release, date & time of last delta, author, state, [and locker]
-! $Header: /project/work/rep/arc/CCTM/src/depv/m3dry/ABFLUX_MOD.F,v 1.11 2012/04/19 17:03:23 yoj Exp $
-
 !:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module ABFlux_Mod
 
@@ -73,7 +70,6 @@ C-------------------------------------------------------------------------------
       Real, Save,              Private :: C_gam           ! Canadian fertilizer facter      
       Real, Parameter,         Private :: maxgam   = 2.0e5 ! maximum soil gamm. It is assumed that any excess NH4 would from salts
       Real, Parameter,         Private :: natgam   = 20.0  ! Background soil gamma
-      Integer, Save, Private      :: logdev       
      
       Contains 
          Subroutine Init_ABFlux( jdate, jtime)
@@ -156,8 +152,6 @@ C                          '12345678901234567890'
      &                     'Canola_ir           ',  ! 40
      &                     'Beans               ',  ! 41
      &                     'Beans_ir            ' / ! 42
- 
-         logdev =  init3() 
  
 ! Find the Canadian fertilizer factor based off of Sheppard et al 2010 Canadian J. Soil Sci. & 
 ! Zhang et al. 2010 JGR 
@@ -595,7 +589,6 @@ C-------------------------------------------------------------------------------
          Real,        Parameter :: f_emis_lim = -1.0e-07 ! limit to report to log: if below, probably due to numerical precision error
          Integer                :: k,j
 
-         logdev = init3()
 !> Compute quasi-laminar boundary layer resistance at the soil surface
 
          scn  = kvis / dif0( l )

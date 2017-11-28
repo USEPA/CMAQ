@@ -130,8 +130,6 @@
        INTEGER               :: SELECTED_AERO_RATES
        INTEGER, ALLOCATABLE  :: WHICH_AERO_RATE( : )
        
-       INTEGER              :: LOGDEV
-
 C *** Molecular weight
       REAL( 8 ), SAVE        :: MWTIEPOX      ! molecular weight of IEPOX [g/mol]
       REAL( 8 ), SAVE        :: CFACTOR_IEPOX ! factor used for the mean molecular speed of IEPOX [m/(s^1*(deg K)^0.5)]
@@ -443,7 +441,6 @@ C *** variables for heterogeneous hydrolysis of NTR2
       
       
       LOGICAL, SAVE     :: FIRSTIME = .TRUE.
-      INTEGER, EXTERNAL :: SETUP_LOGDEV
 
       INTEGER           :: IRATE        ! loop counter
       INTEGER           :: INDX         ! found array index
@@ -508,8 +505,6 @@ C *** compute only on first pass
       
         FIRSTIME = .FALSE.
 
-        LOGDEV = INIT3()
-         
 C *** Get PM diagnostic file flag.
         PMDIAG = .TRUE.         ! default
         VARDESC = 'Flag for writing the aerosol diagnostic file'

@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/DEPV_DEFN.F,v 1.12 2012/01/19 14:22:45 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE DEPV_DEFN
 
@@ -202,7 +195,7 @@ C environment variable for diagnostic DEPV file
          CHARACTER( 120 ) :: XMSG = ' '
 
          INTEGER          NDX, NDX2, NDX3      ! Temp index
-         INTEGER          LOGDEV, ALLOCSTAT
+         INTEGER          ALLOCSTAT
          INTEGER          J, L, N, S, V, STRT
          INTEGER, SAVE    :: n_spc_m3dry = ltotg       ! from DEPVVARS module
 
@@ -242,8 +235,6 @@ C environment variable for diagnostic DEPV file
          END INTERFACE
 
 C-----------------------------------------------------------------------
-
-         LOGDEV = INIT3()
 
          SUCCESS = .TRUE.
 
@@ -710,7 +701,6 @@ C Local variables:
          CHARACTER( 120 ) :: XMSG = ' '
 
          INTEGER C, R, N, V, NDX, J
-         INTEGER, SAVE :: LOGDEV
 
          LOGICAL, SAVE :: FIRSTIME = .TRUE.
 
@@ -745,16 +735,11 @@ C Local variables:
          END INTERFACE
 
 C-----------------------------------------------------------------------
-         LOGDEV = INIT3()
-
          DEPV = 0.0         
 
          IF ( ILDEPV ) THEN
 ! Made default for Hg bidi JOB 9/12/11
             CALL CGRID_DEPV( GAS_DEPV_FOUND, GAS_DEPV_SUR, CGRID, CGRIDL1 )
-
-!           Write( logdev,* ) '==5 ', abflux, sfc_hono, mosaic, fst,
-!    &                                size ( depvel_gas ), size ( pvd ), size ( cmp )
 
             CALL M3DRY ( JDATE, JTIME, TSTEP, ABFLUX, SFC_HONO, MOSAIC, FST,             
      &                   CGRIDL1, DEPVEL_GAS, PVD, CMP )

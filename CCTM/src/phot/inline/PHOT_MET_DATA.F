@@ -94,7 +94,6 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
          CHARACTER( 16 )   :: VNAME_RN
          CHARACTER( 120 )  :: XMSG = ' '       ! Exit status message
 
-         INTEGER           :: LOGDEV            ! output log unit number
          INTEGER           :: LDATE             ! last jdate MET data updated
          INTEGER           :: LTIME             ! last jtime MET data updated
          INTEGER           :: STDATE            ! jdate MET module initiated
@@ -148,8 +147,6 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
        
          INITIALIZED = .TRUE.
        
-         LOGDEV = INIT3()     
-
 ! open GRID_CRO_3D file and read time independent grid variables
         
          IF ( .NOT. OPEN3( GRID_CRO_2D, FSREAD3, PNAME ) ) THEN

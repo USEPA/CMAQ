@@ -17,12 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header$
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
        SUBROUTINE CHEM( CGRID, JDATE, JTIME, TSTEP )
 
 C**********************************************************************
@@ -165,8 +159,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  On first call, call routines to set-up for EBI solver
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF( LFIRST ) THEN
-
-         LOGDEV = INIT3( )
 
          IF( MECHNAME .NE. 'SAPRC07TC_AE6_AQ' ) THEN
              MSG = 'This version of the EBI solver can only be used with'

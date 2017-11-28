@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/driver/yamo/advstep.F,v 1.7 2012/04/06 13:28:48 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE ADVSTEP( JDATE, JTIME, TSTEP, ASTEP, NREPS )
 
@@ -130,8 +123,6 @@ C Parameters:
 C External Functions:
 
 C Local Variables:
-      INTEGER, SAVE :: LOGDEV       ! unit number for log device
-
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
 
       INTEGER, SAVE :: MAXSYNC       ! force max TSTEP(2) (sec)
@@ -208,7 +199,6 @@ C-----------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
-         LOGDEV = INIT3()
 
          MAXSYNC = 720          ! default
          VARDESC = 'Maximum Synchronization Time Step (sec)'

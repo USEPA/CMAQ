@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/util/util/cksummer.F,v 1.5 2012/01/19 15:34:21 yoj Exp $ 
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C @(#)cksummer.F        1.1 /project/mod3/CMAQ/src/util/util/SCCS/s.cksummer.F 03 Jun 1997 12:08:53
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE CKSUMMER ( SCIPROC, CGRID, JDATE, JTIME )
 
@@ -83,7 +76,6 @@ C Parameters:
 C Local variables:
  
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
-      INTEGER, SAVE :: LOGDEV         ! FORTRAN unit number for log file
 
       CHARACTER( 16 ), SAVE :: PNAME = 'CKSUMMER'
       !CHARACTER( 96 ) :: XMSG = ' '
@@ -111,7 +103,6 @@ C-----------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
-         LOGDEV = INIT3()
 
          LCELLS = FLOAT( MY_NCOLS * MY_NROWS * NLAYS )
 

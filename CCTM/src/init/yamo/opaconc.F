@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-! RCS file, release, date & time of last delta, author, state, [and locker]
-! $Header: /project/yoj/arc/CCTM/src/driver/yamo/wr_aconc.F,v 1.6 2011/10/21 16:10:43 yoj Exp $
-
-! what(1) key, module and SID; SCCS file; date and time of last delta:
-! %W% %P% %G% %U%
-
 !:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE OPACONC ( JDATE, JTIME, TSTEP )
 
@@ -61,7 +54,6 @@
       CHARACTER( 80 ) :: VARDESC = ' '
       CHARACTER( 96 ) :: XMSG = ' '
 
-      INTEGER, SAVE :: LOGDEV       ! FORTRAN unit number for log file
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
       LOGICAL OK
       LOGICAL, SAVE :: END_TIME = .FALSE.
@@ -82,8 +74,6 @@
 
 ! Change output date/time to starting date/time - e.g. timestamp 1995196:090000
 ! represents data computed from time 1995196:090000 to 1995196:100000
-
-      LOGDEV = INIT3 ()
 
 ! Override default beginning time timestamp for ACONC?
       VARDESC = 'Flag to Override default beginning time timestamp for ACONC'

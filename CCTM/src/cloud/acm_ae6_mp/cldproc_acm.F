@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/work/rep/arc/CCTM/src/cloud/cloud_acm_ae6/cldproc_acm.F,v 1.6 2011/10/21 16:10:23 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE CLDPROC ( CGRID, JDATE, JTIME, TSTEP )
 
@@ -131,8 +124,6 @@ C...........Local Variables
       INTEGER, ALLOCATABLE, SAVE :: NAE( : ) ! CGRID pointer to #/m3 species
       INTEGER, ALLOCATABLE, SAVE :: SAE( : ) ! CGRID pointer to m2/m3 species
 
-      INTEGER, SAVE :: LOGDEV           ! output log unit number
-
 
 !     REAL          DENS    ( NCOLS,NROWS,NLAYS ) ! air density (kg/m3)
 !     REAL          CONV_DEP( NCOLS,NROWS,N_SPC_WDEP+8 ) ! convective wdep only
@@ -184,7 +175,6 @@ C   begin body of subroutine  CLDPROC
 C...Initialization
 
       IF ( FIRSTIME ) THEN
-        LOGDEV = INIT3()
         FIRSTIME = .FALSE.
 
 C...first check to make sure that some species in CGRID were specified

@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/hadv/yamo/y_ppm.F,v 1.3 2011/10/21 16:11:20 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE Y_PPM ( CGRID, FDATE, FTIME, TSTEP, LVL, BCON )
 
@@ -102,7 +95,6 @@ C Local Variables:
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
       CHARACTER( 96 ) :: XMSG = ' '
 
-      integer, save :: logdev
 
       REAL,    SAVE :: DX2                      ! dx2 (meters)
       INTEGER, SAVE :: ASPC                     ! RHOJ index in CGRID
@@ -163,7 +155,6 @@ C-----------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
-         logdev = init3 ()
 
          SFX = 0
          NFX = MY_NCOLS + MY_NROWS + 3
@@ -332,17 +323,9 @@ C PPM scheme
             A2C = ADV_MAP( SPC )
             DO ROW = 1, MY_NROWS
                CGRID( COL,ROW,LVL,A2C ) = CONY( ROW,SPC )
-!              if ( cony( row,spc ) .le. 0.0 )
-!    &            write( logdev,2019 ) ftime, col, row, lvl, spc, cony(row,spc )
             END DO
          END DO
 
-!        do row = 1, my_nrows
-!           if ( cony( row,n_spc_adv ) .le. 0.0 ) then
-!              write( logdev,2019 ) ftime, col, row, lvl,
-!    &                              cony( row,n_spc_adv )
-!           end if
-!        end do
 !019  format( 'y_ppm# date, time, col, row, lvl, cony: ',
 !    &         2I7, 3I4, 1pe12.3 )
 2019  format( 'y_ppm# time, c, r, l, s, cony: ',

@@ -17,9 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/driver/yamo/sciproc.F,v 1.5 2011/10/21 16:10:43 yoj Exp $ 
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE SCIPROC ( CGRID, JDATE, JTIME, TSTEP, ASTEP )
 
@@ -57,6 +54,7 @@ C    25 Mar 16 R.Mathur: incorporated pot. vorticity strat. O3 scaling
 C-----------------------------------------------------------------------
 
       USE UTILIO_DEFN
+      USE ENV_VARS
 
       IMPLICIT NONE   
 
@@ -90,8 +88,6 @@ C Local Variables:
 
       CHARACTER( 120 ) :: XMSG = ' '
       CHARACTER( 36 ) :: NMSG = 'After NEXTIME: returned JDATE, JTIME'
-
-      INTEGER, SAVE :: LOGDEV
 
       INTEGER      SDATE        ! current science process date, coded YYYYDDD
       INTEGER      STIME        ! current science process time, coded HHMMSS
@@ -174,7 +170,6 @@ C-----------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
-         LOGDEV = INIT3 ()
 
          CKSUM = .TRUE.         ! default
          VARDESC = 'Cksum on flag'

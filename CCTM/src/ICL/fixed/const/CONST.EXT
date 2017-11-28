@@ -1,10 +1,4 @@
 
-! RCS file, release, date & time of last delta, author, state, [and locker]
-! $Header: /project/yoj/arc/ICL/src/fixed/const/CONST.EXT,v 1.4 2012/01/18 20:01:03 yoj Exp $ 
-
-! what(1) key, module and SID; SCCS file; date and time of last delta:
-! @(#)CONST.EXT 4.1 /project/mod3/ICL/src/fixed/const/SCCS/s.CONST.EXT 29 May 1997 10:50:26
-
 !.......................................................................
  
 !  INCLUDE FILE  CONST.EXT

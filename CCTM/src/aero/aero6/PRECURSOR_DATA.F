@@ -17,9 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6_mp/PRECURSOR_DATA.F,v 1.3 2012/01/26 18:44:38 sjr Exp $
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module precursor_data
 
@@ -123,8 +120,6 @@ C Private variables for loading and unloading to CGRID array
       Integer          :: precursor_map( n_precursor )  ! pointers to CGRID
       Logical, Private, Save :: mapped          = .False.
       Logical, Private, Save :: Precursor_eflag = .False.
-      Integer, Private, Save :: logdev
-      Integer, Private, External :: setup_logdev
 
       Character( 16 ), Private, Save :: pname = 'precursor_data'
 
@@ -157,8 +152,6 @@ C Local Variables:
 
 C If the species are mapped already, skip the mapping algorithm
       If ( mapped ) Return
-
-      logdev = setup_logdev()
 
 C Initialize Precursor Map Variables
       precursor_mw = 0.0d0

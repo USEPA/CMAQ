@@ -163,7 +163,6 @@ C         AERO_DATA.F. Moments are wet after extract_aero
 !        logical :: output_ext
 
          integer :: nvars
-         integer :: logdev
 
          real, parameter :: epswater = mwwat / mwair
 
@@ -178,21 +177,6 @@ C         AERO_DATA.F. Moments are wet after extract_aero
 
 !-----------------------------------------------------------------------
 
-         logdev = init3()
-
-!        output_ext = envyn( 'output_ext', 'flag to output 3D extiction file',
-!    &                       .false., ios)
-
-!        if ( output_ext ) then
-!           vname3d( 1 ) = 'EXTINCTION'
-!           units3d( 1 ) = '1/km'
-!           write ( vdesc3d( 1 ), '(a)') 'block extinction (Reconstructed)'
-!           if ( .not. open3( ext_file, fsnew3, pname ) ) then
-!              write( logdev,* ) ' could not open file:', ext_file
-!              stop
-!           end if
-!        end if
-
          do r = 1, my_nrows
             do c = 1, my_ncols
                conc_cr = cgrid( c,r,:,: )
@@ -205,9 +189,6 @@ C         AERO_DATA.F. Moments are wet after extract_aero
                do k = 1, nlays
                   lvl_thickness = 2.0 * ( zh_cr( k ) - tot_thickness )
                   tot_thickness = tot_thickness + lvl_thickness
-!                 if (once) then
-!                    write( logdev,* ) k, lvl_thickness, tot_thickness
-!                 end if
 
 ! compute fractional relative humidity
                   blkesat = esatl( ta_cr( k ) )

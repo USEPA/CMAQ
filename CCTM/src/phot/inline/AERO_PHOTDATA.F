@@ -47,7 +47,6 @@
       PUBLIC            :: AERO_ASYM_FAC, AERO_EXTI_COEF, AERO_SCAT_COEF,
      &                     INIT_AERO_DATA, GET_AERO_DATA, AERO_OPTICS_INTERNAL
 
-      INTEGER, PRIVATE                :: LOGDEV                 ! unit number for the log file
       INTEGER,   ALLOCATABLE, PRIVATE :: REFRACT_INDX_MAP( : )  ! map array for refactive index
 
       REAL,      ALLOCATABLE, PRIVATE :: VOL_MINS( : )          ! minmum volume permode
@@ -103,7 +102,6 @@ C Local:
             RETURN
          END IF
           
-         LOGDEV = INIT3()
          JDATE  = 0
          JTIME  = 0
 

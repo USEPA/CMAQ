@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero5/aero_depv.F,v 1.12 2012/01/19 13:12:14 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C @(#)aero_depv.F       1.3 /project/mod3/CMAQ/src/ae_depv/aero_depv/SCCS/s.aero_depv.F 18 Jun 1997 12:55:48
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AERO_DEPV ( CGRID, JDATE, JTIME, TSTEP, MOSAIC, VDEP_AE )
 
@@ -164,7 +157,6 @@ C Meteorological variables
       REAL M2_WET, M2_DRY
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
-      INTEGER, SAVE :: LOGDEV                   ! unit number for the log file
       CHARACTER( 16 ), SAVE :: PNAME = 'AERO_DEPV'
       CHARACTER( 16 ) :: VNAME            ! varable name
       CHARACTER( 96 ) :: XMSG = ' '
@@ -199,7 +191,6 @@ C-----------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
-         LOGDEV = INIT3()
 
          NCELLS = NCOLS * NROWS
 

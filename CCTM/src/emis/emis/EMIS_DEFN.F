@@ -17,12 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/work/rep/arc/CCTM/src/emis/emis/EMIS_DEFN.F,v 1.10 2011/10/21 16:10:46 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE EMIS_DEFN
 
@@ -137,7 +131,7 @@ C Local Variables:
          CHARACTER( 16 ) :: PNAME = 'EMIS_INIT'
          CHARACTER( 80 ) :: VARDESC   ! env variable description
          CHARACTER( 120 ) :: XMSG = ' '
-         INTEGER V, LOGDEV, STATUS
+         INTEGER V, STATUS
 #ifdef verbose_emis_defn
          integer s
 #endif
@@ -145,8 +139,6 @@ C Local Variables:
 C-----------------------------------------------------------------------
 
          SUCCESS = .TRUE.
-
-         LOGDEV = INIT3()
 
          IF ( GDTYP_GD .EQ. LATGRD3 ) THEN
             DX1 = DG2M * XCELL_GD ! in m.
@@ -382,7 +374,6 @@ C Local Variables:
          CHARACTER( 16 ) :: PNAME = 'GET_EMIS'
          CHARACTER( 120 ) :: XMSG = ' '
 #ifdef verbose_emis_defn
-         integer, save :: logdev
          real sumem
 #endif
          LOGICAL, SAVE :: FIRSTIME = .TRUE.
@@ -393,9 +384,6 @@ C-----------------------------------------------------------------------
 
          IF ( FIRSTIME ) THEN
             FIRSTIME = .FALSE.
-#ifdef verbose_emis_defn
-            logdev = init3()
-#endif
 C Get domain decomp info from the emissions file
             CALL SUBHFILE ( EMIS_1, GXOFF, GYOFF, STARTCOL, ENDCOL, STARTROW, ENDROW )
             CNVTP = CONVPA * CNVTE
@@ -447,10 +435,6 @@ C  loads."
                   END DO
                END DO
             END DO
-
-#ifdef verbose_emis_defn
-            write( logdev,* ) '  GC EMIS: ', s, '  ', gc_emis( s )
-#endif
 
          END DO   ! V
 
@@ -722,9 +706,6 @@ C accounts for emissions species names as a subset of the vert. diffused species
          VDEMIS( N_SPC_EMIS+1,:,:,: ) = 0.0
 
 #ifdef verbose_emis_defn
-!        v = index1 ( 'NO', n_gc_emis, gc_emis )
-!        semis = vdemis( v,:,:,: )   ! all layers
-!        write( logdev,* ) '  sumVDEMIS( NO ): ', sum( semis )
          write( logdev,'(/"@@@0 ", i8, i7.6)') jdate, jtime
          l = 1
          do v = strt_gc, fini_gc
@@ -798,7 +779,7 @@ C-----------------------------------------------------------------------
          CHARACTER( 16 ), ALLOCATABLE  :: EMSPC_WRITE( : )
          CHARACTER( 16 ), ALLOCATABLE  :: EMIS_SPC_UNUSED( : )
 
-         INTEGER    :: STRT, PTSTRT, ISPC, IPT, JPT, IDX, LOGDEV, IX
+         INTEGER    :: STRT, PTSTRT, ISPC, IPT, JPT, IDX, IX
 
          LOGICAL    :: LERROR
          LOGICAL, ALLOCATABLE :: L_EMIS_SPC( : ), 
@@ -819,7 +800,6 @@ C-----------------------------------------------------------------------
 
 C Retrieve Environment Variable Letting User Ignore this Check
 C and allowing the model to proceed.
-         LOGDEV = INIT3()
          VARDESC    = "Let model proceed even if there are emission"
      &              //" surrogates that do not appear on any input file."
          EMISCHK = ENVYN( CTM_EMISCHK, VARDESC, EMISCHK, STATUS )

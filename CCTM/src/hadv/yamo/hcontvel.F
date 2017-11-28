@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/hadv/yamo/hcontvel.F,v 1.6 2011/10/21 16:11:19 yoj Exp $ 
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C @(#)hcontvel.F        1.1 /project/mod3/CMAQ/src/util/util/SCCS/s.hcontvel.F 03 Jun 1997 12:08:52
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE HCONTVEL ( JDATE, JTIME, TSTEP, LVL, UORV, WIND )
       
@@ -112,7 +105,6 @@ C External Functions: None
 C local variables:
       
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
-      INTEGER, SAVE :: LOGDEV
        
       INTEGER   ROW               ! Row index
       INTEGER   COL               ! Column index
@@ -151,7 +143,6 @@ C-----------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
-         LOGDEV = INIT3 ()
 
          CALL LSTEPF( MET_CRO_3D, LDATE( 1 ), LTIME( 1 ) )
 !        CALL LSTEPF( MET_BDY_3D, LDATE( 2 ), LTIME( 2 ) )

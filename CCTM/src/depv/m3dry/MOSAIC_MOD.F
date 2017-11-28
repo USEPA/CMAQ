@@ -18,9 +18,6 @@
 !------------------------------------------------------------------------!
 
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/work/rep/arc/CCTM/src/depv/m3dry/MOSAIC_MOD.F,v 1.6 2012/03/28 16:11:09 yoj Exp $
-
 c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module MOSAIC_MOD
       
@@ -37,6 +34,7 @@ C                                            mosaic variables were moved to ASX_
 C                                            Algorithms were restuctured using fortran 95 
 C                                            array construcs for readability.
 C-------------------------------------------------------------------------------
+      USE ENV_VARS
 
       Implicit None
 
@@ -52,7 +50,6 @@ C shared variables
 !     Character( 80 ), Save   :: LAND_SCHEME 
 
 C Private variables used in this module and subroutines       
-      Integer, Save, Private  :: logdev 
       Real, Save, Allocatable, Private :: fseas          ( :,: )
       Real, Save, Allocatable, Private :: total_frac     ( :,: )
       Real, Save, Allocatable, Private :: sum_mos_frac   ( :,: )
@@ -180,7 +177,7 @@ C...include files
           
          End Subroutine Init_Mosaic
        
-         Subroutine calc_lai( jday, jtime, logdev )
+         Subroutine calc_lai( jday, jtime )
 
 C***********************************************************************
 C  Function:
@@ -198,7 +195,6 @@ C***********************************************************************
 C Arguments:
          Integer, Intent( In )  :: jday
          Integer, Intent( In )  :: jtime     
-         Integer, Intent( In )  :: logdev
 
 C Local variables:
          Integer :: c,r,j

@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/driver/yamo/wr_aconc.F,v 1.6 2011/10/21 16:10:43 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE WR_ACONC ( AGRID, JDATE, JTIME, TSTEP )
 
@@ -75,7 +68,6 @@ C Local variables:
       CHARACTER( 80 ) :: VARDESC = ' '
       CHARACTER( 96 ) :: XMSG = ' '
 
-      INTEGER, SAVE :: LOGDEV       ! FORTRAN unit number for log file
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
       LOGICAL OK
       LOGICAL, SAVE :: END_TIME = .FALSE.
@@ -90,7 +82,6 @@ C represents data computed from time 1995196:090000 to 1995196:100000
 
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
-         LOGDEV = INIT3 ()
 
 C Override default beginning time timestamp for ACONC?
          VARDESC = 'Flag to Override default beginning time timestamp for ACONC'
@@ -132,7 +123,6 @@ C Override default beginning time timestamp for ACONC?
      &           // ' to ' // A_CONC_1
             CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
          END IF
-!     write( logdev,* ) ' <>var, A_GC_SPC: ', VAR, A_GC_SPC( SPC )
       END DO
  
       DO SPC = 1, N_A_AE_SPC
@@ -144,7 +134,6 @@ C Override default beginning time timestamp for ACONC?
      &           // ' to ' // A_CONC_1
             CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
          END IF
-!     write( logdev,* ) ' <>var, A_AE_SPC: ', VAR, A_AE_SPC( SPC )
       END DO
  
       DO SPC = 1, N_A_NR_SPC
@@ -156,7 +145,6 @@ C Override default beginning time timestamp for ACONC?
      &           // ' to ' // A_CONC_1
             CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
          END IF
-!     write( logdev,* ) ' <>var, A_NR_SPC: ', VAR, A_NR_SPC( SPC )
       END DO
  
       DO SPC = 1, N_A_TR_SPC

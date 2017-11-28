@@ -229,7 +229,7 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 
   integer :: east_adjustment, north_adjustment
 
-    integer, save :: jdate, jtime, sdate, stime, logdev, nstep
+    integer, save :: jdate, jtime, sdate, stime, nstep
     integer       :: wrf_halo_x_l, wrf_halo_x_r
     integer       :: wrf_halo_y_l, wrf_halo_y_u
 
@@ -376,8 +376,6 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
      delta_y        = envint ('TWOWAY_DELTA_Y', ' ', 5, stat)
 
      wrf_lc_ref_lat = envreal ('WRF_LC_REF_LAT', ' ', 0.0, stat)
-
-     logdev = init3 ()
 
      wrf_cmaq_freq = envint ('WRF_CMAQ_FREQ', ' ', 1, stat)
 

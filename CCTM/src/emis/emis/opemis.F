@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/opemis.F,v 1.3 2011/10/21 16:10:47 yoj Exp $
- 
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
- 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE OPEMIS ( JDATE, JTIME, NEMIS, EM_TRAC, CONVEM, EMLAYS )
 
@@ -53,10 +46,6 @@ C Arguments:
       REAL         CONVEM     ! conversion for emissions rates
       INTEGER      EMLAYS     ! emissions layers from file
 
-C External Functions:
-
-      INTEGER, EXTERNAL :: SETUP_LOGDEV
-
 C Local variables:
 
       CHARACTER( 16 ) :: PNAME = 'OPEMIS'
@@ -64,15 +53,11 @@ C Local variables:
       CHARACTER( 16 ) :: UNITSCK
 
       LOGICAL ::   WRFLG = .FALSE.
-      INTEGER      LOGDEV
       INTEGER      STATUS
       INTEGER      V, N, S        ! induction variables
 
 C-----------------------------------------------------------------------
  
-!     LOGDEV = INIT3()
-      LOGDEV = SETUP_LOGDEV()
-
       EMLAYS = 0
 
 C Open the tracer emissions file

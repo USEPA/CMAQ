@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/work/rep/arc/CCTM/src/cloud/cloud_acm_ae6/rescld.F,v 1.7 2011/10/21 16:10:24 yoj Exp $
-
-C what( 1 ) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE RESCLD ( CGRID, JDATE, JTIME, TSTEP,
      &                    N_SPC_WDEP, WDEP_MAP, DEP, RESTRANS )
@@ -120,7 +113,6 @@ C...........Local Variables:
       INTEGER       ROW                 ! row loop counter
       INTEGER       LAY                 ! layer loop counter
       INTEGER       FINI                ! ending position
-      INTEGER, SAVE :: LOGDEV           ! output log unit number
       INTEGER       MDATE               ! process date (yyyyddd)
       INTEGER, SAVE :: MSTEP            ! met file time step (hhmmss)
       INTEGER       MTIME               ! process time (hhmmss)
@@ -226,8 +218,6 @@ C...Initialization
       IF ( FIRSTIME ) THEN
 
         FIRSTIME = .FALSE.
-
-        LOGDEV = INIT3()
 
 C...open MET_CRO_2D
 

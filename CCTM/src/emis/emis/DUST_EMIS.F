@@ -17,10 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/work/rep/arc/CCTM/src/emis/emis/DUST_EMIS.F,v 1.6 2011/10/21 16:10:45 yoj Exp $
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       module dust_emis
      
@@ -184,8 +180,6 @@ C Module shared variables:
      &           1.00,   ! silt
      &           0.12 /) ! sand
 
-      integer, save :: logdev
-
       CONTAINS
 
 C=======================================================================
@@ -208,9 +202,6 @@ C Arguments:
 
 C Includes:
          include SUBST_FILES_ID  ! file name parameters
-
-C External Functions:
-         integer, external :: setup_logdev
 
 C Local variables:
          character( 16 ) :: ctm_dustem_diag = 'CTM_DUSTEM_DIAG' ! env var for
@@ -249,9 +240,7 @@ C Local variables:
 
 C-----------------------------------------------------------------------
 
-         logdev = setup_logdev()
          success = .true.
-
 
          allocate ( dustoutm( ndust_spc,n_mode,ncols,nrows ),
      &              dustoutn( n_mode,ncols,nrows ),

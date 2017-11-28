@@ -17,10 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry_mp/BIDI_MOD.F,v 1.5 2012/01/26 18:45:35 sjr Exp $
-
 c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module Bidi_Mod
 
@@ -43,7 +39,6 @@ C                   J. Bash May 11 11: Updated for CMAQ 5.0
       Integer, Parameter, Private :: HG_SOL_CONC  = 2           
       
       Integer, Save,   Private :: N_Hg
-      Integer, Save,   Private :: LOGDEV      
       Character( 96 ), Private :: XMSG = ' '
 ! shared variables
       Character( 16 ), Save , Allocatable :: MEDIA_NAMES( : )
@@ -85,7 +80,6 @@ C... Local:
          Integer         :: STATUS
          
 C--------------------------------------------------------------------------
-         LOGDEV = INIT3()  
 
          If ( INDEX1( 'HG', N_GC_DDEP, GC_DDEP ) .Gt. 0 ) Then 
          
@@ -222,7 +216,6 @@ C--------------------------------------------------------------------------
          Integer  N, V, L
          
 C--------------------------------------------------------------------------
-         LOGDEV = INIT3()  
          
          If ( ABFLUX .And. .Not. HGBIDI) Then
 
@@ -503,8 +496,6 @@ C--------------------------------------------------------------------------
          Character( 16 ) :: PNAME = 'WRASX_MEDIA     '
          
 !*****************************************************************************         
-         LOGDEV = INIT3()    
-         
          If ( HGBIDI ) Then
             INIT_LAI = .FALSE.   
             INIT_ATX = .FALSE.   

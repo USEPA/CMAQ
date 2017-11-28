@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/work/rep/PARIO/src/pm3err.f,v 1.3 2011/03/30 18:13:03 sjr Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
         SUBROUTINE PM3ERR( CALLER, JDATE, JTIME, ERRTXT, FATAL )
 C.....................................................................
 C
@@ -62,6 +55,7 @@ C
 C***********************************************************************
 
       USE M3UTILIO              ! i/o api
+      USE ENV_VARS
 
       IMPLICIT NONE
 
@@ -83,7 +77,6 @@ C...........   ARGUMENTS and their descriptions:
 C...........   LOCAL VARIABLES
 
       INTEGER      LENSTR       ! String length of CALLER.
-      INTEGER      LOGDEV       ! FORTRAN unit number for log file.
       INTEGER      IDEV         ! Loop counter over FORTRAN unit numbers.
       INTEGER      ERRCODE      ! Error code from abort attempt.
       INTEGER      IERROR       ! Error from MPI_ABORT routine.
@@ -110,8 +103,6 @@ C.......  Construct new CALLER string.
 
 
 C.......  Do M3ERR tasks.
-
-        LOGDEV = INIT3()
 
         IF ( FATAL ) THEN     ! Print error messages and exit.
 

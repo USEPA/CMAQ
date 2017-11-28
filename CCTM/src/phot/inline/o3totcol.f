@@ -17,9 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-! RCS file, release, date & time of last delta, author, state, [and locker]
-! $Header: /project/yoj/arc/CCTM/src/phot/phot_inline/o3totcol.f,v 1.2 2011/10/21 16:11:28 yoj Exp $ 
-
       subroutine o3totcol ( latitude, longitude, jdate, ozone )
 
 !----------------------------------------------------------------------
@@ -70,7 +67,6 @@
       integer :: nrecs
       integer :: jyear
 
-      integer, save :: logdev           ! output log unit number
       integer, save :: nt
       integer, save :: it
       integer, save :: tmunit
@@ -101,7 +97,6 @@
       if ( firsttime ) then
       
         firsttime = .false.
-        logdev = init3()
 
         allocate ( lat( nlat ), stat = allocstat )
         if ( allocstat .ne. 0 ) then

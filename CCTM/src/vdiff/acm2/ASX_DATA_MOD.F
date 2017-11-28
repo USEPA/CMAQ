@@ -264,7 +264,6 @@ C Land use information:
       Character( 16 ), Private, Save :: vname_rc, vname_rn, vname_uc, vname_vc
       Real,            Private, Save :: P0    ! reference pressure (100000.0 Pa) for Potential Temperature, note that in meteorology they do not use the SI 1 ATM.  
 
-      Integer, Private, Save :: LOGDEV
       Integer, Private, Save :: GXOFF, GYOFF              ! global origin offset from file
       Integer, Private, Save :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 ! MET_CRO_3D
       Integer, Private, Save :: STRTCOLMD3, ENDCOLMD3, STRTROWMD3, ENDROWMD3 ! MET_DOT_3D
@@ -428,8 +427,6 @@ C for INTERPX
          Integer ALLOCSTAT
 
 C-----------------------------------------------------------------------
-
-         LOGDEV = INIT3()
 
          If( MET_INITIALIZED )Return
 

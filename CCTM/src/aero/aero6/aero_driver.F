@@ -17,10 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero5/aero_driver.F,v 1.11 2012/01/19 13:12:57 yoj Exp $
-
 C >>> 08/04/2000 Changes necessary to be able to read and process
 C two different types of emissions files.
 C the first type is the existing opperational PM2.5 & PM10 unspeciated
@@ -147,8 +143,6 @@ C *** CGRID is conc field (including gas and aerosol variables)
                                 ! TSTEP(2) = sciproc sync. step (chem)
                                 ! TSTEP(3) = twoway model time step w.r.t. wrf time
                                 !            step and wrf/cmaq call frequency
-
-      INTEGER, SAVE :: LOGDEV             ! unit number for the log file
 
 C *** Local Variables:
 
@@ -307,7 +301,6 @@ C ------------------ begin body of AERO_DRIVER -------------------------
 
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
-         LOGDEV = INIT3()
 
          IF ( INDEX(MECHNAME, 'SAPRC07TIC_AE6I_AQ') .GT. 0 ) THEN
             NUM_PMDIAG_SPC = 41

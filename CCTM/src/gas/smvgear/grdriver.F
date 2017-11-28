@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/smvgear/grdriver.F,v 1.6 2011/10/21 16:11:14 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C @(#)grdriver.F        1.1 /project/mod3/CMAQ/src/chem/smvgear/SCCS/s.grdriver.F 07 Jul 1997 12:45:24
-
        SUBROUTINE CHEM( CONC, JDATE, JTIME, TSTEP )
 
 C**********************************************************************
@@ -126,7 +119,6 @@ C..SAVED LOCAL VARIABLES:
       LOGICAL, SAVE :: EMISVD = .TRUE. ! emission rates in vertical diffusion 
 
       INTEGER, SAVE :: IRUNC     ! Counter of calls to this subroutine
-      INTEGER, SAVE :: LOGDEV    ! Unit number of output log
       INTEGER, SAVE :: NOXYZ     ! Total number of grid cells
       LOGICAL, SAVE :: LIRRBLK   ! Flag to indicate IRR to be done for block
       REAL,    SAVE :: AIRFC     ! Factor to convert gms air to ppm
@@ -261,14 +253,13 @@ C for INTERPX
             LOGICAL,   INTENT( IN ) :: LIRRFLAG     ! Flag for IRR calculations
             REAL( 8 ), INTENT( IN ) :: CHEMSTEP     ! Chemistry integration interval (min) 
          END SUBROUTINE SMVGEAR
-         SUBROUTINE FIND_DEGRADED( JDATE, JTIME, LOGDEV, CALL_DEGRADE )
+         SUBROUTINE FIND_DEGRADED( JDATE, JTIME, CALL_DEGRADE )
            INTEGER, INTENT( IN )  :: JDATE        ! current model date , coded YYYYDDD
            INTEGER, INTENT( IN )  :: JTIME        ! current model time , coded HHMMSS
-           INTEGER, INTENT( IN )  :: LOGDEV       ! unit number for the log file
            LOGICAL, INTENT( OUT ) :: CALL_DEGRADE ! whether to call degradation routines
          END SUBROUTINE FIND_DEGRADED
          SUBROUTINE INIT_DEGRADE( CBLK, TCELL, DCELL, PHOTO_CELL, NUMCELLS,
-     &                         JDATE, JTIME, LOGDEV, BLKID )
+     &                         JDATE, JTIME, BLKID )
            REAL( 8 ), INTENT( IN ) :: CBLK ( :, : )      !  species concentration in cell
            REAL( 8 ), INTENT( IN ) :: TCELL( : )         !  cell temperature  [ k ]
            REAL( 8 ), INTENT( IN ) :: DCELL( : )         !  cell air density  [ kg/m^3 ]
@@ -276,7 +267,6 @@ C for INTERPX
            INTEGER,   INTENT( IN ) :: NUMCELLS  ! number of grid cells in block
            INTEGER,   INTENT( IN ) :: JDATE     ! current model date , coded YYYYDDD
            INTEGER,   INTENT( IN ) :: JTIME     ! current model time , coded HHMMSS
-           INTEGER,   INTENT( IN ) :: LOGDEV    ! unit number for the log
            INTEGER,   INTENT( IN ) :: BLKID     ! number for the block
          END SUBROUTINE INIT_DEGRADE      
          SUBROUTINE FINAL_DEGRADE( CBLK )
@@ -297,7 +287,6 @@ c  set-up to do emissions here if that option is invoked
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF ( LFIRST ) THEN
          LFIRST = .FALSE.
-         LOGDEV = INIT3( )
 
          CALL GRVARS_INIT( JDATE, JTIME )
 
@@ -589,21 +578,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !        CALL CALCKS( NPHOTAB, RJBLK )
          CALL CALC_RCONST( BLKTEMP, BLKPRES, BLKCH2O, RJBLK, BLKHET, LSUNLIGHT, BLKLAND, RK, NUMCELLS )
 
-!         DO NCELL = 1, NUMCELLS
-!            CELLNUM = NORDCELL( OFFSET + NCELL )
-!            COL = CCOL( CELLNUM )   ! wrong order
-!            ROW = CROW( CELLNUM )
-!            LEV = CLEV( CELLNUM )
-!            IF( LEV .EQ. INT(NLAYS/2)+1.AND. ROW .EQ. INT(MY_NROWS/2)+1 .AND. COL .EQ. INT(MY_NCOLS/2)+1 )THEN
-!                WRITE(LOGDEV,'(A,ES12.4)')'TEMP = ',BLKTEMP( NCELL ) 
-!                WRITE(LOGDEV,'(A,ES12.4)')'PRES = ',BLKPRES( NCELL ) 
-!                WRITE(LOGDEV,'(A,ES12.4)')'VH2O = ',BLKCH2O( NCELL )
-!                DO NPH = 1, NRXNS
-!                   WRITE(LOGDEV,'(A4,A16,A3,ES12.4)')'RXN:',RXLABEL(NPH),' = ',RK(NCELL, NPH)
-!                END DO
-!             END IF
-!         END DO
-
          IF ( LSUNLIGHT ) THEN
             HMAX = HMAXDAY( NCS )
             NCSP = NCS
@@ -629,7 +603,7 @@ C..WTH: Put concentrations into degradation array
 C..initialize degradation routines
               
             CALL INIT_DEGRADE( Y_DEGRADE, BLKTEMP, BLKDENS, RJBLK, 
-     &                         NUMCELLS, JDATE, JTIME, LOGDEV, BLKID )
+     &                         NUMCELLS, JDATE, JTIME, BLKID )
   
          ENDIF
 

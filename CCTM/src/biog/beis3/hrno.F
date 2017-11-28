@@ -17,12 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/biog/beis3/hrno.F,v 1.6 2011/10/21 16:10:18 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE HRNO( JDATE, JTIME, TSTEP, NOPOL )
 
@@ -235,7 +229,6 @@ C Local Variables:
       LOGICAL, SAVE :: USE_SOILT = .TRUE. ! use soil temperature in PX version
                                           ! rather than estimate as in BEIS2
 
-      INTEGER, SAVE :: LOGDEV
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
       LOGICAL, SAVE :: FIRSTHR  = .TRUE.
       LOGICAL, SAVE :: FIRST_WRITE = .TRUE.
@@ -261,8 +254,6 @@ C-----------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
 !        FIRSTIME = .FALSE.
-
-         LOGDEV = INIT3()
 
 C Determine last timestamp
          SDATE = ENVINT( 'CTM_STDATE', 'Scenario Start (YYYYJJJ)', 0, IOS )

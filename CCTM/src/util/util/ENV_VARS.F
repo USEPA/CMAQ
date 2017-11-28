@@ -17,28 +17,27 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      INTEGER FUNCTION FINDEX (INDX, N, NLIST)
+C....................................................................
+C  The ENV_VARS module contains file unit identifiers for the log files,
+C  input files, and the values of all environment variables.
+C
+C  It also contains routines for reading environment variables, and
+C  opening input files.
+C....................................................................
 
-C Searches for INDX in list NLIST and returns the subscript
-C (1...N) at which it is found, or returns 0 if INDX not found
+      MODULE ENV_VARS
 
       IMPLICIT NONE
- 
-      INTEGER INDX        !  index being searched for
-      INTEGER N           !  Length of array to be searched
-      INTEGER NLIST(*)    !  array to be searched
 
-      INTEGER I
+      SAVE
 
-      DO I = 1, N
-         IF ( INDX .EQ. NLIST( I ) ) THEN  ! found
-            FINDEX = I
-            RETURN
-            END IF
-         END DO
-      FINDEX = 0        !  not found
-      RETURN
+      INTEGER :: LOGDEV    ! File Unit for Ascii Log File
+      INTEGER :: DIAGDEV   ! File Unit For Ascii Diagnostic Output
 
-      END
+      INTEGER, PARAMETER :: CTM_DIAG_LVL = 1
+      
+      PUBLIC LOGDEV, DIAGDEV, CTM_DIAG_LVL
 
+      PRIVATE
+
+      END MODULE ENV_VARS

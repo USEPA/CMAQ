@@ -17,10 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/BEIS_DEFN.F,v 1.5 2011/10/21 16:10:45 yoj Exp $
-
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE BEIS_DEFN
 
@@ -69,13 +65,11 @@ C=======================================================================
 
          INTEGER N_SPC
          REAL    CONVEM               ! conversion for emissions rates to Kg/s
-         INTEGER V, K, LOGDEV, STATUS
+         INTEGER V, K, STATUS
 
 C-----------------------------------------------------------------------
 
          SUCCESS = .TRUE.
-
-         LOGDEV = INIT3()
 
          N_SPC = N_GC_EMIS + N_NR_EMIS + N_TR_EMIS
 

@@ -17,9 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6/AERO_DATA.F,v 1.10 2012/01/19 13:18:37 yoj Exp $
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module aero_data
 
@@ -108,6 +105,7 @@ C In the Fortran user-derived spcs_type, below, visual_idx is an optimal dry mas
 C extinction efficiency [m^2/g], see White, Atmos.Env., 294(10)(1990), pp 2673-1672
 C and Malm, et al., JGR, 99(D1)(1994), pp 1347-1370
 C----------------------------------------------------------------------
+      USE ENV_VARS
 
       Implicit None
 
@@ -166,9 +164,6 @@ C by analytical approximation (True) or by Gauss-Hermite quadrature (False)
 C Define Logical values as T and F for the aerospc table
       Logical, Parameter, Private :: T = .true.
       Logical, Parameter, Private :: F = .false.
-
-      Integer, Private, Save :: logdev
-      Integer, Private, External :: setup_logdev
 
 C-------------------------------------------------------------------------------------------------------
 
@@ -647,7 +642,6 @@ C Local Variables:
 
       If ( mapped ) Return
 
-      logdev      = setup_logdev()
       mole_weight = 0.0
 
       n_aerospc      = 0   ! Number of Used Aerosol Chemical Species
@@ -1052,8 +1046,6 @@ C Local Variables:
       Logical :: found, match
 
       Logical, Save :: pm_mapped = .False.
-
-      logdev = setup_logdev()
 
 C Create mapping only if first call
       If ( pm_mapped ) Return

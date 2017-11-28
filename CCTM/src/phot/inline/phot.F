@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-! RCS file, release, date & time of last delta, author, state, [and locker]
-! $Header: /project/yoj/arc/CCTM/src/phot/phot_inline/phot.F,v 1.7 2011/10/21 16:11:28 yoj Exp $
-
-! what(1) key, module and SID; SCCS file; date and time of last delta:
-! %W% %P% %G% %U%
-
 !:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE PHOT ( MDATE, MTIME, JDATE, JTIME, DTSTEP, RJ )
 
@@ -37,7 +30,7 @@
 ! Preconditions: HGRD_INIT() called from PAR_INIT, which is called from
 !     DRIVER
 !
-! Subroutines/Functions called: INIT3, M3EXIT, SUBHFILE, CGRID_MAP,
+! Subroutines/Functions called: M3EXIT, SUBHFILE, CGRID_MAP,
 !     OPPHOT, LOAD_CSQY_DATA, LOAD_OPTICS_DATA, INITIALIZE_ALBEDO, 
 !     GET_PHOT_MET, UPDATE_SUN, GET_ALBEDO, GET_DROPLET_OPTICS, 
 !     GET_ICE_OPTICS, GET_AGGREGATE_OPTICS, CLEAR_HYDROMETEOR_OPTICS, 
@@ -190,7 +183,6 @@ C...modules
       CHARACTER(  80 ) :: VARDESC  ! environment variable description
       CHARACTER( 240 ) :: XMSG = ' '
 
-      INTEGER,    SAVE :: LOGDEV
       INTEGER,    SAVE :: LGC_O3   ! pointer to O3 in CGRID
       INTEGER,    SAVE :: LGC_NO2  ! pointer to NO2 in CGRID
       INTEGER,    SAVE :: TSTEP    ! output timestep in sec
@@ -333,7 +325,6 @@ C...modules
       IF ( FIRSTIME ) THEN
 
          FIRSTIME = .FALSE.
-         LOGDEV   = INIT3()
 
          TSTEP  = TIME2SEC( DTSTEP( 1 ) ) ! output timestep for phot diagnostic files
 
@@ -381,7 +372,7 @@ C...modules
 
 !...Initialize Surface albedo method
 
-         IF ( .NOT. INITIALIZE_ALBEDO( JDATE, JTIME, LOGDEV ) ) THEN
+         IF ( .NOT. INITIALIZE_ALBEDO( JDATE, JTIME ) ) THEN
               XMSG = 'Failure initializing photolysis surface albedo algorithm'
               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
@@ -552,7 +543,7 @@ C...modules
 
 !...set surface albedos
 
-      CALL GET_ALBEDO( MDATE, MTIME, LOGDEV, COSINE_ZENITH, LAT, LON )
+      CALL GET_ALBEDO( MDATE, MTIME, COSINE_ZENITH, LAT, LON )
 
 !...SA  Write COSINE_ZENITH array at the end of each output tstep
 
@@ -883,8 +874,6 @@ C...modules
                         END IF
                         CLOUD_LAYERING( L ) = .FALSE.
                      END DO
-!                    write(logdev,*)'ACM cloud present fraction, cloud lwc(lev),iwc(lev),rwc(1),gwc(1) = ',
-!     &              ACM_CLOUDS( COL,ROW ),lwc(lev),iwc(lev),rwc(1),gwc(1)
                  
 ! get optical properties of of subgrid cloud hydrometeors
                      CALL GET_DROPLET_OPTICS( LEV, BLKTA, OWATER_FRAC, SEAICE_FRAC, SNOW_FRAC, LWC )     

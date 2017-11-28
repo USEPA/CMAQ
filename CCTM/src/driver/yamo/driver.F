@@ -107,6 +107,7 @@ C-----------------------------------------------------------------------
       USE PA_DEFN, Only: LIPR, LIRR  ! Process Anaylsis control and data variables
       USE PAGRD_DEFN            ! Process Anaylsis horiz domain specs
       USE UTILIO_DEFN
+      USE ENV_VARS
 
 #ifdef twoway
       USE SD_TIME_SERIES_MODULE
@@ -134,12 +135,8 @@ C Include Files:
       INCLUDE 'mpif.h'
 #endif
 
-C External Functions:
-      INTEGER, EXTERNAL :: SETUP_LOGDEV
-
 C Local variables:
 
-      INTEGER      LOGDEV       ! FORTRAN unit number for log file
       INTEGER      STDATE       ! starting date,    format YYYYDDD
       INTEGER      STTIME       ! starting time,    format HHMMSS
       INTEGER, SAVE :: TSTEP( 3 ) ! time step vector (HHMMSS)
@@ -256,8 +253,7 @@ C Start up processor communication
          JTIME = 0
 
 C Start I/O-API and set up log file(s)
-!        LOGDEV = INIT3()
-         LOGDEV = SETUP_LOGDEV()
+         CALL SETUP_LOGDEV()
 
 C Set up horizontal domain, calculate processor-to-subdomain maps
 C and define vertical layer structure (in module GRID_CONF)

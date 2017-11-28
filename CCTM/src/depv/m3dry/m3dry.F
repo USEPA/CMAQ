@@ -17,9 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/work/rep/arc/CCTM/src/depv/m3dry/m3dry.F,v 1.12 2012/01/19 14:19:43 yoj Exp $
-
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE m3dry ( jdate, jtime, dt, abflux, sfc_hono, mosaic, fst, cgridl1, depvel_gas,
      &                   pvd, cmp )
@@ -187,7 +184,6 @@ C Local Variables:
       INTEGER                    :: c,r,l,n              ! loop variables
       INTEGER                    :: elapsedsec
       INTEGER                    :: ifsnow               ! 1=snow
-      INTEGER, SAVE              :: logdev               ! unit number for the log file
       INTEGER, SAVE, ALLOCATABLE :: lstwetdate( :,: )
       INTEGER, SAVE, ALLOCATABLE :: lstwettime( :,: )
 
@@ -321,7 +317,6 @@ C For Mosaic with Ammonia bi-directional flux
 
       IF ( first_call ) THEN
          first_call = .FALSE.
-         logdev  = init3()
 
          DO l = 1, n_spc_m3dry
             IF ( dif0( l ) > 0.0 ) THEN
@@ -429,7 +424,7 @@ C-------------------------------------------------------------------------------
 C------------------------------------------------------------------------------
 C Calculate LAI and Z0 for vegetated surfaces
 C------------------------------------------------------------------------------
-         CALL Calc_Lai( jday, jtime, logdev )
+         CALL Calc_Lai( jday, jtime )
 C------------------------------------------------------------------------------
 C Calculate u* for all surfaces and Z0 for water surfaces
 C------------------------------------------------------------------------------

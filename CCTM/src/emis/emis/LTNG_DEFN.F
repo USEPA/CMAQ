@@ -17,11 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-!C RCS file, release, date & time of last delta, author, state, [and
-!locker]
-!C $Header: /project/yoj/arc/CCTM/src/emis/emis/LTNG_DEFN.F,v 1.6
-!2012/01/27 19:57:47 sjr Exp $
-
 !C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE LTNG_DEFN
 
@@ -117,8 +112,6 @@
       INTEGER, SAVE    :: LDATE     ! test date to update emissions diag avg
       INTEGER, PRIVATE :: LTIME     ! test time to update emissions diag avg
       INTEGER, PRIVATE :: FTIME     ! Start time to Write to Diagnostic files
-      INTEGER, SAVE    :: LOGDEV
-
 
       INTEGER, SAVE    :: GXOFF, GYOFF   ! global origin offset from file
       INTEGER, SAVE    :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
@@ -152,7 +145,6 @@ C        INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
          LOGICAL SUCCESS
 
 !C External Functions:
-         INTEGER, EXTERNAL :: SETUP_LOGDEV
          LOGICAL, EXTERNAL :: CHKGRID
 !        CHARACTER( 16 )   :: iccgFile = 'ICCG' 
 !        INTEGER :: ICCG_UNIT    ! scenario start time
@@ -180,8 +172,6 @@ C        INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
 !-----------------------------------------------------------------------
 
          SUCCESS = .TRUE.
-
-         LOGDEV = SETUP_LOGDEV()
 
 !C Lightning NO production
 !C Set LTNG_NO to Y or T to turn on lightning NO production

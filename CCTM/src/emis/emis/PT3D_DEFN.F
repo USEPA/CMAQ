@@ -17,10 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/PT3D_DEFN.F,v 1.12 2012/01/19 15:23:37 yoj Exp $
-
- 
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE PT3D_DEFN
 
@@ -185,9 +181,6 @@ C Arguments:
          INTEGER          TSTEP      ! output time step
          LOGICAL          SUCCESS
 
-C External Functions:
-         INTEGER,         EXTERNAL :: SETUP_LOGDEV
-
 C Parameters:
 
 C Local Variables:
@@ -205,8 +198,6 @@ C Local Variables:
          INTEGER, SAVE :: NSTEPS = 1
          INTEGER          NDATE          ! next timestep file Julian date (YYYYDDD)
          INTEGER          NTIME          ! next timestep file time (HHMMSS)
-
-         INTEGER          LOGDEV
 
          INTEGER I, J, K, L, M, N, S, SRC, V  ! counters and indices
 
@@ -227,9 +218,6 @@ C Local Variables:
 C-----------------------------------------------------------------------
 
          SUCCESS = .TRUE.
-
-!        LOGDEV = INIT3()
-         LOGDEV = SETUP_LOGDEV()
 
 C In-line 3D point source emissions?
          PT3DEMIS = ENVYN( 'CTM_PT3DEMIS',
@@ -737,7 +725,6 @@ C Parameters:
                                  ! assumes heat flux from fire pt src file is in BTU/hr
 
 C External functions:
-         INTEGER,         EXTERNAL :: SETUP_LOGDEV
          LOGICAL,         EXTERNAL :: WRITE3_DISTR   ! calls WRITE3 directly
 
 C Local variables:
@@ -779,7 +766,6 @@ C Local variables:
          LOGICAL, SAVE :: WRTIME
          INTEGER, SAVE :: NTICS = 0      ! no. of substeps within an output tstep
          LOGICAL, SAVE :: FIRSTIME = .TRUE.
-         INTEGER, SAVE :: LOGDEV
 
          INTEGER, SAVE :: PRE_JDATE, LOC_STKDATE
 
@@ -870,7 +856,6 @@ C-----------------------------------------------------------------------
 
          IF ( FIRSTIME ) THEN
             FIRSTIME = .FALSE.
-            LOGDEV = SETUP_LOGDEV()
             PRE_JDATE = JDATE
 
 #ifdef parallel_io
@@ -1452,12 +1437,8 @@ C for INTERPX
             CHARACTER( 16 ) :: PNAME = 'READGC3'   ! procedure name
             LOGICAL, SAVE   :: FIRSTIME = .TRUE.
 
-            integer, save :: logdev
-            integer, external :: setup_logdev
-
             IF ( FIRSTIME )  THEN
                FIRSTIME = .FALSE.
-               logdev = setup_logdev()
 
                GRID_CRO_3D = GC3NAME
 

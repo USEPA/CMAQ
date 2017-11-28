@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/driver/yamo/wr_cgrid.F,v 1.4 2011/10/21 16:10:43 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE WR_CGRID ( CGRID, JDATE, JTIME, TSTEP )
 
@@ -78,7 +71,6 @@ C Local variables:
       INTEGER VGTYP_RF
       REAL VGTOP_RF
 
-      INTEGER, SAVE :: LOGDEV       ! FORTRAN unit number for log file
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
       LOGICAL OK
 
@@ -89,7 +81,6 @@ C-----------------------------------------------------------------------
       IF ( FIRSTIME ) THEN
 
          FIRSTIME = .FALSE.
-         LOGDEV = INIT3 ()
 
 C Try to open existing file for update
 

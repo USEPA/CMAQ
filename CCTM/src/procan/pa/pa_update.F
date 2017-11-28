@@ -17,9 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/procan/pa/pa_update.F,v 1.10 2011/12/08 16:22:11 sjr Exp $
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE PA_UPDATE( PRNAME, CGRID, JDATE, JTIME, TSTEP )
 
@@ -193,7 +190,6 @@ C Flag for couple/decouple HADV, ZADV, and HDIFF
       LOGICAL, SAVE :: LCOUPLE
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
-      INTEGER, SAVE :: LOGDEV
 
 C Local Variables:
       CHARACTER( 80 ) :: MSG                  ! Message for output log
@@ -268,7 +264,6 @@ C-----------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
-         LOGDEV = INIT3()
          ALLOCATE ( CNGRD( NCOLS,NROWS,NLAYS,SIZE( CGRID,4 ) ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             MSG = '*** ERROR allocating CNGRD'
@@ -1048,7 +1043,6 @@ C-----------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
-         LOGDEV = INIT3()
 
          IF ( N_AE_SPC .GT. 0 ) THEN
 C create aerosol species pointers to distinguish micro-grams/m**3,

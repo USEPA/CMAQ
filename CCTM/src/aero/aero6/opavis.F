@@ -17,9 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
- 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE OPAVIS ( JDATE, JTIME, TSTEP )
 
@@ -47,14 +44,12 @@ C...Local variables:
 
         INTEGER :: L          ! loop induction variables
 
-        INTEGER :: MDATE, MTIME, LOGDEV, STATUS
+        INTEGER :: MDATE, MTIME, STATUS
         LOGICAL :: END_TIME = .FALSE.
         CHARACTER( 80 ) :: VARDESC = ' '
         CHARACTER( 16 ) :: AVG_FILE_ENDTIME = 'AVG_FILE_ENDTIME'
 
 C-----------------------------------------------------------------------
-
-        LOGDEV = INIT3 ()
 
         VARDESC = 'Flag to Override default beginning time timestamp for PMDIAG'
         END_TIME = ENVYN( AVG_FILE_ENDTIME, VARDESC, END_TIME, STATUS )

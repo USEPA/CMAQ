@@ -17,9 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/vdiffacm2.F,v 1.13 2012/01/19 14:37:47 yoj Exp $
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       module vdiff_diag
 C diagnostic output of acm2 parameters and sedimentation velocities
@@ -78,9 +75,7 @@ C sedi sub-timestep counter
          logical ok, add, skip
          integer i, j, k, v, ios
          integer, allocatable :: found( : )
-         integer logdev
 
-         logdev = init3()
          success = .true.
 
          if ( grvsetl ) then

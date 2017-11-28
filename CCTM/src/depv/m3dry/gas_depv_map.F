@@ -17,10 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/gas_depv_map.F,v 1.5 2011/10/21 16:10:38 yoj Exp $
-
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE GAS_DEPV_MAP ( N_DEPV_NAMES, DEPV_NAMES, DEPV_SUR )
 
@@ -53,14 +49,11 @@ C Local variables:
       CHARACTER( 96 ) :: XMSG = ' '
       CHARACTER( 16 ) :: VNAME            ! scratch string
 
-      INTEGER LOGDEV
       INTEGER ALLOCSTAT
       INTEGER V, N
       INTEGER STRT, FINI
 
 C----------------------------------------------------------------------
-
-      LOGDEV = INIT3()
 
       IF ( ( N_GC_SPC + N_NR_SPC + N_TR_SPC ) .LE. 0 ) THEN
          XMSG = 'Model not compiled for gases'

@@ -17,12 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/PTBILIN.F,v 1.4 2011/10/21 16:10:46 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE PTBILIN
 
@@ -95,21 +89,17 @@ C----------------------------------------------------------------------
          INTEGER, INTENT( IN ) :: NPTGRPS
          LOGICAL               :: SUCCESS
 
-C External Functions:
-         INTEGER, EXTERNAL :: SETUP_LOGDEV
-
 C Local variables:
          INTEGER MY_CCOLS    ! local processor cross point number of columns
          INTEGER MY_CROWS    ! local processor cross point number of rows
          INTEGER MY_DCOLS    ! local processor dot point number of columns
          INTEGER MY_DROWS    ! local processor dot point number of rows
 
-         INTEGER I, J, M, N, MSRC, IOS, LOGDEV
+         INTEGER I, J, M, N, MSRC, IOS
          CHARACTER( 16 ) :: PNAME = 'PTBILIN_INIT'
 
 C----------------------------------------------------------------------
          SUCCESS = .TRUE.
-         LOGDEV = SETUP_LOGDEV()
 
          XBND( : ) = .FALSE.; YBND( : ) = .FALSE.
          M = MYPE + 1
@@ -155,24 +145,6 @@ C Set processor coordinate origins
 
          METCGRID = MY_CCOLS * MY_CROWS
          METDGRID = MY_DCOLS * MY_DROWS
-
-!......................................................................
-!        write( logdev,'(5x, "MYPE ", i8)' )            mype
-!        write( logdev,'(5x, "XCELLCG ", 1pd20.12)' )   xcellcg
-!        write( logdev,'(5x, "YCELLCG ", 1pd20.12)' )   ycellcg
-!        write( logdev,'(5x, "XCELLDG ", 1pd20.12)' )   xcelldg
-!        write( logdev,'(5x, "YCELLDG ", 1pd20.12)' )   ycelldg
-!        write( logdev,'(5x, "MY_CXORIG ", 1pd20.12)' ) my_cxorig
-!        write( logdev,'(5x, "MY_CYORIG ", 1pd20.12)' ) my_cyorig
-!        write( logdev,'(5x, "MY_DXORIG ", 1pd20.12)' ) my_dxorig
-!        write( logdev,'(5x, "MY_DYORIG ", 1pd20.12)' ) my_dyorig
-!        write( logdev,'(5x, "MY_CCOLS ", i8)' )        my_ccols
-!        write( logdev,'(5x, "MY_CROWS ", i8)' )        my_crows
-!        write( logdev,'(5x, "MY_DCOLS ", i8)' )        my_dcols
-!        write( logdev,'(5x, "MY_DROWS ", i8)' )        my_drows
-!        write( logdev,'(5x, "METCGRID ", i8)' )        metcgrid
-!        write( logdev,'(5x, "METDGRID ", i8)' )        metdgrid
-!......................................................................
 
 C Allocate read buffers for gridded, layered cross- and dot-point met data
          ALLOCATE( XBUF( METCGRID,NLAYS ), STAT=IOS )

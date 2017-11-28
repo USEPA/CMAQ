@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/grid/cartesian/GRID_CONF.F,v 1.2 2011/10/21 16:11:16 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE GRID_CONF
 
@@ -52,11 +45,8 @@ C.......................................................................
          INTEGER :: MYID
          LOGICAL :: SUCCESS
 
-         INTEGER, SAVE :: LOGDEV
          LOGICAL, SAVE :: FIRSTIME = .TRUE.
          CHARACTER( 96 ) :: MSG = ' '
-
-         INTEGER, EXTERNAL :: SETUP_LOGDEV
 
 C-----------------------------------------------------------------------
 
@@ -64,7 +54,6 @@ C This function is expected to be called only once - at startup
 
          IF ( FIRSTIME ) THEN
             FIRSTIME = .FALSE.
-            LOGDEV = SETUP_LOGDEV()
             SUCCESS = .TRUE.
 
 C Set up horizontal domain and calculate processor-to-subdomain maps

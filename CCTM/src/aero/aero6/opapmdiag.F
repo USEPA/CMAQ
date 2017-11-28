@@ -17,9 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
- 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE OPAPMDIAG ( JDATE, JTIME, TSTEP )
 
@@ -54,7 +51,7 @@ C...Local variables:
         CHARACTER( 80 ) :: VARDESC = ' '
         CHARACTER( 16 ) :: AVG_FILE_ENDTIME = 'AVG_FILE_ENDTIME'
         INTEGER :: BEG_LVL, END_LVL, N, V
-        INTEGER :: MDATE, MTIME, LOGDEV, STATUS
+        INTEGER :: MDATE, MTIME, STATUS
         LOGICAL :: END_TIME = .FALSE.
         LOGICAL :: FOUND
 
@@ -130,8 +127,6 @@ C-----------------------------------------------------------------------
         END IF
 
 ! get end time information from environment variable AVG_FILE_ENDTIME
-        LOGDEV = INIT3 ()
-
         VARDESC = 'Flag to Override default beginning time timestamp for PMDIAG'
         END_TIME = ENVYN( AVG_FILE_ENDTIME, VARDESC, END_TIME, STATUS )
         IF ( STATUS .EQ. 1 ) THEN

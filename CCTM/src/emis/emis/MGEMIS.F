@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/HALEMIS.F,v 1.8 2012/01/19 15:29:11 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE MGEMIS
 C-----------------------------------------------------------------------
@@ -96,7 +89,6 @@ C Domain decomposition info from emission and meteorology files
       INTEGER, SAVE :: STRTCOL_O1, ENDCOL_O1, STRTROW_O1, ENDROW_O1
       INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
       INTEGER, SAVE :: STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2
-      INTEGER, SAVE :: LOGDEV
 
       CONTAINS
 
@@ -123,9 +115,6 @@ C Arguments:
 
             CHARACTER( 80 )       :: VARDESC                        ! env variable description
 
-C External Functions:
-            INTEGER, EXTERNAL :: SETUP_LOGDEV
-
 C Local Variables:
 
             CHARACTER( 16 ), SAVE :: PNAME = 'MGEMIS_INIT'
@@ -136,7 +125,6 @@ C Local Variables:
 
 C-----------------------------------------------------------------------
 
-            LOGDEV = SETUP_LOGDEV()
             SUCCESS = .TRUE.
 
 C flag for marine gas emissions; use in-line marine gas option only if CB05EH51 is used

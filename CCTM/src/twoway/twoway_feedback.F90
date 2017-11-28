@@ -39,11 +39,7 @@ SUBROUTINE feedback_setup ( jdate, jtime, tstep )
     integer :: i, j, k, n, stat, slen
     logical :: found
 
-    integer, save :: logdev
-
     character (len = 4), save :: pe_str
-
-       logdev = init3 ()
 
        allocate (cmaq_wrf_c_send_to(0:9, 0:nprocs-1),              &
                  cmaq_wrf_c_recv_from(0:9, 0:nprocs-1),            &
@@ -204,13 +200,9 @@ SUBROUTINE feedback_write ( c, r, l, cgrid, o3_value, jdate, jtime )
   INTEGER   GXOFF, GYOFF      ! global origin offset from file
   integer, save :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
 
-  integer :: logdev
-
   CHARACTER( 96 ) :: XMSG = ' '
 
   IF ( firstime ) THEN
-
-     logdev = init3()
 
      write (pe_str, 11) '_', twoway_mype
  11  format (a1, i3.3)

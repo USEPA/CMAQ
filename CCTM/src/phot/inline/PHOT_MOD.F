@@ -17,8 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C $Header$
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE PHOT_MOD
 
@@ -99,8 +97,6 @@ C-----------------------------------------------------------------------
 
 !***LOGDEV for NEW_OPTICS and supporting routines
       
-      INTEGER, SAVE :: NEW_OPTICS_LOG
-
       INTEGER, PARAMETER :: N_DIAG_WVL = 2         ! number of dianostic wavelengths
       INTEGER, SAVE      :: DIAG_WVL( N_DIAG_WVL ) ! pointers to diagnostic wavelengths
       INTEGER            :: N_TROPO_O3_TOGGLE      ! number of adjustments to ozone extinction 
@@ -328,8 +324,6 @@ C-----------------------------------------------------------------------
 
       IF ( FIRST ) THEN
 
-         NEW_OPTICS_LOG = INIT3()
-         
          ALLOCATE( CONV_WM2( NWL ) )
          ALLOCATE( SRAYL   ( NWL ) )
          ALLOCATE( TAU_SCAT( NWL ) )
@@ -466,7 +460,7 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
             TROPO_O3_COLUMN = TROPO_O3_COLUMN + DELTA_O3_COLUMN
             IF ( STRAT_O3_COLUMN .LT. STRAT_O3_COLMIN  .AND. SUCCESS ) THEN
                IF( OBEY_STRATO3_MINS )THEN
-                   WRITE( NEW_OPTICS_LOG,'( /A, F5.2, A, 3(/A), I3, A,  F8.3, A , 2(I4,1X) )' )
+                   WRITE( LOGDEV,'( /A, F5.2, A, 3(/A), I3, A,  F8.3, A , 2(I4,1X) )' )
      &             'PHOT WARNING: First Occurance where computed stratospheric O3 column < ',
      &              100.0*MIN_STRATO3_FRAC,'%',
      &             'observed total column. The percentage is a global minimum based on ',
@@ -483,7 +477,7 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
 
 #ifdef verbose_PHOT_MOD
          IF( PHOT_COL .EQ. 1 .AND. PHOT_ROW .EQ. 1 )THEN
-              WRITE( NEW_OPTICS_LOG,*)'TOTAL_O3_COLUMN, TROPO_O3_COLUMN = ',TOTAL_O3_COLUMN, TROPO_O3_COLUMN
+              WRITE( LOGDEV,*)'TOTAL_O3_COLUMN, TROPO_O3_COLUMN = ',TOTAL_O3_COLUMN, TROPO_O3_COLUMN
          END IF
 #endif
 
@@ -496,11 +490,11 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
             STRATO3_MINS_MET  = .FALSE. 
             STRAT_O3_COLUMN = CONC_TO_DU * STRAT_O3_COLMIN
            IF( OBEY_STRATO3_MINS )THEN ! write to PE log for first occurance
-               WRITE( NEW_OPTICS_LOG, 99983)STRAT_O3_COLUMN
-               IF( ADJUST_OZONE ) WRITE( NEW_OPTICS_LOG, 99984)TROPO_O3_TOGGLE
-               WRITE( NEW_OPTICS_LOG, 99887)
-               WRITE( NEW_OPTICS_LOG, 99888)TOTAL_O3_COLUMN, TROPO_O3_COLUMN, MAX_TROPOO3_FRAC
-               WRITE( NEW_OPTICS_LOG, 99999)
+               WRITE( LOGDEV, 99983)STRAT_O3_COLUMN
+               IF( ADJUST_OZONE ) WRITE( LOGDEV, 99984)TROPO_O3_TOGGLE
+               WRITE( LOGDEV, 99887)
+               WRITE( LOGDEV, 99888)TOTAL_O3_COLUMN, TROPO_O3_COLUMN, MAX_TROPOO3_FRAC
+               WRITE( LOGDEV, 99999)
                OBEY_STRATO3_MINS = .FALSE.
             END IF
             IF( .NOT. ADJUST_OZONE ) TROPO_O3_TOGGLE = 1.0 ! reset toggle to one 
@@ -622,15 +616,15 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
                IF ( DT_CLOUD( L ) .GT. 1.0E-6 ) THEN
                   OM_CLOUD = MAX( DTSCAT_CLOUD /DT_CLOUD( L ), 1.0) 
                   IF ( OM_CLOUD .LT. 0.0 .OR. OM_CLOUD .GT. 1.0 .OR. OM_CLOUD .NE. OM_CLOUD) THEN
-                     WRITE( NEW_OPTICS_LOG,'(A,I3,A,ES12.4,A)',ADVANCE = 'NO')
+                     WRITE( LOGDEV,'(A,I3,A,ES12.4,A)',ADVANCE = 'NO')
      &               'OM_CLOUD( L = ', L, ' ) = ', OM_CLOUD,' resetting to '
                      OM_CLOUD = MAX( 0.000001, MIN( OM_CLOUD, 0.99999))
-                     WRITE( NEW_OPTICS_LOG,'(ES12.4)')OM_CLOUD
-                     WRITE( NEW_OPTICS_LOG,'(A,2(ES12.4,1X))')'LIQUID_EXT, LIQUID_SCAT = ',
+                     WRITE( LOGDEV,'(ES12.4)')OM_CLOUD
+                     WRITE( LOGDEV,'(A,2(ES12.4,1X))')'LIQUID_EXT, LIQUID_SCAT = ',
      &               CLOUD_LIQUID_EXT( II,IWL ), CLOUD_LIQUID_SCAT( II,IWL )
-                     WRITE( NEW_OPTICS_LOG,'(A,2(ES12.4,1X))')'ICE_EXT, ICE_SCAT = ',
+                     WRITE( LOGDEV,'(A,2(ES12.4,1X))')'ICE_EXT, ICE_SCAT = ',
      &               CLOUD_ICE_EXT( II,IWL ), CLOUD_ICE_SCAT( II,IWL )
-                     WRITE( NEW_OPTICS_LOG,'(A,2(ES12.4,1X))')'AGGREG_EXT, AGGREG_SCAT = ',
+                     WRITE( LOGDEV,'(A,2(ES12.4,1X))')'AGGREG_EXT, AGGREG_SCAT = ',
      &               CLOUD_AGGREG_EXT( II,IWL ), CLOUD_AGGREG_SCAT( II,IWL )
                      CALL M3EXIT( 'NEW_OPTICS', JDATE, JTIME, ' ', XSTAT1 )
                   END IF
@@ -649,12 +643,12 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
                   IF ( .NOT. ONLY_SOLVE_RAD ) THEN
                      AVE_ASYMM_CLD( IWL ) = AVE_ASYMM_CLD( IWL ) + G_CLOUD
                      IF ( AVE_ASYMM_CLD( IWL ) .GT. TAU_SCAT_CLD ) THEN
-                        WRITE( NEW_OPTICS_LOG,'(A,I3,2(A,ES12.4))' )
+                        WRITE( LOGDEV,'(A,I3,2(A,ES12.4))' )
      &                  'Sum for AVE_ASYMM_CLD at L (', L,') = ', AVE_ASYMM_CLD( IWL ),
      &                  ' Sum for TAU_SCAT_CLD = ',TAU_SCAT_CLD 
-                        WRITE( NEW_OPTICS_LOG,'(A,2(ES12.4,1X))' )
+                        WRITE( LOGDEV,'(A,2(ES12.4,1X))' )
      &                  'AVE_ASYMM_CLD Increment = ', G_CLOUD
-                        WRITE( NEW_OPTICS_LOG,'(A,2(ES12.4,1X))' )
+                        WRITE( LOGDEV,'(A,2(ES12.4,1X))' )
      &                  'TAU_SCAT_CLD Increment = ', DTSCAT_CLOUD
                      END IF
                   END IF
@@ -663,17 +657,17 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
                   G_CLOUD  = G_CLOUD / DTSCAT_CLOUD
 
                   IF ( G_CLOUD .GE. 1.0 .OR. G_CLOUD .LE. -1.0 .OR. G_CLOUD .NE. G_CLOUD ) THEN
-                     WRITE( NEW_OPTICS_LOG,'(A,I3,A,ES12.4,A)',ADVANCE = 'NO' )
+                     WRITE( LOGDEV,'(A,I3,A,ES12.4,A)',ADVANCE = 'NO' )
      &                  'G_CLOUD( L = ', L, ' ) = ', G_CLOUD,' resetting to '
                         G_CLOUD = MIN( 0.9999, MAX( G_CLOUD, -0.9999) )
-                     WRITE( NEW_OPTICS_LOG,'(ES12.4)') G_CLOUD
-                     WRITE( NEW_OPTICS_LOG,'(A,2(ES12.4,1X))' )
+                     WRITE( LOGDEV,'(ES12.4)') G_CLOUD
+                     WRITE( LOGDEV,'(A,2(ES12.4,1X))' )
      &                  'LIQUID_ASY, LIQUID_SCAT = ',
      &                  CLOUD_LIQUID_ASY( II,IWL ), CLOUD_LIQUID_SCAT( II,IWL )
-                     WRITE( NEW_OPTICS_LOG,'(A,2(ES12.4,1X))' )
+                     WRITE( LOGDEV,'(A,2(ES12.4,1X))' )
      &                  'ICE_ASY, ICE_SCAT = ',
      &                  CLOUD_ICE_ASY( II,IWL ), CLOUD_ICE_SCAT( II,IWL )
-                     WRITE( NEW_OPTICS_LOG,'(A,2(ES12.4,1X))' )
+                     WRITE( LOGDEV,'(A,2(ES12.4,1X))' )
      &                  'AGGREG_ASY, AGGREG_SCAT = ',
      &                  CLOUD_AGGREG_ASY( II,IWL ), CLOUD_AGGREG_SCAT( II,IWL )
                      CALL M3EXIT( 'NEW_OPTICS', JDATE, JTIME, ' ', XSTAT1 )
@@ -706,47 +700,47 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
             G   ( L ) = ( G_BAR * DTSCAT_A + G_CLOUD * DTSCAT_CLOUD ) / DTSCAT
 
             IF ( G( L ) .GE. 1.0 .OR. G( L ) .LE. -1.0 .OR. G( L ) .NE. G( L ) ) THEN
-               WRITE( NEW_OPTICS_LOG,'(A,ES12.4,A)',ADVANCE = 'NO' )
+               WRITE( LOGDEV,'(A,ES12.4,A)',ADVANCE = 'NO' )
      &         'G( L ) = ', G( L ),' resetting to '
                G( L ) = MIN( 0.9999, MAX( G( L ), -0.9999) )
-               WRITE( NEW_OPTICS_LOG,'(ES12.4)')G( L )
-               WRITE( NEW_OPTICS_LOG,'(A,10(1X,ES12.4))' )
+               WRITE( LOGDEV,'(ES12.4)')G( L )
+               WRITE( LOGDEV,'(A,10(1X,ES12.4))' )
      &         'DTSCAT_M, DTSCAT_A, DTSCAT_CLOUD, G_BAR, G_CLOUD = ',
      &          DTSCAT_M, DTSCAT_A, DTSCAT_CLOUD, G_BAR, G_CLOUD
             END IF
 
             IF ( OM( L ) .GT. 1.0 .OR. OM( L ) .LE. 0.0 .OR. OM( L ) .NE. OM( L ) ) THEN
-               WRITE( NEW_OPTICS_LOG,'(A,ES12.4,A)',ADVANCE = 'NO' )
+               WRITE( LOGDEV,'(A,ES12.4,A)',ADVANCE = 'NO' )
      &         'OM( L ) = ', OM( L ),' resetting to '
                OM( L ) = MIN( 0.9999, MAX( OM( L ), 0.0001) )
 #ifdef phot_debug
-               WRITE( NEW_OPTICS_LOG,'(ES12.4)' ) OM( L )
-               WRITE( NEW_OPTICS_LOG,'(A,4(1X,ES12.4))' )
+               WRITE( LOGDEV,'(ES12.4)' ) OM( L )
+               WRITE( LOGDEV,'(A,4(1X,ES12.4))' )
      &         'DTSCAT, DTABS, ( DTSCAT + DTABS) = ',
      &         DTSCAT, DTABS, ( DTSCAT + DTABS )
-               WRITE( NEW_OPTICS_LOG,'(A,4(1X,ES12.4))' )
+               WRITE( LOGDEV,'(A,4(1X,ES12.4))' )
      &         'DTSCAT_M, DTSCAT_A, DTSCAT_CLOUD = ',
      &         DTSCAT_M, DTSCAT_A, DTSCAT_CLOUD
-               WRITE( NEW_OPTICS_LOG,'(A,4(1X,ES12.4))' )
+               WRITE( LOGDEV,'(A,4(1X,ES12.4))' )
      &         'DDTABS_M, DTABS_A, MAX(( 1.0-OM_CLOUD ), 0.0) * DT_CLOUD( L ) = ',
      &         DTABS_M, DTABS_A, MAX(( 1.0 - OM_CLOUD ), 0.0) * DT_CLOUD( L )
-               WRITE( NEW_OPTICS_LOG,'(A,4(1X,ES12.4))' )
+               WRITE( LOGDEV,'(A,4(1X,ES12.4))' )
      &         ' AO3, ANO2,AERO_BEXT, AERO_BSCAT = ',
      &         AO3, ANO2,BEXT, BSCAT
 #endif
             ELSE
 #ifdef phot_debug
                IF ( OM( L ) .EQ. 1.0 ) THEN
-                  WRITE( NEW_OPTICS_LOG,'(A,4(1X,ES12.4))' )
+                  WRITE( LOGDEV,'(A,4(1X,ES12.4))' )
      &            'DTSCAT, DTABS, ( DTSCAT + DTABS ) = ',
      &             DTSCAT, DTABS, (DTSCAT + DTABS)
-                  WRITE( NEW_OPTICS_LOG,'(A,4(1X,ES12.4))' )
+                  WRITE( LOGDEV,'(A,4(1X,ES12.4))' )
      &            'DTSCAT_M, DTSCAT_A, DTSCAT_CLOUD = ',
      &             DTSCAT_M, DTSCAT_A, DTSCAT_CLOUD
-                  WRITE( NEW_OPTICS_LOG,'(A,4(1X,ES12.4))' )
+                  WRITE( LOGDEV,'(A,4(1X,ES12.4))' )
      &            'DDTABS_M, DTABS_A, MAX(( 1.0-OM_CLOUD ), 0.0) * DT_CLOUD( L ) = ',
      &            DTABS_M, DTABS_A, MAX(( 1.0 - OM_CLOUD ), 0.0 ) * DT_CLOUD( L)
-                  WRITE( NEW_OPTICS_LOG,'(A,4(1X,ES12.4))' )
+                  WRITE( LOGDEV,'(A,4(1X,ES12.4))' )
      &            'AO3, ANO2,AERO_BEXT, AERO_BSCAT = ',
      &            AO3, ANO2,BEXT, BSCAT
                END IF
@@ -830,12 +824,12 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
 #ifdef phot_debug
          IF ( TAU_CLOUD( 1,IWL ) .GT. 1.0E-20 ) THEN
             IF ( AVE_ASYMM_CLD( IWL ) .GT. TAU_SCAT_CLD ) THEN
-               WRITE( NEW_OPTICS_LOG,'(A,I3,2(A,ES12.4))' )
+               WRITE( LOGDEV,'(A,I3,2(A,ES12.4))' )
      &         'Sum for AVE_ASYMM_CLD at L(', 1,') = ', AVE_ASYMM_CLD( IWL ),
      &         'Sum for TAU_SCAT_CLD = ',TAU_SCAT_CLD 
-               WRITE( NEW_OPTICS_LOG,'(A,2(ES12.4,1X))' )
+               WRITE( LOGDEV,'(A,2(ES12.4,1X))' )
      &         'AVE_ASYMM_CLD Increment = ', G_CLOUD
-               WRITE( NEW_OPTICS_LOG,'(A,2(ES12.4,1X))' )
+               WRITE( LOGDEV,'(A,2(ES12.4,1X))' )
      &         'TAU_SCAT_CLD Increment = ',
      &         DTSCAT_CLOUD
             END IF
@@ -847,12 +841,12 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
                AVE_SSA_CLD  ( IWL ) = 0.0
             END IF
             IF ( ABS( AVE_ASYMM_CLD( IWL ) ) .GE.  1.0 ) THEN
-               WRITE( NEW_OPTICS_LOG,'(A,I3,2(A,ES12.4))' )
+               WRITE( LOGDEV,'(A,I3,2(A,ES12.4))' )
      &         'Sum for AVE_ASYMM_CLD at L(', 1,') = ', AVE_ASYMM_CLD( IWL )*TAU_SCAT_CLD,
      &         'Sum for TAU_SCAT_CLD = ',TAU_SCAT_CLD 
-               WRITE( NEW_OPTICS_LOG,'(A,2(ES12.4,1X))' )
+               WRITE( LOGDEV,'(A,2(ES12.4,1X))' )
      &         'AVE_ASYMM_CLD Increment = ', G_CLOUD
-               WRITE( NEW_OPTICS_LOG,'(A,2(ES12.4,1X))' )
+               WRITE( LOGDEV,'(A,2(ES12.4,1X))' )
      &         'TAU_SCAT_CLD Increment = ', DTSCAT_CLOUD
             END IF
          ELSE
@@ -1599,13 +1593,13 @@ C-----------------------------------------------------------------------
 !***big gamma = pg 16,290 equation 22
 
          IF ( ABS( GAM2 ) .LE. SMALLEST ) THEN
-            WRITE( NEW_OPTICS_LOG, 2609) I, GI(I), OMI(I), G, OM, GAM1, GAM2
-            WRITE( NEW_OPTICS_LOG, 2610)
+            WRITE( LOGDEV, 2609) I, GI(I), OMI(I), G, OM, GAM1, GAM2
+            WRITE( LOGDEV, 2610)
          END IF
 
          IF ( ( GAM1*GAM1 - GAM2*GAM2 ) .LT. 0.0D0 ) THEN
-            WRITE( NEW_OPTICS_LOG, 2609) I, GI(I), OMI(I), G, OM, GAM1, GAM2
-            WRITE( NEW_OPTICS_LOG, 2611)
+            WRITE( LOGDEV, 2609) I, GI(I), OMI(I), G, OM, GAM1, GAM2
+            WRITE( LOGDEV, 2611)
          END IF
  
      

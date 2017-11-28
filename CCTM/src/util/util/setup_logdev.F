@@ -17,15 +17,8 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/util/util/setup_logdev.F,v 1.5 2012/01/19 15:31:10 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      FUNCTION SETUP_LOGDEV ()  RESULT ( LOGDEV )
+      SUBROUTINE SETUP_LOGDEV () 
 
 C Purpose
 C   Establish ancillary run time log files for each parallel processor
@@ -43,34 +36,42 @@ C                        removed deprecated TRIMLEN
 C   12 Aug 15 D.Wong:   Replaced SUBST_MPI with mpif.h
 
       USE UTILIO_DEFN
+      USE ENV_VARS
 
       IMPLICIT NONE
 
 #ifdef parallel      
       include 'mpif.h'
 #endif
-
       INTEGER, PARAMETER :: MAXLEN_CCTM_APPL = 200
       INTEGER, PARAMETER :: MAXLEN_CTM_LOG   = MAXLEN_CCTM_APPL + 11
 
-      CHARACTER(  8 ) :: PRESTR = 'CTM_LOG_'
+      CHARACTER(  8 ) :: PRESTR  = 'CTM_LOG_'
+      CHARACTER(  8 ) :: DIAGSTR = 'CTM_DIAG_'
       CHARACTER(  3 ) :: CMYPE
       CHARACTER(  8 ) :: APPL = 'CTM_APPL'
       CHARACTER( MAXLEN_CCTM_APPL ) :: EQNAME
-      CHARACTER( MAXLEN_CTM_LOG   ) :: IOLOGEQ
+      CHARACTER( MAXLEN_CTM_LOG   ) :: IOLOGEQ, IODIAGEQ
 
-      INTEGER :: ERROR, MYPE
-      INTEGER :: LOGDEV
+      INTEGER :: ERROR, MYPE, TOTPE, IOST
+
+      CALL NAMEVAL ( APPL, EQNAME )
 
 #ifdef parallel
       CALL MPI_COMM_RANK ( MPI_COMM_WORLD, MYPE, ERROR )
+      CALL MPI_COMM_SIZE ( MPI_COMM_WORLD, TOTPE, ERROR )
 #else
       MYPE = 0
+      TOTPE = 0
 #endif
+ 
+      WRITE ( CMYPE, '(I3.3)' ) MYPE
 
-      IF ( MYPE .NE. 0 ) THEN
-         CALL NAMEVAL ( APPL, EQNAME )
-         WRITE ( CMYPE, '(I3.3)' ) MYPE
+      IF ( MYPE .EQ. 0 ) THEN
+         LOGDEV = 6     ! Set LOGDEV to Standard Out
+         
+      ELSE
+         ! Create Log Filename using the processor rank
          IF ( APPL .NE. EQNAME(1:8 ) ) THEN
             IOLOGEQ = PRESTR // CMYPE // '.' // TRIM( EQNAME )
          ELSE
@@ -81,8 +82,52 @@ C   12 Aug 15 D.Wong:   Replaced SUBST_MPI with mpif.h
             STOP
          END IF
 
+         ! Find The Next available file unit number. Do not print logs to standard
+         ! output.
+         LOGDEV = JUNIT() 
+
+         ! Open Log File Manually since it is not standard output
+         OPEN( UNIT=LOGDEV, IOSTAT=IOST, FILE=IOLOGEQ, ACCESS='SEQUENTIAL')
+         IF ( IOST .NE. 0 ) THEN
+             WRITE( *, '( /, 5X, 3 A )' )
+     &                 '***  ERROR in SETUP_LOGDEV  ***'
+             WRITE( *, '( 5X, A, I10 )' )
+     &                 'Error opening log file on unit', LOGDEV,
+     &                 'I/O STATUS =', IOST
+             WRITE( *, '( 5X, 2 A, / )' )
+     &                 'File: ', TRIM( EQNAME )
+             CALL EXIT( 2 )
+         END IF
+ 
       END IF
 
-      LOGDEV = INIT3()
+      ! Concatenate Diagnostic Filename
+      IF ( CTM_DIAG_LVL .GT. 0 ) THEN 
+         IF ( APPL .NE. EQNAME(1:8 ) ) THEN
+            IOLOGEQ = DIAGSTR // CMYPE // '.' // TRIM( EQNAME )
+         ELSE
+            IOLOGEQ = DIAGSTR // CMYPE
+         END IF
+         
+         ! Find File Unit Number for Diag File
+         DIAGDEV = JUNIT()
 
-      END FUNCTION SETUP_LOGDEV 
+         ! Open File With Error Checking
+          OPEN( UNIT=DIAGDEV, IOSTAT=IOST, FILE=IODIAGEQ, ACCESS='SEQUENTIAL')
+          IF ( IOST .NE. 0 ) THEN
+              WRITE( *, '( /, 5X, 3 A )' )
+     &             '***  ERROR in SETUP_LOGDEV  ***'
+              WRITE( *, '( 5X, A, I10 )' )
+     &             'Error opening diagnostic file on unit', DIAGDEV,
+     &             'I/O STATUS =', IOST
+              WRITE( *, '( 5X, 2 A, / )' ), 'File: ', TRIM( IODIAGEQ )
+              CALL EXIT( 2 )
+          END IF 
+      END IF
+ 
+      CALL WRITE_LOG_HEADER( LOGDEV, MYPE, TOTPE-1 )
+      CALL WRITE_LOG_HEADER( DIAGDEV, MYPE, TOTPE-1 )
+
+    
+
+      END SUBROUTINE SETUP_LOGDEV 

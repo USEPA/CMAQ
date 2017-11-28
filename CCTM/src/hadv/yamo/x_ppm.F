@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/hadv/yamo/x_ppm.F,v 1.3 2011/10/21 16:11:20 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE X_PPM ( CGRID, FDATE, FTIME, TSTEP, LVL, BCON )
 
@@ -102,8 +95,6 @@ C Local Variables:
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
       CHARACTER( 96 ) :: XMSG = ' '
 
-      integer, save :: logdev
-
       REAL,    SAVE :: DX1                      ! dx1 (meters)
       INTEGER, SAVE :: ASPC                     ! RHOJ index in CGRID
 
@@ -163,7 +154,6 @@ C-----------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
-         logdev = init3 ()
 
          EFX = MY_NCOLS + 1
          WFX = 2 * MY_NCOLS + MY_NROWS + 4
@@ -229,12 +219,6 @@ C Create global map to CGRID
          END DO
 
          ADV_MAP( N_SPC_ADV ) = ASPC
-
-!        CALL SUBST_LOOP_INDEX ( 'C', 1, MY_NCOLS, 1, MY_TEMP,
-!    &                           STARTCOL, ENDCOL )
-
-!        write( logdev,* ) 'mype, my_ncols, startcol, endcol: ',
-!    &                      mype, my_ncols, startcol, endcol
 
          CALL SUBST_HI_LO_BND_PE ( 'C', BNDY_PE_LOX, BNDY_PE_HIX )
 

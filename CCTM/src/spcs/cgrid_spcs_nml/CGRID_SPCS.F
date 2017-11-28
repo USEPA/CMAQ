@@ -17,10 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/spcs/cgrid_spcs_nml/CGRID_SPCS.F,v 1.8 2012/03/19 15:44:24 yoj Exp $
-
 c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       module cgrid_spcs
 
@@ -33,6 +29,7 @@ C Shawn Roselle 16 Feb 11: replaced I/O API include files with UTILIO_DEFN
 C 07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
 C 21 Apr 16 D.Luecken:  increased spc_dim to 1000
 c-----------------------------------------------------------------------
+      USE ENV_VARS
 
       implicit none
 
@@ -132,9 +129,6 @@ c !! NO   and to populate the allocated arrays from the stnd gc_spc.ext  !!! NO
      
             implicit none
 
-
-            integer, save :: logdev
-            
             logical success
 !           integer, parameter :: dev_gc_nml = 15, dev_ae_nml = 16, dev_nr_nml = 17, dev_tr_nml = 18
             integer, save :: dev_gc_nml, dev_ae_nml, dev_nr_nml, dev_tr_nml
@@ -200,7 +194,6 @@ c species table structures
             type ( ctrl_type )  :: mc_ctrl_init  = ctrl_type ( ' ', 0 )
 
 c----------------------------------------------------------------------------------------
-            logdev = init3 ()
             success = .true.
 
 c intialize module public data
@@ -296,9 +289,7 @@ c the surrogate and ctrl arrays active dimensions not known a priori
             j1 = 0; j2 = 0
             k1 = 0; k2 = 0; k3 = 0; k4 = 0
             icall = 0
-#ifdef Verbose
-            write( logdev,'(5x,a)' ) '@@@ GC @@@'
-#endif
+            
             do i = 1, spc_dim
                if ( type_matrix( i ) .eq. bl ) then
                   n_gc_spc = i - 1; exit
@@ -489,9 +480,7 @@ c the surrogate and ctrl arrays active dimensions not known a priori
             j1 = 0; j2 = 0
             k1 = 0; k2 = 0; k3 = 0; k4 = 0
             icall = 0
-#ifdef Verbose
-            write( logdev,'(5x,a)' ) '@@@ AE @@@'
-#endif
+            
             do i = 1, spc_dim
                if ( type_matrix( i ) .eq. bl ) then
                   n_ae_spc = i - 1
@@ -679,9 +668,7 @@ c the surrogate and ctrl arrays active dimensions not known a priori
             j1 = 0; j2 = 0
             k1 = 0; k2 = 0; k3 = 0; k4 = 0
             icall = 0
-#ifdef Verbose
-            write( logdev,'(5x,a)' ) '@@@ NR @@@'
-#endif
+            
             do i = 1, spc_dim
                if ( type_matrix( i ) .eq. bl ) then
                   n_nr_spc = i - 1
@@ -881,9 +868,7 @@ c the surrogate and ctrl arrays active dimensions not known a priori
             j1 = 0; j2 = 0
             k1 = 0; k2 = 0; k3 = 0; k4 = 0; k5 = 0
             icall = 0
-#ifdef Verbose
-            write( logdev,'(5x,a)' ) '@@@ TR @@@'
-#endif
+            
             do i = 1, spc_dim
                if ( type_matrix( i ) .eq. bl ) then
                   n_tr_spc = i - 1; exit
@@ -1016,10 +1001,6 @@ c 4) DIFF, DDEP, WDEP, CONC  [any order]           <- control type
 
             implicit none
 
-#ifdef Verbose
-            integer, save :: logdev
-            logical, save :: firstime = .true.
-#endif
 
             integer,            intent ( in out ) :: ic
             character( * ),     intent (  in ) :: str_in
@@ -1042,13 +1023,6 @@ c 4) DIFF, DDEP, WDEP, CONC  [any order]           <- control type
             logical :: nbf( nfld )                            ! non-blank field
             integer maxlen
 !           integer, save :: ic = 0   ! subroutine call count
-
-#ifdef Verbose
-            if ( firstime ) then
-               firstime = .false.
-               logdev = init3 ()
-            end if
-#endif
 
             ic = ic + 1
             maxlen = len_trim( str_in )
@@ -1184,28 +1158,12 @@ c-------------------------------------------------------------------------------
 
             implicit none
 
-#ifdef Verbose
-            integer, save :: logdev
-            logical, save :: firstime = .true.
-#endif
-
             integer, intent( in ) :: n
             integer, intent( in out ) :: ia( n )
             character( * ), intent( in out ) :: aa( n )
             character( 8 ) :: at
             integer i, it
             logical :: no_swap
-
-#ifdef Verbose
-            if ( firstime ) then
-               firstime = .false.
-               logdev = init3 ()
-            end if
-
-            do i = 1, n
-               write( logdev,* ) i, ia( i ), aa( i )
-            end do
-#endif
 
             do
                no_swap = .true.
@@ -1227,7 +1185,6 @@ c-------------------------------------------------------------------------------
                else
                   aa( i ) = ' '
                end if
-!              write( logdev,* ) i, ia( i ), aa( i )
             end do
 
 c compress list; move blanks to end
@@ -1243,11 +1200,6 @@ c compress list; move blanks to end
                aa( i ) = ' '
                ia( i ) = 0
             end do
-#ifdef Verbose
-            do i = 1, n
-               write( logdev,* ) i, ia( i ), aa( i )
-            end do
-#endif
 
             return
             end subroutine bubble

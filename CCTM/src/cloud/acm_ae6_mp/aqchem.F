@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6_mp/aqchem.F,v 1.4 2012/03/28 15:39:52 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AQCHEM ( JDATE, JTIME, TEMP, PRES_PA, TAUCLD, PRCRATE,
      &                    WCAVG, WTAVG, AIRM, ALFA0, ALFA2, ALFA3, GAS,
@@ -526,9 +519,6 @@ C...........External Functions:
      &                 - C_HINTCL2 * TEMPC
      &                 + D_HINTCL2
 
-      INTEGER, SAVE :: LOGDEV
-      INTEGER, EXTERNAL :: SETUP_LOGDEV
-
 C*********************************************************************
 
 C...Initialization
@@ -536,8 +526,6 @@ C...Initialization
       IF ( FIRSTIME ) THEN
 
         FIRSTIME = .FALSE.
-
-        LOGDEV = SETUP_LOGDEV()
 
 C...Make sure an AE6 version of the mechanism is being used
 

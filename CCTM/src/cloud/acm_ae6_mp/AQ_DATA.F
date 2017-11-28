@@ -17,9 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6_mp/AQ_DATA.F,v 1.3 2012/01/26 18:45:08 sjr Exp $
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module aq_data
 
@@ -334,9 +331,6 @@ C mercuric compounds
 
       Logical, Private, Save :: mapped = .False.
 
-      Integer, Private, Save :: logdev
-      Integer, Private, External :: setup_logdev
-
       Contains
  
 C------------------------------------------------------------------------
@@ -389,7 +383,6 @@ C-----------------------------------------------------------------------
 
       If ( Firstcall ) Then
          Firstcall = .False.
-         logdev    = setup_logdev()
       Else
          Return
       End if

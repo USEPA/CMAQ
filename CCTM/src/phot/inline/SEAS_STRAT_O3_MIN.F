@@ -2445,7 +2445,6 @@
            INTEGER         :: ILEV_UPPER  ! array index for profile Level greater than PTOP
            INTEGER         :: ILEV_LOWER  ! array index for profile level lesser than PTOP 
 
-           INTEGER, SAVE   :: LOGDEV
            INTEGER         :: YEAR
            INTEGER         :: DAY       ! julian day
            LOGICAL         :: LEAP_YEAR ! is a leap year
@@ -2472,14 +2471,6 @@
            REAL               :: DLEV_LOWER   ! difference to lower level interpolation point 
 
            REAL, ALLOCATABLE  :: XCROSS_PROFILE( :  ) ! intepolating fraction Ozone column at VGTOP_GD
-
-            IF( FIRST_CALL )THEN
-
-                LOGDEV     = INIT3()       
-                FIRST_CALL = .FALSE.
-
-            END IF
-
 
             ALLOCATE ( XCROSS_PROFILE( NLAT_PROFILE ), STAT = ASTAT )
             IF ( ASTAT .NE. 0 ) THEN

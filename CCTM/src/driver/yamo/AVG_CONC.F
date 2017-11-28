@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/driver/yamo/AVG_CONC.F,v 1.5 2011/10/21 16:10:42 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE AVG_CONC
 
@@ -85,10 +78,6 @@ C species classes configuration for average CONC
          CHARACTER( 32 ) :: ACONC_BLEV_ELEV = 'ACONC_BLEV_ELEV'
          CHARACTER( 16 ) :: V_LIST( 2 )
 
-#ifdef Verbose
-         integer logdev
-#endif
-
          INTERFACE
             SUBROUTINE GET_ENVLIST ( ENV_VAR, NVARS, VAL_LIST )
                CHARACTER( * ),  INTENT ( IN )  :: ENV_VAR
@@ -98,10 +87,6 @@ C species classes configuration for average CONC
          END INTERFACE
 
 C-----------------------------------------------------------------------
-
-#ifdef Verbose
-         logdev = init3()
-#endif
 
 C RETRIEVE THE SPECIES SAVED TO INTEGRAL AVERAGE CONCENTRATION FILE
 

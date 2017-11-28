@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/hadv/yamo/advbc_map.F,v 1.6 2012/01/19 14:50:30 yoj Exp $
- 
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
- 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE ADVBC_MAP ( CONCMIN, BCNAME, BCFAC, ONFILE )
  
@@ -84,7 +77,6 @@ C Local variables:
       INTEGER    ISUR                 ! Surrogate index
       INTEGER    ITRNS                ! Transport species index
       INTEGER    SPC, VAR             ! loop copunters
-      INTEGER, SAVE ::  LOGDEV
       INTEGER    IERR
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
 
@@ -92,7 +84,6 @@ C Map advected species to bc`s
 
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
-         LOGDEV = INIT3 ()
 
          ALLOCATE ( WRVAR( N_GC_TRNS + N_AE_TRNS + N_NR_TRNS + N_TR_ADV ), STAT = IERR )
          IF ( IERR .NE. 0 ) THEN
@@ -133,9 +124,6 @@ C Map advected species to bc`s
                   BCNAME( SPC ) = VNAME3D( INDX )
                   BCFAC( SPC ) = GC_ICBC_FAC( ISUR )
 !                 ITRNS = INDEX1( GC_TRNS( VAR ), NVARS3D, VNAME3D )
-!                 IF ( ITRNS .NE. 0 ) THEN   ! BC file species same as surrogate
-!                    WRITE( LOGDEV,1015 ) TRIM( BCNAME( SPC ) ), TRIM( GC_TRNS( VAR ) ) 
-!                 END IF
                END IF
             END IF
 
@@ -199,7 +187,6 @@ C Map advected species to bc`s
                   BCFAC( SPC ) = AE_ICBC_FAC( ISUR )
 !                 ITRNS = INDEX1( AE_TRNS( VAR ), NVARS3D, VNAME3D )
 !                 IF ( ITRNS .NE. 0 ) THEN   ! BC file species same as surrogate
-!                    WRITE( LOGDEV,1015 ) TRIM( BCNAME( SPC ) ), TRIM( AE_TRNS( VAR ) ) 
 !                 END IF
                END IF
             END IF

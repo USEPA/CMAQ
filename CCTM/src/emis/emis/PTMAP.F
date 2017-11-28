@@ -17,9 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/PTMAP.F,v 1.8 2011/10/21 16:10:46 yoj Exp $
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE PTMAP
 
@@ -82,8 +79,6 @@ C-----------------------------------------------------------------------
          INTEGER, INTENT( IN )  :: NPTGRPS
          LOGICAL SUCCESS
 
-         INTEGER, EXTERNAL :: SETUP_LOGDEV
-
          TYPE :: STRNDX
             CHARACTER( 16 ) :: STR
             INTEGER         :: NDX
@@ -111,13 +106,11 @@ C-----------------------------------------------------------------------
          CHARACTER( 16 )  :: VNAME
 
          CHARACTER( 16 )  :: PNAME = 'PTMAP_INIT'  ! procedure name
-         INTEGER I, I2, J, K, L, M, N, NM, NCULL, IOS, LOGDEV
+         INTEGER I, I2, J, K, L, M, N, NM, NCULL, IOS
          INTEGER IDX                                      
          INTEGER NSPC1, NSPC2, NSPC3
 
 C-----------------------------------------------------------------------
-
-         LOGDEV = SETUP_LOGDEV()
 
          SUCCESS = .TRUE.
 
@@ -153,8 +146,6 @@ C point source emissions to gas-phase species map
 
          ALLOCATE ( STKEM_VAR( NPTGRPS ), STAT=IOS )
          CALL CHECKMEM( IOS, 'STKEM_VAR', PNAME )
-
-!        WRITE( LOGDEV,1005 )
 
          NM = 0; L = 0
          DO N = 1, NPTGRPS

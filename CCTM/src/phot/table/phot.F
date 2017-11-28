@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/phot/phot_table/phot.F,v 1.4 2011/10/21 16:11:29 yoj Exp $ 
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C @(#)phot.F    1.2 /project/mod3/CMAQ/src/phot/phot/SCCS/s.phot.F 04 Jul 1997 10:09:53
-
       SUBROUTINE PHOT ( MDATE, MTIME, JDATE, JTIME, DTSTEP, RJ )
 C----------------------------------------------------------------------
 C Function:
@@ -35,7 +28,7 @@ C    above, below and in cumulus clouds.
 
 C Preconditions: HGRD_INIT() called from PAR_INIT, which is called from DRIVER
 
-C Subroutines/Functions called: INIT3, opphot
+C Subroutines/Functions called: opphot
 
 C Revision history:
 C    prototype(adaptation from RADM), Rohit Mathur, April 1993.
@@ -106,7 +99,6 @@ C saved local variables:
       INTEGER, SAVE :: JVHT               ! number of vertical levels
       INTEGER, SAVE :: JVTMAX             ! number of hour angles
       INTEGER, SAVE :: JVLAT              ! number of latitudes
-      INTEGER, SAVE :: LOGDEV
 
       INTEGER, ALLOCATABLE, SAVE :: PHID( : )     ! index of phot tab name in file list
 
@@ -217,7 +209,6 @@ C----------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
         FIRSTIME = .FALSE.
-        LOGDEV = INIT3()
         STDATE = JDATE
         STTIME = JTIME
         STRTHR = FLOAT ( JTIME / 10000 )

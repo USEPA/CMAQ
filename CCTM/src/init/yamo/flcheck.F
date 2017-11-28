@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/init/yamo/flcheck.F,v 1.4 2011/10/21 16:11:23 yoj Exp $ 
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
        SUBROUTINE FLCHECK ( STDATE, STTIME, TSTEP )
 
 C-----------------------------------------------------------------------
@@ -75,7 +68,6 @@ C Local Variables:
       INTEGER N         ! Loop index
       INTEGER RUNLEN    ! Length of run
       INTEGER STATUS    ! Status of returned value
-!     INTEGER LOGDEV    ! Log file device no.
 
       LOGICAL LERROFF   ! Flag to stop run if errors found
       LOGICAL LERROR    ! Flag to indicate error for 1 or more files
@@ -85,8 +77,6 @@ C Local Variables:
       INTEGER, EXTERNAL :: NAME2FID
 
 C-----------------------------------------------------------------------
-
-      LOGDEV = INIT3()
 
       WRITE( LOGDEV,2011 ) TRIM( PNAME )
 

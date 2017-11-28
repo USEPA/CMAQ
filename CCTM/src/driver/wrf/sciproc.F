@@ -17,9 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/driver/wrf/sciproc.F,v 1.2 2011/10/21 16:10:40 yoj Exp $ 
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE SCIPROC ( CGRID, JDATE, JTIME, TSTEP, ASTEP )
 
@@ -58,6 +55,7 @@ C    16 Sep 16 J.Young: update for inline procan (IPR)
 C-----------------------------------------------------------------------
 
       USE UTILIO_DEFN
+      USE ENV_VARS
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
 #else
@@ -93,8 +91,6 @@ C Local Variables:
 
       CHARACTER( 120 ) :: XMSG = ' '
       CHARACTER( 36 ) :: NMSG = 'After NEXTIME: returned JDATE, JTIME'
-
-      INTEGER, SAVE :: LOGDEV
 
       INTEGER      SDATE        ! current science process date, coded YYYYDDD
       INTEGER      STIME        ! current science process time, coded HHMMSS
@@ -177,7 +173,6 @@ C-----------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
-         LOGDEV = INIT3 ()
 
          CKSUM = .TRUE.         ! default
          VARDESC = 'Cksum on flag'

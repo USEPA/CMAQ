@@ -16,10 +16,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/vdiffacm2.F,v 1.13 2012/01/19 14:37:47 yoj Exp $
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE VDIFF ( CGRID, JDATE, JTIME, TSTEP )
 
@@ -30,7 +26,7 @@ C   calculates and writes dry deposition.
 C   calculates vertical diffusion
 
 C Subroutines and Functions Called:
-C   INIT3, SEC2TIME, TIME2SEC, WRITE3, NEXTIME,
+C   SEC2TIME, TIME2SEC, WRITE3, NEXTIME,
 C   M3EXIT, EDDYX, TRI, MATRIX, PA_UPDATE_EMIS, PA_UPDATE_DDEP
 
 C Revision History:
@@ -152,8 +148,6 @@ C Local Variables:
 
 C Local Variables
 
-      INTEGER, SAVE :: LOGDEV
- 
       INTEGER     ASTAT
       INTEGER     C, R, L, S, V, I, J, OFF      ! loop induction variables
       INTEGER     MDATE, MTIME, MSTEP           ! internal simulation date&time
@@ -200,7 +194,6 @@ C-----------------------------------------------------------------------
       IF ( FIRSTIME ) THEN
 
          FIRSTIME = .FALSE.
-         LOGDEV = INIT3()
 
          IF ( .NOT. DEPV_INIT ( JDATE, JTIME, TSTEP, CGRID ) ) THEN
             XMSG = 'Failure initializing deposition velocities module'

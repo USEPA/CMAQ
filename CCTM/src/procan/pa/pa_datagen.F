@@ -49,13 +49,10 @@ C..Local Variables: None
 
       INTEGER          :: JDATE, JTIME
       INTEGER          :: ESTAT         ! status from environment var check
-      INTEGER          :: LOGDEV
         
       LOGICAL          :: PROCAN        ! flag for process analysis
 
 C----------------------------------------------------------------------
-
-      LOGDEV   = INIT3()
 
 !...Get flag to use process analysis
 

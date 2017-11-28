@@ -17,9 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker] 
-C $Header: /project/work/rep/PARIO/src/pm3exit.f,v 1.5 2011/10/20 22:48:55 sjr Exp $
-
         SUBROUTINE PM3EXIT( CALLER, JDATE, JTIME, MSGTXT, EXITSTAT )
 C.....................................................................
 C
@@ -62,6 +59,7 @@ C
 C***********************************************************************
 
       USE M3UTILIO              ! i/o api
+      USE ENV_VARS
 
       IMPLICIT NONE
 
@@ -83,7 +81,6 @@ C...........   ARGUMENTS and their descriptions:
 C...........   LOCAL VARIABLES
 
       INTEGER      LENSTR       ! String length of CALLER.
-      INTEGER      LOGDEV       ! FORTRAN unit number for log file.
       INTEGER      IDEV         ! Loop counter over FORTRAN unit numbers.
       INTEGER      ERRCODE      ! Error code from abort attempt.
       INTEGER      IERROR       ! Error from MPI_ABORT routine.
@@ -110,9 +107,6 @@ C.......  Construct new CALLER string.
 
 
 C.......  Do M3EXIT tasks.
-
-      LOGDEV = INIT3()
-
 
       IF ( EXITSTAT .NE. 0 ) THEN     ! Print messages for abnormal abort. 
 

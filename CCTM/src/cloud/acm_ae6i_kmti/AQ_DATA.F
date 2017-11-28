@@ -17,9 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6/AQ_DATA.F,v 1.7 2012/01/19 13:53:19 yoj Exp $
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module aq_data
 
@@ -325,9 +322,6 @@ C for TX version
 
       Logical, Private, Save :: mapped = .False.
 
-      Integer, Private, Save :: logdev
-      Integer, Private, External :: setup_logdev
-
       Contains
  
 C------------------------------------------------------------------------
@@ -380,7 +374,6 @@ C-----------------------------------------------------------------------
 
       If ( Firstcall ) Then
          Firstcall = .False.
-         logdev    = setup_logdev()
       Else
          Return
       End if

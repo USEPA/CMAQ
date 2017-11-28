@@ -17,10 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header$
-
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       module lus_defn
 C Land Use/Cover Schema
@@ -489,8 +485,6 @@ C Includes:
          integer, intent( in ) :: jtime      ! current model time, coded HHMMSS
          logical :: success
 
-         integer, external :: setup_logdev
-
          type( lus_type ), allocatable :: vnmlu( : )
          real, allocatable :: lut( :,:,: ) ! landuse category fraction
 
@@ -507,10 +501,8 @@ C Includes:
          character( 24 ) :: strg = 'incorrect num_land_cat, '
          real( 8 ) :: tland
          logical isbeld
-         integer logdev
          integer i, c, r, err
 
-         logdev = setup_logdev()
          success = .true.
 
          vardesc = 'Flag for Wind Blown Dust - Land Use from BELD'

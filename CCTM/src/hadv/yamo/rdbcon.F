@@ -18,12 +18,6 @@
 !------------------------------------------------------------------------!
 
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/hadv/yamo/rdbcon.F,v 1.7 2012/01/19 14:51:13 yoj Exp $
- 
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
- 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE RDBCON ( JDATE, JTIME, TSTEP, LVL, BCON, LSTAT )
 
@@ -149,7 +143,6 @@ C for INTERPX
       END INTERFACE
 
 #ifdef verbose_rdbcon
-      integer, save :: logdev
       real sumbc
       integer s
 #endif
@@ -157,9 +150,6 @@ C-----------------------------------------------------------------------
  
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
-#ifdef verbose_rdbcon
-         logdev = init3()
-#endif
 
          WRITE( CONCMIN,'(1PE9.2)' ) CMIN
 
@@ -190,7 +180,6 @@ C currently not implemented: case where only one origin component matches file`s
          N_SPC_ADV = N_GC_TRNS + N_AE_TRNS + N_NR_TRNS + N_TR_ADV + 1
                                                   ! add 1 for advecting RHOJ
 
- !       write ( logdev,* ) '=0= window,n_spc_adv: ', window, n_spc_adv
 
          ALLOCATE ( BCNAME( N_SPC_ADV ),
      &              BCFAC ( N_SPC_ADV ),

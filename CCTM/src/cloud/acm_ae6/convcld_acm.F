@@ -16,6 +16,7 @@
 !  General Public License or the GNU Lesser General Public License is    !
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
+
 !:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
        SUBROUTINE CONVCLD_ACM ( CGRID, JDATE, JTIME, TSTEP,
      &                         N_SPC_WDEP, WDEP_MAP, CONV_DEP, SUBTRANS )
@@ -218,7 +219,6 @@ C-------for ACM version - jp 2/05        REAL DPB
       REAL, ALLOCATABLE, SAVE :: CONC( :,: )
       REAL, ALLOCATABLE, SAVE :: CBELOW( : )
 C-------------------------------------------
-      INTEGER, SAVE :: LOGDEV
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE. ! flag for first pass thru
       LOGICAL, SAVE :: CONVCLD = .TRUE.  ! flag for modeling convective clds
@@ -380,9 +380,6 @@ C Latitude and longitude for zenith angle calculation:
 
       CHARACTER( 120 ) :: XMSG = ' '   ! Exit status message
 
-C...........External Functions
-
-      INTEGER, EXTERNAL :: SETUP_LOGDEV
 
 C...........Statement Functions
 
@@ -437,7 +434,6 @@ C...  event-statistics variables.
       IF ( FIRSTIME ) THEN
 
         FIRSTIME = .FALSE.
-        LOGDEV = INIT3()
 
         IF ( N_AE_SPC .GT. 0 ) THEN
           ALLOCATE ( AECONCMIN( N_AE_SPC ), STAT = ALLOCSTAT )

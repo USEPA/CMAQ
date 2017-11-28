@@ -17,9 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/eddyx.F,v 1.7 2012/01/19 14:42:46 yoj Exp $
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE EDDYX ( EDDYV )
 
@@ -103,15 +100,7 @@ C Local variables:
       CHARACTER( 16 ) :: UNITSCK
       CHARACTER( 96 ) :: XMSG = ' '
 
-      LOGICAL, SAVE :: FIRSTIME = .TRUE.
-      INTEGER, SAVE :: LOGDEV
-
 C-----------------------------------------------------------------------
-
-      IF ( FIRSTIME )  THEN
-         FIRSTIME  =  .FALSE.
-         LOGDEV = INIT3()
-      END IF          !  if firstime
 
       MEDDYV = 0.0
 

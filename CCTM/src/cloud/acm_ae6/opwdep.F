@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-! RCS file, release, date & time of last delta, author, state, [and locker]
-! $Header: /project/work/rep/arc/CCTM/src/cloud/cloud_acm_ae6/cldproc_acm.F,v 1.6 2011/10/21 16:10:23 yoj Exp $
-
-! what(1) key, module and SID; SCCS file; date and time of last delta:
-! %W% %P% %G% %U%
-
 !:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE OPWDEP ( JDATE, JTIME, TSTEP )
 
@@ -77,13 +70,9 @@
       INTEGER       STATUS           !  ENVINT status
       INTEGER       VAR              ! variable subscript indices
 
-      INTEGER, SAVE :: LOGDEV           ! output log unit number
-
 !-----------------------------------------------------------------------
 
 !...Initialization
-
-        LOGDEV = INIT3()
 
 !...first check to make sure that some species in CGRID were specified
 !...for output in the wet deposition array, otherwise notify the user

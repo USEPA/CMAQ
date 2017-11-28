@@ -1,10 +1,4 @@
 
-! RCS file, release, date & time of last delta, author, state, [and locker]
-! $Header: /project/yoj/arc/ICL/src/fixed/filenames/FILES_CTM.EXT,v 1.4 2011/09/29 20:24:42 sjr Exp $ 
-
-! what(1) key, module and SID; SCCS file; date and time of last delta:
-! @(#)FILES_CTM.EXT     2.2 /project/mod3/ICL/src/fixed/filenames/SCCS/s.FILES_CTM.EXT 25 Jul 1997 13:38:00
-
 !.......................................................................
 ! Include File  FILES3_CTM.EXT
 !

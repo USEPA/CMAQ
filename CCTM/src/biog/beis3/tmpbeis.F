@@ -17,12 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/biog/beis3/tmpbeis.F,v 1.6 2011/10/21 16:10:18 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE TMPBEIS312( JDATE, JTIME, TSTEP, N_SPC_BIOG, BEIS_MAP, EMISL )
 
@@ -156,7 +150,6 @@ C Other variables:
       INTEGER, SAVE :: NTICS  = 0 ! no. of substeps within an output tstep
       INTEGER, SAVE :: WSTEP  = 0 ! local write counter
       INTEGER          PARTYPE    ! method number to calculate PAR
-      INTEGER, SAVE :: LOGDEV
       INTEGER          C, R, I, J, K, S  ! loop counters and subscripts
 
       LOGICAL          OK        ! check flag
@@ -216,8 +209,6 @@ C-----------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
-
-         LOGDEV = INIT3()
 
 C Determine last timestamp
          SDATE = ENVINT( 'CTM_STDATE', 'Scenario Start (YYYYJJJ)', 0, IOS )

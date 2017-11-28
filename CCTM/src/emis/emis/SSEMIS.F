@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/SSEMIS.F,v 1.8 2012/01/19 15:29:11 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
- 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE SSEMIS
 C-----------------------------------------------------------------------
@@ -257,8 +250,6 @@ C Polynomial coefficients from Zhang et al. (2005)
       DATA C0_COEFF / 28.376D0, -205.44D0, 653.37D0, -1031.7D0, 803.18D0, -247.08D0 /
       DATA X_COEFF  / 3.1657D0, -19.079D0,  55.72D0, -83.998D0, 63.436D0, -19.248D0 /
 
-      INTEGER, SAVE :: LOGDEV
-
       CONTAINS
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -290,9 +281,6 @@ C Arguments:
 C Includes:
             INCLUDE SUBST_FILES_ID  ! file name parameters
 
-C External Functions:
-            INTEGER, EXTERNAL :: SETUP_LOGDEV
-
 C Local Variables:
             CHARACTER( 16 ), SAVE :: CTM_SSEMDIAG = 'CTM_SSEMDIAG' ! env var for
                                                      ! diagnostic file
@@ -305,7 +293,6 @@ C Local Variables:
 
 C-----------------------------------------------------------------------
 
-            LOGDEV = SETUP_LOGDEV()
             SUCCESS = .TRUE.
 
 C Map aerospc data
@@ -978,9 +965,6 @@ C Update the SSBF array, for writing the diagnostic sea-salt-emission file.
 
                END DO   ! C
             END DO   ! R
-
-!           write( logdev,* ) 'sum ssoutm, ssoutn, ssouts: ',
-!    &                         sum( ssoutm ), sum( ssoutn ), sum( ssouts )
 
 C If last call this hour, write out the total sea-salt emissions [g/s].
 C Then reset the sea-salt emissions array and local write counter.

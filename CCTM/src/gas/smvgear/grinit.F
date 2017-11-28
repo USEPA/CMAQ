@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/smvgear/grinit.F,v 1.3 2011/10/21 16:11:14 yoj Exp $ 
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C @(#)grinit.F  1.1 /project/mod3/CMAQ/src/chem/smvgear/SCCS/s.grinit.F 07 Jul 1 997 12:45:26
-
       SUBROUTINE GRINIT  
 
 C**********************************************************************
@@ -89,8 +82,6 @@ C.....LOCAL VARIABLES:
       INTEGER IDUMMY         ! Dummy integer variable 
       INTEGER IERRST         ! Ouput error status number
       INTEGER LEV            ! Level number index
-      INTEGER LOGDEV         ! Unit number of output log
-!     INTEGER OFFSET         ! Pointer for start cell number in a block
       INTEGER NBLK           ! Block number index
       INTEGER NCOUNT         ! Counter for number of cells for grid
       INTEGER NOXYZ          ! Total number of cells for grid
@@ -102,8 +93,6 @@ C.....LOCAL VARIABLES:
       REAL RTOL              ! Relative tolerance parameter
 C***********************************************************************
       
-      LOGDEV = INIT3( )
-
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Set control parameters for output report options
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc

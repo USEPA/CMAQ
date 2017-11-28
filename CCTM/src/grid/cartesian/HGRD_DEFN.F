@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/grid/cartesian/HGRD_DEFN.F,v 1.4 2011/10/21 16:11:17 yoj Exp $ 
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE HGRD_DEFN
 
@@ -43,6 +36,7 @@ C                   D. Wong    11 May 11: incorporated twoway model implementati
 C                   D. Wong    Aug 15:    Added a new logical variable, IO_PE_INCLUSIVE
 C                                           to facilitate parallel I/O implementation
 C.......................................................................
+      USE ENV_VARS
 
       IMPLICIT NONE
 
@@ -138,13 +132,11 @@ C Integral average conc
          INTEGER, INTENT( IN ) :: MYID
          LOGICAL :: SUCCESS
 
-         INTEGER, SAVE :: LOGDEV
          LOGICAL, SAVE :: FIRSTIME = .TRUE.
          CHARACTER( 96 ) :: XMSG = ' '
 
 C environment variable grid name to select from GRIDDESC
          CHARACTER( 16 ) :: HGRD_NAME = 'GRID_NAME'
-         INTEGER, EXTERNAL :: SETUP_LOGDEV
          INTEGER :: STATUS, ALST
 
          INTEGER, ALLOCATABLE :: NCOLS_PE( : )  ! Column range for each PE
@@ -172,7 +164,6 @@ C This function is expected to be called only once - at startup
 
          IF ( FIRSTIME ) THEN
             FIRSTIME = .FALSE.
-            LOGDEV = SETUP_LOGDEV()
             SUCCESS = .TRUE.
 
             MYPE = MYID

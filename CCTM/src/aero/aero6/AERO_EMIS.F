@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6/AERO_EMIS.F,v 1.11 2012/01/19 13:20:08 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE AERO_EMIS
 
@@ -145,8 +138,6 @@ C Miscellaneous variables
       LOGICAL, SAVE :: WB_DUST   ! flag for windblown dust option
       INTEGER :: IDX
       CHARACTER( 96 ) :: XMSG = ' '
-      INTEGER, SAVE :: LOGDEV
-      INTEGER, EXTERNAL :: SETUP_LOGDEV
 
       CONTAINS
 
@@ -265,7 +256,6 @@ C Miscellaneous variables
 
 C ----------------------------------------------------------------------
 
-         LOGDEV = SETUP_LOGDEV()
          SUCCESS = .TRUE.
 
 C *** Map data modules
