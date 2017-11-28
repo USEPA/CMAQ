@@ -8,9 +8,43 @@
 #             http://www.cmascenter.org  (CMAS Website)
 # ===================================================================  
 
+#> Simple Linux Utility for Resource Management System 
+#> (SLURM) - The following specifications are recommended 
+#> for executing the runscript on the cluster at the 
+#> National Computing Center used primarily by EPA.
+#SBATCH -t 10:00:00
+#SBATCH -n 8
+#SBATCH -J CMAQ_Bench
+#SBATCH -p ord
+#SBATCH --gid=mod3dev
+#SBATCH -A mod3dev
+#SBATCH -o /home/bmurphy/cmaq_projects/logfile/CCTM/scripts/bench_%j.txt
+
+#> The following commands output information from the SLURM
+#> scheduler to the log files for traceability.
+   if ( $?SLURM_JOB_ID ) then
+      echo Job ID is $SLURM_JOB_ID
+      echo Host is $SLURM_SUBMIT_HOST
+      #> Switch to the working directory. By default,
+      #>   SLURM launches processes from your home directory.
+      echo Working directory is $SLURM_SUBMIT_DIR
+      cd $SLURM_SUBMIT_DIR
+   endif
+
+#> Configure the system environment and set up the module 
+#> capability
+   limit stacksize unlimited
+#
+
 # ==================================================================
 #> Runtime Environment Options
 # ==================================================================
+
+echo 'Start Model Run At ' `date`
+
+#> Toggle Diagnostic Mode which will print verbose information to 
+#> standard output
+ setenv CTM_DIAG_LVL 0
 
 #> Choose compiler and set up CMAQ environment with correct 
 #> libraries using config.cmaq. Options: intel | gcc | pgi
@@ -39,12 +73,14 @@
 #> is located by default).
  set BLD      = ${CMAQ_HOME}/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}
  set EXEC     = CCTM_${VRSN}.exe  
- cat $BLD/CCTM_${VRSN}.cfg; echo "    "; set echo
+
+#> Output Each line of Runscript to Log File
+ if ( $CTM_DIAG_LVL != 0 ) set echo 
 
 #> Set Working, Input, and Output Directories
  setenv WORKDIR ${CMAQ_HOME}/CCTM/scripts       #> Working Directory. Where the runscript is.
  setenv OUTDIR  ${CMAQ_DATA}/output_CCTM_${RUNID} #> Output Directory
- setenv INPDIR  ${CMAQ_DATA}/SE52BENCH/single_day/cctm_input  #> Input Directory
+ setenv INPDIR  /work/MOD3DEV/cmaq_benchmark/SE52BENCH/multi_day/cctm_input  #Input Directory
  setenv LOGDIR  ${OUTDIR}/LOGS     #> Log Directory Location
  setenv NMLpath ${BLD}             #> Location of Namelists. Common places are: 
                                    #>   ${WORKDIR} | ${CCTM_SRC}/MECHS/${MECH} | ${BLD}
@@ -75,7 +111,8 @@ endif
 #> Vertical extent
 set NZ         = 35
 
-#setenv LOGFILE $CMAQ_HOME/$RUNID.log  #> log file name; uncomment to write standard output to a log, otherwise write to screen
+#> Master Log File Name; uncomment to write standard output to a log, otherwise write to screen
+#setenv LOGFILE $CMAQ_HOME/$RUNID.log  
 
 setenv GRID_NAME SE52BENCH         #> check GRIDDESC file for GRID_NAME options
 setenv GRIDDESC $INPDIR/GRIDDESC   #> grid description file
@@ -90,8 +127,6 @@ setenv GRIDDESC $INPDIR/GRIDDESC   #> grid description file
      setenv AVG_CONC_SPCS "ALL" 
      setenv ACONC_BLEV_ELEV " 1 1" #> ACONC file layer range; comment to write all layers to ACONC
      #setenv ACONC_END_TIME Y      #> override default beginning ACON timestamp [ default: N ]
-
-setenv EXECUTION_ID $EXEC    #> define the model execution id
 
 #> Sychronization Time Step and Tolerance Options
 setenv CTM_MAXSYNC 300       #> max sync time step (sec) [ default: 720 ]
@@ -138,6 +173,7 @@ setenv PA_BROW_EROW "10 195"
 setenv PA_BLEV_ELEV "1  4"
 
 #> I/O Controls
+setenv EXECUTION_ID "CMAQ_CCTM${VRSN}_`date -u +%Y%m%d_%H%M%S_%N`"    #> Inform IO/API of the Execution ID
 setenv IOAPI_LOG_WRITE F     #> turn on excess WRITE3 logging [ options: T | F ]
 setenv FL_ERR_STOP N         #> stop on inconsistent input files
 setenv PROMPTFLAG F          #> turn on I/O-API PROMPT*FILE interactive mode [ options: T | F ]
@@ -170,6 +206,17 @@ setenv REP_LAYER_MIN -1      #> Minimum layer for reporting plume rise info [ de
 
 set DISP = delete            #> [ delete | keep ] existing output files
 
+
+#> MPI Optimization Flags
+setenv MPI_SM_POOL 16000     #> increase shared memory pool in case many MPI_SEND headers
+setenv MP_EAGER_LIMIT 65536  #> set MPI message passing buffer size to max
+setenv MP_SINGLE_THREAD yes  #> optimizate for single threaded applications [ default: no ]
+setenv MP_STDOUTMODE ordered #> order output by the processor ID
+setenv MP_LABELIO yes        #> label output by processor ID [ default: no ]
+setenv MP_SHARED_MEMORY yes  #> force use of shared memory for tasks on same node [ default: no ]
+setenv MP_ADAPTER_USE shared #> share the MP adapter with other jobs
+setenv MP_CPU_USE multiple   #> share the node with multiple users/jobs
+setenv MP_CSS_INTERRUPT yes  #> specify whether arriving packets generate interrupts [ default: no ]
 
 # =====================================================================
 #> Input Directories and Filenames
@@ -208,6 +255,17 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   set YESTERDAY = `date -ud "${TODAYG}-1days" +%Y%m%d` #> Convert YYYY-MM-DD to YYYYJJJ
 
 # =====================================================================
+#> Set Output String and Propagate Model Configuration Documentation
+# =====================================================================
+
+  #> set output file name extensions
+  setenv CTM_APPL ${RUNID}_${YYYYMMDD} 
+  
+  #> Copy Model Configuration To Output Folder
+  cp $BLD/CCTM_${VRSN}.cfg $OUTDIR/CCTM_${CTM_APPL}.cfg
+
+
+# =====================================================================
 #> Input Files (Some are Day-Dependent)
 # =====================================================================
 
@@ -215,7 +273,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   if ($NEW_START == true || $NEW_START == TRUE ) then
      setenv ICFILE ICON_20110630_bench.nc
      setenv INITIAL_RUN Y #related to restart soil information file
-     rm -rf $LOGDIR/CTM_LOG*${RUNID}*  # Remove all Log Files Since this is a new start
+     rm -rf $LOGDIR/CTM_LOG*${RUNID}* >& /dev/null  # Remove all Log Files Since this is a new start
      mkdir -p $OUTDIR
   else
      set ICpath = $OUTDIR
@@ -336,8 +394,6 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 # =====================================================================
 #> Output Files
 # =====================================================================
-  #> set output file name extensions
-  setenv CTM_APPL ${RUNID}_${YYYYMMDD} 
   #> set output file names
   setenv S_CGRID         "$OUTDIR/CCTM_CGRID_${CTM_APPL}.nc"         #> 3D Inst. Concenctrations
   setenv CTM_CONC_1      "$OUTDIR/CCTM_CONC_${CTM_APPL}.nc -v"       #> On-Hour Concentrations
@@ -381,7 +437,9 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   if ( ! -d "$OUTDIR" ) mkdir -p $OUTDIR
 
   #> look for existing log files and output files
-  set log_test = `ls CTM_LOG_???.${CTM_APPL}`
+  set log_test = `( ls CTM_LOG_???.${CTM_APPL} > /dev/tty ) >& /dev/null `
+  echo $log_test
+
   set OUT_FILES = (${FLOOR_FILE} ${S_CGRID} ${CTM_CONC_1} ${A_CONC_1} ${MEDIA_CONC}         \
              ${CTM_DRY_DEP_1} $CTM_DEPV_DIAG $CTM_PT3D_DIAG $B3GTS_S $SOILOUT $CTM_WET_DEP_1\
              $CTM_WET_DEP_2 $CTM_VIS_1 $CTM_AVIS_1 $CTM_PMDIAG_1 $CTM_APMDIAG_1             \
@@ -390,22 +448,20 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
              $CTM_DRY_DEP_FST $CTM_DEPV_MOS $CTM_DEPV_FST $CTM_VDIFF_DIAG $CTM_VSED_DIAG    \
              $CTM_AOD_1 $CTM_LTNGDIAG_1 $CTM_LTNGDIAG_2)
   set OUT_FILES = `echo $OUT_FILES | sed "s; -v;;g" `
-  echo $OUT_FILES
-  set out_test = `ls $OUT_FILES` 
+  set out_test = `( ls $OUT_FILES > /dev/tty ) >& /dev/null ` 
+  echo $out_test
 
   #> delete previous output if requested
   if ( $DISP == 'delete' ) then
      #> remove previous log files
-     echo " ancillary log files being deleted"
      foreach file ( $log_test )
-        echo " deleting $file"
+        echo "Deleting Log File: $file"
         /bin/rm -f $file  
      end
 
      #> remove previous output files
-     echo " output files being deleted"
      foreach file ( $out_test )
-        echo " deleting $file"
+        echo "Deleting output file: $file"
         /bin/rm -f $file  
      end
 
@@ -474,11 +530,15 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 # ===================================================================
 
   #> Print attributes of the executable
-  ls -l $BLD/$EXEC; size $BLD/$EXEC
-  unlimit
-  limit
+  if ( $CTM_DIAG_LVL != 0 ) then
+     ls -l $BLD/$EXEC
+     size $BLD/$EXEC
+     unlimit
+     limit
+  endif
 
-  date
+  echo 
+  echo "CMAQ Processing of Day $YYYYMMDD Began at `date`"
  
   #> Executable call for single PE, uncomment to invoke
   # /usr/bin/time  $BLD/$EXEC
@@ -486,9 +546,11 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #> Executable call for multi PE, configure for your system 
   # set MPI = /usr/local/intel/impi/3.2.2.006/bin64
   # set MPIRUN = $MPI/mpirun
-  time mpirun -r ssh -np $NPROCS $BLD/$EXEC
+  #time mpirun -r ssh -np $NPROCS $BLD/$EXEC
+  ddt mpirun -np $NPROCS $BLD/$EXEC
 
-  date
+  echo 
+  echo "CMAQ Processing of Day $YYYYMMDD Finished at `date`"
 
 # ===================================================================
 #> Finalize Run for This Day and Loop to Next Day

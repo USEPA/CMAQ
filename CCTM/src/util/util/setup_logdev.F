@@ -104,9 +104,9 @@ C   12 Aug 15 D.Wong:   Replaced SUBST_MPI with mpif.h
       ! Concatenate Diagnostic Filename
       IF ( CTM_DIAG_LVL .GT. 0 ) THEN 
          IF ( APPL .NE. EQNAME(1:8 ) ) THEN
-            IOLOGEQ = DIAGSTR // CMYPE // '.' // TRIM( EQNAME )
+            IODIAGEQ = DIAGSTR // CMYPE // '.' // TRIM( EQNAME )
          ELSE
-            IOLOGEQ = DIAGSTR // CMYPE
+            IODIAGEQ = DIAGSTR // CMYPE
          END IF
          
          ! Find File Unit Number for Diag File
