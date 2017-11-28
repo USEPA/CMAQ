@@ -173,7 +173,8 @@ setenv PA_BROW_EROW "10 195"
 setenv PA_BLEV_ELEV "1  4"
 
 #> I/O Controls
-setenv EXECUTION_ID "CMAQ_CCTM${VRSN}_`date -u +%Y%m%d_%H%M%S_%N`"    #> Inform IO/API of the Execution ID
+setenv EXECUTION_ID "CMAQ_CCTM${VRSN}_`id -u -n`_`date -u +%Y%m%d_%H%M%S_%N`"    #> Inform IO/API of the Execution ID
+echo $EXECUTION_ID
 setenv IOAPI_LOG_WRITE F     #> turn on excess WRITE3 logging [ options: T | F ]
 setenv FL_ERR_STOP N         #> stop on inconsistent input files
 setenv PROMPTFLAG F          #> turn on I/O-API PROMPT*FILE interactive mode [ options: T | F ]
