@@ -30,6 +30,7 @@ C  Revision History:
 C  27 Jul 16 J.Young: inline PA ctl program
 C----------------------------------------------------------------------
 
+      USE ENV_VARS
       USE UTILIO_DEFN
       USE PA_VARS, Only: NFAMLYS, NRXSUMS, NCYCLES, NIRROUT
       USE PA_DEFN            ! Process Anaylsis control and data variables

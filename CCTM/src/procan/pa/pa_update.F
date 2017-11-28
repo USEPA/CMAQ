@@ -1021,7 +1021,6 @@ C Local Variables:
       CHARACTER( 96 ) :: XMSG = ' '
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
-      INTEGER, SAVE :: LOGDEV
 
       INTEGER, SAVE :: NQAE              ! number of micro-grams/m**3 species
       INTEGER, SAVE :: NNAE              ! number of #/m**3 species

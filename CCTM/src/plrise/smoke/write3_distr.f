@@ -32,6 +32,7 @@ C     5 Dec 2007 J.Young: initial implementation
 C    16 Feb 2011 S.Roselle: replaced I/O API include files with M3UTILIO
 C-----------------------------------------------------------------------
 
+      USE ENV_VARS
       USE M3UTILIO
 
       IMPLICIT NONE

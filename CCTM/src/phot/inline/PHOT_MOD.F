@@ -65,6 +65,7 @@ C  23Jun15   B.Hutzell: made TWOSTREAM and TRIDIAGONAL routine use REAL(8) varia
 C  30Jul15  J.Young: REAL(4) -> REAL for code portability
 C-----------------------------------------------------------------------
 
+      USE ENV_VARS    
       USE CSQY_DATA
 
       IMPLICIT NONE

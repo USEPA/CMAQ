@@ -58,7 +58,7 @@ C**********************************************************************
 
       USE HGRD_DEFN             ! horizontal domain specifications
       USE VGRD_DEFN             ! vertical layer specifications
-      USE CGRID_SPCS            ! CGRID mechanism species
+      USE CGRID_SPCS, LOGDEV2 => LOGDEV            ! CGRID mechanism species
       USE UTILIO_DEFN           ! IOAPI parameters and functions declarations
       USE RXNS_DATA
       USE AEROSOL_CHEMISTRY
