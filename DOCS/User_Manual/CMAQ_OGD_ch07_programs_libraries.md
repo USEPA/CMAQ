@@ -113,7 +113,7 @@ The default location of the BCON output files is the `$CMAQ_DATA/bcon` directory
 The configuration options listed here are set during compilation of the BCON executable. When these options are invoked they create a binary executable that is fixed to the specified configuration. To change these options you must recompile BCON and create a new executable.
 
 -   `CopySrc`  
-    Uncomment to copy the source code into a working build (BLD) directory. If commented, onlhy the compiled object and executable files will be placed in the BLD directory.
+    Uncomment to copy the source code into a working build (BLD) directory. If commented, only the compiled object and executable files will be placed in the BLD directory.
 -   `MakeFileOnly`  
     Uncomment to build a Makefile to compile the executable. Comment out to both create a Makefile and compile.
 -   `ModType: [default: module profile]`  
@@ -419,7 +419,7 @@ Several of the CCTM science modules have more than one option.  Brief descriptio
 The following five options are invoked by uncommenting the line in the CCTM build script.  Comment the line in the script using a "#" to turn the option off.
 
 -   `CopySrc`  
-    Uncomment to copy the source code into a working build (BLD) directory. If commented, onlhy the compiled object and executable files will be placed in the BLD directory.
+    Uncomment to copy the source code into a working build (BLD) directory. If commented, only the compiled object and executable files will be placed in the BLD directory.
 
 -   `set ParOpt`  
     Build an executable for running on multiple processors. Invoking this command requires the availability of the MPI library/INCLUDE files.
@@ -1247,7 +1247,7 @@ The default location of the ICON output files is the `$CMAQ_DATA/icon` directory
 The configuration options listed here are set during compilation of the ICON executable. When these options are invoked they create a binary executable that is fixed to the specified configuration. To change these options you must recompile ICON and create a new executable.
 
 -   `CopySrc`  
-    Uncomment to copy the source code into a working build (BLD) directory. If commented, onlhy the compiled object and executable files will be placed in the BLD directory.
+    Uncomment to copy the source code into a working build (BLD) directory. If commented, only the compiled object and executable files will be placed in the BLD directory.
 -   `MakeFileOnly`  
     Uncomment to build a Makefile to compile the executable. Comment out to both create a Makefile and compile.
 -   `ModType: [default: module profile]`  
@@ -1493,7 +1493,7 @@ The default location of the JPROC output files is the `$CMAQ_HOME/data/jproc` di
 The configuration options listed here are set during compilation of the JPROC executable. When these options are invoked they create a binary executable that is fixed to the specified configuration. To change these options it is necessary to recompile JPROC and create a new executable.
 
 -   `CopySrc`  
-    Uncomment to copy the source code into a working build (BLD) directory. If commented, onlhy the compiled object and executable files will be placed in the BLD directory.
+    Uncomment to copy the source code into a working build (BLD) directory. If commented, only the compiled object and executable files will be placed in the BLD directory.
 -   `MakefileOnly`
     Uncomment to build a Makefile to compile the executable. Comment out to create a Makefile and compile.
 -  `Mechanism: [default: cb6r3_ae6_aq]`  

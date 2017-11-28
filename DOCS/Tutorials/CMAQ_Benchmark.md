@@ -18,7 +18,7 @@ In the directory where you would like to install CMAQ, create the directory issu
 git clone -b 5.2 https://github.com/USEPA/CMAQ.git CMAQ_REPO
 ```
 
-For instructions on installing CMAQ from tarballs, see [Chapter 5](CMAQ_OGD_ch05_sys_req.md).
+For instructions on installing CMAQ from tarballs, see [Chapter 5](../User_Manual/CMAQ_OGD_ch05_sys_req.md).
 
 #### Configure the CMAQ build environment
 
@@ -115,7 +115,7 @@ cd $CMAQ_HOME/CCTM/scripts
 
 ### Run the CCTM Benchmark Script
 
-The default CCTM script in the CMAQ installation is configured to run the single-day benchmark case. You will need to have compiled the CMAQ model builder (Bldmake) and installed the I/O API, netCDF, and MPI libraries before preceding with this step (See [CMAQ OGD Chapter 5](https://github.com/USEPA/CMAQ/blob/5.2/CCTM/docs/User_Manual/CMAQ_OGD_ch05_sys_req.md)).  Use the following command to run the CCTM benchmark script:
+The default CCTM script in the CMAQ installation is configured to run the single-day benchmark case. You will need to have compiled the CMAQ model builder (Bldmake) and installed the I/O API, netCDF, and MPI libraries before preceding with this step (See [CMAQ OGD Chapter 5](../User_Manual/CMAQ_OGD_ch05_sys_req.md)).  Use the following command to run the CCTM benchmark script:
 
 ```
 cd $CMAQ_HOME/CCTM/scripts
@@ -169,6 +169,6 @@ To determine if CMAQ is correctly installed on your Linux system compare the res
 
 The CMAQv5.2 reference data include output from BCON, ICON, and the CCTM. You will only need to compare the results for the CCTM to evaluate the benchmark results.
 
-Use your netCDF evaluation tool of choice to evaluate your benchmark results. For example, [VERDI](https://www.verdi-tool.org/) is a visualization tool to view CCTM results as tile plots. Statistical comparison of the results can be made with the I/O API Tools or R. [Chapter 12 of the CMAQ OGD](https://github.com/USEPA/ECMAQ/blob/5.2/CCTM/docs/User_Manual/CMAQ_OGD_ch12_analysis_tools.md) lists descriptions of various analysis software options for viewing CMAQ output.
+Use your netCDF evaluation tool of choice to evaluate your benchmark results. For example, [VERDI](https://www.verdi-tool.org/) is a visualization tool to view CCTM results as tile plots. Statistical comparison of the results can be made with the I/O API Tools or R. [Chapter 12 of the CMAQ OGD](..//User_Manual/CMAQ_OGD_ch12_analysis_tools.md) lists descriptions of various analysis software options for viewing CMAQ output.
 
 In general, if the largest domain-wide and simulation period differences between your simulation and the reference data are <1%, the model is considered to be successfully benchmarked (i.e., the installation is verified).

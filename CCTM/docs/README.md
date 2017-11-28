@@ -8,4 +8,5 @@ The following types of documentation are available for the CMAQ v5.2 release:
 
 - [Tutorials](../../DOCS/Tutorials/README.md): A series of short tutorials provide practical examples of how to set up and run CMAQ. Tutorials can be found under CMAQ/DOCS.
 
+- [Known Issues](../../DOCS/Known_Issues/README.md): A comprehensive list of the issues that have been identified and solved, but not incorporated, in the current release version of CMAQ. Recommended solutions are provided with each issue entry.  
 
