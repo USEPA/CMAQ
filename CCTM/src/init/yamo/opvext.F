@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/init/yamo/opconc.F,v 1.4 2011/10/21 16:11:24 yoj Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/init/yamo/opvext.F,v 1.4 2011/10/21 16:11:24 yoj Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -76,15 +76,13 @@ C  environment variable description
       INTEGER :: NMAX = 1000000
       INTEGER :: GDTYP2 = 1
       REAL*8, ALLOCATABLE :: VERTEXTLATTMP(:), VERTEXTLONTMP(:)
-      !REAL*8, ALLOCATABLE :: VERTEXTLAT(:), VERTEXTLON(:)
-      !REAL  , ALLOCATABLE :: VERTEXTJ(:), VERTEXTI(:)
+      REAL*8, ALLOCATABLE :: VERTEXTJR(:), VERTEXTIR(:)
       !INTEGER, ALLOCATABLE :: VERTEXTIDX(:)
 
       LOGICAL, EXTERNAL :: FLUSH3
       CHARACTER( 16 ) :: DOVERTNAME = 'DOVERTEXT'
       CHARACTER( 16 ) :: VERTEXTLATNAME = 'VERTEXTLAT'
       CHARACTER( 16 ) :: VERTEXTLONNAME = 'VERTEXTLON'
-      LOGICAL, SAVE :: DOVEXT = .true.
 C-----------------------------------------------------------------------
 
       LOGDEV = INIT3()
@@ -140,8 +138,8 @@ C-----------------------------------------------------------------------
       ENDIF
       NVERTEXT = NVERTEXTLON
       ALLOCATE ( VERTEXTLAT(NVERTEXT), VERTEXTLON(NVERTEXT), STAT = STATUS)
+      ALLOCATE ( VERTEXTJR(NVERTEXT), VERTEXTIR(NVERTEXT), STAT = STATUS)
       ALLOCATE ( VERTEXTJ(NVERTEXT), VERTEXTI(NVERTEXT), STAT = STATUS)
-      ALLOCATE ( VERTEXTJI(NVERTEXT), VERTEXTII(NVERTEXT), STAT = STATUS)
       ALLOCATE ( VERTEXTIDX(NVERTEXT), STAT = STATUS)
       WRITE(LOGDEV, *)'IN', NVERTEXT
       DO V=1,NVERTEXT
@@ -196,20 +194,20 @@ C Set output file characteristics based on COORD.EXT and open it
       END IF
       CALL XY2XY( GDTYP3D, P_ALP3D, P_BET3D, P_GAM3D, XCENT3D, YCENT3D,
      &            1      ,    0.d0,    0.d0,    0.d0,    0.d0,    0.d0,
-     &            NVERTEXT, VERTEXTLON, VERTEXTLAT,VERTEXTI,VERTEXTJ )
+     &            NVERTEXT, VERTEXTLON, VERTEXTLAT,VERTEXTIR,VERTEXTJR )
       STATUS = 0
       DO V=1,NVERTEXT
-        VERTEXTII(V) = INT((VERTEXTI(V) - XORIG3D) / XCELL3D) + 1
-        VERTEXTJI(V) = INT((VERTEXTJ(V) - YORIG3D) / YCELL3D) + 1
-        IF ((VERTEXTII(V) .gt. GL_NCOLS) .or. (VERTEXTII(V) .lt. 1)
-            (VERTEXTJI(V) .gt. GL_NROWS) .or. (VERTEXTJI(V) .lt. 1) THEN
+        VERTEXTI(V) = INT((VERTEXTIR(V) - XORIG3D) / XCELL3D) + 1
+        VERTEXTJ(V) = INT((VERTEXTJR(V) - YORIG3D) / YCELL3D) + 1
+        IF ((VERTEXTI(V) .gt. GL_NCOLS) .or. (VERTEXTI(V) .lt. 1) .or.
+     &      (VERTEXTJ(V) .gt. GL_NROWS) .or. (VERTEXTJ(V) .lt. 1)) THEN
            STATUS = STATUS + 1
            WRITE( LOGDEV, '( /5X, A, F10.4, F10.4, A, I8, I8)' )
      &      'Outside domain', VERTEXTLON(V), VERTEXTLAT(V),
-     &      'COL/ROW', VERTEXTII(V), VERTEXTJI(V)
+     &      'COL/ROW', VERTEXTI(V), VERTEXTJ(V)
         ENDIF
         WRITE(LOGDEV, *)'IN', VERTEXTLON(V), VERTEXTLAT(V)
-        WRITE(LOGDEV, *) 'OUT', VERTEXTIDX(V), VERTEXTII(V),VERTEXTJI(V)
+        WRITE(LOGDEV, *) 'OUT', VERTEXTIDX(V), VERTEXTI(V),VERTEXTJ(V)
       END DO
 
       WRITE( LOGDEV,* ) ' '

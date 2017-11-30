@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/driver/yamo/wr_conc.F,v 1.6 2011/10/21 16:10:43 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/driver/yamo/wr_vext.F,v 1.6 2011/10/21 16:10:43 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -74,6 +74,7 @@ C for INTERPX
       INTEGER, SAVE :: NVARS
 
 C-----------------------------------------------------------------------
+      IF (.not.DOVEXT) RETURN
       IF ( FIRSTIME ) THEN
 
          FIRSTIME = .FALSE.
@@ -112,7 +113,7 @@ C open vext file for update
          IF ( .NOT. PWRVEC(CTM_VEXT_1, VNAME(V), JDATE, JTIME,
      &                     SGRID(:, :, :, V), NCOLS3D, NROWS3D, NLAYS3D,
      &                     NCOLS, NROWS, NUMPROCS,
-     &                     NVERTEXT,VERTEXTII,VERTEXTJI     ) ) THEN
+     &                     NVERTEXT,VERTEXTI,VERTEXTJ     ) ) THEN
                   XMSG = 'PWRGRDD failed writing variable '
      &                  // TRIM( VNAME(V) ) //
      &                  ' to file '// TRIM( CTM_VEXT_1 )
@@ -125,4 +126,4 @@ C open vext file for update
      &      'Timestep written to', CTM_VEXT_1,
      &      'for date and time', JDATE, JTIME
       RETURN 
-      END
+      END SUBROUTINE WR_VEXT

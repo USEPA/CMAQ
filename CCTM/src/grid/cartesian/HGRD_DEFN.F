@@ -107,9 +107,9 @@ C row range for each processor
 C for vertical extraction
       INTEGER, SAVE :: NVERTEXT
       REAL*8, ALLOCATABLE, SAVE :: VERTEXTLAT(:), VERTEXTLON(:)
-      REAL*8, ALLOCATABLE, SAVE :: VERTEXTJ(:), VERTEXTI(:)
-      INTEGER, ALLOCATABLE, SAVE :: VERTEXTJI(:), VERTEXTII(:)
+      INTEGER, ALLOCATABLE, SAVE :: VERTEXTJ(:), VERTEXTI(:)
       INTEGER, ALLOCATABLE, SAVE :: VERTEXTIDX(:)
+      LOGICAL, SAVE :: DOVEXT = .false.
  
 C maximum stencil displacement in the north, east, south, and west direction
       INTEGER, PARAMETER :: MNDIS = 2
