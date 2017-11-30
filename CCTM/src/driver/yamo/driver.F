@@ -509,6 +509,7 @@ C write conc fields
 
          IF ( MOD( TIME2SEC( JTIME ), TIME2SEC( TSTEP( 1 ) ) ) .EQ. 0 ) THEN
             CALL WR_CONC ( JDATE, JTIME, TSTEP( 1 ) )
+            CALL WR_VEXT ( JDATE, JTIME, TSTEP( 1 ) )
             CALL WR_ACONC ( AGRID, JDATE, JTIME, TSTEP( 1 ) )
             IF ( LIPR .OR. LIRR ) CALL PA_OUTPUT ( CGRID, JDATE, JTIME )
          END IF

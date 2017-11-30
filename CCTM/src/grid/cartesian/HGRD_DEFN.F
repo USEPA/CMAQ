@@ -103,6 +103,13 @@ C column range for each processor
 C row range for each processor
       INTEGER, ALLOCATABLE, SAVE :: ROWSX_PE( :,: )
       INTEGER, ALLOCATABLE, SAVE :: ROWSD_PE( :,: )  ! dot file
+
+C for vertical extraction
+      INTEGER, SAVE :: NVERTEXT
+      REAL*8, ALLOCATABLE, SAVE :: VERTEXTLAT(:), VERTEXTLON(:)
+      REAL*8, ALLOCATABLE, SAVE :: VERTEXTJ(:), VERTEXTI(:)
+      INTEGER, ALLOCATABLE, SAVE :: VERTEXTJI(:), VERTEXTII(:)
+      INTEGER, ALLOCATABLE, SAVE :: VERTEXTIDX(:)
  
 C maximum stencil displacement in the north, east, south, and west direction
       INTEGER, PARAMETER :: MNDIS = 2

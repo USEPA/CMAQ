@@ -33,6 +33,8 @@ C....................................................................
       MODULE ALLOC_DATA_MODULE
 
       REAL, ALLOCATABLE, SAVE :: WRITBUF( :,:,: )
+      REAL, ALLOCATABLE, SAVE :: WRITVBUF( :,: )
       REAL, ALLOCATABLE, SAVE :: RECVBUF( : )
+      REAL, ALLOCATABLE, SAVE :: RECVVBUF( : )
 
       END MODULE ALLOC_DATA_MODULE

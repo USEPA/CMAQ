@@ -29,7 +29,7 @@
 !   1  Feb 2017 D. Kang Added CTM_LTNGDIAG_1 and CTM_LTNGDIAG_2 for Lightning
 !.......................................................................
 
-      INTEGER, PARAMETER :: N_FILES = 74
+      INTEGER, PARAMETER :: N_FILES = 75
 
       CHARACTER( 16 ) :: LGCL_NAME( N_FILES ) 
       LOGICAL            IN_MODE( N_FILES )
@@ -46,6 +46,7 @@
       CHARACTER( 16 ) :: MET_CRO_2D
       CHARACTER( 16 ) :: MET_CRO_3D
       CHARACTER( 16 ) :: CTM_CONC_1
+      CHARACTER( 16 ) :: CTM_VEXT_1
       CHARACTER( 16 ) :: CTM_DRY_DEP_1
       CHARACTER( 16 ) :: CTM_WET_DEP_1
       CHARACTER( 16 ) :: CTM_WET_DEP_2
@@ -122,6 +123,7 @@
       DATA MET_CRO_2D       / 'MET_CRO_2D      ' /
       DATA MET_CRO_3D       / 'MET_CRO_3D      ' /
       DATA CTM_CONC_1       / 'CTM_CONC_1      ' /
+      DATA CTM_VEXT_1       / 'CTM_VEXT_1      ' /
       DATA CTM_DRY_DEP_1    / 'CTM_DRY_DEP_1   ' /
       DATA CTM_WET_DEP_1    / 'CTM_WET_DEP_1   ' /
       DATA CTM_WET_DEP_2    / 'CTM_WET_DEP_2   ' /
@@ -259,5 +261,6 @@
       DATA LGCL_NAME( 72 ), IN_MODE( 72 )    / 'CTM_AVIS_1      ', .FALSE. /
       DATA LGCL_NAME( 73 ), IN_MODE( 73 )    / 'CTM_LTNGDIAG_1  ', .FALSE. /
       DATA LGCL_NAME( 74 ), IN_MODE( 74 )    / 'CTM_LTNGDIAG_2  ', .FALSE. /
+      DATA LGCL_NAME( 75 ), IN_MODE( 75 )    / 'CTM_VEXT_1      ', .FALSE. /
 
 !................   end   FILES3_CTM.EXT   .............................
