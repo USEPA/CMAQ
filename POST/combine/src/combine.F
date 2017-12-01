@@ -87,6 +87,39 @@ C...Local Variables
 
       Real, Allocatable :: buffer(:)
 
+      Interface            
+         Subroutine getFld( record, delimiter, nth, del, field, exception )
+            CHARACTER*(*), Intent( In  ) :: record
+            CHARACTER*(*), Intent( In  ) :: delimiter
+            CHARACTER,     Intent( Out ) :: del
+            Integer,       Intent( In  ) :: nth
+            CHARACTER*(*), Intent( Out ) :: field
+            CHARACTER*(*), Optional, Intent( In ) :: exception
+         End Subroutine getFld
+         INTEGER FUNCTION getFldCount(record, delimiter, exception) Result(nfields)
+            CHARACTER*(*), Intent( In ) :: record
+            CHARACTER*(*), Intent( In ) :: delimiter
+            CHARACTER*(*), Optional, Intent( In ) :: exception
+         End FUNCTION getFldCount
+         Subroutine LeftTrim( STRING )
+            CHARACTER*(*), INTENT( INOUT ) :: STRING
+         End Subroutine LeftTrim
+         Subroutine RightTrim( STRING )
+            CHARACTER*(*), INTENT( INOUT ) :: STRING
+         End Subroutine RightTrim
+         SUBROUTINE UCASE ( STR )
+            CHARACTER, INTENT( INOUT ) :: STR*( * )
+         END SUBROUTINE UCASE
+         Subroutine replace( string, old, new )
+            Character*(*), Intent( InOut ) :: string
+            Character*(1), Intent( In    ) :: old    
+            Character*(1), Intent( In    ) :: new    
+         End Subroutine replace 
+         SUBROUTINE Remove_WhiteSpaces (text)
+            CHARACTER*(*), Intent( InOut ) :: text
+         END SUBROUTINE Remove_WhiteSpaces
+      End Interface
+
 
 C...start IOAPI
       LOGDEV = INIT3()
@@ -97,10 +130,10 @@ C...check if IOAPI_ISPH is set, if not, set to 20
        call ENVSTR( 'IOAPI_ISPH','IOAPI_ISPH spheroid setting', '20', csphere, istat)
        if( istat .ne. 0 ) then
          if ( .not. SETENVVAR ('IOAPI_ISPH',csphere)) then !WRF-ARW sphere
- 	  Write(*,'(''*WARNING* SETENVVAR for IOAPI_ISPH failed, using default'')')
+          Write(*,'(''*WARNING* SETENVVAR for IOAPI_ISPH failed, using default'')')
          else
-	   Write(*,'(''*WARNING* IOAPI_ISPH not set in script, using 20 (WRF-ARW sphere)'')')
-	 endif
+          Write(*,'(''*WARNING* IOAPI_ISPH not set in script, using 20 (WRF-ARW sphere)'')')
+         endif
       endif
 
 C...open FILES
