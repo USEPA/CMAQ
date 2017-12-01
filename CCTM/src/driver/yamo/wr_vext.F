@@ -55,18 +55,13 @@ C Local variables:
       CHARACTER( 16 ) :: PNAME = 'WR_VEXT'
       CHARACTER( 96 ) :: XMSG = ' '
 
-      REAL, ALLOCATABLE, SAVE :: JACF( :,:,: ) ! full-layer Jacobian
-      REAL, ALLOCATABLE, SAVE :: MSFX2( :,: )  ! map scale factor ** 2
       REAL, ALLOCATABLE :: DBUFF ( :,: )     ! input for W_VEL
       INTEGER      ALLOCSTAT
 
       INTEGER, SAVE :: LOGDEV       ! FORTRAN unit number for log file
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
 
-      INTEGER      GXOFF, GYOFF              ! global origin offset from file
 C for INTERPX
-      INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
-      INTEGER       :: STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2
 
       INTEGER      C, R, K, L, V,GI   ! loop induction variables
       INTEGER      C0, CN, R0, RN

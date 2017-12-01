@@ -65,7 +65,7 @@ C
 C x  REAL WRITVBUF(NVERTEXT,NLAYS3D) M2
 C                                  ! Buffer for writing an array.
 C
-C x  REAL RECVVBUF(NVERTEXT*NLAYS3D)   M2
+C x  REAL RECVVBUF(NVERTEXT,NLAYS3D)   M2
 C                                  ! Buffer for message passing an array.
 C
 C x  INTEGER  MY_PE    E3          ! Local processor id, ranging 0 to NP-1.
@@ -114,7 +114,7 @@ C Arguments
       INTEGER  NP                 ! Number of processors
       INTEGER  NVERTEXT           ! Number of vertices
       INTEGER, dimension(NVERTEXT) :: VERTEXTII,VERTEXTJI ! vertex locations
-      REAL, dimension(NVERTEXT*NLAYS3D) :: WRITTBUF
+      REAL, dimension(NVERTEXT,NLAYS3D) :: WRITTBUF
       REAL BUFFER( NCOLS,NROWS,NLAYS3D )   ! Buffer holding (local) array 
                                            ! to be written
 
@@ -137,6 +137,7 @@ C Local Variables:
       LOGICAL        RERROR        ! LOCAL MPI ALLREDUCE ERROR
       INTEGER        IR            ! Loop counter over grid rows
       INTEGER        IC            ! Loop counter over grid columns
+      INTEGER        TC,TR         ! This cell position
       INTEGER        IL            ! Loop counter over grid layers
       INTEGER        IG            ! Loop counter over grid layers
       INTEGER        C0            ! First column in global grid
@@ -165,7 +166,7 @@ C Initialize return value and error code
 
          IF ( WRITBUF_SIZE .NE. WSIZE ) THEN
             IF ( ALLOCATED ( WRITVBUF ) ) DEALLOCATE ( WRITVBUF )
-            ALLOCATE ( WRITVBUF  ( NVERTEXT, NLAYS3D ), STAT = IERROR )
+            ALLOCATE ( WRITVBUF  ( 1, NVERTEXT, NLAYS3D ), STAT = IERROR )
             IF ( IERROR .NE. 0 ) THEN
                MSG = 'Failure allocating WRITVBUF '
                CALL M3EXIT( 'PWRVEC', DATE, TIME, MSG, 1 )
@@ -175,7 +176,7 @@ C Initialize return value and error code
 
          IF ( RECVBUF_SIZE .LT. RSIZE ) THEN
             IF ( ALLOCATED ( RECVVBUF ) ) DEALLOCATE ( RECVVBUF )
-            ALLOCATE ( RECVVBUF  ( RSIZE ), STAT = IERROR )
+            ALLOCATE ( RECVVBUF  ( NVERTEXT, NLAYS3D ), STAT = IERROR )
             IF ( IERROR .NE. 0 ) THEN
                MSG = 'Failure allocating RECVVBUF '
                CALL M3EXIT( 'PWRVEC', DATE, TIME, MSG, 1 )
@@ -193,16 +194,17 @@ C I/O PE copies its own local array into output buffer
          R0 = WR_ROWSX_PE( 1,IO_PE+1 )
          NC = WR_NCOLS_PE( IO_PE+1 )
          NR = WR_NROWS_PE( IO_PE+1 )
-
+         WRITVBUF(:,:,:) = 0.
          DO IG=1,NVERTEXT
             IC = VERTEXTII(IG)
             IR = VERTEXTJI(IG)
-            IF ( (IC .ge. C0 ) .and. (IC .le. (C0 + NC))) THEN
-               IF ( (IR .ge. R0 ) .and. (IR .le. (R0 + NR))) THEN
-                  DO IL=1,NLAYS3D
-                     WRITVBUF( IG,IL ) = BUFFER(IC - C0 + 1, IR - R0 + 1, IL)
-                  ENDDO
-               ENDIF
+            IF ( (IC .ge. C0 ) .and. (IC .lt. (C0 + NC)) .and.
+     &           (IR .ge. R0 ) .and. (IR .lt. (R0 + NR))) THEN
+               TC = IC - C0 + 1
+               TR = IR - R0 + 1
+               DO IL=1,NLAYS3D
+                  WRITVBUF( 1, IG,IL ) = BUFFER(TC, TR, IL)
+               ENDDO
             ENDIF
          END DO
 
@@ -220,11 +222,6 @@ C buffer. Arrays are received in a first-come-first-serve order.
                LERROR = .TRUE.
             END IF
 
-            C0 = WR_COLSX_PE( 1,WHO+1 )
-            R0 = WR_ROWSX_PE( 1,WHO+1 )
-            NC = WR_NCOLS_PE( WHO+1 )
-            NR = WR_NROWS_PE( WHO+1 )
-
             MSGSIZE = WSIZE
 
             CALL MPI_RECV( RECVVBUF, MSGSIZE, MPI_REAL, WHO,
@@ -240,7 +237,7 @@ C buffer. Arrays are received in a first-come-first-serve order.
             
             DO IL = 1, NLAYS3D
                DO IG = 1, NVERTEXT
-                  WRITVBUF(IG,IL) = WRITVBUF(IG,IL) + RECVVBUF(NVERTEXT*(IL-1)+IG)
+                  WRITVBUF(1,IG,IL) = WRITVBUF(1,IG,IL) + RECVVBUF(IG,IL)
                END DO    
             END DO
 
@@ -250,8 +247,8 @@ C Write the accumulated array to file
 
          FIL16 = FILNAME
          VAR16 = VARNAME
-         IF ( .NOT. WRITE3_DISTR( FIL16, VAR16, DATE, TIME, 
-     &                            NVERTEXT, NLAYS3D, WRITVBUF ) ) THEN
+         IF ( .NOT. WRITE3( FIL16, VAR16, DATE, TIME, 
+     &                            WRITVBUF ) ) THEN
             MSG = 'Could not write '
      &            // TRIM( VARNAME ) //
      &            ' to file '// TRIM( FIL16 )
@@ -267,19 +264,26 @@ C the I/O processor.
 
          WHO = MY_PE
          MSGSIZE = NVERTEXT * NLAYS3D
+         C0 = WR_COLSX_PE( 1,WHO+1 )
+         R0 = WR_ROWSX_PE( 1,WHO+1 )
+         NC = WR_NCOLS_PE( WHO+1 )
+         NR = WR_NROWS_PE( WHO+1 )
+
          
-         WRITTBUF(:) = 0.
+         WRITTBUF(:,:) = 0.
          DO IG=1,NVERTEXT
             IC = VERTEXTII(IG)
             IR = VERTEXTJI(IG)
-            IF ( (IC .ge. C0 ) .and. (IC .le. (C0 + NC)) .and. 
-     &           (IR .ge. R0 ) .and. (IR .le. (R0 + NR))) THEN
+            IF ( (IC .ge. C0 ) .and. (IC .lt. (C0 + NC)) .and. 
+     &           (IR .ge. R0 ) .and. (IR .lt. (R0 + NR))) THEN
+                  TC = IC - C0 + 1
+                  TR = IR - R0 + 1
                   DO IL=1,NLAYS3D
-                     WRITTBUF( IG + (IL-1)*NVERTEXT ) = BUFFER(IC - C0 + 1, IR - R0 + 1, IL)
+                     WRITTBUF( IG, IL ) = BUFFER(TC, TR, IL)
                   ENDDO
             ELSE
                   DO IL=1,NLAYS3D
-                     WRITTBUF( IG + (IL-1)*NVERTEXT ) = 0.
+                     WRITTBUF( IG, IL ) = 0.
                   ENDDO
             ENDIF
          END DO
