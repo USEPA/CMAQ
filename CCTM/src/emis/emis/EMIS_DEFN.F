@@ -1101,6 +1101,8 @@ C
          CHARACTER( 16 )  :: CTM_LTNG_NO = 'CTM_LTNG_NO'    ! Let model proceed even if
          CHARACTER( 16 )  :: PNAME = 'EM_FILE_INIT'
          CHARACTER( 80 )  :: VARDESC
+         CHARACTER( 16 )  :: VLAB
+         CHARACTER( 16 )  :: VNAME
          INTEGER          :: STATUS
          CHARACTER( 200 ) :: XMSG
          LOGICAL :: SUCCESS
@@ -1171,24 +1173,46 @@ C Allocate Emission File Structure Variables
 C Assign Attributes to Emission File Records. Other records will be 
 C populated in individual subroutines. For example, opemis and
 C stkemis_init.
+         ISRC = 0
+
          ! Gridded Emission Files
          EM_FILE_TYPE( 1:N_EMIS_GR ) = 'GRID'
-         DO ISRC = 1, N_EMIS_GR
-            N = N + 1
-            IGSRC( N ) = ISRC
-            WRITE( EM_FILE_DESC( N ), '(A,I2)' ),
-     &         'Gridded Area Emissions File ',IGSRC(N)
+         DO N = 1, N_EMIS_GR
+            ISRC = ISRC + 1
+            IGSRC( ISRC ) = N
+            WRITE( EM_FILE_DESC( ISRC ), '(A,I2)' ),
+     &         'Gridded Area Emissions File ', N
+             
+            WRITE( VLAB,'( "GR_EMIS_LAB_",I2.2 )' ) N
+            CALL ENVSTR( VLAB, 'Gridded Emission File Label',VLAB,
+     &                   EM_FILE_LAB( ISRC ), IOS )
+
+            WRITE( EM_FILE_NAME( ISRC ),'( "GR_EMIS_",I2.2 )' ) N
+            IF ( .NOT.( OPEN3( EM_FILE_NAME( ISRC ), FSREAD3, PNAME ) ) ) THEN
+               XMSG = 'Could not open '// TRIM( EM_FILE_NAME( ISRC ) ) // ' file'
+               CALL M3MESG( XMSG )
+               SUCCESS = .FALSE.; RETURN
+            END IF
          END DO
          
          ! In-Line Point Source Files
          IF ( NPTGRPS .GT. 0 ) THEN 
             EM_FILE_TYPE( N+1:N+NPTGRPS ) = 'POINT'
-            DO ISRC = 1, NPTGRPS
-               N = N + 1
-               IPSRC( N ) = ISRC
-               IF ( NPTGRPS .GT. 0 ) THEN
-                  WRITE( EM_FILE_DESC( N ), '(A,I2)' ),
-     &            'Point Emissions File ', IPSRC(N)
+            DO N = 1, NPTGRPS
+               ISRC = ISRC + 1
+               IPSRC( ISRC ) = N
+               WRITE( EM_FILE_DESC( ISRC ), '(A,I2)' ),
+     &         'Point Emissions File ', IPSRC( ISRC )
+              
+               WRITE( VLAB,'( "STK_EMIS_LAB_",I2.2 )' ) N
+               CALL ENVSTR( VLAB, 'Stack Emission File Label',VLAB,
+     &                      EM_FILE_LAB( ISRC ), IOS )
+ 
+               WRITE( EM_FILE_NAME( ISRC ),'( "STK_EMIS_",I2.2 )' ) N
+               IF ( .NOT.( OPEN3( EM_FILE_NAME( ISRC ), FSREAD3, PNAME ) ) ) THEN
+                  XMSG = 'Could not open '// TRIM( EM_FILE_NAME( ISRC ) ) // ' file'
+                  CALL M3MESG( XMSG )
+                  SUCCESS = .FALSE.; RETURN
                END IF
             END DO
          END IF
@@ -1197,11 +1221,22 @@ C stkemis_init.
          IF ( N_EMIS_TR .GT. 0 ) THEN 
             EM_TRAC = .TRUE.
             EM_FILE_TYPE( N+1:N+N_EMIS_TR ) = 'TRAC'
-            DO ISRC = 1, N_EMIS_TR
-               N = N + 1
-               ITSRC( N ) = ISRC
-               WRITE( EM_FILE_DESC( N ), '(A,I2)' ),
-     &           'Gridded Tracer Emissions File ', ITSRC(N)
+            DO N = 1, N_EMIS_TR
+               ISRC = ISRC + 1
+               ITSRC( ISRC ) = N
+               WRITE( EM_FILE_DESC( ISRC ), '(A,I2)' ),
+     &           'Gridded Tracer Emissions File ', N
+
+               WRITE( VLAB,'( "TR_EMIS_LAB_",I2.2 )' ) N
+               CALL ENVSTR( VLAB, 'Tracer Emission File Label',VLAB,
+     &                      EM_FILE_LAB( ISRC ), IOS )
+
+               WRITE( EM_FILE_NAME( ISRC ),'( "TR_EMIS_",I2.2 )' ) N
+               IF ( .NOT.( OPEN3( EM_FILE_NAME( ISRC ), FSREAD3, PNAME ) ) ) THEN
+                  XMSG = 'Could not open '// TRIM( EM_FILE_NAME( ISRC ) ) // ' file'
+                  CALL M3MESG( XMSG )
+                  SUCCESS = .FALSE.; RETURN
+               END IF
             END DO
          ELSE
             EM_TRAC = .FALSE.
@@ -1209,40 +1244,40 @@ C stkemis_init.
          
          ! Online Biogenic Emissions (BEIS)
          IF ( BIOGEMIS ) THEN
-             N = N + 1
-             EM_FILE_TYPE( N ) = 'BIOG'
-             EM_FILE_DESC( N ) = 'Biogenic Emissions'
-             IBIOSRC = N
+             ISRC = ISRC + 1
+             EM_FILE_TYPE( ISRC ) = 'BIOG'
+             EM_FILE_DESC( ISRC ) = 'Biogenic Emissions'
+             IBIOSRC = ISRC
          END IF
 
          ! Online Marine Gas Emissions
          IF ( MGEM ) THEN
-             N = N + 1
-             EM_FILE_TYPE( N ) = 'MGEM'
-             EM_FILE_DESC( N ) = 'Marine Gas Emissions'
-             IMGSRC = N
+             ISRC = ISRC + 1
+             EM_FILE_TYPE( ISRC ) = 'MGEM'
+             EM_FILE_DESC( ISRC ) = 'Marine Gas Emissions'
+             IMGSRC = ISRC
          END IF
 
          ! Online Lightning NO Emissions
          IF ( LTNG_NO ) THEN
-             N = N + 1
-             EM_FILE_TYPE( N ) = 'LTNG'
-             EM_FILE_DESC( N ) = 'Lightning NO Emissions'
-             ILTSRC = N
+             ISRC = ISRC + 1
+             EM_FILE_TYPE( ISRC ) = 'LTNG'
+             EM_FILE_DESC( ISRC ) = 'Lightning NO Emissions'
+             ILTSRC = ISRC
          END IF
 
          ! Sea Spray Aerosol Emissions
-         N = N + 1
-         EM_FILE_TYPE( N ) = 'ASEA'
-         EM_FILE_DESC( N ) = 'Sea Spray Aerosol Emissions'
-         ISEASRC = N
+         ISRC = ISRC + 1
+         EM_FILE_TYPE( ISRC ) = 'ASEA'
+         EM_FILE_DESC( ISRC ) = 'Sea Spray Aerosol Emissions'
+         ISEASRC = ISRC
 
          ! Wind-Blown Dust Emissions
          IF ( WB_DUST ) THEN
-             N = N + 1
-             EM_FILE_TYPE( N ) = 'DUST'
-             EM_FILE_DESC( N ) = 'Wind-Blown Dust Emissions'
-             IDUSTSRC = N
+             ISRC = ISRC + 1
+             EM_FILE_TYPE( ISRC ) = 'DUST'
+             EM_FILE_DESC( ISRC ) = 'Wind-Blown Dust Emissions'
+             IDUSTSRC = ISRC
          END IF
           
 

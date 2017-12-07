@@ -78,7 +78,7 @@ C aerosol emissions: [ppmv/s] for mass & number spcs, [m2/mol/s] for surface are
       CHARACTER( 16 ),      SAVE :: CTM_WB_DUST = 'CTM_WB_DUST' ! env var for windblown dust
       LOGICAL,              SAVE :: WB_DUST   ! flag for windblown dust option
 
-      PUBLIC VDEMIS_AE, AERO_EMIS_INIT, GET_AERO_EMIS,
+      PUBLIC EMISS_SIZE_DIST, VDEMIS_AE, AERO_EMIS_INIT, GET_AERO_EMIS,
      &       MAP_AEROtoEM, MAP_EMtoAERO, MAP_EMtoMODE, MAP_NUMtoEM, MAP_SRFtoEM,
      &       MAP_EMtoNUM, MAP_EMtoSRF,
      &       CTM_WB_DUST, WB_DUST
@@ -363,10 +363,8 @@ C     Multiply by grid area [m2] to obtain grid volume
 
 C *** Get scaling factor for converting aerosol emissions from
 C     their input units to [ug/s] and then to [ug/m2/s] using layer-
-C     specific grid-cell volume.  Calling DESC3( EMIS_1 ) assumes EMIS_1
-C     already opened.
+C     specific grid-cell volume.  
          write( LOGDEV, '(A,A)'),'PMEM_UNITS=',PMEM_UNITS
-
 
          IF ( PMEM_UNITS .EQ. 'G/S' .OR.
      &        PMEM_UNITS .EQ. 'g/s' ) THEN
@@ -376,8 +374,6 @@ C     already opened.
             CONVEM_PM_MASS = GPKG * MGPG / 3600.0  ! (kg/hr) -> (ug/s)
          ELSE
             XMSG = PMEM_UNITS
-!            XMSG = 'Units (' // PMEM_UNITS // ') incorrect on ' // 
-!     &             EMIS_1 //' for aerosol species.'
             CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
             SUCCESS = .FALSE.
          END IF

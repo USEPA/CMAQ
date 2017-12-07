@@ -195,7 +195,7 @@ C Local Variables:
 
          INTEGER          LOGDEV
 
-         INTEGER I, J, K, L, M, N, S, SRC, V  ! counters and indices
+         INTEGER I, J, K, L, M, N, S, SRC, V, ISRC  ! counters and indices
 
          INTEGER :: GXOFF, GYOFF
          INTEGER :: STRTCOLMC, ENDCOLMC, STRTROWMC, ENDROWMC
@@ -478,18 +478,21 @@ C Initialize stack emissions data
          CALL CHECKMEM( IOS, 'STKENAME', PNAME )
          STKENAME = ' '   ! array
 
-         DO N = 1, NPTGRPS
-            WRITE( VNAME,'( "STK_EMIS_",I2.2 )' ) N
-            STKENAME( N ) = PROMPTMFILE( 'Enter name for stack emissions file',
-     &                                   FSREAD3, VNAME, PNAME )
+         ! Retrive Point Source Filenames from Emissions Filename Vector
+         DO ISRC = 1, N_EM_SRC
+            N = IPSRC( ISRC )
+            STKENAME( N ) = EM_FILE_NAME( N )
          END DO
 
+         ! Initialize Point Source Emissions
          IF ( .NOT. STK_EMIS_INIT( STKENAME, JDATE, JTIME ) ) THEN
             XMSG = 'Could not initialize stack parameters'
             CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
             SUCCESS = .FALSE.; RETURN
          END IF
 
+         ! Check that the number of individual sources on each point
+         ! emissions file is consistent.
          DO N = 1, NPTGRPS
             IF ( NSRC( N ) .NE. NSRC_EMIS( N ) ) THEN
                WRITE( LOGDEV,* ) 'NSRC vs. NSRC_EMIS:', N, NSRC( N ), NSRC_EMIS( N )
@@ -499,6 +502,7 @@ C Initialize stack emissions data
             END IF
          END DO
 
+         ! Initialize Point Source Emissions Array
          ALLOCATE ( VDEMIS_PT( N_EMIS_SPC,EMLAYS,NCOLS,NROWS ), STAT = IOS )
          CALL CHECKMEM( IOS, 'VDEMIS_PT', PNAME )
          VDEMIS_PT = 0.0   ! array assignment

@@ -66,8 +66,8 @@ C Local variables:
       LOGICAL ::   SOME_GAS_EMIS
       LOGICAL ::   WRFLG = .FALSE.
       INTEGER      LOGDEV
-      INTEGER      STATUS
-      INTEGER      V, N, S, ISRC        ! induction variables
+      INTEGER      STATUS, IOS
+      INTEGER      V, N, S, ISRC, ITRAC, IGR    
 
 C-----------------------------------------------------------------------
  
@@ -80,11 +80,6 @@ C Open All Tracer Emission Files
         IF ( EM_FILE_TYPE( ISRC ) .EQ. 'TRAC' ) THEN
            ITRAC = ITSRC( ISRC )
 
-           WRITE( VLAB,'( "TR_EMIS_LABEL",I2.2 )' ) ITRAC
-           EM_FILE_LAB( ISRC ) = ENVINT( VLAB,
-     &                     'Tracer Emission File Label',VLAB, IOS )
-
-           WRITE( EM_FILE_NAME( ISRC ),'( "TR_EMIS_",I2.2 )' ) ITRAC
            IF ( .NOT. OPEN3( EM_FILE_NAME( ISRC ), FSREAD3, PNAME ) ) THEN
               XMSG = 'Could not open tracer file'
               CALL M3MESG( XMSG )
@@ -112,7 +107,7 @@ C Open All Tracer Emission Files
                 IF ( V .NE. 0 ) THEN
                   IF ( UNITSCK .EQ. 'BLANK' ) UNITSCK = UNITS3D( V )
                   IF ( UNITS3D( V ) .NE. UNITSCK ) THEN
-                     XMSG = 'Units not uniform on ' // EMIS_TRAC_1
+                     XMSG = 'Units not uniform on ' // EM_FILE_LAB( ISRC )
                      CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
                   END IF
                 END IF
@@ -124,37 +119,32 @@ C Open All Tracer Emission Files
       END DO
 
 
-C Open the emissions file (for gas chem, aerosols and non-reactive species)
+C Open Gridded Emission Files (for gas chem, aerosols and non-reactive species)
       DO ISRC = 1,N_EM_SRC
         IF ( EM_FILE_TYPE( ISRC ) .EQ. 'GRID' ) THEN
-           IGR = IGSRC( ISRC )
+          IGR = IGSRC( ISRC )
  
-           WRITE( VLAB,'( "GR_EMIS_LABEL",I2.2 )' ) IGR
-           EM_FILE_LAB( ISRC ) = ENVINT( VLAB,
-     &                     'Gridded Emission File Label',VLAB, IOS )
-
-           WRITE( EM_FILE_NAME( ISRC ),'( "GR_EMIS_",I2.2 )' ) IGR
-           IF ( .NOT. OPEN3( EM_FILE_NAME( ISRC ), FSREAD3, PNAME ) ) THEN
+          IF ( .NOT. OPEN3( EM_FILE_NAME( ISRC ), FSREAD3, PNAME ) ) THEN
               XMSG = 'Could not open file ' // EM_FILE_NAME( ISRC )
               CALL M3MESG( XMSG )
-           ELSE
+          ELSE
  
-           IF ( .NOT. DESC3( EM_FILE_NAME( ISRC ) ) ) THEN
+            IF ( .NOT. DESC3( EM_FILE_NAME( ISRC ) ) ) THEN
               XMSG = 'Could not get '// EM_FILE_NAME( ISRC ) // ' file description'
               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-           END IF
+            END IF
 
-           ! Save Area Source Species Names For Use in Emissions Species
-           ! Check Routine
-           EM_FILE_SPEC( ISRC )%LEN = NVARS3D
-           ALLOCATE ( EM_FILE_SPEC( ISRC )%ARRY( NVARS3D ), STAT = STATUS )
-           EM_FILE_SPEC( ISRC )%ARRY = VNAME3D( 1:NVARS3D )
+            ! Save Area Source Species Names For Use in Emissions Species
+            ! Check Routine
+            EM_FILE_SPEC( ISRC )%LEN = NVARS3D
+            ALLOCATE ( EM_FILE_SPEC( ISRC )%ARRY( NVARS3D ), STAT = STATUS )
+            EM_FILE_SPEC( ISRC )%ARRY = VNAME3D( 1:NVARS3D )
+           
+            ! Assign Area Source Emission Species
+            EM_GRID_LAYS( ISRC ) = NLAYS3D
 
-           ! Assign Area Source Emission Species
-           EM_GRID_LAYS( ISRC ) = NLAYS3D
-
-           ! Check for Consistency in Gas-Phase Emission Units
-           DO N = 1, N_GC_EMIS
+            ! Check for Consistency in Gas-Phase Emission Units
+            DO N = 1, N_GC_EMIS
               V = INDEX1( GC_EMIS( N ), NVARS3D, VNAME3D )
               IF ( V .NE. 0 ) THEN
                  UNITSCK = UNITS3D( V )
@@ -173,11 +163,11 @@ C Open the emissions file (for gas chem, aerosols and non-reactive species)
                     CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
                  END IF
               END IF
-           END DO
+            END DO
 
-           ! Check For Consistency Among Aerosol Emission Units
-           UNITSCK = 'BLANK'
-           DO N = 1, N_AE_EMIS
+            ! Check For Consistency Among Aerosol Emission Units
+            UNITSCK = 'BLANK'
+            DO N = 1, N_AE_EMIS
               IF ( ANY( AEROMODE( : )%NUM_NAME .EQ. AE_EMIS( N ) ) .OR.
      &             ANY( AEROMODE( : )%SRF_NAME .EQ. AE_EMIS( N ) ) ) CYCLE
               V = INDEX1( AE_EMIS( N ), NVARS3D, VNAME3D )
@@ -189,10 +179,10 @@ C Open the emissions file (for gas chem, aerosols and non-reactive species)
                  END IF
                  PMEM_UNITS = UNITSCK
               END IF
-           END DO
+            END DO
  
-           ! Check For Consistency Among Non-Reactive Species
-           DO N = 1, N_NR_EMIS
+            ! Check For Consistency Among Non-Reactive Species
+            DO N = 1, N_NR_EMIS
               V = INDEX1( NR_EMIS( N ), NVARS3D, VNAME3D )
               IF ( V .NE. 0 ) THEN
                  UNITSCK = UNITS3D( V )
@@ -207,12 +197,13 @@ C Open the emissions file (for gas chem, aerosols and non-reactive species)
                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
                  END IF
               END IF
-           END DO
+            END DO
 
-           ! Assume units = mol/s across gas and non-reactive species classes
-           CONVEM = 1.0E-03  ! assuming gram-moles
+            ! Assume units = mol/s across gas and non-reactive species classes
+            CONVEM = 1.0E-03  ! assuming gram-moles
 
-         END IF  ! (gas, aerosol or non-react emissions)
+          END IF  ! (gas, aerosol or non-react emissions)
+        END IF    ! (gridded emission file)
       END DO
 
 C Print Alerts that Species Emissions Will Be Treated 

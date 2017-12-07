@@ -84,6 +84,7 @@ C-----------------------------------------------------------------------
       USE PA_DEFN               ! Process Anaylsis control and data variables
       USE PAGRD_DEFN            ! PA horiz domain specs
       USE UTILIO_DEFN           ! inherits PARUTILIO
+      USE EMIS_GLOBAL
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_UTIL_MODULE, SE_DATA_COPY_MODULE)
 #else
@@ -603,8 +604,8 @@ C..set cell widths
          DDY = 1.0 / DY
 
 C..check units on emissions file
-         IF ( .NOT. DESC3( EMIS_1 ) ) THEN
-              MSG = 'Could not get '// EMIS_1 // ' file description'
+         IF ( .NOT. DESC3( EM_FILE_NAME( 1 ) ) ) THEN
+              MSG = 'Could not get '// EM_FILE_NAME( 1 ) // ' file description'
             CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT2 )
          END IF
 
@@ -615,7 +616,7 @@ C..check units on emissions file
      &        UNITS3D( 1 ) .NE. 'MOLES/SEC' .AND.
      &        UNITS3D( 1 ) .NE. 'MOLE/SEC'  .AND.
      &        UNITS3D( 1 ) .NE. 'MOL/SEC' ) THEN
-            MSG = 'Units incorrect on ' // EMIS_1
+            MSG = 'Units incorrect on ' // EM_FILE_NAME( 1 )
             CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
          END IF
 
