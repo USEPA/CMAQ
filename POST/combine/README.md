@@ -37,7 +37,40 @@ All other records are read as variable definition records
  field 3: formular expression (maximum of 512 characters)
  ```
 
-Formular expressions supports operators ^+-\*/ and are evaluated from left to right using precedence order of ^\*/+-. Order of evaluation can be forced by use of parentheses. When part of an expression is enclosed in parentheses, that part is evaluated first.   Other supported functions include "LOG", "EXP", "SQRT", and "ABS". In addition, expresssions can be combined to create conditional statements of the form "expression_for_condition ? expresssion_if_true :  expression_if_false". 
+Formular expressions support operators ^+-\*/ and are evaluated based on mathematical order of operations, i.e., powers first, multiplication/division next and addition/subtraction last. Order of evaluation can be forced by use of parentheses. When part of an expression is enclosed in parentheses, that part is evaluated first.   Table 1. lists supported functions evalutated for each grid cell per each file time step. In addition, formular expressions can use conditional statements of the form "expression_for_condition ? expresssion_if_true :  expression_if_false". Conditional statements have the highest rank in the order of formular operations.
+
+Table 1. Grid Cell Functions per Output Time Step 
+
+| Name         |Result                     |    
+|:-------------|:-------------------------:|    
+| LOG(X[n])    |Natural Logarithm of X[n]   |    
+| LOG10(X[n])  |Logarithm Base 10 of X[n]  |    
+| EXP(X[n])    |Exponential of X[n]        |    
+| SIN(X[n])    |Sine of X[n]               |    
+| COS(X[n])    |Cosine of X[n]             |     
+| TAN(X[n])    |Tangent of X[n]            |     
+| ASIN(X[n])   |Arcsine of X[n]            |     
+| ACOS(X[n])   |Arccosine of X[n]          |     
+| ATAN(X[n])   |Acrtangent of X[n]         |    
+| ABS(X[n])    |Absolute Value of X[n]     |    
+| SINH(X[n])   |Hyperbolic Sine of X[n]    |    
+| COSH(X[n])   |Hyperbolic Cosine of X[n]  |    
+| TANH(X[n])   |Hyperbolic Tangent of X[n] |   
+| INT(X[n])    |Integer Truncation of X[n] |  
+| SQRT(X[n])   |Square Root of X[n]        | 
+ 
+ <sup> 0 </sup> Value of n equals an input file number or zero if X is a derived variable.
+
+Formular expresssions can also use functions (Table 2.) computed for a variable *common* to all input files so each input file *must* contain a variable named X at the timestep.
+
+Table 2. Functions over all Input Files per Output Time Step    
+
+| Name       |Result                             |    
+|:-----------|:---------------------------------:|    
+| FMAX[X]    |Maximum of X over files            |    
+| FMIN[X]    |Minumum of X over files            |     
+| FAVG[X]    |Average of X over files            |     
+| FSDEV[X]   |Standard Deviation of X over files |    
 
 Variables from input files are defined by their name followed by its file number enclosed in brackets. Once defined in a species definition file, variables can subsequently be referred to by their name and the number zero enclosed in brackets. Adding a + or - sign before the file number within the bracket instructs combine to use the variable value for the next or previous timestep instead of the current time step when evaluating the expression. This can be used to define variables that are computed as difference between the current and previous time step, for example to compute hourly precipitation as the difference in WRF cumulative precipitation values between successive timesteps.
 

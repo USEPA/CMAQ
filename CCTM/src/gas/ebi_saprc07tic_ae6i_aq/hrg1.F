@@ -30,11 +30,11 @@ C
 C  FUNCTION: To solve for the concentration of NO2, NO, O3, and O3P
 C            algebraically.
 C
-C  PRECONDITIONS: For the SAPRC07TIC family of mechanisms
+C  PRECONDITIONS: For the saprc07tic family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, May 25, 2016
+C  REVISION HISTORY: Created by EBI solver program, Sep 22, 2017
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C**********************************************************************
@@ -278,7 +278,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &   +                 RKI( 599 ) * YC( CLO          )   ! NO2+CLO=CLONO2
      &   +                 RKI( 751 ) * YC( NIT1NO3OOA   )   ! NO2+NIT1NO3OOA=MAPAN
      &   +                 RKI( 839 ) * YC( IMACO3       )   ! NO2+IMACO3=IMAPAN
-     &   +                 RKI( 885 )                        ! NO2=0.5000D+...
+     &   +                 RKI( 884 )                        ! NO2=0.5000D+...
       L2     = 1.0D0 + L2 * DTC
 
 
@@ -325,7 +325,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &   +                 RKI( 740 ) * YC( ISOPND       )   ! O3+ISOPND=...
      &   +                 RKI( 747 ) * YC( ISOPNB       )   ! O3+ISOPNB=...
      &   +                 RKI( 762 ) * YC( NIT1         )   ! O3+NIT1=0.3000D+...
-     &   +                 RKI( 893 )                        ! O3=
+     &   +                 RKI( 892 )                        ! O3=
       L3    = 1.0D0 + L3 * DTC
 
 

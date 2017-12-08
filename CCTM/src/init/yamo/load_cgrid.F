@@ -139,7 +139,9 @@ C for XTRACT3
                                                !check (N, dg, sg)
                                                !      (N, M2, M3) - Before
                                                !      (N, M2, M3) - After
- 
+      REAL          :: AECON( N_AE_SPC )
+      LOGICAL       :: NEW_START
+      CHARACTER( 16 ) :: CTM_NEW_START = 'NEW_START'
 
       CHARACTER( 16 ) :: PNAME = 'LOAD_CGRID'
       CHARACTER( 16 ) :: VNAME
@@ -495,17 +497,22 @@ C Load RHOJ for transport and mixing ratio advection adjustment
       IF ( SPC_CAT .EQ. 'AE' ) THEN
  
          ! Check Aerosol Size Distributions and Warn the User if They Are Not Robust
-         SPC_STRT = AE_STRT
-         SPC_FINI = AE_STRT + N_AE_SPC - 1
-         LSTAT    = .FALSE.
-         DO L = 1, NLAYS
-         DO R = 1, MY_NROWS
-         DO C = 1, MY_NCOLS
-            CALL CHECK_AERO_ICBC( CGRID( C,R,L,SPC_STRT:SPC_FINI ), .TRUE., STAT, AER_PAR, LMODE )
-            IF ( STAT .GT. 0 ) THEN
-               LSTAT = .TRUE.
+         NEW_START = ENVYN( CTM_NEW_START, 'Flag for Model Restart from Previous Day', 
+     &                      .FALSE., STAT )
+         IF ( NEW_START ) THEN
+           SPC_STRT = AE_STRT
+           SPC_FINI = AE_STRT + N_AE_SPC - 1
+           LSTAT    = .FALSE.
+           DO L = 1, NLAYS
+           DO R = 1, MY_NROWS
+           DO C = 1, MY_NCOLS
+              AECON( 1:N_AE_SPC ) = CGRID( C,R,L,SPC_STRT:SPC_FINI )
+              CALL CHECK_AERO_ICBC( AECON, .TRUE., STAT, AER_PAR, LMODE )
+              CGRID( C,R,L,SPC_STRT:SPC_FINI ) = AECON( 1:N_AE_SPC )
+              IF ( STAT .GT. 0 ) THEN
+                 LSTAT = .TRUE.
 #ifdef verbose_loadcgrid
-               WRITE ( 6, '(7x,A55,I1,/,7x,A20,I1,A42,/,9x,A51,/,9x,A24,I3,2x,I3,2x,I2,/,
+                 WRITE ( 6, '(7x,A55,I1,/,7x,A20,I1,A42,/,9x,A51,/,9x,A24,I3,2x,I3,2x,I2,/,
      &                 9x,A19,1x,A3,8x,A2,8x,A2,8x,A2,8x,A2,/,
      &                 27x,E8.1,1x,E8.1,1x,E8.1,1x,E8.1,4x,F4.1,/,
      &                 9x,A19,1x,A3,8x,A2,8x,A2,8x,A2,8x,A2,/,
@@ -517,18 +524,19 @@ C Load RHOJ for transport and mixing ratio advection adjustment
      &               'Modal Props Before:','Num','M2','M3','Dg','Sg',(AER_PAR(1,LMODE,j),j=1,5),
      &               'Modal Props After: ','Num','M2','M3','Dg','Sg',(AER_PAR(2,LMODE,j),j=1,5)
 #endif
-            ENDIF
-         END DO
-         END DO
-         END DO
+              ENDIF
+           END DO
+           END DO
+           END DO
 
-         !Print warning if any aerosol ICs violated the size distribution parameters
-         IF ( LSTAT ) THEN    
-             WRITE( XMSG2, '(A55,A57,A5)' ),
+           !Print warning if any aerosol ICs violated the size distribution parameters
+           IF ( LSTAT ) THEN    
+               WRITE( XMSG2, '(A55,A57,A5)' ),
      &            'Applying fix to aerosol Initial Conditions for aerosol',
      &            ' modes. Turn on verbose_loadcgrid preprocessor flag to learn ',
      &            'more.'
-             CALL M3WARN( 'Read ICs', JDATE, JTIME, XMSG2 )
+               CALL M3WARN( 'Read ICs', JDATE, JTIME, XMSG2 )
+           END IF
          END IF
 
 C are ASO4J IC`s available on the file?

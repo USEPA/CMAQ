@@ -80,18 +80,19 @@
     case intel:
     
         #> I/O API, netCDF, and MPI library locations
-        setenv IOAPI_MOD_DIR  ioapi_mod_intel  #> I/O API precompiled modules
-        setenv IOAPI_INCL_DIR iopai_inc_intel  #> I/O API include header files
-        setenv IOAPI_LIB_DIR  ioapi_lib_intel  #> I/O API libraries
-        setenv NETCDF_LIB_DIR netcdf_lib_intel #> netCDF directory path
-        setenv MPI_LIB_DIR    mpi_lib_intel    #> MPI directory path
+        setenv IOAPI_MOD_DIR   ioapi_mod_intel  #> I/O API precompiled modules
+        setenv IOAPI_INCL_DIR  iopai_inc_intel  #> I/O API include header files
+        setenv IOAPI_LIB_DIR   ioapi_lib_intel  #> I/O API libraries
+        setenv NETCDF_LIB_DIR  netcdf_lib_intel #> netCDF directory path
+        setenv NETCDF_INCL_DIR netcdf_inc_intel #> netCDF directory path
+        setenv MPI_LIB_DIR     mpi_lib_intel    #> MPI directory path
     
         #> Compiler Aliases and Flags
         setenv myFC mpiifort
         setenv myCC icc       
         setenv myFSTD "-O3 -fno-alias -mp1 -fp-model source"
         setenv myDBG  "-O0 -g -check bounds -check uninit -fpe0 -fno-alias -ftrapuv -traceback"
-        setenv myLINK_FLAG "-openmp"
+        setenv myLINK_FLAG #"-openmp"
         setenv myFFLAGS "-fixed -132"
         setenv myFRFLAGS "-free"
         setenv myCFLAGS "-O2"
@@ -107,17 +108,18 @@
     case pgi:
 
         #> I/O API, netCDF, and MPI library locations
-        setenv IOAPI_MOD_DIR  ioapi_mod_pgi  #> I/O API precompiled modules
-        setenv IOAPI_INCL_DIR iopai_inc_pgi  #> I/O API include header files
-        setenv IOAPI_LIB_DIR  ioapi_lib_pgi  #> I/O API libraries
-        setenv NETCDF_LIB_DIR netcdf_lib_pgi #> netCDF directory path
-        setenv MPI_LIB_DIR    mpi_lib_pgi    #> MPI directory path
+        setenv IOAPI_MOD_DIR   ioapi_mod_pgi  #> I/O API precompiled modules
+        setenv IOAPI_INCL_DIR  iopai_inc_pgi  #> I/O API include header files
+        setenv IOAPI_LIB_DIR   ioapi_lib_pgi  #> I/O API libraries
+        setenv NETCDF_LIB_DIR  netcdf_lib_pgi #> netCDF directory path
+        setenv NETCDF_INCL_DIR netcdf_inc_pgi #> netCDF directory path
+        setenv MPI_LIB_DIR     mpi_lib_pgi    #> MPI directory path
     
         #> Compiler Aliases and Flags
         setenv myFC mpif90 
         #setenv myFC mpifort 
         setenv myCC pgcc
-        setenv myLINK_FLAG "-openmp"
+        setenv myLINK_FLAG #"-openmp"
         setenv myFSTD "-O3"
         setenv myDBG  "-O0 -g -Mbounds -Mchkptr -traceback -Ktrap=fp"
         setenv myFFLAGS "-Mfixed -Mextend -mcmodel=medium -tp px"
@@ -134,11 +136,12 @@
     case gcc:
   
         #> I/O API, netCDF, and MPI library locations
-        setenv IOAPI_MOD_DIR  ioapi_mod_gcc  #> I/O API precompiled modules
-        setenv IOAPI_INCL_DIR iopai_inc_gcc  #> I/O API include header files
-        setenv IOAPI_LIB_DIR  ioapi_lib_gcc  #> I/O API libraries
-        setenv NETCDF_LIB_DIR netcdf_lib_gcc #> netCDF directory path
-        setenv MPI_LIB_DIR    mpi_lib_gcc    #> MPI directory path
+        setenv IOAPI_MOD_DIR   ioapi_mod_gcc  #> I/O API precompiled modules
+        setenv IOAPI_INCL_DIR  iopai_inc_gcc  #> I/O API include header files
+        setenv IOAPI_LIB_DIR   ioapi_lib_gcc  #> I/O API libraries
+        setenv NETCDF_LIB_DIR  netcdf_lib_gcc #> netCDF directory path
+        setenv NETCDF_INCL_DIR netcdf_inc_gcc #> netCDF directory path
+        setenv MPI_LIB_DIR     mpi_lib_gcc    #> MPI directory path
     
         #> Compiler Aliases and Flags
         setenv myFC mpif90
@@ -150,7 +153,7 @@
         setenv myFFLAGS "-ffixed-form -ffixed-line-length-132 -funroll-loops -finit-character=32"
         setenv myFRFLAGS "-ffree-form -ffree-line-length-none -funroll-loops -finit-character=32"
         setenv myCFLAGS "-O2"
-        setenv myLINK_FLAG "-openmp"
+        setenv myLINK_FLAG #"-openmp"
         setenv extra_lib ""
         #setenv mpi_lib "-lmpi_mpifh"   #> -lmpich for mvapich or -lmpi for openmpi
         setenv mpi_lib ""   #> -lmpich for mvapich or -lmpi for openmpi
@@ -168,8 +171,9 @@
  #source /work/MOD3DEV/cmaq_common/cmaq_env.csh  #>>> Comment out if not at EPA
 
 #> Add The Complier Version Number to the Compiler String if it's not empty
+ setenv compilerString ${compiler}
  if ( $compilerVrsn != "Empty" ) then
-    setenv compiler ${compiler}${compilerVrsn}
+    setenv compilerString ${compiler}${compilerVrsn}
  endif
 
 #===============================================================================
@@ -185,16 +189,19 @@
  setenv lib_basedir $CMAQ_HOME/lib
 
 #> Generate Library Locations
- setenv CMAQ_LIB    ${lib_basedir}/${system}/${compiler}
- setenv MPI_DIR    $CMAQ_LIB/mpi
+ setenv CMAQ_LIB    ${lib_basedir}/${system}/${compilerString}
+ setenv MPI_DIR     $CMAQ_LIB/mpi
  setenv NETCDF_DIR  $CMAQ_LIB/netcdf
  setenv PNETCDF_DIR $CMAQ_LIB/pnetcdf
  setenv IOAPI_DIR   $CMAQ_LIB/ioapi
 
+#> Create Symbolic Links to Libraries
  if ( ! -d $CMAQ_LIB ) mkdir -p $CMAQ_LIB
- if ( ! -d $CMAQ_LIB/mpi) ln -s $MPI_LIB_DIR $CMAQ_LIB/mpi
+ if (   -e $MPI_DIR  ) rm -rf $MPI_DIR
+     ln -s $MPI_LIB_DIR $MPI_DIR
  if ( ! -d $NETCDF_DIR )  mkdir $NETCDF_DIR
-    ln -s $NETCDF_LIB_DIR $NETCDF_DIR/lib
+ if ( ! -e $NETCDF_DIR/lib ) ln -s $NETCDF_LIB_DIR $NETCDF_DIR/lib
+ if ( ! -e $NETCDF_DIR/include ) ln -s $NETCDF_INCL_DIR $NETCDF_DIR/include
  if ( ! -d $IOAPI_DIR ) then 
     mkdir $IOAPI_DIR
     ln -s $IOAPI_MOD_DIR  $IOAPI_DIR/modules
@@ -217,4 +224,4 @@
  endif
 
 #> Set executable id
- setenv EXEC_ID ${bld_os}_${system}${compiler}
+ setenv EXEC_ID ${bld_os}_${system}${compilerString}
