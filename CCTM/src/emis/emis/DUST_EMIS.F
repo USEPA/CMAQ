@@ -17,10 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/work/rep/arc/CCTM/src/emis/emis/DUST_EMIS.F,v 1.6 2011/10/21 16:10:45 yoj Exp $
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       module dust_emis
      
@@ -227,9 +223,10 @@ C Local variables:
 
          logical :: erode_agland = .true. ! default
          integer status
-         integer c, r, i, j, k, l, n
-         integer idiag, idust, spc, im
+         integer c, r, i, j, k, l, n, im
+         integer idiag, idust, spc
          integer n_mass_emissions
+         character( 16 ) :: sn
 
          integer  gxoff, gyoff                 ! global origin offset from file
          integer, save :: strtcol, endcol, strtrow, endrow
@@ -264,10 +261,11 @@ C...Determine maps for dust speciation
          Do idust = 1, ndust_spc ! loop through dust list
             ! Map to aerosol chemical species table 
             ! This is just for retrieving the aerosol density later
-            Do spc = 1, n_aerolist 
+            Do spc = 1, n_aerospc 
                Do im = 1,n_mode
                   sn = trim( dust_spc( idust )%name ) // modesuff( im ) 
-                  If ( sn .Eq. aerolist( spc )%name( im ) )
+                  If ( sn .Eq. aerospc( spc )%name( im ) .or.
+     &                 dust_spc_list( idust )%name .Eq. aerospc( spc )%name( 3 ) )
      &                 map_DUSTtoAERO( idust ) = spc
                End Do
             End Do
@@ -292,15 +290,14 @@ C   can be printed in EMIS_MAP
          end do
 
 C...Count the number of mass emissions species
-         n_mass_emissions = 0
-         do i = 1, ndust_spc
-            do j = 1, n_mode
-               if( dust_spc( i )%spcfac( j )  .gt. 0. ) 
+        n_mass_emissions = 0
+        do i = 1, ndust_spc
+           do j = 1, n_mode
+              if( dust_spc( i )%spcfac( j )  .gt. 0. ) 
      &               n_mass_emissions = n_mass_emissions + 1  
-            end do
-         end do                     
-
-         allocate ( dustoutm( ndust_spc,n_mode,ncols,nrows ),
+           end do
+        end do                     
+        allocate ( dustoutm( ndust_spc,n_mode,ncols,nrows ),
      &              dustoutn( n_mode,ncols,nrows ),
      &              dustouts( n_mode,ncols,nrows ), stat = status )
          if ( status .ne. 0 ) then
@@ -496,21 +493,21 @@ C Build the complete diagnostic name array                     n for MODIS NOAH
 C...append diagnostic variables with mass emissions species
             do j = 2, n_mode
                do i = 1, ndust_spc
-                  if( dust_spc( i )%spcfac( j ) .eq. 0. ) cycle 
-                  n = 0
-                  do k = 1, idiag   ! determine if dust emissions is already added to diagnostic output
-                     if( trim( dust_spc( i )%name) // modesuff( j ) .Eq. diagnm( k )%var )Then
+                  if( dust_spc( i )%spcfac( j ) .eq. 0. .or.
+     &                map_DUSTtoAERO( i ) .eq. 0 ) cycle 
+                    n = 0
+                    do k = 1, idiag   ! determine if dust emissions is already added to diagnostic output
+                       if( trim( dust_spc( i )%name) // modesuff( j ) .Eq. diagnm( k )%var )Then
                          n = k
                          exit
                      end if
                   end do
-                  if( n .gt. 0  )then ! skip already added 
-                      cycle
-                  else 
-                      idiag = idiag + 1
-                      diagnm( idiag )%var = trim( dust_spc( i )%name ) // modesuff( j )
-                  end if
+                  if( n .gt. 0  ) cycle ! skip already added 
+                  
+                  idiag = idiag + 1
+                  diagnm( idiag )%var = trim( dust_spc( i )%name )//modesuff( j )
                   diagnm( idiag )%units = 'g/m**3/s'
+
                   Select Case( j ) ! assumes only two aerosol modes dust emissions
 !                    Case( 1 )
 !                       diagnm( idiag )%desc = 'aitken mode' 
@@ -520,8 +517,8 @@ C...append diagnostic variables with mass emissions species
                         diagnm( idiag )%desc = 'coarse mode' 
 !                    Case Default 
 !                       diagnm( idiag )%des = 'Undefined mode ' 
-                    end Select
-                    diagnm( idiag )%desc = Trim( diagnm( idiag )%desc )
+                  end Select
+                  diagnm( idiag )%desc = Trim( diagnm( idiag )%desc )
      &                                   // ' emissions for '  
      &                                   // Trim( dust_spc( i )%description )
                end do

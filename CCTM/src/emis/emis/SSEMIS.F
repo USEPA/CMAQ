@@ -313,8 +313,7 @@ C Map aerospc data
             CALL MAP_AERO()
              
             ! Map The Sea-Salt Species to the AeroSpc Array
-            NSSSPC = NSEA_SPC 
-            ALLOCATE( MAP_SEAtoAERO( NSSSPC ) )
+            ALLOCATE( MAP_SEAtoAERO( NSEA_SPC ) )
             MAP_SEAtoAERO = 0
             ALLOCATE( MAP_AEtoSEA  ( N_AE_EMIS ) )
             MAP_AEtoSEA = 0
@@ -326,7 +325,10 @@ C Map aerospc data
                DO SPC = 1,N_AEROSPC
                   DO IM = 2,N_MODE
                      SN = TRIM( SEA_SPC( ISEA )%NAME ) // MODESUFF( IM )
-                     IF ( SN .Eq. AEROLIST( SPC )%NAME( 2 ) ) MAP_SEAtoAERO( ISEA ) = SPC
+                     IF ( SN .Eq. AEROSPC( SPC )%NAME( 2 ) .OR.
+     &                    SN .Eq. AEROSPC( SPC )%NAME( 3 ) .OR. 
+     &                    SEA_SPC( ISEA )%NAME .Eq. AEROSPC( SPC )%NAME( 3 ) )
+     &                     MAP_SEAtoAERO( ISEA ) = SPC
                   End Do
                End Do
 
@@ -341,7 +343,7 @@ C Map aerospc data
             End Do
  
             ! Specify H2O in mapping
-            KH2O = NSSSPC
+            KH2O = NSEA_SPC
 
 C Populate Master Emissions Map Vector So That Diagnostics 
 C can be printed in EMIS_MAP
@@ -351,7 +353,7 @@ C can be printed in EMIS_MAP
                Em_File_Spec( iseasrc )%arry( i ) = sea_spc(i)%name
             end do
  
-
+ 
 C Allocate SS arrays using NSSSPC value
             ALLOCATE ( SSOUTM( NSSSPC,N_MODE,NCOLS,NROWS ),
      &                 SSOUTN( N_MODE,NCOLS,NROWS ),
