@@ -41,6 +41,7 @@ C-----------------------------------------------------------------------
 
       USE HGRD_DEFN
       USE AERO_DATA, ONLY: N_MODE
+      USE CGRID_SPCS,ONLY: N_AE_EMIS, AE_EMIS_MAP, AE_SPC
 
       IMPLICIT NONE
 
@@ -298,8 +299,9 @@ C Local Variables:
             CHARACTER( 80 ) :: VARDESC
             CHARACTER( 250 ) :: XMSG = ' '
             INTEGER STATUS
-            INTEGER S, N, L, ISEA, SPC
+            INTEGER S, N, L, ISEA, SPC, IM
             LOGICAL SEA_MATCH
+            CHARACTER( 16 ) :: SN
 
 C-----------------------------------------------------------------------
 
@@ -310,43 +312,39 @@ C Map aerospc data
             CALL MAP_AERO()
              
             ! Map The Sea-Salt Species to the AeroSpc Array
-            ALLOCATE( MAP_SEAtoAERO( NSEA_SPC+1 ) )
-
+            ALLOCATE( MAP_SEAtoAERO( NSEA_SPC + 1 ) )
             MAP_SEAtoAERO = 0
-            NSSSPC = 0
-
+ 
             DO ISEA = 1, NSEA_SPC
-               SEA_MATCH = .FALSE.
+               ! Map to aerosol chemical species table 
+               ! This is just for retrieving the aerosol density later
                DO SPC = 1,N_AEROSPC
-                  IF ( SEA_SPC_LIST( ISEA )%NAME .Eq. AERO_BULKNAME( SPC ) ) Then
-                     NSSSPC = NSSSPC + 1
-                     MAP_SEAtoAERO( NSSSPC ) = SPC
-                     SEA_MATCH = .TRUE.
-                  End If
+                  DO IM = 2,N_MODE
+                     SN = TRIM( SEA_SPC_LIST( ISEA )%NAME ) // MODESUFF( IM )
+                     IF ( SN .Eq. AEROSPC( SPC )%NAME( 2 ) .OR.
+     &                    SN .Eq. AEROSPC( SPC )%NAME( 3 ) .OR. 
+     &                    SEA_SPC_LIST( ISEA )%NAME .Eq. AEROSPC( SPC )%NAME( 3 ) )
+     &                     MAP_SEAtoAERO( ISEA ) = SPC
+                  End Do
                End Do
-
-               If ( .NOT. SEA_MATCH ) Then
-                 WRITE( XMSG, '(A,A,A,A,A)' ), 
-     &               'Cannot find aerosol species to accomodate sea spray emission species: ', 
-     &               Trim(SEA_SPC_LIST( ISEA )%NAME), '. You should ',
-     &               'provide a prognostic variable for this species in both the AE ',
-     &               'namelist and the AERO_DATA table in order to proceed.'
-                 CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-                 !SUCCESS = .FALSE.
-               End If
 
             End Do
  
 C Include H2O to mapping
-            NSSSPC = NSSSPC + 1      
+            MAP_SEAtoAERO( NSEA_SPC + 1 ) = AH2O_IDX
+            NSSSPC = COUNT( MAP_SEAtoAERO .GT. 0 )
             KH2O = NSSSPC
-            MAP_SEAtoAERO( NSSSPC ) = AH2O_IDX
 
-C...Build dust_spc type from selected list elements
+C Build sea_spc type from selected list elements
             ALLOCATE( SEA_SPC( NSSSPC ) )
-            SEA_SPC = PACK( SEA_SPC_LIST, MAP_SEAtoAERO .GT. 0 )
+            SEA_SPC(1:NSEA_SPC ) = PACK( SEA_SPC_LIST, MAP_SEAtoAERO .GT. 0 )
+            SEA_SPC( NSSSPC )%DESCRIPTION = "Water"
             SEA_SPC( NSSSPC )%NAME = "AH2O"
             SEA_SPC( NSSSPC )%SPCFAC( : ) = 0.0
+
+            ! Reduce the size of SEAtoAERO map so that it's just species
+            ! that are present
+            MAP_SEAtoAERO = PACK( MAP_SEAtoAERO, MAP_SEAtoAERO .GT. 0 )
 
 C Allocate SS arrays using NSSSPC value
             ALLOCATE ( SSOUTM( NSSSPC,N_MODE,NCOLS,NROWS ),
@@ -403,7 +401,7 @@ C Build diagnostic file write buffer (WRSS_SPC) array
                   DO S = 1, NSSSPC
                      IF ( SEA_SPC( S )%SPCFAC( N ) .GT. 0.0 ) THEN
                         NSSDIAG = NSSDIAG + 1
-                        WRSS_SPC( NSSDIAG ) = AEROSPC( MAP_SEAtoAERO( S ) )%NAME( N )
+                        WRSS_SPC( NSSDIAG ) = TRIM( SEA_SPC( S )%NAME ) // '_' // MODESUFF( N )
                      END IF
                   END DO
 C Include H2O

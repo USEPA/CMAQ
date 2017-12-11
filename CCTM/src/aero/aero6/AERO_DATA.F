@@ -118,6 +118,7 @@ C Number of aerosol species and modes
                                                 ! 1 = Aitken
                                                 ! 2 = accumulation
                                                 ! 3 = coarse
+      Character(1), Parameter :: modesuff( n_mode ) = (/ 'I','J','K' /)
 
       Integer, Save :: n_aerospc ! number of aero species
 
