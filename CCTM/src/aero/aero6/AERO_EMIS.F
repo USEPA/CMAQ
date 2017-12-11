@@ -95,7 +95,6 @@ C Variables for the thickness and volume of each grid cell
       REAL,    ALLOCATABLE, SAVE :: CELLVOL( : ) ! grid-cell volume [m2*sigma]
  
 C Emission rate of all aerosol species interpolated to current time
-      REAL,    ALLOCATABLE, SAVE :: EM_PART ( :,: )     !
       INTEGER, ALLOCATABLE, SAVE :: MAP_AEROtoEM( :,: )   !
       INTEGER, ALLOCATABLE, SAVE :: MAP_EMtoAERO( : )   !
       INTEGER, ALLOCATABLE, SAVE :: MAP_EMtoMODE( : )   !
@@ -104,7 +103,6 @@ C Emission rate of all aerosol species interpolated to current time
       INTEGER, ALLOCATABLE, SAVE :: MAP_EMtoNUM ( : )  
       INTEGER, ALLOCATABLE, SAVE :: MAP_EMtoSRF ( : )   !
 
-C EM_PART    particulate mass emission rate in one grid cell
 C DUST_MAP   windblown dust emission rate index in DUSTOUTM
 
 C Factor for converting aerosol emissions from input units ...
@@ -268,7 +266,7 @@ C *** set up for dust emission processing
          END IF
 
          IF ( N_AE_EMIS .GT. 0 ) THEN   ! all EMLAYS
-            ALLOCATE ( VDEMIS_AE( N_AE_EMIS,EMLAYS,MY_NCOLS,MY_NROWS ),
+            ALLOCATE ( VDEMIS_AE( N_EMIS_SPC,EMLAYS,MY_NCOLS,MY_NROWS ),
      &                 STAT = STATUS )
             IF ( STATUS .NE. 0 ) THEN
                XMSG = 'VDEMIS_AE memory allocation failed'
@@ -300,13 +298,12 @@ C *** Allocate memory for EMBUFF, CELLHGT, CELLVOL, and CONVEM_PM
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
          
-         ALLOCATE ( EM_PART ( N_AEROSPC, N_MODE ),
-     &              MAP_AEROtoEM( N_AEROSPC, N_MODE ),
+         ALLOCATE ( MAP_AEROtoEM( N_AEROSPC, N_MODE ),
      &              MAP_NUMtoEM ( N_MODE ),
      &              MAP_SRFtoEM ( N_MODE ), STAT = STATUS )
          IF ( STATUS .NE. 0 ) THEN
             XMSG = '*** memory allocation failed for '
-     &           // 'EM_PART, NUM_MAP, NUM_FAC, SRF_MAP, SRF_FAC'
+     &           // 'NUM_MAP, NUM_FAC, SRF_MAP, SRF_FAC'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
@@ -486,7 +483,7 @@ C     Pass emission rates back to aerosol emission master array.
                   IM    = MAP_EMtoMODE( ISPC )
                   IAERO = MAP_DUSTtoAERO( IDUST )
                   VDEMIS_AE( ISPC,1,:,: ) = VDEMIS_AE( ISPC,1,:,: ) 
-     &                       + DUSTOUTM( ISEA,IM,:,: ) * EM_FAC( ISPC,IDUSTSRC ) 
+     &                       + DUSTOUTM( IDUST,IM,:,: ) * EM_FAC( ISPC,IDUSTSRC ) 
      &                          * MGPG / AEROSPC_MW( IAERO )
                END IF
             END DO
@@ -596,7 +593,7 @@ C *** Apply Aerosol Size Distribution
              END IF
 
              ! Convert Mass Emission Rates from [ug/m3/s] to [umol/m3/s]
-             VDEMIS_AE( IDX,:,:,: ) = VDEMIS_AE( IDX,:,:,: ) / AEROSPC_MW( IAERO )
+             VDEMIS_AE( ISPC,:,:,: ) = VDEMIS_AE( ISPC,:,:,: ) / AEROSPC_MW( IAERO )
          END DO          
 
 C *** Calculate the number emissions rate for each mode [1/m3/s], using 

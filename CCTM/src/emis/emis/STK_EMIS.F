@@ -149,8 +149,8 @@ C-----------------------------------------------------------------------
             CALL CHECKMEM( ASTAT, 'STKEMIS', PNAME )
             STKEMIS( N )%ARRY = 0.0   ! array
 
-            EM_FILE_SPEC( IPSRC(N) )%LEN = LEN2
-            ALLOCATE ( EM_FILE_SPEC( IPSRC(N) )%ARRY( LEN2 ), STAT = ASTAT )
+            EM_FILE_SPEC( MAP_PTtoISRC(N) )%LEN = LEN2
+            ALLOCATE ( EM_FILE_SPEC( MAP_PTtoISRC(N) )%ARRY( LEN2 ), STAT = ASTAT )
             CALL CHECKMEM( ASTAT, 'EM_FILE_SPEC', PNAME )
 
             IF ( FIREFLAG( N ) ) THEN   ! subtract and save off 'HFLUX'
@@ -160,13 +160,13 @@ C-----------------------------------------------------------------------
                DO J = 1, NVARS3D
                   IF ( VNAME3D( J ) .NE. 'HFLUX' ) THEN
                      I = I + 1
-                     EM_FILE_SPEC( IPSRC(N) )%ARRY( I ) = VNAME3D( J )
+                     EM_FILE_SPEC( MAP_PTtoISRC(N) )%ARRY( I ) = VNAME3D( J )
                   END IF
                END DO
                FIREVAR( N )%LEN = LEN1
             ELSE
-               DO J = 1, EM_FILE_SPEC( IPSRC(N) )%LEN
-                  EM_FILE_SPEC( IPSRC(N) )%ARRY( J ) = VNAME3D( J )
+               DO J = 1, EM_FILE_SPEC( MAP_PTtoISRC(N) )%LEN
+                  EM_FILE_SPEC( MAP_PTtoISRC(N) )%ARRY( J ) = VNAME3D( J )
                END DO
             END IF
 

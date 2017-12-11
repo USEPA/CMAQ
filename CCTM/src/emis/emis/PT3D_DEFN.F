@@ -195,7 +195,7 @@ C Local Variables:
 
          INTEGER          LOGDEV
 
-         INTEGER I, J, K, L, M, N, S, SRC, V, ISRC  ! counters and indices
+         INTEGER I, J, K, L, M, N, P, S, SRC, V, ISRC  ! counters and indices
 
          INTEGER :: GXOFF, GYOFF
          INTEGER :: STRTCOLMC, ENDCOLMC, STRTROWMC, ENDROWMC
@@ -479,9 +479,9 @@ C Initialize stack emissions data
          STKENAME = ' '   ! array
 
          ! Retrive Point Source Filenames from Emissions Filename Vector
-         DO ISRC = 1, N_EM_SRC
-            N = IPSRC( ISRC )
-            STKENAME( N ) = EM_FILE_NAME( N )
+         DO N = 1, NPTGRPS
+            ISRC = MAP_PTtoISRC( N )
+            STKENAME( N ) = EM_FILE_NAME( ISRC )
          END DO
 
          ! Initialize Point Source Emissions

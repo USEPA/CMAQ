@@ -190,6 +190,7 @@
 
 !C Populate Emissions Species Record
          EM_FILE_SPEC( ILTSRC )%LEN = 1
+         ALLOCATE( EM_FILE_SPEC( ILTSRC )%ARRY( 1 ) )
          EM_FILE_SPEC( ILTSRC )%ARRY( 1 ) = "NO"
 
 !C Read in scenario time/date

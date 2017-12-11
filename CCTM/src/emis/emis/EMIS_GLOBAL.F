@@ -55,7 +55,7 @@ C-----------------------------------------------------------------------
       REAL(8), ALLOCATABLE, SAVE :: EM_FAC ( :,: ) ! Emissions Scale Factors ( species, source )
 
       INTEGER, SAVE :: IBIOSRC, IMGSRC, ILTSRC, ISEASRC, IDUSTSRC
-      INTEGER, ALLOCATABLE, SAVE :: IGSRC( : ), IPSRC( : ), ITSRC( : )
+      INTEGER, ALLOCATABLE, SAVE :: IGSRC( : ), IPSRC( : ), ITSRC( : ), MAP_PTtoISRC( : )
 
       INTEGER, ALLOCATABLE, SAVE :: MAP_AEtoSEA( : ), MAP_AEtoDUST( : )
       INTEGER, ALLOCATABLE, SAVE :: MAP_EMtoSEA( : ), MAP_EMtoDUST( : )

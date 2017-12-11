@@ -397,7 +397,7 @@ C                                                    Aitken  accum   coarse
 
       INTEGER, ALLOCATABLE, SAVE :: MAP_DUSTtoAERO( : ) 
 
-C Sea-Salt Speciation factors based on seawater composition:
+C Sea-Spray Aerosol Speciation factors based on seawater composition:
 ! For toxic metal species, Use Table 1 in K.W. Bruland and M.C. Lohan, 6.02 - Controls of Trace Metals in Seawater, 
 ! In Treatise on Geochemistry, edited by Heinrich D. Holland and Karl K. Turekian, Pergamon, Oxford, 2003, Pages 23-47,
 ! ISBN 9780080437514, http://dx.doi.org/10.1016/B0-08-043751-6/06105-3.
@@ -423,7 +423,9 @@ C                                                     Aitken  accum   coarse
      &   emis_table( 'Lead          ', 'APB     ', (/ 0.0, 6.0E-11, 6.0E-11/) ),   ! accumaltion and coarse mode Lead
      &   emis_table( 'Cadmium       ', 'ACD     ', (/ 0.0, 1.93E-9, 1.93E-9/) ),   ! accumaltion and coarse mode cadmium
      &   emis_table( 'Air Toxics Mn ', 'AMN_HAPS', (/ 0.0, 4.7E-11, 4.7E-11/) ),   ! accumaltion and coarse mode Air toxics Manganese
-     &   emis_table( 'Water         ', 'AH2O    ', (/ 0.0, 0.0    , 0.0    /) ) /) ! accumaltion and coarse mode Air toxics Manganese
+     &   emis_table( 'Water         ', 'AH2O    ', (/ 0.0, 0.0    , 0.0    /) ) /) ! Water (uptake is calculated online)
+      ! MAKE SURE WATER IS THE LAST COMPONENT IN THE TABLE ABOVE OR YOU
+      ! WILL ENCOUNTER ISSUES WITH THE SEA SPRAY EMISSIONS MODULE.
 
       ! Manually Enter the mode-dependent density of the Sea Spray Particles using the mass fractions in 
       ! the sea_spc table and user-defined densities for each component. You may reference the aerolist 

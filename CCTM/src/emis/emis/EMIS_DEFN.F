@@ -144,25 +144,13 @@ C-----------------------------------------------------------------------
 C Retrieve Number of Emission Files of Various Types (sectors)
          CALL EM_FILE_INIT( JDATE, JTIME )
 
-C Initialize Online Biogenic Emissions
-         IF ( .NOT. BEIS_INIT( JDATE, JTIME, TSTEP ) ) THEN
-            XMSG = 'Failure initializing biogenics emissions module'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
-C Initialize Online Marine Gas Emissions
-         IF ( .NOT. MGEMIS_INIT( JDATE, JTIME, TSTEP ) ) THEN
-            XMSG = 'Failure initializing marine gas emissions module'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
 C Open Area Emissions files
          CALL OPEMIS ( JDATE, JTIME, EM_TRAC, CONVEM )
          CNVTE = CMLMR * CONVEM * MWAIR / ( DX1 * DX2 ) !Conv. Factor for Gases
 
 C Get number of emissions layers
          VARDESC = 'Number of emission layers'
-         EMLAYS = ENVINT( CTM_EMLAYS, VARDESC, EMLAYS, STATUS )
+         EMLAYS = ENVINT( CTM_EMLAYS, VARDESC, NLAYS, STATUS )
          IF ( STATUS .NE. 0 ) THEN
             WRITE( LOGDEV, '(5X, A)' ) VARDESC
             IF ( STATUS .EQ. 1 ) THEN
@@ -189,15 +177,27 @@ C Get number of emissions layers
 1009     FORMAT( / 10X, 'Number of Emissions Layers:         ', I3
      &           / 10X, 'out of total Number of Model Layers:', I3 )
 
-C Initialize Online Lightning NOx Emissions
-         IF ( .NOT. LTNG_INIT( JDATE, JTIME, TSTEP ) ) THEN
-            XMSG = 'Failure initializing lightning emissions module'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
 C Initialize 3D Point Source Emissions 
          IF ( .NOT. PT3D_INIT( JDATE, JTIME, TSTEP ) ) THEN
             XMSG = 'Failure initializing plume rise emissions module'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+
+C Initialize Online Biogenic Emissions
+         IF ( .NOT. BEIS_INIT( JDATE, JTIME, TSTEP ) ) THEN
+            XMSG = 'Failure initializing biogenics emissions module'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+
+C Initialize Online Marine Gas Emissions
+         IF ( .NOT. MGEMIS_INIT( JDATE, JTIME, TSTEP ) ) THEN
+            XMSG = 'Failure initializing marine gas emissions module'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+ 
+C Initialize Online Lightning NOx Emissions
+         IF ( .NOT. LTNG_INIT( JDATE, JTIME, TSTEP ) ) THEN
+            XMSG = 'Failure initializing lightning emissions module'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
@@ -565,7 +565,8 @@ C-----------------------------------------------------------------------
      &                         MSPCS     ! Number of Emitted Species
          USE MGEMIS,    only : MGEM,     ! Flag for Marine Gas Emissions
      &                         MG_SPC,   ! Emitted Marine Gas CMAQ-Species
-     &                         MGSPC_MAP ! Emitted Marine Gas CMAQ-Species
+     &                         MGSPC_MAP,! Emitted Marine Gas CMAQ-Species
+     &                         NMGSPC
          USE LTNG_DEFN, only : LTNG_NO,  ! Flag for Lightning Emissions
      &                         LTSPC     ! Lightning Emitted Species (i.e. 'NO')
          USE PT3D_DEFN, only : PT3DEMIS, ! Flag for Point Source Emissions
@@ -589,7 +590,7 @@ C-----------------------------------------------------------------------
          INTEGER, INTENT(IN)  :: JDATE, JTIME
 
          INTEGER    :: NTRSPC, NARSPC, NBIOSPC, 
-     &                 NPTSPC, NMGSPC, NLTSPC, NDSTSPC
+     &                 NPTSPC, NLTSPC, NDSTSPC
          INTEGER    :: NEMIS_SPC, NEMIS_SPC_UNIQUE, N_UNUSED, N_EMBUFF
 
          CHARACTER( 16 ), ALLOCATABLE  :: EMIS_SPCS( : ), EMIS_SPC_UNIQUE( : )
@@ -851,13 +852,18 @@ C Populate Useful Masks
 
          ALLOCATE( L_EMIS_SPC( NEMIS_SPC_UNIQUE ) )
          L_EMIS_SPC = .FALSE.
+         ALLOCATE( BEIS_MAP( MSPCS ) )
+         BEIS_MAP = 0
+         ALLOCATE( MGSPC_MAP( MSPCS ) )
+         MGSPC_MAP = 0
+
 
          ! Populate the Emissions Surrogate Species 
          DO ISRC = 1,N_EM_SRC
            LERROR = .TRUE.
            DO ISPC = 1,N_EMIS_SPC
-             ! Test if Surrogate Matches the Species Names on the
-             ! Emission File
+             ! Test if Surrogate Matches any of the Species Names on
+             ! the Emission File
              IDX = INDEX1( EM_SURR_BUFF( ISPC ), 
      &                     EM_FILE_SPEC( ISRC )%LEN, 
      &                     EM_FILE_SPEC( ISRC )%ARRY )
@@ -1142,7 +1148,6 @@ C Marine gas emissions; use in-line marine gas option only if CB05EH51 is used
             MGEM = .TRUE.
          ELSE
             MGEM = .FALSE.
-            RETURN
          END IF
          IF ( MGEM ) N_EM_SRC = N_EM_SRC + 1
 
@@ -1167,6 +1172,7 @@ C Allocate Emission File Structure Variables
          Allocate( IGSRC( N_EM_SRC ) )
          Allocate( IPSRC( N_EM_SRC ) )
          Allocate( ITSRC( N_EM_SRC ) )
+         Allocate( MAP_PTtoISRC( NPTGRPS ) )
          Allocate( EM_FILE_SPEC( N_EM_SRC ) )
          Allocate( EM_GRID_LAYS( N_EM_SRC ) )
  
@@ -1188,19 +1194,15 @@ C stkemis_init.
      &                   EM_FILE_LAB( ISRC ), IOS )
 
             WRITE( EM_FILE_NAME( ISRC ),'( "GR_EMIS_",I2.2 )' ) N
-            IF ( .NOT.( OPEN3( EM_FILE_NAME( ISRC ), FSREAD3, PNAME ) ) ) THEN
-               XMSG = 'Could not open '// TRIM( EM_FILE_NAME( ISRC ) ) // ' file'
-               CALL M3MESG( XMSG )
-               SUCCESS = .FALSE.; RETURN
-            END IF
          END DO
          
          ! In-Line Point Source Files
          IF ( NPTGRPS .GT. 0 ) THEN 
-            EM_FILE_TYPE( N+1:N+NPTGRPS ) = 'POINT'
+            EM_FILE_TYPE( ISRC+1:ISRC+NPTGRPS ) = 'POINT'
             DO N = 1, NPTGRPS
                ISRC = ISRC + 1
                IPSRC( ISRC ) = N
+               MAP_PTtoISRC( N ) = ISRC
                WRITE( EM_FILE_DESC( ISRC ), '(A,I2)' ),
      &         'Point Emissions File ', IPSRC( ISRC )
               
@@ -1209,18 +1211,13 @@ C stkemis_init.
      &                      EM_FILE_LAB( ISRC ), IOS )
  
                WRITE( EM_FILE_NAME( ISRC ),'( "STK_EMIS_",I2.2 )' ) N
-               IF ( .NOT.( OPEN3( EM_FILE_NAME( ISRC ), FSREAD3, PNAME ) ) ) THEN
-                  XMSG = 'Could not open '// TRIM( EM_FILE_NAME( ISRC ) ) // ' file'
-                  CALL M3MESG( XMSG )
-                  SUCCESS = .FALSE.; RETURN
-               END IF
             END DO
          END IF
          
          ! Tracer Emissions
          IF ( N_EMIS_TR .GT. 0 ) THEN 
             EM_TRAC = .TRUE.
-            EM_FILE_TYPE( N+1:N+N_EMIS_TR ) = 'TRAC'
+            EM_FILE_TYPE( ISRC+1:ISRC+N_EMIS_TR ) = 'TRAC'
             DO N = 1, N_EMIS_TR
                ISRC = ISRC + 1
                ITSRC( ISRC ) = N
@@ -1232,11 +1229,6 @@ C stkemis_init.
      &                      EM_FILE_LAB( ISRC ), IOS )
 
                WRITE( EM_FILE_NAME( ISRC ),'( "TR_EMIS_",I2.2 )' ) N
-               IF ( .NOT.( OPEN3( EM_FILE_NAME( ISRC ), FSREAD3, PNAME ) ) ) THEN
-                  XMSG = 'Could not open '// TRIM( EM_FILE_NAME( ISRC ) ) // ' file'
-                  CALL M3MESG( XMSG )
-                  SUCCESS = .FALSE.; RETURN
-               END IF
             END DO
          ELSE
             EM_TRAC = .FALSE.
