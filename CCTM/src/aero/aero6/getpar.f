@@ -91,8 +91,8 @@ C Local Variables:
       Real,      Parameter :: one3  = 1.0 / 3.0
       Real,      Parameter :: densmin = 1.0E03  ! minimum particle density [ kg/m**3 ]
 
-      Real( 8 ) :: minl2sg( n_mode )   ! min value of ln(sg)**2 for each mode
-      Real( 8 ) :: maxl2sg( n_mode )   ! max value of ln(sg)**2 for each mode
+      Real( 8 ), Save :: minl2sg( n_mode )   ! min value of ln(sg)**2 for each mode
+      Real( 8 ), Save :: maxl2sg( n_mode )   ! max value of ln(sg)**2 for each mode
 
       Real( 8 ) :: factor
       Real( 8 ) :: species_mass
