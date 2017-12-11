@@ -310,8 +310,6 @@ C-----------------------------------------------------------------------
             SUCCESS = .TRUE.
 
 C Map aerospc data
-            CALL MAP_AERO()
-             
             ! Map The Sea-Salt Species to the AeroSpc Array
             ALLOCATE( MAP_SEAtoAERO( NSEA_SPC ) )
             MAP_SEAtoAERO = 0

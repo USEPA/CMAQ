@@ -226,7 +226,6 @@ C Local variables:
          integer c, r, i, j, k, l, n, im
          integer idiag, idust, spc
          integer n_mass_emissions
-         character( 16 ) :: sn
 
          integer  gxoff, gyoff                 ! global origin offset from file
          integer, save :: strtcol, endcol, strtrow, endrow
@@ -265,7 +264,7 @@ C...Determine maps for dust speciation
                Do im = 1,n_mode
                   sn = trim( dust_spc( idust )%name ) // modesuff( im ) 
                   If ( sn .Eq. aerospc( spc )%name( im ) .or.
-     &                 dust_spc_list( idust )%name .Eq. aerospc( spc )%name( 3 ) )
+     &                 dust_spc( idust )%name .Eq. aerospc( spc )%name( 3 ) )
      &                 map_DUSTtoAERO( idust ) = spc
                End Do
             End Do

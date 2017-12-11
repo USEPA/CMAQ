@@ -854,8 +854,7 @@ C Populate Useful Masks
          L_EMIS_SPC = .FALSE.
          ALLOCATE( BEIS_MAP( MSPCS ) )
          BEIS_MAP = 0
-         ALLOCATE( MGSPC_MAP( MSPCS ) )
-         MGSPC_MAP = 0
+         MGSPC_MAP = 0 !Allocated in MGEMIS
 
 
          ! Populate the Emissions Surrogate Species 
