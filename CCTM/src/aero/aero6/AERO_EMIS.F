@@ -504,7 +504,7 @@ C     Pass emission rates back to aerosol emission master array.
 
 C-----------------------------------------------------------------------
 
-         SUBROUTINE EMISS_SIZE_DIST ( VDEMIS_AE )
+         SUBROUTINE EMISS_SIZE_DIST ( VDEMIS )
 
 C  EMISS_SIZE_DIST distributes bulk aerosol emissions into size space
 C  using parameters precompiled in the AERO_DATA module. 
@@ -523,24 +523,25 @@ C ----------------------------------------------------------------------
          USE AEROMET_DATA
          USE ASX_DATA_MOD, ONLY: MET_DATA
 
-         REAL,    INTENT( INOUT )  :: VDEMIS_AE( :,:,:,: )
+         REAL,    INTENT( INOUT )  :: VDEMIS( :,:,:,: )
 
          INTEGER :: EMLAYS
          INTEGER :: N, S, IAERO, IM, ISPC   ! Looping Variables
          INTEGER :: N_EMIS_SPC, ROW, COL, LAY
          REAL    :: WT
          REAL, ALLOCATABLE :: EMISM3( :,:,:,: ), GSFAC( :,:,: )
-         REAL, ALLOCATABLE :: EMIS_BUFF( :,:,: )
+         REAL, ALLOCATABLE :: EMIS_BUFF( :,:,: ), VDEMIS_INIT( :,:,:,: )
          REAL, PARAMETER :: F6DPIM9 = 1.0E-9 * F6DPI  ! 1.0E-9 = Kg/ug
 
 
 C *** Initialize Variables  
-         N_EMIS_SPC = SIZE( VDEMIS_AE, 1 ) - 1
-         EMLAYS     = SIZE( VDEMIS_AE, 2 ) 
+         N_EMIS_SPC = SIZE( VDEMIS, 1 ) - 1
+         EMLAYS     = SIZE( VDEMIS, 2 ) 
          
          ALLOCATE( EMISM3( EMLAYS,MY_NCOLS,MY_NROWS,N_MODE ) )
          ALLOCATE( GSFAC( EMLAYS,MY_NCOLS,MY_NROWS ) )
          ALLOCATE( EMIS_BUFF( EMLAYS,MY_NCOLS,MY_NROWS ) )
+         ALLOCATE( VDEMIS_INIT( N_EMIS_SPC,EMLAYS,MY_NCOLS,MY_NROWS ) )
          EMISM3 = 0.0
 
 C *** Calculate scaling factor for converting mass emissions into [ug/m3/s]
@@ -556,16 +557,18 @@ C     Also calculate scaling factors for converting to molar-mixing-ratio units
          END DO
  
 C *** Apply Aerosol Size Distribution
+         VDEMIS_INIT = VDEMIS
+
          DO ISPC = 1,N_EMIS_SPC
              IAERO = MAP_EMtoAERO( ISPC )
              IM    = MAP_EMtoMODE( ISPC )
              IF ( IAERO .EQ. 0 ) CYCLE
              
              ! Apply Size Distirbution Coefficient [ug/m3/s]
-             EMIS_BUFF( :,:,: ) = EMWT_PROF( IAERO,IM ) * VDEMIS_AE( ISPC,:,:,: ) * GSFAC( :,:,: )
+             EMIS_BUFF( :,:,: ) = EMWT_PROF( IAERO,IM ) * VDEMIS_INIT( ISPC,:,:,: ) * GSFAC( :,:,: )
 
              ! Add Aerosol Emissions to Total Emission Buffer
-             VDEMIS_AE( ISPC,:,:,: ) = VDEMIS_AE( ISPC,:,:,: ) + EMIS_BUFF
+             VDEMIS( ISPC,:,:,: ) = EMIS_BUFF
                
              ! Sum Total Volume of Mode N [m3/m3/s]
              IF ( .NOT. AEROSPC( IAERO )%TRACER ) THEN
@@ -575,25 +578,25 @@ C *** Apply Aerosol Size Distribution
 
              ! Apply Speciation to Coarse Aerosol Mode Emission
              IF ( IAERO .EQ. ACORS_IDX .AND. IM .EQ. N_MODE ) THEN
-                VDEMIS_AE( MAP_AEROtoEM( ASO4_IDX,IM ),:,:,: ) = ACORSEM_ASO4_FAC * EMIS_BUFF
-                VDEMIS_AE( MAP_AEROtoEM( ANO3_IDX,IM ),:,:,: ) = ACORSEM_ANO3_FAC * EMIS_BUFF 
-                VDEMIS_AE( MAP_AEROtoEM( ACL_IDX,IM  ),:,:,: ) = ACORSEM_ACL_FAC  * EMIS_BUFF 
-                VDEMIS_AE( MAP_AEROtoEM( AH2O_IDX,IM ),:,:,: ) = ACORSEM_AH2O_FAC * EMIS_BUFF 
-                VDEMIS_AE( MAP_AEROtoEM( ACORS_IDX,IM),:,:,: ) = ACORSEM_RENORM   * EMIS_BUFF 
+                VDEMIS( MAP_AEROtoEM( ASO4_IDX,IM ),:,:,: ) = ACORSEM_ASO4_FAC * EMIS_BUFF
+                VDEMIS( MAP_AEROtoEM( ANO3_IDX,IM ),:,:,: ) = ACORSEM_ANO3_FAC * EMIS_BUFF 
+                VDEMIS( MAP_AEROtoEM( ACL_IDX,IM  ),:,:,: ) = ACORSEM_ACL_FAC  * EMIS_BUFF 
+                VDEMIS( MAP_AEROtoEM( AH2O_IDX,IM ),:,:,: ) = ACORSEM_AH2O_FAC * EMIS_BUFF 
+                VDEMIS( MAP_AEROtoEM( ACORS_IDX,IM),:,:,: ) = ACORSEM_RENORM   * EMIS_BUFF 
               
                 ! Adjust 3rd Moment Summation to Account for Density
                 ! Change in dust speciation
                 EMISM3( :,:,:,IM ) = EMISM3( :,:,:,IM ) 
      &             - EMIS_BUFF( :,:,: ) * ( F6DPIM9 / AEROSPC( ACORS_IDX )%DENSITY )
-     &             + VDEMIS_AE( MAP_AEROtoEM( ASO4_IDX,IM ),:,:,: )* (F6DPIM9 / AEROSPC( ASO4_IDX )%DENSITY )
-     &             + VDEMIS_AE( MAP_AEROtoEM( ANO3_IDX,IM ),:,:,: )* (F6DPIM9 / AEROSPC( ANO3_IDX )%DENSITY )
-     &             + VDEMIS_AE( MAP_AEROtoEM( ACL_IDX,IM  ),:,:,: )* (F6DPIM9 / AEROSPC( ACL_IDX )%DENSITY )
-     &             + VDEMIS_AE( MAP_AEROtoEM( AH2O_IDX,IM ),:,:,: )* (F6DPIM9 / AEROSPC( AH2O_IDX )%DENSITY )
-     &             + VDEMIS_AE( MAP_AEROtoEM( ACORS_IDX,IM),:,:,: )* (F6DPIM9 / AEROSPC( ACORS_IDX )%DENSITY )
+     &             + VDEMIS( MAP_AEROtoEM( ASO4_IDX,IM ),:,:,: )* (F6DPIM9 / AEROSPC( ASO4_IDX )%DENSITY )
+     &             + VDEMIS( MAP_AEROtoEM( ANO3_IDX,IM ),:,:,: )* (F6DPIM9 / AEROSPC( ANO3_IDX )%DENSITY )
+     &             + VDEMIS( MAP_AEROtoEM( ACL_IDX,IM  ),:,:,: )* (F6DPIM9 / AEROSPC( ACL_IDX )%DENSITY )
+     &             + VDEMIS( MAP_AEROtoEM( AH2O_IDX,IM ),:,:,: )* (F6DPIM9 / AEROSPC( AH2O_IDX )%DENSITY )
+     &             + VDEMIS( MAP_AEROtoEM( ACORS_IDX,IM),:,:,: )* (F6DPIM9 / AEROSPC( ACORS_IDX )%DENSITY )
              END IF
 
              ! Convert Mass Emission Rates from [ug/m3/s] to [umol/m3/s]
-             VDEMIS_AE( ISPC,:,:,: ) = VDEMIS_AE( ISPC,:,:,: ) / AEROSPC_MW( IAERO )
+             VDEMIS( ISPC,:,:,: ) = VDEMIS( ISPC,:,:,: ) / AEROSPC_MW( IAERO )
          END DO          
 
 C *** Calculate the number emissions rate for each mode [1/m3/s], using 
@@ -602,8 +605,8 @@ C     Calculate the surface area emissions rate for the fine modes [m2/m3/s],
 C     using Equation 7c of Binkowski & Roselle (2003).  Multiplying by PI 
 C     converts 2nd moment to surface area.
          DO IM = 1,N_MODE
-            VDEMIS_AE( MAP_NUMtoEM(IM),:,:,: ) = EMISM3( :,:,:,IM ) * FACNUM( IM ) 
-            VDEMIS_AE( MAP_NUMtoEM(IM),:,:,: ) = EMISM3( :,:,:,IM ) * FACSRF( IM ) 
+            VDEMIS( MAP_NUMtoEM(IM),:,:,: ) = EMISM3( :,:,:,IM ) * FACNUM( IM ) 
+            VDEMIS( MAP_SRFtoEM(IM),:,:,: ) = EMISM3( :,:,:,IM ) * FACSRF( IM ) 
          END DO
  
          END SUBROUTINE EMISS_SIZE_DIST
