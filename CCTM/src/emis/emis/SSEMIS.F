@@ -334,7 +334,9 @@ C Map aerospc data
                DO SPC = 1,N_AE_EMIS
                   DO IM = 2,N_MODE
                      SN = TRIM( SEA_SPC( ISEA )%NAME ) // MODESUFF( IM )
-                     IF ( SN .Eq. AE_SPC( AE_EMIS_MAP( SPC ))) MAP_AEtoSEA( SPC ) = ISEA
+                     IF ( SN .Eq. AE_SPC( AE_EMIS_MAP( SPC )) .OR.
+     &                    SEA_SPC( ISEA )%NAME .EQ. AE_SPC( AE_EMIS_MAP( SPC )) )
+     &                    MAP_AEtoSEA( SPC ) = ISEA
                   End Do
                End Do
 
@@ -343,8 +345,10 @@ C Map aerospc data
             ! Specify H2O in mapping
             KH2O = NSEA_SPC
 
+
 C Populate Master Emissions Map Vector So That Diagnostics 
 C can be printed in EMIS_MAP
+            NSSSPC = NSEA_SPC
             Em_File_Spec( iseasrc )%len = nssspc
             Allocate( Em_File_Spec( iseasrc )%arry( nssspc ) )
             do i = 1,nssspc

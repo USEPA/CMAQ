@@ -273,7 +273,8 @@ C...Determine maps for dust speciation
             Do spc = 1, n_ae_emis
                Do im = 1,n_mode 
                   sn = trim( dust_spc( idust )%name ) // modesuff( im )
-                  If ( sn .Eq. ae_spc( ae_emis_map( spc ) ) )
+                  If ( sn .Eq. ae_spc( ae_emis_map( spc ) ) .or.
+     &                 dust_spc( idust )%name .Eq. ae_spc( ae_emis_map( spc )) )
      &                 map_AEtoDUST( spc ) = idust
                End Do
             End Do
