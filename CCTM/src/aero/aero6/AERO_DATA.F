@@ -481,6 +481,37 @@ C sources (G. Pouliot - private communication):
      &                                     - acorsem_acl_fac
      &                                     - acorsem_ah2o_fac
 
+C Create Map from CMAQ Aerosol Species Names to Common Aerosol Surrogate
+C Names on Emissions Input Files
+      Type aero_em_map
+          Character( 16 ) :: PTCL
+          Character( 16 ) :: AERO
+      End Type aero_em_map
+      
+      Integer, Parameter :: N_Map_AEROtoPTCL = 19
+      Type ( aero_em_map ), Parameter :: 
+     &  Map_AEROtoPTCL( N_Map_AEROtoPTCL ) = (/
+     &    aero_em_map( 'PSO4  ' ,'ASO4  ' ),
+     &    aero_em_map( 'PNO3  ' ,'ANO3  ' ),
+     &    aero_em_map( 'PNH4  ' ,'ANH4  ' ),
+     &    aero_em_map( 'PEC   ' ,'AEC   ' ),
+     &    aero_em_map( 'POC   ' ,'APOC  ' ),
+     &    aero_em_map( 'PNCOM ' ,'APNCOM' ),
+     &    aero_em_map( 'PMOTHR' ,'AOTHR ' ),
+     &    aero_em_map( 'PFE   ' ,'AFE   ' ),
+     &    aero_em_map( 'PAL   ' ,'AAL   ' ),
+     &    aero_em_map( 'PSI   ' ,'ASI   ' ),
+     &    aero_em_map( 'PTI   ' ,'ATI   ' ),
+     &    aero_em_map( 'PCA   ' ,'ACA   ' ),
+     &    aero_em_map( 'PMG   ' ,'AMG   ' ),
+     &    aero_em_map( 'PK    ' ,'AK    ' ),
+     &    aero_em_map( 'PMN   ' ,'AMN   ' ),
+     &    aero_em_map( 'PMC   ' ,'ACORS ' ),
+     &    aero_em_map( 'PH2O  ' ,'AH2O  ' ),
+     &    aero_em_map( 'PNA   ' ,'ANA   ' ),
+     &    aero_em_map( 'PCL   ' ,'ACL   ' ) /)
+
+
 C Required species
       Character( 16 ), Private, Parameter :: req_so4    = 'ASO4'
       Character( 16 ), Private, Parameter :: req_no3    = 'ANO3'
@@ -589,12 +620,12 @@ C Minimum 2nd moment (calculated in map_aero routine)
       Real :: aeromode_minM2( n_mode )
 
 C Mapping for loading from and unloading to CGRID array
-      Integer, Allocatable :: aerospc_map( :,: )  ! indices of aero species to CGRID
-      Integer              :: aeronum_map( n_mode )      ! indices of aero number variable to CGRID
-      Integer              :: aerosrf_map( n_mode )      ! indices of aero surf area variable to CGRID
+      Integer, Allocatable :: aerospc_map( :,: )     ! indices of aero species to CGRID
+      Integer              :: aeronum_map( n_mode )  ! indices of aero number variable to CGRID
+      Integer              :: aerosrf_map( n_mode )  ! indices of aero surf area variable to CGRID
 
 C Missing aerosol species map
-      Logical, Allocatable :: aero_missing( :,: )  ! indices of aero species to CGRID
+      Logical, Allocatable :: aero_missing( :,: )  
       Character( 16 ), Save :: pmem_units
 
       Logical, Save :: V51_SOA_mechanism   = .False. !

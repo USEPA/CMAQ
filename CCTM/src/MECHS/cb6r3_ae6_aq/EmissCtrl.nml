@@ -10,19 +10,18 @@
 !------------------------------------------------------------------------------!
 
 &GeneralSpecs
- Num_EmissRules      = 29
- DefaultScaling      = 'TRUE'   !Find All matches and map them 1:1. Map Aerosols as usual
- Guard_BiogenicVOC   = 'FALSE'
- Guard_MarineGas     = 'FALSE'
- Guard_LightningNO   = 'FALSE'
- Guard_WindBlownDust = 'FALSE'
- Guard_SeaSpray      = 'FALSE'
+ DefaultScaling      = .TRUE.   !Find All matches and map them 1:1. Map Aerosols as usual
+ Guard_BiogenicVOC   = .FALSE.
+ Guard_MarineGas     = .FALSE.
+ Guard_LightningNO   = .FALSE.
+ Guard_WindBlownDust = .FALSE.
+ Guard_SeaSpray      = .FALSE.
 /
 
 !------------------------------------------------------------------------------!
 ! Emissions Scaling Specification Section                                      !
-!   Each instruction is presented as a row of inputs. The syntax of the        !
-!   emissions scaling instructions is the following:                           !
+!   Each rule is presented as a row of inputs. The syntax of the               !
+!   emissions scaling rules is the following:                                  !
 !      EM_INSTR(I) = 'CMAQ-Species', 'Source Label', 'Phase',                  !
 !                     'Surrogate', 'Scale Factor', 'Mask', 'Operation'         !
 !   Definition of Fields:                                                      !
@@ -48,62 +47,62 @@
 !         'Scale Factor' - Adjustment factor to be applied to the mapping      !
 !         'Mask'         - Not implemented yet. Will apply scaling for specific! 
 !                          regions of the domain.                              !
-!         'Operation' - Specifies what kind of instruction is to be carried    !
+!         'Operation' - Specifies what kind of rule is to be carried           !
 !                       out. Options are:                                      !
-!                          'a' - add the scaling to existing mappings. This    !
+!                          'a' - add the rule to existing instructions. This   !
 !                                operation should be used for new entries, too.!
-!                          'm' - find existing scalings matching this          !
-!                                instructions features (ie. species, sources,  !
+!                          'm' - find existing scaling instructions matching   !
+!                                this rule's features (ie. species, sources,   !
 !                                etc) and multiply them by the factor in this  !
-!                                particular instruction.                       !
-!                          'o' - find existing scalings matching this          !
-!                                instruction and overwrite them.               !
+!                                particular rule.                              !
+!                          'o' - find existing scaling instrucitons matching   !
+!                                this rule and overwrite them.                 !
 !                                                                              !
 !                                                                              !
 !------------------------------------------------------------------------------!
 
 &EmissionScaling
- !       CMAQ-Species|Source |Phase |Surrogate|Factor | Op
-  EM( 1)  = 'GLY'    ,'All'  ,'GAS'  ,'GLYXL'  ,1.0   ,'a'
-  EM( 2)  = 'BENZENE','All'  ,'GAS'  ,'BENZ'   ,1.0   ,'a'
-
-  EM( 3)  = 'SULF'   ,'All'  ,'GAS'  ,'SULF'   ,0.0   ,'o'
-  EM( 4)  = 'ASO4'   ,'All'  ,'AERO' ,'SULF'   ,1.0   ,'a'
+ !   CMAQ-Species|Source |Phase |Surrogate|Factor | Op
+  EM  = 'GLY'    ,'All'  ,'GAS'  ,'GLYXL'  ,1.0   ,'a',
+        'BENZENE','All'  ,'GAS'  ,'BENZ'   ,1.0   ,'a',
+       
+        'SULF'   ,'All'  ,'GAS'  ,'SULF'   ,0.0   ,'o',
+        'ASO4'   ,'All'  ,'AERO' ,'SULF'   ,1.0   ,'a',
                                                     
  !---Organic Aerosol Vapors and Particles            
- !       CMAQ-Species|Source |Phase |Surrogate|Factor | Op
-  EM( 5)  = 'VLVPO1' ,'All'  ,'GAS'  ,'POC'    ,1.0   ,'a'
-  EM( 6)  = 'VLVPO1' ,'All'  ,'GAS'  ,'PNCOM'  ,1.0   ,'a'
-  EM( 7)  = 'VSVPO1' ,'All'  ,'GAS'  ,'POC'    ,1.0   ,'a'
-  EM( 8)  = 'VSVPO1' ,'All'  ,'GAS'  ,'PNCOM'  ,1.0   ,'a'
-  EM( 9)  = 'VSVPO2' ,'All'  ,'GAS'  ,'POC'    ,1.0   ,'a'
-  EM(10)  = 'VSVPO2' ,'All'  ,'GAS'  ,'PNCOM'  ,1.0   ,'a'
-  EM(11)  = 'VSVPO3' ,'All'  ,'GAS'  ,'POC'    ,1.0   ,'a'
-  EM(12)  = 'VSVPO3' ,'All'  ,'GAS'  ,'PNCOM'  ,1.0   ,'a'
-  EM(13)  = 'VIVPO1' ,'All'  ,'GAS'  ,'POC'    ,1.0   ,'a'
-  EM(14)  = 'VIVPO1' ,'All'  ,'GAS'  ,'PNCOM'  ,1.0   ,'a'
-  EM(15)  = 'PCVOC'  ,'All'  ,'GAS'  ,'POC'    ,0.0387,'a'
-  EM(16)  = 'PCVOC'  ,'All'  ,'GAS'  ,'PNCOM'  ,0.0387,'a'
-  
-  EM(17)  = 'ALVPO1' ,'All'  ,'AERO' ,'POC'    ,1.0   ,'a'
-  EM(18)  = 'ALVPO1' ,'All'  ,'AERO' ,'PNCOM'  ,1.0   ,'a'
-  EM(19)  = 'ASVPO1' ,'All'  ,'AERO' ,'POC'    ,1.0   ,'a'
-  EM(20)  = 'ASVPO1' ,'All'  ,'AERO' ,'PNCOM'  ,1.0   ,'a'
-  EM(21)  = 'ASVPO2' ,'All'  ,'AERO' ,'POC'    ,1.0   ,'a'
-  EM(22)  = 'ASVPO2' ,'All'  ,'AERO' ,'PNCOM'  ,1.0   ,'a'
-  EM(23)  = 'ASVPO3' ,'All'  ,'AERO' ,'POC'    ,1.0   ,'a'
-  EM(24)  = 'ASVPO3' ,'All'  ,'AERO' ,'PNCOM'  ,1.0   ,'a'
-  EM(25)  = 'AIVPO1' ,'All'  ,'AERO' ,'POC'    ,1.0   ,'a'
-  EM(26)  = 'AIVPO1' ,'All'  ,'AERO' ,'PNCOM'  ,1.0   ,'a'
+ !   CMAQ-Species|Source |Phase |Surrogate|Factor | Op
+        'VLVPO1' ,'All'  ,'GAS'  ,'POC'    ,1.0   ,'a',
+        'VLVPO1' ,'All'  ,'GAS'  ,'PNCOM'  ,1.0   ,'a',
+        'VSVPO1' ,'All'  ,'GAS'  ,'POC'    ,1.0   ,'a',
+        'VSVPO1' ,'All'  ,'GAS'  ,'PNCOM'  ,1.0   ,'a',
+        'VSVPO2' ,'All'  ,'GAS'  ,'POC'    ,1.0   ,'a',
+        'VSVPO2' ,'All'  ,'GAS'  ,'PNCOM'  ,1.0   ,'a',
+        'VSVPO3' ,'All'  ,'GAS'  ,'POC'    ,1.0   ,'a',
+        'VSVPO3' ,'All'  ,'GAS'  ,'PNCOM'  ,1.0   ,'a',
+        'VIVPO1' ,'All'  ,'GAS'  ,'POC'    ,1.0   ,'a',
+        'VIVPO1' ,'All'  ,'GAS'  ,'PNCOM'  ,1.0   ,'a',
+        'PCVOC'  ,'All'  ,'GAS'  ,'POC'    ,0.0387,'a',
+        'PCVOC'  ,'All'  ,'GAS'  ,'PNCOM'  ,0.0387,'a',
+       
+        'ALVPO1' ,'All'  ,'AERO' ,'POC'    ,1.0   ,'a',
+        'ALVPO1' ,'All'  ,'AERO' ,'PNCOM'  ,1.0   ,'a',
+        'ASVPO1' ,'All'  ,'AERO' ,'POC'    ,1.0   ,'a',
+        'ASVPO1' ,'All'  ,'AERO' ,'PNCOM'  ,1.0   ,'a',
+        'ASVPO2' ,'All'  ,'AERO' ,'POC'    ,1.0   ,'a',
+        'ASVPO2' ,'All'  ,'AERO' ,'PNCOM'  ,1.0   ,'a',
+        'ASVPO3' ,'All'  ,'AERO' ,'POC'    ,1.0   ,'a',
+        'ASVPO3' ,'All'  ,'AERO' ,'PNCOM'  ,1.0   ,'a',
+        'AIVPO1' ,'All'  ,'AERO' ,'POC'    ,1.0   ,'a',
+        'AIVPO1' ,'All'  ,'AERO' ,'PNCOM'  ,1.0   ,'a',
 
  !---Mercury
- !       CMAQ-Species|Source |Phase |Surrogate|Factor | Op
-  EM(27)  = 'HG'     ,'All' ,'GAS' ,'HGNRVA'   ,1.0   ,'a'
-  EM(28)  = 'HGIIGAS','All' ,'GAS' ,'HGIIGAS'  ,1.0   ,'a'
+ !   CMAQ-Species|Source |Phase |Surrogate|Factor | Op
+        'HG'     ,'All' ,'GAS' ,'HGNRVA'   ,1.0   ,'a',
+        'HGIIGAS','All' ,'GAS' ,'HGIIGAS'  ,1.0   ,'a',
 
  !---Tracers
- !           CMAQ-Species  |Source|Phase |   Surrogate  |Factor|Op
-  EM(29)  = 'ACRO_PRIMARY' ,'All' ,'GAS' ,'ACROLEIN'     ,1.0 ,'a'
+ !      CMAQ-Species  |Source|Phase |   Surrogate  |Factor|Op
+        'ACRO_PRIMARY' ,'All' ,'GAS' ,'ACROLEIN'     ,1.0 ,'a'
      
 /
 
