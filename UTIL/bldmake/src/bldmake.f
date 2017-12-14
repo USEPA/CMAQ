@@ -300,6 +300,11 @@
       Write( lfn, '("#      $(LIB)/ioapi/lib -> ",a)' ) Trim( ioapi_lib_dir )
       Write( lfn, '("#      $(LIB)/mpi -> ",a)' ) Trim( mpi_lib_dir )
       Write( lfn, '("#      $(LIB)/netcdf -> ",a)' ) Trim( netcdf_lib_dir )
+      Write( lfn, '("#",/,"#   Command-Line Options:      ")' ) 
+      Write( lfn, '("#      DEBUG=TRUE -- turn on debug flags ")' ) 
+      Write( lfn, '("#")' ) 
+      Write( lfn, '("#------------------------------------------------- ")' ) 
+
 
       ! Begin Makefile Commands
       Write( lfn, '(/" EXEC = ",a)' ) Trim( model )
@@ -320,11 +325,15 @@
       Write( lfn, '( " FSTD = ",a)' ) Trim( fstd )
       Write( lfn, '( " DBG  = ",a)' ) Trim( dbg )
 
-      Write( lfn, '(/" f_FLAGS   = ",a)' ) Trim( f_flags ) // " $(FSTD) $(include_path)"
-      Write( lfn, '( " f90_FLAGS = ",a)' ) Trim( f90_flags ) // " $(FSTD) $(include_path)"
+      Write( lfn, '(/" ifeq ""$(DEBUG)"" ""TRUE"" ")' )
+      Write( lfn, '( "     f_FLAGS   = ",a)' ) Trim( f_flags ) // " $(DBG) $(include_path)"
+      Write( lfn, '( "     f90_FLAGS = ",a)' ) Trim( f90_flags ) // " $(DBG) $(include_path)"
 
-      Write( lfn, '( "#f_FLAGS   = ",a)' ) Trim( f_flags ) // " $(DBG) $(include_path)"
-      Write( lfn, '( "#f90_FLAGS = ",a)' ) Trim( f90_flags ) // " $(DBG) $(include_path)"
+      Write( lfn, '( " else")' )
+      Write( lfn, '( "     f_FLAGS   = ",a)' ) Trim( f_flags ) // " $(FSTD) $(include_path)"
+      Write( lfn, '( "     f90_FLAGS = ",a)' ) Trim( f90_flags ) // " $(FSTD) $(include_path)"
+
+      Write( lfn, '( " endif")' )
 
       Write( lfn, '(/" F_FLAGS   = $(f_FLAGS)")' )
       Write( lfn, '( " F90_FLAGS = $(f90_FLAGS)")' )
