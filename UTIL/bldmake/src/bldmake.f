@@ -111,6 +111,7 @@
       verbose   = .False.
       serial    = .False.
       debug     = .False.
+      debug_cctm= .False.
       checkout  = .False.
       makefo    = .False.
       twoway    = .False.
@@ -185,6 +186,10 @@
           debug = .True.; Cycle
         End If
 
+        If ( argv .Eq. '-DEBUG_CCTM' ) Then
+          debug_cctm = .True.; Cycle
+        End If
+
         If ( argv .Eq. '-VERBOSE' ) Then
           verbose = .True.; Cycle
         End If
@@ -227,12 +232,13 @@
       Write( *,'(/"Usage: bldmake [-<option>...] filename")' )
 
       Write( *,'(/"where <option> is one of the following:")' )
-      Write( *,'("  -verbose   Echo actions")' )
-      Write( *,'("  -debug     Echo all actions")' )
-      Write( *,'("  -serial    Make for serial execution")' )
-      Write( *,'("  -makefo    Creates Makefile without building")' )
-      Write( *,'("  -git_local Does NOT copy source files to BLD directory")' )
-      Write( *,'("  -help      Displays help screen")' )
+      Write( *,'("  -verbose    Echo actions")' )
+      Write( *,'("  -debug      Echo all actions")' )
+      Write( *,'("  -serial     Make for serial execution")' )
+      Write( *,'("  -makefo     Creates Makefile without building")' )
+      Write( *,'("  -git_local  Does NOT copy source files to BLD directory")' )
+      Write( *,'("  -help       Displays help screen")' )
+      Write( *,'("  -debug_cctm Execute make with DEBUG option set to TRUE")' )
       Write( *,'(//)' )
 
       End Subroutine help_msg
