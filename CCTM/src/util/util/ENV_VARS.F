@@ -31,12 +31,14 @@ C....................................................................
 
       SAVE
 
+      INTEGER :: OUTDEV    ! File Unit for Standard Output
       INTEGER :: LOGDEV    ! File Unit for Ascii Log File
       INTEGER :: DIAGDEV   ! File Unit For Ascii Diagnostic Output
+      INTEGER :: MYPE      ! Processor Number
 
       INTEGER, PARAMETER :: CTM_DIAG_LVL = 1
       
-      PUBLIC LOGDEV, DIAGDEV, CTM_DIAG_LVL
+      PUBLIC LOGDEV, DIAGDEV, CTM_DIAG_LVL, OUTDEV, MYPE
 
       PRIVATE
 

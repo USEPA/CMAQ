@@ -53,9 +53,11 @@ C   12 Aug 15 D.Wong:   Replaced SUBST_MPI with mpif.h
       CHARACTER( MAXLEN_CCTM_APPL ) :: EQNAME
       CHARACTER( MAXLEN_CTM_LOG   ) :: IOLOGEQ, IODIAGEQ
 
-      INTEGER :: ERROR, MYPE, TOTPE, IOST
+      INTEGER :: ERROR, TOTPE, IOST
 
       CALL NAMEVAL ( APPL, EQNAME )
+
+      OUTDEV = 6  ! Assign Standard Out File Unit
 
 #ifdef parallel
       CALL MPI_COMM_RANK ( MPI_COMM_WORLD, MYPE, ERROR )
@@ -67,39 +69,22 @@ C   12 Aug 15 D.Wong:   Replaced SUBST_MPI with mpif.h
  
       WRITE ( CMYPE, '(I3.3)' ) MYPE
 
-      IF ( MYPE .EQ. 0 ) THEN
-         LOGDEV = 6     ! Set LOGDEV to Standard Out
-         
+      ! Create Log Filename using the processor rank and initialize
+      ! I/O-API and Logs
+      IF ( APPL .NE. EQNAME(1:8 ) ) THEN
+         IOLOGEQ = PRESTR // CMYPE // '.' // TRIM( EQNAME )
       ELSE
-         ! Create Log Filename using the processor rank
-         IF ( APPL .NE. EQNAME(1:8 ) ) THEN
-            IOLOGEQ = PRESTR // CMYPE // '.' // TRIM( EQNAME )
-         ELSE
-            IOLOGEQ = PRESTR // CMYPE
-         END IF
-         IF ( .NOT. SETENVVAR ( 'LOGFILE', IOLOGEQ ) ) THEN
-            WRITE( *,* ) '*** Could not set environment variable for ' // IOLOGEQ
-            STOP
-         END IF
-
-         ! Find The Next available file unit number. Do not print logs to standard
-         ! output.
-         LOGDEV = JUNIT() 
-
-         ! Open Log File Manually since it is not standard output
-         OPEN( UNIT=LOGDEV, IOSTAT=IOST, FILE=IOLOGEQ, ACCESS='SEQUENTIAL')
-         IF ( IOST .NE. 0 ) THEN
-             WRITE( *, '( /, 5X, 3 A )' )
-     &                 '***  ERROR in SETUP_LOGDEV  ***'
-             WRITE( *, '( 5X, A, I10 )' )
-     &                 'Error opening log file on unit', LOGDEV,
-     &                 'I/O STATUS =', IOST
-             WRITE( *, '( 5X, 2 A, / )' )
-     &                 'File: ', TRIM( EQNAME )
-             CALL EXIT( 2 )
-         END IF
- 
+         IOLOGEQ = PRESTR // CMYPE
       END IF
+      IF ( .NOT. SETENVVAR ( 'LOGFILE', IOLOGEQ ) ) THEN
+         WRITE( *,* ) '*** Could not set environment variable for ' // IOLOGEQ
+         STOP
+      END IF
+
+      LOGDEV = INIT3() 
+      REWIND( LOGDEV )
+      CALL WRITE_LOG_HEADER( LOGDEV, MYPE, TOTPE-1 )
+
 
       ! Concatenate Diagnostic Filename
       IF ( CTM_DIAG_LVL .GT. 0 ) THEN 
@@ -125,7 +110,6 @@ C   12 Aug 15 D.Wong:   Replaced SUBST_MPI with mpif.h
           END IF 
       END IF
  
-      CALL WRITE_LOG_HEADER( LOGDEV, MYPE, TOTPE-1 )
       CALL WRITE_LOG_HEADER( DIAGDEV, MYPE, TOTPE-1 )
 
     

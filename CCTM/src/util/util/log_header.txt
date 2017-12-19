@@ -1,0 +1,34 @@
+================================================================================
+|                                                                              |
+|               The Community Multiscale Air Quality (CMAQ) Model              |
+|                                   Version 5.2                                |
+|                             Released June 30, 2017                           |
+|                                                                              |
+|                           Built and Maintined by the                         |
+|                      National Exposure Research Laboratory                   |
+|                        Office of Research and Development                    |
+|                   United States Environmental Protection Agency              |
+|                                                                              |
+|                             https://www.epa.gov/cmaq                         |
+|                         https://www.github.com/USEPA/cmaq                    |
+|                                                                              |
+================================================================================
+
+
+--------------------------------------------------------------------------------
+|  The Community Multiscale Air Quality (CMAQ) system software is in continuous|
+|  development by various groups and is based on information from these groups:|
+|  Federal Government employees, contractors working within a United States    |
+|  Government contract, and non-Federal sources including research institu-    |
+|  tions.  These groups give the Government permission to use, prepare deriva- |
+|  tive works of, and distribute copies of their work in the CMAQ system to the|
+|  public and to permit others to do so.  The United States Environmental      |
+|  Protection Agency therefore grants similar permission to use the CMAQ system|
+|  software, but users are requested to provide copies of derivative works or  |
+|  products designed to operate in the CMAQ system to the United States Govern-|
+|  ment without restrictions as to use by others.  Software that is used with  |
+|  the CMAQ system but distributed under the GNU General Public License or the |
+|  GNU Lesser General Public License is subject to their copyright restric-    |
+|  tions.                                                                      |
+--------------------------------------------------------------------------------
+
