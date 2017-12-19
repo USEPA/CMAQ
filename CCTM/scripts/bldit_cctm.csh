@@ -55,6 +55,8 @@ set ParOpt                             #> uncomment to build a multiple processo
                                        #>   comment out for a single processor (serial) executable
 #set build_parallel_io                 #> uncomment to build with parallel I/O (pnetcdf); 
                                        #>   comment out to use standard netCDF I/O
+#set Debug_CCTM                        #> uncomment to compile CCTM with debug option equal to TRUE
+                                       #>   comment out to use standard, optimized compile process
 
 #> Two-way WRF-CMAQ 
 #set build_twoway                      #> uncomment to build WRF-CMAQ twoway; 
@@ -547,13 +549,21 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
     endif
  else  # Also compile the model
     if ( $?CopySrc ) then
-       $Blder $Cfile   # Run BLDMAKE with source code in build directory
+       if ( $?Debug_CCTM ) then
+         $Blder -debug_cctm $Cfile   # Run BLDMAKE with source code in build directory
+       else
+         $Blder $Cfile   # Run BLDMAKE with source code in build directory
+       end if
     else if ( $?CopySrcTree ) then 
        $Blder -makefo -co $Cfile  # Copy repository directory tree as well
     else
-       $Blder -git_local $Cfile    # Run BLDMAKE with source code in 
-                                   # version-controlled git repo
-                                   # $Cfile = ${CFG}.bld
+       # Run BLDMAKE with source code in version-controlled git repo $Cfile = ${CFG}.bld
+       if ( $?Debug_CCTM ) then
+         $Blder -debug_cctm -git_local $Cfile 
+       else
+         $Blder -git_local $Cfile
+       end if
+         
     endif
  endif
 
