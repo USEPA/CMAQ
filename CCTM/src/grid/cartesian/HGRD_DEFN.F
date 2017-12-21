@@ -70,8 +70,6 @@ C latitude for coord-system center (degrees)
       REAL( 8 ), SAVE :: XCELL_GD ! X-coordinate cell width (M)
       REAL( 8 ), SAVE :: YCELL_GD ! Y-coordinate cell width (M)
 
-      INTEGER, SAVE :: MYPE = -1  ! set in par_init
-
       INTEGER, SAVE :: GL_NCOLS   ! no. of columns in global grid
       INTEGER, SAVE :: GL_NROWS   ! no. of rows in global grid
       INTEGER, SAVE :: GL_NBNDY   ! no. of cells in one layer of global boundary
@@ -185,7 +183,8 @@ C This function is expected to be called only once - at startup
 
 C With GRID_NAME (only input) retrieve all horizontal grid parameters from
 C the grid description file pointed to by the GRIDDESC env var:
-
+            WRITE( LOGDEV, * )
+            CALL LOG_HEADING( LOGDEV, "Retrieve Horizontal Grid" )
             IF ( .NOT. DSCGRID ( GRID_NAME,
      &                           COORD_SYS_NAME, GDTYP_GD, 
      &                           P_ALP_GD, P_BET_GD, P_GAM_GD,

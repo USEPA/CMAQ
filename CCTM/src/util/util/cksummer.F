@@ -78,18 +78,16 @@ C Local variables:
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
 
       CHARACTER( 16 ), SAVE :: PNAME = 'CKSUMMER'
-      !CHARACTER( 96 ) :: XMSG = ' '
       CHARACTER(  8 ) :: APPL = 'CTM_APPL'
       CHARACTER( 48 ) :: EQNAME
       CHARACTER(  6 ) :: PRESTR = 'FLOOR_'
       CHARACTER(  3 ) :: CMYPE
       CHARACTER( 96 ), SAVE :: DEVNAME ! Name of output file.
 
-      INTEGER, SAVE :: OUTDEV    ! FORTRAN unit number for neg conc ascii file
+      INTEGER, SAVE :: FLOORDEV    ! FORTRAN unit number for neg conc ascii file
 
       LOGICAL ::  RDONLY = .FALSE.
       LOGICAL ::  FMTTED = .TRUE.
-      !INTEGER     STATUS       !  ENVSTR status
 
       INTEGER     S, V, L, C, R
       REAL( 8 ) :: DBL_CKSUM
@@ -131,11 +129,11 @@ C-----------------------------------------------------------------------
                               EXFLG = .FALSE.
                               IF ( OPFLG ) THEN   ! open output ASCII file
                                  OPFLG = .FALSE.
-                                 OUTDEV = GETEFILE ( DEVNAME, RDONLY, FMTTED, PNAME )
+                                 FLOORDEV = GETEFILE ( DEVNAME, RDONLY, FMTTED, PNAME )
                               END IF
-                              WRITE( OUTDEV,1001 ) CMIN, SCIPROC
+                              WRITE( FLOORDEV,1001 ) CMIN, SCIPROC
                            END IF
-                           WRITE( OUTDEV,1003 ) JDATE, JTIME, C, R, L, S,
+                           WRITE( FLOORDEV,1003 ) JDATE, JTIME, C, R, L, S,
      &                                          GC_SPC( V ), CGRID( C,R,L,S )
                            CGRID( C,R,L,S ) = CMIN
                         END IF
@@ -167,11 +165,11 @@ C-----------------------------------------------------------------------
                               EXFLG = .FALSE.
                               IF ( OPFLG ) THEN   ! open output ASCII file
                                  OPFLG = .FALSE.
-                                 OUTDEV = GETEFILE ( DEVNAME, RDONLY, FMTTED, PNAME )
+                                 FLOORDEV = GETEFILE ( DEVNAME, RDONLY, FMTTED, PNAME )
                               END IF
-                              WRITE( OUTDEV,1001 ) CMIN, SCIPROC
+                              WRITE( FLOORDEV,1001 ) CMIN, SCIPROC
                            END IF
-                           WRITE( OUTDEV,1003 ) JDATE, JTIME, C, R, L, S,
+                           WRITE( FLOORDEV,1003 ) JDATE, JTIME, C, R, L, S,
      &                                          AE_SPC( V ), CGRID( C,R,L,S )
                            CGRID( C,R,L,S ) = CMIN
                         END IF
@@ -203,11 +201,11 @@ C-----------------------------------------------------------------------
                               EXFLG = .FALSE.
                               IF ( OPFLG ) THEN   ! open output ASCII file
                                  OPFLG = .FALSE.
-                                 OUTDEV = GETEFILE ( DEVNAME, RDONLY, FMTTED, PNAME )
+                                 FLOORDEV = GETEFILE ( DEVNAME, RDONLY, FMTTED, PNAME )
                               END IF
-                              WRITE( OUTDEV,1001 ) CMIN, SCIPROC
+                              WRITE( FLOORDEV,1001 ) CMIN, SCIPROC
                            END IF
-                           WRITE( OUTDEV,1003 ) JDATE, JTIME, C, R, L, S,
+                           WRITE( FLOORDEV,1003 ) JDATE, JTIME, C, R, L, S,
      &                                          NR_SPC( V ), CGRID( C,R,L,S )
                            CGRID( C,R,L,S ) = CMIN
                         END IF
@@ -239,11 +237,11 @@ C-----------------------------------------------------------------------
                               EXFLG = .FALSE.
                               IF ( OPFLG ) THEN   ! open output ASCII file
                                  OPFLG = .FALSE.
-                                 OUTDEV = GETEFILE ( DEVNAME, RDONLY, FMTTED, PNAME )
+                                 FLOORDEV = GETEFILE ( DEVNAME, RDONLY, FMTTED, PNAME )
                               END IF
-                              WRITE( OUTDEV,1001 ) CMIN, SCIPROC
+                              WRITE( FLOORDEV,1001 ) CMIN, SCIPROC
                            END IF
-                           WRITE( OUTDEV,1003 ) JDATE, JTIME, C, R, L, S,
+                           WRITE( FLOORDEV,1003 ) JDATE, JTIME, C, R, L, S,
      &                                          TR_SPC( V ), CGRID( C,R,L,S )
                            CGRID( C,R,L,S ) = CMIN
                         END IF
@@ -294,15 +292,15 @@ C-----------------------------------------------------------------------
 
 1003  FORMAT( 5X, I8, ':', I6.6, 4I5, 1X, '(', A16, ')', 1PE12.3)
 
-1005  FORMAT( 1X, 'after',
-     &        1X, A09, 1X, 'G ', 1PE14.7,
-     &                 1X, 'A ', 1PE14.7,
-     &                 1X, 'N ', 1PE14.7 )
+1005  FORMAT( 5X, 'After',
+     &        5X, A09, 1X, ':  Gas ', 1PE10.3,
+     &                 1X, ' | Aer ', 1PE10.3,
+     &                 1X, ' | Non ', 1PE10.3 )
 
-1007  FORMAT( 1X, 'after',
-     &        1X, A09, 1X, 'G ', 1PE14.7,
-     &                 1X, 'A ', 1PE14.7,
-     &                 1X, 'N ', 1PE14.7,
-     &                 1X, 'T ', 1PE14.7 )
+1007  FORMAT( 5X, 'After',
+     &        5X, A09, 1X, ':  Gas ', 1PE10.3,
+     &                 1X, ' | Aer ', 1PE10.3,
+     &                 1X, ' | Non ', 1PE10.3,
+     &                 1X, ' | Trc ', 1PE10.3 )
 
       END

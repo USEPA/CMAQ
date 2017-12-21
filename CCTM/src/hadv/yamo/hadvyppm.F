@@ -252,11 +252,13 @@ C Get CGRID offsets
  
       !Print warning if any aerosol BCs violated the size distribution parameters
       IF ( LSTAT ) THEN    
-            WRITE( XMSG2, '(A55,A57,A5)' ),
-     &            'Applying fix to aerosol Boundary Conditions for aerosol',
+            WRITE( XMSG2, '(A,A,A)' ),
+     &            'ATTENTION: Applying fix to aerosol Boundary Conditions for aerosol',
      &            ' modes. Turn on verbose_rdbcon preprocessor flag to learn ',
      &            'more.'
-            CALL M3WARN( 'Read BCs', FDATE, FTIME, XMSG2 )
+            WRITE( LOGDEV, * )
+            CALL LOG_MESSAGE( LOGDEV, XMSG2 )
+            WRITE( LOGDEV, * )
       END IF
  
  

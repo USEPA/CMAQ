@@ -41,6 +41,7 @@ C                     and the file is emtpy and requires to go through CHECK3
 C-----------------------------------------------------------------------
 
       USE UTILIO_DEFN
+      USE ENV_VARS, ONLY : LOG_HEADING, LOG_SUBHEADING, LOG_MESSAGE
 
       IMPLICIT NONE 
 
@@ -78,7 +79,7 @@ C Local Variables:
 
 C-----------------------------------------------------------------------
 
-      WRITE( LOGDEV,2011 ) TRIM( PNAME )
+      CALL LOG_HEADING( LOGDEV, 'Check Input File Headers' )
 
       LERROFF = .TRUE.   ! default
       LERROFF = ENVYN( 'FL_ERR_STOP', 'Flag for stopping on errors',
@@ -168,17 +169,15 @@ c skip checking ending time for output files
             CALL M3EXIT ( PNAME, STDATE, STTIME, MSG, XSTAT2 )
          ELSE
             CALL M3WARN ( PNAME, STDATE, STTIME, MSG )
-            WRITE( LOGDEV,2015 ) TRIM( PNAME )
+            CALL LOG_HEADING( LOGDEV, 'FINISH CHECKING INPUT FILE HEADERS' )
             RETURN
          END IF
       ELSE
-         MSG = '   No inconsistent header data found on input files'
-         CALL M3MESG( MSG )
-         WRITE( LOGDEV,2015 ) TRIM( PNAME )
+         CALL LOG_MESSAGE( LOGDEV, 'No inconsistent header data found on input files' )
+         CALL LOG_HEADING( LOGDEV, 'FINISH CHECKING INPUT FILE HEADERS' )
+         WRITE( LOGDEV, * )
       END IF
 
       RETURN
 
-2011  FORMAT( / 5X, 14( '= ' ), 'Start ', A, 14( ' =' ) / )
-2015  FORMAT( / 5X, 14( '= ' ), ' End  ', A, 14( ' =' ) / )
       END

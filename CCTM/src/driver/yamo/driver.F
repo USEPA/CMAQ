@@ -326,11 +326,11 @@ C process analysis, if required
          IF ( NSPCSD .GT. MXVARS3 ) THEN
             WRITE( XMSG,'(5X, A, I5, A)' ) 'The number of variables,', NSPCSD,
      &      ' to be written to the State CGRID File'
-            WRITE( LOGDEV, '( A )' ) XMSG
+            CALL LOG_MESSAGE( LOGDEV, XMSG )
             WRITE( XMSG,'(5X, A, I5)' ) 'exceeds the I/O-API limit:', MXVARS3
-            WRITE( LOGDEV, '( A )' ) XMSG
+            CALL LOG_MESSAGE( LOGDEV, XMSG )
             XMSG = 'Recompile with an I/O-API lib having a larger MXVARS3'
-            WRITE( LOGDEV, '( 5X, A )' ) XMSG
+            CALL LOG_MESSAGE( LOGDEV, XMSG )
             CALL M3EXIT( PNAME, JDATE, JTIME, ' ', XSTAT1 )
          END IF
 
@@ -348,6 +348,10 @@ C Initalize CONC definitions (in STD_CONC F90 module)
 C Get avg CONC definitions, species and layer pointers (in AVG_CONC F90 module)
          CALL A_CONC_DEFN ()
          A_NLYS = ACONC_ELEV - ACONC_BLEV + 1
+
+C Miscellaneous Configuration Operations
+         WRITE( LOGDEV, * )
+         CALL LOG_HEADING( LOGDEV, "Configure Scenario" )
 
 C Initialize optional derived vertical velocity writes to conc file
          IF ( .NOT. WVEL_INIT () ) THEN
@@ -371,8 +375,6 @@ C Verify input file header consistency and run duration
             XMSG = 'AGRID memory allocation failed'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
-
-!        AGRID = 0.0
 
          ALLOCATE ( ASTEP( NLAYS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
@@ -530,19 +532,23 @@ C write CGRID state file for subsequent runs
 
 C Shut down IOAPI
       IF ( SHUT3() ) THEN
-         XMSG = '>>---->  Program completed successfully  <----<<'
-         WRITE ( LOGDEV,'( //5X, A, / )' ) XMSG
-         WRITE( LOGDEV,2015 ) DT2STR( JDATE, JTIME ), JDATE, JTIME
+         WRITE( LOGDEV, * )
+         CALL LOG_HEADING( LOGDEV, 'Program Completed Successfully' )
+         WRITE( XMSG, '(A,A,A,I7,A,I6.6,A)' ) 'Date and time ',
+     &          DT2STR( JDATE, JTIME ), ' (',JDATE,':',JTIME,')' 
+         CALL LOG_MESSAGE( LOGDEV, XMSG ) 
       ELSE
-         XMSG = ' *** FATAL ERROR shutting down Models-3 I/O *** '
-         WRITE ( LOGDEV,'( //5X, A, / )' ) XMSG
+         CALL LOG_MESSAGE( LOGDEV, ' *** FATAL ERROR shutting down Models-3 I/O *** ' )
       END IF
 
 #ifdef parallel
 C Shut down MPI
       ENDTIME = MPI_WTIME()   ! get final wall-clock time
       ELAPTIME = NINT ( ENDTIME - BEGTIME )
-      IF ( MYPE .EQ. 0 ) WRITE( *,2021 ) ELAPTIME
+      WRITE( XMSG, '(A,I7.6,A)' ) 'The elapsed time for this job was', 
+     &                            ELAPTIME, ' seconds.'
+      CALL LOG_MESSAGE( LOGDEV, XMSG )
+      IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
       CALL MPI_FINALIZE ( PAR_ERR )
       IF ( PAR_ERR .NE. 0 ) THEN
          STOP 'Error terminating MPI'
@@ -550,7 +556,6 @@ C Shut down MPI
 #endif
 
 2015  FORMAT( 5X , 'Date and time ', A, ' (', I7, ':', I6.6, ')' )
-2021  FORMAT( //5X, 'The elapsed time for this job was', I7.6, ' seconds.' / )
 
       END PROGRAM DRIVER
 #endif

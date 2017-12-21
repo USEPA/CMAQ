@@ -360,9 +360,9 @@ C Cull ...
      &         SPC_PTEM_MAP( L ), TRIM( GSPC( J ) )
 #endif
             ELSE
+               ! SPecies is not on Point Emissions
                SPC_PTEM_MAP( L ) = -1
                PTEM_MAP( L ) = -1
-               WRITE( LOGDEV,1046 ) J, TRIM( GC_EMIS( J ) ), TRIM( GC_SPC( GC_EMIS_MAP( J ) ) )
             END IF
          END DO
          DO J = 1, N_NR_EMIS
@@ -382,7 +382,6 @@ C Cull ...
             ELSE
                SPC_PTEM_MAP( L ) = -1
                PTEM_MAP( L ) = -1
-               WRITE( LOGDEV,1046 ) J, TRIM( NR_EMIS( J ) ), TRIM( NR_SPC( GC_EMIS_MAP( J ) ) )
             END IF
          END DO
          DO J = 1, N_TR_EMIS
@@ -402,9 +401,6 @@ C Cull ...
             ELSE
                SPC_PTEM_MAP( L ) = -1
                PTEM_MAP( L ) = -1
-#ifdef verbose_ptmap
-               WRITE( LOGDEV,1046 ) J, TRIM( TR_EMIS( J ) ), TRIM( TR_SPC( TR_EMIS_MAP( J ) ) )
-#endif
             END IF
          END DO
          N_GSPC_EMIS = M
@@ -670,7 +666,6 @@ C check name to prevent redundancy
 1043     FORMAT( 5X, I3, 1X,'STKPM_NAME, PTPM_MAP = ', A, I3 )
 1045     FORMAT( I3, 2X, 'PTEM_MAP =', I3, ' STKEM_NAME ', A, ' SPC_PTEM_MAP =',
      &           I3, ' into Model Species ', A )
-1046     FORMAT( 'WARNING:', I4, ' No Point Emissions of ', A, ' for Species ', A )
          END FUNCTION PTMAP_INIT
 
       END MODULE PTMAP

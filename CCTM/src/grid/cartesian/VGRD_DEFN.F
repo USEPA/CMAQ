@@ -28,6 +28,8 @@ C                                         with UTILIO_DEFN
 C                   D. Wong    11 May 11: incorporated twoway model implementation
 C.......................................................................
 
+      USE ENV_VARS
+
       IMPLICIT NONE
 
       INTEGER, SAVE :: NLAYS = 0
@@ -104,6 +106,8 @@ C This function is expected to be called only once - at startup
 
 C get vert layer definition from LAYER_FILE
 
+               WRITE( LOGDEV, * )
+               CALL LOG_HEADING( LOGDEV, "Retrieve Vertical Grid" )
                IF ( .NOT. OPEN3( LAYER_FILE, FSREAD3, 'VGRD_INIT' ) ) THEN
                   XMSG = 'Could not open '// LAYER_FILE
                   CALL M3WARN ( 'VGRD_INIT', 0, 0, XMSG )

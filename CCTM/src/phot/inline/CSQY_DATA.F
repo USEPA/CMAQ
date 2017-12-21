@@ -22,6 +22,8 @@
 !:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE CSQY_DATA
 
+      USE ENV_VARS
+
       IMPLICIT NONE
       
       CHARACTER( 32 ), PUBLIC :: JTABLE_REF
@@ -295,8 +297,6 @@
      &     1.262E-19, 1.306E-19, 1.548E-19, 0.0 /
 
       REAL :: OPTT                ! variable needed for acetone
-      
-      INTEGER, PRIVATE :: LOGDEV
       
       CONTAINS
 
@@ -704,7 +704,6 @@ C...begin read
 
       WRITE( LOGDEV,* ) 'Sucessfully Loaded CSQY_DATA file'
       
-!!!      CLOSE(LOGDEV)
       CLOSE(PHOTAB_UNIT)
 
 5012  FORMAT( 4X,A30,1X,3(F8.3,2X) )
@@ -762,7 +761,6 @@ C...begin read
       INTEGER :: NWL_OPTICS    ! # of wavelengths used in PHOT_MOD.F
       INTEGER :: IOST        ! IOST returned from OPEN function
       INTEGER :: JDATE = 0
-      INTEGER :: LOGDEV
       INTEGER :: OPTICS_UNIT
       INTEGER :: IPHOT, IPHOT_LOAD ! loop indices
       INTEGER :: ITT, ITT_LOAD     ! loop indices 

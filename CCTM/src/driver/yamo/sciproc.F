@@ -171,6 +171,8 @@ C-----------------------------------------------------------------------
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
 
+         WRITE( LOGDEV, '(/,/,5x,A)' ),'|=>---- INITIALIZE SCIENCE PROCESSES ----<=|'
+
          CKSUM = .TRUE.         ! default
          VARDESC = 'Cksum on flag'
          CKSUM = ENVYN( CTM_CKSUM, VARDESC, CKSUM, STATUS )

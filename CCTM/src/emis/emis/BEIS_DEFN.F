@@ -76,6 +76,7 @@ C-----------------------------------------------------------------------
 !        N_SPC_BIOG = MSPCS
 
 C In-line biogenic emissions?
+         WRITE( LOGDEV, '(/,/,5x,A)' ),'|=>---- INITIALIZE ONLINE BIOGENIC VOC EMISSIONS ----<=|'
 
          BIOGEMIS = .FALSE.
          VARDESC = 'Flag for in-line biogenic emissions'
@@ -94,9 +95,6 @@ C In-line biogenic emissions?
          END IF
 
          IF ( BIOGEMIS ) THEN
-
-            XMSG = 'Using in-line biogenic emissions option'
-            CALL M3MSG2( XMSG )
 
             IF ( .NOT. BIOG_INIT() ) THEN
                XMSG = 'Could not initialize biogenic emissions variables'
@@ -128,7 +126,7 @@ C biogenics to gas-phase species map
                      WRITE( LOGDEV,* ) ' '
                   ELSE
                      WRITE( LOGDEV,'(5X,A/)' ) TRIM( EMSPC( V ) ) //
-     &                                 ' not found in NR_EMIS either'
+     &                                 ' not found in NR_EMIS'
                      BEIS_MAP( V ) = 0
                   END IF
                END IF

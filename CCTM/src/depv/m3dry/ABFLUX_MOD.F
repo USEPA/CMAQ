@@ -290,7 +290,7 @@ C                          '12345678901234567890'
 ! get fertilizer from the previous month to estimate soil NH4+        
 ! time in the files is not the same
          If ( .Not. Open3( INIT_MEDC_1, fsread3, pname ) ) Then
-            Write(Logdev,*) 'Estimating soil NHx from EPIC output'
+            CALL LOG_SUBHEADING( LOGDEV, 'Estimating soil NHx from EPIC output' )
             If ( .Not. Open3( E2C_FERT, fsread3, pname ) ) Then
                xmsg = 'Could not open '// E2C_FERT // ' file'
                Call M3exit ( pname, jdate, jtime, xmsg, xstat1 )

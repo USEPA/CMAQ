@@ -293,8 +293,6 @@ C get number of steps based on eddy time
       NSTEPS = INT ( DTSEC / DT ) + 1
       DT = DTSEC / FLOAT( NSTEPS )
  
-      WRITE( LOGDEV,1005 ) DT, NSTEPS
-
       DTDX1S = DT * RDX1S
       DTDX2S = DT * RDX2S
 
@@ -449,6 +447,5 @@ C Update CGRID
 
 1001  FORMAT( 5X, 'Negative concentrations reset to', 1PE11.3 )
 1003  FORMAT( 1X, 4I7, 9X, 1PE11.3)
-1005  FORMAT( / 5X, 'H-eddy DT & integration steps: ', 1PE15.7, I8 )
 
       END

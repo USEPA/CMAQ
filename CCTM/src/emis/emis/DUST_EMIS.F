@@ -242,6 +242,8 @@ C-----------------------------------------------------------------------
 
          success = .true.
 
+         WRITE( LOGDEV, '(/,5x,A)' ),'-- Initialize Wind-Blown Dust Emissions --'
+
          allocate ( dustoutm( ndust_spc,n_mode,ncols,nrows ),
      &              dustoutn( n_mode,ncols,nrows ),
      &              dustouts( n_mode,ncols,nrows ), stat = status )

@@ -280,10 +280,6 @@ C precursor
             If ( n .Lt. 1 ) Then
               n = index1( vaporspc( spc )%drog_name, n_nr_spc, nr_spc )
               If ( n .Lt. 1 ) Then
-!                 xmsg = 'FATAL: SOA Precursor, ' // Trim( vaporspc( spc )%drog_name )
-!     &               // '. is not found among the species in GC or NR namelist'
-!     &               // ' used. Required for modeling vapor, '
-!     &               // Trim( vaporspc( spc )%name )
                 SOA_eflag  = .True.
                 write(logdev,99903)Trim( vaporspc( spc )%drog_name ),
      &          Trim( vaporspc( spc )%name )
@@ -305,10 +301,6 @@ C phase as model species
                  If( g .Lt. 1 ) Then
                     g = index1( vaporlist( spc )%name, n_gc_spc, gc_spc )
                     If( g .Lt. 1 ) Then
-!                      xmsg = 'FATAL: SOA Vapor, ' // Trim( vaporlist( spc )%name )
-!     &                     // ', is not found among the species in the NR or GC'
-!     &                     // ' namelist used. Required for modeling '
-!     &                     // Trim ( vaporlist( spc )%soa_name ) // '.'
                       SOA_eflag  = .True.
                       write(logdev,99902)Trim( vaporlist( spc )%name ), 
      &                Trim ( vaporlist( spc )%soa_name )

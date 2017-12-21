@@ -101,7 +101,7 @@
       OK = OPEN3( A_CONC_1, FSRDWR3, PNAME )
       CALL SUBST_GLOBAL_LOGICAL( OK, 'AND' )
       IF ( .NOT. OK ) THEN
-
+         BACKSPACE( LOGDEV )
          XMSG = 'Could not open ' // TRIM( A_CONC_1 )
      &        // ' file for update - try to open new'
          CALL M3MESG( XMSG )
@@ -152,11 +152,10 @@
                END DO
             END IF
 
-            WRITE( LOGDEV,* ) ' '
-            WRITE( LOGDEV,* ) '      Avg Conc File Header Description:'
+            WRITE( LOGDEV,* ) 
+            WRITE( LOGDEV,* ) '     Avg Conc File Header Description:'
             DO K = 1, KD + L
-               WRITE( LOGDEV,* ) '    => ',
-     &         TRIM( FDESC3D( K ) )
+               WRITE( LOGDEV,* ) '       ', TRIM( FDESC3D( K ) )
             END DO
 
             VAR = 0

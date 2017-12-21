@@ -152,25 +152,25 @@ C-----------------------------------------------------------------------
          CALL M3EXIT( PNAME, STDATE, STTIME, MSG, XSTAT2 )
       ELSE IF ( STATUS .EQ. -1 ) THEN
          MSG = 'Environment variable set, but empty ... Using default:'
-         WRITE( LOGDEV, '(5X, A, I9)' ) MSG, STTIME
+         WRITE( LOGDEV, '(7X, A, I9)' ) TRIM(MSG), TSTEP( 1 )
       ELSE IF ( STATUS .EQ. -2 ) THEN
          MSG = 'Environment variable not set ... Using default:'
-         WRITE( LOGDEV, '(5X, A, I9)' ) MSG, STTIME
+         WRITE( LOGDEV, '(7X, A, I9)' ) TRIM(MSG), TSTEP( 1 )
       END IF
 
 #ifndef twoway
       VARDESC = 'Main Program Name'
       CALL ENVSTR( CTM_PROGNAME, VARDESC, 'DRIVER', PROGNAME, STATUS )
-      IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
+      !IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, 2A)' ) 'Value for ',VARDESC
       IF ( STATUS .EQ. 1 ) THEN
          MSG = 'Environment variable improperly formatted'
          CALL M3EXIT( PNAME, STDATE, STTIME, MSG, XSTAT2 )
       ELSE IF ( STATUS .EQ. -1 ) THEN
-         MSG = 'Environment variable set, but empty ... Using default:'
-         WRITE( LOGDEV, '(5X, A, I9)' ) MSG, STTIME
+         MSG = 'Environment variable set, but empty ... Using default: '
+         WRITE( LOGDEV, '(7X, A, 1x, A)' ) TRIM(MSG), PROGNAME
       ELSE IF ( STATUS .EQ. -2 ) THEN
-         MSG = 'Environment variable not set ... Using default:'
-         WRITE( LOGDEV, '(5X, A, I9)' ) MSG, STTIME
+         MSG = 'Environment variable not set ... Using default: '
+         WRITE( LOGDEV, '(7X, A, 1x, A)' ) TRIM(MSG), PROGNAME
       END IF
 
       STDATE = 1995192        ! default
@@ -182,10 +182,10 @@ C-----------------------------------------------------------------------
          CALL M3EXIT( PNAME, STDATE, STTIME, MSG, XSTAT2 )
       ELSE IF ( STATUS .EQ. -1 ) THEN
          MSG = 'Environment variable set, but empty ... Using default:'
-         WRITE( LOGDEV, '(5X, A, I9)' ) MSG, STTIME
+         WRITE( LOGDEV, '(7X, A, I9)' ) TRIM(MSG), STDATE
       ELSE IF ( STATUS .EQ. -2 ) THEN
          MSG = 'Environment variable not set ... Using default:'
-         WRITE( LOGDEV, '(5X, A, I9)' ) MSG, STTIME
+         WRITE( LOGDEV, '(7X, A, I9)' ) TRIM(MSG), STDATE
       END IF
 
       STTIME = 000000         ! default
@@ -197,10 +197,10 @@ C-----------------------------------------------------------------------
          CALL M3EXIT( PNAME, STDATE, STTIME, MSG, XSTAT2 )
       ELSE IF ( STATUS .EQ. -1 ) THEN
          MSG = 'Environment variable set, but empty ... Using default:'
-         WRITE( LOGDEV, '(5X, A, I9)' ) MSG, STTIME
+         WRITE( LOGDEV, '(7X, A, I9)' ) TRIM(MSG), STTIME
       ELSE IF ( STATUS .EQ. -2 ) THEN
          MSG = 'Environment variable not set ... Using default:'
-         WRITE( LOGDEV, '(5X, A, I9)' ) MSG, STTIME
+         WRITE( LOGDEV, '(7X, A, I9)' ) TRIM(MSG), STTIME
       END IF
 
       RUNLEN = 480000         ! default
@@ -212,10 +212,10 @@ C-----------------------------------------------------------------------
          CALL M3EXIT( PNAME, STDATE, STTIME, MSG, XSTAT2 )
       ELSE IF ( STATUS .EQ. -1 ) THEN
          MSG = 'Environment variable set, but empty ... Using default:'
-         WRITE( LOGDEV, '(5X, A, I9)' ) MSG, STTIME
+         WRITE( LOGDEV, '(7X, A, I9)' ) TRIM(MSG), RUNLEN
       ELSE IF ( STATUS .EQ. -2 ) THEN
          MSG = 'Environment variable not set ... Using default:'
-         WRITE( LOGDEV, '(5X, A, I9)' ) MSG, STTIME
+         WRITE( LOGDEV, '(7X, A, I9)' ) TRIM(MSG), RUNLEN
       END IF
 
 C Calculate number of output time steps for this model run:
@@ -283,7 +283,10 @@ C Get tracer IC's. Note: INIT_TRAC_1 may be setenv'ed to INIT_GASC_1
       END IF  ! N_TR_SPC > 0
 
 C Test opening existing conc file for update
+      CALL LOG_HEADING( LOGDEV, "Open or Create Concentration File" )
+
       IF ( .NOT. OPEN3( CTM_CONC_1, FSRDWR3, PNAME ) ) THEN
+         BACKSPACE( LOGDEV )
          MSG = 'Could not open ' // TRIM( CTM_CONC_1 ) // ' for update - '
      &        // 'try to open new'
          CALL M3MESG( MSG )
@@ -293,10 +296,16 @@ C Test opening existing conc file for update
       END IF
 
       CALL WR_INIT ( CGRID, STDATE, STTIME, TSTEP( 1 ) )
+      
+      CALL LOG_HEADING( LOGDEV, "Open or Create Average Concentration File" )
       CALL OPACONC ( STDATE, STTIME, TSTEP( 1 ) )
+      
+      CALL LOG_HEADING( LOGDEV, "Open or Create Wet Deposition File" )
       CALL OPWDEP  ( STDATE, STTIME, TSTEP( 1 ) )
 
       CALL SUBST_BARRIER
+      
+      CALL LOG_HEADING( LOGDEV, "Check Initial Concentrations" )
 
       RETURN
       END

@@ -196,10 +196,7 @@ c species table structures
 c----------------------------------------------------------------------------------------
             success = .true.
 
-c intialize module public data
-
-c from include file
-!!! NADA
+            CALL LOG_HEADING( LOGDEV, "Retrieve Species Namelist" )
 
 c from namelist files
 
@@ -208,8 +205,7 @@ c from namelist files
 
             call nameval( gc_matrix, eqname )
 
-            write( logdev,* ) ' '
-            write( logdev,* ) '    GC Species Namelist: ', trim( eqname )
+            write( logdev, '(5x,A,/,7x,A)' ) 'Gas Species Namelist: ', trim( eqname )
 
 !           open( file = 'gc_matrix.nml', unit = dev_gc_nml,
             dev_gc_nml = junit()
@@ -404,8 +400,8 @@ c the surrogate and ctrl arrays active dimensions not known a priori
 
             call nameval( ae_matrix, eqname )
 
-            write( logdev,* ) ' '
-            write( logdev,* ) '    AE Species Namelist: ', trim( eqname )
+            write( logdev,* ) 
+            write( logdev, '(5x,A,/,7x,A)' ) 'Aerosol Species Namelist: ', trim( eqname )
 
 !           open( file = 'ae_matrix.nml', unit = dev_ae_nml,
             dev_ae_nml = junit()
@@ -587,8 +583,8 @@ c the surrogate and ctrl arrays active dimensions not known a priori
 
             call nameval( nr_matrix, eqname )
 
-            write( logdev,* ) ' '
-            write( logdev,* ) '    NR Species Namelist: ', trim( eqname )
+            write( logdev,* ) 
+            write( logdev, '(5x,A,/,7x,A)' ) 'Nonreactive Species Namelist: ', trim( eqname )
 
 !           open( file = 'nr_matrix.nml', unit = dev_nr_nml,
             dev_nr_nml = junit()
@@ -783,8 +779,8 @@ c the surrogate and ctrl arrays active dimensions not known a priori
 
             call nameval( tr_matrix, eqname )
 
-            write( logdev,* ) ' '
-            write( logdev,* ) '    TR Species Namelist: ', trim( eqname )
+            write( logdev,* ) 
+            write( logdev, '(5x,A,/,7x,A)' ) 'Tracer Species Namelist: ', trim( eqname )
 
 !           open( file = 'tr_matrix.nml', unit = dev_tr_nml,
             dev_tr_nml = junit()

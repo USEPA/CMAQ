@@ -221,9 +221,7 @@ C Get gravitational settling (sedi) flag.
 
 C Get diagnostic files flag.
          VDIFFDIAG = .FALSE.         ! default
-         VARDESC = 'Writing the VDIFF diagnostic files'
          VDIFFDIAG = ENVYN( VDIFF_DIAG_FILE, VARDESC, VDIFFDIAG, STATUS )
-         IF ( STATUS .EQ. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
  
 C Set output file characteristics based on COORD.EXT and open the dry dep file
          IF ( IO_PE_INCLUSIVE ) THEN

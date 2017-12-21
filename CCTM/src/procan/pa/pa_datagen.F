@@ -56,6 +56,9 @@ C..Local Variables: None
 C----------------------------------------------------------------------
 
 !...Get flag to use process analysis
+      WRITE( LOGDEV, * )
+      WRITE( LOGDEV, '(/,5x,A)' ) '|=>---- INITIALIZE PROCESS ANALYSIS ----<=|'
+
 
       JDATE = 0; JTIME = 0
       PROCAN = .FALSE.         ! default

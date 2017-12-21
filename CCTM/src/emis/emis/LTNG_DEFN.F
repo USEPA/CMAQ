@@ -173,6 +173,8 @@ C        INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
 
          SUCCESS = .TRUE.
 
+         WRITE( LOGDEV, '(/,/,5x,A)' ),'|=>---- INITIALIZE LIGHTNING NO EMISSIONS ----<=|'
+
 !C Lightning NO production
 !C Set LTNG_NO to Y or T to turn on lightning NO production
          VARDESC = 'Flag for lightning emissions'

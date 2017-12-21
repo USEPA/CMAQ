@@ -148,9 +148,9 @@ C Set output file characteristics based on COORD.EXT and open it
       END IF
 
       WRITE( LOGDEV,* ) ' '
-      WRITE( LOGDEV,* ) '      Conc File Header Description:'
+      WRITE( LOGDEV,* ) '    Conc File Header Description:'
       DO K = 1, KD + L
-         WRITE( LOGDEV,* ) '    => ', TRIM( FDESC3D( K ) )
+         WRITE( LOGDEV,* ) '       ', TRIM( FDESC3D( K ) )
       END DO
 
       V = 0

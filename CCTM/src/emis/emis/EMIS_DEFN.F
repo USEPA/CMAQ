@@ -168,6 +168,7 @@ C Get number of emissions layers
          IF ( EMLAYS .LE. 1 ) THEN   ! better be inline plume rise run
             EMLAYS = NLAYS   ! env var default
             VARDESC = 'Number of emission layers'
+            WRITE( LOGDEV, * )
             EMLAYS = ENVINT( CTM_EMLAYS, VARDESC, EMLAYS, STATUS )
             IF ( STATUS .NE. 0 ) THEN
                WRITE( LOGDEV, '(5X, A)' ) VARDESC
@@ -177,7 +178,7 @@ C Get number of emissions layers
                   SUCCESS = .FALSE.; RETURN
                ELSE
                   XMSG = 'Environment variable not set or empty ... Using default:'
-                  WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
+                  WRITE( LOGDEV, '(5X, A, 1X, I9)' ) TRIM(XMSG), JTIME
                END IF
             END IF
          END IF
@@ -185,8 +186,8 @@ C Get number of emissions layers
          EMLAYS = MIN ( EMLAYS, NLAYS )
 
          WRITE( LOGDEV,1009 ) EMLAYS, NLAYS
-1009     FORMAT( / 10X, 'Number of Emissions Layers:         ', I3
-     &           / 10X, 'out of total Number of Model Layers:', I3 )
+1009     FORMAT(    5X, 'Number of Emissions Layers:         ', I3
+     &           /  5X, 'out of total Number of Model Layers:', I3 )
 
 C Initialize Online Lightning NOx Emissions
          IF ( .NOT. LTNG_INIT( JDATE, JTIME, TSTEP, EMLAYS ) ) THEN
@@ -196,8 +197,7 @@ C Initialize Online Lightning NOx Emissions
 
 C Initialize Aerosol Emissions         
          IF ( N_AE_SPC .GT. 0 ) THEN
-            WRITE( LOGDEV,'( /5X, A )' ) 'Aerosol Emissions Processing in '
-     &                                // 'Vertical diffusion ...'
+            WRITE( LOGDEV,'( //5X, A )' ) '|=>---- Process Aerosol Emissions ----<=|'
             NEMIS_AE = N_AE_EMIS  ! from CGRID_SPCS (originally, AE_EMIS.EXT)
             CALL MAP_PMEMIS ( )   ! set up PM emitted species mapping
          ELSE
@@ -271,6 +271,7 @@ C Master EArea Emissions Array
  
 C Initialize 3D Point Source Emissions 
 C (N_SPC_EMIS+1 serves as the null map for PTEM_MAP)
+         CALL LOG_HEADING( LOGDEV, 'Initialize Point Emissinos' )
          IF ( .NOT. PT3D_INIT( N_SPC_EMIS, EMLAYS, JDATE, JTIME, TSTEP ) ) THEN
             XMSG = 'Failure initializing plume rise emissions module'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -800,6 +801,8 @@ C-----------------------------------------------------------------------
 
 C Retrieve Environment Variable Letting User Ignore this Check
 C and allowing the model to proceed.
+         CALL LOG_HEADING( LOGDEV, "Check Emissions Mapping" )
+
          VARDESC    = "Let model proceed even if there are emission"
      &              //" surrogates that do not appear on any input file."
          EMISCHK = ENVYN( CTM_EMISCHK, VARDESC, EMISCHK, STATUS )
@@ -855,9 +858,9 @@ C Find Upper Bound on Number of Possible Species
 
          ! Build the master list of all area, point, bio, sea spray
          ! Print a Table of Species from Every Emissions Source
-         WRITE( LOGDEV, '(/,A31,A42)' ),'CHECKING COMPATABILITY BETWEEN ',
+         WRITE( LOGDEV, '(/5x,A31,A42)' ),'CHECKING COMPATABILITY BETWEEN ',
      &                  'INTERNAL SPECIES LIST AND EMISSIONS INPUTS' 
-         WRITE( LOGDEV, '(A55,/,A58)' ),
+         WRITE( LOGDEV, '(7x,A55,/,7x,A58)' ),
      &                  'The following tables list the chemical species present ',
      &                  'on each emission file or from each online emission source.' 
 
@@ -865,7 +868,7 @@ C Find Upper Bound on Number of Possible Species
          STRT = 0
          IF ( NTRSPC .GT. 0 ) THEN 
            EMIS_SPCS( STRT+1:STRT+NTRSPC ) = TRACSPC( 1:NTRSPC )
-           WRITE( LOGDEV, '(/,A18,I3,A8,/,4(2x,A16))' ),
+           WRITE( LOGDEV, '(/,5x,A18,I3,A8,/,(7x,A16,3(2x,A16)))' ),
      &           'Tracer Emissions: ',NTRSPC,' Species',
      &           TRACSPC( 1:NTRSPC )
            STRT = STRT + NTRSPC
@@ -874,7 +877,7 @@ C Find Upper Bound on Number of Possible Species
          ! Gas and Aerosol Gridded Area Emissions
          IF ( NARSPC .GT. 0 ) THEN
            EMIS_SPCS( STRT+1:STRT+NARSPC ) = AREASPC( 1:NARSPC )
-           WRITE( LOGDEV, '(/,A40,I3,A8,/,4(2x,A16))' ),
+           WRITE( LOGDEV, '(/,5x,A40,I3,A8,/,(7x,3(2x,A16)))' ),
      &           'Gas and Aerosol Gridded Area Emissions: ',
      &           NARSPC,' Species',AREASPC( 1:NARSPC )
            STRT = STRT + NARSPC
@@ -885,7 +888,7 @@ C Find Upper Bound on Number of Possible Species
            PTSTRT = STRT
            DO IPT = 1,NPTGRPS
              JPT = STKSPC( IPT )%LEN
-             WRITE( LOGDEV, '(/,A11,I2,A12,I3,A8,/,4(2x,A16))' ),
+             WRITE( LOGDEV, '(/,5x,A11,I2,A12,I3,A8,/,(7x,3(2x,A16)))' ),
      &             'Point File ',IPT,' Emissions: ',JPT, 'Species',
      &             STKSPC( IPT )%ARRY
              EMIS_SPCS( PTSTRT+1:PTSTRT+JPT ) = STKSPC( IPT )%ARRY( 1:JPT )
@@ -902,7 +905,7 @@ C Find Upper Bound on Number of Possible Species
            ALLOCATE( EMSPC_WRITE( COUNT( BIO_IND ) ) )
            EMSPC_WRITE = PACK( EMSPC, BIO_IND )
            
-           WRITE( LOGDEV, '(/,A20,I3,A8,/,4(2x,A16))' ),
+           WRITE( LOGDEV, '(/,5x,A20,I3,A8,/,(7x,3(2x,A16)))' ),
      &           'Biogenic Emissions: ',COUNT( BIO_IND ),' Species',
      &           EMSPC_WRITE
            STRT = STRT + NBIOSPC
@@ -911,7 +914,7 @@ C Find Upper Bound on Number of Possible Species
          ! Marine Gas Species
          IF ( NMGSPC .GT. 0 ) THEN
            EMIS_SPCS( STRT+1:STRT+NMGSPC ) = MG_SPC( 1:NMGSPC )
-           WRITE( LOGDEV, '(/,A26,I3,A8,/,4(2x,A16))' ),
+           WRITE( LOGDEV, '(/,5x,A26,I3,A8,/,(7x,3(2x,A16)))' ),
      &           'Marine Gas Emissions: ',NMGSPC,' Species',
      &           MG_SPC( 1:NMGSPC )
            STRT = STRT + NMGSPC
@@ -920,7 +923,7 @@ C Find Upper Bound on Number of Possible Species
          ! Lightning Species (NO)
          IF ( NLTSPC .GT. 0 ) THEN
            EMIS_SPCS( STRT+1 ) = LTSPC
-           WRITE( LOGDEV, '(/,A21,I3,A8,/,4(2x,A16))' ),
+           WRITE( LOGDEV, '(/,5x,A21,I3,A8,/,(7x,3(2x,A16)))' ),
      &           'Lightning Emissions: ',NLTSPC,' Species',
      &           LTSPC
            STRT = STRT + NLTSPC
@@ -945,29 +948,29 @@ C Reduce EMIS_SPCS to just unique values
          
 C Print out the Tables of Gas, Aerosol, Nonreactive and Tracer Species
 C for reference
-         WRITE( LOGDEV, '(/A57,/,A54)' ),
+         WRITE( LOGDEV, '(/5x,A57,/,7x,A54)' ),
      &                  'The following tables list the emission surrogate species ',
      &                  'present in each namelist or in the aerosol data table.' 
          
          IF ( N_GC_EMIS .GT. 0 )
-     &        WRITE( LOGDEV, '(/,A13,I3,A8,/,4(2x,A16))' ),
+     &        WRITE( LOGDEV, '(/,5x,A13,I3,A8,/,(7x,A16,3(2x,A16)))' ),
      &               'GC Namelist: ',N_GC_EMIS,' Species',GC_EMIS(1:N_GC_EMIS)
          
          IF ( N_AEROSPC .GT. 0 ) THEN
               ALLOCATE( AERO_EMIS_WRITE( COUNT( AEROSPC%EMIS .NE. "" ) ) )
               AERO_EMIS_WRITE = PACK( AEROSPC%EMIS, AEROSPC%EMIS .NE. "" )
-              WRITE( LOGDEV, '(/,A16,I3,A8,/,4(2x,A16))' ),
+              WRITE( LOGDEV, '(/,5x,A16,I3,A8,/,(7x,3(2x,A16)))' ),
      &               'AeroData Table: ',COUNT( AEROSPC%EMIS .NE. "" ),
      &               ' Species',AERO_EMIS_WRITE
               DEALLOCATE( AERO_EMIS_WRITE )
          END IF
          
          IF ( N_NR_EMIS .GT. 0 )
-     &        WRITE( LOGDEV, '(/,A13,I3,A8,/,4(2x,A16))' ),
+     &        WRITE( LOGDEV, '(/,5x,A13,I3,A8,/,(7x,3(2x,A16)))' ),
      &               'NR Namelist: ',N_NR_EMIS,' Species',NR_EMIS(1:N_NR_EMIS)
          
          IF ( N_TR_EMIS .GT. 0 )
-     &        WRITE( LOGDEV, '(/,A13,I3,A8,/,4(2x,A16))' ),
+     &        WRITE( LOGDEV, '(/,5x,A13,I3,A8,/,(7x,3(2x,A16)))' ),
      &               'TR Namelist: ',N_TR_EMIS,' Species',TR_EMIS(1:N_TR_EMIS)
 
 
@@ -997,7 +1000,7 @@ C Compare with Gas, Aerosol, Nonreactive, and Tracer Species
                 ALLOCATE( GC_EMIS_WRITE( COUNT( GC_EMIS_MISSING ) ))
                 GC_EMIS_WRITE = PACK( GC_EMIS(1:N_GC_EMIS), GC_EMIS_MISSING )
 
-                WRITE( LOGDEV, '(/,A48,/,2x,A51,/,2x,A42,/,5(5x,A16))'),
+                WRITE( LOGDEV, '(/,5x,A48,/,7x,A51,/,7x,A42,/,(7x,4(5x,A16)))'),
      &             'The following GAS emission surrogate species are',
      &             'not present from any of the Area, Point, Biogenic,',
      &             'Marine Gas, or Lightning emissions sources:',
@@ -1025,7 +1028,7 @@ C Compare with Gas, Aerosol, Nonreactive, and Tracer Species
                 ALLOCATE( AERO_EMIS_WRITE( COUNT( AERO_EMIS_MISSING ) ) ) 
                 AERO_EMIS_WRITE = PACK( AEROSPC%EMIS, AERO_EMIS_MISSING )
 
-                WRITE( LOGDEV, '(/A40,/,2x,A52,/,2x,A53,/,5(5x,A16))'),
+                WRITE( LOGDEV, '(/5x,A40,/,7x,A52,/,7x,A53,/,(7x,4(5x,A16)))'),
      &             'The following AEROSOL emission surrogate',
      &             'species are not present from any of the Area, Point,',
      &             'Biogenic, Marine Gas, or Lightning emissions sources:',
@@ -1053,7 +1056,7 @@ C Compare with Gas, Aerosol, Nonreactive, and Tracer Species
                 ALLOCATE( NR_EMIS_WRITE( COUNT( NR_EMIS_MISSING ) ) ) 
                 NR_EMIS_WRITE = PACK( NR_EMIS(1:N_NR_EMIS), NR_EMIS_MISSING )
 
-                WRITE( LOGDEV, '(/,A45,/,A53,/,A54,/,5(5x,A16))'),
+                WRITE( LOGDEV, '(/,5x,A45,/,7x,A53,/,7x,A54,/,(7x,4(5x,A16)))'),
      &             'The following NONREACTIVE emission surrogate ',
      &             'species are not present from any of the Area, Point, ',
      &             'Biogenic, Marine Gas, or Lightning emissions sources: ',
@@ -1081,7 +1084,7 @@ C Compare with Gas, Aerosol, Nonreactive, and Tracer Species
                 ALLOCATE( TR_EMIS_WRITE( COUNT( TR_EMIS_MISSING ) ) ) 
                 TR_EMIS_WRITE = PACK( TR_EMIS(1:N_TR_EMIS), TR_EMIS_MISSING )
 
-                WRITE( LOGDEV, '(/,A40,/,A53,/,A54,/,5(5x,A16))'),
+                WRITE( LOGDEV, '(/,5x,A40,/,7x,A53,/,7x,A54,/,(7x,4(5x,A16)))'),
      &             'The following TRACER emission surrogate ',
      &             'species are not present from any of the Area, Point, ',
      &             'Biogenic, Marine Gas, or Lightning emissions sources: ',
@@ -1101,14 +1104,14 @@ C Stop the Model if Any Emissions Surrogate Species are
 C Missing from All Emission Input Sources
          IF ( LERROR ) THEN
            IF ( .NOT. EMISCHK ) THEN
-              WRITE( LOGDEV, '(5(/,A))') 
+              WRITE( LOGDEV, '(5(/,5x,A))') 
      &               '************************WARNING***********************:',
      &               'One or more emissions surrogates assigned to model species ',
      &               'are not found in emissions sources but the CTM_EMISCHK ',
      &               'environment variable set to False so simulation will proceed.',
      &               '*******************************************************'
 
-              WRITE( LOGDEV, '(/,A55,/,A34,I3,A8,/,4(2x,A16))')
+              WRITE( LOGDEV, '(/,5x,A55,/,5x,A34,I3,A8,/,(7x,3(2x,A16)))')
      &              'ATTENTION: The following emission species are available',
      &              'from the inputs but are not used: ',N_UNUSED,' Species',
      &              EMIS_SPC_UNUSED
@@ -1119,7 +1122,7 @@ C Missing from All Emission Input Sources
      &             //'should have a surrogate found in at least one source.'
               CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
            ELSE     
-              WRITE( LOGDEV, '(3(/,A),/,5(/,A),/,A,4(/,A))') 
+              WRITE( LOGDEV, '(3(/,5x,A),/,5(/,5x,A),/,5x,A,4(/,5x,A))') 
      &               '*************************ERROR**********************:',
      &               'One or more emission surrogates assigned to model species ',
      &               'are not found in emission sources.',
@@ -1133,7 +1136,7 @@ C Missing from All Emission Input Sources
      &               'if model predictions are acceptable without using the above emissions.',
      &               '*****************************************************'
 
-              WRITE( LOGDEV, '(/,A55,/,A34,I3,A8,/,4(2x,A16))')
+              WRITE( LOGDEV, '(/,5x,A55,/,5x,A34,I3,A8,/,(7x,3(2x,A16)))')
      &             'ATTENTION: The following emission species are available',
      &             'from the inputs but are not used: ',N_UNUSED,' Species',
      &              EMIS_SPC_UNUSED

@@ -154,6 +154,8 @@ C-----------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
+
+         WRITE( LOGDEV, '(/,/,5x,A)' ), '|=>---- LOAD INITIAL CONDITIONS ----<=|'
          CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
      &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
 C IOFDESC common now loaded with MET_CRO_3D header
@@ -218,7 +220,7 @@ C Get INDX
       END DO
 
       IF ( SPC_CAT .EQ. 'GC' ) THEN
-         WRITE( LOGDEV,1009 ) 'transported gas-phase species'
+         WRITE( LOGDEV,1009 ) 'transported gas-phase (reactive) species'
          SPC_STRT = GC_STRT
          N_SPCS = N_GC_SPC
          DO SPC = 1, N_SPCS
@@ -422,8 +424,8 @@ C IOFDESC common now loaded with FNAME header
       END DO
  
 
-      IF ( N_SPCS .NE. 0 ) WRITE( LOGDEV,'(/ 5X, A)' )
-     &                            SPC_CAT // ' loaded into CGRID'
+      !IF ( N_SPCS .NE. 0 ) WRITE( LOGDEV,'(/ 5X, A)' )
+      !&                            SPC_CAT // ' loaded into CGRID'
 
       IF ( SPC_CAT .EQ. 'RJ' ) THEN
 
@@ -446,13 +448,14 @@ C Load RHOJ for transport and mixing ratio advection adjustment
             END DO
          END DO
 
-         WRITE( LOGDEV,'(/ 5X, A)' ) 'Density*Jacobian loaded into CGRID'
+         !WRITE( LOGDEV,'(/ 5X, A)' ) 'Density*Jacobian loaded into CGRID'
 
 
       END IF
 
       IF ( SPC_CAT .EQ. 'AE' ) THEN
- 
+         WRITE( LOGDEV, '(/,5x,A)' ) '-- Check Aerosol IC Size Distributions --'
+
          ! Check Aerosol Size Distributions and Warn the User if They Are Not Robust
          NEW_START = ENVYN( CTM_NEW_START, 'Flag for Model Restart from Previous Day', 
      &                      .FALSE., STAT )
@@ -488,11 +491,11 @@ C Load RHOJ for transport and mixing ratio advection adjustment
 
            !Print warning if any aerosol ICs violated the size distribution parameters
            IF ( LSTAT ) THEN    
-               WRITE( XMSG2, '(A55,A57,A5)' ),
-     &            'Applying fix to aerosol Initial Conditions for aerosol',
+               WRITE( XMSG2, '(A55,A61,A5)' ),
+     &            'ATTENTION: Applying fix to aerosol Initial Conditions for aerosol',
      &            ' modes. Turn on verbose_loadcgrid preprocessor flag to learn ',
      &            'more.'
-               CALL M3WARN( 'Read ICs', JDATE, JTIME, XMSG2 )
+               CALL LOG_MESSAGE( LOGDEV, XMSG2 )
            END IF
          END IF
 
@@ -623,15 +626,8 @@ C correct sulfate vapor concentration for part removed:
 
       END IF  !  SPC_CAT .EQ. 'AE'
 
-C Close the file
-
-!     IF ( .NOT. CLOSE3( FNAME ) ) THEN
-!        XMSG = 'Could not close ' // FNAME // ' file'
-!        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-!     END IF
-
       RETURN
 
-1009  FORMAT( / 5X, 'IC/BC Factors used for ', A )
+1009  FORMAT( / 5X, 'Initial Condition Factors used for ', A )
 1013  FORMAT( 5X, I3, 2X, A, 1PG13.5 )
       END

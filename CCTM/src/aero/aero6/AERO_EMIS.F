@@ -368,7 +368,7 @@ C *** Allocate memory for EM_RATE, EM_PART, EM_MAP, EM_FAC, NUM_MAP, NUM_FAC, SR
          END IF
 
 C *** Map indices of emission species
-      write( logdev,* ) '=== aerospc em_map'
+      write( logdev,'(/,5x,A)' ) '-- Map Aerosol Emissions --'
          EM_MAP = 0  
          DO S = 1, N_AEROSPC
             IF ( AEROSPC( S )%EMIS .NE. ' ' ) THEN
@@ -388,7 +388,7 @@ C *** Map indices of emission species
 
 C *** set across-the-board adjustment factors (from Namelist file)
 C     Strategy: first check Namelist Emis_Fac for antrhop. emis, then check for non-zero split factor
-      write( logdev,* ) 'modified aerospc em_fac'
+      write( logdev, '(5x,A)' ) 'Modified aerospc em_fac'
          EM_FAC = 1.0 ! array assignment
          DO S = 1, N_AEROSPC
             IF ( AEROSPC( S )%EMIS .NE. ' ' ) THEN

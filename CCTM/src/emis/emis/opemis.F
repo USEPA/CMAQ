@@ -60,6 +60,8 @@ C-----------------------------------------------------------------------
  
       EMLAYS = 0
 
+      WRITE( LOGDEV, '(/,/,5x,A)' ),'|=>---- OPEN GRIDDED EMISSIONS ----<=|'
+
 C Open the tracer emissions file
 
       IF ( N_TR_EMIS .GT. 0 ) THEN
@@ -220,28 +222,28 @@ C Assume units = mol/s across gas and non-reactive species classes
       IF ( NEMIS .GT. 0 ) THEN
          WRFLG = .TRUE.
          WRITE( LOGDEV,1001 )
-1001     FORMAT( / 10X, 'Gas Chemistry Emissions Processing in',
+1001     FORMAT( /  5X, 'Gas Chemistry Emissions Processing in',
      &              1X, 'Vertical diffusion ...' )
       END IF
 
 !     IF ( N_AE_EMIS .GT. 0 ) THEN
 !        WRFLG = .TRUE.
 !        WRITE( LOGDEV,1003 )
-1003     FORMAT( / 10X, 'Aerosol Emissions Processing in',
+1003     FORMAT( /  5X, 'Aerosol Emissions Processing in',
      &              1X, 'Vertical diffusion ...' )
 !     END IF
 
       IF ( N_NR_EMIS .GT. 0 ) THEN
          WRFLG = .TRUE.
          WRITE( LOGDEV,1005 )
-1005     FORMAT( / 10X, 'Non-reactives Emissions Processing in',
+1005     FORMAT( /  5X, 'Non-reactives Emissions Processing in',
      &              1X, 'Vertical diffusion ...' )
       END IF
 
       IF ( N_TR_EMIS .GT. 0 .AND. EM_TRAC ) THEN
          WRFLG = .TRUE.
          WRITE( LOGDEV,1007 )
-1007     FORMAT( / 10X, 'Tracer Emissions Processing in',
+1007     FORMAT( /  5X, 'Tracer Emissions Processing in',
      &              1X, 'Vertical diffusion ...' )
       END IF
 

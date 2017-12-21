@@ -47,17 +47,37 @@ C   12 Aug 15 D.Wong:   Replaced SUBST_MPI with mpif.h
       INTEGER, PARAMETER :: MAXLEN_CTM_LOG   = MAXLEN_CCTM_APPL + 11
 
       CHARACTER(  8 ) :: PRESTR  = 'CTM_LOG_'
-      CHARACTER(  8 ) :: DIAGSTR = 'CTM_DIAG_'
+      CHARACTER(  9 ) :: DIAGSTR = 'CTM_DIAG_'
       CHARACTER(  3 ) :: CMYPE
       CHARACTER(  8 ) :: APPL = 'CTM_APPL'
+
       CHARACTER( MAXLEN_CCTM_APPL ) :: EQNAME
+      CHARACTER( MAXLEN_CCTM_APPL ) :: BLDFOLD
       CHARACTER( MAXLEN_CTM_LOG   ) :: IOLOGEQ, IODIAGEQ
 
-      INTEGER :: ERROR, TOTPE, IOST
+      INTEGER :: ERROR, TOTPE, IOST, FHEAD, IHEAD
+      INTEGER :: NIOAPI_HEAD, NCMAQ_HEAD
+      INTEGER, PARAMETER :: NHEAD = 200
+      CHARACTER( 90 ) :: CMAQ_HEADER( NHEAD )
+      CHARACTER( 90 ) :: IOAPI_HEADER( NHEAD )
 
       CALL NAMEVAL ( APPL, EQNAME )
 
       OUTDEV = 6  ! Assign Standard Out File Unit
+
+      ! Fetch CMAQ Header
+      FHEAD = JUNIT()
+      CALL NAMEVAL( "BLD", BLDFOLD )
+      OPEN( FHEAD, FILE = TRIM( BLDFOLD ) // '/log_header.txt' )
+      DO IHEAD = 1,NHEAD
+          READ( FHEAD, '(A)', IOSTAT=IOST ), CMAQ_HEADER( IHEAD )
+          ! Check for End of File
+          IF ( IOST .LT. 0 ) THEN
+             NCMAQ_HEAD = IHEAD - 1
+             EXIT
+          END IF
+      END DO
+      CLOSE( FHEAD )
 
 #ifdef parallel
       CALL MPI_COMM_RANK ( MPI_COMM_WORLD, MYPE, ERROR )
@@ -81,9 +101,34 @@ C   12 Aug 15 D.Wong:   Replaced SUBST_MPI with mpif.h
          STOP
       END IF
 
+      ! Redirect Standard Output
+      IF ( MYPE .NE. 0 ) OPEN( UNIT = 6, FILE = "/dev/null", STATUS = "OLD" )
+
       LOGDEV = INIT3() 
+
+      ! Put Standard Output Back to File Unit 6 By Closing File Unit 6
+      IF ( MYPE .NE. 0 ) CLOSE( 6 ) 
+
+      ! Fetch I/O-API Header
       REWIND( LOGDEV )
-      CALL WRITE_LOG_HEADER( LOGDEV, MYPE, TOTPE-1 )
+      DO IHEAD = 1,NHEAD
+          READ( LOGDEV, '(A)', IOSTAT=IOST ), IOAPI_HEADER( IHEAD )
+          ! Check for End of File
+          IF ( IOST .LT. 0 ) THEN
+             NIOAPI_HEAD = IHEAD - 1
+             EXIT
+          END IF
+      END DO
+      REWIND( LOGDEV )
+
+      ! Write CMAQ Header and then I/O-API Header
+      DO IHEAD = 1,NCMAQ_HEAD
+          WRITE( LOGDEV, '(A)' ) CMAQ_HEADER( IHEAD )
+      END DO
+      WRITE( LOGDEV, * )
+      DO IHEAD = 1,NIOAPI_HEAD
+          WRITE( LOGDEV, '(A)' ) IOAPI_HEADER( IHEAD )
+      END DO
 
 
       ! Concatenate Diagnostic Filename
@@ -110,7 +155,15 @@ C   12 Aug 15 D.Wong:   Replaced SUBST_MPI with mpif.h
           END IF 
       END IF
  
-      CALL WRITE_LOG_HEADER( DIAGDEV, MYPE, TOTPE-1 )
+      ! Write CMAQ Header and then I/O-API Header
+      REWIND( DIAGDEV )
+      DO IHEAD = 1,NCMAQ_HEAD
+          WRITE( DIAGDEV, '(A)' ) CMAQ_HEADER( IHEAD )
+      END DO
+      WRITE( DIAGDEV, * )
+      DO IHEAD = 1,NIOAPI_HEAD
+          WRITE( DIAGDEV, '(A)' ) IOAPI_HEADER( IHEAD )
+      END DO
 
     
 

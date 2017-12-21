@@ -200,6 +200,8 @@ C-----------------------------------------------------------------------
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
 
+         WRITE( LOGDEV, '(/,5x,A)' ),'|=>---- INITIALIZE ADVECTION STEPPING ----<=|'
+
          MAXSYNC = 720          ! default
          VARDESC = 'Maximum Synchronization Time Step (sec)'
          MAXSYNC = ENVINT( CTM_MAXSYNC, VARDESC, MAXSYNC, STATUS )
@@ -399,8 +401,6 @@ C A satisfactory MINSECS could not be found
          END DO
       END IF
 
-      WRITE( LOGDEV,92013 ) JDATE, JTIME
-
 C Establish ending time for this Courant number calculation:
       EDATE = JDATE
       ETIME = JTIME
@@ -585,14 +585,12 @@ C------------------  FORMAT  STATEMENTS   ------------------------------
      &          1X, 'could not determine minimum step that divides TSTEP',
      &          1X, 'for model step:', I7.6, ' HHMMSS' )
 
-92013 FORMAT( / 5X, 'From ADVSTEP - date/time: ', I8, '/', I6.6 )
-
 92019 FORMAT( / 5X, 'Synchronization step adjusted up to mimimum (SEC):', I7
      &        /46X, '(HHMMSS): ', I6.6
-     &        / 5X, 'Number of Synchronization steps:', I5 / )
+     &        / 5X, 'Number of Synchronization steps:', I5  )
 
-92021 FORMAT( / 5X, 'Computed synchronization step (HHMMSS): ', I6.6
-     &        / 5X, 'Number of Synchronization steps:', I5 / )
+92021 FORMAT(   5X, 'Computed synchronization step (HHMMSS): ', I6.6
+     &        / 5X, 'Number of Synchronization steps:', I5  )
 
 92025 FORMAT( / 5X, 'Layer', 3X, 'Advection', 3X, 'per Sync'
      &        /11X, 'Step (HHMMSS)', 2X, 'Step' )

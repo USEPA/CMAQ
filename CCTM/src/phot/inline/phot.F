@@ -579,7 +579,7 @@ C...modules
 
 !...write to the log file, CTM_RJ_1 file and return
 
-         WRITE( LOGDEV, 1003 ) MYPE, JDATE, JTIME
+         !WRITE( LOGDEV, 1003 ) MYPE, JDATE, JTIME
 
 !...Initialize ETOT_SFC, TAU_AERO, TAU_TOT, TAUO3_TOP to 0.0
 

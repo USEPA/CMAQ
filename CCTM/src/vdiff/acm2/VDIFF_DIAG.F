@@ -126,11 +126,6 @@ C Create the vsed_map (find the 1st vsed_ae species for each of the 6 surrogate 
 
             end do
     
-            write( logdev,* ) '   vsed_map'
-            do i = 1, n_vsed
-               write( logdev,* ) '     ', vsed_map( i ),
-     &                                    vsed_name( i )
-            end do
          end if
 
          if ( io_pe_inclusive ) then

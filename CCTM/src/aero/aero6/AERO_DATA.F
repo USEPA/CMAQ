@@ -642,6 +642,8 @@ C Local Variables:
 
       If ( mapped ) Return
 
+      Call LOG_SUBHEADING( LOGDEV, "Map Aerosol Species" )
+
       mole_weight = 0.0
 
       n_aerospc      = 0   ! Number of Used Aerosol Chemical Species
@@ -756,7 +758,7 @@ C Build mapping to CGRID for each species in the master AeroList
                Write( xmsg,* ) 'FATAL ERROR: Linked set of tracers, ',
      &                    Trim( xmsg2 ),', is missing species, ',
      &                    Trim( aerolist( spc )%name( n ) )
-               Call m3warn( pname, 0, 0, xmsg )
+               Call m3exit( pname, 0, 0, xmsg, xstat3 )
             End If
 
             ! Set the Aero_Missing Flag
@@ -1013,7 +1015,6 @@ C compute aeromode_minNum and aeromode_minM2
 
       mapped = .True.
 
-      Write( logdev,'( 5x, a )' ) ' --- Aero Species Mapped ---'
 
 99901 Format( 'FATAL Error(s) found in the AE namelist used. Check that ' 
      &     /  'this AE namelist contains the above required data as the file in '
@@ -1141,8 +1142,6 @@ C Check that all emissions units match
 #endif
 
       pm_mapped = .True.
-
-      Write( logdev,'( 5x, a )' ) ' --- PM Emis Species Mapped ---'
 
       Return
 
@@ -1354,13 +1353,13 @@ C Find the substring vname in aerospc( spc )%name( n )
       End Do
 
       If ( .Not. required ) Then
-         xmsg = ' NOT FATAL: Optional Species '
+         xmsg = 'Optional Species '
      &       // Trim( vname ) // ' Not found in AE namelist.'
-         write(logdev,'(/ a / )')xmsg
+         write(logdev,'(5x,a)') xmsg
          Return
       End If
 
-      xmsg = 'FATAL: Required Species ' // Trim( vname ) // ' Not found in AE namelist'
+      xmsg = 'Required Species ' // Trim( vname ) // ' Not found in AE namelist'
       AE_eflag  = .True.
       Call m3warn( pname, 0, 0, xmsg )
 !     Call m3exit( pname, 0, 0, xmsg, xstat3 )
