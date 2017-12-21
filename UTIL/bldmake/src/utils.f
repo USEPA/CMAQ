@@ -260,7 +260,11 @@
       ! local variables
       Character( FLD_LEN ) :: cmdline
 
-      cmdline = 'make'
+      if ( debug_cctm ) then
+         cmdline = 'make DEBUG=TRUE'
+      else
+         cmdline = 'make'
+      end if
 
       status = system( Trim(cmdline) )
       If ( status .Ne. 0 ) Then
