@@ -1,4 +1,4 @@
-CMAQv5.2 Known Issues 
+CMAQv5.2 Known Issues
 =====================
 
 This directory contains descriptions and solutions for Known Issues in the [Community Multiscale Air Quality (CMAQ)](http://www.epa.gov/cmaq) modeling system.
@@ -33,13 +33,13 @@ This will only impact when you want to output lightning diagnotics files.
 
 ### Solution
 Replace CCTM/src/emis/emis/LTNG_DEFN.F file in repository with the version located in the folder CMAQv5.2-i2
- 
+
 ## *CMAQv5.2-i3:* Turn on Biogenic Emissions Seasonality By Default  
 Date: 2017-8-31  
 Contact: Ben Murphy (murphy.benjamin@epa.gov)  
 
 ### Description  
-The release version of the CCTM runscript (CCTM/scripts/run_cttm.csh) instructed the model to ignore switching between summer and winter biogenic emission factors as a function of space and day. Because the default emission factor was set to winter, very little biogenic emissions from decidus plants were introduced by the model. 
+The release version of the CCTM runscript (CCTM/scripts/run_cttm.csh) instructed the model to ignore switching between summer and winter biogenic emission factors as a function of space and day. Because the default emission factor was set to winter, very little biogenic emissions from decidus plants were introduced by the model.
 
 ### Scope and Impact
 This problem must be fixed by anyone running the model for spring, summer or fall conditions. It will affect VOC, oxidant, ozone and PM predictions substantially in forrested areas.
@@ -64,7 +64,7 @@ CMAQ will exit claiming that the grids are inconsistent, when they are actually 
 ### Solution  
 We have implemented a straight-forward solution that calculates the difference of the internal and input grid spacing in advstep.F. If the absolute value of this difference is greater than an assumed tolerance (i.e. 1.0E-5), then the code will error and exit as before. Replace CCTM/src/driver/yamo/advstep.F in repository with the version located under CMAQv5.2-i4.   
 
-## *CMAQv5.2-i5:* 
+## *CMAQv5.2-i5:* Initilize Aerosol Properties Correctly
 Date: 2017-10-30   
 Contact: Ben Murphy (murphy.benjamin@epa.gov)  
 
@@ -78,6 +78,25 @@ It is also suspected, though unconfirmed, that this issue can be partly responsi
 ### Solution  
 Several modifications have been made to add consistency to the execution of getpar. Six source files in total should be replaced in the repository. We have implemented a call to getpar at the beginning of the orgaer routine. We have also generalized and renamed the input flag (LIMIT_SG --> FIXED_SG) to getpar and placed it in the AERO_DATA module for transparency. The following subroutines then need to be updated to be consistent with this update in the nature of FIXED_SG: AEROSOL_CHEMISTRY.F, aero_driver.F, aero_subs.F, and AERO_DATA.F. Finally, some of the logic in getpar.f was revised for clarity and transparency. Replace all of the files CCTM/src/aero/aero6 that have updated versions in CMAQv5.2-i5 with their new counterparts.
 
+## *CMAQv5.2-i6:* Resolve Errors in Approach for Correcting Initial and Boundary Aerosol Size Distributions
+Date: 2017-12-04
+Contact: Ben Murphy (murphy.benjamin@epa.gov)  
 
+### Description  
+CMAQv5.2 employs a routine to check that the aerosol size distributions read in to the model from initial and boundary conditions is within reasonable bounds for the numerical approaches used in the aerosol module. Unfortunately, the approach in the release version of the code makes a number of small mistakes. First, it does not use the "dry" aerosol mass as it should, but instead uses the "wet" mass. Second, the restrictions on the aerosol diameter are too tight, especially at the upper bound. Third, the aerosols really should not be checked from the ICs on a restart day. It is more important for the size distribution to be continuous from day to day.  
 
+Because of these errors, number concentrations in all modes is artificially high at the beginning of every day. The discontinuity in number concentration, surface area, standard deviation and diameter can easily be seen. The mass is completely conserved and unaffected by these errors.  
 
+*The following updates have been introduced:*  
+
+- A mask has been used to select for only the dry components of the aerosol when summing the mass, LBCDRY( N_AE_TRANS )
+
+- The tolerances on the aerosol diameter, min_diam_g and max_diam_g, have been relaxed.
+
+- The "NEW_START" environment variable is now read and used by load_cgrid.F in order to distinguish between the initial day and subsequent days.
+
+### Scope and Impact
+The resolution of this issue should result in more stable code that avoids numerical inconsistencies and spontaneous model hangs.
+
+### Solution  
+Several modifications need to be made to the following files: AERO_DATA.F, rdbcon.F, load_cgrid.F. Copies of the new files are available in the folder CMAQv5.2-i6.  
