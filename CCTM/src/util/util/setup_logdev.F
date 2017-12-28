@@ -101,6 +101,13 @@ C   12 Aug 15 D.Wong:   Replaced SUBST_MPI with mpif.h
          STOP
       END IF
 
+      ! Write CMAQ Header to Screen
+      IF ( MYPE .EQ. 0 ) THEN
+      DO IHEAD = 1,NCMAQ_HEAD
+          WRITE( OUTDEV, '(A)' ) CMAQ_HEADER( IHEAD )
+      END DO
+      END IF
+
       ! Redirect Standard Output
       IF ( MYPE .NE. 0 ) OPEN( UNIT = 6, FILE = "/dev/null", STATUS = "OLD" )
 

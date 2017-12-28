@@ -154,6 +154,10 @@ C Local variables:
       INTEGER, SAVE :: JTIME    ! current model time, coded HHMMSS
       INTEGER          C, R, L, K, S, V     ! loop induction variables
       INTEGER          ALLOCSTAT
+      INTEGER          NFILE, IFILE, OPD, EXST
+      CHARACTER( 1000 ) :: CFILE
+      CHARACTER(   16 ) :: ACT
+      REAL( 8 )         :: CPU_TIME_START, CPU_TIME_FINISH
 
       CHARACTER(  2 ) :: COLROW = 'CR'  ! col/row arg list order
       CHARACTER( 16 ) :: PNAME = 'DRIVER'
@@ -406,9 +410,38 @@ C Verify input file header consistency and run duration
          END IF
 #endif
 
+! Print the open filenames to the screen output (OUTDEV). Try to
+! organize the files into input files and output files.
+         IF ( MYPE .EQ. 0 ) THEN
+         NFILE = JUNIT() - 1
+
+         CALL LOG_HEADING( OUTDEV, "Input File Report" )
+         WRITE( OUTDEV, '(5x,A)' ),'--Unit-- | --File Path/Name--'
+         WRITE( OUTDEV, '(5x,A)' ), REPEAT( '-',80 )
+         DO IFILE = 0,NFILE
+             INQUIRE( UNIT = IFILE, NAME = CFILE, ACTION = ACT,
+     &       OPENED=OPD, EXIST=EXST )
+             !CFILE = FLIST3( IFILE )
+             !IF ( ACT .EQ. "READ" ) 
+     &       !     WRITE( OUTDEV, '(5x,3x,I3.3,3x,A,2x,A)' ),IFILE,'|',TRIM(CFILE)
+         END DO
+
+         CALL LOG_HEADING( OUTDEV, "Output File Report" )
+         WRITE( OUTDEV, '(5x,A)' ),'--Unit-- | --File Path/Name--'
+         WRITE( OUTDEV, '(5x,A)' ), REPEAT( '-',80 )
+         DO IFILE = 0,NFILE
+             INQUIRE( UNIT = IFILE, NAME = CFILE, ACTION = ACT )
+             IF ( ACT .EQ. "WRITE" .OR. ACT .EQ. "READWRITE" ) 
+     &            WRITE( OUTDEV, '(5x,3x,I3.3,3x,A,2x,A)' ),IFILE,'|',TRIM(CFILE)
+         END DO
+         END IF
+
+ 
       END IF ! first_run
 
 C Main processing loop:
+      IF ( MYPE .EQ. 0 ) WRITE( OUTDEV, * )
+      IF ( MYPE. EQ. 0 ) CALL LOG_HEADING( OUTDEV, "Time Integration" )
 
 #ifdef twoway
       TWOWAY_JDATE = JDATE
@@ -506,10 +539,17 @@ C science process sequence:
 C write conc fields
 
          IF ( MOD( TIME2SEC( JTIME ), TIME2SEC( TSTEP( 1 ) ) ) .EQ. 0 ) THEN
+            CPU_TIME_START =  MPI_WTIME()
             CALL WR_CONC ( JDATE, JTIME, TSTEP( 1 ) )
             CALL WR_ACONC ( AGRID, JDATE, JTIME, TSTEP( 1 ) )
             IF ( LIPR .OR. LIRR ) CALL PA_OUTPUT ( CGRID, JDATE, JTIME )
+            CPU_TIME_FINISH = MPI_WTIME()
+            IF ( MYPE .EQ. 0 ) WRITE( OUTDEV, * )
+            WRITE( XMSG, '(A,F4.1,A)' ), 'Completed Writing Concentrations to Output Files...',
+     &             CPU_TIME_FINISH-CPU_TIME_START,' seconds'
+            IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
          END IF
+ 
 
 #ifdef twoway
          IF ( SD_TIME_SERIES ) THEN
@@ -545,7 +585,7 @@ C Shut down IOAPI
 C Shut down MPI
       ENDTIME = MPI_WTIME()   ! get final wall-clock time
       ELAPTIME = NINT ( ENDTIME - BEGTIME )
-      WRITE( XMSG, '(A,I7.6,A)' ) 'The elapsed time for this job was', 
+      WRITE( XMSG, '(A,I7.6,A)' ) 'The elapsed time for this simulation was', 
      &                            ELAPTIME, ' seconds.'
       CALL LOG_MESSAGE( LOGDEV, XMSG )
       IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )

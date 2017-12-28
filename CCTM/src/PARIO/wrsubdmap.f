@@ -39,6 +39,7 @@
 
       write( *,* )
       write( *,* ) '         -=-  MPP Processor-to-Subdomain Map  -=-'
+      write( *,'(A,I3)' ) '                 Number of Processors = ',nprocs
       write( *,* ) '   ____________________________________________________'
       write( *,* ) '   |                                                  |'
       write( *,* ) '   |' // title // ' |'
