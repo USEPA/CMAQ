@@ -100,6 +100,7 @@ C Local Variables:
 
       CHARACTER( 16 ) :: PNAME = 'HADVYPPM'
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
+      LOGICAL, SAVE :: FIRST_BC = .TRUE.
       LOGICAL, ALLOCATABLE, SAVE :: XYFIRST( : )
 
 
@@ -251,7 +252,9 @@ C Get CGRID offsets
 301   CONTINUE
  
       !Print warning if any aerosol BCs violated the size distribution parameters
-      IF ( LSTAT ) THEN    
+      IF ( LSTAT ) THEN 
+         IF ( FIRST_BC ) THEN
+            FIRST_BC = .FALSE.
             WRITE( XMSG2, '(A,A,A)' ),
      &            'ATTENTION: Applying fix to aerosol Boundary Conditions for aerosol',
      &            ' modes. Turn on verbose_rdbcon preprocessor flag to learn ',
@@ -259,6 +262,7 @@ C Get CGRID offsets
             WRITE( LOGDEV, * )
             CALL LOG_MESSAGE( LOGDEV, XMSG2 )
             WRITE( LOGDEV, * )
+         END IF
       END IF
  
  

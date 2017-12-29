@@ -28,7 +28,7 @@ C                                         with UTILIO_DEFN
 C                   D. Wong    11 May 11: incorporated twoway model implementation
 C.......................................................................
 
-      USE ENV_VARS
+      USE RUNTIME_VARS
 
       IMPLICIT NONE
 

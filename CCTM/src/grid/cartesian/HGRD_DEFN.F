@@ -36,7 +36,7 @@ C                   D. Wong    11 May 11: incorporated twoway model implementati
 C                   D. Wong    Aug 15:    Added a new logical variable, IO_PE_INCLUSIVE
 C                                           to facilitate parallel I/O implementation
 C.......................................................................
-      USE ENV_VARS
+      USE RUNTIME_VARS
 
       IMPLICIT NONE
 

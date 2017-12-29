@@ -34,7 +34,7 @@ C                                            mosaic variables were moved to ASX_
 C                                            Algorithms were restuctured using fortran 95 
 C                                            array construcs for readability.
 C-------------------------------------------------------------------------------
-      USE ENV_VARS
+      USE RUNTIME_VARS
 
       Implicit None
 

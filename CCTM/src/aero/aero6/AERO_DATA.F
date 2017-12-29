@@ -105,7 +105,7 @@ C In the Fortran user-derived spcs_type, below, visual_idx is an optimal dry mas
 C extinction efficiency [m^2/g], see White, Atmos.Env., 294(10)(1990), pp 2673-1672
 C and Malm, et al., JGR, 99(D1)(1994), pp 1347-1370
 C----------------------------------------------------------------------
-      USE ENV_VARS
+      USE RUNTIME_VARS
 
       Implicit None
 

@@ -76,7 +76,7 @@ C-----------------------------------------------------------------------
 !        N_SPC_BIOG = MSPCS
 
 C In-line biogenic emissions?
-         WRITE( LOGDEV, '(/,/,5x,A)' ),'|=>---- INITIALIZE ONLINE BIOGENIC VOC EMISSIONS ----<=|'
+         CALL LOG_SUBHEADING( LOGDEV, 'Initialize Online Biogenic VOC Emissions Module (BEIS)' )
 
          BIOGEMIS = .FALSE.
          VARDESC = 'Flag for in-line biogenic emissions'
@@ -125,7 +125,7 @@ C biogenics to gas-phase species map
                      BEIS_MAP( V ) = N_GC_EMIS + K
                      WRITE( LOGDEV,* ) ' '
                   ELSE
-                     WRITE( LOGDEV,'(5X,A/)' ) TRIM( EMSPC( V ) ) //
+                     WRITE( LOGDEV,'(5X,A)' ) TRIM( EMSPC( V ) ) //
      &                                 ' not found in NR_EMIS'
                      BEIS_MAP( V ) = 0
                   END IF

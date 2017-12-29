@@ -54,12 +54,12 @@ C    25 Mar 16 R.Mathur: incorporated pot. vorticity strat. O3 scaling
 C-----------------------------------------------------------------------
 
       USE UTILIO_DEFN
-      USE ENV_VARS
+      USE RUNTIME_VARS
 
       IMPLICIT NONE   
 
 C Include files:
-
+      INCLUDE 'mpif.h'
       INCLUDE SUBST_PACTL_ID    ! PA control parameters
 
 C Arguments:
@@ -98,6 +98,10 @@ C Local Variables:
       CHARACTER( 80 ) :: MSG = ' '
       CHARACTER( 16 ) :: CTM_CKSUM = 'CTM_CKSUM'     ! env var for cksum on
       LOGICAL, SAVE   :: CKSUM     ! flag for cksum on, default = [T]
+      REAL( 8 )       :: CPU_TIME_START  ! Timing individual
+      REAL( 8 )       :: CPU_TIME_FINISH ! science processes
+      REAL( 8 )       :: CPU_TIME_START_MASTER
+      CHARACTER( 24 ) :: CDATE_TIME
 
       INTERFACE
          SUBROUTINE CKSUMMER ( PNAME, CGRID, JDATE, JTIME )
@@ -171,8 +175,6 @@ C-----------------------------------------------------------------------
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
 
-         WRITE( LOGDEV, '(/,/,5x,A)' ),'|=>---- INITIALIZE SCIENCE PROCESSES ----<=|'
-
          CKSUM = .TRUE.         ! default
          VARDESC = 'Cksum on flag'
          CKSUM = ENVYN( CTM_CKSUM, VARDESC, CKSUM, STATUS )
@@ -190,26 +192,61 @@ C-----------------------------------------------------------------------
 
       END IF       ! if firstime
 
-C Synchronization Step Physical Processes Sequence
+! Write Time Step Information to Summary Logfile
+      IF ( MYPE .EQ. 0 ) WRITE( OUTDEV, * ) 
+      CPU_TIME_START_MASTER = MPI_WTIME()
+      WRITE( XMSG, '(A,I7.7,A,I6.6)' ), 'Processing Day/Time [YYYYDDD:HHMMSS]: ',JDATE, 
+     &       ':',JTIME
+      IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
+      CDATE_TIME = DT2STR( JDATE, JTIME )
+      WRITE( XMSG, '(2x,A,A)' ), 'Which is Equivalent to: ',CDATE_TIME
+      IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
 
+      WRITE( XMSG, '(2x,A,I6.6)' ), 'Time-Step Length (HHMMSS): ',TSTEP(2) 
+      IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
+
+C Synchronization Step Physical Processes Sequence
+      CPU_TIME_START = MPI_WTIME()
       CALL VDIFF ( CGRID, JDATE, JTIME, TSTEP )
+      CPU_TIME_FINISH = MPI_WTIME()
+      WRITE( XMSG, 1002 ),'VDIFF', CPU_TIME_FINISH-CPU_TIME_START
+      IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
       IF ( CKSUM ) CALL CKSUMMER ( 'VDIFF', CGRID, JDATE, JTIME )
       IF ( LIPR ) CALL PA_UPDATE ( 'VDIF', CGRID, JDATE, JTIME, TSTEP )
 
 C couple CGRID for advection and horizontal diffusion
+C The COUPLE_WRF routine converts aerosol mass from ug/m3 to kg/m3. The 
+C DECOUPL_WRF routine converts it back to ug/m3.
 
+      CPU_TIME_START = MPI_WTIME()
       CALL COUPLE ( CGRID, JDATE, JTIME, TSTEP )
+      CPU_TIME_FINISH = MPI_WTIME()
+      WRITE( XMSG, 1002 ),'COUPLE', CPU_TIME_FINISH-CPU_TIME_START
+      IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
       IF ( CKSUM ) CALL CKSUMMER ( 'COUPLE', CGRID, JDATE, JTIME )
 
+      CALL SUBST_BARRIER()
+      CPU_TIME_START = MPI_WTIME()
       CALL HADV ( CGRID, JDATE, JTIME, TSTEP, ASTEP )
-!     IF ( CKSUM ) CALL CKSUMMER ( 'HADV', CGRID, JDATE, JTIME )
+      CPU_TIME_FINISH = MPI_WTIME()
+      WRITE( XMSG, 1002 ),'HADV', CPU_TIME_FINISH-CPU_TIME_START
+      IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
+      IF ( CKSUM ) CALL CKSUMMER ( 'HADV', CGRID, JDATE, JTIME )
       IF ( LIPR ) CALL PA_UPDATE ( 'HADV', CGRID, JDATE, JTIME, TSTEP )
 
+      CPU_TIME_START = MPI_WTIME()
       CALL ZADV ( CGRID, JDATE, JTIME, TSTEP )
+      CPU_TIME_FINISH = MPI_WTIME()
+      WRITE( XMSG, 1002 ),'ZADV', CPU_TIME_FINISH-CPU_TIME_START
+      IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
       IF ( CKSUM ) CALL CKSUMMER ( 'ADV', CGRID, JDATE, JTIME )
       IF ( LIPR ) CALL PA_UPDATE ( 'ZADV', CGRID, JDATE, JTIME, TSTEP )
 
+      CPU_TIME_START = MPI_WTIME()
       CALL HDIFF ( CGRID, JDATE, JTIME, TSTEP )
+      CPU_TIME_FINISH = MPI_WTIME()
+      WRITE( XMSG, 1002 ),'HDIFF', CPU_TIME_FINISH-CPU_TIME_START
+      IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
       IF ( CKSUM ) CALL CKSUMMER ( 'HDIFF', CGRID, JDATE, JTIME )
       IF ( LIPR ) CALL PA_UPDATE ( 'HDIF', CGRID, JDATE, JTIME, TSTEP )
 
@@ -219,29 +256,57 @@ C decouple CGRID for cloud and chemistry
       STIME = JTIME
       CALL NEXTIME ( SDATE, STIME, TSTEP( 2 ) )
 
+      CPU_TIME_START = MPI_WTIME()
       CALL DECOUPLE ( CGRID, SDATE, STIME, TSTEP )
+      CPU_TIME_FINISH = MPI_WTIME()
+      WRITE( XMSG, 1002 ),'DECOUPLE', CPU_TIME_FINISH-CPU_TIME_START
+      IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
       IF ( CKSUM ) CALL CKSUMMER ( 'DECOUPLE', CGRID, JDATE, JTIME )
 
+      CPU_TIME_START = MPI_WTIME()
       CALL CLDPROC ( CGRID, JDATE, JTIME, TSTEP )
+      CPU_TIME_FINISH = MPI_WTIME()
+      WRITE( XMSG, 1002 ),'CLDPROC', CPU_TIME_FINISH-CPU_TIME_START
+      IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
       IF ( CKSUM ) CALL CKSUMMER ( 'CLDPROC', CGRID, JDATE, JTIME )
       IF ( LIPR ) CALL PA_UPDATE ( 'CLDS', CGRID, JDATE, JTIME, TSTEP )
 
+      CPU_TIME_START = MPI_WTIME()
       CALL CHEM ( CGRID, JDATE, JTIME, TSTEP )
+      CPU_TIME_FINISH = MPI_WTIME()
+      WRITE( XMSG, 1002 ),'CHEM', CPU_TIME_FINISH-CPU_TIME_START
+      IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
       IF ( CKSUM ) CALL CKSUMMER ( 'CHEM', CGRID, JDATE, JTIME )
       IF ( LIPR ) CALL PA_UPDATE ( 'CHEM', CGRID, JDATE, JTIME, TSTEP ) 
 
 #ifdef potvorto3
+      CPU_TIME_START = MPI_WTIME()
       CALL PVO3 ( CGRID, JDATE, JTIME )
+      CPU_TIME_FINISH = MPI_WTIME()
+      WRITE( XMSG, 1002 ),'PVO3', CPU_TIME_FINISH-CPU_TIME_START
+      IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
       IF ( CKSUM ) CALL CKSUMMER ( 'PVO3', CGRID, JDATE, JTIME )
       IF ( LIPR ) CALL PA_UPDATE ( 'PVO3', CGRID, JDATE, JTIME, TSTEP )
 #endif
 
+      CPU_TIME_START = MPI_WTIME()
       CALL AERO ( CGRID, JDATE, JTIME, TSTEP )
+      CPU_TIME_FINISH = MPI_WTIME()
+      WRITE( XMSG, 1002 ),'AERO', CPU_TIME_FINISH-CPU_TIME_START
+      IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
       IF ( CKSUM ) CALL CKSUMMER ( 'AERO', CGRID, JDATE, JTIME )
       IF ( LIPR ) CALL PA_UPDATE ( 'AERO', CGRID, JDATE, JTIME, TSTEP )
 
       CALL NEXTIME ( JDATE, JTIME, TSTEP( 2 ) )
       WRITE( LOGDEV,'(/ 5X, A, I8, I7.6)' ) NMSG, JDATE, JTIME
+
+! Print Summary Timing for Master time step      
+      CPU_TIME_FINISH = MPI_WTIME()
+      WRITE( XMSG, '(2x,A41,F6.1,A8)' ),'Master Time Step Processing Completed in ',
+     &                     (CPU_TIME_FINISH-CPU_TIME_START_MASTER),' seconds'
+      IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
+
+1002  FORMAT ( 2x, A15, ' completed... ', F6.1, ' seconds' )
 
       RETURN
       END

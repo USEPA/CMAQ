@@ -2262,7 +2262,7 @@ C-----------------------------------------------------------------------
      &                          mlwt) RESULT ( nroot )
 
       Use utilio_defn
-      Use env_vars
+      Use runtime_vars
 
       Implicit None
 

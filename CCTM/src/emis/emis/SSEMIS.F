@@ -298,7 +298,7 @@ C-----------------------------------------------------------------------
 C Map aerospc data
             CALL MAP_AERO()
 
-            WRITE ( LOGDEV, '(/,5x,A)' ),'-- Initialize Sea Spray Aerosol Emissions --'
+            CALL LOG_MESSAGE( LOGDEV, 'Initialize Sea Spray Aerosol Emissions' )
 
 C Determine number of sea-salt species
             NSSSPC = 0

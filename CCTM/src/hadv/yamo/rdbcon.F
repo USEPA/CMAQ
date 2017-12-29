@@ -433,7 +433,7 @@ C Read & interpolate boundary concentrations
         IF ( STAT .GT. 0 ) THEN
           LSTAT = .TRUE.
 #ifdef verbose_rdbcon
-          WRITE ( 6, '(7x,A55,I1,/,7x,A20,I1,A42,/,9x,A51,/,9x,A22,I4,2x,I2,/,
+          WRITE ( LOGDEV,'(7x,A55,I1,/,7x,A20,I1,A42,/,9x,A51,/,9x,A22,I4,2x,I2,/,
      &                 9x,A19,1x,A3,8x,A2,8x,A2,8x,A2,8x,A2,/,
      &                 27x,E8.1,1x,E8.1,1x,E8.1,1x,E8.1,4x,F4.1,/,
      &                 9x,A19,1x,A3,8x,A2,8x,A2,8x,A2,8x,A2,/,

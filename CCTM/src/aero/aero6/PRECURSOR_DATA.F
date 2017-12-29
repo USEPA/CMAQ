@@ -152,7 +152,7 @@ C Local Variables:
 
 C If the species are mapped already, skip the mapping algorithm
       If ( mapped ) Return
-      CALL LOG_SUBHEADING( LOGDEV, 'Map SOA Precursors' )
+      CALL LOG_MESSAGE( LOGDEV, 'Map SOA Precursors' )
 
 C Initialize Precursor Map Variables
       precursor_mw = 0.0d0

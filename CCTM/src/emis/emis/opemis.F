@@ -60,7 +60,7 @@ C-----------------------------------------------------------------------
  
       EMLAYS = 0
 
-      WRITE( LOGDEV, '(/,/,5x,A)' ),'|=>---- OPEN GRIDDED EMISSIONS ----<=|'
+      CALL LOG_SUBHEADING( LOGDEV,'Open Gridded Emissions' )
 
 C Open the tracer emissions file
 

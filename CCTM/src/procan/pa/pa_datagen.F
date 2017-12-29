@@ -30,7 +30,7 @@ C  Revision History:
 C  27 Jul 16 J.Young: inline PA ctl program
 C----------------------------------------------------------------------
 
-      USE ENV_VARS
+      USE RUNTIME_VARS
       USE UTILIO_DEFN
       USE PA_VARS, Only: NFAMLYS, NRXSUMS, NCYCLES, NIRROUT
       USE PA_DEFN            ! Process Anaylsis control and data variables
@@ -57,7 +57,7 @@ C----------------------------------------------------------------------
 
 !...Get flag to use process analysis
       WRITE( LOGDEV, * )
-      WRITE( LOGDEV, '(/,5x,A)' ) '|=>---- INITIALIZE PROCESS ANALYSIS ----<=|'
+      CALL LOG_HEADING( LOGDEV, 'INITIALIZE PROCESS ANALYSIS' )
 
 
       JDATE = 0; JTIME = 0

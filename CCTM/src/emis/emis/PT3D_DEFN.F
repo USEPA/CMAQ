@@ -872,16 +872,16 @@ C-----------------------------------------------------------------------
 
 C For each time step, compute the layer fractions...
 
-         WRITE( XMSG,'(A, I7.6)' )
-     &   'Calculating emissions point source layer fractions for', JTIME
-         WRITE( LOGDEV,* ) ' '
-         CALL M3MSG2( XMSG )
+         !WRITE( XMSG,'(A, I7.6)' )
+         !&   'Calculating emissions point source layer fractions for', JTIME
+         !WRITE( LOGDEV,* ) ' '
+         !CALL M3MSG2( XMSG )
 
-         IF ( LDATE .NE. JDATE ) THEN  ! write day and date to stdout & XMSG
-            CALL WRDAYMSG( JDATE, XMSG )
-            LDATE = JDATE
-            WRITE( LOGDEV,'(9X, "at time ", A)' ) HHMMSS( JTIME )
-         END IF
+         !IF ( LDATE .NE. JDATE ) THEN  ! write day and date to stdout & XMSG
+         !   CALL WRDAYMSG( JDATE, XMSG )
+         !   LDATE = JDATE
+         !   WRITE( LOGDEV,'(9X, "at time ", A)' ) HHMMSS( JTIME )
+         !END IF
          WRTIME = .FALSE.
          WSTEP = WSTEP + TIME2SEC( TSTEP( 2 ) )
          IF ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) ) THEN

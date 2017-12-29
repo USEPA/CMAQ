@@ -173,7 +173,7 @@ C        INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
 
          SUCCESS = .TRUE.
 
-         WRITE( LOGDEV, '(/,/,5x,A)' ),'|=>---- INITIALIZE LIGHTNING NO EMISSIONS ----<=|'
+         CALL LOG_SUBHEADING( LOGDEV, 'Initialize Lightning NO Emissions' )
 
 !C Lightning NO production
 !C Set LTNG_NO to Y or T to turn on lightning NO production
@@ -594,7 +594,6 @@ C statement function for ERF approximation
 !C initialize output array
             VDEMIS_LT = 0.0
 
-            WRITE( LOGDEV,'(5X, A)' ) 'InLine LNOx production'
             DTSTEP = TIME2SEC( TSTEP( 1 ) ) / TIME2SEC( TSTEP( 2 ) ) 
             !C Open me filet
 !C Get domain window info for met_cro_2d file
@@ -840,7 +839,6 @@ C statement function for ERF approximation
 
          END IF  ! end lightning NO production inline or from a file
 
-         WRITE( LOGDEV,94042 ) 'VDEMIS_LT sum:', JDATE, JTIME, SUM( VDEMIS_LT )
 
          DEALLOCATE( COLUMN_LTNG_NO )
 

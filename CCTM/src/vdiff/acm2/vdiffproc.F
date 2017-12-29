@@ -195,6 +195,8 @@ C-----------------------------------------------------------------------
 
          FIRSTIME = .FALSE.
 
+         CALL LOG_HEADING( LOGDEV, "Initialize Surface Exchange Module" )
+
          IF ( .NOT. DEPV_INIT ( JDATE, JTIME, TSTEP, CGRID ) ) THEN
             XMSG = 'Failure initializing deposition velocities module'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -253,6 +255,8 @@ C Allocate and initialize dry deposition array
          END IF
          ICMP = 0.0   ! array assignment
 
+         CALL LOG_HEADING( LOGDEV, "Initialize Emissions Module" )
+
          IF ( .NOT. EMIS_INIT ( JDATE, JTIME, TSTEP( 1 ) ) ) THEN
             XMSG = 'Failure initializing emissions module'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -260,6 +264,8 @@ C Allocate and initialize dry deposition array
 
 C Set up for process analysis
          IF ( LIPR ) THEN
+            CALL LOG_HEADING( LOGDEV, "Initialize Surface Exchange for Process Analysis" )
+
             ALLOCATE ( EMIS_PA( NCOLS,NROWS,EMLAYS,N_SPC_EMIS+1 ), STAT = ASTAT )
             IF ( ASTAT .NE. 0 ) THEN
                XMSG = 'EMIS_PA memory allocation failed'
@@ -274,6 +280,8 @@ C Set up for process analysis
 
 C Set up for grav. settling
          IF ( GRAV_SETL ) THEN
+            CALL LOG_HEADING( LOGDEV, "Set Up Gravitational Settling" )
+
             ALLOCATE ( VSED_AE( N_AE_SPC,NLAYS,NCOLS,NROWS ), STAT = ASTAT )
             IF ( ASTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating VSED_AE'
@@ -291,6 +299,7 @@ C Set up for grav. settling
          CNGRD = 0.0   ! array assignment
  
          IF ( MOSAIC ) THEN
+            CALL LOG_HEADING( LOGDEV, "Initialize MOSAIC Module" )
             ALLOCATE ( DDEPJ( N_LUFRAC,N_SPC_DEPV,NCOLS,NROWS ), STAT = ASTAT )
             IF ( ASTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating DDEPJ'

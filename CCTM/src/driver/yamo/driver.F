@@ -107,7 +107,7 @@ C-----------------------------------------------------------------------
       USE PA_DEFN, Only: LIPR, LIRR  ! Process Anaylsis control and data variables
       USE PAGRD_DEFN            ! Process Anaylsis horiz domain specs
       USE UTILIO_DEFN
-      USE ENV_VARS
+      USE RUNTIME_VARS
 
 #ifdef twoway
       USE SD_TIME_SERIES_MODULE
@@ -577,6 +577,10 @@ C Shut down IOAPI
          WRITE( XMSG, '(A,A,A,I7,A,I6.6,A)' ) 'Date and time ',
      &          DT2STR( JDATE, JTIME ), ' (',JDATE,':',JTIME,')' 
          CALL LOG_MESSAGE( LOGDEV, XMSG ) 
+
+         IF ( MYPE .EQ. 0 ) WRITE( OUTDEV, * )
+         IF ( MYPE .EQ. 0 ) CALL LOG_HEADING( OUTDEV, 'Program Completed Successfully' )
+         IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
       ELSE
          CALL LOG_MESSAGE( LOGDEV, ' *** FATAL ERROR shutting down Models-3 I/O *** ' )
       END IF
@@ -588,7 +592,9 @@ C Shut down MPI
       WRITE( XMSG, '(A,I7.6,A)' ) 'The elapsed time for this simulation was', 
      &                            ELAPTIME, ' seconds.'
       CALL LOG_MESSAGE( LOGDEV, XMSG )
+      IF ( MYPE .EQ. 0 ) WRITE( OUTDEV, * )
       IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
+      IF ( MYPE .EQ. 0 ) WRITE( OUTDEV, * )
       CALL MPI_FINALIZE ( PAR_ERR )
       IF ( PAR_ERR .NE. 0 ) THEN
          STOP 'Error terminating MPI'

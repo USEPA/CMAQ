@@ -22,7 +22,7 @@
 !:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE CSQY_DATA
 
-      USE ENV_VARS
+      USE RUNTIME_VARS
 
       IMPLICIT NONE
       
@@ -702,8 +702,6 @@ C...begin read
          CALL M3EXIT( PNAME, 0, 0, MSG, -1 )
        END IF
 
-      WRITE( LOGDEV,* ) 'Sucessfully Loaded CSQY_DATA file'
-      
       CLOSE(PHOTAB_UNIT)
 
 5012  FORMAT( 4X,A30,1X,3(F8.3,2X) )
@@ -1378,9 +1376,6 @@ C...begin read
       
 
       CLOSE(OPTICS_UNIT)
-
-      WRITE( LOGDEV,* ) 'Sucessfully Loaded OPTICS_DATA file'
-      
 
 4999  FORMAT(17X,I3,2X,17X,I3)
 5012  FORMAT( 4X,A30,1X,3(F8.3,2X) )

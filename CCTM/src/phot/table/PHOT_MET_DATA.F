@@ -96,7 +96,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
          CHARACTER( 16 )   :: VARNM            ! variable name for IOAPI to get
          CHARACTER( 16 )   :: VNAME_RN
-         CHARACTER( 120 )  :: XMSG = ' '       ! Exit status message
+         CHARACTER( 300)  :: XMSG = ' '       ! Exit status message
 
          INTEGER           :: LDATE             ! last jdate MET data updated
          INTEGER           :: LTIME             ! last jtime MET data updated
@@ -397,12 +397,13 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
             CFRAC_3D_AVAIL = .FALSE.
             XMSG = 'Variable CFRAC_3D (cloud fraction) not found in ' // MET_CRO_3D
             CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-            WRITE( LOGDEV, '( 5(/10X,A) )' )
-     &           'Model will diagnose layer cloud fraction using Randall (1995) and ',
-     &           'Hong (1998), based on mixing ratios of water vapor and its ',
-     &           'condensed states.',
-     &           'You may want to reprocess the meteorological data to obtain layer ',
-     &           'cloud fractions if possible.'
+            WRITE( LOGDEV, * )
+            WRITE( XMSG, '(4A)' )
+     &           'Model will diagnose layer cloud fraction using Randall (1995) ',
+     &           'and Hong (1998), based on mixing ratios of water vapor and its ',
+     &           'condensed states. You may want to reprocess the meteorological ',
+     &           'data to obtain layer cloud fractions if possible.'
+            CALL LOG_MESSAGE( LOGDEV, XMSG )
 
          END IF
         
@@ -1340,11 +1341,13 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
             INTEGER                :: ASTAT     ! memory allocation status
              
             CHARACTER( 18 ), PARAMETER  :: PNAME = 'INIT_ACM_CLOUD'
-                       
-            CALL M3MESG('IMPORTANT NOTE: Attempt to include subgrid cloud effects:')
-            CALL M3MESG('photolysis rates include ACM CLOUD effects.')
-            CALL M3MESG('It would be prudent to examine diagnostic cloud fractions')
-            CALL M3MESG(' ')
+            CHARACTER( 250 )       :: XMSG
+            
+            WRITE( XMSG, '(3A)' ), 'ATTENTION: Attempt to include subgrid ',
+     &             'cloud effects: photolysis rates include ACM CLOUD effects. ',
+     &             'It would be prudent to examine diagnostic cloud fractions.'
+            CALL LOG_MESSAGE( LOGDEV, XMSG)
+            WRITE( LOGDEV, * )
              
             ALLOCATE ( ACM_CFRAC( NLAYS,NCOLS,NROWS ), STAT = ASTAT )
             IF ( ASTAT .NE. 0 ) THEN

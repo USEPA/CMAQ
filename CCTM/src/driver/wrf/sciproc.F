@@ -55,7 +55,7 @@ C    16 Sep 16 J.Young: update for inline procan (IPR)
 C-----------------------------------------------------------------------
 
       USE UTILIO_DEFN
-      USE ENV_VARS
+      USE RUNTIME_VARS
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
 #else
@@ -199,16 +199,24 @@ C-----------------------------------------------------------------------
 
 ! Write Time Step Information to Summary Logfile
       IF ( MYPE .EQ. 0 ) WRITE( OUTDEV, * ) 
+      WRITE( LOGDEV, * )
+
       CPU_TIME_START_MASTER = MPI_WTIME()
       WRITE( XMSG, '(A,I7.7,A,I6.6)' ), 'Processing Day/Time [YYYYDDD:HHMMSS]: ',JDATE, 
      &       ':',JTIME
       IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
+      CALL LOG_MESSAGE( LOGDEV, XMSG )
+
       CDATE_TIME = DT2STR( JDATE, JTIME )
-      WRITE( XMSG, '(2x,A,A)' ), 'Which is Equivalent to: ',CDATE_TIME
+      WRITE( XMSG, '(2x,6A)' ), 'Which is Equivalent to: ',
+     &       CDATE_TIME(1:8),' ',TRIM( WEEKDAY( WKDAY( JDATE ) ) ),
+     &       ',', CDATE_TIME(9:)
       IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
+      CALL LOG_MESSAGE( LOGDEV, XMSG )
 
       WRITE( XMSG, '(2x,A,I6.6)' ), 'Time-Step Length (HHMMSS): ',TSTEP(2) 
       IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
+      CALL LOG_MESSAGE( LOGDEV, XMSG )
 
 C Synchronization Step Physical Processes Sequence
       CPU_TIME_START = MPI_WTIME()
@@ -306,10 +314,16 @@ C decouple CGRID for cloud and chemistry
       WRITE( LOGDEV,'(/ 5X, A, I8, I7.6)' ) NMSG, JDATE, JTIME
 
 ! Print Summary Timing for Master time step      
+      IF ( MYPE .EQ. 0 ) WRITE( OUTDEV, * )
+      WRITE( LOGDEV, * )
+
       CPU_TIME_FINISH = MPI_WTIME()
-      WRITE( XMSG, '(2x,A41,F6.0,A8)' ),'Master Time Step Processing Completed in ',
+      WRITE( XMSG, '(2x,A41,F6.1,A8)' ),'Master Time Step Processing Completed in ',
      &                     (CPU_TIME_FINISH-CPU_TIME_START_MASTER),' seconds'
       IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
+      IF ( MYPE .EQ. 0 ) WRITE( OUTDEV, * )
+      CALL LOG_MESSAGE( LOGDEV, XMSG )
+      WRITE( LOGDEV, * )
 
 1002  FORMAT ( 2x, A15, ' completed... ', F6.1, ' seconds' )
 

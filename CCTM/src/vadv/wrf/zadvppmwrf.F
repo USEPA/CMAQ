@@ -195,16 +195,16 @@ C-----------------------------------------------------------------------
 C Get default file header attibutes from MET_CRO_3D (assumes file already open)
 
 C Get dx3 from the GRID_CONF(VGRD) F90 module
-         WRITE( LOGDEV,* ) ' '
-         WRITE( LOGDEV,* ) '    layer    S (X3FACE_GD) Delta S'
+         !WRITE( LOGDEV,* ) ' '
+         !WRITE( LOGDEV,* ) '    layer    S (X3FACE_GD) Delta S'
          DO LVL = 1, NLAYS
             DS ( LVL ) = ABS ( X3FACE_GD( LVL ) - X3FACE_GD( LVL-1 ) )
 !           FBLN( LVL ) = 1.0 - 1.0 / ( 1.0 + EXP( 15.0 * ( X3FACE_GD( LVL ) - 0.5 ) ) )
             FBLN( LVL ) = 1.0
-            WRITE( LOGDEV,'(5X, I3, 3F14.7)' ) LVL, X3FACE_GD( LVL ),
-     &                                         DS( LVL ), FBLN(LVL)
+            !WRITE( LOGDEV,'(5X, I3, 3F14.7)' ) LVL, X3FACE_GD( LVL ),
+            !&                                         DS( LVL ), FBLN(LVL)
          END DO
-         WRITE( LOGDEV,* ) ' '
+         !WRITE( LOGDEV,* ) ' '
 
 C Pointer to transported RHOJ
          ASPC = GC_STRT - 1 + N_GC_SPCD

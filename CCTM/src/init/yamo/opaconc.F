@@ -153,9 +153,9 @@
             END IF
 
             WRITE( LOGDEV,* ) 
-            WRITE( LOGDEV,* ) '     Avg Conc File Header Description:'
+            WRITE( LOGDEV, '(5x,A)' ) 'Avg Conc File Header Description:'
             DO K = 1, KD + L
-               WRITE( LOGDEV,* ) '       ', TRIM( FDESC3D( K ) )
+               WRITE( LOGDEV,'(7x,A)' ) TRIM( FDESC3D( K ) )
             END DO
 
             VAR = 0
@@ -199,7 +199,7 @@
             END DO
 
             DO SPC = 1, VAR
-               WRITE( LOGDEV,'( 5X, "=> VNAME3D(", I3, " ): ", A )' )
+               WRITE( LOGDEV,'( 7X, "=> VNAME3D(", I3, " ): ", A )' )
      &                SPC, VNAME3D( SPC )
             END DO
 

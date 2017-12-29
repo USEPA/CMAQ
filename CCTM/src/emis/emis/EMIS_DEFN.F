@@ -197,7 +197,7 @@ C Initialize Online Lightning NOx Emissions
 
 C Initialize Aerosol Emissions         
          IF ( N_AE_SPC .GT. 0 ) THEN
-            WRITE( LOGDEV,'( //5X, A )' ) '|=>---- Process Aerosol Emissions ----<=|'
+            CALL LOG_SUBHEADING( LOGDEV,'Process Aerosol Emissions' )
             NEMIS_AE = N_AE_EMIS  ! from CGRID_SPCS (originally, AE_EMIS.EXT)
             CALL MAP_PMEMIS ( )   ! set up PM emitted species mapping
          ELSE
@@ -271,7 +271,7 @@ C Master EArea Emissions Array
  
 C Initialize 3D Point Source Emissions 
 C (N_SPC_EMIS+1 serves as the null map for PTEM_MAP)
-         CALL LOG_HEADING( LOGDEV, 'Initialize Point Emissinos' )
+         CALL LOG_SUBHEADING( LOGDEV, 'Initialize Point Emissinos' )
          IF ( .NOT. PT3D_INIT( N_SPC_EMIS, EMLAYS, JDATE, JTIME, TSTEP ) ) THEN
             XMSG = 'Failure initializing plume rise emissions module'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -801,7 +801,7 @@ C-----------------------------------------------------------------------
 
 C Retrieve Environment Variable Letting User Ignore this Check
 C and allowing the model to proceed.
-         CALL LOG_HEADING( LOGDEV, "Check Emissions Mapping" )
+         CALL LOG_SUBHEADING( LOGDEV, "Check Emissions Mapping" )
 
          VARDESC    = "Let model proceed even if there are emission"
      &              //" surrogates that do not appear on any input file."
@@ -1118,9 +1118,10 @@ C Missing from All Emission Input Sources
 
               WRITE( LOGDEV, * )
               WRITE( LOGDEV, * )
-              XMSG = 'For optimal predictions, species with the missing surrogates '
+              XMSG = 'ATTENTION: For optimal predictions, species with the missing surrogates '
      &             //'should have a surrogate found in at least one source.'
-              CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+              CALL LOG_MESSAGE( LOGDEV, XMSG )
+              WRITE( LOGDEV, * )
            ELSE     
               WRITE( LOGDEV, '(3(/,5x,A),/,5(/,5x,A),/,5x,A,4(/,5x,A))') 
      &               '*************************ERROR**********************:',

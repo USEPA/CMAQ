@@ -36,7 +36,7 @@ C                        removed deprecated TRIMLEN
 C   12 Aug 15 D.Wong:   Replaced SUBST_MPI with mpif.h
 
       USE UTILIO_DEFN
-      USE ENV_VARS
+      USE RUNTIME_VARS
 
       IMPLICIT NONE
 
@@ -150,8 +150,8 @@ C   12 Aug 15 D.Wong:   Replaced SUBST_MPI with mpif.h
          DIAGDEV = JUNIT()
 
          ! Open File With Error Checking
-          OPEN( UNIT=DIAGDEV, IOSTAT=IOST, FILE=IODIAGEQ, ACCESS='SEQUENTIAL')
-          IF ( IOST .NE. 0 ) THEN
+         OPEN( UNIT=DIAGDEV, IOSTAT=IOST, FILE=IODIAGEQ, ACCESS='SEQUENTIAL')
+         IF ( IOST .NE. 0 ) THEN
               WRITE( *, '( /, 5X, 3 A )' )
      &             '***  ERROR in SETUP_LOGDEV  ***'
               WRITE( *, '( 5X, A, I10 )' )
@@ -159,18 +159,18 @@ C   12 Aug 15 D.Wong:   Replaced SUBST_MPI with mpif.h
      &             'I/O STATUS =', IOST
               WRITE( *, '( 5X, 2 A, / )' ), 'File: ', TRIM( IODIAGEQ )
               CALL EXIT( 2 )
-          END IF 
-      END IF
+         END IF 
  
-      ! Write CMAQ Header and then I/O-API Header
-      REWIND( DIAGDEV )
-      DO IHEAD = 1,NCMAQ_HEAD
-          WRITE( DIAGDEV, '(A)' ) CMAQ_HEADER( IHEAD )
-      END DO
-      WRITE( DIAGDEV, * )
-      DO IHEAD = 1,NIOAPI_HEAD
-          WRITE( DIAGDEV, '(A)' ) IOAPI_HEADER( IHEAD )
-      END DO
+         ! Write CMAQ Header and then I/O-API Header
+         REWIND( DIAGDEV )
+         DO IHEAD = 1,NCMAQ_HEAD
+            WRITE( DIAGDEV, '(A)' ) CMAQ_HEADER( IHEAD )
+         END DO
+         WRITE( DIAGDEV, * )
+         DO IHEAD = 1,NIOAPI_HEAD
+            WRITE( DIAGDEV, '(A)' ) IOAPI_HEADER( IHEAD )
+         END DO
+      END IF
 
     
 

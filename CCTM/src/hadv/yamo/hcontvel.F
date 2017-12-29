@@ -131,8 +131,6 @@ C local variables:
       LOGICAL, SAVE :: WINDOW = .FALSE.      ! posit same file and global
                                              ! processing domain
       LOGICAL, SAVE :: CSTAGUV = .TRUE.      ! Winds are available on C staggered grid?
-      LOGICAL, SAVE :: FIRSTREADU = .TRUE.
-      LOGICAL, SAVE :: FIRSTREADV = .TRUE.
       INTEGER, SAVE :: NCOLSDENS, NROWSDENS  ! local for DENSJ_BUF
 C for INTERPX
       INTEGER, SAVE :: STRTCOL,   ENDCOL,   STRTROW,   ENDROW
@@ -285,10 +283,6 @@ C try to read u-component wind on B-staggered grid as UWIND.
                XMSG = MSG1 // VNAME // ' from ' // MET_DOT_3D
                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
-            IF ( FIRSTREADU ) THEN
-               FIRSTREADU = .FALSE.
-               WRITE( LOGDEV,2021 ) VNAME
-            END IF
             RETURN
          END IF
 
@@ -304,10 +298,6 @@ C grid.  Otherwise, read v-component wind from B-staggered grid.
      &                          MDATE, MTIME, WIND ) ) THEN
                XMSG = MSG1 // VNAME // ' from ' // MET_DOT_3D
                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-            IF ( FIRSTREADV ) THEN
-               FIRSTREADV = .FALSE.
-               WRITE( LOGDEV,2025 ) VNAME
             END IF
             RETURN
          END IF
@@ -399,10 +389,6 @@ C X Jacobian X Air Density
             XMSG = MSG1 // VNAME // ' from ' // MET_DOT_3D
             CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
          END IF
-         IF ( FIRSTREADU ) THEN
-            FIRSTREADU = .FALSE.
-            WRITE( LOGDEV,2021 ) VNAME
-         END IF
 
 C get west-direction RhoJ in halo cells and retrieve contravariant velocities
 
@@ -423,10 +409,6 @@ C get west-direction RhoJ in halo cells and retrieve contravariant velocities
             XMSG = MSG1 // VNAME // ' from ' // MET_DOT_3D
             CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
          END IF
-         IF ( FIRSTREADV ) THEN
-            FIRSTREADV = .FALSE.
-            WRITE( LOGDEV,2025 ) VNAME
-         END IF
 
 C get south-direction RhoJ in halo cells and retrieve contravariant velocities
 
@@ -441,8 +423,5 @@ C get south-direction RhoJ in halo cells and retrieve contravariant velocities
       END IF
 
       RETURN
-
- 2021 FORMAT( /5X, 'Reading U-windfield from MET_DOT_3D for variable: ', A )
- 2025 FORMAT( /5X, 'Reading V-windfield from MET_DOT_3D for variable: ', A )
 
       END

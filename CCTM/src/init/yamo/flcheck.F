@@ -41,7 +41,7 @@ C                     and the file is emtpy and requires to go through CHECK3
 C-----------------------------------------------------------------------
 
       USE UTILIO_DEFN
-      USE ENV_VARS, ONLY : LOG_HEADING, LOG_SUBHEADING, LOG_MESSAGE
+      USE RUNTIME_VARS, ONLY : LOG_HEADING, LOG_SUBHEADING, LOG_MESSAGE
 
       IMPLICIT NONE 
 
@@ -76,6 +76,9 @@ C Local Variables:
 
       INTEGER :: FID
       INTEGER, EXTERNAL :: NAME2FID
+      CHARACTER( 500 )  :: FNAME
+      INTEGER           :: LSTAT
+      LOGICAL           :: ESTAT
 
 C-----------------------------------------------------------------------
 
@@ -93,8 +96,18 @@ C-----------------------------------------------------------------------
 
       DO N = 1, N_FILES      
 
-C skip Ping and Mepse files
-         IF ( INDEX( LGCL_NAME( N ), 'PING'  ) .EQ. 0 .AND. 
+         ! Detect whether or not this filename logical has been set in the run
+         ! script
+         CALL GET_ENVIRONMENT_VARIABLE( NAME = LGCL_NAME( N ), 
+     &            VALUE = FNAME, STATUS = LSTAT )
+
+         ! Check to see if this file already exists
+         INQUIRE( FILE = TRIM( FNAME ), EXIST = ESTAT )
+         
+         ! skip checking files that were not set in the run script or do 
+         ! not exist as well as Ping and Mepse files
+         IF ( LSTAT .LE. 0 .AND. ESTAT .EQ. .TRUE. .AND.
+     &        INDEX( LGCL_NAME( N ), 'PING'  ) .EQ. 0 .AND. 
      &        INDEX( LGCL_NAME( N ), 'MEPSE' ) .EQ. 0 ) THEN
 
             LOK = OPEN3( LGCL_NAME( N ), FSREAD3, PNAME )
@@ -103,7 +116,7 @@ C skip Ping and Mepse files
 
                IF ( DESC3( LGCL_NAME( N ) ) ) THEN
      
-C only check gridded or boundary files
+                  ! only check gridded or boundary files
                   IF ( FTYPE3D .EQ. GRDDED3 .OR. FTYPE3D .EQ. BNDARY3 ) THEN
 
                      MSG = 'Checking header data for file: ' // LGCL_NAME( N )
@@ -111,7 +124,7 @@ C only check gridded or boundary files
 
                      CALL GRDCHECK ( LGCL_NAME( N ), LOK )
 
-c check time steps for time dependent files
+                     ! check time steps for time dependent files
                      IF ( TSTEP3D .GT. 0 ) THEN
                         JDATE = STDATE
                         JTIME = STTIME
@@ -127,7 +140,7 @@ c check time steps for time dependent files
                            END IF
                         END IF
  
-c skip checking ending time for output files
+                        ! skip checking ending time for output files
                         IF ( IN_MODE( N ) ) THEN
                            CALL NEXTIME ( JDATE, JTIME, RUNLEN )
                            IF ( .NOT. CHECK3( LGCL_NAME( N ), ALLVAR3,
@@ -154,11 +167,6 @@ c skip checking ending time for output files
 
             END IF   ! successful open
 
-!           IF ( .NOT. CLOSE3( LGCL_NAME( N ) ) ) THEN
-!              MSG = '  >>> COULD NOT CLOSE ' // LGCL_NAME( N )
-!              CALL M3WARN ( PNAME, STDATE, STTIME, MSG )
-!           END IF
-
          END IF  ! skip Ping and Mepse files
 
       END DO
@@ -169,12 +177,10 @@ c skip checking ending time for output files
             CALL M3EXIT ( PNAME, STDATE, STTIME, MSG, XSTAT2 )
          ELSE
             CALL M3WARN ( PNAME, STDATE, STTIME, MSG )
-            CALL LOG_HEADING( LOGDEV, 'FINISH CHECKING INPUT FILE HEADERS' )
             RETURN
          END IF
       ELSE
          CALL LOG_MESSAGE( LOGDEV, 'No inconsistent header data found on input files' )
-         CALL LOG_HEADING( LOGDEV, 'FINISH CHECKING INPUT FILE HEADERS' )
          WRITE( LOGDEV, * )
       END IF
 

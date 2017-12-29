@@ -40,7 +40,7 @@ C                                is less than zero
 C
 C**********************************************************************
 
-      USE ENV_VARS
+      USE RUNTIME_VARS
       USE RXNS_DATA
       USE DEGRADE_SETUP_TOX
 

@@ -113,6 +113,7 @@
 C Try to open existing wet deposition file for update
 
         IF ( IO_PE_INCLUSIVE ) THEN
+           WRITE( LOGDEV, * )
            IF ( .NOT. OPEN3( CTM_WET_DEP_1, FSRDWR3, PNAME ) ) THEN
 
               XMSG = 'Could not open ' // CTM_WET_DEP_1 // ' file for update - '
@@ -242,7 +243,7 @@ C Try to open existing wet deposition file for update
            IF ( CLD_DIAG ) THEN
 
 !...Try to open existing file for update
-
+              WRITE( LOGDEV, * )
               IF ( .NOT. OPEN3( CTM_WET_DEP_2, FSRDWR3, PNAME ) ) THEN
 
                  XMSG = 'Could not open ' // CTM_WET_DEP_2 // ' file for update - '

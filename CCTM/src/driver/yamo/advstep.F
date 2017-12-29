@@ -200,7 +200,7 @@ C-----------------------------------------------------------------------
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
 
-         WRITE( LOGDEV, '(/,5x,A)' ),'|=>---- INITIALIZE ADVECTION STEPPING ----<=|'
+         CALL LOG_HEADING( LOGDEV, 'INITIALIZE ADVECTION STEPPING' )
 
          MAXSYNC = 720          ! default
          VARDESC = 'Maximum Synchronization Time Step (sec)'

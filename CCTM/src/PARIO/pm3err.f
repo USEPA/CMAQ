@@ -55,7 +55,7 @@ C
 C***********************************************************************
 
       USE M3UTILIO              ! i/o api
-      USE ENV_VARS
+      USE RUNTIME_VARS
 
       IMPLICIT NONE
 

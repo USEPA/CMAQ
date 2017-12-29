@@ -155,7 +155,7 @@ C-----------------------------------------------------------------------
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
 
-         WRITE( LOGDEV, '(/,/,5x,A)' ), '|=>---- LOAD INITIAL CONDITIONS ----<=|'
+         CALL LOG_HEADING( LOGDEV, 'Load Initial Conditions' ) 
          CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
      &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
 C IOFDESC common now loaded with MET_CRO_3D header
@@ -220,7 +220,9 @@ C Get INDX
       END DO
 
       IF ( SPC_CAT .EQ. 'GC' ) THEN
-         WRITE( LOGDEV,1009 ) 'transported gas-phase (reactive) species'
+         WRITE( XMSG,1009 ) 'transported gas-phase (reactive) species'
+         WRITE( LOGDEV, * )
+         CALL LOG_MESSAGE( LOGDEV, XMSG )
          SPC_STRT = GC_STRT
          N_SPCS = N_GC_SPC
          DO SPC = 1, N_SPCS
@@ -258,7 +260,9 @@ C If there is no surrogate or it cannot be found, look for the (main) species na
          END DO
 
       ELSE IF ( SPC_CAT .EQ. 'AE' ) THEN
-         WRITE( LOGDEV,1009 ) 'transported aerosol species'
+         WRITE( XMSG,1009 ) 'transported aerosol species'
+         WRITE( LOGDEV, * )
+         CALL LOG_MESSAGE( LOGDEV, XMSG )
          SPC_STRT = AE_STRT
          N_SPCS = N_AE_SPC
          DO SPC = 1, N_SPCS
@@ -295,7 +299,9 @@ C If there is no surrogate or it cant be found, look for the (main) species name
          END DO
 
       ELSE IF ( SPC_CAT .EQ. 'NR' ) THEN
-         WRITE( LOGDEV,1009 ) 'transported non-reactive gas species'
+         WRITE( XMSG,1009 ) 'transported non-reactive gas species'
+         WRITE( LOGDEV, * )
+         CALL LOG_MESSAGE( LOGDEV, XMSG )
          SPC_STRT = NR_STRT
          N_SPCS = N_NR_SPC
          DO SPC = 1, N_SPCS
@@ -332,7 +338,9 @@ C If there is no surrogate or it cant be found, look for the (main) species name
          END DO
 
       ELSE IF ( SPC_CAT .EQ. 'TR' ) THEN
-         WRITE( LOGDEV,1009 ) 'transported inert tracer gas species'
+         WRITE( XMSG, 1009 ) 'transported inert tracer gas species'
+         WRITE( LOGDEV, * )
+         CALL LOG_MESSAGE( LOGDEV, XMSG )
          SPC_STRT = TR_STRT
          N_SPCS = N_TR_SPC
          DO SPC = 1, N_SPCS
@@ -454,7 +462,7 @@ C Load RHOJ for transport and mixing ratio advection adjustment
       END IF
 
       IF ( SPC_CAT .EQ. 'AE' ) THEN
-         WRITE( LOGDEV, '(/,5x,A)' ) '-- Check Aerosol IC Size Distributions --'
+         CALL LOG_SUBHEADING( LOGDEV, 'Check Aerosol IC Size Distributions' )
 
          ! Check Aerosol Size Distributions and Warn the User if They Are Not Robust
          NEW_START = ENVYN( CTM_NEW_START, 'Flag for Model Restart from Previous Day', 
@@ -628,6 +636,6 @@ C correct sulfate vapor concentration for part removed:
 
       RETURN
 
-1009  FORMAT( / 5X, 'Initial Condition Factors used for ', A )
+1009  FORMAT( 'Initial Condition Factors used for ', A )
 1013  FORMAT( 5X, I3, 2X, A, 1PG13.5 )
       END

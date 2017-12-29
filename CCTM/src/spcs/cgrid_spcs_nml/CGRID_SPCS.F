@@ -29,7 +29,7 @@ C Shawn Roselle 16 Feb 11: replaced I/O API include files with UTILIO_DEFN
 C 07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
 C 21 Apr 16 D.Luecken:  increased spc_dim to 1000
 c-----------------------------------------------------------------------
-      USE ENV_VARS
+      USE RUNTIME_VARS
 
       implicit none
 

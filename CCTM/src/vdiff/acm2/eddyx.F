@@ -211,12 +211,12 @@ C Capture the col, row, lvl, and EDDYV for the global min DT
 222   CONTINUE       !  end loop on rows
 233   CONTINUE       !  end loop on levels
 
-      WRITE( LOGDEV,* ) ' '
-      WRITE( LOGDEV,1001 ) MEDDYV, MCOL, MROW, MLVL
+      !WRITE( LOGDEV,* ) ' '
+      !WRITE( LOGDEV,1001 ) MEDDYV, MCOL, MROW, MLVL
 1001  FORMAT(/ 5X, 'Maximum eddy diffusivity of:', 1PG13.5,
      &         1X, '(m**2/sec)'
      &       / 5X, 'at col, row, layer:', I4, 2(', ', I3) )
-      WRITE( LOGDEV,1003 ) MWS, MRIB, MTH1, MTH2
+      !WRITE( LOGDEV,1003 ) MWS, MRIB, MTH1, MTH2
 1003  FORMAT(  5X, 'corresponding to a free tropospheric wind shear of:',
      &         1PG13.5,  1X, '(/sec),'
      &        /28X, 'a bulk Richardson Number of:', 1PG13.5, ','

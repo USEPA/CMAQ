@@ -18,14 +18,14 @@
 !------------------------------------------------------------------------!
 
 !....................................................................
-!  The ENV_VARS module contains file unit identifiers for the log files,
+!  The RUNTIME_VARS module contains file unit identifiers for the log files,
 !  input files, and the values of all environment variables.
 !
 !  It also contains routines for reading environment variables, and
 !  opening input files.
 !....................................................................
 
-      MODULE ENV_VARS
+      MODULE RUNTIME_VARS
 
       IMPLICIT NONE
 
@@ -38,12 +38,15 @@
       INTEGER :: DIAGDEV   ! File Unit For Ascii Diagnostic Output
       INTEGER :: MYPE = -1 ! Processor Number
 
-      INTEGER, PARAMETER :: CTM_DIAG_LVL = 1
+      INTEGER, PARAMETER :: CTM_DIAG_LVL = 0
       
       INTEGER :: LOG_LINE_LENGTH = 80  ! Cut the log offs at this character if possible
       INTEGER :: LOG_MAJOR_TAB   = 5   ! Left tab for all text including headings
       INTEGER :: LOG_MINOR_TAB   = 2   ! Tab for indenting subsequent lines of text in
                                        ! a paragraph for instance.
+
+      CHARACTER( 10 ) :: WEEKDAY( 7 ) = (/'Monday','Tuesday','Wednesday',
+     &                           'Thursday','Friday','Saturday','Sunday' /)
 
       CONTAINS
 
@@ -64,16 +67,23 @@
       CHARACTER( * ), INTENT( IN )    :: CHEAD_IN
       CHARACTER( len=: ), ALLOCATABLE :: CHEAD
       CHARACTER( 20 )                 :: FMT
+      CHARACTER( 20 )                 :: FMT2
+      INTEGER                         :: LDASH
 
       ! Capitalize the heading
       CHEAD = CHEAD_IN
       CALL UPCASE( CHEAD )
 
       ! Write the heading to the log file
-      WRITE( FMT, '("(/,", I0, "x,A,A,A)")' ) LOG_MAJOR_TAB
+      WRITE( FUNIT, * )
+      WRITE( FMT, '("(", I0, "x,A,A,A)")' ) LOG_MAJOR_TAB
+      WRITE( FMT2,'("(", I0, "x,A,)")' ) LOG_MAJOR_TAB
 
+      LDASH = 2*8 + LEN_TRIM( CHEAD )
+      WRITE( FUNIT, FMT2 ), REPEAT( '=', LDASH )
       WRITE( FUNIT, FMT ),
-     &       '$>----- ',TRIM( CHEAD ),' -----<$'
+     &       '|>---   ',TRIM( CHEAD ),'   ---<|'
+      WRITE( FUNIT, FMT2 ), REPEAT( '=', LDASH )
 
       END SUBROUTINE LOG_HEADING
       
@@ -92,10 +102,15 @@
       INTEGER, INTENT( IN ) :: FUNIT
       CHARACTER( * ), INTENT( IN ) :: CHEAD
       CHARACTER( 20 )       :: FMT
+      INTEGER                         :: LDASH
 
       ! Write the sub-heading to the log file
       WRITE( FMT, '("(/,", I0, "x,A,A,A)")' ) LOG_MAJOR_TAB
-      WRITE( FUNIT, FMT ),'--- ',TRIM( CHEAD ),' ---'
+      WRITE( FUNIT, FMT ),'|> ',TRIM( CHEAD ),' <|'
+      LDASH = 2*3 + LEN_TRIM( CHEAD )
+
+      WRITE( FMT, '("(", I0, "x,A)")' ) LOG_MAJOR_TAB
+      WRITE( FUNIT, FMT ) REPEAT( '-', LDASH )
 
       END SUBROUTINE LOG_SUBHEADING
       
@@ -155,4 +170,4 @@
       END SUBROUTINE LOG_MESSAGE
       
  
-      END MODULE ENV_VARS
+      END MODULE RUNTIME_VARS

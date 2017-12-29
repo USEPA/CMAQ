@@ -55,7 +55,7 @@ C Last updated: $Date: 2011/10/21 16:11:30 $
  
 C-----------------------------------------------------------------------
 
-      USE ENV_VARS
+      USE RUNTIME_VARS
       USE HGRD_DEFN, ONLY: MYPE
       USE UTILIO_DEFN
 
