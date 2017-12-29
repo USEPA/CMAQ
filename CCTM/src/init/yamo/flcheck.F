@@ -106,7 +106,7 @@ C-----------------------------------------------------------------------
          
          ! skip checking files that were not set in the run script or do 
          ! not exist as well as Ping and Mepse files
-         IF ( LSTAT .LE. 0 .AND. ESTAT .EQ. .TRUE. .AND.
+         IF ( LSTAT .LE. 0 .AND. ESTAT .EQV. .TRUE. .AND.
      &        INDEX( LGCL_NAME( N ), 'PING'  ) .EQ. 0 .AND. 
      &        INDEX( LGCL_NAME( N ), 'MEPSE' ) .EQ. 0 ) THEN
 

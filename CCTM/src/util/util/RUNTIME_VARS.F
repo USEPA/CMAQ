@@ -45,8 +45,8 @@
       INTEGER :: LOG_MINOR_TAB   = 2   ! Tab for indenting subsequent lines of text in
                                        ! a paragraph for instance.
 
-      CHARACTER( 10 ) :: WEEKDAY( 7 ) = (/'Monday','Tuesday','Wednesday',
-     &                           'Thursday','Friday','Saturday','Sunday' /)
+      CHARACTER( 10 ) :: WEEKDAY( 7 ) = (/'Monday   ','Tuesday  ','Wednesday',
+     &                        'Thursday ','Friday   ','Saturday ','Sunday   ' /)
 
       CONTAINS
 

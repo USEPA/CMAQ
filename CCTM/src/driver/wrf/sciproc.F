@@ -208,7 +208,7 @@ C-----------------------------------------------------------------------
       CALL LOG_MESSAGE( LOGDEV, XMSG )
 
       CDATE_TIME = DT2STR( JDATE, JTIME )
-      WRITE( XMSG, '(2x,6A)' ), 'Which is Equivalent to: ',
+      WRITE( XMSG, '(2x,6A)' ), 'Which is Equivalent to (UTC): ',
      &       CDATE_TIME(1:8),' ',TRIM( WEEKDAY( WKDAY( JDATE ) ) ),
      &       ',', CDATE_TIME(9:)
       IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )

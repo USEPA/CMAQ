@@ -154,7 +154,8 @@ C Local variables:
       INTEGER, SAVE :: JTIME    ! current model time, coded HHMMSS
       INTEGER          C, R, L, K, S, V     ! loop induction variables
       INTEGER          ALLOCSTAT
-      INTEGER          NFILE, IFILE, OPD, EXST
+      INTEGER          NFILE, IFILE
+      LOGICAL          EXST, OPD
       CHARACTER( 1000 ) :: CFILE
       CHARACTER(   16 ) :: ACT
       REAL( 8 )         :: CPU_TIME_START, CPU_TIME_FINISH
@@ -171,9 +172,9 @@ C Local variables:
       INTEGER NPROCS      ! number of processors
 #ifdef parallel
 !     INTEGER, PARAMETER :: GEO_ORI = 0   ! stenex array order: 0 (Cartesian), 1 (Matrix)
-      INTEGER PAR_ERR     ! Error code from parallel initialization
-      REAL    BEGTIME     ! Wall-clock time (sec) at MPI initialization
-      REAL    ENDTIME     ! Wall-clock time (sec) at MPI finish
+      INTEGER   PAR_ERR     ! Error code from parallel initialization
+      REAL( 8 ) BEGTIME     ! Wall-clock time (sec) at MPI initialization
+      REAL( 8 ) ENDTIME     ! Wall-clock time (sec) at MPI finish
 #endif
       INTEGER ELAPTIME    ! ENDTIME-BEGTIME
 
