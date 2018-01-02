@@ -41,7 +41,7 @@ C   11 May 11 J.Bash: Modified for NH3 bidi component fluxes
 C   04 Jan 12 J.Young: Initalize char strings with blank padding
 
 C-----------------------------------------------------------------------
-      USE EMIS_GLOBAL, ONLY : N_EMIS_SPC
+      USE EMIS_VARS, ONLY : N_EMIS_SPC
 
 C global diffusion species
       INTEGER, SAVE :: N_SPC_DIFF 

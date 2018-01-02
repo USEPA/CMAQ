@@ -38,7 +38,7 @@ C                        removed deprecated TRIMLEN
       USE CGRID_SPCS          ! CGRID mechanism species
       USE UTILIO_DEFN
       USE RXNS_DATA, only : MECHNAME 
-      USE EMIS_GLOBAL
+      USE EMIS_VARS
       USE EMIS_DEFN
       USE AERO_DATA, only : AEROMODE, N_MODE, PMEM_UNITS
 
@@ -87,9 +87,9 @@ C Open All Tracer Emission Files
 
              ! Save Tracer Variables for Use in Emissions Species Check
              ! Routine
-             EM_FILE_SPEC( ISRC )%LEN = NVARS3D
-             ALLOCATE ( EM_FILE_SPEC( ISRC )%ARRY( NVARS3D ), STAT = STATUS )
-             EM_FILE_SPEC( ISRC )%ARRY = VNAME3D( 1:NVARS3D )
+             EM_FILE_SURR( ISRC )%LEN = NVARS3D
+             ALLOCATE ( EM_FILE_SURR( ISRC )%ARRY( NVARS3D ), STAT = STATUS )
+             EM_FILE_SURR( ISRC )%ARRY = VNAME3D( 1:NVARS3D )
 
              ! Assign Tracer Emissions Species
              IF ( .NOT. DESC3( EM_FILE_NAME( ISRC ) ) ) THEN
@@ -136,9 +136,9 @@ C Open Gridded Emission Files (for gas chem, aerosols and non-reactive species)
 
             ! Save Area Source Species Names For Use in Emissions Species
             ! Check Routine
-            EM_FILE_SPEC( ISRC )%LEN = NVARS3D
-            ALLOCATE ( EM_FILE_SPEC( ISRC )%ARRY( NVARS3D ), STAT = STATUS )
-            EM_FILE_SPEC( ISRC )%ARRY = VNAME3D( 1:NVARS3D )
+            EM_FILE_SURR( ISRC )%LEN = NVARS3D
+            ALLOCATE ( EM_FILE_SURR( ISRC )%ARRY( NVARS3D ), STAT = STATUS )
+            EM_FILE_SURR( ISRC )%ARRY = VNAME3D( 1:NVARS3D )
            
             ! Assign Area Source Emission Species
             EM_GRID_LAYS( ISRC ) = NLAYS3D

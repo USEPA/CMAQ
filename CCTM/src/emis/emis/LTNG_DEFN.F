@@ -58,7 +58,7 @@
 !C                         * replaced CDATE and CTIME with JDATE and JTIME, respectively 
 !C                           when calling INTERPX
 !C----------------------------------------------------------------------
-      USE EMIS_GLOBAL
+      USE EMIS_VARS
 
       IMPLICIT NONE
 
@@ -189,9 +189,9 @@
          IF ( .NOT. LTNG_NO ) RETURN
 
 !C Populate Emissions Species Record
-         EM_FILE_SPEC( ILTSRC )%LEN = 1
-         ALLOCATE( EM_FILE_SPEC( ILTSRC )%ARRY( 1 ) )
-         EM_FILE_SPEC( ILTSRC )%ARRY( 1 ) = "NO"
+         EM_FILE_SURR( ILTSRC )%LEN = 1
+         ALLOCATE( EM_FILE_SURR( ILTSRC )%ARRY( 1 ) )
+         EM_FILE_SURR( ILTSRC )%ARRY( 1 ) = "NO"
 
 !C Read in scenario time/date
          SDATE = ENVINT( 'CTM_STDATE', 'Scenario Start (YYYYJJJ)', 0, STATUS )

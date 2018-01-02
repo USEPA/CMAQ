@@ -42,7 +42,7 @@ C-----------------------------------------------------------------------
       USE HGRD_DEFN
       USE AERO_DATA, ONLY: N_MODE
       USE CGRID_SPCS,ONLY: N_AE_EMIS, AE_EMIS_MAP, AE_SPC
-      USE EMIS_GLOBAL
+      USE EMIS_VARS
 
       IMPLICIT NONE
 
@@ -349,10 +349,10 @@ C Map aerospc data
 C Populate Master Emissions Map Vector So That Diagnostics 
 C can be printed in EMIS_MAP
             NSSSPC = NSEA_SPC
-            Em_File_Spec( iseasrc )%len = nssspc
-            Allocate( Em_File_Spec( iseasrc )%arry( nssspc ) )
+            Em_File_Surr( iseasrc )%len = nssspc
+            Allocate( Em_File_Surr( iseasrc )%arry( nssspc ) )
             do i = 1,nssspc
-               Em_File_Spec( iseasrc )%arry( i ) = sea_spc(i)%name
+               Em_File_Surr( iseasrc )%arry( i ) = sea_spc(i)%name
             end do
  
  

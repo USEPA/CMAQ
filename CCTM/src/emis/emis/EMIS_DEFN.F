@@ -53,7 +53,7 @@ C                           species are not found on any emission file
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications      
-      USE EMIS_GLOBAL
+      USE EMIS_VARS
 
       IMPLICIT NONE
 
@@ -678,9 +678,9 @@ C-----------------------------------------------------------------------
 
 
 ! Characterize the Species Available From Emissions Sources
-         NEMIS_SURR = SUM( EM_FILE_SPEC( : )%LEN )
-         ALLOCATE( EMIS_SURR( NEMIS_SURR ) )
-         EMIS_SURR( 1:NEMIS_SURR ) = ""
+         N_FILE_SURR = SUM( EM_FILE_SURR( : )%LEN )
+         ALLOCATE( EMIS_SURR( N_FILE_SURR ) )
+         EMIS_SURR( 1:N_FILE_SURR ) = ""
 
          ! Build the master list of all area, point, bio, sea spray
          ! Print a Table of Species from Every Emissions Source
@@ -693,47 +693,47 @@ C-----------------------------------------------------------------------
          ! Print Out the Species From Each Emissions Source
          STRT = 0
          DO ISRC = 1,N_EM_SRC
-            NSPC = EM_FILE_SPEC( ISRC )%LEN
-            EMIS_SURR( STRT+1:STRT+NSPC ) = EM_FILE_SPEC( ISRC )%ARRY(1:NSPC)
+            NSPC = EM_FILE_SURR( ISRC )%LEN
+            EM_FILE_SURR_LIST( STRT+1:STRT+NSPC ) = EM_FILE_SURR( ISRC )%ARRY(1:NSPC)
 
             WRITE( LOGDEV, '(/,A,I3,A8,/,4(2x,A16))' ),
      &           TRIM( EM_FILE_DESC( ISRC ) ),NSPC,' Species',
-     &           EMIS_SURR( STRT+1:STRT+NSPC )
+     &           EM_FILE_SURR_TOT( STRT+1:STRT+NSPC )
             STRT = STRT + NSPC
          END DO
 
          ! Reduce EMIS_SURR to just unique values so that they 
          ! may be error checked
-         ALLOCATE( EMIS_MASK( NEMIS_SURR ) )
+         ALLOCATE( EMIS_MASK( N_FILE_SURR ) )
          EMIS_MASK = .TRUE.
          ! Determine which surrogates to keep
-         DO ISPC = NEMIS_SURR,2,-1
-             EMIS_MASK( ISPC ) = .NOT.( ANY( EMIS_SURR(:ISPC-1) == 
-     &                                       EMIS_SURR( ISPC ) ) )
+         DO ISPC = N_FILE_SURR,2,-1
+             EMIS_MASK( ISPC ) = .NOT.( ANY( EM_FILE_SURR_TOT(:ISPC-1) == 
+     &                                       EM_FILE_SURR_TOT( ISPC ) ) )
          END DO
 
          ! Define indices of Surrogates to Keep
          ALLOCATE( EMIS_IND( COUNT( EMIS_MASK ) ) )   
-         EMIS_IND = PACK([(ix, ix=1,NEMIS_SURR ) ],EMIS_MASK )
+         EMIS_IND = PACK([(ix, ix=1,N_FILE_SURR ) ],EMIS_MASK )
          
          ! Reduce the EMIS_SURR vector down to just the unique values
-         NEMIS_SURR_UNIQUE = SIZE( EMIS_IND,DIM=1 )
-         ALLOCATE( EMIS_SURR_UNIQUE( NEMIS_SURR_UNIQUE ) )
-         EMIS_SURR_UNIQUE = EMIS_SURR( EMIS_IND )
+         N_FILE_SURR_UNIQUE = SIZE( EMIS_IND,DIM=1 )
+         ALLOCATE( EMIS_SURR_UNIQUE( N_FILE_SURR_UNIQUE ) )
+         EMIS_SURR_UNIQUE = EM_FILE_SURR_TOT( EMIS_IND )
          
          ! For aerosols, which may differ in name from the surrogates, 
          ! try using the common name transformations (e.g. PNO3 --> 
          ! ANO3). These are located in AERO_DATA for reference. Store
-         ! the new names in EM_SURR_TMP
-         EM_SURR_TMP = EM_FILE_SPEC
+         ! the new names in EM_FILE_SURR_2
+         EM_FILE_SURR_2 = EM_FILE_SURR
          DO ISRC = 1,N_EM_SRC
             ! Translate Common Aerosol Surrogate Names to CMAQ Particle
             ! Names Using the map provided in AERO_DATA (MAP_AEROtoPTCL).
-            DO ISUR = 1,EM_SURR_TMP( ISRC )%LEN
-               IA  = INDEX1( EM_SURR_TMP( ISRC )%ARRY( ISUR ), 
+            DO ISUR = 1,EM_FILE_SURR_2( ISRC )%LEN
+               IA  = INDEX1( EM_FILE_SURR_2( ISRC )%ARRY( ISUR ), 
      &                       N_MAP_AEROtoPTCL, MAP_AEROtoPTCL%PTCL )
                IF ( IA .GT. 0 ) 
-     &            EM_SURR_TMP( ISRC )%ARRY( ISUR ) = MAP_AEROtoPTCL%AERO( IA )
+     &            EM_FILE_SURR_2( ISRC )%ARRY( ISUR ) = MAP_AEROtoPTCL%AERO( IA )
             END DO
          END DO
 
@@ -753,16 +753,16 @@ C-----------------------------------------------------------------------
                  ! Name in Emission Surrogate List
                  IDX = 0
                  IF ( .NOT. DIFF_MASK_AERO( ITRNS ) ) THEN
-                   IDX = INDEX1( DIFF_SPC( ITRNS ), EM_SURR_TMP( ISRC )%LEN, 
-     &                           EM_SURR_TMP( ISRC )%ARRY( ISUR ) )
+                   IDX = INDEX1( DIFF_SPC( ITRNS ), EM_FILE_SURR_2( ISRC )%LEN, 
+     &                           EM_FILE_SURR_2( ISRC )%ARRY( ISUR ) )
                  END IF
 
                  ! For Aerosols, Loop through each surrogate and add
                  ! suffixes
                  JDX = 0
                  IF ( DIFF_MASK_AERO( ITRNS ) ) THEN
-                   DO ISUR = 1,EM_SURR_TMP( ISRC )%LEN
-                     SN = EM_SURR_TMP( ISRC )%ARRY( ISUR )
+                   DO ISUR = 1,EM_FILE_SURR_2( ISRC )%LEN
+                     SN = EM_FILE_SURR_2( ISRC )%ARRY( ISUR )
                      DO IM = 1,N_MODE
                        IF ( TRIM( SN )//MODESUFF( IM ) .EQ. 
      &                      DIFF_SPC( ITRNS ) ) JDX = ISUR
@@ -773,10 +773,19 @@ C-----------------------------------------------------------------------
                  ! Populate Entry in Emissions Instructions if a Match was Found
                  IF ( IDX + JDX .GT. 0 ) THEN
                     ! A Surrogate Matches a Transported Species
-                    ISPC = ISPC + 1
-                    EM_SPEC_BUFF( ISPC ) = DIFF_SPC( ITRNS )
-                    EM_SURR_BUFF( ISPC ) = EM_FILE_SPEC( ISRC )%ARRY( IDX + JDX )
-                    EM_FAC_BUFF ( ISPC, ISRC ) = 1.0
+                    ! If both the Species and Surrogate Match a
+                    ! Previously Defined Instruction, then just add the
+                    ! scale factor to that entry under the relevant
+                    ! source number.
+                    IF ( DIFF_SPC( ITRNS ) .EQ. EM_SPEC( ISPC ) ) THEN
+                       EM_SURR( ISPC, ISRC ) = EM_FILE_SURR( ISRC )%ARRY( IDX + JDX ) 
+                       EM_FAC ( ISPC, ISRC ) = 1.0
+                    ELSE
+                       ISPC = ISPC + 1
+                       EM_SPEC( ISPC ) = DIFF_SPC( ITRNS )
+                       EM_SURR( ISPC, ISRC ) = EM_FILE_SURR( ISRC )%ARRY( IDX + JDX )
+                       EM_FAC ( ISPC, ISRC ) = 1.0
+                    END IF
                  END IF
                END DO
             END DO
@@ -786,8 +795,10 @@ C-----------------------------------------------------------------------
 ! if at least one aerosol species is being transported
          IF ( COUNT( DIFF_MASK_AERO ) .GT. 0 )
             DO IM = 1,N_MODE
-               EM_SPEC_BUFF( ISPC+1 ) = AEROMODE( IM )%NUM_NAME
-               EM_SPEC_BUFF( ISPC+2 ) = AEROMODE( IM )%SRF_NAME
+               EM_SPEC( ISPC+1 ) = AEROMODE( IM )%NUM_NAME
+               EM_FAC ( ISPC+1, : ) = 1.0
+               EM_SPEC( ISPC+2 ) = AEROMODE( IM )%SRF_NAME
+               EM_FAC ( ISPC+2, : ) = 1.0
                ISPC = ISPC + 2
             END DO
          END IF
@@ -811,6 +822,7 @@ C-----------------------------------------------------------------------
             EM_SRC_RULE = .FALSE.
 
             IF ( EM_NML_SRC( IRULE ) .EQ. 'ALL' ) THEN
+               ! Expand the Rule to Apply to All Sources
                EM_SRC_RULE( 1:N_EMIS_GR ) = .TRUE.
                ISRC = N_EMIS_GR
                EM_SRC_RULE( ISRC+1:ISRC+NPTGRPS ) = .TRUE.
@@ -823,6 +835,7 @@ C-----------------------------------------------------------------------
                IF ( .NOT. Guard_WindBlownDust ) EM_SRC_RULE( IDUSTSRC ) = .TRUE.
 
             ELSE
+               ! Find the Specific Source this Rule Identifies
                IDX = INDEX1( EM_NML_SRC, N_EM_SRC, EM_FILE_LAB ) 
                IF ( IDX .EQ. 0 ) THEN
                  WRITE( LOGDEV, * )
@@ -835,12 +848,14 @@ C-----------------------------------------------------------------------
                EM_SRC_RULE( IDX ) = .TRUE.
             END IF
 
+            ! Count the number of instructions identified based on
+            ! sources
             N_INSTR = COUNT( EM_SRC_RULE )
 
-
-               EM_SPEC_RULE
-               CALL UPCASE( EM_NML_SPEC( IRULE ) )
-               CALL UPCASE( EM_NML_SURR( IRULE ) )
+            ! Interpret the Species Part of this Rule
+            EM_SPEC_RULE
+            CALL UPCASE( EM_NML_SPEC( IRULE ) )
+            CALL UPCASE( EM_NML_SURR( IRULE ) )
 
 
             IDX = INDEX1( EM_NML_SPEC( IEM ), SIZE(DIFF_SPC), DIFF_SPC )
@@ -1000,7 +1015,7 @@ C-----------------------------------------------------------------------
                END IF
              END DO
            END IF
-         END DO    
+         END DO            
  
          ! Populate Arrays Mapping CMAQ Species to Species on Files
          ! For each emission source, check to see which Emissions
@@ -1028,8 +1043,8 @@ C-----------------------------------------------------------------------
              ! Test if Surrogate Matches any of the Species Names on
              ! the Emission File
              IDX = INDEX1( EM_SURR_BUFF( ISPC ), 
-     &                     EM_FILE_SPEC( ISRC )%LEN, 
-     &                     EM_FILE_SPEC( ISRC )%ARRY )
+     &                     EM_FILE_SURR( ISRC )%LEN, 
+     &                     EM_FILE_SURR( ISRC )%ARRY )
              IF ( IDX .GT. 0 ) THEN
                  ! A match for this surrogate is found. Avoid Printing
                  ! a warning for this source
@@ -1065,7 +1080,7 @@ C-----------------------------------------------------------------------
                    EM_FAC ( ISPC,ISRC ) = EM_FAC_BUFF ( ISPC )
 
                    ! Mark this species as found on the master list
-                   IDX = INDEX1( EM_FILE_SPEC( ISRC )%ARRY( MAP_EMtoDUST( ISPC ) ), 
+                   IDX = INDEX1( EM_FILE_SURR( ISRC )%ARRY( MAP_EMtoDUST( ISPC ) ), 
      &                           NEMIS_SURR_UNIQUE, EMIS_SURR_UNIQUE )
                    IF ( IDX .GT. 0 ) L_EMIS_SURR( IDX ) = .TRUE.
                 END IF
@@ -1081,7 +1096,7 @@ C-----------------------------------------------------------------------
                    EM_FAC ( ISPC,ISRC ) = EM_FAC_BUFF ( ISPC )
 
                    ! Mark this species as found on the master list
-                   IDX = INDEX1( EM_FILE_SPEC( ISRC )%ARRY( MAP_EMtoSEA( ISPC ) ), 
+                   IDX = INDEX1( EM_FILE_SURR( ISRC )%ARRY( MAP_EMtoSEA( ISPC ) ), 
      &                           NEMIS_SURR_UNIQUE, EMIS_SURR_UNIQUE )
                    IF ( IDX .GT. 0 ) L_EMIS_SURR( IDX ) = .TRUE.
                 END IF
@@ -1291,7 +1306,7 @@ C Allocate Emission File Structure Variables
          Allocate( IPSRC( N_EM_SRC ) )
          Allocate( ITSRC( N_EM_SRC ) )
          Allocate( MAP_PTtoISRC( NPTGRPS ) )
-         Allocate( EM_FILE_SPEC( N_EM_SRC ) )
+         Allocate( EM_FILE_SURR( N_EM_SRC ) )
          Allocate( EM_GRID_LAYS( N_EM_SRC ) )
  
 C Assign Attributes to Emission File Records. Other records will be 

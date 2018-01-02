@@ -35,7 +35,7 @@ C     20 Sep 2007 J.Young: inline DSCSPROF, eliminate MODSPRO module
 C     16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 
 C-----------------------------------------------------------------------
-      USE EMIS_GLOBAL
+      USE EMIS_VARS
 
       IMPLICIT NONE
 
@@ -425,9 +425,9 @@ C Find emitted CMAQ species names
          END DO
 
 C Save Species names in global array for mapping emissions
-         EM_FILE_SPEC( IBIOSRC )%LEN = MSPCS
-         ALLOCATE( EM_FILE_SPEC( IBIOSRC )%ARRY( MSPCS ) )
-         EM_FILE_SPEC( IBIOSRC )%ARRY = EMSPC
+         EM_FILE_SURR( IBIOSRC )%LEN = MSPCS
+         ALLOCATE( EM_FILE_SURR( IBIOSRC )%ARRY( MSPCS ) )
+         EM_FILE_SURR( IBIOSRC )%ARRY = EMSPC
 
 C Allocate memory for storing mole- and mass-based factors
          ALLOCATE( MLFAC( MSPCS,NSEF ), STAT=IOS )

@@ -69,7 +69,7 @@ C   07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module.
 C-----------------------------------------------------------------------
 
       USE AERO_DATA, ONLY: N_MODE
-      USE EMIS_GLOBAL
+      USE EMIS_VARS
 
       IMPLICIT NONE
       

@@ -65,7 +65,7 @@ C     16 Aug 2017 B.Murphy: Pull plume height calc. to separate subroutine.
 C-----------------------------------------------------------------------
 
       USE UDTYPES           ! implementation for multiple groups of stack input files
-      USE EMIS_GLOBAL
+      USE EMIS_VARS
 
       IMPLICIT NONE
 

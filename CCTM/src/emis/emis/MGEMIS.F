@@ -34,7 +34,7 @@ C   03 Nov 15: B. Gantt and G. Sarwar: created the initial version for marine ga
 C   26 Sep 16: D. Wong: removed repeated SEAICE interpx statement
 
       USE HGRD_DEFN
-      USE EMIS_GLOBAL
+      USE EMIS_VARS
 
       IMPLICIT NONE
 
@@ -144,9 +144,9 @@ C flag for marine gas emissions; this flag is set in the subroutine EM_FILE_INIT
             IF ( .NOT. MGEM ) RETURN
 
 C Allocate MG arrays using NMGSPC value
-            EM_FILE_SPEC( IMGSRC )%LEN = NMGSPC
-            ALLOCATE( EM_FILE_SPEC( IMGSRC )%ARRY( NMGSPC ) )
-            EM_FILE_SPEC( IMGSRC )%ARRY = MG_SPC
+            EM_FILE_SURR( IMGSRC )%LEN = NMGSPC
+            ALLOCATE( EM_FILE_SURR( IMGSRC )%ARRY( NMGSPC ) )
+            EM_FILE_SURR( IMGSRC )%ARRY = MG_SPC
 
             ALLOCATE ( VDEMIS_MG( NMGSPC,NCOLS,NROWS), STAT = STATUS )
             IF ( STATUS .NE. 0 ) THEN

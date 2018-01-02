@@ -66,7 +66,7 @@ C  2 Feb 16 J.Young: move dust aero speciation table to AERO_DATA
 C-----------------------------------------------------------------------
       use lus_defn
       use aero_data
-      use emis_global
+      use emis_vars
 
       implicit none 
 
@@ -283,10 +283,10 @@ C...Determine maps for dust speciation
 
 C...Populate Master Emissions Map Vector So That Diagnostics 
 C   can be printed in EMIS_MAP
-         Em_File_Spec( idustsrc )%len = ndust_spc
-         Allocate( Em_File_Spec( idustsrc )%arry( ndust_spc ) )
+         Em_File_Surr( idustsrc )%len = ndust_spc
+         Allocate( Em_File_Surr( idustsrc )%arry( ndust_spc ) )
          do i = 1,ndust_spc
-           Em_File_Spec( idustsrc )%arry( i ) = dust_spc(i)%name
+           Em_File_Surr( idustsrc )%arry( i ) = dust_spc(i)%name
          end do
 
 C...Count the number of mass emissions species

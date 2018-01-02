@@ -23,7 +23,7 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      MODULE EMIS_GLOBAL
+      MODULE EMIS_VARS
 
 C-----------------------------------------------------------------------
 C Function: Define global variables used for emissions processor
@@ -46,7 +46,7 @@ C-----------------------------------------------------------------------
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: AREASPC( : )  ! Variables straight from the Area Emission File
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: EM_SPEC  ( : )! Vector of Internal CMAQ Species names for 
                                                           ! each emission operation
-      TYPE( CARRY1 ),  ALLOCATABLE, SAVE :: EM_FILE_SPEC( : )! Species to be read from each source file
+      TYPE( CARRY1 ),  ALLOCATABLE, SAVE :: EM_FILE_SURR( : )! Species to be read from each source file
       CHARACTER( 200 ),ALLOCATABLE, SAVE :: EM_FILE_NAME( : )! Filename of each emissions file
       CHARACTER( 30  ),ALLOCATABLE, SAVE :: EM_FILE_LAB ( : )! Nickname of each emissions file
       CHARACTER( 16  ),ALLOCATABLE, SAVE :: EM_FILE_TYPE( : )! shortname for the type of each emission
@@ -60,4 +60,4 @@ C-----------------------------------------------------------------------
       INTEGER, ALLOCATABLE, SAVE :: MAP_AEtoSEA( : ), MAP_AEtoDUST( : )
       INTEGER, ALLOCATABLE, SAVE :: MAP_EMtoSEA( : ), MAP_EMtoDUST( : )
 
-      END MODULE EMIS_GLOBAL
+      END MODULE EMIS_VARS
