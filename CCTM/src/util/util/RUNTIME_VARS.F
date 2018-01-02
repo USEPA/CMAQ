@@ -106,11 +106,11 @@
 
       ! Write the sub-heading to the log file
       WRITE( FMT, '("(/,", I0, "x,A,A,A)")' ) LOG_MAJOR_TAB
-      WRITE( FUNIT, FMT ),'|> ',TRIM( CHEAD ),' <|'
-      LDASH = 2*3 + LEN_TRIM( CHEAD )
+      WRITE( FUNIT, FMT ),'|> ',TRIM( CHEAD ),':'
+      LDASH = 2*3 - 1 + LEN_TRIM( CHEAD )
 
-      WRITE( FMT, '("(", I0, "x,A)")' ) LOG_MAJOR_TAB
-      WRITE( FUNIT, FMT ) REPEAT( '-', LDASH )
+      WRITE( FMT, '("(", I0, "x,A,A)")' ) LOG_MAJOR_TAB
+      WRITE( FUNIT, FMT ) '+',REPEAT( '=', LDASH )
 
       END SUBROUTINE LOG_SUBHEADING
       

@@ -4,7 +4,7 @@
 |                                   Version 5.2                                |
 |                             Released June 30, 2017                           |
 |                                                                              |
-|                           Built and Maintined by the                         |
+|                          Built and Maintained by the                         |
 |                      National Exposure Research Laboratory                   |
 |                        Office of Research and Development                    |
 |                   United States Environmental Protection Agency              |

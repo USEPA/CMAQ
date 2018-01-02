@@ -546,7 +546,7 @@ C write conc fields
             IF ( LIPR .OR. LIRR ) CALL PA_OUTPUT ( CGRID, JDATE, JTIME )
             CPU_TIME_FINISH = MPI_WTIME()
             IF ( MYPE .EQ. 0 ) WRITE( OUTDEV, * )
-            WRITE( XMSG, '(A,F4.1,A)' ), 'Completed Writing Concentrations to Output Files...',
+            WRITE( XMSG, '(A,F4.1,A)' ), 'Completed Writing Results to Output Files...',
      &             CPU_TIME_FINISH-CPU_TIME_START,' seconds'
             IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
          END IF
