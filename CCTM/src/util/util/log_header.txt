@@ -9,8 +9,10 @@
 |                        Office of Research and Development                    |
 |                   United States Environmental Protection Agency              |
 |                                                                              |
-|                             https://www.epa.gov/cmaq                         |
-|                         https://www.github.com/USEPA/cmaq                    |
+|                            https://www.epa.gov/cmaq                          |
+|                                                                              |
+|       Source Code:   https://www.github.com/USEPA/cmaq                       |
+|       Documentation: https://www.github.com/USEPA/cmaq/tree/5.2/DOCS         |
 |                                                                              |
 ================================================================================
 
