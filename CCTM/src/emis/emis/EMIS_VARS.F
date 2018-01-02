@@ -38,7 +38,7 @@ C-----------------------------------------------------------------------
       REAL,    ALLOCATABLE, SAVE :: VDEMIS( :,:,:,: ) ! total emissions array
 
       INTEGER,              SAVE :: N_EM_SRC   ! global number of emissions sources
-      INTEGER,              SAVE :: N_EMIS_SPC ! global emissions species
+      INTEGER,              SAVE :: N_EMIS_ISTR! global emissions species
       INTEGER,              SAVE :: EMLAYS     ! no. of emis integration layers
                                                ! EMLAYS must be .LE. NLAYS
 

@@ -266,7 +266,7 @@ C *** set up for dust emission processing
          END IF
 
          IF ( N_AE_EMIS .GT. 0 ) THEN   ! all EMLAYS
-            ALLOCATE ( VDEMIS_AE( N_EMIS_SPC,EMLAYS,MY_NCOLS,MY_NROWS ),
+            ALLOCATE ( VDEMIS_AE( N_EMIS_ISTR,EMLAYS,MY_NCOLS,MY_NROWS ),
      &                 STAT = STATUS )
             IF ( STATUS .NE. 0 ) THEN
                XMSG = 'VDEMIS_AE memory allocation failed'
@@ -289,6 +289,13 @@ C     moment emission rates.  See Equation 7c of Binkowski & Roselle (2003)
             FACSRF( N ) = PI * EXP( 0.5 * LOG( SGEM( N ) ) ** 2 ) / DGVEM( N )
          END DO
 
+C *** Propagate Weights for each Emission Mode profile
+         DO IAERO = 1, N_AEROSPC
+           DO N = 1,N_MODE
+             EMWT_PROF( IAERO, N ) = AEROSPC( IAERO )%EMIS_SPLIT( N )
+           END DO
+         END DO
+
 C *** Allocate memory for EMBUFF, CELLHGT, CELLVOL, and CONVEM_PM
          ALLOCATE ( CONVEM_PM( EMLAYS ),
      &              CELLHGT( EMLAYS ),
@@ -305,37 +312,6 @@ C *** Allocate memory for EMBUFF, CELLHGT, CELLVOL, and CONVEM_PM
             XMSG = '*** memory allocation failed for '
      &           // 'NUM_MAP, NUM_FAC, SRF_MAP, SRF_FAC'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
-C *** Semivolatile POA  
-         IF ( INDEX( MECHNAME,"NVPOA" ) .EQ. 0 ) THEN
-           ! Let the user set the pcVOC species (which makes pcSOA) emissions
-           ! scaling to 0.0
-           ! Retrieve the Environment Variable allowing the User to Toggle
-           ! the pcVOC emissions
-           ZERO_PCSOA = .FALSE.         ! default
-           VARDESC = 'Flag for Ignoring the pcSOA species'
-           ZERO_PCSOA = ENVYN( CTM_ZERO_PCSOA, VARDESC, ZERO_PCSOA, STATUS )
-
-                        
-           V = INDEX1( 'PCVOC', N_GC_SPC, GC_SPC )
-           IF ( V .LT. 1 ) THEN
-             WRITE(LOGDEV,99901)'PCVOC','PCVOC',TRIM( MECHNAME )
-             SUCCESS = .FALSE.
-           END IF
-           IF ( ZERO_PCSOA ) THEN
-             ! Find the index for the pcVOC species in the emissions
-             ! scale-factor vector
-             IF ( V .GT. 0 ) THEN
-                S = FINDEX( V, N_GC_EMIS, GC_EMIS_MAP )
-                IF ( S .GT. 0 )THEN
-                   GC_EMIS_FAC( S ) = 0.0
-                ELSE
-                  WRITE(LOGDEV,99902)'PCVOC'
-!                  SUCCESS = .FALSE.
-                END IF
-             END IF
-           END IF
          END IF
 
 C *** Get length and width of each grid cell
@@ -456,8 +432,8 @@ C *** Get sea salt emissions
 C *** Get grid cell values for sea salt emission rates
 C     Convert units of SSOUTM from [g/m3/s] to [umol/m3/s].
 C     Pass emission rates back to aerosol emission master array.
-         DO ISPC = 1, N_EMIS_SPC
-            ISEA = MAP_EMtoSEA( ISPC )
+         DO ISPC = 1, N_EMIS_ISTR
+            ISEA = MAP_EMtoSURR( ISPC,ISEASRC )
             IF ( ISEA .GT. 0 ) THEN
                IM    = MAP_EMtoMODE( ISPC )
                IAERO = MAP_SEAtoAERO( ISEA )
@@ -477,8 +453,8 @@ C *** Get dust emissions
 C *** Get grid cell values for windblown dust emission rates
 C     Convert units of DUSTOUTM from [g/m3/s] to [umol/m3/s].
 C     Pass emission rates back to aerosol emission master array.
-            DO ISPC = 1, N_EMIS_SPC
-               IDUST = MAP_EMtoDUST( ISPC )
+            DO ISPC = 1, N_EMIS_ISTR
+               IDUST = MAP_EMtoSURR( ISPC,IDUSTSRC )
                IF ( IDUST .GT. 0 ) THEN
                   IM    = MAP_EMtoMODE( ISPC )
                   IAERO = MAP_DUSTtoAERO( IDUST )
@@ -516,7 +492,7 @@ C
 C ----------------------------------------------------------------------
 
          USE GRID_CONF
-         USE AERO_DATA, ONLY : AEROSPC, EMWT_PROF,
+         USE AERO_DATA, ONLY : AEROSPC, 
      &                         ACORS_IDX, ASO4_IDX, ANO3_IDX, ACL_IDX, AH2O_IDX,
      &                         ACORSEM_ASO4_FAC, ACORSEM_ANO3_FAC, ACORSEM_ACL_FAC,
      &                         ACORSEM_AH2O_FAC, ACORSEM_RENORM, AEROSPC_MW 
@@ -527,7 +503,7 @@ C ----------------------------------------------------------------------
 
          INTEGER :: EMLAYS
          INTEGER :: N, S, IAERO, IM, ISPC   ! Looping Variables
-         INTEGER :: N_EMIS_SPC, ROW, COL, LAY
+         INTEGER :: N_EMIS_ISTR, ROW, COL, LAY
          REAL    :: WT
          REAL, ALLOCATABLE :: EMISM3( :,:,:,: ), GSFAC( :,:,: )
          REAL, ALLOCATABLE :: EMIS_BUFF( :,:,: ), VDEMIS_INIT( :,:,:,: )
@@ -535,13 +511,13 @@ C ----------------------------------------------------------------------
 
 
 C *** Initialize Variables  
-         N_EMIS_SPC = SIZE( VDEMIS, 1 ) - 1
+         N_EMIS_ISTR = SIZE( VDEMIS, 1 ) - 1
          EMLAYS     = SIZE( VDEMIS, 2 ) 
          
          ALLOCATE( EMISM3( EMLAYS,MY_NCOLS,MY_NROWS,N_MODE ) )
          ALLOCATE( GSFAC( EMLAYS,MY_NCOLS,MY_NROWS ) )
          ALLOCATE( EMIS_BUFF( EMLAYS,MY_NCOLS,MY_NROWS ) )
-         ALLOCATE( VDEMIS_INIT( N_EMIS_SPC,EMLAYS,MY_NCOLS,MY_NROWS ) )
+         ALLOCATE( VDEMIS_INIT( N_EMIS_ISTR,EMLAYS,MY_NCOLS,MY_NROWS ) )
          EMISM3 = 0.0
 
 C *** Calculate scaling factor for converting mass emissions into [ug/m3/s]
@@ -559,7 +535,7 @@ C     Also calculate scaling factors for converting to molar-mixing-ratio units
 C *** Apply Aerosol Size Distribution
          VDEMIS_INIT = VDEMIS
 
-         DO ISPC = 1,N_EMIS_SPC
+         DO ISPC = 1,N_EMIS_ISTR
              IAERO = MAP_EMtoAERO( ISPC )
              IM    = MAP_EMtoMODE( ISPC )
              IF ( IAERO .EQ. 0 ) CYCLE

@@ -359,7 +359,7 @@ C maximum number of chemical species in windblown dust aerosol
 
        
       Type( emis_table ) :: dust_spc( ndust_spc ) = (/
-C                    --description-- --- name --    -------- spcfac --------
+C                    --description-- -- Species --  -------- spcfac --------
 C                                                    Aitken  accum   coarse
      &   emis_table( 'Sulfate       ', 'ASO4    ', (/ 0.0, 0.02250, 0.02655/) ),   ! Sulfate
      &   emis_table( 'Nitrate       ', 'ANO3    ', (/ 0.0, 0.00020, 0.00160/) ),   ! Nitrate
@@ -406,7 +406,7 @@ C number of chemical species in seawater aerosol composition
       integer, parameter :: nsea_spc = 16
 
       Type( emis_table ), Parameter :: sea_spc( nsea_spc ) = (/
-C                     -description--   -- name --   -------- spcfac --------
+C                     -description--  -- Species --  -------- spcfac --------
 C                                                     Aitken  accum   coarse
      &   emis_table( 'Sulfate       ', 'ASO4    ', (/ 0.0, 0.07760, 0.07760/) ),   ! Sulfate
      &   emis_table( 'Chlorine      ', 'ACL     ', (/ 0.0, 0.55380, 0.55380/) ),   ! Chlorine

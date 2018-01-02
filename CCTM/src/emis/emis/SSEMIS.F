@@ -313,8 +313,6 @@ C Map aerospc data
             ! Map The Sea-Salt Species to the AeroSpc Array
             ALLOCATE( MAP_SEAtoAERO( NSEA_SPC ) )
             MAP_SEAtoAERO = 0
-            ALLOCATE( MAP_AEtoSEA  ( N_AE_EMIS ) )
-            MAP_AEtoSEA = 0
 
             DO ISEA = 1, NSEA_SPC
 
@@ -327,16 +325,6 @@ C Map aerospc data
      &                    SN .Eq. AEROSPC( SPC )%NAME( 3 ) .OR. 
      &                    SEA_SPC( ISEA )%NAME .Eq. AEROSPC( SPC )%NAME( 3 ) )
      &                     MAP_SEAtoAERO( ISEA ) = SPC
-                  End Do
-               End Do
-
-               ! Map to Aerosol Emissions Species
-               DO SPC = 1,N_AE_EMIS
-                  DO IM = 2,N_MODE
-                     SN = TRIM( SEA_SPC( ISEA )%NAME ) // MODESUFF( IM )
-                     IF ( SN .Eq. AE_SPC( AE_EMIS_MAP( SPC )) .OR.
-     &                    SEA_SPC( ISEA )%NAME .EQ. AE_SPC( AE_EMIS_MAP( SPC )) )
-     &                    MAP_AEtoSEA( SPC ) = ISEA
                   End Do
                End Do
 

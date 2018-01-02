@@ -254,8 +254,6 @@ C-----------------------------------------------------------------------
 C...Determine maps for dust speciation
          allocate( map_DustToAero( ndust_spc ) )
          map_DustToAero = 0
-         allocate( map_AEtoDust( n_ae_emis ) )
-         map_AEtoDust = 0
 
          Do idust = 1, ndust_spc ! loop through dust list
             ! Map to aerosol chemical species table 
@@ -266,16 +264,6 @@ C...Determine maps for dust speciation
                   If ( sn .Eq. aerospc( spc )%name( im ) .or.
      &                 dust_spc( idust )%name .Eq. aerospc( spc )%name( 3 ) )
      &                 map_DUSTtoAERO( idust ) = spc
-               End Do
-            End Do
-
-            ! Map to Aerosol Emissions Species
-            Do spc = 1, n_ae_emis
-               Do im = 1,n_mode 
-                  sn = trim( dust_spc( idust )%name ) // modesuff( im )
-                  If ( sn .Eq. ae_spc( ae_emis_map( spc ) ) .or.
-     &                 dust_spc( idust )%name .Eq. ae_spc( ae_emis_map( spc )) )
-     &                 map_AEtoDUST( spc ) = idust
                End Do
             End Do
 

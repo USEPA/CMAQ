@@ -502,24 +502,6 @@ C Initialize stack emissions data
             END IF
          END DO
 
-         ! Initialize Point Source Emissions Array
-         ALLOCATE ( VDEMIS_PT( N_EMIS_SPC,EMLAYS,NCOLS,NROWS ), STAT = IOS )
-         CALL CHECKMEM( IOS, 'VDEMIS_PT', PNAME )
-         VDEMIS_PT = 0.0   ! array assignment
-
-C Set up and open 3d point source emissions diagnostic file?
-         IF ( PT3DDIAG ) THEN
-            NDATE = SDATE; NTIME = STIME
-            CALL NEXTIME( NDATE, NTIME, TSTEP ) ! advance one output tstep
-            !CALL OPPT3D_DIAG( CTM_PT3D_DIAG, NDATE, NTIME, TSTEP, EMLAYS )
-            ALLOCATE ( VDEMIS_BUF( NCOLS,NROWS,EMLAYS,N_EMIS_SPC ), STAT = IOS )
-            CALL CHECKMEM( IOS, 'VDEMIS_BUF', PNAME )
-            VDEMIS_BUF = 0.0   ! array
-            WRITE( LOGDEV,'(/5X, A /5X, A )' )
-     &                        'Recording 3d point source emissions diagnostics',
-!    &                        'as an integral average over the output timestep'
-     &                        'as a linear average over the output timestep'
-         END IF
 
 C Open diagnostic layer fractions file?
          IF ( PT3DFRAC ) THEN
@@ -737,17 +719,31 @@ C-----------------------------------------------------------------------
             FIRSTIME = .FALSE.
             LOGDEV = SETUP_LOGDEV()
             PRE_JDATE = JDATE
+             
+            ! Initialize Point Source Emissions Array
+            ALLOCATE ( VDEMIS_PT( N_EMIS_ISTR,EMLAYS,NCOLS,NROWS ), STAT = IOS )
+            CALL CHECKMEM( IOS, 'VDEMIS_PT', PNAME )
+            VDEMIS_PT = 0.0   ! array assignment
 
-#ifdef parallel_io
+            ! Set up and open 3d point source emissions diagnostic file?
             IF ( PT3DDIAG ) THEN
+              NDATE = SDATE; NTIME = STIME
+              CALL NEXTIME( NDATE, NTIME, TSTEP ) ! advance one output tstep
+              ALLOCATE ( VDEMIS_BUF( NCOLS,NROWS,EMLAYS,N_EMIS_ISTR ), STAT = IOS )
+              CALL CHECKMEM( IOS, 'VDEMIS_BUF', PNAME )
+              VDEMIS_BUF = 0.0   ! array
+              WRITE( LOGDEV,'(/5X, A /5X, A )' )
+     &                        'Recording 3d point source emissions diagnostics',
+     &                        'as a linear average over the output timestep'
+#ifdef parallel_io
                IF ( .NOT. IO_PE_INCLUSIVE ) THEN
                   IF ( .NOT. OPEN3( CTM_PT3D_DIAG, FSREAD3, PNAME ) ) THEN
                      XMSG = 'Could not open ' // TRIM(CTM_PT3D_DIAG)
                      CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
                   END IF
                END IF
-            END IF
 #endif
+            END IF
          END IF
 
 C Based on the current time step, find whether or not a report should be written
@@ -824,8 +820,8 @@ C Calculate Plume Heights for All Point Sources on this File
          CALL CALC_PLUME_HEIGHT( LOC_STKDATE, JDATE, JTIME, WRTIME, N   )
 
 C Read Emissions for all sources on File N            
-         DO ISPC = 1, N_EMIS_SPC
-            VNAME = EM_SURR_PT( ISPC )
+         DO ISPC = 1, N_EMIS_ISTR
+            VNAME = EM_SURR( ISPC, ISRC )
             IF ( VNAME .EQ. '' ) CYCLE
             IF ( .NOT. INTERPX( STKENAME( N ), VNAME, PNAME,
      &                          1,1, MY_STRT_SRC( N ),MY_END_SRC( N ), 1,1,
@@ -834,53 +830,6 @@ C Read Emissions for all sources on File N
                XMSG = 'Could not read ' // TRIM( VNAME ) //
      &                ' from ' // TRIM( STKENAME( N ) )
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-            END IF
-
-            ! Read Non-Carbon Organic Matter too if POC is Requested
-            IF ( ( INDEX( MECHNAME, 'NVPOA' ) .EQ. 0 )
-     &            .AND. ( VNAME .EQ. 'POC' ) ) THEN
-               STKEMIS_TOO( N )%ARRY = 0.0
-               IF ( .NOT. INTERPX( STKENAME( N ), 'PNCOM', PNAME,
-     &                             1,1, MY_STRT_SRC( N ),MY_END_SRC( N ), 1,1,
-     &                             LOC_STKDATE, JTIME,
-     &                             STKEMIS_TOO( N )%ARRY( 1 ) ) ) THEN
-                  XMSG = 'Could not read ' // TRIM( VNAME ) //
-     &                 ' from ' // TRIM( STKENAME( N ) )
-                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-               END IF
-               MY_DELTA = MY_END_SRC( N ) - MY_STRT_SRC( N ) + 1
-               STKEMIS( N )%ARRY( 1:MY_DELTA ) = STKEMIS( N )%ARRY( 1:MY_DELTA ) 
-     &                                  + STKEMIS_TOO( N )%ARRY( 1:MY_DELTA )
-            END IF
-            
-            ! Read Sulfuric Acid Vapor and add to Sulfate Aerosol
-            IF ( VNAME .EQ. 'PSO4' ) THEN
-               STKEMIS_TOO( N )%ARRY = 0.0
-               IF ( .NOT. INTERPX( STKENAME( N ), 'SULF', PNAME,
-     &                             1,1, MY_STRT_SRC( N ),MY_END_SRC( N ), 1,1,
-     &                             LOC_STKDATE, JTIME,
-     &                             STKEMIS_TOO( N )%ARRY( 1 ) ) ) THEN
-                  XMSG = 'Could not read ' // TRIM( VNAME ) //
-     &                 ' from ' // TRIM( STKENAME( N ) )
-                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-               END IF
-               MY_DELTA = MY_END_SRC( N ) - MY_STRT_SRC( N ) + 1
-               STKEMIS( N )%ARRY( 1:MY_DELTA ) = STKEMIS( N )%ARRY( 1:MY_DELTA ) 
-     &                                  + STKEMIS_TOO( N )%ARRY( 1:MY_DELTA )
-     &                                  * REAL( PRECURSOR_MW( SULF_IDX ), 4 )
-            END IF 
-
-            ! Zero Out Sulfuric Acid Emissions Since they have been
-            ! added to particulate sulfate
-            IF ( VNAME .EQ. 'SULF' ) THEN
-               MY_DELTA = MY_END_SRC( N ) - MY_STRT_SRC( N ) + 1
-               STKEMIS( N )%ARRY( 1:MY_DELTA ) = 0.0
-            END IF
-            
-            ! Zero Out pcVOC from Fire Sources
-            IF ( FIREFLAG( N ) .AND. EM_SPEC( ISPC ) .EQ. 'PCVOC' ) THEN
-               MY_DELTA = MY_END_SRC( N ) - MY_STRT_SRC( N ) + 1
-               STKEMIS( N )%ARRY( 1:MY_DELTA ) = 0.0
             END IF
 
 C Apportion emissions to the layers
