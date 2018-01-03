@@ -63,7 +63,7 @@
 
 &EmissionScaling
  !   CMAQ-Species|Source |Phase |Surrogate|Factor | Op
-  EM  = 'GLY'    ,'All'  ,'GAS'  ,'GLYXL'  ,1.0   ,'a',
+ EM_NML='GLY'    ,'All'  ,'GAS'  ,'GLYXL'  ,1.0   ,'a',
         'BENZENE','All'  ,'GAS'  ,'BENZ'   ,1.0   ,'a',
        
         'SULF'   ,'All'  ,'GAS'  ,'SULF'   ,0.0   ,'o',

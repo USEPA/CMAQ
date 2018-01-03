@@ -294,7 +294,7 @@ C Local variables:
          ALLOCATE( DIFF_MASK_GAS ( N_GC_TRNS ) )
          ALLOCATE( DIFF_MASK_AERO( N_AE_TRNS ) )
          ALLOCATE( DIFF_MASK_NR  ( N_NR_TRNS ) )
-         ALLOCATE( DIFF_MASK_TRAC( N_TR_TRNS ) )
+         ALLOCATE( DIFF_MASK_TRAC( N_TR_DIFF ) )
          DIFF_MASK_GAS  = 0
          DIFF_MASK_AERO = 0
          DIFF_MASK_NR   = 0

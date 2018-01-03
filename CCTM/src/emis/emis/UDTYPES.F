@@ -61,6 +61,11 @@ C-----------------------------------------------------------------------
          INTEGER                  :: LEN
       END TYPE CARRY1
 
+      TYPE :: LARRY1
+         LOGICAL, POINTER :: ARRY( : )
+         INTEGER                  :: LEN
+      END TYPE LARRY1
+
       TYPE :: BILIN_TYPE
 C Allocatable un-gridding matrix variables (uses BMATVEC bilinear interpolation):
 C (Dimensioned 4 by number of pt sources)

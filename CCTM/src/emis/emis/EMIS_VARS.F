@@ -35,7 +35,8 @@ C-----------------------------------------------------------------------
 
       IMPLICIT NONE
 
-      REAL,    ALLOCATABLE, SAVE :: VDEMIS( :,:,:,: ) ! total emissions array
+      REAL,    ALLOCATABLE, SAVE :: VDEMIS( :,:,:,: )      ! total emissions array
+      REAL,    ALLOCATABLE, SAVE :: VDEMIS_DIFF( :,:,:,: ) ! emissions array mapped to diffused species
 
       INTEGER,              SAVE :: N_EM_SRC   ! global number of emissions sources
       INTEGER,              SAVE :: N_EMIS_ISTR! global emissions species
@@ -46,6 +47,8 @@ C-----------------------------------------------------------------------
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: AREASPC( : )  ! Variables straight from the Area Emission File
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: EM_SPEC  ( : )! Vector of Internal CMAQ Species names for 
                                                           ! each emission operation
+      INTEGER, SAVE :: N_FILE_GR, NPTGRPS, N_FILE_TR
+
       TYPE( CARRY1 ),  ALLOCATABLE, SAVE :: EM_FILE_SURR( : )! Species to be read from each source file
       CHARACTER( 200 ),ALLOCATABLE, SAVE :: EM_FILE_NAME( : )! Filename of each emissions file
       CHARACTER( 30  ),ALLOCATABLE, SAVE :: EM_FILE_LAB ( : )! Nickname of each emissions file
@@ -57,7 +60,6 @@ C-----------------------------------------------------------------------
       INTEGER, SAVE :: IBIOSRC, IMGSRC, ILTSRC, ISEASRC, IDUSTSRC
       INTEGER, ALLOCATABLE, SAVE :: IGSRC( : ), IPSRC( : ), ITSRC( : ), MAP_PTtoISRC( : )
 
-      INTEGER, ALLOCATABLE, SAVE :: MAP_AEtoSEA( : ), MAP_AEtoDUST( : )
-      INTEGER, ALLOCATABLE, SAVE :: MAP_EMtoSEA( : ), MAP_EMtoDUST( : )
+      INTEGER, ALLOCATABLE, SAVE :: MAP_EMtoSURR( :,: ), MAP_EMtoDIFF( : )
 
       END MODULE EMIS_VARS

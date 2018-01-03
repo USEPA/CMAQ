@@ -70,10 +70,9 @@ C-----------------------------------------------------------------------
       IMPLICIT NONE
 
       LOGICAL,              SAVE :: PT3DEMIS   ! flag in-lining plume rise
-      INTEGER,              SAVE :: NPTGRPS    ! no. pt src input file groups
       REAL,    ALLOCATABLE, SAVE :: VDEMIS_PT( :,:,:,: ) ! 3D pt src 
 
-      PUBLIC PT3DEMIS, NPTGRPS, VDEMIS_PT,
+      PUBLIC PT3DEMIS, VDEMIS_PT,
      &       PT3D_INIT, GET_PT3D_EMIS
       PRIVATE
 
@@ -243,12 +242,6 @@ C rise algorithm
             CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
             SUCCESS = .FALSE.; RETURN
          END IF
-
-C get number of different file groups (sectors)
-
-         NPTGRPS = ENVINT( 'N_EMIS_PT',
-     &                     'Number of file groups',
-     &                      1, IOS )
 
 C get diagnostic files options
 
@@ -655,6 +648,7 @@ C-----------------------------------------------------------------------
 
 C Time step part of laypoint
 
+         USE GRID_CONF, ONLY : NCOLS, NROWS
          USE RXNS_DATA, ONLY : MECHNAME !Get Chemical Mechanism Name
          USE CGRID_SPCS  ! CGRID mechanism species
          USE STK_PRMS    ! stack groups file
@@ -727,8 +721,6 @@ C-----------------------------------------------------------------------
 
             ! Set up and open 3d point source emissions diagnostic file?
             IF ( PT3DDIAG ) THEN
-              NDATE = SDATE; NTIME = STIME
-              CALL NEXTIME( NDATE, NTIME, TSTEP ) ! advance one output tstep
               ALLOCATE ( VDEMIS_BUF( NCOLS,NROWS,EMLAYS,N_EMIS_ISTR ), STAT = IOS )
               CALL CHECKMEM( IOS, 'VDEMIS_BUF', PNAME )
               VDEMIS_BUF = 0.0   ! array
@@ -821,7 +813,7 @@ C Calculate Plume Heights for All Point Sources on this File
 
 C Read Emissions for all sources on File N            
          DO ISPC = 1, N_EMIS_ISTR
-            VNAME = EM_SURR( ISPC, ISRC )
+            VNAME = EM_SURR_PT( ISPC )
             IF ( VNAME .EQ. '' ) CYCLE
             IF ( .NOT. INTERPX( STKENAME( N ), VNAME, PNAME,
      &                          1,1, MY_STRT_SRC( N ),MY_END_SRC( N ), 1,1,

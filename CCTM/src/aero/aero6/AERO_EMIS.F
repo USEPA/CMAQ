@@ -205,6 +205,7 @@ C-----------------------------------------------------------------------
          USE AERO_DATA
          USE PRECURSOR_DATA
          USE UTILIO_DEFN
+         USE EMIS_VARS, ONLY : MAP_EMtoSURR
      
          INCLUDE SUBST_CONST     ! physical and mathematical constants
          INCLUDE SUBST_FILES_ID  ! file name parameters
@@ -240,7 +241,7 @@ C Miscellaneous variables
          CHARACTER( 16 ), SAVE :: PNAME = 'AERO_EMIS_INIT  '
          CHARACTER( 16 ) :: VNAME         ! temp var for species names
          CHARACTER( 50 ) :: VARDESC       ! variable for reading environ. variables
-         INTEGER L, N, S, V, IPOA         ! Loop indices
+         INTEGER L, N, S, V, IAERO         ! Loop indices
 
 C ----------------------------------------------------------------------
 
@@ -265,17 +266,6 @@ C *** set up for dust emission processing
             END IF
          END IF
 
-         IF ( N_AE_EMIS .GT. 0 ) THEN   ! all EMLAYS
-            ALLOCATE ( VDEMIS_AE( N_EMIS_ISTR,EMLAYS,MY_NCOLS,MY_NROWS ),
-     &                 STAT = STATUS )
-            IF ( STATUS .NE. 0 ) THEN
-               XMSG = 'VDEMIS_AE memory allocation failed'
-               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-               SUCCESS = .FALSE.
-            ELSE
-               VDEMIS_AE = 0.0   ! array assignment
-            END IF
-         END IF
 
 C *** Calculate factors for converting 3rd moment emission rates into number
 C     emission rates.  See Equation 7b of Binkowski & Roselle (2003)
@@ -418,12 +408,24 @@ C Local variables for windblown dust emission rates (grid cell value)
 C Miscellaneous variables
          CHARACTER( 16 ), SAVE :: PNAME = 'GET_AERO_EMIS'
          INTEGER C, R, L, N, V, S, ISPC, IAERO, IM   ! Loop indices
-         INTEGER ISEA, IDUST
+         INTEGER ISEA, IDUST, STATUS
+         LOGICAL, SAVE :: FIRST_TIME = .TRUE.
 #ifdef Verbose2
          real sumem
 #endif
 
 C ----------------------------------------------------------------------
+         IF ( FIRST_TIME ) THEN
+            ALLOCATE ( VDEMIS_AE( N_EMIS_ISTR,EMLAYS,MY_NCOLS,MY_NROWS ),
+     &                 STAT = STATUS )
+            IF ( STATUS .NE. 0 ) THEN
+               XMSG = 'VDEMIS_AE memory allocation failed'
+               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+            END IF
+
+            FIRST_TIME = .FALSE.
+         END IF
+         
          VDEMIS_AE = 0.0
 
 C *** Get sea salt emissions
@@ -495,7 +497,7 @@ C ----------------------------------------------------------------------
          USE AERO_DATA, ONLY : AEROSPC, 
      &                         ACORS_IDX, ASO4_IDX, ANO3_IDX, ACL_IDX, AH2O_IDX,
      &                         ACORSEM_ASO4_FAC, ACORSEM_ANO3_FAC, ACORSEM_ACL_FAC,
-     &                         ACORSEM_AH2O_FAC, ACORSEM_RENORM, AEROSPC_MW 
+     &                         ACORSEM_AH2O_FAC, ACORSEM_RENORM, AEROSPC_MW, EMWT_PROF 
          USE AEROMET_DATA
          USE ASX_DATA_MOD, ONLY: MET_DATA
 

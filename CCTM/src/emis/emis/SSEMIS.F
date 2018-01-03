@@ -41,7 +41,6 @@ C-----------------------------------------------------------------------
 
       USE HGRD_DEFN
       USE AERO_DATA, ONLY: N_MODE
-      USE CGRID_SPCS,ONLY: N_AE_EMIS, AE_EMIS_MAP, AE_SPC
       USE EMIS_VARS
 
       IMPLICIT NONE

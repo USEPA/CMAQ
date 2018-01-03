@@ -436,6 +436,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       ENTRY PA_UPDATE_EMIS( PRNAME, VEMIS, JDATE, JTIME, TSTEP )
 
 C..On first call, set pointers to emission species
+#ifdef ben_pa
       IF ( LEMFIRST ) THEN
 
 #ifdef emis_chem
@@ -533,10 +534,6 @@ C..aerosol species
                      ELSE   ! PA in aero process not implemented
                         IPR_NGR2EM( NPA,NGR,IND_AE ) = 0
                      END IF
-#ifdef verbose_pa_update
-                  write( logdev,* ) ' aero: NPA, NGR, IND_VM, IPR_NGR2EM =',
-     &                           NPA, NGR, IND_VM, IPR_NGR2EM( NPA,NGR,IND_VM )
-#endif
                   END IF
 
 C..non-reactive species
@@ -546,11 +543,6 @@ C..non-reactive species
                   IND = FINDEX ( SP_INDX, N_NR_EMIS, NR_EMIS_MAP )
                   IF ( IND .GT. 0 ) THEN
                      IPR_NGR2EM( NPA,NGR,IND_VM ) = IND + OFFSETA
-
-#ifdef verbose_pa_update
-                     write( logdev,* ) ' nonr: NPA, NGR, IND_VM, IPR_NGR2EM =',
-     &                              NPA, NGR, IND_VM, IPR_NGR2EM( NPA, NGR, IND_VM )
-#endif
 
 !                    RELWTEM( ICG ) = CONVMW / NR_MOLWT( SP_INDX )   
 !                    EM_FAC(  ICG ) = NR_EMIS_FAC( IND )
@@ -563,9 +555,6 @@ C..tracer species
                   IND = FINDEX ( SP_INDX, N_TR_EMIS, TR_EMIS_MAP )
 
                   IF ( IND .GT. 0 ) THEN
-#ifdef verbose_pa_update
-                     write( logdev,* ) 'trac ind: ', ind
-#endif
                      IPR_NGR2EM( NPA,NGR,IND_VM ) = IND + OFFSETA + N_NR_EMIS
                   END IF
 
@@ -657,16 +646,6 @@ C..get midpoint of time step
       CALL NEXTIME( MDATE, MTIME, SEC2TIME( TIME2SEC( TSTEP( 2 ) ) / 2 ) ) 
 
 C..Get air density if needed
-
-!     VNAME = 'DENSA_J'
-!     IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, 'PA_UPDATE',
-!!   &                    1,NCOLS, 1,NROWS, 1,NLAYS,
-!    &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-!    &                    MDATE, MTIME, DENSA_J ) ) THEN
-!           CALL M3EXIT( PNAME, JDATE, JTIME,
-!    &                  'Could not interpolate DENSA_J', XSTAT1 )
-!     END IF
-
       IF ( LAE_EM_IPR ) THEN
          VNAME = 'DENS'
          IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, 'PA_UPDATE',
@@ -746,6 +725,7 @@ C..modify both the emiss process and the calling process
             END IF
          END DO
       END DO
+#endif
 
       RETURN
 

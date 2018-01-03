@@ -195,7 +195,6 @@ C   implementation
          use aero_data        ! aerosol species definitions
          use asx_data_mod     ! meteorology data
          use utilio_defn
-         use cgrid_spcs, only: n_ae_emis, ae_spc, ae_emis_map
 
 C Arguments:
          integer, intent( in ) :: jdate   ! current model date, coded YYYYDDD

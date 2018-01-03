@@ -63,11 +63,10 @@
       IMPLICIT NONE
 
       LOGICAL,              SAVE :: LTNG_NO          ! flag for lightning NO emissions
-      INTEGER,              SAVE :: LTNG_MAP         ! map to GC NO
       REAL,    ALLOCATABLE, SAVE :: VDEMIS_LT( :,:,: )   ! lightning emis
       CHARACTER( 16 ),      SAVE :: CTM_LTNG_NO = 'CTM_LTNG_NO'  ! env var Cflag
 
-      PUBLIC LTNG_NO, LTNG_MAP, VDEMIS_LT, LTNG_INIT, GET_LTNG, LTSPC, CTM_LTNG_NO
+      PUBLIC LTNG_NO, VDEMIS_LT, LTNG_INIT, GET_LTNG, LTSPC, CTM_LTNG_NO
       PRIVATE
 
 !C lightning emis species name
@@ -515,14 +514,7 @@
 
          LTLYRS = EMLAYS
 
-!C Lightning to gas-phase species map
-
-         LTNG_MAP = INDEX1( LTSPC, N_GC_EMIS, GC_EMIS )
-         IF ( LTNG_MAP .EQ. 0 ) THEN
-            XMSG = TRIM( LTSPC ) // ' not found in GC_EMIS table'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
+!C Build Emissions Buffer
          ALLOCATE( VDEMIS_LT( LTLYRS,NCOLS,NROWS ), STAT = STATUS )
          IF ( STATUS .NE. 0 ) THEN
             XMSG = 'VDEMIS_LT memory allocation failed'

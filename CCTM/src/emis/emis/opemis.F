@@ -100,19 +100,6 @@ C Open All Tracer Emission Files
              ! Assign Layers to Common Vector
              EM_GRID_LAYS( ISRC ) = NLAYS3D
 
-             ! Check Units For Consistency
-             UNITSCK = 'BLANK'
-             DO N = 1, N_TR_EMIS
-                V = INDEX1( TR_EMIS( N ), NVARS3D, VNAME3D )
-                IF ( V .NE. 0 ) THEN
-                  IF ( UNITSCK .EQ. 'BLANK' ) UNITSCK = UNITS3D( V )
-                  IF ( UNITS3D( V ) .NE. UNITSCK ) THEN
-                     XMSG = 'Units not uniform on ' // EM_FILE_LAB( ISRC )
-                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-                  END IF
-                END IF
-             END DO
-
            END IF
 
         END IF   ! tracer emissions
@@ -143,94 +130,12 @@ C Open Gridded Emission Files (for gas chem, aerosols and non-reactive species)
             ! Assign Area Source Emission Species
             EM_GRID_LAYS( ISRC ) = NLAYS3D
 
-            ! Check for Consistency in Gas-Phase Emission Units
-            DO N = 1, N_GC_EMIS
-              V = INDEX1( GC_EMIS( N ), NVARS3D, VNAME3D )
-              IF ( V .NE. 0 ) THEN
-                 UNITSCK = UNITS3D( V )
-                 CALL UPCASE ( UNITSCK )
-                 IF ( UNITSCK .NE. 'MOLES/S'   .AND.
-     &              UNITSCK .NE. 'MOLE/S'    .AND.
-     &              UNITSCK .NE. 'MOL/S'     .AND.
-     &              UNITSCK .NE. 'MOLES/SEC' .AND.
-     &              UNITSCK .NE. 'MOLE/SEC'  .AND.
-     &              UNITSCK .NE. 'MOL/SEC'   .AND.
-     &              ( INDEX( MECHNAME, 'NVPOA' ) .NE. 0 .OR.  ! If the semivolatile POA mechanism
-     &                GC_EMIS( N ) .NE. 'POC' )   ) THEN      ! is active, then some gas-phase species
-                                                              ! will be scaled off of POC
-                    XMSG = 'GC units incorrect on ' // EM_FILE_NAME( ISRC ) //' for species ' // GC_EMIS( N )
-                    !CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-                    CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-                 END IF
-              END IF
-            END DO
-
-            ! Check For Consistency Among Aerosol Emission Units
-            UNITSCK = 'BLANK'
-            DO N = 1, N_AE_EMIS
-              IF ( ANY( AEROMODE( : )%NUM_NAME .EQ. AE_EMIS( N ) ) .OR.
-     &             ANY( AEROMODE( : )%SRF_NAME .EQ. AE_EMIS( N ) ) ) CYCLE
-              V = INDEX1( AE_EMIS( N ), NVARS3D, VNAME3D )
-              IF ( V .NE. 0 ) THEN
-                 IF ( UNITSCK .EQ. 'BLANK' ) UNITSCK = UNITS3D( V )
-                 IF ( UNITSCK .NE. UNITS3D( V ) ) THEN
-                    XMSG = 'AE units are inconsistent on ' // EM_FILE_NAME( ISRC )
-                    CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-                 END IF
-                 PMEM_UNITS = UNITSCK
-              END IF
-            END DO
- 
-            ! Check For Consistency Among Non-Reactive Species
-            DO N = 1, N_NR_EMIS
-              V = INDEX1( NR_EMIS( N ), NVARS3D, VNAME3D )
-              IF ( V .NE. 0 ) THEN
-                 UNITSCK = UNITS3D( V )
-                 CALL UPCASE ( UNITSCK )
-                 IF ( UNITSCK .NE. 'MOLES/S'   .AND.
-     &                UNITSCK .NE. 'MOLE/S'    .AND.
-     &                UNITSCK .NE. 'MOL/S'     .AND.
-     &                UNITSCK .NE. 'MOLES/SEC' .AND.
-     &                UNITSCK .NE. 'MOLE/SEC'  .AND.
-     &                UNITSCK .NE. 'MOL/SEC' ) THEN
-                    XMSG = 'NR units incorrect on ' // EM_FILE_NAME( ISRC )
-                    CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-                 END IF
-              END IF
-            END DO
-
             ! Assume units = mol/s across gas and non-reactive species classes
             CONVEM = 1.0E-03  ! assuming gram-moles
 
           END IF  ! (gas, aerosol or non-react emissions)
         END IF    ! (gridded emission file)
       END DO
-
-C Print Alerts that Species Emissions Will Be Treated 
-C Comment these alerts out because it is non-essential information.
-      IF ( N_GC_EMIS .GT. 0 ) THEN
-         WRFLG = .TRUE.
-         !WRITE( LOGDEV,1001 )
-1001     FORMAT( / 10X, 'Gas Chemistry Emissions Processing in',
-     &              1X, 'Vertical diffusion ...' )
-      END IF
-
-1003     FORMAT( / 10X, 'Aerosol Emissions Processing in',
-     &              1X, 'Vertical diffusion ...' )
-
-      IF ( N_NR_EMIS .GT. 0 ) THEN
-         WRFLG = .TRUE.
-         !WRITE( LOGDEV,1005 )
-1005     FORMAT( / 10X, 'Non-reactives Emissions Processing in',
-     &              1X, 'Vertical diffusion ...' )
-      END IF
-
-      IF ( N_TR_EMIS .GT. 0 .AND. EM_TRAC ) THEN
-         WRFLG = .TRUE.
-         !WRITE( LOGDEV,1007 )
-1007     FORMAT( / 10X, 'Tracer Emissions Processing in',
-     &              1X, 'Vertical diffusion ...' )
-      END IF
 
       RETURN
       END
