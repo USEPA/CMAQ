@@ -458,19 +458,6 @@ C SeaSalt_Cation, ASOIL, or Coarse-Mode Dust present.
       Real( 8 ), Parameter :: asoil_mn_fac = 0.00075D0   ! for MN in windblown dust
       Real( 8 ), Parameter :: acors_mn_fac = 0.0011D0    ! for MN in anthropogenic coarse
 
-C Coarse mode PMC speciation based on anthropogenic inventory composite from various
-C sources (G. Pouliot - private communication):
-
-      Real( 8 ), Parameter :: acorsem_aso4_fac = 0.00100D0
-      Real( 8 ), Parameter :: acorsem_ano3_fac = 0.00048D0
-      Real( 8 ), Parameter :: acorsem_acl_fac  = 0.00145D0
-      Real( 8 ), Parameter :: acorsem_ah2o_fac = 0.00032D0
-      Real( 8 ), Parameter :: acorsem_renorm   = 1.0D0
-     &                                     - acorsem_aso4_fac
-     &                                     - acorsem_ano3_fac
-     &                                     - acorsem_acl_fac
-     &                                     - acorsem_ah2o_fac
-
 C Create Map from CMAQ Aerosol Species Names to Common Aerosol Surrogate
 C Names on Emissions Input Files
       Type aero_em_map

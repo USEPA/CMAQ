@@ -108,13 +108,6 @@ C DUST_MAP   windblown dust emission rate index in DUSTOUTM
 C Factor for converting aerosol emissions from input units ...
       REAL,    ALLOCATABLE, SAVE :: CONVEM_PM( :,: ) ! into [ug/m2/sec]
 
-C *** PVB: temporary hack to speciate PMC
-      REAL,    SAVE :: SPFC_ACORS
-      REAL,    SAVE :: SPFC_ASO4
-      REAL,    SAVE :: SPFC_ANO3
-      REAL,    SAVE :: SPFC_ACL
-      REAL,    SAVE :: SPFC_AH2O
-
 C Domain decomposition info from emission and meteorology files
       INTEGER, SAVE :: STARTCOL, ENDCOL, STARTROW, ENDROW
       INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
@@ -464,10 +457,7 @@ C
 C ----------------------------------------------------------------------
 
          USE GRID_CONF
-         USE AERO_DATA, ONLY : AEROSPC, 
-     &                         ACORS_IDX, ASO4_IDX, ANO3_IDX, ACL_IDX, AH2O_IDX,
-     &                         ACORSEM_ASO4_FAC, ACORSEM_ANO3_FAC, ACORSEM_ACL_FAC,
-     &                         ACORSEM_AH2O_FAC, ACORSEM_RENORM, AEROSPC_MW, EMWT_PROF 
+         USE AERO_DATA, ONLY : AEROSPC 
          USE AEROMET_DATA
          USE ASX_DATA_MOD, ONLY: MET_DATA
 
@@ -523,25 +513,6 @@ C *** Apply Aerosol Size Distribution
              IF ( .NOT. AEROSPC( IAERO )%TRACER ) THEN
                    EMISM3( :,:,:,IM ) = EMISM3( :,:,:,IM ) + 
      &                   EMIS_BUFF * ( F6DPIM9 / AEROSPC( IAERO )%DENSITY )
-             END IF
-
-             ! Apply Speciation to Coarse Aerosol Mode Emission
-             IF ( IAERO .EQ. ACORS_IDX .AND. IM .EQ. N_MODE ) THEN
-                VDEMIS( MAP_AEROtoEM( ASO4_IDX,IM ),:,:,: ) = ACORSEM_ASO4_FAC * EMIS_BUFF
-                VDEMIS( MAP_AEROtoEM( ANO3_IDX,IM ),:,:,: ) = ACORSEM_ANO3_FAC * EMIS_BUFF 
-                VDEMIS( MAP_AEROtoEM( ACL_IDX,IM  ),:,:,: ) = ACORSEM_ACL_FAC  * EMIS_BUFF 
-                VDEMIS( MAP_AEROtoEM( AH2O_IDX,IM ),:,:,: ) = ACORSEM_AH2O_FAC * EMIS_BUFF 
-                VDEMIS( MAP_AEROtoEM( ACORS_IDX,IM),:,:,: ) = ACORSEM_RENORM   * EMIS_BUFF 
-              
-                ! Adjust 3rd Moment Summation to Account for Density
-                ! Change in dust speciation
-                EMISM3( :,:,:,IM ) = EMISM3( :,:,:,IM ) 
-     &             - EMIS_BUFF( :,:,: ) * ( F6DPIM9 / AEROSPC( ACORS_IDX )%DENSITY )
-     &             + VDEMIS( MAP_AEROtoEM( ASO4_IDX,IM ),:,:,: )* (F6DPIM9 / AEROSPC( ASO4_IDX )%DENSITY )
-     &             + VDEMIS( MAP_AEROtoEM( ANO3_IDX,IM ),:,:,: )* (F6DPIM9 / AEROSPC( ANO3_IDX )%DENSITY )
-     &             + VDEMIS( MAP_AEROtoEM( ACL_IDX,IM  ),:,:,: )* (F6DPIM9 / AEROSPC( ACL_IDX )%DENSITY )
-     &             + VDEMIS( MAP_AEROtoEM( AH2O_IDX,IM ),:,:,: )* (F6DPIM9 / AEROSPC( AH2O_IDX )%DENSITY )
-     &             + VDEMIS( MAP_AEROtoEM( ACORS_IDX,IM),:,:,: )* (F6DPIM9 / AEROSPC( ACORS_IDX )%DENSITY )
              END IF
 
              ! Convert Mass Emission Rates from [ug/m3/s] to [umol/m3/s]

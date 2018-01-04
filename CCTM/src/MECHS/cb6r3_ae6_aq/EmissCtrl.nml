@@ -25,14 +25,23 @@
 !------------------------------------------------------------------------------!
 
 &SizeDistSpecs
-
-
-
+ DefaultFineSurrogates  = 'PSO4','PNO3','PCL' ,'PNH4','PNA',
+                          'PMG' ,'PK'  ,'PCA' ,'POC' ,'PNCOM',
+                          'PEC' ,'PFE' ,'PAL' ,'PSI' ,'PTI',
+                          'PMN' ,'PH2O','PMOTHR',
+                          'NICKEL_F','CHROMEHEX_F','CHROMTRI_F',
+                          'BERYLLIUM_F','LEAD_F','DIESEL_PMFINE',
+                          'DIESEL_PMEC','DIESEL_PMOC','DIESEL_PMNO3',
+                          'DIESEL_PMSO4','CADMIUM_F','MAGNANESE_F',
+                          'PHGI','ARSENIC_F'
+ DefaultCoarseSurrogates= 'PMC','ASOIL','ASEACAT',
+                          'NICKEL_C','CHROMEHEX_C','CHROMTRI_C',
+                          'BERYLLIUM_C','LEAD_C','DIESEL_PMC',
+                          'CADMIUM_C','MAGNANESE_C','ARSENIC_F'
 /
 &SizeDistRules
- !            Source  | 
- SD_NML  =
-
+ !            Source      | Mode Keyword | Reference Mode 
+ SD_NML  =  'GRIDDED_EMIS',    'FINE',     'GRIDDED_FINE'
 /
 
 !------------------------------------------------------------------------------!
@@ -84,8 +93,7 @@
         'BENZENE','All'  ,'GAS'  ,'BENZ'   ,1.0   ,'a',
        
         'SULF'   ,'All'  ,'GAS'  ,'SULF'   ,0.0   ,'o',
-        'ASO4I'  ,'All'  ,'AERO' ,'SULF'   ,1.0   ,'a',
-        'ASO4J'  ,'All'  ,'AERO' ,'SULF'   ,1.0   ,'a',
+        'ASO4'   ,'All'  ,'FINE' ,'SULF'   ,1.0   ,'a',
                                                     
  !---Organic Aerosol Vapors and Particles            
  !   CMAQ-Species|Source |Phase |Surrogate|Factor | Op
@@ -102,23 +110,24 @@
         'PCVOC'  ,'All'  ,'GAS'  ,'POC'    ,0.0387 ,'a',
         'PCVOC'  ,'All'  ,'GAS'  ,'PNCOM'  ,0.0387 ,'a',
  
-        'ALVPO1I','All'  ,'AERO' ,'POC'    ,0.09   ,'a',
-        'ALVPO1I','All'  ,'AERO' ,'PNCOM'  ,0.09   ,'a',
-        'ASVPO1I','All'  ,'AERO' ,'POC'    ,0.045  ,'a',
-        'ASVPO1I','All'  ,'AERO' ,'PNCOM'  ,0.045  ,'a',
-        'ASVPO2I','All'  ,'AERO' ,'POC'    ,0.0    ,'a',
-        'ASVPO2I','All'  ,'AERO' ,'PNCOM'  ,0.0    ,'a',
-       
-        'ALVPO1J','All'  ,'AERO' ,'POC'    ,0.09   ,'a',
-        'ALVPO1J','All'  ,'AERO' ,'PNCOM'  ,0.09   ,'a',
-        'ASVPO1J','All'  ,'AERO' ,'POC'    ,0.045  ,'a',
-        'ASVPO1J','All'  ,'AERO' ,'PNCOM'  ,0.045  ,'a',
-        'ASVPO2J','All'  ,'AERO' ,'POC'    ,0.     ,'a',
-        'ASVPO2J','All'  ,'AERO' ,'PNCOM'  ,0.     ,'a',
-        'ASVPO3J','All'  ,'AERO' ,'POC'    ,0.     ,'a',
-        'ASVPO3J','All'  ,'AERO' ,'PNCOM'  ,0.     ,'a',
-        'AIVPO1J','All'  ,'AERO' ,'POC'    ,0.     ,'a',
-        'AIVPO1J','All'  ,'AERO' ,'PNCOM'  ,0.     ,'a',
+        'ALVPO1' ,'All'  ,'FINE' ,'POC'    ,0.09   ,'a',
+        'ALVPO1' ,'All'  ,'FINE' ,'PNCOM'  ,0.09   ,'a',
+        'ASVPO1' ,'All'  ,'FINE' ,'POC'    ,0.045  ,'a',
+        'ASVPO1' ,'All'  ,'FINE' ,'PNCOM'  ,0.045  ,'a',
+        'ASVPO2' ,'All'  ,'FINE' ,'POC'    ,0.     ,'a',
+        'ASVPO2' ,'All'  ,'FINE' ,'PNCOM'  ,0.     ,'a',
+        'ASVPO3' ,'All'  ,'FINE' ,'POC'    ,0.     ,'a',
+        'ASVPO3' ,'All'  ,'FINE' ,'PNCOM'  ,0.     ,'a',
+        'AIVPO1' ,'All'  ,'FINE' ,'POC'    ,0.     ,'a',
+        'AIVPO1' ,'All'  ,'FINE' ,'PNCOM'  ,0.     ,'a',
+
+ !---Coarse Mode Speciation
+ !   CMAQ-Species|Source |Phase   |Surrogate|Factor | Op
+        'ASO4'   ,'All'  ,'COARSE'  ,'PMC'  ,0.001  ,'a',
+        'ANO3'   ,'All'  ,'COARSE'  ,'PMC'  ,0.00048,'a',
+        'ACL'    ,'All'  ,'COARSE'  ,'PMC'  ,0.00145,'a',
+        'AH2O'   ,'All'  ,'COARSE'  ,'PMC'  ,0.00032,'a',
+        'ACORS'  ,'All'  ,'COARSE'  ,'PMC'  ,0.99675,'o',
 
  !---Mercury
  !   CMAQ-Species|Source |Phase |Surrogate|Factor | Op
