@@ -19,6 +19,23 @@
 /
 
 !------------------------------------------------------------------------------!
+! Size Distribution Specification Section                                      !
+!                                                                              !
+!                                                                              !
+!------------------------------------------------------------------------------!
+
+&SizeDistSpecs
+
+
+
+/
+&SizeDistRules
+ !            Source  | 
+ SD_NML  =
+
+/
+
+!------------------------------------------------------------------------------!
 ! Emissions Scaling Specification Section                                      !
 !   Each rule is presented as a row of inputs. The syntax of the               !
 !   emissions scaling rules is the following:                                  !
