@@ -86,7 +86,7 @@ C-----------------------------------------------------------------------
       INTEGER, SAVE :: NDATE, NTIME  ! step next date/time (beis)
 
       REAL, PARAMETER :: CMLMR = 1.0E+06   ! ppmV/Molar Mixing Ratio
-      REAL, SAVE      :: DX1, DX2          ! CX x1- and x2-cell widths
+      REAL(8), SAVE   :: DX1, DX2          ! CX x1- and x2-cell widths
 
       CONTAINS
 
@@ -321,7 +321,7 @@ C-----------------------------------------------------------------------
             FIRSTIME = .FALSE.
 C Get domain decomp info from the emissions file
             CALL SUBHFILE ( EM_FILE_NAME( 1 ), GXOFF, GYOFF, STARTCOL, ENDCOL, STARTROW, ENDROW )
-            CNVTP = CONVPA * CMLMR * MWAIR / ( DX1 * DX2 ) !Conv. Factor for Gases
+            CNVTP = CONVPA * CMLMR * MWAIR / REAL( DX1 * DX2 ) !Conv. Factor for Gases
 
          END IF    !FirstTime
 
@@ -454,7 +454,7 @@ C Local Variables:
 
          CHARACTER( 16 ) :: VNAME
          CHARACTER( 16 ) :: PNAME = 'GRIDEMIS'
-         CHARACTER( 120 ) :: XMSG = ' '
+         CHARACTER( 200 ) :: XMSG = ' '
          LOGICAL, SAVE :: FIRSTIME = .TRUE.
          INTEGER          GXOFF, GYOFF         ! global origin offset from file
          INTEGER, SAVE :: STARTCOL, ENDCOL, STARTROW, ENDROW
@@ -490,7 +490,7 @@ C                                       vvvvvvv - emis surrogate names
                IF ( .NOT. INTERPX( EMIS_FNAME, 'NH3_FERT', PNAME,
      &                          STARTCOL,ENDCOL, STARTROW,ENDROW,1,LAYS,
      &                          JDATE, JTIME, BUFF2 ) ) THEN
-                  XMSG = 'Could not read NH3_FERT from' // EMIS_FNAME
+                  XMSG = 'Could not read NH3_FERT from' // TRIM(EMIS_FNAME)
                   IF ( .NOT. EMISCHK ) 
      &                 CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
                END IF
@@ -562,7 +562,7 @@ C-----------------------------------------------------------------------
                                                                  ! Emissions surrogates are
                                                                  ! not properly defined
          CHARACTER( 16 )  :: PNAME = 'EMIS_SPC_CHECK'
-         CHARACTER( 80 )  :: VARDESC
+         CHARACTER( 100)  :: VARDESC
          INTEGER          :: STATUS
          CHARACTER( 500 ) :: XMSG
          CHARACTER( 16 )  :: B
@@ -853,11 +853,11 @@ C-----------------------------------------------------------------------
                  ISRC = ISRC + NPTGRPS
                END IF
                IF ( N_FILE_TR .GT. 0 ) EM_SRC_RULE( ISRC+1:ISRC+N_FILE_TR ) = .TRUE.
-               IF ( IBIOSRC .AND. .NOT. Guard_BiogenicVOC   ) EM_SRC_RULE( IBIOSRC  ) = .TRUE.
-               IF ( IMGSRC  .AND. .NOT. Guard_MarineGas     ) EM_SRC_RULE( IMGSRC   ) = .TRUE.
-               IF ( ILTSRC  .AND. .NOT. Guard_LightningNO   ) EM_SRC_RULE( ILTSRC   ) = .TRUE.
-               IF ( ISEASRC .AND. .NOT. Guard_SeaSpray      ) EM_SRC_RULE( ISEASRC  ) = .TRUE.
-               IF ( IDUSTSRC.AND. .NOT. Guard_WindBlownDust ) EM_SRC_RULE( IDUSTSRC ) = .TRUE.
+               IF ( IBIOSRC .GT.0 .AND. .NOT. Guard_BiogenicVOC   ) EM_SRC_RULE( IBIOSRC  ) = .TRUE.
+               IF ( IMGSRC  .GT.0 .AND. .NOT. Guard_MarineGas     ) EM_SRC_RULE( IMGSRC   ) = .TRUE.
+               IF ( ILTSRC  .GT.0 .AND. .NOT. Guard_LightningNO   ) EM_SRC_RULE( ILTSRC   ) = .TRUE.
+               IF ( ISEASRC .GT.0 .AND. .NOT. Guard_SeaSpray      ) EM_SRC_RULE( ISEASRC  ) = .TRUE.
+               IF ( IDUSTSRC.GT.0 .AND. .NOT. Guard_WindBlownDust ) EM_SRC_RULE( IDUSTSRC ) = .TRUE.
 
             ELSE
                ! Find the Specific Source this Rule Identifies

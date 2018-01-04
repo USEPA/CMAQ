@@ -44,13 +44,13 @@ C-----------------------------------------------------------------------
       INTEGER,              SAVE :: EMLAYS     ! no. of emis integration layers
                                                ! EMLAYS must be .LE. NLAYS
 
-      CHARACTER( 16 ), ALLOCATABLE, SAVE :: EM_SPEC  ( : )! Vector of Internal CMAQ Species names for 
-                                                          ! each emission operation
-      REAL(8), ALLOCATABLE, SAVE :: EM_FAC ( :,: ) ! Emissions Scale Factors ( species, source )
+      CHARACTER( 16 ), ALLOCATABLE, SAVE :: EM_SPEC  ( : ) ! Vector of Internal CMAQ Species names for 
+                                                           ! each emission operation
+      REAL, ALLOCATABLE, SAVE            :: EM_FAC ( :,: ) ! Emissions Scale Factors ( species, source )
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: EM_SURR( :,: ) ! Emissions Surrogate to be read ( species, source )
       
-      CHARACTER( 16 ), ALLOCATABLE, SAVE :: TRACSPC( : )  ! Variables from Tracer Emission File
-      CHARACTER( 16 ), ALLOCATABLE, SAVE :: AREASPC( : )  ! Variables straight from the Area Emission File
+      CHARACTER( 16 ), ALLOCATABLE, SAVE :: TRACSPC( : )   ! Variables from Tracer Emission File
+      CHARACTER( 16 ), ALLOCATABLE, SAVE :: AREASPC( : )   ! Variables straight from the Area Emission File
 
       TYPE( CARRY1 ),  ALLOCATABLE, SAVE :: EM_FILE_SURR( : )! Species to be read from each source file
       CHARACTER( 200 ),ALLOCATABLE, SAVE :: EM_FILE_NAME( : )! Filename of each emissions file
