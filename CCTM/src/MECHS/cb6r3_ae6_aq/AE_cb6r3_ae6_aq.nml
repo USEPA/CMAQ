@@ -3,7 +3,7 @@
 
 &AE_nml
  
-n_surr1 = 4,
+n_surr1 = 3,
 n_surr2 = 1,
 n_ctrl = 4,
  

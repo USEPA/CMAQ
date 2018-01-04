@@ -106,7 +106,7 @@ C Emission rate of all aerosol species interpolated to current time
 C DUST_MAP   windblown dust emission rate index in DUSTOUTM
 
 C Factor for converting aerosol emissions from input units ...
-      REAL,    ALLOCATABLE, SAVE :: CONVEM_PM( : ) ! into [ug/m2/sec]
+      REAL,    ALLOCATABLE, SAVE :: CONVEM_PM( :,: ) ! into [ug/m2/sec]
 
 C *** PVB: temporary hack to speciate PMC
       REAL,    SAVE :: SPFC_ACORS
@@ -114,10 +114,6 @@ C *** PVB: temporary hack to speciate PMC
       REAL,    SAVE :: SPFC_ANO3
       REAL,    SAVE :: SPFC_ACL
       REAL,    SAVE :: SPFC_AH2O
-
-C Variables for converting emission rates into molar-mixing-ratio units
-      REAL,    PARAMETER :: GPKG = 1.0E+03     ! g/kg
-      REAL,    PARAMETER :: MGPG = 1.0E+06     ! ug/g
 
 C Domain decomposition info from emission and meteorology files
       INTEGER, SAVE :: STARTCOL, ENDCOL, STARTROW, ENDROW
@@ -230,9 +226,6 @@ C Variables for calculating the volume of each grid cell
          REAL  DX1, DX2                            ! grid-cell width and length [m]
          REAL  CELLAREA                            ! grid-cell area [m2]
 
-C Factor for converting aerosol emissions from input units ...
-         REAL CONVEM_PM_MASS                       ! into [ug/sec]
-
 C Domain decomposition info from emission and meteorology files
          INTEGER GXOFF, GYOFF          ! origin offset
 
@@ -241,7 +234,7 @@ C Miscellaneous variables
          CHARACTER( 16 ), SAVE :: PNAME = 'AERO_EMIS_INIT  '
          CHARACTER( 16 ) :: VNAME         ! temp var for species names
          CHARACTER( 50 ) :: VARDESC       ! variable for reading environ. variables
-         INTEGER L, N, S, V, IAERO         ! Loop indices
+         INTEGER L, N, S, V, IAERO, ISRC  ! Loop indices
 
 C ----------------------------------------------------------------------
 
@@ -287,7 +280,7 @@ C *** Propagate Weights for each Emission Mode profile
          END DO
 
 C *** Allocate memory for EMBUFF, CELLHGT, CELLVOL, and CONVEM_PM
-         ALLOCATE ( CONVEM_PM( EMLAYS ),
+         ALLOCATE ( CONVEM_PM( EMLAYS, N_EM_SRC ),
      &              CELLHGT( EMLAYS ),
      &              CELLVOL( EMLAYS ), STAT = STATUS )
          IF ( STATUS .NE. 0 ) THEN
@@ -322,36 +315,13 @@ C     Multiply by grid area [m2] to obtain grid volume
          DO L = 1, EMLAYS
             CELLHGT( L ) = X3FACE_GD( L ) - X3FACE_GD( L-1 )
             CELLVOL( L ) = CELLHGT( L ) * CELLAREA
+
+            DO ISRC = 1,N_EM_SRC
+              CONVEM_PM( L,ISRC ) = CONVEM_PM_MASS( ISRC ) / CELLVOL( L )
+            END DO
          END DO
 
-C *** Get scaling factor for converting aerosol emissions from
-C     their input units to [ug/s] and then to [ug/m2/s] using layer-
-C     specific grid-cell volume.  
-         write( LOGDEV, '(A,A)'),'PMEM_UNITS=',PMEM_UNITS
-
-         IF ( PMEM_UNITS .EQ. 'G/S' .OR.
-     &        PMEM_UNITS .EQ. 'g/s' ) THEN
-            CONVEM_PM_MASS = MGPG                  ! (g/s) -> (ug/s)
-         ELSE IF ( PMEM_UNITS .EQ. 'KG/HR' .OR.
-     &             PMEM_UNITS .EQ. 'kg/hr' ) THEN
-            CONVEM_PM_MASS = GPKG * MGPG / 3600.0  ! (kg/hr) -> (ug/s)
-         ELSE
-            XMSG = PMEM_UNITS
-            CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-            SUCCESS = .FALSE.
-         END IF
-
-         DO L = 1, EMLAYS
-            CONVEM_PM( L ) = CONVEM_PM_MASS / CELLVOL( L )
-         END DO
-
-99901     FORMAT(/'FATAL: GC namelist used does not include species, ', A, 
-     &         / 'Check this namelist contains the same information '
-     &         / 'for ', A,' as the repository version of the GC namelist for '
-     &         / 'the ', A, ' mechanism.' )
-99902     FORMAT(/'WARNING: GC namelist line for ', A, ' does not include an emissions '
-     &         / 'surrogate. Simulation cannot evaluate the effect from zeroing out its '
-     &         / 'emissions.')
+         
 
          END FUNCTION  AERO_EMIS_INIT
 
@@ -482,7 +452,7 @@ C     Pass emission rates back to aerosol emission master array.
 
 C-----------------------------------------------------------------------
 
-         SUBROUTINE EMISS_SIZE_DIST ( VDEMIS )
+         SUBROUTINE EMISS_SIZE_DIST ( VDEMIS, ISRC )
 
 C  EMISS_SIZE_DIST distributes bulk aerosol emissions into size space
 C  using parameters precompiled in the AERO_DATA module. 
@@ -502,6 +472,7 @@ C ----------------------------------------------------------------------
          USE ASX_DATA_MOD, ONLY: MET_DATA
 
          REAL,    INTENT( INOUT )  :: VDEMIS( :,:,:,: )
+         INTEGER, INTENT( IN    )  :: ISRC
 
          INTEGER :: EMLAYS
          INTEGER :: N, S, IAERO, IM, ISPC   ! Looping Variables
@@ -528,7 +499,7 @@ C     Also calculate scaling factors for converting to molar-mixing-ratio units
          DO LAY = 1,EMLAYS
            DO COL = 1,MY_NCOLS
              DO ROW = 1,MY_NROWS
-               GSFAC( LAY,COL,ROW ) = CONVEM_PM( LAY ) 
+               GSFAC( LAY,COL,ROW ) = CONVEM_PM( LAY,ISRC ) 
      &                              * Met_Data%RJACM( COL,ROW,LAY ) ![g/s] or [kg/hr] to [ug/m3/s]
              END DO
            END DO

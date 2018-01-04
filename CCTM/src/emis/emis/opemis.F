@@ -25,7 +25,7 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
  
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE OPEMIS ( JDATE, JTIME, EM_TRAC, CONVEM )
+      SUBROUTINE OPEMIS ( JDATE, JTIME, EM_TRAC )
 
 C  7 Mar 02 - J.Young: add units string variations
 C 29 Oct 05 - J.Young: dyn. layers
@@ -40,7 +40,9 @@ C                        removed deprecated TRIMLEN
       USE RXNS_DATA, only : MECHNAME 
       USE EMIS_VARS
       USE EMIS_DEFN
-      USE AERO_DATA, only : AEROMODE, N_MODE, PMEM_UNITS
+      USE AERO_DATA, only : AEROMODE, N_MODE, MGPG, GPKG,
+     &                      N_MAP_AEROtoPTCL, MAP_AEROtoPTCL
+      USE VDIFF_MAP, only : N_SPC_DIFF, DIFF_SPC, DIFF_MASK_AERO
 
       IMPLICIT NONE
 
@@ -51,7 +53,6 @@ C Arguments:
       INTEGER      JDATE      ! current model date, coded YYYYDDD
       INTEGER      JTIME      ! current model time, coded HHMMSS
       LOGICAL      EM_TRAC    ! are there tracer emissions?
-      REAL         CONVEM     ! conversion for emissions rates
 
 C External Functions:
 
@@ -63,11 +64,11 @@ C Local variables:
       CHARACTER( 96 ) :: XMSG
       CHARACTER( 16 ) :: UNITSCK
 
-      LOGICAL ::   SOME_GAS_EMIS
+      LOGICAL ::   LAERO
       LOGICAL ::   WRFLG = .FALSE.
       INTEGER      LOGDEV
       INTEGER      STATUS, IOS
-      INTEGER      V, N, S, ISRC, ITRAC, IGR    
+      INTEGER      V, N, S, ISRC, ITRAC, IGR, IVAR, X    
 
 C-----------------------------------------------------------------------
  
@@ -99,7 +100,19 @@ C Open All Tracer Emission Files
 
              ! Assign Layers to Common Vector
              EM_GRID_LAYS( ISRC ) = NLAYS3D
-
+              
+             ! Check Units For Consistency
+             UNITSCK = 'BLANK'
+             DO N = 1,NVARS3D
+                V = INDEX1( VNAME3D( N ), N_SPC_DIFF, DIFF_SPC )
+                IF ( V .NE. 0 ) THEN
+                  IF ( UNITSCK .EQ. 'BLANK' ) UNITSCK = UNITS3D( V )
+                  IF ( UNITS3D( V ) .NE. UNITSCK ) THEN
+                     XMSG = 'Units not uniform on ' // EM_FILE_LAB( ISRC )
+                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+                  END IF
+                END IF
+             END DO 
            END IF
 
         END IF   ! tracer emissions
@@ -130,8 +143,63 @@ C Open Gridded Emission Files (for gas chem, aerosols and non-reactive species)
             ! Assign Area Source Emission Species
             EM_GRID_LAYS( ISRC ) = NLAYS3D
 
-            ! Assume units = mol/s across gas and non-reactive species classes
-            CONVEM = 1.0E-03  ! assuming gram-moles
+            ! Check Units for Consistency 
+            ! EMIS_GAS_UNITS and EMIS_AER_UNITS are initalized in
+            ! EMIS_VARS
+            DO IVAR = 1,NVARS3D
+              ! Check if Diffused Species are on the file list
+              V = INDEX1( VNAME3D( IVAR ), N_SPC_DIFF, DIFF_SPC )
+              X = INDEX1( VNAME3D( IVAR ), N_MAP_AEROtoPTCL, MAP_AEROtoPTCL( : )%PTCL )
+              IF ( V + X .NE. 0 ) THEN
+                  ! A match has been found
+                  UNITSCK = UNITS3D( IVAR )
+                  CALL UPCASE( UNITSCK )
+
+                  LAERO = .FALSE.
+                  IF ( V .NE. 0 ) LAERO = DIFF_MASK_AERO( V )
+                  IF ( X .NE. 0 .OR. LAERO ) THEN
+                     ! Aerosol Species
+                     IF ( EMIS_AER_UNITS( ISRC ) .EQ. 'NONE' ) 
+     &                    EMIS_AER_UNITS( ISRC ) = UNITSCK
+                     IF ( UNITSCK .NE. EMIS_AER_UNITS( ISRC ) ) THEN
+                         WRITE( XMSG, '(A,A,A,A,A)' ), 'The aerosol units for ', 
+     &                          EM_FILE_DESC( ISRC ),' are inconsistent: ',
+     &                          EMIS_AER_UNITS( ISRC ),' | ',UNITSCK
+                         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+                     END IF
+
+                     IF ( EMIS_AER_UNITS( ISRC ) .EQ. 'G/S' )   
+     &                    CONVEM_PM_MASS( ISRC ) = MGPG  ! g/s -> ug/s
+                     IF ( EMIS_AER_UNITS( ISRC ) .EQ. 'KG/HR' ) 
+     &                    CONVEM_PM_MASS( ISRC ) = GPKG * MGPG / 3600. ! kg/hr -> ug/s
+                  ELSE
+                     !Gas Species
+                     IF ( EMIS_GAS_UNITS( ISRC ) .EQ. 'NONE' ) 
+     &                    EMIS_GAS_UNITS( ISRC ) = UNITSCK
+                     IF ( UNITSCK .NE. EMIS_GAS_UNITS( ISRC ) ) THEN
+                         WRITE( XMSG, '(A,A,A,A,A)' ), 'The gas units for ', 
+     &                          EM_FILE_DESC( ISRC ),' are inconsistent: ',
+     &                          EMIS_GAS_UNITS( ISRC ),' | ',UNITSCK
+                         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+                     END IF
+
+                     IF ( EMIS_GAS_UNITS( ISRC ) .EQ. 'MOLES/S'   .OR.
+     &                    EMIS_GAS_UNITS( ISRC ) .EQ. 'MOLES/SEC' .OR.
+     &                    EMIS_GAS_UNITS( ISRC ) .EQ. 'MOLE/S'    .OR.
+     &                    EMIS_GAS_UNITS( ISRC ) .EQ. 'MOLE/SEC'  .OR.
+     &                    EMIS_GAS_UNITS( ISRC ) .EQ. 'MOL/S'     .OR.
+     &                    EMIS_GAS_UNITS( ISRC ) .EQ. 'MOL/SEC'   
+     &                ) THEN
+                           CONVEM( ISRC ) = 1.0E-3  ! mol/s -> kmol/s
+                     ELSE
+                         WRITE( XMSG, '(A,A,A,A,A)' ), 'The gas units for ', 
+     &                          EM_FILE_DESC( ISRC ),' are not expected: ',
+     &                          EMIS_GAS_UNITS( ISRC ),'. They should be MOLE/S.'
+                         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+                     END IF
+                   END IF
+                 END IF
+            END DO
 
           END IF  ! (gas, aerosol or non-react emissions)
         END IF    ! (gridded emission file)

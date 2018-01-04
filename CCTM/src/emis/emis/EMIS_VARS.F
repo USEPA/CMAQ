@@ -39,15 +39,18 @@ C-----------------------------------------------------------------------
       REAL,    ALLOCATABLE, SAVE :: VDEMIS_DIFF( :,:,:,: ) ! emissions array mapped to diffused species
 
       INTEGER,              SAVE :: N_EM_SRC   ! global number of emissions sources
+      INTEGER,              SAVE :: N_FILE_GR, NPTGRPS, N_FILE_TR  
       INTEGER,              SAVE :: N_EMIS_ISTR! global emissions species
       INTEGER,              SAVE :: EMLAYS     ! no. of emis integration layers
                                                ! EMLAYS must be .LE. NLAYS
 
-      CHARACTER( 16 ), ALLOCATABLE, SAVE :: TRACSPC( : )  ! Variables from Tracer Emission File
-      CHARACTER( 16 ), ALLOCATABLE, SAVE :: AREASPC( : )  ! Variables straight from the Area Emission File
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: EM_SPEC  ( : )! Vector of Internal CMAQ Species names for 
                                                           ! each emission operation
-      INTEGER, SAVE :: N_FILE_GR, NPTGRPS, N_FILE_TR
+      REAL(8), ALLOCATABLE, SAVE :: EM_FAC ( :,: ) ! Emissions Scale Factors ( species, source )
+      CHARACTER( 16 ), ALLOCATABLE, SAVE :: EM_SURR( :,: ) ! Emissions Surrogate to be read ( species, source )
+      
+      CHARACTER( 16 ), ALLOCATABLE, SAVE :: TRACSPC( : )  ! Variables from Tracer Emission File
+      CHARACTER( 16 ), ALLOCATABLE, SAVE :: AREASPC( : )  ! Variables straight from the Area Emission File
 
       TYPE( CARRY1 ),  ALLOCATABLE, SAVE :: EM_FILE_SURR( : )! Species to be read from each source file
       CHARACTER( 200 ),ALLOCATABLE, SAVE :: EM_FILE_NAME( : )! Filename of each emissions file
@@ -55,11 +58,13 @@ C-----------------------------------------------------------------------
       CHARACTER( 16  ),ALLOCATABLE, SAVE :: EM_FILE_TYPE( : )! shortname for the type of each emission
       CHARACTER( 100 ),ALLOCATABLE, SAVE :: EM_FILE_DESC( : )! Description of each emissions file
 
-      REAL(8), ALLOCATABLE, SAVE :: EM_FAC ( :,: ) ! Emissions Scale Factors ( species, source )
-
       INTEGER, SAVE :: IBIOSRC, IMGSRC, ILTSRC, ISEASRC, IDUSTSRC
       INTEGER, ALLOCATABLE, SAVE :: IGSRC( : ), IPSRC( : ), ITSRC( : ), MAP_PTtoISRC( : )
 
       INTEGER, ALLOCATABLE, SAVE :: MAP_EMtoSURR( :,: ), MAP_EMtoDIFF( : )
+
+      CHARACTER( 16 ), ALLOCATABLE, SAVE :: EMIS_AER_UNITS( : )   ! Initialize Aerosol Units with no value
+      CHARACTER( 16 ), ALLOCATABLE, SAVE :: EMIS_GAS_UNITS( : )   ! Initialize Vapor Units with no value
+      REAL, ALLOCATABLE, SAVE :: CONVEM( : ), CONVEM_PM_MASS( : )
 
       END MODULE EMIS_VARS

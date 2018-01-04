@@ -66,7 +66,6 @@ C=======================================================================
          CHARACTER( 80 )       :: VARDESC   ! env variable description
          CHARACTER( 120 )      :: XMSG = ' '
 
-         REAL    CONVEM               ! conversion for emissions rates to Kg/s
          INTEGER V, K, LOGDEV, STATUS
 
 C-----------------------------------------------------------------------
@@ -104,9 +103,13 @@ C=======================================================================
 
          SUBROUTINE GET_BEIS ( JDATE, JTIME, TSTEP )
 
+         USE EMIS_VARS
+         USE BIOG_EMIS
+             
          IMPLICIT NONE
 
-         INTEGER JDATE, JTIME, TSTEP( 3 )
+         INTEGER JDATE, JTIME, TSTEP( 3 ), ISTR
+         LOGICAL, SAVE :: FIRST_TIME = .TRUE.
 
          INTERFACE
             SUBROUTINE TMPBEIS312 ( MDATE, MTIME, TSTEP, BEIS_MAP, VDEMIS_BI )
@@ -117,6 +120,18 @@ C=======================================================================
          END INTERFACE
 
 C-----------------------------------------------------------------------
+
+         IF ( FIRST_TIME ) THEN
+             ! Map out BEIS_MAP using MAP_EMtoSURR Array
+             ALLOCATE( BEIS_MAP( MSPCS ) )
+             DO ISTR = 1,N_EMIS_ISTR
+                 IF ( MAP_EMtoSURR( ISTR,IBIOSRC ) .GT. 0 ) 
+     &              BEIS_MAP( MAP_EMtoSURR( ISTR,IBIOSRC ) ) = 
+     &                     MAP_EMtoDIFF( ISTR )
+             END DO
+
+             FIRST_TIME = .FALSE.
+         END IF    
 
          CALL TMPBEIS312( JDATE, JTIME, TSTEP, BEIS_MAP, VDEMIS_BI )
 

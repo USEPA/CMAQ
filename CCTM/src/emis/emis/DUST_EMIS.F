@@ -716,7 +716,6 @@ C Parameters:
                                            !  4  Clay
 
          real, parameter :: f6dpi = 6.0 / pi
-         real, parameter :: gpkg = 1.0e03     ! g/kg
 
          real, parameter :: mv    = 0.16
          real, parameter :: sigv  = 1.45

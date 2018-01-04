@@ -577,6 +577,10 @@ C Indices of Optional species
 C Common factors
       Real( 8 ) :: h2ofac                      ! converts mass concentrations [ug/m3] to 3rd moment concentrations [m3/m3]
 
+C Variables for converting emission rates into molar-mixing-ratio units
+      REAL,    PARAMETER :: GPKG = 1.0E+03     ! kg -> g
+      REAL,    PARAMETER :: MGPG = 1.0E+06     ! g -> ug
+
 C-------------------------------------------------------------------------------------------------------
 
       Type mode_type
@@ -626,7 +630,6 @@ C Mapping for loading from and unloading to CGRID array
 
 C Missing aerosol species map
       Logical, Allocatable :: aero_missing( :,: )  
-      Character( 16 ), Save :: pmem_units
 
       Logical, Save :: V51_SOA_mechanism   = .False. !
       Logical, Save :: AE_eflag            = .False. ! error flag for AERO_DATA

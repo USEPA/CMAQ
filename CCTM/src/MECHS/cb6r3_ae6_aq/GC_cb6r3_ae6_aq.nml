@@ -3,7 +3,7 @@
 
 &GC_nml
  
-n_surr1 = 4,
+n_surr1 = 3,
 n_surr2 = 2,
 n_ctrl = 4,
  

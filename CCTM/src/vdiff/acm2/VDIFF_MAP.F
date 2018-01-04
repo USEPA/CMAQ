@@ -291,10 +291,10 @@ C Local variables:
          END DO
 
 ! Populate Diffusion Module Map and Species
-         ALLOCATE( DIFF_MASK_GAS ( N_GC_TRNS ) )
-         ALLOCATE( DIFF_MASK_AERO( N_AE_TRNS ) )
-         ALLOCATE( DIFF_MASK_NR  ( N_NR_TRNS ) )
-         ALLOCATE( DIFF_MASK_TRAC( N_TR_DIFF ) )
+         ALLOCATE( DIFF_MASK_GAS ( N_SPC_DIFF ) )
+         ALLOCATE( DIFF_MASK_AERO( N_SPC_DIFF ) )
+         ALLOCATE( DIFF_MASK_NR  ( N_SPC_DIFF ) )
+         ALLOCATE( DIFF_MASK_TRAC( N_SPC_DIFF ) )
          DIFF_MASK_GAS  = 0
          DIFF_MASK_AERO = 0
          DIFF_MASK_NR   = 0

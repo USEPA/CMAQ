@@ -926,7 +926,7 @@ c-------------------------------------------------------------------------------
 
 c assume chem mechanism types are in the order of:
 c 1) CGRID species, CGRID species molecular weight <- base type
-c 2) EMIS, ICBC, DEPV, SCAV  [any order]           <- surrogate type 1 (surr name, surr fac)
+c 2) ICBC, DEPV, SCAV  [any order]           <- surrogate type 1 (surr name, surr fac)
 c 3) x2AE, x2AQ  [any order]                       <- surrogate type 2 (surr name only )
 c 4) DIFF, DDEP, WDEP, CONC  [any order]           <- control type
 
@@ -950,7 +950,6 @@ c 4) DIFF, DDEP, WDEP, CONC  [any order]           <- control type
             type( ctrl_type ),  intent ( out ) :: ctrl_out( n_ctrl )
 
             integer, parameter :: nfld = 20
-!           character(  1 ), parameter :: dc = ',', bl = ' '  ! namelist field delimiting character, blank character
             character(  1 ), parameter :: dc = ':', bl = ' '  ! namelist field delimiting character, blank character
             character( 32 ) :: str( nfld ) = bl               ! field substring
             character(  1 ) :: chr, lastchr
@@ -1015,7 +1014,7 @@ c 4) DIFF, DDEP, WDEP, CONC  [any order]           <- control type
             end do
 
 c assumed group order: {CGRID spc, mw},
-c                      {EMIS, ICBC, DEPV, SCAV} group,
+c                      {ICBC, DEPV, SCAV} group,
 c                      {x2AE, x2AQ} group,
 c                      {TRNS, DDEP, WDEP, CONC} group
 c str( 1 ) = CGRID name, str( 2 ) = CGRID name molec. wt.
@@ -1050,10 +1049,6 @@ c if there is a surrogate name and the factor field is blank, assume fac = 1.0
                   surr1_out( n )%map = 0
                   surr1_out( n )%fac = 0.0
                end if
-#ifdef Verbose
-               write( logdev,* ) 'surr1', n, ip, surr1_out( n )%name, surr1_out( n )%map,
-     &                            surr1_out( n )%fac
-#endif
                ip = ip + 2
             end do
 
@@ -1066,9 +1061,6 @@ c type 2 surrogate (surr2)
                   surr2_out( n )%name = bl
                   surr2_out( n )%map = 0
                end if
-#ifdef Verbose
-               write( logdev,* ) 'surr2', n, ip, surr2_out( n )%name, surr2_out( n )%map
-#endif
                ip = ip + 1
             end do
 
@@ -1086,9 +1078,6 @@ c type 2 surrogate (surr2)
                   ctrl_out( n )%name = bl
                   ctrl_out( n )%map = 0
                end if
-#ifdef Verbose
-               write( logdev,* ) 'ctrl', n, ip, ctrl_out( n )%name, ctrl_out( n )%map
-#endif
                ip = ip + 1
             end do
 
