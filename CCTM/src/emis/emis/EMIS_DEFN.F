@@ -338,11 +338,13 @@ C Retrieve Emissions from All Source Types
              CASE ( "GRID" )
                CALL GRIDEMIS ( JDATE, JTIME, EM_FILE_NAME( ISRC ), 
      &                         EM_GRID_LAYS( ISRC ), ISRC )
+               CALL EMISS_SIZE_DIST( VDEMIS_GR, 1 )
                VDEMIS = VDEMIS + VDEMIS_GR * CONVEM( ISRC )
 
              ! Retrieve Point Source Emissions
              CASE ( "POINT" )
                CALL GET_PT3D_EMIS ( JDATE, JTIME, TSTEP, EM_SURR( :,ISRC ), ISRC )
+               CALL EMISS_SIZE_DIST( VDEMIS_PT, 1 )
                VDEMIS = VDEMIS + VDEMIS_PT * CONVEM( ISRC )
 
              ! Retrieve Biogenic Emissions from BEIS
@@ -368,12 +370,20 @@ C Retrieve Emissions from All Source Types
                   VDEMIS( ISTR,:,:,: ) = VDEMIS( ISTR,:,:,: ) + EM_FAC( ISTR,ISRC ) 
      &                  * VDEMIS_LT( :,:,: ) * CONVEM( ISRC )
                END FORALL
+
+             ! Retrieve Sea Spray Aerosol Emissions (umol/m3/s)
+
+             CALL EMISS_SIZE_DIST( VDEMIS_SEA, 1 )
+
+             ! Retrieve Wind-Blown Dust Emissions (umol/m3/s)
+
+             CALL EMISS_SIZE_DIST( VDEMIS_DUST, 1 )
+
            END SELECT
 
          END DO  
 
 C *** Distribute Aerosol Emissions in Size Space
-         CALL EMISS_SIZE_DIST( VDEMIS, 1 )
 
 C Aerosol Emissions - Add Sea Spray and Dust (umol/m3/s)
          IF ( N_AE_SPC .GT. 0 ) THEN

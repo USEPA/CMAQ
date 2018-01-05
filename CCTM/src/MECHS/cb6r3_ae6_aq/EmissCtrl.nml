@@ -16,15 +16,6 @@
  Guard_LightningNO   = .FALSE.
  Guard_WindBlownDust = .FALSE.
  Guard_SeaSpray      = .FALSE.
-/
-
-!------------------------------------------------------------------------------!
-! Size Distribution Specification Section                                      !
-!                                                                              !
-!                                                                              !
-!------------------------------------------------------------------------------!
-
-&SizeDistSpecs
  DefaultFineSurrogates  = 'PSO4','PNO3','PCL' ,'PNH4','PNA',
                           'PMG' ,'PK'  ,'PCA' ,'POC' ,'PNCOM',
                           'PEC' ,'PFE' ,'PAL' ,'PSI' ,'PTI',
@@ -39,6 +30,13 @@
                           'BERYLLIUM_C','LEAD_C','DIESEL_PMC',
                           'CADMIUM_C','MAGNANESE_C','ARSENIC_F'
 /
+
+!------------------------------------------------------------------------------!
+! Size Distribution Specification Section                                      !
+!                                                                              !
+!                                                                              !
+!------------------------------------------------------------------------------!
+
 &SizeDistRules
  !            Source      | Mode Keyword | Reference Mode 
  SD_NML  =  'GRIDDED_EMIS',    'FINE',     'GRIDDED_FINE'

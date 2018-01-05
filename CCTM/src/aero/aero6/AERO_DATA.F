@@ -171,14 +171,11 @@ C Define Logical values as T and F for the aerospc table
       Integer, Private, Save :: logdev
       Integer, Private, External :: setup_logdev
 
-C-------------------------------------------------------------------------------------------------------
-
-       REAL, Allocatable :: EMWT_PROF( :,: )
-
-C-------------------------------------------------------------------------------------------------------
-
+ 
+      ! Create Array of Aerosol Species to Be Filled with User Preferences
       Type spcs_type
-         Character( 16 ) :: name                 ! names of aerosol species for each mode
+         Character( 16 ) :: name( n_mode )       ! mode-dependent names of aerosol species
+         Character( 16 ) :: bulkname             ! mode-independent names of aerosol species
          Real            :: min_conc( n_mode )   ! minimum concentration values for each mode
          Real            :: density              ! density [ kg/m^3 ]
          Logical         :: no_M2Wet             ! flag to exclude from 2nd moment during transport
@@ -190,11 +187,24 @@ C-------------------------------------------------------------------------------
          Logical         :: om                   ! flag for organic aerosols
          Character( 16 ) :: optic_surr           ! optical surrogate name
       End Type spcs_type
-
-      ! Create Array of Aerosol Species to Be Filled with User Preferences
       Type( spcs_type ), Allocatable, Save :: aerospc ( : )
+ 
 
       ! Master List of Aerosol Species and Properties
+      Type spcs_list_type
+         Character( 16 ) :: bulkname             ! mode-independent names of aerosol species
+         Real            :: min_conc( n_mode )   ! minimum concentration values for each mode
+         Real            :: density              ! density [ kg/m^3 ]
+         Logical         :: no_M2Wet             ! flag to exclude from 2nd moment during transport
+         Logical         :: nonVol_soa           ! non-volatile SOA flag
+         Logical         :: tracer               ! tracer flag; does have not mass
+         Integer         :: charge               ! electroneutrality charge
+         Real            :: visual_idx           ! visual index factor [ m^2/g ]
+         Real            :: visual_idx_large     ! visual index factor [m^2/g ] for large mode, if not applicable, same value as visual_idx
+         Logical         :: om                   ! flag for organic aerosols
+         Character( 16 ) :: optic_surr           ! optical surrogate name
+      End Type spcs_list_type
+
       Type( spcs_type ), Parameter :: aerolist( n_aerolist ) = (/
 C                                          nonVolSOA       Visidx_Large
 C                                      no_M2Wet|Tracer         |
@@ -291,7 +301,12 @@ C                ---------- -------- ------- + + +   + ------ --- +  --------
      & spcs_type('AAS     ', cm_set, 2200.0, F,F,T,  0,  0.0, 0.0,F, 'DUST  '), ! Arsenic
      & /)
  
-C Primary Organic Aerosol Volatility Distributions
+! Define Reference Emissions Size Distributions
+       REAL, Allocatable :: EMWT_PROF( :,: )
+
+
+
+! Primary Organic Aerosol Volatility Distributions
       !Integer, Parameter :: n_vbs_bin = 5
       !Character( 10 ) :: poa_name( n_vbs_bin ) = (/ 'LVPO1', 'SVPO1', 'SVPO2', 'SVPO3', 'IVPO1' /)
       !Real, Parameter :: poa_op_vf( n_vbs_bin ) = (/ 0.09,  0.09,  0.14,  0.18,  0.5 /)  ! Aggregated
@@ -361,6 +376,8 @@ C                                                    Aitken  accum   coarse
      &   emis_table( 'Potassium     ', 'AK      ', (/ 0.0, 0.03770, 0.0    /) ),   ! Potassium
      &   emis_table( 'Org. Carbon   ', 'APOC    ', (/ 0.0, 0.01075, 0.0    /) ),   ! Organic Carbon
      &   emis_table( 'NonCarbon Org.', 'APNCOM  ', (/ 0.0, 0.00430, 0.0    /) ),   ! Non-Carbon Organic Matter
+     &   emis_table( 'Low-Vol. POA  ', 'ALVPO1  ', (/ 0.0, 0.01501, 0.0    /) ),   ! Non-Carbon Organic Matter
+     &   emis_table( 'Low-Vol. OOA  ', 'ALVOO1  ', (/ 0.0, 2.23E-5, 0.0    /) ),   ! Non-Carbon Organic Matter
      &   emis_table( 'Black Carbon  ', 'AEC     ', (/ 0.0, 0.0,     0.0    /) ),   ! Black or Elemental Carbon
      &   emis_table( 'Iron          ', 'AFE     ', (/ 0.0, 0.03355, 0.0    /) ),   ! Iron
      &   emis_table( 'Aluminum      ', 'AAL     ', (/ 0.0, 0.05695, 0.0    /) ),   ! Aluminum
@@ -547,7 +564,7 @@ C Indices of Optional species
       Integer :: aimos_idx  = 0
       Integer :: aphgj_idx  = 0
 
-      Character(16), Allocatable :: aero_bulkname( : )  ! aero species name without mode suffix
+C Common Arrays for Aerosol Data
       Real, Allocatable :: aerospc_mw( : )     ! aero species M.W. (from AE_SPC Namelist) [ g/mol ]
       Real, Allocatable :: aerospc_conc( :,: ) ! aero species concentration [ ug/m^3 ]
 
@@ -644,8 +661,8 @@ C JY  03/22/16 Get index for new required species: Fe, Mn (aqchem)
 C HOTP 05/11/16 Add IEPOX derived species
 C-----------------------------------------------------------------------
 
-      Use rxns_data             ! chemical mechanism data
-      Use cgrid_spcs            ! CGRID mechanism species
+      Use rxns_data       ! chemical mechanism data
+      Use cgrid_spcs      ! CGRID mechanism species
       Use aeromet_data
       Use utilio_defn
       Implicit None
@@ -654,8 +671,8 @@ C Local Variables:
       Character( 256 ) :: xmsg
       Character( 256 ) :: xmsg2
       Real    :: mole_weight( n_aerolist )
-      Integer :: aerolist_map  ( n_aerolist,n_mode )
-      Integer :: aerospc_tolist( n_aerolist )
+      Integer :: map_listtogrid( n_aerolist,n_mode )
+      Integer :: map_aerotolist( n_aerolist )
 
       Integer, Allocatable :: aerospc_in_dustlist( : )
 
@@ -683,8 +700,8 @@ C Local Variables:
       mole_weight = 0.0
 
       n_aerospc      = 0   ! Number of Used Aerosol Chemical Species
-      aerolist_map   = 0   ! Pointer from aerolist to CGRID
-      aerospc_tolist = 0   ! Pointer from aerospc to aerolist
+      map_listtogrid = 0   ! Pointer from aerolist to CGRID
+      map_aerotolist = 0   ! Pointer from aerospc to aerolist
       AE_eflag       = .False.
       max_l2sg       = ( LOG( max_sigma_g ) ) ** 2
       min_l2sg       = ( LOG( min_sigma_g ) ) ** 2
@@ -703,44 +720,41 @@ C Local Variables:
 
 C Build mapping to CGRID for each species in the master AeroList
       Do spc = 1, n_aerolist
-         Do m = 1, n_mode   ! Loop through modes
+         ! Check to see if this species is in the namelist
+         do m = 1,n_mode
+            sn = trim( aerolist( spc )%bulkname ) // modesuff( m )
+            n = index1( sn, n_ae_spc, ae_spc )
 
-            If ( aerolist( spc )%name( m )(1:1) .Ne. ' ' ) Then
-               ! This place on the AeroList has a potential species in
-               ! it. Check to see if it is in the namelist
-               n = index1( aerolist( spc )%name( m ) , n_ae_spc, ae_spc )
-
-               If ( n .Ne. 0 ) Then
-                  ! Species is in the Master List and on the NameList
-                  If ( .Not. ( Any( aerolist_map( spc,: ) .NE. 0 ) ) ) Then
-                     ! Add this species to the map if it does not exist already
-                     n_aerospc = n_aerospc + 1
-                     aerospc_tolist( n_aerospc ) = spc
-                     ! Set the Molecular Weight
-                     mole_weight( spc ) = ae_molwt( n )
-                  Else If ( mole_weight( spc ) .Ne. ae_molwt( n ) ) Then
-                     ! If the species already exists and the
-                     ! molecular weight from this mode on the
-                     ! namelist is not matching the standing
-                     ! molecular weight, throw an error
-                     xmsg = 'molecular weight of ' // Trim( aerolist(spc )%name( m ) )
-     &                      // ' is different from that of the same species'
-     &                      // ' in the same or another mode.'
-                     Call m3warn( pname, 0, 0, xmsg )
-                     Write( xmsg,* ) 'New Value(', n, ') = ', ae_molwt( n ),
-     &                               'Expected value(', spc, ')= ', mole_weight( spc )
-                     Call m3warn( pname, 0, 0, xmsg )
-                     AE_eflag  = .True.
-                  End If
-                  ! Add the map from CGRID to AeroList
-                  aerolist_map( spc,m ) = ae_strt - 1 + n
-                  lbcmode( m,n ) = .True.
-                  If ( .Not. aerolist( spc)%tracer )  lbcmass( n ) = .True.
-                  If ( .Not. aerolist( spc)%no_m2wet ) lbcdry( n ) = .True.
-                  !Map the CGRID Aerosol Species to their Densities
-                  aerocgrid_rhoinv( n ) = 1.0 / aerolist( spc )%density
-
+            If ( n .Ne. 0 ) Then
+               ! Species is on the NameList
+               If ( .Not. ( Any( map_listtogrid( spc,: ) .NE. 0 ) ) ) Then
+                  ! Add this species to the map if it does not exist already
+                  n_aerospc = n_aerospc + 1
+                  map_aerotolist( n_aerospc ) = spc
+                  ! Set the Molecular Weight
+                  mole_weight( spc ) = ae_molwt( n )
+               Else If ( mole_weight( spc ) .Ne. ae_molwt( n ) ) Then
+                  ! If the species already exists and the
+                  ! molecular weight from this mode on the
+                  ! namelist is not matching the standing
+                  ! molecular weight, throw an error
+                  xmsg = 'The molecular weight of ' // Trim( sn )
+     &                   // ' is different from that of the same species'
+     &                   // ' in the same or another mode.'
+                  Call m3warn( pname, 0, 0, xmsg )
+                  Write( xmsg,* ) 'New Value(', n, ') = ', ae_molwt( n ),
+     &                            'Expected value(', spc, ')= ', mole_weight( spc )
+                  Call m3warn( pname, 0, 0, xmsg )
+                  AE_eflag  = .True.
                End If
+               ! Update the map from CGRID to AeroList for this mode
+               map_listtogrid( spc,m ) = ae_strt - 1 + n
+               lbcmode( m,n ) = .True.
+               If ( .Not. aerolist( spc)%tracer )  lbcmass( n ) = .True.
+               If ( .Not. aerolist( spc)%no_m2wet ) lbcdry( n ) = .True.
+               !Map the CGRID Aerosol Species to their Densities
+               aerocgrid_rhoinv( n ) = 1.0 / aerolist( spc )%density
+
             End If
          End Do
       End Do
@@ -749,7 +763,6 @@ C Build mapping to CGRID for each species in the master AeroList
       ! AeroSpc. Begin by allocating all of the new arrays now that we
       ! know the value of n_aerospc
       Allocate ( aerospc      ( n_aerospc ) )
-      Allocate ( aero_bulkname( n_aerospc ) )
       Allocate ( aerospc_mw   ( n_aerospc ) )
       Allocate ( aerospc_map  ( n_aerospc, n_mode ) )
       Allocate ( aerospc_conc ( n_aerospc, n_mode ) )
@@ -759,37 +772,34 @@ C Build mapping to CGRID for each species in the master AeroList
       aero_missing( :,: ) = .True.
 
       Do spc = 1, n_aerospc ! Loop through user-requested chemical species
-         l = aerospc_tolist( spc )
-         aerospc( spc ) = aerolist( l )   ! Map AeroList to AeroSpc
+         l = map_aerotolist( spc )
+
+         ! Map AeroList Contents to AeroSpc
+         aerospc( spc )%bulkname   = aerolist( l )%bulkname   
+         aerospc( spc )%min_conc   = aerolist( l )%min_conc
+         aerospc( spc )%density    = aerolist( l )%denisty   
+         aerospc( spc )%no_M2wet   = aerolist( l )%no_M2Wet   
+         aerospc( spc )%nonVol_soa = aerolist( l )%nonVol_soa 
+         aerospc( spc )%tracer     = aerolist( l )%tracer     
+         aerospc( spc )%charge     = aerolist( l )%charge     
+         aerospc( spc )%visual_idx = aerolist( l )%visual_idx 
+         aerospc( spc )%visual_idx_large = aerolist( l )%visual_idx_large
+         aerospc( spc )%om         = aerolist( l )%om         
+         aerospc( spc )%optic_surr = aerolist( l )%optic_surr 
+
+         ! Map mode-independent properties
          aerospc_mw( spc ) = mole_weight( l )
 
          Do n = 1,n_mode
+            ! Create Mode-Dependent Names
+            aerospc( spc )%name( n ) = trim( aerospc( spc )%bulkname ) // modesuff( n )
+
             ! Map the Modal-Dependent CGRID Pointers from AeroSpc to AeroList
-            aerospc_map( spc, n ) = aerolist_map( l, n )
+            aerospc_map( spc, n ) = map_listtogrid( l, n )
 
-            ! If a user invokes a chemical species, they should have the
-            ! same modes present as is indicated in the table above.
-            ! Check that this is true.
-            If ( aerospc( spc )%name( n ) .Ne. ' ' ) Then
-               aero_missing( spc,n ) = .False.
-               If ( aerospc( spc )%name( n ) .Eq. "ASEACAT" .Or.
-     &              aerospc( spc )%name( n ) .Eq. "ASOIL"   .Or.
-     &              aerospc( spc )%name( n ) .Eq. "ACORS"   ) Then
-                 
-                 aero_bulkname( spc ) = aerospc( spc )%name( n )
-               Else
-                 aero_bulkname( spc ) = aerospc( spc )%name( n )
-     &                                (1:len_trim( aerospc( spc )%name( n ) )-1)
-               End If
-
-               If ( aerolist_map( aerospc_tolist( spc ),n ) .Eq. 0 ) Then
-                 AE_eflag  = .True.
-                 Write( xmsg,* ) 'FATAL ERROR: Linked set of tracers, ',
-     &                    Trim( xmsg2 ),', is missing species, ',
-     &                    Trim( aerolist( spc )%name( n ) )
-                 Call m3warn( pname, 0, 0, xmsg )
-              End If
-            End If
+            ! Remove this Chemical/Mode Combination from the "missing"
+            ! list
+            aero_missing( spc,n ) = .False.
 
          End Do
 
@@ -876,37 +886,6 @@ C Find indices of required species
       Else
          aphgj_idx = 0 
          ae6hg     = .False.
-      End If
-
-C Adjust Dust Emissions list for Organic Species, if running with semivolatile POA
-      If ( Index( mechname, 'NVPOA' ) .Eq. 0 ) Then
-         ! Find Indices for Nonvolatile Organics
-         Do idust = 1, ndust_spc
-            If ( Index( dust_spc( idust )%name, 'APOC' )  .Gt. 0 ) dust_org1 = idust
-            If ( Index( dust_spc( idust )%name, 'APNCOM') .Gt. 0 ) dust_org2 = idust
-         End Do
-
-         ! Compute Total Organic Dust Scale Factor and O:C Ratio
-         ! The dust OM:OC should equal 1.4 if it consistent with Simon and Bhave (2011).
-         dust_POC = dust_spc( dust_org1 )%spcfac( 2 )
-         dust_PNC = dust_spc( dust_org2 )%spcfac( 2 )
-         dust_OMOC = ( dust_POC + dust_PNC ) / dust_POC
-         dust_OC = 12.0 / 15.0 * dust_OMOC - 14.0 / 15.0
-
-         ! Distribute Dust Organic Speciation between Volatility-Based Surrogates.
-         ! These hard-coded values can be generalized once O:C information is
-         ! incoporated directly into the internal OA species table.
-         POA_OC = 0.1853  ! O:C Ratio of LVPOA1
-         OOA_OC = 0.7106  ! O:C Ratio of LVOOA2
-         dust_OC = Max( dust_OC, POA_OC )
-         dust_POA = 1.0 / ( 1.0 + ( dust_OC - POA_OC ) / ( OOA_OC - dust_OC ) )
-         dust_OOA = 1.0 / ( 1.0 + ( dust_OC - OOA_OC ) / ( POA_OC - dust_OC ) )
-
-         ! Assign new names and speciation to dust table
-         dust_spc( dust_org1 )%name = 'ALVPO1'
-         dust_spc( dust_org2 )%name = 'ALVOO2'
-         dust_spc( dust_org1 )%spcfac( 2 ) = dust_POA * ( dust_POC + dust_PNC )
-         dust_spc( dust_org2 )%spcfac( 2 ) = dust_OOA * ( dust_POC + dust_PNC )
       End If
 
 C Compute common factors
@@ -998,7 +977,6 @@ C Copy grid cell concentrations of aero species to aerospc_conc
       ! Calculate Dry Third Moment [ m3 / m3 ]
       Do m = 1, n_mode
          moment3_conc( m ) = sum( aerospc_conc(:,m) / aerospc(:)%density,
-!    &      MASK= (aerospc%no_M2wet==.false. .AND. aerospc%Tracer==.false.) )
      &      MASK= ( ( .NOT. aerospc%no_M2wet ) .AND.
      &              ( .NOT. aerospc%Tracer ) ) )
          moment3_conc( m ) = max( moment3_conc( m ) * 1.0E-9 * f6pi,
@@ -1160,7 +1138,6 @@ C Find the substring vname in aerospc( spc )%name( n )
       xmsg = 'FATAL: Required Species ' // Trim( vname ) // ' Not found in AE namelist'
       AE_eflag  = .True.
       Call m3warn( pname, 0, 0, xmsg )
-!     Call m3exit( pname, 0, 0, xmsg, xstat3 )
 
       Return
       End Function findAero
