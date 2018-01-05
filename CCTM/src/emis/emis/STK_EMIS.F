@@ -151,6 +151,7 @@ C-----------------------------------------------------------------------
 
             EM_FILE_SURR( MAP_PTtoISRC(N) )%LEN = LEN2
             ALLOCATE ( EM_FILE_SURR( MAP_PTtoISRC(N) )%ARRY( LEN2 ), STAT = ASTAT )
+            ALLOCATE ( EM_FILE_SURR( MAP_PTtoISRC(N) )%UNITS( LEN2 ), STAT = ASTAT )
             CALL CHECKMEM( ASTAT, 'EM_FILE_SURR', PNAME )
 
             IF ( FIREFLAG( N ) ) THEN   ! subtract and save off 'HFLUX'
@@ -161,12 +162,14 @@ C-----------------------------------------------------------------------
                   IF ( VNAME3D( J ) .NE. 'HFLUX' ) THEN
                      I = I + 1
                      EM_FILE_SURR( MAP_PTtoISRC(N) )%ARRY( I ) = VNAME3D( J )
+                     EM_FILE_SURR( MAP_PTtoISRC(N) )%UNITS( I )= UNITS3D( J )
                   END IF
                END DO
                FIREVAR( N )%LEN = LEN1
             ELSE
                DO J = 1, EM_FILE_SURR( MAP_PTtoISRC(N) )%LEN
                   EM_FILE_SURR( MAP_PTtoISRC(N) )%ARRY( J ) = VNAME3D( J )
+                  EM_FILE_SURR( MAP_PTtoISRC(N) )%UNITS( J )= UNITS3D( J )
                END DO
             END IF
 

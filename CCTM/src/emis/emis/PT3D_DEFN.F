@@ -701,7 +701,7 @@ C Local variables:
          INTEGER, SAVE :: LOGDEV
 
          INTEGER, SAVE :: PRE_JDATE, LOC_STKDATE
-
+         INTEGER       :: NDATE, NTIME
          
 #ifdef Verbose1
          real mxzplm
@@ -721,6 +721,13 @@ C-----------------------------------------------------------------------
 
             ! Set up and open 3d point source emissions diagnostic file?
             IF ( PT3DDIAG ) THEN
+              NDATE = SDATE; NTIME = STIME
+              CALL NEXTIME( NDATE, NTIME, TSTEP(1) ) ! advance one output tstep
+              CALL OPPT3D_DIAG( CTM_PT3D_DIAG, NDATE, NTIME, TSTEP(1), EMLAYS,
+     &                   EM_FILE_SURR( ISRC )%LEN, EM_FILE_SURR( ISRC )%ARRY( : ),
+     &                   EM_FILE_SURR( ISRC )%UNITS( : ) )
+ 
+
               ALLOCATE ( VDEMIS_BUF( NCOLS,NROWS,EMLAYS,N_EMIS_ISTR ), STAT = IOS )
               CALL CHECKMEM( IOS, 'VDEMIS_BUF', PNAME )
               VDEMIS_BUF = 0.0   ! array

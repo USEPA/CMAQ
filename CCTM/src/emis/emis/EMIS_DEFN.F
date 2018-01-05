@@ -474,7 +474,6 @@ C Read & Interpolate Emissions
             IF ( VNAME .EQ. '' ) CYCLE
 
             BUFF = 0.0   ! array assignment
-C                                       vvvvvvv - emis surrogate names
             IF ( .NOT. INTERPX( EMIS_FNAME, VNAME, PNAME,
      &                          STARTCOL,ENDCOL, STARTROW,ENDROW,1,LAYS,
      &                          JDATE, JTIME, BUFF ) ) THEN
@@ -812,7 +811,8 @@ C-----------------------------------------------------------------------
          EM_NML%FAC  = 0.
          EM_NML%OP   = ''
          READ( NML = EmissionScaling, UNIT = EMCTRL_NML )
-         
+         CLOSE( UNIT = EMCTRL_NML )
+
          ! Allocate Rule->Instruction Transform Masks
          ALLOCATE( EM_SRC_RULE ( N_EM_SRC   ) )
          ALLOCATE( EM_SPEC_RULE( N_SPC_DIFF ) )
@@ -1072,12 +1072,12 @@ C-----------------------------------------------------------------------
                      IF ( EM_SURR( ISTR, ISRC ) .EQ. RULE_ISTR_SURR( IC ) ) THEN
                        ! Multiply the Scale Factor if Desired
                        IF ( EM_NML( IRULE )%OP .EQ. 'm' ) 
-     &                      EM_FAC ( N_EMIS_ISTR, ISRC ) = 
-     &                         EM_FAC( N_EMIS_ISTR, ISRC ) *
+     &                      EM_FAC ( ISTR, ISRC ) = 
+     &                         EM_FAC( ISTR, ISRC ) *
      &                         EM_NML( IRULE )%FAC
                        ! Overwrite the Scale Factor if Desired
                        IF ( EM_NML( IRULE )%OP .EQ. 'o' ) 
-     &                      EM_FAC ( N_EMIS_ISTR, ISRC ) = 
+     &                      EM_FAC ( ISTR, ISRC ) = 
      &                         EM_NML( IRULE )%FAC
                      END IF
                    END DO
@@ -1139,15 +1139,15 @@ C Print a message for each emissions source surrogate that is not used.
          WRITE( LOGDEV, '(A)'   ),'=================================='
 
          DO ISRC = 1,N_EM_SRC
-           WRITE( LOGDEV,'(3x,A,A,A,A)' ),'Source: ',TRIM(EM_FILE_DESC( ISRC )),
+           WRITE( LOGDEV,'(/,3x,A,A,A,A)' ),'Source: ',TRIM(EM_FILE_DESC( ISRC )),
      &            '; Label: ',TRIM(EM_FILE_LAB( ISRC ) )
-           WRITE( LOGDEV, '(4x,A,3x,A,3x,A)' ),'CMAQ Species ','Surrogate','Scale Factor'
+           WRITE( LOGDEV, '(6x,A,3x,A,3x,A)' ),'CMAQ Species ','Surrogate','Scale Factor'
 
            DO IDIFF = 1,N_SPC_DIFF
              DO ISTR = 1,N_EMIS_ISTR
                IF ( EM_SPEC( ISTR ) .EQ. DIFF_SPC( IDIFF ) .AND.
      &              EM_SURR( ISTR,ISRC ) .NE. '' )
-     &           WRITE( LOGDEV, '(4x,A,3x,A,3x,F7.4)' ),EM_SPEC( ISTR ), 
+     &           WRITE( LOGDEV, '(7x,A,3x,A,F7.4)' ),EM_SPEC( ISTR ), 
      &                  EM_SURR( ISTR, ISRC ), EM_FAC( ISTR, ISRC )
              END DO
            END DO

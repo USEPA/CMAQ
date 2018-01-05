@@ -25,8 +25,7 @@ C %W% %P% %G% %U%
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE OPPT3D_DIAG( PT3DNAME, SDATE, STIME, TSTEP, EMLAYS,
-     &                        N_SPC_EM, STKEM_NAME,
-     &                        N_SPC_PM, STKPM_NAME )
+     &                        N_SPC, SPEC_NAME, SPEC_UNITS )
 
 C-----------------------------------------------------------------------
  
@@ -65,11 +64,9 @@ C Arguments:
       INTEGER,         INTENT( IN ) :: STIME    ! start time (HHMMSS)
       INTEGER,         INTENT( IN ) :: TSTEP    ! time step (HHMMSS)
       INTEGER,         INTENT( IN ) :: EMLAYS   ! number of emissions layers
-!        REAL,         INTENT( IN ) :: VGLVSXG( 0:MXLAYS3 ) !  vertical coord values
-      INTEGER,         INTENT( IN ) :: N_SPC_EM ! number of point source gas species
-      CHARACTER( 16 ), INTENT( IN ) :: STKEM_NAME( N_SPC_EM ) ! non-PM species names
-      INTEGER,         INTENT( IN ) :: N_SPC_PM ! number of point source PM species
-      CHARACTER( 16 ), INTENT( IN ) :: STKPM_NAME( N_SPC_PM ) ! PM species names
+      INTEGER,         INTENT( IN ) :: N_SPC    ! number of point source surrogates
+      CHARACTER( 16 ), INTENT( IN ) :: SPEC_NAME( N_SPC )  ! species names
+      CHARACTER( 16 ), INTENT( IN ) :: SPEC_UNITS( N_SPC ) ! units
 
 C Local variables:
 
@@ -90,7 +87,7 @@ C Set output file characteristics based on GRID_CONF module and open the 3D emis
       NROWS3D = GL_NROWS
       NLAYS3D = EMLAYS
       NTHIK3D = 1
-      NVARS3D = N_SPC_EM + N_SPC_PM
+      NVARS3D = N_SPC
       GDTYP3D = GDTYP_GD
       P_ALP3D = P_ALP_GD
       P_BET3D = P_BET_GD
@@ -110,33 +107,21 @@ C Set output file characteristics based on GRID_CONF module and open the 3D emis
       END DO
 
       VNAME3D = ' '     ! array
-      DO V = 1, N_SPC_EM
-         VNAME3D( V ) = STKEM_NAME( V )
-      END DO
-      L = N_SPC_EM
-      DO V = 1, N_SPC_PM
-         VNAME3D( V+L ) = STKPM_NAME( V )
+      DO V = 1, N_SPC
+         VNAME3D( V ) = SPEC_NAME( V )
       END DO
 
       VTYPE3D = 0       ! array
       VTYPE3D( 1:NVARS3D ) = M3REAL
 
       UNITS3D = ' '     ! array
-      DO V = 1, N_SPC_EM
-         UNITS3D( V ) = 'mol/s'
-      END DO
-      L = N_SPC_EM
-      DO V = 1, N_SPC_PM
-         UNITS3D( V+L ) = 'g/s'
+      DO V = 1, N_SPC
+         UNITS3D( V ) = SPEC_UNITS( V )
       END DO
 
       VDESC3D = ' '     ! array
-      DO V = 1, N_SPC_EM
-         VDESC3D( V ) = 'Model species: ' // TRIM( STKEM_NAME( V ) )
-      END DO
-      L = N_SPC_EM
-      DO V = 1, N_SPC_PM
-         VDESC3D( V+L) = 'Primary particulate species: ' // TRIM( STKPM_NAME( V ) )
+      DO V = 1, N_SPC
+         VDESC3D( V ) = 'Model species: ' // TRIM( SPEC_NAME( V ) )
       END DO
 
       FDESC3D = ' '  ! array

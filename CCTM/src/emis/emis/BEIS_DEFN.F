@@ -103,8 +103,9 @@ C=======================================================================
 
          SUBROUTINE GET_BEIS ( JDATE, JTIME, TSTEP )
 
-         USE EMIS_VARS
-         USE BIOG_EMIS
+         USE EMIS_VARS, ONLY : N_EMIS_ISTR, IBIOSRC,
+     &                         MAP_EMtoSURR, MAP_EMtoDIFF
+         USE BIOG_EMIS, ONLY : MSPCS
              
          IMPLICIT NONE
 
@@ -124,6 +125,7 @@ C-----------------------------------------------------------------------
          IF ( FIRST_TIME ) THEN
              ! Map out BEIS_MAP using MAP_EMtoSURR Array
              ALLOCATE( BEIS_MAP( MSPCS ) )
+             BEIS_MAP = 0
              DO ISTR = 1,N_EMIS_ISTR
                  IF ( MAP_EMtoSURR( ISTR,IBIOSRC ) .GT. 0 ) 
      &              BEIS_MAP( MAP_EMtoSURR( ISTR,IBIOSRC ) ) = 
