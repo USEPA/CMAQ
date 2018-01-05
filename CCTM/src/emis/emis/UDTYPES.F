@@ -58,6 +58,7 @@ C-----------------------------------------------------------------------
 
       TYPE :: CARRY1
          CHARACTER( 16 ), POINTER :: ARRY( : )
+         CHARACTER( 16 ), POINTER :: UNITS( : )
          INTEGER                  :: LEN
       END TYPE CARRY1
 
