@@ -60,6 +60,9 @@ C 15 Jul 15 G. Sarwar: updated SOA from alkane, PAH, and isoprene for RACM2
 C 03/03/16  D. Luecken: added capability for CB6
 C 24 Mar 16 G. Sarwar: updated for CB05EH51
 C    May 16 B. Murphy, H. Pye: updated treatment of aerosol moments
+C    Jan 18 H. Pye: updated monoterpene photoxidation SOA: Xu et al. 2018 ACPD
+C                   AMT1-7 will replace ATRP1-2 when fully implemented
+C                   across mechanisms. 
 C
 C-----------------------------------------------------------------------
       Implicit None
@@ -96,8 +99,8 @@ C                  -------    -------   -------- -------  ------     --   ----  
      & vapor_type('SV_BNZ2 ',  0.8880, 111.1100,  18.0E3, 'ABNZ2J ', 'A',  6.0, 'BNZNRXN '),
      & vapor_type('SV_PAH1 ',  0.2100,   1.6598,  18.0E3, 'APAH1J ', 'A', 10.0, 'PAHNRXN '),
      & vapor_type('SV_PAH2 ',  1.0700, 264.6675,  18.0E3, 'APAH2J ', 'A', 10.0, 'PAHNRXN '),
-     & vapor_type('SV_TRP1 ',  0.1393,  14.7920,  40.0E3, 'ATRP1J ', 'B', 10.0, '        '),
-     & vapor_type('SV_TRP2 ',  0.4542, 133.7297,  40.0E3, 'ATRP2J ', 'B', 10.0, '        '),
+     & vapor_type('SV_TRP1 ',  0.1393,  14.7920,  40.0E3, 'ATRP1J ', 'B', 10.0, 'TRPRXN  '),
+     & vapor_type('SV_TRP2 ',  0.4542, 133.7297,  40.0E3, 'ATRP2J ', 'B', 10.0, 'TRPRXN  '),
      & vapor_type('SV_MT1  ',   0.040,    0.010, 102.0E3, 'AMT1J  ', 'B',  0.0, 'TRPRXN '),
      & vapor_type('SV_MT2  ',   0.032,    0.100,  91.0E3, 'AMT2J  ', 'B',  0.0, 'TRPRXN '),
      & vapor_type('SV_MT3  ',   0.032,    1.000,  80.0E3, 'AMT3J  ', 'B',  0.0, 'TRPRXN '),

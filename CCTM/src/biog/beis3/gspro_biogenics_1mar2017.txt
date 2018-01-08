@@ -14,6 +14,7 @@
 #    Options -
 #      B10C5: CB05-based mechanisms
 #      B10C6: CB6r3-based mechanisms
+#             1/8/2018 HOTP modified to split out APIN and not include in TERP 
 #      B10RD: RACM2-based mechanisms
 #      B10SP: SAPRC07t-based mechanisms
 # POLNAM
@@ -169,7 +170,6 @@ B10C6;"ACET";"ACET";1;36;1.6111
 B10C6;"ACTAC";"AACD";1;24;2.5
 B10C6;"ACTAL";"ALD2";1;24;1.8333
 B10C6;"ACTAL";"ALD2_PRIMARY";1;24;1.8333
-B10C6;"APIN";"TERP";1;120;1.1333
 B10C6;"APIN";"APIN";1;120;1.1333
 B10C6;"ATERP";"TERP";1;120;1.1333
 B10C6;"ATHU";"TERP";1;120;1.1333
