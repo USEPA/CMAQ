@@ -24,7 +24,6 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
        SUBROUTINE CHEM( CGRID, JDATE, JTIME, TSTEP )
-
 C**********************************************************************
 C
 C  FUNCTION: Driver subroutine for Euler Backward Iterative solver
@@ -34,7 +33,7 @@ C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, PHOT, HRCALCKS, HRSOLVER
 C                                     FIND_DEGRADED, INIT_DEGRADE, FINAL_DEGRADE
 C
-C  REVISION HISTORY: Created by EBI solver program, Mar 10, 2017
+C  REVISION HISTORY: Created by EBI solver program, Jan  8, 2018
 C                       Based on the algorithm in "Test of Two Numerical
 C                       Schemes for Use in Atmospheric Transport-Chemistry
 C                       Models", O. Hertel, R. Berkowicz, J. Christensen,
@@ -88,9 +87,9 @@ C..Arguments:
       INTEGER TSTEP( 3 )      ! Time step vector (HHMMSS)
 
 C..Parameters:
-      REAL( 8 ), PARAMETER :: DCONMIN = 1.0D-30               ! minimum species concentration allowed
-      REAL,      PARAMETER :: CONCMIN = 1.0E-30               ! minimum species concentration allowed
-      REAL,      PARAMETER :: MAOMV   = 1.0E6 * MWAIR / MWWAT ! Mol Wt of air over Mol Wt of water times 1.0E6
+      REAL( 8 ), PARAMETER :: DCONMIN = 1.0D-30               ! minimum species concentration allowe
+      REAL,      PARAMETER :: CONCMIN = 1.0E-30               ! minimum species concentration allowe
+      REAL,      PARAMETER :: MAOMV   = 1.0E6 * MWAIR / MWWAT ! Mol Wt of air over Mol Wt of water t
 
 C..External Functions:
 
@@ -264,6 +263,7 @@ C Define processor offsets
 
          PECOL_OFFSET = COLSD_PE( 1, MYPE+1 ) - 1
          PEROW_OFFSET = ROWSD_PE( 1, MYPE+1 ) - 1
+
 
 C.. Get fractional seawater coverage from the OCEAN file.
 
