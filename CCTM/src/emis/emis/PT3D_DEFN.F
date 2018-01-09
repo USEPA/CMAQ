@@ -842,7 +842,7 @@ C Apportion emissions to the layers
 
                   ! Save Emissions in Common Array
                   VDEMIS_PT( ISPC,L,C,R ) = VDEMIS_PT( ISPC,L,C,R )
-     &                              + LFRC * EM_FAC( ISPC,ISRC ) * STKEMIS( N )%ARRY( SRC )
+     &                              + LFRC * STKEMIS( N )%ARRY( SRC )
 
                END DO  ! End Layers Loop
             END DO  ! End Sources Loop

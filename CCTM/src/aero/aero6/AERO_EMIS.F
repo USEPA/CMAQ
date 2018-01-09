@@ -68,7 +68,7 @@ C   17 Apr 13 J.Young: replace "SPFC ASO4" (found by Havala Pye) with "SPFC_ASO4
 C   07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module. 
 C-----------------------------------------------------------------------
 
-      USE AERO_DATA, ONLY: N_MODE
+      USE AERO_DATA
       USE EMIS_VARS
 
       IMPLICIT NONE
@@ -85,10 +85,10 @@ C aerosol emissions: [ppmv/s] for mass & number spcs, [m2/mol/s] for surface are
       PRIVATE
 
 C Variables for converting mass emissions rate to number emissions rate
-      REAL,    SAVE :: FACNUM( N_MODE )
+      REAL,    SAVE :: FACNUM( N_EM_AERO_REF,N_MODE )
 
 C Variables for converting mass emissions rate to 2nd moment emissions rate
-      REAL,    SAVE :: FACSRF( N_MODE )
+      REAL,    SAVE :: FACSRF( N_EM_AERO_REF,N_MODE )
 
 C Variables for the thickness and volume of each grid cell
       REAL,    ALLOCATABLE, SAVE :: CELLHGT( : ) ! grid-cell height [sigma]
@@ -194,6 +194,7 @@ C-----------------------------------------------------------------------
          USE AERO_DATA
          USE PRECURSOR_DATA
          USE UTILIO_DEFN
+         USE VDIFF_MAP, ONLY : N_SPC_DIFF, SPC_DIFF
          USE EMIS_VARS, ONLY : MAP_EMtoSURR
      
          INCLUDE SUBST_CONST     ! physical and mathematical constants
@@ -227,7 +228,8 @@ C Miscellaneous variables
          CHARACTER( 16 ), SAVE :: PNAME = 'AERO_EMIS_INIT  '
          CHARACTER( 16 ) :: VNAME         ! temp var for species names
          CHARACTER( 50 ) :: VARDESC       ! variable for reading environ. variables
-         INTEGER L, N, S, V, IAERO, ISRC  ! Loop indices
+         INTEGER L, N, S, V, IAERO, ISRC, ! Loop indices
+     &           IEM, IDIFF
 
 C ----------------------------------------------------------------------
 
@@ -252,25 +254,58 @@ C *** set up for dust emission processing
             END IF
          END IF
 
+C *** Set up emissions size distribution arrays
+      ! Calculate factors for converting 3rd moment emission rates into number
+      ! emission rates.  See Equation 7b of Binkowski & Roselle (2003)
+         DO IEM = 1,N_EM_AERO_REF
+           DO N = 1, N_MODE
+              DGV = EM_AERO_REF( IEM )%DGVEM( N )
+              SG  = EM_AERO_REF( IEM )%SGEM ( N )
 
-C *** Calculate factors for converting 3rd moment emission rates into number
-C     emission rates.  See Equation 7b of Binkowski & Roselle (2003)
-         DO N = 1, N_MODE
-            FACNUM( N ) = EXP( 4.5 * LOG( SGEM( N ) ) ** 2 ) / DGVEM( N ) ** 3
-         END DO
-
-C *** Calculate factors for converting 3rd moment emission rates into 2nd 
-C     moment emission rates.  See Equation 7c of Binkowski & Roselle (2003)
-         DO N = 1, N_MODE
-            FACSRF( N ) = PI * EXP( 0.5 * LOG( SGEM( N ) ) ** 2 ) / DGVEM( N )
-         END DO
-
-C *** Propagate Weights for each Emission Mode profile
-         DO IAERO = 1, N_AEROSPC
-           DO N = 1,N_MODE
-             EMWT_PROF( IAERO, N ) = AEROSPC( IAERO )%EMIS_SPLIT( N )
+              FACNUM( IEM,N ) = EXP( 4.5 * LOG( SG ) ** 2 ) / DGV ** 3
+              FACSRF( IEM,N ) = PI * EXP( 0.5 * LOG( SG ) ** 2 ) / DGV
            END DO
+
          END DO
+
+       ! Modify the emissions splits based on what transported aerosol
+       ! species are actually available. For exmaple, if the aerosol
+       ! namelist only includes the accumulation mode (J) but not the 
+       ! Aitken mode (I) for a particular species, then the split for
+       ! Aitken mode should be added to the Accumulation mode. Save
+       ! these scale factors as a function of transported species and
+       ! mode. Note that this 
+       ALLOCATE( SD_SPLIT( N_SPC_DIFF, N_EM_AERO_REF ) )
+       DO ISPC = 1,N_AEROSPC
+         DO IEM = 1,N_EM_AERO_REF
+           ! Gather the split factors going from the smallest mode to
+           ! the largest
+           SPLIT_ACCUM = 0.0
+           DO N = 1,N_MODE
+              IF ( AERO_MISSING( ISPC,N ) ) THEN
+                SPLIT_ACCUM = SPLIT_ACCUM + EM_AERO_REF( IEM )%SPLIT( N )
+                SD_SPLIT( MAP_AEROtoDIFF( ISPC,N ),IEM ) = 0.0
+              ELSE
+                SD_SPLIT( MAP_AEROtoDIFF( ISPC,N ),IEM ) = 
+     &             EM_AERO_REF( IEM )%SPLIT( N ) + SPLIT_ACCUM
+                SPLIT_ACCUM = 0.0
+              END IF
+           END DO
+           ! Now gather going from the largest to smallest mode
+           SPLIT_ACCUM = 0.0
+           DO N = N_MODE,1,-1
+              IF ( AERO_MISSING( ISPC,N ) ) THEN
+                SPLIT_ACCUM = SPLIT_ACCUM + EM_AERO_REF( IEM )%SPLIT( N )
+                SD_SPLIT( MAP_AEROtoDIFF( ISPC,N ),IEM ) = 0.0
+              ELSE
+                SD_SPLIT( MAP_AEROtoDIFF( ISPC,N ),IEM ) = 
+     &            EM_AERO_REF( IEM )%SPLIT( N ) + SPLIT_ACCUM
+                SPLIT_ACCUM = 0.0
+              END IF
+           END DO 
+
+         END DO
+       END DO
 
 C *** Allocate memory for EMBUFF, CELLHGT, CELLVOL, and CONVEM_PM
          ALLOCATE ( CONVEM_PM( EMLAYS, N_EM_SRC ),
@@ -317,6 +352,107 @@ C     Multiply by grid area [m2] to obtain grid volume
          
 
          END FUNCTION  AERO_EMIS_INIT
+
+C-----------------------------------------------------------------------
+
+       SUBROUTINE EM_SD_INIT ( SD_NML, SD_FINE, SD_COARSE )
+
+C  EM_SD_INIT initializes the structures that map modes and sources to
+C  reference modes including splits, diameters, and standard deviations.
+
+C-----------------------------------------------------------------------
+       USE EMIS_VARS
+       USE AERO_DATA
+         
+       IMPLICIT NONE
+
+       INTEGER ISRC
+       
+       TYPE SD_RULE
+             CHARACTER( 32 ) :: SRC
+             CHARACTER( 16 ) :: MODE
+             CHARACTER( 16 ) :: MODE_REF
+       END TYPE SD_RULE
+       INTEGER, PARAMETER  :: N_SD_RULE
+       TYPE( SD_RULE ), INTENT( IN ) :: SD_NML( : )
+       CHARACTER( 16 ), INTENT( INOUT ) :: SD_FINE, SD_COARSE
+ 
+       
+       N_SD_RULE = SIZE( SD_NML )
+       CALL UPCASE( SD_FINE )
+       CALL UPCASE( SD_COARSE )
+
+       ! First Load all of the Sources with the Default FINE and COARSE
+       ! Mode references
+       DO ISRC = 1,N_EM_SRC
+         N_SD( ISRC ) = 2
+         SD_NAME( ISRC,1 ) = 'FINE'
+         SD( ISRC,1 ) = INDEX1( SD_FINE, N_EM_AERO_REF, EM_AERO_REF( : )%NAME )
+         SD_NAME( ISRC,2 ) = 'COARSE'
+         SD( ISRC,2 ) = INDEX1( SD_COARSE, N_EM_AERO_REF, EM_AERO_REF( : )%NAME )
+       END DO
+       
+       ! Now Modify those defaults or add new modes to desired sources
+       DO IRULE = 1,N_SD_RULE
+         ! Expand Size Distribution Rule to All Sources if Requested
+         CALL INTERPRET_EM_RULE_SRC( SD_NML( IRULE )%SRC, EM_SRC_RULE )
+
+         ! Loop through sources, set defaults, and build map array
+         DO ISRC = 1,N_EM_SRC
+            IF ( EM_SRC_RULE( ISRC ) ) THEN
+               ! This Source is Being Modified by a Size Distribution
+               ! rule
+               IF ( SD_NML( IRULE )%MODE .EQ. 'FINE' ) THEN
+                   ! Overwrite the FINE mode
+                   SD( ISRC,1 ) = INDEX1( SD_NML( IRULE )%MODE_REF,
+     &                               N_EM_AERO_REF, EM_AERO_REF( : )%NAME )
+               ELSEIF ( SD_NML( IRULE )%MODE .EQ. 'COARSE' ) THEN
+                   ! Overwrite the COARSE mode
+                   SD( ISRC,2 ) = INDEX1( SD_NML( IRULE )%MODE_REF,
+     &                               N_EM_AERO_REF, EM_AERO_REF( : )%NAME )
+               ELSE
+                   ! Add a New Available Mode
+                   N_SD( ISRC ) = N_SD( ISRC ) + 1
+                   SD_NAME( ISRC,N_SD( ISRC ) ) = SD_NML( IRULE )%MODE
+                   SD( ISRC,N_SD( ISRC ) ) = INDEX1( SD_NML( IRULE )%MODE_REF,
+     &                                 N_EM_AERO_REF, EM_AERO_REF( : )%NAME )
+
+               END IF
+           END IF
+         END DO
+      END DO
+ 
+      ! Finally, transfer this data to a global variable which
+      ! captures and organizes the modes of each source
+      ALLOCATE( EM_SRC_MODES( N_EM_SRC ) )
+      DO ISRC = 1,N_EM_SRC
+          N = N_SD( ISRC )
+          EM_SRC_MODES( ISRC )%LEN = N + 1
+          ALLOCATE( EM_SRC_MODES( ISRC )%ARRY( N+1 ) )
+          EM_SRC_MODES( ISRC )%SD_NAME( 1:N ) = SD_NAME( ISRC,1:N )
+          EM_SRC_MODES( ISRC )%SD_REF( 1:N )  = SD( ISRC,1:N )
+          EM_SRC_MODES( ISRC )%SD_NAME( 1:N ) = 'GAS'
+          EM_SRC_MODES( ISRC )%SD_REF( 1:N )  = 0
+      END DO
+
+      ! Also map the surrogates from each source to a default mode
+      ALLOCATE( EM_FILE_SURR_MODE( N_EM_SRC ) )
+      DO ISRC = 1,N_EM_SRC
+        NLEN = EM_FILE_SURR( ISRC )%LEN
+        EM_FILE_SURR_MODE( ISRC )%LEN = NLEN
+        ALLOCATE( EM_FILE_SURR_MODE( ISRC )%ARRY( NLEN ) )
+
+        DO ISUR = 1,NLEN
+            CSUR = EM_FILE_SURR( ISRC )%ARRY( ISUR )
+            IF ( INDEX1( CSUR, NFINE, FINE_LIST ) )
+     &           EM_FILE_SURR_MODE( ISRC )%ARRY( ISUR ) = 1
+            IF ( INDEX1( CSUR, NFINE, COARSE_LIST ) )
+     &           EM_FILE_SURR_MODE( ISRC )%ARRY( ISUR ) = 2
+        END DO
+      END DO
+
+      END SUBROUTINE EM_SD_INIT    
+
 
 C-----------------------------------------------------------------------
 
@@ -469,7 +605,6 @@ C ----------------------------------------------------------------------
          INTEGER :: N_EMIS_ISTR, ROW, COL, LAY
          REAL    :: WT
          REAL, ALLOCATABLE :: EMISM3( :,:,:,: ), GSFAC( :,:,: )
-         REAL, ALLOCATABLE :: EMIS_BUFF( :,:,: ), VDEMIS_INIT( :,:,:,: )
          REAL, PARAMETER :: F6DPIM9 = 1.0E-9 * F6DPI  ! 1.0E-9 = Kg/ug
 
 
@@ -477,10 +612,8 @@ C *** Initialize Variables
          N_EMIS_ISTR = SIZE( VDEMIS, 1 ) - 1
          EMLAYS     = SIZE( VDEMIS, 2 ) 
          
-         ALLOCATE( EMISM3( EMLAYS,MY_NCOLS,MY_NROWS,N_MODE ) )
+         ALLOCATE( EMISM3( EMLAYS,MY_NCOLS,MY_NROWS,N_MODE,N_SD ) )
          ALLOCATE( GSFAC( EMLAYS,MY_NCOLS,MY_NROWS ) )
-         ALLOCATE( EMIS_BUFF( EMLAYS,MY_NCOLS,MY_NROWS ) )
-         ALLOCATE( VDEMIS_INIT( N_EMIS_ISTR,EMLAYS,MY_NCOLS,MY_NROWS ) )
          EMISM3 = 0.0
 
 C *** Calculate scaling factor for converting mass emissions into [ug/m3/s]
@@ -489,31 +622,27 @@ C     Also calculate scaling factors for converting to molar-mixing-ratio units
          DO LAY = 1,EMLAYS
            DO COL = 1,MY_NCOLS
              DO ROW = 1,MY_NROWS
-               GSFAC( LAY,COL,ROW ) = CONVEM_PM( LAY,ISRC ) 
+               GSFAC( LAY,COL,ROW ) = CONVEM_PM( LAY,ISRC ) / CONVEM( ISRC )
      &                              * Met_Data%RJACM( COL,ROW,LAY ) ![g/s] or [kg/hr] to [ug/m3/s]
              END DO
            END DO
          END DO
  
 C *** Apply Aerosol Size Distribution
-         VDEMIS_INIT = VDEMIS
-
-         DO ISPC = 1,N_EMIS_ISTR
-             IAERO = MAP_EMtoAERO( ISPC )
-             IM    = MAP_EMtoMODE( ISPC )
+         DO ISTR = 1,N_EMIS_ISTR
+             IAERO = MAP_EMtoAERO( ISTR )
+             IM    = MAP_EMtoMODE( ISTR )  !This maps to the internal CMAQ modes (ie. I, J, and K)
+             ISD   = MAP_EMtoSD  ( ISTR )  !This maps to the emissions modes defined in the 
+                                           !structure em_aero_ref but organized for each source
              IF ( IAERO .EQ. 0 ) CYCLE
              
-             ! Apply Size Distirbution Coefficient [ug/m3/s]
-             EMIS_BUFF( :,:,: ) = EMWT_PROF( IAERO,IM ) * VDEMIS_INIT( ISPC,:,:,: ) * GSFAC( :,:,: )
+             ! Convert Aerosol from [kg/m3/s] to [ug/m3/s]
+             VDEMIS( ISPC,:,:,: ) = VDEMIS( ISPC,:,:,: ) * GSFAC( :,:,: )
 
-             ! Add Aerosol Emissions to Total Emission Buffer
-             VDEMIS( ISPC,:,:,: ) = EMIS_BUFF
-               
              ! Sum Total Volume of Mode N [m3/m3/s]
-             IF ( .NOT. AEROSPC( IAERO )%TRACER ) THEN
-                   EMISM3( :,:,:,IM ) = EMISM3( :,:,:,IM ) + 
-     &                   EMIS_BUFF * ( F6DPIM9 / AEROSPC( IAERO )%DENSITY )
-             END IF
+             IF ( .NOT. AEROSPC( IAERO )%TRACER ) 
+                   EMISM3( :,:,:,IM,ISD ) = EMISM3( :,:,:,IM,ISD ) + 
+                        VDEMIS * ( F6DPIM9 / AEROSPC( IAERO )%DENSITY )
 
              ! Convert Mass Emission Rates from [ug/m3/s] to [umol/m3/s]
              VDEMIS( ISPC,:,:,: ) = VDEMIS( ISPC,:,:,: ) / AEROSPC_MW( IAERO )
@@ -524,9 +653,13 @@ C     Equation 7b of Binkowski & Roselle (2003).
 C     Calculate the surface area emissions rate for the fine modes [m2/m3/s],
 C     using Equation 7c of Binkowski & Roselle (2003).  Multiplying by PI 
 C     converts 2nd moment to surface area.
+         DO ISD = 1,N_SD
          DO IM = 1,N_MODE
-            VDEMIS( MAP_NUMtoEM(IM),:,:,: ) = EMISM3( :,:,:,IM ) * FACNUM( IM ) 
-            VDEMIS( MAP_SRFtoEM(IM),:,:,: ) = EMISM3( :,:,:,IM ) * FACSRF( IM ) 
+            VDEMIS( MAP_NUMtoEM(IM),:,:,: ) = VDEMIS( MAP_NUMtoEM(IM),:,:,: ) 
+     &              + EMISM3( :,:,:,IM,ISD ) * EM_FACNUM( IM,ISD,ISRC ) 
+            VDEMIS( MAP_SRFtoEM(IM),:,:,: ) = VDEMIS( MAP_SRFtoEM(IM),:,:,: ) 
+     &              + EMISM3( :,:,:,IM,ISD ) * EM_FACSRF( IM,ISD,ISRC ) 
+         END DO
          END DO
  
          END SUBROUTINE EMISS_SIZE_DIST

@@ -131,24 +131,10 @@ C Default minimum concentration
       Real,    Parameter :: cm_so4( n_mode ) = (/1.0E-12,1.0E-6, conmin/)
       Real,    Parameter :: cm_cor( n_mode ) = (/conmin, conmin, 1.889544E-05/)
 
-C Emissions splits
-      Real,    Parameter :: es_fin( n_mode ) = (/ 0.100, 0.900, 0.000 /)
-      Real,    Parameter :: es_acc( n_mode ) = (/ 0.000, 1.000, 0.000 /)
-      Real,    Parameter :: es_cor( n_mode ) = (/ 0.000, 0.000, 1.000 /)
-      Real,    Parameter :: es_0  ( n_mode ) = (/ 0.000, 0.000, 0.000 /)
-
-C Geometric mean diameter by volume (or mass) of emitted particles in
-C each mode [ m ].  See paragraph #14 of Binkowski & Roselle (2003)
-C 09/17/14 change by Kathleen Fahey - see Revision History, above
-      Real,    Parameter :: dgvem( n_mode ) = (/ 0.06E-6, 0.28E-6, 6.0E-6 /)
       Real,    Parameter :: def_diam( n_mode )   = (/ 15.0E-9, 80.0E-9,  600.0E-9 /)  ! default background mean diameter for each mode
       Real,    Parameter :: min_diam_g( n_mode ) = (/ 1.0E-9,  30.0E-9,  120.0E-9 /)
       Real,    Parameter :: max_diam_g( n_mode ) = (/ 80.0E-9, 500.0E-9, 100.0E-6 /)
 
-C Geometric standard deviation of emitted particles in each mode, as
-C described in paragraph #14 of Binkowski & Roselle (2003)
-C 09/17/14 change by Kathleen Fahey - see Revision History, above
-      Real,    Parameter :: sgem( n_mode )        = (/ 1.7, 1.7, 2.2 /)
       Real,    Parameter :: def_sigma_g( n_mode ) = (/ 1.70, 2.0, 2.2 /)       ! default background sigma-g for each mode
       Real,    Parameter :: min_sigma_g = 1.05
       Real,    Parameter :: max_sigma_g = 2.5001
@@ -298,13 +284,38 @@ C                ---------- -------- ------- + + +   + ------ --- +  --------
      & spcs_type('ACD     ', cm_set, 2200.0, F,F,T,  0,  0.0, 0.0,F, 'DUST  '), ! Cadmium
      & spcs_type('AMN_HAPS', cm_set, 2200.0, F,F,T,  0,  0.0, 0.0,F, 'DUST  '), ! Manganese
      & spcs_type('APHG    ', cm_set, 2200.0, F,F,T,  0,  0.0, 0.0,F, 'DUST  '), ! Mercury
-     & spcs_type('AAS     ', cm_set, 2200.0, F,F,T,  0,  0.0, 0.0,F, 'DUST  '), ! Arsenic
+     & spcs_type('AAS     ', cm_set, 2200.0, F,F,T,  0,  0.0, 0.0,F, 'DUST  ')  ! Arsenic
      & /)
  
 ! Define Reference Emissions Size Distributions
-       REAL, Allocatable :: EMWT_PROF( :,: )
+!   Geometric mean diameter by volume (or mass) of emitted particles in
+!   each mode [ m ] and geometric standard deviation of emitted particles.  
+!   See paragraph #14 of Binkowski & Roselle (2003).
+!   09/17/14 change by Kathleen Fahey - see Revision History, above.
+      TYPE em_aero
+          Character( 20 ) :: name
+          Real            :: split( n_mode )  ! dimensionless
+          Real            :: dgvem( n_mode )  ! meters
+          Real            :: sgem ( n_mode )  ! dimensionless
+      END TYPE em_aero
+      INTEGER, PARAMETER  :: n_em_aero_ref = 5
 
+      TYPE( em_aero ), Parameter :: em_aero_ref( n_em_aero_ref ) = (/
 
+!              ----Name---- -----Split-----    ---Geo. Mean Diameter---    ---Stnd Dev.---
+     & em_aero('FINE_REF  ',(/0.1,0.9,0.0/)  ,(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/),
+     & em_aero('ACC_REF   ',(/0.0,1.0,0.0/)  ,(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/),
+     & em_aero('COARSE_REF',(/0.0,0.0,1.0/)  ,(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/),
+     & em_aero('ZERO_REF  ',(/0.0,0.0,0.0/)  ,(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/),
+     & em_aero('WB_DUST   ',(/0.0,0.07,0.93/),(/0.06E-6,1.391E-6,5.26E-6/),(/1.7,2.0,2.0/)
+     & /)
+
+      Integer, Parameter :: SD_Fine_Default_Ref = 1   ! Point default fine modes to 'FINE_REF'
+      Integer, Parameter :: SD_Coarse_Default_Ref = 3 ! Point default coarse modes to 'COARSE_REF'
+
+      ! Variable Needed For Mapping Aerosol Emissions to Size
+      ! Distributions
+      REAL, Allocatable :: EMWT_PROF( :,: )  ! [ n_aerospc, 
 
 ! Primary Organic Aerosol Volatility Distributions
       !Integer, Parameter :: n_vbs_bin = 5
@@ -621,6 +632,7 @@ C Mapping for loading from and unloading to CGRID array
       Integer, Allocatable :: aerospc_map( :,: )     ! indices of aero species to CGRID
       Integer              :: aeronum_map( n_mode )  ! indices of aero number variable to CGRID
       Integer              :: aerosrf_map( n_mode )  ! indices of aero surf area variable to CGRID
+      Integer, Allocatable :: map_aerotodiff( :,: )     ! indices of aero species to CGRID
 
 C Missing aerosol species map
       Logical, Allocatable :: aero_missing( :,: )  
@@ -762,12 +774,13 @@ C Build mapping to CGRID for each species in the master AeroList
       ! Migrate all of the user-requested aerosols from AeroList to
       ! AeroSpc. Begin by allocating all of the new arrays now that we
       ! know the value of n_aerospc
-      Allocate ( aerospc      ( n_aerospc ) )
-      Allocate ( aerospc_mw   ( n_aerospc ) )
-      Allocate ( aerospc_map  ( n_aerospc, n_mode ) )
-      Allocate ( aerospc_conc ( n_aerospc, n_mode ) )
-      Allocate ( aero_missing ( n_aerospc, n_mode ) )
-      Allocate ( emwt_prof    ( n_aerospc, n_mode ) )
+      Allocate ( aerospc       ( n_aerospc ) )
+      Allocate ( aerospc_mw    ( n_aerospc ) )
+      Allocate ( aerospc_map   ( n_aerospc, n_mode ) )
+      Allocate ( map_aerotodiff( n_aerospc, n_mode ) )
+      Allocate ( aerospc_conc  ( n_aerospc, n_mode ) )
+      Allocate ( aero_missing  ( n_aerospc, n_mode ) )
+      Allocate ( emwt_prof     ( n_aerospc, n_mode ) )
 
       aero_missing( :,: ) = .True.
 
@@ -796,6 +809,10 @@ C Build mapping to CGRID for each species in the master AeroList
 
             ! Map the Modal-Dependent CGRID Pointers from AeroSpc to AeroList
             aerospc_map( spc, n ) = map_listtogrid( l, n )
+
+            ! Map the Modal-Dependent Names to Transported Species
+            map_aerotodiff( spc, n ) = index1( aerospc( spc )%name( n ), 
+     &                                 n_spc_diff, spc_diff )
 
             ! Remove this Chemical/Mode Combination from the "missing"
             ! list

@@ -38,8 +38,14 @@
 !------------------------------------------------------------------------------!
 
 &SizeDistRules
- !            Source      | Mode Keyword | Reference Mode 
- SD_NML  =  'GRIDDED_EMIS',    'FINE',     'GRIDDED_FINE'
+ !            Source      | Mode Keyword | Reference Mode (see AERO_DATA.F)
+ SD_NML  =  'GRIDDED_EMIS'  ,'FINE'        ,'FINE_REF',
+            'GRIDDED_EMIS'  ,'COARSE'      ,'COARSE_REF',
+            'POINT_NONEGU'  ,'FINE'        ,'GENERAL_FINE',
+            'POINT_EGU'     ,'FINE'        ,'BOILER',
+            'POINT_OTHER'   ,'FINE'        ,'FINE_OTHER',
+            'POINT_FIRES'   ,'FINE'        ,'FINE_FIRES',
+            'POINT_OILGAS'  ,'FINE'        ,'FINE_OIL',
 /
 
 !------------------------------------------------------------------------------!

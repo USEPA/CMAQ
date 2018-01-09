@@ -966,9 +966,6 @@ C Update the SSBF array, for writing the diagnostic sea-salt-emission file.
                END DO   ! C
             END DO   ! R
 
-!           write( logdev,* ) 'sum ssoutm, ssoutn, ssouts: ',
-!    &                         sum( ssoutm ), sum( ssoutn ), sum( ssouts )
-
 C If last call this hour, write out the total sea-salt emissions [g/s].
 C Then reset the sea-salt emissions array and local write counter.
             IF ( SSEMDIAG ) THEN
