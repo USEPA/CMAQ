@@ -11,7 +11,7 @@
 |                                                                              |
 |                            https://www.epa.gov/cmaq                          |
 |                                                                              |
-|       Source Code:   https://www.github.com/USEPA/cmaq                       |
+|       Source Code:   https://www.github.com/USEPA/cmaq/tree/5.2              |
 |       Documentation: https://www.github.com/USEPA/cmaq/tree/5.2/DOCS         |
 |                                                                              |
 ================================================================================
