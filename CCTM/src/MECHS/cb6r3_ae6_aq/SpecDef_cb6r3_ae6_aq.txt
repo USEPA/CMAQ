@@ -160,7 +160,10 @@ ASOCJ           ,ugC/m3    ,AXYL1J[1]/2.42  + AXYL2J[1]/1.93  + AXYL3J[1]/2.30 \
                            +ATOL1J[1]/2.26  + ATOL2J[1]/1.82  + ATOL3J[1]/2.70 \
                            +ABNZ1J[1]/2.68  + ABNZ2J[1]/2.23  + ABNZ3J[1]/3.00 \
                            +AISO1J[1]/2.20  + AISO2J[1]/2.23  + AISO3J[1]/2.80 \
-                           +ATRP1J[1]/1.84  + ATRP2J[1]/1.83  + ASQTJ[1]/1.52  \
+                           +AMT1J[1]/1.67   + AMT2J[1]/1.67   + AMT3J[1]/1.72  \
+                           +AMT4J[1]/1.53   + AMT5J[1]/1.57   + AMT6J[1]/1.40  \
+                           +AMT7J[1]/1.43                                      \
+                           +ASQTJ[1]/1.52                                      \
                            +AALK1J[1]/1.56  + AALK2J[1]/1.42                   \
                            +AORGCJ[1]/2.00  + AOLGBJ[1]/2.10  + AOLGAJ[1]/2.50 \
                            +APAH1J[1]/1.63  + APAH2J[1]/1.49  + APAH3J[1]/1.77 \
@@ -172,7 +175,9 @@ ASOMI           ,ug/m3     ,ALVOO1I[1] + ALVOO2I[1] + ASVOO1I[1] + ASVOO2I[1]
 ASOMJ           ,ug/m3     ,AXYL1J[1]  + AXYL2J[1]  + AXYL3J[1]  + ATOL1J[1] \
                            +ATOL2J[1]  + ATOL3J[1]  + ABNZ1J[1]  + ABNZ2J[1] \
                            +ABNZ3J[1]  + AISO1J[1]  + AISO2J[1]  + AISO3J[1] \
-                           +ATRP1J[1]  + ATRP2J[1]  + ASQTJ[1]   + AALK1J[1] \
+                           +AMT1J[1]   + AMT2J[1]   + AMT3J[1]   + AMT4J[1]  \
+                           +AMT5J[1]   + AMT6J[1]   + AMT7J[1]               \
+                           +ASQTJ[1]   + AALK1J[1]                           \
                            +AALK2J[1]  + APAH1J[1]  + APAH2J[1]  + APAH3J[1] \
                            +AORGCJ[1]  + AOLGBJ[1]  + AOLGAJ[1]              \
                            +ALVOO1J[1] + ALVOO2J[1] + ASVOO1J[1] + ASVOO2J[1]\
@@ -193,7 +198,10 @@ AORGAJ          ,ug/m3     ,AXYL1J[1]+AXYL2J[1]+AXYL3J[1]+ATOL1J[1]+ATOL2J[1]+AT
                            +APAH1J[1]+APAH2J[1]+APAH3J[1]
 
 !!! Biogenic-VOC Derived Organic Aerosol
-AORGBJ          ,ug/m3     ,AISO1J[1]+AISO2J[1]+AISO3J[1]+ATRP1J[1]+ATRP2J[1]+ASQTJ[1]+AOLGBJ[1]
+AORGBJ          ,ug/m3     ,AISO1J[1] + AISO2J[1] + AISO3J[1]            \
+                           +AMT1J[1]  + AMT2J[1]  + AMT3J[1] + AMT4J[1]  \
+                           +AMT5J[1]  + AMT6J[1]  + AMT7J[1]             \
+                           +ASQTJ[1]  + AOLGBJ[1]
 
 !!! Cloud-Processed  SOA
 AORGCJ          ,ug/m3     ,AORGCJ[1]
