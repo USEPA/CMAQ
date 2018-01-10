@@ -14,6 +14,12 @@
 |       Source Code:   https://www.github.com/USEPA/cmaq/tree/5.2              |
 |       Documentation: https://www.github.com/USEPA/cmaq/tree/5.2/DOCS         |
 |                                                                              |
+|         The CMAQ Model is tested and released with cooperation from          |
+|         the Community Modeling and Analysis System (CMAS) Center via         |
+|         contract support. CMAS is managed by the Institute for the           |
+|         Environment, University of North Carolina at Chapel Hill.            |
+|         CMAS URL: (https://www.cmascenter.org)                               |
+|                                                                              |
 ================================================================================
 
 --------------------------------------------------------------------------------
