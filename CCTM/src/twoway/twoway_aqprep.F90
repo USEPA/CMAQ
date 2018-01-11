@@ -90,6 +90,8 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 !                 rather than the two-way model time step
 !           30 Aug 2016  (David Wong)
 !              -- fixed a bug in outputing MET_CRO_2D physical file
+!           11 Jan 2018  (David Wong)
+!              -- Added no_convective_scheme to set rainc accordingly
 !===============================================================================
 
   USE module_domain                                ! WRF module
@@ -535,6 +537,12 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
      end if
 
      RUN_CMAQ_DRIVER = envyn ('RUN_CMAQ_DRIVER', ' ', def_false, stat)
+
+     if (config_flags%cu_physics == 0) then
+        no_convective_scheme = .true.
+     else
+        no_convective_scheme = .false.
+     end if
 
 !-------------------------------------------------------------------------------
 ! Fill time-independent arrays for GRIDCRO2D and GRIDDOT2D.
@@ -1580,7 +1588,12 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
   metcro2d_data_wrf (:,:,11) =  grid%gsw   (sc:ec, sr:er)   ! gsw
 
   metcro2d_data_wrf (:,:,13) =  (grid%rainnc(sc:ec, sr:er) - grid%prev_rainnc(sc:ec,sr:er)) * 0.1  ! RNA = SUM(RN), in cm
-  metcro2d_data_wrf (:,:,14) =  (grid%rainc (sc:ec, sr:er) - grid%prev_rainc(sc:ec,sr:er)) * 0.1   ! RCA = SUM(RC), in cm
+  if (no_convective_scheme) then
+     metcro2d_data_wrf (:,:,14) = -1.0
+  else
+     metcro2d_data_wrf (:,:,14) = (grid%rainc (sc:ec, sr:er) - grid%prev_rainc(sc:ec,sr:er)) * 0.1   ! RCA = SUM(RC), in cm
+  end if
+
   metcro2d_data_wrf (:,:,19) =  grid%snowc (sc:ec, sr:er)           ! snowcov
   metcro2d_data_wrf (:,:,21) =  grid%t2    (sc:ec, sr:er)           ! temp2
   metcro2d_data_wrf (:,:,22) =  grid%canwat(sc:ec, sr:er) * 0.001   ! wr (in meter)
