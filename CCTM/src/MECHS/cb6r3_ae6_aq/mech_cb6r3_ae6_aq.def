@@ -269,13 +269,13 @@ REACTIONS[CM] =
 <R174> TERP + NO3 = 0.47*NO2 + 0.28*XO2H + 0.75*XO2 + 0.25*XO2N + 1.28*RO2 
                   + 0.47*ALDX + 0.53*NTR2 + 1.0*TERPNRO2  # 3.70E-12@-175;
 ! Separate APIN (alpha-pinene)
-<R171> APIN + O = 0.15*ALDX + 5.12*PAR + TRPRXN  # 3.60E-11;
-<R172> APIN + OH = 0.75*XO2H + 0.5*XO2 + 0.25*XO2N + 1.5*RO2 + 0.28*FORM 
+<R171a> APIN + O = 0.15*ALDX + 5.12*PAR + TRPRXN  # 3.60E-11;
+<R172a> APIN + OH = 0.75*XO2H + 0.5*XO2 + 0.25*XO2N + 1.5*RO2 + 0.28*FORM 
               + 1.66*PAR + 0.47*ALDX  + TRPRXN # 1.50E-11@-449;
-<R173> APIN + O3 = 0.57*OH + 0.07*XO2H + 0.69*XO2 + 0.18*XO2N + 0.94*RO2
+<R173a> APIN + O3 = 0.57*OH + 0.07*XO2H + 0.69*XO2 + 0.18*XO2N + 0.94*RO2
                  + 0.24*FORM + 0.001*CO + 7.0*PAR + 0.21*ALDX + 0.39*CXO3  
                  + TRPRXN # 1.20E-15@821;
-<R174> APIN + NO3 = 0.47*NO2 + 0.28*XO2H + 0.75*XO2 + 0.25*XO2N + 1.28*RO2 
+<R174a> APIN + NO3 = 0.47*NO2 + 0.28*XO2H + 0.75*XO2 + 0.25*XO2N + 1.28*RO2 
                   + 0.47*ALDX + 0.53*NTR2  # 3.70E-12@-175;
 ! added BENZRO2 as tracer for SOA products from BENZENE - used later to account
 !  for high vs. low NOx influence on SOA
