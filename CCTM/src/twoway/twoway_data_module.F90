@@ -3,7 +3,6 @@
 !
 ! Revised:  April 2007  Original version.  David Wong
 ! Revised:  April 7, 2016 David Wong: Added variable mminlu
-! Revised:  Jan. 11, 2018 David Wong: Added variable no_convective_scheme
 !===============================================================================
 
   module twoway_data_module
@@ -55,7 +54,5 @@
 
     INTEGER, SAVE :: sc, ec, sr, er
     INTEGER, SAVE :: sc_d, ec_d, sr_d, er_d
-
-    logical :: no_convective_scheme
 
   end module twoway_data_module

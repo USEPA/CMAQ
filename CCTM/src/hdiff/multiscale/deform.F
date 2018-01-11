@@ -67,13 +67,13 @@ C    16 Feb 11 S. Roselle: replaced I/O-API include files w/UTILIO_DEFN
 C    11 May 11 D.Wong: incorporated twoway model implementation
 C    28 Jul 11 David Wong: set REVERT to .false. for twoway model case since
 C                          buffered file has only two time steps data
-C    29 Nov 17 David Wong: removed all SWAP routines and replaced with SE_COMM
 C-----------------------------------------------------------------------
       
       USE GRID_CONF            ! horizontal & vertical domain specifications
       USE UTILIO_DEFN
 #ifdef parallel
       USE SE_MODULES           ! stenex (using SE_GLOBAL_MAX_MODULE, SE_COMM_MODULE)
+      USE SWAP_SANDIA
 #else
       USE NOOP_MODULES         ! stenex (using NOOP_GLOBAL_MAX_MODULE, NOOP_COMM_MODULE)
 #endif
@@ -417,9 +417,21 @@ C deformation at all boundary cells are defined to be zero
          END DO
       END DO
 
-      CALL SUBST_COMM ( LOC_UWIND, DSPL_N1_E1_S1_W0, DRCN_N_NE_SE_S, '2 0' )
+#ifdef parallel
+      CALL SWAP3D( LOC_UWIND( 1,1,1 ), LOC_UWIND( 1,NROWS+1,1 ),
+     &             NCOLS+1, 1, NLAYS, NCOLS+1, NROWS+2, NORTH )
+      CALL SWAP3D( LOC_UWIND( 1,NROWS,1 ), LOC_UWIND( 1,0,1 ),
+     &             NCOLS+1, 1, NLAYS, NCOLS+1, NROWS+2, SOUTH )
+      CALL SWAP3D( LOC_UWIND( 1,0,1 ), LOC_UWIND( NCOLS+1,0,1 ),
+     &             1, NROWS+2, NLAYS, NCOLS+1, NROWS+2, EAST )
 
-      CALL SUBST_COMM ( LOC_VWIND, DSPL_N1_E1_S0_W1, DRCN_NE_E_W_NW, '1 0' )
+      CALL SWAP3D( LOC_VWIND( 1,1,1 ), LOC_VWIND( NCOLS+1,1,1 ),
+     &             1, NROWS+1, NLAYS, NCOLS+2, NROWS+1, EAST )
+      CALL SWAP3D( LOC_VWIND( NCOLS,1,1 ), LOC_VWIND( 0,1,1 ),
+     &             1, NROWS+1, NLAYS, NCOLS+2, NROWS+1, WEST )
+      CALL SWAP3D( LOC_VWIND( 0,1,1 ), LOC_VWIND( 0,NROWS+1,1 ),
+     &             NCOLS+2, 1, NLAYS, NCOLS+2, NROWS+1, NORTH )
+#endif
 
       DO 101 L = 1, MLAYS
 
@@ -468,6 +480,10 @@ C for whole domain (DUDX, DVDY)
      &             5X, 'DVDX(4,5)',
      &             5X, 'DVDY(4,5)' )
 
+#ifndef parallel
+         CALL SUBST_COMM ( LOC_UWIND, DSPL_N1_E1_S1_W0, DRCN_N_NE_SE_S, '2 0' )
+#endif
+
 C for DUDY inside domain (compute the gradient of the averages)
          DO R = FRSTROW, LASTROW
             R1 = R + 1
@@ -480,6 +496,10 @@ C for DUDY inside domain (compute the gradient of the averages)
                END DO
             END DO
  
+#ifndef parallel
+         CALL SUBST_COMM ( LOC_VWIND, DSPL_N1_E1_S0_W1, DRCN_NE_E_W_NW, '1 0' )
+#endif
+
 C for DVDX inner domain (compute the gradient of the averages)
          DO R = 1, MY_NROWS
             R1 = R + 1
