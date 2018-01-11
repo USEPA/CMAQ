@@ -75,7 +75,6 @@ C                       reported by Talat Odman and Yongtao Hu of GA tech.
 C    21 Jun 10 J.Young: convert for Namelist redesign
 C    16 Feb 11 S. Roselle: replaced I/O-API include files w/UTILIO_DEFN
 C    11 May 11 D.Wong: incorporated twoway model implementation
-C    29 Nov 17 D.Wong: removed all SWAP routines and replaced with SE_COMM
 C-----------------------------------------------------------------------
       
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -83,6 +82,7 @@ C-----------------------------------------------------------------------
       USE UTILIO_DEFN
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_COMM_MODULE, SE_UTIL_MODULE)
+      USE SWAP_SANDIA
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_COMM_MODULE, NOOP_UTIL_MODULE)
 #endif
@@ -146,12 +146,15 @@ C Local Variables:
       INTEGER       FDATE                       ! interpolation date
       INTEGER       FTIME                       ! interpolation time
 
+#ifdef parallel
+      INTEGER      M
       REAL,    ALLOCATABLE, SAVE :: HALO_SOUTH( :,:,: )
       REAL,    ALLOCATABLE, SAVE :: HALO_NORTH( :,:,: )
       REAL,    ALLOCATABLE, SAVE :: HALO_WEST ( :,:,: )
       REAL,    ALLOCATABLE, SAVE :: HALO_EAST ( :,:,: )
-      REAL,    ALLOCATABLE, SAVE :: BUF_NS    ( :,:,: )
-      REAL,    ALLOCATABLE, SAVE :: BUF_EW    ( :,:,: )
+      REAL,    ALLOCATABLE, SAVE :: BUF_NS    ( : )
+      REAL,    ALLOCATABLE, SAVE :: BUF_EW    ( : )
+#endif
 
       INTEGER, ALLOCATABLE, SAVE :: DIFF_MAP( : )   ! global diff map to CGRID
 
@@ -200,16 +203,18 @@ C Get dx1 from COORD include file
 
          N_SPC_DIFF = N_GC_TRNS + N_AE_TRNS + N_NR_TRNS + N_TR_DIFF
 
+#ifdef parallel
          ALLOCATE ( HALO_SOUTH( NCOLS,NLAYS,N_SPC_DIFF ),
      &              HALO_NORTH( NCOLS,NLAYS,N_SPC_DIFF ),
      &              HALO_WEST ( NROWS,NLAYS,N_SPC_DIFF ),
      &              HALO_EAST ( NROWS,NLAYS,N_SPC_DIFF ),
-     &              BUF_NS    ( NCOLS,NLAYS,N_SPC_DIFF ),
-     &              BUF_EW    ( NROWS,NLAYS,N_SPC_DIFF ), STAT = IOS )
+     &              BUF_NS    ( NCOLS*NLAYS*N_SPC_DIFF ),
+     &              BUF_EW    ( NROWS*NLAYS*N_SPC_DIFF ), STAT = IOS )
          IF ( IOS .NE. 0 ) THEN
             XMSG = 'Failure allocating HALO_SOUTH, HALO_NORTH, HALO_WEST, HALO_EAST, BUF_NS, or BUF_EW'
             CALL M3EXIT ( PNAME, FDATE, FTIME, XMSG, XSTAT1 )
          END IF
+#endif
 
          ALLOCATE ( DIFF_MAP( N_SPC_DIFF ), STAT = IOS )
          IF ( IOS .NE. 0 ) THEN
@@ -254,7 +259,25 @@ C Get the computational grid ( rho X Jacobian ) for this step
 
       CALL RHO_J ( FDATE, FTIME, TSTEP, RHOJ )
 
+#ifdef parallel
+C swap3d interface ... 
+C     swap3d( 1st value of array to be sent,
+C             1st value of array to be received,
+C             number of values to send in 1st dimension of array,
+C             number of values to send in 2nd dimension of array,
+C             number of values to send in 3rd dimension of array,
+C             size of 1st dimension in arrays,  
+C             size of 2nd dimension in arrays,
+C             direction to receive from: NSEW)
+
+      CALL SWAP3D( RHOJ( 1,NROWS,1 ), RHOJ( 1,0,1 ), NCOLS, 1, NLAYS,
+     &             NCOLS+2, NROWS+2, SOUTH )
+      CALL SWAP3D( RHOJ( NCOLS,1,1 ), RHOJ( 0,1,1 ), 1, NROWS, NLAYS,
+     &             NCOLS+2, NROWS+2, WEST )
+
+#else
       CALL SUBST_COMM ( RHOJ, DSPL_N0_E0_S1_W1, DRCN_S_W, COMMSTR )
+#endif
 
 C initialize RK11, RK22 with face values for RHOJ (assumes dx1 = dx2)
 
@@ -294,36 +317,54 @@ C get number of steps based on eddy time
          END DO
       END DO
 
-      CALL SUBST_COMM ( RK11, DSPL_N0_E1_S0_W0, DRCN_E )
-      CALL SUBST_COMM ( RK22, DSPL_N1_E0_S0_W0, DRCN_N )
+#ifdef parallel
+      CALL SWAP3D( RK11( 1,1,1 ), RK11( NCOLS+1,1,1 ), 1, NROWS, NLAYS,
+     &             NCOLS+1, NROWS+1, EAST )
+      CALL SWAP3D( RK22( 1,1,1 ), RK22( 1,NROWS+1,1 ), NCOLS, 1, NLAYS,
+     &             NCOLS+1, NROWS+1, NORTH )
 
+C Create and fill four 3d boundary arrays with cgrid/rhoj
+C    send to SOUTH, recv from NORTH, fill bound_north
+C    send to NORTH, recv from SOUTH, fill bound_south
+C    send to EAST, recv from WEST, fill bound_west
+C    send to WEST, recv from EAST, fill bound_east
+
+      M = 0
       DO S = 1, N_SPC_DIFF
          D2C = DIFF_MAP( S )
          DO L = 1, NLAYS
             DO C = 1, NCOLS
                HALO_SOUTH( C,L,S ) = CGRID( C,1,L,D2C ) / RHOJ( C,1,L )
                HALO_NORTH( C,L,S ) = CGRID( C,NROWS,L,D2C ) / RHOJ( C,NROWS,L )
-               BUF_NS( C,L,S ) = HALO_NORTH( C,L,S )
+               M = M + 1
+               BUF_NS( M ) = HALO_NORTH( C,L,S )
             END DO
          END DO
       END DO
 
-      CALL SUBST_COMM (HALO_SOUTH, HALO_NORTH, DSPL_N1_E0_S0_W0, DRCN_N)
-      CALL SUBST_COMM (BUF_NS,     HALO_SOUTH, DSPL_N0_E0_S1_W0, DRCN_S)
+      CALL SWAP3D( HALO_SOUTH, HALO_NORTH, NCOLS, NLAYS, N_SPC_DIFF,
+     &             NCOLS, NLAYS, NORTH )
+      CALL SWAP3D( BUF_NS,     HALO_SOUTH, NCOLS, NLAYS, N_SPC_DIFF,
+     &             NCOLS, NLAYS, SOUTH )
 
+      M = 0
       DO S = 1, N_SPC_DIFF
          D2C = DIFF_MAP( S )
          DO L = 1, NLAYS
             DO R = 1, NROWS
                HALO_WEST( R,L,S ) = CGRID( 1,R,L,D2C ) / RHOJ( 1,R,L )
                HALO_EAST( R,L,S ) = CGRID( NCOLS,R,L,D2C ) / RHOJ( NCOLS,R,L )
-               BUF_EW( R,L,S ) = HALO_EAST( R,L,S )
+               M = M + 1
+               BUF_EW( M ) = HALO_EAST( R,L,S )
             END DO
          END DO
       END DO
 
-      CALL SUBST_COMM (HALO_WEST, HALO_EAST, DSPL_N0_E1_S0_W0, DRCN_E)
-      CALL SUBST_COMM (BUF_EW,    HALO_WEST, DSPL_N0_E0_S0_W1, DRCN_W)
+      CALL SWAP3D( HALO_WEST, HALO_EAST, NROWS, NLAYS, N_SPC_DIFF,
+     &             NROWS, NLAYS, EAST )
+      CALL SWAP3D( BUF_EW,    HALO_WEST, NROWS, NLAYS, N_SPC_DIFF,
+     &             NROWS, NLAYS, WEST )
+#endif
 
 C Loop over species, layers, nsteps
 
@@ -342,6 +383,9 @@ C Load working array (CGRID is coupled, CONC is mixing ratio)
                   END DO
                END DO
 
+#ifdef parallel
+C Fill 4 boundaries of working array CONC: south, north, west, east
+
                DO C = 1, NCOLS
                   CONC( C,0 )       = HALO_SOUTH( C,L,S )
                   CONC( C,NROWS+1 ) = HALO_NORTH( C,L,S )
@@ -351,6 +395,40 @@ C Load working array (CGRID is coupled, CONC is mixing ratio)
                   CONC( 0,R )       = HALO_WEST( R,L,S )
                   CONC( NCOLS+1,R ) = HALO_EAST( R,L,S )
                END DO
+#else
+
+C South boundary
+
+               R = 1
+               DO C = 1, MY_NCOLS
+                  CONC( C,R-1 ) = CONC( C,R )
+               END DO
+
+C North boundary
+
+               R = MY_NROWS
+               DO C = 1, MY_NCOLS
+                  CONC( C,R+1 ) = CONC( C,R )
+               END DO
+
+C West boundary
+
+               C = 1
+               DO R = 1, MY_NROWS
+                  CONC( C-1,R ) = CONC( C,R )
+               END DO
+
+C East boundary
+
+               C = MY_NCOLS
+               DO R = 1, MY_NROWS
+                  CONC( C+1,R ) = CONC( C,R )
+               END DO
+
+               CALL SUBST_COMM ( CONC, DSPL_N1_E1_S1_W1, DRCN_N_E_S_W, COMMSTR )
+               CALL SUBST_COMM ( RK11, DSPL_N0_E1_S0_W0, DRCN_E )
+               CALL SUBST_COMM ( RK22, DSPL_N1_E0_S0_W0, DRCN_N )
+#endif
 
 C Update CGRID
 
