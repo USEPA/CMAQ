@@ -71,8 +71,8 @@ echo 'Start Model Run At ' `date`
 
 #> Set the build directory (this is where the CMAQ executable
 #> is located by default).
- set BLD      = ${CMAQ_HOME}/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}
- set EXEC     = CCTM_${VRSN}.exe  
+ setenv BLD    ${CMAQ_HOME}/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}
+ set EXEC    = CCTM_${VRSN}.exe  
 
 #> Output Each line of Runscript to Log File
  if ( $CTM_DIAG_LVL != 0 ) set echo 
@@ -116,6 +116,11 @@ set NZ         = 35
 
 setenv GRID_NAME SE52BENCH         #> check GRIDDESC file for GRID_NAME options
 setenv GRIDDESC $INPDIR/GRIDDESC   #> grid description file
+
+#> Retrieve the number of columns and rows in this simulation
+set NX = `grep -A 1 ${GRID_NAME} ${GRIDDESC} | tail -1 | sed 's/  */ /g' | cut -d' ' -f6`
+set NY = `grep -A 1 ${GRID_NAME} ${GRIDDESC} | tail -1 | sed 's/  */ /g' | cut -d' ' -f7`
+set NCELLS = `echo "${NX} * ${NY} * ${NZ}" | bc -l`
 
 #> Output Species and Layer Options
 #>   CONC file species; comment or set to "ALL" to write all species to CONC
@@ -178,8 +183,14 @@ echo $EXECUTION_ID
 setenv IOAPI_LOG_WRITE F     #> turn on excess WRITE3 logging [ options: T | F ]
 setenv FL_ERR_STOP N         #> stop on inconsistent input files
 setenv PROMPTFLAG F          #> turn on I/O-API PROMPT*FILE interactive mode [ options: T | F ]
-setenv IOAPI_OFFSET_64 NO    #> support large timestep records (>2GB/timestep record) [ options: YES | NO ]
+setenv IOAPI_OFFSET_64 YES   #> support large timestep records (>2GB/timestep record) [ options: YES | NO ]
+setenv IOAPI_CHECK_HEADERS N #> check file headers [ options: Y | N ]
 setenv CTM_EMISCHK N         #> Abort CMAQ if missing surrogates from emissions Input files
+setenv STDOUT F              #> Override I/O-API trying to write information to both the processor 
+                             #>   logs and STDOUT [ options: T | F ]
+setenv EXECUTION_ID "CMAQ_CCTM${VRSN}_`id -u -n`_`date -u +%Y%m%d_%H%M%S_%N`"    #> Inform IO/API of the Execution ID
+echo ""
+echo "---CMAQ EXECUTION ID: $EXECUTION_ID ---"
 
 #> Aerosol Diagnostic Controls
 setenv CTM_AVISDIAG Y        #> Aerovis diagnostic file [ default: N ]
@@ -240,9 +251,12 @@ set EMIS_CASE = 2013ef_v6_13g_s07_hg      #> Version Label for the Emissions
 # =====================================================================
 #> Begin Loop Through Simulation Days
 # =====================================================================
+set starray = ""
+set rtarray = ""
 
 set TODAYG = ${START_DATE}
 set TODAYJ = `date -ud "${START_DATE}" +%Y%j` #> Convert YYYY-MM-DD to YYYYJJJ
+set START_DAY = ${TODAYJ} 
 set STOP_DAY = `date -ud "${END_DATE}" +%Y%j` #> Convert YYYY-MM-DD to YYYYJJJ
 
 while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
@@ -258,6 +272,9 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 # =====================================================================
 #> Set Output String and Propagate Model Configuration Documentation
 # =====================================================================
+  echo ""
+  echo "Set up input and output files for Day ${TODAYG}."
+
 
   #> set output file name extensions
   setenv CTM_APPL ${RUNID}_${YYYYMMDD} 
@@ -438,8 +455,15 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   if ( ! -d "$OUTDIR" ) mkdir -p $OUTDIR
 
   #> look for existing log files and output files
-  set log_test = `( ls CTM_LOG_???.${CTM_APPL} > /dev/tty ) >& /dev/null `
-  echo $log_test
+  ( ls CTM_LOG_???.${CTM_APPL} > buff.txt ) >& /dev/null
+  ( ls ${LOGDIR}/CTM_LOG_???.${CTM_APPL} >> buff.txt ) >& /dev/null
+  set log_test = `cat buff.txt`; rm -f buff.txt
+
+  if ( $CTM_DIAG_LVL != 0 ) then
+    ( ls CTM_DIAG_???.${CTM_APPL} > buff.txt ) >& /dev/null
+    ( ls ${LOGDIR}/CTM_DIAG_???.${CTM_APPL} >> buff.txt ) >& /dev/null
+    set diag_test = `cat buff.txt`; rm -f buff.txt
+  endif
 
   set OUT_FILES = (${FLOOR_FILE} ${S_CGRID} ${CTM_CONC_1} ${A_CONC_1} ${MEDIA_CONC}         \
              ${CTM_DRY_DEP_1} $CTM_DEPV_DIAG $CTM_PT3D_DIAG $B3GTS_S $SOILOUT $CTM_WET_DEP_1\
@@ -449,20 +473,31 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
              $CTM_DRY_DEP_FST $CTM_DEPV_MOS $CTM_DEPV_FST $CTM_VDIFF_DIAG $CTM_VSED_DIAG    \
              $CTM_AOD_1 $CTM_LTNGDIAG_1 $CTM_LTNGDIAG_2)
   set OUT_FILES = `echo $OUT_FILES | sed "s; -v;;g" `
-  set out_test = `( ls $OUT_FILES > /dev/tty ) >& /dev/null ` 
-  echo $out_test
-
+  ( ls $OUT_FILES > buff.txt ) >& /dev/null
+  set out_test = `cat buff.txt`; rm -f buff.txt
+  
   #> delete previous output if requested
   if ( $DISP == 'delete' ) then
+     echo 
+     echo "Existing Logs and Output Files for Day ${TODAYG} Will Be Deleted"
+
      #> remove previous log files
-     foreach file ( $log_test )
-        echo "Deleting Log File: $file"
+     foreach file ( ${log_test} )
+        #echo "Deleting Log File: $file"
         /bin/rm -f $file  
      end
-
+ 
+     #> remove previous diagnostic files
+     if ( $CTM_DIAG_LVL != 0 ) then
+       foreach file ( ${diag_test} )
+         #echo "Deleting Diagnostic File: $file"
+         /bin/rm -f $file  
+       end
+     endif
+ 
      #> remove previous output files
-     foreach file ( $out_test )
-        echo "Deleting output file: $file"
+     foreach file ( ${out_test} )
+        #echo "Deleting output file: $file"
         /bin/rm -f $file  
      end
 
@@ -470,6 +505,14 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      #> remove previous log files
      if ( "$log_test" != "" ) then
        echo "*** Logs exist - run ABORTED ***"
+       echo "*** To overide, set $DISP == delete in run_cctm.csh ***"
+       echo "*** and these files will be automatically deleted. ***"
+       exit 1
+     endif
+     
+     #> remove previous diagnostic files
+     if ( "$diag_test" != "" ) then
+       echo "*** Diagnostics exist - run ABORTED ***"
        echo "*** To overide, set $DISP == delete in run_cctm.csh ***"
        echo "*** and these files will be automatically deleted. ***"
        exit 1
@@ -538,20 +581,40 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      limit
   endif
 
+  #> Print Startup Dialogue Information to Standard Out
   echo 
   echo "CMAQ Processing of Day $YYYYMMDD Began at `date`"
- 
+  echo 
+
   #> Executable call for single PE, uncomment to invoke
   # /usr/bin/time  $BLD/$EXEC
 
   #> Executable call for multi PE, configure for your system 
   # set MPI = /usr/local/intel/impi/3.2.2.006/bin64
   # set MPIRUN = $MPI/mpirun
-  #time mpirun -r ssh -np $NPROCS $BLD/$EXEC
-  ddt mpirun -np $NPROCS $BLD/$EXEC
 
+  #set start_time = `date +%s%N`
+  ( /usr/bin/time -p mpirun -r ssh -np $NPROCS $BLD/$EXEC ) |& tee buff.txt
+  #ddt mpirun -np $NPROCS $BLD/$EXEC
+  #set end_time = `date +%s%N`
+  #set diff_time = `echo "scale=5; ($end_time - $start_time)/(10^9)" | bc -l`
+
+  #> Harvest Timing Output so that it may be reported below
+  #set tarray = "${tarray} ${diff_time}"
+  set a = `tail -3 buff.txt | grep user | cut -c 5-`
+  set b = `tail -3 buff.txt | grep sys  | cut -c 5-`
+  set c = `echo "${a} + ${b}" | bc -l`
+
+  set starray = "${starray}  ${c} "
+  set rtarray = "${rtarray} `tail -3 buff.txt | grep real | cut -c 5-` "
+
+  #> Print Concluding Text
   echo 
   echo "CMAQ Processing of Day $YYYYMMDD Finished at `date`"
+  echo
+  echo "\\\\\=====\\\\\=====\\\\\=====\\\\\=====/////=====/////=====/////=====/////"
+  echo
+  rm -rf buff.txt
 
 # ===================================================================
 #> Finalize Run for This Day and Loop to Next Day
@@ -562,6 +625,9 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
     mkdir $LOGDIR
   endif
   mv CTM_LOG_???.${CTM_APPL} $LOGDIR
+  if ( $CTM_DIAG_LVL != 0 ) then
+    mv CTM_DIAG_???.${CTM_APPL} $LOGDIR
+  endif
 
   #> The next simulation day will, by definition, be a restart
   setenv NEW_START false
@@ -571,5 +637,59 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   set TODAYJ = `date -ud "${TODAYG}" +%Y%j` #> Convert YYYY-MM-DD to YYYYJJJ
 
 end  #Loop to the next Simulation Day
+
+# ===================================================================
+#> Generate Timing Report
+# ===================================================================
+set NDAYS = `echo "$STOP_DAY - $START_DAY + 1" | bc -l`
+set STMTOT = 0
+set RTMTOT = 0
+foreach it ( `seq ${NDAYS}` )
+    set st = `echo ${starray} | cut -d' ' -f${it}`
+    set rt = `echo ${rtarray} | cut -d' ' -f${it}`
+
+    set STMTOT = `echo "${STMTOT} + ${st}" | bc -l`
+    set RTMTOT = `echo "${RTMTOT} + ${rt}" | bc -l`
+end
+
+set STMAVG = `echo "scale=2; ${STMTOT} / ${NDAYS}" | bc -l`
+set RTMAVG = `echo "scale=2; ${RTMTOT} / ${NDAYS}" | bc -l`
+
+set STMTOT = `echo "scale=2; ${STMTOT} / 1" | bc -l`
+set RTMTOT = `echo "scale=2; ${RTMTOT} / 1" | bc -l`
+
+echo
+echo "=================================="
+echo "  ***** CMAQ TIMING REPORT *****"
+echo "=================================="
+echo "Start Day: ${START_DATE}"
+echo "End Day:   ${END_DATE}"
+echo "Number of Simulation Days: ${NDAYS}"
+echo "Domain Name:               ${GRID_NAME}"
+echo "Number of Grid Cells:      ${NCELLS}  (ROW x COL x LAY)"
+echo "Number of Layers:          ${NZ}"
+echo "Number of Processes:       ${NPROCS}"
+echo "   All times are in seconds."
+echo
+echo "Num  Day        Wall Time    CPU Time"
+set d = 0
+set day = ${START_DATE}
+foreach it ( `seq ${NDAYS}` )
+    # Set the right day and format it
+    set d = `echo "${d} + 1"  | bc -l`
+    set n = `printf "%02d" ${d}`
+
+    # Choose the correct time variables
+    set st = `echo ${starray} | cut -d' ' -f${it}`
+    set rt = `echo ${rtarray} | cut -d' ' -f${it}`
+
+    # Write out row of timing data
+    echo "${n}   ${day}   ${rt}     ${st}"
+
+    # Increment day for next loop
+    set day = `date -ud "${day}+1days" +%Y-%m-%d`
+end
+echo "     Total Time = ${RTMTOT}    ${STMTOT}"
+echo "      Avg. Time = ${RTMAVG}     ${STMAVG}"
 
 exit
