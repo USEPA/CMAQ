@@ -8,34 +8,6 @@
 #             http://www.cmascenter.org  (CMAS Website)
 # ===================================================================  
 
-#> Simple Linux Utility for Resource Management System 
-#> (SLURM) - The following specifications are recommended 
-#> for executing the runscript on the cluster at the 
-#> National Computing Center used primarily by EPA.
-#SBATCH -t 10:00:00
-#SBATCH -n 8
-#SBATCH -J CMAQ_Bench
-#SBATCH -p ord
-#SBATCH --gid=mod3dev
-#SBATCH -A mod3dev
-#SBATCH -o /home/bmurphy/cmaq_projects/logfile/CCTM/scripts/bench_%j.txt
-
-#> The following commands output information from the SLURM
-#> scheduler to the log files for traceability.
-   if ( $?SLURM_JOB_ID ) then
-      echo Job ID is $SLURM_JOB_ID
-      echo Host is $SLURM_SUBMIT_HOST
-      #> Switch to the working directory. By default,
-      #>   SLURM launches processes from your home directory.
-      echo Working directory is $SLURM_SUBMIT_DIR
-      cd $SLURM_SUBMIT_DIR
-   endif
-
-#> Configure the system environment and set up the module 
-#> capability
-   limit stacksize unlimited
-#
-
 # ==================================================================
 #> Runtime Environment Options
 # ==================================================================
@@ -291,7 +263,6 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   if ($NEW_START == true || $NEW_START == TRUE ) then
      setenv ICFILE ICON_20110630_bench.nc
      setenv INITIAL_RUN Y #related to restart soil information file
-     rm -rf $LOGDIR/CTM_LOG*${RUNID}* >& /dev/null  # Remove all Log Files Since this is a new start
      mkdir -p $OUTDIR
   else
      set ICpath = $OUTDIR
@@ -459,12 +430,6 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   ( ls ${LOGDIR}/CTM_LOG_???.${CTM_APPL} >> buff.txt ) >& /dev/null
   set log_test = `cat buff.txt`; rm -f buff.txt
 
-  if ( $CTM_DIAG_LVL != 0 ) then
-    ( ls CTM_DIAG_???.${CTM_APPL} > buff.txt ) >& /dev/null
-    ( ls ${LOGDIR}/CTM_DIAG_???.${CTM_APPL} >> buff.txt ) >& /dev/null
-    set diag_test = `cat buff.txt`; rm -f buff.txt
-  endif
-
   set OUT_FILES = (${FLOOR_FILE} ${S_CGRID} ${CTM_CONC_1} ${A_CONC_1} ${MEDIA_CONC}         \
              ${CTM_DRY_DEP_1} $CTM_DEPV_DIAG $CTM_PT3D_DIAG $B3GTS_S $SOILOUT $CTM_WET_DEP_1\
              $CTM_WET_DEP_2 $CTM_VIS_1 $CTM_AVIS_1 $CTM_PMDIAG_1 $CTM_APMDIAG_1             \
@@ -487,14 +452,6 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
         /bin/rm -f $file  
      end
  
-     #> remove previous diagnostic files
-     if ( $CTM_DIAG_LVL != 0 ) then
-       foreach file ( ${diag_test} )
-         #echo "Deleting Diagnostic File: $file"
-         /bin/rm -f $file  
-       end
-     endif
- 
      #> remove previous output files
      foreach file ( ${out_test} )
         #echo "Deleting output file: $file"
@@ -510,14 +467,6 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
        exit 1
      endif
      
-     #> remove previous diagnostic files
-     if ( "$diag_test" != "" ) then
-       echo "*** Diagnostics exist - run ABORTED ***"
-       echo "*** To overide, set $DISP == delete in run_cctm.csh ***"
-       echo "*** and these files will be automatically deleted. ***"
-       exit 1
-     endif
-
      #> remove previous output files
      if ( "$out_test" != "" ) then
        echo "*** Output Files Exist - run will be ABORTED ***"
@@ -592,15 +541,9 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #> Executable call for multi PE, configure for your system 
   # set MPI = /usr/local/intel/impi/3.2.2.006/bin64
   # set MPIRUN = $MPI/mpirun
-
-  #set start_time = `date +%s%N`
   ( /usr/bin/time -p mpirun -r ssh -np $NPROCS $BLD/$EXEC ) |& tee buff.txt
-  #ddt mpirun -np $NPROCS $BLD/$EXEC
-  #set end_time = `date +%s%N`
-  #set diff_time = `echo "scale=5; ($end_time - $start_time)/(10^9)" | bc -l`
 
   #> Harvest Timing Output so that it may be reported below
-  #set tarray = "${tarray} ${diff_time}"
   set a = `tail -3 buff.txt | grep user | cut -c 5-`
   set b = `tail -3 buff.txt | grep sys  | cut -c 5-`
   set c = `echo "${a} + ${b}" | bc -l`

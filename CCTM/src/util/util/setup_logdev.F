@@ -47,13 +47,12 @@ C   12 Aug 15 D.Wong:   Replaced SUBST_MPI with mpif.h
       INTEGER, PARAMETER :: MAXLEN_CTM_LOG   = MAXLEN_CCTM_APPL + 11
 
       CHARACTER(  8 ) :: PRESTR  = 'CTM_LOG_'
-      CHARACTER(  9 ) :: DIAGSTR = 'CTM_DIAG_'
       CHARACTER(  3 ) :: CMYPE
       CHARACTER(  8 ) :: APPL = 'CTM_APPL'
 
       CHARACTER( MAXLEN_CCTM_APPL ) :: EQNAME
       CHARACTER( MAXLEN_CCTM_APPL ) :: BLDFOLD
-      CHARACTER( MAXLEN_CTM_LOG   ) :: IOLOGEQ, IODIAGEQ
+      CHARACTER( MAXLEN_CTM_LOG   ) :: IOLOGEQ
 
       INTEGER :: ERROR, TOTPE, IOST, FHEAD, IHEAD
       INTEGER :: NIOAPI_HEAD, NCMAQ_HEAD
@@ -136,42 +135,5 @@ C   12 Aug 15 D.Wong:   Replaced SUBST_MPI with mpif.h
       DO IHEAD = 1,NIOAPI_HEAD
           WRITE( LOGDEV, '(A)' ) IOAPI_HEADER( IHEAD )
       END DO
-
-
-      ! Concatenate Diagnostic Filename
-      IF ( CTM_DIAG_LVL .GT. 0 ) THEN 
-         IF ( APPL .NE. EQNAME(1:8 ) ) THEN
-            IODIAGEQ = DIAGSTR // CMYPE // '.' // TRIM( EQNAME )
-         ELSE
-            IODIAGEQ = DIAGSTR // CMYPE
-         END IF
-         
-         ! Find File Unit Number for Diag File
-         DIAGDEV = JUNIT()
-
-         ! Open File With Error Checking
-         OPEN( UNIT=DIAGDEV, IOSTAT=IOST, FILE=IODIAGEQ, ACCESS='SEQUENTIAL')
-         IF ( IOST .NE. 0 ) THEN
-              WRITE( *, '( /, 5X, 3 A )' )
-     &             '***  ERROR in SETUP_LOGDEV  ***'
-              WRITE( *, '( 5X, A, I10 )' )
-     &             'Error opening diagnostic file on unit', DIAGDEV,
-     &             'I/O STATUS =', IOST
-              WRITE( *, '( 5X, 2 A, / )' ), 'File: ', TRIM( IODIAGEQ )
-              CALL EXIT( 2 )
-         END IF 
- 
-         ! Write CMAQ Header and then I/O-API Header
-         REWIND( DIAGDEV )
-         DO IHEAD = 1,NCMAQ_HEAD
-            WRITE( DIAGDEV, '(A)' ) CMAQ_HEADER( IHEAD )
-         END DO
-         WRITE( DIAGDEV, * )
-         DO IHEAD = 1,NIOAPI_HEAD
-            WRITE( DIAGDEV, '(A)' ) IOAPI_HEADER( IHEAD )
-         END DO
-      END IF
-
-    
 
       END SUBROUTINE SETUP_LOGDEV 
