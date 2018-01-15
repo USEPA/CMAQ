@@ -783,21 +783,30 @@ C-----------------------------------------------------------------------
                        EM_SPEC( N_EMIS_ISTR ) = DIFF_SPC( IDIFF )
                        MAP_EMtoDIFF( N_EMIS_ISTR ) = IDIFF
 
-                       ! Link Row to the Aerosol Module
-                       IF ( DIFF_MASK_AERO( IDIFF ) ) THEN
-                         IAERO = INDEX1( EM_SPEC( N_EMIS_ISTR ), N_AEROSPC, 
-     &                                   AEROSPC%NAME( JM ) )
-                         MAP_EMtoAERO( N_EMIS_ISTR ) = IAERO
-                         MAP_EMtoMODE( N_EMIS_ISTR ) = JM
-                         MAP_AEROtoEM( IAERO,JM ) = N_EMIS_ISTR
-                       END IF
 
                        EM_SURR( N_EMIS_ISTR, ISRC ) = EM_FILE_SURR( ISRC )%ARRY( IDX + JDX )
                        MAP_EMtoSURR( N_EMIS_ISTR, ISRC ) = IDX + JDX
                        MAP_EMtoSD( N_EMIS_ISTR, ISRC ) =
      &                             EM_FILE_SURR_MODE( ISRC )%ARRY( IDX + JDX )
                        EM_FILE_SURR_USED( ISRC )%ARRY( IDX + JDX ) = .TRUE.
-                       EM_FAC ( N_EMIS_ISTR, ISRC ) = 1.0
+                       IEM = EM_SRC_MODES( ISRC )%SD_REF( MAP_EMtoSD( N_EMIS_ISTR, ISRC )
+ 
+                       ! Link Row to the Aerosol Module. These CMAQ
+                       ! species names should already include aerosol
+                       ! mode suffixes (like I, J, or K) so search for
+                       ! the entire name.
+                       AERO_SPLIT = 0.0
+                       IF ( DIFF_MASK_AERO( IDIFF ) ) THEN
+                         IAERO = INDEX1( EM_SPEC( N_EMIS_ISTR ), N_AEROSPC, 
+     &                                   AEROSPC%NAME( JM ) )
+                         MAP_EMtoAERO( N_EMIS_ISTR ) = IAERO
+                         MAP_EMtoMODE( N_EMIS_ISTR ) = JM
+                         MAP_AEROtoEM( IAERO,JM ) = N_EMIS_ISTR
+
+                         AERO_SPLIT = SD_SPLIT( IDIFF, IEM )
+                       END IF
+ 
+                       EM_FAC ( N_EMIS_ISTR, ISRC ) = 1.0 * AERO_SPLIT
                     END IF
                  END IF
                END DO
@@ -958,8 +967,19 @@ C-----------------------------------------------------------------------
             ELSE
                ! Find the Specific Species this Rule Identifies
                IDX = INDEX1( EM_NML( IRULE )%SPEC, N_SPC_DIFF, DIFF_SPC )
+               JDX = INDEX1( EM_NML( IRULE )%SPEC, N_AEROSPC,  AEROSPC( : )%BULKNAME )
                IF ( IDX .NE. 0 ) THEN
                  EM_SPEC_RULE( IDX ) = .TRUE.
+               ELSE IF ( JDX .NE. 0 ) THEN
+                  ! This is an aerosol species, and it is being
+                  ! identified with a bulk name (no mode suffix). 
+                  ! We need to allow for all possible DIFF_SPC with
+                  ! all used suffixes
+                  SN = EM_NML( IRULE )%SPEC
+                  DO IM = 1,N_MODE
+                    KDX = INDEX1( TRIM( SN )//MODESUFF( IM ), N_SPC_DIFF, DIFF_SPC )
+                    IF ( KDX .NE. 0 ) EM_SPC_RULE( KDX ) = .TRUE.
+                  END DO
                ELSE
                  WRITE( LOGDEV, * )
                  WRITE( LOGDEV, '(3A,/,A,/,A,/,A)' ),
@@ -1071,7 +1091,7 @@ C-----------------------------------------------------------------------
                   ! if the CMAQ species matches exactly but this
                   ! surrogate is not present
                   LFOUND = .FALSE.
-                  ! Look For a suitable previous entry to add to
+                  ! Look For a suitable previous instruction to add to.
                   IF ( N_EMIS_ISTR .GT. 0 ) THEN
                   DO ISTR = 1,N_EMIS_ISTR
                     IF ( EM_SPEC( ISTR ) .EQ. RULE_ISTR_SPEC( IC ) .AND.
@@ -1088,7 +1108,11 @@ C-----------------------------------------------------------------------
                   END DO
                   END IF
 
-                  ! If no suitable entry was found, add a new one
+                  ! If no suitable instruction was found to add to, add a new
+                  ! instruction. This means either there was no previous
+                  ! instruction with the same CMAQ species or there was
+                  ! an instruction with this CMAQ species but it already
+                  ! had a surrogate and scale factor associated with this source.
                   IF ( .NOT. LFOUND ) THEN
                     N_EMIS_ISTR = N_EMIS_ISTR + 1
 
@@ -1097,12 +1121,13 @@ C-----------------------------------------------------------------------
                   
                     ISRC = RULE_ISTR_ISRC( IC )
                     EM_SURR( N_EMIS_ISTR, ISRC ) = RULE_ISTR_SURR( IC )
-                    EM_FAC ( N_EMIS_ISTR, ISRC ) = EM_NML( IRULE )%FAC
                     MAP_EMtoSURR( N_EMIS_ISTR, ISRC ) = RULE_ISTR_ISUR( IC )
                     EM_FILE_SURR_USED( ISRC )%ARRY( ISUR ) = .TRUE.
                     MAP_EMtoSD( N_EMIS_ISTR, ISRC ) = RULE_ISTR_PHASE( IC )
+                    IEM = EM_SRC_MODES( ISRC )%SD_REF( MAP_EMtoSD( N_EMIS_ISTR, ISRC )
                   
-                    ! Link this Row to the Aerosol Module
+                    ! Link this row to the Aerosol Module.
+                    AERO_SPLIT = 0.0
                     IF ( DIFF_MASK_AERO( RULE_ISTR_IDIFF( IC ) ) ) THEN
                       DO IAERO = 1,N_AEROSPC
                         JM = INDEX1( EM_SPEC( N_EMIS_ISTR ), N_MODE, AEROSPC( IAERO )%NAME( : ) )
@@ -1110,9 +1135,13 @@ C-----------------------------------------------------------------------
                           MAP_EMtoAERO( N_EMIS_ISTR ) = IAERO
                           MAP_EMtoMODE( N_EMIS_ISTR ) = JM
                           MAP_AEROtoEM( IAERO,JM ) = N_EMIS_ISTR
+                          AERO_SPLIT = SD_SPLIT( RULE_ISTR_IDIFF( IC ), IEM )
                         END IF
                       END DO
                     END IF
+                    
+                    EM_FAC ( N_EMIS_ISTR, ISRC ) = EM_NML( IRULE )%FAC * AERO_SPLIT
+
                   END IF
                END DO
             ELSE
@@ -1198,14 +1227,16 @@ C Print a message for each emissions source surrogate that is not used.
          DO ISRC = 1,N_EM_SRC
            WRITE( LOGDEV,'(/,3x,A,A,A,A)' ),'Source: ',TRIM(EM_FILE_DESC( ISRC )),
      &            '; Label: ',TRIM(EM_FILE_LAB( ISRC ) )
-           WRITE( LOGDEV, '(6x,A,3x,A,3x,A)' ),'CMAQ Species ','Surrogate','Scale Factor'
+           WRITE( LOGDEV, '(6x,A,3x,A,3x,A,3x,A)' ),
+     &            'CMAQ Species ','Surrogate','Scale Factor','Phase/Mode'
 
            DO IDIFF = 1,N_SPC_DIFF
              DO ISTR = 1,N_EMIS_ISTR
                IF ( EM_SPEC( ISTR ) .EQ. DIFF_SPC( IDIFF ) .AND.
      &              EM_SURR( ISTR,ISRC ) .NE. '' )
-     &           WRITE( LOGDEV, '(7x,A,3x,A,F7.4)' ),EM_SPEC( ISTR ), 
-     &                  EM_SURR( ISTR, ISRC ), EM_FAC( ISTR, ISRC )
+     &           WRITE( LOGDEV, '(7x,A,3x,A,F7.4)' ),EM_SPEC( ISTR ),
+     &                  EM_SURR( ISTR, ISRC ), EM_FAC_BULK( ISTR, ISRC ),
+     &                  EM_SRC_MODES( ISRC )%SD_NAME
              END DO
            END DO
          END DO

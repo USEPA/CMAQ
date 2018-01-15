@@ -255,8 +255,9 @@ C *** set up for dust emission processing
          END IF
 
 C *** Set up emissions size distribution arrays
-      ! Calculate factors for converting 3rd moment emission rates into number
-      ! emission rates.  See Equation 7b of Binkowski & Roselle (2003)
+      ! Calculate factors for converting 3rd moment emission rates into 
+      ! number and surface area emission rates.  See Equation 7b of 
+      ! Binkowski & Roselle (2003)
          DO IEM = 1,N_EM_AERO_REF
            DO N = 1, N_MODE
               DGV = EM_AERO_REF( IEM )%DGVEM( N )
@@ -268,8 +269,8 @@ C *** Set up emissions size distribution arrays
 
          END DO
 
-       ! Modify the emissions splits based on what transported aerosol
-       ! species are actually available. For exmaple, if the aerosol
+       ! Modify the reference emissions splits based on what transported 
+       ! aerosol species are actually available. For exmaple, if the aerosol
        ! namelist only includes the accumulation mode (J) but not the 
        ! Aitken mode (I) for a particular species, then the split for
        ! Aitken mode should be added to the Accumulation mode. Save
@@ -429,10 +430,10 @@ C-----------------------------------------------------------------------
           N = N_SD( ISRC )
           EM_SRC_MODES( ISRC )%LEN = N + 1
           ALLOCATE( EM_SRC_MODES( ISRC )%ARRY( N+1 ) )
-          EM_SRC_MODES( ISRC )%SD_NAME( 1:N ) = SD_NAME( ISRC,1:N )
-          EM_SRC_MODES( ISRC )%SD_REF( 1:N )  = SD( ISRC,1:N )
-          EM_SRC_MODES( ISRC )%SD_NAME( 1:N ) = 'GAS'
-          EM_SRC_MODES( ISRC )%SD_REF( 1:N )  = 0
+          EM_SRC_MODES( ISRC )%SD_NAME( 2:N+1 ) = SD_NAME( ISRC,1:N )
+          EM_SRC_MODES( ISRC )%SD_REF( 2:N+1 )  = SD( ISRC,1:N )
+          EM_SRC_MODES( ISRC )%SD_NAME( 1 ) = 'GAS'
+          EM_SRC_MODES( ISRC )%SD_REF( 1 )  = 0
       END DO
 
       ! Also map the surrogates from each source to a default mode
@@ -444,8 +445,14 @@ C-----------------------------------------------------------------------
 
         DO ISUR = 1,NLEN
             CSUR = EM_FILE_SURR( ISRC )%ARRY( ISUR )
+            ! Map the fine aerosols to the fine mode. Check
+            ! the section above that sets the indices of the default
+            ! aerosol modes.
             IF ( INDEX1( CSUR, NFINE, FINE_LIST ) )
      &           EM_FILE_SURR_MODE( ISRC )%ARRY( ISUR ) = 1
+            ! Map the coarse aerosols to the coarse mode. Check
+            ! the section above that sets the indices of the default
+            ! aerosol modes.
             IF ( INDEX1( CSUR, NFINE, COARSE_LIST ) )
      &           EM_FILE_SURR_MODE( ISRC )%ARRY( ISUR ) = 2
         END DO
@@ -610,8 +617,9 @@ C ----------------------------------------------------------------------
 
 C *** Initialize Variables  
          N_EMIS_ISTR = SIZE( VDEMIS, 1 ) - 1
-         EMLAYS     = SIZE( VDEMIS, 2 ) 
-         
+         EMLAYS      = SIZE( VDEMIS, 2 ) 
+         N_SD        = EM_SRC_MODES( ISRC )%LEN 
+
          ALLOCATE( EMISM3( EMLAYS,MY_NCOLS,MY_NROWS,N_MODE,N_SD ) )
          ALLOCATE( GSFAC( EMLAYS,MY_NCOLS,MY_NROWS ) )
          EMISM3 = 0.0
