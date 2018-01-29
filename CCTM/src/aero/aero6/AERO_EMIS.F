@@ -194,7 +194,7 @@ C-----------------------------------------------------------------------
          USE AERO_DATA
          USE PRECURSOR_DATA
          USE UTILIO_DEFN
-         USE VDIFF_MAP, ONLY : N_SPC_DIFF, SPC_DIFF
+         USE VDIFF_MAP, ONLY : N_SPC_DIFF, DIFF_SPC
          USE EMIS_VARS, ONLY : MAP_EMtoSURR
      
          INCLUDE SUBST_CONST     ! physical and mathematical constants
@@ -603,6 +603,7 @@ C ----------------------------------------------------------------------
          USE AERO_DATA, ONLY : AEROSPC 
          USE AEROMET_DATA
          USE ASX_DATA_MOD, ONLY: MET_DATA
+         USE EMIS_VARS
 
          REAL,    INTENT( INOUT )  :: VDEMIS( :,:,:,: )
          INTEGER, INTENT( IN    )  :: ISRC
@@ -649,8 +650,8 @@ C *** Apply Aerosol Size Distribution
 
              ! Sum Total Volume of Mode N [m3/m3/s]
              IF ( .NOT. AEROSPC( IAERO )%TRACER ) 
-                   EMISM3( :,:,:,IM,ISD ) = EMISM3( :,:,:,IM,ISD ) + 
-                        VDEMIS * ( F6DPIM9 / AEROSPC( IAERO )%DENSITY )
+     &             EMISM3( :,:,:,IM,ISD ) = EMISM3( :,:,:,IM,ISD ) + 
+     &                  VDEMIS * ( F6DPIM9 / AEROSPC( IAERO )%DENSITY )
 
              ! Convert Mass Emission Rates from [ug/m3/s] to [umol/m3/s]
              VDEMIS( ISPC,:,:,: ) = VDEMIS( ISPC,:,:,: ) / AEROSPC_MW( IAERO )

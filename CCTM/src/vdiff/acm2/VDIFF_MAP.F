@@ -77,7 +77,6 @@ C-----------------------------------------------------------------------
          FUNCTION VDIFF_MAP_INIT( N_SPC_DEPV  ) RESULT ( SUCCESS )
 
          USE CGRID_SPCS   ! CGRID species number and offsets
-         USE AERO_EMIS    ! aerosol emissions defns and fncts
          USE UTILIO_DEFN
 
          IMPLICIT NONE
