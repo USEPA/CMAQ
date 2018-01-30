@@ -39,6 +39,8 @@
 !                      -- extended to five dimensional array and made the third,
 !                         and fourth dimension more flexible and only limited to
 !                         layer and species
+!          Modified: 11/01/18 by David Wong
+!                      -- remove TAB character
 ! --------------------------------------------------------------------------
 
         module se_comm_module
@@ -48,7 +50,7 @@
         interface se_comm
           module procedure se_pe_comm1, 
      &                     se_pe_comm2, se_pe_comm2e, 
-     &                     se_pe_comm3, se_pe_comm3e, 
+     &                     se_pe_comm3, se_pe_comm3e, se_pe_comm3s,
      &                     se_pe_comm4,
      &                     se_pe_comm5
         end interface
@@ -114,7 +116,7 @@
 
         integer :: i, j, k
         integer :: rdirection (8), sdirection(8)
-        
+
 ! -- extract inform from input strings
 
         read (dirstr, 10) (rdirection(i), i=1, 8)
@@ -764,6 +766,130 @@
  
         return
         end subroutine se_pe_comm3e
+
+! --------------------------------------------------------------------------
+! Purpose:
+!
+!   perform near-neighbour communication for transfer data between two 3-D arrays
+!
+! Revision history:
+!
+!   Orginal version: 10/29/17 by David Wong
+!
+! Subroutine parameter description:
+!
+!   In:  sdata   -- input data
+!        dispstr -- displacement string
+!        dirstr  -- indicator of communication direction
+!                   0 (without communication), 1 (with communication)
+!        str     -- an optional argument to indicate the starting index of
+!                   certain dimension
+!
+!   Out: ddata   -- output data after communication
+!
+! Local variable description:
+!
+!    send_to       -- processor number which data needs to be sent to
+!    send_to_ptr   -- a F90 pointer (alias) of send_to
+!    recv_from     -- processor number which data is recvd from
+!    recv_from_ptr -- a F90 pointer (alias) of recv_from
+!    sdir, rdir    -- loop indexes which indicate send to or recvd from
+!    sind          -- store low and high index of each dimension for sending
+!                     process
+!    sind_ptr      -- a F90 pointer (alias) of sind
+!    rind          -- store low and high index of each dimension for receiving
+!                     process
+!    rind_ptr      -- a F90 pointer (alias) of rind
+!    shift         -- an array to hold the amount of index shifting due to
+!                     starting index is 1 in a subroutine
+!    num_shift     -- number of shifting
+!    loc_str       -- a local copy of str
+!
+! Include file:
+!
+!    se_data_send_module
+!    se_data_recv_module
+!
+! Subroutine/Function call:
+!
+!   se_comm_pat
+!   se_up_low3
+!
+! --------------------------------------------------------------------------
+        subroutine se_pe_comm3s (sdata, ddata, dispstr, dirstr, str)
+
+        use se_data_send_module
+        use se_data_recv_module
+        use se_internal_util_module
+        use se_pe_info_ext
+
+        implicit none
+
+        include "mpif.h"
+
+        real, intent(in)  ::  sdata(:,:,:)
+        real, intent(out) ::  ddata(:,:,:)
+        character (len = 16), intent(in) :: dirstr
+        character (len = 12), intent(in) :: dispstr
+        character (len = *), optional, intent(in) :: str
+
+        integer, target :: send_to(8), recv_from(8)
+        integer, pointer :: send_to_ptr(:), recv_from_ptr(:)
+        integer, target :: sind(2,8), rind(2,8)
+        integer, pointer :: sind_ptr(:,:), rind_ptr(:,:)
+        integer :: sdir, rdir
+        integer :: shift(6), num_shift
+        character (len = 80) :: loc_str
+        integer :: request, status(MPI_STATUS_SIZE), error, dsize
+
+        if (present(str)) then
+           loc_str = str
+           shift(2:6:2) = 1
+           call se_string_to_integer (loc_str, shift, num_shift)
+        else
+           num_shift = 0
+        end if
+
+        call se_comm_pat (dirstr, send_to, recv_from)
+
+        send_to_ptr => send_to
+        recv_from_ptr => recv_from
+
+        call se_up_low1 (dispstr, sind, rind, shift, num_shift)
+
+        sind_ptr => sind
+        rind_ptr => rind
+
+        dsize = size(sdata)
+
+        do sdir = 1, 8, 2
+
+           rdir = mod((sdir + 3), 8) + 1
+
+           if (send_to(sdir) .eq. se_my_pe) then
+
+              ddata = sdata
+
+           else
+              if (send_to(sdir) .ge. 0) then
+                 call mpi_send (sdata, dsize, mpi_real, send_to_ptr(sdir), 
+     $                          sdir, se_worker_comm, error)
+              end if
+
+              if ((recv_from(rdir) .ge. 0) .and.
+     $            (recv_from(rdir) .ne. se_my_pe)) then
+                 call mpi_recv (ddata, dsize, mpi_real, recv_from_ptr(rdir), sdir,
+     &                          se_worker_comm, status, error)
+              end if
+
+!             if (send_to(sdir) .ge. 0) then
+!                call mpi_wait (request, status, error)
+!             end if
+
+           end if
+        end do
+ 
+        end subroutine se_pe_comm3s
 
 ! --------------------------------------------------------------------------
 ! Purpose:
