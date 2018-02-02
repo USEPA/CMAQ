@@ -454,6 +454,7 @@ C...modules
             N_EXCEED_TROPO3 = 0.0
             TROPO_O3_EXCEED = 0.0
             TSTEP_COUNT     = 0
+            TAU_AERO_550    = 0.0
 
 !...write wavelength data to a character array
 
@@ -639,7 +640,7 @@ C...modules
 #endif
       END IF  ! firstime
 
-      IF ( JD_STRAT_O3MIN .NE. JDATE ) THEN
+      IF ( INT ( JD_STRAT_O3MIN ) .NE. JDATE ) THEN
 !...set minimum fraction of ozone column above PTOP
 
          CALL SEASONAL_STRAT_O3( JDATE, JTIME )
