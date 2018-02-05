@@ -903,7 +903,7 @@ C***  and contribution to the overall asymmetry factor
 !    &                              + REAL( ANGSTROM_EXPONENT * LOG_ANGSTROM_RATIO, 4 )
 !                AERO_EXTI_550( L ) =  EXP( AERO_EXTI_550( L ) )
                  AERO_EXTI_550( L ) =  AERO_EXTI_COEF( L,IWL_ANGSTROM_LOWER ) 
-     &                              *  ANGSTROM_RATIO ** ANGSTROM_EXPONENT
+     &                              *  REAL( ANGSTROM_RATIO ** ANGSTROM_EXPONENT, 4 )
 !                 IF ( FIRSTCALL ) THEN
 !                     WRITE( LOGDEV,'(I3,A,7(ES12.4,1X))')L,
 !     &              ' AERO_EXT_LOWER,AERO_EXT_UPPER,EXPONENT,EXPONENT*LOG(RATIO),EXT_550_1,EXT_550_2: ',
