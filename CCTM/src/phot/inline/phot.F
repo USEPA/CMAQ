@@ -392,6 +392,9 @@ C...modules
          
          CALL INIT_CLOUD_OPTICS(  )
 
+! set cosine values for sun effectively below horizon
+         COS85 = COS( 85.0 * PI180 )
+
 !...Initialize Surface albedo method
 
          IF ( .NOT. INITIALIZE_ALBEDO( JDATE, JTIME, LOGDEV ) ) THEN
@@ -729,7 +732,8 @@ C...modules
             ETOT_SFC_WL  = 0.0
             TAUO3_TOP_WL = 0.0
             TAU_AERO_WL  = 0.0
-            TAU_AERO_550 = 0.0
+! commented out because TAU_AERO_550 is set to zero after allocation and after written to PHOTDIAG1
+!           TAU_AERO_550 = 0.0 
             TAU_CLOUD_WL = 0.0
 #ifdef phot_debug                   
             SSA_CLOUD_WL = 0.0
@@ -772,7 +776,7 @@ C...modules
                   IF ( JTIME_CHK ) THEN
                      TOTAL_OC( COL,ROW )        = 0.0                            
                      TROPO_OC( COL,ROW )        = 0.0                            
-                     TAU_AERO_550( COL,ROW )    = 0.0
+!                     TAU_AERO_550( COL,ROW )    = 0.0
                      ETOT_SFC_WL ( COL,ROW, : ) = 0.0
                      TAUO3_TOP_WL( COL,ROW, : ) = 0.0
                      TAU_AERO_WL ( COL,ROW, : ) = 0.0
@@ -956,11 +960,11 @@ C...modules
                   
                   AERO_EXT_550( COL,ROW,1:NLAYS_DIAG ) = 1000.0 * AERO_EXTI_550( 1:NLAYS_DIAG )
                   
-                  TAU_AERO_550 ( COL,ROW ) = 0.0
                   DO LEV = 1, NLAYS
                      TAU_AERO_550 ( COL,ROW ) = TAU_AERO_550 ( COL,ROW )
      &                                        + AERO_EXTI_550( LEV ) * BLKDZ( LEV )
                   END DO
+
                   DO L = 1, N_DIAG_WVL
                      IWL = DIAG_WVL( L )
                      FORALL ( LEV = 1:NLAYS_DIAG )
@@ -1304,6 +1308,7 @@ C...modules
             XMSG = 'Error writing variable ' // VARNM
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
+         TAU_AERO_550 = 0.0
 
          WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
      &          'Photolysis Suface Summary written to', CTM_RJ_1,

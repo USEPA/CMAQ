@@ -119,7 +119,8 @@ C-----------------------------------------------------------------------
       REAL               :: TROPO_O3_TOGGLE        ! factor correcting tropospheric ozone column 
       REAL               :: O3_TOGGLE_AVE          ! average of nonunity factors adjusting ozone extinction 
       REAL               :: O3_TOGGLE_MIN          ! Max of nonunity factors adjusting ozone extinction 
-  
+      REAL               :: COS85                  ! cosine of 85 degrees
+ 
       LOGICAL            :: ONLY_SOLVE_RAD             ! only compute fluxes     
       LOGICAL            :: OBEY_STRATO3_MINS = .TRUE. ! Has stratospheric O3 column not violated 
                                                        ! climatological minimums, yet?
@@ -297,7 +298,6 @@ C-----------------------------------------------------------------------
       REAL NBAR                 ! total number of air molecules [ # /cm**2 ]
                                 ! above top of model domain
 
-      REAL, SAVE :: COS85
 
 !***FSB Cloud properties.
 !***  FSB These properties are taken fro HU & Stamnes,1993,
@@ -373,7 +373,7 @@ C-----------------------------------------------------------------------
             CONV_WM2( IWL ) = 1.0E13 * ( PLANCK_C * LIGHT_SPEED ) / LAMDA
          END DO
 
-         COS85 = COS( 85.0 * PI180 )
+!         COS85 = COS( 85.0 * PI180 )
 
 !***get molecular scattering cross sections
 
@@ -386,6 +386,7 @@ C-----------------------------------------------------------------------
 !***initialize BLKRJ and other layer variables
 
       BLKRJ          = 0.0
+      BLKDZ          = 0.0
       GAS_EXTINCTION = 0.0
       EXTINCTION     = 0.0
       ACTINIC_FLUX   = 0.0

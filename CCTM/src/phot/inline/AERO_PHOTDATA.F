@@ -915,7 +915,7 @@ C***  and contribution to the overall asymmetry factor
                  AERO_EXTI_550( L ) =  AERO_EXTI_COEF( L,IWL_ANGSTROM_LOWER )
               END IF
          END DO LOOP_550NM
-         IF ( FIRSTCALL ) FIRSTCALL = .FALSE.
+!         IF ( FIRSTCALL ) FIRSTCALL = .FALSE.
       END IF 
       
 #ifdef verbose_phot
