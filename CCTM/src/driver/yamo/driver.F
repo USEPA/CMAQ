@@ -411,33 +411,6 @@ C Verify input file header consistency and run duration
          END IF
 #endif
 
-! Print the open filenames to the screen output (OUTDEV). Try to
-! organize the files into input files and output files.
-         IF ( MYPE .EQ. 0 ) THEN
-         NFILE = JUNIT() - 1
-
-         CALL LOG_HEADING( OUTDEV, "Input File Report" )
-         WRITE( OUTDEV, '(5x,A)' ),'--Unit-- | --File Path/Name--'
-         WRITE( OUTDEV, '(5x,A)' ), REPEAT( '-',80 )
-         DO IFILE = 0,NFILE
-             INQUIRE( UNIT = IFILE, NAME = CFILE, ACTION = ACT,
-     &       OPENED=OPD, EXIST=EXST )
-             !CFILE = FLIST3( IFILE )
-             !IF ( ACT .EQ. "READ" ) 
-     &       !     WRITE( OUTDEV, '(5x,3x,I3.3,3x,A,2x,A)' ),IFILE,'|',TRIM(CFILE)
-         END DO
-
-         CALL LOG_HEADING( OUTDEV, "Output File Report" )
-         WRITE( OUTDEV, '(5x,A)' ),'--Unit-- | --File Path/Name--'
-         WRITE( OUTDEV, '(5x,A)' ), REPEAT( '-',80 )
-         DO IFILE = 0,NFILE
-             INQUIRE( UNIT = IFILE, NAME = CFILE, ACTION = ACT )
-             IF ( ACT .EQ. "WRITE" .OR. ACT .EQ. "READWRITE" ) 
-     &            WRITE( OUTDEV, '(5x,3x,I3.3,3x,A,2x,A)' ),IFILE,'|',TRIM(CFILE)
-         END DO
-         END IF
-
- 
       END IF ! first_run
 
 C Main processing loop:
