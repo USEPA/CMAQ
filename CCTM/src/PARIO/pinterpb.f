@@ -84,7 +84,7 @@ C    REAL           VARRAY(VSIZE)   ! Interpolated values.
 C Local Variable Description:  see below
  
 C Calls:  OPEN3, DESC3, M3WARN,
-C         ENVYN, NEXTIME, SECSDIFF, TIME2SEC, CURRSTEP, TRIMLEN,
+C         NEXTIME, SECSDIFF, TIME2SEC, CURRSTEP, TRIMLEN,
 C         ALLOBBUF, ALLOMBUF, GROWBUF, SETINT, SETFLT, GROWREAL,
 C         GTNDXHDV, READBNDY, INTERPOL
  
@@ -185,7 +185,6 @@ C Local Variables:
       INTEGER        NLAYS        ! Local PE layer dimension of VARRAY
       INTEGER        NBNDY        ! Local PE boundary dimension of VARRAY
       INTEGER        MBUFSIZE     ! Message buffer size
-      INTEGER        STATUS       ! Status returned from routine ENVYN
 
       SAVE  MBUFSIZE
       

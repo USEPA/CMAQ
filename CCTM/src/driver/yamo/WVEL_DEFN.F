@@ -26,7 +26,6 @@ C           conc file
       IMPLICIT NONE
 
       REAL, ALLOCATABLE, SAVE :: WVEL( :,:,: )
-      LOGICAL, SAVE :: W_VEL
 
       CONTAINS
 
@@ -48,14 +47,6 @@ C-----------------------------------------------------------------------
 
          SUCCESS = .TRUE.
 
-         W_VEL = .FALSE.         ! default
-         W_VEL = ENVYN( CTM_WVEL, 'Write vert. vel. flag', W_VEL, IERR )
-         IF ( IERR .GT. 0 ) THEN
-            XMSG = 'Environment variable improperly formatted'
-            CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-            SUCCESS = .FALSE.; RETURN
-            END IF
-
          IF ( W_VEL ) THEN
 
             ALLOCATE ( WVEL( MY_NCOLS,MY_NROWS,NLAYS ), STAT = ALLOCSTAT )
@@ -63,11 +54,11 @@ C-----------------------------------------------------------------------
                XMSG = 'WVEL memory allocation failed'
                CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
                SUCCESS = .FALSE.; RETURN
-               END IF
+            END IF
 
             WVEL = 0.0
 
-            END IF
+         END IF
 
          END FUNCTION WVEL_INIT
 

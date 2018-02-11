@@ -41,7 +41,8 @@ C                     and the file is emtpy and requires to go through CHECK3
 C-----------------------------------------------------------------------
 
       USE UTILIO_DEFN
-      USE RUNTIME_VARS, ONLY : LOG_HEADING, LOG_SUBHEADING, LOG_MESSAGE
+      USE RUNTIME_VARS, ONLY : LOG_HEADING, LOG_SUBHEADING, LOG_MESSAGE,
+     &                         RUNLEN
 
       IMPLICIT NONE 
 
@@ -67,10 +68,8 @@ C Local Variables:
       INTEGER JDATE     ! Time step date (YYYYDDD)
       INTEGER JTIME     ! Time step time (HHMMSS)
       INTEGER N         ! Loop index
-      INTEGER RUNLEN    ! Length of run
       INTEGER STATUS    ! Status of returned value
 
-      LOGICAL LERROFF   ! Flag to stop run if errors found
       LOGICAL LERROR    ! Flag to indicate error for 1 or more files
       LOGICAL LOK       ! Flag to indicate error for 1 file
 
@@ -84,15 +83,7 @@ C-----------------------------------------------------------------------
 
       CALL LOG_HEADING( LOGDEV, 'Check Input File Headers' )
 
-      LERROFF = .TRUE.   ! default
-      LERROFF = ENVYN( 'FL_ERR_STOP', 'Flag for stopping on errors',
-     &                 LERROFF, STATUS )  
-
       LERROR = .FALSE.
-
-      RUNLEN = 480000    ! default
-      RUNLEN = ENVINT( 'CTM_RUNLEN', 'Scenario Run Duration (HHMMSS)',
-     &                 RUNLEN, STATUS )
 
       DO N = 1, N_FILES      
 

@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE m3dry ( jdate, jtime, dt, abflux, sfc_hono, mosaic, fst, cgridl1, depvel_gas,
+      SUBROUTINE m3dry ( jdate, jtime, dt, cgridl1, depvel_gas,
      &                   pvd, cmp )
 
 C-------------------------------------------------------------------------------
@@ -143,6 +143,7 @@ C           7 Nov 2014  J. Bash: Modified for the restructuring of vidff. Moved 
 C                       ASX_DATA_MOD.
 C-------------------------------------------------------------------------------
 
+      USE RUNTIME_VARS
       USE HGRD_DEFN      ! horizontal grid specifications
       USE DEPVVARS
       USE VGRD_DEFN      ! to get VGTYP_GD
@@ -173,7 +174,6 @@ C Arguments:
       INTEGER,     INTENT( IN )  :: jdate
       INTEGER,     INTENT( IN )  :: jtime
       INTEGER,     INTENT( IN )  :: dt( 3 )      ! model time step
-      LOGICAL,     INTENT( IN )  :: abflux, sfc_hono, mosaic, fst
       REAL,        INTENT( IN )  :: cgridl1( :,:,: )    ! layer 1 concentrations
       REAL,        INTENT( OUT ) :: depvel_gas( :,:,: )
       REAL,        INTENT( OUT ) :: pvd( :,:,: )

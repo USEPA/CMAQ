@@ -43,16 +43,12 @@ C   12 Aug 15 D.Wong:   Replaced SUBST_MPI with mpif.h
 #ifdef parallel      
       include 'mpif.h'
 #endif
-      INTEGER, PARAMETER :: MAXLEN_CCTM_APPL = 200
       INTEGER, PARAMETER :: MAXLEN_CTM_LOG   = MAXLEN_CCTM_APPL + 11
 
       CHARACTER(  8 ) :: PRESTR  = 'CTM_LOG_'
       CHARACTER(  3 ) :: CMYPE
-      CHARACTER(  8 ) :: APPL = 'CTM_APPL'
 
-      CHARACTER( MAXLEN_CCTM_APPL ) :: EQNAME
-      CHARACTER( MAXLEN_CCTM_APPL ) :: BLDFOLD
-      CHARACTER( MAXLEN_CTM_LOG   ) :: IOLOGEQ
+      CHARACTER( MAXLEN_CTM_LOG ) :: IOLOGEQ
 
       INTEGER :: ERROR, TOTPE, IOST, FHEAD, IHEAD
       INTEGER :: NIOAPI_HEAD, NCMAQ_HEAD
@@ -60,14 +56,11 @@ C   12 Aug 15 D.Wong:   Replaced SUBST_MPI with mpif.h
       CHARACTER( 90 ) :: CMAQ_HEADER( NHEAD )
       CHARACTER( 90 ) :: IOAPI_HEADER( NHEAD )
 
-      CALL NAMEVAL ( APPL, EQNAME )
-
       OUTDEV = 6  ! Assign Standard Out File Unit
 
       ! Fetch CMAQ Header
       FHEAD = JUNIT()
-      CALL NAMEVAL( "BLD", BLDFOLD )
-      OPEN( FHEAD, FILE = TRIM( BLDFOLD ) // '/log_header.txt' )
+      OPEN( FHEAD, FILE = TRIM( LOGFOLD ) // '/log_header.txt' )
       DO IHEAD = 1,NHEAD
           READ( FHEAD, '(A)', IOSTAT=IOST ), CMAQ_HEADER( IHEAD )
           ! Check for End of File
@@ -90,11 +83,7 @@ C   12 Aug 15 D.Wong:   Replaced SUBST_MPI with mpif.h
 
       ! Create Log Filename using the processor rank and initialize
       ! I/O-API and Logs
-      IF ( APPL .NE. EQNAME(1:8 ) ) THEN
-         IOLOGEQ = PRESTR // CMYPE // '.' // TRIM( EQNAME )
-      ELSE
-         IOLOGEQ = PRESTR // CMYPE
-      END IF
+      IOLOGEQ = PRESTR // CMYPE // '.' // TRIM( APPL_NAME )
       IF ( .NOT. SETENVVAR ( 'LOGFILE', IOLOGEQ ) ) THEN
          WRITE( *,* ) '*** Could not set environment variable for ' // IOLOGEQ
          STOP

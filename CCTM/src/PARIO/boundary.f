@@ -51,7 +51,7 @@ C      REAL      LARRAY( NBNDY,NLAYS )  ! Boundary values on local grid.
  
 C  LOCAL VARIABLE DESCRIPTION:  see below
  
-C  CALLS: NAMEVAL, TRIMLEN, PUTENV, WRITE
+C  CALLS: TRIMLEN, PUTENV, WRITE
  
 C .......................................................................
 

@@ -316,7 +316,7 @@ C  11. Mao et al. Ozone and organic nitrates over the eastern United
 C      States: Sensitivity to isoprene chemistry, J. Geophys. Res. doi:
 C      10.1002/jgrd.50817, 2013.
 C-----------------------------------------------------------------------
-
+      USE RUNTIME_VARS
       USE UTILIO_DEFN
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE RXNS_DATA
@@ -456,10 +456,6 @@ C *** variables for heterogeneous hydrolysis of NTR2
 C *** variables for getting aerosol diagnostic file flag
       INTEGER           :: STATUS                      ! ENV... status
       CHARACTER( 80 )   :: VARDESC                     ! environment variable description
-      CHARACTER( 16 )   :: CTM_PMDIAG = 'CTM_PMDIAG'   ! environment variable for PMDIAG file
-      CHARACTER( 16 )   :: CTM_APMDIAG = 'CTM_APMDIAG' ! environment variable for APMDIAG file
-      LOGICAL, SAVE     :: PMDIAG                      ! flag for PMDIAG file [F], default
-      LOGICAL, SAVE     :: APMDIAG                     ! flag for APMDIAG file [F], default
       
       CHARACTER( 132 )  :: XMSG
       
@@ -504,40 +500,6 @@ C *** compute only on first pass
       IF ( FIRSTIME ) THEN
       
         FIRSTIME = .FALSE.
-
-C *** Get PM diagnostic file flag.
-        PMDIAG = .TRUE.         ! default
-        VARDESC = 'Flag for writing the aerosol diagnostic file'
-        PMDIAG = ENVYN( CTM_PMDIAG, VARDESC, PMDIAG, STATUS )
-!       STATUS = 0
-        IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-        IF ( STATUS .EQ. 1 ) THEN
-           XMSG = 'Environment variable improperly formatted'
-           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
-        ELSE IF ( STATUS .EQ. -1 ) THEN
-           XMSG = 'Environment variable set, but empty ... Using default:'
-           WRITE( LOGDEV, '(5X, A, I9)' ) XMSG
-        ELSE IF ( STATUS .EQ. -2 ) THEN
-           XMSG = 'Environment variable not set ... Using default:'
-           WRITE( LOGDEV, '(5X, A, I9)' ) XMSG
-        END IF
-
-C *** Get flag for average PM diagnostic file.
-        APMDIAG = .FALSE.         ! default
-        VARDESC = 'Flag for writing the average aerosol diagnostic file'
-        APMDIAG = ENVYN( CTM_APMDIAG, VARDESC, APMDIAG, STATUS )
-!       STATUS = 0
-        IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-        IF ( STATUS .EQ. 1 ) THEN
-           XMSG = 'Environment variable improperly formatted'
-           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
-        ELSE IF ( STATUS .EQ. -1 ) THEN
-           XMSG = 'Environment variable set, but empty ... Using default:'
-           WRITE( LOGDEV, '(5X, A, I9)' ) XMSG
-        ELSE IF ( STATUS .EQ. -2 ) THEN
-           XMSG = 'Environment variable not set ... Using default:'
-           WRITE( LOGDEV, '(5X, A, I9)' ) XMSG
-        END IF
 
         CALL MAP_AERO()
         CALL MAP_PRECURSOR()

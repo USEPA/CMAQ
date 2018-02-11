@@ -113,9 +113,7 @@ C External Functions: None
 
 C Local Variables: 
       CHARACTER( 16 ), SAVE :: PNAME = 'VDIFFPROC'
-      CHARACTER( 16 ), SAVE :: AERO_GRAV_SETL = 'CTM_GRAV_SETL'
       CHARACTER( 80 ) :: VARDESC                ! env variable description
-      LOGICAL, SAVE :: GRAV_SETL
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
       LOGICAL, SAVE :: WRITE_FIRSTIME = .TRUE.
       INTEGER, SAVE :: WSTEP  = 0               ! local write counter
@@ -209,26 +207,16 @@ C create global maps
          END IF
 
 C Initialize the met data
-         CALL INIT_MET( JDATE, JTIME, MOSAIC, ABFLUX, HGBIDI )
+         CALL INIT_MET( JDATE, JTIME, MOSAIC, HGBIDI )
 
         IF ( HGBIDI ) THEN ! Initialize HGSIM module
            CALL INIT_HGSIM(JDATE, JTIME)
         END IF
 
-C Get gravitational settling (sedi) flag.
-         GRAV_SETL = .TRUE.         ! default
-         VARDESC = 'Using J-,K-mode aerosols gravitational settling'
-         GRAV_SETL = ENVYN( AERO_GRAV_SETL, VARDESC, GRAV_SETL, STATUS )
-         IF ( STATUS .EQ. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-
-C Get diagnostic files flag.
-         VDIFFDIAG = .FALSE.         ! default
-         VDIFFDIAG = ENVYN( VDIFF_DIAG_FILE, VARDESC, VDIFFDIAG, STATUS )
- 
 C Set output file characteristics based on COORD.EXT and open the dry dep file
          IF ( IO_PE_INCLUSIVE ) THEN
-            CALL OPDDEP ( JDATE, JTIME, TSTEP( 1 ), N_SPC_DDEP, ABFLUX )
-            IF ( ABFLUX .OR. HGBIDI ) CALL OPASX_MEDIA( JDATE, JTIME, TSTEP( 1 ), ABFLUX )
+            CALL OPDDEP ( JDATE, JTIME, TSTEP( 1 ), N_SPC_DDEP )
+            IF ( ABFLUX .OR. HGBIDI ) CALL OPASX_MEDIA( JDATE, JTIME, TSTEP( 1 ) )
          END IF
 
 C Open vdiff diagnostics file (ioapi header from cgrd)
@@ -332,7 +320,7 @@ C Convert non-molar mixing ratio species and re-order CGRID
       CALL CONV_CGRID ( CGRID, MDATE, MTIME, CNGRD )
 
 C read & interpolate met data
-      CALL GET_MET ( MDATE, MTIME, MSTEP, MOSAIC, ABFLUX, HGBIDI )
+      CALL GET_MET ( MDATE, MTIME, MSTEP, MOSAIC, HGBIDI )
 
 C read & interpolate deposition velocities
       CALL GET_DEPV ( MDATE, MTIME, TSTEP, CGRID )      
@@ -658,7 +646,7 @@ C Write other diagnostics
          END IF   ! MOSAIC
 
          IF ( ABFLUX .OR. HGBIDI ) THEN    
-            CALL WRASX_MEDIA( MDATE, MTIME, ABFLUX )
+            CALL WRASX_MEDIA( MDATE, MTIME )
          END IF 
  
          IF ( LIPR ) THEN

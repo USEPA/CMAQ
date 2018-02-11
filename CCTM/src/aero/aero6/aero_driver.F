@@ -112,6 +112,7 @@ C                      - set CTM_PMDIAG default value to .TRUE.
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AERO ( CGRID, JDATE, JTIME, TSTEP )
 
+      USE RUNTIME_VARS
       USE GRID_CONF           ! horizontal & vertical domain specifications
 
       USE RXNS_DATA
@@ -194,7 +195,7 @@ C *** aerosol size distribution variables
       CHARACTER( 16 ) :: V_LIST( 2 )
 
       INTEGER, SAVE :: N_APMDIAG_STEP
-      INTEGER, SAVE :: A_NLAYS
+      INTEGER, SAVE :: APMDIAG_ZHI
       CHARACTER( 32 ) :: APMDIAG_BLEV_ELEV = 'APMDIAG_BLEV_ELEV'
 
 C *** atmospheric properties
@@ -230,16 +231,6 @@ C *** variables aerosol diagnostic file flag
       INTEGER      STATUS            ! ENV... status
       CHARACTER( 80 ) :: VARDESC     ! environment variable description
 
-C *** environment variable for PMDIAG APMDIAG file
-      CHARACTER( 16 ), SAVE :: CTM_PMDIAG   = 'CTM_PMDIAG'
-      CHARACTER( 16 ), SAVE :: CTM_APMDIAG  = 'CTM_APMDIAG'
-      CHARACTER( 16 ), SAVE :: CTM_AVISDIAG = 'CTM_AVISDIAG'
-
-C *** flag for PMDIAG and APMDIAG file [F], default
-      LOGICAL, SAVE :: PMDIAG
-      LOGICAL, SAVE :: APMDIAG
-      LOGICAL, SAVE :: AVISDIAG
-
 C *** first pass flag
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
       LOGICAL, SAVE :: FIRST_CTM_VIS_1 = .TRUE.
@@ -251,7 +242,6 @@ C *** dry moment factor
       REAL, PARAMETER :: TWOTHIRDS = 2.0 / 3.0
 
       LOGICAL :: TIME_TO_CALL_FEEDBACK_WRITE
-      LOGICAL, SAVE :: CMAQ_WRF_FEEDBACK
 
 C *** Statement Function **************
       REAL ESATL ! arithmetic statement function for vapor pressure [Pa]
@@ -264,7 +254,6 @@ C *** Coefficients for the equation, ESATL defining saturation vapor pressure
       INTEGER, SAVE :: O3
 
       CHARACTER( 16 ) :: AVG_FILE_ENDTIME = 'AVG_FILE_ENDTIME'
-      LOGICAL, SAVE :: END_TIME = .FALSE.
 
       REAL, ALLOCATABLE, SAVE :: TEMP_DATA(:)
 
@@ -279,14 +268,6 @@ C                            pp 601-609, April, 1996.
 C *** End Statement Function  ********
 
       logical, save :: now = .true.
-
-      INTERFACE
-         SUBROUTINE GET_ENVLIST ( ENV_VAR, NVARS, VAL_LIST )
-            CHARACTER( * ),  INTENT ( IN )  :: ENV_VAR
-            INTEGER,         INTENT ( OUT ) :: NVARS
-            CHARACTER( 16 ), INTENT ( OUT ) :: VAL_LIST( : )
-         END SUBROUTINE GET_ENVLIST
-      END INTERFACE
 
 #ifdef twoway
       INTERFACE
@@ -308,15 +289,8 @@ C ------------------ begin body of AERO_DRIVER -------------------------
             NUM_PMDIAG_SPC = 39
          END IF
 
-         CALL GET_ENVLIST ( APMDIAG_BLEV_ELEV, N, V_LIST )
-         IF ( N .EQ. 0 ) THEN
-            A_NLAYS = NLAYS
-         ELSE
-           READ( V_LIST( 2 ), '( I4 )' ) A_NLAYS
-         END IF
-
          ALLOCATE (   PMDIAG_SPC( NCOLS,NROWS,NLAYS,NUM_PMDIAG_SPC ),
-     &              A_PMDIAG_SPC( NCOLS,NROWS,A_NLAYS,NUM_PMDIAG_SPC ),
+     &              A_PMDIAG_SPC( NCOLS,NROWS,APMDIAG_ZHI,NUM_PMDIAG_SPC ),
      &              TEMP_DATA( NUM_PMDIAG_SPC ), 
      &              AVIS_SPC( NCOLS,NROWS,N_AE_VIS_SPC ),
      &              STAT=ALLOCSTAT)
@@ -327,7 +301,6 @@ C ------------------ begin body of AERO_DRIVER -------------------------
          AVIS_SPC = 0.0
          N_VIS_STEP = 0
 
-         END_TIME = ENVYN( AVG_FILE_ENDTIME, ' ', END_TIME, STATUS )
 
 #ifdef twoway
 ! -- this is for twoway
@@ -340,70 +313,6 @@ C ------------------ begin body of AERO_DRIVER -------------------------
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
          END IF
 #endif
-
-C *** Get aerosol diagnostic file flag.
-         PMDIAG = .TRUE.         ! default
-         VARDESC = 'Flag for writing the aerosol diagnostic file'
-         PMDIAG = ENVYN( CTM_PMDIAG, VARDESC, PMDIAG, STATUS )
-         IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-         IF ( STATUS .EQ. 1 ) THEN
-            XMSG = 'Environment variable improperly formatted'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-         ELSE IF ( STATUS .EQ. -1 ) THEN
-            XMSG = 'Environment variable set, but empty ... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-         ELSE IF ( STATUS .EQ. -2 ) THEN
-            XMSG = 'Environment variable not set ... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-         END IF
-
-C *** Get aerosol average diagnostic file flag.
-         APMDIAG = .FALSE.         ! default
-         VARDESC = 'Flag for writing the aerosol diagnostic file'
-         APMDIAG = ENVYN( CTM_APMDIAG, VARDESC, APMDIAG, STATUS )
-         IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-         IF ( STATUS .EQ. 1 ) THEN
-            XMSG = 'Environment variable improperly formatted'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-         ELSE IF ( STATUS .EQ. -1 ) THEN
-            XMSG = 'Environment variable set, but empty ... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-         ELSE IF ( STATUS .EQ. -2 ) THEN
-            XMSG = 'Environment variable not set ... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-         END IF
-
-C *** Get aerosol average diagnostic file flag.
-         AVISDIAG = .FALSE.         ! default
-         VARDESC = 'Flag for writing the aerosol diagnostic file'
-         AVISDIAG = ENVYN( CTM_AVISDIAG, VARDESC, AVISDIAG, STATUS )
-         IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-         IF ( STATUS .EQ. 1 ) THEN
-            XMSG = 'Environment variable improperly formatted'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-         ELSE IF ( STATUS .EQ. -1 ) THEN
-            XMSG = 'Environment variable set, but empty ... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-         ELSE IF ( STATUS .EQ. -2 ) THEN
-            XMSG = 'Environment variable not set ... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-         END IF
-
-C *** Get AOD diagnostic file flag.
-         AOD = .FALSE.         ! default
-         VARDESC = 'Flag for writing the IMPROVE network AOD diagnostic file'
-         AOD = ENVYN( CTM_AOD, VARDESC, AOD, STATUS )
-         IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-         IF ( STATUS .EQ. 1 ) THEN
-            XMSG = 'Environment variable improperly formatted'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-         ELSE IF ( STATUS .EQ. -1 ) THEN
-            XMSG = 'Environment variable set, but empty ... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-         ELSE IF ( STATUS .EQ. -2 ) THEN
-            XMSG = 'Environment variable not set ... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-         END IF
 
 C *** Open the met files.
          IF ( .NOT. OPEN3( MET_CRO_3D, FSREAD3, PNAME ) ) THEN
@@ -441,17 +350,6 @@ C *** Get domain decomp info from the MET_CRO_3D file
          CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
      &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
 
-#ifdef twoway
-         CMAQ_WRF_FEEDBACK = ENVYN( 'CMAQ_WRF_FEEDBACK', ' ', .FALSE., STATUS )
-         IF ( STATUS .EQ. 1 ) THEN
-            PRINT *, 'Environment variable improperly formatted'
-            STOP
-         ELSE IF ( STATUS .EQ. -1 ) THEN
-            PRINT *, 'Environment variable set, but empty ... Using default:'
-         ELSE IF ( STATUS .EQ. -2 ) THEN
-            PRINT *, 'Environment variable not set ... Using default:'
-         END IF
-#endif
 
       END IF    ! FIRSTIME
 
@@ -676,7 +574,7 @@ C     EXCEPT!  nonvolatile SOA is part of dry aerosol (Oct 2007 --PVB)
                END IF
 
 C *** Accumulate wet diameters, 2nd, and 3rd moments to average aerosol diagnostic array
-               IF ( APMDIAG .AND. L .LE. A_NLAYS ) THEN
+               IF ( APMDIAG .AND. L .LE. APMDIAG_ZHI ) THEN
                   DO V = 1, NUM_PMDIAG_SPC
                      IF ( A_PMDIAG_SPC_MAP( V ) .EQ. 1 ) THEN
                         A_PMDIAG_SPC( C,R,L,V ) = A_PMDIAG_SPC( C,R,L,V ) + TEMP_DATA( V )

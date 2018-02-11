@@ -41,9 +41,6 @@
       REAL, ALLOCATABLE :: AERO_EXTI_COEF( :,: ) ! aerosol modal averaged extinction coeff.
       REAL, ALLOCATABLE :: AERO_SCAT_COEF( :,: ) ! aerosol modal averaged scattering coeff.
  
-      LOGICAL           :: CORE_SHELL
-      LOGICAL           :: MIE_CALC
-
       PUBLIC            :: AERO_ASYM_FAC, AERO_EXTI_COEF, AERO_SCAT_COEF,
      &                     INIT_AERO_DATA, GET_AERO_DATA, AERO_OPTICS_INTERNAL
 
@@ -83,8 +80,6 @@ C Arguments:
 
 C Local:
          CHARACTER(  32 ) :: PNAME             = 'INIT_AERO_DATA'
-         CHARACTER(  16 ) :: CORE_SHELL_OPTICS = 'CORESHELL_OPTICS'
-         CHARACTER(  16 ) :: OPTICS_MIE_CALC   = 'MIE_OPTICS'
          CHARACTER( 120 ) :: XMSG 
 
          INTEGER          :: ALLOCSTAT
@@ -105,41 +100,7 @@ C Local:
          JDATE  = 0
          JTIME  = 0
 
-!...Get flag to use core-shell mixing model for aerosol optical properties
 
-         CORE_SHELL = .FALSE.         ! default
-         XMSG = 'Use core-shell mixing model for aerosol optical properties'
-         CORE_SHELL = ENVYN( CORE_SHELL_OPTICS, XMSG, CORE_SHELL, ESTAT )
-         IF ( ESTAT .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) XMSG
-         IF ( ESTAT .EQ. 1 ) THEN
-            XMSG = 'Environment variable improperly formatted'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-         ELSE IF ( ESTAT .EQ. -1 ) THEN
-            XMSG =
-     &          'Environment variable set, but empty ... Using default:'
-            WRITE( LOGDEV, '(5X, A, L5)' ) XMSG, CORE_SHELL
-         ELSE IF ( ESTAT .EQ. -2 ) THEN
-            XMSG = 'Environment variable not set ... Using default:'
-            WRITE( LOGDEV, '(5X, A, L5)' ) XMSG, CORE_SHELL
-         END IF
-
-!...Get flag to use fast optics for volume mixing model for aerosol optical properties
-
-         MIE_CALC = .FALSE.         ! default
-         XMSG = 'Use Mie theory for aerosol optical properties of Internal mixing model'
-         MIE_CALC = ENVYN( OPTICS_MIE_CALC, XMSG, MIE_CALC, ESTAT )
-         IF ( ESTAT .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) XMSG
-         IF ( ESTAT .EQ. 1 ) THEN
-            XMSG = 'Environment variable improperly formatted'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-         ELSE IF ( ESTAT .EQ. -1 ) THEN
-            XMSG =
-     &          'Environment variable set, but empty ... Using default:'
-            WRITE( LOGDEV, '(5X, A, L5)' ) XMSG, MIE_CALC
-         ELSE IF ( ESTAT .EQ. -2 ) THEN
-            XMSG = 'Environment variable not set ... Using default:'
-            WRITE( LOGDEV, '(5X, A, L5)' ) XMSG, MIE_CALC
-         END IF
 C...Allocate needed arrays
 
          ALLOCATE ( VOL_MINS( N_MODE ), STAT = ALLOCSTAT )

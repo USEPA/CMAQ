@@ -152,11 +152,6 @@ c namelist variables
             namelist / NR_nml / n_surr1, n_surr2, n_ctrl, type_header, type_matrix
             namelist / TR_nml / n_surr1, n_surr2, n_ctrl, type_header, type_matrix
 
-            character( 16 ) :: gc_matrix = 'gc_matrix_nml'
-            character( 16 ) :: ae_matrix = 'ae_matrix_nml'
-            character( 16 ) :: nr_matrix = 'nr_matrix_nml'
-            character( 16 ) :: tr_matrix = 'tr_matrix_nml'
-            character( 256 ) :: eqname
 
 c intialize the surr1 table
             character( 4 ) :: surr1( 4 )
@@ -203,13 +198,8 @@ c from namelist files
             type_header = bl
             type_matrix = bl   ! array assignment
 
-            call nameval( gc_matrix, eqname )
-
-            write( logdev, '(5x,A,/,7x,A)' ) 'Gas Species Namelist: ', trim( eqname )
-
-!           open( file = 'gc_matrix.nml', unit = dev_gc_nml,
             dev_gc_nml = junit()
-            open( file = trim( eqname ), unit = dev_gc_nml,
+            open( file = trim( gc_namelist ), unit = dev_gc_nml,
      &            status = 'old', position = 'rewind' )
             read( nml = GC_nml, unit = dev_gc_nml ) 
 
@@ -398,14 +388,8 @@ c the surrogate and ctrl arrays active dimensions not known a priori
             type_header = bl
             type_matrix = bl   ! array assignment
 
-            call nameval( ae_matrix, eqname )
-
-            write( logdev,* ) 
-            write( logdev, '(5x,A,/,7x,A)' ) 'Aerosol Species Namelist: ', trim( eqname )
-
-!           open( file = 'ae_matrix.nml', unit = dev_ae_nml,
             dev_ae_nml = junit()
-            open( file = trim( eqname ), unit = dev_ae_nml,
+            open( file = trim( ae_namelist ), unit = dev_ae_nml,
      &            status = 'old', position = 'rewind' )
             read( nml = AE_nml, unit = dev_ae_nml ) 
 
@@ -581,14 +565,8 @@ c the surrogate and ctrl arrays active dimensions not known a priori
             type_header = bl
             type_matrix = bl   ! array assignment
 
-            call nameval( nr_matrix, eqname )
-
-            write( logdev,* ) 
-            write( logdev, '(5x,A,/,7x,A)' ) 'Nonreactive Species Namelist: ', trim( eqname )
-
-!           open( file = 'nr_matrix.nml', unit = dev_nr_nml,
             dev_nr_nml = junit()
-            open( file = trim( eqname ), unit = dev_nr_nml,
+            open( file = trim( nr_namelist ), unit = dev_nr_nml,
      &            status = 'old', position = 'rewind' )
             read( nml = NR_nml, unit = dev_nr_nml ) 
 
@@ -777,14 +755,8 @@ c the surrogate and ctrl arrays active dimensions not known a priori
             type_header = bl
             type_matrix = bl   ! array assignment
 
-            call nameval( tr_matrix, eqname )
-
-            write( logdev,* ) 
-            write( logdev, '(5x,A,/,7x,A)' ) 'Tracer Species Namelist: ', trim( eqname )
-
-!           open( file = 'tr_matrix.nml', unit = dev_tr_nml,
             dev_tr_nml = junit()
-            open( file = trim( eqname ), unit = dev_tr_nml,
+            open( file = trim( tr_namelist ), unit = dev_tr_nml,
      &            status = 'old', position = 'rewind' )
             read( nml = TR_nml, unit = dev_tr_nml )
 

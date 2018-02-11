@@ -137,7 +137,6 @@ C Local variables
          CHARACTER(   5 ) :: SPNPRF     ! record (line) speciation profile name
          CHARACTER(  16 ) :: POLNAM     ! record (line) pollutant name
          CHARACTER(  16 ) :: SPECNM     ! record (line) species name
-         CHARACTER(   5 ) :: SPPRO      ! requested speciation profile name
 
          REAL                SPLTFAC, SDIV, SMFAC ! line speciation profile factors
 
@@ -151,11 +150,6 @@ C Open speciation profiles file
          RDEV = PROMPTFFILE(
      &            'Enter logical name for Speciation Profiles file',
      &            .TRUE., .TRUE., 'GSPRO', PNAME )
-C                 rdonly  fmtted
-
-C Get the speciation profile to use
-         MESG = 'Speciation profile to use for biogenics'
-         CALL ENVSTR( 'BIOG_SPRO', MESG, 'B3V10', SPPRO, IOS )
 
 C Scan speciation profiles file to get all of the pollutant-species combinations
 C that are valid for the pollutants in the inventory. The species names are sorted

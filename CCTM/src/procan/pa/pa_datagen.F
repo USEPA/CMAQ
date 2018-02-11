@@ -44,15 +44,11 @@ C..External Functions: None
 C..Local Variables: None
       CHARACTER(  16 ) :: PNAME      = 'PA_DATAGEN'
       
-      CHARACTER(  16 ) :: CTM_PROCAN = 'CTM_PROCAN'
-      CHARACTER(  80 ) :: VARDESC                   ! environment variable description
       CHARACTER( 240 ) :: XMSG = ' '
 
       INTEGER          :: JDATE, JTIME
       INTEGER          :: ESTAT         ! status from environment var check
         
-      LOGICAL          :: PROCAN        ! flag for process analysis
-
 C----------------------------------------------------------------------
 
 !...Get flag to use process analysis
@@ -61,21 +57,6 @@ C----------------------------------------------------------------------
 
 
       JDATE = 0; JTIME = 0
-      PROCAN = .FALSE.         ! default
-      VARDESC= 'Flag for using process analysis'
-      PROCAN = ENVYN( CTM_PROCAN, VARDESC, PROCAN, ESTAT )
-      IF ( ESTAT .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-      IF ( ESTAT .EQ. 1 ) THEN
-         XMSG = 'Environment variable improperly formatted'
-         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-      ELSE IF ( ESTAT .EQ. -1 ) THEN
-         XMSG = 'Environment variable set, but empty ... Using default:'
-         WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-      ELSE IF ( ESTAT .EQ. -2 ) THEN
-         XMSG = 'Environment variable not set ... Using default:'
-         WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-      END IF
-
       IF ( PROCAN ) THEN
          XMSG = TRIM( PNAME ) // ': Process Analysis is activated'
          CALL M3MESG( XMSG )

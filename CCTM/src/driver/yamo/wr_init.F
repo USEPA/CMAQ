@@ -55,7 +55,6 @@ C Local Variables:
 
       REAL, ALLOCATABLE :: DBUFF( :,:,: )
       INTEGER      ALLOCSTAT
-      INTEGER      STATUS               !  ENVINT status
 
       CHARACTER( 16 ) :: PNAME = 'OPCONC'
       CHARACTER( 96 ) :: XMSG = ' '

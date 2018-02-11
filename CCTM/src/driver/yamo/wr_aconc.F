@@ -64,13 +64,10 @@ C Local variables:
       INTEGER      MTIME        ! modified model time, coded HHMMSS
 
       CHARACTER( 16 ) :: PNAME = 'WR_ACONC'
-      CHARACTER( 16 ) :: AVG_FILE_ENDTIME = 'AVG_FILE_ENDTIME'
-      CHARACTER( 80 ) :: VARDESC = ' '
       CHARACTER( 96 ) :: XMSG = ' '
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
       LOGICAL OK
-      LOGICAL, SAVE :: END_TIME = .FALSE.
 
       INTEGER      L, K, VAR, SPC ! loop counters
       INTEGER      STATUS
@@ -84,17 +81,6 @@ C represents data computed from time 1995196:090000 to 1995196:100000
          FIRSTIME = .FALSE.
 
 C Override default beginning time timestamp for ACONC?
-         VARDESC = 'Flag to Override default beginning time timestamp for ACONC'
-         END_TIME = ENVYN( AVG_FILE_ENDTIME, VARDESC, END_TIME, STATUS )
-         IF ( STATUS .EQ. 1 ) THEN
-            XMSG = 'Environment variable improperly formatted'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         ELSE IF ( STATUS .NE. 0 ) THEN
-            WRITE( LOGDEV, '(5X, A)' ) VARDESC
-            XMSG = '... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-         END IF
-
          IF ( .NOT. IO_PE_INCLUSIVE ) THEN
             IF ( .NOT. OPEN3( A_CONC_1, FSREAD3, PNAME ) ) THEN
                XMSG = 'Could not open ' // A_CONC_1 // ' file for update'

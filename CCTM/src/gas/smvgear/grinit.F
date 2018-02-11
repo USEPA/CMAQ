@@ -54,7 +54,7 @@ C                    30 Jun 10 J.Young: convert for Namelist redesign; move all
 C                    local include file variables into GRVARS module
 C                    29 Mar 11 S.Roselle: Use UTILIO_DEFN for external functions
 C***********************************************************************
-
+      USE RUNTIME_VARS
       USE GRVARS                ! inherits GRID_CONF
       USE UTILIO_DEFN
 
@@ -74,8 +74,6 @@ C.....LOCAL VARIABLES:
       CHARACTER( 80 ) :: VARDESC   ! Description of environment variable 
       CHARACTER( 96 ) :: MSG       ! Error message
       CHARACTER( 16 ) :: PNAME = 'GRINIT'     ! Program Name
-      CHARACTER( 16 ) :: GEAR_RTOL = 'GEAR_RTOL' ! Name of env variable for RTOL
-      CHARACTER( 16 ) :: GEAR_ATOL = 'GEAR_ATOL' ! Name of env variable for ATOL
             
       INTEGER COL            ! Column number index
       INTEGER IAVGSIZE       ! Average number of cells per block
@@ -88,9 +86,6 @@ C.....LOCAL VARIABLES:
       INTEGER ROW            ! Row number index
       INTEGER STATUS         ! Status code for functions
 
-      REAL ATOL              ! Absolute tolerance parameter
-      REAL DEFTOL            ! Default tolerance
-      REAL RTOL              ! Relative tolerance parameter
 C***********************************************************************
       
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -161,34 +156,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Set some constants for the Gear solver
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      VARDESC = 'Absolute tolerance for SMVGEAR'
-      DEFTOL = 1.0E-09
-      ATOL = ENVREAL( GEAR_ATOL, VARDESC, DEFTOL, STATUS )
-      IF ( STATUS .EQ. 1 ) THEN
-         MSG = 'Environment variable' // GEAR_ATOL //
-     &         ' improperly formatted'
-         CALL M3EXIT( PNAME, 0, 0, MSG, 0 )
-      ELSEIF ( STATUS .LT. 0 ) THEN
-         ATOL = 1.0E-09
-      ENDIF
-      
-      VARDESC = 'Relative tolerance for SMVGEAR'
-      DEFTOL = 1.0E-03
-      RTOL = ENVREAL( GEAR_RTOL, VARDESC, DEFTOL, STATUS )
-      IF ( STATUS .EQ. 1 ) THEN
-         MSG = 'Environment variable' // GEAR_RTOL //
-     &         ' improperly formatted'
-         CALL M3EXIT( PNAME, 0, 0, MSG, 0 )
-      ELSEIF ( STATUS .LT. 0 ) THEN
-         RTOL = 1.0E-03
-      ENDIF
 
       LREORDER       = .TRUE.
       HMAXDAY( NCS ) = 15.0D0
       HMAXNIT        = 5.0D0
       HMIN           = 1.0D-10
-      YLOW   ( NCS ) = REAL( ATOL, 8 )
-      ERRMAX ( NCS ) = REAL( RTOL, 8 )
+      YLOW   ( NCS ) = REAL( GEAR_ATOL, 8 )
+      ERRMAX ( NCS ) = REAL( GEAR_RTOL, 8 )
       FRACDEC        = 0.25D0
       CONCMIN        = 1.0D-30
       ZBOUND         = 1.0D-30

@@ -49,7 +49,7 @@ C                          parallel I/O implementation
 C                        Added a block of code to let non I/O processors to
 C                          open CTM_DEPV_DIAG in parallel I/O implementation
 C-------------------------------------------------------------------------------
-
+      USE RUNTIME_VARS
 
       IMPLICIT NONE
 
@@ -72,23 +72,7 @@ C model-oriented bi-directional production [ppm-m/s]
       REAL,    ALLOCATABLE, SAVE :: PLDV( :,:,: )
       REAL,    ALLOCATABLE, SAVE :: CMP ( :,:,: )
 
-C flag in-lining depv
-      LOGICAL, SAVE :: ILDEPV
-
-C flag for HONO interaction with surfaces within in-lining depv
-      LOGICAL, SAVE :: SFC_HONO = .FALSE.
-
-C flag for ammonia bi-directional flux with in-lining depv
-      LOGICAL, SAVE :: ABFLUX
-
-C flag for mosaic - luc specific deposition - within in-lining depv
-      LOGICAL, SAVE :: MOSAIC = .FALSE.
-
-C flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depv
-      LOGICAL, SAVE :: FST = .FALSE.      
-
       PUBLIC DEPV, DEPVJ, DEPVJ_FST, N_SPC_DEPV, DD_CONV, PLDV, CMP,
-     &             ILDEPV, SFC_HONO, ABFLUX, MOSAIC, FST,
      &             DEPV_INIT, GET_DEPV
       PRIVATE
 
@@ -102,9 +86,6 @@ C CGRID for m3dry bi-directional flux calculation
       REAL,    ALLOCATABLE, SAVE :: CGRIDL1( :,:,: )
 
 C flag for diagnostic DEPV file
-      LOGICAL, SAVE :: DEPV_DIAG
-      INTEGER, SAVE :: SDATE, STIME
-
       INTEGER, SAVE                      :: N_UNIQUE_GDEPV   ! gas depv
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: UNIQUE_GDEPV( : )
       INTEGER, ALLOCATABLE, SAVE         :: GAS_DEPV_SUR( : )
@@ -169,21 +150,6 @@ C Local variables:
          CHARACTER( 16 ), ALLOCATABLE :: ALL_GAS_DEPV( : )
          LOGICAL, ALLOCATABLE         :: AE_DEPV_FOUND( : )
 
-C environment variable for in-line DEPV
-         CHARACTER( 16 )  :: CTM_ILDEPV = 'CTM_ILDEPV      '
-
-C environment variable for ammonia bi-directional flux
-         CHARACTER( 16 )  :: CTM_ABFLUX = 'CTM_ABFLUX      '
-
-C environment variable for HONO interaction with surfaces
-         CHARACTER( 16 )  :: CTM_SFC_HONO = 'CTM_SFC_HONO    '
-
-C environment variable for mosaic - luc specific deposition velocities
-         CHARACTER( 16 )  :: CTM_MOSAIC = 'CTM_MOSAIC      '
-
-C environment variable for mosaic - luc specific stomatal flux
-         CHARACTER( 16 )  :: CTM_FST = 'CTM_FST         '         
-
 C variables for deposition velocities diagnostic file
          INTEGER          :: STATUS      ! ENV... status
          CHARACTER( 80 )  :: VARDESC     ! environment variable description
@@ -237,8 +203,6 @@ C environment variable for diagnostic DEPV file
 C-----------------------------------------------------------------------
 
          SUCCESS = .TRUE.
-
-         SDATE = JDATE; STIME = JTIME
 
          N_GAS_DEPV = N_GC_DEPV + N_NR_DEPV + N_TR_DEPV
          N_SPC_DEPV = N_GAS_DEPV + N_AE_DEPV
@@ -315,99 +279,12 @@ C Initialize
          CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
      &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
 
-C In-line deposition velocities calculation?
-         ILDEPV = .TRUE.
-         VARDESC = 'Flag for in-line deposition velocities'
-         ILDEPV = ENVYN( CTM_ILDEPV, VARDESC, ILDEPV, STATUS )
-         IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-         IF ( STATUS .EQ. 1 ) THEN
-            XMSG = 'Environment variable improperly formatted'
-            CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-            SUCCESS = .FALSE.; RETURN
-         ELSE IF ( STATUS .EQ. -1 ) THEN
-            XMSG = 'Environment variable set, but empty ... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-         ELSE IF ( STATUS .EQ. -2 ) THEN
-            XMSG = 'Environment variable not set ... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-         END IF
-
          IF ( ILDEPV ) THEN
 
-C Pleim`s ammonia bi-directional flux with in-line deposition velocities calculation?
-            ABFLUX = .FALSE.
-            VARDESC = 'Flag for ammonia bi-directional flux calculation'
-            ABFLUX = ENVYN( CTM_ABFLUX, VARDESC, ABFLUX, STATUS )
-            IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-            IF ( STATUS .EQ. 1 ) THEN
-               XMSG = 'Environment variable improperly formatted'
-               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-               SUCCESS = .FALSE.; RETURN
-            ELSE IF ( STATUS .EQ. -1 ) THEN
-               XMSG = 'Environment variable set, but empty ... Using default:'
-               WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-            ELSE IF ( STATUS .EQ. -2 ) THEN
-               XMSG = 'Environment variable not set ... Using default:'
-               WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-            END IF
-
-C Sarwar`s HONO interaction with leaf and building surfaces?
-            SFC_HONO = .TRUE.
-            VARDESC = 'Flag for HONO interaction with surfaces'
-            SFC_HONO = ENVYN( CTM_SFC_HONO, VARDESC, SFC_HONO, STATUS )
-            IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-            IF ( STATUS .EQ. 1 ) THEN
-               XMSG = 'Environment variable improperly formatted'
-               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-               SUCCESS = .FALSE.; RETURN
-            ELSE IF ( STATUS .EQ. -1 ) THEN
-               XMSG = 'Environment variable set, but empty ... Using default:'
-               WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-            ELSE IF ( STATUS .EQ. -2 ) THEN
-               XMSG = 'Environment variable not set ... Using default:'
-               WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-            END IF
-            
-C Mosaic method to get land-use specific deposition velocities?
-            MOSAIC = .FALSE.
-            VARDESC = 'Flag for land-use specific deposition velocity calculation'
-            MOSAIC = ENVYN( CTM_MOSAIC, VARDESC, MOSAIC, STATUS )
-            IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-            IF ( STATUS .EQ. 1 ) THEN
-               XMSG = 'Environment variable improperly formatted'
-               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-               SUCCESS = .FALSE.; RETURN
-            ELSE IF ( STATUS .EQ. -1 ) THEN
-               XMSG = 'Environment variable set, but empty ... Using default:'
-               WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-            ELSE IF ( STATUS .EQ. -2 ) THEN
-               XMSG = 'Environment variable not set ... Using default:'
-               WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-            END IF
-
-C Mosaic method to get land-use specific stomatal flux
-            IF ( MOSAIC ) THEN
-               FST = .FALSE.
-               VARDESC = 'Flag for land-use specific stomatal flux calculation'
-               FST = ENVYN( CTM_FST, VARDESC, MOSAIC, STATUS )
-               IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-               IF ( STATUS .EQ. 1 ) THEN
-                  XMSG = 'Environment variable improperly formatted'
-                  CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-                  SUCCESS = .FALSE.; RETURN
-               ELSE IF ( STATUS .EQ. -1 ) THEN
-                  XMSG = 'Environment variable set, but empty ... Using default:'
-                  WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-               ELSE IF ( STATUS .EQ. -2 ) THEN
-                  XMSG = 'Environment variable not set ... Using default:'
-                  WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-               END IF
-            END IF
-            
             CALL INIT_LSM( JDATE, JTIME )
-            CALL INIT_BIDI( ABFLUX )
+            CALL INIT_BIDI( )
             IF ( MOSAIC .OR. ABFLUX ) THEN
-               CALL INIT_MOSAIC( JDATE, JTIME, LTOTG, MOSAIC, ABFLUX )
+               CALL INIT_MOSAIC( JDATE, JTIME, LTOTG, MOSAIC )
             END IF
 C Allocate additional arrays needed for mosaic and initialize land use parameters
             IF ( MOSAIC ) THEN
@@ -572,29 +449,6 @@ C Identify and remove multiple occurrences of aerosol deposition velocities
                CGRIDL1 = 0.0   ! array assignment (PVD initalized in m3dry)
             END IF
 
-C Get diagnostic file flag.
-            DEPV_DIAG = .FALSE.         ! default
-            VARDESC = 'Flag for writing the DEPV diagnostic file'
-            DEPV_DIAG = ENVYN( CTM_DEPV_FILE, VARDESC, DEPV_DIAG, STATUS )
-            IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-            IF ( STATUS .EQ. 0 ) THEN
-               WRITE( LOGDEV,'( 5X, A )' ) VARDESC
-               XMSG = TRIM( PNAME ) // ': writes GAS DEPV values to '
-     &                              // TRIM( CTM_DEPV_FILE )
-               WRITE( LOGDEV,'( 5X, A )' ) XMSG
-            ELSE IF ( STATUS .EQ. 1 ) THEN
-               XMSG = 'Environment variable improperly formatted'
-               CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-               SUCCESS = .FALSE.; RETURN
-            ELSE IF ( STATUS .EQ. -1 ) THEN
-               XMSG =
-     &         'Environment variable set, but empty ... Using default:'
-               WRITE( LOGDEV,'( 5X, A, I9)' ) XMSG, JTIME
-            ELSE IF ( STATUS .EQ. -2 ) THEN
-               XMSG = 'Environment variable not set ... Using default:'
-               WRITE( LOGDEV,'( 5X, A, I9 )' ) XMSG, JTIME
-            END IF
-
          END IF INIT_GAS_DV
 
          WRITE( LOGDEV,'( 5X, A / )' ) 'DEPV_INIT: completed INIT_GAS_DV block '
@@ -719,10 +573,10 @@ C Local variables:
                REAL,    POINTER       :: CGRID( :,:,:,: )
                REAL,    INTENT( OUT ) :: CGRIDL1( :,:,: )
             END SUBROUTINE CGRID_DEPV
-            SUBROUTINE M3DRY ( JDATE, JTIME, TSTEP, ABFLUX, SFC_HONO, MOSAIC, FST, 
+            SUBROUTINE M3DRY ( JDATE, JTIME, TSTEP, MOSAIC, FST, 
      &                         CGRIDL1, DEPVEL_GAS, PVD, CMP )
                INTEGER, INTENT( IN )  :: JDATE, JTIME, TSTEP(3)
-               LOGICAL, INTENT( IN )  :: ABFLUX, SFC_HONO, MOSAIC, FST
+               LOGICAL, INTENT( IN )  :: MOSAIC, FST
                REAL,    INTENT( IN )  :: CGRIDL1( :,:,: )
                REAL,    INTENT( OUT ) :: DEPVEL_GAS( :,:,: ), PVD( :,:,: ), CMP( :,:,: )
             END SUBROUTINE M3DRY
@@ -741,7 +595,7 @@ C-----------------------------------------------------------------------
 ! Made default for Hg bidi JOB 9/12/11
             CALL CGRID_DEPV( GAS_DEPV_FOUND, GAS_DEPV_SUR, CGRID, CGRIDL1 )
 
-            CALL M3DRY ( JDATE, JTIME, TSTEP, ABFLUX, SFC_HONO, MOSAIC, FST,             
+            CALL M3DRY ( JDATE, JTIME, TSTEP, MOSAIC, FST,             
      &                   CGRIDL1, DEPVEL_GAS, PVD, CMP )
 #ifdef Verbose
             cw = my_ncols/2; rw = my_nrows/2

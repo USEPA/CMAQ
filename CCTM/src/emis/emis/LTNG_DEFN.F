@@ -53,14 +53,14 @@
 !C                         * replaced CDATE and CTIME with JDATE and JTIME, respectively 
 !C                           when calling INTERPX
 !C----------------------------------------------------------------------
+      USE RUNTIME_VARS
 
       IMPLICIT NONE
 
-      LOGICAL,              SAVE :: LTNG_NO          ! flag for lightning NO emissions
       INTEGER,              SAVE :: LTNG_MAP         ! map to GC NO
       REAL,    ALLOCATABLE, SAVE :: VDEMIS_LT( :,:,: )   ! lightning emis
 
-      PUBLIC LTNG_NO, LTNG_MAP, VDEMIS_LT, LTNG_INIT, GET_LTNG, LTSPC
+      PUBLIC LTNG_MAP, VDEMIS_LT, LTNG_INIT, GET_LTNG, LTSPC
       PRIVATE
 
 !C lightning emis species name
@@ -72,8 +72,6 @@
       REAL, SAVE      :: MOLSNCG
       REAL, SAVE      :: MOLSNIC
 
-      LOGICAL,              SAVE :: NLDNSTRIKE     ! flag to use NLDN STRIKE directly 
-      LOGICAL,              SAVE :: LTNGDIAG   ! flag to turn on lightning NO diagnostics
       INTEGER,              SAVE :: LTLYRS     ! no. of emissions layers
       REAL,    ALLOCATABLE, SAVE :: VDEMIS_DIAG( :,:,: ) ! lightning NO diagnostic
       REAL,    ALLOCATABLE, SAVE :: COLUMN_DIAG( :,: ) ! column total NO
@@ -103,10 +101,6 @@
       REAL,    ALLOCATABLE, SAVE :: VGLVSLT( : )
 
 !C    scenario time/date needed for diagnostic output
-      INTEGER, SAVE    :: SDATE     ! scenario start date
-      INTEGER, SAVE    :: STIME     ! scenario start time
-
-      INTEGER, SAVE    :: NSTEPS    ! run duration
       INTEGER, SAVE    :: NTICS = 0 ! no. of substeps within an output tstep
       INTEGER, SAVE    :: MTICS = 0 ! temporary sub for NTICS before it set to 0 
       INTEGER, SAVE    :: LDATE     ! test date to update emissions diag avg
@@ -125,7 +119,7 @@
 !C======================================================================
 !C Initialize lightning routines
 
-         FUNCTION LTNG_INIT ( JDATE, JTIME, TSTEP, EMLAYS ) RESULT ( SUCCESS )
+         FUNCTION LTNG_INIT ( JDATE, JTIME, TSTEP ) RESULT ( SUCCESS )
 
          USE GRID_CONF ! horizontal & vertical domain specifications
          USE CGRID_SPCS         ! CGRID mechanism species
@@ -139,7 +133,6 @@
 
 !C Arguments:
 C        INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
-         INTEGER, INTENT( IN ) :: EMLAYS     ! number of emissions layers
          INTEGER :: JDATE, JTIME, TSTEP
 
          LOGICAL SUCCESS
@@ -149,8 +142,6 @@ C        INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
 !        CHARACTER( 16 )   :: iccgFile = 'ICCG' 
 !        INTEGER :: ICCG_UNIT    ! scenario start time
          INTEGER :: COL, ROW     ! local col and row variable 
-!C Local Variables:
-         CHARACTER( 16 ), SAVE :: CTM_LTNG_NO = 'CTM_LTNG_NO'  ! env var Cflag
 !C value to start log linear regression  
          CHARACTER( 16 )       :: PNAME = 'LTNG_INIT'
          CHARACTER( 80 )       :: VARDESC   ! env variable description
@@ -163,6 +154,7 @@ C        INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
          INTEGER LSPCS               ! no. of lightning species
          REAL    CONVEM              ! conversion for emissions rates to Kg/s
          INTEGER               :: I, J, K, L, V, STATUS
+         INTEGER               :: NSTEPS
          INTEGER               :: CJDATE
          CHARACTER( 7 )        :: SJDATE
 
@@ -176,16 +168,10 @@ C        INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
          CALL LOG_SUBHEADING( LOGDEV, 'Initialize Lightning NO Emissions' )
 
 !C Lightning NO production
-!C Set LTNG_NO to Y or T to turn on lightning NO production
-         VARDESC = 'Flag for lightning emissions'
-         LTNG_NO = ENVYN( CTM_LTNG_NO, VARDESC, .FALSE., STATUS )
          IF ( .NOT. LTNG_NO ) RETURN
 
 !C Read in scenario time/date
-         SDATE = ENVINT( 'CTM_STDATE', 'Scenario Start (YYYYJJJ)', 0, STATUS )
-         STIME = ENVINT( 'CTM_STTIME', 'Scenario Start (HHMMSS)', 0, STATUS )
-         NSTEPS = ENVINT( 'CTM_RUNLEN', 'Scenario Duration (HHMMSS)', 24, STATUS )
-         NSTEPS = NSTEPS / TSTEP           ! initscen guarantees divisibility
+         NSTEPS = RUNLEN / TSTEP           ! initscen guarantees divisibility
 
          WRITE( SJDATE, '(I7)' ) JDATE
          READ( SJDATE, '(4X, I3)' ) CJDATE
@@ -224,57 +210,12 @@ C        INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
             CALL SUBHFILE ( MNAME, GXOFF, GYOFF,
      &              STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
 
-         VARDESC = 'Flag for lightning NO production rate'
-         MOLSNCG = ENVREAL( 'MOLSNCG', VARDESC, 350.0, STATUS )
-         MOLSNIC = ENVREAL( 'MOLSNIC', VARDESC, 350.0, STATUS )
-         IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-         IF ( STATUS .EQ. 1 ) THEN
-            XMSG = 'Environment variable improperly formatted'
-            CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-            SUCCESS = .FALSE.; RETURN
-         ELSE IF ( STATUS .EQ. -1 ) THEN
-            XMSG = 'Env. variable set, but empty: Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-         ELSE IF ( STATUS .EQ. -2 ) THEN
-            XMSG = 'Environment variable not set ... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-         END IF
-
-         VARDESC = 'lightning NO file name or InLine flag'
-         CALL ENVSTR( 'LTNGNO', VARDESC, 'LTNGNO', LNAME, STATUS )
-         IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-         IF ( STATUS .EQ. 1 ) THEN
-            XMSG = 'Environment variable improperly formatted'
-            CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-            SUCCESS = .FALSE.; RETURN
-         ELSE IF ( STATUS .EQ. -1 ) THEN
-            XMSG = 'Env. variable set, but empty: Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-         ELSE IF ( STATUS .EQ. -2 ) THEN
-            XMSG = 'Environment variable not set ... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-         END IF
 
 !C Is lightning NO production inline, or from a file?
-         IF ( LNAME .EQ. "InLine" ) THEN  ! inline lightning NO production
+         IF ( LTNG_FNAME .EQ. "InLine" ) THEN  ! inline lightning NO production
             XMSG = 'Using in-line lightning NO production'
             CALL M3MSG2( XMSG )
 
-!C Is there a file specifying hourly NLDN strikes?
-            VARDESC = 'Use NLDN STRIKE'
-            NLDNSTRIKE = ENVYN( 'USE_NLDN', VARDESC, .FALSE., STATUS )
-            IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-            IF ( STATUS .EQ. 1 ) THEN
-               XMSG = 'Environment variable improperly formatted'
-               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-               SUCCESS = .FALSE.; RETURN
-            ELSE IF ( STATUS .EQ. -1 ) THEN
-               XMSG = 'Env. variable set, but empty: Using default:'
-               WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-            ELSE IF ( STATUS .EQ. -2 ) THEN
-               XMSG = 'Environment variable not set ... Using default:'
-               WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-            END IF
 
 !C Open lightning parameters file?
                ONAME = PROMPTMFILE(
@@ -398,12 +339,8 @@ C        INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
                   WRITE( LOGDEV,'(5X, A, I3, A, F11.7)' ) 'VGLVSLT(', L, ' ):', VGLVSLT( L )
             END DO
 
-!C Lightning Diagnostic file?
-            LTNGDIAG = ENVYN( 'LTNGDIAG',
-     &              'Write lightning NO production diagnostic file?',
-     &              .FALSE., STATUS )
 
-            LDATE = SDATE; LTIME = STIME
+            LDATE = STDATE; LTIME = STTIME
             IF ( LTNGDIAG ) THEN
 !C Build description for, and open lightning diagnostic file
 !C (all but variables-table and horizontal domain in description is borrowed from MNAME)

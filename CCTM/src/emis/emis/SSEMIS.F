@@ -31,7 +31,7 @@ C   12 Aug 15 D.Wong: Replaced MYPE with IO_PE_INCLUSIVE for parallel I/O implem
 C   09 Dec 15 D.Wong: Open CTM_SSEMIS_1 file in a IO_PE_INCLUSIVE conditional block
 C   24 Mar 16 G.Sarwar: updated to calculate NACL emissions (needed for BR2 emissions) 
 C-----------------------------------------------------------------------
-
+      USE RUNTIME_VARS
       USE HGRD_DEFN
       USE AERO_DATA, ONLY: N_MODE
 
@@ -58,10 +58,8 @@ C Variables for the sea-salt diagnostic file
       INTEGER :: NSSDIAG                ! number of species in sea-salt
                                         ! diagnostic emission file
       REAL,    ALLOCATABLE       :: SSOUTD( : )   ! emission rates
-      LOGICAL, SAVE              :: SSEMDIAG      ! flag for SSEMIS diagnostic file
       REAL,    ALLOCATABLE, SAVE :: SSBF( :,:,: ) ! seasalt emiss accumulator
       REAL,    ALLOCATABLE, SAVE :: WRSS( :,: )   ! seasalt emiss write buffer
-      INTEGER, SAVE              :: SDATE, STIME  ! scenario start date & time
 
 C Species names in the speciated sea-salt-emissions
       CHARACTER( 16 ), ALLOCATABLE :: WRSS_SPC( : )  ! species names
@@ -282,9 +280,6 @@ C Includes:
             INCLUDE SUBST_FILES_ID  ! file name parameters
 
 C Local Variables:
-            CHARACTER( 16 ), SAVE :: CTM_SSEMDIAG = 'CTM_SSEMDIAG' ! env var for
-                                                     ! diagnostic file
-
             CHARACTER( 16 ), SAVE :: PNAME = 'SSEMIS_INIT'
             CHARACTER( 80 ) :: VARDESC
             CHARACTER( 96 ) :: XMSG = ' '
@@ -340,24 +335,6 @@ C Allocate SS arrays using NSSSPC value
                SUCCESS = .FALSE.; RETURN
             END IF
 
-C Get sea-salt-emission diagnostic output file flag.
-
-            SSEMDIAG = .FALSE.         ! default
-            VARDESC = 'Flag for writing the sea-salt-emission diagnostic file'
-            SSEMDIAG = ENVYN( CTM_SSEMDIAG, VARDESC, SSEMDIAG, STATUS )
-            IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-            IF ( STATUS .EQ. 1 ) THEN
-               XMSG = 'Environment variable improperly formatted'
-               CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-               SUCCESS = .FALSE.; RETURN
-            ELSE IF ( STATUS .EQ. -1 ) THEN
-               XMSG =
-     &             'Environment variable set, but empty ... Using default:'
-               WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-            ELSE IF ( STATUS .EQ. -2 ) THEN
-               XMSG = 'Environment variable not set ... Using default:'
-               WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-            END IF
 
             IF ( SSEMDIAG ) THEN    ! Open the sea-salt emission diagnostic file
 C Determine number of sea-salt species For diagnostic file
@@ -407,9 +384,6 @@ C Include Mode SURFACE_AREA to diagnostic
                END DO
 
 C Open the sea-salt emission dignostic file
-               SDATE = ENVINT( 'CTM_STDATE', 'Scenario Start (YYYYJJJ)', 0, STATUS )
-               STIME = ENVINT( 'CTM_STTIME', 'Scenario Start (HHMMSS)', 0, STATUS )
-
                IF ( IO_PE_INCLUSIVE ) CALL OPSSEMIS ( SDATE, STIME, TSTEP, NSSDIAG, WRSS_SPC )
 
                ALLOCATE ( SSBF( NSSDIAG,MY_NCOLS,MY_NROWS ),

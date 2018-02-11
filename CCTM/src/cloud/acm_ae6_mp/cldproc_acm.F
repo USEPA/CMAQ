@@ -67,7 +67,7 @@ C...........INCLUDES
       INCLUDE SUBST_CONST            ! constants
       INCLUDE SUBST_FILES_ID         ! file name parameters
 
-      CHARACTER( 120 ) :: XMSG = ' ' ! exit status message string
+      CHARACTER( 120 ) :: XMSG = ' ' ! exit message string
 
 C...........PARAMETERS
 
@@ -116,7 +116,6 @@ C...........Local Variables
       INTEGER       ROW              ! row subscript indices
       INTEGER       SPC              ! species subscript indices
       INTEGER       STRT             ! starting position
-      INTEGER       STATUS           !  ENVINT status
       INTEGER       VAR              ! variable subscript indices
       INTEGER       ALLOCSTAT
       INTEGER, ALLOCATABLE, SAVE :: WDEP_MAP( : ) ! wet deposition map to CGRID
@@ -200,23 +199,6 @@ C...and return
         END IF
 
 C...check to see if user wants to output extra diagnostic files
-
-        CLD_DIAG = .FALSE.
-        XMSG = 'Output cloud diagnostic files? (Y/N)'
-        CLD_DIAG = ENVYN( 'CLD_DIAG', XMSG, CLD_DIAG, STATUS )
-
-        IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) XMSG
-
-        IF ( STATUS .EQ. 1 ) THEN
-          XMSG = 'Environment variable improperly formatted'
-          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-        ELSE IF ( STATUS .EQ. -1 ) THEN
-          XMSG = 'Environment variable set, but empty ... Using default:'
-          WRITE( LOGDEV, '(5X, A, L9)' ) XMSG, CLD_DIAG
-        ELSE IF ( STATUS .EQ. -2 ) THEN
-          XMSG = 'Environment variable not set ... Using default:'
-          WRITE( LOGDEV, '(5X, A, L9)' ) XMSG, CLD_DIAG
-        END IF
 
         SPC = 0
         STRT = 1

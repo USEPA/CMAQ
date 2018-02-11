@@ -84,7 +84,6 @@ SUBROUTINE feedback_setup ( jdate, jtime, tstep )
           end if
        end if
 
-       indirect_effect = envyn ('INDIRECT_EFFECT', ' ', .false., stat)
 
 ! The water soluble and insoluble lists are actually used to differentiate between two
 ! refractive index values. They do not necessarily align completely with water soluble

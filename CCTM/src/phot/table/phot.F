@@ -480,25 +480,6 @@ C...get height
           CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
-
-C...Get photolysis rate diagnostic file flag
-
-        PHOTDIAG = .FALSE.         ! default
-        VARDESC= 'Flag for writing the photolysis rate diagnostic file'
-        PHOTDIAG = ENVYN( CTM_PHOTDIAG, VARDESC, PHOTDIAG, ESTAT )
-        IF ( ESTAT .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-        IF ( ESTAT .EQ. 1 ) THEN
-          XMSG = 'Environment variable improperly formatted'
-          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-        ELSE IF ( ESTAT .EQ. -1 ) THEN
-          XMSG =
-     &          'Environment variable set, but empty ... Using default:'
-          WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-        ELSE IF ( ESTAT .EQ. -2 ) THEN
-          XMSG = 'Environment variable not set ... Using default:'
-          WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-        END IF
-
         IF ( PHOTDIAG ) THEN
 C...open the photolysis rate diagnostic files
           IF ( IO_PE_INCLUSIVE ) CALL OPPHOT ( JDATE, JTIME, TSTEP )

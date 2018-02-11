@@ -148,17 +148,6 @@ C Set output file characteristics based on GRID_CONF module and open the 3D emis
       FDESC3D( 2 ) = '/From/ ' // PNAME
       FDESC3D( 3 ) = '/Version/ Inline'
 
-!     MESG = 'Enter logical name for Point Source 3D Emissions File'
-!     PT3DNAME = PROMPTMFILE( MESG, FSNEW3, 'PT3DEMIS', PNAME )
-!     PT3DNAME = 'PT3DEMIS_DIAG'
-
-!     XMSG = 'logical name for Point Source 3D Emissions File'
-!     CALL ENVSTR( PT3DNAME, XMSG, ' ', RET_VAL, IOS )
-!     IF ( IOS .NE. 0 ) THEN
-!     XMSG = 'Error retrieving Point Source 3D Emissions File name env var'
-!     CALL M3EXIT( PNAME, SDATE, STIME, XMSG, XSTAT1 )
-!     END IF
-
 C create header
 
       IF ( IO_PE_INCLUSIVE ) THEN   ! open new

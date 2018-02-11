@@ -25,7 +25,7 @@ C Function: Output the Process Analysis and/or Integrated Reaction Rate data
  
 C Preconditions: None
  
-C Key Subroutines/Functions Called: ENVSTR, M3EXIT
+C Key Subroutines/Functions Called: M3EXIT
  
 C Revision History:
 C  Prototype created by Jerry Gipson, August, 1996

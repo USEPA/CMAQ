@@ -248,7 +248,6 @@ C Land use information:
 
       Logical, Save :: MET_INITIALIZED = .false.
       Real,    Save :: CONVPA             ! Pressure conversion factor file units to Pa
-      Logical, Save :: MINKZ     
       Logical, Save :: CSTAGUV            ! Winds are available with C stagger?
       Logical, Save :: ifwr     = .false.
 
@@ -383,7 +382,7 @@ C Land use information:
       CONTAINS
 
 C=======================================================================
-         Subroutine INIT_MET ( JDATE, JTIME, MOSAIC, ABFLUX, HGBIDI )
+         Subroutine INIT_MET ( JDATE, JTIME, MOSAIC, HGBIDI )
 
 C-----------------------------------------------------------------------
 C   30 Mar 01 J.Young: dyn alloc - Use HGRD_DEFN; replace INTERP3 with INTERPX;
@@ -406,7 +405,6 @@ C-----------------------------------------------------------------------
 C Arguments:
          Integer, Intent( IN ) :: JDATE, JTIME      ! internal simulation date&time
          Logical, Intent( IN ) :: MOSAIC
-         Logical, Intent( IN ) :: ABFLUX
          Logical, Intent( IN ) :: HGBIDI
 
 C File variables:
@@ -693,21 +691,6 @@ C-----------------------------------------------------------------------
                Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End Select
 
-         MINKZ = .True.   ! default
-         MINKZ = ENVYN( 'KZMIN', 'Kz min on flag', MINKZ, ALLOCSTAT )
-         If ( ALLOCSTAT .Ne. 0 ) Write( LOGDEV,'(5X, A)' ) 'Kz min on flag'
-         Select Case( ALLOCSTAT )
-            Case (  1 ) 
-               XMSG = 'Environment variable improperly formatted'
-               Call M3WARN( PNAME, JDATE, JTIME, XMSG )
-            Case ( -1 )
-               XMSG = 'Environment variable set, but empty ... Using default:'
-               Write( LOGDEV,'(5X, A)' ) XMSG
-            Case ( -2 )
-               XMSG = 'Environment variable not set ... Using default:'
-               Write( LOGDEV,'(5X, A)' ) XMSG
-         End Select
-
          If ( .Not. MINKZ ) Then
             XMSG = 'This run uses Kz0UT, *NOT* KZMIN in subroutine edyintb.'
             Write( LOGDEV,'(/5X, A, /)' ) XMSG
@@ -848,7 +831,7 @@ C-----------------------------------------------------------------------
          End Subroutine INIT_MET
 
 C=======================================================================
-         Subroutine GET_MET ( JDATE, JTIME, TSTEP, MOSAIC, ABFLUX, HGBIDI )
+         Subroutine GET_MET ( JDATE, JTIME, TSTEP, MOSAIC, HGBIDI )
 
 C-----------------------------------------------------------------------
 C   30 Mar 01 J.Young: dyn alloc - Use HGRD_DEFN; replace INTERP3 with INTERPX;
@@ -879,7 +862,6 @@ C Arguments:
 
          Integer, Intent( IN ) :: JDATE, JTIME, TSTEP      ! internal simulation date&time
          Logical, Intent( IN ) :: MOSAIC
-         Logical, Intent( IN ) :: ABFLUX
          Logical, Intent( IN ) :: HGBIDI
 
 C Parameters:

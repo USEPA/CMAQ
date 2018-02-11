@@ -55,7 +55,7 @@ C   10 Sep 14 D. Wong: Removed redundant INCLUDE NETCDF.EXT statement
 C-----------------------------------------------------------------------
 
       USE M3UTILIO              ! i/o api
-
+      USE RUNTIME_VARS, ONLY : PWRTFLAG
       USE PIOMAPS_MODULE
 
       IMPLICIT NONE
@@ -91,9 +91,6 @@ C Local Variables:
 
 C Static Variables:
 
-      LOGICAL, SAVE :: FIRSTIME = .TRUE.
-      LOGICAL, SAVE :: LOGFLAG = .TRUE.
-
       LOGICAL        FLCHANGE      ! File-changed indicator.
 
 C File written to on previous call to pwrite3.
@@ -121,12 +118,6 @@ C Check that Models-3 I/O has been initialized:
          WRITE( LOGDEV,91010 ) 'WRITE3():  I/O API not yet initialized.'
          PTRWRITE3 = .FALSE.; RETURN
       END IF
-
-      IF ( FIRSTIME ) THEN
-         LOGFLAG = ENVYN( 'IOAPI_LOG_WRITE', 'Log write operations or not',
-     &                    .TRUE., IERR )
-         FIRSTIME = .FALSE.
-      END IF   !  firstime
 
 C Find netCDF index for the file, and check time step availability:
 
@@ -296,7 +287,7 @@ C Loop over file variables.
       IF ( MY_PE .EQ. IO_PE ) THEN
          MXREC3( FID ) = MAX( MXREC3( FID ), ABS( STEP ) )
 
-         IF ( LOGFLAG ) THEN   ! log successful writes
+         IF ( PWRTFLAG ) THEN   ! log successful writes
             IF ( VAR16 .NE. ALLVAR3 ) THEN   ! single variable written
                IF ( TSTEP3( FID ) .EQ. 0 ) THEN
                   WRITE( LOGDEV,92020 ) VNAME, 'written to', FNAME
@@ -312,7 +303,7 @@ C Loop over file variables.
      &                     'for date and time', JDATE, JTIME
                END IF
             END IF          ! if single variable write, or timestamp write
-         END IF          ! if logflag
+         END IF          ! if PWRTFLAG
       END IF
 
       RETURN

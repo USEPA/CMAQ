@@ -200,18 +200,12 @@ C Local Variables:
       INTEGER, SAVE :: ETIME     ! end scenario time
       INTEGER, SAVE :: NDATE     ! test date to update rainfall
       INTEGER, SAVE :: NTIME     ! test time to update rainfall
-      INTEGER, SAVE :: SDATE     ! scenario start date
-      INTEGER, SAVE :: STIME     ! scenario start time
         
-      LOGICAL, SAVE :: INITIAL_RUN            ! false: use SOILINP file
       LOGICAL, SAVE :: INITIAL_DAY = .FALSE.  ! true: 1st 24 hours; no previous data
                                               ! false: previous 24 hours of rainfall
                                               ! are available for HRNO
 
-      LOGICAL, SAVE :: PX_VERSION         ! true: use PX version of MCIP
-
       INTEGER          SOILCAT            ! soil category
-      INTEGER          NSTEPS             ! run duration (HHMMSS)
       INTEGER, SAVE :: MSTEPS             ! run no. of steps
       INTEGER          I, J, K, R, C, L   ! counters
       LOGICAL          OK
@@ -256,16 +250,10 @@ C-----------------------------------------------------------------------
 !        FIRSTIME = .FALSE.
 
 C Determine last timestamp
-         SDATE = ENVINT( 'CTM_STDATE', 'Scenario Start (YYYYJJJ)', 0, IOS )
-         STIME = ENVINT( 'CTM_STTIME', 'Scenario Start (HHMMSS)', 0, IOS )
-         NSTEPS = ENVINT( 'CTM_RUNLEN', 'Scenario Duration (HHMMSS)', 0, IOS )
          EDATE = SDATE; ETIME = STIME
-         CALL NEXTIME( EDATE, ETIME, NSTEPS )   ! end date & time
-         MSTEPS = TIME2SEC( NSTEPS ) / TIME2SEC( TSTEP( 1 ) )
+         CALL NEXTIME( EDATE, ETIME, RUNLEN )   ! end date & time
+         MSTEPS = TIME2SEC( RUNLEN ) / TIME2SEC( TSTEP( 1 ) )
 
-C Check if using PX version of MCIP
-         PX_VERSION = ENVYN( 'PX_VERSION', 'MCIP is PX version?',
-     &                       .TRUE., IOS )
 
 C Get normalized emissions file, B3GRD
          NNAME = PROMPTMFILE(
@@ -359,12 +347,10 @@ C Allocate memory for data and read
 C Initial run until a full 24 hours has been recorded on the SOIL(OUT/INP) file
 C for the Yienger and Levy algorithm
          WRITE( LOGDEV,'(/5X, A)' ) 'Temporal BEIS ...'
-         MESG = 'Initial run?'
-         INITIAL_RUN = ENVYN( 'INITIAL_RUN', MESG, .FALSE., IOS )
          RHOURS = MXRHRS
 
 C If initial run, initialize some variables, otherwise get them from file
-         IF ( INITIAL_RUN ) THEN
+         IF ( NEW_START ) THEN
 
             PULSEDATE = 0   ! array
             PULSETIME = 0   ! array
@@ -413,7 +399,7 @@ C Get domain decomp info for the NO rain data file
          CALL CHECKMEM( IOS, 'DDTTM', PNAME )
          DDTTM = ' '   ! array
 
-         IF ( .NOT. INITIAL_RUN ) THEN   ! SOILINP file available
+         IF ( .NOT. NEW_START ) THEN   ! SOILINP file available
 C Read data from file
             VAR = 'PTYPE'
             IF ( .NOT. XTRACT3( SOILINP, VAR,
@@ -507,7 +493,7 @@ C data to compute precip adjustment
          CALL NEXTIME( RDATE, RTIME, METSTEP )
 
          RNTOT = 0.0   ! array assignment
-         IF ( INITIAL_RUN ) THEN
+         IF ( NEW_START ) THEN
             IF ( IHR .LT. MXRHRS ) THEN
                INITIAL_DAY = .TRUE.
             ELSE

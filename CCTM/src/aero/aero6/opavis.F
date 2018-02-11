@@ -45,22 +45,8 @@ C...Local variables:
         INTEGER :: L          ! loop induction variables
 
         INTEGER :: MDATE, MTIME, STATUS
-        LOGICAL :: END_TIME = .FALSE.
-        CHARACTER( 80 ) :: VARDESC = ' '
-        CHARACTER( 16 ) :: AVG_FILE_ENDTIME = 'AVG_FILE_ENDTIME'
 
 C-----------------------------------------------------------------------
-
-        VARDESC = 'Flag to Override default beginning time timestamp for PMDIAG'
-        END_TIME = ENVYN( AVG_FILE_ENDTIME, VARDESC, END_TIME, STATUS )
-        IF ( STATUS .EQ. 1 ) THEN
-           XMSG = 'Environment variable improperly formatted'
-           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-        ELSE IF ( STATUS .NE. 0 ) THEN
-           WRITE( LOGDEV, '(5X, A)' ) VARDESC
-           XMSG = '... Using default:'
-           WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-        END IF
 
         IF ( END_TIME ) THEN   ! ending time timestamp
            MDATE = JDATE; MTIME = JTIME

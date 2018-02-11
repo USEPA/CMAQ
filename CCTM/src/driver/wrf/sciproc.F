@@ -89,8 +89,6 @@ C Local Variables:
 
       CHARACTER( 16 ) :: PNAME = 'SCIPROC'
 
-      LOGICAL, SAVE :: FIRSTIME = .TRUE.
-
       CHARACTER( 120 ) :: XMSG = ' '
       CHARACTER( 36 ) :: NMSG = 'After NEXTIME: returned JDATE, JTIME'
 
@@ -101,8 +99,6 @@ C Local Variables:
       INTEGER      STATUS          ! ENV... status
       CHARACTER( 80 ) :: VARDESC   ! environment variable description
       CHARACTER( 80 ) :: MSG = ' '
-      CHARACTER( 16 ) :: CTM_CKSUM = 'CTM_CKSUM'     ! env var for cksum on
-      LOGICAL, SAVE   :: CKSUM     ! flag for cksum on, default = [T]
       REAL( 8 )       :: CPU_TIME_START  ! Timing individual
       REAL( 8 )       :: CPU_TIME_FINISH ! science processes
       REAL( 8 )       :: CPU_TIME_START_MASTER
@@ -176,26 +172,6 @@ C Local Variables:
       END INTERFACE
   
 C-----------------------------------------------------------------------
-
-      IF ( FIRSTIME ) THEN
-         FIRSTIME = .FALSE.
-
-         CKSUM = .TRUE.         ! default
-         VARDESC = 'Cksum on flag'
-         CKSUM = ENVYN( CTM_CKSUM, VARDESC, CKSUM, STATUS )
-         IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-         IF ( STATUS .EQ. 1 ) THEN
-            XMSG = 'Environment variable improperly formatted'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-         ELSE IF ( STATUS .EQ. -1 ) THEN
-            MSG = 'Environment variable set, but empty ... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) MSG, JTIME
-         ELSE IF ( STATUS .EQ. -2 ) THEN
-            MSG = 'Environment variable not set ... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) MSG, JTIME
-         END IF
-
-      END IF       ! if firstime
 
 ! Write Time Step Information to Summary Logfile
       IF ( MYPE .EQ. 0 ) WRITE( OUTDEV, * ) 

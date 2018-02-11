@@ -25,7 +25,7 @@ C Description:
 C Revision History:
 C   03 Nov 15: B. Gantt and G. Sarwar: created the initial version for marine gas emissions
 C   26 Sep 16: D. Wong: removed repeated SEAICE interpx statement
-
+      USE RUNTIME_VARS
       USE HGRD_DEFN
 
       IMPLICIT NONE
@@ -46,10 +46,8 @@ C Variables for the marine gas diagnostic file
       INTEGER :: NMGDIAG                              ! number of species in marine gas
                                                       ! diagnostic emission file
       REAL,    ALLOCATABLE       :: MGOUTD( : )       ! emission rates
-      LOGICAL, SAVE              :: MGEMDIAG          ! flag for MGEM diagnostic file
       REAL,    ALLOCATABLE, SAVE :: MGBF( :,:,: )     ! marine gas emiss accumulator
       REAL,    ALLOCATABLE, SAVE :: WRMG( :,: )       ! marine gas emiss write buffer
-      INTEGER, SAVE              :: SDATE, STIME      ! scenario start date & time
 
 ! Species names in the speciated marine gas-emissions
       CHARACTER( 16 ), ALLOCATABLE :: WRMG_SPC( : )   ! species names
@@ -111,7 +109,6 @@ C Arguments:
             INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
             LOGICAL :: SUCCESS
 
-            CHARACTER( 16 ), SAVE :: CTM_MGEMDIAG = 'CTM_MGEMDIAG'  ! env var for diagnostic file
 
             CHARACTER( 80 )       :: VARDESC                        ! env variable description
 
@@ -229,24 +226,6 @@ C Get the surface ozone concentration (ppbv)
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
             END IF
 
-C Get marine gas emission diagnostic output file flag.
-           MGEMDIAG = .FALSE.         ! default
-           VARDESC = 'Flag for writing MG emission diagnostic file'
-           MGEMDIAG = ENVYN( CTM_MGEMDIAG, VARDESC, MGEMDIAG, STATUS )
-           IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-           IF ( STATUS .EQ. 1 ) THEN
-              XMSG = 'Environment variable improperly formatted'
-              CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-              SUCCESS = .FALSE.; RETURN
-           ELSE IF ( STATUS .EQ. -1 ) THEN
-              XMSG =
-     &             'Environ variable set, but empty ... Using default:'
-              WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-            ELSE IF ( STATUS .EQ. -2 ) THEN
-              XMSG = 'Environment variable not set ... Using default:'
-              WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-            END IF
-
             IF (MGEM .AND. MGEMDIAG ) THEN                            ! Open the marine gas emission diagnostic file
 C Determine number of marine gas species for diagnostic file
                 NMGDIAG = NMGSPC
@@ -268,11 +247,6 @@ C Build diagnostic file write buffer (WRMG_SPC) array
                 END DO
 
 C Open the marine gas emission dignostic file
-                SDATE = ENVINT( 'CTM_STDATE', 'Scenario Start (YYYYJJJ)',
-     &                  0, STATUS )
-                STIME = ENVINT( 'CTM_STTIME', 'Scenario Start (HHMMSS)',
-     &                  0, STATUS )
-
                 IF ( IO_PE_INCLUSIVE ) CALL OPMGEMIS ( SDATE, STIME, TSTEP, NMGDIAG, WRMG_SPC )
 
                 ALLOCATE ( MGBF( NMGDIAG,NCOLS,NROWS ),

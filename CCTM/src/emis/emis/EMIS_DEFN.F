@@ -57,16 +57,12 @@ C-----------------------------------------------------------------------
 #endif
 
       INTEGER,              SAVE :: N_SPC_EMIS ! global emissions species
-      INTEGER,              SAVE :: EMLAYS     ! no. of emis integration layers
-                                               ! EMLAYS must be .LT. NLAYS
-      LOGICAL,              SAVE :: EMISCHK ! Let model proceed even if Emis Surrogates 
-                                               !are not properly defined
       INTEGER,              SAVE :: EMLYRS     ! no. of layers on base emis input file
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: TRACSPC( : )  ! Variables from Tracer Emission File
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: AREASPC( : )  ! Variables from Area Emission File
 
-      PUBLIC VDEMIS, N_SPC_EMIS, EMLAYS, EMLYRS, TRACSPC, AREASPC,  ! Variables
-     &       EMIS_INIT, GET_EMIS, EMISCHK                           ! Routines
+      PUBLIC VDEMIS, N_SPC_EMIS, EMLYRS, TRACSPC, AREASPC,  ! Variables
+     &       EMIS_INIT, GET_EMIS                            ! Routines
       
 #ifdef verbose_emis_defn
       public semis
@@ -125,9 +121,6 @@ C Local Variables:
          REAL    CONVEM          ! conversion for emissions rates to Kg/s
          REAL    DX1, DX2        ! CX x1- and x2-cell widths
 
-         CHARACTER( 16 ), SAVE :: CTM_EMLAYS = 'CTM_EMLAYS'    ! env var for no. of
-                                                               ! emiss. layers
-         
          CHARACTER( 16 ) :: PNAME = 'EMIS_INIT'
          CHARACTER( 80 ) :: VARDESC   ! env variable description
          CHARACTER( 120 ) :: XMSG = ' '
@@ -162,29 +155,10 @@ C Initialize Online Marine Gas Emissions
          END IF
 
 C Open Area Emissions files
-         CALL OPEMIS ( JDATE, JTIME, N_GC_EMIS, EM_TRAC, CONVEM, EMLAYS )
+         CALL OPEMIS ( JDATE, JTIME, N_GC_EMIS, EM_TRAC, CONVEM )
 
 C Get number of emissions layers
-         IF ( EMLAYS .LE. 1 ) THEN   ! better be inline plume rise run
-            EMLAYS = NLAYS   ! env var default
-            VARDESC = 'Number of emission layers'
-            WRITE( LOGDEV, * )
-            EMLAYS = ENVINT( CTM_EMLAYS, VARDESC, EMLAYS, STATUS )
-            IF ( STATUS .NE. 0 ) THEN
-               WRITE( LOGDEV, '(5X, A)' ) VARDESC
-               IF ( STATUS .EQ. 1 ) THEN
-                  XMSG = 'Environment variable improperly formatted'
-                  CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-                  SUCCESS = .FALSE.; RETURN
-               ELSE
-                  XMSG = 'Environment variable not set or empty ... Using default:'
-                  WRITE( LOGDEV, '(5X, A, 1X, I9)' ) TRIM(XMSG), JTIME
-               END IF
-            END IF
-         END IF
-
          EMLAYS = MIN ( EMLAYS, NLAYS )
-
          WRITE( LOGDEV,1009 ) EMLAYS, NLAYS
 1009     FORMAT(    5X, 'Number of Emissions Layers:         ', I3
      &           /  5X, 'out of total Number of Model Layers:', I3 )
@@ -297,7 +271,6 @@ C (N_SPC_EMIS+1 serves as the null map for PTEM_MAP)
 C Check the Emissions Species Available on the Input Files Against the
 C Surrogates Identified by the User via the Namelists and Stop the model
 C or Print Warnings if Mistakes Are Made.
-         EMISCHK = .TRUE.   ! Env Variable Default
          CALL EMIS_SPC_CHECK( JDATE, JTIME )
 
 C Warn the User if there are No Emissions Species On Any File         
@@ -791,9 +764,6 @@ C-----------------------------------------------------------------------
 
          INTEGER, ALLOCATABLE  :: EMIS_IND( : )
 
-         CHARACTER( 16 )  :: CTM_EMISCHK = 'CTM_EMISCHK'    ! Let model proceed even if
-                                                                 ! Emissions surrogates are
-                                                                 ! not properly defined
          CHARACTER( 16 )  :: PNAME = 'EMIS_SPC_CHECK'
          CHARACTER( 80 )  :: VARDESC
          INTEGER          :: STATUS
@@ -803,20 +773,6 @@ C Retrieve Environment Variable Letting User Ignore this Check
 C and allowing the model to proceed.
          CALL LOG_SUBHEADING( LOGDEV, "Check Emissions Mapping" )
 
-         VARDESC    = "Let model proceed even if there are emission"
-     &              //" surrogates that do not appear on any input file."
-         EMISCHK = ENVYN( CTM_EMISCHK, VARDESC, EMISCHK, STATUS )
-         IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-         IF ( STATUS .EQ. 1 ) THEN
-            XMSG = 'Environment variable improperly formatted'
-            CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-         ELSE IF ( STATUS .EQ. -1 ) THEN
-            XMSG = 'Environment variable set, but empty...Using default:'
-            WRITE( LOGDEV, '(5X,A,I9)' ) XMSG, JTIME
-         ELSE IF ( STATUS .EQ. -2 ) THEN
-            XMSG = 'Environment variable not set...Using default:'
-            WRITE( LOGDEV, '(5X,A,I9)' ) XMSG, JTIME
-         END IF
 
 
 C Find Upper Bound on Number of Possible Species

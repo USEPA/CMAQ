@@ -116,7 +116,6 @@ C the first 12 soil types are used and the rest lumped into Other.
       integer, parameter :: nsltyp = 13
 
 C Variables for the windblown dust diagnostic file:
-      logical, save      :: dustem_diag      ! flag for dustemis diagnostic file
       integer, parameter :: fndust_diag = 19 ! number of fixed diagnostic output vars
       integer, save      :: ndust_diag       ! number of diagnostic output vars
       real, allocatable, save :: diagv( : )  ! diagnostic output variables
@@ -173,8 +172,6 @@ C Module shared variables:
       real, allocatable, save :: tfb   ( :,: )   ! transport fraction in and below canopy
       real, allocatable, save :: fpar  ( :,: )   ! modis fpar
 
-      integer, save :: sdate, stime  ! scenario start date & time
-
       real :: eropot( 3 ) =     ! erodible potential of soil components
      &        (/ 0.08,   ! clay
      &           1.00,   ! silt
@@ -204,10 +201,6 @@ C Includes:
          include SUBST_FILES_ID  ! file name parameters
 
 C Local variables:
-         character( 16 ) :: ctm_dustem_diag = 'CTM_DUSTEM_DIAG' ! env var for
-                                                            ! diagnostic file
-         character( 16 ) :: ctm_erode_agland = 'CTM_ERODE_AGLAND' ! env var to
-                                                       ! use erodible cropland
          character( 16 ) :: pname = 'DUST_EMIS_INIT'
          character( 16 ) :: vname
          character( 80 ) :: vardesc
@@ -215,7 +208,6 @@ C Local variables:
          character( 16 ) :: modis_fpar_1 = 'MODIS_FPAR'
                             ! Fraction of Absorbed Photosynthetically Active Radiation
 
-         logical :: erode_agland = .true. ! default
          integer status
          integer c, r, i, j, k, l, n
          integer idiag
@@ -315,23 +307,6 @@ C Initialize land use/cover variables
          if ( .not. lus_init( jdate, jtime ) ) then
             xmsg = 'Failure initializing land use module'
             call m3exit( pname, jdate, jtime, xmsg, xstat2 )
-         end if
-
-C Get env var for diagnostic output
-         dustem_diag = .false.         ! default
-         vardesc = 'Flag for writing the windblown dust emission diagnostic file'
-         dustem_diag = envyn( ctm_dustem_diag, vardesc, dustem_diag, status )
-         if ( status .ne. 0 ) write( logdev,'( 5x, a )' ) vardesc
-         if ( status .eq. 1 ) then
-            xmsg = 'Environment variable improperly formatted'
-            call m3warn( pname, jdate, jtime, xmsg )
-            success = .false.; return
-         else if ( status .eq. -1 ) then
-            xmsg = 'Environment variable set, but empty ... Using default:'
-            write( logdev,'( 5x, a, i9 )' ) xmsg, jtime
-         else if ( status .eq. -2 ) then
-            xmsg = 'Environment variable not set ... Using default:'
-            write( logdev,'( 5x, a, i9 )' ) xmsg, jtime
          end if
 
          if ( dustem_diag ) then    ! Open the emissions diagnostic file
@@ -501,30 +476,11 @@ C...append diagnostic variables with mass emissions species
             diagnm( 1:ndust_diag ) = diagnm_swap( 1:ndust_diag )
             deallocate( diagnm_swap )
 
-            sdate = envint( 'CTM_STDATE', 'Scenario Start (YYYYJJJ)', 0, status )
-            stime = envint( 'CTM_STTIME', 'Scenario Start (HHMMSS)', 0, status )
-
             if ( io_pe_inclusive )
      &         call opdust_emis ( sdate, stime, tstep, ndust_diag, diagnm )
 
          end if   ! dustem_diag
 
-C Get env var for erodible agriculture land fraction
-         erode_agland = .false.         ! default
-         vardesc = 'Flag for calculating erodible agriculture land fraction'
-         erode_agland = envyn( ctm_erode_agland, vardesc, erode_agland, status )
-         if ( status .ne. 0 ) write( logdev,'( 5x, a )' ) vardesc
-         if ( status .eq. 1 ) then
-            xmsg = 'Environment variable improperly formatted'
-            call m3warn( pname, jdate, jtime, xmsg )
-            success = .false.; return
-         else if ( status .eq. -1 ) then
-            xmsg = 'Environment variable set, but empty ... Using default:'
-            write( logdev,'( 5x, a, i9 )' ) xmsg, jtime
-         else if ( status .eq. -2 ) then
-            xmsg = 'Environment variable not set ... Using default:'
-            write( logdev,'( 5x, a, i9 )' ) xmsg, jtime
-         end if
 
          if ( erode_agland ) then
             call cropcal ( sdate, stime, agland )

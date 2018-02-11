@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE OPEMIS ( JDATE, JTIME, NEMIS, EM_TRAC, CONVEM, EMLAYS )
+      SUBROUTINE OPEMIS ( JDATE, JTIME, NEMIS, EM_TRAC, CONVEM )
 
 C  7 Mar 02 - J.Young: add units string variations
 C 29 Oct 05 - J.Young: dyn. layers
@@ -27,6 +27,7 @@ C 21 Jun 10 - J.Young: convert for Namelist redesign
 C 16 Feb 11 - S.Roselle: replaced I/O API include files with UTILIO_DEFN;
 C                        removed deprecated TRIMLEN
 
+      USE RUNTIME_VARS    
       USE VGRD_DEFN           ! vertical layer specifications
       USE CGRID_SPCS          ! CGRID mechanism species
       USE UTILIO_DEFN
@@ -43,8 +44,8 @@ C Arguments:
       INTEGER      JTIME      ! current model time, coded HHMMSS
       INTEGER      NEMIS      ! no. of gas chem emissions species for vdiff
       LOGICAL      EM_TRAC    ! are there tracer emissions?
+      INTEGER      NLAY_FILE  ! keep a running maximum of the layers from the gridded files
       REAL         CONVEM     ! conversion for emissions rates
-      INTEGER      EMLAYS     ! emissions layers from file
 
 C Local variables:
 
@@ -58,9 +59,9 @@ C Local variables:
 
 C-----------------------------------------------------------------------
  
-      EMLAYS = 0
-
       CALL LOG_SUBHEADING( LOGDEV,'Open Gridded Emissions' )
+
+      NLAY_FILE = 0
 
 C Open the tracer emissions file
 
@@ -73,7 +74,9 @@ C Open the tracer emissions file
             EM_TRAC = .FALSE.
 
          ELSE
-
+            !Save Number of Layers
+            NLAY_FILE = MAX( NLAY_FILE, NLAYS3D )
+ 
             ! Save Tracer Variables for Use in Emissions Species Check
             ! Routine
             ALLOCATE ( TRACSPC( NVARS3D ), STAT = STATUS )
@@ -86,8 +89,6 @@ C Open the tracer emissions file
                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
             END IF
 
-            EMLAYS = NLAYS3D
- 
             V = INDEX1( TR_EMIS( 1 ), NVARS3D, VNAME3D )
             IF ( V .NE. 0 ) THEN
                UNITSCK = UNITS3D( V )
@@ -126,6 +127,10 @@ C Open the emissions file (for gas chem, aerosols and non-reactive species)
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
+         !Save Number of Layers
+         NLAY_FILE = MAX( NLAY_FILE, NLAYS3D )
+
+         ! Check for file description
          IF ( .NOT. DESC3( EMIS_1 ) ) THEN
             XMSG = 'Could not get '// EMIS_1 // ' file description'
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
@@ -137,16 +142,6 @@ C Open the emissions file (for gas chem, aerosols and non-reactive species)
          AREASPC = VNAME3D( 1:NVARS3D )
 
          ! Assign Area Source Emission Species
-         IF ( EMLAYS .EQ. 0 ) THEN
-            EMLAYS = NLAYS3D
-         ELSE
-            IF ( EMLAYS .NE. NLAYS3D ) THEN
-               WRITE( XMSG,'(A, I3, A, I3)' ) 'Tracer No. of emis layers ', EMLAYS,
-     &         ' Different than Gas No. of emis layers: ', NLAYS3D 
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-            END IF
-         END IF
-
          DO N = 1, N_GC_EMIS
             V = INDEX1( GC_EMIS( N ), NVARS3D, VNAME3D )
             IF ( V .NE. 0 ) THEN
@@ -218,6 +213,11 @@ C Assume units = mol/s across gas and non-reactive species classes
          CONVEM = 1.0E-03  ! assuming gram-moles
 
       END IF  ! (gas chem or non-react emissions)
+
+      ! Set Emission Layers to the Maximum of the layers from any
+      ! gridded file if the user did not specify a number of layers. If
+      ! the user did specify a number of layers, then keep this number.
+      IF ( EMLAYS .EQ. 0 ) EMLAYS = NLAY_FILE
 
       IF ( NEMIS .GT. 0 ) THEN
          WRFLG = .TRUE.

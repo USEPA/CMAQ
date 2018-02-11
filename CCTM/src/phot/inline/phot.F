@@ -168,7 +168,6 @@ C...modules
 !...local variables
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE.  ! Flag for first call to PHOT
-      LOGICAL, SAVE :: PHOTDIAG           ! Flag for PHOTDIAG file
 
       LOGICAL, SAVE :: CALL_INIT_ALBEDO = .TRUE.
       LOGICAL, SAVE :: CALL_GET_ALBEDO  = .TRUE.
@@ -178,7 +177,6 @@ C...modules
       CHARACTER(   3 ), ALLOCATABLE, SAVE :: WLTXT( : )
       CHARACTER(  16 )                    :: VARNM
       CHARACTER(  16 ), SAVE              :: PNAME = 'PHOT'
-      CHARACTER(  16 ), SAVE              :: CTM_PHOTDIAG = 'CTM_PHOTDIAG'
 
       CHARACTER(  80 ) :: VARDESC  ! environment variable description
       CHARACTER( 240 ) :: XMSG = ' '
@@ -330,23 +328,6 @@ C...modules
 
          CGRID => PCGRID( 1:MY_NCOLS,1:MY_NROWS,:,: )
 
-!...Get photolysis rate diagnostic file flag
-
-         PHOTDIAG = .FALSE.         ! default
-         VARDESC= 'Flag for writing the photolysis rate diagnostic file'
-         PHOTDIAG = ENVYN( CTM_PHOTDIAG, VARDESC, PHOTDIAG, ESTAT )
-         IF ( ESTAT .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-         IF ( ESTAT .EQ. 1 ) THEN
-            XMSG = 'Environment variable improperly formatted'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-         ELSE IF ( ESTAT .EQ. -1 ) THEN
-            XMSG =
-     &          'Environment variable set, but empty ... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-         ELSE IF ( ESTAT .EQ. -2 ) THEN
-            XMSG = 'Environment variable not set ... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-         END IF
 
 !...Get met file offsets
 

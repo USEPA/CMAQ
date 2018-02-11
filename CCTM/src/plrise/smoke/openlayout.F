@@ -83,7 +83,6 @@ C Local variables:
 
       CHARACTER(   3 ) :: CMYPE
       CHARACTER(   4 ) :: POSTSTR = '.ncf'
-      CHARACTER(  16 ) :: PLAY_BASE
       CHARACTER(  96 ) :: PLAY_EQ
       CHARACTER(  96 ) :: EQNAME
       CHARACTER( 256 ) :: BASE
@@ -149,15 +148,7 @@ C Set up and open diagnostic file(s)
          IF ( MY_NSRC( N ) .GT. 0 ) THEN
             NCOLS3D = MY_NSRC( N )
 
-            WRITE( PLAY_BASE,'( "PLAY_BASE", "_", I2.2 )' ) N
-            XMSG = 'Logical name for LAYER FRACTIONS MATRIX'
-            CALL ENVSTR( PLAY_BASE, XMSG, ' ', BASE, IOS )
-            IF ( IOS .NE. 0 ) THEN
-               XMSG = 'Error retrieving Layer Fractions File base name env var'
-               CALL M3EXIT( PNAME, SDATE, STIME, XMSG, XSTAT3 )
-            END IF
-
-            PLAY_EQ = TRIM( BASE ) // '_' // CMYPE // POSTSTR
+            PLAY_EQ = TRIM( PLAY_BASE( N ) ) // '_' // CMYPE // POSTSTR
             WRITE( LNAME( N ),'( "PLAY_", I2.2 )' ) N
             IF ( .NOT. SETENVVAR ( LNAME( N ), PLAY_EQ ) ) THEN
                XMSG = 'Could not set environment variable for ' // PLAY_EQ

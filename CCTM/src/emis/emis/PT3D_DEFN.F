@@ -58,23 +58,17 @@ C     22 Jun 2016 B.Hutzell: Fixed issue where single emis species maps to multi
 C                            species
 C     08 Aug 2016 B.Murphy: Neglect fire emissions for pcVOC
 C-----------------------------------------------------------------------
-
+      USE RUNTIME_VARS
       USE UDTYPES           ! implementation for multiple groups of stack input files
       IMPLICIT NONE
 
-      LOGICAL,              SAVE :: PT3DEMIS   ! flag in-lining plume rise
-      INTEGER,              SAVE :: NPTGRPS    ! no. pt src input file groups
       REAL,    ALLOCATABLE, SAVE :: VDEMIS_PT( :,:,:,: ) ! 3D pt src non-PM emis
       REAL,    ALLOCATABLE, SAVE :: VDEMIS_PT_FIRE( :,:,:,: ) ! 3D pt src non-PM emis
       REAL,    ALLOCATABLE, SAVE :: PMEMIS_PT( :,:,:,: ) ! 3D pt src PM emis
 
-      PUBLIC PT3DEMIS, NPTGRPS, VDEMIS_PT, VDEMIS_PT_FIRE, PMEMIS_PT,
+      PUBLIC VDEMIS_PT, VDEMIS_PT_FIRE, PMEMIS_PT,
      &       PT3D_INIT, GET_PT3D_EMIS
       PRIVATE
-
-C Scenario start
-      INTEGER,              SAVE :: SDATE = 0   ! Julian start date (YYYYDDD)
-      INTEGER,              SAVE :: STIME = 0   ! start time (HHMMSS)
 
 C Output layer fractions, dimensioned NSRC, emlays, and for diagnostic file
       REAL,    ALLOCATABLE, SAVE :: LFRAC( :,: ) ! per source local layer fractn
@@ -107,8 +101,6 @@ C Play files source id file
 C Plume rise info report files
       CHARACTER( 13 ), ALLOCATABLE, SAVE :: REPTNAME( : )
       CHARACTER( 11 )                    :: REPSTR
-C Minimum layer for reporting srcs w/ high plumes
-      INTEGER, SAVE :: REP_LAYR
 
 C Layer fractions matrix output files
       CHARACTER(  16 ), ALLOCATABLE, SAVE :: PLAYNAME( : )
@@ -117,8 +109,6 @@ C Layer fractions source id output files
 
 C Get heights from GRID_CRO file, if true
       LOGICAL,              SAVE :: ZSTATIC = .TRUE.
-C Write point source 3d emis diagnostic file, if true
-      LOGICAL,              SAVE :: PT3DDIAG = .FALSE.
 C Point source 3d emis diagnostic file names
 !     CHARACTER( 16 ),               SAVE :: PT3DNAME
 C Point source 3d emis diagnostic integral average write buffers
@@ -126,11 +116,7 @@ C Point source 3d emis diagnostic integral average write buffers
       REAL,    ALLOCATABLE, SAVE :: PMEMIS_BUF( :,:,:,: )
 C Diagnostic file avg factor
       REAL                       :: DIVFAC
-C Write layer fractions diagnostic file, if true
-      LOGICAL,              SAVE :: PT3DFRAC = .FALSE.
 
-C Numerical flag for plume vertical spread method
-      INTEGER,              SAVE :: IPVERT
 
 C Stack parameters
       TYPE( RARRY1 ), ALLOCATABLE, SAVE :: STK_DM( : )
@@ -184,8 +170,6 @@ C Arguments:
 C Parameters:
 
 C Local Variables:
-         CHARACTER( 16 ), SAVE :: CTM_PT3DEMIS = 'CTM_PT3DEMIS    ' ! env var for in-line
-                                                                    ! 3d pt src emis
          CHARACTER( 16 )       :: PNAME = 'PT3D_INIT       ' ! procedure name
          CHARACTER( 16 )       :: VNAME    ! variable name buffer
          CHARACTER( 16 ), SAVE, ALLOCATABLE :: STKGNAME( : ) ! stack groups file name
@@ -195,7 +179,6 @@ C Local Variables:
          INTEGER          METDCOLS       ! dot point grid number of columns
          INTEGER          METDROWS       ! dot point grid number of rows
          INTEGER          IOS            ! i/o and allocate memory status
-         INTEGER, SAVE :: NSTEPS = 1
          INTEGER          NDATE          ! next timestep file Julian date (YYYYDDD)
          INTEGER          NTIME          ! next timestep file time (HHMMSS)
 
@@ -220,10 +203,6 @@ C-----------------------------------------------------------------------
          SUCCESS = .TRUE.
 
 C In-line 3D point source emissions?
-         PT3DEMIS = ENVYN( 'CTM_PT3DEMIS',
-     &                   'Flag for in-line 3d point source emissions',
-     &                   .FALSE., IOS )
-
          IF ( PT3DEMIS ) THEN
             XMSG = 'Using in-line 3d point source emissions option'
             CALL M3MSG2( XMSG )
@@ -232,10 +211,8 @@ C In-line 3D point source emissions?
          END IF
 
 C Get setting from environment variables
-!        EMLAYS = ENVINT( 'SMK_EMLAYS', 'Number of emission layers', -1, IOS )
          EMLYRS = EMLAYS
 
-         IPVERT = ENVINT( 'IPVERT', 'Method for vertical spread', 0, IOS )
 
 C Cannot use default and cannot set to less than 4 because of limits of plume
 C rise algorithm
@@ -247,26 +224,8 @@ C rise algorithm
             SUCCESS = .FALSE.; RETURN
          END IF
 
-C get number of different file groups (sectors)
-
-         NPTGRPS = ENVINT( 'NPTGRPS',
-     &                     'Number of file groups',
-     &                      1, IOS )
 
 C get diagnostic files options
-
-         PT3DDIAG = ENVYN( 'PT3DDIAG',
-     &                     'generate diagnostic 3d pt emis file?',
-     &                     .FALSE., IOS )
-
-         PT3DFRAC = ENVYN( 'PT3DFRAC',
-     &                     'generate diagnostic layer fraction file?',
-     &                     .FALSE., IOS )
-
-         REP_LAYR = ENVINT( 'REP_LAYER_MIN',
-     &                      'Minimum layer for reporting plume rise info',
-     &                      -1, IOS )
-
          IF ( IOS .EQ. 0 ) THEN
 
             IF ( REP_LAYR .LT. 1 ) THEN
@@ -323,20 +282,9 @@ C get diagnostic files options
 
 C get scenario timing
 
-         SDATE = ENVINT( 'LAYP_STDATE',
-     &                   'Scenario Starting Date (YYYYDDD)',
-     &                    2001188, IOS )
 
-         STIME = ENVINT( 'LAYP_STTIME',
-     &                   'Scenario Starting Time (HHMMSS)',
-     &                    0, IOS )
-
-         NSTEPS = ENVINT( 'LAYP_NSTEPS',
-     &                    'Scenario Run Duration (integer steps)',
-     &                     24, IOS )
-
-         JDATE = SDATE
-         JTIME = STIME
+         JDATE = PT_DATE
+         JTIME = PT_TIME
 
 C open met files
 
@@ -442,10 +390,10 @@ C Store local layer information
             VGLVSXG( L ) = VGLVS3D( J )
          END DO
 
-         IF ( NSTEPS .GT. MXREC3D ) THEN
+         IF ( PT_NSTEPS .GT. MXREC3D ) THEN
             WRITE( XMSG,94010 ) 'Requested output time steps > those on met file '
      &                          // CRLF() // BLANK10 // 'reset to ', MXREC3D
-            NSTEPS = MXREC3D
+            PT_NSTEPS = MXREC3D
          END IF
 
 C Get stack data
@@ -527,7 +475,7 @@ C Initialize stack emissions data
 
 C Set up and open 3d point source emissions diagnostic file?
          IF ( PT3DDIAG ) THEN
-            NDATE = SDATE; NTIME = STIME
+            NDATE = PT_DATE; NTIME = PT_TIME
             CALL NEXTIME( NDATE, NTIME, TSTEP ) ! advance one output tstep
             CALL OPPT3D_DIAG( CTM_PT3D_DIAG, NDATE, NTIME, TSTEP, EMLYRS,
      &                        N_GSPC_EMIS, GSPC_EMIS, N_ASPC_EMIS, ASPC_EMIS )
@@ -548,7 +496,7 @@ C Open diagnostic layer fractions file?
             ALLOCATE ( PLAYNAME( NPTGRPS ), STAT = IOS )   ! stk parms files array
             CALL CHECKMEM( IOS, 'PLAYNAME', PNAME )
             PLAYNAME = ' '   ! array
-            NDATE = SDATE; NTIME = STIME
+            NDATE = PT_DATE; NTIME = PT_TIME
             CALL NEXTIME( NDATE, NTIME, TSTEP ) ! advance one output tstep
             CALL OPENLAYOUT( NDATE, NTIME, TSTEP, EMLYRS, VGLVSXG, NPTGRPS,
      &                       MY_NSRC, PLAYNAME )
@@ -653,13 +601,13 @@ C Compute per-source heights
                IF ( MY_NSRC( N ) .GT. 0 ) THEN
 C Get un-gridding matrices for cross and dot point met data
                   CALL RETRIEVE_IOAPI_HEADER( GC3NAME, JDATE, JTIME )
-                  CALL READGC3 ( 'X3HT0M', SDATE, STIME, XBUF )
+                  CALL READGC3 ( 'X3HT0M', PT_DATE, PT_TIME, XBUF )
                   CALL BMATVECN( METCGRID, MY_NSRC( N ), EMLYRS,
      &                          BILIN_DATA( N )%NX,
      &                          BILIN_DATA( N )%CX,
      &                          XBUF, PTMET_DATA( N )%ZH )
 
-                  CALL READGC3 ( 'X3HT0F', SDATE, STIME, XBUF )
+                  CALL READGC3 ( 'X3HT0F', PT_DATE, PT_TIME, XBUF )
                   CALL BMATVECN( METCGRID, MY_NSRC( N ), EMLYRS,
      &                          BILIN_DATA( N )%NX,
      &                          BILIN_DATA( N )%CX,
@@ -887,7 +835,7 @@ C For each time step, compute the layer fractions...
          IF ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) ) THEN
             WDATE = JDATE; WTIME = JTIME
             CALL NEXTIME( WDATE, WTIME, TSTEP( 2 ) )
-            IF ( .NOT. CURRSTEP( WDATE, WTIME, SDATE, STIME, TSTEP( 1 ),
+            IF ( .NOT. CURRSTEP( WDATE, WTIME, PT_DATE, PT_TIME, TSTEP( 1 ),
      &                           CDATE, CTIME ) ) THEN
                XMSG = 'Cannot get step date and time'
                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )

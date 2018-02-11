@@ -78,8 +78,6 @@ C Local variables:
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
 
       CHARACTER( 16 ), SAVE :: PNAME = 'CKSUMMER'
-      CHARACTER(  8 ) :: APPL = 'CTM_APPL'
-      CHARACTER( 48 ) :: EQNAME
       CHARACTER(  6 ) :: PRESTR = 'FLOOR_'
       CHARACTER(  3 ) :: CMYPE
       CHARACTER( 96 ), SAVE :: DEVNAME ! Name of output file.
@@ -104,9 +102,7 @@ C-----------------------------------------------------------------------
 
          LCELLS = FLOAT( MY_NCOLS * MY_NROWS * NLAYS )
 
-         CALL NAMEVAL ( APPL, EQNAME )
-         WRITE( CMYPE,'(I3.3)' ) MYPE
-         DEVNAME = PRESTR // CMYPE // '.' // TRIM( EQNAME )
+        DEVNAME = PRESTR // CMYPE // '.' // TRIM( APPL_NAME )
 
       END IF
 

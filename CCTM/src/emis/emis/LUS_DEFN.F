@@ -492,7 +492,6 @@ C Includes:
          integer, save :: strtcol_01, endcol_01, strtrow_01, endrow_01
          integer, save :: strtcol_02, endcol_02, strtrow_02, endrow_02
 
-         character( 16 ) :: land_scheme
          character( 16 ) :: ctm_wbdust_beld = 'CTM_WBDUST_BELD'
          character( 16 ) :: lufile( 2 ) = ' '
          character( 16 ) :: pname = 'LUS_INIT'
@@ -505,14 +504,6 @@ C Includes:
 
          success = .true.
 
-         vardesc = 'Flag for Wind Blown Dust - Land Use from BELD'
-         call envstr( 'CTM_WBDUST_BELD', vardesc, 'UNKNOWN', land_scheme, err )
-         if ( err .gt. 0 ) then
-            write( logdev, '(5x, a, i4)' ) vardesc // ' err:', err
-            xmsg = 'Environment variable not set or empty or improperly formatted'
-            call m3warn ( pname, jdate, jtime, xmsg )
-            success = .false.; return
-         end if
 
          if ( land_scheme .eq. 'BELD3' ) then
             isbeld = .true.

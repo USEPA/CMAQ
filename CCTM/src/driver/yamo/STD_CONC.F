@@ -24,16 +24,12 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 C Function: species, layer pointers and definitions for standard CONC
 C calculations
-C Revision: J.Young 13Sep2011: Increase size of CONC_SPCS dimension -
-C           previous revision used dynamic allocation, but GET_ENVLIST
-C           was called with the CONC_SPCS argument before it was allocated
+C Revision: J.Young 13Sep2011: Increase size of CONC_FILE_SPCS dimension -
+C           previous revision used dynamic allocation, but GET_ENV_LIST
+C           was called with the CONC_FILE_SPCS argument before it was allocated
 C           D.Wong 11 May 2016: Modified code to provide flexibility to handle
-C                environment variable CONC_SPCS is set to 'ALL' or not set.
+C                environment variable CONC_FILE_SPCS is set to 'ALL' or not set.
 
-      INTEGER, SAVE :: N_CSPCS    ! Number of species saved to conc file
-      CHARACTER( 16 ), SAVE :: CONC_SPCS( 900 ) ! conc file species list
-      INTEGER, SAVE :: CONC_BLEV  ! Beginning level saved to conc file
-      INTEGER, SAVE :: CONC_ELEV  ! Ending level saved to conc file
       INTEGER, SAVE :: C_NLAYS    ! Number of layers saved to conc file
 
       INTEGER, SAVE, ALLOCATABLE :: CONC_MAP( : ) ! pointer into CGRID
@@ -60,6 +56,7 @@ C species classes configuration for CONC
 
          SUBROUTINE CONC_DEFN ()
 
+         USE RUNTIME_VARS
          USE HGRD_DEFN             ! horizontal domain specifications
          USE VGRD_DEFN             ! vertical layer specifications
          USE CGRID_SPCS            ! CGRID mechanism species
@@ -78,66 +75,42 @@ C species classes configuration for CONC
          INTEGER, ALLOCATABLE :: NR_MAP( : )
          INTEGER, ALLOCATABLE :: TR_MAP( : )
 
-         CHARACTER( 32 ) :: STD_CONC_SPCS  = 'CONC_SPCS'
-         CHARACTER( 32 ) :: CONC_BLEV_ELEV = 'CONC_BLEV_ELEV'
-         CHARACTER( 16 ) :: V_LIST( 2 )
-
-         INTERFACE
-            SUBROUTINE GET_ENVLIST ( ENV_VAR, NVARS, VAL_LIST )
-               CHARACTER( * ),  INTENT ( IN )  :: ENV_VAR
-               INTEGER,         INTENT ( OUT ) :: NVARS
-               CHARACTER( 16 ), INTENT ( OUT ) :: VAL_LIST( : )
-            END SUBROUTINE GET_ENVLIST
-         END INTERFACE
-
 C-----------------------------------------------------------------------
 
 C Retrieve the species saved to the concentration file
 
-         CALL GET_ENVLIST ( STD_CONC_SPCS, N_CSPCS, CONC_SPCS )
-         IF ( N_CSPCS .EQ. 0 .OR. CONC_SPCS( 1 ) .EQ. 'ALL' ) THEN
+         IF ( N_CSPCS .EQ. 0 .OR. CONC_FILE_SPCS( 1 ) .EQ. 'ALL' ) THEN
             N_CSPCS = N_GC_CONC + N_AE_CONC + N_NR_CONC + N_TR_SPC
             V = 0
             DO VAR = 1, N_GC_CONC
                V = V + 1
-               CONC_SPCS( V ) = GC_CONC( VAR )
+               CONC_FILE_SPCS( V ) = GC_CONC( VAR )
             END DO
             DO VAR = 1, N_AE_CONC
                V = V + 1
-               CONC_SPCS( V ) = AE_CONC( VAR )
+               CONC_FILE_SPCS( V ) = AE_CONC( VAR )
             END DO
             DO VAR = 1, N_NR_CONC
                V = V + 1
-               CONC_SPCS( V ) = NR_CONC( VAR )
+               CONC_FILE_SPCS( V ) = NR_CONC( VAR )
             END DO
             DO VAR = 1, N_TR_SPC
                V = V + 1
-               CONC_SPCS( V ) = TR_SPC( VAR )
+               CONC_FILE_SPCS( V ) = TR_SPC( VAR )
             END DO
          END IF
 
 C Retrieve the layer range used in the concentration file
 
-         CALL GET_ENVLIST ( CONC_BLEV_ELEV, NV, V_LIST )
-         IF ( NV .LE. 0 ) THEN   ! assume 1:NLAYS
-            CONC_BLEV = 1
-            CONC_ELEV = NLAYS
-         ELSE IF ( NV .NE. 2 ) THEN
-            XMSG = 'Environment variable error for ' // CONC_BLEV_ELEV
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-         ELSE   ! NV = 2
-            READ( V_LIST( 1 ), '( I4 )' ) CONC_BLEV
-            READ( V_LIST( 2 ), '( I4 )' ) CONC_ELEV
-            IF ( CONC_BLEV .LE. 0 .OR. CONC_ELEV .GT. NLAYS ) THEN
+        IF ( CONC_BLEV .LE. 0 .OR. CONC_ELEV .GT. NLAYS ) THEN
                WRITE( XMSG,'( "Layer range", 2I4, " invalid for this model" )' )
      &         CONC_BLEV, CONC_ELEV
                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-            END IF
-            IF ( CONC_BLEV .NE. 1 ) THEN
+         END IF
+         IF ( CONC_BLEV .NE. 1 ) THEN
                WRITE( XMSG,'( "Layer", I3, " Not 1st layer in CGRID" )' )
      &         CONC_BLEV
                CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-            END IF
          END IF
 
          C_NLAYS = CONC_ELEV - CONC_BLEV + 1
@@ -216,35 +189,35 @@ C get starting index in CGRID and total count for each species class
          N_C_TR_SPC = 0
 
          DO VAR = 1, N_CSPCS
-            V = INDEX1 ( CONC_SPCS( VAR ), N_GC_SPC, GC_SPC )
+            V = INDEX1 ( CONC_FILE_SPCS( VAR ), N_GC_SPC, GC_SPC )
             IF ( V .GT. 0 ) THEN
                N_C_GC_SPC = N_C_GC_SPC + 1
-               C_GC_SPC( N_C_GC_SPC ) = CONC_SPCS( VAR )
+               C_GC_SPC( N_C_GC_SPC ) = CONC_FILE_SPCS( VAR )
                OFF = 0
                GC_MAP( N_C_GC_SPC ) = V + OFF
             ELSE
-               V = INDEX1 ( CONC_SPCS( VAR ), N_AE_SPC, AE_SPC )
+               V = INDEX1 ( CONC_FILE_SPCS( VAR ), N_AE_SPC, AE_SPC )
                IF ( V .GT. 0 ) THEN
                   N_C_AE_SPC = N_C_AE_SPC + 1
                   OFF = N_GC_SPC + 1   ! accounts for advected density
-                  C_AE_SPC( N_C_AE_SPC ) = CONC_SPCS( VAR )
+                  C_AE_SPC( N_C_AE_SPC ) = CONC_FILE_SPCS( VAR )
                   AE_MAP( N_C_AE_SPC ) = V + OFF
                ELSE
-                  V = INDEX1 ( CONC_SPCS( VAR ), N_NR_SPC, NR_SPC )
+                  V = INDEX1 ( CONC_FILE_SPCS( VAR ), N_NR_SPC, NR_SPC )
                   IF ( V .GT. 0 ) THEN
                      N_C_NR_SPC = N_C_NR_SPC + 1
                      OFF = N_GC_SPC + 1 + N_AE_SPC
-                     C_NR_SPC( N_C_NR_SPC ) = CONC_SPCS( VAR )
+                     C_NR_SPC( N_C_NR_SPC ) = CONC_FILE_SPCS( VAR )
                      NR_MAP( N_C_NR_SPC ) = V + OFF
                   ELSE
-                     V = INDEX1 ( CONC_SPCS( VAR ), N_TR_SPC, TR_SPC )
+                     V = INDEX1 ( CONC_FILE_SPCS( VAR ), N_TR_SPC, TR_SPC )
                      IF ( V .GT. 0 ) THEN
                         N_C_TR_SPC = N_C_TR_SPC + 1
                         OFF = N_GC_SPC + 1 + N_AE_SPC + N_NR_SPC
-                        C_TR_SPC( N_C_TR_SPC ) = CONC_SPCS( VAR )
+                        C_TR_SPC( N_C_TR_SPC ) = CONC_FILE_SPCS( VAR )
                         TR_MAP( N_C_TR_SPC ) = V + OFF
                      ELSE
-                        XMSG = 'Variable ' // CONC_SPCS( VAR )
+                        XMSG = 'Variable ' // CONC_FILE_SPCS( VAR )
      &                  // ' incorrect for this model'
                         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
                      END IF
@@ -270,7 +243,7 @@ C get starting index in CGRID and total count for each species class
             CONC_MAP( VAR ) = GC_MAP( V )
 #ifdef Verbose
             write( logdev,* ) '<<>>var, CONC_MAP, _SPCS: ',
-     &                         VAR, CONC_MAP( VAR ), CONC_SPCS( VAR )
+     &                         VAR, CONC_MAP( VAR ), CONC_FILE_SPCS( VAR )
 #endif
          END DO
 
@@ -279,7 +252,7 @@ C get starting index in CGRID and total count for each species class
             CONC_MAP( VAR ) = AE_MAP( V )
 #ifdef Verbose
             write( logdev,* ) '<<>>var, CONC_MAP, _SPCS: ',
-     &                         VAR, CONC_MAP( VAR ), CONC_SPCS( VAR )
+     &                         VAR, CONC_MAP( VAR ), CONC_FILE_SPCS( VAR )
 #endif
          END DO
 
@@ -288,7 +261,7 @@ C get starting index in CGRID and total count for each species class
             CONC_MAP( VAR ) = NR_MAP( V )
 #ifdef Verbose
             write( logdev,* ) '<<>>var, CONC_MAP, _SPCS: ',
-     &                         VAR, CONC_MAP( VAR ), CONC_SPCS( VAR )
+     &                         VAR, CONC_MAP( VAR ), CONC_FILE_SPCS( VAR )
 #endif
          END DO
 
@@ -297,7 +270,7 @@ C get starting index in CGRID and total count for each species class
             CONC_MAP( VAR ) = TR_MAP( V )
 #ifdef Verbose
             write( logdev,* ) '<<>>var, CONC_MAP, _SPCS: ',
-     &                         VAR, CONC_MAP( VAR ), CONC_SPCS( VAR )
+     &                         VAR, CONC_MAP( VAR ), CONC_FILE_SPCS( VAR )
 #endif
          END DO
 

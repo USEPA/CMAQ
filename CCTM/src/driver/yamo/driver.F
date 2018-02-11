@@ -182,13 +182,11 @@ C Local variables:
       LOGICAL       :: WFLG                ! turn on write subdmap in pio_init
 
 #ifdef twoway
-      LOGICAL, SAVE :: SD_TIME_SERIES
-      LOGICAL       :: CMAQ_WRF_FEEDBACK
       INTEGER, SAVE :: myNREPS = 0
 #endif
 
       INTEGER, SAVE :: STEP_COUNT = 0, TOTAL_STEPS = 0
-      INTEGER       :: STATUS, RUNLEN
+      INTEGER       :: STATUS
 
       INTERFACE
          SUBROUTINE INITSCEN ( CGRID, STDATE, STTIME, TSTEP, NSTEPS )
@@ -242,23 +240,22 @@ C-----------------------------------------------------------------------
          TSTEP( 3 ) = SEC2TIME( WRF_TSTEP )
          NSTEPS     = WRF_NSTEP
 
-         RUNLEN = ENVINT( 'CTM_RUNLEN', ' ', RUNLEN, STATUS )
          TOTAL_STEPS = TIME2SEC( RUNLEN ) / WRF_TSTEP
 #endif
 
 #ifdef parallel
-C Start up processor communication
+C Start up processor communication and retrieve number of compute
+C processes (NPROCS)
          CALL MPCOMM_INIT( NPROCS, MYPE, BEGTIME, PAR_ERR )
 #else
          NPROCS = 1
          MYPE = 0
 #endif
 
+C Initialize Environment Variables
          JDATE = 0
          JTIME = 0
-
-C Start I/O-API and set up log file(s)
-         CALL SETUP_LOGDEV()
+         CALL INIT_ENV_VARS( JDATE, JTIME )
 
 C Set up horizontal domain, calculate processor-to-subdomain maps
 C and define vertical layer structure (in module GRID_CONF)
@@ -366,7 +363,7 @@ C Initialize optional derived vertical velocity writes to conc file
 
 C Initialize conc field: Copy IC's to CONC file as step 0
 C Convention: the input file concentration units are always ppmV.
-         CALL INITSCEN ( CGRID, STDATE, STTIME, TSTEP, NSTEPS )
+         CALL INITSCEN ( CGRID, TSTEP, NSTEPS )
          JDATE = STDATE; JTIME = STTIME
          CALL CKSUMMER ( 'INITSCEN', CGRID, JDATE, JTIME )
 
@@ -389,27 +386,6 @@ C Verify input file header consistency and run duration
 
          FIRST_RUN = .FALSE.
 
-#ifdef twoway
-         CMAQ_WRF_FEEDBACK = ENVYN( 'CMAQ_WRF_FEEDBACK', ' ', .FALSE., STATUS )
-         IF ( STATUS .EQ. 1 ) THEN
-            PRINT *, 'Environment variable improperly formatted'
-            STOP
-         ELSE IF ( STATUS .EQ. -1 ) THEN
-            PRINT *, 'Environment variable set, but empty ... Using default:'
-         ELSE IF ( STATUS .EQ. -2 ) THEN
-            PRINT *, 'Environment variable not set ... Using default:'
-         END IF
-
-         IF ( CMAQ_WRF_FEEDBACK ) THEN
-            CALL FEEDBACK_SETUP ( JDATE, JTIME, TSTEP( 3 ) )
-         END IF
-
-         SD_TIME_SERIES = ENVYN( "SD_TIME_SERIES", ' ', .FALSE., STATUS )
-         IF ( SD_TIME_SERIES ) THEN
-            CALL SD_TIME_SERIES_INIT ( LOGDEV, TSTEP( 3 ) )
-            CALL OUTPUT_SD_TIME_SERIES ( CGRID, JDATE, JTIME )
-         END IF
-#endif
 
       END IF ! first_run
 

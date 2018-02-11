@@ -40,9 +40,6 @@ C.......................................................................
 
       IMPLICIT NONE
 
-C grid name selected from GRIDDESC
-      CHARACTER( 16 ), SAVE :: GRID_NAME
-
 C returned coordinate system (projection)
       CHARACTER( 16 ), SAVE :: COORD_SYS_NAME
 
@@ -73,9 +70,6 @@ C latitude for coord-system center (degrees)
       INTEGER, SAVE :: GL_NCOLS   ! no. of columns in global grid
       INTEGER, SAVE :: GL_NROWS   ! no. of rows in global grid
       INTEGER, SAVE :: GL_NBNDY   ! no. of cells in one layer of global boundary
- 
-      INTEGER, SAVE :: NPCOL      ! no. of processors across grid columns
-      INTEGER, SAVE :: NPROW      ! no. of processors across grid rows
  
       INTEGER, SAVE :: NCOLS      ! grid columns array dimension
       INTEGER, SAVE :: NROWS      ! grid rows array dimension
@@ -134,27 +128,12 @@ C Integral average conc
          CHARACTER( 96 ) :: XMSG = ' '
 
 C environment variable grid name to select from GRIDDESC
-         CHARACTER( 16 ) :: HGRD_NAME = 'GRID_NAME'
          INTEGER :: STATUS, ALST
 
          INTEGER, ALLOCATABLE :: NCOLS_PE( : )  ! Column range for each PE
          INTEGER, ALLOCATABLE :: NROWS_PE( : )  ! Row range for each PE
 
-!        CHARACTER( 32 ) :: AVG_CONC_SPCS   = 'AVG_CONC_SPCS'
-!        CHARACTER( 32 ) :: ACONC_BLEV_ELEV = 'ACONC_BLEV_ELEV'
-         CHARACTER( 32 ) :: NPCOL_NPROW     = 'NPCOL_NPROW'
-         CHARACTER( 16 ) :: V_LIST( 2 )
-         CHARACTER( 48 ) :: VARDESC
-
-         INTEGER I, NV
-
-         INTERFACE
-            SUBROUTINE GET_ENVLIST ( ENV_VAR, NVARS, VAL_LIST )
-               CHARACTER( * ),  INTENT ( IN )  :: ENV_VAR
-               INTEGER,         INTENT ( OUT ) :: NVARS
-               CHARACTER( 16 ), INTENT ( OUT ) :: VAL_LIST( : )
-            END SUBROUTINE GET_ENVLIST
-         END INTERFACE
+         INTEGER I
 
 C-----------------------------------------------------------------------
 
@@ -166,20 +145,6 @@ C This function is expected to be called only once - at startup
 
             MYPE = MYID
 
-            VARDESC = 'Horizontal Domain Definition '
-            CALL ENVSTR( HGRD_NAME, VARDESC, 'GRID_NAME', GRID_NAME, STATUS )
-            IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-            IF ( STATUS .EQ. 1 ) THEN
-               XMSG = 'Environment variable improperly formatted'
-               CALL M3WARN ( 'HGRD_INIT', 0, 0, XMSG )
-               SUCCESS = .FALSE.; RETURN
-            ELSE IF ( STATUS .EQ. -1 ) THEN
-               XMSG = 'Environment variable set, but empty ... Using default'
-               WRITE( LOGDEV, '(5X, A)' ) XMSG
-            ELSE IF ( STATUS .EQ. -2 ) THEN
-               XMSG = 'Environment variable not set ... Using default'
-               WRITE( LOGDEV, '(5X, A)' ) XMSG
-            END IF
 
 C With GRID_NAME (only input) retrieve all horizontal grid parameters from
 C the grid description file pointed to by the GRIDDESC env var:
@@ -195,43 +160,6 @@ C the grid description file pointed to by the GRIDDESC env var:
                CALL M3WARN ( 'HGRD_INIT', 0, 0, XMSG )
                SUCCESS = .FALSE.; RETURN
             END IF
-
-C    Retrieve the domain decompostion processor array
-
-#ifndef twoway
-            IF ( NPROCS .GT. 1 ) THEN
-               CALL GET_ENVLIST ( NPCOL_NPROW, NV, V_LIST )
-               IF ( NV .NE. 2 ) THEN
-                  XMSG = 'Environment variable problem for ' // NPCOL_NPROW
-     &                 // ' using default 1X1'
-                  CALL M3WARN ( 'HGRD_INIT', 0, 0, XMSG )
-!                 SUCCESS = .FALSE.; RETURN
-                  NV = 2
-                  V_LIST( 1 ) = '1'
-                  V_LIST( 2 ) = '1'
-               END IF
-               READ( V_LIST( 1 ), '( I4 )' ) NPCOL
-               READ( V_LIST( 2 ), '( I4 )' ) NPROW
-            ELSE
-               NPCOL = 1
-               NPROW = 1
-            END IF
-#endif
-
-C Retrieve the species saved to integral average concentration file
-
-!           CALL GET_ENVLIST ( AVG_CONC_SPCS, N_ASPCS, AVG_CONC )
-
-C Retrieve the layer range used in integral average concentration file
-
-!           CALL GET_ENVLIST ( ACONC_BLEV_ELEV, NV, V_LIST )
-!           IF ( NV .NE. 2 ) THEN
-!              XMSG = 'Environment variable error for ' // ACONC_BLEV_ELEV
-!              CALL M3WARN ( 'HGRD_INIT', 0, 0, XMSG )
-!              SUCCESS = .FALSE.; RETURN
-!              END IF
-!           READ( V_LIST( 1 ), '( I4 )' ) ACONC_BLEV
-!           READ( V_LIST( 2 ), '( I4 )' ) ACONC_ELEV
 
 C Check NPROCS against NPCOL*NPROW
             IF ( NPROCS .NE. NPCOL*NPROW ) THEN

@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE INITSCEN ( CGRID, STDATE, STTIME, TSTEP, NSTEPS )
+      SUBROUTINE INITSCEN ( CGRID, TSTEP, NSTEPS )
 
 C-----------------------------------------------------------------------
 C Function:
@@ -31,7 +31,7 @@ C   Write initial conc data as step "0" on output conc file
 C Preconditions:
  
 C Subroutines and functions called:
-C   M3EXIT, OPEN3, CLOSE3, DESC3, ENVINT, TIME2SEC, HHMMSS
+C   M3EXIT, OPEN3, CLOSE3, DESC3, TIME2SEC, HHMMSS
  
 C Revision history:
 C   prototype 6/92 by CJC for "concept model"
@@ -84,8 +84,6 @@ C Arguments:
 
 !     REAL      :: CGRID( :,:,:,: )  ! for initial CONC
       REAL, POINTER :: CGRID( :,:,:,: )  ! for initial CONC
-      INTEGER      STDATE       ! starting date,    format YYYYDDD
-      INTEGER      STTIME       ! starting time,    format HHMMSS
       INTEGER      TSTEP( 3 )   ! time step vector (HHMMSS)
                                 ! TSTEP(1) = local output step
                                 ! TSTEP(2) = sciproc sync. step (chem)
@@ -98,20 +96,6 @@ C Parameters:
       REAL, PARAMETER :: CMIN = 1.0E-30
 
 C Local Variables
-
-C  environment variable start date
-      CHARACTER( 16 ) :: CTM_STDATE = 'CTM_STDATE'
-C  environment variable start time
-      CHARACTER( 16 ) :: CTM_STTIME = 'CTM_STTIME'
-C  environment variable run duration
-      CHARACTER( 16 ) :: CTM_RUNLEN = 'CTM_RUNLEN'
-C  environment variable output time step
-      CHARACTER( 16 ) :: CTM_TSTEP = 'CTM_TSTEP'
-C driver program name
-      CHARACTER( 16 ) :: CTM_PROGNAME = 'CTM_PROGNAME'
-C  environment variable description
-      CHARACTER( 80 ) :: VARDESC
-
       CHARACTER( 16 ) :: PNAME = 'INITSCEN'
       CHARACTER( 16 ) :: FNAME
       CHARACTER( 16 ) :: PROGNAME
@@ -120,7 +104,6 @@ C  environment variable description
       INTEGER      RUNLEN            ! run duration, HHMMSS
       INTEGER      STEPSECS          ! seconds per time step
       INTEGER      TOTSECS           ! run duration seconds
-      INTEGER      STATUS            !  ENVINT status
 
 #ifdef Verbose3
       real sumcg
@@ -128,97 +111,24 @@ C  environment variable description
 #endif
 
       INTERFACE
-         SUBROUTINE LOAD_CGRID ( FNAME, STDATE, STTIME, SPC_CAT, CMIN, CGRID )
+         SUBROUTINE LOAD_CGRID ( FNAME, SPC_CAT, CMIN, CGRID )
             CHARACTER( 16 ), INTENT( IN ) :: FNAME
-            INTEGER, INTENT( IN )         :: STDATE, STTIME
             CHARACTER(  2 ), INTENT( IN ) :: SPC_CAT
             REAL,    INTENT( IN )         :: CMIN
             REAL, POINTER                 :: CGRID( :,:,:,: )
          END SUBROUTINE LOAD_CGRID
-         SUBROUTINE WR_INIT ( CGRID, STDATE, STTIME, TSTEP )
+         SUBROUTINE WR_INIT ( CGRID, TSTEP )
             REAL, POINTER                 :: CGRID(:,:,:,:)
-            INTEGER, INTENT( IN )         :: STDATE, STTIME, TSTEP
+            INTEGER, INTENT( IN )         :: TSTEP
          END SUBROUTINE WR_INIT
       END INTERFACE
 
 C-----------------------------------------------------------------------
 
-      TSTEP( 1 )  = 010000         ! default
-      VARDESC = 'Scenario Output Time Step (HHMMSS)'
-      TSTEP( 1 ) = ENVINT( CTM_TSTEP, VARDESC, TSTEP( 1 ), STATUS )
-      IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-      IF ( STATUS .EQ. 1 ) THEN
-         MSG = 'Environment variable improperly formatted'
-         CALL M3EXIT( PNAME, STDATE, STTIME, MSG, XSTAT2 )
-      ELSE IF ( STATUS .EQ. -1 ) THEN
-         MSG = 'Environment variable set, but empty ... Using default:'
-         WRITE( LOGDEV, '(7X, A, I9)' ) TRIM(MSG), TSTEP( 1 )
-      ELSE IF ( STATUS .EQ. -2 ) THEN
-         MSG = 'Environment variable not set ... Using default:'
-         WRITE( LOGDEV, '(7X, A, I9)' ) TRIM(MSG), TSTEP( 1 )
-      END IF
+      TSTEP( 1 ) = LOCAL_TSTEP 
 
 #ifndef twoway
-      VARDESC = 'Main Program Name'
-      CALL ENVSTR( CTM_PROGNAME, VARDESC, 'DRIVER', PROGNAME, STATUS )
-      !IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, 2A)' ) 'Value for ',VARDESC
-      IF ( STATUS .EQ. 1 ) THEN
-         MSG = 'Environment variable improperly formatted'
-         CALL M3EXIT( PNAME, STDATE, STTIME, MSG, XSTAT2 )
-      ELSE IF ( STATUS .EQ. -1 ) THEN
-         MSG = 'Environment variable set, but empty ... Using default: '
-         WRITE( LOGDEV, '(7X, A, 1x, A)' ) TRIM(MSG), PROGNAME
-      ELSE IF ( STATUS .EQ. -2 ) THEN
-         MSG = 'Environment variable not set ... Using default: '
-         WRITE( LOGDEV, '(7X, A, 1x, A)' ) TRIM(MSG), PROGNAME
-      END IF
-
-      STDATE = 1995192        ! default
-      VARDESC = 'Scenario Starting Date (YYYYDDD)'
-      STDATE = ENVINT( CTM_STDATE, VARDESC, STDATE, STATUS )
-      IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-      IF ( STATUS .EQ. 1 ) THEN
-         MSG = 'Environment variable improperly formatted'
-         CALL M3EXIT( PNAME, STDATE, STTIME, MSG, XSTAT2 )
-      ELSE IF ( STATUS .EQ. -1 ) THEN
-         MSG = 'Environment variable set, but empty ... Using default:'
-         WRITE( LOGDEV, '(7X, A, I9)' ) TRIM(MSG), STDATE
-      ELSE IF ( STATUS .EQ. -2 ) THEN
-         MSG = 'Environment variable not set ... Using default:'
-         WRITE( LOGDEV, '(7X, A, I9)' ) TRIM(MSG), STDATE
-      END IF
-
-      STTIME = 000000         ! default
-      VARDESC = 'Scenario Starting Time (HHMMSS)'
-      STTIME = ENVINT( CTM_STTIME, VARDESC, STTIME, STATUS )
-      IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-      IF ( STATUS .EQ. 1 ) THEN
-         MSG = 'Environment variable improperly formatted'
-         CALL M3EXIT( PNAME, STDATE, STTIME, MSG, XSTAT2 )
-      ELSE IF ( STATUS .EQ. -1 ) THEN
-         MSG = 'Environment variable set, but empty ... Using default:'
-         WRITE( LOGDEV, '(7X, A, I9)' ) TRIM(MSG), STTIME
-      ELSE IF ( STATUS .EQ. -2 ) THEN
-         MSG = 'Environment variable not set ... Using default:'
-         WRITE( LOGDEV, '(7X, A, I9)' ) TRIM(MSG), STTIME
-      END IF
-
-      RUNLEN = 480000         ! default
-      VARDESC = 'Scenario Run Duration (HHMMSS)'
-      RUNLEN = ENVINT( CTM_RUNLEN, VARDESC, RUNLEN, STATUS )
-      IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-      IF ( STATUS .EQ. 1 ) THEN
-         MSG = 'Environment variable improperly formatted'
-         CALL M3EXIT( PNAME, STDATE, STTIME, MSG, XSTAT2 )
-      ELSE IF ( STATUS .EQ. -1 ) THEN
-         MSG = 'Environment variable set, but empty ... Using default:'
-         WRITE( LOGDEV, '(7X, A, I9)' ) TRIM(MSG), RUNLEN
-      ELSE IF ( STATUS .EQ. -2 ) THEN
-         MSG = 'Environment variable not set ... Using default:'
-         WRITE( LOGDEV, '(7X, A, I9)' ) TRIM(MSG), RUNLEN
-      END IF
-
-C Calculate number of output time steps for this model run:
+      ! Calculate number of output time steps for this model run:
       IF ( RUNLEN .LT. 1000000 ) THEN
          TOTSECS  = TIME2SEC( RUNLEN )
       ELSE
@@ -262,24 +172,24 @@ C Load CGRID
 
 C load rhoj
       FNAME = MET_CRO_3D
-      CALL LOAD_CGRID ( FNAME, STDATE, STTIME, 'RJ', CMIN, CGRID )
+      CALL LOAD_CGRID ( FNAME, 'RJ', CMIN, CGRID )
 
 C Get aerosols IC's. Note: INIT_AERO_1 may be setenv'ed to INIT_GASC_1
       IF ( N_AE_SPC .GT. 0 ) THEN
          FNAME = INIT_AERO_1
-         CALL LOAD_CGRID ( FNAME, STDATE, STTIME, 'AE', CMIN, CGRID )
+         CALL LOAD_CGRID ( FNAME, 'AE', CMIN, CGRID )
       END IF  ! N_AE_SPC > 0
 
 C Get non-reactives IC's. Note: INIT_NONR_1 may be setenv'ed to INIT_GASC_1
       IF ( N_NR_SPC .GT. 0 ) THEN
          FNAME = INIT_NONR_1
-         CALL LOAD_CGRID ( FNAME, STDATE, STTIME, 'NR', CMIN, CGRID )
+         CALL LOAD_CGRID ( FNAME, 'NR', CMIN, CGRID )
       END IF  ! N_NR_SPC > 0
 
 C Get tracer IC's. Note: INIT_TRAC_1 may be setenv'ed to INIT_GASC_1
       IF ( N_TR_SPC .GT. 0 ) THEN
          FNAME = INIT_TRAC_1
-         CALL LOAD_CGRID ( FNAME, STDATE, STTIME, 'TR', CMIN, CGRID )
+         CALL LOAD_CGRID ( FNAME, 'TR', CMIN, CGRID )
       END IF  ! N_TR_SPC > 0
 
 C Test opening existing conc file for update

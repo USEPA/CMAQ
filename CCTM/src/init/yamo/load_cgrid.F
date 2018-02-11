@@ -133,8 +133,6 @@ C for XTRACT3
                                                !      (N, M2, M3) - Before
                                                !      (N, M2, M3) - After
       REAL          :: AECON( N_AE_SPC )
-      LOGICAL       :: NEW_START
-      CHARACTER( 16 ) :: CTM_NEW_START = 'NEW_START'
 
       CHARACTER( 16 ) :: PNAME = 'LOAD_CGRID'
       CHARACTER( 16 ) :: VNAME
@@ -465,8 +463,6 @@ C Load RHOJ for transport and mixing ratio advection adjustment
          CALL LOG_SUBHEADING( LOGDEV, 'Check Aerosol IC Size Distributions' )
 
          ! Check Aerosol Size Distributions and Warn the User if They Are Not Robust
-         NEW_START = ENVYN( CTM_NEW_START, 'Flag for Model Restart from Previous Day', 
-     &                      .FALSE., STAT )
          IF ( NEW_START ) THEN
            SPC_STRT = AE_STRT
            SPC_FINI = AE_STRT + N_AE_SPC - 1

@@ -135,7 +135,6 @@ C For handling vapor-phase sulfuric acid emissions
       INTEGER, SAVE :: VPSO4               ! index to PSO4 in EM_RATE array
 
 C Miscellaneous variables
-      LOGICAL, SAVE :: WB_DUST   ! flag for windblown dust option
       INTEGER :: IDX
       CHARACTER( 96 ) :: XMSG = ' '
 
@@ -231,12 +230,6 @@ C Arguments:
 C External Functions:
          INTEGER, EXTERNAL :: FINDEX       !  looks up number in table.
 
-C Local Variables:
-         CHARACTER( 16 ), SAVE :: CTM_WB_DUST = 'CTM_WB_DUST' ! env var for windblown dust
-         LOGICAL, SAVE :: ZERO_PCSOA
-         CHARACTER( 16 ), SAVE :: CTM_ZERO_PCSOA = 'CTM_ZERO_PCSOA' ! env var for toggling
-                                                                    ! pcSOA modeling
-
 C Variables for calculating the volume of each grid cell
          REAL  DX1, DX2                            ! grid-cell width and length [m]
          REAL  CELLAREA                            ! grid-cell area [m2]
@@ -268,10 +261,6 @@ C *** set up for sea-salt emission processing
             XMSG = 'Failure initializing sea-salt emission processing'
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
          END IF
-
-C *** windblown dust emissions?
-         WB_DUST = ENVYN( 'CTM_WB_DUST', 'Flag for windblown dust emissions',
-     &                   .TRUE., STATUS )
 
          IF ( WB_DUST ) THEN
 C *** set up for dust emission processing
@@ -433,13 +422,6 @@ C     Strategy: first check Namelist Emis_Fac for antrhop. emis, then check for 
            ! Semivolatile POA  
 C *** Let the user set the pcVOC species (which makes pcSOA) emissions
 C *** scaling to 0.0
-           ! Retrieve the Environment Variable allowing the User to Toggle
-           ! the pcVOC emissions
-           ZERO_PCSOA = .FALSE.         ! default
-           VARDESC = 'Flag for Ignoring the pcSOA species'
-           ZERO_PCSOA = ENVYN( CTM_ZERO_PCSOA, VARDESC, ZERO_PCSOA, STATUS )
-
-                        
            V = INDEX1( 'PCVOC', N_GC_SPC, GC_SPC )
            IF ( V .LT. 1 ) THEN
              WRITE(LOGDEV,99901)'PCVOC','PCVOC',TRIM( MECHNAME )

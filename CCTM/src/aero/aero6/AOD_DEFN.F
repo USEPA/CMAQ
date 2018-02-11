@@ -28,15 +28,6 @@ C    May 16 H. Pye, B. Murphy: Updated treatment of aerosol moments
 
       implicit none
 
-C *** environment variable for AOD file
-      character( 16 ), save :: ctm_aod = 'CTM_AOD'
-
-C *** AOD diagnostic file name (now in FILES_CTM.EXT)
-!     character( 16 ) :: ctm_aod_1 = 'CTM_AOD_1'
-
-C *** flag for AOD file [F], default
-      logical, save :: aod
-
       real, allocatable :: aod_data( :,: )
 
       real, private, allocatable :: conc_cr ( :,: ),
@@ -159,8 +150,6 @@ C         AERO_DATA.F. Moments are wet after extract_aero
          real    :: blkesat
          real    :: blkevap
          real    :: airrh
-
-!        logical :: output_ext
 
          integer :: nvars
 
