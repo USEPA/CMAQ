@@ -29,11 +29,11 @@ C    Information needed to estimate NO emissions:
 C       Julian Day          (integer)    JDATE
 C       Surface Temperature (MCIP field) TA    (K)
 C       Rainfall    (MCIP derived field) RAIN  (cm)
-C       Soil Moisture       (MCIP field) SOILM (M**3/M**3) (PX_VERSION)
+C       Soil Moisture       (MCIP field) SOILM (M**3/M**3) (PX_LSM)
 C            (ratio of volume of water per volume of soil)
-C       Soil Temperature    (MCIP field) SOILT (K)         (PX_VERSION)
-C       Soil Type           (MCIP field) ISLTYP            (PX_VERSION)
-C       Saturation values for soil types (constants)       (PX_VERSION)
+C       Soil Temperature    (MCIP field) SOILT (K)         (PX_LSM)
+C       Soil Type           (MCIP field) ISLTYP            (PX_LSM)
+C       Saturation values for soil types (constants)       (PX_LSM)
 C    FOR PX Version, the Temperature adjustment factor accounts for wet and dry
 C    soils and the precipitation adjustment factor accounts for saturated soils
 C    FOR the non-PX version, the basic algorithm remains with a temperature
@@ -107,7 +107,7 @@ C   Jan 27: D. Wong - Eliminate potential race condition with mype = 0 and
 C                     barrier implementation - not needed anyway.
 C    02/11: S.Roselle-Replaced I/O API include files with UTILIO_DEFN
 C    05/11: D. Wong - incorporated twoway model implementation
-C    05/12: J.Young - make PX_version the default
+C    05/12: J.Young - make PX_LSM the default
 C    05/13: D.Wong  - replaced M3EXIT with M3WARN when CHKGRID is called in the twoway model
 C    09/13: D.Wong  - made the code more robust by
 C                     * allowing simulation start time at any hour rather than 0
@@ -117,7 +117,7 @@ C    07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module.
 C    Aug 15 D.Wong:    Replaced MYPE with IO_PE_INCLUSIVE for parallel I/O 
 C                      implementation and added code to handle parallel I/O
 C    09 Jan 15 J.Young: fix bug of not calculating NOPOL for last sync step of last
-C                       run output step; get saturation from LSM module; put PX_VERSION
+C                       run output step; get saturation from LSM module; put PX_LSM
 C                       as first conditional clause
 C-----------------------------------------------------------------------
 C Modified from:
@@ -587,7 +587,7 @@ C Check min bounds for temperature and limit max to 303 deg K
 
 C Calculate NO emissions by going thru temperature cases
 
-               IF ( PX_VERSION ) THEN
+               IF ( PX_LSM ) THEN
 
                   SOILCAT = GRID_DATA%SLTYP( C,R )
                   IF ( SOILCAT .LE. MAXSTYPES ) THEN
