@@ -340,16 +340,28 @@
  
       ! Get Simulation Scenario Name to Label Log Files, etc
       VARDESC = 'Reading APPL string to use for labeling log files'
-      APPL_NAME = GET_ENVSTR( 'CTM_APPL', VARDESC, APPL_NAME )
+      CALL ENVSTR( 'CTM_APPL', VARDESC, APPL_NAME, APPL_NAME, STATUS )
+      IF ( STATUS .EQ. 1 ) THEN
+           XMSG = 'CTM_APPL Improperly Formatted. This should be a string value.'
+           CALL M3EXIT( 'INIT_RUN_VARS', 0, 0, XMSG, XSTAT2 )
+      END IF
       
       ! Get Logfile Directory
       VARDESC = 'Retrieving directory where logfiles will be written'
-      LOGFOLD = GET_ENVSTR( "BLD", VARDESC, LOGFOLD )
+      CALL ENVSTR( "BLD", VARDESC, LOGFOLD, LOGFOLD, STATUS )
+      IF ( STATUS .EQ. 1 ) THEN
+           XMSG = 'BLD Improperly Formatted. This should be a string value.'
+           CALL M3EXIT( 'INIT_RUN_VARS', 0, 0, XMSG, XSTAT2 )
+      END IF
  
       ! Start I/O-API and set up log file(s)
       CALL SETUP_LOGDEV()
-    
-      CALL LOG_HEADING( 
+      CALL LOG_HEADING( "Environment Variable Report" )
+      CALL LOG_SUBHEADING( "Grid and High-Level Model Parameters" )
+      WRITE( OUTDEV, '(5x,A)' ),'--Env Variable-- | --Value--'
+      WRITE( OUTDEV, '(5x,A)' ), REPEAT( '-',80 )
+      WRITE( OUTDEV, '(5x,A16,2x,A,2x,A)' ),'CTM_APPL','|',TRIM(APPL_NAME)
+      WRITE( OUTDEV, '(5x,A16,2x,A,2x,A)' ),'BLD','|'TRIM(LOGFOLD)
 
       ! Determine if this run is a new start or a restart
       VARDESC = 'Flag for Model Restart from Previous Day' 
@@ -358,6 +370,7 @@
       ! Get Grid Name
       VARDESC = 'Horizontal Domain Definition '
       GRID_NAME = GET_ENVSTR( 'GRID_NAME', VARDESC, GRID_NAME )
+
 
 #ifndef twoway
       ! Main Program Name
@@ -409,6 +422,10 @@
       !-------------------------------------------------------------------------------------------------------
       !>> General; Multiprocess control, output and error checking
       !-------------------------------------------------------------------------------------------------------
+
+      CALL LOG_SUBHEADING( "Multiprocess control, output and error checking" )
+      WRITE( OUTDEV, '(5x,A)' ),'--Env Variable-- | --Value--'
+      WRITE( OUTDEV, '(5x,A)' ), REPEAT( '-',80 )
 
       ! LERROFF
       VARDESC = 'Flag for stopping on errors'
@@ -484,6 +501,10 @@
       !>> Chemistry and Photolysis
       !-------------------------------------------------------------------------------------------------------
 
+      CALL LOG_SUBHEADING( "Chemistry and Photolysis" )
+      WRITE( OUTDEV, '(5x,A)' ),'--Env Variable-- | --Value--'
+      WRITE( OUTDEV, '(5x,A)' ), REPEAT( '-',80 )
+
       ! Get photolysis rate diagnostic file flag
       VARDESC= 'Flag for writing the photolysis rate diagnostic file'
       PHOTDIAG = GET_ENVYN( 'CTM_PHOTDIAG', VARDESC, PHOTDIAG )
@@ -516,6 +537,10 @@
       !>> Aerosols
       !-------------------------------------------------------------------------------------------------------
       
+      CALL LOG_SUBHEADING( "Aerosols" )
+      WRITE( OUTDEV, '(5x,A)' ),'--Env Variable-- | --Value--'
+      WRITE( OUTDEV, '(5x,A)' ), REPEAT( '-',80 )
+
       ! Get aerosol average diagnostic file flag.
       VARDESC = 'Flag for writing the aerosol diagnostic file'
       AVISDIAG = GET_ENVYN( 'CTM_AVISDIAG', VARDESC, AVISDIAG )
@@ -560,6 +585,10 @@
       !>> Cloud Parameters
       !-------------------------------------------------------------------------------------------------------
 
+      CALL LOG_SUBHEADING( "Cloud Processes" )
+      WRITE( OUTDEV, '(5x,A)' ),'--Env Variable-- | --Value--'
+      WRITE( OUTDEV, '(5x,A)' ), REPEAT( '-',80 )
+
       ! FLag for outputting cloud diagnostics
       VARDESC = 'Output cloud diagnostic files? (Y/N)'
       CLD_DIAG = GET_ENVYN( 'CLD_DIAG', VARDESC, CLD_DIAG )
@@ -568,6 +597,10 @@
       !>> Air-Surface Exchange Parameters
       !-------------------------------------------------------------------------------------------------------
  
+      CALL LOG_SUBHEADING( "Air-Surface Exchange Processes" )
+      WRITE( OUTDEV, '(5x,A)' ),'--Env Variable-- | --Value--'
+      WRITE( OUTDEV, '(5x,A)' ), REPEAT( '-',80 )
+
       ! Flag for In-line deposition velocities calculation
       VARDESC = 'Flag for in-line deposition velocities'
       ILDEPV = GET_ENVYN( 'CTM_ILDEPV', VARDESC, ILDEPV )
@@ -626,6 +659,10 @@
       !>> Transport Processes
       !-------------------------------------------------------------------------------------------------------
 
+      CALL LOG_SUBHEADING( "Transport Processes" )
+      WRITE( OUTDEV, '(5x,A)' ),'--Env Variable-- | --Value--'
+      WRITE( OUTDEV, '(5x,A)' ), REPEAT( '-',80 )
+
       ! CTM_VDIFF_DIAG_FILE
       VARDESC = 'Writing the VDIFF diagnostic files'
       VDIFFDIAG = GET_ENVYN( 'CTM_VDIFF_DIAG_FILE', VARDESC, VDIFFDIAG )
@@ -658,6 +695,10 @@
       !>> Emission Environment Variables 
       !-------------------------------------------------------------------------------------------------------
       
+      CALL LOG_SUBHEADING( "Emissions Parameters" )
+      WRITE( OUTDEV, '(5x,A)' ),'--Env Variable-- | --Value--'
+      WRITE( OUTDEV, '(5x,A)' ), REPEAT( '-',80 )
+
       ! Number of Layers for Emissions
       VARDESC = 'Number of emission layers'
       EMLAYS = GET_ENVINT( 'CTM_EMLAYS', VARDESC, EMLAYS )
@@ -674,10 +715,10 @@
 
       ! Get the speciation profile to use
       VARDESC = 'Speciation profile to use for biogenics'
-      CALL ENVSTR( 'BIOG_SPRO', VARDESC, 'B3V10', SPPRO, IOS )
+      SPPRO = GET_ENVSTR( 'BIOG_SPRO', VARDESC, SPPRO )
  
       ! Bioseason Switch Flag
-      VARDESC = 'FLag for using a frost date switch file'
+      VARDESC = 'Flag for using a frost date switch file'
       BIOGEMIS_SEASON = GET_ENVYN ( 'BIOSW_YN', VARDESC, BIOGEMIS_SEASON )
 
       IF ( .NOT. BIOGEMIS_SEASON ) 
@@ -781,6 +822,10 @@
       !>> Process Analysis
       !-------------------------------------------------------------------------------------------------------
 
+      CALL LOG_SUBHEADING( "Process Analysis Parameters" )
+      WRITE( OUTDEV, '(5x,A)' ),'--Env Variable-- | --Value--'
+      WRITE( OUTDEV, '(5x,A)' ), REPEAT( '-',80 )
+
       ! Flag for Using Process Analysis
       VARDESC= 'Flag for using process analysis'
       PROCAN = GET_ENVYN( 'CTM_PROCAN', VARDESC, PROCAN )
@@ -820,7 +865,6 @@
          XMSG = 'Environment variable error for PA_BLEV_ELEV'
          CALL M3EXIT( 'INIT_ENV_VARS', JDATE, JTIME, XMSG, XSTAT3 )
       END IF
- 
 
 
       END SUBROUTINE INIT_VARS
@@ -855,7 +899,7 @@
            CALL LOG_MESSAGE( LOGDEV, XMSG )
       END IF
 
-      WRITE( XMSG, '( 2x,A16,1x,':',1x,A )' ),VAR_LABEL,VARVAL
+      WRITE( XMSG, '(2x,A16,2x,A,2x,A)' ),VAR_LABEL,'|',TRIM(VARVAL)
       CALL LOG_MESSAGE( OUTDEV, XMSG )
 
       END FUNCTION GET_ENVYN
@@ -890,7 +934,7 @@
            CALL LOG_MESSAGE( LOGDEV, XMSG )
       END IF
  
-      WRITE( XMSG, '( 2x,A16,1x,':',1x,I )' ),VAR_LABEL,VARVAL
+      WRITE( XMSG, '(2x,A16,2x,A,2x,I)' ),VAR_LABEL,'|',VARVAL
       CALL LOG_MESSAGE( OUTDEV, XMSG )
       
       END FUNCTION GET_ENVINT 
@@ -925,7 +969,7 @@
            CALL LOG_MESSAGE( LOGDEV, XMSG )
       END IF
  
-      WRITE( XMSG, '( 2x,A16,1x,':',1x,E10.3 )' ),VAR_LABEL,VARVAL
+      WRITE( XMSG, '(2x,A16,2x,A,2x,E10.3)' ),VAR_LABEL,'|',VARVAL
       CALL LOG_MESSAGE( OUTDEV, XMSG )
       
       END FUNCTION GET_ENVREAL 
@@ -960,7 +1004,7 @@
            CALL LOG_MESSAGE( LOGDEV, XMSG )
       END IF
  
-      WRITE( XMSG, '( 2x,A16,1x,':',1x,A )' ),VAR_LABEL,VARVAL
+      WRITE( XMSG, '(2x,A16,2x,A,2x,A)' ),VAR_LABEL,'|',VARVAL
       CALL LOG_MESSAGE( OUTDEV, XMSG )
       
       END FUNCTION GET_ENVSTR 
