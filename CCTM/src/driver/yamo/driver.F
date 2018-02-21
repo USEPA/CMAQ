@@ -137,8 +137,6 @@ C Include Files:
 
 C Local variables:
 
-      INTEGER      STDATE       ! starting date,    format YYYYDDD
-      INTEGER      STTIME       ! starting time,    format HHMMSS
       INTEGER, SAVE :: TSTEP( 3 ) ! time step vector (HHMMSS)
                                   ! TSTEP(1) = local output step
                                   ! TSTEP(2) = sciproc sync. step (chem)
@@ -169,7 +167,6 @@ C Local variables:
       REAL    DIVFAC      ! trapezoidal average factor
       INTEGER A_NLYS
 
-      INTEGER NPROCS      ! number of processors
 #ifdef parallel
 !     INTEGER, PARAMETER :: GEO_ORI = 0   ! stenex array order: 0 (Cartesian), 1 (Matrix)
       INTEGER   PAR_ERR     ! Error code from parallel initialization
@@ -189,9 +186,9 @@ C Local variables:
       INTEGER       :: STATUS
 
       INTERFACE
-         SUBROUTINE INITSCEN ( CGRID, STDATE, STTIME, TSTEP, NSTEPS )
+         SUBROUTINE INITSCEN ( CGRID, TSTEP, NSTEPS )
             REAL, POINTER            :: CGRID( :,:,:,: )
-            INTEGER, INTENT( OUT )   :: STDATE, STTIME, TSTEP( 3 )
+            INTEGER, INTENT( OUT )   :: TSTEP( 3 )
             INTEGER, INTENT( OUT )   :: NSTEPS
          END SUBROUTINE INITSCEN
          SUBROUTINE ADVSTEP ( JDATE, JTIME, TSTEP, ASTEP, NREPS )
@@ -319,7 +316,7 @@ C Generate the process analysis data: load PA_DEFN module
 C Set up horizontal domain and calculate processor-to-subdomain maps for
 C process analysis, if required
          IF ( LIPR .OR. LIRR ) THEN
-            IF ( .NOT. PAGRD_INIT( NPROCS, MYPE ) ) THEN
+            IF ( .NOT. PAGRD_INIT( MYPE ) ) THEN
                XMSG = '*** Failure defining PA domain configuration'
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF

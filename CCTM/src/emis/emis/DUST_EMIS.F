@@ -477,13 +477,13 @@ C...append diagnostic variables with mass emissions species
             deallocate( diagnm_swap )
 
             if ( io_pe_inclusive )
-     &         call opdust_emis ( sdate, stime, tstep, ndust_diag, diagnm )
+     &         call opdust_emis ( stdate, sttime, tstep, ndust_diag, diagnm )
 
          end if   ! dustem_diag
 
 
          if ( erode_agland ) then
-            call cropcal ( sdate, stime, agland )
+            call cropcal ( stdate, sttime, agland )
             do r = 1, my_nrows
             do c = 1, my_ncols
                if ( agland( c,r ) .lt. 0.0 .or. agland( c,r ) .gt. 100.0 ) then
@@ -1277,7 +1277,7 @@ C Then reset the emissions array and local write counter.
             wstep = wstep + time2sec( tstep( 2 ) )
 
             if ( wstep .ge. time2sec( tstep( 1 ) ) ) then
-               if ( .not. currstep( jdate, jtime, sdate, stime, tstep( 1 ),
+               if ( .not. currstep( jdate, jtime, stdate, sttime, tstep( 1 ),
      &                              mdate, mtime ) ) then
                   xmsg = 'Cannot get step date and time'
                   call m3exit( pname, jdate, jtime, xmsg, xstat3 )

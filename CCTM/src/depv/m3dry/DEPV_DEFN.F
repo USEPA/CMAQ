@@ -284,7 +284,7 @@ C Initialize
             CALL INIT_LSM( JDATE, JTIME )
             CALL INIT_BIDI( )
             IF ( MOSAIC .OR. ABFLUX ) THEN
-               CALL INIT_MOSAIC( JDATE, JTIME, LTOTG, MOSAIC )
+               CALL INIT_MOSAIC( JDATE, JTIME, LTOTG )
             END IF
 C Allocate additional arrays needed for mosaic and initialize land use parameters
             IF ( MOSAIC ) THEN
@@ -580,10 +580,9 @@ C Local variables:
                REAL,    INTENT( IN )  :: CGRIDL1( :,:,: )
                REAL,    INTENT( OUT ) :: DEPVEL_GAS( :,:,: ), PVD( :,:,: ), CMP( :,:,: )
             END SUBROUTINE M3DRY
-            SUBROUTINE AERO_DEPV ( CGRID, JDATE, JTIME, TSTEP, MOSAIC, ADEPV )
+            SUBROUTINE AERO_DEPV ( CGRID, JDATE, JTIME, TSTEP, ADEPV )
                REAL, POINTER          :: CGRID( :,:,:,: )
                INTEGER, INTENT( IN )  :: JDATE, JTIME, TSTEP
-               LOGICAL, INTENT( IN )  :: MOSAIC
                REAL,    INTENT( OUT ) :: ADEPV( :,:,: )
             END SUBROUTINE AERO_DEPV
          END INTERFACE
@@ -701,7 +700,7 @@ C-----------------------------------------------------------------------
          END IF   ! in-line depv
          
          IF ( N_AE_DEPV .GT. 0 ) THEN
-            CALL AERO_DEPV( CGRID, JDATE, JTIME, TSTEP( 1 ), MOSAIC, ADEPV )
+            CALL AERO_DEPV( CGRID, JDATE, JTIME, TSTEP( 1 ), ADEPV )
 
             STRT = N_GC_DEPV + 1
             FINI = N_GC_DEPV + N_AE_DEPV
@@ -732,7 +731,7 @@ C-----------------------------------------------------------------------
             IF ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) ) THEN
                WDATE = JDATE; WTIME = JTIME
                CALL NEXTIME( WDATE, WTIME, TSTEP( 2 ) )
-               IF ( .NOT. CURRSTEP( WDATE, WTIME, SDATE, STIME, TSTEP( 1 ),
+               IF ( .NOT. CURRSTEP( WDATE, WTIME, STDATE, STTIME, TSTEP( 1 ),
      &                              CDATE, CTIME ) ) THEN
                   XMSG = 'Cannot get step date and time'
                   CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
@@ -847,7 +846,7 @@ C-----------------------------------------------------------------------
             IF ( WSTEP_MOS .GE. TIME2SEC( TSTEP( 1 ) ) ) THEN
                WDATE = JDATE; WTIME = JTIME
                CALL NEXTIME( WDATE, WTIME, TSTEP( 2 ) )
-               IF ( .NOT. CURRSTEP( WDATE, WTIME, SDATE, STIME, TSTEP( 1 ),
+               IF ( .NOT. CURRSTEP( WDATE, WTIME, STDATE, STTIME, TSTEP( 1 ),
      &                              CDATE, CTIME ) ) THEN
                   XMSG = 'Cannot get step date and time'
                   CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )

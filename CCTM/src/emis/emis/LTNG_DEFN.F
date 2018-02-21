@@ -69,8 +69,6 @@
 !C lightning log linear regression parameters with RC 
       REAL            :: SQUAREKM
       REAL, SAVE      :: SCL_FACTOR
-      REAL, SAVE      :: MOLSNCG
-      REAL, SAVE      :: MOLSNIC
 
       INTEGER,              SAVE :: LTLYRS     ! no. of emissions layers
       REAL,    ALLOCATABLE, SAVE :: VDEMIS_DIAG( :,:,: ) ! lightning NO diagnostic
@@ -344,7 +342,7 @@ C        INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
             IF ( LTNGDIAG ) THEN
 !C Build description for, and open lightning diagnostic file
 !C (all but variables-table and horizontal domain in description is borrowed from MNAME)
-               FTIME = STIME
+               FTIME = STTIME
                CALL NEXTIME( LDATE, FTIME, TSTEP )
                SDATE3D = LDATE
                STIME3D = FTIME

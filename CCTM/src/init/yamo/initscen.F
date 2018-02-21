@@ -64,7 +64,7 @@ C   11 May 11 D.Wong: incorporated twoway model implementation
 C   Aug 15 D.Wong:    Added two new subroutine calls to open ACONC and WDEP files
 C   Dec 15 D.Wong: new routine wr_init to write the initial data to the CONC file
 C-----------------------------------------------------------------------
-
+      USE RUNTIME_VARS
       USE HGRD_DEFN             ! horizontal domain specifications
       USE CGRID_SPCS            ! CGRID mechanism species
       USE UTILIO_DEFN
@@ -98,10 +98,8 @@ C Parameters:
 C Local Variables
       CHARACTER( 16 ) :: PNAME = 'INITSCEN'
       CHARACTER( 16 ) :: FNAME
-      CHARACTER( 16 ) :: PROGNAME
       CHARACTER( 96 ) :: MSG = ' '
 
-      INTEGER      RUNLEN            ! run duration, HHMMSS
       INTEGER      STEPSECS          ! seconds per time step
       INTEGER      TOTSECS           ! run duration seconds
 
@@ -117,8 +115,10 @@ C Local Variables
             REAL,    INTENT( IN )         :: CMIN
             REAL, POINTER                 :: CGRID( :,:,:,: )
          END SUBROUTINE LOAD_CGRID
-         SUBROUTINE WR_INIT ( CGRID, TSTEP )
+         SUBROUTINE WR_INIT ( CGRID, JDATE, JTIME, TSTEP )
             REAL, POINTER                 :: CGRID(:,:,:,:)
+            INTEGER, INTENT( IN )         :: JDATE
+            INTEGER, INTENT( IN )         :: JTIME
             INTEGER, INTENT( IN )         :: TSTEP
          END SUBROUTINE WR_INIT
       END INTERFACE
@@ -153,7 +153,7 @@ C Initialize the CGRID array
 C Load CGRID
       IF ( N_GC_SPC .GT. 0 ) THEN
          FNAME = INIT_GASC_1
-         CALL LOAD_CGRID ( FNAME, STDATE, STTIME, 'GC', CMIN, CGRID )
+         CALL LOAD_CGRID ( FNAME, 'GC', CMIN, CGRID )
 #ifdef Verbose3
          write( logdev,'(/"@@@c ", i8, i7.6)') stdate, sttime
          l = 1

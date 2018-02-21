@@ -96,6 +96,7 @@ C RETRIEVE THE SPECIES SAVED TO INTEGRAL AVERAGE CONCENTRATION FILE
          END IF
 
 C Retrieve the layer range used in integral average concentration file
+         IF ( ACONC_ELEV .EQ. -1 ) ACONC_ELEV = NLAYS
 
          IF ( ACONC_BLEV .LE. 0 .OR. ACONC_ELEV .GT. NLAYS ) THEN
             WRITE( XMSG,'( "Layer range", 2I4, " invalid for this model" )' )

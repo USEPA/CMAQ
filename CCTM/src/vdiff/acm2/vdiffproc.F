@@ -207,7 +207,7 @@ C create global maps
          END IF
 
 C Initialize the met data
-         CALL INIT_MET( JDATE, JTIME, MOSAIC, HGBIDI )
+         CALL INIT_MET( JDATE, JTIME )
 
         IF ( HGBIDI ) THEN ! Initialize HGSIM module
            CALL INIT_HGSIM(JDATE, JTIME)
@@ -320,7 +320,7 @@ C Convert non-molar mixing ratio species and re-order CGRID
       CALL CONV_CGRID ( CGRID, MDATE, MTIME, CNGRD )
 
 C read & interpolate met data
-      CALL GET_MET ( MDATE, MTIME, MSTEP, MOSAIC, HGBIDI )
+      CALL GET_MET ( MDATE, MTIME, MSTEP )
 
 C read & interpolate deposition velocities
       CALL GET_DEPV ( MDATE, MTIME, TSTEP, CGRID )      

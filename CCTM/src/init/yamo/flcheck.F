@@ -42,7 +42,7 @@ C-----------------------------------------------------------------------
 
       USE UTILIO_DEFN
       USE RUNTIME_VARS, ONLY : LOG_HEADING, LOG_SUBHEADING, LOG_MESSAGE,
-     &                         RUNLEN
+     &                         RUNLEN, LERROFF
 
       IMPLICIT NONE 
 

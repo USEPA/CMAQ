@@ -43,6 +43,7 @@ C   J.Young 14 Sep 11: allow default subdomain values
 C   J.Young 28 Jun 16: use PA_DEFN module intead of include files
 C   J.Young 16 Sep 16: update for inline procan
 C.......................................................................
+      USE RUNTIME_VARS
 
       IMPLICIT NONE
 
@@ -82,7 +83,7 @@ C Buffer for writing IRR results
       REAL, ALLOCATABLE, SAVE :: DBUFF( :,:,: )
 
       CONTAINS
-         FUNCTION PAGRD_INIT ( NPROCS, RANK ) RESULT ( SUCCESS )
+         FUNCTION PAGRD_INIT ( RANK ) RESULT ( SUCCESS )
 
          USE GRID_CONF           ! horizontal & vertical domain specifications
          USE M3UTILIO            ! i/o-api
@@ -93,7 +94,6 @@ C Buffer for writing IRR results
 #endif
          USE PA_DEFN             ! Process Anaylsis control and data variables
 
-         INTEGER, INTENT( IN ) :: NPROCS  ! total worker processors
          INTEGER, INTENT( IN ) :: RANK
          LOGICAL SUCCESS
 

@@ -247,7 +247,7 @@ C Build diagnostic file write buffer (WRMG_SPC) array
                 END DO
 
 C Open the marine gas emission dignostic file
-                IF ( IO_PE_INCLUSIVE ) CALL OPMGEMIS ( SDATE, STIME, TSTEP, NMGDIAG, WRMG_SPC )
+                IF ( IO_PE_INCLUSIVE ) CALL OPMGEMIS ( STDATE, STTIME, TSTEP, NMGDIAG, WRMG_SPC )
 
                 ALLOCATE ( MGBF( NMGDIAG,NCOLS,NROWS ),
      &                     WRMG( NCOLS,NROWS ), STAT = STATUS )
@@ -651,7 +651,7 @@ C Then reset the MG emissions array and local write counter.
              WSTEP = WSTEP + TIME2SEC( TSTEP( 2 ) )
 
              IF ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) ) THEN
-                IF ( .NOT. CURRSTEP( JDATE, JTIME, SDATE, STIME, TSTEP( 1 ),
+                IF ( .NOT. CURRSTEP( JDATE, JTIME, STDATE, STTIME, TSTEP( 1 ),
      &                                MDATE, MTIME ) ) THEN
                      XMSG = 'Cannot get step date and time'
                      CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )

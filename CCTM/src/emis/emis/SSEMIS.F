@@ -384,7 +384,7 @@ C Include Mode SURFACE_AREA to diagnostic
                END DO
 
 C Open the sea-salt emission dignostic file
-               IF ( IO_PE_INCLUSIVE ) CALL OPSSEMIS ( SDATE, STIME, TSTEP, NSSDIAG, WRSS_SPC )
+               IF ( IO_PE_INCLUSIVE ) CALL OPSSEMIS ( STDATE, STTIME, TSTEP, NSSDIAG, WRSS_SPC )
 
                ALLOCATE ( SSBF( NSSDIAG,MY_NCOLS,MY_NROWS ),
      &                    WRSS( NCOLS,NROWS ), STAT = STATUS )
@@ -961,7 +961,7 @@ C Then reset the sea-salt emissions array and local write counter.
                WSTEP = WSTEP + TIME2SEC( TSTEP( 2 ) )
 
                IF ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) ) THEN
-                  IF ( .NOT. CURRSTEP( JDATE, JTIME, SDATE, STIME, TSTEP( 1 ),
+                  IF ( .NOT. CURRSTEP( JDATE, JTIME, STDATE, STTIME, TSTEP( 1 ),
      &                                 MDATE, MTIME ) ) THEN
                      XMSG = 'Cannot get step date and time'
                      CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )

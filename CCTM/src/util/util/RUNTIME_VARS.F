@@ -27,16 +27,17 @@
 
       MODULE RUNTIME_VARS
 
+
       IMPLICIT NONE
 
       SAVE
 
       PUBLIC
 
-      INTEGER :: OUTDEV    ! File Unit for Standard Output
-      INTEGER :: LOGDEV    ! File Unit for Ascii Log File
-      INTEGER :: MYPE = -1 ! Processor Number
-
+      INTEGER :: OUTDEV = 6   ! File Unit for Standard Output
+      INTEGER :: LOGDEV = -1  ! File Unit for Ascii Log File
+      INTEGER :: MYPE   = -1  ! Processor Number
+      INTEGER :: NPROCS = 1   ! Number of Total Processors
 
       !-----------------------------------------------------------------------------------
       !>> Parameters for formatting output log files
@@ -52,169 +53,176 @@
       CHARACTER( 10 ) :: WEEKDAY( 7 ) = (/'Monday   ','Tuesday  ','Wednesday',
      &                        'Thursday ','Friday   ','Saturday ','Sunday   ' /)
 
-      LOGICAL :: GET_ENVYN
-
 #ifdef twoway
       !-----------------------------------------------------------------------------------
       !>> Variables for Configuring WRF-CMAQ Coupled Model Runs
       !-----------------------------------------------------------------------------------
 
-      LOGICAL, SAVE :: CMAQ_WRF_FEEDBACK    = .FALSE. ! Calculate Feedbacks from CMAQ to WRF
-      LOGICAL, SAVE :: TURN_ON_PV           = .FALSE. ! Flag for O3 Potential Vorticity Calculation 
-      LOGICAL, SAVE :: CREATE_PHYSICAL_FILE = .FALSE. ! Flag for Creating a physical output file
-      INTEGER, SAVE :: FILE_TIME_STEP       = 10000   ! Output Time Step
-      LOGICAL, SAVE :: RUN_CMAQ_DRIVER      = .FALSE. ! Flag for running CMAQ Driver
-      LOGICAL, SAVE :: INDIRECT_EFFECT      = .FALSE. ! Flag for treating Indirect Effects
-      LOGICAL, SAVE :: SD_TIME_SERIES       = .FALSE. ! Subdomain Time Series
-      INTEGER, SAVE :: SD_SCOL              = 1       ! Subdomain Start Column
-      INTEGER, SAVE :: SD_ECOL              = 1       ! Subdomain End Column
-      INTEGER, SAVE :: SD_SROW              = 1       ! Subdomain Start Row
-      INTEGER, SAVE :: SD_EROW              = 1       ! Subdomain End Row
-      INTEGER, SAVE :: N_SD_SPCS            = 0       ! Number of Subdomain Species to Output
-      CHARACTER(16), SAVE :: SD_SPCS( 900 ) = ''      ! Subdomain Species list 
-      INTEGER, SAVE :: CMAQ_C_COL_DIM       = -1      ! CMAQ Column Dimension
-      INTEGER, SAVE :: CMAQ_C_ROW_DIM       = -1      ! CMAQ Row Dimension
-      INTEGER, SAVE :: DELTA_X              = 5       ! Grid Spacing in x direction
-      INTEGER, SAVE :: DELTA_Y              = 5       ! Grid Spacing in y direction
-      REAL   , SAVE :: WRF_LC_REF_LAT       = 0.0     ! Reference Latitude
-      INTEGER, SAVE :: WRF_CMAQ_FREQ        = 1       ! Frequency of CMAQ Execution
-      CHARACTER(500),SAVE :: GRIDDESC_FNAME = ''      ! Grid Description
-      CHARACTER(16), SAVE :: GRID_NAME_STR  = ''      ! Grid Name
+      LOGICAL :: CMAQ_WRF_FEEDBACK    = .FALSE. ! Calculate Feedbacks from CMAQ to WRF
+      LOGICAL :: TURN_ON_PV           = .FALSE. ! Flag for O3 Potential Vorticity Calculation 
+      LOGICAL :: CREATE_PHYSICAL_FILE = .FALSE. ! Flag for Creating a physical output file
+      INTEGER :: FILE_TIME_STEP       = 10000   ! Output Time Step
+      LOGICAL :: RUN_CMAQ_DRIVER      = .FALSE. ! Flag for running CMAQ Driver
+      LOGICAL :: INDIRECT_EFFECT      = .FALSE. ! Flag for treating Indirect Effects
+      LOGICAL :: SD_TIME_SERIES       = .FALSE. ! Subdomain Time Series
+      INTEGER :: SD_SCOL              = 1       ! Subdomain Start Column
+      INTEGER :: SD_ECOL              = 1       ! Subdomain End Column
+      INTEGER :: SD_SROW              = 1       ! Subdomain Start Row
+      INTEGER :: SD_EROW              = 1       ! Subdomain End Row
+      INTEGER :: N_SD_SPCS            = 0       ! Number of Subdomain Species to Output
+      CHARACTER(16) :: SD_SPCS( 900 ) = ''      ! Subdomain Species list 
+      INTEGER :: CMAQ_C_COL_DIM       = -1      ! CMAQ Column Dimension
+      INTEGER :: CMAQ_C_ROW_DIM       = -1      ! CMAQ Row Dimension
+      INTEGER :: DELTA_X              = 5       ! Grid Spacing in x direction
+      INTEGER :: DELTA_Y              = 5       ! Grid Spacing in y direction
+      REAL    :: WRF_LC_REF_LAT       = 0.0     ! Reference Latitude
+      INTEGER :: WRF_CMAQ_FREQ        = 1       ! Frequency of CMAQ Execution
+      CHARACTER(250):: GRIDDESC_FNAME = ''      ! Grid Description
+      CHARACTER(16) :: GRID_NAME_STR  = ''      ! Grid Name
 #endif
       !-----------------------------------------------------------------------------------
       !>> Define Environment Variables for Controlling CMAQ Processes
       !-----------------------------------------------------------------------------------
 
       ! Grid and High-Level Model Parameters
-      LOGICAL, SAVE :: NEW_START   = .TRUE. ! Start New Simulation. Not a Restart
-      CHARACTER(16), SAVE :: GRID_NAME = '' ! grid name selected from GRIDDESC
-      CHARACTER(16), SAVE :: PROGNAME = 'DRIVER'  ! Program name selected from GRIDDESC
-      INTEGER, SAVE :: RUNLEN      = 480000 ! Run Length
-      INTEGER, SAVE :: STDATE      =1995192 ! Start Date
-      INTEGER, SAVE :: STTIME      = 000000 ! Start Time
-      INTEGER, SAVE :: LOCAL_TSTEP = 010000 ! set to TSTEP( 1 ) in initscen.F
-      INTEGER, SAVE :: NPCOL       = 1      ! no. of processors across grid columns
-      INTEGER, SAVE :: NPROW       = 1      ! no. of processors across grid rows
-      INTEGER, SAVE :: MAXSYNC     = 720    ! force max TSTEP(2) (sec)
-      INTEGER, SAVE :: MINSYNC     = 60     ! force min TSTEP(2) (sec)
+      LOGICAL :: NEW_START   = .TRUE. ! Start New Simulation. Not a Restart
+      CHARACTER(16) :: GRID_NAME = '' ! grid name selected from GRIDDESC
+      CHARACTER(16) :: PROGNAME = 'DRIVER'  ! Program name selected from GRIDDESC
+      INTEGER :: RUNLEN      = 480000 ! Run Length
+      INTEGER :: STDATE      =1995192 ! Start Date
+      INTEGER :: STTIME      = 000000 ! Start Time
+      INTEGER :: LOCAL_TSTEP = 010000 ! set to TSTEP( 1 ) in initscen.F
+      INTEGER :: NPCOL       = 1      ! no. of processors across grid columns
+      INTEGER :: NPROW       = 1      ! no. of processors across grid rows
+      INTEGER :: MAXSYNC     = 720    ! force max TSTEP(2) (sec)
+      INTEGER :: MINSYNC     = 60     ! force min TSTEP(2) (sec)
 
       INTEGER, PARAMETER :: MAXLEN_CCTM_APPL     = 200    ! Length of Logfile Names
       CHARACTER( MAXLEN_CCTM_APPL ) :: APPL_NAME = 'APPL' ! Logfile Names
-      CHARACTER( MAXLEN_CCTM_APPL ) :: LOGFOLD   = ''     ! Log Folder
+      CHARACTER( MAXLEN_CCTM_APPL ) :: BLDFOLD   = ''     ! Log Folder
 
       ! General; Multiprocess control, output and error checking
-      LOGICAL, SAVE :: LERROFF   = .TRUE.  ! Flag to stop run if errors are found.
-      LOGICAL, SAVE :: CKSUM     = .TRUE.  ! flag for cksum on, default = [T]
-      LOGICAL, SAVE :: END_TIME  = .FALSE. ! Override default beginning ACON timestamp
+      LOGICAL :: LERROFF   = .TRUE.  ! Flag to stop run if errors are found.
+      LOGICAL :: CKSUM     = .TRUE.  ! flag for cksum on, default = [T]
+      LOGICAL :: END_TIME  = .FALSE. ! Override default beginning ACON timestamp
       
-      INTEGER, SAVE :: N_ASPCS   = 0       ! Number of species saved to avg conc file
-      INTEGER, SAVE :: N_CSPCS   = 0       ! Number of species saved to conc file
-      INTEGER, SAVE :: ACONC_BLEV= 0       ! Beginning level saved to avg conc file
-      INTEGER, SAVE :: ACONC_ELEV= 0       ! Ending level saved to avg conc file
-      INTEGER, SAVE :: CONC_BLEV = 0       ! Beginning level saved to conc file
-      INTEGER, SAVE :: CONC_ELEV = 0       ! Ending level saved to conc file
-      CHARACTER(  16 ), SAVE :: ACONC_FILE_SPCS( 900 ) ! avg conc file species list
-      CHARACTER(  16 ), SAVE :: CONC_FILE_SPCS(900 ) ! conc file species list
-      LOGICAL, SAVE :: PWRTFLAG  = .TRUE.  ! Print confirmation of successful output 
+      INTEGER :: N_ASPCS   = 0       ! Number of species saved to avg conc file
+      INTEGER :: N_CSPCS   = 0       ! Number of species saved to conc file
+      INTEGER :: ACONC_BLEV= 0       ! Beginning level saved to avg conc file
+      INTEGER :: ACONC_ELEV= 0       ! Ending level saved to avg conc file
+      INTEGER :: CONC_BLEV = 0       ! Beginning level saved to conc file
+      INTEGER :: CONC_ELEV = 0       ! Ending level saved to conc file
+      CHARACTER(  16 ) :: ACONC_FILE_SPCS( 900 ) = '' ! avg conc file species list
+      CHARACTER(  16 ) :: CONC_FILE_SPCS(900 )   = '' ! conc file species list
+      LOGICAL :: PWRTFLAG  = .TRUE.  ! Print confirmation of successful output 
                                            !    to logfile
       
-      CHARACTER(256), SAVE :: GC_NAMELIST = '' ! Gas Species Namelist
-      CHARACTER(256), SAVE :: AE_NAMELIST = '' ! Aerosol Species Namelist
-      CHARACTER(256), SAVE :: NR_NAMELIST = '' ! Nonreactive Species Namelist
-      CHARACTER(256), SAVE :: TR_NAMELIST = '' ! Tracer Species Namelist
+      CHARACTER(256) :: GC_NAMELIST = '' ! Gas Species Namelist
+      CHARACTER(256) :: AE_NAMELIST = '' ! Aerosol Species Namelist
+      CHARACTER(256) :: NR_NAMELIST = '' ! Nonreactive Species Namelist
+      CHARACTER(256) :: TR_NAMELIST = '' ! Tracer Species Namelist
       
       ! Chemistry and Photolysis
-      LOGICAL, SAVE :: PHOTDIAG  = .FALSE. ! Flag for PHOTDIAG file
-      LOGICAL, SAVE :: CORE_SHELL= .FALSE. ! flag for using core-shell mixing model for aerosol optics
-      LOGICAL, SAVE :: MIE_CALC  = .FALSE. ! flag for using Mie Theory in aerosol optics calculation
-      REAL,    SAVE :: GEAR_ATOL = 1.0E-9  ! Absolute Tolerance for Gear Solver
-      REAL,    SAVE :: GEAR_RTOL = 1.0E-3  ! Relative Tolerance for Gear Solver
-      REAL,    SAVE :: GLBL_ATOL = 1.0E-7  ! Absolute Tolerance for Rosenbrock Solver
-      REAL,    SAVE :: GLBL_RTOL = 1.0E-3  ! Relative Tolerance for Rosenbrock Solver
+      LOGICAL :: PHOTDIAG  = .FALSE. ! Flag for PHOTDIAG file
+      LOGICAL :: CORE_SHELL= .FALSE. ! flag for using core-shell mixing model for aerosol optics
+      LOGICAL :: MIE_CALC  = .FALSE. ! flag for using Mie Theory in aerosol optics calculation
+      REAL    :: GEAR_ATOL = 1.0E-9  ! Absolute Tolerance for Gear Solver
+      REAL    :: GEAR_RTOL = 1.0E-3  ! Relative Tolerance for Gear Solver
+      REAL    :: GLBL_ATOL = 1.0E-7  ! Absolute Tolerance for Rosenbrock Solver
+      REAL    :: GLBL_RTOL = 1.0E-3  ! Relative Tolerance for Rosenbrock Solver
 
       ! Aerosols
-      LOGICAL, SAVE :: AVISDIAG  = .FALSE. ! flag for PMDIAG and APMDIAG file [F], default
-      LOGICAL, SAVE :: ZERO_PCSOA= .FALSE. ! flag for Zeroing out pcSOA formation
-      LOGICAL, SAVE :: AOD       = .FALSE. ! flag for printing AOD file
-      LOGICAL, SAVE :: PMDIAG    = .FALSE. ! flag for Instantaneous PM Diagnostic file
-      LOGICAL, SAVE :: APMDIAG   = .FALSE. ! flag for Average PM Diagnostic file
-      INTEGER, SAVE :: APMDIAG_ZLO  = 0    ! PM Diagnostic File Lower Layer
-      INTEGER, SAVE :: APMDIAG_ZHI  = 0    ! PM Diagnostic File Upper Layer
-      INTEGER, SAVE :: N_APMDIAG_SPC= 0    ! PM Diagnostic File Number of Species
-      CHARACTER(  16 ), SAVE :: APMDIAG_SPC( 200 ) !PM Diagnostic File Species Names
+      LOGICAL :: AVISDIAG  = .FALSE. ! flag for PMDIAG and APMDIAG file [F], default
+      LOGICAL :: ZERO_PCSOA= .FALSE. ! flag for Zeroing out pcSOA formation
+      LOGICAL :: AOD       = .FALSE. ! flag for printing AOD file
+      LOGICAL :: PMDIAG    = .FALSE. ! flag for Instantaneous PM Diagnostic file
+      LOGICAL :: APMDIAG   = .FALSE. ! flag for Average PM Diagnostic file
+      INTEGER :: APMDIAG_ZLO  = 0    ! PM Diagnostic File Lower Layer
+      INTEGER :: APMDIAG_ZHI  = 0    ! PM Diagnostic File Upper Layer
+      INTEGER :: N_APMDIAG_SPC= 0    ! PM Diagnostic File Number of Species
+      CHARACTER(  16 ) :: APMDIAG_SPC( 200 ) = '' !PM Diagnostic File Species Names
 
       ! Cloud Parameters
-      LOGICAL, SAVE :: CLD_DIAG  = .FALSE. ! flag to output cloud diagnostic files
+      LOGICAL :: CLD_DIAG  = .FALSE. ! flag to output cloud diagnostic files
 
       ! Air-Surface Exchange
-      LOGICAL, SAVE :: ILDEPV    = .TRUE.  ! flag in-lining depv
-      LOGICAL, SAVE :: ABFLUX    = .FALSE. ! flag for ammonia bi-directional flux with in-lining depv
-      LOGICAL, SAVE :: MOSAIC    = .FALSE. ! flag for mosaic - luc specific deposition - within in-lining depv
-      LOGICAL, SAVE :: SFC_HONO  = .FALSE. ! flag for HONO interaction with surfaces within in-lining depv
-      LOGICAL, SAVE :: FST       = .FALSE. ! flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depv
-      LOGICAL, SAVE :: PX_LSM    = .TRUE.  ! flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depv
-      LOGICAL, SAVE :: CLM_LSM   = .FALSE. ! flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depv
-      LOGICAL, SAVE :: NOAH_LSM  = .TRUE.  ! flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depv
-      LOGICAL, SAVE :: STAGE     = .FALSE. ! flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depv
-      LOGICAL, SAVE :: DEPV_DIAG = .FALSE. ! flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depv
-      Logical, Save :: HGBIDI    = .FALSE. ! flag for Hg bidirectional exchange
+      LOGICAL :: ILDEPV    = .TRUE.  ! flag in-lining depv
+      LOGICAL :: ABFLUX    = .FALSE. ! flag for ammonia bi-directional flux with in-lining depv
+      LOGICAL :: MOSAIC    = .FALSE. ! flag for mosaic - luc specific deposition - within in-lining depv
+      LOGICAL :: SFC_HONO  = .FALSE. ! flag for HONO interaction with surfaces within in-lining depv
+      LOGICAL :: FST       = .FALSE. ! flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depv
+      LOGICAL :: PX_LSM    = .TRUE.  ! flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depv
+      LOGICAL :: CLM_LSM   = .FALSE. ! flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depv
+      LOGICAL :: NOAH_LSM  = .TRUE.  ! flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depv
+      LOGICAL :: STAGE     = .FALSE. ! flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depv
+      LOGICAL :: DEPV_DIAG = .FALSE. ! flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depv
+      Logical :: HGBIDI    = .FALSE. ! flag for Hg bidirectional exchange
       CHARACTER(16) :: LAND_SCHEME = "UNKNOWN" ! NLCD, USGS, etc
  
 
       ! Transport Processes
-      LOGICAL, SAVE :: VDIFFDIAG = .FALSE. ! flag for VDIFF diagnostic files
-      REAL,    SAVE :: SIGST     = 0.7     ! sigma_sync_top value
-      REAL,    SAVE :: HDIV_LIM  = 0.9     ! cutoff for max horizontal divergence step adj
-      REAL,    SAVE :: CFL       = 0.75    ! maximum Courant-Friedrichs-Lewy number allowed
-      Logical, Save :: MINKZ     = .TRUE.  ! flag for minimum Kz 
-      LOGICAL, SAVE :: W_VEL     = .FALSE. ! flag for vertical velocity 
-      LOGICAL, SAVE :: GRAV_SETL = .TRUE.  ! flag for aerosol gravitational setling
+      LOGICAL :: VDIFFDIAG = .FALSE. ! flag for VDIFF diagnostic files
+      REAL    :: SIGST     = 0.7     ! sigma_sync_top value
+      REAL    :: HDIV_LIM  = 0.9     ! cutoff for max horizontal divergence step adj
+      REAL    :: CFL       = 0.75    ! maximum Courant-Friedrichs-Lewy number allowed
+      Logical :: MINKZ     = .TRUE.  ! flag for minimum Kz 
+      LOGICAL :: W_VEL     = .FALSE. ! flag for vertical velocity 
+      LOGICAL :: GRAV_SETL = .TRUE.  ! flag for aerosol gravitational setling
 
 
       ! Emissions Processes
-      INTEGER, SAVE :: EMLAYS        = 0       ! Emission Layers
-      LOGICAL, SAVE :: EMISCHK       = .TRUE.  ! flag for checking that surrogate emissions 
+      INTEGER :: EMLAYS        = 0       ! Emission Layers
+      LOGICAL :: EMISCHK       = .TRUE.  ! flag for checking that surrogate emissions 
                                                !   are present on emission files
-      LOGICAL, SAVE :: BIOGEMIS      = .FALSE. ! flag to in-line biogenic VOC emissions
-      CHARACTER(5)  :: SPPRO         = 'B3V10' ! requested speciation profile name
-      LOGICAL, SAVE :: BIOGEMIS_SEASON=.TRUE.  ! use frost switch file
-      LOGICAL, SAVE :: ASSUME_SUMMER = .TRUE.  ! use summer normalized emissions
-      LOGICAL, SAVE :: BEMIS_DIAG    = .TRUE.  ! true: write diagnostic emiss file
-      LOGICAL, SAVE :: MGEMDIAG      = .FALSE. ! flag for MGEM diagnostic file
-      LOGICAL, SAVE :: WB_DUST       = .FALSE. ! flag for On-Line Dust Emission Calculation
-      LOGICAL, SAVE :: ERODE_AGLAND  = .TRUE.  ! Account for Erodible Agricultural Land when 
+      LOGICAL :: BIOGEMIS      = .FALSE. ! flag to in-line biogenic VOC emissions
+      CHARACTER(16) :: SPPRO        = 'B3V10' ! requested speciation profile name
+      LOGICAL :: BIOGEMIS_SEASON=.TRUE.  ! use frost switch file
+      LOGICAL :: ASSUME_SUMMER = .TRUE.  ! use summer normalized emissions
+      LOGICAL :: BEMIS_DIAG    = .TRUE.  ! true: write diagnostic emiss file
+      LOGICAL :: MGEMDIAG      = .FALSE. ! flag for MGEM diagnostic file
+      LOGICAL :: WB_DUST       = .FALSE. ! flag for On-Line Dust Emission Calculation
+      LOGICAL :: ERODE_AGLAND  = .TRUE.  ! Account for Erodible Agricultural Land when 
                                                !   computing dust Emissions
-      LOGICAL, SAVE :: DUSTEM_DIAG   = .FALSE. ! flag for dustemis diagnostic file
-      LOGICAL, SAVE :: SSEMDIAG      = .FALSE. ! flag for SSEMIS diagnostic file
-      LOGICAL, SAVE :: LTNG_NO       = .FALSE. ! flag for online calculation of NO from lightning
-      LOGICAL, SAVE :: NLDNSTRIKE    = .FALSE. ! flag to use NLDN STRIKE directly 
-      LOGICAL, SAVE :: LTNGDIAG      = .FALSE. ! flag to turn on lightning NO diagnostics
-      REAL   , SAVE :: MOLSNCG       = 350.0   ! Lightning NO Production Rate
-      REAL   , SAVE :: MOLSNIC       = 350.0   ! Lightning NO Production Rate
-      CHARACTER(250), SAVE :: LTNG_FNAME = 'InLine' ! Lightning NO Input Name
+      LOGICAL :: DUSTEM_DIAG   = .FALSE. ! flag for dustemis diagnostic file
+      LOGICAL :: SSEMDIAG      = .FALSE. ! flag for SSEMIS diagnostic file
+      LOGICAL :: LTNG_NO       = .FALSE. ! flag for online calculation of NO from lightning
+      LOGICAL :: NLDNSTRIKE    = .FALSE. ! flag to use NLDN STRIKE directly 
+      LOGICAL :: LTNGDIAG      = .FALSE. ! flag to turn on lightning NO diagnostics
+      REAL    :: MOLSNCG       = 350.0   ! Lightning NO Production Rate
+      REAL    :: MOLSNIC       = 350.0   ! Lightning NO Production Rate
+      CHARACTER(250) :: LTNG_FNAME = 'InLine' ! Lightning NO Input Name
 
-      LOGICAL, SAVE :: PT3DEMIS      = .FALSE. ! flag in-lining plume rise
-      INTEGER, SAVE :: NPTGRPS       = 0       ! no. pt src input file groups
-      LOGICAL, SAVE :: PT3DDIAG      = .FALSE. ! Write point source 3d emis diagnostic file
-      LOGICAL, SAVE :: PT3DFRAC      = .FALSE. ! Write layer fractions diagnostic file, if true
-      INTEGER, SAVE :: PT_NSTEPS     = 1
-      INTEGER, SAVE :: PT_DATE       = 0       ! Julian start date (YYYYDDD)
-      INTEGER, SAVE :: PT_TIME       = 0       ! start time (HHMMSS)
-      INTEGER, SAVE :: IPVERT        = 0       ! Numerical flag for plume vertical spread method
-      INTEGER, SAVE :: REP_LAYR      = -1      ! Minimum layer for reporting srcs w/ high plumes
-      CHARACTER(  16 ), ALLOCATABLE, SAVE :: PLAY_BASE( : ) ! Use for Plume Rise Calculation
+      LOGICAL :: PT3DEMIS      = .FALSE. ! flag in-lining plume rise
+      INTEGER :: NPTGRPS       = 0       ! no. pt src input file groups
+      LOGICAL :: PT3DDIAG      = .FALSE. ! Write point source 3d emis diagnostic file
+      LOGICAL :: PT3DFRAC      = .FALSE. ! Write layer fractions diagnostic file, if true
+      INTEGER :: PT_NSTEPS     = 1
+      INTEGER :: PT_DATE       = 0       ! Julian start date (YYYYDDD)
+      INTEGER :: PT_TIME       = 0       ! start time (HHMMSS)
+      INTEGER :: IPVERT        = 0       ! Numerical flag for plume vertical spread method
+      INTEGER :: REP_LAYR      = -1      ! Minimum layer for reporting srcs w/ high plumes
+      CHARACTER(  16 ), SAVE, ALLOCATABLE :: PLAY_BASE( : ) ! Use for Plume Rise Calculation
 
       ! Processs Analysis
-      LOGICAL, SAVE :: PROCAN    = .FALSE. ! flag for process analysis
-      INTEGER, SAVE :: PA_BEGCOL = 0       ! Starting PA output
-      INTEGER, SAVE :: PA_ENDCOL = 0       ! ending column for PA output
-      INTEGER, SAVE :: PA_BEGROW = 0       ! Starting row for PA output
-      INTEGER, SAVE :: PA_ENDROW = 0       ! ending row for PA output
-      INTEGER, SAVE :: PA_BEGLEV = 0       ! Starting layer for PA output
-      INTEGER, SAVE :: PA_ENDLEV = 0       ! ending layer for PA output
+      LOGICAL :: PROCAN    = .FALSE. ! flag for process analysis
+      INTEGER :: PA_BEGCOL = 0       ! Starting PA output
+      INTEGER :: PA_ENDCOL = 0       ! ending column for PA output
+      INTEGER :: PA_BEGROW = 0       ! Starting row for PA output
+      INTEGER :: PA_ENDROW = 0       ! ending row for PA output
+      INTEGER :: PA_BEGLEV = 0       ! Starting layer for PA output
+      INTEGER :: PA_ENDLEV = 0       ! ending layer for PA output
 
+
+
+      INTERFACE
+          SUBROUTINE GET_ENVLIST ( ENV_VAR, NVARS, VAL_LIST )
+              CHARACTER( * ),  INTENT( IN )  :: ENV_VAR
+              INTEGER,         INTENT( OUT ) :: NVARS
+              CHARACTER( 16 ), INTENT( OUT)  :: VAL_LIST( : )
+          END SUBROUTINE GET_ENVLIST
+      END INTERFACE
+      
       CONTAINS
-
           
 #ifdef twoway
 !.........................................................................
@@ -227,6 +235,7 @@
       IMPLICIT NONE                         
       
       CHARACTER(  48 ) :: VARDESC
+      CHARACTER( 250 ) :: STRTEMP
 
       ! Flag for Calculating Feedback From AQ Model to Meteorology
       VARDESC = 'CMAQ WRF radiative feedback'
@@ -304,11 +313,12 @@
  
       ! Get Grid Description
       VARDESC = 'Grid Description'
-      GRDDESC_FNAME = GET_ENVSTR( 'GRIDDESC', VARDESC, GRDDESC_FNAME )
+      GRIDDESC_FNAME = GET_ENVSTR( 'GRIDDESC', VARDESC, GRIDDESC_FNAME )
 
       ! Get Grid Name
       VARDESC = 'Grid Name'
-      GRID_NAME_STR = GET_ENVSTR( 'GRID_NAME', VARDESC, GRID_NAME_STR )
+      STRTEMP = GET_ENVSTR( 'GRID_NAME', VARDESC, GRID_NAME_STR )
+      GRID_NAME_STR = STRTEMP(1:16)
  
       END SUBROUTINE INIT_TWOWAY_ENV_VARS
 #endif 
@@ -325,57 +335,58 @@
 
       INTEGER, INTENT( In )  :: JDATE       
       INTEGER, INTENT( In )  :: JTIME  
-      CHARACTER(  48 ) :: VARDESC
-      CHARACTER(  16 ), SAVE :: V_LIST2( 2 )
+      CHARACTER(  16 )       :: V_LIST2( 20 )
       CHARACTER( 240 )       :: XMSG   = ''  
+      INTEGER                :: NV
 
 
-      !variables for deposition velocities diagnostic file
       INTEGER          :: STATUS      ! ENV... status
-      CHARACTER( 80 )  :: VARDESC     ! environment variable description
+      CHARACTER( 250)  :: VARDESC     ! environment variable description
+      CHARACTER( 250 ) :: STRTEMP
+      CHARACTER( 80 )  :: PBASE     
+      INTEGER, PARAMETER :: EXIT_STATUS = 1
+
 
       !-------------------------------------------------------------------------------------------------------
       !>> Grid and High-Level Model Parameters
       !-------------------------------------------------------------------------------------------------------
- 
-      ! Get Simulation Scenario Name to Label Log Files, etc
-      VARDESC = 'Reading APPL string to use for labeling log files'
-      CALL ENVSTR( 'CTM_APPL', VARDESC, APPL_NAME, APPL_NAME, STATUS )
-      IF ( STATUS .EQ. 1 ) THEN
-           XMSG = 'CTM_APPL Improperly Formatted. This should be a string value.'
-           CALL M3EXIT( 'INIT_RUN_VARS', 0, 0, XMSG, XSTAT2 )
-      END IF
+       
+      OPEN( UNIT = 6, FILE = "/dev/null", STATUS = "OLD" )
+
+        ! Get Simulation Scenario Name to Label Log Files, etc
+        CALL NAMEVAL( 'CTM_APPL', APPL_NAME )
       
-      ! Get Logfile Directory
-      VARDESC = 'Retrieving directory where logfiles will be written'
-      CALL ENVSTR( "BLD", VARDESC, LOGFOLD, LOGFOLD, STATUS )
-      IF ( STATUS .EQ. 1 ) THEN
-           XMSG = 'BLD Improperly Formatted. This should be a string value.'
-           CALL M3EXIT( 'INIT_RUN_VARS', 0, 0, XMSG, XSTAT2 )
-      END IF
+        ! Get Logfile Directory
+        CALL NAMEVAL( 'BLD', BLDFOLD ) 
  
+      CLOSE( UNIT = 6 )
+
       ! Start I/O-API and set up log file(s)
       CALL SETUP_LOGDEV()
-      CALL LOG_HEADING( "Environment Variable Report" )
-      CALL LOG_SUBHEADING( "Grid and High-Level Model Parameters" )
-      WRITE( OUTDEV, '(5x,A)' ),'--Env Variable-- | --Value--'
-      WRITE( OUTDEV, '(5x,A)' ), REPEAT( '-',80 )
-      WRITE( OUTDEV, '(5x,A16,2x,A,2x,A)' ),'CTM_APPL','|',TRIM(APPL_NAME)
-      WRITE( OUTDEV, '(5x,A16,2x,A,2x,A)' ),'BLD','|'TRIM(LOGFOLD)
+      IF ( MYPE .EQ. 0 ) THEN 
+         CALL LOG_HEADING( OUTDEV, "Environment Variable Report" )
+         CALL LOG_SUBHEADING( OUTDEV, "Grid and High-Level Model Parameters" )
+         WRITE( OUTDEV, '(6x,A)' ),'--Env Variable-- | --Value--'
+         WRITE( OUTDEV, '(6x,A)' ), REPEAT( '-',80 )
+         WRITE( OUTDEV, '(5x,A16,2x,A,2x,A)' ),'CTM_APPL','|',TRIM(APPL_NAME)
+         WRITE( OUTDEV, '(5x,A16,2x,A,2x,A)' ),'BLD','|',TRIM(BLDFOLD)
+      END IF
 
       ! Determine if this run is a new start or a restart
       VARDESC = 'Flag for Model Restart from Previous Day' 
-      NEW_START = ENVYN( 'NEW_START', VARDESC, NEW_START )
+      NEW_START = GET_ENVYN( 'NEW_START', VARDESC, NEW_START )
     
       ! Get Grid Name
       VARDESC = 'Horizontal Domain Definition '
-      GRID_NAME = GET_ENVSTR( 'GRID_NAME', VARDESC, GRID_NAME )
+      STRTEMP = GET_ENVSTR( 'GRID_NAME', VARDESC, GRID_NAME )
+      GRID_NAME = STRTEMP(1:16)
 
 
 #ifndef twoway
       ! Main Program Name
       VARDESC = 'Main Program Name'
-      PROGNAME = GET_ENVSTR( 'CTM_PROGNAME', VARDESC, PROGNAME )
+      STRTEMP = GET_ENVSTR( 'CTM_PROGNAME', VARDESC, PROGNAME )
+      PROGNAME = STRTEMP( 1:16 )
 
       ! Run Duration
       VARDESC = 'Scenario Run Duration (HHMMSS)'
@@ -397,7 +408,7 @@
       IF ( NPROCS .GT. 1 ) THEN
          CALL GET_ENVLIST ( 'NPCOL_NPROW', NV, V_LIST2 )
          IF ( NV .NE. 2 ) THEN
-            XMSG = 'Environment variable problem for ' // NPCOL_NPROW
+            XMSG = 'Environment variable problem for NPCOL_NPROW'
      &           // ' using default 1X1'
             CALL M3WARN ( 'INIT_ENV_VARS', 0, 0, XMSG )
             NV = 2
@@ -423,9 +434,11 @@
       !>> General; Multiprocess control, output and error checking
       !-------------------------------------------------------------------------------------------------------
 
-      CALL LOG_SUBHEADING( "Multiprocess control, output and error checking" )
-      WRITE( OUTDEV, '(5x,A)' ),'--Env Variable-- | --Value--'
-      WRITE( OUTDEV, '(5x,A)' ), REPEAT( '-',80 )
+      IF ( MYPE .EQ. 0 ) THEN 
+         CALL LOG_SUBHEADING( OUTDEV, "Multiprocess control, output and error checking" )
+         WRITE( OUTDEV, '(6x,A)' ),'--Env Variable-- | --Value--'
+         WRITE( OUTDEV, '(6x,A)' ), REPEAT( '-',80 )
+      END IF
 
       ! LERROFF
       VARDESC = 'Flag for stopping on errors'
@@ -446,35 +459,35 @@
       CALL GET_ENVLIST ( 'CONC_SPCS', N_CSPCS, CONC_FILE_SPCS )
  
       ! ACONC Layer Specification
-      CALL GET_ENVLIST ( 'ACONC_BLEV_ELEV', N, V_LIST2 )
+      CALL GET_ENVLIST ( 'ACONC_BLEV_ELEV', NV, V_LIST2 )
       IF ( NV .LE. 0 ) THEN   ! assume 1:NLAYS
          ACONC_BLEV = 1
-         ACONC_ELEV = NLAYS
+         ACONC_ELEV = -1
       ELSE IF ( NV .EQ. 1 ) THEN ! Assume 1:CONC_BLEV_ELEV
          ACONC_BLEV = 1
-         ACONC_ELEV = V_LIST2( 1 )
-      ELSE IF ( NV .EQ. 2 )  ! Correct Input
+         READ( V_LIST2( 2 ), '( I4 )' ) ACONC_ELEV
+      ELSE IF ( NV .EQ. 2 ) THEN ! Correct Input
          READ( V_LIST2( 1 ), '( I4 )' ) ACONC_BLEV
          READ( V_LIST2( 2 ), '( I4 )' ) ACONC_ELEV
       ELSE 
          XMSG = 'Environment variable error for ACONC_BLEV_ELEV'
-         CALL M3EXIT( 'INIT_ENV_VARS', JDATE, JTIME, XMSG, XSTAT3 )
+         CALL M3EXIT( 'INIT_ENV_VARS', JDATE, JTIME, XMSG, EXIT_STATUS )
       END IF
   
       ! CONC File Vertical Layer Range and Speciation
       CALL GET_ENVLIST ( 'CONC_BLEV_ELEV', NV, V_LIST2 )
       IF ( NV .LE. 0 ) THEN   ! assume 1:NLAYS
          CONC_BLEV = 1
-         CONC_ELEV = NLAYS
+         CONC_ELEV = -1
       ELSE IF ( NV .EQ. 1 ) THEN ! Assume 1:CONC_BLEV_ELEV
          CONC_BLEV = 1
-         CONC_ELEV = V_LIST2( 1 )
-      ELSE IF ( NV .EQ. 2 )  ! Correct Input
+         READ( V_LIST2( 2 ), '( I4 )' ) CONC_ELEV
+      ELSE IF ( NV .EQ. 2 ) THEN ! Correct Input
          READ( V_LIST2( 1 ), '( I4 )' ) CONC_BLEV
          READ( V_LIST2( 2 ), '( I4 )' ) CONC_ELEV
       ELSE 
          XMSG = 'Environment variable error for CONC_BLEV_ELEV'
-         CALL M3EXIT( 'INIT_ENV_VARS', JDATE, JTIME, XMSG, XSTAT3 )
+         CALL M3EXIT( 'INIT_ENV_VARS', JDATE, JTIME, XMSG, EXIT_STATUS )
       END IF
       
       ! PWRTFLAG
@@ -483,27 +496,29 @@
 
       ! Get Filename for Gas Species Namelist
       VARDESC = 'Gas Species Namelist Filename'
-      GC_NAMELIST = GET_ENVSTR(  'GC_MATRIX_NML', VARDESC, GC_NAMELIST )
+      GC_NAMELIST = GET_ENVSTR(  'gc_matrix_nml', VARDESC, GC_NAMELIST )
 
       ! Get Filename for Aerosol Species Namelist
       VARDESC = 'Aerosol Species Namelist Filename'
-      AE_NAMELIST = GET_ENVSTR(  'AE_MATRIX_NML', VARDESC, AE_NAMELIST )
+      AE_NAMELIST = GET_ENVSTR(  'ae_matrix_nml', VARDESC, AE_NAMELIST )
 
       ! Get Filename for Nonreactive Species Namelist
       VARDESC = 'Nonreactive Species Namelist Filename'
-      NR_NAMELIST = GET_ENVSTR(  'NR_MATRIX_NML', VARDESC, NR_NAMELIST )
+      NR_NAMELIST = GET_ENVSTR(  'nr_matrix_nml', VARDESC, NR_NAMELIST )
 
       ! Get Filename for Tracer Species Namelist
       VARDESC = 'Tracer Species Namelist Filename'
-      TR_NAMELIST = GET_ENVSTR(  'TR_MATRIX_NML', VARDESC, TR_NAMELIST )
+      TR_NAMELIST = GET_ENVSTR(  'tr_matrix_nml', VARDESC, TR_NAMELIST )
 
       !-------------------------------------------------------------------------------------------------------
       !>> Chemistry and Photolysis
       !-------------------------------------------------------------------------------------------------------
 
-      CALL LOG_SUBHEADING( "Chemistry and Photolysis" )
-      WRITE( OUTDEV, '(5x,A)' ),'--Env Variable-- | --Value--'
-      WRITE( OUTDEV, '(5x,A)' ), REPEAT( '-',80 )
+      IF ( MYPE .EQ. 0 ) THEN 
+         CALL LOG_SUBHEADING( OUTDEV, "Chemistry and Photolysis" )
+         WRITE( OUTDEV, '(6x,A)' ),'--Env Variable-- | --Value--'
+         WRITE( OUTDEV, '(6x,A)' ), REPEAT( '-',80 )
+      END IF
 
       ! Get photolysis rate diagnostic file flag
       VARDESC= 'Flag for writing the photolysis rate diagnostic file'
@@ -537,9 +552,11 @@
       !>> Aerosols
       !-------------------------------------------------------------------------------------------------------
       
-      CALL LOG_SUBHEADING( "Aerosols" )
-      WRITE( OUTDEV, '(5x,A)' ),'--Env Variable-- | --Value--'
-      WRITE( OUTDEV, '(5x,A)' ), REPEAT( '-',80 )
+      IF ( MYPE .EQ. 0 ) THEN 
+         CALL LOG_SUBHEADING( OUTDEV, "Aerosols" )
+         WRITE( OUTDEV, '(6x,A)' ),'--Env Variable-- | --Value--'
+         WRITE( OUTDEV, '(6x,A)' ), REPEAT( '-',80 )
+      END IF
 
       ! Get aerosol average diagnostic file flag.
       VARDESC = 'Flag for writing the aerosol diagnostic file'
@@ -566,16 +583,16 @@
       CALL GET_ENVLIST ( 'APMDIAG_BLEV_ELEV', NV, V_LIST2 )
       IF ( NV .LE. 0 ) THEN   ! assume 1:NLAYS
          APMDIAG_ZLO = 1
-         APMDIAG_ZHI = NLAYS
+         APMDIAG_ZHI = -1
       ELSE IF ( NV .EQ. 1 ) THEN ! Assume 1:CONC_BLEV_ELEV
          APMDIAG_ZLO = 1
-         APMDIAG_ZHI = V_LIST2( 1 )
-      ELSE IF ( NV .EQ. 2 )  ! Correct Input
+         READ( V_LIST2( 2 ), '( I4 )' ) APMDIAG_ZHI
+      ELSE IF ( NV .EQ. 2 ) THEN ! Correct Input
          READ( V_LIST2( 1 ), '( I4 )' ) APMDIAG_ZLO
          READ( V_LIST2( 2 ), '( I4 )' ) APMDIAG_ZHI
       ELSE 
          XMSG = 'Environment variable error for APMDIAG_BLEV_ELEV'
-         CALL M3EXIT( 'INIT_ENV_VARS', JDATE, JTIME, XMSG, XSTAT3 )
+         CALL M3EXIT( 'INIT_ENV_VARS', JDATE, JTIME, XMSG, EXIT_STATUS )
       END IF
        
       ! APMDIAG File Species List 
@@ -585,9 +602,11 @@
       !>> Cloud Parameters
       !-------------------------------------------------------------------------------------------------------
 
-      CALL LOG_SUBHEADING( "Cloud Processes" )
-      WRITE( OUTDEV, '(5x,A)' ),'--Env Variable-- | --Value--'
-      WRITE( OUTDEV, '(5x,A)' ), REPEAT( '-',80 )
+      IF ( MYPE .EQ. 0 ) THEN 
+         CALL LOG_SUBHEADING( OUTDEV, "Cloud Processes" )
+         WRITE( OUTDEV, '(6x,A)' ),'--Env Variable-- | --Value--'
+         WRITE( OUTDEV, '(6x,A)' ), REPEAT( '-',80 )
+      END IF
 
       ! FLag for outputting cloud diagnostics
       VARDESC = 'Output cloud diagnostic files? (Y/N)'
@@ -597,9 +616,11 @@
       !>> Air-Surface Exchange Parameters
       !-------------------------------------------------------------------------------------------------------
  
-      CALL LOG_SUBHEADING( "Air-Surface Exchange Processes" )
-      WRITE( OUTDEV, '(5x,A)' ),'--Env Variable-- | --Value--'
-      WRITE( OUTDEV, '(5x,A)' ), REPEAT( '-',80 )
+      IF ( MYPE .EQ. 0 ) THEN 
+         CALL LOG_SUBHEADING( OUTDEV, "Air-Surface Exchange Processes" )
+         WRITE( OUTDEV, '(6x,A)' ),'--Env Variable-- | --Value--'
+         WRITE( OUTDEV, '(6x,A)' ), REPEAT( '-',80 )
+      END IF
 
       ! Flag for In-line deposition velocities calculation
       VARDESC = 'Flag for in-line deposition velocities'
@@ -653,15 +674,18 @@
  
       ! Flag for using BELD Land Use for WindBlown Dust 
       VARDESC = 'Flag for Wind Blown Dust - Land Use from BELD'
-      LAND_SCHEME = GET_ENVSTR( 'CTM_WBDUST_BELD', VARDESC, LAND_SCHEME )
+      STRTEMP = GET_ENVSTR( 'CTM_WBDUST_BELD', VARDESC, LAND_SCHEME )
+      LAND_SCHEME = STRTEMP( 1:16)
  
       !-------------------------------------------------------------------------------------------------------
       !>> Transport Processes
       !-------------------------------------------------------------------------------------------------------
 
-      CALL LOG_SUBHEADING( "Transport Processes" )
-      WRITE( OUTDEV, '(5x,A)' ),'--Env Variable-- | --Value--'
-      WRITE( OUTDEV, '(5x,A)' ), REPEAT( '-',80 )
+      IF ( MYPE .EQ. 0 ) THEN 
+         CALL LOG_SUBHEADING( OUTDEV, "Transport Processes" )
+         WRITE( OUTDEV, '(6x,A)' ),'--Env Variable-- | --Value--'
+         WRITE( OUTDEV, '(6x,A)' ), REPEAT( '-',80 )
+      END IF
 
       ! CTM_VDIFF_DIAG_FILE
       VARDESC = 'Writing the VDIFF diagnostic files'
@@ -695,9 +719,11 @@
       !>> Emission Environment Variables 
       !-------------------------------------------------------------------------------------------------------
       
-      CALL LOG_SUBHEADING( "Emissions Parameters" )
-      WRITE( OUTDEV, '(5x,A)' ),'--Env Variable-- | --Value--'
-      WRITE( OUTDEV, '(5x,A)' ), REPEAT( '-',80 )
+      IF ( MYPE .EQ. 0 ) THEN 
+         CALL LOG_SUBHEADING( OUTDEV, "Emissions Parameters" )
+         WRITE( OUTDEV, '(6x,A)' ),'--Env Variable-- | --Value--'
+         WRITE( OUTDEV, '(6x,A)' ), REPEAT( '-',80 )
+      END IF
 
       ! Number of Layers for Emissions
       VARDESC = 'Number of emission layers'
@@ -721,7 +747,7 @@
       VARDESC = 'Flag for using a frost date switch file'
       BIOGEMIS_SEASON = GET_ENVYN ( 'BIOSW_YN', VARDESC, BIOGEMIS_SEASON )
 
-      IF ( .NOT. BIOGEMIS_SEASON ) 
+      IF ( .NOT. BIOGEMIS_SEASON ) THEN
          ! Assume_Summer flag
          VARDESC = 'Flag for using summer normalized emissions'
          ASSUME_SUMMER = GET_ENVYN ( 'SUMMER_YN', VARDESC, ASSUME_SUMMER )
@@ -741,7 +767,7 @@
 
       ! Get env var for erodible agriculture land fraction
       VARDESC = 'Flag for calculating erodible agriculture land fraction'
-      ERODE_AGLAND = GET_ENVYN( 'CTM_ERODE_AGLAND', VARDESC, ERODEA_AGLAND )
+      ERODE_AGLAND = GET_ENVYN( 'CTM_ERODE_AGLAND', VARDESC, ERODE_AGLAND )
       
       ! Get env var for diagnostic output
       VARDESC = 'Flag for writing the windblown dust emission diagnostic file'
@@ -781,7 +807,7 @@
 
       ! get number of different file groups (sectors)
       VARDESC = 'Number of file groups'
-      NPTGRPS = ENVINT( 'NPTGRPS', VARDESC, NPTGRPS )
+      NPTGRPS = GET_ENVINT( 'NPTGRPS', VARDESC, NPTGRPS )
       
       ! PT3DDIAG
       VARDESC = 'Flag for outputing Point Source Diagnostic File'
@@ -793,38 +819,42 @@
 
       ! Point Source Time Steps
       VARDESC = 'Scenario Run Duration (integer steps)'
-      PT_NSTEPS = ENVINT( 'LAYP_NSTEPS', VARDESC, PT_NSTEPS )
+      PT_NSTEPS = GET_ENVINT( 'LAYP_NSTEPS', VARDESC, PT_NSTEPS )
 
       ! Point Source Date
       VARDESC = 'Scenario Starting Date (YYYYDDD)'
       PT_DATE = GET_ENVINT( 'LAYP_STDATE',VARDESC, PT_DATE )
 
       ! Point Source Time
-      VARDESC = 'Scenario Starting Time (HHMMSS)',
+      VARDESC = 'Scenario Starting Time (HHMMSS)'
       PT_TIME = GET_ENVINT( 'LAYP_STTIME', VARDESC, PT_TIME )
 
       ! IPVERT
       VARDESC = 'Method for vertical spread'
-      IPVERT = ENVINT( 'IPVERT', VARDESC, IPVERT )
+      IPVERT = GET_ENVINT( 'IPVERT', VARDESC, IPVERT )
 
       ! REP_LAYR
       VARDESC = 'Minimum Layer for reporting plume rise info'
       REP_LAYR = GET_ENVINT( 'REP_LAYER_MIN', VARDESC, REP_LAYR )
  
-      ALLOCATE( PLAY_BASE( NTGRPS ) )
-      DO N = 1,NPTGRPS
-         WRITE( PBASE,'( "PLAY_BASE", "_", I2.2 )' ) N
+      ALLOCATE( PLAY_BASE( NPTGRPS ) )
+      PLAY_BASE( : ) = ''
+      DO NV = 1,NPTGRPS
+         WRITE( PBASE,'( "PLAY_BASE", "_", I2.2 )' ) NV
          VARDESC = 'Logical name for LAYER FRACTIONS MATRIX'
-         PLAY_BASE( N ) = GET_ENVSTR( PBASE, XMSG, ' ', PLAY_BASE( N ) )
+         STRTEMP = GET_ENVSTR( PBASE, VARDESC, PLAY_BASE( NV ) )
+         PLAY_BASE( NV ) = STRTEMP
       END DO
 
       !-------------------------------------------------------------------------------------------------------
       !>> Process Analysis
       !-------------------------------------------------------------------------------------------------------
 
-      CALL LOG_SUBHEADING( "Process Analysis Parameters" )
-      WRITE( OUTDEV, '(5x,A)' ),'--Env Variable-- | --Value--'
-      WRITE( OUTDEV, '(5x,A)' ), REPEAT( '-',80 )
+      IF ( MYPE .EQ. 0 ) THEN 
+         CALL LOG_SUBHEADING( OUTDEV, "Process Analysis Parameters" )
+         WRITE( OUTDEV, '(6x,A)' ),'--Env Variable-- | --Value--'
+         WRITE( OUTDEV, '(6x,A)' ), REPEAT( '-',80 )
+      END IF
 
       ! Flag for Using Process Analysis
       VARDESC= 'Flag for using process analysis'
@@ -839,7 +869,7 @@
          READ( V_LIST2( 2 ), '( I4 )' ) PA_ENDCOL
       ELSE 
          XMSG = 'Environment variable error for PA_BCOL_ECOL'
-         CALL M3EXIT( 'INIT_ENV_VARS', JDATE, JTIME, XMSG, XSTAT3 )
+         CALL M3EXIT( 'INIT_ENV_VARS', JDATE, JTIME, XMSG, EXIT_STATUS )
       END IF
 
       ! Get the Beginning and Ending Rows for Process Analysis
@@ -851,7 +881,7 @@
          READ( V_LIST2( 2 ), '( I4 )' ) PA_ENDROW
       ELSE 
          XMSG = 'Environment variable error for PA_BROW_EROW'
-         CALL M3EXIT( 'INIT_ENV_VARS', JDATE, JTIME, XMSG, XSTAT3 )
+         CALL M3EXIT( 'INIT_ENV_VARS', JDATE, JTIME, XMSG, EXIT_STATUS )
       END IF
 
       ! Get the Beginning and Ending Layers for Process Analysis
@@ -863,11 +893,11 @@
          READ( V_LIST2( 2 ), '( I4 )' ) PA_ENDLEV
       ELSE 
          XMSG = 'Environment variable error for PA_BLEV_ELEV'
-         CALL M3EXIT( 'INIT_ENV_VARS', JDATE, JTIME, XMSG, XSTAT3 )
+         CALL M3EXIT( 'INIT_ENV_VARS', JDATE, JTIME, XMSG, EXIT_STATUS )
       END IF
 
 
-      END SUBROUTINE INIT_VARS
+      END SUBROUTINE INIT_ENV_VARS
 
 !.........................................................................
       FUNCTION GET_ENVYN( VAR_LABEL, VARDESC, VARDEF )  RESULT( VARVAL )
@@ -875,22 +905,23 @@
 !  Wrapper for retrieving TRUE/FALSE and Y/N Environemnt Variables.
 !  Applies standard error checking
 !.........................................................................
+      USE UTILIO_DEFN
       IMPLICIT NONE
 
       LOGICAL, INTENT( IN )        :: VARDEF
-      CHARACTER( : ), INTENT( IN ) :: VAR_LABEL
-      CHARACTER( : ), INTENT( IN ) :: VARDESC
+      CHARACTER( * ), INTENT( IN ) :: VAR_LABEL
+      CHARACTER(250), INTENT( IN ) :: VARDESC
       LOGICAL                      :: VARVAL
 
       INTEGER          :: STATUS
       CHARACTER( 250 ) :: XMSG
-      INTEGER          :: XSTAT2
+      INTEGER, PARAMETER :: EXIT_STATUS = 1
 
       VARVAL = ENVYN( VAR_LABEL, VARDESC, VARDEF, STATUS )
       IF ( STATUS .NE. 0 ) CALL LOG_MESSAGE( LOGDEV, VARDESC )
       IF ( STATUS .EQ. 1 ) THEN
            XMSG = 'Environment variable improperly formatted'
-           CALL M3EXIT( 'GET_ENVYN', 0, 0, XMSG, XSTAT2 )
+           CALL M3EXIT( 'GET_ENVYN', 0, 0, XMSG, EXIT_STATUS )
       ELSE IF ( STATUS .EQ. -1 ) THEN
            XMSG = 'Environment variable set, but empty ... Using default:'
            CALL LOG_MESSAGE( LOGDEV, XMSG )
@@ -899,8 +930,8 @@
            CALL LOG_MESSAGE( LOGDEV, XMSG )
       END IF
 
-      WRITE( XMSG, '(2x,A16,2x,A,2x,A)' ),VAR_LABEL,'|',TRIM(VARVAL)
-      CALL LOG_MESSAGE( OUTDEV, XMSG )
+      WRITE( XMSG, '(A16,2x,A,2x,L)' ),VAR_LABEL,'|',VARVAL
+      IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
 
       END FUNCTION GET_ENVYN
 
@@ -910,22 +941,23 @@
 !  Wrapper for retrieving TRUE/FALSE and Y/N Environemnt Variables.
 !  Applies standard error checking
 !.........................................................................
+      USE UTILIO_DEFN
       IMPLICIT NONE
 
       INTEGER, INTENT( IN )        :: VARDEF
-      CHARACTER( : ), INTENT( IN ) :: VAR_LABEL
-      CHARACTER( : ), INTENT( IN ) :: VARDESC
+      CHARACTER( * ), INTENT( IN ) :: VAR_LABEL
+      CHARACTER(250), INTENT( IN ) :: VARDESC
       INTEGER                      :: VARVAL
 
       INTEGER          :: STATUS
       CHARACTER( 250 ) :: XMSG
-      INTEGER          :: XSTAT2
+      INTEGER, PARAMETER :: EXIT_STATUS = 1
 
-      VARVAL = ENVYN( VAR_LABEL, VARDESC, VARDEF, STATUS )
+      VARVAL = ENVINT( VAR_LABEL, VARDESC, VARDEF, STATUS )
       IF ( STATUS .NE. 0 ) CALL LOG_MESSAGE( LOGDEV, VARDESC )
       IF ( STATUS .EQ. 1 ) THEN
            XMSG = 'Environment variable improperly formatted'
-           CALL M3EXIT( 'GET_ENVINT', 0, 0, XMSG, XSTAT2 )
+           CALL M3EXIT( 'GET_ENVINT', 0, 0, XMSG, EXIT_STATUS )
       ELSE IF ( STATUS .EQ. -1 ) THEN
            XMSG = 'Environment variable set, but empty ... Using default:'
            CALL LOG_MESSAGE( LOGDEV, XMSG )
@@ -934,8 +966,8 @@
            CALL LOG_MESSAGE( LOGDEV, XMSG )
       END IF
  
-      WRITE( XMSG, '(2x,A16,2x,A,2x,I)' ),VAR_LABEL,'|',VARVAL
-      CALL LOG_MESSAGE( OUTDEV, XMSG )
+      WRITE( XMSG, '(A16,2x,A1,2x,I7)' ),VAR_LABEL,'|',VARVAL
+      IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
       
       END FUNCTION GET_ENVINT 
 
@@ -945,22 +977,23 @@
 !  Wrapper for retrieving TRUE/FALSE and Y/N Environemnt Variables.
 !  Applies standard error checking
 !.........................................................................
+      USE UTILIO_DEFN
       IMPLICIT NONE
 
       REAL, INTENT( IN )           :: VARDEF
-      CHARACTER( : ), INTENT( IN ) :: VAR_LABEL
-      CHARACTER( : ), INTENT( IN ) :: VARDESC
+      CHARACTER( * ), INTENT( IN ) :: VAR_LABEL
+      CHARACTER(250), INTENT( IN ) :: VARDESC
       REAL                         :: VARVAL
 
       INTEGER          :: STATUS
       CHARACTER( 250 ) :: XMSG
-      INTEGER          :: XSTAT2
+      INTEGER, PARAMETER :: EXIT_STATUS = 1
 
       VARVAL = ENVREAL( VAR_LABEL, VARDESC, VARDEF, STATUS )
       IF ( STATUS .NE. 0 ) CALL LOG_MESSAGE( LOGDEV, VARDESC )
       IF ( STATUS .EQ. 1 ) THEN
            XMSG = 'Environment variable improperly formatted'
-           CALL M3EXIT( 'GET_ENVREAL', 0, 0, XMSG, XSTAT2 )
+           CALL M3EXIT( 'GET_ENVREAL', 0, 0, XMSG, EXIT_STATUS )
       ELSE IF ( STATUS .EQ. -1 ) THEN
            XMSG = 'Environment variable set, but empty ... Using default:'
            CALL LOG_MESSAGE( LOGDEV, XMSG )
@@ -969,8 +1002,8 @@
            CALL LOG_MESSAGE( LOGDEV, XMSG )
       END IF
  
-      WRITE( XMSG, '(2x,A16,2x,A,2x,E10.3)' ),VAR_LABEL,'|',VARVAL
-      CALL LOG_MESSAGE( OUTDEV, XMSG )
+      WRITE( XMSG, '(A16,2x,A,2x,E10.3)' ),VAR_LABEL,'|',VARVAL
+      IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
       
       END FUNCTION GET_ENVREAL 
  
@@ -980,22 +1013,24 @@
 !  Wrapper for retrieving TRUE/FALSE and Y/N Environemnt Variables.
 !  Applies standard error checking
 !.........................................................................
+      USE UTILIO_DEFN
       IMPLICIT NONE
 
-      CHARACTER( : ), INTENT( IN ) :: VARDEF
-      CHARACTER( : ), INTENT( IN ) :: VAR_LABEL
-      CHARACTER( : ), INTENT( IN ) :: VARDESC
-      CHARACTER( 256 )             :: VARVAL
+      CHARACTER( * ), INTENT( IN ) :: VARDEF
+      CHARACTER( * ), INTENT( IN ) :: VAR_LABEL
+      CHARACTER(250), INTENT( IN ) :: VARDESC
+      CHARACTER(250)               :: VARVAL
 
       INTEGER          :: STATUS
-      CHARACTER( 250 ) :: XMSG
-      INTEGER          :: XSTAT2
+      CHARACTER( 300 ) :: XMSG
+      INTEGER, PARAMETER :: EXIT_STATUS = 1
+      CHARACTER( 40 )    :: FMT
 
       CALL ENVSTR( VAR_LABEL, VARDESC, VARDEF, VARVAL, STATUS )
       IF ( STATUS .NE. 0 ) CALL LOG_MESSAGE( LOGDEV, VARDESC )
       IF ( STATUS .EQ. 1 ) THEN
            XMSG = 'Environment variable improperly formatted'
-           CALL M3EXIT( 'GET_ENVSTR', 0, 0, XMSG, XSTAT2 )
+           CALL M3EXIT( 'GET_ENVSTR', 0, 0, XMSG, EXIT_STATUS )
       ELSE IF ( STATUS .EQ. -1 ) THEN
            XMSG = 'Environment variable set, but empty ... Using default:'
            CALL LOG_MESSAGE( LOGDEV, XMSG )
@@ -1004,9 +1039,11 @@
            CALL LOG_MESSAGE( LOGDEV, XMSG )
       END IF
  
-      WRITE( XMSG, '(2x,A16,2x,A,2x,A)' ),VAR_LABEL,'|',VARVAL
-      CALL LOG_MESSAGE( OUTDEV, XMSG )
-      
+      IF ( MYPE .EQ. 0 ) THEN 
+         WRITE( FMT, '("(", I0, "x,A16,2x,A,2x,A)")' ) LOG_MAJOR_TAB
+         WRITE( OUTDEV, FMT ),VAR_LABEL,'|',VARVAL
+      END IF
+
       END FUNCTION GET_ENVSTR 
 
 !.........................................................................
@@ -1018,7 +1055,7 @@
 !  we would like to try limiting lines to 80 characters and a heading
 !  should probably just be one line.
 !.........................................................................
-      USE M3UTILIO
+      USE UTILIO_DEFN
 
       IMPLICIT NONE
 
@@ -1080,7 +1117,7 @@
 !  This approach is intended to standardize the log files that are
 !  created by CMAQ.
 !.........................................................................
-      USE M3UTILIO
+      USE UTILIO_DEFN
 
       IMPLICIT NONE
 

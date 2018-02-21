@@ -46,7 +46,7 @@ C     12 Jan 2017 B.Murphy: Remove warning when model species are not
 C                           read in correctly. Invoke error and model stop when model 
 C                           species are not found on any emission file
 C-----------------------------------------------------------------------
-
+      USE RUNTIME_VARS
       USE GRID_CONF           ! horizontal & vertical domain specifications      
 
       IMPLICIT NONE
@@ -103,7 +103,6 @@ C-----------------------------------------------------------------------
          USE UTILIO_DEFN         ! I/O API
          USE AERO_EMIS           ! inherits GRID_CONF
          USE AERO_DATA, ONLY: MAP_PMEMIS  ! access subroutine map_pmemis
-         USE DEPV_DEFN, ONLY: ABFLUX ! ammonia bidi flag
 
          IMPLICIT NONE
 
@@ -164,7 +163,7 @@ C Get number of emissions layers
      &           /  5X, 'out of total Number of Model Layers:', I3 )
 
 C Initialize Online Lightning NOx Emissions
-         IF ( .NOT. LTNG_INIT( JDATE, JTIME, TSTEP, EMLAYS ) ) THEN
+         IF ( .NOT. LTNG_INIT( JDATE, JTIME, TSTEP ) ) THEN
             XMSG = 'Failure initializing lightning emissions module'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
@@ -246,7 +245,7 @@ C Master EArea Emissions Array
 C Initialize 3D Point Source Emissions 
 C (N_SPC_EMIS+1 serves as the null map for PTEM_MAP)
          CALL LOG_SUBHEADING( LOGDEV, 'Initialize Point Emissinos' )
-         IF ( .NOT. PT3D_INIT( N_SPC_EMIS, EMLAYS, JDATE, JTIME, TSTEP ) ) THEN
+         IF ( .NOT. PT3D_INIT( N_SPC_EMIS, JDATE, JTIME, TSTEP ) ) THEN
             XMSG = 'Failure initializing plume rise emissions module'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
@@ -322,7 +321,6 @@ C GET_AERO_EMIS has to apply factors - don`t do it at this level.
          USE PTMAP               ! defines emissions file(s) PM mapping
          USE LTNG_DEFN           ! lightning NO emissions
          USE UTILIO_DEFN
-         USE DEPV_DEFN, ONLY: ABFLUX ! ammonia bidi flag
          USE ASX_DATA_MOD, ONLY: MET_DATA, GRID_DATA
          USE RXNS_DATA, ONLY: MECHNAME
 
@@ -725,10 +723,7 @@ C-----------------------------------------------------------------------
      &                         MSPCS     ! Number of Emitted Species
          USE MGEMIS,    only : MGEM,     ! Flag for Marine Gas Emissions
      &                         MG_SPC    ! Emitted Marine Gas CMAQ-Species
-         USE LTNG_DEFN, only : LTNG_NO,  ! Flag for Lightning Emissions
-     &                         LTSPC     ! Lightning Emitted Species (i.e. 'NO')
-         USE PT3D_DEFN, only : PT3DEMIS, ! Flag for Point Source Emissions
-     &                         NPTGRPS
+         USE LTNG_DEFN, only : LTSPC     ! Lightning Emitted Species (i.e. 'NO')
          USE STK_EMIS,  only : STKSPC    ! Species from Point Source Emissions
          USE UTILIO_DEFN
          USE CGRID_SPCS, only: N_GC_EMIS, N_AE_EMIS, N_NR_EMIS, N_TR_EMIS,

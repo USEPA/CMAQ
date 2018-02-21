@@ -127,9 +127,6 @@ C Local Variables:
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
 
       INTEGER, SAVE :: ADVLAYR       ! adv=sync at least up to this level
-      REAL,    SAVE :: SIGST         ! sigma_sync_top value
-      REAL,    SAVE :: HDIV_LIM      ! cutoff for max horizontal divergence step adj
-      REAL,    SAVE :: CFL           ! maximum Courant-Friedrichs-Lewy number allowed
 
       INTEGER, SAVE :: WSTEP = 0     ! wind file interpolation time step
       INTEGER, SAVE :: SDATE, STIME  ! wind file start date and time

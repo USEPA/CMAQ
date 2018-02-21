@@ -74,7 +74,7 @@ C Volatile variables
       
       Contains
 
-         Subroutine Init_Mosaic( jdate, jtime, ltotg, MOSAIC )
+         Subroutine Init_Mosaic( jdate, jtime, ltotg )
        
          Use HGRD_DEFN
          Use LSM_Mod
@@ -89,7 +89,6 @@ C...include files
          Integer, Intent( In )  :: jdate
          Integer, Intent( In )  :: jtime  
          Integer, Intent( In )  :: ltotg 
-         Logical, Intent( In )  :: MOSAIC         
          Character( 240 )       :: xmsg = ' '
          Character(  16 ), save :: pname = 'Init_Mosaic'
          Integer l

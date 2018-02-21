@@ -72,7 +72,7 @@ C %% G. Sarwar: added data for iodine and bromine species (03/2016)
 C %% B. Hutzell: added dry deposition data for methane, acrylic acid, methyl chloride,
 C    and acetonitrile (09/2016)   
 C-------------------------------------------------------------------------------
-
+      Use RUNTIME_VARS
       Use GRID_CONF           ! horizontal & vertical domain specifications
       Use LSM_MOD             ! Land surface data
       Use DEPVVARS, Only: ltotg
@@ -382,7 +382,7 @@ C Land use information:
       CONTAINS
 
 C=======================================================================
-         Subroutine INIT_MET ( JDATE, JTIME, MOSAIC, HGBIDI )
+         Subroutine INIT_MET ( JDATE, JTIME )
 
 C-----------------------------------------------------------------------
 C   30 Mar 01 J.Young: dyn alloc - Use HGRD_DEFN; replace INTERP3 with INTERPX;
@@ -404,8 +404,6 @@ C-----------------------------------------------------------------------
 
 C Arguments:
          Integer, Intent( IN ) :: JDATE, JTIME      ! internal simulation date&time
-         Logical, Intent( IN ) :: MOSAIC
-         Logical, Intent( IN ) :: HGBIDI
 
 C File variables:
          Real, Pointer    :: MSFX2   ( :,: )
@@ -831,7 +829,7 @@ C-----------------------------------------------------------------------
          End Subroutine INIT_MET
 
 C=======================================================================
-         Subroutine GET_MET ( JDATE, JTIME, TSTEP, MOSAIC, HGBIDI )
+         Subroutine GET_MET ( JDATE, JTIME, TSTEP )
 
 C-----------------------------------------------------------------------
 C   30 Mar 01 J.Young: dyn alloc - Use HGRD_DEFN; replace INTERP3 with INTERPX;
@@ -861,8 +859,6 @@ C-----------------------------------------------------------------------
 C Arguments:
 
          Integer, Intent( IN ) :: JDATE, JTIME, TSTEP      ! internal simulation date&time
-         Logical, Intent( IN ) :: MOSAIC
-         Logical, Intent( IN ) :: HGBIDI
 
 C Parameters:
          Real, Parameter :: cond_min = 1.0 / resist_max ! minimum conductance [m/s]

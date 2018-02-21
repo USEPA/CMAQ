@@ -45,15 +45,14 @@ C...Local variables:
 
         INTEGER :: L          ! loop induction variables
 
-        CHARACTER( 80 ) :: VARDESC = ' '
-        INTEGER :: APMDIAG_ZLO, APMDIAG_ZHI, N, V
+        INTEGER :: N, V
         INTEGER :: MDATE, MTIME, STATUS
         LOGICAL :: FOUND
 
 C-----------------------------------------------------------------------
 
 ! get begin and end level information from environment variable
-
+        IF ( APMDIAG_ZHI .EQ. -1 ) APMDIAG_ZHI = NLAYS
         IF ( APMDIAG_ZLO .LE. 0 .OR. APMDIAG_ZHI .GT. NLAYS ) THEN
            WRITE( XMSG,'( "Layer range", 2I4, " invalid for this model")' )
      &          APMDIAG_ZLO, APMDIAG_ZHI

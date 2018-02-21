@@ -134,7 +134,7 @@ C smoke@unc.edu
 C Pathname: $Source: /project/yoj/arc/CCTM/src/biog/beis3/hrno.F,v $
 C Last updated: $Date: 2011/10/21 16:10:18 $ 
 C-----------------------------------------------------------------------
-
+      USE RUNTIME_VARS
       USE HGRD_DEFN             ! horizontal domain specifications
       USE BIOG_EMIS, ONLY: NSEF ! beis
       USE ASX_DATA_MOD
@@ -250,7 +250,7 @@ C-----------------------------------------------------------------------
 !        FIRSTIME = .FALSE.
 
 C Determine last timestamp
-         EDATE = SDATE; ETIME = STIME
+         EDATE = STDATE; ETIME = STTIME
          CALL NEXTIME( EDATE, ETIME, RUNLEN )   ! end date & time
          MSTEPS = TIME2SEC( RUNLEN ) / TIME2SEC( TSTEP( 1 ) )
 
@@ -371,15 +371,15 @@ C Get description of NO rain data file
             END IF
 
 C Check that the file start date and time are consistent
-            IF ( SDATE3D .NE. SDATE ) THEN
+            IF ( SDATE3D .NE. STDATE ) THEN
                WRITE( MESG,94010 ) 'Cannot use SOILINP file; ' //
-     &             'found date ', SDATE3D, ' expecting ', SDATE
+     &             'found date ', SDATE3D, ' expecting ', STDATE
                CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
             END IF
 
-            IF ( STIME3D .NE. STIME ) THEN
+            IF ( STIME3D .NE. STTIME ) THEN
                WRITE( MESG,94010 ) 'Cannot use SOILINP file; ' //
-     &             'found time ', STIME3D, ' expecting ', STIME
+     &             'found time ', STIME3D, ' expecting ', STTIME
                CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
             END IF
 
@@ -451,7 +451,7 @@ C Close input file
 
          END IF   ! not initial run
 
-         RDATE = SDATE; RTIME = STIME
+         RDATE = STDATE; RTIME = STTIME
 !        IHR = 0
          EFAC = EXP( -0.103 * 30.0 )
 
@@ -461,7 +461,7 @@ C Non-convective (RN) and convective (RC) rain is the total amount for the met
 C preprocessor's (typically MCIP) output timestep (typically one hour). It doesn't
 C make sense to time-interpolate these values, since rain generally does not fall
 C at a constant rate for an output timestep.
-      IF ( .NOT. CURRSTEP( JDATE, JTIME, SDATE, STIME, METSTEP,
+      IF ( .NOT. CURRSTEP( JDATE, JTIME, STDATE, STTIME, METSTEP,
      &                     NDATE, NTIME ) ) THEN
          MESG = 'Cannot get step date and time'
          CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT3 )

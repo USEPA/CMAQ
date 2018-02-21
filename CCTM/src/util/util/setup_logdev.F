@@ -35,8 +35,8 @@ C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN;
 C                        removed deprecated TRIMLEN
 C   12 Aug 15 D.Wong:   Replaced SUBST_MPI with mpif.h
 
-      USE UTILIO_DEFN
       USE RUNTIME_VARS
+      USE UTILIO_DEFN
 
       IMPLICIT NONE
 
@@ -56,11 +56,9 @@ C   12 Aug 15 D.Wong:   Replaced SUBST_MPI with mpif.h
       CHARACTER( 90 ) :: CMAQ_HEADER( NHEAD )
       CHARACTER( 90 ) :: IOAPI_HEADER( NHEAD )
 
-      OUTDEV = 6  ! Assign Standard Out File Unit
-
       ! Fetch CMAQ Header
       FHEAD = JUNIT()
-      OPEN( FHEAD, FILE = TRIM( LOGFOLD ) // '/log_header.txt' )
+      OPEN( FHEAD, FILE = TRIM( BLDFOLD ) // '/log_header.txt' )
       DO IHEAD = 1,NHEAD
           READ( FHEAD, '(A)', IOSTAT=IOST ), CMAQ_HEADER( IHEAD )
           ! Check for End of File
@@ -91,9 +89,9 @@ C   12 Aug 15 D.Wong:   Replaced SUBST_MPI with mpif.h
 
       ! Write CMAQ Header to Screen
       IF ( MYPE .EQ. 0 ) THEN
-      DO IHEAD = 1,NCMAQ_HEAD
-          WRITE( OUTDEV, '(A)' ) CMAQ_HEADER( IHEAD )
-      END DO
+         DO IHEAD = 1,NCMAQ_HEAD
+            WRITE( OUTDEV, '(A)' ) CMAQ_HEADER( IHEAD )
+         END DO
       END IF
 
       ! Redirect Standard Output

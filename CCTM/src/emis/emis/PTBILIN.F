@@ -32,7 +32,7 @@ C     27 Jul 2011 David Wong: - fixed the description of XBND
 C     12 Aug 2015 David Wong: - Based on the condition of MY_NSRC ( > 0 )
 C                               to determine execution of code section
 C-----------------------------------------------------------------------
-
+      USE RUNTIME_VARS
       USE UDTYPES, ONLY: BILIN_TYPE
 
       IMPLICIT NONE
@@ -77,7 +77,7 @@ C Allocatable cross- OR dot-point meteorology input buffers
 
 C----------------------------------------------------------------------
 
-         FUNCTION PTBILIN_INIT ( NPTGRPS ) RESULT( SUCCESS )
+         FUNCTION PTBILIN_INIT ( ) RESULT( SUCCESS )
 
          USE HGRD_DEFN             ! horizontal domain specifications
          USE VGRD_DEFN             ! vertical domain specifications
@@ -86,7 +86,6 @@ C----------------------------------------------------------------------
 
          IMPLICIT NONE
 
-         INTEGER, INTENT( IN ) :: NPTGRPS
          LOGICAL               :: SUCCESS
 
 C Local variables:

@@ -120,7 +120,7 @@ C compute sine of lat and lon first time through
          ALLOCATE( COSLAT( NX,NY ), STAT=IOS )
          CALL CHECKMEM( IOS, 'COSLAT', PNAME )
 
-         IF( .NOT. MET_INITIALIZED )CALL INIT_MET ( JDATE, JTIME, .FALSE., .FALSE., .FALSE. )
+         IF( .NOT. MET_INITIALIZED )CALL INIT_MET ( JDATE, JTIME )
 
          DO R = 1, NY
             DO C = 1, NX

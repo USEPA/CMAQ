@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE LOAD_CGRID ( FNAME, JDATE, JTIME, SPC_CAT, CMIN, CGRID )
+      SUBROUTINE LOAD_CGRID ( FNAME, SPC_CAT, CMIN, CGRID )
 
 C-----------------------------------------------------------------------
 C Function:
@@ -149,6 +149,9 @@ C for XTRACT3
       LOGICAL       :: LSTAT
 
 C-----------------------------------------------------------------------
+
+      JDATE = STDATE
+      JTIME = STTIME
 
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.

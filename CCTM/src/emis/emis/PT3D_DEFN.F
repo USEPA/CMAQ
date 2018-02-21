@@ -139,7 +139,7 @@ C hourly stack emissions file names
 
 C=======================================================================
 
-         FUNCTION PT3D_INIT ( N_SPC_EMIS, EMLAYS, JDATE, JTIME, TSTEP )
+         FUNCTION PT3D_INIT ( N_SPC_EMIS, JDATE, JTIME, TSTEP )
      &                       RESULT ( SUCCESS )
 
 C use N_SPC_EMIS+1 for non-accessed emissions
@@ -161,7 +161,6 @@ C Includes:
 
 C Arguments:
          INTEGER          N_SPC_EMIS ! total no. of model emissions species
-         INTEGER          EMLAYS     ! number of emissions layers
          INTEGER          JDATE      ! Julian date (YYYYDDD)
          INTEGER          JTIME      ! time (HHMMSS)
          INTEGER          TSTEP      ! output time step
@@ -450,7 +449,7 @@ C Initialize stack emissions data
             END IF
          END DO
 
-         IF ( .NOT. PTMAP_INIT( NPTGRPS ) ) THEN
+         IF ( .NOT. PTMAP_INIT( ) ) THEN
             XMSG = 'Could not get point source mappings'
             CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
             SUCCESS = .FALSE.; RETURN
@@ -477,7 +476,7 @@ C Set up and open 3d point source emissions diagnostic file?
          IF ( PT3DDIAG ) THEN
             NDATE = PT_DATE; NTIME = PT_TIME
             CALL NEXTIME( NDATE, NTIME, TSTEP ) ! advance one output tstep
-            CALL OPPT3D_DIAG( CTM_PT3D_DIAG, NDATE, NTIME, TSTEP, EMLYRS,
+            CALL OPPT3D_DIAG( CTM_PT3D_DIAG, TSTEP, 
      &                        N_GSPC_EMIS, GSPC_EMIS, N_ASPC_EMIS, ASPC_EMIS )
             ALLOCATE ( VDEMIS_BUF( NCOLS,NROWS,EMLYRS,N_GSPC_EMIS ), STAT = IOS )
             CALL CHECKMEM( IOS, 'VDEMIS_BUF', PNAME )
@@ -502,7 +501,7 @@ C Open diagnostic layer fractions file?
      &                       MY_NSRC, PLAYNAME )
          END IF
 
-         IF ( .NOT. PTMET_INIT ( NPTGRPS, EMLYRS ) ) THEN
+         IF ( .NOT. PTMET_INIT ( ) ) THEN
             XMSG = 'Could not initialize stack met data'
             CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
             SUCCESS = .FALSE.; RETURN
@@ -586,7 +585,7 @@ C If wildfires, allocate fire parameters
 
          END DO
 
-         IF ( .NOT. PTBILIN_INIT ( NPTGRPS ) ) THEN
+         IF ( .NOT. PTBILIN_INIT ( ) ) THEN
             XMSG = 'Could not initialize stack met bilinear interpolation data'
             CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
             SUCCESS = .FALSE.; RETURN
@@ -856,7 +855,7 @@ C For each time step, compute the layer fractions...
          END IF
 
 C Convert pt source met data to bi-linear interpolated data
-         CALL PTMET_CONVT( JDATE, JTIME, NPTGRPS, EMLYRS, ZSTATIC )
+         CALL PTMET_CONVT( JDATE, JTIME, ZSTATIC )
 
          VDEMIS_PT = 0.0   ! array assignment
          VDEMIS_PT_FIRE = 0.0   ! array assignment

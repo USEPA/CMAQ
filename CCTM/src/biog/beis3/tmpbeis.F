@@ -284,7 +284,7 @@ C Get domain decomp info for the bioseasons switch file
            
          IF ( BEMIS_DIAG ) THEN
 C Build description for, and open beis diagnostic file
-            MDATE = SDATE; MTIME = STIME
+            MDATE = STDATE; MTIME = STTIME
             CALL NEXTIME( MDATE, MTIME, TSTEP( 1 ) )
 
             GDNAM3D = GRID_NAME  ! from HGRD_DEFN

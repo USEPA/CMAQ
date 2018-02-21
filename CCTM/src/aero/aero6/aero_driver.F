@@ -195,8 +195,6 @@ C *** aerosol size distribution variables
       CHARACTER( 16 ) :: V_LIST( 2 )
 
       INTEGER, SAVE :: N_APMDIAG_STEP
-      INTEGER, SAVE :: APMDIAG_ZHI
-      CHARACTER( 32 ) :: APMDIAG_BLEV_ELEV = 'APMDIAG_BLEV_ELEV'
 
 C *** atmospheric properties
       REAL XLM             ! atmospheric mean free path [ m ]

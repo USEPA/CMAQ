@@ -60,7 +60,7 @@ C                         arrays EMBUFF and PMEMIS_PT have incorrect index value
 C   17 Apr 13 J.Young: replace "SPFC ASO4" (found by Havala Pye) with "SPFC_ASO4"
 C   07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module. 
 C-----------------------------------------------------------------------
-
+      USE RUNTIME_VARS
       USE AERO_DATA, ONLY: N_MODE
        
       IMPLICIT NONE
@@ -664,7 +664,7 @@ C                         arrays EMBUFF and PMEMIS_PT have incorrect index value
 C ----------------------------------------------------------------------
          USE GRID_CONF           ! horizontal & vertical domain specifications
          USE CGRID_SPCS          ! CGRID mechanism species
-         USE PT3D_DEFN, ONLY: PT3DEMIS, PMEMIS_PT ! from plume rise
+         USE PT3D_DEFN, ONLY: PMEMIS_PT ! from plume rise
          USE PTMAP, ONLY: N_SPC_PTPM, PTPM_MAP    ! defines emissions file(s) PM mapping
          USE AERO_DATA
          USE PRECURSOR_DATA

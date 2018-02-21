@@ -34,7 +34,7 @@ C   19 Dec 13 J.Young: fix index bug in AEROSPC log report
 C   22 Jun 16 B.Hutzell: Fixed issue where single emis species maps to multiple model
 C                        species
 C-----------------------------------------------------------------------
-
+      USE RUNTIME_VARS
       USE UDTYPES, ONLY: IARRY1, CARRY1 ! implementation for multiple
                                         ! groups of stack input files
       IMPLICIT NONE
@@ -67,7 +67,7 @@ C-----------------------------------------------------------------------
 
       CONTAINS
  
-         FUNCTION PTMAP_INIT ( NPTGRPS ) RESULT ( SUCCESS )
+         FUNCTION PTMAP_INIT ( ) RESULT ( SUCCESS )
 
          USE CGRID_SPCS            ! CGRID mechanism species
          USE STK_EMIS              ! hourly point source emissions
@@ -76,7 +76,6 @@ C-----------------------------------------------------------------------
 
          IMPLICIT NONE
 
-         INTEGER, INTENT( IN )  :: NPTGRPS
          LOGICAL SUCCESS
 
          TYPE :: STRNDX

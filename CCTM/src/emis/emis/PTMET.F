@@ -40,7 +40,7 @@ C                         - fixed a bug of incorrect assignment:
 C                           PTMET_DATA%LEN1 = EMLAYS, PTMET_DATA%LEN2 = MSRC
 
 C-----------------------------------------------------------------------
-
+      USE RUNTIME_VARS
       USE UDTYPES, ONLY: PTMET_TYPE
 
       IMPLICIT NONE
@@ -86,14 +86,12 @@ C dot-point layered met file name
 C-----------------------------------------------------------------------
       CONTAINS
 
-         FUNCTION PTMET_INIT ( NPTGRPS, EMLAYS ) RESULT ( SUCCESS )
+         FUNCTION PTMET_INIT ( ) RESULT ( SUCCESS )
 
          USE STK_PRMS, ONLY: MY_NSRC
 
          IMPLICIT NONE
 
-         INTEGER, INTENT( IN ) :: NPTGRPS
-         INTEGER, INTENT( IN ) :: EMLAYS
          LOGICAL               :: SUCCESS                          
 
          INTEGER N, MSRC, IOS
@@ -162,7 +160,7 @@ C Allocate per-layer arrays from 0:EMLAYS
 
 C-----------------------------------------------------------------------
 
-         SUBROUTINE PTMET_CONVT( JDATE, JTIME, NPTGRPS, EMLAYS, ZSTATIC )
+         SUBROUTINE PTMET_CONVT( JDATE, JTIME, ZSTATIC )
 
          USE PTBILIN, B_D => BILIN_DATA   ! rename
          USE STK_PRMS, ONLY: MY_NSRC, SOURCE, STKHT
@@ -171,8 +169,6 @@ C-----------------------------------------------------------------------
          IMPLICIT NONE
 
          INTEGER, INTENT( IN ) :: JDATE, JTIME
-         INTEGER, INTENT( IN ) :: NPTGRPS
-         INTEGER, INTENT( IN ) :: EMLAYS
          LOGICAL, INTENT( IN ) :: ZSTATIC
 
          INTEGER N, MSRC

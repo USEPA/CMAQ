@@ -20,13 +20,12 @@
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       module vdiff_diag
 C diagnostic output of acm2 parameters and sedimentation velocities
+      use runtime_vars
       use utilio_defn
       use grid_conf
       use cgrid_spcs
 
       implicit none
-
-      logical, save :: vdiffdiag                   ! write diagnostic files
 
       character( 16 ), save :: vdiff_diag_file = 'VDIFF_DIAG_FILE'
 

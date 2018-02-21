@@ -57,7 +57,7 @@ C Pathname: $Source: /project/yoj/arc/CCTM/src/plrise/smoke/plmris.F,v $
 C Last updated: $Date: 2011/10/21 16:11:31 $ 
    
 C-----------------------------------------------------------------------
-      USE RUNTIME_VARS
+      USE RUNTIME_VARS, ONLY : LOGDEV
 
       IMPLICIT NONE
 

@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE AERO_DEPV ( CGRID, JDATE, JTIME, TSTEP, MOSAIC, VDEP_AE )
+      SUBROUTINE AERO_DEPV ( CGRID, JDATE, JTIME, TSTEP, VDEP_AE )
 
 C-----------------------------------------------------------------------
 C aerosol dry deposition routine
@@ -95,7 +95,6 @@ C Arguments
       INTEGER, INTENT( IN )  :: JDATE               ! current model date , coded YYYYDDD
       INTEGER, INTENT( IN )  :: JTIME               ! current model time , coded HHMMSS
       INTEGER, INTENT( IN )  :: TSTEP               ! model time step, coded HHMMSS
-      LOGICAL, INTENT( IN )  :: MOSAIC              ! use mosaic option
       REAL,    INTENT( OUT ) :: VDEP_AE( :,:,: )    ! surrogate deposition velocities [ m s**-1 ]
 
 C Parameters

@@ -29,6 +29,7 @@ C     20 Sep 2007 J.Young: inline DSCSPROF, eliminate MODSPRO module
 C     16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 
 C-----------------------------------------------------------------------
+      USE RUNTIME_VARS
 
       IMPLICIT NONE
 

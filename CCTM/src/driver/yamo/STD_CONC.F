@@ -101,6 +101,7 @@ C Retrieve the species saved to the concentration file
          END IF
 
 C Retrieve the layer range used in the concentration file
+        IF ( CONC_ELEV .EQ. -1 ) CONC_ELEV = NLAYS
 
         IF ( CONC_BLEV .LE. 0 .OR. CONC_ELEV .GT. NLAYS ) THEN
                WRITE( XMSG,'( "Layer range", 2I4, " invalid for this model" )' )
