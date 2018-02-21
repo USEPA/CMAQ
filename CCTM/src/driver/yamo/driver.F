@@ -107,6 +107,7 @@ C-----------------------------------------------------------------------
       USE PA_DEFN, Only: LIPR, LIRR  ! Process Anaylsis control and data variables
       USE PAGRD_DEFN            ! Process Anaylsis horiz domain specs
       USE UTILIO_DEFN
+      USE VERTEXT_MODULE
 
 #ifdef twoway
       USE SD_TIME_SERIES_MODULE

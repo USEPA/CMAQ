@@ -77,6 +77,7 @@ C-----------------------------------------------------------------------
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
 #endif
+      USE VERTEXT_MODULE
 
       IMPLICIT NONE
 
