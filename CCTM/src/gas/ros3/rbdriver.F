@@ -271,7 +271,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          END IF
 
          CALL RBINIT
-         CALL RBSPARSE( LOGDEV )
+         CALL RBSPARSE( )
          NOXYZ = MY_NCOLS * MY_NROWS * NLAYS
 
 C...Initialize and report data
@@ -399,7 +399,7 @@ c..Open file for solver stats if requested
 
 C Determine whether DEGRADE rountines are needed.
 
-         CALL FIND_DEGRADED( JDATE, JTIME, LOGDEV, CALL_DEG )
+         CALL FIND_DEGRADED( JDATE, JTIME, CALL_DEG )
          IF( CALL_DEG ) THEN
             WRITE( LOGDEV, * ) 'DEGRADE ROUTINES USED'
             WRITE( LOGDEV, * ) 'Mechanism contains degraded species'
@@ -610,7 +610,7 @@ C  update cell concentrations for degradation routines
 C initialize degradation routines
 
             CALL INIT_DEGRADE( Y_DEGRADE, BLKTEMP, BLKDENS, RJBLK,
-     &                         NUMCELLS, JDATE, JTIME, LOGDEV, BLKID )
+     &                         NUMCELLS, JDATE, JTIME, BLKID )
 
          END IF
 
@@ -622,7 +622,7 @@ C initialize degradation routines
 
 #endif
 
-         CALL RBSOLVER( LOGDEV, JDATE, JTIME, CHEMSTEP, NCSP,
+         CALL RBSOLVER( JDATE, JTIME, CHEMSTEP, NCSP,
      &                  LIRRBLK, NIRRCLS, IRRCELL ) 
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc

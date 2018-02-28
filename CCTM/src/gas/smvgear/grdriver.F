@@ -364,7 +364,7 @@ C.. Get fractional surf-zone coverage from the OCEAN file.
 
 C:WTH Determine whether DEGRADE rountines are needed.
 
-         CALL FIND_DEGRADED( JDATE, JTIME, LOGDEV, CALL_DEG )
+         CALL FIND_DEGRADED( JDATE, JTIME, CALL_DEG )
          IF( CALL_DEG ) THEN
             WRITE( LOGDEV, * ) 'DEGRADE ROUTINES USED'
             WRITE( LOGDEV, * ) 'Mechanism contains degraded species'

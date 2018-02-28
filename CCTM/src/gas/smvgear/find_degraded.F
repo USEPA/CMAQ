@@ -24,7 +24,7 @@ C $Header: /project/yoj/arc/CCTM/src/gas/smvgear/find_degraded.F,v 1.3 2011/10/2
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
-         SUBROUTINE FIND_DEGRADED( JDATE, JTIME, LOGDEV, CALL_DEGRADE )
+         SUBROUTINE FIND_DEGRADED( JDATE, JTIME, CALL_DEGRADE )
 
 C**********************************************************************
 C
@@ -45,7 +45,6 @@ C.....ARGUMENTS:
 
            INTEGER, INTENT( IN )  :: JDATE        ! current model date , coded YYYYDDD
            INTEGER, INTENT( IN )  :: JTIME        ! current model time , coded HHMMSS
-           INTEGER, INTENT( IN )  :: LOGDEV       ! unit number for the log file
            LOGICAL, INTENT( OUT ) :: CALL_DEGRADE ! whether to call degradation routines
 
 C.....LOCAL VARIABLES:
@@ -55,7 +54,7 @@ C.....LOCAL VARIABLES:
 
            CALL DEGRADE_DATA()
 
-           CALL DEGRADE_MAP( JDATE, JTIME, LOGDEV )
+           CALL DEGRADE_MAP( JDATE, JTIME )
 
            IF( N_REACT_FOUND .GT. 0 )THEN
                CALL_DEGRADE = .TRUE.
