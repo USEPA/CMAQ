@@ -37,6 +37,7 @@
       INTEGER :: OUTDEV = 6   ! File Unit for Standard Output
       INTEGER :: LOGDEV = -1  ! File Unit for Ascii Log File
       INTEGER :: MYPE   = -1  ! Processor Number
+      INTEGER :: TOTPE  = 1   ! Number of Total Processors
       INTEGER :: NPROCS = 1   ! Number of Total Processors
 
       !-----------------------------------------------------------------------------------
@@ -102,7 +103,7 @@
       CHARACTER( MAXLEN_CCTM_APPL ) :: BLDFOLD   = ''     ! Log Folder
 
       ! General; Multiprocess control, output and error checking
-      LOGICAL :: LERROFF   = .TRUE.  ! Flag to stop run if errors are found.
+      LOGICAL :: FL_ERR_STOP=.TRUE.  ! Flag to stop run if errors are found.
       LOGICAL :: CKSUM     = .TRUE.  ! flag for cksum on, default = [T]
       LOGICAL :: END_TIME  = .FALSE. ! Override default beginning ACON timestamp
       
@@ -333,6 +334,10 @@
 
       IMPLICIT NONE                         
 
+#ifdef parallel      
+      include 'mpif.h'
+#endif
+ 
       INTEGER, INTENT( In )  :: JDATE       
       INTEGER, INTENT( In )  :: JTIME  
       CHARACTER(  16 )       :: V_LIST2( 20 )
@@ -345,13 +350,21 @@
       CHARACTER( 250 ) :: STRTEMP
       CHARACTER( 80 )  :: PBASE     
       INTEGER, PARAMETER :: EXIT_STATUS = 1
+      INTEGER          :: ERROR
 
 
       !-------------------------------------------------------------------------------------------------------
       !>> Grid and High-Level Model Parameters
       !-------------------------------------------------------------------------------------------------------
-       
-      OPEN( UNIT = 6, FILE = "/dev/null", STATUS = "OLD" )
+#ifdef parallel
+      CALL MPI_COMM_RANK ( MPI_COMM_WORLD, MYPE, ERROR )
+      CALL MPI_COMM_SIZE ( MPI_COMM_WORLD, TOTPE, ERROR )
+#else
+      MYPE = 0
+      TOTPE = 0
+#endif
+ 
+      IF ( MYPE .NE. 0 ) OPEN( UNIT = 6, FILE = "/dev/null", STATUS = "OLD" )
 
         ! Get Simulation Scenario Name to Label Log Files, etc
         CALL NAMEVAL( 'CTM_APPL', APPL_NAME )
@@ -359,7 +372,7 @@
         ! Get Logfile Directory
         CALL NAMEVAL( 'BLD', BLDFOLD ) 
  
-      CLOSE( UNIT = 6 )
+      IF ( MYPE . NE. 0 ) CLOSE( UNIT = 6 )
 
       ! Start I/O-API and set up log file(s)
       CALL SETUP_LOGDEV()
@@ -440,9 +453,9 @@
          WRITE( OUTDEV, '(6x,A)' ), REPEAT( '-',80 )
       END IF
 
-      ! LERROFF
+      ! FL_ERR_STOP
       VARDESC = 'Flag for stopping on errors'
-      LERROFF = GET_ENVYN( 'CTM_LERROFF', VARDESC, LERROFF )  
+      FL_ERR_STOP = GET_ENVYN( 'FL_ERR_STOP', VARDESC, FL_ERR_STOP )  
 
       ! CKSUM
       VARDESC = 'Check sum on flag'

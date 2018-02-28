@@ -573,10 +573,9 @@ C Local variables:
                REAL,    POINTER       :: CGRID( :,:,:,: )
                REAL,    INTENT( OUT ) :: CGRIDL1( :,:,: )
             END SUBROUTINE CGRID_DEPV
-            SUBROUTINE M3DRY ( JDATE, JTIME, TSTEP, MOSAIC, FST, 
+            SUBROUTINE M3DRY ( JDATE, JTIME, TSTEP, 
      &                         CGRIDL1, DEPVEL_GAS, PVD, CMP )
                INTEGER, INTENT( IN )  :: JDATE, JTIME, TSTEP(3)
-               LOGICAL, INTENT( IN )  :: MOSAIC, FST
                REAL,    INTENT( IN )  :: CGRIDL1( :,:,: )
                REAL,    INTENT( OUT ) :: DEPVEL_GAS( :,:,: ), PVD( :,:,: ), CMP( :,:,: )
             END SUBROUTINE M3DRY
@@ -594,7 +593,7 @@ C-----------------------------------------------------------------------
 ! Made default for Hg bidi JOB 9/12/11
             CALL CGRID_DEPV( GAS_DEPV_FOUND, GAS_DEPV_SUR, CGRID, CGRIDL1 )
 
-            CALL M3DRY ( JDATE, JTIME, TSTEP, MOSAIC, FST,             
+            CALL M3DRY ( JDATE, JTIME, TSTEP,             
      &                   CGRIDL1, DEPVEL_GAS, PVD, CMP )
 #ifdef Verbose
             cw = my_ncols/2; rw = my_nrows/2

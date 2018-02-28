@@ -50,7 +50,7 @@ C   12 Aug 15 D.Wong:   Replaced SUBST_MPI with mpif.h
 
       CHARACTER( MAXLEN_CTM_LOG ) :: IOLOGEQ
 
-      INTEGER :: ERROR, TOTPE, IOST, FHEAD, IHEAD
+      INTEGER :: ERROR, IOST, FHEAD, IHEAD
       INTEGER :: NIOAPI_HEAD, NCMAQ_HEAD
       INTEGER, PARAMETER :: NHEAD = 200
       CHARACTER( 90 ) :: CMAQ_HEADER( NHEAD )
@@ -69,18 +69,10 @@ C   12 Aug 15 D.Wong:   Replaced SUBST_MPI with mpif.h
       END DO
       CLOSE( FHEAD )
 
-#ifdef parallel
-      CALL MPI_COMM_RANK ( MPI_COMM_WORLD, MYPE, ERROR )
-      CALL MPI_COMM_SIZE ( MPI_COMM_WORLD, TOTPE, ERROR )
-#else
-      MYPE = 0
-      TOTPE = 0
-#endif
- 
-      WRITE ( CMYPE, '(I3.3)' ) MYPE
 
       ! Create Log Filename using the processor rank and initialize
       ! I/O-API and Logs
+      WRITE ( CMYPE, '(I3.3)' ) MYPE
       IOLOGEQ = PRESTR // CMYPE // '.' // TRIM( APPL_NAME )
       IF ( .NOT. SETENVVAR ( 'LOGFILE', IOLOGEQ ) ) THEN
          WRITE( *,* ) '*** Could not set environment variable for ' // IOLOGEQ

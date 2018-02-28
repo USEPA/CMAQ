@@ -225,27 +225,22 @@ C rise algorithm
 
 
 C get diagnostic files options
-         IF ( IOS .EQ. 0 ) THEN
-
-            IF ( REP_LAYR .LT. 1 ) THEN
-               XMSG = 'NOTE: Environment variable REP_LAYR_MIN is ' //
-     &                'less than 1.  Turning off reporting...'
-            ELSE IF ( REP_LAYR .GT. EMLYRS ) THEN
-               WRITE( XMSG,94010 )
-     &                'NOTE: Environment variable REP_LAYR_MIN is '//
-     &                'greater than the number of emissions ' //
-     &                CRLF() // BLANK10 // 'layers (', EMLYRS, '). '//
-     &                'Resetting to number of emissions layers.'
-               REP_LAYR = EMLYRS
-            ELSE
-               WRITE( XMSG,94010 )
-     &                'logging stack data for plume rise .ge. layer', REP_LAYR
-            END IF
-
-            CALL M3MSG2( XMSG )
-
+         IF ( REP_LAYR .LT. 1 ) THEN
+            XMSG = 'NOTE: Environment variable REP_LAYR_MIN is ' //
+     &             'less than 1.  Turning off reporting...'
+         ELSE IF ( REP_LAYR .GT. EMLYRS ) THEN
+            WRITE( XMSG,94010 )
+     &             'NOTE: Environment variable REP_LAYR_MIN is '//
+     &             'greater than the number of emissions ' //
+     &             CRLF() // BLANK10 // 'layers (', EMLYRS, '). '//
+     &             'Resetting to number of emissions layers.'
+            REP_LAYR = EMLYRS
+         ELSE
+            WRITE( XMSG,94010 )
+     &             'logging stack data for plume rise .ge. layer', REP_LAYR
          END IF
 
+         CALL M3MSG2( XMSG )
 #ifdef srcid
          IF ( PT3DFRAC ) THEN   ! save local source id's
             ALLOCATE ( LDEV( NPTGRPS ), STAT = IOS )

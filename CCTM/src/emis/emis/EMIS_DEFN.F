@@ -124,6 +124,7 @@ C Local Variables:
          CHARACTER( 80 ) :: VARDESC   ! env variable description
          CHARACTER( 120 ) :: XMSG = ' '
          INTEGER V, STATUS
+         INTEGER         :: NLAY_FILE
 #ifdef verbose_emis_defn
          integer s
 #endif
@@ -154,10 +155,16 @@ C Initialize Online Marine Gas Emissions
          END IF
 
 C Open Area Emissions files
-         CALL OPEMIS ( JDATE, JTIME, N_GC_EMIS, EM_TRAC, CONVEM )
+         CALL OPEMIS ( JDATE, JTIME, N_GC_EMIS, EM_TRAC, CONVEM, NLAY_FILE )
 
 C Get number of emissions layers
-         EMLAYS = MIN ( EMLAYS, NLAYS )
+         IF (EMLAYS .EQ. 0 ) THEN
+            EMLAYS = MIN( NLAY_FILE, NLAYS )
+            IF ( PT3DEMIS ) EMLAYS = NLAYS
+         ELSE
+            EMLAYS = MIN( EMLAYS, NLAYS )
+         END IF
+
          WRITE( LOGDEV,1009 ) EMLAYS, NLAYS
 1009     FORMAT(    5X, 'Number of Emissions Layers:         ', I3
      &           /  5X, 'out of total Number of Model Layers:', I3 )

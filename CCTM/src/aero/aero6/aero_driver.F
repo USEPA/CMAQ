@@ -288,7 +288,7 @@ C ------------------ begin body of AERO_DRIVER -------------------------
          END IF
 
          ALLOCATE (   PMDIAG_SPC( NCOLS,NROWS,NLAYS,NUM_PMDIAG_SPC ),
-     &              A_PMDIAG_SPC( NCOLS,NROWS,APMDIAG_ZHI,NUM_PMDIAG_SPC ),
+     &              A_PMDIAG_SPC( NCOLS,NROWS,NLAYS,NUM_PMDIAG_SPC ),
      &              TEMP_DATA( NUM_PMDIAG_SPC ), 
      &              AVIS_SPC( NCOLS,NROWS,N_AE_VIS_SPC ),
      &              STAT=ALLOCSTAT)

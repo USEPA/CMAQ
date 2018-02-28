@@ -75,8 +75,6 @@
       REAL,    ALLOCATABLE, SAVE :: COLUMN_DIAG( :,: ) ! column total NO
 
 !C file name for off line lightning NO input; set to "InLine" for inline production
-      CHARACTER( 16 ), SAVE :: LNAME
-!C file name for inline lightning parameters, (only used if LNAME = "InLine")
       CHARACTER( 16 ), SAVE :: ANAME
       CHARACTER( 16 ), SAVE :: ONAME
 !C file name for met file for inline lightning
@@ -84,7 +82,7 @@
       CHARACTER( 16 ), SAVE :: RNAME
       CHARACTER( 16 ), SAVE :: RC_NAME       ! RC name: old is RC and CCnew is RCA
 
-!C allocate these if LNAME = 'InLine'
+!C allocate these if LTNG_FNAME = 'InLine'
       REAL,    ALLOCATABLE, SAVE :: LTNG_PRSFC  ( :,: ) ! surface pressure
       REAL,    ALLOCATABLE, SAVE :: LTNG_RC     ( :,: ) ! convective rainfall
 !C allocate these if LPARAM
@@ -418,23 +416,23 @@ C        INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
             CALL M3MSG2( 'Using lightning NO production from a file' )
 
 !C Open lightning emissions input file
-            LNAME = PROMPTMFILE(
+            LTNG_FNAME = PROMPTMFILE(
      &              'Enter name for lightning emissions input file',
      &              FSREAD3, 'LTNGNO', PNAME )
 
 !C Get description of emissions file
-            IF ( .NOT. DESC3( LNAME ) ) THEN
+            IF ( .NOT. DESC3( LTNG_FNAME ) ) THEN
                XMSG = 'Could not get description of file "'
-     &              // TRIM( LNAME ) // '"'
+     &              // TRIM( LTNG_FNAME ) // '"'
                CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
                SUCCESS = .FALSE.; RETURN
             END IF
 
 !C Check grid definition (intialize, if first call)
-            OK = CHKGRID( LNAME )
+            OK = CHKGRID( LTNG_FNAME )
 
 
-         END IF   ! IF ( LNAME .EQ. "InLine" ) inline or offline lightning NO production
+         END IF   ! IF ( LTNG_FNAME .EQ. "InLine" ) inline or offline lightning NO production
 
          LTLYRS = EMLAYS
 
@@ -524,7 +522,7 @@ C statement function for ERF approximation
          ERF( X ) = SIGN( 1.0, X ) * SQRT( 1.0 - EXP( -4.0 * X * X / PI ) )
 !-----------------------------------------------------------------------
 
-         IF ( LNAME .EQ. "InLine" ) THEN
+         IF ( LTNG_FNAME .EQ. "InLine" ) THEN
 !C case of inline lightning NO production
 !C initialize output array
             VDEMIS_LT = 0.0
@@ -764,11 +762,11 @@ C statement function for ERF approximation
 !C Read in lightning NO production from an input file
             VDEMIS_LT = 0.0   ! array assignment
 
-            IF ( .NOT. INTERPX( LNAME, LTSPC, PNAME,
+            IF ( .NOT. INTERPX( LTNG_FNAME, LTSPC, PNAME,
      &                          STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,LTLYRS,
      &                          JDATE, JTIME, VDEMIS_LT ) ) THEN
                XMSG = 'Could not read NO' //
-     &                ' from file "' // TRIM( LNAME ) // '"'
+     &                ' from file "' // TRIM( LTNG_FNAME ) // '"'
                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
             END IF
 

@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE OPEMIS ( JDATE, JTIME, NEMIS, EM_TRAC, CONVEM )
+      SUBROUTINE OPEMIS ( JDATE, JTIME, NEMIS, EM_TRAC, CONVEM, NLAY_FILE )
 
 C  7 Mar 02 - J.Young: add units string variations
 C 29 Oct 05 - J.Young: dyn. layers
@@ -214,11 +214,9 @@ C Assume units = mol/s across gas and non-reactive species classes
 
       END IF  ! (gas chem or non-react emissions)
 
-      ! Set Emission Layers to the Maximum of the layers from any
-      ! gridded file if the user did not specify a number of layers. If
-      ! the user did specify a number of layers, then keep this number.
-      IF ( EMLAYS .EQ. 0 ) EMLAYS = NLAY_FILE
-
+      ! Set Emission Layers to the number of grid emission layers if 
+      ! the user did not specify a number of layers. If the user did 
+      ! specify a number of layers, then keep this number.
       IF ( NEMIS .GT. 0 ) THEN
          WRFLG = .TRUE.
          WRITE( LOGDEV,1001 )
