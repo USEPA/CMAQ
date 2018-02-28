@@ -17,9 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6/AERO_DATA.F,v 1.10 2012/01/19 13:18:37 yoj Exp $
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module aero_data
 
@@ -113,7 +110,7 @@ C----------------------------------------------------------------------
 
 C Number of aerosol species and modes
 
-      Integer, Parameter :: n_aerolist = 80     ! number of aero species
+      Integer, Parameter :: n_aerolist = 87     ! number of aero species
       Integer, Parameter :: n_mode = 3          ! number of modes:
                                                 ! 1 = Aitken
                                                 ! 2 = accumulation
@@ -252,6 +249,15 @@ C                     ---------- -------- ------- + + +   + ------ --- +  ------
      & spcs_list_type('ADIM    ', cm_set, 1400.0, F,F,F,  0,  2.8, 6.1,T, 'DUST  '), !
      & spcs_list_type('AIMGA   ', cm_set, 1400.0, F,F,F,  0,  2.8, 6.1,T, 'DUST  '), !
      & spcs_list_type('AIMOS   ', cm_set, 1400.0, F,F,F,  0,  2.8, 6.1,T, 'DUST  '), !
+
+       ! Updated monoterpene SOA following Saha and Grieshop ES&T 2016
+     & spcs_list_type('AMT1J   ', cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  '), ! MT SOA Lowest Volatility
+     & spcs_list_type('AMT2J   ', cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  '), ! 
+     & spcs_list_type('AMT3J   ', cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  '), !
+     & spcs_list_type('AMT4J   ', cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  '), !
+     & spcs_list_type('AMT5J   ', cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  '), !
+     & spcs_list_type('AMT6J   ', cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  '), !
+     & spcs_list_type('AMT7J   ', cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  '), ! MT SOA Highest Volatility
 
        ! ae6i and cb6
      & spcs_list_type('AGLY    ', cm_set, 1400.0, F,F,F,  0,  2.8, 6.1,T, 'DUST  '), ! Glyoxal SOA
