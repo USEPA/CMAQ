@@ -173,7 +173,7 @@ C Local variables:
       REAL( 8 ) BEGTIME     ! Wall-clock time (sec) at MPI initialization
       REAL( 8 ) ENDTIME     ! Wall-clock time (sec) at MPI finish
 #endif
-      INTEGER ELAPTIME    ! ENDTIME-BEGTIME
+      REAL( 8 ) ELAPTIME    ! ENDTIME-BEGTIME
 
       LOGICAL, SAVE :: FIRST_RUN = .TRUE.  ! used for twoway model
       LOGICAL       :: WFLG                ! turn on write subdmap in pio_init
@@ -534,8 +534,8 @@ C Shut down IOAPI
 #ifdef parallel
 C Shut down MPI
       ENDTIME = MPI_WTIME()   ! get final wall-clock time
-      ELAPTIME = NINT ( ENDTIME - BEGTIME )
-      WRITE( XMSG, '(A,I7.6,A)' ) 'The elapsed time for this simulation was', 
+      ELAPTIME = ENDTIME - BEGTIME
+      WRITE( XMSG, '(A,F10.1,A)' ) 'The elapsed time for this simulation was', 
      &                            ELAPTIME, ' seconds.'
       CALL LOG_MESSAGE( LOGDEV, XMSG )
       IF ( MYPE .EQ. 0 ) WRITE( OUTDEV, * )

@@ -1054,7 +1054,7 @@
  
       IF ( MYPE .EQ. 0 ) THEN 
          WRITE( FMT, '("(", I0, "x,A16,2x,A,2x,A)")' ) LOG_MAJOR_TAB
-         WRITE( OUTDEV, FMT ),VAR_LABEL,'|',VARVAL
+         WRITE( OUTDEV, FMT ),VAR_LABEL,'|',TRIM(VARVAL)
       END IF
 
       END FUNCTION GET_ENVSTR 
