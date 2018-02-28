@@ -21,7 +21,7 @@ echo 'Start Model Run At ' `date`
 #> Choose compiler and set up CMAQ environment with correct 
 #> libraries using config.cmaq. Options: intel | gcc | pgi
  if ( ! $?compiler ) then
-   setenv compiler intel 
+   setenv compiler intel
  endif
 
 #> Source the config.cmaq file to set the build environment
@@ -150,15 +150,13 @@ setenv PA_BROW_EROW "10 195"
 setenv PA_BLEV_ELEV "1  4"
 
 #> I/O Controls
-setenv EXECUTION_ID "CMAQ_CCTM${VRSN}_`id -u -n`_`date -u +%Y%m%d_%H%M%S_%N`"    #> Inform IO/API of the Execution ID
-echo $EXECUTION_ID
 setenv IOAPI_LOG_WRITE F     #> turn on excess WRITE3 logging [ options: T | F ]
 setenv FL_ERR_STOP N         #> stop on inconsistent input files
 setenv PROMPTFLAG F          #> turn on I/O-API PROMPT*FILE interactive mode [ options: T | F ]
 setenv IOAPI_OFFSET_64 YES   #> support large timestep records (>2GB/timestep record) [ options: YES | NO ]
 setenv IOAPI_CHECK_HEADERS N #> check file headers [ options: Y | N ]
 setenv CTM_EMISCHK N         #> Abort CMAQ if missing surrogates from emissions Input files
-setenv STDOUT F              #> Override I/O-API trying to write information to both the processor 
+setenv STDOUT T              #> Override I/O-API trying to write information to both the processor 
                              #>   logs and STDOUT [ options: T | F ]
 setenv EXECUTION_ID "CMAQ_CCTM${VRSN}_`id -u -n`_`date -u +%Y%m%d_%H%M%S_%N`"    #> Inform IO/API of the Execution ID
 echo ""
@@ -190,18 +188,6 @@ setenv REP_LAYER_MIN -1      #> Minimum layer for reporting plume rise info [ de
 
 set DISP = delete            #> [ delete | keep ] existing output files
 
-
-#> MPI Optimization Flags
-setenv MPI_SM_POOL 16000     #> increase shared memory pool in case many MPI_SEND headers
-setenv MP_EAGER_LIMIT 65536  #> set MPI message passing buffer size to max
-setenv MP_SINGLE_THREAD yes  #> optimizate for single threaded applications [ default: no ]
-setenv MP_STDOUTMODE ordered #> order output by the processor ID
-setenv MP_LABELIO yes        #> label output by processor ID [ default: no ]
-setenv MP_SHARED_MEMORY yes  #> force use of shared memory for tasks on same node [ default: no ]
-setenv MP_ADAPTER_USE shared #> share the MP adapter with other jobs
-setenv MP_CPU_USE multiple   #> share the node with multiple users/jobs
-setenv MP_CSS_INTERRUPT yes  #> specify whether arriving packets generate interrupts [ default: no ]
-
 # =====================================================================
 #> Input Directories and Filenames
 # =====================================================================
@@ -223,7 +209,6 @@ set EMIS_CASE = 2013ef_v6_13g_s07_hg      #> Version Label for the Emissions
 # =====================================================================
 #> Begin Loop Through Simulation Days
 # =====================================================================
-set starray = ""
 set rtarray = ""
 
 set TODAYG = ${START_DATE}
@@ -536,20 +521,15 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   echo 
 
   #> Executable call for single PE, uncomment to invoke
-  # /usr/bin/time  $BLD/$EXEC
+  #( /usr/bin/time -p $BLD/$EXEC ) |& tee buff_${EXECUTION_ID}.txt
 
   #> Executable call for multi PE, configure for your system 
   # set MPI = /usr/local/intel/impi/3.2.2.006/bin64
   # set MPIRUN = $MPI/mpirun
-  ( /usr/bin/time -p mpirun -r ssh -np $NPROCS $BLD/$EXEC ) |& tee buff.txt
+  ( /usr/bin/time -p mpirun -np $NPROCS $BLD/$EXEC ) |& tee buff_${EXECUTION_ID}.txt
 
   #> Harvest Timing Output so that it may be reported below
-  set a = `tail -3 buff.txt | grep user | cut -c 5-`
-  set b = `tail -3 buff.txt | grep sys  | cut -c 5-`
-  set c = `echo "${a} + ${b}" | bc -l`
-
-  set starray = "${starray}  ${c} "
-  set rtarray = "${rtarray} `tail -3 buff.txt | grep real | cut -c 5-` "
+  set rtarray = "${rtarray} `tail -3 buff_${EXECUTION_ID}.txt | grep real | cut -c 5-` "
 
   #> Print Concluding Text
   echo 
@@ -557,7 +537,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   echo
   echo "\\\\\=====\\\\\=====\\\\\=====\\\\\=====/////=====/////=====/////=====/////"
   echo
-  rm -rf buff.txt
+  rm -rf buff_${EXECUTION_ID}.txt
 
 # ===================================================================
 #> Finalize Run for This Day and Loop to Next Day
@@ -585,20 +565,13 @@ end  #Loop to the next Simulation Day
 #> Generate Timing Report
 # ===================================================================
 set NDAYS = `echo "$STOP_DAY - $START_DAY + 1" | bc -l`
-set STMTOT = 0
 set RTMTOT = 0
 foreach it ( `seq ${NDAYS}` )
-    set st = `echo ${starray} | cut -d' ' -f${it}`
     set rt = `echo ${rtarray} | cut -d' ' -f${it}`
-
-    set STMTOT = `echo "${STMTOT} + ${st}" | bc -l`
     set RTMTOT = `echo "${RTMTOT} + ${rt}" | bc -l`
 end
 
-set STMAVG = `echo "scale=2; ${STMTOT} / ${NDAYS}" | bc -l`
 set RTMAVG = `echo "scale=2; ${RTMTOT} / ${NDAYS}" | bc -l`
-
-set STMTOT = `echo "scale=2; ${STMTOT} / 1" | bc -l`
 set RTMTOT = `echo "scale=2; ${RTMTOT} / 1" | bc -l`
 
 echo
@@ -614,7 +587,7 @@ echo "Number of Layers:          ${NZ}"
 echo "Number of Processes:       ${NPROCS}"
 echo "   All times are in seconds."
 echo
-echo "Num  Day        Wall Time    CPU Time"
+echo "Num  Day        Wall Time"
 set d = 0
 set day = ${START_DATE}
 foreach it ( `seq ${NDAYS}` )
@@ -623,16 +596,15 @@ foreach it ( `seq ${NDAYS}` )
     set n = `printf "%02d" ${d}`
 
     # Choose the correct time variables
-    set st = `echo ${starray} | cut -d' ' -f${it}`
     set rt = `echo ${rtarray} | cut -d' ' -f${it}`
 
     # Write out row of timing data
-    echo "${n}   ${day}   ${rt}     ${st}"
+    echo "${n}   ${day}   ${rt}"
 
     # Increment day for next loop
     set day = `date -ud "${day}+1days" +%Y-%m-%d`
 end
-echo "     Total Time = ${RTMTOT}    ${STMTOT}"
-echo "      Avg. Time = ${RTMAVG}     ${STMAVG}"
+echo "     Total Time = ${RTMTOT}"
+echo "      Avg. Time = ${RTMAVG}"
 
 exit
