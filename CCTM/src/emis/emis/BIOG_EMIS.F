@@ -138,6 +138,7 @@ C Local variables
          CHARACTER(   5 ) :: SPNPRF     ! record (line) speciation profile name
          CHARACTER(  16 ) :: POLNAM     ! record (line) pollutant name
          CHARACTER(  16 ) :: SPECNM     ! record (line) species name
+         CHARACTER(  16 ) :: FILE_SPPRO ! speciation label from gspro line
 
          REAL                SPLTFAC, SDIV, SMFAC ! line speciation profile factors
 
@@ -205,11 +206,8 @@ C Check for header start
             END IF
 
 C Skip lines that don't reference the requested speciation profile name
-            IF ( LINE( 1:1 ) .EQ. '"' ) THEN
-               IF ( LINE( 2:6 ) .NE. SPPRO ) CYCLE
-            ELSE
-               IF ( LINE( 1:5 ) .NE. SPPRO ) CYCLE
-            END IF
+            FILE_SPPRO = LINE( 1: INDEX( LINE,';' )-1 )
+            IF ( FILE_SPPRO .NE. SPPRO ) CYCLE
 
 C Separate the line of data (record) into the segments (parse the record fields)
             CALL PARSLINE( LINE, NSEGS, SEGMENT )
@@ -434,11 +432,8 @@ C Skip blank and comment lines
             IF ( LINE .EQ. ' ' .OR. LINE( 1:1 ) .EQ. CINVHDR ) CYCLE
 
 C Skip lines that don't reference the requested speciation profile name
-            IF ( LINE( 1:1 ) .EQ. '"' ) THEN
-               IF ( LINE( 2:6 ) .NE. SPPRO ) CYCLE
-            ELSE
-               IF ( LINE( 1:5 ) .NE. SPPRO ) CYCLE
-            END IF
+            FILE_SPPRO = LINE( 1: INDEX( LINE,';' )-1 )
+            IF ( FILE_SPPRO .NE. SPPRO ) CYCLE
 
 C Separate the line of data into each part
             CALL PARSLINE( LINE, NSEGS, SEGMENT )
