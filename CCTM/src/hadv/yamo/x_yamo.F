@@ -44,6 +44,7 @@ C   16 Feb 2011: Shawn Roselle: replaced I/O API include files with UTILIO_DEFN
 C   26 Aug 2015: Jon Pleim: Add CFL correction for yamo
 C   19 Oct 2015: Jeff Young: Remove stmnt func to resolve PGI compiler error
 C   17 May 2017: David Wong: Added a logic to avoid division of zero for variable VELX
+C   29 Nov 17 David Wong: removed all SWAP routines and replaced with SE_COMM
 C-----------------------------------------------------------------------
 
       USE HGRD_DEFN             ! horizontal domain specifications
@@ -51,7 +52,6 @@ C-----------------------------------------------------------------------
       USE UTILIO_DEFN
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_COMM_MODULE, SE_UTIL_MODULE)
-      USE SWAP_SANDIA
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_COMM_MODULE, NOOP_UTIL_MODULE)
 #endif
@@ -130,15 +130,13 @@ C Yamo CFL correction
       REAL    DTCFL
       INTEGER ITER, NITER
 
-#ifdef parallel
-      INTEGER EAST_COL, M
+      INTEGER EAST_COL
 !     REAL    HALO_EAST( SWP,NROWS,N_SPC_ADV )
 !     REAL    HALO_WEST( SWP,NROWS,N_SPC_ADV )
 !     REAL    BUF_EW   ( SWP*NROWS*N_SPC_ADV )
       REAL, ALLOCATABLE, SAVE :: HALO_EAST( :,:,: )
       REAL, ALLOCATABLE, SAVE :: HALO_WEST( :,:,: )
-      REAL, ALLOCATABLE, SAVE :: BUF_EW( : )
-#endif
+      REAL, ALLOCATABLE, SAVE :: BUF_EW( :,:,: )
       
       INTEGER, SAVE :: EFX    ! fixed parameter for eastern boundary
       INTEGER, SAVE :: WFX    ! fixed parameter for western boundary
@@ -198,10 +196,9 @@ C Get dx1 from HGRD_DEFN module
             CALL M3EXIT ( PNAME, FDATE, FTIME, XMSG, XSTAT1 )
          END IF
 
-#ifdef parallel
          ALLOCATE ( HALO_EAST( SWP,MY_NROWS,N_SPC_ADV ),
      &              HALO_WEST( SWP,MY_NROWS,N_SPC_ADV ),
-     &              BUF_EW   ( SWP*MY_NROWS*N_SPC_ADV ), STAT = ALLOCSTAT )
+     &              BUF_EW   ( SWP,MY_NROWS,N_SPC_ADV ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating HALO_EAST, HALO_WEST, or BUF_EW'
             CALL M3EXIT ( PNAME, FDATE, FTIME, XMSG, XSTAT1 )
@@ -209,7 +206,6 @@ C Get dx1 from HGRD_DEFN module
          HALO_EAST = 0.0   ! array
          HALO_WEST = 0.0   ! array
          BUF_EW    = 0.0   ! array
-#endif
 
          ASPC = GC_STRT - 1 + N_GC_SPCD
 
@@ -261,21 +257,8 @@ C Get the contravariant x1 velocity component
 
       CALL HCONTVEL ( FDATE, FTIME, TSTEP, LVL, X1VEL, UHAT )
 
-#ifdef parallel
-C SWAPnD interface (same array in both procs)
-C                                                     SWAP1D SWAP2D SWAP3D
-C 1st value of array to be sent,                         X     X      X
-C 1st value of array to be received,                     X     X      X
-C number of values to send in 1st dimension of array,    X     X      X
-C number of values to send in 2nd dimension of array,          X      X
-C number of values to send in 3rd dimension of array,                 X
-C size of 1st dimension in array,                              X      X
-C size of 2nd dimension in array,                                     X
-C direction to receive from: NORTH,SOUTH,EAST,WEST       X     X      X
+      CALL SUBST_COMM (UHAT, DSPL_N0_E1_S0_W0, DRCN_E)
 
-      CALL SWAP2D( UHAT( 1,1 ), UHAT( MY_NCOLS+1,1 ), 1, MY_NROWS+1,
-     &             MY_NCOLS+1, EAST )
-      M = 0
       EAST_COL = MY_NCOLS - SWP
       DO SPC = 1, N_SPC_ADV
          A2C = ADV_MAP( SPC )
@@ -283,17 +266,13 @@ C direction to receive from: NORTH,SOUTH,EAST,WEST       X     X      X
             DO COL = 1, SWP
                HALO_WEST( COL,ROW,SPC ) = CGRID( COL,ROW,LVL,A2C )
                HALO_EAST( COL,ROW,SPC ) = CGRID( EAST_COL+COL,ROW,LVL,A2C )
-               M = M + 1
-               BUF_EW( M ) = HALO_EAST( COL,ROW,SPC )
+               BUF_EW( COL,ROW,SPC ) = HALO_EAST( COL,ROW,SPC )
             END DO
          END DO
       END DO
 
-      CALL SWAP3D( HALO_WEST, HALO_EAST, SWP, MY_NROWS, N_SPC_ADV,
-     &             SWP, MY_NROWS, EAST )
-      CALL SWAP3D( BUF_EW,    HALO_WEST, SWP, MY_NROWS, N_SPC_ADV,
-     &             SWP, MY_NROWS, WEST )
-#endif
+      CALL SUBST_COMM (HALO_WEST, HALO_EAST, DSPL_N0_E1_S0_W0, DRCN_E)
+      CALL SUBST_COMM (BUF_EW,    HALO_WEST, DSPL_N0_E0_S0_W1, DRCN_W)
 
       DO 253 ROW = 1, MY_NROWS
 
@@ -345,9 +324,7 @@ C check adjusted velocities for Courant limited max timestep
 
          END DO   ! COL
 
-#ifdef parallel
-         CALL SWAP1D( VELX( 1 ), VELX( MY_NCOLS+1 ), 1, EAST )
-#endif
+         CALL SUBST_COMM (VELX, DSPL_N0_E1_S0_W0, DRCN_E) 
 
          DO SPC = 1, N_SPC_ADV
 
@@ -356,12 +333,10 @@ C check adjusted velocities for Courant limited max timestep
                CONX( COL,SPC ) = CGRID( COL,ROW,LVL,A2C )
             END DO
 
-#ifdef parallel
             DO COL = 1, SWP
                CONX( COL-SWP,SPC )      = HALO_WEST( COL,ROW,SPC )
                CONX( MY_NCOLS+COL,SPC ) = HALO_EAST( COL,ROW,SPC )
             END DO
-#endif
 
 C West boundary
 

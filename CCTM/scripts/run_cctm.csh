@@ -32,7 +32,7 @@ echo 'Start Model Run At ' `date`
 #> Set General Parameters for Configuring the Simulation
  set VRSN      = v52               #> Code Version
  set PROC      = mpi               #> serial or mpi
- set MECH      = cb6r3_ae6_aq      #> Mechanism ID
+ set MECH      = cb6r3_ae7_aq      #> Mechanism ID
  set EMIS      = 2013ef            #> Emission Inventory Details
  set APPL      = SE52BENCH         #> Application Name (e.g. Gridname)
                                                        
@@ -344,7 +344,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      set GSPROpath   = ${IN_BEISpath}
      setenv GSPRO      $GSPROpath/gspro_biogenics_1mar2017.txt
      setenv B3GRD      $IN_BEISpath/b3grd_bench.nc
-     setenv BIOG_SPRO  B10C6 #> speciation profile to use for biogenics
+     setenv BIOG_SPRO  B10C6AE7 #> speciation profile to use for biogenics (cb6r3_ae7 uses B10C6AE7)
      setenv BIOSW_YN   Y     #> use frost date switch [ default: Y ]
      setenv BIOSEASON  $IN_BEISpath/bioseason.cmaq.2011_12US1_wetland100.ghrsst_bench.ncf #> ignore season switch file if BIOSW_YN = N
      setenv SUMMER_YN  Y     #> Use summer normalized emissions? [ default: Y ]

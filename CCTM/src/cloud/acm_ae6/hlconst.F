@@ -96,6 +96,7 @@ C       2. modified existing HEXANE (19),N-HEXANE (117), and STYRENE (119);
 C       3. removed dissociation  calculation for formaldedhyde because the listed value 
 C          is already an effective rate (Sander ACP, 2015, note 187)
 C       4. added dissociation constant for acrylic acid (LACRYACID) (via B. Hutzell)
+C  H.Pye       06/2017  added semivolatile monoterpene products
 C-----------------------------------------------------------------------
 
       USE UTILIO_DEFN
@@ -114,7 +115,7 @@ C...........INCLUDES and their descriptions
 
 C...........PARAMETERS and their descriptions:
 
-      INTEGER, PARAMETER :: MXSPCS = 201     ! Number of substances
+      INTEGER, PARAMETER :: MXSPCS = 208     ! Number of substances
       INTEGER, PARAMETER :: MXDSPCS = 19     ! Number of dissociating species
 
 C...pointers for the dissociation constants (array B and D)
@@ -381,6 +382,13 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA SUBNAME(199), A(199), E(199) / 'METHCHLORIDE    ', 1.320E-01, 3.3E+03 / ! Sander ACP 2015, Sander et al. (2011)
       DATA SUBNAME(200), A(200), E(200) / 'CARBSULFIDE     ', 2.130E-02, 3.3E+03 / ! Sander ACP 2015, Warneck Williams (2012)
       DATA SUBNAME(201), A(201), E(201) / '6_NITRO_O_CRESOL', 2.938E+01, 0.0E+00 / ! 6-methyl-2-nitrophenol from Sander ACP 2015, Tremp et. al (1992)
+      DATA SUBNAME(202), A(202), E(202) / 'SVMT1           ', 7.1E+11,  6.0E+03 /   ! est based on Hodzic 2014 GRL
+      DATA SUBNAME(203), A(203), E(203) / 'SVMT2           ', 8.9E+10,  6.0E+03 /   ! est based on Hodzic 2014 GRL
+      DATA SUBNAME(204), A(204), E(204) / 'SVMT3           ', 1.1E+10,  6.0E+03 /   ! est based on Hodzic 2014 GRL
+      DATA SUBNAME(205), A(205), E(205) / 'SVMT4           ', 1.4E+09,  6.0E+03 /   ! est based on Hodzic 2014 GRL
+      DATA SUBNAME(206), A(206), E(206) / 'SVMT5           ', 1.8E+08,  6.0E+03 /   ! est based on Hodzic 2014 GRL
+      DATA SUBNAME(207), A(207), E(207) / 'SVMT6           ', 2.2E+07,  6.0E+03 /   ! est based on Hodzic 2014 GRL
+      DATA SUBNAME(208), A(208), E(208) / 'SVMT7           ', 2.8E+06,  6.0E+03 /   ! est based on Hodzic 2014 GRL
 
       DATA B( LSO2   ), D( LSO2   ) / 1.30E-02,  1.96E+03 /  ! SO2*H2O<=>HSO3+H     : Smith and Martell (1976)
       DATA B( LHSO3  ), D( LHSO3  ) / 6.60E-08,  1.50E+03 /  ! HSO3<=>SO3+H         : Smith and Martell (1976)

@@ -340,7 +340,7 @@ C Land use information:
       DATA subname( 65), dif0( 65), ar( 65), meso( 65), lebas( 65) / 'MTNO3           ',0.0453,    8.0,      0.0,  251.2/
       DATA subname( 66), dif0( 66), ar( 66), meso( 66), lebas( 66) / 'IEPOX           ',0.0579,    8.0,      0.0,  110.8/
       DATA subname( 67), dif0( 67), ar( 67), meso( 67), lebas( 67) / 'HACET           ',0.1060,    8.0,      0.0,   72.6/  ! dif0 from Nguyen 2015 PNAS
-      DATA subname( 68), dif0( 68), ar( 68), meso( 68), lebas( 68) / 'SVALK1          ',0.0514,   20.0,      0.0,  280.5/
+      DATA subname( 68), dif0( 68), ar( 68), meso( 68), lebas( 68) / 'SVALK1          ',0.0514,   20.0,      0.0,  280.5/  ! see Pye et al., 2017 ACP: doi:10.5194/acp-17-343-2017
       DATA subname( 69), dif0( 69), ar( 69), meso( 69), lebas( 69) / 'SVALK2          ',0.0546,   20.0,      0.0,  275.6/
       DATA subname( 70), dif0( 70), ar( 70), meso( 70), lebas( 70) / 'SVBNZ1          ',0.0642,   20.0,      0.0,  134.1/
       DATA subname( 71), dif0( 71), ar( 71), meso( 71), lebas( 71) / 'SVBNZ2          ',0.0726,   20.0,      0.0,  127.5/
@@ -378,6 +378,13 @@ C Land use information:
       DATA subname(103), dif0(103), ar(103), meso(103), lebas(103) / 'CARBSULFIDE     ',0.1240,    5.0,      0.0,  51.5/ 
       DATA subname(104), dif0(104), ar(104), meso(104), lebas(104) / 'ACETONITRILE    ',0.1280,    5.0,      0.0,  52.3/ 
       DATA subname(105), dif0(105), ar(105), meso(105), lebas(105) / '6_NITRO_O_CRESOL',0.0664,   16.0,      0.0, 155.0/ ! dif0, equation 9-22. Scwarzenbach et. (1993) Env. Org. Chem.
+      DATA subname(106), dif0(106), ar(106), meso(106), lebas(106) / 'SVMT1           ',0.0424,   20.0,      0.0, 355.2/ ! see Xu et al., 2018 ACPD: doi:10.5194/acp-2017-1109
+      DATA subname(107), dif0(107), ar(107), meso(107), lebas(107) / 'SVMT2           ',0.0556,   20.0,      0.0, 236.8/
+      DATA subname(108), dif0(108), ar(108), meso(108), lebas(108) / 'SVMT3           ',0.0583,   20.0,      0.0, 214.6/
+      DATA subname(109), dif0(109), ar(109), meso(109), lebas(109) / 'SVMT4           ',0.0587,   20.0,      0.0, 229.4/
+      DATA subname(110), dif0(110), ar(110), meso(110), lebas(110) / 'SVMT5           ',0.0619,   20.0,      0.0, 207.2/
+      DATA subname(111), dif0(111), ar(111), meso(111), lebas(111) / 'SVMT6           ',0.0624,   20.0,      0.0, 222.0/
+      DATA subname(112), dif0(112), ar(112), meso(112), lebas(112) / 'SVMT7           ',0.0661,   20.0,      0.0, 199.8/
 
       CONTAINS
 

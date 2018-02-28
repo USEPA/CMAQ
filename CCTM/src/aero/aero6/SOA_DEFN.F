@@ -61,11 +61,14 @@ C 15 Jul 15 G. Sarwar: updated SOA from alkane, PAH, and isoprene for RACM2
 C 03/03/16  D. Luecken: added capability for CB6
 C 24 Mar 16 G. Sarwar: updated for CB05EH51
 C    May 16 B. Murphy, H. Pye: updated treatment of aerosol moments
+C    Jan 18 H. Pye: updated monoterpene photoxidation SOA: Xu et al. 2018 ACPD
+C                   AMT1-7 will replace ATRP1-2 when fully implemented
+C                   across mechanisms. 
 C
 C-----------------------------------------------------------------------
       Implicit None
 
-      Integer, Parameter :: n_vapor_list = 28   ! # of potential partitioning SVOCs
+      Integer, Parameter :: n_vapor_list = 35   ! # of potential partitioning SVOCs
       Integer, Parameter :: n_orgprod    = 13   ! # of ROG rxn counter species
       Integer, Save      :: n_vapor             ! # of actual simulated SOA vapors
 
@@ -99,6 +102,13 @@ C                  -------    -------   -------- -------  ------     --   ----  
      & vapor_type('SV_PAH2 ',  1.0700, 264.6675,  18.0E3, 'APAH2J ', 'A', 10.0, 'PAHNRXN '),
      & vapor_type('SV_TRP1 ',  0.1393,  14.7920,  40.0E3, 'ATRP1J ', 'B', 10.0, 'TRPRXN  '),
      & vapor_type('SV_TRP2 ',  0.4542, 133.7297,  40.0E3, 'ATRP2J ', 'B', 10.0, 'TRPRXN  '),
+     & vapor_type('SV_MT1  ',   0.040,    0.010, 102.0E3, 'AMT1J  ', 'B',  0.0, 'TRPRXN '),
+     & vapor_type('SV_MT2  ',   0.032,    0.100,  91.0E3, 'AMT2J  ', 'B',  0.0, 'TRPRXN '),
+     & vapor_type('SV_MT3  ',   0.032,    1.000,  80.0E3, 'AMT3J  ', 'B',  0.0, 'TRPRXN '),
+     & vapor_type('SV_MT4  ',   0.103,   10.000,  69.0E3, 'AMT4J  ', 'B',  0.0, 'TRPRXN '),
+     & vapor_type('SV_MT5  ',   0.143,  100.000,  58.0E3, 'AMT5J  ', 'B',  0.0, 'TRPRXN '),
+     & vapor_type('SV_MT6  ',   0.285, 1000.000,  47.0E3, 'AMT6J  ', 'B',  0.0, 'TRPRXN '),
+     & vapor_type('SV_MT7  ',   0.160,10000.000,  36.0E3, 'AMT7J  ', 'B',  0.0, 'TRPRXN '),
      & vapor_type('MTNO3   ',     0.0,     12.0,  40.0E3, 'AMTNO3J', 'B', 10.0, '        '),
      & vapor_type('ISOPNN  ',     0.0,     8.9,   40.0E3, 'AISOPNNJ','B', 5.0,  '        '),
      & vapor_type('SV_ISO1 ',  0.2320, 116.0100,  40.0E3, 'AISO1J ', 'B',  5.0, 'ISOPRXN '),

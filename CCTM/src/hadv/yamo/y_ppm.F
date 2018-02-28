@@ -40,6 +40,7 @@ C   11 May 2010: Jeff Young: New hppm fix for PGI compiler by David Wong
 C   21 Jun 2010: Jeff Young: convert for Namelist redesign
 C   16 Feb 2011: Shawn Roselle: replaced I/O API include files with UTILIO_DEFN
 C   19 Oct 2015: Jeff Young: Remove stmnt func to resolve PGI compiler error
+C   29 Nov 17 David Wong: removed all SWAP routines and replaced with SE_COMM
 C-----------------------------------------------------------------------
 
       USE HGRD_DEFN             ! horizontal domain specifications
@@ -47,7 +48,6 @@ C-----------------------------------------------------------------------
       USE UTILIO_DEFN
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_COMM_MODULE, SE_UTIL_MODULE)
-      USE SWAP_SANDIA
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_COMM_MODULE, NOOP_UTIL_MODULE)
 #endif
@@ -116,15 +116,13 @@ C Local Variables:
 !     INTEGER, SAVE :: STARTROW, ENDROW
       LOGICAL, SAVE :: BNDY_PE_LOY, BNDY_PE_HIY
 
-#ifdef parallel
-      INTEGER NORTH_ROW, M
+      INTEGER NORTH_ROW
 !     REAL    HALO_NORTH( NCOLS,SWP,N_SPC_ADV )
 !     REAL    HALO_SOUTH( NCOLS,SWP,N_SPC_ADV )
 !     REAL    BUF_NS    ( SWP*NCOLS*N_SPC_ADV )
       REAL, ALLOCATABLE, SAVE :: HALO_NORTH( :,:,: )
       REAL, ALLOCATABLE, SAVE :: HALO_SOUTH( :,:,: )
-      REAL, ALLOCATABLE, SAVE :: BUF_NS( : )
-#endif
+      REAL, ALLOCATABLE, SAVE :: BUF_NS( :,:,: )
 
       INTEGER, SAVE :: SFX    ! fixed parameter for southern boundary
       INTEGER, SAVE :: NFX    ! fixed parameter for northern boundary
@@ -186,7 +184,7 @@ C Get dx2 from HGRD_DEFN module
 #ifdef parallel
          ALLOCATE ( HALO_NORTH( MY_NCOLS,SWP,N_SPC_ADV ),
      &              HALO_SOUTH( MY_NCOLS,SWP,N_SPC_ADV ),
-     &              BUF_NS    ( SWP*MY_NCOLS*N_SPC_ADV ), STAT = ALLOCSTAT )
+     &              BUF_NS    ( MY_NCOLS,SWP,N_SPC_ADV ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating HALO_NORTH, HALO_SOUTH, or BUF_NS'
             CALL M3EXIT ( PNAME, FDATE, FTIME, XMSG, XSTAT1 )
@@ -235,20 +233,8 @@ C Get the contravariant x2 velocity component
 
       CALL HCONTVEL ( FDATE, FTIME, TSTEP, LVL, X2VEL, VHAT )
 
-#ifdef parallel
-C SWAPnD interface (same array in both procs)
-C                                                     SWAP1D SWAP2D SWAP3D
-C 1st value of array to be sent,                         X     X      X
-C 1st value of array to be received,                     X     X      X
-C number of values to send in 1st dimension of array,    X     X      X
-C number of values to send in 2nd dimension of array,          X      X
-C number of values to send in 3rd dimension of array,                 X
-C size of 1st dimension in array,                              X      X
-C size of 2nd dimension in array,                                     X
-C direction to receive from: NORTH,SOUTH,EAST,WEST       X     X      X
+      CALL SUBST_COMM (VHAT, DSPL_N1_E0_S0_W0, DRCN_N)
 
-      CALL SWAP2D( VHAT( 1,1 ), VHAT( 1,NROWS+1 ), NCOLS+1, 1, NCOLS+1, NORTH ) 
-      M = 0
       NORTH_ROW = MY_NROWS - SWP
       DO SPC = 1, N_SPC_ADV
          A2C = ADV_MAP( SPC )
@@ -256,17 +242,14 @@ C direction to receive from: NORTH,SOUTH,EAST,WEST       X     X      X
             DO COL = 1, MY_NCOLS
                HALO_SOUTH( COL,ROW,SPC ) = CGRID( COL,ROW,LVL,A2C )
                HALO_NORTH( COL,ROW,SPC ) = CGRID( COL,NORTH_ROW+ROW,LVL,A2C )
-               M = M + 1
-               BUF_NS( M ) = HALO_NORTH( COL,ROW,SPC )
+!              M = M + 1
+               BUF_NS( COL,ROW,SPC ) = HALO_NORTH( COL,ROW,SPC )
             END DO
          END DO
       END DO
 
-      CALL SWAP3D( HALO_SOUTH, HALO_NORTH, MY_NCOLS, SWP, N_SPC_ADV,
-     &             MY_NCOLS, SWP, NORTH )
-      CALL SWAP3D( BUF_NS,     HALO_SOUTH, MY_NCOLS, SWP, N_SPC_ADV,
-     &             MY_NCOLS, SWP, SOUTH )
-#endif
+      CALL SUBST_COMM (HALO_SOUTH, HALO_NORTH, DSPL_N1_E0_S0_W0, DRCN_N)
+      CALL SUBST_COMM (BUF_NS,     HALO_SOUTH, DSPL_N0_E0_S1_W0, DRCN_S)
 
       DO 233 COL = 1, MY_NCOLS
 
@@ -282,12 +265,10 @@ C direction to receive from: NORTH,SOUTH,EAST,WEST       X     X      X
                CONY( ROW,SPC ) = CGRID( COL,ROW,LVL,A2C )
             END DO
 
-#ifdef parallel
             DO ROW = 1, SWP
                CONY( ROW-SWP,SPC )      = HALO_SOUTH( COL,ROW,SPC )
                CONY( MY_NROWS+ROW,SPC ) = HALO_NORTH( COL,ROW,SPC )
             END DO
-#endif
 
 C South boundary
 
