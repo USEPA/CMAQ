@@ -96,8 +96,6 @@ C...........Local Variables
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE. ! flag for first pass thru
 
-      LOGICAL, SAVE :: CLD_DIAG          ! flag to output cloud diagnostic files
-
       CHARACTER( 16 ), SAVE :: PNAME = 'CLDPROC' ! driver program name
       CHARACTER( 16 ) :: VNAME            ! input variable name list
 
