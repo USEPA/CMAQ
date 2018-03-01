@@ -66,6 +66,7 @@ C global dry dep species
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: DIFF_SPC( : )
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: DEPV_SPC( : )
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: DV2DF_SPC( : )
+      REAL,            ALLOCATABLE, SAVE :: DIFF_MW  ( : )
 
 C component flux output variables 
       INTEGER, PARAMETER :: LCMP  = 8
@@ -294,35 +295,39 @@ C Local variables:
          ALLOCATE( DIFF_MASK_AERO( N_SPC_DIFF ) )
          ALLOCATE( DIFF_MASK_NR  ( N_SPC_DIFF ) )
          ALLOCATE( DIFF_MASK_TRAC( N_SPC_DIFF ) )
-         DIFF_MASK_GAS  = 0
-         DIFF_MASK_AERO = 0
-         DIFF_MASK_NR   = 0
-         DIFF_MASK_TRAC = 0
+         DIFF_MASK_GAS  = .FALSE.
+         DIFF_MASK_AERO = .FALSE.
+         DIFF_MASK_NR   = .FALSE.
+         DIFF_MASK_TRAC = .FALSE.
 
          S = 0
          DO V = 1, N_GC_TRNS
             S = S + 1
             DIFF_MAP( S ) = GC_STRT - 1 + GC_TRNS_MAP( V )
             DIFF_SPC( S ) = GC_SPC( GC_TRNS_MAP( V ) )
-            DIFF_MASK_GAS( S ) = 1
+            DIFF_MW ( S ) = GC_MOLWT( GC_TRNS_MAP( V ) )
+            DIFF_MASK_GAS( S ) = .TRUE.
          END DO
          DO V = 1, N_AE_TRNS
             S = S + 1
             DIFF_MAP( S ) = AE_STRT - 1 + AE_TRNS_MAP( V )
             DIFF_SPC( S ) = AE_SPC( AE_TRNS_MAP( V ) )
-            DIFF_MASK_AERO( S ) = 1
+            DIFF_MW ( S ) = AE_MOLWT( AE_TRNS_MAP( V ) )
+            DIFF_MASK_AERO( S ) = .TRUE.
          END DO
          DO V = 1, N_NR_TRNS
             S = S + 1
             DIFF_MAP( S ) = NR_STRT - 1 + NR_TRNS_MAP( V )
             DIFF_SPC( S ) = NR_SPC( NR_TRNS_MAP( V ) )
-            DIFF_MASK_NR( S ) = 1
+            DIFF_MW ( S ) = NR_MOLWT( NR_TRNS_MAP( V ) )
+            DIFF_MASK_NR( S ) = .TRUE.
          END DO
          DO V = 1, N_TR_DIFF
             S = S + 1
             DIFF_MAP( S ) = TR_STRT - 1 + TR_DIFF_MAP( V )
             DIFF_SPC( S ) = TR_SPC( TR_DIFF_MAP( V ) )
-            DIFF_MASK_TRAC( S ) = 1
+            DIFF_MW ( S ) = TR_MOLWT( TR_DIFF_MAP( V ) )
+            DIFF_MASK_TRAC( S ) = .TRUE.
          END DO
 
 ! Map Deposition Velocity Species to Diffusion Module Species

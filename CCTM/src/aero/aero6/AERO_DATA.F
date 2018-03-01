@@ -491,38 +491,20 @@ C SeaSalt_Cation, ASOIL, or Coarse-Mode Dust present.
 
       Real( 8 ), Parameter :: asoil_mn_fac = 0.00075D0   ! for MN in windblown dust
       Real( 8 ), Parameter :: acors_mn_fac = 0.0011D0    ! for MN in anthropogenic coarse
+ 
+C Coarse mode PMC speciation based on anthropogenic inventory composite from various
+C sources (G. Pouliot - private communication):
 
-C Create Map from CMAQ Aerosol Species Names to Common Aerosol Surrogate
-C Names on Emissions Input Files
-      Type aero_em_map
-          Character( 16 ) :: PTCL
-          Character( 16 ) :: AERO
-      End Type aero_em_map
-      
-      Integer, Parameter :: N_Map_AEROtoPTCL = 19
-      Type ( aero_em_map ), Parameter :: 
-     &  Map_AEROtoPTCL( N_Map_AEROtoPTCL ) = (/
-     &    aero_em_map( 'PSO4  ' ,'ASO4  ' ),
-     &    aero_em_map( 'PNO3  ' ,'ANO3  ' ),
-     &    aero_em_map( 'PNH4  ' ,'ANH4  ' ),
-     &    aero_em_map( 'PEC   ' ,'AEC   ' ),
-     &    aero_em_map( 'POC   ' ,'APOC  ' ),
-     &    aero_em_map( 'PNCOM ' ,'APNCOM' ),
-     &    aero_em_map( 'PMOTHR' ,'AOTHR ' ),
-     &    aero_em_map( 'PFE   ' ,'AFE   ' ),
-     &    aero_em_map( 'PAL   ' ,'AAL   ' ),
-     &    aero_em_map( 'PSI   ' ,'ASI   ' ),
-     &    aero_em_map( 'PTI   ' ,'ATI   ' ),
-     &    aero_em_map( 'PCA   ' ,'ACA   ' ),
-     &    aero_em_map( 'PMG   ' ,'AMG   ' ),
-     &    aero_em_map( 'PK    ' ,'AK    ' ),
-     &    aero_em_map( 'PMN   ' ,'AMN   ' ),
-     &    aero_em_map( 'PMC   ' ,'ACORS ' ),
-     &    aero_em_map( 'PH2O  ' ,'AH2O  ' ),
-     &    aero_em_map( 'PNA   ' ,'ANA   ' ),
-     &    aero_em_map( 'PCL   ' ,'ACL   ' ) /)
-
-
+      Real( 8 ), Parameter :: acorsem_aso4_fac = 0.00100D0
+      Real( 8 ), Parameter :: acorsem_ano3_fac = 0.00048D0
+      Real( 8 ), Parameter :: acorsem_acl_fac  = 0.00145D0
+      Real( 8 ), Parameter :: acorsem_ah2o_fac = 0.00032D0
+      Real( 8 ), Parameter :: acorsem_renorm   = 1.0D0
+     &                                     - acorsem_aso4_fac
+     &                                     - acorsem_ano3_fac
+     &                                     - acorsem_acl_fac
+     &                                     - acorsem_ah2o_fac
+ 
 C Required species
       Character( 16 ), Private, Parameter :: req_so4    = 'ASO4'
       Character( 16 ), Private, Parameter :: req_no3    = 'ANO3'

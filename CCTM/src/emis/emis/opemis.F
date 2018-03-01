@@ -40,8 +40,7 @@ C                        removed deprecated TRIMLEN
       USE RXNS_DATA, only : MECHNAME 
       USE EMIS_VARS
       USE EMIS_DEFN
-      USE AERO_DATA, only : AEROMODE, N_MODE, MGPG, GPKG,
-     &                      N_MAP_AEROtoPTCL, MAP_AEROtoPTCL
+      USE AERO_DATA, only : AEROMODE, N_MODE, MGPG, GPKG
       USE VDIFF_MAP, only : N_SPC_DIFF, DIFF_SPC, DIFF_MASK_AERO
 
       IMPLICIT NONE
@@ -149,7 +148,7 @@ C Open Gridded Emission Files (for gas chem, aerosols and non-reactive species)
             DO IVAR = 1,NVARS3D
               ! Check if Diffused Species are on the file list
               V = INDEX1( VNAME3D( IVAR ), N_SPC_DIFF, DIFF_SPC )
-              X = INDEX1( VNAME3D( IVAR ), N_MAP_AEROtoPTCL, MAP_AEROtoPTCL( : )%PTCL )
+              X = INDEX1( VNAME3D( IVAR ), N_MAP_EMIStoCMAQ, MAP_EMIStoCMAQ( : )%SURR )
               IF ( V + X .NE. 0 ) THEN
                   ! A match has been found
                   UNITSCK = UNITS3D( IVAR )
