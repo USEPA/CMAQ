@@ -251,13 +251,13 @@ C                     ---------- -------- ------- + + +   + ------ --- +  ------
      & spcs_list_type('AIMOS   ', cm_set, 1400.0, F,F,F,  0,  2.8, 6.1,T, 'DUST  '), !
 
        ! Updated monoterpene SOA following Saha and Grieshop ES&T 2016
-     & spcs_list_type('AMT1J   ', cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  '), ! MT SOA Lowest Volatility
-     & spcs_list_type('AMT2J   ', cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  '), ! 
-     & spcs_list_type('AMT3J   ', cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  '), !
-     & spcs_list_type('AMT4J   ', cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  '), !
-     & spcs_list_type('AMT5J   ', cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  '), !
-     & spcs_list_type('AMT6J   ', cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  '), !
-     & spcs_list_type('AMT7J   ', cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  '), ! MT SOA Highest Volatility
+     & spcs_list_type('AMT1    ', cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  '), ! MT SOA Lowest Volatility
+     & spcs_list_type('AMT2    ', cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  '), ! 
+     & spcs_list_type('AMT3    ', cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  '), !
+     & spcs_list_type('AMT4    ', cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  '), !
+     & spcs_list_type('AMT5    ', cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  '), !
+     & spcs_list_type('AMT6    ', cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  '), !
+     & spcs_list_type('AMT7    ', cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  '), ! MT SOA Highest Volatility
 
        ! ae6i and cb6
      & spcs_list_type('AGLY    ', cm_set, 1400.0, F,F,F,  0,  2.8, 6.1,T, 'DUST  '), ! Glyoxal SOA
@@ -575,7 +575,6 @@ C Variables for converting emission rates into molar-mixing-ratio units
       REAL,    PARAMETER :: MGPG = 1.0E+06     ! g -> ug
 
 C-------------------------------------------------------------------------------------------------------
-
       Type mode_type
          Character( 16 ) :: num_name     ! name of aerosol number variable
          Character( 16 ) :: srf_name     ! name of aerosol surface area variable
@@ -681,12 +680,6 @@ C Local Variables:
       Real    so4fac
       Real    anthfac
 
-      Real    dust_POC  ! dust scale factor for Primary Organic Carbon
-      Real    dust_PNC  ! dust scale factor for Primary Non-Carbon aerosol
-      Real    dust_POA  ! scale factor for Semivolatile POA in dust emissions
-      Real    dust_OOA  ! scale factor for Semivolatile OOA in dust emissions
-      Real    dust_OMOC ! ratio of Organic Matter to Organic Carbon in dust emissions
-      Real    dust_OC   ! ratio of Elmental Oxygen to Carbon in dust emissions
       Real    POA_OC    ! ratio of Elemental Oxygen to Carbon in POA
       Real    OOA_OC    ! ratio of Elemental Oxygen to Carbon in Oxygenated OA
 
