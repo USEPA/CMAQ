@@ -1170,6 +1170,8 @@ C resentative compound.
  
 C Compute 3rd moment, 2nd moment. moment_conc arrays are wet
       Call calcmoments ( .true. )
+      Call getpar( FIXED_sg )
+
       m3wet_init( : ) = moment3_conc( 1:2 )
       m2wet_init( : ) = moment2_conc( 1:2 )
         

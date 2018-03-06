@@ -111,6 +111,7 @@
       verbose   = .False.
       serial    = .False.
       debug     = .False.
+      debug_cctm= .False.
       checkout  = .False.
       makefo    = .False.
       twoway    = .False.
@@ -185,6 +186,10 @@
           debug = .True.; Cycle
         End If
 
+        If ( argv .Eq. '-DEBUG_CCTM' ) Then
+          debug_cctm = .True.; Cycle
+        End If
+
         If ( argv .Eq. '-VERBOSE' ) Then
           verbose = .True.; Cycle
         End If
@@ -227,12 +232,13 @@
       Write( *,'(/"Usage: bldmake [-<option>...] filename")' )
 
       Write( *,'(/"where <option> is one of the following:")' )
-      Write( *,'("  -verbose   Echo actions")' )
-      Write( *,'("  -debug     Echo all actions")' )
-      Write( *,'("  -serial    Make for serial execution")' )
-      Write( *,'("  -makefo    Creates Makefile without building")' )
-      Write( *,'("  -git_local Does NOT copy source files to BLD directory")' )
-      Write( *,'("  -help      Displays help screen")' )
+      Write( *,'("  -verbose    Echo actions")' )
+      Write( *,'("  -debug      Echo all actions")' )
+      Write( *,'("  -serial     Make for serial execution")' )
+      Write( *,'("  -makefo     Creates Makefile without building")' )
+      Write( *,'("  -git_local  Does NOT copy source files to BLD directory")' )
+      Write( *,'("  -help       Displays help screen")' )
+      Write( *,'("  -debug_cctm Execute make with DEBUG option set to TRUE")' )
       Write( *,'(//)' )
 
       End Subroutine help_msg
@@ -300,6 +306,11 @@
       Write( lfn, '("#      $(LIB)/ioapi/lib -> ",a)' ) Trim( ioapi_lib_dir )
       Write( lfn, '("#      $(LIB)/mpi -> ",a)' ) Trim( mpi_lib_dir )
       Write( lfn, '("#      $(LIB)/netcdf -> ",a)' ) Trim( netcdf_lib_dir )
+      Write( lfn, '("#",/,"#   Command-Line Options:      ")' ) 
+      Write( lfn, '("#      DEBUG=TRUE -- turn on debug flags ")' ) 
+      Write( lfn, '("#")' ) 
+      Write( lfn, '("#------------------------------------------------- ")' ) 
+
 
       ! Begin Makefile Commands
       Write( lfn, '(/" EXEC = ",a)' ) Trim( model )
@@ -320,11 +331,15 @@
       Write( lfn, '( " FSTD = ",a)' ) Trim( fstd )
       Write( lfn, '( " DBG  = ",a)' ) Trim( dbg )
 
-      Write( lfn, '(/" f_FLAGS   = ",a)' ) Trim( f_flags ) // " $(FSTD) $(include_path)"
-      Write( lfn, '( " f90_FLAGS = ",a)' ) Trim( f90_flags ) // " $(FSTD) $(include_path)"
+      Write( lfn, '(/" ifeq ""$(DEBUG)"" ""TRUE"" ")' )
+      Write( lfn, '( "     f_FLAGS   = ",a)' ) Trim( f_flags ) // " $(DBG) $(include_path)"
+      Write( lfn, '( "     f90_FLAGS = ",a)' ) Trim( f90_flags ) // " $(DBG) $(include_path)"
 
-      Write( lfn, '( "#f_FLAGS   = ",a)' ) Trim( f_flags ) // " $(DBG) $(include_path)"
-      Write( lfn, '( "#f90_FLAGS = ",a)' ) Trim( f90_flags ) // " $(DBG) $(include_path)"
+      Write( lfn, '( " else")' )
+      Write( lfn, '( "     f_FLAGS   = ",a)' ) Trim( f_flags ) // " $(FSTD) $(include_path)"
+      Write( lfn, '( "     f90_FLAGS = ",a)' ) Trim( f90_flags ) // " $(FSTD) $(include_path)"
+
+      Write( lfn, '( " endif")' )
 
       Write( lfn, '(/" F_FLAGS   = $(f_FLAGS)")' )
       Write( lfn, '( " F90_FLAGS = $(f90_FLAGS)")' )
@@ -361,8 +376,8 @@
          Write( lfn, '( " LIBRARIES = $(IOAPI) $(NETCDF)")' )
       Else
 !         Write( lfn, '( " MPICH  = -L$(LIB)/",a,1x,a)' ) "mpich/lib", Trim( mpich )
-         Write( lfn, '( " MPICH  = -L$(LIB)/",a,1x,a)' ) "mpi/lib", Trim( mpich )
-         Write( lfn, '( " LIBRARIES = $(IOAPI) $(NETCDF) $(MPICH)")' )
+!         Write( lfn, '( " MPICH  = -L$(LIB)/",a,1x,a)' ) "mpi/lib", Trim( mpich )
+         Write( lfn, '( " LIBRARIES = $(IOAPI) $(NETCDF) ")' )
       End If
 
 !     Call writeLIB( lfn )
@@ -571,7 +586,7 @@
       Integer            :: pathInd( n_Mac ) = (/ 2, 1, 1 /)
   !   parallel & serial
       Integer, Parameter :: n_Inc = 8
-      Integer, Parameter :: pathMap( n_Inc ) = (/ 1, 1, 1, 1, 2, 2, 2, 3 /)
+      Integer, Parameter :: pathMap( n_Inc ) = (/ 1, 1, 1, 1, 3, 2, 2, 3 /)
   !   Integer, Parameter :: n_Inc = 6
   !   Integer, Parameter :: pathMap( n_Inc ) = (/ 1, 1, 1, 2, 2, 2 /)
 
@@ -669,8 +684,11 @@
           Write( lfn, '(1x)' )
           Do i = 1, n_M
             If ( pathStr( i ) .Ne. ' ' ) Then
-!             Write( lfn, '(1x,a," = ",a)' ) Trim( pathMacro(i) ), Trim( pathStr(i) )
-              Write( lfn, '(1x,a," = ",a)' ) pathMacro( i ), Trim( pathStr( i ) )
+              If ( pathMacro( i ) .EQ. "MPI_INC " ) Then
+                  Write( lfn, '(1x,a," = ",a)' ) pathMacro( i ), "$(LIB)/mpi/include"
+              Else
+                  Write( lfn, '(1x,a," = ",a)' ) pathMacro( i ), Trim( pathStr( i ) )
+              End If
             End If
           End Do
         End If
@@ -701,12 +719,7 @@
           If ( pos .Gt. 0 .And. pathStr( i ) .Ne. ' ' ) Then
             pos2 = pos + Len_Trim( pathStr( i ) )
             If ( pos .Eq. 1 ) Then
-              j = Index( path, 'mpi')
-              if (j .eq. 0) then
-                 path = '$(' // Trim( pathMacro( Map ) ) // ')' // path( pos2: )
-              else
-                 path = path(3:)
-              end if
+              path = '$(' // Trim( pathMacro( Map ) ) // ')' // path( pos2: )
               Exit
             Else
               If ( twoway ) Then

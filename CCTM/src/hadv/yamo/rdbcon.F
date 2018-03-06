@@ -249,6 +249,7 @@ C    DENSA_J - KG M-2
       IF ( WINDOW ) THEN
 
          VNAME = 'DENSA_J'
+         RHOJ_BUF = 0.0
          IF ( .NOT. INTERPX ( MET_CRO_3D, VNAME, PNAME,
      &                        STRTCOL,ENDCOL, STRTROW,ENDROW, LVL,LVL,
      &                        MDATE, MTIME, RHOJ_BUF ) ) THEN
@@ -257,6 +258,7 @@ C    DENSA_J - KG M-2
          END IF
 
          VNAME = 'JACOBM'
+         JACOBM_BUF = 0.0
          IF ( .NOT. INTERPX ( MET_CRO_3D, VNAME, PNAME,
      &                        STRTCOL,ENDCOL, STRTROW,ENDROW, LVL,LVL,
      &                        MDATE, MTIME, JACOBM_BUF ) ) THEN
@@ -433,6 +435,8 @@ C Read & interpolate boundary concentrations
          END IF
 151   CONTINUE
       
+      WHERE( BCON .NE. BCON ) BCON = 0.0
+
       !Check Aerosol Size Distributions and Warn 
       !the User if They Are Not Robust
       DO BND = 1,NBNDY

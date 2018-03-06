@@ -29,11 +29,11 @@ C
 C  FUNCTION: To solve for the concentration of HO, HO2, HONO, and
 C            HNO4 alebraically.
 C
-C  PRECONDITIONS: For the SAPRC07TIC family of mechanisms
+C  PRECONDITIONS: For the saprc07tic family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, May 25, 2016
+C  REVISION HISTORY: Created by EBI solver program, Sep 27, 2017
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C**********************************************************************
@@ -378,7 +378,7 @@ c..Production of HONO from OH (r19,4 terms )
 
 c..Remaining HONO production terms
       P19 =                 RXRAT( 231 )      ! NPHE=HONO
-     &    +    5.0000D-01 * RXRAT( 885 )      ! NO2=0.5000D+00*HONO+...
+     &    +    5.0000D-01 * RXRAT( 884 )      ! NO2=0.5000D+00*HONO+...
 
       P19 = YC0( HONO ) + P19 * DTC
 
