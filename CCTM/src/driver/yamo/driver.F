@@ -240,7 +240,6 @@ C-----------------------------------------------------------------------
          TSTEP( 3 ) = SEC2TIME( WRF_TSTEP )
          NSTEPS     = WRF_NSTEP
 
-         RUNLEN = ENVINT( 'CTM_RUNLEN', ' ', RUNLEN, STATUS )
          TOTAL_STEPS = TIME2SEC( RUNLEN ) / WRF_TSTEP
 #endif
 
