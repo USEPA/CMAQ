@@ -1,6 +1,6 @@
 #!/bin/csh -f
 
-# ====================== CCTMv5.2 Run Script ======================== 
+# ==================== CCTMv5.2.1 Run Script ======================== 
 # Usage: run.cctm >&! cctm_v52b.log &                                
 #
 # To report problems or request help with this script/program:     
@@ -8,9 +8,9 @@
 #             http://www.cmascenter.org  (CMAS Website)
 # ===================================================================  
 
-# ==================================================================
+# ===================================================================
 #> Runtime Environment Options
-# ==================================================================
+# ===================================================================
 
 #> Choose compiler and set up CMAQ environment with correct 
 #> libraries using config.cmaq. Options: intel | gcc | pgi
@@ -24,7 +24,7 @@
  cd CCTM/scripts
 
 #> Set General Parameters for Configuring the Simulation
- set VRSN      = v52               #> Code Version
+ set VRSN      = v5.2.1            #> Code Version
  set PROC      = mpi               #> serial or mpi
  set MECH      = cb6r3_ae6_aq      #> Mechanism ID
  set EMIS      = 2013ef            #> Emission Inventory Details

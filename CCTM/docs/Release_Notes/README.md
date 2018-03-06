@@ -1,14 +1,37 @@
-CMAQv5.2 Release Notes 
+CMAQv5.2.1 Release Notes 
 =====================================
 
-The Community Multiscale Air Quality (CMAQ) Model version 5.2 is a major update to CMAQ that includes several changes to the science algorithms in the base model.  CMAQ v5.2 was developed by the U.S. EPA with contributions from other research partners. Summarized below are the main enhancements to the modeling system since the previous release, CMAQ v5.1.
+The Community Multiscale Air Quality (CMAQ) Model version 5.2.1 is a minor update to CMAQv5.2 that includes multiple bug fixes and a few minor feature additions.  CMAQ v5.2.1 was developed by the U.S. EPA with contributions from other research partners.  
 
 # Getting Started with CMAQ  
-[Building and running CMAQv5.2](../../../DOCS/User_Manual/CMAQ_OGD_ch05_sys_req.md)  
+[Building and running CMAQv5.2.1](../../../DOCS/User_Manual/CMAQ_OGD_ch05_sys_req.md)  
 [Building and running WRF-CMAQ Two Way Model](Two_Way_Coupled_WRF-CMAQ.md)
 
+# Summary of CMAQv5.2.1 Updates
+
+- Grid check tolerance during advection (Ben, Tanya)   248
+- Compilation options, debugging flag, and include paths (Ben) 250, 266
+- Unique INTERPX offsets for METCRO2D (Bill) 249
+- Remove duplicative heterogeneous uptake of N2O5 (Sarwar) 251
+- HDIFF hang with offline CMAQ (Jesse) 254
+- Hay Land Use fix for BiDi (Jesse) 255
+- Improve combine's math (Bill) 257
+- Remove SWAP routines (David) 264
+- Allow Emissions Check to have no point sources ( Ben) 237
+- Make generalized solvers work with intel version 17 ( Bill) 239
+- Turn on bioseason switch by default ( Ben ) 247
+- Add command for extracting specdef files to bldit_project ( Ben ) 241, 240
+
+
+## Aerosol Processes
+- Fix Bugs in initialization including ICBC checking, getpar calls and getpar save variables (Ben) PR 252, 258, 245)
+- 
+
 -----
+
 # Summary of CMAQv5.2 Updates
+
+The Community Multiscale Air Quality (CMAQ) Model version 5.2 is a major update to CMAQ that includes several changes to the science algorithms in the base model.  CMAQ v5.2 was developed by the U.S. EPA with contributions from other research partners. Summarized below are the main enhancements to the modeling system since the previous release, CMAQ v5.1.
 
 <a id="chemistry"></a>
 ## Chemistry
