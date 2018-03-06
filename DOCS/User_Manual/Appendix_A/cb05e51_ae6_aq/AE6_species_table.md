@@ -1,5 +1,7 @@
 **Table A‑1. Mechanism for cb6r3_ae6_aq uses the following species.**
 
+Note that for each aerosol mass species, a letter will be appended to the names below in order to designate the size, or mode, of the aerosol being represented: I = Aitken mode, J = Accumulation mode, K = Coarse mode.  
+
 | **Number** | **Model Species** | **Name** |**Molecular Weight** |**Explicit or Lumped**|
 |-----------|--------------------------------------|-----------------|------------------|---------|
 |01|NUMAIT  | Aitken Mode Number Conc                              | NA      | NA   | 
