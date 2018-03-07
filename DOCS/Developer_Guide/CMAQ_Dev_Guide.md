@@ -1,6 +1,6 @@
 **Developer Guide for the Community Multiscale Air Quality (CMAQ) Modeling System**
 =
-**Consistent with CMAQ model version 5.2.1 (2017 Release)**
+**Consistent with CMAQ model version 5.2.1 (2018 Release)**
 
 Prepared in cooperation with the:  
 &nbsp;&nbsp;&nbsp; ***Community Modeling and Analysis System***  
@@ -15,10 +15,14 @@ The information in this Developer Guide has been funded wholly or in part by the
 The evolution and robustness of CMAQ depends on contributions from the vibrant CMAS community. The development team at EPA is excited to work with potential contributors and integrate community submissions into the CMAQ code base. In order to facilitate this process, we describe in this document our development process and how external developers may submit new code features.  
 The information contained here should be read prior to starting a project within the CMAQ framework. Instructions are tailored for external developers but can also be used by developers in the CMAS-Center or within EPA.  
 # Summary of Developer Workflow
-The public CMAQ release repository is located on GitHub (<https://github.com/USEPA/CMAQ>). Users should refer to this repository for bug fixes, issues, documentation and major releases for CMAQ. Users can use the watch and star buttons on the public CMAQ release repository page to be notified of updates and changes. Developers interested in submitting code changes should read this Developer Guide and then contact the EPA CMAQ development team as soon as possible to discuss their motivation and plans for submitting a code change (CMAQ_Team@epa.gov). 
-In order to facilitate incorporation of a contribution, developers should follow the instructions on code requirements and repository layout as described in the CMAQ Operational Guidance Document, particularly [Chapter 11](https://github.com/USEPA/CMAQ/blob/5.2/DOCS/User_Manual/CMAQ_OGD_ch11_code_management.md). Documentation of the assumptions and results of the new code is a very important part of a meaningful code submission. If the submission involves a detailed new feature, developers are encouraged to publish the use of their feature in a peer-reviewed journal before submission.
+The public CMAQ release repository is located on GitHub (<https://github.com/USEPA/CMAQ>). Users should refer to this repository for bug fixes, issues, documentation and major releases for CMAQ. Users can use the watch and star buttons on the public CMAQ release repository page to be notified of updates and changes. Developers interested in submitting code changes should read this Developer Guide and then contact the EPA CMAQ development team as soon as possible to discuss their motivation and plans for submitting a code change (CMAQ_Team@epa.gov).  
+
+In order to facilitate incorporation of a contribution, developers should follow the instructions on code requirements and repository layout as described in the CMAQ Operational Guidance Document, particularly [Chapter 11](https://github.com/USEPA/CMAQ/blob/5.2/DOCS/User_Manual/CMAQ_OGD_ch11_code_management.md). Documentation of the assumptions and results of the new code is a very important part of a meaningful code submission. If the submission involves a detailed new feature, developers are encouraged to publish the use of their feature in a peer-reviewed journal before submission. 
+
 To begin, the developer should fork the public CMAQ release repository within GitHub. This will create a copy of the public CMAQ release repository under your name (https://github.com/{user_name}/CMAQ). Developers should use standard git commands to clone the appropriate version branch (5.2, 5.2_DDM, ..) from your forked repository to your local machine and then to create a new feature or bug fix branch. Developers will add, commit and push changes to their new feature or bug fix branch on their forked repository, not to the public release version of the repository.  
-Once a feature or bug fix branch meets requirements for code consistency, benchmark testing, model output evaluation, and documentation including release notes, the developer may submit a pull request from their local feature or bug fix branch of their fork of the CMAQ repository on Github to the CMAQ public repository. This process is described in the Nuts and Bolts section below, and in the following [tutorial](https://www.digitalocean.com/community/tutorials/how-to-create-a-pull-request-on-github), which also provides instructions on how to keep a fork up to date with changes on the public release repository.
+
+Once a feature or bug fix branch meets requirements for code consistency, benchmark testing, model output evaluation, and documentation including release notes, the developer may submit a pull request from their local feature or bug fix branch of their fork of the CMAQ repository on Github to the CMAQ public repository. This process is described in the Nuts and Bolts section below, and in the following [tutorial](https://www.digitalocean.com/community/tutorials/how-to-create-a-pull-request-on-github), which also provides instructions on how to keep a fork up to date with changes on the public release repository.  
+
 Contributions will undergo a thorough code review within EPA before being incorporated in the next model release. Depending on the size, scope, and importance of the contribution, the CMAQ development team may or may not agree to support the update through future releases. Decisions regarding ongoing support will be made on a case-by-case basis with input from the developer who submits the contribution. 
 The following sections outline the CMAQ code development and review process in greater detail.
 
@@ -45,7 +49,7 @@ The unofficial (or ***beta***) version of the code will first be vetted internal
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v14.3.b4  (....documentation updates...)  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v14.3     (Stable Public Release)  
 
-As stated previously, the ìKnown Issuesî section of the documentation will be continually updated as problems are identified in the released code-base. These updates will not be implemented in the default model code and so the version numbering will in general, not increment between public releases. After public release of the stable CMAQ version, the instrumented versions of the code (e.g. DDM, ISAM, STM, etc) should be expected within approximately 6 months to 1 year.
+As stated previously, the ‚ÄúKnown Issues‚Äù section of the documentation will be continually updated as problems are identified in the released code-base. These updates will not be implemented in the default model code and so the version numbering will in general, not increment between public releases. After public release of the stable CMAQ version, the instrumented versions of the code (e.g. DDM, ISAM, STM, etc) should be expected within approximately 6 months to 1 year.
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v14.3_DDM-3D (Instrumented version for DDM-3D)  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v14.3_ISAM (Instrumented version for ISAM)
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v14.3_Sulfur_Tracking (Instrumented version for Sulfur Tracking)  
@@ -74,7 +78,7 @@ CMAQ Developers at EPA will review all code submissions in order to ensure code 
 
 ### Code Consistency
 Please refer to the Operational Guidance Document, [Chapter 11](https://github.com/USEPA/CMAQ/blob/5.2/DOCS/User_Manual/CMAQ_OGD_ch11_code_management.md), under the section titled "Guidelines for Developing New CMAQ Source Code". Examples of small, but important guidelines include:
-- Eliminate global memory references (across modules). In other words, no common blocks across modules, no hidden data paths, and no "back doors."ù
+- Eliminate global memory references (across modules). In other words, no common blocks across modules, no hidden data paths, and no "back doors."
 - All subroutines should be named in a manner which prevents namespace conflicts.
 - In general, variable names should be self-descriptive (e.g. NCELLS rather than N).
 - Use the Fortran declaration IMPLICIT NONE to maintain some control on typographic errors and undefined variables. The use of IMPLICIT NONE forces the developer to declare all internal variables. This is standard in Fortran 90.
@@ -113,7 +117,7 @@ Depending on the size, scope, and importance of the contribution, the CMAQ devel
 # Copyright Information
 Contact EPA (CMAQ_Team@epa.gov) with questions and concerns.
 
-CMAQ Developer Guide (c) 2017
+CMAQ Developer Guide (c) 2018
 
 # Appendix
 ## Appendix 1: Compiler Tests
