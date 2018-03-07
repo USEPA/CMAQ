@@ -7,25 +7,32 @@ The Community Multiscale Air Quality (CMAQ) Model version 5.2.1 is a minor updat
 [Building and running CMAQv5.2.1](../../../DOCS/User_Manual/CMAQ_OGD_ch05_sys_req.md)  
 [Building and running WRF-CMAQ Two Way Model](Two_Way_Coupled_WRF-CMAQ.md)
 
-# Summary of CMAQv5.2.1 Updates
+# Summary of CMAQv5.2.1 Updates  
 
-- Grid check tolerance during advection (Ben, Tanya)   248
-- Compilation options, debugging flag, and include paths (Ben) 250, 266
-- Unique INTERPX offsets for METCRO2D (Bill) 249
-- Remove duplicative heterogeneous uptake of N2O5 (Sarwar) 251
-- HDIFF hang with offline CMAQ (Jesse) 254
-- Hay Land Use fix for BiDi (Jesse) 255
-- Improve combine's math (Bill) 257
-- Remove SWAP routines (David) 264
-- Allow Emissions Check to have no point sources ( Ben) 237
-- Make generalized solvers work with intel version 17 ( Bill) 239
-- Turn on bioseason switch by default ( Ben ) 247
-- Add command for extracting specdef files to bldit_project ( Ben ) 241, 240
+## Transport  
+  * [Grid check tolerance during advection](Grid_Check_Tolerance.md) (Ben, Tanya)  
+  * [HDIFF hang with offline CMAQ](HDIFF_hang.md) (Jesse)  
+  * [Remove SWAP routines](SWAP_routines.md) (David)  
+  * [Unique INTERPX offsets for METCRO2D](INTERPX.md) (Bill)  
 
+## Emissions and Air-Surface Exchange  
+  * [Turn on bioseason switch by default](Bioseason.md) ( Ben )  
+  * [Hay Land Use fix for BiDi](Hay_Land_Use.md) (Jesse)  
+  * [Allow Emissions Check to have no point sources](Emiss_Check_Zero_PT_Sources.md) ( Ben)  
 
-## Aerosol Processes
-- Fix Bugs in initialization including ICBC checking, getpar calls and getpar save variables (Ben) PR 252, 258, 245)
-- 
+## Chemistry  
+  * [Remove duplicative heterogeneous uptake of N2O5](Duplicate_N2O5.md) (Sarwar)  
+  * [Make generalized solvers work with intel version 17](Intel17_Solver_Compatibility.md) ( Bill)  
+
+## Aerosol Processes  
+  * [Fix Bugs in initialization including ICBC checking, getpar calls and getpar save variables](Aerosol_ICBC_GetPar.md) (Ben)  
+ 
+## Compilation  
+  * [Compilation options, debugging flag, and include paths](Compilation_Options_and_Debug.md) (Ben)  
+
+## Post-Processing  
+  * [Improve combine's math](Combine_Math.md) (Bill)  
+  * [Add command for extracting specdef files to bldit_project.csh](SpecDefExtraction.md) ( Ben )  
 
 -----
 
