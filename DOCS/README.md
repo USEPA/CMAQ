@@ -1,4 +1,4 @@
-CMAQv5.2 Documents 
+CMAQv5.2.1 Documents 
 ==================
 
 This directory contains the documentation for the [Community Multiscale Air Quality (CMAQ)](http://www.epa.gov/cmaq) modeling system

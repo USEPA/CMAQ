@@ -1,5 +1,5 @@
-CMAQv5.2 Tutorials
-========
+CMAQ Tutorials
+==============
 
 A series of short tutorials provide practical examples of how to set up and run CMAQ, exercise different features in the software, and better understand the software system. Community members are encouraged to both suggest ideas for new tutorials and to contribute tutorials directly to this repository. [Contact the CMAS Center](cmas@unc.edu) with new tutorial ideas.
 

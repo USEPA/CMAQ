@@ -304,7 +304,7 @@ C.. Get fractional surf-zone coverage from the OCEAN file.
          DEALLOCATE( OPEN_ZONE, SURF_ZONE )
 
 
-         CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
+         CALL SUBHFILE ( MET_CRO_2D, GXOFF, GYOFF,
      &                   STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2 )
 
          CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,

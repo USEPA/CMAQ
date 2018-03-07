@@ -1,5 +1,5 @@
-CMAQv5.2
-========
+CMAQv5.2.1
+==========
 
 Community Multiscale Air Quality Model US EPA CMAQ Website: (https://www.epa.gov/cmaq).
 
@@ -17,7 +17,7 @@ To clone code from the CMAQ Git archive, specify the branch (i.e. version number
 a working directory on your server:
 
 ```
-git clone -b 5.2 https://github.com/USEPA/CMAQ.git CMAQ_REPO
+git clone -b 5.2.1 https://github.com/USEPA/CMAQ.git CMAQ_REPO
 ```
 
 ## CMAQ Repository Guide
@@ -32,9 +32,10 @@ Source code and scripts are organized as follows:
 ## Documentation
 Release notes and Code documentation are included within this repository (they are version-controlled along with the code itself).  
 
-[CMAQv5.2 Documentation](DOCS/README.md)   
-[CMAQv5.2 Release Notes](CCTM/docs/Release_Notes/README.md)   
-[CMAQv5.2 Known Issues](DOCS/Known_Issues/README.md)   
+[CMAQv5.2.1 Documentation](DOCS/README.md)   
+[CMAQv5.2.1 Release Notes](CCTM/docs/Release_Notes/README.md)   
+[CMAQv5.2.1 Known Issues](DOCS/Known_Issues/README.md)   
+[CMAQv5.2.1 Tutorials](DOCS/Tutorials/README.md)   
 
 ## CMAQ Test Cases
 Benchmark/tutorial input and output data for each CMAQ release version are available from the CMAS Center Software Clearinghouse. From http://www.cmascenter.org, select Download -> Software -> CMAQ and choose the version to get the tutorial data.  
