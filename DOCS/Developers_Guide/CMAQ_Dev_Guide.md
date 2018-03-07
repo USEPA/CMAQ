@@ -1,4 +1,4 @@
-**Developer Guide for the Community Multiscale Air Quality (CMAQ) Modeling System**
+**Developers' Guide for the Community Multiscale Air Quality (CMAQ) Modeling System**
 =
 **Consistent with CMAQ model version 5.2.1 (2018 Release)**
 
@@ -42,17 +42,17 @@ Prior to the public release of each major CMAQ version, the unofficial source co
 - a reasonable amount of time to ensure the new version is compatible with any features the member may have submitted in the past.
 The unofficial (or ***beta***) version of the code will first be vetted internally and then released generally 6 months in advance of the corresponding stable CMAQ release; this period is known as the *beta-phase*. At this time, EPA will announce the deadline for community contributions. This deadline will be chosen in order to balance both the time needed by developers to submit their contributions and the time needed by EPA to incorporate submissions before public release. Version numbering for the beta series will append the letter 'b' and an incrementing number to the expected version number of the stable release. The number of beta versions is variable among releases. For example, before the hypothetical release of CMAQv14.3 the following series of version numbers could be expected:  
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v14.3.b0  (First tested internal EPA version)  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v14.3.b1  (Release to public after minor changes)  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v14.3.b2  (....incremental testing, ....)  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v14.3.b3  (....bug squashing, and  ...)  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v14.3.b4  (....documentation updates...)  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v14.3     (Stable Public Release)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v14.3.b0  (First tested internal EPA version)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v14.3.b1  (Release to public after minor changes)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v14.3.b2  (....incremental testing, ....)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v14.3.b3  (....bug squashing, and  ...)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v14.3.b4  (....documentation updates...)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v14.3     (Stable Public Release)  
 
 As stated previously, the “Known Issues” section of the documentation will be continually updated as problems are identified in the released code-base. These updates will not be implemented in the default model code and so the version numbering will in general, not increment between public releases. After public release of the stable CMAQ version, the instrumented versions of the code (e.g. DDM, ISAM, STM, etc) should be expected within approximately 6 months to 1 year.
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v14.3_DDM-3D (Instrumented version for DDM-3D)  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v14.3_ISAM (Instrumented version for ISAM)
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v14.3_Sulfur_Tracking (Instrumented version for Sulfur Tracking)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v14.3_DDM-3D (Instrumented version for DDM-3D)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v14.3_ISAM (Instrumented version for ISAM)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v14.3_Sulfur_Tracking (Instrumented version for Sulfur Tracking)    
 
 
 # Making Contributions
