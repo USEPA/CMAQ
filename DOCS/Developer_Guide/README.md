@@ -1,4 +1,4 @@
-CMAQv5.2 Developer Manual
+CMAQv5.2.1 Developer Manual
 ==
 
 This manual is designed to help developers of the [Community Multiscale Air Quality (CMAQ)](http://www.epa.gov/cmaq) modeling system. 
