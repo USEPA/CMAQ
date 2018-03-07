@@ -12,3 +12,5 @@ The following documents are available for the CMAQ v5.2 release:
 
 - [Known Issues](Known_Issues/README.md): A comprehensive list of the issues that have been identified and solved, but not incorporated, in the current release version of CMAQ. Recommended solutions are provided with each issue entry.
 
+- [Developers' Guide](Developers_Guide/CMAQ_Dev_Guide.md): A guide to version control practices and expectations adopted by the CMAQ development and enforced on itself and any other collaborators who wish to contribute code.
+
