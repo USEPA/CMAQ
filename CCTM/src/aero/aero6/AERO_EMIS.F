@@ -557,18 +557,26 @@ C     Equation 7b of Binkowski & Roselle (2003).
 C     Calculate the surface area emissions rate for the fine modes [m2/m3/s],
 C     using Equation 7c of Binkowski & Roselle (2003).  Multiplying by PI 
 C     converts 2nd moment to surface area.
-         IF ( ISRC .EQ. SS_SRC ) THEN
+         IF ( ISRC .EQ. ISEASRC ) THEN
 
+           DO IM = 1,N_MODE
+              VDEMIS_AE( MAP_NUMtoEM(IM),1,:,: ) = VDEMIS_AE( MAP_NUMtoEM(IM),1,:,: ) 
+     &                + SSOUTN( IM,:,: )   
+              VDEMIS_AE( MAP_SRFtoEM(IM),1,:,: ) = VDEMIS_AE( MAP_SRFtoEM(IM),1,:,: ) 
+     &                + SSOUTS( IM,:,: )   
+           END DO
+
+         ELSE
+
+           DO ISD = 2,N_SD   ! Skip the Index for the Gas Phase
+           DO IM = 1,N_MODE
+              VDEMIS_AE( MAP_NUMtoEM(IM),:,:,: ) = VDEMIS_AE( MAP_NUMtoEM(IM),:,:,: ) 
+     &                + EMISM3( :,:,:,IM,ISD ) * EM_SRC_SD( ISRC )%FACNUM( ISD,IM ) 
+              VDEMIS_AE( MAP_SRFtoEM(IM),:,:,: ) = VDEMIS_AE( MAP_SRFtoEM(IM),:,:,: ) 
+     &                + EMISM3( :,:,:,IM,ISD ) * EM_SRC_SD( ISRC )%FACSRF( ISD,IM ) 
+           END DO
+           END DO
          END IF
-
-         DO ISD = 1,N_SD
-         DO IM = 1,N_MODE
-            VDEMIS_AE( MAP_NUMtoEM(IM),:,:,: ) = VDEMIS_AE( MAP_NUMtoEM(IM),:,:,: ) 
-     &              + EMISM3( :,:,:,IM,ISD ) * EM_SRC_SD( ISRC )%FACNUM( ISD,IM ) 
-            VDEMIS_AE( MAP_SRFtoEM(IM),:,:,: ) = VDEMIS_AE( MAP_SRFtoEM(IM),:,:,: ) 
-     &              + EMISM3( :,:,:,IM,ISD ) * EM_SRC_SD( ISRC )%FACSRF( ISD,IM ) 
-         END DO
-         END DO
  
          END SUBROUTINE EMISS_SIZE_DIST
  

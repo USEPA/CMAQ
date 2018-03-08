@@ -77,10 +77,10 @@ C-----------------------------------------------------------------------
       ! Define Data Structure for Storing Emission Control Namelist
       ! Options                               
       TYPE EM_RULE
-             CHARACTER( 16 ) :: SPEC
-             CHARACTER( 32 ) :: SRC
-             CHARACTER( 16 ) :: PHASE
              CHARACTER( 16 ) :: SURR
+             CHARACTER( 32 ) :: SRC
+             CHARACTER( 16 ) :: SPEC
+             CHARACTER( 16 ) :: PHASE
              REAL            :: FAC
              CHARACTER( 1  ) :: OP
       END TYPE EM_RULE
