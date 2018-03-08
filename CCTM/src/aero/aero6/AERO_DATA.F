@@ -460,6 +460,9 @@ C                                                     Aitken  accum   coarse
       Real, Parameter :: specific_vol_h2o = 0.001  !Inverse Density of Particulate Water
  
       INTEGER, ALLOCATABLE, SAVE :: MAP_SEAtoAERO( : )  !
+      Real, ALLOCATABLE, SAVE    :: SSOUTM( :,:,:,: )  ! SeaSpray Mass Emiss Rate [ug/m3/s]
+      Real, ALLOCATABLE, SAVE    :: SSOUTN( :,:,: )  ! SeaSpray Number Emiss Rate [1/m3/s]
+      Real, ALLOCATABLE, SAVE    :: SSOUTS( :,:,: )  ! SeaSpray Surface Area Emiss Rate [m2/m3/s]
 
 C Constants used for simulating the ionic effects of sea-spray,
 C windblown dust and anthropogenic dust in the coarse mode. These cation

@@ -557,7 +557,7 @@ C     Equation 7b of Binkowski & Roselle (2003).
 C     Calculate the surface area emissions rate for the fine modes [m2/m3/s],
 C     using Equation 7c of Binkowski & Roselle (2003).  Multiplying by PI 
 C     converts 2nd moment to surface area.
-         IF ( ISRC .EQ. SS_SRC ) THEN
+         IF ( ISRC .EQ. ISEASRC ) THEN
 
            DO IM = 1,N_MODE
               VDEMIS_AE( MAP_NUMtoEM(IM),1,:,: ) = VDEMIS_AE( MAP_NUMtoEM(IM),1,:,: ) 

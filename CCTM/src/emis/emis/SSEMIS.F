@@ -40,7 +40,7 @@ C   24 Mar 16 G.Sarwar: updated to calculate NACL emissions (needed for BR2 emis
 C-----------------------------------------------------------------------
 
       USE HGRD_DEFN
-      USE AERO_DATA, ONLY: N_MODE
+      USE AERO_DATA, ONLY: N_MODE, SSOUTN, SSOUTS, SSOUTM
       USE EMIS_VARS
 
       IMPLICIT NONE
@@ -49,11 +49,7 @@ C Number of chemical species in fresh sea-salt aerosol
       INTEGER :: NSSSPC
 
 C Sea-Salt Emissions Rates
-      REAL, ALLOCATABLE, SAVE :: SSOUTM( :,:,:,: )  ! mass emission rates [ug/m3/s]
-      REAL, ALLOCATABLE, SAVE :: SSOUTN( :,:,: )    ! number emission rates [1/m3/s]
-      REAL, ALLOCATABLE, SAVE :: SSOUTS( :,:,: )    ! surface-area emisrates [m2/m3/s]
-
-      PUBLIC NSSSPC, SSOUTM, SSOUTN, SSOUTS, SSEMIS_INIT, GET_SSEMIS
+      PUBLIC NSSSPC, SSEMIS_INIT, GET_SSEMIS
       PRIVATE
 
 C Position of H2O in sea-salt emission arrays
