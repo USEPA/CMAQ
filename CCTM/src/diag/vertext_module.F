@@ -44,7 +44,7 @@ C Function:
 C   Create the IO/API netCDF header and open the output VEXT file
 
 C Revision history:
-C   24 Nov 17 B.Henderson: coped from OPCONC.
+C   24 Nov 17 B.Henderson: copied from OPCONC.
 C   09 Jan 18 D.Wong: put in parallel implementation
 C-----------------------------------------------------------------------
 
@@ -56,10 +56,16 @@ C-----------------------------------------------------------------------
 #else
          USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
 #endif
-         USE MODGCTP, only : XY2XY
+!         USE MODGCTP, only : XY2XY
          USE HGRD_DEFN, only : MYPE, COLSX_PE, ROWSX_PE, NPCOL, NPROW
 
          IMPLICIT NONE
+C        INTERFACE
+C            SUBROUTINE GET_LONLAT(NVERT, VERTLAT, VERTLON)
+C             REAL, ALLOCATABLE, INTENT(INOUT) :: VERTLAT(:), VERTLON(:)
+C             INTEGER, INTENT(INOUT) :: NVERT
+C            END SUBROUTINE GET_LONLAT
+C        END INTERFACE
 
          INCLUDE SUBST_FILES_ID    ! file name parameters
 
@@ -85,11 +91,10 @@ C  environment variable description
 
          INTEGER :: K, KD, L, SPC, V   ! loop counters
          INTEGER :: STRT, FINI         ! loop counters
-         INTEGER :: NVERTEXTLON, NVERTEXTLAT
          INTEGER :: STATUS
          INTEGER :: GDTYP2 = 1
-         REAL*8, ALLOCATABLE  :: VERTEXTLAT(:), VERTEXTLON(:)
-         REAL*8, ALLOCATABLE :: VERTEXTJR(:), VERTEXTIR(:)
+         REAL, ALLOCATABLE  :: VERTEXTLAT(:), VERTEXTLON(:)
+         REAL, ALLOCATABLE :: VERTEXTJR(:), VERTEXTIR(:)
 
          LOGICAL, EXTERNAL :: FLUSH3
          CHARACTER( 16 ) :: DOVERTNAME = 'DOVERTEXT'
@@ -97,7 +102,7 @@ C  environment variable description
          CHARACTER( 16 ) :: VERTEXTLONNAME = 'VERTEXTLON'
 
          INTEGER :: PE
-         LOGICAL :: FOUND
+         LOGICAL :: FOUND, PRJSET
 
          CHARACTER (30) :: MYFMT
 
@@ -117,17 +122,9 @@ C-----------------------------------------------------------------------
          END IF
 
          IF (.not. DOVEXT) RETURN
+         CALL GET_LONLAT(NVERTEXT, VERTEXTLON, VERTEXTLAT)
 
-         VARDESC = 'Maximum number of vertices'
-         NVERTEXT = ENVINT( "NVERTEXT", VARDESC, 0, STATUS )
-         IF ( STATUS .NE. 0 ) THEN
-            WRITE( LOGDEV, '(5X, A)' ) VARDESC
-            XMSG = '... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, NVERTEXT
-         END IF
-
-         ALLOCATE ( VERTEXTLAT(NVERTEXT+1), 
-     &              VERTEXTLON(NVERTEXT+1), 
+         ALLOCATE ( 
      &              VERTEXTJR(NVERTEXT), 
      &              VERTEXTIR(NVERTEXT), 
      &              VERTEXTJ(NVERTEXT), 
@@ -137,22 +134,6 @@ C-----------------------------------------------------------------------
      &              PE_NVERTEXT(0:NVERTEXT, 0:NPCOL*NPROW-1), 
      &              VERT_SEQ(NVERTEXT), 
      &              STAT = STATUS)
-
-         VARDESC = 'List of latitudes'
-         IF (.not. DBLLIST( VERTEXTLATNAME, VARDESC,
-     &      NVERTEXT+1, NVERTEXTLAT, VERTEXTLAT)) THEN
-            XMSG = TRIM(VARDESC) //
-     &             ' Environment variable improperly formatted'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         ENDIF
-
-         VARDESC = 'List of longitudes'
-         IF (.not. DBLLIST( VERTEXTLONNAME, VARDESC,
-     &      NVERTEXT+1, NVERTEXTLON, VERTEXTLON)) THEN
-            XMSG = TRIM(VARDESC) //
-     &             ' Environment variable improperly formatted'
-           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         ENDIF
 
          WRITE(LOGDEV, *)'IN', NVERTEXT
 
@@ -201,14 +182,15 @@ C Set output file characteristics based on COORD.EXT and open it
 !              FDESC3D( K ) = ' '
 !           END DO
 !        END IF
-
-         WRITE (MYFMT, '(a10, i3, a6)') '(A16, 1X, ', NVERTEXT, 'f10.4)'
-         WRITE (FDESC3D(KD + 2 + L), myfmt) 'Latitude  list: ', VERTEXTLAT(1:NVERTEXT)
-         WRITE (FDESC3D(KD + 3 + L), myfmt) 'Longitude list: ', VERTEXTLON(1:NVERTEXT)
-
-         CALL XY2XY( GDTYP3D, P_ALP3D, P_BET3D, P_GAM3D, XCENT3D, YCENT3D,
-     &               1      ,    0.d0,    0.d0,    0.d0,    0.d0,    0.d0,
-     &               NVERTEXT, VERTEXTLON, VERTEXTLAT, VERTEXTIR, VERTEXTJR )
+         WRITE (MYFMT, '(a10, i3, a6)') '(A16, 1X, ', NVERTEXT, 'f12.6)'
+         WRITE (FDESC3D(KD + 2 + L), MYFMT) 'Latitude  list: ', VERTEXTLAT(1:NVERTEXT)
+         WRITE (FDESC3D(KD + 3 + L), MYFMT) 'Longitude list: ', VERTEXTLON(1:NVERTEXT)
+         CALL LONLAT2XY(NVERTEXT, VERTEXTLON, VERTEXTLAT,
+     &                  VERTEXTIR, VERTEXTJR)
+         WRITE (MYFMT, '(a10, i3, a6)') '(A16, 1X, ', NVERTEXT, 'f12.6)'
+         WRITE (FDESC3D(KD + 4 + L), myfmt) 'Y list: ', VERTEXTJR(1:NVERTEXT)
+         WRITE (FDESC3D(KD + 5 + L), myfmt) 'X list: ', VERTEXTIR(1:NVERTEXT)
+         
          STATUS = 0
          MY_NVERTEXT = 0
          PE_NVERTEXT = 0
@@ -249,6 +231,9 @@ C Set output file characteristics based on COORD.EXT and open it
             ENDIF
          END DO
 
+         WRITE (MYFMT, '(a10, i3, a6)') '(A16, 1X, ', NVERTEXT, 'I6)'
+         WRITE (FDESC3D(KD + 6 + L), MYFMT) 'J list: ', VERTEXTJ(1:NVERTEXT)
+         WRITE (FDESC3D(KD + 7 + L), MYFMT) 'I list: ', VERTEXTI(1:NVERTEXT)
          WRITE( LOGDEV,* ) ' '
          WRITE( LOGDEV,* ) '      VEXT  File Header Description:'
          DO K = 1, KD + L
@@ -304,6 +289,18 @@ C Set output file characteristics based on COORD.EXT and open it
             UNITS3D( SPC ) = 'ppmV'
             VDESC3D( SPC ) = 'Variable ' // VNAME3D( SPC )
          END DO
+
+C        SPC = FINI + 1
+C        VTYPE3D( SPC ) = M3REAL
+C        VNAME3D( SPC ) = 'PRES            '
+C        UNITS3D( SPC ) = 'Pa'
+C        VDESC3D( SPC ) = 'Variable ' // 'PRES'
+
+C        SPC = FINI + 2
+C        VTYPE3D( SPC ) = M3REAL
+C        VNAME3D( SPC ) = 'TA              '
+C        UNITS3D( SPC ) = 'K'
+C        VDESC3D( SPC ) = 'Variable ' // 'TA'
 
 C create header
 
@@ -577,6 +574,7 @@ C-----------------------------------------------------------------------
          USE STD_CONC              ! standard CONC
          USE PIOMAPS_MODULE
          USE UTILIO_DEFN
+         USE ASX_DATA_MOD, Only: Met_Data, INIT_MET
 
          IMPLICIT NONE
 
@@ -640,6 +638,8 @@ C open vext file for update
 
          END IF   ! firstime
          WRITE(LOGDEV, *) 'WR_VEXT:NVARS', NVARS
+
+         CALL INIT_MET ( JDATE, JTIME, .true., .true., .true. )
          
          DO V = 1, NVARS
 
@@ -654,10 +654,175 @@ C open vext file for update
             END IF
          END DO
 
+C        IF ( .NOT. PWRVEC(CTM_VEXT_1, VNAME(V + 1), JDATE, JTIME,
+C    &                     Met_Data%PRES(:, :, :), NLAYS3D,
+C    &                     NCOLS, NROWS, NUMPROCS, logdev,
+C    &                     NVERTEXT, VERTEXTI, VERTEXTJ     ) ) THEN
+C                 XMSG = 'PWRGRDD failed writing variable '
+C    &                  // TRIM( VNAME(V) ) //
+C    &                  ' to file '// TRIM( CTM_VEXT_1 )
+C           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+C        END IF
+         
+C        IF ( .NOT. PWRVEC(CTM_VEXT_1, VNAME(V + 2), JDATE, JTIME,
+C    &                     Met_Data%TA(:, :, :), NLAYS3D,
+C    &                     NCOLS, NROWS, NUMPROCS, logdev,
+C    &                     NVERTEXT, VERTEXTI, VERTEXTJ     ) ) THEN
+C                 XMSG = 'PWRGRDD failed writing variable '
+C    &                  // TRIM( VNAME(V) ) //
+C    &                  ' to file '// TRIM( CTM_VEXT_1 )
+C           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+C        END IF
+
          WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
      &         'Timestep written to', CTM_VEXT_1,
      &         'for date and time', JDATE, JTIME
 
          END SUBROUTINE WR_VEXT
+
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+         SUBROUTINE GET_LONLAT(NVERT, VERTLON, VERTLAT)
+C-----------------------------------------------------------------------
+C Function:
+C   Get LON/LAT pairs from file
+C Revision history:
+C   09 Mar 18 B.Henderson: 
+C-----------------------------------------------------------------------
+         USE M3UTILIO, ONLY : ENVSTR
+         USE UTILIO_DEFN
+         IMPLICIT NONE
+         INTEGER :: STATUS, FUNIT, I
+         INTEGER, INTENT(INOUT) :: NVERT
+         REAL, ALLOCATABLE, INTENT(INOUT) :: VERTLAT(:), VERTLON(:)
+         CHARACTER( 16 ) :: LONLATNAME = 'VERTLONLATPATH'
+        !  environment variable description
+         CHARACTER( 80 ) :: VARDESC
+         CHARACTER( 16 ) :: DEFTXT = ''
+         CHARACTER( 1000 ) :: LONLATPATH
+         CHARACTER( 16 ) :: PNAME = 'OPVEXT'
+         CHARACTER( 96 ) :: XMSG = ' '
+         INTEGER :: LOGDEV
+
+         LOGDEV = INIT3()
+         FUNIT = 100
+         VARDESC = 'LON LAT PAIR FILE (first line N pairs)'
+!   get file path fro logical
+         CALL ENVSTR( LONLATNAME, VARDESC, DEFTXT, LONLATPATH, STATUS )
+         IF ( STATUS .EQ. 1 ) THEN
+            XMSG = TRIM(VARDESC) //
+     &             ' Environment variable improperly formatted'
+            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+         ELSE IF ( STATUS .NE. 0 ) THEN
+            WRITE( LOGDEV, '(5X, A)' ) VARDESC
+            XMSG = '... Using default:'
+            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, LONLATNAME
+         END IF
+! OPEN FORMATTED FILE
+! EXPECTED FORMAT 
+! REC1: N
+! REC2-N+1: LON LAT
+         OPEN(UNIT=FUNIT, FILE=LONLATPATH, STATUS='OLD',
+     &        FORM = 'FORMATTED', IOSTAT = STATUS)
+
+         IF ( STATUS .NE. 0 ) THEN
+            XMSG = TRIM(LONLATPATH) //
+     &             ' Could not be opened'
+            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+         END IF
+! READ NUMBER OF VERTICES
+         READ(FUNIT, *, IOSTAT=STATUS) NVERT
+         IF ( STATUS .NE. 0 ) THEN
+            XMSG = TRIM(LONLATPATH) //
+     &             ' did not contain one integer on the first line'
+            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+         END IF
+! ALLOCATE OUTPUT VARIABLES
+         ALLOCATE ( VERTLAT(NVERT), VERTLON(NVERT), STAT = STATUS )
+! FOR EACH INPUT LINE READ LON,LAT
+         DO I=1,NVERT
+            READ(FUNIT, *, IOSTAT=STATUS) VERTLON(I), VERTLAT(I)
+            IF ( STATUS .NE. 0 ) THEN
+               WRITE(XMSG, '(I6)') I
+               XMSG = TRIM(LONLATPATH) //
+     &                ' did not contain two reals on line: ' //
+     &                TRIM(XMSG)
+               CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+            END IF
+         ENDDO
+! CLOSE FILE
+         CLOSE(FUNIT)
+         END SUBROUTINE GET_LONLAT
+
+         SUBROUTINE LONLAT2XY(NVERTEXT, VERTEXTLON, VERTEXTLAT,
+     &                        VERTEXTIR, VERTEXTJR)
+         USE M3UTILIO, only : LL2LAM, LL2POL, LL2TRM, LL2EQM, LL2ALB,
+     &                        SETLAM, SETPOL, SETEQM, SETTRM, SETALB
+         USE UTILIO_DEFN
+         USE GRID_CONF             ! horizontal & vertical domain specifications
+         IMPLICIT NONE
+         INTEGER, INTENT(in) :: NVERTEXT
+         REAL, INTENT(in) :: VERTEXTLON(NVERTEXT), VERTEXTLAT(NVERTEXT)
+         REAL, INTENT(inout) :: VERTEXTIR(NVERTEXT), VERTEXTJR(NVERTEXT)
+         LOGICAL :: PRJSET
+         REAL :: JR, IR
+         INTEGER :: V, STATUS
+!         IOAPI 3.2 has an explicit function, but many users are likely
+!         using 3.1, so I basically rewrote LL2XY
+!         CALL XY2XY( GDTYP_GD, P_ALP_GD, P_BET_GD, P_GAM_GD, XCENT_GD, YCENT_GD,
+!     &               1      ,    0.d0,    0.d0,    0.d0,    0.d0,    0.d0,
+!     &               NVERTEXT, VERTEXTLON, VERTEXTLAT, VERTEXTIR, VERTEXTJR )
+         IF ( GDTYP3D .EQ. LAMGRD3 ) THEN
+             PRJSET = SETLAM( REAL(P_ALP_GD), REAL(P_BET_GD), REAL(P_GAM_GD),
+     &                         REAL(XCENT_GD), REAL(YCENT_GD))
+             DO V=1,NVERTEXT
+                 STATUS = LL2LAM( VERTEXTLON(V), VERTEXTLAT(V), 
+     &                            IR, JR)
+                 VERTEXTIR(V) = IR
+                 VERTEXTJR(V) = JR
+             ENDDO
+         ELSEIF ( GDTYP_GD .EQ. POLGRD3 ) THEN
+             PRJSET = SETPOL( REAL(P_ALP_GD), REAL(P_BET_GD), REAL(P_GAM_GD),
+     &                         REAL(XCENT_GD), REAL(YCENT_GD))
+             DO V=1,NVERTEXT
+                 STATUS = LL2POL( VERTEXTLON(V), VERTEXTLAT(V), 
+     &                            IR, JR)
+                 VERTEXTIR(V) = IR
+                 VERTEXTJR(V) = JR
+             ENDDO
+         ELSEIF ( GDTYP_GD .EQ. EQMGRD3 ) THEN
+             PRJSET = SETEQM( REAL(P_ALP_GD), REAL(P_BET_GD), REAL(P_GAM_GD),
+     &                         REAL(XCENT_GD), REAL(YCENT_GD))
+             DO V=1,NVERTEXT
+                 STATUS = LL2EQM( VERTEXTLON(V), VERTEXTLAT(V), 
+     &                            IR, JR)
+                 VERTEXTIR(V) = IR
+                 VERTEXTJR(V) = JR
+             ENDDO
+         ELSEIF ( GDTYP_GD .EQ. TRMGRD3 ) THEN
+             PRJSET = SETTRM( REAL(P_ALP_GD), REAL(P_BET_GD), REAL(P_GAM_GD),
+     &                         REAL(XCENT_GD), REAL(YCENT_GD))
+             DO V=1,NVERTEXT
+                 STATUS = LL2TRM( VERTEXTLON(V), VERTEXTLAT(V), 
+     &                            IR, JR)
+                 VERTEXTIR(V) = IR
+                 VERTEXTJR(V) = JR
+             ENDDO
+         ELSEIF ( GDTYP_GD .EQ. ALBGRD3 ) THEN
+             PRJSET = SETALB( REAL(P_ALP_GD), REAL(P_BET_GD), REAL(P_GAM_GD),
+     &                         REAL(XCENT_GD), REAL(YCENT_GD))
+             DO V=1,NVERTEXT
+                 STATUS = LL2ALB( VERTEXTLON(V), VERTEXTLAT(V), 
+     &                            IR, JR)
+                 VERTEXTIR(V) = IR
+                 VERTEXTJR(V) = JR
+             ENDDO
+         ELSE
+
+             CALL M3EXIT( 'LATLON/MAKEGRD', 0, 0,
+     &                   'Unsupported coordinate system type', 2 )
+ 
+         END IF          !  if lat-lon, lambert, utm, or else if unsupported
+
+         END SUBROUTINE LONLAT2XY
 
        END MODULE VERTEXT_MODULE
