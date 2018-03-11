@@ -17,7 +17,7 @@ To clone code from the CMAQ Git repository, specify the branch (i.e. version num
 ```
 git clone -b 5.2 https://github.com/USEPA/CMAQ.git CMAQ_REPO
 ```
-The followoing release versions of CMAQ are currently available on Git Hub.  DOI values from Zenodo can be used when referencing a specific version.
+The followoing release versions of CMAQ are currently available on GitHub.  DOI values from Zenodo can be used when referencing a specific version. For up-to-date documentation, source code, and sample run scripts, please clone or download the CMAQ git repository available through GitHub rather than Zenodo.
  
 * [v5.2 (June 2017)](https://github.com/USEPA/CMAQ/tree/5.2) - [doi:10.5281/zenodo.1167892](https://zenodo.org/record/1167892) | [Users Guide](https://github.com/USEPA/CMAQ/blob/5.2/DOCS/User_Manual/README.md) | [Known Issues](https://github.com/USEPA/CMAQ/blob/5.2/DOCS/Known_Issues/README.md) | [Release Notes](https://github.com/USEPA/CMAQ/blob/5.2/CCTM/docs/Release_Notes/README.md) | [Tutorials](https://github.com/USEPA/CMAQ/tree/5.2/DOCS/Tutorials)
 * [v5.1   (December 2015)](https://github.com/USEPA/CMAQ/tree/5.1) - [doi:10.5281/zenodo.1079909](https://zenodo.org/record/1079909)
