@@ -347,7 +347,7 @@ C Calculate the changes in the layer J-,K-mode aerosol concentrations
       END IF
 
 C read & interpolate emissions data => VDEMIS_DIFF from EMIS_DEFN module
-      CALL GET_EMIS ( MDATE, MTIME, TSTEP, CONVPA, CGRID )
+      CALL GET_EMIS ( MDATE, MTIME, TSTEP, CGRID )
 
       IF ( LIPR ) THEN
          DO S = 1, N_SPC_DIFF

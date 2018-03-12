@@ -16,39 +16,39 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/work/rep/arc/CCTM/src/emis/emis/EMIS_DEFN.F,v 1.10 2011/10/21 16:10:46 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
-C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+!:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE EMIS_VARS
 
-C-----------------------------------------------------------------------
-C Function: Define global variables used for emissions processor
+!-----------------------------------------------------------------------
+! Function: Define global variables used for emissions processor
 
-C Revision History:
-C     09 Nov 2017 B.Murphy: Extracted these variables from EMIS_DEFN
-C-----------------------------------------------------------------------
+! Revision History:
+!     09 Nov 2017 B.Murphy: Extracted these variables from EMIS_DEFN
+!-----------------------------------------------------------------------
       IMPLICIT NONE
 
-      REAL,    ALLOCATABLE, SAVE :: VDEMIS( :,:,:,: )      ! total emissions array
-      REAL,    ALLOCATABLE, SAVE :: VDEMIS_DIFF( :,:,:,: ) ! emissions array mapped to diffused species
+      SAVE
 
-      INTEGER,              SAVE :: N_EM_SRC   ! global number of emissions sources
-      INTEGER,              SAVE :: N_FILE_GR, NPTGRPS, N_FILE_TR  
-      INTEGER,              SAVE :: N_EMIS_ISTR! global emissions species
-      INTEGER,              SAVE :: EMLAYS     ! no. of emis integration layers
-                                               ! EMLAYS must be .LE. NLAYS
+      REAL,    ALLOCATABLE :: VDEMIS( :,:,:,: )      ! total emissions array
+      REAL,    ALLOCATABLE :: VDEMIS_DIFF( :,:,:,: ) ! emissions array mapped to diffused species
+      REAL,    ALLOCATABLE :: VDEMIS_CONV( :,:,:,: ) ! emissions array for rates that have been 
+                                                     !   converted for proper inits in VDIFF module
+      REAL,    ALLOCATABLE :: VDEMIS_SCLD( :,:,:,: ) ! emissions array for rates that have been 
+                                                     !   scaled for input to CMAQ
 
-      CHARACTER( 16 ), ALLOCATABLE, SAVE :: EM_SPEC  ( : ) ! Vector of Internal CMAQ Species names for 
-                                                           ! each emission operation
-      REAL, ALLOCATABLE, SAVE            :: EM_FAC ( :,: ) ! Emissions Scale Factors ( species, source )
-      CHARACTER( 16 ), ALLOCATABLE, SAVE :: EM_SURR( :,: ) ! Emissions Surrogate to be read ( species, source )
+      INTEGER              :: N_EM_SRC   ! global number of emissions sources
+      INTEGER              :: N_FILE_GR, NPTGRPS, N_FILE_TR  
+      INTEGER              :: N_EMIS_ISTR! global emissions instructions
+      INTEGER              :: EMLAYS     ! no. of emis integration layers
+                                         ! EMLAYS must be .LE. NLAYS
+      INTEGER              :: N_EM_RGN   ! no. of region masks
+
+      CHARACTER( 16 ), ALLOCATABLE :: EM_SPEC  ( : ) ! Vector of Internal CMAQ Species names for 
+                                                     ! each emission operation
+      CHARACTER( 16 ), ALLOCATABLE :: EM_SURR( :,: ) ! Emissions Surrogate to be read ( species, source )
       
-      CHARACTER( 16 ), ALLOCATABLE, SAVE :: TRACSPC( : )   ! Variables from Tracer Emission File
-      CHARACTER( 16 ), ALLOCATABLE, SAVE :: AREASPC( : )   ! Variables straight from the Area Emission File
+      CHARACTER( 16 ), ALLOCATABLE :: TRACSPC( : )   ! Variables from Tracer Emission File
+      CHARACTER( 16 ), ALLOCATABLE :: AREASPC( : )   ! Variables straight from the Area Emission File
 
       TYPE EM_SURR_TYPE
           INTEGER         :: LEN    ! Length of Sub-Vector
@@ -58,34 +58,69 @@ C-----------------------------------------------------------------------
           CHARACTER( 16 ), ALLOCATABLE :: PHASE( : )  ! Default Destination Size Dist or Phase
           REAL,            ALLOCATABLE :: MW( : )     ! Default MW from SPECIATE/SMOKE/MOVE
       END TYPE EM_SURR_TYPE
-      TYPE( EM_SURR_TYPE ),ALLOCATABLE,SAVE :: EM_FILE_SURR( : )! Species to be read from each source file
+      TYPE( EM_SURR_TYPE ),ALLOCATABLE :: EM_FILE_SURR( : )! Species to be read from each source file
 
-      CHARACTER( 200 ),ALLOCATABLE, SAVE :: EM_FILE_NAME( : )! Filename of each emissions file
-      CHARACTER( 30  ),ALLOCATABLE, SAVE :: EM_FILE_LAB ( : )! Nickname of each emissions file
-      CHARACTER( 16  ),ALLOCATABLE, SAVE :: EM_FILE_TYPE( : )! shortname for the type of each emission
-      CHARACTER( 100 ),ALLOCATABLE, SAVE :: EM_FILE_DESC( : )! Description of each emissions file
+      TYPE EM_REG
+          CHARACTER( 32 ) :: LABEL
+          CHARACTER( 32 ) :: FILE
+          CHARACTER( 32 ) :: VAR
+          INTEGER         :: FILENUM
+      END TYPE EM_REG
+      TYPE( EM_REG ), ALLOCATABLE :: EM_REGIONS( : )
+      REAL, ALLOCATABLE           :: EM_REG_FAC( :,:,: )
 
-      INTEGER, SAVE :: IBIOSRC, IMGSRC, ILTSRC, ISEASRC, IDUSTSRC
-      INTEGER, ALLOCATABLE, SAVE :: IGSRC( : ), IPSRC( : ), ITSRC( : ), MAP_PTtoISRC( : )
+      TYPE EM_FAC_STRUCTURE
+          INTEGER              :: LEN     ! Number of scaling instructions that apply to this element of 
+                                          !   the EM_FAC_ST structure. The other attributes will be of 
+                                          !   length LEN.
+          REAL, ALLOCATABLE    :: FAC(:)  ! Scale Factor applied with potential aerosol splitting
+          REAL, ALLOCATABLE    :: BULK(:) ! Scale Factor for bulk emission without
+                                          !   splitting for aerosols
+          INTEGER, ALLOCATABLE :: REG(:)  ! Index Mapping this entry to a particlar region in EM_REGIONS
+          INTEGER, ALLOCATABLE :: OP(:)   ! Operation to perform for this scaling
+                                          !   (addition,'a' = 1, 
+                                          !    multiplication,'m' = 2, 
+                                          !    overwrite,'o' = 3)
+      END TYPE EM_FAC_STRUCTURE
+      TYPE( EM_FAC_STRUCTURE), ALLOCATABLE :: EM_FAC_ST ( :,: ) ! Emissions Scale Factors ( species, source )
+      CHARACTER( 1 ) :: EM_OP_NAME( 3 ) = (/'a','m','o'/)
+      
+      
+      CHARACTER( 200 ),ALLOCATABLE :: EM_FILE_NAME( : )! Filename of each emissions file
+      CHARACTER( 30  ),ALLOCATABLE :: EM_FILE_LAB ( : )! Nickname of each emissions file
+      CHARACTER( 16  ),ALLOCATABLE :: EM_FILE_TYPE( : )! shortname for the type of each emission
+      INTEGER,         ALLOCATABLE :: EM_FILE_ITYPE( : )! shortname for the type of each emission
+      CHARACTER( 100 ),ALLOCATABLE :: EM_FILE_DESC( : )! Description of each emissions file
 
-      INTEGER, ALLOCATABLE, SAVE :: MAP_EMtoSURR( :,: ), MAP_EMtoDIFF( : )
+      INTEGER              :: IBIOSRC, IMGSRC, ILTSRC, ISEASRC, IDUSTSRC
+      INTEGER, ALLOCATABLE :: IGSRC( : ), IPSRC( : ), ITSRC( : ), MAP_PTtoISRC( : )
 
-      CHARACTER( 16 ), ALLOCATABLE, SAVE :: EMIS_AER_UNITS( : )   ! Initialize Aerosol Units with no value
-      CHARACTER( 16 ), ALLOCATABLE, SAVE :: EMIS_GAS_UNITS( : )   ! Initialize Vapor Units with no value
-      REAL, ALLOCATABLE, SAVE :: CONVEM( : ), CONVEM_PM_MASS( : )
+      INTEGER, ALLOCATABLE :: MAP_EMtoSURR( :,: ), MAP_EMtoDIFF( : )
+
+      CHARACTER( 16 ), ALLOCATABLE :: EMIS_AER_UNITS( : )   ! Initialize Aerosol Units with no value
+      CHARACTER( 16 ), ALLOCATABLE :: EMIS_GAS_UNITS( : )   ! Initialize Vapor Units with no value
+      REAL, ALLOCATABLE            :: CONVEM( : ), CONVEM_PM_MASS( : )
      
       ! Define Data Structure for Storing Emission Control Namelist
       ! Options                               
-      TYPE EM_RULE
+      TYPE EM_RULE_REG
              CHARACTER( 16 ) :: SURR
              CHARACTER( 32 ) :: SRC
              CHARACTER( 16 ) :: SPEC
              CHARACTER( 16 ) :: PHASE
              REAL            :: FAC
              CHARACTER( 1  ) :: OP
-      END TYPE EM_RULE
-      INTEGER, PARAMETER  :: N_EM_RULE0 = 2000
+             CHARACTER( 32 ) :: REGION
+      END TYPE EM_RULE_REG
+      INTEGER, PARAMETER  :: N_EM_RULE_REG = 2000
    
+      TYPE REGIONS_REG
+             CHARACTER( 32 ) :: LABEL
+             CHARACTER( 32 ) :: FILE
+             CHARACTER( 32 ) :: VAR
+      END TYPE REGIONS_REG
+      INTEGER, PARAMETER  :: N_REGIONS_REG = 200
+
 
       LOGICAL :: Guard_BiogenicVOC   = .FALSE.
       LOGICAL :: Guard_MarineGas     = .FALSE.
@@ -231,7 +266,7 @@ C-----------------------------------------------------------------------
      &    emis_legend( 'PHGI         ' ,'APHG        ','FINE  ',0.2005)  /)
 
       CONTAINS
-C-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
       SUBROUTINE INTERPRET_EM_RULE_SRC( RULE_SRC0, EM_SRC_RULE )
 
 ! This subroutine analyzes the part of a rule identifying which sources
@@ -302,8 +337,16 @@ C-----------------------------------------------------------------------
  
       END SUBROUTINE INTERPRET_EM_RULE_SRC
 
-C-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
       SUBROUTINE CUSTOM_EM_RULES( N_EM_RULE, EM_NML )
+!
+!     This subroutine defines several hardcoded rules for emissions
+!     scaling that will apply by default. These include subtracting NH3
+!     from fertilizer emissions if BiDi is turned on, moving all
+!     sulfuric acid vapor to the particle phase upon emission and
+!     splitting up the coarse mode anthropogenic emissions mass into
+!     speciated compounds.
+!-----------------------------------------------------------------------
 
       USE DEPV_DEFN, ONLY: ABFLUX ! ammonia bidi flag
       USE AERO_DATA, ONLY: ACORSEM_ASO4_FAC, ACORSEM_ANO3_FAC,
@@ -313,7 +356,7 @@ C-----------------------------------------------------------------------
       IMPLICIT NONE
 
       INTEGER,         INTENT( INOUT ) :: N_EM_RULE
-      TYPE( EM_RULE ), INTENT( INOUT ) :: EM_NML( N_EM_RULE0  )
+      TYPE( EM_RULE_REG ), INTENT( INOUT ) :: EM_NML( N_EM_RULE_REG  )
 
       LOGICAL          :: SUBTRACT_FERTILIZER_NH3 = .FALSE.
  
@@ -355,7 +398,7 @@ C-----------------------------------------------------------------------
          EM_NML(N_EM_RULE)%SRC   = 'ALL'
          EM_NML(N_EM_RULE)%PHASE = 'COARSE'
          EM_NML(N_EM_RULE)%SURR  = 'PMC'
-         EM_NML(N_EM_RULE)%FAC   = acorsem_aso4_fac
+         EM_NML(N_EM_RULE)%FAC   = REAL( ACORSEM_ASO4_FAC, 4 ) 
          EM_NML(N_EM_RULE)%OP    = 'a' 
 
       !  Coarse-Mode Nitrate
@@ -364,7 +407,7 @@ C-----------------------------------------------------------------------
          EM_NML(N_EM_RULE)%SRC   = 'ALL'
          EM_NML(N_EM_RULE)%PHASE = 'COARSE'
          EM_NML(N_EM_RULE)%SURR  = 'PMC'
-         EM_NML(N_EM_RULE)%FAC   = acorsem_ano3_fac
+         EM_NML(N_EM_RULE)%FAC   = REAL( ACORSEM_ANO3_FAC, 4 )
          EM_NML(N_EM_RULE)%OP    = 'a' 
 
       !  Coarse-Mode Chloride
@@ -373,7 +416,7 @@ C-----------------------------------------------------------------------
          EM_NML(N_EM_RULE)%SRC   = 'ALL'
          EM_NML(N_EM_RULE)%PHASE = 'COARSE'
          EM_NML(N_EM_RULE)%SURR  = 'PMC'
-         EM_NML(N_EM_RULE)%FAC   = acorsem_acl_fac
+         EM_NML(N_EM_RULE)%FAC   = REAL( ACORSEM_ACL_FAC, 4 ) 
          EM_NML(N_EM_RULE)%OP    = 'a' 
 
       !  Coarse-Mode Water
@@ -382,7 +425,7 @@ C-----------------------------------------------------------------------
          EM_NML(N_EM_RULE)%SRC   = 'ALL'
          EM_NML(N_EM_RULE)%PHASE = 'COARSE'
          EM_NML(N_EM_RULE)%SURR  = 'PMC'
-         EM_NML(N_EM_RULE)%FAC   = acorsem_ah2o_fac
+         EM_NML(N_EM_RULE)%FAC   = REAL( ACORSEM_AH2O_FAC, 4 )
          EM_NML(N_EM_RULE)%OP    = 'a' 
  
       !  Anthropogenic Coarse-Mode Other
@@ -391,9 +434,117 @@ C-----------------------------------------------------------------------
          EM_NML(N_EM_RULE)%SRC   = 'ALL'
          EM_NML(N_EM_RULE)%PHASE = 'COARSE'
          EM_NML(N_EM_RULE)%SURR  = 'PMC'
-         EM_NML(N_EM_RULE)%FAC   = acorsem_renorm
+         EM_NML(N_EM_RULE)%FAC   = REAL( ACORSEM_RENORM, 4 )
          EM_NML(N_EM_RULE)%OP    = 'a' 
  
       END SUBROUTINE CUSTOM_EM_RULES
  
+!-----------------------------------------------------------------------
+      SUBROUTINE INIT_EMIS_REGIONS( RGN_NML )
+!
+!     This subroutine defines several hardcoded rules for emissions
+!     scaling that will apply by default. These include subtracting NH3
+!     from fertilizer emissions if BiDi is turned on, moving all
+!     sulfuric acid vapor to the particle phase upon emission and
+!     splitting up the coarse mode anthropogenic emissions mass into
+!     speciated compounds.
+!----------------------------------------------------------------------- 
+      USE GRID_CONF
+      USE UTILIO_DEFN
+
+      IMPLICIT NONE
+                                                     
+      TYPE( REGIONS_REG ) :: RGN_NML( N_REGIONS_REG )
+      INTEGER, PARAMETER :: NFILE0 = 200
+      CHARACTER( 32 )    :: FILENAMES( NFILE0 ) = ''
+      CHARACTER( 32 ) :: VNAME
+
+      INTEGER :: IRGN, NFILE, IDX, IFILE 
+      INTEGER :: GXOFF, GYOFF, ENDCOL, ENDROW, STARTCOL, STARTROW
+      INTEGER :: STDATE, STTIME
+      CHARACTER( 16 )    :: PNAME = "INIT_REGIONS"
+      CHARACTER( 250)    :: XMSG
+
+      ! Find the total number of regions to be processed
+      N_EM_RGN = 1  ! The first region is the entire domain
+      DO IRGN = 1,N_REGIONS_REG
+          IF ( RGN_NML( IRGN )%LABEL .EQ. '' ) EXIT
+          N_EM_RGN = N_EM_RGN + 1
+      END DO
+
+      ! Allocate Vectors and Arrays for Each Region
+      ALLOCATE( EM_REGIONS( N_EM_RGN ) )
+      
+      EM_REGIONS( 1 )%LABEL = 'EVERYWHERE'
+      EM_REGIONS( 1 )%FILE  = 'N/A'
+      EM_REGIONS( 1 )%VAR   = 'N/A'
+      EM_REGIONS( 1 )%FILENUM = 1
+      FILENAMES( 1 ) = 'N/A'
+         
+      ! Populate global Region properties structure. Also assign each
+      ! region a number according to the file it comes from. 1 =
+      ! domain-wide.
+      NFILE = 1
+      DO IRGN = 2,N_REGIONS_REG
+         EM_REGIONS( IRGN )%LABEL = RGN_NML( IRGN )%LABEL  ! Region Name
+         EM_REGIONS( IRGN )%FILE  = RGN_NML( IRGN )%FILE   ! Logical filename
+         EM_REGIONS( IRGN )%VAR   = RGN_NML( IRGN )%VAR    ! Variable from file 
+                                                           !   used to inform mask
+
+         IDX = INDEX1( EM_REGIONS( IRGN )%FILE, NFILE0, FILENAMES )
+         IF ( IDX .NE. 0 ) THEN
+           EM_REGIONS( IRGN )%FILENUM = IDX
+         ELSE
+           NFILE = NFILE + 1
+           EM_REGIONS( IRGN )%FILENUM = NFILE
+           FILENAMES( NFILE ) = EM_REGIONS( IRGN )%FILE
+         END IF                                                           
+      END DO
+      
+      ! Process each regiom by looping through the pertinent files, 
+      ! look up maps and save the data in a global array
+      ALLOCATE( EM_REG_FAC( NCOLS,NROWS,N_REGIONS_REG ) )
+      EM_REG_FAC = 0.0
+      EM_REG_FAC( :,:,1 ) = 1.0
+
+      DO IFILE = 1,NFILE
+        ! Get domain decomp info from the emissions file
+        CALL SUBHFILE ( FILENAMES( NFILE ), GXOFF, GYOFF,
+     &                  STARTCOL, ENDCOL, STARTROW, ENDROW )
+
+        ! Open input file
+        IF ( .NOT. OPEN3( FILENAMES( IFILE ), FSREAD3, PNAME ) ) THEN
+            XMSG = 'Could not open '// FILENAMES( IFILE ) // ' file'
+           CALL M3EXIT( PNAME, STDATE, STTIME, XMSG, XSTAT1 )
+        END IF
+
+        ! Retrieve File Header Information
+        IF ( .NOT. DESC3( FILENAMES( IFILE ) ) ) THEN
+            XMSG = 'Could not get ' // FILENAMES( IFILE ) // ' file description'
+           CALL M3EXIT( PNAME, STDATE, STTIME, XMSG, XSTAT1 )
+        END IF
+
+        ! Read data from regions file into region array 
+        DO IRGN = 2,N_REGIONS_REG
+            IF ( EM_REGIONS( IRGN )%FILENUM .EQ. IFILE ) THEN
+                VNAME = EM_REGIONS( IRGN )%VAR
+                IF ( .NOT. INTERPX( FILENAMES( IFILE ), VNAME, PNAME,
+     &               STARTCOL, ENDCOL, STARTROW, ENDROW, 1, 1,
+     &               SDATE3D, STIME3D, EM_REG_FAC( 1,1,IRGN ) ) )
+     &               CALL M3ERR( PNAME, SDATE3D, STIME3D,
+     &                   'Could not read ' // VNAME //
+     &                   'from ' // FILENAMES( IFILE ) // ' file', .TRUE. )
+            END IF
+        END DO
+
+        ! Close Regions File
+        IF ( .NOT. CLOSE3( FILENAMES( IFILE ) ) ) THEN
+          XMSG = 'Could not close ' // FILENAMES( IFILE )
+          CALL M3EXIT( PNAME, SDATE3D, STIME3D, XMSG, XSTAT1 )
+        END IF
+
+      END DO
+      
+      END SUBROUTINE INIT_EMIS_REGIONS
+
       END MODULE EMIS_VARS
