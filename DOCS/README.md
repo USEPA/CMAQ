@@ -2,7 +2,7 @@ CMAQv5.2.1 Documents
 ==================
 
 This directory contains the documentation for the [Community Multiscale Air Quality (CMAQ)](http://www.epa.gov/cmaq) modeling system
-The following documents are available for the CMAQ v5.2 release:
+The following documents are available for the CMAQ v5.2.1 release:
 
 - [Release Notes](../CCTM/docs/Release_Notes/README.md): Technical notes on the new features and science in this release of CMAQ.  Release notes can be found under CMAQ/CCTM/docs.
 
