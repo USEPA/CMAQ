@@ -127,22 +127,23 @@ Compiler flags:
 - GCC: -ffixed-form -ffixed-line-length-132 -O3 -funroll-loops -finit-character=32
 - Intel: -fixed -132 -O3 -override-limits -fno-alias -mp1 -fp-model precise -fp-model source -shared-intel -openmp
 
-<a id=Table5-1></a>
+
 ### Compilation Testing Manifest Table (Example)
-|**Scenario**|**Compiler**|**netCDF**|**I/O API**|**MPI_YN(#P)**|**MPI**|**CMAQv5.1 Timing(HH:MM:SS)**|**CMAQ New Project Timing(HH:MM:SS)**| Notes|
-|--------------|---------------|---------|---------|---------|-------------|---------------------------|------------------------------------|-------------------|
-|Gfortran Serial|Gfortran version 4.8.1| 4.3.3|3.1(11/15)|N|N/A|8:19:51|7:35:30|UNC module gcc/4.8.1|
-|Gfortran MVAPICH2|Gfortran version 4.8.1|4.3.2|3.1(11/15) |Y (16)|mvapich2-1.7|0:45:55|0:42:40| |
-|Intel Serial|Intel Fortran version 16.2.0 |4.3.2|3.1(11/15)|N |N/A |6:01:42|5:10:16|UNC module intel/16.2|
-|Intel OpenMPI (EPA Config)|Intel Fortran v15.0.0|4.3.2|3.1(11/15)|Y (16)|openMPI-1.42|0:34:27| |UNC module openmpi_intel/15.0|
-|Intel OpenMPI|Intel Fortran v16.2.0|4.3.2|3.1(11/15)|Y (16)|openMPI-1.4.2|0:35:29| |UNC module openmpi_intel/16.2| 
-|Intel MVAPICH2|Intel Fortran v16.2.0|4.3.2|3.1(11/15)|Y (16)|mvapich2-1.7|0:36:34| |UNC module mvapich2_intel/16.2| 
-|Portland Serial|PG Fortran v16.1|4.3.2|3.1(11/15)|N|N/A|7:33:36|6:26:31|UNC module pgi/16.1|
-|Portland OpenMPI|PGI Fortran v15.7|4.3.2|3.1(11/15)|Y (16)|openMPI-1.4.2|0:40:20|0:36:16|UNC module openmpi_pgi/15.7|
+|**Scenario**|**Compiler**|**netCDF**|**I/O API**|**MPI YN (#P)**|**MPI**|**CMAQv5.1 Timing (hh:mm:ss)**|**CMAQv5.2 Timing (hh:mm:ss)**| Notes|
+|--------------------|--------------------|----------------|----------------|---------|--------------------|---------------------------|------------------------------------|-------------------|
+|Gfortran Serial|Gfort version 4.8.1| 4.3.3|3.1|N|N/A|8:19:51|7:35:30|UNC module gcc/4.8.1|
+|Gfortran mvapich|Gfort version 4.8.1|4.3.2|3.1 |Y (16)|mvapich2 1.7|0:45:55|0:42:40| |
+|Intel Serial|Intel Fortran version 16.2.0 |4.3.2|3.1|N |N/A |6:01:42|5:10:16|UNC module intel/16.2|
+|Intel OpenMPI (EPA Config)|Intel Fortran v15.0.0|4.3.2|3.1|Y (16)|openMPI 1.42|0:34:27| |UNC module openmpi_intel/15.0|
+|Intel OpenMPI|Intel Fortran v16.2.0|4.3.2|3.1|Y (16)|openMPI 1.4.2|0:35:29| |UNC module openmpi_intel/16.2| 
+|Intel mvapich2|Intel Fortran v16.2.0|4.3.2|3.1|Y (16)|mvapich2 1.7|0:36:34| |UNC module mvapich2_intel/16.2| 
+|Portland Serial|PGI Fortran v16.1|4.3.2|3.1|N|N/A|7:33:36|6:26:31|UNC module pgi/16.1|
+|Portland OpenMPI|PGI Fortran v15.7|4.3.2|3.1|Y (16)|openMPI 1.4.2|0:40:20|0:36:16|UNC module openmpi_pgi/15.7|
+
 
 ## Appendix 2: Model Performance Test Metadata 
-|**Scenario**|**Description**|**Mechanism**|**Notes**|**Timing(16PE)H:MM:SS**|
-|----------------|-------------------|--------------------|--------------------|---------------------|
+|**Scenario**|**Description**|**Mechanism**|**Notes**|**Timing (16PE) hh:mm:ss**|
+|----------------|-------------------|---------------------------|--------------------|---------------------|
 |Benchmark Case|Online emissions processing, inline photolysis, inline lightning from MCIP RC, no windblown dust, surface HONO, bidirectional NH3 and Hg, no potential vorticity scaling|cb05e51_ae6_aq |Done; LTNGNO InLine, LTNGPARM = N, LOG_START = 2.0|0:40:20|
 |MOSAIC|Benchmark case with MOSAIC and additional stomatal flux files activated|cb05e51_ae6_aq |Done. set CTM_MOSAIC = Y; set CTM_FST = Y|0:44:02 |
 |Dust|Benchmark case with dust, including new MODIS FP input|cb05e51_ae6_aq|Done. setenv CTM_WB_DUST Y; setenv CTM_ERODE_AGLAND Y; setenv CTM_WBDUST_BELD BELD3 |0:38:28|
