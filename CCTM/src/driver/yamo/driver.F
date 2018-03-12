@@ -96,6 +96,7 @@ C                      that information into PIO_RE_INIT
 C   26 Jan 16 J.Young: Consolidate PIO_INIT, use keywords for optional arguments
 C   28 Jan 16 D.Wong:  Add SAVE attribute to TSTEP for the two-way model implementation
 C   16 Sep 16 J.Young: update for inline procan (IRR)
+C   29 Nov 17 D. Wong: removed all SWAP routines and replaced with SE_COMM
 C-----------------------------------------------------------------------
 
       USE PCGRID_DEFN           ! inherits GRID_CONF
@@ -114,7 +115,6 @@ C-----------------------------------------------------------------------
 
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_INIT_MODULE)
-      USE SWAP_SANDIA
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_INIT_MODULE)
 #endif
@@ -240,6 +240,7 @@ C-----------------------------------------------------------------------
          TSTEP( 3 ) = SEC2TIME( WRF_TSTEP )
          NSTEPS     = WRF_NSTEP
 
+         RUNLEN = ENVINT( 'CTM_RUNLEN', ' ', RUNLEN, STATUS )
          TOTAL_STEPS = TIME2SEC( RUNLEN ) / WRF_TSTEP
 #endif
 
@@ -305,7 +306,6 @@ C Initialize PARIO
 C Initialize stencil exchange
          CALL SE_INIT( NPROCS, NPCOL, NPROW, GL_NCOLS, GL_NROWS, NLAYS,
      &                 NSPCSD, MYPE, MNDIS, MEDIS, MSDIS, MWDIS )
-         CALL SWAP_INIT_SNL( NPCOL, NPROW )
 #ifdef verbose_driver
          write( logdev,* ) ' MYPE -> MNDIS:    ', mype, mndis
          write( logdev,* ) ' MYPE -> MEDIS:    ', mype, medis
