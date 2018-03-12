@@ -4,9 +4,13 @@
 
 ## Brief Description
 
+The pull request makes how combine evaluates species formula obey mathematical rule of operations, i.e., powers first, multiple/divide next, and add/subtract last. The exception is when the formula includes an conditional operator which has the highest rank in the order operations. Examples follow. When A and X equal 3, the current version of combine incorrectly evaluates A\*-X, A\*-X^2+A\*X^-2, A\*X^3, and -A\*X^3. The update version removes these errors.
+
+Changes also supplemented the functions available for creating a formula while added statements in the source code to prevent floating errors when using these functions. Note that FAVEG, FMAX, FMIN and FSTDEV functions are not new but were not previously documented. The READ file was updated with table describing both new and old functions.
 
 ## Significance and Impact
 
+The changes attempt to increase the ease and flexibility at creating formula in species definition files. 
 
 ## Affected Files:
 
