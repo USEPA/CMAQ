@@ -60,7 +60,7 @@ C External Functions:
 C Local variables:
 
       CHARACTER( 16 ) :: PNAME = 'OPEMIS'
-      CHARACTER( 96 ) :: XMSG
+      CHARACTER(200 ) :: XMSG
       CHARACTER( 16 ) :: UNITSCK
 
       LOGICAL ::   LAERO
@@ -147,23 +147,20 @@ C Open Gridded Emission Files (for gas chem, aerosols and non-reactive species)
             ! EMIS_VARS
             DO IVAR = 1,NVARS3D
               ! Check if Diffused Species are on the file list
-              V = INDEX1( VNAME3D( IVAR ), N_SPC_DIFF, DIFF_SPC )
               X = INDEX1( VNAME3D( IVAR ), N_MAP_EMIStoCMAQ, MAP_EMIStoCMAQ( : )%SURR )
-              IF ( V + X .NE. 0 ) THEN
+              IF ( X .NE. 0 ) THEN
                   ! A match has been found
                   UNITSCK = UNITS3D( IVAR )
                   CALL UPCASE( UNITSCK )
 
-                  LAERO = .FALSE.
-                  IF ( V .NE. 0 ) LAERO = DIFF_MASK_AERO( V )
-                  IF ( X .NE. 0 .OR. LAERO ) THEN
+                  IF ( MAP_EMIStoCMAQ( X )%PHASE .NE. 'GAS' ) THEN
                      ! Aerosol Species
                      IF ( EMIS_AER_UNITS( ISRC ) .EQ. 'NONE' ) 
      &                    EMIS_AER_UNITS( ISRC ) = UNITSCK
                      IF ( UNITSCK .NE. EMIS_AER_UNITS( ISRC ) ) THEN
-                         WRITE( XMSG, '(A,A,A,A,A)' ), 'The aerosol units for ', 
-     &                          EM_FILE_DESC( ISRC ),' are inconsistent: ',
-     &                          EMIS_AER_UNITS( ISRC ),' | ',UNITSCK
+                         WRITE( XMSG, '(A,A,A,A,A,A)' ), 'The aerosol units for ', 
+     &                          TRIM(EM_FILE_DESC( ISRC )),' are inconsistent: ',
+     &                          TRIM(EMIS_AER_UNITS( ISRC )),' | ',TRIM(UNITSCK)
                          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
                      END IF
 
@@ -176,9 +173,9 @@ C Open Gridded Emission Files (for gas chem, aerosols and non-reactive species)
                      IF ( EMIS_GAS_UNITS( ISRC ) .EQ. 'NONE' ) 
      &                    EMIS_GAS_UNITS( ISRC ) = UNITSCK
                      IF ( UNITSCK .NE. EMIS_GAS_UNITS( ISRC ) ) THEN
-                         WRITE( XMSG, '(A,A,A,A,A)' ), 'The gas units for ', 
-     &                          EM_FILE_DESC( ISRC ),' are inconsistent: ',
-     &                          EMIS_GAS_UNITS( ISRC ),' | ',UNITSCK
+                         WRITE( XMSG, '(A,A,A,A,A,A)' ), 'The gas units for ', 
+     &                          TRIM(EM_FILE_DESC( ISRC )),' are inconsistent: ',
+     &                          TRIm(EMIS_GAS_UNITS( ISRC )),' | ',TRIM(UNITSCK)
                          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
                      END IF
 
@@ -192,8 +189,8 @@ C Open Gridded Emission Files (for gas chem, aerosols and non-reactive species)
                            CONVEM( ISRC ) = 1.0E-3  ! mol/s -> kmol/s
                      ELSE
                          WRITE( XMSG, '(A,A,A,A,A)' ), 'The gas units for ', 
-     &                          EM_FILE_DESC( ISRC ),' are not expected: ',
-     &                          EMIS_GAS_UNITS( ISRC ),'. They should be MOLE/S.'
+     &                          TRIM(EM_FILE_DESC( ISRC )),' are not expected: ',
+     &                          TRIM(EMIS_GAS_UNITS( ISRC )),'. They should be MOLE/S.'
                          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
                      END IF
                    END IF

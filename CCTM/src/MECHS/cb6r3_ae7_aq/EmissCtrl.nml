@@ -122,15 +122,10 @@
 !                         module.
 !------------------------------------------------------------------------------!
 
-&SizeDistRules
+&SizeDistReg
  !         |    Source      | Surr. Mode   | Ref. Mode 
  SD_NML  =  'GRIDDED_EMIS'  ,'FINE'        ,'FINE_REF',
             'GRIDDED_EMIS'  ,'COARSE'      ,'COARSE_REF',
-            'POINT_NONEGU'  ,'FINE'        ,'GENERAL_FINE',
-            'POINT_EGU'     ,'FINE'        ,'BOILER',
-            'POINT_OTHER'   ,'FINE'        ,'FINE_OTHER',
-            'POINT_FIRES'   ,'FINE'        ,'FINE_FIRES',
-            'POINT_OILGAS'  ,'FINE'        ,'FINE_OIL',
 /
 
 

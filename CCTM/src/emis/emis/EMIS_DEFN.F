@@ -602,7 +602,7 @@ C-----------------------------------------------------------------------
 
          INTEGER, PARAMETER  :: N_SD_RULE = 200
          TYPE( SD_RULE ) :: SD_NML( N_SD_RULE )
-         NAMELIST / SizeDistRules / SD_NML 
+         NAMELIST / SizeDistReg / SD_NML 
 
 ! Retrieve Environment Variable Letting User Ignore this Check
 ! and allowing the model to proceed.
@@ -652,6 +652,10 @@ C-----------------------------------------------------------------------
          ! Species, default size distributions, and default molecular
          ! weights based on SMOKE/MOVES/SPECIATE guidelines
          DO ISRC = 1,N_EM_SRC
+            ALLOCATE( EM_FILE_SURR( ISRC )%CMAQ ( EM_FILE_SURR( ISRC )%LEN ) )
+            ALLOCATE( EM_FILE_SURR( ISRC )%PHASE( EM_FILE_SURR( ISRC )%LEN ) )
+            ALLOCATE( EM_FILE_SURR( ISRC )%MW   ( EM_FILE_SURR( ISRC )%LEN ) )
+
             DO ISUR = 1,EM_FILE_SURR( ISRC )%LEN
                B = EM_FILE_SURR( ISRC )%ARRY( ISUR )
                IA  = INDEX1( B, N_MAP_EMIStoCMAQ, MAP_EMIStoCMAQ( : )%SURR )
@@ -688,6 +692,8 @@ C-----------------------------------------------------------------------
 ! Set up Source <-> Size Distribution relationship. This routine
 ! populates the EM_SRC_SD structure which tells the logic below which
 ! modes are present on which sources.
+         REWIND( EMCTRL_NML )
+         READ( NML = SizeDistReg, UNIT = EMCTRL_NML )
          CALL EM_SD_INIT( SD_NML )
 
 ! Process Default Emissions Mapping (if requested in namelist; i.e. 
@@ -856,6 +862,7 @@ C-----------------------------------------------------------------------
          EM_NML%SURR = ''
          EM_NML%FAC  = 0.
          EM_NML%OP   = ''
+         REWIND( EMCTRL_NML )
          READ( NML = EmissionScaling, UNIT = EMCTRL_NML )
          CLOSE( UNIT = EMCTRL_NML )
          
@@ -900,7 +907,7 @@ C-----------------------------------------------------------------------
             ! First error check and expand the source field
             ! This subroutine returns a logical vector, EM_SRC_RULE,
             ! which identifies which sources are affected by this rule.
-            CALL INTERPRET_EM_RULE_SRC( EM_NML( IRULE )%SRC, EM_SRC_RULE )
+            CALL INTERPRET_EM_RULE_SRC( EM_NML( IRULE )%SRC, IRULE, EM_SRC_RULE )
 
             !------   ------   ------   ------   ------   ----  
             ! Now error check and expand the surrogate field

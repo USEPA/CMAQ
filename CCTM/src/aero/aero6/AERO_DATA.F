@@ -720,10 +720,11 @@ C Build mapping to CGRID for each species in the master AeroList
       Do spc = 1, n_aerolist
          ! Check to see if this species is in the namelist
          do m = 1,n_mode
-            if ( aerolist( spc )%bulkname .eq. 'ACORS'    .or.
-     &           aerolist( spc )%bulkname .eq. 'ASOIL'    .or.
-     &           aerolist( spc )%bulkname .eq. 'ASEACAT'  .or.
-     &           aerolist( spc )%bulkname .eq. 'ADE_CORS'     ) then
+            if ( m .eq. n_mode .and. 
+     &           (aerolist( spc )%bulkname .eq. 'ACORS'    .or.
+     &            aerolist( spc )%bulkname .eq. 'ASOIL'    .or.
+     &            aerolist( spc )%bulkname .eq. 'ASEACAT'  .or.
+     &            aerolist( spc )%bulkname .eq. 'ADE_CORS' )    ) then
               sn = aerolist( spc )%bulkname
             else
               sn = trim( aerolist( spc )%bulkname ) // modesuff( m )
@@ -792,21 +793,30 @@ C Build mapping to CGRID for each species in the master AeroList
          aerospc( spc )%visual_idx_large = aerolist( l )%visual_idx_large
          aerospc( spc )%om         = aerolist( l )%om         
          aerospc( spc )%optic_surr = aerolist( l )%optic_surr 
+         aerospc( spc )%name( : )  = ''
 
          ! Map mode-independent properties
          aerospc_mw( spc ) = mole_weight( l )
 
          Do n = 1,n_mode
-            ! Create Mode-Dependent Names
-            aerospc( spc )%name( n ) = trim( aerospc( spc )%bulkname ) // modesuff( n )
-
             ! Map the Modal-Dependent CGRID Pointers from AeroSpc to AeroList
             aerospc_map( spc, n ) = map_listtogrid( l, n )
 
-            ! Remove this Chemical/Mode Combination from the "missing"
-            ! list
-            aero_missing( spc,n ) = .False.
-
+            ! Remove this Chemical/Mode Combination from the "missing" list 
+            ! if it can be mapped to the cgrid list of variables
+            if ( aerospc_map( spc,n ) .ne. 0 ) then
+                aero_missing( spc,n ) = .False.
+                ! Create Mode-Dependent Names
+                if ( aerospc( spc )%bulkname .eq. 'ACORS'    .or.
+     &               aerospc( spc )%bulkname .eq. 'ASOIL'    .or.
+     &               aerospc( spc )%bulkname .eq. 'ASEACAT'  .or.
+     &               aerospc( spc )%bulkname .eq. 'ADE_CORS'     ) then
+                   aerospc( spc )%name( n ) = trim( aerospc( spc )%bulkname )
+                else
+                   aerospc( spc )%name( n ) = 
+     &                 trim( aerospc( spc )%bulkname ) // modesuff( n )
+                end if
+            end if
          End Do
 
       End Do

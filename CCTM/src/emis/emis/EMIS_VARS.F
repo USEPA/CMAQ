@@ -232,7 +232,7 @@ C-----------------------------------------------------------------------
 
       CONTAINS
 C-----------------------------------------------------------------------
-      SUBROUTINE INTERPRET_EM_RULE_SRC( RULE_SRC0, EM_SRC_RULE )
+      SUBROUTINE INTERPRET_EM_RULE_SRC( RULE_SRC0, IRULE, EM_SRC_RULE )
 
 ! This subroutine analyzes the part of a rule identifying which sources
 ! to affect and searches for the individual source, or, if the rule uses
@@ -245,9 +245,10 @@ C-----------------------------------------------------------------------
 
       CHARACTER(32), INTENT( IN ) :: RULE_SRC0
       CHARACTER(32)               :: RULE_SRC
-      LOGICAL, INTENT( INOUT )       :: EM_SRC_RULE( N_EM_SRC )
+      INTEGER, INTENT( IN )       :: IRULE
+      LOGICAL, INTENT( INOUT )    :: EM_SRC_RULE( N_EM_SRC )
 
-      INTEGER ISRC, IDX, LOGDEV, IRULE
+      INTEGER ISRC, IDX, LOGDEV
       CHARACTER( 200 ) :: XMSG
       CHARACTER( 16 )  :: PNAME = "EMIS_SPC_MAP"
       INTEGER  :: JDATE = 0

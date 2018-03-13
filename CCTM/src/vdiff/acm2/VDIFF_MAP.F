@@ -116,8 +116,9 @@ C Local variables:
          
          ALLOCATE ( DIFF_MAP( N_SPC_DIFF+1 ),
      &              DF2DV( N_SPC_DIFF+1 ),
+     &              DIFF_MW( N_SPC_DIFF+1 ),
     ! &              DF2EM( N_SPC_DIFF+1 ),
-     &              diff_spc( n_spc_diff ), stat = allocstat )
+     &              DIFF_SPC( N_SPC_DIFF+1 ), stat = allocstat )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating DIFF_MAP, DF2DV or DIFF_SPC'
             CALL M3WARN( PNAME, 0, 0, XMSG )
@@ -299,6 +300,9 @@ C Local variables:
          DIFF_MASK_AERO = .FALSE.
          DIFF_MASK_NR   = .FALSE.
          DIFF_MASK_TRAC = .FALSE.
+         DIFF_MAP = 0
+         DIFF_SPC = ""
+         DIFF_MW  = 0.
 
          S = 0
          DO V = 1, N_GC_TRNS

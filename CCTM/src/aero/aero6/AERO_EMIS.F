@@ -324,7 +324,6 @@ C *** Set up emissions size distribution arrays
            DO N = 1,N_MODE
               IF ( AERO_MISSING( ISPC,N ) ) THEN
                 SPLIT_ACCUM = SPLIT_ACCUM + EM_AERO_REF( IEM )%SPLIT( N )
-                SD_SPLIT( MAP_AEROtoDIFF( ISPC,N ),IEM ) = 0.0
               ELSE
                 SD_SPLIT( MAP_AEROtoDIFF( ISPC,N ),IEM ) = 
      &             EM_AERO_REF( IEM )%SPLIT( N ) + SPLIT_ACCUM
@@ -336,7 +335,6 @@ C *** Set up emissions size distribution arrays
            DO N = N_MODE,1,-1
               IF ( AERO_MISSING( ISPC,N ) ) THEN
                 SPLIT_ACCUM = SPLIT_ACCUM + EM_AERO_REF( IEM )%SPLIT( N )
-                SD_SPLIT( MAP_AEROtoDIFF( ISPC,N ),IEM ) = 0.0
               ELSE
                 SD_SPLIT( MAP_AEROtoDIFF( ISPC,N ),IEM ) = 
      &            EM_AERO_REF( IEM )%SPLIT( N ) + SPLIT_ACCUM
@@ -438,7 +436,7 @@ C-----------------------------------------------------------------------
        ! Now Modify those defaults or add new modes to desired sources
        DO IRULE = 1,N_SD_RULE
          ! Expand Size Distribution Rule to All Sources if Requested
-         CALL INTERPRET_EM_RULE_SRC( SD_NML( IRULE )%SRC, EM_SRC_RULE )
+         CALL INTERPRET_EM_RULE_SRC( SD_NML( IRULE )%SRC, IRULE, EM_SRC_RULE )
 
          ! Loop through sources, set defaults, and build map array
          DO ISRC = 1,N_EM_SRC
