@@ -124,6 +124,7 @@ C Emission rate of all aerosol species interpolated to current time
       INTEGER, ALLOCATABLE :: MAP_EMtoNUM ( : )  
       INTEGER, ALLOCATABLE :: MAP_EMtoSRF ( : )   
       INTEGER, ALLOCATABLE :: MAP_EMtoSD  ( :,: ) 
+      INTEGER, ALLOCATABLE :: MAP_AEROtoDIFF( :,: )     ! indices of aero species to CGRID
 
 C DUST_MAP   windblown dust emission rate index in DUSTOUTM
 
@@ -297,6 +298,16 @@ C *** Set up emissions size distribution arrays
 
          END DO
 
+       ! Map the Modal-Dependent Names to Transported Species
+       ALLOCATE ( MAP_AEROtoDIFF( N_AEROSPC, N_MODE ) )
+       DO ISPC = 1,N_AEROSPC
+         DO N = 1,N_MODE
+           MAP_AEROtoDIFF( ISPC, N ) = INDEX1( AEROSPC( ISPC )%name( N ), 
+     &                                 N_SPC_DIFF, DIFF_SPC )
+         END DO
+       END DO
+
+     
        ! Modify the reference emissions splits based on what transported 
        ! aerosol species are actually available. For exmaple, if the aerosol
        ! namelist only includes the accumulation mode (J) but not the 

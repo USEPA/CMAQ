@@ -221,7 +221,7 @@ C-----------------------------------------------------------------------
      &    emis_legend( 'DIESEL_PMOC  ' ,'ADE_OC      ','FINE  ',0.220 ),
      &    emis_legend( 'DIESEL_PMNO3 ' ,'ADE_NO3     ','FINE  ',0.062 ),
      &    emis_legend( 'DIESEL_PMSO4 ' ,'ADE_SO4     ','FINE  ',0.096 ),
-     &    emis_legend( 'DIESEL_PMC   ' ,'ADE_        ','COARSE',0.100 ),
+     &    emis_legend( 'DIESEL_PMC   ' ,'ADE_CORS    ','COARSE',0.100 ),
      &    emis_legend( 'CADMIUM_F    ' ,'ACD         ','FINE  ',0.1124),
      &    emis_legend( 'CADMIUM_C    ' ,'ACD         ','COARSE',0.1124),
      &    emis_legend( 'MANGANESE_F  ' ,'AMN_HAPS    ','FINE  ',0.0549),

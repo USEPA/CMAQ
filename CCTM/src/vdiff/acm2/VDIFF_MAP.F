@@ -75,10 +75,11 @@ C component flux output variables
       CONTAINS
 
 C-----------------------------------------------------------------------
-         FUNCTION VDIFF_MAP_INIT( N_SPC_DEPV  ) RESULT ( SUCCESS )
+         FUNCTION VDIFF_MAP_INIT( ) RESULT ( SUCCESS )
 
          USE CGRID_SPCS   ! CGRID species number and offsets
          USE UTILIO_DEFN
+         USE DEPV_DEFN, ONLY : N_SPC_DEPV
 
          IMPLICIT NONE
 
@@ -86,7 +87,6 @@ C Includes:
          INCLUDE SUBST_EMISPRM   ! Emissions processing control parameters
 
 C Arguments:
-         INTEGER, INTENT( IN ) :: N_SPC_DEPV ! no. of depv species
          LOGICAL SUCCESS
 
 C External Functions:
@@ -113,7 +113,7 @@ C Local variables:
          SUCCESS = .TRUE.
 
          N_SPC_DIFF = N_GC_TRNS + N_AE_TRNS + N_NR_TRNS + N_TR_DIFF
-
+         
          ALLOCATE ( DIFF_MAP( N_SPC_DIFF+1 ),
      &              DF2DV( N_SPC_DIFF+1 ),
     ! &              DF2EM( N_SPC_DIFF+1 ),

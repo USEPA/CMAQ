@@ -71,6 +71,7 @@ C model depositon velocites array by land use category
 
 C no. of deposition velocity model species
       INTEGER, SAVE :: N_SPC_DEPV
+      INTEGER, SAVE :: N_GAS_DEPV
 
 C ddep spc conversion factors
       REAL,    ALLOCATABLE, SAVE :: DD_CONV( : )
@@ -95,7 +96,7 @@ C flag for mosaic - luc specific deposition - stomatal flux only - within in-lin
       LOGICAL, SAVE :: FST = .FALSE.      
 
       PUBLIC DEPV, DEPVJ, DEPVJ_FST, N_SPC_DEPV, DD_CONV, PLDV, CMP,
-     &             ILDEPV, SFC_HONO, ABFLUX, MOSAIC, FST,
+     &             ILDEPV, SFC_HONO, ABFLUX, MOSAIC, FST, N_GAS_DEPV,
      &             DEPV_INIT, GET_DEPV
       PRIVATE
 
@@ -122,7 +123,6 @@ C flag for diagnostic DEPV file
       INTEGER, ALLOCATABLE, SAVE         :: AER_DEPV_SUR( : )
 
       INTEGER, SAVE :: NR_OFFSET            ! Offset to NR start in CGRID
-      INTEGER, SAVE :: N_GAS_DEPV
 
       REAL,    ALLOCATABLE, SAVE :: ADEPV( :,:,: )    ! Aerosol dep vel from
                                                                ! subroutine AERO_DEPV
@@ -249,9 +249,6 @@ C-----------------------------------------------------------------------
 
          SDATE = JDATE; STIME = JTIME
 
-         N_GAS_DEPV = N_GC_DEPV + N_NR_DEPV + N_TR_DEPV
-         N_SPC_DEPV = N_GAS_DEPV + N_AE_DEPV
-
          ALLOCATE ( DEPV( N_SPC_DEPV+1,NCOLS,NROWS ),
      &              PLDV( N_SPC_DEPV,NCOLS,NROWS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
@@ -259,6 +256,9 @@ C-----------------------------------------------------------------------
             CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
             SUCCESS = .FALSE.; RETURN
          END IF
+
+         N_GAS_DEPV = N_GC_DEPV + N_NR_DEPV + N_TR_DEPV
+         N_SPC_DEPV = N_GAS_DEPV + N_AE_DEPV
 
 C DEPVEL_GAS is used also for non-ILDEPV in the sgtot calculation
          ALLOCATE ( DEPVEL_GAS( N_GAS_DEPV,NCOLS,NROWS ), STAT = ALLOCSTAT )

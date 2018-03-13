@@ -622,7 +622,6 @@ C Mapping for loading from and unloading to CGRID array
       Integer, Allocatable :: aerospc_map( :,: )     ! indices of aero species to CGRID
       Integer              :: aeronum_map( n_mode )  ! indices of aero number variable to CGRID
       Integer              :: aerosrf_map( n_mode )  ! indices of aero surf area variable to CGRID
-      Integer, Allocatable :: map_aerotodiff( :,: )     ! indices of aero species to CGRID
 
 C Missing aerosol species map
       Logical, Allocatable :: aero_missing( :,: )  
@@ -721,7 +720,15 @@ C Build mapping to CGRID for each species in the master AeroList
       Do spc = 1, n_aerolist
          ! Check to see if this species is in the namelist
          do m = 1,n_mode
-            sn = trim( aerolist( spc )%bulkname ) // modesuff( m )
+            if ( aerolist( spc )%bulkname .eq. 'ACORS'    .or.
+     &           aerolist( spc )%bulkname .eq. 'ASOIL'    .or.
+     &           aerolist( spc )%bulkname .eq. 'ASEACAT'  .or.
+     &           aerolist( spc )%bulkname .eq. 'ADE_CORS'     ) then
+              sn = aerolist( spc )%bulkname
+            else
+              sn = trim( aerolist( spc )%bulkname ) // modesuff( m )
+            end if
+
             n = index1( sn, n_ae_spc, ae_spc )
 
             If ( n .Ne. 0 ) Then
@@ -764,7 +771,6 @@ C Build mapping to CGRID for each species in the master AeroList
       Allocate ( aerospc       ( n_aerospc ) )
       Allocate ( aerospc_mw    ( n_aerospc ) )
       Allocate ( aerospc_map   ( n_aerospc, n_mode ) )
-      Allocate ( map_aerotodiff( n_aerospc, n_mode ) )
       Allocate ( aerospc_conc  ( n_aerospc, n_mode ) )
       Allocate ( aero_missing  ( n_aerospc, n_mode ) )
       Allocate ( emwt_prof     ( n_aerospc, n_mode ) )
@@ -796,10 +802,6 @@ C Build mapping to CGRID for each species in the master AeroList
 
             ! Map the Modal-Dependent CGRID Pointers from AeroSpc to AeroList
             aerospc_map( spc, n ) = map_listtogrid( l, n )
-
-            ! Map the Modal-Dependent Names to Transported Species
-            map_aerotodiff( spc, n ) = index1( aerospc( spc )%name( n ), 
-     &                                 n_spc_diff, diff_spc )
 
             ! Remove this Chemical/Mode Combination from the "missing"
             ! list
