@@ -25,10 +25,14 @@ ifeq ($(COMPILER),INTEL)
 #CC = /usr/local/intel/ictce/3.2.2.013/cc/bin/intel64/icc
 FC = ifort
 CC = icc
-F_FLAGS = -fixed -132 -fp-model source -fpe0 -O3 -override-limits -check uninit -warn nounused -check bounds -check format -g -traceback -override-limits -fno-alias -mp1  -I . -g
-f_FLAGS = -fixed -132 -fp-model source -fpe0 -O3 -override-limits -check uninit -warn nounused -check bounds -check format -g -traceback -override-limits -fno-alias -mp1  -I . -g
-F90_FLAGS = -free -132 -fp-model source -fpe0 -O3 -override-limits -check uninit -warn nounused -check bounds -check format -g -traceback -override-limits -fno-alias -mp1  -I . -g
-f90_FLAGS = -free -132 -fp-model source -fpe0 -O3 -override-limits -check uninit -warn nounused -check bounds -check format -g -traceback -override-limits -fno-alias -mp1  -I . -g
+F_FLAGS = -fixed -132 -fp-model source -fpe0 -O3 -qoverride-limits -check uninit -warn nounused -check bounds -check format -g -traceback -fno-alias -mp1  -I . -g
+f_FLAGS = -fixed -132 -fp-model source -fpe0 -O3 -qoverride-limits -check uninit -warn nounused -check bounds -check format -g -traceback -fno-alias -mp1  -I . -g
+F90_FLAGS = -free -132 -fp-model source -fpe0 -O3 -qoverride-limits -check uninit -warn nounused -check bounds -check format -g -traceback -fno-alias -mp1  -I . -g
+f90_FLAGS = -free -132 -fp-model source -fpe0 -O3 -qoverride-limits -check uninit -warn nounused -check bounds -check format -g -traceback -fno-alias -mp1  -I . -g
+F_FLAGS = -fixed -132 -fp-model source -fpe0 -O0 -check uninit -warn nounused -check bounds -check format -g -traceback -fno-alias -mp1  -I . -g
+f_FLAGS = -fixed -132 -fp-model source -fpe0 -O0 -check uninit -warn nounused -check bounds -check format -g -traceback -fno-alias -mp1  -I . -g
+F90_FLAGS = -free -132 -fp-model source -fpe0 -O0 -check uninit -warn nounused -check bounds -check format -g -traceback  -fno-alias -mp1  -I . -g
+f90_FLAGS = -free -132 -fp-model source -fpe0 -O0  -check uninit -warn nounused -check bounds -check format -g -traceback -fno-alias -mp1  -I . -g
 C_FLAGS =  -O2  -DFLDMN=1
 #  LINK_FLAGS = $(myLINK_FLAG)
 LINK_FLAGS = -i-static
@@ -50,9 +54,9 @@ else
  # CC    = /usr/bin/gcc
     FC    = gfortran
     CC    = gcc
-   f_FLAGS       = -ffixed-form -ffixed-line-length-132 -funroll-loops -O3 -ffpe-trap=invalid,zero -g -finit-character=32 -I. -fbounds-check
+   f_FLAGS       = -ffixed-form -ffixed-line-length-132 -funroll-loops -O0 -ffpe-trap=invalid,zero -g -finit-character=32 -I. -fcheck=all -fbounds-check
    F_FLAGS       = $(f_FLAGS)
-   f90_FLAGS     = -cpp -ffree-form -ffree-line-length-none -funroll-loops -O3 -ffpe-trap=invalid,zero -g -finit-character=32 -I. -fbounds-check
+   f90_FLAGS     = -cpp -ffree-form -ffree-line-length-none -funroll-loops -O0 -ffpe-trap=invalid,zero -g -finit-character=32 -I. -fcheck=all -fbounds-check
    F90_FLAGS     = $(f90_FLAGS)
    C_FLAGS       = -O2 -DFLDMN -I /home/wdx/lib/x86_64/gcc/mpich/include
    LINKER        = $(FC)
