@@ -1,7 +1,7 @@
 #! /bin/csh -f
 
 # ====================== COMBINE Run Script ======================== 
-# Usage: run.combine.uncoupled.csh >&! combine_v52_uncoupled.log &                                
+# Usage: run.combine.uncoupled.csh >&! combine_v521_uncoupled.log &                                
 #
 # To report problems or request help with this script/program:     
 #             http://www.epa.gov/cmaq    (EPA CMAQ Website)
@@ -21,12 +21,12 @@
  source ./config_cmaq.csh
        
 #> Set the model version
- set VRSN = v52
+ set VRSN = v521
 
 #> Set General Parameters for Labeling the Simulation
  set MECH = cb6r3_ae6_aq          #> Mechanism ID
  set CASE = SE52BENCH
- set APPL = v52_intel_$CASE	  #> Application Name (e.g. Code version, compiler, gridname, emissions, etc.)
+ set APPL = v521_intel_$CASE	  #> Application Name (e.g. Code version, compiler, gridname, emissions, etc.)
 
 #> Set the build directory if this was not set above 
 #> (this is where the CMAQ executable is located by default).
