@@ -120,7 +120,7 @@ C-----------------------------------------------------------------------
       REAL               :: O3_TOGGLE_AVE          ! average of nonunity factors adjusting ozone extinction 
       REAL               :: O3_TOGGLE_MIN          ! Max of nonunity factors adjusting ozone extinction 
       REAL               :: COS85                  ! cosine of 85 degrees
- 
+  
       LOGICAL            :: ONLY_SOLVE_RAD             ! only compute fluxes     
       LOGICAL            :: OBEY_STRATO3_MINS = .TRUE. ! Has stratospheric O3 column not violated 
                                                        ! climatological minimums, yet?
@@ -1505,7 +1505,7 @@ C-----------------------------------------------------------------------
       REAL( 8 ) :: EXPON, EXPON0, EXPON1, DIVISR, TEMP, UP, DN
       REAL( 8 ) :: SSFC
 
-      REAL      :: MU1  ! reciprocal of constant from delta_Eddington method
+      REAL( 8 ) :: MU1  ! reciprocal of constant from delta_Eddington method
 
       INTEGER   :: ROW
       INTEGER   :: I, J
@@ -1542,10 +1542,10 @@ C-----------------------------------------------------------------------
 
       DO I = 1, NLAYER
          F = REAL( GU(I) * GU(I), 8 )
-         GI  (I) = ( GU(I) - F ) / ( 1.0D0 - F )
+         GI  (I) = ( REAL( GU(I), 8 ) - F ) / ( 1.0D0 - F )
          OMI (I) = ( 1.0D0 - F ) * REAL( OMU(I), 8 ) 
-     &           / ( 1.0D0 - REAL( OMU(I), 8 )  * F )
-         TAUN(I) = ( 1.0D0 - REAL( OMU( I ), 8 ) * F ) 
+     &           / ( 1.0D0 - REAL( OMU(I), 8 ) * F )
+         TAUN(I) = ( 1.0D0 - REAL( OMU(I), 8 ) * F ) 
      *           *  REAL( TAUU(I), 8)
       END DO
 
@@ -1611,7 +1611,7 @@ C-----------------------------------------------------------------------
 
          GAM1 =  ( 7.0D0 - OM * ( 4.0D0 + 3.0D0 * G ) ) * 0.25D0
          GAM2 = -( 1.0D0 - OM * ( 4.0D0 - 3.0D0 * G ) ) * 0.25D0
-         GAM3 =  ( 2.0D0 - 3.0D0 * G * MU ) * 0.25D0
+         GAM3 =  ( 2.0D0 - 3.0D0 * G * REAL( MU, 8 )  ) * 0.25D0
          GAM4 =  1.0D0 - GAM3
          MU1  =  2.0D0
 
@@ -1724,11 +1724,11 @@ C-----------------------------------------------------------------------
 
       ROW = MROWS
       I = NLAYER
-
-      A(ROW) = E1(I) - RSFC * E3(I)
-      B(ROW) = E2(I) - RSFC * E4(I)
+      F = REAL( RSFC, 8 )
+      A(ROW) = E1(I) - F * E3(I)
+      B(ROW) = E2(I) - F * E4(I)
       D(ROW) = 0.0D0
-      E(ROW) = SSFC - CUPTN(I) + REAL( RSFC, 8 ) * CDNTN(I)
+      E(ROW) = SSFC - CUPTN(I) + F * CDNTN(I)
 
 !***solve tri-diagonal matrix:
 
@@ -1746,16 +1746,16 @@ C-----------------------------------------------------------------------
       EDR(LEV) = MU * REAL( FDR(LEV) )
       EDN(LEV) = REAL( FDN0 )
       EUP(LEV) = REAL( Y(ROW) * E3(J) - Y(ROW + 1) * E4(J) + CUP(J) )
-      FDN(LEV) = EDN(LEV) * MU1
-      FUP(LEV) = EUP(LEV) * MU1
+      FDN(LEV) = EDN(LEV) * REAL( MU1 )
+      FUP(LEV) = EUP(LEV) * REAL( MU1 )
 
       DO 60, LEV = 2, NLAYER + 1
          FDR(LEV) = REAL( EXP( -TAUSLA(LEV-1) ) )
          EDR(LEV) = MU * FDR(LEV)
          EDN(LEV) = REAL( Y(ROW) * E3(J) + Y(ROW + 1) * E4(J) + CDNTN(J) )
          EUP(LEV) = REAL( Y(ROW) * E1(J) + Y(ROW + 1) * E2(J) + CUPTN(J) )
-         FDN(LEV) = EDN(LEV) * MU1 
-         FUP(LEV) = EUP(LEV) * MU1
+         FDN(LEV) = EDN(LEV) * REAL( MU1 )
+         FUP(LEV) = EUP(LEV) * REAL( MU1 )
 
          ROW = ROW + 2
          J = J + 1
