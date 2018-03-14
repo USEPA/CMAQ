@@ -160,7 +160,7 @@ C...check for open errors
         IF ( IOST .NE. 0) THEN
           MSG = 'Could not open ' // PHOTAB( IPHOT ) // ' data file'
           WRITE(*,*)MSG
-	    STOP
+          STOP
         END IF
 
         WRITE( 6, 2001 ) CQUNIT, CQFILE
@@ -183,12 +183,12 @@ C...check for read errors
           MSG = 'Errors occurred while reading PHOTID for ' //
      &           PHOTAB( IPHOT )
           WRITE(*,*)MSG
-	    STOP
+          STOP
         ELSE IF ( IOST .LT. 0) THEN
           MSG = 'Premature End of File reached while reading PHOTID for ' //
      &           PHOTAB( IPHOT )
           WRITE(*,*)MSG
-	    STOP
+          STOP
         END IF
 
 C...get type of data (e.g. centered, beginning, ending, or point wavelen
@@ -205,7 +205,7 @@ C...check for read errors
           MSG = 'Errors occurred while reading SPECTRA for ' //
      &           PHOTAB( IPHOT )
           WRITE(*,*)MSG
-	  STOP
+          STOP
         END IF
 
         IF ( SPECTRA_TYPE .EQ. '!' )THEN
@@ -219,6 +219,7 @@ C...check for read errors
 C...read the factor to multiply cross sectionS by
 
         READ( CQUNIT, 1005, IOSTAT = IOST ) FACTOR
+!       READ( CQUNIT, *, IOSTAT = IOST ) FACTOR
 
 
 C...check for read errors
@@ -227,7 +228,7 @@ C...check for read errors
           MSG = 'Errors occurred while reading FACTOR for ' //
      &           PHOTAB( IPHOT )
           WRITE(*,*)MSG
-	    STOP
+          STOP
         END IF
 
 
@@ -254,8 +255,8 @@ C...check for read errors
           IF ( IOST .GT. 0) THEN
             MSG = 'Errors occurred while reading WL,CS,QY for ' //
      &             PHOTAB( IPHOT )
-          WRITE(*,*)MSG
-	    STOP
+            WRITE(*,*)MSG
+            STOP
           END IF
 
 C...end loop if we reach EOF, otherwise continue looping
