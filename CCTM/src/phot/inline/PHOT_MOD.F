@@ -101,12 +101,17 @@ C-----------------------------------------------------------------------
       
       INTEGER, SAVE :: NEW_OPTICS_LOG
 
-      INTEGER, PARAMETER :: N_DIAG_WVL = 2         ! number of dianostic wavelengths
-      INTEGER, SAVE      :: DIAG_WVL( N_DIAG_WVL ) ! pointers to diagnostic wavelengths
+      INTEGER, SAVE              :: NLAYS_DIAG    ! number of layers for PHOTDIAG2 & 3 file, covering first to NLAYS_DIAG
+      INTEGER, SAVE              :: N_DIAG_WVL    ! number of diagnostic wavelengths in PHOTDIAG3 file
+      INTEGER, ALLOCATABLE, SAVE :: DIAG_WVL( : ) ! pointers to diagnostic wavelengths
+      
       INTEGER            :: N_TROPO_O3_TOGGLE      ! number of adjustments to ozone extinction 
       
-      REAL, ALLOCATABLE  :: ACTINIC_FLUX( :,: )    ! actinic fluxes, initially [Photons/(cm^2s)] then  [Watts/m^2] 
-      REAL, ALLOCATABLE  :: IRRADIANCE  ( :,: )    ! total downward irradiance [Watts/m^2]
+      REAL, ALLOCATABLE  :: BLKDZ( : )             ! layer thicknesses [ m ]
+      REAL, ALLOCATABLE  :: GAS_EXTINCTION( :,: )  ! extinction from gases per layer [1/m]
+      REAL, ALLOCATABLE  :: EXTINCTION    ( :,: )  ! total extinction per layer [1/m]
+      REAL, ALLOCATABLE  :: ACTINIC_FLUX  ( :,: )  ! actinic fluxes, initially [Photons/(cm^2s)] then  [Watts/m^2] 
+      REAL, ALLOCATABLE  :: IRRADIANCE    ( :,: )  ! total downward irradiance [Watts/m^2]
       REAL               :: REFLECTION             ! broad band reflection coefficient (diffuse) at model top 
       REAL               :: TRANSMISSION           ! broad band transmission coefficient (diffuse) at surface
       REAL               :: TRANS_DIRECT           ! broad band direct transmission coefficient at surface
@@ -114,7 +119,8 @@ C-----------------------------------------------------------------------
       REAL               :: TROPO_O3_TOGGLE        ! factor correcting tropospheric ozone column 
       REAL               :: O3_TOGGLE_AVE          ! average of nonunity factors adjusting ozone extinction 
       REAL               :: O3_TOGGLE_MIN          ! Max of nonunity factors adjusting ozone extinction 
-  
+      REAL               :: COS85                  ! cosine of 85 degrees
+ 
       LOGICAL            :: ONLY_SOLVE_RAD             ! only compute fluxes     
       LOGICAL            :: OBEY_STRATO3_MINS = .TRUE. ! Has stratospheric O3 column not violated 
                                                        ! climatological minimums, yet?
@@ -246,7 +252,6 @@ C-----------------------------------------------------------------------
 !     REAL DJ, DF
       REAL ZTOM                               ! top of model  [ m ]
       REAL, ALLOCATABLE, SAVE :: DSDH_TD( : ) ! slant path function from top down
-      REAL, ALLOCATABLE, SAVE :: BLKDZ( : )   ! layer thicknesses [ m ]
       REAL, ALLOCATABLE, SAVE :: DSDH( : )    ! slant path function
       REAL, SAVE              :: DSDH_TOP     ! slantpath function from ZTOM to ZTOA
 
@@ -293,7 +298,6 @@ C-----------------------------------------------------------------------
       REAL NBAR                 ! total number of air molecules [ # /cm**2 ]
                                 ! above top of model domain
 
-      REAL, SAVE :: COS85
 
 !***FSB Cloud properties.
 !***  FSB These properties are taken fro HU & Stamnes,1993,
@@ -336,8 +340,10 @@ C-----------------------------------------------------------------------
          ALLOCATE( CSZ( NLAYS,NWL,NPHOTAB ) )
          ALLOCATE( QYZ( NLAYS,NWL,NPHOTAB ) )
          
-         ALLOCATE( ACTINIC_FLUX( NLAYS,NWL ) )
-         ALLOCATE( IRRADIANCE  ( NLAYS,NWL ) )
+         ALLOCATE( GAS_EXTINCTION( NLAYS,NWL ) )
+         ALLOCATE( EXTINCTION    ( NLAYS,NWL ) )
+         ALLOCATE( ACTINIC_FLUX  ( NLAYS,NWL ) )
+         ALLOCATE( IRRADIANCE    ( NLAYS,NWL ) )
          
          ALLOCATE( DSDH_TD ( NLAYS+1 ),
      &             BLKDZ   ( NLAYS ),
@@ -367,7 +373,7 @@ C-----------------------------------------------------------------------
             CONV_WM2( IWL ) = 1.0E13 * ( PLANCK_C * LIGHT_SPEED ) / LAMDA
          END DO
 
-         COS85 = COS( 85.0 * PI180 )
+!         COS85 = COS( 85.0 * PI180 )
 
 !***get molecular scattering cross sections
 
@@ -379,13 +385,16 @@ C-----------------------------------------------------------------------
 
 !***initialize BLKRJ and other layer variables
 
-      BLKRJ         = 0.0
-      ACTINIC_FLUX  = 0.0
-      IRRADIANCE    = 0.0
-      REFLECTION    = 0.0
-      TRANSMISSION  = 0.0
-      TRANS_DIRECT  = 0.0
-      INSOLATION    = 0.0
+      BLKRJ          = 0.0
+      BLKDZ          = 0.0
+      GAS_EXTINCTION = 0.0
+      EXTINCTION     = 0.0
+      ACTINIC_FLUX   = 0.0
+      IRRADIANCE     = 0.0
+      REFLECTION     = 0.0
+      TRANSMISSION   = 0.0
+      TRANS_DIRECT   = 0.0
+      INSOLATION     = 0.0
       TROPO_O3_TOGGLE  = 1.0
       STRATO3_MINS_MET = .TRUE.
 !***Initialize sums or set default values for outputs: 
@@ -594,8 +603,11 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
             DTABS_M  = MAX( DTABS_M, SMALL )
             DTABS_A  = MAX( DTABS_A, SMALL )
 
+            GAS_EXTINCTION( II,IWL ) = BETA_M + AO3 + ANO2        ! gas extinction
+            EXTINCTION( II,IWL )     = BETA_M + BEXT + AO3 + ANO2 ! gas and aerosol extinction
+            
             IF ( CLOUDS( II ) ) THEN 
-
+     
                DT_CLOUD( L ) = ( CLOUD_LIQUID_EXT( II,IWL ) 
      &                       +   CLOUD_ICE_EXT( II,IWL )
      &                       +   CLOUD_AGGREG_EXT( II,IWL ) ) * BLKDZ( II )
@@ -616,7 +628,12 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
                END IF
                DT_CLOUD( L ) = DT_CLOUD( L ) * LAYERING_FACTOR
                DTSCAT_CLOUD  = DTSCAT_CLOUD  * LAYERING_FACTOR
-     
+ 
+               EXTINCTION( II,IWL ) = EXTINCTION( II,IWL )
+     &                              + ( CLOUD_LIQUID_EXT( II,IWL ) 
+     &                              +   CLOUD_ICE_EXT( II,IWL )
+     &                              +   CLOUD_AGGREG_EXT( II,IWL ) ) * LAYERING_FACTOR
+    
                TAU_SCAT_CLD = TAU_SCAT_CLD + DTSCAT_CLOUD
 
                IF ( DT_CLOUD( L ) .GT. 1.0E-6 ) THEN
@@ -637,6 +654,7 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
                ELSE 
                   OM_CLOUD = 1.0
                END IF
+
 
                IF ( DTSCAT_CLOUD .GT. 1.0E-6 ) THEN
                
@@ -766,6 +784,8 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
             TAUC_AERO( II,IWL ) = DT_AERO( L )  ! aerosol optical depth
             TAU_TOT  ( II,IWL ) = DTAU( L )     ! total optical depth
             TAU_CLOUD( II,IWL ) = DT_CLOUD( L ) ! cloud optical depth
+!***change extinction units from meters to Megameters
+            EXTINCTION( II,IWL ) = 1000.0 * EXTINCTION( II,IWL )
 
          END DO                 ! loop over layers
 

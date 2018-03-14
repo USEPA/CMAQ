@@ -51,7 +51,7 @@ C-----------------------------------------------------------------------
       USE PHOT_MET_DATA, ONLY:  USE_ACM_CLOUD ! Met and Grid data
       USE PHOT_MOD                            ! photolysis in-line routines and data
 
-      IMPLICIT NONE
+      IMPLICIT none
 
       INCLUDE SUBST_FILES_ID  ! file name parameters
 
@@ -68,7 +68,10 @@ C...Local variables
       CHARACTER( 96 )       :: XMSG = ' '
 
       INTEGER N, L, JWL, INCR     ! loop variables
+      INTEGER LOGDEV
 C-----------------------------------------------------------------------
+
+      LOGDEV   = INIT3()
 
 C...Try to open existing file for update
 
@@ -113,115 +116,110 @@ C...CSA Variables, Units and Descriptions for RJ_FILE
 
          N = 1
          VNAME3D( N ) = 'COSZENS'
-         UNITS3D( N ) = 'NONE'
+         UNITS3D( N ) = 'none'
          VDESC3D( N ) = 'Cosine of Solar Zenith Angle'
          VTYPE3D( N ) = M3REAL
 
          N = N + 1
          VNAME3D( N ) = 'OZONE_COLUMN'
          UNITS3D( N ) = 'DU'
-         VDESC3D( N ) = 'Total Ozone Column Density'
+         VDESC3D( N ) = 'Observed Total Ozone Column Density'
          VTYPE3D( N ) = M3REAL
 
          N = N + 1
          VNAME3D( N ) = 'TROPO_O3_COLUMN'
          UNITS3D( N ) = 'DU'
-         VDESC3D( N ) = 'Tropospheric Ozone Column Density'
+         VDESC3D( N ) = 'Predicted Tropospheric Ozone Column Density'
          VTYPE3D( N ) = M3REAL
 
          N = N + 1
          VNAME3D( N ) = 'JNO2'
          UNITS3D( N ) = '1/min'
-         VDESC3D( N ) = 'J-value for NO2'
+         VDESC3D( N ) = 'Photodissociation rate of NO2'
          VTYPE3D( N ) = M3REAL
 
          N = N + 1
          VNAME3D( N ) = 'JO3O1D'
          UNITS3D( N ) = '1/min'
-         VDESC3D( N ) = 'J-value for O3O1D'
+         VDESC3D( N ) = 'Photodissociation rate of ozone producing O(1D)'
          VTYPE3D( N ) = M3REAL
 
 
          N = N + 1
          VNAME3D( N ) = 'RESOLVED_CFRAC'
-         UNITS3D( N ) = 'NONE'
+         UNITS3D( N ) = 'none'
          VDESC3D( N ) = 'Resolved Cloud Fraction averaged over cloudy layers'
          VTYPE3D( N ) = M3REAL
 
          N = N + 1
          VNAME3D( N ) = 'RESOLVED_WBAR'
-         UNITS3D( N ) = 'G/M**3'
+         UNITS3D( N ) = 'g/m**3'
          VDESC3D( N ) = 'Resolved Cloud Hydrometeor Content averaged over cloudy layers'
          VTYPE3D( N ) = M3REAL
          
          IF( USE_ACM_CLOUD )THEN
              N = N + 1
              VNAME3D( N ) = 'SUBGRID_CFRAC'
-             UNITS3D( N ) = 'NONE'
+             UNITS3D( N ) = 'none'
              VDESC3D( N ) = 'Subgrid Cloud Fraction averaged over cloudy layers'
              VTYPE3D( N ) = M3REAL
 
              N = N + 1
              VNAME3D( N ) = 'SUBGRID_WBAR'
-             UNITS3D( N ) = 'G/M**3'
+             UNITS3D( N ) = 'g/m**3'
              VDESC3D( N ) = 'Subgrid Cloud Hydrometeor Content averaged over cloudy layers'
              VTYPE3D( N ) = M3REAL
          END IF             
 
          N = N + 1
          VNAME3D( N ) = 'TRANS_DIFFUSE'
-         UNITS3D( N ) = 'NONE'
+         UNITS3D( N ) = 'none'
          VDESC3D( N ) = 'broad band transmission coefficient for diffuse radiation at surface'
          VTYPE3D( N ) = M3REAL
 
          N = N + 1
          VNAME3D( N ) = 'TRANS_DIRECT'
-         UNITS3D( N ) = 'NONE'
+         UNITS3D( N ) = 'none'
          VDESC3D( N ) = 'broad band transmission coefficient for direct radiation at surface'
          VTYPE3D( N ) = M3REAL
  
          N = N + 1
          VNAME3D( N ) = 'REFLECTION'
-         UNITS3D( N ) = 'NONE'
+         UNITS3D( N ) = 'none'
          VDESC3D( N ) = 'broad band reflection coefficient at top of atmosphere'
          VTYPE3D( N ) = M3REAL
 
          N = N + 1
          VNAME3D( N ) = 'CLR_TRANS_DIF'
-         UNITS3D( N ) = 'NONE'
+         UNITS3D( N ) = 'none'
          VDESC3D( N ) = 'broad band diffuse transmission for clear sky at surface'
          VTYPE3D( N ) = M3REAL
 
          N = N + 1
          VNAME3D( N ) = 'CLR_TRANS_DIR'
-         UNITS3D( N ) = 'NONE'
+         UNITS3D( N ) = 'none'
          VDESC3D( N ) = 'broad band direct transmission for clear sky at surface'
          VTYPE3D( N ) = M3REAL
               
          N = N + 1
          VNAME3D( N ) = 'CLR_REFLECTION'
-         UNITS3D( N ) = 'NONE'
+         UNITS3D( N ) = 'none'
          VDESC3D( N ) = 'broad band reflection for clear sky at top of atmosphere'
          VTYPE3D( N ) = M3REAL
 
          N = N + 1
          VNAME3D( N ) = 'TROPO_O3_EXCEED'
-         UNITS3D( N ) = 'Rel. Fraction'
-         VDESC3D( N ) = 'Average Exceedance of modeled ozone column from max fraction of Total Column'
+         UNITS3D( N ) = 'none'
+         VDESC3D( N ) = 'Average Exceedance of modeled ozone column from max fraction of Total Column, '
+     &               // ' a relative fraction from total column.'         
          VTYPE3D( N ) = M3REAL
 
          N = N + 1
          VNAME3D( N ) = 'N_EXCEED_TROPO3'
-         UNITS3D( N ) = 'per TSTEP'
-         VDESC3D( N ) = 'Number of exceedances to tropospheric ozone column'
+         UNITS3D( N ) = 'none'
+         VDESC3D( N ) = '# of times predicted tropospheric ozone column exceeds observed total column '
+     &               // 'per file time step'          
          VTYPE3D( N ) = M3REAL
-
-!         N = N + 1
-!         VNAME3D( N ) = 'MIN_FRAC_STRATO3'
-!         UNITS3D( N ) = 'NONE'
-!         VDESC3D( N ) = 'Minimum fraction of total ozone column density above the top pressure level'
-!         VTYPE3D( N ) = M3REAL
-
 
 
          DO JWL = 1, NWL
@@ -233,67 +231,86 @@ C...assumes that lamba in nanometers is on order of 100 or less
             N = N + 1
             VNAME3D( N ) = 'ETOT_SFC_W' // TRIM( LAMBDA )
             UNITS3D( N ) = 'Watts/m**2'
-            VDESC3D( N ) = 'Total Downward Irradiance at sfc, '
+            VDESC3D( N ) = 'Total Downward Irradiance at surface at '
      &                   // TRIM( LAMBDA ) // ' nm'
             VTYPE3D( N ) = M3REAL
 
             N = N + 1
-            VNAME3D( N ) = 'TAU_AERO_W' // TRIM( LAMBDA )
-            UNITS3D( N ) = 'NONE'
-            VDESC3D( N ) = 'Aerosol Optical Depth, '
+            VNAME3D( N ) = 'AOD_W' // TRIM( LAMBDA )
+            UNITS3D( N ) = 'none'
+            VDESC3D( N ) = 'Aerosol Optical Depth at '
      &                   // TRIM( LAMBDA ) // ' nm'
             VTYPE3D( N ) = M3REAL
 
             N = N + 1
             VNAME3D( N ) = 'TAU_CLOUD_W' // TRIM( LAMBDA )
-            UNITS3D( N ) = 'NONE'
-            VDESC3D( N ) = 'Cloud Optical Depth, '
+            UNITS3D( N ) = 'none'
+            VDESC3D( N ) = 'Cloud Optical Depth at '
      &                   // TRIM( LAMBDA ) // ' nm'
             VTYPE3D( N ) = M3REAL
 #ifdef phot_debug
             N = N + 1
             VNAME3D( N ) = 'SSA_CLOUD_W' // TRIM( LAMBDA )
-            UNITS3D( N ) = 'NONE'
-            VDESC3D( N ) = 'Column Averaged Cloud Single Scattering Albedo, '
+            UNITS3D( N ) = 'none'
+            VDESC3D( N ) = 'Column Averaged Cloud Single Scattering Albedo at '
      &                   // TRIM( LAMBDA ) // ' nm'
             VTYPE3D( N ) = M3REAL
 
             N = N + 1
             VNAME3D( N ) = 'ASY_CLOUD_W' // TRIM( LAMBDA )
-            UNITS3D( N ) = 'NONE'
-            VDESC3D( N ) = 'Column Averaged Cloud Asymmetry Factor, '
+            UNITS3D( N ) = 'none'
+            VDESC3D( N ) = 'Column Averaged Cloud Asymmetry Factor at '
      &                   // TRIM( LAMBDA ) // ' nm'
             VTYPE3D( N ) = M3REAL
 #endif
             N = N + 1
             VNAME3D( N ) = 'TAU_TOT_W' // TRIM( LAMBDA )
-            UNITS3D( N ) = 'NONE'
-            VDESC3D( N ) = 'Total Optical Depth, '
+            UNITS3D( N ) = 'none'
+            VDESC3D( N ) = 'Total Optical Depth at'
      &                   // TRIM( LAMBDA ) // ' nm'
             VTYPE3D( N ) = M3REAL
 
             N = N + 1
             VNAME3D( N ) = 'TAUO3_TOP_W' // TRIM( LAMBDA )
-            UNITS3D( N ) = 'NONE'
-            VDESC3D( N ) = 'Optical Depth of O3 above model domain, '
+            UNITS3D( N ) = 'none'
+            VDESC3D( N ) = 'Optical Depth of O3 above model domain at '
      &                   // TRIM( LAMBDA ) // ' nm'
             VTYPE3D( N ) = M3REAL
 
             N = N + 1
             VNAME3D( N ) = 'ALBEDO_W' // TRIM( LAMBDA )
-            UNITS3D( N ) = 'NONE'
-            VDESC3D( N ) = 'Surface Albedo at the wavelength '
+            UNITS3D( N ) = 'none'
+            VDESC3D( N ) = 'Surface Albedo at the wavelength at '
      &                   // TRIM( LAMBDA ) // ' nm'
             VTYPE3D( N ) = M3REAL
 
          ENDDO
 
+         N = N + 1
+         VNAME3D( N ) = 'AOD_W550_ANGST' 
+         UNITS3D( N ) = 'none'
+         VDESC3D( N ) = 'Aerosol Optical Depth at'
+     &                // ' 550 nm based on an Angstrom Interpolation'
+            VTYPE3D( N ) = M3REAL
+
          NVARS3D = N
 
-         FDESC3D( 1 ) = 'Photolysis reactions diagnostics'
-         DO L = 2, MXDESC3
+         FDESC3D( 1 ) = 'Surface Values of Optical Inputs and Radiative Results '
+         FDESC3D( 2 ) = 'from the In-line calculation of Photolysis Rates '
+         FDESC3D( 3 ) = 'for the ' // TRIM( MECHNAME ) // ' photochemical mechanism '
+         DO L = 4, MXDESC3
             FDESC3D( L ) = ' '
          END DO
+
+!C...Write ascii table describing variables
+!         WRITE(LOGDEV,'(A)')'*PHOTDIAG1 File Contents'
+!         WRITE(LOGDEV,'(A)')'**Surface Values of Optical Inputs and Radiative '
+!     &                   // 'Results from the In-line calculation of Photolysis Rates '
+!         WRITE(LOGDEV,99950)
+!         WRITE(LOGDEV,99951)
+!         DO L = 1, NVARS3D
+!            WRITE(LOGDEV,99952)TRIM(VNAME3D( L )),TRIM(UNITS3D( L )),TRIM(VDESC3D( L ))
+!         END DO
 
 C...Open the 1st photolysis diagnostic file
 
@@ -303,7 +320,7 @@ C...Open the 1st photolysis diagnostic file
          END IF
 
       END IF
-
+    
 C...Try to open existing file for update
 
       IF ( .NOT. OPEN3( CTM_RJ_2, FSRDWR3, PNAME ) ) THEN
@@ -322,7 +339,7 @@ C...  the photolysis diagnostic file
 
          NCOLS3D = GL_NCOLS
          NROWS3D = GL_NROWS
-         NLAYS3D = NLAYS
+         NLAYS3D = NLAYS_DIAG
          NTHIK3D =     1
          GDTYP3D = GDTYP_GD
          P_ALP3D = P_ALP_GD
@@ -342,9 +359,12 @@ C...  the photolysis diagnostic file
             VGLVS3D( L ) = VGLVS_GD( L )
          END DO
 
-         FDESC3D( 1 ) = 'Photolysis rates file output'
-
-         DO N = 2, MXDESC3
+         FDESC3D( 1 ) = 'Three dimensional values of Photolysis rates '
+         FDESC3D( 2 ) = 'used to make predictions for the ' // TRIM( MECHNAME )
+         FDESC3D( 3 ) = 'photochemical mechanism from the In-line calculation.'
+         FDESC3D( 4 ) = 'Data files can be found in CMAQ repository under subdirectory,'
+         FDESC3D( 5 ) = 'UTIL/inline_phot_preproc/photolysis_CSQY_data'
+         DO N = 6, MXDESC3
             FDESC3D( N ) = ' '
          END DO
 
@@ -354,15 +374,77 @@ C...load data from photolysis reaction list
             VNAME3D( N ) = PHOTAB( N )
             VTYPE3D( N ) = M3REAL
             UNITS3D( N ) = '1/min'
-            VDESC3D( N ) = 'Photolysis rates for ' // VNAME3D(N)
+            VDESC3D( N ) = 'Photolysis rates calculated based on data file; ' // VNAME3D(N)
          END DO
 
-C...set pointers for diagnostic wavelengths for vertical profiles
-C...of optical depth and aerosol optics 
-
+         NVARS3D = NPHOTAB
          
-         N = NPHOTAB
+!C...Write ascii table describing variables
+!         WRITE(LOGDEV,'(A)')'*PHOTDIAG2 File Contents'
+!         WRITE(LOGDEV,'(A)')'**Three dimensionals values of Photolysis rates '
+!     &                   // 'used to make predictions from the In-line calculation '
+!     &                   // ' of Photolysis Rates '
+!         WRITE(LOGDEV,99950)
+!         WRITE(LOGDEV,99951)
+!         DO L = 1, NVARS3D
+!            WRITE(LOGDEV,99952)TRIM(VNAME3D( L )),TRIM(UNITS3D( L )),TRIM(VDESC3D( L ))
+!         END DO
 
+         IF ( .NOT. OPEN3( CTM_RJ_2, FSNEW3, PNAME ) ) THEN
+            XMSG = 'Could not create '// CTM_RJ_2 // ' file'
+            CALL M3EXIT ( PNAME, SDATE3D, STIME3D, XMSG, XSTAT1 )
+         END IF
+
+      END IF
+
+C...Try to open existing file for update
+
+      IF ( .NOT. OPEN3( CTM_RJ_3, FSRDWR3, PNAME ) ) THEN
+
+         XMSG = 'Could not open ' // CTM_RJ_3 // ' file for update - '
+     &        // 'try to open new'
+         CALL M3MESG ( XMSG )
+
+C...Set output file characteristics based on COORD.EXT and open
+C...  the photolysis diagnostic file
+
+         FTYPE3D = GRDDED3
+         SDATE3D = JDATE
+         STIME3D = JTIME
+         TSTEP3D = TSTEP
+
+         NCOLS3D = GL_NCOLS
+         NROWS3D = GL_NROWS
+         NLAYS3D = NLAYS_DIAG
+         NTHIK3D =     1
+         GDTYP3D = GDTYP_GD
+         P_ALP3D = P_ALP_GD
+         P_BET3D = P_BET_GD
+         P_GAM3D = P_GAM_GD
+         XORIG3D = XORIG_GD
+         YORIG3D = YORIG_GD
+         XCENT3D = XCENT_GD
+         YCENT3D = YCENT_GD
+         XCELL3D = XCELL_GD
+         YCELL3D = YCELL_GD
+         VGTYP3D = VGTYP_GD
+         VGTOP3D = VGTOP_GD
+         GDNAM3D = GRID_NAME  ! from HGRD_DEFN
+
+         DO L = 1, NLAYS3D + 1
+            VGLVS3D( L ) = VGLVS_GD( L )
+         END DO
+
+         FDESC3D( 1 ) = 'Three dimensionals values of Optical Inputs and Radiative'
+         FDESC3D( 2 ) = 'Results from the In-line photolysis calculation using the'
+         FDESC3D( 3 ) =  TRIM( MECHNAME ) // ' photochemical mechanism.'
+
+         DO N = 4, MXDESC3
+            FDESC3D( N ) = ' '
+         END DO
+         
+         N = 0
+         
          DO L = 1, N_DIAG_WVL
 
 C...assumes that lamba in nanometers is on order of 100 or less
@@ -373,48 +455,39 @@ C...assumes that lamba in nanometers is on order of 100 or less
 
             N = N + 1
             VNAME3D( N ) = 'AERO_SSA_W' // TRIM( LAMBDA )
-            UNITS3D( N ) = 'NONE'
+            UNITS3D( N ) = 'none'
             VDESC3D( N ) = 'Aerosol Single Scattering Albedo at '
      &                   // TRIM( LAMBDA ) // ' nm'
             VTYPE3D( N ) = M3REAL
 
             N = N + 1
             VNAME3D( N ) = 'AERO_ASYM_W' // TRIM( LAMBDA )
-            UNITS3D( N ) = 'NONE'
+            UNITS3D( N ) = 'none'
             VDESC3D( N ) = 'Aerosol Asymetry Factor at '
      &                   // TRIM( LAMBDA ) // ' nm'
             VTYPE3D( N ) = M3REAL
 
             N = N + 1
-            VNAME3D( N ) = 'TAU_W' // TRIM( LAMBDA )
-            UNITS3D( N ) = 'NONE'
-            VDESC3D( N ) = 'Optical Depth at bottom of layer for '
+            VNAME3D( N ) = 'EXT_W' // TRIM( LAMBDA )
+            UNITS3D( N ) = '1/Mm'
+            VDESC3D( N ) = 'Total Extinction of layer for '
      &                   // TRIM( LAMBDA ) // ' nm'
             VTYPE3D( N ) = M3REAL
 
+            N = N + 1
+            VNAME3D( N ) = 'GAS_EXT_W' // TRIM( LAMBDA )
+            UNITS3D( N ) = '1/Mm'
+            VDESC3D( N ) = 'Total Extinction from Rayleigh sctttering NO2 and O3 in layer for '
+     &                   // TRIM( LAMBDA ) // ' nm'
+            VTYPE3D( N ) = M3REAL
  
             N = N + 1
-            VNAME3D( N ) = 'TAU_AERO_W' // TRIM( LAMBDA )
-            UNITS3D( N ) = 'NONE'
-            VDESC3D( N ) = 'Aerosol Optical Depth at bottom of layer for '
+            VNAME3D( N ) = 'EXT_AERO_W' // TRIM( LAMBDA )
+            UNITS3D( N ) = '1/Mm'
+            VDESC3D( N ) = 'Aerosol Extinction in layer for '
      &                   // TRIM( LAMBDA ) // ' nm'
             VTYPE3D( N ) = M3REAL
             
-        END DO
-        
-         N = N + 1
-         VNAME3D( N ) = 'CFRAC_3D'
-         UNITS3D( N ) = 'NONE'
-         VDESC3D( N ) = 'Resolved Cloud Fraction in grid cell'
-         VTYPE3D( N ) = M3REAL
-        
-
-        DO JWL = 1, NWL
-
-C...assumes that lamba in nanometers is on order of 100 or less
-
-            WRITE( LAMBDA,'(I3.3)' ) INT( WAVELENGTH( JWL ) )
-
             N = N + 1
             VNAME3D( N ) = 'ACTINIC_FX_W' // TRIM( LAMBDA )
             UNITS3D( N ) = 'Watts/m**2'
@@ -423,17 +496,44 @@ C...assumes that lamba in nanometers is on order of 100 or less
             VTYPE3D( N ) = M3REAL
 
         END DO
+        
+         N = N + 1
+         VNAME3D( N ) = 'CFRAC_3D'
+         UNITS3D( N ) = 'none'
+         VDESC3D( N ) = 'Resolved Cloud Fraction in grid cell'
+         VTYPE3D( N ) = M3REAL
+
+         N = N + 1
+         VNAME3D( N ) = 'EXT_AERO_W550'
+         UNITS3D( N ) = '1/Mm'
+         VDESC3D( N ) = ' Aerosol Extinction of layer for '
+     &                // '550 nm based on an Angstrom Interpolation'
+         VTYPE3D( N ) = M3REAL
+        
 
         NVARS3D = N
 
-C...Open the 2nd photolysis diagnostic file
+!C...Write ascii table describing variables
+!         WRITE(LOGDEV,'(A)')'*PHOTDIAG3 File Contents'
+!         WRITE(LOGDEV,'(A)')'**Three dimensionals values of Optical Inputs and Radiative '
+!     &                    // 'Results from the In-line photolysis calculation.'
+!         WRITE(LOGDEV,99950)
+!         WRITE(LOGDEV,99951)
+!         DO L = 1, NVARS3D
+!            WRITE(LOGDEV,99952)TRIM(VNAME3D( L )),TRIM(UNITS3D( L )),TRIM(VDESC3D( L ))
+!         END DO
 
-         IF ( .NOT. OPEN3( CTM_RJ_2, FSNEW3, PNAME ) ) THEN
-            XMSG = 'Could not create '// CTM_RJ_2 // ' file'
+C...Open the 3rd photolysis diagnostic file
+
+         IF ( .NOT. OPEN3( CTM_RJ_3, FSNEW3, PNAME ) ) THEN
+            XMSG = 'Could not create '// CTM_RJ_3 // ' file'
             CALL M3EXIT ( PNAME, SDATE3D, STIME3D, XMSG, XSTAT1 )
          END IF
 
       END IF
+99950    FORMAT('|Variable Name|Units|Description                                   |')         
+99951    FORMAT('|:----|:----:|:---------------------------------------------|')
+99952    FORMAT('|', A16, '|', A16, '|', A, '|')
 
       RETURN
 
