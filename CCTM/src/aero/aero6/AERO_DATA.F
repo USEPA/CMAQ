@@ -304,24 +304,20 @@ C                     ---------- -------- ------- + + +   + ------ --- +  ------
           Real            :: dgvem( n_mode )  ! meters
           Real            :: sgem ( n_mode )  ! dimensionless
       END TYPE em_aero
-      INTEGER, PARAMETER  :: n_em_aero_ref = 5
+      INTEGER, PARAMETER  :: n_em_aero_ref = 6
 
       TYPE( em_aero ), Parameter :: em_aero_ref( n_em_aero_ref ) = (/
 
 !              ----Name---- -----Split-----    ---Geo. Mean Diameter---    ---Stnd Dev.---
-     & em_aero('FINE_REF  ',(/0.1,0.9,0.0/)  ,(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)),
-     & em_aero('ACC_REF   ',(/0.0,1.0,0.0/)  ,(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)),
-     & em_aero('COARSE_REF',(/0.0,0.0,1.0/)  ,(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)),
-     & em_aero('ZERO_REF  ',(/0.0,0.0,0.0/)  ,(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)),
-     & em_aero('WB_DUST   ',(/0.0,0.07,0.93/),(/0.06E-6,1.391E-6,5.26E-6/),(/1.7,2.0,2.0/))
+     & em_aero('FINE_REF  ',(/0.1,0.9,0.0/)  ,(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)), ! Accum and Aitken Mode
+     & em_aero('ACC_REF   ',(/0.0,1.0,0.0/)  ,(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)), ! Just Accumulation Mode
+     & em_aero('COARSE_REF',(/0.0,0.0,1.0/)  ,(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)), ! Just Coarse Mode
+     & em_aero('UNITY_REF ',(/1.0,1.0,1.0/)  ,(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)), ! Used for online sectors (e.g. SeaSpray)
+     & em_aero('ZERO_REF  ',(/0.0,0.0,0.0/)  ,(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)), ! Zero out the emissions
+     & em_aero('WB_DUST   ',(/0.0,0.07,0.93/),(/0.06E-6,1.391E-6,5.26E-6/),(/1.7,2.0,2.0/))  ! Default Dust Parameterization. Currently,
+                                                                                             !  these values are hard-coded in the dust 
+                                                                                             !  routine.
      & /)
-
-      Integer, Parameter :: SD_Fine_Default_Ref = 1   ! Point default fine modes to 'FINE_REF'
-      Integer, Parameter :: SD_Coarse_Default_Ref = 3 ! Point default coarse modes to 'COARSE_REF'
-
-      ! Variable Needed For Mapping Aerosol Emissions to Size
-      ! Distributions
-      REAL, Allocatable :: EMWT_PROF( :,: )  ! [ n_aerospc, 
 
 ! Primary Organic Aerosol Volatility Distributions
       !Integer, Parameter :: n_vbs_bin = 5
@@ -420,6 +416,9 @@ C                                                    Aitken  accum   coarse
       Real, Parameter :: dust_dens( n_mode ) = (/ 2200.0, 2156.55, 2536.92 /)
 
       INTEGER, ALLOCATABLE, SAVE :: MAP_DUSTtoAERO( : ) 
+      Real, ALLOCATABLE, SAVE    :: DUSTOUTM( :,:,:,: ) ! Wind-Blown Dust Mass Emiss Rate [ug/m3/s]
+      Real, ALLOCATABLE, SAVE    :: DUSTOUTN( :,:,: )   ! Wind-Blown Dust Number Emiss Rate [1/m3/s]
+      Real, ALLOCATABLE, SAVE    :: DUSTOUTS( :,:,: )   ! Wind-Blown Dust Surface Area Emiss Rate [m2/m3/s]
 
 C Sea-Spray Aerosol Speciation factors based on seawater composition:
 ! For toxic metal species, Use Table 1 in K.W. Bruland and M.C. Lohan, 6.02 - Controls of Trace Metals in Seawater, 
@@ -774,7 +773,6 @@ C Build mapping to CGRID for each species in the master AeroList
       Allocate ( aerospc_map   ( n_aerospc, n_mode ) )
       Allocate ( aerospc_conc  ( n_aerospc, n_mode ) )
       Allocate ( aero_missing  ( n_aerospc, n_mode ) )
-      Allocate ( emwt_prof     ( n_aerospc, n_mode ) )
 
       aero_missing( :,: ) = .True.
 

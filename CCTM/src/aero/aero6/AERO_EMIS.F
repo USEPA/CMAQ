@@ -79,7 +79,7 @@ C aerosol emissions: [ppmv/s] for mass & number spcs, [m2/mol/s] for surface are
       LOGICAL              :: WB_DUST   ! flag for windblown dust option
 
       PUBLIC EMISS_SIZE_DIST, AERO_EMIS_INIT,
-     &       MAP_AEROtoEM, MAP_EMtoAERO, MAP_EMtoMODE, MAP_NUMtoEM, MAP_SRFtoEM,
+     &       MAP_EMtoAERO, MAP_EMtoMODE, MAP_NUMtoEM, MAP_SRFtoEM,
      &       MAP_EMtoNUM, MAP_EMtoSRF, MAP_EMtoSD, EM_SRC_SD, SD_SPLIT,
      &       CTM_WB_DUST, WB_DUST, CELLVOL, CELLHGT, EM_SD_INIT, SD_RULE
       PRIVATE
@@ -116,7 +116,6 @@ C Variables for the thickness and volume of each grid cell
       REAL,    ALLOCATABLE :: CELLVOL( : ) ! grid-cell volume [m2*sigma]
  
 C Emission rate of all aerosol species interpolated to current time
-      INTEGER, ALLOCATABLE :: MAP_AEROtoEM( :,: )   
       INTEGER, ALLOCATABLE :: MAP_EMtoAERO( : )   
       INTEGER, ALLOCATABLE :: MAP_EMtoMODE( : )   
       INTEGER, ALLOCATABLE :: MAP_NUMtoEM ( : )  
@@ -354,8 +353,7 @@ C *** Allocate memory for EMBUFF, CELLHGT, CELLVOL, and CONVEM_PM
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
          
-         ALLOCATE ( MAP_AEROtoEM( N_AEROSPC, N_MODE ),
-     &              MAP_NUMtoEM ( N_MODE ),
+         ALLOCATE ( MAP_NUMtoEM ( N_MODE ),
      &              MAP_SRFtoEM ( N_MODE ), STAT = STATUS )
          IF ( STATUS .NE. 0 ) THEN
             XMSG = '*** memory allocation failed for '
@@ -409,28 +407,33 @@ C-----------------------------------------------------------------------
        
        INTEGER                          :: N_SD_RULE
        TYPE( SD_RULE ), INTENT( IN )    :: SD_NML( : )
-       CHARACTER( 20 )                  :: SD_FINE = 'FINE_REF'
-       CHARACTER( 20 )                  :: SD_COARSE = 'COARSE_REF'
        INTEGER                          :: N_SD( N_EM_SRC )
        CHARACTER( 16 )                  :: SD_NAME( N_EM_SRC, 10 )
        INTEGER                          :: SD( N_EM_SRC, 10 )
        LOGICAL                          :: EM_SRC_RULE( N_EM_SRC )
        CHARACTER( 16 )                  :: CSUR
 
-       INTEGER IRULE, ISUR, N, NLEN, ISD, IM, IEM
+       INTEGER IRULE, ISUR, N, NLEN, ISD, IM, IEM, NRULE
        
+       ! Find Total Number of Size Distribution Registries
        N_SD_RULE = SIZE( SD_NML )
-       CALL UPCASE( SD_FINE )
-       CALL UPCASE( SD_COARSE )
+       NRULE = 0
+       DO IRULE = 1,N_SD_RULE
+          IF ( SD_NML( IRULE )%SRC .EQ. '' ) EXIT
+          NRULE = NRULE + 1
+       END DO
+       N_SD_RULE = NRULE
 
-       ! First Load all of the Sources with the Default FINE and COARSE
-       ! Mode references
+       ! First Load all of the Sources with the Default FINE, COARSE, and
+       ! AERO Mode references
        DO ISRC = 1,N_EM_SRC
-         N_SD( ISRC ) = 2
+         N_SD( ISRC ) = 3
          SD_NAME( ISRC,1 ) = 'FINE'
-         SD( ISRC,1 ) = INDEX1( SD_FINE, N_EM_AERO_REF, EM_AERO_REF( : )%NAME )
+         SD( ISRC,1 ) = INDEX1( 'FINE_REF',   N_EM_AERO_REF, EM_AERO_REF( : )%NAME )
          SD_NAME( ISRC,2 ) = 'COARSE'
-         SD( ISRC,2 ) = INDEX1( SD_COARSE, N_EM_AERO_REF, EM_AERO_REF( : )%NAME )
+         SD( ISRC,2 ) = INDEX1( 'COARSE_REF', N_EM_AERO_REF, EM_AERO_REF( : )%NAME )
+         SD_NAME( ISRC,3 ) = 'AERO'
+         SD( ISRC,3 ) = INDEX1( 'UNITY_REF',   N_EM_AERO_REF, EM_AERO_REF( : )%NAME )
        END DO
        
        ! Now Modify those defaults or add new modes to desired sources
@@ -450,6 +453,10 @@ C-----------------------------------------------------------------------
                ELSEIF ( SD_NML( IRULE )%MODE .EQ. 'COARSE' ) THEN
                    ! Overwrite the COARSE mode
                    SD( ISRC,2 ) = INDEX1( SD_NML( IRULE )%MODE_REF,
+     &                               N_EM_AERO_REF, EM_AERO_REF( : )%NAME )
+               ELSEIF ( SD_NML( IRULE )%MODE .EQ. 'AERO' ) THEN
+                   ! Overwrite the COARSE mode
+                   SD( ISRC,3 ) = INDEX1( SD_NML( IRULE )%MODE_REF,
      &                               N_EM_AERO_REF, EM_AERO_REF( : )%NAME )
                ELSE
                    ! Add a New Available Mode
@@ -481,11 +488,11 @@ C-----------------------------------------------------------------------
 
           ! Map Factors for Converting Aerosol Mass to Number and
           ! Surface Area to each Emission Source
-          DO ISD = 1,N
+          DO ISD = 2,N+1
              IEM = EM_SRC_SD( ISRC )%REF( ISD )
              DO IM = 1,N_MODE
-                 EM_SRC_SD( ISRC )%FACNUM( ISD+1,IM ) = FACNUM( IEM,IM ) 
-                 EM_SRC_SD( ISRC )%FACSRF( ISD+1,IM ) = FACSRF( IEM,IM )
+                 EM_SRC_SD( ISRC )%FACNUM( ISD,IM ) = FACNUM( IEM,IM ) 
+                 EM_SRC_SD( ISRC )%FACSRF( ISD,IM ) = FACSRF( IEM,IM )
              END DO
           END DO
       END DO
@@ -515,7 +522,7 @@ C ----------------------------------------------------------------------
          REAL,    INTENT( INOUT )  :: VDEMIS_AE( :,:,:,: )
          INTEGER, INTENT( IN    )  :: ISRC
 
-         INTEGER :: N, S, IAERO, IM, ISPC, ISD, ISTR   ! Looping Variables
+         INTEGER :: N, S, IAERO, IM, ISD, ISTR   ! Looping Variables
          INTEGER :: ROW, COL, LAY, N_SD
          REAL    :: WT
          REAL, ALLOCATABLE :: EMISM3( :,:,:,:,: ), GSFAC( :,:,: )
@@ -543,22 +550,29 @@ C     Also calculate scaling factors for converting to molar-mixing-ratio units
  
 C *** Apply Aerosol Size Distribution
          DO ISTR = 1,N_EMIS_ISTR
+             ! Find which Size Distribution or Phase this emissions species belongs 
+             ! to for this source. If the value is a 0, then there are no emissions 
+             ! for this species from this source. If it is a 1, then this species is
+             ! a gas and the following aerosol conversions should be skipped.
+             ISD   = MAP_EMtoSD( ISTR,ISRC )
+             IF ( ISD .LE. 1 ) CYCLE
+             
+             ! Look up Aerosol Species and Mode of Interest
              IAERO = MAP_EMtoAERO( ISTR )   !This maps to the CMAQ aerosol
                                             !  species so we can retrieve density
-             IM    = MAP_EMtoMODE( ISTR )   !This maps to the internal CMAQ modes (ie. I, J, and K)
-             ISD   = MAP_EMtoSD( ISTR,ISRC )!This maps to the emissions modes defined for each source
-             IF ( IAERO .EQ. 0 ) CYCLE
-             
+             IM    = MAP_EMtoMODE( ISTR )   !This maps to the internal CMAQ modes 
+                                            !  (ie. I, J, and K)
+
              ! Convert Aerosol from [kg/m3/s] to [ug/m3/s]
-             VDEMIS_AE( ISPC,:,:,: ) = VDEMIS_AE( ISPC,:,:,: ) * GSFAC( :,:,: )
+             VDEMIS_AE( ISTR,:,:,: ) = VDEMIS_AE( ISTR,:,:,: ) * GSFAC( :,:,: )
 
              ! Sum Total Volume of Mode N [m3/m3/s]
              IF ( .NOT. AEROSPC( IAERO )%TRACER ) 
      &             EMISM3( :,:,:,IM,ISD ) = EMISM3( :,:,:,IM,ISD ) + 
-     &                  VDEMIS_AE( ISPC,:,:,: ) * ( F6DPIM9 / AEROSPC( IAERO )%DENSITY )
+     &                  VDEMIS_AE( ISTR,:,:,: ) * ( F6DPIM9 / AEROSPC( IAERO )%DENSITY )
 
              ! Convert Mass Emission Rates from [ug/m3/s] to [umol/m3/s]
-             VDEMIS_AE( ISPC,:,:,: ) = VDEMIS_AE( ISPC,:,:,: ) / AEROSPC_MW( IAERO )
+             VDEMIS_AE( ISTR,:,:,: ) = VDEMIS_AE( ISTR,:,:,: ) / AEROSPC_MW( IAERO )
          END DO          
 
 C *** Calculate the number emissions rate for each mode [1/m3/s], using 
@@ -575,8 +589,17 @@ C     converts 2nd moment to surface area.
      &                + SSOUTS( IM,:,: )   
            END DO
 
-         ELSE
+         ELSEIF ( ISRC .EQ. IDUSTSRC ) THEN
 
+           DO IM = 1,N_MODE
+              VDEMIS_AE( MAP_NUMtoEM(IM),1,:,: ) = VDEMIS_AE( MAP_NUMtoEM(IM),1,:,: ) 
+     &                + DUSTOUTN( IM,:,: )   
+              VDEMIS_AE( MAP_SRFtoEM(IM),1,:,: ) = VDEMIS_AE( MAP_SRFtoEM(IM),1,:,: ) 
+     &                + DUSTOUTS( IM,:,: )   
+           END DO
+
+         ELSE
+            
            DO ISD = 2,N_SD   ! Skip the Index for the Gas Phase
            DO IM = 1,N_MODE
               VDEMIS_AE( MAP_NUMtoEM(IM),:,:,: ) = VDEMIS_AE( MAP_NUMtoEM(IM),:,:,: ) 
