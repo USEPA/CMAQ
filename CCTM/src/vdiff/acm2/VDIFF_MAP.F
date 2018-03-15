@@ -75,10 +75,11 @@ C component flux output variables
       CONTAINS
 
 C-----------------------------------------------------------------------
-         FUNCTION VDIFF_MAP_INIT( N_SPC_DEPV  ) RESULT ( SUCCESS )
+         FUNCTION VDIFF_MAP_INIT( ) RESULT ( SUCCESS )
 
          USE CGRID_SPCS   ! CGRID species number and offsets
          USE UTILIO_DEFN
+         USE DEPV_DEFN, ONLY : N_SPC_DEPV
 
          IMPLICIT NONE
 
@@ -86,7 +87,6 @@ C Includes:
          INCLUDE SUBST_EMISPRM   ! Emissions processing control parameters
 
 C Arguments:
-         INTEGER, INTENT( IN ) :: N_SPC_DEPV ! no. of depv species
          LOGICAL SUCCESS
 
 C External Functions:
@@ -113,11 +113,12 @@ C Local variables:
          SUCCESS = .TRUE.
 
          N_SPC_DIFF = N_GC_TRNS + N_AE_TRNS + N_NR_TRNS + N_TR_DIFF
-
+         
          ALLOCATE ( DIFF_MAP( N_SPC_DIFF+1 ),
      &              DF2DV( N_SPC_DIFF+1 ),
+     &              DIFF_MW( N_SPC_DIFF+1 ),
     ! &              DF2EM( N_SPC_DIFF+1 ),
-     &              diff_spc( n_spc_diff ), stat = allocstat )
+     &              DIFF_SPC( N_SPC_DIFF+1 ), stat = allocstat )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating DIFF_MAP, DF2DV or DIFF_SPC'
             CALL M3WARN( PNAME, 0, 0, XMSG )
@@ -299,6 +300,9 @@ C Local variables:
          DIFF_MASK_AERO = .FALSE.
          DIFF_MASK_NR   = .FALSE.
          DIFF_MASK_TRAC = .FALSE.
+         DIFF_MAP = 0
+         DIFF_SPC = ""
+         DIFF_MW  = 0.
 
          S = 0
          DO V = 1, N_GC_TRNS

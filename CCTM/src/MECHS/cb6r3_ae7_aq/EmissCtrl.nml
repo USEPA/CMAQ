@@ -1,0 +1,131 @@
+!------------------------------------------------------------------------------!
+! EMISSION CONTROL INPUT FILE                                                  !
+!  FOR THE                                                                     !
+! COMMUNITY MULTISCALE AIR QUALITY (CMAQ) MODEL                                !
+!  DEVELOPED AND MAINTAINED BY THE                                             !
+! NATIONAL EXPOSURE RESEARCH LABORATORY, OFFICE OF RESEARCH AND DEVELOPMENT    !
+! UNITED STATES ENVIRONMENTAL PROTECTION AGENCY                                !
+!                                                                              !
+! THIS VERSION CONSISTENT WITH THE RELEASE OF CMAQv5.3 (FALL 2018)             !
+!------------------------------------------------------------------------------!
+
+!------------------------------------------------------------------------------!
+! Emissions Scaling Specification Section                                      !
+!   Each rule is presented as a row of inputs. The syntax of the               !
+!   emissions scaling rules is the following:                                  !
+!      EM_INSTR(I) = 'CMAQ-Species', 'Source Label', 'Phase',                  !
+!                     'Surrogate', 'Scale Factor', 'Mask', 'Operation'         !
+!   Definition of Fields:                                                      !
+!         'Surrogate' - The character string identifying the surrogate on the  !
+!                       emission file or in the inline calculation that the    !
+!                       CMAQ species should be mapped to. Usually this name is !
+!                       the same as the CMAQ species for convenience. For      !
+!                       aerosols, it's usually slightly different (e.g ANO3 vs.!
+!                       PNO3)                                                  !
+!         'Source Label' - Short Name from Run Script (ie. the value of        !
+!                          GR_EMIS_01_LAB or STK_EMIS_01_LAB). There are a few !
+!                          reserved names that apply to inline emissions       !
+!                          sources. These are:                                 !
+!                            BIOG - Biogenic VOC emissions                     !
+!                            MGEM - Marine Gas Emissions                       !
+!                            LTNG - Lightning NO Emissions                     !
+!                            WBDUST - Wind-Blown Dust Emissions                !
+!                            SeaSpray - Sea Spray Aerosol Emissions            !
+!         'CMAQ-Species' - Internal Species Name                               !
+!         'Phase/Mode'- If the CMAQ-Species is a Gas, this field should equal  !
+!                       'Gas'. If the CMAQ-Species is an aerosol, this field   !
+!                       should indicate one of the possible emission aerosol   !
+!                       modes. Every source by default is given a 'COARSE' and !
+!                       'FINE' mode. The user may refer to these, or define    !
+!                       others above and refer to them as well. This level of  !
+!                       speficity is needed so that aerosol number and         !
+!                       surface area are calculated correctly, and so that any !
+!                       unit conversions between gases and aerosols can be     !
+!                       handled correctly.                                     !
+!         'Scale Factor' - Adjustment factor to be applied to the mapping      !
+!         'Mask'         - Not implemented yet. Will apply scaling for specific! 
+!                          regions of the domain.                              !
+!         'Operation' - Specifies what kind of rule is to be carried           !
+!                       out. Options are:                                      !
+!                          'a' - add the rule to existing instructions. This   !
+!                                operation should be used for new entries, too.!
+!                          'm' - find existing scaling instructions matching   !
+!                                this rule's features (ie. species, sources,   !
+!                                etc) and multiply them by the factor in this  !
+!                                particular rule.                              !
+!                          'o' - find existing scaling instrucitons matching   !
+!                                this rule and overwrite them.                 !
+!                                                                              !
+!                                                                              !
+!------------------------------------------------------------------------------!
+
+&EmissionScaling
+ EM_NML=
+ 
+ !---Organic Aerosol Vapors and Particles            
+ !      Emission |Source | CMAQ-   |Phase/ |Scale | Op
+ !      Surrogate| Label | Species |Mode   |Factor|
+        'POC'    ,'All'  ,'PCVOC'  ,'GAS'  ,0.0387 ,'a',
+        'PNCOM'  ,'All'  ,'PCVOC'  ,'GAS'  ,0.0387 ,'a',
+                          
+        'POC'    ,'All'  ,'VLVPO1' ,'GAS'  ,0.0    ,'a',
+        'PNCOM'  ,'All'  ,'VLVPO1' ,'GAS'  ,0.0    ,'a',
+        'POC'    ,'All'  ,'VSVPO1' ,'GAS'  ,0.045  ,'a',
+        'PNCOM'  ,'All'  ,'VSVPO1' ,'GAS'  ,0.045  ,'a',
+        'POC'    ,'All'  ,'VSVPO2' ,'GAS'  ,0.14   ,'a',
+        'PNCOM'  ,'All'  ,'VSVPO2' ,'GAS'  ,0.14   ,'a',
+        'POC'    ,'All'  ,'VSVPO3' ,'GAS'  ,0.18   ,'a',
+        'PNCOM'  ,'All'  ,'VSVPO3' ,'GAS'  ,0.18   ,'a',
+        'POC'    ,'All'  ,'VIVPO1' ,'GAS'  ,0.5    ,'a',
+        'PNCOM'  ,'All'  ,'VIVPO1' ,'GAS'  ,0.5    ,'a',
+                          
+        'POC'    ,'All'  ,'ALVPO1' ,'FINE' ,0.09   ,'a',
+        'PNCOM'  ,'All'  ,'ALVPO1' ,'FINE' ,0.09   ,'a',
+        'POC'    ,'All'  ,'ASVPO1' ,'FINE' ,0.045  ,'a',
+        'PNCOM'  ,'All'  ,'ASVPO1' ,'FINE' ,0.045  ,'a',
+        'POC'    ,'All'  ,'ASVPO2' ,'FINE' ,0.     ,'a',
+        'PNCOM'  ,'All'  ,'ASVPO2' ,'FINE' ,0.     ,'a',
+        'POC'    ,'All'  ,'ASVPO3' ,'FINE' ,0.     ,'a',
+        'PNCOM'  ,'All'  ,'ASVPO3' ,'FINE' ,0.     ,'a',
+        'POC'    ,'All'  ,'AIVPO1' ,'FINE' ,0.     ,'a',
+        'PNCOM'  ,'All'  ,'AIVPO1' ,'FINE' ,0.     ,'a',
+
+/
+
+
+&GeneralSpecs
+ DefaultScaling      = .TRUE.   !Find All matches and map them 1:1. Map Aerosols as usual
+ Guard_BiogenicVOC   = .FALSE.  !If True, then using 'ALL' to identify sources below
+ Guard_MarineGas     = .FALSE.  !  will not apply to these sources. They will, in effect
+ Guard_LightningNO   = .FALSE.  !  be 'guarded' from the scaling operation.
+ Guard_WindBlownDust = .FALSE.
+ Guard_SeaSpray      = .FALSE.
+/
+
+
+!------------------------------------------------------------------------------!
+! Size Distribution Specification Section                                      !
+!   Each size distribution rule either modifies the parameters associated with !
+!   the aerosol modes of a particular source, or adds new modes to a particular!
+!   source if they do not already exist.                                       !
+!                                                                              !
+!   Definition of Fields:                                                      !
+!      'Source' - Label for the emissions source that the instruction will     !
+!                 apply to. If the label is 'ALL', then the instruction will   !
+!                 be expanded to apply to all sources.                         !
+!      'Surrogate Mode' - With this label, the user identifies which mode from !
+!                         the emissions is to be modified or created. With this!
+!                         specificity, multiple modes can be defined and mapped!
+!                         in the emissions instructions in the next section.   !
+!      'Reference Mode' - This label maps the emissions surrogate aerosol mode !
+!                         to specific parameters catalogued in the AERO_DATA   !
+!                         module.
+!------------------------------------------------------------------------------!
+
+&SizeDistReg
+ !         |    Source      | Surr. Mode   | Ref. Mode 
+ SD_NML  =  'GRIDDED_EMIS'  ,'FINE'        ,'FINE_REF',
+            'GRIDDED_EMIS'  ,'COARSE'      ,'COARSE_REF',
+/
+
+

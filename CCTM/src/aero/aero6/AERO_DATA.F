@@ -273,7 +273,7 @@ C                     ---------- -------- ------- + + +   + ------ --- +  ------
      & spcs_list_type('ASVOO1  ', cm_set, 1400.0, T,F,F,  0,  4.0, 6.1,T, 'DUST  '), ! SV-SOA 1
      & spcs_list_type('ASVOO2  ', cm_set, 1400.0, T,F,F,  0,  4.0, 6.1,T, 'DUST  '), ! SV-SOA 2
      & spcs_list_type('ASVOO3  ', cm_set, 1400.0, T,F,F,  0,  4.0, 6.1,T, 'DUST  '), ! SV-SOA 3
-     & spcs_list_type('APCSOJ  ', cm_set, 1400.0, T,F,F,  0,  4.0, 6.1,T, 'DUST  '), ! pcSOA
+     & spcs_list_type('APCSO   ', cm_set, 1400.0, T,F,F,  0,  4.0, 6.1,T, 'DUST  '), ! pcSOA
 
        ! The following species are associated with the Multi-Pollutant code
      & spcs_list_type('ANI     ', cm_set, 2200.0, F,F,T,  0,  0.0, 0.0,F, 'DUST  '), ! Nickel
@@ -304,24 +304,20 @@ C                     ---------- -------- ------- + + +   + ------ --- +  ------
           Real            :: dgvem( n_mode )  ! meters
           Real            :: sgem ( n_mode )  ! dimensionless
       END TYPE em_aero
-      INTEGER, PARAMETER  :: n_em_aero_ref = 5
+      INTEGER, PARAMETER  :: n_em_aero_ref = 6
 
       TYPE( em_aero ), Parameter :: em_aero_ref( n_em_aero_ref ) = (/
 
 !              ----Name---- -----Split-----    ---Geo. Mean Diameter---    ---Stnd Dev.---
-     & em_aero('FINE_REF  ',(/0.1,0.9,0.0/)  ,(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)),
-     & em_aero('ACC_REF   ',(/0.0,1.0,0.0/)  ,(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)),
-     & em_aero('COARSE_REF',(/0.0,0.0,1.0/)  ,(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)),
-     & em_aero('ZERO_REF  ',(/0.0,0.0,0.0/)  ,(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)),
-     & em_aero('WB_DUST   ',(/0.0,0.07,0.93/),(/0.06E-6,1.391E-6,5.26E-6/),(/1.7,2.0,2.0/))
+     & em_aero('FINE_REF  ',(/0.1,0.9,0.0/)  ,(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)), ! Accum and Aitken Mode
+     & em_aero('ACC_REF   ',(/0.0,1.0,0.0/)  ,(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)), ! Just Accumulation Mode
+     & em_aero('COARSE_REF',(/0.0,0.0,1.0/)  ,(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)), ! Just Coarse Mode
+     & em_aero('UNITY_REF ',(/1.0,1.0,1.0/)  ,(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)), ! Used for online sectors (e.g. SeaSpray)
+     & em_aero('ZERO_REF  ',(/0.0,0.0,0.0/)  ,(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)), ! Zero out the emissions
+     & em_aero('WB_DUST   ',(/0.0,0.07,0.93/),(/0.06E-6,1.391E-6,5.26E-6/),(/1.7,2.0,2.0/))  ! Default Dust Parameterization. Currently,
+                                                                                             !  these values are hard-coded in the dust 
+                                                                                             !  routine.
      & /)
-
-      Integer, Parameter :: SD_Fine_Default_Ref = 1   ! Point default fine modes to 'FINE_REF'
-      Integer, Parameter :: SD_Coarse_Default_Ref = 3 ! Point default coarse modes to 'COARSE_REF'
-
-      ! Variable Needed For Mapping Aerosol Emissions to Size
-      ! Distributions
-      REAL, Allocatable :: EMWT_PROF( :,: )  ! [ n_aerospc, 
 
 ! Primary Organic Aerosol Volatility Distributions
       !Integer, Parameter :: n_vbs_bin = 5
@@ -420,6 +416,9 @@ C                                                    Aitken  accum   coarse
       Real, Parameter :: dust_dens( n_mode ) = (/ 2200.0, 2156.55, 2536.92 /)
 
       INTEGER, ALLOCATABLE, SAVE :: MAP_DUSTtoAERO( : ) 
+      Real, ALLOCATABLE, SAVE    :: DUSTOUTM( :,:,:,: ) ! Wind-Blown Dust Mass Emiss Rate [ug/m3/s]
+      Real, ALLOCATABLE, SAVE    :: DUSTOUTN( :,:,: )   ! Wind-Blown Dust Number Emiss Rate [1/m3/s]
+      Real, ALLOCATABLE, SAVE    :: DUSTOUTS( :,:,: )   ! Wind-Blown Dust Surface Area Emiss Rate [m2/m3/s]
 
 C Sea-Spray Aerosol Speciation factors based on seawater composition:
 ! For toxic metal species, Use Table 1 in K.W. Bruland and M.C. Lohan, 6.02 - Controls of Trace Metals in Seawater, 
@@ -622,7 +621,6 @@ C Mapping for loading from and unloading to CGRID array
       Integer, Allocatable :: aerospc_map( :,: )     ! indices of aero species to CGRID
       Integer              :: aeronum_map( n_mode )  ! indices of aero number variable to CGRID
       Integer              :: aerosrf_map( n_mode )  ! indices of aero surf area variable to CGRID
-      Integer, Allocatable :: map_aerotodiff( :,: )     ! indices of aero species to CGRID
 
 C Missing aerosol species map
       Logical, Allocatable :: aero_missing( :,: )  
@@ -721,7 +719,16 @@ C Build mapping to CGRID for each species in the master AeroList
       Do spc = 1, n_aerolist
          ! Check to see if this species is in the namelist
          do m = 1,n_mode
-            sn = trim( aerolist( spc )%bulkname ) // modesuff( m )
+            if ( m .eq. n_mode .and. 
+     &           (aerolist( spc )%bulkname .eq. 'ACORS'    .or.
+     &            aerolist( spc )%bulkname .eq. 'ASOIL'    .or.
+     &            aerolist( spc )%bulkname .eq. 'ASEACAT'  .or.
+     &            aerolist( spc )%bulkname .eq. 'ADE_CORS' )    ) then
+              sn = aerolist( spc )%bulkname
+            else
+              sn = trim( aerolist( spc )%bulkname ) // modesuff( m )
+            end if
+
             n = index1( sn, n_ae_spc, ae_spc )
 
             If ( n .Ne. 0 ) Then
@@ -764,10 +771,8 @@ C Build mapping to CGRID for each species in the master AeroList
       Allocate ( aerospc       ( n_aerospc ) )
       Allocate ( aerospc_mw    ( n_aerospc ) )
       Allocate ( aerospc_map   ( n_aerospc, n_mode ) )
-      Allocate ( map_aerotodiff( n_aerospc, n_mode ) )
       Allocate ( aerospc_conc  ( n_aerospc, n_mode ) )
       Allocate ( aero_missing  ( n_aerospc, n_mode ) )
-      Allocate ( emwt_prof     ( n_aerospc, n_mode ) )
 
       aero_missing( :,: ) = .True.
 
@@ -786,25 +791,30 @@ C Build mapping to CGRID for each species in the master AeroList
          aerospc( spc )%visual_idx_large = aerolist( l )%visual_idx_large
          aerospc( spc )%om         = aerolist( l )%om         
          aerospc( spc )%optic_surr = aerolist( l )%optic_surr 
+         aerospc( spc )%name( : )  = ''
 
          ! Map mode-independent properties
          aerospc_mw( spc ) = mole_weight( l )
 
          Do n = 1,n_mode
-            ! Create Mode-Dependent Names
-            aerospc( spc )%name( n ) = trim( aerospc( spc )%bulkname ) // modesuff( n )
-
             ! Map the Modal-Dependent CGRID Pointers from AeroSpc to AeroList
             aerospc_map( spc, n ) = map_listtogrid( l, n )
 
-            ! Map the Modal-Dependent Names to Transported Species
-            map_aerotodiff( spc, n ) = index1( aerospc( spc )%name( n ), 
-     &                                 n_spc_diff, diff_spc )
-
-            ! Remove this Chemical/Mode Combination from the "missing"
-            ! list
-            aero_missing( spc,n ) = .False.
-
+            ! Remove this Chemical/Mode Combination from the "missing" list 
+            ! if it can be mapped to the cgrid list of variables
+            if ( aerospc_map( spc,n ) .ne. 0 ) then
+                aero_missing( spc,n ) = .False.
+                ! Create Mode-Dependent Names
+                if ( aerospc( spc )%bulkname .eq. 'ACORS'    .or.
+     &               aerospc( spc )%bulkname .eq. 'ASOIL'    .or.
+     &               aerospc( spc )%bulkname .eq. 'ASEACAT'  .or.
+     &               aerospc( spc )%bulkname .eq. 'ADE_CORS'     ) then
+                   aerospc( spc )%name( n ) = trim( aerospc( spc )%bulkname )
+                else
+                   aerospc( spc )%name( n ) = 
+     &                 trim( aerospc( spc )%bulkname ) // modesuff( n )
+                end if
+            end if
          End Do
 
       End Do

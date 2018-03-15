@@ -145,8 +145,19 @@ C flag for marine gas emissions; this flag is set in the subroutine EM_FILE_INIT
 
 C Allocate MG arrays using NMGSPC value
             EM_FILE_SURR( IMGSRC )%LEN = NMGSPC
-            ALLOCATE( EM_FILE_SURR( IMGSRC )%ARRY( NMGSPC ) )
-            EM_FILE_SURR( IMGSRC )%ARRY = MG_SPC
+            ALLOCATE( EM_FILE_SURR( IMGSRC )%ARRY ( NMGSPC ) )
+            ALLOCATE( EM_FILE_SURR( IMGSRC )%CMAQ ( NMGSPC ) )
+            ALLOCATE( EM_FILE_SURR( IMGSRC )%UNITS( NMGSPC ) )
+            ALLOCATE( EM_FILE_SURR( IMGSRC )%PHASE( NMGSPC ) )
+            ALLOCATE( EM_FILE_SURR( IMGSRC )%MW   ( NMGSPC ) )
+            ALLOCATE( EM_FILE_SURR( IMGSRC )%USED ( NMGSPC ) )
+            
+            EM_FILE_SURR( IMGSRC )%ARRY  = MG_SPC
+            EM_FILE_SURR( IMGSRC )%CMAQ  = MG_SPC
+            EM_FILE_SURR( IMGSRC )%UNITS = 'MOLES/S'
+            EM_FILE_SURR( IMGSRC )%PHASE = 'GAS'
+            EM_FILE_SURR( IMGSRC )%MW    = 0.0
+            EM_FILE_SURR( IMGSRC )%USED  = .FALSE.
 
             ALLOCATE ( VDEMIS_MG( NMGSPC,NCOLS,NROWS), STAT = STATUS )
             IF ( STATUS .NE. 0 ) THEN

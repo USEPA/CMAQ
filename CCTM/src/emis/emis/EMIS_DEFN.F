@@ -292,7 +292,7 @@ C GET_AERO_EMIS has to apply factors - don`t do it at this level.
          USE DEPV_DEFN, ONLY: ABFLUX ! ammonia bidi flag
          USE ASX_DATA_MOD, ONLY: MET_DATA, GRID_DATA
          USE RXNS_DATA, ONLY: MECHNAME
-         USE AERO_DATA, ONLY : AERONUM_MAP, AEROSRF_MAP, SSOUTM
+         USE AERO_DATA, ONLY : AERONUM_MAP, AEROSRF_MAP, SSOUTM, DUSTOUTM
 
          IMPLICIT NONE
 
@@ -428,7 +428,6 @@ C-----------------------------------------------------------------------
          USE DEPV_DEFN, ONLY: ABFLUX ! ammonia bidi flag
          USE ASX_DATA_MOD, ONLY: MET_DATA, GRID_DATA
          USE RXNS_DATA, ONLY: MECHNAME
-         USE PRECURSOR_DATA, ONLY : SULF_IDX, PRECURSOR_MW
 
          IMPLICIT NONE
 
@@ -659,7 +658,7 @@ C-----------------------------------------------------------------------
          USE AERO_DATA, only : N_MODE, AEROSPC,  ! Aerosol Properties Table
      &                         N_AEROSPC, AEROMODE, MODESUFF
          USE AERO_EMIS, only : MAP_NUMtoEM, MAP_SRFtoEM, MAP_EMtoAERO, MAP_EMtoMODE, 
-     &                         MAP_AEROtoEM,MAP_EMtoNUM, MAP_EMtoSRF, WB_DUST, MAP_EMtoSD,
+     &                         MAP_EMtoNUM, MAP_EMtoSRF, WB_DUST, MAP_EMtoSD,
      &                         EM_SRC_SD, SD_SPLIT, EM_SD_INIT, SD_RULE
          USE UDTYPES,   only : CARRY1, LARRY1
 
@@ -672,12 +671,11 @@ C-----------------------------------------------------------------------
      &                 N, IM, IAERO, V, ISRC,NSPC, IA, IDIFF, JDX, JM,
      &                 ISTR, ISUR0, ISRC0, IEM, KDX, JSD, JEM, ISD,
      &                 IREG, IRGN, ISTRN, NREG
-         REAL       :: AERO_SPLIT, UNIT_FAC, SURR_MW
+         REAL       :: AERO_SPLIT, UNIT_FAC_1, UNIT_FAC_2, SURR_MW
 
          LOGICAL    :: LERROR, LFOUND
          LOGICAL    :: LGAS_DIFF, LGAS_SURR
          
-         TYPE( LARRY1 ),  ALLOCATABLE, SAVE :: EM_FILE_SURR_USED( : ) 
          CHARACTER( 16 )  :: SPECNAME, SN, SM
 
          CHARACTER( 16 )  :: CTM_EMISCHK = 'CTM_EMISCHK'    ! Let model proceed even if
@@ -725,7 +723,7 @@ C-----------------------------------------------------------------------
 
          INTEGER, PARAMETER  :: N_SD_RULE = 200
          TYPE( SD_RULE ) :: SD_NML( N_SD_RULE )
-         NAMELIST / SizeDistRules / SD_NML 
+         NAMELIST / SizeDistReg / SD_NML 
 
 ! Retrieve Environment Variable Letting User Ignore this Check
 ! and allowing the model to proceed.
@@ -775,6 +773,16 @@ C-----------------------------------------------------------------------
          ! Species, default size distributions, and default molecular
          ! weights based on SMOKE/MOVES/SPECIATE guidelines
          DO ISRC = 1,N_EM_SRC
+            IF ( ISRC .EQ. ISEASRC .OR. ISRC .EQ. IBIOSRC .OR. 
+     &           ISRC .EQ. IDUSTSRC.OR. ISRC .EQ. ILTSRC  .OR.
+     &           ISRC .EQ. IMGSRC ) CYCLE
+
+            ALLOCATE( EM_FILE_SURR( ISRC )%CMAQ ( EM_FILE_SURR( ISRC )%LEN ) )
+            ALLOCATE( EM_FILE_SURR( ISRC )%PHASE( EM_FILE_SURR( ISRC )%LEN ) )
+            ALLOCATE( EM_FILE_SURR( ISRC )%MW   ( EM_FILE_SURR( ISRC )%LEN ) )
+            ALLOCATE( EM_FILE_SURR( ISRC )%USED ( EM_FILE_SURR( ISRC )%LEN ) )
+            EM_FILE_SURR( ISRC )%USED = .FALSE.
+
             DO ISUR = 1,EM_FILE_SURR( ISRC )%LEN
                B = EM_FILE_SURR( ISRC )%ARRY( ISUR )
                IA  = INDEX1( B, N_MAP_EMIStoCMAQ, MAP_EMIStoCMAQ( : )%SURR )
@@ -783,38 +791,33 @@ C-----------------------------------------------------------------------
                   EM_FILE_SURR( ISRC )%PHASE( ISUR ) = MAP_EMIStoCMAQ( IA )%PHASE
                   EM_FILE_SURR( ISRC )%MW   ( ISUR ) = MAP_EMIStoCMAQ( IA )%MW
                ELSE
+                  ! Surrogate is not calculated online nor does it
+                  ! belong to the default list of commonly used
+                  ! surrogates.
                   EM_FILE_SURR( ISRC )%CMAQ ( ISUR ) = B
-                  EM_FILE_SURR( ISRC )%PHASE( ISUR ) = 'NA'
+                  EM_FILE_SURR( ISRC )%PHASE( ISUR ) = 'N/A'
                   EM_FILE_SURR( ISRC )%MW   ( ISUR ) = 1.0
 
-                  WRITE( LOGDEV, '(A,A,A,/,A,/,A,/,A)' ) 
+                  WRITE( LOGDEV, '(/,5x,A,A,A,A,/,5x,A,/,5x,A,/,5x,A)' ) 
      &                'Emissions Surrogate ',TRIM(B),' is not ',
-     &                'a recognized surrogate. Please add it, a default CMAQ ',
+     &                'a recognized surrogate.','Please add it, a default CMAQ ',
      &                'internal species, a destination phase or mode, and a ',
      &                'molecular weight to EMIS_VARS.'
-                  XMSG = 'Exiting due to missing emissions surrogate identification.'
-                  CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
                END IF
             END DO
-         END DO
-
-         ! Initialize Structure Used to Keep track of which surrogates
-         ! are used and which are ignored
-         ALLOCATE( EM_FILE_SURR_USED( N_EM_SRC ) )
-         DO ISRC = 1,N_EM_SRC
-           N = EM_FILE_SURR( ISRC )%LEN
-           EM_FILE_SURR_USED( ISRC )%LEN = N
-           ALLOCATE( EM_FILE_SURR_USED( ISRC )%ARRY( N ) )
-           EM_FILE_SURR_USED( ISRC )%ARRY( : ) = .FALSE.
          END DO
 
 ! Set up Source <-> Size Distribution relationship. This routine
 ! populates the EM_SRC_SD structure which tells the logic below which
 ! modes are present on which sources.
-         REWIND( EMCTRL_NML )
-         READ( NML = SizeDistRules, UNIT = EMCTRL_NML )
-         CALL EM_SD_INIT( SD_NML )
+         SD_NML%SRC      = ''
+         SD_NML%MODE     = ''
+         SD_NML%MODE_REF = ''
 
+         REWIND( EMCTRL_NML )
+         READ( NML = SizeDistReg, UNIT = EMCTRL_NML )
+         CALL EM_SD_INIT( SD_NML )
+         
 ! Process Default Emissions Mapping (if requested in namelist; i.e. 
 ! DefaultScaling = TRUE) 
          ALLOCATE( EM_SPEC( NISTR0 ) )                ! CMAQ Species Names
@@ -864,33 +867,49 @@ C-----------------------------------------------------------------------
                  JDX = 0; JM  = 0; JSD = 0; JEM = 0
 
                  DO ISUR = 1,EM_FILE_SURR( ISRC )%LEN
+                   IF ( EM_FILE_SURR( ISRC )%PHASE( ISUR ) .EQ. 'N/A' ) CYCLE
+
                    SN = EM_FILE_SURR( ISRC )%ARRY( ISUR )
                    SM = EM_FILE_SURR( ISRC )%CMAQ( ISUR )
                    ! Find Out which CMAQ aerosol modes are available
                    ! for this surrogate as a function of its source
                    ! and emission mode
-                   ISD = INDEX1( EM_FILE_SURR( ISRC )%PHASE( ISUR ), 
-     &                           EM_SRC_SD( ISRC )%LEN, EM_SRC_SD( ISRC )%NAME )
-                   IEM = EM_SRC_SD( ISRC )%REF( ISD )
-                   IF ( IEM .EQ. 0 ) THEN  ! Gas Surrogate
-                     IF ( TRIM( SN ) .EQ. DIFF_SPC( IDIFF ) .OR. 
-     &                    TRIM( SM ) .EQ. DIFF_SPC( IDIFF ) ) THEN
+                   IF ( EM_FILE_SURR( ISRC )%PHASE( ISUR ) .EQ. 'GAS' ) THEN ! Gas Surrogate
+                     IF ( .NOT.DIFF_MASK_AERO( IDIFF )       .AND.           ! Gas CMAQ Species
+     &                   ( TRIM( SN ) .EQ. DIFF_SPC( IDIFF ) .OR.            ! Name Match
+     &                     TRIM( SM ) .EQ. DIFF_SPC( IDIFF ) )    ) THEN
                        JDX = ISUR
-                       JSD = ISD
-                       JEM = IEM
+                       JSD = 1    ! 1 is Always the Gas Phase in the Sector Size Distribution Vector
+                       JEM = 0    ! 0 is Always the gas phase in the Size Dist Reference List
+                       ! Update Molecular Weight of the surrogate if it
+                       ! is not already set
+                       IF ( EM_FILE_SURR( ISRC )%MW( ISUR ) .EQ. 0. )
+     &                      EM_FILE_SURR( ISRC )%MW( ISUR ) = DIFF_MW( IDIFF )
                      END IF
-                   ELSE                    ! Aerosol Surrogate
+                   ELSEIF ( DIFF_MASK_AERO( IDIFF ) ) THEN  ! Aerosol CMAQ Species and Surrogate
+                     ISD = INDEX1( EM_FILE_SURR( ISRC )%PHASE( ISUR ), 
+     &                             EM_SRC_SD( ISRC )%LEN, EM_SRC_SD( ISRC )%NAME )
+                     IEM = EM_SRC_SD( ISRC )%REF( ISD )
+                     
+                     ! Cycle through model aerosol modes and find ones that apply 
+                     ! to this size distribution
                      DO IM = 1,N_MODE
-                       IF ( EM_SRC_SD( ISRC )%FACNUM( IEM,IM ) .GT. 0.0 ) THEN
+                       IF ( EM_SRC_SD( ISRC )%FACNUM( ISD,IM ) .GT. 0.0 ) THEN
                          ! The surrogate mode ISD may be mapped to
                          ! CMAQ Model Mode IM
                          IF ( TRIM( SN )//MODESUFF( IM ) .EQ. DIFF_SPC( IDIFF ) .OR.
-     &                        TRIM( SM )//MODESUFF( IM ) .EQ. DIFF_SPC( IDIFF ) ) THEN 
+     &                        TRIM( SM )//MODESUFF( IM ) .EQ. DIFF_SPC( IDIFF ) .OR.
+     &                        TRIM( SN ) .EQ. DIFF_SPC( IDIFF )                 .OR.
+     &                        TRIM( SM ) .EQ. DIFF_SPC( IDIFF )             ) THEN 
                            JDX = ISUR   ! Save the surrogate index for mapping below
                            JM  = IM     ! Save this mode value for mapping below
                            JSD = ISD    ! Save the surrogate mode for mapping below
                            JEM = IEM    ! Save the reference size distribution index 
                                         !   for mapping below
+                           ! Update Molecular Weight of the surrogate if it
+                           ! is not already set
+                           IF ( EM_FILE_SURR( ISRC )%MW( ISUR ) .EQ. 0. )
+     &                          EM_FILE_SURR( ISRC )%MW( ISUR ) = DIFF_MW( IDIFF )
                          END IF
                        END IF
                      END DO
@@ -899,16 +918,14 @@ C-----------------------------------------------------------------------
 
                  ! Populate Entry in Emissions Instructions if a Match was Found
                  IF ( JDX .GT. 0 ) THEN
-                    ! A Surrogate Matches a Transported Species.
-                    ! If both the Species and Surrogate Match a
-                    ! Previously Defined Instruction, then add the
-                    ! scale factor to that entry under the relevant
-                    ! source number.
+                    ! A Surrogate Matches a Transported Species. If both the Species 
+                    ! and Surrogate Match a Previously Defined Instruction, then add 
+                    ! the scale factor to that entry under the relevant source number.
                     SPECNAME = DIFF_SPC( IDIFF )
                     IF ( N_EMIS_ISTR .NE. 0 ) SPECNAME = EM_SPEC( N_EMIS_ISTR )
                     IF ( DIFF_SPC( IDIFF ) .NE. SPECNAME .OR. 
      &                   N_EMIS_ISTR .EQ. 0 ) THEN
-
+                       
                        ! Create A New Instruction
                        N_EMIS_ISTR = N_EMIS_ISTR + 1
                        EM_SPEC( N_EMIS_ISTR ) = DIFF_SPC( IDIFF )
@@ -918,23 +935,24 @@ C-----------------------------------------------------------------------
                        ! species names should already include aerosol
                        ! mode suffixes (like I, J, or K) so search for
                        ! the entire name.
-                       IF ( DIFF_MASK_AERO( IDIFF ) ) THEN
+                       IF ( DIFF_MASK_AERO( IDIFF ) ) THEN 
                          IAERO = INDEX1( EM_SPEC( N_EMIS_ISTR ), N_AEROSPC, 
      &                                   AEROSPC%NAME( JM ) )
                          MAP_EMtoAERO( N_EMIS_ISTR ) = IAERO
                          MAP_EMtoMODE( N_EMIS_ISTR ) = JM
-                         MAP_AEROtoEM( IAERO,JM ) = N_EMIS_ISTR
-
                        END IF
                     END IF
  
                     ! Only apply an aerosol size-split parameter if this
-                    ! species is an aerosol
+                    ! species is an aerosol and not from dust or sea spray
+                    ! sectors
                     AERO_SPLIT = 1.0
-                    IF ( DIFF_MASK_AERO( IDIFF ) ) 
+                    IF ( DIFF_MASK_AERO( IDIFF ) .AND. ISRC .NE. IDUSTSRC .AND.
+     &                       ISRC .NE. ISEASRC ) 
      &                   AERO_SPLIT = SD_SPLIT( IDIFF, JEM )
 
-                    EM_FILE_SURR_USED( ISRC )%ARRY( JDX ) = .TRUE.
+                    ! Update the Surrogate of an Existing Instruction
+                    EM_FILE_SURR( ISRC )%USED( JDX ) = .TRUE.
                     EM_SURR( N_EMIS_ISTR, ISRC ) = EM_FILE_SURR( ISRC )%ARRY( JDX )
                     MAP_EMtoSURR( N_EMIS_ISTR, ISRC ) = JDX
                     MAP_EMtoSD( N_EMIS_ISTR, ISRC ) = JSD
@@ -943,6 +961,7 @@ C-----------------------------------------------------------------------
                     EM_FAC_BULK ( N_EMIS_ISTR, ISRC, 1 ) = 1.0         
                     EM_REG( N_EMIS_ISTR, ISRC, 1 ) = 1
                     EM_OP( N_EMIS_ISTR, ISRC, 1 )  = 'a'
+
                  END IF
                END DO
             END DO
@@ -992,10 +1011,10 @@ C-----------------------------------------------------------------------
          CLOSE( UNIT = EMCTRL_NML )
          
          ! Find Total Number of Rules
-         DO IRULE = 1,N_EM_RULE
-            IF( EM_NML( IRULE )%SPEC .EQ. '' ) N = IRULE
+         DO IRULE = 1,N_EM_RULE0
+            IF( EM_NML( IRULE )%SPEC .EQ. '' ) EXIT
+            N_EM_RULE = IRULE
          END DO
-         N_EM_RULE = N - 1
 
          ! Implement Default Scaling Rules that will Always Be Applied
          IF ( DefaultScaling ) CALL CUSTOM_EM_RULES( N_EM_RULE, EM_NML )
@@ -1032,7 +1051,7 @@ C-----------------------------------------------------------------------
             ! First error check and expand the source field
             ! This subroutine returns a logical vector, EM_SRC_RULE,
             ! which identifies which sources are affected by this rule.
-            CALL INTERPRET_EM_RULE_SRC( EM_NML( IRULE )%SRC, EM_SRC_RULE )
+            CALL INTERPRET_EM_RULE_SRC( EM_NML( IRULE )%SRC, IRULE, EM_SRC_RULE )
 
             !------   ------   ------   ------   ------   ----  
             ! Now error check and expand the surrogate field
@@ -1152,7 +1171,7 @@ C-----------------------------------------------------------------------
                  EM_PHASE_RULE( ISRC )%ARRY = .TRUE.
                  LERROR = .FALSE.
               ELSE
-                 ! Find the Specific Surrogate this Rule Identifies
+                 ! Find the Specific Phase/Mode this Rule Identifies
                  IDX = INDEX1( EM_NML( IRULE )%PHASE, EM_SRC_SD( ISRC )%LEN, 
      &                         EM_SRC_SD( ISRC )%NAME )
                  IF ( IDX .NE. 0 ) THEN
@@ -1239,8 +1258,7 @@ C-----------------------------------------------------------------------
                     RULE_ISTR_SPEC ( N_COMMANDS ) = DIFF_SPC( IDIFF )
                     RULE_ISTR_SURR ( N_COMMANDS ) = 
      &                   EM_FILE_SURR( ISRC )%ARRY( ISUR )
-                    RULE_ISTR_PHASE( N_COMMANDS ) = 
-     &                   EM_SRC_SD( ISRC )%REF( ISD )
+                    RULE_ISTR_PHASE( N_COMMANDS ) = ISD
                   END IF
                   END DO
                 END IF
@@ -1287,12 +1305,12 @@ C-----------------------------------------------------------------------
 
                     ! Link this row to the Aerosol Module.
                     IF ( DIFF_MASK_AERO( RULE_ISTR_IDIFF( IC ) ) ) THEN
+                      IEM = EM_SRC_SD( ISRC )%REF( RULE_ISTR_PHASE( IC ) )
                       DO IAERO = 1,N_AEROSPC
                         JM = INDEX1( EM_SPEC( ISTR ), N_MODE, AEROSPC( IAERO )%NAME( : ) )
                         IF ( JM .GT. 0 ) THEN
                           MAP_EMtoAERO( ISTR ) = IAERO
                           MAP_EMtoMODE( ISTR ) = JM
-                          MAP_AEROtoEM( IAERO,JM ) = N_EMIS_ISTR
                         END IF
                       END DO
                     END IF
@@ -1305,13 +1323,15 @@ C-----------------------------------------------------------------------
                     
                   EM_SURR( ISTR, ISRC ) = RULE_ISTR_SURR( IC )
                   MAP_EMtoSURR( ISTR, ISRC ) = RULE_ISTR_ISUR( IC )
-                  EM_FILE_SURR_USED( ISRC )%ARRY( ISUR ) = .TRUE.
+                  EM_FILE_SURR( ISRC )%USED( ISUR ) = .TRUE.
                   MAP_EMtoSD( ISTR, ISRC ) = RULE_ISTR_PHASE( IC )
 
                   ! Only apply an aerosol size-split parameter if this
-                  ! species is an aerosol
+                  ! species is an aerosol and if it is not from a dust 
+                  ! or sea spray sector
                   AERO_SPLIT = 1.0
-                  IF ( DIFF_MASK_AERO( RULE_ISTR_IDIFF( IC ) ) ) 
+                  IF ( DIFF_MASK_AERO( RULE_ISTR_IDIFF( IC ) ) .AND. 
+     &                 ISRC .NE. IDUSTSRC .AND. ISRC .NE. ISEASRC    )
      &                 AERO_SPLIT = SD_SPLIT( RULE_ISTR_IDIFF( IC ), IEM )
 
                   ! Determine Next Free Location in Region Space
@@ -1417,23 +1437,27 @@ C-----------------------------------------------------------------------
             ! Do Not Modify Number or Surface Area Emissions
             IF ( MAP_EMtoNUM( ISTR ) .GT. 0 .OR. MAP_EMtoSRF( ISTR ) .GT. 0 ) CYCLE
 
-            UNIT_FAC = 1.0
+            UNIT_FAC_1 = 1.0
 
             ! First Get Phase of CMAQ Species
             IDIFF = MAP_EMtoDIFF( ISTR )
             LGAS_DIFF = .NOT. DIFF_MASK_AERO( IDIFF )
-            IF ( LGAS_DIFF ) UNIT_FAC = 1.0 / DIFF_MW( IDIFF )
+            IF ( LGAS_DIFF ) UNIT_FAC_1 = 1.0 / DIFF_MW( IDIFF )
 
             ! Now Get Phase of Emission Surrogate
             DO ISRC = 1, N_EM_SRC
               ISUR  = MAP_EMtoSURR( ISTR,ISRC )
+              IF ( ISUR .EQ. 0 ) CYCLE
+
               LGAS_SURR = ( EM_FILE_SURR( ISRC )%PHASE( ISUR ) .EQ. 'GAS' )
-              SURR_MW   = EM_FILE_SURR( ISRC )%MW( ISUR ) * 1000. ! MW [g mol-1]
-              IF ( LGAS_SURR ) UNIT_FAC = UNIT_FAC * SURR_MW
+              SURR_MW   = EM_FILE_SURR( ISRC )%MW( ISUR ) ! MW [g mol-1]
+
+              UNIT_FAC_2 = UNIT_FAC_1
+              IF ( LGAS_SURR ) UNIT_FAC_2 = UNIT_FAC_2 * SURR_MW
 
               DO IREG = 1,EM_FAC_ST( ISTR,ISRC )%LEN
                  EM_FAC_ST( ISTR,ISRC )%FAC( IREG ) = 
-     &                  EM_FAC_ST( ISTR,ISRC )%FAC( IREG ) * UNIT_FAC
+     &                  EM_FAC_ST( ISTR,ISRC )%FAC( IREG ) * UNIT_FAC_2
               END DO
             END DO
          END DO
@@ -1449,14 +1473,14 @@ C Print a message for each emissions source surrogate that is not used.
 
          LERROR = .FALSE.
          DO ISRC = 1,N_EM_SRC
-             N_UNUSED = COUNT( .NOT. EM_FILE_SURR_USED( ISRC )%ARRY( : ) )
+             N_UNUSED = COUNT( .NOT. EM_FILE_SURR( ISRC )%USED( : ) )
              WRITE( LOGDEV, '(A,A,I2,A)' ), TRIM(EM_FILE_DESC( ISRC )),': ',
      &              N_UNUSED,' unused surrogates.'
              IF ( N_UNUSED .GT. 0 ) THEN
                  LERROR = .TRUE.
 
                  DO ISUR = 1,EM_FILE_SURR( ISRC )%LEN
-                   IF ( .NOT. EM_FILE_SURR_USED( ISRC )%ARRY( ISUR ) ) 
+                   IF ( .NOT. EM_FILE_SURR( ISRC )%USED( ISUR ) ) 
      &               WRITE( LOGDEV, '(A)'), EM_FILE_SURR( ISRC )%ARRY( ISUR )
                  END DO
                  WRITE ( LOGDEV, * )
@@ -1492,9 +1516,9 @@ C Print a message for each emissions source surrogate that is not used.
              DO ISTR = 1,N_EMIS_ISTR
                IF ( EM_SPEC( ISTR ) .EQ. DIFF_SPC( IDIFF ) .AND.
      &              EM_SURR( ISTR,ISRC ) .NE. '' )
-     &           WRITE( LOGDEV, '(7x,A,3x,A,F7.4)' ),EM_SPEC( ISTR ),
-     &                  EM_SURR( ISTR, ISRC ), EM_FAC_BULK( ISTR,ISRC,1 ),
-     &                  EM_SRC_SD( ISRC )%NAME
+     &           WRITE( LOGDEV, '(7x,A,3x,A,F7.4,3x,A)' ),EM_SPEC( ISTR ),
+     &                  EM_SURR( ISTR, ISRC ), EM_FAC_BULK( ISTR, ISRC ),
+     &                  TRIM( EM_SRC_SD( ISRC )%NAME( MAP_EMtoSD( ISTR,ISRC ) ) )
              END DO
            END DO
          END DO

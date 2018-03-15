@@ -70,12 +70,7 @@ C-----------------------------------------------------------------------
 
       implicit none 
 
-C windblown dust emissions rates
-      real, allocatable, save :: dustoutm( :,:,:,: )  ! mass emission rates [g/m**3/s]
-      real, allocatable, save :: dustoutn( :,:,: )    ! number emission rates [1/m**3/s]
-      real, allocatable, save :: dustouts( :,:,: )    ! surface-area emisrates [m2/m**3/s]
-
-      public ndust_spc, dustoutm, dustoutn, dustouts, dust_spc,
+      public ndust_spc, dust_spc,
      &       dust_emis_init, get_dust_emis
       private
 
@@ -272,10 +267,20 @@ C...Populate Master Emissions Map Vector So That Diagnostics
 C   can be printed in EMIS_MAP
          Em_File_Surr( idustsrc )%len = ndust_spc
          Allocate( Em_File_Surr( idustsrc )%arry( ndust_spc ) )
+         Allocate( Em_File_Surr( idustsrc )%cmaq ( ndust_spc ) )
+         Allocate( Em_File_Surr( idustsrc )%units( ndust_spc ) )
+         Allocate( Em_File_Surr( idustsrc )%phase( ndust_spc ) )
+         Allocate( Em_File_Surr( idustsrc )%mw   ( ndust_spc ) )
+         Allocate( Em_File_Surr( idustsrc )%used ( ndust_spc ) )
          do i = 1,ndust_spc
-           Em_File_Surr( idustsrc )%arry( i ) = dust_spc(i)%name
+            Em_File_Surr( idustsrc )%arry( i )  = dust_spc(i)%name
+            Em_File_Surr( idustsrc )%cmaq( i )  = dust_spc(i)%name
+            Em_File_Surr( idustsrc )%units( i ) = 'G/S'
+            Em_File_Surr( idustsrc )%phase( i ) = 'AERO'
+            Em_File_Surr( idustsrc )%mw   ( i ) = 0.
+            Em_File_Surr( idustsrc )%used ( i ) = .FALSE.
          end do
-
+ 
 C...Count the number of mass emissions species
         n_mass_emissions = 0
         do i = 1, ndust_spc

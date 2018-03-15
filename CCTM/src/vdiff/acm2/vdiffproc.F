@@ -209,7 +209,7 @@ C-----------------------------------------------------------------------
          END IF
 
 C create global maps
-         IF ( .NOT. VDIFF_MAP_INIT( N_SPC_DEPV ) ) THEN
+         IF ( .NOT. VDIFF_MAP_INIT( ) ) THEN
             XMSG = 'Failure initializing index mapping module'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
