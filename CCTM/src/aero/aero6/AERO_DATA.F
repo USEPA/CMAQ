@@ -273,7 +273,7 @@ C                     ---------- -------- ------- + + +   + ------ --- +  ------
      & spcs_list_type('ASVOO1  ', cm_set, 1400.0, T,F,F,  0,  4.0, 6.1,T, 'DUST  '), ! SV-SOA 1
      & spcs_list_type('ASVOO2  ', cm_set, 1400.0, T,F,F,  0,  4.0, 6.1,T, 'DUST  '), ! SV-SOA 2
      & spcs_list_type('ASVOO3  ', cm_set, 1400.0, T,F,F,  0,  4.0, 6.1,T, 'DUST  '), ! SV-SOA 3
-     & spcs_list_type('APCSOJ  ', cm_set, 1400.0, T,F,F,  0,  4.0, 6.1,T, 'DUST  '), ! pcSOA
+     & spcs_list_type('APCSO   ', cm_set, 1400.0, T,F,F,  0,  4.0, 6.1,T, 'DUST  '), ! pcSOA
 
        ! The following species are associated with the Multi-Pollutant code
      & spcs_list_type('ANI     ', cm_set, 2200.0, F,F,T,  0,  0.0, 0.0,F, 'DUST  '), ! Nickel
