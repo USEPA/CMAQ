@@ -105,13 +105,13 @@
       ! Define Data Structure for Storing Emission Control Namelist
       ! Options                               
       TYPE EM_RULE_REG
-             CHARACTER( 16 ) :: SURR
+             CHARACTER( 32 ) :: REGION
              CHARACTER( 32 ) :: SRC
+             CHARACTER( 16 ) :: SURR
              CHARACTER( 16 ) :: SPEC
              CHARACTER( 16 ) :: PHASE
              REAL            :: FAC
              CHARACTER( 1  ) :: OP
-             CHARACTER( 32 ) :: REGION
       END TYPE EM_RULE_REG
       INTEGER, PARAMETER  :: N_EM_RULE_REG = 2000
    
@@ -405,6 +405,7 @@
             EM_NML(N_EM_RULE)%SURR  = 'NH3_FERT'
             EM_NML(N_EM_RULE)%FAC   = -1.0
             EM_NML(N_EM_RULE)%OP    = 'a'
+            EM_NML(N_EM_RULE)%REGION= 'EVERYWHERE'
          END IF
 
       ! Add rules for moving sulfuric acid emissions from the gas phase
@@ -416,6 +417,7 @@
          EM_NML(N_EM_RULE)%SURR  = 'SULF'
          EM_NML(N_EM_RULE)%FAC   = 0.0
          EM_NML(N_EM_RULE)%OP    = 'o' 
+         EM_NML(N_EM_RULE)%REGION= 'EVERYWHERE'
 
          N_EM_RULE = N_EM_RULE + 1
          EM_NML(N_EM_RULE)%SPEC  = 'ASO4'
@@ -424,6 +426,7 @@
          EM_NML(N_EM_RULE)%SURR  = 'SULF'
          EM_NML(N_EM_RULE)%FAC   = 1.0
          EM_NML(N_EM_RULE)%OP    = 'a' 
+         EM_NML(N_EM_RULE)%REGION= 'EVERYWHERE'
 
       ! Add rules for speciating coarse PM from Anthropogenic Sources
       !  Coarse-Mode Sulfate
@@ -434,6 +437,7 @@
          EM_NML(N_EM_RULE)%SURR  = 'PMC'
          EM_NML(N_EM_RULE)%FAC   = REAL( ACORSEM_ASO4_FAC, 4 ) 
          EM_NML(N_EM_RULE)%OP    = 'a' 
+         EM_NML(N_EM_RULE)%REGION= 'EVERYWHERE'
 
       !  Coarse-Mode Nitrate
          N_EM_RULE = N_EM_RULE + 1
@@ -443,6 +447,7 @@
          EM_NML(N_EM_RULE)%SURR  = 'PMC'
          EM_NML(N_EM_RULE)%FAC   = REAL( ACORSEM_ANO3_FAC, 4 )
          EM_NML(N_EM_RULE)%OP    = 'a' 
+         EM_NML(N_EM_RULE)%REGION= 'EVERYWHERE'
 
       !  Coarse-Mode Chloride
          N_EM_RULE = N_EM_RULE + 1
@@ -452,6 +457,7 @@
          EM_NML(N_EM_RULE)%SURR  = 'PMC'
          EM_NML(N_EM_RULE)%FAC   = REAL( ACORSEM_ACL_FAC, 4 ) 
          EM_NML(N_EM_RULE)%OP    = 'a' 
+         EM_NML(N_EM_RULE)%REGION= 'EVERYWHERE'
 
       !  Coarse-Mode Water
          N_EM_RULE = N_EM_RULE + 1
@@ -461,6 +467,7 @@
          EM_NML(N_EM_RULE)%SURR  = 'PMC'
          EM_NML(N_EM_RULE)%FAC   = REAL( ACORSEM_AH2O_FAC, 4 )
          EM_NML(N_EM_RULE)%OP    = 'a' 
+         EM_NML(N_EM_RULE)%REGION= 'EVERYWHERE'
  
       !  Anthropogenic Coarse-Mode Other
          N_EM_RULE = N_EM_RULE + 1
@@ -470,6 +477,7 @@
          EM_NML(N_EM_RULE)%SURR  = 'PMC'
          EM_NML(N_EM_RULE)%FAC   = REAL( ACORSEM_RENORM, 4 )
          EM_NML(N_EM_RULE)%OP    = 'a' 
+         EM_NML(N_EM_RULE)%REGION= 'EVERYWHERE'
  
       END SUBROUTINE CUSTOM_EM_RULES
  
@@ -500,7 +508,7 @@
       CHARACTER( 250)    :: XMSG
 
       ! Find the total number of regions to be processed
-      N_EM_RGN = 1  ! The first region is the entire domain
+      N_EM_RGN = 0  ! The first region is the entire domain
       DO IRGN = 1,N_REGIONS_REG
           IF ( RGN_NML( IRGN )%LABEL .EQ. '' ) EXIT
           N_EM_RGN = N_EM_RGN + 1
@@ -515,69 +523,73 @@
       EM_REGIONS( 1 )%FILENUM = 1
       FILENAMES( 1 ) = 'N/A'
          
+      ALLOCATE( EM_REG_FAC( NCOLS,NROWS,N_EM_RGN ) )
+      EM_REG_FAC = 0.0
+      EM_REG_FAC( :,:,1 ) = 1.0
+
       ! Populate global Region properties structure. Also assign each
       ! region a number according to the file it comes from. 1 =
       ! domain-wide.
       NFILE = 1
-      DO IRGN = 2,N_REGIONS_REG
-         EM_REGIONS( IRGN )%LABEL = RGN_NML( IRGN )%LABEL  ! Region Name
-         EM_REGIONS( IRGN )%FILE  = RGN_NML( IRGN )%FILE   ! Logical filename
-         EM_REGIONS( IRGN )%VAR   = RGN_NML( IRGN )%VAR    ! Variable from file 
+      IF ( N_EM_RGN .GT. 1 ) THEN
+        DO IRGN = 2,N_EM_RGN
+           EM_REGIONS( IRGN )%LABEL = RGN_NML( IRGN )%LABEL  ! Region Name
+           EM_REGIONS( IRGN )%FILE  = RGN_NML( IRGN )%FILE   ! Logical filename
+           EM_REGIONS( IRGN )%VAR   = RGN_NML( IRGN )%VAR    ! Variable from file 
                                                            !   used to inform mask
 
-         IDX = INDEX1( EM_REGIONS( IRGN )%FILE, NFILE0, FILENAMES )
-         IF ( IDX .NE. 0 ) THEN
-           EM_REGIONS( IRGN )%FILENUM = IDX
-         ELSE
-           NFILE = NFILE + 1
-           EM_REGIONS( IRGN )%FILENUM = NFILE
-           FILENAMES( NFILE ) = EM_REGIONS( IRGN )%FILE
-         END IF                                                           
-      END DO
-      
-      ! Process each regiom by looping through the pertinent files, 
-      ! look up maps and save the data in a global array
-      ALLOCATE( EM_REG_FAC( NCOLS,NROWS,N_REGIONS_REG ) )
-      EM_REG_FAC = 0.0
-      EM_REG_FAC( :,:,1 ) = 1.0
-
-      DO IFILE = 1,NFILE
-        ! Get domain decomp info from the emissions file
-        CALL SUBHFILE ( FILENAMES( NFILE ), GXOFF, GYOFF,
-     &                  STARTCOL, ENDCOL, STARTROW, ENDROW )
-
-        ! Open input file
-        IF ( .NOT. OPEN3( FILENAMES( IFILE ), FSREAD3, PNAME ) ) THEN
-            XMSG = 'Could not open '// FILENAMES( IFILE ) // ' file'
-           CALL M3EXIT( PNAME, STDATE, STTIME, XMSG, XSTAT1 )
-        END IF
-
-        ! Retrieve File Header Information
-        IF ( .NOT. DESC3( FILENAMES( IFILE ) ) ) THEN
-            XMSG = 'Could not get ' // FILENAMES( IFILE ) // ' file description'
-           CALL M3EXIT( PNAME, STDATE, STTIME, XMSG, XSTAT1 )
-        END IF
-
-        ! Read data from regions file into region array 
-        DO IRGN = 2,N_REGIONS_REG
-            IF ( EM_REGIONS( IRGN )%FILENUM .EQ. IFILE ) THEN
-                VNAME = EM_REGIONS( IRGN )%VAR
-                IF ( .NOT. INTERPX( FILENAMES( IFILE ), VNAME, PNAME,
-     &               STARTCOL, ENDCOL, STARTROW, ENDROW, 1, 1,
-     &               SDATE3D, STIME3D, EM_REG_FAC( 1,1,IRGN ) ) )
-     &               CALL M3ERR( PNAME, SDATE3D, STIME3D,
-     &                   'Could not read ' // VNAME //
-     &                   'from ' // FILENAMES( IFILE ) // ' file', .TRUE. )
-            END IF
+           IDX = INDEX1( EM_REGIONS( IRGN )%FILE, NFILE, FILENAMES(1:NFILE) )
+           IF ( IDX .NE. 0 ) THEN
+             EM_REGIONS( IRGN )%FILENUM = IDX
+           ELSE
+             NFILE = NFILE + 1
+             EM_REGIONS( IRGN )%FILENUM = NFILE
+             FILENAMES( NFILE ) = EM_REGIONS( IRGN )%FILE
+           END IF                                                           
         END DO
+      
+        ! Process each region by looping through the pertinent files, 
+        ! look up maps and save the data in a global array
+        DO IFILE = 1,NFILE
+          IF ( FILENAMES( IFILE ) .EQ. 'N/A' ) CYCLE
+         
+          ! Get domain decomp info from the emissions file
+          CALL SUBHFILE ( FILENAMES( IFILE ), GXOFF, GYOFF,
+     &                    STARTCOL, ENDCOL, STARTROW, ENDROW )
+         
+          ! Open input file
+          IF ( .NOT. OPEN3( FILENAMES( IFILE ), FSREAD3, PNAME ) ) THEN
+              XMSG = 'Could not open '// FILENAMES( IFILE ) // ' file'
+             CALL M3EXIT( PNAME, STDATE, STTIME, XMSG, XSTAT1 )
+          END IF
+         
+          ! Retrieve File Header Information
+          IF ( .NOT. DESC3( FILENAMES( IFILE ) ) ) THEN
+              XMSG = 'Could not get ' // FILENAMES( IFILE ) // ' file description'
+             CALL M3EXIT( PNAME, STDATE, STTIME, XMSG, XSTAT1 )
+          END IF
+         
+          ! Read data from regions file into region array 
+          DO IRGN = 2,N_EM_RGN
+              IF ( EM_REGIONS( IRGN )%FILENUM .EQ. IFILE ) THEN
+                  VNAME = EM_REGIONS( IRGN )%VAR
+                  IF ( .NOT. INTERPX( FILENAMES( IFILE ), VNAME, PNAME,
+     &                 STARTCOL, ENDCOL, STARTROW, ENDROW, 1, 1,
+     &                 SDATE3D, STIME3D, EM_REG_FAC( 1,1,IRGN ) ) )
+     &                 CALL M3ERR( PNAME, SDATE3D, STIME3D,
+     &                     'Could not read ' // VNAME //
+     &                     'from ' // FILENAMES( IFILE ) // ' file', .TRUE. )
+              END IF
+          END DO
 
-        ! Close Regions File
-        IF ( .NOT. CLOSE3( FILENAMES( IFILE ) ) ) THEN
-          XMSG = 'Could not close ' // FILENAMES( IFILE )
-          CALL M3EXIT( PNAME, SDATE3D, STIME3D, XMSG, XSTAT1 )
-        END IF
-
-      END DO
+          ! Close Regions File
+          IF ( .NOT. CLOSE3( FILENAMES( IFILE ) ) ) THEN
+            XMSG = 'Could not close ' // FILENAMES( IFILE )
+            CALL M3EXIT( PNAME, SDATE3D, STIME3D, XMSG, XSTAT1 )
+          END IF
+         
+        END DO
+      END IF
       
       END SUBROUTINE INIT_EMIS_REGIONS
 

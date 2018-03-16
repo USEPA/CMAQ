@@ -6,7 +6,7 @@
 ! NATIONAL EXPOSURE RESEARCH LABORATORY, OFFICE OF RESEARCH AND DEVELOPMENT    !
 ! UNITED STATES ENVIRONMENTAL PROTECTION AGENCY                                !
 !                                                                              !
-! THIS VERSION CONSISTENT WITH THE RELEASE OF CMAQv5.3 (FALL 2018)             !
+! THIS VERSION CONSISTENT WITH THE RELEASE OF CMAQv5.3 (SPRING 2019)           !
 !------------------------------------------------------------------------------!
 
 !------------------------------------------------------------------------------!
@@ -63,33 +63,34 @@
  EM_NML=
  
  !---Organic Aerosol Vapors and Particles            
- !      Emission |Source | CMAQ-   |Phase/ |Scale | Op
- !      Surrogate| Label | Species |Mode   |Factor|
-        'POC'    ,'All'  ,'PCVOC'  ,'GAS'  ,0.0387 ,'a',
-        'PNCOM'  ,'All'  ,'PCVOC'  ,'GAS'  ,0.0387 ,'a',
-                          
-        'POC'    ,'All'  ,'VLVPO1' ,'GAS'  ,0.0    ,'a',
-        'PNCOM'  ,'All'  ,'VLVPO1' ,'GAS'  ,0.0    ,'a',
-        'POC'    ,'All'  ,'VSVPO1' ,'GAS'  ,0.045  ,'a',
-        'PNCOM'  ,'All'  ,'VSVPO1' ,'GAS'  ,0.045  ,'a',
-        'POC'    ,'All'  ,'VSVPO2' ,'GAS'  ,0.14   ,'a',
-        'PNCOM'  ,'All'  ,'VSVPO2' ,'GAS'  ,0.14   ,'a',
-        'POC'    ,'All'  ,'VSVPO3' ,'GAS'  ,0.18   ,'a',
-        'PNCOM'  ,'All'  ,'VSVPO3' ,'GAS'  ,0.18   ,'a',
-        'POC'    ,'All'  ,'VIVPO1' ,'GAS'  ,0.5    ,'a',
-        'PNCOM'  ,'All'  ,'VIVPO1' ,'GAS'  ,0.5    ,'a',
-                          
-        'POC'    ,'All'  ,'ALVPO1' ,'FINE' ,0.09   ,'a',
-        'PNCOM'  ,'All'  ,'ALVPO1' ,'FINE' ,0.09   ,'a',
-        'POC'    ,'All'  ,'ASVPO1' ,'FINE' ,0.045  ,'a',
-        'PNCOM'  ,'All'  ,'ASVPO1' ,'FINE' ,0.045  ,'a',
-        'POC'    ,'All'  ,'ASVPO2' ,'FINE' ,0.     ,'a',
-        'PNCOM'  ,'All'  ,'ASVPO2' ,'FINE' ,0.     ,'a',
-        'POC'    ,'All'  ,'ASVPO3' ,'FINE' ,0.     ,'a',
-        'PNCOM'  ,'All'  ,'ASVPO3' ,'FINE' ,0.     ,'a',
-        'POC'    ,'All'  ,'AIVPO1' ,'FINE' ,0.     ,'a',
-        'PNCOM'  ,'All'  ,'AIVPO1' ,'FINE' ,0.     ,'a',
+ !         Region   |Source |Emission | CMAQ-   |Phase/ |Scale | Op
+ !          Label   | Label |Surrogate| Species |Mode   |Factor|
+        'EVERYWHERE', 'All' ,'POC'    ,'PCVOC'  ,'GAS'  ,0.0387 ,'a',
+        'EVERYWHERE', 'All' ,'PNCOM'  ,'PCVOC'  ,'GAS'  ,0.0387 ,'a',
+                           
+        'EVERYWHERE', 'All' ,'POC'    ,'VLVPO1' ,'GAS'  ,0.0    ,'a',
+        'EVERYWHERE', 'All' ,'PNCOM'  ,'VLVPO1' ,'GAS'  ,0.0    ,'a',
+        'EVERYWHERE', 'All' ,'POC'    ,'VSVPO1' ,'GAS'  ,0.045  ,'a',
+        'EVERYWHERE', 'All' ,'PNCOM'  ,'VSVPO1' ,'GAS'  ,0.045  ,'a',
+        'EVERYWHERE', 'All' ,'POC'    ,'VSVPO2' ,'GAS'  ,0.14   ,'a',
+        'EVERYWHERE', 'All' ,'PNCOM'  ,'VSVPO2' ,'GAS'  ,0.14   ,'a',
+        'EVERYWHERE', 'All' ,'POC'    ,'VSVPO3' ,'GAS'  ,0.18   ,'a',
+        'EVERYWHERE', 'All' ,'PNCOM'  ,'VSVPO3' ,'GAS'  ,0.18   ,'a',
+        'EVERYWHERE', 'All' ,'POC'    ,'VIVPO1' ,'GAS'  ,0.5    ,'a',
+        'EVERYWHERE', 'All' ,'PNCOM'  ,'VIVPO1' ,'GAS'  ,0.5    ,'a',
+                           
+        'EVERYWHERE', 'All' ,'POC'    ,'ALVPO1' ,'FINE' ,0.09   ,'a',
+        'EVERYWHERE', 'All' ,'PNCOM'  ,'ALVPO1' ,'FINE' ,0.09   ,'a',
+        'EVERYWHERE', 'All' ,'POC'    ,'ASVPO1' ,'FINE' ,0.045  ,'a',
+        'EVERYWHERE', 'All' ,'PNCOM'  ,'ASVPO1' ,'FINE' ,0.045  ,'a',
+        'EVERYWHERE', 'All' ,'POC'    ,'ASVPO2' ,'FINE' ,0.     ,'a',
+        'EVERYWHERE', 'All' ,'PNCOM'  ,'ASVPO2' ,'FINE' ,0.     ,'a',
+        'EVERYWHERE', 'All' ,'POC'    ,'ASVPO3' ,'FINE' ,0.     ,'a',
+        'EVERYWHERE', 'All' ,'PNCOM'  ,'ASVPO3' ,'FINE' ,0.     ,'a',
+        'EVERYWHERE', 'All' ,'POC'    ,'AIVPO1' ,'FINE' ,0.     ,'a',
+        'EVERYWHERE', 'All' ,'PNCOM'  ,'AIVPO1' ,'FINE' ,0.     ,'a',
 
+        'WATER'     , 'All' ,'All'    ,'All'    ,'All' ,0.     ,'o',
 /
 
 
@@ -128,4 +129,41 @@
             'GRIDDED_EMIS'  ,'COARSE'      ,'COARSE_REF',
 /
 
+!------------------------------------------------------------------------------!
+! Region-Based Scaling Specification Section                                   !
+!   It is possible in CMAQ to scale emissions for a subset of the model domain !
+!   using gridded masks to indicate where the scaling should occur. These masks!
+!   should be of type real and provided as variables on a file with format     !
+!   consistent with IO-API. Any number of files and variables may be used to   !
+!   specify 1 or more "regions" to be used in CMAQ. This section of the name-  !
+!   list provides users with an interface to name these regions and identify   !
+!   the source data for each.
+!                                                                              !
+!   Definition of Fields:                                                      !
+!      'Region  - Label for the region that is being specified. By default, the!
+!        Label'   first region, which will never be specified here, is the     !
+!                 whole domain, or "EVERYWHERE". It is included in this file   !
+!                 for transparency but should always be commented out.         !
+!      'File  - With this label, the user identifies the file that the data for!
+!       Label'  this region is stored on. The CMAQ runscript should provide the!
+!               path to this file using the environment variable construct. For!
+!               example, to refer to file "CMAQ_REGIONS" with path             !
+!               "/home/user/data/cmaq/cmaq_region_file.nc" the specification in!
+!               the CMAQ runscript would look like:                            !
+!                  SETENV CMAQ_REGIONS /home/user/data/cmaq/cmaq_region_file.nc!
+!               Note that an unlimited number of files can be used here, but   !
+!               each must contain a path for reference in the runscript.       !
+!      'Variable  - This label identifies the variable on the region file that !
+!        on File'   should be used to populate this particular region. Each    !
+!                   variable should be of type real and have dimensions equal  !
+!                   to the size of the CMAQ domain. In this way, the fraction  !
+!                   of every region should be available for every model grid   !
+!                   cell.
+!------------------------------------------------------------------------------!
 
+&Regions_Registry
+ !              | Region Label   | File_Label  | Variable on File
+ REGIONS_NML  =    'EVERYWHERE'  ,'N/A'        ,'N/A',
+                   'WATER'       ,'CMAQ_MASKS' ,'OPEN',
+/
+ 

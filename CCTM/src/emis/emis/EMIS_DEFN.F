@@ -499,9 +499,11 @@ C-----------------------------------------------------------------------
       INTEGER, INTENT( IN ) :: ISRC
       REAL, INTENT( IN )    :: VDEMISRD( :,:,:,: )
 
-      INTEGER ISTR, IRGN, IREG, L
+      INTEGER ISTR, IRGN, IFAC, L, NL
+
 
       VDEMIS_SCLD = 0.0
+      NL = SIZE( VDEMISRD,2 )
       
       ! Loop through instructions and sources
       DO ISTR = 1,N_EMIS_ISTR
@@ -509,46 +511,52 @@ C-----------------------------------------------------------------------
         IF ( MAP_EMtoSURR( ISTR,ISRC ) .EQ. 0 ) CYCLE
 
         ! Loop through Instructions Based on Region-Dependent Scaling
-        DO IRGN = 1,EM_FAC_ST( ISTR,ISRC )%LEN
+        DO IFAC = 1,EM_FAC_ST( ISTR,ISRC )%LEN
               !Apply scaling using EM_FAC_ST and VDEMIS_RGN
-              SELECT CASE ( EM_FAC_ST( ISTR,ISRC )%OP( IRGN ) )
+              SELECT CASE ( EM_FAC_ST( ISTR,ISRC )%OP( IFAC ) )
               CASE ( 1 )  ! Add scaled emissions
-                  IF ( EM_FAC_ST( ISTR,ISRC )%REG( IRGN ) .EQ. 1 ) THEN
+                  IF ( EM_FAC_ST( ISTR,ISRC )%REG( IFAC ) .EQ. 1 ) THEN
                      ! Add Emissions for the Entire Domain
                      VDEMIS_SCLD( ISTR,:,:,: ) = VDEMIS_SCLD( ISTR,:,:,: ) +
-     &                   VDEMISRD( ISTR,:,:,: ) * EM_FAC_ST( ISTR,ISRC )%FAC( IRGN )
+     &                   VDEMISRD( ISTR,:,:,: ) * EM_FAC_ST( ISTR,ISRC )%FAC( IFAC )
                   ELSE
                      ! Add Emissions just for a subdomain
-                     IREG = EM_FAC_ST( ISTR,ISRC )%REG( IRGN ) 
-                     VDEMIS_SCLD( ISTR,L,:,: ) = VDEMIS_SCLD( ISTR,L,:,: ) +
-     &                   VDEMISRD( ISTR,L,:,: ) * EM_FAC_ST( ISTR,ISRC )%FAC( IRGN ) *
-     &                   EM_REG_FAC( :,:,IREG )
+                     IRGN = EM_FAC_ST( ISTR,ISRC )%REG( IFAC ) 
+                     DO L = 1,NL
+                       VDEMIS_SCLD( ISTR,L,:,: ) = VDEMIS_SCLD( ISTR,L,:,: ) +
+     &                   VDEMISRD( ISTR,L,:,: ) * EM_FAC_ST( ISTR,ISRC )%FAC( IFAC ) *
+     &                   EM_REG_FAC( :,:,IRGN )
+                     END DO
                   END IF
               CASE ( 2 )  ! Modify scaled emissions
-                  IF ( EM_FAC_ST( ISTR,ISRC )%REG( IRGN ) .EQ. 1 ) THEN
+                  IF ( EM_FAC_ST( ISTR,ISRC )%REG( IFAC ) .EQ. 1 ) THEN
                      ! Scale Emissions for the Entire Domain
                      VDEMIS_SCLD( ISTR,:,:,: ) = VDEMIS_SCLD( ISTR,:,:,: )
-     &                   * EM_FAC_ST( ISTR,ISRC )%FAC( IRGN )
+     &                   * EM_FAC_ST( ISTR,ISRC )%FAC( IFAC )
                   ELSE
                      ! Scale Emissions just for a subdomain
-                     IREG = EM_FAC_ST( ISTR,ISRC )%REG( IRGN ) 
-                     VDEMIS_SCLD( ISTR,L,:,: ) = VDEMIS_SCLD( ISTR,L,:,: ) * 
-     &                     (1.0 - EM_REG_FAC( :,:,IREG ) ) +
-     &                   VDEMIS_SCLD( ISTR,L,:,: ) * EM_FAC_ST( ISTR,ISRC )%FAC( IRGN ) *
-     &                   EM_REG_FAC( :,:,IREG )
+                     IRGN = EM_FAC_ST( ISTR,ISRC )%REG( IFAC ) 
+                     DO L = 1,NL
+                       VDEMIS_SCLD( ISTR,L,:,: ) = VDEMIS_SCLD( ISTR,L,:,: ) * 
+     &                     (1.0 - EM_REG_FAC( :,:,IRGN ) ) +
+     &                   VDEMIS_SCLD( ISTR,L,:,: ) * EM_FAC_ST( ISTR,ISRC )%FAC( IFAC ) *
+     &                   EM_REG_FAC( :,:,IRGN )
+                     END DO
                   END IF
               CASE ( 3 )  ! Overwrite emissions
-                  IF ( EM_FAC_ST( ISTR,ISRC )%REG( IRGN ) .EQ. 1 ) THEN
+                  IF ( EM_FAC_ST( ISTR,ISRC )%REG( IFAC ) .EQ. 1 ) THEN
                      ! Overwrite Emissions for the Entire Domain
                      VDEMIS_SCLD( ISTR,:,:,: ) = VDEMISRD( ISTR,:,:,: ) *
-     &                  EM_FAC_ST( ISTR,ISRC )%FAC( IRGN )
+     &                  EM_FAC_ST( ISTR,ISRC )%FAC( IFAC )
                   ELSE
                      ! Overwrite Emissions just for a subdomain
-                     IREG = EM_FAC_ST( ISTR,ISRC )%REG( IRGN ) 
-                     VDEMIS_SCLD( ISTR,L,:,: ) = VDEMIS_SCLD( ISTR,L,:,: ) *
-     &                     (1.0 - EM_REG_FAC( :,:,IREG ) ) +
-     &                   VDEMISRD( ISTR,L,:,: ) * EM_FAC_ST( ISTR,ISRC )%FAC( IRGN ) *
-     &                   EM_REG_FAC( :,:,IREG )
+                     IRGN = EM_FAC_ST( ISTR,ISRC )%REG( IFAC ) 
+                     DO L = 1,NL
+                       VDEMIS_SCLD( ISTR,L,:,: ) = VDEMIS_SCLD( ISTR,L,:,: ) *
+     &                     (1.0 - EM_REG_FAC( :,:,IRGN ) ) +
+     &                   VDEMISRD( ISTR,L,:,: ) * EM_FAC_ST( ISTR,ISRC )%FAC( IFAC ) *
+     &                   EM_REG_FAC( :,:,IRGN )
+                     END DO
                   END IF
               END SELECT
 
@@ -670,7 +678,7 @@ C-----------------------------------------------------------------------
          INTEGER    :: STRT, PTSTRT, ISPC, IDX, LOGDEV, IX, ISUR, IRULE,
      &                 N, IM, IAERO, V, ISRC,NSPC, IA, IDIFF, JDX, JM,
      &                 ISTR, ISUR0, ISRC0, IEM, KDX, JSD, JEM, ISD,
-     &                 IREG, IRGN, ISTRN, NREG
+     &                 IFAC, IRGN, ISTRN, NFAC
          REAL       :: AERO_SPLIT, UNIT_FAC_1, UNIT_FAC_2, SURR_MW
 
          LOGICAL    :: LERROR, LFOUND
@@ -690,14 +698,16 @@ C-----------------------------------------------------------------------
          INTEGER, PARAMETER :: NISTR0 = 3000
          LOGICAL, ALLOCATABLE, SAVE :: EM_SRC_RULE( : ), EM_SPEC_RULE( : )
          TYPE( LARRY1 ), ALLOCATABLE, SAVE :: EM_SURR_RULE( : ), EM_PHASE_RULE( : )
+         INTEGER, PARAMETER :: N_SCALEFAC = 3000
         
-         INTEGER          :: IC, N_COMMANDS
-         INTEGER          :: RULE_ISTR_IDIFF( NISTR0 )
-         INTEGER          :: RULE_ISTR_ISRC ( NISTR0 )
-         INTEGER          :: RULE_ISTR_ISUR ( NISTR0 )
-         CHARACTER( 16 )  :: RULE_ISTR_SPEC ( NISTR0 )
-         CHARACTER( 16 )  :: RULE_ISTR_SURR ( NISTR0 )
-         INTEGER          :: RULE_ISTR_PHASE( NISTR0 )
+         INTEGER            :: IC, N_COMMANDS
+         INTEGER, PARAMETER :: NCOMM0 = 4000000
+         INTEGER            :: RULE_ISTR_IDIFF( NCOMM0 )
+         INTEGER            :: RULE_ISTR_ISRC ( NCOMM0 )
+         INTEGER            :: RULE_ISTR_ISUR ( NCOMM0 )
+         CHARACTER( 16 )    :: RULE_ISTR_SPEC ( NCOMM0 )
+         CHARACTER( 16 )    :: RULE_ISTR_SURR ( NCOMM0 )
+         INTEGER            :: RULE_ISTR_PHASE( NCOMM0 )
 
          REAL, ALLOCATABLE :: EM_FAC( :,:,: )
          REAL, ALLOCATABLE :: EM_FAC_BULK( :,:,: )
@@ -824,13 +834,13 @@ C-----------------------------------------------------------------------
          EM_SPEC = ""
          ALLOCATE( EM_SURR( NISTR0,N_EM_SRC ) )       ! Surrogate Name
          EM_SURR = ""
-         ALLOCATE( EM_FAC ( NISTR0,N_EM_SRC,N_REGIONS_REG ) ) ! Scale Factor
+         ALLOCATE( EM_FAC ( NISTR0,N_EM_SRC,N_SCALEFAC ) ) ! Scale Factor
          EM_FAC = 0.0
-         ALLOCATE( EM_FAC_BULK( NISTR0,N_EM_SRC,N_REGIONS_REG ) ) ! Bulk Scale Factor For Printing to Diagnostic
+         ALLOCATE( EM_FAC_BULK( NISTR0,N_EM_SRC,N_SCALEFAC ) ) ! Bulk Scale Factor For Printing to Diagnostic
          EM_FAC_BULK = 0.0                                        !   Output. Ignores aero_split and unit conversion
-         ALLOCATE( EM_OP( NISTR0,N_EM_SRC,N_REGIONS_REG ) )  ! Bulk Scale Factor For Printing to Diagnostic
+         ALLOCATE( EM_OP( NISTR0,N_EM_SRC,N_SCALEFAC ) )  ! Bulk Scale Factor For Printing to Diagnostic
          EM_OP = ""                                          !   Output. Ignores aero_split and unit conversion
-         ALLOCATE( EM_REG( NISTR0,N_EM_SRC,N_REGIONS_REG ) ) ! Bulk Scale Factor For Printing to Diagnostic
+         ALLOCATE( EM_REG( NISTR0,N_EM_SRC,N_SCALEFAC ) ) ! Bulk Scale Factor For Printing to Diagnostic
          EM_REG = 1                                          !   Output. Ignores aero_split and unit conversion
          ALLOCATE( MAP_EMtoDIFF( NISTR0 ) )           ! Map from Emissions Species 
          MAP_EMtoDIFF = 0                             !   to Diffusion Vector
@@ -1011,7 +1021,7 @@ C-----------------------------------------------------------------------
          CLOSE( UNIT = EMCTRL_NML )
          
          ! Find Total Number of Rules
-         DO IRULE = 1,N_EM_RULE0
+         DO IRULE = 1,N_EM_RULE_REG
             IF( EM_NML( IRULE )%SPEC .EQ. '' ) EXIT
             N_EM_RULE = IRULE
          END DO
@@ -1305,7 +1315,6 @@ C-----------------------------------------------------------------------
 
                     ! Link this row to the Aerosol Module.
                     IF ( DIFF_MASK_AERO( RULE_ISTR_IDIFF( IC ) ) ) THEN
-                      IEM = EM_SRC_SD( ISRC )%REF( RULE_ISTR_PHASE( IC ) )
                       DO IAERO = 1,N_AEROSPC
                         JM = INDEX1( EM_SPEC( ISTR ), N_MODE, AEROSPC( IAERO )%NAME( : ) )
                         IF ( JM .GT. 0 ) THEN
@@ -1334,14 +1343,14 @@ C-----------------------------------------------------------------------
      &                 ISRC .NE. IDUSTSRC .AND. ISRC .NE. ISEASRC    )
      &                 AERO_SPLIT = SD_SPLIT( RULE_ISTR_IDIFF( IC ), IEM )
 
-                  ! Determine Next Free Location in Region Space
-                  ! (IREG) so that the scale factor can be added.
-                  DO IREG = 1,N_REGIONS_REG
-                     IF ( EM_OP( ISTR, ISRC, IREG ) .EQ. '' ) THEN
-                        EM_FAC ( ISTR, ISRC, IREG ) = EM_NML( IRULE )%FAC * AERO_SPLIT
-                        EM_FAC_BULK ( ISTR, ISRC, IREG ) = EM_NML( IRULE )%FAC
-                        EM_REG( N_EMIS_ISTR, ISRC, IREG ) = REGNUM
-                        EM_OP( N_EMIS_ISTR, ISRC, IREG )  = EM_NML( IRULE )%OP
+                  ! Determine Next Free Location in Scale Factor Space
+                  ! (IFAC) so that the scale factor can be added.
+                  DO IFAC = 1,N_SCALEFAC
+                      IF ( EM_OP( ISTR, ISRC, IFAC ) .EQ. '' ) THEN
+                           EM_FAC ( ISTR, ISRC, IFAC ) = EM_NML( IRULE )%FAC * AERO_SPLIT
+                        EM_FAC_BULK ( ISTR, ISRC, IFAC ) = EM_NML( IRULE )%FAC
+                        EM_REG( ISTR, ISRC, IFAC ) = REGNUM
+                        EM_OP( ISTR, ISRC, IFAC )  = EM_NML( IRULE )%OP
                         EXIT
                      END IF
                   END DO
@@ -1352,34 +1361,31 @@ C-----------------------------------------------------------------------
                DO IC = 1,N_COMMANDS
                  ! Loop through existing instructions and find matches
                  IF ( N_EMIS_ISTR .GT. 0 ) THEN
+                   ISRC = RULE_ISTR_ISRC( IC )
                    DO ISTR = 1,N_EMIS_ISTR
                    IF ( EM_SPEC( ISTR ) .EQ. RULE_ISTR_SPEC( IC ) ) THEN
-                     DO ISRC = 1,N_EM_SRC
-                     DO ISUR = 1,EM_FILE_SURR( ISRC )%LEN
-                       IF ( EM_SURR( ISTR, ISRC ) .EQ. RULE_ISTR_SURR( IC ) .AND.
-     &                      MAP_EMtoSD( ISTR,ISRC ) .EQ. RULE_ISTR_PHASE( IC ) ) THEN
+                      IF ( EM_SURR( ISTR, ISRC ) .EQ. RULE_ISTR_SURR( IC ) .AND.
+     &                     MAP_EMtoSD( ISTR,ISRC ) .EQ. RULE_ISTR_PHASE( IC ) ) THEN
                   
-                         IEM = EM_SRC_SD( ISRC )%REF( RULE_ISTR_PHASE( IC ) )
-                         AERO_SPLIT = 1.0
-                         IF ( DIFF_MASK_AERO( RULE_ISTR_IDIFF( IC ) ) .AND.
-     &                        EM_NML( IRULE )%OP .EQ. 'o' ) 
-     &                        AERO_SPLIT = SD_SPLIT( RULE_ISTR_IDIFF( IC ), IEM )
+                        IEM = EM_SRC_SD( ISRC )%REF( RULE_ISTR_PHASE( IC ) )
+                        AERO_SPLIT = 1.0
+                        IF ( DIFF_MASK_AERO( RULE_ISTR_IDIFF( IC ) ) .AND.
+     &                       EM_NML( IRULE )%OP .EQ. 'o' ) 
+     &                       AERO_SPLIT = SD_SPLIT( RULE_ISTR_IDIFF( IC ), IEM )
 
-                         ! Determine Next Free Location in Region Space (IREG) so 
-                         ! that the scale factor can be added.
-                         DO IREG = 1,N_REGIONS_REG
-                           IF ( EM_OP( ISTR, ISRC, IREG ) .EQ. '' ) THEN
-                              EM_FAC ( ISTR, ISRC, IREG ) = EM_NML( IRULE )%FAC * AERO_SPLIT
-                              EM_FAC_BULK ( ISTR, ISRC, IREG ) = EM_NML( IRULE )%FAC
-                              EM_REG( N_EMIS_ISTR, ISRC, IREG ) = REGNUM
-                              EM_OP( N_EMIS_ISTR, ISRC, IREG )  = EM_NML( IRULE )%OP
-                              EXIT
-                           END IF
-                         END DO
+                        ! Determine Next Free Location in Scale Factor Space (IFAC) so 
+                        ! that the scale factor can be added.
+                        DO IFAC = 1,N_SCALEFAC
+                          IF ( EM_OP( ISTR, ISRC, IFAC ) .EQ. '' ) THEN
+                              EM_FAC ( ISTR, ISRC, IFAC )      = EM_NML( IRULE )%FAC * AERO_SPLIT
+                             EM_FAC_BULK ( ISTR, ISRC, IFAC ) = EM_NML( IRULE )%FAC
+                             EM_REG( ISTR, ISRC, IFAC )       = REGNUM
+                             EM_OP( ISTR, ISRC, IFAC )        = EM_NML( IRULE )%OP
+                             EXIT
+                          END IF
+                        END DO
  
-                       END IF
-                     END DO
-                     END DO
+                      END IF
                    END IF
                    END DO
                  ELSE
@@ -1399,41 +1405,44 @@ C-----------------------------------------------------------------------
 ! based on species moleculer weights.
          ALLOCATE( EM_FAC_ST( N_EMIS_ISTR,N_EM_SRC ) )
          DO ISTR = 1,N_EMIS_ISTR
-            ! First load emission factor structure
-            NREG = 1
-            DO IREG = 1,N_EM_RGN
-              IF ( EM_OP( N_EMIS_ISTR,ISRC,IREG ) .NE. '' ) THEN
-                  NREG = IREG - 1
-                  EXIT
-              END IF
+            DO ISRC = 1,N_EM_SRC
+               ! First load emission factor structure
+               NFAC = 1
+               DO IFAC = 2,N_SCALEFAC
+                   IF ( EM_OP( ISTR,ISRC,IFAC ) .EQ. '' ) EXIT
+                 NFAC = NFAC + 1  
+               END DO
+
+        
+               EM_FAC_ST( ISTR,ISRC )%LEN = NFAC
+               ALLOCATE( EM_FAC_ST( ISTR,ISRC )%FAC( NFAC ) )
+               ALLOCATE( EM_FAC_ST( ISTR,ISRC )%BULK( NFAC ) )
+               ALLOCATE( EM_FAC_ST( ISTR,ISRC )%REG( NFAC ) )
+               ALLOCATE( EM_FAC_ST( ISTR,ISRC )%OP( NFAC ) )
+                 
+               EM_FAC_ST( ISTR,ISRC )%FAC  = 0.
+               EM_FAC_ST( ISTR,ISRC )%BULK = 0.
+               EM_FAC_ST( ISTR,ISRC )%REG  = 1
+               EM_FAC_ST( ISTR,ISRC )%OP   = 0
+        
+               DO IFAC = 1,NFAC
+                 EM_FAC_ST( ISTR,ISRC )%FAC( IFAC )    = EM_FAC ( ISTR, ISRC, IFAC ) 
+                 EM_FAC_ST( ISTR,ISRC )%BULK( IFAC )   = EM_FAC_BULK( ISTR, ISRC, IFAC )
+                 EM_FAC_ST( ISTR,ISRC )%REG( IFAC )    = EM_REG( ISTR, ISRC, IFAC )
+                      
+                   SELECT CASE ( EM_OP( ISTR, ISRC, IFAC ) )
+                   CASE ( 'a' )
+                       EM_FAC_ST( ISTR,ISRC )%OP( IFAC )    = 1
+                   CASE ( 'm' )
+                       EM_FAC_ST( ISTR,ISRC )%OP( IFAC )    = 2
+                   CASE ( 'o' )
+                       EM_FAC_ST( ISTR,ISRC )%OP( IFAC )    = 3
+                 END SELECT
+               END DO
             END DO
 
-            EM_FAC_ST( ISTR,ISRC )%LEN = NREG
-            ALLOCATE( EM_FAC_ST( ISTR,ISRC )%FAC( NREG ) )
-            ALLOCATE( EM_FAC_ST( ISTR,ISRC )%BULK( NREG ) )
-            ALLOCATE( EM_FAC_ST( ISTR,ISRC )%REG( NREG ) )
-            ALLOCATE( EM_FAC_ST( ISTR,ISRC )%OP( NREG ) )
-              
-            EM_FAC_ST( ISTR,ISRC )%FAC( IREG )  = 0.
-            EM_FAC_ST( ISTR,ISRC )%BULK( IREG ) = 0.
-            EM_FAC_ST( ISTR,ISRC )%REG( IREG )  = 1
-            EM_FAC_ST( ISTR,ISRC )%OP( IREG )   = 0
-
-            DO IREG = 1,NREG
-              EM_FAC_ST( ISTR,ISRC )%FAC( IREG )    = EM_FAC ( ISTR, ISRC, IREG ) 
-              EM_FAC_ST( ISTR,ISRC )%BULK( IREG )   = EM_FAC_BULK( ISTR, ISRC, IREG )
-              EM_FAC_ST( ISTR,ISRC )%REG( IREG )    = EM_REG( N_EMIS_ISTR, ISRC, IREG )
-                   
-              SELECT CASE ( EM_OP( N_EMIS_ISTR, ISRC, IREG ) )
-                CASE ( 'a' )
-                    EM_FAC_ST( ISTR,ISRC )%OP( IREG )    = 1
-                CASE ( 'm' )
-                    EM_FAC_ST( ISTR,ISRC )%OP( IREG )    = 2
-                CASE ( 'o' )
-                    EM_FAC_ST( ISTR,ISRC )%OP( IREG )    = 3
-              END SELECT
-            END DO
-
+            ! Now Calculate Conversion Factors needed for going from gas moles
+            ! to particle mass or vice-versa.
             ! Do Not Modify Number or Surface Area Emissions
             IF ( MAP_EMtoNUM( ISTR ) .GT. 0 .OR. MAP_EMtoSRF( ISTR ) .GT. 0 ) CYCLE
 
@@ -1455,9 +1464,9 @@ C-----------------------------------------------------------------------
               UNIT_FAC_2 = UNIT_FAC_1
               IF ( LGAS_SURR ) UNIT_FAC_2 = UNIT_FAC_2 * SURR_MW
 
-              DO IREG = 1,EM_FAC_ST( ISTR,ISRC )%LEN
-                 EM_FAC_ST( ISTR,ISRC )%FAC( IREG ) = 
-     &                  EM_FAC_ST( ISTR,ISRC )%FAC( IREG ) * UNIT_FAC_2
+              DO IFAC = 1,EM_FAC_ST( ISTR,ISRC )%LEN
+                 EM_FAC_ST( ISTR,ISRC )%FAC( IFAC ) = 
+     &                  EM_FAC_ST( ISTR,ISRC )%FAC( IFAC ) * UNIT_FAC_2
               END DO
             END DO
          END DO
@@ -1517,7 +1526,7 @@ C Print a message for each emissions source surrogate that is not used.
                IF ( EM_SPEC( ISTR ) .EQ. DIFF_SPC( IDIFF ) .AND.
      &              EM_SURR( ISTR,ISRC ) .NE. '' )
      &           WRITE( LOGDEV, '(7x,A,3x,A,F7.4,3x,A)' ),EM_SPEC( ISTR ),
-     &                  EM_SURR( ISTR, ISRC ), EM_FAC_BULK( ISTR, ISRC ),
+     &                  EM_SURR( ISTR, ISRC ), EM_FAC_BULK( ISTR, ISRC, 1 ),
      &                  TRIM( EM_SRC_SD( ISRC )%NAME( MAP_EMtoSD( ISTR,ISRC ) ) )
              END DO
            END DO
@@ -1570,6 +1579,10 @@ C Initialize Regions for Mapping Scale Factors Geographically for Base
 C Model (eventually apply this to DDM-3D and ISAM)
          CALL NAMEVAL( "EMISSCTRL_NML", EQNAME )
          
+         REGIONS_NML%LABEL = ''
+         REGIONS_NML%FILE  = ''
+         REGIONS_NML%VAR   = ''
+
          EMCTRL_NML = JUNIT()
          OPEN( FILE = EQNAME, UNIT = EMCTRL_NML, STATUS = 'OLD',
      &         POSITION = 'REWIND' )

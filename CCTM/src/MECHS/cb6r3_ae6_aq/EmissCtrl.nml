@@ -6,7 +6,7 @@
 ! NATIONAL EXPOSURE RESEARCH LABORATORY, OFFICE OF RESEARCH AND DEVELOPMENT    !
 ! UNITED STATES ENVIRONMENTAL PROTECTION AGENCY                                !
 !                                                                              !
-! THIS VERSION CONSISTENT WITH THE RELEASE OF CMAQv5.3 (FALL 2018)             !
+! THIS VERSION CONSISTENT WITH THE RELEASE OF CMAQv5.3 (SPRING 2019)           !
 !------------------------------------------------------------------------------!
 
 !------------------------------------------------------------------------------!
@@ -63,32 +63,32 @@
  EM_NML=
  
  !---Organic Aerosol Vapors and Particles            
- !      Emission |Source | CMAQ-   |Phase/ |Scale | Op
- !      Surrogate| Label | Species |Mode   |Factor|
-        'POC'    ,'All'  ,'PCVOC'  ,'GAS'  ,0.0387 ,'a',
-        'PNCOM'  ,'All'  ,'PCVOC'  ,'GAS'  ,0.0387 ,'a',
-                          
-        'POC'    ,'All'  ,'VLVPO1' ,'GAS'  ,0.0    ,'a',
-        'PNCOM'  ,'All'  ,'VLVPO1' ,'GAS'  ,0.0    ,'a',
-        'POC'    ,'All'  ,'VSVPO1' ,'GAS'  ,1.96e-4,'a',
-        'PNCOM'  ,'All'  ,'VSVPO1' ,'GAS'  ,1.96e-4,'a',
-        'POC'    ,'All'  ,'VSVPO2' ,'GAS'  ,5.81e-4,'a',
-        'PNCOM'  ,'All'  ,'VSVPO2' ,'GAS'  ,5.81e-4,'a',
-        'POC'    ,'All'  ,'VSVPO3' ,'GAS'  ,7.11e-4,'a',
-        'PNCOM'  ,'All'  ,'VSVPO3' ,'GAS'  ,7.11e-4,'a',
-        'POC'    ,'All'  ,'VIVPO1' ,'GAS'  ,1.88e-3,'a',
-        'PNCOM'  ,'All'  ,'VIVPO1' ,'GAS'  ,1.88e-3,'a',
-                          
-        'POC'    ,'All'  ,'ALVPO1' ,'FINE' ,0.09   ,'a',
-        'PNCOM'  ,'All'  ,'ALVPO1' ,'FINE' ,0.09   ,'a',
-        'POC'    ,'All'  ,'ASVPO1' ,'FINE' ,0.045  ,'a',
-        'PNCOM'  ,'All'  ,'ASVPO1' ,'FINE' ,0.045  ,'a',
-        'POC'    ,'All'  ,'ASVPO2' ,'FINE' ,0.     ,'a',
-        'PNCOM'  ,'All'  ,'ASVPO2' ,'FINE' ,0.     ,'a',
-        'POC'    ,'All'  ,'ASVPO3' ,'FINE' ,0.     ,'a',
-        'PNCOM'  ,'All'  ,'ASVPO3' ,'FINE' ,0.     ,'a',
-        'POC'    ,'All'  ,'AIVPO1' ,'FINE' ,0.     ,'a',
-        'PNCOM'  ,'All'  ,'AIVPO1' ,'FINE' ,0.     ,'a',
+ !         Region   |Source |Emission | CMAQ-   |Phase/ |Scale | Op
+ !          Label   | Label |Surrogate| Species |Mode   |Factor|
+        'EVERYWHERE', 'All' ,'POC'    ,'PCVOC'  ,'GAS'  ,0.0387 ,'a',
+        'EVERYWHERE', 'All' ,'PNCOM'  ,'PCVOC'  ,'GAS'  ,0.0387 ,'a',
+                           
+        'EVERYWHERE', 'All' ,'POC'    ,'VLVPO1' ,'GAS'  ,0.0    ,'a',
+        'EVERYWHERE', 'All' ,'PNCOM'  ,'VLVPO1' ,'GAS'  ,0.0    ,'a',
+        'EVERYWHERE', 'All' ,'POC'    ,'VSVPO1' ,'GAS'  ,0.045  ,'a',
+        'EVERYWHERE', 'All' ,'PNCOM'  ,'VSVPO1' ,'GAS'  ,0.045  ,'a',
+        'EVERYWHERE', 'All' ,'POC'    ,'VSVPO2' ,'GAS'  ,0.14   ,'a',
+        'EVERYWHERE', 'All' ,'PNCOM'  ,'VSVPO2' ,'GAS'  ,0.14   ,'a',
+        'EVERYWHERE', 'All' ,'POC'    ,'VSVPO3' ,'GAS'  ,0.18   ,'a',
+        'EVERYWHERE', 'All' ,'PNCOM'  ,'VSVPO3' ,'GAS'  ,0.18   ,'a',
+        'EVERYWHERE', 'All' ,'POC'    ,'VIVPO1' ,'GAS'  ,0.5    ,'a',
+        'EVERYWHERE', 'All' ,'PNCOM'  ,'VIVPO1' ,'GAS'  ,0.5    ,'a',
+                           
+        'EVERYWHERE', 'All' ,'POC'    ,'ALVPO1' ,'FINE' ,0.09   ,'a',
+        'EVERYWHERE', 'All' ,'PNCOM'  ,'ALVPO1' ,'FINE' ,0.09   ,'a',
+        'EVERYWHERE', 'All' ,'POC'    ,'ASVPO1' ,'FINE' ,0.045  ,'a',
+        'EVERYWHERE', 'All' ,'PNCOM'  ,'ASVPO1' ,'FINE' ,0.045  ,'a',
+        'EVERYWHERE', 'All' ,'POC'    ,'ASVPO2' ,'FINE' ,0.     ,'a',
+        'EVERYWHERE', 'All' ,'PNCOM'  ,'ASVPO2' ,'FINE' ,0.     ,'a',
+        'EVERYWHERE', 'All' ,'POC'    ,'ASVPO3' ,'FINE' ,0.     ,'a',
+        'EVERYWHERE', 'All' ,'PNCOM'  ,'ASVPO3' ,'FINE' ,0.     ,'a',
+        'EVERYWHERE', 'All' ,'POC'    ,'AIVPO1' ,'FINE' ,0.     ,'a',
+        'EVERYWHERE', 'All' ,'PNCOM'  ,'AIVPO1' ,'FINE' ,0.     ,'a',
 
 /
 
@@ -122,15 +122,10 @@
 !                         module.
 !------------------------------------------------------------------------------!
 
-&SizeDistRules
+&SizeDistReg
  !         |    Source      | Surr. Mode   | Ref. Mode 
  SD_NML  =  'GRIDDED_EMIS'  ,'FINE'        ,'FINE_REF',
             'GRIDDED_EMIS'  ,'COARSE'      ,'COARSE_REF',
-            'POINT_NONEGU'  ,'FINE'        ,'GENERAL_FINE',
-            'POINT_EGU'     ,'FINE'        ,'BOILER',
-            'POINT_OTHER'   ,'FINE'        ,'FINE_OTHER',
-            'POINT_FIRES'   ,'FINE'        ,'FINE_FIRES',
-            'POINT_OILGAS'  ,'FINE'        ,'FINE_OIL',
 /
 
 !------------------------------------------------------------------------------!
@@ -165,9 +160,9 @@
 !                   cell.
 !------------------------------------------------------------------------------!
 
-&RegionsRegistry
+&Regions_Registry
  !              |     Region     | File        | Variable 
- REGIONS_NML  = !  'EVERYWHERE'  ,'N/A'        ,'N/A',
+ REGIONS_NML  =    'EVERYWHERE'  ,'N/A'        ,'N/A',
                 !   'KENTUCKY'    ,'CMAQ_STATES', 'KY',
 /
  
