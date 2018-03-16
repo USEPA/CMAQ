@@ -4,9 +4,11 @@
 
 ## Brief Description
 
+A few small but necessary changes to the SpecDef files involve correcting symbolic links in the combine subfolder, extracting specdef files for use with combine in the project space, and changing the location of log files.
 
 ## Significance and Impact
 
+No impacts were observed results. These changes all fit within the category of model workflow.
 
 ## Affected Files:
 
@@ -22,8 +24,6 @@ POST/combine/scripts/spec_def_files/SpecDef_saprc07tb_ae6i_aq.txt
 POST/combine/scripts/spec_def_files/linkem  
 bldit_project.csh  
 
-
-## References:    
 
 -----
 ## Internal Records:
