@@ -40,7 +40,7 @@
  setenv REPOROOT $CCTM_SRC
 
 #> Working directory and Version IDs
- set VRSN  = v5.2.1                    #> model configuration ID
+ set VRSN  = v521                    #> model configuration ID
  set EXEC  = CCTM_${VRSN}.exe          #> executable name
  set CFG   = CCTM_${VRSN}.cfg          #> configuration file name
 
