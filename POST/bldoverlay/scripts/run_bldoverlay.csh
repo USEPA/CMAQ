@@ -1,8 +1,8 @@
 #!/bin/csh -f
 
 
-# ====================== BLDOVERLAYv5.2 Run Script ======================
-# Usage: run.bldoverlay.csh >&! bldoverlay_V52.log &
+# ====================== BLDOVERLAYv5.2.1 Run Script ======================
+# Usage: run.bldoverlay.csh >&! bldoverlay_v521.log &
 #
 # To report problems or request help with this script/program:
 #             http://www.epa.gov/cmaq    (EPA CMAQ Website)
@@ -21,7 +21,7 @@
  source ./config_cmaq.csh
 
 #> Set the model version
- set VRSN = v52
+ set VRSN = v521
 
 #> Set the build directory if this was not set above 
 #> (this is where the executable is located by default).
@@ -33,7 +33,7 @@
  setenv EXEC bldoverlay_${VRSN}.exe
 
 #> Set location of CMAQ repo.  This will be used to point to the time zone file
-#> needed to run bldoverlay.  The v5.2 repo also contains a sample input file.
+#> needed to run bldoverlay.  The v5.2.1 repo also contains a sample input file.
  setenv REPO_HOME ${CMAQ_REPO}
 
 # =====================================================================
@@ -80,7 +80,7 @@
 #> species units
  setenv UNITS 'ppb,ug/m^3,ppb'
 
-#> set input and output files.  A sample input file is provided with the CMAQv5.2 release.
+#> set input and output files.  A sample input file is provided with the CMAQv5.2.1 release.
  setenv INFILE ${REPO_HOME}/POST/bldoverlay/inputs/ozone_overlay_input_sample.csv
  setenv OUTFILE ${CMAQ_DATA}/overlay_${START_DATE}_${END_DATE}.nc
 
