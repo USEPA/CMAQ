@@ -553,7 +553,7 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
          $Blder -debug_cctm $Cfile   # Run BLDMAKE with source code in build directory
        else
          $Blder $Cfile   # Run BLDMAKE with source code in build directory
-       end if
+       endif
     else if ( $?CopySrcTree ) then 
        $Blder -makefo -co $Cfile  # Copy repository directory tree as well
     else
@@ -562,7 +562,7 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
          $Blder -debug_cctm -git_local $Cfile 
        else
          $Blder -git_local $Cfile
-       end if
+       endif
          
     endif
  endif
