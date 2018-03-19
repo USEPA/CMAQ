@@ -1,6 +1,6 @@
 # Remove duplicative heterogeneous uptake of N2O5
 
-**Author/P.O.C.:**, [Ben Murphy](mailto:sarwar.golam@epa.gov), Computational Exposure Division, U.S. EPA  
+**Author/P.O.C.:**, [Golam Sarwar](mailto:sarwar.golam@epa.gov), Computational Exposure Division, U.S. EPA  
 
 ## Brief Description
 
