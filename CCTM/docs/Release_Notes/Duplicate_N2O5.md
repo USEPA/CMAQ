@@ -3,10 +3,10 @@
 **Author/P.O.C.:**, [Golam Sarwar](mailto:sarwar.golam@epa.gov), Computational Exposure Division, U.S. EPA  
 
 ## Brief Description
-
+The mechanism contained two heterogeneous hydrolysis reactions for N2O5. Removed one reaction.
 
 ## Significance and Impact
-
+CMAQ with the corrected mechanism produces more N2O5 and less HNO3
 
 ## Affected Files:
 
