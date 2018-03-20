@@ -102,6 +102,7 @@ setenv CTM_ADV_CFL 0.95      #> max CFL [ default: 0.75]
 #setenv RB_ATOL 1.0E-09       #> global ROS3 solver abs tol [ default: 1.0E-07 ] 
 
 #> Science Options
+setenv CTM_SS_AERO Y         #> use inline sea spray aerosol emissions [ default: Y ]
 setenv CTM_WB_DUST Y         #> use inline windblown dust emissions [ default: Y ]
 setenv CTM_ERODE_AGLAND Y    #> use agricultural activity for windblown dust 
                              #>    [ default: N ]; ignore if CTM_WB_DUST = N

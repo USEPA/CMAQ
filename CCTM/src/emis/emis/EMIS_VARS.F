@@ -96,11 +96,11 @@
       INTEGER              :: IBIOSRC, IMGSRC, ILTSRC, ISEASRC, IDUSTSRC
       INTEGER, ALLOCATABLE :: IGSRC( : ), IPSRC( : ), ITSRC( : ), MAP_PTtoISRC( : )
 
-      INTEGER, ALLOCATABLE :: MAP_EMtoSURR( :,: ), MAP_EMtoDIFF( : )
+      INTEGER, ALLOCATABLE :: MAP_EMtoSURR( :,: ), MAP_EMtoDIFF( : ), MAP_EMtoGAS( : )
 
       CHARACTER( 16 ), ALLOCATABLE :: EMIS_AER_UNITS( : )   ! Initialize Aerosol Units with no value
       CHARACTER( 16 ), ALLOCATABLE :: EMIS_GAS_UNITS( : )   ! Initialize Vapor Units with no value
-      REAL, ALLOCATABLE            :: CONVEM( : ), CONVEM_PM_MASS( : )
+      REAL, ALLOCATABLE            :: CONVEM_GAS( : ), CONVEM_PM_MASS( : )
      
       ! Define Data Structure for Storing Emission Control Namelist
       ! Options                               
@@ -391,94 +391,108 @@
 
       INTEGER,         INTENT( INOUT ) :: N_EM_RULE
       TYPE( EM_RULE_REG ), INTENT( INOUT ) :: EM_NML( N_EM_RULE_REG  )
+      TYPE( EM_RULE_REG )                  :: EM_NML_B( N_EM_RULE_REG  )
 
+      INTEGER          :: N_EM_RULE_B, IRULE
       LOGICAL          :: SUBTRACT_FERTILIZER_NH3 = .FALSE.
  
+      N_EM_RULE_B = 0
  
       ! Add a rule For Removing Fertilizer Ammonia if BiDi is
       ! activated and the user has requested the correction
          IF ( ABFLUX .AND. SUBTRACT_FERTILIZER_NH3 ) THEN
-            N_EM_RULE = N_EM_RULE + 1
-            EM_NML(N_EM_RULE)%SPEC  = 'NH3'
-            EM_NML(N_EM_RULE)%SRC   = 'ALL'
-            EM_NML(N_EM_RULE)%PHASE = 'GAS'
-            EM_NML(N_EM_RULE)%SURR  = 'NH3_FERT'
-            EM_NML(N_EM_RULE)%FAC   = -1.0
-            EM_NML(N_EM_RULE)%OP    = 'a'
-            EM_NML(N_EM_RULE)%REGION= 'EVERYWHERE'
+            N_EM_RULE_B = N_EM_RULE_B + 1
+            EM_NML_B(N_EM_RULE_B)%SPEC  = 'NH3'
+            EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
+            EM_NML_B(N_EM_RULE_B)%SURR  = 'NH3_FERT'
+            EM_NML_B(N_EM_RULE_B)%FAC   = -1.0
+            EM_NML_B(N_EM_RULE_B)%OP    = 'a'
+            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
          END IF
 
       ! Add rules for moving sulfuric acid emissions from the gas phase
       ! to the aerosol phase
-         N_EM_RULE = N_EM_RULE + 1
-         EM_NML(N_EM_RULE)%SPEC  = 'SULF'
-         EM_NML(N_EM_RULE)%SRC   = 'ALL'
-         EM_NML(N_EM_RULE)%PHASE = 'GAS'
-         EM_NML(N_EM_RULE)%SURR  = 'SULF'
-         EM_NML(N_EM_RULE)%FAC   = 0.0
-         EM_NML(N_EM_RULE)%OP    = 'o' 
-         EM_NML(N_EM_RULE)%REGION= 'EVERYWHERE'
+         N_EM_RULE_B = N_EM_RULE_B + 1
+         EM_NML_B(N_EM_RULE_B)%SPEC  = 'SULF'
+         EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+         EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
+         EM_NML_B(N_EM_RULE_B)%SURR  = 'SULF'
+         EM_NML_B(N_EM_RULE_B)%FAC   = 0.0
+         EM_NML_B(N_EM_RULE_B)%OP    = 'o' 
+         EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
 
-         N_EM_RULE = N_EM_RULE + 1
-         EM_NML(N_EM_RULE)%SPEC  = 'ASO4'
-         EM_NML(N_EM_RULE)%SRC   = 'ALL'
-         EM_NML(N_EM_RULE)%PHASE = 'FINE'
-         EM_NML(N_EM_RULE)%SURR  = 'SULF'
-         EM_NML(N_EM_RULE)%FAC   = 1.0
-         EM_NML(N_EM_RULE)%OP    = 'a' 
-         EM_NML(N_EM_RULE)%REGION= 'EVERYWHERE'
+         N_EM_RULE_B = N_EM_RULE_B + 1
+         EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASO4'
+         EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+         EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
+         EM_NML_B(N_EM_RULE_B)%SURR  = 'SULF'
+         EM_NML_B(N_EM_RULE_B)%FAC   = 1.0
+         EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
+         EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
 
       ! Add rules for speciating coarse PM from Anthropogenic Sources
       !  Coarse-Mode Sulfate
-         N_EM_RULE = N_EM_RULE + 1
-         EM_NML(N_EM_RULE)%SPEC  = 'ASO4'
-         EM_NML(N_EM_RULE)%SRC   = 'ALL'
-         EM_NML(N_EM_RULE)%PHASE = 'COARSE'
-         EM_NML(N_EM_RULE)%SURR  = 'PMC'
-         EM_NML(N_EM_RULE)%FAC   = REAL( ACORSEM_ASO4_FAC, 4 ) 
-         EM_NML(N_EM_RULE)%OP    = 'a' 
-         EM_NML(N_EM_RULE)%REGION= 'EVERYWHERE'
+         N_EM_RULE_B = N_EM_RULE_B + 1
+         EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASO4'
+         EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+         EM_NML_B(N_EM_RULE_B)%PHASE = 'COARSE'
+         EM_NML_B(N_EM_RULE_B)%SURR  = 'PMC'
+         EM_NML_B(N_EM_RULE_B)%FAC   = REAL( ACORSEM_ASO4_FAC, 4 ) 
+         EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
+         EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
 
       !  Coarse-Mode Nitrate
-         N_EM_RULE = N_EM_RULE + 1
-         EM_NML(N_EM_RULE)%SPEC  = 'ANO3'
-         EM_NML(N_EM_RULE)%SRC   = 'ALL'
-         EM_NML(N_EM_RULE)%PHASE = 'COARSE'
-         EM_NML(N_EM_RULE)%SURR  = 'PMC'
-         EM_NML(N_EM_RULE)%FAC   = REAL( ACORSEM_ANO3_FAC, 4 )
-         EM_NML(N_EM_RULE)%OP    = 'a' 
-         EM_NML(N_EM_RULE)%REGION= 'EVERYWHERE'
+         N_EM_RULE_B = N_EM_RULE_B + 1
+         EM_NML_B(N_EM_RULE_B)%SPEC  = 'ANO3'
+         EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+         EM_NML_B(N_EM_RULE_B)%PHASE = 'COARSE'
+         EM_NML_B(N_EM_RULE_B)%SURR  = 'PMC'
+         EM_NML_B(N_EM_RULE_B)%FAC   = REAL( ACORSEM_ANO3_FAC, 4 )
+         EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
+         EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
 
       !  Coarse-Mode Chloride
-         N_EM_RULE = N_EM_RULE + 1
-         EM_NML(N_EM_RULE)%SPEC  = 'ACL'
-         EM_NML(N_EM_RULE)%SRC   = 'ALL'
-         EM_NML(N_EM_RULE)%PHASE = 'COARSE'
-         EM_NML(N_EM_RULE)%SURR  = 'PMC'
-         EM_NML(N_EM_RULE)%FAC   = REAL( ACORSEM_ACL_FAC, 4 ) 
-         EM_NML(N_EM_RULE)%OP    = 'a' 
-         EM_NML(N_EM_RULE)%REGION= 'EVERYWHERE'
+         N_EM_RULE_B = N_EM_RULE_B + 1
+         EM_NML_B(N_EM_RULE_B)%SPEC  = 'ACL'
+         EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+         EM_NML_B(N_EM_RULE_B)%PHASE = 'COARSE'
+         EM_NML_B(N_EM_RULE_B)%SURR  = 'PMC'
+         EM_NML_B(N_EM_RULE_B)%FAC   = REAL( ACORSEM_ACL_FAC, 4 ) 
+         EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
+         EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
 
       !  Coarse-Mode Water
-         N_EM_RULE = N_EM_RULE + 1
-         EM_NML(N_EM_RULE)%SPEC  = 'AH2O'
-         EM_NML(N_EM_RULE)%SRC   = 'ALL'
-         EM_NML(N_EM_RULE)%PHASE = 'COARSE'
-         EM_NML(N_EM_RULE)%SURR  = 'PMC'
-         EM_NML(N_EM_RULE)%FAC   = REAL( ACORSEM_AH2O_FAC, 4 )
-         EM_NML(N_EM_RULE)%OP    = 'a' 
-         EM_NML(N_EM_RULE)%REGION= 'EVERYWHERE'
+         N_EM_RULE_B = N_EM_RULE_B + 1
+         EM_NML_B(N_EM_RULE_B)%SPEC  = 'AH2O'
+         EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+         EM_NML_B(N_EM_RULE_B)%PHASE = 'COARSE'
+         EM_NML_B(N_EM_RULE_B)%SURR  = 'PMC'
+         EM_NML_B(N_EM_RULE_B)%FAC   = REAL( ACORSEM_AH2O_FAC, 4 )
+         EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
+         EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
  
       !  Anthropogenic Coarse-Mode Other
-         N_EM_RULE = N_EM_RULE + 1
-         EM_NML(N_EM_RULE)%SPEC  = 'ASO4'
-         EM_NML(N_EM_RULE)%SRC   = 'ALL'
-         EM_NML(N_EM_RULE)%PHASE = 'COARSE'
-         EM_NML(N_EM_RULE)%SURR  = 'PMC'
-         EM_NML(N_EM_RULE)%FAC   = REAL( ACORSEM_RENORM, 4 )
-         EM_NML(N_EM_RULE)%OP    = 'a' 
-         EM_NML(N_EM_RULE)%REGION= 'EVERYWHERE'
+         N_EM_RULE_B = N_EM_RULE_B + 1
+         EM_NML_B(N_EM_RULE_B)%SPEC  = 'ACORS'
+         EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+         EM_NML_B(N_EM_RULE_B)%PHASE = 'COARSE'
+         EM_NML_B(N_EM_RULE_B)%SURR  = 'PMC'
+         EM_NML_B(N_EM_RULE_B)%FAC   = REAL( ACORSEM_RENORM, 4 )
+         EM_NML_B(N_EM_RULE_B)%OP    = 'm' 
+         EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
  
+      ! [ INSERT MORE DEFAULT RULES HERE AS DESIRED ]
+
+      ! Add Rules to Existing List at Beginning
+         N_EM_RULE = N_EM_RULE + N_EM_RULE_B
+         DO IRULE = N_EM_RULE, N_EM_RULE_B+1, -1
+            EM_NML( IRULE ) = EM_NML( IRULE - N_EM_RULE_B )
+         END DO
+         DO IRULE = 1,N_EM_RULE_B
+            EM_NML( IRULE ) = EM_NML_B( IRULE ) 
+         END DO
+
       END SUBROUTINE CUSTOM_EM_RULES
  
 !-----------------------------------------------------------------------

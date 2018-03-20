@@ -169,7 +169,6 @@
 
          LOGICAL LTNGPARAM           ! env var to use lightning NO parameters file
          INTEGER LSPCS               ! no. of lightning species
-         REAL    CONVEM              ! conversion for emissions rates to Kg/s
          INTEGER               :: I, J, K, L, V, STATUS
          INTEGER               :: CJDATE
          CHARACTER( 7 )        :: SJDATE

@@ -59,6 +59,8 @@ C global dry dep species
       ! Species Vector
       LOGICAL, ALLOCATABLE, SAVE :: DIFF_MASK_GAS ( : ) !Gases
       LOGICAL, ALLOCATABLE, SAVE :: DIFF_MASK_AERO( : ) !Particles
+      LOGICAL, ALLOCATABLE, SAVE :: DIFF_MASK_NUM ( : ) !Particles
+      LOGICAL, ALLOCATABLE, SAVE :: DIFF_MASK_SRF ( : ) !Particles
       LOGICAL, ALLOCATABLE, SAVE :: DIFF_MASK_NR  ( : ) !Non-Reactives
       LOGICAL, ALLOCATABLE, SAVE :: DIFF_MASK_TRAC( : ) !Tracers
 
@@ -294,10 +296,14 @@ C Local variables:
 ! Populate Diffusion Module Map and Species
          ALLOCATE( DIFF_MASK_GAS ( N_SPC_DIFF ) )
          ALLOCATE( DIFF_MASK_AERO( N_SPC_DIFF ) )
+         ALLOCATE( DIFF_MASK_NUM( N_SPC_DIFF ) )
+         ALLOCATE( DIFF_MASK_SRF( N_SPC_DIFF ) )
          ALLOCATE( DIFF_MASK_NR  ( N_SPC_DIFF ) )
          ALLOCATE( DIFF_MASK_TRAC( N_SPC_DIFF ) )
          DIFF_MASK_GAS  = .FALSE.
          DIFF_MASK_AERO = .FALSE.
+         DIFF_MASK_NUM  = .FALSE.
+         DIFF_MASK_SRF  = .FALSE.
          DIFF_MASK_NR   = .FALSE.
          DIFF_MASK_TRAC = .FALSE.
          DIFF_MAP = 0
@@ -318,6 +324,8 @@ C Local variables:
             DIFF_SPC( S ) = AE_SPC( AE_TRNS_MAP( V ) )
             DIFF_MW ( S ) = AE_MOLWT( AE_TRNS_MAP( V ) )
             DIFF_MASK_AERO( S ) = .TRUE.
+            IF ( INDEX( DIFF_SPC( S ), 'NUM' ) .NE. 0 ) DIFF_MASK_NUM( N ) = .TRUE.
+            IF ( INDEX( DIFF_SPC( S ), 'SRF' ) .NE. 0 ) DIFF_MASK_SRF( N ) = .TRUE.
          END DO
          DO V = 1, N_NR_TRNS
             S = S + 1

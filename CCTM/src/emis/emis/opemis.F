@@ -158,7 +158,7 @@ C Open Gridded Emission Files (for gas chem, aerosols and non-reactive species)
 
                   IF ( MAP_EMIStoCMAQ( X )%PHASE .NE. 'GAS' ) THEN
                      ! Aerosol Species
-                     IF ( EMIS_AER_UNITS( ISRC ) .EQ. 'NONE' ) 
+                     IF ( EMIS_AER_UNITS( ISRC ) .EQ. 'Unknown' ) 
      &                    EMIS_AER_UNITS( ISRC ) = UNITSCK
                      IF ( UNITSCK .NE. EMIS_AER_UNITS( ISRC ) ) THEN
                          WRITE( XMSG, '(A,A,A,A,A,A)' ), 'The aerosol units for ', 
@@ -173,7 +173,7 @@ C Open Gridded Emission Files (for gas chem, aerosols and non-reactive species)
      &                    CONVEM_PM_MASS( ISRC ) = GPKG * MGPG / 3600. ! kg/hr -> ug/s
                   ELSE
                      !Gas Species
-                     IF ( EMIS_GAS_UNITS( ISRC ) .EQ. 'NONE' ) 
+                     IF ( EMIS_GAS_UNITS( ISRC ) .EQ. 'Unknown' ) 
      &                    EMIS_GAS_UNITS( ISRC ) = UNITSCK
                      IF ( UNITSCK .NE. EMIS_GAS_UNITS( ISRC ) ) THEN
                          WRITE( XMSG, '(A,A,A,A,A,A)' ), 'The gas units for ', 
@@ -189,7 +189,7 @@ C Open Gridded Emission Files (for gas chem, aerosols and non-reactive species)
      &                    EMIS_GAS_UNITS( ISRC ) .EQ. 'MOL/S'     .OR.
      &                    EMIS_GAS_UNITS( ISRC ) .EQ. 'MOL/SEC'   
      &                ) THEN
-                           CONVEM( ISRC ) = 1.0E-3  ! mol/s -> kmol/s
+                           CONVEM_GAS( ISRC ) = 1.0E-3  ! mol/s -> kmol/s
                      ELSE
                          WRITE( XMSG, '(A,A,A,A,A)' ), 'The gas units for ', 
      &                          TRIM(EM_FILE_DESC( ISRC )),' are not expected: ',

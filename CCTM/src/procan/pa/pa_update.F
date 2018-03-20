@@ -81,6 +81,9 @@ C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain configuration
       USE CGRID_SPCS            ! CGRID mechanism species
+      USE VDIFF_MAP, ONLY : N_SPC_DIFF, DIFF_SPC, DIFF_MW,
+     &                       DIFF_MASK_AERO, DIFF_MASK_NUM, DIFF_MASK_SRF
+      USE PA_GLOBAL, ONLY : SPC_NAME  ! Process Anaylsis control and data variables
       USE PA_DEFN               ! Process Anaylsis control and data variables
       USE PAGRD_DEFN            ! PA horiz domain specs
       USE UTILIO_DEFN           ! inherits PARUTILIO
@@ -165,7 +168,6 @@ C Indices for dep species in IPR outputs
       LOGICAL, SAVE :: LEMFIRST = .TRUE. ! Flag for 1st call of emis processing
       LOGICAL, SAVE :: LDDFIRST = .TRUE. ! Flag for 1st call of ddep processing
 
-      LOGICAL, SAVE :: EM_AERO = .TRUE.   ! do aero emis processing in vdiff?
       LOGICAL, SAVE :: LAE_EM_IPR = .FALSE.  ! AE EMIS IPR requested?
 
       REAL, SAVE :: CONVDD( 1 )       ! Conversion factor for dry dep
@@ -176,7 +178,7 @@ C ddep species mass to molar conversion factor
 C emiss species mass to molar conversion factor 
       REAL, ALLOCATABLE, SAVE :: RELWTEM( : )
 C ae_conversion factors
-      REAL, ALLOCATABLE, SAVE :: AE_EM_CONV( : )
+      REAL, ALLOCATABLE, SAVE :: PA_EM_CONV( : )
 
 C Reciprocal of map scale factor
       REAL, ALLOCATABLE, SAVE :: RMSFX2( :,: )   
@@ -184,11 +186,6 @@ C Reciprocal of map scale factor
 
 C for copy of CGRID
       REAL, ALLOCATABLE, SAVE :: CNGRD( :,:,:,: )   
-
-C Offset for gases in vdif vs. chem gas-phase emis
-      INTEGER, SAVE :: OFFSETG
-C Offset for aerosols in vdif vs. chem gas-phase emis
-      INTEGER, SAVE :: OFFSETA
 
 C Flag for couple/decouple HADV, ZADV, and HDIFF
       LOGICAL, SAVE :: LCOUPLE
@@ -436,14 +433,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       ENTRY PA_UPDATE_EMIS( PRNAME, VEMIS, JDATE, JTIME, TSTEP )
 
 C..On first call, set pointers to emission species
-#ifdef ben_pa
       IF ( LEMFIRST ) THEN
-
-#ifdef emis_chem
-         EMISVD = .FALSE.
-#else
-         EMISVD = .TRUE.
-#endif
+         LEMFIRST = .FALSE.
 
          ALLOCATE ( IPR_NGR2EM( N_IPR_SPC,MXCGRID,3 ),
      &              IPR_AESPEC( N_IPR_SPC,MXCGRID ), STAT = ASTAT )
@@ -452,11 +443,12 @@ C..On first call, set pointers to emission species
             CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
          END IF
 
-         ALLOCATE ( AE_EM_CONV( N_AE_EMIS ), STAT = ASTAT )
+         ALLOCATE ( PA_EM_CONV( N_SPC_DIFF ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
-            MSG = 'Failure allocating AE_EM_CONV'
+            MSG = 'Failure allocating PA_EM_CONV'
             CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
          END IF
+         PA_EM_CONV = 1.0
 
 C..Set-up pointers to emis, vdiff, chem, and aero processes         
          PRINDEM = INDEX1( 'EMIS', NPRCS, PROCNAME )
@@ -464,37 +456,10 @@ C..Set-up pointers to emis, vdiff, chem, and aero processes
          PRINDCH = INDEX1( 'CHEM', NPRCS, PROCNAME )
          PRINDAE = INDEX1( 'AERO', NPRCS, PROCNAME )
 
-C..Set an index offset if reactive gas emissions are done in VDIF
-         IF ( EMISVD ) THEN
-            OFFSETG = N_GC_EMIS
-         ELSE
-            OFFSETG = 0
-         END IF
-C..Set an index offset if aerosol emissions are done in VDIF
-         IF ( EM_AERO ) THEN
-            OFFSETA = OFFSETG + N_AE_EMIS
-         ELSE
-            OFFSETA = OFFSETG
-         END IF
-
-#ifdef verbose_pa_update
-         write( logdev,* ) ' No. of families: ', N_IPR_SPC
-#endif
-
 C..Set the pointers to the emission array
          DO NPA = 1, N_IPR_SPC            ! foreach family
 
-#ifdef verbose_pa_update
-            write( logdev,* ) ' '
-            write( logdev,* ) ' family index (NPA), NCGRID: ', NPA, NCGRID( NPA )
-#endif
-
             DO NGR = 1, NCGRID( NPA )     ! foreach species in the family
-
-#ifdef verbose_pa_update
-               write( logdev,* ) ' CTM species index (NGR), IPR2GRD: ',
-     &                             NGR, IPR2GRD( NPA,NGR )
-#endif
 
                ICG = IPR2GRD( NPA,NGR )  ! CTM species index in the family
                IPR_NGR2EM( NPA,NGR,IND_VM ) = 0 
@@ -503,81 +468,16 @@ C..Set the pointers to the emission array
                IPR_AESPEC( NPA,NGR ) = .FALSE.
                IND = 0
 
-C..gas chem species
-               IF ( ICG .LE. N_GC_SPC ) THEN
+               ! Determine Position of Species on Emission Rate Array
+               IND = INDEX1( SPC_NAME( ICG ), N_SPC_DIFF, DIFF_SPC )
+               IF ( IND .GT. 0 ) THEN
+                  IPR_NGR2EM( NPA,NGR,IND_VM ) = IND 
 
-                  SP_INDX = ICG - GC_STRT + 1
-                  IND = FINDEX( SP_INDX, N_GC_EMIS, GC_EMIS_MAP )
-
-                  IF ( IND .GT. 0 ) THEN
-                     IF ( EMISVD ) THEN
-                        IPR_NGR2EM( NPA,NGR,IND_VM ) = IND 
-                     ELSE
-                        IPR_NGR2EM( NPA,NGR,IND_CH ) = IND 
-                        IPR_NGR2EM( NPA,NGR,IND_AE ) = 0
-                     END IF
-!                    RELWTEM( ICG ) = CONVMW / GC_MOLWT( ICG )
-!                    EM_FAC ( ICG ) = GC_EMIS_FAC( IND )
-                  END IF   
-
-C..aerosol species
-               ELSE IF ( ICG. GE. AE_STRT .AND. ICG .LT. NR_STRT ) THEN
-
-                  SP_INDX = ICG - AE_STRT + 1
-                  IND = FINDEX ( SP_INDX, N_AE_EMIS, AE_EMIS_MAP )
-
-                  IF ( IND .GT. 0 ) THEN
-                     IF ( EM_AERO ) THEN
-                        IPR_NGR2EM( NPA,NGR,IND_VM ) = IND + OFFSETG
-                        IPR_AESPEC( NPA,NGR ) = .TRUE.
-                        LAE_EM_IPR = .TRUE.
-                     ELSE   ! PA in aero process not implemented
-                        IPR_NGR2EM( NPA,NGR,IND_AE ) = 0
-                     END IF
-                  END IF
-
-C..non-reactive species
-               ELSE IF ( ICG. GE. NR_STRT .AND. ICG .LT. TR_STRT ) THEN
-
-                  SP_INDX = ICG - NR_STRT + 1  
-                  IND = FINDEX ( SP_INDX, N_NR_EMIS, NR_EMIS_MAP )
-                  IF ( IND .GT. 0 ) THEN
-                     IPR_NGR2EM( NPA,NGR,IND_VM ) = IND + OFFSETA
-
-!                    RELWTEM( ICG ) = CONVMW / NR_MOLWT( SP_INDX )   
-!                    EM_FAC(  ICG ) = NR_EMIS_FAC( IND )
-                  END IF   
-
-C..tracer species
-               ELSE IF ( ICG. GE. TR_STRT ) THEN
-
-                  SP_INDX = ICG - TR_STRT + 1  
-                  IND = FINDEX ( SP_INDX, N_TR_EMIS, TR_EMIS_MAP )
-
-                  IF ( IND .GT. 0 ) THEN
-                     IPR_NGR2EM( NPA,NGR,IND_VM ) = IND + OFFSETA + N_NR_EMIS
-                  END IF
-
-               END IF
-
-#ifdef verbose_pa_update
-               write( logdev,* ) ' IPR_NGR2EM( NPA,NGR,IND_VM ): ',
-     &                             IPR_NGR2EM( NPA,NGR,IND_VM )
-               write( logdev,* ) ' IPR_NGR2EM( NPA,NGR,IND_CH ): ',
-     &                             IPR_NGR2EM( NPA,NGR,IND_CH )
-               write( logdev,* ) ' IPR_NGR2EM( NPA,NGR,IND_AE ): ',
-     &                             IPR_NGR2EM( NPA,NGR,IND_AE )
-#endif
+                  IF ( CGRID_MASK_AERO( ICG ) ) LAE_EM_IPR = .TRUE.
+               END IF   
 
             END DO      ! end species in the family loop
          END DO         ! end family loop
-
-C..set layer layer thickenesses
-!        X3FACE( 0 ) = VGLVS_GD( 1 )
-!        DO L = 1, NLAYS
-!           X3FACE( L ) = VGLVS_GD( L + 1 )
-!           X3MIDL( L ) = 0.5 * ( X3FACE( L ) + X3FACE( L - 1 ) )
-!        END DO
 
 C..set cell widths
          IF ( GDTYP_GD .EQ. LATGRD3 ) THEN
@@ -612,7 +512,6 @@ C..check units on emissions file
 C..get number of emission layers
          EMISLYRS = NLAYS3D
          
-         LEMFIRST = .FALSE.
 
          CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
      &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
@@ -621,22 +520,15 @@ C..get conversion factors for aero emissions; as of sep 03 release, incoming
 C  units are in ppmV/sec for ae species, # aer x 10**6/ # molec air / sec for
 C  NUM, and m2/mol sec for SRF.  Conversion factors convert to 
 C  ug/m3 sec, #/m3 sec, and m2/m3 sec, respectively.
-
          IF ( LAE_EM_IPR ) THEN
-
-            DO N = 1, N_AE_EMIS
-
-               IF ( INDEX( AE_EMIS( N ), 'NUM' ) .NE. 0 ) THEN
-                  AE_EM_CONV( N ) = REFAC * AVO / MGPG
-               ELSE IF ( INDEX( AE_EMIS( N ), 'SRF' ) .NE. 0 ) THEN
-                  AE_EM_CONV( N ) = 1.0E+06 * REFAC / MGPG
-               ELSE
-                  AE_EM_CONV( N ) = REFAC * AE_MOLWT( AE_EMIS_MAP( N ) )
-               END IF
-
-            END DO
-
-        END IF
+             WHERE ( DIFF_MASK_NUM ) 
+                 PA_EM_CONV( : ) = REFAC * AVO / MGPG
+             ELSEWHERE ( DIFF_MASK_SRF ) 
+                 PA_EM_CONV( : ) = 1.0E+06 * REFAC / MGPG
+             ELSEWHERE
+                 PA_EM_CONV( : ) = REFAC * DIFF_MW( : )
+             END WHERE
+         END IF
 
       END IF  ! LEMFIRST
 
@@ -679,7 +571,7 @@ C..output if necessary for each output species
          DO NGR = 1, NCGRID( NPA )       ! foreach species in the family
             ICG = IPR2GRD( NPA,NGR )     ! CTM species index in the family
             IEM = IPR_NGR2EM( NPA,NGR,IND )
-            LAESP = IPR_AESPEC( NPA,NGR ) ! Flag for aerosol species
+            LAESP = CGRID_MASK_AERO( ICG ) ! Flag for aerosol species
 
             IF ( IEM .NE. 0 .AND. ( IPEM .NE. 0 .OR. IPAJ .NE. 0 ) ) THEN
 
@@ -696,17 +588,21 @@ C..output if necessary for each output species
 
 C..compute the emissions
 
-                        IF ( .NOT. LAESP ) THEN
+                        IF ( LAESP ) THEN
 #ifdef parallel
-                           EM = TVEMIS( C,R,L ) * DT
-                        ELSE
+                           ! Aerosol
                            EM = TVEMIS( C,R,L ) * DT * TDENS( C,R,L )
-     &                        * AE_EM_CONV( IEM - OFFSETG )
-#else
-                           EM = VEMIS( C,R,L,IEM ) * DT
+     &                        * PA_EM_CONV( IEM )
                         ELSE
+                           ! Gas
+                           EM = TVEMIS( C,R,L ) * DT
+#else
+                           ! Aerosol
                            EM = VEMIS( C,R,L,IEM ) * DT * DENS( C,R,L )
-     &                        * AE_EM_CONV( IEM - OFFSETG )
+     &                        * PA_EM_CONV( IEM )
+                        ELSE
+                           ! Gas
+                           EM = VEMIS( C,R,L,IEM ) * DT
 #endif
                         END IF
 
@@ -725,7 +621,6 @@ C..modify both the emiss process and the calling process
             END IF
          END DO
       END DO
-#endif
 
       RETURN
 

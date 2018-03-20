@@ -380,23 +380,23 @@ C Get sea-salt-emission diagnostic output file flag.
 
             IF ( SSEMDIAG ) THEN    ! Open the sea-salt emission diagnostic file
 C Determine number of sea-salt species For diagnostic file
-            NSSDIAG = 0
-            DO ISEA = 1,NSSSPC
-              NSSDIAG = NSSDIAG + COUNT( SEA_SPC( ISEA )%SPCFAC( : ) .GT. 0. )
-            ENDDO
+               NSSDIAG = 0
+               DO ISEA = 1,NSSSPC
+                  NSSDIAG = NSSDIAG + COUNT( SEA_SPC( ISEA )%SPCFAC( : ) .GT. 0. )
+               ENDDO
 C Include H2O
-            NSSDIAG = NSSDIAG + 2   !! count both J and K modes
+               NSSDIAG = NSSDIAG + 2   !! count both J and K modes
 C Include NUMBER and SURFACE_AREA to diagnostic (J & K)
-            NSSDIAG = NSSDIAG + 4
+               NSSDIAG = NSSDIAG + 4
 
 C Allocate diagnostic arrays
-            ALLOCATE ( SSOUTD( NSSDIAG ),
-     &                 WRSS_SPC( NSSDIAG ), STAT = STATUS )
-            IF ( STATUS .NE. 0 ) THEN
-               XMSG = '*** SSOUTD or WRSS_SPC memory allocation failed'
-               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-               SUCCESS = .FALSE.; RETURN
-            END IF
+               ALLOCATE ( SSOUTD( NSSDIAG ),
+     &                    WRSS_SPC( NSSDIAG ), STAT = STATUS )
+               IF ( STATUS .NE. 0 ) THEN
+                  XMSG = '*** SSOUTD or WRSS_SPC memory allocation failed'
+                  CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+                  SUCCESS = .FALSE.; RETURN
+               END IF
 
 C Build diagnostic file write buffer (WRSS_SPC) array
                NSSDIAG = 0
@@ -404,12 +404,12 @@ C Build diagnostic file write buffer (WRSS_SPC) array
                   DO S = 1, NSSSPC
                      IF ( SEA_SPC( S )%SPCFAC( N ) .GT. 0.0 ) THEN
                         NSSDIAG = NSSDIAG + 1
-                        WRSS_SPC( NSSDIAG ) = TRIM( SEA_SPC( S )%NAME ) // '_' // MODESUFF( N ) 
+                        WRSS_SPC( NSSDIAG ) = TRIM( SEA_SPC( S )%NAME ) // MODESUFF( N ) 
                      END IF
                   END DO
 C Include H2O
                   NSSDIAG = NSSDIAG + 1
-                  WRSS_SPC( NSSDIAG ) = AEROSPC( AH2O_IDX )%NAME( N )
+                  WRSS_SPC( NSSDIAG ) = 'AH2O' // MODESUFF( N )
                END DO
 
 C Include Mode NUMBER to diagnostic
@@ -721,7 +721,6 @@ C Variables for calculating dry surface-area emission rate for accum mode
             INTEGER           :: MDATE, MTIME  ! SSEMIS write date&time
 
             LOGICAL, SAVE :: FIRSTIME      = .TRUE.
-            LOGICAL, SAVE :: UNINITIALIZED = .TRUE.
 
 C Mathematical constants; statement function for ERF approximation
             REAL, PARAMETER      :: TWO3 = 2.0 / 3.0
@@ -792,9 +791,9 @@ C Calculate solute mass fraction using Equation 1 of Zhang et al.
 C Calculate sea-salt-particle density [g/m3] at ambient RH, assuming
 C volume additivity of dry salt plus water
                   RHOSW( 2 ) = 1.0D+3 
-     &                  / ( XSW * SEASPRAY_DENS( 2 ) + ( 1.0D0 - XSW ) * SPECIFIC_VOL_H2O )
+     &                  / ( XSW / SEASPRAY_DENS( 2 ) + ( 1.0D0 - XSW ) * SPECIFIC_VOL_H2O )
                   RHOSW( 3 ) = 1.0D+3 
-     &                  / ( XSW * SEASPRAY_DENS( 3 ) + ( 1.0D0 - XSW ) * SPECIFIC_VOL_H2O )
+     &                  / ( XSW / SEASPRAY_DENS( 3 ) + ( 1.0D0 - XSW ) * SPECIFIC_VOL_H2O )
 
 C Set minimum and maximum diameters for integration using the size-
 C correction factors of Zhang et al. (2005)

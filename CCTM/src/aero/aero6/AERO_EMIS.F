@@ -75,13 +75,16 @@ C-----------------------------------------------------------------------
       IMPLICIT NONE
       SAVE 
 C aerosol emissions: [ppmv/s] for mass & number spcs, [m2/mol/s] for surface area spcs
+      CHARACTER( 16 )      :: CTM_SS_AERO = 'CTM_SS_AERO' ! env var for windblown dust
+      LOGICAL              :: SS_AERO   ! flag for windblown dust option
       CHARACTER( 16 )      :: CTM_WB_DUST = 'CTM_WB_DUST' ! env var for windblown dust
       LOGICAL              :: WB_DUST   ! flag for windblown dust option
 
       PUBLIC EMISS_SIZE_DIST, AERO_EMIS_INIT,
      &       MAP_EMtoAERO, MAP_EMtoMODE, MAP_NUMtoEM, MAP_SRFtoEM,
      &       MAP_EMtoNUM, MAP_EMtoSRF, MAP_EMtoSD, EM_SRC_SD, SD_SPLIT,
-     &       CTM_WB_DUST, WB_DUST, CELLVOL, CELLHGT, EM_SD_INIT, SD_RULE
+     &       CTM_WB_DUST, WB_DUST, CELLVOL, CELLHGT, EM_SD_INIT, SD_RULE,
+     &       SS_AERO, CTM_SS_AERO
       PRIVATE
 
 C Variables for converting mass emissions rate to number emissions rate
@@ -264,9 +267,11 @@ C *** Map data modules
          CALL MAP_PRECURSOR()
 
 C *** set up for sea-salt emission processing
-         IF ( .NOT. SSEMIS_INIT( JDATE, JTIME, TSTEP ) ) THEN
-            XMSG = 'Failure initializing sea-salt emission processing'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+         IF ( SS_AERO ) THEN
+            IF ( .NOT. SSEMIS_INIT( JDATE, JTIME, TSTEP ) ) THEN
+               XMSG = 'Failure initializing sea-salt emission processing'
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+            END IF
          END IF
 
 C *** set up for dust emission processing
@@ -542,7 +547,7 @@ C     Also calculate scaling factors for converting to molar-mixing-ratio units
          DO LAY = 1,EMLAYS
            DO COL = 1,MY_NCOLS
              DO ROW = 1,MY_NROWS
-               GSFAC( LAY,COL,ROW ) = CONVEM_PM( LAY,ISRC ) / CONVEM( ISRC )
+               GSFAC( LAY,COL,ROW ) = CONVEM_PM( LAY,ISRC ) 
      &                              * Met_Data%RJACM( COL,ROW,LAY ) ![g/s] or [kg/hr] to [ug/m3/s]
              END DO
            END DO
@@ -563,8 +568,14 @@ C *** Apply Aerosol Size Distribution
              IM    = MAP_EMtoMODE( ISTR )   !This maps to the internal CMAQ modes 
                                             !  (ie. I, J, and K)
 
-             ! Convert Aerosol from [kg/m3/s] to [ug/m3/s]
-             VDEMIS_AE( ISTR,:,:,: ) = VDEMIS_AE( ISTR,:,:,: ) * GSFAC( :,:,: )
+             ! Convert Aerosol from [g/s] to [ug/m3/s] for all sources
+             ! except Dust and Sea Spray. For those sources, convert
+             ! [g/m3/s] to [ug/m3/s]
+             IF ( ISRC .EQ. ISEASRC .OR. ISRC .EQ. IDUSTSRC ) THEN
+                VDEMIS_AE( ISTR,:,:,: ) = VDEMIS_AE( ISTR,:,:,: ) * CONVEM_PM_MASS( ISRC )
+             ELSE
+                VDEMIS_AE( ISTR,:,:,: ) = VDEMIS_AE( ISTR,:,:,: ) * GSFAC( :,:,: ) 
+             END IF
 
              ! Sum Total Volume of Mode N [m3/m3/s]
              IF ( .NOT. AEROSPC( IAERO )%TRACER ) 
@@ -581,7 +592,6 @@ C     Calculate the surface area emissions rate for the fine modes [m2/m3/s],
 C     using Equation 7c of Binkowski & Roselle (2003).  Multiplying by PI 
 C     converts 2nd moment to surface area.
          IF ( ISRC .EQ. ISEASRC ) THEN
-
            DO IM = 1,N_MODE
               VDEMIS_AE( MAP_NUMtoEM(IM),1,:,: ) = VDEMIS_AE( MAP_NUMtoEM(IM),1,:,: ) 
      &                + SSOUTN( IM,:,: )   
@@ -590,7 +600,6 @@ C     converts 2nd moment to surface area.
            END DO
 
          ELSEIF ( ISRC .EQ. IDUSTSRC ) THEN
-
            DO IM = 1,N_MODE
               VDEMIS_AE( MAP_NUMtoEM(IM),1,:,: ) = VDEMIS_AE( MAP_NUMtoEM(IM),1,:,: ) 
      &                + DUSTOUTN( IM,:,: )   

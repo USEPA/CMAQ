@@ -63,34 +63,35 @@
  EM_NML=
  
  !---Organic Aerosol Vapors and Particles            
- !         Region   |Source |Emission | CMAQ-   |Phase/ |Scale | Op
- !          Label   | Label |Surrogate| Species |Mode   |Factor|
-        'EVERYWHERE', 'All' ,'POC'    ,'PCVOC'  ,'GAS'  ,0.0387 ,'a',
-        'EVERYWHERE', 'All' ,'PNCOM'  ,'PCVOC'  ,'GAS'  ,0.0387 ,'a',
+ !         Region   | Source Label  |Emission | CMAQ-   |Phase/ |Scale  | Op
+ !          Label   |               |Surrogate| Species |Mode   |Factor |
+        'EVERYWHERE', 'All'         ,'POC'    ,'PCVOC'  ,'GAS'  ,6.579  ,'a',
+        'EVERYWHERE', 'All'         ,'PNCOM'  ,'PCVOC'  ,'GAS'  ,6.579  ,'a',
+        'EVERYWHERE', 'POINT_FIRES' ,'ALL'    ,'PCVOC'  ,'GAS'  ,0.0    ,'o',
                            
-        'EVERYWHERE', 'All' ,'POC'    ,'VLVPO1' ,'GAS'  ,0.0    ,'a',
-        'EVERYWHERE', 'All' ,'PNCOM'  ,'VLVPO1' ,'GAS'  ,0.0    ,'a',
-        'EVERYWHERE', 'All' ,'POC'    ,'VSVPO1' ,'GAS'  ,0.045  ,'a',
-        'EVERYWHERE', 'All' ,'PNCOM'  ,'VSVPO1' ,'GAS'  ,0.045  ,'a',
-        'EVERYWHERE', 'All' ,'POC'    ,'VSVPO2' ,'GAS'  ,0.14   ,'a',
-        'EVERYWHERE', 'All' ,'PNCOM'  ,'VSVPO2' ,'GAS'  ,0.14   ,'a',
-        'EVERYWHERE', 'All' ,'POC'    ,'VSVPO3' ,'GAS'  ,0.18   ,'a',
-        'EVERYWHERE', 'All' ,'PNCOM'  ,'VSVPO3' ,'GAS'  ,0.18   ,'a',
-        'EVERYWHERE', 'All' ,'POC'    ,'VIVPO1' ,'GAS'  ,0.5    ,'a',
-        'EVERYWHERE', 'All' ,'PNCOM'  ,'VIVPO1' ,'GAS'  ,0.5    ,'a',
-                           
-        'EVERYWHERE', 'All' ,'POC'    ,'ALVPO1' ,'FINE' ,0.09   ,'a',
-        'EVERYWHERE', 'All' ,'PNCOM'  ,'ALVPO1' ,'FINE' ,0.09   ,'a',
-        'EVERYWHERE', 'All' ,'POC'    ,'ASVPO1' ,'FINE' ,0.045  ,'a',
-        'EVERYWHERE', 'All' ,'PNCOM'  ,'ASVPO1' ,'FINE' ,0.045  ,'a',
-        'EVERYWHERE', 'All' ,'POC'    ,'ASVPO2' ,'FINE' ,0.     ,'a',
-        'EVERYWHERE', 'All' ,'PNCOM'  ,'ASVPO2' ,'FINE' ,0.     ,'a',
-        'EVERYWHERE', 'All' ,'POC'    ,'ASVPO3' ,'FINE' ,0.     ,'a',
-        'EVERYWHERE', 'All' ,'PNCOM'  ,'ASVPO3' ,'FINE' ,0.     ,'a',
-        'EVERYWHERE', 'All' ,'POC'    ,'AIVPO1' ,'FINE' ,0.     ,'a',
-        'EVERYWHERE', 'All' ,'PNCOM'  ,'AIVPO1' ,'FINE' ,0.     ,'a',
-
-        'WATER'     , 'All' ,'All'    ,'All'    ,'All' ,0.     ,'o',
+        'EVERYWHERE', 'All'         ,'POC'    ,'VLVPO1' ,'GAS'  ,0.0    ,'a',
+        'EVERYWHERE', 'All'         ,'PNCOM'  ,'VLVPO1' ,'GAS'  ,0.0    ,'a',
+        'EVERYWHERE', 'All'         ,'POC'    ,'VSVPO1' ,'GAS'  ,0.045  ,'a',
+        'EVERYWHERE', 'All'         ,'PNCOM'  ,'VSVPO1' ,'GAS'  ,0.045  ,'a',
+        'EVERYWHERE', 'All'         ,'POC'    ,'VSVPO2' ,'GAS'  ,0.14   ,'a',
+        'EVERYWHERE', 'All'         ,'PNCOM'  ,'VSVPO2' ,'GAS'  ,0.14   ,'a',
+        'EVERYWHERE', 'All'         ,'POC'    ,'VSVPO3' ,'GAS'  ,0.18   ,'a',
+        'EVERYWHERE', 'All'         ,'PNCOM'  ,'VSVPO3' ,'GAS'  ,0.18   ,'a',
+        'EVERYWHERE', 'All'         ,'POC'    ,'VIVPO1' ,'GAS'  ,0.5    ,'a',
+        'EVERYWHERE', 'All'         ,'PNCOM'  ,'VIVPO1' ,'GAS'  ,0.5    ,'a',
+                                    
+        'EVERYWHERE', 'All'         ,'POC'    ,'ALVPO1' ,'FINE' ,0.09   ,'a',
+        'EVERYWHERE', 'All'         ,'PNCOM'  ,'ALVPO1' ,'FINE' ,0.09   ,'a',
+        'EVERYWHERE', 'All'         ,'POC'    ,'ASVPO1' ,'FINE' ,0.045  ,'a',
+        'EVERYWHERE', 'All'         ,'PNCOM'  ,'ASVPO1' ,'FINE' ,0.045  ,'a',
+        'EVERYWHERE', 'All'         ,'POC'    ,'ASVPO2' ,'FINE' ,0.     ,'a',
+        'EVERYWHERE', 'All'         ,'PNCOM'  ,'ASVPO2' ,'FINE' ,0.     ,'a',
+        'EVERYWHERE', 'All'         ,'POC'    ,'ASVPO3' ,'FINE' ,0.     ,'a',
+        'EVERYWHERE', 'All'         ,'PNCOM'  ,'ASVPO3' ,'FINE' ,0.     ,'a',
+        'EVERYWHERE', 'All'         ,'POC'    ,'AIVPO1' ,'FINE' ,0.     ,'a',
+        'EVERYWHERE', 'All'         ,'PNCOM'  ,'AIVPO1' ,'FINE' ,0.     ,'a',
+                                    
+        !'WATER'    , 'All'         ,'All'    ,'All'    ,'All'  ,0.     ,'o',
 /
 
 
