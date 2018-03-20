@@ -304,19 +304,23 @@ C                     ---------- -------- ------- + + +   + ------ --- +  ------
           Real            :: dgvem( n_mode )  ! meters
           Real            :: sgem ( n_mode )  ! dimensionless
       END TYPE em_aero
-      INTEGER, PARAMETER  :: n_em_aero_ref = 6
+      INTEGER, PARAMETER  :: n_em_aero_ref = 7
 
       TYPE( em_aero ), Parameter :: em_aero_ref( n_em_aero_ref ) = (/
 
 !              ----Name---- -----Split-----    ---Geo. Mean Diameter---    ---Stnd Dev.---
-     & em_aero('FINE_REF  ',(/0.1,0.9,0.0/)  ,(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)), ! Accum and Aitken Mode
+     & em_aero('FINE_REF  ',(/0.1,0.9,0.0/)  ,(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)), ! Default Accum and Aitken Mode
      & em_aero('ACC_REF   ',(/0.0,1.0,0.0/)  ,(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)), ! Just Accumulation Mode
      & em_aero('COARSE_REF',(/0.0,0.0,1.0/)  ,(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)), ! Just Coarse Mode
      & em_aero('UNITY_REF ',(/1.0,1.0,1.0/)  ,(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)), ! Used for online sectors (e.g. SeaSpray)
      & em_aero('ZERO_REF  ',(/0.0,0.0,0.0/)  ,(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)), ! Zero out the emissions
-     & em_aero('WB_DUST   ',(/0.0,0.07,0.93/),(/0.06E-6,1.391E-6,5.26E-6/),(/1.7,2.0,2.0/))  ! Default Dust Parameterization. Currently,
+     & em_aero('WB_DUST   ',(/0.0,0.07,0.93/),(/0.06E-6,1.391E-6,5.26E-6/),(/1.7,2.0,2.0/)), ! Default Dust Parameterization. Currently,
                                                                                              !  these values are hard-coded in the dust 
                                                                                              !  routine.
+     & em_aero('SEASPRAY  ',(/0.0,0.05,0.05/),(/0.06E-6,1.391E-6,5.26E-6/),(/1.7,2.0,2.0/))  ! Default Sea Spray Parameterization is Dynamic. 
+                                                                                             !  The values here are not actually used but
+                                                                                             !  are replaced in SSEMIS when FACNUM and FACSRF
+                                                                                             !  are calculated online.
      & /)
 
 ! Primary Organic Aerosol Volatility Distributions
@@ -459,9 +463,6 @@ C                                                     Aitken  accum   coarse
       Real, Parameter :: specific_vol_h2o = 0.001  !Inverse Density of Particulate Water
  
       INTEGER, ALLOCATABLE, SAVE :: MAP_SEAtoAERO( : )  !
-      Real, ALLOCATABLE, SAVE    :: SSOUTM( :,:,:,: )  ! SeaSpray Mass Emiss Rate [ug/m3/s]
-      Real, ALLOCATABLE, SAVE    :: SSOUTN( :,:,: )  ! SeaSpray Number Emiss Rate [1/m3/s]
-      Real, ALLOCATABLE, SAVE    :: SSOUTS( :,:,: )  ! SeaSpray Surface Area Emiss Rate [m2/m3/s]
 
 C Constants used for simulating the ionic effects of sea-spray,
 C windblown dust and anthropogenic dust in the coarse mode. These cation

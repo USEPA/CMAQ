@@ -816,8 +816,15 @@ C statement function for ERF approximation
             END IF
 
 !C Write lightning NO to the diagnostic file
-            IF ( LTNGDIAG ) THEN
-               VDEMIS_DIAG = VDEMIS_DIAG + VDEMIS_LT   ! array assignment
+            IF ( LTNGDIAG ) THEN 
+               DO LAY = 1,LTLYRS
+               DO ROW = 1, MY_NROWS
+               DO COL = 1, MY_NCOLS
+                  VDEMIS_DIAG( COL,ROW,LAY ) = VDEMIS_DIAG( COL,ROW,LAY ) 
+     &                   + VDEMIS_LT( LAY,COL,ROW )   ! array assignment
+               END DO
+               END DO
+               END DO
                COLUMN_DIAG = COLUMN_DIAG + COLUMN_LTNG_NO
                IF ( LASTTIC ) THEN   ! time to write out
                   DIVFAC = 1.0 / REAL( MTICS, 4 )

@@ -40,7 +40,7 @@ C   24 Mar 16 G.Sarwar: updated to calculate NACL emissions (needed for BR2 emis
 C-----------------------------------------------------------------------
 
       USE HGRD_DEFN
-      USE AERO_DATA, ONLY: N_MODE, SSOUTN, SSOUTS, SSOUTM
+      USE AERO_DATA, ONLY: N_MODE
       USE EMIS_VARS
 
       IMPLICIT NONE
@@ -49,7 +49,7 @@ C Number of chemical species in fresh sea-salt aerosol
       INTEGER :: NSSSPC
 
 C Sea-Salt Emissions Rates
-      PUBLIC NSSSPC, SSEMIS_INIT, GET_SSEMIS
+      PUBLIC NSSSPC, SSEMIS_INIT, GET_SSEMIS, SEA_FACTNUM, SEA_FACTSRF, SSOUTM
       PRIVATE
 
 C Position of H2O in sea-salt emission arrays
@@ -58,11 +58,16 @@ C Position of H2O in sea-salt emission arrays
 C Variables for the sea-salt diagnostic file
       INTEGER :: NSSDIAG                ! number of species in sea-salt
                                         ! diagnostic emission file
+      Real,    ALLOCATABLE, SAVE :: SSOUTM( :,:,:,: )! SeaSpray Mass Emiss Rate [ug/m3/s]
+      Real,    ALLOCATABLE, SAVE :: SSOUTN( :,:,: )  ! SeaSpray Number Emiss Rate [1/m3/s]
+      Real,    ALLOCATABLE, SAVE :: SSOUTS( :,:,: )  ! SeaSpray Surface Area Emiss Rate [m2/m3/s]
       REAL,    ALLOCATABLE       :: SSOUTD( : )   ! emission rates
       LOGICAL, SAVE              :: SSEMDIAG      ! flag for SSEMIS diagnostic file
       REAL,    ALLOCATABLE, SAVE :: SSBF( :,:,: ) ! seasalt emiss accumulator
       REAL,    ALLOCATABLE, SAVE :: WRSS( :,: )   ! seasalt emiss write buffer
       INTEGER, SAVE              :: SDATE, STIME  ! scenario start date & time
+      REAL,    ALLOCATABLE, SAVE :: SEA_FACTNUM( :,:,: ) ! Array for scaling Number Emissions
+      REAL,    ALLOCATABLE, SAVE :: SEA_FACTSRF( :,:,: ) ! Array for scaling Surface Area Emissions 
 
 C Species names in the speciated sea-salt-emissions
       CHARACTER( 16 ), ALLOCATABLE :: WRSS_SPC( : )  ! species names
@@ -352,7 +357,9 @@ C can be printed in EMIS_MAP
 C Allocate SS arrays using NSSSPC value
             ALLOCATE ( SSOUTM( NSSSPC,N_MODE,NCOLS,NROWS ),
      &                 SSOUTN( N_MODE,NCOLS,NROWS ),
-     &                 SSOUTS( N_MODE,NCOLS,NROWS ), STAT = STATUS )
+     &                 SSOUTS( N_MODE,NCOLS,NROWS ), 
+     &                 SEA_FACTNUM( N_MODE,NCOLS,NROWS ),
+     &                 SEA_FACTSRF( N_MODE,NCOLS,NROWS ), STAT = STATUS )
             IF ( STATUS .NE. 0 ) THEN
                XMSG = '*** SSOUTM, SSOUTN or SSOUTS memory allocation failed'
                CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
@@ -937,6 +944,15 @@ C Multiply dry 2nd moment by PI to obtain dry surface area emission rate.
                   SSOUTS( 1,C,R ) = 0.0
                   SSOUTS( 2,C,R ) = PI * DRY_M2J
                   SSOUTS( 3,C,R ) = PI * DRY_M2K
+
+! Propagate Number and Surface Area Scaling Factors back to Emissions
+! Module so that the sea spray emissions can be scaled appropriately            
+                  SEA_FACTNUM( 1,C,R ) = 0.0
+                  SEA_FACTNUM( 2,C,R ) = FACTNUMJ
+                  SEA_FACTNUM( 3,C,R ) = FACTNUMK
+                  SEA_FACTSRF( 1,C,R ) = 0.0
+                  SEA_FACTSRF( 2,C,R ) = SSOUTS( 2,C,R ) / M3J
+                  SEA_FACTSRF( 3,C,R ) = SSOUTS( 3,C,R ) / M3K
 
 C Update the SSBF array, for writing the diagnostic sea-salt-emission file.
                   IF ( SSEMDIAG ) THEN

@@ -290,7 +290,7 @@ C GET_AERO_EMIS has to apply factors - don`t do it at this level.
          USE DEPV_DEFN, ONLY: ABFLUX ! ammonia bidi flag
          USE ASX_DATA_MOD, ONLY: MET_DATA, GRID_DATA
          USE RXNS_DATA, ONLY: MECHNAME
-         USE AERO_DATA, ONLY : AERONUM_MAP, AEROSRF_MAP, SSOUTM, DUSTOUTM
+         USE AERO_DATA, ONLY : AERONUM_MAP, AEROSRF_MAP, DUSTOUTM
 
          IMPLICIT NONE
 
@@ -768,7 +768,7 @@ C-----------------------------------------------------------------------
 
 ! Retrieve the Surrogates Available From Emissions Sources
          WRITE( LOGDEV, '(/,/,5x,A)' ), REPEAT( '=', 75 )
-         WRITE( LOGDEV, '(/,5x,A,A)' ), '|> SCALING EMISSIONS CONSISTENT WITH ',
+         WRITE( LOGDEV, '(5x,A,A)' ), '|> SCALING EMISSIONS CONSISTENT WITH ',
      &                  'EMISSIONS CONTROL FILE SUPPLIED BY USER' 
          WRITE( LOGDEV, '(5x,A)' ), REPEAT( '=', 75 )
          !WRITE( LOGDEV, '(A58,/,A58)' ),
@@ -814,12 +814,12 @@ C-----------------------------------------------------------------------
                   EM_FILE_SURR( ISRC )%PHASE( ISUR ) = 'N/A'
                   EM_FILE_SURR( ISRC )%MW   ( ISUR ) = 1.0
 
-                  WRITE( LOGDEV, '(/,5x,A,A,A,A,/,5x,A,/,5x,A,/,5x,A,/,5x,A)' ) 
-     &                'Emissions Surrogate ',TRIM(B),' on source ',TRIM(EM_FILE_LAB( ISRC )),
-     &                'is not a recognized surrogate. If you would like for it to have a',
-     &                'default scaling rule, please add it, along with a default ',
-     &                'CMAQ internal species, a destination phase or mode, and a ',
-     &                'molecular weight to EMIS_VARS.'
+                  !WRITE( LOGDEV, '(/,5x,A,A,A,A,/,5x,A,/,5x,A,/,5x,A,/,5x,A)' ) 
+      !&                'Emissions Surrogate ',TRIM(B),' on source ',TRIM(EM_FILE_LAB( ISRC )),
+      !&                'is not a recognized surrogate. If you would like for it to have a',
+      !&                'default scaling rule, please add it, along with a default ',
+      !&                'CMAQ internal species, a destination phase or mode, and a ',
+      !&                'molecular weight to EMIS_VARS.'
                END IF
             END DO
          END DO
@@ -1527,7 +1527,7 @@ C-----------------------------------------------------------------------
      &               WRITE( LOGDEV, '(10x,A)'), EM_FILE_SURR( ISRC )%ARRY( ISUR )
                  END DO
              END IF
-             WRITE( LOGDEV, '' )
+             WRITE( LOGDEV, '()' )
          END DO
          IF ( LERROR ) WRITE( LOGDEV, '(5x,A,/,5x,A,/,5x,A)' ),
      &       'ATTENTION: Some Emissions Surrogates are unused by your current', 
@@ -1536,6 +1536,9 @@ C-----------------------------------------------------------------------
 
 ! Resize Important Arrays
          MAP_EMtoDIFF = MAP_EMtoDIFF( 1:N_EMIS_ISTR )
+         MAP_EMtoNUM  = MAP_EMtoNUM ( 1:N_EMIS_ISTR )
+         MAP_EMtoSRF  = MAP_EMtoSRF ( 1:N_EMIS_ISTR )
+         MAP_EMtoAERO = MAP_EMtoAERO( 1:N_EMIS_ISTR )
 
 
 ! An Emissions Scaling Map Now Exists as a 2D Array (NSPECIES x NSOURCES).

@@ -96,16 +96,6 @@ C Variables for converting mass emissions rate to 2nd moment emissions rate
 C Variables for Saving split factors between emission modes
       REAL, ALLOCATABLE :: SD_SPLIT( :,: )
 
-C Define Structure for Holding Emissions Aerosol Mode Information
-C Globally
-      TYPE SRC_MODE
-         INTEGER  :: LEN
-         INTEGER,         ALLOCATABLE :: REF( : )
-         CHARACTER( 16 ), ALLOCATABLE :: NAME( : )
-         REAL,            ALLOCATABLE :: FACNUM( :,: )
-         REAL,            ALLOCATABLE :: FACSRF( :,: )
-      END TYPE SRC_MODE
-      TYPE( SRC_MODE ), ALLOCATABLE :: EM_SRC_SD( : )
 
 C Define Structure for Size Distribution Rule      
       TYPE SD_RULE
@@ -523,6 +513,7 @@ C ----------------------------------------------------------------------
          USE AEROMET_DATA
          USE ASX_DATA_MOD, ONLY: MET_DATA
          USE EMIS_VARS
+         USE SSEMIS, ONLY : SEA_FACTNUM, SEA_FACTSRF
 
          REAL,    INTENT( INOUT )  :: VDEMIS_AE( :,:,:,: )
          INTEGER, INTENT( IN    )  :: ISRC
@@ -591,33 +582,26 @@ C     Equation 7b of Binkowski & Roselle (2003).
 C     Calculate the surface area emissions rate for the fine modes [m2/m3/s],
 C     using Equation 7c of Binkowski & Roselle (2003).  Multiplying by PI 
 C     converts 2nd moment to surface area.
-         IF ( ISRC .EQ. ISEASRC ) THEN
-           DO IM = 1,N_MODE
-              VDEMIS_AE( MAP_NUMtoEM(IM),1,:,: ) = VDEMIS_AE( MAP_NUMtoEM(IM),1,:,: ) 
-     &                + SSOUTN( IM,:,: )   
-              VDEMIS_AE( MAP_SRFtoEM(IM),1,:,: ) = VDEMIS_AE( MAP_SRFtoEM(IM),1,:,: ) 
-     &                + SSOUTS( IM,:,: )   
-           END DO
-
-         ELSEIF ( ISRC .EQ. IDUSTSRC ) THEN
-           DO IM = 1,N_MODE
-              VDEMIS_AE( MAP_NUMtoEM(IM),1,:,: ) = VDEMIS_AE( MAP_NUMtoEM(IM),1,:,: ) 
-     &                + DUSTOUTN( IM,:,: )   
-              VDEMIS_AE( MAP_SRFtoEM(IM),1,:,: ) = VDEMIS_AE( MAP_SRFtoEM(IM),1,:,: ) 
-     &                + DUSTOUTS( IM,:,: )   
-           END DO
-
-         ELSE
             
-           DO ISD = 2,N_SD   ! Skip the Index for the Gas Phase
-           DO IM = 1,N_MODE
-              VDEMIS_AE( MAP_NUMtoEM(IM),:,:,: ) = VDEMIS_AE( MAP_NUMtoEM(IM),:,:,: ) 
-     &                + EMISM3( :,:,:,IM,ISD ) * EM_SRC_SD( ISRC )%FACNUM( ISD,IM ) 
-              VDEMIS_AE( MAP_SRFtoEM(IM),:,:,: ) = VDEMIS_AE( MAP_SRFtoEM(IM),:,:,: ) 
-     &                + EMISM3( :,:,:,IM,ISD ) * EM_SRC_SD( ISRC )%FACSRF( ISD,IM ) 
-           END DO
-           END DO
-         END IF
+         DO ISD = 2,N_SD   ! Skip the Index for the Gas Phase
+            IF ( EM_SRC_SD( ISRC )%NAME( ISD ) .EQ. 'SEASPRAY' ) THEN
+               ! Apply Spatially-Dependent Number and Surface Area Scale Factors
+               DO IM = 1,N_MODE
+                  VDEMIS_AE( MAP_NUMtoEM(IM),1,:,: ) = VDEMIS_AE( MAP_NUMtoEM(IM),1,:,: ) 
+     &                     + EMISM3( 1,:,:,IM,ISD ) * SEA_FACTNUM( IM,:,: ) 
+                  VDEMIS_AE( MAP_SRFtoEM(IM),1,:,: ) = VDEMIS_AE( MAP_SRFtoEM(IM),1,:,: ) 
+     &                     + EMISM3( 1,:,:,IM,ISD ) * SEA_FACTSRF( IM,:,: ) 
+               END DO
+            ELSE
+               ! Apply Homogeneous Scale Factors Consistent with this Source
+               DO IM = 1,N_MODE
+                  VDEMIS_AE( MAP_NUMtoEM(IM),:,:,: ) = VDEMIS_AE( MAP_NUMtoEM(IM),:,:,: ) 
+     &                     + EMISM3( :,:,:,IM,ISD ) * EM_SRC_SD( ISRC )%FACNUM( ISD,IM ) 
+                  VDEMIS_AE( MAP_SRFtoEM(IM),:,:,: ) = VDEMIS_AE( MAP_SRFtoEM(IM),:,:,: ) 
+     &                     + EMISM3( :,:,:,IM,ISD ) * EM_SRC_SD( ISRC )%FACSRF( ISD,IM ) 
+               END DO
+            END IF
+         END DO
  
          END SUBROUTINE EMISS_SIZE_DIST
  

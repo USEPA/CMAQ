@@ -85,8 +85,18 @@
       END TYPE EM_FAC_STRUCTURE
       TYPE( EM_FAC_STRUCTURE), ALLOCATABLE :: EM_FAC_ST ( :,: ) ! Emissions Scale Factors ( species, source )
       CHARACTER( 1 ) :: EM_OP_NAME( 3 ) = (/'a','m','o'/)
-      
-      
+       
+      ! Define Structure for Holding Emissions Aerosol Mode Information Globally
+      TYPE SRC_MODE
+         INTEGER  :: LEN
+         INTEGER,         ALLOCATABLE :: REF( : )
+         CHARACTER( 16 ), ALLOCATABLE :: NAME( : )
+         REAL,            ALLOCATABLE :: FACNUM( :,: )
+         REAL,            ALLOCATABLE :: FACSRF( :,: )
+      END TYPE SRC_MODE
+      TYPE( SRC_MODE ), ALLOCATABLE :: EM_SRC_SD( : )
+ 
+      ! Define Emissions File Attribute Variables
       CHARACTER( 200 ),ALLOCATABLE :: EM_FILE_NAME( : )! Filename of each emissions file
       CHARACTER( 30  ),ALLOCATABLE :: EM_FILE_LAB ( : )! Nickname of each emissions file
       CHARACTER( 16  ),ALLOCATABLE :: EM_FILE_TYPE( : )! shortname for the type of each emission

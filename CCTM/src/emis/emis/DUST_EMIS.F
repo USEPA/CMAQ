@@ -737,7 +737,7 @@ C Parameters:
          character( 16 ) :: vname
          character( 96 ) :: xmsg
          integer status
-         integer c, r, j, m, n, v
+         integer c, r, j, m, n, v, isd
 
          integer, save   :: wstep = 0      ! local write counter
          integer         :: mdate, mtime   ! diagnostic file write date&time
@@ -1240,6 +1240,17 @@ C 2nd moment multiplied by PI to obtain the surface area emissions rate.
             dustouts( 1,c,r ) = 0.0
             dustouts( 2,c,r ) = m3j * factsrfj
             dustouts( 3,c,r ) = m3k * factsrfk
+
+! Propagate Number and Surface Area Scaling Factors back to Emissions
+! Module so that the dust emissions can be scaled appropriately            
+            ISD = INDEX1( 'AERO', EM_SRC_SD( IDUSTSRC )%LEN, 
+     &                    EM_SRC_SD( IDUSTSRC )%NAME )
+            EM_SRC_SD( IDUSTSRC )%FACNUM( ISD,1 ) = 0.
+            EM_SRC_SD( IDUSTSRC )%FACNUM( ISD,2 ) = FACTNUMJ
+            EM_SRC_SD( IDUSTSRC )%FACNUM( ISD,3 ) = FACTNUMK
+            EM_SRC_SD( IDUSTSRC )%FACSRF( ISD,1 ) = 0.
+            EM_SRC_SD( IDUSTSRC )%FACSRF( ISD,2 ) = FACTSRFJ
+            EM_SRC_SD( IDUSTSRC )%FACSRF( ISD,3 ) = FACTSRFK
 
 #ifdef verbose_wbdust
             if ( m3j .ne. 0.0 ) dusthit = dusthit + 1
