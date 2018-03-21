@@ -40,6 +40,7 @@
       REAL, ALLOCATABLE :: WAVE_OUTL( : ), WAVE_OUTU( : ), WAVE_OUTC( : )
 
       INTEGER   I, J, K
+      INTEGER   I_CUTTOFF
      
       INTEGER   :: IWL
 
@@ -99,6 +100,13 @@
 
        SOLAR_ZENITH = PI/180.0D0*DACOS(0.5D0)
 
+       DO I = NJO_NEW, 1, -1
+          IF ( EFFECTIVE_LAMBDA(I) .LT.  WVBAND( 1 )  )THEN
+             I_CUTTOFF = I
+             EXIT
+          END IF
+       END DO
+
        DO 270 J = 1, NUMB_LANDUSE_MODIS
        
         DO 250 I = 1, NUMB_BANDS_MODIS
@@ -131,7 +139,9 @@
          CALL WVBIN_AVERAGE(WAVE, SCRATCH_ALBEDO, NDUMB, WAVE, XDUMB, NDUMB, 
      &                      'P', WAVE_OUTL, WAVE_OUTU, MXWLIN, YDUMB, ZDUMB )
 
-         MODIS_ALBEDO( 1:NJO_NEW, J) = YDUMB( 1:NJO_NEW )
+         MODIS_ALBEDO( 1:NJO_NEW, J)   = YDUMB( 1:NJO_NEW )
+         MODIS_ALBEDO( 1:I_CUTTOFF, J) = YDUMB( I_CUTTOFF + 1 )
+
 !         DO I = 1, NJO_NEW
 !         WRITE(6,'(3(es12.4,1x))')STWL_NEW(i),MODIS_ALBEDO( I, J), YDUMB(I)
 !         ENDDO

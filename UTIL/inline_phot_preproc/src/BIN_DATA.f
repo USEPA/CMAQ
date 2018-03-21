@@ -7,8 +7,9 @@
 !          integer, parameter :: NSO = 4463
           integer, parameter :: NZO = 13550
           integer, parameter :: NJO = 18
-           
-          INTEGER, PARAMETER :: N_LOW_JXBANDS = 11
+
+          INTEGER, PARAMETER :: N_LOW_JXBANDS = 11 ! band structure for CMAQ release models
+!          INTEGER, PARAMETER :: N_LOW_JXBANDS = 6 ! band structure for MPAS-CMAQ models
           INTEGER, SAVE      :: NJO_NEW 
           INTEGER, SAVE      :: N_INLINE_BAND 
 
