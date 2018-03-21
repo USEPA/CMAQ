@@ -92,11 +92,12 @@
       TYPE( SRC_MODE ), ALLOCATABLE :: EM_SRC_SD( : )
  
       ! Define Emissions File Attribute Variables
-      CHARACTER( 200 ),ALLOCATABLE :: EM_FILE_NAME( : )! Filename of each emissions file
-      CHARACTER( 30  ),ALLOCATABLE :: EM_FILE_LAB ( : )! Nickname of each emissions file
-      CHARACTER( 16  ),ALLOCATABLE :: EM_FILE_TYPE( : )! shortname for the type of each emission
-      INTEGER,         ALLOCATABLE :: EM_FILE_ITYPE( : )! shortname for the type of each emission
-      CHARACTER( 100 ),ALLOCATABLE :: EM_FILE_DESC( : )! Description of each emissions file
+      CHARACTER( 200 ),ALLOCATABLE :: EM_FILE_NAME( : )  ! Filename of each emissions file
+      CHARACTER( 30  ),ALLOCATABLE :: EM_FILE_LAB ( : )  ! Nickname of each emissions file
+      CHARACTER( 16  ),ALLOCATABLE :: EM_FILE_TYPE( : )  ! shortname for the type of each emission
+      INTEGER,         ALLOCATABLE :: EM_FILE_ITYPE( : ) ! shortname for the type of each emission
+      CHARACTER( 100 ),ALLOCATABLE :: EM_FILE_DESC( : )  ! Description of each emissions file
+      LOGICAL,         ALLOCATABLE :: EM_FILE_LAPPLY( : )! Description of each emissions file
 
       INTEGER              :: IBIOSRC, IMGSRC, ILTSRC, ISEASRC, IDUSTSRC
       INTEGER, ALLOCATABLE :: IGSRC( : ), IPSRC( : ), ITSRC( : ), MAP_PTtoISRC( : )
@@ -390,7 +391,9 @@
       USE DEPV_DEFN, ONLY: ABFLUX ! ammonia bidi flag
       USE AERO_DATA, ONLY: ACORSEM_ASO4_FAC, ACORSEM_ANO3_FAC,
      &                     ACORSEM_ACL_FAC,  ACORSEM_AH2O_FAC,
-     &                     ACORSEM_RENORM
+     &                     ACORSEM_RENORM,   POA_OP_VF,
+     &                     POA_AMF, POG_AMF, PCVOC_FAC
+      USE RXNS_DATA, ONLY: MECHNAME
 
       IMPLICIT NONE
 

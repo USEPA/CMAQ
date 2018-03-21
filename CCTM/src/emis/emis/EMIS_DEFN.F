@@ -301,7 +301,9 @@ C Retrieve Emissions from All Source Types
                VDEMIS_SDIST  =  EMISS_SIZE_DIST( VDEMIS_SCALED, ISRC )
                VDEMIS_CONV   =  EMISS_CONV_DIFF( VDEMIS_SDIST )
                ERROR_NEG     = EMISS_NEG_CHECK( VDEMIS_CONV, ISRC )
-               VDEMIS_DIFF( :,:,:,: ) = VDEMIS_DIFF( :,:,:,: ) + VDEMIS_CONV( :,:,:,: )
+
+               IF ( EM_FILE_LAPPLY( ISRC ) ) 
+     &              VDEMIS_DIFF( :,:,:,: ) = VDEMIS_DIFF( :,:,:,: ) + VDEMIS_CONV( :,:,:,: )
 
              ! Retrieve Point Source Emissions
              CASE ( 2 )
@@ -314,7 +316,9 @@ C Retrieve Emissions from All Source Types
                VDEMIS_SDIST  =  EMISS_SIZE_DIST( VDEMIS_SCALED, ISRC )
                VDEMIS_CONV   =  EMISS_CONV_DIFF( VDEMIS_SDIST )
                ERROR_NEG     = EMISS_NEG_CHECK( VDEMIS_CONV, ISRC )
-               VDEMIS_DIFF( :,:,:,: ) = VDEMIS_DIFF( :,:,:,: ) + VDEMIS_CONV( :,:,:,: )
+
+               IF ( EM_FILE_LAPPLY( ISRC ) ) 
+     &              VDEMIS_DIFF( :,:,:,: ) = VDEMIS_DIFF( :,:,:,: ) + VDEMIS_CONV( :,:,:,: )
              
              CASE ( 4 )
                CALL GET_BEIS ( JDATE, JTIME, TSTEP )
@@ -326,7 +330,9 @@ C Retrieve Emissions from All Source Types
                VDEMIS_SCALED =  EMISS_SCALING( VDEMIS_READ, ISRC )
                VDEMIS_CONV   =  EMISS_CONV_DIFF( VDEMIS_SCALED )
                ERROR_NEG     = EMISS_NEG_CHECK( VDEMIS_CONV, ISRC )
-               VDEMIS_DIFF( :,:,:,: ) = VDEMIS_DIFF( :,:,:,: ) + VDEMIS_CONV( :,:,:,: )
+
+               IF ( EM_FILE_LAPPLY( ISRC ) ) 
+     &              VDEMIS_DIFF( :,:,:,: ) = VDEMIS_DIFF( :,:,:,: ) + VDEMIS_CONV( :,:,:,: )
 
              ! Retrieve Marine Gas Emissions
              CASE ( 5 )
@@ -339,7 +345,9 @@ C Retrieve Emissions from All Source Types
                VDEMIS_SCALED =  EMISS_SCALING( VDEMIS_READ, ISRC )
                VDEMIS_CONV   =  EMISS_CONV_DIFF( VDEMIS_SCALED )
                ERROR_NEG     = EMISS_NEG_CHECK( VDEMIS_CONV, ISRC )
-               VDEMIS_DIFF( :,:,:,: ) = VDEMIS_DIFF( :,:,:,: ) + VDEMIS_CONV( :,:,:,: )
+
+               IF ( EM_FILE_LAPPLY( ISRC ) ) 
+     &              VDEMIS_DIFF( :,:,:,: ) = VDEMIS_DIFF( :,:,:,: ) + VDEMIS_CONV( :,:,:,: )
 
              ! Retrieve Lightning NO Emissions
              CASE ( 6 )
@@ -351,7 +359,9 @@ C Retrieve Emissions from All Source Types
                VDEMIS_SCALED =  EMISS_SCALING( VDEMIS_READ, ISRC )
                VDEMIS_CONV   =  EMISS_CONV_DIFF( VDEMIS_SCALED )
                ERROR_NEG     = EMISS_NEG_CHECK( VDEMIS_CONV, ISRC )
-               VDEMIS_DIFF( :,:,:,: ) = VDEMIS_DIFF( :,:,:,: ) + VDEMIS_CONV( :,:,:,: )
+
+               IF ( EM_FILE_LAPPLY( ISRC ) ) 
+     &              VDEMIS_DIFF( :,:,:,: ) = VDEMIS_DIFF( :,:,:,: ) + VDEMIS_CONV( :,:,:,: )
 
              ! Retrieve Sea Spray Aerosol Emissions 
              CASE ( 7 )
@@ -364,7 +374,9 @@ C Retrieve Emissions from All Source Types
                VDEMIS_SDIST  =  EMISS_SIZE_DIST( VDEMIS_SCALED, ISRC )
                VDEMIS_CONV   =  EMISS_CONV_DIFF( VDEMIS_SDIST )
                ERROR_NEG     = EMISS_NEG_CHECK( VDEMIS_CONV, ISRC )
-               VDEMIS_DIFF( :,:,:,: ) = VDEMIS_DIFF( :,:,:,: ) + VDEMIS_CONV( :,:,:,: )
+
+               IF ( EM_FILE_LAPPLY( ISRC ) ) 
+     &              VDEMIS_DIFF( :,:,:,: ) = VDEMIS_DIFF( :,:,:,: ) + VDEMIS_CONV( :,:,:,: )
 
              ! Retrieve Wind-Blown Dust Emissions 
              CASE ( 8 )
@@ -377,7 +389,9 @@ C Retrieve Emissions from All Source Types
                VDEMIS_SDIST  =  EMISS_SIZE_DIST( VDEMIS_SCALED, ISRC )
                VDEMIS_CONV   =  EMISS_CONV_DIFF( VDEMIS_SDIST )
                ERROR_NEG     = EMISS_NEG_CHECK( VDEMIS_CONV, ISRC )
-               VDEMIS_DIFF( :,:,:,: ) = VDEMIS_DIFF( :,:,:,: ) + VDEMIS_CONV( :,:,:,: )
+
+               IF ( EM_FILE_LAPPLY( ISRC ) ) 
+     &              VDEMIS_DIFF( :,:,:,: ) = VDEMIS_DIFF( :,:,:,: ) + VDEMIS_CONV( :,:,:,: )
 
            END SELECT
 
@@ -1781,6 +1795,7 @@ C Allocate Emission File Structure Variables
          Allocate( EM_FILE_TYPE( N_EM_SRC ) )
          Allocate( EM_FILE_ITYPE( N_EM_SRC ) )
          Allocate( EM_FILE_DESC( N_EM_SRC ) )
+         Allocate( EM_FILE_LAPPLY( N_EM_SRC ) )
          Allocate( IGSRC( N_EM_SRC ) )
          Allocate( IPSRC( N_EM_SRC ) )
          Allocate( ITSRC( N_EM_SRC ) )
@@ -1798,6 +1813,7 @@ C stkemis_init.
          ISRC = 0
          EMIS_GAS_UNITS = "Unknown"
          EMIS_AER_UNITS = "Unknown"
+         EM_FILE_LAPPLY = .TRUE.
 
          ! Gridded Emission Files
          IF ( N_FILE_GR .GT. 0 ) THEN
@@ -1814,6 +1830,11 @@ C stkemis_init.
      &                     EM_FILE_LAB( ISRC ), IOS )
 
               WRITE( EM_FILE_NAME( ISRC ),'( "GR_EMIS_",I2.2 )' ) N
+
+              WRITE( VLAB,'( "GR_EMIS_APPLY_",I2.2 )' ) N
+              EM_FILE_LAPPLY( ISRC ) = ENVYN( VLAB, 
+     &             'Gridded Emission File Application',.TRUE., IOS )
+
               CONVEM_GAS( ISRC ) = 1.0
               CONVEM_PM_MASS ( ISRC ) = 1.0
            END DO
@@ -1835,6 +1856,11 @@ C stkemis_init.
      &                      EM_FILE_LAB( ISRC ), IOS )
  
                WRITE( EM_FILE_NAME( ISRC ),'( "STK_EMIS_",I2.2 )' ) N
+               
+               WRITE( VLAB,'( "STK_EMIS_APPLY_",I2.2 )' ) N
+               EM_FILE_LAPPLY( ISRC ) = ENVYN( VLAB, 
+     &               'Stack Emission File Application',.TRUE., IOS )
+ 
                CONVEM_GAS( ISRC ) = 1.0
                CONVEM_PM_MASS ( ISRC ) = 1.0
             END DO
