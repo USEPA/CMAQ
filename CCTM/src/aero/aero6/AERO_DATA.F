@@ -324,9 +324,9 @@ C                     ---------- -------- ------- + + +   + ------ --- +  ------
      & /)
 
 ! Primary Organic Aerosol Volatility Distributions
-      !Integer, Parameter :: n_vbs_bin = 5
-      !Character( 10 ) :: poa_name( n_vbs_bin ) = (/ 'LVPO1', 'SVPO1', 'SVPO2', 'SVPO3', 'IVPO1' /)
-      !Real, Parameter :: poa_op_vf( n_vbs_bin ) = (/ 0.09,  0.09,  0.14,  0.18,  0.5 /)  ! Aggregated
+      Integer, Parameter :: n_vbs_bin = 5
+      Character( 10 ) :: poa_name( n_vbs_bin ) = (/ 'LVPO1', 'SVPO1', 'SVPO2', 'SVPO3', 'IVPO1' /)
+      Real, Parameter :: poa_op_vf( n_vbs_bin ) = (/ 0.09,  0.09,  0.14,  0.18,  0.5 /)  ! Aggregated
 
 ! The Following Volatility Distributions are alternative options
 ! but at this point can only be implemented indivdually for the
@@ -342,8 +342,14 @@ C                     ---------- -------- ------- + + +   + ------ --- +  ------
 ! gas and particle BEFORE the aerosol size distribution is applied.
 ! This helps prevent numerical issues with shrinking the particles
 ! instantaneously.
-      !Real, Parameter :: poa_amf( n_vbs_bin ) = (/ 1.0, 0.5, 0.0, 0.0, 0.0 /)
+      Real, Parameter :: poa_amf( n_vbs_bin ) = (/ 1.0, 0.5, 0.0, 0.0, 0.0 /)
+      Real, Parameter :: pog_amf( n_vbs_bin ) = (/ 0.0, 0.5, 1.0, 1.0, 1.0 /)
  
+! PCVOC_FAC is the scale factor for deriving PCVOC emissions from POA
+! emissions. PCVOC is the vapor precursor to pcSOA formation.
+      Real, Parameter :: PCVOC_FAC = 6.579  ! Scale factor for PCVOC/POA
+                                            ! Murphy et al., 2017
+
 C number of lognormal modes in windblown dust aerosol = n_mode
 C - but only accumulation and coarse modes used
       Type emis_table

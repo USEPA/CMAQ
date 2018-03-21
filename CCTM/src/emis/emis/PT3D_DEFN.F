@@ -70,9 +70,8 @@ C-----------------------------------------------------------------------
       IMPLICIT NONE
 
       LOGICAL,              SAVE :: PT3DEMIS   ! flag in-lining plume rise
-      REAL,    ALLOCATABLE, SAVE :: VDEMIS_PT( :,:,:,: ) ! 3D pt src 
 
-      PUBLIC PT3DEMIS, VDEMIS_PT,
+      PUBLIC PT3DEMIS, 
      &       PT3D_INIT, GET_PT3D_EMIS
       PRIVATE
 
@@ -638,15 +637,15 @@ C Compute ZSTK, DDZF
 
 C=======================================================================
 
-         SUBROUTINE GET_PT3D_EMIS ( JDATE, JTIME, TSTEP, EM_SURR_PT, 
-     &                              ISRC )
+         FUNCTION GET_PT3D_EMIS ( JDATE, JTIME, TSTEP, EM_SURR_PT, ISRC )
+     &                            RESULT( VDEMIS_PT )
 
 ! Revision History.
 !     Aug 12, 15 D. Wong: added code to handle parallel I/O implementation
 
-C-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
 
-C Time step part of laypoint
+! Time step part of laypoint
 
          USE GRID_CONF, ONLY : NCOLS, NROWS
          USE RXNS_DATA, ONLY : MECHNAME !Get Chemical Mechanism Name
@@ -659,23 +658,26 @@ C Time step part of laypoint
 
          IMPLICIT NONE
 
-C Includes:
+! Includes:
          INCLUDE SUBST_CONST     ! physical and mathematical constants
          INCLUDE SUBST_FILES_ID  ! file name parameters (for CTM_PT3D_DIAG)
 
-C Arguments:
+! Arguments:
          CHARACTER(16), INTENT( IN ) :: EM_SURR_PT( : )
          INTEGER               :: JDATE, JTIME
          INTEGER, INTENT( IN ) :: TSTEP( 3 )
          INTEGER, INTENT( IN ) :: ISRC
 
-C Parameters:
+! Outputs:
+         REAL  :: VDEMIS_PT( N_EMIS_ISTR, EMLAYS, NCOLS, NROWS )
 
-C External functions:
+! Parameters:
+
+! External functions:
          INTEGER,         EXTERNAL :: SETUP_LOGDEV
          LOGICAL,         EXTERNAL :: WRITE3_DISTR   ! calls WRITE3 directly
 
-C Local variables:
+! Local variables:
          INTEGER          CDATE      ! previous step start date
          INTEGER          CTIME      ! previous step start time
          INTEGER, SAVE :: LDATE = 0  ! previous date
@@ -714,11 +716,6 @@ C-----------------------------------------------------------------------
             LOGDEV = SETUP_LOGDEV()
             PRE_JDATE = JDATE
              
-            ! Initialize Point Source Emissions Array
-            ALLOCATE ( VDEMIS_PT( N_EMIS_ISTR,EMLAYS,NCOLS,NROWS ), STAT = IOS )
-            CALL CHECKMEM( IOS, 'VDEMIS_PT', PNAME )
-            VDEMIS_PT = 0.0   ! array assignment
-
             ! Set up and open 3d point source emissions diagnostic file?
             IF ( PT3DDIAG ) THEN
               NDATE = SDATE; NTIME = STIME
@@ -910,7 +907,7 @@ C------------------  FORMAT  STATEMENTS   ------------------------------
 
 94030    FORMAT( /5X, 3( A, :, 1X ), I8, ":", I6.6 )
 
-         END SUBROUTINE GET_PT3D_EMIS
+         END FUNCTION GET_PT3D_EMIS
 
 C-------------- Subprograms used by GET_PT3D_EMIS ----------------------
 

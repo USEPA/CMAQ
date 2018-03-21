@@ -29,12 +29,7 @@
 
       SAVE
 
-      REAL,    ALLOCATABLE :: VDEMIS( :,:,:,: )      ! total emissions array
       REAL,    ALLOCATABLE :: VDEMIS_DIFF( :,:,:,: ) ! emissions array mapped to diffused species
-      REAL,    ALLOCATABLE :: VDEMIS_CONV( :,:,:,: ) ! emissions array for rates that have been 
-                                                     !   converted for proper inits in VDIFF module
-      REAL,    ALLOCATABLE :: VDEMIS_SCLD( :,:,:,: ) ! emissions array for rates that have been 
-                                                     !   scaled for input to CMAQ
 
       INTEGER              :: N_EM_SRC   ! global number of emissions sources
       INTEGER              :: N_FILE_GR, NPTGRPS, N_FILE_TR  
@@ -492,6 +487,231 @@
          EM_NML_B(N_EM_RULE_B)%OP    = 'm' 
          EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
  
+      ! Volatility Basis Set Scaling for Use with Semivolatile POA
+      ! Mechanisms
+         IF ( INDEX( MECHNAME, 'NVPOA' ) .EQ. 0 ) THEN
+
+            ! PCVOC <- POC
+            N_EM_RULE_B = N_EM_RULE_B + 1
+            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
+            EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%SURR  = 'POC'
+            EM_NML_B(N_EM_RULE_B)%SPEC  = 'PCVOC'
+            EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
+            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
+            EM_NML_B(N_EM_RULE_B)%FAC   = PCVOC_FAC
+            ! PCVOC <- PNCOM
+            N_EM_RULE_B = N_EM_RULE_B + 1
+            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
+            EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
+            EM_NML_B(N_EM_RULE_B)%SPEC  = 'PCVOC'
+            EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
+            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
+            EM_NML_B(N_EM_RULE_B)%FAC   = PCVOC_FAC
+            ! PCVOC is turned off for Fires
+            N_EM_RULE_B = N_EM_RULE_B + 1
+            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
+            EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%SURR  = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%SPEC  = 'PCVOC'
+            EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
+            EM_NML_B(N_EM_RULE_B)%OP    = 'o' 
+            EM_NML_B(N_EM_RULE_B)%FAC   = 0.0
+
+            ! VLVPO1 <- POC
+            N_EM_RULE_B = N_EM_RULE_B + 1
+            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
+            EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%SURR  = 'POC'
+            EM_NML_B(N_EM_RULE_B)%SPEC  = 'VLVPO1'
+            EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
+            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
+            EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(1) * POG_AMF(1)
+            ! VLVPO1 <- PNCOM
+            N_EM_RULE_B = N_EM_RULE_B + 1
+            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
+            EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
+            EM_NML_B(N_EM_RULE_B)%SPEC  = 'VLVPO1'
+            EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
+            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
+            EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(1) * POG_AMF(1)
+
+            ! VSVPO1 <- POC
+            N_EM_RULE_B = N_EM_RULE_B + 1
+            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
+            EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%SURR  = 'POC'
+            EM_NML_B(N_EM_RULE_B)%SPEC  = 'VSVPO1'
+            EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
+            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
+            EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(2) * POG_AMF(2)
+            ! VSVPO1 <- PNCOM
+            N_EM_RULE_B = N_EM_RULE_B + 1
+            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
+            EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
+            EM_NML_B(N_EM_RULE_B)%SPEC  = 'VSVPO1'
+            EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
+            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
+            EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(2) * POG_AMF(2)
+
+            ! VSVPO2 <- POC
+            N_EM_RULE_B = N_EM_RULE_B + 1
+            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
+            EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%SURR  = 'POC'
+            EM_NML_B(N_EM_RULE_B)%SPEC  = 'VSVPO2'
+            EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
+            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
+            EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(3) * POG_AMF(3)
+            ! VSVPO2 <- PNCOM
+            N_EM_RULE_B = N_EM_RULE_B + 1
+            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
+            EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
+            EM_NML_B(N_EM_RULE_B)%SPEC  = 'VSVPO2'
+            EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
+            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
+            EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(3) * POG_AMF(3)
+
+            ! VSVPO3 <- POC
+            N_EM_RULE_B = N_EM_RULE_B + 1
+            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
+            EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%SURR  = 'POC'
+            EM_NML_B(N_EM_RULE_B)%SPEC  = 'VSVPO3'
+            EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
+            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
+            EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(4) * POG_AMF(4)
+            ! VSVPO3 <- PNCOM
+            N_EM_RULE_B = N_EM_RULE_B + 1
+            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
+            EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
+            EM_NML_B(N_EM_RULE_B)%SPEC  = 'VSVPO3'
+            EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
+            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
+            EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(4) * POG_AMF(4)
+
+            ! VIVPO1 <- POC
+            N_EM_RULE_B = N_EM_RULE_B + 1
+            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
+            EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%SURR  = 'POC'
+            EM_NML_B(N_EM_RULE_B)%SPEC  = 'VIVPO1'
+            EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
+            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
+            EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(5) * POG_AMF(5)
+            ! VIVPO1 <- PNCOM
+            N_EM_RULE_B = N_EM_RULE_B + 1
+            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
+            EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
+            EM_NML_B(N_EM_RULE_B)%SPEC  = 'VIVPO1'
+            EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
+            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
+            EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(5) * POG_AMF(5)
+
+            ! ALVPO1 <- POC
+            N_EM_RULE_B = N_EM_RULE_B + 1
+            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
+            EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%SURR  = 'POC'
+            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ALVPO1'
+            EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
+            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
+            EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(1) * POA_AMF(1)
+            ! ALVPO1 <- PNCOM
+            N_EM_RULE_B = N_EM_RULE_B + 1
+            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
+            EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
+            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ALVPO1'
+            EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
+            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
+            EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(1) * POA_AMF(1)
+
+            ! ASVPO1 <- POC
+            N_EM_RULE_B = N_EM_RULE_B + 1
+            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
+            EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%SURR  = 'POC'
+            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASVPO1'
+            EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
+            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
+            EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(2) * POA_AMF(2)
+            ! ASVPO1 <- PNCOM
+            N_EM_RULE_B = N_EM_RULE_B + 1
+            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
+            EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
+            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASVPO1'
+            EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
+            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
+            EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(2) * POA_AMF(2)
+
+            ! ASVPO2 <- POC
+            N_EM_RULE_B = N_EM_RULE_B + 1
+            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
+            EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%SURR  = 'POC'
+            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASVPO2'
+            EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
+            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
+            EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(3) * POA_AMF(3)
+            ! ASVPO2 <- PNCOM
+            N_EM_RULE_B = N_EM_RULE_B + 1
+            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
+            EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
+            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASVPO2'
+            EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
+            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
+            EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(3) * POA_AMF(3)
+
+            ! ASVPO3 <- POC
+            N_EM_RULE_B = N_EM_RULE_B + 1
+            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
+            EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%SURR  = 'POC'
+            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASVPO3'
+            EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
+            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
+            EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(4) * POA_AMF(4)
+            ! ASVPO3 <- PNCOM
+            N_EM_RULE_B = N_EM_RULE_B + 1
+            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
+            EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
+            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASVPO3'
+            EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
+            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
+            EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(4) * POA_AMF(4)
+
+            ! AIVPO1 <- POC
+            N_EM_RULE_B = N_EM_RULE_B + 1
+            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
+            EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%SURR  = 'POC'
+            EM_NML_B(N_EM_RULE_B)%SPEC  = 'AIVPO1'
+            EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
+            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
+            EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(5) * POA_AMF(5)
+            ! AIVPO1 <- PNCOM
+            N_EM_RULE_B = N_EM_RULE_B + 1
+            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
+            EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
+            EM_NML_B(N_EM_RULE_B)%SPEC  = 'AIVPO1'
+            EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
+            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
+            EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(5) * POA_AMF(5)
+
+
+
+         END IF
       ! [ INSERT MORE DEFAULT RULES HERE AS DESIRED ]
 
       ! Add Rules to Existing List at Beginning

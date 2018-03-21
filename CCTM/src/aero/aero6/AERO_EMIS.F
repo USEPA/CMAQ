@@ -497,7 +497,7 @@ C-----------------------------------------------------------------------
 
 C-----------------------------------------------------------------------
 
-         SUBROUTINE EMISS_SIZE_DIST ( VDEMIS_AE, ISRC )
+         FUNCTION EMISS_SIZE_DIST ( VDEMIS0, ISRC ) RESULT( VDEMIS )
 
 C  EMISS_SIZE_DIST distributes bulk aerosol emissions into size space
 C  using parameters precompiled in the AERO_DATA module. 
@@ -515,21 +515,22 @@ C ----------------------------------------------------------------------
          USE EMIS_VARS
          USE SSEMIS, ONLY : SEA_FACTNUM, SEA_FACTSRF
 
-         REAL,    INTENT( INOUT )  :: VDEMIS_AE( :,:,:,: )
-         INTEGER, INTENT( IN    )  :: ISRC
+         REAL,    INTENT( IN ) :: VDEMIS0( N_EMIS_ISTR,EMLAYS,NCOLS,NROWS )
+         INTEGER, INTENT( IN ) :: ISRC
+         REAL                  :: VDEMIS ( N_EMIS_ISTR,EMLAYS,NCOLS,NROWS )
 
          INTEGER :: N, S, IAERO, IM, ISD, ISTR   ! Looping Variables
          INTEGER :: ROW, COL, LAY, N_SD
          REAL    :: WT
-         REAL, ALLOCATABLE :: EMISM3( :,:,:,:,: ), GSFAC( :,:,: )
-         REAL, PARAMETER :: F6DPIM9 = 1.0E-9 * F6DPI  ! 1.0E-9 = Kg/ug
+         REAL, ALLOCATABLE :: EMISM3( :,:,:,:,: ) 
+         REAL              :: GSFAC( EMLAYS,NCOLS,NROWS )
+         REAL, PARAMETER   :: F6DPIM9 = 1.0E-9 * F6DPI  ! 1.0E-9 = Kg/ug
 
 
 C *** Initialize Variables  
          N_SD        = EM_SRC_SD( ISRC )%LEN 
 
          ALLOCATE( EMISM3( EMLAYS,MY_NCOLS,MY_NROWS,N_MODE,N_SD ) )
-         ALLOCATE( GSFAC( EMLAYS,MY_NCOLS,MY_NROWS ) )
          EMISM3 = 0.0
 
 C *** Calculate scaling factor for converting mass emissions into [ug/m3/s]
@@ -544,6 +545,8 @@ C     Also calculate scaling factors for converting to molar-mixing-ratio units
            END DO
          END DO
  
+         VDEMIS = VDEMIS0
+
 C *** Apply Aerosol Size Distribution
          DO ISTR = 1,N_EMIS_ISTR
              ! Find which Size Distribution or Phase this emissions species belongs 
@@ -563,18 +566,18 @@ C *** Apply Aerosol Size Distribution
              ! except Dust and Sea Spray. For those sources, convert
              ! [g/m3/s] to [ug/m3/s]
              IF ( ISRC .EQ. ISEASRC .OR. ISRC .EQ. IDUSTSRC ) THEN
-                VDEMIS_AE( ISTR,:,:,: ) = VDEMIS_AE( ISTR,:,:,: ) * CONVEM_PM_MASS( ISRC )
+                VDEMIS( ISTR,:,:,: ) = VDEMIS( ISTR,:,:,: ) * CONVEM_PM_MASS( ISRC )
              ELSE
-                VDEMIS_AE( ISTR,:,:,: ) = VDEMIS_AE( ISTR,:,:,: ) * GSFAC( :,:,: ) 
+                VDEMIS( ISTR,:,:,: ) = VDEMIS( ISTR,:,:,: ) * GSFAC( :,:,: ) 
              END IF
 
              ! Sum Total Volume of Mode N [m3/m3/s]
              IF ( .NOT. AEROSPC( IAERO )%TRACER ) 
      &             EMISM3( :,:,:,IM,ISD ) = EMISM3( :,:,:,IM,ISD ) + 
-     &                  VDEMIS_AE( ISTR,:,:,: ) * ( F6DPIM9 / AEROSPC( IAERO )%DENSITY )
+     &                  VDEMIS( ISTR,:,:,: ) * ( F6DPIM9 / AEROSPC( IAERO )%DENSITY )
 
              ! Convert Mass Emission Rates from [ug/m3/s] to [umol/m3/s]
-             VDEMIS_AE( ISTR,:,:,: ) = VDEMIS_AE( ISTR,:,:,: ) / AEROSPC_MW( IAERO )
+             VDEMIS( ISTR,:,:,: ) = VDEMIS( ISTR,:,:,: ) / AEROSPC_MW( IAERO )
          END DO          
 
 C *** Calculate the number emissions rate for each mode [1/m3/s], using 
@@ -587,23 +590,23 @@ C     converts 2nd moment to surface area.
             IF ( EM_SRC_SD( ISRC )%NAME( ISD ) .EQ. 'SEASPRAY' ) THEN
                ! Apply Spatially-Dependent Number and Surface Area Scale Factors
                DO IM = 1,N_MODE
-                  VDEMIS_AE( MAP_NUMtoEM(IM),1,:,: ) = VDEMIS_AE( MAP_NUMtoEM(IM),1,:,: ) 
+                  VDEMIS( MAP_NUMtoEM(IM),1,:,: ) = VDEMIS( MAP_NUMtoEM(IM),1,:,: ) 
      &                     + EMISM3( 1,:,:,IM,ISD ) * SEA_FACTNUM( IM,:,: ) 
-                  VDEMIS_AE( MAP_SRFtoEM(IM),1,:,: ) = VDEMIS_AE( MAP_SRFtoEM(IM),1,:,: ) 
+                  VDEMIS( MAP_SRFtoEM(IM),1,:,: ) = VDEMIS( MAP_SRFtoEM(IM),1,:,: ) 
      &                     + EMISM3( 1,:,:,IM,ISD ) * SEA_FACTSRF( IM,:,: ) 
                END DO
             ELSE
                ! Apply Homogeneous Scale Factors Consistent with this Source
                DO IM = 1,N_MODE
-                  VDEMIS_AE( MAP_NUMtoEM(IM),:,:,: ) = VDEMIS_AE( MAP_NUMtoEM(IM),:,:,: ) 
+                  VDEMIS( MAP_NUMtoEM(IM),:,:,: ) = VDEMIS( MAP_NUMtoEM(IM),:,:,: ) 
      &                     + EMISM3( :,:,:,IM,ISD ) * EM_SRC_SD( ISRC )%FACNUM( ISD,IM ) 
-                  VDEMIS_AE( MAP_SRFtoEM(IM),:,:,: ) = VDEMIS_AE( MAP_SRFtoEM(IM),:,:,: ) 
+                  VDEMIS( MAP_SRFtoEM(IM),:,:,: ) = VDEMIS( MAP_SRFtoEM(IM),:,:,: ) 
      &                     + EMISM3( :,:,:,IM,ISD ) * EM_SRC_SD( ISRC )%FACSRF( ISD,IM ) 
                END DO
             END IF
          END DO
  
-         END SUBROUTINE EMISS_SIZE_DIST
+         END FUNCTION EMISS_SIZE_DIST
  
       END MODULE AERO_EMIS
 
