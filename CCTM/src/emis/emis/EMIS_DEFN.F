@@ -708,7 +708,7 @@ C-----------------------------------------------------------------------
      &                         N_AEROSPC, AEROMODE, MODESUFF, EM_AERO_REF
          USE AERO_EMIS, only : MAP_NUMtoEM, MAP_SRFtoEM, MAP_EMtoAERO, MAP_EMtoMODE, 
      &                         MAP_EMtoNUM, MAP_EMtoSRF, WB_DUST, MAP_EMtoSD,
-     &                         EM_SRC_SD, SD_SPLIT, EM_SD_INIT, SD_RULE
+     &                         EM_SRC_SD, SD_SPLIT, EM_SD_INIT
          USE UDTYPES,   only : CARRY1, LARRY1
 
          IMPLICIT NONE
@@ -755,27 +755,7 @@ C-----------------------------------------------------------------------
          REAL, ALLOCATABLE :: EM_FAC_BULK( :,:,: )
          CHARACTER( 1 ), ALLOCATABLE :: EM_OP( :,:,: )
          INTEGER, ALLOCATABLE :: EM_REG( :,:,: )
-
-
-! Define General Parameters in Emission Control Namelist
-         CHARACTER( 300 ) :: EQNAME
-         INTEGER          :: EMCTRL_NML
-
-         LOGICAL :: DefaultScaling      = .FALSE.
-         CHARACTER( 16 ) :: DefaultFineSurrogates( 50 )
-         CHARACTER( 16 ) :: DefaultCoarseSurrogates( 50 )
-         NAMELIST / GeneralSpecs / DefaultScaling, Guard_BiogenicVOC,
-     &              Guard_MarineGas, Guard_LightningNO, Guard_WindBlownDust,
-     &              Guard_SeaSpray
-
-! Define Emissions Rules Input from Emissions Control Namelist
          INTEGER             :: N_EM_RULE
-         TYPE( EM_RULE_REG ) :: EM_NML( N_EM_RULE_REG )
-         NAMELIST / EmissionScaling / EM_NML
-
-         INTEGER, PARAMETER  :: N_SD_RULE = 200
-         TYPE( SD_RULE ) :: SD_NML( N_SD_RULE )
-         NAMELIST / SizeDistReg / SD_NML 
 
 ! Retrieve Environment Variable Letting User Ignore this Check
 ! and allowing the model to proceed.
@@ -795,14 +775,6 @@ C-----------------------------------------------------------------------
             XMSG = 'Environment variable not set...Using default:'
             WRITE( LOGDEV, '(5X,A,I9)' ) XMSG, JTIME
          END IF
-
-! Open and Begin Reading The Emission Control Namelist
-         CALL NAMEVAL( "EMISSCTRL_NML", EQNAME )
-         
-         EMCTRL_NML = JUNIT()
-         OPEN( FILE = EQNAME, UNIT = EMCTRL_NML, STATUS = 'OLD',
-     &         POSITION = 'REWIND' )
-         READ( NML = GeneralSpecs, UNIT = EMCTRL_NML )
 
 ! Retrieve the Surrogates Available From Emissions Sources
          WRITE( LOGDEV, '(/,/,5x,A)' ), REPEAT( '=', 75 )
@@ -852,13 +824,7 @@ C-----------------------------------------------------------------------
 ! Set up Source <-> Size Distribution relationship. This routine
 ! populates the EM_SRC_SD structure which tells the logic below which
 ! modes are present on which sources.
-         SD_NML%SRC      = ''
-         SD_NML%MODE     = ''
-         SD_NML%MODE_REF = ''
-
-         REWIND( EMCTRL_NML )
-         READ( NML = SizeDistReg, UNIT = EMCTRL_NML )
-         CALL EM_SD_INIT( SD_NML )
+         CALL EM_SD_INIT( )
          
 ! Process Default Emissions Mapping (if requested in namelist; i.e. 
 ! DefaultScaling = TRUE) 
@@ -1046,24 +1012,15 @@ C-----------------------------------------------------------------------
          END IF
 
 ! Process User-Defined Emissions Scaling Rules. 
-         EM_NML%SPEC = ''
-         EM_NML%SRC  = ''
-         EM_NML%PHASE= ''
-         EM_NML%SURR = ''
-         EM_NML%FAC  = 0.
-         EM_NML%OP   = ''
-         REWIND( EMCTRL_NML )
-         READ( NML = EmissionScaling, UNIT = EMCTRL_NML )
-         CLOSE( UNIT = EMCTRL_NML )
-         
-         ! Find Total Number of Rules
+        ! Find Total Number of Rules
+         N_EM_RULE = 0
          DO IRULE = 1,N_EM_RULE_REG
             IF( EM_NML( IRULE )%SPEC .EQ. '' ) EXIT
             N_EM_RULE = IRULE
          END DO
 
          ! Implement Default Scaling Rules that will Always Be Applied
-         IF ( DefaultScaling ) CALL CUSTOM_EM_RULES( N_EM_RULE, EM_NML )
+         IF ( DefaultScaling ) CALL CUSTOM_EM_RULES( N_EM_RULE )
 
 
          ! Allocate Rule->Instruction Transform Masks
@@ -1707,34 +1664,20 @@ C
          CHARACTER( 16 )  :: CTM_LTNG_NO = 'CTM_LTNG_NO'    ! Let model proceed even if
          CHARACTER( 16 )  :: PNAME = 'EM_FILE_INIT'
          CHARACTER( 80 )  :: VARDESC
-         CHARACTER( 16 )  :: VLAB
+         CHARACTER( 20 )  :: VLAB
          CHARACTER( 16 )  :: VNAME
          INTEGER          :: STATUS
          CHARACTER( 200 ) :: XMSG
          CHARACTER( 300 ) :: EQNAME
          LOGICAL :: SUCCESS
-         INTEGER :: EMCTRL_NML
-
-         TYPE( REGIONS_REG ) :: REGIONS_NML( N_REGIONS_REG )
-         NAMELIST / Regions_Registry / REGIONS_NML
 
          LOGDEV = INIT3()
          SUCCESS = .TRUE.
 
 C Initialize Regions for Mapping Scale Factors Geographically for Base
 C Model (eventually apply this to DDM-3D and ISAM)
-         CALL NAMEVAL( "EMISSCTRL_NML", EQNAME )
-         
-         REGIONS_NML%LABEL = ''
-         REGIONS_NML%FILE  = ''
-         REGIONS_NML%VAR   = ''
-
-         EMCTRL_NML = JUNIT()
-         OPEN( FILE = EQNAME, UNIT = EMCTRL_NML, STATUS = 'OLD',
-     &         POSITION = 'REWIND' )
-         READ( NML = Regions_Registry, UNIT = EMCTRL_NML )
-         CLOSE( EMCTRL_NML )
-         CALL INIT_EMIS_REGIONS( REGIONS_NML )
+         CALL READ_EMISS_NAMELIST( )
+         CALL INIT_EMIS_REGIONS( )
 
 C Retrieve the number of each type of emission file             
          N_FILE_GR = ENVINT( 'N_EMIS_GR',

@@ -83,7 +83,7 @@ C aerosol emissions: [ppmv/s] for mass & number spcs, [m2/mol/s] for surface are
       PUBLIC EMISS_SIZE_DIST, AERO_EMIS_INIT,
      &       MAP_EMtoAERO, MAP_EMtoMODE, MAP_NUMtoEM, MAP_SRFtoEM,
      &       MAP_EMtoNUM, MAP_EMtoSRF, MAP_EMtoSD, EM_SRC_SD, SD_SPLIT,
-     &       CTM_WB_DUST, WB_DUST, CELLVOL, CELLHGT, EM_SD_INIT, SD_RULE,
+     &       CTM_WB_DUST, WB_DUST, CELLVOL, CELLHGT, EM_SD_INIT, 
      &       SS_AERO, CTM_SS_AERO
       PRIVATE
 
@@ -96,13 +96,6 @@ C Variables for converting mass emissions rate to 2nd moment emissions rate
 C Variables for Saving split factors between emission modes
       REAL, ALLOCATABLE :: SD_SPLIT( :,: )
 
-
-C Define Structure for Size Distribution Rule      
-      TYPE SD_RULE
-             CHARACTER( 32 ) :: SRC
-             CHARACTER( 16 ) :: MODE
-             CHARACTER( 16 ) :: MODE_REF
-      END TYPE SD_RULE
 
 C Variables for the thickness and volume of each grid cell
       REAL,    ALLOCATABLE :: CELLHGT( : ) ! grid-cell height [sigma]
@@ -386,7 +379,7 @@ C     Multiply by grid area [m2] to obtain grid volume
 
 C-----------------------------------------------------------------------
 
-       SUBROUTINE EM_SD_INIT ( SD_NML )
+       SUBROUTINE EM_SD_INIT ( )
 
 C  EM_SD_INIT initializes the structures that map modes and sources to
 C  reference modes including splits, diameters, and standard deviations.
@@ -401,7 +394,6 @@ C-----------------------------------------------------------------------
        INTEGER ISRC
        
        INTEGER                          :: N_SD_RULE
-       TYPE( SD_RULE ), INTENT( IN )    :: SD_NML( : )
        INTEGER                          :: N_SD( N_EM_SRC )
        CHARACTER( 16 )                  :: SD_NAME( N_EM_SRC, 10 )
        INTEGER                          :: SD( N_EM_SRC, 10 )
