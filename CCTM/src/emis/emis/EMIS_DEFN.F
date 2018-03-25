@@ -776,12 +776,24 @@ C-----------------------------------------------------------------------
             WRITE( LOGDEV, '(5X,A,I9)' ) XMSG, JTIME
          END IF
 
-! Retrieve the Surrogates Available From Emissions Sources
          WRITE( LOGDEV, '(/,/,5x,A)' ), REPEAT( '=', 75 )
          WRITE( LOGDEV, '(5x,A,A)' ), '|> SCALING EMISSIONS CONSISTENT WITH ',
      &                  'EMISSIONS CONTROL FILE SUPPLIED BY USER' 
          WRITE( LOGDEV, '(5x,A)' ), REPEAT( '=', 75 )
+ 
+! Write Out Region Diagnostic Information
+         WRITE( LOGDEV, '(/,5x,A)' ),'|> Regions Available for Scaling:'
+         WRITE( LOGDEV, '(5x,A)'   ),'================================='
 
+         ! First Print Information about All the Available Regions for Scaling
+         WRITE( LOGDEV,'(8x,A,2x,A,8x,A,10x,A)' ),'Number','Region Label','File Label','Variable'
+         WRITE( LOGDEV,'(8x,A,2x,A,8x,A,10x,A)' ),'------','------------','----------','--------'
+         DO IRGN = 1,N_EM_RGN
+            WRITE( LOGDEV,'(8x,I3,5x,A18,2x,A18,2x,A)' ),IRGN, EM_REGIONS(IRGN)%LABEL( 1:18 ),
+     &             EM_REGIONS( IRGN )%File( 1:18 ), TRIM(EM_REGIONS( IRGN )%VAR )
+         END DO
+ 
+! Retrieve the Surrogates Available From Emissions Sources
          ! Map the Emission Surrogate Species to Default CMAQ Internal
          ! Species, default size distributions, and default molecular
          ! weights based on SMOKE/MOVES/SPECIATE guidelines
@@ -1537,16 +1549,6 @@ C-----------------------------------------------------------------------
 
 ! Print out the Tables of CMAQ Emissions Instructions organized by each 
 ! emission source and then by CMAQ internal species.
-         WRITE( LOGDEV, '(/,5x,A)' ),'|> Regions Available for Scaling:'
-         WRITE( LOGDEV, '(5x,A)'   ),'================================='
-
-         ! First Print Information about All the Available Regions for Scaling
-         WRITE( LOGDEV,'(8x,A,2x,A,8x,A,10x,A)' ),'Number','Region Label','File Label','Variable'
-         WRITE( LOGDEV,'(8x,A,2x,A,8x,A,10x,A)' ),'------','------------','----------','--------'
-         DO IRGN = 1,N_EM_RGN
-            WRITE( LOGDEV,'(8x,I3,5x,A18,2x,A18,2x,A)' ),IRGN, EM_REGIONS(IRGN)%LABEL( 1:18 ),
-     &             EM_REGIONS( IRGN )%File( 1:18 ), TRIM(EM_REGIONS( IRGN )%VAR )
-         END DO
 
          WRITE( LOGDEV, '(/,/,5x,A)' ),'|> EMISSIONS SCALING DIAGNOSTIC:'
          WRITE( LOGDEV, '(5x,A)'   ),'=================================='

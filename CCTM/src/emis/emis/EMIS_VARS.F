@@ -773,18 +773,21 @@
           N_EM_READ = N_EM_READ + 1
       END DO
 
-      ! Allocate Vectors and Arrays for Each Region
-      ALLOCATE( EM_REGIONS( N_REGIONS_REG ) )
-      
       EM_REG_READ( 1 )%LABEL = 'EVERYWHERE'
       EM_REG_READ( 1 )%FILE  = 'N/A'
       EM_REG_READ( 1 )%VAR   = 'N/A'
       EM_REG_READ( 1 )%FILENUM = 1
       FILENAMES( 1 ) = 'N/A'
-         
-      ALLOCATE( EM_REG_FAC( NCOLS,NROWS,N_EM_RGN ) )
+
+      ! Allocate Vectors and Arrays for Each Region
+      ALLOCATE( EM_REGIONS( N_REGIONS_REG ) )
+      EM_REGIONS( 1 ) = EM_REG_READ( 1 )
+      
+      ALLOCATE( EM_REG_FAC( NCOLS,NROWS,N_REGIONS_REG ) )
       EM_REG_FAC = 0.0
       EM_REG_FAC( :,:,1 ) = 1.0
+
+      N_EM_RGN = 1
 
       ! Populate global Region properties structure. Also assign each
       ! region a number according to the file it comes from. 1 =
@@ -833,9 +836,8 @@
           END IF
          
           ! Read data from regions file into region array 
-          N_EM_RGN = 1
           DO IREAD = 2,N_EM_READ
-              IF ( EM_REG_READ( IRGN )%FILENUM .EQ. IFILE ) THEN
+              IF ( EM_REG_READ( IREAD )%FILENUM .EQ. IFILE ) THEN
                   IF ( EM_REG_READ( IREAD )%VAR .EQ. 'ALL' ) THEN
                      ! Populate the region array with all of the
                      ! variables on this file
@@ -876,6 +878,7 @@
               END IF
           END DO
           EM_REGIONS = EM_REGIONS( 1:N_EM_RGN )
+          EM_REG_FAC = EM_REG_FAC( :,:,1:N_EM_RGN )
 
           ! Close Regions File
           IF ( .NOT. CLOSE3( FILENAMES( IFILE ) ) ) THEN
@@ -952,7 +955,7 @@
          ! Open Emission Control Namelist File
          EMCTRL_NML = JUNIT()
          OPEN( FILE = EQNAME, UNIT = EMCTRL_NML, STATUS = 'OLD',
-     &         POSITION = 'REWIND', IOSTAT = STAT )
+     &         POSITION = 'REWIND', FORM='FORMATTED', IOSTAT = STAT )
 
          ! Check for Error in File Open Process
          IF ( STAT .NE. 0 ) THEN
@@ -993,7 +996,7 @@
 
          ! Read the size distribution specification section
          REWIND( EMCTRL_NML )
-         READ( NML = SizeDistReg, UNIT = EMCTRL_NML )
+         READ( NML = SizeDistReg, UNIT = EMCTRL_NML, IOSTAT=STAT )
          IF ( STAT .NE. 0 ) THEN
              WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A,/,5x,A)" ),
      &              'Warning! Something went wrong while reading the ',
@@ -1007,7 +1010,7 @@
 
          ! Read the Emissions Rules to inform scaling operations
          REWIND( EMCTRL_NML )
-         READ( NML = EmissionScaling, UNIT = EMCTRL_NML )
+         READ( NML = EmissionScaling, UNIT = EMCTRL_NML, IOSTAT=STAT )
          IF ( STAT .NE. 0 ) THEN
              WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A,/,5x,A)" ),
      &              'Warning! Something went wrong while reading the ',
