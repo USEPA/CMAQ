@@ -193,7 +193,7 @@ C Local Variables:
 
          INTEGER          LOGDEV
 
-         INTEGER I, J, K, L, M, N, P, S, SRC, V, ISRC  ! counters and indices
+         INTEGER I, J, K, L, M, N, P, S, SRC, V, ISRM  ! counters and indices
 
          INTEGER :: GXOFF, GYOFF
          INTEGER :: STRTCOLMC, ENDCOLMC, STRTROWMC, ENDROWMC
@@ -472,8 +472,8 @@ C Initialize stack emissions data
 
          ! Retrive Point Source Filenames from Emissions Filename Vector
          DO N = 1, NPTGRPS
-            ISRC = MAP_PTtoISRC( N )
-            STKENAME( N ) = EM_FILE_NAME( ISRC )
+            ISRM = MAP_PTtoISRM( N )
+            STKENAME( N ) = EM_FILE_NAME( ISRM )
          END DO
 
          ! Initialize Point Source Emissions
@@ -637,7 +637,7 @@ C Compute ZSTK, DDZF
 
 C=======================================================================
 
-         FUNCTION GET_PT3D_EMIS ( JDATE, JTIME, TSTEP, EM_SURR_PT, ISRC )
+         FUNCTION GET_PT3D_EMIS ( JDATE, JTIME, TSTEP, EM_SURR_PT, ISRM )
      &                            RESULT( VDEMIS_PT )
 
 ! Revision History.
@@ -666,7 +666,7 @@ C=======================================================================
          CHARACTER(16), INTENT( IN ) :: EM_SURR_PT( : )
          INTEGER               :: JDATE, JTIME
          INTEGER, INTENT( IN ) :: TSTEP( 3 )
-         INTEGER, INTENT( IN ) :: ISRC
+         INTEGER, INTENT( IN ) :: ISRM
 
 ! Outputs:
          REAL  :: VDEMIS_PT( N_EMIS_ISTR, EMLAYS, NCOLS, NROWS )
@@ -721,8 +721,8 @@ C-----------------------------------------------------------------------
               NDATE = SDATE; NTIME = STIME
               CALL NEXTIME( NDATE, NTIME, TSTEP(1) ) ! advance one output tstep
               CALL OPPT3D_DIAG( CTM_PT3D_DIAG, NDATE, NTIME, TSTEP(1), EMLAYS,
-     &                   EM_FILE_SURR( ISRC )%LEN, EM_FILE_SURR( ISRC )%ARRY( : ),
-     &                   EM_FILE_SURR( ISRC )%UNITS( : ) )
+     &                   EM_FILE_SURR( ISRM )%LEN, EM_FILE_SURR( ISRM )%ARRY( : ),
+     &                   EM_FILE_SURR( ISRM )%UNITS( : ) )
  
 
               ALLOCATE ( VDEMIS_BUF( NCOLS,NROWS,EMLAYS,N_EMIS_ISTR ), STAT = IOS )
@@ -785,7 +785,7 @@ C Convert pt source met data to bi-linear interpolated data
 C Initialize Output Array
          VDEMIS_PT = 0.0   ! array assignment
 
-         N = IPSRC( ISRC )
+         N = IPSRM( ISRM )
 
          IF ( MY_NSRC( N ) .LE. 0 ) RETURN
 

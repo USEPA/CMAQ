@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/opemis.F,v 1.3 2011/10/21 16:10:47 yoj Exp $
- 
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
- 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE OPEMIS ( JDATE, JTIME, EM_TRAC )
 
@@ -67,7 +60,7 @@ C Local variables:
       LOGICAL ::   WRFLG = .FALSE.
       INTEGER      LOGDEV
       INTEGER      STATUS, IOS
-      INTEGER      V, N, S, ISRC, ITRAC, IGR, IVAR, X    
+      INTEGER      V, N, S, ISRM, ITRAC, IGR, IVAR, X    
 
 C-----------------------------------------------------------------------
  
@@ -76,30 +69,30 @@ C-----------------------------------------------------------------------
       EM_GRID_LAYS = 0
 
 C Open All Tracer Emission Files
-      DO ISRC = 1,N_EM_SRC
-        IF ( EM_FILE_TYPE( ISRC ) .EQ. 'TRAC' ) THEN
-           ITRAC = ITSRC( ISRC )
+      DO ISRM = 1,N_EM_SRM
+        IF ( EM_FILE_TYPE( ISRM ) .EQ. 'TRAC' ) THEN
+           ITRAC = ITSRM( ISRM )
 
-           IF ( .NOT. OPEN3( EM_FILE_NAME( ISRC ), FSREAD3, PNAME ) ) THEN
+           IF ( .NOT. OPEN3( EM_FILE_NAME( ISRM ), FSREAD3, PNAME ) ) THEN
               XMSG = 'Could not open tracer file'
               CALL M3MESG( XMSG )
            ELSE
 
              ! Save Tracer Variables for Use in Emissions Species Check
              ! Routine
-             EM_FILE_SURR( ISRC )%LEN = NVARS3D
-             ALLOCATE ( EM_FILE_SURR( ISRC )%ARRY( NVARS3D ), STAT = STATUS )
-             ALLOCATE ( EM_FILE_SURR( ISRC )%UNITS( NVARS3D ), STAT = STATUS )
-             EM_FILE_SURR( ISRC )%ARRY = VNAME3D( 1:NVARS3D )
+             EM_FILE_SURR( ISRM )%LEN = NVARS3D
+             ALLOCATE ( EM_FILE_SURR( ISRM )%ARRY( NVARS3D ), STAT = STATUS )
+             ALLOCATE ( EM_FILE_SURR( ISRM )%UNITS( NVARS3D ), STAT = STATUS )
+             EM_FILE_SURR( ISRM )%ARRY = VNAME3D( 1:NVARS3D )
 
              ! Assign Tracer Emissions Species
-             IF ( .NOT. DESC3( EM_FILE_NAME( ISRC ) ) ) THEN
-                XMSG = 'Could not get '// EM_FILE_NAME( ISRC ) // ' file description'
+             IF ( .NOT. DESC3( EM_FILE_NAME( ISRM ) ) ) THEN
+                XMSG = 'Could not get '// EM_FILE_NAME( ISRM ) // ' file description'
                 CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
              END IF
 
              ! Assign Layers to Common Vector
-             EM_GRID_LAYS( ISRC ) = NLAYS3D
+             EM_GRID_LAYS( ISRM ) = NLAYS3D
               
              ! Check Units For Consistency
              UNITSCK = 'BLANK'
@@ -108,11 +101,11 @@ C Open All Tracer Emission Files
                 IF ( V .NE. 0 ) THEN
                   IF ( UNITSCK .EQ. 'BLANK' ) UNITSCK = UNITS3D( N )
                   IF ( UNITS3D( N ) .NE. UNITSCK ) THEN
-                     XMSG = 'Units not uniform on ' // EM_FILE_LAB( ISRC )
+                     XMSG = 'Units not uniform on ' // EM_FILE_LAB( ISRM )
                      CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
                   END IF
                 END IF
-                EM_FILE_SURR( ISRC )%UNITS( N ) = UNITS3D( N )
+                EM_FILE_SURR( ISRM )%UNITS( N ) = UNITS3D( N )
              END DO 
            END IF
 
@@ -121,29 +114,29 @@ C Open All Tracer Emission Files
 
 
 C Open Gridded Emission Files (for gas chem, aerosols and non-reactive species)
-      DO ISRC = 1,N_EM_SRC
-        IF ( EM_FILE_TYPE( ISRC ) .EQ. 'GRID' ) THEN
-          IGR = IGSRC( ISRC )
+      DO ISRM = 1,N_EM_SRM
+        IF ( EM_FILE_TYPE( ISRM ) .EQ. 'GRID' ) THEN
+          IGR = IGSRM( ISRM )
  
-          IF ( .NOT. OPEN3( EM_FILE_NAME( ISRC ), FSREAD3, PNAME ) ) THEN
-              XMSG = 'Could not open file ' // EM_FILE_NAME( ISRC )
+          IF ( .NOT. OPEN3( EM_FILE_NAME( ISRM ), FSREAD3, PNAME ) ) THEN
+              XMSG = 'Could not open file ' // EM_FILE_NAME( ISRM )
               CALL M3MESG( XMSG )
           ELSE
  
-            IF ( .NOT. DESC3( EM_FILE_NAME( ISRC ) ) ) THEN
-              XMSG = 'Could not get '// EM_FILE_NAME( ISRC ) // ' file description'
+            IF ( .NOT. DESC3( EM_FILE_NAME( ISRM ) ) ) THEN
+              XMSG = 'Could not get '// EM_FILE_NAME( ISRM ) // ' file description'
               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
             END IF
 
             ! Save Area Source Species Names For Use in Emissions Species
             ! Check Routine
-            EM_FILE_SURR( ISRC )%LEN = NVARS3D
-            ALLOCATE ( EM_FILE_SURR( ISRC )%ARRY( NVARS3D ), STAT = STATUS )
-            ALLOCATE ( EM_FILE_SURR( ISRC )%UNITS( NVARS3D ), STAT = STATUS )
-            EM_FILE_SURR( ISRC )%ARRY = VNAME3D( 1:NVARS3D )
+            EM_FILE_SURR( ISRM )%LEN = NVARS3D
+            ALLOCATE ( EM_FILE_SURR( ISRM )%ARRY( NVARS3D ), STAT = STATUS )
+            ALLOCATE ( EM_FILE_SURR( ISRM )%UNITS( NVARS3D ), STAT = STATUS )
+            EM_FILE_SURR( ISRM )%ARRY = VNAME3D( 1:NVARS3D )
            
             ! Assign Area Source Emission Species
-            EM_GRID_LAYS( ISRC ) = NLAYS3D
+            EM_GRID_LAYS( ISRM ) = NLAYS3D
 
             ! Check Units for Consistency 
             ! EMIS_GAS_UNITS and EMIS_AER_UNITS are initalized in
@@ -158,47 +151,47 @@ C Open Gridded Emission Files (for gas chem, aerosols and non-reactive species)
 
                   IF ( MAP_EMIStoCMAQ( X )%PHASE .NE. 'GAS' ) THEN
                      ! Aerosol Species
-                     IF ( EMIS_AER_UNITS( ISRC ) .EQ. 'Unknown' ) 
-     &                    EMIS_AER_UNITS( ISRC ) = UNITSCK
-                     IF ( UNITSCK .NE. EMIS_AER_UNITS( ISRC ) ) THEN
+                     IF ( EMIS_AER_UNITS( ISRM ) .EQ. 'Unknown' ) 
+     &                    EMIS_AER_UNITS( ISRM ) = UNITSCK
+                     IF ( UNITSCK .NE. EMIS_AER_UNITS( ISRM ) ) THEN
                          WRITE( XMSG, '(A,A,A,A,A,A)' ), 'The aerosol units for ', 
-     &                          TRIM(EM_FILE_DESC( ISRC )),' are inconsistent: ',
-     &                          TRIM(EMIS_AER_UNITS( ISRC )),' | ',TRIM(UNITSCK)
+     &                          TRIM(EM_FILE_DESC( ISRM )),' are inconsistent: ',
+     &                          TRIM(EMIS_AER_UNITS( ISRM )),' | ',TRIM(UNITSCK)
                          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
                      END IF
 
-                     IF ( EMIS_AER_UNITS( ISRC ) .EQ. 'G/S' )   
-     &                    CONVEM_PM_MASS( ISRC ) = MGPG  ! g/s -> ug/s
-                     IF ( EMIS_AER_UNITS( ISRC ) .EQ. 'KG/HR' ) 
-     &                    CONVEM_PM_MASS( ISRC ) = GPKG * MGPG / 3600. ! kg/hr -> ug/s
+                     IF ( EMIS_AER_UNITS( ISRM ) .EQ. 'G/S' )   
+     &                    CONVEM_PM_MASS( ISRM ) = MGPG  ! g/s -> ug/s
+                     IF ( EMIS_AER_UNITS( ISRM ) .EQ. 'KG/HR' ) 
+     &                    CONVEM_PM_MASS( ISRM ) = GPKG * MGPG / 3600. ! kg/hr -> ug/s
                   ELSE
                      !Gas Species
-                     IF ( EMIS_GAS_UNITS( ISRC ) .EQ. 'Unknown' ) 
-     &                    EMIS_GAS_UNITS( ISRC ) = UNITSCK
-                     IF ( UNITSCK .NE. EMIS_GAS_UNITS( ISRC ) ) THEN
+                     IF ( EMIS_GAS_UNITS( ISRM ) .EQ. 'Unknown' ) 
+     &                    EMIS_GAS_UNITS( ISRM ) = UNITSCK
+                     IF ( UNITSCK .NE. EMIS_GAS_UNITS( ISRM ) ) THEN
                          WRITE( XMSG, '(A,A,A,A,A,A)' ), 'The gas units for ', 
-     &                          TRIM(EM_FILE_DESC( ISRC )),' are inconsistent: ',
-     &                          TRIM(EMIS_GAS_UNITS( ISRC )),' | ',TRIM(UNITSCK)
+     &                          TRIM(EM_FILE_DESC( ISRM )),' are inconsistent: ',
+     &                          TRIM(EMIS_GAS_UNITS( ISRM )),' | ',TRIM(UNITSCK)
                          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
                      END IF
 
-                     IF ( EMIS_GAS_UNITS( ISRC ) .EQ. 'MOLES/S'   .OR.
-     &                    EMIS_GAS_UNITS( ISRC ) .EQ. 'MOLES/SEC' .OR.
-     &                    EMIS_GAS_UNITS( ISRC ) .EQ. 'MOLE/S'    .OR.
-     &                    EMIS_GAS_UNITS( ISRC ) .EQ. 'MOLE/SEC'  .OR.
-     &                    EMIS_GAS_UNITS( ISRC ) .EQ. 'MOL/S'     .OR.
-     &                    EMIS_GAS_UNITS( ISRC ) .EQ. 'MOL/SEC'   
+                     IF ( EMIS_GAS_UNITS( ISRM ) .EQ. 'MOLES/S'   .OR.
+     &                    EMIS_GAS_UNITS( ISRM ) .EQ. 'MOLES/SEC' .OR.
+     &                    EMIS_GAS_UNITS( ISRM ) .EQ. 'MOLE/S'    .OR.
+     &                    EMIS_GAS_UNITS( ISRM ) .EQ. 'MOLE/SEC'  .OR.
+     &                    EMIS_GAS_UNITS( ISRM ) .EQ. 'MOL/S'     .OR.
+     &                    EMIS_GAS_UNITS( ISRM ) .EQ. 'MOL/SEC'   
      &                ) THEN
-                           CONVEM_GAS( ISRC ) = 1.0E-3  ! mol/s -> kmol/s
+                           CONVEM_GAS( ISRM ) = 1.0E-3  ! mol/s -> kmol/s
                      ELSE
                          WRITE( XMSG, '(A,A,A,A,A)' ), 'The gas units for ', 
-     &                          TRIM(EM_FILE_DESC( ISRC )),' are not expected: ',
-     &                          TRIM(EMIS_GAS_UNITS( ISRC )),'. They should be MOLE/S.'
+     &                          TRIM(EM_FILE_DESC( ISRM )),' are not expected: ',
+     &                          TRIM(EMIS_GAS_UNITS( ISRM )),'. They should be MOLE/S.'
                          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
                      END IF
                    END IF
                  END IF
-                 EM_FILE_SURR( ISRC )%UNITS( IVAR ) = UNITS3D( IVAR )
+                 EM_FILE_SURR( ISRM )%UNITS( IVAR ) = UNITS3D( IVAR )
 
             END DO
 

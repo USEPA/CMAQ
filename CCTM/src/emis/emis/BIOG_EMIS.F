@@ -419,20 +419,20 @@ C Find emitted CMAQ species names
          END DO
 
 C Save Species names in global array for mapping emissions
-         EM_FILE_SURR( IBIOSRC )%LEN = MSPCS
-         ALLOCATE( EM_FILE_SURR( IBIOSRC )%ARRY ( MSPCS ) )
-         ALLOCATE( EM_FILE_SURR( IBIOSRC )%CMAQ ( MSPCS ) )
-         ALLOCATE( EM_FILE_SURR( IBIOSRC )%UNITS( MSPCS ) )
-         ALLOCATE( EM_FILE_SURR( IBIOSRC )%PHASE( MSPCS ) )
-         ALLOCATE( EM_FILE_SURR( IBIOSRC )%MW   ( MSPCS ) )
-         ALLOCATE( EM_FILE_SURR( IBIOSRC )%USED ( MSPCS ) )
+         EM_FILE_SURR( IBIOSRM )%LEN = MSPCS
+         ALLOCATE( EM_FILE_SURR( IBIOSRM )%ARRY ( MSPCS ) )
+         ALLOCATE( EM_FILE_SURR( IBIOSRM )%CMAQ ( MSPCS ) )
+         ALLOCATE( EM_FILE_SURR( IBIOSRM )%UNITS( MSPCS ) )
+         ALLOCATE( EM_FILE_SURR( IBIOSRM )%PHASE( MSPCS ) )
+         ALLOCATE( EM_FILE_SURR( IBIOSRM )%MW   ( MSPCS ) )
+         ALLOCATE( EM_FILE_SURR( IBIOSRM )%USED ( MSPCS ) )
          
-         EM_FILE_SURR( IBIOSRC )%ARRY  = EMSPC
-         EM_FILE_SURR( IBIOSRC )%CMAQ  = EMSPC
-         EM_FILE_SURR( IBIOSRC )%UNITS = 'MOLES/S'
-         EM_FILE_SURR( IBIOSRC )%PHASE = 'GAS'
-         EM_FILE_SURR( IBIOSRC )%MW    = 0.0
-         EM_FILE_SURR( IBIOSRC )%USED  = .FALSE.
+         EM_FILE_SURR( IBIOSRM )%ARRY  = EMSPC
+         EM_FILE_SURR( IBIOSRM )%CMAQ  = EMSPC
+         EM_FILE_SURR( IBIOSRM )%UNITS = 'MOLES/S'
+         EM_FILE_SURR( IBIOSRM )%PHASE = 'GAS'
+         EM_FILE_SURR( IBIOSRM )%MW    = 0.0
+         EM_FILE_SURR( IBIOSRM )%USED  = .FALSE.
 
 C Allocate memory for storing mole- and mass-based factors
          ALLOCATE( MLFAC( MSPCS,NSEF ), STAT=IOS )

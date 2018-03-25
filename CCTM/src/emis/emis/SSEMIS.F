@@ -337,20 +337,20 @@ C Map aerospc data
 C Populate Master Emissions Map Vector So That Diagnostics 
 C can be printed in EMIS_MAP
             NSSSPC = NSEA_SPC
-            Em_File_Surr( iseasrc )%len = nssspc
-            Allocate( Em_File_Surr( iseasrc )%arry ( nssspc ) )
-            Allocate( Em_File_Surr( iseasrc )%cmaq ( nssspc ) )
-            Allocate( Em_File_Surr( iseasrc )%units( nssspc ) )
-            Allocate( Em_File_Surr( iseasrc )%phase( nssspc ) )
-            Allocate( Em_File_Surr( iseasrc )%mw   ( nssspc ) )
-            Allocate( Em_File_Surr( iseasrc )%used ( nssspc ) )
+            Em_File_Surr( iseasrm )%len = nssspc
+            Allocate( Em_File_Surr( iseasrm )%arry ( nssspc ) )
+            Allocate( Em_File_Surr( iseasrm )%cmaq ( nssspc ) )
+            Allocate( Em_File_Surr( iseasrm )%units( nssspc ) )
+            Allocate( Em_File_Surr( iseasrm )%phase( nssspc ) )
+            Allocate( Em_File_Surr( iseasrm )%mw   ( nssspc ) )
+            Allocate( Em_File_Surr( iseasrm )%used ( nssspc ) )
             do i = 1,nssspc
-               Em_File_Surr( iseasrc )%arry( i )  = sea_spc(i)%name
-               Em_File_Surr( iseasrc )%cmaq( i )  = sea_spc(i)%name
-               Em_File_Surr( iseasrc )%units( i ) = 'G/S'
-               Em_File_Surr( iseasrc )%phase( i ) = 'AERO'
-               Em_File_Surr( iseasrc )%mw   ( i ) = 0.
-               Em_File_Surr( iseasrc )%used ( i ) = .FALSE.
+               Em_File_Surr( iseasrm )%arry( i )  = sea_spc(i)%name
+               Em_File_Surr( iseasrm )%cmaq( i )  = sea_spc(i)%name
+               Em_File_Surr( iseasrm )%units( i ) = 'G/S'
+               Em_File_Surr( iseasrm )%phase( i ) = 'AERO'
+               Em_File_Surr( iseasrm )%mw   ( i ) = 0.
+               Em_File_Surr( iseasrm )%used ( i ) = .FALSE.
             end do
  
  

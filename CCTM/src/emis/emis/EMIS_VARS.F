@@ -31,7 +31,7 @@
 
       REAL,    ALLOCATABLE :: VDEMIS_DIFF( :,:,:,: ) ! emissions array mapped to diffused species
 
-      INTEGER              :: N_EM_SRC   ! global number of emissions sources
+      INTEGER              :: N_EM_SRM   ! global number of emissions streams
       INTEGER              :: N_FILE_GR, NPTGRPS, N_FILE_TR  
       INTEGER              :: N_EMIS_ISTR! global emissions instructions
       INTEGER              :: EMLAYS     ! no. of emis integration layers
@@ -40,7 +40,7 @@
 
       CHARACTER( 16 ), ALLOCATABLE :: EM_SPEC  ( : ) ! Vector of Internal CMAQ Species names for 
                                                      ! each emission operation
-      CHARACTER( 16 ), ALLOCATABLE :: EM_SURR( :,: ) ! Emissions Surrogate to be read ( species, source )
+      CHARACTER( 16 ), ALLOCATABLE :: EM_SURR( :,: ) ! Emissions Surrogate to be read ( species, stream )
       
       CHARACTER( 16 ), ALLOCATABLE :: TRACSPC( : )   ! Variables from Tracer Emission File
       CHARACTER( 16 ), ALLOCATABLE :: AREASPC( : )   ! Variables straight from the Area Emission File
@@ -54,7 +54,7 @@
           REAL,            ALLOCATABLE :: MW( : )     ! Default MW from SPECIATE/SMOKE/MOVE
           LOGICAL,         ALLOCATABLE :: USED( : )   ! Whether or not the surrogate is used in CMAQ
       END TYPE EM_SURR_TYPE
-      TYPE( EM_SURR_TYPE ),ALLOCATABLE :: EM_FILE_SURR( : )! Species to be read from each source file
+      TYPE( EM_SURR_TYPE ),ALLOCATABLE :: EM_FILE_SURR( : )! Species to be read from each stream file
 
       TYPE EM_REG
           CHARACTER( 32 ) :: LABEL
@@ -78,29 +78,29 @@
                                           !    multiplication,'m' = 2, 
                                           !    overwrite,'o' = 3)
       END TYPE EM_FAC_STRUCTURE
-      TYPE( EM_FAC_STRUCTURE), ALLOCATABLE :: EM_FAC_ST ( :,: ) ! Emissions Scale Factors ( species, source )
+      TYPE( EM_FAC_STRUCTURE), ALLOCATABLE :: EM_FAC_ST ( :,: ) ! Emissions Scale Factors ( species, stream )
       CHARACTER( 1 ) :: EM_OP_NAME( 3 ) = (/'a','m','o'/)
        
       ! Define Structure for Holding Emissions Aerosol Mode Information Globally
-      TYPE SRC_MODE
+      TYPE EM_STREAM_MODES
          INTEGER  :: LEN
          INTEGER,         ALLOCATABLE :: REF( : )
          CHARACTER( 16 ), ALLOCATABLE :: NAME( : )
          REAL,            ALLOCATABLE :: FACNUM( :,: )
          REAL,            ALLOCATABLE :: FACSRF( :,: )
-      END TYPE SRC_MODE
-      TYPE( SRC_MODE ), ALLOCATABLE :: EM_SRC_SD( : )
+      END TYPE EM_STREAM_MODES
+      TYPE( EM_STREAM_MODES ), ALLOCATABLE :: EM_STREAM_SIZE( : )
  
       ! Define Emissions File Attribute Variables
-      CHARACTER( 200 ),ALLOCATABLE :: EM_FILE_NAME( : )  ! Filename of each emissions file
-      CHARACTER( 30  ),ALLOCATABLE :: EM_FILE_LAB ( : )  ! Nickname of each emissions file
+      CHARACTER( 200 ),ALLOCATABLE :: EM_FILE_NAME( : )  ! Filename of each emissions stream
+      CHARACTER( 30  ),ALLOCATABLE :: EM_FILE_LAB ( : )  ! Nickname of each emissions stream
       CHARACTER( 16  ),ALLOCATABLE :: EM_FILE_TYPE( : )  ! shortname for the type of each emission
       INTEGER,         ALLOCATABLE :: EM_FILE_ITYPE( : ) ! shortname for the type of each emission
-      CHARACTER( 100 ),ALLOCATABLE :: EM_FILE_DESC( : )  ! Description of each emissions file
-      LOGICAL,         ALLOCATABLE :: EM_FILE_LAPPLY( : )! Description of each emissions file
+      CHARACTER( 100 ),ALLOCATABLE :: EM_FILE_DESC( : )  ! Description of each emissions stream
+      LOGICAL,         ALLOCATABLE :: EM_FILE_LAPPLY( : )! Flag to use each emissions stream
 
-      INTEGER              :: IBIOSRC, IMGSRC, ILTSRC, ISEASRC, IDUSTSRC
-      INTEGER, ALLOCATABLE :: IGSRC( : ), IPSRC( : ), ITSRC( : ), MAP_PTtoISRC( : )
+      INTEGER              :: IBIOSRM, IMGSRM, ILTSRM, ISEASRM, IDUSTSRM
+      INTEGER, ALLOCATABLE :: IGSRM( : ), IPSRM( : ), ITSRM( : ), MAP_PTtoISRM( : )
 
       INTEGER, ALLOCATABLE :: MAP_EMtoSURR( :,: ), MAP_EMtoDIFF( : ), MAP_EMtoGAS( : )
 
@@ -112,7 +112,7 @@
       ! Options                               
       TYPE EM_RULE_REG
              CHARACTER( 32 ) :: REGION
-             CHARACTER( 32 ) :: SRC
+             CHARACTER( 32 ) :: STREAM
              CHARACTER( 16 ) :: SURR
              CHARACTER( 16 ) :: SPEC
              CHARACTER( 16 ) :: PHASE
@@ -132,7 +132,7 @@
 
       ! Define Structure for Size Distribution Rule      
       TYPE SD_RULE
-             CHARACTER( 32 ) :: SRC
+             CHARACTER( 32 ) :: STREAM
              CHARACTER( 16 ) :: MODE
              CHARACTER( 16 ) :: MODE_REF
       END TYPE SD_RULE
@@ -317,11 +317,11 @@
       CONTAINS
 
 !-----------------------------------------------------------------------
-      SUBROUTINE INTERPRET_EM_RULE_SRC( RULE_SRC0, IRULE, EM_SRC_RULE )
+      SUBROUTINE INTERPRET_EM_RULE_STREAM( RULE_STREAM0, IRULE, EM_STREAM_RULE )
 !
-! This subroutine analyzes the part of a rule identifying which sources
-! to affect and searches for the individual source, or, if the rule uses
-! the 'ALL' keyword, this routine identifies every source as impacted.
+! This subroutine analyzes the part of a rule identifying which streams
+! to affect and searches for the individual streams, or, if the rule uses
+! the 'ALL' keyword, this routine identifies every stream as impacted.
 !-----------------------------------------------------------------------
 
       USE UTILIO_DEFN
@@ -329,12 +329,12 @@
 
       IMPLICIT NONE
 
-      CHARACTER(32), INTENT( IN ) :: RULE_SRC0
-      CHARACTER(32)               :: RULE_SRC
+      CHARACTER(32), INTENT( IN ) :: RULE_STREAM0
+      CHARACTER(32)               :: RULE_STREAM
       INTEGER, INTENT( IN )       :: IRULE
-      LOGICAL, INTENT( INOUT )    :: EM_SRC_RULE( N_EM_SRC )
+      LOGICAL, INTENT( INOUT )    :: EM_STREAM_RULE( N_EM_SRM )
 
-      INTEGER ISRC, IDX, LOGDEV
+      INTEGER ISRM, IDX, LOGDEV
       CHARACTER( 200 ) :: XMSG
       CHARACTER( 16 )  :: PNAME = "EMIS_SPC_MAP"
       INTEGER  :: JDATE = 0
@@ -343,43 +343,43 @@
       LOGDEV = INIT3()
 
       ! Initialize the output vector
-      EM_SRC_RULE = .FALSE.
+      EM_STREAM_RULE = .FALSE.
       
       ! First Capitalize the Rule so it is easier to error-check
-      RULE_SRC = RULE_SRC0
-      CALL UPCASE( RULE_SRC )
+      RULE_STREAM = RULE_STREAM0
+      CALL UPCASE( RULE_STREAM )
 
-      IF ( RULE_SRC .EQ. 'ALL' ) THEN
-         ! Special Case Where the Source Identifier in the rule equals
-         ! equals all 'ALL'. Expand the Rule to Apply to All Sources
-         ISRC = 0
+      IF ( RULE_STREAM .EQ. 'ALL' ) THEN
+         ! Special Case Where the Stream Identifier in the rule equals
+         ! equals all 'ALL'. Expand the Rule to Apply to All Streams
+         ISRM = 0
          IF ( N_FILE_GR .GT. 0 ) THEN
-           EM_SRC_RULE( ISRC+1:N_FILE_GR ) = .TRUE.
-           ISRC = ISRC + N_FILE_GR
+           EM_STREAM_RULE( ISRM+1:N_FILE_GR ) = .TRUE.
+           ISRM = ISRM + N_FILE_GR
          END IF
 
          IF ( NPTGRPS .GT. 0 ) THEN
-           EM_SRC_RULE( ISRC+1:ISRC+NPTGRPS ) = .TRUE.
-           ISRC = ISRC + NPTGRPS
+           EM_STREAM_RULE( ISRM+1:ISRM+NPTGRPS ) = .TRUE.
+           ISRM = ISRM + NPTGRPS
          END IF
-         IF ( N_FILE_TR .GT. 0 ) EM_SRC_RULE( ISRC+1:ISRC+N_FILE_TR ) = .TRUE.
-         IF ( IBIOSRC .GT.0 .AND. .NOT. Guard_BiogenicVOC   ) EM_SRC_RULE( IBIOSRC  ) = .TRUE.
-         IF ( IMGSRC  .GT.0 .AND. .NOT. Guard_MarineGas     ) EM_SRC_RULE( IMGSRC   ) = .TRUE.
-         IF ( ILTSRC  .GT.0 .AND. .NOT. Guard_LightningNO   ) EM_SRC_RULE( ILTSRC   ) = .TRUE.
-         IF ( ISEASRC .GT.0 .AND. .NOT. Guard_SeaSpray      ) EM_SRC_RULE( ISEASRC  ) = .TRUE.
-         IF ( IDUSTSRC.GT.0 .AND. .NOT. Guard_WindBlownDust ) EM_SRC_RULE( IDUSTSRC ) = .TRUE.
+         IF ( N_FILE_TR .GT. 0 ) EM_STREAM_RULE( ISRM+1:ISRM+N_FILE_TR ) = .TRUE.
+         IF ( IBIOSRM .GT.0 .AND. .NOT. Guard_BiogenicVOC   ) EM_STREAM_RULE( IBIOSRM  ) = .TRUE.
+         IF ( IMGSRM  .GT.0 .AND. .NOT. Guard_MarineGas     ) EM_STREAM_RULE( IMGSRM   ) = .TRUE.
+         IF ( ILTSRM  .GT.0 .AND. .NOT. Guard_LightningNO   ) EM_STREAM_RULE( ILTSRM   ) = .TRUE.
+         IF ( ISEASRM .GT.0 .AND. .NOT. Guard_SeaSpray      ) EM_STREAM_RULE( ISEASRM  ) = .TRUE.
+         IF ( IDUSTSRM.GT.0 .AND. .NOT. Guard_WindBlownDust ) EM_STREAM_RULE( IDUSTSRM ) = .TRUE.
 
       ELSE
-         ! Find the Specific Source this Rule Identifies
-         IDX = INDEX1( RULE_SRC, N_EM_SRC, EM_FILE_LAB ) 
+         ! Find the Specific Stream this Rule Identifies
+         IDX = INDEX1( RULE_STREAM, N_EM_SRM, EM_FILE_LAB ) 
          IF ( IDX .NE. 0 ) THEN
-           EM_SRC_RULE( IDX ) = .TRUE.
+           EM_STREAM_RULE( IDX ) = .TRUE.
          ELSE
            WRITE( LOGDEV, * )
            WRITE( LOGDEV, '(/,3A,I3,/,2A,/,2A)' ),
-     &         'The Emissions Source Label (',TRIM( RULE_SRC ),
+     &         'The Emissions Stream Label (',TRIM( RULE_STREAM ),
      &         ') applied for Rule ',IRULE,' in the Emissions Control ',
-     &         'Namelist does not match any of the emissions source ',
+     &         'Namelist does not match any of the emissions streams ',
      &         'labels provided to CMAQ. Please check the runscript against ',
      &         'your emissions control inputs.'
            XMSG = 'Error in Emissions Map Processing.'
@@ -387,7 +387,7 @@
          END IF
       END IF
  
-      END SUBROUTINE INTERPRET_EM_RULE_SRC
+      END SUBROUTINE INTERPRET_EM_RULE_STREAM
 
 !-----------------------------------------------------------------------
       SUBROUTINE CUSTOM_EM_RULES( N_EM_RULE )
@@ -422,7 +422,7 @@
          IF ( ABFLUX .AND. SUBTRACT_FERTILIZER_NH3 ) THEN
             N_EM_RULE_B = N_EM_RULE_B + 1
             EM_NML_B(N_EM_RULE_B)%SPEC  = 'NH3'
-            EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
             EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
             EM_NML_B(N_EM_RULE_B)%SURR  = 'NH3_FERT'
             EM_NML_B(N_EM_RULE_B)%FAC   = -1.0
@@ -434,7 +434,7 @@
       ! to the aerosol phase
          N_EM_RULE_B = N_EM_RULE_B + 1
          EM_NML_B(N_EM_RULE_B)%SPEC  = 'SULF'
-         EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+         EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
          EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
          EM_NML_B(N_EM_RULE_B)%SURR  = 'SULF'
          EM_NML_B(N_EM_RULE_B)%FAC   = 0.0
@@ -443,18 +443,18 @@
 
          N_EM_RULE_B = N_EM_RULE_B + 1
          EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASO4'
-         EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+         EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
          EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
          EM_NML_B(N_EM_RULE_B)%SURR  = 'SULF'
          EM_NML_B(N_EM_RULE_B)%FAC   = 1.0
          EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
          EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
 
-      ! Add rules for speciating coarse PM from Anthropogenic Sources
+      ! Add rules for speciating coarse PM from Anthropogenic Streams
       !  Coarse-Mode Sulfate
          N_EM_RULE_B = N_EM_RULE_B + 1
          EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASO4'
-         EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+         EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
          EM_NML_B(N_EM_RULE_B)%PHASE = 'COARSE'
          EM_NML_B(N_EM_RULE_B)%SURR  = 'PMC'
          EM_NML_B(N_EM_RULE_B)%FAC   = REAL( ACORSEM_ASO4_FAC, 4 ) 
@@ -464,7 +464,7 @@
       !  Coarse-Mode Nitrate
          N_EM_RULE_B = N_EM_RULE_B + 1
          EM_NML_B(N_EM_RULE_B)%SPEC  = 'ANO3'
-         EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+         EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
          EM_NML_B(N_EM_RULE_B)%PHASE = 'COARSE'
          EM_NML_B(N_EM_RULE_B)%SURR  = 'PMC'
          EM_NML_B(N_EM_RULE_B)%FAC   = REAL( ACORSEM_ANO3_FAC, 4 )
@@ -474,7 +474,7 @@
       !  Coarse-Mode Chloride
          N_EM_RULE_B = N_EM_RULE_B + 1
          EM_NML_B(N_EM_RULE_B)%SPEC  = 'ACL'
-         EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+         EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
          EM_NML_B(N_EM_RULE_B)%PHASE = 'COARSE'
          EM_NML_B(N_EM_RULE_B)%SURR  = 'PMC'
          EM_NML_B(N_EM_RULE_B)%FAC   = REAL( ACORSEM_ACL_FAC, 4 ) 
@@ -484,7 +484,7 @@
       !  Coarse-Mode Water
          N_EM_RULE_B = N_EM_RULE_B + 1
          EM_NML_B(N_EM_RULE_B)%SPEC  = 'AH2O'
-         EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+         EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
          EM_NML_B(N_EM_RULE_B)%PHASE = 'COARSE'
          EM_NML_B(N_EM_RULE_B)%SURR  = 'PMC'
          EM_NML_B(N_EM_RULE_B)%FAC   = REAL( ACORSEM_AH2O_FAC, 4 )
@@ -494,7 +494,7 @@
       !  Anthropogenic Coarse-Mode Other
          N_EM_RULE_B = N_EM_RULE_B + 1
          EM_NML_B(N_EM_RULE_B)%SPEC  = 'ACORS'
-         EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+         EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
          EM_NML_B(N_EM_RULE_B)%PHASE = 'COARSE'
          EM_NML_B(N_EM_RULE_B)%SURR  = 'PMC'
          EM_NML_B(N_EM_RULE_B)%FAC   = REAL( ACORSEM_RENORM, 4 )
@@ -508,7 +508,7 @@
             ! PCVOC <- POC
             N_EM_RULE_B = N_EM_RULE_B + 1
             EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
             EM_NML_B(N_EM_RULE_B)%SURR  = 'POC'
             EM_NML_B(N_EM_RULE_B)%SPEC  = 'PCVOC'
             EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
@@ -517,7 +517,7 @@
             ! PCVOC <- PNCOM
             N_EM_RULE_B = N_EM_RULE_B + 1
             EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
             EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
             EM_NML_B(N_EM_RULE_B)%SPEC  = 'PCVOC'
             EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
@@ -526,7 +526,7 @@
             ! PCVOC is turned off for Fires
             N_EM_RULE_B = N_EM_RULE_B + 1
             EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
             EM_NML_B(N_EM_RULE_B)%SURR  = 'ALL'
             EM_NML_B(N_EM_RULE_B)%SPEC  = 'PCVOC'
             EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
@@ -536,7 +536,7 @@
             ! VLVPO1 <- POC
             N_EM_RULE_B = N_EM_RULE_B + 1
             EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
             EM_NML_B(N_EM_RULE_B)%SURR  = 'POC'
             EM_NML_B(N_EM_RULE_B)%SPEC  = 'VLVPO1'
             EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
@@ -545,7 +545,7 @@
             ! VLVPO1 <- PNCOM
             N_EM_RULE_B = N_EM_RULE_B + 1
             EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
             EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
             EM_NML_B(N_EM_RULE_B)%SPEC  = 'VLVPO1'
             EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
@@ -555,7 +555,7 @@
             ! VSVPO1 <- POC
             N_EM_RULE_B = N_EM_RULE_B + 1
             EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
             EM_NML_B(N_EM_RULE_B)%SURR  = 'POC'
             EM_NML_B(N_EM_RULE_B)%SPEC  = 'VSVPO1'
             EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
@@ -564,7 +564,7 @@
             ! VSVPO1 <- PNCOM
             N_EM_RULE_B = N_EM_RULE_B + 1
             EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
             EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
             EM_NML_B(N_EM_RULE_B)%SPEC  = 'VSVPO1'
             EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
@@ -574,7 +574,7 @@
             ! VSVPO2 <- POC
             N_EM_RULE_B = N_EM_RULE_B + 1
             EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
             EM_NML_B(N_EM_RULE_B)%SURR  = 'POC'
             EM_NML_B(N_EM_RULE_B)%SPEC  = 'VSVPO2'
             EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
@@ -583,7 +583,7 @@
             ! VSVPO2 <- PNCOM
             N_EM_RULE_B = N_EM_RULE_B + 1
             EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
             EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
             EM_NML_B(N_EM_RULE_B)%SPEC  = 'VSVPO2'
             EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
@@ -593,7 +593,7 @@
             ! VSVPO3 <- POC
             N_EM_RULE_B = N_EM_RULE_B + 1
             EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
             EM_NML_B(N_EM_RULE_B)%SURR  = 'POC'
             EM_NML_B(N_EM_RULE_B)%SPEC  = 'VSVPO3'
             EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
@@ -602,7 +602,7 @@
             ! VSVPO3 <- PNCOM
             N_EM_RULE_B = N_EM_RULE_B + 1
             EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
             EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
             EM_NML_B(N_EM_RULE_B)%SPEC  = 'VSVPO3'
             EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
@@ -612,7 +612,7 @@
             ! VIVPO1 <- POC
             N_EM_RULE_B = N_EM_RULE_B + 1
             EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
             EM_NML_B(N_EM_RULE_B)%SURR  = 'POC'
             EM_NML_B(N_EM_RULE_B)%SPEC  = 'VIVPO1'
             EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
@@ -621,7 +621,7 @@
             ! VIVPO1 <- PNCOM
             N_EM_RULE_B = N_EM_RULE_B + 1
             EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
             EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
             EM_NML_B(N_EM_RULE_B)%SPEC  = 'VIVPO1'
             EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
@@ -631,7 +631,7 @@
             ! ALVPO1 <- POC
             N_EM_RULE_B = N_EM_RULE_B + 1
             EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
             EM_NML_B(N_EM_RULE_B)%SURR  = 'POC'
             EM_NML_B(N_EM_RULE_B)%SPEC  = 'ALVPO1'
             EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
@@ -640,7 +640,7 @@
             ! ALVPO1 <- PNCOM
             N_EM_RULE_B = N_EM_RULE_B + 1
             EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
             EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
             EM_NML_B(N_EM_RULE_B)%SPEC  = 'ALVPO1'
             EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
@@ -650,7 +650,7 @@
             ! ASVPO1 <- POC
             N_EM_RULE_B = N_EM_RULE_B + 1
             EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
             EM_NML_B(N_EM_RULE_B)%SURR  = 'POC'
             EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASVPO1'
             EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
@@ -659,7 +659,7 @@
             ! ASVPO1 <- PNCOM
             N_EM_RULE_B = N_EM_RULE_B + 1
             EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
             EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
             EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASVPO1'
             EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
@@ -669,7 +669,7 @@
             ! ASVPO2 <- POC
             N_EM_RULE_B = N_EM_RULE_B + 1
             EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
             EM_NML_B(N_EM_RULE_B)%SURR  = 'POC'
             EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASVPO2'
             EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
@@ -678,7 +678,7 @@
             ! ASVPO2 <- PNCOM
             N_EM_RULE_B = N_EM_RULE_B + 1
             EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
             EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
             EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASVPO2'
             EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
@@ -688,7 +688,7 @@
             ! ASVPO3 <- POC
             N_EM_RULE_B = N_EM_RULE_B + 1
             EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
             EM_NML_B(N_EM_RULE_B)%SURR  = 'POC'
             EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASVPO3'
             EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
@@ -697,7 +697,7 @@
             ! ASVPO3 <- PNCOM
             N_EM_RULE_B = N_EM_RULE_B + 1
             EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
             EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
             EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASVPO3'
             EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
@@ -707,7 +707,7 @@
             ! AIVPO1 <- POC
             N_EM_RULE_B = N_EM_RULE_B + 1
             EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
             EM_NML_B(N_EM_RULE_B)%SURR  = 'POC'
             EM_NML_B(N_EM_RULE_B)%SPEC  = 'AIVPO1'
             EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
@@ -716,7 +716,7 @@
             ! AIVPO1 <- PNCOM
             N_EM_RULE_B = N_EM_RULE_B + 1
             EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%SRC   = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
             EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
             EM_NML_B(N_EM_RULE_B)%SPEC  = 'AIVPO1'
             EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
@@ -773,28 +773,26 @@
           N_EM_READ = N_EM_READ + 1
       END DO
 
-      EM_REG_READ( 1 )%LABEL = 'EVERYWHERE'
-      EM_REG_READ( 1 )%FILE  = 'N/A'
-      EM_REG_READ( 1 )%VAR   = 'N/A'
-      EM_REG_READ( 1 )%FILENUM = 1
-      FILENAMES( 1 ) = 'N/A'
-
       ! Allocate Vectors and Arrays for Each Region
       ALLOCATE( EM_REGIONS( N_REGIONS_REG ) )
-      EM_REGIONS( 1 ) = EM_REG_READ( 1 )
+      EM_REGIONS( 1 )%LABEL = 'EVERYWHERE'
+      EM_REGIONS( 1 )%FILE  = 'N/A'
+      EM_REGIONS( 1 )%VAR   = 'N/A'
+      EM_REGIONS( 1 )%FILENUM = 1
+      N_EM_RGN = 1
       
       ALLOCATE( EM_REG_FAC( NCOLS,NROWS,N_REGIONS_REG ) )
       EM_REG_FAC = 0.0
       EM_REG_FAC( :,:,1 ) = 1.0
 
-      N_EM_RGN = 1
-
       ! Populate global Region properties structure. Also assign each
       ! region a number according to the file it comes from. 1 =
       ! domain-wide.
       NFILE = 1
-      IF ( N_EM_READ .GT. 1 ) THEN
-        DO IREAD = 2,N_EM_READ
+      FILENAMES( 1 ) = 'N/A'
+
+      IF ( N_EM_READ .GT. 0 ) THEN
+        DO IREAD = 1,N_EM_READ
            CALL UPCASE( RGN_NML( IREAD )%LABEL )
            CALL UPCASE( RGN_NML( IREAD )%FILE  )
            CALL UPCASE( RGN_NML( IREAD )%VAR   )
@@ -836,7 +834,7 @@
           END IF
          
           ! Read data from regions file into region array 
-          DO IREAD = 2,N_EM_READ
+          DO IREAD = 1,N_EM_READ
               IF ( EM_REG_READ( IREAD )%FILENUM .EQ. IFILE ) THEN
                   IF ( EM_REG_READ( IREAD )%VAR .EQ. 'ALL' ) THEN
                      ! Populate the region array with all of the
@@ -916,14 +914,14 @@
      &              Guard_SeaSpray
 
          ! Define Emissions Rules Input from Emissions Control Namelist
-         NAMELIST / EmissionScaling / EM_NML
-         NAMELIST / SizeDistReg / SD_NML 
-         NAMELIST / Regions_Registry / RGN_NML
+         NAMELIST / EmissionScalingRules / EM_NML
+         NAMELIST / SizeDistributions    / SD_NML 
+         NAMELIST / RegionsRegistry      / RGN_NML
 
          ! Allocate and Initialize Namelist Variables
          ALLOCATE( EM_NML( N_EM_RULE_REG ) )
          EM_NML%REGION = ''
-         EM_NML%SRC    = ''
+         EM_NML%STREAM = ''
          EM_NML%SURR   = ''
          EM_NML%SPEC   = ''
          EM_NML%PHASE  = ''
@@ -931,7 +929,7 @@
          EM_NML%FAC    = 0.
 
          ALLOCATE( SD_NML( N_SD_REG ) )
-         SD_NML%SRC      = ''
+         SD_NML%STREAM   = ''
          SD_NML%MODE     = ''
          SD_NML%MODE_REF = ''
 
@@ -982,7 +980,7 @@
 
          ! Read the Regions Registry
          REWIND( EMCTRL_NML )
-         READ( NML = Regions_Registry, UNIT = EMCTRL_NML, IOSTAT=STAT )
+         READ( NML = RegionsRegistry, UNIT = EMCTRL_NML, IOSTAT=STAT )
          IF ( STAT .NE. 0 ) THEN
              WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A,/,5x,A)" ),
      &              'Warning! Something went wrong while reading the ',
@@ -996,21 +994,21 @@
 
          ! Read the size distribution specification section
          REWIND( EMCTRL_NML )
-         READ( NML = SizeDistReg, UNIT = EMCTRL_NML, IOSTAT=STAT )
+         READ( NML = SizeDistributions, UNIT = EMCTRL_NML, IOSTAT=STAT )
          IF ( STAT .NE. 0 ) THEN
              WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A,/,5x,A)" ),
      &              'Warning! Something went wrong while reading the ',
      &              'SizeDistReg section of the Emissions Control ',
      &              'Namelist. Default values for this section will be ',
      &              'assumed.'
-             SD_NML%SRC      = ''
+             SD_NML%STREAM   = ''
              SD_NML%MODE     = ''
              SD_NML%MODE_REF = ''
          END IF
 
          ! Read the Emissions Rules to inform scaling operations
          REWIND( EMCTRL_NML )
-         READ( NML = EmissionScaling, UNIT = EMCTRL_NML, IOSTAT=STAT )
+         READ( NML = EmissionScalingRules, UNIT = EMCTRL_NML, IOSTAT=STAT )
          IF ( STAT .NE. 0 ) THEN
              WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A,/,5x,A)" ),
      &              'Warning! Something went wrong while reading the ',
@@ -1018,7 +1016,7 @@
      &              'Namelist. Default values for this section will be ',
      &              'assumed.'
              EM_NML%REGION = ''
-             EM_NML%SRC    = ''
+             EM_NML%STREAM = ''
              EM_NML%SURR   = ''
              EM_NML%SPEC   = ''
              EM_NML%PHASE  = ''

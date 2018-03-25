@@ -187,20 +187,20 @@
          IF ( .NOT. LTNG_NO ) RETURN
 
 !C Populate Emissions Species Record
-         EM_FILE_SURR( ILTSRC )%LEN = 1
-         ALLOCATE( EM_FILE_SURR( ILTSRC )%ARRY ( 1 ) )
-         ALLOCATE( EM_FILE_SURR( ILTSRC )%CMAQ ( 1 ) )
-         ALLOCATE( EM_FILE_SURR( ILTSRC )%UNITS( 1 ) )
-         ALLOCATE( EM_FILE_SURR( ILTSRC )%PHASE( 1 ) )
-         ALLOCATE( EM_FILE_SURR( ILTSRC )%MW   ( 1 ) )
-         ALLOCATE( EM_FILE_SURR( ILTSRC )%USED ( 1 ) )
+         EM_FILE_SURR( ILTSRM )%LEN = 1
+         ALLOCATE( EM_FILE_SURR( ILTSRM )%ARRY ( 1 ) )
+         ALLOCATE( EM_FILE_SURR( ILTSRM )%CMAQ ( 1 ) )
+         ALLOCATE( EM_FILE_SURR( ILTSRM )%UNITS( 1 ) )
+         ALLOCATE( EM_FILE_SURR( ILTSRM )%PHASE( 1 ) )
+         ALLOCATE( EM_FILE_SURR( ILTSRM )%MW   ( 1 ) )
+         ALLOCATE( EM_FILE_SURR( ILTSRM )%USED ( 1 ) )
          
-         EM_FILE_SURR( ILTSRC )%ARRY  = "NO"
-         EM_FILE_SURR( ILTSRC )%CMAQ  = "NO"
-         EM_FILE_SURR( ILTSRC )%UNITS = 'MOLES/S'
-         EM_FILE_SURR( ILTSRC )%PHASE = 'GAS'
-         EM_FILE_SURR( ILTSRC )%MW    = 0.0
-         EM_FILE_SURR( ILTSRC )%USED  = .FALSE.
+         EM_FILE_SURR( ILTSRM )%ARRY  = "NO"
+         EM_FILE_SURR( ILTSRM )%CMAQ  = "NO"
+         EM_FILE_SURR( ILTSRM )%UNITS = 'MOLES/S'
+         EM_FILE_SURR( ILTSRM )%PHASE = 'GAS'
+         EM_FILE_SURR( ILTSRM )%MW    = 0.0
+         EM_FILE_SURR( ILTSRM )%USED  = .FALSE.
  
 !C Read in scenario time/date
          SDATE = ENVINT( 'CTM_STDATE', 'Scenario Start (YYYYJJJ)', 0, STATUS )

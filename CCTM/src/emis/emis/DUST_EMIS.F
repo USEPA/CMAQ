@@ -265,20 +265,20 @@ C...Determine maps for dust speciation
 
 C...Populate Master Emissions Map Vector So That Diagnostics 
 C   can be printed in EMIS_MAP
-         Em_File_Surr( idustsrc )%len = ndust_spc
-         Allocate( Em_File_Surr( idustsrc )%arry( ndust_spc ) )
-         Allocate( Em_File_Surr( idustsrc )%cmaq ( ndust_spc ) )
-         Allocate( Em_File_Surr( idustsrc )%units( ndust_spc ) )
-         Allocate( Em_File_Surr( idustsrc )%phase( ndust_spc ) )
-         Allocate( Em_File_Surr( idustsrc )%mw   ( ndust_spc ) )
-         Allocate( Em_File_Surr( idustsrc )%used ( ndust_spc ) )
+         Em_File_Surr( IDUSTSRM )%len = ndust_spc
+         Allocate( Em_File_Surr( IDUSTSRM )%arry( ndust_spc ) )
+         Allocate( Em_File_Surr( IDUSTSRM )%cmaq ( ndust_spc ) )
+         Allocate( Em_File_Surr( IDUSTSRM )%units( ndust_spc ) )
+         Allocate( Em_File_Surr( IDUSTSRM )%phase( ndust_spc ) )
+         Allocate( Em_File_Surr( IDUSTSRM )%mw   ( ndust_spc ) )
+         Allocate( Em_File_Surr( IDUSTSRM )%used ( ndust_spc ) )
          do i = 1,ndust_spc
-            Em_File_Surr( idustsrc )%arry( i )  = dust_spc(i)%name
-            Em_File_Surr( idustsrc )%cmaq( i )  = dust_spc(i)%name
-            Em_File_Surr( idustsrc )%units( i ) = 'G/S'
-            Em_File_Surr( idustsrc )%phase( i ) = 'AERO'
-            Em_File_Surr( idustsrc )%mw   ( i ) = 0.
-            Em_File_Surr( idustsrc )%used ( i ) = .FALSE.
+            Em_File_Surr( IDUSTSRM )%arry( i )  = dust_spc(i)%name
+            Em_File_Surr( IDUSTSRM )%cmaq( i )  = dust_spc(i)%name
+            Em_File_Surr( IDUSTSRM )%units( i ) = 'G/S'
+            Em_File_Surr( IDUSTSRM )%phase( i ) = 'AERO'
+            Em_File_Surr( IDUSTSRM )%mw   ( i ) = 0.
+            Em_File_Surr( IDUSTSRM )%used ( i ) = .FALSE.
          end do
  
 C...Count the number of mass emissions species
@@ -1243,14 +1243,14 @@ C 2nd moment multiplied by PI to obtain the surface area emissions rate.
 
 ! Propagate Number and Surface Area Scaling Factors back to Emissions
 ! Module so that the dust emissions can be scaled appropriately            
-            ISD = INDEX1( 'AERO', EM_SRC_SD( IDUSTSRC )%LEN, 
-     &                    EM_SRC_SD( IDUSTSRC )%NAME )
-            EM_SRC_SD( IDUSTSRC )%FACNUM( ISD,1 ) = 0.
-            EM_SRC_SD( IDUSTSRC )%FACNUM( ISD,2 ) = FACTNUMJ
-            EM_SRC_SD( IDUSTSRC )%FACNUM( ISD,3 ) = FACTNUMK
-            EM_SRC_SD( IDUSTSRC )%FACSRF( ISD,1 ) = 0.
-            EM_SRC_SD( IDUSTSRC )%FACSRF( ISD,2 ) = FACTSRFJ
-            EM_SRC_SD( IDUSTSRC )%FACSRF( ISD,3 ) = FACTSRFK
+            ISD = INDEX1( 'AERO', EM_STREAM_SIZE( IDUSTSRM )%LEN, 
+     &                    EM_STREAM_SIZE( IDUSTSRM )%NAME )
+            EM_STREAM_SIZE( IDUSTSRM )%FACNUM( ISD,1 ) = 0.
+            EM_STREAM_SIZE( IDUSTSRM )%FACNUM( ISD,2 ) = FACTNUMJ
+            EM_STREAM_SIZE( IDUSTSRM )%FACNUM( ISD,3 ) = FACTNUMK
+            EM_STREAM_SIZE( IDUSTSRM )%FACSRF( ISD,1 ) = 0.
+            EM_STREAM_SIZE( IDUSTSRM )%FACSRF( ISD,2 ) = FACTSRFJ
+            EM_STREAM_SIZE( IDUSTSRM )%FACSRF( ISD,3 ) = FACTSRFK
 
 #ifdef verbose_wbdust
             if ( m3j .ne. 0.0 ) dusthit = dusthit + 1

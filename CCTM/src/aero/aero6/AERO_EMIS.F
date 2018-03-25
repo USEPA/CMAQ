@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6/AERO_EMIS.F,v 1.11 2012/01/19 13:20:08 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE AERO_EMIS
 
@@ -82,7 +75,7 @@ C aerosol emissions: [ppmv/s] for mass & number spcs, [m2/mol/s] for surface are
 
       PUBLIC EMISS_SIZE_DIST, AERO_EMIS_INIT,
      &       MAP_EMtoAERO, MAP_EMtoMODE, MAP_NUMtoEM, MAP_SRFtoEM,
-     &       MAP_EMtoNUM, MAP_EMtoSRF, MAP_EMtoSD, EM_SRC_SD, SD_SPLIT,
+     &       MAP_EMtoNUM, MAP_EMtoSRF, MAP_EMtoSD, EM_STREAM_SIZE, SD_SPLIT,
      &       CTM_WB_DUST, WB_DUST, CELLVOL, CELLHGT, EM_SD_INIT, 
      &       SS_AERO, CTM_SS_AERO
       PRIVATE
@@ -237,7 +230,7 @@ C Miscellaneous variables
          CHARACTER( 16 ), SAVE :: PNAME = 'AERO_EMIS_INIT  '
          CHARACTER( 16 ) :: VNAME         ! temp var for species names
          CHARACTER( 50 ) :: VARDESC       ! variable for reading environ. variables
-         INTEGER L, N, S, V, IAERO, ISRC, ! Loop indices
+         INTEGER L, N, S, V, IAERO, ISRM, ! Loop indices
      &           IEM, IDIFF, ISPC
 
 C ----------------------------------------------------------------------
@@ -333,7 +326,7 @@ C *** Set up emissions size distribution arrays
        END DO
 
 C *** Allocate memory for EMBUFF, CELLHGT, CELLVOL, and CONVEM_PM
-         ALLOCATE ( CONVEM_PM( EMLAYS, N_EM_SRC ),
+         ALLOCATE ( CONVEM_PM( EMLAYS, N_EM_SRM ),
      &              CELLHGT( EMLAYS ),
      &              CELLVOL( EMLAYS ), STAT = STATUS )
          IF ( STATUS .NE. 0 ) THEN
@@ -368,8 +361,8 @@ C     Multiply by grid area [m2] to obtain grid volume
             CELLHGT( L ) = X3FACE_GD( L ) - X3FACE_GD( L-1 )
             CELLVOL( L ) = CELLHGT( L ) * CELLAREA
 
-            DO ISRC = 1,N_EM_SRC
-              CONVEM_PM( L,ISRC ) = CONVEM_PM_MASS( ISRC ) / CELLVOL( L )
+            DO ISRM = 1,N_EM_SRM
+              CONVEM_PM( L,ISRM ) = CONVEM_PM_MASS( ISRM ) / CELLVOL( L )
             END DO
          END DO
 
@@ -381,7 +374,7 @@ C-----------------------------------------------------------------------
 
        SUBROUTINE EM_SD_INIT ( )
 
-C  EM_SD_INIT initializes the structures that map modes and sources to
+C  EM_SD_INIT initializes the structures that map modes and streams to
 C  reference modes including splits, diameters, and standard deviations.
 
 C-----------------------------------------------------------------------
@@ -391,13 +384,13 @@ C-----------------------------------------------------------------------
          
        IMPLICIT NONE
 
-       INTEGER ISRC
+       INTEGER ISRM
        
        INTEGER                          :: N_SD_RULE
-       INTEGER                          :: N_SD( N_EM_SRC )
-       CHARACTER( 16 )                  :: SD_NAME( N_EM_SRC, 10 )
-       INTEGER                          :: SD( N_EM_SRC, 10 )
-       LOGICAL                          :: EM_SRC_RULE( N_EM_SRC )
+       INTEGER                          :: N_SD( N_EM_SRM )
+       CHARACTER( 16 )                  :: SD_NAME( N_EM_SRM, 10 )
+       INTEGER                          :: SD( N_EM_SRM, 10 )
+       LOGICAL                          :: EM_STREAM_RULE( N_EM_SRM )
        CHARACTER( 16 )                  :: CSUR
 
        INTEGER IRULE, ISUR, N, NLEN, ISD, IM, IEM, NRULE
@@ -406,50 +399,50 @@ C-----------------------------------------------------------------------
        N_SD_RULE = SIZE( SD_NML )
        NRULE = 0
        DO IRULE = 1,N_SD_RULE
-          IF ( SD_NML( IRULE )%SRC .EQ. '' ) EXIT
+          IF ( SD_NML( IRULE )%STREAM .EQ. '' ) EXIT
           NRULE = NRULE + 1
        END DO
        N_SD_RULE = NRULE
 
-       ! First Load all of the Sources with the Default FINE, COARSE, and
+       ! First Load all of the Streams with the Default FINE, COARSE, and
        ! AERO Mode references
-       DO ISRC = 1,N_EM_SRC
-         N_SD( ISRC ) = 3
-         SD_NAME( ISRC,1 ) = 'FINE'
-         SD( ISRC,1 ) = INDEX1( 'FINE_REF',   N_EM_AERO_REF, EM_AERO_REF( : )%NAME )
-         SD_NAME( ISRC,2 ) = 'COARSE'
-         SD( ISRC,2 ) = INDEX1( 'COARSE_REF', N_EM_AERO_REF, EM_AERO_REF( : )%NAME )
-         SD_NAME( ISRC,3 ) = 'AERO'
-         SD( ISRC,3 ) = INDEX1( 'UNITY_REF',   N_EM_AERO_REF, EM_AERO_REF( : )%NAME )
+       DO ISRM = 1,N_EM_SRM
+         N_SD( ISRM ) = 3
+         SD_NAME( ISRM,1 ) = 'FINE'
+         SD( ISRM,1 ) = INDEX1( 'FINE_REF',   N_EM_AERO_REF, EM_AERO_REF( : )%NAME )
+         SD_NAME( ISRM,2 ) = 'COARSE'
+         SD( ISRM,2 ) = INDEX1( 'COARSE_REF', N_EM_AERO_REF, EM_AERO_REF( : )%NAME )
+         SD_NAME( ISRM,3 ) = 'AERO'
+         SD( ISRM,3 ) = INDEX1( 'UNITY_REF',   N_EM_AERO_REF, EM_AERO_REF( : )%NAME )
        END DO
        
-       ! Now Modify those defaults or add new modes to desired sources
+       ! Now Modify those defaults or add new modes to desired streams
        DO IRULE = 1,N_SD_RULE
-         ! Expand Size Distribution Rule to All Sources if Requested
-         CALL INTERPRET_EM_RULE_SRC( SD_NML( IRULE )%SRC, IRULE, EM_SRC_RULE )
+         ! Expand Size Distribution Rule to All Streams if Requested
+         CALL INTERPRET_EM_RULE_STREAM( SD_NML( IRULE )%STREAM, IRULE, EM_STREAM_RULE )
 
-         ! Loop through sources, set defaults, and build map array
-         DO ISRC = 1,N_EM_SRC
-            IF ( EM_SRC_RULE( ISRC ) ) THEN
-               ! This Source is Being Modified by a Size Distribution
+         ! Loop through streams, set defaults, and build map array
+         DO ISRM = 1,N_EM_SRM
+            IF ( EM_STREAM_RULE( ISRM ) ) THEN
+               ! This Stream is Being Modified by a Size Distribution
                ! rule
                IF ( SD_NML( IRULE )%MODE .EQ. 'FINE' ) THEN
                    ! Overwrite the FINE mode
-                   SD( ISRC,1 ) = INDEX1( SD_NML( IRULE )%MODE_REF,
+                   SD( ISRM,1 ) = INDEX1( SD_NML( IRULE )%MODE_REF,
      &                               N_EM_AERO_REF, EM_AERO_REF( : )%NAME )
                ELSEIF ( SD_NML( IRULE )%MODE .EQ. 'COARSE' ) THEN
                    ! Overwrite the COARSE mode
-                   SD( ISRC,2 ) = INDEX1( SD_NML( IRULE )%MODE_REF,
+                   SD( ISRM,2 ) = INDEX1( SD_NML( IRULE )%MODE_REF,
      &                               N_EM_AERO_REF, EM_AERO_REF( : )%NAME )
                ELSEIF ( SD_NML( IRULE )%MODE .EQ. 'AERO' ) THEN
                    ! Overwrite the COARSE mode
-                   SD( ISRC,3 ) = INDEX1( SD_NML( IRULE )%MODE_REF,
+                   SD( ISRM,3 ) = INDEX1( SD_NML( IRULE )%MODE_REF,
      &                               N_EM_AERO_REF, EM_AERO_REF( : )%NAME )
                ELSE
                    ! Add a New Available Mode
-                   N_SD( ISRC ) = N_SD( ISRC ) + 1
-                   SD_NAME( ISRC,N_SD( ISRC ) ) = SD_NML( IRULE )%MODE
-                   SD( ISRC,N_SD( ISRC ) ) = INDEX1( SD_NML( IRULE )%MODE_REF,
+                   N_SD( ISRM ) = N_SD( ISRM ) + 1
+                   SD_NAME( ISRM,N_SD( ISRM ) ) = SD_NML( IRULE )%MODE
+                   SD( ISRM,N_SD( ISRM ) ) = INDEX1( SD_NML( IRULE )%MODE_REF,
      &                                 N_EM_AERO_REF, EM_AERO_REF( : )%NAME )
 
                END IF
@@ -458,28 +451,28 @@ C-----------------------------------------------------------------------
       END DO
  
       ! Finally, transfer this data to a global variable which
-      ! captures and organizes the modes of each source
-      ALLOCATE( EM_SRC_SD( N_EM_SRC ) )
-      DO ISRC = 1,N_EM_SRC
-          N = N_SD( ISRC )
-          EM_SRC_SD( ISRC )%LEN = N + 1
-          ALLOCATE( EM_SRC_SD( ISRC )%NAME( N+1 ) )
-          ALLOCATE( EM_SRC_SD( ISRC )%REF( N+1 ) )
-          ALLOCATE( EM_SRC_SD( ISRC )%FACNUM( N+1,N_MODE ) )
-          ALLOCATE( EM_SRC_SD( ISRC )%FACSRF( N+1,N_MODE ) )
+      ! captures and organizes the modes of each stream
+      ALLOCATE( EM_STREAM_SIZE( N_EM_SRM ) )
+      DO ISRM = 1,N_EM_SRM
+          N = N_SD( ISRM )
+          EM_STREAM_SIZE( ISRM )%LEN = N + 1
+          ALLOCATE( EM_STREAM_SIZE( ISRM )%NAME( N+1 ) )
+          ALLOCATE( EM_STREAM_SIZE( ISRM )%REF( N+1 ) )
+          ALLOCATE( EM_STREAM_SIZE( ISRM )%FACNUM( N+1,N_MODE ) )
+          ALLOCATE( EM_STREAM_SIZE( ISRM )%FACSRF( N+1,N_MODE ) )
 
-          EM_SRC_SD( ISRC )%NAME( 2:N+1 ) = SD_NAME( ISRC,1:N )
-          EM_SRC_SD( ISRC )%REF( 2:N+1 )  = SD( ISRC,1:N )
-          EM_SRC_SD( ISRC )%NAME( 1 ) = 'GAS'
-          EM_SRC_SD( ISRC )%REF( 1 )  = 0
+          EM_STREAM_SIZE( ISRM )%NAME( 2:N+1 ) = SD_NAME( ISRM,1:N )
+          EM_STREAM_SIZE( ISRM )%REF( 2:N+1 )  = SD( ISRM,1:N )
+          EM_STREAM_SIZE( ISRM )%NAME( 1 ) = 'GAS'
+          EM_STREAM_SIZE( ISRM )%REF( 1 )  = 0
 
           ! Map Factors for Converting Aerosol Mass to Number and
-          ! Surface Area to each Emission Source
+          ! Surface Area to each Emission Stream
           DO ISD = 2,N+1
-             IEM = EM_SRC_SD( ISRC )%REF( ISD )
+             IEM = EM_STREAM_SIZE( ISRM )%REF( ISD )
              DO IM = 1,N_MODE
-                 EM_SRC_SD( ISRC )%FACNUM( ISD,IM ) = FACNUM( IEM,IM ) 
-                 EM_SRC_SD( ISRC )%FACSRF( ISD,IM ) = FACSRF( IEM,IM )
+                 EM_STREAM_SIZE( ISRM )%FACNUM( ISD,IM ) = FACNUM( IEM,IM ) 
+                 EM_STREAM_SIZE( ISRM )%FACSRF( ISD,IM ) = FACSRF( IEM,IM )
              END DO
           END DO
       END DO
@@ -489,7 +482,7 @@ C-----------------------------------------------------------------------
 
 C-----------------------------------------------------------------------
 
-         FUNCTION EMISS_SIZE_DIST ( VDEMIS0, ISRC ) RESULT( VDEMIS )
+         FUNCTION EMISS_SIZE_DIST ( VDEMIS0, ISRM ) RESULT( VDEMIS )
 
 C  EMISS_SIZE_DIST distributes bulk aerosol emissions into size space
 C  using parameters precompiled in the AERO_DATA module. 
@@ -508,7 +501,7 @@ C ----------------------------------------------------------------------
          USE SSEMIS, ONLY : SEA_FACTNUM, SEA_FACTSRF
 
          REAL,    INTENT( IN ) :: VDEMIS0( N_EMIS_ISTR,EMLAYS,NCOLS,NROWS )
-         INTEGER, INTENT( IN ) :: ISRC
+         INTEGER, INTENT( IN ) :: ISRM
          REAL                  :: VDEMIS ( N_EMIS_ISTR,EMLAYS,NCOLS,NROWS )
 
          INTEGER :: N, S, IAERO, IM, ISD, ISTR   ! Looping Variables
@@ -520,7 +513,7 @@ C ----------------------------------------------------------------------
 
 
 C *** Initialize Variables  
-         N_SD        = EM_SRC_SD( ISRC )%LEN 
+         N_SD        = EM_STREAM_SIZE( ISRM )%LEN 
 
          ALLOCATE( EMISM3( EMLAYS,MY_NCOLS,MY_NROWS,N_MODE,N_SD ) )
          EMISM3 = 0.0
@@ -531,7 +524,7 @@ C     Also calculate scaling factors for converting to molar-mixing-ratio units
          DO LAY = 1,EMLAYS
            DO COL = 1,MY_NCOLS
              DO ROW = 1,MY_NROWS
-               GSFAC( LAY,COL,ROW ) = CONVEM_PM( LAY,ISRC ) 
+               GSFAC( LAY,COL,ROW ) = CONVEM_PM( LAY,ISRM ) 
      &                              * Met_Data%RJACM( COL,ROW,LAY ) ![g/s] or [kg/hr] to [ug/m3/s]
              END DO
            END DO
@@ -542,10 +535,10 @@ C     Also calculate scaling factors for converting to molar-mixing-ratio units
 C *** Apply Aerosol Size Distribution
          DO ISTR = 1,N_EMIS_ISTR
              ! Find which Size Distribution or Phase this emissions species belongs 
-             ! to for this source. If the value is a 0, then there are no emissions 
-             ! for this species from this source. If it is a 1, then this species is
+             ! to for this stream. If the value is a 0, then there are no emissions 
+             ! for this species from this stream. If it is a 1, then this species is
              ! a gas and the following aerosol conversions should be skipped.
-             ISD   = MAP_EMtoSD( ISTR,ISRC )
+             ISD   = MAP_EMtoSD( ISTR,ISRM )
              IF ( ISD .LE. 1 ) CYCLE
              
              ! Look up Aerosol Species and Mode of Interest
@@ -554,11 +547,11 @@ C *** Apply Aerosol Size Distribution
              IM    = MAP_EMtoMODE( ISTR )   !This maps to the internal CMAQ modes 
                                             !  (ie. I, J, and K)
 
-             ! Convert Aerosol from [g/s] to [ug/m3/s] for all sources
-             ! except Dust and Sea Spray. For those sources, convert
+             ! Convert Aerosol from [g/s] to [ug/m3/s] for all streams
+             ! except Dust and Sea Spray. For those streams, convert
              ! [g/m3/s] to [ug/m3/s]
-             IF ( ISRC .EQ. ISEASRC .OR. ISRC .EQ. IDUSTSRC ) THEN
-                VDEMIS( ISTR,:,:,: ) = VDEMIS( ISTR,:,:,: ) * CONVEM_PM_MASS( ISRC )
+             IF ( ISRM .EQ. ISEASRM .OR. ISRM .EQ. IDUSTSRM ) THEN
+                VDEMIS( ISTR,:,:,: ) = VDEMIS( ISTR,:,:,: ) * CONVEM_PM_MASS( ISRM )
              ELSE
                 VDEMIS( ISTR,:,:,: ) = VDEMIS( ISTR,:,:,: ) * GSFAC( :,:,: ) 
              END IF
@@ -579,7 +572,7 @@ C     using Equation 7c of Binkowski & Roselle (2003).  Multiplying by PI
 C     converts 2nd moment to surface area.
             
          DO ISD = 2,N_SD   ! Skip the Index for the Gas Phase
-            IF ( EM_SRC_SD( ISRC )%NAME( ISD ) .EQ. 'SEASPRAY' ) THEN
+            IF ( EM_STREAM_SIZE( ISRM )%NAME( ISD ) .EQ. 'SEASPRAY' ) THEN
                ! Apply Spatially-Dependent Number and Surface Area Scale Factors
                DO IM = 1,N_MODE
                   VDEMIS( MAP_NUMtoEM(IM),1,:,: ) = VDEMIS( MAP_NUMtoEM(IM),1,:,: ) 
@@ -588,12 +581,12 @@ C     converts 2nd moment to surface area.
      &                     + EMISM3( 1,:,:,IM,ISD ) * SEA_FACTSRF( IM,:,: ) 
                END DO
             ELSE
-               ! Apply Homogeneous Scale Factors Consistent with this Source
+               ! Apply Homogeneous Scale Factors Consistent with this Stream
                DO IM = 1,N_MODE
                   VDEMIS( MAP_NUMtoEM(IM),:,:,: ) = VDEMIS( MAP_NUMtoEM(IM),:,:,: ) 
-     &                     + EMISM3( :,:,:,IM,ISD ) * EM_SRC_SD( ISRC )%FACNUM( ISD,IM ) 
+     &                     + EMISM3( :,:,:,IM,ISD ) * EM_STREAM_SIZE( ISRM )%FACNUM( ISD,IM ) 
                   VDEMIS( MAP_SRFtoEM(IM),:,:,: ) = VDEMIS( MAP_SRFtoEM(IM),:,:,: ) 
-     &                     + EMISM3( :,:,:,IM,ISD ) * EM_SRC_SD( ISRC )%FACSRF( ISD,IM ) 
+     &                     + EMISM3( :,:,:,IM,ISD ) * EM_STREAM_SIZE( ISRM )%FACSRF( ISD,IM ) 
                END DO
             END IF
          END DO

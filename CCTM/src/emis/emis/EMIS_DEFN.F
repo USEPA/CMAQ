@@ -16,12 +16,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/work/rep/arc/CCTM/src/emis/emis/EMIS_DEFN.F,v 1.10 2011/10/21 16:10:46 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE EMIS_DEFN
 
@@ -120,7 +114,7 @@ C Local Variables:
          CHARACTER( 16 ) :: PNAME = 'EMIS_INIT'
          CHARACTER( 80 ) :: VARDESC   ! env variable description
          CHARACTER( 120 ) :: XMSG = ' '
-         INTEGER V, LOGDEV, STATUS, ISRC
+         INTEGER V, LOGDEV, STATUS, ISRM
 
 C-----------------------------------------------------------------------
 
@@ -139,8 +133,8 @@ C-----------------------------------------------------------------------
 
 C Retrieve Number of Emission Files of Various Types (sectors)
          CALL EM_FILE_INIT( JDATE, JTIME )
-         IF ( N_EM_SRC .EQ. 0 ) THEN 
-            XMSG = 'No Emissions Sources Have Been Selected.'
+         IF ( N_EM_SRM .EQ. 0 ) THEN 
+            XMSG = 'No Emissions Streams Have Been Selected.'
             CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
             SUCCESS = .TRUE.; RETURN
          END IF
@@ -168,16 +162,16 @@ C Get number of emissions layers
 
          ! Cut the number of emission layers of any 3D gridded files to
          ! equal EMLAYS
-         DO ISRC = 1, SIZE( EM_GRID_LAYS ) 
-             IF ( EM_GRID_LAYS( ISRC ) .GT. 0 ) 
-     &            EM_GRID_LAYS( ISRC ) = MIN( EM_GRID_LAYS( ISRC ), EMLAYS )
+         DO ISRM = 1, SIZE( EM_GRID_LAYS ) 
+             IF ( EM_GRID_LAYS( ISRM ) .GT. 0 ) 
+     &            EM_GRID_LAYS( ISRM ) = MIN( EM_GRID_LAYS( ISRM ), EMLAYS )
          END DO
 
          WRITE( LOGDEV,1009 ) EMLAYS, NLAYS
 1009     FORMAT( / 10X, 'Number of Emissions Layers:         ', I3
      &           / 10X, 'out of total Number of Model Layers:', I3 )
 
-C Initialize 3D Point Source Emissions 
+C Initialize 3D Point Stream Emissions 
          IF ( .NOT. PT3D_INIT( JDATE, JTIME, TSTEP ) ) THEN
             XMSG = 'Failure initializing plume rise emissions module'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -262,7 +256,7 @@ C Arguments:
 
 C Local Variables:
          REAL             DELT          ! interpolation factor
-         INTEGER          C, R, L, N, S, V, ISTR, ISRC ! loop induction variables
+         INTEGER          C, R, L, N, S, V, ISTR, ISRM ! loop induction variables
          INTEGER          S_STRT, S_END ! substitute loop induction variables
          REAL             VDEMIS_READ  ( N_EMIS_ISTR,EMLAYS,NCOLS,NROWS ) ! Emissions as they are provided by each stream
          REAL             VDEMIS_SCALED( N_EMIS_ISTR,EMLAYS,NCOLS,NROWS ) ! Emissions after user scaling, and spatial scaling
@@ -282,115 +276,115 @@ C Initialize Emissions Array
          VDEMIS_DIFF = 0.0
 
 
-C Retrieve Emissions from All Source Types
-         IF ( N_EM_SRC .GT. 0 ) THEN
-         DO ISRC = 1,N_EM_SRC
+C Retrieve Emissions from All Stream Types
+         IF ( N_EM_SRM .GT. 0 ) THEN
+         DO ISRM = 1,N_EM_SRM
            VDEMIS_READ = 0.0
 
-           SELECT CASE ( EM_FILE_ITYPE( ISRC ) )
+           SELECT CASE ( EM_FILE_ITYPE( ISRM ) )
              
              ! Retrieve Gridded and Tracer Emissions
              CASE ( 1, 3 )
-               VDEMIS_READ = GRIDEMIS( JDATE, JTIME, EM_FILE_NAME( ISRC ), 
-     &                               EM_GRID_LAYS( ISRC ), ISRC )
-               FORALL( ISTR = 1:N_EMIS_ISTR, MAP_EMtoSURR( ISTR,ISRC ) .GT. 0 .AND. 
+               VDEMIS_READ = GRIDEMIS( JDATE, JTIME, EM_FILE_NAME( ISRM ), 
+     &                               EM_GRID_LAYS( ISRM ), ISRM )
+               FORALL( ISTR = 1:N_EMIS_ISTR, MAP_EMtoSURR( ISTR,ISRM ) .GT. 0 .AND. 
      &                 MAP_EMtoGAS( ISTR ) .GT. 0 )
-                  VDEMIS_READ( ISTR,:,:,: ) = CONVEM_GAS( ISRC ) * VDEMIS_READ( ISTR,:,:,: ) 
+                  VDEMIS_READ( ISTR,:,:,: ) = CONVEM_GAS( ISRM ) * VDEMIS_READ( ISTR,:,:,: ) 
                END FORALL
-               VDEMIS_SCALED =  EMISS_SCALING( VDEMIS_READ, ISRC )
-               VDEMIS_SDIST  =  EMISS_SIZE_DIST( VDEMIS_SCALED, ISRC )
+               VDEMIS_SCALED =  EMISS_SCALING( VDEMIS_READ, ISRM )
+               VDEMIS_SDIST  =  EMISS_SIZE_DIST( VDEMIS_SCALED, ISRM )
                VDEMIS_CONV   =  EMISS_CONV_DIFF( VDEMIS_SDIST )
-               ERROR_NEG     = EMISS_NEG_CHECK( VDEMIS_CONV, ISRC )
+               ERROR_NEG     = EMISS_NEG_CHECK( VDEMIS_CONV, ISRM )
 
-               IF ( EM_FILE_LAPPLY( ISRC ) ) 
+               IF ( EM_FILE_LAPPLY( ISRM ) ) 
      &              VDEMIS_DIFF( :,:,:,: ) = VDEMIS_DIFF( :,:,:,: ) + VDEMIS_CONV( :,:,:,: )
 
-             ! Retrieve Point Source Emissions
+             ! Retrieve Point Source Emissions Streams
              CASE ( 2 )
-               VDEMIS_READ = GET_PT3D_EMIS ( JDATE, JTIME, TSTEP, EM_SURR( :,ISRC ), ISRC )
-               FORALL( ISTR = 1:N_EMIS_ISTR, MAP_EMtoSURR( ISTR,ISRC ) .GT. 0 .AND.
+               VDEMIS_READ = GET_PT3D_EMIS ( JDATE, JTIME, TSTEP, EM_SURR( :,ISRM ), ISRM )
+               FORALL( ISTR = 1:N_EMIS_ISTR, MAP_EMtoSURR( ISTR,ISRM ) .GT. 0 .AND.
      &                 MAP_EMtoGAS( ISTR ) .GT. 0 )
-                  VDEMIS_READ( ISTR,:,:,: ) = CONVEM_GAS( ISRC ) * VDEMIS_READ( ISTR,:,:,: ) 
+                  VDEMIS_READ( ISTR,:,:,: ) = CONVEM_GAS( ISRM ) * VDEMIS_READ( ISTR,:,:,: ) 
                END FORALL
-               VDEMIS_SCALED =  EMISS_SCALING( VDEMIS_READ, ISRC )
-               VDEMIS_SDIST  =  EMISS_SIZE_DIST( VDEMIS_SCALED, ISRC )
+               VDEMIS_SCALED =  EMISS_SCALING( VDEMIS_READ, ISRM )
+               VDEMIS_SDIST  =  EMISS_SIZE_DIST( VDEMIS_SCALED, ISRM )
                VDEMIS_CONV   =  EMISS_CONV_DIFF( VDEMIS_SDIST )
-               ERROR_NEG     = EMISS_NEG_CHECK( VDEMIS_CONV, ISRC )
+               ERROR_NEG     = EMISS_NEG_CHECK( VDEMIS_CONV, ISRM )
 
-               IF ( EM_FILE_LAPPLY( ISRC ) ) 
+               IF ( EM_FILE_LAPPLY( ISRM ) ) 
      &              VDEMIS_DIFF( :,:,:,: ) = VDEMIS_DIFF( :,:,:,: ) + VDEMIS_CONV( :,:,:,: )
              
              CASE ( 4 )
                CALL GET_BEIS ( JDATE, JTIME, TSTEP )
-               FORALL( ISTR = 1:N_EMIS_ISTR, MAP_EMtoSURR( ISTR,ISRC ) .GT. 0 .AND.
+               FORALL( ISTR = 1:N_EMIS_ISTR, MAP_EMtoSURR( ISTR,ISRM ) .GT. 0 .AND.
      &                 MAP_EMtoGAS( ISTR ) .GT. 0 )
-                  VDEMIS_READ( ISTR,1,:,: ) = CONVEM_GAS( ISRC ) *
-     &                         VDEMIS_BI( MAP_EMtoSURR( ISTR,ISRC ),:,: ) 
+                  VDEMIS_READ( ISTR,1,:,: ) = CONVEM_GAS( ISRM ) *
+     &                         VDEMIS_BI( MAP_EMtoSURR( ISTR,ISRM ),:,: ) 
                END FORALL
-               VDEMIS_SCALED =  EMISS_SCALING( VDEMIS_READ, ISRC )
+               VDEMIS_SCALED =  EMISS_SCALING( VDEMIS_READ, ISRM )
                VDEMIS_CONV   =  EMISS_CONV_DIFF( VDEMIS_SCALED )
-               ERROR_NEG     = EMISS_NEG_CHECK( VDEMIS_CONV, ISRC )
+               ERROR_NEG     = EMISS_NEG_CHECK( VDEMIS_CONV, ISRM )
 
-               IF ( EM_FILE_LAPPLY( ISRC ) ) 
+               IF ( EM_FILE_LAPPLY( ISRM ) ) 
      &              VDEMIS_DIFF( :,:,:,: ) = VDEMIS_DIFF( :,:,:,: ) + VDEMIS_CONV( :,:,:,: )
 
              ! Retrieve Marine Gas Emissions
              CASE ( 5 )
                CALL GET_MGEMIS ( JDATE, JTIME, TSTEP, CGRID )
-               FORALL( ISTR = 1:N_EMIS_ISTR, MAP_EMtoSURR( ISTR,ISRC ) .GT. 0 .AND. 
+               FORALL( ISTR = 1:N_EMIS_ISTR, MAP_EMtoSURR( ISTR,ISRM ) .GT. 0 .AND. 
      &                 MAP_EMtoGAS( ISTR ) .GT. 0 )
-                  VDEMIS_READ( ISTR,1,:,: ) = CONVEM_GAS( ISRC ) *
-     &                          VDEMIS_MG( MAP_EMtoSURR( ISTR,ISRC ),:,: ) 
+                  VDEMIS_READ( ISTR,1,:,: ) = CONVEM_GAS( ISRM ) *
+     &                          VDEMIS_MG( MAP_EMtoSURR( ISTR,ISRM ),:,: ) 
                END FORALL
-               VDEMIS_SCALED =  EMISS_SCALING( VDEMIS_READ, ISRC )
+               VDEMIS_SCALED =  EMISS_SCALING( VDEMIS_READ, ISRM )
                VDEMIS_CONV   =  EMISS_CONV_DIFF( VDEMIS_SCALED )
-               ERROR_NEG     = EMISS_NEG_CHECK( VDEMIS_CONV, ISRC )
+               ERROR_NEG     = EMISS_NEG_CHECK( VDEMIS_CONV, ISRM )
 
-               IF ( EM_FILE_LAPPLY( ISRC ) ) 
+               IF ( EM_FILE_LAPPLY( ISRM ) ) 
      &              VDEMIS_DIFF( :,:,:,: ) = VDEMIS_DIFF( :,:,:,: ) + VDEMIS_CONV( :,:,:,: )
 
              ! Retrieve Lightning NO Emissions
              CASE ( 6 )
                CALL GET_LTNG ( JDATE, JTIME, TSTEP )
-               FORALL( ISTR = 1:N_EMIS_ISTR, MAP_EMtoSURR( ISTR,ISRC ) .GT. 0 .AND. 
+               FORALL( ISTR = 1:N_EMIS_ISTR, MAP_EMtoSURR( ISTR,ISRM ) .GT. 0 .AND. 
      &                 MAP_EMtoGAS( ISTR ) .GT. 0 )
-                  VDEMIS_READ( ISTR,:,:,: ) = VDEMIS_LT( :,:,: ) * CONVEM_GAS( ISRC )
+                  VDEMIS_READ( ISTR,:,:,: ) = VDEMIS_LT( :,:,: ) * CONVEM_GAS( ISRM )
                END FORALL
-               VDEMIS_SCALED =  EMISS_SCALING( VDEMIS_READ, ISRC )
+               VDEMIS_SCALED =  EMISS_SCALING( VDEMIS_READ, ISRM )
                VDEMIS_CONV   =  EMISS_CONV_DIFF( VDEMIS_SCALED )
-               ERROR_NEG     = EMISS_NEG_CHECK( VDEMIS_CONV, ISRC )
+               ERROR_NEG     = EMISS_NEG_CHECK( VDEMIS_CONV, ISRM )
 
-               IF ( EM_FILE_LAPPLY( ISRC ) ) 
+               IF ( EM_FILE_LAPPLY( ISRM ) ) 
      &              VDEMIS_DIFF( :,:,:,: ) = VDEMIS_DIFF( :,:,:,: ) + VDEMIS_CONV( :,:,:,: )
 
              ! Retrieve Sea Spray Aerosol Emissions 
              CASE ( 7 )
                CALL GET_SSEMIS ( JDATE, JTIME, TSTEP, CELLVOL( 1 ), CELLHGT( 1 ) )
-               FORALL( ISTR = 1:N_EMIS_ISTR, MAP_EMtoSURR( ISTR,ISRC ) .GT. 0 )
+               FORALL( ISTR = 1:N_EMIS_ISTR, MAP_EMtoSURR( ISTR,ISRM ) .GT. 0 )
                   VDEMIS_READ( ISTR,1,:,: ) = 
-     &                  SSOUTM( MAP_EMtoSURR( ISTR,ISRC ),MAP_EMtoMODE( ISTR ),:,: ) 
+     &                  SSOUTM( MAP_EMtoSURR( ISTR,ISRM ),MAP_EMtoMODE( ISTR ),:,: ) 
                END FORALL
-               VDEMIS_SCALED =  EMISS_SCALING( VDEMIS_READ, ISRC )
-               VDEMIS_SDIST  =  EMISS_SIZE_DIST( VDEMIS_SCALED, ISRC )
+               VDEMIS_SCALED =  EMISS_SCALING( VDEMIS_READ, ISRM )
+               VDEMIS_SDIST  =  EMISS_SIZE_DIST( VDEMIS_SCALED, ISRM )
                VDEMIS_CONV   =  EMISS_CONV_DIFF( VDEMIS_SDIST )
-               ERROR_NEG     = EMISS_NEG_CHECK( VDEMIS_CONV, ISRC )
+               ERROR_NEG     = EMISS_NEG_CHECK( VDEMIS_CONV, ISRM )
 
-               IF ( EM_FILE_LAPPLY( ISRC ) ) 
+               IF ( EM_FILE_LAPPLY( ISRM ) ) 
      &              VDEMIS_DIFF( :,:,:,: ) = VDEMIS_DIFF( :,:,:,: ) + VDEMIS_CONV( :,:,:,: )
 
              ! Retrieve Wind-Blown Dust Emissions 
              CASE ( 8 )
                CALL GET_DUST_EMIS ( JDATE, JTIME, TSTEP, Met_data%RJACM( :,:,1 ), CELLHGT( 1 ) )
-               FORALL( ISTR = 1:N_EMIS_ISTR, MAP_EMtoSURR( ISTR,ISRC ) .GT. 0 )
+               FORALL( ISTR = 1:N_EMIS_ISTR, MAP_EMtoSURR( ISTR,ISRM ) .GT. 0 )
                   VDEMIS_READ( ISTR,1,:,: ) = 
-     &                  DUSTOUTM( MAP_EMtoSURR( ISTR,ISRC ),MAP_EMtoMODE( ISTR ),:,: ) 
+     &                  DUSTOUTM( MAP_EMtoSURR( ISTR,ISRM ),MAP_EMtoMODE( ISTR ),:,: ) 
                END FORALL
-               VDEMIS_SCALED =  EMISS_SCALING( VDEMIS_READ, ISRC )
-               VDEMIS_SDIST  =  EMISS_SIZE_DIST( VDEMIS_SCALED, ISRC )
+               VDEMIS_SCALED =  EMISS_SCALING( VDEMIS_READ, ISRM )
+               VDEMIS_SDIST  =  EMISS_SIZE_DIST( VDEMIS_SCALED, ISRM )
                VDEMIS_CONV   =  EMISS_CONV_DIFF( VDEMIS_SDIST )
-               ERROR_NEG     = EMISS_NEG_CHECK( VDEMIS_CONV, ISRC )
+               ERROR_NEG     = EMISS_NEG_CHECK( VDEMIS_CONV, ISRM )
 
-               IF ( EM_FILE_LAPPLY( ISRC ) ) 
+               IF ( EM_FILE_LAPPLY( ISRM ) ) 
      &              VDEMIS_DIFF( :,:,:,: ) = VDEMIS_DIFF( :,:,:,: ) + VDEMIS_CONV( :,:,:,: )
 
            END SELECT
@@ -403,7 +397,7 @@ C Retrieve Emissions from All Source Types
          END SUBROUTINE GET_EMIS
 
 !-----------------------------------------------------------------------
-         FUNCTION GRIDEMIS ( JDATE, JTIME, EMIS_FNAME, LAYS, FSRC )
+         FUNCTION GRIDEMIS ( JDATE, JTIME, EMIS_FNAME, LAYS, FSTREAM )
      &                           RESULT( VDEMIS )
 
          USE CGRID_SPCS          ! CGRID mechanism species
@@ -419,7 +413,7 @@ C Retrieve Emissions from All Source Types
 
 ! Arguments:
          INTEGER, INTENT( IN ) :: JDATE, JTIME  ! date (YYYYDDD), time (HHMMSS)
-         INTEGER, INTENT( IN ) :: FSRC
+         INTEGER, INTENT( IN ) :: FSTREAM
          CHARACTER( 100 ), INTENT( IN ) :: EMIS_FNAME
 
 ! Output:
@@ -449,7 +443,7 @@ C Read & Interpolate Emissions
          VDEMIS = 0.0
 
          DO ISTR = 1, N_EMIS_ISTR 
-           VNAME = EM_SURR( ISTR, FSRC )
+           VNAME = EM_SURR( ISTR, FSTREAM )
            IF ( VNAME .EQ. '' ) CYCLE
 
            BUFF = 0.0   ! array assignment
@@ -477,14 +471,14 @@ C Store all emissions in mol/sec or g/sec and convert to ppmv/s later
       END FUNCTION GRIDEMIS
 
 C-----------------------------------------------------------------------
-      FUNCTION EMISS_SCALING( VDEMIS0, ISRC ) RESULT( VDEMIS )
+      FUNCTION EMISS_SCALING( VDEMIS0, ISRM ) RESULT( VDEMIS )
 
 C     Apply region-dependent scaling of emissions rules.
 C-----------------------------------------------------------------------
           
       IMPLICIT NONE
 
-      INTEGER, INTENT( IN ) :: ISRC
+      INTEGER, INTENT( IN ) :: ISRM
       REAL, INTENT( IN )    :: VDEMIS0( N_EMIS_ISTR,EMLAYS,NCOLS,NROWS )
       REAL                  :: VDEMIS ( N_EMIS_ISTR,EMLAYS,NCOLS,NROWS )
 
@@ -494,56 +488,56 @@ C-----------------------------------------------------------------------
       VDEMIS = 0.0
       NL = SIZE( VDEMIS0,2 )
       
-      ! Loop through instructions and sources
+      ! Loop through instructions and streams
       DO ISTR = 1,N_EMIS_ISTR
         ! Do Not bother with this row if there is no surrogate to map
-        IF ( MAP_EMtoSURR( ISTR,ISRC ) .EQ. 0 ) CYCLE
+        IF ( MAP_EMtoSURR( ISTR,ISRM ) .EQ. 0 ) CYCLE
 
         ! Loop through Instructions Based on Region-Dependent Scaling
-        DO IFAC = 1,EM_FAC_ST( ISTR,ISRC )%LEN
+        DO IFAC = 1,EM_FAC_ST( ISTR,ISRM )%LEN
               !Apply scaling using EM_FAC_ST and VDEMIS_RGN
-              SELECT CASE ( EM_FAC_ST( ISTR,ISRC )%OP( IFAC ) )
+              SELECT CASE ( EM_FAC_ST( ISTR,ISRM )%OP( IFAC ) )
               CASE ( 1 )  ! Add scaled emissions
-                  IF ( EM_FAC_ST( ISTR,ISRC )%REG( IFAC ) .EQ. 1 ) THEN
+                  IF ( EM_FAC_ST( ISTR,ISRM )%REG( IFAC ) .EQ. 1 ) THEN
                      ! Add Emissions for the Entire Domain
                      VDEMIS( ISTR,:,:,: ) = VDEMIS( ISTR,:,:,: ) +
-     &                   VDEMIS0( ISTR,:,:,: ) * EM_FAC_ST( ISTR,ISRC )%FAC( IFAC )
+     &                   VDEMIS0( ISTR,:,:,: ) * EM_FAC_ST( ISTR,ISRM )%FAC( IFAC )
                   ELSE
                      ! Add Emissions just for a subdomain
-                     IRGN = EM_FAC_ST( ISTR,ISRC )%REG( IFAC ) 
+                     IRGN = EM_FAC_ST( ISTR,ISRM )%REG( IFAC ) 
                      DO L = 1,NL
                        VDEMIS( ISTR,L,:,: ) = VDEMIS( ISTR,L,:,: ) +
-     &                   VDEMIS0( ISTR,L,:,: ) * EM_FAC_ST( ISTR,ISRC )%FAC( IFAC ) *
+     &                   VDEMIS0( ISTR,L,:,: ) * EM_FAC_ST( ISTR,ISRM )%FAC( IFAC ) *
      &                   EM_REG_FAC( :,:,IRGN )
                      END DO
                   END IF
               CASE ( 2 )  ! Modify scaled emissions
-                  IF ( EM_FAC_ST( ISTR,ISRC )%REG( IFAC ) .EQ. 1 ) THEN
+                  IF ( EM_FAC_ST( ISTR,ISRM )%REG( IFAC ) .EQ. 1 ) THEN
                      ! Scale Emissions for the Entire Domain
                      VDEMIS( ISTR,:,:,: ) = VDEMIS( ISTR,:,:,: )
-     &                   * EM_FAC_ST( ISTR,ISRC )%FAC( IFAC )
+     &                   * EM_FAC_ST( ISTR,ISRM )%FAC( IFAC )
                   ELSE
                      ! Scale Emissions just for a subdomain
-                     IRGN = EM_FAC_ST( ISTR,ISRC )%REG( IFAC ) 
+                     IRGN = EM_FAC_ST( ISTR,ISRM )%REG( IFAC ) 
                      DO L = 1,NL
                        VDEMIS( ISTR,L,:,: ) = VDEMIS( ISTR,L,:,: ) * 
      &                     (1.0 - EM_REG_FAC( :,:,IRGN ) ) +
-     &                   VDEMIS( ISTR,L,:,: ) * EM_FAC_ST( ISTR,ISRC )%FAC( IFAC ) *
+     &                   VDEMIS( ISTR,L,:,: ) * EM_FAC_ST( ISTR,ISRM )%FAC( IFAC ) *
      &                   EM_REG_FAC( :,:,IRGN )
                      END DO
                   END IF
               CASE ( 3 )  ! Overwrite emissions
-                  IF ( EM_FAC_ST( ISTR,ISRC )%REG( IFAC ) .EQ. 1 ) THEN
+                  IF ( EM_FAC_ST( ISTR,ISRM )%REG( IFAC ) .EQ. 1 ) THEN
                      ! Overwrite Emissions for the Entire Domain
                      VDEMIS( ISTR,:,:,: ) = VDEMIS0( ISTR,:,:,: ) *
-     &                  EM_FAC_ST( ISTR,ISRC )%FAC( IFAC )
+     &                  EM_FAC_ST( ISTR,ISRM )%FAC( IFAC )
                   ELSE
                      ! Overwrite Emissions just for a subdomain
-                     IRGN = EM_FAC_ST( ISTR,ISRC )%REG( IFAC ) 
+                     IRGN = EM_FAC_ST( ISTR,ISRM )%REG( IFAC ) 
                      DO L = 1,NL
                        VDEMIS( ISTR,L,:,: ) = VDEMIS( ISTR,L,:,: ) *
      &                     (1.0 - EM_REG_FAC( :,:,IRGN ) ) +
-     &                   VDEMIS0( ISTR,L,:,: ) * EM_FAC_ST( ISTR,ISRC )%FAC( IFAC ) *
+     &                   VDEMIS0( ISTR,L,:,: ) * EM_FAC_ST( ISTR,ISRM )%FAC( IFAC ) *
      &                   EM_REG_FAC( :,:,IRGN )
                      END DO
                   END IF
@@ -697,7 +691,7 @@ C
 C    16 Mar 2017  B.Murphy     Created Subroutine
 C    10 Sep 2017  B.Murphy     Revised Emissions Mapping Approach
 C    08 Nov 2017  B.Murphy     Vectorized Emission Maps to allow for 
-C                                unlimited emissions sources
+C                                unlimited emissions streams
 C-----------------------------------------------------------------------
 
          USE VDIFF_MAP, only : DIFF_SPC, ! Name for every Diffusion Module Species                                  
@@ -708,7 +702,7 @@ C-----------------------------------------------------------------------
      &                         N_AEROSPC, AEROMODE, MODESUFF, EM_AERO_REF
          USE AERO_EMIS, only : MAP_NUMtoEM, MAP_SRFtoEM, MAP_EMtoAERO, MAP_EMtoMODE, 
      &                         MAP_EMtoNUM, MAP_EMtoSRF, WB_DUST, MAP_EMtoSD,
-     &                         EM_SRC_SD, SD_SPLIT, EM_SD_INIT
+     &                         EM_STREAM_SIZE, SD_SPLIT, EM_SD_INIT
          USE UDTYPES,   only : CARRY1, LARRY1
 
          IMPLICIT NONE
@@ -717,8 +711,8 @@ C-----------------------------------------------------------------------
          INTEGER    :: N_UNUSED, REGNUM
 
          INTEGER    :: STRT, PTSTRT, ISPC, IDX, LOGDEV, IX, ISUR, IRULE,
-     &                 N, IM, IAERO, V, ISRC,NSPC, IA, IDIFF, JDX, JM,
-     &                 ISTR, ISUR0, ISRC0, IEM, KDX, JSD, JEM, ISD,
+     &                 N, IM, IAERO, V, ISRM, NSPC, IA, IDIFF, JDX, JM,
+     &                 ISTR, ISUR0, ISRM0, IEM, KDX, JSD, JEM, ISD,
      &                 IFAC, IRGN, ISTRN, NFAC
          REAL       :: AERO_SPLIT, UNIT_FAC_1, UNIT_FAC_2, SURR_MW
 
@@ -738,14 +732,14 @@ C-----------------------------------------------------------------------
          CHARACTER( 20 )  :: REFNAME
          
          INTEGER, PARAMETER :: NISTR0 = 3000
-         LOGICAL, ALLOCATABLE, SAVE :: EM_SRC_RULE( : ), EM_SPEC_RULE( : )
+         LOGICAL, ALLOCATABLE, SAVE :: EM_STREAM_RULE( : ), EM_SPEC_RULE( : )
          TYPE( LARRY1 ), ALLOCATABLE, SAVE :: EM_SURR_RULE( : ), EM_PHASE_RULE( : )
          INTEGER, PARAMETER :: N_SCALEFAC = 3000
         
          INTEGER            :: IC, N_COMMANDS
          INTEGER, PARAMETER :: NCOMM0 = 4000000
          INTEGER            :: RULE_ISTR_IDIFF( NCOMM0 )
-         INTEGER            :: RULE_ISTR_ISRC ( NCOMM0 )
+         INTEGER            :: RULE_ISTR_ISRM ( NCOMM0 )
          INTEGER            :: RULE_ISTR_ISUR ( NCOMM0 )
          CHARACTER( 16 )    :: RULE_ISTR_SPEC ( NCOMM0 )
          CHARACTER( 16 )    :: RULE_ISTR_SURR ( NCOMM0 )
@@ -776,10 +770,10 @@ C-----------------------------------------------------------------------
             WRITE( LOGDEV, '(5X,A,I9)' ) XMSG, JTIME
          END IF
 
-         WRITE( LOGDEV, '(/,/,5x,A)' ), REPEAT( '=', 75 )
+         WRITE( LOGDEV, '(/,/,5x,A)' ), REPEAT( '=', 77 )
          WRITE( LOGDEV, '(5x,A,A)' ), '|> SCALING EMISSIONS CONSISTENT WITH ',
      &                  'EMISSIONS CONTROL FILE SUPPLIED BY USER' 
-         WRITE( LOGDEV, '(5x,A)' ), REPEAT( '=', 75 )
+         WRITE( LOGDEV, '(5x,A)' ), REPEAT( '=', 77 )
  
 ! Write Out Region Diagnostic Information
          WRITE( LOGDEV, '(/,5x,A)' ),'|> Regions Available for Scaling:'
@@ -793,68 +787,61 @@ C-----------------------------------------------------------------------
      &             EM_REGIONS( IRGN )%File( 1:18 ), TRIM(EM_REGIONS( IRGN )%VAR )
          END DO
  
-! Retrieve the Surrogates Available From Emissions Sources
+! Retrieve the Surrogates Available From Emissions Streams
          ! Map the Emission Surrogate Species to Default CMAQ Internal
          ! Species, default size distributions, and default molecular
          ! weights based on SMOKE/MOVES/SPECIATE guidelines
-         DO ISRC = 1,N_EM_SRC
-            IF ( ISRC .EQ. ISEASRC .OR. ISRC .EQ. IBIOSRC .OR. 
-     &           ISRC .EQ. IDUSTSRC.OR. ISRC .EQ. ILTSRC  .OR.
-     &           ISRC .EQ. IMGSRC ) CYCLE
+         DO ISRM = 1,N_EM_SRM
+            IF ( ISRM .EQ. ISEASRM .OR. ISRM .EQ. IBIOSRM .OR. 
+     &           ISRM .EQ. IDUSTSRM.OR. ISRM .EQ. ILTSRM  .OR.
+     &           ISRM .EQ. IMGSRM ) CYCLE
 
-            ALLOCATE( EM_FILE_SURR( ISRC )%CMAQ ( EM_FILE_SURR( ISRC )%LEN ) )
-            ALLOCATE( EM_FILE_SURR( ISRC )%PHASE( EM_FILE_SURR( ISRC )%LEN ) )
-            ALLOCATE( EM_FILE_SURR( ISRC )%MW   ( EM_FILE_SURR( ISRC )%LEN ) )
-            ALLOCATE( EM_FILE_SURR( ISRC )%USED ( EM_FILE_SURR( ISRC )%LEN ) )
-            EM_FILE_SURR( ISRC )%USED = .FALSE.
+            ALLOCATE( EM_FILE_SURR( ISRM )%CMAQ ( EM_FILE_SURR( ISRM )%LEN ) )
+            ALLOCATE( EM_FILE_SURR( ISRM )%PHASE( EM_FILE_SURR( ISRM )%LEN ) )
+            ALLOCATE( EM_FILE_SURR( ISRM )%MW   ( EM_FILE_SURR( ISRM )%LEN ) )
+            ALLOCATE( EM_FILE_SURR( ISRM )%USED ( EM_FILE_SURR( ISRM )%LEN ) )
+            EM_FILE_SURR( ISRM )%USED = .FALSE.
 
-            DO ISUR = 1,EM_FILE_SURR( ISRC )%LEN
-               B = EM_FILE_SURR( ISRC )%ARRY( ISUR )
+            DO ISUR = 1,EM_FILE_SURR( ISRM )%LEN
+               B = EM_FILE_SURR( ISRM )%ARRY( ISUR )
                IA  = INDEX1( B, N_MAP_EMIStoCMAQ, MAP_EMIStoCMAQ( : )%SURR )
                IF ( IA .GT. 0 ) THEN
-                  EM_FILE_SURR( ISRC )%CMAQ ( ISUR ) = MAP_EMIStoCMAQ( IA )%CMAQ
-                  EM_FILE_SURR( ISRC )%PHASE( ISUR ) = MAP_EMIStoCMAQ( IA )%PHASE
-                  EM_FILE_SURR( ISRC )%MW   ( ISUR ) = MAP_EMIStoCMAQ( IA )%MW
+                  EM_FILE_SURR( ISRM )%CMAQ ( ISUR ) = MAP_EMIStoCMAQ( IA )%CMAQ
+                  EM_FILE_SURR( ISRM )%PHASE( ISUR ) = MAP_EMIStoCMAQ( IA )%PHASE
+                  EM_FILE_SURR( ISRM )%MW   ( ISUR ) = MAP_EMIStoCMAQ( IA )%MW
                ELSE
                   ! Surrogate is not calculated online nor does it
                   ! belong to the default list of commonly used
                   ! surrogates.
-                  EM_FILE_SURR( ISRC )%CMAQ ( ISUR ) = B
-                  EM_FILE_SURR( ISRC )%PHASE( ISUR ) = 'N/A'
-                  EM_FILE_SURR( ISRC )%MW   ( ISUR ) = 1.0
-
-                  !WRITE( LOGDEV, '(/,5x,A,A,A,A,/,5x,A,/,5x,A,/,5x,A,/,5x,A)' ) 
-      !&                'Emissions Surrogate ',TRIM(B),' on source ',TRIM(EM_FILE_LAB( ISRC )),
-      !&                'is not a recognized surrogate. If you would like for it to have a',
-      !&                'default scaling rule, please add it, along with a default ',
-      !&                'CMAQ internal species, a destination phase or mode, and a ',
-      !&                'molecular weight to EMIS_VARS.'
+                  EM_FILE_SURR( ISRM )%CMAQ ( ISUR ) = B
+                  EM_FILE_SURR( ISRM )%PHASE( ISUR ) = 'N/A'
+                  EM_FILE_SURR( ISRM )%MW   ( ISUR ) = 1.0
                END IF
             END DO
          END DO
 
-! Set up Source <-> Size Distribution relationship. This routine
-! populates the EM_SRC_SD structure which tells the logic below which
-! modes are present on which sources.
+! Set up Stream <-> Size Distribution relationship. This routine
+! populates the EM_STREAM_SIZE structure which tells the logic below which
+! modes are present on which streams.
          CALL EM_SD_INIT( )
          
 ! Process Default Emissions Mapping (if requested in namelist; i.e. 
 ! DefaultScaling = TRUE) 
          ALLOCATE( EM_SPEC( NISTR0 ) )                ! CMAQ Species Names
          EM_SPEC = ""
-         ALLOCATE( EM_SURR( NISTR0,N_EM_SRC ) )       ! Surrogate Name
+         ALLOCATE( EM_SURR( NISTR0,N_EM_SRM ) )       ! Surrogate Name
          EM_SURR = ""
-         ALLOCATE( EM_FAC ( NISTR0,N_EM_SRC,N_SCALEFAC ) ) ! Scale Factor
+         ALLOCATE( EM_FAC ( NISTR0,N_EM_SRM,N_SCALEFAC ) ) ! Scale Factor
          EM_FAC = 0.0
-         ALLOCATE( EM_FAC_BULK( NISTR0,N_EM_SRC,N_SCALEFAC ) ) ! Bulk Scale Factor For Printing to Diagnostic
+         ALLOCATE( EM_FAC_BULK( NISTR0,N_EM_SRM,N_SCALEFAC ) ) ! Bulk Scale Factor For Printing to Diagnostic
          EM_FAC_BULK = 0.0                                        !   Output. Ignores aero_split and unit conversion
-         ALLOCATE( EM_OP( NISTR0,N_EM_SRC,N_SCALEFAC ) )  ! Bulk Scale Factor For Printing to Diagnostic
+         ALLOCATE( EM_OP( NISTR0,N_EM_SRM,N_SCALEFAC ) )  ! Bulk Scale Factor For Printing to Diagnostic
          EM_OP = ""                                          !   Output. Ignores aero_split and unit conversion
-         ALLOCATE( EM_REG( NISTR0,N_EM_SRC,N_SCALEFAC ) ) ! Bulk Scale Factor For Printing to Diagnostic
+         ALLOCATE( EM_REG( NISTR0,N_EM_SRM,N_SCALEFAC ) ) ! Bulk Scale Factor For Printing to Diagnostic
          EM_REG = 1                                          !   Output. Ignores aero_split and unit conversion
          ALLOCATE( MAP_EMtoDIFF( NISTR0 ) )           ! Map from Emissions Species 
          MAP_EMtoDIFF = 0                             !   to Diffusion Vector
-         ALLOCATE( MAP_EMtoSURR( NISTR0,N_EM_SRC ) )  ! Map from Emissions Species 
+         ALLOCATE( MAP_EMtoSURR( NISTR0,N_EM_SRM ) )  ! Map from Emissions Species 
          MAP_EMtoSURR = 0                             !   to Surrogate Locatino on File
          ALLOCATE( MAP_EMtoGAS( NISTR0 ) )           ! Map from Emissions Species 
          MAP_EMtoGAS = 0                             !   to aerosol table
@@ -866,11 +853,11 @@ C-----------------------------------------------------------------------
          MAP_EMtoNUM  = 0                             !   to aerosol number
          ALLOCATE( MAP_EMtoSRF ( NISTR0 ) )           ! Map from Emissions Species 
          MAP_EMtoSRF  = 0                             !   to aerosol surface area
-         ALLOCATE( MAP_EMtoSD  ( NISTR0,N_EM_SRC ) )  ! Map from Emissions Species 
+         ALLOCATE( MAP_EMtoSD  ( NISTR0,N_EM_SRM ) )  ! Map from Emissions Species 
          MAP_EMtoSD  = 0                              !   to emissions aerosol mode
          
          ! Find all matches between the transported species list and the
-         ! available surrogates from each source. Apply a scale factor
+         ! available surrogates from each stream. Apply a scale factor
          ! of 1 to these matches. For aerosols, the CMAQ species name
          ! may or may not include the mode suffix (eg. i, j, or k).
          ! Equivalence tests should be performed without a suffix on the
@@ -881,22 +868,22 @@ C-----------------------------------------------------------------------
 
          IF ( DefaultScaling ) THEN
             DO IDIFF = 1,N_SPC_DIFF
-              DO ISRC = 1,N_EM_SRC
+              DO ISRM = 1,N_EM_SRM
 
                  ! First Look for The Transported Species Name in the
                  ! Emissions Surrogate List. Then look for it on the
                  ! alternate list.
                  JDX = 0; JM  = 0; JSD = 0; JEM = 0
 
-                 DO ISUR = 1,EM_FILE_SURR( ISRC )%LEN
-                   IF ( EM_FILE_SURR( ISRC )%PHASE( ISUR ) .EQ. 'N/A' ) CYCLE
+                 DO ISUR = 1,EM_FILE_SURR( ISRM )%LEN
+                   IF ( EM_FILE_SURR( ISRM )%PHASE( ISUR ) .EQ. 'N/A' ) CYCLE
 
-                   SN = EM_FILE_SURR( ISRC )%ARRY( ISUR )
-                   SM = EM_FILE_SURR( ISRC )%CMAQ( ISUR )
+                   SN = EM_FILE_SURR( ISRM )%ARRY( ISUR )
+                   SM = EM_FILE_SURR( ISRM )%CMAQ( ISUR )
                    ! Find Out which CMAQ aerosol modes are available
-                   ! for this surrogate as a function of its source
+                   ! for this surrogate as a function of its streams
                    ! and emission mode
-                   IF ( EM_FILE_SURR( ISRC )%PHASE( ISUR ) .EQ. 'GAS' ) THEN ! Gas Surrogate
+                   IF ( EM_FILE_SURR( ISRM )%PHASE( ISUR ) .EQ. 'GAS' ) THEN ! Gas Surrogate
                      IF ( .NOT.DIFF_MASK_AERO( IDIFF )       .AND.           ! Gas CMAQ Species
      &                   ( TRIM( SN ) .EQ. DIFF_SPC( IDIFF ) .OR.            ! Name Match
      &                     TRIM( SM ) .EQ. DIFF_SPC( IDIFF ) )    ) THEN
@@ -905,18 +892,18 @@ C-----------------------------------------------------------------------
                        JEM = 0    ! 0 is Always the gas phase in the Size Dist Reference List
                        ! Update Molecular Weight of the surrogate if it
                        ! is not already set
-                       IF ( EM_FILE_SURR( ISRC )%MW( ISUR ) .EQ. 0. )
-     &                      EM_FILE_SURR( ISRC )%MW( ISUR ) = DIFF_MW( IDIFF )
+                       IF ( EM_FILE_SURR( ISRM )%MW( ISUR ) .EQ. 0. )
+     &                      EM_FILE_SURR( ISRM )%MW( ISUR ) = DIFF_MW( IDIFF )
                      END IF
                    ELSEIF ( DIFF_MASK_AERO( IDIFF ) ) THEN  ! Aerosol CMAQ Species and Surrogate
-                     ISD = INDEX1( EM_FILE_SURR( ISRC )%PHASE( ISUR ), 
-     &                             EM_SRC_SD( ISRC )%LEN, EM_SRC_SD( ISRC )%NAME )
-                     IEM = EM_SRC_SD( ISRC )%REF( ISD )
+                     ISD = INDEX1( EM_FILE_SURR( ISRM )%PHASE( ISUR ), 
+     &                             EM_STREAM_SIZE( ISRM )%LEN, EM_STREAM_SIZE( ISRM )%NAME )
+                     IEM = EM_STREAM_SIZE( ISRM )%REF( ISD )
                      
                      ! Cycle through model aerosol modes and find ones that apply 
                      ! to this size distribution
                      DO IM = 1,N_MODE
-                       IF ( EM_SRC_SD( ISRC )%FACNUM( ISD,IM ) .GT. 0.0 ) THEN
+                       IF ( EM_STREAM_SIZE( ISRM )%FACNUM( ISD,IM ) .GT. 0.0 ) THEN
                          ! The surrogate mode ISD may be mapped to
                          ! CMAQ Model Mode IM
                          IF ( TRIM( SN )//MODESUFF( IM ) .EQ. DIFF_SPC( IDIFF ) .OR.
@@ -930,8 +917,8 @@ C-----------------------------------------------------------------------
                                         !   for mapping below
                            ! Update Molecular Weight of the surrogate if it
                            ! is not already set
-                           IF ( EM_FILE_SURR( ISRC )%MW( ISUR ) .EQ. 0. )
-     &                          EM_FILE_SURR( ISRC )%MW( ISUR ) = DIFF_MW( IDIFF )
+                           IF ( EM_FILE_SURR( ISRM )%MW( ISUR ) .EQ. 0. )
+     &                          EM_FILE_SURR( ISRM )%MW( ISUR ) = DIFF_MW( IDIFF )
                          END IF
                        END IF
                      END DO
@@ -942,7 +929,7 @@ C-----------------------------------------------------------------------
                  IF ( JDX .GT. 0 ) THEN
                     ! A Surrogate Matches a Transported Species. If both the Species 
                     ! and Surrogate Match a Previously Defined Instruction, then add 
-                    ! the scale factor to that entry under the relevant source number.
+                    ! the scale factor to that entry under the relevant stream number.
                     SPECNAME = DIFF_SPC( IDIFF )
                     IF ( N_EMIS_ISTR .NE. 0 ) SPECNAME = EM_SPEC( N_EMIS_ISTR )
                     IF ( DIFF_SPC( IDIFF ) .NE. SPECNAME .OR. 
@@ -971,20 +958,20 @@ C-----------------------------------------------------------------------
                     ! species is an aerosol and not from dust or sea spray
                     ! sectors
                     AERO_SPLIT = 1.0
-                    IF ( DIFF_MASK_AERO( IDIFF ) .AND. ISRC .NE. IDUSTSRC .AND.
-     &                       ISRC .NE. ISEASRC ) 
+                    IF ( DIFF_MASK_AERO( IDIFF ) .AND. ISRM .NE. IDUSTSRM .AND.
+     &                       ISRM .NE. ISEASRM ) 
      &                   AERO_SPLIT = SD_SPLIT( IDIFF, JEM )
 
                     ! Update the Surrogate of an Existing Instruction
-                    EM_FILE_SURR( ISRC )%USED( JDX ) = .TRUE.
-                    EM_SURR( N_EMIS_ISTR, ISRC ) = EM_FILE_SURR( ISRC )%ARRY( JDX )
-                    MAP_EMtoSURR( N_EMIS_ISTR, ISRC ) = JDX
-                    MAP_EMtoSD( N_EMIS_ISTR, ISRC ) = JSD
+                    EM_FILE_SURR( ISRM )%USED( JDX ) = .TRUE.
+                    EM_SURR( N_EMIS_ISTR, ISRM ) = EM_FILE_SURR( ISRM )%ARRY( JDX )
+                    MAP_EMtoSURR( N_EMIS_ISTR, ISRM ) = JDX
+                    MAP_EMtoSD( N_EMIS_ISTR, ISRM ) = JSD
 
-                    EM_FAC ( N_EMIS_ISTR, ISRC, 1 ) = 1.0 * AERO_SPLIT
-                    EM_FAC_BULK ( N_EMIS_ISTR, ISRC, 1 ) = 1.0         
-                    EM_REG( N_EMIS_ISTR, ISRC, 1 ) = 1
-                    EM_OP( N_EMIS_ISTR, ISRC, 1 )  = 'a'
+                    EM_FAC ( N_EMIS_ISTR, ISRM, 1 ) = 1.0 * AERO_SPLIT
+                    EM_FAC_BULK ( N_EMIS_ISTR, ISRM, 1 ) = 1.0         
+                    EM_REG( N_EMIS_ISTR, ISRM, 1 ) = 1
+                    EM_OP( N_EMIS_ISTR, ISRM, 1 )  = 'a'
 
                  END IF
                END DO
@@ -1036,18 +1023,18 @@ C-----------------------------------------------------------------------
 
 
          ! Allocate Rule->Instruction Transform Masks
-         ALLOCATE( EM_SRC_RULE  ( N_EM_SRC   ) )
+         ALLOCATE( EM_STREAM_RULE  ( N_EM_SRM   ) )
          ALLOCATE( EM_SPEC_RULE ( N_SPC_DIFF ) )
-         ALLOCATE( EM_SURR_RULE ( N_EM_SRC ) )
-         ALLOCATE( EM_PHASE_RULE( N_EM_SRC ) )
-         DO ISRC = 1,N_EM_SRC
-           N = EM_FILE_SURR( ISRC )%LEN
-           EM_SURR_RULE( ISRC )%LEN = N
-           ALLOCATE( EM_SURR_RULE( ISRC )%ARRY( N ) )
+         ALLOCATE( EM_SURR_RULE ( N_EM_SRM ) )
+         ALLOCATE( EM_PHASE_RULE( N_EM_SRM ) )
+         DO ISRM = 1,N_EM_SRM
+           N = EM_FILE_SURR( ISRM )%LEN
+           EM_SURR_RULE( ISRM )%LEN = N
+           ALLOCATE( EM_SURR_RULE( ISRM )%ARRY( N ) )
 
-           N = EM_SRC_SD( ISRC )%LEN
-           EM_PHASE_RULE( ISRC )%LEN = N
-           ALLOCATE( EM_PHASE_RULE( ISRC )%ARRY( N ) )
+           N = EM_STREAM_SIZE( ISRM )%LEN
+           EM_PHASE_RULE( ISRM )%LEN = N
+           ALLOCATE( EM_PHASE_RULE( ISRM )%ARRY( N ) )
          END DO
  
          ! Loop Through Emission Rules, Test for Fidelity, expand if necessary
@@ -1057,41 +1044,41 @@ C-----------------------------------------------------------------------
             IF ( EM_NML( IRULE )%SPEC .EQ. '' ) EXIT 
 
             ! Expand Rule To Individual Instructions. If the CMAQ
-            ! Species, Source Label, and Surrogate are all single
+            ! Species, Stream Label, and Surrogate are all single
             ! components, then there will just be one instruction. If
             ! any of them equal 'All' the number of instructions will
             ! grow correspondingly.
 
             !------   ------   ------   ------   ------   ------   -----
-            ! First error check and expand the source field
-            ! This subroutine returns a logical vector, EM_SRC_RULE,
-            ! which identifies which sources are affected by this rule.
-            CALL INTERPRET_EM_RULE_SRC( EM_NML( IRULE )%SRC, IRULE, EM_SRC_RULE )
+            ! First error check and expand the stream field
+            ! This subroutine returns a logical vector, EM_STREAM_RULE,
+            ! which identifies which streams are affected by this rule.
+            CALL INTERPRET_EM_RULE_STREAM( EM_NML( IRULE )%STREAM, IRULE, EM_STREAM_RULE )
 
             !------   ------   ------   ------   ------   ----  
             ! Now error check and expand the surrogate field
             CALL UPCASE( EM_NML( IRULE )%SURR )
 
-            !Initialize Surrogate Array for every Source
-            DO ISRC = 1,N_EM_SRC
-              EM_SURR_RULE( ISRC )%ARRY = .FALSE.
+            !Initialize Surrogate Array for every Stream
+            DO ISRM = 1,N_EM_SRM
+              EM_SURR_RULE( ISRM )%ARRY = .FALSE.
             END DO
 
             LERROR = .TRUE.
-            DO ISRC = 1,N_EM_SRC 
-              ! Skip this source if it is not identified
-              IF ( .NOT. EM_SRC_RULE( ISRC ) ) CYCLE 
+            DO ISRM = 1,N_EM_SRM 
+              ! Skip this stream if it is not identified
+              IF ( .NOT. EM_STREAM_RULE( ISRM ) ) CYCLE 
 
               IF ( EM_NML( IRULE )%SURR .EQ. 'ALL' ) THEN
                  ! Expand the Rule to Apply to All Surrogates
-                 EM_SURR_RULE( ISRC )%ARRY = .TRUE.
+                 EM_SURR_RULE( ISRM )%ARRY = .TRUE.
                  LERROR = .FALSE.
               ELSE
                  ! Find the Specific Surrogate this Rule Identifies
-                 IDX = INDEX1( EM_NML( IRULE )%SURR, EM_FILE_SURR( ISRC )%LEN, 
-     &                         EM_FILE_SURR( ISRC )%ARRY )
+                 IDX = INDEX1( EM_NML( IRULE )%SURR, EM_FILE_SURR( ISRM )%LEN, 
+     &                         EM_FILE_SURR( ISRM )%ARRY )
                  IF ( IDX .NE. 0 ) THEN
-                   EM_SURR_RULE( ISRC )%ARRY( IDX ) = .TRUE.
+                   EM_SURR_RULE( ISRM )%ARRY( IDX ) = .TRUE.
                    LERROR = .FALSE.
                  END IF
               END IF
@@ -1102,19 +1089,19 @@ C-----------------------------------------------------------------------
                  WRITE( LOGDEV, '(/,A,/,2A,3(/,A))') 
      &                  '****************************WARNING**************************:',
      &                  'The emission surrogate ',TRIM( EM_NML( IRULE )%SURR ),
-     &                  ' was not found in emissions sources but the CTM_EMISCHK ',
+     &                  ' was not found in emissions streams but the CTM_EMISCHK ',
      &                  'environment variable set to False so simulation will proceed.',
      &                  '**************************************************************'
                  WRITE( LOGDEV, * )
                  WRITE( LOGDEV, * )
                  XMSG = 'For optimal predictions, all surrogates '
-     &                //'should be found on at least one source.'
+     &                //'should be found on at least one stream.'
                  CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
               ELSE     
                  WRITE( LOGDEV, '(A,/,2A,/,8(/,A))') 
      &                  '*****************************ERROR***************************************:',
      &                  'The emission surrogate ',TRIM( EM_NML( IRULE )%SURR ),
-     &                  ' is not found in any of the emission sources.',
+     &                  ' is not found in any of the emission streams.',
      &                  'Use one of the below options to continue.', 
      &                  '1) Change or remove the missing GC, NR and TR emissions surrogates from the',
      &                  'namelists where they are defined.', 
@@ -1124,7 +1111,7 @@ C-----------------------------------------------------------------------
      &                  '*************************************************************************'
                  WRITE( LOGDEV, * )
                  XMSG = 'Species with the missing surrogates ' 
-     &                //'must have a surrogate found in at least one source.'
+     &                //'must have a surrogate found in at least one stream.'
                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
               END IF
             END IF
@@ -1172,26 +1159,26 @@ C-----------------------------------------------------------------------
             ! Now Error Check and Expand the Phase Field
             CALL UPCASE( EM_NML( IRULE )%PHASE )
 
-            !Initialize Surrogate Array for every Source
-            DO ISRC = 1,N_EM_SRC
-              EM_PHASE_RULE( ISRC )%ARRY = .FALSE.
+            !Initialize Surrogate Array for every Stream
+            DO ISRM = 1,N_EM_SRM
+              EM_PHASE_RULE( ISRM )%ARRY = .FALSE.
             END DO
 
             LERROR = .TRUE.
-            DO ISRC = 1,N_EM_SRC 
-              ! Skip this source if it is not identified
-              IF ( .NOT. EM_SRC_RULE( ISRC ) ) CYCLE 
+            DO ISRM = 1,N_EM_SRM 
+              ! Skip this stream if it is not identified
+              IF ( .NOT. EM_STREAM_RULE( ISRM ) ) CYCLE 
 
               IF ( EM_NML( IRULE )%PHASE .EQ. 'ALL' ) THEN
                  ! Expand the Rule to Apply to All Phases and Modes
-                 EM_PHASE_RULE( ISRC )%ARRY = .TRUE.
+                 EM_PHASE_RULE( ISRM )%ARRY = .TRUE.
                  LERROR = .FALSE.
               ELSE
                  ! Find the Specific Phase/Mode this Rule Identifies
-                 IDX = INDEX1( EM_NML( IRULE )%PHASE, EM_SRC_SD( ISRC )%LEN, 
-     &                         EM_SRC_SD( ISRC )%NAME )
+                 IDX = INDEX1( EM_NML( IRULE )%PHASE, EM_STREAM_SIZE( ISRM )%LEN, 
+     &                         EM_STREAM_SIZE( ISRM )%NAME )
                  IF ( IDX .NE. 0 ) THEN
-                   EM_PHASE_RULE( ISRC )%ARRY( IDX ) = .TRUE.
+                   EM_PHASE_RULE( ISRM )%ARRY( IDX ) = .TRUE.
                    LERROR = .FALSE.
                  END IF
               END IF
@@ -1201,12 +1188,12 @@ C-----------------------------------------------------------------------
                  WRITE( LOGDEV, '(A,/,2A,/,A,/,A,I3,A1,/,A)') 
      &                  '*****************************ERROR***************************************:',
      &                  'The phase or mode ',TRIM( EM_NML( IRULE )%PHASE ),
-     &                  ' is not found in any of the emission sources you''re requesting for ',
+     &                  ' is not found in any of the emission streams you''re requesting for ',
      &                  'emission rule ',IRULE,'.',
      &                  '*************************************************************************'
                  WRITE( LOGDEV, * )
                  XMSG = 'Species with the missing surrogates ' 
-     &                //'must have a surrogate found in at least one source.'
+     &                //'must have a surrogate found in at least one stream.'
                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
  
@@ -1261,12 +1248,12 @@ C-----------------------------------------------------------------------
             N_COMMANDS = 0
             DO IDIFF = 1,N_SPC_DIFF
             IF ( EM_SPEC_RULE( IDIFF ) ) THEN
-              DO ISRC = 1,N_EM_SRC
-              IF ( EM_SRC_RULE( ISRC ) ) THEN
-                DO ISUR = 1,EM_FILE_SURR( ISRC )%LEN 
-                IF ( EM_SURR_RULE( ISRC )%ARRY( ISUR ) ) THEN
-                  DO ISD = 1,EM_SRC_SD( ISRC )%LEN
-                  IF ( EM_PHASE_RULE( ISRC )%ARRY( ISD ) ) THEN
+              DO ISRM = 1,N_EM_SRM
+              IF ( EM_STREAM_RULE( ISRM ) ) THEN
+                DO ISUR = 1,EM_FILE_SURR( ISRM )%LEN 
+                IF ( EM_SURR_RULE( ISRM )%ARRY( ISUR ) ) THEN
+                  DO ISD = 1,EM_STREAM_SIZE( ISRM )%LEN
+                  IF ( EM_PHASE_RULE( ISRM )%ARRY( ISD ) ) THEN
 
                     ! Test to make sure if this is an aerosol species
                     ! that the size distirbution will actually populate it
@@ -1276,22 +1263,22 @@ C-----------------------------------------------------------------------
                            IM = INDEX1( DIFF_SPC( IDIFF ), N_MODE,
      &                                  AEROSPC( IAERO )%NAME( : ) )
                            IF ( IM .GT. 0 ) THEN
-                             IF ( EM_SRC_SD( ISRC )%FACNUM( ISD,IM ) 
+                             IF ( EM_STREAM_SIZE( ISRM )%FACNUM( ISD,IM ) 
      &                              .LE. 1.0e-10 ) LTEST = .FALSE.
                            END IF
                         END DO
                     END IF
 
                     ! Add an Instruction for this combination of CMAQ
-                    ! Species, Source, Surrogate, and Phase
+                    ! Species, Stream, Surrogate, and Phase
                     IF ( LTEST ) THEN
                       N_COMMANDS = N_COMMANDS + 1
                       RULE_ISTR_IDIFF( N_COMMANDS ) = IDIFF
-                      RULE_ISTR_ISRC ( N_COMMANDS ) = ISRC
+                      RULE_ISTR_ISRM ( N_COMMANDS ) = ISRM
                       RULE_ISTR_ISUR ( N_COMMANDS ) = ISUR
                       RULE_ISTR_SPEC ( N_COMMANDS ) = DIFF_SPC( IDIFF )
                       RULE_ISTR_SURR ( N_COMMANDS ) = 
-     &                     EM_FILE_SURR( ISRC )%ARRY( ISUR )
+     &                     EM_FILE_SURR( ISRM )%ARRY( ISUR )
                       RULE_ISTR_PHASE( N_COMMANDS ) = ISD
                     END IF
                   END IF
@@ -1318,7 +1305,7 @@ C-----------------------------------------------------------------------
                   IF ( N_EMIS_ISTR .GT. 0 ) THEN
                   DO ISTRN = 1,N_EMIS_ISTR
                     IF ( EM_SPEC( ISTRN ) .EQ. RULE_ISTR_SPEC( IC ) .AND.
-     &                   EM_SURR( ISTRN,RULE_ISTR_ISRC( IC ) ) .EQ. '' ) THEN
+     &                   EM_SURR( ISTRN,RULE_ISTR_ISRM( IC ) ) .EQ. '' ) THEN
                       ! Add This Command to Instruction number ISTR
                       ISTR = ISTRN
                       LFOUND = .TRUE.
@@ -1330,7 +1317,7 @@ C-----------------------------------------------------------------------
                   ! instruction. This means either there was no previous
                   ! instruction with the same CMAQ species or there was
                   ! an instruction with this CMAQ species but it already
-                  ! had a surrogate and scale factor associated with this source.
+                  ! had a surrogate and scale factor associated with this stream.
                   IF ( .NOT. LFOUND ) THEN
                     N_EMIS_ISTR = N_EMIS_ISTR + 1
                     ISTR = N_EMIS_ISTR
@@ -1354,31 +1341,31 @@ C-----------------------------------------------------------------------
                           
                   ! Now that the instruction location has either been
                   ! found or created, populate it.
-                  ISRC = RULE_ISTR_ISRC( IC )
-                  IEM  = EM_SRC_SD( ISRC )%REF( RULE_ISTR_PHASE( IC ) )
+                  ISRM = RULE_ISTR_ISRM( IC )
+                  IEM  = EM_STREAM_SIZE( ISRM )%REF( RULE_ISTR_PHASE( IC ) )
                   ISUR = RULE_ISTR_ISUR( IC )
                     
-                  EM_SURR( ISTR, ISRC ) = RULE_ISTR_SURR( IC )
-                  MAP_EMtoSURR( ISTR, ISRC ) = ISUR
-                  EM_FILE_SURR( ISRC )%USED( ISUR ) = .TRUE.
-                  MAP_EMtoSD( ISTR, ISRC ) = RULE_ISTR_PHASE( IC )
+                  EM_SURR( ISTR, ISRM ) = RULE_ISTR_SURR( IC )
+                  MAP_EMtoSURR( ISTR, ISRM ) = ISUR
+                  EM_FILE_SURR( ISRM )%USED( ISUR ) = .TRUE.
+                  MAP_EMtoSD( ISTR, ISRM ) = RULE_ISTR_PHASE( IC )
 
                   ! Only apply an aerosol size-split parameter if this
                   ! species is an aerosol and if it is not from a dust 
                   ! or sea spray sector
                   AERO_SPLIT = 1.0
                   IF ( DIFF_MASK_AERO( RULE_ISTR_IDIFF( IC ) ) .AND. 
-     &                 ISRC .NE. IDUSTSRC .AND. ISRC .NE. ISEASRC    )
+     &                 ISRM .NE. IDUSTSRM .AND. ISRM .NE. ISEASRM    )
      &                 AERO_SPLIT = SD_SPLIT( RULE_ISTR_IDIFF( IC ), IEM )
 
                   ! Determine Next Free Location in Scale Factor Space
                   ! (IFAC) so that the scale factor can be added.
                   DO IFAC = 1,N_SCALEFAC
-                      IF ( EM_OP( ISTR, ISRC, IFAC ) .EQ. '' ) THEN
-                           EM_FAC ( ISTR, ISRC, IFAC ) = EM_NML( IRULE )%FAC * AERO_SPLIT
-                        EM_FAC_BULK ( ISTR, ISRC, IFAC ) = EM_NML( IRULE )%FAC
-                        EM_REG( ISTR, ISRC, IFAC ) = REGNUM
-                        EM_OP( ISTR, ISRC, IFAC )  = EM_NML( IRULE )%OP
+                      IF ( EM_OP( ISTR, ISRM, IFAC ) .EQ. '' ) THEN
+                           EM_FAC ( ISTR, ISRM, IFAC ) = EM_NML( IRULE )%FAC * AERO_SPLIT
+                        EM_FAC_BULK ( ISTR, ISRM, IFAC ) = EM_NML( IRULE )%FAC
+                        EM_REG( ISTR, ISRM, IFAC ) = REGNUM
+                        EM_OP( ISTR, ISRM, IFAC )  = EM_NML( IRULE )%OP
                         EXIT
                      END IF
                   END DO
@@ -1389,13 +1376,13 @@ C-----------------------------------------------------------------------
                DO IC = 1,N_COMMANDS
                  ! Loop through existing instructions and find matches
                  IF ( N_EMIS_ISTR .GT. 0 ) THEN
-                   ISRC = RULE_ISTR_ISRC( IC )
+                   ISRM = RULE_ISTR_ISRM( IC )
                    DO ISTR = 1,N_EMIS_ISTR
                    IF ( EM_SPEC( ISTR ) .EQ. RULE_ISTR_SPEC( IC ) ) THEN
-                      IF ( EM_SURR( ISTR, ISRC ) .EQ. RULE_ISTR_SURR( IC ) .AND.
-     &                     MAP_EMtoSD( ISTR,ISRC ) .EQ. RULE_ISTR_PHASE( IC ) ) THEN
+                      IF ( EM_SURR( ISTR, ISRM ) .EQ. RULE_ISTR_SURR( IC ) .AND.
+     &                     MAP_EMtoSD( ISTR,ISRM ) .EQ. RULE_ISTR_PHASE( IC ) ) THEN
                   
-                        IEM = EM_SRC_SD( ISRC )%REF( RULE_ISTR_PHASE( IC ) )
+                        IEM = EM_STREAM_SIZE( ISRM )%REF( RULE_ISTR_PHASE( IC ) )
                         AERO_SPLIT = 1.0
                         IF ( DIFF_MASK_AERO( RULE_ISTR_IDIFF( IC ) ) .AND.
      &                       EM_NML( IRULE )%OP .EQ. 'o' ) 
@@ -1404,11 +1391,11 @@ C-----------------------------------------------------------------------
                         ! Determine Next Free Location in Scale Factor Space (IFAC) so 
                         ! that the scale factor can be added.
                         DO IFAC = 1,N_SCALEFAC
-                          IF ( EM_OP( ISTR, ISRC, IFAC ) .EQ. '' ) THEN
-                              EM_FAC ( ISTR, ISRC, IFAC )      = EM_NML( IRULE )%FAC * AERO_SPLIT
-                             EM_FAC_BULK ( ISTR, ISRC, IFAC ) = EM_NML( IRULE )%FAC
-                             EM_REG( ISTR, ISRC, IFAC )       = REGNUM
-                             EM_OP( ISTR, ISRC, IFAC )        = EM_NML( IRULE )%OP
+                          IF ( EM_OP( ISTR, ISRM, IFAC ) .EQ. '' ) THEN
+                              EM_FAC ( ISTR, ISRM, IFAC )      = EM_NML( IRULE )%FAC * AERO_SPLIT
+                             EM_FAC_BULK ( ISTR, ISRM, IFAC ) = EM_NML( IRULE )%FAC
+                             EM_REG( ISTR, ISRM, IFAC )       = REGNUM
+                             EM_OP( ISTR, ISRM, IFAC )        = EM_NML( IRULE )%OP
                              EXIT
                           END IF
                         END DO
@@ -1431,40 +1418,40 @@ C-----------------------------------------------------------------------
 ! Inspect all of the Emissions Instructions for conversion between gases
 ! and particles. If there is a conversion, apply the correct factor
 ! based on species moleculer weights.
-         ALLOCATE( EM_FAC_ST( N_EMIS_ISTR,N_EM_SRC ) )
+         ALLOCATE( EM_FAC_ST( N_EMIS_ISTR,N_EM_SRM ) )
          DO ISTR = 1,N_EMIS_ISTR
-            DO ISRC = 1,N_EM_SRC
+            DO ISRM = 1,N_EM_SRM
                ! First load emission factor structure
                NFAC = 1
                DO IFAC = 2,N_SCALEFAC
-                   IF ( EM_OP( ISTR,ISRC,IFAC ) .EQ. '' ) EXIT
+                   IF ( EM_OP( ISTR,ISRM,IFAC ) .EQ. '' ) EXIT
                  NFAC = NFAC + 1  
                END DO
 
         
-               EM_FAC_ST( ISTR,ISRC )%LEN = NFAC
-               ALLOCATE( EM_FAC_ST( ISTR,ISRC )%FAC( NFAC ) )
-               ALLOCATE( EM_FAC_ST( ISTR,ISRC )%BULK( NFAC ) )
-               ALLOCATE( EM_FAC_ST( ISTR,ISRC )%REG( NFAC ) )
-               ALLOCATE( EM_FAC_ST( ISTR,ISRC )%OP( NFAC ) )
+               EM_FAC_ST( ISTR,ISRM )%LEN = NFAC
+               ALLOCATE( EM_FAC_ST( ISTR,ISRM )%FAC( NFAC ) )
+               ALLOCATE( EM_FAC_ST( ISTR,ISRM )%BULK( NFAC ) )
+               ALLOCATE( EM_FAC_ST( ISTR,ISRM )%REG( NFAC ) )
+               ALLOCATE( EM_FAC_ST( ISTR,ISRM )%OP( NFAC ) )
                  
-               EM_FAC_ST( ISTR,ISRC )%FAC  = 0.
-               EM_FAC_ST( ISTR,ISRC )%BULK = 0.
-               EM_FAC_ST( ISTR,ISRC )%REG  = 1
-               EM_FAC_ST( ISTR,ISRC )%OP   = 0
+               EM_FAC_ST( ISTR,ISRM )%FAC  = 0.
+               EM_FAC_ST( ISTR,ISRM )%BULK = 0.
+               EM_FAC_ST( ISTR,ISRM )%REG  = 1
+               EM_FAC_ST( ISTR,ISRM )%OP   = 0
         
                DO IFAC = 1,NFAC
-                 EM_FAC_ST( ISTR,ISRC )%FAC( IFAC )    = EM_FAC ( ISTR, ISRC, IFAC ) 
-                 EM_FAC_ST( ISTR,ISRC )%BULK( IFAC )   = EM_FAC_BULK( ISTR, ISRC, IFAC )
-                 EM_FAC_ST( ISTR,ISRC )%REG( IFAC )    = EM_REG( ISTR, ISRC, IFAC )
+                 EM_FAC_ST( ISTR,ISRM )%FAC( IFAC )    = EM_FAC ( ISTR, ISRM, IFAC ) 
+                 EM_FAC_ST( ISTR,ISRM )%BULK( IFAC )   = EM_FAC_BULK( ISTR, ISRM, IFAC )
+                 EM_FAC_ST( ISTR,ISRM )%REG( IFAC )    = EM_REG( ISTR, ISRM, IFAC )
                       
-                   SELECT CASE ( EM_OP( ISTR, ISRC, IFAC ) )
+                   SELECT CASE ( EM_OP( ISTR, ISRM, IFAC ) )
                    CASE ( 'a' )
-                       EM_FAC_ST( ISTR,ISRC )%OP( IFAC )    = 1
+                       EM_FAC_ST( ISTR,ISRM )%OP( IFAC )    = 1
                    CASE ( 'm' )
-                       EM_FAC_ST( ISTR,ISRC )%OP( IFAC )    = 2
+                       EM_FAC_ST( ISTR,ISRM )%OP( IFAC )    = 2
                    CASE ( 'o' )
-                       EM_FAC_ST( ISTR,ISRC )%OP( IFAC )    = 3
+                       EM_FAC_ST( ISTR,ISRM )%OP( IFAC )    = 3
                  END SELECT
                END DO
             END DO
@@ -1482,12 +1469,12 @@ C-----------------------------------------------------------------------
             IF ( LGAS_DIFF ) UNIT_FAC_1 = 1.0 / DIFF_MW( IDIFF )
 
             ! Now Get Phase of Emission Surrogate
-            DO ISRC = 1, N_EM_SRC
-              ISUR  = MAP_EMtoSURR( ISTR,ISRC )
+            DO ISRM = 1, N_EM_SRM
+              ISUR  = MAP_EMtoSURR( ISTR,ISRM )
               IF ( ISUR .EQ. 0 ) CYCLE
 
-              LGAS_SURR = ( EM_FILE_SURR( ISRC )%PHASE( ISUR ) .EQ. 'GAS' )
-              SURR_MW   = EM_FILE_SURR( ISRC )%MW( ISUR ) ! MW [g mol-1]
+              LGAS_SURR = ( EM_FILE_SURR( ISRM )%PHASE( ISUR ) .EQ. 'GAS' )
+              SURR_MW   = EM_FILE_SURR( ISRM )%MW( ISUR ) ! MW [g mol-1]
 
               UNIT_FAC_2 = UNIT_FAC_1
               IF ( LGAS_SURR ) UNIT_FAC_2 = UNIT_FAC_2 * SURR_MW
@@ -1496,10 +1483,10 @@ C-----------------------------------------------------------------------
               ! and 'overwrite' scale factors. Do not apply to 'modify'
               ! scale factors because then the conversion will be double
               ! counted.
-              DO IFAC = 1,EM_FAC_ST( ISTR,ISRC )%LEN
-                 IF ( EM_FAC_ST( ISTR,ISRC )%OP( IFAC ) .NE. 2 ) 
-     &                EM_FAC_ST( ISTR,ISRC )%FAC( IFAC ) = 
-     &                     EM_FAC_ST( ISTR,ISRC )%FAC( IFAC ) * UNIT_FAC_2
+              DO IFAC = 1,EM_FAC_ST( ISTR,ISRM )%LEN
+                 IF ( EM_FAC_ST( ISTR,ISRM )%OP( IFAC ) .NE. 2 ) 
+     &                EM_FAC_ST( ISTR,ISRM )%FAC( IFAC ) = 
+     &                     EM_FAC_ST( ISTR,ISRM )%FAC( IFAC ) * UNIT_FAC_2
               END DO
             END DO
          END DO
@@ -1510,21 +1497,21 @@ C-----------------------------------------------------------------------
             CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
          END IF
 
-! Print a message for each emissions source surrogate that is not used.
+! Print a message for each emissions stream surrogate that is not used.
          WRITE( LOGDEV, '(/,5x,A)' ) '|> Checking for unused Emissions Surrogates'
          WRITE( LOGDEV, '(5x,A)'   ),'==========================================='
 
          LERROR = .FALSE.
-         DO ISRC = 1,N_EM_SRC
-             N_UNUSED = COUNT( .NOT. EM_FILE_SURR( ISRC )%USED( : ) )
-             WRITE( LOGDEV, '(5x,4A,I2,A)' ), TRIM( EM_FILE_LAB( ISRC )),' | ',
-     &              TRIM(EM_FILE_DESC( ISRC )),': ', N_UNUSED,' unused surrogates.'
+         DO ISRM = 1,N_EM_SRM
+             N_UNUSED = COUNT( .NOT. EM_FILE_SURR( ISRM )%USED( : ) )
+             WRITE( LOGDEV, '(5x,4A,I2,A)' ), TRIM( EM_FILE_LAB( ISRM )),' | ',
+     &              TRIM(EM_FILE_DESC( ISRM )),': ', N_UNUSED,' unused surrogates.'
              IF ( N_UNUSED .GT. 0 ) THEN
                  LERROR = .TRUE.
 
-                 DO ISUR = 1,EM_FILE_SURR( ISRC )%LEN
-                   IF ( .NOT. EM_FILE_SURR( ISRC )%USED( ISUR ) ) 
-     &               WRITE( LOGDEV, '(10x,A)'), EM_FILE_SURR( ISRC )%ARRY( ISUR )
+                 DO ISUR = 1,EM_FILE_SURR( ISRM )%LEN
+                   IF ( .NOT. EM_FILE_SURR( ISRM )%USED( ISUR ) ) 
+     &               WRITE( LOGDEV, '(10x,A)'), EM_FILE_SURR( ISRM )%ARRY( ISUR )
                  END DO
              END IF
              WRITE( LOGDEV, '()' )
@@ -1541,45 +1528,45 @@ C-----------------------------------------------------------------------
          MAP_EMtoAERO = MAP_EMtoAERO( 1:N_EMIS_ISTR )
 
 
-! An Emissions Scaling Map Now Exists as a 2D Array (NSPECIES x NSOURCES).
+! An Emissions Scaling Map Now Exists as a 2D Array (NSPECIES x NSTREAMS).
 ! For every element, there is an associated surrogate and scale factor
 ! to be applied. For the aerosols, the scale factor will be modified
 ! later in order to split the mass into the appropriate modes.
 
 
 ! Print out the Tables of CMAQ Emissions Instructions organized by each 
-! emission source and then by CMAQ internal species.
+! emission stream and then by CMAQ internal species.
 
          WRITE( LOGDEV, '(/,/,5x,A)' ),'|> EMISSIONS SCALING DIAGNOSTIC:'
          WRITE( LOGDEV, '(5x,A)'   ),'=================================='
          WRITE( LOGDEV,'(7x,A,/,13x,A)' ),'Note: these are populated using rules from the',
      &                              'Emission Control File Supplied by the User.'
-         DO ISRC = 1,N_EM_SRC
+         DO ISRM = 1,N_EM_SRM
            
            ! Print summary information about each Sector including
            ! the label and the available aerosol modes
            WRITE( LOGDEV, '(/,5x,A,A)'   ),'>',REPEAT('-',80 )
            WRITE( LOGDEV,'(5x,A,A,A,A,A2,I2.2,A1)' ),
-     &            'Source Type: "',TRIM(EM_FILE_DESC( ISRC )),
-     &            '" | Sector Label: ',TRIM(EM_FILE_LAB( ISRC ) ),' (',ISRC,')'
+     &            'Stream Type: "',TRIM(EM_FILE_DESC( ISRM )),
+     &            '" | Sector Label: ',TRIM(EM_FILE_LAB( ISRM ) ),' (',ISRM,')'
 
            WRITE( LOGDEV, '(/8x,A)' ),'Table of Aerosol Size Distributions Available for Use Sector-Wide.'
            WRITE( LOGDEV, '(8x,A)' ),'Note that Mode 1 is reserved for gas-phase species and surrogates.'
            WRITE( LOGDEV, '(10x,A,2x,A,2x,A)' ), 'Number','Surrogate Mode','Reference Mode (see AERO_DATA.F)'
            WRITE( LOGDEV, '(10x,A,2x,A,2x,A)' ), '------','--------------','--------------------------------'
-           DO ISD = 2,EM_SRC_SD( ISRC )%LEN
-              IEM = EM_SRC_SD( ISRC )%REF( ISD )
+           DO ISD = 2,EM_STREAM_SIZE( ISRM )%LEN
+              IEM = EM_STREAM_SIZE( ISRM )%REF( ISD )
               REFNAME = ''
               IF ( IEM .GT. 0 ) THEN
                   REFNAME = EM_AERO_REF( IEM )%NAME
               END IF
 
               WRITE( LOGDEV,'(8x,I3,5x,A18,2x,A18,2x,A)' ),ISD, 
-     &               EM_SRC_SD( ISRC )%NAME( ISD )( 1:16 ), TRIM( REFNAME )
+     &               EM_STREAM_SIZE( ISRM )%NAME( ISD )( 1:16 ), TRIM( REFNAME )
            END DO
 
 
-           ! Finally Print Every Instruction for this Source
+           ! Finally Print Every Instruction for this Stream
            WRITE( LOGDEV, '(/,8x,A,5x,A,2x,A,9x,A,13x,A,1x,A)' ),
      &            'CMAQ Species','Phase/Mode','Surrogate','Region','Op','Scale Factor'
            WRITE( LOGDEV, '(  8x,A,5x,A,2x,A,9x,A,13x,A,1x,A)' ),
@@ -1587,41 +1574,41 @@ C-----------------------------------------------------------------------
 
            DO IDIFF = 1,N_SPC_DIFF
              L_WDIFF = .TRUE.
-             DO ISD = 1,EM_SRC_SD( ISRC )%LEN
+             DO ISD = 1,EM_STREAM_SIZE( ISRM )%LEN
                L_WISD = .TRUE.
-               DO ISUR = 1,EM_FILE_SURR( ISRC )%LEN
+               DO ISUR = 1,EM_FILE_SURR( ISRM )%LEN
                  DO ISTR = 1,N_EMIS_ISTR
                    IF ( EM_SPEC( ISTR ) .EQ. DIFF_SPC( IDIFF ) .AND.
-     &                  MAP_EMtoSD( ISTR,ISRC ) .EQ. ISD       .AND.
-     &                  MAP_EMtoSURR( ISTR,ISRC ) .EQ. ISUR ) THEN
+     &                  MAP_EMtoSD( ISTR,ISRM ) .EQ. ISD       .AND.
+     &                  MAP_EMtoSURR( ISTR,ISRM ) .EQ. ISUR ) THEN
                      IF ( L_WDIFF ) THEN
                         WRITE( LOGDEV, '(10x,A,1x,A,1x,A,1x,A,1x,A,2x,F6.3)' ),
      &                         EM_SPEC( ISTR ),
-     &                         EM_SRC_SD( ISRC )%NAME( ISD )(1:10),
-     &                         EM_SURR( ISTR, ISRC ),
-     &                         EM_REGIONS( EM_FAC_ST( ISTR,ISRC )%REG( 1 ) )%LABEL(1:18),
-     &                         EM_OP( ISTR,ISRC,1 ), EM_FAC_ST( ISTR, ISRC )%BULK( 1 )
+     &                         EM_STREAM_SIZE( ISRM )%NAME( ISD )(1:10),
+     &                         EM_SURR( ISTR, ISRM ),
+     &                         EM_REGIONS( EM_FAC_ST( ISTR,ISRM )%REG( 1 ) )%LABEL(1:18),
+     &                         EM_OP( ISTR,ISRM,1 ), EM_FAC_ST( ISTR, ISRM )%BULK( 1 )
                         L_WDIFF = .FALSE.
                         L_WISD  = .FALSE.
                       ELSE IF ( L_WISD ) THEN
                         WRITE( LOGDEV, '(27x,A,1x,A,1x,A,1x,A,2x,F6.3)' ),
-     &                         EM_SRC_SD( ISRC )%NAME( ISD )(1:10),
-     &                         EM_SURR( ISTR, ISRC ),
-     &                         EM_REGIONS( EM_FAC_ST( ISTR,ISRC )%REG( 1 ) )%LABEL(1:18),
-     &                         EM_OP( ISTR,ISRC,1 ), EM_FAC_ST( ISTR, ISRC )%BULK( 1 )
+     &                         EM_STREAM_SIZE( ISRM )%NAME( ISD )(1:10),
+     &                         EM_SURR( ISTR, ISRM ),
+     &                         EM_REGIONS( EM_FAC_ST( ISTR,ISRM )%REG( 1 ) )%LABEL(1:18),
+     &                         EM_OP( ISTR,ISRM,1 ), EM_FAC_ST( ISTR, ISRM )%BULK( 1 )
                         L_WISD = .FALSE.
                       ELSE 
                         WRITE( LOGDEV, '(38x,A,1x,A,1x,A,2x,F6.3)' ),
-     &                         EM_SURR( ISTR, ISRC ),
-     &                         EM_REGIONS( EM_FAC_ST( ISTR,ISRC )%REG( 1 ) )%LABEL(1:18),
-     &                         EM_OP( ISTR,ISRC,1 ), EM_FAC_ST( ISTR, ISRC )%BULK( 1 )
+     &                         EM_SURR( ISTR, ISRM ),
+     &                         EM_REGIONS( EM_FAC_ST( ISTR,ISRM )%REG( 1 ) )%LABEL(1:18),
+     &                         EM_OP( ISTR,ISRM,1 ), EM_FAC_ST( ISTR, ISRM )%BULK( 1 )
                       END IF    
 
-                      IF ( EM_FAC_ST( ISTR,ISRC )%LEN .GT. 1 ) THEN
-                      DO IFAC = 2,EM_FAC_ST( ISTR,ISRC )%LEN
+                      IF ( EM_FAC_ST( ISTR,ISRM )%LEN .GT. 1 ) THEN
+                      DO IFAC = 2,EM_FAC_ST( ISTR,ISRM )%LEN
                          WRITE( LOGDEV, '(55x,A,1x,A,2x,F6.3)' ),
-     &                          EM_REGIONS( EM_FAC_ST( ISTR,ISRC )%REG( IFAC ) )%LABEL(1:18),
-     &                          EM_OP( ISTR,ISRC,IFAC ), EM_FAC_ST( ISTR, ISRC )%BULK( IFAC )
+     &                          EM_REGIONS( EM_FAC_ST( ISTR,ISRM )%REG( IFAC ) )%LABEL(1:18),
+     &                          EM_OP( ISTR,ISRM,IFAC ), EM_FAC_ST( ISTR, ISRM )%BULK( IFAC )
                       END DO
                       END IF
 
@@ -1645,7 +1632,7 @@ C-----------------------------------------------------------------------
 C Initialize the counter for the total nbumber of emissions files. Also
 C allocate memory for the vectors storing the labels of emission files
 C and the maps from master ID number to the relative ID number for each
-C gridded and point source file, i.e. Emissions File 10 is also known as
+C gridded and point stream file, i.e. Emissions File 10 is also known as
 C Point Source file 2.
 C
          USE AERO_DATA, only : MGPG, GPKG
@@ -1660,7 +1647,7 @@ C
 
          INTEGER, INTENT(IN)  :: JDATE, JTIME
 
-         INTEGER IOS, LOGDEV, ISRC, N
+         INTEGER IOS, LOGDEV, ISRM, N
 
          CHARACTER( 16 )  :: CTM_BIOGEMIS = 'CTM_BIOGEMIS'    ! Let model proceed even if
          CHARACTER( 16 )  :: CTM_LTNG_NO = 'CTM_LTNG_NO'    ! Let model proceed even if
@@ -1688,7 +1675,7 @@ C Retrieve the number of each type of emission file
      &                     'Number of file groups',0, IOS )
          N_FILE_TR = ENVINT( 'N_EMIS_TR',
      &                     'Number of Tracer Emission Files',0, IOS )
-         N_EM_SRC = N_FILE_GR + NPTGRPS + N_FILE_TR
+         N_EM_SRM = N_FILE_GR + NPTGRPS + N_FILE_TR
  
 C Are Biogenic Emissions Calculated On-Line
          BIOGEMIS = .FALSE.
@@ -1706,7 +1693,7 @@ C Are Biogenic Emissions Calculated On-Line
             XMSG = 'Environment variable not set ... Using default:'
             WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
          END IF
-         IF ( BIOGEMIS ) N_EM_SRC = N_EM_SRC + 1
+         IF ( BIOGEMIS ) N_EM_SRM = N_EM_SRM + 1
 
 C Marine gas emissions; use in-line marine gas option only if CB05EH51 is used
          IF ( INDEX( MECHNAME, 'CB05EH51' ) .GT. 0 ) then
@@ -1714,121 +1701,121 @@ C Marine gas emissions; use in-line marine gas option only if CB05EH51 is used
          ELSE
             MGEM = .FALSE.
          END IF
-         IF ( MGEM ) N_EM_SRC = N_EM_SRC + 1
+         IF ( MGEM ) N_EM_SRM = N_EM_SRM + 1
 
 C Determine if Lightning NO is Requested
          VARDESC = 'Flag for lightning emissions'
          LTNG_NO = ENVYN( CTM_LTNG_NO, VARDESC, .FALSE., STATUS )
-         IF ( LTNG_NO ) N_EM_SRC = N_EM_SRC + 1
+         IF ( LTNG_NO ) N_EM_SRM = N_EM_SRM + 1
  
 C Determine if Sea Spray Aerosol is Requested
          SS_AERO = ENVYN( 'CTM_SS_AERO', 'Flag for Sea Spray Aerosol emissions',
      &                   .TRUE., STATUS )
-         IF ( SS_AERO ) N_EM_SRC = N_EM_SRC + 1
+         IF ( SS_AERO ) N_EM_SRM = N_EM_SRM + 1
 
 C Determine if WindBlown Dust is Requested
          WB_DUST = ENVYN( 'CTM_WB_DUST', 'Flag for windblown dust emissions',
      &                   .TRUE., STATUS )
-         IF ( WB_DUST ) N_EM_SRC = N_EM_SRC + 1
+         IF ( WB_DUST ) N_EM_SRM = N_EM_SRM + 1
 
-C Turn Back Now if N_EM_SRC Equals Zero (i.e. there are no emissions
-         IF ( N_EM_SRC .EQ. 0 ) RETURN
+C Turn Back Now if N_EM_SRM Equals Zero (i.e. there are no emissions
+         IF ( N_EM_SRM .EQ. 0 ) RETURN
 
 C Allocate Emission File Structure Variables
-         Allocate( EM_FILE_NAME( N_EM_SRC ) )
-         Allocate( EM_FILE_LAB ( N_EM_SRC ) )
-         Allocate( EM_FILE_TYPE( N_EM_SRC ) )
-         Allocate( EM_FILE_ITYPE( N_EM_SRC ) )
-         Allocate( EM_FILE_DESC( N_EM_SRC ) )
-         Allocate( EM_FILE_LAPPLY( N_EM_SRC ) )
-         Allocate( IGSRC( N_EM_SRC ) )
-         Allocate( IPSRC( N_EM_SRC ) )
-         Allocate( ITSRC( N_EM_SRC ) )
-         Allocate( MAP_PTtoISRC( NPTGRPS ) )
-         Allocate( EM_FILE_SURR( N_EM_SRC ) )
-         Allocate( EM_GRID_LAYS( N_EM_SRC ) )
-         Allocate( CONVEM_GAS( N_EM_SRC ) )
-         Allocate( CONVEM_PM_MASS( N_EM_SRC ) )
-         Allocate( EMIS_GAS_UNITS( N_EM_SRC ) )
-         Allocate( EMIS_AER_UNITS( N_EM_SRC ) )
+         Allocate( EM_FILE_NAME( N_EM_SRM ) )
+         Allocate( EM_FILE_LAB ( N_EM_SRM ) )
+         Allocate( EM_FILE_TYPE( N_EM_SRM ) )
+         Allocate( EM_FILE_ITYPE( N_EM_SRM ) )
+         Allocate( EM_FILE_DESC( N_EM_SRM ) )
+         Allocate( EM_FILE_LAPPLY( N_EM_SRM ) )
+         Allocate( IGSRM( N_EM_SRM ) )
+         Allocate( IPSRM( N_EM_SRM ) )
+         Allocate( ITSRM( N_EM_SRM ) )
+         Allocate( MAP_PTtoISRM( NPTGRPS ) )
+         Allocate( EM_FILE_SURR( N_EM_SRM ) )
+         Allocate( EM_GRID_LAYS( N_EM_SRM ) )
+         Allocate( CONVEM_GAS( N_EM_SRM ) )
+         Allocate( CONVEM_PM_MASS( N_EM_SRM ) )
+         Allocate( EMIS_GAS_UNITS( N_EM_SRM ) )
+         Allocate( EMIS_AER_UNITS( N_EM_SRM ) )
  
 C Assign Attributes to Emission File Records. Other records will be 
 C populated in individual subroutines. For example, opemis and
 C stkemis_init.
-         ISRC = 0
+         ISRM = 0
          EMIS_GAS_UNITS = "Unknown"
          EMIS_AER_UNITS = "Unknown"
          EM_FILE_LAPPLY = .TRUE.
 
          ! Gridded Emission Files
          IF ( N_FILE_GR .GT. 0 ) THEN
-           EM_FILE_TYPE( ISRC+1:ISRC+N_FILE_GR ) = 'GRID'
-           EM_FILE_ITYPE( ISRC+1:ISRC+N_FILE_GR ) = 1
+           EM_FILE_TYPE( ISRM+1:ISRM+N_FILE_GR ) = 'GRID'
+           EM_FILE_ITYPE( ISRM+1:ISRM+N_FILE_GR ) = 1
            DO N = 1, N_FILE_GR
-              ISRC = ISRC + 1
-              IGSRC( ISRC ) = N
-              WRITE( EM_FILE_DESC( ISRC ), '(A,I2)' ),
+              ISRM = ISRM + 1
+              IGSRM( ISRM ) = N
+              WRITE( EM_FILE_DESC( ISRM ), '(A,I2)' ),
      &           'Gridded Area Emissions File ', N
              
               WRITE( VLAB,'( "GR_EMIS_LAB_",I2.2 )' ) N
               CALL ENVSTR( VLAB, 'Gridded Emission File Label',VLAB,
-     &                     EM_FILE_LAB( ISRC ), IOS )
+     &                     EM_FILE_LAB( ISRM ), IOS )
 
-              WRITE( EM_FILE_NAME( ISRC ),'( "GR_EMIS_",I2.2 )' ) N
+              WRITE( EM_FILE_NAME( ISRM ),'( "GR_EMIS_",I2.2 )' ) N
 
               WRITE( VLAB,'( "GR_EMIS_APPLY_",I2.2 )' ) N
-              EM_FILE_LAPPLY( ISRC ) = ENVYN( VLAB, 
+              EM_FILE_LAPPLY( ISRM ) = ENVYN( VLAB, 
      &             'Gridded Emission File Application',.TRUE., IOS )
 
-              CONVEM_GAS( ISRC ) = 1.0
-              CONVEM_PM_MASS ( ISRC ) = 1.0
+              CONVEM_GAS( ISRM ) = 1.0
+              CONVEM_PM_MASS ( ISRM ) = 1.0
            END DO
          END IF
          
          ! In-Line Point Source Files
          IF ( NPTGRPS .GT. 0 ) THEN 
-            EM_FILE_TYPE( ISRC+1:ISRC+NPTGRPS ) = 'POINT'
-            EM_FILE_ITYPE( ISRC+1:ISRC+NPTGRPS ) = 2
+            EM_FILE_TYPE( ISRM+1:ISRM+NPTGRPS ) = 'POINT'
+            EM_FILE_ITYPE( ISRM+1:ISRM+NPTGRPS ) = 2
             DO N = 1, NPTGRPS
-               ISRC = ISRC + 1
-               IPSRC( ISRC ) = N
-               MAP_PTtoISRC( N ) = ISRC
-               WRITE( EM_FILE_DESC( ISRC ), '(A,I2)' ),
-     &         'Point Emissions File ', IPSRC( ISRC )
+               ISRM = ISRM + 1
+               IPSRM( ISRM ) = N
+               MAP_PTtoISRM( N ) = ISRM
+               WRITE( EM_FILE_DESC( ISRM ), '(A,I2)' ),
+     &         'Point Emissions File ', IPSRM( ISRM )
               
                WRITE( VLAB,'( "STK_EMIS_LAB_",I2.2 )' ) N
                CALL ENVSTR( VLAB, 'Stack Emission File Label',VLAB,
-     &                      EM_FILE_LAB( ISRC ), IOS )
+     &                      EM_FILE_LAB( ISRM ), IOS )
  
-               WRITE( EM_FILE_NAME( ISRC ),'( "STK_EMIS_",I2.2 )' ) N
+               WRITE( EM_FILE_NAME( ISRM ),'( "STK_EMIS_",I2.2 )' ) N
                
                WRITE( VLAB,'( "STK_EMIS_APPLY_",I2.2 )' ) N
-               EM_FILE_LAPPLY( ISRC ) = ENVYN( VLAB, 
+               EM_FILE_LAPPLY( ISRM ) = ENVYN( VLAB, 
      &               'Stack Emission File Application',.TRUE., IOS )
  
-               CONVEM_GAS( ISRC ) = 1.0
-               CONVEM_PM_MASS ( ISRC ) = 1.0
+               CONVEM_GAS( ISRM ) = 1.0
+               CONVEM_PM_MASS ( ISRM ) = 1.0
             END DO
          END IF
          
          ! Tracer Emissions
          IF ( N_FILE_TR .GT. 0 ) THEN 
             EM_TRAC = .TRUE.
-            EM_FILE_TYPE( ISRC+1:ISRC+N_FILE_TR ) = 'TRAC'
-            EM_FILE_ITYPE( ISRC+1:ISRC+N_FILE_TR ) = 3
+            EM_FILE_TYPE( ISRM+1:ISRM+N_FILE_TR ) = 'TRAC'
+            EM_FILE_ITYPE( ISRM+1:ISRM+N_FILE_TR ) = 3
             DO N = 1, N_FILE_TR
-               ISRC = ISRC + 1
-               ITSRC( ISRC ) = N
-               WRITE( EM_FILE_DESC( ISRC ), '(A,I2)' ),
+               ISRM = ISRM + 1
+               ITSRM( ISRM ) = N
+               WRITE( EM_FILE_DESC( ISRM ), '(A,I2)' ),
      &           'Gridded Tracer Emissions File ', N
 
                WRITE( VLAB,'( "TR_EMIS_LAB_",I2.2 )' ) N
                CALL ENVSTR( VLAB, 'Tracer Emission File Label',VLAB,
-     &                      EM_FILE_LAB( ISRC ), IOS )
+     &                      EM_FILE_LAB( ISRM ), IOS )
 
-               WRITE( EM_FILE_NAME( ISRC ),'( "TR_EMIS_",I2.2 )' ) N
-               CONVEM_GAS( ISRC ) = 1.0
-               CONVEM_PM_MASS ( ISRC ) = 1.0
+               WRITE( EM_FILE_NAME( ISRM ),'( "TR_EMIS_",I2.2 )' ) N
+               CONVEM_GAS( ISRM ) = 1.0
+               CONVEM_PM_MASS ( ISRM ) = 1.0
             END DO
          ELSE
             EM_TRAC = .FALSE.
@@ -1836,70 +1823,70 @@ C stkemis_init.
          
          ! Online Biogenic Emissions (BEIS)
          IF ( BIOGEMIS ) THEN
-             ISRC = ISRC + 1
-             EM_FILE_TYPE( ISRC ) = 'BIOG'
-             EM_FILE_ITYPE( ISRC ) = 4
-             EM_FILE_LAB ( ISRC ) = 'BIOG'
-             EM_FILE_DESC( ISRC ) = 'Biogenic Emissions'
-             CONVEM_GAS( ISRC ) = 1.0E-3
-             CONVEM_PM_MASS ( ISRC ) = 1.0
-             EMIS_GAS_UNITS( ISRC ) = "Unknown"
+             ISRM = ISRM + 1
+             EM_FILE_TYPE( ISRM ) = 'BIOG'
+             EM_FILE_ITYPE( ISRM ) = 4
+             EM_FILE_LAB ( ISRM ) = 'BIOG'
+             EM_FILE_DESC( ISRM ) = 'Biogenic Emissions'
+             CONVEM_GAS( ISRM ) = 1.0E-3
+             CONVEM_PM_MASS ( ISRM ) = 1.0
+             EMIS_GAS_UNITS( ISRM ) = "Unknown"
 
-             IBIOSRC = ISRC
+             IBIOSRM = ISRM
          END IF
 
          ! Online Marine Gas Emissions
          IF ( MGEM ) THEN
-             ISRC = ISRC + 1
-             EM_FILE_TYPE( ISRC ) = 'MGEM'
-             EM_FILE_ITYPE( ISRC ) = 5
-             EM_FILE_LAB ( ISRC ) = 'MGEM'
-             EM_FILE_DESC( ISRC ) = 'Marine Gas Emissions'
-             CONVEM_GAS( ISRC ) = 1.0E-3        ! mol/s -> kmol/s
-             CONVEM_PM_MASS ( ISRC ) = 1.0
-             EMIS_GAS_UNITS( ISRC ) = "Unknown"
+             ISRM = ISRM + 1
+             EM_FILE_TYPE( ISRM ) = 'MGEM'
+             EM_FILE_ITYPE( ISRM ) = 5
+             EM_FILE_LAB ( ISRM ) = 'MGEM'
+             EM_FILE_DESC( ISRM ) = 'Marine Gas Emissions'
+             CONVEM_GAS( ISRM ) = 1.0E-3        ! mol/s -> kmol/s
+             CONVEM_PM_MASS ( ISRM ) = 1.0
+             EMIS_GAS_UNITS( ISRM ) = "Unknown"
 
-             IMGSRC = ISRC
+             IMGSRM = ISRM
          END IF
 
          ! Online Lightning NO Emissions
          IF ( LTNG_NO ) THEN
-             ISRC = ISRC + 1
-             EM_FILE_TYPE( ISRC ) = 'LTNG'
-             EM_FILE_ITYPE( ISRC ) = 6
-             EM_FILE_LAB ( ISRC ) = 'LTNG'
-             EM_FILE_DESC( ISRC ) = 'Lightning NO Emissions'
-             CONVEM_GAS( ISRC ) = 1.0E-3
-             CONVEM_PM_MASS ( ISRC ) = 1.0
-             EMIS_GAS_UNITS( ISRC ) = "Unknown"
+             ISRM = ISRM + 1
+             EM_FILE_TYPE( ISRM ) = 'LTNG'
+             EM_FILE_ITYPE( ISRM ) = 6
+             EM_FILE_LAB ( ISRM ) = 'LTNG'
+             EM_FILE_DESC( ISRM ) = 'Lightning NO Emissions'
+             CONVEM_GAS( ISRM ) = 1.0E-3
+             CONVEM_PM_MASS ( ISRM ) = 1.0
+             EMIS_GAS_UNITS( ISRM ) = "Unknown"
 
-             ILTSRC = ISRC
+             ILTSRM = ISRM
          END IF
 
          ! Sea Spray Aerosol Emissions
          IF ( SS_AERO ) THEN
-             ISRC = ISRC + 1
-             EM_FILE_TYPE( ISRC ) = 'ASEA'
-             EM_FILE_ITYPE( ISRC ) = 7
-             EM_FILE_LAB ( ISRC ) = 'SEASPRAY'
-             EM_FILE_DESC( ISRC ) = 'Sea Spray Aerosol Emissions'
-             CONVEM_GAS( ISRC ) = 1.0
-             CONVEM_PM_MASS ( ISRC ) = MGPG
-             EMIS_AER_UNITS( ISRC ) = "g m-3 s-1"
-             ISEASRC = ISRC
+             ISRM = ISRM + 1
+             EM_FILE_TYPE( ISRM ) = 'ASEA'
+             EM_FILE_ITYPE( ISRM ) = 7
+             EM_FILE_LAB ( ISRM ) = 'SEASPRAY'
+             EM_FILE_DESC( ISRM ) = 'Sea Spray Aerosol Emissions'
+             CONVEM_GAS( ISRM ) = 1.0
+             CONVEM_PM_MASS ( ISRM ) = MGPG
+             EMIS_AER_UNITS( ISRM ) = "g m-3 s-1"
+             ISEASRM = ISRM
          END IF
 
          ! Wind-Blown Dust Emissions
          IF ( WB_DUST ) THEN
-             ISRC = ISRC + 1
-             EM_FILE_TYPE( ISRC ) = 'DUST'
-             EM_FILE_ITYPE( ISRC ) = 8
-             EM_FILE_LAB ( ISRC ) = 'WBDUST'
-             EM_FILE_DESC( ISRC ) = 'Wind-Blown Dust Emissions'
-             CONVEM_GAS( ISRC ) = 1.0
-             CONVEM_PM_MASS ( ISRC ) = MGPG
-             EMIS_AER_UNITS( ISRC ) = "g m-3 s-1"
-             IDUSTSRC = ISRC
+             ISRM = ISRM + 1
+             EM_FILE_TYPE( ISRM ) = 'DUST'
+             EM_FILE_ITYPE( ISRM ) = 8
+             EM_FILE_LAB ( ISRM ) = 'WBDUST'
+             EM_FILE_DESC( ISRM ) = 'Wind-Blown Dust Emissions'
+             CONVEM_GAS( ISRM ) = 1.0
+             CONVEM_PM_MASS ( ISRM ) = MGPG
+             EMIS_AER_UNITS( ISRM ) = "g m-3 s-1"
+             IDUSTSRM = ISRM
          END IF
           
 
