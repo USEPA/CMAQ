@@ -12,7 +12,7 @@ The Community Multiscale Air Quality (CMAQ) Model version 5.2.1 is a minor updat
 ## Transport  
   * [Grid check tolerance during advection](Grid_Check_Tolerance.md)   
   * [HDIFF hang with offline CMAQ](HDIFF_hang.md) (Jesse)  
-  * [Remove SWAP routines](SWAP_routines.md) (David)  
+  * [Remove SWAP routines](SWAP_routines.md)  
   * [Unique INTERPX offsets for METCRO2D](INTERPX.md)  
 
 ## Emissions and Air-Surface Exchange  
@@ -21,7 +21,7 @@ The Community Multiscale Air Quality (CMAQ) Model version 5.2.1 is a minor updat
   * [Allow Emissions Check to have no point sources](Emiss_Check_Zero_PT_Sources.md)  
 
 ## Chemistry  
-  * [Remove duplicative heterogeneous uptake of N2O5](Duplicate_N2O5.md) (Sarwar)  
+  * [Remove duplicative heterogeneous uptake of N2O5](Duplicate_N2O5.md)   
   * [Make generalized solvers work with intel version 17](Intel17_Solver_Compatibility.md)   
 
 ## Aerosol Processes  
