@@ -3,10 +3,11 @@
 **Author/P.O.C.:**, [David Wong](mailto:wong.david@epa.gov), Computational Exposure Division, U.S. EPA  
 
 ## Brief Description
+To conform and preserve original SE library design, SWAP routines were directly replaced by original SE communication routines.
 
 
 ## Significance and Impact
-
+No impact on numerical result.
 
 ## Affected Files:
 
