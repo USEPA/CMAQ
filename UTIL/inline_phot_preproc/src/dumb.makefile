@@ -94,6 +94,7 @@ endif
 
 ifndef USE_RXNS_MODULES
  OBJECTS =\
+ module_envvar.o \
  BIN_DATA.o \
  CSQY_PARAMETERS.o \
  ALBEDO_REFER_DATA.o \
@@ -112,11 +113,11 @@ ifndef USE_RXNS_MODULES
  spectral_reflect.o \
  wvbin_average-b.o \
  wvbin_average.o \
- xc_qy_td_effect.o \
- convert_case.o \
- nameval.o
+ xc_qy_td_effect_v3.o \
+ convert_case.o 
 else
  OBJECTS =\
+ module_envvar.o \
  BIN_DATA.o \
  RXNS_DATA_MODULE.o \
  CSQY_PARAMETERS.o \
@@ -137,8 +138,7 @@ else
  wvbin_average-b.o \
  wvbin_average.o \
  xc_qy_td_effect_v3.o \
- convert_case.o \
- nameval.o
+ convert_case.o 
 endif
  
 # wrbf12d.o \
