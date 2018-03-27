@@ -33,6 +33,7 @@ C
 C*********************************************************************
 
 
+      USE GET_ENV_VARS       
       USE BIN_DATA
       USE CSQY_PARAMETERS
 
