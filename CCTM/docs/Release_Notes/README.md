@@ -11,7 +11,6 @@ The Community Multiscale Air Quality (CMAQ) Model version 5.2.1 is a minor updat
 
 ## Transport  
   * [Grid check tolerance during advection](Grid_Check_Tolerance.md)   
-  * [HDIFF hang with offline CMAQ](HDIFF_hang.md) (Jesse)  
   * [Remove SWAP routines](SWAP_routines.md)  
   * [Unique INTERPX offsets for METCRO2D](INTERPX.md)  
 
