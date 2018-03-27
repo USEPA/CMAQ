@@ -98,7 +98,10 @@
       INTEGER,         ALLOCATABLE :: EM_FILE_ITYPE( : ) ! shortname for the type of each emission
       CHARACTER( 100 ),ALLOCATABLE :: EM_FILE_DESC( : )  ! Description of each emissions stream
       LOGICAL,         ALLOCATABLE :: EM_FILE_LAPPLY( : )! Flag to use each emissions stream
-      CHARACTER( 6  ), ALLOCATABLE :: EM_FILE_DIAG( : )   ! Toggle for Default Emissions Diagnostic Output
+      CHARACTER( 6   ),ALLOCATABLE :: EM_FILE_LDIAG( : ) ! Toggle for Default Emissions Diagnostic Output
+      CHARACTER( 16  ),ALLOCATABLE :: EM_DIAG_FILE( : )  ! Filename for Emissions Diagnostic Output
+      LOGICAL         ,ALLOCATABLE :: EM_FILE_DIFF( :,: )! Test for whether or not a stream contributes to 
+                                                         !   a particular transported variable
 
       INTEGER              :: IBIOSRM, IMGSRM, ILTSRM, ISEASRM, IDUSTSRM
       INTEGER, ALLOCATABLE :: IGSRM( : ), IPSRM( : ), ITSRM( : ), MAP_PTtoISRM( : )
@@ -527,7 +530,7 @@
             ! PCVOC is turned off for Fires
             N_EM_RULE_B = N_EM_RULE_B + 1
             EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
+            EM_NML_B(N_EM_RULE_B)%STREAM= 'POINT_FIRES'
             EM_NML_B(N_EM_RULE_B)%SURR  = 'ALL'
             EM_NML_B(N_EM_RULE_B)%SPEC  = 'PCVOC'
             EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'

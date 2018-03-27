@@ -13,7 +13,7 @@
 ! Emissions Scaling Specification Section                                      !
 !   Each rule is presented as a row of inputs. The syntax of the               !
 !   emissions scaling rules is the following:                                  !
-!      EM_INSTR(I) = 'CMAQ-Species', 'Source Label', 'Phase',                  !
+!      EM_INSTR(I) = 'CMAQ-Species', 'Stream Label', 'Phase',                  !
 !                     'Surrogate', 'Scale Factor', 'Mask', 'Operation'         !
 !   Definition of Fields:                                                      !
 !         'Surrogate' - The character string identifying the surrogate on the  !
@@ -22,10 +22,10 @@
 !                       the same as the CMAQ species for convenience. For      !
 !                       aerosols, it's usually slightly different (e.g ANO3 vs.!
 !                       PNO3)                                                  !
-!         'Source Label' - Short Name from Run Script (ie. the value of        !
+!         'Stream Label' - Short Name from Run Script (ie. the value of        !
 !                          GR_EMIS_01_LAB or STK_EMIS_01_LAB). There are a few !
 !                          reserved names that apply to inline emissions       !
-!                          sources. These are:                                 !
+!                          streams. These are:                                 !
 !                            BIOG - Biogenic VOC emissions                     !
 !                            MGEM - Marine Gas Emissions                       !
 !                            LTNG - Lightning NO Emissions                     !
@@ -35,7 +35,7 @@
 !         'Phase/Mode'- If the CMAQ-Species is a Gas, this field should equal  !
 !                       'Gas'. If the CMAQ-Species is an aerosol, this field   !
 !                       should indicate one of the possible emission aerosol   !
-!                       modes. Every source by default is given a 'COARSE' and !
+!                       modes. Every stream by default is given a 'COARSE' and !
 !                       'FINE' mode. The user may refer to these, or define    !
 !                       others above and refer to them as well. This level of  !
 !                       speficity is needed so that aerosol number and         !
@@ -50,7 +50,7 @@
 !                          'a' - add the rule to existing instructions. This   !
 !                                operation should be used for new entries, too.!
 !                          'm' - find existing scaling instructions matching   !
-!                                this rule's features (ie. species, sources,   !
+!                                this rule's features (ie. species, streams,   !
 !                                etc) and multiply them by the factor in this  !
 !                                particular rule.                              !
 !                          'o' - find existing scaling instrucitons matching   !
@@ -59,37 +59,25 @@
 !                                                                              !
 !------------------------------------------------------------------------------!
 
-&EmissionScaling
+&EmissionScalingRules
  EM_NML=
- 
  !---Organic Aerosol Vapors and Particles            
- !         Region   | Source Label  |Emission | CMAQ-   |Phase/ |Scale  | Op
- !          Label   |               |Surrogate| Species |Mode   |Factor |
-                                    
-        !'WATER'    , 'All'         ,'All'    ,'All'    ,'All'  ,0.     ,'o',
+ !          Region   | Stream Label  |Emission | CMAQ-   |Phase/ |Scale  | Op
+ !           Label   |               |Surrogate| Species |Mode   |Factor |
+ !<EXAMPLE> 'WATER'  , 'All'         ,'All'    ,'All'    ,'All'  ,0.     ,'o',
+
 /
-
-
-&GeneralSpecs
- DefaultScaling      = .TRUE.   !Find All matches and map them 1:1. Map Aerosols as usual
- Guard_BiogenicVOC   = .FALSE.  !If True, then using 'ALL' to identify sources below
- Guard_MarineGas     = .FALSE.  !  will not apply to these sources. They will, in effect
- Guard_LightningNO   = .FALSE.  !  be 'guarded' from the scaling operation.
- Guard_WindBlownDust = .FALSE.
- Guard_SeaSpray      = .FALSE.
-/
-
 
 !------------------------------------------------------------------------------!
 ! Size Distribution Specification Section                                      !
 !   Each size distribution rule either modifies the parameters associated with !
-!   the aerosol modes of a particular source, or adds new modes to a particular!
-!   source if they do not already exist.                                       !
+!   the aerosol modes of a particular stream, or adds new modes to a particular!
+!   stream if they do not already exist.                                       !
 !                                                                              !
 !   Definition of Fields:                                                      !
-!      'Source' - Label for the emissions source that the instruction will     !
-!                 apply to. If the label is 'ALL', then the instruction will   !
-!                 be expanded to apply to all sources.                         !
+!      'Stream - Label for the emissions stream that the instruction will      !
+!        Label'   apply to. If the label is 'ALL', then the instruction will   !
+!                 be expanded to apply to all streams.                         !
 !      'Surrogate Mode' - With this label, the user identifies which mode from !
 !                         the emissions is to be modified or created. With this!
 !                         specificity, multiple modes can be defined and mapped!
@@ -99,10 +87,12 @@
 !                         module.
 !------------------------------------------------------------------------------!
 
-&SizeDistReg
- !         |    Source      | Surr. Mode   | Ref. Mode 
- SD_NML  =  'GRIDDED_EMIS'  ,'FINE'        ,'FINE_REF',
-            'GRIDDED_EMIS'  ,'COARSE'      ,'COARSE_REF',
+%SizeDistributions
+ SD_NML    = 
+ !         | Stream Label   | Surr. Mode   | Ref. Mode 
+ !<Default>  'ALL'          ,'FINE'        ,'FINE_REF',
+ !<Default>  'ALL'          ,'COARSE'      ,'COARSE_REF',
+
 /
 
 !------------------------------------------------------------------------------!
@@ -113,7 +103,7 @@
 !   consistent with IO-API. Any number of files and variables may be used to   !
 !   specify 1 or more "regions" to be used in CMAQ. This section of the name-  !
 !   list provides users with an interface to name these regions and identify   !
-!   the source data for each.
+!   the stream data for each.
 !                                                                              !
 !   Definition of Fields:                                                      !
 !      'Region  - Label for the region that is being specified. By default, the!
@@ -137,9 +127,29 @@
 !                   cell.
 !------------------------------------------------------------------------------!
 
-&Regions_Registry
- !              | Region Label   | File_Label  | Variable on File
- REGIONS_NML  =    'EVERYWHERE'  ,'N/A'        ,'N/A',
-                   'WATER'       ,'CMAQ_MASKS' ,'OPEN',
+&RegionsRegistry
+ RGN_NML  =   
+ !          | Region Label   | File_Label  | Variable on File
+ !<Default>    'EVERYWHERE'  ,'N/A'        ,'N/A',
+ !<Example>    'WATER'       ,'CMAQ_MASKS' ,'OPEN',
+ !<Example>    'ALL'         ,'CMAQ_MASKS' ,'ALL',
+/
+
+!------------------------------------------------------------------------------!
+! Additonal Emissions Scaling Variables                                        !
+!    This section includes additional specific variables for governing the     !
+!    behavior of the emissions scaling routines. Explanations are provided     !
+!    below.                                                                    !
+!------------------------------------------------------------------------------!
+
+&GeneralSpecs
+
+ DefaultScaling      = .TRUE.   !Find All matches and map them 1:1. Map Aerosols as usual
+ Guard_BiogenicVOC   = .FALSE.  !If True, then using 'ALL' to identify all of the available 
+ Guard_MarineGas     = .FALSE.  !  streams will not apply to these streams. They will, in
+ Guard_LightningNO   = .FALSE.  !  effect, be 'guarded' from the scaling operation.
+ Guard_WindBlownDust = .FALSE.
+ Guard_SeaSpray      = .FALSE.
+
 /
  

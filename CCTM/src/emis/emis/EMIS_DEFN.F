@@ -206,7 +206,7 @@ C Map the Emissions Species Available on the Input Files To the
 C Surrogates Identified by the User via the Namelists and Stop the model
 C or Print Warnings if Mistakes Are Made.
          CALL EMIS_SPC_MAP( JDATE, JTIME )
-         CALL OPEN_EMISS_DIAG( )
+         IF ( IO_PE_INCLUSIVE ) CALL OPEN_EMISS_DIAG( JDATE, JTIME, TSTEP )
 
 C Allocate Space for Master Emissions Computation
          ALLOCATE ( VDEMIS_DIFF( N_SPC_DIFF,EMLAYS,NCOLS,NROWS ),STAT = STATUS )
@@ -268,13 +268,20 @@ C Local Variables:
          CHARACTER( 16 ) :: VNAME
          CHARACTER( 16 ) :: PNAME = 'GET_EMIS'
          CHARACTER( 120 ):: XMSG = ' '
-         INTEGER         :: ERROR_NEG
+         INTEGER         :: ERROR_NEG, MDATE, MTIME
+         LOGICAL         :: WRTIME
 
 C-----------------------------------------------------------------------
 
 
 C Initialize Emissions Array
          VDEMIS_DIFF = 0.0
+         WRTIME = .FALSE.
+         MTIME = JTIME
+         MDATE = JDATE
+         CALL NEXTIME( MDATE, MTIME,  SEC2TIME( TIME2SEC( TSTEP( 2 ) ) / 2 ) )
+         IF ( MOD( TIME2SEC( MTIME ), TIME2SEC( TSTEP( 1 ) ) ) .EQ. 0 ) WRTIME = .TRUE.
+
 
 
 C Retrieve Emissions from All Stream Types
@@ -294,10 +301,10 @@ C Retrieve Emissions from All Stream Types
                END FORALL
                VDEMIS_SCALED = EMISS_SCALING( VDEMIS_READ, ISRM )
                VDEMIS_SDIST  = EMISS_SIZE_DIST( VDEMIS_SCALED, ISRM )
-               IF ( EM_FILE_LDIAG( ISRM ) .NE. 'FALSE' ) 
-     &                         CALL WRITE_EMISS_DIAG( VDEMIS_SDIST, ISRM )
                VDEMIS_CONV   = EMISS_CONV_DIFF( VDEMIS_SDIST )
                ERROR_NEG     = EMISS_NEG_CHECK( VDEMIS_CONV, ISRM )
+               IF ( EM_FILE_LDIAG( ISRM ) .NE. 'FALSE' .AND. WRTIME ) 
+     &                         CALL WRITE_EMISS_DIAG( MDATE, MTIME, VDEMIS_CONV, ISRM )
 
                IF ( EM_FILE_LAPPLY( ISRM ) ) 
      &              VDEMIS_DIFF( :,:,:,: ) = VDEMIS_DIFF( :,:,:,: ) + VDEMIS_CONV( :,:,:,: )
@@ -311,10 +318,10 @@ C Retrieve Emissions from All Stream Types
                END FORALL
                VDEMIS_SCALED = EMISS_SCALING( VDEMIS_READ, ISRM )
                VDEMIS_SDIST  = EMISS_SIZE_DIST( VDEMIS_SCALED, ISRM )
-               IF ( EM_FILE_LDIAG( ISRM ) .NE. 'FALSE' ) 
-     &                         CALL WRITE_EMISS_DIAG( VDEMIS_SDIST, ISRM )
                VDEMIS_CONV   = EMISS_CONV_DIFF( VDEMIS_SDIST )
                ERROR_NEG     = EMISS_NEG_CHECK( VDEMIS_CONV, ISRM )
+               IF ( EM_FILE_LDIAG( ISRM ) .NE. 'FALSE' .AND. WRTIME ) 
+     &                         CALL WRITE_EMISS_DIAG( MDATE, MTIME, VDEMIS_CONV, ISRM )
 
                IF ( EM_FILE_LAPPLY( ISRM ) ) 
      &              VDEMIS_DIFF( :,:,:,: ) = VDEMIS_DIFF( :,:,:,: ) + VDEMIS_CONV( :,:,:,: )
@@ -327,10 +334,10 @@ C Retrieve Emissions from All Stream Types
      &                         VDEMIS_BI( MAP_EMtoSURR( ISTR,ISRM ),:,: ) 
                END FORALL
                VDEMIS_SCALED = EMISS_SCALING( VDEMIS_READ, ISRM )
-               IF ( EM_FILE_LDIAG( ISRM ) .NE. 'FALSE' ) 
-     &                         CALL WRITE_EMISS_DIAG( VDEMIS_SCALED, ISRM )
                VDEMIS_CONV   = EMISS_CONV_DIFF( VDEMIS_SCALED )
                ERROR_NEG     = EMISS_NEG_CHECK( VDEMIS_CONV, ISRM )
+               IF ( EM_FILE_LDIAG( ISRM ) .NE. 'FALSE' .AND. WRTIME ) 
+     &                         CALL WRITE_EMISS_DIAG( MDATE, MTIME, VDEMIS_CONV, ISRM )
 
                IF ( EM_FILE_LAPPLY( ISRM ) ) 
      &              VDEMIS_DIFF( :,:,:,: ) = VDEMIS_DIFF( :,:,:,: ) + VDEMIS_CONV( :,:,:,: )
@@ -344,10 +351,10 @@ C Retrieve Emissions from All Stream Types
      &                          VDEMIS_MG( MAP_EMtoSURR( ISTR,ISRM ),:,: ) 
                END FORALL
                VDEMIS_SCALED = EMISS_SCALING( VDEMIS_READ, ISRM )
-               IF ( EM_FILE_LDIAG( ISRM ) .NE. 'FALSE' ) 
-     &                         CALL WRITE_EMISS_DIAG( VDEMIS_SCALED, ISRM )
                VDEMIS_CONV   = EMISS_CONV_DIFF( VDEMIS_SCALED )
                ERROR_NEG     = EMISS_NEG_CHECK( VDEMIS_CONV, ISRM )
+               IF ( EM_FILE_LDIAG( ISRM ) .NE. 'FALSE' .AND. WRTIME ) 
+     &                         CALL WRITE_EMISS_DIAG( MDATE, MTIME, VDEMIS_CONV, ISRM )
 
                IF ( EM_FILE_LAPPLY( ISRM ) ) 
      &              VDEMIS_DIFF( :,:,:,: ) = VDEMIS_DIFF( :,:,:,: ) + VDEMIS_CONV( :,:,:,: )
@@ -360,10 +367,10 @@ C Retrieve Emissions from All Stream Types
                   VDEMIS_READ( ISTR,:,:,: ) = VDEMIS_LT( :,:,: ) * CONVEM_GAS( ISRM )
                END FORALL
                VDEMIS_SCALED = EMISS_SCALING( VDEMIS_READ, ISRM )
-               IF ( EM_FILE_LDIAG( ISRM ) .NE. 'FALSE' ) 
-     &                         CALL WRITE_EMISS_DIAG( VDEMIS_SCALED, ISRM )
                VDEMIS_CONV   = EMISS_CONV_DIFF( VDEMIS_SCALED )
                ERROR_NEG     = EMISS_NEG_CHECK( VDEMIS_CONV, ISRM )
+               IF ( EM_FILE_LDIAG( ISRM ) .NE. 'FALSE' .AND. WRTIME ) 
+     &                         CALL WRITE_EMISS_DIAG( MDATE, MTIME, VDEMIS_CONV, ISRM )
 
                IF ( EM_FILE_LAPPLY( ISRM ) ) 
      &              VDEMIS_DIFF( :,:,:,: ) = VDEMIS_DIFF( :,:,:,: ) + VDEMIS_CONV( :,:,:,: )
@@ -377,10 +384,10 @@ C Retrieve Emissions from All Stream Types
                END FORALL
                VDEMIS_SCALED = EMISS_SCALING( VDEMIS_READ, ISRM )
                VDEMIS_SDIST  = EMISS_SIZE_DIST( VDEMIS_SCALED, ISRM )
-               IF ( EM_FILE_LDIAG( ISRM ) .NE. 'FALSE' ) 
-     &                         CALL WRITE_EMISS_DIAG( VDEMIS_SDIST, ISRM )
                VDEMIS_CONV   = EMISS_CONV_DIFF( VDEMIS_SDIST )
                ERROR_NEG     = EMISS_NEG_CHECK( VDEMIS_CONV, ISRM )
+               IF ( EM_FILE_LDIAG( ISRM ) .NE. 'FALSE' .AND. WRTIME ) 
+     &                         CALL WRITE_EMISS_DIAG( MDATE, MTIME, VDEMIS_CONV, ISRM )
 
                IF ( EM_FILE_LAPPLY( ISRM ) ) 
      &              VDEMIS_DIFF( :,:,:,: ) = VDEMIS_DIFF( :,:,:,: ) + VDEMIS_CONV( :,:,:,: )
@@ -394,10 +401,10 @@ C Retrieve Emissions from All Stream Types
                END FORALL
                VDEMIS_SCALED = EMISS_SCALING( VDEMIS_READ, ISRM )
                VDEMIS_SDIST  = EMISS_SIZE_DIST( VDEMIS_SCALED, ISRM )
-               IF ( EM_FILE_LDIAG( ISRM ) .NE. 'FALSE' ) 
-     &                         CALL WRITE_EMISS_DIAG( VDEMIS_SDIST, ISRM )
                VDEMIS_CONV   = EMISS_CONV_DIFF( VDEMIS_SDIST )
                ERROR_NEG     = EMISS_NEG_CHECK( VDEMIS_CONV, ISRM )
+               IF ( EM_FILE_LDIAG( ISRM ) .NE. 'FALSE' .AND. WRTIME ) 
+     &                         CALL WRITE_EMISS_DIAG( MDATE, MTIME, VDEMIS_CONV, ISRM )
 
                IF ( EM_FILE_LAPPLY( ISRM ) ) 
      &              VDEMIS_DIFF( :,:,:,: ) = VDEMIS_DIFF( :,:,:,: ) + VDEMIS_CONV( :,:,:,: )
@@ -566,7 +573,7 @@ C-----------------------------------------------------------------------
       END FUNCTION EMISS_SCALING
 
 !-----------------------------------------------------------------------
-      SUBROUTINE WRITE_EMISS_DIAG( VDEMIS0,ISRM ) 
+      SUBROUTINE WRITE_EMISS_DIAG( MDATE, MTIME, VDEMIS0,ISRM ) 
 
 !     Write out emissions diagnostic file
 !-----------------------------------------------------------------------
@@ -574,22 +581,39 @@ C-----------------------------------------------------------------------
       USE ASX_DATA_MOD, ONLY: MET_DATA, GRID_DATA, CONVPA
       USE AERO_EMIS           ! inherits GRID_CONF
       USE GRID_CONF
+      USE VDIFF_MAP, ONLY : N_SPC_DIFF, DIFF_MASK_GAS, DIFF_MASK_AERO,
+     &                      DIFF_MASK_NUM, DIFF_MASK_SRF, DIFF_MW, DIFF_SPC
+      USE AERO_DATA, ONLY : GPKG
 
       IMPLICIT NONE
+         
+      INCLUDE SUBST_CONST     ! constants
 
+      INTEGER, INTENT( IN ) :: MDATE, MTIME, ISRM
       REAL, INTENT( In )    :: VDEMIS0( N_SPC_DIFF,EMLAYS,NCOLS,NROWS )
-      REAL                  :: VDEMIS ( N_SPC_DIFF,EMLAYS,NCOLS,NROWS )
+      REAL                  :: VDEMIS ( NCOLS,NROWS,EMLAYS,N_SPC_DIFF )
 
       ! Local Variables
+      REAL, PARAMETER :: RAVO = 1.0 / AVO
       REAL             CNVTC         ! combined conversion factor
       REAL             CNVTI         ! intermediate combined conv. factor
       REAL,    SAVE :: CNVTP         ! intermediate combined conv. factor
       REAL             CONVM         ! Aerosol Mass conversion factor
+      REAL             CONVN         ! Aerosol Mass conversion factor
+      REAL             CONVS         ! Aerosol Mass conversion factor
 
-      INTEGER       :: LAYS
+      INTEGER       :: LAYS, L, C, R, IVAR
 
       LOGICAL :: FIRST_TIME = .TRUE.
+      CHARACTER( 200 ) :: XMSG
 
+      ! Get pressure info from ASX_DATA_MOD
+      IF ( FIRST_TIME ) THEN
+         FIRST_TIME = .FALSE.
+         CNVTP = CONVPA * 1.0E+06 * MWAIR / REAL( DX1 * DX2 ) !Conv. Factor for Gases 
+      END IF    !FirstTime
+
+      VDEMIS = 0.0
       LAYS = 1
       IF ( EM_FILE_LDIAG( ISRM ) .EQ. '3D' ) LAYS = EMLAYS
 
@@ -609,16 +633,16 @@ C-----------------------------------------------------------------------
                !AND AEROSOL SURFACE AREA)
                WHERE( DIFF_MASK_GAS )
                       ! GAS SPECIES
-                      VDEMIS( :,L,C,R ) = CNVTC * VDEMIS0( :,L,C,R ) 
+                      VDEMIS( C,R,L,: ) = CNVTC * VDEMIS0( :,L,C,R ) 
                ELSEWHERE( DIFF_MASK_NUM )
                       ! AEROSOL NUMBER SPECIES
-                      VDEMIS( :,L,C,R ) = CONVN * VDEMIS0( :,L,C,R ) 
-               ELSEWHERE( MAP_EMtoSRF )
+                      VDEMIS( C,R,L,: ) = CONVN * VDEMIS0( :,L,C,R ) 
+               ELSEWHERE( DIFF_MASK_SRF )
                       ! AEROSOL SURFACE AREA SPECIES
-                      VDEMIS( :,L,C,R ) = CONVS * VDEMIS0( :,L,C,R ) 
+                      VDEMIS( C,R,L,: ) = CONVS * VDEMIS0( :,L,C,R ) 
                ELSEWHERE
                       ! AEROSOL MASS SPECIES
-                      VDEMIS( :,L,C,R ) = CONVM * VDEMIS0( :,L,C,R ) * DIFF_MW( : )
+                      VDEMIS( C,R,L,: ) = CONVM * VDEMIS0( :,L,C,R ) * DIFF_MW( : )
                END WHERE
 
             END DO
@@ -627,11 +651,20 @@ C-----------------------------------------------------------------------
 
       ! Output to Emissions Diagnostic File
       DO IVAR = 1,N_SPC_DIFF
-         IF ( .NOT. WRITE3( EM_DIAG_FILE( ISRM ), DIFF_SPC( IVAR ),
-     &              JDATE, JTIME, VDEMIS( IVAR,1:LAYS,:,: ) ) ) THEN
-             XMSG = 'Could not write ' // EM_DIAG_FILE( ISRM ) // ' file'
-             CALL M3EXIT( 'WRITE_EMISS_DIAG', JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
+            ! Skip Writing this species if this source did not
+            ! contribute to it
+            IF ( .NOT. EM_FILE_DIFF( IVAR,ISRM ) ) CYCLE
+
+            ! Sum the column if requested
+            IF ( EM_FILE_LDIAG( ISRM ) .EQ. '2DSUM' ) 
+     &           VDEMIS( :,:,1,IVAR ) = SUM( VDEMIS( :,:,1:EMLAYS,IVAR ),3 )
+
+            ! Write out the emissions data
+            IF ( .NOT. WRITE3( EM_DIAG_FILE( ISRM ), DIFF_SPC( IVAR ),
+     &                 MDATE, MTIME, VDEMIS( :,:,1:NLAYS,IVAR ) ) ) THEN
+                XMSG = 'Could not write ' // EM_DIAG_FILE( ISRM ) // ' file'
+                CALL M3EXIT( 'WRITE_EMISS_DIAG', MDATE, MTIME, XMSG, XSTAT1 )
+            END IF
       END DO
 
       END SUBROUTINE WRITE_EMISS_DIAG
@@ -941,7 +974,9 @@ C-----------------------------------------------------------------------
          MAP_EMtoSRF  = 0                             !   to aerosol surface area
          ALLOCATE( MAP_EMtoSD  ( NISTR0,N_EM_SRM ) )  ! Map from Emissions Species 
          MAP_EMtoSD  = 0                              !   to emissions aerosol mode
-         
+         ALLOCATE( EM_FILE_DIFF( N_SPC_DIFF,N_EM_SRM ) )
+         EM_FILE_DIFF = .FALSE.
+
          ! Find all matches between the transported species list and the
          ! available surrogates from each stream. Apply a scale factor
          ! of 1 to these matches. For aerosols, the CMAQ species name
@@ -1053,6 +1088,7 @@ C-----------------------------------------------------------------------
                     EM_SURR( N_EMIS_ISTR, ISRM ) = EM_FILE_SURR( ISRM )%ARRY( JDX )
                     MAP_EMtoSURR( N_EMIS_ISTR, ISRM ) = JDX
                     MAP_EMtoSD( N_EMIS_ISTR, ISRM ) = JSD
+                    EM_FILE_DIFF( IDIFF,ISRM ) = .TRUE.
 
                     EM_FAC ( N_EMIS_ISTR, ISRM, 1 ) = 1.0 * AERO_SPLIT
                     EM_FAC_BULK ( N_EMIS_ISTR, ISRM, 1 ) = 1.0         
@@ -1435,6 +1471,7 @@ C-----------------------------------------------------------------------
                   MAP_EMtoSURR( ISTR, ISRM ) = ISUR
                   EM_FILE_SURR( ISRM )%USED( ISUR ) = .TRUE.
                   MAP_EMtoSD( ISTR, ISRM ) = RULE_ISTR_PHASE( IC )
+                  EM_FILE_DIFF( RULE_ISTR_IDIFF( IC ),ISRM ) = .TRUE.
 
                   ! Only apply an aerosol size-split parameter if this
                   ! species is an aerosol and if it is not from a dust 
@@ -1739,14 +1776,18 @@ C-----------------------------------------------------------------------
          CHARACTER( 16 )  :: CTM_LTNG_NO = 'CTM_LTNG_NO'    ! Let model proceed even if
          CHARACTER( 16 )  :: PNAME = 'EM_FILE_INIT'
          CHARACTER( 80 )  :: VARDESC
-         CHARACTER( 20 )  :: VLAB
+         CHARACTER( 22 )  :: VLAB
          CHARACTER( 16 )  :: VNAME
          INTEGER          :: STATUS
          CHARACTER( 200 ) :: XMSG
          CHARACTER( 300 ) :: EQNAME
          LOGICAL :: SUCCESS
+         CHARACTER( 200 ) :: EM_DIAG_PREFIX = 'CCTM_EMDIAG_'
+         CHARACTER( 200 ) :: EM_DIAG_SUFFIX = ''
+
 
          CHARACTER( 6 ) :: EMISDIAG = 'FALSE' ! Default for Emissions Diagnostic Toggle
+         LOGICAL        :: VALUE
 
          LOGDEV = INIT3()
          SUCCESS = .TRUE.
@@ -1821,7 +1862,8 @@ C Allocate Emission File Structure Variables
          Allocate( EM_FILE_ITYPE ( N_EM_SRM ) )
          Allocate( EM_FILE_DESC  ( N_EM_SRM ) )
          Allocate( EM_FILE_LAPPLY( N_EM_SRM ) )
-         Allocate( EM_FILE_LDIAG  ( N_EM_SRM ) )
+         Allocate( EM_FILE_LDIAG ( N_EM_SRM ) )
+         Allocate( EM_DIAG_FILE  ( N_EM_SRM ) )
          Allocate( IGSRM         ( N_EM_SRM ) )
          Allocate( IPSRM         ( N_EM_SRM ) )
          Allocate( ITSRM         ( N_EM_SRM ) )
@@ -1840,7 +1882,15 @@ C stkemis_init.
          EMIS_GAS_UNITS = "Unknown"
          EMIS_AER_UNITS = "Unknown"
          EM_FILE_LAPPLY = .TRUE.
-         EM_FILE_LDIAG   = EMISDIAG
+         EM_FILE_LDIAG   = EMISDIAG 
+
+         ! Set the standard suffix for all Emissions Diagnostic Files
+         CALL NAMEVAL ( 'OUTDIR', EQNAME )
+         IF ( EQNAME(1:8 ) .NE. 'OUTDIR' ) EM_DIAG_PREFIX = TRIM( EQNAME ) // '/' // EM_DIAG_PREFIX
+         CALL NAMEVAL ( 'CTM_APPL', EQNAME )
+         EM_DIAG_SUFFIX = '.nc'
+         IF ( EQNAME(1:8 ) .NE. 'CTM_APPL' ) EM_DIAG_SUFFIX = '_' // TRIM(EQNAME) // '.nc'
+
 
          ! Gridded Emission Files
          IF ( N_FILE_GR .GT. 0 ) THEN
@@ -1866,6 +1916,9 @@ C stkemis_init.
               CALL ENVSTR( VLAB, 'Gridded Emissions Diagnostic', EMISDIAG, 
      &                     EM_FILE_LDIAG( ISRM ), IOS )
               EM_FILE_LDIAG( ISRM ) = RESOLVE_YN_TF_2D3D( EM_FILE_LDIAG( ISRM ) )
+              WRITE( EM_DIAG_FILE( ISRM ),'( "GR_EMDGFILE_",I2.2 )' ) N
+              VALUE = SETENVVAR( EM_DIAG_FILE( ISRM ), TRIM( EM_DIAG_PREFIX ) // 
+     &            TRIM( EM_FILE_LAB( ISRM ) ) // TRIM( EM_DIAG_SUFFIX ) ) 
 
               CONVEM_GAS( ISRM ) = 1.0
               CONVEM_PM_MASS ( ISRM ) = 1.0
@@ -1897,6 +1950,9 @@ C stkemis_init.
               CALL ENVSTR( VLAB, 'Stack Emissions Diagnostic', EMISDIAG, 
      &                     EM_FILE_LDIAG( ISRM ), IOS )
               EM_FILE_LDIAG( ISRM ) = RESOLVE_YN_TF_2D3D( EM_FILE_LDIAG( ISRM ) )
+              WRITE( EM_DIAG_FILE( ISRM ),'( "STK_EMDGFILE_",I2.2 )' ) N
+              VALUE = SETENVVAR( EM_DIAG_FILE( ISRM ), TRIM( EM_DIAG_PREFIX ) // 
+     &            TRIM( EM_FILE_LAB( ISRM ) ) // TRIM( EM_DIAG_SUFFIX ) )
 
                CONVEM_GAS( ISRM ) = 1.0
                CONVEM_PM_MASS ( ISRM ) = 1.0
@@ -1922,6 +1978,9 @@ C stkemis_init.
                CALL ENVSTR( VLAB, 'Tracer Emissions Diagnostic', EMISDIAG, 
      &                      EM_FILE_LDIAG( ISRM ), IOS )
                EM_FILE_LDIAG( ISRM ) = RESOLVE_YN_TF_2D3D( EM_FILE_LDIAG( ISRM ) )
+               WRITE( EM_DIAG_FILE( ISRM ),'( "TR_EMDGFILE_",I2.2 )' ) N
+               VALUE = SETENVVAR( EM_DIAG_FILE( ISRM ), TRIM( EM_DIAG_PREFIX ) // 
+     &             TRIM( EM_FILE_LAB( ISRM ) ) // TRIM( EM_DIAG_SUFFIX ) )
 
                WRITE( EM_FILE_NAME( ISRM ),'( "TR_EMIS_",I2.2 )' ) N
                CONVEM_GAS( ISRM ) = 1.0
@@ -1946,6 +2005,9 @@ C stkemis_init.
              CALL ENVSTR( VLAB, 'Biogenic Emissions Diagnostic', EMISDIAG, 
      &                    EM_FILE_LDIAG( ISRM ), IOS )
              EM_FILE_LDIAG( ISRM ) = RESOLVE_YN_TF_2D3D( EM_FILE_LDIAG( ISRM ) )
+             WRITE( EM_DIAG_FILE( ISRM ),'( "BIOG_EMDGFILE_",I2.2 )' ) N
+             VALUE = SETENVVAR( EM_DIAG_FILE( ISRM ), TRIM( EM_DIAG_PREFIX ) // 
+     &           TRIM( EM_FILE_LAB( ISRM ) ) // TRIM( EM_DIAG_SUFFIX ) )
 
              IBIOSRM = ISRM
          END IF
@@ -1965,6 +2027,9 @@ C stkemis_init.
              CALL ENVSTR( VLAB, 'Marine Gas Emissions Diagnostic', EMISDIAG, 
      &                    EM_FILE_LDIAG( ISRM ), IOS )
              EM_FILE_LDIAG( ISRM ) = RESOLVE_YN_TF_2D3D( EM_FILE_LDIAG( ISRM ) )
+             WRITE( EM_DIAG_FILE( ISRM ),'( "MG_EMDGFILE_",I2.2 )' ) N
+             VALUE = SETENVVAR( EM_DIAG_FILE( ISRM ), TRIM( EM_DIAG_PREFIX ) // 
+     &           TRIM( EM_FILE_LAB( ISRM ) ) // TRIM( EM_DIAG_SUFFIX ) )
 
              IMGSRM = ISRM
          END IF
@@ -1984,6 +2049,9 @@ C stkemis_init.
              CALL ENVSTR( VLAB, 'Lightning Emissions Diagnostic', EMISDIAG, 
      &                    EM_FILE_LDIAG( ISRM ), IOS )
              EM_FILE_LDIAG( ISRM ) = RESOLVE_YN_TF_2D3D( EM_FILE_LDIAG( ISRM ) )
+             WRITE( EM_DIAG_FILE( ISRM ),'( "LTNG_EMDGFILE_",I2.2 )' ) N
+             VALUE = SETENVVAR( EM_DIAG_FILE( ISRM ), TRIM( EM_DIAG_PREFIX ) // 
+     &           TRIM( EM_FILE_LAB( ISRM ) ) // TRIM( EM_DIAG_SUFFIX ) )
 
              ILTSRM = ISRM
          END IF
@@ -2003,6 +2071,9 @@ C stkemis_init.
              CALL ENVSTR( VLAB, 'Sea Spray Emissions Diagnostic', EMISDIAG, 
      &                    EM_FILE_LDIAG( ISRM ), IOS )
              EM_FILE_LDIAG( ISRM ) = RESOLVE_YN_TF_2D3D( EM_FILE_LDIAG( ISRM ) )
+             WRITE( EM_DIAG_FILE( ISRM ),'( "ASEA_EMDGFILE_",I2.2 )' ) N
+             VALUE = SETENVVAR( EM_DIAG_FILE( ISRM ), TRIM( EM_DIAG_PREFIX ) // 
+     &           TRIM( EM_FILE_LAB( ISRM ) ) // TRIM( EM_DIAG_SUFFIX ) )
 
              ISEASRM = ISRM
          END IF
@@ -2022,6 +2093,9 @@ C stkemis_init.
              CALL ENVSTR( VLAB, 'Wind-Blow Dust Emissions Diagnostic', EMISDIAG, 
      &                    EM_FILE_LDIAG( ISRM ), IOS )
              EM_FILE_LDIAG( ISRM ) = RESOLVE_YN_TF_2D3D( EM_FILE_LDIAG( ISRM ) )
+             WRITE( EM_DIAG_FILE( ISRM ),'( "DUST_EMDGFILE_",I2.2 )' ) N
+             VALUE = SETENVVAR( EM_DIAG_FILE( ISRM ), TRIM( EM_DIAG_PREFIX ) // 
+     &           TRIM( EM_FILE_LAB( ISRM ) ) // TRIM( EM_DIAG_SUFFIX ) )
 
              IDUSTSRM = ISRM
          END IF
@@ -2039,16 +2113,19 @@ C stkemis_init.
 
         CHARACTER( 6 ) :: ARG, ARGOUT
  
-         IF ( ARG .EQ. 'FALSE' .OR. EMIS_DIAG .EQ. 'F' .OR.
-     &        ARG .EQ. 'NO'    .OR. EMIS_DIAG .EQ. 'N' ) THEN
+         IF ( ARG .EQ. 'FALSE' .OR. ARG .EQ. 'F' .OR.
+     &        ARG .EQ. 'NO'    .OR. ARG .EQ. 'N' ) THEN
             ARGOUT = 'FALSE'
-         ELSEIF ( ARG .EQ. 'TRUE' .OR. EMIS_DIAG .EQ. 'T' .OR.
-     &            ARG .EQ. 'YES'  .OR. EMIS_DIAG .EQ. 'Y' ) THEN
+         ELSEIF ( ARG .EQ. 'TRUE' .OR. ARG .EQ. 'T' .OR.
+     &            ARG .EQ. 'YES'  .OR. ARG .EQ. 'Y' ) THEN
             ARGOUT = 'TRUE'
          ELSEIF ( ARG .EQ. '2D'  .OR. ARG .EQ. '2d' ) THEN
             ARGOUT = 'TRUE'
-         ELSE   ( ARG .EQ. '3D'  .OR. ARG .EQ. '3d' ) THEN
+         ELSEIF   ( ARG .EQ. '3D'  .OR. ARG .EQ. '3d' ) THEN
             ARGOUT = '3D'
+         ELSEIF   ( ARG .EQ. '2DSUM' .OR. ARG .EQ. '2dSUM' .OR.
+     &              ARG .EQ. '2dsum' ) THEN
+            ARGOUT = '2DSUM'
          END IF
  
          RETURN
@@ -2056,7 +2133,7 @@ C stkemis_init.
       END FUNCTION RESOLVE_YN_TF_2D3D
 
 !-----------------------------------------------------------------------
-      SUBROUTINE OPEN_EMISS_DIAG( )
+      SUBROUTINE OPEN_EMISS_DIAG( JDATE, JTIME, TSTEP )
 !       This subroutine opens diagnostic files for printing the
 !       emission rates input to CMAQ after scaling by user emission
 !       rules. The rates are put on files dedicated to each individual
@@ -2068,13 +2145,18 @@ C stkemis_init.
 !-----------------------------------------------------------------------
       USE UTILIO_DEFN
       USE GRID_CONF
+      USE VDIFF_MAP, ONLY : N_SPC_DIFF, DIFF_SPC, DIFF_MASK_GAS,
+     &                      DIFF_MASK_AERO, DIFF_MASK_NUM, DIFF_MASK_SRF
 
       IMPLICIT NONE
 
+      INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
 
       CHARACTER( 16 ) :: PNAME = 'OPEN_EMISS_DIAG'
+      CHARACTER( 200 ) :: XMSG
 
-      INTEGER :: ISRM, 
+      INTEGER :: ISRM, IVAR, NLAYERS, V
+      CHARACTER( 2 ) :: CSRM
       
       DO ISRM = 1,N_EM_SRM
       
@@ -2082,74 +2164,76 @@ C stkemis_init.
         IF ( EM_FILE_LDIAG( ISRM ) .NE. 'FALSE' ) THEN
  
           ! Make File 2D by Default, but 3D if the user requests it
-          NLAYS = 1
-          IF ( EM_FILE_LDIAG( ISRM ) .EQ. '3D' ) NLAYS = EMLAYS
+          NLAYERS = 1
+          IF ( EM_FILE_LDIAG( ISRM ) .EQ. '3D' ) NLAYERS = EMLAYS
 
-          ! Try to open existing file for update
-          IF ( .NOT. OPEN3( EM_DIAG_FILE( ISRM ), FSRDWR3, PNAME ) ) THEN
-             XMSG = 'Could not open CTM_SSEMIS_1 for update - '
-     &               // 'try to open new'
-             CALL M3MESG( XMSG )
+          ! Set output file characteristics based on COORD.EXT and 
+          ! open diagnostic file
+          FTYPE3D = GRDDED3
+          SDATE3D = JDATE
+          STIME3D = JTIME
+          TSTEP3D = TSTEP
+          CALL NEXTIME( SDATE3D, STIME3D, TSTEP3D ) !  start the next hour
 
-            ! Set output file characteristics based on COORD.EXT and 
-            ! open diagnostic file
-            FTYPE3D = GRDDED3
-            SDATE3D = JDATE
-            STIME3D = JTIME
-            TSTEP3D = TSTEP
-            CALL NEXTIME( SDATE3D, STIME3D, TSTEP3D ) !  start the next hour
+          NVARS3D = 0
+          DO IVAR = 1,N_SPC_DIFF
+              IF ( EM_FILE_DIFF( IVAR,ISRM ) ) NVARS3D = NVARS3D + 1
+          END DO
+          NCOLS3D = GL_NCOLS
+          NROWS3D = GL_NROWS
+          NLAYS3D = NLAYERS
+          NTHIK3D = 1
+          GDTYP3D = GDTYP_GD
+          P_ALP3D = P_ALP_GD
+          P_BET3D = P_BET_GD
+          P_GAM3D = P_GAM_GD
+          XORIG3D = XORIG_GD
+          YORIG3D = YORIG_GD
+          XCENT3D = XCENT_GD
+          YCENT3D = YCENT_GD
+          XCELL3D = XCELL_GD
+          YCELL3D = YCELL_GD
+          VGTYP3D = VGTYP_GD
+          VGTOP3D = VGTOP_GD
+          VGLVS3D( 1:NLAYS3D+1 ) = VGLVS_GD( 1:NLAYS3D+1 )
+          GDNAM3D = GRID_NAME  ! from HGRD_DEFN
 
-            NVARS3D = N_SPC_DIFF
-            NCOLS3D = GL_NCOLS
-            NROWS3D = GL_NROWS
-            NLAYS3D = NLAYS
-            NTHIK3D = 1
-            GDTYP3D = GDTYP_GD
-            P_ALP3D = P_ALP_GD
-            P_BET3D = P_BET_GD
-            P_GAM3D = P_GAM_GD
-            XORIG3D = XORIG_GD
-            YORIG3D = YORIG_GD
-            XCENT3D = XCENT_GD
-            YCENT3D = YCENT_GD
-            XCELL3D = XCELL_GD
-            YCELL3D = YCELL_GD
-            VGTYP3D = VGTYP_GD
-            VGTOP3D = VGTOP_GD
-            VGLVS3D( 1:NLAYS3D+1 ) = VGLVS_GD( 1:NLAYS3D+! )
-            GDNAM3D = GRID_NAME  ! from HGRD_DEFN
+          V = 0
+          DO IVAR = 1,N_SPC_DIFF
+             IF ( .NOT. EM_FILE_DIFF( IVAR,ISRM ) ) CYCLE
+             V = V + 1
 
-            VTYPE3D( 1:N_SPC_DIFF ) = M3REAL
-            VNAME3D( 1:N_SPC_DIFF ) = DIFF_SPC( : )
-            WHERE( DIFF_MASK_GAS )
-                   ! GAS SPECIES
-                   UNITS3D( V ) = 'mol/s'
-            ELSEWHERE( DIFF_MASK_NUM )
-                   ! AEROSOL NUMBER SPECIES
-                   UNITS3D( V ) = 'particles/s'
-            ELSEWHERE( MAP_EMtoSRF )
-                   ! AEROSOL SURFACE AREA SPECIES
-                   UNITS3D( V ) = 'm2/s'
-            ELSEWHERE
-                   ! AEROSOL MASS SPECIES
-                   UNITS3D( V ) = 'g/s'
-            END WHERE
- 
-            VDESC3D( 1:N_SPC_DIFF ) = 'Emission Rate of ' TRIM( VNAME3D( 1:N_SPC_DIFF ) )
-     &                     // ' from ' // TRIM(EM_FILE_LAB( ISRM )) // ' emissions'
-            WRITE( CSRM, '(I2.2)' ), ISRM
+             VTYPE3D( V ) = M3REAL
+             VNAME3D( V ) = DIFF_SPC( IVAR )
+             IF ( DIFF_MASK_GAS( IVAR ) ) THEN
+                    ! GAS SPECIES
+                    UNITS3D( V ) = 'mol/s'
+             ELSE IF ( DIFF_MASK_NUM( IVAR ) ) THEN
+                    ! AEROSOL NUMBER SPECIES
+                    UNITS3D( V ) = 'particles/s'
+             ELSE IF ( DIFF_MASK_SRF( IVAR ) ) THEN
+                    ! AEROSOL SURFACE AREA SPECIES
+                    UNITS3D( V ) = 'm2/s'
+             ELSE
+                    ! AEROSOL MASS SPECIES
+                    UNITS3D( V ) = 'g/s'
+             END IF
+            
+             VDESC3D( V ) = 'Emission Rate of ' // TRIM( VNAME3D( IVAR ) )
+     &                       // ' from ' // TRIM(EM_FILE_LAB( ISRM )) // ' emissions'
+          END DO
+          
+          WRITE( CSRM, '(I2.2)' ), ISRM
+          FDESC3D( 1 ) = 'Instantaneous pollutant emissions from stream ' //
+     &               TRIM( CSRM ) // ': ' // TRIM(EM_FILE_LAB( ISRM ) ) 
+          FDESC3D( 2:MXDESC3 ) = ''
 
-            FDESC3D( 1 ) = 'Instantaneous pollutant emissions from stream ' //
-     &                 TRIM( CSRM ) // ': ' // TRIM(EM_FILE_LAB( ISRM ) ) 
-            FDESC3D( 2:MXDESC3 ) = ''
+          ! Open emissions stream diagnostic file
+          IF ( .NOT. OPEN3( EM_DIAG_FILE( ISRM ), FSNEW3, PNAME ) ) THEN
+             XMSG = 'Could not create the ' // TRIM( EM_DIAG_FILE( ISRM ) ) // ' file'
+             CALL M3EXIT( PNAME, SDATE3D, STIME3D, XMSG, XSTAT1 )
+          END IF
 
-            ! Open emissions stream diagnostic file
-            IF ( .NOT. OPEN3( EM_DIAG_FILE( ISRM ), FSNEW3, PNAME ) ) THEN
-               XMSG = 'Could not create the ' // TRIM( EM_DIAG_FILE( ISRM ) ) // ' file'
-               CALL M3EXIT( PNAME, SDATE3D, STIME3D, XMSG, XSTAT1 )
-            END IF
-
-          END IF ! File already exists?
         END IF   ! EM_FILE_LDIAG?
       END DO     ! ISRM
 
