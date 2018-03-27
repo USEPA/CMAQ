@@ -29,11 +29,11 @@ C**********************************************************************
 C
 C  FUNCTION:  To solve for the concentration of NO3 and N2O5
 C
-C  PRECONDITIONS: For the SAPRC07TIC family of mechanisms
+C  PRECONDITIONS: For the saprc07tic family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, May 25, 2016
+C  REVISION HISTORY: Created by EBI solver program, Sep 27, 2017
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C**********************************************************************
@@ -136,15 +136,14 @@ c..Loss frequency of NO3 ( except NO3 + NO3 if present )
      &    +                 RKI( 787 ) * YC( MACO3        )   ! NO3+MACO3=NO2+CO+...
      &    +                 RKI( 824 ) * YC( MACR         )   ! NO3+MACR=0.5000D+...
      &    +                 RKI( 829 ) * YC( IMACO3       )   ! NO3+IMACO3=NO2+...
-     &    +                 RKI( 905 )                        ! NO3=HNO3
+     &    +                 RKI( 904 )                        ! NO3=HNO3
 
 c..Loss frequency of N2O5
       L16 =                 RKI(  12 )                        ! N2O5=NO2+NO3
      &    +                 RKI(  13 )                        ! N2O5=0.2000D+01*HNO3
      &    +                 RKI(  14 )                        ! N2O5=0.2000D+01*HNO3
-     &    +                 RKI( 884 )                        ! N2O5=0.2000D+01*HNO3
-     &    +                 RKI( 886 )                        ! N2O5=HNO3+H2NO3PIJ
-     &    +                 RKI( 887 )                        ! N2O5=HNO3+H2NO3PK
+     &    +                 RKI( 885 )                        ! N2O5=HNO3+H2NO3PIJ
+     &    +                 RKI( 886 )                        ! N2O5=HNO3+H2NO3PK
 
 c..K15_15, R15_16, and R16_15 terms
       K15_15  = RKI(  40 ) * DTC
