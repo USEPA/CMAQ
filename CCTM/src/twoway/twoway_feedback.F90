@@ -112,28 +112,28 @@ SUBROUTINE feedback_setup ( jdate, jtime, tstep )
               (ae_spc(i) .ne. 'ACLJ') .and.       &
               (ae_spc(i) .ne. 'ACLK') .and.       &
               (ae_spc(i) .ne. 'ASO4K') .and.      &
-              (ae_spc(i) .ne. 'ASEACAT') .and.    &
+              (ae_spc(i) .ne. 'ASEACATK') .and.    &
               (ae_spc(i) .ne. 'AH2OI') .and.      &
               (ae_spc(i) .ne. 'AH2OJ') .and.      &
               (ae_spc(i) .ne. 'AH2OK') .and.      &
               (ae_spc(i)(slen:slen) .ne. 'K')) then   ! not consider K mode ANH4K and ANO3K
              found = .false.
              k = 0
-             do while ((.not. found) .and. (k .lt. n_aerolist))
+             do while ((.not. found) .and. (k .lt. n_aerospc))
                k = k + 1
                n = 0
                do while ((.not. found) .and. (n .lt. n_mode))
                   n = n + 1
-                  if (aerolist(k)%name(n) .eq. ae_spc(i)) then
+                  if (aerospc(k)%name(n) .eq. ae_spc(i)) then
                      found = .true.
                   end if
                end do
              end do
              if (found) then
-                if (aerolist(k)%optic_surr .eq. 'SOLUTE') then
+                if (aerospc(k)%optic_surr .eq. 'SOLUTE') then
                    num_ws_spc(n) = num_ws_spc(n) + 1
                    ws_spc_index(num_ws_spc(n), n) = i
-                else if (aerolist(k)%optic_surr .eq. 'DUST') then
+                else if (aerospc(k)%optic_surr .eq. 'DUST') then
                    num_wi_spc(n) = num_wi_spc(n) + 1
                    wi_spc_index(num_wi_spc(n), n) = i
                 end if 

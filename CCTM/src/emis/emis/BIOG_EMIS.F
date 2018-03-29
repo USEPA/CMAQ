@@ -17,12 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/BIOG_EMIS.F,v 1.5 2012/01/19 15:23:37 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE BIOG_EMIS
 
@@ -35,6 +29,7 @@ C     20 Sep 2007 J.Young: inline DSCSPROF, eliminate MODSPRO module
 C     16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 
 C-----------------------------------------------------------------------
+      USE EMIS_VARS
 
       IMPLICIT NONE
 
@@ -402,7 +397,7 @@ C Reposition sequential file for second pass
          write( logdev,* ) '    Biogenic emissions species:'
          write( logdev,* ) '    Pol POLNAMES  Spc SPCNAMES         Mspcs EMSPC'
 #endif
-C Find emitted species names
+C Find emitted CMAQ species names
          MSPCS = 0
          DO POL = 1, NSEF
             DO ISP = 1, MXSPEC
@@ -422,6 +417,22 @@ C Find emitted species names
                END IF
             END DO
          END DO
+
+C Save Species names in global array for mapping emissions
+         EM_FILE_SURR( IBIOSRM )%LEN = MSPCS
+         ALLOCATE( EM_FILE_SURR( IBIOSRM )%ARRY ( MSPCS ) )
+         ALLOCATE( EM_FILE_SURR( IBIOSRM )%CMAQ ( MSPCS ) )
+         ALLOCATE( EM_FILE_SURR( IBIOSRM )%UNITS( MSPCS ) )
+         ALLOCATE( EM_FILE_SURR( IBIOSRM )%PHASE( MSPCS ) )
+         ALLOCATE( EM_FILE_SURR( IBIOSRM )%MW   ( MSPCS ) )
+         ALLOCATE( EM_FILE_SURR( IBIOSRM )%USED ( MSPCS ) )
+         
+         EM_FILE_SURR( IBIOSRM )%ARRY  = EMSPC
+         EM_FILE_SURR( IBIOSRM )%CMAQ  = EMSPC
+         EM_FILE_SURR( IBIOSRM )%UNITS = 'MOLES/S'
+         EM_FILE_SURR( IBIOSRM )%PHASE = 'GAS'
+         EM_FILE_SURR( IBIOSRM )%MW    = 0.0
+         EM_FILE_SURR( IBIOSRM )%USED  = .FALSE.
 
 C Allocate memory for storing mole- and mass-based factors
          ALLOCATE( MLFAC( MSPCS,NSEF ), STAT=IOS )
@@ -475,7 +486,6 @@ C not found (skip entry)
             SNDX = INDEX1( SPECNM, MSPCS, EMSPC )
             IF ( SNDX .GT. 0 ) THEN
                MLFAC( SNDX,PNDX ) = SPLTFAC / SDIV
-!              MSFAC( SNDX,PNDX ) = SMFAC * GM2TON
                MSFAC( SNDX,PNDX ) = SMFAC
             END IF
 

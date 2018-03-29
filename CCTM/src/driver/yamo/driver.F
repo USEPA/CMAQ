@@ -280,6 +280,7 @@ C Set CGRID mechanism
             XMSG = 'Error in CGRID_SPCS:CGRID_SPCS_INIT'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
+
 #ifdef verbose_driver
          write( logdev,* ) ' MYPE -> NSPCS:    ', mype, nspcsd
 #endif

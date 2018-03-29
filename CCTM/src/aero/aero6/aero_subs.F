@@ -1121,9 +1121,9 @@ C     Equations A13-A14 of Binkowski & Shankar (1995).
 C *** Set conc array to aerosol concentrations prior to mass transfer
 C     (The _RENORM and cation_FAC constants are set in the AERO_DATA module)
 
-            SEACAT    = REAL( AEROSPC_CONC( ASEACAT_IDX,IMODE ), 8 )          ! ASEACAT_IDX = 40
-            SOILwVOLS = REAL( AEROSPC_CONC( ASOIL_IDX,IMODE ), 8 ) / ASOIL_RENORM ! ASOIL_IDX = 38
-            PMCwVOLS  = REAL( AEROSPC_CONC( ACORS_IDX,IMODE ), 8 ) / ACORS_RENORM ! ACORS_IDX = 39
+            SEACAT    = REAL( AEROSPC_CONC( ASEACAT_IDX,IMODE ), 8 )              
+            SOILwVOLS = REAL( AEROSPC_CONC( ASOIL_IDX,IMODE ), 8 ) / ASOIL_RENORM 
+            PMCwVOLS  = REAL( AEROSPC_CONC( ACORS_IDX,IMODE ), 8 ) / ACORSEM_RENORM 
 
             CINORG( KNH4,IMODE ) = REAL( AEROSPC_CONC( ANH4_IDX,IMODE ), 8 )  ! KNH4 = 1, ANH4_IDX = 4
             CINORG( KNO3,IMODE ) = REAL( AEROSPC_CONC( ANO3_IDX,IMODE ), 8 )  ! KNO3 = 2, ANO3_IDX = 2

@@ -58,14 +58,15 @@
 !C                         * replaced CDATE and CTIME with JDATE and JTIME, respectively 
 !C                           when calling INTERPX
 !C----------------------------------------------------------------------
+      USE EMIS_VARS
 
       IMPLICIT NONE
 
       LOGICAL,              SAVE :: LTNG_NO          ! flag for lightning NO emissions
-      INTEGER,              SAVE :: LTNG_MAP         ! map to GC NO
       REAL,    ALLOCATABLE, SAVE :: VDEMIS_LT( :,:,: )   ! lightning emis
+      CHARACTER( 16 ),      SAVE :: CTM_LTNG_NO = 'CTM_LTNG_NO'  ! env var Cflag
 
-      PUBLIC LTNG_NO, LTNG_MAP, VDEMIS_LT, LTNG_INIT, GET_LTNG, LTSPC
+      PUBLIC LTNG_NO, VDEMIS_LT, LTNG_INIT, GET_LTNG, LTSPC, CTM_LTNG_NO
       PRIVATE
 
 !C lightning emis species name
@@ -106,6 +107,8 @@
       REAL,    ALLOCATABLE, SAVE :: ICCG        ( :,: ) ! intercloud strikes per cloud to ground strike
 !C Vertical coord values
       REAL,    ALLOCATABLE, SAVE :: VGLVSLT( : )
+!C Buffer for Reading Emissions
+      REAL,    ALLOCATABLE, SAVE :: BUFF( :,:,: )
 
 !C    scenario time/date needed for diagnostic output
       INTEGER, SAVE    :: SDATE     ! scenario start date
@@ -132,7 +135,7 @@
 !C======================================================================
 !C Initialize lightning routines
 
-         FUNCTION LTNG_INIT ( JDATE, JTIME, TSTEP, EMLAYS ) RESULT ( SUCCESS )
+         FUNCTION LTNG_INIT ( JDATE, JTIME, TSTEP ) RESULT ( SUCCESS )
 
          USE GRID_CONF ! horizontal & vertical domain specifications
          USE CGRID_SPCS         ! CGRID mechanism species
@@ -145,8 +148,6 @@
          INCLUDE SUBST_FILES_ID  ! file name parameters
 
 !C Arguments:
-C        INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
-         INTEGER, INTENT( IN ) :: EMLAYS     ! number of emissions layers
          INTEGER :: JDATE, JTIME, TSTEP
 
          LOGICAL SUCCESS
@@ -158,7 +159,6 @@ C        INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
 !        INTEGER :: ICCG_UNIT    ! scenario start time
          INTEGER :: COL, ROW     ! local col and row variable 
 !C Local Variables:
-         CHARACTER( 16 ), SAVE :: CTM_LTNG_NO = 'CTM_LTNG_NO'  ! env var Cflag
 !C value to start log linear regression  
          CHARACTER( 16 )       :: PNAME = 'LTNG_INIT'
          CHARACTER( 80 )       :: VARDESC   ! env variable description
@@ -169,7 +169,6 @@ C        INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
 
          LOGICAL LTNGPARAM           ! env var to use lightning NO parameters file
          INTEGER LSPCS               ! no. of lightning species
-         REAL    CONVEM              ! conversion for emissions rates to Kg/s
          INTEGER               :: I, J, K, L, V, STATUS
          INTEGER               :: CJDATE
          CHARACTER( 7 )        :: SJDATE
@@ -185,10 +184,24 @@ C        INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
 
 !C Lightning NO production
 !C Set LTNG_NO to Y or T to turn on lightning NO production
-         VARDESC = 'Flag for lightning emissions'
-         LTNG_NO = ENVYN( CTM_LTNG_NO, VARDESC, .FALSE., STATUS )
          IF ( .NOT. LTNG_NO ) RETURN
 
+!C Populate Emissions Species Record
+         EM_FILE_SURR( ILTSRM )%LEN = 1
+         ALLOCATE( EM_FILE_SURR( ILTSRM )%ARRY ( 1 ) )
+         ALLOCATE( EM_FILE_SURR( ILTSRM )%CMAQ ( 1 ) )
+         ALLOCATE( EM_FILE_SURR( ILTSRM )%UNITS( 1 ) )
+         ALLOCATE( EM_FILE_SURR( ILTSRM )%PHASE( 1 ) )
+         ALLOCATE( EM_FILE_SURR( ILTSRM )%MW   ( 1 ) )
+         ALLOCATE( EM_FILE_SURR( ILTSRM )%USED ( 1 ) )
+         
+         EM_FILE_SURR( ILTSRM )%ARRY  = "NO"
+         EM_FILE_SURR( ILTSRM )%CMAQ  = "NO"
+         EM_FILE_SURR( ILTSRM )%UNITS = 'MOLES/S'
+         EM_FILE_SURR( ILTSRM )%PHASE = 'GAS'
+         EM_FILE_SURR( ILTSRM )%MW    = 0.0
+         EM_FILE_SURR( ILTSRM )%USED  = .FALSE.
+ 
 !C Read in scenario time/date
          SDATE = ENVINT( 'CTM_STDATE', 'Scenario Start (YYYYJJJ)', 0, STATUS )
          STIME = ENVINT( 'CTM_STTIME', 'Scenario Start (HHMMSS)', 0, STATUS )
@@ -511,21 +524,21 @@ C        INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
 
          LTLYRS = EMLAYS
 
-!C Lightning to gas-phase species map
-
-         LTNG_MAP = INDEX1( LTSPC, N_GC_EMIS, GC_EMIS )
-         IF ( LTNG_MAP .EQ. 0 ) THEN
-            XMSG = TRIM( LTSPC ) // ' not found in GC_EMIS table'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
-         ALLOCATE( VDEMIS_LT( NCOLS,NROWS,LTLYRS ), STAT = STATUS )
+!C Build Emissions Buffer
+         ALLOCATE( VDEMIS_LT( LTLYRS,NCOLS,NROWS ), STAT = STATUS )
          IF ( STATUS .NE. 0 ) THEN
             XMSG = 'VDEMIS_LT memory allocation failed'
             CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
             SUCCESS = .FALSE.; RETURN
          END IF
-
+ 
+         ALLOCATE( BUFF( NCOLS,NROWS,LTLYRS ), STAT = STATUS )
+         IF ( STATUS .NE. 0 ) THEN
+            XMSG = 'BUFF memory allocation failed'
+            CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+            SUCCESS = .FALSE.; RETURN
+         END IF
+ 
          RETURN
 
          END FUNCTION LTNG_INIT
@@ -784,7 +797,7 @@ C statement function for ERF approximation
 
                   DO LAY = 1, LTLYRS
 !C Re-normalize, in some cases area under the error function is not 1
-                     VDEMIS_LT( COL,ROW,LAY ) = LTEMIS( LAY ) / SUM_FRAC
+                     VDEMIS_LT( LAY,COL,ROW ) = LTEMIS( LAY ) / SUM_FRAC
                   END DO        ! layers renormalized
 
                END DO   ! columns
@@ -803,8 +816,15 @@ C statement function for ERF approximation
             END IF
 
 !C Write lightning NO to the diagnostic file
-            IF ( LTNGDIAG ) THEN
-               VDEMIS_DIAG = VDEMIS_DIAG + VDEMIS_LT   ! array assignment
+            IF ( LTNGDIAG ) THEN 
+               DO LAY = 1,LTLYRS
+               DO ROW = 1, MY_NROWS
+               DO COL = 1, MY_NCOLS
+                  VDEMIS_DIAG( COL,ROW,LAY ) = VDEMIS_DIAG( COL,ROW,LAY ) 
+     &                   + VDEMIS_LT( LAY,COL,ROW )   ! array assignment
+               END DO
+               END DO
+               END DO
                COLUMN_DIAG = COLUMN_DIAG + COLUMN_LTNG_NO
                IF ( LASTTIC ) THEN   ! time to write out
                   DIVFAC = 1.0 / REAL( MTICS, 4 )
@@ -837,14 +857,19 @@ C statement function for ERF approximation
 
 !C Read in lightning NO production from an input file
             VDEMIS_LT = 0.0   ! array assignment
+            BUFF = 0.0
 
             IF ( .NOT. INTERPX( LNAME, LTSPC, PNAME,
      &                          STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,LTLYRS,
-     &                          JDATE, JTIME, VDEMIS_LT ) ) THEN
+     &                          JDATE, JTIME, BUFF ) ) THEN
                XMSG = 'Could not read NO' //
      &                ' from file "' // TRIM( LNAME ) // '"'
                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
             END IF
+
+            DO LAY = 1,LTLYRS
+               VDEMIS_LT( LAY,:,: ) = BUFF( :,:,LAY )
+            END DO
 
          END IF  ! end lightning NO production inline or from a file
 
