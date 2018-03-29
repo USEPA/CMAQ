@@ -121,6 +121,13 @@ SUBROUTINE metvars2ctm
 !           21 Aug 2015  Changed latent heat flux from QFX to LH.  Fill THETA
 !                        and add moisture flux (QFX) for IFMOLACM.  (T. Spero)
 !           17 Sep 2015  Changed IFMOLACM to IFMOLPX.  (T. Spero)
+!           16 Mar 2018  Added SNOWH to output.  Changed calculation of Jacobian
+!                        for hybrid vertical coordinate in WRF, but disabled it
+!                        for this release until addtional modifications and
+!                        testing with CMAQ can be conducted.  Calculate soil
+!                        layer depths in XZSOIL, and map 3D soil data into 3D
+!                        soil arrays.  Process data for NOAH Mosaic.  Added
+!                        mapping of Noah wind speed and dynamic LAI.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE mcipparm
@@ -335,6 +342,7 @@ SUBROUTINE metvars2ctm
   xzruf  (:,:) = znt     (sc:ec,sr:er)
   xalbedo(:,:) = albedo  (sc:ec,sr:er)
   xsnocov(:,:) = snowcovr(sc:ec,sr:er)
+  xsnowh (:,:) = snowh   (sc:ec,sr:er)
 
   xgsw   (:,:) = xrgrnd(:,:) * ( 1.0 - xalbedo(:,:) )
 
@@ -498,9 +506,20 @@ SUBROUTINE metvars2ctm
     xsltyp (:,:)   = FLOAT( isltyp(sc:ec,sr:er) )
     xtga   (:,:)   =        soilt1(sc:ec,sr:er)
     xt2a   (:,:)   =        soilt2(sc:ec,sr:er)
+    xsoim3d(:,:,:) =        soim3d(sc:ec,sr:er,:)
+    xsoit3d(:,:,:) =        soit3d(sc:ec,sr:er,:)
   ELSE
 !  ~ Downstream options that request these fields cannot be invoked
 !  ~ as they will not be in the output.
+  ENDIF
+
+  IF ( ifmosaic ) THEN
+    xlai_mos(:,:,:) = lai_mos(sc:ec,sr:er,:)
+    xrs_mos (:,:,:) =  rs_mos(sc:ec,sr:er,:)
+    xtsk_mos(:,:,:) = tsk_mos(sc:ec,sr:er,:)
+    xznt_mos(:,:,:) = znt_mos(sc:ec,sr:er,:)
+    xwspdsfc(:,:)   = wspdsfc(sc:ec,sr:er)
+    xxlaidyn(:,:)   = xlaidyn(sc:ec,sr:er)
   ENDIF
 
   IF ( lpv > 0 ) THEN
@@ -748,15 +767,28 @@ SUBROUTINE metvars2ctm
 
   IF ( met_model == 2 ) THEN
 
-    DO k = 0, metlay
-      ! Calculate Jacobian from WRF relation:
-      !   J*g = - d(phi)/d(eta) = - d(g z)/d(eta) = mu alpha = mu/rho
-      x3jacobf(:,:,k) = giwrf * xmu(:,:) / xdensaf(:,:,k)
-      IF ( k == 0 ) CYCLE
-      x3jacobm(:,:,k) = giwrf * xmu(:,:) / xdensam(:,:,k)
-!!!   deta = xx3face(k) - xx3face(k-1)  ! negative delta eta
-!!!   x3jacobm(:,:,k) = giwrf * (xgeof(:,:,k) - xgeof(:,:,k-1)) / deta
-    ENDDO
+!!!    IF ( met_hybrid == 2 ) THEN
+!!!      DO k = 0, metlay
+!!!        ! Adjust mu (a.k.a., ps - ptop) for hybrid coordinate.
+!!!        ! Calculate Jacobian from WRF relation:
+!!!        !   J*g = - d(phi)/d(eta) = - d(g z)/d(eta) = mu alpha = mu/rho
+!!!        xmuhyb(:,:)     = c1f(k+1) * xmu(:,:) + c2f(k+1)
+!!!        x3jacobf(:,:,k) = giwrf  * xmuhyb(:,:) / xdensaf(:,:,k)
+!!!        IF ( k == 0 ) CYCLE
+!!!        xmuhyb(:,:)     = c1h(k) * xmu(:,:) + c2h(k)
+!!!        x3jacobm(:,:,k) = giwrf  * xmuhyb(:,:) / xdensam(:,:,k)
+!!!      ENDDO
+!!!    ELSE
+      DO k = 0, metlay
+        ! Calculate Jacobian from WRF relation:
+        !   J*g = - d(phi)/d(eta) = - d(g z)/d(eta) = mu alpha = mu/rho
+        x3jacobf(:,:,k) = giwrf * xmu(:,:) / xdensaf(:,:,k)
+        IF ( k == 0 ) CYCLE
+        x3jacobm(:,:,k) = giwrf * xmu(:,:) / xdensam(:,:,k)
+!!!     deta = xx3face(k) - xx3face(k-1)  ! negative delta eta
+!!!     x3jacobm(:,:,k) = giwrf * (xgeof(:,:,k) - xgeof(:,:,k-1)) / deta
+      ENDDO
+!!!    ENDIF
 
     CALL layht  (xx3face, xx3midl, x3jacobf, x3jacobm, x3htf, x3htm)
 
@@ -778,6 +810,28 @@ SUBROUTINE metvars2ctm
     CALL vertnhy
   ELSE IF ( met_model == 2 ) THEN  ! WRF-ARW
     CALL vertnhy_wrf
+  ENDIF
+
+!-------------------------------------------------------------------------------
+! Calculate depths of soil layers.
+!-------------------------------------------------------------------------------
+
+  IF ( met_model == 1 ) THEN  ! MM5v3
+    IF ( met_ns == 2 ) THEN  ! Pleim-Xiu LSM
+      xzsoil(1) = -0.01  ! m  (1 cm)
+      xzsoil(2) = -1.00  ! m  (100 cm)
+    ELSE IF ( met_ns == 4 ) THEN  ! NOAH LSM
+      xzsoil(1) = -0.10  ! m  (10 cm)
+      xzsoil(2) = -0.40  ! m  (40 cm)
+      xzsoil(3) = -1.00  ! m  (100 cm)
+      xzsoil(4) = -2.00  ! m  (200 cm)
+    ENDIF
+  ELSE IF ( met_model == 2 ) THEN  ! WRF-ARW
+    IF ( met_ns > 0 ) THEN
+      DO k = 1, met_ns
+        xzsoil(k) = 0.0 - (SUM(dzs(1:k)))  ! m
+      ENDDO
+    ENDIF
   ENDIF
 
 !-------------------------------------------------------------------------------

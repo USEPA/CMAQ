@@ -51,6 +51,7 @@ MODULE wrf_netcdf
 !                        Changed F77 character declarations to F90 standard.
 !                        (T. Otte)
 !           07 Sep 2011  Updated disclaimer.  (T. Otte)
+!           02 Feb 2018  Added new routine GET_VAR_3D_INT_CDF.  (T. Spero)
 !-------------------------------------------------------------------------------
 
 CONTAINS
@@ -85,6 +86,37 @@ SUBROUTINE get_var_3d_real_cdf (cdfid, var, dum3d, it, rcode)
                         count=(/nx,ny,nz,1/))
 
 END SUBROUTINE get_var_3d_real_cdf
+
+!-------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
+
+SUBROUTINE get_var_3d_int_cdf (cdfid, var, idum3d, it, rcode)
+
+  USE netcdf
+
+  IMPLICIT NONE
+
+  INTEGER,           INTENT(IN)    :: cdfid
+  INTEGER                          :: id_data
+  INTEGER,           INTENT(OUT)   :: idum3d    ( : , : , : )
+  INTEGER,           INTENT(IN)    :: it
+  INTEGER                          :: nx
+  INTEGER                          :: ny
+  INTEGER                          :: nz
+  INTEGER,           INTENT(OUT)   :: rcode
+  CHARACTER(LEN=*),  INTENT(IN)    :: var
+
+  nx = SIZE(idum3d,1)
+  ny = SIZE(idum3d,2)
+  nz = SIZE(idum3d,3)
+
+  rcode = nf90_inq_varid (cdfid, var, id_data)
+  IF ( rcode /= nf90_noerr ) RETURN
+
+  rcode = nf90_get_var (cdfid, id_data, idum3d, start=(/1,1,1,it/),  &
+                        count=(/nx,ny,nz,1/))
+
+END SUBROUTINE get_var_3d_int_cdf
 
 !-------------------------------------------------------------------------------
 !-------------------------------------------------------------------------------

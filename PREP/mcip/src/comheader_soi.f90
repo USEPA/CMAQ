@@ -16,29 +16,23 @@
 !  subject to their copyright restrictions.                                    !
 !------------------------------------------------------------------------------!
 
-SUBROUTINE comheader (sdate, stime)
+SUBROUTINE comheader_soi (sdate, stime)
 
 !-------------------------------------------------------------------------------
-! Name:     Common Header
+! Name:     Common Header (Soil)
 ! Purpose:  Builds a common header part for I/O API output.
-! Revised:  27 Jan 1997  Created for MCIP and generalized CTM.  (D. Byun)
-!           04 Feb 1998  LSM include nonglobal changed.  (D. Byun)
-!           10 Sep 2001  Converted to free-form f90.  (T. Otte)
-!           30 Jul 2007  Fill FDESC3D to create metadata.  (T. Otte)
-!           11 Aug 2011  Replaced module FDESC3 with I/O API module M3UTILIO.
-!                        (T. Otte)
-!           07 Sep 2011  Updated disclaimer.  (T. Otte)
-!           10 Feb 2018  Reinitialize VGLVS3D on each call to accommodate
-!                        additional 3D I/O API output files where the third
-!                        dimension is not atmospheric layers.  (T. Spero)
+! Revised:  10 Feb 2018  Initial version adapted from comheader.f90 in
+!                        MCIPv4.4.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE coord
   USE m3utilio
   USE mcipparm
+  USE xvars, ONLY: xzsoil
 
   IMPLICIT NONE
 
+  INTEGER                      :: i
   INTEGER,       INTENT(IN)    :: sdate       ! YYYYDDD
   INTEGER,       INTENT(IN)    :: stime       ! HHMMSS
 
@@ -62,13 +56,16 @@ SUBROUTINE comheader (sdate, stime)
   xcell3d = xcell_gd
   ycell3d = ycell_gd
 
-  vgtyp3d = vgtyp_gd
-  vgtop3d = vgtop_gd
+  vgtyp3d = vghval3
+  vgtop3d = 0.0
 
-  ! Layer defined in standard met. coordinate.
+  ! Layer defined in soil depths.
 
-  vglvs3d(:)         = 0.0  ! initialized to ensure monotonicity
-  vglvs3d(1:nlays+1) = vglvs_gd(1:nlays+1)
+  vglvs3d(:) = -999.9  ! initialized to ensure monotonicity
+
+  DO i = 1, metsoi
+    vglvs3d(i) = xzsoil(i)
+  ENDDO
  
   ! Initialize FDESC3D and UPDESC3D array.
 
@@ -78,4 +75,4 @@ SUBROUTINE comheader (sdate, stime)
   fdesc3d(:) = fdesc(:)
   updsc3d(:) = fdesc(:)
 
-END SUBROUTINE comheader
+END SUBROUTINE comheader_soi

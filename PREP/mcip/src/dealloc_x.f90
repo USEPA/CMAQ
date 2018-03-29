@@ -67,6 +67,12 @@ SUBROUTINE dealloc_x
 !                        fraction to output.  (T. Spero)
 !           21 Aug 2015  Changed latent heat flux from QFX to LH.  Added
 !                        moisture flux (QFX).  (T. Spero)
+!           16 Mar 2018  Added SNOWH to output.  Added XMUHYB to support hybrid
+!                        vertical coordinate in WRF output.  Added XLUFRAC2,
+!                        XMOSCATIDX, XZNT_MOS, XTSK_MOS, XRA_MOS, XRS_MOS, and
+!                        XLAI_MOS for NOAH Mosaic land-surface model.  Added
+!                        XZSOIL, and added 3D soil arrays, XSOIT3D and XSOIM3D.
+!                        Added XWSPDSFC and XXLAIDYN for Noah.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE xvars
@@ -82,6 +88,8 @@ SUBROUTINE dealloc_x
   DEALLOCATE ( xdx3     )
 
   DEALLOCATE ( xludesc  )
+
+  IF ( ALLOCATED ( xzsoil ) ) DEALLOCATE ( xzsoil )
 
 !-------------------------------------------------------------------------------
 ! Dot-Point and Face 2D Arrays.
@@ -148,6 +156,9 @@ SUBROUTINE dealloc_x
   DEALLOCATE ( xwbar    )
   DEALLOCATE ( xsnocov  )
   DEALLOCATE ( xseaice  )
+  DEALLOCATE ( xsnowh   )
+
+  IF ( ALLOCATED ( xmuhyb ) )  DEALLOCATE ( xmuhyb )
 
   IF ( ALLOCATED ( xu10   ) )  DEALLOCATE ( xu10   )
   IF ( ALLOCATED ( xv10   ) )  DEALLOCATE ( xv10   )
@@ -194,6 +205,27 @@ SUBROUTINE dealloc_x
   DEALLOCATE ( xvv_d )
   DEALLOCATE ( xuu_s )
   DEALLOCATE ( xvv_t )
+
+!-------------------------------------------------------------------------------
+! Cross-Point Arrays for Soil.
+!-------------------------------------------------------------------------------
+
+  IF ( ALLOCATED ( xsoit3d ) )  DEALLOCATE ( xsoit3d )
+  IF ( ALLOCATED ( xsoim3d ) )  DEALLOCATE ( xsoim3d )
+
+!-------------------------------------------------------------------------------
+! Cross-Point Arrays for Mosaic.
+!-------------------------------------------------------------------------------
+
+  IF ( ALLOCATED (xlufrac2  ) ) DEALLOCATE ( xlufrac2   )
+  IF ( ALLOCATED (xmoscatidx) ) DEALLOCATE ( xmoscatidx )
+  IF ( ALLOCATED (xlai_mos  ) ) DEALLOCATE ( xlai_mos   )
+  IF ( ALLOCATED (xra_mos   ) ) DEALLOCATE ( xra_mos    )
+  IF ( ALLOCATED (xrs_mos   ) ) DEALLOCATE ( xrs_mos    )
+  IF ( ALLOCATED (xtsk_mos  ) ) DEALLOCATE ( xtsk_mos   )
+  IF ( ALLOCATED (xznt_mos  ) ) DEALLOCATE ( xznt_mos   )
+  IF ( ALLOCATED (xwspdsfc  ) ) DEALLOCATE ( xwspdsfc   )
+  IF ( ALLOCATED (xxlaidyn  ) ) DEALLOCATE ( xxlaidyn   )
 
 !-------------------------------------------------------------------------------
 ! Variables for WRF only.
