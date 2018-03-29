@@ -102,7 +102,7 @@ setenv CTM_ADV_CFL 0.95      #> max CFL [ default: 0.75]
 #setenv RB_ATOL 1.0E-09       #> global ROS3 solver abs tol [ default: 1.0E-07 ] 
 
 #> Science Options
-setenv CTM_SS_AERO Y         #> use inline sea spray aerosol emissions [ default: Y ]
+setenv CTM_SS_AERO Y         #> use inline Sea Spray Aerosol emissions [ default: Y ]
 setenv CTM_WB_DUST Y         #> use inline windblown dust emissions [ default: Y ]
 setenv CTM_ERODE_AGLAND Y    #> use agricultural activity for windblown dust 
                              #>    [ default: N ]; ignore if CTM_WB_DUST = N
@@ -144,6 +144,14 @@ setenv FL_ERR_STOP N         #> stop on inconsistent input files
 setenv PROMPTFLAG F          #> turn on I/O-API PROMPT*FILE interactive mode [ options: T | F ]
 setenv IOAPI_OFFSET_64 NO    #> support large timestep records (>2GB/timestep record) [ options: YES | NO ]
 setenv CTM_EMISCHK N         #> Abort CMAQ if missing surrogates from emissions Input files
+setenv EMISDIAG F            #> Print Emission Rates at the output time step after they have
+                             #>   scaled and modified by the user Rules [options: F | T or 2D | 3D | 2DSUM ]
+                             #>   Individual streams can be modified using the variables:
+                             #>       GR_EMIS_DIAG_## | STK_EMIS_DIAG_## | BIOG_EMIS_DIAG
+                             #>       MG_EMIS_DIAG    | LTNG_EMIS_DIAG   | DUST_EMIS_DIAG
+                             #>       SEASPRAY_EMIS_DIAG   
+                             #>   Note that these diagnostics are different than other emissions diagnostic
+                             #>   output because they reflect emission rates after scaling.
 
 #> Aerosol Diagnostic Controls
 setenv CTM_AVISDIAG Y        #> Aerovis diagnostic file [ default: N ]
@@ -248,17 +256,25 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 
   setenv LAYER_FILE $MET_CRO_3D  # Deprecated: MET_CRO_3D is now read directly in CCTM
 
+  #> Emissions Control File
+  setenv EMISSCTRL_NML ${WORKDIR}/EmissCtrl.nml
 
-  #> Emissions files 
-  if ( $CTM_PT3DEMIS == 'N' ) then
-     #> Offline 3d emissions file name
-     set EMISfile  = emis_mole_all_${YYYYMMDD}_cb6_bench.nc
-  else
-     #> In-line emissions configuration
+  #> Spatial Masks For Emissions Scaling
+  setenv CMAQ_MASKS $SZpath/12US1_surf_bench.nc #> horizontal grid-dependent surf zone file
+
+  #> Gridded Emissions files 
+  setenv N_EMIS_GR 1
+  set    EMISfile  = emis_mole_all_${YYYYMMDD}_cb6_bench.nc
+  setenv GR_EMIS_01 ${EMISpath}/${EMISfile}
+  setenv GR_EMIS_LAB_01 GRIDDED_EMIS
+  #setenv GR_EMIS_DIAG_01 2D
+
+  #> In-line point emissions configuration
+  if ( $CTM_PT3DEMIS == 'Y' ) then
+     setenv N_EMIS_PT 5          #> Number of elevated source groups
+
      set STKCASEG = 12US1_2011ek_cb6cmaq_v6_11g           # Stack Group Version Label
      set STKCASEE = 12US1_cmaq_cb6e51_2011ek_cb6cmaq_v6_11g   # Stack Emission Version Label
-     set EMISfile  = emis_mole_all_${YYYYMMDD}_cb6_bench.nc #> Surface emissions
-     setenv NPTGRPS 5          #> Number of elevated source groups
 
      setenv STK_GRPS_01 $IN_PTpath/stack_groups/stack_groups_ptnonipm_${STKCASEG}.nc
      setenv STK_GRPS_02 $IN_PTpath/stack_groups/stack_groups_ptegu_${STKCASEG}.nc
@@ -274,6 +290,19 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      setenv STK_EMIS_04 $IN_PTpath/ptfire/inln_mole_ptfire_${YYYYMMDD}_${STKCASEE}.nc
      setenv STK_EMIS_05 $IN_PTpath/pt_oilgas/inln_mole_pt_oilgas_${YYYYMMDD}_${STKCASEE}.nc
      setenv LAYP_STDATE $YYYYJJJ
+
+     setenv STK_EMIS_LAB_01 POINT_NONEGU
+     setenv STK_EMIS_LAB_02 POINT_EGU
+     setenv STK_EMIS_LAB_03 POINT_OTHER
+     setenv STK_EMIS_LAB_04 POINT_FIRES
+     setenv STK_EMIS_LAB_05 POINT_OILGAS
+
+     #setenv STK_EMIS_DIAG_01 2DSUM
+     #setenv STK_EMIS_DIAG_02 2DSUM
+     #setenv STK_EMIS_DIAG_03 2DSUM
+     #setenv STK_EMIS_DIAG_04 2DSUM
+     #setenv STK_EMIS_DIAG_05 2DSUM
+
   endif
 
   #> Lightning NOx configuration
@@ -409,6 +438,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
         echo " deleting $file"
         /bin/rm -f $file  
      end
+     /bin/rm -f ${OUTDIR}/CCTM_EMDIAG*
 
   else
      #> remove previous log files
@@ -437,7 +467,6 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv CTM_STTIME      $STTIME
   setenv CTM_RUNLEN      $NSTEPS
   setenv CTM_TSTEP       $TSTEP
-  setenv EMIS_1 $EMISpath/$EMISfile
   setenv INIT_GASC_1 $ICpath/$ICFILE
   setenv INIT_AERO_1 $INIT_GASC_1
   setenv INIT_NONR_1 $INIT_GASC_1
@@ -487,7 +516,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #> Executable call for multi PE, configure for your system 
   # set MPI = /usr/local/intel/impi/3.2.2.006/bin64
   # set MPIRUN = $MPI/mpirun
-  time mpirun -r ssh -np $NPROCS $BLD/$EXEC
+  time mpirun -np $NPROCS $BLD/$EXEC
 
   date
 
