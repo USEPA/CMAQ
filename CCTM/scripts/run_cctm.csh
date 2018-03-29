@@ -134,9 +134,11 @@ setenv CTM_ZERO_PCSOA N      #> turn off the emissions of the VOC precursor to p
 setenv CTM_PROCAN N          #> use process analysis [ default: N]
 #> process analysis global column, row and layer ranges
 #> user must check GRIDDESC for validity!
-setenv PA_BCOL_ECOL "10 320"
-setenv PA_BROW_EROW "10 195"
+setenv PA_BCOL_ECOL "10 90"
+setenv PA_BROW_EROW "10 80"
 setenv PA_BLEV_ELEV "1  4"
+setenv PACM_INFILE PA.ctrl
+setenv PACM_REPORT ${LOGDIR}/PACM_REPORT.txt
 
 #> I/O Controls
 setenv IOAPI_LOG_WRITE F     #> turn on excess WRITE3 logging [ options: T | F ]
