@@ -177,12 +177,42 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &                                   IPR_SPNAM( NIPR )
                IPROUT( NIPR,11 )   = NIPRVAR
                LPROCOUT( 11 )      = .TRUE.
-            ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'AERO' ) THEN
-               IPRNAME_TMP( NIPRVAR )  = 'AERO_' // IPR_SPNAM( NIPR )
-               IPRDESC_TMP( NIPRVAR )  = 'Aerosols for ' // 
+            ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'COND' ) THEN
+               IPRNAME_TMP( NIPRVAR )  = 'COND_' // IPR_SPNAM( NIPR )
+               IPRDESC_TMP( NIPRVAR )  = 'Condensation for ' // 
      &                                    IPR_SPNAM( NIPR )
                IPROUT( NIPR,12 )   = NIPRVAR
                LPROCOUT( 12 )      = .TRUE.
+            ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'COAG' ) THEN
+               IPRNAME_TMP( NIPRVAR )  = 'COAG_' // IPR_SPNAM( NIPR )
+               IPRDESC_TMP( NIPRVAR )  = 'Coagulation for ' // 
+     &                                    IPR_SPNAM( NIPR )
+               IPROUT( NIPR,13 )   = NIPRVAR
+               LPROCOUT( 13 )      = .TRUE.
+            ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'GROWTH' ) THEN
+               IPRNAME_TMP( NIPRVAR )  = 'GROWTH_' // IPR_SPNAM( NIPR )
+               IPRDESC_TMP( NIPRVAR )  = 'Aerosol Growth (Renaming) for ' // 
+     &                                    IPR_SPNAM( NIPR )
+               IPROUT( NIPR,14 )   = NIPRVAR
+               LPROCOUT( 14 )      = .TRUE.
+            ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'NPF' ) THEN
+               IPRNAME_TMP( NIPRVAR )  = 'NPF_' // IPR_SPNAM( NIPR )
+               IPRDESC_TMP( NIPRVAR )  = 'New Particle Formation for ' // 
+     &                                    IPR_SPNAM( NIPR )
+               IPROUT( NIPR,15 )   = NIPRVAR
+               LPROCOUT( 15 )      = .TRUE.
+            ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'AERO' ) THEN
+               IPRNAME_TMP( NIPRVAR ) = 'AERO_' // IPR_SPNAM( NIPR )
+               IPRDESC_TMP( NIPRVAR ) = 'Aerosol Impact on ' // 
+     &                                   IPR_SPNAM( NIPR )
+               IPROUT( NIPR,12 )  = NIPRVAR
+               IPROUT( NIPR,13 )  = NIPRVAR
+               IPROUT( NIPR,14 )  = NIPRVAR
+               IPROUT( NIPR,15 )  = NIPRVAR
+               LPROCOUT( 12 )     = .TRUE.
+               LPROCOUT( 13 )     = .TRUE.
+               LPROCOUT( 14 )     = .TRUE.
+               LPROCOUT( 15 )     = .TRUE.
             ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'ADV2' ) THEN
                IPRNAME_TMP( NIPRVAR ) = 'ADV2_' // IPR_SPNAM( NIPR )
                IPRDESC_TMP( NIPRVAR ) = 'XY-Advection of ' //
@@ -261,8 +291,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                IPRNAME_TMP( NIPRVAR ) = 'PING_' // IPR_SPNAM( NIPR )
                IPRDESC_TMP( NIPRVAR ) = 'PING Impact on ' // 
      &                                   IPR_SPNAM( NIPR )
-               IPROUT( NIPR,13 )  = NIPRVAR
-               LPROCOUT( 13 )     = .TRUE.
+               IPROUT( NIPR,16 )  = NIPRVAR
+               LPROCOUT( 16 )     = .TRUE.
             END IF
          END DO
       END DO

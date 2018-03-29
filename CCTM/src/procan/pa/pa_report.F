@@ -52,7 +52,7 @@ C-----------------------------------------------------------------------
 C Includes: None
 C Arguments: None
 C Parameters:
-      CHARACTER( 16 ), PARAMETER :: PACM_REPORT = 'PACM_REPORT'  
+      CHARACTER( 20 ), PARAMETER :: PACM_REPORT = 'PACM_REPORT'  
       CHARACTER( 16 ), PARAMETER :: PNAME = 'PA_REPORT'  
 
 C External Functions: None

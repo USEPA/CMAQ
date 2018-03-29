@@ -60,13 +60,14 @@ c    SV2GRD    = Array of CTM indicies for saved concs
 c    SPCOEF    = Array of coefficients for IPR familys
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-      INTEGER, PARAMETER :: NPRCS = 13
+      INTEGER, PARAMETER :: NPRCS = 16
 
       CHARACTER( 16 ), PARAMETER :: PROCNAME( NPRCS ) = (/
      &   'XADV            ',  'YADV            ',  'ZADV            ',
      &   'ADJC            ',  'HADV            ',  'HDIF            ',
      &   'VDIF            ',  'EMIS            ',  'DDEP            ',
-     &   'CLDS            ',  'CHEM            ',  'AERO            ',
+     &   'CLDS            ',  'CHEM            ',  'COND            ',
+     &   'COAG            ',  'GROWTH          ',  'NPF             ',
      &   'PING            ' /)
 
 c this is set in pa_getiprout.F, pa_errcheck.F?
@@ -131,7 +132,6 @@ c these are set in pa_setup_irr.F, pa_errcheck.F
       INTEGER, SAVE :: MXTEMPTRMS = 0
 
 c this is set in the Model`s GRID_CONF
-!     INTEGER, SAVE :: BLKSIZED = BLKSIZE
       INTEGER, SAVE :: BLKSIZED = 50
 
 c these are allocated in pa_setup_irr.F

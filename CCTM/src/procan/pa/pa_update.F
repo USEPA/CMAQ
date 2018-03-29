@@ -1095,16 +1095,6 @@ C retrieve transported RhoJ
             END DO
          END DO
       END DO
-!     write( logdev,* ) "decouple, RHOJ from CONC:", jtime
-
-!     VNAME = 'DENSA_J'
-!     IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, PNAME,
-!    &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-!    &                    JDATE, JTIME, RRHOJ ) ) THEN
-!        XMSG = 'Could not read ' // VNAME // ' from ' // MET_CRO_3D
-!        CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-!     END IF
-!     write( logdev,* ) "decouple, RHOJ from MET_CRO_3D:", jtime
 
       RRHOJ = 1.0 / RRHOJ   ! array assignment
 
