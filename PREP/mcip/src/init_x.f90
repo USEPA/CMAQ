@@ -81,6 +81,13 @@ SUBROUTINE init_x
 !           21 Aug 2015  Changed latent heat flux from QFX to LH.  Fill THETA
 !                        and add moisture flux (QFX) for IFMOLACM.  (T. Spero)
 !           17 Sep 2015  Changed IFMOLACM to IFMOLPX.  (T. Spero)
+!           16 Mar 2018  Added SNOWH to output.  Added XMUHYB to support hybrid
+!                        vertical coordinate in WRF output.  Added XLUFRAC2,
+!                        XMOSCATIDX, XLAI_MOS, XRA_MOS, XRS_MOS, XTSK_MOS, and
+!                        XZNT_MOS to support NOAH Mosaic land-surface model.
+!                        Added XZSOIL to define soil layer depths, and added
+!                        3D soil arrays, XSOIT3D and XSOIM3D.  Added
+!                        XWSPDSFC and XXLAIDYN for Noah.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE mcipparm
@@ -114,12 +121,17 @@ SUBROUTINE init_x
   xrainc  (:,:)   = badval3  ;    xrainn  (:,:)   = badval3
   xrgrnd  (:,:)   = badval3  ;    xrib    (:,:)   = badval3
   xrstom  (:,:)   = badval3  ;    xseaice (:,:)   = badval3
-  xsnocov (:,:)   = badval3  ;    xtemp2  (:,:)   = badval3
-  xtempg  (:,:)   = badval3  ;    xtopo   (:,:)   = badval3
-  xustar  (:,:)   = badval3  ;    xveg    (:,:)   = badval3
-  xwbar   (:,:)   = badval3  ;    xwdir10 (:,:)   = badval3
-  xwr     (:,:)   = badval3  ;    xwspd10 (:,:)   = badval3
-  xwstar  (:,:)   = badval3  ;    xzruf   (:,:)   = badval3
+  xsnocov (:,:)   = badval3  ;    xsnowh  (:,:)   = badval3
+  xtemp2  (:,:)   = badval3  ;    xtempg  (:,:)   = badval3
+  xtopo   (:,:)   = badval3  ;    xustar  (:,:)   = badval3
+  xveg    (:,:)   = badval3  ;    xwbar   (:,:)   = badval3
+  xwdir10 (:,:)   = badval3  ;    xwr     (:,:)   = badval3 
+  xwspd10 (:,:)   = badval3  ;    xwstar  (:,:)   = badval3
+  xzruf   (:,:)   = badval3
+
+  IF ( met_hybrid == 2 ) THEN
+    xmuhyb(:,:)   = badval3
+  ENDIF
 
   IF ( ifw10m ) THEN
     xu10  (:,:)   = badval3  ;    xv10    (:,:)   = badval3
@@ -181,6 +193,24 @@ SUBROUTINE init_x
 
   IF ( ifcld3d ) THEN
     xcfrac3d(:,:,:) = badval3
+  ENDIF
+
+  IF ( ( ifsoil ) .AND. ( metsoi > 0 ) ) THEN
+    xzsoil (:)     = badval3
+    xsoit3d(:,:,:) = badval3
+    xsoim3d(:,:,:) = badval3
+  ENDIF
+
+  IF ( nummosaic > 0 ) THEN
+    xlufrac2  (:,:,:) = badval3
+    xmoscatidx(:,:,:) = badval3
+    xlai_mos  (:,:,:) = badval3
+    xra_mos   (:,:,:) = badval3
+    xrs_mos   (:,:,:) = badval3
+    xtsk_mos  (:,:,:) = badval3
+    xznt_mos  (:,:,:) = badval3
+    xwspdsfc  (:,:)   = badval3
+    xxlaidyn  (:,:)   = badval3
   ENDIF
 
 END SUBROUTINE init_x

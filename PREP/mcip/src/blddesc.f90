@@ -35,6 +35,8 @@ SUBROUTINE blddesc
 !           07 Sep 2011  Updated disclaimer.  (T. Otte)
 !           07 Dec 2011  Added MET_FDDA_GPH3D for spectral nudging coefficient
 !                        toward geopotential.  (T. Otte)
+!           26 Jan 2018  Added coefficient for spectral nudging of moisture to
+!                        metadata.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE mcipparm
@@ -143,7 +145,11 @@ SUBROUTINE blddesc
     ELSE
       coeff_t = 'unknown'
     ENDIF
-    coeff_q = 'not applicable'
+    IF ( met_fdda_gq3d >= 0.0 ) THEN
+      WRITE ( coeff_q, '(es10.3, a)' ) met_fdda_gq3d, ' s-1'
+    ELSE
+      coeff_q = 'not applicable'
+    ENDIF
     IF ( met_fdda_gph3d >= 0.0 ) THEN
       WRITE ( coeff_g, '(es10.3, a)' ) met_fdda_gph3d, ' s-1'
     ELSE

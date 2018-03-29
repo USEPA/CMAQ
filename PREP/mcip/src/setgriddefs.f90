@@ -143,6 +143,13 @@ SUBROUTINE setgriddefs
 !                        (T. Spero)
 !           17 Sep 2015  Changed IFMOLACM to IFMOLPX.  (T. Spero)
 !           23 Jun 2017  Added MET_HYBRID setting to log output.  (T. Spero)
+!           22 Feb 2018  Refined calculation of interval between WRF output
+!                        times to account for small drifts when advection time
+!                        steps do not fall exactly on the hour.  
+!                        Corrected error in text of print statement 6155.
+!                        Removed superfluous variables METROW and METCOL.
+!                        Defined METSOI.  Prevent MCIP from using meteorology
+!                        initialization time.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE mcipparm
@@ -158,6 +165,7 @@ SUBROUTINE setgriddefs
   CHARACTER(LEN=16),  PARAMETER     :: pname     = 'SETGRIDDEFS'
   REAL,               PARAMETER     :: pole      = 90.0  ! degrees
   REAL                              :: rnthik
+  INTEGER                           :: ttol_min  ! minutes
   REAL                              :: xorig_ctm
   REAL                              :: xorig_m
   REAL                              :: xorig_x
@@ -182,7 +190,7 @@ SUBROUTINE setgriddefs
       "(/, 1x, a, ' was ', a, ' found in the meteorology input file')"
 
   CHARACTER(LEN=256), PARAMETER :: f6155 = &
-      "(/, 1x, a, ' will ', a, ' be recomputed by MCIP (Only for WRF-ACM2)')"
+      "(/, 1x, a, ' will ', a, ' be recomputed by MCIP (Only for WRF P-X LSM)')"
 
   CHARACTER(LEN=256), PARAMETER :: f6160 = &
       "(1x, a, ' will be read from the ', a, ' file')"
@@ -254,7 +262,7 @@ SUBROUTINE setgriddefs
 
   CHARACTER(LEN=256), PARAMETER :: f9400 = "(/, 1x, 70('*'), &
     & /, 1x, '*** SUBROUTINE: ', a, &
-    & /, 1x, '***   MCIP start date is earlier than input start time', &
+    & /, 1x, '***   MCIP output must start after meteorology start time', &
     & /, 1x, '***   User-defined MCIP start date = ', a, &
     & /, 1x, '***   Input meteorology start date = ', a, &
     & /, 1x, 70('*'))"
@@ -270,9 +278,10 @@ SUBROUTINE setgriddefs
 ! Define MCIP grid coordinate information from meteorology grid input.
 !-------------------------------------------------------------------------------
 
-  metcol = met_nx
-  metrow = met_ny
+  ttol_min = NINT( REAL(ttol_sec) / 60.0 )  ! convert time tolerance to minutes
+
   metlay = met_nz
+  metsoi = met_ns
 
   IF ( nthik == 0 ) THEN
     WRITE (*,f9000) TRIM(pname)
@@ -536,12 +545,12 @@ SUBROUTINE setgriddefs
 ! Check user-defined MCIP output time info against input meteorology.
 !-------------------------------------------------------------------------------
 
-  IF ( intvl < NINT(met_tapfrq) ) THEN
+  IF ( ABS( intvl - NINT(met_tapfrq) ) > ttol_min ) THEN
     WRITE (*,f9300) TRIM(pname), intvl, met_tapfrq
     CALL graceful_stop (pname)
   ENDIF
 
-  IF ( mcip_start < met_startdate ) THEN
+  IF ( mcip_start <= met_startdate ) THEN
     WRITE (*,f9400) TRIM(pname), mcip_start, met_startdate
     CALL graceful_stop (pname)
   ENDIF
@@ -757,7 +766,7 @@ SUBROUTINE setgriddefs
   WRITE (*,f6180) 'HYBRID VERTICAL COORDINATE (WRF ONLY)', TRIM(yesno)
 
   WRITE (*,'(/)')
-  WRITE (*,f6200) 'Met   ', metcol,  metrow,  metlay
+  WRITE (*,f6200) 'Met   ', met_nx,  met_ny,  metlay
   WRITE (*,f6200) 'MCIP X', ncols_x, nrows_x, metlay
   WRITE (*,f6200) 'Output', ncols,   nrows,   nlays
   WRITE (*,'(/)')
