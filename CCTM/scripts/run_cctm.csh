@@ -24,7 +24,7 @@
  cd CCTM/scripts
 
 #> Set General Parameters for Configuring the Simulation
- set VRSN      = v5.2.1            #> Code Version
+ set VRSN      = v521            #> Code Version
  set PROC      = mpi               #> serial or mpi
  set MECH      = cb6r3_ae6_aq      #> Mechanism ID
  set EMIS      = 2013ef            #> Emission Inventory Details

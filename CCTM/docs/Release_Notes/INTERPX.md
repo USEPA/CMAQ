@@ -5,8 +5,11 @@
 ## Brief Description
 
 
+The pull request allows the METCRO2D file to have different horizontal dimensions and origin than the METCRO3D file in **hrdriver.F**. The code change defines the INTERPX offsets for the METCRO2D file unique to this input file. It provides greater compatibilty with the two-way version of the CMAQ model because because this model version does not use the METCRO3D file. Note the ros3 and smvgear solvers do not require this fix.
+
 ## Significance and Impact
 
+A user can more easily use the repository version of an ebi solver for a photochemical mechanism when switching from the off-line to the two-way version of the CMAQ model.
 
 ## Affected Files:
 

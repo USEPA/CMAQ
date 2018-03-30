@@ -55,9 +55,15 @@ SUBROUTINE alloc_met
 !           21 Aug 2015  Changed latent heat flux from QFX to LH.  Fill THETA
 !                        and add moisture flux (QFX) for IFMOLACM.  (T. Spero)
 !           17 Sep 2015  Changed IFMOLACM to IFMOLPX.  (T. Spero)
+!           16 Mar 2018  Added SNOWH to output.  Added C1H, C2H, C1F, and C2F to
+!                        support hybrid vertical coordinate in WRF.  Added
+!                        LUFRAC2, MOSCATIDX, ZNT_MOS, TSK_MOS, RA_MOS, RS_MOS,
+!                        and LAI_MOS for NOAH Mosaic land-surface model.
+!                        Added DZS, SOIT3D, and SOIM3D.  Added WSPDSFC and
+!                        XLAIDYN for Noah.  (T. Spero)
 !-------------------------------------------------------------------------------
 
-  USE metinfo, nx => met_nx, ny => met_ny, nz => met_nz
+  USE metinfo, nx => met_nx, ny => met_ny, nz => met_nz, ns => met_ns
   USE metvars
   USE mcipparm
 
@@ -82,17 +88,32 @@ SUBROUTINE alloc_met
   ALLOCATE ( mapdot   (nx, ny)       )
   ALLOCATE ( mapu     (nx, ny)       )
   ALLOCATE ( mapv     (nx, ny)       )
-  ALLOCATE ( sigmah           (nz)   )
   ALLOCATE ( sigmaf           (nz+1) )
+  ALLOCATE ( sigmah           (nz)   )
   ALLOCATE ( terrain  (nx, ny)       )
   ALLOCATE ( znt      (nx, ny)       )
 
   IF ( iflufrc ) THEN
     ALLOCATE ( lufrac (nx, ny, nummetlu) )
+    IF ( ifmosaic ) THEN
+      ALLOCATE ( lufrac2   (nx, ny, nummetlu) )
+      ALLOCATE ( moscatidx (nx, ny, nummetlu) )
+    ENDIF
   ENDIF
 
   IF ( lpv > 0 ) THEN  ! potential vorticity; get Coriolis
     ALLOCATE ( coriolis (nx, ny) )
+  ENDIF
+
+  IF ( met_hybrid == 2 ) THEN
+    ALLOCATE ( c1f              (nz+1) )
+    ALLOCATE ( c1h              (nz)   )
+    ALLOCATE ( c2f              (nz+1) )
+    ALLOCATE ( c2h              (nz)   )
+  ENDIF
+
+  IF ( ns > 0 ) THEN
+    ALLOCATE ( dzs              (ns)   )
   ENDIF
 
 !-------------------------------------------------------------------------------
@@ -122,6 +143,7 @@ SUBROUTINE alloc_met
   ALLOCATE ( rnold   (nx, ny)       )   ! save this variable on each call
   ALLOCATE ( seaice  (nx, ny)       )
   ALLOCATE ( snowcovr(nx, ny)       )
+  ALLOCATE ( snowh   (nx, ny)       )
   ALLOCATE ( ta      (nx, ny, nz)   )
   ALLOCATE ( ua      (nx, ny, nz)   )
   ALLOCATE ( ust     (nx, ny)       )
@@ -175,11 +197,13 @@ SUBROUTINE alloc_met
   ENDIF
 
   IF ( ifsoil ) THEN  ! soil moisture, temperature, and type available
-    ALLOCATE ( isltyp (nx, ny) )
-    ALLOCATE ( soilt1 (nx, ny) )
-    ALLOCATE ( soilt2 (nx, ny) )
-    ALLOCATE ( w2     (nx, ny) )
-    ALLOCATE ( wg     (nx, ny) )
+    ALLOCATE ( isltyp (nx, ny)     )
+    ALLOCATE ( soilt1 (nx, ny)     )
+    ALLOCATE ( soilt2 (nx, ny)     )
+    ALLOCATE ( w2     (nx, ny)     )
+    ALLOCATE ( wg     (nx, ny)     )
+    ALLOCATE ( soim3d (nx, ny, ns) )
+    ALLOCATE ( soit3d (nx, ny, ns) )
   ENDIF
 
   IF ( iftke ) THEN  ! turbulent kinetic energy available
@@ -204,6 +228,16 @@ SUBROUTINE alloc_met
 
   IF ( ifcld3d ) THEN
     ALLOCATE ( cldfra (nx, ny, nz) )
+  ENDIF
+
+  IF ( ifmosaic ) THEN
+    ALLOCATE ( lai_mos (nx, ny, nummosaic) )
+    ALLOCATE ( ra_mos  (nx, ny, nummosaic) )
+    ALLOCATE ( rs_mos  (nx, ny, nummosaic) )
+    ALLOCATE ( tsk_mos (nx, ny, nummosaic) )
+    ALLOCATE ( znt_mos (nx, ny, nummosaic) )
+    ALLOCATE ( wspdsfc (nx, ny)            )
+    ALLOCATE ( xlaidyn (nx, ny)            )
   ENDIF
 
 END SUBROUTINE alloc_met
