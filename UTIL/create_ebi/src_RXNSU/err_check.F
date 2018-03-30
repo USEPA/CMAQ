@@ -36,17 +36,19 @@ C..EXTERNAL FUNCTIONS:
 C..SAVED LOCAL VARIABLES: None
  
 C..SCRATCH LOCAL VARIABLES:
-      CHARACTER(   3 )         ::    RNUM
+      CHARACTER(   5 )         ::    RNUM
       CHARACTER(  16 )         ::    PNAME = 'ERR_CHECK'    ! Program name
       CHARACTER( 100 )         ::    LINOUT                 ! Reaction line
       CHARACTER( 150 )         ::    RXOUT                  ! Reaction line
       CHARACTER( 256 )         ::    MSG                    ! Message text
 
       INTEGER         ::  E1, E2
-      INTEGER         ::  N
+      INTEGER         ::  M, N 
       INTEGER         ::  NPOS
       INTEGER         ::  IND
 
+      REAL(8)         :: RXN_LOSS = 0.0D0
+      REAL(8)         :: RXN_PROD = 0.0D0
   
       LOGICAL         ::  LERROR 
       LOGICAL         ::  LRXN1 
@@ -187,7 +189,7 @@ c..check for rxns w/ more than 2 reactants ( Warning only )
                WRITE( LOGDEV, 95000 )
                LRXN1 = .FALSE.
             END IF
-            WRITE( RNUM, '(I3)') N
+            WRITE( RNUM, '(I5)') N
             CALL CMPRS_RXN( IZERO, IZERO, IZERO, IZERO, N, RXOUT )
             CALL TRIM_RXN( RXOUT, NPOS )
             E1 = LEN_TRIM( RXOUT )
@@ -210,7 +212,7 @@ c..check to make sure all O1D loss reactions are psuedo-first order
                WRITE( LOGDEV, 95020 )
                LRXN1 = .FALSE.
             END IF
-            WRITE( RNUM, '(I3)') N
+            WRITE( RNUM, '(I5)') N
             CALL CMPRS_RXN( IZERO, IZERO, IZERO, IZERO, N, RXOUT )
             CALL TRIM_RXN( RXOUT, NPOS )
             E1 = LEN_TRIM( RXOUT )
@@ -371,12 +373,14 @@ c..check for a HO2+HO2= reaction
          LERROR = .TRUE.
       END IF
 
+      
 c..check for a C2O3+C2O3= reaction
       LFOUND = .FALSE.
       DO N = 1, NRXNS
          IF( IRR( N, 1 ) .EQ. C2O3 .AND. IRR( N, 2 ) .EQ. C2O3 .AND.
      &       NREACT( N ) .EQ. 2 ) THEN
             LFOUND = .TRUE.
+            RXN_C2O3_SELF = N
             EXIT
          END IF
       END DO
@@ -413,7 +417,7 @@ c..Check that all NO2EX loss reactions are psuedo-first order
                   WRITE( LOGDEV, 95280 )
                   LRXN1 = .FALSE.
                END IF
-               WRITE( RNUM, '(I3)') N
+               WRITE( RNUM, '(I5)') N
                CALL CMPRS_RXN( IZERO, IZERO, IZERO, IZERO, N, RXOUT )
                CALL TRIM_RXN( RXOUT, NPOS )
                E1 = LEN_TRIM( RXOUT )
@@ -427,8 +431,31 @@ c..Check that all NO2EX loss reactions are psuedo-first order
 
       END IF    ! LNO2_CYCLE = .TRUE.
 
-   
-
+! Check for net negative stoichiometry in reactions
+      
+      DO M = 1, NRXNS
+         DO N = 1, NUMB_MECH_SPC
+            CALL SUM_COEFF( RXN_LOSS, 'R', N, M )
+            CALL SUM_COEFF( RXN_PROD, 'P', N, M )
+            IF( RXN_LOSS + RXN_PROD .GE. 0.0D0 )CYCLE
+            IF( LPAR_NEG .AND. TRIM( CHEMISTRY_SPC( N ) ) .EQ. 'PAR' )CYCLE
+            LERROR = .TRUE.
+            IF( .NOT. LPAR_NEG .AND. TRIM( CHEMISTRY_SPC( N ) ) .EQ. 'PAR' )THEN
+               WRITE( RNUM, '(I5)') N
+               MSG = '     ERROR: REACTION ' // TRIM( RXLABEL( M ) )
+     &            // ' has negative net yield for PAR but PAR_NEG_FLAG set to false. '
+     &            // 'Correct run script and re-run.'
+               WRITE(LOGDEV,92000)TRIM( MSG )
+               CYCLE               
+            END IF
+            MSG =  '     ERROR: REACTION ' // TRIM( RXLABEL( M ) )
+     &          // ' has negative net yield for ' // TRIM( CHEMISTRY_SPC( N ) )  
+     &          // '. Not Permitted.'
+            WRITE(LOGDEV,92000)TRIM( MSG )
+         END DO
+      END DO   
+           
+         
 
 c..check to make sure no group 1-4 species are also steady-state species
       IF( N_SS_SPC .GT. 0 ) THEN
