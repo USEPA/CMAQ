@@ -3,7 +3,7 @@ FORTRAN and c code that create a new CSQY_DATA table for a photochemical mechani
 
 1) Edit scripts/bldit.inline_phot_preproc for your compiler and Mechanism. Save and run to build the software.
 
-2) IF NECESSARY, modify src/dumb.makefile based on the compilers and their flags on your computer platform.
+2) IF NECESSARY, modify src/inline_phot_preproc.makefile based on the compilers and their flags on your computer platform.
 
 3) Edit scripts/run.inline_phot_preproc for your application. Mechanism needs to match what was selected in the build script.
 

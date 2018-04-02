@@ -35,7 +35,7 @@ else
 endif 
 
  cp ../src/* $XBASE
- cd $XBASE ; make clean; make -f dumb.makefile; cd ../
+ cd $XBASE ; make clean; make -f inline_phot_preproc.makefile; cd ../
 
  if( ! ( -e  $XBASE/$EXEC ) )then
      \ls $XBASE/$EXEC
