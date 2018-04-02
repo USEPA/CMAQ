@@ -83,7 +83,6 @@ C-----------------------------------------------------------------------
       USE CGRID_SPCS            ! CGRID mechanism species
       USE VDIFF_MAP, ONLY : N_SPC_DIFF, DIFF_SPC, DIFF_MW,
      &                       DIFF_MASK_AERO, DIFF_MASK_NUM, DIFF_MASK_SRF
-      USE PA_GLOBAL, ONLY : SPC_NAME  ! Process Anaylsis control and data variables
       USE PA_DEFN               ! Process Anaylsis control and data variables
       USE PAGRD_DEFN            ! PA horiz domain specs
       USE UTILIO_DEFN           ! inherits PARUTILIO
@@ -122,12 +121,6 @@ C Gas species counts:
 C Dimension index assigned for VDIF
       INTEGER, PARAMETER :: IND_VM = 1
 
-C Dimension index assigned for CHEM 
-      INTEGER, PARAMETER :: IND_CH = 2
-
-C Dimension index assigned for AERO 
-      INTEGER, PARAMETER :: IND_AE = 3
-
 C Maximum allowable number of unexpected processes
       INTEGER, PARAMETER :: MXUNEXP = 50
 
@@ -158,9 +151,6 @@ C Saved Local Variables:
 
 C Indices for emission species in IPR outputs
       INTEGER, ALLOCATABLE, SAVE :: IPR_NGR2EM( :,:,: )  ! ( N_IPR_SPC,MXCGRID,3 )
-
-C AE species?
-      LOGICAL, ALLOCATABLE, SAVE :: IPR_AESPEC( :,: )    ! ( N_IPR_SPC,MXCGRID )
 
 C Indices for dep species in IPR outputs
       INTEGER, ALLOCATABLE, SAVE :: IPR_NGR2DD( :,: )    ! ( N_IPR_SPC,MXCGRID )
@@ -297,9 +287,6 @@ C Get process index and convert units if necessary
       IF ( LCOUPLE ) THEN
          SDATE = JDATE; STIME = JTIME
          CALL NEXTIME( SDATE, STIME, TSTEP( 2 ) )
-#ifdef verbose_pa_update
-         write( logdev,* ) "pa_update, call decouple:", stime, stime, "  ", prname
-#endif
          CNGRD = CGRID  ! local copy (separate memory)
          CALL DECOUPLE( CNGRD, SDATE, STIME )
 
@@ -436,10 +423,9 @@ C..On first call, set pointers to emission species
       IF ( LEMFIRST ) THEN
          LEMFIRST = .FALSE.
 
-         ALLOCATE ( IPR_NGR2EM( N_IPR_SPC,MXCGRID,3 ),
-     &              IPR_AESPEC( N_IPR_SPC,MXCGRID ), STAT = ASTAT )
+         ALLOCATE ( IPR_NGR2EM( N_IPR_SPC,MXCGRID,1 ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
-            MSG = 'Failure allocating IPR_NGR2EM or IPR_AESPEC'
+            MSG = 'Failure allocating IPR_NGR2EM'
             CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
          END IF
 
@@ -453,8 +439,6 @@ C..On first call, set pointers to emission species
 C..Set-up pointers to emis, vdiff, chem, and aero processes         
          PRINDEM = INDEX1( 'EMIS', NPRCS, PROCNAME )
          PRINDVD = INDEX1( 'VDIF', NPRCS, PROCNAME )
-         PRINDCH = INDEX1( 'CHEM', NPRCS, PROCNAME )
-         PRINDAE = INDEX1( 'AERO', NPRCS, PROCNAME )
 
 C..Set the pointers to the emission array
          DO NPA = 1, N_IPR_SPC            ! foreach family
@@ -463,13 +447,10 @@ C..Set the pointers to the emission array
 
                ICG = IPR2GRD( NPA,NGR )  ! CTM species index in the family
                IPR_NGR2EM( NPA,NGR,IND_VM ) = 0 
-               IPR_NGR2EM( NPA,NGR,IND_CH ) = 0 
-               IPR_NGR2EM( NPA,NGR,IND_AE ) = 0
-               IPR_AESPEC( NPA,NGR ) = .FALSE.
                IND = 0
 
                ! Determine Position of Species on Emission Rate Array
-               IND = INDEX1( SPC_NAME( ICG ), N_SPC_DIFF, DIFF_SPC )
+               IND = INDEX1( CGRID_NAME( ICG ), N_SPC_DIFF, DIFF_SPC )
                IF ( IND .GT. 0 ) THEN
                   IPR_NGR2EM( NPA,NGR,IND_VM ) = IND 
 
@@ -491,23 +472,6 @@ C..set cell widths
          END IF
          DDX = 1.0 / DX
          DDY = 1.0 / DY
-
-C..check units on emissions file
-         IF ( .NOT. DESC3( EM_FILE_NAME( 1 ) ) ) THEN
-              MSG = 'Could not get '// EM_FILE_NAME( 1 ) // ' file description'
-            CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT2 )
-         END IF
-
-         CALL UPCASE ( UNITS3D( 1 ) )
-         IF ( UNITS3D( 1 ) .NE. 'MOLES/S'   .AND.
-     &        UNITS3D( 1 ) .NE. 'MOLE/S'    .AND.
-     &        UNITS3D( 1 ) .NE. 'MOL/S'     .AND.
-     &        UNITS3D( 1 ) .NE. 'MOLES/SEC' .AND.
-     &        UNITS3D( 1 ) .NE. 'MOLE/SEC'  .AND.
-     &        UNITS3D( 1 ) .NE. 'MOL/SEC' ) THEN
-            MSG = 'Units incorrect on ' // EM_FILE_NAME( 1 )
-            CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
-         END IF
 
 C..get number of emission layers
          EMISLYRS = NLAYS3D
@@ -555,22 +519,11 @@ C..output if necessary for each output species
 
       DO NPA = 1, N_IPR_SPC              ! foreach family
          IPEM = IPROUT( NPA,PRINDEM )    ! emis species index for this process
-
-         IPAJ = 0
-         IF ( PRNAME .EQ. 'VDIF' ) THEN
-            IPAJ = IPROUT( NPA,PRINDVD )
-            IND = IND_VM
-         ELSE IF ( PRNAME .EQ. 'CHEM' ) THEN
-            IPAJ = IPROUT( NPA,PRINDCH )
-            IND = IND_CH
-         ELSE IF ( PRNAME .EQ. 'AERO' ) THEN ! PA in aero not implemented!
-            IPAJ = IPROUT( NPA,PRINDAE )
-            IND = IND_AE
-         END IF
+         IPAJ = IPROUT( NPA,PRINDVD )
 
          DO NGR = 1, NCGRID( NPA )       ! foreach species in the family
             ICG = IPR2GRD( NPA,NGR )     ! CTM species index in the family
-            IEM = IPR_NGR2EM( NPA,NGR,IND )
+            IEM = IPR_NGR2EM( NPA,NGR,IND_VM )
             LAESP = CGRID_MASK_AERO( ICG ) ! Flag for aerosol species
 
             IF ( IEM .NE. 0 .AND. ( IPEM .NE. 0 .OR. IPAJ .NE. 0 ) ) THEN
@@ -578,6 +531,9 @@ C..output if necessary for each output species
 #ifdef parallel
                CALL SUBST_DATA_COPY ( VEMIS, TVEMIS, IEM )
                IF ( LAESP ) CALL SUBST_DATA_COPY ( DENS, TDENS )
+#else
+               TVEMIS( :,:,: ) = VEMIS( :,:,:,IEM )
+               TDENS = DENS
 #endif
                DO L = MY_BEGLEV, TOPLEV
                   PL = L - MY_BEGLEV + 1
@@ -586,35 +542,20 @@ C..output if necessary for each output species
                      DO C = MY_BEGCOL, MY_ENDCOL
                         PC = C - MY_BEGCOL + 1
 
-C..compute the emissions
-
                         IF ( LAESP ) THEN
-#ifdef parallel
                            ! Aerosol
                            EM = TVEMIS( C,R,L ) * DT * TDENS( C,R,L )
      &                        * PA_EM_CONV( IEM )
                         ELSE
                            ! Gas
                            EM = TVEMIS( C,R,L ) * DT
-#else
-                           ! Aerosol
-                           EM = VEMIS( C,R,L,IEM ) * DT * DENS( C,R,L )
-     &                        * PA_EM_CONV( IEM )
-                        ELSE
-                           ! Gas
-                           EM = VEMIS( C,R,L,IEM ) * DT
-#endif
                         END IF
 
 C..modify both the emiss process and the calling process
-                        IF ( IPEM .NE. 0 ) THEN
-                           DELC( PC,PR,PL,IPEM ) = DELC( PC,PR,PL,IPEM )
+                        DELC( PC,PR,PL,IPEM ) = DELC( PC,PR,PL,IPEM )
      &                                           + SPCOEF( NPA,NGR ) * EM
-                        END IF
-                        IF ( IPAJ .NE. 0 ) THEN
-                           DELC( PC,PR,PL,IPAJ ) = DELC( PC,PR,PL,IPAJ )
+                        DELC( PC,PR,PL,IPAJ ) = DELC( PC,PR,PL,IPAJ )
      &                                           - SPCOEF( NPA,NGR ) * EM
-                        END IF
                      END DO
                   END DO
                END DO
@@ -855,6 +796,15 @@ C..adjust the process analysis output arrays
       END SUBROUTINE PA_UPDATE
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+      SUBROUTINE PA_UPDATE_AERO ( JDATE, JTIME )
+
+C-----------------------------------------------------------------------
+
+
+
+      END SUBROUTINE PA_UPDATE_AERO
+
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE DECOUPLE ( CONC, JDATE, JTIME )
 
 C-----------------------------------------------------------------------
@@ -904,20 +854,12 @@ C Local Variables:
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
       INTEGER, SAVE :: LOGDEV
 
-      INTEGER, SAVE :: NQAE              ! number of micro-grams/m**3 species
-      INTEGER, SAVE :: NNAE              ! number of #/m**3 species
-      INTEGER, SAVE :: NSAE              ! number of m**2/m**3 species
-      INTEGER, ALLOCATABLE, SAVE :: QAE( : ) ! CONC pointer to micro-grams/m**3 species
-      INTEGER, ALLOCATABLE, SAVE :: NAE( : ) ! CONC pointer to #/m**3 species
-      INTEGER, ALLOCATABLE, SAVE :: SAE( : ) ! CONC pointer to m**2/m**3 species
-
       INTEGER     ASTAT
       INTEGER     GXOFF, GYOFF          ! global origin offset from file
 C for INTERPX
       INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
 
-      INTEGER     OFF              ! loop offset to CONC species
-      INTEGER     C, R, L, SPC, V  ! loop counters
+      INTEGER     SPC, V  ! loop counters
       INTEGER     RHOJ_LOC         ! pointer to transported RHOJ (in CONC)
 
 C-----------------------------------------------------------------------
@@ -926,37 +868,6 @@ C-----------------------------------------------------------------------
          FIRSTIME = .FALSE.
          LOGDEV = INIT3()
 
-         IF ( N_AE_SPC .GT. 0 ) THEN
-C create aerosol species pointers to distinguish micro-grams/m**3,
-C #/m**3 (number density), and m**2/m**3 (surface area) species
- 
-            ALLOCATE ( QAE( N_AE_SPC ),
-     &                 NAE( N_AE_SPC ),
-     &                 SAE( N_AE_SPC ), STAT = ASTAT )
-            IF ( ASTAT .NE. 0 ) THEN
-               XMSG = 'Failure allocating QAE, NAE, or SAE'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-            NQAE = 0       ! no. of micro-grams/m**3 species
-            NNAE = 0       ! no. of #/m**3 species
-            NSAE = 0       ! no. of m**2/m**3 species
-!           OFF = AE_STRT - 1
-            OFF = 0
-            DO SPC = 1, N_AE_SPC
-               IF ( AE_SPC( SPC )( 1:3 ) .EQ. 'NUM' ) THEN
-                  NNAE = NNAE + 1
-                  NAE( NNAE ) = OFF + SPC
-               ELSE IF ( AE_SPC( SPC )( 1:3 ) .EQ. 'SRF' ) THEN
-                  NSAE = NSAE + 1
-                  SAE( NSAE ) = OFF + SPC
-               ELSE
-                  NQAE = NQAE + 1
-                  QAE( NQAE ) = OFF + SPC
-               END IF
-            END DO
-
-         END IF
-
          CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
      &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
 
@@ -964,14 +875,7 @@ C #/m**3 (number density), and m**2/m**3 (surface area) species
 
 C retrieve transported RhoJ
       RHOJ_LOC = GC_STRT + N_GC_SPC
-      DO L = 1, NLAYS
-         DO R = 1, MY_NROWS
-            DO C = 1, MY_NCOLS
-               RRHOJ( C,R,L ) = CONC( C,R,L,RHOJ_LOC )
-            END DO
-         END DO
-      END DO
-
+      RRHOJ( :,:,: ) = CONC( :,:,:,RHOJ_LOC )
       RRHOJ = 1.0 / RRHOJ   ! array assignment
 
       VNAME = 'JACOBM'
@@ -985,94 +889,20 @@ C retrieve transported RhoJ
       RJACOBM = 1.0 / RJACOBM   ! array assignment
  
 C decouple for chemistry and diffusion
- 
-C CONC in mixing ratio [ppmV] X (air density X Jacobian) -> mixing ratio [ppmV]
-      IF ( N_GC_SPC .GT. 0 ) THEN
-         OFF = GC_STRT - 1
-         DO V = 1, N_GC_TRNS
-            SPC = OFF + GC_TRNS_MAP( V )
-            DO L = 1, NLAYS
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
-                     CONC( C,R,L,SPC ) = CONC( C,R,L,SPC ) * RRHOJ( C,R,L )
-                  END DO
-               END DO
-            END DO
-         END DO
-      END IF
- 
-      OFF = AE_STRT - 1
-C CONC in Jacobian [m] X [Kg/m**3] -> [ug/m**3]
-      IF ( NQAE .GT. 0 ) THEN
-         DO V = 1, NQAE
-            SPC = OFF + AE_TRNS_MAP( QAE( V ) )
-            DO L = 1, NLAYS
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
-                     CONC( C,R,L,SPC ) = CONV * CONC( C,R,L,SPC ) * RJACOBM( C,R,L )
-                  END DO
-               END DO
-            END DO
-         END DO
-      END IF
-
-C CONC in Jacobian [m] X [#/m**3] -> #/m**3
-      IF ( NNAE .GT. 0 ) THEN
-         DO V = 1, NNAE
-            SPC = OFF + AE_TRNS_MAP( NAE( V ) )
-            DO L = 1, NLAYS
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
-                     CONC( C,R,L,SPC ) = CONC( C,R,L,SPC ) * RJACOBM( C,R,L )
-                  END DO
-               END DO
-            END DO
-         END DO
-      END IF
- 
-C CONC in Jacobian [m] X [m**2/m**3] -> m**2/m**3
-      IF ( NSAE .GT. 0 ) THEN
-         DO V = 1, NSAE
-            SPC = OFF + AE_TRNS_MAP( SAE( V ) )
-            DO L = 1, NLAYS
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
-                     CONC( C,R,L,SPC ) = CONC( C,R,L,SPC ) * RJACOBM( C,R,L )
-                  END DO
-               END DO
-            END DO
-         END DO
-      END IF
-
-C CONC in mixing ratio [ppmV] X (air density X jacobian) -> mixing ratio [ppmV]
-      IF ( N_NR_SPC .GT. 0 ) THEN
-         OFF = NR_STRT - 1
-         DO V = 1, N_NR_TRNS
-            SPC = OFF + NR_TRNS_MAP( V )
-            DO L = 1, NLAYS
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
-                     CONC( C,R,L,SPC ) = CONC( C,R,L,SPC ) * RRHOJ( C,R,L )
-                  END DO
-               END DO
-            END DO
-         END DO
-      END IF
- 
-C CONC in mixing ratio [ppmV] X (air density X jacobian) -> mixing ratio [ppmV]
-      IF ( N_TR_SPC .GT. 0 ) THEN
-         OFF = TR_STRT - 1
-         DO V = 1, N_TR_SPC
-            SPC = OFF + V
-            DO L = 1, NLAYS
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
-                     CONC( C,R,L,SPC ) = CONC( C,R,L,SPC ) * RRHOJ( C,R,L )
-                  END DO
-               END DO
-            END DO
-         END DO
-      END IF
+C The CONC array is ordered like CGRID but only the DIFF species should
+C be modified. Use DIFF_MAP
+      DO V = 1,N_SPC_DIFF
+          IF ( DIFF_MASK_NUM( V ) .OR. DIFF_MASK_SRF( V ) ) THEN 
+            CONC( :,:,:,DIFF_MAP( V ) ) = 
+     &          CONC( :,:,:,DIFF_MAP( V ) ) * RJACOBM( :,:,: )
+          ELSE IF ( DIFF_MASK_AERO( V ) THEN
+            CONC( :,:,:,DIFF_MAP( V ) ) = 
+     &          CONC( :,:,:,DIFF_MAP( V ) ) * CONV * RJACOBM( :,:,: )
+          ELSE
+            CONC( :,:,:,DIFF_MAP( V ) ) = 
+     &          CONC( :,:,:,DIFF_MAP( V ) ) * RRHOJ( :,:,: )
+          END IF
+      END DO
 
       RETURN
 

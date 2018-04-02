@@ -189,13 +189,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &                                    IPR_SPNAM( NIPR )
                IPROUT( NIPR,13 )   = NIPRVAR
                LPROCOUT( 13 )      = .TRUE.
-            ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'GROWTH' ) THEN
+            ELSE IF ( IPR_OPNAME( NIPR,N )( 1:5 ) .EQ. 'GROWTH' ) THEN
                IPRNAME_TMP( NIPRVAR )  = 'GROWTH_' // IPR_SPNAM( NIPR )
                IPRDESC_TMP( NIPRVAR )  = 'Aerosol Growth (Renaming) for ' // 
      &                                    IPR_SPNAM( NIPR )
                IPROUT( NIPR,14 )   = NIPRVAR
                LPROCOUT( 14 )      = .TRUE.
-            ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'NPF' ) THEN
+            ELSE IF ( IPR_OPNAME( NIPR,N )( 1:3 ) .EQ. 'NPF' ) THEN
                IPRNAME_TMP( NIPRVAR )  = 'NPF_' // IPR_SPNAM( NIPR )
                IPRDESC_TMP( NIPRVAR )  = 'New Particle Formation for ' // 
      &                                    IPR_SPNAM( NIPR )
@@ -287,12 +287,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                LPROCOUT( 3 )     = .TRUE.
                LPROCOUT( 6 )     = .TRUE.
                LPROCOUT( 7 )     = .TRUE.
-            ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'PING' ) THEN
-               IPRNAME_TMP( NIPRVAR ) = 'PING_' // IPR_SPNAM( NIPR )
-               IPRDESC_TMP( NIPRVAR ) = 'PING Impact on ' // 
-     &                                   IPR_SPNAM( NIPR )
-               IPROUT( NIPR,16 )  = NIPRVAR
-               LPROCOUT( 16 )     = .TRUE.
             END IF
          END DO
       END DO
@@ -322,7 +316,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       MXCGRID = 1
       DO NIPR = 1, N_IPR_SPC
-         ISP = INDEX1( IPR_SPNAM( NIPR ), N_SPC, SPC_NAME )
+         ISP = INDEX1( IPR_SPNAM( NIPR ), N_CGRID_SPC, CGRID_NAME )
          IF ( ISP .NE. 0 ) THEN
             LSAVSP( ISP ) = .TRUE.
             NCGRID( NIPR ) = 1
@@ -333,7 +327,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             NCGRID( NIPR ) = NUMFAMMEM( IFM )
             MXCGRID = MAX( MXCGRID, NCGRID( NIPR ) )
             DO N = 1, NUMFAMMEM( IFM )
-               ISP = INDEX1( FAMMEMNAM( IFM,N ), N_SPC, SPC_NAME )
+               ISP = INDEX1( FAMMEMNAM( IFM,N ), N_CGRID_SPC, CGRID_NAME )
                LSAVSP( ISP ) = .TRUE.               
                IPR2GRD_TMP( NIPR,N ) = ISP 
                SPCOEF_TMP( NIPR,N ) = FAMSC( IFM,N )

@@ -650,6 +650,17 @@ C Private variables for loading from and unloading to CGRID array
       Logical, Private, Save :: mapped    = .False.
       Character( 16 ), Private, Save :: pname = 'Aero_Data'
 
+! Variables for collecting tendencies for aerosol sub-processes and
+! passing back to modules like Process analysis and ISAM. These vectors
+! should be sized to the same length as the CGRID species dimension and
+! be mapped to CGRID species order. Units for each are total
+! concentration or mixing ratio gained or lost. These are not normalized
+! by the time step. Ex (ppmv, ug m-3, N m-3, or m2 m-3)
+      REAL, ALLOCATABLE :: COND_BUDGET( : )
+      REAL, ALLOCATABLE :: COAG_BUDGET( :,: )
+      REAL, ALLOCATABLE :: NPF_BUDGET( : )
+      REAL, ALLOCATABLE :: GROWTH_BUDGET( : )
+
       Contains
 
 C-----------------------------------------------------------------------

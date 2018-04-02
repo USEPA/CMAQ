@@ -1138,6 +1138,11 @@ C Variables used in equilibrium partitioning calculations
       Real totaer            ! total aerosol-phase mass of each semivolaitle component
       Real Phi               ! mass fraction of a semivolatile component
                              ! in each mode
+! *** Variables for computing the budget
+      REAL :: CBUDGET0_NUM ( N_MODE )
+      REAL :: CBUDGET0_SRF ( N_MODE )
+      REAL :: CBUDGET0_MASS( N_MODE )
+
 
 C Variables for updating 2nd and 3rd moments
       Real(8) m0_init( 2 )  ! initial 0 moment, wet [ mom/m3 ]
@@ -1182,6 +1187,13 @@ C Compute 3rd moment, 2nd moment. moment_conc arrays are wet
       Call calcmoments ( .true. )
       Call getpar( FIXED_sg )
 
+
+! Initialize Budget Variables
+      CBUDGET0_NUM  = MOMENT0_CONC
+      CBUDGET0_SRF  = MOMENT2_CONC
+      CBUDGET0_MASS = AEROSPC_CONC
+
+! Initialize Local Moment Variables
       m3wet_init( : ) = moment3_conc( 1:2 )
       m2wet_init( : ) = moment2_conc( 1:2 )
         
@@ -1508,6 +1520,11 @@ C condensation/evaporation does not affect the geometric standard deviation.
       m2wet_final( 1 ) = m2wet_init( 1 ) * ( m3wet_final( 1 ) / m3wet_init( 1 ) ) ** ( 2.0 / 3.0 )
       m2wet_final( 2 ) = m2wet_init( 2 ) * ( m3wet_final( 2 ) / m3wet_init( 2 ) ) ** ( 2.0 / 3.0 )
       moment2_conc( 1:2 )  = m2wet_final( : )
+
+! *** Update Budget Variables
+      COND_BUDGET( AERONUM_MAP ) = MOMENT0_CONC - CBUDGET0_NUM 
+      COND_BUDGET( AEROSRF_MAP ) = MOMENT2_CONC - CBUDGET0_SRF 
+      COND_BUDGET( AEROSPC_MAP ) = AEROSPC_CONC - CBUDGET0_MASS
 
       Return
       End Subroutine orgaer

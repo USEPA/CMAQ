@@ -60,15 +60,14 @@ c    SV2GRD    = Array of CTM indicies for saved concs
 c    SPCOEF    = Array of coefficients for IPR familys
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-      INTEGER, PARAMETER :: NPRCS = 16
+      INTEGER, PARAMETER :: NPRCS = 15
 
       CHARACTER( 16 ), PARAMETER :: PROCNAME( NPRCS ) = (/
      &   'XADV            ',  'YADV            ',  'ZADV            ',
      &   'ADJC            ',  'HADV            ',  'HDIF            ',
      &   'VDIF            ',  'EMIS            ',  'DDEP            ',
      &   'CLDS            ',  'CHEM            ',  'COND            ',
-     &   'COAG            ',  'GROWTH          ',  'NPF             ',
-     &   'PING            ' /)
+     &   'COAG            ',  'GROWTH          ',  'NPF             ' /)
 
 c this is set in pa_getiprout.F, pa_errcheck.F?
       INTEGER :: N_IPR_SPC = 0
@@ -153,12 +152,5 @@ c these are allocated in pa_setup_irr.F
       REAL,    ALLOCATABLE, SAVE :: IRRCOEF   ( :,: )  ! ( NIRRVAR,MXNIRRRXNS )
       REAL,    ALLOCATABLE, SAVE :: IRRSTEP   ( :,: )  ! ( BLKSIZED,NIRRVAR )
       REAL,    ALLOCATABLE, SAVE :: IRRBLK    ( :,: )  ! ( BLKSIZED,NIRRVAR )
-
-      LOGICAL, ALLOCATABLE, SAVE :: CGRID_MASK_GAS( : )! ( MXCGRID )
-      LOGICAL, ALLOCATABLE, SAVE :: CGRID_MASK_AERO( : )! ( MXCGRID )
-      LOGICAL, ALLOCATABLE, SAVE :: CGRID_MASK_NUM( : )! ( MXCGRID )
-      LOGICAL, ALLOCATABLE, SAVE :: CGRID_MASK_SRF( : )! ( MXCGRID )
-      LOGICAL, ALLOCATABLE, SAVE :: CGRID_MASK_NR( : )! ( MXCGRID )
-      LOGICAL, ALLOCATABLE, SAVE :: CGRID_MASK_TRAC( : )! ( MXCGRID )
 
       END MODULE PA_DEFN

@@ -212,6 +212,7 @@ C-----------------------------------------------------------------------
       USE SOA_DEFN
       USE AEROMET_DATA
       USE UTILIO_DEFN
+      USE AERO_BUDGET
 
       IMPLICIT NONE
 
@@ -259,6 +260,11 @@ C *** Intermodal coagulation rate [ m**3/s ] ( 3rd moment )
       REAL( 8 ) :: DG_D ( N_MODE )
       REAL( 8 ) :: SG_D ( N_MODE )
       REAL( 8 ) :: XXL_D( N_MODE )
+
+! *** Variables for computing the budget
+      REAL( 8 ) :: CBUDGET0_NUM ( N_MODE )
+      REAL( 8 ) :: CBUDGET0_SRF ( N_MODE )
+      REAL( 8 ) :: CBUDGET0_MASS( N_MODE )
 
 C *** variables for advancing concentrations one time step
       REAL( 8 ) :: A, B
@@ -332,28 +338,35 @@ C *** Compute H2SO4 diffusivity, correct for temperature and pressure
 C *** Update size parameters (distribution is wet from ORGAER)
       CALL GETPAR( FIXED_sg )
 
+! *** Mass transfer of inorganic constituents      
+! *** Process Budget is calculated inside this routine because NPF and
+! *** condensation are calculated simultaneously
       CALL VOLINORG( DT, COL, ROW, LAYER, DV_SO4, CGR )
 
-C *** Coagulation
-C     Calculate coagulation coefficients using a method dictated by
-C     the value of FASTCOAG_FLAG.  If TRUE, the computationally-
-C     efficient GETCOAGS routine is used.  If FALSE, the more intensive
-C     Gauss-Hermite numerical quadrature method is used.  See Section
-C     2.1 of Bhave et al. (2004) for further discussion.
-
-C *** set atmospheric mean free path in double precision
+! *** Coagulation
+!     Calculate coagulation coefficients using a method dictated by
+!     the value of FASTCOAG_FLAG.  If TRUE, the computationally-
+!     efficient GETCOAGS routine is used.  If FALSE, the more intensive
+!     Gauss-Hermite numerical quadrature method is used.  See Section
+!     2.1 of Bhave et al. (2004) for further discussion.
+! *** Initialize Budget Variables
+      CBUDGET0_NUM  = MOMENT0_CONC
+      CBUDGET0_SRF  = MOMENT2_CONC
+      CBUDGET0_MASS = AEROSPC_CONC
+ 
+! *** set atmospheric mean free path in double precision
       LAMDA    = XLM
 
-C *** calculate term used in Equation A6 of Binkowski & Shankar (1995)
+! *** calculate term used in Equation A6 of Binkowski & Shankar (1995)
       KNC      = TWOTHIRDS * BOLTZMANN *  AIRTEMP / AMU
 
-C *** calculate terms used in Equation A5 of Binkowski & Shankar (1995)
+! *** calculate terms used in Equation A5 of Binkowski & Shankar (1995)
       KFMAT    = SQRT( 3.0 * BOLTZMANN * AIRTEMP / AEROMODE_DENS( 1 ) )
       KFMAC    = SQRT( 3.0 * BOLTZMANN * AIRTEMP / AEROMODE_DENS( 2 ) )
       KFMATAC  = SQRT( 6.0 * BOLTZMANN * AIRTEMP
      &         / ( AEROMODE_DENS( 1 ) + AEROMODE_DENS( 2 ) ) )
 
-C *** transfer of number to accumulation mode from Aitken mode is zero
+! *** transfer of number to accumulation mode from Aitken mode is zero
       BACAT( 1 ) = 0.0
 
       IF ( FASTCOAG_FLAG ) THEN ! Solve coagulation analytically
@@ -474,6 +487,10 @@ C *** Transfer new value of M2_accum to moment array
 C *** Coarse mode: no change because coagulation of coarse particles
 C     is neglected in current model version.
 
+! ** Update Budget Variable for Second Moment
+      COAG_BUDGET( AEROSRF_MAP( 1 ),1 ) = MOMENT2_CONC( 1 ) - CBUDGET0_SRF( 1 )
+      COAG_BUDGET( AEROSRF_MAP( 2 ),2 ) = MOMENT2_CONC( 2 ) - CBUDGET0_SRF( 2 )
+
 C *** end of update for second moment
 
 C *** Update Zeroth Moment (i.e. number concentration)
@@ -512,6 +529,10 @@ C *** Solve for M0_accum using Smoluchowski`s solution
 
 C *** Transfer new value of M0_accum to the moment array
       MOMENT0_CONC( 2 ) = MAX( AEROMODE_MINNUM( 2 ), REAL( Y ) )
+
+! ** Update Budget Variable for Second Moment
+      COAG_BUDGET( AERONUM_MAP( 1 ),1 ) = MOMENT0_CONC( 1 ) - CBUDGET0_NUM( 1 )
+      COAG_BUDGET( AERONUM_MAP( 2 ),2 ) = MOMENT0_CONC( 2 ) - CBUDGET0_NUM( 2 )
 
 C *** end of update for zeroth moment - note that the coarse mode number does
 C     not change because coarse-mode coagulation is neglected in the model
@@ -561,6 +582,12 @@ C     intermodal coagulation.
      &                                REAL( AEROSPC_CONC( SPC,1 ) * EXPDT ) )
          AEROSPC_CONC( SPC,2 ) = MAX( AEROSPC( SPC )%MIN_CONC( 2 ),
      &                                TMASS - AEROSPC_CONC( SPC,1 ) )
+
+
+         ! Update Budget Variable for Second Moment
+         COAG_BUDGET( AEROSPC_MAP( SPC,1 ),1 ) = AEROSPC_CONC( SPC,1 ) - CBUDGET0_MASS( SPC,1 )
+         COAG_BUDGET( AEROSPC_MAP( SPC,2 ),1 ) = AEROSPC_CONC( SPC,2 ) - CBUDGET0_MASS( SPC,2 )
+
       END DO
 
 C *** end of update for species mass concentrations
@@ -571,6 +598,11 @@ C     If the Aitken mode mass is growing faster than accumulation mode
 C     mass and the Aitken mode number concentration exceeds the
 C     accumulation mode number concentration, then modes are merged by
 C     renaming.
+
+! *** Initialize Budget Variables
+      CBUDGET0_NUM  = MOMENT0_CONC
+      CBUDGET0_SRF  = MOMENT2_CONC
+      CBUDGET0_MASS = AEROSPC_CONC
 
 #ifdef nomm
       if ( .false. ) then
@@ -661,6 +693,11 @@ C *** Set minimum value for all concentrations in the CBLK array
      &                                   AEROSPC( SPC )%MIN_CONC( N ) )
          END DO
       END DO
+
+! *** Propagate Mode Merging and Minimum value impacts to budget variables
+      GROWTH_BUDGET( AERONUM_MAP(:) ) = MOMENT0_CONC(:) - CBUDGET0_NUM(:)
+      GROWTH_BUDGET( AEROSRF_MAP(:) ) = MOMENT0_CONC(:) - CBUDGET0_NUM(:)
+      GROWTH_BUDGET( AEROSPC_MAP(:,:) ) = AEROSPC_CONC(:,:) - CBUDGET0_MASS(:,:)
 
       RETURN
       END SUBROUTINE AEROPROC
@@ -848,6 +885,23 @@ C     mass partitioning between the modes
       REAL( 8 ) :: LOSS                   ! rate of loss of second moment [1/s] 
       REAL( 8 ) :: EQLBHIJ                ! H+ concentration from isoropia for I plus J-modes [ug/m**3]
 
+      REAL( 8 ) :: DELNUM( N_MODE ) ! Change in Number due to some process
+      REAL( 8 ) :: DELSRF( N_MODE ) ! Change in Surface Area due to some process
+      REAL( 8 ) :: DELSO4( N_MODE ) ! Change in Sulfate due to some process
+      REAL( 8 ) :: DELNO3( N_MODE ) ! Change in Nitrate due to some process
+      REAL( 8 ) :: DELNH4( N_MODE ) ! Change in Ammonium due to some process
+      REAL( 8 ) :: DELCL( N_MODE )  ! Change in Chloride due to some process
+      REAL( 8 ) :: DELH2O( N_MODE ) ! Change in Water due to some process
+      REAL( 8 ) :: DELH3OP( N_MODE )! Change in Proton due to some process
+      REAL( 8 ) :: CBUDGET0_NUM( N_MODE ) ! Initial Number before some process
+      REAL( 8 ) :: CBUDGET0_SRF( N_MODE ) ! Initial Surface Area before some process
+      REAL( 8 ) :: CBUDGET0_SO4( N_MODE ) ! Initial Sulfate before some process
+      REAL( 8 ) :: CBUDGET0_NO3( N_MODE ) ! Initial Nitrate before some process
+      REAL( 8 ) :: CBUDGET0_NH4( N_MODE ) ! Initial Ammonium before some process
+      REAL( 8 ) :: CBUDGET0_CL( N_MODE )  ! Initial Chloride before some process
+      REAL( 8 ) :: CBUDGET0_H2O( N_MODE ) ! Initial Particle Water before some process
+      REAL( 8 ) :: CBUDGET0_H3OP( N_MODE )! Initial Proton before some process
+
       REAL( 8 ) :: TMP
       INTEGER I, N                        ! loop and array indices
       INTEGER IMODE                       ! mode loop index  
@@ -862,6 +916,7 @@ C *** Local Saved Variables
       REAL( 8 ), SAVE :: SO4FAC         !  F6DPIM9 / RHOSO4
       REAL( 8 ), SAVE :: SOILFAC        !  F6DPIM9 / RHOSOIL
       REAL( 8 ), SAVE :: ANTHFAC        !  F6DPIM9 / RHOANTH
+      REAL( 8 ), SAVE :: H2SO4RAT       ! Mol. wt ratios H2SO4/SO4
       REAL( 8 ), SAVE :: NH3RAT         ! Mol. wt ratios NH3/NH4
       REAL( 8 ), SAVE :: HNO3RAT        ! Mol. wt ratios HNO3/NO3
       REAL( 8 ), SAVE :: HCLRAT         ! Mol. wt ratios HCL/CL 
@@ -887,6 +942,7 @@ C *** Local Saved Variables
       REAL( 8 ), SAVE :: M3FAC_ANO3
       REAL( 8 ), SAVE :: M3FAC_ACL
       REAL( 8 ), SAVE :: M3FAC_H2O
+
 
       logical, save :: write1 = .true.
 
@@ -934,7 +990,8 @@ C-----------------------------------------------------------------------
          DF( KCL )  = 1.0D0 / CFAC_ACL
          DFH2OR8    = 1.0D6 * MWWAT      ! aerospc_mw(AH2O_IDX) (18.0 != 18.0153)
 
-         ! Mol. wt ratios NH3/NH4, HNO3/NO3, HCL/CL
+         ! Mol. wt ratios H2SO4/SO4, NH3/NH4, HNO3/NO3, HCL/CL
+         H2SO4RAT= PRECURSOR_MW( SULF_IDX ) / REAL( AEROSPC_MW( ASO4_IDX ), 8 )
          NH3RAT  = PRECURSOR_MW( NH3_IDX )  / REAL( AEROSPC_MW( ANH4_IDX ), 8 )
          HNO3RAT = PRECURSOR_MW( HNO3_IDX ) / REAL( AEROSPC_MW( ANO3_IDX ), 8 )
          HCLRAT  = PRECURSOR_MW( HCL_IDX )  / REAL( AEROSPC_MW( ACL_IDX ), 8 )
@@ -1047,6 +1104,14 @@ C     rate minus the new particle production rate, following Equation
 C     3.23 of Jiang & Roth (2003).
          SCONDRATE = MAX( SO4RATE - DMDT_SO4, 0.0D0 )
 
+! *** Propagate NPF Change to budget variables
+         NPF_BUDGET( PRECURSOR_MAP( SULF_IDX ) ) = -DMDT_SO4 
+     &             * H2SO4RAT  * DELT ! ug m-3 of Sulfuric Acid
+                                      ! (converted to ppmv in update_precursor)
+         NPF_BUDGET( AEROSPC_MAP( ASO4_IDX,1 ) ) =  DMDT_SO4 * DELT ! ug m-3
+         NPF_BUDGET( AERONUM_MAP( 1 ) ) =  DNDT * DELT  ! N m-3
+         NPF_BUDGET( AEROSRF_MAP( 1 ) ) =  DM2DT * DELT ! m2 m-3
+
       END IF   ! SO4RATE .NE. 0
 
 C *** Sulfate Condensation (Size-resolved)
@@ -1070,6 +1135,20 @@ C *** Growth values for mode merge condition
       CGR( 1 ) = SO4FAC * SCONDRATE * OMEGA_AT_SO4
       CGR( 2 ) = SO4FAC * SCONDRATE * OMEGA_AC_SO4
 
+! *** Initialize Budget Counter Variables         
+      CBUDGET0_NUM( : ) = MOMENT0_CONC( : )
+      CBUDGET0_NUM( 1 ) = CBUDGET0_NUM( 1 ) + DNDT * DELT
+      CBUDGET0_SRF( : ) = MOMENT2_CONC( : )
+      CBUDGET0_SRF( 1 ) = CBUDGET0_SRF( 1 ) + DM2DT * DELT
+      CBUDGET0_SO4( : ) = AEROSPC_CONC( ASO4_IDX, : )
+      CBUDGET0_SO4( 1 ) = CBUDGET0_SO4( 1 ) + DMDT_SO4 * DELT
+      CBUDGET0_NO3( : ) = AEROSPC_CONC( ANO3_IDX, : )
+      CBUDGET0_NH4( : ) = AEROSPC_CONC( ANH4_IDX, : )
+      CBUDGET0_CL ( : ) = AEROSPC_CONC( ACL_IDX , : )
+      CBUDGET0_H2O( : ) = AEROSPC_CONC( AH2O_IDX, : )
+      CBUDGET0_H3OP( : )= AEROSPC_CONC( AH3OP_IDX, : )
+
+! *** Diagnose Condensaiton Sink to Each Mode
       CONDSO4( 1 ) = OMEGA_AT_SO4 * SCONDRATE      
       
       IF ( HYBRID ) THEN 
@@ -1560,7 +1639,33 @@ C     routine is called. Moment3_conc does not need to be up to date
 C     because it will be recalculated inside GETPAR as the sum of 
 C     aerospc_conc variables. This should be for the wet distribution.
       CALL GETPAR( FIXED_sg )
+       
+! *** Propagate Concentration Changes from Coarse-Mode Mass
+! *** Transfer to Budget Vectors
+      DELNUM( : )  = MOMENT0_CONC( : ) - CBUDGET0_NUM( : )
+      DELSRF( : )  = MOMENT2_CONC( : ) - CBUDGET0_SRF( : )
+      DELSO4( : )  = AEROSPC_CONC( ASO4_IDX, : ) - CBUDGET0_SO4( : )
+      DELNH4( : )  = AEROSPC_CONC( ANH4_IDX, : ) - CBUDGET0_NH4( : )
+      DELNO3( : )  = AEROSPC_CONC( ANO3_IDX, : ) - CBUDGET0_NO3( : )
+      DELCL( : )   = AEROSPC_CONC( ACL_IDX , : ) - CBUDGET0_CL( : )
+      DELH2O( : )  = AEROSPC_CONC( AH2O_IDX, : ) - CBUDGET0_H2O( : )
+      DELH3OP( : ) = AEROSPC_CONC( AH3OP_IDX,: ) - CBUDGET0_H3OP( : )
 
+      COND_BUDGET( AERONUM_MAP( : ) ) = REAL( DELNUM( : ), 4 )
+      COND_BUDGET( AEROSRF_MAP( : ) ) = REAL( DELSRF( : ), 4 )
+      COND_BUDGET( AEROSPC_MAP( ASO4_IDX,: ) ) = REAL( DELSO4( : ), 4 )
+      COND_BUDGET( AEROSPC_MAP( ANH4_IDX,: ) ) = REAL( DELNH4( : ), 4 )
+      COND_BUDGET( AEROSPC_MAP( ANO3_IDX,: ) ) = REAL( DELNO3( : ), 4 )
+      COND_BUDGET( AEROSPC_MAP( ACL_IDX ,: ) ) = REAL( DELCL( : ) , 4 )
+      COND_BUDGET( AEROSPC_MAP( AH2O_IDX,: ) ) = REAL( DELH2O( : ), 4 )
+      COND_BUDGET( AEROSPC_MAP( AH3OP_IDX,:) ) = REAL( DELH3OP( : ),4 )
+
+      COND_BUDGET( PRECURSOR_MAP( SULF_IDX ) ) = SUM( REAL( -DELSO4(:) * H2SO4RAT, 4 ))
+      COND_BUDGET( PRECURSOR_MAP( NH3_IDX  ) ) = SUM( REAL( -DELNH4(:) * NH3RAT  , 4 ))
+      COND_BUDGET( PRECURSOR_MAP( HNO3_IDX ) ) = SUM( REAL( -DELNO3(:) * HNO3RAT , 4 ))
+      COND_BUDGET( PRECURSOR_MAP( HCL_IDX  ) ) = SUM( REAL( -DELCL(:)  * HCLRAT  , 4 ))
+
+ 
 C *** Update gas-phase concentrations from Aitken and Accumulation Mode Partitioning
       PRECURSOR_CONC( NH3_IDX )  = GNH3R8 + sum( CINORG( KNH4,1:2 )
      &                            -CFINAL( KNH4,1:2 ) ) * NH3RAT 

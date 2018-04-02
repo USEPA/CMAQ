@@ -129,6 +129,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       USE AEROSOL_CHEMISTRY, ONLY : GAMMA_N2O5IJ, GAMMA_N2O5K, YCLNO2IJ, YCLNO2K, 
      &                              GAMMA_IEPOX, GAMMA_IMAE, KPARTIEPOX, AERO_CHEM_SET
       USE PMDIAG_DATA_MODULE
+      USE AERO_BUDGET
 
       IMPLICIT NONE
 
@@ -326,6 +327,14 @@ C ------------------ begin body of AERO_DRIVER -------------------------
      &              A_PMDIAG_SPC( NCOLS,NROWS,A_NLAYS,NUM_PMDIAG_SPC ),
      &              TEMP_DATA( NUM_PMDIAG_SPC ), 
      &              AVIS_SPC( NCOLS,NROWS,N_AE_VIS_SPC ),
+     &              COND_PROC(   NCOLS,NROWS,NLAYS,NSPCSD ),
+     &              COAG_PROC(   NCOLS,NROWS,NLAYS,NSPCSD,N_MODE ),
+     &              NPF_PROC(    NCOLS,NROWS,NLAYS,NSPCSD ),
+     &              GROWTH_PROC( NCOLS,NROWS,NLAYS,NSPCSD ),
+     &              COND_BUDGET( NSPCSD ),
+     &              COAG_BUDGET( NSPCSD,N_MODE ),
+     &              NPF_BUDGET( NSPCSD ),
+     &              GROWTH_BUDGET( NSPCSD ),
      &              STAT=ALLOCSTAT)
 
          A_PMDIAG_SPC  = 0.0
@@ -522,6 +531,13 @@ C *** air density [kg/m3]
       END IF
 #endif
 
+! *** Initialize Shared Arrays for Aerosol Budget
+      AERO_COND   = 0.
+      AERO_COAG   = 0.
+      AERO_NPF    = 0.
+      AERO_GROWTH = 0.
+
+
 C --------------------- Begin loops over grid cells --------------------------
 
 C *** initialize conc arrays
@@ -541,6 +557,12 @@ C *** Grid cell meteorological data.
                H2OSATVP = ESATL( AIRTEMP )
                H2OVP    = AIRPRES * AIRQV / ( EPSWATER  + AIRQV )
                AIRRH    = MAX( 0.005, MIN( 0.99, H2OVP / H2OSATVP ) )
+
+! *** Initialize aerosol process variables
+               COND_BUDGET = 0.
+               COAG_BUDGET = 0.
+               NPF_BUDGET = 0.
+               GROWTH_BUDGET = 0.
 
 C *** Extract grid cell concentrations of aero species from CGRID
 C     into aerospc_conc in aero_data module (set minimum)
@@ -663,9 +685,9 @@ C     diagnostic array (lowest vertical layer only)
                   END IF
                END IF
 
-C *** Calculate 2nd and 3rd moments of the "dry" aerosol distribution
-C     NOTE! "dry" aerosol excludes both H2O and SOA  (Jan 2004 --SJR)
-C     EXCEPT!  nonvolatile SOA is part of dry aerosol (Oct 2007 --PVB)
+! *** Calculate 2nd and 3rd moments of the "dry" aerosol distribution
+!     NOTE! "dry" aerosol excludes both H2O and SOA  (Jan 2004 --SJR)
+!     EXCEPT!  nonvolatile SOA is part of dry aerosol (Oct 2007 --PVB)
                CALL CALCMOMENTS( .FALSE. )
                CALL GETPAR( FIXED_sg ) ! update AEROMODE_DIAM,DENS,SDEV
 
@@ -682,7 +704,7 @@ C     EXCEPT!  nonvolatile SOA is part of dry aerosol (Oct 2007 --PVB)
                   TEMP_DATA( 19 ) = AIRRH                ! relative humidity
                END IF
 
-C *** Accumulate wet diameters, 2nd, and 3rd moments to average aerosol diagnostic array
+! *** Accumulate wet diameters, 2nd, and 3rd moments to average aerosol diagnostic array
                IF ( APMDIAG .AND. L .LE. A_NLAYS ) THEN
                   DO V = 1, NUM_PMDIAG_SPC
                      IF ( A_PMDIAG_SPC_MAP( V ) .EQ. 1 ) THEN
@@ -691,8 +713,14 @@ C *** Accumulate wet diameters, 2nd, and 3rd moments to average aerosol diagnost
                   END DO 
                END IF
 
-C *** Write dry aerosol distribution parameters to aerosol diagnostic array
+! *** Write dry aerosol distribution parameters to aerosol diagnostic array
                IF ( WRITETIME .AND. PMDIAG ) PMDIAG_SPC( C,R,L,: ) = TEMP_DATA
+
+! *** Collect Aerosol Sub-Process Rates in shared arrays
+               AERO_COND  ( C,R,L,: ) = COND_BUDGET( : )
+               AERO_COAG  ( C,R,L,:,: ) = COAG_BUDGET( :,: )
+               AERO_NPF   ( C,R,L,: ) = NPF_BUDGET( : )
+               AERO_GROWTH( C,R,L,: ) = GROWTH_BUDGET( : )
 
 #ifdef twoway
                IF ( CMAQ_WRF_FEEDBACK ) THEN

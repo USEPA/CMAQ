@@ -631,7 +631,7 @@ C-----------------------------------------------------------------------
                !MAKE SURE TO APPLY RELEVANT UNIT CONVERSION TO EACH
                !TYPE OF VARIABLE (GAS, AEROSOL MASS, AEROSOL NUMBER,
                !AND AEROSOL SURFACE AREA)
-               WHERE( DIFF_MASK_GAS )
+               WHERE( DIFF_MASK_GAS .OR. DIFF_MASK_NR .OR. DIFF_MASK_TRAC )
                       ! GAS SPECIES
                       VDEMIS( C,R,L,: ) = CNVTC * VDEMIS0( :,L,C,R ) 
                ELSEWHERE( DIFF_MASK_NUM )
