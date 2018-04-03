@@ -2,7 +2,7 @@ The mechanism uses the below model species.
 
 **Table A‑5. Mechanism for saprc07tb_ae6_aq uses the following species.**
 
-| **Name** | **Defintion** | **Phase** | **Molecular Weight** |
+| **Species Name** | **Definition** | **Explicit or Lumped** | **Molecular Weight** |
 |-----------|--------------------------------------|-----------------|------------------|
 |ACETONE|Acetone|E|58.10 |
 |ACETYLENE|Acetylene|E|26.00 |

@@ -1,8 +1,7 @@
-
-
 **Table A‑1. Mechanism for cb6r3_ae6_aq uses the following species.**
-| ----------------- | ---------------------------------------------------- | -------------------- | ---------------------- |
+
 | **Model Species** | **Name**                                             | **Molecular Weight** | **Explicit or Lumped** |
+| ----------------- | ---------------------------------------------------- | -------------------- | ---------------------- |
 | AAL               | Aluminum                                             | 27                   | E                      |
 | AALK1             | Semivolatile SOA Product from Alkane VOCs            | 225.0                | L                      |
 | AALK2             | Semivolatile SOA Product from Alkane VOCs            | 205.1                | L                      |
@@ -64,4 +63,5 @@
 | SRFACC            | Accum. Mode Surface Area Conc                        | NA                   | NA                     |
 | SRFAIT            | Aitken Mode Surface Area Conc                        | NA                   | NA                     |
 | SRFCOR            | Coarse Mode Surface Area Conc                        | NA                   | NA                     |
+
 Note that for each aerosol mass species, a letter will be appended to the names below in order to designate the size, or mode, of the aerosol being represented: I = Aitken mode, J = Accumulation mode, K = Coarse mode.  
