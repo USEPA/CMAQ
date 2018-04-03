@@ -1,7 +1,7 @@
-
 **Table A‑1. Mechanism for cb6r3_ae6_aq uses the following species.**
-| ----------------- | ---------------------------------------------------------------------------- | -------------------- | ---------------------- |
+
 | **Model Species** | **Name**                                                                     | **Molecular Weight** | **Explicit or Lumped** |
+|-----------------| ---------------------------------------------------------------------------- | -------------------- | ---------------------- |
 | AACD              | acetic acid                                                                  | 60                   | E                      |
 | ACET              | acetone                                                                      | 58.1                 | E                      |
 | ACRO_PRIMARY      | acrolein from emissions only                                                 | 56.1                 | E                      |
