@@ -1,6 +1,4 @@
-The mechanism uses the below model species.
-
-**Table A‑5. Mechanism for saprc07tb_ae6_aq uses the following species.**
+**Table A‑6. Mechanism for saprc07tb_ae6_aq uses the following gas phase species.**
 
 | **Species Name** | **Definition** | **Explicit or Lumped** | **Molecular Weight** |
 |-----------|--------------------------------------|-----------------|------------------|

@@ -1,4 +1,4 @@
-**Table A‑9. Mechanism for saprc07tic_ae6i_aq uses the following species.**
+**Table A‑8. Mechanism for saprc07tic_ae6i_aq uses the following species.**
 
 | **Name** | **Definition** | **Explicit or Lumped** | **Molecular Weight** |
 |----------|-------------------------------------|----------------|-----------------|

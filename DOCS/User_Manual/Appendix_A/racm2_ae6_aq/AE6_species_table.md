@@ -1,4 +1,4 @@
-**Table B‑3. Mechanism for racm2_ae6_aq uses the following aerosol phase species.**
+**Table B‑5. Mechanism for racm2_ae6_aq uses the following aerosol phase species.**
 
 | **Model Species** | **Name**                                             | **Molecular Weight** | **Explicit or Lumped** |
 |-----------|-----------------------------------------------------|--------------------| ----------------------|

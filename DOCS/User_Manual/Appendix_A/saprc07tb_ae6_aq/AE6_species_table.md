@@ -1,4 +1,4 @@
-**Table A‑1. Mechanism for cb6r3_ae6_aq uses the following species.**
+**Table A‑6. Mechanism for saprc07tb_ae6_aq uses the following aerosol phase species.**
 
 | **Model Species** | **Name**                                             | **Molecular Weight** | **Explicit or Lumped** |
 | ----------------- | ---------------------------------------------------- | -------------------- | ---------------------- |
