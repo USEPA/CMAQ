@@ -8,8 +8,8 @@
           integer, parameter :: NZO = 13550
           integer, parameter :: NJO = 18
 
-          INTEGER, PARAMETER :: N_LOW_JXBANDS = 11 ! band structure for CMAQ release models
-!          INTEGER, PARAMETER :: N_LOW_JXBANDS = 6 ! band structure for MPAS-CMAQ models
+          INTEGER, SAVE      :: N_LOW_JXBANDS = 11 ! band structure for CMAQ release models
+!          INTEGER, SAVE      :: N_LOW_JXBANDS = 6 ! band structure for MPAS-CMAQ models
           INTEGER, SAVE      :: NJO_NEW 
           INTEGER, SAVE      :: N_INLINE_BAND 
 
@@ -88,13 +88,14 @@
 
         SUBROUTINE INIT_BIN_DATA()
 
-
+          USE GET_ENV_VARS
 
           IMPLICIT NONE
 
           INTEGER            :: I, J, K, L             ! index counters
           INTEGER            :: STRT, FINI
           INTEGER            :: ITT_CALC
+          INTEGER            :: STAT
 
           LOGICAL, SAVE      :: DEFINED  = .FALSE.
 
@@ -118,8 +119,10 @@
           INTEGER        LASTNB2
           INTEGER      :: IOUNIT = 125
           
-          CHARACTER(24) :: WVBIN_FILE = 'WVBIN_FILE' ! 'wavel-bins.dat'
-          CHARACTER(24) :: FLUX_FILE  = 'FLUX_FILE'  ! 'solar-p05nm-UCI.dat'
+          CHARACTER(24) :: WVBIN_FILE = 'WVBIN_FILE'       ! 'wavel-bins.dat'
+          CHARACTER(24) :: FLUX_FILE  = 'FLUX_FILE'        ! 'solar-p05nm-UCI.dat'
+          CHARACTER(16) :: NBANDS_OUT = 'N_WAVEBANDS_OUT'  ! Number of wavebands for output files
+
 
 
           IF( DEFINED )RETURN
@@ -336,13 +339,30 @@
          ENDIF
 
          N_INLINE_BAND = NJO_NEW - N_LOW_JXBANDS
+         N_INLINE_BAND = GET_ENV_INT( NBANDS_OUT, ' ', N_INLINE_BAND, STAT)
+         IF( STAT .EQ. 0 )THEN
+             N_LOW_JXBANDS = NJO_NEW - N_INLINE_BAND
+         END IF
 
          IF( N_INLINE_BAND .LE. 0 )THEN
-             WRITE(6,*)TRIM(PNAME) // 'ERROR: N_INLINE_BAND <= 0 '
+             WRITE(6,*)TRIM(PNAME) // 'ERROR: ' // TRIM( NBANDS_OUT ) //
+     &                                '  <= 0 '
              WRITE(6,*)'Total number of bands = ',NJO_NEW
-             WRITE(6,*)'Number of high frequency bands = ', N_LOW_JXBANDS
+!            WRITE(6,*)'Number of high frequency bands = ', N_LOW_JXBANDS
+             WRITE(6,*)'Requested Number of Wavebands = ',N_INLINE_BAND
              STOP
-         ENDIF
+         ELSE IF( N_INLINE_BAND .GT. NJO_NEW )THEN
+             WRITE(6,*)TRIM(PNAME) // 'ERROR: ' // TRIM( NBANDS_OUT ) // 
+     &                                ' greater Total Number of Bands'
+             WRITE(6,*)'Total number of bands = ',NJO_NEW
+!            WRITE(6,*)'Number of high frequency bands = ', N_LOW_JXBANDS
+             WRITE(6,*)'Requested Number of Wavebands = ',N_INLINE_BAND
+             STOP
+         ELSE
+            WRITE(6,*)'Requested Number of Wavebands = ',N_INLINE_BAND
+            WRITE(6,*)'Total number of bands = ',NJO_NEW
+         END IF
+         PAUSE
       
          ALLOCATE( FFBIN(     NJO_NEW ) )
          ALLOCATE( FFBIN_AVE( NJO_NEW ) )

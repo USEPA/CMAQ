@@ -113,7 +113,7 @@
            END IF 
 
          END FUNCTION GET_ENV_FLAG
-         REAL FUNCTION GET_ENV_INT( VAR_NAME, VAR_DESC, VAR_DEFAULT, STATUS )
+         INTEGER FUNCTION GET_ENV_INT( VAR_NAME, VAR_DESC, VAR_DEFAULT, STATUS )
            IMPLICIT NONE
 !arguments
            CHARACTER*(*), INTENT(  IN ) :: VAR_NAME
@@ -124,6 +124,8 @@
            CHARACTER( 120 ) :: MSG         ! Message text
            CHARACTER( 120 ) :: VAR_VALUE
            CHARACTER(  5  ) :: REPLY
+           
+           INTEGER          :: READ_VALUE
 
            CALL GET_ENVIRONMENT_VARIABLE( NAME=VAR_NAME, VALUE= VAR_VALUE, STATUS=STATUS, TRIM_NAME=.TRUE.)
 
@@ -145,7 +147,8 @@
               WRITE(LOGDEV,'(a)')
            ELSE
               STATUS = 0 
-              READ(VAR_VALUE,*)GET_ENV_INT
+              READ(VAR_VALUE , *)READ_VALUE
+              GET_ENV_INT = READ_VALUE
               WRITE(MSG,'(a,I8)')'     Value for ' // TRIM( VAR_NAME ) // ': ',
      &        GET_ENV_INT
               WRITE(LOGDEV,'(a)')TRIM( MSG )
