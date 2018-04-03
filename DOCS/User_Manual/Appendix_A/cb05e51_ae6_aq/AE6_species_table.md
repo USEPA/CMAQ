@@ -1,4 +1,4 @@
-**Table A‑1. Mechanism for cb6r3_ae6_aq uses the following species.**
+**Table B‑1. Mechanism for cb05e51_ae6_aq uses the following aerosol phase species.**
 
 
 |**Model Species**| **Definition**                                             | **Molecular Weight** | **Explicit or Lumped** |
