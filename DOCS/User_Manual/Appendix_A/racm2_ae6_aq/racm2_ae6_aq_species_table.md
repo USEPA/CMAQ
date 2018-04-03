@@ -1,7 +1,7 @@
 The mechanism uses the below model species.
 **Table A‑3. Mechanism for racm2_ae6_aq uses the following species.**
 
-| **Model Species** | **Defintion** | **Explicit or Lumped** | **Molecular Weight** |
+| **Model Species** | **Definition** | **Explicit or Lumped** | **Molecular Weight** |
 |-----------|--------------------------------------|-----------------|------------------|
 |ACD		 |Acetaldehyde|E|44 |
 |ACE		 |Acetylene|E|26 |

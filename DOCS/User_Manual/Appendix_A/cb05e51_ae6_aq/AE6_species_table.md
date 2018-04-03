@@ -1,7 +1,7 @@
 **Table A‑1. Mechanism for cb6r3_ae6_aq uses the following species.**
 
 
-| **Model Species** | **Name**                                             | **Molecular Weight** | **Explicit or Lumped** |
+|**Model Species**| **Definition**                                             | **Molecular Weight** | **Explicit or Lumped** |
 |-------|-----------------------------------------------------------------|------------|-----------|
 | AAL               | Aluminum                                             | 27                   | E                      |
 | AALK1             | Semivolaitle SOA Product from Alkane VOCs            | 225.0                | L                      |
