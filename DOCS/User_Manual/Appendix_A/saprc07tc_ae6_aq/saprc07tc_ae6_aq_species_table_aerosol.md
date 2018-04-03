@@ -1,3 +1,6 @@
+
+| **Species Name** | **Defintion** | **Phase** | **Molecular Weight** |
+|-----------|--------------------------------------|-----------------|------------------|
 |AALK1J|Accumulation Mode Alkane Product 1|Aerosol|168.00 |
 |AALK2J|Accumulation Mode Alkane Product 2|Aerosol|168.00 |
 |ABNZ1J|Accumulation Mode Benzene Product 1|Aerosol|144.00 |

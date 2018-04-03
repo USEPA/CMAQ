@@ -1,3 +1,6 @@
+
+| **Model Species** | **Definition**                                                                                           | **Explicit or Lumped** | **Molecular Weight** |
+| ----------------- | -------------------------------------------------------------------------------------------------------- | ---------------------- | -------------------- |
 |AALK1J 	 |Accumulation Mode Alkane Product 1|Aerosol|168 |
 |AALK2J 	 |Accumulation Mode Alkane Product 2|Aerosol|168 |
 |ABNZ1J 	 |Accumulation Mode Benzene Product 1|Aerosol|144 |
