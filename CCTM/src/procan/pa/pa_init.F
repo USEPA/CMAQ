@@ -200,7 +200,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          DELC = 0.0
 
          DO NS = 1, NCSAVE
-            ICG = SV2GRD( NS )
+            ICG = SAV2GRD( NS )
 #ifdef parallel
             CALL SUBST_DATA_COPY( CGRID, CSAV, ICG, NS )
 #else

@@ -1075,7 +1075,7 @@ C Local variables:
       Logical, Save :: first_time = .True.
       Integer, Save :: logdev
       Character( 300 ) :: xmsg
-      Integer       :: i, im, indx
+      Integer       :: i, im, indx, ispc
 
       Real, Save :: mwpoa                     ! Molecular weight of POA [ g/mol ]
 
@@ -1141,7 +1141,7 @@ C Variables used in equilibrium partitioning calculations
 ! *** Variables for computing the budget
       REAL :: CBUDGET0_NUM ( N_MODE )
       REAL :: CBUDGET0_SRF ( N_MODE )
-      REAL :: CBUDGET0_MASS( N_MODE )
+      REAL :: CBUDGET0_MASS( N_AEROSPC,N_MODE )
 
 
 C Variables for updating 2nd and 3rd moments
@@ -1522,9 +1522,16 @@ C condensation/evaporation does not affect the geometric standard deviation.
       moment2_conc( 1:2 )  = m2wet_final( : )
 
 ! *** Update Budget Variables
-      COND_BUDGET( AERONUM_MAP ) = MOMENT0_CONC - CBUDGET0_NUM 
-      COND_BUDGET( AEROSRF_MAP ) = MOMENT2_CONC - CBUDGET0_SRF 
-      COND_BUDGET( AEROSPC_MAP ) = AEROSPC_CONC - CBUDGET0_MASS
+      DO IM = 1,N_MODE
+        COND_BUDGET( AERONUM_MAP( IM ) )  = MOMENT0_CONC( IM ) - CBUDGET0_NUM( IM )
+        COND_BUDGET( AEROSRF_MAP( IM ) )  = MOMENT2_CONC( IM ) - CBUDGET0_SRF( IM )
+
+        DO ISPC = 1,N_AEROSPC
+          IF ( AEROSPC_MAP( ISPC,IM ) .NE. 0 ) 
+     &         COND_BUDGET( AEROSPC_MAP( ISPC,IM ) ) = 
+     &              AEROSPC_CONC( ISPC,IM ) - CBUDGET0_MASS( ISPC,IM )
+        END DO
+      END DO
 
       Return
       End Subroutine orgaer

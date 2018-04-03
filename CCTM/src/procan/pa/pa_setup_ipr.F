@@ -52,7 +52,7 @@ C-----------------------------------------------------------------------
       USE PA_IPRDEF
       USE PA_DEFN
       USE PA_PARSE, Only: IZERO
-      USE CGRID_SPC, Only: N_CGRID_SPC, CGRID_NAME
+      USE CGRID_SPCS, Only: N_CGRID_SPC, CGRID_NAME
 
       IMPLICIT NONE
       
@@ -190,8 +190,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &                                    IPR_SPNAM( NIPR )
                IPROUT( NIPR,13 )   = NIPRVAR
                LPROCOUT( 13 )      = .TRUE.
-            ELSE IF ( IPR_OPNAME( NIPR,N )( 1:5 ) .EQ. 'GROWTH' ) THEN
-               IPRNAME_TMP( NIPRVAR )  = 'GROWTH_' // IPR_SPNAM( NIPR )
+            ELSE IF ( IPR_OPNAME( NIPR,N )( 1:5 ) .EQ. 'GROW' ) THEN
+               IPRNAME_TMP( NIPRVAR )  = 'GROW_' // IPR_SPNAM( NIPR )
                IPRDESC_TMP( NIPRVAR )  = 'Aerosol Growth (Renaming) for ' // 
      &                                    IPR_SPNAM( NIPR )
                IPROUT( NIPR,14 )   = NIPRVAR
@@ -313,7 +313,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          CALL M3EXIT ( 'PA_SETUP_IPR', 0, 0, MSG, XSTAT2 )
       END IF
 
-      MXCGRID = 1
       DO NIPR = 1, N_IPR_SPC
          ISP = INDEX1( IPR_SPNAM( NIPR ), N_CGRID_SPC, CGRID_NAME )
          IF ( ISP .NE. 0 ) THEN
@@ -324,7 +323,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          ELSE
             IFM = INDEX1( IPR_SPNAM( NIPR ), NFAMLYS, FAMNAME )
             NCGRID( NIPR ) = NUMFAMMEM( IFM )
-            MXCGRID = MAX( MXCGRID, NCGRID( NIPR ) )
             DO N = 1, NUMFAMMEM( IFM )
                ISP = INDEX1( FAMMEMNAM( IFM,N ), N_CGRID_SPC, CGRID_NAME )
                LSAVSP( ISP ) = .TRUE.               
@@ -333,26 +331,27 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             END DO
          END IF
       END DO
+      MXCGRID = MAX( 1, MAXVAL( NCGRID( : ) ) )
 
       NCSAVE = 0
-      DO NS = 1, N_SPC
+      DO NS = 1, N_CGRID_SPC
          IF ( LSAVSP( NS ) ) THEN
             NCSAVE = NCSAVE + 1
-            SV2GRD_TMP( NCSAVE ) = NS
+            SAV2GRD_TMP( NCSAVE ) = NS
          END IF
       END DO
 
       DO NIPR = 1, N_IPR_SPC
          DO N = 1, NCGRID( NIPR )
             DO NS = 1, NCSAVE
-               IF ( SV2GRD_TMP( NS ) .EQ. IPR2GRD_TMP( NIPR,N ) )
+               IF ( SAV2GRD_TMP( NS ) .EQ. IPR2GRD_TMP( NIPR,N ) )
      &              IPR2SAV_TMP( NIPR,N ) = NS
             END DO
          END DO
       END DO
 
       NCSAVE    = MAX( NCSAVE, 1 )
-      ALLOCATE( SV2GRD ( NCSAVE ),
+      ALLOCATE( SAV2GRD ( NCSAVE ),
      &          IPR2GRD( N_IPR_SPC,MXCGRID ),
      &          IPR2SAV( N_IPR_SPC,MXCGRID ),
      &          SPCOEF ( N_IPR_SPC,MXCGRID ), STAT = ASTAT )
@@ -361,7 +360,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          CALL M3EXIT ( 'PA_SETUP_IPR', 0, 0, MSG, XSTAT2 )
       END IF
 
-      SV2GRD  = SV2GRD_TMP( 1:NCSAVE )
+      SAV2GRD = SAV2GRD_TMP( 1:NCSAVE )
       IPR2GRD = IPR2GRD_TMP( 1:N_IPR_SPC,1:MXCGRID )
       IPR2SAV = IPR2SAV_TMP( 1:N_IPR_SPC,1:MXCGRID )
       SPCOEF  = SPCOEF_TMP ( 1:N_IPR_SPC,1:MXCGRID )

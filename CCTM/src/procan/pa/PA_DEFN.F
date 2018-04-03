@@ -67,7 +67,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &   'ADJC            ',  'HADV            ',  'HDIF            ',
      &   'VDIF            ',  'EMIS            ',  'DDEP            ',
      &   'CLDS            ',  'CHEM            ',  'COND            ',
-     &   'COAG            ',  'GROWTH          ',  'NPF             ' /)
+     &   'COAG            ',  'GROW            ',  'NPF             ' /)
 
 c this is set in pa_getiprout.F, pa_errcheck.F?
       INTEGER :: N_IPR_SPC = 0
@@ -79,7 +79,7 @@ c these are allocated in pa_setpadefn.F
       LOGICAL, ALLOCATABLE, SAVE :: LPROCOUT( : )   ! LPROCOUT( NPRCS )
 
       INTEGER, ALLOCATABLE, SAVE :: NCGRID ( : )    ! ( N_IPR_SPC )
-      INTEGER, ALLOCATABLE, SAVE :: SV2GRD ( : )    ! ( NCSAVE )
+      INTEGER, ALLOCATABLE, SAVE :: SAV2GRD( : )    ! ( NCSAVE )
       INTEGER, ALLOCATABLE, SAVE :: IPROUT ( :,: )  ! ( N_IPR_SPC,NPRCS )
       INTEGER, ALLOCATABLE, SAVE :: IPR2GRD( :,: )  ! ( N_IPR_SPC,MXCGRID )
       INTEGER, ALLOCATABLE, SAVE :: IPR2SAV( :,: )  ! ( N_IPR_SPC,MXCGRID )

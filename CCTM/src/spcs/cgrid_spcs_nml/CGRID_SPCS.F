@@ -93,7 +93,7 @@ c control species
      &                                      gc_conc_map( : ), ae_conc_map( : ), nr_conc_map( : ), tr_conc_map( : )
 
       INTEGER, SAVE              :: N_CGRID_SPC
-      INTEGER, ALLOCATABLE, SAVE :: CGRID_NAME     ( : )
+      CHARACTER( 16 ), ALLOCATABLE, SAVE :: CGRID_NAME     ( : )
       REAL,    ALLOCATABLE, SAVE :: CGRID_MW       ( : )
       LOGICAL, ALLOCATABLE, SAVE :: CGRID_MASK_GAS ( : )
       LOGICAL, ALLOCATABLE, SAVE :: CGRID_MASK_AERO( : )
@@ -948,7 +948,7 @@ c the surrogate and ctrl arrays active dimensions not known a priori
                 CGRID_MW( IGRID )   = GC_MOLWT( ISPC )
                 CGRID_MASK_GAS( IGRID )   = .TRUE.
             END DO
-            DO ISPC = ae_strt,n_ae_spc
+            DO ISPC = 1,n_ae_spc
                 IGRID = IGRID + 1
                 CGRID_NAME( IGRID ) = AE_SPC( ISPC )
                 CGRID_MW( IGRID )   = AE_MOLWT( ISPC )
@@ -956,17 +956,17 @@ c the surrogate and ctrl arrays active dimensions not known a priori
                 IF ( INDEX( AE_SPC( ISPC ),'NUM') .NE. 0 ) CGRID_MASK_NUM( IGRID )   = .TRUE.
                 IF ( INDEX( AE_SPC( ISPC ),'SRF') .NE. 0 ) CGRID_MASK_SRF( IGRID )   = .TRUE.
             END DO
-            DO ISPC = nr_strt,n_nr_spc
+            DO ISPC = 1,n_nr_spc
                 IGRID = IGRID + 1
                 CGRID_NAME( IGRID ) = NR_SPC( ISPC )
                 CGRID_MW( IGRID )   = NR_MOLWT( ISPC )
                 CGRID_MASK_NR( IGRID )   = .TRUE.
             END DO
-            DO ISPC = tr_strt,n_tr_spc
+            DO ISPC = 1,n_tr_spc
                 IGRID = IGRID + 1
                 CGRID_NAME( IGRID ) = TR_SPC( ISPC )
                 CGRID_MW( IGRID )   = TR_MOLWT( ISPC )
-                CGRID_MASK_TR( IGRID )   = .TRUE.
+                CGRID_MASK_TRAC( IGRID )   = .TRUE.
             END DO
 
 

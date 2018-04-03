@@ -327,10 +327,10 @@ C ------------------ begin body of AERO_DRIVER -------------------------
      &              A_PMDIAG_SPC( NCOLS,NROWS,A_NLAYS,NUM_PMDIAG_SPC ),
      &              TEMP_DATA( NUM_PMDIAG_SPC ), 
      &              AVIS_SPC( NCOLS,NROWS,N_AE_VIS_SPC ),
-     &              COND_PROC(   NCOLS,NROWS,NLAYS,NSPCSD ),
-     &              COAG_PROC(   NCOLS,NROWS,NLAYS,NSPCSD,N_MODE ),
-     &              NPF_PROC(    NCOLS,NROWS,NLAYS,NSPCSD ),
-     &              GROWTH_PROC( NCOLS,NROWS,NLAYS,NSPCSD ),
+     &              AERO_COND(   NCOLS,NROWS,NLAYS,NSPCSD ),
+     &              AERO_COAG(   NCOLS,NROWS,NLAYS,NSPCSD,N_MODE ),
+     &              AERO_NPF (    NCOLS,NROWS,NLAYS,NSPCSD ),
+     &              AERO_GROWTH ( NCOLS,NROWS,NLAYS,NSPCSD ),
      &              COND_BUDGET( NSPCSD ),
      &              COAG_BUDGET( NSPCSD,N_MODE ),
      &              NPF_BUDGET( NSPCSD ),
@@ -718,7 +718,7 @@ C     diagnostic array (lowest vertical layer only)
 
 ! *** Collect Aerosol Sub-Process Rates in shared arrays
                AERO_COND  ( C,R,L,: ) = COND_BUDGET( : )
-               AERO_COAG  ( C,R,L,:,: ) = COAG_BUDGET( :,: )
+               AERO_COAG  ( C,R,L,:,: )=COAG_BUDGET( :,: )
                AERO_NPF   ( C,R,L,: ) = NPF_BUDGET( : )
                AERO_GROWTH( C,R,L,: ) = GROWTH_BUDGET( : )
 

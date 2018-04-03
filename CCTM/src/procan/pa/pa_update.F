@@ -80,7 +80,11 @@ C  16 Sep 16 J.Young: update for inline procan (IRR)
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain configuration
-      USE CGRID_SPCS            ! CGRID mechanism species
+      USE CGRID_SPCS, ONLY : N_CGRID_SPC, CGRID_NAME, CGRID_MASK_AERO,
+     &                       AE_STRT, GC_STRT, N_GC_DEPV, GC_DEPV_MAP,
+     &                       GC_MOLWT, NR_STRT, N_AE_DEPV, AE_DEPV_MAP, AE_SPC,
+     &                       TR_STRT, N_NR_DEPV, NR_DEPV_MAP, NR_MOLWT,
+     &                       TR_MOLWT, N_AE_SPC ! CGRID mechanism species
       USE VDIFF_MAP, ONLY : N_SPC_DIFF, DIFF_SPC, DIFF_MW,
      &                       DIFF_MASK_AERO, DIFF_MASK_NUM, DIFF_MASK_SRF
       USE PA_DEFN               ! Process Anaylsis control and data variables
@@ -115,9 +119,6 @@ C..Additional or other Arguments for ENTRY`s
       REAL,    INTENT( IN ) :: VEMIS ( :,:,:,: )  ! Emission rates (g/s)
       REAL,    INTENT( IN ) :: DDEP ( :,:,: )     ! Dry dep (Kg/ha)
 
-C Gas species counts:
-      INTEGER, SAVE :: N_CGRID_SPC
-
 C Maximum allowable number of unexpected processes
       INTEGER, PARAMETER :: MXUNEXP = 50
 
@@ -146,7 +147,7 @@ C Saved Local Variables:
       INTEGER, SAVE :: PRINDAE   ! Dry deposition output index
 
 C Indices for emission species in IPR outputs
-      INTEGER, ALLOCATABLE, SAVE :: IPR_NGR2EM( :,: )  ! ( N_IPR_SPC,MXCGRID,3 )
+      INTEGER, ALLOCATABLE, SAVE :: IPR_NGR2EM( :,: )  ! ( N_IPR_SPC,MXCGRID )
 
 C Indices for dep species in IPR outputs
       INTEGER, ALLOCATABLE, SAVE :: IPR_NGR2DD( :,: )    ! ( N_IPR_SPC,MXCGRID )
@@ -171,7 +172,7 @@ C Reciprocal of map scale factor
       REAL, ALLOCATABLE, SAVE :: TRMSFX2( :,: )   
 
 C for copy of CGRID
-      REAL, SAVE :: CNGRD( NCOLS,NROWS,NLAYS,N_CGRID_SPC )   
+      REAL :: CNGRD( NCOLS,NROWS,NLAYS,N_CGRID_SPC )   
 
 C Flag for couple/decouple HADV, ZADV, and HDIFF
       LOGICAL, SAVE :: LCOUPLE
@@ -220,7 +221,6 @@ C Local Variables:
       REAL    DDY       ! Cell inverse y-width
       REAL    DX        ! Cell x-width
       REAL    DY        ! Cell y-width
-      REAL    NETDEP    ! Net dep for hour, converted to  kg/m**3
 
       REAL :: TCGRID  ( MY_PACOLS,MY_PAROWS,PALEVS )  
       REAL :: DENSA_J ( NCOLS,NROWS,NLAYS )  ! Density times Jacobian
@@ -229,7 +229,8 @@ C Local Variables:
       REAL :: TDENS   ( MY_PACOLS,MY_PAROWS,PALEVS )  ! Computed emission rate
       REAL :: TVEMIS  ( MY_PACOLS,MY_PAROWS,PALEVS )  ! Computed emission rate
       REAL :: EM      ( MY_PACOLS,MY_PAROWS,PALEVS )  ! Computed emission rate
-      REAL :: TDDEP   ( NCOLS,NROWS )
+      REAL :: TDDEP   ( MY_PACOLS,MY_PAROWS )
+      REAL    NETDEP  ( MY_PACOLS,MY_PAROWS )  ! Net dep for hour, converted to  kg/m**3
       REAL :: ZF      ( NCOLS,NROWS,NLAYS )  ! Layer heights
       REAL :: TZF     ( MY_PACOLS,MY_PAROWS,PALEVS )
 
@@ -303,7 +304,7 @@ C..Compute delta conc for this process if requested
 
 C..Save concentrations for next delta c
       DO N = 1, NCSAVE
-         ICG = SV2GRD( N )
+         ICG = SAV2GRD( N )
 #ifdef parallel
          CALL SUBST_DATA_COPY( CNGRD, CSAV, ICG, N )
 #else
@@ -324,7 +325,7 @@ C..On first call, set pointers to emission species
       IF ( LEMFIRST ) THEN
          LEMFIRST = .FALSE.
 
-         ALLOCATE ( IPR_NGR2EM( N_IPR_SPC,MXCGRID,1 ), STAT = ASTAT )
+         ALLOCATE ( IPR_NGR2EM( N_IPR_SPC,MXCGRID ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             MSG = 'Failure allocating IPR_NGR2EM'
             CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
@@ -624,7 +625,7 @@ C..Compute delta conc due to ddep and adjust vdiff output if necessary
 
          DO NGR = 1, NCGRID( NPA )                       
             IDD = IPR_NGR2DD( NPA,NGR )
-            IF ( IOD .EQ. 0 ) CYCLE
+            IF ( IDD .EQ. 0 ) CYCLE
 
             ICG = IPR2GRD( NPA,NGR )
 #ifdef parallel
@@ -636,10 +637,10 @@ C..Compute delta conc due to ddep and adjust vdiff output if necessary
 
 C..compute the dep in ppm
             IF ( ICG .GE. AE_STRT. AND. ICG .LT. NR_STRT ) THEN
-               NETDEP = TDDEP( :,: ) * CONVH2M
+               NETDEP( :,: ) = TDDEP( :,: ) * CONVH2M
      &                * NUMFAC( ICG ) / TZF( :,:,1 )
             ELSE
-               NETDEP = TDDEP( :,: ) * CONVH2M
+               NETDEP( :,: ) = TDDEP( :,: ) * CONVH2M
      &                * RELWTDD( ICG ) * CONVDD( 1 )
      &                * TRMSFX2( :,: ) / TDENSA_J( :,:,1 ) 
             END IF
@@ -647,11 +648,11 @@ C..compute the dep in ppm
 C..adjust the process analysis output arrays
             IF ( IPDD .NE .0 )
      &         DELC( :,:,1,IPDD ) = DELC( :,:,1,IPDD )
-     &                              - SPCOEF( NPA,NGR ) * NETDEP
+     &                              - SPCOEF( NPA,NGR ) * NETDEP( :,: )
 
             IF ( IPAJ .NE. 0 )
      &         DELC( :,:,1,IPAJ ) = DELC( :,:,1,IPAJ )  
-     &                              + SPCOEF( NPA,NGR ) * NETDEP
+     &                              + SPCOEF( NPA,NGR ) * NETDEP( :,: )
          END DO   ! NGR
       END DO   ! NPA
 
@@ -664,15 +665,23 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 C-----------------------------------------------------------------------
       USE AERO_BUDGET
+      USE PA_DEFN
+      USE M3UTILIO
+      USE PAGRD_DEFN
 
 
       IMPLICIT NONE
 
+      INTEGER JDATE, JTIME
+
+      INTEGER :: PCOAG, PCOND, PNPF, PGROWTH
+      INTEGER :: IPCOAG, IPCOND, IPNPF, IPGROWTH
+      INTEGER :: NPA, NGR, ICG
 
       PCOAG  = INDEX1( 'COAG',NPRCS,PROCNAME )
       PCOND  = INDEX1( 'COND',NPRCS,PROCNAME )
       PNPF   = INDEX1( 'NPF' ,NPRCS,PROCNAME )
-      PGROWTH= INDEX1( 'GROWTH',NPRCS,PROCNAME )
+      PGROWTH= INDEX1( 'GROW',NPRCS,PROCNAME )
 
       DO NPA = 1, N_IPR_SPC              ! foreach family
           
@@ -683,29 +692,17 @@ C-----------------------------------------------------------------------
          IF ( IPCOAG + IPCOND + IPNPF + IPGROWTH .EQ. 0 ) CYCLE
 
          DO NGR = 1,NCGRID( NPA )          ! foreach species in the family
-            ICG = IPR2GRD( NPA,NGR )       ! CTM species index in the family
-            LAESP = CGRID_MASK_AERO( ICG ) ! Flag for aerosol species
-
-#ifdef parallel
-               CALL SUBST_DATA_COPY ( VEMIS, TVEMIS, IEM )
-               IF ( LAESP ) CALL SUBST_DATA_COPY ( DENS, TDENS )
-#else
-               TVEMIS( :,:,: ) = VEMIS( PA_BEGROW:PA_ENDROW,
-     &                 PA_BEGCOL:PA_ENDCOL,PA_BEGLEV:PA_ENDLE,IEM )
-               TDENS = DENS( PA_BEGROW:PA_ENDROW,PA_BEGCOL:PA_ENDCOL,
-     &                       PA_BEGLEV:PA_ENDLEV )
-#endif
-               IF ( LAESP ) EM = EM * TDENS( :,:,: ) * PA_EM_CONV( IEM )
+            ICG = IPR2GRD( NPA,NGR )       ! CGRID species index 
 
                ! Modify both the emiss process and the calling process
                DELC( :,:,:,IPCOAG ) = DELC( :,:,:,IPCOAG )
-     &                              + SUM( AERO_COAG( :,:,:,ISPC,: ),5 )
+     &                              + SPCOEF( NPA,NGR ) * SUM( AERO_COAG( :,:,:,ICG,: ),4 )
                DELC( :,:,:,IPCOND ) = DELC( :,:,:,IPCOND )
-     &                              + AERO_COND( :,:,:,ISPC )
+     &                              + SPCOEF( NPA,NGR ) * AERO_COND( :,:,:,ICG )
                DELC( :,:,:,IPNPF  ) = DELC( :,:,:,IPNPF )
-     &                              + AERO_MPF( :,:,:,ISPC )
+     &                              + SPCOEF( NPA,NGR ) * AERO_NPF( :,:,:,ICG )
                DELC( :,:,:,IPGROWTH)= DELC( :,:,:,IPGROWTH )
-     &                              + AERO_GROWTH( :,:,:,ISPC )
+     &                              + SPCOEF( NPA,NGR ) * AERO_GROWTH( :,:,:,ICG )
          END DO
       END DO
 
@@ -735,6 +732,8 @@ C-----------------------------------------------------------------------
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE CGRID_SPCS            ! CGRID mechanism species
       USE UTILIO_DEFN
+      USE VDIFF_MAP, ONLY : N_SPC_DIFF, DIFF_MASK_SRF, DIFF_MASK_NUM, DIFF_MAP,
+     &                      DIFF_MASK_AERO
 
       IMPLICIT NONE   
 
@@ -805,7 +804,7 @@ C be modified. Use DIFF_MAP
           IF ( DIFF_MASK_NUM( V ) .OR. DIFF_MASK_SRF( V ) ) THEN 
             CONC( :,:,:,DIFF_MAP( V ) ) = 
      &          CONC( :,:,:,DIFF_MAP( V ) ) * RJACOBM( :,:,: )
-          ELSE IF ( DIFF_MASK_AERO( V ) THEN
+          ELSE IF ( DIFF_MASK_AERO( V ) ) THEN
             CONC( :,:,:,DIFF_MAP( V ) ) = 
      &          CONC( :,:,:,DIFF_MAP( V ) ) * CONV * RJACOBM( :,:,: )
           ELSE

@@ -264,7 +264,7 @@ C *** Intermodal coagulation rate [ m**3/s ] ( 3rd moment )
 ! *** Variables for computing the budget
       REAL( 8 ) :: CBUDGET0_NUM ( N_MODE )
       REAL( 8 ) :: CBUDGET0_SRF ( N_MODE )
-      REAL( 8 ) :: CBUDGET0_MASS( N_MODE )
+      REAL( 8 ) :: CBUDGET0_MASS( N_AEROSPC,N_MODE )
 
 C *** variables for advancing concentrations one time step
       REAL( 8 ) :: A, B
@@ -585,8 +585,12 @@ C     intermodal coagulation.
 
 
          ! Update Budget Variable for Second Moment
-         COAG_BUDGET( AEROSPC_MAP( SPC,1 ),1 ) = AEROSPC_CONC( SPC,1 ) - CBUDGET0_MASS( SPC,1 )
-         COAG_BUDGET( AEROSPC_MAP( SPC,2 ),1 ) = AEROSPC_CONC( SPC,2 ) - CBUDGET0_MASS( SPC,2 )
+         IF ( AEROSPC_MAP( SPC,1 ) .NE. 0 ) 
+     &      COAG_BUDGET( AEROSPC_MAP( SPC,1 ),1 ) = 
+     &           AEROSPC_CONC( SPC,1 ) - CBUDGET0_MASS( SPC,1 )
+         IF ( AEROSPC_MAP( SPC,2 ) .NE. 0 ) 
+     &      COAG_BUDGET( AEROSPC_MAP( SPC,2 ),1 ) = 
+     &           AEROSPC_CONC( SPC,2 ) - CBUDGET0_MASS( SPC,2 )
 
       END DO
 
@@ -697,7 +701,11 @@ C *** Set minimum value for all concentrations in the CBLK array
 ! *** Propagate Mode Merging and Minimum value impacts to budget variables
       GROWTH_BUDGET( AERONUM_MAP(:) ) = MOMENT0_CONC(:) - CBUDGET0_NUM(:)
       GROWTH_BUDGET( AEROSRF_MAP(:) ) = MOMENT0_CONC(:) - CBUDGET0_NUM(:)
-      GROWTH_BUDGET( AEROSPC_MAP(:,:) ) = AEROSPC_CONC(:,:) - CBUDGET0_MASS(:,:)
+      DO SPC = 1,N_AEROSPC
+         WHERE( AEROSPC_MAP( SPC,: ) .NE. 0 )
+     &          GROWTH_BUDGET( AEROSPC_MAP(SPC,:) )=
+     &              AEROSPC_CONC(SPC,:) - CBUDGET0_MASS(SPC,:)
+      END DO
 
       RETURN
       END SUBROUTINE AEROPROC
