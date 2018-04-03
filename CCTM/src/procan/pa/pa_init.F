@@ -197,31 +197,15 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C  Initialize arrays
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-         DO  NOUT = 1, NIPRVAR
-            DO L = 1, PALEVS
-               DO R = 1, MY_PAROWS
-                  DO C = 1, MY_PACOLS
-                     DELC( C,R,L,NOUT ) = 0.0
-                  END DO
-               END DO
-            END DO
-         END DO
+         DELC = 0.0
 
          DO NS = 1, NCSAVE
             ICG = SV2GRD( NS )
 #ifdef parallel
             CALL SUBST_DATA_COPY( CGRID, CSAV, ICG, NS )
 #else
-            DO L = MY_BEGLEV, MY_ENDLEV
-               PL = L - MY_BEGLEV + 1
-               DO R = MY_BEGROW, MY_ENDROW
-                  PR = R - MY_BEGROW + 1
-                  DO C = MY_BEGCOL, MY_ENDCOL
-                     PC = C - MY_BEGCOL + 1
-                     CSAV( PC,PR,PL,NS ) = CGRID( C,R,L,ICG ) 
-                  END DO
-              END DO
-            END DO
+            CSAV( :,:,:,NS ) = CGRID( MY_BEGCOL:MY_ENDCOL,
+     &            MY_BEGROW:MY_ENDROW,MY_BEGLEV:MY_ENDLEV,ICG )
 #endif
          END DO
 
@@ -298,27 +282,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C  Initialize arrays
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-         DO NIRR = 1, NIRRVAR
-
-#ifdef parallel
-            DO L = MY_IRR_BEGLEV, MY_IRR_ENDLEV
-               DO R = MY_IRR_BEGROW, MY_IRR_ENDROW
-                  DO C = MY_IRR_BEGCOL, MY_IRR_ENDCOL
-                     IRROUT( C,R,L,NIRR ) = 0.0
-                     END DO
-               END DO
-            END DO
-#else
-            DO L = 1, PALEVS
-               DO R = 1, MY_PAROWS
-                  DO C = 1, MY_PACOLS
-                     IRROUT( C,R,L,NIRR ) = 0.0
-                  END DO
-               END DO
-            END DO
-#endif
-
-         END DO
+         IRROUT = 0.0
 
       END IF   !   LIRR
 

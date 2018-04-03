@@ -116,10 +116,7 @@ C..Additional or other Arguments for ENTRY`s
       REAL,    INTENT( IN ) :: DDEP ( :,:,: )     ! Dry dep (Kg/ha)
 
 C Gas species counts:
-      INTEGER, SAVE :: N_SPCS
-
-C Dimension index assigned for VDIF
-      INTEGER, PARAMETER :: IND_VM = 1
+      INTEGER, SAVE :: N_CGRID_SPC
 
 C Maximum allowable number of unexpected processes
       INTEGER, PARAMETER :: MXUNEXP = 50
@@ -141,7 +138,6 @@ C External Functions:
 C Saved Local Variables:
       CHARACTER( 16 ), SAVE :: UNEXPPR( MXUNEXP )
 
-      INTEGER, SAVE :: EMISLYRS
       INTEGER, SAVE :: NUNEXP = 0 ! Number of unexpected processes
       INTEGER, SAVE :: PRINDEM   ! Emissions output index
       INTEGER, SAVE :: PRINDVD   ! Vertical diffusion output index
@@ -150,7 +146,7 @@ C Saved Local Variables:
       INTEGER, SAVE :: PRINDAE   ! Dry deposition output index
 
 C Indices for emission species in IPR outputs
-      INTEGER, ALLOCATABLE, SAVE :: IPR_NGR2EM( :,:,: )  ! ( N_IPR_SPC,MXCGRID,3 )
+      INTEGER, ALLOCATABLE, SAVE :: IPR_NGR2EM( :,: )  ! ( N_IPR_SPC,MXCGRID,3 )
 
 C Indices for dep species in IPR outputs
       INTEGER, ALLOCATABLE, SAVE :: IPR_NGR2DD( :,: )    ! ( N_IPR_SPC,MXCGRID )
@@ -175,7 +171,7 @@ C Reciprocal of map scale factor
       REAL, ALLOCATABLE, SAVE :: TRMSFX2( :,: )   
 
 C for copy of CGRID
-      REAL, ALLOCATABLE, SAVE :: CNGRD( :,:,:,: )   
+      REAL, SAVE :: CNGRD( NCOLS,NROWS,NLAYS,N_CGRID_SPC )   
 
 C Flag for couple/decouple HADV, ZADV, and HDIFF
       LOGICAL, SAVE :: LCOUPLE
@@ -214,7 +210,6 @@ C Local Variables:
       INTEGER SP_INDX   ! Index of species in its class
       INTEGER SDATE     ! Date at end of timestep
       INTEGER STIME     ! Time at end of timestep
-      INTEGER TOPLEV    ! Highest level for emisssions processing
       INTEGER UNIND     ! Index for unexpected processes
 
       LOGICAL LAESP     ! Flag for AE species
@@ -225,18 +220,18 @@ C Local Variables:
       REAL    DDY       ! Cell inverse y-width
       REAL    DX        ! Cell x-width
       REAL    DY        ! Cell y-width
-      REAL    EM        ! Computed emission rate
       REAL    NETDEP    ! Net dep for hour, converted to  kg/m**3
 
-      REAL :: TCGRID  ( NCOLS,NROWS,NLAYS )  
+      REAL :: TCGRID  ( MY_PACOLS,MY_PAROWS,PALEVS )  
       REAL :: DENSA_J ( NCOLS,NROWS,NLAYS )  ! Density times Jacobian
-      REAL :: TDENSA_J( NCOLS,NROWS,NLAYS )  
+      REAL :: TDENSA_J( MY_PACOLS,MY_PAROWS,PALEVS )  
       REAL :: DENS    ( NCOLS,NROWS,NLAYS )  ! Density of air
-      REAL :: TDENS   ( NCOLS,NROWS,NLAYS )  
-      REAL :: TVEMIS  ( NCOLS,NROWS,NLAYS )
+      REAL :: TDENS   ( MY_PACOLS,MY_PAROWS,PALEVS )  ! Computed emission rate
+      REAL :: TVEMIS  ( MY_PACOLS,MY_PAROWS,PALEVS )  ! Computed emission rate
+      REAL :: EM      ( MY_PACOLS,MY_PAROWS,PALEVS )  ! Computed emission rate
       REAL :: TDDEP   ( NCOLS,NROWS )
       REAL :: ZF      ( NCOLS,NROWS,NLAYS )  ! Layer heights
-      REAL :: TZF     ( NCOLS,NROWS,NLAYS )
+      REAL :: TZF     ( MY_PACOLS,MY_PAROWS,PALEVS )
 
       REAL :: X3FACE( 0:NLAYS )   ! vertical coordinate layer surface
 
@@ -257,11 +252,6 @@ C-----------------------------------------------------------------------
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
          LOGDEV = INIT3()
-         ALLOCATE ( CNGRD( NCOLS,NROWS,NLAYS,SIZE( CGRID,4 ) ), STAT = ASTAT )
-         IF ( ASTAT .NE. 0 ) THEN
-            MSG = '*** ERROR allocating CNGRD'
-            CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
-         END IF
       END IF
 
 C Get process index and convert units if necessary
@@ -283,134 +273,45 @@ C Get process index and convert units if necessary
       END IF
 
       LCOUPLE = PRNAME .EQ. 'HADV' .OR. PRNAME .EQ. 'ZADV' .OR. PRNAME .EQ. 'HDIF'
-
       IF ( LCOUPLE ) THEN
          SDATE = JDATE; STIME = JTIME
          CALL NEXTIME( SDATE, STIME, TSTEP( 2 ) )
          CNGRD = CGRID  ! local copy (separate memory)
          CALL DECOUPLE( CNGRD, SDATE, STIME )
+      END IF
 
 C..Compute delta conc for this process if requested
-         IF ( PRIND .GT. 0 .AND. LPROCOUT( PRIND ) ) THEN
-            DO NPA = 1, N_IPR_SPC
-               IPA = IPROUT( NPA,PRIND )
-               IF ( IPA .NE. 0 ) THEN
-                  DO NGR = 1, NCGRID( NPA )
-                     ICG = IPR2GRD( NPA,NGR )
-                     ISV = IPR2SAV( NPA,NGR )
+      IF ( PRIND .GT. 0 .AND. LPROCOUT( PRIND ) ) THEN
+         DO NPA = 1, N_IPR_SPC
+            IPA = IPROUT( NPA,PRIND )
+            IF ( IPA .NE. 0 ) THEN
+               DO NGR = 1, NCGRID( NPA )
+                  ICG = IPR2GRD( NPA,NGR )
+                  ISV = IPR2SAV( NPA,NGR )
 #ifdef parallel
-                     CALL SUBST_DATA_COPY( CNGRD, TCGRID, ICG )
-                     DO L = MY_BEGLEV, MY_ENDLEV
-                        DO R = MY_BEGROW, MY_ENDROW
-                           DO C = MY_BEGCOL, MY_ENDCOL
-                              DELC( C,R,L,IPA ) = DELC( C,R,L,IPA )
-     &                                          + SPCOEF( NPA,NGR )
-     &                                          * ( TCGRID( C,R,L )
-     &                                          -   CSAV( C,R,L,ISV ) )
-                           END DO
-                        END DO
-                     END DO
+                  CALL SUBST_DATA_COPY( CNGRD, TCGRID, ICG )
 #else
-                     DO L = MY_BEGLEV, MY_ENDLEV
-                        PL = L - MY_BEGLEV + 1
-                        DO R = MY_BEGROW, MY_ENDROW
-                           PR = R - MY_BEGROW + 1
-                           DO C = MY_BEGCOL, MY_ENDCOL
-                              PC = C - MY_BEGCOL + 1
-                              DELC( PC,PR,PL,IPA ) = DELC( PC,PR,PL,IPA )
-     &                                             + SPCOEF( NPA,NGR )
-     &                                             * ( CNGRD( C,R,L,ICG )
-     &                                             -   CSAV( PC,PR,PL,ISV ) )
-                           END DO
-                        END DO
-                     END DO
+                  TCGRID( :,:,: ) = CNGRD( PA_BEGCOL:PA_ENDCOL,PA_BEGROW:PA_ENDROW,
+     &                                     PA_BEGLEV,PA_ENDLEV,ICG )
 #endif
-                  END DO
-               END IF
-            END DO 
-         END IF
+                  DELC( :,:,:,IPA ) = DELC( :,:,:,IPA ) + SPCOEF( NPA,NGR ) 
+     &                 * ( TCGRID( :,:,: ) - CSAV( :,:,:,ISV ) )
+               END DO
+            END IF
+         END DO 
+      END IF
 
 C..Save concentrations for next delta c
-         DO N = 1, NCSAVE
-            ICG = SV2GRD( N )
+      DO N = 1, NCSAVE
+         ICG = SV2GRD( N )
 #ifdef parallel
-            CALL SUBST_DATA_COPY( CNGRD, CSAV, ICG, N )
+         CALL SUBST_DATA_COPY( CNGRD, CSAV, ICG, N )
 #else
-            DO L = MY_BEGLEV, MY_ENDLEV
-               PL = L - MY_BEGLEV + 1
-               DO R = MY_BEGROW, MY_ENDROW
-                  PR = R - MY_BEGROW + 1
-                  DO C = MY_BEGCOL, MY_ENDCOL
-                     PC = C - MY_BEGCOL + 1
-                     CSAV( PC,PR,PL,N ) = CNGRD( C,R,L,ICG ) 
-                  END DO   
-               END DO
-            END DO
+         CSAV( :,:,:,N ) = 
+             CNGRD( PA_BEGCOL:PA_ENDCOL,PA_BEGROW:PA_ENDROW,
+     &              PA_BEGLEV:PA_ENDLEV,ICG )
 #endif
-         END DO
-
-      ELSE   ! .not. LCOUPLE
-
-C..Compute delta conc for this process if requested
-         IF ( PRIND .GT. 0 .AND. LPROCOUT( PRIND ) ) THEN
-            DO NPA = 1, N_IPR_SPC
-               IPA = IPROUT( NPA,PRIND )
-               IF ( IPA .NE. 0 ) THEN
-                  DO NGR = 1, NCGRID( NPA )
-                     ICG = IPR2GRD( NPA,NGR )
-                     ISV = IPR2SAV( NPA,NGR )
-#ifdef parallel
-                     CALL SUBST_DATA_COPY( CGRID, TCGRID, ICG )
-                     DO L = MY_BEGLEV, MY_ENDLEV
-                        DO R = MY_BEGROW, MY_ENDROW
-                           DO C = MY_BEGCOL, MY_ENDCOL
-                              DELC( C,R,L,IPA ) = DELC( C,R,L,IPA )
-     &                                          + SPCOEF( NPA,NGR )
-     &                                          * ( TCGRID( C,R,L )
-     &                                          -   CSAV( C,R,L,ISV ) )
-                           END DO
-                        END DO
-                     END DO
-#else
-                     DO L = MY_BEGLEV, MY_ENDLEV
-                        PL = L - MY_BEGLEV + 1
-                        DO R = MY_BEGROW, MY_ENDROW
-                           PR = R - MY_BEGROW + 1
-                           DO C = MY_BEGCOL, MY_ENDCOL
-                              PC = C - MY_BEGCOL + 1
-                              DELC( PC,PR,PL,IPA ) = DELC( PC,PR,PL,IPA )
-     &                                             + SPCOEF( NPA,NGR )
-     &                                             * ( CGRID( C,R,L,ICG )
-     &                                             -   CSAV( PC,PR,PL,ISV ) )
-                           END DO
-                        END DO
-                     END DO
-#endif
-                  END DO
-               END IF
-            END DO 
-         END IF
-
-C..Save concentrations for next delta c
-         DO N = 1, NCSAVE
-            ICG = SV2GRD( N )
-#ifdef parallel
-            CALL SUBST_DATA_COPY( CGRID, CSAV, ICG, N )
-#else
-            DO L = MY_BEGLEV, MY_ENDLEV
-               PL = L - MY_BEGLEV + 1
-               DO R = MY_BEGROW, MY_ENDROW
-                  PR = R - MY_BEGROW + 1
-                  DO C = MY_BEGCOL, MY_ENDCOL
-                     PC = C - MY_BEGCOL + 1
-                     CSAV( PC,PR,PL,N ) = CGRID( C,R,L,ICG ) 
-                  END DO   
-               END DO
-            END DO
-#endif
-         END DO
-
-      END IF   ! LCOUPLE
+      END DO
 
       RETURN
 
@@ -446,14 +347,13 @@ C..Set the pointers to the emission array
             DO NGR = 1, NCGRID( NPA )     ! foreach species in the family
 
                ICG = IPR2GRD( NPA,NGR )  ! CTM species index in the family
-               IPR_NGR2EM( NPA,NGR,IND_VM ) = 0 
+               IPR_NGR2EM( NPA,NGR ) = 0 
                IND = 0
 
                ! Determine Position of Species on Emission Rate Array
                IND = INDEX1( CGRID_NAME( ICG ), N_SPC_DIFF, DIFF_SPC )
                IF ( IND .GT. 0 ) THEN
-                  IPR_NGR2EM( NPA,NGR,IND_VM ) = IND 
-
+                  IPR_NGR2EM( NPA,NGR ) = IND 
                   IF ( CGRID_MASK_AERO( ICG ) ) LAE_EM_IPR = .TRUE.
                END IF   
 
@@ -472,10 +372,6 @@ C..set cell widths
          END IF
          DDX = 1.0 / DX
          DDY = 1.0 / DY
-
-C..get number of emission layers
-         EMISLYRS = NLAYS3D
-         
 
          CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
      &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
@@ -514,52 +410,37 @@ C..Get air density if needed
 
 C..Compute delta conc due to emissions and adjust vdiff or chem
 C..output if necessary for each output species
-      TOPLEV = MIN( MY_ENDLEV, EMISLYRS )
       DT = FLOAT( TIME2SEC( TSTEP( 2 ) ) )
 
       DO NPA = 1, N_IPR_SPC              ! foreach family
          IPEM = IPROUT( NPA,PRINDEM )    ! emis species index for this process
          IPAJ = IPROUT( NPA,PRINDVD )
+         IF ( IPEM + IPAJ .EQ. 0 ) CYCLE
 
          DO NGR = 1, NCGRID( NPA )       ! foreach species in the family
-            ICG = IPR2GRD( NPA,NGR )     ! CTM species index in the family
-            IEM = IPR_NGR2EM( NPA,NGR,IND_VM )
-            LAESP = CGRID_MASK_AERO( ICG ) ! Flag for aerosol species
+            IEM = IPR_NGR2EM( NPA,NGR )
+            IF ( IEM .EQ. 0 ) CYCLE  ! Skip Species without emissions PA output
 
-            IF ( IEM .NE. 0 .AND. ( IPEM .NE. 0 .OR. IPAJ .NE. 0 ) ) THEN
+            ICG = IPR2GRD( NPA,NGR )     ! CTM species index in the family
+            LAESP = CGRID_MASK_AERO( ICG ) ! Flag for aerosol species
 
 #ifdef parallel
                CALL SUBST_DATA_COPY ( VEMIS, TVEMIS, IEM )
                IF ( LAESP ) CALL SUBST_DATA_COPY ( DENS, TDENS )
 #else
-               TVEMIS( :,:,: ) = VEMIS( :,:,:,IEM )
-               TDENS = DENS
+               TVEMIS( :,:,: ) = VEMIS( PA_BEGROW:PA_ENDROW,
+     &                 PA_BEGCOL:PA_ENDCOL,PA_BEGLEV:PA_ENDLE,IEM )
+               TDENS = DENS( PA_BEGROW:PA_ENDROW,PA_BEGCOL:PA_ENDCOL,
+     &                       PA_BEGLEV:PA_ENDLEV )
 #endif
-               DO L = MY_BEGLEV, TOPLEV
-                  PL = L - MY_BEGLEV + 1
-                  DO R = MY_BEGROW, MY_ENDROW
-                     PR = R - MY_BEGROW + 1
-                     DO C = MY_BEGCOL, MY_ENDCOL
-                        PC = C - MY_BEGCOL + 1
+               EM( :,:,: ) = TVEMIS( :,:,: ) * DT
+               IF ( LAESP ) EM = EM * TDENS( :,:,: ) * PA_EM_CONV( IEM )
 
-                        IF ( LAESP ) THEN
-                           ! Aerosol
-                           EM = TVEMIS( C,R,L ) * DT * TDENS( C,R,L )
-     &                        * PA_EM_CONV( IEM )
-                        ELSE
-                           ! Gas
-                           EM = TVEMIS( C,R,L ) * DT
-                        END IF
-
-C..modify both the emiss process and the calling process
-                        DELC( PC,PR,PL,IPEM ) = DELC( PC,PR,PL,IPEM )
-     &                                           + SPCOEF( NPA,NGR ) * EM
-                        DELC( PC,PR,PL,IPAJ ) = DELC( PC,PR,PL,IPAJ )
-     &                                           - SPCOEF( NPA,NGR ) * EM
-                     END DO
-                  END DO
-               END DO
-            END IF
+               ! Modify both the emiss process and the calling process
+               DELC( :,:,:,IPEM ) = DELC( :,:,:,IPEM )
+     &                              + SPCOEF( NPA,NGR ) * EM( :,:,: )
+               DELC( :,:,:,IPAJ ) = DELC( :,:,:,IPAJ )
+     &                              - SPCOEF( NPA,NGR ) * EM( :,:,: )
          END DO
       END DO
 
@@ -579,10 +460,8 @@ C..On first call, set pointers to deposition species
             CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
          END IF
  
-         N_SPCS = N_GC_SPCD + N_AE_SPC + N_NR_SPC + N_TR_SPC
-
-         ALLOCATE ( NUMFAC( N_SPCS ),
-     &              RELWTDD( N_SPCS ), STAT = ASTAT )
+         ALLOCATE ( NUMFAC( N_CGRID_SPC ),
+     &              RELWTDD( N_CGRID_SPC ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             MSG = 'Failure allocating NUMFAC or RELWTDD'
             CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
@@ -679,14 +558,17 @@ c..get reciprocal of msfx2 (squared map scale factor)
 
          RMSFX2 = 1.0 / RMSFX2        ! Array calculation
 
-#ifdef parallel
-         ALLOCATE ( TRMSFX2( NCOLS,NROWS ), STAT = ASTAT )
+         ALLOCATE ( TRMSFX2( MY_PACOLS,MY_PAROWS ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             MSG = 'Failure allocating RMSFX4'
             CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
          END IF
-
+#ifdef parallel
          CALL SUBST_DATA_COPY( RMSFX2, TRMSFX2 )
+#else
+         TRMSFX2 = RMSFX2( PA_BEGCOL:PA_ENDCOL,PA_BEGROW:PA_ENDROW, 
+     &                     PA_BEGLEV:PA_ENDLEV )                    
+
 #endif
          
          CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
@@ -726,68 +608,50 @@ C..get density x jacobian and layer heights
 
 #ifdef parallel
       CALL SUBST_DATA_COPY( DENSA_J, TDENSA_J )
-
-      IF ( N_AE_SPC .GT. 0 ) THEN
-         CALL SUBST_DATA_COPY ( ZF, TZF )
-      END IF
+      IF ( N_AE_SPC .GT. 0 ) CALL SUBST_DATA_COPY ( ZF, TZF )
+#else
+      TDENSA_J = DENSA_J( PA_BEGCOL:PA_ENDCOL,PA_BEGROW:PA_ENDROW,
+     &                    PA_BEGLEV:PA_ENDLEV )
+      IF ( N_AE_SPC .GT. 0 ) TZF = ZF( PA_BEGCOL:PA_ENDCOL,
+     &                       PA_BEGROW:PA_ENDROW,PA_BEGLEV:PA_ENDLEV )
 #endif
 
 C..Compute delta conc due to ddep and adjust vdiff output if necessary
       DO NPA = 1, N_IPR_SPC
          IPDD = IPROUT( NPA,PRINDDD )
          IPAJ = IPROUT( NPA,PRINDVD ) 
+         IF ( IPDD + IPAJ .EQ. 0 ) CYCLE
 
          DO NGR = 1, NCGRID( NPA )                       
-            ICG = IPR2GRD( NPA,NGR )
             IDD = IPR_NGR2DD( NPA,NGR )
+            IF ( IOD .EQ. 0 ) CYCLE
 
-            IF ( IDD .NE. 0 .AND. ( IPDD .NE. 0 .OR. IPAJ .NE. 0 ) ) THEN
-
+            ICG = IPR2GRD( NPA,NGR )
 #ifdef parallel
-               CALL SUBST_DATA_COPY( DDEP, TDDEP, IDD )
+            CALL SUBST_DATA_COPY( DDEP, TDDEP, IDD )
+#else
+            TDDEP = DDEP( PA_BEGCOL:PA_ENDCOL,PA_BEGROW:PA_ENDROW,
+     &                    PA_BEGLEV:PA_ENDLEV )
 #endif
-
-               DO R = MY_BEGROW, MY_ENDROW
-                  PR = R - MY_BEGROW + 1
-                  DO C = MY_BEGCOL, MY_ENDCOL
-                     PC = C - MY_BEGCOL + 1
 
 C..compute the dep in ppm
-
-                     IF ( ICG .GE. AE_STRT. AND. ICG .LT. NR_STRT ) THEN
-#ifdef parallel
-                        NETDEP = TDDEP( C,R ) * CONVH2M
-     &                         * NUMFAC( ICG ) / TZF( C,R,1 )
-                     ELSE
-                        NETDEP = TDDEP( C,R ) * CONVH2M
-     &                         * RELWTDD( ICG ) * CONVDD( 1 )
-     &                         * TRMSFX2( C,R ) / TDENSA_J( C,R,1 ) 
-
-#else
-                        NETDEP = DDEP( C,R,IDD ) * CONVH2M
-     &                         * NUMFAC( ICG ) / ZF( C,R,1 )
-                     ELSE
-                        NETDEP = DDEP( C,R,IDD ) * CONVH2M
-     &                         * RELWTDD( ICG ) * CONVDD( 1 )
-     &                         * RMSFX2( C,R ) / DENSA_J( C,R,1 ) 
-#endif
-                     END IF
+            IF ( ICG .GE. AE_STRT. AND. ICG .LT. NR_STRT ) THEN
+               NETDEP = TDDEP( :,: ) * CONVH2M
+     &                * NUMFAC( ICG ) / TZF( :,:,1 )
+            ELSE
+               NETDEP = TDDEP( :,: ) * CONVH2M
+     &                * RELWTDD( ICG ) * CONVDD( 1 )
+     &                * TRMSFX2( :,: ) / TDENSA_J( :,:,1 ) 
+            END IF
 
 C..adjust the process analysis output arrays
+            IF ( IPDD .NE .0 )
+     &         DELC( :,:,1,IPDD ) = DELC( :,:,1,IPDD )
+     &                              - SPCOEF( NPA,NGR ) * NETDEP
 
-                     IF ( IPDD .NE .0 ) THEN
-                        DELC( PC,PR,1,IPDD ) = DELC( PC,PR,1,IPDD )
-     &                                       - SPCOEF( NPA,NGR ) * NETDEP
-                     END IF
-
-                     IF ( IPAJ .NE. 0 ) THEN
-                        DELC( PC,PR,1,IPAJ ) = DELC( PC,PR,1,IPAJ )  
-     &                                       + SPCOEF( NPA,NGR ) * NETDEP
-                     END IF
-                  END DO   ! C
-               END DO   ! R
-
-            END IF
+            IF ( IPAJ .NE. 0 )
+     &         DELC( :,:,1,IPAJ ) = DELC( :,:,1,IPAJ )  
+     &                              + SPCOEF( NPA,NGR ) * NETDEP
          END DO   ! NGR
       END DO   ! NPA
 
@@ -799,6 +663,54 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE PA_UPDATE_AERO ( JDATE, JTIME )
 
 C-----------------------------------------------------------------------
+      USE AERO_BUDGET
+
+
+      IMPLICIT NONE
+
+
+      PCOAG  = INDEX1( 'COAG',NPRCS,PROCNAME )
+      PCOND  = INDEX1( 'COND',NPRCS,PROCNAME )
+      PNPF   = INDEX1( 'NPF' ,NPRCS,PROCNAME )
+      PGROWTH= INDEX1( 'GROWTH',NPRCS,PROCNAME )
+
+      DO NPA = 1, N_IPR_SPC              ! foreach family
+          
+         IPCOAG = IPROUT( NPA, PCOAG  )  ! coag index for this process
+         IPCOND = IPROUT( NPA, PCOND  )  ! cond index for this process
+         IPNPF  = IPROUT( NPA, PNPF   )  ! NPF index for this process
+         IPGROWTH=IPROUT( NPA, PGROWTH)  ! Growth index for this process
+         IF ( IPCOAG + IPCOND + IPNPF + IPGROWTH .EQ. 0 ) CYCLE
+
+         DO NGR = 1,NCGRID( NPA )          ! foreach species in the family
+            ICG = IPR2GRD( NPA,NGR )       ! CTM species index in the family
+            LAESP = CGRID_MASK_AERO( ICG ) ! Flag for aerosol species
+
+#ifdef parallel
+               CALL SUBST_DATA_COPY ( VEMIS, TVEMIS, IEM )
+               IF ( LAESP ) CALL SUBST_DATA_COPY ( DENS, TDENS )
+#else
+               TVEMIS( :,:,: ) = VEMIS( PA_BEGROW:PA_ENDROW,
+     &                 PA_BEGCOL:PA_ENDCOL,PA_BEGLEV:PA_ENDLE,IEM )
+               TDENS = DENS( PA_BEGROW:PA_ENDROW,PA_BEGCOL:PA_ENDCOL,
+     &                       PA_BEGLEV:PA_ENDLEV )
+#endif
+               IF ( LAESP ) EM = EM * TDENS( :,:,: ) * PA_EM_CONV( IEM )
+
+               ! Modify both the emiss process and the calling process
+               DELC( :,:,:,IPCOAG ) = DELC( :,:,:,IPCOAG )
+     &                              + SUM( AERO_COAG( :,:,:,ISPC,: ),5 )
+               DELC( :,:,:,IPCOND ) = DELC( :,:,:,IPCOND )
+     &                              + AERO_COND( :,:,:,ISPC )
+               DELC( :,:,:,IPNPF  ) = DELC( :,:,:,IPNPF )
+     &                              + AERO_MPF( :,:,:,ISPC )
+               DELC( :,:,:,IPGROWTH)= DELC( :,:,:,IPGROWTH )
+     &                              + AERO_GROWTH( :,:,:,ISPC )
+         END DO
+      END DO
+
+      RETURN
+ 
 
 
 
@@ -806,7 +718,6 @@ C-----------------------------------------------------------------------
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE DECOUPLE ( CONC, JDATE, JTIME )
-
 C-----------------------------------------------------------------------
 C Function:
 C   Convert units and decouple concentration values in CGRID from transport
@@ -854,12 +765,11 @@ C Local Variables:
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
       INTEGER, SAVE :: LOGDEV
 
-      INTEGER     ASTAT
       INTEGER     GXOFF, GYOFF          ! global origin offset from file
 C for INTERPX
       INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
 
-      INTEGER     SPC, V  ! loop counters
+      INTEGER     V  ! loop counters
       INTEGER     RHOJ_LOC         ! pointer to transported RHOJ (in CONC)
 
 C-----------------------------------------------------------------------

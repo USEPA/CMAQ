@@ -60,7 +60,5 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Declarations for species and mechanism data
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-      INTEGER N_SPC      ! Total number of species
-     
       END MODULE PA_GLOBAL
  

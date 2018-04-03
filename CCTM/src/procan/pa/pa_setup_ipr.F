@@ -52,6 +52,7 @@ C-----------------------------------------------------------------------
       USE PA_IPRDEF
       USE PA_DEFN
       USE PA_PARSE, Only: IZERO
+      USE CGRID_SPC, Only: N_CGRID_SPC, CGRID_NAME
 
       IMPLICIT NONE
       
@@ -71,7 +72,7 @@ C Local Variables:
       INTEGER NS     ! Loop index for species
       INTEGER ASTAT  ! Memory allocation status
 
-      LOGICAL :: LSAVSP( MXSPEC )  ! Flag to save species conc for PA
+      LOGICAL :: LSAVSP( N_CGRID_SPC )  ! Flag to save species conc for PA
 
       CHARACTER( 120 ) :: MSG = ' '
          
@@ -304,9 +305,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Set up the species pointers for the IPR Outputs
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      DO NS = 1, N_SPC
-         LSAVSP( NS ) = .FALSE.
-      END DO
+      LSAVSP = .FALSE.
 
       ALLOCATE( NCGRID ( N_IPR_SPC ), STAT = ASTAT )
       IF ( ASTAT .NE. 0 ) THEN
