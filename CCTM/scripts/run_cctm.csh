@@ -486,7 +486,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #> Executable call for multi PE, configure for your system 
   # set MPI = /usr/local/intel/impi/3.2.2.006/bin64
   # set MPIRUN = $MPI/mpirun
-  time mpirun -r ssh -np $NPROCS $BLD/$EXEC
+  time mpirun -np $NPROCS $BLD/$EXEC
 
   date
 
