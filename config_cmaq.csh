@@ -81,7 +81,7 @@
     
         #> I/O API, netCDF, and MPI library locations
         setenv IOAPI_MOD_DIR   ioapi_mod_intel  #> I/O API precompiled modules
-        setenv IOAPI_INCL_DIR  iopai_inc_intel  #> I/O API include header files
+        setenv IOAPI_INCL_DIR  ioapi_inc_intel  #> I/O API include header files
         setenv IOAPI_LIB_DIR   ioapi_lib_intel  #> I/O API libraries
         setenv NETCDF_LIB_DIR  netcdf_lib_intel #> netCDF directory path
         setenv NETCDF_INCL_DIR netcdf_inc_intel #> netCDF directory path
