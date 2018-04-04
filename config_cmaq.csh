@@ -81,7 +81,7 @@
     
         #> I/O API, netCDF, and MPI library locations
         setenv IOAPI_MOD_DIR   ioapi_mod_intel  #> I/O API precompiled modules
-        setenv IOAPI_INCL_DIR  iopai_inc_intel  #> I/O API include header files
+        setenv IOAPI_INCL_DIR  ioapi_inc_intel  #> I/O API include header files
         setenv IOAPI_LIB_DIR   ioapi_lib_intel  #> I/O API libraries
         setenv NETCDF_LIB_DIR  netcdf_lib_intel #> netCDF directory path
         setenv NETCDF_INCL_DIR netcdf_inc_intel #> netCDF directory path
@@ -218,8 +218,8 @@
     echo "ERROR: $IOAPI_DIR/lib/libioapi.a does not exist in your CMAQ_LIB directory!!! Check your installation before proceeding with CMAQ build."
     exit
  endif
- if ( ! -e $IOAPI_DIR/modules/m3utilio.mod ) then 
-    echo "ERROR: $IOAPI_DIR/include/m3utilio.mod does not exist in your CMAQ_LIB directory!!! Check your installation before proceeding with CMAQ build."
+ if ( ! -e $IOAPI_MOD_DIR/m3utilio.mod ) then 
+    echo "ERROR: $IOAPI_MOD_DIR/m3utilio.mod does not exist in your CMAQ_LIB directory!!! Check your installation before proceeding with CMAQ build."
     exit
  endif
 
