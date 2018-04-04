@@ -16,7 +16,6 @@ The Community Multiscale Air Quality (CMAQ) Model version 5.2.1 is a minor updat
 
 ## Emissions and Air-Surface Exchange  
   * [Turn on bioseason switch by default](Bioseason.md)  
-  * [Hay Land Use fix for BiDi](Hay_Land_Use.md) (Jesse)  
   * [Allow Emissions Check to have no point sources](Emiss_Check_Zero_PT_Sources.md)  
 
 ## Chemistry  
