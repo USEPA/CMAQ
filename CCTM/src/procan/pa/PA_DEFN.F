@@ -60,11 +60,10 @@ c    SV2GRD    = Array of CTM indicies for saved concs
 c    SPCOEF    = Array of coefficients for IPR familys
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-      INTEGER, PARAMETER :: NPRCS = 15
+      INTEGER, PARAMETER :: NPRCS = 12
 
       CHARACTER( 16 ), PARAMETER :: PROCNAME( NPRCS ) = (/
-     &   'XADV            ',  'YADV            ',  'ZADV            ',
-     &   'ADJC            ',  'HADV            ',  'HDIF            ',
+     &   'ZADV            ',  'HADV            ',  'HDIF            ',
      &   'VDIF            ',  'EMIS            ',  'DDEP            ',
      &   'CLDS            ',  'CHEM            ',  'COND            ',
      &   'COAG            ',  'GROW            ',  'NPF             ' /)

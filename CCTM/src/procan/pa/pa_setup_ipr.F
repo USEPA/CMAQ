@@ -112,182 +112,118 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                CALL M3EXIT( 'GETEXTDAT', IZERO, IZERO, ' ', XSTAT2 )
             END IF
 
-            IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'XADV' ) THEN
-               IPRNAME_TMP( NIPRVAR ) = 'XADV_' // IPR_SPNAM( NIPR )
-               IPRDESC_TMP( NIPRVAR ) = 'X-Advection of ' //
-     &                                   IPR_SPNAM( NIPR )
-               IPROUT( NIPR,1 )   =  NIPRVAR
-               LPROCOUT( 1 )      = .TRUE.
-            ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'YADV' ) THEN
-               IPRNAME_TMP( NIPRVAR ) = 'YADV_' // IPR_SPNAM( NIPR )
-               IPRDESC_TMP( NIPRVAR ) = 'Y-Advection of ' //
-     &                                   IPR_SPNAM( NIPR )
-               IPROUT( NIPR,2 )   =  NIPRVAR
-               LPROCOUT( 2 )      = .TRUE.
-            ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'ZADV' ) THEN
+            IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'ZADV' ) THEN
                IPRNAME_TMP( NIPRVAR ) = 'ZADV_' // IPR_SPNAM( NIPR )
                IPRDESC_TMP( NIPRVAR ) = 'Z-Advection of ' // 
      &                                   IPR_SPNAM( NIPR )
-               IPROUT( NIPR,3 )   = NIPRVAR
-               LPROCOUT( 3 )      = .TRUE.
-            ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'ADJC' ) THEN
-               IPRNAME_TMP( NIPRVAR ) = 'ADJC_' // IPR_SPNAM( NIPR )
-               IPRDESC_TMP( NIPRVAR ) = 'Advection mass adjustment for ' // 
-     &                                   IPR_SPNAM( NIPR )
-               IPROUT( NIPR,4 )   = NIPRVAR
-               LPROCOUT( 4 )      = .TRUE.
+               IPROUT( NIPR,1 )   = NIPRVAR
+               LPROCOUT( 1 )      = .TRUE.
             ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'HADV' ) THEN
                IPRNAME_TMP( NIPRVAR ) = 'HADV_' // IPR_SPNAM( NIPR )
                IPRDESC_TMP( NIPRVAR ) = 'Horizontal Advection of ' //
      &                                   IPR_SPNAM( NIPR )
-               IPROUT( NIPR,5 )   =  NIPRVAR
-               LPROCOUT( 5 )      = .TRUE.
+               IPROUT( NIPR,2 )   =  NIPRVAR
+               LPROCOUT( 2 )      = .TRUE.
             ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'HDIF' ) THEN
                IPRNAME_TMP( NIPRVAR ) = 'HDIF_' // IPR_SPNAM( NIPR )
                IPRDESC_TMP( NIPRVAR ) = 'Horizontal diffusion for ' // 
      &                                   IPR_SPNAM( NIPR )
-               IPROUT( NIPR,6 )   = NIPRVAR
-               LPROCOUT( 6 )      = .TRUE.
+               IPROUT( NIPR,3 )   = NIPRVAR
+               LPROCOUT( 3 )      = .TRUE.
             ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'VDIF' ) THEN
                IPRNAME_TMP( NIPRVAR ) = 'VDIF_' // IPR_SPNAM( NIPR )
                IPRDESC_TMP( NIPRVAR ) = 'Vertical diffusion for ' // 
      &                                   IPR_SPNAM( NIPR )
-               IPROUT( NIPR,7 )   = NIPRVAR
-               LPROCOUT( 7 )      = .TRUE.
+               IPROUT( NIPR,4 )   = NIPRVAR
+               LPROCOUT( 4 )      = .TRUE.
             ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'EMIS' ) THEN
                IPRNAME_TMP( NIPRVAR ) = 'EMIS_' // IPR_SPNAM( NIPR )
                IPRDESC_TMP( NIPRVAR ) = 'Emissions of ' // 
      &                                   IPR_SPNAM( NIPR )
-               IPROUT( NIPR,8 )   = NIPRVAR
-               LPROCOUT( 8 )      = .TRUE.
+               IPROUT( NIPR,5 )   = NIPRVAR
+               LPROCOUT( 5 )      = .TRUE.
             ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'DDEP' ) THEN
                IPRNAME_TMP( NIPRVAR ) = 'DDEP_' // IPR_SPNAM( NIPR )
                IPRDESC_TMP( NIPRVAR ) = 'Dry deposition for ' // 
      &                                   IPR_SPNAM( NIPR )
-               IPROUT( NIPR,9 )   = NIPRVAR
-               LPROCOUT( 9 )      = .TRUE.
+               IPROUT( NIPR,6 )   = NIPRVAR
+               LPROCOUT( 6 )      = .TRUE.
             ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'CLDS' ) THEN
                IPRNAME_TMP( NIPRVAR ) = 'CLDS_' // IPR_SPNAM( NIPR )
                IPRDESC_TMP( NIPRVAR ) = 'Clouds for ' // 
      &                                   IPR_SPNAM( NIPR )
-               IPROUT( NIPR,10 )   = NIPRVAR
-               LPROCOUT( 10 )      = .TRUE.
+               IPROUT( NIPR,7 )   = NIPRVAR
+               LPROCOUT( 7 )      = .TRUE.
             ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'CHEM' ) THEN
                IPRNAME_TMP( NIPRVAR )  = 'CHEM_' // IPR_SPNAM( NIPR )
                IPRDESC_TMP( NIPRVAR )  = 'Chemistry of ' // 
      &                                   IPR_SPNAM( NIPR )
-               IPROUT( NIPR,11 )   = NIPRVAR
-               LPROCOUT( 11 )      = .TRUE.
+               IPROUT( NIPR,8 )   = NIPRVAR
+               LPROCOUT( 8 )      = .TRUE.
             ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'COND' ) THEN
                IPRNAME_TMP( NIPRVAR )  = 'COND_' // IPR_SPNAM( NIPR )
                IPRDESC_TMP( NIPRVAR )  = 'Condensation for ' // 
      &                                    IPR_SPNAM( NIPR )
-               IPROUT( NIPR,12 )   = NIPRVAR
-               LPROCOUT( 12 )      = .TRUE.
+               IPROUT( NIPR,9 )   = NIPRVAR
+               LPROCOUT( 9 )      = .TRUE.
             ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'COAG' ) THEN
                IPRNAME_TMP( NIPRVAR )  = 'COAG_' // IPR_SPNAM( NIPR )
                IPRDESC_TMP( NIPRVAR )  = 'Coagulation for ' // 
      &                                    IPR_SPNAM( NIPR )
-               IPROUT( NIPR,13 )   = NIPRVAR
-               LPROCOUT( 13 )      = .TRUE.
+               IPROUT( NIPR,10 )   = NIPRVAR
+               LPROCOUT( 10 )      = .TRUE.
             ELSE IF ( IPR_OPNAME( NIPR,N )( 1:5 ) .EQ. 'GROW' ) THEN
                IPRNAME_TMP( NIPRVAR )  = 'GROW_' // IPR_SPNAM( NIPR )
                IPRDESC_TMP( NIPRVAR )  = 'Aerosol Growth (Renaming) for ' // 
      &                                    IPR_SPNAM( NIPR )
-               IPROUT( NIPR,14 )   = NIPRVAR
-               LPROCOUT( 14 )      = .TRUE.
+               IPROUT( NIPR,11 )   = NIPRVAR
+               LPROCOUT( 11 )      = .TRUE.
             ELSE IF ( IPR_OPNAME( NIPR,N )( 1:3 ) .EQ. 'NPF' ) THEN
                IPRNAME_TMP( NIPRVAR )  = 'NPF_' // IPR_SPNAM( NIPR )
                IPRDESC_TMP( NIPRVAR )  = 'New Particle Formation for ' // 
      &                                    IPR_SPNAM( NIPR )
-               IPROUT( NIPR,15 )   = NIPRVAR
-               LPROCOUT( 15 )      = .TRUE.
+               IPROUT( NIPR,12 )   = NIPRVAR
+               LPROCOUT( 12 )      = .TRUE.
             ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'AERO' ) THEN
                IPRNAME_TMP( NIPRVAR ) = 'AERO_' // IPR_SPNAM( NIPR )
                IPRDESC_TMP( NIPRVAR ) = 'Aerosol Impact on ' // 
      &                                   IPR_SPNAM( NIPR )
+               IPROUT( NIPR,9  )  = NIPRVAR
+               IPROUT( NIPR,10 )  = NIPRVAR
+               IPROUT( NIPR,11 )  = NIPRVAR
                IPROUT( NIPR,12 )  = NIPRVAR
-               IPROUT( NIPR,13 )  = NIPRVAR
-               IPROUT( NIPR,14 )  = NIPRVAR
-               IPROUT( NIPR,15 )  = NIPRVAR
+               LPROCOUT( 9  )     = .TRUE.
+               LPROCOUT( 10 )     = .TRUE.
+               LPROCOUT( 11 )     = .TRUE.
                LPROCOUT( 12 )     = .TRUE.
-               LPROCOUT( 13 )     = .TRUE.
-               LPROCOUT( 14 )     = .TRUE.
-               LPROCOUT( 15 )     = .TRUE.
-            ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'ADV2' ) THEN
-               IPRNAME_TMP( NIPRVAR ) = 'ADV2_' // IPR_SPNAM( NIPR )
-               IPRDESC_TMP( NIPRVAR ) = 'XY-Advection of ' //
-     &                                   IPR_SPNAM( NIPR )
-               IPROUT( NIPR,1 )  = NIPRVAR
-               IPROUT( NIPR,2 )  = NIPRVAR
-               LPROCOUT( 1 )     = .TRUE.
-               LPROCOUT( 2 )     = .TRUE.
-            ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'ADV3' ) THEN
-               IPRNAME_TMP( NIPRVAR ) = 'ADV3_' // IPR_SPNAM( NIPR )
-               IPRDESC_TMP( NIPRVAR ) = 'XYZ-Advection of ' //
-     &                                   IPR_SPNAM( NIPR )
-               IPROUT( NIPR,1 )  = NIPRVAR
-               IPROUT( NIPR,2 )  = NIPRVAR
-               IPROUT( NIPR,3 )  = NIPRVAR
-               LPROCOUT( 1 )     = .TRUE.
-               LPROCOUT( 2 )     = .TRUE.
-               LPROCOUT( 3 )     = .TRUE.
             ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'MADV' ) THEN
                IPRNAME_TMP( NIPRVAR ) = 'MADV_' // IPR_SPNAM( NIPR )
                IPRDESC_TMP( NIPRVAR ) = 'Horizontal and Vertical Advection of ' //
      &                                   IPR_SPNAM( NIPR )
-               IPROUT( NIPR,5 )  = NIPRVAR
-               IPROUT( NIPR,3 )  = NIPRVAR
-               LPROCOUT( 5 )     = .TRUE.
-               LPROCOUT( 3 )     = .TRUE.
-            ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'TADV' ) THEN
-               IPRNAME_TMP( NIPRVAR ) = 'TADV_' // IPR_SPNAM( NIPR )
-               IPRDESC_TMP( NIPRVAR ) = 'Total Advection of ' //
-     &                                   IPR_SPNAM( NIPR )
-               IPROUT( NIPR,1 )  = NIPRVAR
                IPROUT( NIPR,2 )  = NIPRVAR
-               IPROUT( NIPR,3 )  = NIPRVAR
-               IPROUT( NIPR,4 )  = NIPRVAR
-               LPROCOUT( 1 )     = .TRUE.
+               IPROUT( NIPR,1 )  = NIPRVAR
                LPROCOUT( 2 )     = .TRUE.
-               LPROCOUT( 3 )     = .TRUE.
-               LPROCOUT( 4 )     = .TRUE.
+               LPROCOUT( 1 )     = .TRUE.
             ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'TDIF' ) THEN
                IPRNAME_TMP( NIPRVAR ) = 'TDIF_' // IPR_SPNAM( NIPR )
                IPRDESC_TMP( NIPRVAR ) = 'Total Diffusion of ' //
      &                                   IPR_SPNAM( NIPR )
-               IPROUT( NIPR,6 )  = NIPRVAR
-               IPROUT( NIPR,7 )  = NIPRVAR
-               LPROCOUT( 6 )     = .TRUE.
-               LPROCOUT( 7 )     = .TRUE.
-            ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'TRAN' ) THEN
-               IPRNAME_TMP( NIPRVAR ) = 'TRAN_' // IPR_SPNAM( NIPR )
-               IPRDESC_TMP( NIPRVAR ) = 'Total Transport of ' //
-     &                                   IPR_SPNAM( NIPR )
-               IPROUT( NIPR,1 )  = NIPRVAR
-               IPROUT( NIPR,2 )  = NIPRVAR
                IPROUT( NIPR,3 )  = NIPRVAR
                IPROUT( NIPR,4 )  = NIPRVAR
-               IPROUT( NIPR,6 )  = NIPRVAR
-               IPROUT( NIPR,7 )  = NIPRVAR
-               LPROCOUT( 1 )     = .TRUE.
-               LPROCOUT( 2 )     = .TRUE.
                LPROCOUT( 3 )     = .TRUE.
                LPROCOUT( 4 )     = .TRUE.
-               LPROCOUT( 6 )     = .TRUE.
-               LPROCOUT( 7 )     = .TRUE.
             ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'TRNM' ) THEN
                IPRNAME_TMP( NIPRVAR ) = 'TRNM_' // IPR_SPNAM( NIPR )
                IPRDESC_TMP( NIPRVAR ) = 'Total Mass-Conserving Transport of ' //
      &                                   IPR_SPNAM( NIPR )
-               IPROUT( NIPR,5 )  = NIPRVAR
+               IPROUT( NIPR,2 )  = NIPRVAR
+               IPROUT( NIPR,1 )  = NIPRVAR
                IPROUT( NIPR,3 )  = NIPRVAR
-               IPROUT( NIPR,6 )  = NIPRVAR
-               IPROUT( NIPR,7 )  = NIPRVAR
-               LPROCOUT( 5 )     = .TRUE.
+               IPROUT( NIPR,4 )  = NIPRVAR
+               LPROCOUT( 2 )     = .TRUE.
+               LPROCOUT( 1 )     = .TRUE.
                LPROCOUT( 3 )     = .TRUE.
-               LPROCOUT( 6 )     = .TRUE.
-               LPROCOUT( 7 )     = .TRUE.
+               LPROCOUT( 4 )     = .TRUE.
             END IF
          END DO
       END DO

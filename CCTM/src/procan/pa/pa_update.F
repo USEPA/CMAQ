@@ -273,11 +273,12 @@ C Get process index and convert units if necessary
          END IF
       END IF
 
+      CNGRD = CGRID  ! local copy (separate memory)
+      
       LCOUPLE = PRNAME .EQ. 'HADV' .OR. PRNAME .EQ. 'ZADV' .OR. PRNAME .EQ. 'HDIF'
       IF ( LCOUPLE ) THEN
          SDATE = JDATE; STIME = JTIME
          CALL NEXTIME( SDATE, STIME, TSTEP( 2 ) )
-         CNGRD = CGRID  ! local copy (separate memory)
          CALL DECOUPLE( CNGRD, SDATE, STIME )
       END IF
 
