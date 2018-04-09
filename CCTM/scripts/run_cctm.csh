@@ -82,14 +82,14 @@ setenv GRIDDESC $INPDIR/GRIDDESC   #> grid description file
 
 #> Output Species and Layer Options
 #>   CONC file species; comment or set to "ALL" to write all species to CONC
-     #setenv CONC_SPCS "O3 NO ANO3I ANO3J NO2 FORM ISOP ANH4J ASO4I ASO4J" 
-     #setenv CONC_BLEV_ELEV " 1 4" #> CONC file layer range; comment to write all layers to CONC
+#setenv CONC_SPCS "O3 NO ANO3I ANO3J NO2 FORM ISOP ANH4J ASO4I ASO4J" 
+#setenv CONC_BLEV_ELEV " 1 4" #> CONC file layer range; comment to write all layers to CONC
 
 #>   ACONC file species; comment or set to "ALL" to write all species to ACONC
-     #setenv AVG_CONC_SPCS "O3 NO CO NO2 ASO4I ASO4J NH3" 
-     setenv AVG_CONC_SPCS "ALL" 
-     setenv ACONC_BLEV_ELEV " 1 1" #> ACONC file layer range; comment to write all layers to ACONC
-     #setenv ACONC_END_TIME Y      #> override default beginning ACON timestamp [ default: N ]
+#setenv AVG_CONC_SPCS "O3 NO CO NO2 ASO4I ASO4J NH3" 
+setenv AVG_CONC_SPCS "ALL" 
+setenv ACONC_BLEV_ELEV " 1 1" #> ACONC file layer range; comment to write all layers to ACONC
+setenv AVG_FILE_ENDTIME N     #> override default beginning ACON timestamp [ default: N ]
 
 setenv EXECUTION_ID $EXEC    #> define the model execution id
 
@@ -146,11 +146,10 @@ setenv CTM_EMISCHK N         #> Abort CMAQ if missing surrogates from emissions 
 
 #> Aerosol Diagnostic Controls
 setenv CTM_AVISDIAG Y        #> Aerovis diagnostic file [ default: N ]
-setenv CTM_PMDIAG Y          #> What is this [ default: Y ]
-setenv CTM_APMDIAG Y         #> What is this [ default: Y ]
+setenv CTM_PMDIAG Y          #> Instantaneous Aerosol Diagnostic File [ default: Y ]
+setenv CTM_APMDIAG Y         #> Hourly-Average Aerosol Diagnostic File [ default: Y ]
 setenv APMDIAG_BLEV_ELEV "1 3" #> layer range for average pmdiag
 setenv APMDIAG_BLEV_ELEV ""  #> layer range for average pmdiag = NLAYS
-setenv AVG_FILE_ENDTIME N    #> What is this [ default: N ]
 
 #> Diagnostic Output Flags
 setenv CTM_CKSUM Y           #> cksum report [ default: Y ]
@@ -285,13 +284,12 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 
   #> In-line lightning NOx options
      setenv USE_NLDN  Y        #> use hourly NLDN strike file [ default: Y ]
-     setenv LTNGPARAM Y        #> use lightning parameter file [ default: Y ]
      if ( $USE_NLDN == Y ) then
         setenv NLDN_STRIKES $INPDIR/lightning/NLDN.12US1.${YYYYMMDD}_bench.nc
      else
         setenv LOG_START 2.0   #> RC value to transit linear to log linear
      endif
-     setenv LTNGPARMS_FILE $INPDIR/lightning/LTNG_AllParms_12US1_bench.nc #> lightning parameter file; ignore if LTNGPARAM = N
+     setenv LTNGPARMS_FILE $INPDIR/lightning/LTNG_AllParms_12US1_bench.nc #> lightning parameter file
   endif
 
 
@@ -415,7 +413,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      end
 
   else
-     #> remove previous log files
+     #> error if previous log files exist
      if ( "$log_test" != "" ) then
        echo "*** Logs exist - run ABORTED ***"
        echo "*** To overide, set $DISP == delete in run_cctm.csh ***"
@@ -423,12 +421,11 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
        exit 1
      endif
 
-     #> remove previous output files
+     #> error if previous output files exist
      if ( "$out_test" != "" ) then
        echo "*** Output Files Exist - run will be ABORTED ***"
        foreach file ( $out_test )
           echo " cannot delete $file"
-          /bin/rm -f $file  
        end
        echo "*** To overide, set $DISP == delete in run_cctm.csh ***"
        echo "*** and these files will be automatically deleted. ***"

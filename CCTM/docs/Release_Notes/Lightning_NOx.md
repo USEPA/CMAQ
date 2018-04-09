@@ -61,7 +61,6 @@ Settings:
 ```
 setenv CTM_LTNG_NO Y
 setenv LTNGNO Inline
-setenv LTNGPARAM  N
 setenv USE_NLDN N
 setenv LOG_START 2.0
 ```
@@ -73,7 +72,6 @@ Settings:
 ```
 setenv CTM_LTNG_NO Y
 setenv LTNGNO Inline
-setenv LTNGPARAM  Y
 setenv USE_NLDN Y
 setenv LTNGPARMS_FILE [netCDF file of lightning parameters*]
 setenv NLDN_STRIKES [netCDF file of hourly strike counts]
