@@ -153,7 +153,6 @@ C Other variables:
       INTEGER, SAVE :: SDATE      ! scenario start date
       INTEGER, SAVE :: STIME      ! scenario start time
       INTEGER, SAVE :: NSTEPS     ! run duration
-      INTEGER, SAVE :: NTICS  = 0 ! no. of substeps within an output tstep
       INTEGER, SAVE :: WSTEP  = 0 ! local write counter
       INTEGER          PARTYPE    ! method number to calculate PAR
       INTEGER, SAVE :: LOGDEV
@@ -597,46 +596,24 @@ C Speciate emissions
       END DO
 #endif
 
-      NTICS   =   NTICS + 1
       WSTEP   =   WSTEP + TIME2SEC( TSTEP( 2 ) )
       LASTTIC = ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) )
 
       IF ( BEMIS_DIAG ) THEN
-         IF ( NTICS .EQ. 1 ) THEN
-            DO K = 1, NSEF
-               I = 0
-               DO S = 1, MSPCS
-                  IF ( BEIS_MAP( S ) .GT. 0 ) THEN
-                     I = I + 1
-                     MSFC = HR2SEC * MSFAC( S,K )
-                     EMISS( :,:,I ) = EMISS( :,:,I ) + EMPOL( :,:,K ) * MSFC
-                  END IF
-               END DO
+         DO K = 1, NSEF
+            I = 0
+            DO S = 1, MSPCS
+               IF ( BEIS_MAP( S ) .GT. 0 ) THEN
+                  I = I + 1
+! Unit conversion for the emission and fraction of the sync time step to the output time step
+                  MSFC = MSFAC( S,K ) * FLOAT( TIME2SEC( TSTEP( 2 ) ) ) / FLOAT( TIME2SEC( TSTEP( 1 ) ) )
+! Add the emission for the model output time step
+                  EMISS( :,:,I ) = EMISS( :,:,I ) + EMPOL( :,:,K ) * MSFC
+               END IF
             END DO
-         ELSE IF ( .NOT. LASTTIC ) THEN
-            DO K = 1, NSEF
-               I = 0
-               DO S = 1, MSPCS
-                  IF ( BEIS_MAP( S ) .GT. 0 ) THEN
-                     I = I + 1
-                     MSFC = HR2SEC * MSFAC( S,K )
-                     EMISS( :,:,I ) = EMISS( :,:,I ) + 2.0 * EMPOL( :,:,K ) * MSFC
-                  END IF
-               END DO
-            END DO
-         ELSE   ! LASTTIC
-            DIVFAC = 0.5 / FLOAT( NTICS )
-            DO K = 1, NSEF
-               I = 0
-               DO S = 1, MSPCS
-                  IF ( BEIS_MAP( S ) .GT. 0 ) THEN
-                     I = I + 1
-                     MSFC = HR2SEC * MSFAC( S,K )
-                     EMISS( :,:,I ) = EMISS( :,:,I ) + EMPOL( :,:,K ) * MSFC
-                  END IF
-               END DO
-            END DO
-            EMISS = DIVFAC * EMISS   ! array assignment
+         END DO
+         IF ( LASTTIC ) THEN
+            EMISS = EMISS * HR2SEC   ! convert from gm/h to gm/s
             IF ( .NOT. WRITE3( SNAME, 'ALL', MDATE, MTIME, EMISS ) ) THEN
                MESG = 'Could not write to output file "' // TRIM( SNAME ) // '"'
                CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
@@ -645,8 +622,8 @@ C Speciate emissions
      &            'Timestep written to', SNAME,
      &            'for date and time', MDATE, MTIME
             EMISS = 0.0   ! array
-            CALL NEXTIME( MDATE, MTIME, TSTEP( 1 ) )
             WSTEP = 0
+            CALL NEXTIME( MDATE, MTIME, TSTEP( 1 ) )
          END IF
       END IF
 
