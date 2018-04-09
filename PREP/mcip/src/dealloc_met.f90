@@ -47,6 +47,12 @@ SUBROUTINE dealloc_met
 !                        fraction to output.  (T. Spero)
 !           21 Aug 2015  Changed latent heat flux from QFX to LH.  Added
 !                        moisture flux (QFX).  (T. Spero)
+!           16 Mar 2018  Added SNOWH to output.  Added C1H, C2H, C1F, and C2F to
+!                        support hybrid vertical coordinate in WRF.  Added
+!                        LUFRAC2, MOSCATIDX, ZNT_MOS, TSK_MOS, RA_MOS, RS_MOS,
+!                        and LAI_MOS for NOAH Mosaic land-surface model.
+!                        Added DZS, SOIT3D, and SOIM3D.  Added WSPDSFC and
+!                        XLAIDYN for Noah.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE metinfo
@@ -72,13 +78,22 @@ SUBROUTINE dealloc_met
   DEALLOCATE ( lonv     )
   DEALLOCATE ( mapcrs   )
   DEALLOCATE ( mapdot   )
-  DEALLOCATE ( sigmah   )
   DEALLOCATE ( sigmaf   )
+  DEALLOCATE ( sigmah   )
   DEALLOCATE ( terrain  )
   DEALLOCATE ( znt      )
 
-  IF ( ALLOCATED ( lufrac   ) )  DEALLOCATE ( lufrac   )
-  IF ( ALLOCATED ( coriolis ) )  DEALLOCATE ( coriolis )
+  IF ( ALLOCATED ( lufrac    ) )  DEALLOCATE ( lufrac    )
+  IF ( ALLOCATED ( lufrac2   ) )  DEALLOCATE ( lufrac2   )
+  IF ( ALLOCATED ( moscatidx ) )  DEALLOCATE ( moscatidx )
+  IF ( ALLOCATED ( coriolis  ) )  DEALLOCATE ( coriolis  )
+
+  IF ( ALLOCATED ( c1f       ) )  DEALLOCATE ( c1f       )
+  IF ( ALLOCATED ( c1h       ) )  DEALLOCATE ( c1h       )
+  IF ( ALLOCATED ( c2f       ) )  DEALLOCATE ( c2f       )
+  IF ( ALLOCATED ( c2h       ) )  DEALLOCATE ( c2h       )
+
+  IF ( ALLOCATED ( dzs       ) )  DEALLOCATE ( dzs       )
 
 !-------------------------------------------------------------------------------
 ! Deallocate time-variant fields.
@@ -107,6 +122,7 @@ SUBROUTINE dealloc_met
   DEALLOCATE ( rnold   )
   DEALLOCATE ( seaice  )
   DEALLOCATE ( snowcovr)
+  DEALLOCATE ( snowh   )
   DEALLOCATE ( ta      )
   DEALLOCATE ( ua      )
   DEALLOCATE ( ust     )
@@ -128,25 +144,36 @@ SUBROUTINE dealloc_met
     DEALLOCATE ( phb   )
   ENDIF
 
-  IF ( ALLOCATED ( isltyp ) )  DEALLOCATE ( isltyp )
-  IF ( ALLOCATED ( lai    ) )  DEALLOCATE ( lai    )
-  IF ( ALLOCATED ( mol    ) )  DEALLOCATE ( mol    )
-  IF ( ALLOCATED ( ra     ) )  DEALLOCATE ( ra     )
-  IF ( ALLOCATED ( rstom  ) )  DEALLOCATE ( rstom  )
-  IF ( ALLOCATED ( soilt1 ) )  DEALLOCATE ( soilt1 )
-  IF ( ALLOCATED ( soilt2 ) )  DEALLOCATE ( soilt2 )
-  IF ( ALLOCATED ( veg    ) )  DEALLOCATE ( veg    )
-  IF ( ALLOCATED ( vegold ) )  DEALLOCATE ( vegold )
-  IF ( ALLOCATED ( w2     ) )  DEALLOCATE ( w2     )
-  IF ( ALLOCATED ( wg     ) )  DEALLOCATE ( wg     )
-  IF ( ALLOCATED ( wr     ) )  DEALLOCATE ( wr     )
+  IF ( ALLOCATED ( isltyp  ) )  DEALLOCATE ( isltyp  )
+  IF ( ALLOCATED ( lai     ) )  DEALLOCATE ( lai     )
+  IF ( ALLOCATED ( mol     ) )  DEALLOCATE ( mol     )
+  IF ( ALLOCATED ( ra      ) )  DEALLOCATE ( ra      )
+  IF ( ALLOCATED ( rstom   ) )  DEALLOCATE ( rstom   )
+  IF ( ALLOCATED ( soilt1  ) )  DEALLOCATE ( soilt1  )
+  IF ( ALLOCATED ( soilt2  ) )  DEALLOCATE ( soilt2  )
+  IF ( ALLOCATED ( soim3d  ) )  DEALLOCATE ( soim3d  )
+  IF ( ALLOCATED ( soit3d  ) )  DEALLOCATE ( soit3d  )
+  IF ( ALLOCATED ( veg     ) )  DEALLOCATE ( veg     )
+  IF ( ALLOCATED ( vegold  ) )  DEALLOCATE ( vegold  )
+  IF ( ALLOCATED ( w2      ) )  DEALLOCATE ( w2      )
+  IF ( ALLOCATED ( wg      ) )  DEALLOCATE ( wg      )
+  IF ( ALLOCATED ( wr      ) )  DEALLOCATE ( wr      )
 
-  IF ( ALLOCATED ( tke    ) )  DEALLOCATE ( tke    )
+  IF ( ALLOCATED ( tke     ) )  DEALLOCATE ( tke     )
 
-  IF ( ALLOCATED ( theta  ) )  DEALLOCATE ( theta  )
+  IF ( ALLOCATED ( theta   ) )  DEALLOCATE ( theta   )
 
-  IF ( ALLOCATED ( frc_urb ) ) DEALLOCATE ( frc_urb )
+  IF ( ALLOCATED ( frc_urb ) )  DEALLOCATE ( frc_urb )
 
-  IF ( ALLOCATED ( cldfra ) )  DEALLOCATE ( cldfra )
+  IF ( ALLOCATED ( cldfra  ) )  DEALLOCATE ( cldfra  )
+
+  IF ( ALLOCATED ( lai_mos ) )  DEALLOCATE ( lai_mos )
+  IF ( ALLOCATED ( ra_mos  ) )  DEALLOCATE ( ra_mos  )
+  IF ( ALLOCATED ( rs_mos  ) )  DEALLOCATE ( rs_mos  )
+  IF ( ALLOCATED ( tsk_mos ) )  DEALLOCATE ( tsk_mos )
+  IF ( ALLOCATED ( znt_mos ) )  DEALLOCATE ( znt_mos )
+
+  IF ( ALLOCATED ( wspdsfc ) )  DEALLOCATE ( wspdsfc )
+  IF ( ALLOCATED ( xlaidyn ) )  DEALLOCATE ( xlaidyn )
 
 END SUBROUTINE dealloc_met

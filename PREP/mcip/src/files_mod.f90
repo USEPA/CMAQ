@@ -48,6 +48,8 @@ MODULE files
 !           31 May 2012  Increased MAX_MM from 300 to 367 to allow for a full
 !                        year to be run (including leap year and previous day
 !                        for precipitation calculation).  (T. Otte)
+!           10 Feb 2018  Added new optional output files for fractional land
+!                        use, layered soil data, and mosaic data.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   IMPLICIT NONE
@@ -72,9 +74,12 @@ MODULE files
   CHARACTER(LEN=16),  PARAMETER     :: gridcro2d  = 'GRID_CRO_2D     '
   CHARACTER(LEN=16),  PARAMETER     :: gridcro3d  = 'GRID_CRO_3D     '
   CHARACTER(LEN=16),  PARAMETER     :: griddot2d  = 'GRID_DOT_2D     '
+  CHARACTER(LEN=16),  PARAMETER     :: lufraccro  = 'LUFRAC_CRO      '
   CHARACTER(LEN=16),  PARAMETER     :: metbdy3d   = 'MET_BDY_3D      '
   CHARACTER(LEN=16),  PARAMETER     :: metcro2d   = 'MET_CRO_2D      '
   CHARACTER(LEN=16),  PARAMETER     :: metcro3d   = 'MET_CRO_3D      '
   CHARACTER(LEN=16),  PARAMETER     :: metdot3d   = 'MET_DOT_3D      '
+  CHARACTER(LEN=16),  PARAMETER     :: mosaiccro  = 'MOSAIC_CRO      '
+  CHARACTER(LEN=16),  PARAMETER     :: soicro     = 'SOI_CRO         ' 
 
 END MODULE files

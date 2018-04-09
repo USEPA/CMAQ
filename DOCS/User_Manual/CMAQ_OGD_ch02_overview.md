@@ -37,7 +37,7 @@ There are two options for obtaining CMAQ source code from GibHub.
 1. Download a zipped code archive from the GitHub web client
 2. Clone the repository directly to a Linux server using the command line. For example, to download CMAQ version 5.1, issue the following command (this assumes that git is installed on your system):
 
-  <pre><code>git clone -b 5.2 https://github.com/USEPA/CMAQ.git CMAQ_REPO</code></pre>
+  <pre><code>git clone -b 5.2.1 https://github.com/USEPA/CMAQ.git CMAQ_REPO</code></pre>
 
 ### Installing from git-based tarballs (CMAQ version 5.0.2 and later)
 

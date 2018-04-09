@@ -49,6 +49,7 @@ C   12 Aug 15 D.Wong:   Replaced SUBST_MPI with mpif.h
       CHARACTER(  8 ) :: PRESTR = 'CTM_LOG_'
       CHARACTER(  3 ) :: CMYPE
       CHARACTER(  8 ) :: APPL = 'CTM_APPL'
+      
       CHARACTER( MAXLEN_CCTM_APPL ) :: EQNAME
       CHARACTER( MAXLEN_CTM_LOG   ) :: IOLOGEQ
 
