@@ -892,7 +892,23 @@
             CALL M3EXIT( PNAME, SDATE3D, STIME3D, XMSG, XSTAT1 )
           END IF
          
-        END DO
+          ! Error Check the Regions Array
+          ! Any Negatives?
+          DO IRGN = 1,N_EM_RGN
+            IF ( ANY( EM_REG_FAC( :,:,IRGN ) .LT. 0.0 ) THEN
+               XMSG = 'Region ' // TRIM( EM_REGIONS( IRGN )) // ' on file ' //
+     &                TRIM( FILENAMES( IFILE )) // ' contains a ' //
+     &                'negative value. The expected range is 0-1.'
+     &         CALL M3ERR( PNAME, STDATE, STTIME, XMSG, .TRUE. )
+            ELSE IF ( ANY( EM_REG_FAC( :,:,IRGN ) .GT. 1.01 ) THEN
+               XMSG = 'Region ' // TRIM( EM_REGIONS( IRGN )) // ' on file ' //
+     &                TRIM( FILENAMES( IFILE )) // ' contains a ' //
+     &                'value greater than 1. The expected range is 0-1.'
+     &         CALL M3ERR( PNAME, STDATE, STTIME, XMSG, .TRUE. )
+            END IF
+          END DO
+
+        END DO ! IFILE
       END IF
       
       END SUBROUTINE INIT_EMIS_REGIONS
