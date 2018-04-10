@@ -151,7 +151,13 @@ setenv EMISDIAG F            #> Print Emission Rates at the output time step aft
                              #>       MG_EMIS_DIAG    | LTNG_EMIS_DIAG   | DUST_EMIS_DIAG
                              #>       SEASPRAY_EMIS_DIAG   
                              #>   Note that these diagnostics are different than other emissions diagnostic
-                             #>   output because they reflect emission rates after scaling.
+                             #>   output because they occur after scaling.
+setenv EMIS_DATE_OVRD N      #> Master switch for allowing CMAQ to use the date from each Emission file
+                             #>   rather than checking the emissions date against the internal model date.
+                             #>   [options: T | F or Y | N]. If false (F/N), then the date from CMAQ's internal
+                             #>   time will be used and an error check will be performed (recommended). Users 
+                             #>   may switch the behavior for individual emission files below using the variables:
+                             #>       GR_EM_DTOVRD_## | STK_EM_DTOVRD_##
 
 #> Aerosol Diagnostic Controls
 setenv CTM_AVISDIAG Y        #> Aerovis diagnostic file [ default: N ]
@@ -268,6 +274,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv GR_EMIS_01 ${EMISpath}/${EMISfile}
   setenv GR_EMIS_LAB_01 GRIDDED_EMIS
   #setenv GR_EMIS_DIAG_01 2D
+  setenv GR_EM_DTOVRD_01 T
 
   #> In-line point emissions configuration
   if ( $CTM_PT3DEMIS == 'Y' ) then
@@ -302,6 +309,12 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      #setenv STK_EMIS_DIAG_03 2DSUM
      #setenv STK_EMIS_DIAG_04 2DSUM
      #setenv STK_EMIS_DIAG_05 2DSUM
+
+     setenv STK_EM_DTOVRD_01 T
+     setenv STK_EM_DTOVRD_02 T
+     setenv STK_EM_DTOVRD_03 T
+     setenv STK_EM_DTOVRD_04 T
+     setenv STK_EM_DTOVRD_05 T
 
   endif
 

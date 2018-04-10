@@ -702,7 +702,6 @@ C=======================================================================
          LOGICAL, SAVE :: FIRSTIME = .TRUE.
          INTEGER, SAVE :: LOGDEV
 
-         INTEGER, SAVE :: PRE_JDATE, LOC_STKDATE
          INTEGER       :: NDATE, NTIME
          
 #ifdef Verbose1
@@ -714,7 +713,6 @@ C-----------------------------------------------------------------------
          IF ( FIRSTIME ) THEN
             FIRSTIME = .FALSE.
             LOGDEV = SETUP_LOGDEV()
-            PRE_JDATE = JDATE
              
             ! Set up and open 3d point source emissions diagnostic file?
             IF ( PT3DDIAG ) THEN
@@ -799,11 +797,11 @@ C Initialize Output Array
          END IF
 
 C Ensure that the model and stack groups emissions timestamp dates stay synchronized
-
-         IF ( PRE_JDATE .NE. JDATE ) THEN
-            LOC_STKDATE = STKDATE( N ) + 1
-         ELSE
-            LOC_STKDATE = STKDATE( N )
+         IF ( STDATE .NE. JDATE ) THEN
+            NDATE = JDATE; NTIME = JTIME
+            CALL NEXTIME( NDATE, NTIME, -TSTEP( 1 ) )       ! go back one output tstep
+            CALL NEXTIME( STKDATE( N ), NTIME, TSTEP( 1 ) ) ! advance the start date one time step
+            EM_FILE_DATE( ISRM ) = STKDATE( N )
          END IF
 
 C Allocate Array to Store the Layer Heights of All Stacks (i.e. sources)
@@ -813,7 +811,7 @@ C from this Point Group (i.e. ptgrp)
          TFRAC = 0.0   ! array
 
 C Calculate Plume Heights for All Point Sources on this File
-         CALL CALC_PLUME_HEIGHT( LOC_STKDATE, JDATE, JTIME, WRTIME, N   )
+         CALL CALC_PLUME_HEIGHT( STKDATE( N ), JDATE, JTIME, WRTIME, N   )
 
 C Read Emissions for all sources on File N            
          DO ISPC = 1, N_EMIS_ISTR
@@ -821,7 +819,7 @@ C Read Emissions for all sources on File N
             IF ( VNAME .EQ. '' ) CYCLE
             IF ( .NOT. INTERPX( STKENAME( N ), VNAME, PNAME,
      &                          1,1, MY_STRT_SRC( N ),MY_END_SRC( N ), 1,1,
-     &                          LOC_STKDATE, JTIME,
+     &                          STKDATE( N ), JTIME,
      &                          STKEMIS( N )%ARRY( 1 ) ) ) THEN
                XMSG = 'Could not read ' // TRIM( VNAME ) //
      &                ' from ' // TRIM( STKENAME( N ) )

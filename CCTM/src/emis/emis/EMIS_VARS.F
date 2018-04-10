@@ -31,6 +31,8 @@
 
       REAL,    ALLOCATABLE :: VDEMIS_DIFF( :,:,:,: ) ! emissions array mapped to diffused species
 
+      INTEGER              :: STDATE, STTIME
+
       INTEGER              :: N_EM_SRM   ! global number of emissions streams
       INTEGER              :: N_FILE_GR, NPTGRPS, N_FILE_TR  
       INTEGER              :: N_EMIS_ISTR! global emissions instructions
@@ -102,6 +104,9 @@
       CHARACTER( 16  ),ALLOCATABLE :: EM_DIAG_FILE( : )  ! Filename for Emissions Diagnostic Output
       LOGICAL         ,ALLOCATABLE :: EM_FILE_DIFF( :,: )! Test for whether or not a stream contributes to 
                                                          !   a particular transported variable
+      LOGICAL         ,ALLOCATABLE :: EM_FILE_DATE_OVRD( : ) ! Toggle for whether or not to let the 
+                                                                ! emission stream date override the model
+      INTEGER         ,ALLOCATABLE :: EM_FILE_DATE( : )! Date to be read in from each emissions stream
 
       INTEGER              :: IBIOSRM, IMGSRM, ILTSRM, ISEASRM, IDUSTSRM
       INTEGER, ALLOCATABLE :: IGSRM( : ), IPSRM( : ), ITSRM( : ), MAP_PTtoISRM( : )
@@ -765,7 +770,6 @@
 
       INTEGER :: IRGN, NFILE, IDX, IFILE, IREAD, IVAR
       INTEGER :: GXOFF, GYOFF, ENDCOL, ENDROW, STARTCOL, STARTROW
-      INTEGER :: STDATE, STTIME
       INTEGER :: N_EM_READ
       CHARACTER( 16 )    :: PNAME = "INIT_REGIONS"
       CHARACTER( 250)    :: XMSG

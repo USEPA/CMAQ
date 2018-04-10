@@ -293,7 +293,7 @@ C Retrieve Emissions from All Stream Types
              
              ! Retrieve Gridded and Tracer Emissions
              CASE ( 1, 3 )
-               VDEMIS_READ = GRIDEMIS( JDATE, JTIME, EM_FILE_NAME( ISRM ), 
+               VDEMIS_READ = GRIDEMIS( JDATE, JTIME, TSTEP, EM_FILE_NAME( ISRM ), 
      &                               EM_GRID_LAYS( ISRM ), ISRM )
                FORALL( ISTR = 1:N_EMIS_ISTR, MAP_EMtoSURR( ISTR,ISRM ) .GT. 0 .AND. 
      &                 MAP_EMtoGAS( ISTR ) .GT. 0 )
@@ -419,7 +419,7 @@ C Retrieve Emissions from All Stream Types
          END SUBROUTINE GET_EMIS
 
 !-----------------------------------------------------------------------
-         FUNCTION GRIDEMIS ( JDATE, JTIME, EMIS_FNAME, LAYS, FSTREAM )
+         FUNCTION GRIDEMIS ( JDATE, JTIME, TSTEP, EMIS_FNAME, LAYS, FSTREAM )
      &                           RESULT( VDEMIS )
 
          USE CGRID_SPCS          ! CGRID mechanism species
@@ -437,13 +437,14 @@ C Retrieve Emissions from All Stream Types
          INTEGER, INTENT( IN ) :: JDATE, JTIME  ! date (YYYYDDD), time (HHMMSS)
          INTEGER, INTENT( IN ) :: FSTREAM
          CHARACTER( 100 ), INTENT( IN ) :: EMIS_FNAME
+         INTEGER, INTENT( IN ) :: TSTEP( 3 )    ! time step vector (HHMMSS)
 
 ! Output:
          REAL :: VDEMIS( N_EMIS_ISTR, EMLAYS, NCOLS, NROWS )
 
 ! Local Variables:
          INTEGER   C, R, L, N, S, V, ISTR ! loop induction variables
-         INTEGER   S_STRT, S_END, LAYS
+         INTEGER   S_STRT, S_END, LAYS, NDATE, NTIME
 
          REAL :: BUFF( NCOLS, NROWS, EMLAYS )
          CHARACTER( 16 ) :: VNAME
@@ -461,6 +462,13 @@ C Get domain decomp info from the emissions file
             CALL SUBHFILE ( EMIS_FNAME, GXOFF, GYOFF, STARTCOL, ENDCOL, STARTROW, ENDROW )
          END IF    !FirstTime
  
+C Ensure that the model and emissions timestamp dates stay synchronized
+         IF ( STDATE .NE. JDATE ) THEN
+            NDATE = JDATE; NTIME = JTIME
+            CALL NEXTIME( NDATE, NTIME, -TSTEP( 1 ) )       ! go back one output tstep
+            CALL NEXTIME( EM_FILE_DATE( FSTREAM ), NTIME, TSTEP( 1 ) ) ! advance the start date one time step
+         END IF
+
 C Read & Interpolate Emissions 
          VDEMIS = 0.0
 
@@ -471,7 +479,7 @@ C Read & Interpolate Emissions
            BUFF = 0.0   ! array assignment
            IF ( .NOT. INTERPX( EMIS_FNAME, VNAME, PNAME,
      &                         STARTCOL,ENDCOL, STARTROW,ENDROW,1,LAYS,
-     &                         JDATE, JTIME, BUFF ) ) THEN
+     &                         EM_FILE_DATE( FSTREAM ), JTIME, BUFF ) ) THEN
               XMSG = 'Could not read '
      &             // TRIM( VNAME ) // ' from ' // EMIS_FNAME
               IF ( .NOT. EMISCHK ) CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
@@ -1787,20 +1795,28 @@ C-----------------------------------------------------------------------
 
 
          CHARACTER( 6 ) :: EMISDIAG = 'FALSE' ! Default for Emissions Diagnostic Toggle
+         LOGICAL        :: EMIS_DATE_OVRD = .FALSE. ! Default for Emissions Diagnostic Toggle
          LOGICAL        :: VALUE
 
          LOGDEV = INIT3()
          SUCCESS = .TRUE.
 
+         STDATE = ENVINT( 'CTM_STDATE', 'Scenario Start (YYYYJJJ)', 0, IOS )
+         STTIME = ENVINT( 'CTM_STTIME', 'Scenario Start (HHMMSS)', 0,  IOS ) 
+
 C Initialize Regions for Mapping Scale Factors Geographically for Base
 C Model (eventually apply this to DDM-3D and ISAM)
          CALL READ_EMISS_NAMELIST( )
          CALL INIT_EMIS_REGIONS( )
-
+    
 C Determine user-defined default for emissions diagnostics
          VARDESC = 'Flag for emissions diagnostic default'
          CALL ENVSTR( 'EMISDIAG', VARDESC, EMISDIAG, EMISDIAG, IOS )
          EMISDIAG = RESOLVE_YN_TF_2D3D( EMISDIAG )
+
+C Determine user-defined default for emissions date override
+         VARDESC = 'Flag for emissions date override'
+         EMIS_DATE_OVRD = ENVYN( 'EMIS_DATE_OVRD', VARDESC, EMIS_DATE_OVRD, IOS )
 
 C Retrieve the number of each type of emission file             
          N_FILE_GR = ENVINT( 'N_EMIS_GR',
@@ -1864,6 +1880,8 @@ C Allocate Emission File Structure Variables
          Allocate( EM_FILE_LAPPLY( N_EM_SRM ) )
          Allocate( EM_FILE_LDIAG ( N_EM_SRM ) )
          Allocate( EM_DIAG_FILE  ( N_EM_SRM ) )
+         Allocate( EM_FILE_DATE_OVRD ( N_EM_SRM ) )
+         Allocate( EM_FILE_DATE  ( N_EM_SRM ) )
          Allocate( IGSRM         ( N_EM_SRM ) )
          Allocate( IPSRM         ( N_EM_SRM ) )
          Allocate( ITSRM         ( N_EM_SRM ) )
@@ -1883,6 +1901,8 @@ C stkemis_init.
          EMIS_AER_UNITS = "Unknown"
          EM_FILE_LAPPLY = .TRUE.
          EM_FILE_LDIAG   = EMISDIAG 
+         EM_FILE_DATE_OVRD = EMIS_DATE_OVRD
+         EM_FILE_DATE   = JDATE
 
          ! Set the standard suffix for all Emissions Diagnostic Files
          CALL NAMEVAL ( 'OUTDIR', EQNAME )
@@ -1911,7 +1931,11 @@ C stkemis_init.
               WRITE( VLAB,'( "GR_EMIS_APPLY_",I2.2 )' ) N
               EM_FILE_LAPPLY( ISRM ) = ENVYN( VLAB, 
      &             'Gridded Emission File Application',.TRUE., IOS )
-
+ 
+              WRITE( VLAB,'( "GR_EM_DTOVRD_",I2.2 )' ) N
+              EM_FILE_DATE_OVRD( ISRM ) = ENVYN( VLAB, 
+     &             'Gridded Emission Date Check',.FALSE., IOS )
+ 
               WRITE( VLAB,'( "GR_EMIS_DIAG_",I2.2 )' ) N
               CALL ENVSTR( VLAB, 'Gridded Emissions Diagnostic', EMISDIAG, 
      &                     EM_FILE_LDIAG( ISRM ), IOS )
@@ -1945,6 +1969,10 @@ C stkemis_init.
                WRITE( VLAB,'( "STK_EMIS_APPLY_",I2.2 )' ) N
                EM_FILE_LAPPLY( ISRM ) = ENVYN( VLAB, 
      &               'Stack Emission File Application',.TRUE., IOS )
+ 
+              WRITE( VLAB,'( "STK_EM_DTOVRD_",I2.2 )' ) N
+              EM_FILE_DATE_OVRD( ISRM ) = ENVYN( VLAB, 
+     &             'Stack Emission Date Check',.FALSE., IOS )
  
               WRITE( VLAB,'( "STK_EMIS_DIAG_",I2.2 )' ) N
               CALL ENVSTR( VLAB, 'Stack Emissions Diagnostic', EMISDIAG, 

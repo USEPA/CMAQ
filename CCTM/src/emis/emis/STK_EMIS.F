@@ -29,8 +29,6 @@ C     16 Jan 2007 J.Young: initial implementation
 C     16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C     30 Apr 2016 J.Young: add multiple fire source capability, in affiliation with
 C                          Yongtao Hu (Georgia Tech)
-C     22 Jun 2016 B.Murphy & J.Young: Added STKEMIS_TOO to accomodate
-C                                     semivolatile POA mechanism
 C-----------------------------------------------------------------------
 
       USE UDTYPES, ONLY: RARRY1, CARRY1
@@ -45,14 +43,12 @@ C-----------------------------------------------------------------------
       LOGICAL,        ALLOCATABLE, SAVE :: FIREFLAG( : )    ! which is the fire file?
 
       TYPE( RARRY1 ), ALLOCATABLE, SAVE :: STKEMIS( : )   ! stack emissions [mol/s]
-      TYPE( RARRY1 ), ALLOCATABLE, SAVE :: STKEMIS_TOO( : )   ! stack emissions [mol/s]
       TYPE( CARRY1 ), ALLOCATABLE, SAVE :: STKSPC( : )    ! emitted species names
       TYPE( RARRY1 ), ALLOCATABLE, SAVE :: FIREVAR( : )   ! fire variables, just H-Flux
 
       INTEGER FGRPS
 
       INTEGER,        ALLOCATABLE, SAVE :: STKDATE( : )   ! src grp timestamp date
-      INTEGER,        ALLOCATABLE, SAVE :: SYNCOFF( : )   ! src grp timestamp date offset
 
       CONTAINS
 
@@ -90,13 +86,8 @@ C-----------------------------------------------------------------------
          ALLOCATE ( STKDATE( NGRPS ), STAT = ASTAT )
          CALL CHECKMEM( ASTAT, 'STKDATE', PNAME )
 
-         ALLOCATE ( SYNCOFF( NGRPS ), STAT = ASTAT )
-         CALL CHECKMEM( ASTAT, 'SYNCOFF', PNAME )
-
          ALLOCATE ( STKEMIS( NGRPS ), STAT = ASTAT )
          CALL CHECKMEM( ASTAT, 'STKEMIS', PNAME )
-         ALLOCATE ( STKEMIS_TOO( NGRPS ), STAT = ASTAT )
-         CALL CHECKMEM( ASTAT, 'STKEMIS_TOO', PNAME )
 
          ALLOCATE ( STKSPC( NGRPS ), STAT = ASTAT )
          CALL CHECKMEM( ASTAT, 'STKSPC', PNAME )
@@ -109,6 +100,7 @@ C-----------------------------------------------------------------------
          CALL CHECKMEM( ASTAT, 'FIREVAR', PNAME )
 
          DO N = 1, NGRPS
+            ISRM = MAP_PTtoISRM( N )
 
             IF ( .NOT. OPEN3( STKENAME( N ), FSREAD3, PNAME ) ) THEN
                XMSG = 'Could not open '// TRIM( STKENAME( N ) ) // ' file'
@@ -122,8 +114,10 @@ C-----------------------------------------------------------------------
                SUCCESS = .FALSE.; RETURN
             END IF
 
-            STKDATE( N ) = SDATE3D
-            SYNCOFF( N ) = SECSDIFF( JDATE,JTIME, STKDATE( N ),JTIME )
+            STKDATE( N ) = JDATE
+            IF ( EM_FILE_DATE_OVRD( ISRM ) ) STKDATE( N ) = SDATE3D
+            EM_FILE_DATE( ISRM ) = STKDATE( N )
+
             NSRC_EMIS( N ) = NROWS3D
             NVARS_EMIS( N ) = NVARS3D
             LEN1 = NSRC_EMIS( N )
@@ -139,13 +133,10 @@ C-----------------------------------------------------------------------
             END IF
 
             STKEMIS( N )%LEN = LEN1
-            STKEMIS_TOO( N )%LEN = LEN1
             ALLOCATE ( STKEMIS( N )%ARRY( LEN1 ), STAT = ASTAT )
-            ALLOCATE ( STKEMIS_TOO( N )%ARRY( LEN1 ), STAT = ASTAT )
             CALL CHECKMEM( ASTAT, 'STKEMIS', PNAME )
             STKEMIS( N )%ARRY = 0.0   ! array
 
-            ISRM = MAP_PTtoISRM( N )
             EM_FILE_SURR( ISRM )%LEN = LEN2
             ALLOCATE ( EM_FILE_SURR( ISRM )%ARRY( LEN2 ), STAT = ASTAT )
             ALLOCATE ( EM_FILE_SURR( ISRM )%UNITS( LEN2 ), STAT = ASTAT )
