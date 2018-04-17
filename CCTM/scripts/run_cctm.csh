@@ -57,6 +57,13 @@ echo 'Start Model Run At ' `date`
  setenv NMLpath ${BLD}             #> Location of Namelists. Common places are: 
                                    #>   ${WORKDIR} | ${CCTM_SRC}/MECHS/${MECH} | ${BLD}
 
+ echo ""
+ echo "Working Directory is $WORKDIR"
+ echo "Build Directory is $BLD"
+ echo "Output Directory is $OUTDIR"
+ echo "Log Directory is $LOGDIR"
+ echo "Executable Name is $EXEC"
+
 # =====================================================================
 #> CCTM Configuration Options
 # =====================================================================
