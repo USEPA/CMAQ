@@ -63,7 +63,7 @@
       LOGICAL :: TURN_ON_PV           = .FALSE. ! Flag for O3 Potential Vorticity Calculation 
       LOGICAL :: CREATE_PHYSICAL_FILE = .FALSE. ! Flag for Creating a physical output file
       INTEGER :: FILE_TIME_STEP       = 10000   ! Output Time Step
-      LOGICAL :: RUN_CMAQ_DRIVER      = .FALSE. ! Flag for running CMAQ Driver
+      LOGICAL :: RUN_CMAQ_DRIVER      = .TRUE.  ! Flag for running CMAQ Driver
       LOGICAL :: INDIRECT_EFFECT      = .FALSE. ! Flag for treating Indirect Effects
       LOGICAL :: SD_TIME_SERIES       = .FALSE. ! Subdomain Time Series
       INTEGER :: SD_SCOL              = 1       ! Subdomain Start Column
@@ -238,6 +238,14 @@
       CHARACTER(  48 ) :: VARDESC
       CHARACTER( 250 ) :: STRTEMP
 
+
+      ! Flag for Determining whether CMAQ is being driven by itself or a
+      ! larger host model.
+      VARDESC = 'Flag for invoking CMAQ Driver. [False] for WRF-CMAQ Coupled Model'
+      RUN_CMAQ_DRIVER = .FALSE.
+      RUN_CMAQ_DRIVER = GET_ENVYN( 'RUN_CMAQ_DRIVER', VARDESC, RUN_CMAQ_DRIVER )
+      CMAQ_WRF_FEEDBACK = GET_ENVYN( 'CTM_CMAQ_WRF_FEEDBACK', VARDESC, CMAQ_WRF_FEEDBACK )
+
       ! Flag for Calculating Feedback From AQ Model to Meteorology
       VARDESC = 'CMAQ WRF radiative feedback'
       CMAQ_WRF_FEEDBACK = GET_ENVYN( 'CTM_CMAQ_WRF_FEEDBACK', VARDESC, CMAQ_WRF_FEEDBACK )
@@ -255,10 +263,6 @@
          VARDESC = 'Physical File Time Step'
          FILE_TIME_STEP = GET_ENVINT('FILE_TIME_STEP', VARDESC, FILE_TIME_STEP )
       END IF
-
-      ! Flag for Running CMAQ Drive
-      VARDESC = 'Run CMAQ Driver'
-      RUN_CMAQ_DRIVER = GET_ENVYN('RUN_CMAQ_DRIVER', VARDESC, RUN_CMAQ_DRIVER )
 
       ! Flag for Calculating Indirect Effect
       VARDESC = 'Calculate Indirect Effect'

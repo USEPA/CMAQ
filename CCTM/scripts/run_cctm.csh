@@ -103,14 +103,14 @@ set NCELLS = `echo "${NX} * ${NY} * ${NZ}" | bc -l`
 
 #> Output Species and Layer Options
 #>   CONC file species; comment or set to "ALL" to write all species to CONC
-     #setenv CONC_SPCS "O3 NO ANO3I ANO3J NO2 FORM ISOP ANH4J ASO4I ASO4J" 
-     #setenv CONC_BLEV_ELEV " 1 4" #> CONC file layer range; comment to write all layers to CONC
+#setenv CONC_SPCS "O3 NO ANO3I ANO3J NO2 FORM ISOP ANH4J ASO4I ASO4J" 
+#setenv CONC_BLEV_ELEV " 1 4" #> CONC file layer range; comment to write all layers to CONC
 
 #>   ACONC file species; comment or set to "ALL" to write all species to ACONC
-     #setenv AVG_CONC_SPCS "O3 NO CO NO2 ASO4I ASO4J NH3" 
-     setenv AVG_CONC_SPCS "ALL" 
-     setenv ACONC_BLEV_ELEV " 1 1" #> ACONC file layer range; comment to write all layers to ACONC
-     #setenv ACONC_END_TIME Y      #> override default beginning ACON timestamp [ default: N ]
+#setenv AVG_CONC_SPCS "O3 NO CO NO2 ASO4I ASO4J NH3" 
+setenv AVG_CONC_SPCS "ALL" 
+setenv ACONC_BLEV_ELEV " 1 1" #> ACONC file layer range; comment to write all layers to ACONC
+setenv AVG_FILE_ENDTIME N     #> override default beginning ACON timestamp [ default: N ]
 
 #> Sychronization Time Step and Tolerance Options
 setenv CTM_MAXSYNC 300       #> max sync time step (sec) [ default: 720 ]
@@ -171,17 +171,20 @@ echo "---CMAQ EXECUTION ID: $EXECUTION_ID ---"
 
 #> Aerosol Diagnostic Controls
 setenv CTM_AVISDIAG Y        #> Aerovis diagnostic file [ default: N ]
-setenv CTM_PMDIAG Y          #> What is this [ default: Y ]
-setenv CTM_APMDIAG Y         #> What is this [ default: Y ]
+setenv CTM_PMDIAG Y          #> Instantaneous Aerosol Diagnostic File [ default: Y ]
+setenv CTM_APMDIAG Y         #> Hourly-Average Aerosol Diagnostic File [ default: Y ]
 setenv APMDIAG_BLEV_ELEV "1 3" #> layer range for average pmdiag
 setenv APMDIAG_BLEV_ELEV ""  #> layer range for average pmdiag = NLAYS
-setenv AVG_FILE_ENDTIME N    #> What is this [ default: N ]
 
 #> Diagnostic Output Flags
 setenv CTM_CKSUM Y           #> cksum report [ default: Y ]
 setenv CLD_DIAG Y            #> cloud diagnostic file [ default: N ]
 setenv CTM_AERDIAG Y         #> aerosol diagnostic file [ default: N ]
+
 setenv CTM_PHOTDIAG Y        #> photolysis diagnostic file [ default: N ]
+setenv NLAYS_PHOTDIAG "3"                            #> Number of layers for PHOTDIAG2 and PHOTDIAG3 from Layer 1 to NLAYS_PHOTDIAG  [ default: all layers ] 
+#setenv NWAVE_PHOTDIAG "294 303 310 316 333 381 607"  #> Wavelengths written for variables in PHOTDIAG2 and PHOTDIAG3 [ default: all wavelengths ]
+
 setenv CTM_SSEMDIAG Y        #> sea-salt emissions diagnostic file [ default: N ]
 setenv CTM_DUSTEM_DIAG Y     #> windblown dust emissions diagnostic file [ default: N ]; ignore if CTM_WB_DUST = N
 setenv CTM_DEPV_FILE Y       #> deposition velocities diagnostic file [ default: N ]
@@ -255,10 +258,12 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #> Initial conditions
   if ($NEW_START == true || $NEW_START == TRUE ) then
      setenv ICFILE ICON_20110630_bench.nc
+     setenv INIT_MEDC_1 notused
      setenv INITIAL_RUN Y #related to restart soil information file
   else
      set ICpath = $OUTDIR
      setenv ICFILE CCTM_CGRID_${RUNID}_${YESTERDAY}.nc
+     setenv INIT_MEDC_1 $ICpath/CCTM_MEDIA_CONC_${RUNID}_${YESTERDAY}
      setenv INITIAL_RUN N
   endif
 
@@ -269,7 +274,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #set JVALfile  = JTABLE_${YYYYJJJ}
 
   #> Ozone column data
-  set OMIfile   = OMI_1979_to_2015.dat
+  set OMIfile   = OMI_1979_to_2017.dat
 
   #> Optics file
   set OPTfile = PHOT_OPTICS.dat
@@ -320,13 +325,12 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 
   #> In-line lightning NOx options
      setenv USE_NLDN  Y        #> use hourly NLDN strike file [ default: Y ]
-     setenv LTNGPARAM Y        #> use lightning parameter file [ default: Y ]
      if ( $USE_NLDN == Y ) then
         setenv NLDN_STRIKES $INPDIR/lightning/NLDN.12US1.${YYYYMMDD}_bench.nc
      else
         setenv LOG_START 2.0   #> RC value to transit linear to log linear
      endif
-     setenv LTNGPARMS_FILE $INPDIR/lightning/LTNG_AllParms_12US1_bench.nc #> lightning parameter file; ignore if LTNGPARAM = N
+     setenv LTNGPARMS_FILE $INPDIR/lightning/LTNG_AllParms_12US1_bench.nc #> lightning parameter file
   endif
 
 
@@ -390,8 +394,9 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv CTM_AVIS_1      "$OUTDIR/CCTM_APMVIS_${CTM_APPL}.nc -v"     #> Hourly-Averaged Visibility
   setenv CTM_PMDIAG_1    "$OUTDIR/CCTM_PMDIAG_${CTM_APPL}.nc -v"     #> On-Hour Particle Diagnostics
   setenv CTM_APMDIAG_1   "$OUTDIR/CCTM_APMDIAG_${CTM_APPL}.nc -v"    #> Hourly Avg. Particle Diagnostic
-  setenv CTM_RJ_1        "$OUTDIR/CCTM_PHOTDIAG1_${CTM_APPL}.nc -v"  #> Photolysis Rxn Diagnostics
-  setenv CTM_RJ_2        "$OUTDIR/CCTM_PHOTDIAG2_${CTM_APPL}.nc -v"  #> Photolysis Rates Output
+  setenv CTM_RJ_1        "$OUTDIR/CCTM_PHOTDIAG1_${CTM_APPL}.nc -v"  #> 2D Surface Summary from Inline Photolysis
+  setenv CTM_RJ_2        "$OUTDIR/CCTM_PHOTDIAG2_${CTM_APPL}.nc -v"  #> 3D Photolysis Rates 
+  setenv CTM_RJ_3        "$OUTDIR/CCTM_PHOTDIAG3_${CTM_APPL}.nc -v"  #> 3D Optical and Radiative Results from Photolysis
   setenv CTM_SSEMIS_1    "$OUTDIR/CCTM_SSEMIS_${CTM_APPL}.nc -v"     #> Sea Spray Emissions
   setenv CTM_DUST_EMIS_1 "$OUTDIR/CCTM_DUSTEMIS_${CTM_APPL}.nc -v"   #> Dust Emissions
   setenv CTM_IPR_1       "$OUTDIR/CCTM_PA_1_${CTM_APPL}.nc -v"       #> Process Analysis
@@ -424,7 +429,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   set OUT_FILES = (${FLOOR_FILE} ${S_CGRID} ${CTM_CONC_1} ${A_CONC_1} ${MEDIA_CONC}         \
              ${CTM_DRY_DEP_1} $CTM_DEPV_DIAG $CTM_PT3D_DIAG $B3GTS_S $SOILOUT $CTM_WET_DEP_1\
              $CTM_WET_DEP_2 $CTM_VIS_1 $CTM_AVIS_1 $CTM_PMDIAG_1 $CTM_APMDIAG_1             \
-             $CTM_RJ_1 $CTM_RJ_2 $CTM_SSEMIS_1 $CTM_DUST_EMIS_1 $CTM_IPR_1 $CTM_IPR_2       \
+             $CTM_RJ_1 $CTM_RJ_2 $CTM_RJ_3 $CTM_SSEMIS_1 $CTM_DUST_EMIS_1 $CTM_IPR_1 $CTM_IPR_2       \
              $CTM_IPR_3 $CTM_IRR_1 $CTM_IRR_2 $CTM_IRR_3 $CTM_DRY_DEP_MOS                   \
              $CTM_DRY_DEP_FST $CTM_DEPV_MOS $CTM_DEPV_FST $CTM_VDIFF_DIAG $CTM_VSED_DIAG    \
              $CTM_AOD_1 $CTM_LTNGDIAG_1 $CTM_LTNGDIAG_2)
@@ -450,7 +455,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      end
 
   else
-     #> remove previous log files
+     #> error if previous log files exist
      if ( "$log_test" != "" ) then
        echo "*** Logs exist - run ABORTED ***"
        echo "*** To overide, set $DISP == delete in run_cctm.csh ***"
@@ -463,7 +468,6 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
        echo "*** Output Files Exist - run will be ABORTED ***"
        foreach file ( $out_test )
           echo " cannot delete $file"
-          /bin/rm -f $file  
        end
        echo "*** To overide, set $DISP == delete in run_cctm.csh ***"
        echo "*** and these files will be automatically deleted. ***"

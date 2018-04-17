@@ -90,6 +90,8 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 !                 rather than the two-way model time step
 !           30 Aug 2016  (David Wong)
 !              -- fixed a bug in outputing MET_CRO_2D physical file
+!           11 Jan 2017  (David Wong)
+!              -- fixed a bug to handle simulation with convective scheme or not
 !===============================================================================
 
   USE module_domain                                ! WRF module
@@ -522,6 +524,12 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
            print *, ' Error: in invoking pio_init'
            stop
         end if
+     end if
+
+     if (config_flags%cu_physics == 0) then
+        convective_scheme = .false.
+     else
+        convective_scheme = .true.
      end if
 
 !-------------------------------------------------------------------------------
@@ -1568,7 +1576,13 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
   metcro2d_data_wrf (:,:,11) =  grid%gsw   (sc:ec, sr:er)   ! gsw
 
   metcro2d_data_wrf (:,:,13) =  (grid%rainnc(sc:ec, sr:er) - grid%prev_rainnc(sc:ec,sr:er)) * 0.1  ! RNA = SUM(RN), in cm
-  metcro2d_data_wrf (:,:,14) =  (grid%rainc (sc:ec, sr:er) - grid%prev_rainc(sc:ec,sr:er)) * 0.1   ! RCA = SUM(RC), in cm
+
+  if (convective_scheme) then
+     metcro2d_data_wrf (:,:,14) = (grid%rainc (sc:ec, sr:er) - grid%prev_rainc(sc:ec,sr:er)) * 0.1   ! RCA = SUM(RC), in cm
+  else
+     metcro2d_data_wrf (:,:,14) = -1.0
+  end if
+
   metcro2d_data_wrf (:,:,19) =  grid%snowc (sc:ec, sr:er)           ! snowcov
   metcro2d_data_wrf (:,:,21) =  grid%t2    (sc:ec, sr:er)           ! temp2
   metcro2d_data_wrf (:,:,22) =  grid%canwat(sc:ec, sr:er) * 0.001   ! wr (in meter)
@@ -1588,9 +1602,9 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
     metcro2d_data_wrf (:,:,13) = 0.0
   end where
 
-  where (metcro2d_data_wrf (:,:,14) .lt. 0.0)
-    metcro2d_data_wrf (:,:,14) = 0.0
-  end where
+! where (metcro2d_data_wrf (:,:,14) .lt. 0.0)
+!   metcro2d_data_wrf (:,:,14) = 0.0
+! end where
 
   !-----------------------------------------------------------------------------
   ! Assign surface pressure (PRSFC) from WRF array P8W (i.e., "p at w levels").
@@ -1676,7 +1690,9 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
                          wrf_cmaq_ce_send_index_l, wrf_cmaq_ce_recv_index_l, 5)
 
   temp_rainnc = temp_rainnc + metcro2d_data_cmaq(:,:,13)
-  temp_rainc  = temp_rainc  + metcro2d_data_cmaq(:,:,14)
+  if (convective_scheme) then
+     temp_rainc  = temp_rainc  + metcro2d_data_cmaq(:,:,14)
+  end if
 
   if (RUN_CMAQ_DRIVER) then
      if ( .not. buf_write3 (fname, allvar3, jdate, jtime, metcro2d_data_cmaq ) ) then

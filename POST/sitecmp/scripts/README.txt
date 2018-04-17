@@ -219,7 +219,7 @@
  setenv AERO_1 "m_so4,ug/m3, ASO4IJ,,SO4"
  setenv AERO_2 "m_no3,ug/m3, ANO3IJ,,NO3"
  setenv AERO_3 "m_nh4,ug/m3, ANH4IJ,,NH4"
- setenv AERO_4 "FRM PM2.5 Mass,ug/m3,PMIJ,,PM_TOT"
+ setenv AERO_4 "FRM PM2.5 Mass,ug/m3,ATOTIJ,,PM_TOT"
  setenv AERO_5 "FRM PM2.5 Mass,ug/m3,PMIJ_FRM,,PM_FRM"
  setenv AERO_6 "oc_adj,ug/m3, AOCIJ,,OC"
  setenv AERO_7 "ec_niosh,ug/m3, AECIJ,,EC"
@@ -290,7 +290,7 @@
  setenv AERO_1 "m_so4,ug/m3, ASO4IJ,,SO4"
  setenv AERO_2 "m_no3,ug/m3, ANO3IJ,,NO3"
  setenv AERO_3 "m_nh4,ug/m3, ANH4IJ,,NH4"
- setenv AERO_4 "PM2.5 Mass,ug/m3,PMIJ,,PM_TOT"
+ setenv AERO_4 "PM2.5 Mass,ug/m3,ATOTIJ,,PM_TOT"
  setenv AERO_5 "PM2.5 Mass,ug/m3,PMIJ_FRM,,PM_FRM"
  setenv AERO_6 "oc_adj,ug/m3, AOCIJ,,OC"
  setenv AERO_7 "ec_tor,ug/m3, AECIJ,,EC"
@@ -360,7 +360,7 @@
  setenv AERO_1 "SO4f_val,ug/m3, ASO4IJ,,SO4"
  setenv AERO_2 "NO3f_val,ug/m3, ANO3IJ,,NO3"
  setenv AERO_3 "NH4f_val,ug/m3, ANH4IJ,,NH4"
- setenv AERO_4 "88502_val,ug/m3,PMIJ,,PM_TOT"
+ setenv AERO_4 "88502_val,ug/m3,ATOTIJ,,PM_TOT"
  setenv AERO_5 "88502_val,ug/m3,PMIJ_FRM,,PM_FRM"
  setenv AERO_6 "88370_val-blank,ug/m3, AOCIJ,,OC"
  setenv AERO_7 "88380_val,ug/m3, AECIJ,,EC"
@@ -430,7 +430,7 @@
  setenv AERO_1 "SO4f_val,ug/m3, ASO4IJ,,SO4"
  setenv AERO_2 "NO3f_val,ug/m3, ANO3IJ,,NO3"
  setenv AERO_3 "NH4f_val,ug/m3, ANH4IJ,,NH4"
- setenv AERO_4 "PM25,ug/m3,PMIJ,,PM_TOT"
+ setenv AERO_4 "PM25,ug/m3,ATOTIJ,,PM_TOT"
  setenv AERO_5 "PM25,ug/m3,PMIJ_FRM,,PM_FRM"
  setenv AERO_6 "88370_val-blank,ug/m3, AOCIJ,,OC"
  setenv AERO_7 "88380_val,ug/m3, AECIJ,,EC"
@@ -504,7 +504,7 @@
   setenv AERO_1 "SO4f_val,ug/m3,ASO4IJ,,SO4"                        # sulfate
   setenv AERO_2 "NO3f_val,ug/m3,ANO3IJ,,NO3"                        # nitrate
   setenv AERO_3 "0.2903*NO3f_val+0.375*SO4f_val,ug/m3,ANH4IJ,,NH4"  # ammonium (estimated assuming fully neutralized SO4 and NO3)
-  setenv AERO_4 "MF_val,ug/m3,PMIJ,ug/m3,PM_TOT"                    # Total PM2.5 mass 
+  setenv AERO_4 "MF_val,ug/m3,ATOTIJ,ug/m3,PM_TOT"                    # Total PM2.5 mass 
   setenv AERO_5 "OCf_val,ug/m3,AOCIJ,,OC"                           # Organic Carbon
   setenv AERO_6 "ECf_val,ug/m3,AECIJ,,EC"                           # Elemental Carbon
   setenv AERO_7 "OCf_val+ECf_val,ug/m3,AOCIJ+AECIJ,,TC"             # Total Carbon
@@ -772,7 +772,7 @@
  setenv AERO_15 "Average TEMP[Deg C],C,SFC_TMP,C,SFC_TMP"
  setenv AERO_16 "25.4*Average RAINFALL[Inches],mm,precip,mm,precip"
  setenv AERO_17 "Average SR[W/m2],w/m2,SOL_RAD,watts/m2,Solar_Rad"
- setenv AERO_18 "Average TEOM[ug/m3],ug/m3,PMIJ,,PM_TOT"
+ setenv AERO_18 "Average TEOM[ug/m3],ug/m3,ATOTIJ,,PM_TOT"
  setenv AERO_19 "Average NH4[ug/m3],ug/m3,ANH4IJ,,NH4"
  setenv AERO_20 "Average SO4[ug/m3],ug/m3,ASO4IJ,,SO4"
    
@@ -882,7 +882,7 @@
  setenv AERO_3 "pcm1 teflon nh4+pcm1 vol nh4,ug/m3,ANH4IJ,ug/m3,NH4"
  setenv AERO_4 "pcm3 ec,ug/m3,AECIJ,ug/m3,EC"
  setenv AERO_5 "pcm3 oc,ug/m3,AOCIJ,ug/m3,OC"
- setenv AERO_6 "pcm1 mass,ug/m3,PMIJ,ug/m3,PM_TOT"
+ setenv AERO_6 "pcm1 mass,ug/m3,ATOTIJ,ug/m3,PM_TOT"
   
 #>> End Species List <<#
 
@@ -923,7 +923,7 @@
  setenv AERO_5 "PM25_Tef_Sodium [ug/m3],ug/m3,ANAIJ,ug/m3,Na"
  setenv AERO_6 "OCTC [ug/m3],ug/m3,AOCIJ,ug/m3,OC"
  setenv AERO_7 "ECTC [ug/m3],ug/m3,AECIJ,ug/m3,EC"
- setenv AERO_8 "FRM PM2.5 Mass [ug/m3],ug/m3,PMIJ,ug/m3,PM_TOT"
+ setenv AERO_8 "FRM PM2.5 Mass [ug/m3],ug/m3,ATOTIJ,ug/m3,PM_TOT"
    
  setenv AERO_9 "XRF Al [ug/m3],ug/m3,AALJ,ug/m3,Al"
  setenv AERO_10 "XRF Si [ug/m3],ug/m3,ASIJ,ug/m3,Si"

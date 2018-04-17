@@ -3,6 +3,7 @@
 !
 ! Revised:  April 2007  Original version.  David Wong
 ! Revised:  April 7, 2016 David Wong: Added variable mminlu
+!           Jan 11, 2018 David Wong: Added variable convective_scheme
 !===============================================================================
 
   module twoway_data_module
@@ -52,5 +53,7 @@
 
     INTEGER, SAVE :: sc, ec, sr, er
     INTEGER, SAVE :: sc_d, ec_d, sr_d, er_d
+
+    LOGICAL :: convective_scheme
 
   end module twoway_data_module
