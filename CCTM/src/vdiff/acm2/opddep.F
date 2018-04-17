@@ -25,7 +25,7 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
  
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE OPDDEP ( JDATE, JTIME, TSTEP, N_SPC_DDEP, ABFLUX )
+      SUBROUTINE OPDDEP ( JDATE, JTIME, TSTEP, N_SPC_DDEP) !, ABFLUX )
 
 C   30 Mar 01 J.Young: dyn alloc - Use HGRD_DEFN
 C   03 Sep 01 David Wong: for new pario
@@ -51,7 +51,7 @@ C Arguments:
       INTEGER, INTENT( IN ) :: JTIME  ! current model time, coded HHMMSS
       INTEGER, INTENT( IN ) :: TSTEP  ! output time step
       INTEGER, INTENT( IN ) :: N_SPC_DDEP ! no. of dry dep species
-      LOGICAL, INTENT( IN ) :: ABFLUX
+!      LOGICAL, INTENT( IN ) :: ABFLUX
 
 C Local variables:
 
@@ -91,11 +91,11 @@ C Set output file characteristics based on COORD.EXT and open the dry dep file
          STIME3D = JTIME
          TSTEP3D = TSTEP
          CALL NEXTIME( SDATE3D, STIME3D, TSTEP3D ) !  start the next hour
-         IF ( ABFLUX ) THEN
-            NVARS3D = N_SPC_DDEP + LCMP
-         ELSE 
+!         IF ( ABFLUX ) THEN
+!            NVARS3D = N_SPC_DDEP + LCMP
+!         ELSE 
             NVARS3D = N_SPC_DDEP
-         END IF
+!         END IF
          NCOLS3D = GL_NCOLS
          NROWS3D = GL_NROWS
          NLAYS3D =     1
@@ -169,18 +169,6 @@ C Set output file characteristics based on COORD.EXT and open the dry dep file
             VDESC3D( V ) = 'hourly dry deposition values'
          END DO
 
-         IF ( ABFLUX ) THEN
-            N = 0   
-            STRT = N_GC_DDEP + N_AE_DDEP + N_NR_DDEP + N_TR_DDEP + 1
-            FINI = N_GC_DDEP + N_AE_DDEP + N_NR_DDEP + N_TR_DDEP + LCMP
-            DO V = STRT, FINI
-               N = N + 1
-               VTYPE3D( V ) = M3REAL
-               VNAME3D( V ) = CMPSPC( N )
-               UNITS3D( V ) = 'kg/hectare'
-               VDESC3D( V ) = 'hourly dry deposition values'
-            END DO
-         END IF
 
          FDESC3D( 1 ) = 'hourly 1-layer cross-point RADM dry deposition data'
          DO L = 2, MXDESC3

@@ -85,11 +85,12 @@ C-----------------------------------------------------------------------
       USE EMIS_DEFN          
       USE DEPV_DEFN
       USE ASX_DATA_MOD
+!      USE MPAS_DATA_MOD
       USE VDIFF_MAP
       USE UTILIO_DEFN
       USE BIDI_MOD
-      USE HGSIM
-      USE LSM_MOD, Only: n_lufrac
+!      USE HGSIM
+!      USE LSM_MOD, Only: n_lufrac
       USE SEDIMENTATION
       USE VDIFF_DIAG
       USE PA_DEFN, Only: LIPR ! Process Anaylsis control and data variables
@@ -132,12 +133,12 @@ C Local Variables:
       REAL, ALLOCATABLE, SAVE :: CNGRD( :,:,:,: )    ! cgrid aero in mixing ratio
       REAL, ALLOCATABLE, SAVE :: DDEP     ( :,:,: )   ! ddep accumulator
       REAL, ALLOCATABLE, SAVE :: ICMP     ( :,:,: )   ! component flux accumlator 
-      REAL, ALLOCATABLE, SAVE :: DDEPJ    ( :,:,:,: ) ! ddep for mosaic
-      REAL, ALLOCATABLE, SAVE :: DDEPJ_FST( :,:,:,: ) ! ddep for stomtal/cuticular pathway
+!      REAL, ALLOCATABLE, SAVE :: DDEPJ    ( :,:,:,: ) ! ddep for mosaic
+!      REAL, ALLOCATABLE, SAVE :: DDEPJ_FST( :,:,:,: ) ! ddep for stomtal/cuticular pathway
 
       REAL     :: WRDD( NCOLS,NROWS )                 ! ddep write buffer
-      REAL     :: WRDDJ( NCOLS,NROWS,N_LUFRAC+1 )     ! mosaic ddep write buffer
-      REAL     :: WRDDJ_FST( NCOLS,NROWS,N_LUFRAC+1 ) ! mosaic stomatal flux write buffer
+!      REAL     :: WRDDJ( NCOLS,NROWS,N_LUFRAC+1 )     ! mosaic ddep write buffer
+!      REAL     :: WRDDJ_FST( NCOLS,NROWS,N_LUFRAC+1 ) ! mosaic stomatal flux write buffer
 
       REAL, ALLOCATABLE, SAVE :: DDEP_PA  ( :,:,: )   ! ddep for process analysis
       REAL, ALLOCATABLE, SAVE :: EMIS_PA( :,:,:,: )   ! emis for process analysis
@@ -184,13 +185,13 @@ C Local Variables
          SUBROUTINE EDDYX ( EDDYV )
             REAL,           INTENT( OUT ) :: EDDYV( :,:,: )
          END SUBROUTINE EDDYX
-         SUBROUTINE VDIFFACMX( dtsec, seddy, ddep, icmp, ddepj, ddepj_fst, cngrd )
+         SUBROUTINE VDIFFACMX( dtsec, seddy, ddep, icmp, cngrd )
             REAL, INTENT( IN )    :: dtsec
             REAL, INTENT( INOUT ) :: seddy( :,:,: )
             REAL, INTENT( INOUT ) :: ddep ( :,:,: )
             REAL, INTENT( INOUT ) :: icmp ( :,:,: )
-            REAL, INTENT( INOUT ), OPTIONAL :: ddepj    ( :,:,:,: )
-            REAL, INTENT( INOUT ), OPTIONAL :: ddepj_fst( :,:,:,: )
+!            REAL, INTENT( INOUT ), OPTIONAL :: ddepj    ( :,:,:,: )
+!            REAL, INTENT( INOUT ), OPTIONAL :: ddepj_fst( :,:,:,: )
             REAL, INTENT( INOUT ) :: cngrd( :,:,:,: )
          END SUBROUTINE VDIFFACMX
       END INTERFACE
@@ -214,11 +215,7 @@ C create global maps
          END IF
 
 C Initialize the met data
-         CALL INIT_MET( JDATE, JTIME, MOSAIC, ABFLUX, HGBIDI )
-
-        IF ( HGBIDI ) THEN ! Initialize HGSIM module
-           CALL INIT_HGSIM(JDATE, JTIME)
-        END IF
+         CALL INIT_MET( JDATE, JTIME, ABFLUX) !, HGBIDI )
 
 C Get gravitational settling (sedi) flag.
          GRAV_SETL = .TRUE.         ! default
@@ -234,8 +231,8 @@ C Get diagnostic files flag.
  
 C Set output file characteristics based on COORD.EXT and open the dry dep file
          IF ( IO_PE_INCLUSIVE ) THEN
-            CALL OPDDEP ( JDATE, JTIME, TSTEP( 1 ), N_SPC_DDEP, ABFLUX )
-            IF ( ABFLUX .OR. HGBIDI ) CALL OPASX_MEDIA( JDATE, JTIME, TSTEP( 1 ), ABFLUX )
+            CALL OPDDEP ( JDATE, JTIME, TSTEP( 1 ), N_SPC_DDEP) !, ABFLUX )
+            IF ( ABFLUX ) CALL OPASX_MEDIA( JDATE, JTIME, TSTEP( 1 ), ABFLUX )
          END IF
 
 C Open vdiff diagnostics file (ioapi header from cgrd)
@@ -299,27 +296,6 @@ C Set up for grav. settling
          END IF
          CNGRD = 0.0   ! array assignment
  
-         IF ( MOSAIC ) THEN
-            ALLOCATE ( DDEPJ( N_LUFRAC,N_SPC_DEPV,NCOLS,NROWS ), STAT = ASTAT )
-            IF ( ASTAT .NE. 0 ) THEN
-               XMSG = 'Failure allocating DDEPJ'
-               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-            END IF
-            DDEPJ = 0.0   ! array assignment
-            IF ( IO_PE_INCLUSIVE )
-     &         CALL OPDDEP_MOS ( JDATE, JTIME, TSTEP( 1 ), N_SPC_DDEP )
-            IF ( FST ) THEN
-               ALLOCATE ( DDEPJ_FST( N_LUFRAC,N_SPC_DEPV,NCOLS,NROWS ), STAT = ASTAT )
-               IF ( ASTAT .NE. 0 ) THEN
-                  XMSG = 'Failure allocating DDEPJ_FST'
-                  CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-               END IF
-               DDEPJ_FST = 0.0   ! array assignment
-               IF ( IO_PE_INCLUSIVE )
-     &            CALL OPDDEP_FST ( JDATE, JTIME, TSTEP( 1 ), N_SPC_DDEP )
-            END IF   ! if Fst
-         END IF   ! if Mosaic
-
       END IF   !  if Firstime
 
       MDATE = JDATE
@@ -332,7 +308,7 @@ C Convert non-molar mixing ratio species and re-order CGRID
       CALL CONV_CGRID ( CGRID, MDATE, MTIME, CNGRD )
 
 C read & interpolate met data
-      CALL GET_MET ( MDATE, MTIME, MSTEP, MOSAIC, ABFLUX, HGBIDI )
+      CALL GET_MET ( MDATE, MTIME, MSTEP) !, MOSAIC, ABFLUX, HGBIDI )
 
 C read & interpolate deposition velocities
       CALL GET_DEPV ( MDATE, MTIME, TSTEP, CGRID )      
@@ -384,26 +360,13 @@ C EDDYV returned = Kz, where Kz is in m**2/sec
       IF ( WSTEP .EQ. 0 ) THEN
          DDEP = 0.0                      ! array assignment
          ICMP = 0.0                      ! array assignment
-         IF ( MOSAIC ) THEN
-            DDEPJ = 0.0                  ! array assignment
-            IF ( FST ) DDEPJ_FST = 0.0   ! array assignment
-         END IF
       END IF
 
 C Calculate the change in concentration and dry dep from vertical diffusion and vsed
 C Note: cngrd is the argument keyword (from the INTERFACE); CNGRD is the actual argument
-      IF ( .NOT. MOSAIC ) THEN
+!      IF ( .NOT. MOSAIC ) THEN
          CALL VDIFFACMX( DTSEC, SEDDY, DDEP, ICMP,
      &                   cngrd = CNGRD )
-      ELSE
-         IF ( .NOT. FST ) THEN
-            CALL VDIFFACMX( DTSEC, SEDDY, DDEP, ICMP,
-     &                      ddepj = DDEPJ, cngrd = CNGRD )
-         ELSE
-            CALL VDIFFACMX( DTSEC, SEDDY, DDEP, ICMP,
-     &                      ddepj = DDEPJ, ddepj_fst = DDEPJ_FST, cngrd = CNGRD )
-         END IF 
-      END IF 
 
       IF ( VDIFFDIAG ) THEN
          NTICS = NTICS + 1
@@ -446,18 +409,6 @@ C If last call this hour:  write accumulated depositions:
                   XMSG = 'Could not open ' // TRIM(CTM_DRY_DEP_1)
                   CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF
-               IF ( MOSAIC ) THEN
-                  IF ( .NOT. OPEN3( CTM_DRY_DEP_MOS, FSREAD3, PNAME ) ) THEN
-                     XMSG = 'Could not open ' // TRIM(CTM_DRY_DEP_MOS)
-                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-                  END IF
-                  IF ( FST ) THEN
-                     IF ( .NOT. OPEN3( CTM_DRY_DEP_FST, FSREAD3, PNAME ) ) THEN
-                        XMSG = 'Could not open ' // TRIM(CTM_DRY_DEP_FST)
-                        CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-                     END IF
-                  END IF
-               END IF
             END IF   ! .NOT. IO_PE_INCLUSIVE
          END IF
 #endif
@@ -475,22 +426,6 @@ C If last call this hour:  write accumulated depositions:
                XMSG = 'Could not write ' // CTM_DRY_DEP_1 // ' file'
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
             END IF
-    
-            IF ( ABFLUX .AND. DDEP_SPC( V ) .EQ. 'NH3' ) THEN
-               DO I = 1, LCMP 
-                  DO R = 1, MY_NROWS
-                     DO C = 1, MY_NCOLS
-                        WRDD( C,R ) = ICMP( I,C,R )
-                     END DO
-                  END DO
-                  IF ( .NOT. WRITE3( CTM_DRY_DEP_1, CMPSPC( I ),
-     &                 MDATE, MTIME, WRDD ) ) THEN
-                     XMSG = 'Could not write ' // CTM_DRY_DEP_1 // ' file'
-                     CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-                  END IF     
-               END DO       
-            ENDIF
-
          END DO 
 
          WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
@@ -592,75 +527,10 @@ C Write other diagnostics
 
          END IF
          
-         IF ( MOSAIC ) THEN
-
-            DO V = 1, N_SPC_DDEP
-               S = DD2DV( V )
-               WRDD = 0.0 ! reuse array since it has already been written for hour
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
-                     DO J = 1, N_LUFRAC
-                        WRDD( C,R ) = WRDD( C,R ) + DDEPJ( J,S,C,R ) * Grid_Data%LUFRAC( C,R,J )
-                        WRDDJ( C,R,J ) = DDEPJ( J,S,C,R )
-                     END DO
-                     WRDDJ( C,R,N_LUFRAC+1 ) = WRDD( C,R )  ! last array element is total across all land use categories
-                  END DO
-               END DO
-
-               IF ( .NOT. WRITE3( CTM_DRY_DEP_MOS, DDEP_SPC( V ),
-     &                     MDATE, MTIME, WRDDJ ) ) THEN
-                  XMSG = 'Could not write ' // CTM_DRY_DEP_MOS // ' file'
-                  CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-               END IF
-
-            END DO
-
-            WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
-     &             'Timestep written to', CTM_DRY_DEP_MOS,
-     &             'for date and time', MDATE, MTIME
-
-            IF ( FST ) THEN
-
-               DO V = 1, N_SPC_DDEP
-                  S = DD2DV( V )
-                  WRDD = 0.0 ! reuse array since it has already been written for hour
-                  DO R = 1, MY_NROWS
-                     DO C = 1, MY_NCOLS
-                        DO J = 1, N_LUFRAC
-                           WRDD( C,R ) = WRDD( C,R ) + DDEPJ_FST( J,S,C,R ) * Grid_Data%LUFRAC( C,R,J )
-                           WRDDJ_FST( C,R,J ) = DDEPJ_FST( J,S,C,R )
-                           IF ( DDEPJ_FST( J,S,C,R ) .GT. DDEPJ( J,S,C,R ) ) THEN
-                              WRITE( LOGDEV,* ) 'FST too big !!!'
-                              WRITE( LOGDEV,* ) 'J,S,C,R = ', J, S, C, R
-                              WRITE( LOGDEV,* ) 'DDEPJ,DDEPJ_FST: ', DDEPJ( J,S,C,R ), DDEPJ_FST( J,S,C,R )
-                              WRITE( LOGDEV,* ) 'DDEP Species: ', DDEP_SPC( V )
-                              WRITE( LOGDEV,* ) 'Time and date: ', MTIME, MDATE
-                           END IF
-                        END DO
-                        WRDDJ_FST( C,R,N_LUFRAC+1 ) = WRDD( C,R )  ! last array element is total across all land use categories
-                    END DO
-                  END DO
-             
-                  IF ( .NOT. WRITE3( CTM_DRY_DEP_FST, DDEP_SPC( V ),
-     &                       MDATE, MTIME, WRDDJ_FST ) ) THEN
-                     XMSG = 'Could not write ' // CTM_DRY_DEP_FST // ' file'
-                     CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-                  END IF
-             
-               END DO
-
-               WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
-     &               'Timestep written to', CTM_DRY_DEP_FST,
-     &               'for date and time', MDATE, MTIME
-
-            END IF   ! FST
-
-         END IF   ! MOSAIC
-
          IF ( ABFLUX .OR. HGBIDI ) THEN    
             CALL WRASX_MEDIA( MDATE, MTIME, ABFLUX )
          END IF 
- 
+
          IF ( LIPR ) THEN
             DO V = 1, N_SPC_DEPV
                DO R = 1, MY_NROWS
@@ -676,10 +546,6 @@ C re-set dry deposition array to zero
 
          DDEP = 0.0
          ICMP = 0.0
-         IF ( MOSAIC ) THEN
-            DDEPJ = 0.0   ! array assignment
-            IF ( FST ) DDEPJ_FST = 0.0   ! array assignment
-         END IF
 
       END IF
 

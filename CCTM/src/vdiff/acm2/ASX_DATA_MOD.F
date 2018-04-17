@@ -166,45 +166,11 @@ C Land use information:
          Character( 16 ), Allocatable   :: LU_Type ( : )     ! general land use type e.g. water, forest, etc.
       End Type GRID_Type
 
-      Type :: MOSAIC_Type                 ! (col,row,lu)
-         Character( 16 ), Allocatable :: NAME    ( : ) ! LU name
-         Character( 16 ), Allocatable :: LU_Type ( : ) ! general land use type e.g. water, forest, etc.
-!> Sub grid cell meteorological variables:
-         Real, Allocatable :: USTAR ( :,:,: )   ! surface friction velocity [m/s]
-         Real, Allocatable :: LAI   ( :,:,: )   ! leaf area index [m**2/m**2]
-         Real, Allocatable :: VEG   ( :,:,: )   ! vegetation fraction [ratio]
-         Real, Allocatable :: Z0    ( :,:,: )   ! vegetation fraction [ratio]
-         Real, Allocatable :: DELTA ( :,:,: )   ! Surface wetness [ratio]
-!> Sub grid cell resistances
-         Real, Allocatable :: RA    ( :,:,: )    ! aerodynamic resistance [s/m]
-         Real, Allocatable :: RSTW  ( :,:,: )    ! Stomatal Resistance of water [s/m]
-         Real, Allocatable :: RINC  ( :,:,: )    ! In-canopy resistance [s/m]
-      End Type MOSAIC_Type
-
-      Type :: ChemMos_Type                 ! (col,row,lu,spc)
-         Character( 16 ), Allocatable :: NAME    ( : )  ! LU name
-         Character( 16 ), Allocatable :: Lu_Type ( : )  ! general land use type e.g. water, forest, etc.     
-         Character( 16 ), Allocatable :: SubName ( : )  ! Deposition species name    
-!> Sub grid cell chemically dependent resistances
-         Real, Allocatable :: Rb   ( :,:,:,: ) ! quasi-laminar boundary layer resistance [s/m]
-         Real, Allocatable :: Rst  ( :,:,:,: ) ! stomatal resistance [s/m]
-         Real, Allocatable :: Rgc  ( :,:,:,: ) ! Canopy covered soil resistance [s/m]
-         Real, Allocatable :: Rgb  ( :,:,:,: ) ! Barron soil resistance [s/m]
-         Real, Allocatable :: Rcut ( :,:,:,: ) ! soil resistance [s/m]
-         Real, Allocatable :: Rwat ( :,:,:,: ) ! surface water resistance [s/m]
-!> Sub grid cell compensation point
-         Real, Allocatable :: Catm ( :,:,:,: ) ! Atmospheric [ppm]
-         Real, Allocatable :: CZ0  ( :,:,:,: ) ! compensation point at Z0 [ppm]
-         Real, Allocatable :: Cleaf( :,:,:,: ) ! Leaf compensation point [ppm]
-         Real, Allocatable :: Cstom( :,:,:,: ) ! Stomatal compensation point [ppm]
-         Real, Allocatable :: Ccut ( :,:,:,: ) ! Cuticular compensation point [ppm]
-         Real, Allocatable :: Csoil( :,:,:,: ) ! Soil compensation point [ppm]
-      End Type ChemMos_Type
 
       Type( MET_Type ),     Save :: Met_Data 
       Type( GRID_Type ),    Save :: Grid_Data 
-      Type( MOSAIC_Type ),  Save :: Mosaic_Data
-      Type( ChemMos_Type ), Save :: ChemMos_Data
+!      Type( MOSAIC_Type ),  Save :: Mosaic_Data
+!      Type( ChemMos_Type ), Save :: ChemMos_Data
 
       Integer, Save   :: n_spc_m3dry = ltotg       ! from DEPVVARS module
 !> M3 asx constants
@@ -391,7 +357,7 @@ C Land use information:
       CONTAINS
 
 C=======================================================================
-         Subroutine INIT_MET ( JDATE, JTIME, MOSAIC, ABFLUX, HGBIDI )
+         Subroutine INIT_MET ( JDATE, JTIME, ABFLUX) !, HGBIDI )
 
 C-----------------------------------------------------------------------
 C   30 Mar 01 J.Young: dyn alloc - Use HGRD_DEFN; replace INTERP3 with INTERPX;
@@ -413,9 +379,9 @@ C-----------------------------------------------------------------------
 
 C Arguments:
          Integer, Intent( IN ) :: JDATE, JTIME      ! internal simulation date&time
-         Logical, Intent( IN ) :: MOSAIC
+!         Logical, Intent( IN ) :: MOSAIC
          Logical, Intent( IN ) :: ABFLUX
-         Logical, Intent( IN ) :: HGBIDI
+!         Logical, Intent( IN ) :: HGBIDI
 
 C File variables:
          Real, Pointer    :: MSFX2   ( :,: )
@@ -532,7 +498,7 @@ C-----------------------------------------------------------------------
          Grid_Data%NAME    = name_lu
          Grid_Data%LU_Type = cat_lu
 
-         If ( ABFLUX .Or. HGBIDI .Or. MOSAIC ) Then
+         If ( ABFLUX ) Then
             ALLOCATE( Met_Data%SOIM2    ( NCOLS,NROWS ),
      &                Met_Data%SOIT2    ( NCOLS,NROWS ),
      &                STAT = ALLOCSTAT )
@@ -557,65 +523,6 @@ C-----------------------------------------------------------------------
             Grid_Data%WFC     = 0.0
             Grid_Data%WRES    = 0.0
             Grid_Data%BSLP    = 0.0
-
-            ALLOCATE( Mosaic_Data%USTAR   ( NCOLS,NROWS,n_lufrac ),
-     &                Mosaic_Data%LAI     ( NCOLS,NROWS,n_lufrac ),
-     &                Mosaic_Data%DELTA   ( NCOLS,NROWS,n_lufrac ),
-     &                Mosaic_Data%VEG     ( NCOLS,NROWS,n_lufrac ),
-     &                Mosaic_Data%Z0      ( NCOLS,NROWS,n_lufrac ),
-     &                Mosaic_Data%RA      ( NCOLS,NROWS,n_lufrac ),
-     &                Mosaic_Data%RSTW    ( NCOLS,NROWS,n_lufrac ),
-     &                Mosaic_Data%RINC    ( NCOLS,NROWS,n_lufrac ),
-     &                Mosaic_Data%NAME    ( n_lufrac ),
-     &                Mosaic_Data%LU_Type ( n_lufrac ),
-     &                STAT = ALLOCSTAT )
-            If ( ALLOCSTAT .Ne. 0 ) Then
-               XMSG = 'Failure allocating mosaic vars'
-               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            End If
-            Mosaic_Data%USTAR   = 0.0
-            Mosaic_Data%LAI     = 0.0
-            Mosaic_Data%DELTA   = 0.0
-            Mosaic_Data%VEG     = 0.0
-            Mosaic_Data%Z0      = 0.000001
-            Mosaic_Data%RSTW    = 0.0
-            Mosaic_Data%RINC    = 0.0
-            Mosaic_Data%NAME    = name_lu
-            Mosaic_Data%LU_Type = cat_lu
-
-            ALLOCATE( ChemMos_Data%Rb      ( NCOLS,NROWS,n_lufrac,ltotg ),
-     &                ChemMos_Data%Rst     ( NCOLS,NROWS,n_lufrac,ltotg ),
-     &                ChemMos_Data%Rcut    ( NCOLS,NROWS,n_lufrac,ltotg ),
-     &                ChemMos_Data%Rgc     ( NCOLS,NROWS,n_lufrac,ltotg ),
-     &                ChemMos_Data%Rgb     ( NCOLS,NROWS,n_lufrac,ltotg ),
-     &                ChemMos_Data%Rwat    ( NCOLS,NROWS,n_lufrac,ltotg ),
-     &                ChemMos_Data%CZ0     ( NCOLS,NROWS,n_lufrac,ltotg ),
-     &                ChemMos_Data%Cleaf   ( NCOLS,NROWS,n_lufrac,ltotg ),
-     &                ChemMos_Data%Cstom   ( NCOLS,NROWS,n_lufrac,ltotg ),
-     &                ChemMos_Data%Ccut    ( NCOLS,NROWS,n_lufrac,ltotg ),
-     &                ChemMos_Data%Csoil   ( NCOLS,NROWS,n_lufrac,ltotg ),
-     &                ChemMos_Data%NAME    ( n_lufrac ),
-     &                ChemMos_Data%LU_Type ( n_lufrac ),
-     &                ChemMos_Data%Subname ( n_lufrac ),
-     &                STAT = ALLOCSTAT )
-            If ( ALLOCSTAT .Ne. 0 ) Then
-               XMSG = 'Failure allocating chemistry dependent mosaic vars'
-               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            End If
-            ChemMos_Data%Rb    = resist_max
-            ChemMos_Data%Rst   = resist_max
-            ChemMos_Data%Rcut  = resist_max
-            ChemMos_Data%Rgc   = resist_max
-            ChemMos_Data%Rgb   = resist_max
-            ChemMos_Data%Rwat  = resist_max
-            ChemMos_Data%CZ0   = 0.0
-            ChemMos_Data%Cleaf = 0.0
-            ChemMos_Data%Cstom = 0.0
-            ChemMos_Data%Ccut  = 0.0
-            ChemMos_Data%Csoil = 0.0
-            ChemMos_Data%NAME    = name_lu
-            ChemMos_Data%LU_Type = cat_lu
-            ChemMos_Data%SubName = subname
          End If
 
 !> ccccccccccccccccccccc enable backward compatiblity ccccccccccccccccccccc
@@ -808,7 +715,7 @@ C-----------------------------------------------------------------------
          Grid_Data%SLTYP = NINT( SOILCAT )
          Nullify( SOILCAT )
 
-         If ( ABFLUX .Or. MOSAIC ) Then
+         If ( ABFLUX ) Then
             Do l = 1, n_lufrac
                Write( vname,'( "LUFRAC_",I2.2 )' ) l
                If ( .Not. INTERPX( GRID_CRO_2D, VNAME, PNAME,
@@ -858,7 +765,7 @@ C-----------------------------------------------------------------------
          End Subroutine INIT_MET
 
 C=======================================================================
-         Subroutine GET_MET ( JDATE, JTIME, TSTEP, MOSAIC, ABFLUX, HGBIDI )
+         Subroutine GET_MET ( JDATE, JTIME, TSTEP) !, MOSAIC, ABFLUX, HGBIDI )
 
 C-----------------------------------------------------------------------
 C   30 Mar 01 J.Young: dyn alloc - Use HGRD_DEFN; replace INTERP3 with INTERPX;
@@ -888,9 +795,9 @@ C-----------------------------------------------------------------------
 C Arguments:
 
          Integer, Intent( IN ) :: JDATE, JTIME, TSTEP      ! internal simulation date&time
-         Logical, Intent( IN ) :: MOSAIC
-         Logical, Intent( IN ) :: ABFLUX
-         Logical, Intent( IN ) :: HGBIDI
+!         Logical, Intent( IN ) :: MOSAIC
+!         Logical, Intent( IN ) :: ABFLUX
+!         Logical, Intent( IN ) :: HGBIDI
 
 C Parameters:
          Real, Parameter :: cond_min = 1.0 / resist_max ! minimum conductance [m/s]
@@ -1042,23 +949,23 @@ C Soil vars
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End If
 
-         If ( ABFLUX .Or. HGBIDI .Or. MOSAIC ) Then
-            VNAME = 'SOIM2'
-            If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
-     &                          STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
-     &                          JDATE, JTIME, Met_Data%SOIM2 ) ) Then
-               XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_2D
-               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            End If
+!         If ( ABFLUX .Or. HGBIDI .Or. MOSAIC ) Then
+!            VNAME = 'SOIM2'
+!            If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
+!     &                          STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+!     &                          JDATE, JTIME, Met_Data%SOIM2 ) ) Then
+!               XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_2D
+!               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+!            End If
 
-            VNAME = 'SOIT2'
-            If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
-     &                          STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
-     &                          JDATE, JTIME, Met_Data%SOIT2 ) ) Then
-               XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_2D
-               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            End If
-         End If
+!            VNAME = 'SOIT2'
+!            If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
+!     &                          STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+!     &                          JDATE, JTIME, Met_Data%SOIT2 ) ) Then
+!               XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_2D
+!               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+!            End If
+!         End If
 
          VNAME = 'SOIT1'
          If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
