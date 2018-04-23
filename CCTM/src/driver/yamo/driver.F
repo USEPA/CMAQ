@@ -493,11 +493,7 @@ C write conc fields
             CALL WR_CONC ( JDATE, JTIME, TSTEP( 1 ) )
             CALL WR_ACONC ( AGRID, JDATE, JTIME, TSTEP( 1 ) )
             IF ( LIPR .OR. LIRR ) CALL PA_OUTPUT ( CGRID, JDATE, JTIME )
-            CPU_TIME_FINISH = MPI_WTIME()
-            IF ( MYPE .EQ. 0 ) WRITE( OUTDEV, * )
-            WRITE( XMSG, '(A,F4.1,A)' ), 'Completed Writing Results to Output Files...',
-     &             CPU_TIME_FINISH-CPU_TIME_START,' seconds'
-            IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
+            CALL TIMING_SPLIT ( CPU_TIME_START, 3 )
          END IF
  
 

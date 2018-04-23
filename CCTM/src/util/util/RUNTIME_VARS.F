@@ -1198,7 +1198,7 @@
       END SUBROUTINE LOG_MESSAGE
 
 !.........................................................................
-      SUBROUTINE TIMING_SPLIT( CPU_TIME_START, IMSG, CPROC )
+      SUBROUTINE TIMING_SPLIT( CPU_TIME_START, CTYP, CPROCIN )
 
 !  This subroutine provides a split for the MPI timing functions and
 !  then prints out a message for how much time has passed using a
@@ -1209,34 +1209,46 @@
 
       REAL( 8 )        :: CPU_TIME_START
       REAL( 8 )        :: CPU_TIME_FINISH
-      CHARACTER( 250 ) :: CMSG, XMSG
-      CHARACTER( 250 ) ::
+      CHARACTER( 16 )  :: CTYP   ! What kind of checkpoint this is
+                                 !  1 = 'PROCESS'
+                                 !  2 = 'MASTER TIME STEP'
+                                 !  3 = 'OUTPUT'
+      CHARACTER( 250 ), INTENT(IN), OPTIONAL :: CPROCIN
+      CHARACTER( 250 ) :: CPROC
+
+      IF ( PRESENT( CPROCIN ) ) THEN
+         CPROC = CPROCIN
+      ELSE
+         CPROC = ''
+      END IF
  
       ! Record Time at this Checkpoint
       CPU_TIME_FINISH = MPI_WTIME()
 
-      ! Assemble and Write Out the statement requested by the calling program
-      SELECT 
-      CASE 
-      WRITE( XMSG, 1002 ),CMSG, CPU_TIME_FINISH-CPU_TIME_START
-1002  FORMAT ( 2x, A15, ' completed... ', F6.1, ' seconds' )
+      ! Assemble the statement requested by the calling program
+      SELECT CASE IMSG
+      CASE ( 1 )
+          ! Write Out The Time to Complete Each Sub-Process
+          WRITE( XMSG, 1002 ),TRIM( CPROC ), CPU_TIME_FINISH-CPU_TIME_START
+1002      FORMAT ( 2x, A15, ' completed... ', F6.1, ' seconds' )
 
+      CASE ( 2 ) 
+          ! Write out the time to complete the entire master time step
+          WRITE( XMSG, '(2x,A41,F6.1,A8)' ),'Master Time Step Processing Completed in ',
+     &                     (CPU_TIME_FINISH-CPU_TIME_START),' seconds'
+          CALL LOG_MESSAGE( LOGDEV, XMSG )
+          WRITE( LOGDEV, * )
 
-      WRITE( XMSG, '(2x,A41,F6.1,A8)' ),'Master Time Step Processing Completed in ',
-     &                     (CPU_TIME_FINISH-CPU_TIME_START_MASTER),' seconds'
-       
-       WRITE( XMSG, '(A,F4.1,A)' ), 'Completed Writing Results to Output Files...',
-     &             CPU_TIME_FINISH-CPU_TIME_START,' seconds'
-            IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
+      CASE ( 3 ) 
+          ! Write out the time to complete the output procedure
+          WRITE( XMSG, '(A,F4.1,A)' ), 'Completed Writing Results to Output Files...',
+     &                     (CPU_TIME_FINISH-CPU_TIME_START),' seconds'
  
+      END SELECT 
 
-
+      ! Write out the timing statement
       IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
- 
-
-
- 
-
+      CPU_TIME_START = MPI_WTIME()
 
       END SUBROUTINE TIMING_SPLIT    
  
