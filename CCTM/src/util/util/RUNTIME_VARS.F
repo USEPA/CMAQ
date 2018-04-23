@@ -54,6 +54,8 @@
       CHARACTER( 10 ) :: WEEKDAY( 7 ) = (/'Monday   ','Tuesday  ','Wednesday',
      &                        'Thursday ','Friday   ','Saturday ','Sunday   ' /)
 
+
+
 #ifdef twoway
       !-----------------------------------------------------------------------------------
       !>> Variables for Configuring WRF-CMAQ Coupled Model Runs
@@ -1194,6 +1196,48 @@
 
 
       END SUBROUTINE LOG_MESSAGE
-      
+
+!.........................................................................
+      SUBROUTINE TIMING_SPLIT( CPU_TIME_START, IMSG, CPROC )
+
+!  This subroutine provides a split for the MPI timing functions and
+!  then prints out a message for how much time has passed using a
+!  character string input for customizing that message. 
+!.........................................................................
+ 
+      IMPLICIT NONE
+
+      REAL( 8 )        :: CPU_TIME_START
+      REAL( 8 )        :: CPU_TIME_FINISH
+      CHARACTER( 250 ) :: CMSG, XMSG
+      CHARACTER( 250 ) ::
+ 
+      ! Record Time at this Checkpoint
+      CPU_TIME_FINISH = MPI_WTIME()
+
+      ! Assemble and Write Out the statement requested by the calling program
+      SELECT 
+      CASE 
+      WRITE( XMSG, 1002 ),CMSG, CPU_TIME_FINISH-CPU_TIME_START
+1002  FORMAT ( 2x, A15, ' completed... ', F6.1, ' seconds' )
+
+
+      WRITE( XMSG, '(2x,A41,F6.1,A8)' ),'Master Time Step Processing Completed in ',
+     &                     (CPU_TIME_FINISH-CPU_TIME_START_MASTER),' seconds'
+       
+       WRITE( XMSG, '(A,F4.1,A)' ), 'Completed Writing Results to Output Files...',
+     &             CPU_TIME_FINISH-CPU_TIME_START,' seconds'
+            IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
+ 
+
+
+      IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
+ 
+
+
+ 
+
+
+      END SUBROUTINE TIMING_SPLIT    
  
       END MODULE RUNTIME_VARS

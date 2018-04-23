@@ -184,9 +184,6 @@ C-----------------------------------------------------------------------
 C Synchronization Step Physical Processes Sequence
       CPU_TIME_START = MPI_WTIME()
       CALL VDIFF ( CGRID, JDATE, JTIME, TSTEP )
-      CPU_TIME_FINISH = MPI_WTIME()
-      WRITE( XMSG, 1002 ),'VDIFF', CPU_TIME_FINISH-CPU_TIME_START
-      IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
       IF ( CKSUM ) CALL CKSUMMER ( 'VDIFF', CGRID, JDATE, JTIME )
       IF ( LIPR ) CALL PA_UPDATE ( 'VDIF', CGRID, JDATE, JTIME, TSTEP )
 

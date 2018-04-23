@@ -138,7 +138,6 @@ C Local variables
          CHARACTER(  16 ) :: SPNPRF     ! record (line) speciation profile name
          CHARACTER(  16 ) :: POLNAM     ! record (line) pollutant name
          CHARACTER(  16 ) :: SPECNM     ! record (line) species name
-         CHARACTER(  16 ) :: SPPRO      ! requested speciation profile name
          CHARACTER(  16 ) :: FILE_SPPRO ! label read from gspro
 
          REAL                SPLTFAC, SDIV, SMFAC ! line speciation profile factors
