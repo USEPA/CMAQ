@@ -176,14 +176,14 @@ C Local Variables
          SUBROUTINE EDDYX ( EDDYV )
             REAL,           INTENT( OUT ) :: EDDYV( :,:,: )
          END SUBROUTINE EDDYX
-         SUBROUTINE VDIFFACMX( dtsec, seddy, ddep, icmp, ddepj, ddepj_fst, cngrd )
+         SUBROUTINE VDIFFACMX( dtsec, seddy, ddep, icmp, cngrd, ddepj, ddepj_fst )
             REAL, INTENT( IN )    :: dtsec
             REAL, INTENT( INOUT ) :: seddy( :,:,: )
             REAL, INTENT( INOUT ) :: ddep ( :,:,: )
             REAL, INTENT( INOUT ) :: icmp ( :,:,: )
+            REAL, INTENT( INOUT ) :: cngrd( :,:,:,: )
             REAL, INTENT( INOUT ), OPTIONAL :: ddepj    ( :,:,:,: )
             REAL, INTENT( INOUT ), OPTIONAL :: ddepj_fst( :,:,:,: )
-            REAL, INTENT( INOUT ) :: cngrd( :,:,:,: )
          END SUBROUTINE VDIFFACMX
       END INTERFACE
 
@@ -381,15 +381,12 @@ C EDDYV returned = Kz, where Kz is in m**2/sec
 C Calculate the change in concentration and dry dep from vertical diffusion and vsed
 C Note: cngrd is the argument keyword (from the INTERFACE); CNGRD is the actual argument
       IF ( .NOT. MOSAIC ) THEN
-         CALL VDIFFACMX( DTSEC, SEDDY, DDEP, ICMP,
-     &                   cngrd = CNGRD )
+         CALL VDIFFACMX( DTSEC, SEDDY, DDEP, ICMP, CNGRD )
       ELSE
          IF ( .NOT. FST ) THEN
-            CALL VDIFFACMX( DTSEC, SEDDY, DDEP, ICMP,
-     &                      ddepj = DDEPJ, cngrd = CNGRD )
+            CALL VDIFFACMX( DTSEC, SEDDY, DDEP, ICMP, CNGRD, DDEPJ )
          ELSE
-            CALL VDIFFACMX( DTSEC, SEDDY, DDEP, ICMP,
-     &                      ddepj = DDEPJ, ddepj_fst = DDEPJ_FST, cngrd = CNGRD )
+            CALL VDIFFACMX( DTSEC, SEDDY, DDEP, ICMP, CNGRD, DDEPJ, DDEPJ_FST )
          END IF 
       END IF 
 

@@ -380,8 +380,12 @@ C Verify input file header consistency and run duration
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
+#ifdef twoway
+         IF ( CMAQ_WRF_FEEDBACK ) THEN
+             CALL FEEDBACK_SETUP ( JDATE, JTIME, TSTEP( 3 ) )
+         END IF
+#endif
          FIRST_RUN = .FALSE.
-
 
       END IF ! first_run
 

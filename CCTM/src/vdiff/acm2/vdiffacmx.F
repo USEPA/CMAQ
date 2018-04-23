@@ -17,7 +17,7 @@
 !------------------------------------------------------------------------!
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE VDIFFACMX ( DTSEC, SEDDY, DDEP, ICMP, DDEPJ, DDEPJ_FST, CNGRD )
+      SUBROUTINE VDIFFACMX ( DTSEC, SEDDY, DDEP, ICMP, CNGRD, DDEPJ, DDEPJ_FST )
 
 C-----------------------------------------------------------------------
 C Asymmetric Convective Model v2 (ACM2/ACM1) -- Pleim(2006/2014)

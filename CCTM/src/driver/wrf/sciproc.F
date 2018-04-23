@@ -70,16 +70,15 @@ C-----------------------------------------------------------------------
 C Arguments:
       REAL, POINTER :: CGRID( :,:,:,: )
 
-      INTEGER      JDATE        ! current model date, coded YYYYDDD
-      INTEGER      JTIME        ! current model time, coded HHMMSS
-      INTEGER      TSTEP( 3 )   ! time step vector (HHMMSS)
-                                ! TSTEP(1) = local output step
-                                ! TSTEP(2) = sciproc sync. step (chem)
-                                ! TSTEP(3) = twoway model time step w.r.t. wrf time
-                                !            step and wrf/cmaq call frequency
+      INTEGER, INTENT(INOUT) :: JDATE        ! current model date, coded YYYYDDD
+      INTEGER, INTENT(INOUT) :: JTIME        ! current model time, coded HHMMSS
+      INTEGER, INTENT(IN)    :: TSTEP( 3 )   ! time step vector (HHMMSS)
+                                             ! TSTEP(1) = local output step
+                                             ! TSTEP(2) = sciproc sync. step (chem)
+                                             ! TSTEP(3) = twoway model time step w.r.t. wrf time
+                                             !            step and wrf/cmaq call frequency
 
-!     INTEGER      ASTEP( NLAYS )  ! layer advection time step
-      INTEGER      ASTEP( : )      ! layer advection time step
+      INTEGER, INTENT(IN)    :: ASTEP( : )   ! layer advection time step
 
 C Parameters:
 

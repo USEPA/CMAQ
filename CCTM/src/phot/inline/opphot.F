@@ -68,10 +68,7 @@ C...Local variables
       CHARACTER( 96 )       :: XMSG = ' '
 
       INTEGER N, L, JWL, INCR     ! loop variables
-      INTEGER LOGDEV
 C-----------------------------------------------------------------------
-
-      LOGDEV   = INIT3()
 
 C...Try to open existing file for update
 

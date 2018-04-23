@@ -235,7 +235,7 @@
 
       IMPLICIT NONE                         
       
-      CHARACTER(  48 ) :: VARDESC
+      CHARACTER( 250 ) :: VARDESC
       CHARACTER( 250 ) :: STRTEMP
 
 
@@ -244,7 +244,7 @@
       VARDESC = 'Flag for invoking CMAQ Driver. [False] for WRF-CMAQ Coupled Model'
       RUN_CMAQ_DRIVER = .FALSE.
       RUN_CMAQ_DRIVER = GET_ENVYN( 'RUN_CMAQ_DRIVER', VARDESC, RUN_CMAQ_DRIVER )
-      CMAQ_WRF_FEEDBACK = GET_ENVYN( 'CTM_CMAQ_WRF_FEEDBACK', VARDESC, CMAQ_WRF_FEEDBACK )
+      CMAQ_WRF_FEEDBACK = GET_ENVYN( 'CMAQ_WRF_FEEDBACK', VARDESC, CMAQ_WRF_FEEDBACK )
 
       ! Flag for Calculating Feedback From AQ Model to Meteorology
       VARDESC = 'CMAQ WRF radiative feedback'
@@ -306,7 +306,7 @@
 
       ! Retrieve Two-Way Coupled Model Delta Y
       VARDESC = 'Retrieve Two-Way Model Delta Y'
-      DELTA_Y = GET_ENVINT('TwOWAY_DELTA_Y', VARDESC, DELTA_Y )
+      DELTA_Y = GET_ENVINT('TWOWAY_DELTA_Y', VARDESC, DELTA_Y )
 
       ! WRF Reference Latitude
       VARDESC = 'Retrieve WRF Reference Latitude'
@@ -325,6 +325,19 @@
       STRTEMP = GET_ENVSTR( 'GRID_NAME', VARDESC, GRID_NAME_STR )
       GRID_NAME_STR = STRTEMP(1:16)
  
+      ! Run Duration
+      VARDESC = 'Scenario Run Duration (HHMMSS)'
+      RUNLEN = GET_ENVINT( 'CTM_RUNLEN', VARDESC, RUNLEN )
+      
+      ! Starting Date
+      VARDESC = 'Scenario Starting Date (YYYYDDD)'
+      STDATE = GET_ENVINT( 'CTM_STDATE', VARDESC, STDATE )
+
+      ! Starting Time
+      VARDESC = 'Scenario Starting Time (HHMMSS)'
+      STTIME = GET_ENVINT( 'CTM_STTIME', VARDESC, STTIME )
+ 
+
       END SUBROUTINE INIT_TWOWAY_ENV_VARS
 #endif 
 
@@ -370,11 +383,11 @@
  
       IF ( MYPE .NE. 0 ) OPEN( UNIT = 6, FILE = "/dev/null", STATUS = "OLD" )
 
-        ! Get Simulation Scenario Name to Label Log Files, etc
-        CALL NAMEVAL( 'CTM_APPL', APPL_NAME )
+      ! Get Simulation Scenario Name to Label Log Files, etc
+      CALL NAMEVAL( 'CTM_APPL', APPL_NAME )
       
-        ! Get Logfile Directory
-        CALL NAMEVAL( 'BLD', BLDFOLD ) 
+      ! Get Logfile Directory
+      CALL NAMEVAL( 'BLD', BLDFOLD ) 
  
       IF ( MYPE . NE. 0 ) CLOSE( UNIT = 6 )
 

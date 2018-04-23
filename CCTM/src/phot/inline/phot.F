@@ -323,11 +323,6 @@ C...modules
             REAL,    INTENT( IN )    :: LONGITUDE  ! longitude of point on earth's surface
             REAL,    INTENT( INOUT ) :: OZONE      ! total column ozone [DU]
          END SUBROUTINE O3TOTCOL
-         SUBROUTINE GET_ENVLIST ( ENV_VAR, NVARS, VAL_LIST )
-            CHARACTER( * ),  INTENT ( IN )  :: ENV_VAR
-            INTEGER,         INTENT ( OUT ) :: NVARS
-            CHARACTER( 16 ), INTENT ( OUT ) :: VAL_LIST( : )
-         END SUBROUTINE GET_ENVLIST
       END INTERFACE
 
 ! ----------------------------------------------------------------------
