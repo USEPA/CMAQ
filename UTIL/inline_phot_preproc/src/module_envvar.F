@@ -270,9 +270,10 @@ C but also obtain the count on the number of itmes (=3).
            INTEGER,         INTENT ( OUT ) :: STATUS 
            
            INTEGER                          :: MAX_LEN 
+           INTEGER                          :: LEN_EVAL
            CHARACTER( 16 )                  :: PNAME = 'GET_ENVLIST'
            CHARACTER(  1 )                  :: CHR
-           CHARACTER( 96 )                  :: XMSG
+           CHARACTER( 132)                  :: XMSG
 
            CHARACTER( MAX_LEN_WORD*SIZE( VAL_LIST ) ) :: E_VAL
            
@@ -281,7 +282,6 @@ C but also obtain the count on the number of itmes (=3).
            INTEGER :: IP, V
            
            MAX_LEN = MAX_LEN_WORD * ( SIZE( VAL_LIST ) + 1 ) ! multiple by 17 to allow deliminator
-           
 C                    env_var_name
 C                         |   env_var_value
 C                         |        |
@@ -307,7 +307,7 @@ C                                                |             |
               STOP
            END IF
            
-           IF ( ENV_VAR .EQ. " " ) THEN
+           IF ( E_VAL .EQ. " " ) THEN
               STATUS = 1
               XMSG = 'Environment variable ' // ENV_VAR // ' not set'
               WRITE(LOGDEV,'(A,I8)')TRIM( XMSG ), SIZE( VAL_LIST )
@@ -323,21 +323,29 @@ C Parse:
 C don't count until 1st char in string
            
            IP = 0
-           
+           LEN_EVAL = LEN_TRIM( E_VAL ) 
+           IF ( LEN_EVAL .GT. MAX_LEN ) THEN
+              XMSG = TRIM( PNAME ) // ': The Environment variable, '
+     &            // TRIM( ENV_VAR ) // ',  has too long, greater than ' 
+              WRITE(LOGDEV,'(A,I8)')TRIM( XMSG ), MAX_LEN
+              STOP
+           END IF
 101        LOOP_101: DO  ! read list
               IP = IP + 1
-              IF ( IP .GT. MAX_LEN ) EXIT LOOP_101
+              IF ( IP .GT. LEN_EVAL ) EXIT LOOP_101
               CHR = E_VAL( IP:IP )
               IF ( CHR .EQ. ' ' .OR. ICHAR ( CHR ) .EQ. 09 ) CYCLE LOOP_101
+              IF( NVARS .GT. SIZE( VAL_LIST ) )THEN
+                 XMSG = TRIM( PNAME ) // ':ERROR: Number of values in List, ' 
+     &                //  TRIM( ENV_VAR ) 
+     &                // ', greater than the size of its storage array, '
+                      WRITE(LOGDEV,'(A,I4)')TRIM( XMSG ), SIZE( VAL_LIST )
+                 STOP           
+              END IF
               JP( NVARS ) = IP   ! 1st char           
 201           LOOP_201: DO ! read word
                  IP = IP + 1
-                 IF ( IP .GT. MAX_LEN ) THEN
-                    XMSG = TRIM( PNAME ) // ': The Environment variable, '
-     &                   // TRIM( ENV_VAR ) // ',  has too long, greater than ' 
-                    WRITE(LOGDEV,'(A,I8)')TRIM( XMSG ), MAX_LEN
-                    STOP
-                 END IF
+                 IF ( IP .GT. LEN_EVAL ) EXIT LOOP_101
                  CHR = E_VAL( IP:IP )
                  IF ( CHR .NE. ' ' .AND.
      &                CHR .NE. ',' .AND.
@@ -349,9 +357,9 @@ C don't count until 1st char in string
                     KP( NVARS ) = IP - 1 
                     IF( V .GT. MAX_LEN_WORD )THEN
                       XMSG =  'The word, ' // E_VAL( JP(NVARS):KP(NVARS) ) 
-     &                     // ', in Environment variable, ' // TRIM( ENV_VAR )
-     &                     // ', has too many characters greater than '
-                      WRITE(LOGDEV,'(A,I8)')TRIM( XMSG ), MAX_LEN_WORD
+     &                     // ', in environment list, ' // TRIM( ENV_VAR )
+     &                     // ', is too long, greater than '
+                      WRITE(LOGDEV,'(A,I2)')TRIM( XMSG ), MAX_LEN_WORD
                       STOP
                     END IF
                     NVARS = NVARS + 1

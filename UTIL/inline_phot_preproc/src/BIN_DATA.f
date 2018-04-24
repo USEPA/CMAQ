@@ -211,7 +211,6 @@
 
           WRITE(6,'(I4,2X,F7.2,2X,F7.2)')(I,WBIN_NEW(I),WBIN_NEW(I+1),I=1,NB_NEW)
 
-!          pause
 
           ALLOCATE(W(NSO), F(NSO))
 
@@ -243,13 +242,6 @@
          WU( NSO ) = REAL( W(NSO) + 0.5D0*( W(NSO)-W(NSO-1) ) )
          WL( NSO ) = REAL(0.5*(W( NSO ) + W(NSO-1)))
 
-!         DO I = 1, NSO
-!            if(i .eq. 1 .or. i .eq. NSO)then
-!             print*,i,WL( I ),Wc( I ),Wu( I )
-!             pause
-!            endif
-!            if(i .eq. 1 .or. i .eq. NSO)pause
-!         ENDDO
 
 !         DO I = 1, NSO
 !            WC( I ) = REAL(W( I ))
@@ -362,7 +354,6 @@
             WRITE(6,*)'Requested Number of Wavebands = ',N_INLINE_BAND
             WRITE(6,*)'Total number of bands = ',NJO_NEW
          END IF
-         PAUSE
       
          ALLOCATE( FFBIN(     NJO_NEW ) )
          ALLOCATE( FFBIN_AVE( NJO_NEW ) )
@@ -437,7 +428,6 @@
           WRITE(6,'(i3,3(2x,f6.2),2x,i3)')i,STWL_NEW(J),MIDWL_NEW( J ),
      &                                      ENDWL_NEW(J),NEWX_BIN(I)
        enddo
-!       pause
 
        IJX_CALC = 0
   
@@ -465,7 +455,6 @@
         WRITE(6,'(i5,2x,i5,2x,F6.2,2x,F6.2)') 
      &       (I,IJX_BIN_NEW(I),WBIN_NEW(I),WBIN_NEW(I+1),I=16,NB_NEW)
 
-!        pause
 
 
 
@@ -580,7 +569,6 @@ c--- find flux-weighted effective wavelength over the bins
         enddo
 
         print*,' completed INIT_BIN_DATA '
-!        pause
  
            
            RETURN
