@@ -82,7 +82,6 @@ C...........   LOCAL VARIABLES
       INTEGER      IERROR       ! Error from MPI_ABORT routine.
       LOGICAL      OFLAG        ! Flag for indicating file open.
       CHARACTER*24 DTBUF        ! Scratch area for date string.
-      CHARACTER*3  CMYPE        ! Processor ID string.
       CHARACTER*7  PE_STR       ! String suffix to go with processor ID.
       CHARACTER*16 CALL16       ! First 16 characters of CALLER.
       CHARACTER*26 PCALLER      ! New caller string with PE information.
@@ -93,7 +92,6 @@ C   begin subroutine PM3ERR
 
 C.......  Construct new CALLER string.
       WRITE (PE_STR,'(A7)') ' on PE '
-      WRITE(CMYPE,'(I3.3)') MY_PE
 
 
 C.......  Construct new CALLER string.

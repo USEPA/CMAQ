@@ -36,9 +36,10 @@
 
       INTEGER :: OUTDEV = 6   ! File Unit for Standard Output
       INTEGER :: LOGDEV = -1  ! File Unit for Ascii Log File
-      INTEGER :: MYPE   = -1  ! Processor Number
       INTEGER :: TOTPE  = 1   ! Number of Total Processors
       INTEGER :: NPROCS = 1   ! Number of Total Processors
+      INTEGER :: MYPE   = -1  ! Processor Number
+      CHARACTER( 3 ) :: CMYPE  = ""  ! Processor Number
 
       !-----------------------------------------------------------------------------------
       !>> Parameters for formatting output log files
@@ -938,6 +939,7 @@
 !  Applies standard error checking
 !.........................................................................
       USE UTILIO_DEFN
+      USE GET_ENV_MODULE
       IMPLICIT NONE
 
       LOGICAL, INTENT( IN )        :: VARDEF
@@ -947,18 +949,14 @@
 
       INTEGER          :: STATUS
       CHARACTER( 250 ) :: XMSG
-      INTEGER, PARAMETER :: EXIT_STATUS = 1
 
-      VARVAL = ENVYN( VAR_LABEL, VARDESC, VARDEF, STATUS )
+      CALL GET_ENV( VARVAL, VAR_LABEL, VARDEF, STATUS )
       IF ( STATUS .NE. 0 ) CALL LOG_MESSAGE( LOGDEV, VARDESC )
-      IF ( STATUS .EQ. 1 ) THEN
+      IF ( STATUS .EQ. -2 ) THEN
            XMSG = 'Environment variable improperly formatted'
-           CALL M3EXIT( 'GET_ENVYN', 0, 0, XMSG, EXIT_STATUS )
+           CALL M3EXIT( 'GET_ENVYN', 0, 0, XMSG, STATUS )
       ELSE IF ( STATUS .EQ. -1 ) THEN
-           XMSG = 'Environment variable set, but empty ... Using default:'
-           CALL LOG_MESSAGE( LOGDEV, XMSG )
-      ELSE IF ( STATUS .EQ. -2 ) THEN
-           XMSG = 'Environment variable not set ... Using default:'
+           XMSG = 'Environment variable not set or empty ... Using default:'
            CALL LOG_MESSAGE( LOGDEV, XMSG )
       END IF
 
@@ -974,6 +972,7 @@
 !  Applies standard error checking
 !.........................................................................
       USE UTILIO_DEFN
+      USE GET_ENV_MODULE
       IMPLICIT NONE
 
       INTEGER, INTENT( IN )        :: VARDEF
@@ -983,18 +982,14 @@
 
       INTEGER          :: STATUS
       CHARACTER( 250 ) :: XMSG
-      INTEGER, PARAMETER :: EXIT_STATUS = 1
 
-      VARVAL = ENVINT( VAR_LABEL, VARDESC, VARDEF, STATUS )
+      CALL GET_ENV( VARVAL, VAR_LABEL, VARDEF, STATUS )
       IF ( STATUS .NE. 0 ) CALL LOG_MESSAGE( LOGDEV, VARDESC )
-      IF ( STATUS .EQ. 1 ) THEN
+      IF ( STATUS .EQ. -2 ) THEN
            XMSG = 'Environment variable improperly formatted'
-           CALL M3EXIT( 'GET_ENVINT', 0, 0, XMSG, EXIT_STATUS )
+           CALL M3EXIT( 'GET_ENVYN', 0, 0, XMSG, STATUS )
       ELSE IF ( STATUS .EQ. -1 ) THEN
-           XMSG = 'Environment variable set, but empty ... Using default:'
-           CALL LOG_MESSAGE( LOGDEV, XMSG )
-      ELSE IF ( STATUS .EQ. -2 ) THEN
-           XMSG = 'Environment variable not set ... Using default:'
+           XMSG = 'Environment variable not set or empty ... Using default:'
            CALL LOG_MESSAGE( LOGDEV, XMSG )
       END IF
  
@@ -1010,6 +1005,7 @@
 !  Applies standard error checking
 !.........................................................................
       USE UTILIO_DEFN
+      USE GET_ENV_MODULE
       IMPLICIT NONE
 
       REAL, INTENT( IN )           :: VARDEF
@@ -1019,18 +1015,14 @@
 
       INTEGER          :: STATUS
       CHARACTER( 250 ) :: XMSG
-      INTEGER, PARAMETER :: EXIT_STATUS = 1
 
-      VARVAL = ENVREAL( VAR_LABEL, VARDESC, VARDEF, STATUS )
+      CALL GET_ENV( VARVAL, VAR_LABEL, VARDEF, STATUS )
       IF ( STATUS .NE. 0 ) CALL LOG_MESSAGE( LOGDEV, VARDESC )
-      IF ( STATUS .EQ. 1 ) THEN
+      IF ( STATUS .EQ. -2 ) THEN
            XMSG = 'Environment variable improperly formatted'
-           CALL M3EXIT( 'GET_ENVREAL', 0, 0, XMSG, EXIT_STATUS )
+           CALL M3EXIT( 'GET_ENVYN', 0, 0, XMSG, STATUS )
       ELSE IF ( STATUS .EQ. -1 ) THEN
-           XMSG = 'Environment variable set, but empty ... Using default:'
-           CALL LOG_MESSAGE( LOGDEV, XMSG )
-      ELSE IF ( STATUS .EQ. -2 ) THEN
-           XMSG = 'Environment variable not set ... Using default:'
+           XMSG = 'Environment variable not set or empty ... Using default:'
            CALL LOG_MESSAGE( LOGDEV, XMSG )
       END IF
  
@@ -1046,6 +1038,7 @@
 !  Applies standard error checking
 !.........................................................................
       USE UTILIO_DEFN
+      USE GET_ENV_MODULE
       IMPLICIT NONE
 
       CHARACTER( * ), INTENT( IN ) :: VARDEF
@@ -1055,19 +1048,15 @@
 
       INTEGER          :: STATUS
       CHARACTER( 300 ) :: XMSG
-      INTEGER, PARAMETER :: EXIT_STATUS = 1
       CHARACTER( 40 )    :: FMT
 
-      CALL ENVSTR( VAR_LABEL, VARDESC, VARDEF, VARVAL, STATUS )
+      CALL GET_ENV( VARVAL, VAR_LABEL, VARDEF, STATUS )
       IF ( STATUS .NE. 0 ) CALL LOG_MESSAGE( LOGDEV, VARDESC )
-      IF ( STATUS .EQ. 1 ) THEN
+      IF ( STATUS .EQ. -2 ) THEN
            XMSG = 'Environment variable improperly formatted'
-           CALL M3EXIT( 'GET_ENVSTR', 0, 0, XMSG, EXIT_STATUS )
+           CALL M3EXIT( 'GET_ENVYN', 0, 0, XMSG, STATUS )
       ELSE IF ( STATUS .EQ. -1 ) THEN
-           XMSG = 'Environment variable set, but empty ... Using default:'
-           CALL LOG_MESSAGE( LOGDEV, XMSG )
-      ELSE IF ( STATUS .EQ. -2 ) THEN
-           XMSG = 'Environment variable not set ... Using default:'
+           XMSG = 'Environment variable not set or empty ... Using default:'
            CALL LOG_MESSAGE( LOGDEV, XMSG )
       END IF
  
@@ -1198,7 +1187,7 @@
       END SUBROUTINE LOG_MESSAGE
 
 !.........................................................................
-      SUBROUTINE TIMING_SPLIT( CPU_TIME_START, CTYP, CPROCIN )
+      SUBROUTINE TIMING_SPLIT( CPU_TIME_START, IMSG, CPROCIN )
 
 !  This subroutine provides a split for the MPI timing functions and
 !  then prints out a message for how much time has passed using a
@@ -1207,26 +1196,29 @@
  
       IMPLICIT NONE
 
+      INCLUDE 'mpif.h'
+
       REAL( 8 )        :: CPU_TIME_START
       REAL( 8 )        :: CPU_TIME_FINISH
-      CHARACTER( 16 )  :: CTYP   ! What kind of checkpoint this is
+      INTEGER          :: IMSG   ! What kind of checkpoint this is
                                  !  1 = 'PROCESS'
                                  !  2 = 'MASTER TIME STEP'
                                  !  3 = 'OUTPUT'
-      CHARACTER( 250 ), INTENT(IN), OPTIONAL :: CPROCIN
-      CHARACTER( 250 ) :: CPROC
+      CHARACTER( * ), INTENT(IN), OPTIONAL :: CPROCIN
+      CHARACTER( len=: ), ALLOCATABLE :: CPROC
+      CHARACTER( 250 ) :: XMSG
 
       IF ( PRESENT( CPROCIN ) ) THEN
          CPROC = CPROCIN
       ELSE
-         CPROC = ''
+         CPROC = ' '
       END IF
  
       ! Record Time at this Checkpoint
       CPU_TIME_FINISH = MPI_WTIME()
 
       ! Assemble the statement requested by the calling program
-      SELECT CASE IMSG
+      SELECT CASE ( IMSG )
       CASE ( 1 )
           ! Write Out The Time to Complete Each Sub-Process
           WRITE( XMSG, 1002 ),TRIM( CPROC ), CPU_TIME_FINISH-CPU_TIME_START
@@ -1243,6 +1235,7 @@
           ! Write out the time to complete the output procedure
           WRITE( XMSG, '(A,F4.1,A)' ), 'Completed Writing Results to Output Files...',
      &                     (CPU_TIME_FINISH-CPU_TIME_START),' seconds'
+          IF ( MYPE .EQ. 0 ) WRITE( OUTDEV, * )
  
       END SELECT 
 
