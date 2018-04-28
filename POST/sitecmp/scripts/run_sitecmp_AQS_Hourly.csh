@@ -62,7 +62,7 @@
  setenv GAS_5 "NOX,ppb,NO+NO2,ppb,NOX"           
  setenv GAS_6 "CO,ppb,CO,ppb,CO"                 
  setenv GAS_7 "SO2,ppb,SO2,ppb,SO2"              
- setenv GAS_8 "PM25,ug/m3,PMIJ,ug/m3,PM_TOT"     
+ setenv GAS_8 "PM25,ug/m3,ATOTIJ,ug/m3,PM_TOT"     
  setenv GAS_9 "PM25,ug/m3,PMIJ_FRM,ug/m3,PM_FRM" 
  setenv GAS_10 "PM10,ug/m3,PM10,ug/m3,PM10"       
  setenv GAS_11 "Isoprene,ppb,ISOP,ppb,Isoprene"  

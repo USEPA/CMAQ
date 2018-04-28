@@ -24,78 +24,110 @@ C $Header: /project/work/rep/TOOLS/src/combine/utils.F,v 1.1.1.1 2005/07/27 12:5
 C***********************************************************************
 C  Returns the nth field of record
 C***********************************************************************
-      Subroutine getFld( record, delimiter, nth, del, field )
+      Subroutine getFld( record, delimiter, nth, del, field, exception )
 
       IMPLICIT NONE
 
-      CHARACTER*(*) record
-      CHARACTER*(*) delimiter
-      CHARACTER del
-      Integer nth
-      CHARACTER*(*) field
+      CHARACTER*(*), Intent( In  ) :: record
+      CHARACTER*(*), Intent( In  ) :: delimiter
+      CHARACTER,     Intent( Out ) :: del
+      Integer,       Intent( In  ) :: nth
+      CHARACTER*(*), Intent( Out ) :: field
+      CHARACTER*(*), Optional, Intent( In ) :: exception
 
       Integer nfields
-      Integer i, pos1
-  
+      Integer i, j, pos1
+      Integer nrec, nskip
+
       pos1 = 1
       nfields = 0
       del = delimiter(1:1)
       field = ''
-      Do i=1, LEN(record)
-       if( index( delimiter,record(i:i) ) .gt. 0 ) then
+      nrec  = LEN(record)
+
+      If( Present( exception ) )Then
+          nskip = Len_Trim( exception )
+      Else
+          nskip = 0
+      End If
+
+      Loop_record: Do i=1, nrec
+       If( index( delimiter,record(i:i) ) .gt. 0 )Then
+         If( i .gt. 1 .And. nskip .Gt. 0 )Then
+           Do j = 1, nskip
+             If(record(i-1:i-1) .Eq. exception(j:j))Cycle Loop_record
+           End Do
+         End If
          nfields = nfields+1 
-         if( nfields .eq. nth ) then
-           if(pos1.le.i) field = record(pos1:i-1)
+         If( nfields .eq. nth )Then
+           If(pos1.le.i) field = record(pos1:i-1)
            call LeftTrim(field)
            call RightTrim(field)
            return
-           Endif
+         End If
          del = record(i:i)
          pos1 = i+1
-         Endif
-       Enddo
+       End If
+      End Do Loop_record
 
       nfields = nfields+1 
 
-      ! check if last field
-      if( nfields .eq. nth ) then
+      ! check If last field
+      If( nfields .eq. nth ) Then
         field = record(pos1:)
-        Endif
+      End If
 
       Call LeftTrim(field)
       Call RightTrim(field)
       Return
-      End
+      End Subroutine getFld
         
 
  
 C***********************************************************************
 C  Returns the number of parsed fields in record
 C***********************************************************************
-      INTEGER FUNCTION getFldCount(record, delimiter)
+      INTEGER FUNCTION getFldCount(record, delimiter, exception)
      &    result(nfields)
 
       IMPLICIT NONE
   
-      CHARACTER*(*) record
-      CHARACTER*(*) delimiter
+      CHARACTER*(*), Intent( In ) :: record
+      CHARACTER*(*), Intent( In ) :: delimiter
+      CHARACTER*(*), Optional, Intent( In ) :: exception
 
-      Integer i
+      Integer i, j
+      Integer nskip, nrec
       Logical isDel
 
       nfields = 0
-      if( LEN_TRIM(record).gt.0 ) nfields = 1
 
-      Do i=1,LEN(record)
+      If( Present( exception ) )Then
+          nskip = Len_Trim( exception )
+      Else
+          nskip = 0
+      End If
+
+      nrec = LEN_TRIM(record)
+      If( nrec.gt.0 ) nfields = 1
+
+      Loop_record: Do i=1,nrec
         isDel = ( index(delimiter, record(i:i)) .gt. 0 ) 
-        if( isDel ) then
+        If( isDel ) Then
+          If( i .gt. 1 .And. nskip .Gt. 0 )Then
+            Do j = 1, nskip
+             If( record(i-1:i-1) .Eq. exception(j:j))Then
+               Cycle Loop_record 
+             End If          
+            End Do
+          End If
           nfields = nfields+1
           cycle
-          endif
-        enddo
+        End If
+      End Do Loop_record
 
       Return
-      end
+      End FUNCTION getFldCount
 
 C***********************************************************************
 C  routine to remove leading blank spaces from Character String
@@ -104,11 +136,11 @@ C***********************************************************************
 
       IMPLICIT NONE
 
-      CHARACTER*(*) STRING
+      CHARACTER*(*), INTENT( INOUT ) :: STRING
       Integer I
 
       Do I=1,LEN(STRING)
-        if(STRING(I:I) .ne. CHAR(32)) Then
+        If(STRING(I:I) .ne. CHAR(32)) Then
           STRING = STRING(I:)
           RETURN
           EndIf 
@@ -125,12 +157,12 @@ C***********************************************************************
  
       IMPLICIT NONE
  
-      CHARACTER*(*) STRING
+      CHARACTER*(*), INTENT( INOUT ) :: STRING
       Integer I
  
       Do I=LEN(STRING),1,-1
-        if(STRING(I:I) .lt. CHAR(32)) STRING(I:I) = CHAR(32)
-        if(STRING(I:I) .gt. CHAR(32)) Exit
+        If(STRING(I:I) .lt. CHAR(32)) STRING(I:I) = CHAR(32)
+        If(STRING(I:I) .gt. CHAR(32)) Exit
         EndDo
 
       Return
@@ -144,7 +176,7 @@ C***********************************************************************
 
       IMPLICIT NONE
 
-      CHARACTER STR*( * )
+      CHARACTER, INTENT( INOUT ) :: STR*( * )
       INTEGER I
       INTEGER K
 
@@ -157,7 +189,6 @@ C***********************************************************************
       RETURN
       END SUBROUTINE UCASE
 
-
 C****************************************************************************
 C  routine to replace characters within []
 C****************************************************************************
@@ -166,33 +197,58 @@ C****************************************************************************
       Implicit none
 
       ! arguments
-      Character*(*) string
-      Character*(1) old    
-      Character*(1) new    
+      Character*(*), Intent( InOut ) :: string
+      Character*(1), Intent( In    ) :: old    
+      Character*(1), Intent( In    ) :: new    
 
       ! local variables
       Integer last, i
       Logical infield
 
-      ! if no bracket marks, return
-      if( index(string, '[').le.0 ) return
+      ! If no bracket marks, return
+      If( index(string, '[').le.0 ) return
 
       call LeftTrim(string)
       last = LEN_TRIM(string)
 
       ! check for blank string
-      if( last.le.0 ) return
+      If( last.le.0 ) return
 
       infield = .false.
 
-      do i=1,last
-        if( string(i:i).eq.'[' ) infield = .true.
-        if( string(i:i).eq.']' ) infield = .false.
+      Do i=1,last
+        If( string(i:i).eq.'[' ) infield = .true.
+        If( string(i:i).eq.']' ) infield = .false.
 
-        if( infield .and. string(i:i).eq.old) string(i:i) = new
+        If( infield .and. string(i:i).eq.old) string(i:i) = new
 
-        enddo
+        End Do
 
       Return
       End Subroutine replace 
+      SUBROUTINE Remove_WhiteSpaces (text)
+         Implicit None
 
+         CHARACTER*(*), Intent( InOut ) :: text
+         CHARACTER(Len(text))        :: outs     ! provide outs with extra 100 char len
+         INTEGER                     :: i, nt
+
+         nt   = LEN_TRIM(text)
+         If( text(1:1) .Eq. ' ' )Then
+             outs = text(2:nt)
+             nt = nt-1
+         Else
+             outs = text(1:nt)
+         End If
+         i = 2
+         DO 
+            nt = LEN_TRIM(outs)
+            IF (i .Eq. nt ) EXIT
+            IF( outs(i:i) .Eq. ' ' )THEN
+               outs = outs(1:i-1) // outs(i+1:nt)
+            ELSE
+               i = i + 1
+            END IF
+         END DO
+         text = outs
+      END SUBROUTINE Remove_WhiteSpaces
