@@ -29,7 +29,7 @@
 !   1  Feb 2017 D. Kang Added CTM_LTNGDIAG_1 and CTM_LTNGDIAG_2 for Lightning
 !.......................................................................
 
-      INTEGER, PARAMETER :: N_FILES = 75
+      INTEGER, PARAMETER :: N_FILES = 76
 
       CHARACTER( 16 ) :: LGCL_NAME( N_FILES ) 
       LOGICAL            IN_MODE( N_FILES )
