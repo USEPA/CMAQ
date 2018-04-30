@@ -663,6 +663,7 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
      &                    +   (CLOUD_AGGREG_ASY( II,IWL ) * CLOUD_AGGREG_SCAT( II,IWL )) )
      &                    *   BLKDZ( II ) * LAYERING_FACTOR
 
+
 #ifdef phot_debug
                   IF ( .NOT. ONLY_SOLVE_RAD ) THEN
                      AVE_ASYMM_CLD( IWL ) = AVE_ASYMM_CLD( IWL ) + G_CLOUD
@@ -704,7 +705,7 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
                G_CLOUD      = 0.0
                OM_CLOUD     = 1.0
             END IF
-             
+
 !***calculate total absorption and scattering contributions
 !***to optical depth
 
@@ -821,7 +822,6 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
          EDN  = 0.0
 
 !***calculate fluxes and irradiances
-
          CALL TWOSTREAM_S ( NLEVEL, COSZEN, ALB( IWL ), DTAU, OM, G, DSDH_TD,
      &                      FDIR, FUP, FDN, EDIR, EUP, EDN )
 
@@ -1502,7 +1502,8 @@ C-----------------------------------------------------------------------
       REAL( 8 ) :: F, G, OM
       REAL( 8 ) :: GAM1, GAM2, GAM3, GAM4
 
-      REAL( 8 ) :: EXPON, EXPON0, EXPON1, DIVISR, TEMP, UP, DN
+      REAL( 8 ) :: EXPON0, EXPON1
+      REAL( 8 ) :: EXPON, DIVISR, TEMP, UP, DN
       REAL( 8 ) :: SSFC
 
       REAL( 8 ) :: MU1  ! reciprocal of constant from delta_Eddington method
@@ -1520,6 +1521,9 @@ C-----------------------------------------------------------------------
       REAL( 8 ), PARAMETER :: SQRTLRGSTM1 = 1.0D-18 ! 1/sqrt(largest)
       REAL( 8 ), PARAMETER :: EPS         = 1.0D-03
       REAL( 8 ), PARAMETER :: PRECIS      = ( 1.0D0 - 1.0D-07 )
+
+      REAL( 8 ), PARAMETER :: LOG_DBLE_SMALLEST = -709.090848126508D0
+      REAL( 8 ), PARAMETER :: LOG_DBLE_LARGEST  =  709.090848126508D0
 
 C-----------------------------------------------------------------------
 
@@ -1541,6 +1545,8 @@ C-----------------------------------------------------------------------
 !***start diagnostic prinout
 
       DO I = 1, NLAYER
+      
+!         print*,'ACM TWSTREAM GU, F = ', F, GU(I)
          F = REAL( GU(I) * GU(I), 8 )
          GI  (I) = ( REAL( GU(I), 8 ) - F ) / ( 1.0D0 - F )
          OMI (I) = ( 1.0D0 - F ) * REAL( OMU(I), 8 ) 
@@ -1598,7 +1604,6 @@ C-----------------------------------------------------------------------
 
          G = GI(I)
          OM = OMI(I)
-
 !***stay away from 1 by precision.  For g, also stay away from -1
 
 !        TEMPG = MIN( ABS( G ), 1.0D0 - PRECIS )
@@ -1638,7 +1643,7 @@ C-----------------------------------------------------------------------
             BGAM(I) = ( GAM1 - LAM(I) ) / GAM2
          END IF
 
-         EXPON = EXP( -LAM(I) * TAUN(I) )
+         EXPON = EXP( MAX( LOG_DBLE_SMALLEST, -LAM(I) * TAUN(I) ) ) 
 
 !***e1 - e4 = pg 16,292 equation 44
 
@@ -1653,21 +1658,21 @@ C-----------------------------------------------------------------------
 !***  shift 1/MU^2 by  EPS = 1.E-3
 !***  which is approx equiv to shifting MU by 0.5*EPS* (MU)**3
 
-         EXPON0 = EXP( -TAUSLA(I-1) )
-         EXPON1 = EXP( -TAUSLA(I) )
-
          DIVISR = LAM(I) * LAM(I) - MU2(I) * MU2(I)
          TEMP = MAX( EPS, ABS( DIVISR ) )
          DIVISR = SIGN( TEMP , DIVISR )
-
          UP = OM * PIFS *
      &        ( ( GAM1 - MU2(I) ) * GAM3 + GAM4 * GAM2 ) / DIVISR
+
 
          DN = OM * PIFS *
      &        ( ( GAM1 + MU2(I) ) * GAM4 + GAM2 * GAM3 ) / DIVISR
 
 !***cup and cdn are when tau is equal to zero
 !***cuptn and cdntn are when tau is equal to taun
+
+         EXPON0 = EXP( MAX( LOG_DBLE_SMALLEST, -TAUSLA(I-1) ) )
+         EXPON1 = EXP( MAX( LOG_DBLE_SMALLEST, -TAUSLA(I) ) )
 
          CUP(I)   = UP * EXPON0
          CDN(I)   = DN * EXPON0
@@ -1678,8 +1683,8 @@ C-----------------------------------------------------------------------
 
 !***set up matrix
 !*** ssfc = pg 16,292 equation 37  where pi Fs is one (unity).
-
-      SSFC = REAL( RSFC * MU, 8 ) * EXP( -TAUSLA( NLAYER ) ) * PIFS
+      SSFC   = REAL( RSFC * MU, 8 ) * PIFS
+     &       * EXP( MAX( LOG_DBLE_SMALLEST, -TAUSLA( NLAYER ) ) ) 
 
 !***MROWS = the number of rows in the matrix
 
@@ -1731,7 +1736,6 @@ C-----------------------------------------------------------------------
       E(ROW) = SSFC - CUPTN(I) + F * CDNTN(I)
 
 !***solve tri-diagonal matrix:
-
       CALL TRIDIAGONAL ( A, B, D, E, Y, MROWS )
 
 !*** unfold solution of matrix, compute output fluxes:
@@ -1750,7 +1754,8 @@ C-----------------------------------------------------------------------
       FUP(LEV) = EUP(LEV) * REAL( MU1 )
 
       DO 60, LEV = 2, NLAYER + 1
-         FDR(LEV) = REAL( EXP( -TAUSLA(LEV-1) ) )
+         FDR(LEV) = REAL( EXP( MAX( LOG_DBLE_SMALLEST, -TAUSLA(LEV-1) )  ) )
+!         FDR(LEV) = REAL( EXPONS(LEV-1) ) ! REAL( EXP( MAX( LOG_DBLE_SMALLEST, -TAUSLA(LEV-1) )  ) )
          EDR(LEV) = MU * FDR(LEV)
          EDN(LEV) = REAL( Y(ROW) * E3(J) + Y(ROW + 1) * E4(J) + CDNTN(J) )
          EUP(LEV) = REAL( Y(ROW) * E1(J) + Y(ROW + 1) * E2(J) + CUPTN(J) )
@@ -1777,7 +1782,6 @@ C-----------------------------------------------------------------------
       RETURN
       END SUBROUTINE TWOSTREAM_S
 
-C///////////////////////////////////////////////////////////////////////
 
       SUBROUTINE TRIDIAGONAL ( A, B, D, E, Y, N )
 C-----------------------------------------------------------------------
