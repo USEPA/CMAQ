@@ -91,6 +91,13 @@ MODULE xvars
 !                        fraction to output.  (T. Spero)
 !           21 Aug 2015  Changed latent heat flux from QFX to LH.  Added
 !                        moisture flux (QFX) for IFMOLACM.  (T. Spero)
+!           16 Mar 2018  Added SNOWH to output.  Added XMUHYB to support hybrid
+!                        vertical coordinate in WRF output.  Added XLUFRAC2,
+!                        XMOSCATIDX, XLAI_MOS, XRA_MOS, XRS_MOS, XTSK_MOS, and
+!                        XZNT_MOS to support NOAH Mosaic land-surface model.
+!                        Added XZSOIL to define depths of soil layers, and
+!                        added 3D soil arrays, XSOIT3D and XSOIM3D.  Added
+!                        XWSPDSFC and XXLAIDYN for Noah.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   IMPLICIT NONE
@@ -105,6 +112,8 @@ MODULE xvars
   REAL, ALLOCATABLE :: xx3face ( : )     ! layer face of X-array data
   REAL, ALLOCATABLE :: xx3midl ( : )     ! layer middle of X-array data
   REAL, ALLOCATABLE :: xdx3    ( : )     ! layer thickness (positive always)
+
+  REAL, ALLOCATABLE :: xzsoil  ( : )     ! soil layer depths
 
   CHARACTER(LEN=80), ALLOCATABLE :: xludesc ( : )  ! land-use category
 
@@ -169,6 +178,8 @@ MODULE xvars
   REAL, ALLOCATABLE :: xwbar   ( : , : )  ! avg liq water content of cld [g/m3]
   REAL, ALLOCATABLE :: xsnocov ( : , : )  ! snow cover [1=yes, 0=no]
   REAL, ALLOCATABLE :: xseaice ( : , : )  ! sea ice [1=yes, 0=no; or fractional]
+  REAL, ALLOCATABLE :: xsnowh  ( : , : )  ! snow height [m]
+  REAL, ALLOCATABLE :: xmuhyb  ( : , : )  ! dry mu in hybrid coordinate
 
   REAL, ALLOCATABLE :: xu10    ( : , : )  ! 10-m u-component wind at crs [m/s]
   REAL, ALLOCATABLE :: xv10    ( : , : )  ! 10-m v-component wind at crs [m/s]
@@ -217,6 +228,28 @@ MODULE xvars
   REAL, ALLOCATABLE :: xvv_d   ( : , : , : )  ! v comp. wind on dot pts [m/s]
   REAL, ALLOCATABLE :: xuu_s   ( : , : , : )  ! u comp. wind on flux pts [m/s]
   REAL, ALLOCATABLE :: xvv_t   ( : , : , : )  ! v comp. wind on flux pts [m/s]
+
+!-------------------------------------------------------------------------------
+! Cross-Point Soil arrays.
+!-------------------------------------------------------------------------------
+
+  REAL, ALLOCATABLE :: xsoit3d ( : , : , : )  ! soil temperature [K]
+  REAL, ALLOCATABLE :: xsoim3d ( : , : , : )  ! soil moisture [m^3/m^3]
+
+!-------------------------------------------------------------------------------
+! Cross-Point Mosaic arrays.
+!-------------------------------------------------------------------------------
+
+  REAL, ALLOCATABLE :: xlufrac2   ( : , : , : )  ! LU fraction (rank ordered)
+  REAL, ALLOCATABLE :: xmoscatidx ( : , : , : )  ! LU category with XLUFRAC2
+  REAL, ALLOCATABLE :: xlai_mos   ( : , : , : )  ! LAI mosaic [area/area]
+  REAL, ALLOCATABLE :: xra_mos    ( : , : , : )  ! aero resist mosaic [s/m]
+  REAL, ALLOCATABLE :: xrs_mos    ( : , : , : )  ! stomatal resist mosaic [s/m]
+  REAL, ALLOCATABLE :: xtsk_mos   ( : , : , : )  ! skin temperature mosaic [K]
+  REAL, ALLOCATABLE :: xznt_mos   ( : , : , : )  ! roughness length mosaic [m]
+
+  REAL, ALLOCATABLE :: xwspdsfc   ( : , : )      ! wind spd within Noah [m/s]
+  REAL, ALLOCATABLE :: xxlaidyn   ( : , : )      ! Noah dynamic LAI [area/area]
 
 !-------------------------------------------------------------------------------
 ! Arrays for WRF only.

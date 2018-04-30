@@ -32,7 +32,7 @@ MODULE luvars
 !                        for 50-category 2001 NLCD-MODIS land use classification
 !                        as "NLCD50".  Changed LUCATNLCD to LUCATNLCD50 and
 !                        added new field LUCATNLCD40.  (T. Otte)
-!           21 Apr 2017  Updated MODIS category 21 to be "Lake".  (T. Spero)
+!           01 Feb 2018  Updated MODIS category 21 to be "Lake".  (T. Spero)
 !-------------------------------------------------------------------------------
 
   IMPLICIT NONE
@@ -129,7 +129,7 @@ MODULE luvars
        "Wooded Tundra                                   ", &  ! 18
        "Mixed Tundra                                    ", &  ! 19
        "Barren Tundra                                   ", &  ! 20
-       "~~~unassigned~~~                                ", &  ! 21
+       "Lake (if from WRFv3.8 or later)                 ", &  ! 21
        "~~~unassigned~~~                                ", &  ! 22
        "~~~unassigned~~~                                ", &  ! 23
        "~~~unassigned~~~                                ", &  ! 24
