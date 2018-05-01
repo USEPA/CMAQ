@@ -55,7 +55,7 @@ Run geogrid.exe to create a “geo_em.d01.nc” file containing re-gridded FPAR 
 
 Next create daily data from a monthly “geo_em.d01.nc” file. A sample ncl code (monthly_to_daily.ncl) is included in the CMAQ_v52/PREP/wbdust directory.
 
-Input: geo_em.d01.nc
+Input: geo_em.d01.nc  
 Output: MODIS_FPAR_LAI_daily.nc
 
 
