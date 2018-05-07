@@ -277,8 +277,8 @@ C but also obtain the count on the number of itmes (=3).
 
            CHARACTER( MAX_LEN_WORD*SIZE( VAL_LIST ) ) :: E_VAL
            
-           INTEGER :: JP( MAX_LEN_WORD*SIZE( VAL_LIST ) )
-           INTEGER :: KP( MAX_LEN_WORD*SIZE( VAL_LIST ) )
+           INTEGER :: JP( MAX_LEN_WORD*SIZE( VAL_LIST ) ) 
+           INTEGER :: KP( MAX_LEN_WORD*SIZE( VAL_LIST ) ) 
            INTEGER :: IP, V
            
            MAX_LEN = MAX_LEN_WORD * ( SIZE( VAL_LIST ) + 1 ) ! multiple by 17 to allow deliminator
@@ -318,11 +318,13 @@ C                                                |             |
 
 C Parse:
 
-           NVARS = 1
+           NVARS = 0
 
 C don't count until 1st char in string
            
            IP = 0
+           KP = 1
+           JP = 1
            LEN_EVAL = LEN_TRIM( E_VAL ) 
            IF ( LEN_EVAL .GT. MAX_LEN ) THEN
               XMSG = TRIM( PNAME ) // ': The Environment variable, '
@@ -342,10 +344,15 @@ C don't count until 1st char in string
                       WRITE(LOGDEV,'(A,I4)')TRIM( XMSG ), SIZE( VAL_LIST )
                  STOP           
               END IF
-              JP( NVARS ) = IP   ! 1st char           
+              NVARS = NVARS + 1
+              JP( NVARS ) = IP   ! 1st char
+              IF( IP .EQ. LEN_EVAL )THEN ! word one character long          
+                  KP( NVARS ) = IP
+                  V = 1
+                  EXIT LOOP_101
+              END IF     
 201           LOOP_201: DO ! read word
                  IP = IP + 1
-                 IF ( IP .GT. LEN_EVAL ) EXIT LOOP_101
                  CHR = E_VAL( IP:IP )
                  IF ( CHR .NE. ' ' .AND.
      &                CHR .NE. ',' .AND.
@@ -353,29 +360,28 @@ C don't count until 1st char in string
      &                ICHAR ( CHR ) .EQ. 09 ) THEN  ! 09 = horizontal tab
                     CYCLE LOOP_201
                  ELSE                               ! last char in word
-                    V = JP( NVARS ) - KP( NVARS ) + 1
                     KP( NVARS ) = IP - 1 
+                    V = JP( NVARS ) - IP
                     IF( V .GT. MAX_LEN_WORD )THEN
                       XMSG =  'The word, ' // E_VAL( JP(NVARS):KP(NVARS) ) 
      &                     // ', in environment list, ' // TRIM( ENV_VAR )
-     &                     // ', is too long, greater than '
-                      WRITE(LOGDEV,'(A,I2)')TRIM( XMSG ), MAX_LEN_WORD
-                      STOP
+     &                     // ', is too long, '
+                      WRITE(LOGDEV,'(A,1X,I2,A,I2)')TRIM( XMSG ), V, ' max allowed ',
+     &                MAX_LEN_WORD
+                      STOP                      
                     END IF
-                    NVARS = NVARS + 1
                     EXIT LOOP_201
                  END IF 
+                 IF ( IP .GE. LEN_EVAL ) EXIT LOOP_101
               END DO LOOP_201
            END DO LOOP_101
            
-           NVARS = NVARS - 1
            IF( NVARS .GT. SIZE( VAL_LIST ) )THEN
               XMSG = TRIM( PNAME ) // ':ERROR: Number of values in List, ' 
      &             //  TRIM( ENV_VAR ) // ', greater than '
               WRITE(LOGDEV,'(A,I4)')TRIM( XMSG ), SIZE( VAL_LIST )
               STOP           
            END IF
-           
            DO V = 1, NVARS
               VAL_LIST( V ) = E_VAL( JP( V ):KP( V ) )
            END DO

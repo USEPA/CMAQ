@@ -16,6 +16,7 @@ C
 C*********************************************************************
 
 
+      USE GET_ENV_VARS
       USE BIN_DATA
       USE CSQY_PARAMETERS
 
@@ -30,16 +31,16 @@ C...........LOCAL VARIABLES and their descriptions:
       
 
       CHARACTER(16)  :: PNAME = 'PROCESS_CSQYS'  ! program name
-      CHARACTER(16)  :: CQDIR = 'CSQY'             ! directory for CSQY data
 
       CHARACTER(16)  :: PHOTID              ! reaction id's
       CHARACTER(16)  :: SPECTRA_NAME        ! JVALUES name
       CHARACTER( 1)  :: SPECTRA_TYPE        ! cs/qy spectra type
       CHARACTER(25)  :: CSQY_LABEL
       
-      CHARACTER(255) :: EQNAME
-      CHARACTER( 80) :: CQFILE              ! input filename buffer
-      CHARACTER( 80) :: MSG    = '   '      ! message
+      CHARACTER(255) :: EQNAME                          ! name of environment varaible
+      CHARACTER(586) :: CSQY_DATA_RAW = 'CSQY_DATA_RAW' ! directory for CSQY data
+      CHARACTER(600) :: CQFILE                          ! input filename buffer
+      CHARACTER(132) :: MSG    = '   '                  ! message
       CHARACTER(120) :: FILE_LINE
 
       LOGICAL, SAVE      :: WRITE_AE_REFRACT = .FALSE. ! .FALSE.
@@ -127,13 +128,13 @@ C...open input file
 
         CQFILE       = PHOTAB( IPHOT )
         LASTNB1      = LEN_TRIM( CQFILE )
-!        SPECTRA_NAME = CQFILE( 1:LASTNB1 )
         SPECTRA_NAME = TRIM( CQFILE )
 
         EQNAME  = 'CSQY_DATA_RAW'
         LASTNB2 = LEN_TRIM( EQNAME )
-!       CQFILE  = EQNAME( 1:LASTNB2 ) // '/' // CQFILE( 1:LASTNB1 )
-        CQFILE  = TRIM( EQNAME ) // '/' // TRIM( CQFILE )
+        EQNAME = TRIM( CSQY_DATA_RAW )
+        CALL VALUE_NAME( EQNAME, CSQY_DATA_RAW ) 
+        CQFILE  = TRIM( CSQY_DATA_RAW ) // '/' // TRIM( CQFILE )
 
         INQUIRE( FILE = CQFILE, EXIST = EXISTS )
 
@@ -148,11 +149,6 @@ C...open input file
      &        FILE = CQFILE,
      &        STATUS = 'OLD',
      &        IOSTAT = IOST )
-
-!       OPEN( UNIT = CSQY_UNIT,
-!    &        FILE = 'CSQY_BLOCK.dat',
-!    &        STATUS = 'UNKNOWN',
-!    &        IOSTAT = IOST )
          
 
 C...check for open errors
