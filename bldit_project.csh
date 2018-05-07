@@ -1,6 +1,6 @@
 #!/bin/csh -f
 
-# ================== CMAQ5.2 Extraction Script ====================== #
+# ================= CMAQv5.2.1 Extraction Script ==================== #
 # Requirements: CMAQ git source code repository                       #
 #                                                                     #
 # To report problems or request help with this script/program:        #
@@ -15,7 +15,7 @@
 #> Default location for CMAQ model build is one directory above
 #> the repository. The user may also set their own preferred 
 #> directory.
- set CMAQ_HOME = /home/username/CMAQ_project
+ set CMAQ_HOME = /home/username/CMAQ_Project
 
 #> This section allows users to choose explicitly which tools
 #> to make available from the repo. For each selected tool,

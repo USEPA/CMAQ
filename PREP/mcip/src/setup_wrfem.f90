@@ -138,6 +138,9 @@ SUBROUTINE setup_wrfem (cdfid, ctmlays)
 !                        in WRFv3.9 and beyond.  Currently disabled MCIP when
 !                        that coordinate is detected.  To be implemented in
 !                        a later release of MCIP.  (T. Spero)
+!           09 Feb 2018  Added support for hybrid vertical coordinate in WRF
+!                        output.  Added capability to read and process data
+!                        from the NOAH Mosaic land-surface model.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE metinfo
@@ -267,7 +270,7 @@ SUBROUTINE setup_wrfem (cdfid, ctmlays)
     & /, 1x, '*** SUBROUTINE: ', a, &
     & /, 1x, '***   ONLY FOUND ONE FILE WITH ONE TIME PERIOD', &
     & /, 1x, '***   SETTING OUTPUT FREQUENCY TO 1 MINUTE', &
-    & /, 1x, 70('*'))"
+    & /, 1x, 70('*'))" 
 
   CHARACTER(LEN=256), PARAMETER :: f9550 = "(/, 1x, 70('*'), &
     & /, 1x, '*** SUBROUTINE: ', a, &
@@ -294,13 +297,6 @@ SUBROUTINE setup_wrfem (cdfid, ctmlays)
     & /, 1x, '***   DID NOT FIND FRACTIONAL LAND USE IN wrfout', &
     & /, 1x, '***   AND DID NOT FIND GEOGRID FILE' &
     & /, 1x, '***   -- WILL NOT USE FRACTIONAL LAND USE DATA' &
-    & /, 1x, 70('*'))"
-
-  CHARACTER(LEN=256), PARAMETER :: f9900 = "(/, 1x, 70('*'), &
-    & /, 1x, '*** SUBROUTINE: ', a, &
-    & /, 1x, '***   HYBRID VERTICAL COORDINATE DETECTED IN WRF!!!', &
-    & /, 1x, '***   MCIP AND CMAQ HAVE NOT BEEN TESTED WITH THIS OPTION YET!', &
-    & /, 1x, '***   -- TO BE IMPLEMENTED LATER', &
     & /, 1x, 70('*'))"
 
 !-------------------------------------------------------------------------------
@@ -357,8 +353,8 @@ SUBROUTINE setup_wrfem (cdfid, ctmlays)
 ! Extract domain attributes.
 !-------------------------------------------------------------------------------
 
-  rcode = nf90_get_att (cdfid, nf90_global, 'TITLE', wrfversion)
-  IF ( rcode /= nf90_noerr ) THEN
+   rcode = nf90_get_att (cdfid, nf90_global, 'TITLE', wrfversion)
+   IF ( rcode /= nf90_noerr ) THEN
     WRITE (*,f9400) TRIM(pname), 'TITLE', TRIM(nf90_strerror(rcode))
     CALL graceful_stop (pname)
   ENDIF
@@ -510,15 +506,55 @@ SUBROUTINE setup_wrfem (cdfid, ctmlays)
   rcode = nf90_inq_dimid (cdfid, 'soil_layers_stag', dimid)
   IF ( rcode /= nf90_noerr ) THEN
     WRITE (*,f9400) TRIM(pname), 'ID for soil_layers_stag',  &
-                   TRIM(nf90_strerror(rcode))
+                    TRIM(nf90_strerror(rcode))
     CALL graceful_stop (pname)
   ENDIF
   rcode = nf90_inquire_dimension (cdfid, dimid, len=met_ns)
   IF ( rcode /= nf90_noerr ) THEN
     WRITE (*,f9400) TRIM(pname), 'value for soil_layers_stag',  &
-                   TRIM(nf90_strerror(rcode))
+                    TRIM(nf90_strerror(rcode))
     CALL graceful_stop (pname)
   ENDIF
+
+  ! Determine if NOAH Mosaic was run and created the correct output fields.
+  ! Note that this code is temporarily modified later in this subroutine to
+  ! toggle IFMOSAIC to FALSE if the fractional land use arrays are also not
+  ! available.  That change is temporary until a subroutine is added to
+  ! reconstruct the fractional land use rank if it is missing.
+
+  rcode = nf90_inq_dimid (cdfid, 'mosaic', dimid)
+  IF ( rcode /= nf90_noerr ) THEN
+    ifmosaic = .FALSE.
+  ELSE
+    rcode = nf90_inq_varid (cdfid, 'TSK_MOSAIC', rcode)
+    IF ( rcode /= nf90_noerr ) THEN
+      ifmosaic = .FALSE.
+    ELSE
+      rcode = nf90_inq_varid (cdfid, 'ZNT_MOSAIC', rcode)
+      IF ( rcode /= nf90_noerr ) THEN
+        ifmosaic = .FALSE.
+      ELSE
+        rcode = nf90_inq_varid (cdfid, 'LAI_MOSAIC', rcode)
+        IF ( rcode /= nf90_noerr ) THEN
+          ifmosaic = .FALSE.
+        ELSE
+          rcode = nf90_inq_varid (cdfid, 'RS_MOSAIC', rcode)
+          IF ( rcode /= nf90_noerr ) THEN
+            ifmosaic = .FALSE.
+          ELSE
+            ifmosaic = .TRUE.
+            rcode = nf90_inquire_dimension (cdfid, dimid, len=nummosaic)
+            IF ( rcode /= nf90_noerr ) THEN
+              WRITE (*,f9400) TRIM(pname), 'value for mosaic',  &
+                              TRIM(nf90_strerror(rcode))
+              CALL graceful_stop (pname)
+            ENDIF
+          ENDIF
+        ENDIF
+      ENDIF
+    ENDIF
+  ENDIF
+
 
   ! NUM_LAND_CAT was added in WRFv3.1 to define number of land use categories.
   ! "land_cat_stag" was added in WRFv2.2 to define fractional land use.
@@ -659,6 +695,7 @@ SUBROUTINE setup_wrfem (cdfid, ctmlays)
     CALL graceful_stop (pname)
   ENDIF
 
+
   ! Determine if an urban model was used.
 
   IF ( wrfversion(18:21) >= "V3.1" ) THEN
@@ -702,6 +739,7 @@ SUBROUTINE setup_wrfem (cdfid, ctmlays)
     DEALLOCATE ( dum2d )
 
   ENDIF
+
 
   ! Determine if shallow convection was used.
 
@@ -1075,8 +1113,8 @@ SUBROUTINE setup_wrfem (cdfid, ctmlays)
 
   rcode = nf90_inq_varid (cdfid, 'LANDUSEF', varid)
   IF ( rcode == nf90_noerr ) THEN
-    iflufrc    = .TRUE.  ! fractional land use is available
-    ifluwrfout = .TRUE.  ! fractional land use is located in WRF history file
+    iflufrc    = .TRUE.   ! fractional land use is available
+    ifluwrfout = .TRUE.   ! fractional land use is located in WRF history file
   ELSE
     ifluwrfout = .FALSE.  ! fractional land use is not available in WRF history
     geofile = TRIM( file_ter )
@@ -1104,6 +1142,29 @@ SUBROUTINE setup_wrfem (cdfid, ctmlays)
         CALL graceful_stop (pname)
       ENDIF
     ENDIF
+  ENDIF
+
+  ! For now, require LANDUSEF2 and MOSAIC_CAT_INDEX to process NOAH Mosaic.
+  ! IFMOSAIC is toggled to FALSE here if either field is missing.
+  ! Can add a subroutine later to reconstruct those fields from LANDUSEF if
+  ! LANDUSEF2 and/or MOSAIC_CAT_INDEX is missing.
+
+  IF ( ifmosaic ) THEN
+    rcode = nf90_inq_varid (cdfid, 'LANDUSEF2', varid)
+    IF ( rcode == nf90_noerr ) THEN
+      rcode = nf90_inq_varid (cdfid, 'MOSAIC_CAT_INDEX', varid)
+      IF ( rcode == nf90_noerr ) THEN
+        iflu2wrfout = .TRUE.   ! lookup for LANDUSEF2 is in WRF history
+      ELSE
+        iflu2wrfout = .FALSE.
+        ifmosaic    = .FALSE.
+      ENDIF
+    ELSE
+      iflu2wrfout = .FALSE.  ! frac land use 2 is not available in WRF history
+      ifmosaic    = .FALSE.
+    ENDIF
+  ELSE
+    iflu2wrfout = .FALSE.
   ENDIF
 
 !-------------------------------------------------------------------------------
@@ -1344,22 +1405,14 @@ SUBROUTINE setup_wrfem (cdfid, ctmlays)
 
 !-------------------------------------------------------------------------------
 ! Determine if the hybrid vertical coordinate has been used in WRF.  It is
-! available as of WRFv3.9.  Currently it has not been tested with CMAQ and
-! additional modifications would be required to handle some of the variable
-! transformations in metvars2ctm.f90, as well as layer collapsing.
-! +++ For now, flag this as a problem.
+! available as of WRFv3.9.
 !-------------------------------------------------------------------------------
 
-  IF ( wrfversion(18:19) >= "V9") THEN
+  IF ( TRIM(met_release) >= "V3.9") THEN
     rcode = nf90_get_att (cdfid, nf90_global, 'HYBRID_OPT', met_hybrid)
-    IF ( rcode == nf90_noerr ) THEN
-      IF ( met_hybrid > 0 ) THEN
-        WRITE (*,f9900) TRIM(pname)
-        CALL graceful_stop (pname)
-      ELSE
-        WRITE (*,f9400) TRIM(pname), 'HYBRID_OPT', TRIM(nf90_strerror(rcode))
-        CALL graceful_stop (pname)
-      ENDIF
+    IF ( rcode /= nf90_noerr ) THEN
+      WRITE (*,f9400) TRIM(pname), 'HYBRID_OPT', TRIM(nf90_strerror(rcode))
+      CALL graceful_stop (pname)
     ENDIF
   ELSE
     met_hybrid = -1

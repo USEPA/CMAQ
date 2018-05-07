@@ -108,6 +108,11 @@ SUBROUTINE setup_mm5v3 (ctmlays)
 !                        it pertains to WRF/ACM2 only.  (T. Spero)
 !           17 Sep 2015  Changed IFMOLACM to IFMOLPX.  (T. Spero)
 !           22 Jun 2017  Added default value for MET_HYBRID.  (T. Spero)
+!           01 Feb 2018  Changed initialized value of MET_PCP_INCR from real
+!                        to integer to align with variable type.  Defined new
+!                        variables IFLU2WRFOUT and IFMOSAIC as "false", and set
+!                        NUMMOSAIC to "-1" for MM5 because these variables
+!                        pertain to WRF only.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE files
@@ -294,8 +299,11 @@ SUBROUTINE setup_mm5v3 (ctmlays)
   iftke  = .FALSE.
   iftkef = .FALSE.
 
-  ifznt      = .TRUE.   ! roughness length is available in MM5, by default
-  ifluwrfout = .FALSE.  ! false for MM5; not used
+  ifznt       = .TRUE.   ! roughness length is available in MM5, by default
+  ifluwrfout  = .FALSE.  ! false for MM5; not used
+  iflu2wrfout = .FALSE.  ! false for MM5; not used
+  ifmosaic    = .FALSE.  ! false for MM5; not used
+  nummosaic   =  -1      ! not used for MM5
 
   IF ( needlayers ) THEN
     gotlays = .FALSE.
@@ -447,7 +455,7 @@ SUBROUTINE setup_mm5v3 (ctmlays)
       met_soil_lsm   = bhi(5,13)    ! surface/soil or LSM
       met_sfc_lay    = 1            ! (standard) surface layer scheme
 
-      met_pcp_incr    =  0.0        ! not used with MM5
+      met_pcp_incr    =  0          ! not used with MM5
       met_rain_bucket = -1.0        ! not used with MM5
 
       met_snow_opt   = bhi(16,13)   ! snow option (0=off, 1=yes/no, 2=liq equiv)

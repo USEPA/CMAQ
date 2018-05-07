@@ -1,7 +1,7 @@
 #! /bin/csh -f
 
 # ====================== COMBINE Run Script ======================== 
-# Usage: run.combine.uncoupled.csh >&! combine_v52_uncoupled.log &                                
+# Usage: run.combine.uncoupled.csh >&! combine_v521_uncoupled.log &                                
 #
 # To report problems or request help with this script/program:     
 #             http://www.epa.gov/cmaq    (EPA CMAQ Website)
@@ -21,12 +21,12 @@
  source ./config_cmaq.csh
        
 #> Set the model version
- set VRSN = v52
+ set VRSN = v521
 
 #> Set General Parameters for Labeling the Simulation
  set MECH = cb6r3_ae6_aq          #> Mechanism ID
  set CASE = SE52BENCH
- set APPL = v52_intel_$CASE	  #> Application Name (e.g. Code version, compiler, gridname, emissions, etc.)
+ set APPL = v521_intel_$CASE	  #> Application Name (e.g. Code version, compiler, gridname, emissions, etc.)
 
 #> Set the build directory if this was not set above 
 #> (this is where the CMAQ executable is located by default).
@@ -91,7 +91,7 @@
 
   #> Define name of combine output file to save hourly average concentration.
   #> A new file will be created for each month/year.
-   setenv OUTFILE ${POSTDIR}/COMBINE_ACONC_${APPL}_$MM$YYYY
+   setenv OUTFILE ${POSTDIR}/COMBINE_ACONC_${APPL}_$YYYY$MM.nc
 
   #> Define name of input files needed for combine program.
   #> File [1]: CMAQ conc/aconc file
@@ -99,9 +99,9 @@
   #> File [3]: CMAQ APMDIAG file
   #> File [4]: MCIP METCRO2D file
    setenv INFILE1 $CCTMOUTDIR/CCTM_ACONC_${APPL}_$YYYY$MM$DD.nc
-   setenv INFILE2 $METDIR/METCRO3D_$YY$MM$DD
-   setenv INFILE3 $CCTMOUTDIR/CCTM_APMDIAG_${APPL}_$YYYY$MM$DD
-   setenv INFILE4 $METDIR/METCRO2D_$YY$MM$DD
+   setenv INFILE2 $METDIR/METCRO3D_$YY$MM$DD.nc
+   setenv INFILE3 $CCTMOUTDIR/CCTM_APMDIAG_${APPL}_$YYYY$MM$DD.nc
+   setenv INFILE4 $METDIR/METCRO2D_$YY$MM$DD.nc
 
   #> Executable call:
    ${BINDIR}/${EXEC}
@@ -137,7 +137,7 @@
 
   #> Define name of combine output file to save hourly total deposition.
   #> A new file will be created for each month/year.
-   setenv OUTFILE ${POSTDIR}/COMBINE_DEP_${APPL}_$MM$YYYY
+   setenv OUTFILE ${POSTDIR}/COMBINE_DEP_${APPL}_$YYYY$MM
 
   #> Define name of input files needed for combine program.
   #> File [1]: CMAQ DRYDEP file

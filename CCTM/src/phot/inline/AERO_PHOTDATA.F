@@ -38,8 +38,9 @@
       REAL, ALLOCATABLE :: BLK_AE_NI   ( :,:,: ) ! mean aerosol imaginary part of refractive index
 
       REAL, ALLOCATABLE :: AERO_ASYM_FAC ( :,: ) ! aerosol modal averaged asymmetry factor
-      REAL, ALLOCATABLE :: AERO_EXTI_COEF( :,: ) ! aerosol modal averaged extinction coeff.
-      REAL, ALLOCATABLE :: AERO_SCAT_COEF( :,: ) ! aerosol modal averaged scattering coeff.
+      REAL, ALLOCATABLE :: AERO_EXTI_COEF( :,: ) ! aerosol modal averaged extinction coeff., 1/m
+      REAL, ALLOCATABLE :: AERO_SCAT_COEF( :,: ) ! aerosol modal averaged scattering coeff., 1/m
+      REAL, ALLOCATABLE :: AERO_EXTI_550  ( : )  ! aerosol modal averaged extinction coeff. at 550nm, 1/m
  
       LOGICAL           :: CORE_SHELL
       LOGICAL           :: MIE_CALC
@@ -56,6 +57,16 @@
 
       INTEGER,   PARAMETER, PRIVATE   :: NUMB_COR_SPCS = 3      ! number species in core
 
+      LOGICAL :: CALCULATE_EXT_550   = .FALSE. ! flag to get extinction at 550 nm
+      LOGICAL :: USE_ANGSTROM_INTERP = .FALSE. ! flag to use angstrom exponents for 550 nm
+      
+      INTEGER   :: IWL_ANGSTROM_LOWER  = 0       ! index for wavelength less than 550 nm
+      INTEGER   :: IWL_ANGSTROM_UPPER  = 0       ! index for wavelength greater than 550 nm
+      REAL( 8 ) :: ANGSTROM_RATIO      = 1.0D0   ! wavelength less than 550 nm divided by 550 nm
+      REAL( 8 ) :: LOG_ANGSTROM_RATIO  = 0.0D0    
+      REAL( 8 ) :: ANGSTROM_SPAN       = 1.0D0   ! reciprocal of log ((wavelength < 550 nm)/(wavelength > 550 nm)
+      REAL( 8 ) :: ANGSTROM_EXPONENT   = 1.0D0   ! Angstrom exponent used to interpolate extinction at 550 nm
+          
 C *** Species in aerosol core
 
       CHARACTER( 16 ), PARAMETER, PRIVATE :: CORE_SPCS( NUMB_COR_SPCS ) =
@@ -220,6 +231,15 @@ C...Allocate needed arrays
          AERO_EXTI_COEF = 0.0
          AERO_ASYM_FAC  = 0.0
 
+         IF( CALCULATE_EXT_550 )THEN
+            ALLOCATE ( AERO_EXTI_550( NLAYS ), STAT = ALLOCSTAT )
+            IF ( ALLOCSTAT .NE. 0 ) THEN
+               XMSG = 'Failure allocating AERO_EXTI_550'
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            END IF
+            AERO_EXTI_550  = 0.0
+         END IF   
+
          CALL MAP_AERO()
                   
          ALLOCATE( M3_FACTOR( N_AEROSPC ), STAT = ALLOCSTAT )
@@ -329,6 +349,38 @@ C ***    Create map for refactive index for each species
                END DO
             END IF
          END DO
+
+         IF( CALCULATE_EXT_550 )THEN ! locate 550 nm in wavebands and set-up interpolation 
+            IF ( WAVELENGTH( 1 ) .GE. 550.0 )  THEN
+                IWL_ANGSTROM_LOWER = 1
+            ELSE IF ( WAVELENGTH( NWL ) .LE. 550.0 ) THEN
+                IWL_ANGSTROM_LOWER = NWL
+            ELSE
+                LOOP_FINDW: DO V = 1, NWL - 1
+                   IF ( WAVELENGTH( V ) .LT. 550.0 .AND. WAVELENGTH( V+1 ) .GT. 550.0 ) THEN
+                      IWL_ANGSTROM_LOWER = V
+                      IWL_ANGSTROM_UPPER = V+1
+                      ANGSTROM_SPAN      = REAL( 1.0 / LOG( WAVELENGTH( V ) / WAVELENGTH( V+1 ) ), 8 )
+                      ANGSTROM_RATIO     = REAL( (WAVELENGTH( V ) / 550.0), 8)
+!                     ANGSTROM_RATIO     = REAL( (WAVELENGTH( V ) / WAVELENGTH( V+1 )), 8)
+                      LOG_ANGSTROM_RATIO = LOG( ANGSTROM_RATIO )
+!                      WRITE(LOGDEV,'(A,2(F7.3,1X))')'Angstrom Interpolation Wavelengths: ', 
+!     &                WAVELENGTH( IWL_ANGSTROM_LOWER ), WAVELENGTH( IWL_ANGSTROM_UPPER  )
+!                      WRITE(LOGDEV,'(A,2(ES12.4,1X))')'Angstrom Span, Ratio: ', 
+!     &                ANGSTROM_SPAN, ANGSTROM_RATIO
+                      USE_ANGSTROM_INTERP  = .TRUE.
+                      EXIT LOOP_FINDW
+                   ELSE IF ( WAVELENGTH( V ) .EQ. 550.0 ) THEN
+                      IWL_ANGSTROM_LOWER = V
+                      EXIT LOOP_FINDW
+                   END IF
+                END DO LOOP_FINDW
+            END IF
+            IF( .NOT. USE_ANGSTROM_INTERP )THEN
+               WRITE(LOGDEV,'(A,2(F7.3,1X))')'No Angstrom Inpolation Used 550 Extinction used at ', 
+     &         WAVELENGTH( IWL_ANGSTROM_LOWER )
+            END IF
+         END IF
 
       RETURN
 
@@ -463,6 +515,7 @@ C***  variables for calculating modal averaged properties per layer and lambda
       INTEGER MODE                  ! aerosol mode loop counter
       LOGICAL SUCCESS
       LOGICAL TROUBLE
+      LOGICAL, SAVE    :: FIRSTCALL  = .TRUE.
  
 #ifdef verbose_phot
       character( 26 ), allocatable :: lambda_list( : )
@@ -816,11 +869,11 @@ C***  and contribution to the overall asymmetry factor
             END DO OPTICS_LOOP
 
             AERO_SCAT_COEF( L,V ) = BSCAT
-            AERO_EXTI_COEF( L,V ) = BEXT
+            AERO_EXTI_COEF( L,V ) = MAX( BEXT, 1.0E-30 )
             AERO_ASYM_FAC ( L,V ) = G_BAR / MAX( BSCAT, 1.0E-30 )
 
 #ifdef verbose_phot_extra
-            if( l .eq. 1 .and. v .eq. 1 )then
+            if( l .eq. 1 .and. v .eq. 1)then
                write(logdev, 9502)l, wavelength( V ), dgn_core, dgn_shell, bext_mode, 
      &         bscat_mode, gbar_mode, ae_nr_shell( l, mode, v ), ae_ni_shell( v, mode, v ),
      &         ae_nr_core( l, mode, iv ), ae_ni_core( l, mode, v )
@@ -833,6 +886,37 @@ C***  and contribution to the overall asymmetry factor
          END DO LAY_LOOP2         
 
       END DO LOOP_WAVE
+
+      IF( CALCULATE_EXT_550 )THEN
+!         IF( USE_ANGSTROM_INTERP .AND. FIRSTCALL )THEN
+!          WRITE(LOGDEV,'(A,2(F7.3,1X))')'Angstrom Interpolation Wavelengths: ', 
+!     &     WAVELENGTH( IWL_ANGSTROM_LOWER ), WAVELENGTH( IWL_ANGSTROM_UPPER  )
+!           WRITE(LOGDEV,'(A,2(ES12.4,1X))')'Angstrom Span, Ratio: ', 
+!     &     ANGSTROM_SPAN, ANGSTROM_RATIO
+!         END IF
+         LOOP_550NM: DO L = 1, NLAYS
+              IF( USE_ANGSTROM_INTERP )THEN
+                 ANGSTROM_EXPONENT  =  - REAL( LOG( AERO_EXTI_COEF( L,IWL_ANGSTROM_LOWER ) 
+     &                                         / AERO_EXTI_COEF( L,IWL_ANGSTROM_UPPER ) ), 8 )
+     &                              *  ANGSTROM_SPAN
+!                AERO_EXTI_550( L ) = LOG( AERO_EXTI_COEF( L,IWL_ANGSTROM_LOWER ) )
+!    &                              + REAL( ANGSTROM_EXPONENT * LOG_ANGSTROM_RATIO, 4 )
+!                AERO_EXTI_550( L ) =  EXP( AERO_EXTI_550( L ) )
+                 AERO_EXTI_550( L ) =  AERO_EXTI_COEF( L,IWL_ANGSTROM_LOWER ) 
+     &                              *  REAL( ANGSTROM_RATIO ** ANGSTROM_EXPONENT, 4 )
+!                 IF ( FIRSTCALL ) THEN
+!                     WRITE( LOGDEV,'(I3,A,7(ES12.4,1X))')L,
+!     &              ' AERO_EXT_LOWER,AERO_EXT_UPPER,EXPONENT,EXPONENT*LOG(RATIO),EXT_550_1,EXT_550_2: ',
+!     &               AERO_EXTI_COEF( L,IWL_ANGSTROM_LOWER ), AERO_EXTI_COEF( L,IWL_ANGSTROM_UPPER ),
+!     &               ANGSTROM_EXPONENT,REAL( ANGSTROM_EXPONENT * LOG_ANGSTROM_RATIO,4),AERO_EXTI_550( L ),
+!     &               AERO_EXTI_COEF( L,IWL_ANGSTROM_LOWER)*ANGSTROM_RATIO ** ANGSTROM_EXPONENT
+!                 END IF
+              ELSE
+                 AERO_EXTI_550( L ) =  AERO_EXTI_COEF( L,IWL_ANGSTROM_LOWER )
+              END IF
+         END DO LOOP_550NM
+!         IF ( FIRSTCALL ) FIRSTCALL = .FALSE.
+      END IF 
       
 #ifdef verbose_phot
       if ( col .eq. 1 .and. row .eq. 1 ) then
