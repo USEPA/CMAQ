@@ -143,7 +143,7 @@ C Set output file characteristics based on COORD.EXT and open it
          SDATE3D = JDATE
          STIME3D = JTIME + TSTEP
          TSTEP3D = TSTEP
-         NVARS3D = N_CSPCS
+         NVARS3D = N_CSPCS + 2
          NCOLS3D = 1
          NROWS3D = NVERTEXT
          NLAYS3D = NLAYS
@@ -290,17 +290,17 @@ C Set output file characteristics based on COORD.EXT and open it
             VDESC3D( SPC ) = 'Variable ' // VNAME3D( SPC )
          END DO
 
-C        SPC = FINI + 1
-C        VTYPE3D( SPC ) = M3REAL
-C        VNAME3D( SPC ) = 'PRES            '
-C        UNITS3D( SPC ) = 'Pa'
-C        VDESC3D( SPC ) = 'Variable ' // 'PRES'
+         SPC = FINI + 1
+         VTYPE3D( SPC ) = M3REAL
+         VNAME3D( SPC ) = 'PRES            '
+         UNITS3D( SPC ) = 'Pa'
+         VDESC3D( SPC ) = 'Variable ' // 'PRES'
 
-C        SPC = FINI + 2
-C        VTYPE3D( SPC ) = M3REAL
-C        VNAME3D( SPC ) = 'TA              '
-C        UNITS3D( SPC ) = 'K'
-C        VDESC3D( SPC ) = 'Variable ' // 'TA'
+         SPC = FINI + 2
+         VTYPE3D( SPC ) = M3REAL
+         VNAME3D( SPC ) = 'TA              '
+         UNITS3D( SPC ) = 'K'
+         VDESC3D( SPC ) = 'Variable ' // 'TA'
 
 C create header
 
@@ -654,25 +654,25 @@ C open vext file for update
             END IF
          END DO
 
-C        IF ( .NOT. PWRVEC(CTM_VEXT_1, VNAME(V + 1), JDATE, JTIME,
-C    &                     Met_Data%PRES(:, :, :), NLAYS3D,
-C    &                     NCOLS, NROWS, NUMPROCS, logdev,
-C    &                     NVERTEXT, VERTEXTI, VERTEXTJ     ) ) THEN
-C                 XMSG = 'PWRGRDD failed writing variable '
-C    &                  // TRIM( VNAME(V) ) //
-C    &                  ' to file '// TRIM( CTM_VEXT_1 )
-C           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-C        END IF
+         IF ( .NOT. PWRVEC(CTM_VEXT_1, VNAME(V + 1), JDATE, JTIME,
+     &                     Met_Data%PRES(:, :, :), NLAYS3D,
+     &                     NCOLS, NROWS, NUMPROCS, logdev,
+     &                     NVERTEXT, VERTEXTI, VERTEXTJ     ) ) THEN
+                  XMSG = 'PWRGRDD failed writing variable '
+     &                  // TRIM( VNAME(V) ) //
+     &                  ' to file '// TRIM( CTM_VEXT_1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
          
-C        IF ( .NOT. PWRVEC(CTM_VEXT_1, VNAME(V + 2), JDATE, JTIME,
-C    &                     Met_Data%TA(:, :, :), NLAYS3D,
-C    &                     NCOLS, NROWS, NUMPROCS, logdev,
-C    &                     NVERTEXT, VERTEXTI, VERTEXTJ     ) ) THEN
-C                 XMSG = 'PWRGRDD failed writing variable '
-C    &                  // TRIM( VNAME(V) ) //
-C    &                  ' to file '// TRIM( CTM_VEXT_1 )
-C           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-C        END IF
+         IF ( .NOT. PWRVEC(CTM_VEXT_1, VNAME(V + 2), JDATE, JTIME,
+     &                     Met_Data%TA(:, :, :), NLAYS3D,
+     &                     NCOLS, NROWS, NUMPROCS, logdev,
+     &                     NVERTEXT, VERTEXTI, VERTEXTJ     ) ) THEN
+                  XMSG = 'PWRGRDD failed writing variable '
+     &                  // TRIM( VNAME(V) ) //
+     &                  ' to file '// TRIM( CTM_VEXT_1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
 
          WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
      &         'Timestep written to', CTM_VEXT_1,
