@@ -24,7 +24,7 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE BEIS3( JDATE, JTIME, NX, NY, MSPCS, COSZEN, SEMIS,
+      SUBROUTINE BEIS3( JDATE, JTIME, NX, NY, MSPCS, SEMIS,
      &                  SLAI, BIPOL )
 
 C-----------------------------------------------------------------------
@@ -48,6 +48,7 @@ C   1/10 : yoj remove ck & report if TAIR > 315
 C   7/14 : JOB added leaf temperature and two layer canopy model
 C  11/07 : JOB updated for ASX_DATA_MOD and corrected the Cl algorithm 
 C          to be consitent with Gunther et al. 1999 doi:10.1029/1999JD900391
+C  5/7/18: D. Schwede Removed call to CZANGLE. COSZEN now calculated in ASX_DATA_MOD
 C-----------------------------------------------------------------------
 C Modified from:
 
@@ -83,7 +84,6 @@ C Arguments:
 !     REAL,    INTENT( IN ) :: SLAI  ( NX,NY,NLAI )   ! leaf area indices
 !     REAL,    INTENT( OUT ) :: BIPOL( NX,NY,NSEF-1 ) ! output emissions
 
-      REAL,    INTENT( IN ) :: COSZEN( :,: )        ! cosine of zenith angle
       REAL,    INTENT( IN ) :: SEMIS ( :,:,: ) ! normalized emissions
       REAL,    INTENT( IN ) :: SLAI  ( :,:,: )   ! leaf area indices
       REAL,    INTENT( OUT ) :: BIPOL( :,:,: ) ! output emissions
@@ -151,7 +151,7 @@ C Loop through cells
          DO C = 1, NX
 
             TAIR = MET_DATA%TEMP2( C,R )         ! unit in degree K
-            COSZ = COSZEN( C,R )            
+            COSZ = MET_DATA%COSZEN( C,R )            
 
 C Check min bounds for temperature
 C Note we no longer cap temperature for isoprene
