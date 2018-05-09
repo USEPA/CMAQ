@@ -26,7 +26,7 @@ C %W% %P% %G% %U%
 
          INTEGER              :: NVERTEXT
          INTEGER, ALLOCATABLE :: VERTEXTJ(:), VERTEXTI(:), VERT_SEQ(:)
-         LOGICAL              :: DOVEXT = .false.
+         LOGICAL              :: LDOVEXT = .false.
 
 ! for parallel implementation
          INTEGER              :: MY_NVERTEXT
@@ -110,7 +110,7 @@ C-----------------------------------------------------------------------
 
          LOGDEV = INIT3()
          VARDESC = 'Flag to perform vert extract'
-         DOVEXT = ENVYN( DOVERTNAME, VARDESC, .false., STATUS )
+         LDOVEXT = ENVYN( DOVERTNAME, VARDESC, .false., STATUS )
          IF ( STATUS .EQ. 1 ) THEN
             XMSG = TRIM(VARDESC) //
      &             ' Environment variable improperly formatted'
@@ -118,10 +118,10 @@ C-----------------------------------------------------------------------
          ELSE IF ( STATUS .NE. 0 ) THEN
             WRITE( LOGDEV, '(5X, A)' ) VARDESC
             XMSG = '... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, DOVEXT
+            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, LDOVEXT
          END IF
 
-         IF (.not. DOVEXT) RETURN
+         IF (.not. LDOVEXT) RETURN
          CALL GET_LONLAT(NVERTEXT, VERTEXTLON, VERTEXTLAT)
 
          ALLOCATE ( 
