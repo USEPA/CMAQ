@@ -161,8 +161,8 @@ C-------------------------------------------------------------------------------
 !      Use LSM_Mod        ! land surface model variables needed for mosaic and bidi
 !      Use Mosaic_Mod     ! contains mosaic routines
       Use ASX_DATA_MOD   ! contains CONSTANTS include
-!      Use BIDI_MOD, only:HGBIDI    ! contains CONSTANTS include
-!      Use HGSIM
+      Use BIDI_MOD, only:HGBIDI    ! contains CONSTANTS include
+      Use HGSIM
 #ifdef twoway
       USE twoway_data_module, only : num_land_cat
 #endif
@@ -274,6 +274,15 @@ C For heterogenous hono on surfaces
       REAL                       :: kno2                      ! first order rate constant for the heterogenous reaction [1/s]
       REAL                       :: surf_bldg                 ! Surface area of bldgs to volume of air [-]
       REAL                       :: surf_leaf                 ! Surface area of leaves to volume of air [-]
+C-------------------------------------------------------------------------------
+C For Mercury bidirectional flux
+      REAL                       :: chg            ! gem layer one concentration
+      REAL                       :: awhg           ! GEM Oswald solubility coeff
+      REAL                       :: chgIIgas       ! rgm layer one concentration
+      REAL                       :: vdHgII         ! divalent mercury deposition velocity
+      REAL                       :: vdHg           ! elemental mercury deposition velocity
+      REAL                       :: dpvd           ! dummy pvd variable passed to the hgasx subroutine
+      REAL                       :: dvel           ! dummy depvel_gas returned from ATX
 
 C-------------------------------------------------------------------------------
 
@@ -490,11 +499,11 @@ C-------------------------------------------------------------------------------
                IF ( l .EQ. l_HG ) THEN  ! elemental mercury gas
 ! calculate and save Henry's constant for use in HGSIM
 
-!                  IF( HGBIDI ) THEN 
-!                     awhg = hlconst( subname( l ), tw, effective, hplus_h2o )* 0.08205 * tw
-!                  ELSE
+                  IF( HGBIDI ) THEN 
+                     awhg = hlconst( subname( l ), tw, effective, hplus_h2o )* 0.08205 * tw
+                  ELSE
                      rsurf = 1.0e30
-!                  END IF
+                  END IF
                ELSE   ! any species other than elemental mercury gas
 
          ! Use CMAQ function for calculating the effective Henry's Law
@@ -726,6 +735,34 @@ C Calculate production (pvd) for HONO; unit = ppm * m/s
      &            pvd( n,c,r ) = kno2 * conc_no2 * MET_DATA%ZF( c,r,1 )
             END IF
 C--------------------------------------------------------------------------
+C Bidirectional mercury flux section
+C--------------------------------------------------------------------------
+
+            IF ( HGBIDI .AND.  l .EQ. l_HG ) THEN
+
+               chg  = cgridl1( n_HG,c,r )
+
+               IF ( NINT( GRID_DATA%LWMASK( c,r ) ) .EQ. 0  .AND. ( vegcr .EQ. 0.0 )) THEN ! water
+
+                  depvel_gas( n_Hg,c,r ) = 1.0 / ( rsurf + rac )
+                  vdhg = depvel_gas( n_Hg,c,r )
+                  pvd( n_Hg,c,r )  = 0.0 ! in the nether regions of LU/LC
+
+               ELSE ! terrestrial
+
+                  awhg  = hlconst( subname( l ), temp2p0cr, effective, hplus )* 0.08205 * temp2p0cr
+
+C************* Call the Hg air surface exchange subroutine *************************************************
+                  CALL ATX(rbc, rcut, rwetsfc, rinc,rsnow, rgw, ifsnow, xm, dvel, chg, awhg,
+     &                    dpvd, delta( c,r ),dt(2), c, r, l_HG, jdate, jtime )
+
+                  pvd( n_HG,c,r ) = dpvd
+
+                  depvel_gas( n_HG,c,r ) = dvel
+
+               END IF ! water
+
+            END IF ! 'HG'
 
                ! Check for negative values or NaN's
 
@@ -734,6 +771,17 @@ C--------------------------------------------------------------------------
 
          END DO ddloop  ! (l = 1, n_spc_m3dry)
 
+         IF ( HGBIDI .AND. NINT( GRID_DATA%LWMASK( c,r ) ) .EQ. 0 .AND. ( vegcr .EQ. 0.0 )) THEN ! water
+
+            chgIIgas = cgridl1( n_HGII,c,r )
+            vdhgII   = depvel_gas( n_HGII,c,r )
+
+            CALL ASWX( chg, chgIIgas, vdhg, vdhgII, awhg,
+     &                 dpvd, c, r, jdate, jtime, dt(2) )
+
+            pvd( n_Hg,c,r ) = dpvd
+
+         END IF ! water
 
       END DO   ! c
       END DO   ! r

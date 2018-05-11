@@ -89,7 +89,7 @@ C-----------------------------------------------------------------------
       USE VDIFF_MAP
       USE UTILIO_DEFN
       USE BIDI_MOD
-!      USE HGSIM
+      USE HGSIM
 !      USE LSM_MOD, Only: n_lufrac
       USE SEDIMENTATION
       USE VDIFF_DIAG
@@ -135,7 +135,7 @@ C Local Variables:
       REAL, ALLOCATABLE, SAVE :: ICMP     ( :,:,: )   ! component flux accumlator 
 !      REAL, ALLOCATABLE, SAVE :: DDEPJ    ( :,:,:,: ) ! ddep for mosaic
 !      REAL, ALLOCATABLE, SAVE :: DDEPJ_FST( :,:,:,: ) ! ddep for stomtal/cuticular pathway
-
+      REAL, ALLOCATABLE, SAVE :: NH3_EMIS ( :,: )
       REAL     :: WRDD( NCOLS,NROWS )                 ! ddep write buffer
 !      REAL     :: WRDDJ( NCOLS,NROWS,N_LUFRAC+1 )     ! mosaic ddep write buffer
 !      REAL     :: WRDDJ_FST( NCOLS,NROWS,N_LUFRAC+1 ) ! mosaic stomatal flux write buffer
@@ -149,8 +149,10 @@ C Local Variables:
       REAL     :: SEDDY ( NLAYS,NCOLS,NROWS )   ! flipped EDDYV
       REAL        DTSEC                         ! model time step in seconds
 
-      REAL, ALLOCATABLE, SAVE :: VSED_AE( :,:,:,: )
+      REAL     :: NH3_FLUX ( NCOLS,NROWS )
 
+      REAL, ALLOCATABLE, SAVE :: VSED_AE( :,:,:,: )
+      INTEGER, SAVE :: NH3_HIT
 C Local Variables
 
       INTEGER, SAVE :: LOGDEV
@@ -158,7 +160,8 @@ C Local Variables
       INTEGER     ASTAT
       INTEGER     C, R, L, S, V, I, J, OFF      ! loop induction variables
       INTEGER     MDATE, MTIME, MSTEP           ! internal simulation date&time
-
+      CHARACTER(LEN=8), PARAMETER :: NAME_NH3_EMIS = 'NH3_EMIS'
+      CHARACTER(LEN=8), PARAMETER :: NAME_NH3_FLUX = 'NH3_FLUX'
       INTERFACE
          SUBROUTINE PA_UPDATE_EMIS ( PNAME, VDEMIS, JDATE, JTIME, TSTEP )
             CHARACTER( * ), INTENT( IN )  :: PNAME
@@ -185,7 +188,7 @@ C Local Variables
          SUBROUTINE EDDYX ( EDDYV )
             REAL,           INTENT( OUT ) :: EDDYV( :,:,: )
          END SUBROUTINE EDDYX
-         SUBROUTINE VDIFFACMX( dtsec, seddy, ddep, icmp, cngrd )
+         SUBROUTINE VDIFFACMX( dtsec, seddy, ddep, icmp, cngrd,nh3_emis )
             REAL, INTENT( IN )    :: dtsec
             REAL, INTENT( INOUT ) :: seddy( :,:,: )
             REAL, INTENT( INOUT ) :: ddep ( :,:,: )
@@ -193,6 +196,7 @@ C Local Variables
 !            REAL, INTENT( INOUT ), OPTIONAL :: ddepj    ( :,:,:,: )
 !            REAL, INTENT( INOUT ), OPTIONAL :: ddepj_fst( :,:,:,: )
             REAL, INTENT( INOUT ) :: cngrd( :,:,:,: )
+            REAL, INTENT( INOUT ) :: NH3_EMIS( :,: )
          END SUBROUTINE VDIFFACMX
       END INTERFACE
 
@@ -215,7 +219,11 @@ C create global maps
          END IF
 
 C Initialize the met data
-         CALL INIT_MET( JDATE, JTIME, ABFLUX) !, HGBIDI )
+         CALL INIT_MET( JDATE, JTIME, ABFLUX )
+
+        IF ( HGBIDI ) THEN ! Initialize HGSIM module
+           CALL INIT_HGSIM(JDATE, JTIME)
+        END IF
 
 C Get gravitational settling (sedi) flag.
          GRAV_SETL = .TRUE.         ! default
@@ -232,7 +240,7 @@ C Get diagnostic files flag.
 C Set output file characteristics based on COORD.EXT and open the dry dep file
          IF ( IO_PE_INCLUSIVE ) THEN
             CALL OPDDEP ( JDATE, JTIME, TSTEP( 1 ), N_SPC_DDEP) !, ABFLUX )
-            IF ( ABFLUX ) CALL OPASX_MEDIA( JDATE, JTIME, TSTEP( 1 ), ABFLUX )
+            IF ( ABFLUX .OR. HGBIDI  ) CALL OPASX_MEDIA( JDATE, JTIME, TSTEP( 1 ), ABFLUX )
          END IF
 
 C Open vdiff diagnostics file (ioapi header from cgrd)
@@ -251,7 +259,13 @@ C Allocate and initialize dry deposition array
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
          DDEP = 0.0   ! array assignment
-  
+         ALLOCATE ( NH3_EMIS ( NCOLS,NROWS ), STAT = ASTAT )
+         IF ( ASTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating NH3_EMIS'
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+         NH3_EMIS = 0.0   ! array assignment
+ 
          ALLOCATE ( ICMP( LCMP,NCOLS,NROWS ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating ICMP'
@@ -295,7 +309,11 @@ C Set up for grav. settling
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
          CNGRD = 0.0   ! array assignment
- 
+         NH3_HIT = 0
+         DO V = 1, N_SPC_DDEP
+            IF ( DDEP_SPC( V ) .EQ. 'NH3' ) NH3_HIT = V
+         END DO
+
       END IF   !  if Firstime
 
       MDATE = JDATE
@@ -308,7 +326,7 @@ C Convert non-molar mixing ratio species and re-order CGRID
       CALL CONV_CGRID ( CGRID, MDATE, MTIME, CNGRD )
 
 C read & interpolate met data
-      CALL GET_MET ( MDATE, MTIME, MSTEP) !, MOSAIC, ABFLUX, HGBIDI )
+      CALL GET_MET ( MDATE, MTIME, MSTEP, ABFLUX )
 
 C read & interpolate deposition velocities
       CALL GET_DEPV ( MDATE, MTIME, TSTEP, CGRID )      
@@ -366,7 +384,7 @@ C Calculate the change in concentration and dry dep from vertical diffusion and 
 C Note: cngrd is the argument keyword (from the INTERFACE); CNGRD is the actual argument
 !      IF ( .NOT. MOSAIC ) THEN
          CALL VDIFFACMX( DTSEC, SEDDY, DDEP, ICMP,
-     &                   cngrd = CNGRD )
+     &                   CNGRD, NH3_EMIS)
 
       IF ( VDIFFDIAG ) THEN
          NTICS = NTICS + 1
@@ -427,6 +445,28 @@ C If last call this hour:  write accumulated depositions:
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
             END IF
          END DO 
+C Write extra arrays for NH3 emission and net flux for bidi
+         IF ( ABFLUX ) THEN
+           DO R = 1, MY_NROWS
+               DO C = 1, MY_NCOLS
+                  NH3_FLUX(C,R) = NH3_EMIS(C,R) - DDEP( DD2DV(NH3_HIT),C,R ) 
+               END DO
+            END DO
+
+            IF ( .NOT. WRITE3( CTM_DRY_DEP_1, NAME_NH3_FLUX,
+     &                 MDATE, MTIME, NH3_FLUX ) ) THEN
+               XMSG = 'Could not write ' // CTM_DRY_DEP_1 // ' file'
+               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+            END IF
+            IF ( .NOT. WRITE3( CTM_DRY_DEP_1, NAME_NH3_EMIS,
+     &                 MDATE, MTIME, NH3_EMIS ) ) THEN
+               XMSG = 'Could not write ' // CTM_DRY_DEP_1 // ' file'
+               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+            END IF
+!            WRITE( LOGDEV,*) ' NH3emis, flux, drydep=',NH3_EMIS(27,18),
+!     &                     NH3_FLUX(27,18),DDEP( DD2DV(NH3_HIT),27,18)
+            NH3_EMIS = 0.0
+          END IF
 
          WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
      &         'Timestep written to', CTM_DRY_DEP_1,

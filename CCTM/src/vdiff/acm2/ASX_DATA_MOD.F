@@ -357,7 +357,7 @@ C Land use information:
       CONTAINS
 
 C=======================================================================
-         Subroutine INIT_MET ( JDATE, JTIME, ABFLUX) !, HGBIDI )
+         Subroutine INIT_MET ( JDATE, JTIME, ABFLUX )
 
 C-----------------------------------------------------------------------
 C   30 Mar 01 J.Young: dyn alloc - Use HGRD_DEFN; replace INTERP3 with INTERPX;
@@ -498,9 +498,8 @@ C-----------------------------------------------------------------------
          Grid_Data%NAME    = name_lu
          Grid_Data%LU_Type = cat_lu
 
-         If ( ABFLUX ) Then
+         If ( ABFLUX  ) Then
             ALLOCATE( Met_Data%SOIM2    ( NCOLS,NROWS ),
-     &                Met_Data%SOIT2    ( NCOLS,NROWS ),
      &                STAT = ALLOCSTAT )
             If ( ALLOCSTAT .Ne. 0 ) Then
                XMSG = 'Failure allocating mosaic met vars'
@@ -765,7 +764,7 @@ C-----------------------------------------------------------------------
          End Subroutine INIT_MET
 
 C=======================================================================
-         Subroutine GET_MET ( JDATE, JTIME, TSTEP) !, MOSAIC, ABFLUX, HGBIDI )
+         Subroutine GET_MET ( JDATE, JTIME, TSTEP, ABFLUX )
 
 C-----------------------------------------------------------------------
 C   30 Mar 01 J.Young: dyn alloc - Use HGRD_DEFN; replace INTERP3 with INTERPX;
@@ -796,7 +795,7 @@ C Arguments:
 
          Integer, Intent( IN ) :: JDATE, JTIME, TSTEP      ! internal simulation date&time
 !         Logical, Intent( IN ) :: MOSAIC
-!         Logical, Intent( IN ) :: ABFLUX
+         Logical, Intent( IN ) :: ABFLUX
 !         Logical, Intent( IN ) :: HGBIDI
 
 C Parameters:
@@ -949,14 +948,14 @@ C Soil vars
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End If
 
-!         If ( ABFLUX .Or. HGBIDI .Or. MOSAIC ) Then
-!            VNAME = 'SOIM2'
-!            If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
-!     &                          STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
-!     &                          JDATE, JTIME, Met_Data%SOIM2 ) ) Then
-!               XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_2D
-!               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-!            End If
+         If ( ABFLUX ) Then
+            VNAME = 'SOIM2'
+            If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
+     &                          STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                          JDATE, JTIME, Met_Data%SOIM2 ) ) Then
+               XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_2D
+               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            End If
 
 !            VNAME = 'SOIT2'
 !            If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
@@ -965,7 +964,7 @@ C Soil vars
 !               XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_2D
 !               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
 !            End If
-!         End If
+         End If
 
          VNAME = 'SOIT1'
          If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,

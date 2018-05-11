@@ -94,7 +94,7 @@ C Set output file characteristics based on COORD.EXT and open the dry dep file
 !         IF ( ABFLUX ) THEN
 !            NVARS3D = N_SPC_DDEP + LCMP
 !         ELSE 
-            NVARS3D = N_SPC_DDEP
+            NVARS3D = N_SPC_DDEP + 2
 !         END IF
          NCOLS3D = GL_NCOLS
          NROWS3D = GL_NROWS
@@ -169,6 +169,15 @@ C Set output file characteristics based on COORD.EXT and open the dry dep file
             VDESC3D( V ) = 'hourly dry deposition values'
          END DO
 
+         VTYPE3D( V ) = M3REAL
+         VNAME3D( V ) = 'NH3_FLUX'
+         UNITS3D( V ) = 'kg/hectare'
+         VDESC3D( V ) = 'hourly NH3_FLUX values'
+
+         VTYPE3D( V+1 ) = M3REAL
+         VNAME3D( V+1 ) = 'NH3_EMIS'
+         UNITS3D( V+1 ) = 'kg/hectare'
+         VDESC3D( V+1 ) = 'hourly NH3_EMIS values'
 
          FDESC3D( 1 ) = 'hourly 1-layer cross-point RADM dry deposition data'
          DO L = 2, MXDESC3

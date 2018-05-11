@@ -80,12 +80,12 @@
     case intel:
     
         #> I/O API, netCDF, and MPI library locations
-        setenv IOAPI_MOD_DIR   ioapi_mod_intel  #> I/O API precompiled modules
-        setenv IOAPI_INCL_DIR  iopai_inc_intel  #> I/O API include header files
-        setenv IOAPI_LIB_DIR   ioapi_lib_intel  #> I/O API libraries
-        setenv NETCDF_LIB_DIR  netcdf_lib_intel #> netCDF directory path
+        setenv IOAPI_MOD_DIR   /home/wdx/lib_sol/x86_64/ifc-17.0.3/ioapi_3.1/Linux2_x86_64ifort  
+        setenv IOAPI_INCL_DIR  /home/wdx/lib_sol/x86_64/ifc-17.0.3/ioapi_3.1/ioapi/fixed_src
+        setenv IOAPI_LIB_DIR   /home/wdx/lib_sol/x86_64/ifc-17.0.3/ioapi_3.1/Linux2_x86_64ifort
+        setenv NETCDF_LIB_DIR  /home/wdx/lib_sol/x86_64/ifc-17.0.3/netcdf-4.4.1/lib
         setenv NETCDF_INCL_DIR netcdf_inc_intel #> netCDF directory path
-        setenv MPI_LIB_DIR     mpi_lib_intel    #> MPI directory path
+        setenv MPI_LIB_DIR     /home/wdx/lib_sol/x86_64/ifc-17.0.3/mpich
     
         #> Compiler Aliases and Flags
         setenv myFC mpiifort
