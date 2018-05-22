@@ -206,7 +206,7 @@
      &    emis_legend( 'ORA2         ' ,'ORA2        ','GAS   ',060.0 ),
      &    emis_legend( 'ETOH         ' ,'ETOH        ','GAS   ',046.1 ),
      &    emis_legend( 'KET          ' ,'KET         ','GAS   ',072.1 ),
-     &    emis_legend( 'PAR          ' ,'PAR         ','GAS   ',072.1 ),
+     &    emis_legend( 'PAR          ' ,'PAR         ','GAS   ',012.1 ),
      &    emis_legend( 'ACET         ' ,'ACETONE     ','GAS   ',058.1 ),
      &    emis_legend( 'ACD          ' ,'ACD         ','GAS   ',044.0 ),
      &    emis_legend( 'ALD          ' ,'ALD         ','GAS   ',058.0 ),
@@ -895,16 +895,16 @@
           ! Error Check the Regions Array
           ! Any Negatives?
           DO IRGN = 1,N_EM_RGN
-            IF ( ANY( EM_REG_FAC( :,:,IRGN ) .LT. 0.0 ) THEN
-               XMSG = 'Region ' // TRIM( EM_REGIONS( IRGN )) // ' on file ' //
+            IF ( ANY( EM_REG_FAC( :,:,IRGN ) .LT. 0.0 ) ) THEN
+               XMSG = 'Region ' // TRIM( EM_REGIONS( IRGN )%LABEL) // ' on file ' //
      &                TRIM( FILENAMES( IFILE )) // ' contains a ' //
      &                'negative value. The expected range is 0-1.'
-     &         CALL M3ERR( PNAME, STDATE, STTIME, XMSG, .TRUE. )
-            ELSE IF ( ANY( EM_REG_FAC( :,:,IRGN ) .GT. 1.01 ) THEN
-               XMSG = 'Region ' // TRIM( EM_REGIONS( IRGN )) // ' on file ' //
+               CALL M3ERR( PNAME, STDATE, STTIME, XMSG, .TRUE. )
+            ELSE IF ( ANY( EM_REG_FAC( :,:,IRGN ) .GT. 1.01 ) ) THEN
+               XMSG = 'Region ' // TRIM( EM_REGIONS( IRGN )%LABEL) // ' on file ' //
      &                TRIM( FILENAMES( IFILE )) // ' contains a ' //
      &                'value greater than 1. The expected range is 0-1.'
-     &         CALL M3ERR( PNAME, STDATE, STTIME, XMSG, .TRUE. )
+               CALL M3ERR( PNAME, STDATE, STTIME, XMSG, .TRUE. )
             END IF
           END DO
 
