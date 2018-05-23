@@ -29,7 +29,7 @@
 !   1  Feb 2017 D. Kang Added CTM_LTNGDIAG_1 and CTM_LTNGDIAG_2 for Lightning
 !.......................................................................
 
-      INTEGER, PARAMETER :: N_FILES = 72
+      INTEGER, PARAMETER :: N_FILES = 73
 
       CHARACTER( 16 ) :: LGCL_NAME( N_FILES ) 
       LOGICAL            IN_MODE( N_FILES )
@@ -79,6 +79,7 @@
       CHARACTER( 16 ) :: CTM_PT3D_DIAG
       CHARACTER( 16 ) :: CTM_RJ_1
       CHARACTER( 16 ) :: CTM_RJ_2
+      CHARACTER( 16 ) :: CTM_RJ_3
       CHARACTER( 16 ) :: INIT_MEDC_1
       CHARACTER( 16 ) :: MEDIA_CONC
       CHARACTER( 16 ) :: REGIONS_1
@@ -153,6 +154,7 @@
       DATA CTM_PT3D_DIAG    / 'CTM_PT3D_DIAG   ' /
       DATA CTM_RJ_1         / 'CTM_RJ_1        ' /
       DATA CTM_RJ_2         / 'CTM_RJ_2        ' /
+      DATA CTM_RJ_3         / 'CTM_RJ_3        ' /
       DATA INIT_MEDC_1      / 'INIT_MEDC_1     ' /
       DATA MEDIA_CONC       / 'MEDIA_CONC      ' /
       DATA REGIONS_1        / 'REGIONS_1       ' /
@@ -185,6 +187,7 @@
       DATA LGCL_NAME(  2 ), IN_MODE(  2 )    / 'GRID_CRO_2D     ', .TRUE. /
       DATA LGCL_NAME(  3 ), IN_MODE(  3 )    / 'GRID_CRO_3D     ', .TRUE. /
       DATA LGCL_NAME(  4 ), IN_MODE(  4 )    / 'GRID_BDY_2D     ', .TRUE. /
+<<<<<<< HEAD
       DATA LGCL_NAME(  5 ), IN_MODE(  5 )    / 'OCEAN_1         ', .TRUE. /
       DATA LGCL_NAME(  6 ), IN_MODE(  6 )    / 'MET_BDY_2D      ', .TRUE. /
       DATA LGCL_NAME(  7 ), IN_MODE(  7 )    / 'MET_BDY_3D      ', .TRUE. /
@@ -221,37 +224,38 @@
       DATA LGCL_NAME( 38 ), IN_MODE( 38 )    / 'CTM_PT3D_DIAG   ', .FALSE. /
       DATA LGCL_NAME( 39 ), IN_MODE( 39 )    / 'CTM_RJ_1        ', .FALSE. /
       DATA LGCL_NAME( 40 ), IN_MODE( 40 )    / 'CTM_RJ_2        ', .FALSE. /
-      DATA LGCL_NAME( 41 ), IN_MODE( 41 )    / 'INIT_MEDC_1     ', .FALSE. /
-      DATA LGCL_NAME( 42 ), IN_MODE( 42 )    / 'MEDIA_CONC      ', .FALSE. /
-      DATA LGCL_NAME( 43 ), IN_MODE( 43 )    / 'REGIONS_1       ', .FALSE. /
-      DATA LGCL_NAME( 44 ), IN_MODE( 44 )    / 'INIT_GASC_S     ', .FALSE. /
-      DATA LGCL_NAME( 45 ), IN_MODE( 45 )    / 'INIT_AERO_S     ', .FALSE. /
-      DATA LGCL_NAME( 46 ), IN_MODE( 46 )    / 'INIT_NONR_S     ', .FALSE. /
-      DATA LGCL_NAME( 47 ), IN_MODE( 47 )    / 'BNDY_GASC_S     ', .FALSE. /
-      DATA LGCL_NAME( 48 ), IN_MODE( 48 )    / 'BNDY_AERO_S     ', .FALSE. /
-      DATA LGCL_NAME( 49 ), IN_MODE( 49 )    / 'BNDY_NONR_S     ', .FALSE. /
-      DATA LGCL_NAME( 50 ), IN_MODE( 50 )    / 'CTM_SENS_1      ', .FALSE. /
-      DATA LGCL_NAME( 51 ), IN_MODE( 51 )    / 'A_SENS_1        ', .FALSE. /
-      DATA LGCL_NAME( 52 ), IN_MODE( 52 )    / 'CTM_SWETDEP_1   ', .FALSE. /
-      DATA LGCL_NAME( 53 ), IN_MODE( 53 )    / 'CTM_SDRYDEP_1   ', .FALSE. /
-      DATA LGCL_NAME( 54 ), IN_MODE( 54 )    / 'DUST_LU_1       ', .TRUE. /
-      DATA LGCL_NAME( 55 ), IN_MODE( 55 )    / 'DUST_LU_2       ', .TRUE. /
-      DATA LGCL_NAME( 56 ), IN_MODE( 56 )    / 'CTM_DEPV_MOS    ', .FALSE. /
-      DATA LGCL_NAME( 57 ), IN_MODE( 57 )    / 'CTM_DRY_DEP_MOS ', .FALSE. /
-      DATA LGCL_NAME( 58 ), IN_MODE( 58 )    / 'CTM_DRY_DEP_FST ', .FALSE. /
-      DATA LGCL_NAME( 59 ), IN_MODE( 59 )    / 'CTM_DEPV_FST    ', .FALSE. /
-      DATA LGCL_NAME( 60 ), IN_MODE( 60 )    / 'E2C_FERT        ', .FALSE. /
-      DATA LGCL_NAME( 61 ), IN_MODE( 61 )    / 'E2C_SOIL        ', .FALSE. /
-      DATA LGCL_NAME( 62 ), IN_MODE( 62 )    / 'BELD4_LU        ', .FALSE. /
-      DATA LGCL_NAME( 63 ), IN_MODE( 63 )    / 'CTM_SD_TS       ', .FALSE. /
-      DATA LGCL_NAME( 64 ), IN_MODE( 64 )    / 'CTM_VDIFF_DIAG  ', .FALSE. /
-      DATA LGCL_NAME( 65 ), IN_MODE( 65 )    / 'CTM_VSED_DIAG   ', .FALSE. /
-      DATA LGCL_NAME( 66 ), IN_MODE( 66 )    / 'BNDY_TRAC_S     ', .FALSE. /
-      DATA LGCL_NAME( 67 ), IN_MODE( 67 )    / 'INIT_TRAC_S     ', .FALSE. /
-      DATA LGCL_NAME( 68 ), IN_MODE( 68 )    / 'CTM_MGEM_1      ', .FALSE. /
-      DATA LGCL_NAME( 69 ), IN_MODE( 69 )    / 'CTM_APMDIAG_1   ', .FALSE. /
-      DATA LGCL_NAME( 70 ), IN_MODE( 70 )    / 'CTM_AVIS_1      ', .FALSE. /
-      DATA LGCL_NAME( 71 ), IN_MODE( 71 )    / 'CTM_LTNGDIAG_1  ', .FALSE. /
-      DATA LGCL_NAME( 72 ), IN_MODE( 72 )    / 'CTM_LTNGDIAG_2  ', .FALSE. /
+      DATA LGCL_NAME( 41 ), IN_MODE( 41 )    / 'CTM_RJ_3        ', .FALSE. /
+      DATA LGCL_NAME( 42 ), IN_MODE( 42 )    / 'INIT_MEDC_1     ', .FALSE. /
+      DATA LGCL_NAME( 43 ), IN_MODE( 43 )    / 'MEDIA_CONC      ', .FALSE. /
+      DATA LGCL_NAME( 44 ), IN_MODE( 44 )    / 'REGIONS_1       ', .FALSE. /
+      DATA LGCL_NAME( 45 ), IN_MODE( 45 )    / 'INIT_GASC_S     ', .FALSE. /
+      DATA LGCL_NAME( 46 ), IN_MODE( 46 )    / 'INIT_AERO_S     ', .FALSE. /
+      DATA LGCL_NAME( 47 ), IN_MODE( 47 )    / 'INIT_NONR_S     ', .FALSE. /
+      DATA LGCL_NAME( 48 ), IN_MODE( 48 )    / 'BNDY_GASC_S     ', .FALSE. /
+      DATA LGCL_NAME( 49 ), IN_MODE( 49 )    / 'BNDY_AERO_S     ', .FALSE. /
+      DATA LGCL_NAME( 50 ), IN_MODE( 50 )    / 'BNDY_NONR_S     ', .FALSE. /
+      DATA LGCL_NAME( 51 ), IN_MODE( 51 )    / 'CTM_SENS_1      ', .FALSE. /
+      DATA LGCL_NAME( 52 ), IN_MODE( 52 )    / 'A_SENS_1        ', .FALSE. /
+      DATA LGCL_NAME( 53 ), IN_MODE( 53 )    / 'CTM_SWETDEP_1   ', .FALSE. /
+      DATA LGCL_NAME( 54 ), IN_MODE( 54 )    / 'CTM_SDRYDEP_1   ', .FALSE. /
+      DATA LGCL_NAME( 55 ), IN_MODE( 55 )    / 'DUST_LU_1       ', .TRUE. /
+      DATA LGCL_NAME( 56 ), IN_MODE( 56 )    / 'DUST_LU_2       ', .TRUE. /
+      DATA LGCL_NAME( 57 ), IN_MODE( 57 )    / 'CTM_DEPV_MOS    ', .FALSE. /
+      DATA LGCL_NAME( 58 ), IN_MODE( 58 )    / 'CTM_DRY_DEP_MOS ', .FALSE. /
+      DATA LGCL_NAME( 59 ), IN_MODE( 59 )    / 'CTM_DRY_DEP_FST ', .FALSE. /
+      DATA LGCL_NAME( 60 ), IN_MODE( 60 )    / 'CTM_DEPV_FST    ', .FALSE. /
+      DATA LGCL_NAME( 61 ), IN_MODE( 61 )    / 'E2C_FERT        ', .FALSE. /
+      DATA LGCL_NAME( 62 ), IN_MODE( 62 )    / 'E2C_SOIL        ', .FALSE. /
+      DATA LGCL_NAME( 63 ), IN_MODE( 63 )    / 'BELD4_LU        ', .FALSE. /
+      DATA LGCL_NAME( 64 ), IN_MODE( 64 )    / 'CTM_SD_TS       ', .FALSE. /
+      DATA LGCL_NAME( 65 ), IN_MODE( 65 )    / 'CTM_VDIFF_DIAG  ', .FALSE. /
+      DATA LGCL_NAME( 66 ), IN_MODE( 66 )    / 'CTM_VSED_DIAG   ', .FALSE. /
+      DATA LGCL_NAME( 67 ), IN_MODE( 67 )    / 'BNDY_TRAC_S     ', .FALSE. /
+      DATA LGCL_NAME( 68 ), IN_MODE( 68 )    / 'INIT_TRAC_S     ', .FALSE. /
+      DATA LGCL_NAME( 69 ), IN_MODE( 69 )    / 'CTM_MGEM_1      ', .FALSE. /
+      DATA LGCL_NAME( 70 ), IN_MODE( 70 )    / 'CTM_APMDIAG_1   ', .FALSE. /
+      DATA LGCL_NAME( 71 ), IN_MODE( 71 )    / 'CTM_AVIS_1      ', .FALSE. /
+      DATA LGCL_NAME( 72 ), IN_MODE( 72 )    / 'CTM_LTNGDIAG_1  ', .FALSE. /
+      DATA LGCL_NAME( 73 ), IN_MODE( 73 )    / 'CTM_LTNGDIAG_2  ', .FALSE. /
                       
 !................   end   FILES3_CTM.EXT   .............................

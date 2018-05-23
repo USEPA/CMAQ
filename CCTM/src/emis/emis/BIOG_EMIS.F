@@ -135,10 +135,11 @@ C Local variables
 
          CHARACTER( 256 ) :: LINE       ! buffer for profile record
          CHARACTER( 256 ) :: MESG       ! message buffer
-         CHARACTER(   5 ) :: SPNPRF     ! record (line) speciation profile name
+         CHARACTER(  16 ) :: SPNPRF     ! record (line) speciation profile name
          CHARACTER(  16 ) :: POLNAM     ! record (line) pollutant name
          CHARACTER(  16 ) :: SPECNM     ! record (line) species name
-         CHARACTER(   5 ) :: SPPRO      ! requested speciation profile name
+         CHARACTER(  16 ) :: SPPRO      ! requested speciation profile name
+         CHARACTER(  16 ) :: FILE_SPPRO ! label read from gspro
 
          REAL                SPLTFAC, SDIV, SMFAC ! line speciation profile factors
 
@@ -218,9 +219,11 @@ C Check for header start
 
 C Skip lines that don't reference the requested speciation profile name
             IF ( LINE( 1:1 ) .EQ. '"' ) THEN
-               IF ( LINE( 2:6 ) .NE. SPPRO ) CYCLE
+               FILE_SPPRO = LINE( 2: INDEX( LINE,'"' )-1 )
+               IF ( FILE_SPPRO .NE. SPPRO ) CYCLE 
             ELSE
-               IF ( LINE( 1:5 ) .NE. SPPRO ) CYCLE
+               FILE_SPPRO = LINE( 1: INDEX( LINE,';' )-1 )
+               IF ( FILE_SPPRO .NE. SPPRO ) CYCLE 
             END IF
 
 C Separate the line of data (record) into the segments (parse the record fields)
@@ -236,9 +239,9 @@ C Left-justify character strings and convert factors to reals
 
 C Check width of character fields of fixed length
             N = LEN_TRIM( SPNPRF )
-            IF ( N .GT. 5 ) THEN
+            IF ( N .GT. 16 ) THEN
                WRITE( MESG,94010 ) 'ERROR: Speciation profile code ' //
-     &                 'exceeds max width of 5 characters at line', IREC
+     &                'exceeds max width of 16 characters at line', IREC
                CALL M3MESG( MESG )
                SUCCESS = .FALSE.; RETURN
             END IF
@@ -463,9 +466,11 @@ C Skip blank and comment lines
 
 C Skip lines that don't reference the requested speciation profile name
             IF ( LINE( 1:1 ) .EQ. '"' ) THEN
-               IF ( LINE( 2:6 ) .NE. SPPRO ) CYCLE
+               FILE_SPPRO = LINE( 2: INDEX( LINE,'"' )-1 )
+               IF ( FILE_SPPRO .NE. SPPRO ) CYCLE 
             ELSE
-               IF ( LINE( 1:5 ) .NE. SPPRO ) CYCLE
+               FILE_SPPRO = LINE( 1: ( INDEX( LINE,';' )-1 ) )
+               IF ( FILE_SPPRO .NE. SPPRO ) CYCLE 
             END IF
 
 C Separate the line of data into each part

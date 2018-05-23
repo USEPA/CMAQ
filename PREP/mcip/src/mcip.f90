@@ -63,6 +63,9 @@ PROGRAM mcip
 !                        with F90 protected intrinsic.  Removed calls to
 !                        ALLOC_LU, DEALLOC_LU, and INIT_LU.  (T. Otte)
 !           07 Sep 2011  Updated disclaimer.  (T. Otte)
+!           13 Feb 2018  Added optional output files for land use, soil, and
+!                        mosaic data.  Changed print statement preceding the
+!                        printing of metadata in the log file.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE mcipparm
@@ -87,7 +90,7 @@ PROGRAM mcip
     & /,  1x, 78('~'), /)"
 
   CHARACTER(LEN=256), PARAMETER :: f200 = "(//, 1x, 78('~'), &
-    & /,  1x, '~~~ Metadata summary (from I/O API header)', &
+    & /,  1x, '~~~ Metadata summary', &
     & /,  1x, 78('~'), /)"
 
 !-------------------------------------------------------------------------------
@@ -153,6 +156,9 @@ PROGRAM mcip
       CALL statflds                   ! Put time-invariant fields on MCIP grid.
       IF ( makegrid ) THEN
         CALL gridout (sdate, stime)   ! Output to GRID files.
+        IF ( iflufrc ) THEN
+          CALL lucro (sdate, stime)   ! Output to LUFRAC file.
+        ENDIF
         CALL wrgdesc                  ! Write GRIDDESC file.
       ENDIF
       first = .FALSE.
@@ -167,6 +173,12 @@ PROGRAM mcip
 
     CALL metcro (sdate, stime)        ! Output to MET_CRO and MET_BDY files.
     CALL metdot (sdate, stime)        ! Output to MET_DOT files.
+    IF ( ifsoil ) THEN
+      CALL soilcro (sdate, stime)     ! Output to SOI_CRO
+    ENDIF
+    IF ( ifmosaic ) THEN
+      CALL moscro (sdate, stime)      ! Output to MOSAIC_CRO
+    ENDIF
 
 
     ! Update SDATE and STIME for next I/O API header.

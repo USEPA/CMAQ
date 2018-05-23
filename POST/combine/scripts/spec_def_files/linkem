@@ -1,5 +1,5 @@
 #!/bin/csh -f
-#> symlink the v5.2 Species Definition files
+#> symlink the v5.2.1 Species Definition files
 
  set CMD = '/bin/ln -s'
  set src = ../../../../CCTM/src/MECHS

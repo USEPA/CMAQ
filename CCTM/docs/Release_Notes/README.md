@@ -1,14 +1,45 @@
-CMAQv5.2 Release Notes 
+CMAQv5.2.1 Release Notes 
 =====================================
 
-The Community Multiscale Air Quality (CMAQ) Model version 5.2 is a major update to CMAQ that includes several changes to the science algorithms in the base model.  CMAQ v5.2 was developed by the U.S. EPA with contributions from other research partners. Summarized below are the main enhancements to the modeling system since the previous release, CMAQ v5.1.
+The Community Multiscale Air Quality (CMAQ) Model version 5.2.1 is a minor update to CMAQv5.2 that includes multiple bug fixes and a few minor feature additions.  CMAQ v5.2.1 was developed by the U.S. EPA with contributions from other research partners.  
 
 # Getting Started with CMAQ  
-[Building and running CMAQv5.2](../../../DOCS/User_Manual/CMAQ_OGD_ch05_sys_req.md)  
+[Building and running CMAQv5.2.1](../../../DOCS/User_Manual/CMAQ_OGD_ch05_sys_req.md)  
 [Building and running WRF-CMAQ Two Way Model](Two_Way_Coupled_WRF-CMAQ.md)
 
+# Summary of CMAQv5.2.1 Updates  
+
+## Transport  
+  * [Grid check tolerance during advection](Grid_Check_Tolerance.md)   
+  * [Remove SWAP routines](SWAP_routines.md)  
+  * [Unique INTERPX offsets for METCRO2D](INTERPX.md)  
+
+## Emissions and Air-Surface Exchange  
+  * [Turn on bioseason switch by default](Bioseason.md)  
+  * [Allow Emissions Check to have no point sources](Emiss_Check_Zero_PT_Sources.md)  
+
+## Chemistry  
+  * [Remove duplicative heterogeneous uptake of N2O5](Duplicate_N2O5.md)   
+  * [Make generalized solvers work with intel version 17](Intel17_Solver_Compatibility.md)   
+
+## Aerosol Processes  
+  * [Fix Bugs in initialization including ICBC checking, getpar calls and getpar save variables](Aerosol_ICBC_GetPar.md)   
+ 
+## WRF-CMAQ
+  * [Fix Bug in switch for turning convective scheme on and off](Two_Way_Convective_Scheme.md)  
+
+## Compilation  
+  * [Compilation options, debugging flag, and include paths](Compilation_Options_and_Debug.md)   
+
+## Post-Processing  
+  * [Improve combine's math](Combine_Math.md)    
+  * [Add command for extracting specdef files to bldit_project.csh](SpecDefExtraction.md)   
+
 -----
+
 # Summary of CMAQv5.2 Updates
+
+The Community Multiscale Air Quality (CMAQ) Model version 5.2 is a major update to CMAQ that includes several changes to the science algorithms in the base model.  CMAQ v5.2 was developed by the U.S. EPA with contributions from other research partners. Summarized below are the main enhancements to the modeling system since the previous release, CMAQ v5.1.
 
 <a id="chemistry"></a>
 ## Chemistry
