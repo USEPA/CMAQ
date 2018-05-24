@@ -187,7 +187,6 @@
       DATA LGCL_NAME(  2 ), IN_MODE(  2 )    / 'GRID_CRO_2D     ', .TRUE. /
       DATA LGCL_NAME(  3 ), IN_MODE(  3 )    / 'GRID_CRO_3D     ', .TRUE. /
       DATA LGCL_NAME(  4 ), IN_MODE(  4 )    / 'GRID_BDY_2D     ', .TRUE. /
-<<<<<<< HEAD
       DATA LGCL_NAME(  5 ), IN_MODE(  5 )    / 'OCEAN_1         ', .TRUE. /
       DATA LGCL_NAME(  6 ), IN_MODE(  6 )    / 'MET_BDY_2D      ', .TRUE. /
       DATA LGCL_NAME(  7 ), IN_MODE(  7 )    / 'MET_BDY_3D      ', .TRUE. /
