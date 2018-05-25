@@ -75,7 +75,8 @@ C-----------------------------------------------------------------------
 
       CONTAINS
          FUNCTION BIOG_INIT() RESULT ( SUCCESS )
-
+      
+         USE RXNS_DATA, ONLY : MECHNAME
          USE UTILIO_DEFN
 
          IMPLICIT NONE
@@ -129,7 +130,7 @@ C Local variables
          INTEGER        NIPOS      ! number of pollutant matches
          INTEGER        PNDX       ! position (from INDEX1) of pol in POLNAMA
          INTEGER        SNDX       ! position (from INDEX1) of pol in SPECNMA
-         INTEGER        NDX        ! index position
+         INTEGER        NDX, INDX  ! index position
 
          LOGICAL     :: INHEADER = .FALSE.   ! true: in file header
 
@@ -142,17 +143,37 @@ C Local variables
          CHARACTER(  16 ) :: FILE_SPPRO ! label read from gspro
 
          REAL                SPLTFAC, SDIV, SMFAC ! line speciation profile factors
+ 
+         TYPE BIOG_MECH_TYPE
+              CHARACTER( 32 ) :: CHEMMECH
+              CHARACTER( 16 ) :: BIOGMECH
+         END TYPE BIOG_MECH_TYPE
 
+         TYPE( BIOG_MECH_TYPE ) :: BIOG_MECH_MAP( 16 ) = (/
+     &         BIOG_MECH_TYPE( 'CB05E51_AE6_AQ         ','B10C5   '),
+     &         BIOG_MECH_TYPE( 'CB05E51_AE6NVPOA_AQ    ','B10C5   '),
+     &         BIOG_MECH_TYPE( 'CB05EH51_AE6_AQ        ','B10C5   '),
+     &         BIOG_MECH_TYPE( 'CB05MP51_AE6_AQ        ','B10C5   '),
+     &         BIOG_MECH_TYPE( 'CB05TUCL51_AE6_AQ      ','B10C5   '),
+     &         BIOG_MECH_TYPE( 'CB6R3_AE6_AQ           ','B10C6   '),
+     &         BIOG_MECH_TYPE( 'CB6MP_AE6_AQ           ','B10C6   '),
+     &         BIOG_MECH_TYPE( 'CB6R3_AE6NVPOA_aq      ','B10C6   '),
+     &         BIOG_MECH_TYPE( 'CB6R3_AE7_AQ           ','B10C6AE7'),
+     &         BIOG_MECH_TYPE( 'RACM2_AE6_AQ           ','B10RD   '),
+     &         BIOG_MECH_TYPE( 'SAPRC07TB_AE6_AQ       ','B10SP   '),
+     &         BIOG_MECH_TYPE( 'SAPRC07TC_AE6_AQ       ','B10SP   '),
+     &         BIOG_MECH_TYPE( 'SAPRC07TC_AE6NVPOA_AQ  ','B10SP   '),
+     &         BIOG_MECH_TYPE( 'SAPRC07TIC_AE6I_AQ     ','B10SP   '),
+     &         BIOG_MECH_TYPE( 'SAPRC07TIC_AE6I_AQKMTI ','B10SP   '),
+     &         BIOG_MECH_TYPE( 'SAPRC07TIC_AE6INVPOA_AQ','B10SP   ') /)
+     &   
+ 
          CHARACTER( 16 ) :: PNAME = 'BIOG_INIT'
-#ifdef Verbose
          integer logdev   ! debug
-#endif
 
 C-----------------------------------------------------------------------
 
-#ifdef Verbose
          logdev = init3()   ! debug
-#endif
          SUCCESS = .TRUE.
 
 C Open speciation profiles file
@@ -161,9 +182,10 @@ C Open speciation profiles file
      &            .TRUE., .TRUE., 'GSPRO', PNAME )
 C                 rdonly  fmtted
 
-C Get the speciation profile to use
-         MESG = 'Speciation profile to use for biogenics'
-         CALL ENVSTR( 'BIOG_SPRO', MESG, 'B3V10', SPPRO, IOS )
+         INDX = INDEX1( MECHNAME, 16, BIOG_MECH_MAP%CHEMMECH )
+         SPPRO = BIOG_MECH_MAP( INDX )%BIOGMECH
+         WRITE( LOGDEV, '(5X,A,A,A)' ), 'Accessing compatible biogenic ',
+     &          'emissions mechanism: ',TRIM( SPPRO )
 
 C Scan speciation profiles file to get all of the pollutant-species combinations
 C that are valid for the pollutants in the inventory. The species names are sorted

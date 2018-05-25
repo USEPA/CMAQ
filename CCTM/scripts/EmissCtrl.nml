@@ -87,7 +87,7 @@
 !                         module.
 !------------------------------------------------------------------------------!
 
-%SizeDistributions
+&SizeDistributions
  SD_NML    = 
  !         | Stream Label   | Surr. Mode   | Ref. Mode 
  !<Default>  'ALL'          ,'FINE'        ,'FINE_REF',

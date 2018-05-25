@@ -406,6 +406,9 @@ C-----------------------------------------------------------------------
 
        ! First Load all of the Streams with the Default FINE, COARSE, and
        ! AERO Mode references
+       SD = 0
+       SD_NAME = ''
+
        DO ISRM = 1,N_EM_SRM
          N_SD( ISRM ) = 3
          SD_NAME( ISRM,1 ) = 'FINE'
@@ -572,7 +575,8 @@ C     using Equation 7c of Binkowski & Roselle (2003).  Multiplying by PI
 C     converts 2nd moment to surface area.
             
          DO ISD = 2,N_SD   ! Skip the Index for the Gas Phase
-            IF ( EM_STREAM_SIZE( ISRM )%NAME( ISD ) .EQ. 'SEASPRAY' ) THEN
+            !IF ( EM_AERO_REF( EM_STREAM_SIZE( ISRM )%REF( ISD ) )%NAME .EQ. 'SEASPRAY' ) THEN
+            IF ( ISRM .EQ. ISEASRM ) THEN
                ! Apply Spatially-Dependent Number and Surface Area Scale Factors
                DO IM = 1,N_MODE
                   VDEMIS( MAP_NUMtoEM(IM),1,:,: ) = VDEMIS( MAP_NUMtoEM(IM),1,:,: ) 
