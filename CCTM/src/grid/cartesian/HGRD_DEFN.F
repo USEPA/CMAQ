@@ -103,7 +103,7 @@ C column range for each processor
 C row range for each processor
       INTEGER, ALLOCATABLE, SAVE :: ROWSX_PE( :,: )
       INTEGER, ALLOCATABLE, SAVE :: ROWSD_PE( :,: )  ! dot file
- 
+
 C maximum stencil displacement in the north, east, south, and west direction
       INTEGER, PARAMETER :: MNDIS = 2
       INTEGER, PARAMETER :: MEDIS = 2

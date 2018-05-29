@@ -97,6 +97,7 @@ set ParOpt                             #> uncomment to build a multiple processo
  set ModAero   = aero/aero7            #> aerosol chemistry module (see $CMAQ_MODEL/CCTM/src/aero)
  set ModCloud  = cloud/acm_ae7         #> cloud chemistry module (see $CMAQ_MODEL/CCTM/src/cloud)
  set ModUtil   = util/util             #> CCTM utility modules
+ set ModDiag   = diag                  #> CCTM diagnostic modules
  set Tracer    = trac0                 #> tracer configuration directory under 
                                        #>   $CMAQ_MODEL/CCTM/src/MECHS [ default: no tracer species ]
  set ModPa     = procan/pa             #> name of process analysis. Include files are in directory 
@@ -508,6 +509,11 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  set text = "util"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModUtil};"                                         >> $Cfile
+ echo                                                              >> $Cfile
+
+ set text = "diag"
+ echo "// options are" $text                                       >> $Cfile
+ echo "Module ${ModDiag};"                                         >> $Cfile
  echo                                                              >> $Cfile
 
  if ( $?ModMisc ) then
