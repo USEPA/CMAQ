@@ -23,7 +23,7 @@ C $Header: /project/work/rep/arc/CCTM/src/depv/m3dry/m3dry.F,v 1.12 2012/01/19 1
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 !      SUBROUTINE m3dry ( jdate, jtime, dt, abflux, sfc_hono, mosaic, fst, cgridl1, depvel_gas,
 !     &                   pvd, cmp )
-      SUBROUTINE m3dry ( jdate, jtime, dt, abflux, sfc_hono, cgridl1, depvel_gas, pvd)
+      SUBROUTINE m3dry ( jdate, jtime, dt, abflux, sfc_hono, cgridl1, depvel_gas, pvd,ddep_nh3)
 
 
 C-------------------------------------------------------------------------------
@@ -182,6 +182,7 @@ C Arguments:
       REAL,        INTENT( IN )  :: cgridl1( :,:,: )    ! layer 1 concentrations
       REAL,        INTENT( OUT ) :: depvel_gas( :,:,: )
       REAL,        INTENT( OUT ) :: pvd( :,:,: )
+      REAL,        INTENT( OUT ) :: ddep_nh3(:,:)
 !      REAL,        INTENT( OUT ) :: cmp( :,:,: ) ! Bidi component fluxes JOB
 
 C Local Variables:
@@ -232,7 +233,8 @@ C Local Variables:
       REAL                       :: xm                   ! liquid water mass frac
       REAL                       :: rh_func              ! Simple RH function for the development of a water film on leaf cuticles 
       Real,            Parameter :: MolNH3   = 17.01     ! g/mol NH3  for NH3 bidi to convert to microg/m3
-      real                       :: cnh3,tpvd,lnh3
+      Real,            Parameter :: MolAir   = 29.97     ! g/mol dry air
+      Real                       :: cnh3,tpvd,lnh3,fdep
 
       REAL,    SAVE, ALLOCATABLE :: delta     ( :,: )
 
@@ -649,27 +651,19 @@ c        Iodide in sea-water based on SST  (mol /dm-3)
 
 C--------------------------------------------------------------------------
             IF ( abflux .And. l .Eq. l_NH3 ) THEN   ! Ammonia Bidirectional Flux
-               cnh3  = cgridl1( n,c,r ) * MolNH3 * 1000.0 / 24.45  ! convert to micrograms/m3
+               cnh3  = cgridl1( n,c,r ) * MolNH3/MolAir * 1000.0 * Met_Data%DENS1( C,R ) ! convert to micrograms/m3
 
                IF ( NINT( GRID_DATA%LWMASK( c,r ) ) .NE. 0 ) THEN  ! land
 !                  CALL Get_Flux( cnh3,rwetsfc,rgw,r,c,l,tpvd,lnh3,f_stom,f_cut,f_soil,
 !     &                           f_emis,f_dep,f_ag,f_nat, f_wat,dt(2), jtime )
-                  CALL Get_Flux( cnh3,rwetsfc,rgw,r,c,l,tpvd,lnh3, rbc, rinc, rstom, delta(c,r),rgnd )
-                   pvd( n,c,r ) = tpvd * 24.45 * 0.001 / MolNH3 ! convert from microg/m2/s to PPM*m/s
+                  CALL Get_Flux( cnh3,rwetsfc,rgw,r,c,l,tpvd,lnh3, rbc, rinc, 
+     >                           rstom, delta(c,r),rgnd,fdep )
+!                   pvd( n,c,r ) = tpvd * 24.45 * 0.001 / MolNH3 ! convert from microg/m2/s to PPM*m/s
+                   pvd( n,c,r ) = tpvd * 0.001 * MolAir / (MolNH3 * Met_Data%DENS1( C,R ))
+                   ddep_nh3(c,r) = ddep_nh3(c,r) + fdep * dt(2) * 1.0e-5  ! convert from microg/m2  to kg/ha
                    depvel_gas( n,c,r ) = lnh3
-
- !                  cmp( 1,c,r ) = max( f_emis, 0.0 )
- !                  cmp( 2,c,r ) = max( f_dep, 0.0 )
- !                  cmp( 3,c,r ) = f_stom
- !                  cmp( 4,c,r ) = f_cut
- !                  cmp( 5,c,r ) = f_soil
- !                  cmp( 6,c,r ) = f_ag
- !                  cmp( 7,c,r ) = f_nat
- !                  cmp( 8,c,r ) = f_wat
-
- !              ELSE   ! water
- !                 cmp( 2,c,r ) = depvel_gas( n,c,r ) * cnh3
- !                 cmp( 8,c,r ) = depvel_gas( n,c,r ) * cnh3
+               ELSE   ! water
+                   ddep_nh3(c,r) = ddep_nh3(c,r) + depvel_gas( n,c,r ) * cnh3 * dt(2) * 1.0e-5
                END IF
             END IF   ! 'abflux'
 

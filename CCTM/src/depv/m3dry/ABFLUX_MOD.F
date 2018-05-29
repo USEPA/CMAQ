@@ -596,7 +596,7 @@ C-------------------------------------------------------------------------------
 !------------------------------------------------------------------------------          
 
          Subroutine Get_Flux( cNH3, rwetsfc, rgw, r, c, l, pvd, lnh3,
-     &                         rb,rinc,rstom, delta,rgnd)
+     &                         rb,rinc,rstom, delta,rgnd,fdep)
          
          Use UTILIO_DEFN
          Use Bidi_Mod, Only: gamma1, gamma2, MHp1, MHp2
@@ -622,7 +622,7 @@ C-------------------------------------------------------------------------------
          
          Real,    Intent( OUT ) :: pvd
          Real,    Intent( OUT ) :: lnh3
-
+         Real,    Intent( OUT ) :: fdep
          
          Real( 8 )              :: aq           ! Quadradic equation variable
          Real( 8 )              :: bq           ! Quadradic equation variable
@@ -667,6 +667,7 @@ C-------------------------------------------------------------------------------
          Real                   :: canfrac
          Real                   :: frac_sol1    ! Fraction of NHx in solution layer 1
          Real                   :: frac_sol2    ! Fraction of NHx in solution layer 2
+         Real                   :: cnh3cdep
 
          logdev = init3()
          canfrac = 0.5    !exp(-1.)   
@@ -805,7 +806,12 @@ C-------------------------------------------------------------------------------
            
 ! if the compensation point less than zero reset it to zero
             cnh3c = max( cnh3c, 0.0 )   
-  
+!------find deposition flux by setting ground and stom comp points to zero
+             qq    = ga * cnh3  
+             bq    = rwmb * gt + MET_DATA%LAI( c,r ) * ( 1.0 - delta ) - rwx * qq 
+             cq    = -rwmb * qq
+            cnh3cdep = (-bq + sqrt( bq**2 - 4.0d0 * aq * cq))/(2.0d0 * aq) 
+
          End If  ! lai > 0.0
 
          ddd = ( 1.0 - delta ) / rgnd
@@ -815,6 +821,7 @@ C-------------------------------------------------------------------------------
 
          pvd  = cnh3c * ga * MET_DATA%VEG( c,r )                  ! microg/m2/s
          lnh3  = vdg + MET_DATA%VEG( c,r ) * ( ga - vdg )
+         fdep  = ga*(cnh3-cnh3cdep)*MET_DATA%VEG( c,r )+(1-MET_DATA%VEG( c,r ))*vdg*cnh3
 
 !         if(r.eq.18.and.c.eq.27) then
 !            Write(Logdev,*) ' Bidi-Epic conc'

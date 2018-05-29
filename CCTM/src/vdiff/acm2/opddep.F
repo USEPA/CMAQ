@@ -25,7 +25,7 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
  
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE OPDDEP ( JDATE, JTIME, TSTEP, N_SPC_DDEP) !, ABFLUX )
+      SUBROUTINE OPDDEP ( JDATE, JTIME, TSTEP, N_SPC_DDEP, ABFLUX )
 
 C   30 Mar 01 J.Young: dyn alloc - Use HGRD_DEFN
 C   03 Sep 01 David Wong: for new pario
@@ -51,7 +51,7 @@ C Arguments:
       INTEGER, INTENT( IN ) :: JTIME  ! current model time, coded HHMMSS
       INTEGER, INTENT( IN ) :: TSTEP  ! output time step
       INTEGER, INTENT( IN ) :: N_SPC_DDEP ! no. of dry dep species
-!      LOGICAL, INTENT( IN ) :: ABFLUX
+      LOGICAL, INTENT( IN ) :: ABFLUX
 
 C Local variables:
 
@@ -91,11 +91,11 @@ C Set output file characteristics based on COORD.EXT and open the dry dep file
          STIME3D = JTIME
          TSTEP3D = TSTEP
          CALL NEXTIME( SDATE3D, STIME3D, TSTEP3D ) !  start the next hour
-!         IF ( ABFLUX ) THEN
-!            NVARS3D = N_SPC_DDEP + LCMP
-!         ELSE 
+         IF ( ABFLUX ) THEN
             NVARS3D = N_SPC_DDEP + 2
-!         END IF
+         ELSE 
+            NVARS3D = N_SPC_DDEP 
+         END IF
          NCOLS3D = GL_NCOLS
          NROWS3D = GL_NROWS
          NLAYS3D =     1
@@ -169,15 +169,17 @@ C Set output file characteristics based on COORD.EXT and open the dry dep file
             VDESC3D( V ) = 'hourly dry deposition values'
          END DO
 
-         VTYPE3D( V ) = M3REAL
-         VNAME3D( V ) = 'NH3_FLUX'
-         UNITS3D( V ) = 'kg/hectare'
-         VDESC3D( V ) = 'hourly NH3_FLUX values'
-
-         VTYPE3D( V+1 ) = M3REAL
-         VNAME3D( V+1 ) = 'NH3_EMIS'
-         UNITS3D( V+1 ) = 'kg/hectare'
-         VDESC3D( V+1 ) = 'hourly NH3_EMIS values'
+         IF ( ABFLUX ) THEN
+            VTYPE3D( V ) = M3REAL
+            VNAME3D( V ) = 'NH3_DDEP'
+            UNITS3D( V ) = 'kg/hectare'
+            VDESC3D( V ) = 'hourly NH3_DryDep values'
+  
+            VTYPE3D( V+1 ) = M3REAL
+            VNAME3D( V+1 ) = 'NH3_EMIS'
+            UNITS3D( V+1 ) = 'kg/hectare'
+            VDESC3D( V+1 ) = 'hourly NH3_EMIS values'
+         END IF
 
          FDESC3D( 1 ) = 'hourly 1-layer cross-point RADM dry deposition data'
          DO L = 2, MXDESC3

@@ -72,7 +72,8 @@ C ddep spc conversion factors
 C model-oriented bi-directional production [ppm-m/s]
       REAL,    ALLOCATABLE, SAVE :: PLDV( :,:,: )
 !      REAL,    ALLOCATABLE, SAVE :: CMP ( :,:,: )
-
+C  Dry dep flux of NH3 for bidi [kg/ha hr]
+      REAL,    ALLOCATABLE, SAVE :: DDEP_NH3( :,: )
 C flag in-lining depv
       LOGICAL, SAVE :: ILDEPV
 
@@ -94,7 +95,7 @@ C flag for mosaic - luc specific deposition - stomatal flux only - within in-lin
 
       PUBLIC DEPV, N_SPC_DEPV, DD_CONV, PLDV,
      &             ILDEPV, SFC_HONO, ABFLUX,
-     &             DEPV_INIT, GET_DEPV
+     &             DEPV_INIT, GET_DEPV,DDEP_NH3
       PRIVATE
 
 C gas species (gas-phase and gas non-reactive) deposition velocities
@@ -491,15 +492,15 @@ C Identify and remove multiple occurrences of aerosol deposition velocities
 
             IF ( ILDEPV ) THEN
                ALLOCATE ( CGRIDL1( N_GAS_DEPV,NCOLS,NROWS ),
-     &                    PVD    ( N_GAS_DEPV,NCOLS,NROWS ),STAT = ALLOCSTAT )
-!     &                    PVD    ( N_GAS_DEPV,NCOLS,NROWS ), 
-!     &                    CMP    ( LCMP,NCOLS,NROWS),STAT = ALLOCSTAT )
+     &                    PVD    ( N_GAS_DEPV,NCOLS,NROWS ), 
+     &                    DDEP_NH3( NCOLS,NROWS),STAT = ALLOCSTAT )
                IF ( ALLOCSTAT .NE. 0 ) THEN
                   XMSG = 'Failure allocating CGRIDL1, CMP or PVD arrays'
                   CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
                   SUCCESS = .FALSE.; RETURN
                END IF
                CGRIDL1 = 0.0   ! array assignment (PVD initalized in m3dry)
+               DDEP_NH3 = 0.0
             END IF
 
 C Get diagnostic file flag.
@@ -558,7 +559,7 @@ C Get diagnostic file flag.
 C-----------------------------------------------------------------------
 
 
-         SUBROUTINE GET_DEPV( JDATE, JTIME, TSTEP, CGRID )
+         SUBROUTINE GET_DEPV( JDATE, JTIME, TSTEP, CGRID)
 C-----------------------------------------------------------------------
 
          USE HGRD_DEFN
@@ -624,12 +625,12 @@ C Local variables:
                REAL,    INTENT( OUT ) :: CGRIDL1( :,:,: )
             END SUBROUTINE CGRID_DEPV
            SUBROUTINE M3DRY ( JDATE, JTIME, TSTEP, ABFLUX, SFC_HONO, 
-     &                         CGRIDL1, DEPVEL_GAS, PVD)
+     &                         CGRIDL1, DEPVEL_GAS, PVD, DDEP_NH3)
                INTEGER, INTENT( IN )  :: JDATE, JTIME, TSTEP(3)
                LOGICAL, INTENT( IN )  :: ABFLUX
                LOGICAL, INTENT( IN )  :: SFC_HONO
                REAL,    INTENT( IN )  :: CGRIDL1( :,:,: )
-               REAL,    INTENT( OUT ) :: DEPVEL_GAS( :,:,: ), PVD( :,:,: )
+               REAL,    INTENT( OUT ) :: DEPVEL_GAS( :,:,: ), PVD( :,:,: ),DDEP_NH3(:,:)
             END SUBROUTINE M3DRY
             SUBROUTINE AERO_DEPV ( CGRID, JDATE, JTIME, TSTEP, ADEPV )
                REAL, POINTER          :: CGRID( :,:,:,: )
@@ -653,7 +654,7 @@ C-----------------------------------------------------------------------
 !            CALL M3DRY ( JDATE, JTIME, TSTEP, ABFLUX, SFC_HONO, MOSAIC, FST,             
 !     &                   CGRIDL1, DEPVEL_GAS, PVD, CMP )
             CALL M3DRY ( JDATE, JTIME, TSTEP, ABFLUX, SFC_HONO,             
-     &                   CGRIDL1, DEPVEL_GAS, PVD )
+     &                   CGRIDL1, DEPVEL_GAS, PVD, DDEP_NH3 )
 
 #ifdef Verbose
             cw = my_ncols/2; rw = my_nrows/2

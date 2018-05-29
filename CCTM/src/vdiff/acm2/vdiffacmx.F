@@ -22,7 +22,7 @@ C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/vdiffacm2.F,v 1.13 2012/01/19 14
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 !     SUBROUTINE VDIFFACMX ( DTSEC, SEDDY, DDEP, ICMP, CNGRD, DDEPJ, DDEPJ_FST )
-      SUBROUTINE VDIFFACMX ( DTSEC, SEDDY, DDEP, ICMP, CNGRD, NH3_EMIS )
+      SUBROUTINE VDIFFACMX ( DTSEC, SEDDY, DDEP, ICMP, CNGRD )
 
 C-----------------------------------------------------------------------
 C Asymmetric Convective Model v2 (ACM2/ACM1) -- Pleim(2006/2014)
@@ -74,7 +74,7 @@ C--- SEDDY is strictly an input, but it gets modified here
 !      REAL, INTENT( INOUT ), OPTIONAL :: DDEPJ    ( :,:,:,: ) ! ddep for mosaic
 !      REAL, INTENT( INOUT ), OPTIONAL :: DDEPJ_FST( :,:,:,: ) ! ddep for stomtal/cuticular pathway
       REAL, INTENT( INOUT ) :: CNGRD    ( :,:,:,: ) ! cgrid replacement
-      REAL, INTENT( INOUT ) :: NH3_EMIS ( :,: ) ! Emission from bidi NH3
+
 C Parameters:
 
 C explicit, THETA = 0, implicit, THETA = 1     ! Crank-Nicholson: THETA = 0.5
@@ -205,7 +205,6 @@ C set auxiliary depv arrays
             XMSG = 'Failure allocating DD or UU'
             CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
          END IF
-
          DD = 0.0; UU = 0.0   ! array assignment
 
          HONO_HIT = 0; HNO3_HIT = 0; NO2_HIT  = 0; NH3_HIT = 0
@@ -398,10 +397,9 @@ C --------- END of HET HONO RX ----------
                ELSE
                   S = DV2DF( V )
                   CONC( S,1 ) = POL( V ) + ( CONC( S,1 ) - POL( V ) ) * EFAC1( V )
-                  DDBF( V ) = DDBF( V ) + THETA * DD_FAC( V ) * CONC( S,1 ) 
-C Sum NH3 evasion flux for output    
-                  IF ( V .EQ. NH3_HIT ) NH3_EMIS(C,R) =  NH3_EMIS(C,R)             
-     &                      + THETA * DTDENS1 *DD_CONV( V ) * PLDV( V,C,R )          
+                  DDBF( V ) = DDBF( V ) + THETA * ( DD_FAC( V ) * CONC( S,1 ) 
+C Add evasion as negative dep flux                  
+     &                      - DTDENS1 * DD_CONV( V ) * PLDV( V,C,R ) )         
                END IF
 
             END DO
@@ -503,10 +501,9 @@ C --------- END of HET HONO RX ----------
                ELSE
                   S = DV2DF( V )
                   CONC( S,1 ) = POL( V ) + ( CONC( S,1 ) - POL( V ) ) * EFAC2( V )
-                  DDBF( V ) = DDBF( V ) + THBAR * DD_FAC( V ) * CONC( S,1 )
-C Sum NH3 evasion flux for output    
-                  IF ( V .EQ. NH3_HIT ) NH3_EMIS(C,R) =  NH3_EMIS(C,R)         
-     &                      + THBAR * DTDENS1 * DD_CONV( V ) * PLDV( V,C,R ) 
+                  DDBF( V ) = DDBF( V ) + THBAR * ( DD_FAC( V ) * CONC( S,1 )
+C Add evasion as negative dep flux                      
+     &                      - DTDENS1 * DD_CONV( V ) * PLDV( V,C,R ) )
                   
                END IF
 
@@ -520,6 +517,7 @@ C Sum NH3 evasion flux for output
                CNGRD( DIFF_MAP( V ),L,C,R ) = CONC( V,L )
             END DO
          END DO
+
          DO V = 1, N_SPC_DEPV
             DDEP( V,C,R ) = DDBF( V )
          END DO
