@@ -444,7 +444,6 @@ C...modules
      &          'wavelengths the user has requested for diagnostic ' //
      &          'photolysis output exceeds the number of internal model ' //
      &          'wavelengths.' )
-            WAVE_LIST( 1:NWAVE ) = WAVE_ENV( : )
             IF ( NWAVE .EQ. 0 ) THEN ! use all wavelenghts
                N_DIAG_WVL = NWL
                ALLOCATE ( DIAG_WVL( N_DIAG_WVL ) , STAT = ALLOCSTAT )
@@ -463,6 +462,7 @@ C...modules
                   WRITE(LOGDEV,'(5X,I3,1X,A16)')IWL, WLTXT(SPC)
                END DO
             ELSE ! use the environment list
+                WAVE_LIST( 1:NWAVE ) = WAVE_ENV( 1:NWAVE )
                 N_DIAG_WVL = 0
                  ! first remove identical values
                 DO V = 1, N-1
