@@ -173,9 +173,6 @@ C...modules
       CHARACTER(   3 ), ALLOCATABLE, SAVE :: WLTXT( : )
       CHARACTER(  16 )                    :: VARNM
       CHARACTER(  16 ), SAVE              :: PNAME = 'PHOT'
-      CHARACTER(  16 ), SAVE              :: CTM_PHOTDIAG   = 'CTM_PHOTDIAG'
-      CHARACTER(  32 )                    :: NLAYS_PHOTDIAG = 'NLAYS_PHOTDIAG'
-      CHARACTER(  32 )                    :: NWAVE_PHOTDIAG = 'NWAVE_PHOTDIAG'
       CHARACTER(  16 )                    :: V_LIST( 2 )
       CHARACTER(  16 )                    :: REQUESTED_WAVE
       CHARACTER(  16 ), ALLOCATABLE       :: WAVE_LIST( : )
@@ -195,7 +192,7 @@ C...modules
       INTEGER SPC
       INTEGER IWL
       INTEGER L
-      INTEGER V, N, MODE
+      INTEGER V, N, MODE, NWAVE
       LOGICAL JTIME_CHK            ! To check for JTIME to write RJ values
       INTEGER ODATE                ! output date
       INTEGER OTIME                ! output time 
@@ -435,27 +432,24 @@ C...modules
                WRITE( WLTXT( IWL ),'(I3.3)' ) INT( WAVELENGTH( IWL ) )
             END DO
 
-! get wanted number of layer for PHOTDIAG2 and PHOTDIAG3 files
-            CALL GET_ENVLIST ( NLAYS_PHOTDIAG, N, V_LIST )
-            IF ( N .EQ. 0 ) THEN
-               NLAYS_DIAG = NLAYS
-               WRITE(LOGDEV,'(/5X,A,I3)')'Environment Variable NLAYS_PHOTDIAG not found '
-     &      // 'setting NLAYS in PHOTDIAG2 and PHOTDIAG3 to total number of layers: ',
-     &         NLAYS
-            ELSE
-               READ( V_LIST( 1 ), '( I4 )' ) NLAYS_DIAG
-               NLAYS_DIAG = MAX( 1, MIN( NLAYS_DIAG, NLAYS))
-               WRITE(LOGDEV,'(/5X,A,I3,A)')'Environment Variable NLAYS_PHOTDIAG found'
-     &         // ' so PHOTDIAG2 and PHOTDIAG3 will span from first to ', NLAYS_DIAG,
-     &            ' layer.'
-            END IF
+! get wanted number of layers for PHOTDIAG2 and PHOTDIAG3 files 
+            IF ( NLAYS_DIAG .EQ. 0 ) NLAYS_DIAG = NLAYS
+            NLAYS_DIAG = MAX( 1, MIN( NLAYS_DIAG, NLAYS))
+
 ! get wanted wavelengths for PHOTDIAG2 and PHOTDIAG3 files
+            NWAVE = SIZE( WAVE_ENV, 1 )
             ALLOCATE( WAVE_LIST( NWL ) )
-            CALL GET_ENVLIST ( NWAVE_PHOTDIAG, N, WAVE_LIST )
-            IF ( N .EQ. 0 ) THEN ! use all wavelenghts
-                N_DIAG_WVL = NWL
-                ALLOCATE ( DIAG_WVL( N_DIAG_WVL ) , STAT = ALLOCSTAT )
-                IF ( ALLOCSTAT .NE. 0 ) THEN
+            WAVE_LIST( : ) = ''
+            IF ( NWAVE .GT. NWL )
+     &          CALL LOG_MESSAGE( LOGDEV, 'Error: the number of ' //
+     &          'wavelengths the user has requested for diagnostic ' //
+     &          'photolysis output exceeds the number of internal model ' //
+     &          'wavelengths.' )
+            WAVE_LIST( 1:NWAVE ) = WAVE_ENV( : )
+            IF ( NWAVE .EQ. 0 ) THEN ! use all wavelenghts
+               N_DIAG_WVL = NWL
+               ALLOCATE ( DIAG_WVL( N_DIAG_WVL ) , STAT = ALLOCSTAT )
+               IF ( ALLOCSTAT .NE. 0 ) THEN
                   XMSG = 'Failure allocating DIAG_WVL'
                   CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF

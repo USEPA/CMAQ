@@ -100,7 +100,6 @@ C-----------------------------------------------------------------------
       
       INTEGER, SAVE :: NEW_OPTICS_LOG
 
-      INTEGER, SAVE              :: NLAYS_DIAG    ! number of layers for PHOTDIAG2 & 3 file, covering first to NLAYS_DIAG
       INTEGER, SAVE              :: N_DIAG_WVL    ! number of diagnostic wavelengths in PHOTDIAG3 file
       INTEGER, ALLOCATABLE, SAVE :: DIAG_WVL( : ) ! pointers to diagnostic wavelengths
       

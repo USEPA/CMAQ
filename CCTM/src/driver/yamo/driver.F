@@ -492,7 +492,7 @@ C write conc fields
          IF ( MOD( TIME2SEC( JTIME ), TIME2SEC( TSTEP( 1 ) ) ) .EQ. 0 ) THEN
             CPU_TIME_START =  MPI_WTIME()
             CALL WR_CONC ( JDATE, JTIME, TSTEP( 1 ) )
-            IF ( LDOVEXT ) CALL WR_VEXT ( JDATE, JTIME, TSTEP( 1 ) )
+            IF ( LVEXT ) CALL WR_VEXT ( JDATE, JTIME, TSTEP( 1 ) )
             CALL WR_ACONC ( AGRID, JDATE, JTIME, TSTEP( 1 ) )
             IF ( LIPR .OR. LIRR ) CALL PA_OUTPUT ( CGRID, JDATE, JTIME )
             CALL TIMING_SPLIT ( CPU_TIME_START, 3 )

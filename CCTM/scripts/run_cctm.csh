@@ -149,8 +149,8 @@ setenv CTM_ZERO_PCSOA N      #> turn off the emissions of the VOC precursor to p
                              #>    model for production runs. [ default: N ]
 
 #> Vertical Extraction Options
-setenv DOVERTEXT N
-setenv VERTLONLATPATH ${WORKDIR}/lonlat.csv
+setenv VERTEXT N
+setenv VERTEXT_COORD_PATH ${WORKDIR}/lonlat.csv
 #> Process Analysis Options
 setenv CTM_PROCAN N          #> use process analysis [ default: N]
 #> process analysis global column, row and layer ranges

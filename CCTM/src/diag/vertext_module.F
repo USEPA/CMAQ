@@ -26,7 +26,6 @@ C %W% %P% %G% %U%
 
          INTEGER              :: NVERTEXT
          INTEGER, ALLOCATABLE :: VERTEXTJ(:), VERTEXTI(:), VERT_SEQ(:)
-         LOGICAL              :: LDOVEXT = .false.
 
 ! for parallel implementation
          INTEGER              :: MY_NVERTEXT
@@ -49,6 +48,7 @@ C   09 Jan 18 D.Wong: put in parallel implementation
 C-----------------------------------------------------------------------
 
          USE GRID_CONF             ! horizontal & vertical domain specifications
+         USE RUNTIME_VARS
          USE STD_CONC              ! standard CONC
          USE UTILIO_DEFN
 #ifdef parallel
@@ -87,8 +87,6 @@ C environment variable for no. of layers from bottom to save on VEXT file
 C  environment variable description
          CHARACTER( 80 ) :: VARDESC
 
-         INTEGER :: LOGDEV
-
          INTEGER :: K, KD, L, SPC, V   ! loop counters
          INTEGER :: STRT, FINI         ! loop counters
          INTEGER :: STATUS
@@ -108,20 +106,7 @@ C  environment variable description
 
 C-----------------------------------------------------------------------
 
-         LOGDEV = INIT3()
-         VARDESC = 'Flag to perform vert extract'
-         LDOVEXT = ENVYN( DOVERTNAME, VARDESC, .false., STATUS )
-         IF ( STATUS .EQ. 1 ) THEN
-            XMSG = TRIM(VARDESC) //
-     &             ' Environment variable improperly formatted'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         ELSE IF ( STATUS .NE. 0 ) THEN
-            WRITE( LOGDEV, '(5X, A)' ) VARDESC
-            XMSG = '... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, LDOVEXT
-         END IF
-
-         IF (.not. LDOVEXT) RETURN
+         IF (.not. LVEXT) RETURN
          CALL GET_LONLAT(NVERTEXT, VERTEXTLON, VERTEXTLAT)
 
          ALLOCATE ( 
@@ -571,6 +556,7 @@ C   24 Nov 17 B.Henderson: copied from WR_CONC
 C-----------------------------------------------------------------------
 
          USE GRID_CONF             ! horizontal & vertical domain specifications
+         USE RUNTIME_VARS
          USE STD_CONC              ! standard CONC
          USE PIOMAPS_MODULE
          USE UTILIO_DEFN
@@ -594,7 +580,6 @@ C Local variables:
          REAL, ALLOCATABLE :: DBUFF ( :,: )     ! input for W_VEL
          INTEGER           :: ALLOCSTAT
 
-         INTEGER, SAVE :: LOGDEV       ! FORTRAN unit number for log file
          LOGICAL, SAVE :: FIRSTIME = .TRUE.
 
 C for INTERPX
@@ -608,7 +593,6 @@ C-----------------------------------------------------------------------
          IF ( FIRSTIME ) THEN
 
             FIRSTIME = .FALSE.
-            LOGDEV = INIT3 ()
 
 C open vext file for update
 
@@ -639,7 +623,7 @@ C open vext file for update
          END IF   ! firstime
          WRITE(LOGDEV, *) 'WR_VEXT:NVARS', NVARS
 
-         CALL INIT_MET ( JDATE, JTIME, .true., .true., .true. )
+         CALL INIT_MET ( JDATE, JTIME )
          
          DO V = 1, NVARS
 
@@ -690,49 +674,34 @@ C   09 Mar 18 B.Henderson:
 C-----------------------------------------------------------------------
          USE M3UTILIO, ONLY : ENVSTR
          USE UTILIO_DEFN
+         USE RUNTIME_VARS
          IMPLICIT NONE
          INTEGER :: STATUS, FUNIT, I
          INTEGER, INTENT(INOUT) :: NVERT
          REAL, ALLOCATABLE, INTENT(INOUT) :: VERTLAT(:), VERTLON(:)
-         CHARACTER( 16 ) :: LONLATNAME = 'VERTLONLATPATH'
         !  environment variable description
          CHARACTER( 80 ) :: VARDESC
          CHARACTER( 16 ) :: DEFTXT = ''
-         CHARACTER( 1000 ) :: LONLATPATH
          CHARACTER( 16 ) :: PNAME = 'OPVEXT'
          CHARACTER( 96 ) :: XMSG = ' '
-         INTEGER :: LOGDEV
 
-         LOGDEV = INIT3()
          FUNIT = 100
-         VARDESC = 'LON LAT PAIR FILE (first line N pairs)'
-!   get file path fro logical
-         CALL ENVSTR( LONLATNAME, VARDESC, DEFTXT, LONLATPATH, STATUS )
-         IF ( STATUS .EQ. 1 ) THEN
-            XMSG = TRIM(VARDESC) //
-     &             ' Environment variable improperly formatted'
-            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
-         ELSE IF ( STATUS .NE. 0 ) THEN
-            WRITE( LOGDEV, '(5X, A)' ) VARDESC
-            XMSG = '... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, LONLATNAME
-         END IF
 ! OPEN FORMATTED FILE
 ! EXPECTED FORMAT 
 ! REC1: N
 ! REC2-N+1: LON LAT
-         OPEN(UNIT=FUNIT, FILE=LONLATPATH, STATUS='OLD',
+         OPEN(UNIT=FUNIT, FILE=VEXT_COORD_PATH, STATUS='OLD',
      &        FORM = 'FORMATTED', IOSTAT = STATUS)
 
          IF ( STATUS .NE. 0 ) THEN
-            XMSG = TRIM(LONLATPATH) //
+            XMSG = TRIM(VEXT_COORD_PATH) //
      &             ' Could not be opened'
             CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
          END IF
 ! READ NUMBER OF VERTICES
          READ(FUNIT, *, IOSTAT=STATUS) NVERT
          IF ( STATUS .NE. 0 ) THEN
-            XMSG = TRIM(LONLATPATH) //
+            XMSG = TRIM(VEXT_COORD_PATH) //
      &             ' did not contain one integer on the first line'
             CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
          END IF
@@ -743,7 +712,7 @@ C-----------------------------------------------------------------------
             READ(FUNIT, *, IOSTAT=STATUS) VERTLON(I), VERTLAT(I)
             IF ( STATUS .NE. 0 ) THEN
                WRITE(XMSG, '(I6)') I
-               XMSG = TRIM(LONLATPATH) //
+               XMSG = TRIM(VEXT_COORD_PATH) //
      &                ' did not contain two reals on line: ' //
      &                TRIM(XMSG)
                CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )

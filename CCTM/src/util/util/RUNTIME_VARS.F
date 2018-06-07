@@ -119,7 +119,10 @@
       CHARACTER(  16 ) :: ACONC_FILE_SPCS( 900 ) = '' ! avg conc file species list
       CHARACTER(  16 ) :: CONC_FILE_SPCS(900 )   = '' ! conc file species list
       LOGICAL :: PWRTFLAG  = .TRUE.  ! Print confirmation of successful output 
-                                           !    to logfile
+                                           ! to logfile
+      LOGICAL :: LVEXT = .FALSE.     ! Flag to perform vertical Extraction
+      CHARACTER( 1000 ) :: VEXT_COORD_PATH = "" ! File Path for Lon-Lat Text file specifying 
+                                                ! locations for vertical extraction
       
       CHARACTER(256) :: GC_NAMELIST = '' ! Gas Species Namelist
       CHARACTER(256) :: AE_NAMELIST = '' ! Aerosol Species Namelist
@@ -128,6 +131,8 @@
       
       ! Chemistry and Photolysis
       LOGICAL :: PHOTDIAG  = .FALSE. ! Flag for PHOTDIAG file
+      INTEGER :: NLAYS_DIAG= 0       ! Number of Diagnostic Layers to write out for photolysis
+      CHARACTER(16) :: WAVE_ENV(100) ! Targeted wavelengths for diagnostic output
       LOGICAL :: CORE_SHELL= .FALSE. ! flag for using core-shell mixing model for aerosol optics
       LOGICAL :: MIE_CALC  = .FALSE. ! flag for using Mie Theory in aerosol optics calculation
       REAL    :: GEAR_ATOL = 1.0E-9  ! Absolute Tolerance for Gear Solver
@@ -179,7 +184,7 @@
       LOGICAL :: EMISCHK       = .TRUE.  ! flag for checking that surrogate emissions 
                                                !   are present on emission files
       LOGICAL :: BIOGEMIS      = .FALSE. ! flag to in-line biogenic VOC emissions
-      CHARACTER(16) :: SPPRO        = 'B3V10' ! requested speciation profile name
+      CHARACTER(16) :: SPPRO   = 'DEFAULT' ! requested speciation profile name
       LOGICAL :: BIOGEMIS_SEASON=.TRUE.  ! use frost switch file
       LOGICAL :: ASSUME_SUMMER = .TRUE.  ! use summer normalized emissions
       LOGICAL :: BEMIS_DIAG    = .TRUE.  ! true: write diagnostic emiss file
@@ -391,7 +396,7 @@
       
       ! Get Logfile Directory
       VARDESC = 'Build Directory Location'
-      CALL GET_ENVSTR( 'BLD', VARDESC, BLDFOLD  ) 
+      BLDFOLD = GET_ENVSTR( 'BLD', VARDESC, BLDFOLD  ) 
  
       IF ( MYPE . NE. 0 ) CLOSE( UNIT = 6 )
 
@@ -528,6 +533,15 @@
       VARDESC = 'Print confirmation of write operations'
       PWRTFLAG = GET_ENVYN( 'IOAPI_LOG_WRITE', VARDESC, PWRTFLAG )
 
+      ! Get Flag for Vertical Extraction
+      VARDESC = 'Extract a Vertical Column of Ouptut Data'
+      LVEXT = GET_ENVYN( 'VERTEXT', VARDESC, LVEXT )
+
+      ! Get Filepath for File Specifying Lon-Lat Coordinates for
+      ! Vertical Extraction
+      VARDESC = 'File Specifying Lon-Lat Coords for Vertical Extraction'
+      VEXT_COORD_PATH = GET_ENVSTR( 'VERTEXT_COORD_PATH', VARDESC, VEXT_COORD_PATH )
+
       ! Get Filename for Gas Species Namelist
       VARDESC = 'Gas Species Namelist Filename'
       GC_NAMELIST = GET_ENVSTR(  'gc_matrix_nml', VARDESC, GC_NAMELIST )
@@ -557,6 +571,19 @@
       ! Get photolysis rate diagnostic file flag
       VARDESC= 'Flag for writing the photolysis rate diagnostic file'
       PHOTDIAG = GET_ENVYN( 'CTM_PHOTDIAG', VARDESC, PHOTDIAG )
+
+      ! Get desired number of layers for PHOTDIAG2 and PHOTDIAG3 files
+      VARDESC = 'Number of Layers for PHOTDIAG2 and PHOTDIAG3'
+      NLAYS_DIAG = GET_ENVINT( 'NLAYS_PHOTDIAG', VARDESC, NLAYS_DIAG )
+
+      ! Get Desired Wavelengths for Diagnostic Output
+      VARDESC = 'Wavelengths for output on PHOTDIAG2 and PHOTDIAG3'
+      CALL GET_ENVLIST( 'NWAVE_PHOTDIAG', NV, WAVE_ENV )
+      IF ( NV .GT. 0 ) THEN
+          WAVE_ENV = WAVE_ENV( 1:NV )
+      ELSE
+          WAVE_ENV = WAVE_ENV( 1 )
+      ENDIF
 
       ! Get flag to use core-shell mixing model for aerosol optical properties
       VARDESC = 'Use core-shell mixing model for aerosol optical properties'
