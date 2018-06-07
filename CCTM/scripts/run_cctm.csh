@@ -539,7 +539,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   ( /usr/bin/time -p mpirun -np $NPROCS $BLD/$EXEC ) |& tee buff_${EXECUTION_ID}.txt
 
   #> Harvest Timing Output so that it may be reported below
-  set rtarray = "${rtarray} `tail -3 buff_${EXECUTION_ID}.txt | grep real | cut -c 5-` "
+  set rtarray = "${rtarray} `tail -3 buff_${EXECUTION_ID}.txt | grep -Eo '[+-]?[0-9]+([.][0-9]+)?' | cut -c 5-` "
 
   #> Print Concluding Text
   echo 

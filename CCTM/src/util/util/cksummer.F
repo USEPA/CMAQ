@@ -99,7 +99,7 @@ C-----------------------------------------------------------------------
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
 
-         LCELLS = FLOAT( MY_NCOLS * MY_NROWS * NLAYS )
+         LCELLS = FLOAT( NCOLS * NROWS * NLAYS )
          DEVNAME = PRESTR // CMYPE // '.' // TRIM( APPL_NAME )
 
       END IF
@@ -254,39 +254,39 @@ C-----------------------------------------------------------------------
 
       ELSE   ! MINVAL( CGRID ) .GE. CMIN
 
-         GC_CKSUM = SUM( CGRID( :,:,:,GC_STRT : ( GC_STRT - 1 + N_GC_SPC ) ) ) / LCELLS
-         AE_CKSUM = SUM( CGRID( :,:,:,AE_STRT : ( AE_STRT - 1 + N_AE_SPC ) ) ) / LCELLS
-         NR_CKSUM = SUM( CGRID( :,:,:,NR_STRT : ( NR_STRT - 1 + N_NR_SPC ) ) ) / LCELLS
+         GC_CKSUM = SUM( CGRID( :,:,:,GC_STRT : ( GC_STRT - 1 + N_GC_SPC ) ) ) 
+         AE_CKSUM = SUM( CGRID( :,:,:,AE_STRT : ( AE_STRT - 1 + N_AE_SPC ) ) ) 
+         NR_CKSUM = SUM( CGRID( :,:,:,NR_STRT : ( NR_STRT - 1 + N_NR_SPC ) ) ) 
          IF ( N_TR_SPC .GT. 0 ) THEN
-            TR_CKSUM = SUM( CGRID( :,:,:,TR_STRT : ( TR_STRT - 1 + N_TR_SPC ) ) ) / LCELLS
+            TR_CKSUM = SUM( CGRID( :,:,:,TR_STRT : ( TR_STRT - 1 + N_TR_SPC ) ) ) 
          END IF
      
       END IF
 
       IF ( N_TR_SPC .EQ. 0 ) THEN
          WRITE( LOGDEV,1005 ) SCIPROC,
-     &                        GC_CKSUM,
-     &                        AE_CKSUM,
-     &                        NR_CKSUM
+     &                        GC_CKSUM / LCELLS,
+     &                        AE_CKSUM / LCELLS,
+     &                        NR_CKSUM / LCELLS
          IF ( ( GC_CKSUM .NE. GC_CKSUM ) .OR. ( GC_CKSUM*2. .EQ. GC_CKSUM ) .OR.
      &        ( AE_CKSUM .NE. AE_CKSUM ) .OR. ( AE_CKSUM*2. .EQ. AE_CKSUM ) .OR.
      &        ( NR_CKSUM .NE. NR_CKSUM ) .OR. ( NR_CKSUM*2. .EQ. NR_CKSUM ) ) THEN
               WRITE( OUTDEV, '(7x,A,A)' ),'NaN or Infitinity detected on processor ',TRIM(CMYPE)
-              WRITE( OUTDEV,1008 ) SCIPROC,GC_CKSUM,AE_CKSUM,NR_CKSUM
+              WRITE( OUTDEV,1008 ) SCIPROC,GC_CKSUM/LCELLS,AE_CKSUM/LCELLS,NR_CKSUM/LCELLS
          END IF
  
       ELSE
          WRITE( LOGDEV,1007 ) SCIPROC,
-     &                        GC_CKSUM,
-     &                        AE_CKSUM,
-     &                        NR_CKSUM,
-     &                        TR_CKSUM
+     &                        GC_CKSUM / LCELLS,
+     &                        AE_CKSUM / LCELLS,
+     &                        NR_CKSUM / LCELLS,
+     &                        TR_CKSUM / LCELLS
          IF ( ( GC_CKSUM .NE. GC_CKSUM ) .OR. ( GC_CKSUM*2. .EQ. GC_CKSUM ) .OR.
      &        ( AE_CKSUM .NE. AE_CKSUM ) .OR. ( AE_CKSUM*2. .EQ. AE_CKSUM ) .OR.
      &        ( NR_CKSUM .NE. NR_CKSUM ) .OR. ( NR_CKSUM*2. .EQ. NR_CKSUM ) .OR.
      &        ( TR_CKSUM .NE. TR_CKSUM ) .OR. ( TR_CKSUM*2. .EQ. TR_CKSUM ) ) THEN
               WRITE( OUTDEV, '(7x,A,A)' ),'NaN or Infitinity detected on processor ',TRIM(CMYPE)
-              WRITE( OUTDEV,1009 ) SCIPROC,GC_CKSUM,AE_CKSUM,NR_CKSUM,TR_CKSUM
+              WRITE( OUTDEV,1009 ) SCIPROC,GC_CKSUM/LCELLS,AE_CKSUM/LCELLS,NR_CKSUM/LCELLS,TR_CKSUM/LCELLS
          END IF
       END IF
 

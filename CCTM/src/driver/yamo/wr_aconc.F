@@ -41,6 +41,7 @@ C-----------------------------------------------------------------------
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE AVG_CONC              ! integral average CONC
       USE UTILIO_DEFN
+      USE RUNTIME_VARS
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
 #else

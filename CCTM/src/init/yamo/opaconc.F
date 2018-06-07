@@ -89,6 +89,9 @@
       OK = OPEN3( A_CONC_1, FSRDWR3, PNAME )
       CALL SUBST_GLOBAL_LOGICAL( OK, 'AND' )
       IF ( .NOT. OK ) THEN
+#ifndef twoway
+         BACKSPACE( LOGDEV )
+#endif
          XMSG = 'Could not open ' // TRIM( A_CONC_1 )
      &        // ' file for update - try to open new'
          CALL M3MESG( XMSG )

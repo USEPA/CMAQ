@@ -382,7 +382,7 @@ C Verify input file header consistency and run duration
 
 #ifdef twoway
          IF ( CMAQ_WRF_FEEDBACK ) THEN
-             CALL FEEDBACK_SETUP ( JDATE, JTIME, TSTEP( 3 ) )
+            CALL FEEDBACK_SETUP ( JDATE, JTIME, TSTEP( 3 ) )
          END IF
 #endif
          FIRST_RUN = .FALSE.

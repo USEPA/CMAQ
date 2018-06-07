@@ -196,6 +196,9 @@ C Test opening existing conc file for update
       CALL LOG_HEADING( LOGDEV, "Open or Create Concentration File" )
 
       IF ( .NOT. OPEN3( CTM_CONC_1, FSRDWR3, PNAME ) ) THEN
+#ifndef twoway
+         BACKSPACE( LOGDEV )
+#endif
          MSG = 'Could not open ' // TRIM( CTM_CONC_1 ) // ' for update - '
      &        // 'try to open new'
          CALL M3MESG( MSG )

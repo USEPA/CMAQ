@@ -103,7 +103,7 @@
 
       INTEGER, PARAMETER :: MAXLEN_CCTM_APPL     = 200    ! Length of Logfile Names
       CHARACTER( MAXLEN_CCTM_APPL ) :: APPL_NAME = 'APPL' ! Logfile Names
-      CHARACTER( MAXLEN_CCTM_APPL ) :: BLDFOLD   = ''     ! Log Folder
+      CHARACTER( MAXLEN_CCTM_APPL ) :: BLDFOLD   = '.'    ! Build Directory
 
       ! General; Multiprocess control, output and error checking
       LOGICAL :: FL_ERR_STOP=.TRUE.  ! Flag to stop run if errors are found.
@@ -251,7 +251,7 @@
 
       ! Flag for Calculating Feedback From AQ Model to Meteorology
       VARDESC = 'CMAQ WRF radiative feedback'
-      CMAQ_WRF_FEEDBACK = GET_ENVYN( 'CTM_CMAQ_WRF_FEEDBACK', VARDESC, CMAQ_WRF_FEEDBACK )
+      CMAQ_WRF_FEEDBACK = GET_ENVYN( 'CMAQ_WRF_FEEDBACK', VARDESC, CMAQ_WRF_FEEDBACK )
 
       ! Flag for turning on Potential Vorticity Scaling for High
       ! Altitude Ozone Adjustment
@@ -390,7 +390,8 @@
       CALL NAMEVAL( 'CTM_APPL', APPL_NAME )
       
       ! Get Logfile Directory
-      CALL NAMEVAL( 'BLD', BLDFOLD ) 
+      VARDESC = 'Build Directory Location'
+      CALL GET_ENVSTR( 'BLD', VARDESC, BLDFOLD  ) 
  
       IF ( MYPE . NE. 0 ) CLOSE( UNIT = 6 )
 
@@ -954,7 +955,7 @@
       IF ( STATUS .NE. 0 ) CALL LOG_MESSAGE( LOGDEV, VARDESC )
       IF ( STATUS .EQ. -2 ) THEN
            XMSG = 'Environment variable improperly formatted'
-           CALL M3EXIT( 'GET_ENVYN', 0, 0, XMSG, STATUS )
+           CALL M3EXIT( 'GET_ENV', 0, 0, XMSG, STATUS )
       ELSE IF ( STATUS .EQ. -1 ) THEN
            XMSG = 'Environment variable not set or empty ... Using default:'
            CALL LOG_MESSAGE( LOGDEV, XMSG )
@@ -987,7 +988,7 @@
       IF ( STATUS .NE. 0 ) CALL LOG_MESSAGE( LOGDEV, VARDESC )
       IF ( STATUS .EQ. -2 ) THEN
            XMSG = 'Environment variable improperly formatted'
-           CALL M3EXIT( 'GET_ENVYN', 0, 0, XMSG, STATUS )
+           CALL M3EXIT( 'GET_ENV', 0, 0, XMSG, STATUS )
       ELSE IF ( STATUS .EQ. -1 ) THEN
            XMSG = 'Environment variable not set or empty ... Using default:'
            CALL LOG_MESSAGE( LOGDEV, XMSG )
@@ -1020,7 +1021,7 @@
       IF ( STATUS .NE. 0 ) CALL LOG_MESSAGE( LOGDEV, VARDESC )
       IF ( STATUS .EQ. -2 ) THEN
            XMSG = 'Environment variable improperly formatted'
-           CALL M3EXIT( 'GET_ENVYN', 0, 0, XMSG, STATUS )
+           CALL M3EXIT( 'GET_ENV', 0, 0, XMSG, STATUS )
       ELSE IF ( STATUS .EQ. -1 ) THEN
            XMSG = 'Environment variable not set or empty ... Using default:'
            CALL LOG_MESSAGE( LOGDEV, XMSG )
@@ -1054,7 +1055,7 @@
       IF ( STATUS .NE. 0 ) CALL LOG_MESSAGE( LOGDEV, VARDESC )
       IF ( STATUS .EQ. -2 ) THEN
            XMSG = 'Environment variable improperly formatted'
-           CALL M3EXIT( 'GET_ENVYN', 0, 0, XMSG, STATUS )
+           CALL M3EXIT( 'GET_ENV', 0, 0, XMSG, STATUS )
       ELSE IF ( STATUS .EQ. -1 ) THEN
            XMSG = 'Environment variable not set or empty ... Using default:'
            CALL LOG_MESSAGE( LOGDEV, XMSG )
