@@ -20,6 +20,8 @@
  $CMD $src/cb05tucl_ae6_aq/SpecDef_Dep_cb05tucl_ae6_aq.txt
  $CMD $src/cb6r3_ae6_aq/SpecDef_cb6r3_ae6_aq.txt
  $CMD $src/cb6r3_ae6_aq/SpecDef_Dep_cb6r3_ae6_aq.txt
+ $CMD $src/cb6r3_ae7_aq/SpecDef_cb6r3_ae7_aq.txt
+ $CMD $src/cb6r3_ae7_aq/SpecDef_Dep_cb6r3_ae7_aq.txt
  $CMD $src/cb6r3_ae6nvPOA_aq/SpecDef_Dep_cb6r3_ae6nvPOA_aq.txt
  $CMD $src/cb6r3_ae6nvPOA_aq/SpecDef_cb6r3_ae6nvPOA_aq.txt
  $CMD $src/cb05eh51_ae6_aq/SpecDef_Dep_cb05eh51_ae6_aq.txt
