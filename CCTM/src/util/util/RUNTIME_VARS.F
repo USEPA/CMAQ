@@ -131,7 +131,8 @@
       
       ! Chemistry and Photolysis
       LOGICAL :: PHOTDIAG  = .FALSE. ! Flag for PHOTDIAG file
-      INTEGER :: NLAYS_DIAG= 0       ! Number of Diagnostic Layers to write out for photolysis
+      INTEGER :: NLAYS_DIAG = 0      ! Number of Diagnostic Layers to write out for photolysis
+      INTEGER :: NWAVE = 0           ! Number of Diagnostic Wavelengths
       CHARACTER(16) :: WAVE_ENV(100) ! Targeted wavelengths for diagnostic output
       LOGICAL :: CORE_SHELL= .FALSE. ! flag for using core-shell mixing model for aerosol optics
       LOGICAL :: MIE_CALC  = .FALSE. ! flag for using Mie Theory in aerosol optics calculation
@@ -394,10 +395,6 @@
       ! Get Simulation Scenario Name to Label Log Files, etc
       CALL NAMEVAL( 'CTM_APPL', APPL_NAME )
       
-      ! Get Logfile Directory
-      VARDESC = 'Build Directory Location'
-      BLDFOLD = GET_ENVSTR( 'BLD', VARDESC, BLDFOLD  ) 
- 
       IF ( MYPE . NE. 0 ) CLOSE( UNIT = 6 )
 
       ! Start I/O-API and set up log file(s)
@@ -408,9 +405,12 @@
          WRITE( OUTDEV, '(6x,A)' ),'--Env Variable-- | --Value--'
          WRITE( OUTDEV, '(6x,A)' ), REPEAT( '-',80 )
          WRITE( OUTDEV, '(5x,A16,2x,A,2x,A)' ),'CTM_APPL','|',TRIM(APPL_NAME)
-         WRITE( OUTDEV, '(5x,A16,2x,A,2x,A)' ),'BLD','|',TRIM(BLDFOLD)
       END IF
 
+      ! Get Logfile Directory
+      VARDESC = 'Build Directory Location'
+      BLDFOLD = GET_ENVSTR( 'BLD', VARDESC, BLDFOLD  ) 
+ 
       ! Determine if this run is a new start or a restart
       VARDESC = 'Flag for Model Restart from Previous Day' 
       NEW_START = GET_ENVYN( 'NEW_START', VARDESC, NEW_START )
@@ -578,12 +578,7 @@
 
       ! Get Desired Wavelengths for Diagnostic Output
       VARDESC = 'Wavelengths for output on PHOTDIAG2 and PHOTDIAG3'
-      CALL GET_ENVLIST( 'NWAVE_PHOTDIAG', NV, WAVE_ENV )
-      IF ( NV .GT. 0 ) THEN
-          WAVE_ENV = WAVE_ENV( 1:NV )
-      ELSE
-          WAVE_ENV = WAVE_ENV( 1 )
-      ENDIF
+      CALL GET_ENVLIST( 'NWAVE_PHOTDIAG', NWAVE, WAVE_ENV )
 
       ! Get flag to use core-shell mixing model for aerosol optical properties
       VARDESC = 'Use core-shell mixing model for aerosol optical properties'

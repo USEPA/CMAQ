@@ -57,17 +57,13 @@ C   12 Aug 15 D.Wong:   Replaced SUBST_MPI with mpif.h
 
       ! Fetch CMAQ Header
       CALL LOAD_HEADER( CMAQ_HEADER )
-      !FHEAD = JUNIT()
-      !OPEN( FHEAD, FILE = TRIM( BLDFOLD ) // '/log_header.txt' )
-      DO IHEAD = 1,NHEAD
-      !    READ( FHEAD, '(A)', IOSTAT=IOST ), CMAQ_HEADER( IHEAD )
+      DO IHEAD = SIZE( CMAQ_HEADER ),1,-1
           ! Check for End of File
-          IF ( IOST .LT. 0 ) THEN
-             NCMAQ_HEAD = IHEAD - 1
+          IF ( CMAQ_HEADER( IHEAD ) .NE. '' ) THEN
+             NCMAQ_HEAD = IHEAD 
              EXIT
           END IF
       END DO
-      !CLOSE( FHEAD )
 
 
       ! Create Log Filename using the processor rank and initialize

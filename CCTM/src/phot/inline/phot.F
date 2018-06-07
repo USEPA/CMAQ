@@ -192,7 +192,7 @@ C...modules
       INTEGER SPC
       INTEGER IWL
       INTEGER L
-      INTEGER V, N, MODE, NWAVE
+      INTEGER V, N, MODE
       LOGICAL JTIME_CHK            ! To check for JTIME to write RJ values
       INTEGER ODATE                ! output date
       INTEGER OTIME                ! output time 
@@ -437,7 +437,6 @@ C...modules
             NLAYS_DIAG = MAX( 1, MIN( NLAYS_DIAG, NLAYS))
 
 ! get wanted wavelengths for PHOTDIAG2 and PHOTDIAG3 files
-            NWAVE = SIZE( WAVE_ENV, 1 )
             ALLOCATE( WAVE_LIST( NWL ) )
             WAVE_LIST( : ) = ''
             IF ( NWAVE .GT. NWL )
