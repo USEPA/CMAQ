@@ -1,13 +1,13 @@
 #!/bin/csh -f
 
-# ======================== CCTMv5.2 Build Script ======================= 
+# ====================== CCTMv5.2.1 Build Script ======================== 
 # Usage: bldit.cctm >&! bldit.cctm.log                                   
 # Requirements: I/O API & netCDF libraries, a Fortran compiler,               
 #               and MPI for multiprocessor computing                     
 #
 # To report problems or request help with this script/program:           
 #             http://www.cmascenter.org
-# ====================================================================== 
+# ======================================================================= 
 
 #> Set Compiler Identity by User Input: Options -> intel | pgi | gcc
  if ( $#argv == 1 ) then
@@ -40,7 +40,7 @@
  setenv REPOROOT $CCTM_SRC
 
 #> Working directory and Version IDs
- set VRSN  = v52                       #> model configuration ID
+ set VRSN  = v521                    #> model configuration ID
  set EXEC  = CCTM_${VRSN}.exe          #> executable name
  set CFG   = CCTM_${VRSN}.cfg          #> configuration file name
 
@@ -97,6 +97,7 @@ set ParOpt                             #> uncomment to build a multiple processo
  set ModAero   = aero/aero7            #> aerosol chemistry module (see $CMAQ_MODEL/CCTM/src/aero)
  set ModCloud  = cloud/acm_ae7         #> cloud chemistry module (see $CMAQ_MODEL/CCTM/src/cloud)
  set ModUtil   = util/util             #> CCTM utility modules
+ set ModDiag   = diag                  #> CCTM diagnostic modules
  set Tracer    = trac0                 #> tracer configuration directory under 
                                        #>   $CMAQ_MODEL/CCTM/src/MECHS [ default: no tracer species ]
  set ModPa     = procan/pa             #> name of process analysis. Include files are in directory 
@@ -508,6 +509,11 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  set text = "util"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModUtil};"                                         >> $Cfile
+ echo                                                              >> $Cfile
+
+ set text = "diag"
+ echo "// options are" $text                                       >> $Cfile
+ echo "Module ${ModDiag};"                                         >> $Cfile
  echo                                                              >> $Cfile
 
  if ( $?ModMisc ) then

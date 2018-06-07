@@ -1,6 +1,6 @@
 # CMAQ Documentation
 
-The following types of documentation are available for the CMAQ v5.2 release:
+The following types of documentation are available for the CMAQ v5.2.1 release:
 
 - [Release Notes](Release_Notes/README.md): Technical notes on the new features and science in this release of CMAQ.  Release notes can be found in this directory.
 

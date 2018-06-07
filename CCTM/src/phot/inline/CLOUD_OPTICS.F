@@ -128,6 +128,11 @@
      
          real( 8 ), private            :: gauss_laguerre_total( 16 )
      
+         real( 8 ), parameter :: cloud_largest      = 9.0d+307 
+         real( 8 ), parameter :: cloud_smallest     = 9.0d-307
+         real( 8 ), parameter :: cloud_log_largest  =  709.090848126508d0
+         real( 8 ), parameter :: cloud_log_smallest = -709.090848126508d0
+         
          contains         
       
 !-----------------------------------------------------------------------
@@ -141,7 +146,7 @@
 
          integer          :: allocstat           ! memory allocation status
          integer          :: i
-         
+
          Character( 132 ) :: xmsg
          Character(  32 ) :: pname = 'init_cloud_optics'
          Logical, Save    :: initialized = .false.
@@ -751,7 +756,8 @@
             real( 8 ) :: n0
             real( 8 ) :: chi
             real( 8 ) :: comp
-            real( 8 ) :: psd   ! partical size distribution
+            real( 8 ) :: psd      ! partical size distribution
+            real( 8 ) :: argument
             real      :: factor
             real      :: dmin  ! value if q .le. limit
 
@@ -786,6 +792,7 @@
                   reff( 1:nlayers )  = min_dge
                   return
                end select
+               
             do lay = 1, nlayers
 !              lamda = (1.0e+3*pi*rho_hydro*n0/q(lay))**0.25
                if( q(lay) .le.  limit )then
@@ -797,7 +804,9 @@
                sum2 = 0.0D0
 !original method used thirty-two nodes
                do nk = 1, 32
-                  psd  = n0*dexp(lamda*xk(nk))
+                  argument = lamda*xk(nk)
+                  if( argument .lt. cloud_log_smallest ) cycle ! assume dexp( argument ) equals zero
+                  psd = n0*dexp( argument ) 
                   comp = newtotalw(nk) * psd
                   sum2 = sum2 + comp 
                   sum1 = sum1 + xk(nk)*comp
@@ -808,7 +817,11 @@
 !                 sum2 = sum2 + comp 
 !                 sum1 = sum1 + gauss_laguerre_node(nk)*comp
                end do
-               reff(lay) = factor * real( sum1/sum2, 4 )    ! microns
+               if( sum2 .lt. cloud_smallest )then
+                 reff(lay) = dmin
+               else
+                 reff(lay) = factor * real( sum1/sum2, 4 )    ! microns
+               end if
             end do
 
          end subroutine aggreg_size_effective

@@ -6,7 +6,7 @@
 <!-- END COMMENT -->
 
 <center>
-**Version 5.2 (2017 Release)**
+**Version 5.2.1 (2018 Release)**
 
 Prepared in cooperation with the
 Community Modeling and Analysis System

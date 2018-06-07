@@ -73,6 +73,7 @@ C-----------------------------------------------------------------------
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
 #endif
+      USE VERTEXT_MODULE
 
       IMPLICIT NONE
 
@@ -205,6 +206,7 @@ C Test opening existing conc file for update
          ! Open the file new
          CALL SUBST_BARRIER
          CALL OPCONC ( STDATE, STTIME, TSTEP( 1 ) )
+         CALL OPVEXT ( STDATE, STTIME, TSTEP( 1 ) )
       END IF
 
       CALL WR_INIT ( CGRID, STDATE, STTIME, TSTEP( 1 ) )

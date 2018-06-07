@@ -76,6 +76,12 @@ SUBROUTINE alloc_x
 !           21 Aug 2015  Changed latent heat flux from QFX to LH.  Fill THETA
 !                        and add moisture flux (QFX) for IFMOLACM.  (T. Spero)
 !           17 Sep 2015  Changed IFMOLACM to IFMOLPX.  (T. Spero)
+!           16 Mar 2018  Added SNOWH to output.  Added XMUHYB to support hybrid
+!                        vertical coordinate in WRF output.  Added XLUFRAC2,
+!                        XMOSCATIDX, XZNT_MOS, XTSK_MOS, XRA_MOS, XRS_MOS, and
+!                        XLAI_MOS for NOAH Mosaic land-surface model.  Added
+!                        XZSOIL, and added 3D soil arrays, XSOIT3D and XSOIM3D.
+!                        Added XWSPDSFC and XXLAIDYN for Noah.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE mcipparm
@@ -88,11 +94,15 @@ SUBROUTINE alloc_x
 ! Scalars and One-Dimensional Arrays  
 !-------------------------------------------------------------------------------
 
-  ALLOCATE ( xx3face (0:metlay) )
-  ALLOCATE ( xx3midl (  metlay) )
-  ALLOCATE ( xdx3    (  metlay) )
+  ALLOCATE ( xx3face ( 0:metlay ) )
+  ALLOCATE ( xx3midl (   metlay ) )
+  ALLOCATE ( xdx3    (   metlay ) )
 
-  ALLOCATE ( xludesc ( maxluc ) )
+  ALLOCATE ( xludesc ( nummetlu ) )
+
+  IF ( metsoi > 0 ) THEN
+    ALLOCATE ( xzsoil ( metsoi ) )
+  ENDIF
 
 !-------------------------------------------------------------------------------
 ! Dot-Point and Face 2D Arrays.
@@ -167,6 +177,11 @@ SUBROUTINE alloc_x
   ALLOCATE ( xwbar   (ncols_x, nrows_x) )
   ALLOCATE ( xsnocov (ncols_x, nrows_x) )
   ALLOCATE ( xseaice (ncols_x, nrows_x) )
+  ALLOCATE ( xsnowh  (ncols_x, nrows_x) )
+
+  IF ( met_hybrid == 2 ) THEN
+    ALLOCATE ( xmuhyb  (ncols_x, nrows_x) )
+  ENDIF
 
   IF ( ifw10m ) THEN
     ALLOCATE ( xu10    (ncols_x, nrows_x) )
@@ -181,7 +196,7 @@ SUBROUTINE alloc_x
     ALLOCATE ( xsltyp  (ncols_x, nrows_x) )
   ENDIF
 
-  ALLOCATE ( xluse   (ncols_x, nrows_x, maxluc) )
+  ALLOCATE ( xluse   (ncols_x, nrows_x, nummetlu) )
 
 !-------------------------------------------------------------------------------
 ! Cross-Point 3D Arrays.
@@ -232,6 +247,31 @@ SUBROUTINE alloc_x
   ALLOCATE ( xvv_d (ncols_x+1, nrows_x+1, metlay) )
   ALLOCATE ( xuu_s (ncols_x+1, nrows_x+1, metlay) )
   ALLOCATE ( xvv_t (ncols_x+1, nrows_x+1, metlay) )
+
+!-------------------------------------------------------------------------------
+! Cross-Point Arrays for Soil.
+!-------------------------------------------------------------------------------
+
+  IF ( ifsoil ) THEN
+    ALLOCATE ( xsoit3d    (ncols_x, nrows_x, metsoi) )
+    ALLOCATE ( xsoim3d    (ncols_x, nrows_x, metsoi) )
+  ENDIF
+
+!-------------------------------------------------------------------------------
+! Cross-Point Arrays for Mosaic.
+!-------------------------------------------------------------------------------
+
+  IF ( ifmosaic ) THEN
+    ALLOCATE ( xlufrac2   (ncols_x, nrows_x, nummosaic) )  ! <-- input full LU
+    ALLOCATE ( xmoscatidx (ncols_x, nrows_x, nummosaic) )  ! <-- input full LU
+    ALLOCATE ( xlai_mos   (ncols_x, nrows_x, nummosaic) )
+    ALLOCATE ( xra_mos    (ncols_x, nrows_x, nummosaic) )
+    ALLOCATE ( xrs_mos    (ncols_x, nrows_x, nummosaic) )
+    ALLOCATE ( xtsk_mos   (ncols_x, nrows_x, nummosaic) )
+    ALLOCATE ( xznt_mos   (ncols_x, nrows_x, nummosaic) )
+    ALLOCATE ( xwspdsfc   (ncols_x, nrows_x)            )  ! <-- to be all Noah
+    ALLOCATE ( xxlaidyn   (ncols_x, nrows_x)            )  ! <-- to be all Noah
+  ENDIF
 
 !-------------------------------------------------------------------------------
 ! Variables for WRF only.
