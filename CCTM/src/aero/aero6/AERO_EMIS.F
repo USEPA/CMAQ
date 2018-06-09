@@ -306,6 +306,7 @@ C *** Set up emissions size distribution arrays
                 SPLIT_ACCUM = SPLIT_ACCUM + EM_AERO_REF( IEM )%SPLIT( N )
               ELSE
                 SD_SPLIT( MAP_AEROtoDIFF( ISPC,N ),IEM ) = 
+     &             SD_SPLIT( MAP_AEROtoDIFF( ISPC,N ),IEM ) +
      &             EM_AERO_REF( IEM )%SPLIT( N ) + SPLIT_ACCUM
                 SPLIT_ACCUM = 0.0
               END IF
@@ -317,6 +318,7 @@ C *** Set up emissions size distribution arrays
                 SPLIT_ACCUM = SPLIT_ACCUM + EM_AERO_REF( IEM )%SPLIT( N )
               ELSE
                 SD_SPLIT( MAP_AEROtoDIFF( ISPC,N ),IEM ) = 
+     &            SD_SPLIT( MAP_AEROtoDIFF( ISPC,N ),IEM ) +
      &            EM_AERO_REF( IEM )%SPLIT( N ) + SPLIT_ACCUM
                 SPLIT_ACCUM = 0.0
               END IF
