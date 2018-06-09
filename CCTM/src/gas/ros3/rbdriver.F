@@ -385,9 +385,9 @@ c..Open file for solver stats if requested
             VDESC3D( 1 ) = 'Number of fails at start'
             VDESC3D( 2 ) = 'Number of step fails'
             VDESC3D( 3 ) = 'Number of steps'
-            UNITS3D( 1 ) = 'None'
-            UNITS3D( 2 ) = 'None'
-            UNITS3D( 3 ) = 'None'
+            UNITS3D( 1 ) = '-'
+            UNITS3D( 2 ) = '-'
+            UNITS3D( 3 ) = '-'
             VTYPE3D( 1 ) = M3REAL
             VTYPE3D( 2 ) = M3REAL
             VTYPE3D( 3 ) = M3REAL

@@ -113,7 +113,7 @@ C Arguments:
 
          vtype3d( 1 ) = m3real
          vname3d( 1 ) = 'AOD'
-         units3d( 1 ) = 'na'
+         units3d( 1 ) = '-'
          vdesc3d( 1 ) = 'Aerosol Optical Depth'
 
          fdesc3d( 1 ) = 'Aerosol Optical Depth'
@@ -185,7 +185,7 @@ C         AERO_DATA.F. Moments are wet after extract_aero
 
 !        if ( output_ext ) then
 !           vname3d( 1 ) = 'EXTINCTION'
-!           units3d( 1 ) = '1/km'
+!           units3d( 1 ) = 'km-1'
 !           write ( vdesc3d( 1 ), '(a)') 'block extinction (Reconstructed)'
 !           if ( .not. open3( ext_file, fsnew3, pname ) ) then
 !              write( logdev,* ) ' could not open file:', ext_file

@@ -134,13 +134,13 @@ C...CSA Variables, Units and Descriptions for RJ_FILE
 
          N = N + 1
          VNAME3D( N ) = 'JNO2'
-         UNITS3D( N ) = '1/min'
+         UNITS3D( N ) = 'min-1'
          VDESC3D( N ) = 'Photodissociation rate of NO2'
          VTYPE3D( N ) = M3REAL
 
          N = N + 1
          VNAME3D( N ) = 'JO3O1D'
-         UNITS3D( N ) = '1/min'
+         UNITS3D( N ) = 'min-1'
          VDESC3D( N ) = 'Photodissociation rate of ozone producing O(1D)'
          VTYPE3D( N ) = M3REAL
 
@@ -153,7 +153,7 @@ C...CSA Variables, Units and Descriptions for RJ_FILE
 
          N = N + 1
          VNAME3D( N ) = 'RESOLVED_WBAR'
-         UNITS3D( N ) = 'g/m**3'
+         UNITS3D( N ) = 'g m-3'
          VDESC3D( N ) = 'Resolved Cloud Hydrometeor Content averaged over cloudy layers'
          VTYPE3D( N ) = M3REAL
          
@@ -166,7 +166,7 @@ C...CSA Variables, Units and Descriptions for RJ_FILE
 
              N = N + 1
              VNAME3D( N ) = 'SUBGRID_WBAR'
-             UNITS3D( N ) = 'g/m**3'
+             UNITS3D( N ) = 'g m-3'
              VDESC3D( N ) = 'Subgrid Cloud Hydrometeor Content averaged over cloudy layers'
              VTYPE3D( N ) = M3REAL
          END IF             
@@ -230,7 +230,7 @@ C...assumes that lamba in nanometers is on order of 100 or less
 
             N = N + 1
             VNAME3D( N ) = 'ETOT_SFC_W' // TRIM( LAMBDA )
-            UNITS3D( N ) = 'Watts/m**2'
+            UNITS3D( N ) = 'W m-2'
             VDESC3D( N ) = 'Total Downward Irradiance at surface at '
      &                   // TRIM( LAMBDA ) // ' nm'
             VTYPE3D( N ) = M3REAL
@@ -373,7 +373,7 @@ C...load data from photolysis reaction list
          DO N = 1, NPHOTAB
             VNAME3D( N ) = PHOTAB( N )
             VTYPE3D( N ) = M3REAL
-            UNITS3D( N ) = '1/min'
+            UNITS3D( N ) = 'min-1'
             VDESC3D( N ) = 'Photolysis rates calculated based on data file; ' // VNAME3D(N)
          END DO
 
@@ -469,28 +469,28 @@ C...assumes that lamba in nanometers is on order of 100 or less
 
             N = N + 1
             VNAME3D( N ) = 'EXT_W' // TRIM( LAMBDA )
-            UNITS3D( N ) = '1/Mm'
+            UNITS3D( N ) = 'Mm-1'
             VDESC3D( N ) = 'Total Extinction of layer for '
      &                   // TRIM( LAMBDA ) // ' nm'
             VTYPE3D( N ) = M3REAL
 
             N = N + 1
             VNAME3D( N ) = 'GAS_EXT_W' // TRIM( LAMBDA )
-            UNITS3D( N ) = '1/Mm'
+            UNITS3D( N ) = 'Mm-1' 
             VDESC3D( N ) = 'Total Extinction from Rayleigh sctttering NO2 and O3 in layer for '
      &                   // TRIM( LAMBDA ) // ' nm'
             VTYPE3D( N ) = M3REAL
  
             N = N + 1
             VNAME3D( N ) = 'EXT_AERO_W' // TRIM( LAMBDA )
-            UNITS3D( N ) = '1/Mm'
+            UNITS3D( N ) = 'Mm-1'
             VDESC3D( N ) = 'Aerosol Extinction in layer for '
      &                   // TRIM( LAMBDA ) // ' nm'
             VTYPE3D( N ) = M3REAL
             
             N = N + 1
             VNAME3D( N ) = 'ACTINIC_FX_W' // TRIM( LAMBDA )
-            UNITS3D( N ) = 'Watts/m**2'
+            UNITS3D( N ) = 'W m-2'
             VDESC3D( N ) = 'Net Actinic Flux, '
      &                   // TRIM( LAMBDA ) // ' nm'
             VTYPE3D( N ) = M3REAL
@@ -505,7 +505,7 @@ C...assumes that lamba in nanometers is on order of 100 or less
 
          N = N + 1
          VNAME3D( N ) = 'EXT_AERO_W550'
-         UNITS3D( N ) = '1/Mm'
+         UNITS3D( N ) = 'Mm-1'
          VDESC3D( N ) = ' Aerosol Extinction of layer for '
      &                // '550 nm based on an Angstrom Interpolation'
          VTYPE3D( N ) = M3REAL

@@ -184,11 +184,11 @@
                VTYPE3D( VAR ) = M3REAL
                VNAME3D( VAR ) = A_AE_SPC( SPC )
                IF ( VNAME3D( VAR )(1:3) .EQ. 'NUM' ) THEN
-                  UNITS3D( VAR ) = 'number/m**3'
+                  UNITS3D( VAR ) = 'ptcls m-3'
                ELSE IF ( VNAME3D( VAR )(1:3) .EQ. 'SRF' ) THEN
-                  UNITS3D( VAR ) = 'm**2/m**3'
+                  UNITS3D( VAR ) = 'm2 m-3'
                ELSE
-                  UNITS3D( VAR ) = 'micrograms/m**3'
+                  UNITS3D( VAR ) = 'ug m-3'
                END IF
                VDESC3D( VAR ) = 'Variable ' // VNAME3D( VAR )
             END DO

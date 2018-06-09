@@ -172,7 +172,7 @@ C Try to open existing wet deposition file for update
                  SPC = SPC + 1
                  VTYPE3D ( VAR ) = M3REAL
                  VNAME3D ( VAR ) = GC_WDEP( SPC )
-                 UNITS3D ( VAR ) = 'kg/hectare'
+                 UNITS3D ( VAR ) = 'kg ha-1'
                  VDESC3D ( VAR ) = 'hourly wet deposition values'
               END DO
 
@@ -186,11 +186,11 @@ C Try to open existing wet deposition file for update
                  VTYPE3D ( VAR ) = M3REAL
                  VNAME3D ( VAR ) = AE_WDEP( SPC )
                  IF ( INDEX( AE_WDEP( SPC ), 'NUM' ) .GT. 0 ) THEN
-                    UNITS3D ( VAR ) = 'number/hectare'
+                    UNITS3D ( VAR ) = 'ptcls ha-1'
                  ELSE IF ( INDEX( AE_WDEP( SPC ), 'SRF' ) .GT. 0 ) THEN
-                    UNITS3D ( VAR ) = 'm2/hectare'
+                    UNITS3D ( VAR ) = 'm2 ha-1'
                  ELSE
-                    UNITS3D ( VAR ) = 'kg/hectare'
+                    UNITS3D ( VAR ) = 'kg ha-1'
                  END IF
                  VDESC3D ( VAR ) = 'hourly wet deposition values'
               END DO
@@ -204,7 +204,7 @@ C Try to open existing wet deposition file for update
                  SPC = SPC + 1
                  VTYPE3D ( VAR ) = M3REAL
                  VNAME3D ( VAR ) = NR_WDEP( SPC )
-                 UNITS3D ( VAR ) = 'kg/hectare'
+                 UNITS3D ( VAR ) = 'kg ha-1'
                  VDESC3D ( VAR ) = 'hourly wet deposition values'
               END DO
 
@@ -217,7 +217,7 @@ C Try to open existing wet deposition file for update
                  SPC = SPC + 1
                  VTYPE3D ( VAR ) = M3REAL
                  VNAME3D ( VAR ) = TR_WDEP( SPC )
-                 UNITS3D ( VAR ) = 'kg/hectare'
+                 UNITS3D ( VAR ) = 'kg ha-1'
                  VDESC3D ( VAR ) = 'hourly wet deposition values'
               END DO
 
@@ -226,7 +226,7 @@ C Try to open existing wet deposition file for update
               VAR = N_GC_WDEP + N_AE_WDEP + N_NR_WDEP + N_TR_WDEP + 1
               VTYPE3D( VAR ) = M3REAL
               VNAME3D( VAR ) = 'HPLUS'
-              UNITS3D( VAR ) = 'kg/hectare'
+              UNITS3D( VAR ) = 'kg ha-1'
               VDESC3D( VAR ) = 'hourly wet deposition values'
 
 !...initialize the file descriptors
@@ -318,7 +318,7 @@ C Try to open existing wet deposition file for update
                  VAR = VAR + 1
                  VTYPE3D( VAR ) = M3REAL
                  VNAME3D( VAR ) = 'RAIN_FLAG'
-                 UNITS3D( VAR ) = '1 or 0'
+                 UNITS3D( VAR ) = '1-or-0'
                  VDESC3D( VAR ) = 'Rain-event flag'
  
 !...define output descriptor for precitating cloud fraction
@@ -326,7 +326,7 @@ C Try to open existing wet deposition file for update
                  VAR = VAR + 1
                  VTYPE3D( VAR ) = M3REAL
                  VNAME3D( VAR ) = 'PR_CLDFRAC'
-                 UNITS3D( VAR ) = '----'
+                 UNITS3D( VAR ) = '-'
                  VDESC3D( VAR ) = 'PR cloud fraction'
 
 !...define output descriptor for non-precipitating cloud fraction
@@ -334,7 +334,7 @@ C Try to open existing wet deposition file for update
                  VAR = VAR + 1
                  VTYPE3D( VAR ) = M3REAL
                  VNAME3D( VAR ) = 'NP_CLDFRAC'
-                 UNITS3D( VAR ) = '----'
+                 UNITS3D( VAR ) = '-'
                  VDESC3D( VAR ) = 'NP cloud fraction'
 
 !...define output descriptor for precipitating cloud transmissivity
@@ -342,7 +342,7 @@ C Try to open existing wet deposition file for update
                  VAR = VAR + 1
                  VTYPE3D( VAR ) = M3REAL
                  VNAME3D( VAR ) = 'PR_TRANS'
-                 UNITS3D( VAR ) = '----'
+                 UNITS3D( VAR ) = '-'
                  VDESC3D( VAR ) = 'PR cloud transmissivity'
 
 !...define output descriptor for non-precipitating cloud transmissivity
@@ -350,7 +350,7 @@ C Try to open existing wet deposition file for update
                  VAR = VAR + 1
                  VTYPE3D( VAR ) = M3REAL
                  VNAME3D( VAR ) = 'NP_TRANS'
-                 UNITS3D( VAR ) = '----'
+                 UNITS3D( VAR ) = '-'
                  VDESC3D( VAR ) = 'NP cloud transmissivity'
 
 !...define output descriptor for resolved cloud transmissivity
@@ -358,7 +358,7 @@ C Try to open existing wet deposition file for update
                  VAR = VAR + 1
                  VTYPE3D( VAR ) = M3REAL
                  VNAME3D( VAR ) = 'RES_TRANS'
-                 UNITS3D( VAR ) = '----'
+                 UNITS3D( VAR ) = '-'
                  VDESC3D( VAR ) = 'Resolved cloud transmissivity'
 
 !...define output descriptor for overall cloud transmissivity
@@ -366,7 +366,7 @@ C Try to open existing wet deposition file for update
                  VAR = VAR + 1
                  VTYPE3D( VAR ) = M3REAL
                  VNAME3D( VAR ) = 'CLD_TRANS'
-                 UNITS3D( VAR ) = '----'
+                 UNITS3D( VAR ) = '-'
                  VDESC3D( VAR ) = 'Total cloud transmissivity'
 
 !...initialize the file descriptors

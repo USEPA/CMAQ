@@ -122,7 +122,7 @@ C Set output file characteristics based on GRIDDESC and open the dep velocity di
             N = N + 1
             VTYPE3D( V ) = M3REAL
             VNAME3D( V ) = GDEPV_NAMES( V )
-            UNITS3D( V ) = 'cm/sec'
+            UNITS3D( V ) = 'cm s-1'
             VDESC3D( V ) = 'gas phase dry deposition velocity'
          END DO
 
@@ -132,7 +132,7 @@ C Set output file characteristics based on GRIDDESC and open the dep velocity di
             N = N + 1
             VTYPE3D( N ) = M3REAL
             VNAME3D( N ) = ADEPV_NAMES( V )
-            UNITS3D( N ) = 'cm/sec'
+            UNITS3D( N ) = 'cm s-1'
             VDESC3D( N ) = 'aerosol phase dry deposition velocity'
          END DO
 
@@ -142,7 +142,7 @@ C Set output file characteristics based on GRIDDESC and open the dep velocity di
 !           N = N + 1
 !           VTYPE3D( N ) = M3REAL
 !           VNAME3D( N ) = SDEPV_NAMES( V )
-!           UNITS3D( N ) = 'cm/sec'
+!           UNITS3D( N ) = 'cm s-1'
 !           VDESC3D( N ) = 'deposition velocity for (GAS-AEROSOL) '
 !    &                  // ' semi-volatile compound'
 !        END DO
@@ -150,25 +150,25 @@ C Set output file characteristics based on GRIDDESC and open the dep velocity di
          N = N + 1
             VTYPE3D( N ) = M3REAL
             VNAME3D( N ) = 'LAIJ'
-            UNITS3D( N ) = 'dimensionless'
+            UNITS3D( N ) = '-'
             VDESC3D( N ) = 'leaf area index for land use category'
 
          N = N + 1
             VTYPE3D( N ) = M3REAL
             VNAME3D( N ) = 'RAJ'
-            UNITS3D( N ) = 'm/sec'
+            UNITS3D( N ) = 'm s-1'
             VDESC3D( N ) = 'aerodynamic resistance for land use category'
 
          N = N + 1
             VTYPE3D( N ) = M3REAL
             VNAME3D( N ) = 'USTARJ'
-            UNITS3D( N ) = 'm/sec'
+            UNITS3D( N ) = 'm s-1'
             VDESC3D( N ) = 'friction velocity for land use category'
 
          N = N + 1
             VTYPE3D( N ) = M3REAL
             VNAME3D( N ) = 'Z0J'
-            UNITS3D( N ) = 'm/sec'
+            UNITS3D( N ) = 'm s-1'
             VDESC3D( N ) = 'surface roughness for land use category'
 
 
