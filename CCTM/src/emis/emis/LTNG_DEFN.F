@@ -92,7 +92,6 @@
       CHARACTER( 16 ),      SAVE :: RC_NAME       ! RC name: old is RC and CCnew is RCA
 
 !C allocate these if LNAME = 'InLine'
-      REAL,    ALLOCATABLE, SAVE :: COLUMN_LTNG_NO ( :,: ) ! column total NO
       REAL,    ALLOCATABLE, SAVE :: LTNG_PRSFC     ( :,: ) ! surface pressure
       REAL,    ALLOCATABLE, SAVE :: LTNG_RC        ( :,: ) ! convective rainfall
 !C allocate these if LPARAM
@@ -582,7 +581,8 @@ C        INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
          CHARACTER( 16 )   :: MNAME
          CHARACTER( 16 )   :: PNAME = 'GET_LTNG'
          CHARACTER( 120 )  :: XMSG = ' '
-
+         REAL, ALLOCATABLE :: COLUMN_LTNG_NO ( :,: ) ! column total NO
+         
          INTEGER,     SAVE :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2
 
          INTEGER           :: cjdate
