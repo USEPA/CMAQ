@@ -92,18 +92,19 @@
       CHARACTER( 16 ),      SAVE :: RC_NAME       ! RC name: old is RC and CCnew is RCA
 
 !C allocate these if LNAME = 'InLine'
-      REAL,    ALLOCATABLE, SAVE :: LTNG_PRSFC  ( :,: ) ! surface pressure
-      REAL,    ALLOCATABLE, SAVE :: LTNG_RC     ( :,: ) ! convective rainfall
+      REAL,    ALLOCATABLE, SAVE :: COLUMN_LTNG_NO ( :,: ) ! column total NO
+      REAL,    ALLOCATABLE, SAVE :: LTNG_PRSFC     ( :,: ) ! surface pressure
+      REAL,    ALLOCATABLE, SAVE :: LTNG_RC        ( :,: ) ! convective rainfall
 !C allocate these if LPARAM
-      REAL,    ALLOCATABLE, SAVE :: NLDN_STRIKE ( :,: ) ! Hourly NLDN strike data
-      REAL,    ALLOCATABLE, SAVE :: OCEAN_MASK  ( :,: ) ! reduce offshore strikes
-      REAL,    ALLOCATABLE, SAVE :: SLOPE       ( :,: ) ! reduce offshore strikes
-      REAL,    ALLOCATABLE, SAVE :: INTERCEPT   ( :,: ) ! reduce offshore strikes
-      REAL,    ALLOCATABLE, SAVE :: SLOPE_lg    ( :,: ) ! reduce offshore strikes
-      REAL,    ALLOCATABLE, SAVE :: INTERCEPT_lg( :,: ) ! reduce offshore strikes
-      REAL,    ALLOCATABLE, SAVE :: ICCG        ( :,: ) ! intercloud strikes per cloud to ground strike
+      REAL,    ALLOCATABLE, SAVE :: NLDN_STRIKE    ( :,: ) ! Hourly NLDN strike data
+      REAL,    ALLOCATABLE, SAVE :: OCEAN_MASK     ( :,: ) ! reduce offshore strikes
+      REAL,    ALLOCATABLE, SAVE :: SLOPE          ( :,: ) ! reduce offshore strikes
+      REAL,    ALLOCATABLE, SAVE :: INTERCEPT      ( :,: ) ! reduce offshore strikes
+      REAL,    ALLOCATABLE, SAVE :: SLOPE_lg       ( :,: ) ! reduce offshore strikes
+      REAL,    ALLOCATABLE, SAVE :: INTERCEPT_lg   ( :,: ) ! reduce offshore strikes
+      REAL,    ALLOCATABLE, SAVE :: ICCG           ( :,: ) ! intercloud strikes per cloud to ground strike
 !C Vertical coord values
-      REAL,    ALLOCATABLE, SAVE :: VGLVSLT( : )
+      REAL,    ALLOCATABLE, SAVE :: VGLVSLT        ( : )
 
 !C    scenario time/date needed for diagnostic output
       INTEGER,              SAVE :: SDATE     ! scenario start date
