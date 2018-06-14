@@ -16,8 +16,6 @@
 #  subject to their copyright restrictions.                                    #
 #------------------------------------------------------------------------------#
 
-# Requirements: set M3LIB before running this script
-
 .SUFFIXES:
 .SUFFIXES: .o .f90 .F90
 
@@ -25,39 +23,37 @@ MODEL = mcip.exe
 
 #...Portland Group Fortran
 #FC     = pgf90
-#NETCDF = $(M3LIB)/netcdf
-#IOAPI_ROOT = $(M3LIB)/ioapi
+#NETCDF = /usr/local/apps/netcdf-4.3.2/pgi-14.7
+#IOAPI_ROOT = /usr/local/apps/ioapi-3.1/pgi-14.7
 #FFLAGS = -g -O0 -Ktrap=unf -Ktrap=denorm -Ktrap=inv -Ktrap=ovf -Ktrap=divz  \
-#         -Ktrap=fp -pc 32 -Mbounds -Mchkfpstk -Mchkptr -Kieee     \
-#         -Minform,inform -Mfree -byteswapio -I$(NETCDF)/include \
-#         -I$(IOAPI_ROOT)/Linux2_x86_64pg
+         -Ktrap=fp -pc 32 -Mbounds -Mchkfpstk -Mchkptr -Kieee     \
+         -Minform,inform -Mfree -byteswapio -I$(NETCDF)/include \
+         -I$(IOAPI_ROOT)/Linux2_x86_64pg
 #FFLAGS = -O4 -fastsse -pc 32 -Mfree -byteswapio -I$(NETCDF)/include \
-         #-I$(IOAPI_ROOT)/include
-#LIBS   = -L$(IOAPI_ROOT)/lib -lioapi \
-	 -L$(NETCDF)/lib -lnetcdf
+#         -I$(IOAPI_ROOT)/Linux2_x86_64pg
+#LIBS   = -L$(IOAPI_ROOT)/Linux2_x86_64pg -lioapi \
 #	 -L$(NETCDF)/lib -lnetcdff -lnetcdf
 
 #...gfortran
 #FC	= gfortran
-#NETCDF = $(M3LIB)/netcdf
-#IOAPI_ROOT = $(M3LIB)/ioapi
-#FFLAGS	= -O3 -I$(NETCDF)/include -I$(IOAPI_ROOT)/include
-##FFLAGS	= -g -O0  \
+#NETCDF = /usr/local/apps/netcdf-4.3.2/gcc-4.4.7
+#IOAPI_ROOT = /usr/local/apps/ioapi-3.1/gcc-4.4.7
+#FFLAGS	= -O3 -I$(NETCDF)/include -I$(IOAPI_ROOT)/Linux2_x86_64
+#FFLAGS	= -g -O0  \
           -ffpe-trap='invalid','zero','overflow','underflow'  \
-          -I$(NETCDF)/include -I$(IOAPI_ROOT)/include
-#LIBS    = -L$(IOAPI_ROOT)/lib -lioapi  \
-          #-L$(NETCDF)/lib -lnetcdf -lgomp
-#
+          -I$(NETCDF)/include -I$(IOAPI_ROOT)/Linux2_x86_64
+#LIBS    = -L$(IOAPI_ROOT)/Linux2_x86_64 -lioapi  \
+#          -L$(NETCDF)/lib -lnetcdff -lnetcdf
+
 #...Intel Fortran
 FC      = ifort
-NETCDF = $(M3LIB)/netcdf
-IOAPI_ROOT = $(M3LIB)/ioapi
+NETCDF = /usr/local/apps/netcdf-4.4.1/intel-17.0
+IOAPI_ROOT = /usr/local/apps/ioapi-3.2/intel-17.0
 #FFLAGS  = -g -O0 -check all -C -traceback -FR -I$(NETCDF)/include  \
-#          -I$(IOAPI_ROOT)/include
-FFLAGS  = -FR -O3 -traceback -openmp -I$(NETCDF)/include -I$(IOAPI_ROOT)/include
+          -I$(IOAPI_ROOT)/Linux2_x86_64ifort
+FFLAGS  = -FR -O3 -traceback -I$(NETCDF)/include -I$(IOAPI_ROOT)/Linux2_x86_64ifort
 LIBS    = -L$(IOAPI_ROOT)/lib -lioapi \
-          -L$(NETCDF)/lib -lnetcdf
- 	  #-limf
+          -L$(NETCDF)/lib -lnetcdff -lnetcdf
 
 DEFS   = 
 
@@ -70,12 +66,15 @@ MODULES =\
  date_pack_mod.o \
  files_mod.o \
  groutcom_mod.o \
+ luoutcom_mod.o \
  luvars_mod.o \
  mcipparm_mod.o \
  mcoutcom_mod.o \
  mdoutcom_mod.o \
  metinfo_mod.o \
  metvars_mod.o \
+ mosoutcom_mod.o \
+ soioutcom_mod.o \
  vgrd_mod.o \
  wrf_netcdf_mod.o \
  xvars_mod.o \
@@ -93,6 +92,9 @@ OBJS =\
  close_files.o \
  collapx.o \
  comheader.o \
+ comheader_lufrac.o \
+ comheader_mos.o \
+ comheader_soi.o \
  cori.o \
  dealloc_ctm.o \
  dealloc_met.o \
@@ -104,6 +106,7 @@ OBJS =\
  getluse.o \
  getmet.o \
  getpblht.o \
+ getpsih.o \
  getsdt.o \
  getversion.o \
  graceful_stop.o \
@@ -119,6 +122,7 @@ OBJS =\
  ll2xy_merc.o \
  ll2xy_ps.o \
  locate.o \
+ lucro.o \
  mapfac_lam.o \
  mapfac_merc.o \
  mapfac_ps.o \
@@ -127,6 +131,7 @@ OBJS =\
  metgrid2ctm.o \
  metvars2ctm.o \
  mm5v3opts.o \
+ moscro.o \
  pblsup.o \
  ptemp.o \
  pvs.o \
@@ -142,6 +147,7 @@ OBJS =\
  setup_mm5v3.o \
  setup_wrfem.o \
  sfclayer.o \
+ soilcro.o \
  statflds.o \
  vertarys.o \
  vertnhy.o \

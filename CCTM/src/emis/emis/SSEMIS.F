@@ -639,6 +639,9 @@ C Variables for calculating ambient RH as done in the aerosol module
             REAL      :: BLKRH            ! fractional relative humidity
 
 C Variables for calculating solute mass fraction & size-correction factors
+            REAL( 8 ), PARAMETER :: ONE3  = 1.0D0 / 3.00D0
+            REAL( 8 ), PARAMETER :: A0    = 1.0D0 / 3.70D0
+            REAL( 8 ), PARAMETER :: A80   = 3.7D0 / 1.82D0
             REAL      :: RH               ! BLKRH constrained to 45-99% range
             REAL( 8 ) :: DRH              ! double precision RH
             REAL( 8 ) :: C0               ! (Diam @ formation) / (Diam @ ambient RH)
@@ -646,9 +649,10 @@ C Variables for calculating solute mass fraction & size-correction factors
             REAL( 8 ) :: XSW              ! fractional solute weight fraction
 
 C Density of dry sea salt [kg/m3] using volume additivity
-            REAL( 8 ) :: RHOSSDRY 
-            REAL( 8 ) :: RHOSW            ! sea-salt particle density at ambient RH [g/m3]
-            REAL( 8 ) :: RHSUM       
+            REAL( 8 )       :: RHOSW            ! sea-salt particle density at ambient RH [g/m3]
+            REAL( 8 ), SAVE :: RHOSSDRY 
+            REAL( 8 ), SAVE :: RHSUM   
+            REAL( 8 ), SAVE :: SPECIFIC_VOL_H2O ! volume of aerosol water (m3/kg)   
 
 C Maximum and minimum diameters for emission-flux integrations [m]
             REAL, PARAMETER :: DPMAX = 20.0E-6 ! upper limit used for the
@@ -712,17 +716,32 @@ C Variables for calculating dry surface-area emission rate for accum mode
             INTEGER, SAVE     :: WSTEP  = 0    ! local write counter
             INTEGER           :: MDATE, MTIME  ! SSEMIS write date&time
 
-            LOGICAL, SAVE :: FIRSTIME = .TRUE.
+            LOGICAL, SAVE :: FIRSTIME      = .TRUE.
+            LOGICAL, SAVE :: UNINITIALIZED = .TRUE.
 
 C Mathematical constants; statement function for ERF approximation
-            REAL, PARAMETER :: ONE3 = 1.0 / 3.0
-            REAL, PARAMETER :: TWO3 = 2.0 / 3.0
-            REAL            :: ERF        ! ERF approx. statement function
-            REAL            :: X          ! dummy argument for ERF
+            REAL, PARAMETER      :: TWO3 = 2.0 / 3.0
+            REAL                 :: ERF        ! ERF approx. statement function
+            REAL                 :: X          ! dummy argument for ERF
             ERF( X ) = SIGN( 1.0, X ) * SQRT( 1.0 - EXP( -4.0 * X * X / PI ) )
 
 C----------------------------- Begin calc ------------------------------
 
+            IF ( UNINITIALIZED )THEN
+C Calculate dry sea-salt [kg/m3]
+               RHSUM = 0.0D0
+               DO S = 1, NSSSPC
+!RHSUM and RHOSSDRY are assumed the same between J and K modes
+                  IF ( AEROSPC_SSF( 2,SSSPC_MAP( S ) ) .LT. 1.0E-30 ) CYCLE
+                  IF ( S .EQ. KH2O .OR. AEROSPC( SSSPC_MAP( S ) )%TRACER ) CYCLE !! do not include Water or tracers
+                  RHSUM = RHSUM
+     &                  + REAL( ( AEROSPC_SSF( 2,SSSPC_MAP( S ) ) 
+     &                          / AEROSPC( SSSPC_MAP( S ) )%DENSITY ), 8 )
+               END DO
+               RHOSSDRY         = 1.0D0 / RHSUM    
+               SPECIFIC_VOL_H2O = 1.0D0 / REAL( AEROSPC( AH2O_IDX )%DENSITY, 8 )
+               UNINITIALIZED    = .FALSE.
+            END IF
 C Initialize sea-salt output buffer
             IF ( SSEMDIAG .AND. WSTEP .EQ. 0 ) SSBF = 0.0
             Met_Data%NACL_EMIS = 0.0
@@ -766,9 +785,11 @@ C 45-99% RH range.  Store powers of RH for polynomial calculations.
                   RH = MAX( 0.45, MIN( 0.99, RH ) )
                   DRH = REAL( RH, 8 )
 
-C Calculate size-correction factors from Equation 3 of Lewis & Schwartz 2006 and Zhang et al 2006 equation 2. 
-                  C0  = 3.70D0 * ( (1.0D0-DRH) / (2.0D0-DRH) ) ** (1.0D0/3.0D0)
-                  C80 = 1.82D0 * ( (1.0D0-DRH) / (2.0D0-DRH) ) ** (1.0D0/3.0D0)
+C Calculate inverse of size-correction factors from Equation 3 of Lewis & Schwartz 2006 and Zhang et al 2006 equation 2. 
+!                  C0  = 3.70D0 * ( (1.0D0-DRH) / (2.0D0-DRH) ) ** (1.0D0/3.0D0)
+!                  C80 = 1.82D0 * ( (1.0D0-DRH) / (2.0D0-DRH) ) ** (1.0D0/3.0D0)
+                  C0  = A0  * ( (2.0D0-DRH) / (1.0D0-DRH) ) ** ONE3
+                  C80 = A80 * C0
 
 C Calculate solute mass fraction using Equation 1 of Zhang et al.
                   XSW =         X_COEFF( 1 )
@@ -778,34 +799,26 @@ C Calculate solute mass fraction using Equation 1 of Zhang et al.
      &                + DRH * ( X_COEFF( 5 )
      &                + DRH * ( X_COEFF( 6 ) ) ) ) ) )
 
-C Calculate dry sea-salt [kg/m3]
-                  RHSUM = 0.0D0
-                  DO S = 1, NSSSPC
-                     IF ( S .EQ. KH2O ) CYCLE     !! do not include Water
-                     RHSUM = RHSUM
-     &                     + REAL( ( AEROSPC_SSF( 2,SSSPC_MAP( S ) ) 
-     &                             / AEROSPC( SSSPC_MAP( S ) )%DENSITY ), 8 )
-                  END DO
-                  RHOSSDRY = 1.0D0 / RHSUM    
 
 C Calculate sea-salt-particle density [g/m3] at ambient RH, assuming
 C volume additivity of dry salt plus water
-                  RHOSW = 1.0D+3 / ( XSW / RHOSSDRY
-     &                  + ( 1.0D0 - XSW )
-     &                  / REAL( AEROSPC( AH2O_IDX )%DENSITY, 8 ) )
+                  RHOSW = 1.0D+3 
+     &                  / ( XSW * RHSUM + ( 1.0D0 - XSW ) * SPECIFIC_VOL_H2O )
 
 C Set minimum and maximum diameters for integration using the size-
 C correction factors of Zhang et al. (2005)
 
 C Gong-Monahan flux function is valid from 0.005-5.0 um dry radius;
 C multiply by 4 to get wet diameter at 80% RH
-                  DPMINO = 2.0E-8 / REAL( C80, 4 )
-                  DPMAXO = MIN( DPMAX, DPMAX / REAL( C80, 4 ) )
+!                  DPMINO = 2.0E-8 / REAL( C80, 4 )
+!                  DPMAXO = MIN( DPMAX, DPMAX / REAL( C80, 4 ) )
+                  DPMINO = 2.0E-8 * REAL( C80, 4 )
+                  DPMAXO = MIN( DPMAX, DPMAX * REAL( C80, 4 ) )
 
 
 C deLeeuw flux function is valid from 1.6-20 um diameter at formation
-!                 DPMINS = 1.6E-6 / C0 
-!                 DPMAXS = MIN( DPMAX, DPMAX / C0 )
+!                 DPMINS = 1.6E-6 * C0 
+!                 DPMAXS = MIN( DPMAX, DPMAX * C0 )
             
 C Calculate scaling factors to correct the tabulated fluxes for the 10m
 C wind speed in this cell.  Note: tabulated values are based on 1 m/s.

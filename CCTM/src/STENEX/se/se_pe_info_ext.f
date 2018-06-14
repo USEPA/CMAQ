@@ -45,7 +45,7 @@ C   se_worker_comm    -- MPI worker communicator
 C   se_io_comm        -- MPI I/O communicator
 C --------------------------------------------------------------------------
 
-	module se_pe_info_ext
+        module se_pe_info_ext
 
           integer :: se_numprocs
           integer :: se_npcol

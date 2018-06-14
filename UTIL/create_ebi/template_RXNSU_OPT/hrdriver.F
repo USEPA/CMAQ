@@ -24,7 +24,6 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
        SUBROUTINE CHEM( CGRID, JDATE, JTIME, TSTEP )
-
 C**********************************************************************
 C
 C  FUNCTION: Driver subroutine for Euler Backward Iterative solver
@@ -88,8 +87,9 @@ C..Arguments:
       INTEGER TSTEP( 3 )      ! Time step vector (HHMMSS)
 
 C..Parameters:
-      REAL, PARAMETER :: CONCMIN = 1.0E-30               ! minimum species concentration allowed
-      REAL, PARAMETER :: MAOMV   = 1.0E6 * MWAIR / MWWAT ! Mol Wt of air over Mol Wt of water times 1.0E6
+      REAL( 8 ), PARAMETER :: DCONMIN = 1.0D-30               ! minimum species concentration allowed
+      REAL,      PARAMETER :: CONCMIN = 1.0E-30               ! minimum species concentration allowed
+      REAL,      PARAMETER :: MAOMV   = 1.0E6 * MWAIR / MWWAT ! Mol Wt of air over Mol Wt of water times 1.0E6
 
 C..External Functions:
 
@@ -134,7 +134,10 @@ C..Scratch Local Variables:
       REAL( 8 )  CHEMSTEP     ! Chemistry integration interval (min)
 
 
-      INTEGER     GXOFF, GYOFF            ! global origin offset from file
+      INTEGER       :: GXOFF, GYOFF            ! global origin offset from file
+
+      INTEGER, SAVE :: PECOL_OFFSET        ! Local Column Offset for processor
+      INTEGER, SAVE :: PEROW_OFFSET        ! Local Column Offset for processor
 C for INTERPX
       INTEGER, SAVE :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2
       INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
@@ -266,6 +269,11 @@ c..If emissions processing requested stop
          OPEN( UNIT=ISTFL, FILE='iterstat.dat' )
          WRITE( ISTFL, 94020 )
 #endif
+C Define processor offsets
+
+         PECOL_OFFSET = COLSD_PE( 1, MYPE+1 ) - 1
+         PEROW_OFFSET = ROWSD_PE( 1, MYPE+1 ) - 1
+
 
 C.. Get fractional seawater coverage from the OCEAN file.
 
@@ -306,7 +314,7 @@ C.. Get fractional surf-zone coverage from the OCEAN file.
          DEALLOCATE( OPEN_ZONE, SURF_ZONE )
 
 
-         CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
+         CALL SUBHFILE ( MET_CRO_2D, GXOFF, GYOFF,
      &                   STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2 )
 
          CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
@@ -463,7 +471,7 @@ c..Get rate constants
 c..Call EBI solver
                N_EBI_IT = 0
 
-               CALL HRSOLVER( JDATE, JTIME, C, R, L )
+               CALL HRSOLVER( JDATE, JTIME, (C+PECOL_OFFSET), (R+PEROW_OFFSET), L )
 
 #ifdef hrstats 
                MXEBI  = MAX( MXEBI, N_EBI_IT )
@@ -475,11 +483,11 @@ c..Call EBI solver
 c..Update concentration array
                DO SPC = 1, NUMB_MECH_SPC
                   S = CGRID_INDEX( SPC )
-                  IF( CONVERT_CONC( SPC ) )THEN 
-                      CGRID( C,R,L,S ) = MAX( REVERSE_CONV( SPC ) * DENS( C,R,L )
-     &                                 * REAL( YC( SPC ), 4), CONCMIN)
+                  IF( CONVERT_CONC( SPC ) )THEN
+                      CGRID( C,R,L,S ) = REAL( REVERSE_CONV( SPC ) * DENS( C,R,L )
+     &                                 * MAX( YC( SPC ), DCONMIN), 4)
                   ELSE
-                      CGRID( C,R,L,S ) = MAX( REAL( YC( SPC ), 4), CONCMIN)
+                      CGRID( C,R,L,S ) = REAL( MAX( YC( SPC ), DCONMIN), 4)
                   END IF
                END DO
 

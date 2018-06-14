@@ -1,20 +1,32 @@
 # make file to build bldmake program
 
-#EXEC = BLDMAKE_for_developers
- EXEC = BLDMAKE
+ EXEC = bldmake
 
-#FC = /usr/local/intel/ictce/3.2.2.013/fc/bin/intel64/ifort
- FC = /usr/local/apps/intel/composer_xe_2013.2.146/bin/intel64/ifort
+#To use nondefault compiler, type "make COMPILER=compiler" where compiler is PGF90 or GFORT.
+
+ifndef COMPILER
+ COMPILER = INTEL
+#COMPILER = PGF90
+#COMPILER = GFORT
+endif
+
+ifeq ($(COMPILER),INTEL)
+ FC = ifort
 #F_FLAGS = -O2 -fixed -extend_source -WB 
- F_FLAGS = -g -fixed -extend_source -WB 
+ F_FLAGS = -g -fixed -CU -CB -g -traceback -extend_source -WB 
+else ifeq ($(COMPILER),PGF90)
+ FC = pgf90
+ F_FLAGS = -Bstatic -Mextend -Mbounds -Mfixed -traceback
+else ifeq ($(COMPILER),GFORT)
+ FC = gfortran
+ F_FLAGS = -ffixed-form -ffixed-line-length-132  -fcheck=all -fbacktrace
+else
+ ERROR1 = "Makefile does not configure to support the specified compiler, $(COMPILER). User must modify Makefile."
+endif
 
-#FC = /usr/local/pgi-11.9/linux86-64/11.9/bin/pgf90
-#FC = /usr/local/apps/pgi/linux86-64/15.3/bin/pgf90
-#F_FLAGS = -Bstatic -Mextend -Mbounds -Mfixed
-
-#FC = /usr/local/gcc-4.6/bin/gfortran
-#FC = /usr/local/apps/gcc-4.9.1/bin/gfortran
-#F_FLAGS = -ffixed-form -ffixed-line-length-132
+ifdef ERROR1
+ $(error $(ERROR1))
+endif
 
  OBJS= cfg_module.o parser.o utils.o bldmake.o
 
@@ -27,6 +39,6 @@ $(EXEC): $(OBJS)
 	$(FC) -c $(F_FLAGS) $<
 
 clean:
-	rm *.o *.mod $EXEC
+	\rm -f *.o *.mod 
 # make file to build bldmake program
 

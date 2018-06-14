@@ -30,6 +30,8 @@ C                         modified PROPNN and H2O2
 C                         Increased ar for ozone from 8 to 12.
 C                         Change meso from 0.1 to 0 for some org. nitrates
 C                         Changes based on Nguyen et al. 2015 PNAS and SOAS
+C     07 May 2018 D. Schwede: Added call to CZANGLE and Met_Data%czangle variable
+C                             here and removed call to CZANGLE in other modules
 C
 C---------Notes
 C  * Updates based on literature review 7/96 JEP
@@ -69,6 +71,8 @@ C    Toluene diisocyanate and hexamethylene diisocyanate reactivities are
 C    assumed to be similar to SO2. Diffusivities are calculated with standard
 C    formulas.  W. Hutzell (04/08)
 C %% G. Sarwar: added data for iodine and bromine species (03/2016)
+C %% B. Hutzell: added dry deposition data for methane, acrylic acid, methyl chloride,
+C    and acetonitrile (09/2016)   
 C-------------------------------------------------------------------------------
 
       Use GRID_CONF           ! horizontal & vertical domain specifications
@@ -118,6 +122,7 @@ C-------------------------------------------------------------------------------
          Logical, Allocatable :: CONVCT   ( :,: )  ! convection flag
          Real,    Allocatable :: PBL      ( :,: )  ! pbl height (m)
          Real,    Allocatable :: NACL_EMIS( :,: )  ! NACL mass emission rate of particles with d <10 um (g/m2/s)
+         Real,    Allocatable :: COSZEN   ( :,: )  ! Cosine of the zenith angle
 !> U and V wind components on the cross grid points
          Real,    Allocatable :: UWIND    ( :,:,: )  ! [m/s]
          Real,    Allocatable :: VWIND    ( :,:,: )  ! [m/s]                    
@@ -244,10 +249,13 @@ C Land use information:
                                                    ! Wesely 1989 eq 6.
       Character( 16 ) :: subname  ( ltotg )        ! for subroutine HLCONST
 
+      Logical, Save :: MET_INITIALIZED = .false.
       Real,    Save :: CONVPA             ! Pressure conversion factor file units to Pa
       Logical, Save :: MINKZ     
       Logical, Save :: CSTAGUV            ! Winds are available with C stagger?
       Logical, Save :: ifwr     = .false.
+
+      Public        :: INIT_MET
 
       Logical, Private, Save :: ifsst    = .false.
       Logical, Private, Save :: ifq2     = .false.
@@ -337,7 +345,7 @@ C Land use information:
       DATA subname( 65), dif0( 65), ar( 65), meso( 65), lebas( 65) / 'MTNO3           ',0.0453,    8.0,      0.0,  251.2/
       DATA subname( 66), dif0( 66), ar( 66), meso( 66), lebas( 66) / 'IEPOX           ',0.0579,    8.0,      0.0,  110.8/
       DATA subname( 67), dif0( 67), ar( 67), meso( 67), lebas( 67) / 'HACET           ',0.1060,    8.0,      0.0,   72.6/  ! dif0 from Nguyen 2015 PNAS
-      DATA subname( 68), dif0( 68), ar( 68), meso( 68), lebas( 68) / 'SVALK1          ',0.0514,   20.0,      0.0,  280.5/
+      DATA subname( 68), dif0( 68), ar( 68), meso( 68), lebas( 68) / 'SVALK1          ',0.0514,   20.0,      0.0,  280.5/  ! see Pye et al., 2017 ACP: doi:10.5194/acp-17-343-2017
       DATA subname( 69), dif0( 69), ar( 69), meso( 69), lebas( 69) / 'SVALK2          ',0.0546,   20.0,      0.0,  275.6/
       DATA subname( 70), dif0( 70), ar( 70), meso( 70), lebas( 70) / 'SVBNZ1          ',0.0642,   20.0,      0.0,  134.1/
       DATA subname( 71), dif0( 71), ar( 71), meso( 71), lebas( 71) / 'SVBNZ2          ',0.0726,   20.0,      0.0,  127.5/
@@ -352,24 +360,36 @@ C Land use information:
       DATA subname( 80), dif0( 80), ar( 80), meso( 80), lebas( 80) / 'SVTRP2          ',0.0559,   20.0,      0.0,  218.8/
       DATA subname( 81), dif0( 81), ar( 81), meso( 81), lebas( 81) / 'SVXYL1          ',0.0610,   20.0,      0.0,  154.6/
       DATA subname( 82), dif0( 82), ar( 82), meso( 82), lebas( 82) / 'SVXYL2          ',0.0585,   20.0,      0.0,  194.6/
-      DATA subname( 83), dif0( 83), ar( 83), meso( 83), lebas( 83) / 'IO              ', 0.1002,    8.0,      0.0,  44.4/
-      DATA subname( 84), dif0( 84), ar( 84), meso( 84), lebas( 84) / 'OIO             ', 0.0938,    8.0,      0.0,  51.8/
-      DATA subname( 85), dif0( 85), ar( 85), meso( 85), lebas( 85) / 'I2O2            ', 0.0732,    8.0,      0.0,  88.8/
-      DATA subname( 86), dif0( 86), ar( 86), meso( 86), lebas( 86) / 'I2O3            ', 0.0707,    8.0,      0.0,  96.2/
-      DATA subname( 87), dif0( 87), ar( 87), meso( 87), lebas( 87) / 'I2O4            ', 0.0684,    8.0,      0.0, 103.6/
-      DATA subname( 88), dif0( 88), ar( 88), meso( 88), lebas( 88) / 'HI              ', 0.1045,    8.0,      0.0,  40.7/
-      DATA subname( 89), dif0( 89), ar( 89), meso( 89), lebas( 89) / 'HOI             ', 0.0972,    8.0,      0.0,  48.1/
-      DATA subname( 90), dif0( 90), ar( 90), meso( 90), lebas( 90) / 'INO             ', 0.0882,    8.0,      0.0,  60.9/
-      DATA subname( 91), dif0( 91), ar( 91), meso( 91), lebas( 91) / 'INO2            ', 0.0883,   20.0,      0.0,  69.2/
-      DATA subname( 92), dif0( 92), ar( 92), meso( 92), lebas( 92) / 'IONO2           ', 0.0792,    8.0,      0.0,  77.5/
-      DATA subname( 93), dif0( 93), ar( 93), meso( 93), lebas( 93) / 'BRO             ', 0.1144,    1.0,      0.0,  34.4/
-      DATA subname( 94), dif0( 94), ar( 94), meso( 94), lebas( 94) / 'HOBR            ', 0.1101,    1.0,      0.0,  38.1/
-      DATA subname( 95), dif0( 95), ar( 95), meso( 95), lebas( 95) / 'HBR             ', 0.1216,    2.0,      0.0,  30.7/
-      DATA subname( 96), dif0( 96), ar( 96), meso( 96), lebas( 96) / 'BRONO2          ', 0.0855,    1.0,      0.0,  67.5/
-      DATA subname( 97), dif0( 97), ar( 97), meso( 97), lebas( 97) / 'BRNO2           ', 0.0909,    1.0,      0.0,  59.2/
-      DATA subname( 98), dif0( 98), ar( 98), meso( 98), lebas( 98) / 'BRCL            ', 0.0966,    1.0,      0.0,  51.6/
-      DATA subname( 99), dif0( 99), ar( 99), meso( 99), lebas( 99) / 'DMS             ', 0.0926,    2.0,      0.0,  77.4/
-      DATA subname(100), dif0(100), ar(100), meso(100), lebas(100) / 'MSA             ', 0.0896,    2.0,      0.0,  77.4/
+      DATA subname( 83), dif0( 83), ar( 83), meso( 83), lebas( 83) / 'IO              ',0.1002,    8.0,      0.0,  44.4/
+      DATA subname( 84), dif0( 84), ar( 84), meso( 84), lebas( 84) / 'OIO             ',0.0938,    8.0,      0.0,  51.8/
+      DATA subname( 85), dif0( 85), ar( 85), meso( 85), lebas( 85) / 'I2O2            ',0.0732,    8.0,      0.0,  88.8/
+      DATA subname( 86), dif0( 86), ar( 86), meso( 86), lebas( 86) / 'I2O3            ',0.0707,    8.0,      0.0,  96.2/
+      DATA subname( 87), dif0( 87), ar( 87), meso( 87), lebas( 87) / 'I2O4            ',0.0684,    8.0,      0.0, 103.6/
+      DATA subname( 88), dif0( 88), ar( 88), meso( 88), lebas( 88) / 'HI              ',0.1045,    8.0,      0.0,  40.7/
+      DATA subname( 89), dif0( 89), ar( 89), meso( 89), lebas( 89) / 'HOI             ',0.0972,    8.0,      0.0,  48.1/
+      DATA subname( 90), dif0( 90), ar( 90), meso( 90), lebas( 90) / 'INO             ',0.0882,    8.0,      0.0,  60.9/
+      DATA subname( 91), dif0( 91), ar( 91), meso( 91), lebas( 91) / 'INO2            ',0.0883,   20.0,      0.0,  69.2/
+      DATA subname( 92), dif0( 92), ar( 92), meso( 92), lebas( 92) / 'IONO2           ',0.0792,    8.0,      0.0,  77.5/
+      DATA subname( 93), dif0( 93), ar( 93), meso( 93), lebas( 93) / 'BRO             ',0.1144,    1.0,      0.0,  34.4/
+      DATA subname( 94), dif0( 94), ar( 94), meso( 94), lebas( 94) / 'HOBR            ',0.1101,    1.0,      0.0,  38.1/
+      DATA subname( 95), dif0( 95), ar( 95), meso( 95), lebas( 95) / 'HBR             ',0.1216,    2.0,      0.0,  30.7/
+      DATA subname( 96), dif0( 96), ar( 96), meso( 96), lebas( 96) / 'BRONO2          ',0.0855,    1.0,      0.0,  67.5/
+      DATA subname( 97), dif0( 97), ar( 97), meso( 97), lebas( 97) / 'BRNO2           ',0.0909,    1.0,      0.0,  59.2/
+      DATA subname( 98), dif0( 98), ar( 98), meso( 98), lebas( 98) / 'BRCL            ',0.0966,    1.0,      0.0,  51.6/
+      DATA subname( 99), dif0( 99), ar( 99), meso( 99), lebas( 99) / 'DMS             ',0.0926,    2.0,      0.0,  77.4/
+      DATA subname(100), dif0(100), ar(100), meso(100), lebas(100) / 'MSA             ',0.0896,    2.0,      0.0,  77.4/
+      DATA subname(101), dif0(101), ar(101), meso(101), lebas(101) / 'METHANE         ',0.2107,    2.0,      0.0,  29.6/ ! dif0, equation 9-22. Scwarzenbach et. (1993) Env. Org. Chem.
+      DATA subname(102), dif0(102), ar(102), meso(102), lebas(102) / 'ACRYACID        ',0.0908,    2.0,      0.0,  63.2/ 
+      DATA subname(103), dif0(103), ar(103), meso(103), lebas(103) / 'CARBSULFIDE     ',0.1240,    5.0,      0.0,  51.5/ 
+      DATA subname(104), dif0(104), ar(104), meso(104), lebas(104) / 'ACETONITRILE    ',0.1280,    5.0,      0.0,  52.3/ 
+      DATA subname(105), dif0(105), ar(105), meso(105), lebas(105) / '6_NITRO_O_CRESOL',0.0664,   16.0,      0.0, 155.0/ ! dif0, equation 9-22. Scwarzenbach et. (1993) Env. Org. Chem.
+      DATA subname(106), dif0(106), ar(106), meso(106), lebas(106) / 'SVMT1           ',0.0424,   20.0,      0.0, 355.2/ ! see Xu et al., 2018 ACPD: doi:10.5194/acp-2017-1109
+      DATA subname(107), dif0(107), ar(107), meso(107), lebas(107) / 'SVMT2           ',0.0556,   20.0,      0.0, 236.8/
+      DATA subname(108), dif0(108), ar(108), meso(108), lebas(108) / 'SVMT3           ',0.0583,   20.0,      0.0, 214.6/
+      DATA subname(109), dif0(109), ar(109), meso(109), lebas(109) / 'SVMT4           ',0.0587,   20.0,      0.0, 229.4/
+      DATA subname(110), dif0(110), ar(110), meso(110), lebas(110) / 'SVMT5           ',0.0619,   20.0,      0.0, 207.2/
+      DATA subname(111), dif0(111), ar(111), meso(111), lebas(111) / 'SVMT6           ',0.0624,   20.0,      0.0, 222.0/
+      DATA subname(112), dif0(112), ar(112), meso(112), lebas(112) / 'SVMT7           ',0.0661,   20.0,      0.0, 199.8/
 
       CONTAINS
 
@@ -421,6 +441,8 @@ C-----------------------------------------------------------------------
 
          LOGDEV = INIT3()
 
+         If( MET_INITIALIZED )Return
+
 !> Allocate buffers
          ALLOCATE ( BUFF1D( NLAYS ),
      &              BUFF2D( NCOLS,NROWS ),
@@ -471,6 +493,7 @@ C-----------------------------------------------------------------------
      &             Met_Data%CONVCT   ( NCOLS,NROWS ),
      &             Met_Data%PBL      ( NCOLS,NROWS ),
      &             Met_Data%NACL_EMIS( NCOLS,NROWS ),
+     &             Met_Data%COSZEN   ( NCOLS,NROWS ),
      &             Met_Data%UWIND    ( NCOLS+1,NROWS+1,NLAYS ),
      &             Met_Data%VWIND    ( NCOLS+1,NROWS+1,NLAYS ),
      &             Met_Data%KZMIN    ( NCOLS,NROWS,NLAYS ),
@@ -833,6 +856,8 @@ C-----------------------------------------------------------------------
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End If
          
+         MET_INITIALIZED = .true.
+
          Return
          End Subroutine INIT_MET
 
@@ -1374,6 +1399,9 @@ C------
      &          Met_Data%HOL .Lt. -0.02 .And. Met_Data%LPBL .Gt. 3 )
             Met_Data%CONVCT = .True.
          End Where
+
+!        Calculate the cosine of the zenith angle 
+         CALL CZANGLE(JDATE, JTIME, MY_NCOLS, MY_NROWS, Met_Data%COSZEN)
 
          Return
          End Subroutine GET_MET

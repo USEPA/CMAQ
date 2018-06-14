@@ -34,7 +34,7 @@ C
 C   Orginal version: 11/05/99 by David Wong
 C -----------------------------------------------------------------------------
 
-	module noop_global_max_module
+        module noop_global_max_module
 
         implicit none
 
@@ -99,4 +99,4 @@ C -----------------------------------------------------------------------------
 
         end function noop_global_rmax 
 
-	end module noop_global_max_module
+        end module noop_global_max_module

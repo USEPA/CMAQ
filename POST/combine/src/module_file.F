@@ -27,28 +27,66 @@ C
 C***********************************************************************
       MODULE M3FILES
 
-      INTEGER N_M3FILES                   ! No. of input Models-3 files
+      INTEGER, Public :: N_M3FILES                   ! No. of input Models-3 files
 
-      INTEGER, PARAMETER :: MXM3FLS = 32  ! Max no. of input
+      INTEGER, PARAMETER, Public  :: MXM3FLS = 32  ! Max no. of input
 
-      CHARACTER*16 M3FILENAME( MXM3FLS )  ! filenames
-      CHARACTER*10 FILETYPE( MXM3FLS )    ! filetypes
-      Integer      WRFid( MXM3FLS )       ! NCIDs for WRF files
+      CHARACTER*16, Public :: M3FILENAME( MXM3FLS )  ! filenames
+      CHARACTER*10, Public :: FILETYPE( MXM3FLS )    ! filetypes
+      Integer, Public      :: WRFid( MXM3FLS )       ! NCIDs for WRF files
 
-      Logical convert(MXM3FLS)            ! convert flags
+      Logical, Public :: convert(MXM3FLS)            ! convert flags
 
-      INTEGER startDate, startTime
-      INTEGER endDate, endTime
-      INTEGER TSTEP
-      INTEGER NROWS
-      INTEGER NCOLS
-      INTEGER NLAYS
-      REAL*8  XCELL
-      REAL*8  YCELL
-      REAL*8  XORIG
-      REAL*8  YORIG 
-      REAL*8  YCENT 
+      INTEGER, Public :: startDate, startTime
+      INTEGER, Public :: endDate, endTime
+      INTEGER, Public :: TSTEP
+      INTEGER, Public :: NROWS
+      INTEGER, Public :: NCOLS
+      INTEGER, Public :: NLAYS
+      REAL*8,  Public :: XCELL
+      REAL*8,  Public :: YCELL
+      REAL*8,  Public :: XORIG
+      REAL*8,  Public :: YORIG 
+      REAL*8,  Public :: YCENT 
 
+      Public :: canConvert, OPENFILE,    getDESC, WRF_DESC, OPEN_FILES, ReadValues,
+     &          Rd_ioapi,     Rd_wrf, SetMapProj,   ToProj,       ToLL
+      
+      Private 
+
+      Interface            
+         Subroutine getFld( record, delimiter, nth, del, field, exception )
+            CHARACTER*(*), Intent( In  ) :: record
+            CHARACTER*(*), Intent( In  ) :: delimiter
+            CHARACTER,     Intent( Out ) :: del
+            Integer,       Intent( In  ) :: nth
+            CHARACTER*(*), Intent( Out ) :: field
+            CHARACTER*(*), Optional, Intent( In ) :: exception
+         End Subroutine getFld
+         INTEGER FUNCTION getFldCount(record, delimiter, exception) Result(nfields)
+            CHARACTER*(*), Intent( In ) :: record
+            CHARACTER*(*), Intent( In ) :: delimiter
+            CHARACTER*(*), Optional, Intent( In ) :: exception
+         End FUNCTION getFldCount
+         Subroutine LeftTrim( STRING )
+            CHARACTER*(*), INTENT( INOUT ) :: STRING
+         End Subroutine LeftTrim
+         Subroutine RightTrim( STRING )
+            CHARACTER*(*), INTENT( INOUT ) :: STRING
+         End Subroutine RightTrim
+         SUBROUTINE UCASE ( STR )
+            CHARACTER, INTENT( INOUT ) :: STR*( * )
+         END SUBROUTINE UCASE
+         Subroutine replace( string, old, new )
+            Character*(*), Intent( InOut ) :: string
+            Character*(1), Intent( In    ) :: old    
+            Character*(1), Intent( In    ) :: new    
+         End Subroutine replace 
+         SUBROUTINE Remove_WhiteSpaces (text)
+            CHARACTER*(*), Intent( InOut ) :: text
+         END SUBROUTINE Remove_WhiteSpaces
+      End Interface
+      
       CONTAINS
 
 C***********************************************************************
@@ -681,29 +719,34 @@ C******************************************************************************
          Integer map_proj
          Integer year, month, day, jday
          Integer hour, minute, second
-	 Integer jdate1,jtime1,jdate2,jtime2
+         Integer jdate1,jtime1,jdate2,jtime2
          Real    tstep
          Real    cen_lat, cen_lon
          Real    truelat1, truelat2, stand_lon, moad_cen_lat, wrf_ref_lat
          Real    dx, dy
          Real    x, y
          Real    Xoffset, Yoffset
-	 Real    xtemp, ytemp
+         Real    xtemp, ytemp
          Integer start(4), count(4)
          Integer nvars, n, i
          Integer dimids( NF_MAX_VAR_DIMS )
-	 Integer NCHARDATE
+         Integer NCHARDATE
          Character*64 name
          Character*24 dateStr
          Integer xtype, ndims, natts
          Logical match
 
-         Character*16 :: reqDimNa3D(4)=(/'west_east', 'south_north', 'bottom_top', 'Time' /)
+         Character*16 :: reqDimNa3D(4)=(/'west_east  ', 
+     &                                   'south_north',
+     &                                   'bottom_top ',
+     &                                   'Time       ' /)
          Integer      :: reqDimid3D(4)
-         Character*16 :: reqDimNa2D(3)=(/'west_east', 'south_north', 'Time' /)
+         Character*16 :: reqDimNa2D(3)=(/'west_east  ', 
+     &                                   'south_north',
+     &                                   'Time       ' /)
          Integer      :: reqDimid2D(3)
-	 
-	 character*19, allocatable :: timestamp(:)
+         
+         character*19, allocatable :: timestamp(:)
 
          !! set FTYPE3D to gridded
          FTYPE3D = 1
@@ -773,8 +816,8 @@ C******************************************************************************
            XCENT3D = DBLE(stand_lon)   
            wrf_ref_lat = real(YCENT,4) !use the information from the first (ioapi) file that was opened
            moad_cen_lat = wrf_ref_lat 
-	   YCENT3D = DBLE(wrf_ref_lat)
-	   
+           YCENT3D = DBLE(wrf_ref_lat)
+           
            XCELL3D = DBLE(dx)
            YCELL3D = DBLE(dy)
 
@@ -790,13 +833,13 @@ C******************************************************************************
            YORIG3D = -NROWS3D * YCELL3D * 0.5 + DBLE(Yoffset)
 
            !! round origin to nearest 0.5 * DX,DY
-	   xtemp = REAL(XORIG3D,4) / (0.5 * dx)
-	   ytemp = REAL(YORIG3D,4) / (0.5 * dy)
+           xtemp = REAL(XORIG3D,4) / (0.5 * dx)
+           ytemp = REAL(YORIG3D,4) / (0.5 * dy)
            xtemp = FLOAT(NINT(xtemp))
            ytemp = FLOAT(NINT(ytemp))
            XORIG3D = DBLE(xtemp) * (0.5 * dx)
            YORIG3D = DBLE(ytemp) * (0.5 * dy)
-	   
+           
          endif
 
          if( map_proj .eq. 2 ) then   !! Polste
@@ -807,8 +850,8 @@ C******************************************************************************
            P_GAM3D = stand_lon
            XCENT3D = stand_lon    
 
-	   YCENT3D = DBLE( moad_cen_lat)
-	   
+           YCENT3D = DBLE( moad_cen_lat)
+           
            XCELL3D = dx
            YCELL3D = dy
 
@@ -823,17 +866,17 @@ C******************************************************************************
            XORIG3D = -NCOLS3D * XCELL3D * 0.5 + Xoffset
            YORIG3D = -NROWS3D * YCELL3D * 0.5 + Yoffset
 
-	   xtemp = REAL(XORIG3D,4) / (0.5 * dx)
-	   ytemp = REAL(YORIG3D,4) / (0.5 * dy)
+           xtemp = REAL(XORIG3D,4) / (0.5 * dx)
+           ytemp = REAL(YORIG3D,4) / (0.5 * dy)
            xtemp = FLOAT(NINT(xtemp))
            ytemp = FLOAT(NINT(ytemp))
            XORIG3D = DBLE(xtemp) * (0.5 * dx)
            YORIG3D = DBLE(ytemp) * (0.5 * dy)
-	   
+           
          endif
 
          if( GDTYP3D .lt. 0 ) then
-	   write(*,*) map_proj
+           write(*,*) map_proj
            write(*,'(''**ERROR** Unsupported map projection type for wrfout'')')
            rstatus = .false.
            return
@@ -880,15 +923,15 @@ C******************************************************************************
            rstatus = .false.
            return
            endif
-	 
-	 if (MXREC3D.eq.1)  then !only one time step, set TSTEP3D to a nominal value of 10000
+         
+         if (MXREC3D.eq.1)  then !only one time step, set TSTEP3D to a nominal value of 10000
 
           TSTEP3D = 10000
           jday = JULIAN(year, month, day)
           SDATE3D = 1000*year + jday
           STIME3D = 10000*hour + 100*minute + second
-	  
-	 else !determine TSTEP3D from the first two values of the "Times" character variable
+          
+         else !determine TSTEP3D from the first two values of the "Times" character variable
 
 
           status =          NF_INQ_VARID( WRFid(fileNo), 'Times', varid)
@@ -903,10 +946,10 @@ C******************************************************************************
 
           allocate(timestamp(MXREC3D))
      
-	  status = NF_GET_VARA_TEXT( WRFid(fileNo), varid, start, count, timestamp)
+          status = NF_GET_VARA_TEXT( WRFid(fileNo), varid, start, count, timestamp)
           if( status.ne. 0 ) then
            write(*,'(a)') '**ERROR** Reading variable Times'
-	   deallocate(timestamp)
+           deallocate(timestamp)
            rstatus = .false.
            return           
           endif
@@ -935,12 +978,12 @@ C******************************************************************************
           jday = JULIAN(year, month, day)
           jdate2 = 1000*year + jday
           jtime2 = 10000*hour + 100*minute + second
-	  
-	  TSTEP3D = SEC2TIME( INT(SECSDIFF(jdate1,jtime1,jdate2,jtime2)) )
-	  
-	  deallocate(timestamp)
-	  
-	 endif
+          
+          TSTEP3D = SEC2TIME( INT(SECSDIFF(jdate1,jtime1,jdate2,jtime2)) )
+          
+          deallocate(timestamp)
+          
+         endif
 
          !! set array of variables
          NVARS3D = 0

@@ -101,12 +101,17 @@ C-----------------------------------------------------------------------
       
       INTEGER, SAVE :: NEW_OPTICS_LOG
 
-      INTEGER, PARAMETER :: N_DIAG_WVL = 2         ! number of dianostic wavelengths
-      INTEGER, SAVE      :: DIAG_WVL( N_DIAG_WVL ) ! pointers to diagnostic wavelengths
+      INTEGER, SAVE              :: NLAYS_DIAG    ! number of layers for PHOTDIAG2 & 3 file, covering first to NLAYS_DIAG
+      INTEGER, SAVE              :: N_DIAG_WVL    ! number of diagnostic wavelengths in PHOTDIAG3 file
+      INTEGER, ALLOCATABLE, SAVE :: DIAG_WVL( : ) ! pointers to diagnostic wavelengths
+      
       INTEGER            :: N_TROPO_O3_TOGGLE      ! number of adjustments to ozone extinction 
       
-      REAL, ALLOCATABLE  :: ACTINIC_FLUX( :,: )    ! actinic fluxes, initially [Photons/(cm^2s)] then  [Watts/m^2] 
-      REAL, ALLOCATABLE  :: IRRADIANCE  ( :,: )    ! total downward irradiance [Watts/m^2]
+      REAL, ALLOCATABLE  :: BLKDZ( : )             ! layer thicknesses [ m ]
+      REAL, ALLOCATABLE  :: GAS_EXTINCTION( :,: )  ! extinction from gases per layer [1/m]
+      REAL, ALLOCATABLE  :: EXTINCTION    ( :,: )  ! total extinction per layer [1/m]
+      REAL, ALLOCATABLE  :: ACTINIC_FLUX  ( :,: )  ! actinic fluxes, initially [Photons/(cm^2s)] then  [Watts/m^2] 
+      REAL, ALLOCATABLE  :: IRRADIANCE    ( :,: )  ! total downward irradiance [Watts/m^2]
       REAL               :: REFLECTION             ! broad band reflection coefficient (diffuse) at model top 
       REAL               :: TRANSMISSION           ! broad band transmission coefficient (diffuse) at surface
       REAL               :: TRANS_DIRECT           ! broad band direct transmission coefficient at surface
@@ -114,6 +119,7 @@ C-----------------------------------------------------------------------
       REAL               :: TROPO_O3_TOGGLE        ! factor correcting tropospheric ozone column 
       REAL               :: O3_TOGGLE_AVE          ! average of nonunity factors adjusting ozone extinction 
       REAL               :: O3_TOGGLE_MIN          ! Max of nonunity factors adjusting ozone extinction 
+      REAL               :: COS85                  ! cosine of 85 degrees
   
       LOGICAL            :: ONLY_SOLVE_RAD             ! only compute fluxes     
       LOGICAL            :: OBEY_STRATO3_MINS = .TRUE. ! Has stratospheric O3 column not violated 
@@ -246,7 +252,6 @@ C-----------------------------------------------------------------------
 !     REAL DJ, DF
       REAL ZTOM                               ! top of model  [ m ]
       REAL, ALLOCATABLE, SAVE :: DSDH_TD( : ) ! slant path function from top down
-      REAL, ALLOCATABLE, SAVE :: BLKDZ( : )   ! layer thicknesses [ m ]
       REAL, ALLOCATABLE, SAVE :: DSDH( : )    ! slant path function
       REAL, SAVE              :: DSDH_TOP     ! slantpath function from ZTOM to ZTOA
 
@@ -293,7 +298,6 @@ C-----------------------------------------------------------------------
       REAL NBAR                 ! total number of air molecules [ # /cm**2 ]
                                 ! above top of model domain
 
-      REAL, SAVE :: COS85
 
 !***FSB Cloud properties.
 !***  FSB These properties are taken fro HU & Stamnes,1993,
@@ -336,8 +340,10 @@ C-----------------------------------------------------------------------
          ALLOCATE( CSZ( NLAYS,NWL,NPHOTAB ) )
          ALLOCATE( QYZ( NLAYS,NWL,NPHOTAB ) )
          
-         ALLOCATE( ACTINIC_FLUX( NLAYS,NWL ) )
-         ALLOCATE( IRRADIANCE  ( NLAYS,NWL ) )
+         ALLOCATE( GAS_EXTINCTION( NLAYS,NWL ) )
+         ALLOCATE( EXTINCTION    ( NLAYS,NWL ) )
+         ALLOCATE( ACTINIC_FLUX  ( NLAYS,NWL ) )
+         ALLOCATE( IRRADIANCE    ( NLAYS,NWL ) )
          
          ALLOCATE( DSDH_TD ( NLAYS+1 ),
      &             BLKDZ   ( NLAYS ),
@@ -367,7 +373,7 @@ C-----------------------------------------------------------------------
             CONV_WM2( IWL ) = 1.0E13 * ( PLANCK_C * LIGHT_SPEED ) / LAMDA
          END DO
 
-         COS85 = COS( 85.0 * PI180 )
+!         COS85 = COS( 85.0 * PI180 )
 
 !***get molecular scattering cross sections
 
@@ -379,13 +385,16 @@ C-----------------------------------------------------------------------
 
 !***initialize BLKRJ and other layer variables
 
-      BLKRJ         = 0.0
-      ACTINIC_FLUX  = 0.0
-      IRRADIANCE    = 0.0
-      REFLECTION    = 0.0
-      TRANSMISSION  = 0.0
-      TRANS_DIRECT  = 0.0
-      INSOLATION    = 0.0
+      BLKRJ          = 0.0
+      BLKDZ          = 0.0
+      GAS_EXTINCTION = 0.0
+      EXTINCTION     = 0.0
+      ACTINIC_FLUX   = 0.0
+      IRRADIANCE     = 0.0
+      REFLECTION     = 0.0
+      TRANSMISSION   = 0.0
+      TRANS_DIRECT   = 0.0
+      INSOLATION     = 0.0
       TROPO_O3_TOGGLE  = 1.0
       STRATO3_MINS_MET = .TRUE.
 !***Initialize sums or set default values for outputs: 
@@ -458,7 +467,8 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
          STRAT_O3_COLUMN = DU_TO_CONC * REAL( TOTAL_O3_COLUMN )
 !         STRAT_O3_COLMIN = 0.10 * STRAT_O3_COLUMN
          STRAT_O3_COLMIN = MIN_STRATO3_FRAC * STRAT_O3_COLUMN
-        SUCCESS = .TRUE.
+         SUCCESS = .TRUE.
+         TROPO_O3_COLUMN = 0.0
          DO L = NLAYS, 1, -1
             DELTA_O3_COLUMN = 100.0 * BLKO3( L ) * BLKDZ( L )
             STRAT_O3_COLUMN = STRAT_O3_COLUMN - DELTA_O3_COLUMN
@@ -593,8 +603,11 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
             DTABS_M  = MAX( DTABS_M, SMALL )
             DTABS_A  = MAX( DTABS_A, SMALL )
 
+            GAS_EXTINCTION( II,IWL ) = BETA_M + AO3 + ANO2        ! gas extinction
+            EXTINCTION( II,IWL )     = BETA_M + BEXT + AO3 + ANO2 ! gas and aerosol extinction
+            
             IF ( CLOUDS( II ) ) THEN 
-
+     
                DT_CLOUD( L ) = ( CLOUD_LIQUID_EXT( II,IWL ) 
      &                       +   CLOUD_ICE_EXT( II,IWL )
      &                       +   CLOUD_AGGREG_EXT( II,IWL ) ) * BLKDZ( II )
@@ -615,7 +628,12 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
                END IF
                DT_CLOUD( L ) = DT_CLOUD( L ) * LAYERING_FACTOR
                DTSCAT_CLOUD  = DTSCAT_CLOUD  * LAYERING_FACTOR
-     
+ 
+               EXTINCTION( II,IWL ) = EXTINCTION( II,IWL )
+     &                              + ( CLOUD_LIQUID_EXT( II,IWL ) 
+     &                              +   CLOUD_ICE_EXT( II,IWL )
+     &                              +   CLOUD_AGGREG_EXT( II,IWL ) ) * LAYERING_FACTOR
+    
                TAU_SCAT_CLD = TAU_SCAT_CLD + DTSCAT_CLOUD
 
                IF ( DT_CLOUD( L ) .GT. 1.0E-6 ) THEN
@@ -637,12 +655,14 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
                   OM_CLOUD = 1.0
                END IF
 
+
                IF ( DTSCAT_CLOUD .GT. 1.0E-6 ) THEN
                
                   G_CLOUD = ( (CLOUD_LIQUID_ASY( II,IWL ) * CLOUD_LIQUID_SCAT( II,IWL ))
      &                    +   (CLOUD_ICE_ASY( II,IWL )    * CLOUD_ICE_SCAT( II,IWL ))
      &                    +   (CLOUD_AGGREG_ASY( II,IWL ) * CLOUD_AGGREG_SCAT( II,IWL )) )
      &                    *   BLKDZ( II ) * LAYERING_FACTOR
+
 
 #ifdef phot_debug
                   IF ( .NOT. ONLY_SOLVE_RAD ) THEN
@@ -685,7 +705,7 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
                G_CLOUD      = 0.0
                OM_CLOUD     = 1.0
             END IF
-             
+
 !***calculate total absorption and scattering contributions
 !***to optical depth
 
@@ -765,6 +785,8 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
             TAUC_AERO( II,IWL ) = DT_AERO( L )  ! aerosol optical depth
             TAU_TOT  ( II,IWL ) = DTAU( L )     ! total optical depth
             TAU_CLOUD( II,IWL ) = DT_CLOUD( L ) ! cloud optical depth
+!***change extinction units from meters to Megameters
+            EXTINCTION( II,IWL ) = 1000.0 * EXTINCTION( II,IWL )
 
          END DO                 ! loop over layers
 
@@ -800,7 +822,6 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
          EDN  = 0.0
 
 !***calculate fluxes and irradiances
-
          CALL TWOSTREAM_S ( NLEVEL, COSZEN, ALB( IWL ), DTAU, OM, G, DSDH_TD,
      &                      FDIR, FUP, FDN, EDIR, EUP, EDN )
 
@@ -1231,16 +1252,16 @@ C-----------------------------------------------------------------------
 
       DO J = 1, NLAYS
 !***  K = NLAYS - J +1
-         RPSINZ  = ( RE + ZD( J ) ) * SINZEN
+         RPSINZ  = REAL( ( RE + ZD( J ) ) * SINZEN , 8 )
          RPSINZ2 = RPSINZ * RPSINZ
 
          IF ( J .LT. NLAYS ) THEN
-            RJ   = RE + ZD( J )
-            RJP1 = RE + ZD( J + 1 )
+            RJ   = REAL( RE + ZD( J ), 8 )
+            RJP1 = REAL( RE + ZD( J + 1 ), 8 )
             DHJ  = DZI( J )
          ELSE
-            RJ   = RE + ZD( J )
-            RJP1 = RE
+            RJ   = REAL( RE + ZD( J ), 8)
+            RJP1 = REAL( RE, 8 )
             DHJ  = DZI( J )
          END IF
 
@@ -1251,7 +1272,7 @@ C-----------------------------------------------------------------------
 
 !***This is equation B1 from Dahlbeck and Stamnes (1991)
 
-         DSJ = ABS( GB - GA )
+         DSJ = ABS( REAL(GB - GA, 4 ) )
 
 !***this is the slant path (Chapman) function.
 
@@ -1347,12 +1368,12 @@ C-----------------------------------------------------------------------
 
 !***  calculate ds/dh of every layer starting at the top
 
-      RPSINZ  = ( REARTH + ZTOA ) * SINZEN
+      RPSINZ  = REAL( ( REARTH + ZTOA ) * SINZEN, 8 )
       RPSINZ2 = RPSINZ * RPSINZ
 
 !!sjr RJ = RE + ZTOA
-      RJ = REARTH + ZTOA
-      RJP1 = RE + ZTOM
+      RJ   = REAL( REARTH + ZTOA, 8 )
+      RJP1 = REAL( RE + ZTOM, 8 )
 
 !***define GA and GB
 
@@ -1361,7 +1382,7 @@ C-----------------------------------------------------------------------
 
 !***This is equation B1 from Dahlbeck and Stamnes (1991)
 
-      DSJ = GB - GA
+      DSJ = REAL( GB - GA, 4 )
 
 !***this is the slant path (Chapman) function.
 
@@ -1481,10 +1502,11 @@ C-----------------------------------------------------------------------
       REAL( 8 ) :: F, G, OM
       REAL( 8 ) :: GAM1, GAM2, GAM3, GAM4
 
-      REAL( 8 ) :: EXPON, EXPON0, EXPON1, DIVISR, TEMP, UP, DN
+      REAL( 8 ) :: EXPON0, EXPON1
+      REAL( 8 ) :: EXPON, DIVISR, TEMP, UP, DN
       REAL( 8 ) :: SSFC
 
-      REAL      :: MU1  ! reciprocal of constant from delta_Eddington method
+      REAL( 8 ) :: MU1  ! reciprocal of constant from delta_Eddington method
 
       INTEGER   :: ROW
       INTEGER   :: I, J
@@ -1499,6 +1521,9 @@ C-----------------------------------------------------------------------
       REAL( 8 ), PARAMETER :: SQRTLRGSTM1 = 1.0D-18 ! 1/sqrt(largest)
       REAL( 8 ), PARAMETER :: EPS         = 1.0D-03
       REAL( 8 ), PARAMETER :: PRECIS      = ( 1.0D0 - 1.0D-07 )
+
+      REAL( 8 ), PARAMETER :: LOG_DBLE_SMALLEST = -709.090848126508D0
+      REAL( 8 ), PARAMETER :: LOG_DBLE_LARGEST  =  709.090848126508D0
 
 C-----------------------------------------------------------------------
 
@@ -1520,11 +1545,13 @@ C-----------------------------------------------------------------------
 !***start diagnostic prinout
 
       DO I = 1, NLAYER
+      
+!         print*,'ACM TWSTREAM GU, F = ', F, GU(I)
          F = REAL( GU(I) * GU(I), 8 )
-         GI  (I) = ( GU(I) - F ) / ( 1.0D0 - F )
+         GI  (I) = ( REAL( GU(I), 8 ) - F ) / ( 1.0D0 - F )
          OMI (I) = ( 1.0D0 - F ) * REAL( OMU(I), 8 ) 
-     &           / ( 1.0D0 - REAL( OMU(I), 8 )  * F )
-         TAUN(I) = ( 1.0D0 - REAL( OMU( I ), 8 ) * F ) 
+     &           / ( 1.0D0 - REAL( OMU(I), 8 ) * F )
+         TAUN(I) = ( 1.0D0 - REAL( OMU(I), 8 ) * F ) 
      *           *  REAL( TAUU(I), 8)
       END DO
 
@@ -1577,7 +1604,6 @@ C-----------------------------------------------------------------------
 
          G = GI(I)
          OM = OMI(I)
-
 !***stay away from 1 by precision.  For g, also stay away from -1
 
 !        TEMPG = MIN( ABS( G ), 1.0D0 - PRECIS )
@@ -1590,7 +1616,7 @@ C-----------------------------------------------------------------------
 
          GAM1 =  ( 7.0D0 - OM * ( 4.0D0 + 3.0D0 * G ) ) * 0.25D0
          GAM2 = -( 1.0D0 - OM * ( 4.0D0 - 3.0D0 * G ) ) * 0.25D0
-         GAM3 =  ( 2.0D0 - 3.0D0 * G * MU ) * 0.25D0
+         GAM3 =  ( 2.0D0 - 3.0D0 * G * REAL( MU, 8 )  ) * 0.25D0
          GAM4 =  1.0D0 - GAM3
          MU1  =  2.0D0
 
@@ -1617,7 +1643,7 @@ C-----------------------------------------------------------------------
             BGAM(I) = ( GAM1 - LAM(I) ) / GAM2
          END IF
 
-         EXPON = EXP( -LAM(I) * TAUN(I) )
+         EXPON = EXP( MAX( LOG_DBLE_SMALLEST, -LAM(I) * TAUN(I) ) ) 
 
 !***e1 - e4 = pg 16,292 equation 44
 
@@ -1632,21 +1658,21 @@ C-----------------------------------------------------------------------
 !***  shift 1/MU^2 by  EPS = 1.E-3
 !***  which is approx equiv to shifting MU by 0.5*EPS* (MU)**3
 
-         EXPON0 = EXP( -TAUSLA(I-1) )
-         EXPON1 = EXP( -TAUSLA(I) )
-
          DIVISR = LAM(I) * LAM(I) - MU2(I) * MU2(I)
          TEMP = MAX( EPS, ABS( DIVISR ) )
          DIVISR = SIGN( TEMP , DIVISR )
-
          UP = OM * PIFS *
      &        ( ( GAM1 - MU2(I) ) * GAM3 + GAM4 * GAM2 ) / DIVISR
+
 
          DN = OM * PIFS *
      &        ( ( GAM1 + MU2(I) ) * GAM4 + GAM2 * GAM3 ) / DIVISR
 
 !***cup and cdn are when tau is equal to zero
 !***cuptn and cdntn are when tau is equal to taun
+
+         EXPON0 = EXP( MAX( LOG_DBLE_SMALLEST, -TAUSLA(I-1) ) )
+         EXPON1 = EXP( MAX( LOG_DBLE_SMALLEST, -TAUSLA(I) ) )
 
          CUP(I)   = UP * EXPON0
          CDN(I)   = DN * EXPON0
@@ -1657,8 +1683,8 @@ C-----------------------------------------------------------------------
 
 !***set up matrix
 !*** ssfc = pg 16,292 equation 37  where pi Fs is one (unity).
-
-      SSFC = REAL( RSFC * MU, 8 ) * EXP( -TAUSLA( NLAYER ) ) * PIFS
+      SSFC   = REAL( RSFC * MU, 8 ) * PIFS
+     &       * EXP( MAX( LOG_DBLE_SMALLEST, -TAUSLA( NLAYER ) ) ) 
 
 !***MROWS = the number of rows in the matrix
 
@@ -1703,14 +1729,13 @@ C-----------------------------------------------------------------------
 
       ROW = MROWS
       I = NLAYER
-
-      A(ROW) = E1(I) - RSFC * E3(I)
-      B(ROW) = E2(I) - RSFC * E4(I)
+      F = REAL( RSFC, 8 )
+      A(ROW) = E1(I) - F * E3(I)
+      B(ROW) = E2(I) - F * E4(I)
       D(ROW) = 0.0D0
-      E(ROW) = SSFC - CUPTN(I) + REAL( RSFC, 8 ) * CDNTN(I)
+      E(ROW) = SSFC - CUPTN(I) + F * CDNTN(I)
 
 !***solve tri-diagonal matrix:
-
       CALL TRIDIAGONAL ( A, B, D, E, Y, MROWS )
 
 !*** unfold solution of matrix, compute output fluxes:
@@ -1725,16 +1750,17 @@ C-----------------------------------------------------------------------
       EDR(LEV) = MU * REAL( FDR(LEV) )
       EDN(LEV) = REAL( FDN0 )
       EUP(LEV) = REAL( Y(ROW) * E3(J) - Y(ROW + 1) * E4(J) + CUP(J) )
-      FDN(LEV) = EDN(LEV) * MU1
-      FUP(LEV) = EUP(LEV) * MU1
+      FDN(LEV) = EDN(LEV) * REAL( MU1 )
+      FUP(LEV) = EUP(LEV) * REAL( MU1 )
 
       DO 60, LEV = 2, NLAYER + 1
-         FDR(LEV) = REAL( EXP( -TAUSLA(LEV-1) ) )
+         FDR(LEV) = REAL( EXP( MAX( LOG_DBLE_SMALLEST, -TAUSLA(LEV-1) )  ) )
+!         FDR(LEV) = REAL( EXPONS(LEV-1) ) ! REAL( EXP( MAX( LOG_DBLE_SMALLEST, -TAUSLA(LEV-1) )  ) )
          EDR(LEV) = MU * FDR(LEV)
          EDN(LEV) = REAL( Y(ROW) * E3(J) + Y(ROW + 1) * E4(J) + CDNTN(J) )
          EUP(LEV) = REAL( Y(ROW) * E1(J) + Y(ROW + 1) * E2(J) + CUPTN(J) )
-         FDN(LEV) = EDN(LEV) * MU1 
-         FUP(LEV) = EUP(LEV) * MU1
+         FDN(LEV) = EDN(LEV) * REAL( MU1 )
+         FUP(LEV) = EUP(LEV) * REAL( MU1 )
 
          ROW = ROW + 2
          J = J + 1
@@ -1756,7 +1782,6 @@ C-----------------------------------------------------------------------
       RETURN
       END SUBROUTINE TWOSTREAM_S
 
-C///////////////////////////////////////////////////////////////////////
 
       SUBROUTINE TRIDIAGONAL ( A, B, D, E, Y, N )
 C-----------------------------------------------------------------------

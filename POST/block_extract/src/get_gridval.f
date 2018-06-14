@@ -12,17 +12,13 @@ C
 C  REVISION HISTORY: Created by Jerry Gipson, August, 2000
 C                   
 C*************************************************************************
+      USE M3UTILIO
       USE ENV_VARS
       USE M3FILES
       USE GRID_DATA
       USE TIME_STEP
 
       IMPLICIT NONE     
-
-C..INCLUDE FILES:
-      INCLUDE 'PARMS3.EXT'     ! IOAPI parameters
-      INCLUDE 'FDESC3.EXT'     ! IOAPI file description
-      INCLUDE 'IODECL3.EXT'    ! IOAPI declarations
 
 C..ARGUMENTS:
       INTEGER  N               ! Step number

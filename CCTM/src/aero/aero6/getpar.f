@@ -21,7 +21,7 @@ C RCS file, release, date & time of last delta, author, state, [and locker]
 C $Header: /project/yoj/arc/CCTM/src/aero/aero5/getpar.f,v 1.7 2012/01/19 13:13:27 yoj Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      Subroutine getpar( limit_sg  )
+      Subroutine getpar( fixed_sg  )
 
 C  Calculates the 3rd moments (M3), masses, aerosol densities, and
 C  geometric mean diameters (Dg) of all 3 modes, and the natural logs of
@@ -43,12 +43,13 @@ C  for a "dry" aerosol and the WET_MOMENTS_FLAG is .TRUE., GETPAR would
 C  incorrectly adjust the M2 concentrations!
 C  
 C  Outputs: 
-C    moment3_conc
-C    moment2_conc (adjusted if standard dev. hits limit)
-C    aeromode_dens
-C    aeromode_lnsg
-C    aeromode_diam
-C    aeromode_mass
+C    moment3_conc  third moment, porportional to volume [ m3/m3 ]
+C    moment2_conc  second moment, prop. to surface area [ m2/m3 ] 
+C                     (adjusted if standard dev. hits limit)
+C    aeromode_dens [ kg/m3 ]
+C    aeromode_lnsg log of geometric standard deviation
+C    aeromode_diam geometric mean diameter [ m ]
+C    aeromode_mass mass concentration: [ ug / m**3 ]
 C
 C SH  03/10/11 Renamed met_data to aeromet_data
 C HP and BM 4/2016: Updated use of wet_moments_flag which is now
@@ -57,22 +58,23 @@ C-----------------------------------------------------------------------
 
       Use aero_data, only : wet_moments_flag, moment3_conc, moment2_conc, moment0_conc,
      &                       aeromode_dens, aeromode_lnsg, aeromode_diam, aeromode_mass,
-     &                       min_sigma_g, max_sigma_g, n_mode, n_aerospc,
+     &                       min_diam_g, min_sigma_g, max_sigma_g, n_mode, n_aerospc,
      &                       aerospc, aero_missing, aerospc_conc, aeromode
       Use aeromet_data, only : f6pi   ! Includes CONST.EXT
 
       Implicit None
 
 C Arguments:
-      Logical, Intent( In ) :: limit_sg  ! fix coarse and accum Sg's to the input value?
-
-C Output variables:
-C  updates arrays in aero_data module
-C  moment3_conc   3rd moment concentration [ ug /m**3 ]
-C  aeromode_mass  mass concentration: [ ug / m**3 ]
-C  aeromode_dens  avg particle density [ kg / m**3 ]
-C  aeromode_diam  geometric mean diameter [ m ]
-C  aeromode_lnsg  log of geometric standard deviation
+      Logical, Intent( In ) :: fixed_sg  ! If TRUE, then the second moment is modified 
+                                         ! during each call in order to preserve the 
+                                         ! standard deviaiton at the current value.
+                                         !
+                                         ! If FALSE, then the standard deviation is 
+                                         ! recalculated to be consistent with the current 
+                                         ! combination of the 0th, 2nd and 3rd moments.
+                                         ! During this calculation, standard deviaiton is 
+                                         ! limited by parameters in AERO_DATA (min_sigma_g 
+                                         ! and max_sigma_g)
 
 C Local Variables:
       Real( 8 ) :: xxm0        ! temporary storage of moment 0 conc's
@@ -82,17 +84,15 @@ C Local Variables:
       Real( 8 ) :: lxfm2       ! ln(M2); used in Sg calcs
       Real( 8 ) :: l2sg        ! square of ln(Sg); used in diameter calcs
       Real      :: es36        ! exp(4.5*l2sg); used in diameter calcs
-      Real      :: m3augm      ! temp variable for wet 3rd moment calcs
 
       Real( 8 ), Parameter :: one3d = 1.0D0 / 3.0D0
       Real( 8 ), Parameter :: two3d = 2.0D0 / 3.0D0
 
       Real,      Parameter :: one3  = 1.0 / 3.0
-      Real,      Parameter :: dgmin = 1.0E-09   ! minimum particle diameter [ m ]
       Real,      Parameter :: densmin = 1.0E03  ! minimum particle density [ kg/m**3 ]
 
-      Real( 8 ) :: minl2sg( n_mode )   ! min value of ln(sg)**2 for each mode
-      Real( 8 ) :: maxl2sg( n_mode )   ! max value of ln(sg)**2 for each mode
+      Real( 8 ), Save :: minl2sg( n_mode )   ! min value of ln(sg)**2 for each mode
+      Real( 8 ), Save :: maxl2sg( n_mode )   ! max value of ln(sg)**2 for each mode
 
       Real( 8 ) :: factor
       Real( 8 ) :: species_mass
@@ -107,20 +107,13 @@ C Local Variables:
 C-----------------------------------------------------------------------
 
       If ( FirsTime ) Then
-          min_ln_sig_g_squ = Real( Log( min_sigma_g ) ** 2, 8 )
-          max_ln_sig_g_squ = Real( Log( max_sigma_g ) ** 2, 8 )
+          ! Set bounds for ln(Sg)**2
+          minl2sg = Real( Log( min_sigma_g ) ** 2, 8 )
+          maxl2sg = Real( Log( max_sigma_g ) ** 2, 8 )
           FirsTime = .False.
       End If
 
-C *** Set bounds for ln(Sg)**2
 
-      If ( limit_sg ) Then
-         minl2sg = Real( aeromode_lnsg ** 2, 8)
-         maxl2sg = minl2sg
-      Else
-         minl2sg = min_ln_sig_g_squ
-         maxl2sg = max_ln_sig_g_squ
-      End If
 
 C *** Calculate aerosol 3rd moment concentrations [ m**3 / m**3 ]
 
@@ -160,27 +153,31 @@ c         In this manner, M2 is artificially increased when Sg exceeds
 c         the maximum limit.  M2 is artificially decreased when Sg falls
 c         below the minimum limit.
 
-C *** Aitken Mode:
-
       Do n = 1, n_mode
          xxm0 = Real( moment0_conc( n ), 8 )
-         xxm2 = Real( moment2_conc( n ), 8 )
          xxm3 = Real( moment3_conc( n ), 8 )
-
          xfsum = one3d * Log( xxm0 ) + two3d * Log( xxm3 )
 
-         lxfm2 = Log( xxm2 )
-         l2sg = xfsum - lxfm2
+         if ( fixed_sg ) then
+            l2sg  = Real( aeromode_lnsg( n ) ** 2, 8)
 
-         l2sg = Max( l2sg, minl2sg( n ) )
-         l2sg = Min( l2sg, maxl2sg( n ) )
+         else
+            xxm2  = Real( moment2_conc( n ), 8 )
+
+            lxfm2 = Log( xxm2 )
+            l2sg  = xfsum - lxfm2
+
+            l2sg  = Max( l2sg, minl2sg( n ) )
+            l2sg  = Min( l2sg, maxl2sg( n ) )
+
+         end if
 
          lxfm2 = xfsum - l2sg
          moment2_conc( n )  = Real( Exp ( lxfm2 ) )
          aeromode_lnsg( n ) = Real( Sqrt( l2sg ) )
 
          ES36 = Real( Exp( 4.5d0 * l2sg ) )
-         aeromode_diam( n ) = Max( dgmin, ( moment3_conc( n )
+         aeromode_diam( n ) = Max( min_diam_g( n ), ( moment3_conc( n )
      &                      / ( moment0_conc( n ) * es36 ) ) ** one3 )
 
       End Do

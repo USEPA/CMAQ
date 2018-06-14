@@ -96,6 +96,7 @@ C                      that information into PIO_RE_INIT
 C   26 Jan 16 J.Young: Consolidate PIO_INIT, use keywords for optional arguments
 C   28 Jan 16 D.Wong:  Add SAVE attribute to TSTEP for the two-way model implementation
 C   16 Sep 16 J.Young: update for inline procan (IRR)
+C   29 Nov 17 D. Wong: removed all SWAP routines and replaced with SE_COMM
 C-----------------------------------------------------------------------
 
       USE PCGRID_DEFN           ! inherits GRID_CONF
@@ -107,6 +108,7 @@ C-----------------------------------------------------------------------
       USE PA_DEFN, Only: LIPR, LIRR  ! Process Anaylsis control and data variables
       USE PAGRD_DEFN            ! Process Anaylsis horiz domain specs
       USE UTILIO_DEFN
+      USE VERTEXT_MODULE
 
 #ifdef twoway
       USE SD_TIME_SERIES_MODULE
@@ -114,7 +116,6 @@ C-----------------------------------------------------------------------
 
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_INIT_MODULE)
-      USE SWAP_SANDIA
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_INIT_MODULE)
 #endif
@@ -306,7 +307,6 @@ C Initialize PARIO
 C Initialize stencil exchange
          CALL SE_INIT( NPROCS, NPCOL, NPROW, GL_NCOLS, GL_NROWS, NLAYS,
      &                 NSPCSD, MYPE, MNDIS, MEDIS, MSDIS, MWDIS )
-         CALL SWAP_INIT_SNL( NPCOL, NPROW )
 #ifdef verbose_driver
          write( logdev,* ) ' MYPE -> MNDIS:    ', mype, mndis
          write( logdev,* ) ' MYPE -> MEDIS:    ', mype, medis
@@ -509,6 +509,7 @@ C write conc fields
 
          IF ( MOD( TIME2SEC( JTIME ), TIME2SEC( TSTEP( 1 ) ) ) .EQ. 0 ) THEN
             CALL WR_CONC ( JDATE, JTIME, TSTEP( 1 ) )
+            IF ( LDOVEXT ) CALL WR_VEXT ( JDATE, JTIME, TSTEP( 1 ) )
             CALL WR_ACONC ( AGRID, JDATE, JTIME, TSTEP( 1 ) )
             IF ( LIPR .OR. LIRR ) CALL PA_OUTPUT ( CGRID, JDATE, JTIME )
          END IF

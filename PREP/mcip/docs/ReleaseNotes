@@ -1,18 +1,18 @@
 ********************************************************************************
-Announcing the release of MCIP Version 4.3 (6 November 2015)
+Announcing the release of MCIP Version 4.5 (16 March 2018)
 ********************************************************************************
 
-The MCIP code is updated to version 4.3.  These release notes and the change
-log reflect all changes that have been made to MCIP since MCIPv4.2 (the last
-official release).  Changes to MCIPv4.3 were made by Tanya Spero (U.S. EPA).
+The MCIP code is updated to version 4.5.  These release notes and the change
+log reflect all changes that have been made to MCIP since MCIPv4.4 (the last
+official release).  Changes to MCIPv4.5 were made by Tanya Spero (U.S. EPA).
 User contributions are also noted below.  The detailed list of changes to the
 MCIP code is in the CHANGES file, which is part of the MCIP tar file in the
 "doc" sub-directory.
 
-MCIPv4.3 requires I/O API version 3.1 or greater to support error-checking
-within the I/O API.  Note that CMAQv5.1 requires I/O API v3.2.
+MCIPv4.5 requires I/O API version 3.1 or greater to support error-checking
+within the I/O API.
 
-MCIPv4.3 requires the netCDF F90 module (rather than the F77 include).
+MCIPv4.5 requires the netCDF F90 module (rather than the F77 include).
 
 Users are encouraged to read the Frequently Asked Questions (FAQ) file,
 which is located in the MCIP tar file in the "doc" sub-directory.
@@ -20,57 +20,72 @@ which is located in the MCIP tar file in the "doc" sub-directory.
 ***Users should consult the FAQ before submitting inquiries to M3User,
    CMAS, or the code developers.***
 
-MCIPv4.3 has been tested with the following Fortran compilers under both debug
-and optimized options:  Intel 13.1, Intel 15.0, Portland Group 4.7, 
-and gfortran 4.4.7.  MCIPv4.3 has been tested with netCDF 4.3.1 and 4.3.2,
-and I/O API 3.1.
+MCIPv4.5 has been tested with the following Fortran compilers under both debug
+and optimized options at various stages of development:  Intel 17.0.3, PGI 17.4,
+and GCC 4.8.5.  MCIPv4.5 has been tested with netCDF 4.4.1, and I/O API 3.1 and
+3.2.  Final testing of MCIPv4.5 was conducted with Intel 17.0.3
 
 
-Interactions with the following users (in alphabetical order) have resulted
-in some of the code changes/corrections that were made for MCIPv4.3:
+With MCIPv4.5, the following are now deprecated:
+  - Support for MM5v3 input
+  - Including "SOIM1", "SOIM2", "SOIT1", and "SOIT2" in METCRO2D.
+    Those fields are now in a separate file that includes all soil layers and
+    their associated depths (SOI_CRO).
+  - Including "LUFRAC_xx" in GRIDCRO2D.  Those fields are now in a separate
+    file that includes each fractional land use classification (LUFRAC_CRO).
 
-        Patrick Campbell, North Carolina State Univ., Raleigh, NC
-        Shantha Daniel, TCEQ, Austin, TX
-        Hosein Foroutan, U.S. EPA, Research Triangle Park, NC
-        Bill Hutzell, U.S. EPA, Research Triangle Park, NC
-        Chris Nolte, U.S. EPA, Research Triangle Park, NC
-        Jon Pleim, U.S. EPA, Research Triangle Park, NC
-        Shawn Roselle, U.S. EPA, Research Triangle Park, NC
-
-
-The following is a summary of the changes in MCIPv4.3:
-
- 1.  Recompute Monin-Obukhov length if Pleim-Xiu land-surface model is used in
-     WRF because local MOL in ACM2 on the WRF time step is not actually passed
-     to WRF output.  Makes MOL usage in CMAQ consistent with other on-time-step
-     calculations in WRF.
-
- 2.  Updated to accommodate optional lake category in WRF USGS and MODIS
-     land use classifications.
-
- 3.  Removed requirement that fractional land use field (FRC_URB) is part of
-     WRF output when the urban canopy model is used.
-
- 4.  Added 3D cloud fraction to METCRO3D output.  This field is only created
-     when 3D cloud fraction from WRF is exclusively comprised of resolved
-     cloud.
-
- 5.  Changed latent heat flux from "QFX" to "LH" in METCRO2D to be consistent
-     with name in WRF and WRF-CMAQ coupled model.
-
- 6.  Updated metadata for new physics options in WRFv3.6, WRFv3.6.1, and
-     WRFv3.7.
-
- 7.  Added code to realign soil category classification from Pleim-Xiu
-     land-surface model with the WRF indexing.  (Code is dormant and reserved
-     for future use.
-
- 8.  The following output variables in METCRO2D are now deprecated:
-     - cloud fraction (CFRAC)
+With MCIPv4.5, the following output variables in METCRO2D remain deprecated:
+     - 2-D cloud fraction (CFRAC)
      - cloud top (CLDT)
      - cloud bottom (CLDB)
      - liquid water content (WBAR)
-     The default CMAQ no longer uses these fields, and they will be removed
-     from METCRO2D in the next release of MCIP.
+They will be removed from METCRO2D in a forthcoming release of MCIP.
 
- 9.  Minor changes to make MCIP more robust across compilers.
+
+Interactions with members of the CMAQ user community led to some of the changes
+that have been incorporated into MCIPv4.5.
+
+
+The following is a summary of the changes in MCIPv4.5:
+
+ 1.  Prevent MCIP from using meteorology initialization time period.
+     Otherwise gives unrealistic solutions for near-surface fields that are
+     undefined at that time and causes segmentation fault with Noah
+     land-surface model data from WRF on some compilers.
+
+ 2.  Made minor changes to accommodate WRF implementation of MODIS land use
+     with category 21 representing "lake" for PURB. (Was overlooked in MCIPv4.4)
+
+ 3.  Added snow height (SNOWH) from WRF to METCRO2D output.
+
+ 4.  Added capability to read and process data from Noah *Mosaic* land-surface
+     model in WRF via MCIP.
+
+ 5.  Created new M3 I/O API files for data within soil layers (SOI_CRO), for
+     fractional land use (LUCRAC_CRO), and (if available) Noah mosaic land-
+     surface model (MOSAIC_CRO).
+
+ 6.  Refined calculation of interval between WRF output times to account for
+     small drifts when advection time steps do not fall exactly on the hour.
+
+ 7.  Created a minimum value for rainfall in order to avoid underflow
+     condition.  (Otherwise causes segmentation fault with GCC compiler.)
+
+ 8.  Updated script to delete (rather than overwrite) existing MCIP output
+     files.
+
+ 9.  Updated compiler option details in Makefile.
+
+10.  Added preliminary support for hybrid vertical coordinate in WRF, but
+     disabled the effects pending additional modfications and testing in CMAQ.
+
+11.  Corrected error in calculation of dot-point latitude and longitude for
+     polar stereographic WRF.  (Not used within CMAQ).
+
+12.  Added spectral nudging details to metadata.
+
+13.  Corrected minor errors in print statements (benign).
+
+14.  Changed initial value for an MM5 field from INTEGER to REAL (benign).
+
+15.  Removed unused variables from various routines (benign).

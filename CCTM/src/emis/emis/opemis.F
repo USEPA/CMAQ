@@ -37,6 +37,8 @@ C                        removed deprecated TRIMLEN
       USE VGRD_DEFN           ! vertical layer specifications
       USE CGRID_SPCS          ! CGRID mechanism species
       USE UTILIO_DEFN
+      USE RXNS_DATA, only : MECHNAME 
+      USE EMIS_DEFN, only : TRACSPC, AREASPC
 
       IMPLICIT NONE
 
@@ -63,6 +65,7 @@ C Local variables:
 
       LOGICAL ::   WRFLG = .FALSE.
       INTEGER      LOGDEV
+      INTEGER      STATUS
       INTEGER      V, N, S        ! induction variables
 
 C-----------------------------------------------------------------------
@@ -84,6 +87,12 @@ C Open the tracer emissions file
 
          ELSE
 
+            ! Save Tracer Variables for Use in Emissions Species Check
+            ! Routine
+            ALLOCATE ( TRACSPC( NVARS3D ), STAT = STATUS )
+            TRACSPC = VNAME3D( 1:NVARS3D )
+
+            ! Assign Tracer Emissions Species
             EM_TRAC = .TRUE.
             IF ( .NOT. DESC3( EMIS_TRAC_1 ) ) THEN
                XMSG = 'Could not get '// EMIS_TRAC_1 // ' file description'
@@ -121,7 +130,6 @@ C Open the tracer emissions file
 
       END IF   ! tracer emissions
 
-!     IF ( NEMIS + N_AE_EMIS + N_NR_EMIS + N_TR_EMIS .GT. 0 ) THEN
       IF ( NEMIS + N_NR_EMIS .GT. 0 ) THEN
 
 C Open the emissions file (for gas chem, aerosols and non-reactive species)
@@ -136,6 +144,12 @@ C Open the emissions file (for gas chem, aerosols and non-reactive species)
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
          END IF
 
+         ! Save Area Source Species Names For Use in Emissions Species
+         ! Check Routine
+         ALLOCATE ( AREASPC( NVARS3D ), STAT = STATUS )
+         AREASPC = VNAME3D( 1:NVARS3D )
+
+         ! Assign Area Source Emission Species
          IF ( EMLAYS .EQ. 0 ) THEN
             EMLAYS = NLAYS3D
          ELSE
@@ -174,7 +188,10 @@ C Open the emissions file (for gas chem, aerosols and non-reactive species)
      &              UNITSCK .NE. 'MOL/S'     .AND.
      &              UNITSCK .NE. 'MOLES/SEC' .AND.
      &              UNITSCK .NE. 'MOLE/SEC'  .AND.
-     &              UNITSCK .NE. 'MOL/SEC' ) THEN
+     &              UNITSCK .NE. 'MOL/SEC'   .AND.
+     &              ( INDEX( MECHNAME, 'NVPOA' ) .NE. 0 .OR.  ! If the semivolatile POA mechanism
+     &                GC_EMIS( N ) .NE. 'POC' )   ) THEN      ! is active, then some gas-phase species
+                                                              ! will be scaled off of POC
                   XMSG = 'GC units incorrect on ' // EMIS_1 //' for species ' // GC_EMIS( N )
                   !CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
                   CALL M3WARN( PNAME, JDATE, JTIME, XMSG )

@@ -57,35 +57,36 @@ C-----------------------------------------------------------------------
          Logical         :: rxncounter         ! flag to reset counter species
          Logical         :: update             ! update precursor concentration
                                                ! in cgrid after aeroproc
+         Logical         :: required           ! required for model run
       End Type precursor_type
 
       Type ( precursor_type ), Private :: precursor( n_precursor ) = (/
-C                       Name      RxnCounter  Update
-C                    ----------   ----------  ------
-     & precursor_type( 'NO2    ', .False. , .True.  ),
-     & precursor_type( 'N2O5   ', .False. , .True.  ),
-     & precursor_type( 'HNO3   ', .False. , .True.  ),
-     & precursor_type( 'HONO   ', .False. , .True.  ),
-     & precursor_type( 'ISOPRXN', .True.  , .True.  ),
-     & precursor_type( 'TRPRXN ', .True.  , .True.  ),
-     & precursor_type( 'SULF   ', .False. , .True.  ),
-     & precursor_type( 'SULPRD ', .True.  , .True.  ),
-     & precursor_type( 'HCL    ', .False. , .True.  ),
-     & precursor_type( 'ALK5RXN', .True.  , .True.  ),
-     & precursor_type( 'ALKRXN ', .True.  , .True.  ),
-     & precursor_type( 'TOLNRXN', .True.  , .True.  ),
-     & precursor_type( 'TOLHRXN', .True.  , .True.  ),
-     & precursor_type( 'XYLNRXN', .True.  , .True.  ),
-     & precursor_type( 'XYLHRXN', .True.  , .True.  ),
-     & precursor_type( 'BNZNRXN', .True.  , .True.  ),
-     & precursor_type( 'BNZHRXN', .True.  , .True.  ),
-     & precursor_type( 'SESQRXN', .True.  , .True.  ),
-     & precursor_type( 'NH3    ', .False. , .True.  ),
-     & precursor_type( 'OH     ', .False. , .False. ),
-     & precursor_type( 'PAHNRXN', .True.  , .True.  ),
-     & precursor_type( 'PAHHRXN', .True.  , .True.  ),
-     & precursor_type( 'PCSOARXN',.True.  , .True.  ),
-     & precursor_type( 'PHGRXN ', .True.  , .True. )/)
+C                       Name    RxnCounter  Update  Required
+C                    ---------   ---------- ------  ------
+     & precursor_type( 'NO2    ', .False. , .True., .True.  ),
+     & precursor_type( 'N2O5   ', .False. , .True., .True.  ),
+     & precursor_type( 'HNO3   ', .False. , .True., .True.  ),
+     & precursor_type( 'HONO   ', .False. , .True., .True.  ),
+     & precursor_type( 'ISOPRXN', .True.  , .True., .False. ),
+     & precursor_type( 'TRPRXN ', .True.  , .True., .False. ),
+     & precursor_type( 'SULF   ', .False. , .True., .True.  ),
+     & precursor_type( 'SULPRD ', .True.  , .True., .True.  ),
+     & precursor_type( 'HCL    ', .False. , .True., .True.  ),
+     & precursor_type( 'ALK5RXN', .True.  , .True., .False. ),
+     & precursor_type( 'ALKRXN ', .True.  , .True., .False. ),
+     & precursor_type( 'TOLNRXN', .True.  , .True., .False. ),
+     & precursor_type( 'TOLHRXN', .True.  , .True., .False. ),
+     & precursor_type( 'XYLNRXN', .True.  , .True., .False. ),
+     & precursor_type( 'XYLHRXN', .True.  , .True., .False. ),
+     & precursor_type( 'BNZNRXN', .True.  , .True., .False. ),
+     & precursor_type( 'BNZHRXN', .True.  , .True., .False. ),
+     & precursor_type( 'SESQRXN', .True.  , .True., .False. ),
+     & precursor_type( 'NH3    ', .False. , .True.,  .True. ),
+     & precursor_type( 'OH     ', .False. , .False., .True. ),
+     & precursor_type( 'PAHNRXN', .True.  , .True., .False. ),
+     & precursor_type( 'PAHHRXN', .True.  , .True., .False. ),
+     & precursor_type( 'PCSOARXN',.True.  , .True., .False. ),
+     & precursor_type( 'PHGRXN ', .True.  , .True., .False. )/)
 
 C Required species
       Character( 16 ), Private, Parameter :: req_NO2    = 'NO2'
@@ -120,10 +121,12 @@ C Indices of required species
 
 C Private variables for loading and unloading to CGRID array
       Integer          :: precursor_map( n_precursor )  ! pointers to CGRID
-      Logical, Private, Save :: mapped = .False.
-
+      Logical, Private, Save :: mapped          = .False.
+      Logical, Private, Save :: Precursor_eflag = .False.
       Integer, Private, Save :: logdev
       Integer, Private, External :: setup_logdev
+
+      Character( 16 ), Private, Save :: pname = 'precursor_data'
 
       Contains
 
@@ -140,6 +143,7 @@ C HS  03/10/11 Changed vtmp to real(8)
 C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 C----------------------------------------------------------------------
 
+      Use rxns_data           ! chemical mechanism data
       Use aero_data
       Use cgrid_spcs          ! CGRID mechanism species
       Use utilio_defn
@@ -148,12 +152,15 @@ C----------------------------------------------------------------------
 
 C Local Variables:
       Character( 180 ) :: xmsg
-      Real( 8 )        :: vtmp
       Integer          :: n
       Integer          :: spc
 
+C If the species are mapped already, skip the mapping algorithm
+      If ( mapped ) Return
+
       logdev = setup_logdev()
 
+C Initialize Precursor Map Variables
       precursor_mw = 0.0d0
       precursor_map = 0
 
@@ -169,10 +176,14 @@ C Build mapping to CGRID for each precursor species
                precursor_mw( spc ) = real( nr_molwt( nr_n2ae_map( n ) ), 8 )
                precursor_map( spc ) = nr_strt - 1 + nr_n2ae_map( n )
             Else
-               xmsg = 'Species ' // Trim( precursor( spc )%name ) //
-     &               ' in precursor name is not in GC_G2AE or NR_N2AE tables'
-!               Call m3exit( 'map_precursor', 0, 0, xmsg, xstat3 )
-                Call m3warn( 'map_precursor', 0, 0, xmsg )
+                If ( precursor( spc )%required ) Then
+                  Precursor_eflag = .True.
+                  xmsg = 'FATAL: Simulation requires a species in GC or NR namelist ' //
+     &                   'to have its G2AE or N2AE value set to ' // Trim( precursor( spc )%name )
+                  Call m3warn( 'map_precursor', 0, 0, xmsg )
+                Else
+                  write(logdev,99902)Trim( precursor( spc )%name )
+                End If 
             End If
          End If
       End Do
@@ -187,18 +198,18 @@ C Find indices of required species
       HCL_idx    = findPrecursor( req_HCL,    .true.)
       NH3_idx    = findPrecursor( req_NH3,    .true.)
       OH_idx     = findPrecursor( req_OH,     .true.)
-      If( aphgj_idx .gt. 0 )then
-          PHGRXN_idx = findPrecursor( req_phgrxn,  .false.)
-          If(   precursor_map( PHGRXN_idx ) .Lt. 1  )Then
-             xmsg = ' Gas Phase Precursor ' // Trim( req_PHGRXN )
-     &           // ' not found -> NO gas production of APHG species'
-             Call m3warn( 'map_precursor', 0, 0, xmsg )
-          End If 
+      If( ae6hg )then
+         PHGRXN_idx = findPrecursor( req_phgrxn,  .false.)
+         If(   precursor_map( PHGRXN_idx ) .Lt. 1  )Then
+           xmsg = ' Gas Phase Precursor ' // Trim( req_PHGRXN )
+     &         // ' not found -> NO gas production of APHG species'
+           Call m3warn( 'map_precursor', 0, 0, xmsg )
+         End If 
 #ifdef verbose_aero
-      Else
-          xmsg = ' NO particulate mercury in model.'
-          Call m3warn( 'map_precursor', 0, 0, xmsg )
-          PHGRXN_idx = 0
+      Else 
+         xmsg = ' NO particulate mercury in model.'
+         Call m3warn( 'map_precursor', 0, 0, xmsg )
+         PHGRXN_idx = 0
 #endif
       end if
 
@@ -218,9 +229,23 @@ C Find indices of required species
       end if
 #endif
 
+      If( Precursor_eflag )Then
+         Write(logdev,99901) Trim( mechname )
+             xmsg = 'The FATAL errors found in namelist used. Check '
+     &          //  'the log of exiting processor if more details are needed.'
+         Call m3exit( pname, 0, 0, xmsg, xstat3 )
+      End If 
+
       mapped = .True.
 
       Write( logdev,'( 5x, a )' ) ' --- Precursor Species Mapped ---'
+
+99901 Format( 'FATAL error(s) found in the GC and/or NR namelists used. Check that '
+     &     /  'these namelists contain the above required data as the respective files '
+     &     /  'in the respository version of the mechanism: ' , a )
+99902 Format( 'Note: ', a, ' is not found in G2AE or N2AE values of '
+     &    /   'the GC or NR namelist. Simulation does not include effects '
+     &    /   'on secondary aerosol production from the species.' )
 
       Return
       End Subroutine map_precursor
@@ -252,15 +277,13 @@ C Local Variables:
       Integer         :: n
       Integer         :: spc
 
-      If ( .Not. mapped ) Then
-         Call map_precursor()
-      End If
+      Call map_precursor()
 
 C Compute gas conversion constant
       gasconv = Real( airdens * inv_mwair, 8 )
 
 C Copy grid cell concentrations of precursor species
-      precursor_conc = 0.0
+      precursor_conc = 0.0d0
 
       Do spc = 1, n_precursor
          n = precursor_map( spc )
@@ -358,15 +381,17 @@ C Local Variables:
       ndx = 0
       
       Do spc = 1, n_precursor
-         If ( Index( precursor( spc )%name, Trim( vname ) ) .Gt. 0 ) Then
+         If ( Index( precursor( spc )%name, trim(vname) ) .Gt. 0 ) Then
             ndx = spc
             Return
          End If
       End Do
 
-      xmsg = 'Required Species ' // Trim( vname )
-     &     // ' Not found in [precursor names] array'
-      Call m3exit( 'findPrecursor', 0, 0, xmsg, xstat3 )
+      xmsg = 'FATAL: ' // Trim( vname )
+     &    // ' is not found in the G2AE or N2AE values of GC or NR namelists'
+      Precursor_eflag  = .True.
+      Call m3warn( pname, 0, 0, xmsg )
+!     Call m3exit( pname, 0, 0, xmsg, xstat3 )
 
       Return
       End Function findPrecursor

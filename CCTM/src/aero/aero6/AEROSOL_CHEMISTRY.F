@@ -422,12 +422,10 @@ C *** Local Variables
 
       REAL( 8 )       :: INV_DIFF_BRONO2  ! reciprocal molecular diffusivity [m2/sec]
       INTEGER, SAVE   :: IMAE_IDX
-      INTEGER, SAVE   :: IHMML_IDX
+      !INTEGER, SAVE   :: IHMML_IDX
       INTEGER, SAVE   :: NO3_IDX
       INTEGER, SAVE   :: GLY_IDX
       INTEGER, SAVE   :: MGLY_IDX
-
-      LOGICAL      :: LIMIT_SG    ! fix coarse and accum Sg's to the input value?
 
 C *** variables for parameterization by Bertram and Thornton 
       REAL         :: ACL           ! i+j or k mode chloride, ug/m3 
@@ -495,8 +493,8 @@ C                            pp 601-609, April, 1996.
       INV_ESATL( TT ) = DL * DEXP( BL * ( 273.15D0 - TT ) / ( TT - 273.15D0 + CL ) )
       
       INTERFACE
-         SUBROUTINE GETPAR( LIMIT_SG  )
-           LOGICAL, INTENT( IN ) :: LIMIT_SG    ! fix coarse and accum Sg's to the input value?
+         SUBROUTINE GETPAR( FIXED_sg  )
+           LOGICAL, INTENT( IN ) :: FIXED_sg    ! fix coarse and accum Sg's to the input value?
          END SUBROUTINE GETPAR
       END INTERFACE 
   
@@ -734,7 +732,7 @@ C *** to compute RH & molecular kinetic factors
                ADJUST_DIFF = REAL( ( TEMP( C,R,L ) * INV_STDTEMP ) ** 1.75 * ( STDATMPA / PRESS( C,R,L ) ), 8 )
 
                IF ( PRESENT( DENS ) ) THEN
-                  PPM_FACTOR  = 1.0E-3 * MWAIR / DENS( C,R,L )
+                  PPM_FACTOR  = 1.0D-3 * REAL( MWAIR / DENS( C,R,L ), 8 )
                ELSE
                   PPM_FACTOR  = UGM3_CONV_FAC * REAL( TEMP( C,R,L ) / PRESS( C,R,L ), 8 )
                END IF
@@ -745,18 +743,17 @@ C *** Update geometric mean diameters, geometric
 C     standard deviations, modal mass totals, and modal particle
 C     densities, based on the concentrations of M2, M0, and speciated
 C     masses.
-               LIMIT_Sg = .False.
-               CALL getpar( limIT_Sg )
+               CALL getpar( FIXED_sg )
     
 C *** set up variables needed for calculating KN2O5 and YIELD_CLNO2
 
                DO N = 1, N_MODE
 C *** estimate the "wet third moments" from moment3_conc
 C     Note: this is the H2O concentration from previous time step
-                  WET_M3( N ) = MOMENT3_CONC( N ) 
+                  WET_M3( N ) = REAL( MOMENT3_CONC( N ), 8 )
 C *** calculate "wet second moment" assuming that H2O does not
 C     affect the geometric standard deviation
-                  WET_M2( N ) = MOMENT2_CONC( N ) 
+                  WET_M2( N ) = REAL( MOMENT2_CONC( N ), 8 ) 
 C *** The "wet" geometric mean (same as median) diameter was updated in
 C     getpar. It is stored in aeromode_diam
 C *** calculate effective diameter (this is actually the mean) using Eq 3 of Pleim et al (1995)

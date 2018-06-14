@@ -138,6 +138,24 @@ SUBROUTINE rdwrfem (mcip_now)
 !           17 Sep 2015  Changed IFMOLACM to IFMOLPX.  (T. Spero)
 !           30 Oct 2015  Changed WRITE statements for printing sampled data to
 !                        log file to eliminate warning messages.  (T. Spero)
+!           22 Nov 2016  Changed urban model variable FRC_URB to FRC_URB2D to
+!                        be consistent with its use in WRF.  (T. Spero)
+!           21 Apr 2017  Updated SFZ0 for MODIS so that category 21 is "Lake".
+!                        (T. Spero)
+!           16 Mar 2018  Corrected the settings for II and JJ in the loop for
+!                        calculating dot-point latitude and longitude for polar
+!                        stereographic WRF projections.  Moved TTOL to
+!                        MCIPPARM_MOD, and changed its local name to TTOL_SEC.
+!                        Corrected error in print statement for WRF variable
+!                        CLDFRA.  Added SNOWH to output.  Created a minimum
+!                        value for rainfall in order to avoid underflow
+!                        condition.  Corrected minor error in array mapping in
+!                        rain buckets in unused column and row.  Added
+!                        LUFRAC2, MOSCATIDX, LAI_MOS, RA_MOS, RS_MOS, TSK_MOS,
+!                        ZNT_MOS, and DUM3D_M to support NOAH Mosaic land-
+!                        surface model.  Added DZS to capture soil layers, and
+!                        added 3D soil arrays, SOIT3D and SOIM3D.  Added
+!                        WSPDSFC and XLAIDYN for Noah.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE date_pack
@@ -158,6 +176,8 @@ SUBROUTINE rdwrfem (mcip_now)
   REAL,    SAVE,      ALLOCATABLE   :: dum2d_u    ( : , : )
   REAL,    SAVE,      ALLOCATABLE   :: dum2d_v    ( : , : )
   REAL,    SAVE,      ALLOCATABLE   :: dum3d_l    ( : , : , : )
+  INTEGER, SAVE,      ALLOCATABLE   :: dum3d_li   ( : , : , : )
+  REAL,    SAVE,      ALLOCATABLE   :: dum3d_m    ( : , : , : )
   REAL,    SAVE,      ALLOCATABLE   :: dum3d_p    ( : , : , : )
   REAL,    SAVE,      ALLOCATABLE   :: dum3d_s    ( : , : , : )
   REAL,    SAVE,      ALLOCATABLE   :: dum3d_t    ( : , : , : )
@@ -180,6 +200,9 @@ SUBROUTINE rdwrfem (mcip_now)
   CHARACTER(LEN=64)                 :: ifmt1
   CHARACTER(LEN=64)                 :: ifmt1a
   CHARACTER(LEN=64)                 :: ifmt2
+  CHARACTER(LEN=64)                 :: ifmt3
+  CHARACTER(LEN=64)                 :: ifmt4
+  CHARACTER(LEN=64)                 :: ifmt5
   INTEGER                           :: ii
   INTEGER                           :: im1
   INTEGER                           :: it
@@ -213,7 +236,6 @@ SUBROUTINE rdwrfem (mcip_now)
   CHARACTER(LEN=2)                  :: str1
   CHARACTER(LEN=2)                  :: str2
   CHARACTER(LEN=19),SAVE,ALLOCATABLE:: times      ( : )
-  INTEGER,            PARAMETER     :: ttol       = 300  ! [sec]
   REAL                              :: xoff
   REAL                              :: xxin
   REAL                              :: yoff
@@ -233,13 +255,13 @@ SUBROUTINE rdwrfem (mcip_now)
   REAL, PARAMETER :: sfz0modsum ( 33 ) = &  ! summer [cm]
     (/ 50.0,  50.0,  50.0,  50.0,  50.0,   5.0,  6.0,   5.0,   &
        15.0,  12.0,  30.0,  15.0,  80.0,  14.0,  0.1,   1.0,   &
-        0.01, 30.0,  15.0,  10.0,  80.0,  80.0,  80.0,  80.0,  &
+        0.01, 30.0,  15.0,  10.0,   0.01, 80.0,  80.0,  80.0,  &
        80.0,  80.0,  80.0,  80.0,  80.0,  80.0,  80.0,  80.0,  80.0 /)
 
   REAL, PARAMETER :: sfz0modwin ( 33 ) = &  ! winter [cm]
     (/ 50.0,  50.0,  50.0,  50.0,  20.0,   1.0,   1.0,   1.0,  &
        15.0,  50.0,  30.0,   5.0,  80.0,   5.0,   0.1,   1.0,  &
-        0.01, 10.0,  30.0,  15.0,  80.0,  80.0,  80.0,  80.0,  &
+        0.01, 10.0,  30.0,  15.0,   0.01, 80.0,  80.0,  80.0,  &
        80.0,  80.0,  80.0,  80.0,  80.0,  80.0,  80.0,  80.0,  80.0 /)
 
   REAL, PARAMETER :: sfz0nlcd50sum ( 50 ) = &  ! summer [cm]
@@ -449,14 +471,61 @@ SUBROUTINE rdwrfem (mcip_now)
     IF ( k2 > 0 ) THEN
       ifmt2 = "(/,1x,a,5(1x,f12.4)," // str1 // "(/,10x,5(1x,f12.4)),/,10x," &
         & // str2 // "(1x,f12.4))"
+      ifmt3 = "(/,1x,a,5(i12,1x)," // str1 // "(/,10x,5(1x,i12)),/,10x," &
+        & // str2 // "(1x,i12))"
     ELSE
       ifmt2 = "(/,1x,a,5(1x,f12.4)," // str1 // "(/,10x,5(1x,f12.4)))"
+      ifmt3 = "(/,1x,a,5(i12,1x)," // str1 // "(/,10x,5(1x,i12)))"
     ENDIF
   ELSE
     IF ( k2 > 0 ) THEN
-      ifmt2 = "(/,1x,a,5(1x,f12.4),/,11x," // str2 // "(1x,f12.4))"
+      ifmt2 = "(/,1x,a,5(1x,f12.4),/,10x," // str2 // "(1x,f12.4))"
+      ifmt3 = "(/,1x,a,5(i12,1x),/,10x," // str2 // "(1x,i12))"
     ELSE
       ifmt2 = "(/,1x,a,5(1x,f12.4))"
+      ifmt3 = "(/,1x,a,5(i12,1x))"
+    ENDIF
+  ENDIF
+
+  k1 = nummosaic / 5
+  k2 = MOD(nummosaic, 5)
+
+  WRITE ( str1, '(i2)' ) k1 - 1
+  WRITE ( str2, '(i2)' ) k2
+
+  IF ( (k1 - 1) > 0 ) THEN
+    IF ( k2 > 0 ) THEN
+      ifmt4 = "(/,1x,a,5(1x,f12.4)," // str1 // "(/,10x,5(1x,f12.4)),/,10x," &
+        & // str2 // "(1x,f12.4))"
+    ELSE
+      ifmt4 = "(/,1x,a,5(1x,f12.4)," // str1 // "(/,10x,5(1x,f12.4)))"
+    ENDIF
+  ELSE
+    IF ( k2 > 0 ) THEN
+      ifmt4 = "(/,1x,a,5(1x,f12.4),/,10x," // str2 // "(1x,f12.4))"
+    ELSE
+      ifmt4 = "(/,1x,a,5(1x,f12.4))"
+    ENDIF
+  ENDIF
+
+  k1 = ns / 5
+  k2 = MOD(ns, 5)
+
+  WRITE ( str1, '(i2)' ) k1 - 1
+  WRITE ( str2, '(i2)' ) k2
+
+  IF ( (k1 - 1) > 0 ) THEN
+    IF ( k2 > 0 ) THEN
+      ifmt5 = "(/,1x,a,5(1x,f12.4)," // str1 // "(/,10x,5(1x,f12.4)),/,10x," &
+        & // str2 // "(1x,f12.4))"
+    ELSE
+      ifmt5 = "(/,1x,a,5(1x,f12.4)," // str1 // "(/,10x,5(1x,f12.4)))"
+    ENDIF
+  ELSE
+    IF ( k2 > 0 ) THEN
+      ifmt5 = "(/,1x,a,5(1x,f12.4),/,11x," // str2 // "(1x,f12.4))"
+    ELSE
+      ifmt5 = "(/,1x,a,5(1x,f12.4))"
     ENDIF
   ENDIF
 
@@ -474,6 +543,10 @@ SUBROUTINE rdwrfem (mcip_now)
     ALLOCATE ( dum2d_v (nxm, ny  ) )      ! 2D array on N-S flux pts
   IF ( .NOT. ALLOCATED ( dum3d_l ) )  &
     ALLOCATE ( dum3d_l (nxm, nym, nummetlu ) )  ! 3D array on cross points, lu
+  IF ( .NOT. ALLOCATED ( dum3d_li ) ) &
+    ALLOCATE ( dum3d_li (nxm, nym, nummetlu ) ) ! 3D on cross points, lu int
+  IF ( .NOT. ALLOCATED ( dum3d_m ) )  &
+    ALLOCATE ( dum3d_m (nxm, nym, nummosaic) )  ! 3D on cross pts in mosaic cat
   IF ( .NOT. ALLOCATED ( dum3d_p ) )  &
     ALLOCATE ( dum3d_p (nxm, nym, nz ) )  ! 3D array on cross points, half lvls
   IF ( .NOT. ALLOCATED ( dum3d_s ) )  &
@@ -556,7 +629,7 @@ SUBROUTINE rdwrfem (mcip_now)
       ENDIF
       DO i = 1, n_times
         CALL geth_idts (times(i), mcip_previous(1:19), idtsec)
-        IF ( ABS(idtsec) < ttol ) THEN  ! found MCIP_PREVIOUS in WRF output
+        IF ( ABS(idtsec) < ttol_sec ) THEN  ! found MCIP_PREVIOUS in WRF output
           itm1 = i
           EXIT findprev
         ENDIF
@@ -584,6 +657,9 @@ SUBROUTINE rdwrfem (mcip_now)
     CALL get_var_2d_real_cdf (cdfid, 'RAINC', dum2d, itm1, rcode)
     IF ( rcode == nf90_noerr ) THEN
       rcold(1:nxm,1:nym) = dum2d(:,:)
+      WHERE ( rcold < smallnum )
+        rcold = 0.0
+      ENDWHERE
     ELSE
       WRITE (*,f9400) TRIM(pname), 'RAINC', TRIM(nf90_strerror(rcode))
       CALL graceful_stop (pname)
@@ -592,6 +668,11 @@ SUBROUTINE rdwrfem (mcip_now)
     CALL get_var_2d_real_cdf (cdfid, 'RAINNC', dum2d, itm1, rcode)
     IF ( rcode == nf90_noerr ) THEN
       rnold(1:nxm,1:nym) = dum2d(:,:)
+      rnold(nx,:) = rnold(nxm,:)
+      rnold(:,ny) = rnold(:,nym)
+      WHERE ( rnold < smallnum )
+        rnold = 0.0
+      ENDWHERE
     ELSE
       WRITE (*,f9400) TRIM(pname), 'RAINNC', TRIM(nf90_strerror(rcode))
       CALL graceful_stop (pname)
@@ -602,6 +683,8 @@ SUBROUTINE rdwrfem (mcip_now)
       CALL get_var_2d_int_cdf (cdfid, 'I_RAINC', dum2d_i, itm1, rcode)
       IF ( rcode == nf90_noerr ) THEN
         ircold(1:nxm,1:nym) = dum2d_i(:,:)
+        ircold(nx,:) = ircold(nxm,:)
+        ircold(:,ny) = ircold(:,nym)
       ELSE
         WRITE (*,f9400) TRIM(pname), 'I_RAINC', TRIM(nf90_strerror(rcode))
         CALL graceful_stop (pname)
@@ -677,7 +760,7 @@ SUBROUTINE rdwrfem (mcip_now)
     ENDIF
     DO i = it_start, n_times
       CALL geth_idts (times(i), mcip_now(1:19), idtsec)
-      IF ( ABS(idtsec) < ttol ) THEN  ! found MCIP_NOW in WRF output
+      IF ( ABS(idtsec) < ttol_sec ) THEN  ! found MCIP_NOW in WRF output
         it = i
         IF ( i < n_times ) it_start = i + 1
         EXIT findit
@@ -912,7 +995,7 @@ SUBROUTINE rdwrfem (mcip_now)
       cldfra(1:nxm,1:nym,:) = dum3d_t(:,:,:)
       cldfra(  nx,  :,   :) = cldfra(nxm,:,:)
       cldfra( :,     ny, :) = cldfra(:,nym,:)
-      WRITE (*,ifmt1a) 'CLDFRA   ', (cldfra(lprt_metx,lprt_mety,k),k=1,nzp)
+      WRITE (*,ifmt1a) 'CLDFRA   ', (cldfra(lprt_metx,lprt_mety,k),k=1,nz)
     ELSE
       WRITE (*,f9400) TRIM(pname), 'CLDFRA', TRIM(nf90_strerror(rcode))
       CALL graceful_stop (pname)
@@ -1045,7 +1128,10 @@ SUBROUTINE rdwrfem (mcip_now)
 
     CALL get_var_2d_real_cdf (cdfid, 'RAINC', dum2d, it, rcode)
     IF ( rcode == nf90_noerr ) THEN
-      raincon(1:nxm,1:nym) = (dum2d(:,:) - rcold(1:nxm,1:nym))/10.0
+      WHERE ( dum2d < smallnum )
+        dum2d = 0.0
+      ENDWHERE
+      raincon(1:nxm,1:nym) = MAX((dum2d(:,:) - rcold(1:nxm,1:nym))/10.0, 0.0)
       raincon(nx,:) = raincon(nxm,:)
       raincon(:,ny) = raincon(:,nym)
       rcold(1:nxm,1:nym) = dum2d(:,:)
@@ -1057,7 +1143,10 @@ SUBROUTINE rdwrfem (mcip_now)
 
     CALL get_var_2d_real_cdf (cdfid, 'RAINNC', dum2d, it, rcode)
     IF ( rcode == nf90_noerr ) THEN
-      rainnon(1:nxm,1:nym) = (dum2d(:,:) - rnold(1:nxm,1:nym))/10.0
+      WHERE ( dum2d < smallnum )
+        dum2d = 0.0
+      ENDWHERE
+      rainnon(1:nxm,1:nym) = MAX((dum2d(:,:) - rnold(1:nxm,1:nym))/10.0, 0.0)
       rainnon(nx,:) = rainnon(nxm,:)
       rainnon(:,ny) = rainnon(:,nym)
       rnold(1:nxm,1:nym) = dum2d(:,:)
@@ -1071,9 +1160,13 @@ SUBROUTINE rdwrfem (mcip_now)
     
       CALL get_var_2d_int_cdf (cdfid, 'I_RAINC', dum2d_i, it, rcode)
       IF ( rcode == nf90_noerr ) THEN
-        i_rainc(:,:) = dum2d_i(:,:) - ircold(:,:)
+        i_rainc(1:nxm,1:nym) = dum2d_i(:,:) - ircold(1:nxm,1:nym)
+        i_rainc(nx,:) = i_rainc(nxm,:)
+        i_rainc(:,ny) = i_rainc(:,nym)
         raincon(:,:) = raincon(:,:) + 0.1 * met_rain_bucket * FLOAT(i_rainc(:,:))
-        ircold (:,:) = dum2d_i(:,:)
+        ircold (1:nxm,1:nym) = dum2d_i(:,:)
+        ircold (nx,:) = ircold(nxm,:)
+        ircold (:,ny) = ircold(:,nym)
         WRITE (*,f6100) 'I_RAINC  ', i_rainc(lprt_metx, lprt_mety), 'times'
         WRITE (*,f6000) 'CONV RAIN', raincon(lprt_metx, lprt_mety), 'cm'
       ELSE
@@ -1083,9 +1176,13 @@ SUBROUTINE rdwrfem (mcip_now)
   
       CALL get_var_2d_int_cdf (cdfid, 'I_RAINNC', dum2d_i, it, rcode)
       IF ( rcode == nf90_noerr ) THEN
-        i_rainnc(:,:) = dum2d_i(:,:) - irnold(:,:)
+        i_rainnc(1:nxm,1:nym) = dum2d_i(:,:) - irnold(1:nxm,1:nym)
+        i_rainnc(nx,:) = i_rainnc(nxm,:)
+        i_rainnc(:,ny) = i_rainnc(:,nym)
         rainnon (:,:) = rainnon(:,:) + 0.1 * met_rain_bucket * FLOAT(i_rainnc(:,:))
-        irnold  (:,:) = dum2d_i(:,:)
+        irnold  (1:nxm,1:nym) = dum2d_i(:,:)
+        irnold  (nx,:) = irnold(nxm,:)
+        irnold  (:,ny) = irnold(:,nym)
         WRITE (*,f6100) 'I_RAINNC ', i_rainnc(lprt_metx, lprt_mety), 'times'
         WRITE (*,f6000) 'NONC RAIN', rainnon(lprt_metx, lprt_mety), 'cm'
       ELSE
@@ -1104,6 +1201,9 @@ SUBROUTINE rdwrfem (mcip_now)
 
     CALL get_var_2d_real_cdf (cdfid, 'PREC_ACC_C', dum2d, it, rcode)
     IF ( rcode == nf90_noerr ) THEN
+      WHERE ( dum2d < smallnum )
+        dum2d = 0.0
+      ENDWHERE
       raincon(1:nxm,1:nym) = dum2d(:,:) / 10.0
       raincon(nx,:) = raincon(nxm,:)
       raincon(:,ny) = raincon(:,nym)
@@ -1115,6 +1215,9 @@ SUBROUTINE rdwrfem (mcip_now)
 
     CALL get_var_2d_real_cdf (cdfid, 'PREC_ACC_NC', dum2d, it, rcode)
     IF ( rcode == nf90_noerr ) THEN
+      WHERE ( dum2d < smallnum )
+        dum2d = 0.0
+      ENDWHERE
       rainnon(1:nxm,1:nym) = dum2d(:,:) / 10.0
       rainnon(nx,:) = rainnon(nxm,:)
       rainnon(:,ny) = rainnon(:,nym)
@@ -1454,6 +1557,10 @@ SUBROUTINE rdwrfem (mcip_now)
       w2(nx,:) = w2(nxm,:)
       w2(:,ny) = w2(:,nym)
       WRITE (*,f6000) 'SMOIS 2  ', w2(lprt_metx, lprt_mety), 'm^3 m^-3'
+      soim3d(1:nxm,1:nym,:) = dum3d_s(:,:,:)
+      soim3d(nx,:,:) = soim3d(nxm,:,:)
+      soim3d(:,ny,:) = soim3d(:,nym,:)
+      WRITE (*,ifmt5) 'SMOIS    ', (soim3d(lprt_metx,lprt_mety,k),k=1,ns)
     ELSE
       WRITE (*,f9400) TRIM(pname), 'SMOIS', TRIM(nf90_strerror(rcode))
       CALL graceful_stop (pname)
@@ -1469,6 +1576,10 @@ SUBROUTINE rdwrfem (mcip_now)
       soilt2(nx,:) = soilt2(nxm,:)
       soilt2(:,ny) = soilt2(:,nym)
       WRITE (*,f6000) 'TSLB 2   ', soilt2(lprt_metx, lprt_mety), 'K'
+      soit3d(1:nxm,1:nym,:) = dum3d_s(:,:,:)
+      soit3d(nx,:,:) = soit3d(nxm,:,:)
+      soit3d(:,ny,:) = soit3d(:,nym,:)
+      WRITE (*,ifmt5) 'TSLB     ', (soit3d(lprt_metx,lprt_mety,k),k=1,ns)
     ELSE
       WRITE (*,f9400) TRIM(pname), 'TSLB', TRIM(nf90_strerror(rcode))
       CALL graceful_stop (pname)
@@ -1516,6 +1627,27 @@ SUBROUTINE rdwrfem (mcip_now)
           WRITE (*,f9400) TRIM(pname), 'LANDUSEF', TRIM(nf90_strerror(rcode))
           CALL graceful_stop (pname)
         ENDIF
+        IF ( iflu2wrfout ) THEN  ! land use fractions (ranked) in WRF file
+          CALL get_var_3d_real_cdf (cdfid, 'LANDUSEF2', dum3d_l, it, rcode)
+          IF ( rcode == nf90_noerr ) THEN
+            lufrac2(1:nxm,1:nym,:) = dum3d_l(:,:,:)
+            lufrac2(  nx,  :,   :) = lufrac2(nxm,:,:)
+            lufrac2( :,     ny, :) = lufrac2(:,nym,:)
+            WRITE (*,ifmt2) 'LANDUSEF2', (lufrac2(lprt_metx,lprt_mety,k),k=1,nummetlu)
+          ELSE
+            WRITE (*,f9400) TRIM(pname), 'LANDUSEF2', TRIM(nf90_strerror(rcode))
+            CALL graceful_stop (pname)
+          ENDIF
+          CALL get_var_3d_int_cdf (cdfid, 'MOSAIC_CAT_INDEX', dum3d_li, it, rcode)
+          IF ( rcode == nf90_noerr ) THEN
+            moscatidx(1:nxm,1:nym,:) = dum3d_li(:,:,:)
+            moscatidx(  nx,  :,   :) = moscatidx(nxm,:,:)
+            moscatidx( :,     ny, :) = moscatidx(:,nym,:)
+            WRITE (*,ifmt3) 'MOSAIC_CAT', (moscatidx(lprt_metx,lprt_mety,k),k=1,nummetlu)
+          ELSE
+            ! Will be filled in getluse.f90, if NOAH Mosaic LSM was used
+          ENDIF
+        ENDIF
       ELSE  ! land use fractions in GEOGRID file from WPS
         flg = file_ter
         rcode = nf90_open (flg, nf90_nowrite, cdfidg)
@@ -1541,14 +1673,14 @@ SUBROUTINE rdwrfem (mcip_now)
       ENDIF
     ENDIF
     IF ( met_urban_phys >= 1 ) THEN  ! urban canopy model used
-      CALL get_var_2d_real_cdf (cdfid, 'FRC_URB', dum2d, it, rcode)
+      CALL get_var_2d_real_cdf (cdfid, 'FRC_URB2D', dum2d, it, rcode)
       IF ( rcode == nf90_noerr ) THEN
         frc_urb(1:nxm,1:nym) = dum2d(:,:)
         frc_urb(nx,:) = frc_urb(nxm,:)
         frc_urb(:,ny) = frc_urb(:,nym)
-        WRITE (*,f6000) 'FRC_URB  ', frc_urb(lprt_metx, lprt_mety), 'fraction'
+        WRITE (*,f6000) 'FRC_URB2D', frc_urb(lprt_metx, lprt_mety), 'fraction'
       ELSE
-        WRITE (*,f9400) TRIM(pname), 'FRC_URB', TRIM(nf90_strerror(rcode))
+        WRITE (*,f9400) TRIM(pname), 'FRC_URB2D', TRIM(nf90_strerror(rcode))
       ENDIF
     ENDIF
     IF ( lpv > 0 ) THEN
@@ -1604,6 +1736,96 @@ SUBROUTINE rdwrfem (mcip_now)
     CALL graceful_stop (pname)
   ENDIF
 
+  CALL get_var_2d_real_cdf (cdfid, 'SNOWH', dum2d, it, rcode)
+  IF ( rcode == nf90_noerr ) THEN
+    snowh(1:nxm,1:nym) = dum2d(:,:)
+    snowh(nx,:) = snowh(nxm,:)
+    snowh(:,ny) = snowh(:,nym)
+    WRITE (*,f6000) 'SNOWH    ', snowh(lprt_metx, lprt_mety), 'm'
+  ELSE
+    WRITE (*,f9400) TRIM(pname), 'SNOWH', TRIM(nf90_strerror(rcode))
+    CALL graceful_stop (pname)
+  ENDIF
+
+  IF ( ifmosaic ) THEN
+
+    CALL get_var_3d_real_cdf (cdfid, 'LAI_MOSAIC', dum3d_m, it, rcode)
+    IF ( rcode == nf90_noerr ) THEN
+      lai_mos(1:nxm,1:nym,:) = dum3d_m(:,:,:)
+      lai_mos(  nx,  :,   :) = lai_mos(nxm,:,:)
+      lai_mos( :,     ny, :) = lai_mos(:,nym,:)
+      WRITE (*,ifmt4) 'LAI_MOS  ', (lai_mos(lprt_metx,lprt_mety,k),k=1,nummosaic)
+    ELSE
+      WRITE (*,f9400) TRIM(pname), 'LAI_MOSAIC', TRIM(nf90_strerror(rcode))
+      CALL graceful_stop (pname)
+    ENDIF
+
+    CALL get_var_3d_real_cdf (cdfid, 'RS_MOSAIC', dum3d_m, it, rcode)
+    IF ( rcode == nf90_noerr ) THEN
+      rs_mos(1:nxm,1:nym,:) = dum3d_m(:,:,:)
+      rs_mos(  nx,  :,   :) = rs_mos(nxm,:,:)
+      rs_mos( :,     ny, :) = rs_mos(:,nym,:)
+      WRITE (*,ifmt4) 'RS_MOS   ', (rs_mos(lprt_metx,lprt_mety,k),k=1,nummosaic)
+    ELSE
+      WRITE (*,f9400) TRIM(pname), 'RS_MOSAIC', TRIM(nf90_strerror(rcode))
+      CALL graceful_stop (pname)
+    ENDIF
+
+    CALL get_var_3d_real_cdf (cdfid, 'TSK_MOSAIC', dum3d_m, it, rcode)
+    IF ( rcode == nf90_noerr ) THEN
+      tsk_mos(1:nxm,1:nym,:) = dum3d_m(:,:,:)
+      tsk_mos(  nx,  :,   :) = tsk_mos(nxm,:,:)
+      tsk_mos( :,     ny, :) = tsk_mos(:,nym,:)
+      WRITE (*,ifmt4) 'TSK_MOS  ', (tsk_mos(lprt_metx,lprt_mety,k),k=1,nummosaic)
+    ELSE
+      WRITE (*,f9400) TRIM(pname), 'TSK_MOSAIC', TRIM(nf90_strerror(rcode))
+      CALL graceful_stop (pname)
+    ENDIF
+
+    CALL get_var_3d_real_cdf (cdfid, 'ZNT_MOSAIC', dum3d_m, it, rcode)
+    IF ( rcode == nf90_noerr ) THEN
+      znt_mos(1:nxm,1:nym,:) = dum3d_m(:,:,:)
+      znt_mos(  nx,  :,   :) = znt_mos(nxm,:,:)
+      znt_mos( :,     ny, :) = znt_mos(:,nym,:)
+      WRITE (*,ifmt4) 'ZNT_MOS  ', (znt_mos(lprt_metx,lprt_mety,k),k=1,nummosaic)
+    ELSE
+      WRITE (*,f9400) TRIM(pname), 'ZNT_MOSAIC', TRIM(nf90_strerror(rcode))
+      CALL graceful_stop (pname)
+    ENDIF
+
+    CALL get_var_2d_real_cdf (cdfid, 'WSPD', dum2d, it, rcode)
+    IF ( rcode == nf90_noerr ) THEN
+      wspdsfc(1:nxm,1:nym) = dum2d(:,:)
+      wspdsfc(nx,:) = wspdsfc(nxm,:)
+      wspdsfc(:,ny) = wspdsfc(:,nym)
+      WRITE (*,f6000) 'WSPDSFC  ', wspdsfc(lprt_metx, lprt_mety), 'm/s'
+    ELSE
+      ! Original version was stored in "WSPDSFC"; released WRF code uses "WSPD"
+      CALL get_var_2d_real_cdf (cdfid, 'WSPDSFC', dum2d, it, rcode)
+      IF ( rcode == nf90_noerr ) THEN
+        wspdsfc(1:nxm,1:nym) = dum2d(:,:)
+        wspdsfc(nx,:) = wspdsfc(nxm,:)
+        wspdsfc(:,ny) = wspdsfc(:,nym)
+        WRITE (*,f6000) 'WSPDSFC  ', wspdsfc(lprt_metx, lprt_mety), 'm/s'
+      ELSE
+        WRITE (*,f9400) TRIM(pname), 'WSPDSFC', TRIM(nf90_strerror(rcode))
+        CALL graceful_stop (pname)
+      ENDIF
+    ENDIF
+
+    CALL get_var_2d_real_cdf (cdfid, 'XLAIDYN', dum2d, it, rcode)
+    IF ( rcode == nf90_noerr ) THEN
+      xlaidyn(1:nxm,1:nym) = dum2d(:,:)
+      xlaidyn(nx,:) = xlaidyn(nxm,:)
+      xlaidyn(:,ny) = xlaidyn(:,nym)
+      WRITE (*,f6000) 'XLAIDYN  ', xlaidyn(lprt_metx, lprt_mety), 'area/area'
+    ELSE
+      WRITE (*,f9400) TRIM(pname), 'XLAIDYN', TRIM(nf90_strerror(rcode))
+      CALL graceful_stop (pname)
+    ENDIF
+
+  ENDIF
+
   CALL get_var_1d_real_cdf (cdfid, 'ZNU', sigmah, it, rcode)
   IF ( rcode /= nf90_noerr ) THEN
     WRITE (*,f9400) TRIM(pname), 'ZNU', TRIM(nf90_strerror(rcode))
@@ -1615,6 +1837,42 @@ SUBROUTINE rdwrfem (mcip_now)
     WRITE (*,f9400) TRIM(pname), 'ZNW', TRIM(nf90_strerror(rcode))
     CALL graceful_stop (pname)
   ENDIF
+
+  IF ( met_hybrid == 2 ) THEN
+
+    CALL get_var_1d_real_cdf (cdfid, 'C1F', c1f, it, rcode)
+    IF ( rcode /= nf90_noerr ) THEN
+      WRITE (*,f9400) TRIM(pname), 'C1F', TRIM(nf90_strerror(rcode))
+      CALL graceful_stop (pname)
+    ENDIF
+
+    CALL get_var_1d_real_cdf (cdfid, 'C1H', c1h, it, rcode)
+    IF ( rcode /= nf90_noerr ) THEN
+      WRITE (*,f9400) TRIM(pname), 'C1H', TRIM(nf90_strerror(rcode))
+      CALL graceful_stop (pname)
+    ENDIF
+
+    CALL get_var_1d_real_cdf (cdfid, 'C2F', c2f, it, rcode)
+    IF ( rcode /= nf90_noerr ) THEN
+      WRITE (*,f9400) TRIM(pname), 'C2F', TRIM(nf90_strerror(rcode))
+      CALL graceful_stop (pname)
+    ENDIF
+
+    CALL get_var_1d_real_cdf (cdfid, 'C2H', c2h, it, rcode)
+    IF ( rcode /= nf90_noerr ) THEN
+      WRITE (*,f9400) TRIM(pname), 'C2H', TRIM(nf90_strerror(rcode))
+      CALL graceful_stop (pname)
+    ENDIF
+
+  ENDIF
+
+
+  CALL get_var_1d_real_cdf (cdfid, 'DZS', dzs, it, rcode)
+  IF ( rcode /= nf90_noerr ) THEN
+    WRITE (*,f9400) TRIM(pname), 'DZS', TRIM(nf90_strerror(rcode))
+    CALL graceful_stop (pname)
+  ENDIF
+
 
   rcode = nf90_close (cdfid)
   IF ( rcode /= nf90_noerr ) THEN
@@ -1713,8 +1971,8 @@ SUBROUTINE rdwrfem (mcip_now)
             ! due to location of CMAQ boundaries, inexact values in the
             ! outermost row and column will not matter.
 
-            ii = MAX(i,nxm)
-            jj = MAX(j,nym)
+            ii = MIN(i,nxm)
+            jj = MIN(j,nym)
 
             im1 = MIN(i-1,1)
             jm1 = MIN(j-1,1)
@@ -1740,8 +1998,8 @@ SUBROUTINE rdwrfem (mcip_now)
               ! due to location of CMAQ boundaries, inexact values in the
               ! outermost row and column will not matter.
 
-              ii = MAX(i,nxm)
-              jj = MAX(j,nym)
+              ii = MIN(i,nxm)
+              jj = MIN(j,nym)
 
               im1 = MIN(i-1,1)
               jm1 = MIN(j-1,1)
@@ -1949,8 +2207,14 @@ SUBROUTINE rdwrfem (mcip_now)
 !-------------------------------------------------------------------------------
 
 ! DEALLOCATE ( dum2d )    ! commented out to avoid memory fragmentation
+! DEALLOCATE ( dum2d_i )  ! commented out to avoid memory fragmentation
+! DEALLOCATE ( dum2d_u )  ! commented out to avoid memory fragmentation
+! DEALLOCATE ( dum2d_v )  ! commented out to avoid memory fragmentation
 ! DEALLOCATE ( dum3d_l )  ! commented out to avoid memory fragmentation
+! DEALLOCATE ( dum3d_li ) ! commented out to avoid memory fragmentation
+! DEALLOCATE ( dum3d_m )  ! commented out to avoid memory fragmentation
 ! DEALLOCATE ( dum3d_p )  ! commented out to avoid memory fragmentation
+! DEALLOCATE ( dum3d_s )  ! commented out to avoid memory fragmentation
 ! DEALLOCATE ( dum3d_t )  ! commented out to avoid memory fragmentation
 ! DEALLOCATE ( dum3d_u )  ! commented out to avoid memory fragmentation
 ! DEALLOCATE ( dum3d_v )  ! commented out to avoid memory fragmentation

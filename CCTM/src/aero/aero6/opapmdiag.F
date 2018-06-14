@@ -54,7 +54,7 @@ C...Local variables:
         CHARACTER( 80 ) :: VARDESC = ' '
         CHARACTER( 16 ) :: AVG_FILE_ENDTIME = 'AVG_FILE_ENDTIME'
         INTEGER :: BEG_LVL, END_LVL, N, V
-        INTEGER :: MDATE, MTIME, LOGDEV, STATUS, LOC
+        INTEGER :: MDATE, MTIME, LOGDEV, STATUS
         LOGICAL :: END_TIME = .FALSE.
         LOGICAL :: FOUND
 

@@ -82,8 +82,10 @@ C Local variables:
       INTEGER :: XTIME = 999999       ! dummy time
       INTEGER    INDX                 ! Species index
       INTEGER    ISUR                 ! Surrogate index
+      INTEGER    ITRNS                ! Transport species index
       INTEGER    SPC, VAR             ! loop copunters
-      INTEGER    LOGDEV, IERR
+      INTEGER, SAVE ::  LOGDEV
+      INTEGER    IERR
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
 
 C Map advected species to bc`s
@@ -130,19 +132,19 @@ C Map advected species to bc`s
                IF ( INDX .NE. 0 ) THEN   ! BC file surrogate is used
                   BCNAME( SPC ) = VNAME3D( INDX )
                   BCFAC( SPC ) = GC_ICBC_FAC( ISUR )
-                  INDX = INDEX1( GC_TRNS( VAR ), NVARS3D, VNAME3D )
-                  IF ( INDX .NE. 0 ) THEN   ! BC file species same as surrogate
-                     WRITE( LOGDEV,1015 ) TRIM( BCNAME( SPC ) ), TRIM( GC_TRNS( VAR ) ) 
-                  END IF
+!                 ITRNS = INDEX1( GC_TRNS( VAR ), NVARS3D, VNAME3D )
+!                 IF ( ITRNS .NE. 0 ) THEN   ! BC file species same as surrogate
+!                    WRITE( LOGDEV,1015 ) TRIM( BCNAME( SPC ) ), TRIM( GC_TRNS( VAR ) ) 
+!                 END IF
                END IF
             END IF
 
             ! If there is no surrogate or it can`t be found, look 
             ! for the adv species on the BC file
             IF ( ISUR .EQ. 0 .OR. INDX .EQ. 0 ) THEN
-               INDX = INDEX1( GC_TRNS( VAR ), NVARS3D, VNAME3D )
-               IF ( INDX .NE. 0 ) THEN
-                  BCNAME( SPC ) = VNAME3D( INDX )
+               ITRNS = INDEX1( GC_TRNS( VAR ), NVARS3D, VNAME3D )
+               IF ( ITRNS .NE. 0 ) THEN
+                  BCNAME( SPC ) = VNAME3D( ITRNS )
                ELSE
                   ONFILE( SPC ) = .FALSE.
                   WRCNT = WRCNT + 1
@@ -195,19 +197,19 @@ C Map advected species to bc`s
                IF ( INDX .NE. 0 ) THEN   ! BC file surrogate is used
                   BCNAME( SPC ) = VNAME3D( INDX )
                   BCFAC( SPC ) = AE_ICBC_FAC( ISUR )
-                  INDX = INDEX1( AE_TRNS( VAR ), NVARS3D, VNAME3D )
-                  IF ( INDX .NE. 0 ) THEN   ! BC file species same as surrogate
-                     WRITE( LOGDEV,1015 ) TRIM( BCNAME( SPC ) ), TRIM( AE_TRNS( VAR ) ) 
-                  END IF
+!                 ITRNS = INDEX1( AE_TRNS( VAR ), NVARS3D, VNAME3D )
+!                 IF ( ITRNS .NE. 0 ) THEN   ! BC file species same as surrogate
+!                    WRITE( LOGDEV,1015 ) TRIM( BCNAME( SPC ) ), TRIM( AE_TRNS( VAR ) ) 
+!                 END IF
                END IF
             END IF
             
             ! If there is no surrogate or it can`t be found, look 
             ! for the adv species on the BC file
             IF ( ISUR .EQ. 0 .OR. INDX .EQ. 0 ) THEN
-               INDX = INDEX1( AE_TRNS( VAR ), NVARS3D, VNAME3D )
-               IF ( INDX .NE. 0 ) THEN
-                  BCNAME( SPC ) = VNAME3D( INDX )
+               ITRNS = INDEX1( AE_TRNS( VAR ), NVARS3D, VNAME3D )
+               IF ( ITRNS .NE. 0 ) THEN
+                  BCNAME( SPC ) = VNAME3D( ITRNS )
                ELSE
                   ONFILE( SPC ) = .FALSE.
                   WRCNT = WRCNT + 1
@@ -260,19 +262,19 @@ C Map advected species to bc`s
                IF ( INDX .NE. 0 ) THEN   ! BC file surrogate is used
                   BCNAME( SPC ) = VNAME3D( INDX )
                   BCFAC( SPC ) = NR_ICBC_FAC( ISUR )
-                  INDX = INDEX1( NR_TRNS( VAR ), NVARS3D, VNAME3D )
-                  IF ( INDX .NE. 0 ) THEN   ! BC file species same as surrogate
-                     WRITE( LOGDEV,1015 ) TRIM( BCNAME( SPC ) ), TRIM( NR_TRNS( VAR ) ) 
-                  END IF
+!                 ITRNS = INDEX1( NR_TRNS( VAR ), NVARS3D, VNAME3D )
+!                 IF ( ITRNS .NE. 0 ) THEN   ! BC file species same as surrogate
+!                    WRITE( LOGDEV,1015 ) TRIM( BCNAME( SPC ) ), TRIM( NR_TRNS( VAR ) ) 
+!                 END IF
                END IF
             END IF
 
             ! If there is no surrogate or it can`t be found, look 
             ! for the adv species on the BC file
             IF ( ISUR .EQ. 0 .OR. INDX .EQ. 0 ) THEN
-               INDX = INDEX1( NR_TRNS( VAR ), NVARS3D, VNAME3D )
-               IF ( INDX .NE. 0 ) THEN
-                  BCNAME( SPC ) = VNAME3D( INDX )
+               ITRNS = INDEX1( NR_TRNS( VAR ), NVARS3D, VNAME3D )
+               IF ( ITRNS .NE. 0 ) THEN
+                  BCNAME( SPC ) = VNAME3D( ITRNS )
                ELSE
                   ONFILE( SPC ) = .FALSE.
                   WRCNT = WRCNT + 1
@@ -325,19 +327,19 @@ C Map advected species to bc`s
                IF ( INDX .NE. 0 ) THEN   ! BC file surrogate is used
                   BCNAME( SPC ) = VNAME3D( INDX )
                   BCFAC( SPC ) = TR_ICBC_FAC( ISUR )
-                  INDX = INDEX1( TR_ADV( VAR ), NVARS3D, VNAME3D )
-                  IF ( INDX .NE. 0 ) THEN   ! BC file species same as surrogate
-                     WRITE( LOGDEV,1015 ) TRIM( BCNAME( SPC ) ), TRIM( TR_ADV( VAR ) ) 
-                  END IF
+!                 ITRNS = INDEX1( TR_ADV( VAR ), NVARS3D, VNAME3D )
+!                 IF ( ITRNS .NE. 0 ) THEN   ! BC file species same as surrogate
+!                    WRITE( LOGDEV,1015 ) TRIM( BCNAME( SPC ) ), TRIM( TR_ADV( VAR ) ) 
+!                 END IF
                END IF
             END IF
 
             ! If there is no surrogate or it can`t be found, look 
             ! for the adv species on the BC file
             IF ( ISUR .EQ. 0 .OR. INDX .EQ. 0 ) THEN
-               INDX = INDEX1( TR_ADV( VAR ), NVARS3D, VNAME3D )
-               IF ( INDX .NE. 0 ) THEN
-                  BCNAME( SPC ) = VNAME3D( INDX )
+               ITRNS = INDEX1( TR_ADV( VAR ), NVARS3D, VNAME3D )
+               IF ( ITRNS .NE. 0 ) THEN
+                  BCNAME( SPC ) = VNAME3D( ITRNS )
                ELSE
                   ONFILE( SPC ) = .FALSE.
                   WRCNT = WRCNT + 1

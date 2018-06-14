@@ -4,13 +4,15 @@ sitecmp
 This Fortran program generates a csv (comma separated values) file that compares CMAQ generated concentrations with an observed dataset.
 
 
-##Environment variables used:
+## Environment variables used:
 
 ```
  TABLE_TYPE  dataset type {IMPROVE, CASTNET, STN, NADP, MDN, SEARCH,
              DEARS, AIRMON, OUT_TABLE}
  M3_FILE_n   ioapi input files containing modeled species data (max of 12). 
-             Supported map projections are Lambert conformal, polar stereographic, and lat/lon
+             [Note: Supported map projections are Lambert conformal, polar stereographic, and lat/lon.
+             If an ioapi file is supplied that has a projection not in this list the program will 
+             stop with an error message.]
  SITE_FILE   input file containing site information for each monitor (site-id, longitude, latitude, 
              and optionally time zone offset between local time and GMT) (tab delimited)
  IN_TABLE    input file with observed data (comma delimited with header)
@@ -18,7 +20,7 @@ This Fortran program generates a csv (comma separated values) file that compares
              values
 ```
 
-##Environment Variables (not required):
+## Environment Variables (not required):
 ```
  PRECIP      defines the precipitation field used in WETDEP and
              WETCON calculations (default="Precip")
@@ -36,7 +38,7 @@ This Fortran program generates a csv (comma separated values) file that compares
              were pre-processed with a utility like m3tshift (default 0)
 ```
 
-##Species definitions: 
+## Species definitions: 
 Defines the data columns for your output file. Each can specify the observed and modeled variables of the species you are analyzing. These definitions are specified by environment variables [species-type]_[1-50], where species type is one of the following {AERO, GAS, WETCON, WETDEP, PREC}. See the sample run scripts for additional examples beyond those listed below.
 ```
  format: [Obs_expression], [Obs_units], [Mod_expression], [Mod_unit], [Variable_name]
@@ -78,7 +80,7 @@ Defines the data columns for your output file. Each can specify the observed and
                 (this defines a character field to copy only from the observed field,
                 no units or modeled species are used)
 ```
-##File formats:
+## File formats:
 ```
  SITE_FILE - tab delimited text file containing site-id, longitude,
              latitude, and optionally time zone offset between local time and GMT
@@ -135,7 +137,7 @@ Defines the data columns for your output file. Each can specify the observed and
              modeled values
 ```
 
-##To run:
+## To run:
 Edit the sample run script (run.sitecmp*), then run:
 ```
  run.sitecmp |& tee sitecmp.log
@@ -143,6 +145,6 @@ Edit the sample run script (run.sitecmp*), then run:
 Check the log file to ensure complete and correct execution without errors.
 
 
-Sample run scripts have been provided for matching model data to observations from the following networks: AERONET, AMON, AQS (hourly data), CASTNET (hourly and weekly data), CSN, IMPROVE, NADP, and SEARCH (hourly and daily data).  The formatted observation data files needed for running the sitecmp utility are available for 2000 through 2014.  The run scripts for the CSN and SEARCH networks changes depending on the year being studied due to changes in the what species were reported and what names were used in the original data files.  
+A sample run scripts has been provided for matching model data to hourly observations from AQS.  The README.txt file in the scripts folder shows the changes need to adapt this run script to one of the following networks: AERONET, AMON, CASTNET (hourly and weekly data), CSN, IMPROVE, NADP, and SEARCH (hourly and daily data).  The formatted observation data files needed for running the sitecmp utility are available for 2000 through 2014 from the CMAS Center Data Clearinghouse under the heading "2000-2014 North American Air Quality Observation Data": https://www.cmascenter.org/download/data.cfm.  
 
 Note that the run scripts rely on model output that has already been processed using the combine utility. The user should first run combine on ACONC and DEP output files to create the necessary COMBINE_ACONC and COMBINE_DEP files that contain the model species that can be matched to available observations. See the sample run scripts for the combine utility for examples on creating COMBINE_ACONC and COMBINE_DEP.

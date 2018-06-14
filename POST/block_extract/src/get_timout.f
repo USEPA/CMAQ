@@ -13,15 +13,11 @@ C
 C  REVISION HISTORY: Created by Jerry Gipson, September, 2000
 C                   
 C*************************************************************************
+      USE M3UTILIO
       USE ENV_VARS
       USE TIME_STEP
 
       IMPLICIT NONE     
-
-C..INCLUDE FILES:
-      INCLUDE 'PARMS3.EXT'     ! IOAPI parameters
-      INCLUDE 'FDESC3.EXT'     ! IOAPI file description
-      INCLUDE 'IODECL3.EXT'    ! IOAPI declarations
 
 C..ARGUMENTS:
       CHARACTER*11  DATEOUT( NFLSTEPS )
@@ -29,10 +25,10 @@ C..ARGUMENTS:
 
 C..PARAMETERS: NONE
 
-C..EXTERNAL FUNCTIONS:
-      CHARACTER*10 HHMMSS         ! Convert M3 time to string HH:MM:SS
-
-      LOGICAL ISDSTIME            ! Daylight savings time check
+!C..EXTERNAL FUNCTIONS:
+!      CHARACTER*10 HHMMSS         ! Convert M3 time to string HH:MM:SS
+!
+!      LOGICAL ISDSTIME            ! Daylight savings time check
  
 C..SAVED LOCAL VARIABLES: None
 

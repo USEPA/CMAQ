@@ -130,6 +130,11 @@
      
          real( 8 ), private            :: gauss_laguerre_total( 16 )
      
+         real( 8 ), parameter :: cloud_largest      = 9.0d+307 
+         real( 8 ), parameter :: cloud_smallest     = 9.0d-307
+         real( 8 ), parameter :: cloud_log_largest  =  709.090848126508d0
+         real( 8 ), parameter :: cloud_log_smallest = -709.090848126508d0
+         
          contains         
       
 !-----------------------------------------------------------------------
@@ -143,7 +148,7 @@
 
          integer          :: allocstat           ! memory allocation status
          integer          :: i
-         
+
          Character( 132 ) :: xmsg
          Character(  32 ) :: pname = 'init_cloud_optics'
          Logical, Save    :: initialized = .false.
@@ -315,7 +320,7 @@
                Else
                   index = int(t(k)-179.0)
                End If
-               corr = t(k) - int( t(k) )      ! temperatures of retab values differ by one degree K
+               corr = t(k) - aint( t(k) )      ! temperatures of retab values differ by one degree K
                dge(k) = retab(index) + (retab(index+1)-retab(index))*corr
 
 ! Convert from effective radius to generalized effective size (*1.0315; Fu et al. 1996)
@@ -348,12 +353,12 @@
             real,    intent( in    ) :: iwc( : )   ! cloud ice water content, g/m3
 
 ! ice water coefficients (Ebert and Curry,1992, JGR, 97, 3831-3836)     
-            real, save :: abari(4) = (/ 3.448d-03, 3.448d-03,3.448d-03,3.4480d-03/)
-            real, save :: bbari(4) = (/ 2.431d+00, 2.431d+00,2.431d+00,2.4310d+00/)
-            real, save :: cbari(4) = (/ 1.000d-05, 1.10d-04 ,1.861d-02,4.6658d-01/)
-            real, save :: dbari(4) = (/ 0.000d+00, 1.405d-05,8.328d-04,2.0500d-05/)
-            real, save :: ebari(4) = (/ 7.661d-01, 0.773d+00,0.794d+00,0.9595d+00/)
-            real, save :: fbari(4) = (/ 5.851d-04, 5.665d-04,7.267d-04,1.0760d-04/)
+            real, save :: abari(4) = (/ 3.448e-03, 3.448e-03,3.448e-03,3.4480e-03/)
+            real, save :: bbari(4) = (/ 2.431e+00, 2.431e+00,2.431e+00,2.4310e+00/)
+            real, save :: cbari(4) = (/ 1.000e-05, 1.10e-04 ,1.861e-02,4.6658e-01/)
+            real, save :: dbari(4) = (/ 0.000e+00, 1.405e-05,8.328e-04,2.0500e-05/)
+            real, save :: ebari(4) = (/ 7.661e-01, 0.773e+00,0.794e+00,0.9595e+00/)
+            real, save :: fbari(4) = (/ 5.851e-04, 5.665e-04,7.267e-04,1.0760e-04/)
 
 ! Local:
             real    factor
@@ -755,7 +760,8 @@
             real( 8 ) :: n0
             real( 8 ) :: chi
             real( 8 ) :: comp
-            real( 8 ) :: psd   ! partical size distribution
+            real( 8 ) :: psd      ! partical size distribution
+            real( 8 ) :: argument
             real      :: factor
             real      :: dmin  ! value if q .le. limit
 
@@ -790,6 +796,7 @@
                   reff( 1:nlayers )  = min_dge
                   return
                end select
+               
             do lay = 1, nlayers
 !              lamda = (1.0e+3*pi*rho_hydro*n0/q(lay))**0.25
                if( q(lay) .le.  limit )then
@@ -801,7 +808,9 @@
                sum2 = 0.0D0
 !original method used thirty-two nodes
                do nk = 1, 32
-                  psd  = n0*dexp(lamda*xk(nk))
+                  argument = lamda*xk(nk)
+                  if( argument .lt. cloud_log_smallest ) cycle ! assume dexp( argument ) equals zero
+                  psd = n0*dexp( argument ) 
                   comp = newtotalw(nk) * psd
                   sum2 = sum2 + comp 
                   sum1 = sum1 + xk(nk)*comp
@@ -812,7 +821,11 @@
 !                 sum2 = sum2 + comp 
 !                 sum1 = sum1 + gauss_laguerre_node(nk)*comp
                end do
-               reff(lay) = factor * real( sum1/sum2, 4 )    ! microns
+               if( sum2 .lt. cloud_smallest )then
+                 reff(lay) = dmin
+               else
+                 reff(lay) = factor * real( sum1/sum2, 4 )    ! microns
+               end if
             end do
 
          end subroutine aggreg_size_effective

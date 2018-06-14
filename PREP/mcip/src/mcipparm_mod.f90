@@ -120,7 +120,10 @@ MODULE mcipparm
 !           08 Sep 2015  Updated release stamp.  (T. Spero)
 !           17 Sep 2015  Changed IFMOLACM to IFMOLPX.  Updated release stamp.
 !                        (T. Spero)
-!           06 Nov 2015  Updated release stamp.  (T. Spero)
+!           20 Jun 2017  Updated release stamp.  (T. Spero)
+!           16 Mar 2018  Added variables TTOL_SEC, IFLU2WRFOUT, IFMOSAIC, 
+!                        NUMMOSAIC, and METSOI.  Removed variables MAXLUC,
+!                        METROW, and METCOL.  Updated release stamp.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE m3utilio, ONLY: mxdesc3
@@ -145,28 +148,27 @@ MODULE mcipparm
   LOGICAL            :: needlayers    ! "TRUE" if using all input met layers
                                       ! without defining in namelist
 
+  INTEGER, PARAMETER :: ttol_sec = 300 ! time tolerance [in seconds] for output
+                                       ! from the meteorological model to
+                                       ! deviate from valid time and still be
+                                       ! considered valid at that time
+
 !-------------------------------------------------------------------------------
-! Horizontal dimensions of "X" domain (CTM + BNDARY area).
+! Dimensions of "X" domain (CTM + BNDARY area).
 !-------------------------------------------------------------------------------
 
+  INTEGER            :: metlay         ! met. grid dimension for layers
+  INTEGER            :: metsoi         ! number of soil layers
   INTEGER            :: nrows_x
   INTEGER            :: ncols_x
-
-!-------------------------------------------------------------------------------
-! Dimensions for MET input data.
-!-------------------------------------------------------------------------------
-
-  INTEGER            :: metrow      ! met. grid dimension for rows (N-S)
-  INTEGER            :: metcol      ! met. grid dimension for columns (E-W)
-  INTEGER            :: metlay      ! met. grid dimension for layers
 
 !-------------------------------------------------------------------------------
 ! Other dimensional parameters.
 !-------------------------------------------------------------------------------
 
-  INTEGER, PARAMETER :: maxluc = 100  ! max number of land use categories
   INTEGER            :: nqspecies     ! number of hydrometeor species in met
   INTEGER            :: nummetlu      ! number of met. land use categories
+  INTEGER            :: nummosaic     ! number of mosaic land use categories
   REAL               :: eradm         ! earth radius [m]
   REAL               :: wrf_lc_ref_lat ! WRF Lambert conformal ref. latitude
 
@@ -178,8 +180,10 @@ MODULE mcipparm
   LOGICAL            :: iflai         ! leaf area index in input file?
   LOGICAL            :: iflufrc       ! fractional land use available?
   LOGICAL            :: ifluwrfout    ! is fractional land use in WRF history?
+  LOGICAL            :: iflu2wrfout   ! is fractional land use 2 in WRF history?
   LOGICAL            :: ifmol         ! Monin-Obukhov length in input file?
   LOGICAL            :: ifmolpx       ! MOL to be updated from WRF/PX?
+  LOGICAL            :: ifmosaic      ! NOAH Mosaic LSM used in WRF?
   LOGICAL            :: ifq2m         ! 2-m mixing ratio in input file?
   LOGICAL            :: ifresist      ! aero and stom resistances in input file?
   LOGICAL            :: ifsoil        ! soil mois, temp, and type in input file?
@@ -242,7 +246,7 @@ MODULE mcipparm
 
   CHARACTER(LEN=80)                 :: fdesc      ( mxdesc3 )
   CHARACTER(LEN=16),  PARAMETER     :: progname   = 'MCIP'
-  CHARACTER(LEN=10),  PARAMETER     :: vdate      = '11/06/2015'
-  CHARACTER(LEN=8),   PARAMETER     :: ver        = 'V4.3'
+  CHARACTER(LEN=10),  PARAMETER     :: vdate      = '03/16/2018'
+  CHARACTER(LEN=8),   PARAMETER     :: ver        = 'V4.5'
 
 END MODULE mcipparm

@@ -110,6 +110,7 @@ C                       different domain decomposition
 C       4Apr16 J.Bash      Calculate the Sundqvist et al. 1989 threshold humidities 
 C                          for cloud formation based on Mocko and Cotton (1995) to be
 C                          More consistent with WRF
+C       7May 18 D. Schwede: Removed call to CZANGLE. COSZEN now calculated in ASX_DATA_MOD
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
@@ -118,7 +119,7 @@ C-----------------------------------------------------------------------
       USE AQ_DATA
       USE HG_AQCHEM_DATA      ! mercury chemistry parameters and constants
       USE PHOT_MET_DATA, ONLY: USE_ACM_CLOUD, CLEAR_ACM_CLOUD, CAPTURE_ACM_CLOUD
-      USE ASX_DATA_MOD,  ONLY: GRID_DATA
+      USE ASX_DATA_MOD,  ONLY: GRID_DATA, MET_DATA
 
       IMPLICIT NONE
 
@@ -375,8 +376,6 @@ C for INTERPX
 
 C Gridded meteorology data: Golam Sarwar, July 1, 2011 
 C Latitude and longitude for zenith angle calculation:     
-!     REAL          COSZEN( NCOLS,NROWS )          ! cosine of zenith angle
-      REAL,    ALLOCATABLE, SAVE :: COSZEN( :,: )  ! cosine of zenith angle
       REAL             COSZ                        ! local cosine of zenith angle
       LOGICAL          DARK                        ! DARK = TRUE is night,  DARK = FALSE is day
 
@@ -423,11 +422,6 @@ C...........Statement Functions
           REAL,    INTENT( IN )    :: ALFA0, ALFA2, ALFA3
           LOGICAL, INTENT( IN )    :: DARK            
         END SUBROUTINE AQ_MAP
-        SUBROUTINE CZANGLE( JDATE, JTIME, NX, NY, COSZEN )
-          INTEGER, INTENT( IN )  :: JDATE, JTIME
-          INTEGER, INTENT( IN )  :: NX, NY
-          REAL,    INTENT( OUT ) :: COSZEN( :,: )
-        END SUBROUTINE CZANGLE
       END INTERFACE
 
 C-----------------------------------------------------------------------
@@ -566,12 +560,6 @@ C...allocate saved arrays
           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
-        ALLOCATE ( COSZEN ( NCOLS,NROWS ), STAT = ALLOCSTAT )
-        IF ( ALLOCSTAT .NE. 0 ) THEN
-          XMSG = 'Failure allocating COSZEN'
-          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-        END IF
-
 C...Calculate the Sundqvist et al. 1989 threshold humidities for cloud formation based on 
 C...Mocko and Cotton (1995)
         XKM = REAL( XCELL_GD / 1000 )
@@ -698,10 +686,6 @@ C...Get PBL height (m)
         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
       END IF
 
-C.. Compute zenith angle, Golam Sarwar, July 1, 2011 
-
-      CALL CZANGLE ( JDATE, JTIME, MY_NCOLS, MY_NROWS, COSZEN ) 
- 
 C...advance the MDATE and MTIME to the next time on the met file
 C...  to get ready to read the precipitation amounts.
 C...  Precipitation data WILL NOT BE INTERPOLATED!  Precipitation data
@@ -1523,7 +1507,7 @@ C...  that participated in cloud chemistry
  
 C...  determine day or night from cosine of zenith angle for the cell; Golam Sarwar
 
-            COSZ = COSZEN( COL,ROW )
+            COSZ = MET_DATA%COSZEN( COL,ROW )
 
             IF ( COSZ .LE. 0.0 ) THEN
               DARK = .TRUE.   ! night
@@ -1657,10 +1641,6 @@ C...Now do changes in cloudy layers:
 
 299     CONTINUE
         
-        DO VAR = 1, N_SPC_WDEP+8
-          CONV_DEP( COL,ROW,VAR ) = 0.0
-        END DO
-
 301     CONTINUE        !  end loop on columns COL
 311   CONTINUE        !  end loop on rows    ROW
 

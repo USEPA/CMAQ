@@ -29,16 +29,52 @@ C***********************************************************************
       Integer, Parameter, Private :: EXP_LEN = 1024
       Integer, Parameter, Private :: REC_LEN = EXP_LEN * 2
         
-      Integer numSpec
-      Integer maxSpec
+      Integer,  Public :: numSpec
+      Integer,  Public :: maxSpec
 
-      Integer Klayer
+      Integer,  Public :: Klayer
       
-      CHARACTER*(16), Allocatable ::  specName(:)
-      CHARACTER*(16), Allocatable :: specUnits(:)
-      CHARACTER*(EXP_LEN), Allocatable :: specExpression(:)
-      CHARACTER*(EXP_LEN), Allocatable :: specDesc(:)
+      CHARACTER*(16), Allocatable, Public ::  specName(:)
+      CHARACTER*(16), Allocatable, Public :: specUnits(:)
+      CHARACTER*(EXP_LEN), Allocatable, Public :: specExpression(:)
+      CHARACTER*(EXP_LEN), Allocatable, Public :: specDesc(:)
 
+      Public ::  ReadSpec
+
+      Private
+      Interface            
+         Subroutine getFld( record, delimiter, nth, del, field, exception )
+            CHARACTER*(*), Intent( In  ) :: record
+            CHARACTER*(*), Intent( In  ) :: delimiter
+            CHARACTER,     Intent( Out ) :: del
+            Integer,       Intent( In  ) :: nth
+            CHARACTER*(*), Intent( Out ) :: field
+            CHARACTER*(*), Optional, Intent( In ) :: exception
+         End Subroutine getFld
+         INTEGER FUNCTION getFldCount(record, delimiter, exception) Result(nfields)
+            CHARACTER*(*), Intent( In ) :: record
+            CHARACTER*(*), Intent( In ) :: delimiter
+            CHARACTER*(*), Optional, Intent( In ) :: exception
+         End FUNCTION getFldCount
+         Subroutine LeftTrim( STRING )
+            CHARACTER*(*), INTENT( INOUT ) :: STRING
+         End Subroutine LeftTrim
+         Subroutine RightTrim( STRING )
+            CHARACTER*(*), INTENT( INOUT ) :: STRING
+         End Subroutine RightTrim
+         SUBROUTINE UCASE ( STR )
+            CHARACTER, INTENT( INOUT ) :: STR*( * )
+         END SUBROUTINE UCASE
+         Subroutine replace( string, old, new )
+            Character*(*), Intent( InOut ) :: string
+            Character*(1), Intent( In    ) :: old    
+            Character*(1), Intent( In    ) :: new    
+         End Subroutine replace 
+         SUBROUTINE Remove_WhiteSpaces (text)
+            CHARACTER*(*), Intent( InOut ) :: text
+         END SUBROUTINE Remove_WhiteSpaces
+      End Interface
+      
       Contains
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -56,7 +92,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       Integer status
 
       ! define external functions
-      Integer getFldCount
+!      Integer getFldCount
 
       ! local variables
       Integer lfn
@@ -97,7 +133,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         READ( lfn, '(a)', IOSTAT=iostatus ) RECORD
         IF( iostatus.ne.0 ) EXIT
         
-	! check for blank line
+      ! check for blank line
         IF ( ( LEN_TRIM(record) .eq. 0 ) .or. ( RECORD .eq. ' ' ) ) CYCLE
 
         ! check for cr character at end of line, and remove it if found
@@ -128,14 +164,14 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 C...check if starting or ending dates where defined
         if( sDate .ne. 0 ) then
-          if( SECSDIFF (startDate, startTime, SDATE3D, STIME3D) .gt. 0 ) then
+          if( SECSDIFF (startDate, startTime, sDate, sTime) .gt. 0 ) then
             startDate = sDate  
             startTime = sTime  
             endif
           endif
 
         if( eDate .ne. 0 ) then
-          if( SECSDIFF (endDate, endTime, eDate, sTime) .lt. 0 ) then
+          if( SECSDIFF (endDate, endTime, eDate, eTime) .lt. 0 ) then
             endDate = eDate  
             endTime = eTime  
             endif

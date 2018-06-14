@@ -39,6 +39,8 @@
 !                      -- extended to five dimensional array and made the third,
 !                         and fourth dimension more flexible and only limited to
 !                         layer and species
+!          Modified: 11/01/18 by David Wong
+!                      -- remove TAB character
 ! --------------------------------------------------------------------------
 
         module se_comm_module
@@ -48,7 +50,7 @@
         interface se_comm
           module procedure se_pe_comm1, 
      &                     se_pe_comm2, se_pe_comm2e, 
-     &                     se_pe_comm3, se_pe_comm3e, 
+     &                     se_pe_comm3, se_pe_comm3e, se_pe_comm3s,
      &                     se_pe_comm4,
      &                     se_pe_comm5
         end interface
@@ -101,20 +103,20 @@
 !   se_internal_util_module
 ! -----------------------------------------------------------------------------
 
-	subroutine se_comm_pat (dirstr, send_to, recv_from)
+        subroutine se_comm_pat (dirstr, send_to, recv_from)
 
         use se_comm_info_ext
 !       use se_ori_ext
         use se_internal_util_module
 
-	implicit none
+        implicit none
 
         character (len = 16), intent(in) :: dirstr
-	integer, intent(out) :: send_to (8), recv_from (8)
+        integer, intent(out) :: send_to (8), recv_from (8)
 
         integer :: i, j, k
         integer :: rdirection (8), sdirection(8)
-	
+
 ! -- extract inform from input strings
 
         read (dirstr, 10) (rdirection(i), i=1, 8)
@@ -136,9 +138,9 @@
 !       end if
 
 ! -- figuring out send direction pattern
-	do i = 1, 8
+        do i = 1, 8
            sdirection(i) = rdirection(mod(i+3,8)+1)
-	end do
+        end do
 
 ! -- determine where data is receiving from
 ! -- first: N, E, S, and W
@@ -265,18 +267,18 @@
 !
 ! --------------------------------------------------------------------------
 
-	subroutine se_pe_comm1 (data, dispstr, dirstr, str)
+        subroutine se_pe_comm1 (data, dispstr, dirstr, str)
 
         use se_data_send_module
         use se_data_recv_module
         use se_internal_util_module
         use se_pe_info_ext
 
-	implicit none
+        implicit none
 
         include "mpif.h"
 
-	real, intent(inout) :: data(:)
+        real, intent(inout) :: data(:)
         character (len = 16), intent(in) :: dirstr
         character (len = 12), intent(in) :: dispstr
         character (len = *), optional, intent(in) :: str
@@ -290,16 +292,16 @@
         character (len = 80) :: loc_str
         integer :: request, status(MPI_STATUS_SIZE), error
 
-	if (present(str)) then
+        if (present(str)) then
            loc_str = str
            call se_string_to_integer (loc_str, shift, num_shift)
         else
            num_shift = 0
         end if
 
-	call se_comm_pat (dirstr, send_to, recv_from)
+        call se_comm_pat (dirstr, send_to, recv_from)
 
-	call se_up_low1 (dispstr, sind, rind, shift, num_shift)
+        call se_up_low1 (dispstr, sind, rind, shift, num_shift)
 
         send_to_ptr => send_to
         recv_from_ptr => recv_from
@@ -395,18 +397,18 @@
 !
 ! --------------------------------------------------------------------------
 
-	subroutine se_pe_comm2 (data, dispstr, dirstr, str)
+        subroutine se_pe_comm2 (data, dispstr, dirstr, str)
 
         use se_data_send_module
         use se_data_recv_module
         use se_internal_util_module
         use se_pe_info_ext
 
-	implicit none
+        implicit none
 
         include "mpif.h"
 
-	real, intent(inout) :: data(:,:)
+        real, intent(inout) :: data(:,:)
         character (len = 16), intent(in) :: dirstr
         character (len = 12), intent(in) :: dispstr
         character (len = *), optional, intent(in) :: str
@@ -422,18 +424,18 @@
 
         if (present(str)) then
            loc_str = str
-	   shift(2:4:2) = 1
+           shift(2:4:2) = 1
            call se_string_to_integer (loc_str, shift, num_shift)
         else
            num_shift = 0
         end if
 
-	call se_comm_pat (dirstr, send_to, recv_from)
+        call se_comm_pat (dirstr, send_to, recv_from)
 
         send_to_ptr => send_to
         recv_from_ptr => recv_from
 
-	call se_up_low2 (dispstr, sind, rind, shift, num_shift)
+        call se_up_low2 (dispstr, sind, rind, shift, num_shift)
 
         sind_ptr => sind
         rind_ptr => rind
@@ -468,22 +470,22 @@
 
         end do
 
-	return
+        return
         end subroutine se_pe_comm2
 
 ! -----------------------------------------------------------------------------
-	subroutine se_pe_comm2e (data, dispstr, dirstr, flag, str)
+        subroutine se_pe_comm2e (data, dispstr, dirstr, flag, str)
 
         use se_data_send_module
         use se_data_recv_module
         use se_internal_util_module
         use se_pe_info_ext
 
-	implicit none
+        implicit none
 
         include "mpif.h"
 
-	real, intent(inout) :: data(:,:)
+        real, intent(inout) :: data(:,:)
         character (len = 16), intent(in) :: dirstr
         character (len = 12), intent(in) :: dispstr
         integer, intent(in) :: flag
@@ -500,18 +502,18 @@
 
         if (present(str)) then
            loc_str = str
-	   shift(2:4:2) = 1
+           shift(2:4:2) = 1
            call se_string_to_integer (loc_str, shift, num_shift)
         else
            num_shift = 0
         end if
 
-	call se_comm_pat (dirstr, send_to, recv_from)
+        call se_comm_pat (dirstr, send_to, recv_from)
 
         send_to_ptr => send_to
         recv_from_ptr => recv_from
 
-	call se_up_low1 (dispstr, sind, rind, shift, num_shift)
+        call se_up_low1 (dispstr, sind, rind, shift, num_shift)
 
         sind_ptr => sind
         rind_ptr => rind
@@ -545,7 +547,7 @@
            end if
         end do
 
-	return
+        return
         end subroutine se_pe_comm2e
 
 ! --------------------------------------------------------------------------
@@ -610,18 +612,18 @@
 !
 ! --------------------------------------------------------------------------
 
-	subroutine se_pe_comm3 (data, dispstr, dirstr, str)
+        subroutine se_pe_comm3 (data, dispstr, dirstr, str)
 
         use se_data_send_module
         use se_data_recv_module
         use se_internal_util_module
         use se_pe_info_ext
 
-	implicit none
+        implicit none
 
         include "mpif.h"
 
-	real, intent(inout) ::  data(:,:,:)
+        real, intent(inout) ::  data(:,:,:)
         character (len = 16), intent(in) :: dirstr
         character (len = 12), intent(in) :: dispstr
         character (len = *), optional, intent(in) :: str
@@ -686,22 +688,22 @@
            end if
         end do
  
-	return
+        return
         end subroutine se_pe_comm3
 
 ! --------------------------------------------------------------------------
-	subroutine se_pe_comm3e (data, dispstr, dirstr, flag, str)
+        subroutine se_pe_comm3e (data, dispstr, dirstr, flag, str)
 
         use se_data_send_module
         use se_data_recv_module
         use se_internal_util_module
         use se_pe_info_ext
 
-	implicit none
+        implicit none
 
         include "mpif.h"
 
-	real, intent(inout) ::  data(:,:,:)
+        real, intent(inout) ::  data(:,:,:)
         character (len = 16), intent(in) :: dirstr
         character (len = 12), intent(in) :: dispstr
         integer, intent(in) :: flag
@@ -762,8 +764,132 @@
            end if
         end do
  
-	return
+        return
         end subroutine se_pe_comm3e
+
+! --------------------------------------------------------------------------
+! Purpose:
+!
+!   perform near-neighbour communication for transfer data between two 3-D arrays
+!
+! Revision history:
+!
+!   Orginal version: 10/29/17 by David Wong
+!
+! Subroutine parameter description:
+!
+!   In:  sdata   -- input data
+!        dispstr -- displacement string
+!        dirstr  -- indicator of communication direction
+!                   0 (without communication), 1 (with communication)
+!        str     -- an optional argument to indicate the starting index of
+!                   certain dimension
+!
+!   Out: ddata   -- output data after communication
+!
+! Local variable description:
+!
+!    send_to       -- processor number which data needs to be sent to
+!    send_to_ptr   -- a F90 pointer (alias) of send_to
+!    recv_from     -- processor number which data is recvd from
+!    recv_from_ptr -- a F90 pointer (alias) of recv_from
+!    sdir, rdir    -- loop indexes which indicate send to or recvd from
+!    sind          -- store low and high index of each dimension for sending
+!                     process
+!    sind_ptr      -- a F90 pointer (alias) of sind
+!    rind          -- store low and high index of each dimension for receiving
+!                     process
+!    rind_ptr      -- a F90 pointer (alias) of rind
+!    shift         -- an array to hold the amount of index shifting due to
+!                     starting index is 1 in a subroutine
+!    num_shift     -- number of shifting
+!    loc_str       -- a local copy of str
+!
+! Include file:
+!
+!    se_data_send_module
+!    se_data_recv_module
+!
+! Subroutine/Function call:
+!
+!   se_comm_pat
+!   se_up_low3
+!
+! --------------------------------------------------------------------------
+        subroutine se_pe_comm3s (sdata, ddata, dispstr, dirstr, str)
+
+        use se_data_send_module
+        use se_data_recv_module
+        use se_internal_util_module
+        use se_pe_info_ext
+
+        implicit none
+
+        include "mpif.h"
+
+        real, intent(in)  ::  sdata(:,:,:)
+        real, intent(out) ::  ddata(:,:,:)
+        character (len = 16), intent(in) :: dirstr
+        character (len = 12), intent(in) :: dispstr
+        character (len = *), optional, intent(in) :: str
+
+        integer, target :: send_to(8), recv_from(8)
+        integer, pointer :: send_to_ptr(:), recv_from_ptr(:)
+        integer, target :: sind(2,8), rind(2,8)
+        integer, pointer :: sind_ptr(:,:), rind_ptr(:,:)
+        integer :: sdir, rdir
+        integer :: shift(6), num_shift
+        character (len = 80) :: loc_str
+        integer :: request, status(MPI_STATUS_SIZE), error, dsize
+
+        if (present(str)) then
+           loc_str = str
+           shift(2:6:2) = 1
+           call se_string_to_integer (loc_str, shift, num_shift)
+        else
+           num_shift = 0
+        end if
+
+        call se_comm_pat (dirstr, send_to, recv_from)
+
+        send_to_ptr => send_to
+        recv_from_ptr => recv_from
+
+        call se_up_low1 (dispstr, sind, rind, shift, num_shift)
+
+        sind_ptr => sind
+        rind_ptr => rind
+
+        dsize = size(sdata)
+
+        do sdir = 1, 8, 2
+
+           rdir = mod((sdir + 3), 8) + 1
+
+           if (send_to(sdir) .eq. se_my_pe) then
+
+              ddata = sdata
+
+           else
+              if (send_to(sdir) .ge. 0) then
+                 call mpi_send (sdata, dsize, mpi_real, send_to_ptr(sdir), 
+     $                          sdir, se_worker_comm, error)
+              end if
+
+              if ((recv_from(rdir) .ge. 0) .and.
+     $            (recv_from(rdir) .ne. se_my_pe)) then
+                 call mpi_recv (ddata, dsize, mpi_real, recv_from_ptr(rdir), sdir,
+     &                          se_worker_comm, status, error)
+              end if
+
+!             if (send_to(sdir) .ge. 0) then
+!                call mpi_wait (request, status, error)
+!             end if
+
+           end if
+        end do
+ 
+        end subroutine se_pe_comm3s
 
 ! --------------------------------------------------------------------------
 ! Purpose:
@@ -823,14 +949,14 @@
 !
 ! --------------------------------------------------------------------------
 
-	subroutine se_pe_comm4 (data, dispstr, dirstr, str)
+        subroutine se_pe_comm4 (data, dispstr, dirstr, str)
 
         use se_data_send_module
         use se_data_recv_module
         use se_internal_util_module
         use se_pe_info_ext
 
-	implicit none
+        implicit none
 
         include "mpif.h"
 
@@ -900,22 +1026,22 @@
            end if
         end do
 
-	return
+        return
         end subroutine se_pe_comm4
 
 ! --------------------------------------------------------------------------
-	subroutine se_pe_comm4e (data, dispstr, dirstr, flag, str)
+        subroutine se_pe_comm4e (data, dispstr, dirstr, flag, str)
 
         use se_data_send_module
         use se_data_recv_module
         use se_internal_util_module
         use se_pe_info_ext
 
-	implicit none
+        implicit none
 
         include "mpif.h"
 
-	real, intent(inout) ::  data(:,:,:,:)
+        real, intent(inout) ::  data(:,:,:,:)
         character (len = 16), intent(in) :: dirstr
         character (len = 12), intent(in) :: dispstr
         integer, intent(in) :: flag
@@ -976,19 +1102,19 @@
            end if
         end do
  
-	return
+        return
         end subroutine se_pe_comm4e
 
 ! --------------------------------------------------------------------------
 
-	subroutine se_pe_comm5 (data, dispstr, dirstr, str)
+        subroutine se_pe_comm5 (data, dispstr, dirstr, str)
 
         use se_data_send_module
         use se_data_recv_module
         use se_internal_util_module
         use se_pe_info_ext
 
-	implicit none
+        implicit none
 
         include "mpif.h"
 
@@ -1107,17 +1233,17 @@
 !
 ! --------------------------------------------------------------------------
 
-	subroutine se_up_low1 (dispstr, sind, rind, shift, num_shift)
+        subroutine se_up_low1 (dispstr, sind, rind, shift, num_shift)
 
-	use se_domain_info_ext
+        use se_domain_info_ext
 !       use se_ori_ext
 
-	implicit none
+        implicit none
 
-	integer, intent(out) :: sind(2,8), rind(2,8)
+        integer, intent(out) :: sind(2,8), rind(2,8)
         character (len = 12), intent(in) :: dispstr
         integer, intent(in) :: shift(2), num_shift
-	integer :: ndis, edis, sdis, wdis, loc_shift
+        integer :: ndis, edis, sdis, wdis, loc_shift
 
         if (num_shift .gt. 0) then
            loc_shift = 1 - shift(2)
@@ -1164,8 +1290,8 @@
            call store1 (rind, 7, 1-wdis+loc_shift, loc_shift)
         end if
 
-	return
-	end subroutine se_up_low1
+        return
+        end subroutine se_up_low1
 
 ! --------------------------------------------------------------------------
 ! Purpose:
@@ -1187,16 +1313,16 @@
 !   Out: array     -- array with low and high indexes of each dimension
 ! --------------------------------------------------------------------------
 
-	subroutine store1 (array, direction, i1, i2)
+        subroutine store1 (array, direction, i1, i2)
 
-	integer, intent(out) :: array (2,8) 
+        integer, intent(out) :: array (2,8) 
         integer, intent(in) :: direction, i1, i2
 
-	  array(1,direction) = i1
-	  array(2,direction) = i2
+          array(1,direction) = i1
+          array(2,direction) = i2
 
         return
-	end subroutine store1
+        end subroutine store1
 
 ! --------------------------------------------------------------------------
 ! Purpose:
@@ -1253,15 +1379,15 @@
 !
 ! --------------------------------------------------------------------------
 
-	subroutine se_up_low2 (dispstr, sind, rind, shift, num_shift)
+        subroutine se_up_low2 (dispstr, sind, rind, shift, num_shift)
 
-	use se_domain_info_ext
+        use se_domain_info_ext
 !       use se_ori_ext
         use se_internal_util_module
 
-	implicit none
+        implicit none
 
-	integer, intent(inout) :: sind(2,2,8), rind(2,2,8)
+        integer, intent(inout) :: sind(2,2,8), rind(2,2,8)
         character (len = 12), intent(in) :: dispstr
         integer, intent(in) :: shift(4), num_shift
 
@@ -1359,7 +1485,7 @@
            end do
 !       end if
 
-	return
+        return
         end subroutine se_up_low2
 
 ! --------------------------------------------------------------------------
@@ -1384,18 +1510,18 @@
 !   Out: array     -- array with low and high indexes of each dimension
 ! --------------------------------------------------------------------------
 
-	subroutine store2 (array, direction, i1, i2, j1, j2)
+        subroutine store2 (array, direction, i1, i2, j1, j2)
 
-	integer, intent(out) :: array (2,2,8) 
+        integer, intent(out) :: array (2,2,8) 
         integer, intent(in) :: direction, i1, i2, j1, j2
 
-	  array(1,1,direction) = i1
-	  array(2,1,direction) = i2
-  	  array(1,2,direction) = j1
-	  array(2,2,direction) = j2
+          array(1,1,direction) = i1
+          array(2,1,direction) = i2
+          array(1,2,direction) = j1
+          array(2,2,direction) = j2
 
         return
-	end subroutine store2
+        end subroutine store2
 
 ! --------------------------------------------------------------------------
 ! Purpose:
@@ -1460,14 +1586,14 @@
 
         subroutine se_up_low3 (dispstr, sind, rind, shift, num_shift, s3)
 
-	use se_domain_info_ext
-	use se_comm_info_ext
+        use se_domain_info_ext
+        use se_comm_info_ext
 !       use se_ori_ext
         use se_internal_util_module
 
-	implicit none
+        implicit none
 
-	integer, intent(inout) :: sind(2,3,8), rind(2,3,8)
+        integer, intent(inout) :: sind(2,3,8), rind(2,3,8)
         character (len = 12), intent(in) :: dispstr
         integer, intent(in) :: shift(6), num_shift, s3
 
@@ -1506,14 +1632,14 @@
 !       else
 !          read (dispstr, 20) ndis, edis, sdis, wdis
 !       end if
- 20	format (4i3)
+ 20     format (4i3)
 
         call se_corner_adjust (ndis, edis, sdis, wdis, 1,
      &                         n_adj, e_adj, s_adj, w_adj)
 
 ! -- ( sending ) determine ghost cells indexes configuration which
 ! -- depends on spatial decomposition type 1, 2, and 3, respectively
-	if ((ldecomp(1) + ldecomp(3) .eq. 1) .and. 
+        if ((ldecomp(1) + ldecomp(3) .eq. 1) .and. 
      &      (ldecomp(1) .eq. 1)) then
            call store3 (sind, 1, 1+loc_shift(1), sdis+loc_shift(1), 
      &                  1+loc_shift(2)-w_adj, se_my_ncols+loc_shift(2)+e_adj, 
@@ -1547,7 +1673,7 @@
            call store3 (sind, 8, 1+loc_shift(1), sdis+loc_shift(1), 
      &                  1+loc_shift(2), edis+loc_shift(2), 
      &                  1+loc_shift(3), s3+loc_shift(3))
-	else if ((ldecomp(1) + ldecomp(2) .eq. 1) .and. 
+        else if ((ldecomp(1) + ldecomp(2) .eq. 1) .and. 
      &           (ldecomp(2) .eq. 1)) then
            call store3 (sind, 1, 1+loc_shift(1), se_my_nrows+loc_shift(1), 
      &                  1+loc_shift(2), sdis+loc_shift(2), 1+loc_shift(3)-w_adj,
@@ -1619,7 +1745,7 @@
 
 ! -- ( receiving ) determine ghost cells indexes configuration which
 ! -- depends on spatial decomposition, type 1, 2, and 3, respectively
-	if ((ldecomp(1) + ldecomp(3) .eq. 1) .and. 
+        if ((ldecomp(1) + ldecomp(3) .eq. 1) .and. 
      &      (ldecomp(1) .eq. 1)) then
            call store3 (rind, 1, 1-ndis+loc_shift(1), loc_shift(1), 
      &                  1+loc_shift(2)-w_adj, se_my_ncols+loc_shift(2)+e_adj, 
@@ -1652,7 +1778,7 @@
            call store3 (rind, 8, 1-ndis+loc_shift(1), loc_shift(1), 
      &                  1-wdis+loc_shift(2), loc_shift(2), 1+loc_shift(3), 
      &                  s3+loc_shift(3))
-	else if ((ldecomp(1) + ldecomp(2) .eq. 1) .and. 
+        else if ((ldecomp(1) + ldecomp(2) .eq. 1) .and. 
      &           (ldecomp(2) .eq. 1)) then
            call store3 (rind, 1, 1+loc_shift(1), se_my_nrows+loc_shift(1), 
      &                  1-ndis+loc_shift(2), loc_shift(2), 1+loc_shift(3)-w_adj,
@@ -1726,7 +1852,7 @@
            end do
 !       end if
 
-	return
+        return
         end subroutine se_up_low3
 
 ! --------------------------------------------------------------------------
@@ -1753,20 +1879,20 @@
 !   Out: array     -- array with low and high indexes of each dimension
 ! --------------------------------------------------------------------------
 
-	subroutine store3 (array, direction, i1, i2, j1, j2, k1, k2)
+        subroutine store3 (array, direction, i1, i2, j1, j2, k1, k2)
 
-	integer, intent(out) :: array (2,3,8) 
+        integer, intent(out) :: array (2,3,8) 
         integer, intent(in) :: direction, i1, i2, j1, j2, k1, k2
 
-	  array(1,1,direction) = i1
-	  array(2,1,direction) = i2
-  	  array(1,2,direction) = j1
-	  array(2,2,direction) = j2
-	  array(1,3,direction) = k1
-	  array(2,3,direction) = k2
+          array(1,1,direction) = i1
+          array(2,1,direction) = i2
+          array(1,2,direction) = j1
+          array(2,2,direction) = j2
+          array(1,3,direction) = k1
+          array(2,3,direction) = k2
 
         return
-	end subroutine store3
+        end subroutine store3
 
 ! --------------------------------------------------------------------------
 ! Purpose:
@@ -1836,14 +1962,14 @@
 !       use se_ori_ext
         use se_internal_util_module
 
-	implicit none
+        implicit none
 
-	integer, intent(inout) :: sind(2,4,8), rind(2,4,8)
+        integer, intent(inout) :: sind(2,4,8), rind(2,4,8)
         character (len = 12), intent(in) :: dispstr
         integer, intent(in) :: shift(8), num_shift, s3, s4
 
-	integer :: ndis, edis, sdis, wdis, loc_shift(4), i
-	integer :: ldecomp(4)
+        integer :: ndis, edis, sdis, wdis, loc_shift(4), i
+        integer :: ldecomp(4)
         integer :: n_adj, e_adj, s_adj, w_adj
 
         if (num_shift .gt. 0) then
@@ -1878,14 +2004,14 @@
 !       else
 !          read (dispstr, 20) ndis, edis, sdis, wdis
 !       end if
- 20	format (4i3)
+ 20     format (4i3)
 
         call se_corner_adjust (ndis, edis, sdis, wdis, 1,
      &                         n_adj, e_adj, s_adj, w_adj)
 
 ! -- ( sending ) determine ghost cells indexes configuration which
 ! -- depends on spatial decomposition type 1, 2, 3, 4, 5, and 6, respectively
-	if ((ldecomp(1) + ldecomp(3) .eq. 1) .and. 
+        if ((ldecomp(1) + ldecomp(3) .eq. 1) .and. 
      &      (ldecomp(1) .eq. 1) .and. (ldecomp(4) .eq. 0)) then
            call store4 (sind, 1, 1+loc_shift(1), sdis+loc_shift(1),
      &                  1+loc_shift(2)-w_adj, se_my_ncols+loc_shift(2)+e_adj,
@@ -1927,7 +2053,7 @@
      &                  1+loc_shift(2), edis+loc_shift(2), 1+loc_shift(3), 
      &                  s3+loc_shift(3), 1+loc_shift(4), 
      &                  s4+loc_shift(4))
-	else if ((ldecomp(2) + ldecomp(4) .eq. 1) .and. 
+        else if ((ldecomp(2) + ldecomp(4) .eq. 1) .and. 
      &           (ldecomp(2) .eq. 1) .and. (ldecomp(1) .eq. 0)) then
            call store4 (sind, 1, 1+loc_shift(1), se_my_nrows+loc_shift(1), 
      &                  1+loc_shift(2), sdis+loc_shift(2), 1+loc_shift(3)-w_adj,
@@ -1967,7 +2093,7 @@
      &                  1+loc_shift(2), sdis+loc_shift(2), 1+loc_shift(3), 
      &                  edis+loc_shift(3), 1+loc_shift(4), 
      &                  s4+loc_shift(4))
-	else if ((ldecomp(3) + ldecomp(4) .eq. 1) .and. 
+        else if ((ldecomp(3) + ldecomp(4) .eq. 1) .and. 
      &           (ldecomp(3) .eq. 1) .and. (ldecomp(2) .eq. 0)) then
            call store4 (sind, 1, 1+loc_shift(1)-w_adj, 
      &                  se_my_nrows+loc_shift(1)+e_adj, 1+loc_shift(2), 
@@ -2009,7 +2135,7 @@
      &                  1+loc_shift(2), se_my_ncols+loc_shift(2), 
      &                  1+loc_shift(3), sdis+loc_shift(3), 1+loc_shift(4), 
      &                  s4+loc_shift(4))
-	else if ((ldecomp(1) + ldecomp(4) .eq. 1) .and. 
+        else if ((ldecomp(1) + ldecomp(4) .eq. 1) .and. 
      &           (ldecomp(4) .eq. 1) .and. (ldecomp(2) .eq. 0)) then
            call store4 (sind, 1, 1+loc_shift(1), se_my_nrows+loc_shift(1), 
      &                  1+loc_shift(2), se_my_ncols+loc_shift(2), 
@@ -2049,7 +2175,7 @@
      &                  1+loc_shift(2), se_my_ncols+loc_shift(2), 
      &                  1+loc_shift(3), edis+loc_shift(3), 1+loc_shift(4), 
      &                  sdis+loc_shift(4))
-	else if ((ldecomp(2) + ldecomp(4) .eq. 1) .and. 
+        else if ((ldecomp(2) + ldecomp(4) .eq. 1) .and. 
      &           (ldecomp(4) .eq. 1) .and. (ldecomp(3) .eq. 0)) then
            call store4 (sind, 1, 1+loc_shift(1), sdis+loc_shift(1), 
      &                  1+loc_shift(2), se_my_ncols+loc_shift(2), 
@@ -2385,7 +2511,7 @@
            end do
 !       end if
 
-	return
+        return
         end subroutine se_up_low4
 
 ! --------------------------------------------------------------------------

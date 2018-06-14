@@ -61,14 +61,14 @@ C -----------------------------------------------------------------------------
 
         function noop_global_isum (var) result (noop_global_isum_result)
 
-	implicit none
+        implicit none
 
-	integer, intent(in) :: var
-	integer :: noop_global_isum_result
+        integer, intent(in) :: var
+        integer :: noop_global_isum_result
 
         noop_global_isum_result = var
 
-	end function noop_global_isum 
+        end function noop_global_isum 
 
 C -----------------------------------------------------------------------------
 C Purpose: a noop counter part of se_global_rsum which determine the global 
@@ -87,13 +87,13 @@ C -----------------------------------------------------------------------------
 
         function noop_global_rsum (var) result (noop_global_rsum_result)
 
-	implicit none
+        implicit none
 
-	real, intent(in) :: var
+        real, intent(in) :: var
         real :: noop_global_rsum_result
 
         noop_global_rsum_result = var
 
-	end function noop_global_rsum
+        end function noop_global_rsum
 
         end module noop_global_sum_module

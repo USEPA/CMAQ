@@ -1,10 +1,12 @@
        MODULE RXNS_DATA
 
+
        IMPLICIT NONE
 
 
+
 ! --------- Photochemical Mechanism Reactions, Rates, etc. DAT ---------
-! Source file: /work/MOD3DEV/bmurphy/Models/cmaq/CMAQv5.1_Ben/models/CCTM_Github/MECHS/saprc07tb_ae6_aq/mech.def
+! Source file: ../../CCTM/src/MECHS/saprc07tb_ae6_aq/mech_saprc07tb_ae6_aq.def
 ! for Mechanism Name: SAPRC07TB_AE6_AQ                
 
 ! This file is used to create mechanism data and functions
@@ -2816,8 +2818,8 @@
      &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 2   
      &        1.00000,    0.00000,    1.00000,    0.50000,    1.00000, & ! +   
      &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 3   
-     &        1.00000,    0.00000,    1.14280,    1.14280,    1.00000, & ! +   
-     &        1.00000,    0.85714,    0.85714,    1.00000,    1.00000, & ! 4   
+     &        1.00000,    0.00000,    0.85710,    1.14290,    0.85710, & ! +   
+     &        1.14290,    0.71430,    0.71430,    0.80000,    0.90000, & ! 4   
      &        0.50000,    0.50000,    1.50000,    1.42860,    1.42860, & ! +   
      &        1.71430,    1.71430,    1.00000,    1.00000,    1.00000, & ! 5   
      &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
@@ -5524,7 +5526,7 @@
 !    SPECIAL      = Names of special rate coefficients
 !    NSPECIAL_RXN = Number of reactions with special rates
 !    ISPECIAL     = Pointers to reactions using special rates and their special rate coefficients
-!    MAXSPECTERMS = Max Number of each term type in  special rate coefficients
+!    MAXSPECTERMS = Max Number of terms type used by special rate coefficients
 !    KC_COEFFS    = Coefficients of standard rate coefficients  times concentration terms 
 !    INDEX_KTERMS  = Pointers to standard rate coefficients in  special rate coefficients
 !    INDEX_CTERMS  = Pointers to species concentrations in  special rate coefficients
@@ -5562,7 +5564,7 @@
      &   'RO2RO2          ', 'RO2RO3          ', 'RO2RO           ', & 
      &   'RO2XRO          ', 'RO2RO2M         ', 'RO22NN          '/
 
-      INTEGER, PARAMETER :: MAXSPECTERMS =  10
+      INTEGER, PARAMETER :: MAXSPECTERMS =   4
       REAL( 8 )          :: KC_COEFFS( NSPECIAL + 1, MAXSPECTERMS)
       INTEGER            :: INDEX_KTERMS( NSPECIAL + 1, MAXSPECTERMS)
       INTEGER            :: INDEX_CTERMS( NSPECIAL + 1, MAXSPECTERMS)
@@ -5570,157 +5572,139 @@
       INTEGER            :: OPERATORS( NSPECIAL + 1, MAXSPECTERMS)
 
       DATA ( KC_COEFFS(   1,IRXXN ), IRXXN = 1, MAXSPECTERMS ) / & 
-     &     1.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & 
-     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/
+     &     1.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/
 
       DATA ( INDEX_KTERMS(  1,  IRXXN), IRXXN = 1, MAXSPECTERMS ) / & 
-     &     52,    0,    0,    0,    0,    0,    0,    0,    0,    0/
+     &     52,    0,    0,    0/
 
       DATA ( INDEX_CTERMS(  1,  IRXXN), IRXXN = 1, MAXSPECTERMS ) / & 
-     &      2,    0,    0,    0,    0,    0,    0,    0,    0,    0/
+     &      2,    0,    0,    0/
 
       DATA ( KC_COEFFS(   2,IRXXN ), IRXXN = 1, MAXSPECTERMS ) / & 
-     &     1.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & 
-     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/
+     &     1.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/
 
       DATA ( INDEX_KTERMS(  2,  IRXXN), IRXXN = 1, MAXSPECTERMS ) / & 
-     &     53,    0,    0,    0,    0,    0,    0,    0,    0,    0/
+     &     53,    0,    0,    0/
 
       DATA ( INDEX_CTERMS(  2,  IRXXN), IRXXN = 1, MAXSPECTERMS ) / & 
-     &     11,    0,    0,    0,    0,    0,    0,    0,    0,    0/
+     &     11,    0,    0,    0/
 
       DATA ( KC_COEFFS(   3,IRXXN ), IRXXN = 1, MAXSPECTERMS ) / & 
-     &     1.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & 
-     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/
+     &     1.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/
 
       DATA ( INDEX_KTERMS(  3,  IRXXN), IRXXN = 1, MAXSPECTERMS ) / & 
-     &     54,    0,    0,    0,    0,    0,    0,    0,    0,    0/
+     &     54,    0,    0,    0/
 
       DATA ( INDEX_CTERMS(  3,  IRXXN), IRXXN = 1, MAXSPECTERMS ) / & 
-     &      5,    0,    0,    0,    0,    0,    0,    0,    0,    0/
+     &      5,    0,    0,    0/
 
       DATA ( KC_COEFFS(   4,IRXXN ), IRXXN = 1, MAXSPECTERMS ) / & 
-     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 0.0000D+00, 0.0000D+00, & 
-     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 0.0000D+00/
 
       DATA ( INDEX_KTERMS(  4,  IRXXN), IRXXN = 1, MAXSPECTERMS ) / & 
-     &     55,   56,   56,    0,    0,    0,    0,    0,    0,    0/
+     &     55,   56,   56,    0/
 
       DATA ( INDEX_CTERMS(  4,  IRXXN), IRXXN = 1, MAXSPECTERMS ) / & 
-     &     19,   23,   24,    0,    0,    0,    0,    0,    0,    0/
+     &     19,   23,   24,    0/
 
       DATA ( KC_COEFFS(   5,IRXXN ), IRXXN = 1, MAXSPECTERMS ) / & 
-     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 0.0000D+00, & 
-     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00/
 
       DATA ( INDEX_KTERMS(  5,  IRXXN), IRXXN = 1, MAXSPECTERMS ) / & 
-     &     70,   70,   70,   70,    0,    0,    0,    0,    0,    0/
+     &     70,   70,   70,   70/
 
       DATA ( INDEX_CTERMS(  5,  IRXXN), IRXXN = 1, MAXSPECTERMS ) / & 
-     &     25,   29,   36,   39,    0,    0,    0,    0,    0,    0/
+     &     25,   29,   36,   39/
 
       DATA ( KC_COEFFS(   6,IRXXN ), IRXXN = 1, MAXSPECTERMS ) / & 
-     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & 
-     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/
 
       DATA ( INDEX_KTERMS(  6,  IRXXN), IRXXN = 1, MAXSPECTERMS ) / & 
-     &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0/
+     &      0,    0,    0,    0/
 
       DATA ( INDEX_CTERMS(  6,  IRXXN), IRXXN = 1, MAXSPECTERMS ) / & 
-     &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0/
+     &      0,    0,    0,    0/
 
       DATA ( KC_COEFFS(   7,IRXXN ), IRXXN = 1, MAXSPECTERMS ) / & 
-     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & 
-     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/
 
       DATA ( INDEX_KTERMS(  7,  IRXXN), IRXXN = 1, MAXSPECTERMS ) / & 
-     &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0/
+     &      0,    0,    0,    0/
 
       DATA ( INDEX_CTERMS(  7,  IRXXN), IRXXN = 1, MAXSPECTERMS ) / & 
-     &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0/
+     &      0,    0,    0,    0/
 
       DATA ( KC_COEFFS(   8,IRXXN ), IRXXN = 1, MAXSPECTERMS ) / & 
-     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & 
-     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/
 
       DATA ( INDEX_KTERMS(  8,  IRXXN), IRXXN = 1, MAXSPECTERMS ) / & 
-     &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0/
+     &      0,    0,    0,    0/
 
       DATA ( INDEX_CTERMS(  8,  IRXXN), IRXXN = 1, MAXSPECTERMS ) / & 
-     &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0/
+     &      0,    0,    0,    0/
 
       DATA ( KC_COEFFS(   9,IRXXN ), IRXXN = 1, MAXSPECTERMS ) / & 
-     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & 
-     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/
 
       DATA ( INDEX_KTERMS(  9,  IRXXN), IRXXN = 1, MAXSPECTERMS ) / & 
-     &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0/
+     &      0,    0,    0,    0/
 
       DATA ( INDEX_CTERMS(  9,  IRXXN), IRXXN = 1, MAXSPECTERMS ) / & 
-     &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0/
+     &      0,    0,    0,    0/
 
       DATA ( OPERATOR_COEFFS(   1,IRXXN ), IRXXN = 1, MAXSPECTERMS ) / & 
-     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & 
-     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/
 
       DATA ( OPERATORS(  1,  IRXXN), IRXXN = 1, MAXSPECTERMS ) / & 
-     &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0/
+     &      0,    0,    0,    0/
 
       DATA ( OPERATOR_COEFFS(   2,IRXXN ), IRXXN = 1, MAXSPECTERMS ) / & 
-     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & 
-     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/
 
       DATA ( OPERATORS(  2,  IRXXN), IRXXN = 1, MAXSPECTERMS ) / & 
-     &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0/
+     &      0,    0,    0,    0/
 
       DATA ( OPERATOR_COEFFS(   3,IRXXN ), IRXXN = 1, MAXSPECTERMS ) / & 
-     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & 
-     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/
 
       DATA ( OPERATORS(  3,  IRXXN), IRXXN = 1, MAXSPECTERMS ) / & 
-     &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0/
+     &      0,    0,    0,    0/
 
       DATA ( OPERATOR_COEFFS(   4,IRXXN ), IRXXN = 1, MAXSPECTERMS ) / & 
-     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & 
-     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/
 
       DATA ( OPERATORS(  4,  IRXXN), IRXXN = 1, MAXSPECTERMS ) / & 
-     &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0/
+     &      0,    0,    0,    0/
 
       DATA ( OPERATOR_COEFFS(   5,IRXXN ), IRXXN = 1, MAXSPECTERMS ) / & 
-     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & 
-     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/
 
       DATA ( OPERATORS(  5,  IRXXN), IRXXN = 1, MAXSPECTERMS ) / & 
-     &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0/
+     &      0,    0,    0,    0/
 
       DATA ( OPERATOR_COEFFS(   6,IRXXN ), IRXXN = 1, MAXSPECTERMS ) / & 
-     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 5.0000D-01, 0.0000D+00, & 
-     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 5.0000D-01/
 
       DATA ( OPERATORS(  6,  IRXXN), IRXXN = 1, MAXSPECTERMS ) / & 
-     &      1,    3,    5,    4,    0,    0,    0,    0,    0,    0/
+     &      1,    3,    5,    4/
 
       DATA ( OPERATOR_COEFFS(   7,IRXXN ), IRXXN = 1, MAXSPECTERMS ) / & 
-     &     1.0000D+00, 5.0000D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, & 
-     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/
+     &     1.0000D+00, 5.0000D-01, 0.0000D+00, 0.0000D+00/
 
       DATA ( OPERATORS(  7,  IRXXN), IRXXN = 1, MAXSPECTERMS ) / & 
-     &      2,    4,    0,    0,    0,    0,    0,    0,    0,    0/
+     &      2,    4,    0,    0/
 
       DATA ( OPERATOR_COEFFS(   8,IRXXN ), IRXXN = 1, MAXSPECTERMS ) / & 
-     &     5.0000D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & 
-     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/
+     &     5.0000D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00/
 
       DATA ( OPERATORS(  8,  IRXXN), IRXXN = 1, MAXSPECTERMS ) / & 
-     &      4,    0,    0,    0,    0,    0,    0,    0,    0,    0/
+     &      4,    0,    0,    0/
 
       DATA ( OPERATOR_COEFFS(   9,IRXXN ), IRXXN = 1, MAXSPECTERMS ) / & 
-     &     1.0000D+00, 1.0000D+00, 5.0000D-01, 0.0000D+00, 0.0000D+00, & 
-     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/
+     &     1.0000D+00, 1.0000D+00, 5.0000D-01, 0.0000D+00/
 
       DATA ( OPERATORS(  9,  IRXXN), IRXXN = 1, MAXSPECTERMS ) / & 
-     &      3,    5,    4,    0,    0,    0,    0,    0,    0,    0/
+     &      3,    5,    4,    0/
 
 
 !    Steady-state species section

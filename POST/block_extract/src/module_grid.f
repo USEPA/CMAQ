@@ -48,14 +48,11 @@ C  REVISION HISTORY: Prototype created by Jerry Gipson, July, 1999
 C                    JG corrected setting of M3GRID % NROWS 02/02/00
 C                   
 C*************************************************************************
+         USE M3UTILIO
          USE M3FILES
 
          IMPLICIT NONE 
 
-C..INCLUDES:  
-      INCLUDE 'PARMS3.EXT'     ! IOAPI parameters
-      INCLUDE 'FDESC3.EXT'     ! IOAPI file description
-      INCLUDE 'IODECL3.EXT'    ! IOAPI declarations
       
 C..ARGUMENTS: None
 

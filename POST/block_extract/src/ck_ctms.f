@@ -10,29 +10,23 @@ C  PRECONDITIONS: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Prototype created by Jerry Gipson, January, 1998
-C                    Modified by JG May, 1999 to change way reals are
-C                       checked
-C		     Modified by Chris Nolte December 2008 to allow for
-C                       specification of 'ALL' variables in file.
+C  REVISION HISTORY: 
+C     Prototype created by Jerry Gipson, January, 1998
+C     Modified by JG May, 1999 to change way reals are checked
+C		  Modified by Chris Nolte December 2008 to allow for specification of 
+C       'ALL' variables in file.
+C     Modified by C. Nolte June 2017 to check for consistent variable
+C       names across all files and use Fortran intrinsic TRIM()
 C*************************************************************************
+      USE M3UTILIO
       USE ENV_VARS
       USE M3FILES
 
       IMPLICIT NONE
 
-C..INCLUDE FILES:
-      INCLUDE 'PARMS3.EXT'     ! IOAPI parameters
-      INCLUDE 'FDESC3.EXT'     ! IOAPI file description
-      INCLUDE 'IODECL3.EXT'    ! IOAPI declarations
-
 C..ARGUMENTS: NONE
 
 C..PARAMETERS: NONE
-
-C..EXTERNAL FUNCTIONS:
-      INTEGER INDEX1          ! Get index on string in a list of strings
-      INTEGER TRIMLEN         ! Get last non-blank character pos in string
 
 C..SAVED LOCAL VARIABLES: NONE
 
@@ -143,8 +137,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
          WRITE( MSG, '( ''Differences found between files '', A,
      &                  '' and '', A )' )
-     &                 M3_FLNAME( 1 ) ( 1 : TRIMLEN( M3_FLNAME( 1 ) ) ),
-     &                 M3_FLNAME( N ) ( 1 : TRIMLEN( M3_FLNAME( N ) ) )
+     &                 TRIM( M3_FLNAME( 1 ) ),
+     &                 TRIM( M3_FLNAME( N ) ) 
 
          CALL M3MESG( MSG )
 
@@ -289,6 +283,14 @@ c         ENDIF
             WRITE( LOGUNIT, 95020 ) NVARS1, N, NVARS3D
          ENDIF
 
+C This check seems unnecessary.
+C        DO L = 1, NVARS3D
+C           IF ( VNAME( L ) .NE. VNAME3D( L ) ) THEN
+C              WRITE( LOGUNIT, 95100 )
+C              WRITE( LOGUNIT, 95120 ) N, L, VNAME( L ), VNAME3D( L )
+C           ENDIF
+C        ENDDO
+
       ENDDO
 
       IF( LSTOP ) THEN
@@ -327,5 +329,7 @@ C************************* FORMAT STATEMENTS ***************************
 94460 FORMAT(10X, 'NONE' )
 95000 FORMAT(//10X, 'WARNING: Discrepancy in number of variables on file(s)' )
 95020 FORMAT(  10X, 'NVARS1 = ', I3, '   NVARS', I1, ' = ', I3 )
+C 95100 FORMAT(//10X, 'WARNING: Discrepancy in variable names on files' )
+C 95120 FORMAT(  10X, 'FILE N = ', I3, 'VARIABLE L = ', I4, 'VNAME1(L) = ',A16,'VNAME3D(L) = ',A16 )
 
       END

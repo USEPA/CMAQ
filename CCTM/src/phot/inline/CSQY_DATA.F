@@ -528,7 +528,7 @@ C...begin read
      &            ( CS_REF( IWL_LOAD, ITT_LOAD, IPHOT_LOAD ), IWL_LOAD = 1, NWL_REF )
 
 #ifdef verbose_phot
-            write( log_unit,'(a16,7x,f8.3,1x,40(1pe12.6,2x))' )
+            write( log_unit,'(a16,7x,f8.3,1x,40(1pe13.6,2x))' )
      &             phot_expect, temp_ref( itt_load, iphot_load),
      &             ( cs_ref( iwl_load, itt_load, iphot_load ), iwl_load = 1, nwl_ref )
 #endif
@@ -546,7 +546,7 @@ C...begin read
             QY_REF( 1:NWL_REF, ITT_LOAD, IPHOT_LOAD ) = EQY_REF( 1:NWL_REF, ITT_LOAD, IPHOT_LOAD )
 
 #ifdef verbose_phot
-            write( log_unit,'(a16,7x,f8.3,1x,40(1pe12.6,2x))' )
+            write( log_unit,'(a16,7x,f8.3,1x,40(1pe13.6,2x))' )
      &             phot_expect, temp_ref( itt_load, iphot_load),
      &             ( qy_ref( iwl_load, itt_load, iphot_load ), iwl_load = 1, nwl_ref )
 #endif
@@ -581,7 +581,7 @@ C...begin read
      &         ( O3_CS_STRAT_REF( IWL_LOAD, ITT_LOAD ), IWL_LOAD = 1, NWL_REF )
 
 #ifdef verbose_phot
-         write( log_unit,'(a16,7x,f8.3,1x,40(1pe12.6,2x))' )
+         write( log_unit,'(a16,7x,f8.3,1x,40(1pe13.6,2x))' )
      &          phot_expect, temp_strat_ref( itt_load ),
      &          ( o3_cs_strat_ref( iwl_load, itt_load ), iwl_load = 1, nwl_ref )
 #endif
@@ -641,6 +641,7 @@ C...begin read
      &             'the reference data! '
              ERROR_FLAG = .TRUE.
              CALL M3WARN ( PNAME, 0, 0, MSG )
+             CYCLE
           END IF
           IP_REF = PHOT_MAP( IP_MAP )
           PHOTOLYSIS_RATE( IPHOT ) = PNAME_MAP( IP_MAP )
@@ -649,7 +650,7 @@ C...begin read
 !***  is referenced in other sections of the code.  if so, then set
 !***  the appropriate pointers for later processing
 
-           SELECT CASE ( TRIM( PHOTOLYSIS_RATE( IPHOT ) ) )
+           SELECT CASE ( PHOTOLYSIS_RATE( IPHOT ) )
               CASE( 'O3O3P', 'O3O3P_SAPRC99', 'O3O3P_06', 'O3_O3P_IUPAC04', 'O3O3P_NASA06', 'O3_O3P_IUPAC10' )
                     LO3O3P = IPHOT
               CASE( 'NO2', 'NO2_SAPRC99', 'NO2_06', 'NO2_RACM2', 'NO2_IUPAC10' )
@@ -662,7 +663,7 @@ C...begin read
                     LMGLY_ADJ = IPHOT
               CASE(  'MGLY_ABS' )
                     LMGLY_ABS = IPHOT
-              CASE( 'ACETONE', 'CH3COCH3_RACM2' )
+              CASE( 'ACETONE', 'CH3COCH3_RACM2', 'ACET_IUPAC10' )
                     IF( NWL .EQ. NWL_ACETONE_FJX ) LACETONE  = IPHOT
               CASE( 'HCHOR_06', 'HCHO_R_SAPRC99', 'HCHO_RAD_RACM2', 'FORM_R_IUPAC10', 'HCHO_R_MCMv32' )
                     LHCHOR_06 = IPHOT
@@ -968,7 +969,7 @@ C...begin read
      &         OPTICS_EXPECT, RADIUS_LIQUID( ITT_LOAD ),
      &         ( LIQUID_EXTINCT( ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_OPTICS )
 #endif
-            IF ( TRIM( OPTICS_EXPECT ) .NE. TRIM( QUANTITY ) ) THEN
+            IF ( OPTICS_EXPECT .NE. QUANTITY ) THEN
                MSG =  'Optical quantity read ' // TRIM( OPTICS_EXPECT )
      &             // ' does match expected quantity, ' // TRIM( QUANTITY )
                CALL M3WARN( PNAME, 0, 0, MSG )
@@ -993,7 +994,7 @@ C...begin read
      &         OPTICS_EXPECT, RADIUS_LIQUID( ITT_LOAD ),
      &         ( LIQUID_ASYMFACT( ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_OPTICS )
 #endif
-            IF ( TRIM( OPTICS_EXPECT ) .NE. TRIM( QUANTITY ) ) THEN
+            IF ( OPTICS_EXPECT .NE. QUANTITY ) THEN
                MSG =  'Optical quantity read ' // TRIM( OPTICS_EXPECT )
      &             // ' does match expected quantity, ' // TRIM( QUANTITY )
                CALL M3WARN( PNAME, 0, 0, MSG )
@@ -1018,7 +1019,7 @@ C...begin read
      &         OPTICS_EXPECT, RADIUS_LIQUID( ITT_LOAD ),
      &         ( LIQUID_COALBEDO( ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_OPTICS )
 #endif
-            IF ( TRIM( OPTICS_EXPECT ) .NE. TRIM( QUANTITY ) ) THEN
+            IF ( OPTICS_EXPECT .NE. QUANTITY ) THEN
                MSG =  'Optical quantity read ' // TRIM( OPTICS_EXPECT )
      &             // ' does match expected quantity, ' // TRIM( QUANTITY )
                CALL M3WARN( PNAME, 0, 0, MSG )
@@ -1066,7 +1067,7 @@ C...begin read
      &         OPTICS_EXPECT, DIAMETER_ICE( ITT_LOAD ),
      &         ( ICE_EXTINCT( ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_OPTICS )
 #endif
-            IF ( TRIM( OPTICS_EXPECT ) .NE. TRIM( QUANTITY ) ) THEN
+            IF ( OPTICS_EXPECT .NE. QUANTITY ) THEN
                MSG =  'Optical quantity read ' // TRIM( OPTICS_EXPECT )
      &             // ' does match expected quantity, ' // TRIM( QUANTITY )
                CALL M3WARN( PNAME, 0, 0, MSG )
@@ -1091,7 +1092,7 @@ C...begin read
      &         OPTICS_EXPECT, DIAMETER_ICE( ITT_LOAD ),
      &         ( ICE_ASYMFACT( ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_OPTICS )
 #endif
-            IF ( TRIM( OPTICS_EXPECT ) .NE. TRIM( QUANTITY ) ) THEN
+            IF ( OPTICS_EXPECT .NE. QUANTITY ) THEN
                MSG =  'Optical quantity read ' // TRIM( OPTICS_EXPECT )
      &             // ' does match expected quantity, ' // TRIM( QUANTITY )
                CALL M3WARN( PNAME, 0, 0, MSG )
@@ -1116,7 +1117,7 @@ C...begin read
      &         OPTICS_EXPECT, DIAMETER_ICE( ITT_LOAD ),
      &         ( ICE_COALBEDO( ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_OPTICS )
 #endif
-            IF ( TRIM( OPTICS_EXPECT ) .NE. TRIM( QUANTITY ) ) THEN
+            IF ( OPTICS_EXPECT .NE. QUANTITY ) THEN
                MSG =  'Optical quantity read ' // TRIM( OPTICS_EXPECT )
      &             // ' does match expected quantity, ' // TRIM( QUANTITY )
                CALL M3WARN( PNAME, 0, 0, MSG )
@@ -1141,7 +1142,7 @@ C...begin read
      &         OPTICS_EXPECT, DIAMETER_ICE( ITT_LOAD ),
      &         ( ICE_DELTRANS( ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_OPTICS )
 #endif
-            IF ( TRIM( OPTICS_EXPECT ) .NE. TRIM( QUANTITY ) ) THEN
+            IF ( OPTICS_EXPECT .NE. QUANTITY ) THEN
                MSG =  'Optical quantity read ' // TRIM( OPTICS_EXPECT )
      &             // ' does match expected quantity, ' // TRIM( QUANTITY )
                CALL M3WARN( PNAME, 0, 0, MSG )
@@ -1243,7 +1244,7 @@ C...begin read
      &        ( SPECTRAL_ALBEDO_REF(IWL_LOAD, ITT_LOAD), IWL_LOAD = 1, NWL_REF )
 
 #ifdef verbose_phot
-         write( log_unit,'(a30,1x,40(1pe12.6,2x))' ) trim( land_expect ),
+         write( log_unit,'(a30,1x,40(1pe13.6,2x))' ) trim( land_expect ),
      &        ( spectral_albedo_ref(iwl_load, itt_load), iwl_load = 1, nwl_ref )
 #endif
 
@@ -1397,7 +1398,7 @@ C...begin read
 99947 FORMAT(a3, 1x, a16)
 99948 FORMAT(10(a16,1x))
 99949 FORMAT(4x,3(f8.3,2x),2x,2(es12.4,2x),f8.3,2x,12(es12.4,2x))
-99950 FORMAT(a8,1x,f10.3,40(1x,1pe12.6))
+99950 FORMAT(a8,1x,f10.3,40(1x,1pe13.6))
 99951 FORMAT('Too Small Differences in Liquid Droplet Radii = ',1PE12.4,' um ')
 99952 FORMAT('Too Small Differences in Ice Particle Sizes   = ',1PE12.4,' um ')
 #ifdef verbose_phot
@@ -1960,7 +1961,7 @@ C-----------------------------------------------------------------------
                         CSQY_ADJUST( IPHOT ) = BIACETYL
                      CASE ( 'HCHO_M_MCMv32', 'HCHOM_06', 'HCHO_M_SAPRC99', 'HCHO_MOL_RACM2', 'FORM_R_IUPAC10' )  ! 'CH2O -> H2 + CO'
                         CSQY_ADJUST( IPHOT ) = FORMALDEHYDE_MOLECULAR
-                     CASE (  'ACET_06', 'ACETONE', 'CH3COCH3_RACM2' ) ! 'CH3COCH3 -> products'
+                     CASE (  'ACET_06', 'ACETONE', 'CH3COCH3_RACM2', 'ACET_IUPAC10' ) ! 'CH3COCH3 -> products'
                         CSQY_ADJUST( IPHOT ) = ACETONE
                      CASE (  'KETONE'  )
                         CSQY_ADJUST( IPHOT ) = KETONE_LEGACY
@@ -1968,7 +1969,7 @@ C-----------------------------------------------------------------------
                         CSQY_ADJUST( IPHOT ) = KETONE_RACM2
                      CASE ( 'GLYH2_RACM2', 'GLYF_RACM2', 'GLYHX_RACM2', 'MGLY_RACM2'  ) ! glyoxal treatement from W. Stockwell sbox
                         CSQY_ADJUST( IPHOT ) = GLYOXAL_RACM2
-                     CASE ( 'GLYOX_R_CRI', 'GLYOX_M_CRI'  ) ! glyoxal treatement based on IUPAC 2013 datasheet
+                     CASE ( 'GLYOX_R_CRI', 'GLYOX_M_CRI', 'GLY_R_IUPAC10'  ) ! glyoxal treatement based on IUPAC 2013 datasheet
                         CSQY_ADJUST( IPHOT ) = GLYOXAL_IUPAC_2013
                      CASE (  'MGLY_ADJ',  'MGLY_ABS' )
                         CSQY_ADJUST( IPHOT ) = METHYL_GLYOXAL_LEGACY

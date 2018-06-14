@@ -20,7 +20,7 @@
 ! RCS file, release, date & time of last delta, author, state, [and locker]
 ! $Header: /project/yoj/arc/CCTM/src/phot/phot_inline/o3totcol.f,v 1.2 2011/10/21 16:11:28 yoj Exp $ 
 
-      subroutine o3totcol ( latitude, longitude, jdate, ozone )
+      subroutine o3totcol ( latitude, longitude, jdate, jtime, ozone )
 
 !----------------------------------------------------------------------
 ! Function:
@@ -44,6 +44,7 @@
 ! arguments
 
       integer, intent( in ) :: jdate      ! Julian day of the year (yyyyddd)
+      integer, intent( in ) :: jtime      ! time (hhmmss)
 
       real, intent( in )    :: latitude   ! latitude of point on earth's surface
       real, intent( in )    :: longitude  ! longitude of point on earth's surface
@@ -51,9 +52,9 @@
 
 ! parameters
 
-      integer, parameter :: nlat = 17 ! or 19
-      integer, parameter :: nlon = 17
-
+!      integer, parameter :: nlat = 17 ! or 19
+!      integer, parameter :: nlon = 17
+       real,    parameter :: sec2day = 1.0 / 8.64E+4
 ! local variables
 
       character( 16 ), save :: tmfile = 'OMI'
@@ -69,12 +70,18 @@
       integer :: ios
       integer :: nrecs
       integer :: jyear
+      integer :: time
 
+      integer, save :: nlat ! = 17 ! or 19
+      integer, save :: nlon ! = 17
       integer, save :: logdev           ! output log unit number
       integer, save :: nt
       integer, save :: it
+      integer, save :: icolumn_prev = 1 
+      integer, save :: icolumn_next = 2
       integer, save :: tmunit
       integer, save :: jdate_prev = 0
+      integer, save :: jtime_prev = 0
       integer, save :: jstdate, jenddate, jtdate_temp
 
       real :: flag( 8 )
@@ -88,6 +95,7 @@
 
       real, save :: x1
       real, save :: stdate, enddate
+      real, save :: max_lat, min_lat
 
       real, allocatable, save :: t( : )
       real, allocatable, save :: lat( : )
@@ -102,6 +110,14 @@
       
         firsttime = .false.
         logdev = init3()
+
+        tmunit = getefile( tmfile, .true., .true., pname )
+
+        read( tmunit, '(5x,i7)')nlat
+        read( tmunit, '(5x,i7)')nlon
+
+        write(logdev,'(a,i7,a,i7)')'OMI Ozone column data has Lat by Lon Resolution: ',
+     &  nlat,'X',nlon
 
         allocate ( lat( nlat ), stat = allocstat )
         if ( allocstat .ne. 0 ) then
@@ -120,8 +136,6 @@
         do ilon = 1, nlon
           lon( ilon ) = -180.0 + x2 * real( ilon - 1 )
         end do
-
-        tmunit = getefile( tmfile, .true., .true., pname )
 
         if ( tmunit .lt. 0 ) then
           xmsg = 'Error opening ' // tmfile
@@ -151,6 +165,8 @@
 
         rewind( tmunit )
         read( tmunit, * )
+        read( tmunit, * )
+        read( tmunit, * )
 
 ! When adding x lines of data to OMI.dat, increase upper limit by x
 ! Note: ilat(1) => North to South in degrees
@@ -164,102 +180,112 @@
           end do
         end do
 
+        max_lat = maxval( lat )
+        min_lat = minval( lat )
         stdate  = minval( t )
         enddate = maxval( t )
 
       end if ! firsttime
 
-      if ( jdate .ne. jdate_prev ) then
-! reset oz and jdate_prev
-        jdate_prev = jdate
-        oz = 0.0
-
+      if ( jdate .ne. jdate_prev .or. jtime .ne. jtime_prev ) then
 ! Use a temporary dummy variable jdate_temp so as not to overwrite jdate
+        jtime_prev = jtime
 
         jyear = jdate / 1000
-        tdate = real( jyear ) + real( jdate - jyear * 1000 ) * yr2day( jyear )
+        time  = mod(jtime, 100) + 60*mod(jtime/100, 100)+ 3600*(jtime/10000)
+
+        tdate = real( jyear ) 
+     &        + ( real( jdate - jyear * 1000 ) + real( time ) * sec2day ) * yr2day( jyear )
+
         tdate_temp = tdate
 
 ! Determine if the ozone database includes the requested jdate
-
+           if ( tdate .ge. enddate ) then
 ! Submitted date is outside of ozone database range.
 !     Total column ozone will be estimated from the corresponding Julian Day
 !     of the prior year
-
-        if ( tdate .ge. enddate ) then
-          tdate_temp = real( int( enddate ) ) + ( tdate - real( int( tdate ) ) )
-          if ( tdate_temp .gt. enddate ) then
-            tdate_temp = tdate_temp - 1.0
-          end if
-          jenddate = int( enddate ) * 1000
-     &             + int( ( 1.0 / yr2day( int( enddate ) ) )
-     &                  * ( enddate - int( enddate ) ) )
-          jtdate_temp = int( tdate_temp ) * 1000
-     &                + nint( ( 1.0 / yr2day( int( tdate_temp ) ) )
-     &                 * ( tdate_temp - int( tdate_temp ) ) )
-          xmsg = 'Requested date is beyond available data on OMI file:  <' 
-     &           // dt2str( jenddate, 0 )
-          call m3warn ( pname, jdate, 0, xmsg )
-          xmsgs( 1 ) = 'Total column ozone will be estimated from the corresponding Julian Day '
-          xmsgs( 2 ) = 'of the last available year on the '
-     &               // 'OMI input file:' // dt2str( jtdate_temp, 0 ) // '<<---<<'
-          xmsgs( 3 ) = ' '
-          call m3parag ( 3, xmsgs )
-
+             tdate_temp = aint( enddate ) + ( tdate - aint( tdate ) )
+             if ( tdate_temp .gt. enddate ) then
+               tdate_temp = tdate_temp - 1.0
+             end if
+             jenddate = int( enddate ) * 1000
+     &                + int( ( 1.0 / yr2day( int( enddate ) ) )
+     &                  * ( enddate - aint( enddate ) ) )
+             jtdate_temp = int( tdate_temp ) * 1000
+     &                   + nint( ( 1.0 / yr2day( int( tdate_temp ) ) )
+     &                   * ( tdate_temp - aint( tdate_temp ) ) )
+             if( jdate_prev .ne. jdate )then ! write message to log
+                xmsg = 'Requested date is beyond available data on OMI file:  <' 
+     &              // dt2str( jenddate, 0 )
+                call m3warn ( pname, jdate, 0, xmsg )
+                xmsgs( 1 ) = 'Total column ozone will be estimated from the corresponding Julian Day '
+                xmsgs( 2 ) = 'of the last available year on the '
+     &                    // 'OMI input file:' // dt2str( jtdate_temp, 0 ) // '<<---<<'
+                write(xmsgs( 3 ),'(A,F14.8)')'Exact date: ',tdate_temp
+                call m3parag ( 3, xmsgs )
+             end if
+           else if ( tdate .le. stdate ) then
 ! Submitted date is outside of ozone database range.
 !     Total column ozone will be estimated from the corresponding Julian Day of
 !     the subsequent year
-
-        else if ( tdate .le. stdate ) then
-          tdate_temp = real( int( stdate ) ) + ( tdate - real( int( tdate ) ) )
-          if ( tdate_temp .lt. stdate ) then
-            tdate_temp = tdate_temp + 1.0
-          end if
-          jstdate = int( stdate ) * 1000
-     &            + int( ( 1.0 / yr2day( int( stdate ) ) )
-     &               * ( stdate - int( stdate ) ) )
-          jtdate_temp = int( tdate_temp ) * 1000
-     &                + nint( ( 1.0 / yr2day( int( tdate_temp ) ) )
-     &                 * ( tdate_temp - real( int( tdate_temp ) ) ) )
-          xmsg = 'Requested date preceeds available data on OMI file:  >' 
-     &           // dt2str( jstdate, 0 )
-          call m3warn ( pname, jdate, 0, xmsg )
-          xmsgs( 1 ) = 'Total column ozone will be estimated from the corresponding Julian Day'
-          xmsgs( 2 ) = 'of the next available year on the OMI input file:'
-     &               // dt2str( jtdate_temp, 0 ) // '<<---<<'
-          xmsgs( 3 ) = ' '
-          call m3parag ( 3, xmsgs )
+             tdate_temp = real( int( stdate ) ) + ( tdate - real( int( tdate ) ) )
+             if ( tdate_temp .lt. stdate ) then
+               tdate_temp = tdate_temp + 1.0
+             end if
+             jstdate = int( stdate ) * 1000
+     &               + int( ( 1.0 / yr2day( int( stdate ) ) )
+     &               * ( stdate - aint( stdate ) ) )
+             jtdate_temp = int( tdate_temp ) * 1000
+     &                   + nint( ( 1.0 / yr2day( int( tdate_temp ) ) )
+     &                   * ( tdate_temp - aint( tdate_temp ) ) )
+             if( jdate_prev .ne. jdate )then ! write message to log
+                xmsg = 'Requested date preceeds available data on OMI file:  >' 
+     &              // dt2str( jstdate, 0 )
+                call m3warn ( pname, jdate, 0, xmsg )
+                xmsgs( 1 ) = 'Total column ozone will be estimated from the corresponding Julian Day'
+                xmsgs( 2 ) = 'of the next available year on the OMI input file:'
+     &                 // dt2str( jtdate_temp, 0 ) // '<<---<<'
+                xmsgs( 3 ) = ' '
+                call m3parag ( 3, xmsgs )
+             end if
 
 ! Submitted date falls within the satellite data measurement gap beginning
 !     on 24 Nov 1994 and ending on 22 Jul 1996.
 
-        else if ( ( tdate .ge. 1994.899 ) .and. 
-     &            ( tdate .le. 1996.557 ) ) then
+           else if ( ( tdate .ge. 1994.899 ) .and. 
+     &               ( tdate .le. 1996.557 ) ) then
         
-          if ( tdate .le. 1995.738 ) then
-            tdate_temp = tdate - 1.0  ! use previous year
-          else
-            tdate_temp = tdate + 1.0  ! use subsequent year
-          end if
-          jtdate_temp = int( tdate_temp ) * 1000
+             if ( tdate .le. 1995.738 ) then
+               tdate_temp = tdate - 1.0  ! use previous year
+             else
+               tdate_temp = tdate + 1.0  ! use subsequent year
+             end if
+             jtdate_temp = int( tdate_temp ) * 1000
      &                + nint( ( 1.0 / yr2day( int( tdate_temp ) ) )
-     &                 * ( tdate_temp - int( tdate_temp ) ) )
-          xmsg = 'Requested date falls within satellite data'
-     &           // ' measurement gap: 24 Nov 1994 - 22 Jul 1996'
-          call m3warn ( pname, jdate, 0, xmsg )
-          xmsgs( 1 ) = 'Total column ozone will be estimated from the corresponding Julian Day'
-          xmsgs( 2 ) = 'of the closest available year on the OMI input file:'
-     &               // dt2str( jtdate_temp, 0 ) // '<<---<<'
-          xmsgs( 3 ) = ' '
-          call m3parag ( 3, xmsgs )
-        
-        else
-          xmsgs( 1 ) = 'Total column ozone will be interpolated to day '
-     &               // dt2str( jdate, 0 )
-          xmsgs( 2 ) = 'from data available on the OMI input file'
-          xmsgs( 3 ) = ' '
-          call m3parag ( 3, xmsgs )
-        end if
+     &                 * ( tdate_temp - aint( tdate_temp ) ) )
+             if( jdate_prev .ne. jdate )then ! write message to log
+                xmsg = 'Requested date falls within satellite data'
+     &              // ' measurement gap: 24 Nov 1994 - 22 Jul 1996'
+                call m3warn ( pname, jdate, 0, xmsg )
+                xmsgs( 1 ) = 'Total column ozone will be estimated from the corresponding Julian Day'
+                xmsgs( 2 ) = 'of the closest available year on the OMI input file:'
+     &                     // dt2str( jtdate_temp, 0 ) // '<<---<<'
+                xmsgs( 3 ) = ' '
+                call m3parag ( 3, xmsgs )
+             end if
+           else
+             if( jdate_prev .ne. jdate )then ! write message to log
+               xmsgs( 1 ) = 'Total column ozone will be interpolated to day '
+     &                    // dt2str( jdate, 0 )
+               xmsgs( 2 ) = 'from data available on the OMI input file'
+               xmsgs( 3 ) = ' '
+               call m3parag ( 3, xmsgs )
+             end if  
+           end if
+
+        if( jdate_prev .ne. jdate )then ! need to update day interpolation points
+           jdate_prev = jdate
+           oz = 0.0
 
 ! When adding x lines of data to OMI.dat, increase upper limit by x
 ! and increase the dimension of t as needed
@@ -268,38 +294,43 @@
 ! i.e.  (it) < (jdate_temp) < (it+1)
 ! where it is the index var for the database
 ! and determine the interpolation factor ?x1? between the bounding dates
+! reset oz and jdate_prev
 
-        x1 = 0.0
-        x1loop: do it = 1, nt-1
-          if ( ( tdate_temp .ge. t( it ) ) .and. 
-     &         ( tdate_temp .le. t( it+1 ) ) ) then
-            x1 = ( tdate_temp - t( it ) ) / ( t( it+1) - t( it ) )
-            exit x1loop
-          end if
-        end do x1loop
-
+           x1 = 0.0
+           x1loop: do it = 1, nt-1
+             if ( ( tdate_temp .ge. t( it ) ) .and. 
+     &              ( tdate_temp .le. t( it+1 ) ) ) then
+                icolumn_prev = it
+                icolumn_next = it + 1
+                exit x1loop
+              end if
+            end do x1loop
 ! Determine the corresponding bounding ozone values for all lats and lons
+           rewind( tmunit )
+           read( tmunit,* )
+           read( tmunit,* )
+           read( tmunit,* )
+   
+           do i = 1, it-1
+             do ilat = 1, nlat
+               read( tmunit,* )
+             end do
+           end do
+   
+           do ilat = 1, nlat
+             read( tmunit,* ) t( it ), lat( ilat ), ( oz( ilat, ilon, 1 ), ilon=1,(nlon-1) )
+             oz( ilat, nlon, 1 ) = oz( ilat, 1, 1 )
+           end do
+   
+           do ilat = 1, nlat
+             read( tmunit,* ) t( it+1 ), lat( ilat ), ( oz( ilat, ilon, 2 ), ilon=1,(nlon-1) )
+             oz( ilat, nlon, 2 ) = oz( ilat, 1, 2 )
+           end do
+        end if 
 
-        rewind( tmunit )
-        read( tmunit,* )
+        x1 = ( tdate_temp - t( icolumn_prev ) ) / ( t( icolumn_next ) - t( icolumn_prev ) )
    
-        do i = 1, it-1
-          do ilat = 1, nlat
-            read( tmunit,* )
-          end do
-        end do
-   
-        do ilat = 1, nlat
-          read( tmunit,* ) t( it ), lat( ilat ), ( oz( ilat, ilon, 1 ), ilon=1,(nlon-1) )
-          oz( ilat, nlon, 1 ) = oz( ilat, 1, 1 )
-        end do
-   
-        do ilat = 1, nlat
-          read( tmunit,* ) t( it+1 ), lat( ilat ), ( oz( ilat, ilon, 2 ), ilon=1,(nlon-1) )
-          oz( ilat, nlon, 2 ) = oz( ilat, 1, 2 )
-        end do
-   
-      end if   ! jdate .ne. jdate_prev
+      end if   ! jdate .ne. jdate_prev and jtime .ne. jday
 
       flag  = 0.0
       ozone = 0.0
@@ -307,13 +338,13 @@
       x2 = 0.0
       x3 = 0.0
 
-! Handle the special case of abs(lat) > 80.
+! Handle the special case of lat > max_lat or lat < min_lat.
 ! use a dummy latitude variable latitudem so as to prevent overwriting latitude
 
-      if ( latitude .gt. 80.0 ) then
-        latitudem = 80.0
-      else if ( latitude .lt. -80.0 ) then
-        latitudem = -80.0
+      if ( latitude .gt. max_lat ) then
+        latitudem = max_lat
+      else if ( latitude .lt. min_lat ) then
+        latitudem = min_lat
       else
         latitudem = latitude
       end if
@@ -413,9 +444,9 @@
 
       total = sum( flag )
 
-! Special case of abs(lat) > 80
+! Special case of min_lat > lat or lat > max_lat
 
-      if ( latitude .ge. 80.0 ) then
+      if ( latitude .ge. max_lat ) then
 
         np_oz = 0.0
         icount = 0
@@ -437,7 +468,7 @@
 
         np_oz = np_oz / real( icount )
 
-      else if ( latitude .le. -80.0 ) then
+      else if ( latitude .le. min_lat ) then
 
         sp_oz = 0.0
         icount = 0
@@ -466,15 +497,15 @@
       if ( total .le. 0.0 ) then
         ozone = 300.0
       else
-        if ( latitude .ge. 80.0 ) then
+        if ( latitude .ge. max_lat ) then
           np_oz = np_oz / total
-          ozone = ( ( latitude - 80.0 ) * 0.1 ) * np_oz
-     &          + ( 1.0 - ( ( ( latitude - 80.0 ) * 0.1 ) ) ) * ozone / total
+          ozone = ( ( latitude - max_lat ) * 0.1 ) * np_oz
+     &          + ( 1.0 - ( ( ( latitude - max_lat ) * 0.1 ) ) ) * ozone / total
         
-        else if ( latitude .le. -80.0 ) then
+        else if ( latitude .le. min_lat ) then
           sp_oz = sp_oz / total
-          ozone = ( ( latitude + 80.0 ) * 0.1 ) * sp_oz
-     &          + ( 1.0 - ( ( ( latitude + 80.0 ) * 0.1 ) ) ) * ozone / total
+          ozone = ( ( latitude - min_lat ) * 0.1 ) * sp_oz
+     &          + ( 1.0 - ( ( ( latitude - min_lat ) * 0.1 ) ) ) * ozone / total
         
         else
           ozone = ozone / total
@@ -483,8 +514,36 @@
 
 899   if ( ozone .lt. 100.0 ) then
         ozone = 100.0
-      else if ( ozone .gt. 600.0 ) then
-        ozone = 600.0
+!        xmsg = 'interpolated ozone column below 100 DU'
+!        write(logdev,'(A,20(F10.4,1X))')'For time:',tdate_temp
+!        write(logdev,'(A,20(F10.4,1X))')'At lat,lon:',latitude,longitude
+!        write(logdev,'(A,20(F10.4,1X))')'Intepolated data'
+!        write(logdev,'(A,20(F10.4,1X))')'Time Point 1',
+!     &       t( icolumn_prev ),lat( ilat ),lat( ilat+1 ),lon( ilon),lon( ilon+1 ),
+!     &       oz( ilat,   ilon+1, 1 ), oz( ilat  , ilon  , 1 ), 
+!     &       oz( ilat+1, ilon+1, 1 ), oz( ilat+1, ilon  , 1 )
+!        write(logdev,'(A,20(F10.4,1X))')'Time Point 2',
+!     &       t( icolumn_next ),lat( ilat ),lat( ilat+1 ),lon( ilon),lon( ilon+1 ),
+!     &       oz( ilat,   ilon+1, 2 ), oz( ilat  , ilon  , 2 ), 
+!     &       oz( ilat+1, ilon+1, 2 ), oz( ilat+1, ilon  , 2 )
+!        write(logdev,'(A,20(F10.4,1X))')'Weights, x1, x2,x3: ',x1, x2,x3
+!        CALL M3EXIT( 'o3totcol', JDATE, JTIME, XMSG, XSTAT1 )
+      else if ( ozone .gt. 800.0 ) then
+!        xmsg = 'interpolated ozone column above 800 DU'
+!        write(logdev,'(A,20(F10.4,1X))')'For time:',tdate_temp
+!        write(logdev,'(A,20(F10.4,1X))')'At lat,lon:',latitude,longitude
+!        write(logdev,'(A,20(F10.4,1X))')'Intepolated data'
+!        write(logdev,'(A,20(F10.4,1X))')'Time Point 1',
+!     &       t( icolumn_prev ),lat( ilat ),lat( ilat+1 ),lon( ilon),lon( ilon+1 ),
+!     &       oz( ilat,   ilon+1, 1 ), oz( ilat  , ilon  , 1 ), 
+!     &       oz( ilat+1, ilon+1, 1 ), oz( ilat+1, ilon  , 1 )
+!        write(logdev,'(A,20(F10.4,1X))')'Time Point 2',
+!     &       t( icolumn_next ),lat( ilat ),lat( ilat+1 ),lon( ilon),lon( ilon+1 ),
+!     &       oz( ilat,   ilon+1, 2 ), oz( ilat  , ilon  , 2 ), 
+!     &       oz( ilat+1, ilon+1, 2 ), oz( ilat+1, ilon  , 2 )
+!        write(logdev,'(A,20(F10.4,1X))')'Weights, x1, x2,x3: ',x1, x2,x3
+!        CALL M3EXIT( 'o3totcol', JDATE, JTIME, XMSG, XSTAT1 )
+        ozone = 800.0
       end if
 
       return

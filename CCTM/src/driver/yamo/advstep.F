@@ -173,6 +173,10 @@ C Local Variables:
       REAL, ALLOCATABLE, SAVE :: MX_HDIV_END( : )   ! at end of output step
       REAL, ALLOCATABLE, SAVE :: MX_HDIV    ( : )   ! for whole output step
 
+      REAL(8), PARAMETER :: TOL = 1.D-3 ! Tolerance Parameter for checking that grid 
+                                        ! specifications from input files match those 
+                                        ! in the model. Units are in meters.
+
       CHARACTER( 16 ) :: PNAME = 'ADVSTEP'
       CHARACTER( 96 ) :: XMSG = ' '
 
@@ -301,7 +305,10 @@ C Open wind field file and get header data
 
 C Check file data against COORD.EXT
 
-         IF ( XCELL3D .NE. XCELL_GD .OR. YCELL3D .NE. YCELL_GD ) THEN
+         IF ( ABS( XCELL3D - XCELL_GD ) .GT. TOL .OR.
+     &        ABS( YCELL3D - YCELL_GD ) .GT. TOL      ) THEN
+            WRITE( LOGDEV,* ) 'XCELL3D, XCELL_GD, YCELL3D, YCELL_GD: '
+            WRITE( LOGDEV,* ) XCELL3D, XCELL_GD, YCELL3D,YCELL_GD
             XMSG = 'File grid sizes do not match CTM domain definition'
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
          END IF

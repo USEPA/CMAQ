@@ -337,8 +337,8 @@ C                          '12345678901234567890'
                            pHfac1 = 10.0 ** (-pHs1( c,r,l ) )
                            pHfac2 = 10.0 ** (-pHs2( c,r,l ) )
                         Else
-                           pHfac1 = 0.0
-                           pHfac2 = 0.0
+                           pHfac1 = 1.0
+                           pHfac2 = 1.0
                         End If
 ! convert units from kg/ha N to mol/l
                         If ( pHs1( c,r,l )   .Gt. 4.0       .And.
@@ -441,8 +441,13 @@ C                          '12345678901234567890'
                Do c = 1, my_ncols
                   Tot_Ag = 0.0 
                   Do l = 1, e2c_cats
-                     pHfac1 = 10.0 ** (-pHs1( c,r,l ) )
-                     pHfac2 = 10.0 ** (-pHs2( c,r,l ) )
+                        If( pHs1( c,r,l ) .Gt. 0.0 ) Then
+                           pHfac1 = 10.0 ** (-pHs1( c,r,l ) )
+                           pHfac2 = 10.0 ** (-pHs2( c,r,l ) )
+                        Else
+                           pHfac1 = 1.0
+                           pHfac2 = 1.0
+                        End If
 ! convert units from kg/ha N to mol/l 
                      If ( Index( Beld_Names( l ), '_ir' ) .Gt. 0 ) Then
                         frac_ir( c,r ) = frac_ir( c,r ) + Beld_ag( c,r,l )
@@ -667,7 +672,7 @@ C-------------------------------------------------------------------------------
                      cnh3g1 = 0.0
                      cnh3g2 = 0.0
                      watfrac = watfrac + GRID_DATA%LUFRAC( c,r,j )
-                  Case( 'AG' ) ! Ag
+                  Case( 'AG','HAY' ) ! Ag
                      cnh3g1 = Min( Max( gamma1( c,r ) / wg_ir, C_gam / wg_ir ),
      &                                  maxgam)
                      cnh3g2 = Min( Max( gamma2( c,r ) / w5cm, C_gam / w5cm), 
@@ -754,7 +759,7 @@ C-------------------------------------------------------------------------------
                         f_dep = f_dep + GRID_DATA%LUFRAC( c,r,j )
      &                        / ( rsurfj( j,l,c,r )+MOSAIC_DATA%RA( c,r,j ) ) * cnh3
                      End If
-                  Case( 'AG','AGMOS' ) ! agriculture
+                  Case( 'AG','HAY','AGMOS' ) ! agriculture
 !> Zero out the atmospheric NH3 concentration for emissions
                      xxx = rwx * ( qq - ga*cnh3 ) - rwmb * gt - MOSAIC_DATA%LAI( c,r,j )
      &                   * ( 1.0 - MOSAIC_DATA%DELTA( c,r,j ) )
@@ -928,7 +933,7 @@ C-------------------------------------------------------------------------------
          Do i = 1, n_lufrac
             If ( GRID_DATA%LUFRAC( c,r,i ) .Gt. 0.0 ) Then
                Select Case( cat_lu( i ) )
-                  Case('AG','AGMOS' )
+                  Case('AG','HAY','AGMOS' )
                      kvg = kvg + gg( i ) / ( wg * real( ds, 8 ) ) * GRID_DATA%LUFRAC( c,r,i )
                      Kvs = Kvs + ( 161512.0d0 / real( MET_DATA%Tempg( C,R ), 8 )
      &                         * 10.0d0**( -4507.11d0 / real( MET_DATA%Tempg( C,R ), 8 ) ) )

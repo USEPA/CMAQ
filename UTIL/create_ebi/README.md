@@ -1,15 +1,10 @@
 # CMAQ.Create_EBI_Solver
-Data, runscript, and FORTRAN code that CMAQ v51 EBI Solver
+Data, runscript, and FORTRAN code that CMAQ EBI Solver
 
 To create a new EBI solver:
 
-1) Copy scripts/bldrun.create_ebi into its parent directory
+1) Copy and edit scripts/bldrun.create_ebi.csh for your compiler and Mechanism. Save to build the software.
 
-2) Modify makefile.v50XX for the compilers and their flags on your computer platform, IF NECESSARY.
+2) Execute the script.
 
-3) Change the copy of bldrun.create_ebi for your application.
-
-3) Execute the script. Inputs and reference outputs are provided.
-
-To report potential program errors or EBI solver failures, contact Bill
-Hutzell/USEPA at hutzell.bill@epa.gov.
+To report potential program errors or EBI solver failures, contact Bill Hutzell/USEPA at hutzell.bill@epa.gov

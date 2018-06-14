@@ -8,9 +8,13 @@ C  PRECONDITIONS: None
 C 
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by Jerry Gipson, August, 2000
+C  REVISION HISTORY: 
+C      Created by Jerry Gipson, August, 2000
+C      Modified by C. Hogrefe and C. Nolte to use M3UTILIO and 
+C          Fortran intrinsic TRIM(), June 2017
 C                   
 C*************************************************************************
+      USE M3UTILIO
       USE M3FILES
       USE ENV_VARS
       USE GRID_DATA
@@ -18,23 +22,12 @@ C*************************************************************************
 
       IMPLICIT NONE     
 
-C..INCLUDE FILES:
-      INCLUDE 'PARMS3.EXT'     ! IOAPI parameters
-      INCLUDE 'FDESC3.EXT'     ! IOAPI file description
-      INCLUDE 'IODECL3.EXT'    ! IOAPI declarations
-
 C..ARGUMENTS:
       INTEGER   STEP      ! Step number
 
       REAL CONC( M3GRID % NCOLS, M3GRID % NROWS, M3GRID % NLAYS, NVAR )
 
 C..PARAMETERS: NONE
-
-C..EXTERNAL FUNCTIONS:
-      CHARACTER*24  DT2STR    ! Convert M3 date & time to string
-
-      INTEGER JUNIT           ! Get a Fortran unit number
-      INTEGER TRIMLEN         ! Get last non-blank character pos in string
  
 C..SAVED LOCAL VARIABLES:
       INTEGER   IOUT           ! Output file unit number
@@ -85,12 +78,14 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
          DO NFL = 1, N_M3FILES
             CALL NAMEVAL( M3_FLNAME( NFL ), RET_VAL )
-            WRITE( IOUT, 92000) NFL, RET_VAL ( 1 : TRIMLEN( RET_VAL ) )
+!           WRITE( IOUT, 92000) NFL, RET_VAL ( 1 : TRIMLEN( RET_VAL ) )
+            WRITE( IOUT, 92000) NFL, TRIM( RET_VAL ) 
          ENDDO
   
          WRITE( IOUT, 92060) '1'
 
-         WRITE( IOUT, 92080) TIME_CONV ( 1 : TRIMLEN( TIME_CONV) )
+!        WRITE( IOUT, 92080) TIME_CONV ( 1 : TRIMLEN( TIME_CONV) )
+         WRITE( IOUT, 92080) TRIM( TIME_CONV ) 
 
          WRITE( IOUT, 92120) CRDATE( 1 : 8 ), CRDATE( 9 : 24 )
 

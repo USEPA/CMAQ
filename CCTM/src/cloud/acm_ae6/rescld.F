@@ -65,7 +65,8 @@ C      15 01 Jul 11 G. Sarwar: calculate zenith angle to determine daytime and
 C                    nightime needed for sulfur oxidation via metal catalysis
 C      16 02Aug12 S.Roselle:  instrumented to calculate and return
 C                             transmissivity for resolved clouds
-C      07 Nov 14 J.Bash: Updated call to czangle.F for the ASX_DATA_MOD shared data module.  
+C      07 Nov 14 J.Bash: Updated call to czangle.F for the ASX_DATA_MOD shared data module. 
+C      07 May 18 D. Schwede: Removed call to CZANGLE. COSZEN now calculated in ASX_DATA_MOD
 C  Called by:  CLDPROC
  
 C  Calls the following subroutines:  SCAVWDEP and AQ_MAP
@@ -75,6 +76,7 @@ C-----------------------------------------------------------------------
       USE CGRID_SPCS          ! CGRID mechanism species
       USE UTILIO_DEFN
       !USE AQ_DATA 
+      USE ASX_DATA_MOD,  ONLY: MET_DATA
 
       IMPLICIT NONE
 
@@ -179,8 +181,6 @@ C for INTERPX
 
 C Gridded meteorology data:
 C Latitude and longitude for zenith angle calculation: Golam Sarwar * July 1, 2011 
-!     REAL          COSZEN( NCOLS, NROWS )          ! cosine of zenith angle
-      REAL,    ALLOCATABLE, SAVE :: COSZEN( :,: )   ! cosine of zenith angle
       REAL          COSZ                            ! local cosine of zenith angle
       LOGICAL       DARK                            ! DARK = TRUE is night,  DARK = FALSE is day
 
@@ -210,13 +210,6 @@ C...........External Functions:
            REAL,    INTENT( IN )    :: ALFA0, ALFA2, ALFA3
            LOGICAL, INTENT( IN )    :: DARK                  !Golam Sarwar, July 1, 2011
         END SUBROUTINE AQ_MAP
-        SUBROUTINE CZANGLE( JDATE, JTIME, NX, NY, COSZEN )
-           INTEGER, INTENT( IN )  :: JDATE
-           INTEGER, INTENT( IN )  :: JTIME
-           INTEGER, INTENT( IN )  :: NX
-           INTEGER, INTENT( IN )  :: NY
-           REAL,    INTENT( OUT ) :: COSZEN( :,: )
-        END SUBROUTINE CZANGLE
       END INTERFACE
 C-----------------------------------------------------------------------
 
@@ -330,11 +323,6 @@ C...  the met timestep in hours
           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
-        ALLOCATE ( COSZEN ( NCOLS,NROWS ), STAT = ALLOCSTAT )
-        IF ( ALLOCSTAT .NE. 0 ) THEN
-          XMSG = 'Failure allocating COSZEN'
-          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-        END IF
       END IF  ! FIRSTIME
 
       MDATE = JDATE
@@ -470,10 +458,6 @@ C...Get air density (kg/m3)
         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
       END IF
 
-C.. Compute zenith angle; Golam Sarwar, July 1, 2011 
-
-      CALL CZANGLE ( JDATE, JTIME, MY_NCOLS, MY_NROWS, COSZEN ) 
- 
 C...compute layer thicknesses (m)
 
       DO ROW = 1, MY_NROWS
@@ -640,7 +624,7 @@ C...  that participated in cloud chemistry
 
 C...  calculate cosine of zenith angle for the cell and determine day or night; Golam Sarwar 
 
-                  COSZ = COSZEN( COL, ROW )
+                  COSZ = MET_DATA%COSZEN( COL, ROW )
 
                   IF ( COSZ .LE. 0.0 ) THEN
                     DARK = .TRUE.   ! night
@@ -726,9 +710,9 @@ C...set cgrid to the ending concentrations
                   END IF
                 END DO
 
-              END IF
-            END DO
-          END IF
+              END IF        ! Sum( QC,QR,QG ) > 0.00005 ?
+            END DO       ! lay
+          END IF      ! QCRGCOL > 0 ?
 
         END DO   ! col
       END DO   ! row

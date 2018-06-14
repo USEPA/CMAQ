@@ -50,3 +50,4 @@ Edit the sample run script (run.block_extract), then run:
 ```
 Check the log file to ensure complete and correct execution without errors.
 Note that in addition to the OUTFILE, the program generates a text file "specdef" which lists the variables that were extracted.
+
