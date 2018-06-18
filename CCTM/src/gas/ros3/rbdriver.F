@@ -84,7 +84,8 @@ C**********************************************************************
       USE AEROSOL_CHEMISTRY
       USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP
       USE PA_DEFN, Only: LIRR   ! Process Anaylsis control and data variable
-
+      USE PA_IRR_CLT
+      
       IMPLICIT NONE 
 
 C..Includes:
@@ -208,25 +209,6 @@ C for interpolating meteorological inputs
             INTEGER, INTENT( IN )  :: DTSTEP( : ) ! time step vector (HHMMSS)
             REAL,    INTENT( OUT ) :: RJ( :,:,:,: ) ! gridded J-values  (1/min units)
          END SUBROUTINE PHOT
-         SUBROUTINE PA_IRR_CKBLK ( NUMCELLS, LIRRFLAG, OFFSET,
-     &                             CCOL, CROW, CLEV, NORDCELL,
-     &                             NIRRCLS, IRRCELL )
-            INTEGER, INTENT( IN )  :: NUMCELLS, OFFSET
-            LOGICAL, INTENT( OUT ) :: LIRRFLAG
-            INTEGER, INTENT( IN )  :: CCOL( : ), CROW( : ), CLEV( : )
-            INTEGER, INTENT( IN )  :: NORDCELL( : )
-            INTEGER, INTENT( INOUT ) :: NIRRCLS
-            INTEGER, INTENT( INOUT ) :: IRRCELL( : )
-         END SUBROUTINE PA_IRR_CKBLK
-         SUBROUTINE PA_IRR_BLKENDC ( OFFSET, 
-     &                               CCOL, CROW, CLEV, NORDCELL,
-     &                               NIRRCLS, IRRCELL )
-            INTEGER, INTENT( IN ) :: OFFSET
-            INTEGER, INTENT( IN ) :: CCOL( : ), CROW( : ), CLEV( : )
-            INTEGER, INTENT( IN ) :: NORDCELL( : )
-            INTEGER, INTENT( INOUT ) :: NIRRCLS
-            INTEGER, INTENT( INOUT ) :: IRRCELL( : )
-         END SUBROUTINE PA_IRR_BLKENDC
          SUBROUTINE RBSOLVER ( LOGDEV, JDATE, JTIME, CHEMSTEP, NCSP,
      &                         LIRRFLAG, NIRRCLS, IRRCELL )
             INTEGER,   INTENT( IN ) :: LOGDEV, JDATE, JTIME
@@ -532,7 +514,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
              CALL PA_IRR_CKBLK ( NUMCELLS, LIRRBLK, OFFSET,
      &                           CCOL, CROW, CLEV, NORDCELL, NIRRCLS,
      &                           IRRCELL )
-             CALL PA_IRR_BLKSTRT( NUMCELLS )
          END IF
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C  Put the grid cell physical data in the block arrays, converting
