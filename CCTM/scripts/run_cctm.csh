@@ -129,6 +129,9 @@ setenv CTM_ZERO_PCSOA N      #> turn off the emissions of the VOC precursor to p
                              #>    The CMAQ dev team recommends leaving pcSOA mass in the
                              #>    model for production runs. [ default: N ]
 
+#> Vertical Extraction Options
+setenv DOVERTEXT N
+setenv VERTLONLATPATH ${WORKDIR}/lonlat.csv
 #> Process Analysis Options
 setenv CTM_PROCAN N          #> use process analysis [ default: N]
 #> process analysis global column, row and layer ranges
@@ -301,7 +304,6 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      set GSPROpath   = ${IN_BEISpath}
      setenv GSPRO      $BLD/gspro_biogenics.txt
      setenv B3GRD      $IN_BEISpath/b3grd_bench.nc
-     setenv BIOG_SPRO  B10C6AE7 #> speciation profile to use for biogenics (cb6r3_ae7 uses B10C6AE7)
      setenv BIOSW_YN   Y     #> use frost date switch [ default: Y ]
      setenv BIOSEASON  $IN_BEISpath/bioseason.cmaq.2011_12US1_wetland100.ghrsst_bench.ncf #> ignore season switch file if BIOSW_YN = N
      setenv SUMMER_YN  Y     #> Use summer normalized emissions? [ default: Y ]
@@ -378,6 +380,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv CTM_AOD_1       "$OUTDIR/CCTM_AOD_DIAG_${CTM_APPL}.nc -v"   #> Aerosol Optical Depth Diagnostic
   setenv CTM_LTNGDIAG_1  "$OUTDIR/CCTM_LTNGHRLY_${CTM_APPL}.nc -v"   #> Hourly Avg Lightning NO
   setenv CTM_LTNGDIAG_2  "$OUTDIR/CCTM_LTNGCOL_${CTM_APPL}.nc -v"    #> Column Total Lightning NO
+  setenv CTM_VEXT_1      "$OUTDIR/CCTM_VEXT_${CTM_APPL}.nc -v"       #> On-Hour Concentrations at select sites
 
   #> set floor file (neg concs)
   setenv FLOOR_FILE ${OUTDIR}/FLOOR_${CTM_APPL}.txt
