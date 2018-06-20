@@ -135,7 +135,7 @@ C..Find the IPR species to set correct units descriptor
             IF ( ICG .GE. AE_STRT .AND. ICG .LT. NR_STRT ) THEN
                AE_INDX = ICG - AE_STRT + 1
                IF ( AE_SPC( AE_INDX ) ( 1 : 3 ) .EQ. 'NUM' ) THEN
-                  UNITS3D( NOUT ) = 'ptcls m-3'
+                  UNITS3D( NOUT ) = 'm-3'
                ELSE IF ( AE_SPC( AE_INDX ) ( 1 : 3 ) .EQ. 'SRF' ) THEN
                   UNITS3D( NOUT ) = 'm2 m-3'
                ELSE

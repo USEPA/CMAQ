@@ -150,7 +150,7 @@ C Set output file characteristics based on GRIDDESC and open the dep velocity di
          N = N + 1
             VTYPE3D( N ) = M3REAL
             VNAME3D( N ) = 'LAIJ'
-            UNITS3D( N ) = '-'
+            UNITS3D( N ) = ''
             VDESC3D( N ) = 'leaf area index for land use category'
 
          N = N + 1

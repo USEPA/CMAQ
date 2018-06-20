@@ -186,7 +186,7 @@ C Try to open existing wet deposition file for update
                  VTYPE3D ( VAR ) = M3REAL
                  VNAME3D ( VAR ) = AE_WDEP( SPC )
                  IF ( INDEX( AE_WDEP( SPC ), 'NUM' ) .GT. 0 ) THEN
-                    UNITS3D ( VAR ) = 'ptcls ha-1'
+                    UNITS3D ( VAR ) = 'ha-1'
                  ELSE IF ( INDEX( AE_WDEP( SPC ), 'SRF' ) .GT. 0 ) THEN
                     UNITS3D ( VAR ) = 'm2 ha-1'
                  ELSE
@@ -294,71 +294,71 @@ C Try to open existing wet deposition file for update
                  VAR = VAR + 1
                  VTYPE3D( VAR ) = M3REAL
                  VNAME3D( VAR ) = 'CLOUD_BOTTOM'
-                 UNITS3D( VAR ) = 'layer-number'
-                 VDESC3D( VAR ) = 'layer containing bottom of cloud, or MISSING = -9999.9'
+                 UNITS3D( VAR ) = ''
+                 VDESC3D( VAR ) = 'layer number containing bottom of cloud, or MISSING = -9999.9'
 
 !...define output descriptor for precipitating cloud top layer number
 
                  VAR = VAR + 1
                  VTYPE3D( VAR ) = M3REAL
                  VNAME3D( VAR ) = 'PR_CLOUDTOP'
-                 UNITS3D( VAR ) = 'layer-number'
-                 VDESC3D( VAR ) = 'layer containing top of PR cloud, or MISSING = -9999.9'
+                 UNITS3D( VAR ) = ''
+                 VDESC3D( VAR ) = 'layer number containing top of PR cloud, or MISSING = -9999.9'
 
 !...define output descriptor for non-precipitating cloud top layer number
 
                  VAR = VAR + 1
                  VTYPE3D( VAR ) = M3REAL
                  VNAME3D( VAR ) = 'NP_CLOUDTOP'
-                 UNITS3D( VAR ) = 'layer-number'
-                 VDESC3D( VAR ) = 'layer containing top of NP cloud, or MISSING = -9999.9'
+                 UNITS3D( VAR ) = ''
+                 VDESC3D( VAR ) = 'layer number containing top of NP cloud, or MISSING = -9999.9'
 
 !...define output descriptor for rain event flag
 
                  VAR = VAR + 1
                  VTYPE3D( VAR ) = M3REAL
                  VNAME3D( VAR ) = 'RAIN_FLAG'
-                 UNITS3D( VAR ) = '1-or-0'
-                 VDESC3D( VAR ) = 'Rain-event flag'
+                 UNITS3D( VAR ) = ''
+                 VDESC3D( VAR ) = 'Rain-event flag (values: 1,0)'
  
 !...define output descriptor for precitating cloud fraction
 
                  VAR = VAR + 1
                  VTYPE3D( VAR ) = M3REAL
                  VNAME3D( VAR ) = 'PR_CLDFRAC'
-                 UNITS3D( VAR ) = '-'
-                 VDESC3D( VAR ) = 'PR cloud fraction'
+                 UNITS3D( VAR ) = ''
+                 VDESC3D( VAR ) = 'Precipitating cloud fraction'
 
 !...define output descriptor for non-precipitating cloud fraction
 
                  VAR = VAR + 1
                  VTYPE3D( VAR ) = M3REAL
                  VNAME3D( VAR ) = 'NP_CLDFRAC'
-                 UNITS3D( VAR ) = '-'
-                 VDESC3D( VAR ) = 'NP cloud fraction'
+                 UNITS3D( VAR ) = ''
+                 VDESC3D( VAR ) = 'Non-precipitating cloud fraction'
 
 !...define output descriptor for precipitating cloud transmissivity
 
                  VAR = VAR + 1
                  VTYPE3D( VAR ) = M3REAL
                  VNAME3D( VAR ) = 'PR_TRANS'
-                 UNITS3D( VAR ) = '-'
-                 VDESC3D( VAR ) = 'PR cloud transmissivity'
+                 UNITS3D( VAR ) = ''
+                 VDESC3D( VAR ) = 'Precipitating cloud transmissivity'
 
 !...define output descriptor for non-precipitating cloud transmissivity
 
                  VAR = VAR + 1
                  VTYPE3D( VAR ) = M3REAL
                  VNAME3D( VAR ) = 'NP_TRANS'
-                 UNITS3D( VAR ) = '-'
-                 VDESC3D( VAR ) = 'NP cloud transmissivity'
+                 UNITS3D( VAR ) = ''
+                 VDESC3D( VAR ) = 'Non-precipitating cloud transmissivity'
 
 !...define output descriptor for resolved cloud transmissivity
 
                  VAR = VAR + 1
                  VTYPE3D( VAR ) = M3REAL
                  VNAME3D( VAR ) = 'RES_TRANS'
-                 UNITS3D( VAR ) = '-'
+                 UNITS3D( VAR ) = ''
                  VDESC3D( VAR ) = 'Resolved cloud transmissivity'
 
 !...define output descriptor for overall cloud transmissivity
@@ -366,7 +366,7 @@ C Try to open existing wet deposition file for update
                  VAR = VAR + 1
                  VTYPE3D( VAR ) = M3REAL
                  VNAME3D( VAR ) = 'CLD_TRANS'
-                 UNITS3D( VAR ) = '-'
+                 UNITS3D( VAR ) = ''
                  VDESC3D( VAR ) = 'Total cloud transmissivity'
 
 !...initialize the file descriptors

@@ -104,7 +104,7 @@ C Set output file characteristics based on COORD.EXT and open the dry dep file
 
          VTYPE3D( 1 ) = M3REAL
          VNAME3D( 1 ) = 'DCV_Mie'
-         UNITS3D( 1 ) = 'deciview'
+         UNITS3D( 1 ) = 'dv'
          VDESC3D( 1 ) = 'hourly visual range'
 
          VTYPE3D( 2 ) = M3REAL
@@ -114,7 +114,7 @@ C Set output file characteristics based on COORD.EXT and open the dry dep file
             
          VTYPE3D( 3 ) = M3REAL
          VNAME3D( 3 ) = 'DCV_Recon'
-         UNITS3D( 3 ) = 'deciview'
+         UNITS3D( 3 ) = 'dv'
          VDESC3D( 3 ) = 'hourly visual range'
 
          VTYPE3D( 4 ) = M3REAL

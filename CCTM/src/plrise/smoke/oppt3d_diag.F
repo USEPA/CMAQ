@@ -125,7 +125,7 @@ C Set output file characteristics based on GRID_CONF module and open the 3D emis
       VTYPE3D = 0       ! array
       VTYPE3D( 1:NVARS3D ) = M3REAL
 
-      UNITS3D = '-'     ! array
+      UNITS3D = ''     ! array
       DO V = 1, N_SPC_EM
          UNITS3D( V ) = 'mol s-1'
       END DO

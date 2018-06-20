@@ -121,7 +121,7 @@ C Set output file characteristics based on COORD.EXT and open the dry dep file
             VTYPE3D( V ) = M3REAL
             VNAME3D( V ) = AE_DDEP( N )
             IF ( AE_DDEP( N )( 1:3 ) .EQ. 'NUM' ) THEN
-               UNITS3D( V ) = 'ptcls ha-1'
+               UNITS3D( V ) = 'ha-1'
             ELSE IF ( AE_DDEP( N )( 1:3 ) .EQ. 'SRF' ) THEN
                UNITS3D( V ) = 'm2 ha-1'
             ELSE
@@ -148,13 +148,13 @@ C Set output file characteristics based on COORD.EXT and open the dry dep file
             N = N + 1
             VTYPE3D( V ) = M3REAL
             VNAME3D( V ) = TR_DDEP( N )
-            UNITS3D( V ) = '-'
+            UNITS3D( V ) = 'ha-1'
             VDESC3D( V ) = 'hourly dry deposition values'
          END DO
 
          FDESC3D( 1 ) = 'hourly 1-layer cross-point RADM dry deposition data'
          DO L = 2, MXDESC3
-            FDESC3D( L ) = ' '
+            FDESC3D( L ) = ''
             END DO
 
 C    Open dry deposition file

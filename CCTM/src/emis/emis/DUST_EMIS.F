@@ -158,14 +158,14 @@ C                 ----------------    --------    ------------------------------
      & diag_type( 'Cropland_Rough  ', '         ', 'cropland surface roughness factor          '),
      & diag_type( 'Soil_Moist_Fac  ', '         ', 'soil moisture factor for threshold u*      '),
      & diag_type( 'Soil_Erode_Pot  ', '         ', 'soil -> dust erodiblity potential          '),
-     & diag_type( 'Mx_Adsrb_H2O_Frc', '         ', 'max adsorbed water fraction                '),
-     & diag_type( 'Vegetation_Frac ', '         ', 'vegetation land coverage                   '),
+     & diag_type( 'Mx_Adsrb_H2O_Frc', '1        ', 'max adsorbed water fraction                '),
+     & diag_type( 'Vegetation_Frac ', '1        ', 'vegetation land coverage                   '),
      & diag_type( 'Urban_Cover     ', 'percent  ', 'urban land coverage                        '),
      & diag_type( 'Forest_Cover    ', 'percent  ', 'forest land coverage                       '),
      & diag_type( 'Trfac_Above_Can ', '         ', 'transport factor above canopy              '),
      & diag_type( 'Trfac_Inside_Can', '         ', 'transport factor in and below canopy       '),
-     & diag_type( 'ANUMJ           ', 'ptcls s-1', 'accumulation mode number                   '),
-     & diag_type( 'ANUMK           ', 'ptcls s-1', 'coarse mode number                         '),
+     & diag_type( 'ANUMJ           ', 's-1', 'accumulation mode number                   '),
+     & diag_type( 'ANUMK           ', 's-1', 'coarse mode number                         '),
      & diag_type( 'ASRFJ           ', 'm2 s-1   ', 'accumulation mode surface area             '),
      & diag_type( 'ASRFK           ', 'm2 s-1   ', 'coarse mode surface area                   ')/)
   

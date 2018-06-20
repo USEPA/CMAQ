@@ -182,7 +182,7 @@ C Set output file characteristics based on COORD.EXT and open it
          VTYPE3D( SPC ) = M3REAL
          VNAME3D( SPC ) = C_AE_SPC( V )   ! from STD_CONC module
          IF ( VNAME3D( SPC )(1:3) .EQ. 'NUM' ) THEN
-            UNITS3D( SPC ) = 'ptcls m-3'
+            UNITS3D( SPC ) = 'm-3'
          ELSE IF ( VNAME3D( SPC )(1:3) .EQ. 'SRF' ) THEN
             UNITS3D( SPC ) = 'm2 m-3'
          ELSE
