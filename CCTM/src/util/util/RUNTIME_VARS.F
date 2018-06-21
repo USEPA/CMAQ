@@ -27,6 +27,7 @@
 
       MODULE RUNTIME_VARS
 
+      use get_env_module
 
       IMPLICIT NONE
 
@@ -89,21 +90,21 @@
       !-----------------------------------------------------------------------------------
 
       ! Grid and High-Level Model Parameters
-      LOGICAL :: NEW_START   = .TRUE. ! Start New Simulation. Not a Restart
-      CHARACTER(16) :: GRID_NAME = '' ! grid name selected from GRIDDESC
-      CHARACTER(16) :: PROGNAME = 'DRIVER'  ! Program name selected from GRIDDESC
-      INTEGER :: RUNLEN      = 480000 ! Run Length
-      INTEGER :: STDATE      =1995192 ! Start Date
-      INTEGER :: STTIME      = 000000 ! Start Time
-      INTEGER :: LOCAL_TSTEP = 010000 ! set to TSTEP( 1 ) in initscen.F
-      INTEGER :: NPCOL       = 1      ! no. of processors across grid columns
-      INTEGER :: NPROW       = 1      ! no. of processors across grid rows
-      INTEGER :: MAXSYNC     = 720    ! force max TSTEP(2) (sec)
-      INTEGER :: MINSYNC     = 60     ! force min TSTEP(2) (sec)
+      LOGICAL :: NEW_START       = .TRUE.   ! Start New Simulation. Not a Restart
+      CHARACTER(16) :: GRID_NAME = ''       ! grid name selected from GRIDDESC
+      CHARACTER(16) :: PROGNAME  = 'DRIVER' ! Program name selected from GRIDDESC
+      INTEGER :: RUNLEN          = 480000   ! Run Length
+      INTEGER :: STDATE          = 1995192  ! Start Date
+      INTEGER :: STTIME          = 000000   ! Start Time
+      INTEGER :: LOCAL_TSTEP     = 010000   ! set to TSTEP( 1 ) in initscen.F
+      INTEGER :: NPCOL           = 1        ! no. of processors across grid columns
+      INTEGER :: NPROW           = 1        ! no. of processors across grid rows
+      INTEGER :: MAXSYNC         = 720      ! force max TSTEP(2) (sec)
+      INTEGER :: MINSYNC         = 60       ! force min TSTEP(2) (sec)
 
       INTEGER, PARAMETER :: MAXLEN_CCTM_APPL     = 200    ! Length of Logfile Names
       CHARACTER( MAXLEN_CCTM_APPL ) :: APPL_NAME = 'APPL' ! Logfile Names
-      CHARACTER( MAXLEN_CCTM_APPL ) :: BLDFOLD   = '.'    ! Build Directory
+      CHARACTER( MAXLEN_CCTM_APPL ) :: BLDFOLD   = ''     ! Build Directory
 
       ! General; Multiprocess control, output and error checking
       LOGICAL :: FL_ERR_STOP=.TRUE.  ! Flag to stop run if errors are found.
@@ -962,7 +963,6 @@
 !  Applies standard error checking
 !.........................................................................
       USE UTILIO_DEFN
-      USE GET_ENV_MODULE
       IMPLICIT NONE
 
       LOGICAL, INTENT( IN )        :: VARDEF
@@ -995,7 +995,6 @@
 !  Applies standard error checking
 !.........................................................................
       USE UTILIO_DEFN
-      USE GET_ENV_MODULE
       IMPLICIT NONE
 
       INTEGER, INTENT( IN )        :: VARDEF
@@ -1028,7 +1027,6 @@
 !  Applies standard error checking
 !.........................................................................
       USE UTILIO_DEFN
-      USE GET_ENV_MODULE
       IMPLICIT NONE
 
       REAL, INTENT( IN )           :: VARDEF
@@ -1061,7 +1059,6 @@
 !  Applies standard error checking
 !.........................................................................
       USE UTILIO_DEFN
-      USE GET_ENV_MODULE
       IMPLICIT NONE
 
       CHARACTER( * ), INTENT( IN ) :: VARDEF
@@ -1258,12 +1255,18 @@
           ! Write out the time to complete the output procedure
           WRITE( XMSG, '(A,F4.1,A)' ), 'Completed Writing Results to Output Files...',
      &                     (CPU_TIME_FINISH-CPU_TIME_START),' seconds'
+          CALL LOG_MESSAGE( LOGDEV, XMSG )
+          WRITE( LOGDEV, * )
+#ifndef twoway
           IF ( MYPE .EQ. 0 ) WRITE( OUTDEV, * )
+#endif
  
       END SELECT 
 
       ! Write out the timing statement
+#ifndef twoway
       IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
+#endif
       CPU_TIME_START = MPI_WTIME()
 
       END SUBROUTINE TIMING_SPLIT    

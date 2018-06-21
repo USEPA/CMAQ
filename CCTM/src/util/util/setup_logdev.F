@@ -75,12 +75,14 @@ C   12 Aug 15 D.Wong:   Replaced SUBST_MPI with mpif.h
          STOP
       END IF
 
+#ifndef twoway
       ! Write CMAQ Header to Screen
       IF ( MYPE .EQ. 0 ) THEN
          DO IHEAD = 1,NCMAQ_HEAD
             WRITE( OUTDEV, '(A)' ) CMAQ_HEADER( IHEAD )
          END DO
       END IF
+#endif
 
       ! Redirect Standard Output
       IF ( MYPE .NE. 0 ) OPEN( UNIT = 6, FILE = "/dev/null", STATUS = "OLD" )
@@ -91,6 +93,7 @@ C   12 Aug 15 D.Wong:   Replaced SUBST_MPI with mpif.h
       IF ( MYPE .NE. 0 ) CLOSE( 6 ) 
 
       ! Fetch I/O-API Header
+#ifndef twoway
       REWIND( LOGDEV )
       DO IHEAD = 1,NHEAD
           READ( LOGDEV, '(A)', IOSTAT=IOST ), IOAPI_HEADER( IHEAD )
@@ -101,14 +104,17 @@ C   12 Aug 15 D.Wong:   Replaced SUBST_MPI with mpif.h
           END IF
       END DO
       REWIND( LOGDEV )
+#endif
 
       ! Write CMAQ Header and then I/O-API Header
       DO IHEAD = 1,NCMAQ_HEAD
           WRITE( LOGDEV, '(A)' ) CMAQ_HEADER( IHEAD )
       END DO
       WRITE( LOGDEV, * )
+#ifndef twoway
       DO IHEAD = 1,NIOAPI_HEAD
           WRITE( LOGDEV, '(A)' ) IOAPI_HEADER( IHEAD )
       END DO
+#endif
 
       END SUBROUTINE SETUP_LOGDEV 
