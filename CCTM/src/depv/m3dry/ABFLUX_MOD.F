@@ -65,7 +65,6 @@ C-------------------------------------------------------------------------------
 ! shared variables
 
 ! Private variables used in this module and subroutines  
-      Real, Save, Allocatable, Private :: frac_ir( :,: ) ! irrigated fraction of ag    
       Real, Save, Allocatable, Private :: NH4ps1 ( :,:,: ) ! Total Soil NH4 from EPIC
       Real, Save, Allocatable, Private :: NH4ps2 ( :,:,: ) 
       Real, Save, Allocatable, Private :: pHs1   ( :,:,: )
@@ -80,15 +79,6 @@ C-------------------------------------------------------------------------------
       Real, Save, Allocatable, Private :: cec1   ( :,:,: )
       Real, Save, Allocatable, Private :: cec2   ( :,:,: )  
 
-      Real, Save, Allocatable :: w1ep   ( :,: ) ! epic soil moisture (mm) in L1 
-      Real, Save, Allocatable :: w2ep   ( :,: ) ! epic soil moisture (mm) in L2
-      Real, Save, Allocatable :: d2ep   ( :,: ) ! epic L2 depth (m)
-      Real, Save, Allocatable :: wsatep1( :,: ) ! Wsat from epic porocity in L1
-      Real, Save, Allocatable :: wsatep2( :,: ) ! Wsat from epic porocity in L2
-      Real, Save, Allocatable :: wresep1( :,: ) ! Wres estimated by regression from epic wilting point in L1
-      Real, Save, Allocatable :: wresep2( :,: ) ! Wres estimated by regression from epic wilting point in L2
-      Real, Save, Allocatable :: bslpep1( :,: ) ! Bslp estimated by regression from epic wilting point in L1
-      Real, Save, Allocatable :: bslpep2( :,: ) ! Bslp estimated by regression from epic wilting point in L2
       Real, Save, Allocatable :: fcec1  ( :,: ) ! Volatility function of CEC from EPIC (Williams 1995) in L1
       Real, Save, Allocatable :: fcec2  ( :,: ) ! Volatility function of CEC from EPIC (Williams 1995) in L2
       
@@ -127,8 +117,6 @@ C-------------------------------------------------------------------------------
          Real            :: pHfac1
          Real            :: pHfac2
          Real, Parameter :: d1 = 0.01    ! Top soil layer depth (1 cm); Assume constant for all grid cells
-         Real            :: wwltep1  ! Wwlt from epic wilting point in L1 for estimation of Wres and Blsp
-         Real            :: wwltep2  ! Wwlt from epic wilting point in L2
          Real wres1, wres2
          Real tcec1, tcec2
 
@@ -343,46 +331,6 @@ C                          '12345678901234567890'
             Allocate ( MHp2 ( my_ncols,my_nrows ) )
          End If
          MHp2 = 0.0
-         If ( .Not. Allocated ( frac_ir ) ) Then
-            Allocate ( frac_ir ( my_ncols,my_nrows ) )
-         End If
-         frac_ir = 0.0
-         If ( .Not. Allocated ( w1ep ) ) Then
-            Allocate ( w1ep ( my_ncols,my_nrows ) )
-         End If
-         w1ep = 0.0
-         If ( .Not. Allocated ( w2ep ) ) Then
-            Allocate ( w2ep ( my_ncols,my_nrows ) )
-         End If
-         w2ep = 0.0
-         If ( .Not. Allocated ( d2ep ) ) Then
-            Allocate ( d2ep ( my_ncols,my_nrows ) )
-         End If
-         d2ep = 0.0
-         If ( .Not. Allocated ( bslpep1 ) ) Then
-            Allocate ( bslpep1 ( my_ncols,my_nrows ) )
-         End If
-         bslpep1 = 0.0
-         If ( .Not. Allocated ( bslpep2 ) ) Then
-            Allocate ( bslpep2 ( my_ncols,my_nrows ) )
-         End If
-         bslpep2 = 0.0
-         If ( .Not. Allocated ( wresep1 ) ) Then
-            Allocate ( wresep1 ( my_ncols,my_nrows ) )
-         End If
-         wresep1 = 0.0
-         If ( .Not. Allocated ( wresep2 ) ) Then
-            Allocate ( wresep2 ( my_ncols,my_nrows ) )
-         End If
-         wresep2 = 0.0
-         If ( .Not. Allocated ( wsatep1 ) ) Then
-            Allocate ( wsatep1 ( my_ncols,my_nrows ) )
-         End If
-         wsatep1 = 0.0
-         If ( .Not. Allocated ( wsatep2 ) ) Then
-            Allocate ( wsatep2 ( my_ncols,my_nrows ) )
-         End If
-         wsatep2 = 0.0
          If ( .Not. Allocated ( fcec1 ) ) Then
             Allocate ( fcec1 ( my_ncols,my_nrows ) )
          End If
@@ -463,8 +411,6 @@ C                          '12345678901234567890'
             Do r = 1, my_nrows
                Do c = 1, my_ncols
                   Tot_Ag = 0.0      
-                  wwltep1 = 0.0
-                  wwltep2 = 0.0   
                   tcec1   = 0.0    
                   tcec2   = 0.0
                   Do l = 1, e2c_cats
@@ -487,11 +433,9 @@ C                          '12345678901234567890'
      &                       pHs2( c,r,l )   .Lt. 9.0       .And.
      &                       NH4ps1( c,r,l ) .Gt. 0.0       .And.
      &                       NH4ps2( c,r,l ) .Gt. 0.0     ) Then
-                           If ( Index( Beld_Names( l ), '_ir' ) .Gt. 0 ) Then
-                              frac_ir( c,r ) = frac_ir( c,r ) + Beld_ag( c,r,l )
-                           End If        
+   
                            wep1(c,r,l) = min (wep1(c,r,l),d1*1000.*por1(c,r,l)) ! don't let SM exceed saturation  
-                           wep2(c,r,l) = min (wep2(c,r,l),dep2(c,r,l)*1000.*por2(c,r,l))   
+                           wep2(c,r,l) = min (wep2(c,r,l),dep2(c,r,l)*1000.*por2(c,r,l)) 
                            wres1       = 0.0065757 + 0.24909 * wp1(c,r,l) 
                            wres2       = 0.0065757 + 0.24909 * wp2(c,r,l) 
                            wep1(c,r,l) = max (wep1(c,r,l),d1*1000.*wres1)        ! don't let SM below Wres  
@@ -503,14 +447,6 @@ C                          '12345678901234567890'
                            gamma2( c,r ) = gamma2( c,r ) + conv * NH4ps2( c,r,l )
      &                                   * 1000.0 / (wep2(c,r,l) * pHfac2) * Beld_ag( c,r,l )
                            MHp2( c,r )   = MHp2( c,r ) + Beld_ag( c,r,l ) * pHfac2
-                           w1ep(c,r)     = w1ep(c,r) + Beld_ag( c,r,l ) * wep1(c,r,l)/(1000.0*d1) 
-                           w2ep(c,r)     = w2ep(c,r) + Beld_ag( c,r,l ) 
-     &                                   * wep2(c,r,l) / (1000.0 * (dep2(c,r,l)-d1)) 
-                           d2ep(c,r)     = d2ep(c,r) + Beld_ag( c,r,l ) * dep2(c,r,l)  ! m
-                           wsatep1(c,r)  = wsatep1(c,r) + Beld_ag( c,r,l ) * por1(c,r,l)
-                           wsatep2(c,r)  = wsatep2(c,r) + Beld_ag( c,r,l ) * por2(c,r,l)
-                           wwltep1       = wwltep1      + Beld_ag( c,r,l ) * wp1(c,r,l)
-                           wwltep2       = wwltep2      + Beld_ag( c,r,l ) * wp2(c,r,l)
                            tcec1         = tcec1        + Beld_ag( c,r,l ) * cec1(c,r,l)
                            tcec2         = tcec2        + Beld_ag( c,r,l ) * cec2(c,r,l)
                         End If
@@ -534,35 +470,19 @@ C                          '12345678901234567890'
                         xmsg = 'NaN in grid cell Gamma Calculation'
                         Call M3exit( pname, jdate, jtime, xmsg, xstat1 )
                      End If
-                     w1ep(c,r)     = w1ep(c,r) / Tot_Ag 
-                     w2ep(c,r)     = w2ep(c,r) / Tot_Ag 
-                     d2ep(c,r)     = d2ep(c,r) / Tot_Ag
-                     wsatep1(c,r)  = wsatep1(c,r) / Tot_Ag
-                     wsatep2(c,r)  = wsatep2(c,r) / Tot_Ag
-                     wwltep1       = wwltep1 / Tot_Ag
-                     wwltep2       = wwltep2 / Tot_Ag
-                     bslpep1(c,r)  = 1.3565 + 31.993 * wwltep1
-                     bslpep2(c,r)  = 1.3565 + 31.993 * wwltep2
-                     wresep1(c,r)  = 0.0065757 + 0.24909 * wwltep1
-                     wresep2(c,r)  = 0.0065757 + 0.24909 * wwltep2
                      tcec1         = tcec1 / Tot_Ag
                      tcec2         = tcec2 / Tot_Ag
                      fcec1(c,r)    = max(0.3, 1.0-0.038*tcec1) ! from EPIC (Wiliams 1995)
                      fcec2(c,r)    = max(0.3, 1.0-0.038*tcec2)
                      if(r.eq.18.and.c.eq.27) then
                          Write(Logdev,*) ' Bidi-Epic soil data'
-                         Write(Logdev,*) w1ep(c,r),w2ep(c,r),d2ep(c,r),wsatep1(c,r),wsatep2(c,r)
-                         Write(Logdev,*) bslpep1(c,r),bslpep2(c,r),wresep1(c,r),wresep2(c,r)
-                         Write(Logdev,*) gamma1(c,r),gamma2(c,r),wsatep1(c,r),wsatep2(c,r)
-                         Write(Logdev,*) fcec1(c,r),tcec1
+                         Write(Logdev,*) gamma1(c,r),gamma2(c,r),fcec1(c,r),tcec1
                      Endif
                   Else
                      MHp1( c,r ) = 0.0
                      MHp2( c,r ) = 0.0
                      gamma1( c,r ) = 0.0
                      gamma2( c,r ) = 0.0
-                     w1ep(c,r)     = 0.0
-                     w2ep(c,r)     = 0.0
                   End If
                End Do ! c
             End Do ! r
@@ -650,7 +570,6 @@ C-------------------------------------------------------------------------------
          Real                   :: vdg          ! Vd(nh3) to non-veg part [m/s]
          Real                   :: w5cm         ! soil moisture in top 5 cm (vol frc)
          Real,        Parameter :: d1 = 0.01    ! Top soil layer depth (1 cm)
-         Real,        Parameter :: d2 = 0.05    ! Bottom soil layer mid depth (5 cm)
          Real,        Parameter :: twothree = 2.0/3.0
          Real,        Parameter :: onethree = 1.0/3.0
          Real,        Parameter :: MolN     = 14.007  ! g/mol N
@@ -679,32 +598,20 @@ C-------------------------------------------------------------------------------
          del0 = 1.0E-4 * kvis / ( karman * ustg )
          rbg = ( scn - LOG( 10.0 * del0 ) ) / ( karman * ustg )
 
-!---If EPIC data available use epic soil moisture and soil parameters for Rsoil
-         If( w1ep(c,r) .gt. 1.0e-6 ) Then
-           w1ep(c,r) = min(w1ep(c,r),wsatep1( c,r ))
-           w5cm = min(w2ep(c,r),wsatep2( c,r ))
-           ldry= d1 * ( Exp( ( 1.0 - w1ep(c,r) / wsatep1( c,r ) ) ** 5 ) - 1.0 ) / 1.718  
-         
-           dp  = dif0( l ) * 1.0E-4 * wsatep1( c,r )**2
-     &         * ( 1.0 - wresep1( c,r ) / wsatep1( c,r ) ) ** ( 2.0 + 3.0 / bslpep1( c,r ) )
-         
-           rsoil1 = ldry / dp
 
-!-- If no EPIC data for grid cell then use WRF soil moisture for Rsoil       
-         Else  
+!-- Compute soil resitance using soil moitsure in soil layer 1 (1 cm) from WRF
+         ldry= d1 * ( Exp( ( 1.0 - MET_DATA%SOIM1( c,r ) / GRID_DATA%WSAT( c,r ) ) ** 5 ) - 1.0 ) / 1.718
          
-           ldry= d1 * ( Exp( ( 1.0 - MET_DATA%SOIM1( c,r ) / GRID_DATA%WSAT( c,r ) ) ** 5 ) - 1.0 ) / 1.718
+         dp  = dif0( l ) * 1.0E-4 * GRID_DATA%WSAT( c,r )**2
+     &       * ( 1.0 - GRID_DATA%WRES(c,r) / GRID_DATA%WSAT(c,r) ) ** ( 2.0 + 3.0 / GRID_DATA%BSLP(c,r) )
          
-           dp  = dif0( l ) * 1.0E-4 * GRID_DATA%WSAT( c,r )**2
-     &         * ( 1.0 - GRID_DATA%WRES(c,r) / GRID_DATA%WSAT(c,r) ) ** ( 2.0 + 3.0 / GRID_DATA%BSLP(c,r) )
+         rsoil1 = ldry / dp
          
-           rsoil1 = ldry / dp
-         
-           w5cm = 0.2 * MET_DATA%SOIM1( c,r ) + 0.8 * MET_DATA%SOIM2( c,r )
-           w5cm = Min( w5cm, GRID_DATA%WSAT( c,r ) )
-           w5cm = Max( w5cm, GRID_DATA%WRES( c,r ) )
+         w5cm = 0.2 * MET_DATA%SOIM1( c,r ) + 0.8 * MET_DATA%SOIM2( c,r )
+         w5cm = Min( w5cm, GRID_DATA%WSAT( c,r ) )
+         w5cm = Max( w5cm, GRID_DATA%WRES( c,r ) )
           
-         Endif
+
 
          agfrac  = 0.0
          watfrac = 0.0
