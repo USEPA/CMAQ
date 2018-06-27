@@ -120,6 +120,7 @@ SUBROUTINE metcro (sdate, stime)
 !           20 Aug 2015  Changed latent heat flux from QFX to LH.  (T. Spero)
 !           30 Oct 2015  Changed WRITE statements for printing sampled data to
 !                        log file to eliminate warning messages.  (T. Spero)
+!           22 Nov 2017  Added SNOWH to output.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE mcipparm
@@ -487,6 +488,7 @@ SUBROUTINE metcro (sdate, stime)
       veg_c    (col,row) = xveg    (c,r)
       lai_c    (col,row) = xlai    (c,r)
       seaice_c (col,row) = xseaice (c,r)
+      snowh_c  (col,row) = xsnowh  (c,r)
 
       IF ( ifwr ) THEN
         wr_c     (col,row) = xwr     (c,r)

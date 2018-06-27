@@ -25,7 +25,7 @@ The new two-way coupled WRF-CMAQ model which is based on WRF 3.8 and CMAQ 5.2, i
 
 - After running the blidit.cctm script, rename BLD_\* as cmaq and move it into WRFV38 directory.
 
- - Download coupled model tarball from the CMAS Center Software Clearinghouse. From http://www.cmascenter.org, select Download -> Software -> CMAQ and choose version 5.2 to download the file WRFv3.8_CMAQv5.2_TwoWay_Model.tar.gz.  Unzip the tarball and then move the twoway directory inside WRFV38 as well.
+ - Download coupled model tarball from the EPA ftp site: ftp://newftp.epa.gov/exposure/CMAQ/V5_2/WRF-CMAQ_Coupled_Model/ (file name="WRF3.8_CMAQ5.2_TwoWay_Model.tar.gz"). Unzip the tarball and then move the twoway directory inside WRFV38 as well.
  
 - Go into directory WRFV38 and execute the following command: 
 
@@ -55,7 +55,7 @@ The new two-way coupled WRF-CMAQ model which is based on WRF 3.8 and CMAQ 5.2, i
 - Compile the twoway model by typing `compile em_real >& mylog`. This might take some time for completion and you can monitor size changes of file, mylog. If compilation is done successfully, you can find main/wrf.exe file.
 
 ## WRF-CMAQ Input/Output Data and Run Instructions
-A test dataset is available from the [CMAS Center Software Clearinghouse](https://www.cmascenter.org/download/software/cmaq/cmaq_5-2.cfm?DB=TRUE) (WRFv3.8_CMAQv5.2_Input.tar.gz, WRFv3.8_CMAQv5.2_Output.tar.gz). Once you unpack the files, you can store them anywhere you want.  
+A test dataset is available from the [CMAS Center Software Clearinghouse](https://www.cmascenter.org/download/software/cmaq/cmaq_5-2.cfm?DB=TRUE). After logging in to the CMAS Center, select Download -> Software -> CMAQ and choose version 5.2.  Click on "Download Datasets" and then browse to the folder WRF38-CMAQ52_Coupled_Model to download model input and reference output (WRFv3.8_CMAQv5.2_Input.tar.gz, WRFv3.8_CMAQv5.2_Output.tar.gz). Once you unpack the files, you can store them anywhere you want.  
 
 A sample run script, twoway_model_run_script, is in the WRFv3.8_CMAQv5.2_TwoWay_Model.tar.gz under the script subdirectory.
 In order to use this script to run the WRF-CMAQ two-way model, you need to modify two variables: WRF_DIR and INPDIR.

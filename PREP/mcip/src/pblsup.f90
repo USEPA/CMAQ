@@ -86,6 +86,11 @@ SUBROUTINE pblsup
 !           17 Sep 2015  Changed IFMOLACM to IFMOLPX.  (T. Spero)
 !           01 Mar 2017  Corrected the reference longitude for the wind
 !                        direction calculation for both MM5 and WRF.  (T. Spero)
+!           16 Mar 2018  Corrected comment that attributed Monin-Obukhov length
+!                        to ACM2 rather than Pleim-Xiu LSM.  Added calculation
+!                        of mosaic aerodynamic resistance following method
+!                        suggested by P. Campbell, and ensuring protection for
+!                        resistances over water cells.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE mcipparm
@@ -106,6 +111,7 @@ SUBROUTINE pblsup
   INTEGER                      :: k
   REAL                         :: lv
   REAL                         :: p2
+  REAL                         :: psih
   REAL                         :: ql1
   REAL                         :: qst
   INTEGER                      :: r
@@ -122,6 +128,7 @@ SUBROUTINE pblsup
   REAL,    SAVE, ALLOCATABLE   :: ul         ( : )
   REAL                         :: ulev1
   REAL                         :: uns
+  REAL                         :: ustmos
   REAL                         :: vlev1
   REAL                         :: vns
   REAL                         :: wvflx
@@ -261,7 +268,7 @@ SUBROUTINE pblsup
         theta1 = xtempm(c,r,1) * (100000.0/xpresm(c,r,1))**0.286
 
         ! Calculate Monin-Obukhov length if unavailable in input meteorology,
-        ! except if missing from WRF/ACM2 simulation...which is done, below.
+        ! except if missing from WRF/P-X simulation...which is done, below.
 
         IF ( .NOT. ifmol .AND. .NOT. ifmolpx ) THEN
           thetav1   = theta1 * (1.0 + ep1 * ql1)            
@@ -372,6 +379,44 @@ SUBROUTINE pblsup
 
   IF ( .NOT. ifresist ) THEN
     CALL resistcalc
+  ENDIF
+
+!-------------------------------------------------------------------------------
+! If NOAH Mosaic was used in WRF and the necessary variables were available in
+! WRF output, compute aerodynamic resistance in each mosaic land use category.
+! Method below was suggested by P. Campbell and is consistent with STAGE
+! deposition in CMAQv5.3+.
+!-------------------------------------------------------------------------------
+
+  IF ( ifmosaic ) THEN
+
+    DO c = 1, ncols_x
+      DO r = 1, nrows_x
+
+        IF ( ( NINT(xlwmask(c,r)) == 0 ) .OR.  &
+             ( NINT(xdluse(c,r))  == met_lu_ice ) ) THEN  ! water or ice
+
+          xrs_mos(c,r,:) = badval3  ! inverse taken in metcro.f90, will be 0.0
+          xra_mos(c,r,:) = badval3  ! inverse taken in metcro.f90, will be 0.0
+
+        ELSE
+
+          DO k = 1, nummosaic
+            ustmos = xustar(c,r) * SQRT( LOG(x3htm(c,r,1) / xzruf(c,r)) /  &
+                                         LOG(x3htm(c,r,1) / xznt_mos(c,r,k)) )
+
+            CALL getpsih (x3htm(c,r,1), xznt_mos(c,r,k), ustmos, xmol(c,r),  &
+                          psih)
+
+            xra_mos(c,r,k) = pro * (LOG(x3htm(c,r,1)/xznt_mos(c,r,k))-psih) /  &
+                             (vkar * ustmos)
+          ENDDO
+
+        ENDIF
+
+      ENDDO
+    ENDDO
+
   ENDIF
 
 END SUBROUTINE pblsup

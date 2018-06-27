@@ -39,7 +39,7 @@ C   solar radiation, and pressure data.
 C   Normalized gridded emissions B3GRD from Normbeis3 (3.12) 
  
 C Subroutines and Functions Called:
-C   BEIS, HRNO, CZANGLE, 
+C   BEIS, HRNO,  
 C   ENVYN, CURRSTEP, HHMMSS, NAMEVAL, UPCASE, CHECKMEM, M3EXIT, M3MSG2,
 C   WRITE3, OPEN3, CLOSE3, NEXTIME, TIME2SEC
  
@@ -64,6 +64,7 @@ C                calculations.
 C  08/14: J.Bash-Added backwards compatibility for earlier versions of MCIP
 C  07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module. 
 C  12 Aug 15 D.Wong: Replaced MYPE with IO_PE_INCLUSIVE for parallel I/O implementation
+C  07 May 18 D. Schwede: Removed call to CZANGLE. COSZEN now calculated in ASX_DATA_MOD
 C-----------------------------------------------------------------------
 C Modified from:
  
@@ -110,7 +111,6 @@ C Parameters:
       REAL,    PARAMETER :: HR2SEC = 1.0 / 3600.0
 
 C Gridded meteorology data:
-      REAL,    ALLOCATABLE, SAVE :: COSZEN( :,: )     ! cosine of zenith angle
       INTEGER, ALLOCATABLE, SAVE :: SWITCH( :,: )     ! Seasonal switch
 
 C Gridded beis emissions
@@ -153,7 +153,6 @@ C Other variables:
       INTEGER, SAVE :: SDATE      ! scenario start date
       INTEGER, SAVE :: STIME      ! scenario start time
       INTEGER, SAVE :: NSTEPS     ! run duration
-      INTEGER, SAVE :: NTICS  = 0 ! no. of substeps within an output tstep
       INTEGER, SAVE :: WSTEP  = 0 ! local write counter
       INTEGER          PARTYPE    ! method number to calculate PAR
       INTEGER, SAVE :: LOGDEV
@@ -185,21 +184,13 @@ C for XTRACT3
 #endif
 
       INTERFACE
-         SUBROUTINE CZANGLE( JDATE, JTIME, NX, NY, COSZEN )
-            INTEGER, INTENT( IN )  :: JDATE
-            INTEGER, INTENT( IN )  :: JTIME
-            INTEGER, INTENT( IN )  :: NX
-            INTEGER, INTENT( IN )  :: NY
-            REAL,    INTENT( OUT ) :: COSZEN( :,: )
-         END SUBROUTINE CZANGLE
-         SUBROUTINE BEIS3( JDATE, JTIME, NX, NY, MSPCS, COSZEN, SEMIS,
+         SUBROUTINE BEIS3( JDATE, JTIME, NX, NY, MSPCS, SEMIS,
      &                     SLAI, BIPOL )
             INTEGER, INTENT( IN ) :: JDATE
             INTEGER, INTENT( IN ) :: JTIME
             INTEGER, INTENT( IN ) :: NX
             INTEGER, INTENT( IN ) :: NY
             INTEGER, INTENT( IN ) :: MSPCS
-            REAL,    INTENT( IN ) :: COSZEN( :,: )
             REAL,    INTENT( IN ) :: SEMIS ( :,:,: )
             REAL,    INTENT( IN ) :: SLAI  ( :,:,: )
             REAL,    INTENT( OUT ) :: BIPOL( :,:,: )
@@ -384,9 +375,6 @@ C Build name table for variables in normalized emissions file
          AVGEMIS = 0.0 ! array
          AVGLAI  = 0.0 ! array
 
-C Allocate memory for data and read
-         ALLOCATE( COSZEN( NCOLS,NROWS ), STAT=IOS )
-         CALL CHECKMEM( IOS, 'COSZEN', PNAME )
 
 C Read the various categories of normalized emissions
          DO I = 1, NSEASONS 
@@ -481,9 +469,6 @@ C Loop thru the number of time steps (hourly)
       EMISX = 0.0   ! array
 #endif
 
-C Compute zenith angle
-      CALL CZANGLE( JDATE, JTIME, MY_NCOLS, MY_NROWS, COSZEN ) 
-
       IF ( JDATE .NE. LDATE ) THEN
 
          CALL WRDAYMSG( JDATE, MESG )               
@@ -530,7 +515,7 @@ C repopulate the met_cro_2d variable attributes
       END IF
 
 C Calculate temporal non-speciated beis emissions
-      CALL BEIS3( JDATE, JTIME, MY_NCOLS, MY_NROWS, MSPCS, COSZEN, SEMIS, SLAI, BIPOL )
+      CALL BEIS3( JDATE, JTIME, MY_NCOLS, MY_NROWS, MSPCS, SEMIS, SLAI, BIPOL )
 
 C Calculate temporal non-speciated soil NO emissions
       CALL HRNO( JDATE, JTIME, TSTEP, NOPOL )
@@ -597,46 +582,24 @@ C Speciate emissions
       END DO
 #endif
 
-      NTICS   =   NTICS + 1
       WSTEP   =   WSTEP + TIME2SEC( TSTEP( 2 ) )
       LASTTIC = ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) )
 
       IF ( BEMIS_DIAG ) THEN
-         IF ( NTICS .EQ. 1 ) THEN
-            DO K = 1, NSEF
-               I = 0
-               DO S = 1, MSPCS
-                  IF ( BEIS_MAP( S ) .GT. 0 ) THEN
-                     I = I + 1
-                     MSFC = HR2SEC * MSFAC( S,K )
-                     EMISS( :,:,I ) = EMISS( :,:,I ) + EMPOL( :,:,K ) * MSFC
-                  END IF
-               END DO
+         DO K = 1, NSEF
+            I = 0
+            DO S = 1, MSPCS
+               IF ( BEIS_MAP( S ) .GT. 0 ) THEN
+                  I = I + 1
+! Unit conversion for the emission and fraction of the sync time step to the output time step
+                  MSFC = MSFAC( S,K ) * FLOAT( TIME2SEC( TSTEP( 2 ) ) ) / FLOAT( TIME2SEC( TSTEP( 1 ) ) )
+! Add the emission for the model output time step
+                  EMISS( :,:,I ) = EMISS( :,:,I ) + EMPOL( :,:,K ) * MSFC
+               END IF
             END DO
-         ELSE IF ( .NOT. LASTTIC ) THEN
-            DO K = 1, NSEF
-               I = 0
-               DO S = 1, MSPCS
-                  IF ( BEIS_MAP( S ) .GT. 0 ) THEN
-                     I = I + 1
-                     MSFC = HR2SEC * MSFAC( S,K )
-                     EMISS( :,:,I ) = EMISS( :,:,I ) + 2.0 * EMPOL( :,:,K ) * MSFC
-                  END IF
-               END DO
-            END DO
-         ELSE   ! LASTTIC
-            DIVFAC = 0.5 / FLOAT( NTICS )
-            DO K = 1, NSEF
-               I = 0
-               DO S = 1, MSPCS
-                  IF ( BEIS_MAP( S ) .GT. 0 ) THEN
-                     I = I + 1
-                     MSFC = HR2SEC * MSFAC( S,K )
-                     EMISS( :,:,I ) = EMISS( :,:,I ) + EMPOL( :,:,K ) * MSFC
-                  END IF
-               END DO
-            END DO
-            EMISS = DIVFAC * EMISS   ! array assignment
+         END DO
+         IF ( LASTTIC ) THEN
+            EMISS = EMISS * HR2SEC   ! convert from gm/h to gm/s
             IF ( .NOT. WRITE3( SNAME, 'ALL', MDATE, MTIME, EMISS ) ) THEN
                MESG = 'Could not write to output file "' // TRIM( SNAME ) // '"'
                CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
@@ -645,8 +608,8 @@ C Speciate emissions
      &            'Timestep written to', SNAME,
      &            'for date and time', MDATE, MTIME
             EMISS = 0.0   ! array
-            CALL NEXTIME( MDATE, MTIME, TSTEP( 1 ) )
             WSTEP = 0
+            CALL NEXTIME( MDATE, MTIME, TSTEP( 1 ) )
          END IF
       END IF
 

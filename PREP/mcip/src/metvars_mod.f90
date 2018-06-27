@@ -46,13 +46,25 @@ MODULE metvars
 !                        fraction to output.  (T. Spero)
 !           21 Aug 2015  Changed latent heat flux from QFX to LH.  Added
 !                        moisture flux (QFX) for IFMOLACM.  (T. Spero)
+!           16 Mar 2018  Added SNOWH to output.  Added C1H, C2H, C1F, and C2F to
+!                        support hybrid vertical coordinate in WRF.  Added
+!                        LUFRAC2, MOSCATIDX, LAI_MOS, RA_MOS, RS_MOS, TSK_MOS,
+!                        and ZNT_MOS to support NOAH Mosaic land-surface model.
+!                        Added DZS to capture soil layers, and added 3D soil
+!                        arrays, SOIT3D and SOIM3D.  Added WSPDSFC and XLAIDYN
+!                        for Noah.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   IMPLICIT NONE
 
   REAL,          ALLOCATABLE   :: albedo     ( : , : )
+  REAL,          ALLOCATABLE   :: c1f        ( : )
+  REAL,          ALLOCATABLE   :: c1h        ( : )
+  REAL,          ALLOCATABLE   :: c2f        ( : )
+  REAL,          ALLOCATABLE   :: c2h        ( : )
   REAL,          ALLOCATABLE   :: cldfra     ( : , : , : )
   REAL,          ALLOCATABLE   :: coriolis   ( : , : )
+  REAL,          ALLOCATABLE   :: dzs        ( : )
   REAL,          ALLOCATABLE   :: frc_urb    ( : , : )
   REAL,          ALLOCATABLE   :: glw        ( : , : )
   REAL,          ALLOCATABLE   :: groundt    ( : , : )
@@ -63,6 +75,7 @@ MODULE metvars
   INTEGER,       ALLOCATABLE   :: irnold     ( : , : )
   INTEGER,       ALLOCATABLE   :: isltyp     ( : , : )
   REAL,          ALLOCATABLE   :: lai        ( : , : )
+  REAL,          ALLOCATABLE   :: lai_mos    ( : , : , : )
   REAL,          ALLOCATABLE   :: landmask   ( : , : )
   INTEGER,       ALLOCATABLE   :: landuse    ( : , : )
   REAL,          ALLOCATABLE   :: latcrs     ( : , : )
@@ -75,11 +88,13 @@ MODULE metvars
   REAL,          ALLOCATABLE   :: lonu       ( : , : )
   REAL,          ALLOCATABLE   :: lonv       ( : , : )
   REAL,          ALLOCATABLE   :: lufrac     ( : , : , : )
+  REAL,          ALLOCATABLE   :: lufrac2    ( : , : , : )
   REAL,          ALLOCATABLE   :: mapcrs     ( : , : )
   REAL,          ALLOCATABLE   :: mapdot     ( : , : )
   REAL,          ALLOCATABLE   :: mapu       ( : , : )
   REAL,          ALLOCATABLE   :: mapv       ( : , : )
   REAL,          ALLOCATABLE   :: mol        ( : , : )
+  INTEGER,       ALLOCATABLE   :: moscatidx  ( : , : , : )
   REAL,          ALLOCATABLE   :: mu         ( : , : )
   REAL,          ALLOCATABLE   :: mub        ( : , : )
   REAL,          ALLOCATABLE   :: pb         ( : , : , : )
@@ -96,23 +111,29 @@ MODULE metvars
   REAL,          ALLOCATABLE   :: qsa        ( : , : , : )
   REAL,          ALLOCATABLE   :: qva        ( : , : , : )
   REAL,          ALLOCATABLE   :: ra         ( : , : )
+  REAL,          ALLOCATABLE   :: ra_mos     ( : , : , : )
   REAL,          ALLOCATABLE   :: raincon    ( : , : )
   REAL,          ALLOCATABLE   :: rainnon    ( : , : )
   REAL,          ALLOCATABLE   :: rcold      ( : , : )
   REAL,          ALLOCATABLE   :: rgrnd      ( : , : )
   REAL,          ALLOCATABLE   :: rnold      ( : , : )
+  REAL,          ALLOCATABLE   :: rs_mos     ( : , : , : )
   REAL,          ALLOCATABLE   :: rstom      ( : , : )
   REAL,          ALLOCATABLE   :: seaice     ( : , : )
-  REAL,          ALLOCATABLE   :: sigmah     ( : )
   REAL,          ALLOCATABLE   :: sigmaf     ( : )
+  REAL,          ALLOCATABLE   :: sigmah     ( : )
   REAL,          ALLOCATABLE   :: snowcovr   ( : , : )
+  REAL,          ALLOCATABLE   :: snowh      ( : , : )
   REAL,          ALLOCATABLE   :: soilt1     ( : , : )
   REAL,          ALLOCATABLE   :: soilt2     ( : , : )
+  REAL,          ALLOCATABLE   :: soim3d     ( : , : , : )
+  REAL,          ALLOCATABLE   :: soit3d     ( : , : , : )
   REAL,          ALLOCATABLE   :: t2         ( : , : )
   REAL,          ALLOCATABLE   :: ta         ( : , : , : )
   REAL,          ALLOCATABLE   :: terrain    ( : , : )
   REAL,          ALLOCATABLE   :: theta      ( : , : , : )
   REAL,          ALLOCATABLE   :: tke        ( : , : , : )
+  REAL,          ALLOCATABLE   :: tsk_mos    ( : , : , : )
   REAL,          ALLOCATABLE   :: u10        ( : , : )
   REAL,          ALLOCATABLE   :: ua         ( : , : , : )
   REAL,          ALLOCATABLE   :: ust        ( : , : )
@@ -124,7 +145,10 @@ MODULE metvars
   REAL,          ALLOCATABLE   :: wa         ( : , : , : )
   REAL,          ALLOCATABLE   :: wg         ( : , : )
   REAL,          ALLOCATABLE   :: wr         ( : , : )
+  REAL,          ALLOCATABLE   :: wspdsfc    ( : , : )
+  REAL,          ALLOCATABLE   :: xlaidyn    ( : , : )
   REAL,          ALLOCATABLE   :: znt        ( : , : )
+  REAL,          ALLOCATABLE   :: znt_mos    ( : , : , : )
   REAL,          ALLOCATABLE   :: zpbl       ( : , : )
 
 END MODULE metvars

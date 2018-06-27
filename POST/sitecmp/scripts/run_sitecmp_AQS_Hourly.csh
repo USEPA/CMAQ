@@ -1,7 +1,7 @@
 #! /bin/csh -f
 
-# ===================== SITECMP_v5.2 Run Script =====================
-# Usage: run.sitecmp.csh >&! sitecmp_V52.log &
+# ===================== SITECMP_v5.2.1 Run Script =====================
+# Usage: run.sitecmp.csh >&! sitecmp_v521.log &
 #
 # To report problems or request help with this script/program:
 #             http://www.epa.gov/cmaq    (EPA CMAQ Website)
@@ -20,7 +20,7 @@
  source ./config_cmaq.csh
 
 #> Set the model version
- set VRSN = v52
+ set VRSN = v521
 
 #> Set the build directory if this was not set above 
 #> (this is where the executable is located by default).
@@ -62,7 +62,7 @@
  setenv GAS_5 "NOX,ppb,NO+NO2,ppb,NOX"           
  setenv GAS_6 "CO,ppb,CO,ppb,CO"                 
  setenv GAS_7 "SO2,ppb,SO2,ppb,SO2"              
- setenv GAS_8 "PM25,ug/m3,PMIJ,ug/m3,PM_TOT"     
+ setenv GAS_8 "PM25,ug/m3,ATOTIJ,ug/m3,PM_TOT"     
  setenv GAS_9 "PM25,ug/m3,PMIJ_FRM,ug/m3,PM_FRM" 
  setenv GAS_10 "PM10,ug/m3,PM10,ug/m3,PM10"       
  setenv GAS_11 "Isoprene,ppb,ISOP,ppb,Isoprene"  
