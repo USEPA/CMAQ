@@ -639,7 +639,7 @@ C open vext file for update
          END IF   ! firstime
          WRITE(LOGDEV, *) 'WR_VEXT:NVARS', NVARS
 
-         CALL INIT_MET ( JDATE, JTIME, .true., .true., .true. )
+         CALL INIT_MET ( JDATE, JTIME, .true.)
          
          DO V = 1, NVARS
 
