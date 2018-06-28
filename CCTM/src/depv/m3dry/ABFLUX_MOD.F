@@ -314,7 +314,7 @@ C                          '12345678901234567890'
          End Do
          Beld_ag = 0.01 * Beld_ag   ! convert to fraction
 
-! Allocate variable needed soil processes and fertilization
+! Allocate variable needed soil processes 
          If ( .Not. Allocated ( gamma1 ) ) Then
             Allocate ( gamma1 ( my_ncols,my_nrows ) )
          End If
@@ -486,13 +486,6 @@ C                          '12345678901234567890'
                   End If
                End Do ! c
             End Do ! r
-!           xmsg = 'NaN in fagam Calculation' ! JOB debugging
-!           Call M3exit( pname, jdate, jtime, xmsg, xstat1) ! JOB debuggin
-
-!         Else ! read
-
-!         End If ! INIT_MEDC_1
-
          
          Return
 !------------------------------------------------------------------------------
@@ -556,7 +549,6 @@ C-------------------------------------------------------------------------------
          Real                   :: gammas       ! [NH4+]/[H+]
          Real( 8 )              :: gcw
          Real( 8 )              :: gg1 !( n_lufrac ) ! Gg = 1/(Rgnd(nh3)+Rinc) [m/s]  
-         Real( 8 )              :: gg2 !( n_lufrac ) ! Gg = 1/(Rgnd(nh3)+Rinc) [m/s]
          Real( 8 )              :: gsb          ! Gsb = 1/(Rstom(nh3)+Rb(nh3)) [m/s]
          Real( 8 )              :: gt
          Real( 8 )              :: qq           ! intermediate variable
@@ -622,7 +614,6 @@ C-------------------------------------------------------------------------------
          If ( MET_DATA%Tempg( c,r ) .Le. 273.15 ) Then
             cnh3s  = 0.0
             cnh3g = 0.0
-!            cnh3g2 = 0.0
             Go To 101
          End If
 

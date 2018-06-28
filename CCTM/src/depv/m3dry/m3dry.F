@@ -21,8 +21,6 @@ C RCS file, release, date & time of last delta, author, state, [and locker]
 C $Header: /project/work/rep/arc/CCTM/src/depv/m3dry/m3dry.F,v 1.12 2012/01/19 14:19:43 yoj Exp $
 
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-!      SUBROUTINE m3dry ( jdate, jtime, dt, abflux, sfc_hono, mosaic, fst, cgridl1, depvel_gas,
-!     &                   pvd, cmp )
       SUBROUTINE m3dry ( jdate, jtime, dt, abflux, sfc_hono, cgridl1, depvel_gas, pvd,ddep_nh3)
 
 
@@ -146,6 +144,7 @@ C          14 Nov 2013  Added MPAN as an explicit species, separating it from PA
 C          28 Aug 2014  G. Sarwar: added deposition data for CLNO2
 C           7 Nov 2014  J. Bash: Modified for the restructuring of vidff. Moved constants and data to 
 C                       ASX_DATA_MOD.
+C            June 2018  revised for v5.3 - removed mosaic, new epic-bidi - j pleim
 C-------------------------------------------------------------------------------
 
       USE HGRD_DEFN      ! horizontal grid specifications
@@ -158,8 +157,6 @@ C-------------------------------------------------------------------------------
       USE NOOP_MODULES   ! stenex (using NOOP_COMM_MODULE)
 #endif     
       Use ABFlux_Mod     ! bidi NH3 exchange routines
-!      Use LSM_Mod        ! land surface model variables needed for mosaic and bidi
-!      Use Mosaic_Mod     ! contains mosaic routines
       Use ASX_DATA_MOD   ! contains CONSTANTS include
       Use BIDI_MOD, only:HGBIDI    ! contains CONSTANTS include
       Use HGSIM
@@ -183,7 +180,6 @@ C Arguments:
       REAL,        INTENT( OUT ) :: depvel_gas( :,:,: )
       REAL,        INTENT( OUT ) :: pvd( :,:,: )
       REAL,        INTENT( OUT ) :: ddep_nh3(:,:)
-!      REAL,        INTENT( OUT ) :: cmp( :,:,: ) ! Bidi component fluxes JOB
 
 C Local Variables:
 
@@ -205,7 +201,6 @@ C Local Variables:
       REAL                       :: kvisw      ! kinematic viscosity of water [cm^2/s]
       REAL                       :: lv                   ! latent heat of vaporization
       REAL                       :: laicr                ! col row lai
-!      REAL                       :: lufraccr (n_lufrac)  ! col row land use fraction
       REAL                       :: q2p0cr               ! cell 2.0 m water vapor mix ratio
       REAL                       :: rac
       REAL                       :: rbc
@@ -383,10 +378,6 @@ C-------------------------------------------------------------------------------
 
       depvel_gas( :,:,: ) = 0.0  ! initialize for this time period
       pvd       ( :,:,: ) = 0.0  !     "       "    "    "    "
-!      cmp       ( :,:,: ) = 0.0  !     "       "    "    "    " JOB
-
-
-!      jday = jdate - 1000 * ( jdate/1000 )
 
 
       DO r = 1, my_nrows
@@ -581,8 +572,6 @@ c        Iodide in sea-water based on SST  (mol /dm-3)
          ! Leaf level rwet estimated from Altimir et al 2006 gives about 1350 s/m
                END IF
 
-               rgw  = rgwet0 / heff    ! wet ground
-
          ! Dry snow resistance.
 
                rsnow = rsnow0 * a0 / ar( l )
@@ -611,8 +600,17 @@ c        Iodide in sea-water based on SST  (mol /dm-3)
  
                hcan  = MET_DATA%Z0( c,r ) * 10.0
                rinc  = 14.0 * laicr * hcan / ustarcr
-               rgnd  = rg0 * a0 / ar( l )
-               rgndc = 1.0 / ( ( 1.0 - delta( c,r ) ) /
+                IF ( depspc( l ) .NE. 'O3' ) THEN
+                   rgnd  = rg0 * a0 / ar( l )
+                   rgw  = rgwet0 / heff    ! wet ground
+               ELSE
+! Ozone soil resistence depends on soil moisture (Meszaros et al 2009, Biogeosci; Massman 2004, AE, Ran et al 2016, CMAS)
+                   rgnd  = 200. + 300. * MET_DATA%SOIM1(c,r)/GRID_DATA%WSAT (c,r)
+                   rgnd = min (500.0, rgnd)
+                   rgw = 500.              ! wet ground for ozone (Massman 2004)
+               END IF 
+
+               rgndc = 1.0 / ( ( 1.0 - delta( c,r ) ) / 
      &                 rgnd + delta( c,r ) / rgw ) + rinc          ! Add in-canopy part
 
          ! Determine the snow liquid water mass fraction (0.0 to 0.5).
@@ -654,11 +652,9 @@ C--------------------------------------------------------------------------
                cnh3  = cgridl1( n,c,r ) * MolNH3/MolAir * 1000.0 * Met_Data%DENS1( C,R ) ! convert to micrograms/m3
 
                IF ( NINT( GRID_DATA%LWMASK( c,r ) ) .NE. 0 ) THEN  ! land
-!                  CALL Get_Flux( cnh3,rwetsfc,rgw,r,c,l,tpvd,lnh3,f_stom,f_cut,f_soil,
-!     &                           f_emis,f_dep,f_ag,f_nat, f_wat,dt(2), jtime )
+
                   CALL Get_Flux( cnh3,rwetsfc,rgw,r,c,l,tpvd,lnh3, rbc, rinc, 
      >                           rstom, delta(c,r),rgnd,fdep )
-!                   pvd( n,c,r ) = tpvd * 24.45 * 0.001 / MolNH3 ! convert from microg/m2/s to PPM*m/s
                    pvd( n,c,r ) = tpvd * 0.001 * MolAir / (MolNH3 * Met_Data%DENS1( C,R ))
                    ddep_nh3(c,r) = ddep_nh3(c,r) + fdep * dt(2) * 1.0e-5  ! convert from microg/m2  to kg/ha
                    depvel_gas( n,c,r ) = lnh3

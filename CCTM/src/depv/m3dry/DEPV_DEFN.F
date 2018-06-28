@@ -83,16 +83,6 @@ C flag for HONO interaction with surfaces within in-lining depv
 C flag for ammonia bi-directional flux with in-lining depv
       LOGICAL, SAVE :: ABFLUX
 
-C flag for mosaic - luc specific deposition - within in-lining depv
-!      LOGICAL, SAVE :: MOSAIC = .FALSE.
-
-C flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depv
-!      LOGICAL, SAVE :: FST = .FALSE.  
-    
-!      PUBLIC DEPV, DEPVJ, DEPVJ_FST, N_SPC_DEPV, DD_CONV, PLDV, CMP,
-!     &             ILDEPV, SFC_HONO, ABFLUX, MOSAIC, FST,
-!     &             DEPV_INIT, GET_DEPV
-
       PUBLIC DEPV, N_SPC_DEPV, DD_CONV, PLDV,
      &             ILDEPV, SFC_HONO, ABFLUX,
      &             DEPV_INIT, GET_DEPV,DDEP_NH3
@@ -182,13 +172,7 @@ C environment variable for ammonia bi-directional flux
          CHARACTER( 16 )  :: CTM_ABFLUX = 'CTM_ABFLUX      '
 
 C environment variable for HONO interaction with surfaces
-         CHARACTER( 16 )  :: CTM_SFC_HONO = 'CTM_SFC_HONO    '
-
-C environment variable for mosaic - luc specific deposition velocities
-!         CHARACTER( 16 )  :: CTM_MOSAIC = 'CTM_MOSAIC      '
-
-C environment variable for mosaic - luc specific stomatal flux
-!         CHARACTER( 16 )  :: CTM_FST = 'CTM_FST         '         
+         CHARACTER( 16 )  :: CTM_SFC_HONO = 'CTM_SFC_HONO    '         
 
 C variables for deposition velocities diagnostic file
          INTEGER          :: STATUS      ! ENV... status
@@ -566,9 +550,6 @@ C-----------------------------------------------------------------------
          USE CGRID_SPCS          ! CGRID mechanism species
          USE DEPVVARS
          USE UTILIO_DEFN
-!         USE Mosaic_Mod
-!         USE Bidi_Mod, Only: HgBidi
-!         USE LSM_Mod,  Only: n_lufrac
          USE ASX_DATA_MOD, Only: GRID_DATA !, MOSAIC_DATA
 
          IMPLICIT NONE
@@ -648,11 +629,6 @@ C-----------------------------------------------------------------------
 ! Made default for Hg bidi JOB 9/12/11
             CALL CGRID_DEPV( GAS_DEPV_FOUND, GAS_DEPV_SUR, CGRID, CGRIDL1 )
 
-!           Write( logdev,* ) '==5 ', abflux, sfc_hono, mosaic, fst,
-!    &                                size ( depvel_gas ), size ( pvd ), size ( cmp )
-
-!            CALL M3DRY ( JDATE, JTIME, TSTEP, ABFLUX, SFC_HONO, MOSAIC, FST,             
-!     &                   CGRIDL1, DEPVEL_GAS, PVD, CMP )
             CALL M3DRY ( JDATE, JTIME, TSTEP, ABFLUX, SFC_HONO,             
      &                   CGRIDL1, DEPVEL_GAS, PVD, DDEP_NH3 )
 
@@ -739,7 +715,6 @@ C-----------------------------------------------------------------------
          END IF   ! in-line depv
          
          IF ( N_AE_DEPV .GT. 0 ) THEN
-!            CALL AERO_DEPV( CGRID, JDATE, JTIME, TSTEP( 1 ), MOSAIC, ADEPV )
             CALL AERO_DEPV( CGRID, JDATE, JTIME, TSTEP( 1 ), ADEPV )
 
             STRT = N_GC_DEPV + 1

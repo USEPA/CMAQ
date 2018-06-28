@@ -46,6 +46,7 @@ C                              agricultural land use classification in a land us
 C                              to simplify how bidirecitonal NH3 code handles different 
 C                              land use data sets. 
 C      Aug  22 14 J. Bash      Moved all the data to defined data types for easier updates and data access. 
+C      June 2018  j. pleim     Removed all LSM specific data
 C------------------------------------------------------------------------------
        
       Implicit None

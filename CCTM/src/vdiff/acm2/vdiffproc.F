@@ -133,11 +133,7 @@ C Local Variables:
       REAL, ALLOCATABLE, SAVE :: CNGRD( :,:,:,: )    ! cgrid aero in mixing ratio
       REAL, ALLOCATABLE, SAVE :: DDEP     ( :,:,: )   ! ddep accumulator
       REAL, ALLOCATABLE, SAVE :: ICMP     ( :,:,: )   ! component flux accumlator 
-!      REAL, ALLOCATABLE, SAVE :: DDEPJ    ( :,:,:,: ) ! ddep for mosaic
-!      REAL, ALLOCATABLE, SAVE :: DDEPJ_FST( :,:,:,: ) ! ddep for stomtal/cuticular pathway
       REAL     :: WRDD( NCOLS,NROWS )                 ! ddep write buffer
-!      REAL     :: WRDDJ( NCOLS,NROWS,N_LUFRAC+1 )     ! mosaic ddep write buffer
-!      REAL     :: WRDDJ_FST( NCOLS,NROWS,N_LUFRAC+1 ) ! mosaic stomatal flux write buffer
 
       REAL, ALLOCATABLE, SAVE :: DDEP_PA  ( :,:,: )   ! ddep for process analysis
       REAL, ALLOCATABLE, SAVE :: EMIS_PA( :,:,:,: )   ! emis for process analysis
@@ -192,8 +188,6 @@ C Local Variables
             REAL, INTENT( INOUT ) :: seddy( :,:,: )
             REAL, INTENT( INOUT ) :: ddep ( :,:,: )
             REAL, INTENT( INOUT ) :: icmp ( :,:,: )
-!            REAL, INTENT( INOUT ), OPTIONAL :: ddepj    ( :,:,:,: )
-!            REAL, INTENT( INOUT ), OPTIONAL :: ddepj_fst( :,:,:,: )
             REAL, INTENT( INOUT ) :: cngrd( :,:,:,: )
          END SUBROUTINE VDIFFACMX
       END INTERFACE
@@ -442,7 +436,6 @@ C Write extra arrays for NH3 emission and net flux for bidi
          IF ( ABFLUX ) THEN
            DO R = 1, MY_NROWS
                DO C = 1, MY_NCOLS
-!                  NH3_EMIS(C,R) = max(DDEP_NH3(C,R)-DDEP( DD2DV(NH3_HIT),C,R ),0.0)
                   NH3_EMIS(C,R) = DDEP_NH3(C,R)-DDEP( DD2DV(NH3_HIT),C,R )
                END DO
             END DO

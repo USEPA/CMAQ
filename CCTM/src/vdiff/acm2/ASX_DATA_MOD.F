@@ -382,9 +382,7 @@ C-----------------------------------------------------------------------
 
 C Arguments:
          Integer, Intent( IN ) :: JDATE, JTIME      ! internal simulation date&time
-!         Logical, Intent( IN ) :: MOSAIC
          Logical, Intent( IN ) :: ABFLUX
-!         Logical, Intent( IN ) :: HGBIDI
 
 C File variables:
          Real, Pointer    :: MSFX2   ( :,: )
@@ -798,9 +796,7 @@ C-----------------------------------------------------------------------
 C Arguments:
 
          Integer, Intent( IN ) :: JDATE, JTIME, TSTEP      ! internal simulation date&time
-!         Logical, Intent( IN ) :: MOSAIC
          Logical, Intent( IN ) :: ABFLUX
-!         Logical, Intent( IN ) :: HGBIDI
 
 C Parameters:
          Real, Parameter :: cond_min = 1.0 / resist_max ! minimum conductance [m/s]

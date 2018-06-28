@@ -21,7 +21,6 @@ C RCS file, release, date & time of last delta, author, state, [and locker]
 C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/vdiffacm2.F,v 1.13 2012/01/19 14:37:47 yoj Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-!     SUBROUTINE VDIFFACMX ( DTSEC, SEDDY, DDEP, ICMP, CNGRD, DDEPJ, DDEPJ_FST )
       SUBROUTINE VDIFFACMX ( DTSEC, SEDDY, DDEP, ICMP, CNGRD )
 
 C-----------------------------------------------------------------------
@@ -71,8 +70,6 @@ C--- SEDDY is strictly an input, but it gets modified here
       REAL, INTENT( INOUT ) :: SEDDY    ( :,:,: )   ! flipped EDDYV
       REAL, INTENT( INOUT ) :: DDEP     ( :,:,: )   ! ddep accumulator
       REAL, INTENT( INOUT ) :: ICMP     ( :,:,: )   ! component flux accumlator 
-!      REAL, INTENT( INOUT ), OPTIONAL :: DDEPJ    ( :,:,:,: ) ! ddep for mosaic
-!      REAL, INTENT( INOUT ), OPTIONAL :: DDEPJ_FST( :,:,:,: ) ! ddep for stomtal/cuticular pathway
       REAL, INTENT( INOUT ) :: CNGRD    ( :,:,:,: ) ! cgrid replacement
 
 C Parameters:
@@ -92,11 +89,7 @@ C Local Variables:
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
 
       REAL, ALLOCATABLE, SAVE :: DD_FAC     ( : )   ! combined subexpression
-!      REAL, ALLOCATABLE, SAVE :: DD_FACJ    ( :,: ) ! combined subexpression for mosaic
-!      REAL, ALLOCATABLE, SAVE :: DD_FACJ_FST( :,: ) ! combined subexpression for mosaic
       REAL, ALLOCATABLE, SAVE :: DDBF       ( : )   ! secondary DDEP
-!      REAL, ALLOCATABLE, SAVE :: DDBFJ      ( :,: ) ! secondary DDEP for mosaic
-!      REAL, ALLOCATABLE, SAVE :: DDBFJ_FST  ( :,: ) ! secondary DDEP for mosaic
       REAl, ALLOCATABLE, SAVE :: CMPF       ( : )   ! intermediate CMP
       REAL, ALLOCATABLE, SAVE :: CONC       ( :,: ) ! secondary CGRID expression
       REAL, ALLOCATABLE, SAVE :: EMIS       ( :,: ) ! emissions subexpression
@@ -125,9 +118,6 @@ C ACM Local Variables
       REAL     :: LFAC3( NLAYS )                ! intermediate factor for eddy
       REAL     :: LFAC4( NLAYS )                ! intermediate factor for eddy
       REAL, ALLOCATABLE, SAVE :: DEPVCR     ( : )   ! dep vel in one cell
-!      REAL, ALLOCATABLE, SAVE :: DEPVJCR    ( :,: ) ! dep vel in one cell for each landuse
-                                                    ! category
-!      REAL, ALLOCATABLE, SAVE :: DEPVJCR_FST( :,: ) ! dep vel (stomatal uptake only) in
                                                     ! one cell for each landuse category
       REAL, ALLOCATABLE, SAVE :: EFAC1 ( : )
       REAL, ALLOCATABLE, SAVE :: EFAC2 ( : )
@@ -145,8 +135,6 @@ C ACM Local Variables
       INTEGER     ASTAT
       INTEGER     C, R, L, S, V, I, J           ! loop induction variables
       INTEGER     MDATE, MTIME                  ! internal simulation date&time
-
-!      LOGICAL, SAVE :: XMOSAIC = .FALSE., XFST = .FALSE.
 
       INTERFACE
          SUBROUTINE MATRIX1 ( KL, A, B, E, D, X )
