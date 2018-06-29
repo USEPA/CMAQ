@@ -132,7 +132,6 @@ C Override default beginning time timestamp for ACONC?
      &           // ' to ' // A_CONC_1
             CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
          END IF
-!     write( logdev,* ) ' <>var, A_GC_SPC: ', VAR, A_GC_SPC( SPC )
       END DO
  
       DO SPC = 1, N_A_AE_SPC
@@ -144,7 +143,6 @@ C Override default beginning time timestamp for ACONC?
      &           // ' to ' // A_CONC_1
             CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
          END IF
-!     write( logdev,* ) ' <>var, A_AE_SPC: ', VAR, A_AE_SPC( SPC )
       END DO
  
       DO SPC = 1, N_A_NR_SPC
@@ -156,7 +154,6 @@ C Override default beginning time timestamp for ACONC?
      &           // ' to ' // A_CONC_1
             CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
          END IF
-!     write( logdev,* ) ' <>var, A_NR_SPC: ', VAR, A_NR_SPC( SPC )
       END DO
  
       DO SPC = 1, N_A_TR_SPC
@@ -169,6 +166,15 @@ C Override default beginning time timestamp for ACONC?
             CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
          END IF
       END DO
+
+      ! Write Relative Humidity to Average Concentration File
+
+      
+      ! Write Temperature to Average Concentration File
+
+
+      ! Write Pressure Humidity to Average Concentration File
+
 
       WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
      &      'Timestep written to', A_CONC_1,

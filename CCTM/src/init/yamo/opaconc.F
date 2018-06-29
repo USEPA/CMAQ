@@ -176,7 +176,7 @@
                VTYPE3D( VAR ) = M3REAL
                VNAME3D( VAR ) = A_GC_SPC( SPC )
                UNITS3D( VAR ) = 'ppmV'
-               VDESC3D( VAR ) = 'Variable ' // VNAME3D( VAR )
+               VDESC3D( VAR ) = 'Average Molar Mixing Ratio of ' // VNAME3D( VAR )
             END DO
 
             DO SPC = 1, N_A_AE_SPC
@@ -190,7 +190,7 @@
                ELSE
                   UNITS3D( VAR ) = 'micrograms/m**3'
                END IF
-               VDESC3D( VAR ) = 'Variable ' // VNAME3D( VAR )
+               VDESC3D( VAR ) = 'Average Concentrations of ' // VNAME3D( VAR )
             END DO
 
             DO SPC = 1, N_A_NR_SPC
@@ -198,7 +198,7 @@
                VTYPE3D( VAR ) = M3REAL
                VNAME3D( VAR ) = A_NR_SPC( SPC )
                UNITS3D( VAR ) = 'ppmV'
-               VDESC3D( VAR ) = 'Variable ' // VNAME3D( VAR )
+               VDESC3D( VAR ) = 'Average Molar Mixing Ratio of ' // VNAME3D( VAR )
             END DO
 
             DO SPC = 1, N_A_TR_SPC
@@ -206,13 +206,34 @@
                VTYPE3D( VAR ) = M3REAL
                VNAME3D( VAR ) = A_TR_SPC( SPC )
                UNITS3D( VAR ) = 'ppmV'
-               VDESC3D( VAR ) = 'Variable ' // VNAME3D( VAR )
+               VDESC3D( VAR ) = 'Average Molar Mixing Ratio of ' // VNAME3D( VAR )
             END DO
 
             DO SPC = 1, VAR
                WRITE( LOGDEV,'( 5X, "=> VNAME3D(", I3, " ): ", A )' )
      &                SPC, VNAME3D( SPC )
             END DO
+
+            SPC = VAR + 1 
+            VTYPE3D( SPC ) = M3REAL
+            VNAME3D( SPC ) = 'RH'
+            UNITS3D( SPC ) = '1'
+            VDESC3D( SPC ) = 'Fractional Relative Humidity'
+            VAR = VAR + 1 
+          
+            SPC = VAR + 1 
+            VTYPE3D( SPC ) = M3REAL
+            VNAME3D( SPC ) = 'TA'
+            UNITS3D( SPC ) = 'K'
+            VDESC3D( SPC ) = 'Air Temperature'
+            VAR = VAR + 1 
+
+            SPC = FINI + 1 
+            VTYPE3D( SPC ) = M3REAL
+            VNAME3D( SPC ) = 'PRES'
+            UNITS3D( SPC ) = 'Pa'
+            VDESC3D( SPC ) = 'Air Pressure'
+            VAR = VAR + 1  
 
             IF ( .NOT. OPEN3( A_CONC_1, FSNEW3, PNAME ) ) THEN
                XMSG = 'Could not open '

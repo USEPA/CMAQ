@@ -56,6 +56,7 @@ C-----------------------------------------------------------------------
       USE STD_CONC              ! standard CONC
       USE WVEL_DEFN             ! derived vertical velocity component
       USE UTILIO_DEFN
+      USE ASX_DATA_MOD, ONLY : MET_DATA
 
       IMPLICIT NONE
 
@@ -77,6 +78,9 @@ C Local variables:
       REAL, ALLOCATABLE, SAVE :: MSFX2( :,: )  ! map scale factor ** 2
       REAL, ALLOCATABLE :: DBUFF ( :,:,: )     ! input for W_VEL
       REAL, ALLOCATABLE :: WBUFF ( :,:,: )     ! output for W_VEL
+      REAL, ALLOCATABLE :: H2OSATVP ( :,:,: )  ! output for RH
+      REAL, ALLOCATABLE :: H2OVP ( :,:,: )     ! output for RH
+      REAL, ALLOCATABLE :: AIRRH ( :,:,: )     ! output for RH
       INTEGER      ALLOCSTAT
 
       INTEGER, SAVE :: LOGDEV       ! FORTRAN unit number for log file
@@ -154,11 +158,6 @@ C open conc file for update
 
       END IF   ! firstime
 
-!     IF ( .NOT. WRITE3( CTM_CONC_1, ALLVAR3, JDATE, JTIME, SGRID ) ) THEN
-!        XMSG = 'Could not write ' // CTM_CONC_1
-!        CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-!     END IF
-
       DO V = 1, NVARS
          IF ( .NOT. WRITE3( CTM_CONC_1, VNAME( V ), JDATE, JTIME,
      &                      SGRID( :,:,:,V ) ) ) THEN
@@ -192,18 +191,10 @@ C open conc file for update
             END IF
 
             DO L = 1, NLAYS - 1
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
-                     JACF( C,R,L ) = 0.5 * ( DBUFF( C,R,L ) + DBUFF( C,R,L+1 ) )
-                  END DO
-               END DO
+               JACF( :,:,L ) = 0.5 * ( DBUFF( :,:,L ) + DBUFF( :,:,L+1 ) )
             END DO
-            DO R = 1, MY_NROWS
-               DO C = 1, MY_NCOLS
-                  JACF( C,R,NLAYS ) = 0.4 * JACF( C,R,NLAYS-1 )
-     &                              +      DBUFF( C,R,NLAYS )
-               END DO
-            END DO
+            JACF( :,:,NLAYS ) = 0.4 * JACF( :,:,NLAYS-1 )
+     &                         +      DBUFF( :,:,NLAYS )
 
          END IF   ! INTERPX for JACOBF
 
@@ -220,11 +211,7 @@ C convert from contravariant vertical velocity component to true wind
          K = 0
          DO L = CONC_BLEV, CONC_ELEV
             K = K + 1
-            DO R = 1, MY_NROWS
-               DO C = 1, MY_NCOLS
-                  WBUFF( C,R,K ) = JACF( C,R,L ) * MSFX2( C,R ) * WVEL( C,R,L )
-               END DO
-            END DO
+            WBUFF( :,:,K ) = JACF( :,:,L ) * MSFX2( :,: ) * WVEL( :,:,L )
          END DO
 
          IF ( .NOT. WRITE3( CTM_CONC_1, 'W_VEL', JDATE, JTIME, WBUFF ) ) THEN
@@ -234,6 +221,31 @@ C convert from contravariant vertical velocity component to true wind
 
       END IF   ! W_VEL
 
+! Write Relative Humidity to Output CONC file
+      ! Calculate Saturation Vapor Pressure of Water
+      H2OSATVP = 610.94 * EXP( 17.625 * ( MET_DATA%TA - 273.15 ) / 
+     &                          ( MET_DATA%TA - 273.15 + 243.04 ) )
+
+      H2OVP    = MET_DATA%PRES * MET_DATA%QV / ( 0.622015  + MET_DATA%QV )
+      AIRRH    = MAX( 0., MIN( 1.00, H2OVP / H2OSATVP ) )
+      IF ( .NOT. WRITE3( CTM_CONC_1, 'RH', JDATE, JTIME, AIRRH ) ) THEN
+         XMSG = 'Could not write RH to ' // CTM_CONC_1
+         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+      END IF
+
+! Write Temperature to Output CONC file
+      IF ( .NOT. WRITE3( CTM_CONC_1, 'TA', JDATE, JTIME, MET_DATA%TA ) ) THEN
+         XMSG = 'Could not write Temperature to ' // CTM_CONC_1
+         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+      END IF
+
+! Write Pressure to Output CONC file
+      IF ( .NOT. WRITE3( CTM_CONC_1, 'PRES', JDATE, JTIME, MET_DATA%PRES ) ) THEN
+         XMSG = 'Could not write Pressure to ' // CTM_CONC_1
+         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+      END IF
+
+! Write Summary Message for Output Procedure
       WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
      &      'Timestep written to', CTM_CONC_1,
      &      'for date and time', JDATE, JTIME

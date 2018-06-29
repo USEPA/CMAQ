@@ -219,7 +219,29 @@ C Set output file characteristics based on COORD.EXT and open it
          VNAME3D( SPC ) = 'W_VEL'
          UNITS3D( SPC ) = 'm/s'
          VDESC3D( SPC ) = 'Derived vertical velocity component'
+         FINI = FINI + 1
       END IF
+ 
+      SPC = FINI + 1 
+      VTYPE3D( SPC ) = M3REAL
+      VNAME3D( SPC ) = 'RH'
+      UNITS3D( SPC ) = '1'
+      VDESC3D( SPC ) = 'Fractional Relative Humidity'
+      FINI = FINI + 1 
+
+      SPC = FINI + 1 
+      VTYPE3D( SPC ) = M3REAL
+      VNAME3D( SPC ) = 'TA'
+      UNITS3D( SPC ) = 'K'
+      VDESC3D( SPC ) = 'Air Temperature'
+      FINI = FINI + 1 
+
+      SPC = FINI + 1 
+      VTYPE3D( SPC ) = M3REAL
+      VNAME3D( SPC ) = 'PRES'
+      UNITS3D( SPC ) = 'Pa'
+      VDESC3D( SPC ) = 'Air Pressure'
+      FINI = FINI + 1 
 
 C create header
 
