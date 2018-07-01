@@ -163,7 +163,22 @@ C Meteorological variables
       INTEGER  C, R, V, N, J, IM     ! loop counters
       INTEGER  SPC, S                ! species loop counter
       INTEGER  ALLOCSTAT
-
+ 
+      INTERFACE
+        SUBROUTINE GETDEP_V ( XLM, AMU, DG, XXLSG, PDENS,
+     &                        VDEP, VDEPJ, MOSAIC, N_AE_DEP_SPC )
+          REAL, INTENT( IN ) :: XLM( :,: )        ! atmospheric mean free path [ m ]
+          REAL, INTENT( IN ) :: AMU( :,: )        ! atmospheric dynamic viscosity [ kg/(m s) ]
+          REAL, INTENT( IN ) :: DG( :,:,: )       ! geometric mean diameter  [ m ]
+          REAL, INTENT( IN ) :: XXLSG( :,:,: )    ! Standard Deviaiton
+          REAL, INTENT( IN ) :: PDENS( :,:,: )    ! average particle density 
+          REAL, INTENT( OUT ) :: VDEP( :,:,: )    ! deposition  velocity [ m/s ]
+          REAL, INTENT( OUT ) :: VDEPJ( :,:,:,: ) ! deposition  velocity [ m/s ] for each land use category
+          LOGICAL, INTENT( IN ) :: MOSAIC
+          INTEGER, INTENT( IN ) :: N_AE_DEP_SPC
+        END SUBROUTINE GETDEP_V
+      END INTERFACE
+ 
 C-----------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
@@ -335,19 +350,19 @@ C *** input arguments
       INTEGER, INTENT( IN ) :: N_AE_DEP_SPC
 
 C     atmospheric properties
-      REAL, INTENT( IN ) :: XLM( NCOLS,NROWS )  ! atmospheric mean free path [ m ]
-      REAL, INTENT( IN ) :: AMU( NCOLS,NROWS )  ! atmospheric dynamic viscosity [ kg/(m s) ]
+      REAL, INTENT( IN ) :: XLM( :,: )  ! atmospheric mean free path [ m ]
+      REAL, INTENT( IN ) :: AMU( :,: )  ! atmospheric dynamic viscosity [ kg/(m s) ]
 
 C     aerosol properties:
 
 C     modal diameters: [ m ]
-      REAL, INTENT( IN ) :: DG( NCOLS,NROWS,N_MODE ) 
+      REAL, INTENT( IN ) :: DG( :,:,: ) 
 
 C     log of modal geometric standard deviations
-      REAL, INTENT( IN ) :: XXLSG( NCOLS,NROWS,N_MODE )  
+      REAL, INTENT( IN ) :: XXLSG( :,:,: )  
 
 C     average modal particle densities  [ kg/m**3 ]
-      REAL, INTENT( IN ) :: PDENS( NCOLS,NROWS,N_MODE )  
+      REAL, INTENT( IN ) :: PDENS( :,:,: )  
 
 C     Mosaic variables
       LOGICAL, INTENT( IN ) :: MOSAIC
@@ -355,10 +370,10 @@ C     Mosaic variables
 C *** output arguments
 
       ! deposition  velocity [ m/s ]
-      REAL, INTENT( OUT ) :: VDEP( NCOLS,NROWS,N_AE_DEP_SPC ) 
+      REAL, INTENT( OUT ) :: VDEP( :,:,: ) 
       
       ! deposition  velocity [ m/s ] for each land use category
-      REAL, INTENT( OUT ) :: VDEPJ( N_LUFRAC,NCOLS,NROWS,N_AE_DEP_SPC ) 
+      REAL, INTENT( OUT ) :: VDEPJ( :,:,:,: ) 
 
 C *** array indices hardcoded to match SUBROUTINE AERO_DEPV
       INTEGER, PARAMETER, DIMENSION( 3 ) :: 
@@ -421,6 +436,8 @@ C Scalar variables for VARIABLE standard deviations.
       REAL    ESM32          !        " **(-32)
       REAL    EIM            ! Impaction efficiency
 
+      REAL    TWOXLM
+
 C-----------------------------------------------------------------------
 
       VDEP  = 0.0   ! array assignment
@@ -428,11 +445,12 @@ C-----------------------------------------------------------------------
          VDEPJ = 0.0   ! array assignment
       END IF
 
+      DO IM = 1,N_MODE
       DO R = 1,NROWS
         DO C = 1,NCOLS
-          DO IM = 1,N_MODE
 C *** Calculate Knudsen numbers
-            KN = 2. * XLM( C,R ) / DG( C,R,IM )
+            TWOXLM = XLM( C,R ) + XLM( C,R )
+            KN = TWOXLM / DG( C,R,IM )
 
 C *** Calculate functions of variable standard deviation.
 
@@ -463,8 +481,7 @@ C *** calculate inverses:
             DCONST1 = DCONST / DG( C,R,IM )
 
             DCONST2 = GRAV / ( 18.0 * AMU( C,R ) )
-            DCONST3 = DCONST2 * PDENS( C,R,IM ) * DG( C,R,IM ) ** 2
-
+            DCONST3 = DCONST2 * PDENS( C,R,IM ) * DG( C,R,IM ) * DG( C,R,IM )
 C Calculate characteristic parameters
             DCHAT0  = DCONST1 * ( ES04  + BHAT * KN * ES16 )
             DCHAT2  = DCONST1 * ( ESM12 + BHAT * KN * ESM16 )
@@ -556,9 +573,9 @@ C now do 3rd moment for the deposition of mass
                END DO ! n_lufrac
 
             END IF ! mosaic
-          END DO
         END DO ! end loop on C
       END DO ! end loop on R
+      END DO ! aerosol mode
 
       RETURN
       END SUBROUTINE GETDEP_V
