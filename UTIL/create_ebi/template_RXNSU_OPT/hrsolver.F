@@ -46,6 +46,7 @@ C**********************************************************************
       USE UTILIO_DEFN
       USE RXNS_DATA
       USE HRDATA
+      USE PA_IRR_MODULE
 R0
 
       IMPLICIT NONE
@@ -227,6 +228,8 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
          END IF
       END DO
 
+! Initial PA_IRR 
+      IF( CALL_IRR ) CALL PA_IRR ( .TRUE., RKI, YC, DTC )
       TSTEP_EBI: DO    ! EBI time-step loop
          
          SUBSTEP_EBI: DO NINR = 1, N_INR_STEPS   ! time substeps loop 
@@ -335,15 +338,17 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 
                IF( LEBI_CONV ) THEN 
+
+R5                DTG = 60.0D0 * DTC
+R5                DO S = 1, NUMB_MECH_SPC
+R5                   M = CGRID_INDEX( S )
+R5                   YCCELL( M ) = YC( S )
+R5                END DO
+R5                IF( CALL_DEG )CALL DEGRADE(YCCELL, DTG, JDATE, JTIME, LOGDEV) ! :WTH Call degradation routine
 R5
-R5                  DTG = 60.0D0 * DTC
-R5                  DO S = 1, NUMB_MECH_SPC
-R5                     M = CGRID_INDEX( S )
-R5                     YCCELL( M ) = YC( S )
-R5                  END DO
-R5                  IF(CALL_DEG)CALL DEGRADE(YCCELL, DTG, JDATE, JTIME, LOGDEV) ! :WTH Call degradation routine
-R5
+                 IF( CALL_IRR ) CALL PA_IRR ( .FALSE., RKI, YC, DTC )
                  CYCLE SUBSTEP_EBI ! solve for next sub time-step
+                 
                END IF
 
             END DO ITER_SUBSTEP

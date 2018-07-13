@@ -177,6 +177,12 @@
       Integer :: i
       Integer :: reclen
 
+      Real    :: Proceed = 0.0
+
+      Logical :: Eflag
+
+      Eflag = .False.
+
       n_includes = 0
       n_modules = 0
       miscMod = 0
@@ -433,15 +439,16 @@
             module( miscMod )%nfiles = 0
           End If
 
-          Do i = 2, nfields
+          Count_Misc_Files: Do i = 2, nfields
             module( miscMod )%nfiles = module( miscMod )%nfiles + 1
             If ( module( miscMod )%nfiles .Gt. MAX_FILES ) Then
               Write( *, '(/"**ERROR** Number of MISC files exceed Maximum")' )
-              Stop
+              Eflag = .True.
+              Exit Count_Misc_Files
             End If
 
             module( miscMod )%file( module( miscMod )%nfiles )%name = fields(i)
-          End Do
+          End Do Count_Misc_Files
 
           Cycle
         End If
@@ -450,41 +457,70 @@
         If ( debug ) Then
           Write( *, '(/"**Warning** input key:",a)' ) Trim( key )
           Write( *, '("  on record:",a)' ) Trim( record )
+          Eflag = .True.
         End If
 
       End Do  ! read loop
 
 ! set compilers to full path names
+      Call which( f_compiler, field, status )
       If ( f_compiler(1:1) .Ne. '/' ) Then
-        Call which( f_compiler, field, status )
-        If ( status .Eq. 0 ) f_compiler_path = field
+        If ( status .Eq. 0 )Then
+           f_compiler_path = field
+        Else
+           Write( *, '(/"**Error** FORTRAN compiler," a, " not found.")')
+     &                  Trim( f_compiler )
+           Eflag = .True.
+        End If
+      Else
+        f_compiler_path = Trim( f_compiler )
       End If 
 
+      Call which( c_compiler, field, status )
       If ( c_compiler(1:1) .Ne. '/' ) Then
-        Call which( c_compiler, field, status )
-        If ( status .Eq. 0 ) c_compiler_path = field
+        If ( status .Eq. 0 )Then
+           c_compiler_path = field
+        Else
+           Write( *, '(/"**Error** C compiler," a, " not found.")')
+     &                  Trim( c_compiler )
+           Eflag = .True.
+        End If
+      Else
+        c_compiler_path = Trim( c_compiler )
       End If 
 
 ! set defaults
-      If ( debug .And. linker .Eq. ' ' ) Then
+      If ( linker .Eq. ' ' ) Then
         Write( *, '(/"**Warning** LINKER not defined, using [F_COMPILER]")' )
+        If ( debug ) Eflag = .True.
       End If
       If ( linker .Eq. ' ' ) linker = '$(FC)'
 
-      If ( debug .And. cpp .Eq. ' ' ) Then
+      If ( cpp .Eq. ' ' ) Then
         Write( *, '(/"**Warning** CPP not defined, using [F_COMPILER]")' )
+        If ( debug ) Eflag = .True.
       End If
       If ( cpp .Eq. ' ' ) cpp = '$(FC)'   
 
-      If ( debug .And. Fflags .Eq. ' ' ) Then
+      If ( Fflags .Eq. ' ' ) Then
         Write( *, '(/"**Warning** F_FLAGS not defined, using [f_FLAGS]")' )
+        Write( *, '(/"Compiling *.F files will fail with preprocessing required.")')
+        If ( debug ) Eflag = .True.
       End If
       If ( Fflags .Eq. ' ' ) Fflags = '$(f_FLAGS)'
 
-      If ( debug .And. F90flags .Eq. ' ' ) Then
+      If ( F90flags .Eq. ' ' ) Then
         Write( *, '(/"**Warning** F90_FLAGS not defined, using [f90_FLAGS]")' )
+        Write( *, '(/"Compiling *.F90 files will fail with preprocessing required.")')
+        If ( debug ) Eflag = .True.
       End If
       If ( F90flags .Eq. ' ' ) F90flags = '$(f90_FLAGS)'
+ 
+      If ( Eflag ) Then
+        Write( *, '(/"The above problems found in the CFG file.",
+     &              /"Correct build script if needed.")')
+        Stop
+      End If
 
       Return
       End Subroutine readCFG
@@ -561,8 +597,36 @@
       Character( FLD_LEN ) :: toFile
       Character( FLD_LEN ) :: cmdline
       Logical :: found
+      Logical :: Eflag 
 
       If ( git_local ) VPATH = '$(REPOROOT):'
+
+      Eflag = .False.
+      Do n = 1, n_modules
+! create filename for scratch file
+        Call getSCRNAME( scrfile )
+! run ls command using system function
+        path = Trim( reporoot ) // '/' // module(n)%name
+        cmdline = 'ls -1 ' // Trim(path)
+        status = system( Trim(cmdline) // ' > ' // Trim(scrfile) )
+        If ( status .Ne. 0 ) Then
+           Write( *, '(/,"**ERROR** The Path, ",a, /, 
+     &                   " to module ",a," does not exist",/)' )
+     &                   Trim( path ),Trim( module(n)%name )
+          Eflag = .True.
+        End If
+      End Do
+! close and delete command output file
+      Close ( unit=lfn, status='delete' )
+      If ( Eflag ) Then
+          Write( *, '("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")')
+          Write( *, '("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")')
+          Write( *, '("The above error(s) occurred finding the modules.")')
+          Write( *, '("CHECK VALUE OF REPOROOT or MODULE NAME IN THE BUILD SCRIPT.")')
+          Write( *, '("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")')
+          Write( *, '("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",3/)')
+          Stop
+      End If
 
 ! loop thru each module directory and extract its files
       Do n = 1, n_modules
@@ -582,12 +646,10 @@
 ! run ls command using system function
         status = system( Trim(cmdline) // ' > ' // Trim(scrfile) )
         If ( status .Ne. 0 ) Then
-          If ( debug .Or. verbose ) Then
-            Write( *, '(/,"**Warning** Module:",a," is not a directory",/)' )
-     &                 Trim( module(n)%name )
-          End If
-          Call deletefile( scrfile, status )
-          Cycle
+           Write( *, '(/,"**Warning** Failed to get file list for module, ",a, /, 
+     &                   " at path",a,/)' )
+     &                   Trim( module(n)%name ), Trim( path )
+           Write( *, '("Check value of reporoot OR module name in the build script.")')
         End If
 
 ! open scratch file to capture ls results
@@ -629,6 +691,11 @@
 
         End Do
 
+        If (  module(n)%nfiles .Le. 0 ) Then
+           Write( *, '(/,"**Warning** No files found for module, ",a, /, 
+     &                   " at path",a,/)' )
+     &                   Trim( module(n)%name ), Trim( path )
+        End If 
 ! close and delete command output file
         Close ( unit=lfn, status='delete' )
 
@@ -643,11 +710,30 @@
       If ( miscMod .Ne. 0 ) Then
         Do n = 1, module( miscMod )%nfiles
 
-! copy misc file to current directory
           path = module( miscMod )%file( n )%name
+! create filename for scratch file
+         Call getSCRNAME( scrfile )
+! check if file exists
+          cmdline = 'ls ' // Trim(path)
+          status = system( Trim(cmdline) // ' > ' // Trim(scrfile) )
+          If ( status .Ne. 0 ) Then
+             Write( *, '(/,"**ERROR** The file Path, ",a, /, 
+     &                     " in Misc. module does not exist",/)' )
+     &                     Trim( path )
+            Eflag = .True.
+            Cycle
+          End If
+! copy misc file to current directory
           npaths = getNumberOfFields( path,'/' )
           Call getField( path, '/', npaths, toFile )
           Call copyfile( path, toFile, status )
+          If ( status .Ne. 0 ) Then
+             Write( *, '(/,"**ERROR** The file, ",a, /, 
+     &                     " in Misc. module was not copied to build directory",/)' )
+     &                     Trim( path )
+            Eflag = .True.
+            Cycle
+          End If
           module( miscMod )%file( n )%name = toFile
           module( miscMod )%file( n )%path = toFile
 
@@ -655,13 +741,24 @@
           Call rename( toFile, Trim( toFile ) // '.replace', path )
 
         End Do
+        If ( Eflag ) Then
+          Write( *, '("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")')
+          Write( *, '("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")')
+          Write( *, '("The above error(s) occurred finding or copying the file(s) in Misc. modules.")')
+          Write( *, '("CHECK VALUE(S) IN THE BUILD SCRIPT.")')
+          Write( *, '("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")')
+          Write( *, '("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",3/)')
+          Stop
+        End If
+! close and delete command output file
+        Close ( unit=lfn, status='delete' )
+
       End If      ! miscMod condition
 
 ! get F90 module name and USE statements for each source file
       Do n = 1, n_modules
         Call findMods( module(n) )
       End Do
-
 ! find and set global F90 modules
       Call findGlobal()
 

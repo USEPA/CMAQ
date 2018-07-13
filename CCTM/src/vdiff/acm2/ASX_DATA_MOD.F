@@ -30,6 +30,8 @@ C                         modified PROPNN and H2O2
 C                         Increased ar for ozone from 8 to 12.
 C                         Change meso from 0.1 to 0 for some org. nitrates
 C                         Changes based on Nguyen et al. 2015 PNAS and SOAS
+C     07 May 2018 D. Schwede: Added call to CZANGLE and Met_Data%czangle variable
+C                             here and removed call to CZANGLE in other modules
 C
 C---------Notes
 C  * Updates based on literature review 7/96 JEP
@@ -120,6 +122,7 @@ C-------------------------------------------------------------------------------
          Logical, Allocatable :: CONVCT   ( :,: )  ! convection flag
          Real,    Allocatable :: PBL      ( :,: )  ! pbl height (m)
          Real,    Allocatable :: NACL_EMIS( :,: )  ! NACL mass emission rate of particles with d <10 um (g/m2/s)
+         Real,    Allocatable :: COSZEN   ( :,: )  ! Cosine of the zenith angle
 !> U and V wind components on the cross grid points
          Real,    Allocatable :: UWIND    ( :,:,: )  ! [m/s]
          Real,    Allocatable :: VWIND    ( :,:,: )  ! [m/s]                    
@@ -490,6 +493,7 @@ C-----------------------------------------------------------------------
      &             Met_Data%CONVCT   ( NCOLS,NROWS ),
      &             Met_Data%PBL      ( NCOLS,NROWS ),
      &             Met_Data%NACL_EMIS( NCOLS,NROWS ),
+     &             Met_Data%COSZEN   ( NCOLS,NROWS ),
      &             Met_Data%UWIND    ( NCOLS+1,NROWS+1,NLAYS ),
      &             Met_Data%VWIND    ( NCOLS+1,NROWS+1,NLAYS ),
      &             Met_Data%KZMIN    ( NCOLS,NROWS,NLAYS ),
@@ -1395,6 +1399,9 @@ C------
      &          Met_Data%HOL .Lt. -0.02 .And. Met_Data%LPBL .Gt. 3 )
             Met_Data%CONVCT = .True.
          End Where
+
+!        Calculate the cosine of the zenith angle 
+         CALL CZANGLE(JDATE, JTIME, MY_NCOLS, MY_NROWS, Met_Data%COSZEN)
 
          Return
          End Subroutine GET_MET
