@@ -73,7 +73,7 @@
 
       REAL, ALLOCATABLE, PUBLIC :: EQY_REF( :,:,: ) ! eCS/CS averaged 77 bins in UCI Model
 
-      INTEGER, PUBLIC :: NUM_REFRACTIVE = 5
+      INTEGER, PUBLIC :: NUM_REFRACTIVE
 
       TYPE MODAL_COMPLEX
          CHARACTER( 16 ) :: NAME                           ! name of complex property
