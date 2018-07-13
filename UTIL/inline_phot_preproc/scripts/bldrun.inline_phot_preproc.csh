@@ -6,7 +6,8 @@
 #> user defines their own Mechanism name
  set Mechanism = cb6r3_ae6_aq          #> CMAQ mechanism ID
 # path to CMAQ repository  
- set REPO  = ../../CCTM/src/MECHS
+ set REPO  = ${HOME}/CCTM_git_repository/CCTM/src/MECHS
+#set REPO  = /home/bhutzell/CCTM_git_repository/CCTM/src/MECHS
  set BASE  = $cwd
  set XBASE = $BASE
 
@@ -16,8 +17,8 @@
  set OUTDIR = $BASE/output/csqy_table_${Mechanism}-${day}-${COMPILER}
 
 #> specify directory containing the mechanism modules or include files
-  setenv GC_INC $BASE/input/$Mechanism #> User Defines directory with the below mechanism data module
-# setenv GC_INC $REPO/$Mechanism
+# setenv GC_INC $BASE/input/$Mechanism #> User Defines directory with the below mechanism data module
+  setenv GC_INC $REPO/$Mechanism
 
 #> use RXNS_DATA_MODULE, comment out if CMAQ v5.02 and keep if CMAQ v5.1 or higher
  setenv USE_RXNS_MODULES T
@@ -38,8 +39,8 @@
 
 #>Number of Wavebands to write to output files starting from the band with the longest
 #>to shortest wavelength from the bands; can equal 1 to 18
+#>Waveband interval comes FAST-JX version 6.8
 #>CMAQ version 5.2.1 uses seven bands and CMAQ-MPAS uses eleven bands
-
 setenv N_WAVEBANDS_OUT 7
 
 #> define exectubale
@@ -68,11 +69,18 @@ setenv N_WAVEBANDS_OUT 7
 #Raw cross-section and quantum yield data for photolysis rates
  setenv CSQY_DATA_RAW $CSQY_DIR
 
-#> define files for aerosol refractive indices
- setenv MAX_NUMB_REFRACT 6                              # maximum number possible
- setenv AE_REFRAC_LIST "WATER DUST SOLUTE SOOT SEASALT" # list to process
+#> define files for aerosol refractive indices; result output to PHOT_OPTICS.dat
+ # maximum number of indices that the processor attempts to read, 
+ # the number can change.  
+ setenv MAX_NUMB_REFRACT 6 
+ # set the list of indices to process, 
+ # Their number can be less than MAX_NUMB_REFRACT.
+ # The below list contains names used as optical surrogates in the CCTM source
+ # code, AERO_DATA.F. To use other name requires changing the AERO_DATA.F
+ setenv AE_REFRAC_LIST "WATER DUST SOLUTE SOOT SEASALT" 
  
-#Set environment variable for their paths
+#Set environment variables for the paths to each refractive index in
+#AE_REFRAC_LIST 
  setenv WATER     $REFRACT_DIR/water_refractive_index.dat
 #setenv INSOLUBLE $REFRACT_DIR/inso00                    
  setenv DUST      $REFRACT_DIR/inso00                    
