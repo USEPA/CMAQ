@@ -1,5 +1,18 @@
 # CMAQ.inline phot preprocessor
-FORTRAN and c code that create a new CSQY_DATA table for a photochemical mechanism
+
+##  General Information
+
+The utility creates two input files used by the in-line method for calculating photolysis rates. The CSQY_DATA_'mechanism' file contains the 
+cross-section and quantum yields for the photolysis rates used by a specified photochemical mechanism. The mechanism is determined the RXNS_DATA_MODULE.F90 for compiling the
+utility. The PHOT_OPTICS.dat file gives the optical properties cloud water and ice plus the refractive indice for aerosol species. The file does not change between 'mechanisms'.
+When using the files for CCTM executions, the number of wavebands defined in the files need to be the same. 
+
+
+##  Using the Utility.
+
+The utility uses FORTRAN. It is built and executed for each application because the RXNS_DATA_MODULE.F90 file can change between applications. 
+
+To use the utility follow the below instructions.
 
 1) Copy and edit scripts/bldrun.inline_phot_preproc.csh for your compiler and Mechanism. Save and run to build the software.
 

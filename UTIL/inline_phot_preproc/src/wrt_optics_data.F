@@ -147,7 +147,6 @@
             ALLOCATE( AERO_IMAG_REFRACT( NJO_NEW, NAERO_REFRACT ) )
             ALLOCATE( AERO_REAL_REFRACT( NJO_NEW, NAERO_REFRACT ) )
         END IF
-        pause
         
 ! determine whether to write out spectral values of refractive index for aerosol species
 
