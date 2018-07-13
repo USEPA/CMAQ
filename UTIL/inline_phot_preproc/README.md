@@ -2,10 +2,10 @@
 
 ##  General Information
 
-The utility creates two input files used by the in-line method for calculating photolysis rates. The CSQY_DATA_'mechanism' file contains the 
-cross-section and quantum yields for the photolysis rates used by a specified photochemical mechanism. The mechanism is determined the RXNS_DATA_MODULE.F90 for compiling the
-utility. The PHOT_OPTICS.dat file gives the optical properties cloud water and ice plus the refractive indice for aerosol species. The file does not change between 'mechanisms'.
-When using the files for CCTM executions, the number of wavebands defined in the files need to be the same. 
+The utility creates two input files used by the in-line method for calculating photolysis rates. The CSQY_DATA\_*mechanism* file contains the 
+cross-section and quantum yields for the photolysis rates used by the specified photochemical *mechanism*. The *mechanism* is determined the RXNS_DATA_MODULE.F90 for building and running the
+utility. The PHOT_OPTICS.dat file gives the optical properties for cloud water and ice plus the refractive indice for aerosol species. The file does not change between photochemical *mechanisms*.
+When using the files for CCTM executions, the number of wavebands defined in the CSQY_DATA\_*mechanism* and PHOT_OPTICS.dat files need to be the same. The buildrun script sets this number.
 
 
 ##  Using the Utility.
