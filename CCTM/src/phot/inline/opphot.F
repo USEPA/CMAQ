@@ -116,7 +116,7 @@ C...CSA Variables, Units and Descriptions for RJ_FILE
 
          N = 1
          VNAME3D( N ) = 'COSZENS'
-         UNITS3D( N ) = 'none'
+         UNITS3D( N ) = ''
          VDESC3D( N ) = 'Cosine of Solar Zenith Angle'
          VTYPE3D( N ) = M3REAL
 
@@ -134,89 +134,89 @@ C...CSA Variables, Units and Descriptions for RJ_FILE
 
          N = N + 1
          VNAME3D( N ) = 'JNO2'
-         UNITS3D( N ) = '1/min'
+         UNITS3D( N ) = 'min-1'
          VDESC3D( N ) = 'Photodissociation rate of NO2'
          VTYPE3D( N ) = M3REAL
 
          N = N + 1
          VNAME3D( N ) = 'JO3O1D'
-         UNITS3D( N ) = '1/min'
+         UNITS3D( N ) = 'min-1'
          VDESC3D( N ) = 'Photodissociation rate of ozone producing O(1D)'
          VTYPE3D( N ) = M3REAL
 
 
          N = N + 1
          VNAME3D( N ) = 'RESOLVED_CFRAC'
-         UNITS3D( N ) = 'none'
+         UNITS3D( N ) = '1'
          VDESC3D( N ) = 'Resolved Cloud Fraction averaged over cloudy layers'
          VTYPE3D( N ) = M3REAL
 
          N = N + 1
          VNAME3D( N ) = 'RESOLVED_WBAR'
-         UNITS3D( N ) = 'g/m**3'
+         UNITS3D( N ) = 'g m-3'
          VDESC3D( N ) = 'Resolved Cloud Hydrometeor Content averaged over cloudy layers'
          VTYPE3D( N ) = M3REAL
          
          IF( USE_ACM_CLOUD )THEN
              N = N + 1
              VNAME3D( N ) = 'SUBGRID_CFRAC'
-             UNITS3D( N ) = 'none'
+             UNITS3D( N ) = '1'
              VDESC3D( N ) = 'Subgrid Cloud Fraction averaged over cloudy layers'
              VTYPE3D( N ) = M3REAL
 
              N = N + 1
              VNAME3D( N ) = 'SUBGRID_WBAR'
-             UNITS3D( N ) = 'g/m**3'
+             UNITS3D( N ) = 'g m-3'
              VDESC3D( N ) = 'Subgrid Cloud Hydrometeor Content averaged over cloudy layers'
              VTYPE3D( N ) = M3REAL
          END IF             
 
          N = N + 1
          VNAME3D( N ) = 'TRANS_DIFFUSE'
-         UNITS3D( N ) = 'none'
+         UNITS3D( N ) = '1'
          VDESC3D( N ) = 'broad band transmission coefficient for diffuse radiation at surface'
          VTYPE3D( N ) = M3REAL
 
          N = N + 1
          VNAME3D( N ) = 'TRANS_DIRECT'
-         UNITS3D( N ) = 'none'
+         UNITS3D( N ) = '1'
          VDESC3D( N ) = 'broad band transmission coefficient for direct radiation at surface'
          VTYPE3D( N ) = M3REAL
  
          N = N + 1
          VNAME3D( N ) = 'REFLECTION'
-         UNITS3D( N ) = 'none'
+         UNITS3D( N ) = '1'
          VDESC3D( N ) = 'broad band reflection coefficient at top of atmosphere'
          VTYPE3D( N ) = M3REAL
 
          N = N + 1
          VNAME3D( N ) = 'CLR_TRANS_DIF'
-         UNITS3D( N ) = 'none'
+         UNITS3D( N ) = '1'
          VDESC3D( N ) = 'broad band diffuse transmission for clear sky at surface'
          VTYPE3D( N ) = M3REAL
 
          N = N + 1
          VNAME3D( N ) = 'CLR_TRANS_DIR'
-         UNITS3D( N ) = 'none'
+         UNITS3D( N ) = '1'
          VDESC3D( N ) = 'broad band direct transmission for clear sky at surface'
          VTYPE3D( N ) = M3REAL
               
          N = N + 1
          VNAME3D( N ) = 'CLR_REFLECTION'
-         UNITS3D( N ) = 'none'
+         UNITS3D( N ) = '1'
          VDESC3D( N ) = 'broad band reflection for clear sky at top of atmosphere'
          VTYPE3D( N ) = M3REAL
 
          N = N + 1
          VNAME3D( N ) = 'TROPO_O3_EXCEED'
-         UNITS3D( N ) = 'none'
+         UNITS3D( N ) = '1'
          VDESC3D( N ) = 'Average Exceedance of modeled ozone column from max fraction of Total Column, '
      &               // ' a relative fraction from total column.'         
          VTYPE3D( N ) = M3REAL
 
          N = N + 1
          VNAME3D( N ) = 'N_EXCEED_TROPO3'
-         UNITS3D( N ) = 'none'
+         UNITS3D( N ) = ''
          VDESC3D( N ) = '# of times predicted tropospheric ozone column exceeds observed total column '
      &               // 'per file time step'          
          VTYPE3D( N ) = M3REAL
@@ -230,56 +230,56 @@ C...assumes that lamba in nanometers is on order of 100 or less
 
             N = N + 1
             VNAME3D( N ) = 'ETOT_SFC_W' // TRIM( LAMBDA )
-            UNITS3D( N ) = 'Watts/m**2'
+            UNITS3D( N ) = 'W m-2'
             VDESC3D( N ) = 'Total Downward Irradiance at surface at '
      &                   // TRIM( LAMBDA ) // ' nm'
             VTYPE3D( N ) = M3REAL
 
             N = N + 1
             VNAME3D( N ) = 'AOD_W' // TRIM( LAMBDA )
-            UNITS3D( N ) = 'none'
+            UNITS3D( N ) = ''
             VDESC3D( N ) = 'Aerosol Optical Depth at '
      &                   // TRIM( LAMBDA ) // ' nm'
             VTYPE3D( N ) = M3REAL
 
             N = N + 1
             VNAME3D( N ) = 'TAU_CLOUD_W' // TRIM( LAMBDA )
-            UNITS3D( N ) = 'none'
+            UNITS3D( N ) = ''
             VDESC3D( N ) = 'Cloud Optical Depth at '
      &                   // TRIM( LAMBDA ) // ' nm'
             VTYPE3D( N ) = M3REAL
 #ifdef phot_debug
             N = N + 1
             VNAME3D( N ) = 'SSA_CLOUD_W' // TRIM( LAMBDA )
-            UNITS3D( N ) = 'none'
+            UNITS3D( N ) = '1'
             VDESC3D( N ) = 'Column Averaged Cloud Single Scattering Albedo at '
      &                   // TRIM( LAMBDA ) // ' nm'
             VTYPE3D( N ) = M3REAL
 
             N = N + 1
             VNAME3D( N ) = 'ASY_CLOUD_W' // TRIM( LAMBDA )
-            UNITS3D( N ) = 'none'
+            UNITS3D( N ) = ''
             VDESC3D( N ) = 'Column Averaged Cloud Asymmetry Factor at '
      &                   // TRIM( LAMBDA ) // ' nm'
             VTYPE3D( N ) = M3REAL
 #endif
             N = N + 1
             VNAME3D( N ) = 'TAU_TOT_W' // TRIM( LAMBDA )
-            UNITS3D( N ) = 'none'
+            UNITS3D( N ) = ''
             VDESC3D( N ) = 'Total Optical Depth at'
      &                   // TRIM( LAMBDA ) // ' nm'
             VTYPE3D( N ) = M3REAL
 
             N = N + 1
             VNAME3D( N ) = 'TAUO3_TOP_W' // TRIM( LAMBDA )
-            UNITS3D( N ) = 'none'
+            UNITS3D( N ) = ''
             VDESC3D( N ) = 'Optical Depth of O3 above model domain at '
      &                   // TRIM( LAMBDA ) // ' nm'
             VTYPE3D( N ) = M3REAL
 
             N = N + 1
             VNAME3D( N ) = 'ALBEDO_W' // TRIM( LAMBDA )
-            UNITS3D( N ) = 'none'
+            UNITS3D( N ) = '1'
             VDESC3D( N ) = 'Surface Albedo at the wavelength at '
      &                   // TRIM( LAMBDA ) // ' nm'
             VTYPE3D( N ) = M3REAL
@@ -288,7 +288,7 @@ C...assumes that lamba in nanometers is on order of 100 or less
 
          N = N + 1
          VNAME3D( N ) = 'AOD_W550_ANGST' 
-         UNITS3D( N ) = 'none'
+         UNITS3D( N ) = ''
          VDESC3D( N ) = 'Aerosol Optical Depth at'
      &                // ' 550 nm based on an Angstrom Interpolation'
             VTYPE3D( N ) = M3REAL
@@ -373,7 +373,7 @@ C...load data from photolysis reaction list
          DO N = 1, NPHOTAB
             VNAME3D( N ) = PHOTAB( N )
             VTYPE3D( N ) = M3REAL
-            UNITS3D( N ) = '1/min'
+            UNITS3D( N ) = 'min-1'
             VDESC3D( N ) = 'Photolysis rates calculated based on data file; ' // VNAME3D(N)
          END DO
 
@@ -455,42 +455,42 @@ C...assumes that lamba in nanometers is on order of 100 or less
 
             N = N + 1
             VNAME3D( N ) = 'AERO_SSA_W' // TRIM( LAMBDA )
-            UNITS3D( N ) = 'none'
+            UNITS3D( N ) = '1'
             VDESC3D( N ) = 'Aerosol Single Scattering Albedo at '
      &                   // TRIM( LAMBDA ) // ' nm'
             VTYPE3D( N ) = M3REAL
 
             N = N + 1
             VNAME3D( N ) = 'AERO_ASYM_W' // TRIM( LAMBDA )
-            UNITS3D( N ) = 'none'
+            UNITS3D( N ) = ''
             VDESC3D( N ) = 'Aerosol Asymetry Factor at '
      &                   // TRIM( LAMBDA ) // ' nm'
             VTYPE3D( N ) = M3REAL
 
             N = N + 1
             VNAME3D( N ) = 'EXT_W' // TRIM( LAMBDA )
-            UNITS3D( N ) = '1/Mm'
+            UNITS3D( N ) = 'Mm-1'
             VDESC3D( N ) = 'Total Extinction of layer for '
      &                   // TRIM( LAMBDA ) // ' nm'
             VTYPE3D( N ) = M3REAL
 
             N = N + 1
             VNAME3D( N ) = 'GAS_EXT_W' // TRIM( LAMBDA )
-            UNITS3D( N ) = '1/Mm'
+            UNITS3D( N ) = 'Mm-1' 
             VDESC3D( N ) = 'Total Extinction from Rayleigh sctttering NO2 and O3 in layer for '
      &                   // TRIM( LAMBDA ) // ' nm'
             VTYPE3D( N ) = M3REAL
  
             N = N + 1
             VNAME3D( N ) = 'EXT_AERO_W' // TRIM( LAMBDA )
-            UNITS3D( N ) = '1/Mm'
+            UNITS3D( N ) = 'Mm-1'
             VDESC3D( N ) = 'Aerosol Extinction in layer for '
      &                   // TRIM( LAMBDA ) // ' nm'
             VTYPE3D( N ) = M3REAL
             
             N = N + 1
             VNAME3D( N ) = 'ACTINIC_FX_W' // TRIM( LAMBDA )
-            UNITS3D( N ) = 'Watts/m**2'
+            UNITS3D( N ) = 'W m-2'
             VDESC3D( N ) = 'Net Actinic Flux, '
      &                   // TRIM( LAMBDA ) // ' nm'
             VTYPE3D( N ) = M3REAL
@@ -499,13 +499,13 @@ C...assumes that lamba in nanometers is on order of 100 or less
         
          N = N + 1
          VNAME3D( N ) = 'CFRAC_3D'
-         UNITS3D( N ) = 'none'
+         UNITS3D( N ) = '1'
          VDESC3D( N ) = 'Resolved Cloud Fraction in grid cell'
          VTYPE3D( N ) = M3REAL
 
          N = N + 1
          VNAME3D( N ) = 'EXT_AERO_W550'
-         UNITS3D( N ) = '1/Mm'
+         UNITS3D( N ) = 'Mm-1'
          VDESC3D( N ) = ' Aerosol Extinction of layer for '
      &                // '550 nm based on an Angstrom Interpolation'
          VTYPE3D( N ) = M3REAL

@@ -115,23 +115,23 @@ C Set output file characteristics based on COORD.EXT and open the dry dep file
 
            VTYPE3D( 1 ) = M3REAL
            VNAME3D( 1 ) = 'A_DCV_Mie'
-           UNITS3D( 1 ) = 'deciview'
-           VDESC3D( 1 ) = 'average hourly visual range'
+           UNITS3D( 1 ) = 'dv'
+           VDESC3D( 1 ) = 'average hourly visual range calculated from Mie Theory'
 
            VTYPE3D( 2 ) = M3REAL
            VNAME3D( 2 ) = 'A_EXT_Mie'
-           UNITS3D( 2 ) = '1/km'
-           VDESC3D( 2 ) = 'average hourly extinction coefficient'
+           UNITS3D( 2 ) = 'km-1'
+           VDESC3D( 2 ) = 'average hourly extinction coefficient  calculated from Mie Theory'
                
            VTYPE3D( 3 ) = M3REAL
            VNAME3D( 3 ) = 'A_DCV_Recon'
-           UNITS3D( 3 ) = 'deciview'
-           VDESC3D( 3 ) = 'average hourly visual range'
+           UNITS3D( 3 ) = 'dv'
+           VDESC3D( 3 ) = 'average hourly visual range reconstructed from IMPROVE data'
 
            VTYPE3D( 4 ) = M3REAL
            VNAME3D( 4 ) = 'A_EXT_Recon'
-           UNITS3D( 4 ) = '1/km'
-           VDESC3D( 4 ) = 'average hourly extinction coefficient'
+           UNITS3D( 4 ) = 'km-1'
+           VDESC3D( 4 ) = 'average hourly extinction coefficient reconstructed from IMPROVE day.'
  
            FDESC3D( 1 ) = 'hourly 1-layer cross-point Visibility Information'
            DO L = 2, MXDESC3
