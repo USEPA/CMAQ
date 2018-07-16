@@ -443,7 +443,7 @@ C Get stack data
          STKGNAME = ' '   ! array
 
          DO N = 1, NPTGRPS
-            WRITE( VNAME,'( "STK_GRPS_",I2.2 )' ) N
+            WRITE( VNAME,'( "STK_GRPS_",I3.3 )' ) N
             STKGNAME( N ) = PROMPTMFILE( 'Enter name for stack groups file',
      &                                   FSREAD3, VNAME, PNAME )
          END DO

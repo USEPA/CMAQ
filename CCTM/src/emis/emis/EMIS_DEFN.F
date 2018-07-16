@@ -861,7 +861,7 @@ C-----------------------------------------------------------------------
          INTEGER, PARAMETER :: NISTR0 = 3000
          LOGICAL, ALLOCATABLE, SAVE :: EM_STREAM_RULE( : ), EM_SPEC_RULE( : )
          TYPE( LARRY1 ), ALLOCATABLE, SAVE :: EM_SURR_RULE( : ), EM_PHASE_RULE( : )
-         INTEGER, PARAMETER :: N_SCALEFAC = 3000
+         INTEGER, PARAMETER :: N_SCALEFAC = 100
         
          INTEGER            :: IC, N_COMMANDS
          INTEGER, PARAMETER :: NCOMM0 = 4000000
@@ -1882,6 +1882,7 @@ C Allocate Emission File Structure Variables
          Allocate( EM_DIAG_FILE  ( N_EM_SRM ) )
          Allocate( EM_FILE_DATE_OVRD ( N_EM_SRM ) )
          Allocate( EM_FILE_DATE  ( N_EM_SRM ) )
+         Allocate( EM_FILE_FIRE  ( N_EM_SRM ) )
          Allocate( IGSRM         ( N_EM_SRM ) )
          Allocate( IPSRM         ( N_EM_SRM ) )
          Allocate( ITSRM         ( N_EM_SRM ) )
@@ -1903,6 +1904,7 @@ C stkemis_init.
          EM_FILE_LDIAG   = EMISDIAG 
          EM_FILE_DATE_OVRD = EMIS_DATE_OVRD
          EM_FILE_DATE   = JDATE
+         EM_FILE_FIRE   = .FALSE.
 
          ! Set the standard suffix for all Emissions Diagnostic Files
          CALL NAMEVAL ( 'OUTDIR', EQNAME )
@@ -1919,28 +1921,29 @@ C stkemis_init.
            DO N = 1, N_FILE_GR
               ISRM = ISRM + 1
               IGSRM( ISRM ) = N
-              WRITE( EM_FILE_DESC( ISRM ), '(A,I2)' ),
+              WRITE( EM_FILE_DESC( ISRM ), '(A,I3)' ),
      &           'Gridded Area Emissions File ', N
              
-              WRITE( VLAB,'( "GR_EMIS_LAB_",I2.2 )' ) N
+              WRITE( VLAB,'( "GR_EMIS_LAB_",I3.3 )' ) N
               CALL ENVSTR( VLAB, 'Gridded Emission File Label',VLAB,
      &                     EM_FILE_LAB( ISRM ), IOS )
+              CALL UPCASE( EM_FILE_LAB( ISRM ) )
 
-              WRITE( EM_FILE_NAME( ISRM ),'( "GR_EMIS_",I2.2 )' ) N
+              WRITE( EM_FILE_NAME( ISRM ),'( "GR_EMIS_",I3.3 )' ) N
 
-              WRITE( VLAB,'( "GR_EMIS_APPLY_",I2.2 )' ) N
+              WRITE( VLAB,'( "GR_EMIS_APPLY_",I3.3 )' ) N
               EM_FILE_LAPPLY( ISRM ) = ENVYN( VLAB, 
      &             'Gridded Emission File Application',.TRUE., IOS )
  
-              WRITE( VLAB,'( "GR_EM_DTOVRD_",I2.2 )' ) N
+              WRITE( VLAB,'( "GR_EM_DTOVRD_",I3.3 )' ) N
               EM_FILE_DATE_OVRD( ISRM ) = ENVYN( VLAB, 
      &             'Gridded Emission Date Check',.FALSE., IOS )
  
-              WRITE( VLAB,'( "GR_EMIS_DIAG_",I2.2 )' ) N
+              WRITE( VLAB,'( "GR_EMIS_DIAG_",I3.3 )' ) N
               CALL ENVSTR( VLAB, 'Gridded Emissions Diagnostic', EMISDIAG, 
      &                     EM_FILE_LDIAG( ISRM ), IOS )
               EM_FILE_LDIAG( ISRM ) = RESOLVE_YN_TF_2D3D( EM_FILE_LDIAG( ISRM ) )
-              WRITE( EM_DIAG_FILE( ISRM ),'( "GR_EMDGFILE_",I2.2 )' ) N
+              WRITE( EM_DIAG_FILE( ISRM ),'( "GR_EMDGFILE_",I3.3 )' ) N
               VALUE = SETENVVAR( EM_DIAG_FILE( ISRM ), TRIM( EM_DIAG_PREFIX ) // 
      &            TRIM( EM_FILE_LAB( ISRM ) ) // TRIM( EM_DIAG_SUFFIX ) ) 
 
@@ -1957,28 +1960,29 @@ C stkemis_init.
                ISRM = ISRM + 1
                IPSRM( ISRM ) = N
                MAP_PTtoISRM( N ) = ISRM
-               WRITE( EM_FILE_DESC( ISRM ), '(A,I2)' ),
+               WRITE( EM_FILE_DESC( ISRM ), '(A,I3)' ),
      &         'Point Emissions File ', IPSRM( ISRM )
               
-               WRITE( VLAB,'( "STK_EMIS_LAB_",I2.2 )' ) N
+               WRITE( VLAB,'( "STK_EMIS_LAB_",I3.3 )' ) N
                CALL ENVSTR( VLAB, 'Stack Emission File Label',VLAB,
      &                      EM_FILE_LAB( ISRM ), IOS )
+               CALL UPCASE( EM_FILE_LAB( ISRM ) )
  
-               WRITE( EM_FILE_NAME( ISRM ),'( "STK_EMIS_",I2.2 )' ) N
+               WRITE( EM_FILE_NAME( ISRM ),'( "STK_EMIS_",I3.3 )' ) N
                
-               WRITE( VLAB,'( "STK_EMIS_APPLY_",I2.2 )' ) N
+               WRITE( VLAB,'( "STK_EMIS_APPLY_",I3.3 )' ) N
                EM_FILE_LAPPLY( ISRM ) = ENVYN( VLAB, 
      &               'Stack Emission File Application',.TRUE., IOS )
  
-              WRITE( VLAB,'( "STK_EM_DTOVRD_",I2.2 )' ) N
+              WRITE( VLAB,'( "STK_EM_DTOVRD_",I3.3 )' ) N
               EM_FILE_DATE_OVRD( ISRM ) = ENVYN( VLAB, 
      &             'Stack Emission Date Check',.FALSE., IOS )
  
-              WRITE( VLAB,'( "STK_EMIS_DIAG_",I2.2 )' ) N
+              WRITE( VLAB,'( "STK_EMIS_DIAG_",I3.3 )' ) N
               CALL ENVSTR( VLAB, 'Stack Emissions Diagnostic', EMISDIAG, 
      &                     EM_FILE_LDIAG( ISRM ), IOS )
               EM_FILE_LDIAG( ISRM ) = RESOLVE_YN_TF_2D3D( EM_FILE_LDIAG( ISRM ) )
-              WRITE( EM_DIAG_FILE( ISRM ),'( "STK_EMDGFILE_",I2.2 )' ) N
+              WRITE( EM_DIAG_FILE( ISRM ),'( "STK_EMDGFILE_",I3.3 )' ) N
               VALUE = SETENVVAR( EM_DIAG_FILE( ISRM ), TRIM( EM_DIAG_PREFIX ) // 
      &            TRIM( EM_FILE_LAB( ISRM ) ) // TRIM( EM_DIAG_SUFFIX ) )
 
@@ -2001,6 +2005,7 @@ C stkemis_init.
                WRITE( VLAB,'( "TR_EMIS_LAB_",I2.2 )' ) N
                CALL ENVSTR( VLAB, 'Tracer Emission File Label',VLAB,
      &                      EM_FILE_LAB( ISRM ), IOS )
+               CALL UPCASE( EM_FILE_LAB( ISRM ) )
 
                WRITE( VLAB,'( "TR_EMIS_DIAG_",I2.2 )' ) N
                CALL ENVSTR( VLAB, 'Tracer Emissions Diagnostic', EMISDIAG, 
