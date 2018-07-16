@@ -146,20 +146,6 @@ setenv FL_ERR_STOP N         #> stop on inconsistent input files
 setenv PROMPTFLAG F          #> turn on I/O-API PROMPT*FILE interactive mode [ options: T | F ]
 setenv IOAPI_OFFSET_64 YES   #> support large timestep records (>2GB/timestep record) [ options: YES | NO ]
 setenv CTM_EMISCHK N         #> Abort CMAQ if missing surrogates from emissions Input files
-setenv EMISDIAG F            #> Print Emission Rates at the output time step after they have
-                             #>   scaled and modified by the user Rules [options: F | T or 2D | 3D | 2DSUM ]
-                             #>   Individual streams can be modified using the variables:
-                             #>       GR_EMIS_DIAG_## | STK_EMIS_DIAG_## | BIOG_EMIS_DIAG
-                             #>       MG_EMIS_DIAG    | LTNG_EMIS_DIAG   | DUST_EMIS_DIAG
-                             #>       SEASPRAY_EMIS_DIAG   
-                             #>   Note that these diagnostics are different than other emissions diagnostic
-                             #>   output because they occur after scaling.
-setenv EMIS_DATE_OVRD N      #> Master switch for allowing CMAQ to use the date from each Emission file
-                             #>   rather than checking the emissions date against the internal model date.
-                             #>   [options: T | F or Y | N]. If false (F/N), then the date from CMAQ's internal
-                             #>   time will be used and an error check will be performed (recommended). Users 
-                             #>   may switch the behavior for individual emission files below using the variables:
-                             #>       GR_EM_DTOVRD_## | STK_EM_DTOVRD_##
 
 #> Aerosol Diagnostic Controls
 setenv CTM_AVISDIAG Y        #> Aerovis diagnostic file [ default: N ]
@@ -264,7 +250,19 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv MET_BDY_3D $METpath/METBDY3D_${YYMMDD}
 
   setenv LAYER_FILE $MET_CRO_3D  # Deprecated: MET_CRO_3D is now read directly in CCTM
-
+ 
+  #> Determine Representative Emission Days
+  set EMDATES = $INPDIR/emis/emis_dates/smk_merge_dates_${YYYYMM}.txt
+  set intable = `grep "^${YYYYMMDD}" $EMDATES`
+  set Date     = `echo $intable[1] | cut -d, -f1`
+  set aveday_N = `echo $intable[2] | cut -d, -f1`
+  set aveday_Y = `echo $intable[3] | cut -d, -f1`
+  set mwdss_N  = `echo $intable[4] | cut -d, -f1`
+  set mwdss_Y  = `echo $intable[5] | cut -d, -f1`
+  set week_N   = `echo $intable[6] | cut -d, -f1`
+  set week_Y   = `echo $intable[7] | cut -d, -f1`
+  set all      = `echo $intable[8] | cut -d, -f1`
+ 
   #> Gridded Emissions Files
   set EMISfile  = emis_mole_all_${YYYYMMDD}_12US1_cmaq_cb6_2014fb_cdc_cb6cmaq_14j.ncf
   

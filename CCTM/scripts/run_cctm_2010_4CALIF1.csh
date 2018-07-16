@@ -194,7 +194,7 @@ set DISP = delete            #> [ delete | keep ] existing output files
 
 set ICpath    = $INPDIR/icbc              #> initial conditions input directory 
 set BCpath    = $INPDIR/icbc              #> boundary conditions input directory
-set EMISpath  = $INPDIR/emis/saprc07t_ae6_20180511/cmaq_ready #> surface emissions input directory
+set EMISpath  = $INPDIR/emis/saprc07t_ae6_20180511/cmaq_ready/gridded #> surface emissions input directory
 set IN_PTpath = $INPDIR/emis/saprc07t_ae6_20180511/cmaq_ready  #> elevated emissions input directory (in-line point only)
 set IN_LTpath = $INPDIR/met/lightning     #> lightning NOx input directory
 set METpath   = $INPDIR/met/mcip_v4.3_wrf_v3.8.1              #> meteorology input directory
@@ -267,6 +267,18 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv MET_BDY_3D  $METpath/METBDY3D.$GRID_NAME.${NZ}L.$YYMMDD
 
   setenv LAYER_FILE $MET_CRO_3D  # Deprecated: MET_CRO_3D is now read directly in CCTM
+ 
+  #> Determine Representative Emission Days
+  set EMDATES = $INPDIR/emis/emis_dates/smk_merge_dates_${YYYYMM}.txt
+  set intable = `grep "^${YYYYMMDD}" $EMDATES`
+  set Date     = `echo $intable[1] | cut -d, -f1`
+  set aveday_N = `echo $intable[2] | cut -d, -f1`
+  set aveday_Y = `echo $intable[3] | cut -d, -f1`
+  set mwdss_N  = `echo $intable[4] | cut -d, -f1`
+  set mwdss_Y  = `echo $intable[5] | cut -d, -f1`
+  set week_N   = `echo $intable[6] | cut -d, -f1`
+  set week_Y   = `echo $intable[7] | cut -d, -f1`
+  set all      = `echo $intable[8] | cut -d, -f1`
   
   #> Gridded Emissions Files
   set EMISfile  = emis_mole_all_${YYYYMMDD}_4CALIF1_cmaq_saprc07TB_2011eh_saprc_10g.ncf
@@ -459,6 +471,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv CTM_STTIME      $STTIME
   setenv CTM_RUNLEN      $NSTEPS
   setenv CTM_TSTEP       $TSTEP
+  setenv EMIS_1 $EMISpath/$EMISfile 
   setenv INIT_GASC_1 $ICpath/$ICFILE
   setenv INIT_AERO_1 $INIT_GASC_1
   setenv INIT_NONR_1 $INIT_GASC_1
