@@ -463,7 +463,7 @@ C...assumes that lamba in nanometers is on order of 100 or less
             N = N + 1
             VNAME3D( N ) = 'AERO_ASYM_W' // TRIM( LAMBDA )
             UNITS3D( N ) = ''
-            VDESC3D( N ) = 'Aerosol Asymetry Factor at '
+            VDESC3D( N ) = 'Aerosol Asymmetry Factor at '
      &                   // TRIM( LAMBDA ) // ' nm'
             VTYPE3D( N ) = M3REAL
 
@@ -477,7 +477,7 @@ C...assumes that lamba in nanometers is on order of 100 or less
             N = N + 1
             VNAME3D( N ) = 'GAS_EXT_W' // TRIM( LAMBDA )
             UNITS3D( N ) = 'Mm-1' 
-            VDESC3D( N ) = 'Total Extinction from Rayleigh sctttering NO2 and O3 in layer for '
+            VDESC3D( N ) = 'Total Extinction from Rayleigh scattering NO2 and O3 in layer for '
      &                   // TRIM( LAMBDA ) // ' nm'
             VTYPE3D( N ) = M3REAL
  
