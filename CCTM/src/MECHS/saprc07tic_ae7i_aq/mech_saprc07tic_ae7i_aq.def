@@ -85,8 +85,10 @@
 !
 ! 09/15/2017  G. Sarwar: Removed the duplicate heterogeneous reaction of N2O5: <HET_N2O5>
 !
+! 07/16/2018  H Pye created saprc07tic_ae7i from saprc07tic_ae6i
+!
 
-  SAPRC07TIC_AE6I_AQ
+  SAPRC07TIC_AE7I_AQ
 
 ELIMINATE =
 XN;
