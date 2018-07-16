@@ -173,37 +173,37 @@ C...CSA Variables, Units and Descriptions for RJ_FILE
 
          N = N + 1
          VNAME3D( N ) = 'TRANS_DIFFUSE'
-         UNITS3D( N ) = ''
+         UNITS3D( N ) = '1'
          VDESC3D( N ) = 'broad band transmission coefficient for diffuse radiation at surface'
          VTYPE3D( N ) = M3REAL
 
          N = N + 1
          VNAME3D( N ) = 'TRANS_DIRECT'
-         UNITS3D( N ) = ''
+         UNITS3D( N ) = '1'
          VDESC3D( N ) = 'broad band transmission coefficient for direct radiation at surface'
          VTYPE3D( N ) = M3REAL
  
          N = N + 1
          VNAME3D( N ) = 'REFLECTION'
-         UNITS3D( N ) = ''
+         UNITS3D( N ) = '1'
          VDESC3D( N ) = 'broad band reflection coefficient at top of atmosphere'
          VTYPE3D( N ) = M3REAL
 
          N = N + 1
          VNAME3D( N ) = 'CLR_TRANS_DIF'
-         UNITS3D( N ) = ''
+         UNITS3D( N ) = '1'
          VDESC3D( N ) = 'broad band diffuse transmission for clear sky at surface'
          VTYPE3D( N ) = M3REAL
 
          N = N + 1
          VNAME3D( N ) = 'CLR_TRANS_DIR'
-         UNITS3D( N ) = ''
+         UNITS3D( N ) = '1'
          VDESC3D( N ) = 'broad band direct transmission for clear sky at surface'
          VTYPE3D( N ) = M3REAL
               
          N = N + 1
          VNAME3D( N ) = 'CLR_REFLECTION'
-         UNITS3D( N ) = ''
+         UNITS3D( N ) = '1'
          VDESC3D( N ) = 'broad band reflection for clear sky at top of atmosphere'
          VTYPE3D( N ) = M3REAL
 
@@ -251,7 +251,7 @@ C...assumes that lamba in nanometers is on order of 100 or less
 #ifdef phot_debug
             N = N + 1
             VNAME3D( N ) = 'SSA_CLOUD_W' // TRIM( LAMBDA )
-            UNITS3D( N ) = ''
+            UNITS3D( N ) = '1'
             VDESC3D( N ) = 'Column Averaged Cloud Single Scattering Albedo at '
      &                   // TRIM( LAMBDA ) // ' nm'
             VTYPE3D( N ) = M3REAL
@@ -279,7 +279,7 @@ C...assumes that lamba in nanometers is on order of 100 or less
 
             N = N + 1
             VNAME3D( N ) = 'ALBEDO_W' // TRIM( LAMBDA )
-            UNITS3D( N ) = ''
+            UNITS3D( N ) = '1'
             VDESC3D( N ) = 'Surface Albedo at the wavelength at '
      &                   // TRIM( LAMBDA ) // ' nm'
             VTYPE3D( N ) = M3REAL
@@ -455,7 +455,7 @@ C...assumes that lamba in nanometers is on order of 100 or less
 
             N = N + 1
             VNAME3D( N ) = 'AERO_SSA_W' // TRIM( LAMBDA )
-            UNITS3D( N ) = ''
+            UNITS3D( N ) = '1'
             VDESC3D( N ) = 'Aerosol Single Scattering Albedo at '
      &                   // TRIM( LAMBDA ) // ' nm'
             VTYPE3D( N ) = M3REAL
@@ -499,7 +499,7 @@ C...assumes that lamba in nanometers is on order of 100 or less
         
          N = N + 1
          VNAME3D( N ) = 'CFRAC_3D'
-         UNITS3D( N ) = ''
+         UNITS3D( N ) = '1'
          VDESC3D( N ) = 'Resolved Cloud Fraction in grid cell'
          VTYPE3D( N ) = M3REAL
 

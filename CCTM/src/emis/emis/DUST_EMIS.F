@@ -157,7 +157,7 @@ C                 ----------------    --------    ------------------------------
      & diag_type( 'Cropland_kvh    ', 'm-1      ', 'cropland vert to horiz flux ratio          '),
      & diag_type( 'Cropland_Rough  ', '         ', 'cropland surface roughness factor          '),
      & diag_type( 'Soil_Moist_Fac  ', '         ', 'soil moisture factor for threshold u*      '),
-     & diag_type( 'Soil_Erode_Pot  ', '         ', 'soil -> dust erodiblity potential          '),
+     & diag_type( 'Soil_Erode_Pot  ', '1        ', 'soil -> dust erodiblity potential          '),
      & diag_type( 'Mx_Adsrb_H2O_Frc', '1        ', 'max adsorbed water fraction                '),
      & diag_type( 'Vegetation_Frac ', '1        ', 'vegetation land coverage                   '),
      & diag_type( 'Urban_Cover     ', 'percent  ', 'urban land coverage                        '),

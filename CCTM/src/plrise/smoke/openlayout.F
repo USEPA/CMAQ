@@ -133,11 +133,11 @@ C Set up and open diagnostic file(s)
       VDESC3D = ' '     ! array
       VNAME3D( 1 ) = 'LFRAC'
       VTYPE3D( 1 ) = M3REAL
-      UNITS3D( 1 ) = ''
+      UNITS3D( 1 ) = '1'
       VDESC3D( 1 ) = 'Fraction of plume emitted into layer'
       VNAME3D( 2 ) = 'ZPLUME'
       VTYPE3D( 2 ) = M3REAL
-      UNITS3D( 2 ) = ''
+      UNITS3D( 2 ) = '1'
       VDESC3D( 2 ) = 'plume elevation above ground'
 
       VGLVS3D = 0.0     ! array

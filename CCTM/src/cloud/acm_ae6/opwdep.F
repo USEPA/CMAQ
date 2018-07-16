@@ -326,7 +326,7 @@ C Try to open existing wet deposition file for update
                  VAR = VAR + 1
                  VTYPE3D( VAR ) = M3REAL
                  VNAME3D( VAR ) = 'PR_CLDFRAC'
-                 UNITS3D( VAR ) = ''
+                 UNITS3D( VAR ) = '1'
                  VDESC3D( VAR ) = 'Precipitating cloud fraction'
 
 !...define output descriptor for non-precipitating cloud fraction
@@ -334,7 +334,7 @@ C Try to open existing wet deposition file for update
                  VAR = VAR + 1
                  VTYPE3D( VAR ) = M3REAL
                  VNAME3D( VAR ) = 'NP_CLDFRAC'
-                 UNITS3D( VAR ) = ''
+                 UNITS3D( VAR ) = '1'
                  VDESC3D( VAR ) = 'Non-precipitating cloud fraction'
 
 !...define output descriptor for precipitating cloud transmissivity
@@ -342,7 +342,7 @@ C Try to open existing wet deposition file for update
                  VAR = VAR + 1
                  VTYPE3D( VAR ) = M3REAL
                  VNAME3D( VAR ) = 'PR_TRANS'
-                 UNITS3D( VAR ) = ''
+                 UNITS3D( VAR ) = '1'
                  VDESC3D( VAR ) = 'Precipitating cloud transmissivity'
 
 !...define output descriptor for non-precipitating cloud transmissivity
@@ -350,7 +350,7 @@ C Try to open existing wet deposition file for update
                  VAR = VAR + 1
                  VTYPE3D( VAR ) = M3REAL
                  VNAME3D( VAR ) = 'NP_TRANS'
-                 UNITS3D( VAR ) = ''
+                 UNITS3D( VAR ) = '1'
                  VDESC3D( VAR ) = 'Non-precipitating cloud transmissivity'
 
 !...define output descriptor for resolved cloud transmissivity
@@ -358,7 +358,7 @@ C Try to open existing wet deposition file for update
                  VAR = VAR + 1
                  VTYPE3D( VAR ) = M3REAL
                  VNAME3D( VAR ) = 'RES_TRANS'
-                 UNITS3D( VAR ) = ''
+                 UNITS3D( VAR ) = '1'
                  VDESC3D( VAR ) = 'Resolved cloud transmissivity'
 
 !...define output descriptor for overall cloud transmissivity
@@ -366,7 +366,7 @@ C Try to open existing wet deposition file for update
                  VAR = VAR + 1
                  VTYPE3D( VAR ) = M3REAL
                  VNAME3D( VAR ) = 'CLD_TRANS'
-                 UNITS3D( VAR ) = ''
+                 UNITS3D( VAR ) = '1'
                  VDESC3D( VAR ) = 'Total cloud transmissivity'
 
 !...initialize the file descriptors
