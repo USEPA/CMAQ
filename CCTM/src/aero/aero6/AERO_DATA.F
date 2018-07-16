@@ -844,7 +844,8 @@ C Find indices of required species
          apncom_idx  = findAero( req_ncom, .True. )
       End If
 
-      If ( Index( mechname, 'SAPRC07TIC_AE6I' ) .Gt. 0 ) Then
+      If ( ( Index( mechname, 'SAPRC07TIC_AE6I' ) .Gt. 0 ) .OR.
+     &     ( Index( mechname, 'SAPRC07TIC_AE7I' ) .Gt. 0 )  ) Then
          ae6isoa     = .True.
          aietet_idx  = findAero( req_ietet, ae6isoa )
          aieos_idx   = findAero( req_ieos,  ae6isoa )

@@ -154,7 +154,7 @@ C Local variables
               CHARACTER( 16 ) :: BIOGMECH
          END TYPE BIOG_MECH_TYPE
 
-         TYPE( BIOG_MECH_TYPE ) :: BIOG_MECH_MAP( 16 ) = (/
+         TYPE( BIOG_MECH_TYPE ) :: BIOG_MECH_MAP( 17 ) = (/
      &         BIOG_MECH_TYPE( 'CB05E51_AE6_AQ         ','B10C5   '),
      &         BIOG_MECH_TYPE( 'CB05E51_AE6NVPOA_AQ    ','B10C5   '),
      &         BIOG_MECH_TYPE( 'CB05EH51_AE6_AQ        ','B10C5   '),
@@ -169,6 +169,7 @@ C Local variables
      &         BIOG_MECH_TYPE( 'SAPRC07TC_AE6_AQ       ','B10SP   '),
      &         BIOG_MECH_TYPE( 'SAPRC07TC_AE6NVPOA_AQ  ','B10SP   '),
      &         BIOG_MECH_TYPE( 'SAPRC07TIC_AE6I_AQ     ','B10SP   '),
+     &         BIOG_MECH_TYPE( 'SAPRC07TIC_AE7I_AQ     ','B10SP   '),
      &         BIOG_MECH_TYPE( 'SAPRC07TIC_AE6I_AQKMTI ','B10SP   '),
      &         BIOG_MECH_TYPE( 'SAPRC07TIC_AE6INVPOA_AQ','B10SP   ') /)
      &   
