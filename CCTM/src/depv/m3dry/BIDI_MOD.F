@@ -271,7 +271,7 @@ C--------------------------------------------------------------------------
                   N = N + 1
                   VTYPE3D( N ) = M3REAL
                   VNAME3D( N ) = MEDIA_NAMES( N )
-                  UNITS3D( N ) = 'mol/l'
+                  UNITS3D( N ) = 'mol L-1'
                   VDESC3D( N ) = 'aqueous phase concentration'
                End Do
 
@@ -281,7 +281,7 @@ C--------------------------------------------------------------------------
                   N = N + 1
                   VTYPE3D( N ) = M3REAL
                   VNAME3D( N ) = MEDIA_NAMES( N )
-                  UNITS3D( N ) = 'ppmV g'
+                  UNITS3D( N ) = 'ppmV g-1'
                   VDESC3D( N ) = 'gas phase concentration'
                End Do
 
@@ -291,7 +291,7 @@ C--------------------------------------------------------------------------
                   N = N + 1
                   VTYPE3D( N ) = M3REAL
                   VNAME3D( N ) = MEDIA_NAMES( N )
-                  UNITS3D( N ) = 'umol/g'
+                  UNITS3D( N ) = 'umol g-1'
                   VDESC3D( N ) = 'Solid phase concentration'
                End Do              
             End If
@@ -340,7 +340,7 @@ C--------------------------------------------------------------------------
                   N = N + 1
                   VTYPE3D( N ) = M3REAL
                   VNAME3D( N ) = MEDIA_NAMES( N )
-                  UNITS3D( N ) = 'umol/mol'
+                  UNITS3D( N ) = 'umol mol-1'
                   VDESC3D( N ) = 'aqueous phase concentration'
                End Do
 
@@ -360,7 +360,7 @@ C--------------------------------------------------------------------------
                   N = N + 1
                   VTYPE3D( N ) = M3REAL
                   VNAME3D( N ) = MEDIA_NAMES( N )
-                  UNITS3D( N ) = 'umol/g'
+                  UNITS3D( N ) = 'umol g-1'
                   VDESC3D( N ) = 'Solid phase concentration'
                End Do
             End If
@@ -409,7 +409,7 @@ C--------------------------------------------------------------------------
                   N = N + 1
                   VTYPE3D( N ) = M3REAL
                   VNAME3D( N ) = MEDIA_NAMES( N )
-                  UNITS3D( N ) = 'umol/mol'
+                  UNITS3D( N ) = 'umol mol-1'
                   VDESC3D( N ) = 'aqueous phase concentration'
                End Do
 
@@ -429,7 +429,7 @@ C--------------------------------------------------------------------------
                   N = N + 1
                   VTYPE3D( N ) = M3REAL
                   VNAME3D( N ) = MEDIA_NAMES( N )
-                  UNITS3D( N ) = 'umol/g'
+                  UNITS3D( N ) = 'umol g-1'
                   VDESC3D( N ) = 'Solid phase concentration'
                End Do
                
@@ -439,7 +439,7 @@ C--------------------------------------------------------------------------
                   N = N + 1
                   VTYPE3D( N ) = M3REAL
                   VNAME3D( N ) = MEDIA_NAMES( N )
-                  UNITS3D( N ) = 'mol/l'
+                  UNITS3D( N ) = 'mol L-1'
                   VDESC3D( N ) = 'aqueous phase concentration'
                End Do
 
@@ -459,7 +459,7 @@ C--------------------------------------------------------------------------
                   N = N + 1
                   VTYPE3D( N ) = M3REAL
                   VNAME3D( N ) = MEDIA_NAMES( N )
-                  UNITS3D( N ) = 'umol/g'
+                  UNITS3D( N ) = 'umol g-1'
                   VDESC3D( N ) = 'Solid phase concentration'
                End Do        
             End If
