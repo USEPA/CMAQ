@@ -753,8 +753,8 @@ C Build description for, and create/open soil NO emissions output file
          VNAME3D( I+3 ) = VAR
       END DO
 
-      UNITS3D = ' '
-      UNITS3D( 1 ) = 'INTEGER'
+      UNITS3D = ''
+      UNITS3D( 1 ) = ''
       UNITS3D( 2 ) = 'YYYYDDD'
       UNITS3D( 3 ) = 'HHMMSS'
       UNITS3D( 4:RHOURS+3 ) = 'cm'

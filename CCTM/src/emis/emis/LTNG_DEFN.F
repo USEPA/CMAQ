@@ -430,7 +430,7 @@ C        INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
                VNAME3D( 1 ) = LTSPC
                VDESC3D( 1 ) = 'hourly average NO produced from lightning'
                VTYPE3D( 1 ) = M3REAL
-               UNITS3D( 1 ) = 'mol/s'
+               UNITS3D( 1 ) = 'mol s-1'
 
                FDESC3D = ' '   ! array assignment
                FDESC3D( 1 ) = 'Gridded lightning NO production from CMAQ'
