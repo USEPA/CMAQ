@@ -284,7 +284,7 @@ C                  ---------   ---------   ---------    --------- ------- + + + 
      & spcs_type((/'ALVOO2I  ','ALVOO2J  ','         '/), cm_set, 1400.0, T,F,F,  0,  4.0, 6.1,T, 'DUST  ', 0.13, '      ',es_0),
      & spcs_type((/'ASVOO1I  ','ASVOO1J  ','         '/), cm_set, 1400.0, T,F,F,  0,  4.0, 6.1,T, 'DUST  ', 0.11, '      ',es_0),
      & spcs_type((/'ASVOO2I  ','ASVOO2J  ','         '/), cm_set, 1400.0, T,F,F,  0,  4.0, 6.1,T, 'DUST  ', 0.09, '      ',es_0),
-     & spcs_type((/'         ','ASVOO3J  ','         '/), cm_set, 1400.0, T,F,F,  0,  4.0, 6.1,T, 'DUST  ', 0.08 '      ',es_0), ! pcSOA
+     & spcs_type((/'         ','ASVOO3J  ','         '/), cm_set, 1400.0, T,F,F,  0,  4.0, 6.1,T, 'DUST  ', 0.08, '      ',es_0), ! pcSOA
      & spcs_type((/'         ','APCSOJ   ','         '/), cm_set, 1400.0, T,F,F,  0,  4.0, 6.1,T, 'DUST  ', 0.12, '      ',es_0),
 
        ! The following species are associated with the Multi-Pollutant code
