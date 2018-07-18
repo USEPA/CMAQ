@@ -1486,7 +1486,7 @@ C        Compute sum_i(Kappa_i*Vorg_i) and volume equivalent diameter
            End If
          End Do
 
-         If ( apoc_idx > 0 ) then ! add nonvol POA if present
+         If ( ( apoc_idx > 0 ) .and. ( apncom_idx > 0 ) ) Then ! add nonvol POA if present
             poa = aerospc_conc( apoc_idx, im ) + aerospc_conc( apncom_idx, im )
             kappaVorg = kappaVorg + (0.11*poa/aerospc_conc(apoc_idx, im ) -0.10)
      &      * (aerospc_conc( apncom_idx, im ) / aerospc( apncom_idx )%density +
