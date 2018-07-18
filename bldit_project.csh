@@ -23,7 +23,7 @@
 #> out of the repo for you. Set each to [Y/N]
  set EXT_CCTM    = Y
 
- # Pre-processing Tools
+ # Pre-Processing Tools
  set EXT_AGDUST = Y
  set EXT_BCON = Y
  set EXT_ICON = Y

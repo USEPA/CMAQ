@@ -29,13 +29,13 @@ C***********************************************************************
 C
 C  FUNCTION: To compute the production and loss rates for EBI species
 C
-C  PRECONDITIONS: For the SAPRC07TB family of mechanisms
+C  PRECONDITIONS: For the saprc07tb family of mechanisms
 C
 C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, May 26, 2017
+C  REVISION HISTORY: Created by EBI solver program, Jun 13, 2018
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 

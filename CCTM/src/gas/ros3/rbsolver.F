@@ -61,7 +61,8 @@ C**********************************************************************
       USE RBDATA                  ! ROS3 solver data
       USE CGRID_SPCS              ! CGRID mechanism species
       USE UTILIO_DEFN
-
+      USE PA_IRR_MODULE
+      
       IMPLICIT NONE 
 
 C..Includes:
@@ -128,10 +129,10 @@ C..Local Variables:
 
       LOGICAL LPASS               ! Flag for convergence achieved
 
-      REAL,    ALLOCATABLE, SAVE :: DTCELL( : )    ! Time step for each cell for IRR
-      REAL,    ALLOCATABLE, SAVE :: CIRR (  :,: )  ! Species concs for IRR analysis
-      REAL,    ALLOCATABLE, SAVE :: RKIRR(  :,: )  ! Rate constants for IRR analysis
-      INTEGER, ALLOCATABLE, SAVE :: DUMMY(  : )    ! Dummy array for IRR call
+      REAL(8),    ALLOCATABLE, SAVE :: DTCELL         ! Time step for each cell for IRR
+      REAL(8),    ALLOCATABLE, SAVE :: CIRR (  :,: )  ! Species concs for IRR analysis
+      REAL(8),    ALLOCATABLE, SAVE :: RKIRR(  :,: )  ! Rate constants for IRR analysis
+      INTEGER,    ALLOCATABLE, SAVE :: DUMMY(  : )    ! Dummy array for IRR call
 
       REAL( 8 ) :: D
       REAL( 8 ) :: DT             ! Time step
@@ -179,15 +180,6 @@ c.....ROS3 intermediate variables
 #endif
 
       INTERFACE
-         SUBROUTINE PA_IRR ( LSTART, LCHGVL, RK, CONC, DELT, NUMCELLS, ICLND )
-            LOGICAL, INTENT( IN ) :: LSTART
-            LOGICAL, INTENT( IN ) :: LCHGVL
-            REAL,    INTENT( IN ) :: RK( :,: )
-            REAL,    INTENT( IN ) :: CONC( :,: )
-            REAL,    INTENT( IN ) :: DELT( : )
-            INTEGER, INTENT( IN ) :: NUMCELLS
-            INTEGER, INTENT( IN ) :: ICLND( : )
-         END SUBROUTINE PA_IRR
          SUBROUTINE RBFEVAL( NCSP, YIN, YDOT )
             INTEGER,   INTENT(    IN ) :: NCSP          ! Index of mech to use: 1=gas/day, 2=gas/night
             REAL( 8 ), INTENT( INOUT ) :: YIN(  :, : )  ! Species concs, ppm
@@ -258,8 +250,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
          END IF
 
 !        IF ( LIRRFLAG ) THEN   !*** This works only if in irr subdomain window
-            ALLOCATE ( DTCELL( BLKSIZE ),
-     &                 CIRR  ( BLKSIZE,N_SPEC ),
+            ALLOCATE ( CIRR  ( BLKSIZE,N_SPEC ),
      &                 RKIRR ( BLKSIZE,N_RXNS ), 
      &                 DUMMY ( BLKSIZE ),         STAT = IOS )
             IF ( IOS .NE. 0 ) THEN
@@ -346,13 +337,11 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
             END DO
          END DO
 
-         DO NCELL = 1, NUMCELLS
-            DTCELL( NCELL ) = 0.0
-         END DO
+         DTCELL = 0.0D0
          DO I = 1, ISCHAN
             ISPOLD = INEW2OLD( I, NCS )
             DO NCELL = 1, NIRRCLS
-               CIRR( NCELL, ISPOLD ) = REAL( Y( IRRCELL( NCELL ),I ), 4 )
+               CIRR( NCELL, ISPOLD ) = Y( IRRCELL( NCELL ),I )
             END DO
          END DO
          CALL PA_IRR ( .TRUE., .FALSE., RKIRR, CIRR, DTCELL, NIRRCLS, DUMMY )
@@ -489,13 +478,11 @@ c..Estimate error
             END DO
 
             IF ( LIRRFLAG ) THEN
-               DO NCELL = 1, NUMCELLS
-                  DTCELL( NCELL ) = REAL( DT, 4 )
-               END DO
+               DTCELL = DT
                DO I = 1, ISCHAN
                   ISPOLD = INEW2OLD( I, NCS )
                   DO NCELL = 1, NIRRCLS
-                     CIRR( NCELL,ISPOLD ) = REAL( Y( IRRCELL( NCELL ), I ), 4 )
+                     CIRR( NCELL,ISPOLD ) = Y( IRRCELL( NCELL ), I )
                   END DO
                END DO
                CALL PA_IRR ( .FALSE., .FALSE., RKIRR, CIRR, DTCELL, 
