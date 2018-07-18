@@ -8,18 +8,18 @@
 # =================================================================== #
 
 #> This script may be executed when first downloading or cloning the CMAQ
-#> repository. The routine will copy important script including config.cmaq,
+#> repository. The routine will copy important scripts including config.cmaq,
 #> bldit.cctm, and run.cctm as well as scripts for other utilities into 
 #> a $CMAQ_HOME project directory of the user's choice.
 #>
 #> Default location for CMAQ model build is one directory above
 #> the repository. The user may also set their own preferred 
 #> directory.
- set CMAQ_HOME = /home/username/CMAQ_Project
+ set CMAQ_HOME = /home/bmurphy/cmaq_projects/units
 
 #> This section allows users to choose explicitly which tools
 #> to make available from the repo. For each selected tool,
-#> extract_scripts.csh will copy any build and run scritps
+#> extract_scripts.csh will copy any build and run scripts
 #> out of the repo for you. Set each to [Y/N]
  set EXT_CCTM    = Y
 

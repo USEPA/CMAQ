@@ -529,11 +529,11 @@ C Set output file characteristics based on COORD.EXT and open diagnostic file
                VTYPE3D( V ) = M3REAL
                VNAME3D( V ) = WRSS_SPC( V )
                IF ( VNAME3D( V )(1:3) .EQ. 'NUM' ) THEN
-                  UNITS3D( V ) = 'number/s'
+                  UNITS3D( V ) = 's-1'
                ELSE IF ( VNAME3D( V )(1:3) .EQ. 'SRF' ) THEN
-                  UNITS3D( V ) = 'm2/s'
+                  UNITS3D( V ) = 'm2 s-1'
                ELSE
-                  UNITS3D( V ) = 'g/s'
+                  UNITS3D( V ) = 'g s-1'
                END IF
                VDESC3D( V ) = 'hourly ' // TRIM( VNAME3D( V ) )
      &                     // ' sea-salt emission rate'

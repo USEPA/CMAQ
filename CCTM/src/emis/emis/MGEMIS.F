@@ -351,7 +351,7 @@ C Set output file characteristics based on COORD.EXT and open diagnostic file
             DO V = 1, NMGDIAG
                VTYPE3D( V ) = M3REAL
                VNAME3D( V ) = WRMG_SPC( V )
-               UNITS3D( V ) = 'moles/s'
+               UNITS3D( V ) = 'mol s-1'
                VDESC3D( V ) = 'hourly ' // TRIM( VNAME3D( V ) )
      &                     // ' marine gas emission rate'
             END DO
