@@ -1148,7 +1148,9 @@ C Variables for water uptake onto organics
       Real numparticles     ! number of acc mode particles [#/m3]
       Real diam             ! volume equivalent particle diameter [m]
       Real aw               ! activity of water [fraction]
-
+      Real relhumid         ! relative humidity capped at 95% [fraction]
+                            ! Cap represents conservative est of water uptake
+                            ! and is consistent with IMPROVE visibility methods
 
 C Variables for updating 2nd and 3rd moments
       Real(8) m0_init( 2 )  ! initial 0 moment, wet [ mom/m3 ]
@@ -1498,7 +1500,8 @@ C        Compute sum_i(Kappa_i*Vorg_i) and volume equivalent diameter
          diam         = (6.0*totvol/numparticles/ pi ) ** (1.0/3.0)
 
 C        Compute aerosol water (Eq 3 of Petters and Kreidenweis)
-         aw = activityw( airRH, airtemp, diam ) ! activity of water
+         relhumid = min( airRH, 0.95 ) ! Cap RH at 95% to be conservative regarding uptake
+         aw = activityw( relhumid, airtemp, diam ) ! activity of water
          If( overallkappa .gt. 1e-6 ) then ! prevents situation of little uptake
             aerospc_conc( aorgh2o_idx, im ) = aerospc( aorgh2o_idx )%density
      &       * aw/(1.0-aw) * kappaVorg * 1.0e9
