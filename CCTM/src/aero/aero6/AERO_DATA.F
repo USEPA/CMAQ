@@ -222,7 +222,7 @@ C                  ---------   ---------   ---------    --------- ------- + + + 
      & spcs_type((/'         ','ATIJ     ','         '/), cm_set, 2200.0, F,F,F,  0,  1.0, 1.0,F, 'DUST  ', 0.00, 'PTI   ',es_acc),
      & spcs_type((/'         ','AMNJ     ','         '/), cm_set, 2200.0, F,F,F,  0,  1.0, 1.0,F, 'DUST  ', 0.00, 'PMN   ',es_acc),
      & spcs_type((/'AH2OI    ','AH2OJ    ','AH2OK    '/), cm_set, 1000.0, T,F,F,  0,  0.0, 0.0,F, 'WATER ', 0.00, 'PH2O  ',es_fin),
-     & spcs_type((/'         ','AORGH2OJ ','         '/), cm_set, 1000.0, T,F,F,  0,  0.0, 0.0,F, 'WATER ', 0.00, '      ',es_fin),
+     & spcs_type((/'         ','AORGH2OJ ','         '/), cm_set, 1000.0, T,F,F,  0,  0.0, 0.0,F, 'WATER ', 0.00, '      ',es_0),
      & spcs_type((/'AH3OPI   ','AH3OPJ   ','AH3OPK   '/), cm_set, 1000.0, T,F,T,  0,  0.0, 0.0,F, 'WATER ', 0.00, '      ',es_0),
      & spcs_type((/'AOTHRI   ','AOTHRJ   ','         '/), cm_set, 2200.0, F,F,F,  0,  1.0, 1.0,F, 'DUST  ', 0.00, 'PMOTHR',es_fin),
      & spcs_type((/'         ','AALK1J   ','         '/), cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.07, '      ',es_0),
