@@ -1501,7 +1501,7 @@ C        Compute aerosol water (Eq 3 of Petters and Kreidenweis)
          aw = activityw( airRH, airtemp, diam ) ! activity of water
          If( overallkappa .gt. 1e-6 ) then ! prevents situation of little uptake
             aerospc_conc( aorgh2o_idx, im ) = aerospc( aorgh2o_idx )%density
-     &       * aw/(1.0-aw) * kappaVorg * 1.0e-9
+     &       * aw/(1.0-aw) * kappaVorg * 1.0e9
          Else
             aerospc_conc( aorgh2o_idx, im ) =  conmin ! no significant orgwater
          End If
