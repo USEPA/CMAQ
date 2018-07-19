@@ -106,6 +106,11 @@ C-----------------------------------------------------------------------
       INTEGER, ALLOCATABLE, SAVE :: DIAG_WVL( : ) ! pointers to diagnostic wavelengths
       
       INTEGER            :: N_TROPO_O3_TOGGLE      ! number of adjustments to ozone extinction 
+ 
+      REAL, ALLOCATABLE  :: RJ      ( :, :, :, : ) ! average grid cell J-values (min-1)
+      REAL, ALLOCATABLE  :: RJ_RES  ( :, :, :, : ) ! resolved cloud J-values (min-1)
+      REAL, ALLOCATABLE  :: RJ_SUB  ( :, :, :, : ) ! subgrid cloud J-values (min-1)
+      REAL, ALLOCATABLE  :: ETOT_SFC_WL ( :,:,: )  ! total downward irradiance at sfc [ Watts / m**2  ]
       
       REAL, ALLOCATABLE  :: BLKDZ( : )             ! layer thicknesses [ m ]
       REAL, ALLOCATABLE  :: GAS_EXTINCTION( :,: )  ! extinction from gases per layer [1/m]

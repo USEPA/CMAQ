@@ -77,6 +77,8 @@ C-----------------------------------------------------------------------
       USE UTILIO_DEFN
       !USE AQ_DATA 
       USE ASX_DATA_MOD,  ONLY: MET_DATA
+      USE PHOT_MOD,      ONLY: RJ, RJ_RES, RJ_SUB, LH2O2, LHNO3
+
 
       IMPLICIT NONE
 
@@ -182,6 +184,8 @@ C for INTERPX
 C Gridded meteorology data:
 C Latitude and longitude for zenith angle calculation: Golam Sarwar * July 1, 2011 
       REAL          COSZ                            ! local cosine of zenith angle
+      REAL          JH2O2                           ! H2O2 photolysis rate, 1/min 
+      REAL          JHNO3                           ! HNO3 photolysis rate, 1/min 
       LOGICAL       DARK                            ! DARK = TRUE is night,  DARK = FALSE is day
 
 C...........External Functions:
@@ -625,13 +629,15 @@ C...  that participated in cloud chemistry
 C...  calculate cosine of zenith angle for the cell and determine day or night; Golam Sarwar 
 
                   COSZ = MET_DATA%COSZEN( COL, ROW )
-
-                  IF ( COSZ .LE. 0.0 ) THEN
+                  JH2O2 = RJ_RES( COL, ROW, LAY, LH2O2 )
+                  JHNO3 = RJ_RES( COL, ROW, LAY, LHNO3 )
+                  IF ( JH2O2 .LE. 0.0 ) THEN 
                     DARK = .TRUE.   ! night
                   ELSE
                     DARK = .FALSE.  ! day
                   END IF
-
+                  JH2O2_HYDROMETEORS = REAL( JH2O2 / 60.0, 8 )
+                  JHNO3_HYDROMETEORS = REAL( JHNO3 / 60.0, 8 )
                   CALL AQ_MAP ( JDATE, JTIME, WTBAR, WCBAR, TBARC,
      &                          PBARC, CTHK1, AIRM, PRATE1, TAUCLD,
      &                          POLC, CEND, REMOV, REMOVAC, ALFA0,
