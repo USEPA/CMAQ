@@ -49,6 +49,12 @@
 !C                        exp(log-intercept), and move the LTNOx
 !C                        production rate to environmental variable to be set in run script
 !C    18 Apr 2017 D. Kang: Make this routine compatible with the two-way coupled model
+!C    17 Jul 2017 D. Wong: In subroutine GET_LTNG: 
+!C                         * implemented a bug fix for determining LASTTIC base on accumulation of time step,
+!TSTEP(2)
+!C                         * called SUBHFILE only once to improve code !efficiency
+!C    13 June 2018 D. Kang: Changes to accomodate the twoway WRF-CMAQ coupled model with/without
+!C                          lightning data passing (lightning asslimilation and NO emissions)
 !C----------------------------------------------------------------------
 
       IMPLICIT NONE
@@ -64,56 +70,58 @@
       CHARACTER( 16 ), PARAMETER :: LTSPC = 'NO'
 
 !C lightning log linear regression parameters with RC 
-      REAL            :: SQUAREKM
-      REAL, SAVE      :: SCL_FACTOR
-      REAL, SAVE      :: MOLSNCG
-      REAL, SAVE      :: MOLSNIC
+      REAL                       :: SQUAREKM
+      REAL,                 SAVE :: SCL_FACTOR
+      REAL,                 SAVE :: MOLSNCG
+      REAL,                 SAVE :: MOLSNIC
 
-      LOGICAL,              SAVE :: NLDNSTRIKE     ! flag to use NLDN STRIKE directly 
+      LOGICAL,              SAVE :: NLDNSTRIKE_FILE     ! flag to use NLDN STRIKE file directly 
       LOGICAL,              SAVE :: LTNGDIAG   ! flag to turn on lightning NO diagnostics
       INTEGER,              SAVE :: LTLYRS     ! no. of emissions layers
       REAL,    ALLOCATABLE, SAVE :: VDEMIS_DIAG( :,:,: ) ! lightning NO diagnostic
       REAL,    ALLOCATABLE, SAVE :: COLUMN_DIAG( :,: ) ! column total NO
 
 !C file name for off line lightning NO input; set to "InLine" for inline production
-      CHARACTER( 16 ), SAVE :: LNAME
+      CHARACTER( 16 ),      SAVE :: LNAME
 !C file name for inline lightning parameters, (only used if LNAME = "InLine")
-      CHARACTER( 16 ), SAVE :: ANAME
-      CHARACTER( 16 ), SAVE :: ONAME
+      CHARACTER( 16 ),      SAVE :: ANAME
+      CHARACTER( 16 ),      SAVE :: ONAME
 !C file name for met file for inline lightning
-      CHARACTER( 16 ), SAVE :: MNAME
-      CHARACTER( 16 ), SAVE :: RNAME
-      CHARACTER( 16 ), SAVE :: RC_NAME       ! RC name: old is RC and CCnew is RCA
+      CHARACTER( 16 ),      SAVE :: MNAME
+      CHARACTER( 16 ),      SAVE :: RNAME
+      CHARACTER( 16 ),      SAVE :: RC_NAME       ! RC name: old is RC and CCnew is RCA
 
 !C allocate these if LNAME = 'InLine'
-      REAL,    ALLOCATABLE, SAVE :: LTNG_PRSFC  ( :,: ) ! surface pressure
-      REAL,    ALLOCATABLE, SAVE :: LTNG_RC     ( :,: ) ! convective rainfall
+      REAL,    ALLOCATABLE, SAVE :: LTNG_PRSFC     ( :,: ) ! surface pressure
+      REAL,    ALLOCATABLE, SAVE :: LTNG_RC        ( :,: ) ! convective rainfall
 !C allocate these if LPARAM
-      REAL,    ALLOCATABLE, SAVE :: NLDN_STRIKE ( :,: ) ! Hourly NLDN strike data
-      REAL,    ALLOCATABLE, SAVE :: OCEAN_MASK  ( :,: ) ! reduce offshore strikes
-      REAL,    ALLOCATABLE, SAVE :: SLOPE       ( :,: ) ! reduce offshore strikes
-      REAL,    ALLOCATABLE, SAVE :: INTERCEPT   ( :,: ) ! reduce offshore strikes
-      REAL,    ALLOCATABLE, SAVE :: SLOPE_lg    ( :,: ) ! reduce offshore strikes
-      REAL,    ALLOCATABLE, SAVE :: INTERCEPT_lg( :,: ) ! reduce offshore strikes
-      REAL,    ALLOCATABLE, SAVE :: ICCG        ( :,: ) ! intercloud strikes per cloud to ground strike
+      REAL,    ALLOCATABLE, SAVE :: NLDN_STRIKE    ( :,: ) ! Hourly NLDN strike data
+      REAL,    ALLOCATABLE, SAVE :: OCEAN_MASK     ( :,: ) ! reduce offshore strikes
+      REAL,    ALLOCATABLE, SAVE :: SLOPE          ( :,: ) ! reduce offshore strikes
+      REAL,    ALLOCATABLE, SAVE :: INTERCEPT      ( :,: ) ! reduce offshore strikes
+      REAL,    ALLOCATABLE, SAVE :: SLOPE_lg       ( :,: ) ! reduce offshore strikes
+      REAL,    ALLOCATABLE, SAVE :: INTERCEPT_lg   ( :,: ) ! reduce offshore strikes
+      REAL,    ALLOCATABLE, SAVE :: ICCG           ( :,: ) ! intercloud strikes per cloud to ground strike
 !C Vertical coord values
-      REAL,    ALLOCATABLE, SAVE :: VGLVSLT( : )
+      REAL,    ALLOCATABLE, SAVE :: VGLVSLT        ( : )
 
 !C    scenario time/date needed for diagnostic output
-      INTEGER, SAVE    :: SDATE     ! scenario start date
-      INTEGER, SAVE    :: STIME     ! scenario start time
+      INTEGER,              SAVE :: SDATE     ! scenario start date
+      INTEGER,              SAVE :: STIME     ! scenario start time
 
-      INTEGER, SAVE    :: NSTEPS    ! run duration
-      INTEGER, SAVE    :: NTICS = 0 ! no. of substeps within an output tstep
-      INTEGER, SAVE    :: MTICS = 0 ! temporary sub for NTICS before it set to 0 
-      INTEGER, SAVE    :: LDATE     ! test date to update emissions diag avg
-      INTEGER, PRIVATE :: LTIME     ! test time to update emissions diag avg
-      INTEGER, PRIVATE :: FTIME     ! Start time to Write to Diagnostic files
-      INTEGER, SAVE    :: LOGDEV
+      INTEGER,              SAVE :: NSTEPS    ! run duration
+      INTEGER,              SAVE :: NTICS = 0 ! no. of substeps within an output tstep
+      INTEGER,              SAVE :: MTICS = 0 ! temporary sub for NTICS before it set to 0 
+      INTEGER,              SAVE :: LDATE     ! test date to update emissions diag avg
+      INTEGER,           PRIVATE :: LTIME     ! test time to update emissions diag avg
+      INTEGER,           PRIVATE :: FTIME     ! Start time to Write to Diagnostic files
+      INTEGER,              SAVE :: LOGDEV
+      INTEGER,              SAVE :: LT_ASM_DT    !Lightning assimilation input time step
 
+      INTEGER,              SAVE :: GXOFF, GYOFF   ! global origin offset from file
+      INTEGER,              SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
 
-      INTEGER, SAVE    :: GXOFF, GYOFF   ! global origin offset from file
-      INTEGER, SAVE    :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
+      INTEGER                    :: LIGHTNING_FILE_TSTEP
 
       CONTAINS
 
@@ -125,6 +133,9 @@
          USE GRID_CONF ! horizontal & vertical domain specifications
          USE CGRID_SPCS         ! CGRID mechanism species
          USE UTILIO_DEFN
+#ifdef twoway
+         USE twoway_data_module
+#endif
 
          IMPLICIT NONE
 
@@ -135,16 +146,14 @@
 !C Arguments:
 C        INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
          INTEGER, INTENT( IN ) :: EMLAYS     ! number of emissions layers
-         INTEGER :: JDATE, JTIME, TSTEP
+         INTEGER               :: JDATE, JTIME, TSTEP
 
          LOGICAL SUCCESS
 
 !C External Functions:
-         INTEGER, EXTERNAL :: SETUP_LOGDEV
-         LOGICAL, EXTERNAL :: CHKGRID
-!        CHARACTER( 16 )   :: iccgFile = 'ICCG' 
-!        INTEGER :: ICCG_UNIT    ! scenario start time
-         INTEGER :: COL, ROW     ! local col and row variable 
+         INTEGER,     EXTERNAL :: SETUP_LOGDEV
+         LOGICAL,     EXTERNAL :: CHKGRID
+         INTEGER               :: COL, ROW     ! local col and row variable 
 !C Local Variables:
          CHARACTER( 16 ), SAVE :: CTM_LTNG_NO = 'CTM_LTNG_NO'  ! env var Cflag
 !C value to start log linear regression  
@@ -182,6 +191,7 @@ C        INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
          STIME = ENVINT( 'CTM_STTIME', 'Scenario Start (HHMMSS)', 0, STATUS )
          NSTEPS = ENVINT( 'CTM_RUNLEN', 'Scenario Duration (HHMMSS)', 24, STATUS )
          NSTEPS = NSTEPS / TSTEP           ! initscen guarantees divisibility
+         LT_ASM_DT = ENVINT( 'LTNG_ASSIM_DT', 'LTNG INPUT Time Interval', 0, STATUS )
 
          WRITE( SJDATE, '(I7)' ) JDATE
          READ( SJDATE, '(4X, I3)' ) CJDATE
@@ -258,7 +268,7 @@ C        INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
 
 !C Is there a file specifying hourly NLDN strikes?
             VARDESC = 'Use NLDN STRIKE'
-            NLDNSTRIKE = ENVYN( 'USE_NLDN', VARDESC, .FALSE., STATUS )
+            NLDNSTRIKE_FILE = ENVYN( 'USE_NLDN', VARDESC, .FALSE., STATUS )
             IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
             IF ( STATUS .EQ. 1 ) THEN
                XMSG = 'Environment variable improperly formatted'
@@ -272,6 +282,11 @@ C        INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
                WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
             END IF
 
+#ifdef twoway
+           IF (wrf_lightning_assim) THEN
+              NLDNSTRIKE_FILE = .FALSE.
+           END IF
+#endif
 !C Open lightning parameters file?
                ONAME = PROMPTMFILE(
      &                    'Enter name for lightning parameters file',
@@ -280,22 +295,26 @@ C        INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
      &                    'Enter name for gridded met input file',
      &                    FSREAD3, 'MET_CRO_2D', PNAME )
 !C Read description of normalized emissions file
-            IF ( .NOT. DESC3( RNAME ) ) THEN
-               XMSG = 'Could not get description of file "'
-     &              // TRIM( RNAME ) // '"'
-               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-               SUCCESS = .FALSE.; RETURN
-            END IF
-            IF(NLDNSTRIKE) THEN
+            IF (NLDNSTRIKE_FILE) THEN
                   XMSG = 'Using hourly NLDN Strike data'
                   CALL M3MSG2( XMSG )
                   ANAME = PROMPTMFILE(
      &                    'Enter name for NLDN STRIKE Parameters',
      &                    FSREAD3, 'NLDN_STRIKES', PNAME )
+               IF ( .NOT. DESC3( ANAME ) ) THEN
+                  XMSG = 'Could not get description of file "'
+     &                 // TRIM( ANAME ) // '"'
+                  CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+                  SUCCESS = .FALSE.; RETURN
+               END IF
+
+               LIGHTNING_FILE_TSTEP = TIME2SEC ( TSTEP3D )
+
             ELSE
+                 LIGHTNING_FILE_TSTEP = TIME2SEC ( TSTEP )
                  XMSG = 'Using derived parameters for KF scheme '
                  CALL M3MSG2( XMSG )
-            END IF  !END if NLDNSTRIKE
+            END IF  !END if NLDNSTRIKE_FILE
 
 !C Set Lambert projection
             IF ( .NOT. SETLAM( SNGL( P_ALP3D ),
@@ -519,7 +538,9 @@ C        INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
 
          USE GRID_CONF             ! horizontal & vertical domain specifications
          USE UTILIO_DEFN
-
+#ifdef twoway
+         USE twoway_data_module
+#endif
          IMPLICIT NONE
 
 !     need to change this to set this path in the Makefile
@@ -554,26 +575,28 @@ C        INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
          REAL    XCELLR, YCELLR   ! cell spacing ratio to 36Km
          REAL    FLASH_FAC        ! lightning flashes factor
 
-         LOGICAL, SAVE :: LASTTIC   ! true: last sync step this output tstep
-         REAL          :: DIVFAC   ! averaging factor for diagnostic file
+         LOGICAL,     SAVE :: LASTTIC   ! true: last sync step this output tstep
+         REAL              :: DIVFAC   ! averaging factor for diagnostic file
 
-         CHARACTER( 16 )  :: MNAME
-         CHARACTER( 16 )  :: PNAME = 'GET_LTNG'
-         CHARACTER( 120 ) :: XMSG = ' '
+         CHARACTER( 16 )   :: MNAME
+         CHARACTER( 16 )   :: PNAME = 'GET_LTNG'
+         CHARACTER( 120 )  :: XMSG = ' '
+         REAL, ALLOCATABLE :: COLUMN_LTNG_NO ( :,: ) ! column total NO
+         
+         INTEGER,     SAVE :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2
 
-         INTEGER, SAVE :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2
+         INTEGER           :: cjdate
+         INTEGER           :: DTSTEP
+         CHARACTER( 7 )    :: SJDATE
 
-         INTEGER               :: CDATE, CTIME
-         INTEGER               :: CJDATE
-         INTEGER               :: DTSTEP
-         CHARACTER( 7 )        :: SJDATE
-
-         LOGICAL, SAVE         :: R_READY = .TRUE.
-         REAL,    ALLOCATABLE  :: COLUMN_LTNG_NO( :,: ) ! column total NO
+         LOGICAL,     SAVE :: R_READY = .TRUE.
+         LOGICAL,     SAVE :: wrf_assim = .FALSE.
+         INTEGER,     SAVE :: TOT_TSTEP
+         LOGICAL           :: FIRSTIME = .TRUE.
 
 C statement function for ERF approximation
-         REAL :: ERF                ! ERF approx. statement function
-         REAL :: X                  ! dummy argument for ERF
+         REAL              :: ERF                ! ERF approx. statement function
+         REAL              :: X                  ! dummy argument for ERF
          ERF( X ) = SIGN( 1.0, X ) * SQRT( 1.0 - EXP( -4.0 * X * X / PI ) )
 !-----------------------------------------------------------------------
 
@@ -586,45 +609,49 @@ C statement function for ERF approximation
             DTSTEP = TIME2SEC( TSTEP( 1 ) ) / TIME2SEC( TSTEP( 2 ) ) 
             !C Open me filet
 !C Get domain window info for met_cro_2d file
-            CALL SUBHFILE ( RNAME, GXOFF, GYOFF,
+            IF (FIRSTIME) THEN
+                CALL SUBHFILE ( RNAME, GXOFF, GYOFF,
      &              STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2 )
-
+                TOT_TSTEP = 0
+                FIRSTIME = .FALSE.
+            END IF
             WRITE( SJDATE, '(I7)') JDATE
             READ( SJDATE, '(4X, I3)') CJDATE
 
-            IF ( .NOT. CURRSTEP( JDATE, JTIME, SDATE3D, STIME3D, TSTEP3D,
-     &                           CDATE, CTIME ) ) THEN
-               XMSG = 'Cannot get step-starting date and time'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-            END IF
-
-            WRITE( LOGDEV,'(5X,A,I7.7,1X,I6.6)')'LNOx production step-starting date and time: ',
-     &      CDATE, CTIME
-
-            CALL NEXTIME ( CDATE, CTIME, TSTEP3D )  ! set mdate:mtime to Cthe hour
 !C read in the hourly lightning strike file
 #ifdef twoway
-            IF(.NOT. NLDNSTRIKE ) THEN
-              IF ( .NOT. INTERPX( RNAME, RC_NAME, PNAME,
-     &                       STRTCOLMC2,ENDCOLMC2,STRTROWMC2,ENDROWMC2, 1,1,
-     &                       CDATE, CTIME, LTNG_RC) ) THEN
-                     XMSG = 'Could not read LTNG_RC from ' // TRIM(RNAME)
+            IF(wrf_lightning_assim) THEN
+              IF ( .NOT. INTERPX( RNAME, 'LNT', PNAME,
+     &                   STRTCOLMC2,ENDCOLMC2,STRTROWMC2,ENDROWMC2, 1,1, 
+     &                       JDATE, JTIME, NLDN_STRIKE ) ) THEN
+                     XMSG = 'Could not read LNT from ' // TRIM(RNAME)
                      CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
               END IF
+!C Interpret the timestep NLDN_STRIKE value into hourly value
+              NLDN_STRIKE = NLDN_STRIKE*60/LT_ASM_DT
+               wrf_assim = .TRUE.
+!               WRITE(*,*) "Max NLDN_STRIKE = ", MAXVAL(NLDN_STRIKE)
+            ELSE
+              IF(.NOT. NLDNSTRIKE_FILE ) THEN
+                IF ( .NOT. INTERPX( RNAME, RC_NAME, PNAME,
+     &                       STRTCOLMC2,ENDCOLMC2,STRTROWMC2,ENDROWMC2, 1,1,
+     &                       JDATE, JTIME, LTNG_RC) ) THEN
+                     XMSG = 'Could not read LTNG_RC from ' // TRIM(RNAME)
+                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+                END IF
 !C Interpret the timestep RC value into hourly value
-              LTNG_RC = LTNG_RC*DTSTEP
+                LTNG_RC = LTNG_RC*DTSTEP
+              END IF
             END IF
             IF ( .NOT. INTERPX( RNAME, 'PRSFC', PNAME,
      &                       STRTCOLMC2,ENDCOLMC2,STRTROWMC2,ENDROWMC2, 1,1, 
-     &                       CDATE, CTIME, LTNG_PRSFC ) ) THEN
-                     XMSG = 'TwoWay: Could not extract PRSFC from ' // TRIM(RNAME)
-                     WRITE( LOGDEV,'(5X,A,I7.7,1X,I6.6)')'For ',
-     &               LDATE, LTIME
+     &                       JDATE, JTIME, LTNG_PRSFC ) ) THEN
+                     XMSG = 'Could not read PRSFC from ' // TRIM(RNAME)
                      CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
             END IF
 #else
             IF( R_READY ) THEN
-               IF(.NOT. NLDNSTRIKE ) THEN
+               IF(.NOT. NLDNSTRIKE_FILE ) THEN
                  IF ( .NOT. XTRACT3( RNAME, RC_NAME, 1, 1,
      &                       STRTROWMC3,ENDROWMC3,STRTCOLMC3,ENDCOLMC3,
      &                       LDATE, LTIME, LTNG_RC) ) THEN
@@ -633,21 +660,21 @@ C statement function for ERF approximation
                  END IF
                END IF
                IF ( .NOT. XTRACT3( RNAME, 'PRSFC', 1, 1,
-     &                       STRTROWMC3,ENDROWMC3,STRTCOLMC3,ENDCOLMC3, 
+     &                       STRTROWMC3,ENDROWMC3,STRTCOLMC3,ENDCOLMC3,
      &                       LDATE, LTIME, LTNG_PRSFC ) ) THEN
                      XMSG = 'Could not extract PRSFC from ' // TRIM(RNAME)
                      WRITE( LOGDEV,'(5X,A,I7.7,1X,I6.6)')'For ',
      &               LDATE, LTIME
                      CALL M3EXIT( PNAME, LDATE, LTIME, XMSG, XSTAT2 )
                END IF
-               IF(.NOT. NLDNSTRIKE ) THEN
+               IF(.NOT. NLDNSTRIKE_FILE ) THEN
                   R_READY = .FALSE.
                END IF
             END IF
 #endif
 
             IF( R_READY ) THEN
-               IF ( NLDNSTRIKE ) THEN
+               IF ( NLDNSTRIKE_FILE ) THEN
                   IF ( .NOT. XTRACT3( ANAME, "NLDNstrk", 1, 1,
      &                          STRTROWMC3,ENDROWMC3,STRTCOLMC3,ENDCOLMC3, 
      &                             LDATE, LTIME, NLDN_STRIKE ) ) THEN
@@ -655,7 +682,7 @@ C statement function for ERF approximation
                         CALL M3EXIT( PNAME, LDATE, LTIME, XMSG, XSTAT2 )
                   END IF
                      R_READY = .FALSE.
-               END IF  ! NLDNSTRIKE
+               END IF  ! NLDNSTRIKE_FILE
             END IF     !R_READY
             ALLOCATE( COLUMN_LTNG_NO( NCOLS,NROWS ), STAT = STATUS )
             IF ( STATUS .NE. 0 ) THEN
@@ -664,10 +691,9 @@ C statement function for ERF approximation
             END IF
             COLUMN_LTNG_NO( :,: ) = 0.0
 !C Iterate over each grid cell and distribute lightning NO vertically
-
                DO ROW = 1, MY_NROWS
                   DO COL = 1, MY_NCOLS
-                     IF ( NLDNSTRIKE ) THEN
+                     IF ( NLDNSTRIKE_FILE .or. wrf_assim ) THEN
                         COLUMN_LTNG_NO( COL,ROW ) =
      &                     ( NLDN_STRIKE( COL,ROW )
      &                       * SQUAREKM     ! the NLD_STRIKE in unit of km-2
@@ -700,7 +726,7 @@ C statement function for ERF approximation
                         ELSE
                            COLUMN_LTNG_NO( COL,ROW ) = 0.0
                         END IF
-                     END IF   ! NLDNSTRIKE
+                     END IF   ! NLDNSTRIKE_FILE
                   END DO   ! COL
                END DO   ! ROW
 
@@ -778,10 +804,12 @@ C statement function for ERF approximation
 
 !C Determine the time to read and/or write the hourly files
             NTICS = NTICS + 1
-            LASTTIC = NTICS .EQ. TIME2SEC( TSTEP( 1 ) ) / TIME2SEC( TSTEP( 2 ) )
+            TOT_TSTEP = TOT_TSTEP + TIME2SEC( TSTEP( 2 ) )
+            LASTTIC = TOT_TSTEP .GE. LIGHTNING_FILE_TSTEP
             IF ( LASTTIC ) THEN
                MTICS = NTICS
                NTICS = 0
+               TOT_TSTEP = 0
                CALL NEXTIME( LDATE, LTIME, TSTEP( 1 ) )
                R_READY = .TRUE.
             END IF
