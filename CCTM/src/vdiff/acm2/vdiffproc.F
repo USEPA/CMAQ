@@ -450,8 +450,10 @@ C Write extra arrays for NH3 emission and net flux for bidi
                XMSG = 'Could not write ' // CTM_DRY_DEP_1 // ' file'
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
             END IF
-           WRITE( LOGDEV,*) ' NH3emis, drydep, flux=',NH3_EMIS(27,18),
-     &                     DDEP_NH3(27,18),DDEP( DD2DV(NH3_HIT),27,18)
+! must ensure the col/row being written to log is not larger than 
+! the subdomain size for this PE. 
+!          WRITE( LOGDEV,*) ' NH3emis, drydep, flux=',NH3_EMIS(27,18),
+!    &                     DDEP_NH3(27,18),DDEP( DD2DV(NH3_HIT),27,18)
          DDEP_NH3 = 0.0
          END IF
 
