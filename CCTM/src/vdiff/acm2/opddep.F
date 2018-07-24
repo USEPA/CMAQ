@@ -92,9 +92,9 @@ C Set output file characteristics based on COORD.EXT and open the dry dep file
          TSTEP3D = TSTEP
          CALL NEXTIME( SDATE3D, STIME3D, TSTEP3D ) !  start the next hour
          IF ( ABFLUX ) THEN
-            NVARS3D = N_SPC_DDEP + LCMP
+            NVARS3D = N_SPC_DDEP + 2
          ELSE 
-            NVARS3D = N_SPC_DDEP
+            NVARS3D = N_SPC_DDEP 
          END IF
          NCOLS3D = GL_NCOLS
          NROWS3D = GL_NROWS
@@ -170,16 +170,15 @@ C Set output file characteristics based on COORD.EXT and open the dry dep file
          END DO
 
          IF ( ABFLUX ) THEN
-            N = 0   
-            STRT = N_GC_DDEP + N_AE_DDEP + N_NR_DDEP + N_TR_DDEP + 1
-            FINI = N_GC_DDEP + N_AE_DDEP + N_NR_DDEP + N_TR_DDEP + LCMP
-            DO V = STRT, FINI
-               N = N + 1
-               VTYPE3D( V ) = M3REAL
-               VNAME3D( V ) = CMPSPC( N )
-               UNITS3D( V ) = 'kg ha-1'
-               VDESC3D( V ) = 'hourly dry deposition values'
-            END DO
+            VTYPE3D( V ) = M3REAL
+            VNAME3D( V ) = 'NH3_DDEP'
+            UNITS3D( V ) = 'kg/hectare'
+            VDESC3D( V ) = 'hourly NH3_DryDep values'
+  
+            VTYPE3D( V+1 ) = M3REAL
+            VNAME3D( V+1 ) = 'NH3_EMIS'
+            UNITS3D( V+1 ) = 'kg/hectare'
+            VDESC3D( V+1 ) = 'hourly NH3_EMIS values'
          END IF
 
          FDESC3D( 1 ) = 'hourly 1-layer cross-point RADM dry deposition data'
