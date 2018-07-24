@@ -23,7 +23,7 @@ This Fortran program creates gridded IOAPI files with daily values from gridded 
                Allowed values are 24 (use all 8-hr averages with starting hours 
                from 0 - 23 hr local time) and 17 (use only the 17 8-hr averages
                with starting hours from 7 - 23 hr local time) (default is 24)
- M3_FILE_#     SList of up to 366 input IOAPI file name with hourly values.
+ M3_FILE_#     List of up to 366 input IOAPI file name with hourly values.
                If only a single input file is provided, INFILE can be used instead of
 	       M3_FILE_1.
                The program will concatenate time steps from all input files to construct the
