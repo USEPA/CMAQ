@@ -6,7 +6,7 @@ This Fortran program generates a csv (comma separated values) file that compares
 
 ## Environment variables used:
 ```
- M3_FILE_n      IOAPI input file(s) containing hourly modeled ozone values (max of 12). 
+ M3_FILE_#      IOAPI input file(s) containing hourly modeled ozone values (max of 12). 
                 [Note: Supported map projections are Lambert conformal, polar stereographic, and lat/lon.
                 If an ioapi file is supplied that has a projection not in this list the program will 
                 stop with an error message.]
