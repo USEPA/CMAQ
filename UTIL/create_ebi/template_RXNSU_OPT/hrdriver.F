@@ -68,6 +68,10 @@ C**********************************************************************
       USE RXNS_DATA
       USE AEROSOL_CHEMISTRY
       USE RXNS_FUNCTION
+#ifdef isam
+      USE SA_IRR_DEFN        
+      USE SA_DEFN           
+#endif
       USE HRDATA
       USE PA_DEFN, Only: LIRR   ! Process Anaylsis control and data variable
       USE PA_IRR_CLT
@@ -331,6 +335,10 @@ C..Determine which cells need IRR
          ALLOCATE( LFLAGIRR ( NCOLS, NROWS, NLAYS ) )
          CALL      PA_IRR_CKCELLS ( LFLAGIRR )
          
+#ifdef isam
+        NUMB_ISAM_CELLS = 1.0D0 / ( NCOLS * NROWS * NLAYS )
+        CALL SA_IRR_INIT  
+#endif
          LFIRST = .FALSE.
 
       END IF      ! First time
@@ -477,6 +485,23 @@ c..Get rate constants
                CALL CALC_RCONST( TEMP, ATMPRES, H2O, RJIN, HET, LSUNLIGHT, LAND, RKI_SAV, NCELL )
                FORALL( NPH = 1:NRXNS )RKI( NPH ) = RKI_SAV( NCELL, NPH )
 
+#ifdef isam
+#if defined(isam) || defined(verbose_isam)
+C...For diagnosing IRR calculations in log files
+                IF( CHECK_ISAM )THEN
+                   WRITE_CELL = .FALSE.
+                   IF( C .EQ. MAX(1, MY_NCOLS/2) .AND. R .EQ. MAX(1,MY_NROWS/2) .AND. L .EQ. 1 )THEN
+                        WRITE_CELL = .TRUE.
+                        WRITE(LOGDEV,*)'WRITE_CELL = .TRUE.'
+                   ELSE
+                        WRITE_CELL = .FALSE.               
+                   END IF
+                END IF        
+#endif 
+!               RKI_INIT( C,R,L,1:NRXNS ) = RKI(1:NRXNS)
+               CALL SA_IRR_EXTRACT( C, R, L, DENS( C,R,L ),YC )
+#endif
+
 c..Call EBI solver
                N_EBI_IT = 0
 
@@ -511,6 +536,10 @@ R5                     END DO
 R5                     CGRID(C,R,L,ISP) = REAL( YCCELL(ISP), 4)
 R5                  END DO UPDATE_DEGRADED
 R5               END IF
+
+#ifdef isam
+               CALL SA_IRR_UPLOAD( C, R, L, DENS( C,R,L ), YC )
+#endif
 
 c..update irrout arrays if needed               
                IF ( LFLAGIRR( C,R,L ) )CALL PA_IRR_CELLENDF( C, R, L )

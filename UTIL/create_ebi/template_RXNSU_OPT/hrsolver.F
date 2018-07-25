@@ -47,6 +47,10 @@ C**********************************************************************
       USE RXNS_DATA
       USE HRDATA
       USE PA_IRR_MODULE
+#ifdef isam
+      USE SA_IRR_DEFN
+#endif
+
 R0
 
       IMPLICIT NONE
@@ -218,6 +222,12 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
       N_INR_STEPS = 1
       NEBI        = 1
       LEBI_CONV   = .TRUE.
+#ifdef isam
+      UPDATE_SOLD = .FALSE.
+      UPDATE_PROBABILITIES = .TRUE.
+      CALL SA_IRR_UNBLOCKED ( .TRUE., RKI, YC, DTC )
+#endif
+
 
       DO S = 1, NUMB_MECH_SPC
          IF( YC( S ) .LE. MAXPRED )THEN
@@ -347,6 +357,12 @@ R5                END DO
 R5                IF( CALL_DEG )CALL DEGRADE(YCCELL, DTG, JDATE, JTIME, LOGDEV) ! :WTH Call degradation routine
 R5
                  IF( CALL_IRR ) CALL PA_IRR ( .FALSE., RKI, YC, DTC )
+#ifdef isam
+                 IF( NEBI .EQ. N_EBI_STEPS )UPDATE_SOLD = .TRUE.
+                 CALL SA_IRR_UNBLOCKED ( .FALSE., RKI, YC, DTC )
+                 UPDATE_PROBABILITIES = .FALSE.
+#endif
+
                  CYCLE SUBSTEP_EBI ! solve for next sub time-step
                  
                END IF
