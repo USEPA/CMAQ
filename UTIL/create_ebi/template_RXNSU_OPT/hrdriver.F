@@ -141,8 +141,6 @@ C..Scratch Local Variables:
 
       INTEGER       :: GXOFF, GYOFF            ! global origin offset from file
 
-      INTEGER, SAVE :: PECOL_OFFSET        ! Local Column Offset for processor
-      INTEGER, SAVE :: PEROW_OFFSET        ! Local Column Offset for processor
 C for INTERPX
       INTEGER, SAVE :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2
       INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
@@ -505,7 +503,7 @@ C...For diagnosing IRR calculations in log files
 c..Call EBI solver
                N_EBI_IT = 0
 
-               CALL HRSOLVER( JDATE, JTIME, (C+PECOL_OFFSET), (R+PEROW_OFFSET), L )
+               CALL HRSOLVER( JDATE, JTIME, C, R, L )
 
 #ifdef hrstats 
                MXEBI  = MAX( MXEBI, N_EBI_IT )

@@ -66,6 +66,8 @@ c..Miscellaneous variables
       INTEGER   N_EBI_IT      ! No. of iterations for EBI
       INTEGER   N_EBI_STEPS   ! No. of time steps for EBI
       INTEGER   N_INR_STEPS   ! No. of inner time steps for EBI
+      INTEGER   PECOL_OFFSET  ! Local Column Offset for processor
+      INTEGER   PEROW_OFFSET  ! Local Column Offset for processor
 R5
 R5    INTEGER, SAVE ::   MODEL_SPECIES ! No. of species in CGRID
 

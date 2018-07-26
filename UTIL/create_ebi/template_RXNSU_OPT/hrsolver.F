@@ -376,13 +376,13 @@ R5
 ! reset YC and cut sub time-step in half  
                IF ( MXFL ) THEN
                   WRITE( LOGDEV, 92008 ) NBKUPS
-                  WRITE( LOGDEV, 92009 ) C, R, L
+                  WRITE( LOGDEV, 92009 ) C+PECOL_OFFSET, R+PEROW_OFFSET, L
                   DO S = 1, NUMB_MECH_SPC
                      IF( LEBISPFL( S ) )WRITE( LOGDEV, 92010 )TRIM( CHEMISTRY_SPC( S ) ),
      &               YC0(S), YCP(S)
                   END DO
                ELSE
-                  WRITE( LOGDEV, 92000 ) C, R, L, NBKUPS
+                  WRITE( LOGDEV, 92000 ) C+PECOL_OFFSET, R+PEROW_OFFSET, L, NBKUPS
                   DO S = 1, NUMB_MECH_SPC
                      IF( LEBISPFL( S ) )WRITE( LOGDEV, 92010 )TRIM( CHEMISTRY_SPC( S ) ),
      &               YC0(S), YCP(S)
@@ -399,7 +399,7 @@ R5
 
             ELSE
          
-               WRITE( LOGDEV, 92040 ) C, R, L
+               WRITE( LOGDEV, 92040 ) C+PECOL_OFFSET, R+PEROW_OFFSET, L
 
                WRITE( LOGDEV, 92060 )
                DO S = 1, NUMB_MECH_SPC
