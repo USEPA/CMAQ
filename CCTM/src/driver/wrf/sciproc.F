@@ -149,6 +149,11 @@ C Local Variables:
             INTEGER, INTENT( IN )     :: JDATE, JTIME
             INTEGER, INTENT( IN )     :: TSTEP( 3 )
          END SUBROUTINE VDIFF
+         SUBROUTINE PHOT ( CGRID, JDATE, JTIME, TSTEP )
+            REAL, POINTER             :: CGRID( :,:,:,: )
+            INTEGER, INTENT( IN )     :: JDATE, JTIME
+            INTEGER, INTENT( IN )     :: TSTEP( : )
+         END SUBROUTINE PHOT
          SUBROUTINE CLDPROC ( CGRID, JDATE, JTIME, TSTEP )
             REAL, POINTER             :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )     :: JDATE, JTIME
@@ -230,6 +235,9 @@ C decouple CGRID for cloud and chemistry
 
       CALL DECOUPLE_WRF ( CGRID, SDATE, STIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'DECOUPLE_WRF', CGRID, JDATE, JTIME )
+
+      CALL PHOT ( CGRID, JDATE, JTIME, TSTEP )
+      IF ( CKSUM ) CALL CKSUMMER ( 'PHOT', CGRID, JDATE, JTIME )
 
       CALL CLDPROC ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'CLDPROC', CGRID, JDATE, JTIME )

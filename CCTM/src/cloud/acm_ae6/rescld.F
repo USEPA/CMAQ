@@ -75,7 +75,7 @@ C-----------------------------------------------------------------------
       USE GRID_CONF           ! horizontal & vertical domain specifications
       USE CGRID_SPCS          ! CGRID mechanism species
       USE UTILIO_DEFN
-      !USE AQ_DATA 
+      USE AQ_DATA,       ONLY: JH2O2_HYDROMETEORS,  JHNO3_HYDROMETEORS
       USE ASX_DATA_MOD,  ONLY: MET_DATA
       USE PHOT_MOD,      ONLY: RJ, RJ_RES, RJ_SUB, LH2O2, LHNO3
 
@@ -100,6 +100,7 @@ C...........Arguments:
       CHARACTER( 120 ) :: XMSG  = ' '    ! Exit status message
 
 C...........Parameters:
+      REAL, PARAMETER :: PERMIN_TO_PERSEC = 1.0 / 60.0
       REAL, PARAMETER :: GPKG = 1.0E+03  ! g/kg
       REAL, PARAMETER :: M2PHA = 1.0E+04 ! 1 hectare = 1.0e4 m**2
       REAL, PARAMETER :: M2PHA_OVER_GPKG = M2PHA / GPKG
@@ -636,8 +637,8 @@ C...  calculate cosine of zenith angle for the cell and determine day or night; 
                   ELSE
                     DARK = .FALSE.  ! day
                   END IF
-                  JH2O2_HYDROMETEORS = REAL( JH2O2 / 60.0, 8 )
-                  JHNO3_HYDROMETEORS = REAL( JHNO3 / 60.0, 8 )
+                  JH2O2_HYDROMETEORS = REAL( JH2O2*PERMIN_TO_PERSEC, 8 )
+                  JHNO3_HYDROMETEORS = REAL( JHNO3*PERMIN_TO_PERSEC, 8 )
                   CALL AQ_MAP ( JDATE, JTIME, WTBAR, WCBAR, TBARC,
      &                          PBARC, CTHK1, AIRM, PRATE1, TAUCLD,
      &                          POLC, CEND, REMOV, REMOVAC, ALFA0,

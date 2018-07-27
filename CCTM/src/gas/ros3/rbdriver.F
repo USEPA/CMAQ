@@ -35,7 +35,6 @@ C  Preconditions: None
 C
 C  Key Subroutines/Functions Called: RBINIT
 C                                    RBSPARSE
-C                                    PHOT
 C                                    CALCKS
 C                                    RBSOLVER
 C                                    FIND_DEGRADED
@@ -81,6 +80,7 @@ C**********************************************************************
       USE RBDATA                ! ROS3 solver data
       USE CGRID_SPCS            ! CGRID mechanism species
       USE UTILIO_DEFN
+      USE PHOT_MOD, Only: RJ    ! photolysis rate, in-line module      
       USE AEROSOL_CHEMISTRY
       USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP
       USE PA_DEFN, Only: LIRR   ! Process Anaylsis control and data variable
@@ -180,11 +180,6 @@ C for interpolating meteorological inputs
       REAL,    ALLOCATABLE       :: SURF_ZONE   ( :,: )       ! fractional surf-zone cover, [-]
       LOGICAL, ALLOCATABLE, SAVE :: LAND_ZONE   ( :,: )       ! Is the surface totally land?
 
-!     REAL :: RJBLK( BLKSIZE,NPHOTAB )           ! J-values for each cell in 
-                                                 ! a block
-
-!      REAL :: RJ( NCOLS,NROWS,NLAYS,NPHOTAB )  ! J-values for each cell      
-      REAL,      ALLOCATABLE, SAVE :: RJ( :,:,:,: )  ! J-values for each cell      
 
       REAL( 8 ), ALLOCATABLE, SAVE :: BLKHET( :, : )
 #ifdef rbstats
@@ -201,14 +196,6 @@ C for interpolating meteorological inputs
 #endif
 
       INTERFACE
-         SUBROUTINE PHOT ( MDATE, MTIME, JDATE, JTIME, DTSTEP, RJ )
-            INTEGER, INTENT( IN )  :: MDATE       !"centered" Julian date (YYYYDDD)
-            INTEGER, INTENT( IN )  :: MTIME       !"centered" time (HHMMSS)
-            INTEGER, INTENT( IN )  :: JDATE       ! Current date (YYYYDDD)
-            INTEGER, INTENT( IN )  :: JTIME       ! Current time (HHMMSS)
-            INTEGER, INTENT( IN )  :: DTSTEP( : ) ! time step vector (HHMMSS)
-            REAL,    INTENT( OUT ) :: RJ( :,:,:,: ) ! gridded J-values  (1/min units)
-         END SUBROUTINE PHOT
          SUBROUTINE RBSOLVER ( LOGDEV, JDATE, JTIME, CHEMSTEP, NCSP,
      &                         LIRRFLAG, NIRRCLS, IRRCELL )
             INTEGER,   INTENT( IN ) :: LOGDEV, JDATE, JTIME
@@ -325,7 +312,6 @@ C.. Get fractional surf-zone coverage from the OCEAN file.
 
          ALLOCATE( DENS( NCOLS, NROWS, NLAYS ), PRES( NCOLS, NROWS, NLAYS ),
      &             QV  ( NCOLS, NROWS, NLAYS ), TA  ( NCOLS, NROWS, NLAYS ),
-     &             RJ  ( NCOLS, NROWS, NLAYS, NPHOTAB ),
      &             SEAICE( NCOLS, NROWS ) )
 
          ALLOCATE( IRRCELL( BLKSIZE ) )
@@ -474,10 +460,6 @@ C.. Get density in Kg/m^3
          MSG = 'Could not read DENS from MET_CRO_3D'
          CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
       END IF
-
-C.. Get photolysis rates in /min
-
-      CALL PHOT ( MIDDATE, MIDTIME, JDATE, JTIME, TSTEP, RJ )
 
 C.. Get Heterogeneous Rates using Aerosol Surface Area. Also Store
 C   a snapshot of the aerosol surface area so that it can be

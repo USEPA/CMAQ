@@ -117,7 +117,6 @@ C-----------------------------------------------------------------------
       USE CGRID_SPCS          ! CGRID mechanism species
       USE UTILIO_DEFN
       USE AQ_DATA
-      USE PHOT_MET_DATA, ONLY: USE_ACM_CLOUD, CLEAR_ACM_CLOUD, CAPTURE_ACM_CLOUD
       USE ASX_DATA_MOD,  ONLY: GRID_DATA, MET_DATA
       USE PHOT_MOD,      ONLY: RJ, RJ_RES, RJ_SUB, LH2O2_PHOTOLYSIS => LH2O2,
      &                   LHNO3_PHOTOLYSIS => LHNO3
@@ -151,6 +150,9 @@ C critical rel humidity for water (fraction)
 
 C intermediate factor
       REAL            :: XKM
+
+C factor convert 1/min to 1/sec
+      REAL, PARAMETER :: PERMIN_TO_PERSEC = 1.0 / 60.0 
 
 C param contlng sidewall entrainment function for raining clouds
       REAL, PARAMETER :: SIDEFAC = 0.5
@@ -1276,7 +1278,7 @@ C...weighted cloud pres
 
 C...weigthed photolysis rate 
             JH2O2_BAR = JH2O2_BAR + JH2O2( LAY ) * DZZL( LAY ) * LWC( LAY )     
-            JHNO3_BAR = JHNO3_BAR + JH2O2( LAY ) * DZZL( LAY ) * LWC( LAY )     
+            JHNO3_BAR = JHNO3_BAR + JHNO3( LAY ) * DZZL( LAY ) * LWC( LAY )     
 
 C...integrated liquid water content (kg/m3)
             WCBAR = WCBAR + DZZL( LAY ) * LWC( LAY )
@@ -1526,8 +1528,9 @@ C...  determine day or night from cosine of zenith angle for the cell; Golam Sar
             END IF
 
 C...convert mean photolysis rates to 1/sec
-            JH2O2_HYDROMETEORS = REAL( JH2O2_BAR / 60.0, 8
-            JHNO3_HYDROMETEORS = REAL( JNO3H2O2_BAR / 60.0, 8 ))
+            JH2O2_HYDROMETEORS = REAL( JH2O2_BAR*PERMIN_TO_PERSEC, 8 ) 
+            JHNO3_HYDROMETEORS = REAL( JHNO3_BAR*PERMIN_TO_PERSEC, 8 )
+
             CALL AQ_MAP ( JDATE, JTIME, WTBAR, WCBAR, TBARC, PBARC,
      &                    CTHK1, AIRM, PRATE1, DTCLD, POLC, CEND,
      &                    REMOV, REMOVAC, ALFA0, ALFA2, ALFA3, DARK )

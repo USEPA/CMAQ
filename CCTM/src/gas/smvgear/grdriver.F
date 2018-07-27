@@ -36,7 +36,6 @@ C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: GRINIT
 C                                    JSPARSE
 C                                    SIGMAFH
-C                                    PHOT
 C                                    CALCKS
 C                                    SMVGEAR
 C
@@ -196,8 +195,6 @@ C..SCRATCH LOCAL VARIABLES:
       REAL, ALLOCATABLE, SAVE :: QV     ( :, :, : )      ! Cell water vapor (Kg/Kg air)
       REAL, ALLOCATABLE, SAVE :: TA     ( :, :, : )      ! Cell temperature (K)
 
-      REAL,    ALLOCATABLE, SAVE :: RJ( :,:,:,: )  ! J-values for each cell      
-
       REAL,    ALLOCATABLE       :: OPEN_ZONE   ( :,: )       ! fractional sea water cover, [-]
       REAL,    ALLOCATABLE       :: SURF_ZONE   ( :,: )       ! fractional surf-zone cover, [-]
       LOGICAL, ALLOCATABLE, SAVE :: LAND_ZONE   ( :,: )       ! Is the surface totally land?
@@ -221,14 +218,6 @@ C for INTERPX
 #endif
 
       INTERFACE
-         SUBROUTINE PHOT ( MDATE, MTIME, JDATE, JTIME, DTSTEP, RJ )
-            INTEGER, INTENT( IN )  :: MDATE       !"centered" Julian date (YYYYDDD)
-            INTEGER, INTENT( IN )  :: MTIME       !"centered" time (HHMMSS)
-            INTEGER, INTENT( IN )  :: JDATE       ! Current date (YYYYDDD)
-            INTEGER, INTENT( IN )  :: JTIME       ! Current time (HHMMSS)
-            INTEGER, INTENT( IN )  :: DTSTEP( : ) ! time step vector (HHMMSS)
-            REAL,    INTENT( OUT ) :: RJ(:,:,:,:) ! gridded J-values  (1/min units)
-         END SUBROUTINE PHOT
          SUBROUTINE SMVGEAR ( IRUN, JDATE, JTIME, CHEMSTEP,
      &                        LIRRFLAG, NIRRCLS, IRRCELL )
             INTEGER,   INTENT( IN ) :: IRUN         ! Counter of calls to calling subroutine
@@ -345,7 +334,6 @@ C.. Get fractional surf-zone coverage from the OCEAN file.
 
          ALLOCATE( DENS( NCOLS, NROWS, NLAYS ), PRES( NCOLS, NROWS, NLAYS ),
      &             QV  ( NCOLS, NROWS, NLAYS ), TA  ( NCOLS, NROWS, NLAYS ),
-     &             RJ  ( NCOLS, NROWS, NLAYS, NPHOTAB ),
      &             SEAICE( NCOLS, NROWS ) )
 
          ALLOCATE( IRRCELL( BLKSIZE ) )
@@ -443,10 +431,6 @@ C.. Get pressure in Pascals
          CALL M3EXIT ( PNAME, MIDDATE, MIDTIME, MSG, XSTAT1 )
       ENDIF
  
-C.. Get photolysis rates in /min
-
-      CALL PHOT ( MIDDATE, MIDTIME, JDATE, JTIME, TSTEP, RJ )
-
 C.. Get Heterogeneous reaction rates using aerosol surface area. Also
 C   store the initial surface area so that it can be updated after the
 C   solver finds a solution.
