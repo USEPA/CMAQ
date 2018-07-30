@@ -427,12 +427,12 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo "Module ${ModHdiff};"                                        >> $Cfile
  echo                                                              >> $Cfile
 
- set text = "acm2 and acm2-old"
+ set text = "acm2"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModVdiff};"                                        >> $Cfile
  echo                                                              >> $Cfile
 
- set text = "m3dry and m3dry-old"
+ set text = "m3dry"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModDepv};"                                         >> $Cfile
  echo                                                              >> $Cfile
