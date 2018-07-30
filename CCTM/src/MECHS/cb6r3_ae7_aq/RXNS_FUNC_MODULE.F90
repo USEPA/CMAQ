@@ -147,7 +147,7 @@
        END FUNCTION FALLOFF_T11
        REAL( 8 ) FUNCTION HALOGEN_FALLOFF(PRESS,A1,B1,A2,B2)
          IMPLICIT NONE
-         REAL( 8 ), PARAMETER    :: MAX_RATE = 2.4D-06  ! Maximum loss rate (1/sec)
+         REAL( 8 ), PARAMETER    :: MAX_RATE = 2.6750D-06  ! Maximum loss rate (1/sec)
          REAL( 8 ), INTENT( IN ) :: PRESS
          REAL( 8 ), INTENT( IN ) :: A1
          REAL( 8 ), INTENT( IN ) :: B1
@@ -341,8 +341,8 @@
 
                 IF( .NOT. LAND( NCELL ) )THEN
 !  Reaction Label HAL_Ozone       
-                   RKI( NCELL,  272) =  SFACT * HALOGEN_FALLOFF( BLKPRES( NCELL ),   1.0000D-40,   7.8426D+01,  & 
-     &                                                           4.0582D-09,         5.8212D+00 )
+                   RKI( NCELL,  272) =  SFACT * HALOGEN_FALLOFF( BLKPRES( NCELL ),   2.8964D-11,   1.1998D+01,  & 
+     &                                                           0.0000D+00,         0.0000D+00 )
                 END IF
 
             END DO 
@@ -709,13 +709,13 @@
              RKI( NCELL,  173) =  CFACT * ARRHENUIS_T03( INV_TEMP,  1.2000D-15,  -8.2100D+02 )
 !  Reaction Label R174            
              RKI( NCELL,  174) =  CFACT * ARRHENUIS_T03( INV_TEMP,  3.7000D-12,   1.7500D+02 )
-!  Reaction Label R171            
+!  Reaction Label R171a           
              RKI( NCELL,  175) =   3.6000D-11 * CFACT 
-!  Reaction Label R172            
+!  Reaction Label R172a           
              RKI( NCELL,  176) =  CFACT * ARRHENUIS_T03( INV_TEMP,  1.5000D-11,   4.4900D+02 )
-!  Reaction Label R173            
+!  Reaction Label R173a           
              RKI( NCELL,  177) =  CFACT * ARRHENUIS_T03( INV_TEMP,  1.2000D-15,  -8.2100D+02 )
-!  Reaction Label R174            
+!  Reaction Label R174a           
              RKI( NCELL,  178) =  CFACT * ARRHENUIS_T03( INV_TEMP,  3.7000D-12,   1.7500D+02 )
 !  Reaction Label R175            
              RKI( NCELL,  179) =  CFACT * ARRHENUIS_T03( INV_TEMP,  2.3000D-12,  -1.9000D+02 )
