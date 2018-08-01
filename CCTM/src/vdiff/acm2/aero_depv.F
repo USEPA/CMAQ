@@ -25,7 +25,8 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)aero_depv.F       1.3 /project/mod3/CMAQ/src/ae_depv/aero_depv/SCCS/s.aero_depv.F 18 Jun 1997 12:55:48
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE AERO_DEPV ( CGRID, JDATE, JTIME, TSTEP, MOSAIC, VDEP_AE )
+!      SUBROUTINE AERO_DEPV ( CGRID, JDATE, JTIME, TSTEP, MOSAIC, VDEP_AE )
+      SUBROUTINE AERO_DEPV ( CGRID, JDATE, JTIME, TSTEP, VDEP_AE )
 
 C-----------------------------------------------------------------------
 C aerosol dry deposition routine
@@ -87,8 +88,8 @@ C-----------------------------------------------------------------------
       USE UTILIO_DEFN      
       USE AERO_DATA           ! aero variable data
       USE AEROMET_DATA        ! Includes CONST.EXT
-      USE Mosaic_Mod, Only: ADEPVJ  ! Shared mosaic variables
-      Use LSM_Mod, Only: N_LUFRAC
+!      USE Mosaic_Mod, Only: ADEPVJ  ! Shared mosaic variables
+!      Use LSM_Mod, Only: N_LUFRAC
       USE ASX_DATA_MOD, Only: Met_Data
 
       IMPLICIT NONE
@@ -102,7 +103,7 @@ C Arguments
       INTEGER, INTENT( IN )  :: JDATE               ! current model date , coded YYYYDDD
       INTEGER, INTENT( IN )  :: JTIME               ! current model time , coded HHMMSS
       INTEGER, INTENT( IN )  :: TSTEP               ! model time step, coded HHMMSS
-      LOGICAL, INTENT( IN )  :: MOSAIC              ! use mosaic option
+!      LOGICAL, INTENT( IN )  :: MOSAIC              ! use mosaic option
       REAL,    INTENT( OUT ) :: VDEP_AE( :,:,: )    ! surrogate deposition velocities [ m s**-1 ]
 
 C Parameters
@@ -149,7 +150,7 @@ C Meteorological variables
       REAL, ALLOCATABLE, SAVE  :: AMU( :,: )      ! dynamic viscosity [ kg m**-1 s**-1 ]
 
       REAL, ALLOCATABLE, SAVE :: VDEP( :,:,: )    ! deposition  velocity [ m/s ]
-      REAL, ALLOCATABLE, SAVE :: VDEPJ( :,:,:,: ) ! deposition  velocity [ m/s ]
+!      REAL, ALLOCATABLE, SAVE :: VDEPJ( :,:,:,: ) ! deposition  velocity [ m/s ]
 
       REAL M3_WET, M3SUBT, M3_DRY
       REAL M2_WET, M2_DRY
@@ -166,15 +167,15 @@ C Meteorological variables
  
       INTERFACE
         SUBROUTINE GETDEP_V ( XLM, AMU, DG, XXLSG, PDENS,
-     &                        VDEP, VDEPJ, MOSAIC, N_AE_DEP_SPC )
+     &                        VDEP, N_AE_DEP_SPC ) !VDEPJ, MOSAIC )
           REAL, INTENT( IN ) :: XLM( :,: )        ! atmospheric mean free path [ m ]
           REAL, INTENT( IN ) :: AMU( :,: )        ! atmospheric dynamic viscosity [ kg/(m s) ]
           REAL, INTENT( IN ) :: DG( :,:,: )       ! geometric mean diameter  [ m ]
           REAL, INTENT( IN ) :: XXLSG( :,:,: )    ! Standard Deviaiton
           REAL, INTENT( IN ) :: PDENS( :,:,: )    ! average particle density 
           REAL, INTENT( OUT ) :: VDEP( :,:,: )    ! deposition  velocity [ m/s ]
-          REAL, INTENT( OUT ) :: VDEPJ( :,:,:,: ) ! deposition  velocity [ m/s ] for each land use category
-          LOGICAL, INTENT( IN ) :: MOSAIC
+          !REAL, INTENT( OUT ) :: VDEPJ( :,:,:,: ) ! deposition  velocity [ m/s ] for each land use category
+          !LOGICAL, INTENT( IN ) :: MOSAIC
           INTEGER, INTENT( IN ) :: N_AE_DEP_SPC
         END SUBROUTINE GETDEP_V
       END INTERFACE
@@ -200,19 +201,6 @@ C  Allocate arrays
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating VDEP'
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
-            ALLOCATE ( VDEPJ( N_LUFRAC,NCOLS,NROWS,N_AE_DEP_SPC ), STAT = ALLOCSTAT )
-            IF ( ALLOCSTAT .NE. 0 ) THEN
-               XMSG = 'Failure allocating VDEPJ'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-         IF ( MOSAIC ) THEN
-            ALLOCATE ( ADEPVJ( N_LUFRAC,N_AE_DEPV,NCOLS,NROWS ), STAT = ALLOCSTAT )
-            IF ( ALLOCSTAT .NE. 0 ) THEN
-               XMSG = 'Failure allocating ADEV'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
          END IF
 
          ALLOCATE ( DEPV_SUR( N_AE_DEPV ), STAT = ALLOCSTAT )
@@ -280,7 +268,7 @@ C           Save getpar values to arrays
 
 C *** Get dry deposition velocities:
       CALL GETDEP_V ( XLM, AMU, DG, XXLSG, PDENS,
-     &                VDEP, VDEPJ, MOSAIC, N_AE_DEP_SPC )
+     &                VDEP, N_AE_DEP_SPC ) !VDEPJ, MOSAIC )
 
 C Return dry deposition velocities for aerosols (first layer only).
 
@@ -296,28 +284,13 @@ C Return dry deposition velocities for aerosols (first layer only).
          END DO
       END DO
 
-      IF ( MOSAIC ) THEN
-        DO R = 1, NROWS
-           DO C = 1, NCOLS
-              DO V = 1, N_AE_DEPV
-                DO J = 1, N_LUFRAC
-                  IF ( DEPV_SUR( V ) .GT. 0 ) THEN
-                     ADEPVJ( J,V,C,R ) = VDEPJ( J,C,R,DEPV_SUR( V ) )
-                  ELSE
-                     ADEPVJ( J,V,C,R ) = 0.0
-                  END IF
-                END DO
-              END DO
-           END DO
-        END DO
-      END IF
 
       RETURN
       END SUBROUTINE AERO_DEPV
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE GETDEP_V ( XLM, AMU, DG, XXLSG, PDENS,
-     &                      VDEP, VDEPJ, MOSAIC, N_AE_DEP_SPC )
+     &                      VDEP, N_AE_DEP_SPC ) !, VDEPJ, MOSAIC )
 
 C *** Calculate deposition velocity for Aitken, accumulation, and
 C     coarse modes.
@@ -339,9 +312,9 @@ C                     standardized names of all coarse-mode variables
 C-----------------------------------------------------------------------
 
       USE GRID_CONF, Only: ncols, nrows
-      USE LSM_MOD, Only: n_lufrac      ! to get n_lufrac
+      !USE LSM_MOD, Only: n_lufrac      ! to get n_lufrac
       USE AEROMET_DATA   ! Includes CONST.EXT
-      USE ASX_DATA_MOD, Only: Met_Data, Mosaic_Data, Grid_Data
+      USE ASX_DATA_MOD, Only: Met_Data, Grid_Data !, Mosaic_Data
       USE AERO_DATA, Only: N_MODE
 
       IMPLICIT NONE
@@ -365,7 +338,7 @@ C     average modal particle densities  [ kg/m**3 ]
       REAL, INTENT( IN ) :: PDENS( :,:,: )  
 
 C     Mosaic variables
-      LOGICAL, INTENT( IN ) :: MOSAIC
+!      LOGICAL, INTENT( IN ) :: MOSAIC
 
 C *** output arguments
 
@@ -373,7 +346,7 @@ C *** output arguments
       REAL, INTENT( OUT ) :: VDEP( :,:,: ) 
       
       ! deposition  velocity [ m/s ] for each land use category
-      REAL, INTENT( OUT ) :: VDEPJ( :,:,:,: ) 
+      ! REAL, INTENT( OUT ) :: VDEPJ( :,:,:,: ) 
 
 C *** array indices hardcoded to match SUBROUTINE AERO_DEPV
       INTEGER, PARAMETER, DIMENSION( 3 ) :: 
@@ -441,9 +414,9 @@ C Scalar variables for VARIABLE standard deviations.
 C-----------------------------------------------------------------------
 
       VDEP  = 0.0   ! array assignment
-      IF ( MOSAIC ) THEN
-         VDEPJ = 0.0   ! array assignment
-      END IF
+!      IF ( MOSAIC ) THEN
+!         VDEPJ = 0.0   ! array assignment
+!      END IF
 
       DO IM = 1,N_MODE
       DO R = 1,NROWS
@@ -526,53 +499,6 @@ C now do 3rd moment for the deposition of mass
             VDEP( C,R,VDM( IM ) ) = VGHAT3
      &             / ( 1.0 - EXP( -VGHAT3 * ( Met_Data%RA( C,R ) + RD3 ) ) )
 
-C Do mosaic calculations - essentially a repeat of the above, using the mosaic vars
-            IF ( MOSAIC ) THEN
-
-               DO J = 1, N_LUFRAC
-                  IF ( Mosaic_Data%RA( C,R,J ) .GT. 0.0 .And. Grid_Data%LUFRAC( C,R,J ) .GT. 0.0 ) THEN
-
-C now calculate the deposition velocities
-
-                     NU = AMU( C,R ) / Met_Data%DENS1( C,R )
-                     USTFAC = Mosaic_Data%USTAR( C,R,J )**2 / ( GRAV * NU )
-                     STOKE = DCONST3 * USTFAC
-                     UTSCALE = Mosaic_Data%USTAR( C,R,J )
-     &                       + 0.24 * Met_Data%WSTAR( C,R )**2
-     &                       /        Mosaic_Data%USTAR( C,R,J )
-
-C first do 0th moment for the deposition of number
-                     SC0 = NU / DCHAT0
-                     EIM = STOKE ** 2 / 400.0 * ES64
-                     EIM = MIN( EIM, 1.0 )
-                     RD0 = 1.0 / ( UTSCALE * ( SC0 ** ( -TWO3 ) + EIM ) )
-
-                     VDEPJ( J,C,R,VDN( IM ) ) = VGHAT0
-     &                       / ( 1.0 - EXP(-VGHAT0 * ( Mosaic_Data%RA( C,R,J ) + RD0 ) ) )
-
-C now do 2nd moment for the deposition of surface area
-                     SC2 = NU / DCHAT2
-                     EIM = STOKE ** 2 / 400.0 * ES128
-                     EIM = MIN( EIM, 1.0 )
-                     RD2 = 1.0 / ( UTSCALE * ( SC2 ** ( -TWO3 ) + EIM ) )
-
-                     VDEPJ( J,C,R,VDS( IM ) ) = VGHAT2
-     &                     / ( 1.0 - EXP(-VGHAT2 * ( Mosaic_Data%RA( C,R,J ) + RD2 ) ) )
-
-C now do 3rd moment for the deposition of mass
-                     SC3 = NU / DCHAT3
-                     EIM = STOKE ** 2 / 400.0 * ES160
-                     EIM = MIN( EIM, 1.0 )
-                     RD3 = 1.0 / ( UTSCALE * ( SC3 ** ( -TWO3 ) + EIM ) )
-
-                     VDEPJ( J,C,R,VDM( IM ) ) = VGHAT3
-     &                       / ( 1.0 - EXP(-VGHAT3 * ( Mosaic_Data%RA( C,R,J ) + RD3 ) ) )
-
-                  END IF ! RA > 0
-
-               END DO ! n_lufrac
-
-            END IF ! mosaic
         END DO ! end loop on C
       END DO ! end loop on R
       END DO ! aerosol mode
