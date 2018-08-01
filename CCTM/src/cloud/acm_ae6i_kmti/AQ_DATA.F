@@ -323,6 +323,9 @@ C for TX version
       Integer, Allocatable, Save :: cgrid2aq_map( : ) ! allocated in AQ_DATA_INIT
       Character( 16 ), Allocatable, Save :: cgrid2aq_name( : ) ! allocated in AQ_DATA_INIT
 
+      Real( 8 )              :: jh2o2_hydrometeors    ! H2O2 photolysis in condensed water, 1/sec
+      Real( 8 )              :: jhno3_hydrometeors    ! HNO3 photolysis in condensed water, 1/sec
+
       Logical, Private, Save :: mapped = .False.
 
       Integer, Private, Save :: logdev

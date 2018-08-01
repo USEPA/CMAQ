@@ -1523,13 +1523,16 @@ C...  determine day or night from cosine of zenith angle for the cell; Golam Sar
 
             IF ( JH2O2_BAR .LE. 0.0 ) THEN
               DARK = .TRUE.   ! night
+C...convert mean photolysis rates to 1/sec
+              JH2O2_HYDROMETEORS = 0.0D0 
+              JHNO3_HYDROMETEORS = 0.0D0
             ELSE
               DARK = .FALSE.  ! day
+C...convert mean photolysis rates to 1/sec
+              JH2O2_HYDROMETEORS = REAL( JH2O2_BAR*PERMIN_TO_PERSEC, 8 ) 
+              JHNO3_HYDROMETEORS = REAL( JHNO3_BAR*PERMIN_TO_PERSEC, 8 )
             END IF
 
-C...convert mean photolysis rates to 1/sec
-            JH2O2_HYDROMETEORS = REAL( JH2O2_BAR*PERMIN_TO_PERSEC, 8 ) 
-            JHNO3_HYDROMETEORS = REAL( JHNO3_BAR*PERMIN_TO_PERSEC, 8 )
 
             CALL AQ_MAP ( JDATE, JTIME, WTBAR, WCBAR, TBARC, PBARC,
      &                    CTHK1, AIRM, PRATE1, DTCLD, POLC, CEND,

@@ -632,13 +632,16 @@ C...  calculate cosine of zenith angle for the cell and determine day or night; 
                   COSZ = MET_DATA%COSZEN( COL, ROW )
                   JH2O2 = RJ_RES( COL, ROW, LAY, LH2O2 )
                   JHNO3 = RJ_RES( COL, ROW, LAY, LHNO3 )
+!                 IF ( COSZ .LE. 0.0 ) THEN 
                   IF ( JH2O2 .LE. 0.0 ) THEN 
                     DARK = .TRUE.   ! night
+                    JH2O2_HYDROMETEORS = 0.0D0
+                    JHNO3_HYDROMETEORS = 0.0D0
                   ELSE
                     DARK = .FALSE.  ! day
+                    JH2O2_HYDROMETEORS = REAL( JH2O2*PERMIN_TO_PERSEC, 8 )
+                    JHNO3_HYDROMETEORS = REAL( JHNO3*PERMIN_TO_PERSEC, 8 )
                   END IF
-                  JH2O2_HYDROMETEORS = REAL( JH2O2*PERMIN_TO_PERSEC, 8 )
-                  JHNO3_HYDROMETEORS = REAL( JHNO3*PERMIN_TO_PERSEC, 8 )
                   CALL AQ_MAP ( JDATE, JTIME, WTBAR, WCBAR, TBARC,
      &                          PBARC, CTHK1, AIRM, PRATE1, TAUCLD,
      &                          POLC, CEND, REMOV, REMOVAC, ALFA0,
