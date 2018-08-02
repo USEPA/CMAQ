@@ -12,9 +12,9 @@ DDEP_NO2           ,kg ha-1     ,NO2[1]
 WDEP_NO2           ,kg ha-1     ,NO2[2]
 DDEP_NO            ,kg ha-1     ,NO[1]
 WDEP_NO            ,kg ha-1     ,NO[2]
-DDEP_FORM	       ,kg ha-1     ,HCHO[1]
-WDEP_FORM	       ,kg ha-1     ,HCHO[2]
-DDEP_H2O2	       ,kg ha-1     ,HO2H[1]
+DDEP_FORM          ,kg ha-1     ,HCHO[1]
+WDEP_FORM          ,kg ha-1     ,HCHO[2]
+DDEP_H2O2          ,kg ha-1     ,HO2H[1]
 WDEP_H2O2          ,kg ha-1     ,HO2H[2]
 DDEP_N2O5          ,kg ha-1     ,N2O5[1]
 WDEP_N2O5          ,kg ha-1     ,N2O5[2]
@@ -48,8 +48,8 @@ WDEP_ANH4IJK       ,kg ha-1     ,ANH4I[2] + ANH4J[2] + ANH4K[2]
 DDEP_ASO4IJ        ,kg ha-1     ,ASO4I[1] + ASO4J[1]
 DDEP_ASO4K         ,kg ha-1     ,ASO4K[1]
 WDEP_ASO4IJK       ,kg ha-1     ,ASO4I[2] + ASO4J[2] + ASO4K[2]
-DDEP_AECIJ	       ,kg ha-1     ,AECI[1] +AECJ[1]
-DDEP_AOCIJ         ,kgC ha-1    , ALVPO1I[1]/1.39 + ASVPO1I[1]/1.32 + ASVPO2I[1]/1.26  \
+DDEP_AECIJ         ,kg ha-1     ,AECI[1] +AECJ[1]
+DDEP_AOCIJ         ,kgC ha-1    ,ALVPO1I[1]/1.39 + ASVPO1I[1]/1.32 + ASVPO2I[1]/1.26  \
                                +ALVPO1J[1]/1.39 + ASVPO1J[1]/1.32 + ASVPO2J[1]/1.26  \
                                +ASVPO3J[1]/1.21 + AIVPO1J[1]/1.17                    \
                                +ALVOO1I[1]/2.27 + ALVOO2I[1]/2.06                    \
@@ -94,19 +94,19 @@ WDEP_TCL           ,kg ha-1     ,0.972*HCL[2]+0.435*CLNO2[2] + ACLJ[2] + ACLK[2]
 TDEP_CL            ,kg ha-1     ,DDEP_ACLJK[0] + WDEP_TCL[0]
 
 ! Calcium
-DDEP_CAJ	       ,kg ha-1     ,ACAJ[1]
-WDEP_CAJ	       ,kg ha-1     ,ACAJ[2]
+DDEP_CAJ           ,kg ha-1     ,ACAJ[1]
+WDEP_CAJ           ,kg ha-1     ,ACAJ[2]
 DDEP_CAK           ,kg ha-1     ,0.0320*ASEACAT[1]+0.0838*ASOIL[1]+0.0562*ACORS[1]
-WDEP_CAK          ,kg ha-1     ,0.0320*ASEACAT[2]+0.0838*ASOIL[2]+0.0562*ACORS[2]
-DDEP_CAJK	       ,kg ha-1     ,ACAJ[1]+DDEP_CAK[0]
-WDEP_CAJK	       ,kg ha-1     ,ACAJ[2]+WDEP_CAK[0]
+WDEP_CAK           ,kg ha-1     ,0.0320*ASEACAT[2]+0.0838*ASOIL[2]+0.0562*ACORS[2]
+DDEP_CAJK          ,kg ha-1     ,ACAJ[1]+DDEP_CAK[0]
+WDEP_CAJK          ,kg ha-1     ,ACAJ[2]+WDEP_CAK[0]
 
 ! Iron
-DDEP_FEJ	       ,kg ha-1     ,AFEJ[1]
-WDEP_FEJ	       ,kg ha-1     ,AFEJ[2]
+DDEP_FEJ           ,kg ha-1     ,AFEJ[1]
+WDEP_FEJ           ,kg ha-1     ,AFEJ[2]
 
 ! Aluminum
-DDEP_ALJ	       ,kg ha-1     ,AALJ[1]
+DDEP_ALJ           ,kg ha-1     ,AALJ[1]
 WDEP_ALJ           ,kg ha-1     ,AALJ[2]
 
 ! Silicon

@@ -38,13 +38,13 @@
 !-------------------------------------------!
 !------------- Meteorology -----------------!
 !-------------------------------------------!
-AIR_DENS        ,kg m-3     ,DENS[2]
-RH              ,1         ,100.00*RH[3]
+AIR_DENS        ,kg m-3    ,DENS[2]
+RH              ,%         ,100.00*RH[3]
 SFC_TMP         ,C         ,(TEMP2[4]-273.15)
 PBLH            ,m         ,PBL[4]
-SOL_RAD         ,W m-2  ,RGRND[4]
+SOL_RAD         ,W m-2     ,RGRND[4]
 precip          ,cm        ,RN[4]+RC[4]
-WSPD10          ,m s-1       ,WSPD10[4]
+WSPD10          ,m s-1     ,WSPD10[4]
 WDIR10          ,deg       ,WDIR10[4]
 
 !-------------------------------------------!
