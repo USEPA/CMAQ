@@ -127,8 +127,8 @@ C Default minimum concentration
       Real,    Parameter :: evapmin = 1.0E-20    ! [ ug/m^3 ]
       Real(8), Parameter :: evapminD= 1.0D-20    ! [ ug/m^3 ]
       Real,    Parameter :: cm_set( n_mode ) = (/conmin, conmin, conmin/)
-      Real,    Parameter :: cm_so4( n_mode ) = (/1.0E-12,1.0E-6, conmin/)
-      Real,    Parameter :: cm_cor( n_mode ) = (/conmin, conmin, 1.889544E-05/)
+      Real,    Parameter :: cm_so4( n_mode ) = (/conmin, conmin, conmin/)
+      Real,    Parameter :: cm_cor( n_mode ) = (/conmin, conmin, conmin/)
 
 C Emissions splits
       Real,    Parameter :: es_fin( n_mode ) = (/ 0.100, 0.900, 0.000 /)
