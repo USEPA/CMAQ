@@ -171,7 +171,7 @@ C Meteorological variables
           REAL, INTENT( IN ) :: XLM( :,: )        ! atmospheric mean free path [ m ]
           REAL, INTENT( IN ) :: AMU( :,: )        ! atmospheric dynamic viscosity [ kg/(m s) ]
           REAL, INTENT( IN ) :: DG( :,:,: )       ! geometric mean diameter  [ m ]
-          REAL, INTENT( IN ) :: XXLSG( :,:,: )    ! Standard Deviaiton
+          REAL, INTENT( IN ) :: XXLSG( :,:,: )    ! Standard Deviation
           REAL, INTENT( IN ) :: PDENS( :,:,: )    ! average particle density 
           REAL, INTENT( OUT ) :: VDEP( :,:,: )    ! deposition  velocity [ m/s ]
           !REAL, INTENT( OUT ) :: VDEPJ( :,:,:,: ) ! deposition  velocity [ m/s ] for each land use category
@@ -251,7 +251,7 @@ C        "wet" size distribution
 C        Calculate mean free path [ m ]:
          XLM( C,R ) = 6.6328E-8 * STDATMPA * AIRTEMP / ( T0 * AIRPRES )
 
-C ***    Calcualte dynamic viscosity [ kg m**-1 s**-1 ]:
+C ***    Calculate dynamic viscosity [ kg m-1 s-1 ]:
          AMU( C,R ) = 1.458E-6 * AIRTEMP * SQRT( AIRTEMP )
      &              / ( AIRTEMP + 110.4 )
 
@@ -311,7 +311,7 @@ C 08 Sep 08 P.Bhave:  Backward compatibility with AE4 mechanisms
 C                     standardized names of all coarse-mode variables
 C-----------------------------------------------------------------------
 
-      USE GRID_CONF, Only: ncols, nrows
+      USE GRID_CONF, Only: NCOLS, NROWS
       !USE LSM_MOD, Only: n_lufrac      ! to get n_lufrac
       USE AEROMET_DATA   ! Includes CONST.EXT
       USE ASX_DATA_MOD, Only: Met_Data, Grid_Data !, Mosaic_Data
@@ -334,7 +334,7 @@ C     modal diameters: [ m ]
 C     log of modal geometric standard deviations
       REAL, INTENT( IN ) :: XXLSG( :,:,: )  
 
-C     average modal particle densities  [ kg/m**3 ]
+C     average modal particle densities  [ kg m-3 ]
       REAL, INTENT( IN ) :: PDENS( :,:,: )  
 
 C     Mosaic variables
@@ -342,10 +342,10 @@ C     Mosaic variables
 
 C *** output arguments
 
-      ! deposition  velocity [ m/s ]
+      ! deposition  velocity [ m s-1 ]
       REAL, INTENT( OUT ) :: VDEP( :,:,: ) 
       
-      ! deposition  velocity [ m/s ] for each land use category
+      ! deposition  velocity [ m s-1 ] for each land use category
       ! REAL, INTENT( OUT ) :: VDEPJ( :,:,:,: ) 
 
 C *** array indices hardcoded to match SUBROUTINE AERO_DEPV
@@ -372,14 +372,14 @@ C modal sedimentation velocities for number, 2nd, and 3rd moment, or mass:
       REAL DCONST,  DCONST1
       REAL DCONST2, DCONST3
       REAL SC0     ! Schmidt numbers for number
-      REAL SC2     ! Schmidt numbers for 2ND MOMENT
+      REAL SC2     ! Schmidt numbers for 2nd moment
       REAL SC3     ! Schmidt numbers for 3rd moment
       REAL STOKE   ! Stokes numbers for each mode
       REAL RD0     ! canopy resistance for number
       REAL RD2     ! canopy resistance for 2nd moment
-      REAL RD3     ! canopy resisteance for 3rd moment
+      REAL RD3     ! canopy resistance for 3rd moment
       REAL UTSCALE              ! scratch function of USTAR and WSTAR
-      REAL NU                   ! kinematic viscosity [ m**2 s**-1 ]
+      REAL NU                   ! kinematic viscosity [ m2 s-1 ]
       REAL USTFAC               ! scratch function of USTAR, NU, and GRAV
 
       REAL, PARAMETER :: BHAT    = 1.246 ! Constant from Cunningham slip correction
@@ -418,9 +418,9 @@ C-----------------------------------------------------------------------
 !         VDEPJ = 0.0   ! array assignment
 !      END IF
 
-      DO IM = 1,N_MODE
-      DO R = 1,NROWS
-        DO C = 1,NCOLS
+      DO IM = 1, N_MODE
+      DO R = 1, NROWS
+        DO C = 1, NCOLS
 C *** Calculate Knudsen numbers
             TWOXLM = XLM( C,R ) + XLM( C,R )
             KN = TWOXLM / DG( C,R,IM )
