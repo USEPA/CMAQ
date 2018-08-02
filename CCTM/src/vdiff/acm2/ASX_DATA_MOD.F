@@ -1401,7 +1401,7 @@ C------
          End Where
 
 !        Calculate the cosine of the zenith angle 
-         CALL CZANGLE(JDATE, JTIME, MY_NCOLS, MY_NROWS, Met_Data%COSZEN)
+         CALL CZANGLE(JDATE, JTIME, MY_NCOLS, MY_NROWS)
 
          Return
          End Subroutine GET_MET

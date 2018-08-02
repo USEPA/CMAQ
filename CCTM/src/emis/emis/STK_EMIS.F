@@ -125,7 +125,10 @@ C-----------------------------------------------------------------------
             DO I = 1, LEN2
                ! Use HFLUX to determine Fire sources in PT3D_DEFN via
                ! the FIRENAM variable
-               IF ( VNAME3D( I ) .EQ. 'HFLUX' ) FIREFLAG( N ) = .TRUE.
+               IF ( VNAME3D( I ) .EQ. 'HFLUX' ) THEN
+                   FIREFLAG( N ) = .TRUE.
+                   EM_FILE_FIRE( ISRM ) = .TRUE.
+               END IF
             END DO
             IF ( FIREFLAG( N ) ) THEN   ! subtract off 'HFLUX'
                LEN2 = LEN2 - NVARS_FIRE

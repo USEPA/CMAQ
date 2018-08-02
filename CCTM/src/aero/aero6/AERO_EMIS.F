@@ -296,35 +296,36 @@ C *** Set up emissions size distribution arrays
        ! these scale factors as a function of transported species and
        ! mode. Note that this 
        ALLOCATE( SD_SPLIT( N_SPC_DIFF, N_EM_AERO_REF ) )
-       DO ISPC = 1,N_AEROSPC
-         DO IEM = 1,N_EM_AERO_REF
-           ! Gather the split factors going from the smallest mode to
-           ! the largest
-           SPLIT_ACCUM = 0.0
-           DO N = 1,N_MODE
-              IF ( AERO_MISSING( ISPC,N ) ) THEN
-                SPLIT_ACCUM = SPLIT_ACCUM + EM_AERO_REF( IEM )%SPLIT( N )
-              ELSE
-                SD_SPLIT( MAP_AEROtoDIFF( ISPC,N ),IEM ) = 
-     &             SD_SPLIT( MAP_AEROtoDIFF( ISPC,N ),IEM ) +
-     &             EM_AERO_REF( IEM )%SPLIT( N ) + SPLIT_ACCUM
-                SPLIT_ACCUM = 0.0
-              END IF
-           END DO
-           ! Now gather going from the largest to smallest mode
-           SPLIT_ACCUM = 0.0
-           DO N = N_MODE,1,-1
-              IF ( AERO_MISSING( ISPC,N ) ) THEN
-                SPLIT_ACCUM = SPLIT_ACCUM + EM_AERO_REF( IEM )%SPLIT( N )
-              ELSE
-                SD_SPLIT( MAP_AEROtoDIFF( ISPC,N ),IEM ) = 
-     &            SD_SPLIT( MAP_AEROtoDIFF( ISPC,N ),IEM ) +
-     &            EM_AERO_REF( IEM )%SPLIT( N ) + SPLIT_ACCUM
-                SPLIT_ACCUM = 0.0
-              END IF
-           END DO 
-
-         END DO
+       SD_SPLIT = 0.0
+       DO IEM = 1,N_EM_AERO_REF
+         ! For the Fine Mode Reference Distribution, lump Aitken
+         ! with Accumulation mode if Aitken Mode does not exist
+         IF ( EM_AERO_REF( IEM )%NAME .EQ. 'FINE_REF' ) THEN
+            DO ISPC = 1,N_AEROSPC
+              SPLIT_ACCUM = 0.0
+              DO N = 1,N_MODE-1
+                IF ( AERO_MISSING( ISPC,N ) ) THEN
+                  SPLIT_ACCUM = SPLIT_ACCUM + EM_AERO_REF( IEM )%SPLIT( N )
+                ELSE
+                  SD_SPLIT( MAP_AEROtoDIFF( ISPC,N ),IEM ) = 
+     &               SD_SPLIT( MAP_AEROtoDIFF( ISPC,N ),IEM ) +
+     &               EM_AERO_REF( IEM )%SPLIT( N ) + SPLIT_ACCUM
+                  SPLIT_ACCUM = 0.0
+                END IF
+              END DO
+            END DO
+         ELSE 
+            ! Arbitrary Distribution -> Apply factor to species
+            ! if it exists in each mode
+            DO ISPC = 1,N_AEROSPC
+              DO N = 1,N_MODE
+                IF ( .NOT. AERO_MISSING( ISPC,N ) ) THEN
+                  SD_SPLIT( MAP_AEROtoDIFF( ISPC,N ),IEM ) = 
+     &               EM_AERO_REF( IEM )%SPLIT( N ) 
+                END IF
+              END DO
+            END DO
+         END IF
        END DO
 
 C *** Allocate memory for EMBUFF, CELLHGT, CELLVOL, and CONVEM_PM
