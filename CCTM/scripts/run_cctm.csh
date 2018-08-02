@@ -116,6 +116,15 @@ setenv CTM_ILDEPV Y          #> calculate in-line deposition velocities [ defaul
 setenv CTM_MOSAIC N          #> landuse specific deposition velocities [ default: N ]
 setenv CTM_FST N             #> mosaic method to get land-use specific stomatal flux 
                              #>    [ default: N ]
+# Surface Tiled Aerosol and Gaseous Exchange deposition option environment variables
+# Define the WRF land surface model
+setenv PX_VERSION Y          #> WRF PX LSM
+setenv CLM_VERSION N         #> WRF CLM LSM
+setenv NOAH_VERSION N        #> WRF NOAH LSM
+setenv CTM_MOSAIC N          #> landuse specific deposition velocities [ default: N ]
+setenv CTM_FST N             #> mosaic method to get land-use specific stomatal flux 
+                             #>    [ default: N ]
+# end of STAGE deposition options
 setenv CTM_ABFLUX Y          #> ammonia bi-directional flux for in-line deposition 
                              #>    velocities [ default: N ]; ignore if CTM_ILDEPV = N
 setenv CTM_HGBIDI N          #> mercury bi-directional flux for in-line deposition 
