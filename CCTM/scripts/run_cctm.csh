@@ -279,10 +279,10 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #> Gridded Emissions files 
   setenv N_EMIS_GR 1
   set    EMISfile  = emis_mole_all_${YYYYMMDD}_cb6_bench.nc
-  setenv GR_EMIS_01 ${EMISpath}/${EMISfile}
-  setenv GR_EMIS_LAB_01 GRIDDED_EMIS
-  #setenv GR_EMIS_DIAG_01 2D
-  setenv GR_EM_DTOVRD_01 T
+  setenv GR_EMIS_001 ${EMISpath}/${EMISfile}
+  setenv GR_EMIS_LAB_001 GRIDDED_EMIS
+  #setenv GR_EMIS_DIAG_001 2D
+  setenv GR_EM_DTOVRD_001 T
 
   #> In-line point emissions configuration
   if ( $CTM_PT3DEMIS == 'Y' ) then
@@ -291,38 +291,38 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      set STKCASEG = 12US1_2011ek_cb6cmaq_v6_11g           # Stack Group Version Label
      set STKCASEE = 12US1_cmaq_cb6e51_2011ek_cb6cmaq_v6_11g   # Stack Emission Version Label
 
-     setenv STK_GRPS_01 $IN_PTpath/stack_groups/stack_groups_ptnonipm_${STKCASEG}.nc
-     setenv STK_GRPS_02 $IN_PTpath/stack_groups/stack_groups_ptegu_${STKCASEG}.nc
-     setenv STK_GRPS_03 $IN_PTpath/stack_groups/stack_groups_othpt_${STKCASEG}.nc
-     setenv STK_GRPS_04 $IN_PTpath/stack_groups/stack_groups_ptfire_${YYYYMMDD}_${STKCASEG}.nc
-     setenv STK_GRPS_05 $IN_PTpath/stack_groups/stack_groups_pt_oilgas_${STKCASEG}.nc
+     setenv STK_GRPS_001 $IN_PTpath/stack_groups/stack_groups_ptnonipm_${STKCASEG}.nc
+     setenv STK_GRPS_002 $IN_PTpath/stack_groups/stack_groups_ptegu_${STKCASEG}.nc
+     setenv STK_GRPS_003 $IN_PTpath/stack_groups/stack_groups_othpt_${STKCASEG}.nc
+     setenv STK_GRPS_004 $IN_PTpath/stack_groups/stack_groups_ptfire_${YYYYMMDD}_${STKCASEG}.nc
+     setenv STK_GRPS_005 $IN_PTpath/stack_groups/stack_groups_pt_oilgas_${STKCASEG}.nc
      setenv LAYP_STTIME $STTIME
      setenv LAYP_NSTEPS $NSTEPS
 
-     setenv STK_EMIS_01 $IN_PTpath/ptnonipm/inln_mole_ptnonipm_${YYYYMMDD}_${STKCASEE}.nc
-     setenv STK_EMIS_02 $IN_PTpath/ptegu/inln_mole_ptegu_${YYYYMMDD}_${STKCASEE}.nc
-     setenv STK_EMIS_03 $IN_PTpath/othpt/inln_mole_othpt_${YYYYMMDD}_${STKCASEE}.nc
-     setenv STK_EMIS_04 $IN_PTpath/ptfire/inln_mole_ptfire_${YYYYMMDD}_${STKCASEE}.nc
-     setenv STK_EMIS_05 $IN_PTpath/pt_oilgas/inln_mole_pt_oilgas_${YYYYMMDD}_${STKCASEE}.nc
+     setenv STK_EMIS_001 $IN_PTpath/ptnonipm/inln_mole_ptnonipm_${YYYYMMDD}_${STKCASEE}.nc
+     setenv STK_EMIS_002 $IN_PTpath/ptegu/inln_mole_ptegu_${YYYYMMDD}_${STKCASEE}.nc
+     setenv STK_EMIS_003 $IN_PTpath/othpt/inln_mole_othpt_${YYYYMMDD}_${STKCASEE}.nc
+     setenv STK_EMIS_004 $IN_PTpath/ptfire/inln_mole_ptfire_${YYYYMMDD}_${STKCASEE}.nc
+     setenv STK_EMIS_005 $IN_PTpath/pt_oilgas/inln_mole_pt_oilgas_${YYYYMMDD}_${STKCASEE}.nc
      setenv LAYP_STDATE $YYYYJJJ
 
-     setenv STK_EMIS_LAB_01 POINT_NONEGU
-     setenv STK_EMIS_LAB_02 POINT_EGU
-     setenv STK_EMIS_LAB_03 POINT_OTHER
-     setenv STK_EMIS_LAB_04 POINT_FIRES
-     setenv STK_EMIS_LAB_05 POINT_OILGAS
+     setenv STK_EMIS_LAB_001 POINT_NONEGU
+     setenv STK_EMIS_LAB_002 POINT_EGU
+     setenv STK_EMIS_LAB_003 POINT_OTHER
+     setenv STK_EMIS_LAB_004 POINT_FIRES
+     setenv STK_EMIS_LAB_005 POINT_OILGAS
 
-     #setenv STK_EMIS_DIAG_01 2DSUM
-     #setenv STK_EMIS_DIAG_02 2DSUM
-     #setenv STK_EMIS_DIAG_03 2DSUM
-     #setenv STK_EMIS_DIAG_04 2DSUM
-     #setenv STK_EMIS_DIAG_05 2DSUM
+     #setenv STK_EMIS_DIAG_001 2DSUM
+     #setenv STK_EMIS_DIAG_002 2DSUM
+     #setenv STK_EMIS_DIAG_003 2DSUM
+     #setenv STK_EMIS_DIAG_004 2DSUM
+     #setenv STK_EMIS_DIAG_005 2DSUM
 
-     setenv STK_EM_DTOVRD_01 T
-     setenv STK_EM_DTOVRD_02 T
-     setenv STK_EM_DTOVRD_03 T
-     setenv STK_EM_DTOVRD_04 T
-     setenv STK_EM_DTOVRD_05 T
+     setenv STK_EM_DTOVRD_001 T
+     setenv STK_EM_DTOVRD_002 T
+     setenv STK_EM_DTOVRD_003 T
+     setenv STK_EM_DTOVRD_004 T
+     setenv STK_EM_DTOVRD_005 T
 
   endif
 
