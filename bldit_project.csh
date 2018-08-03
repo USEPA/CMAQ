@@ -15,7 +15,7 @@
 #> Default location for CMAQ model build is one directory above
 #> the repository. The user may also set their own preferred 
 #> directory.
- set CMAQ_HOME = /home/bmurphy/cmaq_projects/units
+ set CMAQ_HOME = /home/username/CMAQ_Project
 
 #> This section allows users to choose explicitly which tools
 #> to make available from the repo. For each selected tool,
@@ -23,7 +23,7 @@
 #> out of the repo for you. Set each to [Y/N]
  set EXT_CCTM    = Y
 
- # Pre-processing Tools
+ # Pre-Processing Tools
  set EXT_AGDUST = Y
  set EXT_BCON = Y
  set EXT_ICON = Y

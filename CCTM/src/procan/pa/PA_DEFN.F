@@ -153,6 +153,8 @@ c these are allocated in pa_setup_irr.F
       REAL,    ALLOCATABLE, SAVE :: IRRCOEF   ( :,: )  ! ( NIRRVAR,MXNIRRRXNS )
       REAL,    ALLOCATABLE, SAVE :: IRRSTEP   ( :,: )  ! ( BLKSIZED,NIRRVAR )
       REAL,    ALLOCATABLE, SAVE :: IRRBLK    ( :,: )  ! ( BLKSIZED,NIRRVAR )
+      REAL,    ALLOCATABLE, SAVE :: IRRDEL    ( : )    ! ( NIRRVAR )
+      REAL,    ALLOCATABLE, SAVE :: IRRSUM    ( : )    ! ( NIRRVAR )
 
       LOGICAL, ALLOCATABLE, SAVE :: CGRID_MASK_GAS( : )! ( MXCGRID )
       LOGICAL, ALLOCATABLE, SAVE :: CGRID_MASK_AERO( : )! ( MXCGRID )

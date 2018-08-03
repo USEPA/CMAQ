@@ -546,7 +546,7 @@ C Shut down IOAPI
 
 #ifdef parallel
 C Shut down MPI
-      ENDTIME = MPI_WTIME()   ! get final wall-clock time
+      ENDTIME = REAL( MPI_WTIME() )   ! get final wall-clock time
       ELAPTIME = NINT ( ENDTIME - BEGTIME )
       IF ( MYPE .EQ. 0 ) WRITE( *,2021 ) ELAPTIME
       CALL MPI_FINALIZE ( PAR_ERR )

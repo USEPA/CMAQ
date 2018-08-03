@@ -21,7 +21,7 @@ C RCS file, release, date & time of last delta, author, state, [and locker]
 C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/vdiffacm2.F,v 1.13 2012/01/19 14:37:47 yoj Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE VDIFFACMX ( DTSEC, SEDDY, DDEP, ICMP, DDEPJ, DDEPJ_FST, CNGRD )
+      SUBROUTINE VDIFFACMX ( DTSEC, SEDDY, DDEP, ICMP, CNGRD )
 
 C-----------------------------------------------------------------------
 C Asymmetric Convective Model v2 (ACM2/ACM1) -- Pleim(2006/2014)
@@ -54,8 +54,8 @@ C-----------------------------------------------------------------------
       USE ASX_DATA_MOD
       USE VDIFF_MAP
       USE UTILIO_DEFN
-      USE BIDI_MOD
-      USE LSM_MOD, ONLY: N_LUFRAC
+!      USE BIDI_MOD
+!      USE LSM_MOD, ONLY: N_LUFRAC
       USE VDIFF_DIAG, NLPCR => NLPCR_MEAN
 
       IMPLICIT NONE
@@ -70,8 +70,6 @@ C--- SEDDY is strictly an input, but it gets modified here
       REAL, INTENT( INOUT ) :: SEDDY    ( :,:,: )   ! flipped EDDYV
       REAL, INTENT( INOUT ) :: DDEP     ( :,:,: )   ! ddep accumulator
       REAL, INTENT( INOUT ) :: ICMP     ( :,:,: )   ! component flux accumlator 
-      REAL, INTENT( INOUT ), OPTIONAL :: DDEPJ    ( :,:,:,: ) ! ddep for mosaic
-      REAL, INTENT( INOUT ), OPTIONAL :: DDEPJ_FST( :,:,:,: ) ! ddep for stomtal/cuticular pathway
       REAL, INTENT( INOUT ) :: CNGRD    ( :,:,:,: ) ! cgrid replacement
 
 C Parameters:
@@ -91,11 +89,7 @@ C Local Variables:
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
 
       REAL, ALLOCATABLE, SAVE :: DD_FAC     ( : )   ! combined subexpression
-      REAL, ALLOCATABLE, SAVE :: DD_FACJ    ( :,: ) ! combined subexpression for mosaic
-      REAL, ALLOCATABLE, SAVE :: DD_FACJ_FST( :,: ) ! combined subexpression for mosaic
       REAL, ALLOCATABLE, SAVE :: DDBF       ( : )   ! secondary DDEP
-      REAL, ALLOCATABLE, SAVE :: DDBFJ      ( :,: ) ! secondary DDEP for mosaic
-      REAL, ALLOCATABLE, SAVE :: DDBFJ_FST  ( :,: ) ! secondary DDEP for mosaic
       REAl, ALLOCATABLE, SAVE :: CMPF       ( : )   ! intermediate CMP
       REAL, ALLOCATABLE, SAVE :: CONC       ( :,: ) ! secondary CGRID expression
       REAL, ALLOCATABLE, SAVE :: EMIS       ( :,: ) ! emissions subexpression
@@ -124,9 +118,6 @@ C ACM Local Variables
       REAL     :: LFAC3( NLAYS )                ! intermediate factor for eddy
       REAL     :: LFAC4( NLAYS )                ! intermediate factor for eddy
       REAL, ALLOCATABLE, SAVE :: DEPVCR     ( : )   ! dep vel in one cell
-      REAL, ALLOCATABLE, SAVE :: DEPVJCR    ( :,: ) ! dep vel in one cell for each landuse
-                                                    ! category
-      REAL, ALLOCATABLE, SAVE :: DEPVJCR_FST( :,: ) ! dep vel (stomatal uptake only) in
                                                     ! one cell for each landuse category
       REAL, ALLOCATABLE, SAVE :: EFAC1 ( : )
       REAL, ALLOCATABLE, SAVE :: EFAC2 ( : )
@@ -144,8 +135,6 @@ C ACM Local Variables
       INTEGER     ASTAT
       INTEGER     C, R, L, S, V, I, J           ! loop induction variables
       INTEGER     MDATE, MTIME                  ! internal simulation date&time
-
-      LOGICAL, SAVE :: XMOSAIC = .FALSE., XFST = .FALSE.
 
       INTERFACE
          SUBROUTINE MATRIX1 ( KL, A, B, E, D, X )
@@ -183,27 +172,6 @@ C set auxiliary depv arrays
             CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
          END IF
 
-         IF ( PRESENT ( DDEPJ ) ) XMOSAIC = .TRUE.
-         IF ( PRESENT ( DDEPJ_FST ) ) XFST = .TRUE.
-
-         IF ( XMOSAIC ) THEN
-            ALLOCATE ( DD_FACJ( N_LUFRAC,N_SPC_DEPV ),
-     &                 DDBFJ  ( N_LUFRAC,N_SPC_DEPV ),
-     &                 DEPVJCR( N_LUFRAC,N_SPC_DEPV ) )
-            IF ( ASTAT .NE. 0 ) THEN
-               XMSG = 'Failure allocating DD_FACJ, DDBFJ or DEPVJCR'
-               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-            END IF
-            IF ( XFST ) THEN
-               ALLOCATE ( DD_FACJ_FST( N_LUFRAC,N_SPC_DEPV ),
-     &                    DDBFJ_FST  ( N_LUFRAC,N_SPC_DEPV ),
-     &                    DEPVJCR_FST( N_LUFRAC,N_SPC_DEPV ) )
-               IF ( ASTAT .NE. 0 ) THEN
-                  XMSG = 'Failure allocating DD_FACJ_FST, DDBFJ_FST or DEPVJCR_FST'
-                  CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-               END IF
-            END IF   ! if Fst
-         END IF   ! if Mosaic
 
          ALLOCATE ( CMPF( LCMP ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
@@ -340,11 +308,6 @@ C-----------------------------------------------------------------------
             EFAC1 ( V ) = EXP( -DEPVCR( V ) * RP )
             EFAC2 ( V ) = EXP( -DEPVCR( V ) * RQ )
             POL   ( V ) = PLDV( V,C,R ) / DEPVCR( V )
-            IF ( ABFLUX .AND. V .EQ. NH3_HIT ) THEN
-               DO I = 1, LCMP          
-                  CMPF( I ) = ICMP( I,C,R )
-               END DO
-            END IF            
          END DO
          PLDV_HONO = PLDV( HONO_HIT,C,R )
 
@@ -382,28 +345,6 @@ C These don`t change in the NLP sub-time step loop:---------------------
             BB2( L ) = 1.0 - CC( L ) - EE2( L )
             LFAC4( L ) = DFSQ( L ) * EDDY( L-1 )
          END DO
-C ----------------------------------------------------------------------
-
-         IF ( XMOSAIC ) THEN
-            DO V = 1, N_SPC_DEPV
-               DO J = 1, N_LUFRAC
-                  DDBFJ( J,V )   = DDEPJ( J,V,C,R )
-                  DEPVJCR( J,V ) = DEPVJ( J,V,C,R )
-                  DD_FACJ( J,V ) = DTDENS1 * DD_CONV( V ) * DEPVJCR( J,V )
-               END DO
-            END DO
-            IF ( XFST ) THEN
-               DO V = 1, N_SPC_DEPV
-                  DO J = 1, N_LUFRAC
-                     DDBFJ_FST( J,V )   = DDEPJ_FST( J,V,C,R )
-                     DEPVJCR_FST( J,V ) = DEPVJ_FST( J,V,C,R )
-                     DD_FACJ_FST( J,V ) = DTDENS1 * DD_CONV( V ) * DEPVJCR_FST( J,V )
-                  END DO
-               END DO
-            END IF
-         END IF
-
-C-----------------------------------------------------------------------
 
          DO 301 NL = 1, NLP      ! loop over sub time
 
@@ -440,59 +381,13 @@ C --------- END of HET HONO RX ----------
                ELSE
                   S = DV2DF( V )
                   CONC( S,1 ) = POL( V ) + ( CONC( S,1 ) - POL( V ) ) * EFAC1( V )
-                  DDBF( V ) = DDBF( V ) + THETA * DD_FAC( V ) * CONC( S,1 )
-
-                  IF ( ABFLUX .AND. V .EQ. NH3_HIT ) THEN
-                     DO I = 1, LCMP        
-                        CMPF( I ) = CMPF( I ) + THETA * CMP( I,C,R ) * DD_CONV( V ) * DTDENS1
-                     END DO
-                  END IF
+                  DDBF( V ) = DDBF( V ) + THETA * ( DD_FAC( V ) * CONC( S,1 ) 
+C Add evasion as negative dep flux                  
+     &                      - DTDENS1 * DD_CONV( V ) * PLDV( V,C,R ) )         
                END IF
 
             END DO
     
-            IF ( XMOSAIC ) THEN
-               DO V = 1, N_SPC_DEPV
-C --------------- HET HONO RX -----------------
-                  IF ( V .EQ. HNO3_HIT ) THEN
-                     S = HNO3_MAP
-                     DO J = 1, N_LUFRAC
-                        DEPV_HNO3 = DEPVJCR( J,V ) + PLDV_HONO / CONC( NO2_MAP,1 )
-                        DD_FACJ( J,V ) = DTDENS1 * DD_CONV( V ) * DEPV_HNO3
-                        DDBFJ( J,V ) = DDBFJ( J,V ) + THETA * DD_FACJ( J,V ) * CONC( S,1 )
-                     END DO
-C --------------- END of HET HONO RX ----------
-
-                  ELSE
-                     S = DV2DF( V )
-                     DO J = 1, N_LUFRAC
-                        DDBFJ( J,V ) = DDBFJ( J,V )
-     &                               + THETA * DD_FACJ( J,V ) * CONC( S,1 )
-                     END DO
-                  END IF
-               END DO
-               IF ( XFST ) THEN
-                  DO V = 1, N_SPC_DEPV
-                     IF ( V .EQ. HNO3_HIT ) THEN
-                        S = HNO3_MAP
-                        DO J = 1, N_LUFRAC
-                           DEPV_HNO3 = DEPVJCR_FST( J,V ) + PLDV_HONO / CONC( NO2_MAP,1 )
-                           DD_FACJ_FST( J,V ) = DTDENS1 * DD_CONV( V ) * DEPV_HNO3
-                           DDBFJ_FST( J,V ) = DDBFJ_FST( J,V )
-     &                                      + THETA * DD_FACJ_FST( J,V ) * CONC( S,1 )
-                        END DO
-                     ELSE
-                        S = DV2DF( V )
-                        DO J = 1, N_LUFRAC
-                           DDBFJ_FST( J,V ) = DDBFJ_FST( J,V )
-     &                                      + THETA * DD_FACJ_FST( J,V ) * CONC( S,1 )
-                        END DO
-                     END IF
-                  END DO
-               END IF   ! FST
-
-            END IF   ! MOSAIC
-
             DO L = 1, NLAYS
                DO V = 1, N_SPC_DIFF
                   DD( V,L ) = 0.0
@@ -590,54 +485,14 @@ C --------- END of HET HONO RX ----------
                ELSE
                   S = DV2DF( V )
                   CONC( S,1 ) = POL( V ) + ( CONC( S,1 ) - POL( V ) ) * EFAC2( V )
-                  DDBF( V ) = DDBF( V ) + THBAR * DD_FAC( V ) * CONC( S,1 )
-
-                  IF ( ABFLUX .AND. V .EQ. NH3_HIT ) THEN
-                     DO I = 1, LCMP
-                        CMPF( I ) = CMPF( I ) + THBAR * CMP( I,C,R ) * DD_CONV( V ) * DTDENS1   
-                     END DO
-                  END IF
-
+                  DDBF( V ) = DDBF( V ) + THBAR * ( DD_FAC( V ) * CONC( S,1 )
+C Add evasion as negative dep flux                      
+     &                      - DTDENS1 * DD_CONV( V ) * PLDV( V,C,R ) )
+                  
                END IF
 
             END DO
     
-            IF ( XMOSAIC ) THEN
-               DO V = 1, N_SPC_DEPV
-                  IF ( V .EQ. HNO3_HIT ) THEN
-                     S = HNO3_MAP
-                     DO J = 1, N_LUFRAC
-                        DEPV_HNO3 = DEPVJCR( J,V ) + PLDV_HONO / CONC( NO2_MAP,1 )
-                        DD_FACJ( J,V ) = DTDENS1 * DD_CONV( V ) * DEPV_HNO3
-                        DDBFJ( J,V ) = DDBFJ( J,V ) + THBAR * DD_FACJ( J,V ) * CONC( S,1 )
-                     END DO
-                  ELSE
-                     S = DV2DF( V )
-                     DO J = 1, N_LUFRAC
-                        DDBFJ( J,V ) = DDBFJ( J,V ) + THBAR * DD_FACJ( J,V ) * CONC( S,1 )
-                     END DO
-                  END IF
-               END DO
-               IF ( XFST ) THEN
-                  DO V = 1, N_SPC_DEPV
-                     IF ( V .EQ. HNO3_HIT ) THEN
-                        S = HNO3_MAP
-                        DO J = 1, N_LUFRAC
-                           DEPV_HNO3 = DEPVJCR_FST( J,V ) + PLDV_HONO / CONC( NO2_MAP,1 )
-                           DD_FACJ_FST( J,V ) = DTDENS1 * DD_CONV( V ) * DEPV_HNO3
-                           DDBFJ_FST( J,V ) = DDBFJ_FST( J,V )
-     &                                      + THBAR * DD_FACJ_FST( J,V ) * CONC( S,1 )
-                        END DO
-                     ELSE
-                        S = DV2DF( V )
-                        DO J = 1, N_LUFRAC
-                           DDBFJ_FST( J,V ) = DDBFJ_FST( J,V )
-     &                                      + THBAR * DD_FACJ_FST( J,V ) * CONC( S,1 )
-                        END DO
-                     END IF
-                  END DO
-               END IF   ! FST
-            END IF   ! MOSAIC
 
 301      CONTINUE                 ! end sub time loop
 
@@ -651,27 +506,6 @@ C --------- END of HET HONO RX ----------
             DDEP( V,C,R ) = DDBF( V )
          END DO
  
-         IF ( ABFLUX ) THEN
-            DO I = 1, LCMP
-               ICMP( I,C,R ) = CMPF( I )
-            END DO
-         END IF
- 
-         IF ( XMOSAIC ) THEN
-            DO V = 1, N_SPC_DEPV
-               DO J = 1, N_LUFRAC
-                  DDEPJ( J,V,C,R ) = DDBFJ( J,V )
-               END DO
-            END DO
-            IF ( XFST ) THEN
-               DO V = 1, N_SPC_DEPV
-                  DO J = 1, N_LUFRAC
-                     DDEPJ_FST( J,V,C,R ) = DDBFJ_FST( J,V )
-                  END DO
-               END DO
-            END IF
-         END IF
-
 344   CONTINUE         !  end loop on col C
 345   CONTINUE         !  end loop on row R
 

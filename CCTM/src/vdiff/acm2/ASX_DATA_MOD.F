@@ -169,45 +169,11 @@ C Land use information:
          Character( 16 ), Allocatable   :: LU_Type ( : )     ! general land use type e.g. water, forest, etc.
       End Type GRID_Type
 
-      Type :: MOSAIC_Type                 ! (col,row,lu)
-         Character( 16 ), Allocatable :: NAME    ( : ) ! LU name
-         Character( 16 ), Allocatable :: LU_Type ( : ) ! general land use type e.g. water, forest, etc.
-!> Sub grid cell meteorological variables:
-         Real, Allocatable :: USTAR ( :,:,: )   ! surface friction velocity [m/s]
-         Real, Allocatable :: LAI   ( :,:,: )   ! leaf area index [m**2/m**2]
-         Real, Allocatable :: VEG   ( :,:,: )   ! vegetation fraction [ratio]
-         Real, Allocatable :: Z0    ( :,:,: )   ! vegetation fraction [ratio]
-         Real, Allocatable :: DELTA ( :,:,: )   ! Surface wetness [ratio]
-!> Sub grid cell resistances
-         Real, Allocatable :: RA    ( :,:,: )    ! aerodynamic resistance [s/m]
-         Real, Allocatable :: RSTW  ( :,:,: )    ! Stomatal Resistance of water [s/m]
-         Real, Allocatable :: RINC  ( :,:,: )    ! In-canopy resistance [s/m]
-      End Type MOSAIC_Type
-
-      Type :: ChemMos_Type                 ! (col,row,lu,spc)
-         Character( 16 ), Allocatable :: NAME    ( : )  ! LU name
-         Character( 16 ), Allocatable :: Lu_Type ( : )  ! general land use type e.g. water, forest, etc.     
-         Character( 16 ), Allocatable :: SubName ( : )  ! Deposition species name    
-!> Sub grid cell chemically dependent resistances
-         Real, Allocatable :: Rb   ( :,:,:,: ) ! quasi-laminar boundary layer resistance [s/m]
-         Real, Allocatable :: Rst  ( :,:,:,: ) ! stomatal resistance [s/m]
-         Real, Allocatable :: Rgc  ( :,:,:,: ) ! Canopy covered soil resistance [s/m]
-         Real, Allocatable :: Rgb  ( :,:,:,: ) ! Barron soil resistance [s/m]
-         Real, Allocatable :: Rcut ( :,:,:,: ) ! soil resistance [s/m]
-         Real, Allocatable :: Rwat ( :,:,:,: ) ! surface water resistance [s/m]
-!> Sub grid cell compensation point
-         Real, Allocatable :: Catm ( :,:,:,: ) ! Atmospheric [ppm]
-         Real, Allocatable :: CZ0  ( :,:,:,: ) ! compensation point at Z0 [ppm]
-         Real, Allocatable :: Cleaf( :,:,:,: ) ! Leaf compensation point [ppm]
-         Real, Allocatable :: Cstom( :,:,:,: ) ! Stomatal compensation point [ppm]
-         Real, Allocatable :: Ccut ( :,:,:,: ) ! Cuticular compensation point [ppm]
-         Real, Allocatable :: Csoil( :,:,:,: ) ! Soil compensation point [ppm]
-      End Type ChemMos_Type
 
       Type( MET_Type ),     Save :: Met_Data 
       Type( GRID_Type ),    Save :: Grid_Data 
-      Type( MOSAIC_Type ),  Save :: Mosaic_Data
-      Type( ChemMos_Type ), Save :: ChemMos_Data
+!      Type( MOSAIC_Type ),  Save :: Mosaic_Data
+!      Type( ChemMos_Type ), Save :: ChemMos_Data
 
       Integer, Save   :: n_spc_m3dry = ltotg       ! from DEPVVARS module
 !> M3 asx constants
@@ -278,123 +244,168 @@ C Land use information:
       Real, Pointer, Private :: BUFF2D( :,: )   ! 2D temp var
       Real, Pointer, Private :: BUFF3D( :,:,: ) ! 3D temp var
 
-      DATA subname(  1), dif0(  1), ar(  1), meso(  1), lebas(  1) / 'SO2             ', 0.1089,   10.0,      0.0,  35.0/
-      DATA subname(  2), dif0(  2), ar(  2), meso(  2), lebas(  2) / 'H2SO4           ', 0.1091, 8000.0,      0.0,  49.0/
-      DATA subname(  3), dif0(  3), ar(  3), meso(  3), lebas(  3) / 'NO2             ', 0.1361,    2.0,      0.1,  21.0/
-      DATA subname(  4), dif0(  4), ar(  4), meso(  4), lebas(  4) / 'NO              ', 0.1802,    2.0,      0.0,  14.0/
-      DATA subname(  5), dif0(  5), ar(  5), meso(  5), lebas(  5) / 'O3              ', 0.1444,   12.0,      1.0,  21.0/
-      DATA subname(  6), dif0(  6), ar(  6), meso(  6), lebas(  6) / 'HNO3            ', 0.1067, 8000.0,      0.0,  35.0/
-      DATA subname(  7), dif0(  7), ar(  7), meso(  7), lebas(  7) / 'H2O2            ', 0.1300,34000.0,      1.0,  28.0/   !ar=34,000 such that r_cut=0.7 s/m as in Nguyen et al. 2015
-      DATA subname(  8), dif0(  8), ar(  8), meso(  8), lebas(  8) / 'ACETALDEHYDE    ', 0.1111,   10.0,      0.0,  56.0/
-      DATA subname(  9), dif0(  9), ar(  9), meso(  9), lebas(  9) / 'FORMALDEHYDE    ', 0.1554,   10.0,      0.0,  35.0/
-      DATA subname( 10), dif0( 10), ar( 10), meso( 10), lebas( 10) / 'METHYLHYDROPEROX', 0.1179,   10.0,      0.3,  49.0/   !meso change from 0.1 to 0.3, Wolfe and Thornton 2011 ACP per J. Bash
-      DATA subname( 11), dif0( 11), ar( 11), meso( 11), lebas( 11) / 'PEROXYACETIC_ACI', 0.0868,   20.0,      0.1,  70.0/
-      DATA subname( 12), dif0( 12), ar( 12), meso( 12), lebas( 12) / 'ACETIC_ACID     ', 0.0944,   20.0,      0.0,  63.0/
-      DATA subname( 13), dif0( 13), ar( 13), meso( 13), lebas( 13) / 'NH3             ', 0.1978,   20.0,      0.0,  28.0/
-      DATA subname( 14), dif0( 14), ar( 14), meso( 14), lebas( 14) / 'PAN             ', 0.0687,   16.0,      0.1,  91.0/
-      DATA subname( 15), dif0( 15), ar( 15), meso( 15), lebas( 15) / 'HNO2            ', 0.1349,   20.0,      0.1,  28.0/
-      DATA subname( 16), dif0( 16), ar( 16), meso( 16), lebas( 16) / 'CO              ', 0.1807,    5.0,      0.0,  14.0/
-      DATA subname( 17), dif0( 17), ar( 17), meso( 17), lebas( 17) / 'METHANOL        ', 0.1329,    2.0,      0.0,  42.0/
-      DATA subname( 18), dif0( 18), ar( 18), meso( 18), lebas( 18) / 'N2O5            ', 0.0808, 5000.0,      0.0,  49.0/
-      DATA subname( 19), dif0( 19), ar( 19), meso( 19), lebas( 19) / 'NO3             ', 0.1153, 5000.0,      0.0,  28.0/
-      DATA subname( 20), dif0( 20), ar( 20), meso( 20), lebas( 20) / 'GENERIC_ALDEHYDE', 0.0916,   10.0,      0.0,  56.0/
-      DATA subname( 21), dif0( 21), ar( 21), meso( 21), lebas( 21) / 'CL2             ', 0.1080,   10.0,      0.0,  49.0/
-      DATA subname( 22), dif0( 22), ar( 22), meso( 22), lebas( 22) / 'HOCL            ', 0.1300,   10.0,      0.0,  38.5/
-      DATA subname( 23), dif0( 23), ar( 23), meso( 23), lebas( 23) / 'HCL             ', 0.1510, 8000.0,      0.0,  31.5/
-      DATA subname( 24), dif0( 24), ar( 24), meso( 24), lebas( 24) / 'FMCL            ', 0.1094,   10.0,      0.0,  45.5/
-      DATA subname( 25), dif0( 25), ar( 25), meso( 25), lebas( 25) / 'HG              ', 0.1194,    0.1,      0.0,  14.8/   ! lebas not used
-      DATA subname( 26), dif0( 26), ar( 26), meso( 26), lebas( 26) / 'HGIIGAS         ', 0.0976, 8000.0,      0.0,  95.0/   ! estimation from back calculating to get dw25 = 1.04e-5 (Garland et al, 1965)
-      DATA subname( 27), dif0( 27), ar( 27), meso( 27), lebas( 27) / 'TECDD_2378      ', 0.0525,    2.0,      0.0, 217.0/
-      DATA subname( 28), dif0( 28), ar( 28), meso( 28), lebas( 28) / 'PECDD_12378     ', 0.0508,    2.0,      0.0, 234.5/
-      DATA subname( 29), dif0( 29), ar( 29), meso( 29), lebas( 29) / 'HXCDD_123478    ', 0.0494,    2.0,      0.0, 252.0/
-      DATA subname( 30), dif0( 30), ar( 30), meso( 30), lebas( 30) / 'HXCDD_123678    ', 0.0494,    2.0,      0.0, 252.0/
-      DATA subname( 31), dif0( 31), ar( 31), meso( 31), lebas( 31) / 'HXCDD_123478    ', 0.0494,    2.0,      0.0, 252.0/
-      DATA subname( 32), dif0( 32), ar( 32), meso( 32), lebas( 32) / 'HPCDD_1234678   ', 0.0480,    2.0,      0.0, 269.5/
-      DATA subname( 33), dif0( 33), ar( 33), meso( 33), lebas( 33) / 'OTCDD           ', 0.0474,    2.0,      0.0, 287.0/
-      DATA subname( 34), dif0( 34), ar( 34), meso( 34), lebas( 34) / 'TECDF_2378      ', 0.0534,    2.0,      0.0, 210.0/
-      DATA subname( 35), dif0( 35), ar( 35), meso( 35), lebas( 35) / 'PECDF_12378     ', 0.0517,    2.0,      0.0, 227.5/
-      DATA subname( 36), dif0( 36), ar( 36), meso( 36), lebas( 36) / 'PECDF_23478     ', 0.0517,    2.0,      0.0, 227.5/
-      DATA subname( 37), dif0( 37), ar( 37), meso( 37), lebas( 37) / 'HXCDF_123478    ', 0.0512,    2.0,      0.0, 245.0/
-      DATA subname( 38), dif0( 38), ar( 38), meso( 38), lebas( 38) / 'HXCDF_123678    ', 0.0512,    2.0,      0.0, 245.0/
-      DATA subname( 39), dif0( 39), ar( 39), meso( 39), lebas( 39) / 'HXCDF_234678    ', 0.0512,    2.0,      0.0, 245.0/
-      DATA subname( 40), dif0( 40), ar( 40), meso( 40), lebas( 40) / 'HXCDF_123789    ', 0.0512,    2.0,      0.0, 245.0/
-      DATA subname( 41), dif0( 41), ar( 41), meso( 41), lebas( 41) / 'HPCDF_1234678   ', 0.0487,    2.0,      0.0, 262.5/
-      DATA subname( 42), dif0( 42), ar( 42), meso( 42), lebas( 42) / 'HPCDF_1234789   ', 0.0487,    2.0,      0.0, 262.5/
-      DATA subname( 43), dif0( 43), ar( 43), meso( 43), lebas( 43) / 'OTCDF           ', 0.0474,    2.0,      0.0, 280.0/
-      DATA subname( 44), dif0( 44), ar( 44), meso( 44), lebas( 44) / 'NAPHTHALENE     ', 0.0778,    4.0,      0.0, 119.0/
-      DATA subname( 45), dif0( 45), ar( 45), meso( 45), lebas( 45) / '1NITRONAPHTHALEN', 0.0692,    4.0,      0.0, 133.0/
-      DATA subname( 46), dif0( 46), ar( 46), meso( 46), lebas( 46) / '2NITRONAPHTHALEN', 0.0692,    4.0,      0.0, 133.0/
-      DATA subname( 47), dif0( 47), ar( 47), meso( 47), lebas( 47) / '14NAPHTHOQUINONE', 0.0780,    4.0,      0.0, 119.0/
-      DATA subname( 48), dif0( 48), ar( 48), meso( 48), lebas( 48) / 'HEXAMETHYLE_DIIS', 0.0380,   10.0,      0.0, 196.0/
-      DATA subname( 49), dif0( 49), ar( 49), meso( 49), lebas( 49) / 'HYDRAZINE       ', 0.4164,   20.0,      0.0,  42.0/
-      DATA subname( 50), dif0( 50), ar( 50), meso( 50), lebas( 50) / 'MALEIC_ANHYDRIDE', 0.0950,   10.0,      0.0,  70.0/
-      DATA subname( 51), dif0( 51), ar( 51), meso( 51), lebas( 51) / '24-TOLUENE_DIIS ', 0.0610,   10.0,      0.0, 154.0/
-      DATA subname( 52), dif0( 52), ar( 52), meso( 52), lebas( 52) / 'TRIETHYLAMINE   ', 0.0881,   20.0,      0.0, 154.0/
-      DATA subname( 53), dif0( 53), ar( 53), meso( 53), lebas( 53) / 'ORG_NTR         ', 0.0607,   16.0,      0.0, 160.0/  ! assumes 58.2% C5H11O4N and 41.8% C5H11O3N
-      DATA subname( 54), dif0( 54), ar( 54), meso( 54), lebas( 54) / 'HYDROXY_NITRATES', 0.0609,   16.0,      0.0, 156.1/
-      DATA subname( 55), dif0( 55), ar( 55), meso( 55), lebas( 55) / 'MPAN            ', 0.0580,   16.0,      0.1, 133.0/
-      DATA subname( 56), dif0( 56), ar( 56), meso( 56), lebas( 56) / 'PPN             ', 0.0631,   16.0,      0.1, 118.2/
-      DATA subname( 57), dif0( 57), ar( 57), meso( 57), lebas( 57) / 'MVK             ', 0.0810,    8.0,      1.0,  88.8/
-      DATA subname( 58), dif0( 58), ar( 58), meso( 58), lebas( 58) / 'DINTR           ', 0.0617,   16.0,      0.1, 169.8/
-      DATA subname( 59), dif0( 59), ar( 59), meso( 59), lebas( 59) / 'NTR_ALK         ', 0.0688,   16.0,      0.1, 133.0/
-      DATA subname( 60), dif0( 60), ar( 60), meso( 60), lebas( 60) / 'NTR_OH          ', 0.0665,   16.0,      0.1, 140.4/
-      DATA subname( 61), dif0( 61), ar( 61), meso( 61), lebas( 61) / 'HYDROXY_NITRATES', 0.0646,   16.0,      0.0, 147.8/
-      DATA subname( 62), dif0( 62), ar( 62), meso( 62), lebas( 62) / 'PROPNN          ', 0.0677,   16.0,      0.0, 133.0/
-      DATA subname( 63), dif0( 63), ar( 63), meso( 63), lebas( 63) / 'NITRYL_CHLORIDE ', 0.0888,    8.0,      0.0,  45.5/  ! dif0 estimated following Erickson III et al., JGR, 104, D7, 8347-8372, 1999
-      DATA subname( 64), dif0( 64), ar( 64), meso( 64), lebas( 64) / 'ISOPNN          ',0.0457,    8.0,      0.0,  206.8/
-      DATA subname( 65), dif0( 65), ar( 65), meso( 65), lebas( 65) / 'MTNO3           ',0.0453,    8.0,      0.0,  251.2/
-      DATA subname( 66), dif0( 66), ar( 66), meso( 66), lebas( 66) / 'IEPOX           ',0.0579,    8.0,      0.0,  110.8/
-      DATA subname( 67), dif0( 67), ar( 67), meso( 67), lebas( 67) / 'HACET           ',0.1060,    8.0,      0.0,   72.6/  ! dif0 from Nguyen 2015 PNAS
-      DATA subname( 68), dif0( 68), ar( 68), meso( 68), lebas( 68) / 'SVALK1          ',0.0514,   20.0,      0.0,  280.5/  ! see Pye et al., 2017 ACP: doi:10.5194/acp-17-343-2017
-      DATA subname( 69), dif0( 69), ar( 69), meso( 69), lebas( 69) / 'SVALK2          ',0.0546,   20.0,      0.0,  275.6/
-      DATA subname( 70), dif0( 70), ar( 70), meso( 70), lebas( 70) / 'SVBNZ1          ',0.0642,   20.0,      0.0,  134.1/
-      DATA subname( 71), dif0( 71), ar( 71), meso( 71), lebas( 71) / 'SVBNZ2          ',0.0726,   20.0,      0.0,  127.5/
-      DATA subname( 72), dif0( 72), ar( 72), meso( 72), lebas( 72) / 'SVISO1          ',0.0733,   20.0,      0.0,  126.3/
-      DATA subname( 73), dif0( 73), ar( 73), meso( 73), lebas( 73) / 'SVISO2          ',0.0729,   20.0,      0.0,  123.8/
-      DATA subname( 74), dif0( 74), ar( 74), meso( 74), lebas( 74) / 'SVPAH1          ',0.0564,   20.0,      0.0,  235.7/
-      DATA subname( 75), dif0( 75), ar( 75), meso( 75), lebas( 75) / 'SVPAH2          ',0.0599,   20.0,      0.0,  231.5/
-      DATA subname( 76), dif0( 76), ar( 76), meso( 76), lebas( 76) / 'SVSQT           ',0.0451,   20.0,      0.0,  346.5/
-      DATA subname( 77), dif0( 77), ar( 77), meso( 77), lebas( 77) / 'SVTOL1          ',0.0637,   20.0,      0.0,  153.7/
-      DATA subname( 78), dif0( 78), ar( 78), meso( 78), lebas( 78) / 'SVTOL2          ',0.0607,   20.0,      0.0,  194.1/
-      DATA subname( 79), dif0( 79), ar( 79), meso( 79), lebas( 79) / 'SVTRP1          ',0.0603,   20.0,      0.0,  194.9/
-      DATA subname( 80), dif0( 80), ar( 80), meso( 80), lebas( 80) / 'SVTRP2          ',0.0559,   20.0,      0.0,  218.8/
-      DATA subname( 81), dif0( 81), ar( 81), meso( 81), lebas( 81) / 'SVXYL1          ',0.0610,   20.0,      0.0,  154.6/
-      DATA subname( 82), dif0( 82), ar( 82), meso( 82), lebas( 82) / 'SVXYL2          ',0.0585,   20.0,      0.0,  194.6/
-      DATA subname( 83), dif0( 83), ar( 83), meso( 83), lebas( 83) / 'IO              ',0.1002,    8.0,      0.0,  44.4/
-      DATA subname( 84), dif0( 84), ar( 84), meso( 84), lebas( 84) / 'OIO             ',0.0938,    8.0,      0.0,  51.8/
-      DATA subname( 85), dif0( 85), ar( 85), meso( 85), lebas( 85) / 'I2O2            ',0.0732,    8.0,      0.0,  88.8/
-      DATA subname( 86), dif0( 86), ar( 86), meso( 86), lebas( 86) / 'I2O3            ',0.0707,    8.0,      0.0,  96.2/
-      DATA subname( 87), dif0( 87), ar( 87), meso( 87), lebas( 87) / 'I2O4            ',0.0684,    8.0,      0.0, 103.6/
-      DATA subname( 88), dif0( 88), ar( 88), meso( 88), lebas( 88) / 'HI              ',0.1045,    8.0,      0.0,  40.7/
-      DATA subname( 89), dif0( 89), ar( 89), meso( 89), lebas( 89) / 'HOI             ',0.0972,    8.0,      0.0,  48.1/
-      DATA subname( 90), dif0( 90), ar( 90), meso( 90), lebas( 90) / 'INO             ',0.0882,    8.0,      0.0,  60.9/
-      DATA subname( 91), dif0( 91), ar( 91), meso( 91), lebas( 91) / 'INO2            ',0.0883,   20.0,      0.0,  69.2/
-      DATA subname( 92), dif0( 92), ar( 92), meso( 92), lebas( 92) / 'IONO2           ',0.0792,    8.0,      0.0,  77.5/
-      DATA subname( 93), dif0( 93), ar( 93), meso( 93), lebas( 93) / 'BRO             ',0.1144,    1.0,      0.0,  34.4/
-      DATA subname( 94), dif0( 94), ar( 94), meso( 94), lebas( 94) / 'HOBR            ',0.1101,    1.0,      0.0,  38.1/
-      DATA subname( 95), dif0( 95), ar( 95), meso( 95), lebas( 95) / 'HBR             ',0.1216,    2.0,      0.0,  30.7/
-      DATA subname( 96), dif0( 96), ar( 96), meso( 96), lebas( 96) / 'BRONO2          ',0.0855,    1.0,      0.0,  67.5/
-      DATA subname( 97), dif0( 97), ar( 97), meso( 97), lebas( 97) / 'BRNO2           ',0.0909,    1.0,      0.0,  59.2/
-      DATA subname( 98), dif0( 98), ar( 98), meso( 98), lebas( 98) / 'BRCL            ',0.0966,    1.0,      0.0,  51.6/
-      DATA subname( 99), dif0( 99), ar( 99), meso( 99), lebas( 99) / 'DMS             ',0.0926,    2.0,      0.0,  77.4/
-      DATA subname(100), dif0(100), ar(100), meso(100), lebas(100) / 'MSA             ',0.0896,    2.0,      0.0,  77.4/
-      DATA subname(101), dif0(101), ar(101), meso(101), lebas(101) / 'METHANE         ',0.2107,    2.0,      0.0,  29.6/ ! dif0, equation 9-22. Scwarzenbach et. (1993) Env. Org. Chem.
-      DATA subname(102), dif0(102), ar(102), meso(102), lebas(102) / 'ACRYACID        ',0.0908,    2.0,      0.0,  63.2/ 
-      DATA subname(103), dif0(103), ar(103), meso(103), lebas(103) / 'CARBSULFIDE     ',0.1240,    5.0,      0.0,  51.5/ 
-      DATA subname(104), dif0(104), ar(104), meso(104), lebas(104) / 'ACETONITRILE    ',0.1280,    5.0,      0.0,  52.3/ 
-      DATA subname(105), dif0(105), ar(105), meso(105), lebas(105) / '6_NITRO_O_CRESOL',0.0664,   16.0,      0.0, 155.0/ ! dif0, equation 9-22. Scwarzenbach et. (1993) Env. Org. Chem.
-      DATA subname(106), dif0(106), ar(106), meso(106), lebas(106) / 'SVMT1           ',0.0424,   20.0,      0.0, 355.2/ ! see Xu et al., 2018 ACPD: doi:10.5194/acp-2017-1109
-      DATA subname(107), dif0(107), ar(107), meso(107), lebas(107) / 'SVMT2           ',0.0556,   20.0,      0.0, 236.8/
-      DATA subname(108), dif0(108), ar(108), meso(108), lebas(108) / 'SVMT3           ',0.0583,   20.0,      0.0, 214.6/
-      DATA subname(109), dif0(109), ar(109), meso(109), lebas(109) / 'SVMT4           ',0.0587,   20.0,      0.0, 229.4/
-      DATA subname(110), dif0(110), ar(110), meso(110), lebas(110) / 'SVMT5           ',0.0619,   20.0,      0.0, 207.2/
-      DATA subname(111), dif0(111), ar(111), meso(111), lebas(111) / 'SVMT6           ',0.0624,   20.0,      0.0, 222.0/
-      DATA subname(112), dif0(112), ar(112), meso(112), lebas(112) / 'SVMT7           ',0.0661,   20.0,      0.0, 199.8/
+      DATA subname(  1), dif0(  1), ar(  1), meso(  1), lebas(  1) / 'SO2             ', 0.1089,   10.0, 0.0,  35.0 /
+      DATA subname(  2), dif0(  2), ar(  2), meso(  2), lebas(  2) / 'H2SO4           ', 0.1091, 8000.0, 0.0,  49.0 /
+      DATA subname(  3), dif0(  3), ar(  3), meso(  3), lebas(  3) / 'NO2             ', 0.1361,    2.0, 0.1,  21.0 /
+      DATA subname(  4), dif0(  4), ar(  4), meso(  4), lebas(  4) / 'NO              ', 0.1802,    2.0, 0.0,  14.0 /
+      DATA subname(  5), dif0(  5), ar(  5), meso(  5), lebas(  5) / 'O3              ', 0.1444,   12.0, 1.0,  21.0 /
+      DATA subname(  6), dif0(  6), ar(  6), meso(  6), lebas(  6) / 'HNO3            ', 0.1067, 8000.0, 0.0,  35.0 /
+      DATA subname(  7), dif0(  7), ar(  7), meso(  7), lebas(  7) / 'H2O2            ', 0.1300,34000.0, 1.0,  28.0 /   !ar=34,000 such that r_cut=0.7 s/m as in Nguyen et al. 2015
+      DATA subname(  8), dif0(  8), ar(  8), meso(  8), lebas(  8) / 'ACETALDEHYDE    ', 0.1111,   10.0, 0.0,  56.0 /
+      DATA subname(  9), dif0(  9), ar(  9), meso(  9), lebas(  9) / 'FORMALDEHYDE    ', 0.1554,   10.0, 0.0,  35.0 /
+      DATA subname( 10), dif0( 10), ar( 10), meso( 10), lebas( 10) / 'METHYLHYDROPEROX', 0.1179,   10.0, 0.3,  49.0 /   !meso change from 0.1 to 0.3, Wolfe and Thornton 2011 ACP per J. Bash
+      DATA subname( 11), dif0( 11), ar( 11), meso( 11), lebas( 11) / 'PEROXYACETIC_ACI', 0.0868,   20.0, 0.1,  70.0 /
+      DATA subname( 12), dif0( 12), ar( 12), meso( 12), lebas( 12) / 'ACETIC_ACID     ', 0.0944,   20.0, 0.0,  63.0 /
+      DATA subname( 13), dif0( 13), ar( 13), meso( 13), lebas( 13) / 'NH3             ', 0.1978,   20.0, 0.0,  28.0 /
+      DATA subname( 14), dif0( 14), ar( 14), meso( 14), lebas( 14) / 'PAN             ', 0.0687,   16.0, 0.1,  91.0 /
+      DATA subname( 15), dif0( 15), ar( 15), meso( 15), lebas( 15) / 'HNO2            ', 0.1349,   20.0, 0.1,  28.0 /
+      DATA subname( 16), dif0( 16), ar( 16), meso( 16), lebas( 16) / 'CO              ', 0.1807,    5.0, 0.0,  14.0 /
+      DATA subname( 17), dif0( 17), ar( 17), meso( 17), lebas( 17) / 'METHANOL        ', 0.1329,    2.0, 0.0,  42.0 /
+      DATA subname( 18), dif0( 18), ar( 18), meso( 18), lebas( 18) / 'N2O5            ', 0.0808, 5000.0, 0.0,  49.0 /
+      DATA subname( 19), dif0( 19), ar( 19), meso( 19), lebas( 19) / 'NO3             ', 0.1153, 5000.0, 0.0,  28.0 /
+      DATA subname( 20), dif0( 20), ar( 20), meso( 20), lebas( 20) / 'GENERIC_ALDEHYDE', 0.0916,   10.0, 0.0,  56.0 /
+      DATA subname( 21), dif0( 21), ar( 21), meso( 21), lebas( 21) / 'CL2             ', 0.1080,   10.0, 0.0,  49.0 /
+      DATA subname( 22), dif0( 22), ar( 22), meso( 22), lebas( 22) / 'HOCL            ', 0.1300,   10.0, 0.0,  38.5 / ! used value of HCL
+      DATA subname( 23), dif0( 23), ar( 23), meso( 23), lebas( 23) / 'HCL             ', 0.1510, 8000.0, 0.0,  31.5 /
+      DATA subname( 24), dif0( 24), ar( 24), meso( 24), lebas( 24) / 'FMCL            ', 0.1094,   10.0, 0.0,  45.5 / ! default value
+      DATA subname( 25), dif0( 25), ar( 25), meso( 25), lebas( 25) / 'HG              ', 0.1194,    0.1, 0.0,  14.8 / ! lebas not used
+      DATA subname( 26), dif0( 26), ar( 26), meso( 26), lebas( 26) / 'HGIIGAS         ', 0.0976, 8000.0, 0.0,  95.0 / ! estimation from back calculating to get dw25 = 1.04e-5 (Garland et al, 1965)
+      DATA subname( 27), dif0( 27), ar( 27), meso( 27), lebas( 27) / 'TECDD_2378      ', 0.0525,    2.0, 0.0, 217.0 /
+      DATA subname( 28), dif0( 28), ar( 28), meso( 28), lebas( 28) / 'PECDD_12378     ', 0.0508,    2.0, 0.0, 234.5 /
+      DATA subname( 29), dif0( 29), ar( 29), meso( 29), lebas( 29) / 'HXCDD_123478    ', 0.0494,    2.0, 0.0, 252.0 /
+      DATA subname( 30), dif0( 30), ar( 30), meso( 30), lebas( 30) / 'HXCDD_123678    ', 0.0494,    2.0, 0.0, 252.0 /
+      DATA subname( 31), dif0( 31), ar( 31), meso( 31), lebas( 31) / 'HXCDD_123478    ', 0.0494,    2.0, 0.0, 252.0 /
+      DATA subname( 32), dif0( 32), ar( 32), meso( 32), lebas( 32) / 'HPCDD_1234678   ', 0.0480,    2.0, 0.0, 269.5 /
+      DATA subname( 33), dif0( 33), ar( 33), meso( 33), lebas( 33) / 'OTCDD           ', 0.0474,    2.0, 0.0, 287.0 /
+      DATA subname( 34), dif0( 34), ar( 34), meso( 34), lebas( 34) / 'TECDF_2378      ', 0.0534,    2.0, 0.0, 210.0 /
+      DATA subname( 35), dif0( 35), ar( 35), meso( 35), lebas( 35) / 'PECDF_12378     ', 0.0517,    2.0, 0.0, 227.5 /
+      DATA subname( 36), dif0( 36), ar( 36), meso( 36), lebas( 36) / 'PECDF_23478     ', 0.0517,    2.0, 0.0, 227.5 /
+      DATA subname( 37), dif0( 37), ar( 37), meso( 37), lebas( 37) / 'HXCDF_123478    ', 0.0512,    2.0, 0.0, 245.0 /
+      DATA subname( 38), dif0( 38), ar( 38), meso( 38), lebas( 38) / 'HXCDF_123678    ', 0.0512,    2.0, 0.0, 245.0 /
+      DATA subname( 39), dif0( 39), ar( 39), meso( 39), lebas( 39) / 'HXCDF_234678    ', 0.0512,    2.0, 0.0, 245.0 /
+      DATA subname( 40), dif0( 40), ar( 40), meso( 40), lebas( 40) / 'HXCDF_123789    ', 0.0512,    2.0, 0.0, 245.0 /
+      DATA subname( 41), dif0( 41), ar( 41), meso( 41), lebas( 41) / 'HPCDF_1234678   ', 0.0487,    2.0, 0.0, 262.5 /
+      DATA subname( 42), dif0( 42), ar( 42), meso( 42), lebas( 42) / 'HPCDF_1234789   ', 0.0487,    2.0, 0.0, 262.5 /
+      DATA subname( 43), dif0( 43), ar( 43), meso( 43), lebas( 43) / 'OTCDF           ', 0.0474,    2.0, 0.0, 280.0 /
+      DATA subname( 44), dif0( 44), ar( 44), meso( 44), lebas( 44) / 'NAPHTHALENE     ', 0.0778,    4.0, 0.0, 119.0 / !Julin et al. 2014 doi:10.1021/es501816h 
+      DATA subname( 45), dif0( 45), ar( 45), meso( 45), lebas( 45) / '1NITRONAPHTHALEN', 0.0692,    4.0, 0.0, 133.0 /
+      DATA subname( 46), dif0( 46), ar( 46), meso( 46), lebas( 46) / '2NITRONAPHTHALEN', 0.0692,    4.0, 0.0, 133.0 /
+      DATA subname( 47), dif0( 47), ar( 47), meso( 47), lebas( 47) / '14NAPHTHOQUINONE', 0.0780,    4.0, 0.0, 119.0 /
+      DATA subname( 48), dif0( 48), ar( 48), meso( 48), lebas( 48) / 'HEXAMETHYLE_DIIS', 0.0380,   10.0, 0.0, 196.0 /
+      DATA subname( 49), dif0( 49), ar( 49), meso( 49), lebas( 49) / 'HYDRAZINE       ', 0.4164,   20.0, 0.0,  42.0 /
+      DATA subname( 50), dif0( 50), ar( 50), meso( 50), lebas( 50) / 'MALEIC_ANHYDRIDE', 0.0950,   10.0, 0.0,  70.0 /
+      DATA subname( 51), dif0( 51), ar( 51), meso( 51), lebas( 51) / '24-TOLUENE_DIIS ', 0.0610,   10.0, 0.0, 154.0 /
+      DATA subname( 52), dif0( 52), ar( 52), meso( 52), lebas( 52) / 'TRIETHYLAMINE   ', 0.0881,   20.0, 0.0, 154.0 /
+      DATA subname( 53), dif0( 53), ar( 53), meso( 53), lebas( 53) / 'ORG_NTR         ', 0.0607,   16.0, 0.0, 160.0 /  ! assumes 58.2% C5H11O4N and 41.8% C5H11O3N
+      DATA subname( 54), dif0( 54), ar( 54), meso( 54), lebas( 54) / 'HYDROXY_NITRATES', 0.0609,   16.0, 0.0, 156.1 /
+      DATA subname( 55), dif0( 55), ar( 55), meso( 55), lebas( 55) / 'MPAN            ', 0.0580,   16.0, 0.1, 133.0 /
+      DATA subname( 56), dif0( 56), ar( 56), meso( 56), lebas( 56) / 'PPN             ', 0.0631,   16.0, 0.1, 118.2 /
+      DATA subname( 57), dif0( 57), ar( 57), meso( 57), lebas( 57) / 'METHACROLEIN    ', 0.0810,    8.0, 1.0,  88.8 /
+      DATA subname( 58), dif0( 58), ar( 58), meso( 58), lebas( 58) / 'DINTR           ', 0.0617,   16.0, 0.1, 169.8 /
+      DATA subname( 59), dif0( 59), ar( 59), meso( 59), lebas( 59) / 'NTR_ALK         ', 0.0688,   16.0, 0.1, 133.0 /
+      DATA subname( 60), dif0( 60), ar( 60), meso( 60), lebas( 60) / 'NTR_OH          ', 0.0665,   16.0, 0.1, 140.4 /
+      DATA subname( 61), dif0( 61), ar( 61), meso( 61), lebas( 61) / 'HYDROXY_NITRATES', 0.0646,   16.0, 0.0, 147.8 /
+      DATA subname( 62), dif0( 62), ar( 62), meso( 62), lebas( 62) / 'PROPNN          ', 0.0677,   16.0, 0.0, 133.0 /
+      DATA subname( 63), dif0( 63), ar( 63), meso( 63), lebas( 63) / 'NITRYL_CHLORIDE ', 0.0888,    8.0, 0.0,  45.5 /  ! dif0 estimated following Erickson III et al., JGR, 104, D7, 8347-8372, 1999
+      DATA subname( 64), dif0( 64), ar( 64), meso( 64), lebas( 64) / 'ISOPNN          ',0.0457,  275.9, 0.0,  206.8 /
+      DATA subname( 65), dif0( 65), ar( 65), meso( 65), lebas( 65) / 'MTNO3           ',0.0453,   96.2, 0.0,  251.2 /
+      DATA subname( 66), dif0( 66), ar( 66), meso( 66), lebas( 66) / 'IEPOX           ',0.0579,    8.0, 0.0,  110.8 /
+      DATA subname( 67), dif0( 67), ar( 67), meso( 67), lebas( 67) / 'HACET           ',0.1060,    8.0, 0.0,   72.6 /  ! dif0 from Nguyen 2015 PNAS
+      DATA subname( 68), dif0( 68), ar( 68), meso( 68), lebas( 68) / 'SVALK1          ',0.0514, 4572.8, 0.0,  280.5 /
+      DATA subname( 69), dif0( 69), ar( 69), meso( 69), lebas( 69) / 'SVALK2          ',0.0546,   12.9, 0.0,  275.6 /
+      DATA subname( 70), dif0( 70), ar( 70), meso( 70), lebas( 70) / 'SVBNZ1          ',0.0642,20671.2, 0.0,  134.1 /
+      DATA subname( 71), dif0( 71), ar( 71), meso( 71), lebas( 71) / 'SVBNZ2          ',0.0726,   52.5, 0.0,  127.5 /
+      DATA subname( 72), dif0( 72), ar( 72), meso( 72), lebas( 72) / 'SVISO1          ',0.0733,   50.6, 0.0,  126.3 /
+      DATA subname( 73), dif0( 73), ar( 73), meso( 73), lebas( 73) / 'SVISO2          ',0.0729,10009.0, 0.0,  123.8 /
+      DATA subname( 74), dif0( 74), ar( 74), meso( 74), lebas( 74) / 'SVPAH1          ',0.0564,  772.1, 0.0,  235.7 /
+      DATA subname( 75), dif0( 75), ar( 75), meso( 75), lebas( 75) / 'SVPAH2          ',0.0599,    4.8, 0.0,  231.5 /
+      DATA subname( 76), dif0( 76), ar( 76), meso( 76), lebas( 76) / 'SVSQT           ',0.0451,   10.3, 0.0,  346.5 /
+      DATA subname( 77), dif0( 77), ar( 77), meso( 77), lebas( 77) / 'SVTOL1          ',0.0637, 1928.3, 0.0,  153.7 /
+      DATA subname( 78), dif0( 78), ar( 78), meso( 78), lebas( 78) / 'SVTOL2          ',0.0607,  111.6, 0.0,  194.1 /
+      DATA subname( 79), dif0( 79), ar( 79), meso( 79), lebas( 79) / 'SVTRP1          ',0.0603,  160.1, 0.0,  194.9 /
+      DATA subname( 80), dif0( 80), ar( 80), meso( 80), lebas( 80) / 'SVTRP2          ',0.0559,   13.0, 0.0,  218.8 /
+      DATA subname( 81), dif0( 81), ar( 81), meso( 81), lebas( 81) / 'SVXYL1          ',0.0610, 3586.7, 0.0,  154.6 /
+      DATA subname( 82), dif0( 82), ar( 82), meso( 82), lebas( 82) / 'SVXYL2          ',0.0585,   72.2, 0.0,  194.6 /
+      DATA subname( 83), dif0( 83), ar( 83), meso( 83), lebas( 83) / 'IO              ',0.1002,    8.0, 0.0,   44.4 /
+      DATA subname( 84), dif0( 84), ar( 84), meso( 84), lebas( 84) / 'OIO             ',0.0938,    8.0, 0.0,   51.8 /
+      DATA subname( 85), dif0( 85), ar( 85), meso( 85), lebas( 85) / 'I2O2            ',0.0732,    8.0, 0.0,   88.8 /
+      DATA subname( 86), dif0( 86), ar( 86), meso( 86), lebas( 86) / 'I2O3            ',0.0707,    8.0, 0.0,   96.2 /
+      DATA subname( 87), dif0( 87), ar( 87), meso( 87), lebas( 87) / 'I2O4            ',0.0684,    8.0, 0.0,  103.6 /
+      DATA subname( 88), dif0( 88), ar( 88), meso( 88), lebas( 88) / 'HI              ',0.1045,    8.0, 0.0,   40.7 /
+      DATA subname( 89), dif0( 89), ar( 89), meso( 89), lebas( 89) / 'HOI             ',0.0972,    8.0, 0.0,   48.1 /
+      DATA subname( 90), dif0( 90), ar( 90), meso( 90), lebas( 90) / 'INO             ',0.0882,    8.0, 0.0,   60.9 /
+      DATA subname( 91), dif0( 91), ar( 91), meso( 91), lebas( 91) / 'INO2            ',0.0883,   20.0, 0.0,   69.2 /
+      DATA subname( 92), dif0( 92), ar( 92), meso( 92), lebas( 92) / 'IONO2           ',0.0792,    8.0, 0.0,   77.5 /
+      DATA subname( 93), dif0( 93), ar( 93), meso( 93), lebas( 93) / 'BRO             ',0.1144,    1.0, 0.0,   34.4 /
+      DATA subname( 94), dif0( 94), ar( 94), meso( 94), lebas( 94) / 'HOBR            ',0.1101,    1.0, 0.0,   38.1 /
+      DATA subname( 95), dif0( 95), ar( 95), meso( 95), lebas( 95) / 'HBR             ',0.1216,    2.0, 0.0,   30.7 /
+      DATA subname( 96), dif0( 96), ar( 96), meso( 96), lebas( 96) / 'BRONO2          ',0.0855,    1.0, 0.0,   67.5 /
+      DATA subname( 97), dif0( 97), ar( 97), meso( 97), lebas( 97) / 'BRNO2           ',0.0909,    1.0, 0.0,   59.2 /
+      DATA subname( 98), dif0( 98), ar( 98), meso( 98), lebas( 98) / 'BRCL            ',0.0966,    1.0, 0.0,   51.6 /
+      DATA subname( 99), dif0( 99), ar( 99), meso( 99), lebas( 99) / 'DMS             ',0.0926,    2.0, 0.0,   77.4 /
+      DATA subname(100), dif0(100), ar(100), meso(100), lebas(100) / 'MSA             ',0.0896,    2.0, 0.0,   77.4 /
+      DATA subname(101), dif0(101), ar(101), meso(101), lebas(101) / 'METHANE         ',0.2107,    2.0, 0.0,   29.6 / ! dif0, equation 9-22. Scwarzenbach et. (1993) Env. Org. Chem.
+      DATA subname(102), dif0(102), ar(102), meso(102), lebas(102) / 'ACRYACID        ',0.0908,    2.0, 0.0,   63.2 / 
+      DATA subname(103), dif0(103), ar(103), meso(103), lebas(103) / 'CARBSULFIDE     ',0.1240,    5.0, 0.0,   51.5 / 
+      DATA subname(104), dif0(104), ar(104), meso(104), lebas(104) / 'ACETONITRILE    ',0.1280,    5.0, 0.0,   52.3 / 
+      DATA subname(105), dif0(105), ar(105), meso(105), lebas(105) / '6_NITRO_O_CRESOL',0.0664,   16.0, 0.0,  155.0 / ! dif0, equation 9-22. Scwarzenbach et. (1993) Env. Org. Chem.
+      DATA subname(106), dif0(106), ar(106), meso(106), lebas(106) / 'GENERIC_ALDEHYDE',0.0646,   10.0, 0.0,   56.0 / ! PCVOC
+      DATA subname(107), dif0(107), ar(107), meso(107), lebas(107) / 'NTR_OH          ',0.0722,   16.0, 0.1,  140.4 / ! INTR
+      DATA subname(108), dif0(108), ar(108), meso(108), lebas(108) / 'METHYLHYDROPEROX',0.0853,   10.0, 0.3,   49.0 / ! ISPX diffusion should be ~ 0.0710 according to Wolfe and thornton 2011 ACP
+      DATA subname(109), dif0(109), ar(109), meso(109), lebas(109) / 'METHYLHYDROPEROX',0.1371,   10.0, 0.3,   49.0 / ! ROOH diffusion should be ~ 0.0710 according to Wolfe and thornton 2011 ACP
+      DATA subname(110), dif0(110), ar(110), meso(110), lebas(110) / 'ADIPIC_ACID     ',0.0646,90000.0, 0.0,   63.0 / ! LV_PCSOG
+      DATA subname(111), dif0(111), ar(111), meso(111), lebas(111) / 'ADIPIC_ACID     ',0.0456,13818.0, 0.0,   63.0 / ! VIVPO1
+      DATA subname(112), dif0(112), ar(112), meso(112), lebas(112) / 'ADIPIC_ACID     ',0.0766, 1830.5, 0.0,   63.0 / ! VLVOO1
+      DATA subname(113), dif0(113), ar(113), meso(113), lebas(113) / 'ADIPIC_ACID     ',0.0766,  241.0, 0.0,   63.0 / ! VLVOO2
+      DATA subname(114), dif0(114), ar(114), meso(114), lebas(114) / 'ADIPIC_ACID     ',0.0533,   31.8, 0.0,   63.0 / ! VLVPO1
+      DATA subname(115), dif0(115), ar(115), meso(115), lebas(115) / 'ADIPIC_ACID     ',0.0771,    4.2, 0.0,   63.0 / ! VSVOO1
+      DATA subname(116), dif0(116), ar(116), meso(116), lebas(116) / 'ADIPIC_ACID     ',0.0771,71624.8, 0.0,   63.0 / ! VSVOO2
+      DATA subname(117), dif0(117), ar(117), meso(117), lebas(117) / 'ADIPIC_ACID     ',0.0775, 9042.0, 0.0,   63.0 / ! VSVOO3
+      DATA subname(118), dif0(118), ar(118), meso(118), lebas(118) / 'ADIPIC_ACID     ',0.0511, 1133.9, 0.0,   63.0 / ! VSVPO1
+      DATA subname(119), dif0(119), ar(119), meso(119), lebas(119) / 'ADIPIC_ACID     ',0.0493,   18.1, 0.0,   63.0 / ! VSVPO2
+      DATA subname(120), dif0(120), ar(120), meso(120), lebas(120) / 'ADIPIC_ACID     ',0.0474,    2.3, 0.0,   63.0 / ! VSVPO3
+      DATA subname(121), dif0(121), ar(121), meso(121), lebas(121) / 'FORMIC_ACID     ',0.1411,   20.0, 0.0,   63.0 / ! FACD
+      DATA subname(122), dif0(122), ar(122), meso(122), lebas(122) / 'MEK             ',0.0859,    1.0, 0.0,  108.2 / ! KET different in differnt mechanisms
+      DATA subname(123), dif0(123), ar(123), meso(123), lebas(123) / 'ETHENE          ',0.1366,    1.0, 0.0,   58.1 / ! ETH
+      DATA subname(124), dif0(124), ar(124), meso(124), lebas(124) / 'HNO4            ',0.1233,    1.0, 0.0,   45.2 / ! PNA
+      DATA subname(125), dif0(125), ar(125), meso(125), lebas(125) / 'GLYOXAL         ',0.1188,    1.0, 0.0,   56.2 / ! GLY
+      DATA subname(126), dif0(126), ar(126), meso(126), lebas(126) / 'GLYOXAL         ',0.1181,    1.0, 0.0,   56.4 / ! GLYD
+      DATA subname(127), dif0(127), ar(127), meso(127), lebas(127) / 'METHYL_GLYOXAL  ',0.1038,    1.0, 0.0,   72.5 / ! MGLY
+      DATA subname(128), dif0(128), ar(128), meso(128), lebas(128) / 'ETHANE          ',0.1312,    1.0, 0.0,   61.5 / ! ETHA
+      DATA subname(129), dif0(129), ar(129), meso(129), lebas(129) / 'ETHANOL         ',0.1213,    1.0, 0.0,   59.1 / ! ETOH
+      DATA subname(130), dif0(130), ar(130), meso(130), lebas(130) / 'ETHANE          ',0.0870,    1.0, 0.0,  111.1 / ! PAR as Pentane
+      DATA subname(131), dif0(131), ar(131), meso(131), lebas(131) / 'ACETONE         ',0.1057,    1.0, 0.0,   75.2 / ! ACET
+      DATA subname(132), dif0(132), ar(132), meso(132), lebas(132) / 'PROPANE         ',0.1095,    1.0, 0.0,   78.1 / ! PRPA
+      DATA subname(133), dif0(133), ar(133), meso(133), lebas(133) / 'ACETYLENE       ',0.1523,    1.0, 0.0,   45.8 / ! ETHY
+      DATA subname(134), dif0(134), ar(134), meso(134), lebas(134) / 'ETHENE          ',0.1135,    1.0, 0.0,   73.1 / ! OLE as Propene
+      DATA subname(135), dif0(135), ar(135), meso(135), lebas(135) / 'ETHENE          ',0.0990,    1.0, 0.0,   89.5 / ! IOLE as Isobutene
+      DATA subname(136), dif0(136), ar(136), meso(136), lebas(136) / 'MEK             ',0.0852,    1.0, 0.0,  101.2 / ! IEPOX different scavenging H in CB05 and CB06
+      DATA subname(137), dif0(137), ar(137), meso(137), lebas(137) / 'BENZENE         ',0.0942,    1.0, 0.0,   89.4 / ! BENZENE
+      DATA subname(138), dif0(138), ar(138), meso(138), lebas(138) / '2-CRESOL        ',0.0850,    1.0, 0.0,  108.1 / ! CRES
+      DATA subname(139), dif0(139), ar(139), meso(139), lebas(139) / 'TOLUENE         ',0.0860,    1.0, 0.0,  105.7 / ! TOL
+      DATA subname(140), dif0(140), ar(140), meso(140), lebas(140) / 'O-XYLENE        ',0.0796,    1.0, 0.0,  122.0 / ! XYLMN
+      DATA subname(141), dif0(141), ar(141), meso(141), lebas(141) / 'O-XYLENE        ',0.0777,    1.0, 0.0,  123.5 / ! NAPH
+      DATA subname(142), dif0(142), ar(142), meso(142), lebas(142) / 'PHENOL          ',0.0844,    1.0, 0.0,  102.6 / ! CAT1
+      DATA subname(143), dif0(143), ar(143), meso(143), lebas(143) / 'PINENE          ',0.0545,    1.0, 0.0,  251.5 / ! SESQ
+      DATA subname(144), dif0(144), ar(144), meso(144), lebas(144) / 'PINENE          ',0.0700,    1.0, 0.0,  136.2 / ! TERP
+      DATA subname(145), dif0(145), ar(145), meso(145), lebas(145) / 'ISOPRENE        ',0.0913,    1.0, 0.0,  136.2 / ! ISOP
+      DATA subname(146), dif0(146), ar(146), meso(146), lebas(146) / 'METHACROLEIN    ',0.1033,    1.0, 0.0,   69.6 / ! OPEN C4H4O2
+      DATA subname(147), dif0(147), ar(147), meso(147), lebas(147) / 'MEK             ',0.0950,    1.0, 0.0,   81.7 / ! XOPN C5H6O2
+      DATA subname(148), dif0(148), ar(148), meso(148), lebas(148) / 'DECANE          ',0.0739,    1.0, 0.0,  142.8 / ! SOAALK as Propylcyclopentane
+      DATA subname(149), dif0(149), ar(149), meso(149), lebas(149) / '13-BUTADIENE    ',0.1019,    1.0, 0.0,   84.8 / ! BUTADIENE13
+      DATA subname(150), dif0(150), ar(150), meso(150), lebas(150) / 'ACROLEIN        ',0.1092,    1.0, 0.0,   70.5 /
+      DATA subname(151), dif0(151), ar(151), meso(151), lebas(151) / 'SVMT1           ',0.0424,   20.0,      0.0, 355.2/ ! see Xu et al., 2018 ACPD: doi:10.5194/acp-2017-1109
+      DATA subname(152), dif0(152), ar(152), meso(152), lebas(152) / 'SVMT2           ',0.0556,   20.0,      0.0, 236.8/
+      DATA subname(153), dif0(153), ar(153), meso(153), lebas(153) / 'SVMT3           ',0.0583,   20.0,      0.0, 214.6/
+      DATA subname(154), dif0(154), ar(154), meso(154), lebas(154) / 'SVMT4           ',0.0587,   20.0,      0.0, 229.4/
+      DATA subname(155), dif0(155), ar(155), meso(155), lebas(155) / 'SVMT5           ',0.0619,   20.0,      0.0, 207.2/
+      DATA subname(156), dif0(156), ar(156), meso(156), lebas(156) / 'SVMT6           ',0.0624,   20.0,      0.0, 222.0/
+      DATA subname(157), dif0(157), ar(157), meso(157), lebas(157) / 'SVMT7           ',0.0661,   20.0,      0.0, 199.8/
 
       CONTAINS
 
 C=======================================================================
-         Subroutine INIT_MET ( JDATE, JTIME, MOSAIC, ABFLUX, HGBIDI )
+         Subroutine INIT_MET ( JDATE, JTIME, ABFLUX )
 
 C-----------------------------------------------------------------------
 C   30 Mar 01 J.Young: dyn alloc - Use HGRD_DEFN; replace INTERP3 with INTERPX;
@@ -416,9 +427,7 @@ C-----------------------------------------------------------------------
 
 C Arguments:
          Integer, Intent( IN ) :: JDATE, JTIME      ! internal simulation date&time
-         Logical, Intent( IN ) :: MOSAIC
          Logical, Intent( IN ) :: ABFLUX
-         Logical, Intent( IN ) :: HGBIDI
 
 C File variables:
          Real, Pointer    :: MSFX2   ( :,: )
@@ -536,9 +545,8 @@ C-----------------------------------------------------------------------
          Grid_Data%NAME    = name_lu
          Grid_Data%LU_Type = cat_lu
 
-         If ( ABFLUX .Or. HGBIDI .Or. MOSAIC ) Then
+         If ( ABFLUX  ) Then
             ALLOCATE( Met_Data%SOIM2    ( NCOLS,NROWS ),
-     &                Met_Data%SOIT2    ( NCOLS,NROWS ),
      &                STAT = ALLOCSTAT )
             If ( ALLOCSTAT .Ne. 0 ) Then
                XMSG = 'Failure allocating mosaic met vars'
@@ -561,65 +569,6 @@ C-----------------------------------------------------------------------
             Grid_Data%WFC     = 0.0
             Grid_Data%WRES    = 0.0
             Grid_Data%BSLP    = 0.0
-
-            ALLOCATE( Mosaic_Data%USTAR   ( NCOLS,NROWS,n_lufrac ),
-     &                Mosaic_Data%LAI     ( NCOLS,NROWS,n_lufrac ),
-     &                Mosaic_Data%DELTA   ( NCOLS,NROWS,n_lufrac ),
-     &                Mosaic_Data%VEG     ( NCOLS,NROWS,n_lufrac ),
-     &                Mosaic_Data%Z0      ( NCOLS,NROWS,n_lufrac ),
-     &                Mosaic_Data%RA      ( NCOLS,NROWS,n_lufrac ),
-     &                Mosaic_Data%RSTW    ( NCOLS,NROWS,n_lufrac ),
-     &                Mosaic_Data%RINC    ( NCOLS,NROWS,n_lufrac ),
-     &                Mosaic_Data%NAME    ( n_lufrac ),
-     &                Mosaic_Data%LU_Type ( n_lufrac ),
-     &                STAT = ALLOCSTAT )
-            If ( ALLOCSTAT .Ne. 0 ) Then
-               XMSG = 'Failure allocating mosaic vars'
-               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            End If
-            Mosaic_Data%USTAR   = 0.0
-            Mosaic_Data%LAI     = 0.0
-            Mosaic_Data%DELTA   = 0.0
-            Mosaic_Data%VEG     = 0.0
-            Mosaic_Data%Z0      = 0.000001
-            Mosaic_Data%RSTW    = 0.0
-            Mosaic_Data%RINC    = 0.0
-            Mosaic_Data%NAME    = name_lu
-            Mosaic_Data%LU_Type = cat_lu
-
-            ALLOCATE( ChemMos_Data%Rb      ( NCOLS,NROWS,n_lufrac,ltotg ),
-     &                ChemMos_Data%Rst     ( NCOLS,NROWS,n_lufrac,ltotg ),
-     &                ChemMos_Data%Rcut    ( NCOLS,NROWS,n_lufrac,ltotg ),
-     &                ChemMos_Data%Rgc     ( NCOLS,NROWS,n_lufrac,ltotg ),
-     &                ChemMos_Data%Rgb     ( NCOLS,NROWS,n_lufrac,ltotg ),
-     &                ChemMos_Data%Rwat    ( NCOLS,NROWS,n_lufrac,ltotg ),
-     &                ChemMos_Data%CZ0     ( NCOLS,NROWS,n_lufrac,ltotg ),
-     &                ChemMos_Data%Cleaf   ( NCOLS,NROWS,n_lufrac,ltotg ),
-     &                ChemMos_Data%Cstom   ( NCOLS,NROWS,n_lufrac,ltotg ),
-     &                ChemMos_Data%Ccut    ( NCOLS,NROWS,n_lufrac,ltotg ),
-     &                ChemMos_Data%Csoil   ( NCOLS,NROWS,n_lufrac,ltotg ),
-     &                ChemMos_Data%NAME    ( n_lufrac ),
-     &                ChemMos_Data%LU_Type ( n_lufrac ),
-     &                ChemMos_Data%Subname ( n_lufrac ),
-     &                STAT = ALLOCSTAT )
-            If ( ALLOCSTAT .Ne. 0 ) Then
-               XMSG = 'Failure allocating chemistry dependent mosaic vars'
-               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            End If
-            ChemMos_Data%Rb    = resist_max
-            ChemMos_Data%Rst   = resist_max
-            ChemMos_Data%Rcut  = resist_max
-            ChemMos_Data%Rgc   = resist_max
-            ChemMos_Data%Rgb   = resist_max
-            ChemMos_Data%Rwat  = resist_max
-            ChemMos_Data%CZ0   = 0.0
-            ChemMos_Data%Cleaf = 0.0
-            ChemMos_Data%Cstom = 0.0
-            ChemMos_Data%Ccut  = 0.0
-            ChemMos_Data%Csoil = 0.0
-            ChemMos_Data%NAME    = name_lu
-            ChemMos_Data%LU_Type = cat_lu
-            ChemMos_Data%SubName = subname
          End If
 
 !> ccccccccccccccccccccc enable backward compatiblity ccccccccccccccccccccc
@@ -812,7 +761,7 @@ C-----------------------------------------------------------------------
          Grid_Data%SLTYP = NINT( SOILCAT )
          Nullify( SOILCAT )
 
-         If ( ABFLUX .Or. MOSAIC ) Then
+         If ( ABFLUX ) Then
             Do l = 1, n_lufrac
                Write( vname,'( "LUFRAC_",I2.2 )' ) l
                If ( .Not. INTERPX( GRID_CRO_2D, VNAME, PNAME,
@@ -862,7 +811,7 @@ C-----------------------------------------------------------------------
          End Subroutine INIT_MET
 
 C=======================================================================
-         Subroutine GET_MET ( JDATE, JTIME, TSTEP, MOSAIC, ABFLUX, HGBIDI )
+         Subroutine GET_MET ( JDATE, JTIME, TSTEP, ABFLUX )
 
 C-----------------------------------------------------------------------
 C   30 Mar 01 J.Young: dyn alloc - Use HGRD_DEFN; replace INTERP3 with INTERPX;
@@ -892,9 +841,7 @@ C-----------------------------------------------------------------------
 C Arguments:
 
          Integer, Intent( IN ) :: JDATE, JTIME, TSTEP      ! internal simulation date&time
-         Logical, Intent( IN ) :: MOSAIC
          Logical, Intent( IN ) :: ABFLUX
-         Logical, Intent( IN ) :: HGBIDI
 
 C Parameters:
          Real, Parameter :: cond_min = 1.0 / resist_max ! minimum conductance [m/s]
@@ -1046,7 +993,7 @@ C Soil vars
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End If
 
-         If ( ABFLUX .Or. HGBIDI .Or. MOSAIC ) Then
+         If ( ABFLUX ) Then
             VNAME = 'SOIM2'
             If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
      &                          STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
@@ -1055,13 +1002,13 @@ C Soil vars
                Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             End If
 
-            VNAME = 'SOIT2'
-            If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
-     &                          STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
-     &                          JDATE, JTIME, Met_Data%SOIT2 ) ) Then
-               XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_2D
-               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            End If
+!            VNAME = 'SOIT2'
+!            If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
+!     &                          STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+!     &                          JDATE, JTIME, Met_Data%SOIT2 ) ) Then
+!               XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_2D
+!               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+!            End If
          End If
 
          VNAME = 'SOIT1'
@@ -1401,7 +1348,7 @@ C------
          End Where
 
 !        Calculate the cosine of the zenith angle 
-         CALL CZANGLE(JDATE, JTIME, MY_NCOLS, MY_NROWS)
+         CALL CZANGLE( JDATE, JTIME, MY_NCOLS, MY_NROWS )
 
          Return
          End Subroutine GET_MET
