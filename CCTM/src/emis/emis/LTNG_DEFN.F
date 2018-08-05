@@ -54,25 +54,21 @@
       USE RUNTIME_VARS
 
       IMPLICIT NONE
-      PRIVATE
-      PUBLIC :: LTNG_MAP, VDEMIS_LT, LTNG_INIT, GET_LTNG, LTSPC
 
       INTEGER,              SAVE :: LTNG_MAP         ! map to GC NO
       REAL,    ALLOCATABLE, SAVE :: VDEMIS_LT( :,:,: )   ! lightning emis
 
-      PRIVATE
-
 !C lightning emis species name
       CHARACTER( 16 ), PARAMETER :: LTSPC = 'NO'
+      
+      PUBLIC :: LTNG_MAP, VDEMIS_LT, LTNG_INIT, GET_LTNG, LTSPC
+      PRIVATE
 
 !C lightning log linear regression parameters with RC 
       REAL                       :: SQUAREKM
       REAL,                 SAVE :: SCL_FACTOR
-      REAL,                 SAVE :: MOLSNCG    ! moles N emitted per cloud to ground strike
-      REAL,                 SAVE :: MOLSNIC    ! moles N emitted per intercloud strike
 
       LOGICAL,              SAVE :: NLDN_FILE  ! flag to use NLDN strike file directly 
-      LOGICAL,              SAVE :: LTNGDIAG   ! flag to turn on lightning NO diagnostics
       INTEGER,              SAVE :: LTLYRS     ! no. of emissions layers
       REAL,    ALLOCATABLE, SAVE :: VDEMIS_DIAG( :,:,: ) ! lightning NO diagnostic
       REAL,    ALLOCATABLE, SAVE :: COLUMN_DIAG( :,: ) ! column total NO

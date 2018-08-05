@@ -619,8 +619,6 @@ C open vext file for update
          END IF   ! firstime
          WRITE(LOGDEV, *) 'WR_VEXT:NVARS', NVARS
 
-         CALL INIT_MET ( JDATE, JTIME )
-         
          DO V = 1, NVARS
 
             IF ( .NOT. PWRVEC(CTM_VEXT_1, VNAME(V), JDATE, JTIME,

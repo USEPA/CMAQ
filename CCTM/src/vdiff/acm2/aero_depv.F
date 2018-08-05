@@ -156,7 +156,6 @@ C Meteorological variables
       REAL M2_WET, M2_DRY
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
-      INTEGER, SAVE :: LOGDEV                   ! unit number for the log file
       CHARACTER( 16 ), SAVE :: PNAME = 'AERO_DEPV'
       CHARACTER( 16 ) :: VNAME            ! varable name
       CHARACTER( 96 ) :: XMSG = ' '
@@ -184,7 +183,6 @@ C-----------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
-         LOGDEV = INIT3()
 
          NCELLS = NCOLS * NROWS
 

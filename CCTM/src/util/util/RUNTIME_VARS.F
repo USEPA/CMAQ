@@ -841,7 +841,7 @@
 
       ! Get Lightning Input Time Interval
       VARDESC = 'Time Interval for Lightning Emissions'
-      LT_ASM_DT = GET_ENVYN( 'LTNG_ASSIM_DT', VARDESC, LT_ASM_DT ) 
+      LT_ASM_DT = GET_ENVINT( 'LTNG_ASSIM_DT', VARDESC, LT_ASM_DT ) 
 
       ! Get Lightning NO File Name
       VARDESC = 'lightning NO file name or InLine flag'
