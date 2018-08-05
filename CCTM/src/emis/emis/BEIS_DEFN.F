@@ -36,6 +36,7 @@ C-----------------------------------------------------------------------
       INTEGER,              SAVE :: N_SPC_BIOG ! biogenics emissions species
       REAL,    ALLOCATABLE, SAVE :: VDEMIS_BI( :,:,: ) ! beis emis
       INTEGER, ALLOCATABLE, SAVE :: BEIS_MAP( : ) ! map to GC
+      CHARACTER( 16 ),      SAVE :: CTM_BIOGEMIS = 'CTM_BIOGEMIS'! env var for
 
       CONTAINS
 
@@ -71,18 +72,8 @@ C-----------------------------------------------------------------------
 
          N_SPC = N_GC_EMIS + N_NR_EMIS + N_TR_EMIS
 
-!        N_SPC_BIOG = MSPCS
-
 C In-line biogenic emissions?
          CALL LOG_SUBHEADING( LOGDEV, 'Initialize Online Biogenic VOC Emissions Module (BEIS)' )
-
-         IF ( BIOGEMIS ) THEN
-
-            IF ( .NOT. BIOG_INIT() ) THEN
-               XMSG = 'Could not initialize biogenic emissions variables'
-               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-               SUCCESS = .FALSE.; RETURN
-            END IF
 
 C biogenics to gas-phase species map
             ALLOCATE( BEIS_MAP( MSPCS ), STAT = STATUS )
@@ -128,6 +119,9 @@ C biogenics to gas-phase species map
 #endif
 
             ALLOCATE( VDEMIS_BI( N_SPC_BIOG,MY_NCOLS,MY_NROWS ), STAT = STATUS )
+=======
+            ALLOCATE( VDEMIS_BI( MSPCS,MY_NCOLS,MY_NROWS ), STAT = STATUS )
+>>>>>>> EmissProc5
             IF ( STATUS .NE. 0 ) THEN
               XMSG = 'VDEMIS_BI memory allocation failed'
                CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
@@ -144,22 +138,39 @@ C=======================================================================
 
          SUBROUTINE GET_BEIS ( JDATE, JTIME, TSTEP )
 
+         USE EMIS_VARS, ONLY : N_EMIS_ISTR, IBIOSRM,
+     &                         MAP_EMtoSURR, MAP_EMtoDIFF
+         USE BIOG_EMIS, ONLY : MSPCS
+             
          IMPLICIT NONE
 
-         INTEGER JDATE, JTIME, TSTEP( 3 )
+         INTEGER JDATE, JTIME, TSTEP( 3 ), ISTR
+         LOGICAL, SAVE :: FIRST_TIME = .TRUE.
 
          INTERFACE
-            SUBROUTINE TMPBEIS312 ( MDATE, MTIME, TSTEP, N_SPC_BIOG, BEIS_MAP, BEMIS )
+            SUBROUTINE TMPBEIS312 ( MDATE, MTIME, TSTEP, BEIS_MAP, VDEMIS_BI )
                INTEGER, INTENT(  IN ) :: MDATE, MTIME, TSTEP( 3 )
-               INTEGER, INTENT(  IN ) :: N_SPC_BIOG
                INTEGER, INTENT(  IN ) :: BEIS_MAP( : )
-               REAL,    INTENT( OUT ) :: BEMIS( :,:,: )
+               REAL,    INTENT( OUT ) :: VDEMIS_BI( :,:,: )
             END SUBROUTINE TMPBEIS312
          END INTERFACE
 
 C-----------------------------------------------------------------------
 
-         CALL TMPBEIS312( JDATE, JTIME, TSTEP, N_SPC_BIOG, BEIS_MAP, VDEMIS_BI )
+         IF ( FIRST_TIME ) THEN
+             ! Map out BEIS_MAP using MAP_EMtoSURR Array
+             ALLOCATE( BEIS_MAP( MSPCS ) )
+             BEIS_MAP = 0
+             DO ISTR = 1,N_EMIS_ISTR
+                 IF ( MAP_EMtoSURR( ISTR,IBIOSRM ) .GT. 0 ) 
+     &              BEIS_MAP( MAP_EMtoSURR( ISTR,IBIOSRM ) ) = 
+     &                     MAP_EMtoDIFF( ISTR )
+             END DO
+
+             FIRST_TIME = .FALSE.
+         END IF    
+
+         CALL TMPBEIS312( JDATE, JTIME, TSTEP, BEIS_MAP, VDEMIS_BI )
 
          RETURN
 

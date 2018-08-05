@@ -52,10 +52,10 @@
 !C                       with/without data passing (lightning assimilation and NO emissions)
 !C----------------------------------------------------------------------
       USE RUNTIME_VARS
+      USE EMIS_VARS
 
       IMPLICIT NONE
 
-      INTEGER,              SAVE :: LTNG_MAP         ! map to GC NO
       REAL,    ALLOCATABLE, SAVE :: VDEMIS_LT( :,:,: )   ! lightning emis
 
 !C lightning emis species name
@@ -95,6 +95,8 @@
       REAL,    ALLOCATABLE, SAVE :: ICCG           ( :,: ) ! intercloud strikes per cloud to ground strike
 !C Vertical coord values
       REAL,    ALLOCATABLE, SAVE :: VGLVSLT        ( : )
+!C Buffer for Reading Emissions
+      REAL,    ALLOCATABLE, SAVE :: BUFF           ( :,:,: )
 
 !C    scenario time/date needed for diagnostic output
       INTEGER,              SAVE :: NTICS = 0 ! no. of substeps within an output tstep
@@ -134,8 +136,9 @@
          LOGICAL SUCCESS
 
 !C External Functions:
-         LOGICAL, EXTERNAL :: CHKGRID
-         INTEGER :: COL, ROW     ! local col and row variable 
+         INTEGER,     EXTERNAL :: SETUP_LOGDEV
+         LOGICAL,     EXTERNAL :: CHKGRID
+
 !C value to start log linear regression  
          CHARACTER( 16 )       :: PNAME = 'LTNG_INIT'
          CHARACTER( 80 )       :: VARDESC   ! env variable description
@@ -145,7 +148,6 @@
 
          LOGICAL LTNGPARAM           ! env var to use lightning NO parameters file
          INTEGER LSPCS               ! no. of lightning species
-         REAL    CONVEM              ! conversion for emissions rates to Kg/s
          INTEGER               :: I, J, K, L, V, STATUS
          INTEGER               :: NSTEPS
          INTEGER               :: CJDATE
@@ -163,6 +165,22 @@
 !C Lightning NO production
          IF ( .NOT. LTNG_NO ) RETURN
 
+!C Populate Emissions Species Record
+         EM_FILE_SURR( ILTSRM )%LEN = 1
+         ALLOCATE( EM_FILE_SURR( ILTSRM )%ARRY ( 1 ) )
+         ALLOCATE( EM_FILE_SURR( ILTSRM )%CMAQ ( 1 ) )
+         ALLOCATE( EM_FILE_SURR( ILTSRM )%UNITS( 1 ) )
+         ALLOCATE( EM_FILE_SURR( ILTSRM )%PHASE( 1 ) )
+         ALLOCATE( EM_FILE_SURR( ILTSRM )%MW   ( 1 ) )
+         ALLOCATE( EM_FILE_SURR( ILTSRM )%USED ( 1 ) )
+         
+         EM_FILE_SURR( ILTSRM )%ARRY  = "NO"
+         EM_FILE_SURR( ILTSRM )%CMAQ  = "NO"
+         EM_FILE_SURR( ILTSRM )%UNITS = 'MOLES/S'
+         EM_FILE_SURR( ILTSRM )%PHASE = 'GAS'
+         EM_FILE_SURR( ILTSRM )%MW    = 0.0
+         EM_FILE_SURR( ILTSRM )%USED  = .FALSE.
+ 
 !C Read in scenario time/date
          NSTEPS = RUNLEN / TSTEP           ! initscen guarantees divisibility
 
@@ -435,21 +453,21 @@
 
          LTLYRS = EMLAYS
 
-!C Lightning to gas-phase species map
-
-         LTNG_MAP = INDEX1( LTSPC, N_GC_EMIS, GC_EMIS )
-         IF ( LTNG_MAP .EQ. 0 ) THEN
-            XMSG = TRIM( LTSPC ) // ' not found in GC_EMIS table'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
-         ALLOCATE( VDEMIS_LT( NCOLS,NROWS,LTLYRS ), STAT = STATUS )
+!C Build Emissions Buffer
+         ALLOCATE( VDEMIS_LT( LTLYRS,NCOLS,NROWS ), STAT = STATUS )
          IF ( STATUS .NE. 0 ) THEN
             XMSG = 'VDEMIS_LT memory allocation failed'
             CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
             SUCCESS = .FALSE.; RETURN
          END IF
-
+ 
+         ALLOCATE( BUFF( NCOLS,NROWS,LTLYRS ), STAT = STATUS )
+         IF ( STATUS .NE. 0 ) THEN
+            XMSG = 'BUFF memory allocation failed'
+            CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+            SUCCESS = .FALSE.; RETURN
+         END IF
+ 
          RETURN
 
          END FUNCTION LTNG_INIT
@@ -716,7 +734,7 @@ C statement function for ERF approximation
 
                   DO LAY = 1, LTLYRS
 !C Re-normalize, in some cases area under the error function is not 1
-                     VDEMIS_LT( COL,ROW,LAY ) = LTEMIS( LAY ) / SUM_FRAC
+                     VDEMIS_LT( LAY,COL,ROW ) = LTEMIS( LAY ) / SUM_FRAC
                   END DO        ! layers renormalized
 
                END DO   ! columns
@@ -735,8 +753,15 @@ C statement function for ERF approximation
             END IF
 
 !C Write lightning NO to the diagnostic file
-            IF ( LTNGDIAG ) THEN
-               VDEMIS_DIAG = VDEMIS_DIAG + VDEMIS_LT   ! array assignment
+            IF ( LTNGDIAG ) THEN 
+               DO LAY = 1,LTLYRS
+               DO ROW = 1, MY_NROWS
+               DO COL = 1, MY_NCOLS
+                  VDEMIS_DIAG( COL,ROW,LAY ) = VDEMIS_DIAG( COL,ROW,LAY ) 
+     &                   + VDEMIS_LT( LAY,COL,ROW )   ! array assignment
+               END DO
+               END DO
+               END DO
                COLUMN_DIAG = COLUMN_DIAG + COLUMN_LTNG_NO
                IF ( LASTTIC ) THEN   ! time to write out
                   DIVFAC = 1.0 / REAL( MTICS, 4 )
@@ -769,14 +794,19 @@ C statement function for ERF approximation
 
 !C Read in lightning NO production from an input file
             VDEMIS_LT = 0.0   ! array assignment
+            BUFF = 0.0
 
             IF ( .NOT. INTERPX( LTNG_FNAME, LTSPC, PNAME,
      &                          STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,LTLYRS,
-     &                          JDATE, JTIME, VDEMIS_LT ) ) THEN
+     &                          JDATE, JTIME, BUFF ) ) THEN
                XMSG = 'Could not read NO' //
      &                ' from file "' // TRIM( LTNG_FNAME ) // '"'
                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
             END IF
+
+            DO LAY = 1,LTLYRS
+               VDEMIS_LT( LAY,:,: ) = BUFF( :,:,LAY )
+            END DO
 
          END IF  ! end lightning NO production inline or from a file
 

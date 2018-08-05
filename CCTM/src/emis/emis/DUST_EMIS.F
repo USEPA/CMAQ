@@ -66,15 +66,11 @@ C  2 Feb 16 J.Young: move dust aero speciation table to AERO_DATA
 C-----------------------------------------------------------------------
       use lus_defn
       use aero_data
+      use emis_vars
 
       implicit none 
 
-C windblown dust emissions rates
-      real, allocatable, save :: dustoutm( :,:,:,: )  ! mass emission rates [g/m**3/s]
-      real, allocatable, save :: dustoutn( :,:,: )    ! number emission rates [1/m**3/s]
-      real, allocatable, save :: dustouts( :,:,: )    ! surface-area emisrates [m2/m**3/s]
-
-      public ndust_spc, dustoutm, dustoutn, dustouts, dust_spc,
+      public ndust_spc, dust_spc,
      &       dust_emis_init, get_dust_emis
       private
 
@@ -107,7 +103,6 @@ C of Binkowski & Roselle (2003)
       real, save :: factsrfj ! = pi * factm2j
       real, save :: factsrfk ! = pi * factm2k
 
-      real, save :: dustmode_dens( n_mode ) ! average modal density [kg/m**3]
       real       :: sumsplit, sumfrac
       integer    :: n, idx
 
@@ -204,18 +199,20 @@ C Local variables:
          character( 16 ) :: pname = 'DUST_EMIS_INIT'
          character( 16 ) :: vname
          character( 80 ) :: vardesc
-         character( 120 ) :: xmsg = ' '
+         character( 250 ) :: xmsg = ' '
          character( 16 ) :: modis_fpar_1 = 'MODIS_FPAR'
                             ! Fraction of Absorbed Photosynthetically Active Radiation
 
          integer status
-         integer c, r, i, j, k, l, n
-         integer idiag
+         integer c, r, i, j, k, l, n, im
+         integer idiag, idust, spc
          integer n_mass_emissions
 
          integer  gxoff, gyoff                 ! global origin offset from file
          integer, save :: strtcol, endcol, strtrow, endrow
          integer  jdatemod
+
+         character( 16 ) :: sn
 
          type( diag_type ), allocatable :: diagnm_swap( : )
 
@@ -236,7 +233,51 @@ C-----------------------------------------------------------------------
 
          CALL LOG_MESSAGE( LOGDEV, 'Initialize Wind-Blown Dust Emissions' )
 
-         allocate ( dustoutm( ndust_spc,n_mode,ncols,nrows ),
+C...Determine maps for dust speciation
+         allocate( map_DustToAero( ndust_spc ) )
+         map_DustToAero = 0
+
+         Do idust = 1, ndust_spc ! loop through dust list
+            ! Map to aerosol chemical species table 
+            ! This is just for retrieving the aerosol density later
+            Do spc = 1, n_aerospc 
+               Do im = 1,n_mode
+                  sn = trim( dust_spc( idust )%name ) // modesuff( im ) 
+                  If ( sn .Eq. aerospc( spc )%name( im ) .or.
+     &                 dust_spc( idust )%name .Eq. aerospc( spc )%name( 3 ) )
+     &                 map_DUSTtoAERO( idust ) = spc
+               End Do
+            End Do
+
+         End Do
+
+C...Populate Master Emissions Map Vector So That Diagnostics 
+C   can be printed in EMIS_MAP
+         Em_File_Surr( IDUSTSRM )%len = ndust_spc
+         Allocate( Em_File_Surr( IDUSTSRM )%arry( ndust_spc ) )
+         Allocate( Em_File_Surr( IDUSTSRM )%cmaq ( ndust_spc ) )
+         Allocate( Em_File_Surr( IDUSTSRM )%units( ndust_spc ) )
+         Allocate( Em_File_Surr( IDUSTSRM )%phase( ndust_spc ) )
+         Allocate( Em_File_Surr( IDUSTSRM )%mw   ( ndust_spc ) )
+         Allocate( Em_File_Surr( IDUSTSRM )%used ( ndust_spc ) )
+         do i = 1,ndust_spc
+            Em_File_Surr( IDUSTSRM )%arry( i )  = dust_spc(i)%name
+            Em_File_Surr( IDUSTSRM )%cmaq( i )  = dust_spc(i)%name
+            Em_File_Surr( IDUSTSRM )%units( i ) = 'G/S'
+            Em_File_Surr( IDUSTSRM )%phase( i ) = 'AERO'
+            Em_File_Surr( IDUSTSRM )%mw   ( i ) = 0.
+            Em_File_Surr( IDUSTSRM )%used ( i ) = .FALSE.
+         end do
+ 
+C...Count the number of mass emissions species
+        n_mass_emissions = 0
+        do i = 1, ndust_spc
+           do j = 1, n_mode
+              if( dust_spc( i )%spcfac( j )  .gt. 0. ) 
+     &               n_mass_emissions = n_mass_emissions + 1  
+           end do
+        end do                     
+        allocate ( dustoutm( ndust_spc,n_mode,ncols,nrows ),
      &              dustoutn( n_mode,ncols,nrows ),
      &              dustouts( n_mode,ncols,nrows ), stat = status )
          if ( status .ne. 0 ) then
@@ -328,15 +369,7 @@ C Set up variable diagnostic names (from LUS_DEFN)
             vdiagnm_kvh   = diag_type( ' ', ' ', ' ' )  ! array assignment
             vdiagnm_rough = diag_type( ' ', ' ', ' ' )  ! array assignment
 
-C...Count the number of mass emissions species
-            n_mass_emissions = 0
-            do i = 1, ndust_spc
-               do j = 1, n_mode
-                  if( len_trim( dust_spc( i )%name( j ) ) .lt. 1 )cycle
-                  n_mass_emissions = n_mass_emissions + 1  
-               end do
-            end do
-            
+C...Set Up Diagnostic Species Variables
             ndust_diag = fndust_diag + 5 * n_dlcat + n_mass_emissions 
 
             do i = 1, n_dlcat
@@ -423,33 +456,32 @@ C Build the complete diagnostic name array                     n for MODIS NOAH
 C...append diagnostic variables with mass emissions species
             do j = 2, n_mode
                do i = 1, ndust_spc
-                  n = len_trim( dust_spc( i )%name( j ) )
-                  if( n .lt. 1  )cycle ! assumes cmaq species names atleast one character long
-                  n = 0
-                  do k = 1, idiag   ! determine if dust emissions is already added to diagnostic output
-                     if( dust_spc( i )%name( j ) .Eq. diagnm( k )%var )Then
+                  if( dust_spc( i )%spcfac( j ) .eq. 0. .or.
+     &                map_DUSTtoAERO( i ) .eq. 0 ) cycle 
+                    n = 0
+                    do k = 1, idiag   ! determine if dust emissions is already added to diagnostic output
+                       if( trim( dust_spc( i )%name) // modesuff( j ) .Eq. diagnm( k )%var )Then
                          n = k
                          exit
                      end if
                   end do
-                  if( n .gt. 0  )then ! skip already added 
-                      cycle
-                  else 
-                      idiag = idiag + 1
-                      diagnm( idiag )%var = dust_spc( i )%name( j )
-                  end if
+                  if( n .gt. 0  ) cycle ! skip already added 
+                  
+                  idiag = idiag + 1
+                  diagnm( idiag )%var = trim( dust_spc( i )%name )//modesuff( j )
                   diagnm( idiag )%units = 'g/m**3/s'
+
                   Select Case( j ) ! assumes only two aerosol modes dust emissions
 !                    Case( 1 )
 !                       diagnm( idiag )%desc = 'aitken mode' 
-                    Case( 2 )
-                       diagnm( idiag )%desc = 'accumulation mode' 
-                    Case( 3 )
-                       diagnm( idiag )%desc = 'coarse mode' 
+                     Case( 2 )
+                        diagnm( idiag )%desc = 'accumulation mode' 
+                     Case( 3 )
+                        diagnm( idiag )%desc = 'coarse mode' 
 !                    Case Default 
 !                       diagnm( idiag )%des = 'Undefined mode ' 
-                    end Select
-                    diagnm( idiag )%desc = Trim( diagnm( idiag )%desc )
+                  end Select
+                  diagnm( idiag )%desc = Trim( diagnm( idiag )%desc )
      &                                   // ' emissions for '  
      &                                   // Trim( dust_spc( i )%description )
                end do
@@ -462,7 +494,7 @@ C...append diagnostic variables with mass emissions species
                call m3warn( pname, jdate, jtime, xmsg )
                success = .false.; return
             end if
-            diagnm_swap = diagnm
+            diagnm_swap = diagnm 
 
             deallocate( diagnm )
 
@@ -510,29 +542,12 @@ C of Binkowski & Roselle (2003)
          factsrfj = pi * factm2j
          factsrfk = pi * factm2k
 
-C Calculate modal average dust particle densities (accum and coarse modes) [ kg/m**3 ]
-C The following works because the dust_spc`s are a fixed split of the total emitted
-C mass.
-         dustmode_dens( 1 ) = 0.0
-         do n = 2, n_mode
-            sumsplit = 0.0; sumfrac = 0.0
-            do i = 1, ndust_spc
-               idx = findAero( dust_spc( i )%name( n ), .true. )
-               if( aerospc( idx )%tracer )cycle
-               if( dust_spc( i )%spcfac( n ) .lt. 1.0e-30 )cycle
-               sumsplit = sumsplit + dust_spc( i )%spcfac( n ) ! should = 1.0
-               sumfrac = sumfrac + dust_spc( i )%spcfac( n ) / aerospc( idx )%density
-            end do
-            dustmode_dens( n ) = sumsplit / sumfrac
-         end do
-
 #ifdef verbose_wbdust
          write( logdev,* ) ' '
          write( logdev,* ) '    l2sgj,l2sgk:         ', l2sgj, l2sgk
          write( logdev,* ) '    factnumj,factnumk:   ', factnumj, factnumk
          write( logdev,* ) '    factm2j,factm2k:     ', factm2j, factm2k
          write( logdev,* ) '    factsrfj,factsrfk:   ', factsrfj, factsrfk
-         write( logdev,* ) '    modal avg dens(j/k): ', dustmode_dens( 2 ), dustmode_dens( 3 )
          write( logdev,* ) ' '
 #endif
 
@@ -658,7 +673,6 @@ C Parameters:
                                            !  4  Clay
 
          real, parameter :: f6dpi = 6.0 / pi
-         real, parameter :: gpkg = 1.0e03     ! g/kg
 
          real, parameter :: mv    = 0.16
          real, parameter :: sigv  = 1.45
@@ -675,7 +689,7 @@ C Parameters:
          character( 16 ) :: vname
          character( 96 ) :: xmsg
          integer status
-         integer c, r, j, m, n, v
+         integer c, r, j, m, n, v, isd
 
          integer, save   :: wstep = 0      ! local write counter
          integer         :: mdate, mtime   ! diagnostic file write date&time
@@ -1165,8 +1179,8 @@ C J/K mass emis rate [g/s]  (edust( 1 ) not used)
             end do
 
 C J/K 3rd moment emis rate [m3/s] (needed for number and surface)
-            m3j = edust( 2 ) * f6dpi / ( gpkg * dustmode_dens( 2 ) )
-            m3k = edust( 3 ) * f6dpi / ( gpkg * dustmode_dens( 3 ) )
+            m3j = edust( 2 ) * f6dpi / ( gpkg * dust_dens( 2 ) )
+            m3k = edust( 3 ) * f6dpi / ( gpkg * dust_dens( 3 ) )
 
 C Mode-specific emission rates of particle number [1/s]
             dustoutn( 1,c,r ) = 0.0
@@ -1178,6 +1192,17 @@ C 2nd moment multiplied by PI to obtain the surface area emissions rate.
             dustouts( 1,c,r ) = 0.0
             dustouts( 2,c,r ) = m3j * factsrfj
             dustouts( 3,c,r ) = m3k * factsrfk
+
+! Propagate Number and Surface Area Scaling Factors back to Emissions
+! Module so that the dust emissions can be scaled appropriately            
+            ISD = INDEX1( 'AERO', EM_STREAM_SIZE( IDUSTSRM )%LEN, 
+     &                    EM_STREAM_SIZE( IDUSTSRM )%NAME )
+            EM_STREAM_SIZE( IDUSTSRM )%FACNUM( ISD,1 ) = 0.
+            EM_STREAM_SIZE( IDUSTSRM )%FACNUM( ISD,2 ) = FACTNUMJ
+            EM_STREAM_SIZE( IDUSTSRM )%FACNUM( ISD,3 ) = FACTNUMK
+            EM_STREAM_SIZE( IDUSTSRM )%FACSRF( ISD,1 ) = 0.
+            EM_STREAM_SIZE( IDUSTSRM )%FACSRF( ISD,2 ) = FACTSRFJ
+            EM_STREAM_SIZE( IDUSTSRM )%FACSRF( ISD,3 ) = FACTSRFK
 
 #ifdef verbose_wbdust
             if ( m3j .ne. 0.0 ) dusthit = dusthit + 1
@@ -1234,21 +1259,20 @@ C 2nd moment multiplied by PI to obtain the surface area emissions rate.
                n = n + 4
                m = 0
                do v = 1, ndust_spc
-                  if ( trim( dust_spc( v )%name( 2 ) ) .ne. ' ' ) then  ! accum. mode mass emissions
+                  if ( dust_spc( v )%spcfac( 2 ) .gt. 0. ) then  ! accum. mode mass emissions
                      m = m + 1
                      diagv( m+n ) = dustoutm( v,2,c,r )
                   end if
                end do
 
                do v = 1, ndust_spc
-                  if ( trim( dust_spc( v )%name( 3 ) ) .ne. ' ' ) then  ! coarse mode mass emissions
+                  if ( dust_spc( v )%spcfac( 3 ) .gt. 0. ) then  ! coarse mode mass emissions
                      m = m + 1
                      diagv( m+n ) = dustoutm( v,3,c,r )
                   end if
                end do
 
                n = n + m
-
 
 C Multiply by sync step because when write to output we divide by the output step
 C to get a timestep average.
