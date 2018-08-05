@@ -65,10 +65,8 @@ C-----------------------------------------------------------------------
 
       IMPLICIT NONE
 
-      LOGICAL,              SAVE :: PT3DEMIS   ! flag in-lining plume rise
 
-      PUBLIC PT3DEMIS, 
-     &       PT3D_INIT, GET_PT3D_EMIS
+      PUBLIC PT3D_INIT, GET_PT3D_EMIS
       PRIVATE
 
 C Output layer fractions, dimensioned NSRC, emlays, and for diagnostic file
@@ -212,13 +210,13 @@ C get diagnostic files options
          IF ( REP_LAYR .LT. 1 ) THEN
             XMSG = 'NOTE: Environment variable REP_LAYR_MIN is ' //
      &             'less than 1.  Turning off reporting...'
-         ELSE IF ( REP_LAYR .GT. EMLYRS ) THEN
+         ELSE IF ( REP_LAYR .GT. EMLAYS ) THEN
             WRITE( XMSG,94010 )
      &             'NOTE: Environment variable REP_LAYR_MIN is '//
      &             'greater than the number of emissions ' //
-     &             CRLF() // BLANK10 // 'layers (', EMLYRS, '). '//
+     &             CRLF() // BLANK10 // 'layers (', EMLAYS, '). '//
      &             'Resetting to number of emissions layers.'
-            REP_LAYR = EMLYRS
+            REP_LAYR = EMLAYS
          ELSE
             WRITE( XMSG,94010 )
      &             'logging stack data for plume rise .ge. layer', REP_LAYR
@@ -443,7 +441,7 @@ C Open diagnostic layer fractions file?
      &                       MY_NSRC, PLAYNAME )
          END IF
 
-         IF ( .NOT. PTMET_INIT ( NPTGRPS, EMLAYS ) ) THEN
+         IF ( .NOT. PTMET_INIT ( ) ) THEN
             XMSG = 'Could not initialize stack met data'
             CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
             SUCCESS = .FALSE.; RETURN
@@ -646,13 +644,12 @@ C-----------------------------------------------------------------------
 
          IF ( FIRSTIME ) THEN
             FIRSTIME = .FALSE.
-            LOGDEV = SETUP_LOGDEV()
              
             ! Set up and open 3d point source emissions diagnostic file?
             IF ( PT3DDIAG ) THEN
-              NDATE = SDATE; NTIME = STIME
+              NDATE = STDATE; NTIME = STTIME
               CALL NEXTIME( NDATE, NTIME, TSTEP(1) ) ! advance one output tstep
-              CALL OPPT3D_DIAG( CTM_PT3D_DIAG, NDATE, NTIME, TSTEP(1), EMLAYS,
+              CALL OPPT3D_DIAG( CTM_PT3D_DIAG, NDATE, NTIME, TSTEP(1), 
      &                   EM_FILE_SURR( ISRM )%LEN, EM_FILE_SURR( ISRM )%ARRY( : ),
      &                   EM_FILE_SURR( ISRM )%UNITS( : ) )
  
@@ -712,7 +709,7 @@ C Based on the current time step, find whether or not a report should be written
 !         END IF
 
 C Convert pt source met data to bi-linear interpolated data
-         CALL PTMET_CONVT( JDATE, JTIME, NPTGRPS, EMLAYS, ZSTATIC )
+         CALL PTMET_CONVT( JDATE, JTIME, ZSTATIC )
 
 C Initialize Output Array
          VDEMIS_PT = 0.0   ! array assignment
@@ -899,7 +896,6 @@ C Includes:
 
       INTEGER :: S, L, SRC
       INTEGER :: LTOP
-      INTEGER, SAVE :: LOGDEV
  
       INTERFACE
            SUBROUTINE PREPLM( FIREFLG, EMLAYS, HMIX, HTS, PSFC, TS, DDZF, QV,
@@ -1008,120 +1004,8 @@ C Loop through sources and compute plume rise
             END IF
          END IF
 
-C Convert pt source met data to bi-linear interpolated data
-         CALL PTMET_CONVT( JDATE, JTIME, ZSTATIC )
-
-         VDEMIS_PT = 0.0   ! array assignment
-         VDEMIS_PT_FIRE = 0.0   ! array assignment
-         PMEMIS_PT = 0.0   ! array assignment
-
-         DO N = 1, NPTGRPS
-
-            IF ( MY_NSRC( N ) .LE. 0 ) CYCLE
-
-            ALLOCATE( STKEM( NVARS_EMIS( N ) ), STAT = IOS )
-            CALL CHECKMEM( IOS, 'STKEM', PNAME )
-            STKEM = 0.0   ! 1-D array assignment
-            IF ( PT3DFRAC ) THEN   ! Store layer fractions
-               ALLOCATE( LFRAC( MY_NSRC( N ),EMLYRS ), STAT = IOS )
-               CALL CHECKMEM( IOS, 'LFRAC', PNAME )
-               ALLOCATE( ZPLUM( MY_NSRC( N ),EMLYRS ), STAT = IOS )
-               CALL CHECKMEM( IOS, 'ZPLUM', PNAME )
-               LFRAC = 0.0   ! 2-D array - Initialize layer fraction
-               ZPLUM = 0.0   ! 2-D array - Initialize plume centroid height
-            END IF
-
-C Ensure that the model and stack groups emissions timestamp dates stay synchronized
-
-            IF ( PRE_JDATE .NE. JDATE ) THEN
-               LOC_STKDATE = STKDATE( N ) + 1
-            ELSE
-               LOC_STKDATE = STKDATE( N )
-            END IF
-
-            DO V = 1, NVARS_EMIS( N )
-               VNAME = STKSPC( N )%ARRY( V )
-               IF ( .NOT. INTERPX( STKENAME( N ), VNAME, PNAME,
-     &                             1,1, MY_STRT_SRC( N ),MY_END_SRC( N ), 1,1,
-     &                             LOC_STKDATE, JTIME,
-     &                             STKEMIS( N )%ARRY( 1,V ) ) ) THEN
-                  XMSG = 'Could not read ' // TRIM( VNAME ) //
-     &                   ' from ' // TRIM( STKENAME( N ) )
-                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-               END IF
-
-               ! Read Non-Carbon Organic Matter too if POC is Requested
-               IF ( ( INDEX( MECHNAME, 'NVPOA' ) .EQ. 0 )
-     &               .AND. ( VNAME .EQ. 'POC' ) ) THEN
-                  STKEMIS_TOO( N )%ARRY = 0.0
-                  IF ( .NOT. INTERPX( STKENAME( N ), 'PNCOM', PNAME,
-     &                                1,1, MY_STRT_SRC( N ),MY_END_SRC( N ), 1,1,
-!    &                                STKDATE( N ), JTIME,
-     &                                LOC_STKDATE, JTIME,
-     &                                STKEMIS_TOO( N )%ARRY( 1,V ) ) ) THEN
-                     XMSG = 'Could not read ' // TRIM( VNAME ) //
-     &                    ' from ' // TRIM( STKENAME( N ) )
-                     CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-                  END IF
-                  MY_DELTA = MY_END_SRC( N ) - MY_STRT_SRC( N ) + 1
-                  STKEMIS( N )%ARRY( 1:MY_DELTA,V ) = STKEMIS( N )%ARRY( 1:MY_DELTA,V ) 
-     &                                     + STKEMIS_TOO( N )%ARRY( 1:MY_DELTA,V )
-               END IF
-            END DO
-
-            IF ( FIREFLAG( N ) ) THEN
-               DO V = 1, NVARS_FIRE
-                  VNAME = FIRENAM( N )%ARRY( V )
-                  IF ( .NOT. INTERPX( STKENAME( N ), VNAME, PNAME,
-     &                                1,1, MY_STRT_SRC( N ),MY_END_SRC( N ), 1,1,
-     &                                LOC_STKDATE, JTIME,
-     &                                FIREVAR( N )%ARRY( 1,V ) ) ) THEN
-                     XMSG = 'Could not read ' // TRIM( VNAME ) //
-     &                      ' from ' // TRIM( STKENAME( N ) )
-                     CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-                  END IF
-                  ! Read Non-Carbon Organic Matter too if POC is Requested
-                  IF ( ( INDEX( MECHNAME, 'NVPOA' ) .EQ. 0 )
-     &                  .AND. VNAME .EQ. 'POC' ) THEN
-                     FIREVAR_TOO( N )%ARRY = 0.0
-                     IF ( .NOT. INTERPX( STKENAME( N ), 'PNCOM', PNAME,
-     &                                   1,1, MY_STRT_SRC( N ),MY_END_SRC( N ), 1,1,
-     &                                   LOC_STKDATE, JTIME,
-     &                                   FIREVAR_TOO( N )%ARRY( 1,V ) ) ) THEN
-                        XMSG = 'Could not read ' // TRIM( VNAME ) //
-     &                         ' from ' // TRIM( STKENAME( N ) )
-                        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-                     END IF
-                     MY_DELTA = MY_END_SRC( N ) - MY_STRT_SRC( N ) + 1
-                     FIREVAR( N )%ARRY( 1:MY_DELTA,V ) = FIREVAR( N )%ARRY( 1:MY_DELTA,V )
-     &                                        + FIREVAR_TOO( N )%ARRY( 1:MY_DELTA,V )
-                  END IF
-               END DO
-               DO S = 1, MY_NSRC( N )
-                  SRC = SOURCE( N )%ARRY( S )
-                  BFLUX( N )%ARRY( S ) = FIREVAR( N )%ARRY( SRC,1 ) * BTU2M4PS3
-               END DO
-            END IF
-
-C Loop through sources and compute plume rise
-
-#ifdef Verbose1
-            mxzplm = 0.0
-#endif
-
-            DO S = 1, MY_NSRC( N )
-
-               IF ( FIREFLAG( N ) ) THEN
-                  IF ( BFLUX( N )%ARRY( S ) .LE. 0.0 ) THEN
-                     TFRAC( 1 ) = 1.0
-                     TFRAC( 2:EMLYRS ) = 0.0
-                     LTOP = 1
-                     GO TO 201
-                  END IF
-               END IF
-
-               P_D( N )%ZZF( 0 ) = 0.0
-               P_D( N )%ZZF( 1:EMLAYS ) = P_D( N )%ZF( 1:EMLAYS,S )  ! array of layers
+         P_D( N )%ZZF( 0 ) = 0.0
+         P_D( N )%ZZF( 1:EMLAYS ) = P_D( N )%ZF( 1:EMLAYS,S )  ! array of layers
 
 C Get pressures: Use SIGMA values and surface pres. p=sigma*(psfc-ptop)+ptop
          PSFC = P_D( N )%PRSFC( S )

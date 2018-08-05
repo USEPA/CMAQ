@@ -61,7 +61,7 @@
 !C lightning emis species name
       CHARACTER( 16 ), PARAMETER :: LTSPC = 'NO'
       
-      PUBLIC :: LTNG_MAP, VDEMIS_LT, LTNG_INIT, GET_LTNG, LTSPC
+      PUBLIC :: VDEMIS_LT, LTNG_INIT, GET_LTNG, LTSPC
       PRIVATE
 
 !C lightning log linear regression parameters with RC 
@@ -136,7 +136,6 @@
          LOGICAL SUCCESS
 
 !C External Functions:
-         INTEGER,     EXTERNAL :: SETUP_LOGDEV
          LOGICAL,     EXTERNAL :: CHKGRID
 
 !C value to start log linear regression  

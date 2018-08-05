@@ -57,8 +57,6 @@ C-----------------------------------------------------------------------
       
       PRIVATE
       
-      LOGICAL,              SAVE :: EMISCHK ! Let model proceed even if Emis Surrogates 
-                                            ! are not properly defined
      
       INTEGER, ALLOCATABLE, SAVE :: EM_GRID_LAYS( : ) ! no. of area emission layers
       
@@ -137,12 +135,8 @@ C Open Area Emissions files
          CALL OPEMIS ( JDATE, JTIME, EM_TRAC )
 
 C Get number of emissions layers
-         IF (EMLAYS .EQ. 0 ) THEN
-            EMLAYS = MIN( NLAY_FILE, NLAYS )
-            IF ( PT3DEMIS ) EMLAYS = NLAYS
-         ELSE
-            EMLAYS = MIN( EMLAYS, NLAYS )
-         END IF 
+         EMLAYS = MIN ( EMLAYS, NLAYS )  !Emission Layers will be at most the 
+                                         !layers in the grid
 
          ! Cut the number of emission layers of any 3D gridded files to
          ! equal EMLAYS
@@ -158,7 +152,7 @@ C Get number of emissions layers
 
 C Initialize 3D Point Source Emissions 
          CALL LOG_SUBHEADING( LOGDEV, 'Initialize Point Emissinos' )
-         IF ( .NOT. PT3D_INIT( N_SPC_EMIS, JDATE, JTIME, TSTEP ) ) THEN
+         IF ( .NOT. PT3D_INIT( JDATE, JTIME, TSTEP ) ) THEN
             XMSG = 'Failure initializing plume rise emissions module' 
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
@@ -412,7 +406,6 @@ C Retrieve Emissions from All Stream Types
 
          USE CGRID_SPCS          ! CGRID mechanism species
          USE UTILIO_DEFN
-         USE DEPV_DEFN, ONLY: ABFLUX ! ammonia bidi flag
          USE ASX_DATA_MOD, ONLY: MET_DATA, GRID_DATA
          USE RXNS_DATA, ONLY: MECHNAME
 
@@ -767,9 +760,8 @@ C-----------------------------------------------------------------------
       INTEGER ALOC   ( 4 )
 
       CHARACTER(250) XMSG
-      INTEGER STAT, LOGDEV
+      INTEGER STAT
 
-      LOGDEV = INIT3()
       STAT = 0
 
       ! If All Values Are Positive then Return Right Away
@@ -816,7 +808,7 @@ C-----------------------------------------------------------------------
          USE AERO_DATA, only : N_MODE, AEROSPC,  ! Aerosol Properties Table
      &                         N_AEROSPC, AEROMODE, MODESUFF, EM_AERO_REF
          USE AERO_EMIS, only : MAP_NUMtoEM, MAP_SRFtoEM, MAP_EMtoAERO, MAP_EMtoMODE, 
-     &                         MAP_EMtoNUM, MAP_EMtoSRF, WB_DUST, MAP_EMtoSD,
+     &                         MAP_EMtoNUM, MAP_EMtoSRF, MAP_EMtoSD,
      &                         EM_STREAM_SIZE, SD_SPLIT, EM_SD_INIT
          USE UDTYPES,   only : CARRY1, LARRY1
 
@@ -1738,9 +1730,7 @@ C and allowing the model to proceed.
 ! Point Source file 2.
 !
          USE AERO_DATA, only : MGPG, GPKG
-         USE AERO_EMIS, only : WB_DUST, SS_AERO
-         USE BEIS_DEFN, only : BIOGEMIS ! Online Biogenic Emissions Env Variable
-         USE LTNG_DEFN, only : LTNG_NO  ! Flag for Lightning Emissions
+         USE AERO_EMIS, only : SS_AERO
          USE UTILIO_DEFN         ! I/O API
          USE RXNS_DATA, ONLY: MECHNAME
          USE MGEMIS,    only : MGEM     ! Flag for Marine Gas Emissions
@@ -1749,7 +1739,7 @@ C and allowing the model to proceed.
 
          INTEGER, INTENT(IN)  :: JDATE, JTIME
 
-         INTEGER IOS, LOGDEV, ISRM, N
+         INTEGER IOS, ISRM, N
 
          CHARACTER( 16 )  :: CTM_BIOGEMIS = 'CTM_BIOGEMIS'    ! Let model proceed even if
          CHARACTER( 16 )  :: CTM_LTNG_NO = 'CTM_LTNG_NO'    ! Let model proceed even if
@@ -1759,7 +1749,6 @@ C and allowing the model to proceed.
          CHARACTER( 16 )  :: VNAME
          INTEGER          :: STATUS
          CHARACTER( 200 ) :: XMSG
-         CHARACTER( 300 ) :: EQNAME
          LOGICAL :: SUCCESS
          CHARACTER( 200 ) :: EM_DIAG_PREFIX = 'CCTM_EMDIAG_'
          CHARACTER( 200 ) :: EM_DIAG_SUFFIX = ''
@@ -1769,11 +1758,7 @@ C and allowing the model to proceed.
          LOGICAL        :: EMIS_DATE_OVRD = .FALSE. ! Default for Emissions Diagnostic Toggle
          LOGICAL        :: VALUE
 
-         LOGDEV = INIT3()
          SUCCESS = .TRUE.
-
-         STDATE = ENVINT( 'CTM_STDATE', 'Scenario Start (YYYYJJJ)', 0, IOS )
-         STTIME = ENVINT( 'CTM_STTIME', 'Scenario Start (HHMMSS)', 0,  IOS ) 
 
 C Initialize Regions for Mapping Scale Factors Geographically for Base
 C Model (eventually apply this to DDM-3D and ISAM)
@@ -1875,11 +1860,10 @@ C stkemis_init.
          EM_FILE_FIRE   = .FALSE.
 
          ! Set the standard suffix for all Emissions Diagnostic Files
-         CALL NAMEVAL ( 'OUTDIR', EQNAME )
-         IF ( EQNAME(1:8 ) .NE. 'OUTDIR' ) EM_DIAG_PREFIX = TRIM( EQNAME ) // '/' // EM_DIAG_PREFIX
-         CALL NAMEVAL ( 'CTM_APPL', EQNAME )
+         IF ( OUTDIR(1:8 ) .NE. 'OUTDIR' ) EM_DIAG_PREFIX = TRIM( OUTDIR ) // '/' // EM_DIAG_PREFIX
+         
          EM_DIAG_SUFFIX = '.nc'
-         IF ( EQNAME(1:8 ) .NE. 'CTM_APPL' ) EM_DIAG_SUFFIX = '_' // TRIM(EQNAME) // '.nc'
+         IF ( APPL_NAME(1:8 ) .NE. 'CTM_APPL' ) EM_DIAG_SUFFIX = '_' // TRIM(APPL_NAME) // '.nc'
 
 
          ! Gridded Emission Files

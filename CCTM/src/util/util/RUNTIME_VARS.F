@@ -413,6 +413,10 @@
       VARDESC = 'Build Directory Location'
       BLDFOLD = GET_ENVSTR( 'BLD', VARDESC, BLDFOLD  ) 
  
+      ! Get Logfile Directory
+      VARDESC = 'Output Directory Location'
+      OUTDIR  = GET_ENVSTR( 'OUTDIR', VARDESC, OUTDIR  ) 
+ 
       ! Determine if this run is a new start or a restart
       VARDESC = 'Flag for Model Restart from Previous Day' 
       NEW_START = GET_ENVYN( 'NEW_START', VARDESC, NEW_START )
@@ -782,6 +786,10 @@
          WRITE( OUTDEV, '(6x,A)' ),'--Env Variable-- | --Value--'
          WRITE( OUTDEV, '(6x,A)' ), REPEAT( '-',80 )
       END IF
+
+      ! Number of Layers for Emissions
+      VARDESC = 'Emissions Control File Name'
+      EMISSCTRL = GET_ENVSTR( 'EMISSCTRL_NML', VARDESC, EMISSCTRL )
 
       ! Number of Layers for Emissions
       VARDESC = 'Number of emission layers'

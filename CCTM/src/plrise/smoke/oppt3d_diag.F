@@ -24,7 +24,7 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE OPPT3D_DIAG( PT3DNAME, TSTEP, EMLAYS,
+      SUBROUTINE OPPT3D_DIAG( PT3DNAME, TSTEP, 
      &                        N_SPC, SPEC_NAME, SPEC_UNITS )
 
 C-----------------------------------------------------------------------
@@ -61,7 +61,6 @@ C Local Parameters:
 C Arguments:
       CHARACTER( 16 ), INTENT( IN ) :: PT3DNAME ! diagnostic file logical name
       INTEGER,         INTENT( IN ) :: TSTEP    ! time step (HHMMSS)
-      INTEGER,         INTENT( IN ) :: EMLAYS   ! number of emissions layers
       INTEGER,         INTENT( IN ) :: N_SPC    ! number of point source surrogates
       CHARACTER( 16 ), INTENT( IN ) :: SPEC_NAME( N_SPC )  ! species names
       CHARACTER( 16 ), INTENT( IN ) :: SPEC_UNITS( N_SPC ) ! units
