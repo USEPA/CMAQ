@@ -29,7 +29,7 @@ C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRRATES, HRG1, HRG2, HRG3
 C                                     HRG4, HRPRODLOSS
 C
-C  REVISION HISTORY: Created by EBI solver program, Sep 27, 2017
+C  REVISION HISTORY: Created by EBI solver program, Jun 13, 2018
 C   21 Jun 10 J.Young: convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised 1) to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files and 2) to use
@@ -40,6 +40,7 @@ C**********************************************************************
       USE UTILIO_DEFN
       USE RXNS_DATA
       USE HRDATA
+      USE PA_IRR_MODULE
 
       IMPLICIT NONE
 
@@ -208,6 +209,8 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
          END IF
       END DO
 
+! Initial PA_IRR
+      IF( CALL_IRR ) CALL PA_IRR ( .TRUE., RKI, YC, DTC )
       TSTEP_EBI: DO    ! EBI time-step loop
 
          SUBSTEP_EBI: DO NINR = 1, N_INR_STEPS   ! time substeps loop
@@ -316,7 +319,10 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 
                IF( LEBI_CONV ) THEN
+
+                 IF( CALL_IRR ) CALL PA_IRR ( .FALSE., RKI, YC, DTC )
                  CYCLE SUBSTEP_EBI ! solve for next sub time-step
+
                END IF
 
             END DO ITER_SUBSTEP

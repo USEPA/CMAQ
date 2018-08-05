@@ -313,7 +313,7 @@ C Build description for, and open beis diagnostic file
                   VNAME3D( J ) = EMSPC( I )
                   VDESC3D( J ) = 'biogenic emissions of the indicated species'
                   VTYPE3D( J ) = M3REAL
-                  UNITS3D( J ) = 'gm/s'
+                  UNITS3D( J ) = 'gm s-1'
                END IF
             END DO
 

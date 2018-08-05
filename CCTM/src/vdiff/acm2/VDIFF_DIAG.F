@@ -149,7 +149,7 @@ C get CONC file header description
                fdesc3d( 1 ) = 'representative coarse aerosol gravitational settling velocities'
                do v = 1, n_vsed
                   vtype3d( v ) = m3real
-                  units3d( v ) = 'm/s'
+                  units3d( v ) = 'm s-1'
                   vname3d( v ) = vsed_name( v )
                   vdesc3d( v ) = 'gravitational settling velocity'
                end do
@@ -169,17 +169,17 @@ C get CONC file header description
             fdesc3d( 1 ) = 'vdiff diagnostic variables'
             v = 1
             vtype3d( v ) = m3real
-            units3d( v ) = ' '
+            units3d( v ) = ''
             vname3d( v ) = 'NLP_MEAN'
             vdesc3d( v ) = 'mean sub-timestep iteration count'
             v = v + 1
             vtype3d( v ) = m3real
-            units3d( v ) = ' '
+            units3d( v ) = ''
             vname3d( v ) = 'NLP_MAX'
             vdesc3d( v ) = 'max sub-timestep iteration count'
             v = v + 1
             vtype3d( v ) = m3real
-            units3d( v ) = ' '
+            units3d( v ) = ''
             vname3d( v ) = 'NLP_MIN'
             vdesc3d( v ) = 'min sub-timestep iteration count'
 
@@ -187,29 +187,29 @@ C get CONC file header description
 
                v = v + 1
                vtype3d( v ) = m3real
-               units3d( v ) = ' '
+               units3d( v ) = ''
                vname3d( v ) = 'SEDI_DTC_MEAN'
                vdesc3d( v ) = 'mean grav. settling velocity sub-timestep iteration count'
                v = v + 1
                vtype3d( v ) = m3real
-               units3d( v ) = ' '
+               units3d( v ) = ''
                vname3d( v ) = 'SEDI_DTC_MAX'
                vdesc3d( v ) = 'max grav. settling velocity sub-timestep iteration count'
                v = v + 1
                vtype3d( v ) = m3real
-               units3d( v ) = ' '
+               units3d( v ) = ''
                vname3d( v ) = 'SEDI_DTC_MIN'
                vdesc3d( v ) = 'min grav. settling velocity sub-timestep iteration count'
             end if
 
             v = v + 1
             vtype3d( v ) = m3real
-            units3d( v ) = ' '
+            units3d( v ) = ''
             vname3d( v ) = 'CONVCT'
             vdesc3d( v ) = 'Convective cell (for ACM2)'
             v = v + 1
             vtype3d( v ) = m3real
-            units3d( v ) = ' '
+            units3d( v ) = ''
             vname3d( v ) = 'LPBL'
             vdesc3d( v ) = 'PBL top sigma layer'
 

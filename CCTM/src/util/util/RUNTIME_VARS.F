@@ -197,6 +197,7 @@
       LOGICAL :: DUSTEM_DIAG   = .FALSE. ! flag for dustemis diagnostic file
       LOGICAL :: SSEMDIAG      = .FALSE. ! flag for SSEMIS diagnostic file
       LOGICAL :: LTNG_NO       = .FALSE. ! flag for online calculation of NO from lightning
+      INTEGER :: LT_ASM_DT     = 0       ! Lightning Input Time Interval
       LOGICAL :: NLDNSTRIKE    = .FALSE. ! flag to use NLDN STRIKE directly 
       LOGICAL :: LTNGDIAG      = .FALSE. ! flag to turn on lightning NO diagnostics
       REAL    :: MOLSNCG       = 350.0   ! Lightning NO Production Rate
@@ -837,6 +838,10 @@
       ! Set LTNG_NO to Y or T to turn on lightning NO production
       VARDESC = 'Flag for lightning emissions'
       LTNG_NO = GET_ENVYN( 'CTM_LTNG_NO', VARDESC, LTNG_NO ) 
+
+      ! Get Lightning Input Time Interval
+      VARDESC = 'Time Interval for Lightning Emissions'
+      LT_ASM_DT = GET_ENVYN( 'LTNG_ASSIM_DT', VARDESC, LT_ASM_DT ) 
 
       ! Get Lightning NO File Name
       VARDESC = 'lightning NO file name or InLine flag'

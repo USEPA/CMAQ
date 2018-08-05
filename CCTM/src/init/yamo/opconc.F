@@ -172,11 +172,11 @@ C Set output file characteristics based on COORD.EXT and open it
          VTYPE3D( SPC ) = M3REAL
          VNAME3D( SPC ) = C_AE_SPC( V )   ! from STD_CONC module
          IF ( VNAME3D( SPC )(1:3) .EQ. 'NUM' ) THEN
-            UNITS3D( SPC ) = 'number/m**3'
+            UNITS3D( SPC ) = 'm-3'
          ELSE IF ( VNAME3D( SPC )(1:3) .EQ. 'SRF' ) THEN
-            UNITS3D( SPC ) = 'm**2/m**3'
+            UNITS3D( SPC ) = 'm2 m-3'
          ELSE
-            UNITS3D( SPC ) = 'micrograms/m**3'
+            UNITS3D( SPC ) = 'ug m-3'
          END IF
          VDESC3D( SPC ) = 'Variable ' // VNAME3D( SPC )
       END DO
@@ -207,7 +207,7 @@ C Set output file characteristics based on COORD.EXT and open it
          SPC = FINI + 1 
          VTYPE3D( SPC ) = M3REAL
          VNAME3D( SPC ) = 'W_VEL'
-         UNITS3D( SPC ) = 'm/s'
+         UNITS3D( SPC ) = 'm s-1'
          VDESC3D( SPC ) = 'Derived vertical velocity component'
       END IF
 

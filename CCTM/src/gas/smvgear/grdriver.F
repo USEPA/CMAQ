@@ -85,6 +85,7 @@ C**********************************************************************
       USE AEROSOL_CHEMISTRY
       USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP
       USE PA_DEFN, Only: LIRR   ! Process Anaylsis control and data variable
+      USE PA_IRR_CLT
 
       IMPLICIT NONE 
 
@@ -187,16 +188,12 @@ C..SCRATCH LOCAL VARIABLES:
       REAL, ALLOCATABLE, SAVE :: QV     ( :, :, : )      ! Cell water vapor (Kg/Kg air)
       REAL, ALLOCATABLE, SAVE :: TA     ( :, :, : )      ! Cell temperature (K)
 
-!      REAL :: RJ( NCOLS,NROWS,NLAYS,NPHOTAB )  ! J-values for each cell      
-      REAL,      ALLOCATABLE, SAVE :: RJ( :,:,:,: )  ! J-values for each cell      
+      REAL,    ALLOCATABLE, SAVE :: RJ( :,:,:,: )  ! J-values for each cell      
 
       REAL,    ALLOCATABLE       :: OPEN_ZONE   ( :,: )       ! fractional sea water cover, [-]
       REAL,    ALLOCATABLE       :: SURF_ZONE   ( :,: )       ! fractional surf-zone cover, [-]
       LOGICAL, ALLOCATABLE, SAVE :: LAND_ZONE   ( :,: )       ! Is the surface totally land?
 
-
-!     REAL CHEMIS( NC_CH, NR_CH, NL_CH, NS_CH )  ! Emissions in each cell
-      REAL, ALLOCATABLE, SAVE :: CHEMIS( :, :, :, : )  ! Emissions in each cell
 
       INTEGER     GXOFF, GYOFF          ! global origin offset from file
 C for INTERPX
@@ -224,25 +221,6 @@ C for INTERPX
             INTEGER, INTENT( IN )  :: DTSTEP( : ) ! time step vector (HHMMSS)
             REAL,    INTENT( OUT ) :: RJ(:,:,:,:) ! gridded J-values  (1/min units)
          END SUBROUTINE PHOT
-         SUBROUTINE PA_IRR_CKBLK ( NUMCELLS, LIRRBLK, OFFSET,
-     &                             CCOL, CROW, CLEV, NORDCELL,
-     &                             NIRRCLS, IRRCELL )
-            INTEGER, INTENT( IN )   :: NUMCELLS, OFFSET
-            LOGICAL, INTENT( INOUT )  :: LIRRBLK
-            INTEGER, INTENT( IN )   :: CCOL( : ), CROW( : ), CLEV( : )
-            INTEGER, INTENT( IN )   :: NORDCELL( : )
-            INTEGER, INTENT( IN )   :: NIRRCLS
-            INTEGER, INTENT( OUT )  :: IRRCELL( : )
-         END SUBROUTINE PA_IRR_CKBLK
-         SUBROUTINE PA_IRR_BLKENDC ( OFFSET, 
-     &                               CCOL, CROW, CLEV, NORDCELL,
-     &                               NIRRCLS, IRRCELL )
-            INTEGER, INTENT( IN )   :: OFFSET
-            INTEGER, INTENT( IN )   :: CCOL( : ), CROW( : ), CLEV( : )
-            INTEGER, INTENT( IN )   :: NORDCELL( : )
-            INTEGER, INTENT( IN )   :: NIRRCLS
-            INTEGER, INTENT( IN )   :: IRRCELL( : )
-         END SUBROUTINE PA_IRR_BLKENDC
          SUBROUTINE SMVGEAR ( IRUN, JDATE, JTIME, CHEMSTEP,
      &                        LIRRFLAG, NIRRCLS, IRRCELL )
             INTEGER,   INTENT( IN ) :: IRUN         ! Counter of calls to calling subroutine
@@ -509,7 +487,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
              CALL PA_IRR_CKBLK ( NUMCELLS, LIRRBLK, OFFSET,
      &                           CCOL, CROW, CLEV, NORDCELL, NIRRCLS,
      &                           IRRCELL )
-             CALL PA_IRR_BLKSTRT( NUMCELLS )
          ENDIF
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C  Put the grid cell physical data in the block arrays, converting

@@ -16,12 +16,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: 
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
        MODULE VERTEXT_MODULE
 
          INTEGER              :: NVERTEXT
@@ -244,11 +238,11 @@ C Set output file characteristics based on COORD.EXT and open it
             VTYPE3D( SPC ) = M3REAL
             VNAME3D( SPC ) = C_AE_SPC( V )   ! from STD_CONC module
             IF ( VNAME3D( SPC )(1:3) .EQ. 'NUM' ) THEN
-               UNITS3D( SPC ) = 'number/m**3'
+               UNITS3D( SPC ) = 'm-3'
             ELSE IF ( VNAME3D( SPC )(1:3) .EQ. 'SRF' ) THEN
-               UNITS3D( SPC ) = 'm**2/m**3'
+               UNITS3D( SPC ) = 'm2 m-3'
             ELSE
-               UNITS3D( SPC ) = 'micrograms/m**3'
+               UNITS3D( SPC ) = 'ug m-3'
             END IF
             VDESC3D( SPC ) = 'Variable ' // VNAME3D( SPC )
          END DO
@@ -272,20 +266,20 @@ C Set output file characteristics based on COORD.EXT and open it
             VTYPE3D( SPC ) = M3REAL
             VNAME3D( SPC ) = C_TR_SPC( V )   ! from STD_CONC module
             UNITS3D( SPC ) = 'ppmV'
-            VDESC3D( SPC ) = 'Variable ' // VNAME3D( SPC )
+            VDESC3D( SPC ) = 'Molar Mixing Ratio for species ' // VNAME3D( SPC )
          END DO
 
          SPC = FINI + 1
          VTYPE3D( SPC ) = M3REAL
          VNAME3D( SPC ) = 'PRES            '
          UNITS3D( SPC ) = 'Pa'
-         VDESC3D( SPC ) = 'Variable ' // 'PRES'
+         VDESC3D( SPC ) = 'Pressure'
 
          SPC = FINI + 2
          VTYPE3D( SPC ) = M3REAL
          VNAME3D( SPC ) = 'TA              '
          UNITS3D( SPC ) = 'K'
-         VDESC3D( SPC ) = 'Variable ' // 'TA'
+         VDESC3D( SPC ) = 'Temperature'
 
 C create header
 
@@ -553,6 +547,8 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 C Revision History:
 C   24 Nov 17 B.Henderson: copied from WR_CONC
+C   24 Jul 18 C. Nolte: removed call to INIT_MET that was causing conflict.
+C             Met should already be initialized by this point.
 C-----------------------------------------------------------------------
 
          USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -560,7 +556,7 @@ C-----------------------------------------------------------------------
          USE STD_CONC              ! standard CONC
          USE PIOMAPS_MODULE
          USE UTILIO_DEFN
-         USE ASX_DATA_MOD, Only: Met_Data, INIT_MET
+         USE ASX_DATA_MOD, Only: Met_Data
 
          IMPLICIT NONE
 

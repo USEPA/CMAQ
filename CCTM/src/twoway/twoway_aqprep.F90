@@ -556,11 +556,11 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 
      do v = 1, numlu
         write (vname3d(v+n_gridcro2d_var), '(a7, i2.2)') 'LUFRAC_', v
-        units3d(v+n_gridcro2d_var) = 'FRACTION'
+        units3d(v+n_gridcro2d_var) = '1'
      end do
 
 ! this is particular for m3dry LUFRAC_01
-     units3d(1+n_gridcro2d_var) = 'USGS24'
+     units3d(1+n_gridcro2d_var) = '1'
 
      nvars3d = numlu+n_gridcro2d_var
      tstep3d = 0

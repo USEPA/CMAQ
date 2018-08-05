@@ -104,7 +104,7 @@ C Arguments:
 
          vtype3d( 1 ) = m3real
          vname3d( 1 ) = 'AOD'
-         units3d( 1 ) = 'na'
+         units3d( 1 ) = ''
          vdesc3d( 1 ) = 'Aerosol Optical Depth'
 
          fdesc3d( 1 ) = 'Aerosol Optical Depth'

@@ -18,16 +18,15 @@
 !------------------------------------------------------------------------!
 
        SUBROUTINE CHEM( CGRID, JDATE, JTIME, TSTEP )
-
 C**********************************************************************
 C
 C  FUNCTION: Driver subroutine for Euler Backward Iterative solver
 C
-C  PRECONDITIONS: For the RACM2 family of mechanisms
+C  PRECONDITIONS: For the racm2 family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, PHOT, HRCALCKS, HRSOLVER
 C
-C  REVISION HISTORY: Created by EBI solver program, May 26, 2017
+C  REVISION HISTORY: Created by EBI solver program, Jun 13, 2018
 C                       Based on the algorithm in "Test of Two Numerical
 C                       Schemes for Use in Atmospheric Transport-Chemistry
 C                       Models", O. Hertel, R. Berkowicz, J. Christensen,
@@ -64,6 +63,7 @@ C**********************************************************************
       USE RXNS_FUNCTION
       USE HRDATA
       USE PA_DEFN, Only: LIRR   ! Process Anaylsis control and data variable
+      USE PA_IRR_CLT
 
       IMPLICIT NONE
 
@@ -185,8 +185,9 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          END IF
 
          IF( LIRR ) THEN
-            MSG = 'IRR Analysis not allowed with EBI solver'
-            CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
+            CALL_IRR = .TRUE.
+         ELSE
+            CALL_IRR = .FALSE.
          END IF
 
 
@@ -273,6 +274,10 @@ C.. Get fractional surf-zone coverage from the OCEAN file.
      &             QV  ( NCOLS, NROWS, NLAYS ), TA  ( NCOLS, NROWS, NLAYS ),
      &             RJ  ( NCOLS, NROWS, NLAYS, NPHOTAB ),
      &             SEAICE( NCOLS, NROWS ) )
+
+C..Determine which cells need IRR
+         ALLOCATE( LFLAGIRR ( NCOLS, NROWS, NLAYS ) )
+         CALL      PA_IRR_CKCELLS ( LFLAGIRR )
 
          LFIRST = .FALSE.
 
@@ -373,6 +378,9 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          DO R = 1, MY_NROWS
             DO C = 1, MY_NCOLS
 
+c..reset CALL_IRR based on cell's values
+               CALL_IRR = LFLAGIRR( C,R,L )
+
 c..Load ICs
                INV_DENS = 1.0 / DENS( C,R,L )
                DO SPC = 1, NUMB_MECH_SPC
@@ -431,6 +439,9 @@ c..Update concentration array
                   END IF
                END DO
 
+
+c..update irrout arrays if needed
+               IF ( LFLAGIRR( C,R,L ) )CALL PA_IRR_CELLENDF( C, R, L )
 
             END DO
          END DO
