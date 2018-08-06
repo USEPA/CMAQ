@@ -50,7 +50,6 @@ WDIR10          ,deg       ,WDIR10[4]
 !-------------------------------------------!
 !--------------- Gases ---------------------!
 !-------------------------------------------!
-ALD2            ,ppbV      ,1000.0*ALD2[1]
 BENZENE         ,ppbV      ,1000.0*BENZENE[1]
 CO              ,ppbV      ,1000.0*CO[1]
 ETH             ,ppbV      ,1000.0*ETHENE[1]
@@ -77,6 +76,8 @@ ISOPNTOT        ,ppbV      ,1000.0*(ISOPND[1]+ISOPNB[1]+NIT1[1]+NISOPOOH[1]+MVKN
                            +MACRN[1]+ETHLN[1]+RNO3I[1]+PROPNN[1]+2.0*ISOPNN[1])
 ANTOT           ,ppbv      ,ISOPNTOT[0]+(RNO3[1]+MTNO3[1])*1000.0
 NTR             ,ppbV      ,ISOPNTOT[0]+1000.0*(RNO3[1]+MTNO3[1])
+CLNTOT          ,ppbv      ,1000.0*(CLNO[1]+CLONO[1]+CLNO2[1]+CLONO2[1])
+PANTOT          ,ppbV      ,1000.0*(PAN[1]+PAN2[1]+PBZN[1]+MAPAN[1]+IMAPAN[1])
 NOY             ,ppbV      ,1000.0*(NO[1]+NO2[1]+NO3[1]+2*N2O5[1]+HONO[1]+HNO3[1]+HNO4[1])+ANTOT[0]+PANTOT[0]+CLNTOT[0]+ANO3_PPB[0]
 NOY_NOPM        ,ppbV      ,1000.0*(NO[1]+NO2[1]+NO3[1]+2*N2O5[1]+HONO[1]+HNO3[1]+HNO4[1])+ANTOT[0]+PANTOT[0]+CLNTOT[0]
 O3              ,ppbV      ,1000.0*O3[1]

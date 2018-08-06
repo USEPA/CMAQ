@@ -49,10 +49,10 @@ DDEP_ASO4IJ        ,kg/ha     ,ASO4I[1] + ASO4J[1]
 DDEP_ASO4K         ,kg/ha     ,ASO4K[1]
 WDEP_ASO4IJK       ,kg/ha     ,ASO4I[2] + ASO4J[2] + ASO4K[2]
 DDEP_AECIJ	       ,kg/ha     ,AECI[1] +AECJ[1]
-DDEP_AOCIJ         ,kg-C/ha    , ALVPO1I[1]/1.39 + ASVPO1I[1]/1.32 + ASVPO2I[1]/1.26  \
+DDEP_POCIJ         ,kg-C/ha    , ALVPO1I[1]/1.39 + ASVPO1I[1]/1.32 + ASVPO2I[1]/1.26  \
                                +ALVPO1J[1]/1.39 + ASVPO1J[1]/1.32 + ASVPO2J[1]/1.26  \
                                +ASVPO3J[1]/1.21 + AIVPO1J[1]/1.17                    \
-                               +ALVOO1I[1]/2.27 + ALVOO2I[1]/2.06                    \
+DDEP_SOCIJ         ,kg-C/ha    ,ALVOO1I[1]/2.27 + ALVOO2I[1]/2.06                    \
                                +ASVOO1I[1]/1.88 + ASVOO2I[1]/1.73                    \
                                +AXYL1J[1]/2.42 + AXYL2J[1]/1.93 + AXYL3J[1]/2.30     \
                                +ATOL1J[1]/2.26 + ATOL2J[1]/1.82 + ATOL3J[1]/2.70     \
@@ -68,6 +68,7 @@ DDEP_AOCIJ         ,kg-C/ha    , ALVPO1I[1]/1.39 + ASVPO1I[1]/1.32 + ASVPO2I[1]/
                                +AIETETJ[1]/2.27 + AIEOSJ[1]/3.6   + ADIMJ[1]/2.07    \
                                +AIMGAJ[1]/2.5   + AIMOSJ[1]/4.17  + AMTNO3J[1]/1.9   \
                                +AISOPNNJ[1]/3.8 + AMTHYDJ[1]/1.54 + AGLYJ[1]/2.13  
+DDEP_AOCIJ         ,kg-C/ha    , DDEP_APOCIJ[0]+DDEP_SOCIJ[0]  \
 
 ! Sodium
 DDEP_ANAJ          ,kg/ha     ,ANAJ[1]
