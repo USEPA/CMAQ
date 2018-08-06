@@ -123,7 +123,6 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       USE PRECURSOR_DATA      ! gas phase aero precursor data
       USE SOA_DEFN            ! gas soa data
       USE AEROMET_DATA        ! air properties data, eg., T, P, RH includes CONST.EXT
-      USE AOD_DEFN            ! IMPROVE reconstructed method AOD
       USE UTILIO_DEFN
       USE CGRID_SPCS
       USE AEROSOL_CHEMISTRY, ONLY : GAMMA_N2O5IJ, GAMMA_N2O5K, YCLNO2IJ, YCLNO2K, 
@@ -184,15 +183,6 @@ C *** meteorological variables
 
 C *** variables computed and output but not carried in CGRID
 
-C *** visibility variables
-      INTEGER, PARAMETER :: N_AE_VIS_SPC = 4
-      INTEGER, PARAMETER :: IDCVW1 = 1 ! visual range in deciview (Mie)
-      INTEGER, PARAMETER :: IBEXT1 = 2 ! extinction [ 1/km ] (Mie)
-      INTEGER, PARAMETER :: IDCVW2 = 3 ! visual range in deciview (Reconst)
-      INTEGER, PARAMETER :: IBEXT2 = 4 ! extinction [ 1/km ] (Reconst)
-      REAL VIS_SPC( NCOLS,NROWS,N_AE_VIS_SPC )  ! Visual range information
-      REAL, ALLOCATABLE, SAVE :: AVIS_SPC( :,:,: ) ! average Visual range information
-
 C *** aerosol size distribution variables
 !     REAL DIAM_SPC( NCOLS,NROWS,NLAYS,39 )
       REAL, ALLOCATABLE, SAVE :: PMDIAG_SPC( :,:,:,: )
@@ -220,7 +210,6 @@ C *** visual range information
       REAL BLKDCV2         ! block deciview (Reconstructed)
       REAL BLKEXT2         ! block extinction [ km**-1 ] (Reconstructed)
 
-      INTEGER, SAVE :: N_VIS_STEP
 
 C *** other internal aerosol variables
       INTEGER IND                         ! index to be used with INDEX1
@@ -239,16 +228,14 @@ C *** variables aerosol diagnostic file flag
 C *** environment variable for PMDIAG APMDIAG file
       CHARACTER( 16 ), SAVE :: CTM_PMDIAG   = 'CTM_PMDIAG'
       CHARACTER( 16 ), SAVE :: CTM_APMDIAG  = 'CTM_APMDIAG'
-      CHARACTER( 16 ), SAVE :: CTM_AVISDIAG = 'CTM_AVISDIAG'
 
 C *** flag for PMDIAG and APMDIAG file [F], default
       LOGICAL, SAVE :: PMDIAG
       LOGICAL, SAVE :: APMDIAG
-      LOGICAL, SAVE :: AVISDIAG
 
 C *** first pass flag
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
-      LOGICAL, SAVE :: FIRST_CTM_VIS_1 = .TRUE.
+      LOGICAL, SAVE :: FIRST_CTM_PMDIAG_1 = .TRUE.
 
 C *** ratio of molecular weights of water vapor to dry air = 0.622015
       REAL, PARAMETER :: EPSWATER = MWWAT / MWAIR
@@ -326,14 +313,10 @@ C ------------------ begin body of AERO_DRIVER -------------------------
          ALLOCATE (   PMDIAG_SPC( NCOLS,NROWS,NLAYS,NUM_PMDIAG_SPC ),
      &              A_PMDIAG_SPC( NCOLS,NROWS,A_NLAYS,NUM_PMDIAG_SPC ),
      &              TEMP_DATA( NUM_PMDIAG_SPC ), 
-     &              AVIS_SPC( NCOLS,NROWS,N_AE_VIS_SPC ),
      &              STAT=ALLOCSTAT)
 
          A_PMDIAG_SPC  = 0.0
          N_APMDIAG_STEP = 0
-
-         AVIS_SPC = 0.0
-         N_VIS_STEP = 0
 
          END_TIME = ENVYN( AVG_FILE_ENDTIME, ' ', END_TIME, STATUS )
 
@@ -381,38 +364,6 @@ C *** Get aerosol average diagnostic file flag.
             WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
          END IF
 
-C *** Get aerosol average diagnostic file flag.
-         AVISDIAG = .FALSE.         ! default
-         VARDESC = 'Flag for writing the aerosol diagnostic file'
-         AVISDIAG = ENVYN( CTM_AVISDIAG, VARDESC, AVISDIAG, STATUS )
-         IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-         IF ( STATUS .EQ. 1 ) THEN
-            XMSG = 'Environment variable improperly formatted'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-         ELSE IF ( STATUS .EQ. -1 ) THEN
-            XMSG = 'Environment variable set, but empty ... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-         ELSE IF ( STATUS .EQ. -2 ) THEN
-            XMSG = 'Environment variable not set ... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-         END IF
-
-C *** Get AOD diagnostic file flag.
-         AOD = .FALSE.         ! default
-         VARDESC = 'Flag for writing the IMPROVE network AOD diagnostic file'
-         AOD = ENVYN( CTM_AOD, VARDESC, AOD, STATUS )
-         IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-         IF ( STATUS .EQ. 1 ) THEN
-            XMSG = 'Environment variable improperly formatted'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-         ELSE IF ( STATUS .EQ. -1 ) THEN
-            XMSG = 'Environment variable set, but empty ... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-         ELSE IF ( STATUS .EQ. -2 ) THEN
-            XMSG = 'Environment variable not set ... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-         END IF
-
 C *** Open the met files.
          IF ( .NOT. OPEN3( MET_CRO_3D, FSREAD3, PNAME ) ) THEN
             XMSG = 'Could not open  MET_CRO_3D  file '
@@ -424,26 +375,10 @@ C *** Open the met files.
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
-C *** Set up file structure for visibility file. It has two variables,
-C     visual range in deciview units (dimensionless) and extinction in
-C     units of (1/km) and is for layer 1 only.
-         IF ( IO_PE_INCLUSIVE ) THEN
-            CALL OPVIS ( JDATE, JTIME, TSTEP( 1 ) )
-            IF ( AVISDIAG ) CALL OPAVIS ( JDATE, JTIME, TSTEP( 1 ) )
-         END IF
-
 C *** Open the aerosol parameters file (diameters and standard deviations).
 
          IF ( PMDIAG .AND. IO_PE_INCLUSIVE ) CALL OPPMDIAG ( JDATE, JTIME, TSTEP( 1 ) )
          IF ( APMDIAG ) CALL OPAPMDIAG ( JDATE, JTIME, TSTEP( 1 ) )
-
-         IF ( AOD ) THEN
-C *** Set up for AOD processing
-            IF ( .NOT. AOD_INIT( JDATE, JTIME, TSTEP( 1 ) ) ) THEN
-               XMSG = 'Failure initializing dust emission processing'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-            END IF
-         END IF
 
 C *** Get domain decomp info from the MET_CRO_3D file
          CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
@@ -528,7 +463,6 @@ C --------------------- Begin loops over grid cells --------------------------
 C *** initialize conc arrays
 
       N_APMDIAG_STEP = N_APMDIAG_STEP + 1
-      N_VIS_STEP = N_VIS_STEP + 1 
 
       DO L = 1, NLAYS
          DO R = 1, MY_NROWS
@@ -604,24 +538,6 @@ C *** Calculate volume fraction of each mode for measurement applications
 
 C *** Write aerosol extinction coefficients and deciviews to visibility
 C     diagnostic array (lowest vertical layer only)
-
-               IF ( L .EQ. 1 ) THEN
-                  IF ( WRITETIME .OR. AVISDIAG) THEN
-                     CALL GETVISBY( BLKDCV1, BLKEXT1, BLKDCV2, BLKEXT2 )
-                  END IF
-                  IF ( AVISDIAG ) THEN
-                     AVIS_SPC( C,R,1 ) = AVIS_SPC( C,R,1 ) + BLKDCV1  ! Mie visual range [deciview]
-                     AVIS_SPC( C,R,2 ) = AVIS_SPC( C,R,2 ) + BLKEXT1  ! Mie aero extinction [1/km]
-                     AVIS_SPC( C,R,3 ) = AVIS_SPC( C,R,3 ) + BLKDCV2  ! Reconstructed visual range [deciview]
-                     AVIS_SPC( C,R,4 ) = AVIS_SPC( C,R,4 ) + BLKEXT2  ! Reconstructed aero extinction [1/km]
-                  END IF
-                  IF ( WRITETIME ) THEN
-                     VIS_SPC( C,R,IDCVW1 ) = BLKDCV1  ! Mie visual range [deciview]
-                     VIS_SPC( C,R,IBEXT1 ) = BLKEXT1  ! Mie aero extinction [1/km]
-                     VIS_SPC( C,R,IDCVW2 ) = BLKDCV2  ! Reconstructed visual range [deciview]
-                     VIS_SPC( C,R,IBEXT2 ) = BLKEXT2  ! Reconstructed aero extinction [1/km]
-                  END IF
-               END IF
 
                IF ( PMDIAG .OR. APMDIAG ) THEN
                   TEMP_DATA(  7 ) = AEROMODE_DIAM( 1 ) * 1.0E6  ! wet i-mode diam.
@@ -709,8 +625,6 @@ C *** Write dry aerosol distribution parameters to aerosol diagnostic array
          END DO ! loop on MY_ROWS
       END DO ! loop on NLAYS
 
-      IF ( WRITETIME .AND. AOD ) CALL GET_AOD( CGRID )
-
 C *** From AEROPROC call to ORGAER...
 !     If ( pfc .gt. 0 ) Then
 !        Write( xmsg,'(a,i8)' ) 'possible false convergences in soa bisection:', pfc
@@ -727,14 +641,8 @@ C *** If last call this hour, write visibility information.
          WRITETIME = .FALSE.
 
 #ifdef parallel_io
-         IF ( FIRST_CTM_VIS_1 ) THEN
-            FIRST_CTM_VIS_1 = .FALSE.
-            IF ( .NOT. IO_PE_INCLUSIVE ) THEN
-               IF ( .NOT. OPEN3( CTM_VIS_1, FSREAD3, PNAME ) ) THEN
-                  XMSG = 'Could not open ' // TRIM( CTM_VIS_1 )
-                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-               END IF
-            END IF
+         IF ( FIRST_CTM_PMDIAG_1 ) THEN
+            FIRST_CTM_PMDIAG_1 = .FALSE.
             IF ( PMDIAG ) THEN
                IF ( .NOT. IO_PE_INCLUSIVE ) THEN
                   IF ( .NOT. OPEN3( CTM_PMDIAG_1, FSREAD3, PNAME ) ) THEN
@@ -751,25 +659,8 @@ C *** If last call this hour, write visibility information.
                   END IF
                END IF
             END IF
-            IF ( AOD ) THEN
-               IF ( .NOT. IO_PE_INCLUSIVE ) THEN
-                  IF ( .NOT. OPEN3( CTM_AOD_1, FSREAD3, PNAME ) ) THEN
-                     XMSG = 'Could not open ' // TRIM( CTM_AOD_1 )
-                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-                  END IF
-               END IF
-            END IF
          END IF
 #endif
-
-         IF ( .NOT. WRITE3( CTM_VIS_1, ALLVAR3,
-     &                      MDATE, MTIME, VIS_SPC ) ) THEN
-            XMSG = 'Could not write ' // CTM_VIS_1 // ' file'
-            CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-         END IF
-         WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
-     &                  'Timestep written to', CTM_VIS_1,
-     &                  'for date and time', MDATE, MTIME
 
 C *** Write data to the aerosol diagnostic file.
          IF ( PMDIAG ) THEN
@@ -786,22 +677,7 @@ C *** Write data to the aerosol diagnostic file.
 
          END IF
      
-C *** Write data to the AOD diagnostic file.
-         IF ( AOD ) THEN
-
-            IF ( .NOT. WRITE3( CTM_AOD_1, ALLVAR3,
-     &                         MDATE, MTIME, AOD_DATA ) ) THEN
-               XMSG = 'Could not write ' // CTM_AOD_1 // ' file'
-               CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-            END IF
-
-            WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
-     &                     'Timestep written to', CTM_AOD_1,
-     &                     'for date and time', MDATE, MTIME
-
-         END IF
-
-         IF ( APMDIAG .OR. AVISDIAG ) THEN
+         IF ( APMDIAG ) THEN
             IF ( .NOT. END_TIME ) THEN   ! ending time timestamp
                CALL NEXTIME ( MDATE, MTIME, -TSTEP(1) )
             END IF
@@ -831,22 +707,6 @@ C *** Write data to the average aerosol diagnostic file.
             N_APMDIAG_STEP = 0
          END IF
      
-C *** Write data to the average visibility diagnostic file.
-         IF ( AVISDIAG ) THEN
-            AVIS_SPC = AVIS_SPC / N_VIS_STEP
-            IF ( .NOT. WRITE3( CTM_AVIS_1, ALLVAR3,
-     &                         MDATE, MTIME, AVIS_SPC ) ) THEN
-               XMSG = 'Could not write ' // CTM_AVIS_1 // ' file'
-               CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-            END IF
-            N_VIS_STEP = 0 
-            AVIS_SPC = 0.0
-         END IF
-
-         WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
-     &                  'Timestep written to', CTM_AVIS_1,
-     &                  'for date and time', MDATE, MTIME
-
       END IF   ! WRITETIME
 
       RETURN

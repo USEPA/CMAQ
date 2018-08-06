@@ -1065,6 +1065,7 @@ C SH  03/10/11 Renamed met_data to aeromet_data
 C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 C HOTP 05Aug15 Made the calculation for total number of organic moles more robust
 C BNM 11/09/15 Added Some Comments to the SOA Scheme
+C HOTP 7/17/18 Added uptake of water onto hydrophillic organics
 C-----------------------------------------------------------------------
 
 C Key Subroutines/Functions called:  newt, soabisection
@@ -1148,6 +1149,18 @@ C Variables used in equilibrium partitioning calculations
       Real totaer            ! total aerosol-phase mass of each semivolaitle component
       Real Phi               ! mass fraction of a semivolatile component
                              ! in each mode
+
+C Variables for water uptake onto organics
+      Real kappaVorg        ! sum_i(kappa_i*Vorganic_i) [m3 species/m3 air]
+      Real overallkappa     ! sum_i(kappa_i*Vorganic_i)/vtot [NA units]
+      Real totvol           ! total aerosol volume [m3 species/m3 air]
+      Real poa              ! nonvolatile poa concentration [ug/m3]
+      Real numparticles     ! number of acc mode particles [#/m3]
+      Real diam             ! volume equivalent particle diameter [m]
+      Real aw               ! activity of water [fraction]
+      Real relhumid         ! relative humidity capped at 95% [fraction]
+                            ! Cap represents conservative est of water uptake
+                            ! and is consistent with IMPROVE visibility methods
 
 C Variables for updating 2nd and 3rd moments
       Real(8) m0_init( 2 )  ! initial 0 moment, wet [ mom/m3 ]
@@ -1428,6 +1441,52 @@ C Constrain caer to values between conmin and ctotf
 
 C Update Vapor-Phase Organic Species
       vapor_conc( : ) = ctotf( : ) - caer( : )
+
+C Add uptake of water onto hydrophillic organics (see Petters and
+C Kreidenweis 2007 ACP and Pye et al. 2017 ACP for method).
+C Uptake of water onto inorganic species is calculated elsewhere
+C using ISORROPIA.
+
+      If ( aorgh2o_idx > 0 ) Then
+
+         kappaVorg = 0.0e0 ! units: m3.spec/m3.air
+         totvol    = 0.0e0 ! units: m3.particle/m3.air
+
+         im = 2 ! only compute water for accumulation mode OM
+
+C        Compute sum_i(Kappa_i*Vorg_i) and volume equivalent diameter
+         Do i = 1, n_aerospc
+           If(  aerospc( i )%tracer )cycle
+              totvol = totvol + aerospc_conc(i, im ) /
+     &                 aerospc( i )%density * 1.0e-9
+           If( aerospc( i )%OM ) Then
+              kappaVorg = kappaVorg + aerospc( i )%kappaorg *
+     &                    aerospc_conc( i, im ) / aerospc( i )%density*1.0e-9
+           End If
+         End Do
+
+         If ( ( apoc_idx > 0 ) .and. ( apncom_idx > 0 ) ) Then ! add nonvol POA if present
+            poa = aerospc_conc( apoc_idx, im ) + aerospc_conc( apncom_idx, im )
+            kappaVorg = kappaVorg + (0.11*poa/aerospc_conc(apoc_idx, im ) -0.10)
+     &      * (aerospc_conc( apncom_idx, im ) / aerospc( apncom_idx )%density +
+     &         aerospc_conc( apoc_idx,   im ) / aerospc( apoc_idx )%density )*1.0e-9
+         End If
+
+         overallkappa = kappaVorg/totvol
+         numparticles = moment0_conc( im )
+         diam         = (6.0*totvol/numparticles/ pi ) ** (1.0/3.0)
+
+C        Compute aerosol water (Eq 3 of Petters and Kreidenweis)
+         relhumid = min( airRH, 0.95 ) ! Cap RH at 95% to be conservative regarding uptake
+         aw = activityw( relhumid, airtemp, diam ) ! activity of water
+         If( overallkappa .gt. 1e-6 ) then ! prevents situation of little uptake
+            aerospc_conc( aorgh2o_idx, im ) = aerospc( aorgh2o_idx )%density
+     &       * aw/(1.0-aw) * kappaVorg * 1.0e9
+         Else
+            aerospc_conc( aorgh2o_idx, im ) =  conmin ! no significant orgwater
+         End If
+
+      End If ! End organic water uptake
 
 
 C Acid-induced Isoprene SOA if IEPOX uptake is not considered mechanism reactions
@@ -2386,6 +2445,46 @@ C     (percent) or abstol (absolute) amount
       End Do
 
       End Function soabisect_debug
+
+!-----------------------------------------------
+
+      Function activityw( rh, temp, dtot ) result( aw )
+
+C Function calculates the activity of water
+C over an aqueous solution droplet of specified diameter
+C Equation 1 of Petters and Kreidenweis 2007 ACP:
+C
+C                   -4*surftens*Mw
+C   aw  = RH * exp( ---------------)
+C                     R*T*dens*D
+C
+C The diameter is the wet, volume equivalent, diameter of the particle.
+
+      Implicit None
+
+      Include SUBST_CONST    ! common constants
+
+C     Function arguments
+      Real rh      ! RH between 0.005, 0.99 [fraction]
+      Real temp    ! temperature [K]
+      Real dtot    ! volume equivalent diameter of entire particle [m]
+
+C     Function return value
+      Real aw      ! activity of water [fraction]
+
+C     Local variables
+      Real partialaw ! intermediate value
+
+C     Parameters
+      Real, Parameter :: surftens = 0.072e0  ! surface tension of water [J/m2]
+      Real, Parameter :: mwtwater = 0.018e0  ! molecular weight of water [kg/mol]
+      Real, Parameter :: denswater = 1000e0  ! density of water [kg/m3]
+
+C     Calculations
+      partialaw = 4.0*surftens*mwtwater/(rgasuniv*temp*denswater)
+      aw = rh / exp( partialaw/dtot )
+
+      End Function activityw
 
 !-----------------------------------------------
 
