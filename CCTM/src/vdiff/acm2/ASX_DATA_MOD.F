@@ -390,6 +390,10 @@ C Land use information:
       DATA subname(110), dif0(110), ar(110), meso(110), lebas(110) / 'SVMT5           ',0.0619,   20.0,      0.0, 207.2/
       DATA subname(111), dif0(111), ar(111), meso(111), lebas(111) / 'SVMT6           ',0.0624,   20.0,      0.0, 222.0/
       DATA subname(112), dif0(112), ar(112), meso(112), lebas(112) / 'SVMT7           ',0.0661,   20.0,      0.0, 199.8/
+      DATA subname(113), dif0(113), ar(113), meso(113), lebas(113) / 'SV_AVB1         ',0.0560,100388.0,     0.0, 163.1/
+      DATA subname(114), dif0(114), ar(114), meso(114), lebas(114) / 'SV_AVB2         ',0.0600,  1461.2,     0.0, 163.2/
+      DATA subname(115), dif0(115), ar(115), meso(115), lebas(115) / 'SV_AVB3         ',0.0620,   175.2,     0.0, 163.0/
+      DATA subname(116), dif0(116), ar(116), meso(116), lebas(116) / 'SV_AVB4         ',0.0650,    20.8,     0.0, 162.7/
 
       CONTAINS
 

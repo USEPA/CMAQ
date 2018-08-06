@@ -63,11 +63,13 @@ C    May 16 B. Murphy, H. Pye: updated treatment of aerosol moments
 C    Jan 18 H. Pye: updated monoterpene photoxidation SOA: Xu et al. 2018 ACPD
 C                   AMT1-7 will replace ATRP1-2 when fully implemented
 C                   across mechanisms. 
-C
+C    Aug 18 M. Qin, H. Pye: Removed oligomerization option here. Oligomerization
+C                   must be done in gas chemistry (mech.def). Added anthropogenic
+C                   SOA condensation for aero7.
 C-----------------------------------------------------------------------
       Implicit None
 
-      Integer, Parameter :: n_vapor_list = 35   ! # of potential partitioning SVOCs
+      Integer, Parameter :: n_vapor_list = 39   ! # of potential partitioning SVOCs
       Integer, Parameter :: n_orgprod    = 13   ! # of ROG rxn counter species
       Integer, Save      :: n_vapor             ! # of actual simulated SOA vapors
 
@@ -123,7 +125,11 @@ C                  -------    -------   -------- -------  ------     --   ----  
      & vapor_type('VLVOO2  ',  0.0000,    1.e-1,  96.0E3, 'ALVOO2J', 'A',  0.0, '        '),
      & vapor_type('VSVOO1  ',  0.0000,    1.e+0,  85.0E3, 'ASVOO1J', 'A',  0.0, '        '),
      & vapor_type('VSVOO2  ',  0.0000,    1.e+1,  74.0E3, 'ASVOO2J', 'A',  0.0, '        '),
-     & vapor_type('VSVOO3  ',  0.0000,    1.e+2,  63.0E3, 'ASVOO3J', 'A',  0.0, '        ')/)
+     & vapor_type('VSVOO3  ',  0.0000,    1.e+2,  63.0E3, 'ASVOO3J', 'A',  0.0, '        '),
+     & vapor_type('SV_AVB1 ',  0.0000,    0.010,  18.0E3, 'A_AVB1J', 'A',  0.0, '        '),
+     & vapor_type('SV_AVB2 ',  0.0000,    1.000,  18.0E3, 'A_AVB2J', 'A',  0.0, '        '),
+     & vapor_type('SV_AVB3 ',  0.0000,   10.000,  18.0E3, 'A_AVB3J', 'A',  0.0, '        '),
+     & vapor_type('SV_AVB4 ',  0.0000,  100.000,  18.0E3, 'A_AVB4J', 'A',  0.0, '        ') /)
 
 C Required species
       Character( 16 ), Private, Parameter :: req_sviso1  = 'SV_ISO1'
@@ -133,7 +139,6 @@ C Required species
       Character( 16 ), Private, Parameter :: req_aeiso1  = 'AISO1'
       Character( 16 ), Private, Parameter :: req_aeiso2  = 'AISO2'
       Character( 16 ), Private, Parameter :: req_aeiso3  = 'AISO3'
-      Character( 16 ), Private, Parameter :: req_aeolga  = 'AOLGA'
       Character( 16 ), Private, Parameter :: req_aeolgb  = 'AOLGB'
       Character( 16 ), Private, Parameter :: req_aeorgc  = 'AORGC'
       Character( 16 ), Private, Parameter :: req_amtno3  = 'AMTNO3'
@@ -149,7 +154,6 @@ C Indices of required species
       Integer :: aiso1_idx
       Integer :: aiso2_idx
       Integer :: aiso3_idx
-      Integer :: aolga_idx
       Integer :: aolgb_idx
       Integer :: aorgc_idx
 
@@ -504,7 +508,6 @@ C Find indices of required species
          aiso1_idx  = findAero( req_aeiso1, .True. )
          aiso2_idx  = findAero( req_aeiso2, .True. )
          aiso3_idx  = findAero( req_aeiso3, .True. )
-         aolga_idx  = findAero( req_aeolga, .True. )
          aolgb_idx  = findAero( req_aeolgb, .True. )
          aorgc_idx  = findAero( req_aeorgc, .True. )
 
@@ -516,7 +519,6 @@ C Find indices of required species
          Write( logdev,'( 5x, a, i4 )' ) 'aiso1_idx:  ', aiso1_idx
          Write( logdev,'( 5x, a, i4 )' ) 'aiso2_idx:  ', aiso2_idx
          Write( logdev,'( 5x, a, i4 )' ) 'aiso3_idx:  ', aiso3_idx
-         Write( logdev,'( 5x, a, i4 )' ) 'aolga_idx:  ', aolga_idx
          Write( logdev,'( 5x, a, i4 )' ) 'aolgb_idx:  ', aolgb_idx
          Write( logdev,'( 5x, a, i4 )' ) 'aorgc_idx:  ', aorgc_idx
 #endif
@@ -567,7 +569,7 @@ C (aerospc is used inside findAero)
 #endif     
          Do spc = 1, n_orgprod
             If ( orgprod( spc )%aerospc .Ne. ' ' ) Then
-               orgprod_aeroMap( spc ) = findAero( orgprod( spc )%aerospc, .True. )
+               orgprod_aeroMap( spc ) = findAero( orgprod( spc )%aerospc, .False. )
 #ifdef verbose_soa
            Write( logdev,'( 5x, a20, i4 )' ) Trim(orgprod( spc )%aerospc) // ':', 
      &                                       orgprod_aeroMap( spc )
@@ -1239,39 +1241,6 @@ C Transfer non-volatile products directly to aerospc_conc array (2nd mode)
          End If
       End Do
 
-#ifdef Oligo_aero
-C Oligomerization
-
-C Convert semi-volatile SOA to non-volatile oligomers by an exponential decay
-C process that conserves carbon mass.
-
-      nsvpa = 0.0
-      nsvpb = 0.0
-
-      Do i = 1, n_vapor
-         If( soa_aeroMap( i ) .lt. 1 )Cycle
-         If ( vaporspc( i )%soa_origin .Eq. 'A' )
-     &      nsvpa = nsvpa + aerospc_conc( soa_aeroMap( i ),2 )
-     &            * mw_vap_m1( i ) * vaporspc( i )%soa_decay
-         If ( vaporspc( i )%soa_origin .Eq. 'B' )
-     &      nsvpb = nsvpb + aerospc_conc( soa_aeroMap( i ),2 )
-     &            * mw_vap_m1( i ) * vaporspc( i )%soa_decay
-      End Do
-
-      expdt = exp( - kolig * dt )
-
-      Do i = 1, n_vapor
-         If( soa_aeroMap( i ) .lt. 1 )Cycle
-         aerospc_conc( soa_aeroMap( i ),2 ) =
-     &   aerospc_conc( soa_aeroMap( i ),2 ) * expdt
-      End Do
-
-      aerospc_conc( aolga_idx,2 ) = aerospc_conc( aolga_idx,2 )
-     &                            + 12.0 * nsvpa * ( 1.0 - expdt ) * olgrat
-      aerospc_conc( aolgb_idx,2 ) = aerospc_conc( aolgb_idx,2 )
-     &                            + 12.0 * nsvpb * ( 1.0 - expdt ) * olgrat
-
-#endif
 C Compute molar concentrations of non-volatile organic material and total
 C organic material; in future code updates, molecular weights of non-volatile
 C SOA species should be inherited from the include files or namelists to avoid

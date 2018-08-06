@@ -44,11 +44,11 @@ C           26 Jan 2016: H. Pye added info for SOA SVOCs
 C           24 Mar 2016: G. Sarwar: added iodine and bromine species
 C           26 Sep 2016: D. Wong: removed unnecessary use module statements
 C           29 Dec 2015: H.Pye: added new monoterpene SOA surrogates
-
+C           06 Aug 2018: M.Qin: added new lumped anthropogenic semivolatiles
 C-----------------------------------------------------------------------
 
       INTEGER, PARAMETER :: LDDEP = 4
-      INTEGER, PARAMETER :: LTOTG = 112
+      INTEGER, PARAMETER :: LTOTG = 116
       INTEGER, PARAMETER :: LCMP  = 8
       CHARACTER( 16 )    :: DEPV_METHOD
 
@@ -195,6 +195,10 @@ C-------------------------------------------------------------------------------
          DEPSPC( 110) = 'SVMT5           '
          DEPSPC( 111) = 'SVMT6           '
          DEPSPC( 112) = 'SVMT7           '
+         DEPSPC( 113) = 'SVAVB1          '
+         DEPSPC( 114) = 'SVAVB2          '
+         DEPSPC( 115) = 'SVAVB3          '
+         DEPSPC( 116) = 'SVAVB4          '
 
          N_USE_DEPSPC = 0
          USE_DEPSPC = .FALSE.   ! array

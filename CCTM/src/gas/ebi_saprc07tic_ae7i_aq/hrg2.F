@@ -29,11 +29,11 @@ C
 C  FUNCTION: To solve for the concentration of HO, HO2, HONO, and
 C            HNO4 alebraically.
 C
-C  PRECONDITIONS: For the saprc07tic family of mechanisms
+C  PRECONDITIONS: For the SAPRC07TIC family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Sep 22, 2017
+C  REVISION HISTORY: Created by EBI solver program, Aug  1, 2018
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C**********************************************************************

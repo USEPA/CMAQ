@@ -2164,66 +2164,52 @@
              RKI( NCELL,  903) =  BLKHET(  NCELL, IK_HETERO_IMAEOS )
 !  Reaction Label HET_NO3         
              RKI( NCELL,  904) =  BLKHET(  NCELL, IK_HETERO_NO3 )
-!  Reaction Label OLIG_ALK1       
-             RKI( NCELL,  905) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_ALK2       
-             RKI( NCELL,  906) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_XYLENE1    
-             RKI( NCELL,  907) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_XYLENE2    
-             RKI( NCELL,  908) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_TOLUENE1   
-             RKI( NCELL,  909) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_TOLUENE2   
-             RKI( NCELL,  910) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_BENZENE1   
-             RKI( NCELL,  911) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_BENZENE2   
-             RKI( NCELL,  912) =   9.4882D-06 * SFACT 
 !  Reaction Label OLIG_TERPENE1   
-             RKI( NCELL,  913) =   9.4882D-06 * SFACT 
+             RKI( NCELL,  905) =   9.4882D-06 * SFACT 
 !  Reaction Label OLIG_TERPENE2   
-             RKI( NCELL,  914) =   9.4882D-06 * SFACT 
+             RKI( NCELL,  906) =   9.4882D-06 * SFACT 
 !  Reaction Label OLIG_ISOPRENE1  
-             RKI( NCELL,  915) =   9.4882D-06 * SFACT 
+             RKI( NCELL,  907) =   9.4882D-06 * SFACT 
 !  Reaction Label OLIG_ISOPRENE2  
-             RKI( NCELL,  916) =   9.4882D-06 * SFACT 
+             RKI( NCELL,  908) =   9.4882D-06 * SFACT 
 !  Reaction Label OLIG_SESQT1     
-             RKI( NCELL,  917) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_PAH1       
-             RKI( NCELL,  918) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_PAH2       
-             RKI( NCELL,  919) =   9.4882D-06 * SFACT 
+             RKI( NCELL,  909) =   9.4882D-06 * SFACT 
+!  Reaction Label OLIG_AROMATIC1  
+             RKI( NCELL,  910) =   9.4882D-06 * SFACT 
+!  Reaction Label OLIG_AROMATIC2  
+             RKI( NCELL,  911) =   9.4882D-06 * SFACT 
+!  Reaction Label OLIG_AROMATIC3  
+             RKI( NCELL,  912) =   9.4882D-06 * SFACT 
 !  Reaction Label PCSOA           
-             RKI( NCELL,  920) =   1.2500D-11 * CFACT 
+             RKI( NCELL,  913) =   1.2500D-11 * CFACT 
 !  Reaction Label POA_AGE1        
-             RKI( NCELL,  921) =   4.0000D-11 * CFACT 
+             RKI( NCELL,  914) =   4.0000D-11 * CFACT 
 !  Reaction Label POA_AGE2        
-             RKI( NCELL,  922) =   4.0000D-11 * CFACT 
+             RKI( NCELL,  915) =   4.0000D-11 * CFACT 
 !  Reaction Label POA_AGE3        
-             RKI( NCELL,  923) =   4.0000D-11 * CFACT 
+             RKI( NCELL,  916) =   4.0000D-11 * CFACT 
 !  Reaction Label POA_AGE4        
-             RKI( NCELL,  924) =   4.0000D-11 * CFACT 
+             RKI( NCELL,  917) =   4.0000D-11 * CFACT 
 !  Reaction Label POA_AGE5        
-             RKI( NCELL,  925) =   4.0000D-11 * CFACT 
+             RKI( NCELL,  918) =   4.0000D-11 * CFACT 
 !  Reaction Label POA_AGE6        
-             RKI( NCELL,  926) =   4.0000D-11 * CFACT 
+             RKI( NCELL,  919) =   4.0000D-11 * CFACT 
 !  Reaction Label POA_AGE7        
-             RKI( NCELL,  927) =   4.0000D-11 * CFACT 
+             RKI( NCELL,  920) =   4.0000D-11 * CFACT 
 !  Reaction Label POA_AGE8        
-             RKI( NCELL,  928) =   4.0000D-11 * CFACT 
+             RKI( NCELL,  921) =   4.0000D-11 * CFACT 
 !  Reaction Label POA_AGE9        
-             RKI( NCELL,  929) =   4.0000D-11 * CFACT 
+             RKI( NCELL,  922) =   4.0000D-11 * CFACT 
 !  Reaction Label POA_AGE10       
-             RKI( NCELL,  930) =   4.0000D-11 * CFACT 
+             RKI( NCELL,  923) =   4.0000D-11 * CFACT 
 !  Reaction Label HYD_MT          
-             RKI( NCELL,  931) =   9.2590D-05 * SFACT 
+             RKI( NCELL,  924) =   9.2590D-05 * SFACT 
 !  Reaction Label HYD_ISOP        
-             RKI( NCELL,  932) =   9.2590D-05 * SFACT 
+             RKI( NCELL,  925) =   9.2590D-05 * SFACT 
 !  Reaction Label HET_GLY         
-             RKI( NCELL,  933) =  BLKHET(  NCELL, IK_HETERO_GLY )
+             RKI( NCELL,  926) =  BLKHET(  NCELL, IK_HETERO_GLY )
 !  Reaction Label HET_MGLY        
-             RKI( NCELL,  934) =  BLKHET(  NCELL, IK_HETERO_MGLY )
+             RKI( NCELL,  927) =  BLKHET(  NCELL, IK_HETERO_MGLY )
 
         END DO  
 !  Multiply rate constants by [M], [O2], [N2], [H2O], [H2], or [CH4]
