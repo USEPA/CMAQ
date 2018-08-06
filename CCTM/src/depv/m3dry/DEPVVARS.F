@@ -45,7 +45,7 @@ C           24 Mar 2016: G. Sarwar: added iodine and bromine species
 C-----------------------------------------------------------------------
 
       INTEGER, PARAMETER :: LDDEP = 4
-      INTEGER, PARAMETER :: LTOTG = 157
+      INTEGER, PARAMETER :: LTOTG = 158
       INTEGER, PARAMETER :: LCMP  = 8
       CHARACTER( 16 )    :: DEPV_METHOD
 
@@ -237,6 +237,7 @@ C-------------------------------------------------------------------------------
          DEPSPC( 155) = 'SVMT5           '
          DEPSPC( 156) = 'SVMT6           '
          DEPSPC( 157) = 'SVMT7           '
+         DEPSPC( 158) = 'CLNO3           '
 
 
          N_USE_DEPSPC = 0

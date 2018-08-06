@@ -29,11 +29,11 @@ C**********************************************************************
 C
 C  FUNCTION:  To solve for the concentration of NO3 and N2O5
 C
-C  PRECONDITIONS: For the cb6r3 family of mechanisms
+C  PRECONDITIONS: For the CB6R3 family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Jun 13, 2018
+C  REVISION HISTORY: Created by EBI solver program, Aug  2, 2018
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C**********************************************************************
@@ -81,6 +81,7 @@ c..Production of NO3 (except from N2O5 )
      &    +    4.0000D-01 * RXRAT(  56 )      ! PAN=0.4000D+00*NO3+0.6000D+...
      &    +    4.0000D-01 * RXRAT(  64 )      ! PANX=0.4000D+00*NO3+...
      &    +    1.8500D-01 * RXRAT( 170 )      ! INTR+OH=0.1850D+00*NO3+...
+     &    +                 RXRAT( 250 )      ! CLNO3=NO3+CL
 
 c..Loss frequency of NO3 ( except NO3 + NO3 if present )
       L15 =                 RKI(  27 )                        ! NO3=NO2+O
@@ -115,8 +116,8 @@ c..Loss frequency of N2O5
       L16 =                 RKI(  37 )                        ! N2O5=NO3+NO2
      &    +                 RKI(  38 )                        ! N2O5=NO2+NO3
      &    +                 RKI(  39 )                        ! N2O5=0.2000D+01*HNO3
-     &    +                 RKI( 260 )                        ! N2O5=HNO3+H2NO3PIJ
-     &    +                 RKI( 261 )                        ! N2O5=HNO3+H2NO3PK
+     &    +                 RKI( 266 )                        ! N2O5=HNO3+H2NO3PIJ
+     &    +                 RKI( 267 )                        ! N2O5=HNO3+H2NO3PK
 
 c..K15_15, R15_16, and R16_15 terms
       K15_15  = RKI(  35 ) * DTC

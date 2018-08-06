@@ -105,6 +105,7 @@ TYPE_MATRIX =
 'FMCL:64.5:::VD_FMCL:1:::FMCL:1:::Yes:Yes:Yes:Yes',
 'HCL:36.5:HCL:1:VD_HCL:1:::HCL:1:HCL:HCL:Yes:Yes:Yes:Yes',
 'CLNO2:81.5:::VD_CLNO2:1:::::::Yes:Yes::Yes',
+'CLNO3:97.5:::VD_CLNO3:1:::CLNO3:1:CLNO3::Yes:Yes:Yes:Yes',
 'TOLNRXN:141:::::::::TOLNRXN:::::',
 'TOLHRXN:141:::::::::TOLHRXN:::::',
 'XYLNRXN:155:::::::::XYLNRXN:::::',

@@ -29,11 +29,11 @@ C**********************************************************************
 C
 C  FUNCTION:  To solve for the concentration of C2O3 and PAN
 C
-C  PRECONDITIONS: For the cb6r3 family of mechanisms
+C  PRECONDITIONS: For the CB6R3 family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Jun 13, 2018
+C  REVISION HISTORY: Created by EBI solver program, Aug  1, 2018
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C**********************************************************************
@@ -90,7 +90,7 @@ c..Production of C2O3 (except from PAN )
      &   +    3.0000D-01 * RXRAT( 202 )      ! XOPN=0.3000D+00*C2O3+XO2H+...
      &   +    6.0000D-01 * RXRAT( 204 )      ! XOPN+O3=0.6000D+00*C2O3+...
      &   +    1.2000D-01 * RXRAT( 208 )      ! OPEN+O3=0.1200D+00*C2O3+...
-     &   +                 RXRAT( 241 )      ! CL+ALD2=C2O3+HCL
+     &   +                 RXRAT( 243 )      ! CL+ALD2=C2O3+HCL
 
 c..Loss frequency of C2O3 ( not including C2O3 + C2O3 )
       L8 =                 RKI(  53 ) * YC( NO           )   ! C2O3+NO=NO2+MEO2+RO2
