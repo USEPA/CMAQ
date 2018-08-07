@@ -1387,6 +1387,9 @@ C read in land use specific meteorology from WRF Noah or Ruc mosaic options
          CALL MOS_CanWat( GRID_DATA%LUFRAC, MOSAIC_DATA%VEG, MOSAIC_DATA%LAI, Met_Data%WR, Mosaic_Data%DELTA )
 !         END IF
 
+!        Calculate the cosine of the zenith angle 
+         CALL CZANGLE( JDATE, JTIME, MY_NCOLS, MY_NROWS )
+
          Return
          End Subroutine GET_MET
 
