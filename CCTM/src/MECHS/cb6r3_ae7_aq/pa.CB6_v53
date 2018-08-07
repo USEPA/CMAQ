@@ -82,15 +82,15 @@ IRR_OUTPUT NewHOxfromHONO = HONOcyc[NEGONLY];
 ! from photolysis not including HCHO
 IRR_OUTPUT NewHOxfromhv = <R50> + <R88> + 2.0*<R90> + 2.0*<R97> + <R108> 
   + 1.59*<R114> + 2.0*<R117> + <R119> + 0.76*<R161> + <R196> + 0.7*<R197> 
-  + <R201> + <CL8>;
+  + <R201> + <CL9>;
 ! from O3+alkene reactions
 IRR_OUTPUT NewHOxfromO3 =0.32*<R139> + 0.414*<R143> + 0.5*<R147> +0.332*<R156>
    +0.859*<R159> +0.57*<R173> + 1.06*<R203>;  
 
 ! chlorine
-IRR_OUTPUT NewClrad = 2.0*<CL1> + <CL2> + <CL8> + <CL25>;
-IRR_OUTPUT ClfromCLNO2 = <CL25>;
-IRR_OUTPUT ClfromCLNO3 = <CL30>;
+IRR_OUTPUT NewClrad = 2.0*<CL1> + <CL2> + <CL9> + <CL23> + <CL31>;
+IRR_OUTPUT ClfromCLNO2 = <CL27>;
+IRR_OUTPUT ClfromCLNO3 = <CL31>;
 
 ! NOz production rates
 
