@@ -899,7 +899,7 @@
        
       ! get number of different file groups (sectors)
       VARDESC = 'Number of file groups'
-      NPTGRPS = GET_ENVINT( 'NPTGRPS', VARDESC, NPTGRPS )
+      NPTGRPS = GET_ENVINT( 'N_EMIS_PT', VARDESC, NPTGRPS )
       
       ! PT3DDIAG
       VARDESC = 'Flag for outputing Point Source Diagnostic File'
