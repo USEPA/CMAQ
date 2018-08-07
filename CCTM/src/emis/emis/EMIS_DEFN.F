@@ -669,7 +669,7 @@ C-----------------------------------------------------------------------
 
             ! Write out the emissions data
             IF ( .NOT. WRITE3( EM_DIAG_FILE( ISRM ), DIFF_SPC( IVAR ),
-     &                 MDATE, MTIME, VDEMIS( :,:,1:NLAYS,IVAR ) ) ) THEN
+     &                 MDATE, MTIME, VDEMIS( :,:,1:LAYS,IVAR ) ) ) THEN
                 XMSG = 'Could not write ' // EM_DIAG_FILE( ISRM ) // ' file'
                 CALL M3EXIT( 'WRITE_EMISS_DIAG', MDATE, MTIME, XMSG, XSTAT1 )
             END IF
@@ -2034,8 +2034,7 @@ C stkemis_init.
              CONVEM_PM_MASS ( ISRM ) = 1.0
              EMIS_GAS_UNITS( ISRM ) = "Unknown"
 
-             WRITE( VLAB,'( "BIOG_EMIS_DIAG_",I2.2 )' ) N
-             CALL ENVSTR( VLAB, 'Biogenic Emissions Diagnostic', EMISDIAG, 
+             CALL ENVSTR( "BIOG_EMIS_DIAG", 'Biogenic Emissions Diagnostic', EMISDIAG, 
      &                    EM_FILE_LDIAG( ISRM ), IOS )
              EM_FILE_LDIAG( ISRM ) = RESOLVE_YN_TF_2D3D( EM_FILE_LDIAG( ISRM ) )
              WRITE( EM_DIAG_FILE( ISRM ),'( "BIOG_EMDGFILE_",I2.2 )' ) N
@@ -2056,8 +2055,7 @@ C stkemis_init.
              CONVEM_PM_MASS ( ISRM ) = 1.0
              EMIS_GAS_UNITS( ISRM ) = "Unknown"
 
-             WRITE( VLAB,'( "MG_EMIS_DIAG_",I2.2 )' ) N
-             CALL ENVSTR( VLAB, 'Marine Gas Emissions Diagnostic', EMISDIAG, 
+             CALL ENVSTR( "MG_EMIS_DIAG", 'Marine Gas Emissions Diagnostic', EMISDIAG, 
      &                    EM_FILE_LDIAG( ISRM ), IOS )
              EM_FILE_LDIAG( ISRM ) = RESOLVE_YN_TF_2D3D( EM_FILE_LDIAG( ISRM ) )
              WRITE( EM_DIAG_FILE( ISRM ),'( "MG_EMDGFILE_",I2.2 )' ) N
@@ -2078,8 +2076,7 @@ C stkemis_init.
              CONVEM_PM_MASS ( ISRM ) = 1.0
              EMIS_GAS_UNITS( ISRM ) = "Unknown"
 
-             WRITE( VLAB,'( "LTNG_EMIS_DIAG_",I2.2 )' ) N
-             CALL ENVSTR( VLAB, 'Lightning Emissions Diagnostic', EMISDIAG, 
+             CALL ENVSTR( "LTNG_EMIS_DIAG", 'Lightning Emissions Diagnostic', EMISDIAG, 
      &                    EM_FILE_LDIAG( ISRM ), IOS )
              EM_FILE_LDIAG( ISRM ) = RESOLVE_YN_TF_2D3D( EM_FILE_LDIAG( ISRM ) )
              WRITE( EM_DIAG_FILE( ISRM ),'( "LTNG_EMDGFILE_",I2.2 )' ) N
@@ -2100,8 +2097,7 @@ C stkemis_init.
              CONVEM_PM_MASS ( ISRM ) = MGPG
              EMIS_AER_UNITS( ISRM ) = "g m-3 s-1"
              
-             WRITE( VLAB,'( "SEASPRAY_EMIS_DIAG_",I2.2 )' ) N
-             CALL ENVSTR( VLAB, 'Sea Spray Emissions Diagnostic', EMISDIAG, 
+             CALL ENVSTR( "SEASPRAY_EMIS_DIAG", 'Sea Spray Emissions Diagnostic', EMISDIAG, 
      &                    EM_FILE_LDIAG( ISRM ), IOS )
              EM_FILE_LDIAG( ISRM ) = RESOLVE_YN_TF_2D3D( EM_FILE_LDIAG( ISRM ) )
              WRITE( EM_DIAG_FILE( ISRM ),'( "ASEA_EMDGFILE_",I2.2 )' ) N
@@ -2122,8 +2118,7 @@ C stkemis_init.
              CONVEM_PM_MASS ( ISRM ) = MGPG
              EMIS_AER_UNITS( ISRM ) = "g m-3 s-1"
              
-             WRITE( VLAB,'( "DUST_EMIS_DIAG_",I2.2 )' ) N
-             CALL ENVSTR( VLAB, 'Wind-Blow Dust Emissions Diagnostic', EMISDIAG, 
+             CALL ENVSTR( "DUST_EMIS_DIAG", 'Wind-Blow Dust Emissions Diagnostic', EMISDIAG, 
      &                    EM_FILE_LDIAG( ISRM ), IOS )
              EM_FILE_LDIAG( ISRM ) = RESOLVE_YN_TF_2D3D( EM_FILE_LDIAG( ISRM ) )
              WRITE( EM_DIAG_FILE( ISRM ),'( "DUST_EMDGFILE_",I2.2 )' ) N
@@ -2252,7 +2247,7 @@ C stkemis_init.
                     UNITS3D( V ) = 'g/s'
              END IF
             
-             VDESC3D( V ) = 'Emission Rate of ' // TRIM( VNAME3D( IVAR ) )
+             VDESC3D( V ) = 'Emission Rate of ' // TRIM( VNAME3D( V ) )
      &                       // ' from ' // TRIM(EM_FILE_LAB( ISRM )) // ' emissions'
           END DO
           
