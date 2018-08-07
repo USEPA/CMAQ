@@ -65,6 +65,8 @@
  !          Region   | Stream Label  |Emission | CMAQ-   |Phase/ |Scale  | Op
  !           Label   |               |Surrogate| Species |Mode   |Factor |
  !<EXAMPLE> 'WATER'  , 'All'         ,'All'    ,'All'    ,'All'  ,0.     ,'o',
+       'EVERYWHERE'  , 'All'         ,'PNH4'   ,'ANH4'   ,'FINE' ,0.     ,'o',
+       'EVERYWHERE'  , 'All'         ,'PNH4'   ,'ANH4'   ,'AIT_NULL' ,1.     ,'a',
 
 /
 
@@ -92,6 +94,7 @@
  !         | Stream Label   | Surr. Mode   | Ref. Mode 
  !<Default>  'ALL'          ,'FINE'        ,'FINE_REF',
  !<Default>  'ALL'          ,'COARSE'      ,'COARSE_REF',
+             'ALL'          ,'AIT_NULL'    ,'AIT_NULL',
 
 /
 

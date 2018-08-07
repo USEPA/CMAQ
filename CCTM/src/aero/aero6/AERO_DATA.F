@@ -304,13 +304,14 @@ C                     ---------- -------- ------- + + +   + ------ --- +  ------
           Real            :: dgvem( n_mode )  ! meters
           Real            :: sgem ( n_mode )  ! dimensionless
       END TYPE em_aero
-      INTEGER, PARAMETER  :: n_em_aero_ref = 7
+      INTEGER, PARAMETER  :: n_em_aero_ref = 8
 
       TYPE( em_aero ), Parameter :: em_aero_ref( n_em_aero_ref ) = (/
 
 !              ----Name---- -----Split-----    ---Geo. Mean Diameter---    ---Stnd Dev.---
      & em_aero('FINE_REF  ',(/0.1,0.9,0.0/)  ,(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)), ! Default Accum and Aitken Mode
      & em_aero('ACC_REF   ',(/0.0,1.0,0.0/)  ,(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)), ! Just Accumulation Mode
+     & em_aero('AIT_NULL  ',(/0.0,0.9,0.0/)  ,(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)), ! Ignore Aitken Mode Mass from Fine Reference Case
      & em_aero('COARSE_REF',(/0.0,0.0,1.0/)  ,(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)), ! Just Coarse Mode
      & em_aero('UNITY_REF ',(/1.0,1.0,1.0/)  ,(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)), ! Used for online sectors (e.g. SeaSpray)
      & em_aero('ZERO_REF  ',(/0.0,0.0,0.0/)  ,(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)), ! Zero out the emissions
