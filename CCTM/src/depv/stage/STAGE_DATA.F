@@ -38,7 +38,7 @@ C     26 June 2014 J.Bash: initial implementation
          Real,          Allocatable :: LeBasM     ( : )  ! Molar volume of deposited species
          Real,          Allocatable :: f0         ( : )  ! mesophyll resistance overide flag 
          Real,          Allocatable :: ApRx       ( : )  ! Apparent reactivity
-         Real,          Allocatable :: MassAC     ( : )  ! Mass M_accomindation coefficient
+         Real,          Allocatable :: MassAC     ( : )  ! Mass M_accomindation coefficient 
          Character(16), Allocatable :: dep_name   ( : )  ! Dep Species Name
          Character(16), Allocatable :: gas_name   ( : )  ! Gas Species Name
          Character(16), Allocatable :: H_name     ( : )  ! Henery's surrogate name from the name
@@ -55,7 +55,7 @@ C     26 June 2014 J.Bash: initial implementation
 
       Type( Map_Type ), Save :: Map_Data 
 
-      INTEGER, PARAMETER :: dep_gas_all = 150
+      INTEGER, PARAMETER :: dep_gas_all = 160
       INTEGER, PARAMETER :: LCMP = 8
       Character( 16 ), Save :: vd_name     ( dep_gas_all )       ! Deposition species name
       Real,            Save :: rel_rx      ( dep_gas_all )       ! reactivity relative to HNO3
@@ -207,21 +207,31 @@ C     26 June 2014 J.Bash: initial implementation
       DATA vd_name(133), rel_rx(133), f0(133), LeBasM(133), M_ac(133) / 'ETHY         ',     1.0, 0.0,   45.8, 0.420/ ! ETHY
       DATA vd_name(134), rel_rx(134), f0(134), LeBasM(134), M_ac(134) / 'OLE          ',     1.0, 0.0,   73.1, 0.420/ ! OLE as Propene
       DATA vd_name(135), rel_rx(135), f0(135), LeBasM(135), M_ac(135) / 'IOLE         ',     1.0, 0.0,   89.5, 0.420/ ! IOLE as Isobutene
-      DATA vd_name(136), rel_rx(136), f0(136), LeBasM(136), M_ac(136) / 'IEPOX        ',     1.0, 0.0,  101.2, 0.420/ ! Duplicate ///REMOVE///
-      DATA vd_name(137), rel_rx(137), f0(137), LeBasM(137), M_ac(137) / 'BENZ         ',     1.0, 0.0,   89.4, 0.420/ ! BENZENE
-      DATA vd_name(138), rel_rx(138), f0(138), LeBasM(138), M_ac(138) / 'CRES         ',     1.0, 0.0,  108.1, 0.420/ ! CRES
-      DATA vd_name(139), rel_rx(139), f0(139), LeBasM(139), M_ac(139) / 'TOL          ',     1.0, 0.0,  105.7, 0.420/ ! TOL
-      DATA vd_name(140), rel_rx(140), f0(140), LeBasM(140), M_ac(140) / 'XYLMN        ',     1.0, 0.0,  122.0, 0.420/ ! XYLMN
-      DATA vd_name(141), rel_rx(141), f0(141), LeBasM(141), M_ac(141) / 'NAPH         ',     1.0, 0.0,  123.5, 0.420/ ! NAPH
-      DATA vd_name(142), rel_rx(142), f0(142), LeBasM(142), M_ac(142) / 'CAT1         ',     1.0, 0.0,  102.6, 0.420/ ! CAT1
-      DATA vd_name(143), rel_rx(143), f0(143), LeBasM(143), M_ac(143) / 'SESQ         ',     1.0, 0.0,  251.5, 0.420/ ! SESQ
-      DATA vd_name(144), rel_rx(144), f0(144), LeBasM(144), M_ac(144) / 'TERP         ',     1.0, 0.0,  136.2, 0.420/ ! TERP
-      DATA vd_name(145), rel_rx(145), f0(145), LeBasM(145), M_ac(145) / 'ISOP         ',     1.0, 0.0,  136.2, 0.420/ ! ISOP
-      DATA vd_name(146), rel_rx(146), f0(146), LeBasM(146), M_ac(146) / 'OPEN         ',     1.0, 0.0,   69.6, 0.420/ ! OPEN C4H4O2
-      DATA vd_name(147), rel_rx(147), f0(147), LeBasM(147), M_ac(147) / 'XOPN         ',     1.0, 0.0,   81.7, 0.420/ ! XOPN C5H6O2
-      DATA vd_name(148), rel_rx(148), f0(148), LeBasM(148), M_ac(148) / 'SOAALK       ',     1.0, 0.0,  142.8, 0.420/ ! SOAALK as Propylcyclopentane
-      DATA vd_name(149), rel_rx(149), f0(149), LeBasM(149), M_ac(149) / 'BUTADIENE13  ',     1.0, 0.0,   84.8, 0.420/ ! BUTADIENE13
-      DATA vd_name(150), rel_rx(150), f0(150), LeBasM(150), M_ac(150) / 'ACROLEIN     ',     1.0, 0.0,   70.5, 0.420/ ! ACROLEIN
+      DATA vd_name(136), rel_rx(136), f0(136), LeBasM(136), M_ac(136) / 'BENZ         ',     1.0, 0.0,   89.4, 0.420/ ! BENZENE
+      DATA vd_name(137), rel_rx(137), f0(137), LeBasM(137), M_ac(137) / 'CRES         ',     1.0, 0.0,  108.1, 0.420/ ! CRES
+      DATA vd_name(138), rel_rx(138), f0(138), LeBasM(138), M_ac(138) / 'TOL          ',     1.0, 0.0,  105.7, 0.420/ ! TOL
+      DATA vd_name(139), rel_rx(139), f0(139), LeBasM(139), M_ac(139) / 'XYLMN        ',     1.0, 0.0,  122.0, 0.420/ ! XYLMN
+      DATA vd_name(140), rel_rx(140), f0(140), LeBasM(140), M_ac(140) / 'NAPH         ',     1.0, 0.0,  123.5, 0.420/ ! NAPH
+      DATA vd_name(141), rel_rx(141), f0(141), LeBasM(141), M_ac(141) / 'CAT1         ',     1.0, 0.0,  102.6, 0.420/ ! CAT1
+      DATA vd_name(142), rel_rx(142), f0(142), LeBasM(142), M_ac(142) / 'SESQ         ',     1.0, 0.0,  251.5, 0.420/ ! SESQ
+      DATA vd_name(143), rel_rx(143), f0(143), LeBasM(143), M_ac(143) / 'TERP         ',     1.0, 0.0,  136.2, 0.420/ ! TERP
+      DATA vd_name(144), rel_rx(144), f0(144), LeBasM(144), M_ac(144) / 'ISOP         ',     1.0, 0.0,  136.2, 0.420/ ! ISOP
+      DATA vd_name(145), rel_rx(145), f0(145), LeBasM(145), M_ac(145) / 'OPEN         ',     1.0, 0.0,   69.6, 0.420/ ! OPEN C4H4O2
+      DATA vd_name(146), rel_rx(146), f0(146), LeBasM(146), M_ac(146) / 'XOPN         ',     1.0, 0.0,   81.7, 0.420/ ! XOPN C5H6O2
+      DATA vd_name(147), rel_rx(147), f0(147), LeBasM(147), M_ac(147) / 'SOAALK       ',     1.0, 0.0,  142.8, 0.420/ ! SOAALK as Propylcyclopentane
+      DATA vd_name(148), rel_rx(148), f0(148), LeBasM(148), M_ac(148) / 'BUTADIENE13  ',     1.0, 0.0,   84.8, 0.420/ ! BUTADIENE13
+      DATA vd_name(149), rel_rx(149), f0(149), LeBasM(149), M_ac(149) / 'ACROLEIN     ',     1.0, 0.0,   70.5, 0.420/ ! ACROLEIN
+      DATA vd_name(150), rel_rx(150), f0(150), LeBasM(150), M_ac(150) / 'SVMT1        ',145839.6, 0.0,  355.2, 0.910/ ! SVMT1 Xu et al., 2018 ACPD: doi:10.5194/acp-2017-1109
+      DATA vd_name(151), rel_rx(151), f0(151), LeBasM(151), M_ac(151) / 'SVMT2        ', 12788.1, 0.0,  236.8, 0.909/ ! SVMT2
+      DATA vd_name(152), rel_rx(152), f0(152), LeBasM(152), M_ac(152) / 'SVMT3        ',  1512.4, 0.0,  214.6, 0.896/ ! SVMT3
+      DATA vd_name(153), rel_rx(153), f0(153), LeBasM(153), M_ac(153) / 'SVMT4        ',   189.1, 0.0,  229.4, 0.783/ ! SVMT4
+      DATA vd_name(154), rel_rx(154), f0(154), LeBasM(154), M_ac(154) / 'SVMT5        ',    22.2, 0.0,  207.2, 0.444/ ! SVMT5
+      DATA vd_name(155), rel_rx(155), f0(155), LeBasM(155), M_ac(155) / 'SVMT6        ',     2.8, 0.0,  222.0, 0.420/ ! SVMT6
+      DATA vd_name(156), rel_rx(156), f0(156), LeBasM(156), M_ac(156) / 'SVMT7        ',     1.0, 0.0,  199.8, 0.420/ ! SVMT7
+      DATA vd_name(157), rel_rx(157), f0(157), LeBasM(157), M_ac(157) / 'SVAVB1       ',100388.0, 0.0,  163.1, 0.910/ ! SVAVB1
+      DATA vd_name(158), rel_rx(158), f0(158), LeBasM(158), M_ac(158) / 'SVAVB2       ',  1461.2, 0.0,  163.2, 0.896/ ! SVAVB2
+      DATA vd_name(159), rel_rx(159), f0(159), LeBasM(159), M_ac(159) / 'SVAVB3       ',   175.2, 0.0,  163.0, 0.783/ ! SVAVB3
+      DATA vd_name(160), rel_rx(160), f0(160), LeBasM(160), M_ac(160) / 'SVAVB4       ',    20.8, 0.0,  162.7, 0.444/ ! SVAVB4
 
       Contains
          SUBROUTINE Map_STAGE 
@@ -230,20 +240,20 @@ C     26 June 2014 J.Bash: initial implementation
          USE UTILIO_DEFN 
 
          IMPLICIT NONE
-!         Real,            Save :: molwt_all ( dep_gas_all )
-!         CHARACTER( 16 ), SAVE :: H_name_all( dep_gas_all )  ! Henry's constant name for all species
+
          Integer               :: c, r, l, n, s, v
-!         Integer, Save         :: n_gas_asx                  ! number of gas species used in this simulation 
-!         Logical, Save         :: asx_run_map( dep_gas_all )
          CHARACTER( 16 )       :: gc_depv_name( dep_gas_all )
          CHARACTER( 16 )  :: PNAME = 'Map_STAGE'
          CHARACTER( 120 ) :: XMSG = ' '
 
          logdev  = init3()
-         
-         asx_run_map = .FALSE.
+         molwt_all    = 0.0
+         asx_run_map  = .FALSE.
+         gc_depv_name = 'None'
+         H_name_all   = 'None'
+
          n_gas_asx   = N_GC_DEPV + N_NR_DEPV + N_TR_DEPV
-          
+         
          Do v = 1, N_GC_DEPV
             s = index1( gc_depv( v ),dep_gas_all,'VD_'//vd_name ) 
             If( s .Gt. 0.0 ) Then
@@ -287,10 +297,13 @@ C     26 June 2014 J.Bash: initial implementation
             End if
          End Do
 
-!         Do v = 1, dep_gas_all
-!            Write(Logdev,*) 'Map: ',  gc_depv_name(v),':', H_name_all(v),':', vd_name(v)
-!         End Do       
-
+         Write(Logdev,*) '*********************** STAGE Deposition Map ***********************'
+         Write(Logdev,99901) 'Dep. Species', 'H Surrogate', 'Mol Weight'
+         Do v = 1, dep_gas_all
+           If( asx_run_map (v) ) Write(Logdev,99902) gc_depv_name(v), H_name_all(v), molwt_all(v)
+         End Do       
+99901    Format(A16,1x,A16,1x,A16)
+99902    Format(A16,1x,A16,1x,F5.2)
 
          End Subroutine Map_Stage
       End Module Stage_Data
