@@ -135,15 +135,29 @@ C Open Area Emissions files
          CALL OPEMIS ( JDATE, JTIME, EM_TRAC )
 
 C Get number of emissions layers
-         EMLAYS = MIN ( EMLAYS, NLAYS )  !Emission Layers will be at most the 
-                                         !layers in the grid
+         IF ( EMLAYS .LE. 0 ) THEN
+            ! Find The Largest Gridded Emission Layer And Let That be
+            ! the initial top.
+            EMLAYS = MAXVAL( EM_GRID_LAYS(:) ) 
+            
+            ! If there are inline point sources, irevise the top to be
+            ! the model top.
+            IF ( NPTGRPS .GT. 0 ) EMLAYS = NLAYS
 
-         ! Cut the number of emission layers of any 3D gridded files to
-         ! equal EMLAYS
-         DO ISRM = 1, SIZE( EM_GRID_LAYS ) 
-             IF ( EM_GRID_LAYS( ISRM ) .GT. 0 ) 
-     &            EM_GRID_LAYS( ISRM ) = MIN( EM_GRID_LAYS( ISRM ), EMLAYS )
-         END DO
+            ! Make sure the top is not greater than the model top
+            EMLAYS = MIN( EMLAYS, NLAYS )
+
+         ELSE
+           ! Make sure the top is not greater than the model top
+           EMLAYS = MIN( EMLAYS, NLAYS )
+
+           ! Cut the number of emission layers of any 3D gridded files to
+           ! equal EMLAYS
+           DO ISRM = 1, SIZE( EM_GRID_LAYS ) 
+               IF ( EM_GRID_LAYS( ISRM ) .GT. 0 ) 
+     &              EM_GRID_LAYS( ISRM ) = MIN( EM_GRID_LAYS( ISRM ), EMLAYS )
+           END DO
+         END IF
 
          WRITE( LOGDEV,1009 ) EMLAYS, NLAYS
 1009     FORMAT(    5X, 'Number of Emissions Layers:         ', I3
@@ -1730,7 +1744,6 @@ C and allowing the model to proceed.
 ! Point Source file 2.
 !
          USE AERO_DATA, only : MGPG, GPKG
-         USE AERO_EMIS, only : SS_AERO
          USE UTILIO_DEFN         ! I/O API
          USE RXNS_DATA, ONLY: MECHNAME
          USE MGEMIS,    only : MGEM     ! Flag for Marine Gas Emissions
@@ -1752,53 +1765,24 @@ C and allowing the model to proceed.
          LOGICAL :: SUCCESS
          CHARACTER( 200 ) :: EM_DIAG_PREFIX = 'CCTM_EMDIAG_'
          CHARACTER( 200 ) :: EM_DIAG_SUFFIX = ''
-
-
-         CHARACTER( 6 ) :: EMISDIAG = 'FALSE' ! Default for Emissions Diagnostic Toggle
-         LOGICAL        :: EMIS_DATE_OVRD = .FALSE. ! Default for Emissions Diagnostic Toggle
          LOGICAL        :: VALUE
 
          SUCCESS = .TRUE.
 
-C Initialize Regions for Mapping Scale Factors Geographically for Base
-C Model (eventually apply this to DDM-3D and ISAM)
+         ! Initialize Regions for Mapping Scale Factors Geographically for Base
+         ! Model (eventually apply this to DDM-3D and ISAM)
          CALL READ_EMISS_NAMELIST( )
          CALL INIT_EMIS_REGIONS( )
     
-C Determine user-defined default for emissions diagnostics
-         VARDESC = 'Flag for emissions diagnostic default'
-         CALL ENVSTR( 'EMISDIAG', VARDESC, EMISDIAG, EMISDIAG, IOS )
-         EMISDIAG = RESOLVE_YN_TF_2D3D( EMISDIAG )
-
-C Determine user-defined default for emissions date override
-         VARDESC = 'Flag for emissions date override'
-         EMIS_DATE_OVRD = ENVYN( 'EMIS_DATE_OVRD', VARDESC, EMIS_DATE_OVRD, IOS )
-
-C Retrieve the number of each type of emission file             
-         N_FILE_GR = ENVINT( 'N_EMIS_GR',
-     &                     'Number of Gridded Area Emission Files',1, IOS )
-         NPTGRPS   = ENVINT( 'N_EMIS_PT',
-     &                     'Number of file groups',0, IOS )
-         N_FILE_TR = ENVINT( 'N_EMIS_TR',
-     &                     'Number of Tracer Emission Files',0, IOS )
+       ! Calculate the total number of Emission Streams based on the
+       ! user options
+         ! Add the number of total Emission Streams 
          N_EM_SRM = N_FILE_GR + NPTGRPS + N_FILE_TR
  
-         BIOGEMIS = ENVYN( CTM_BIOGEMIS, VARDESC, BIOGEMIS, STATUS )
-         IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-         IF ( STATUS .EQ. 1 ) THEN
-            XMSG = 'Environment variable improperly formatted'
-            CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-            SUCCESS = .FALSE.; RETURN
-         ELSE IF ( STATUS .EQ. -1 ) THEN
-            XMSG = 'Environment variable set, but empty ... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-         ELSE IF ( STATUS .EQ. -2 ) THEN
-            XMSG = 'Environment variable not set ... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-         END IF
+         ! Online Biogenic Emissions
          IF ( BIOGEMIS ) N_EM_SRM = N_EM_SRM + 1
 
-C Marine gas emissions; use in-line marine gas option only if CB05EH51 is used
+         ! Marine gas emissions; use in-line marine gas option only if CB05EH51 is used
          IF ( INDEX( MECHNAME, 'CB05EH51' ) .GT. 0 ) then
             MGEM = .TRUE.
          ELSE
@@ -1806,25 +1790,19 @@ C Marine gas emissions; use in-line marine gas option only if CB05EH51 is used
          END IF
          IF ( MGEM ) N_EM_SRM = N_EM_SRM + 1
 
-C Determine if Lightning NO is Requested
-         VARDESC = 'Flag for lightning emissions'
-         LTNG_NO = ENVYN( CTM_LTNG_NO, VARDESC, .FALSE., STATUS )
+         ! Lightning NO Emissions
          IF ( LTNG_NO ) N_EM_SRM = N_EM_SRM + 1
  
-C Determine if Sea Spray Aerosol is Requested
-         SS_AERO = ENVYN( 'CTM_SS_AERO', 'Flag for Sea Spray Aerosol emissions',
-     &                   .TRUE., STATUS )
+         ! Sea Spray Aerosol 
          IF ( SS_AERO ) N_EM_SRM = N_EM_SRM + 1
 
-C Determine if WindBlown Dust is Requested
-         WB_DUST = ENVYN( 'CTM_WB_DUST', 'Flag for windblown dust emissions',
-     &                   .TRUE., STATUS )
+         ! Determine if WindBlown Dust is Requested
          IF ( WB_DUST ) N_EM_SRM = N_EM_SRM + 1
 
-C Turn Back Now if N_EM_SRM Equals Zero (i.e. there are no emissions
+         ! Turn Back Now if N_EM_SRM Equals Zero (i.e. there are no emissions
          IF ( N_EM_SRM .EQ. 0 ) RETURN
 
-C Allocate Emission File Structure Variables
+       ! Allocate Emission File Structure Variables
          Allocate( EM_FILE_NAME  ( N_EM_SRM ) )
          Allocate( EM_FILE_LAB   ( N_EM_SRM ) )
          Allocate( EM_FILE_TYPE  ( N_EM_SRM ) )
@@ -1854,10 +1832,13 @@ C stkemis_init.
          EMIS_GAS_UNITS = "Unknown"
          EMIS_AER_UNITS = "Unknown"
          EM_FILE_LAPPLY = .TRUE.
-         EM_FILE_LDIAG   = EMISDIAG 
          EM_FILE_DATE_OVRD = EMIS_DATE_OVRD
          EM_FILE_DATE   = JDATE
          EM_FILE_FIRE   = .FALSE.
+         EM_GRID_LAYS   = 0
+         
+         EMISDIAG = RESOLVE_YN_TF_2D3D( EMISDIAG )
+         EM_FILE_LDIAG   = EMISDIAG 
 
          ! Set the standard suffix for all Emissions Diagnostic Files
          IF ( OUTDIR(1:8 ) .NE. 'OUTDIR' ) EM_DIAG_PREFIX = TRIM( OUTDIR ) // '/' // EM_DIAG_PREFIX
@@ -1873,32 +1854,44 @@ C stkemis_init.
            DO N = 1, N_FILE_GR
               ISRM = ISRM + 1
               IGSRM( ISRM ) = N
+
+              ! Create Description of this Emission File for output to
+              ! diagnostics
               WRITE( EM_FILE_DESC( ISRM ), '(A,I3)' ),
      &           'Gridded Area Emissions File ', N
              
+              ! Retrieve Short-Name Label for Each Gridded File
               WRITE( VLAB,'( "GR_EMIS_LAB_",I3.3 )' ) N
-              CALL ENVSTR( VLAB, 'Gridded Emission File Label',VLAB,
-     &                     EM_FILE_LAB( ISRM ), IOS )
+              CALL GET_ENV( EM_FILE_LAB( ISRM ), VLAB,
+     &                      EM_FILE_LAB( ISRM ), IOS )
               CALL UPCASE( EM_FILE_LAB( ISRM ) )
 
+              ! Each Gridded File Name is stored already in IO-API as
+              ! an object of the form GR_EMIS_XXX
               WRITE( EM_FILE_NAME( ISRM ),'( "GR_EMIS_",I3.3 )' ) N
 
+              ! Retrieve Toggle for whether or not to apply these
+              ! emissions 
               WRITE( VLAB,'( "GR_EMIS_APPLY_",I3.3 )' ) N
-              EM_FILE_LAPPLY( ISRM ) = ENVYN( VLAB, 
-     &             'Gridded Emission File Application',.TRUE., IOS )
+              CALL GET_ENV( EM_FILE_LAPPLY( ISRM ), VLAB, 
+     &                      EM_FILE_LAPPLY( ISRM ), IOS )
  
+              ! Retrieve Toggle for overriding emissions file date with
+              ! internal model date
               WRITE( VLAB,'( "GR_EM_DTOVRD_",I3.3 )' ) N
-              EM_FILE_DATE_OVRD( ISRM ) = ENVYN( VLAB, 
-     &             'Gridded Emission Date Check',.FALSE., IOS )
+              CALL GET_ENV( EM_FILE_DATE_OVRD( ISRM ), VLAB, 
+     &                      EMIS_DATE_OVRD, IOS )
  
+              ! Retrieve Toggle for Outputing Gridded Emissions
+              ! Diagnostic File
               WRITE( VLAB,'( "GR_EMIS_DIAG_",I3.3 )' ) N
-              CALL ENVSTR( VLAB, 'Gridded Emissions Diagnostic', EMISDIAG, 
-     &                     EM_FILE_LDIAG( ISRM ), IOS )
+              CALL GET_ENV( EM_FILE_LDIAG( ISRM ), VLAB, EMISDIAG, IOS )
               EM_FILE_LDIAG( ISRM ) = RESOLVE_YN_TF_2D3D( EM_FILE_LDIAG( ISRM ) )
               WRITE( EM_DIAG_FILE( ISRM ),'( "GR_EMDGFILE_",I3.3 )' ) N
               VALUE = SETENVVAR( EM_DIAG_FILE( ISRM ), TRIM( EM_DIAG_PREFIX ) // 
      &            TRIM( EM_FILE_LAB( ISRM ) ) // TRIM( EM_DIAG_SUFFIX ) ) 
 
+              ! Set Unit Conversions for Gas and Particle Phase Species
               CONVEM_GAS( ISRM ) = 1.0
               CONVEM_PM_MASS ( ISRM ) = 1.0
            END DO
@@ -1906,73 +1899,94 @@ C stkemis_init.
          
          ! In-Line Point Source Files
          IF ( NPTGRPS .GT. 0 ) THEN 
-            EM_FILE_TYPE( ISRM+1:ISRM+NPTGRPS ) = 'POINT'
-            EM_FILE_ITYPE( ISRM+1:ISRM+NPTGRPS ) = 2
-            DO N = 1, NPTGRPS
-               ISRM = ISRM + 1
-               IPSRM( ISRM ) = N
-               MAP_PTtoISRM( N ) = ISRM
-               WRITE( EM_FILE_DESC( ISRM ), '(A,I3)' ),
-     &         'Point Emissions File ', IPSRM( ISRM )
+           EM_FILE_TYPE( ISRM+1:ISRM+NPTGRPS ) = 'POINT'
+           EM_FILE_ITYPE( ISRM+1:ISRM+NPTGRPS ) = 2
+           DO N = 1, NPTGRPS
+              ISRM = ISRM + 1
+              IPSRM( ISRM ) = N
+              MAP_PTtoISRM( N ) = ISRM
               
-               WRITE( VLAB,'( "STK_EMIS_LAB_",I3.3 )' ) N
-               CALL ENVSTR( VLAB, 'Stack Emission File Label',VLAB,
+              ! Create Description of this Emission File for output to
+              ! diagnostics
+              WRITE( EM_FILE_DESC( ISRM ), '(A,I3)' ),
+     &        'Point Emissions File ', IPSRM( ISRM )
+             
+              ! Retrieve Short-Name Label for Each Inline File
+              WRITE( VLAB,'( "STK_EMIS_LAB_",I3.3 )' ) N
+              CALL GET_ENV( EM_FILE_LAB( ISRM ), VLAB, 
      &                      EM_FILE_LAB( ISRM ), IOS )
-               CALL UPCASE( EM_FILE_LAB( ISRM ) )
+              CALL UPCASE( EM_FILE_LAB( ISRM ) )
  
-               WRITE( EM_FILE_NAME( ISRM ),'( "STK_EMIS_",I3.3 )' ) N
-               
-               WRITE( VLAB,'( "STK_EMIS_APPLY_",I3.3 )' ) N
-               EM_FILE_LAPPLY( ISRM ) = ENVYN( VLAB, 
-     &               'Stack Emission File Application',.TRUE., IOS )
+              ! Each Inline File Name is stored already in IO-API as
+              ! an object of the form STK_EMIS_XXX
+              WRITE( EM_FILE_NAME( ISRM ),'( "STK_EMIS_",I3.3 )' ) N
+              
+              ! Retrieve Toggle for whether or not to apply these
+              ! emissions 
+              WRITE( VLAB,'( "STK_EMIS_APPLY_",I3.3 )' ) N
+              CALL GET_ENV( EM_FILE_LAPPLY( ISRM ), VLAB, 
+     &                      EM_FILE_LAPPLY( ISRM ), IOS )
  
+              ! Retrieve Toggle for overriding emissions file date with
+              ! internal model date
               WRITE( VLAB,'( "STK_EM_DTOVRD_",I3.3 )' ) N
-              EM_FILE_DATE_OVRD( ISRM ) = ENVYN( VLAB, 
-     &             'Stack Emission Date Check',.FALSE., IOS )
+              CALL GET_ENV( EM_FILE_DATE_OVRD( ISRM ), VLAB, 
+     &                      EMIS_DATE_OVRD, IOS )
  
+              ! Retrieve Toggle for Outputing Inline Emissions
+              ! Diagnostic File
               WRITE( VLAB,'( "STK_EMIS_DIAG_",I3.3 )' ) N
-              CALL ENVSTR( VLAB, 'Stack Emissions Diagnostic', EMISDIAG, 
-     &                     EM_FILE_LDIAG( ISRM ), IOS )
+              CALL GET_ENV( EM_FILE_LDIAG( ISRM ), VLAB, EMISDIAG, IOS )
               EM_FILE_LDIAG( ISRM ) = RESOLVE_YN_TF_2D3D( EM_FILE_LDIAG( ISRM ) )
               WRITE( EM_DIAG_FILE( ISRM ),'( "STK_EMDGFILE_",I3.3 )' ) N
               VALUE = SETENVVAR( EM_DIAG_FILE( ISRM ), TRIM( EM_DIAG_PREFIX ) // 
      &            TRIM( EM_FILE_LAB( ISRM ) ) // TRIM( EM_DIAG_SUFFIX ) )
 
-               CONVEM_GAS( ISRM ) = 1.0
-               CONVEM_PM_MASS ( ISRM ) = 1.0
-            END DO
+              ! Set Unit Conversions for Gas and Particle Phase Species
+              CONVEM_GAS( ISRM ) = 1.0
+              CONVEM_PM_MASS ( ISRM ) = 1.0
+           END DO
          END IF
          
          ! Tracer Emissions
          IF ( N_FILE_TR .GT. 0 ) THEN 
-            EM_TRAC = .TRUE.
-            EM_FILE_TYPE( ISRM+1:ISRM+N_FILE_TR ) = 'TRAC'
-            EM_FILE_ITYPE( ISRM+1:ISRM+N_FILE_TR ) = 3
-            DO N = 1, N_FILE_TR
-               ISRM = ISRM + 1
-               ITSRM( ISRM ) = N
-               WRITE( EM_FILE_DESC( ISRM ), '(A,I2)' ),
-     &           'Gridded Tracer Emissions File ', N
+           EM_TRAC = .TRUE.
+           EM_FILE_TYPE( ISRM+1:ISRM+N_FILE_TR ) = 'TRAC'
+           EM_FILE_ITYPE( ISRM+1:ISRM+N_FILE_TR ) = 3
+           DO N = 1, N_FILE_TR
+              ISRM = ISRM + 1
+              ITSRM( ISRM ) = N
 
-               WRITE( VLAB,'( "TR_EMIS_LAB_",I2.2 )' ) N
-               CALL ENVSTR( VLAB, 'Tracer Emission File Label',VLAB,
+              ! Create Description of this Emission File for output to
+              ! diagnostics
+              WRITE( EM_FILE_DESC( ISRM ), '(A,I2)' ),
+     &          'Gridded Tracer Emissions File ', N
+
+              ! Retrieve Short-Name Label for Each Tracer File
+              WRITE( VLAB,'( "TR_EMIS_LAB_",I2.2 )' ) N
+              CALL GET_ENV( EM_FILE_LAB( ISRM ), VLAB,
      &                      EM_FILE_LAB( ISRM ), IOS )
-               CALL UPCASE( EM_FILE_LAB( ISRM ) )
+              CALL UPCASE( EM_FILE_LAB( ISRM ) )
 
-               WRITE( VLAB,'( "TR_EMIS_DIAG_",I2.2 )' ) N
-               CALL ENVSTR( VLAB, 'Tracer Emissions Diagnostic', EMISDIAG, 
-     &                      EM_FILE_LDIAG( ISRM ), IOS )
-               EM_FILE_LDIAG( ISRM ) = RESOLVE_YN_TF_2D3D( EM_FILE_LDIAG( ISRM ) )
-               WRITE( EM_DIAG_FILE( ISRM ),'( "TR_EMDGFILE_",I2.2 )' ) N
-               VALUE = SETENVVAR( EM_DIAG_FILE( ISRM ), TRIM( EM_DIAG_PREFIX ) // 
-     &             TRIM( EM_FILE_LAB( ISRM ) ) // TRIM( EM_DIAG_SUFFIX ) )
+              ! Each Tracer File Name is stored already in IO-API as
+              ! an object of the form TR_EMIS_XXX
+              WRITE( EM_FILE_NAME( ISRM ),'( "TR_EMIS_",I2.2 )' ) N
 
-               WRITE( EM_FILE_NAME( ISRM ),'( "TR_EMIS_",I2.2 )' ) N
-               CONVEM_GAS( ISRM ) = 1.0
-               CONVEM_PM_MASS ( ISRM ) = 1.0
-            END DO
+              ! Retrieve Toggle for Outputing Tracer Emissions
+              ! Diagnostic File
+              WRITE( VLAB,'( "TR_EMIS_DIAG_",I2.2 )' ) N
+              CALL GET_ENV( EM_FILE_LDIAG( ISRM ), VLAB, EMISDIAG, IOS )
+              EM_FILE_LDIAG( ISRM ) = RESOLVE_YN_TF_2D3D( EM_FILE_LDIAG( ISRM ) )
+              WRITE( EM_DIAG_FILE( ISRM ),'( "TR_EMDGFILE_",I2.2 )' ) N
+              VALUE = SETENVVAR( EM_DIAG_FILE( ISRM ), TRIM( EM_DIAG_PREFIX ) // 
+     &            TRIM( EM_FILE_LAB( ISRM ) ) // TRIM( EM_DIAG_SUFFIX ) )
+
+              ! Set Unit Conversions for Gas and Particle Phase Species
+              CONVEM_GAS( ISRM ) = 1.0
+              CONVEM_PM_MASS ( ISRM ) = 1.0
+           END DO
          ELSE
-            EM_TRAC = .FALSE.
+           EM_TRAC = .FALSE.
          END IF
          
          ! Online Biogenic Emissions (BEIS)
@@ -1986,9 +2000,10 @@ C stkemis_init.
              CONVEM_PM_MASS ( ISRM ) = 1.0
              EMIS_GAS_UNITS( ISRM ) = "Unknown"
 
+             ! Retrieve Toggle for Outputing Biogenic Emissions
+             ! Diagnostic File
              WRITE( VLAB,'( "BIOG_EMIS_DIAG_",I2.2 )' ) N
-             CALL ENVSTR( VLAB, 'Biogenic Emissions Diagnostic', EMISDIAG, 
-     &                    EM_FILE_LDIAG( ISRM ), IOS )
+             CALL GET_ENV( EM_FILE_LDIAG( ISRM ), VLAB, EMISDIAG, IOS )
              EM_FILE_LDIAG( ISRM ) = RESOLVE_YN_TF_2D3D( EM_FILE_LDIAG( ISRM ) )
              WRITE( EM_DIAG_FILE( ISRM ),'( "BIOG_EMDGFILE_",I2.2 )' ) N
              VALUE = SETENVVAR( EM_DIAG_FILE( ISRM ), TRIM( EM_DIAG_PREFIX ) // 
@@ -2008,9 +2023,10 @@ C stkemis_init.
              CONVEM_PM_MASS ( ISRM ) = 1.0
              EMIS_GAS_UNITS( ISRM ) = "Unknown"
 
+             ! Retrieve Toggle for Outputing Marine Gas Emissions
+             ! Diagnostic File
              WRITE( VLAB,'( "MG_EMIS_DIAG_",I2.2 )' ) N
-             CALL ENVSTR( VLAB, 'Marine Gas Emissions Diagnostic', EMISDIAG, 
-     &                    EM_FILE_LDIAG( ISRM ), IOS )
+             CALL GET_ENV( EM_FILE_LDIAG( ISRM ), VLAB, EMISDIAG, IOS )
              EM_FILE_LDIAG( ISRM ) = RESOLVE_YN_TF_2D3D( EM_FILE_LDIAG( ISRM ) )
              WRITE( EM_DIAG_FILE( ISRM ),'( "MG_EMDGFILE_",I2.2 )' ) N
              VALUE = SETENVVAR( EM_DIAG_FILE( ISRM ), TRIM( EM_DIAG_PREFIX ) // 
@@ -2030,9 +2046,10 @@ C stkemis_init.
              CONVEM_PM_MASS ( ISRM ) = 1.0
              EMIS_GAS_UNITS( ISRM ) = "Unknown"
 
+             ! Retrieve Toggle for Outputing Lightning NO Emissions
+             ! Diagnostic File
              WRITE( VLAB,'( "LTNG_EMIS_DIAG_",I2.2 )' ) N
-             CALL ENVSTR( VLAB, 'Lightning Emissions Diagnostic', EMISDIAG, 
-     &                    EM_FILE_LDIAG( ISRM ), IOS )
+             CALL GET_ENV( EM_FILE_LDIAG( ISRM ), VLAB, EMISDIAG, IOS )
              EM_FILE_LDIAG( ISRM ) = RESOLVE_YN_TF_2D3D( EM_FILE_LDIAG( ISRM ) )
              WRITE( EM_DIAG_FILE( ISRM ),'( "LTNG_EMDGFILE_",I2.2 )' ) N
              VALUE = SETENVVAR( EM_DIAG_FILE( ISRM ), TRIM( EM_DIAG_PREFIX ) // 
@@ -2052,9 +2069,10 @@ C stkemis_init.
              CONVEM_PM_MASS ( ISRM ) = MGPG
              EMIS_AER_UNITS( ISRM ) = "g m-3 s-1"
              
+             ! Retrieve Toggle for Outputing Sea Spray Aerosol Emissions
+             ! Diagnostic File
              WRITE( VLAB,'( "SEASPRAY_EMIS_DIAG_",I2.2 )' ) N
-             CALL ENVSTR( VLAB, 'Sea Spray Emissions Diagnostic', EMISDIAG, 
-     &                    EM_FILE_LDIAG( ISRM ), IOS )
+             CALLGET_ ENV( EM_FILE_LDIAG( ISRM ), VLAB, EMISDIAG, IOS )
              EM_FILE_LDIAG( ISRM ) = RESOLVE_YN_TF_2D3D( EM_FILE_LDIAG( ISRM ) )
              WRITE( EM_DIAG_FILE( ISRM ),'( "ASEA_EMDGFILE_",I2.2 )' ) N
              VALUE = SETENVVAR( EM_DIAG_FILE( ISRM ), TRIM( EM_DIAG_PREFIX ) // 
@@ -2074,9 +2092,10 @@ C stkemis_init.
              CONVEM_PM_MASS ( ISRM ) = MGPG
              EMIS_AER_UNITS( ISRM ) = "g m-3 s-1"
              
+             ! Retrieve Toggle for Outputing Wind-Blown Dust Emissions
+             ! Diagnostic File
              WRITE( VLAB,'( "DUST_EMIS_DIAG_",I2.2 )' ) N
-             CALL ENVSTR( VLAB, 'Wind-Blow Dust Emissions Diagnostic', EMISDIAG, 
-     &                    EM_FILE_LDIAG( ISRM ), IOS )
+             CALL GET_ENV( EM_FILE_LDIAG( ISRM ), VLAB, EMISDIAG, IOS )
              EM_FILE_LDIAG( ISRM ) = RESOLVE_YN_TF_2D3D( EM_FILE_LDIAG( ISRM ) )
              WRITE( EM_DIAG_FILE( ISRM ),'( "DUST_EMDGFILE_",I2.2 )' ) N
              VALUE = SETENVVAR( EM_DIAG_FILE( ISRM ), TRIM( EM_DIAG_PREFIX ) // 

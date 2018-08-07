@@ -68,13 +68,11 @@ C-----------------------------------------------------------------------
       IMPLICIT NONE
       SAVE 
 C aerosol emissions: [ppmv/s] for mass & number spcs, [m2/mol/s] for surface area spcs
-      LOGICAL, SAVE :: SS_AERO = .TRUE.
-
 
       PUBLIC EMISS_SIZE_DIST, AERO_EMIS_INIT,
      &       MAP_EMtoAERO, MAP_EMtoMODE, MAP_NUMtoEM, MAP_SRFtoEM,
      &       MAP_EMtoNUM, MAP_EMtoSRF, MAP_EMtoSD, EM_STREAM_SIZE, SD_SPLIT,
-     &       CELLVOL, CELLHGT, EM_SD_INIT, SS_AERO 
+     &       CELLVOL, CELLHGT, EM_SD_INIT
       PRIVATE
 
 C Variables for converting mass emissions rate to number emissions rate

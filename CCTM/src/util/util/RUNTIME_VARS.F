@@ -105,6 +105,7 @@
       INTEGER, PARAMETER :: MAXLEN_CCTM_APPL     = 200    ! Length of Logfile Names
       CHARACTER( MAXLEN_CCTM_APPL ) :: APPL_NAME = 'APPL' ! Logfile Names
       CHARACTER( MAXLEN_CCTM_APPL ) :: BLDFOLD   = ''     ! Build Directory
+      CHARACTER( MAXLEN_CCTM_APPL ) :: OUTDIR    = ''     ! Output Directory
 
       ! General; Multiprocess control, output and error checking
       LOGICAL :: FL_ERR_STOP=.TRUE.  ! Flag to stop run if errors are found.
@@ -182,7 +183,10 @@
 
 
       ! Emissions Processes
+      CHARACTER( MAXLEN_CCTM_APPL ) :: EMISSCTRL  = '' ! Emission Control Filename
       INTEGER :: EMLAYS        = 0       ! Emission Layers
+      INTEGER :: N_FILE_GR     = 0       ! Number of Gridded Emission Files
+      INTEGER :: N_FILE_TR     = 0       ! NUmber of Tracer Emission Files
       LOGICAL :: EMISCHK       = .TRUE.  ! flag for checking that surrogate emissions 
                                                !   are present on emission files
       LOGICAL :: BIOGEMIS      = .FALSE. ! flag to in-line biogenic VOC emissions
@@ -191,6 +195,7 @@
       LOGICAL :: ASSUME_SUMMER = .TRUE.  ! use summer normalized emissions
       LOGICAL :: BEMIS_DIAG    = .TRUE.  ! true: write diagnostic emiss file
       LOGICAL :: MGEMDIAG      = .FALSE. ! flag for MGEM diagnostic file
+      LOGICAL :: SS_AERO       = .TRUE.  ! flag for Sea Spray Aerosol Calculation
       LOGICAL :: WB_DUST       = .FALSE. ! flag for On-Line Dust Emission Calculation
       LOGICAL :: ERODE_AGLAND  = .TRUE.  ! Account for Erodible Agricultural Land when 
                                                !   computing dust Emissions
@@ -213,6 +218,11 @@
       INTEGER :: PT_TIME       = 0       ! start time (HHMMSS)
       INTEGER :: IPVERT        = 0       ! Numerical flag for plume vertical spread method
       INTEGER :: REP_LAYR      = -1      ! Minimum layer for reporting srcs w/ high plumes
+      CHARACTER( 6 ) :: EMISDIAG = 'FALSE' ! Default Assumption for
+                                         !     Emissinos DIagnostic File Output
+      LOGICAL :: EMIS_DATE_OVRD = .FALSE. ! Overrider CMAQ not to check
+                                          ! if the dates on the emissions file match that of 
+                                          ! the interal model
       CHARACTER(  16 ), SAVE, ALLOCATABLE :: PLAY_BASE( : ) ! Use for Plume Rise Calculation
 
       ! Processs Analysis
@@ -787,13 +797,21 @@
          WRITE( OUTDEV, '(6x,A)' ), REPEAT( '-',80 )
       END IF
 
-      ! Number of Layers for Emissions
+      ! Get Name of Emission Control File
       VARDESC = 'Emissions Control File Name'
       EMISSCTRL = GET_ENVSTR( 'EMISSCTRL_NML', VARDESC, EMISSCTRL )
 
       ! Number of Layers for Emissions
       VARDESC = 'Number of emission layers'
       EMLAYS = GET_ENVINT( 'CTM_EMLAYS', VARDESC, EMLAYS )
+
+      ! Get number of different Gridded File Emissionts Streams
+      VARDESC = 'Number of Gridded Emissions Files'
+      N_FILE_GR = GET_ENVINT( 'N_EMIS_GR', VARDESC, N_FILE_GR )
+      
+      ! Get number of different Gridded File Emissionts Streams
+      VARDESC = 'Number of Tracer Emissions Files'
+      N_FILE_TR = GET_ENVINT( 'N_EMIS_TR', VARDESC, N_FILE_TR )
 
       ! Flag for checking emissions surrogates against species actually
       ! present on emissions files
@@ -827,6 +845,10 @@
       VARDESC = 'Flag for writing MG emission diagnostic file'
       MGEMDIAG = GET_ENVYN( 'CTM_MGEMDIAG', VARDESC, MGEMDIAG )
  
+      ! Flag for Online Calculation of Sea Spray Aerosol emissions
+      VARDESC = 'Flag for Sea Spray Aerosol Emissions'
+      SS_AERO = GET_ENVYN( 'CTM_SS_AERO', VARDESC, SS_AERO )
+
       ! Flag for Online Calculation of Windblown dust emissions
       VARDESC = 'Flag for Windblow Dust Emissions'
       WB_DUST = GET_ENVYN( 'CTM_WB_DUST', VARDESC, WB_DUST )
@@ -874,7 +896,7 @@
       ! CTM_PT3DEMIS
       VARDESC = 'Flag for in-line 3d point source emissions'
       PT3DEMIS = GET_ENVYN( 'CTM_PT3DEMIS',VARDESC, PT3DEMIS )
-
+       
       ! get number of different file groups (sectors)
       VARDESC = 'Number of file groups'
       NPTGRPS = GET_ENVINT( 'NPTGRPS', VARDESC, NPTGRPS )
@@ -915,7 +937,16 @@
          STRTEMP = GET_ENVSTR( PBASE, VARDESC, PLAY_BASE( NV ) )
          PLAY_BASE( NV ) = STRTEMP
       END DO
+       
+      ! Determine user-defined default for emissions diagnostics
+      VARDESC = 'Flag for emissions diagnostic default'
+      EMISDIAG =  GET_ENVSTR( 'EMISDIAG', VARDESC, EMISDIAG )
 
+      ! Determine user-defined default for emissions date override
+      VARDESC = 'Flag for emissions date override'
+      EMIS_DATE_OVRD = GET_ENVYN( 'EMIS_DATE_OVRD', VARDESC, EMIS_DATE_OVRD )
+ 
+ 
       !-------------------------------------------------------------------------------------------------------
       !>> Process Analysis
       !-------------------------------------------------------------------------------------------------------

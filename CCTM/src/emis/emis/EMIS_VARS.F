@@ -34,7 +34,6 @@
       REAL,    ALLOCATABLE :: VDEMIS_DIFF( :,:,:,: ) ! emissions array mapped to diffused species
 
       INTEGER              :: N_EM_SRM   ! global number of emissions streams
-      INTEGER              :: N_FILE_GR, N_FILE_TR  
       INTEGER              :: N_EMIS_ISTR! global emissions instructions
       INTEGER              :: N_EM_RGN   ! no. of region masks
 
