@@ -549,7 +549,7 @@ C-----------------------------------------------------------------------
             ALLOCATE( Met_Data%SOIM2    ( NCOLS,NROWS ),
      &                STAT = ALLOCSTAT )
             If ( ALLOCSTAT .Ne. 0 ) Then
-               XMSG = 'Failure allocating mosaic met vars'
+               XMSG = 'Failure allocating layer 2 soil moisture'
                Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             End If
 
@@ -561,7 +561,7 @@ C-----------------------------------------------------------------------
      &                Grid_Data%LUFRAC ( NCOLS,NROWS,n_lufrac ),
      &                STAT = ALLOCSTAT )
             If ( ALLOCSTAT .Ne. 0 ) Then
-               XMSG = 'Failure allocating mosaic grid vars'
+               XMSG = 'Failure allocating Soil grid vars'
                Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             End If
             Grid_Data%WSAT    = 0.0
@@ -569,6 +569,14 @@ C-----------------------------------------------------------------------
             Grid_Data%WFC     = 0.0
             Grid_Data%WRES    = 0.0
             Grid_Data%BSLP    = 0.0
+         Else
+           ALLOCATE( Grid_Data%WSAT   ( NCOLS,NROWS ),
+     &                STAT = ALLOCSTAT )
+            If ( ALLOCSTAT .Ne. 0 ) Then
+               XMSG = 'Failure allocating Wsat grid vars'
+               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            End If
+            Grid_Data%WSAT    = 0.0
          End If
 
 !> ccccccccccccccccccccc enable backward compatiblity ccccccccccccccccccccc
@@ -779,7 +787,11 @@ C-----------------------------------------------------------------------
                Grid_Data%WRES( C,R ) = WRES( Grid_Data%SLTYP( C,R ) )
                Grid_Data%BSLP( C,R ) = BSLP( Grid_Data%SLTYP( C,R ) )
             End Forall
-        End If
+         Else
+            Forall( C = 1:MY_NCOLS, R = 1:MY_NROWS, Grid_Data%SLTYP(C,R) .Le. 11 )
+               Grid_Data%WSAT( C,R ) = WSAT( Grid_Data%SLTYP( C,R ) )
+            End Forall
+         End If
 
 !> Read fractional seawater and surf-zone coverage from the OCEAN file.
 !> Store results in the OCEAN and SZONE arrays.
@@ -1348,7 +1360,7 @@ C------
          End Where
 
 !        Calculate the cosine of the zenith angle 
-         CALL CZANGLE( JDATE, JTIME, MY_NCOLS, MY_NROWS )
+         CALL CZANGLE(JDATE, JTIME, MY_NCOLS, MY_NROWS )
 
          Return
          End Subroutine GET_MET
