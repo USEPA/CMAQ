@@ -79,7 +79,8 @@ set ParOpt                             #> uncomment to build a multiple processo
  set ModGrid   = grid/cartesian        #> grid configuration module 
  set ModCpl    = couple/gencoor_wrf    #> unit conversion and concentration coupling module 
                                        #>     (see $CMAQ_MODEL/CCTM/src/couple)
- set DepMod    = stage                 #> Deposition module (see $CMAQ_MODEL/CCTM/src/depv)                                       
+ set DepMod    = m3dry                 #> m3dry or stage
+ set DepMod    = stage
  set ModHadv   = hadv/yamo             #> horizontal advection module
  set ModVadv   = vadv/wrf              #> vertical advection module (see $CMAQ_MODEL/CCTM/src/vadv)
  set ModHdiff  = hdiff/multiscale      #> horizontal diffusion module
@@ -428,12 +429,12 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo "Module ${ModHdiff};"                                        >> $Cfile
  echo                                                              >> $Cfile
 
- set text = "acm2"
+ set text = "acm2_m3dry or acm2_stage"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModVdiff};"                                        >> $Cfile
  echo                                                              >> $Cfile
 
- set text = "m3dry"
+ set text = "m3dry or stage"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModDepv};"                                         >> $Cfile
  echo                                                              >> $Cfile
