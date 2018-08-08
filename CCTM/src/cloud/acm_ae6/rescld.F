@@ -630,15 +630,14 @@ C...  that participated in cloud chemistry
 C...  calculate cosine of zenith angle for the cell and determine day or night; Golam Sarwar 
 
                   COSZ = MET_DATA%COSZEN( COL, ROW )
-                  JH2O2 = RJ_RES( COL, ROW, LAY, LH2O2 )
-                  JHNO3 = RJ_RES( COL, ROW, LAY, LHNO3 )
-!                 IF ( COSZ .LE. 0.0 ) THEN 
-                  IF ( JH2O2 .LE. 0.0 ) THEN 
+                  IF ( COSZ .LE. 0.0 ) THEN 
                     DARK = .TRUE.   ! night
                     JH2O2_HYDROMETEORS = 0.0D0
                     JHNO3_HYDROMETEORS = 0.0D0
                   ELSE
                     DARK = .FALSE.  ! day
+                    JH2O2 = RJ_RES( COL, ROW, LAY, LH2O2 )
+                    JHNO3 = RJ_RES( COL, ROW, LAY, LHNO3 )
                     JH2O2_HYDROMETEORS = REAL( JH2O2*PERMIN_TO_PERSEC, 8 )
                     JHNO3_HYDROMETEORS = REAL( JHNO3*PERMIN_TO_PERSEC, 8 )
                   END IF

@@ -1521,9 +1521,9 @@ C...  determine day or night from cosine of zenith angle for the cell; Golam Sar
 
             COSZ = MET_DATA%COSZEN( COL,ROW )
 
-            IF ( JH2O2_BAR .LE. 0.0 ) THEN
+            IF ( COSZ .LE. 0.0 ) THEN
               DARK = .TRUE.   ! night
-C...convert mean photolysis rates to 1/sec
+C...set mean photolysis rates to zero
               JH2O2_HYDROMETEORS = 0.0D0 
               JHNO3_HYDROMETEORS = 0.0D0
             ELSE
