@@ -41,9 +41,10 @@ C   11 May 11 J.Bash: Modified for NH3 bidi component fluxes
 C   04 Jan 12 J.Young: Initalize char strings with blank padding
 
 C-----------------------------------------------------------------------
+      USE VDIFF_DATA
 
 C global diffusion species
-      INTEGER, SAVE :: N_SPC_DIFF 
+      !INTEGER, SAVE :: N_SPC_DIFF 
      
 C global dry dep species
       INTEGER, SAVE :: N_SPC_DDEP 
@@ -65,7 +66,7 @@ C global dry dep species
       LOGICAL, ALLOCATABLE, SAVE :: DIFF_MASK_TRAC( : ) !Tracers
 
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: DDEP_SPC( : )
-      CHARACTER( 16 ), ALLOCATABLE, SAVE :: DIFF_SPC( : )
+      !CHARACTER( 16 ), ALLOCATABLE, SAVE :: DIFF_SPC( : )
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: DEPV_SPC( : )
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: DV2DF_SPC( : )
       REAL,            ALLOCATABLE, SAVE :: DIFF_MW  ( : )

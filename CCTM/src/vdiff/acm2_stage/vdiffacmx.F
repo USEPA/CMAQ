@@ -327,7 +327,7 @@ C-----------------------------------------------------------------------
          END DO
 
          EMIS = 0.0      ! array assignment
-         EMIS( :,: ) = DTS * VDEMIS( :,:,C,R )
+         EMIS( :,: ) = DTS * VDEMIS_DIFF( :,:,C,R )
 
          DO L = 1, NLAYS
             DFSP( L ) = DFACP * Grid_Data%RDX3F( L )

@@ -673,7 +673,7 @@ C-----------------------------------------------------------------------
       Use cgrid_spcs      ! CGRID mechanism species
       Use aeromet_data
       Use utilio_defn
-      Use vdiff_map, only : n_spc_diff, diff_spc
+      Use vdiff_data, only : n_spc_diff, diff_spc
       Implicit None
 
 C Local Variables:
