@@ -136,9 +136,9 @@ setenv VERTLONLATPATH ${WORKDIR}/lonlat.csv
 setenv CTM_PROCAN N          #> use process analysis [ default: N]
 #> process analysis global column, row and layer ranges
 #> user must check GRIDDESC for validity!
-setenv PA_BCOL_ECOL "10 320"
-setenv PA_BROW_EROW "10 195"
-setenv PA_BLEV_ELEV "1  4"
+#setenv PA_BCOL_ECOL "10 320"
+#setenv PA_BROW_EROW "10 195"
+#setenv PA_BLEV_ELEV "1  4"
 
 #> I/O Controls
 setenv IOAPI_LOG_WRITE F     #> turn on excess WRITE3 logging [ options: T | F ]
@@ -341,12 +341,23 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      setenv E2C_FERT ${E2C_Fertfile}
      setenv BELD4_LU ${B4LU_file}
   endif
+#
+#> Inline Process Analysis (PACM = Process Analysis Control Module)
+      set procanon = 0
+      if ( $?CTM_PROCAN ) then   # $CTM_PROCAN is defined
+         if ( $CTM_PROCAN == 'Y' || $CTM_PROCAN == 'T' ) set procanon = 1
+      endif
+      if ( $procanon ) then
+         setenv PACM_INFILE ${NMLpath}/pa.CB6_v53
+         setenv PACM_REPORT $OUTDIR/"PA_REPORT".${YYYYMMDD}
+      endif
 
 # =====================================================================
 #> Output Files
 # =====================================================================
   #> set output file name extensions
   setenv CTM_APPL ${RUNID}_${YYYYMMDD} 
+
   #> set output file names
   setenv S_CGRID         "$OUTDIR/CCTM_CGRID_${CTM_APPL}.nc"         #> 3D Inst. Concenctrations
   setenv CTM_CONC_1      "$OUTDIR/CCTM_CONC_${CTM_APPL}.nc -v"       #> On-Hour Concentrations
