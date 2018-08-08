@@ -35,7 +35,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Aug  2, 2018
+C  REVISION HISTORY: Created by EBI solver program, Aug  8, 2018
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 
@@ -927,7 +927,6 @@ C***********************************************************************
 
       PROD(  XYLRO2       ) =                 RXRAT( 185 )      ! XYLMN+OH=XYLRO2+0.5440D+...
      &                      +                 RXRAT( 245 )      ! CL+XYLMN=XYLRO2+0.1550D+...
-     &                      +                 RXRAT( 246 )      ! CL+NAPH=XYLRO2+0.1550D+...
       LOSS(  XYLRO2       ) =                 RXRAT( 255 )      ! XYLRO2+NO=NO+XYLNRXN
      &                      +                 RXRAT( 256 )      ! XYLRO2+HO2=HO2+XYLHRXN
 
@@ -936,6 +935,7 @@ C***********************************************************************
      &                      +                 RXRAT( 246 )      ! NAPH+CL=HCL+0.1550D+...
 
       PROD(  PAHRO2       ) =                 RXRAT( 186 )      ! NAPH+OH=PAHRO2+0.5440D+...
+     &                      +                 RXRAT( 246 )      ! CL+NAPH=PAHRO2+0.1550D+...
       LOSS(  PAHRO2       ) =                 RXRAT( 262 )      ! PAHRO2+NO=NO+PAHNRXN
      &                      +                 RXRAT( 263 )      ! PAHRO2+HO2=HO2+PAHHRXN
 

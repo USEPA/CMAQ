@@ -380,7 +380,7 @@ REACTIONS[CM] =
 <CL25>  CL  +  XYLMN   =  HCL + 0.155*CRES + 0.544*XLO2 + 0.602*RO2 + 0.244*XOPN
                 + 0.244*OH + 0.058*XO2H + 0.155*HO2 + XYLRO2 # 1.2E-10;
 <CL26>  CL  +  NAPH   =  HCL + 0.155*CRES + 0.544*XLO2 + 0.602*RO2 + 0.244*XOPN
-                + 0.244*OH + 0.058*XO2H + 0.155*HO2 + XYLRO2 # 1.2E-10;
+                + 0.244*OH + 0.058*XO2H + 0.155*HO2 + PAHRO2 # 1.2E-10;
 <CL27> CLNO2 = CL + NO2                               #1.0/<CLNO2_IUPAC13>;
 ! add new reactions for chlorine nitrate
 <CL28> CLO + NO2      = CLNO3                #1.8E-31^-3.4&1.5E-11^-1.9&0.6;
