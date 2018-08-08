@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the SAPRC07TIC family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Aug  1, 2018
+C  REVISION HISTORY: Created by EBI solver program, Aug  8, 2018
 C
 C***********************************************************************
       USE HRDATA
@@ -964,29 +964,27 @@ C..NOTE: RXRAT commented out are not referenced by any routine
       RXRAT(  902 ) = RKI( 902 ) * YC(  IHMMLP )
       RXRAT(  903 ) = RKI( 903 ) * YC(  IHMMLP )
       RXRAT(  904 ) = RKI( 904 ) * YC(  NO3 )
-      RXRAT(  905 ) = RKI( 905 ) * YC(  ATRP1J )
-      RXRAT(  906 ) = RKI( 906 ) * YC(  ATRP2J )
-      RXRAT(  907 ) = RKI( 907 ) * YC(  AISO1J )
-      RXRAT(  908 ) = RKI( 908 ) * YC(  AISO2J )
-      RXRAT(  909 ) = RKI( 909 ) * YC(  ASQTJ )
-      RXRAT(  910 ) = RKI( 910 ) * YC(  A_AVB2J )
-      RXRAT(  911 ) = RKI( 911 ) * YC(  A_AVB3J )
-      RXRAT(  912 ) = RKI( 912 ) * YC(  A_AVB4J )
-      RXRAT(  913 ) = RKI( 913 ) * YC(  PCVOC ) * YC(  OH )
-      RXRAT(  914 ) = RKI( 914 ) * YC(  VLVPO1 ) * YC(  OH )
-      RXRAT(  915 ) = RKI( 915 ) * YC(  VSVPO1 ) * YC(  OH )
-      RXRAT(  916 ) = RKI( 916 ) * YC(  VSVPO2 ) * YC(  OH )
-      RXRAT(  917 ) = RKI( 917 ) * YC(  VSVPO3 ) * YC(  OH )
-      RXRAT(  918 ) = RKI( 918 ) * YC(  VIVPO1 ) * YC(  OH )
-      RXRAT(  919 ) = RKI( 919 ) * YC(  VLVOO1 ) * YC(  OH )
-      RXRAT(  920 ) = RKI( 920 ) * YC(  VLVOO2 ) * YC(  OH )
-      RXRAT(  921 ) = RKI( 921 ) * YC(  VSVOO1 ) * YC(  OH )
-      RXRAT(  922 ) = RKI( 922 ) * YC(  VSVOO2 ) * YC(  OH )
-      RXRAT(  923 ) = RKI( 923 ) * YC(  VSVOO3 ) * YC(  OH )
-      RXRAT(  924 ) = RKI( 924 ) * YC(  AMTNO3J )
-      RXRAT(  925 ) = RKI( 925 ) * YC(  AISOPNNJ )
-      RXRAT(  926 ) = RKI( 926 ) * YC(  GLY )
-      RXRAT(  927 ) = RKI( 927 ) * YC(  MGLY )
+      RXRAT(  905 ) = RKI( 905 ) * YC(  AISO1J )
+      RXRAT(  906 ) = RKI( 906 ) * YC(  AISO2J )
+      RXRAT(  907 ) = RKI( 907 ) * YC(  ASQTJ )
+      RXRAT(  908 ) = RKI( 908 ) * YC(  A_AVB2J )
+      RXRAT(  909 ) = RKI( 909 ) * YC(  A_AVB3J )
+      RXRAT(  910 ) = RKI( 910 ) * YC(  A_AVB4J )
+      RXRAT(  911 ) = RKI( 911 ) * YC(  PCVOC ) * YC(  OH )
+      RXRAT(  912 ) = RKI( 912 ) * YC(  VLVPO1 ) * YC(  OH )
+      RXRAT(  913 ) = RKI( 913 ) * YC(  VSVPO1 ) * YC(  OH )
+      RXRAT(  914 ) = RKI( 914 ) * YC(  VSVPO2 ) * YC(  OH )
+      RXRAT(  915 ) = RKI( 915 ) * YC(  VSVPO3 ) * YC(  OH )
+      RXRAT(  916 ) = RKI( 916 ) * YC(  VIVPO1 ) * YC(  OH )
+      RXRAT(  917 ) = RKI( 917 ) * YC(  VLVOO1 ) * YC(  OH )
+      RXRAT(  918 ) = RKI( 918 ) * YC(  VLVOO2 ) * YC(  OH )
+      RXRAT(  919 ) = RKI( 919 ) * YC(  VSVOO1 ) * YC(  OH )
+      RXRAT(  920 ) = RKI( 920 ) * YC(  VSVOO2 ) * YC(  OH )
+      RXRAT(  921 ) = RKI( 921 ) * YC(  VSVOO3 ) * YC(  OH )
+      RXRAT(  922 ) = RKI( 922 ) * YC(  AMTNO3J )
+      RXRAT(  923 ) = RKI( 923 ) * YC(  AISOPNNJ )
+      RXRAT(  924 ) = RKI( 924 ) * YC(  GLY )
+      RXRAT(  925 ) = RKI( 925 ) * YC(  MGLY )
 
 
       RETURN
