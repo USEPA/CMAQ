@@ -138,7 +138,7 @@ setenv CTM_PROCAN N          #> use process analysis [ default: N]
 #> user must check GRIDDESC for validity!
 #setenv PA_BCOL_ECOL "10 320"
 #setenv PA_BROW_EROW "10 195"
-#setenv PA_BLEV_ELEV "1  4"
+setenv PA_BLEV_ELEV "1  4"
 
 #> I/O Controls
 setenv IOAPI_LOG_WRITE F     #> turn on excess WRITE3 logging [ options: T | F ]
