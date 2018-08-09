@@ -1,4 +1,3 @@
-
 !------------------------------------------------------------------------!
 !  The Community Multiscale Air Quality (CMAQ) system software is in     !
 !  continuous development by various groups and is based on information  !
@@ -46,7 +45,7 @@ C           24 Mar 2016: G. Sarwar: added iodine and bromine species
 C-----------------------------------------------------------------------
 
       INTEGER, PARAMETER :: LDDEP = 4
-      INTEGER, PARAMETER :: LTOTG = 105
+      INTEGER, PARAMETER :: LTOTG = 157
       INTEGER, PARAMETER :: LCMP  = 8
       CHARACTER( 16 )    :: DEPV_METHOD
 
@@ -186,6 +185,59 @@ C-------------------------------------------------------------------------------
          DEPSPC( 103) = 'CARBSULFIDE     '
          DEPSPC( 104) = 'ACETONITRILE    ' 
          DEPSPC( 105) = 'METH_NIT_PHEN   ' ! 6-methyl-2-nitrophenol aka 6-nitro-o-cresol
+         DEPSPC( 106) = 'PCVOC           '
+         DEPSPC( 107) = 'INTR            '
+         DEPSPC( 108) = 'ISPX            '
+         DEPSPC( 109) = 'ROOH            '
+         DEPSPC( 110) = 'LV_PCSOG        '
+         DEPSPC( 111) = 'VIVPO1          '
+         DEPSPC( 112) = 'VLVOO1          '
+         DEPSPC( 113) = 'VLVOO2          '
+         DEPSPC( 114) = 'VLVPO1          '
+         DEPSPC( 115) = 'VSVOO1          '
+         DEPSPC( 116) = 'VSVOO2          '
+         DEPSPC( 117) = 'VSVOO3          '
+         DEPSPC( 118) = 'VSVPO1          '
+         DEPSPC( 119) = 'VSVPO2          '
+         DEPSPC( 120) = 'VSVPO3          '
+         DEPSPC( 121) = 'FACD            '
+         DEPSPC( 122) = 'KET             '
+         DEPSPC( 123) = 'ETH             '
+         DEPSPC( 124) = 'PNA             '
+         DEPSPC( 125) = 'GLY             '
+         DEPSPC( 126) = 'GLYD            '
+         DEPSPC( 127) = 'MGLY            '
+         DEPSPC( 128) = 'ETHA            '
+         DEPSPC( 129) = 'ETOH            '
+         DEPSPC( 130) = 'PAR             '
+         DEPSPC( 131) = 'ACET            '
+         DEPSPC( 132) = 'PRPA            '
+         DEPSPC( 133) = 'ETHY            '
+         DEPSPC( 134) = 'OLE             '
+         DEPSPC( 135) = 'IOLE            '
+         DEPSPC( 136) = 'IEPOX           '
+         DEPSPC( 137) = 'BENZ            '
+         DEPSPC( 138) = 'CRES            '
+         DEPSPC( 139) = 'TOL             '
+         DEPSPC( 140) = 'XYLMN           '
+         DEPSPC( 141) = 'NAPH            '
+         DEPSPC( 142) = 'CAT1            '
+         DEPSPC( 143) = 'SESQ            '
+         DEPSPC( 144) = 'TERP            '
+         DEPSPC( 145) = 'ISOP            '
+         DEPSPC( 146) = 'OPEN            '
+         DEPSPC( 147) = 'XOPN            '
+         DEPSPC( 148) = 'SOAALK          '
+         DEPSPC( 149) = 'BUTADIENE13     '
+         DEPSPC( 150) = 'ACROLEIN        '
+         DEPSPC( 151) = 'SVMT1           '
+         DEPSPC( 152) = 'SVMT2           '
+         DEPSPC( 153) = 'SVMT3           '
+         DEPSPC( 154) = 'SVMT4           '
+         DEPSPC( 155) = 'SVMT5           '
+         DEPSPC( 156) = 'SVMT6           '
+         DEPSPC( 157) = 'SVMT7           '
+
 
          N_USE_DEPSPC = 0
          USE_DEPSPC = .FALSE.   ! array

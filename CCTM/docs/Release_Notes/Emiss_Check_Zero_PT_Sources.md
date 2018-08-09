@@ -4,9 +4,13 @@
 
 ## Brief Description
 
+The EMIS_SPC_CHECK subroutine does not set NPTSPC, the number emission species from point sources, if a simulation does not use point source emissions as in ongoing hemispheric simulations. The uninitialized variable causes CCTM to stall for some versions of the intel compiler used.
+
+This pull request removes the problem by adding a line to initially set NPTSPC to zero.
 
 ## Significance and Impact
 
+CMAQ will now run even if no point emission files are used as input.
 
 ## Affected Files:
 

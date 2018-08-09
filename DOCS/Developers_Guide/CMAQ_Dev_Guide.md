@@ -17,9 +17,9 @@ The information contained here should be read prior to starting a project within
 # Summary of Developer Workflow
 The public CMAQ release repository is located on GitHub (<https://github.com/USEPA/CMAQ>). Users should refer to this repository for bug fixes, issues, documentation and major releases for CMAQ. Users can use the watch and star buttons on the public CMAQ release repository page to be notified of updates and changes. Developers interested in submitting code changes should read this Developer Guide and then contact the EPA CMAQ development team as soon as possible to discuss their motivation and plans for submitting a code change (CMAQ_Team@epa.gov).  
 
-In order to facilitate incorporation of a contribution, developers should follow the instructions on code requirements and repository layout as described in the CMAQ Operational Guidance Document, particularly [Chapter 11](https://github.com/USEPA/CMAQ/blob/5.2/DOCS/User_Manual/CMAQ_OGD_ch11_code_management.md). Documentation of the assumptions and results of the new code is a very important part of a meaningful code submission. If the submission involves a detailed new feature, developers are encouraged to publish the use of their feature in a peer-reviewed journal before submission. 
+In order to facilitate incorporation of a contribution, developers should follow the instructions on code requirements and repository layout as described in the CMAQ Operational Guidance Document, particularly [Chapter 11](https://github.com/USEPA/CMAQ/blob/5.2.1/DOCS/User_Manual/CMAQ_OGD_ch11_code_management.md). Documentation of the assumptions and results of the new code is a very important part of a meaningful code submission. If the submission involves a detailed new feature, developers are encouraged to publish the use of their feature in a peer-reviewed journal before submission. 
 
-To begin, the developer should fork the public CMAQ release repository within GitHub. This will create a copy of the public CMAQ release repository under your name (https://github.com/{user_name}/CMAQ). Developers should use standard git commands to clone the appropriate version branch (5.2, 5.2_DDM, ..) from your forked repository to your local machine and then to create a new feature or bug fix branch. Developers will add, commit and push changes to their new feature or bug fix branch on their forked repository, not to the public release version of the repository.  
+To begin, the developer should fork the public CMAQ release repository within GitHub. This will create a copy of the public CMAQ release repository under your name (https://github.com/{user_name}/CMAQ). Developers should use standard git commands to clone the appropriate version branch (5.2.1, 5.2, 5.2_DDM, ..) from your forked repository to your local machine and then to create a new feature or bug fix branch. Developers will add, commit and push changes to their new feature or bug fix branch on their forked repository, not to the public release version of the repository.  
 
 Once a feature or bug fix branch meets requirements for code consistency, benchmark testing, model output evaluation, and documentation including release notes, the developer may submit a pull request from their local feature or bug fix branch of their fork of the CMAQ repository on Github to the CMAQ public repository. This process is described in the Nuts and Bolts section below, and in the following [tutorial](https://www.digitalocean.com/community/tutorials/how-to-create-a-pull-request-on-github), which also provides instructions on how to keep a fork up to date with changes on the public release repository.  
 
@@ -127,22 +127,23 @@ Compiler flags:
 - GCC: -ffixed-form -ffixed-line-length-132 -O3 -funroll-loops -finit-character=32
 - Intel: -fixed -132 -O3 -override-limits -fno-alias -mp1 -fp-model precise -fp-model source -shared-intel -openmp
 
-<a id=Table5-1></a>
+
 ### Compilation Testing Manifest Table (Example)
-|**Scenario**|**Compiler**|**netCDF**|**I/O API**|**MPI_YN(#P)**|**MPI**|**CMAQv5.1 Timing(HH:MM:SS)**|**CMAQ New Project Timing(HH:MM:SS)**| Notes|
-|--------------|---------------|---------|---------|---------|-------------|---------------------------|------------------------------------|-------------------|
-|Gfortran Serial|Gfortran version 4.8.1| 4.3.3|3.1(11/15)|N|N/A|8:19:51|7:35:30|UNC module gcc/4.8.1|
-|Gfortran MVAPICH2|Gfortran version 4.8.1|4.3.2|3.1(11/15) |Y (16)|mvapich2-1.7|0:45:55|0:42:40| |
-|Intel Serial|Intel Fortran version 16.2.0 |4.3.2|3.1(11/15)|N |N/A |6:01:42|5:10:16|UNC module intel/16.2|
-|Intel OpenMPI (EPA Config)|Intel Fortran v15.0.0|4.3.2|3.1(11/15)|Y (16)|openMPI-1.42|0:34:27| |UNC module openmpi_intel/15.0|
-|Intel OpenMPI|Intel Fortran v16.2.0|4.3.2|3.1(11/15)|Y (16)|openMPI-1.4.2|0:35:29| |UNC module openmpi_intel/16.2| 
-|Intel MVAPICH2|Intel Fortran v16.2.0|4.3.2|3.1(11/15)|Y (16)|mvapich2-1.7|0:36:34| |UNC module mvapich2_intel/16.2| 
-|Portland Serial|PG Fortran v16.1|4.3.2|3.1(11/15)|N|N/A|7:33:36|6:26:31|UNC module pgi/16.1|
-|Portland OpenMPI|PGI Fortran v15.7|4.3.2|3.1(11/15)|Y (16)|openMPI-1.4.2|0:40:20|0:36:16|UNC module openmpi_pgi/15.7|
+|**Scenario**|**Compiler**|**netCDF**|**I/O API**|**MPI YN (#P)**|**MPI**|**CMAQv5.1 Timing (hh:mm:ss)**|**CMAQv5.2 Timing (hh:mm:ss)**| Notes|
+|--------------------|--------------------|----------------|----------------|---------|--------------------|---------------------------|------------------------------------|-------------------|
+|Gfortran Serial|Gfort version 4.8.1| 4.3.3|3.1|N|N/A|8:19:51|7:35:30|UNC module gcc/4.8.1|
+|Gfortran mvapich|Gfort version 4.8.1|4.3.2|3.1 |Y (16)|mvapich2 1.7|0:45:55|0:42:40| |
+|Intel Serial|Intel Fortran version 16.2.0 |4.3.2|3.1|N |N/A |6:01:42|5:10:16|UNC module intel/16.2|
+|Intel OpenMPI (EPA Config)|Intel Fortran v15.0.0|4.3.2|3.1|Y (16)|openMPI 1.42|0:34:27| |UNC module openmpi_intel/15.0|
+|Intel OpenMPI|Intel Fortran v16.2.0|4.3.2|3.1|Y (16)|openMPI 1.4.2|0:35:29| |UNC module openmpi_intel/16.2| 
+|Intel mvapich2|Intel Fortran v16.2.0|4.3.2|3.1|Y (16)|mvapich2 1.7|0:36:34| |UNC module mvapich2_intel/16.2| 
+|Portland Serial|PGI Fortran v16.1|4.3.2|3.1|N|N/A|7:33:36|6:26:31|UNC module pgi/16.1|
+|Portland OpenMPI|PGI Fortran v15.7|4.3.2|3.1|Y (16)|openMPI 1.4.2|0:40:20|0:36:16|UNC module openmpi_pgi/15.7|
+
 
 ## Appendix 2: Model Performance Test Metadata 
-|**Scenario**|**Description**|**Mechanism**|**Notes**|**Timing(16PE)H:MM:SS**|
-|----------------|-------------------|--------------------|--------------------|---------------------|
+|**Scenario**|**Description**|**Mechanism**|**Notes**|**Timing (16PE) hh:mm:ss**|
+|----------------|-------------------|---------------------------|--------------------|---------------------|
 |Benchmark Case|Online emissions processing, inline photolysis, inline lightning from MCIP RC, no windblown dust, surface HONO, bidirectional NH3 and Hg, no potential vorticity scaling|cb05e51_ae6_aq |Done; LTNGNO InLine, LTNGPARM = N, LOG_START = 2.0|0:40:20|
 |MOSAIC|Benchmark case with MOSAIC and additional stomatal flux files activated|cb05e51_ae6_aq |Done. set CTM_MOSAIC = Y; set CTM_FST = Y|0:44:02 |
 |Dust|Benchmark case with dust, including new MODIS FP input|cb05e51_ae6_aq|Done. setenv CTM_WB_DUST Y; setenv CTM_ERODE_AGLAND Y; setenv CTM_WBDUST_BELD BELD3 |0:38:28|

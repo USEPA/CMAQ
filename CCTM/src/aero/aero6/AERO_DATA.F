@@ -39,7 +39,7 @@ C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
 
 C HS = Heather Simon; GS = Golam Sarwar; SH = Steve Howard; SR = Shawn Roselle;
 C JY = Jeff Young; HOTP = Havala Pye; KF = Kathleen Fahey, CGN = Chris Nolte;
-C PL = Peng Liu;
+C PL = Peng Liu; BM = Ben Murphy; BH = Bill Hutzell
 
 C HS  01/24/11 Updated to initial AERO6; PMOTHR -> 9 species
 C GS  03/02/11 Revised parameters for Mg, K, and Ca
@@ -69,8 +69,8 @@ C              DUST_EMIS, aero_subs:VOLINORG, and aqchem
 C CGN 04/14/16 Changed AMGJ speciation factor from 0.0 to 0.019 following Upadhyay et al.
 C HOTP,BM  5/20/16 Updated to work with all ae6 mechs (6, 6i, 6mp)
 C PL 05/15/16 Update visual_idx, and add visual_idx_large in spcs_type, due to ammonium sulfate, nitrate and OM
-C             are splitted into small and large modes.
-C             visual_idx for ammominm is zero, because it will be treated together with sulfate and nitrate
+C             are split into small and large modes.
+C             visual_idx for ammonium is zero, because it will be treated together with sulfate and nitrate
 C             see Pitchford et al., Journal of the Air & Waste Management Association (57)(2007), pp 1326
 C PL 05/15/16 Add "om" in spcs_type, to flag organic aerosols, which
 C             will be used to calculate total mass of organic aerosls for estimating
@@ -113,7 +113,7 @@ C----------------------------------------------------------------------
 
 C Number of aerosol species and modes
 
-      Integer, Parameter :: n_aerolist = 89     ! number of aero species
+      Integer, Parameter :: n_aerolist = 96     ! number of aero species
       Integer, Parameter :: n_mode = 3          ! number of modes:
                                                 ! 1 = Aitken
                                                 ! 2 = accumulation
@@ -127,8 +127,8 @@ C Default minimum concentration
       Real,    Parameter :: evapmin = 1.0E-20    ! [ ug/m^3 ]
       Real(8), Parameter :: evapminD= 1.0D-20    ! [ ug/m^3 ]
       Real,    Parameter :: cm_set( n_mode ) = (/conmin, conmin, conmin/)
-      Real,    Parameter :: cm_so4( n_mode ) = (/1.0E-12,1.0E-6, conmin/)
-      Real,    Parameter :: cm_cor( n_mode ) = (/conmin, conmin, 1.889544E-05/)
+      Real,    Parameter :: cm_so4( n_mode ) = (/1.0E-12,1.0e-6, conmin/)
+      Real,    Parameter :: cm_cor( n_mode ) = (/conmin, conmin, 1.889544e-05/)
 
 C Emissions splits
       Real,    Parameter :: es_fin( n_mode ) = (/ 0.100, 0.900, 0.000 /)
@@ -253,6 +253,15 @@ C                  ---------   ---------   ---------    --------- ------- + + + 
      & spcs_type((/'         ','ADIMJ    ','         '/), cm_set, 1400.0, F,F,F,  0,  2.8, 6.1,T, 'DUST  ','             ',es_0),
      & spcs_type((/'         ','AIMGAJ   ','         '/), cm_set, 1400.0, F,F,F,  0,  2.8, 6.1,T, 'DUST  ','             ',es_0),
      & spcs_type((/'         ','AIMOSJ   ','         '/), cm_set, 1400.0, F,F,F,  0,  2.8, 6.1,T, 'DUST  ','             ',es_0),
+
+       ! Updated monoterpene SOA following Saha and Grieshop ES&T 2016
+     & spcs_type((/'         ','AMT1J    ','         '/), cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  ','             ',es_0),
+     & spcs_type((/'         ','AMT2J    ','         '/), cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  ','             ',es_0),
+     & spcs_type((/'         ','AMT3J    ','         '/), cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  ','             ',es_0),
+     & spcs_type((/'         ','AMT4J    ','         '/), cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  ','             ',es_0),
+     & spcs_type((/'         ','AMT5J    ','         '/), cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  ','             ',es_0),
+     & spcs_type((/'         ','AMT6J    ','         '/), cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  ','             ',es_0),
+     & spcs_type((/'         ','AMT7J    ','         '/), cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  ','             ',es_0),
 
        ! ae6i and cb6
      & spcs_type((/'         ','AGLYJ    ','         '/), cm_set, 1400.0, F,F,F,  0,  2.8, 6.1,T, 'DUST  ','             ',es_0),

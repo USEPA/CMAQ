@@ -70,6 +70,7 @@ C**********************************************************************
       USE RXNS_FUNCTION
       USE HRDATA
       USE PA_DEFN, Only: LIRR   ! Process Anaylsis control and data variable
+      USE PA_IRR_CLT
 R5      USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP
 
       IMPLICIT NONE 
@@ -222,8 +223,9 @@ R4     &            // ' the SAPRC99 chemical mechanisms'
          END IF
 
          IF( LIRR ) THEN
-            MSG = 'IRR Analysis not allowed with EBI solver'
-            CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
+            CALL_IRR = .TRUE.
+         ELSE   
+            CALL_IRR = .FALSE.
          END IF 
 
 R5         MODEL_SPECIES = NSPCSD    ! WTH: find number of model species
@@ -325,6 +327,10 @@ C.. Get fractional surf-zone coverage from the OCEAN file.
      &             RJ  ( NCOLS, NROWS, NLAYS, NPHOTAB ),
      &             SEAICE( NCOLS, NROWS ) )
 
+C..Determine which cells need IRR
+         ALLOCATE( LFLAGIRR ( NCOLS, NROWS, NLAYS ) )
+         CALL      PA_IRR_CKCELLS ( LFLAGIRR )
+         
          LFIRST = .FALSE.
 
       END IF      ! First time
@@ -423,7 +429,10 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       DO L = 1, NLAYS
          DO R = 1, MY_NROWS
             DO C = 1, MY_NCOLS
- 
+
+c..reset CALL_IRR based on cell's values            
+               CALL_IRR = LFLAGIRR( C,R,L )
+
 c..Load ICs
                INV_DENS = 1.0 / DENS( C,R,L )
                DO SPC = 1, NUMB_MECH_SPC
@@ -502,6 +511,9 @@ R5                     END DO
 R5                     CGRID(C,R,L,ISP) = REAL( YCCELL(ISP), 4)
 R5                  END DO UPDATE_DEGRADED
 R5               END IF
+
+c..update irrout arrays if needed               
+               IF ( LFLAGIRR( C,R,L ) )CALL PA_IRR_CELLENDF( C, R, L )
 
             END DO
          END DO

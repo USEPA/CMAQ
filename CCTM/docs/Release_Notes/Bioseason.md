@@ -4,9 +4,11 @@
 
 ## Brief Description
 
+The default CCTM run script was pointing to the wrong Bioseason file. This has been corrected.
 
 ## Significance and Impact
 
+A default run of CMAQ would not considered seasonality or summertime levels of emissions from biogenic sources. Now that seasonality has been restored.
 
 ## Affected Files:
 

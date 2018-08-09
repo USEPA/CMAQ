@@ -28,6 +28,9 @@ SUBROUTINE comheader (sdate, stime)
 !           11 Aug 2011  Replaced module FDESC3 with I/O API module M3UTILIO.
 !                        (T. Otte)
 !           07 Sep 2011  Updated disclaimer.  (T. Otte)
+!           10 Feb 2018  Reinitialize VGLVS3D on each call to accommodate
+!                        additional 3D I/O API output files where the third
+!                        dimension is not atmospheric layers.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE coord
@@ -64,6 +67,7 @@ SUBROUTINE comheader (sdate, stime)
 
   ! Layer defined in standard met. coordinate.
 
+  vglvs3d(:)         = 0.0  ! initialized to ensure monotonicity
   vglvs3d(1:nlays+1) = vglvs_gd(1:nlays+1)
  
   ! Initialize FDESC3D and UPDESC3D array.

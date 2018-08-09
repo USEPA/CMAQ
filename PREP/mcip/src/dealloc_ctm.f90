@@ -58,13 +58,18 @@ SUBROUTINE dealloc_ctm
 !           10 Apr 2015  Added new arrays CFRAC3D_C and CFRAC3D_B to pass 3D
 !                        resolved cloud fraction to output.  (T. Spero)
 !           20 Aug 2015  Changed latent heat flux from QFX to LH.  (T. Spero)
+!           16 Mar 2018  Added SNOWH to output.  Added mosaic, land use, and
+!                        soil arrays.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE coord
   USE vgrd
   USE groutcom
+  USE luoutcom
   USE mcoutcom
   USE mdoutcom
+  USE mosoutcom
+  USE soioutcom
 
   IMPLICIT NONE
 
@@ -83,7 +88,7 @@ SUBROUTINE dealloc_ctm
   DEALLOCATE ( x3midl     )
 
 !-------------------------------------------------------------------------------
-! Release memory for GROUTCOM arrays.
+! Release memory for GROUTCOM and LUOUTCOM arrays.
 !-------------------------------------------------------------------------------
 
   NULLIFY    ( glat_d     )
@@ -121,6 +126,9 @@ SUBROUTINE dealloc_ctm
   IF ( ASSOCIATED ( gx3htm_c  ) ) NULLIFY    ( gx3htm_c   )
   IF ( ALLOCATED  ( gc3       ) ) DEALLOCATE ( gc3        )
 
+  IF ( ASSOCIATED ( lufrac_c  ) ) NULLIFY    ( lufrac_c   )
+  IF ( ALLOCATED  ( lu3       ) ) DEALLOCATE ( lu3        )
+
 !-------------------------------------------------------------------------------
 ! Release memory for MCOUTCOM arrays.
 !-------------------------------------------------------------------------------
@@ -153,6 +161,7 @@ SUBROUTINE dealloc_ctm
   NULLIFY    ( veg_c      )
   NULLIFY    ( lai_c      )
   NULLIFY    ( seaice_c   )
+  NULLIFY    ( snowh_c    )
   DEALLOCATE ( mc2        )
 
   IF ( ALLOCATED  ( wr_c      ) ) DEALLOCATE ( wr_c       )
@@ -224,5 +233,26 @@ SUBROUTINE dealloc_ctm
 
   IF ( ALLOCATED  ( uu_s     ) ) DEALLOCATE ( uu_s       )
   IF ( ALLOCATED  ( vv_t     ) ) DEALLOCATE ( vv_t       )
+
+!-------------------------------------------------------------------------------
+! Release memory for SOIOUTCOM arrays.
+!-------------------------------------------------------------------------------
+
+  IF ( ASSOCIATED ( soit3d_c ) ) NULLIFY    ( soit3d_c )
+  IF ( ASSOCIATED ( soim3d_c ) ) NULLIFY    ( soim3d_c )
+  IF ( ALLOCATED  ( soi3     ) ) DEALLOCATE ( soi3     )
+
+!-------------------------------------------------------------------------------
+! Release memory for MOSOUTCOM arrays.
+!-------------------------------------------------------------------------------
+
+  IF ( ASSOCIATED ( lufrac2_c   ) ) NULLIFY    ( lufrac2_c   )
+  IF ( ASSOCIATED ( moscatidx_c ) ) NULLIFY    ( moscatidx_c )
+  IF ( ASSOCIATED ( lai_mos_c   ) ) NULLIFY    ( lai_mos_c   )
+  IF ( ASSOCIATED ( rai_mos_c   ) ) NULLIFY    ( rai_mos_c   )
+  IF ( ASSOCIATED ( rsi_mos_c   ) ) NULLIFY    ( rsi_mos_c   )
+  IF ( ASSOCIATED ( tsk_mos_c   ) ) NULLIFY    ( tsk_mos_c   )
+  IF ( ASSOCIATED ( znt_mos_c   ) ) NULLIFY    ( znt_mos_c   )
+  IF ( ALLOCATED  ( mos3        ) ) DEALLOCATE ( mos3        )
 
 END SUBROUTINE dealloc_ctm

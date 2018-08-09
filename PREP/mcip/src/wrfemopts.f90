@@ -37,9 +37,11 @@ SUBROUTINE wrfemopts (txt_cupa, txt_microphys, txt_lwrad, txt_swrad,  &
 !                        options.  (T. Spero)
 !           20 Jun 2017  Updated for WRFv3.8, WRFv3.8.1, and WRFv3.9
 !                        options.  (T. Spero)
+!           10 Feb 2018  Annotated LSM option if NOAH Mosaic is used. (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE metinfo
+  USE mcipparm, ONLY: ifmosaic
 
   IMPLICIT NONE
 
@@ -299,7 +301,11 @@ SUBROUTINE wrfemopts (txt_cupa, txt_microphys, txt_lwrad, txt_swrad,  &
     CASE ( 1 )
       txt_lsm = 'Thermal Diffusion'
     CASE ( 2 )
-      txt_lsm = 'NOAH Land-Surface Model'
+      IF ( ifmosaic ) THEN
+        txt_lsm = 'NOAH Mosaic Land-Surface Model'
+      ELSE
+        txt_lsm = 'NOAH Land-Surface Model'
+      ENDIF
     CASE ( 3 )
       txt_lsm = 'RUC Land-Surface Model'
     CASE ( 4 )

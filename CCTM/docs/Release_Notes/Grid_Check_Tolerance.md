@@ -4,15 +4,15 @@
 
 ## Brief Description
 
+When using some grid files, the size of the advection spacing don''t exactly match. For example 1333.33333.... meters can be rounded many different ways. The code was modified to use a tolerance to test for consistency.
 
 ## Significance and Impact
 
+CMAQ will now be more flexible in receiving grid spacings that are essentially equivalent but may have some small numerical precision differences.
 
 ## Affected Files:
 
 CCTM/src/driver/yamo/advstep.F  
-
-## References:    
 
 -----
 ## Internal Records:

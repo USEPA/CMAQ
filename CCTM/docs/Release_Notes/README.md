@@ -10,29 +10,30 @@ The Community Multiscale Air Quality (CMAQ) Model version 5.2.1 is a minor updat
 # Summary of CMAQv5.2.1 Updates  
 
 ## Transport  
-  * [Grid check tolerance during advection](Grid_Check_Tolerance.md) (Ben, Tanya)  
-  * [HDIFF hang with offline CMAQ](HDIFF_hang.md) (Jesse)  
-  * [Remove SWAP routines](SWAP_routines.md) (David)  
-  * [Unique INTERPX offsets for METCRO2D](INTERPX.md) (Bill)  
+  * [Grid check tolerance during advection](Grid_Check_Tolerance.md)   
+  * [Remove SWAP routines](SWAP_routines.md)  
+  * [Unique INTERPX offsets for METCRO2D](INTERPX.md)  
 
 ## Emissions and Air-Surface Exchange  
-  * [Turn on bioseason switch by default](Bioseason.md) ( Ben )  
-  * [Hay Land Use fix for BiDi](Hay_Land_Use.md) (Jesse)  
-  * [Allow Emissions Check to have no point sources](Emiss_Check_Zero_PT_Sources.md) ( Ben)  
+  * [Turn on bioseason switch by default](Bioseason.md)  
+  * [Allow Emissions Check to have no point sources](Emiss_Check_Zero_PT_Sources.md)  
 
 ## Chemistry  
-  * [Remove duplicative heterogeneous uptake of N2O5](Duplicate_N2O5.md) (Sarwar)  
-  * [Make generalized solvers work with intel version 17](Intel17_Solver_Compatibility.md) ( Bill)  
+  * [Remove duplicative heterogeneous uptake of N2O5](Duplicate_N2O5.md)   
+  * [Make generalized solvers work with intel version 17](Intel17_Solver_Compatibility.md)   
 
 ## Aerosol Processes  
-  * [Fix Bugs in initialization including ICBC checking, getpar calls and getpar save variables](Aerosol_ICBC_GetPar.md) (Ben)  
+  * [Fix Bugs in initialization including ICBC checking, getpar calls and getpar save variables](Aerosol_ICBC_GetPar.md)   
  
+## WRF-CMAQ
+  * [Fix Bug in switch for turning convective scheme on and off](Two_Way_Convective_Scheme.md)  
+
 ## Compilation  
-  * [Compilation options, debugging flag, and include paths](Compilation_Options_and_Debug.md) (Ben)  
+  * [Compilation options, debugging flag, and include paths](Compilation_Options_and_Debug.md)   
 
 ## Post-Processing  
-  * [Improve combine's math](Combine_Math.md) (Bill)  
-  * [Add command for extracting specdef files to bldit_project.csh](SpecDefExtraction.md) ( Ben )  
+  * [Improve combine's math](Combine_Math.md)    
+  * [Add command for extracting specdef files to bldit_project.csh](SpecDefExtraction.md)   
 
 -----
 

@@ -24,9 +24,9 @@
  cd CCTM/scripts
 
 #> Set General Parameters for Configuring the Simulation
- set VRSN      = v5.2.1            #> Code Version
+ set VRSN      = v521            #> Code Version
  set PROC      = mpi               #> serial or mpi
- set MECH      = cb6r3_ae6_aq      #> Mechanism ID
+ set MECH      = cb6r3_ae7_aq      #> Mechanism ID
  set EMIS      = 2013ef            #> Emission Inventory Details
  set APPL      = SE52BENCH         #> Application Name (e.g. Gridname)
                                                        
@@ -67,7 +67,7 @@ set TSTEP      = 010000            #> output time step interval (HHMMSS)
 if ( $PROC == serial ) then
    setenv NPCOL_NPROW "1 1"; set NPROCS   = 1 # single processor setting
 else
-   @ NPCOL  =  4; @ NPROW =  2
+   @ NPCOL  =  4; @ NPROW =  8
    @ NPROCS = $NPCOL * $NPROW
    setenv NPCOL_NPROW "$NPCOL $NPROW"; 
 endif
@@ -116,6 +116,15 @@ setenv CTM_ILDEPV Y          #> calculate in-line deposition velocities [ defaul
 setenv CTM_MOSAIC N          #> landuse specific deposition velocities [ default: N ]
 setenv CTM_FST N             #> mosaic method to get land-use specific stomatal flux 
                              #>    [ default: N ]
+# Surface Tiled Aerosol and Gaseous Exchange deposition option environment variables
+# Define the WRF land surface model
+setenv PX_VERSION Y          #> WRF PX LSM
+setenv CLM_VERSION N         #> WRF CLM LSM
+setenv NOAH_VERSION N        #> WRF NOAH LSM
+setenv CTM_MOSAIC N          #> landuse specific deposition velocities [ default: N ]
+setenv CTM_FST N             #> mosaic method to get land-use specific stomatal flux 
+                             #>    [ default: N ]
+# end of STAGE deposition options
 setenv CTM_ABFLUX Y          #> ammonia bi-directional flux for in-line deposition 
                              #>    velocities [ default: N ]; ignore if CTM_ILDEPV = N
 setenv CTM_HGBIDI N          #> mercury bi-directional flux for in-line deposition 
@@ -129,6 +138,9 @@ setenv CTM_ZERO_PCSOA N      #> turn off the emissions of the VOC precursor to p
                              #>    The CMAQ dev team recommends leaving pcSOA mass in the
                              #>    model for production runs. [ default: N ]
 
+#> Vertical Extraction Options
+setenv DOVERTEXT N
+setenv VERTLONLATPATH ${WORKDIR}/lonlat.csv
 #> Process Analysis Options
 setenv CTM_PROCAN N          #> use process analysis [ default: N]
 #> process analysis global column, row and layer ranges
@@ -155,7 +167,11 @@ setenv APMDIAG_BLEV_ELEV ""  #> layer range for average pmdiag = NLAYS
 setenv CTM_CKSUM Y           #> cksum report [ default: Y ]
 setenv CLD_DIAG Y            #> cloud diagnostic file [ default: N ]
 setenv CTM_AERDIAG Y         #> aerosol diagnostic file [ default: N ]
+
 setenv CTM_PHOTDIAG Y        #> photolysis diagnostic file [ default: N ]
+setenv NLAYS_PHOTDIAG "3"                            #> Number of layers for PHOTDIAG2 and PHOTDIAG3 from Layer 1 to NLAYS_PHOTDIAG  [ default: all layers ] 
+#setenv NWAVE_PHOTDIAG "294 303 310 316 333 381 607"  #> Wavelengths written for variables in PHOTDIAG2 and PHOTDIAG3 [ default: all wavelengths ]
+
 setenv CTM_SSEMDIAG Y        #> sea-salt emissions diagnostic file [ default: N ]
 setenv CTM_DUSTEM_DIAG Y     #> windblown dust emissions diagnostic file [ default: N ]; ignore if CTM_WB_DUST = N
 setenv CTM_DEPV_FILE Y       #> deposition velocities diagnostic file [ default: N ]
@@ -213,12 +229,14 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #> Initial conditions
   if ($NEW_START == true || $NEW_START == TRUE ) then
      setenv ICFILE ICON_20110630_bench.nc
+     setenv INIT_MEDC_1 notused
      setenv INITIAL_RUN Y #related to restart soil information file
      rm -rf $LOGDIR/CTM_LOG*${RUNID}*  # Remove all Log Files Since this is a new start
      mkdir -p $OUTDIR
   else
      set ICpath = $OUTDIR
      setenv ICFILE CCTM_CGRID_${RUNID}_${YESTERDAY}.nc
+     setenv INIT_MEDC_1 $ICpath/CCTM_MEDIA_CONC_${RUNID}_${YESTERDAY}
      setenv INITIAL_RUN N
   endif
 
@@ -229,7 +247,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #set JVALfile  = JTABLE_${YYYYJJJ}
 
   #> Ozone column data
-  set OMIfile   = OMI_1979_to_2015.dat
+  set OMIfile   = OMI_1979_to_2017.dat
 
   #> Optics file
   set OPTfile = PHOT_OPTICS.dat
@@ -293,9 +311,8 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   if ( $CTM_BIOGEMIS == 'Y' ) then   
      set IN_BEISpath = ${INPDIR}/land
      set GSPROpath   = ${IN_BEISpath}
-     setenv GSPRO      $GSPROpath/gspro_biogenics_1mar2017.txt
+     setenv GSPRO      $BLD/gspro_biogenics.txt
      setenv B3GRD      $IN_BEISpath/b3grd_bench.nc
-     setenv BIOG_SPRO  B10C6 #> speciation profile to use for biogenics
      setenv BIOSW_YN   Y     #> use frost date switch [ default: Y ]
      setenv BIOSEASON  $IN_BEISpath/bioseason.cmaq.2011_12US1_wetland100.ghrsst_bench.ncf #> ignore season switch file if BIOSW_YN = N
      setenv SUMMER_YN  Y     #> Use summer normalized emissions? [ default: Y ]
@@ -318,13 +335,16 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      endif
   endif
 
-  #> In-line sea salt emisisions configuration
+  #> In-line sea salt emissions configuration
   setenv OCEAN_1 $SZpath/12US1_surf_bench.nc #> horizontal grid-dependent surf zone file
 
-  #> Bidiretional ammonia configuration
+  #> Bidirectional ammonia configuration
   if ( $CTM_ABFLUX == 'Y' ) then
-     setenv E2C_Soilfile  ${INPDIR}/land/2011_US1_soil_bench.nc       
-     setenv E2C_Fertfile  ${INPDIR}/land/2011_US1_time${YYYYMMDD}_bench.nc    
+# modify for FEST-C v1.4.
+#    setenv E2C_Soilfile  ${INPDIR}/land/2011_US1_soil_bench.nc
+#    setenv E2C_Fertfile  ${INPDIR}/land/2011_US1_time${YYYYMMDD}_bench.nc
+     setenv E2C_Soilfile  ${INPDIR}/land/epic_festc1.4/epic2011_20180516_soil.nc
+     setenv E2C_Fertfile  ${INPDIR}/land/epic_festc1.4/epic2011_20180516_time${YYYYMMDD}.nc
      setenv B4LU_file     ${INPDIR}/land/beld4_12kmCONUS_2006nlcd_bench.nc    
      setenv E2C_SOIL ${E2C_Soilfile}
      setenv E2C_FERT ${E2C_Fertfile}
@@ -352,8 +372,9 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv CTM_AVIS_1      "$OUTDIR/CCTM_APMVIS_${CTM_APPL}.nc -v"     #> Hourly-Averaged Visibility
   setenv CTM_PMDIAG_1    "$OUTDIR/CCTM_PMDIAG_${CTM_APPL}.nc -v"     #> On-Hour Particle Diagnostics
   setenv CTM_APMDIAG_1   "$OUTDIR/CCTM_APMDIAG_${CTM_APPL}.nc -v"    #> Hourly Avg. Particle Diagnostic
-  setenv CTM_RJ_1        "$OUTDIR/CCTM_PHOTDIAG1_${CTM_APPL}.nc -v"  #> Photolysis Rxn Diagnostics
-  setenv CTM_RJ_2        "$OUTDIR/CCTM_PHOTDIAG2_${CTM_APPL}.nc -v"  #> Photolysis Rates Output
+  setenv CTM_RJ_1        "$OUTDIR/CCTM_PHOTDIAG1_${CTM_APPL}.nc -v"  #> 2D Surface Summary from Inline Photolysis
+  setenv CTM_RJ_2        "$OUTDIR/CCTM_PHOTDIAG2_${CTM_APPL}.nc -v"  #> 3D Photolysis Rates 
+  setenv CTM_RJ_3        "$OUTDIR/CCTM_PHOTDIAG3_${CTM_APPL}.nc -v"  #> 3D Optical and Radiative Results from Photolysis
   setenv CTM_SSEMIS_1    "$OUTDIR/CCTM_SSEMIS_${CTM_APPL}.nc -v"     #> Sea Spray Emissions
   setenv CTM_DUST_EMIS_1 "$OUTDIR/CCTM_DUSTEMIS_${CTM_APPL}.nc -v"   #> Dust Emissions
   setenv CTM_IPR_1       "$OUTDIR/CCTM_PA_1_${CTM_APPL}.nc -v"       #> Process Analysis
@@ -371,6 +392,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv CTM_AOD_1       "$OUTDIR/CCTM_AOD_DIAG_${CTM_APPL}.nc -v"   #> Aerosol Optical Depth Diagnostic
   setenv CTM_LTNGDIAG_1  "$OUTDIR/CCTM_LTNGHRLY_${CTM_APPL}.nc -v"   #> Hourly Avg Lightning NO
   setenv CTM_LTNGDIAG_2  "$OUTDIR/CCTM_LTNGCOL_${CTM_APPL}.nc -v"    #> Column Total Lightning NO
+  setenv CTM_VEXT_1      "$OUTDIR/CCTM_VEXT_${CTM_APPL}.nc -v"       #> On-Hour Concentrations at select sites
 
   #> set floor file (neg concs)
   setenv FLOOR_FILE ${OUTDIR}/FLOOR_${CTM_APPL}.txt
@@ -383,7 +405,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   set OUT_FILES = (${FLOOR_FILE} ${S_CGRID} ${CTM_CONC_1} ${A_CONC_1} ${MEDIA_CONC}         \
              ${CTM_DRY_DEP_1} $CTM_DEPV_DIAG $CTM_PT3D_DIAG $B3GTS_S $SOILOUT $CTM_WET_DEP_1\
              $CTM_WET_DEP_2 $CTM_VIS_1 $CTM_AVIS_1 $CTM_PMDIAG_1 $CTM_APMDIAG_1             \
-             $CTM_RJ_1 $CTM_RJ_2 $CTM_SSEMIS_1 $CTM_DUST_EMIS_1 $CTM_IPR_1 $CTM_IPR_2       \
+             $CTM_RJ_1 $CTM_RJ_2 $CTM_RJ_3 $CTM_SSEMIS_1 $CTM_DUST_EMIS_1 $CTM_IPR_1 $CTM_IPR_2       \
              $CTM_IPR_3 $CTM_IRR_1 $CTM_IRR_2 $CTM_IRR_3 $CTM_DRY_DEP_MOS                   \
              $CTM_DRY_DEP_FST $CTM_DEPV_MOS $CTM_DEPV_FST $CTM_VDIFF_DIAG $CTM_VSED_DIAG    \
              $CTM_AOD_1 $CTM_LTNGDIAG_1 $CTM_LTNGDIAG_2)
@@ -483,7 +505,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #> Executable call for multi PE, configure for your system 
   # set MPI = /usr/local/intel/impi/3.2.2.006/bin64
   # set MPIRUN = $MPI/mpirun
-  time mpirun -r ssh -np $NPROCS $BLD/$EXEC
+  time mpirun -np $NPROCS $BLD/$EXEC
 
   date
 

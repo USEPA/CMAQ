@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/util/util/setup_logdev.F,v 1.5 2012/01/19 15:31:10 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       FUNCTION SETUP_LOGDEV ()  RESULT ( LOGDEV )
 
@@ -50,12 +43,13 @@ C   12 Aug 15 D.Wong:   Replaced SUBST_MPI with mpif.h
       include 'mpif.h'
 #endif
 
-      CHARACTER(  3 ) :: CMYPE
-      CHARACTER(  8 ) :: PRESTR = 'CTM_LOG_'
-      CHARACTER(  8 ) :: APPL = 'CTM_APPL'
-      
       INTEGER, PARAMETER :: MAXLEN_CCTM_APPL = 200
       INTEGER, PARAMETER :: MAXLEN_CTM_LOG   = MAXLEN_CCTM_APPL + 11
+
+      CHARACTER(  8 ) :: PRESTR = 'CTM_LOG_'
+      CHARACTER(  3 ) :: CMYPE
+      CHARACTER(  8 ) :: APPL = 'CTM_APPL'
+      
       CHARACTER( MAXLEN_CCTM_APPL ) :: EQNAME
       CHARACTER( MAXLEN_CTM_LOG   ) :: IOLOGEQ
 

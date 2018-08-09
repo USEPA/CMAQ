@@ -120,7 +120,7 @@ C...load data from photolysis reaction list
          DO N = 1, NPHOTAB
             VNAME3D( N ) = PHOTAB( N )
             VTYPE3D( N ) = M3REAL
-            UNITS3D( N ) = '1/min'
+            UNITS3D( N ) = 'min-1'
             VDESC3D( N ) = 'Photolysis rates for ' // VNAME3D( N )
          END DO
 

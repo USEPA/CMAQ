@@ -40,7 +40,7 @@
  setenv REPOROOT $CCTM_SRC
 
 #> Working directory and Version IDs
- set VRSN  = v5.2.1                    #> model configuration ID
+ set VRSN  = v521                    #> model configuration ID
  set EXEC  = CCTM_${VRSN}.exe          #> executable name
  set CFG   = CCTM_${VRSN}.cfg          #> configuration file name
 
@@ -79,11 +79,13 @@ set ParOpt                             #> uncomment to build a multiple processo
  set ModGrid   = grid/cartesian        #> grid configuration module 
  set ModCpl    = couple/gencoor_wrf    #> unit conversion and concentration coupling module 
                                        #>     (see $CMAQ_MODEL/CCTM/src/couple)
+ set DepMod    = m3dry                 #> m3dry or stage
+ set DepMod    = stage
  set ModHadv   = hadv/yamo             #> horizontal advection module
  set ModVadv   = vadv/wrf              #> vertical advection module (see $CMAQ_MODEL/CCTM/src/vadv)
  set ModHdiff  = hdiff/multiscale      #> horizontal diffusion module
- set ModVdiff  = vdiff/acm2            #> vertical diffusion module (see $CMAQ_MODEL/CCTM/src/vdiff)
- set ModDepv   = depv/m3dry            #> deposition velocity calculation module 
+ set ModVdiff  = vdiff/acm2_${DepMod}  #> vertical diffusion module (see $CMAQ_MODEL/CCTM/src/vdiff)
+ set ModDepv   = depv/${DepMod}        #> deposition velocity calculation module 
                                        #>     (see $CMAQ_MODEL/CCTM/src/depv)
  set ModEmis   = emis/emis             #> in-line emissions module
  set ModBiog   = biog/beis3            #> BEIS3 in-line emissions module 
@@ -92,11 +94,12 @@ set ParOpt                             #> uncomment to build a multiple processo
                                        #>     (see $CMAQ_MODEL/CCTM/src/spcs)
  set ModPhot   = phot/inline           #> photolysis calculation module 
                                        #>     (see $CMAQ_MODEL/CCTM/src/phot)
- set Mechanism = cb6r3_ae6_aq        #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS)
+ set Mechanism = cb6r3_ae7_aq          #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS)
  set ModGas    = gas/ebi_${Mechanism}  #> gas-phase chemistry solver (see $CMAQ_MODEL/CCTM/src/gas)
- set ModAero   = aero/aero6            #> aerosol chemistry module (see $CMAQ_MODEL/CCTM/src/aero)
- set ModCloud  = cloud/acm_ae6         #> cloud chemistry module (see $CMAQ_MODEL/CCTM/src/cloud)
+ set ModAero   = aero/aero7            #> aerosol chemistry module (see $CMAQ_MODEL/CCTM/src/aero)
+ set ModCloud  = cloud/acm_ae7         #> cloud chemistry module (see $CMAQ_MODEL/CCTM/src/cloud)
  set ModUtil   = util/util             #> CCTM utility modules
+ set ModDiag   = diag                  #> CCTM diagnostic modules
  set Tracer    = trac0                 #> tracer configuration directory under 
                                        #>   $CMAQ_MODEL/CCTM/src/MECHS [ default: no tracer species ]
  set ModPa     = procan/pa             #> name of process analysis. Include files are in directory 
@@ -426,12 +429,12 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo "Module ${ModHdiff};"                                        >> $Cfile
  echo                                                              >> $Cfile
 
- set text = "acm2"
+ set text = "acm2_m3dry or acm2_stage"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModVdiff};"                                        >> $Cfile
  echo                                                              >> $Cfile
 
- set text = "m3dry"
+ set text = "m3dry or stage"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModDepv};"                                         >> $Cfile
  echo                                                              >> $Cfile
@@ -468,7 +471,7 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo "Module ${ModGas};"                                          >> $Cfile
  echo                                                              >> $Cfile
 
- set MechList = " cb05e51_ae6_aq, cb05e51_ae6nvPOA_aq, cb05eh51_ae6_aq, cb05mp51_ae6_aq, cb05tucl_ae6_aq, cb05tump_ae6_aq, cb6r3_ae6_aq, cb6r3_ae6nvPOA_aq, racm2_ae6_aq, saprc07tb_ae6_aq, saprc07tc_ae6_aq, saprc07tc_ae6nvPOA_aq, saprc07tic_ae6i_aq, saprc07tic_ae6i_aqkmti, saprc07tic_ae6invPOA_aq"
+ set MechList = " cb05e51_ae6_aq, cb05e51_ae6nvPOA_aq, cb05eh51_ae6_aq, cb05mp51_ae6_aq, cb05tucl_ae6_aq, cb05tump_ae6_aq, cb6r3_ae6_aq, cb6r3_ae7_aq, cb6r3_ae6nvPOA_aq, racm2_ae6_aq, saprc07tb_ae6_aq, saprc07tc_ae6_aq, saprc07tc_ae6nvPOA_aq, saprc07tic_ae6i_aq, saprc07tic_ae6i_aqkmti, saprc07tic_ae6invPOA_aq"
 
  set text = "gas chemistry mechanisms"
  echo "// " $text                                                  >> $Cfile
@@ -495,7 +498,7 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo "Module ${ModAero};"                                         >> $Cfile
  echo                                                              >> $Cfile
 
- set text = "acm_ae6, acm_ae6_kmt, and acm_ae6_mp"
+ set text = "acm_ae6, acm_ae6_kmt, and acm_ae6_mp, acm_ae7"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModCloud};"                                        >> $Cfile
  echo                                                              >> $Cfile
@@ -508,6 +511,11 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  set text = "util"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModUtil};"                                         >> $Cfile
+ echo                                                              >> $Cfile
+
+ set text = "diag"
+ echo "// options are" $text                                       >> $Cfile
+ echo "Module ${ModDiag};"                                         >> $Cfile
  echo                                                              >> $Cfile
 
  if ( $?ModMisc ) then
@@ -553,7 +561,7 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
          $Blder -debug_cctm $Cfile   # Run BLDMAKE with source code in build directory
        else
          $Blder $Cfile   # Run BLDMAKE with source code in build directory
-       end if
+       endif
     else if ( $?CopySrcTree ) then 
        $Blder -makefo -co $Cfile  # Copy repository directory tree as well
     else
@@ -562,7 +570,7 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
          $Blder -debug_cctm -git_local $Cfile 
        else
          $Blder -git_local $Cfile
-       end if
+       endif
          
     endif
  endif

@@ -89,7 +89,7 @@ c..Add the number of species/family member molecules lost in this reaction
                   SPECIS = CHEMISTRY_SPC( NAMINDX )
                   COEF = 1.0
                END IF
-               IF ( GC_SPC( INDX ) .EQ. SPECIS ) THEN
+               IF ( CHEMISTRY_SPC( INDX ) .EQ. SPECIS ) THEN
                   SUM = SUM + COEF
                   NRFND = NRFND + 1
                END IF
