@@ -403,7 +403,7 @@ c..R16_15 term ( production of N2O5 from NO3 )
             WRITE( RNUM, '( I3 )' ) N
             
             LINOUT = '      R16_15  = RKI( ' // RNUM // 
-     &       ' ) * YC( NO2 ) * DTC'
+     &       ' ) * YCP( NO2 ) * DTC'
             E1 = LEN_TRIM( LINOUT )
             WRITE( IOUT, 92000 ) LINOUT( 1 : E1 )
          END IF

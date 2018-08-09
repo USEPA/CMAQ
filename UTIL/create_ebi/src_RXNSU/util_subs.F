@@ -500,6 +500,7 @@ C..SAVED LOGICAL VARIABLES
       LOGICAL, SAVE   ::    LFIRST     = .TRUE.     ! First call flag
       LOGICAL, SAVE   ::    FLAG_OH_S  = .TRUE.     ! controls OH_S write
       LOGICAL, SAVE   ::    FLAG_HO2_S = .TRUE.     ! controls HO2_S write
+      LOGICAL, SAVE   ::    USE_YCP    = .FALSE.    ! whether to YC or YCP
 
 C**********************************************************************
 
@@ -526,13 +527,15 @@ c..NO2-->NO2EX
 
       END IF
 
+      USE_YCP = .FALSE.
+      
       WRITE( GROUP, '(I1)' ) GRPNO
       WRITE( RNUM , '( I3 )' ) IRX
       VOUT = ADJUSTL( VNAME )
       EV = LEN_TRIM( VNAME )
 
 
-      DO S = 1, EV
+      DO S = 1, LEN(FILLR)
          FILLR( S : S ) = ' '
       END DO
 
@@ -582,13 +585,22 @@ c..build the output line
 
          IF( NR .EQ. 1 ) THEN
             SPOUT = ADJUSTL( SPECIES( RCT( 1 ) ) )
-            LINOUT = LINOUT( 1 : EPOS ) // ' * YC( ' // SPOUT  // ' )'
+            USE_YCP = ( RCT( 1 ) .EQ. OH  .OR. RCT( 1 ) .EQ. HO2 
+     &             .OR. RCT( 1 ) .EQ. O3P .OR. RCT( 1 ) .EQ. O3
+     &             .OR. RCT( 1 ) .EQ. NO  .OR. RCT( 1 ) .EQ. NO2 )            
+            IF(  VNAME .EQ. 'L21' .AND. RCT( 1 ) .EQ. OH )THEN
+               LINOUT = LINOUT( 1 : EPOS ) // ' * YCP( ' // SPOUT  // ' )'
+            ELSE IF( VNAME .EQ. 'L15' .AND. USE_YCP )THEN
+               LINOUT = LINOUT( 1 : EPOS ) // ' * YCP( ' // SPOUT  // ' )'
+            ELSE
+               LINOUT = LINOUT( 1 : EPOS ) // ' * YC ( ' // SPOUT  // ' )'
+            END IF   
             EPOS = LEN_TRIM( LINOUT )
          ELSE
-            DO S = EPOS + 1, EPOS + CL + 9
+            DO S = EPOS + 1, EPOS + CL + 10
                LINOUT( S : S ) = ' '
             END DO
-            EPOS = EPOS + CL + 9
+            EPOS = EPOS + CL + 10
          END IF
 
          LINOUT = LINOUT( 1 : EPOS ) // '   '
@@ -669,19 +681,64 @@ c..Special case for HONO being formed from NO2EX -- relate it to NO2
 
 
          IF( LRXN1 ) THEN
-            LINOUT = '      '  // VNAME( 1 : EV ) // ' =  ' // COUT //
-     &               'RXRAT( ' // RNUM // ' )'
+            IF( VNAME .EQ. 'P15'  ) THEN
+               LINOUT = '      '  // VNAME( 1 : EV ) // ' =  ' // COUT //
+     &                  'RKI( ' // RNUM // ' )'
+               DO R = 1, NREACT( IRX )
+                  EPOS = LEN_TRIM( LINOUT )
+                  S = IRR( IRX,R )
+                  SPOUT(1:CL) = SPECIES( S )(1:CL)
+                  IF( S .EQ. O3P .OR. S .EQ. NO2 .OR. S .EQ. O3 . OR. S .EQ. OH )THEN
+                     LINOUT = LINOUT(1:EPOS) 
+     &                      // ' * YCP( ' // SPOUT(1:CL) // ' ) '
+                  ELSE
+                     LINOUT = LINOUT(1:EPOS)
+     &                      // ' * YC ( ' // SPOUT(1:CL)  // ' ) '
+                  END IF
+               END DO
+            ELSE
+               LINOUT = '      '  // VNAME( 1 : EV ) // ' =  ' // COUT //
+     &                  'RXRAT( ' // RNUM // ' )'
+            END IF
          ELSE
-            LINOUT = '     &'  // FILLR( 1 : MAX( 1, (EV-1) )) // '  +  ' 
-     &             // COUT // 'RXRAT( ' // RNUM // ' )'
+            IF( VNAME .EQ. 'P15'  ) THEN
+               LINOUT = '     &'  // FILLR( 1 : MAX( 1, (EV-1) )) // '  +  ' 
+     &                // COUT // 'RKI( ' // RNUM // ' )'
+               DO R = 1, NREACT( IRX )
+                  EPOS = LEN_TRIM( LINOUT )
+                  S = IRR( IRX,R )
+                  SPOUT(1:CL) = SPECIES( S )(1:CL)
+                  IF( S .EQ. O3P .OR. S .EQ. NO2 .OR. S .EQ. O3 . OR. S .EQ. OH )THEN
+                     LINOUT = LINOUT(1:EPOS) 
+     &                      // ' * YCP( ' // SPOUT(1:CL) // ' ) '
+                  ELSE
+                     LINOUT = LINOUT(1:EPOS) 
+     &                      // ' * YC ( ' // SPOUT(1:CL) // ' ) '
+                 END IF
+               END DO  
+            ELSE
+               LINOUT = '     &'  // FILLR( 1 : MAX( 1, (EV-1) )) // '  +  ' 
+     &                // COUT // 'RXRAT( ' // RNUM // ' )'
+            END IF
          END IF
 
          READ( RNUM, '(I3)' ) N
          L_RXFLAG( N ) = .TRUE.
 
-         EPOS = LEN_TRIM( LINOUT )
-         LINOUT = LINOUT( 1 : EPOS ) // '      '
-         EPOS = EPOS + 6
+         IF( VNAME .EQ. 'P15'  ) THEN
+           S = MAXVAL( NREACT ) - NREACT( IRX ) 
+           EPOS = LEN_TRIM( LINOUT )
+           DO R = 1, S
+              LINOUT = LINOUT( 1 : EPOS ) // FILLR( 1:(CL+10) )
+              EPOS  = EPOS + CL + 10
+            END DO
+            LINOUT = LINOUT( 1 : EPOS ) // '      '
+            EPOS = EPOS + 6
+         ELSE
+            EPOS = LEN_TRIM( LINOUT )
+            LINOUT = LINOUT( 1 : EPOS ) // '      '
+            EPOS = EPOS + 6
+         END IF   
 
          CALL CMPRS_RXN( RPOS1, RPOS2, PPOS1, PPOS2, IRX, RXOUT )
          CALL TRIM_RXN( RXOUT, NPOS )

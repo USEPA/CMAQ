@@ -841,7 +841,7 @@ c..Find OH+NO=HONO Rxn
       END DO  
 
       SPOUT = ADJUSTL( SPECIES( NO2 ) )
-      LINOUT = '      R21_5 =   RKI( ' // RNUM // ' ) * YC( ' //
+      LINOUT = '      R21_5 =   RKI( ' // RNUM // ' ) * YCP( ' //
      &    SPOUT // ' ) * DTC      ! HO2+NO2=HNO4'
 
       E1 = LEN_TRIM( LINOUT )
