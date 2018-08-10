@@ -3,14 +3,12 @@
  ifndef APPL
     APPL = test
  endif 
- 
- MODEL = $(BASE)_$(APPL)
 
+ MODEL = $(BASE)_$(APPL)
 
 #COMPILER = INTEL
 #COMPILER = PGF90
 #COMPILER = GFORT
-
 
 ifndef COMPILER
 #COMPILER = INTEL
@@ -18,48 +16,41 @@ ifndef COMPILER
  COMPILER = GFORT
 endif
 
-
 ifeq ($(COMPILER),INTEL)
 
 FC = ifort
 CC = icc
-
-# compiler options 
 F_FLAGS = -fixed -132 -fp-model source -fpe0 -O0 -check uninit -warn nounused -check bounds -check format -g -traceback -fno-alias -mp1  -I . -g
 f_FLAGS = -fixed -132 -fp-model source -fpe0 -O0 -check uninit -warn nounused -check bounds -check format -g -traceback -fno-alias -mp1  -I . -g
-F90_FLAGS = -free -132 -fp-model source -fpe0 -O0 -check uninit -warn nounused -check bounds -check format -g -traceback  -fno-alias -mp1  -I . -g
-f90_FLAGS = -free -132 -fp-model source -fpe0 -O0  -check uninit -warn nounused -check bounds -check format -g -traceback -fno-alias -mp1  -I . -g
+F90_FLAGS = -free -fp-model source -fpe0 -O0 -check uninit -warn nounused -check bounds -check format -g -traceback -fno-alias -mp1  -I . -g
+f90_FLAGS = -free -fp-model source -fpe0 -O0 -check uninit -warn nounused -check bounds -check format -g -traceback -fno-alias -mp1  -I . -g
 
 C_FLAGS =  -O2  -DFLDMN=1
-LINK_FLAGS = -i-static
+LINK_FLAGS = 
 
 else ifeq ($(COMPILER),PGF90)
  FC = pgf90
  CC = pgcc
- 
-# compiler options 
- F_FLAGS   = -Mfixed -Mextend -Mbounds -O0 -traceback  -Mchkfpstk -Mchkptr -Mchkstk -traceback -Ktrap=fp  -I . -g
- f_FLAGS   = -Mfixed -Mextend -Mbounds -O0  -traceback -Mchkfpstk -Mchkptr -Mchkstk -traceback -Ktrap=fp -I . -g
- f90_FLAGS = -Mfree -Mextend -Mbounds -O0  -traceback -Mchkfpstk -Mchkptr -Mchkstk -traceback -Ktrap=fp -I . -g
- F90_FLAGS = -Mfree -Mextend -Mbounds -O0  -traceback -Mchkfpstk -Mchkptr -Mchkstk -traceback -Ktrap=fp -I . -g
+ F_FLAGS   = -Mfixed -Mextend -Mbounds -O0 -traceback -Mchkfpstk -Mchkptr -Mchkstk -traceback -Ktrap=fp -I . -g
+ f_FLAGS   = -Mfixed -Mextend -Mbounds -O0 -traceback -Mchkfpstk -Mchkptr -Mchkstk -traceback -Ktrap=fp -I . -g
+ f90_FLAGS = -Mfree  -Mextend -Mbounds -O0 -traceback -Mchkfpstk -Mchkptr -Mchkstk -traceback -Ktrap=fp -I . -g
+ F90_FLAGS = -Mfree  -Mextend -Mbounds -O0 -traceback -Mchkfpstk -Mchkptr -Mchkstk -traceback -Ktrap=fp -I . -g
  C_FLAGS =  -O2  -DFLDMN=1
  LINK_FLAGS = -Bstatic  -Bstatic_pgi
 
 else ifeq ($(COMPILER),GFORT)
  FC    = gfortran
  CC    = gcc
-
-# compiler options 
-   f_FLAGS       = -ffixed-form -ffixed-line-length-132 -funroll-loops -O0 -ffpe-trap=invalid,zero -g -finit-character=32 -I. -fcheck=all -fbounds-check
-   F_FLAGS       = $(f_FLAGS)
-   f90_FLAGS     = -cpp -ffree-form -ffree-line-length-none -funroll-loops -O0 -ffpe-trap=invalid,zero -g -finit-character=32 -I. -fcheck=all -fbounds-check
-   F90_FLAGS     = $(f90_FLAGS)
-   C_FLAGS       = -O2 -DFLDMN -I /home/wdx/lib/x86_64/gcc/mpich/include
-   LINKER        = $(FC)
-   LINK_FLAGS    = 
+ f_FLAGS   = -ffixed-form -ffixed-line-length-132 -funroll-loops -O0 -ffpe-trap=invalid,zero -g -finit-character=32 -I. -fcheck=all -fbounds-check
+ F_FLAGS   = $(f_FLAGS)
+ f90_FLAGS = -cpp -ffree-form -ffree-line-length-none -funroll-loops -O0 -ffpe-trap=invalid,zero -g -finit-character=32 -I. -fcheck=all -fbounds-check
+ F90_FLAGS = $(f90_FLAGS)
+ C_FLAGS   = -O2 -DFLDMN -I /home/wdx/lib/x86_64/gcc/mpich/include
+ LINKER    = $(FC)
+ LINK_FLAGS = 
 
 else
- ERROR1 = "Makefile does not configure to support the specified compiler, $(COMPILER). User must modify Makefile."
+ ERROR1 = "Makefile not configured to support the specified compiler, $(COMPILER). User must modify Makefile."
 endif
 
 ifdef ERROR1
@@ -135,9 +126,7 @@ else
  xc_qy_td_effect_v3.o \
  convert_case.o 
 endif
- 
-# wrbf12d.o \
-# wrbf12d_w_headerb.o \
+
 
 .SUFFIXES: .F .f .c
 
@@ -156,7 +145,6 @@ $(MODEL): $(OBJECTS)
 
  RXNS_DATA_MODULE.o: $(MECH_INC)/RXNS_DATA_MODULE.F90
 	$(FC) -c $(F90_FLAGS) $(CPP_FLAGS) $(INCLUDES) $(MECH_INC)/RXNS_DATA_MODULE.F90
-	
 
 .f90.o:
 	$(FC) -c $(f90_FLAGS) $<
@@ -166,4 +154,3 @@ $(MODEL): $(OBJECTS)
 
 clean:
 	rm -f $(OBJECTS) *.o $(BASE)_* *.mod
- 

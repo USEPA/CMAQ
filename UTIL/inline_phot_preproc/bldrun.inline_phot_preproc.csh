@@ -1,15 +1,15 @@
 #!/bin/csh -fx
 
  set echo
+ set REPO  = /home/username/CMAQ_repo
+ set MECHS = $REPO/CCTM/src/MECHS
 
-#> CMAQ Mechanism under Repository directory CTM/src/MECHS or
+#> CMAQ Mechanism under Repository directory CCTM/src/MECHS or
 #> user defines their own Mechanism name
- set Mechanism = cb6r3_ae6_aq          #> CMAQ mechanism ID
-# path to CMAQ repository  
- set REPO  = ${HOME}/CCTM_git_repository/CCTM/src/MECHS
-#set REPO  = /home/bhutzell/CCTM_git_repository/CCTM/src/MECHS
- set BASE  = $cwd
+ set Mechanism = cb6r3_ae7_aq          #> CMAQ mechanism ID
+ set BASE  = $REPO/UTIL/inline_phot_preproc
  set XBASE = $BASE
+ set SRC   = $XBASE/src
 
 #> option to set compiler and build a new executable (not required)
  setenv COMPILER  GFORT  #> INTEL, PGF90, or GFORT
@@ -17,8 +17,7 @@
  set OUTDIR = $BASE/output/csqy_table_${Mechanism}-${day}-${COMPILER}
 
 #> specify directory containing the mechanism modules or include files
-# setenv GC_INC $BASE/input/$Mechanism #> User Defines directory with the below mechanism data module
-  setenv GC_INC $REPO/$Mechanism
+  setenv GC_INC $MECHS/$Mechanism
 
 #> use RXNS_DATA_MODULE, comment out if CMAQ v5.02 and keep if CMAQ v5.1 or higher
  setenv USE_RXNS_MODULES T
@@ -39,16 +38,16 @@
 
 #>Number of Wavebands to write to output files starting from the band with the longest
 #>to shortest wavelength from the bands; can equal 1 to 18
-#>Waveband interval comes FAST-JX version 6.8
-#>CMAQ version 5.2.1 uses seven bands and CMAQ-MPAS uses eleven bands
+#>Waveband intervals come from FAST-JX version 6.8
+#>CMAQ version 5.3 uses seven bands and CMAQ-MPAS uses eleven bands
 setenv N_WAVEBANDS_OUT 7
 
-#> define exectubale
+#> define executable
  set EXEC = CSQY_TABLE_PROCESSOR_${Mechanism}
 
 #> create executable
  setenv APPL $Mechanism
- cd src ; make clean; make -f inline_phot_preproc.makefile; cd ../
+ cd $SRC ; make clean; make -f inline_phot_preproc.makefile; cd $BASE
  if( ! ( -e  $XBASE/$EXEC ) )then
      \ls $XBASE/$EXEC
      echo "make failed or value of XBASE incorrect"
@@ -76,13 +75,12 @@ setenv N_WAVEBANDS_OUT 7
  # set the list of indices to process, 
  # Their number can be less than MAX_NUMB_REFRACT.
  # The below list contains names used as optical surrogates in the CCTM source
- # code, AERO_DATA.F. To use other name requires changing the AERO_DATA.F
+ # code, AERO_DATA.F. To use other names requires changing AERO_DATA.F
  setenv AE_REFRAC_LIST "WATER DUST SOLUTE SOOT SEASALT" 
  
 #Set environment variables for the paths to each refractive index in
 #AE_REFRAC_LIST 
  setenv WATER     $REFRACT_DIR/water_refractive_index.dat
-#setenv INSOLUBLE $REFRACT_DIR/inso00                    
  setenv DUST      $REFRACT_DIR/inso00                    
  setenv SOLUTE    $REFRACT_DIR/waso00                    
  setenv SOOT      $REFRACT_DIR/soot00-two_way-Oct_21_2012
@@ -91,7 +89,6 @@ setenv N_WAVEBANDS_OUT 7
 #Define output directory variable and create
  if( ! ( -d $OUTDIR ) ) mkdir -p $OUTDIR
  setenv OUT_DIR       $OUTDIR
-
 
 $XBASE/$EXEC >&! bldrun.log
 
