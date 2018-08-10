@@ -348,6 +348,8 @@ C-----------------------------------------------------------------------
       Use cgrid_spcs          ! CGRID mechanism species
       Use utilio_defn
       Use aero_data
+      Use phot_mod            ! set-up shared photolysis arrays
+
 
       Implicit None
 
@@ -387,6 +389,8 @@ C-----------------------------------------------------------------------
       Else
          Return
       End if
+
+      Call init_phot_shared()
  
       Allocate ( aename( n_ae_a2aq ), stat = ios )
       If ( ios .Ne. 0 ) Then

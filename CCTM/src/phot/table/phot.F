@@ -160,9 +160,9 @@ C scratch local variables:
       INTEGER      JTIME_CHK          ! To check for JTIME to write RJ values
       INTEGER      ESTAT              ! status from environment var check
 
-      INTEGER      ITMSTEP         ! one half synchronization timestep (sec)
-      INTEGER      MDATE         ! Date at time step midpoint
-      INTEGER      MTIME         ! Time at time step midpoint
+      INTEGER      ITMSTEP            ! one half synchronization timestep (sec)
+      INTEGER      MDATE              ! Date at time step midpoint
+      INTEGER      MTIME              ! Time at time step midpoint
 
       REAL         CURRHR             ! current GMT hour
       REAL         THETA              ! function dummy argument
@@ -213,7 +213,6 @@ C internal functions:
       SINE   ( THETA ) = SIN ( PI180 * THETA )
       COSINE ( THETA ) = COS ( PI180 * THETA )
 
-      LOGICAL                  :: ERROR_FLAG = .FALSE.
 
 C----------------------------------------------------------------------
 
@@ -491,19 +490,8 @@ C...get height
           CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
-         ALLOCATE( RJ      ( NCOLS, NROWS, NLAYS, NPHOTAB ),
-     &             RJ_RES  ( NCOLS, NROWS, NLAYS, NPHOTAB ),
-     &             RJ_SUB  ( NCOLS, NROWS, NLAYS, NPHOTAB ), STAT = ALLOCSTAT )
-         IF ( ALLOCSTAT .NE. 0 ) THEN
-             XMSG = 'Failure allocating photolysis rate arrays'
-             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
+        CALL INIT_PHOT_SHARED()
 
-!         ALLOCATE( ETOT_SFC_WL( NCOLS,NROWS,NWL ), STAT = ALLOCSTAT )
-!         IF ( ALLOCSTAT .NE. 0 ) THEN
-!             XMSG = 'Failure allocating irradiance rate array'
-!             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-!         END IF
 
 C...Get photolysis rate diagnostic file flag
 
@@ -523,62 +511,6 @@ C...Get photolysis rate diagnostic file flag
           WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
         END IF
 
-
-        DO JP = 1, NPHOTAB
-           SELECT CASE ( PHOTAB( JP ) )
-!***check to see if this photolysis reaction is a special case.
-              CASE( 'O3O3P', 'O3O3P_SAPRC99', 'O3O3P_06', 'O3_O3P_IUPAC04', 'O3O3P_NASA06', 'O3_O3P_IUPAC10' )
-                    LO3O3P = JP
-              CASE( 'NO2', 'NO2_SAPRC99', 'NO2_06', 'NO2_RACM2', 'NO2_IUPAC10' )
-                    LNO2 = JP
-              CASE( 'O3O1D',  'O3O1D_SAPRC99' , 'O3O1D_06', 'O3_O1D_IUPAC04', 'O3O1D_NASA06', 'O3_O1D_IUPAC10' )
-                    LO3O1D = JP
-              CASE( 'KETONE', 'KET_RACM2' )
-                    LKETONE   = JP
-              CASE( 'MGLY_ADJ' )
-                    LMGLY_ADJ = JP
-              CASE(  'MGLY_ABS' )
-                    LMGLY_ABS = JP
-              CASE( 'ACETONE', 'CH3COCH3_RACM2', 'ACET_IUPAC10' )
-                    LACETONE  = JP
-              CASE( 'HCHOR_06', 'HCHO_R_SAPRC99', 'HCHO_RAD_RACM2', 'FORM_R_IUPAC10', 'HCHO_R_MCMv32' )
-                    LHCHOR_06 = JP
-              CASE( 'ACET_CH3CO_CRI' )
-                    LACETONE_CH3CO   = JP
-              CASE( 'H2O2', 'H2O2_SAPRC99', 'H2O2_RACM2', 'H2O2_IUPAC10' )
-                   LH2O2 = JP
-              CASE( 'HNO3', 'HNO3_IUPAC04', 'HNO3_IUPAC10', 'HNO3_RACM2' )
-                   LHNO3 = JP
-           END SELECT
-        END DO
-           
-!           IF ( LNO2   .EQ. 0 ) THEN
-!              XMSG = 'NO2 cross-section not found in the CSQY data! '
-!              CALL M3WARN ( PNAME, 0, 0, XMSG )
-!           END IF
-!           IF ( LO3O1D .EQ. 0 ) THEN
-!              XMSG = 'O3(1D) production not found in the CSQY data! '
-!              CALL M3WARN ( 'NEW_OPTICS', 0, 0, XMSG )
-!           END IF
-!           IF ( LO3O3P .EQ. 0 ) THEN
-!              MSG = 'O3 cross-section not found in the CSQY data! '
-!              CALL M3WARN ( PNAME, 0, 0, XMSG )
-!           END IF
-           IF ( LH2O2 .EQ. 0 ) THEN
-              XMSG = 'H2O2 cross-section not found in the CSQY data! '
-              ERROR_FLAG = .TRUE.
-              CALL M3WARN ( PNAME, 0, 0, XMSG )
-           END IF
-           IF ( LHNO3 .EQ. 0 ) THEN
-              XMSG = 'HNO3 cross-section not found in the CSQY data! '
-              ERROR_FLAG = .TRUE.
-              CALL M3WARN ( PNAME, 0, 0, XMSG )
-           END IF
-
-          IF( ERROR_FLAG )THEN
-            XMSG = 'The above fatal error(s) found initializing PHOT'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-          END IF
 
         IF ( PHOTDIAG ) THEN
 C...open the photolysis rate diagnostic files

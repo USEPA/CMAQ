@@ -69,8 +69,8 @@ C**********************************************************************
       USE AEROSOL_CHEMISTRY
       USE RXNS_FUNCTION
       USE HRDATA
-      USE PHOT_MOD, Only: RJ     ! photolysis rate, in-line module
-      USE PA_DEFN, Only: LIRR   ! Process Anaylsis control and data variable
+      USE PHOT_MOD, Only: INIT_PHOT_SHARED, RJ     ! photolysis rate, in-line module
+      USE PA_DEFN, Only: LIRR                      ! Process Anaylsis control and data variable
       USE PA_IRR_CLT
       USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP
 
@@ -308,6 +308,9 @@ C.. Get fractional surf-zone coverage from the OCEAN file.
          ALLOCATE( DENS( NCOLS, NROWS, NLAYS ), PRES( NCOLS, NROWS, NLAYS ),
      &             QV  ( NCOLS, NROWS, NLAYS ), TA  ( NCOLS, NROWS, NLAYS ),
      &             SEAICE( NCOLS, NROWS ) )
+
+C..Initialize shared photolysis data
+         CALL INIT_PHOT_SHARED()
 
 C..Determine which cells need IRR
          ALLOCATE( LFLAGIRR ( NCOLS, NROWS, NLAYS ) )

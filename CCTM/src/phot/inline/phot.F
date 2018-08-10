@@ -206,9 +206,9 @@ C...modules
 
       INTEGER ALLOCSTAT
 
-      INTEGER ITMSTEP         ! one half synchronization timestep (sec)
-      INTEGER MIDDATE         ! Date at time step midpoint
-      INTEGER MIDTIME         ! Time at time step midpoint
+      INTEGER ITMSTEP              ! one half synchronization timestep (sec)
+      INTEGER MIDDATE              ! Date at time step midpoint
+      INTEGER MIDTIME              ! Time at time step midpoint
 
       INTEGER, SAVE :: TDATE
       INTEGER, SAVE :: GXOFF, GYOFF        ! global origin offset from file
@@ -383,9 +383,7 @@ C...modules
          PECOL_OFFSET = COLSD_PE( 1, MYPE+1 ) - 1
          PEROW_OFFSET = ROWSD_PE( 1, MYPE+1 ) - 1
 
-         CALL LOAD_CSQY_DATA( )
-
-         CALL LOAD_OPTICS_DATA( )
+         CALL INIT_PHOT_SHARED()
 
 !...Allocate array needed to calculation aerosol and cloud optical properties
 
@@ -432,21 +430,6 @@ C...modules
          ALLOCATE( TAU_TOT  ( NLAYS,NWL ) )
 
          ALLOCATE( TOTAL_OC ( NCOLS,NROWS ) )
-
-         ALLOCATE( RJ      ( NCOLS, NROWS, NLAYS, NPHOTAB ),
-     &             RJ_RES  ( NCOLS, NROWS, NLAYS, NPHOTAB ),
-     &             RJ_SUB  ( NCOLS, NROWS, NLAYS, NPHOTAB ), STAT = ALLOCSTAT )
-         IF ( ALLOCSTAT .NE. 0 ) THEN
-             XMSG = 'Failure allocating photolysis rate arrays'
-             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
-         ALLOCATE( ETOT_SFC_WL( NCOLS,NROWS,NWL ), STAT = ALLOCSTAT )
-         IF ( ALLOCSTAT .NE. 0 ) THEN
-             XMSG = 'Failure allocating irradiance rate array'
-             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
 
          IF ( PHOTDIAG ) THEN
 
@@ -963,9 +946,9 @@ C...modules
 !                     TROPO_O3_EXCEED( COL,ROW ) = 0.0
                END IF
 
-               DO IWL = 1, NWL
+               FORALL ( IWL = 1:NWL )
                   ETOT_SFC_WL ( COL,ROW,IWL ) = IRRADIANCE( 1,IWL )
-               END DO   
+               END FORALL   
 
                IF ( JTIME_CHK  ) THEN
                   TOTAL_OC( COL,ROW )         = REAL( TOTAL_O3_COLUMN )
@@ -986,8 +969,9 @@ C...modules
 #endif
                   END DO
 
-                  AERO_EXT_550( COL,ROW,1:NLAYS_DIAG ) = 1000.0 * AERO_EXTI_550( 1:NLAYS_DIAG )
-
+                  FORALL ( L = 1:NLAYS_DIAG )
+                     AERO_EXT_550( COL,ROW,L ) = 1000.0 * AERO_EXTI_550( L )
+                  END FORALL
                   DO LEV = 1, NLAYS
                      TAU_AERO_550 ( COL,ROW ) = TAU_AERO_550 ( COL,ROW )
      &                                        + AERO_EXTI_550( LEV ) * BLKDZ( LEV )
@@ -995,31 +979,31 @@ C...modules
 
                   DO L = 1, N_DIAG_WVL
                      IWL = DIAG_WVL( L )
-                     DO CONCURRENT ( LEV = 1:NLAYS_DIAG )
+                     FORALL ( LEV = 1:NLAYS_DIAG )
                         ACTINIC_FX( COL,ROW,LEV,L )  = ACTINIC_FLUX( LEV,IWL )
                         TOT_EXT ( COL,ROW,LEV,L )    = 1000.0 * EXTINCTION( LEV,IWL )
                         GAS_EXT ( COL,ROW,LEV,L )    = 1000.0 * GAS_EXTINCTION( LEV,IWL )
                         AERO_EXT( COL,ROW,LEV,L )    = 1000.0 * AERO_EXTI_COEF( LEV,IWL )
-                     END DO
-                     DO CONCURRENT ( LEV = 1:NLAYS_DIAG, AERO_EXTI_COEF( LEV,IWL ) .GT. EPSLON )
+                     END FORALL
+                     FORALL ( LEV = 1:NLAYS_DIAG, AERO_EXTI_COEF( LEV,IWL ) .GT. EPSLON )
                         AERO_SSA ( COL,ROW,LEV,L ) = AERO_SCAT_COEF( LEV,IWL )
      &                                             / AERO_EXTI_COEF( LEV,IWL )
                         AERO_ASYM( COL,ROW,LEV,L ) = AERO_ASYM_FAC( LEV,IWL )
-                     END DO
-                     DO CONCURRENT ( LEV = 1:NLAYS_DIAG, AERO_EXTI_COEF( LEV,IWL ) .LE. EPSLON )
+                     END FORALL
+                     FORALL ( LEV = 1:NLAYS_DIAG, AERO_EXTI_COEF( LEV,IWL ) .LE. EPSLON )
                         AERO_SSA ( COL,ROW,LEV,L ) = 1.0
                         AERO_ASYM( COL,ROW,LEV,L ) = 0.0
-                     END DO
+                     END FORALL
                   END DO
                END IF
 
 !Set Photolysis rates to resolved sky values
-               DO CONCURRENT ( L = 1:NLAYS, IPHOT = 1:NPHOTAB )
+               FORALL ( L = 1:NLAYS, IPHOT = 1:NPHOTAB )
                   RJ( COL,ROW, L,IPHOT ) = 60.0 * BLKRJ_RES( L,IPHOT )
-               END DO  ! Loop on layers and NPHOTAB
-               DO CONCURRENT ( L = 1:NLAYS, IPHOT = 1:NPHOTAB )
+               END FORALL ! Loop on layers and NPHOTAB
+               FORALL ( L = 1:NLAYS, IPHOT = 1:NPHOTAB )
                   RJ_RES( COL,ROW, L,IPHOT ) = 60.0 * BLKRJ_RES( L,IPHOT )
-               END DO  ! Loop on layers and NPHOTAB
+               END FORALL  ! Loop on layers and NPHOTAB
 
                IF ( USE_ACM_CLOUD ) THEN
                   IF ( ACM_CLOUDS( COL,ROW ) .GT. 0.0 ) THEN
@@ -1112,11 +1096,11 @@ C...modules
                         END DO
                      END IF  ! photdiag
 !Photolysis rates become a weighted average of the values from resolved and ACM skies
-                     DO CONCURRENT ( L = 1:NLAYS, IPHOT = 1:NPHOTAB )
+                     FORALL ( L = 1:NLAYS, IPHOT = 1:NPHOTAB )
                          RJ_SUB( COL,ROW, L, IPHOT ) = 60.0 * BLKRJ_ACM( L,IPHOT )
                          RJ( COL,ROW, L, IPHOT )     = ACM_CLOUDS( COL,ROW ) *  RJ_SUB( COL,ROW, L, IPHOT )
      &                                               + MSCALE * RJ( COL,ROW,L,IPHOT )
-                     END DO  ! Loop on layers and PHOT
+                     END FORALL ! Loop on layers and PHOT
                   END IF
                END IF ! not USE_ACM_CLOUD and  ACM_CLOUDS > 0
 

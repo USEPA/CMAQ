@@ -80,7 +80,7 @@ C**********************************************************************
       USE RBDATA                ! ROS3 solver data
       USE CGRID_SPCS            ! CGRID mechanism species
       USE UTILIO_DEFN
-      USE PHOT_MOD, Only: RJ    ! photolysis rate, in-line module      
+      USE PHOT_MOD, Only: INIT_PHOT_SHARED, RJ     ! photolysis rate, in-line module
       USE AEROSOL_CHEMISTRY
       USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP
       USE PA_DEFN, Only: LIRR   ! Process Anaylsis control and data variable
@@ -373,6 +373,9 @@ c..Open file for solver stats if requested
          STAT_SUM = 0
 
 #endif
+
+C..Initialize shared photolysis data
+         CALL INIT_PHOT_SHARED()
 
          ALLOCATE( BLKHET( BLKSIZE, NHETERO ) )
 

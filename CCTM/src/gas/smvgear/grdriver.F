@@ -90,7 +90,8 @@ C**********************************************************************
       USE GRVARS              ! inherits GRID_CONF
       USE AEROSOL_CHEMISTRY
       USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP
-      USE PA_DEFN, Only: LIRR   ! Process Anaylsis control and data variable
+      USE PHOT_MOD, Only: INIT_PHOT_SHARED, RJ     ! photolysis rate, in-line module
+      USE PA_DEFN,  Only: LIRR                     ! Process Anaylsis control and data variable
       USE PA_IRR_CLT
 
       IMPLICIT NONE 
@@ -338,6 +339,9 @@ C.. Get fractional surf-zone coverage from the OCEAN file.
 
          ALLOCATE( IRRCELL( BLKSIZE ) )
          IRRCELL = 0
+
+C..Initialize shared photolysis data
+         CALL INIT_PHOT_SHARED()
 
 C:WTH Determine whether DEGRADE rountines are needed.
 

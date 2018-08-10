@@ -69,8 +69,8 @@ C**********************************************************************
       USE AEROSOL_CHEMISTRY
       USE RXNS_FUNCTION
       USE HRDATA
-      USE PHOT_MOD, Only: RJ    ! photolysis rate, in-line module
-      USE PA_DEFN, Only: LIRR   ! Process Anaylsis control and data variable
+      USE PHOT_MOD, Only: INIT_PHOT_SHARED, RJ     ! photolysis rate, in-line module
+      USE PA_DEFN, Only: LIRR                      ! Process Anaylsis control and data variable
       USE PA_IRR_CLT
 R5      USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP
 
@@ -319,6 +319,9 @@ C.. Get fractional surf-zone coverage from the OCEAN file.
      &             QV  ( NCOLS, NROWS, NLAYS ), TA  ( NCOLS, NROWS, NLAYS ),
      &             SEAICE( NCOLS, NROWS ) )
 
+C..Initialize shared photolysis data
+         CALL INIT_PHOT_SHARED()
+
 C..Determine which cells need IRR
          ALLOCATE( LFLAGIRR ( NCOLS, NROWS, NLAYS ) )
          CALL      PA_IRR_CKCELLS ( LFLAGIRR )
@@ -329,7 +332,7 @@ C..Determine which cells need IRR
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C  Set date and time to center of time step, get necessary physical 
-C  data, and get photolysis rates
+C  data
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       MIDDATE = JDATE
       MIDTIME = JTIME
