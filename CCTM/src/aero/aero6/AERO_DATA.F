@@ -119,7 +119,7 @@ C----------------------------------------------------------------------
 
 C Number of aerosol species and modes
 
-      Integer, Parameter :: n_aerolist = 101     ! number of aero species
+      Integer, Parameter :: n_aerolist = 101    ! number of aero species
       Integer, Parameter :: n_mode = 3          ! number of modes:
                                                 ! 1 = Aitken
                                                 ! 2 = accumulation
@@ -128,10 +128,10 @@ C Number of aerosol species and modes
       Integer, Save :: n_aerospc ! number of aero species
 
 C Default minimum concentration
-      Real,    Parameter :: conmin  = 1.0E-30    ! [ ug/m^3 ]
-      Real(8), Parameter :: conminD = 1.0D-30    ! [ ug/m^3 ]
-      Real,    Parameter :: evapmin = 1.0E-20    ! [ ug/m^3 ]
-      Real(8), Parameter :: evapminD= 1.0D-20    ! [ ug/m^3 ]
+      Real,    Parameter :: conmin  = 1.0E-30    ! [ ug m-3 ]
+      Real(8), Parameter :: conminD = 1.0D-30    ! [ ug m-3 ]
+      Real,    Parameter :: evapmin = 1.0E-20    ! [ ug m-3 ]
+      Real(8), Parameter :: evapminD= 1.0D-20    ! [ ug m-3 ]
       Real,    Parameter :: cm_set( n_mode ) = (/conmin, conmin, conmin/)
       Real,    Parameter :: cm_so4( n_mode ) = (/1.0E-12,1.0E-6, conmin/)
       Real,    Parameter :: cm_cor( n_mode ) = (/conmin, conmin, 1.889544E-05/)
