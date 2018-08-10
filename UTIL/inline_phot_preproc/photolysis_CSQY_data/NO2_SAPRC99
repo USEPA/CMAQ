@@ -2,9 +2,14 @@ NO2
 ! NO2 + HV = NO + O
 ! SAPRC-99 Photolysis data.  Supplied by William P. L. Carter.
 ! Created from PhotDat.xls on 29-Jan-2000 10:07
+! Au and Brion J (1997), J Chem. Phys. 218, 109-126 wavelength <205                                
 Points (the mechanism was evaluated assuming this format)
 ! With FAC, units are (cm^2/molecule)
 FAC=1.0
+155.0 1.250e-17 1.000
+165.3 1.160e-17 1.000
+177.1 6.800e-18 1.000
+190.8 1.800e-18 1.000
 205.0 4.310E-19 1.000
 210.0 4.720E-19 1.000
 215.0 4.950E-19 1.000

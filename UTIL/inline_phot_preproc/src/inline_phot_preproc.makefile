@@ -21,57 +21,56 @@ endif
 
 ifeq ($(COMPILER),INTEL)
 
-#FC = /usr/local/intel/ictce/3.2.2.013/fc/bin/intel64/ifort
-#CC = /usr/local/intel/ictce/3.2.2.013/cc/bin/intel64/icc
 FC = ifort
 CC = icc
-F_FLAGS = -fixed -132 -fp-model source -fpe0 -O3 -override-limits -check uninit -warn nounused -check bounds -check format -g -traceback -override-limits -fno-alias -mp1  -I . -g
-f_FLAGS = -fixed -132 -fp-model source -fpe0 -O3 -override-limits -check uninit -warn nounused -check bounds -check format -g -traceback -override-limits -fno-alias -mp1  -I . -g
-F90_FLAGS = -free -132 -fp-model source -fpe0 -O3 -override-limits -check uninit -warn nounused -check bounds -check format -g -traceback -override-limits -fno-alias -mp1  -I . -g
-f90_FLAGS = -free -132 -fp-model source -fpe0 -O3 -override-limits -check uninit -warn nounused -check bounds -check format -g -traceback -override-limits -fno-alias -mp1  -I . -g
+
+# compiler options 
+F_FLAGS = -fixed -132 -fp-model source -fpe0 -O0 -check uninit -warn nounused -check bounds -check format -g -traceback -fno-alias -mp1  -I . -g
+f_FLAGS = -fixed -132 -fp-model source -fpe0 -O0 -check uninit -warn nounused -check bounds -check format -g -traceback -fno-alias -mp1  -I . -g
+F90_FLAGS = -free -132 -fp-model source -fpe0 -O0 -check uninit -warn nounused -check bounds -check format -g -traceback  -fno-alias -mp1  -I . -g
+f90_FLAGS = -free -132 -fp-model source -fpe0 -O0  -check uninit -warn nounused -check bounds -check format -g -traceback -fno-alias -mp1  -I . -g
+
 C_FLAGS =  -O2  -DFLDMN=1
-#  LINK_FLAGS = $(myLINK_FLAG)
 LINK_FLAGS = -i-static
 
-else
-# FC = /usr/local/pgi/linux86-64/10.5/bin/pgf90
-# CC = /usr/local/pgi/linux86-64/10.5/bin/pgcc
+else ifeq ($(COMPILER),PGF90)
  FC = pgf90
  CC = pgcc
  
-# compiler options for subroutines
- F_FLAGS = -Mfixed -Mextend -Mbounds -O3 -traceback  -Mchkfpstk -Mchkptr -Mchkstk -traceback -Ktrap=fp  -I . -g
- f_FLAGS = -Mfixed -Mextend -Mbounds -O3  -traceback -Mchkfpstk -Mchkptr -Mchkstk -traceback -Ktrap=fp -I . -g
+# compiler options 
+ F_FLAGS   = -Mfixed -Mextend -Mbounds -O0 -traceback  -Mchkfpstk -Mchkptr -Mchkstk -traceback -Ktrap=fp  -I . -g
+ f_FLAGS   = -Mfixed -Mextend -Mbounds -O0  -traceback -Mchkfpstk -Mchkptr -Mchkstk -traceback -Ktrap=fp -I . -g
+ f90_FLAGS = -Mfree -Mextend -Mbounds -O0  -traceback -Mchkfpstk -Mchkptr -Mchkstk -traceback -Ktrap=fp -I . -g
+ F90_FLAGS = -Mfree -Mextend -Mbounds -O0  -traceback -Mchkfpstk -Mchkptr -Mchkstk -traceback -Ktrap=fp -I . -g
  C_FLAGS =  -O2  -DFLDMN=1
  LINK_FLAGS = -Bstatic  -Bstatic_pgi
 
- ifeq ($(COMPILER),GFORT)
- # FC    = /usr/local/gcc-4.6/bin/gfortran
- # CC    = /usr/bin/gcc
-    FC    = gfortran
-    CC    = gcc
-   f_FLAGS       = -ffixed-form -ffixed-line-length-132 -funroll-loops -O3 -ffpe-trap=invalid,zero -g -finit-character=32 -I. -fbounds-check
+else ifeq ($(COMPILER),GFORT)
+ FC    = gfortran
+ CC    = gcc
+
+# compiler options 
+   f_FLAGS       = -ffixed-form -ffixed-line-length-132 -funroll-loops -O0 -ffpe-trap=invalid,zero -g -finit-character=32 -I. -fcheck=all -fbounds-check
    F_FLAGS       = $(f_FLAGS)
-   f90_FLAGS     = -cpp -ffree-form -ffree-line-length-none -funroll-loops -O3 -ffpe-trap=invalid,zero -g -finit-character=32 -I. -fbounds-check
+   f90_FLAGS     = -cpp -ffree-form -ffree-line-length-none -funroll-loops -O0 -ffpe-trap=invalid,zero -g -finit-character=32 -I. -fcheck=all -fbounds-check
    F90_FLAGS     = $(f90_FLAGS)
    C_FLAGS       = -O2 -DFLDMN -I /home/wdx/lib/x86_64/gcc/mpich/include
    LINKER        = $(FC)
    LINK_FLAGS    = 
- endif
 
+else
+ ERROR1 = "Makefile does not configure to support the specified compiler, $(COMPILER). User must modify Makefile."
+endif
+
+ifdef ERROR1
+ $(error $(ERROR1))
 endif
 
 
-#GC_INC   =   /home/hwo/CCTM_git_repository/MECHS/racm2_ae6_aq
  MECH_INC   = $(GC_INC)
  TRAC_INC   = $(GC_INC)
  PROCAN_INC = $(GC_INC)
 
-# LIBRARIES = \
-# -L$(lib_path)/ioapi_3/$(LIOAPI) -lioapi \
-
-# IOAPI_INC = $(lib_path)/ioapi_3/ioapi/fixed_src
-# MPI_INC   = $(lib_path)/mpich/include
 
 LIBRARIES = 
 
@@ -90,6 +89,7 @@ endif
 
 ifndef USE_RXNS_MODULES
  OBJECTS =\
+ module_envvar.o \
  BIN_DATA.o \
  CSQY_PARAMETERS.o \
  ALBEDO_REFER_DATA.o \
@@ -108,11 +108,11 @@ ifndef USE_RXNS_MODULES
  spectral_reflect.o \
  wvbin_average-b.o \
  wvbin_average.o \
- xc_qy_td_effect.o \
- convert_case.o \
- nameval.o
+ xc_qy_td_effect_v3.o \
+ convert_case.o 
 else
  OBJECTS =\
+ module_envvar.o \
  BIN_DATA.o \
  RXNS_DATA_MODULE.o \
  CSQY_PARAMETERS.o \
@@ -133,8 +133,7 @@ else
  wvbin_average-b.o \
  wvbin_average.o \
  xc_qy_td_effect_v3.o \
- convert_case.o \
- nameval.o
+ convert_case.o 
 endif
  
 # wrbf12d.o \
