@@ -1,5 +1,6 @@
       SUBROUTINE WRT_OPTICS_DATA( )
 
+      USE GET_ENV_VARS       
       USE BIN_DATA
       USE CSQY_REFER_DATA
       USE ALBEDO_REFER_DATA
@@ -21,6 +22,7 @@
       REAL, PARAMETER    :: CLOUD_RADIUS_LIQUID = 10.0 ! mean cloud droplet radii, um
       REAL               :: PARTICLE_SIZE              ! hydrometer size for calculating optical properties
 
+      INTEGER, PARAMETER :: MAX_LEN_WORD = 16
       INTEGER, PARAMETER :: NRADIUS_LIQUID    = 58  ! number of liquid droplets to compute data
       REAL, PARAMETER    :: LIQUID_RADIUS_INT = 2.5 ! starting liquid droplet radii, um
       REAL, PARAMETER    :: LIQUID_RADIUS_INC = 1.0 ! increment for liquid droplet radii, um
@@ -32,16 +34,18 @@
       REAL, PARAMETER    :: ICE_DIAM_INT   = 5.0 ! starting ice droplet diameter, um
       REAL, PARAMETER    :: ICE_DIAM_INC   = 3.0 ! increment for ice droplet diameter, um
 
-      INTEGER, PARAMETER :: NAERO_REFRACT  = 5      
+      INTEGER, SAVE      :: NAERO_REFRACT      = 5      
+      INTEGER, SAVE      :: MAX_NAERO_REFRACT  = 5      
 
 !Local:
 
       INTEGER                 :: I, J, K    ! index counters
       INTEGER                 :: ITTR       ! array index
+      INTEGER                 :: ENV_STAT 
 
 
       CHARACTER(255)          :: EQNAME
-      CHARACTER(319)          :: ODATA_NAME
+      CHARACTER(600)          :: ODATA_NAME
 
       LOGICAL, SAVE           :: FIRSTCALL  = .TRUE.
 
@@ -57,11 +61,17 @@
 
       LOGICAL, SAVE      :: WRITE_AE_REFRACT = .FALSE. ! .FALSE.
 
-      CHARACTER(  5 )    :: WVL_AE_REFRAC
-      CHARACTER( 13 )    :: AERO_INDEX    = 'WVL_AE_REFRAC'
-
-      CHARACTER( 16 )    :: AERO_REFRACT_INDX( NAERO_REFRACT ) 
-      DATA  AERO_REFRACT_INDX / "WATER", "SOLUTE", "DUST", "SEASALT", "SOOT" /
+      CHARACTER(   5 )    :: WVL_AE_REFRAC
+      CHARACTER(  13 )    :: AERO_INDEX       = 'WVL_AE_REFRAC'
+      CHARACTER(  32 )    :: ENV_VAR_NAME  
+      CHARACTER( 256 )    :: ENV_VAR_LIST  
+      
+       CHARACTER( MAX_LEN_WORD ), ALLOCATABLE, SAVE :: AERO_REFRACT_INDX( : ) 
+!      CHARACTER( MAX_LEN_WORD )    :: AERO_REFRACT_INDX( NAERO_REFRACT ) 
+!      DATA  AERO_REFRACT_INDX / "WATER", "SOLUTE", "DUST", "SEASALT", "SOOT" /
+      
+      INTEGER                      :: NVARS
+      CHARACTER( MAX_LEN_WORD ), ALLOCATABLE :: VAR_LIST( : )
 
       REAL, ALLOCATABLE :: AERO_IMAG_REFRACT( :, : )
       REAL, ALLOCATABLE :: AERO_REAL_REFRACT( :, : )
@@ -101,9 +111,9 @@
 
         CALL INIT_BIN_DATA
         
-        EQNAME = 'OUT_DIR'
+!        EQNAME = 'OUT_DIR'
 
-        ODATA_NAME = EQNAME( 1:LEN_TRIM( EQNAME ) )
+        ODATA_NAME = TRIM( OUT_DIR )
      &            // '/'  // 'PHOT_OPTICS.dat'
      
         OPEN(ODATA_UNIT,  FILE = ODATA_NAME, STATUS = 'UNKNOWN')
@@ -120,13 +130,27 @@
      &                 ICE_SSA( NJO_NEW, NRADIUS_LIQUID ),
      &                 ICE_DEL( NJO_NEW, NRADIUS_LIQUID ))
               
+            ENV_VAR_NAME = 'MAX_NUMB_REFRACT'
+            MAX_NAERO_REFRACT = GET_ENV_INT( ENV_VAR_NAME, ' ', MAX_NAERO_REFRACT, ENV_STAT)
+            PRINT*,'MAX_NUMB_REFRACT = ', MAX_NAERO_REFRACT
+            
+            ENV_VAR_LIST = 'AE_REFRAC_LIST'
+            ALLOCATE( VAR_LIST( MAX_NAERO_REFRACT ) )
+            CALL GET_ENVLIST ( ENV_VAR_LIST, NVARS, VAR_LIST, ENV_STAT )
+            IF( NVARS .GT. 0 )THEN
+                NAERO_REFRACT = NVARS
+                ALLOCATE( AERO_REFRACT_INDX( NAERO_REFRACT ) )
+                DO I = 1, NVARS
+                   AERO_REFRACT_INDX( I ) =  VAR_LIST( I )
+                END DO
+            END IF
             ALLOCATE( AERO_IMAG_REFRACT( NJO_NEW, NAERO_REFRACT ) )
             ALLOCATE( AERO_REAL_REFRACT( NJO_NEW, NAERO_REFRACT ) )
         END IF
-
+        
 ! determine whether to write out spectral values of refractive index for aerosol species
 
-         CALL NAMEVAL ( AERO_INDEX,  WVL_AE_REFRAC)
+         CALL VALUE_NAME ( AERO_INDEX,  WVL_AE_REFRAC)
 
          CALL CONVERT_CASE( WVL_AE_REFRAC, .TRUE.)
 
@@ -152,7 +176,7 @@
 
 
 4997     FORMAT(A16, 1X, I3)
-4998     FORMAT(A20, 1X, 4(A, ', '), A)
+4998     FORMAT(A20, 1X, 20(A, ', '), A)
 4999     FORMAT(2(A16, 1X, I3, ', '), A20, 1X, 4(A, ', '), A)
 
          WRITE(ODATA_UNIT,5001)
@@ -466,8 +490,8 @@
 5016  FORMAT(I3,1X,A60,1X,I3,2X,3(F8.3,2X))
 
 6001  FORMAT('! Liquid Droplet Optical Properties versus Effective Wavelength and equivalent radius.')
-6008  FORMAT(I3,', ',3(F14.3,', '),4(F11.3,', ',ES11.4,', '),F11.3,', ',ES11.4)
-6009  FORMAT(A3,', ',3(A14,', '),4(A11,', ',A11,', '),A11,', ',A11)
+6008  FORMAT(I3,', ',3(F14.3,', '),20(F11.3,', ',ES11.4,', '),F11.3,', ',ES11.4)
+6009  FORMAT(A3,', ',3(A14,', '),20(A11,', ',A11,', '),A11,', ',A11)
 7001  FORMAT('! Ice Particle Optical Properties versus Effective Wavelength and Effective Diameter.')
 7002  FORMAT('! Values are based on Fu (1996), An accurate parameterization of')
 7003  FORMAT('! the solar radiative properties of cirrus ice  suitable for climate models,')

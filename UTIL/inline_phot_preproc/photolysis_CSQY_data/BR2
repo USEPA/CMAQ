@@ -2,7 +2,7 @@ BR2
 ! BR2 + HV = 2BR
 ! SAPRC-99 Photolysis data.  
 ! Supplied by Brett Gantt
-! Created from IUPAC dataset 3-Mar-2014 10:00
+! Created from IUPAC dataset PBr9 3-Mar-2014 10:00
 Points (the mechanism was evaluated assuming this format)
 ! With FAC, units are (cm^2/molecule)
 FAC=1.0

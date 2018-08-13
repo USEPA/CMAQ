@@ -12,8 +12,10 @@ SOOT
 !
 ! 3) For 0.2316 <= lanbda < 0.70160,
 ! Bond  Personal Communication from Tami Bond
+! 4) At 0.1500 um added a floor for shortest wavelength bands
 ! -------------------
 !wvl,um   nr   ni
+0.15000 1.850 0.710
 0.23160 1.850 0.710
 0.29900 1.850 0.710
 0.38815 1.850 0.710
