@@ -1,7 +1,8 @@
 #!/bin/csh -fx
 
  set echo
- set REPO  = /home/username/CMAQ_repo
+#set REPO  = /home/username/CMAQ_repo
+ set REPO  = /home/cnolte/cmaq/dev-repo/CMAQ_Dev
  set MECHS = $REPO/CCTM/src/MECHS
 
 #> CMAQ Mechanism under Repository directory CCTM/src/MECHS or
@@ -72,12 +73,13 @@ setenv N_WAVEBANDS_OUT 7
  # maximum number of indices that the processor attempts to read, 
  # the number can change.  
  setenv MAX_NUMB_REFRACT 6 
+
  # set the list of indices to process, 
  # Their number can be less than MAX_NUMB_REFRACT.
  # The below list contains names used as optical surrogates in the CCTM source
- # code, AERO_DATA.F. To use other names requires changing AERO_DATA.F
- setenv AE_REFRAC_LIST "WATER DUST SOLUTE SOOT SEASALT" 
- 
+ # code, AERO_DATA.F. To use other names requires changing AERO_DATA.F.
+ setenv AE_REFRAC_LIST "WATER SOLUTE DUST SEASALT SOOT"
+
 #Set environment variables for the paths to each refractive index in
 #AE_REFRAC_LIST 
  setenv WATER     $REFRACT_DIR/water_refractive_index.dat
