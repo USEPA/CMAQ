@@ -164,8 +164,8 @@ ASOCJ           ,ugC/m3    ,AISO1J[1]/2.20  + AISO2J[1]/2.23  + AISO3J[1]/2.80 \
                            +AGLYJ[1]/2.13                                       \
                            +ALVOO1J[1]/2.27 + ALVOO2J[1]/2.06 + ASVOO1J[1]/1.88 \
                            +ASVOO2J[1]/1.73 + ASVOO3J[1]/1.60 + APCSOJ[1] /2.00 \
-                           +A_AVB1J[1]/2.7  + A_AVB2J[1]/2.3  + A_AVB3J[1]/2.2  \
-                           +A_AVB4J[1]/2.0
+                           +AAVB1J[1]/2.70  + AAVB2J[1]/2.35  + AAVB3J[1]/2.17  \
+                           +AAVB4J[1]/1.99
 ASOCIJ          ,ugC/m3    ,ASOCI[0] + ASOCJ[0]
 
 ASOMI           ,ug/m3     ,ALVOO1I[1] + ALVOO2I[1] + ASVOO1I[1] + ASVOO2I[1] 
@@ -177,8 +177,8 @@ ASOMJ           ,ug/m3     ,AISO1J[1]  + AISO2J[1]  + AISO3J[1] \
                            +AMT5J[1]   + AMT6J[1]   + AMTNO3J[1]             \
                            +AMTHYDJ[1] + AGLYJ[1]   + AISOPNNJ[1]            \
                            +ALVOO1J[1] + ALVOO2J[1] + ASVOO1J[1] + ASVOO2J[1]\
-                           +ASVOO3J[1] + APCSOJ[1]  + A_AVB1J[1] + A_AVB2J[1]\
-                           +A_AVB3J[1] + A_AVB4J[1]
+                           +ASVOO3J[1] + APCSOJ[1]  + AAVB1J[1] + AAVB2J[1]\
+                           +AAVB3J[1] + AAVB4J[1]
  
 ASOMIJ          ,ug/m3     ,ASOMI[0] + ASOMJ[0]
  
@@ -191,7 +191,7 @@ AOMJ            ,ug/m3     ,APOMJ[0]  + ASOMJ[0]
 AOMIJ           ,ug/m3     ,APOMIJ[0] + ASOMIJ[0]
 
 !!! Anthropogenic-VOC Derived Organic Aerosol
-AORGAJ          ,ug/m3     ,A_AVB1[1]+A_AVB2[1]+A_AVB3[1]+A_AVB4[1]+AOLGAJ[1] \
+AORGAJ          ,ug/m3     ,AAVB1[1]+AAVB2[1]+AAVB3[1]+AAVB4[1]+AOLGAJ[1] \
 
 !!! Biogenic-VOC Derived Organic Aerosol
 AORGBJ          ,ug/m3     ,AISO1J[1]+AISO2J[1]+AISO3J[1]+ASQTJ[1]+AOLGBJ[1] \

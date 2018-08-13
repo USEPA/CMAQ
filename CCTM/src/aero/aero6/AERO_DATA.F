@@ -288,10 +288,10 @@ C                  ---------   ---------   ---------    --------- ------- + + + 
      & spcs_type((/'         ','APCSOJ   ','         '/), cm_set, 1400.0, T,F,F,  0,  4.0, 6.1,T, 'DUST  ', 0.12, '      ',es_0),
 
        ! lumped anthropogenic SOA (introduced aero7, M. Qin, 8/2018)
-     & spcs_type((/'         ','A_AVB1J  ','         '/), cm_set, 1400.0, F,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.20, '      ',es_0),
-     & spcs_type((/'         ','A_AVB2J  ','         '/), cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.15, '      ',es_0),
-     & spcs_type((/'         ','A_AVB3J  ','         '/), cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.14, '      ',es_0),
-     & spcs_type((/'         ','A_AVB4J  ','         '/), cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.12, '      ',es_0),
+     & spcs_type((/'         ','AAVB1J   ','         '/), cm_set, 1400.0, F,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.20, '      ',es_0),
+     & spcs_type((/'         ','AAVB2J   ','         '/), cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.15, '      ',es_0),
+     & spcs_type((/'         ','AAVB3J   ','         '/), cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.14, '      ',es_0),
+     & spcs_type((/'         ','AAVB4J   ','         '/), cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.12, '      ',es_0),
 
        ! The following species are associated with the Multi-Pollutant code
      & spcs_type((/'ANII     ','ANIJ     ','         '/), cm_set, 2200.0, F,F,T,  0,  0.0, 0.0,F, 'DUST',0,'NICKEL_F     ',es_fin),

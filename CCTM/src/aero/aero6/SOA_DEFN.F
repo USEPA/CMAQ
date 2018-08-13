@@ -126,10 +126,10 @@ C                  -------    -------   -------- -------  ------     --   ----  
      & vapor_type('VSVOO1  ',  0.0000,    1.e+0,  85.0E3, 'ASVOO1J', 'A',  0.0, '        '),
      & vapor_type('VSVOO2  ',  0.0000,    1.e+1,  74.0E3, 'ASVOO2J', 'A',  0.0, '        '),
      & vapor_type('VSVOO3  ',  0.0000,    1.e+2,  63.0E3, 'ASVOO3J', 'A',  0.0, '        '),
-     & vapor_type('SV_AVB1 ',  0.0000,    0.010,  18.0E3, 'A_AVB1J', 'A',  0.0, '        '),
-     & vapor_type('SV_AVB2 ',  0.0000,    1.000,  18.0E3, 'A_AVB2J', 'A',  0.0, '        '),
-     & vapor_type('SV_AVB3 ',  0.0000,   10.000,  18.0E3, 'A_AVB3J', 'A',  0.0, '        '),
-     & vapor_type('SV_AVB4 ',  0.0000,  100.000,  18.0E3, 'A_AVB4J', 'A',  0.0, '        ') /)
+     & vapor_type('SV_AVB1 ',  0.0000,    0.010,  18.0E3, 'AAVB1J ', 'A',  0.0, '        '),
+     & vapor_type('SV_AVB2 ',  0.0000,    1.000,  18.0E3, 'AAVB2J ', 'A',  0.0, '        '),
+     & vapor_type('SV_AVB3 ',  0.0000,   10.000,  18.0E3, 'AAVB3J ', 'A',  0.0, '        '),
+     & vapor_type('SV_AVB4 ',  0.0000,  100.000,  18.0E3, 'AAVB4J ', 'A',  0.0, '        ') /)
 
 C Required species
       Character( 16 ), Private, Parameter :: req_sviso1  = 'SV_ISO1'
@@ -139,7 +139,6 @@ C Required species
       Character( 16 ), Private, Parameter :: req_aeiso1  = 'AISO1'
       Character( 16 ), Private, Parameter :: req_aeiso2  = 'AISO2'
       Character( 16 ), Private, Parameter :: req_aeiso3  = 'AISO3'
-      Character( 16 ), Private, Parameter :: req_aeolgb  = 'AOLGB'
       Character( 16 ), Private, Parameter :: req_aeorgc  = 'AORGC'
       Character( 16 ), Private, Parameter :: req_amtno3  = 'AMTNO3'
       Character( 16 ), Private, Parameter :: req_aisopnn = 'AISOPNN'
@@ -154,7 +153,6 @@ C Indices of required species
       Integer :: aiso1_idx
       Integer :: aiso2_idx
       Integer :: aiso3_idx
-      Integer :: aolgb_idx
       Integer :: aorgc_idx
 
       Real, Allocatable    :: vapor_mw  ( : )   ! Molecular weights
@@ -405,6 +403,11 @@ C determine if gas-phase IEPOX uptake occurs for the mechanism
                orgprod( 5 )%parent = 'TOLUENE'
                orgprod( 8 )%parent = 'NAPHTHAL'
                orgprod( 9 )%parent = 'NAPHTHAL'
+               ! The following do not exist in aero7/7i
+               orgprod( 3 )%aerospc = ''    ! AXYL3J
+               orgprod( 5 )%aerospc = ''    ! ATOL3J
+               orgprod( 7 )%aerospc = ''    ! ABNZ3J
+               orgprod( 9 )%aerospc = ''    ! APAH3J
                IEPOX_SOA_mechanism = .True.
             Else If ( INDEX( MECHNAME, 'SAPRC07TB' ) .Gt. 0 ) Then
                orgprod( 2 )%parent     = 'MXYL'
@@ -508,7 +511,6 @@ C Find indices of required species
          aiso1_idx  = findAero( req_aeiso1, .True. )
          aiso2_idx  = findAero( req_aeiso2, .True. )
          aiso3_idx  = findAero( req_aeiso3, .True. )
-         aolgb_idx  = findAero( req_aeolgb, .True. )
          aorgc_idx  = findAero( req_aeorgc, .True. )
 
 #ifdef verbose_soa
@@ -519,7 +521,6 @@ C Find indices of required species
          Write( logdev,'( 5x, a, i4 )' ) 'aiso1_idx:  ', aiso1_idx
          Write( logdev,'( 5x, a, i4 )' ) 'aiso2_idx:  ', aiso2_idx
          Write( logdev,'( 5x, a, i4 )' ) 'aiso3_idx:  ', aiso3_idx
-         Write( logdev,'( 5x, a, i4 )' ) 'aolgb_idx:  ', aolgb_idx
          Write( logdev,'( 5x, a, i4 )' ) 'aorgc_idx:  ', aorgc_idx
 #endif
          ! Look for Additional Isoprene Product Species if AE6i is being
@@ -569,7 +570,7 @@ C (aerospc is used inside findAero)
 #endif     
          Do spc = 1, n_orgprod
             If ( orgprod( spc )%aerospc .Ne. ' ' ) Then
-               orgprod_aeroMap( spc ) = findAero( orgprod( spc )%aerospc, .False. )
+               orgprod_aeroMap( spc ) = findAero( orgprod( spc )%aerospc, .True. )
 #ifdef verbose_soa
            Write( logdev,'( 5x, a20, i4 )' ) Trim(orgprod( spc )%aerospc) // ':', 
      &                                       orgprod_aeroMap( spc )

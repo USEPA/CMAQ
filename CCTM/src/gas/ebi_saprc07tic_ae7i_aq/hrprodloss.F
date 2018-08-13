@@ -35,7 +35,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Aug  8, 2018
+C  REVISION HISTORY: Created by EBI solver program, Aug 13, 2018
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 
@@ -3874,19 +3874,19 @@ C***********************************************************************
       PROD(  ASQTJ        ) =   0.0D0
       LOSS(  ASQTJ        ) =                 RXRAT( 907 )      ! ASQTJ=0.1500D+01*AOLGBJ
 
-      PROD(  A_AVB2J      ) =   0.0D0
-      LOSS(  A_AVB2J      ) =                 RXRAT( 908 )      ! A_AVB2J=0.8600D+00*AOLGAJ
+      PROD(  AAVB2J       ) =   0.0D0
+      LOSS(  AAVB2J       ) =                 RXRAT( 908 )      ! AAVB2J=0.9070D+00*AOLGAJ
 
-      PROD(  AOLGAJ       ) =    8.6000D-01 * RXRAT( 908 )      ! A_AVB2J=0.8600D+00*AOLGAJ
-     &                      +    8.6000D-01 * RXRAT( 909 )      ! A_AVB3J=0.8600D+00*AOLGAJ
-     &                      +                 RXRAT( 910 )      ! A_AVB4J=AOLGAJ
+      PROD(  AOLGAJ       ) =    9.0700D-01 * RXRAT( 908 )      ! AAVB2J=0.9070D+00*AOLGAJ
+     &                      +    9.2500D-01 * RXRAT( 909 )      ! AAVB3J=0.9250D+00*AOLGAJ
+     &                      +    9.4300D-01 * RXRAT( 910 )      ! AAVB4J=0.9430D+00*AOLGAJ
       LOSS(  AOLGAJ       ) =   0.0D0
 
-      PROD(  A_AVB3J      ) =   0.0D0
-      LOSS(  A_AVB3J      ) =                 RXRAT( 909 )      ! A_AVB3J=0.8600D+00*AOLGAJ
+      PROD(  AAVB3J       ) =   0.0D0
+      LOSS(  AAVB3J       ) =                 RXRAT( 909 )      ! AAVB3J=0.9250D+00*AOLGAJ
 
-      PROD(  A_AVB4J      ) =   0.0D0
-      LOSS(  A_AVB4J      ) =                 RXRAT( 910 )      ! A_AVB4J=AOLGAJ
+      PROD(  AAVB4J       ) =   0.0D0
+      LOSS(  AAVB4J       ) =                 RXRAT( 910 )      ! AAVB4J=0.9430D+00*AOLGAJ
 
       PROD(  PCVOC        ) =   0.0D0
       LOSS(  PCVOC        ) =                 RXRAT( 911 )      ! PCVOC+OH=OH+PCSOARXN

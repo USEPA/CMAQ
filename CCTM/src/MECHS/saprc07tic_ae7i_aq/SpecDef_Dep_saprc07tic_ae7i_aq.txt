@@ -59,8 +59,8 @@ DDEP_SOCIJ         ,kg-C/ha    ,ALVOO1I[1]/2.27 + ALVOO2I[1]/2.06               
                                +AOLGBJ[1]/2.10 + AOLGAJ[1]/2.50                      \
                                +ALVOO1J[1]/2.27+ ALVOO2J[1]/2.06+ ASVOO1J[1]/1.88    \
                                +ASVOO2J[1]/1.73+ ASVOO3J[1]/1.60                     \
-                               +A_AVB1J[1]/2.7 + A_AVB2J[1]/2.3 + A_AVB3J[1]/2.2     \
-                               +A_AVB4J[1]/2.0 + APCSOJ[1] /2.00                     \
+                               +AAVB1J[1]/2.70 + AAVB2J[1]/2.35  + AAVB3J[1]/2.17     \
+                               +AAVB4J[1]/1.99 + APCSOJ[1] /2.00                     \
                                +AIETETJ[1]/2.27 + AIEOSJ[1]/3.6   + ADIMJ[1]/2.07    \
                                +AIMGAJ[1]/2.5   + AIMOSJ[1]/4.17                     \
                                +AMT1J[1]/1.67  + AMT2J[1]/1.67   + AMT3J[1]/1.72     \

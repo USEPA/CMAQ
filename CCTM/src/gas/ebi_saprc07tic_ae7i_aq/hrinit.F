@@ -34,7 +34,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Aug  8, 2018
+C  REVISION HISTORY: Created by EBI solver program, Aug 13, 2018
 C   21 Jun 10 J.Young:   convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files
@@ -343,10 +343,10 @@ c..Allocate and define ebi species
       EBISP( 190 ) = AOLGBJ
       EBISP( 191 ) = AISO2J
       EBISP( 192 ) = ASQTJ
-      EBISP( 193 ) = A_AVB2J
+      EBISP( 193 ) = AAVB2J
       EBISP( 194 ) = AOLGAJ
-      EBISP( 195 ) = A_AVB3J
-      EBISP( 196 ) = A_AVB4J
+      EBISP( 195 ) = AAVB3J
+      EBISP( 196 ) = AAVB4J
       EBISP( 197 ) = PCVOC
       EBISP( 198 ) = PCSOARXN
       EBISP( 199 ) = VLVPO1
@@ -573,10 +573,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( AOLGBJ       ) = 5.0D-04
       RTOL( AISO2J       ) = 5.0D-04
       RTOL( ASQTJ        ) = 5.0D-04
-      RTOL( A_AVB2J      ) = 5.0D-04
+      RTOL( AAVB2J       ) = 5.0D-04
       RTOL( AOLGAJ       ) = 5.0D-04
-      RTOL( A_AVB3J      ) = 5.0D-04
-      RTOL( A_AVB4J      ) = 5.0D-04
+      RTOL( AAVB3J       ) = 5.0D-04
+      RTOL( AAVB4J       ) = 5.0D-04
       RTOL( PCVOC        ) = 5.0D-04
       RTOL( PCSOARXN     ) = 5.0D-04
       RTOL( VLVPO1       ) = 5.0D-04
