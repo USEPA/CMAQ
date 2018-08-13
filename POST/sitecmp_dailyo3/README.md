@@ -10,8 +10,14 @@ This Fortran program generates a csv (comma separated values) file that compares
                 [Note: Supported map projections are Lambert conformal, polar stereographic, and lat/lon.
                 If an ioapi file is supplied that has a projection not in this list the program will 
                 stop with an error message.]
- SITE_FILE      input file containing site information for each monitor (site-id, longitude, latitude, and 
-                optionally time zone offset between local time and GMT) (tab delimited)
+ SITE_FILE      csv-formatted input file containing the station ID, latitude, longitude, and optionally 
+                GMT offset, state, county, and elevation for each monitor.  
+                The column headings for the required variables need to be stat_id, lat, and lon.
+                The column headings for the optional variables (if present) need to be gmt_offset, state, county, and elevation.
+	               The column headings are case insensitve and the order of the columns does not matter.
+                For legacy purposes, SITE_FILE can also be a tab delimited file with no header and three 
+                or four columns that contains site information for each monitor in the following fixed order:
+	               site-id, longitude, latitude, and optionally time zone offset between local time and GMT
  IN_TABLE       input file containing hourly observed ozone data (comma delimited with header). The file can 
                 contain columns with species other than ozone, these will be ignored by sitecmp_dailyo3
  OBS_SPECIES    name of the ozone species in the header line of IN_TABLE 
@@ -57,8 +63,14 @@ This Fortran program generates a csv (comma separated values) file that compares
 
 ## File formats:
 ```
- SITE_FILE - tab delimited text file containing site-id, longitude,
-             latitude, and optionally time zone offset between local time and GMT
+ SITE_FILE - csv-formatted input file containing the station ID, latitude, longitude, and optionally 
+             GMT offset, state, county, and elevation for each monitor.  
+             The column headings for the required variables need to be stat_id, lat, and lon.
+             The column headings for the optional variables (if present) need to be gmt_offset, state, county, and elevation.
+	            The column headings are case insensitve and the order of the columns does not matter.
+             For legacy purposes, SITE_FILE can also be a tab delimited file with no header and three 
+             or four columns that contains site information for each monitor in the following fixed order:
+	            site-id, longitude, latitude, and optionally time zone offset between local time and GMT
  
  M3_FILE_n - IOAPI file containing hourly modeled ozone data (n=1->12)
  
