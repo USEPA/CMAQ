@@ -76,8 +76,9 @@ setenv N_WAVEBANDS_OUT 7
  # set the list of indices to process, 
  # Their number can be less than MAX_NUMB_REFRACT.
  # The below list contains names used as optical surrogates in the CCTM source
- # code, AERO_DATA.F. To use other name requires changing the AERO_DATA.F
- setenv AE_REFRAC_LIST "WATER DUST SOLUTE SOOT SEASALT" 
+ # code, AERO_DATA.F. To use other name requires changing the AERO_DATA.F file
+ setenv AE_REFRAC_LIST "WATER SOLUTE DUST SEASALT SOOT"
+
  
 #Set environment variables for the paths to each refractive index in
 #AE_REFRAC_LIST 
