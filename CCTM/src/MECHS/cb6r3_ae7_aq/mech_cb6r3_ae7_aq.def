@@ -40,6 +40,8 @@
 !   Add MTNO3 formation following Pye et al. 2015 (from SAPRC07tic implementation)
 !   Update TRPRXN SOA yields in SOA_DEFN.F
 !   Documentation in Xu et al. 2018 ACPD: https://doi.org/10.5194/acp-2017-1109
+! 06-19-18 G.Sarwar
+!    updated <HAL_OZONE>
 !---------------------------------
 CB6R3_AE7_AQ
 
@@ -459,7 +461,7 @@ REACTIONS[CM] =
 <HET_N02> NO2 = 0.5*HONO + 0.5*HNO3 # 1.0~<HETERO_NO2>;
 
 ! updated reaction rate to v51 release
-<HAL_Ozone> O3 =  %H # 1.0000E-40@-78.4256 & 4.0582E-9@-5.8212;
+<HAL_Ozone> O3 =  %H # 2.8964E-11@-11.9978 & 0.0E-0@-0.0;
 
 ! added het reaction based on EPOX 
 <HET_IEPOX> EPOX = AISO3J  # 1.0~<HETERO_IEPOX>;

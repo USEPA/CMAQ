@@ -334,7 +334,6 @@ C  subroutine to return buffer array value
 
       if( pos1.gt.1 ) then       
         func = field(1:pos1-1)
-        print*,Trim(field)
         If( func.eq.'LOG' ) Then
           If( MinVal(buffer) .Le. 0.0 )Then
             write(*,'(/''**ERROR** evaluating LOG of '',es12.4)' )
@@ -759,8 +758,6 @@ C  routine to compute a field of the expression (parses minor fields (*/^))
          
       Do n=1,nflds
         call getFld( trim(expression), '*/^', n, operator, field ) 
-
-        print*,Trim(field)
 
         ! check for buffer array
         If( index(field,'buffer[') .gt.0 ) Then

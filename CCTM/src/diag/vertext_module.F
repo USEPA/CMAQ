@@ -568,13 +568,15 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 C Revision History:
 C   24 Nov 17 B.Henderson: copied from WR_CONC
+C   24 Jul 18 C. Nolte: removed call to INIT_MET that was causing conflict.
+C             Met should already be initialized by this point.
 C-----------------------------------------------------------------------
 
          USE GRID_CONF             ! horizontal & vertical domain specifications
          USE STD_CONC              ! standard CONC
          USE PIOMAPS_MODULE
          USE UTILIO_DEFN
-         USE ASX_DATA_MOD, Only: Met_Data, INIT_MET
+         USE ASX_DATA_MOD, Only: Met_Data
 
          IMPLICIT NONE
 
@@ -639,8 +641,6 @@ C open vext file for update
          END IF   ! firstime
          WRITE(LOGDEV, *) 'WR_VEXT:NVARS', NVARS
 
-         CALL INIT_MET ( JDATE, JTIME, .true., .true., .true. )
-         
          DO V = 1, NVARS
 
             IF ( .NOT. PWRVEC(CTM_VEXT_1, VNAME(V), JDATE, JTIME,

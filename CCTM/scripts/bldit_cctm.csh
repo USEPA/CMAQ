@@ -79,11 +79,13 @@ set ParOpt                             #> uncomment to build a multiple processo
  set ModGrid   = grid/cartesian        #> grid configuration module 
  set ModCpl    = couple/gencoor_wrf    #> unit conversion and concentration coupling module 
                                        #>     (see $CMAQ_MODEL/CCTM/src/couple)
+ set DepMod    = m3dry                 #> m3dry or stage
+ set DepMod    = stage
  set ModHadv   = hadv/yamo             #> horizontal advection module
  set ModVadv   = vadv/wrf              #> vertical advection module (see $CMAQ_MODEL/CCTM/src/vadv)
  set ModHdiff  = hdiff/multiscale      #> horizontal diffusion module
- set ModVdiff  = vdiff/acm2            #> vertical diffusion module (see $CMAQ_MODEL/CCTM/src/vdiff)
- set ModDepv   = depv/m3dry            #> deposition velocity calculation module 
+ set ModVdiff  = vdiff/acm2_${DepMod}  #> vertical diffusion module (see $CMAQ_MODEL/CCTM/src/vdiff)
+ set ModDepv   = depv/${DepMod}        #> deposition velocity calculation module 
                                        #>     (see $CMAQ_MODEL/CCTM/src/depv)
  set ModEmis   = emis/emis             #> in-line emissions module
  set ModBiog   = biog/beis3            #> BEIS3 in-line emissions module 
@@ -92,7 +94,7 @@ set ParOpt                             #> uncomment to build a multiple processo
                                        #>     (see $CMAQ_MODEL/CCTM/src/spcs)
  set ModPhot   = phot/inline           #> photolysis calculation module 
                                        #>     (see $CMAQ_MODEL/CCTM/src/phot)
- set Mechanism = cb6r3_ae7_aq        #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS)
+ set Mechanism = cb6r3_ae7_aq          #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS)
  set ModGas    = gas/ebi_${Mechanism}  #> gas-phase chemistry solver (see $CMAQ_MODEL/CCTM/src/gas)
  set ModAero   = aero/aero7            #> aerosol chemistry module (see $CMAQ_MODEL/CCTM/src/aero)
  set ModCloud  = cloud/acm_ae7         #> cloud chemistry module (see $CMAQ_MODEL/CCTM/src/cloud)
@@ -427,12 +429,12 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo "Module ${ModHdiff};"                                        >> $Cfile
  echo                                                              >> $Cfile
 
- set text = "acm2"
+ set text = "acm2_m3dry or acm2_stage"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModVdiff};"                                        >> $Cfile
  echo                                                              >> $Cfile
 
- set text = "m3dry"
+ set text = "m3dry or stage"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModDepv};"                                         >> $Cfile
  echo                                                              >> $Cfile
