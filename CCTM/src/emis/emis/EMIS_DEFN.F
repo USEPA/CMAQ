@@ -623,17 +623,18 @@ C-----------------------------------------------------------------------
 
       VDEMIS = 0.0
       LAYS = 1
-      IF ( EM_FILE_LDIAG( ISRM ) .EQ. '3D' ) LAYS = EMLAYS
+      IF ( EM_FILE_LDIAG( ISRM ) .EQ. '3D' .OR. 
+     &     EM_FILE_LDIAG( ISRM ) .EQ. '2DSUM' ) LAYS = EMLAYS
 
 
       ! Convert all values to useful units
       DO L = 1, LAYS
          CNVTI = CNVTP * Grid_Data%RDX3F( L ) 
-         DO R = 1, MY_NROWS
-            DO C = 1, MY_NCOLS
-               CNVTC = 1.0e3 / CNVTI / Met_Data%RRHOJ( C,R,L )     ! Gas: ppmv/s -> mol/s
+         DO R = 1, NROWS
+            DO C = 1, NCOLS
+               CNVTC = 1.0e3 / ( CNVTI * Met_Data%RRHOJ( C,R,L ) )    ! Gas: ppmv/s -> mol/s
                CONVM = 1.0 / MWAIR * GPKG * Met_Data%DENS( C,R,L ) ! Aer. Mass: ppmv/s -> umol/m3/s
-               CONVN = CONVM / RAVO / 1.0E+06 / 1.0E6              ! Aer. Num:  N/molec/s -> N/cm3/s
+               CONVN = CONVM / RAVO / 1.0E+12                      ! Aer. Num:  N/molec/s -> N/cm3/s
                CONVS = CONVM                                       ! Aer. Srf:  m2/mol/s -> m2/m3/s
                
                !MAKE SURE TO APPLY RELEVANT UNIT CONVERSION TO EACH
@@ -650,7 +651,8 @@ C-----------------------------------------------------------------------
                       VDEMIS( C,R,L,: ) = CONVS * VDEMIS0( :,L,C,R ) 
                ELSEWHERE
                       ! AEROSOL MASS SPECIES
-                      VDEMIS( C,R,L,: ) = CONVM * VDEMIS0( :,L,C,R ) * DIFF_MW( : )
+                      !VDEMIS( C,R,L,: ) = CONVM * VDEMIS0( :,L,C,R ) * DIFF_MW( : ) ! ug m-3 s-1
+                      VDEMIS( C,R,L,: ) = CNVTC * VDEMIS0( :,L,C,R ) * DIFF_MW( : ) ! g s-1
                END WHERE
 
             END DO
@@ -664,8 +666,10 @@ C-----------------------------------------------------------------------
             IF ( .NOT. EM_FILE_DIFF( IVAR,ISRM ) ) CYCLE
 
             ! Sum the column if requested
-            IF ( EM_FILE_LDIAG( ISRM ) .EQ. '2DSUM' ) 
-     &           VDEMIS( :,:,1,IVAR ) = SUM( VDEMIS( :,:,1:EMLAYS,IVAR ),3 )
+            IF ( EM_FILE_LDIAG( ISRM ) .EQ. '2DSUM' ) THEN
+                VDEMIS( :,:,1,IVAR ) = SUM( VDEMIS( :,:,1:EMLAYS,IVAR ),3 )
+                LAYS = 1
+            END IF
 
             ! Write out the emissions data
             IF ( .NOT. WRITE3( EM_DIAG_FILE( ISRM ), DIFF_SPC( IVAR ),
@@ -2037,7 +2041,7 @@ C stkemis_init.
              CALL ENVSTR( "BIOG_EMIS_DIAG", 'Biogenic Emissions Diagnostic', EMISDIAG, 
      &                    EM_FILE_LDIAG( ISRM ), IOS )
              EM_FILE_LDIAG( ISRM ) = RESOLVE_YN_TF_2D3D( EM_FILE_LDIAG( ISRM ) )
-             WRITE( EM_DIAG_FILE( ISRM ),'( "BIOG_EMDGFILE_",I2.2 )' ) N
+             EM_DIAG_FILE( ISRM ) = "BIOG_EMDGFILE"
              VALUE = SETENVVAR( EM_DIAG_FILE( ISRM ), TRIM( EM_DIAG_PREFIX ) // 
      &           TRIM( EM_FILE_LAB( ISRM ) ) // TRIM( EM_DIAG_SUFFIX ) )
 
@@ -2058,7 +2062,7 @@ C stkemis_init.
              CALL ENVSTR( "MG_EMIS_DIAG", 'Marine Gas Emissions Diagnostic', EMISDIAG, 
      &                    EM_FILE_LDIAG( ISRM ), IOS )
              EM_FILE_LDIAG( ISRM ) = RESOLVE_YN_TF_2D3D( EM_FILE_LDIAG( ISRM ) )
-             WRITE( EM_DIAG_FILE( ISRM ),'( "MG_EMDGFILE_",I2.2 )' ) N
+             EM_DIAG_FILE( ISRM ) = "MG_EMDGFILE"
              VALUE = SETENVVAR( EM_DIAG_FILE( ISRM ), TRIM( EM_DIAG_PREFIX ) // 
      &           TRIM( EM_FILE_LAB( ISRM ) ) // TRIM( EM_DIAG_SUFFIX ) )
 
@@ -2079,7 +2083,7 @@ C stkemis_init.
              CALL ENVSTR( "LTNG_EMIS_DIAG", 'Lightning Emissions Diagnostic', EMISDIAG, 
      &                    EM_FILE_LDIAG( ISRM ), IOS )
              EM_FILE_LDIAG( ISRM ) = RESOLVE_YN_TF_2D3D( EM_FILE_LDIAG( ISRM ) )
-             WRITE( EM_DIAG_FILE( ISRM ),'( "LTNG_EMDGFILE_",I2.2 )' ) N
+             EM_DIAG_FILE( ISRM ) = "LTNG_EMDGFILE"
              VALUE = SETENVVAR( EM_DIAG_FILE( ISRM ), TRIM( EM_DIAG_PREFIX ) // 
      &           TRIM( EM_FILE_LAB( ISRM ) ) // TRIM( EM_DIAG_SUFFIX ) )
 
@@ -2100,7 +2104,7 @@ C stkemis_init.
              CALL ENVSTR( "SEASPRAY_EMIS_DIAG", 'Sea Spray Emissions Diagnostic', EMISDIAG, 
      &                    EM_FILE_LDIAG( ISRM ), IOS )
              EM_FILE_LDIAG( ISRM ) = RESOLVE_YN_TF_2D3D( EM_FILE_LDIAG( ISRM ) )
-             WRITE( EM_DIAG_FILE( ISRM ),'( "ASEA_EMDGFILE_",I2.2 )' ) N
+             EM_DIAG_FILE( ISRM ) = "ASEA_EMDGFILE"
              VALUE = SETENVVAR( EM_DIAG_FILE( ISRM ), TRIM( EM_DIAG_PREFIX ) // 
      &           TRIM( EM_FILE_LAB( ISRM ) ) // TRIM( EM_DIAG_SUFFIX ) )
 
@@ -2121,7 +2125,7 @@ C stkemis_init.
              CALL ENVSTR( "DUST_EMIS_DIAG", 'Wind-Blow Dust Emissions Diagnostic', EMISDIAG, 
      &                    EM_FILE_LDIAG( ISRM ), IOS )
              EM_FILE_LDIAG( ISRM ) = RESOLVE_YN_TF_2D3D( EM_FILE_LDIAG( ISRM ) )
-             WRITE( EM_DIAG_FILE( ISRM ),'( "DUST_EMDGFILE_",I2.2 )' ) N
+             EM_DIAG_FILE( ISRM ) = "DUST_EMDGFILE"
              VALUE = SETENVVAR( EM_DIAG_FILE( ISRM ), TRIM( EM_DIAG_PREFIX ) // 
      &           TRIM( EM_FILE_LAB( ISRM ) ) // TRIM( EM_DIAG_SUFFIX ) )
 
