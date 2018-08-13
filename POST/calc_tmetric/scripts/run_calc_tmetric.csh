@@ -1,6 +1,6 @@
 #! /bin/csh -f
 
-# ===================== CALC_TMETRIC_v5.3.1 Run Script =============
+# ===================== CALC_TMETRIC_v5.3 Run Script =============
 # Usage: run.calc_tmetric.csh >&! calc_tmetric_v53.log &
 #
 # To report problems or request help with this script/program:
@@ -60,7 +60,7 @@
 #  Output files
 #############################################################
 
-#> output table (comma delimited text file importable to Excel)
+#> ioapi output file
  setenv OUTFILE ${CMAQ_DATA}/POST/average_concentrations.nc
 
 #> Executable call:
