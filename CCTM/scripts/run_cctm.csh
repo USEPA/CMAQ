@@ -67,7 +67,7 @@ set TSTEP      = 010000            #> output time step interval (HHMMSS)
 if ( $PROC == serial ) then
    setenv NPCOL_NPROW "1 1"; set NPROCS   = 1 # single processor setting
 else
-   @ NPCOL  =  4; @ NPROW =  2
+   @ NPCOL  =  4; @ NPROW =  8
    @ NPROCS = $NPCOL * $NPROW
    setenv NPCOL_NPROW "$NPCOL $NPROW"; 
 endif
@@ -116,6 +116,15 @@ setenv CTM_ILDEPV Y          #> calculate in-line deposition velocities [ defaul
 setenv CTM_MOSAIC N          #> landuse specific deposition velocities [ default: N ]
 setenv CTM_FST N             #> mosaic method to get land-use specific stomatal flux 
                              #>    [ default: N ]
+# Surface Tiled Aerosol and Gaseous Exchange deposition option environment variables
+# Define the WRF land surface model
+setenv PX_VERSION Y          #> WRF PX LSM
+setenv CLM_VERSION N         #> WRF CLM LSM
+setenv NOAH_VERSION N        #> WRF NOAH LSM
+setenv CTM_MOSAIC N          #> landuse specific deposition velocities [ default: N ]
+setenv CTM_FST N             #> mosaic method to get land-use specific stomatal flux 
+                             #>    [ default: N ]
+# end of STAGE deposition options
 setenv CTM_ABFLUX Y          #> ammonia bi-directional flux for in-line deposition 
                              #>    velocities [ default: N ]; ignore if CTM_ILDEPV = N
 setenv CTM_HGBIDI N          #> mercury bi-directional flux for in-line deposition 
@@ -326,13 +335,16 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      endif
   endif
 
-  #> In-line sea salt emisisions configuration
+  #> In-line sea salt emissions configuration
   setenv OCEAN_1 $SZpath/12US1_surf_bench.nc #> horizontal grid-dependent surf zone file
 
-  #> Bidiretional ammonia configuration
+  #> Bidirectional ammonia configuration
   if ( $CTM_ABFLUX == 'Y' ) then
-     setenv E2C_Soilfile  ${INPDIR}/land/2011_US1_soil_bench.nc       
-     setenv E2C_Fertfile  ${INPDIR}/land/2011_US1_time${YYYYMMDD}_bench.nc    
+# modify for FEST-C v1.4.
+#    setenv E2C_Soilfile  ${INPDIR}/land/2011_US1_soil_bench.nc
+#    setenv E2C_Fertfile  ${INPDIR}/land/2011_US1_time${YYYYMMDD}_bench.nc
+     setenv E2C_Soilfile  ${INPDIR}/land/epic_festc1.4/epic2011_20180516_soil.nc
+     setenv E2C_Fertfile  ${INPDIR}/land/epic_festc1.4/epic2011_20180516_time${YYYYMMDD}.nc
      setenv B4LU_file     ${INPDIR}/land/beld4_12kmCONUS_2006nlcd_bench.nc    
      setenv E2C_SOIL ${E2C_Soilfile}
      setenv E2C_FERT ${E2C_Fertfile}

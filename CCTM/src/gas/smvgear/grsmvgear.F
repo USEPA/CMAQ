@@ -72,6 +72,7 @@ C**********************************************************************
       USE CGRID_SPCS          ! CGRID species number and offsets
       USE UTILIO_DEFN
       USE GRVARS              ! inherits GRID_CONF
+      USE PA_IRR_MODULE
 
       IMPLICIT NONE
       
@@ -161,10 +162,10 @@ C..LOCAL VARIABLES:
       INTEGER, SAVE :: F_DATE_TIME( 8 )
       INTEGER, SAVE :: NSPCS1           ! # of species plus 1
 
-      INTEGER, ALLOCATABLE, SAVE :: DUMMY( : )    ! Dummy array for IRR call
-      REAL,    ALLOCATABLE, SAVE :: DTCELL( : )   ! Time step for each cell for IRR
-      REAL,    ALLOCATABLE, SAVE :: CIRR ( :, : ) ! Species concs for IRR analysis
-      REAL,    ALLOCATABLE, SAVE :: RKIRR( :, : ) ! Rate constants for IRR analysis
+      INTEGER,   ALLOCATABLE, SAVE :: DUMMY( : )    ! Dummy array for IRR call
+      REAL( 8 )                    :: DTCELL        ! Time step for each cell for IRR
+      REAL( 8 ), ALLOCATABLE, SAVE :: CIRR ( :, : ) ! Species concs for IRR analysis
+      REAL( 8 ), ALLOCATABLE, SAVE :: RKIRR( :, : ) ! Rate constants for IRR analysis
        
       REAL( 8 ) :: ABST2             ! Inverse of time step squared
       REAL( 8 ) :: ASN1              ! Gear BDF coefficient
@@ -221,15 +222,6 @@ C..LOCAL VARIABLES:
 !     logical, save :: bingo1 = .true.
 !     logical, save :: bingo2
       INTERFACE
-         SUBROUTINE PA_IRR ( LSTART, LCHGVL, RK, CONC, DELT, NUMCELLS, ICLND )
-            LOGICAL, INTENT( IN ) :: LSTART
-            LOGICAL, INTENT( IN ) :: LCHGVL
-            REAL,    INTENT( IN ) :: RK( :,: )
-            REAL,    INTENT( IN ) :: CONC( :,: )
-            REAL,    INTENT( IN ) :: DELT( : )
-            INTEGER, INTENT( IN ) :: NUMCELLS
-            INTEGER, INTENT( IN ) :: ICLND( : )
-         END SUBROUTINE PA_IRR
          SUBROUTINE DEGRADE( CBLK, DT, JDATE, JTIME, BLKID )
            REAL( 8 ), INTENT( IN ) :: CBLK( :,  : ) ! array holding species concentrations
            REAL( 8 ), INTENT( IN ) :: DT            ! time step for integrations [sec]
@@ -262,7 +254,6 @@ C**********************************************************************
 !        IF ( LIRRFLAG ) THEN
             ALLOCATE ( CIRR(  BLKSIZE, NUMB_MECH_SPC ),
      &                 DUMMY( BLKSIZE ),
-     &                 DTCELL( BLKSIZE ),
      &                 RKIRR(  BLKSIZE, NRXNS ), STAT = IOS )
             IF ( IOS .NE. 0 ) THEN
                MSG = '*** Memory allocation failure for '
@@ -447,12 +438,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       ENDIF
 
       IF( LIRRFLAG ) THEN
-         DO NCELL = 1, NUMCELLS
-            DTCELL( NCELL ) = 0.0
-         ENDDO
+         DTCELL = 0.0D0
          DO I = 1, ISCHAN
             DO NCELL = 1, NIRRCLS
-               CIRR( NCELL, I ) = REAL( BLKCONC( IRRCELL( NCELL ), I ), 4 )
+               CIRR( NCELL, I ) = BLKCONC( IRRCELL( NCELL ), I )
             ENDDO
          ENDDO
          CALL PA_IRR ( .TRUE., .FALSE., RKIRR, CIRR, DTCELL, 
@@ -980,13 +969,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
   940    CONTINUE 
     
          IF( LIRRFLAG ) THEN
-            DO NCELL = 1, NUMCELLS
-               DTCELL( NCELL ) = REAL( DELT, 4 )
-            ENDDO
+            DTCELL = DELT
             DO I = 1, ISCHAN
                ISPOLD = INEW2OLD( I, NCS )
                DO NCELL = 1, NIRRCLS
-                  CIRR( NCELL, ISPOLD ) = REAL( CONC( IRRCELL( NCELL ), I ), 4 )
+                  CIRR( NCELL, ISPOLD ) = CONC( IRRCELL( NCELL ), I )
                ENDDO
             ENDDO
             CALL PA_IRR ( .FALSE., .FALSE., RKIRR, CIRR, DTCELL, 
