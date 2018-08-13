@@ -30,8 +30,8 @@ C                         modified PROPNN and H2O2
 C                         Increased ar for ozone from 8 to 12.
 C                         Change meso from 0.1 to 0 for some org. nitrates
 C                         Changes based on Nguyen et al. 2015 PNAS and SOAS
-C     07 May 2018 D. Schwede: Added call to CZANGLE and Met_Data%czangle variable
-C                             here and removed call to CZANGLE in other modules
+C     07 May 2018 D. Schwede: Added call to CZANGLE here and removed call 
+C                         to CZANGLE in other modules
 C
 C---------Notes
 C  * Updates based on literature review 7/96 JEP
@@ -549,7 +549,7 @@ C-----------------------------------------------------------------------
             ALLOCATE( Met_Data%SOIM2    ( NCOLS,NROWS ),
      &                STAT = ALLOCSTAT )
             If ( ALLOCSTAT .Ne. 0 ) Then
-               XMSG = 'Failure allocating mosaic met vars'
+               XMSG = 'Failure allocating layer 2 soil moisture'
                Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             End If
 
@@ -561,7 +561,7 @@ C-----------------------------------------------------------------------
      &                Grid_Data%LUFRAC ( NCOLS,NROWS,n_lufrac ),
      &                STAT = ALLOCSTAT )
             If ( ALLOCSTAT .Ne. 0 ) Then
-               XMSG = 'Failure allocating mosaic grid vars'
+               XMSG = 'Failure allocating Soil grid vars'
                Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             End If
             Grid_Data%WSAT    = 0.0
@@ -569,6 +569,14 @@ C-----------------------------------------------------------------------
             Grid_Data%WFC     = 0.0
             Grid_Data%WRES    = 0.0
             Grid_Data%BSLP    = 0.0
+         Else
+           ALLOCATE( Grid_Data%WSAT   ( NCOLS,NROWS ),
+     &                STAT = ALLOCSTAT )
+            If ( ALLOCSTAT .Ne. 0 ) Then
+               XMSG = 'Failure allocating Wsat'
+               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            End If
+            Grid_Data%WSAT    = 0.0
          End If
 
 !> ccccccccccccccccccccc enable backward compatiblity ccccccccccccccccccccc
@@ -779,7 +787,11 @@ C-----------------------------------------------------------------------
                Grid_Data%WRES( C,R ) = WRES( Grid_Data%SLTYP( C,R ) )
                Grid_Data%BSLP( C,R ) = BSLP( Grid_Data%SLTYP( C,R ) )
             End Forall
-        End If
+         Else
+            Forall( C = 1:MY_NCOLS, R = 1:MY_NROWS, Grid_Data%SLTYP(C,R) .Le. 11 )
+               Grid_Data%WSAT( C,R ) = WSAT( Grid_Data%SLTYP( C,R ) )
+            End Forall
+         End If
 
 !> Read fractional seawater and surf-zone coverage from the OCEAN file.
 !> Store results in the OCEAN and SZONE arrays.
