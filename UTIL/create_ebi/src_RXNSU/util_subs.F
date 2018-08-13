@@ -53,7 +53,7 @@ C**********************************************************************
       IF( RORP .EQ. 'R' ) THEN
 
          DO R = 1, NREACT( NRX )
-            IF( IRR( NRX, R ) .EQ. SPINDX ) SUMC = SUMC + 1.0D0
+            IF( IRR( NRX, R ) .EQ. SPINDX )SUMC = SUMC + 1.0D0
          END DO
 
          RETURN
@@ -478,7 +478,7 @@ C..SCRATCH LOCAL VARIABLES:
 cglg  CHARACTER*( 16 )  ::    FILLR
       CHARACTER*( 80 )  ::    FILLR                                
       CHARACTER*( 30 )  ::    VOUT                 ! Output variable name
-      CHARACTER*(  3 )  ::    RNUM                 ! Reaction number
+      CHARACTER*(  5 )  ::    RNUM                 ! Reaction number
       CHARACTER*( 15 )  ::    COUT                 ! Output coefficient
       CHARACTER*(  1 )  ::    SGN                  ! Coefficient sign
 
@@ -530,7 +530,7 @@ c..NO2-->NO2EX
       USE_YCP = .FALSE.
       
       WRITE( GROUP, '(I1)' ) GRPNO
-      WRITE( RNUM , '( I3 )' ) IRX
+      WRITE( RNUM , '( I5 )' ) IRX
       VOUT = ADJUSTL( VNAME )
       EV = LEN_TRIM( VNAME )
 
@@ -560,12 +560,12 @@ c..This section is necessary to properly do rxns of type NO+NO=
 
          IF( NR .GT. 1 ) THEN                    
             MSG = ' '
-            WRITE(LOGDEV,'(a)')TRIM( MSG )
-            MSG = 'ERROR: More than 1 reactant for ' // VOUT // ' term' //
-     &       ' ( Reaction No. ' // RNUM( 1 : LEN_TRIM( RNUM ) ) // ' )'
-            WRITE(LOGDEV,'(a)')TRIM( MSG )
-            MSG = '       ' // PLSPEC( 1 : LEN_TRIM( PLSPEC ) ) //
-     &            ' section must be corrected in hrg' // GROUP // '.F'
+            WRITE(LOGDEV,'(a)' )TRIM( MSG )
+            MSG = 'Warning: More than 1 reactant for ' // TRIM( VOUT ) 
+     &      // ' term ( Reaction No. ' // TRIM ( RNUM ) // ' )'
+            WRITE(LOGDEV,'(a)', ADVANCE = 'NO')TRIM( MSG )
+            MSG = ' check correctness of ' // TRIM( PLSPEC ) //
+     &            ' section in hrg' // TRIM( GROUP ) // '.F'
             WRITE(LOGDEV,'(a)')TRIM( MSG )
          END IF
 
@@ -583,19 +583,21 @@ c..build the output line
          END IF
          EPOS = LEN_TRIM( LINOUT )
 
-         IF( NR .EQ. 1 ) THEN
-            SPOUT = ADJUSTL( SPECIES( RCT( 1 ) ) )
-            USE_YCP = ( RCT( 1 ) .EQ. OH  .OR. RCT( 1 ) .EQ. HO2 
-     &             .OR. RCT( 1 ) .EQ. O3P .OR. RCT( 1 ) .EQ. O3
-     &             .OR. RCT( 1 ) .EQ. NO  .OR. RCT( 1 ) .EQ. NO2 )            
-            IF(  VNAME .EQ. 'L21' .AND. RCT( 1 ) .EQ. OH )THEN
-               LINOUT = LINOUT( 1 : EPOS ) // ' * YCP( ' // SPOUT  // ' )'
-            ELSE IF( VNAME .EQ. 'L15' .AND. USE_YCP )THEN
-               LINOUT = LINOUT( 1 : EPOS ) // ' * YCP( ' // SPOUT  // ' )'
-            ELSE
-               LINOUT = LINOUT( 1 : EPOS ) // ' * YC ( ' // SPOUT  // ' )'
-            END IF   
-            EPOS = LEN_TRIM( LINOUT )
+         IF( NR .GE. 1 ) THEN
+            DO R = 1, NR
+               SPOUT = ADJUSTL( SPECIES( RCT( 1 ) ) )
+               USE_YCP = ( RCT( R ) .EQ. OH  .OR. RCT( R ) .EQ. HO2 
+     &                .OR. RCT( R ) .EQ. O3P .OR. RCT( R ) .EQ. O3
+     &                .OR. RCT( R ) .EQ. NO  .OR. RCT( R ) .EQ. NO2 )            
+               IF(  VNAME .EQ. 'L21' .AND. RCT( R ) .EQ. OH )THEN
+                  LINOUT = LINOUT( 1 : EPOS ) // ' * YCP( ' // SPOUT  // ' )'
+               ELSE IF( VNAME .EQ. 'L15' .AND. USE_YCP )THEN
+                  LINOUT = LINOUT( 1 : EPOS ) // ' * YCP( ' // SPOUT  // ' )'
+               ELSE
+                  LINOUT = LINOUT( 1 : EPOS ) // ' * YC ( ' // SPOUT  // ' )'
+               END IF   
+               EPOS = LEN_TRIM( LINOUT )
+            END DO 
          ELSE
             DO S = EPOS + 1, EPOS + CL + 10
                LINOUT( S : S ) = ' '
@@ -629,7 +631,7 @@ c..special case for NO2EX=NO2 -- relate it to NO2->NO2EX
          IF( LNO2EX_CYCLE ) THEN
             IF( VNAME .EQ. 'P2' .AND. IRR( IRX, 1 ) .EQ. NO2EX .AND.
      &          IRR( IRX, 4 ) .EQ. NO2 ) THEN
-                WRITE( RNUM , '( I3 )' ) KNO2_NO2EX
+                WRITE( RNUM , '( I5 )' ) KNO2_NO2EX
                 COUT = ' NO2_S * '
              END IF
          END IF
@@ -639,7 +641,7 @@ c..Special case for OH being formed form O1D -- relate it to O3
          IF( VNAME .EQ. 'P4' .AND. IRR( IRX, 1 ) .EQ. O1D .AND.
      &      IRR( IRX, 4 ) .EQ. OH ) THEN
             IF( FLAG_OH_S )THEN
-               WRITE( RNUM , '( I3 )' ) KO3_O1D
+               WRITE( RNUM , '( I5 )' ) KO3_O1D
                COUT = ' OH_S  * '   
             ELSE 
                LINOUT = ' '
@@ -652,7 +654,7 @@ c..Special case for HO2 being formed form O1D via H2 -- relate it to O3
          IF( VNAME .EQ. 'P5' .AND. IRR( IRX, 1 ) .EQ. O1D .AND.
      &      (PPOS1 .EQ. HO2 .OR. PPOS2 .EQ. HO2) ) THEN
             IF( FLAG_HO2_S )THEN                
-               WRITE( RNUM , '( I3 )' ) KO3_O1D
+               WRITE( RNUM , '( I5 )' ) KO3_O1D
                COUT = ' HO2_S  * '                 
             ELSE 
                LINOUT = ' '
@@ -665,7 +667,7 @@ c..Special case for OH being formed from NO2EX -- relate it to NO2
          IF( LNO2EX_CYCLE ) THEN
             IF( VNAME .EQ. 'P4' .AND. IRR( IRX, 1 ) .EQ. NO2EX .AND.
      &          ( IRR( IRX, 4 ) .EQ. OH .OR. IRR( IRX, 5 ) .EQ. OH )  ) THEN
-               WRITE( RNUM , '( I3 )' ) KNO2_NO2EX
+               WRITE( RNUM , '( I5 )' ) KNO2_NO2EX
               COUT = ' XOH_S * '
             END IF
          END IF
@@ -674,7 +676,7 @@ c..Special case for HONO being formed from NO2EX -- relate it to NO2
          IF( LNO2EX_CYCLE ) THEN
             IF( VNAME .EQ. 'P19' .AND. IRR( IRX, 1 ) .EQ. NO2EX .AND.
      &          ( IRR( IRX, 4 ) .EQ. HONO .OR. IRR( IRX, 5 ) .EQ. HONO )  ) THEN
-               WRITE( RNUM , '( I3 )' ) KNO2_NO2EX
+               WRITE( RNUM , '( I5 )' ) KNO2_NO2EX
               COUT = ' XOH_S * '
             END IF
          END IF
@@ -722,7 +724,7 @@ c..Special case for HONO being formed from NO2EX -- relate it to NO2
             END IF
          END IF
 
-         READ( RNUM, '(I3)' ) N
+         READ( RNUM, '(I5)' ) N
          L_RXFLAG( N ) = .TRUE.
 
          IF( VNAME .EQ. 'P15'  ) THEN

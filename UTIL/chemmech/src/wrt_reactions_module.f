@@ -1096,7 +1096,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &      / 7X,'END FUNCTION FALLOFF_T11' 
      &      / 7X,'REAL( 8 ) FUNCTION HALOGEN_FALLOFF(PRESS,A1,B1,A2,B2)'
      &      / 9X,'IMPLICIT NONE'
-     &      / 9X,'REAL( 8 ), PARAMETER    :: MAX_RATE = 2.4D-06  ! Maximum loss rate (1/sec)'
+     &      / 9X,'REAL( 8 ), PARAMETER    :: MAX_RATE = 2.6750D-06  ! Maximum loss rate (1/sec)'
      &      / 9X,'REAL( 8 ), INTENT( IN ) :: PRESS'
      &      / 9X,'REAL( 8 ), INTENT( IN ) :: A1'
      &      / 9X,'REAL( 8 ), INTENT( IN ) :: B1'
