@@ -385,7 +385,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #> In-line biogenic emissions configuration
   if ( $CTM_BIOGEMIS == 'Y' ) then   
      set IN_BEISpath = ${INPDIR}/land
-     setenv GSPRO      $BLD/gspro_biogenics_1mar2017.txt
+     setenv GSPRO      $BLD/gspro_biogenics.txt
      setenv B3GRD      $IN_BEISpath/b3grd_bench.nc
      setenv BIOG_SPRO  DEFAULT
      setenv BIOSW_YN   Y     #> use frost date switch [ default: Y ]
