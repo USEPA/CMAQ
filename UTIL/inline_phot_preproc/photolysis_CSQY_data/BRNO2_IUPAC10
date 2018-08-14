@@ -2,7 +2,7 @@ BRNO2_IUPAC10
 ! BRNO2 + HV = BR + NO2
 ! BRNO2 Photolysis data  
 ! Supplied by Brett Gantt
-! Created from IUPAC dataset
+! Created from IUPAC dataset PBr6
 Points (these data can be treated as point values)
 ! With FAC, units are (cm^2/molecule)
 FAC=1.0

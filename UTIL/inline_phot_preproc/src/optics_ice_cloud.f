@@ -46,6 +46,11 @@
          REAL, ALLOCATABLE, SAVE :: WVL_DEL_LOWER( : ), WVL_DEL_UPPER( : ), WVL_DEL( : )
          REAL, ALLOCATABLE, SAVE :: B0_DEL( : ), B1_DEL( : ), B2_DEL( : ), B3_DEL( : )
 
+         INTEGER, SAVE            :: I_CUTTOFF_EXT
+         INTEGER, SAVE            :: I_CUTTOFF_ASY
+         INTEGER, SAVE            :: I_CUTTOFF_SSA
+         INTEGER, SAVE            :: I_CUTTOFF_DEL
+
          CHARACTER(100)            :: CHAR
          CHARACTER(19)             :: FILENM    ! No. of characters must equal
                                                  ! length of filename.
@@ -149,11 +154,10 @@ C     Read in ice particle optical parameters.
                 END DO
      
                 DO I = 1, INTERVALS_EXT
-                
                    READ(IUNIT,*)WVL_EXT_LOWER( I ), WVL_EXT_UPPER( I ),  A0_EXT( I ), A1_EXT( I )
                    WVL_EXT( I ) = WVL_EXT_UPPER( I ) + 0.5 * (WVL_EXT_LOWER( I ) - WVL_EXT_UPPER( I ))
-                   
                 END DO
+
                 CLOSE( IUNIT )
                 
                 filenm   = 'ice_clouds/fu96.asy'
@@ -196,7 +200,6 @@ C     Read in ice particle optical parameters.
                 END DO
 
                 CLOSE( IUNIT )
-
 
                 filenm   = 'ice_clouds/fu96.ssa'
                 fullname = filenm
@@ -272,7 +275,32 @@ C     Read in ice particle optical parameters.
                    WVL_DEL( I ) = WVL_DEL_UPPER( I ) + 0.5 * (WVL_DEL_LOWER( I ) - WVL_DEL_UPPER( I ))
                 END DO
 
-                CLOSE( IUNIT )
+               DO I = NJO_NEW, 1, -1
+                  IF ( EFFECTIVE_LAMBDA(I) .LT. 1.0E+3*WVL_EXT( 1 )  )THEN
+                     I_CUTTOFF_EXT = I
+                     EXIT
+                 END IF
+               END DO
+               DO I = NJO_NEW, 1, -1
+                  IF ( EFFECTIVE_LAMBDA(I) .LT. 1.0E+3*WVL_ASY( 1 )  )THEN
+                     I_CUTTOFF_ASY = I
+                     EXIT
+                 END IF
+               END DO
+               DO I = NJO_NEW, 1, -1
+                  IF ( EFFECTIVE_LAMBDA(I) .LT. 1.0E+3*WVL_SSA( 1 )  )THEN
+                     I_CUTTOFF_SSA = I
+                     EXIT
+                 END IF
+               END DO
+               DO I = NJO_NEW, 1, -1
+                  IF ( EFFECTIVE_LAMBDA(I) .LT. 1.0E+3*WVL_DEL( 1 )  )THEN
+                     I_CUTTOFF_DEL = I
+                     EXIT
+                 END IF
+               END DO
+
+               CLOSE( IUNIT )
 
 
          ENDIF  ! FIRST
@@ -368,7 +396,7 @@ C     Delta function transmission for Scattering at zero scattering angle
      &                      WAVE_OUTL, WAVE_OUTU, MXWLIN, YDUMB, XDUMB )
 
          ICE_SSA( 1:NJO_NEW ) = YDUMB( 1:NJO_NEW )
-  
+
          XDUMB = 1.0
          NDUMB = INTERVALS_DEL
          WAVE  = 0.0
@@ -379,6 +407,15 @@ C     Delta function transmission for Scattering at zero scattering angle
 
          ICE_DEL( 1:NJO_NEW ) = YDUMB( 1:NJO_NEW )
          
+! replace zero values
+         ICE_EXT( 1:I_CUTTOFF_EXT ) = ICE_EXT( I_CUTTOFF_EXT + 1 )
+         ICE_ASY( 1:I_CUTTOFF_ASY ) = ICE_ASY( I_CUTTOFF_ASY + 1 )
+         ICE_SSA( 1:I_CUTTOFF_SSA ) = ICE_SSA( I_CUTTOFF_SSA + 1 )
+         ICE_DEL( 1:I_CUTTOFF_DEL ) = ICE_DEL( I_CUTTOFF_DEL + 1 )
+              WRITE(6,'(A,8(es12.4,1X))')'ICE_CUTTOFF: ',WAVE_OUTL(I_CUTTOFF_EXT + 1),ICE_EXT(I_CUTTOFF_EXT + 1),
+     &                                    ICE_ASY(I_CUTTOFF_ASY + 1),ICE_SSA(I_CUTTOFF_SSA + 1),
+     &                                    ICE_DEL(I_CUTTOFF_DEL + 1)
+
          do ivwc = 1, NJO_NEW
               WRITE(6,'(A,8(es12.4,1X))')'ICE: ',WAVE_OUTL(ivwc),ICE_EXT(ivwc),ICE_ASY(ivwc),ICE_SSA(ivwc),
      &                                    ICE_DEL(ivwc)

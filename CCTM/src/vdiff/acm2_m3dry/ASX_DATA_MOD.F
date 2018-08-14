@@ -30,8 +30,8 @@ C                         modified PROPNN and H2O2
 C                         Increased ar for ozone from 8 to 12.
 C                         Change meso from 0.1 to 0 for some org. nitrates
 C                         Changes based on Nguyen et al. 2015 PNAS and SOAS
-C     07 May 2018 D. Schwede: Added call to CZANGLE and Met_Data%czangle variable
-C                             here and removed call to CZANGLE in other modules
+C     07 May 2018 D. Schwede: Added call to CZANGLE here and removed call 
+C                         to CZANGLE in other modules
 C
 C---------Notes
 C  * Updates based on literature review 7/96 JEP
@@ -573,7 +573,7 @@ C-----------------------------------------------------------------------
            ALLOCATE( Grid_Data%WSAT   ( NCOLS,NROWS ),
      &                STAT = ALLOCSTAT )
             If ( ALLOCSTAT .Ne. 0 ) Then
-               XMSG = 'Failure allocating Wsat grid vars'
+               XMSG = 'Failure allocating Wsat'
                Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             End If
             Grid_Data%WSAT    = 0.0
