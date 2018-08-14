@@ -2,7 +2,7 @@ HOI_IUPAC10
 ! HOI + HV = I + OH
 ! HOI Photolysis data
 ! Supplied by Golam Sarwar 
-! Created from IUPAC dataset
+! Created from IUPAC dataset PI2
 Points (these data can be treated as point values)
 ! With FAC, units are (cm^2/molecule)
 FAC=1.0

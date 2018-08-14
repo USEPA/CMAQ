@@ -2,7 +2,7 @@ BRCL_IUPAC10
 ! BRCL + HV = BR + CL
 ! BRCL Photolysis data  
 ! Supplied by Golam Sarwar 
-! Created from IUPAC dataset
+! Created from IUPAC dataset PBr3
 Points (these data can be treated as point values)
 ! With FAC, units are (cm^2/molecule)
 FAC=1.0

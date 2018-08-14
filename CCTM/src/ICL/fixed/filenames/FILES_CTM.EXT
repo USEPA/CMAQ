@@ -23,7 +23,7 @@
 !   1  Feb 2017 D. Kang Added CTM_LTNGDIAG_1 and CTM_LTNGDIAG_2 for Lightning
 !.......................................................................
 
-      INTEGER, PARAMETER :: N_FILES = 74
+      INTEGER, PARAMETER :: N_FILES = 75
 
       CHARACTER( 16 ) :: LGCL_NAME( N_FILES ) 
       LOGICAL            IN_MODE( N_FILES )
@@ -95,6 +95,7 @@
       CHARACTER( 16 ) :: CTM_DRY_DEP_FST
       CHARACTER( 16 ) :: CTM_DEPV_FST
       CHARACTER( 16 ) :: E2C_FERT
+      CHARACTER( 16 ) :: E2C_FERT_YEST
       CHARACTER( 16 ) :: E2C_SOIL
       CHARACTER( 16 ) :: BELD4_LU
       CHARACTER( 16 ) :: CTM_SD_TS
@@ -102,7 +103,6 @@
       CHARACTER( 16 ) :: CTM_VSED_DIAG
       CHARACTER( 16 ) :: BNDY_TRAC_S
       CHARACTER( 16 ) :: INIT_TRAC_S
-
 
       DATA GRID_DOT_2D      / 'GRID_DOT_2D     ' /
       DATA GRID_CRO_2D      / 'GRID_CRO_2D     ' /
@@ -171,6 +171,7 @@
       DATA CTM_DRY_DEP_FST  / 'CTM_DRY_DEP_FST ' /
       DATA CTM_DEPV_FST     / 'CTM_DEPV_FST    ' /
       DATA E2C_FERT         / 'E2C_FERT        ' /
+      DATA E2C_FERT_YEST    / 'E2C_FERT_YEST   ' /
       DATA E2C_SOIL         / 'E2C_SOIL        ' /
       DATA BELD4_LU         / 'BELD4_LU        ' /
       DATA CTM_SD_TS        / 'CTM_SD_TS       ' /
@@ -240,18 +241,19 @@
       DATA LGCL_NAME( 59 ), IN_MODE( 59 )    / 'CTM_DRY_DEP_FST ', .FALSE. /
       DATA LGCL_NAME( 60 ), IN_MODE( 60 )    / 'CTM_DEPV_FST    ', .FALSE. /
       DATA LGCL_NAME( 61 ), IN_MODE( 61 )    / 'E2C_FERT        ', .FALSE. /
-      DATA LGCL_NAME( 62 ), IN_MODE( 62 )    / 'E2C_SOIL        ', .FALSE. /
-      DATA LGCL_NAME( 63 ), IN_MODE( 63 )    / 'BELD4_LU        ', .FALSE. /
-      DATA LGCL_NAME( 64 ), IN_MODE( 64 )    / 'CTM_SD_TS       ', .FALSE. /
-      DATA LGCL_NAME( 65 ), IN_MODE( 65 )    / 'CTM_VDIFF_DIAG  ', .FALSE. /
-      DATA LGCL_NAME( 66 ), IN_MODE( 66 )    / 'CTM_VSED_DIAG   ', .FALSE. /
-      DATA LGCL_NAME( 67 ), IN_MODE( 67 )    / 'BNDY_TRAC_S     ', .FALSE. /
-      DATA LGCL_NAME( 68 ), IN_MODE( 68 )    / 'INIT_TRAC_S     ', .FALSE. /
-      DATA LGCL_NAME( 69 ), IN_MODE( 69 )    / 'CTM_MGEM_1      ', .FALSE. /
-      DATA LGCL_NAME( 70 ), IN_MODE( 70 )    / 'CTM_APMDIAG_1   ', .FALSE. /
-      DATA LGCL_NAME( 71 ), IN_MODE( 71 )    / 'CTM_AVIS_1      ', .FALSE. /
-      DATA LGCL_NAME( 72 ), IN_MODE( 72 )    / 'CTM_LTNGDIAG_1  ', .FALSE. /
-      DATA LGCL_NAME( 73 ), IN_MODE( 73 )    / 'CTM_LTNGDIAG_2  ', .FALSE. /
-      DATA LGCL_NAME( 74 ), IN_MODE( 74 )    / 'CTM_VEXT_1      ', .FALSE. /
+      DATA LGCL_NAME( 62 ), IN_MODE( 62 )    / 'E2C_FERT_YEST   ', .FALSE. /
+      DATA LGCL_NAME( 63 ), IN_MODE( 63 )    / 'E2C_SOIL        ', .FALSE. /
+      DATA LGCL_NAME( 64 ), IN_MODE( 64 )    / 'BELD4_LU        ', .FALSE. /
+      DATA LGCL_NAME( 65 ), IN_MODE( 65 )    / 'CTM_SD_TS       ', .FALSE. /
+      DATA LGCL_NAME( 66 ), IN_MODE( 66 )    / 'CTM_VDIFF_DIAG  ', .FALSE. /
+      DATA LGCL_NAME( 67 ), IN_MODE( 67 )    / 'CTM_VSED_DIAG   ', .FALSE. /
+      DATA LGCL_NAME( 68 ), IN_MODE( 68 )    / 'BNDY_TRAC_S     ', .FALSE. /
+      DATA LGCL_NAME( 69 ), IN_MODE( 69 )    / 'INIT_TRAC_S     ', .FALSE. /
+      DATA LGCL_NAME( 70 ), IN_MODE( 70 )    / 'CTM_MGEM_1      ', .FALSE. /
+      DATA LGCL_NAME( 71 ), IN_MODE( 71 )    / 'CTM_APMDIAG_1   ', .FALSE. /
+      DATA LGCL_NAME( 72 ), IN_MODE( 72 )    / 'CTM_AVIS_1      ', .FALSE. /
+      DATA LGCL_NAME( 73 ), IN_MODE( 73 )    / 'CTM_LTNGDIAG_1  ', .FALSE. /
+      DATA LGCL_NAME( 74 ), IN_MODE( 74 )    / 'CTM_LTNGDIAG_2  ', .FALSE. /
+      DATA LGCL_NAME( 75 ), IN_MODE( 75 )    / 'CTM_VEXT_1      ', .FALSE. /
                       
 !................   end   FILES3_CTM.EXT   .............................

@@ -547,7 +547,7 @@ C Speciate emissions
             EMISS = EMISS * HR2SEC   ! convert from gm/h to gm/s
             DO S = 1,MSPCS
                IF ( BEIS_MAP( S ) .GT. 0 ) THEN
-                  IF ( .NOT. WRITE3( SNAME, 'ALL', MDATE, MTIME, EMISS ) ) THEN
+                  IF ( .NOT. WRITE3( SNAME, EMSPC( S ), MDATE, MTIME, EMISS(:,:,S) ) ) THEN
                      MESG = 'Could not write to output file "' // TRIM( SNAME ) // '"'
                      CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
                   END IF

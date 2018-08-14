@@ -75,7 +75,7 @@
 
       REAL, ALLOCATABLE, PUBLIC :: EQY_REF( :,:,: ) ! eCS/CS averaged 77 bins in UCI Model
 
-      INTEGER, PARAMETER, PUBLIC :: NUM_REFRACTIVE = 5
+      INTEGER, PUBLIC :: NUM_REFRACTIVE
 
       TYPE MODAL_COMPLEX
          CHARACTER( 16 ) :: NAME                           ! name of complex property
@@ -83,7 +83,7 @@
          REAL, ALLOCATABLE, DIMENSION( :, : ) :: IMAG_PART ! imaginary part
       END TYPE MODAL_COMPLEX
 
-      TYPE( MODAL_COMPLEX ), PUBLIC :: REFRACTIVE_INDEX( NUM_REFRACTIVE )
+      TYPE( MODAL_COMPLEX ), ALLOCATABLE, PUBLIC :: REFRACTIVE_INDEX( : )
 
       INTEGER, PUBLIC :: IWLR  ! wavelength loop variable
       INTEGER, PUBLIC :: ITTR  ! temperature loop variable
@@ -849,13 +849,7 @@ C...begin read
       write( LOGDEV, * )' NAE_REFRACT_REF = ', NAE_REFRACT_REF
 #endif
 
-      IF( NAE_REFRACT_REF .NE. NUM_REFRACTIVE )THEN
-         WRITE( LOGDEV,* ) 'NAE_REFRACT_REF  = ', NAE_REFRACT_REF
-         MSG = 'NAERO_REFRACT used in ' // OPTICS_FILE
-     &       // ' does not equal NUM_REFRACTIVE in CSQY_DATA.F file. '
-         CALL M3WARN( PNAME, 0, 0, MSG )
-         ERROR_FLAG = .TRUE.
-      END IF
+      NUM_REFRACTIVE = NAE_REFRACT_REF
       
       ALLOCATE( AE_RERACT_REF   ( NAE_REFRACT_REF ) )
 
@@ -880,6 +874,7 @@ C...begin read
 
       ALLOCATE( AE_REAL_REFRACT ( NAE_REFRACT_REF, NWL_REF ) )
       ALLOCATE( AE_IMAG_REFRACT ( NAE_REFRACT_REF, NWL_REF ) )
+      ALLOCATE( REFRACTIVE_INDEX( NAE_REFRACT_REF ) )
 
       DO ITT_LOAD = 1, NAE_REFRACT_REF 
 ! set up refractive indices used by aero_photdata routine
