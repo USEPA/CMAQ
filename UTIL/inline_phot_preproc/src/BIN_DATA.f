@@ -7,8 +7,9 @@
 !          integer, parameter :: NSO = 4463
           integer, parameter :: NZO = 13550
           integer, parameter :: NJO = 18
-           
-          INTEGER, PARAMETER :: N_LOW_JXBANDS = 11
+
+          INTEGER, SAVE      :: N_LOW_JXBANDS = 11 ! band structure for CMAQ release models
+!          INTEGER, SAVE      :: N_LOW_JXBANDS = 6 ! band structure for MPAS-CMAQ models
           INTEGER, SAVE      :: NJO_NEW 
           INTEGER, SAVE      :: N_INLINE_BAND 
 
@@ -61,7 +62,7 @@
 	  
           REAL, ALLOCATABLE, SAVE   :: SOLAR_PHOTONS(    : ) ! solar photon flux in bin, photons/cm2/s
   
-      integer, parameter :: nwv_regress = 27
+          INTEGER, PARAMETER :: NWV_REGRESS = 27
 
           REAL, SAVE  ::  ENDWL_REGRESS( nwv_regress )       ! wavelength band upper limit
           REAL, SAVE  ::  MIDWL_REGRESS( nwv_regress )       ! wavelength midpoints
@@ -87,17 +88,18 @@
 
         SUBROUTINE INIT_BIN_DATA()
 
-
+          USE GET_ENV_VARS
 
           IMPLICIT NONE
 
           INTEGER            :: I, J, K, L             ! index counters
           INTEGER            :: STRT, FINI
           INTEGER            :: ITT_CALC
+          INTEGER            :: STAT
 
           LOGICAL, SAVE      :: DEFINED  = .FALSE.
 
-          REAL(8), PARAMETER    :: TINY = 0.06
+          REAL(8), PARAMETER    :: TINY = 0.06D0
           REAL(8), ALLOCATABLE  :: FBIN( : )
           REAL(8), ALLOCATABLE  :: FBIN_AVE( : )
           REAL(8), ALLOCATABLE  :: ABIN( : )
@@ -111,29 +113,28 @@
 
           CHARACTER(16) :: PNAME = ' INIT_BIN_DATA '
 
-          CHARACTER(255) EQNAME
-          CHARACTER(285) EQFILE
-          INTEGER        LASTNB1
-          INTEGER        LASTNB2
-          INTEGER      :: IOUNIT = 125
+          CHARACTER(255) :: EQNAME
+          CHARACTER(586) :: EQFILE
+          INTEGER        :: LASTNB1
+          INTEGER        :: LASTNB2
+          INTEGER        :: IOUNIT = 125
           
-          CHARACTER(24) :: WVBIN_FILE = 'WVBIN_FILE' ! 'wavel-bins.dat'
-          CHARACTER(24) :: FLUX_FILE  = 'FLUX_FILE'  ! 'solar-p05nm-UCI.dat'
+          CHARACTER(586) :: WVBIN_FILE = 'WVBIN_FILE'       ! 'wavel-bins.dat'
+          CHARACTER(586) :: FLUX_FILE  = 'FLUX_FILE'        ! 'solar-p05nm-UCI.dat'
+          CHARACTER(16)  :: NBANDS_OUT = 'N_WAVEBANDS_OUT'  ! Number of wavebands for output files
+
 
 
           IF( DEFINED )RETURN
 
           DEFINED = .TRUE.
 
-          LASTNB1 = LEN_TRIM( WVBIN_FILE )
-          EQNAME = 'WBIN_DATA'
-          LASTNB2 = LEN_TRIM( EQNAME )
-          
-          EQFILE  = WVBIN_FILE
-          
-          open (UNIT  = IOUNIT, file= WVBIN_FILE, status='OLD')
+! get path to wavelength bin data file          
+          EQNAME = TRIM( WVBIN_FILE )
+          CALL VALUE_NAME( EQNAME,  WVBIN_FILE )
+          OPEN (UNIT  = IOUNIT, FILE= WVBIN_FILE, STATUS='OLD')
 
-          SRB = 0.d0
+          SRB = 0.0D0
           read(IOUNIT,'(i5)') NB
 
           if (NB .gt. NBO)THEN
@@ -149,7 +150,7 @@
           read(IOUNIT,'(5x,i5)') (IJX(I),I=16,NB)
           close (IOUNIT)
 
-          write(6,'(2x,15f5.1)') ((SRB(I,J),I=1,15),J=1,NJO)
+!          write(6,'(2x,15f5.1)') ((SRB(I,J),I=1,15),J=1,NJO)
 
           IF( USE_REGRESS )CHANGE_WBIN = .TRUE.
           
@@ -158,8 +159,8 @@
              STRT = 64
              FINI = NB
 
-             DELTA = 2.0D0
-             L = INT((WBIN(FINI) - WBIN(STRT))/DELTA) 
+             DELTA = 0.50D0
+             L = INT((WBIN(FINI) - WBIN(STRT))*DELTA) 
 
              NB_NEW = STRT +  L  + ( NB - FINI ) 
 
@@ -207,15 +208,13 @@
 
           WRITE(6,'(I4,2X,F7.2,2X,F7.2)')(I,WBIN_NEW(I),WBIN_NEW(I+1),I=1,NB_NEW)
 
-!          pause
 
           ALLOCATE(W(NSO), F(NSO))
 
-          EQFILE  = EQNAME( 1:LASTNB2 ) // '/' // 'solar-p05nm-UCI.dat'
-          EQFILE  = FLUX_FILE
-
+! get path to flux spectrum data file          
+          EQNAME = TRIM( FLUX_FILE )
+          CALL VALUE_NAME( EQNAME,  FLUX_FILE )
           open (UNIT  = IOUNIT, file = FLUX_FILE, status = 'OLD')
-!          open (IOUNIT, file='solflx_LOWTRAN7_nm.dat', status='OLD')
           read(IOUNIT,*)
           read(IOUNIT,*)
           read(IOUNIT,'(f10.4,e10.3)') (W(J),F(J), J=1,NSO)
@@ -239,13 +238,6 @@
          WU( NSO ) = REAL( W(NSO) + 0.5D0*( W(NSO)-W(NSO-1) ) )
          WL( NSO ) = REAL(0.5*(W( NSO ) + W(NSO-1)))
 
-!         DO I = 1, NSO
-!            if(i .eq. 1 .or. i .eq. NSO)then
-!             print*,i,WL( I ),Wc( I ),Wu( I )
-!             pause
-!            endif
-!            if(i .eq. 1 .or. i .eq. NSO)pause
-!         ENDDO
 
 !         DO I = 1, NSO
 !            WC( I ) = REAL(W( I ))
@@ -335,13 +327,29 @@
          ENDIF
 
          N_INLINE_BAND = NJO_NEW - N_LOW_JXBANDS
+         N_INLINE_BAND = GET_ENV_INT( NBANDS_OUT, ' ', N_INLINE_BAND, STAT)
+         IF( STAT .EQ. 0 )THEN
+             N_LOW_JXBANDS = NJO_NEW - N_INLINE_BAND
+         END IF
 
          IF( N_INLINE_BAND .LE. 0 )THEN
-             WRITE(6,*)TRIM(PNAME) // 'ERROR: N_INLINE_BAND <= 0 '
+             WRITE(6,*)TRIM(PNAME) // 'ERROR: ' // TRIM( NBANDS_OUT ) //
+     &                                '  <= 0 '
              WRITE(6,*)'Total number of bands = ',NJO_NEW
-             WRITE(6,*)'Number of high frequency bands = ', N_LOW_JXBANDS
+!            WRITE(6,*)'Number of high frequency bands = ', N_LOW_JXBANDS
+             WRITE(6,*)'Requested Number of Wavebands = ',N_INLINE_BAND
              STOP
-         ENDIF
+         ELSE IF( N_INLINE_BAND .GT. NJO_NEW )THEN
+             WRITE(6,*)TRIM(PNAME) // 'ERROR: ' // TRIM( NBANDS_OUT ) // 
+     &                                ' greater Total Number of Bands'
+             WRITE(6,*)'Total number of bands = ',NJO_NEW
+!            WRITE(6,*)'Number of high frequency bands = ', N_LOW_JXBANDS
+             WRITE(6,*)'Requested Number of Wavebands = ',N_INLINE_BAND
+             STOP
+         ELSE
+            WRITE(6,*)'Requested Number of Wavebands = ',N_INLINE_BAND
+            WRITE(6,*)'Total number of bands = ',NJO_NEW
+         END IF
       
          ALLOCATE( FFBIN(     NJO_NEW ) )
          ALLOCATE( FFBIN_AVE( NJO_NEW ) )
@@ -395,7 +403,7 @@
              NEWX_BIN( 1:STRT )        = FASTJX_BIN(1:STRT )
              DO I = STRT+1, NWV_NEW
                 NEWX_BIN( I ) = NEWX_BIN( I -1 ) + 1
-                print*,i,NEWX_BIN( I )
+!                print*,i,NEWX_BIN( I )
              ENDDO
 
          ENDIF
@@ -413,10 +421,9 @@
        do i = 1, NWV_NEW
           J = i ! NEWX_BIN(I)
           MIDWL_NEW( J ) = 0.5*( STWL_NEW(J) + ENDWL_NEW(J) )
-          WRITE(6,'(i3,3(2x,f6.2),2x,i3)')i,STWL_NEW(J),MIDWL_NEW( J ),
-     &                                      ENDWL_NEW(J),NEWX_BIN(I)
+!          WRITE(6,'(i3,3(2x,f6.2),2x,i3)')i,STWL_NEW(J),MIDWL_NEW( J ),
+!     &                                      ENDWL_NEW(J),NEWX_BIN(I)
        enddo
-!       pause
 
        IJX_CALC = 0
   
@@ -437,14 +444,13 @@
               ENDIF
            ENDDO
         ENDDO
-        print*,'IJX for FASTJX bins'
-        WRITE(6,'(i5,2x,i5,2x,F6.2,2x,F6.2)') 
-     &       (I,IJX_CALC(I),WBIN_NEW(I),WBIN_NEW(I+1),I=16,NB_NEW)
-        print*,'IJX for New bins'
-        WRITE(6,'(i5,2x,i5,2x,F6.2,2x,F6.2)') 
-     &       (I,IJX_BIN_NEW(I),WBIN_NEW(I),WBIN_NEW(I+1),I=16,NB_NEW)
+!        print*,'IJX for FASTJX bins'
+!        WRITE(6,'(i5,2x,i5,2x,F6.2,2x,F6.2)') 
+!     &       (I,IJX_CALC(I),WBIN_NEW(I),WBIN_NEW(I+1),I=16,NB_NEW)
+!        print*,'IJX for New bins'
+!        WRITE(6,'(i5,2x,i5,2x,F6.2,2x,F6.2)') 
+!     &       (I,IJX_BIN_NEW(I),WBIN_NEW(I),WBIN_NEW(I+1),I=16,NB_NEW)
 
-!        pause
 
 
 
@@ -510,14 +516,14 @@ c--- find flux-weighted effective wavelength over the bins
             I = IBINJ_NEW(J)
             if (I .gt. 0) then
                FBIN(I) = FBIN(I) + F(J)
-               ABIN(I) = ABIN(I) + F(J)*DBLE(1.0/WC(J))
+               ABIN(I) = ABIN(I) + F(J)*REAL(1.0/WC(J), 8)
                SBIN(I) = SBIN(I) + 1
            endif
          enddo
 
          do I=1,NB_NEW
             if (FBIN(I) .gt. 0.d0)ABIN(I) = ABIN(I)/FBIN(I)
-            if (SBIN(I) .gt. 0)FBIN_AVE(I)= FBIN(I)/DBLE(SBIN(I))
+            if (SBIN(I) .gt. 0)FBIN_AVE(I)= FBIN(I)/REAL(SBIN(I),8)
          enddo
 
 
@@ -547,11 +553,11 @@ c--- find flux-weighted effective wavelength over the bins
         enddo
 
         do J=1,NJO_NEW
-           if(SSBIN(J) .gt. 0.0)FFBIN_AVE(J) = FFBIN_AVE(J)/DBLE(SSBIN(J))
+           if(SSBIN(J) .gt. 0.0)FFBIN_AVE(J) = FFBIN_AVE(J)/REAL(SSBIN(J),8)
            if(FFBIN(J) .gt. 0.d0)THEN
-	      EFFECTIVE_LAMBDA(J) = REAL(FFBIN(J)/AABIN(J))
-	      EFFECTIVE_WVNUMB(J) = 1.0E7 / EFFECTIVE_LAMBDA(J)
-	   end if
+	          EFFECTIVE_LAMBDA(J) = REAL(FFBIN(J)/AABIN(J))
+	          EFFECTIVE_WVNUMB(J) = 1.0E7 / EFFECTIVE_LAMBDA(J)
+	       end if
            WRITE(6,'(A18,I3,A4,F6.1,2X,A25,ES12.4)')
      &     'EFFECTIVE_LAMBDA(',J,') = ',EFFECTIVE_LAMBDA(J),
      &     'Mean Solar Photons = ',FFBIN_AVE(J)
@@ -559,7 +565,6 @@ c--- find flux-weighted effective wavelength over the bins
         enddo
 
         print*,' completed INIT_BIN_DATA '
-!        pause
  
            
            RETURN

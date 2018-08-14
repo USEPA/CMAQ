@@ -111,6 +111,7 @@
           INTEGER, SAVE            :: JTABLE_UNIT = 105
           INTEGER, SAVE            :: ODATA_UNIT  = 106
 
+          CHARACTER(586)           :: OUT_DIR = 'OUT_DIR'
           CHARACTER(16), SAVE      :: PHOT_DONE( NPHOTAB )
           INTEGER,       SAVE      :: NPHOT_DONE
           LOGICAL,       SAVE      :: PHOT_PROCESS( NPHOTAB )
@@ -121,6 +122,7 @@
       CONTAINS
         SUBROUTINE INIT_CSQY_MODULE()
 
+          USE GET_ENV_VARS
           USE BIN_DATA
 
           IMPLICIT NONE 
@@ -129,44 +131,28 @@
           INTEGER        :: I, J, K, ITTR
           CHARACTER(16)  :: SAFE_NAME( NPHOTAB )
           CHARACTER(16)  :: PHOT_NAME( NPHOTAB )
-          CHARACTER(319) :: JTABLE_NAME
+          CHARACTER(600) :: JTABLE_NAME
           CHARACTER( 32) :: WORD
           CHARACTER(255) :: EQNAME
 
           IF( FIRSTCALL )THEN
-
               CALL INIT_BIN_DATA
               FIRSTCALL = .FALSE.
-
-          ELSE
-       
+          ELSE       
               RETURN
-
           ENDIF
-
-          WORD = MECHNAME
           
-!          K = INDEX(WORD, '_AE5') - 1
-!
-!          IF( K .LE. 0 )K = INDEX(WORD, '_AE6') - 1
-!
-!          IF( K .LE. 0 )K = LEN( TRIM(WORD) )
-
+! get output directory
           EQNAME = 'OUT_DIR'
-
-!          JTABLE_NAME = EQNAME( 1:LEN_TRIM( EQNAME ) )
-!     &               // '/' 
-!     &               // 'CSQY_DATA_' // WORD(1:K) 
-
- 
+          CALL VALUE_NAME( EQNAME, OUT_DIR ) 
+! create name of CSQY_DATA file
+          WORD = MECHNAME
           CALL CONVERT_CASE ( WORD, .FALSE. )
-          
-          JTABLE_NAME = EQNAME( 1:LEN_TRIM( EQNAME ) )
+          JTABLE_NAME = TRIM( OUT_DIR ) 
      &               // '/' 
      &               // 'CSQY_DATA_' // TRIM( WORD )
 
 
-!          OPEN(MODULE_UNIT, FILE = 'CSQY_DATA_gen.f', STATUS = 'UNKNOWN')
           OPEN(JTABLE_UNIT, FILE = JTABLE_NAME, STATUS = 'UNKNOWN')
 
           PHOT_DONE   = ' '
@@ -199,124 +185,49 @@
              ENDIF
          ENDDO
 
-!        print*,'NPHOT_DONE = ',NPHOT_DONE
-!
-!         DO I = 1, NPHOT_DONE
-
-!        write(6,'(i3,1x,a16)')i,PHOT_DONE(i)
-
-!         ENDDO
-!       stop
-
-!         WRITE(MODULE_UNIT,'(6X,A)')'MODULE CSQY_DATA'
-!         write(MODULE_UNIT,2003)      
-
-!         WRITE(MODULE_UNIT,'(6X,A)')'IMPLICIT NONE'
-!         write(MODULE_UNIT,2003)      
-
-!         WRITE(MODULE_UNIT,'(A)')'C.....PARAMETERS and their descriptions:'
-!         write(MODULE_UNIT,2003)      
-
-
-!         WRITE(MODULE_UNIT,1996)NPHOT_DONE
 1996     format(6X,'INTEGER, PARAMETER :: NPHOT_REF = ',I3,' ! # ref phot reactions ')
-!         write(MODULE_UNIT,2003)
-
-!         WRITE(MODULE_UNIT,1997)N_TEMPERATURE
 1997     format(6X,'INTEGER, PARAMETER :: NTEMP_REF = ',I3,' ! # ref temperatures ')
-!         write(MODULE_UNIT,2003)
-
-!         WRITE(MODULE_UNIT,1998)N_INLINE_BAND
 1998     format(6X,'INTEGER, PARAMETER :: NWL_REF   = ',I3,' ! # ref wavelengths ')
-!         write(MODULE_UNIT,2003)
-
-!         WRITE(MODULE_UNIT,'(A)')'C...Names of the mapped photolysis reactions (available to chemical)'
-!         WRITE(MODULE_UNIT,'(A)')'C... mechanisms) and their pointers to the reference photolysis rxn'
-!         write(MODULE_UNIT,2003)
-!         write(MODULE_UNIT,2003)
 
          WRITE(JTABLE_UNIT,'(A22,A32)')'Table for Mechanism = ',MECHNAME
          WRITE(JTABLE_UNIT,'(A9,1X,I4)')'NPHOTAB =',NPHOT_DONE
          WRITE(JTABLE_UNIT,'(A)')'!Individual rates listed below:'    
 
-!        READ(PHOTAB_UNIT,'(22X,A32)')MAP_REF
-!        READ(PHOTAB_UNIT,'(10X,A32,//)')NPHOT_MAP
-!        DO IPHOT = 1, NPHOT_MAP
-!           READ(PHOTAB_UNIT,'(A16)')PHOT_MAP( IPHOT)
-!        ENDDO
   
          DO I = 1, NPHOT_DONE
 
             WRITE(JTABLE_UNIT,'(A16)')PHOT_DONE(I)
-!            write(MODULE_UNIT,1999) SAFE_NAME(I), I, PHOT_DONE(I)
 1999        FORMAT(6X,'INTEGER, PARAMETER :: I',A16, ' = ', I3, ' ! pointer to ', A16)
 
          ENDDO
 
-!         write(MODULE_UNIT,2003)
-!         WRITE(MODULE_UNIT,2040)
 2040     format(6X,'CHARACTER(16), SAVE :: PNAME_REF( NPHOT_REF )')
-
-!         write(MODULE_UNIT,2003)
 
          DO I = 1, NPHOT_DONE
 
-!            write(MODULE_UNIT,2000) SAFE_NAME(I), PHOT_DONE(I)
 2000        FORMAT(6X,'DATA PNAME_REF( I',A16, ' ) / ''', A16, ''' /')
 
          ENDDO
 
-!         write(MODULE_UNIT,2003)
-
-!         WRITE(MODULE_UNIT,'(A)')'C...Setup the Mapping from CMAQ chemical reactions to the reference data'
-!         write(MODULE_UNIT,2003)      
-
-!         WRITE(MODULE_UNIT,2027)NPHOT_DONE
 2027     format(6X,'INTEGER, PARAMETER :: NPHOT_MAP = ',I3,' ! #  phot mapped reactions ')
-!         write(MODULE_UNIT,2003)
-
-!         WRITE(MODULE_UNIT,2025)
 2025     format(6X,'CHARACTER(16), SAVE :: PNAME_MAP( NPHOT_MAP )')
-!         WRITE(MODULE_UNIT,2026)
 2026     format(6X,'INTEGER, SAVE       :: PHOT_MAP( NPHOT_MAP )')
-!         write(MODULE_UNIT,2003)
 
          DO I = 1, NPHOT_DONE
 
-!            write(MODULE_UNIT,2010) I, I,  PHOT_DONE(I), SAFE_NAME(I)
 2010        FORMAT(6X,'DATA PNAME_MAP( ', I3, ' ), ', ' PHOT_MAP( ', I3, ' )  / ''',
      &             A16, ''', I', A16, ' / ')
 
          ENDDO
 
-!         write(MODULE_UNIT,2003)
-!         write(MODULE_UNIT,2021) 
 2021     format(6X,'REAL, SAVE :: TEMP_REF( NTEMP_REF, NPHOT_REF )    ! reference temperatures')
 
-!         write(MODULE_UNIT,2003)
-!         write(MODULE_UNIT,2022) 
 2022     format(6X,'REAL, SAVE :: CS_REF( NPHOT_REF, NTEMP_REF, NWL_REF ) ! effective cross sections')
 
-!         write(MODULE_UNIT,2003)
-!         write(MODULE_UNIT,2023) 
 2023     format(6X,'REAL, SAVE :: QY_REF( NPHOT_REF, NTEMP_REF, NWL_REF ) ! effective quantum yields')
 
-!         write(MODULE_UNIT,2003)
-!         write(MODULE_UNIT,2024) 
 2024     format(6X,'REAL, SAVE :: ECS_REF( NPHOT_REF, NTEMP_REF, NWL_REF ) ! CS*QY averaged UCI Solar Flux')
 
-!         write(MODULE_UNIT,2032)
-!         write(MODULE_UNIT,2003)
-!         write(MODULE_UNIT,2033)
-!         write(MODULE_UNIT,2034)
-!         write(MODULE_UNIT,2035)
-!         write(MODULE_UNIT,2036)
-!         write(MODULE_UNIT,2037)
-!         write(MODULE_UNIT,2038)
-!         write(MODULE_UNIT,2039)
-
-!         write(MODULE_UNIT,2003)
-!         write(MODULE_UNIT,2031) 
 2031     format(6X,'REAL, SAVE :: EQY_REF( NPHOT_REF, NTEMP_REF, NWL_REF ) ! eCS/CS averaged 77 bins in UCI Model')
 
 2032     format('C...  quantum yields')
@@ -328,15 +239,9 @@
 2038     format('C...    dividing the effective cross sections by the interval average')
 2039     format('C...    cross sections (eQY=eCS/CS).')
 
-!         write(MODULE_UNIT,2003)
-!         write(MODULE_UNIT,2003)
-!         write(MODULE_UNIT,'(6X,A)')'INTEGER  :: IWLR  ! wavelength loop variable'
-!         write(MODULE_UNIT,'(6X,A)')'INTEGER  :: ITTR   ! temperature loop variable'
-
          PHOT_DONE   = ' '
          NPHOT_DONE  = 0
 
-!         write(MODULE_UNIT,2003)
 
 2003     format(1x)
 
@@ -344,17 +249,18 @@
         END SUBROUTINE INIT_CSQY_MODULE
         SUBROUTINE INIT_CXQY_MODULE()
 
+          USE GET_ENV_VARS
           USE BIN_DATA
 
           IMPLICIT NONE 
 
-          LOGICAL, SAVE :: FIRSTCALL = .TRUE.
-          INTEGER       :: I, J, K, ITTR
-          CHARACTER(16) :: SAFE_NAME( NPHOTAB )
-          CHARACTER(16) :: PHOT_NAME( NPHOTAB )
-          CHARACTER(64) :: JTABLE_NAME
-          CHARACTER(32) :: WORD
-          CHARACTER(255)   EQNAME
+          LOGICAL, SAVE  :: FIRSTCALL = .TRUE.
+          INTEGER        :: I, J, K, ITTR
+          CHARACTER(16)  :: SAFE_NAME( NPHOTAB )
+          CHARACTER(16)  :: PHOT_NAME( NPHOTAB )
+          CHARACTER(600) :: JTABLE_NAME
+          CHARACTER(32)  :: WORD
+          CHARACTER(255) :: EQNAME
           INTERFACE
            SUBROUTINE CONVERT_CASE ( BUFFER, UPPER )
              CHARACTER(LEN= *), INTENT( INOUT ) :: BUFFER
@@ -363,28 +269,21 @@
          END INTERFACE
 
           IF( FIRSTCALL )THEN
-
               CALL INIT_BIN_DATA
               FIRSTCALL = .FALSE.
-
-          ELSE
-       
+          ELSE       
               RETURN
-
           ENDIF
 
-          WORD = MECHNAME
-          
-
+! get output directory
           EQNAME = 'OUT_DIR'
-
- 
+          CALL VALUE_NAME( EQNAME, OUT_DIR ) 
+! create name of CSQY_DATA file
+          WORD = MECHNAME
           CALL CONVERT_CASE ( WORD, .FALSE. )
-          
-          JTABLE_NAME = EQNAME( 1:LEN_TRIM( EQNAME ) )
+          JTABLE_NAME = TRIM( OUT_DIR ) 
      &               // '/' 
      &               // 'CSQY_DATA_' // TRIM( WORD )
-
 
           OPEN(JTABLE_UNIT, FILE = JTABLE_NAME, STATUS = 'UNKNOWN')
 

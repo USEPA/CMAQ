@@ -33,6 +33,7 @@ C
 C*********************************************************************
 
 
+      USE GET_ENV_VARS       
       USE BIN_DATA
       USE CSQY_PARAMETERS
 
@@ -58,16 +59,13 @@ C...........LOCAL VARIABLES and their descriptions:
 
       CHARACTER(  1 ) :: SPECTRA_TYPE                  ! type of data points
       CHARACTER( 16 ) :: PNAME  = 'AERO_REFRACT_INDEX' ! program name
-!      DATA         PNAME   / 'AERO_REFRACT_INDEX' /
 
 !      CHARACTER*16 CQDIR               ! directory for CSQY data
 !      DATA         CQDIR   / 'CSQY' /
       
       CHARACTER(  16 ) :: REFRACT_ID         ! name of refractive index
-      CHARACTER( 255 ) :: EQNAME
       CHARACTER( 132 ) :: AERO_FILE          ! input filename buffer
-      CHARACTER(  80 ) :: MSG  =  '    '     ! message
-!      DATA         MSG / '    ' /
+      CHARACTER( 132 ) :: MSG  =  '    '     ! message
 
       CHARACTER( 120 ) FILE_LINE
 
@@ -100,9 +98,10 @@ C...........EXTERNAL FUNCTIONS and their descriptions:
       REAL      :: WLU_AVE( MXWL ) ! upper limit on wl int ETin
       INTEGER   :: NWL_AVE
 
-      CHARACTER( 25 ) :: CSQY_LABEL
+      CHARACTER(  25 ) :: CSQY_LABEL
      
-      CHARACTER( 32 )    :: REFRACT_FILE
+      CHARACTER( 586 ) :: REFRACT_FILE
+      CHARACTER(  32 ) :: ENV_VAR_NAME  
       
 !      REAL, ALLOCATABLE :: AERO_IMAG_REFRACT( :, : )
 !      REAL, ALLOCATABLE :: AERO_REAL_REFRACT( :, : )
@@ -148,12 +147,10 @@ C...........EXTERNAL FUNCTIONS and their descriptions:
 
 
 C*********************************************************************
-C     begin body of subroutine READCSQY
 
        ALLOCATE( XDUMB( MXWLIN ), ZDUMB( MXWLIN ), YDUMB( MXWLIN) )
 
-       ALLOCATE( WAVE_OUTC( MXWLIN ), WAVE_OUTL( MXWLIN ), WAVE_OUTU( MXWLIN ))
-       
+       ALLOCATE( WAVE_OUTC( MXWLIN ), WAVE_OUTL( MXWLIN ), WAVE_OUTU( MXWLIN ))       
 
 C...get a unit number for AERO files
 
@@ -162,18 +159,12 @@ C...get a unit number for AERO files
       LOOP_REFRACT: DO IAERO = 1, NAERO_REFRACT
 
 C...open input file
-
-        REFRACT_FILE = TRIM( AERO_REFRACT_INDX( IAERO ) )
-     &              // '_REFRACT_INDX'
-
-        EQNAME = 'CSQY_DATA_RAW'
-
-!        AERO_FILE = TRIM( EQNAME ) // '/' // TRIM( REFRACT_FILE )
+        CALL VALUE_NAME( AERO_REFRACT_INDX( IAERO ),  REFRACT_FILE )
 
         AERO_FILE = TRIM( AERO_REFRACT_INDX( IAERO ) )
 
         OPEN( UNIT = AEUNIT,
-     &        FILE = AERO_FILE,
+     &        FILE = REFRACT_FILE,
      &        STATUS = 'OLD',
      &        IOSTAT = IOST )
          
@@ -181,12 +172,13 @@ C...open input file
 C...check for open errors
 
         IF ( IOST .NE. 0) THEN
-          MSG = 'Could not open ' // TRIM( AERO_FILE ) // ' data file'
+          MSG = 'Could not open ' // TRIM( AERO_FILE ) // ' file at path: '
+     &       // TRIM(REFRACT_FILE)          
           WRITE(*,*)MSG
-     	    STOP
+          STOP
         END IF
 
-        WRITE( 6, 2001 ) AEUNIT, TRIM( AERO_FILE )
+        WRITE( 6, 2001 ) TRIM( AERO_FILE ), TRIM(REFRACT_FILE) 
 
 
 C...read refractive index subgroup id
@@ -196,10 +188,10 @@ C...read refractive index subgroup id
 C...check for read errors
 
         IF ( IOST .NE. 0) THEN
-          MSG = 'Errors occurred while reading REFRACT_ID for ' //
-     &           TRIM( AERO_FILE )
+          MSG = 'Errors occurred while reading data file ' //
+     &           TRIM(REFRACT_FILE)
           WRITE(*,*)MSG
-	        STOP
+          STOP
         END IF
 
 C...get type of data (e.g. centered, beginning, ending, or point wavelen
@@ -213,12 +205,10 @@ C...   check for read errors
              MSG = 'Errors occurred while reading refractive index for ' //
      &              TRIM( AERO_REFRACT_INDX( IAERO ) )
              WRITE(*,*)MSG
-	           STOP
+             STOP
            END IF
            SPECTRA_TYPE = FILE_LINE(1:1)
-!           FILE_LINE(1:1) = ' '
         END DO
-
 
 C...reinitialize arrays
 
@@ -244,16 +234,13 @@ C...loop over the number of wavelengths and continue reading
                READ( AEUNIT, *, IOSTAT = IOST ) WLIN( IWL ), XDUMB( IWL ),
      &                                          YDUMB( IWL )
              END IF
-!!!     
-!!!         YDUMB( IWL ) = -1.0 * YDUMB( IWL ) ! reverse sign
-!!!
-!!             WRITE( 6, * )IWL, WLIN( IWL ), XDUMB( IWL ), YDUMB( IWL )
+
 C...check for read errors
              IF ( IOST .GT. 0) THEN
                MSG = 'Errors occurred while reading WL, REFRACT_INDX for ' //
      &                TRIM( AERO_REFRACT_INDX( IAERO ) )
                WRITE(*,*)MSG
-      	       STOP
+               STOP
              END IF
           END DO
 
@@ -268,20 +255,15 @@ C...adjust loop counter index index and close file
         REAL_REFRACT_IN( 1:NWLIN ) = XDUMB( 1:NWLIN )
         IMAG_REFRACT_IN( 1:NWLIN ) = YDUMB( 1:NWLIN )
 
-        WRITE(6,'(3(es12.4,1X))')(WAVE(iwl),REAL_REFRACT_IN(iwl),REAL_REFRACT_IN(iwl),iwl=1,NWLIN)
-        print*,' '
+!        WRITE(6,'(3(es12.4,1X))')(WAVE(iwl),REAL_REFRACT_IN(iwl),REAL_REFRACT_IN(iwl),iwl=1,NWLIN)
         
         CLOSE( AEUNIT )
-
-C        WRITE( 6, 2003 ) NWLIN
 
 C...transform the cs data to the same wavelength intervals as
 C...  the irradiance data.
 
          XDUMB = 1.0
          NDUMB = NWLIN
-!         WAVE  = 0.0
-!         WAVE( 1:NDUMB ) =  1000.0 * WLIN( 1:NDUMB ) ! um to nm conversion
 
          CALL WVBIN_AVERAGE(WAVE, REAL_REFRACT_IN, NDUMB, WAVE, XDUMB, NDUMB, 'P',
      &                      WAVE_OUTL, WAVE_OUTU, MXWLIN, YDUMB, XDUMB )
@@ -293,10 +275,10 @@ C...  the irradiance data.
 
          AERO_IMAG_REFRACT( 1:NJO_NEW, IAERO ) = YDUMB( 1:NJO_NEW )
          
-         do iwl = 1, njo_new
-            WRITE(6,'(3(es12.4,1X))')WAVE_OUTL(iwl),AERO_REAL_REFRACT( iwl, IAERO ),
-     &      AERO_IMAG_REFRACT( iwl, IAERO )
-         end do
+!         do iwl = 1, njo_new
+!            WRITE(6,'(3(es12.4,1X))')WAVE_OUTL(iwl),AERO_REAL_REFRACT( iwl, IAERO ),
+!     &      AERO_IMAG_REFRACT( iwl, IAERO )
+!         end do
          
          DEALLOCATE( WAVE, REAL_REFRACT_IN, IMAG_REFRACT_IN )
 
@@ -309,7 +291,8 @@ C...formats
 1003  FORMAT( A1 )
 1005  FORMAT( /, 4X, F10.1 )
 
-2001  FORMAT( 1X, '...Opening File on UNIT ', I3, /,  A )
+2001  FORMAT( 1X, '...Processing AERO Refractive index: ', A, 
+     &            ' in file: ', / A )
 2003  FORMAT( 1X, '...Data for ', I4, ' wavelengths read from file',
      &        // )
 

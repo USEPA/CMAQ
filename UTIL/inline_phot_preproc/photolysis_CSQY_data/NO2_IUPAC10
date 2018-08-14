@@ -3,10 +3,30 @@ NO2_IUPAC10
 ! NO2 = NO + O                                          
 ! From IUPAC Subcommittee on Gas Kinetic Data Evaluation
 ! Data Sheet PNOx4, updated 16th July 2001              
-! These are point values                                
+! These are point values
+!Au and Brion J (1997), J Chem. Phys. 218, 109-126 wavelength <205                                
 Begining (the mechanism evaluated with this format)
 !WL(nm) XSEC(cm2) QY
 FAC=1.0
+155.0 1.250e-17 1.000
+165.3 1.160e-17 1.000
+177.1 6.800e-18 1.000
+190.8 1.800e-18 1.000
+205.0 3.381e-19 1.000
+210.0 4.451e-19 1.000
+215.0 4.887e-19 1.000
+220.0 4.672e-19 1.000
+225.0 3.904e-19 1.000
+230.0 2.765e-19 1.000
+235.0 1.653e-19 1.000
+240.0 8.300e-20 1.000
+245.0 3.750e-20 1.000
+250.0 1.460e-20 1.000
+255.0 1.090e-20 1.000
+260.0 1.540e-20 1.000
+265.0 2.180e-20 1.000
+270.0 2.920e-20 1.000
+275.0 4.060e-20 1.000
 280.0 5.270E-20 1.000
 285.0 6.820E-20 1.000
 290.0 8.640E-20 1.000

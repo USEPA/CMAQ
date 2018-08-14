@@ -1,0 +1,51 @@
+TBUTNO3_MCMv32
+!tert-butyl nitrate, 1,1-dimethyl-1-ethyl nitrate
+!t-c4h9no3 ---> t-c4h90 + no2
+!cross section from URL
+!http://joseba.mpch-mainz.mpg.de/spectral_atlas_data/
+!          cross_sections/Organics%20(N-compounds)/Nitrates/
+!           t-C4H9ONO2,(CH3)3CONO2_RobertsFajer(1989)_298K_270-330nm.txt
+!           (last accessed Nov.28,2017)
+! Reference:
+! J.M. Roberts and R.W. Fajer, "UV absorption cross sections of organic nitrates 
+! of potential atmospheric importance and estimation of atmospheric lifetimes," 
+! Environ. Sci. Technol. 23, 945-951 (1989); DOI: 10.1021/es00066a003 
+!
+!WVL   XC,cm^2 QY
+Points 
+! With FAC, units are (cm^2/molecule)
+FAC=1.0
+270.0 4.27E-20 1.0
+272.0 4.20E-20 1.0
+274.0 4.11E-20 1.0
+276.0 3.98E-20 1.0
+278.0 3.83E-20 1.0
+280.0 3.66E-20 1.0
+282.0 3.46E-20 1.0
+284.0 3.25E-20 1.0
+286.0 3.03E-20 1.0
+288.0 2.80E-20 1.0
+290.0 2.57E-20 1.0
+292.0 2.34E-20 1.0
+294.0 2.11E-20 1.0
+296.0 1.89E-20 1.0
+298.0 1.68E-20 1.0
+300.0 1.48E-20 1.0
+302.0 1.29E-20 1.0
+304.0 1.12E-20 1.0
+306.0 9.66E-21 1.0
+308.0 8.25E-21 1.0
+310.0 6.99E-21 1.0
+312.0 5.87E-21 1.0
+314.0 4.90E-21 1.0
+316.0 4.05E-21 1.0
+318.0 3.32E-21 1.0
+320.0 2.70E-21 1.0
+322.0 2.18E-21 1.0
+324.0 1.75E-21 1.0
+326.0 1.39E-21 1.0
+328.0 1.10E-21 1.0
+330.0 8.59E-22 1.0
+332.0 6.66E-22 1.0
+334.0 5.13E-22 1.0
+

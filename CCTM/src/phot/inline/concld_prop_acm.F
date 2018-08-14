@@ -339,7 +339,7 @@ C-------------------------------------------
       REAL          :: ZF   ( NCOLS,NROWS,NLAYS )  ! level/layer-face height (m)
 
       INTEGER         ALLOCSTAT
-
+      INTEGER         STATUS
       INTEGER         GXOFF, GYOFF                 ! global origin offset from file
 C for INTERPX
       INTEGER, SAVE :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2
@@ -349,6 +349,13 @@ C Gridded meteorology data: Golam Sarwar, July 1, 2011
 C Latitude and longitude for zenith angle calculation:     
 
       CHARACTER( 120 ) :: XMSG = ' '   ! Exit status message
+C enviroment varaible for ammonia bi-directional flux with in-lining depv
+      CHARACTER( 16 )  :: CTM_ABFLUX = 'CTM_ABFLUX      '
+      CHARACTER( 80 )  :: VARDESC     ! environment variable description
+
+C flag for ammonia bi-directional flux with in-lining depv
+      LOGICAL          :: ABFLUX = .FALSE.
+
 
 C...........External Functions
 
@@ -378,7 +385,24 @@ C...  event-statistics variables.
         FIRSTIME = .FALSE.
         LOGDEV = INIT3()
 
-        CALL INIT_MET( JDATE, JTIME, .FALSE., .FALSE., .FALSE. )
+C ammonia bi-directional flux with in-line deposition velocities
+C calculation?
+        ABFLUX = .FALSE.
+        VARDESC  = 'Flag for ammonia bi-directional flux calculation'
+        ABFLUX = ENVYN( CTM_ABFLUX, VARDESC, ABFLUX, STATUS )
+        IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) TRIM( VARDESC )
+        IF ( STATUS .EQ. 1 ) THEN
+            XMSG = TRIM( CTM_ABFLUX ) // ': environment variable improperly formatted'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+        ELSE IF ( STATUS .EQ. -1 ) THEN
+            XMSG = 'Environment variable set, but empty ... Using default:'
+            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
+        ELSE IF ( STATUS .EQ. -2 ) THEN
+           XMSG = 'Environment variable not set ... Using default:'
+           WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
+        END IF
+
+        CALL INIT_MET( JDATE, JTIME, ABFLUX )
 
 C...check the grid resolution from the MET_CRO_2D and set an appropriate
 C...  flag as to whether convective clouds should be run for the given
