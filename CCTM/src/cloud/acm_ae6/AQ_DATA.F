@@ -325,7 +325,7 @@ C-----------------------------------------------------------------------
       Use cgrid_spcs          ! CGRID mechanism species
       Use utilio_defn
       Use aero_data 
-      Use phot_mod            ! set-up shared photolysis arrays
+      Use phot_mod, Only: init_phot_shared  ! set-up shared photolysis arrays
       
       Implicit None
 
