@@ -260,7 +260,6 @@ C-----------------------------------------------------------------------
 
          Use UTILIO_DEFN
          Use MOSAIC_MOD, Only: Init_Mosaic
-         USE RUNTIME_VARS_MOD
 
          Implicit None
  
@@ -766,7 +765,6 @@ C-----------------------------------------------------------------------
          Use UTILIO_DEFN
          USE VGRD_DEFN, Only: VGTYP_GD
          USE MOSAIC_MOD
-         USE RUNTIME_VARS_MOD
 #ifdef parallel
          USE SE_MODULES      ! stenex (using SE_COMM_MODULE)
 #else

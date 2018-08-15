@@ -56,7 +56,6 @@ C                          parallel I/O implementation
 C                        Added a block of code to let non I/O processors to
 C                          open CTM_DEPV_DIAG in parallel I/O implementation
 C-------------------------------------------------------------------------------
-      USE RUNTIME_VARS_MOD !, Only: PX_LSM, CLM_LSM, NOAH_LSM
 
       IMPLICIT NONE
 
@@ -141,7 +140,6 @@ C-----------------------------------------------------------------------
 !         USE MOSAIC_MOD, Only: Init_Mosaic
          USE LSM_MOD, Only: Init_LSM, n_lufrac !, PX_LSM, CLM_LSM, NOAH_LSM
          USE BIDI_MOD, Only: Init_Bidi, HgBidi
-         USE RUNTIME_VARS_MOD !, Only: PX_LSM, CLM_LSM, NOAH_LSM
          USE STAGE_MOD, Only: INIT_STAGE
 
          IMPLICIT NONE
@@ -534,7 +532,6 @@ C-----------------------------------------------------------------------
          USE UTILIO_DEFN
          USE Mosaic_Mod
          USE Bidi_Mod, Only: HgBidi
-         USE RUNTIME_VARS_MOD !, Only: PX_LSM, CLM_LSM, NOAH_LSM
          USE LSM_Mod,  Only: n_lufrac
          USE ASX_DATA_MOD, Only: GRID_DATA, MOSAIC_DATA
          Use STAGE_MOD,    Only: GAS_X, AERO_X

@@ -723,7 +723,6 @@ C-------------------------------------------------------------------------------
          Use Bidi_Mod, Only: gamma1, gamma2, MHp1, MHp2
          Use ASX_DATA_MOD
          Use LSM_MOD
-         USE RUNTIME_VARS_MOD
          
          Implicit None
          

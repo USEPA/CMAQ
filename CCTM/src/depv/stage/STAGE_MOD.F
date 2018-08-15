@@ -46,7 +46,6 @@ C-------------------------------------------------------------------------------
       Use GRID_CONF           ! horizontal & vertical domain specifications
       Use LSM_MOD             ! Land surface data
       Use ASX_DATA_MOD
-      USE RUNTIME_VARS_MOD
       USE UTILIO_DEFN      
       USE CGRID_SPCS          ! CGRID mechanism species
       USE STAGE_DATA

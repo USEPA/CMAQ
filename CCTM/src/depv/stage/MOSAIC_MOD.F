@@ -103,7 +103,6 @@ C Buffer variables
 !         USE DEPVVARS, Only: dep_gas_all
          USE STAGE_DATA, Only:dep_gas_all ! needs to be n_gas_asx to save memory but will require remapping
          USE CGRID_SPCS          ! CGRID mechanism species
-         USE RUNTIME_VARS_MOD, Only: FST
        
          Implicit None    
 

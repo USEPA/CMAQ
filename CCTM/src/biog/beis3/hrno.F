@@ -138,7 +138,6 @@ C-----------------------------------------------------------------------
       USE HGRD_DEFN             ! horizontal domain specifications
       USE BIOG_EMIS, ONLY: NSEF ! beis
       USE ASX_DATA_MOD
-      USE RUNTIME_VARS_MOD, ONLY: PX_LSM, CLM_LSM, NOAH_LSM
       USE UTILIO_DEFN
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
