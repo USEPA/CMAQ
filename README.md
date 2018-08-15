@@ -35,7 +35,7 @@ Source code and scripts are organized as follows:
 Release notes and Code documentation are included within this repository (they are version-controlled along with the code itself).  
 
 [CMAQv5.2.1 Documentation](DOCS/README.md)   
-[CMAQv5.2.1 Release Notes](CCTM/docs/Release_Notes/README.md)   
+[CMAQv5.2.1 Release Notes](DOCS/Release_Notes/README.md)   
 [CMAQv5.2.1 Known Issues](DOCS/Known_Issues/README.md)   
 [CMAQv5.2.1 Tutorials](DOCS/Tutorials/README.md)   
 [CMAQv5.2.1 Developers' Guide](DOCS/Developers_Guide/CMAQ_Dev_Guide.md)   
