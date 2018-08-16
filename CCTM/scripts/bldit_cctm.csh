@@ -471,7 +471,7 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo "Module ${ModGas};"                                          >> $Cfile
  echo                                                              >> $Cfile
 
- set MechList = " cb6r3_ae6_aq, cb6r3_ae7_aq, racm2_ae6_aq, saprc07tc_ae6_aq, saprc07tic_ae6i_aq, saprc07tic_ae6i_aqkmti"
+ set MechList = " cb6r3_ae6_aq, cb6r3_ae7_aq, racm2_ae6_aq, saprc07tc_ae6_aq, saprc07tic_ae6i_aq, saprc07tic_ae6i_aqkmti, saprc07tic_ae7i_aq"
 
  set text = "gas chemistry mechanisms"
  echo "// " $text                                                  >> $Cfile
