@@ -489,7 +489,7 @@ C write conc fields
             IF ( LVEXT ) CALL WR_VEXT ( JDATE, JTIME, TSTEP( 1 ) )
             CALL WR_ACONC ( AGRID, JDATE, JTIME, TSTEP( 1 ) )
             IF ( LIPR .OR. LIRR ) CALL PA_OUTPUT ( CGRID, JDATE, JTIME )
-            CALL TIMING_SPLIT ( CPU_TIME_START, 3 )
+            IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 3 )
          END IF
  
 

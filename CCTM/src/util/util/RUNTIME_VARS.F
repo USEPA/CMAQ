@@ -108,6 +108,8 @@
       CHARACTER( MAXLEN_CCTM_APPL ) :: OUTDIR    = ''     ! Output Directory
 
       ! General; Multiprocess control, output and error checking
+      LOGICAL :: PRINT_PROC_TIME = .FALSE. ! Flag to print elapsed time for all 
+                                           ! science submodules
       LOGICAL :: FL_ERR_STOP=.TRUE.  ! Flag to stop run if errors are found.
       LOGICAL :: CKSUM     = .TRUE.  ! flag for cksum on, default = [T]
       LOGICAL :: END_TIME  = .FALSE. ! Override default beginning ACON timestamp
@@ -495,6 +497,10 @@
          WRITE( OUTDEV, '(6x,A)' ),'--Env Variable-- | --Value--'
          WRITE( OUTDEV, '(6x,A)' ), REPEAT( '-',80 )
       END IF
+
+      ! PRINT_PROC_TIME
+      VARDESC = 'Flag for printing elapsed time for each science subprocess to logfile'
+      PRINT_PROC_TIME = GET_ENVYN( 'PRINT_PROC_TIME', VARDESC, PRINT_PROC_TIME )  
 
       ! FL_ERR_STOP
       VARDESC = 'Flag for stopping on errors'

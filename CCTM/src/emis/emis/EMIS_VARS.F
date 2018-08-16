@@ -746,38 +746,40 @@
             EM_NML_B(N_EM_RULE_B)%OP    = 'm' 
             EM_NML_B(N_EM_RULE_B)%FAC   = 2.0 
           
-            ! PCVOC <- POC
-            N_EM_RULE_B = N_EM_RULE_B + 1
-            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
-            EM_NML_B(N_EM_RULE_B)%SURR  = 'POC'
-            EM_NML_B(N_EM_RULE_B)%SPEC  = 'PCVOC'
-            EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
-            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
-            EM_NML_B(N_EM_RULE_B)%FAC   = PCVOC_FAC
-            ! PCVOC <- PNCOM
-            N_EM_RULE_B = N_EM_RULE_B + 1
-            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
-            EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
-            EM_NML_B(N_EM_RULE_B)%SPEC  = 'PCVOC'
-            EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
-            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
-            EM_NML_B(N_EM_RULE_B)%FAC   = PCVOC_FAC
-            ! PCVOC is turned off for Fires
-            DO ISRM = 1,N_EM_SRM
-              IF ( EM_FILE_FIRE( ISRM ) ) THEN
-                N_EM_RULE_B = N_EM_RULE_B + 1
-                EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-                EM_NML_B(N_EM_RULE_B)%STREAM= EM_FILE_LAB( ISRM )
-                EM_NML_B(N_EM_RULE_B)%SURR  = 'ALL'
-                EM_NML_B(N_EM_RULE_B)%SPEC  = 'PCVOC'
-                EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
-                EM_NML_B(N_EM_RULE_B)%OP    = 'o' 
-                EM_NML_B(N_EM_RULE_B)%FAC   = 0.0
-              END IF
-            END DO
- 
+            IF ( .NOT. ZERO_PCSOA ) THEN
+              ! PCVOC <- POC
+              N_EM_RULE_B = N_EM_RULE_B + 1
+              EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
+              EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
+              EM_NML_B(N_EM_RULE_B)%SURR  = 'POC'
+              EM_NML_B(N_EM_RULE_B)%SPEC  = 'PCVOC'
+              EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
+              EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
+              EM_NML_B(N_EM_RULE_B)%FAC   = PCVOC_FAC
+              ! PCVOC <- PNCOM
+              N_EM_RULE_B = N_EM_RULE_B + 1
+              EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
+              EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
+              EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
+              EM_NML_B(N_EM_RULE_B)%SPEC  = 'PCVOC'
+              EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
+              EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
+              EM_NML_B(N_EM_RULE_B)%FAC   = PCVOC_FAC
+              ! PCVOC is turned off for Fires
+              DO ISRM = 1,N_EM_SRM
+                IF ( EM_FILE_FIRE( ISRM ) ) THEN
+                  N_EM_RULE_B = N_EM_RULE_B + 1
+                  EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
+                  EM_NML_B(N_EM_RULE_B)%STREAM= EM_FILE_LAB( ISRM )
+                  EM_NML_B(N_EM_RULE_B)%SURR  = 'ALL'
+                  EM_NML_B(N_EM_RULE_B)%SPEC  = 'PCVOC'
+                  EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
+                  EM_NML_B(N_EM_RULE_B)%OP    = 'o' 
+                  EM_NML_B(N_EM_RULE_B)%FAC   = 0.0
+                END IF
+              END DO
+            END IF
+
          END IF
       ! [ INSERT MORE DEFAULT RULES HERE AS DESIRED ]
           
