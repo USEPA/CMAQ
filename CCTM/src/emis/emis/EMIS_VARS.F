@@ -418,13 +418,12 @@
       TYPE( EM_RULE_REG )              :: EM_NML_B( N_EM_RULE_REG  )
 
       INTEGER          :: N_EM_RULE_B, IRULE, ISRM
-      LOGICAL          :: SUBTRACT_FERTILIZER_NH3 = .TRUE.
  
       N_EM_RULE_B = 0
  
       ! Add a rule For Removing Fertilizer Ammonia if BiDi is
       ! activated and the user has requested the correction
-         IF ( ABFLUX .AND. SUBTRACT_FERTILIZER_NH3 ) THEN
+         IF ( ABFLUX .AND. BIDI_FERT_NH3 ) THEN
             N_EM_RULE_B = N_EM_RULE_B + 1
             EM_NML_B(N_EM_RULE_B)%SPEC  = 'NH3'
             EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'

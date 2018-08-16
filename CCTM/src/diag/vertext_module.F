@@ -666,7 +666,6 @@ C   Get LON/LAT pairs from file
 C Revision history:
 C   09 Mar 18 B.Henderson: 
 C-----------------------------------------------------------------------
-         USE M3UTILIO, ONLY : ENVSTR
          USE UTILIO_DEFN
          USE RUNTIME_VARS
          IMPLICIT NONE

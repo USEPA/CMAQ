@@ -169,6 +169,7 @@
       LOGICAL :: STAGE     = .FALSE. ! flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depv
       LOGICAL :: DEPV_DIAG = .FALSE. ! flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depv
       Logical :: HGBIDI    = .FALSE. ! flag for Hg bidirectional exchange
+      Logical :: BIDI_FERT_NH3 = .TRUE. ! flag to remove fertilizer ammonia from Bidirectional emissions
       CHARACTER(16) :: LAND_SCHEME = "UNKNOWN" ! NLCD, USGS, etc
  
 
@@ -743,6 +744,10 @@
       ! CTM_HGBIDI
       VARDESC = 'Flag for mercury bi-directional flux calculation'
       HGBIDI = GET_ENVYN( 'CTM_HGBIDI', VARDESC, HGBIDI )
+ 
+      ! CTM_IGNORE_FERT_NH3
+      VARDESC = 'Flag for including fertilizer ammonia in bi-directional flux calculation'
+      BIDI_FERT_NH3 = GET_ENVYN( 'CTM_BIDI_FERT_NH3', VARDESC, BIDI_FERT_NH3 )
  
       ! Flag for using BELD Land Use for WindBlown Dust 
       VARDESC = 'Flag for Wind Blown Dust - Land Use from BELD'

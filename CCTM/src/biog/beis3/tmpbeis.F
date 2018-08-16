@@ -34,7 +34,7 @@ C   Normalized gridded emissions B3GRD from Normbeis3 (3.12)
  
 C Subroutines and Functions Called:
 C   BEIS, HRNO,  
-C   ENVYN, CURRSTEP, HHMMSS, NAMEVAL, UPCASE, CHECKMEM, M3EXIT, M3MSG2,
+C   CURRSTEP, HHMMSS, UPCASE, CHECKMEM, M3EXIT, M3MSG2,
 C   WRITE3, OPEN3, CLOSE3, NEXTIME, TIME2SEC
  
 C Revision History:
