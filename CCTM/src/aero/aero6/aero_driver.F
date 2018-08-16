@@ -314,7 +314,6 @@ C ------------------ begin body of AERO_DRIVER -------------------------
          ALLOCATE (   PMDIAG_SPC( NCOLS,NROWS,NLAYS,NUM_PMDIAG_SPC ),
      &              A_PMDIAG_SPC( NCOLS,NROWS,A_NLAYS,NUM_PMDIAG_SPC ),
      &              TEMP_DATA( NUM_PMDIAG_SPC ), 
-     &              AVIS_SPC( NCOLS,NROWS,N_AE_VIS_SPC ),
      &              AERO_COND(   NCOLS,NROWS,NLAYS,NSPCSD ),
      &              AERO_COAG(   NCOLS,NROWS,NLAYS,NSPCSD,N_MODE ),
      &              AERO_NPF (    NCOLS,NROWS,NLAYS,NSPCSD ),
