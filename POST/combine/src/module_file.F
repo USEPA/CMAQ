@@ -27,10 +27,13 @@ C
 C***********************************************************************
       MODULE M3FILES
 
+      USE M3UTILIO
+
       INTEGER, Public :: N_M3FILES                   ! No. of input Models-3 files
 
-      INTEGER, PARAMETER, Public  :: MXM3FLS = 32  ! Max no. of input
-
+      INTEGER, PARAMETER, Public  :: MXM3FLS = MXFILE3 - 1   ! Max no. of input files - use IOAPI parameter 
+                                                             ! MXFILE3 - 1 to also allow one output file
+ 
       CHARACTER*16, Public :: M3FILENAME( MXM3FLS )  ! filenames
       CHARACTER*10, Public :: FILETYPE( MXM3FLS )    ! filetypes
       Integer, Public      :: WRFid( MXM3FLS )       ! NCIDs for WRF files
@@ -266,8 +269,13 @@ C***********************************************************************
 
 
          !! build envName for file
-         if( fileNo.le.9 ) write(M3FILENAME(fileNo), '( ''INFILE'', I1 )' ) fileNo
-         if( fileNo.ge.10) write(M3FILENAME(fileNo), '( ''INFILE'', I2 )' ) fileNo
+         if( fileNo.lt.10 ) then
+          write(M3FILENAME(fileNo), '( ''INFILE'', I1 )' ) fileNo
+         elseif(fileNo.lt.100) then
+          write(M3FILENAME(fileNo), '( ''INFILE'', I2 )' ) fileNo
+         else
+          write(M3FILENAME(fileNo), '( ''INFILE'', I3 )' ) fileNo
+         endif
 
          !! get filename from ENV variable
          Call NAMEVAL( M3FILENAME(fileNo), fname )

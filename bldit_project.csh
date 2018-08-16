@@ -34,6 +34,7 @@
  set EXT_APPENDWRF = Y
  set EXT_BLDOVERLAY = Y
  set EXT_BLOCK_EXTRACT = Y
+ set EXT_CALC_TMETRIC = Y
  set EXT_HR2DAY = Y
  set EXT_SITECMP = Y
  set EXT_SITECMP_DAILYO3 = Y
@@ -185,6 +186,17 @@
     endif
     cp POST/block_extract/scripts/bldit_block_extract.csh  $CMAQ_HOME/POST/block_extract/scripts/bldit_block_extract.csh
     cp POST/block_extract/scripts/run_block_extract.csh    $CMAQ_HOME/POST/block_extract/scripts/run_block_extract.csh
+ endif
+
+#===============================================================================
+#> Copy calc_tmetric Post-Processor scripts
+#===============================================================================
+ if ( $EXT_CALC_TMETRIC == 'Y' ) then
+    if ( ! -e "$CMAQ_HOME/POST/calc_tmetric/scripts" ) then
+       mkdir -pv $CMAQ_HOME/POST/calc_tmetric/scripts
+    endif
+    cp POST/calc_tmetric/scripts/bldit_calc_tmetric.csh  $CMAQ_HOME/POST/calc_tmetric/scripts/bldit_calc_tmetric.csh
+    cp POST/calc_tmetric/scripts/run_calc_tmetric.csh    $CMAQ_HOME/POST/calc_tmetric/scripts/run_calc_tmetric.csh
  endif
 
 #===============================================================================

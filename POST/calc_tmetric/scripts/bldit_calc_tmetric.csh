@@ -1,7 +1,7 @@
 #! /bin/csh -f
 
-# ==================== HR2DAYv5.2.1 Build Script ===================== #
-# Usage: bldit_hr2day.csh >&! bldit_hr2day.log                          #
+# ==================== CALC_TMETRICv5.3 Build Script ===================== #
+# Usage: bldit_calc_tmetric.csh >&! bldit_calc_tmetric.log                          #
 # Requirements: I/O API & netCDF libraries; a Fortran compiler        #
 #                                                                     #
 # To report problems or request help with this script/program:        #
@@ -38,16 +38,16 @@
  source ./config_cmaq.csh
 
 #> Source Code Repository
- setenv REPOROOT ${CMAQ_REPO}/POST/hr2day  #> location of the source code for HR2DAY
+ setenv REPOROOT ${CMAQ_REPO}/POST/calc_tmetric  #> location of the source code for CALC_TMETRIC
 
 #===============================================================================
 #> Begin User Input Section 
 #===============================================================================
 
 #> User choices: working directory and application ID
- set VRSN     = v53                       #> model version
- set EXEC     = hr2day_${VRSN}.exe        #> executable name for this application
- set CFG      = hr2day_${VRSN}.cfg        #> BLDMAKE configuration file name
+ set VRSN     = v53                        #> model version
+ set EXEC     = calc_tmetric_${VRSN}.exe        #> executable name for this application
+ set CFG      = calc_tmetric_${VRSN}.cfg        #> BLDMAKE configuration file name
  setenv BLDER   ${CMAQ_HOME}/UTIL/bldmake/bldmake_${compilerString}.exe #> location of makefile builder executable 
 
 #> user choice: copy source files
@@ -58,7 +58,7 @@
 
 # set CompileBLDMAKE  #> Recompile the BLDMAKE utility from source
                      #>   comment out to use an existing BLDMAKE executable
- set ModDriver = src #> HR2DAY Modules
+ set ModDriver = src #> CALC_TMETRIC Modules
 
 
 #============================================================================================
@@ -85,10 +85,10 @@
 
 
 #============================================================================================
-#> Set up the hr2day build directory under the Tools directory
+#> Set up the calc_tmetric build directory under the Tools directory
 #> for checking out and compiling source code
 #============================================================================================
- set Bld = ${CMAQ_HOME}/POST/hr2day/scripts/BLD_hr2day_${VRSN}_${compilerString}
+ set Bld = ${CMAQ_HOME}/POST/calc_tmetric/scripts/BLD_calc_tmetric_${VRSN}_${compilerString}
 
  if ( ! -e "$Bld" ) then
     mkdir -pv $Bld
@@ -148,7 +148,7 @@
  echo                                                              >> $Cfile
  echo "netcdf      $quote$netcdf_lib$quote;"                       >> $Cfile
 
- set text = "hr2day"
+ set text = "calc_tmetric"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModDriver};"                                       >> $Cfile
  echo                                                              >> $Cfile
@@ -161,8 +161,8 @@
 
 #> Recompile BLDMAKE from source if requested or if it does not exist
  if ( $?CompileBLDMAKE || ! -f $BLDER ) then
-    cd ${CMAQ_REPO}/UTIL/bldmake/scripts
-    ./bldit_bldmake.csh
+     cd ${CMAQ_REPO}/UTIL/bldmake/scripts
+     ./bldit_bldmake.csh
  endif
  
 #> Relocate to the BLD_* directory
