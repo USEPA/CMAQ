@@ -30,11 +30,14 @@ C
 C*************************************************************************
       MODULE M3FILES
 
+      USE M3UTILIO
+
       INTEGER LOGUNIT                       ! Logdevice
 
       INTEGER N_M3FILES                     ! No. of input Models-3 files
 
-      INTEGER, PARAMETER :: MXM3FLS = 366   ! Max no. of input
+      INTEGER, PARAMETER :: MXM3FLS = MXFILE3 - 1   ! Max no. of input files - use IOAPI parameter 
+                                                    ! MXFILE3 - 1 to also allow one output file
 
       CHARACTER*16  M3_FLNAME( MXM3FLS )    ! Names of Models-3 file
 

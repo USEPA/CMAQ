@@ -9,7 +9,10 @@ This Fortran program generates a csv (comma separated values) file that compares
 ```
  TABLE_TYPE  dataset type {IMPROVE, CASTNET, STN, NADP, MDN, SEARCH,
              DEARS, AIRMON, OUT_TABLE}
- M3_FILE_#   ioapi input files containing modeled species data (max of 12). 
+ M3_FILE_#   ioapi input files containing modeled species data. 
+	     The maximum number of IOAPI files is set to be one less than the global IOAPI parameter MXFILE3.
+	     Since this parameter is currently set to 64 (https://www.cmascenter.org/ioapi/documentation/all_versions/html/TUTORIAL.html),
+	     the maximum number of IOAPI input files is 63.
              [Note: Supported map projections are Lambert conformal, polar stereographic, and lat/lon.
              If an ioapi file is supplied that has a projection not in this list the program will 
              stop with an error message.]
