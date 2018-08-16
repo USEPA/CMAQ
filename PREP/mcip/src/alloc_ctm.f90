@@ -64,6 +64,8 @@ SUBROUTINE alloc_ctm
 !           10 Apr 2015  Added new arrays CFRAC3D_C and CFRAC3D_B to pass 3D
 !                        resolved cloud fraction to output.  (T. Spero)
 !           20 Aug 2015  Changed latent heat flux from QFX to LH.  (T. Spero)
+!           16 Mar 2018  Added SNOWH to METCRO2D output.  Added 3d soil, land
+!                        use and mosaic arrays.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE coord
@@ -71,8 +73,11 @@ SUBROUTINE alloc_ctm
   USE metinfo
   USE mcipparm
   USE groutcom
+  USE luoutcom
   USE mcoutcom
   USE mdoutcom
+  USE mosoutcom
+  USE soioutcom
   USE m3utilio
 
   IMPLICIT NONE
@@ -92,7 +97,7 @@ SUBROUTINE alloc_ctm
   ALLOCATE ( x3midl (   nlays ) )
 
 !-------------------------------------------------------------------------------
-! Allocate grid arrays for GROUTCOM.
+! Allocate grid arrays for GROUTCOM and LUOUTCOM.
 !-------------------------------------------------------------------------------
 
   ALLOCATE ( gd2 ( ncols+1, nrows+1, gd2index ) )
@@ -108,6 +113,7 @@ SUBROUTINE alloc_ctm
 
   IF ( iflufrc ) THEN
     ALLOCATE ( gc2 ( ncols, nrows, gc2index+1+nummetlu ) )
+    ALLOCATE ( lu3 ( ncols, nrows,            nummetlu, lu3index ) )
   ELSE
     ALLOCATE ( gc2 ( ncols, nrows, gc2index ) )
   ENDIF
@@ -120,6 +126,7 @@ SUBROUTINE alloc_ctm
     IF ( iflufrc ) THEN
     gpurb_c    => gc2(:,:,7)
     glufrac_c  => gc2(:,:,8:7+nummetlu)
+    lufrac_c   => lu3(:,:,:,1)
     ELSE IF ( met_urban_phys >= 1 ) THEN
     gpurb_c    => gc2(:,:,7)
     ENDIF
@@ -179,6 +186,7 @@ SUBROUTINE alloc_ctm
     veg_c      => mc2(:,:,26)
     lai_c      => mc2(:,:,27)
     seaice_c   => mc2(:,:,28)
+    snowh_c    => mc2(:,:,29)
 
   IF ( ifwr ) THEN
     ALLOCATE ( wr_c ( ncols, nrows ) )
@@ -280,5 +288,26 @@ SUBROUTINE alloc_ctm
     ALLOCATE ( uu_s ( ncols+1, nrows+1, nlays ) )
     ALLOCATE ( vv_t ( ncols+1, nrows+1, nlays ) )
   ENDIF
+
+!-------------------------------------------------------------------------------
+! Allocate grid arrays for SOIOUTCOM.
+!-------------------------------------------------------------------------------
+
+  ALLOCATE ( soi3 ( ncols, nrows, metsoi, soi3index ) )
+    soit3d_c => soi3(:,:,:, 1)
+    soim3d_c => soi3(:,:,:, 2)
+
+!-------------------------------------------------------------------------------
+! Allocate grid arrays for MOSOUTCOM.
+!-------------------------------------------------------------------------------
+
+  ALLOCATE ( mos3 ( ncols, nrows, nummosaic, mos3index ) )
+    lufrac2_c   => mos3(:,:,:, 1)
+    moscatidx_c => mos3(:,:,:, 2)
+    lai_mos_c   => mos3(:,:,:, 3)
+    rai_mos_c   => mos3(:,:,:, 4)
+    rsi_mos_c   => mos3(:,:,:, 5)
+    tsk_mos_c   => mos3(:,:,:, 6)
+    znt_mos_c   => mos3(:,:,:, 7)
 
 END SUBROUTINE alloc_ctm

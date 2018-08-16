@@ -75,7 +75,8 @@ C-----------------------------------------------------------------------
 
       CONTAINS
          FUNCTION BIOG_INIT() RESULT ( SUCCESS )
-
+      
+         USE RXNS_DATA, ONLY : MECHNAME
          USE UTILIO_DEFN
 
          IMPLICIT NONE
@@ -91,6 +92,7 @@ C (A line from the profile file is a record.)
          INTEGER,        PARAMETER :: NSEGS = 6  ! # of potential line segments (fields)
          INTEGER,        PARAMETER :: MXLINES = 100 ! max lines for requested sppro name
          INTEGER,        PARAMETER :: MXSPPOL = 10  ! max no. spc per pollutant
+         INTEGER,        PARAMETER :: NMECHS = 17   ! dimension for number of mechanisms considered
          CHARACTER,      PARAMETER :: CINVHDR = '#' ! Indicator for inventory hdr fields
 !        REAL,           PARAMETER :: GM2TON  = 1.0 / 907184.74  ! grams to tons
 
@@ -129,29 +131,51 @@ C Local variables
          INTEGER        NIPOS      ! number of pollutant matches
          INTEGER        PNDX       ! position (from INDEX1) of pol in POLNAMA
          INTEGER        SNDX       ! position (from INDEX1) of pol in SPECNMA
-         INTEGER        NDX        ! index position
+         INTEGER        NDX, INDX  ! index position
 
          LOGICAL     :: INHEADER = .FALSE.   ! true: in file header
 
          CHARACTER( 256 ) :: LINE       ! buffer for profile record
          CHARACTER( 256 ) :: MESG       ! message buffer
-         CHARACTER(   5 ) :: SPNPRF     ! record (line) speciation profile name
+         CHARACTER(  16 ) :: SPNPRF     ! record (line) speciation profile name
          CHARACTER(  16 ) :: POLNAM     ! record (line) pollutant name
          CHARACTER(  16 ) :: SPECNM     ! record (line) species name
-         CHARACTER(   5 ) :: SPPRO      ! requested speciation profile name
+         CHARACTER(  16 ) :: SPPRO      ! requested speciation profile name
+         CHARACTER(  16 ) :: FILE_SPPRO ! label read from gspro
 
          REAL                SPLTFAC, SDIV, SMFAC ! line speciation profile factors
+ 
+         TYPE BIOG_MECH_TYPE
+              CHARACTER( 32 ) :: CHEMMECH
+              CHARACTER( 16 ) :: BIOGMECH
+         END TYPE BIOG_MECH_TYPE
 
+         TYPE( BIOG_MECH_TYPE ) :: BIOG_MECH_MAP( NMECHS ) = (/
+     &         BIOG_MECH_TYPE( 'CB05E51_AE6_AQ         ','B10C5   '),
+     &         BIOG_MECH_TYPE( 'CB05E51_AE6NVPOA_AQ    ','B10C5   '),
+     &         BIOG_MECH_TYPE( 'CB05EH51_AE6_AQ        ','B10C5   '),
+     &         BIOG_MECH_TYPE( 'CB05MP51_AE6_AQ        ','B10C5   '),
+     &         BIOG_MECH_TYPE( 'CB05TUCL51_AE6_AQ      ','B10C5   '),
+     &         BIOG_MECH_TYPE( 'CB6R3_AE6_AQ           ','B10C6   '),
+     &         BIOG_MECH_TYPE( 'CB6MP_AE6_AQ           ','B10C6   '),
+     &         BIOG_MECH_TYPE( 'CB6R3_AE6NVPOA_aq      ','B10C6   '),
+     &         BIOG_MECH_TYPE( 'CB6R3_AE7_AQ           ','B10C6AE7'),
+     &         BIOG_MECH_TYPE( 'RACM2_AE6_AQ           ','B10RD   '),
+     &         BIOG_MECH_TYPE( 'SAPRC07TB_AE6_AQ       ','B10SP   '),
+     &         BIOG_MECH_TYPE( 'SAPRC07TC_AE6_AQ       ','B10SP   '),
+     &         BIOG_MECH_TYPE( 'SAPRC07TC_AE6NVPOA_AQ  ','B10SP   '),
+     &         BIOG_MECH_TYPE( 'SAPRC07TIC_AE6I_AQ     ','B10SP   '),
+     &         BIOG_MECH_TYPE( 'SAPRC07TIC_AE7I_AQ     ','B10SP   '),
+     &         BIOG_MECH_TYPE( 'SAPRC07TIC_AE6I_AQKMTI ','B10SP   '),
+     &         BIOG_MECH_TYPE( 'SAPRC07TIC_AE6INVPOA_AQ','B10SP   ') /)
+     &   
+ 
          CHARACTER( 16 ) :: PNAME = 'BIOG_INIT'
-#ifdef Verbose
          integer logdev   ! debug
-#endif
 
 C-----------------------------------------------------------------------
 
-#ifdef Verbose
          logdev = init3()   ! debug
-#endif
          SUCCESS = .TRUE.
 
 C Open speciation profiles file
@@ -160,9 +184,10 @@ C Open speciation profiles file
      &            .TRUE., .TRUE., 'GSPRO', PNAME )
 C                 rdonly  fmtted
 
-C Get the speciation profile to use
-         MESG = 'Speciation profile to use for biogenics'
-         CALL ENVSTR( 'BIOG_SPRO', MESG, 'B3V10', SPPRO, IOS )
+         INDX = INDEX1( MECHNAME, NMECHS, BIOG_MECH_MAP%CHEMMECH )
+         SPPRO = BIOG_MECH_MAP( INDX )%BIOGMECH
+         WRITE( LOGDEV, '(5X,A,A,A)' ), 'Accessing compatible biogenic ',
+     &          'emissions mechanism: ',TRIM( SPPRO )
 
 C Scan speciation profiles file to get all of the pollutant-species combinations
 C that are valid for the pollutants in the inventory. The species names are sorted
@@ -218,9 +243,11 @@ C Check for header start
 
 C Skip lines that don't reference the requested speciation profile name
             IF ( LINE( 1:1 ) .EQ. '"' ) THEN
-               IF ( LINE( 2:6 ) .NE. SPPRO ) CYCLE
+               FILE_SPPRO = LINE( 2: INDEX( LINE,'"' )-1 )
+               IF ( FILE_SPPRO .NE. SPPRO ) CYCLE 
             ELSE
-               IF ( LINE( 1:5 ) .NE. SPPRO ) CYCLE
+               FILE_SPPRO = LINE( 1: INDEX( LINE,';' )-1 )
+               IF ( FILE_SPPRO .NE. SPPRO ) CYCLE 
             END IF
 
 C Separate the line of data (record) into the segments (parse the record fields)
@@ -236,9 +263,9 @@ C Left-justify character strings and convert factors to reals
 
 C Check width of character fields of fixed length
             N = LEN_TRIM( SPNPRF )
-            IF ( N .GT. 5 ) THEN
+            IF ( N .GT. 16 ) THEN
                WRITE( MESG,94010 ) 'ERROR: Speciation profile code ' //
-     &                 'exceeds max width of 5 characters at line', IREC
+     &                'exceeds max width of 16 characters at line', IREC
                CALL M3MESG( MESG )
                SUCCESS = .FALSE.; RETURN
             END IF
@@ -463,9 +490,11 @@ C Skip blank and comment lines
 
 C Skip lines that don't reference the requested speciation profile name
             IF ( LINE( 1:1 ) .EQ. '"' ) THEN
-               IF ( LINE( 2:6 ) .NE. SPPRO ) CYCLE
+               FILE_SPPRO = LINE( 2: INDEX( LINE,'"' )-1 )
+               IF ( FILE_SPPRO .NE. SPPRO ) CYCLE 
             ELSE
-               IF ( LINE( 1:5 ) .NE. SPPRO ) CYCLE
+               FILE_SPPRO = LINE( 1: ( INDEX( LINE,';' )-1 ) )
+               IF ( FILE_SPPRO .NE. SPPRO ) CYCLE 
             END IF
 
 C Separate the line of data into each part

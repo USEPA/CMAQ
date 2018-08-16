@@ -74,7 +74,7 @@ SUBROUTINE feedback_setup ( jdate, jtime, tstep )
        nlays3d = ioapi_header%nlays
        nvars3d = n_feedback_var
        vname3d(1:nvars3d) = feedback_vlist
-       units3d(1:nvars3d) = ' '
+       units3d(1:nvars3d) = ''
        tstep3d = tstep
        vtype3d(1:nvars3d) = ioapi_header%vtype
 

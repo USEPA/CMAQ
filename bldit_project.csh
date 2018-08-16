@@ -1,6 +1,6 @@
 #!/bin/csh -f
 
-# ================== CMAQ5.2 Extraction Script ====================== #
+# ================= CMAQv5.2.1 Extraction Script ==================== #
 # Requirements: CMAQ git source code repository                       #
 #                                                                     #
 # To report problems or request help with this script/program:        #
@@ -8,22 +8,22 @@
 # =================================================================== #
 
 #> This script may be executed when first downloading or cloning the CMAQ
-#> repository. The routine will copy important script including config.cmaq,
+#> repository. The routine will copy important scripts including config.cmaq,
 #> bldit.cctm, and run.cctm as well as scripts for other utilities into 
 #> a $CMAQ_HOME project directory of the user's choice.
 #>
 #> Default location for CMAQ model build is one directory above
 #> the repository. The user may also set their own preferred 
 #> directory.
- set CMAQ_HOME = /home/bmurphy/cmaq_projects/aerosol_proc
+ set CMAQ_HOME = /home/bmurphy/cmaq_projects/aerosol_proc2
 
 #> This section allows users to choose explicitly which tools
 #> to make available from the repo. For each selected tool,
-#> extract_scripts.csh will copy any build and run scritps
+#> extract_scripts.csh will copy any build and run scripts
 #> out of the repo for you. Set each to [Y/N]
  set EXT_CCTM    = Y
 
- # Pre-processing Tools
+ # Pre-Processing Tools
  set EXT_AGDUST = Y
  set EXT_BCON = Y
  set EXT_ICON = Y
@@ -93,6 +93,10 @@
     endif
     cp CCTM/scripts/bldit_cctm.csh $CMAQ_HOME/CCTM/scripts/bldit_cctm.csh
     cp CCTM/scripts/run_cctm.csh $CMAQ_HOME/CCTM/scripts/run_cctm.csh
+    cp CCTM/scripts/run_cctm_2010_4CALIF1.csh $CMAQ_HOME/CCTM/scripts/run_cctm_2010_4CALIF1.csh
+    cp CCTM/scripts/run_cctm_2014_12US1.csh $CMAQ_HOME/CCTM/scripts/run_cctm_2014_12US1.csh
+    cp CCTM/scripts/lonlat.csv $CMAQ_HOME/CCTM/scripts/lonlat.csv
+    cp CCTM/scripts/EmissCtrl.nml $CMAQ_HOME/CCTM/scripts/EmissCtrl.nml
  endif
 
 #===============================================================================

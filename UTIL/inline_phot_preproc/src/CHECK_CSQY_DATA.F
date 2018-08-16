@@ -398,7 +398,8 @@ C       Modified 11/2004 by CJC:  IOSTAT check for INQUIRE
 C
 C       Modified 03/2010 by CJC: F9x changes for I/O API v3.1
 C***********************************************************************
-
+       USE GET_ENV_VARS
+       
        IMPLICIT NONE
 
 
@@ -442,7 +443,7 @@ C   begin body of GETEFILE()
 
 C...........   Read filename from environment ---
 
-      CALL NAMEVAL(  LNAME, PNAME )
+      CALL VALUE_NAME(  LNAME, PNAME )
 
       LLEN = LEN_TRIM( LNAME )
       PLEN = LEN_TRIM( PNAME )

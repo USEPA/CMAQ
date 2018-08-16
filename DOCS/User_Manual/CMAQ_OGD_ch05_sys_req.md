@@ -38,7 +38,7 @@ CMAQ requires all of the programs listed in [Table 5‑1](#Table5-1). This list 
 | **Software** | **Description** | **Source** |
 |-------------------|-----------------------------|--------------------------------|
 |***CMAQ Programs***|||
-|Bldmake|Executable builder for source code compilation|Contained in the standard CMAQ distribution available in the [CMAQv5.2 branch of the CMAQ repo](https://github.com/USEPA/CMAQ/tree/5.2). [Release notes](https://github.com/USEPA/CMAQ/tree/5.2/CCTM/docs/Release_Notes) and [documentation](https://github.com/USEPA/CMAQ/blob/5.2/DOCS/User_Manual/CMAQ_OGD_ch07_programs_libraries.md) are available.|
+|Bldmake|Executable builder for source code compilation|Contained in the standard CMAQ distribution available in the [CMAQv5.2.1 branch of the CMAQ repo](https://github.com/USEPA/CMAQ/tree/5.2.1). [Release notes](https://github.com/USEPA/CMAQ/tree/5.2.1/CCTM/docs/Release_Notes) and [documentation](https://github.com/USEPA/CMAQ/blob/5.2.1/DOCS/User_Manual/CMAQ_OGD_ch07_programs_libraries.md) are available.|
 |ICON|Initial conditions preprocessor|" |
 |BCON|Boundary conditions preprocessor|"|
 |MCIP|Meteorology-Chemistry Interface Processor| "|
@@ -177,31 +177,31 @@ CMAQ source code can be installed either using git or from tarballs downloaded f
 
 ##### Git Installation #####
 
-In the directory where you would like to install CMAQ, issue the following command to clone the official EPA GitHub repository for CMAQv5.2:
+In the directory where you would like to install CMAQ, issue the following command to clone the official EPA GitHub repository for CMAQv5.2.1:
 
-`git clone -b 5.2 https://github.com/USEPA/CMAQ CMAQ_REPO`
+`git clone -b 5.2.1 https://github.com/USEPA/CMAQ CMAQ_REPO`
 
 ##### Zipfile Installation #####
 
-Zipfiles of the CMAQ source code are available from the public GitHub repository. Click the button "Clone or download" from https://github.com/USEPA/CMAQ/tree/5.2 and select "Download ZIP" to download a Zipfile of the CMAQv5.2 repository. Alternatively, you may download the zipfile from the [EPA CMAQ website](https://www.epa.gov/cmaq/access-cmaq-source-code).
+Zipfiles of the CMAQ source code are available from the public GitHub repository. Click the button "Clone or download" from https://github.com/USEPA/CMAQ/tree/5.2.1 and select "Download ZIP" to download a Zipfile of the CMAQv5.2.1 repository. Alternatively, you may download the zipfile from the [EPA CMAQ website](https://www.epa.gov/cmaq/access-cmaq-source-code).
 
 Reference input/output data for testing the installation of the software are available from the CMAS Center; *data are not available through GitHub*. You must register/login to access the source codes and data from the CMAS Center.
 
 In the directory where you would like to install CMAQ, unzip the model distribution file:
 
-`unzip CMAQ-5.2.zip`
+`unzip CMAQ-5.2.1.zip`
 
 The following directories will be created:
 
 ```
-CMAQ-5.2/CCTM
-CMAQ-5.2/PREP
-CMAQ-5.2/POST
-CMAQ-5.2/UTIL
-CMAQ-5.2/DOCS
+CMAQ-5.2.1/CCTM
+CMAQ-5.2.1/PREP
+CMAQ-5.2.1/POST
+CMAQ-5.2.1/UTIL
+CMAQ-5.2.1/DOCS
 ```
 
-The Git and zipfile installation options will produce slightly different subdirectories on your Linux system. The base installation directory using the git clone commmand will be `CMAQ_REPO`; the directory from the zipfile will be `CMAQ-5.2`.  The subesquent instructions in this guide will be based on the git clone installation. For Zipfile installations, replace CMAQ_REPO with CMAQ-v5.2 in the instructions that follow. The differences in the directory names highlights the difference in functionality between the two options. Cloning the repository gives the user access to the full repository and its history, while downloading the zip file will only give access to version 5.2.
+The Git and zipfile installation options will produce slightly different subdirectories on your Linux system. The base installation directory using the git clone commmand will be `CMAQ_REPO`; the directory from the zipfile will be `CMAQ-5.2.1`.  The subesquent instructions in this guide will be based on the git clone installation. For Zipfile installations, replace CMAQ_REPO with CMAQ-v5.2.1 in the instructions that follow. The differences in the directory names highlights the difference in functionality between the two options. Cloning the repository gives the user access to the full repository and its history, while downloading the zip file will only give access to version 5.2.1.
 
 Using the git clone option, CMAQ will install into the following directories:
 
@@ -218,7 +218,7 @@ In the top level of CMAQ_REPO, the bldit_project.csh script will automatically r
 
 In bldit_project.csh, modify the variable $CMAQ_HOME to identify the folder that you would like to install the CMAQ package under. For example:
 ```
-set CMAQ_HOME = /home/username/CMAQ_v5.2
+set CMAQ_HOME = /home/username/CMAQ_v5.2.1
 ```
 Now execute the script.
 ```
@@ -261,8 +261,8 @@ Download the CMAQ single day reference data from the [CMAS Center Software Clear
 
 ```
 cd $CMAQ_DATA
-tar xvzf CMAQv5.2_Benchmark_SingleDay_Input.tar.gz
-tar xvzf CMAQv5.2_Benchmark_SingleDay_Output.tar.gz
+tar xvzf CMAQv5.2.1_Benchmark_SingleDay_Input.tar.gz
+tar xvzf CMAQv5.2.1_Benchmark_SingleDay_Output.tar.gz
 ```
 This will produce the following subdirectories:
 
@@ -285,7 +285,7 @@ All of the CMAQ programs other than CCTM are run in single-processor mode. CCTM 
 
 ##### Compile Bldmake #####
 
-In CMAQv5.2, bldmake is compiled automatically the first time you run any of the CMAQ build scripts. If you prefer to run the build as a separate step, the bldmake build script is in $CMAQ_REPO/UTIL/bldmake/scripts.
+In CMAQv5.2.1, bldmake is compiled automatically the first time you run any of the CMAQ build scripts. If you prefer to run the build as a separate step, the bldmake build script is in $CMAQ_REPO/UTIL/bldmake/scripts.
 
 ##### Compile the CMAQ programs #####
 

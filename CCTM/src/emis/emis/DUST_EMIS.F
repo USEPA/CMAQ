@@ -140,25 +140,25 @@ C Variables for the windblown dust diagnostic file:
       type( diag_type ), parameter :: fdiagnm( fndust_diag ) = (/
 C                      var              units                 desc
 C                 ----------------    --------    -------------------------------------------
-     & diag_type( 'Cropland_Emis   ', 'g/m**3/s', 'emissions for cropland landuse type        '),
-     & diag_type( 'Desertland_Emis ', 'g/m**3/s', 'total emis for desert types and cropland   '),
-     & diag_type( 'Cropland_Frac   ', 'percent ', 'cropland erodible landuse fraction (%)     '),
-     & diag_type( 'Desertland_Frac ', 'percent ', 'total desert fraction (%)                  '),
-     & diag_type( 'Cropland_Ustar  ', 'm/s     ', 'u* for cropland                            '),
-     & diag_type( 'Cropland_kvh    ', '1/m     ', 'cropland vert to horiz flux ratio          '),
-     & diag_type( 'Cropland_Rough  ', '        ', 'cropland surface roughness factor          '),
-     & diag_type( 'Soil_Moist_Fac  ', '        ', 'soil moisture factor for threshold u*      '),
-     & diag_type( 'Soil_Erode_Pot  ', '        ', 'soil -> dust erodiblity potential          '),
-     & diag_type( 'Mx_Adsrb_H2O_Frc', '        ', 'max adsorbed water fraction                '),
-     & diag_type( 'Vegetation_Frac ', '        ', 'vegetation land coverage                   '),
-     & diag_type( 'Urban_Cover     ', 'percent ', 'urban land coverage                        '),
-     & diag_type( 'Forest_Cover    ', 'percent ', 'forest land coverage                       '),
-     & diag_type( 'Trfac_Above_Can ', '        ', 'transport factor above canopy              '),
-     & diag_type( 'Trfac_Inside_Can', '        ', 'transport factor in and below canopy       '),
-     & diag_type( 'ANUMJ           ', '#/s     ', 'accumulation mode number                   '),
-     & diag_type( 'ANUMK           ', '#/s     ', 'coarse mode number                         '),
-     & diag_type( 'ASRFJ           ', 'm**2/s  ', 'accumulation mode surface area             '),
-     & diag_type( 'ASRFK           ', 'm**2/s  ', 'coarse mode surface area                   ')/)
+     & diag_type( 'Cropland_Emis   ', 'g m-3 s-1', 'emissions for cropland landuse type        '),
+     & diag_type( 'Desertland_Emis ', 'g m-3 s-1', 'total emis for desert types and cropland   '),
+     & diag_type( 'Cropland_Frac   ', 'percent  ', 'cropland erodible landuse fraction (%)     '),
+     & diag_type( 'Desertland_Frac ', 'percent  ', 'total desert fraction (%)                  '),
+     & diag_type( 'Cropland_Ustar  ', 'm s-1    ', 'u* for cropland                            '),
+     & diag_type( 'Cropland_kvh    ', 'm-1      ', 'cropland vert to horiz flux ratio          '),
+     & diag_type( 'Cropland_Rough  ', '         ', 'cropland surface roughness factor          '),
+     & diag_type( 'Soil_Moist_Fac  ', '         ', 'soil moisture factor for threshold u*      '),
+     & diag_type( 'Soil_Erode_Pot  ', '1        ', 'soil -> dust erodiblity potential          '),
+     & diag_type( 'Mx_Adsrb_H2O_Frc', '1        ', 'max adsorbed water fraction                '),
+     & diag_type( 'Vegetation_Frac ', '1        ', 'vegetation land coverage                   '),
+     & diag_type( 'Urban_Cover     ', 'percent  ', 'urban land coverage                        '),
+     & diag_type( 'Forest_Cover    ', 'percent  ', 'forest land coverage                       '),
+     & diag_type( 'Trfac_Above_Can ', '         ', 'transport factor above canopy              '),
+     & diag_type( 'Trfac_Inside_Can', '         ', 'transport factor in and below canopy       '),
+     & diag_type( 'ANUMJ           ', 's-1', 'accumulation mode number                   '),
+     & diag_type( 'ANUMK           ', 's-1', 'coarse mode number                         '),
+     & diag_type( 'ASRFJ           ', 'm2 s-1   ', 'accumulation mode surface area             '),
+     & diag_type( 'ASRFK           ', 'm2 s-1   ', 'coarse mode surface area                   ')/)
   
 C Module shared variables:
       real, allocatable, save :: agland( :,: )   ! agriculture land fraction

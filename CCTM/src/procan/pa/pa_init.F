@@ -217,14 +217,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       IF ( LIRR ) THEN
 
-C Allocate PA_DEFN arrays:
-         ALLOCATE ( IRRSTEP( BLKSIZE,NIRRVAR ),
-     &              IRRBLK ( BLKSIZE,NIRRVAR ), STAT = STATUS )
-         IF ( STATUS .NE. 0 ) THEN
-            XMSG = 'Failure initializing IRRSTEP of IRRBLK'
-            CALL M3EXIT( PNAME, SDATE, STIME, XMSG, XSTAT1 )
-         END IF
-
 C..compute the number of files needed
 
          NUMFLS = ( NIRRVAR - 1 ) / MXVARS3 + 1

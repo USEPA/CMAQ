@@ -2,7 +2,8 @@ PAA
 ! Peroxy acetic acid absorption cross sections                                   
 ! Orlando, J. J. and G. S. Tyndall (2003): "Gas phase UV absorption spectra      
 ! for peracetic acid, and for acetic acid monomers and dimers," J. Photochem.    
-! Photobiol A, 157, 161-166.                                                     
+! Photobiol A, 157, 161-166.
+! assumes a quantum of 1.0                                                     
 Points (the mechanism evaluated with this format)                                
 ! With FAC, units are (cm^2/molecule)                                            
 FAC=1.0                                                                          

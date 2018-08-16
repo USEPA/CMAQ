@@ -18,7 +18,7 @@
 
 MODULE sat2mcip
 
-  USE mcipparm  ! metcol, metrow, ncols_x, nrows_x, ncols, nrows, nlays
+  USE mcipparm  ! ncols_x, nrows_x, ncols, nrows, nlays
   USE xvars     ! xlatc, xlonc, xcfract, xcldtop, xcldbot
 
   IMPLICIT NONE
@@ -297,7 +297,6 @@ SUBROUTINE init_sat ( sat_file_ID )
 !-------------------------------------------------------------------------------
 
   USE metinfo,  ONLY: mm5_nx => met_nx, mm5_ny => met_ny
-  USE mcipparm, ONLY: ncols_x, nrows_x
   USE netcdf
 
   IMPLICIT NONE
@@ -483,7 +482,7 @@ SUBROUTINE readsat (sat_time_indx)
 !------------------------------------------------------------------------------- 
 
   USE m3utilio, ONLY: badval3, imiss3  ! badval3 = -9.999E36
-  USE mcipparm, ONLY: nx => ncols_x, ny => nrows_x, &
+  USE mcipparm, ONLY: ncols_x, nrows_x, &
                       x_offset => x0, y_offset => y0 
   USE xvars,    ONLY: xlonc, xlatc
   USE netcdf

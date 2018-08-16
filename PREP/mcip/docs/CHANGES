@@ -1,5 +1,204 @@
 CHANGES for MCIP
 
+MCIP Version 4.5 (16 March 2018)
+
+- Corrected error in calculation of dot-point latitude and longitude for polar
+  steroegraphic WRF.
+
+  Changed files:  mcip4/rdwrfem.f90
+
+
+- Refined calculation of interval between WRF output times to account for
+  small drifts when advection time steps do not fall exactly on the hour.
+
+  Changed files:  mcip4/mcipparm_mod.f90
+                  mcip4/rdwrfem.f90
+                  mcip4/setgriddefs.f90
+
+
+- Corrected error in print statement for CLDFRA in the log file.
+
+  Changed files:  mcip4/rdwrfem.f90
+
+
+- Corrected error in print statement and comment for Monin-Obukhov length from
+  the Pleim-Xiu land-surface model in WRF.  Print statement and comment
+  erroneously attributed MOL to ACM2 PBL scheme.
+
+  Changed files:  mcip4/pblsup.f90
+                  mcip4/setgriddefs.f90
+
+
+- Updated options for compiling with Intel Fortran by eliminating the need for
+  the IMF library. Reversed the order of loading netcdff and netcdf so
+  the netCDF Fortran library is loaded first for all compilers.
+
+  Changed files:  mcip4/Makefile
+
+
+- Added snow height (SNOWH) to METCRO2D output.
+
+  Changed files:  mcip4/alloc_ctm.f90
+                  mcip4/alloc_met.f90
+                  mcip4/alloc_x.f90
+                  mcip4/dealloc_ctm.f90
+                  mcip4/dealloc_met.f90
+                  mcip4/dealloc_x.f90
+                  mcip4/init_met.f90
+                  mcip4/init_x.f90
+                  mcip4/mcoutcom_mod.f90
+                  mcip4/metcro.f90
+                  mcip4/metvars_mod.f90
+                  mcip4/metvars2ctm.f90
+                  mcip4/rdwrfem.f90
+                  mcip4/xvars_mod.f90
+
+
+- Changed initial value for MET_PCP_INCR from real to integer to align with
+  type specified for the variable.
+
+  Changed files:  mcip4/setup_mm5v3.f90
+
+
+- Removed unused variables.
+
+  Changed files:  mcip4/sat2mcip_mod.f90
+
+
+- Added capability to properly process PURB when the 21-category MODIS land use
+  is used in WRF.  Corrected an internal list for the 21-category MODIS for
+  the lake category.
+
+  Changed files:  mcip4/getluse.f90
+                  mcip4/luvars_mod.f90
+
+
+- Created a minumum value for rainfall in order to avoid underflow condition.
+
+  Changed files:  mcip4/rdwrfem.f90
+
+
+- Removed superfluous variables METROW and METCOL.
+
+  Changed files:  mcip4/mcipparm_mod.f90
+                  mcip4/sat2mcip_mod.f90
+                  mcip4/setgriddefs.f90
+
+
+- Added support for hybrid vertical coordinate in WRF output.
+  Disabled the effects on the Jacobian pending additional testing and
+  modifications within CMAQ.
+
+  Changed files:  mcip4/alloc_met.f90
+                  mcip4/alloc_x.f90
+                  mcip4/dealloc_met.f90
+                  mcip4/dealloc_x.f90
+                  mcip4/init_met.f90
+                  mcip4/init_x.f90
+                  mcip4/metvars_mod.f90
+                  mcip4/metvars2ctm.f90
+                  mcip4/rdwrfem.f90
+                  mcip4/setup_wrfem.f90
+                  mcip4/xvars_mod.f90
+
+
+- Added coefficient for spectral nudging of moisture to metadata.
+
+  Changed file:   mcip4/blddesc.f90
+
+
+- Changed print statement preceding the printing of metadata in the log file.
+
+  Changed file:   mcip4/mcip.f90
+
+
+- Added capability to read and process data from the NOAH Mosaic land-surface
+  model in WRF via MCIP.
+
+  Changed files:  mcip4/alloc_ctm.f90
+                  mcip4/alloc_met.f90
+                  mcip4/alloc_x.f90
+                  mcip4/dealloc_ctm.f90
+                  mcip4/dealloc_met.f90
+                  mcip4/dealloc_x.f90
+                  mcip4/getluse.f90
+                  mcip4/files_mod.f90
+                  mcip4/init_met.f90
+                  mcip4/init_x.f90
+                  mcip4/mcip.f90
+                  mcip4/mcipparm_mod.f90
+                  mcip4/metgrid2ctm.f90
+                  mcip4/metvars_mod.f90
+                  mcip4/metvars2ctm.f90
+                  mcip4/pblsup.f90
+                  mcip4/rdwrfem.f90
+                  mcip4/run_mcip.csh
+                  mcip4/setgriddefs.f90
+                  mcip4/setup_mm5v3.f90
+                  mcip4/setup_wrfem.f90
+                  mcip4/wrf_netcdf_mod.f90
+                  mcip4/wrfemopts.f90
+                  mcip4/xvars_mod.f90
+
+  New files:      mcip4/comheader_mos.f90
+                  mcip4/getpsih.f90
+                  mcip4/moscro.f90
+                  mcip4/mosoutcom_mod.f90
+
+
+- Removed unnecessary variable MAXLUC and replaced it with existing variable
+  NUMMETLU.
+
+  Changed files:  mcip4/alloc_x.f90
+                  mcip4/mcipparm_mod.f90
+
+
+- Created new M3 I/O API output file for data within soil layers.
+
+  Changed files:  mcip4/alloc_ctm.f90
+                  mcip4/alloc_met.f90
+                  mcip4/alloc_x.f90
+                  mcip4/comheader.f90
+                  mcip4/dealloc_ctm.f90
+                  mcip4/dealloc_met.f90
+                  mcip4/dealloc_x.f90
+                  mcip4/files_mod.f90
+                  mcip4/init_met.f90
+                  mcip4/init_x.f90
+                  mcip4/mcip.f90
+                  mcip4/metvars_mod.f90
+                  mcip4/metvars2ctm.f90
+                  mcip4/rdwrfem.f90
+                  mcip4/run_mcip.csh
+                  mcip4/xvars_mod.f90
+
+  New files:      mcip4/comheader_soi.f90
+                  mcip4/soicro.f90
+                  mcip4/soioutcom_mod.f90
+
+
+- Created new M3 I/O API output file for fractional land use data.
+
+  Changed files:  mcip4/alloc_ctm.f90
+                  mcip4/dealloc_ctm.f90
+                  mcip4/mcip.f90
+
+  New files:      mcip4/comheader_lufrac.f90
+                  mcip4/lucro.f90
+                  mcip4/luoutcom_mod.f90
+
+
+- Prevent MCIP from using meteorology initialization time period.
+
+  Changed file:   mcip4/setgriddefs.f90
+
+
+- Updated release stamp.
+
+  Changed files:  mcip4/mcipparm_mod.f90
+
+--------------------------------------------------------------------------------
+
 MCIP Version 4.4 (23 June 2017)
 
 - Changed name of run script to "run_mcip.csh" and changed names of MCIP output

@@ -24,7 +24,7 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE  CZANGLE( JDATE, JTIME, NX, NY, COSZEN )
+      SUBROUTINE  CZANGLE( JDATE, JTIME, NX, NY )
 
 C----------------------------------------------------------------------
 C Description:
@@ -42,9 +42,12 @@ C   11/99: by Jeff Vukovich taken from v4.2 SMOKE prototype
 C   10/06: yoj
 C   02/11: Shawn Roselle: Replaced I/O API include files with UTILIO_DEFN
 C   03/12: J. Bash: Bound COSZEN against numerical rounding errors
-C   11/14: J. Bash: Lat and Lon now stored in ASX_DATA_MOD to reduce redundent
+C   11/14: J. Bash: Lat and Lon now stored in ASX_DATA_MOD to reduce redundant
 C             memory allocation and reads from file.
 C   07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module. 
+C   07 May 18 D. Schwede: Updated to have coszen defined in ASX_DATA_MOD
+C   24 Jul 18 C. Nolte: removed call to INIT_MET that was causing conflict.
+C             Met should already be initialized by this point.
 C----------------------------------------------------------------------
 C Modified from:
 
@@ -62,7 +65,7 @@ C Last updated: $Date: 2012/03/28 16:05:37 $
 C----------------------------------------------------------------------
 
       USE UTILIO_DEFN
-      USE ASX_DATA_MOD, Only: MET_INITIALIZED, INIT_MET, Grid_Data
+      USE ASX_DATA_MOD, Only: Grid_Data, Met_Data
 
       IMPLICIT NONE
 
@@ -77,8 +80,6 @@ C Arguments:
       INTEGER, INTENT( IN )  :: NX      ! no. columns
       INTEGER, INTENT( IN )  :: NY      ! no. rows
 
-!     REAL,    INTENT( OUT ) :: COSZEN( NX,NY ) !  cosine of zenith angle
-      REAL,    INTENT( OUT ) :: COSZEN( :,: )   !  cosine of zenith angle
 
 C Parameters:
  
@@ -119,8 +120,6 @@ C compute sine of lat and lon first time through
 
          ALLOCATE( COSLAT( NX,NY ), STAT=IOS )
          CALL CHECKMEM( IOS, 'COSLAT', PNAME )
-
-         IF( .NOT. MET_INITIALIZED )CALL INIT_MET ( JDATE, JTIME, .FALSE., .FALSE., .FALSE. )
 
          DO R = 1, NY
             DO C = 1, NX
@@ -170,12 +169,12 @@ C The equation of time adjustment
                    
 C Compute the cosine of zenith angle (sine of the solar elevation)
           
-            COSZEN( C,R ) = DECSIN * SINLAT( C,R )
+            MET_DATA%COSZEN( C,R ) = DECSIN * SINLAT( C,R )
      &                    + DECCOS * COSLAT( C,R ) * COS( HRANGL )
 
 C Bound against numerical rounding errors
 
-            COSZEN( C,R ) = MIN( MAX( COSZEN( C,R ), -1.0 ), 1.0 )
+            MET_DATA%COSZEN( C,R ) = MIN( MAX( MET_DATA%COSZEN( C,R ), -1.0 ), 1.0 )
                    
          END DO
       END DO

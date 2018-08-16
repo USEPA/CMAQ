@@ -144,7 +144,7 @@ C-----------------------------------------------------------------------
       USE HGRD_DEFN             ! horizontal domain specifications
       USE BIOG_EMIS, ONLY: NSEF ! beis
       USE ASX_DATA_MOD
-      USE LSM_MOD, ONLY: WSAT
+      USE RUNTIME_VARS_MOD, ONLY: PX_LSM, CLM_LSM, NOAH_LSM
       USE UTILIO_DEFN
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
@@ -168,6 +168,7 @@ C External Functions
 C Parameters:
       INTEGER, PARAMETER :: MXRHRS = 24     ! no. of rainfall hours for YL95 algorithm
       INTEGER, PARAMETER :: MAXSTYPES = 11
+      INTEGER, PARAMETER :: LSM_WATER = 14
       REAL,    PARAMETER :: CFNODRYFC = ( 1.0 / 3.0 ) * ( 1.0 / 30.0 )
         
 C Saturation values for 11 soil types from pxpbl.F  (MCIP PX version)
@@ -213,8 +214,6 @@ C Local Variables:
       LOGICAL, SAVE :: INITIAL_DAY = .FALSE.  ! true: 1st 24 hours; no previous data
                                               ! false: previous 24 hours of rainfall
                                               ! are available for HRNO
-
-      LOGICAL, SAVE :: PX_VERSION         ! true: use PX version of MCIP
 
       INTEGER          SOILCAT            ! soil category
       INTEGER          NSTEPS             ! run duration (HHMMSS)
@@ -272,10 +271,6 @@ C Determine last timestamp
          CALL NEXTIME( EDATE, ETIME, NSTEPS )   ! end date & time
          MSTEPS = TIME2SEC( NSTEPS ) / TIME2SEC( TSTEP( 1 ) )
 
-C Check if using PX version of MCIP
-         PX_VERSION = ENVYN( 'PX_VERSION', 'MCIP is PX version?',
-     &                       .TRUE., IOS )
-
 C Get normalized emissions file, B3GRD
          NNAME = PROMPTMFILE(
      &           'Enter name for Normalized Emissions input file',
@@ -313,7 +308,11 @@ C Check that grid description matches B3GRD file
          IF ( .NOT. CHKGRID( MNAME ) ) THEN
             MESG = 'Grid in file "' // TRIM( MNAME )
      &           // '" does not match grid in file ' // TRIM( NNAME ) // '"'
+#ifdef twoway
             CALL M3WARN( PNAME, 0, 0, MESG )
+#else
+            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+#endif
          END IF
 
 C Allocate memory for data and read
@@ -610,11 +609,11 @@ C Check min bounds for temperature and limit max to 303 deg K
 
 C Calculate NO emissions by going thru temperature cases
 
-               IF ( PX_VERSION ) THEN
+               IF ( PX_LSM .OR. CLM_LSM .OR. NOAH_LSM ) THEN
 
                   SOILCAT = GRID_DATA%SLTYP( C,R )
-                  IF ( SOILCAT .LE. MAXSTYPES ) THEN
-                     RATIO = MET_DATA%SOIM1( C,R ) / WSAT( SOILCAT )
+                  IF ( SOILCAT .LE. MAXSTYPES .AND. PX_LSM ) THEN
+                     RATIO = MET_DATA%SOIM1( C,R ) / Grid_Data%WSAT( C,R )
                      IF ( USE_SOILT ) THEN
                         TSOI = MET_DATA%SOIT1( C,R )
                      ELSE
@@ -633,6 +632,27 @@ C Calculate NO emissions by going thru temperature cases
                      FAC1 = GROWAGNO( C,R ) * CFNO
      &                    * FERTILIZER_ADJ( JDATE )
      &                    * VEG_ADJ( JDATE )
+                  ELSE IF( SOILCAT .NE. LSM_WATER .AND. ( CLM_LSM .OR. NOAH_LSM ) ) THEN
+                     RATIO = MET_DATA%SOIM1( C,R ) / Grid_Data%WSAT( C,R )
+                     IF ( USE_SOILT ) THEN
+                        TSOI = MET_DATA%SOIT1( C,R )
+                     ELSE
+                        TSOI = 0.72 * TAIR + 82.28
+                     END IF
+                     TSOI = MIN( MAX( TSOI, 273.16 ), 303.16 ) - 273.16   ! deg C
+                     CFNODRY = CFNODRYFC * TSOI ! see YL 1995 Eqn 9a p. 11452
+
+                     IF ( TSOI .LE. 10.0 ) THEN ! see YL 1995 Eqn 7b
+                        CFNOWET = 0.28 * EFAC * TSOI   ! linear cold case
+                     ELSE
+                        CFNOWET = EFAC * EXP( 0.103 * TSOI )   ! exponential case
+                     END IF
+
+                     CFNO = CFNODRY + RATIO * ( CFNOWET - CFNODRY )
+                     FAC1 = GROWAGNO( C,R ) * CFNO
+     &                    * FERTILIZER_ADJ( JDATE )
+     &                    * VEG_ADJ( JDATE )
+
                   ELSE
                      FAC1 = 0.0
                   END IF
@@ -645,7 +665,7 @@ C Calculate NO emissions by going thru temperature cases
                   ELSE
                      FAC2 = PRECIP_ADJ_PX( JDATE, JTIME, RNTOT( C,R ),
      &                                     MET_DATA%SOIM1( C,R ),
-     &                                     GRID_DATA%SLTYP( C,R ), PTYPE( C,R ), 
+     &                                     Grid_Data%WSAT( C,R ), PTYPE( C,R ), 
      &                                     PULSEDATE( C,R ), PULSETIME( C,R ) )
                   END IF
 
@@ -849,7 +869,7 @@ C-----------------------------------------------------------------------
 
       CONTAINS
 
-         REAL FUNCTION PRECIP_ADJ_PX( JDATE, JTIME, RAIN, SOILM, ISLTYP,
+         REAL FUNCTION PRECIP_ADJ_PX( JDATE, JTIME, RAIN, SOILM, WSAT,
      &                                PTYPE, PULSEDATE, PULSETIME )
 
 C-----------------------------------------------------------------------
@@ -886,7 +906,7 @@ C Function arguments:
          INTEGER, INTENT( IN )    :: JDATE, JTIME
          REAL,    INTENT( IN )    :: RAIN
          REAL,    INTENT( IN )    :: SOILM     ! only avilable if PX version
-         INTEGER, INTENT( IN )    :: ISLTYP    ! only available if PX version
+         REAL,    INTENT( IN )    :: WSAT      ! only tested for PX and CLM versions         
          INTEGER, INTENT( INOUT ) :: PTYPE     ! pulse type
          INTEGER, INTENT( INOUT ) :: PULSEDATE ! date of pulse start
          INTEGER, INTENT( INOUT ) :: PULSETIME ! date of pulse end
@@ -911,10 +931,22 @@ C        start a new NO emission pulse,
 C        otherwise continue present NO pulse
 C   4. override adjustment for saturated soils 
 
-         SOILCAT = ISLTYP
+         SOILCAT = GRID_DATA%SLTYP( C,R )
 
-         IF ( SOILCAT .LE. MAXSTYPES ) THEN   ! not water
-            IF ( SOILM .GE. SAT_THRES * WSAT( SOILCAT ) ) THEN
+         IF ( SOILCAT .LE. MAXSTYPES .AND. PX_LSM ) THEN   ! not water
+            IF ( SOILM .GE. SAT_THRES * WSAT ) THEN
+               PRECIP_ADJ_PX = 0.0
+            ELSE
+               PTYPE_TEST = PULSETYPE( RAIN )
+               IF ( PTYPE_TEST .GT. PTYPE ) THEN ! Rainfall class type increases
+                  PULSEDATE = JDATE              ! (NO emission pulse generated)
+                  PULSETIME = JTIME
+                  PTYPE = PTYPE_TEST
+               END IF
+               PRECIP_ADJ_PX = PRECIPFAC( JDATE, JTIME, PULSEDATE, PULSETIME, PTYPE )
+            END IF
+         ELSE IF ( SOILCAT .NE. LSM_WATER .AND. ( CLM_LSM .OR. NOAH_LSM ) ) THEN 
+            IF ( SOILM .GE. SAT_THRES * WSAT ) THEN
                PRECIP_ADJ_PX = 0.0
             ELSE
                PTYPE_TEST = PULSETYPE( RAIN )

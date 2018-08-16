@@ -69,6 +69,7 @@ MODULE mcoutcom
 !           10 Apr 2015  Added new arrays CFRAC3D_C and CFRAC3D_B to pass 3D
 !                        resolved cloud fraction to output.  (T. Spero)
 !           20 Aug 2015  Changed latent heat flux from QFX to LH.  (T. Spero)
+!           22 Nov 2017  Added SNOWH to output.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   IMPLICIT NONE
@@ -77,7 +78,7 @@ MODULE mcoutcom
 ! Time dependent cross 2D arrays for CTM domain.  (MET_CRO_2D)
 !-------------------------------------------------------------------------------
 
-  INTEGER, PARAMETER :: mc2index = 28
+  INTEGER, PARAMETER :: mc2index = 29
 
   REAL, ALLOCATABLE, TARGET :: mc2        ( : , : , : )
 
@@ -131,6 +132,7 @@ MODULE mcoutcom
   REAL, POINTER :: veg_c      ( : , : )      ! vegetation coverage [decimal]
   REAL, POINTER :: lai_c      ( : , : )      ! leaf-area index [area/area]
   REAL, POINTER :: seaice_c   ( : , : )      ! sea ice (1=yes, 0=no; or frac)
+  REAL, POINTER :: snowh_c    ( : , : )      ! snow height [m]
 
   ! Header description.
 
@@ -141,7 +143,8 @@ MODULE mcoutcom
        'Q2    ',     'WSPD10',     'WDIR10',     'GLW   ',      &
        'GSW   ',     'RGRND ',     'RN    ',     'RC    ',      &
        'CFRAC ',     'CLDT  ',     'CLDB  ',     'WBAR  ',      &
-       'SNOCOV',     'VEG   ',     'LAI   ',     'SEAICE' /)
+       'SNOCOV',     'VEG   ',     'LAI   ',     'SEAICE',      &
+       'SNOWH' /)
 
 
   CHARACTER(LEN=16), PARAMETER :: mc2units ( mc2index ) =       &
@@ -151,7 +154,8 @@ MODULE mcoutcom
        'KG/KG     ', 'M/S       ', 'DEGREES   ', 'WATTS/M**2',  &
        'WATTS/M**2', 'WATTS/M**2', 'CM        ', 'CM        ',  &
        'FRACTION  ', 'M         ', 'M         ', 'G/M**3    ',  &
-       'DECIMAL   ', 'DECIMAL   ', 'AREA/AREA ', 'FRACTION  '/)
+       'DECIMAL   ', 'DECIMAL   ', 'AREA/AREA ', 'FRACTION  ',  &
+       'M'         /)
 
 
   CHARACTER(LEN=80), PARAMETER :: mc2vdesc ( mc2index ) =       &
@@ -182,7 +186,8 @@ MODULE mcoutcom
        'snow cover                                           ', &  ! 25
        'vegetation coverage (decimal)                        ', &  ! 26
        'leaf-area index                                      ', &  ! 27
-       'sea ice (fraction)                                   '  /) ! 28
+       'sea ice (fraction)                                   ', &  ! 28
+       'snow height (m)                                      '  /) ! 29
 
   REAL, ALLOCATABLE :: wr_c       ( : , : )  ! canopy moisture content
   REAL, ALLOCATABLE :: soim1_c    ( : , : )  ! soil moisture in layer 1

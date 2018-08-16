@@ -18,10 +18,10 @@ The following support software are required for compiling and running CMAQ.
 
 ### Install CMAQ and Required Libraries ###
 
-In the directory where you would like to install CMAQ, create the directory issue the following command to clone the EPA GitHub repository for CMAQv5.2:
+In the directory where you would like to install CMAQ, create the directory issue the following command to clone the EPA GitHub repository for CMAQv5.2.1:
 
 ```
-git clone -b 5.2 https://github.com/USEPA/CMAQ.git CMAQ_REPO
+git clone -b 5.2.1 https://github.com/USEPA/CMAQ.git CMAQ_REPO
 ```
 
 For instructions on installing CMAQ from Zip files, see [Chapter 5](CMAQ_OGD_ch05_sys_req.md).
@@ -43,7 +43,7 @@ In the top level of CMAQ_REPO, the bldit_project.csh script will automatically r
 
 In bldit_project.csh, modify the variable $CMAQ_HOME to identify the folder that you would like to install the CMAQ package under. For example:
 ```
-set CMAQ_HOME = /home/username/CMAQ_v5.2
+set CMAQ_HOME = /home/username/CMAQ_v5.2.1
 ```
 Now execute the script.
 ```
@@ -105,8 +105,8 @@ Download the CMAQ single day reference data from the [CMAS Center Software Clear
 
 ```
 cd $CMAQ_DATA
-tar xvzf CMAQv5.2_Benchmark_SingleDay_Input.tar.gz
-tar xvzf CMAQv5.2_Benchmark_SingleDay_Output.tar.gz
+tar xvzf CMAQv5.2.1_Benchmark_SingleDay_Input.tar.gz
+tar xvzf CMAQv5.2.1_Benchmark_SingleDay_Output.tar.gz
 ```
 
 ### Configure the CCTM script for MPI

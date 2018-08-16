@@ -31,6 +31,8 @@
 
       REAL,    ALLOCATABLE :: VDEMIS_DIFF( :,:,:,: ) ! emissions array mapped to diffused species
 
+      INTEGER              :: STDATE, STTIME
+
       INTEGER              :: N_EM_SRM   ! global number of emissions streams
       INTEGER              :: N_FILE_GR, NPTGRPS, N_FILE_TR  
       INTEGER              :: N_EMIS_ISTR! global emissions instructions
@@ -102,6 +104,10 @@
       CHARACTER( 16  ),ALLOCATABLE :: EM_DIAG_FILE( : )  ! Filename for Emissions Diagnostic Output
       LOGICAL         ,ALLOCATABLE :: EM_FILE_DIFF( :,: )! Test for whether or not a stream contributes to 
                                                          !   a particular transported variable
+      LOGICAL         ,ALLOCATABLE :: EM_FILE_DATE_OVRD( : ) ! Toggle for whether or not to let the 
+                                                                ! emission stream date override the model
+      INTEGER         ,ALLOCATABLE :: EM_FILE_DATE( : )! Date to be read in from each emissions stream
+      LOGICAL         ,ALLOCATABLE :: EM_FILE_FIRE( : )! Is this Emission Stream Representing Fires (1=Yes)
 
       INTEGER              :: IBIOSRM, IMGSRM, ILTSRM, ISEASRM, IDUSTSRM
       INTEGER, ALLOCATABLE :: IGSRM( : ), IPSRM( : ), ITSRM( : ), MAP_PTtoISRM( : )
@@ -166,7 +172,7 @@
           REAL            :: MW    ! Emissions Surrogate Molecular Weight [g mol-1]
       End Type emis_legend
       
-      Integer, Parameter :: N_Map_EMIStoCMAQ = 148
+      Integer, Parameter :: N_Map_EMIStoCMAQ = 149
       Type ( emis_legend ), Parameter :: 
      &  Map_EMIStoCMAQ( N_Map_EMIStoCMAQ ) = (/
      &    emis_legend( 'NO2          ' ,'NO2         ','GAS   ',046.0 ),
@@ -175,6 +181,7 @@
      &    emis_legend( 'SO2          ' ,'SO2         ','GAS   ',064.0 ),
      &    emis_legend( 'SULF         ' ,'SULF        ','GAS   ',098.0 ),
      &    emis_legend( 'NH3          ' ,'NH3         ','GAS   ',017.0 ),
+     &    emis_legend( 'NH3_FERT     ' ,'NH3_FERT    ','GAS   ',017.0 ),
      &    emis_legend( 'CO           ' ,'CO          ','GAS   ',028.0 ),
      &    emis_legend( 'PACD         ' ,'RCOOH       ','GAS   ',076.0 ),
      &    emis_legend( 'AACD         ' ,'CCOOH       ','GAS   ',060.1 ),
@@ -183,12 +190,12 @@
      &    emis_legend( 'HCHO         ' ,'HCHO_PRIMARY','GAS   ',030.0 ),
      &    emis_legend( 'MEOH         ' ,'MEOH        ','GAS   ',032.0 ),
      &    emis_legend( 'FACD         ' ,'HCOOH       ','GAS   ',046.0 ),
-     &    emis_legend( 'ALDX         ' ,'ALDX        ','GAS   ',058.0 ),
+     &    emis_legend( 'ALDX         ' ,'ALDX        ','GAS   ',058.1 ),
      &    emis_legend( 'GLYXL        ' ,'GLY         ','GAS   ',058.0 ),
      &    emis_legend( 'GLY          ' ,'GLY         ','GAS   ',058.0 ),
      &    emis_legend( 'MGLY         ' ,'MGLY        ','GAS   ',072.1 ),
      &    emis_legend( 'ETHA         ' ,'ETHA        ','GAS   ',030.1 ),
-     &    emis_legend( 'ETH          ' ,'ETH         ','GAS   ',030.0 ),
+     &    emis_legend( 'ETH          ' ,'ETH         ','GAS   ',028.0 ),
      &    emis_legend( 'ETE          ' ,'ETE         ','GAS   ',028.0 ),
      &    emis_legend( 'HC3          ' ,'HC3         ','GAS   ',044.0 ),
      &    emis_legend( 'HC5          ' ,'HC5         ','GAS   ',072.0 ),
@@ -416,8 +423,8 @@
       INTEGER,         INTENT( INOUT ) :: N_EM_RULE
       TYPE( EM_RULE_REG )              :: EM_NML_B( N_EM_RULE_REG  )
 
-      INTEGER          :: N_EM_RULE_B, IRULE
-      LOGICAL          :: SUBTRACT_FERTILIZER_NH3 = .FALSE.
+      INTEGER          :: N_EM_RULE_B, IRULE, ISRM
+      LOGICAL          :: SUBTRACT_FERTILIZER_NH3 = .TRUE.
  
       N_EM_RULE_B = 0
  
@@ -461,7 +468,7 @@
          EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
          EM_NML_B(N_EM_RULE_B)%PHASE = 'COARSE'
          EM_NML_B(N_EM_RULE_B)%SURR  = 'PMC'
-         EM_NML_B(N_EM_RULE_B)%FAC   = REAL( ACORSEM_ASO4_FAC, 4 ) 
+         EM_NML_B(N_EM_RULE_B)%FAC   = 0.0 !REAL( ACORSEM_ASO4_FAC, 4 ) 
          EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
          EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
 
@@ -471,7 +478,7 @@
          EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
          EM_NML_B(N_EM_RULE_B)%PHASE = 'COARSE'
          EM_NML_B(N_EM_RULE_B)%SURR  = 'PMC'
-         EM_NML_B(N_EM_RULE_B)%FAC   = REAL( ACORSEM_ANO3_FAC, 4 )
+         EM_NML_B(N_EM_RULE_B)%FAC   = 0.0 !REAL( ACORSEM_ANO3_FAC, 4 )
          EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
          EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
 
@@ -481,7 +488,7 @@
          EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
          EM_NML_B(N_EM_RULE_B)%PHASE = 'COARSE'
          EM_NML_B(N_EM_RULE_B)%SURR  = 'PMC'
-         EM_NML_B(N_EM_RULE_B)%FAC   = REAL( ACORSEM_ACL_FAC, 4 ) 
+         EM_NML_B(N_EM_RULE_B)%FAC   = 0.0 !REAL( ACORSEM_ACL_FAC, 4 ) 
          EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
          EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
 
@@ -491,7 +498,7 @@
          EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
          EM_NML_B(N_EM_RULE_B)%PHASE = 'COARSE'
          EM_NML_B(N_EM_RULE_B)%SURR  = 'PMC'
-         EM_NML_B(N_EM_RULE_B)%FAC   = REAL( ACORSEM_AH2O_FAC, 4 )
+         EM_NML_B(N_EM_RULE_B)%FAC   = 0.0 !REAL( ACORSEM_AH2O_FAC, 4 )
          EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
          EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
  
@@ -509,33 +516,6 @@
       ! Mechanisms
          IF ( INDEX( MECHNAME, 'NVPOA' ) .EQ. 0 ) THEN
 
-            ! PCVOC <- POC
-            N_EM_RULE_B = N_EM_RULE_B + 1
-            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
-            EM_NML_B(N_EM_RULE_B)%SURR  = 'POC'
-            EM_NML_B(N_EM_RULE_B)%SPEC  = 'PCVOC'
-            EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
-            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
-            EM_NML_B(N_EM_RULE_B)%FAC   = PCVOC_FAC
-            ! PCVOC <- PNCOM
-            N_EM_RULE_B = N_EM_RULE_B + 1
-            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
-            EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
-            EM_NML_B(N_EM_RULE_B)%SPEC  = 'PCVOC'
-            EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
-            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
-            EM_NML_B(N_EM_RULE_B)%FAC   = PCVOC_FAC
-            ! PCVOC is turned off for Fires
-            N_EM_RULE_B = N_EM_RULE_B + 1
-            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%STREAM= 'POINT_FIRES'
-            EM_NML_B(N_EM_RULE_B)%SURR  = 'ALL'
-            EM_NML_B(N_EM_RULE_B)%SPEC  = 'PCVOC'
-            EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
-            EM_NML_B(N_EM_RULE_B)%OP    = 'o' 
-            EM_NML_B(N_EM_RULE_B)%FAC   = 0.0
 
             ! VLVPO1 <- POC
             N_EM_RULE_B = N_EM_RULE_B + 1
@@ -727,11 +707,87 @@
             EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
             EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(5) * POA_AMF(5)
 
-
-
+            ! Multiply all PNCOM by 2 to reproduce bug in CMAQv5.2.1
+            N_EM_RULE_B = N_EM_RULE_B + 1
+            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
+            EM_NML_B(N_EM_RULE_B)%STREAM= 'POINT_NONEGU'
+            EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
+            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
+            EM_NML_B(N_EM_RULE_B)%OP    = 'm' 
+            EM_NML_B(N_EM_RULE_B)%FAC   = 2.0 
+          
+            N_EM_RULE_B = N_EM_RULE_B + 1
+            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
+            EM_NML_B(N_EM_RULE_B)%STREAM= 'POINT_EGU'
+            EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
+            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
+            EM_NML_B(N_EM_RULE_B)%OP    = 'm' 
+            EM_NML_B(N_EM_RULE_B)%FAC   = 2.0 
+          
+            N_EM_RULE_B = N_EM_RULE_B + 1
+            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
+            EM_NML_B(N_EM_RULE_B)%STREAM= 'POINT_OTHER'
+            EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
+            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
+            EM_NML_B(N_EM_RULE_B)%OP    = 'm' 
+            EM_NML_B(N_EM_RULE_B)%FAC   = 2.0 
+          
+            N_EM_RULE_B = N_EM_RULE_B + 1
+            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
+            EM_NML_B(N_EM_RULE_B)%STREAM= 'POINT_FIRES'
+            EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
+            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
+            EM_NML_B(N_EM_RULE_B)%OP    = 'm' 
+            EM_NML_B(N_EM_RULE_B)%FAC   = 2.0 
+          
+            N_EM_RULE_B = N_EM_RULE_B + 1
+            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
+            EM_NML_B(N_EM_RULE_B)%STREAM= 'POINT_OILGAS'
+            EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
+            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ALL'
+            EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
+            EM_NML_B(N_EM_RULE_B)%OP    = 'm' 
+            EM_NML_B(N_EM_RULE_B)%FAC   = 2.0 
+          
+            ! PCVOC <- POC
+            N_EM_RULE_B = N_EM_RULE_B + 1
+            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
+            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
+            EM_NML_B(N_EM_RULE_B)%SURR  = 'POC'
+            EM_NML_B(N_EM_RULE_B)%SPEC  = 'PCVOC'
+            EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
+            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
+            EM_NML_B(N_EM_RULE_B)%FAC   = PCVOC_FAC
+            ! PCVOC <- PNCOM
+            N_EM_RULE_B = N_EM_RULE_B + 1
+            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
+            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
+            EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
+            EM_NML_B(N_EM_RULE_B)%SPEC  = 'PCVOC'
+            EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
+            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
+            EM_NML_B(N_EM_RULE_B)%FAC   = PCVOC_FAC
+            ! PCVOC is turned off for Fires
+            DO ISRM = 1,N_EM_SRM
+              IF ( EM_FILE_FIRE( ISRM ) ) THEN
+                N_EM_RULE_B = N_EM_RULE_B + 1
+                EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
+                EM_NML_B(N_EM_RULE_B)%STREAM= EM_FILE_LAB( ISRM )
+                EM_NML_B(N_EM_RULE_B)%SURR  = 'ALL'
+                EM_NML_B(N_EM_RULE_B)%SPEC  = 'PCVOC'
+                EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
+                EM_NML_B(N_EM_RULE_B)%OP    = 'o' 
+                EM_NML_B(N_EM_RULE_B)%FAC   = 0.0
+              END IF
+            END DO
+ 
          END IF
       ! [ INSERT MORE DEFAULT RULES HERE AS DESIRED ]
-
+          
       ! Add Rules to Existing List at Beginning
          N_EM_RULE = N_EM_RULE + N_EM_RULE_B
          DO IRULE = N_EM_RULE, N_EM_RULE_B+1, -1
@@ -765,7 +821,6 @@
 
       INTEGER :: IRGN, NFILE, IDX, IFILE, IREAD, IVAR
       INTEGER :: GXOFF, GYOFF, ENDCOL, ENDROW, STARTCOL, STARTROW
-      INTEGER :: STDATE, STTIME
       INTEGER :: N_EM_READ
       CHARACTER( 16 )    :: PNAME = "INIT_REGIONS"
       CHARACTER( 250)    :: XMSG
@@ -888,7 +943,23 @@
             CALL M3EXIT( PNAME, SDATE3D, STIME3D, XMSG, XSTAT1 )
           END IF
          
-        END DO
+          ! Error Check the Regions Array
+          ! Any Negatives?
+          DO IRGN = 1,N_EM_RGN
+            IF ( ANY( EM_REG_FAC( :,:,IRGN ) .LT. 0.0 ) ) THEN
+               XMSG = 'Region ' // TRIM( EM_REGIONS( IRGN )%LABEL) // ' on file ' //
+     &                TRIM( FILENAMES( IFILE )) // ' contains a ' //
+     &                'negative value. The expected range is 0-1.'
+               CALL M3ERR( PNAME, STDATE, STTIME, XMSG, .TRUE. )
+            ELSE IF ( ANY( EM_REG_FAC( :,:,IRGN ) .GT. 1.01 ) ) THEN
+               XMSG = 'Region ' // TRIM( EM_REGIONS( IRGN )%LABEL) // ' on file ' //
+     &                TRIM( FILENAMES( IFILE )) // ' contains a ' //
+     &                'value greater than 1. The expected range is 0-1.'
+               CALL M3ERR( PNAME, STDATE, STTIME, XMSG, .TRUE. )
+            END IF
+          END DO
+
+        END DO ! IFILE
       END IF
       
       END SUBROUTINE INIT_EMIS_REGIONS
