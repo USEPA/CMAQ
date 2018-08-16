@@ -2,6 +2,7 @@
      &                    WLL_AVE, WLU_AVE, CS_AVE, QY_AVE, NWL_AVE )
 
 !      USE JPROC_PROFILE
+      USE GET_ENV_VARS      
       USE BIN_DATA
       USE CSQY_REFER_DATA
       USE ALBEDO_REFER_DATA
@@ -269,7 +270,7 @@ C            WRITE(JTABLE_UNIT,'(I3,2X,F6.2)')ITTR, TEMPERATURE(ITTR)
 
 ! determine whether to write out spectral values of refractive index for aerosol species
 
-         CALL NAMEVAL ( AERO_INDEX,  WVL_AE_REFRAC)
+         CALL VALUE_NAME ( AERO_INDEX,  WVL_AE_REFRAC)
 
          CALL CONVERT_CASE( WVL_AE_REFRAC, .TRUE.)
 

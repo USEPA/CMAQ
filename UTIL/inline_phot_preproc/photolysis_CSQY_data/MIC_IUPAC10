@@ -2,7 +2,7 @@ MIC_IUPAC10
 ! MIC + HV = I + CL  
 ! MIC Photolysis data  
 ! Supplied by Golam Sarwar 
-! Created from IUPAC dataset
+! Created from IUPAC dataset PI10
 Points (these data can be treated as point values)
 ! With FAC, units are (cm^2/molecule)
 FAC=1.0
