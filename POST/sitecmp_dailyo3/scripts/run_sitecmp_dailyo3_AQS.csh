@@ -1,7 +1,7 @@
 #! /bin/csh -f
 
-# ===================== SITECMP_DAILYO3_v5.2.1 Run Script =============
-# Usage: run.sitecmp_dailyo3_AQS.csh >&! sitecmp_dailyo3_v521.log &
+# ===================== SITECMP_DAILYO3_v5.3 Run Script =============
+# Usage: run.sitecmp_dailyo3_AQS.csh >&! sitecmp_dailyo3_v53.log &
 #
 # To report problems or request help with this script/program:
 #             http://www.epa.gov/cmaq    (EPA CMAQ Website)
@@ -20,7 +20,7 @@
  source ./config_cmaq.csh
 
 #> Set the model version
- set VRSN = v521
+ set VRSN = v53
 
 #> Set the build directory if this was not set above 
 #> (this is where the executable is located by default).
@@ -94,12 +94,15 @@
  setenv M3_FILE_1 ${CMAQ_DATA}/POST/COMBINE_ACONC_201107.nc
         #[Add location of input file, e.g. COMBINE_ACONC file.]
 
-#> SITE FILE containing site-id, longitude, latitude, time zone (tab delimited)
-#> This file can be downloaded from the CMAS Center Data clearinghouse 
-#> under the heading "2000-2014 North American Air Quality Observation Data":
-#> https://www.cmascenter.org/download/data.cfm
-#> AQS site file is located in AMET12_SITE_FILES.tar.gz
- setenv SITE_FILE AQS_sites.txt
+#> SITE FILE containing site-id, longitude, latitude, and optionally 
+#> GMT offset, state, county, and elevation (csv format)
+#> The column headings for the required variables need to be 
+#> stat_id, lon, and lat (case insensitive)
+#> The column headings for the optional variables need to be
+#> gmt_offset, state, county, and elevation (case insensitive)
+#> This file can be downloaded from
+#> https://github.com/USEPA/AMET/tree/1.2/obs/AQ/site_lists
+ setenv SITE_FILE aqs_full_site_list.csv
 
 #> input table containing site-id, time-period, and data fields
 #> AQS obs data in the format needed for sitecmp_dailyo3 are available 

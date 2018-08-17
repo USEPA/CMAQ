@@ -68,6 +68,10 @@ C-----------------------------------------------------------------------
       IMPLICIT NONE
       SAVE 
 C aerosol emissions: [ppmv/s] for mass & number spcs, [m2/mol/s] for surface area spcs
+      CHARACTER( 16 )      :: CTM_SS_AERO = 'CTM_SS_AERO' ! env var for sea spray
+      LOGICAL              :: SS_AERO   ! flag for sea spray emissions option
+      CHARACTER( 16 )      :: CTM_WB_DUST = 'CTM_WB_DUST' ! env var for windblown dust
+      LOGICAL              :: WB_DUST   ! flag for windblown dust option
 
       PUBLIC EMISS_SIZE_DIST, AERO_EMIS_INIT,
      &       MAP_EMtoAERO, MAP_EMtoMODE, MAP_NUMtoEM, MAP_SRFtoEM,
@@ -278,12 +282,12 @@ C *** Set up emissions size distribution arrays
 
      
        ! Modify the reference emissions splits based on what transported 
-       ! aerosol species are actually available. For exmaple, if the aerosol
+       ! aerosol species are actually available. For example, if the aerosol
        ! namelist only includes the accumulation mode (J) but not the 
        ! Aitken mode (I) for a particular species, then the split for
        ! Aitken mode should be added to the Accumulation mode. Save
        ! these scale factors as a function of transported species and
-       ! mode. Note that this 
+       ! mode. 
        ALLOCATE( SD_SPLIT( N_SPC_DIFF, N_EM_AERO_REF ) )
        SD_SPLIT = 0.0
        DO IEM = 1,N_EM_AERO_REF
@@ -306,8 +310,8 @@ C *** Set up emissions size distribution arrays
          ELSE 
             ! Arbitrary Distribution -> Apply factor to species
             ! if it exists in each mode
-            DO ISPC = 1,N_AEROSPC
-              DO N = 1,N_MODE
+            DO ISPC = 1, N_AEROSPC
+              DO N = 1, N_MODE
                 IF ( .NOT. AERO_MISSING( ISPC,N ) ) THEN
                   SD_SPLIT( MAP_AEROtoDIFF( ISPC,N ),IEM ) = 
      &               EM_AERO_REF( IEM )%SPLIT( N ) 
@@ -412,12 +416,12 @@ C-----------------------------------------------------------------------
        END DO
        
        ! Now Modify those defaults or add new modes to desired streams
-       DO IRULE = 1,N_SD_RULE
+       DO IRULE = 1, N_SD_RULE
          ! Expand Size Distribution Rule to All Streams if Requested
          CALL INTERPRET_EM_RULE_STREAM( SD_NML( IRULE )%STREAM, IRULE, EM_STREAM_RULE )
 
          ! Loop through streams, set defaults, and build map array
-         DO ISRM = 1,N_EM_SRM
+         DO ISRM = 1, N_EM_SRM
             IF ( EM_STREAM_RULE( ISRM ) ) THEN
                ! This Stream is Being Modified by a Size Distribution
                ! rule
@@ -516,9 +520,9 @@ C *** Initialize Variables
 C *** Calculate scaling factor for converting mass emissions into [ug/m3/s]
 C     note: RJACM converts grid heights from sigma coordinates to meters
 C     Also calculate scaling factors for converting to molar-mixing-ratio units
-         DO LAY = 1,EMLAYS
-           DO COL = 1,MY_NCOLS
-             DO ROW = 1,MY_NROWS
+         DO LAY = 1, EMLAYS
+           DO COL = 1, MY_NCOLS
+             DO ROW = 1, MY_NROWS
                GSFAC( LAY,COL,ROW ) = CONVEM_PM( LAY,ISRM ) 
      &                              * Met_Data%RJACM( COL,ROW,LAY ) ![g/s] or [kg/hr] to [ug/m3/s]
              END DO
@@ -528,7 +532,7 @@ C     Also calculate scaling factors for converting to molar-mixing-ratio units
          VDEMIS = VDEMIS0
 
 C *** Apply Aerosol Size Distribution
-         DO ISTR = 1,N_EMIS_ISTR
+         DO ISTR = 1, N_EMIS_ISTR
              ! Find which Size Distribution or Phase this emissions species belongs 
              ! to for this stream. If the value is a 0, then there are no emissions 
              ! for this species from this stream. If it is a 1, then this species is
@@ -566,11 +570,11 @@ C     Calculate the surface area emissions rate for the fine modes [m2/m3/s],
 C     using Equation 7c of Binkowski & Roselle (2003).  Multiplying by PI 
 C     converts 2nd moment to surface area.
             
-         DO ISD = 2,N_SD   ! Skip the Index for the Gas Phase
+         DO ISD = 2, N_SD   ! Skip the Index for the Gas Phase
             !IF ( EM_AERO_REF( EM_STREAM_SIZE( ISRM )%REF( ISD ) )%NAME .EQ. 'SEASPRAY' ) THEN
             IF ( ISRM .EQ. ISEASRM ) THEN
                ! Apply Spatially-Dependent Number and Surface Area Scale Factors
-               DO IM = 1,N_MODE
+               DO IM = 1, N_MODE
                   VDEMIS( MAP_NUMtoEM(IM),1,:,: ) = VDEMIS( MAP_NUMtoEM(IM),1,:,: ) 
      &                     + EMISM3( 1,:,:,IM,ISD ) * SEA_FACTNUM( IM,:,: ) 
                   VDEMIS( MAP_SRFtoEM(IM),1,:,: ) = VDEMIS( MAP_SRFtoEM(IM),1,:,: ) 
@@ -578,7 +582,7 @@ C     converts 2nd moment to surface area.
                END DO
             ELSE
                ! Apply Homogeneous Scale Factors Consistent with this Stream
-               DO IM = 1,N_MODE
+               DO IM = 1, N_MODE
                   VDEMIS( MAP_NUMtoEM(IM),:,:,: ) = VDEMIS( MAP_NUMtoEM(IM),:,:,: ) 
      &                     + EMISM3( :,:,:,IM,ISD ) * EM_STREAM_SIZE( ISRM )%FACNUM( ISD,IM ) 
                   VDEMIS( MAP_SRFtoEM(IM),:,:,: ) = VDEMIS( MAP_SRFtoEM(IM),:,:,: ) 

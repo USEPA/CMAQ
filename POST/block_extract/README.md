@@ -1,7 +1,7 @@
 block_extract
 ========
 
-This Fortran program extracts time series of 1 or more variables from 1 or more (up to 99) IOAPI files for a specified range of cells. There can be multiple files covering an extended time period, but all files must have the same header (grid, layers, variable names, etc.).  Program produces two text files. One file (specfile) lists the variables that were extracted.  The second text file (OUTFILE) contains the time series of the extracted variables with columns: 
+This Fortran program extracts time series of 1 or more variables from 1 or more IOAPI files for a specified range of cells. The maximum number of IOAPI files is set to be one less than the global IOAPI parameter MXFILE3. Since this parameter is currently set to 64 (https://www.cmascenter.org/ioapi/documentation/all_versions/html/TUTORIAL.html), the maximum number of IOAPI input files is 63. There can be multiple files covering an extended time period, but all files must have the same header (grid, layers, variable names, etc.).  Program produces two text files. One file (specfile) lists the variables that were extracted.  The second text file (OUTFILE) contains the time series of the extracted variables with columns: 
 ```
   DATE  TIME  COL  ROW  LV  VAR1 VAR2 .... 
 ```
@@ -18,7 +18,7 @@ where VAR1 VAR2 ... are the variable names specified by SPECLIST.
   M3_FILE_2     second IOAPI input file (optional)
   . . .
   M3_FILE_N     Nth IOAPI input file (optional). 
-                Program checks the existence of environment variables, up to M3_FILE_99, 
+                Program checks the existence of environment variables, up to M3_FILE_64, 
                 until it detects there are no further input files specified.
   OUTFILE       output text file
   TIME_ZONE     GMT or EST. Default is GMT.

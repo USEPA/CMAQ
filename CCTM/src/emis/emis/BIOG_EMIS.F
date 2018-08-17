@@ -93,6 +93,7 @@ C (A line from the profile file is a record.)
          INTEGER,        PARAMETER :: NSEGS = 6  ! # of potential line segments (fields)
          INTEGER,        PARAMETER :: MXLINES = 100 ! max lines for requested sppro name
          INTEGER,        PARAMETER :: MXSPPOL = 10  ! max no. spc per pollutant
+         INTEGER,        PARAMETER :: NMECHS = 17   ! dimension for number of mechanisms considered
          CHARACTER,      PARAMETER :: CINVHDR = '#' ! Indicator for inventory hdr fields
 !        REAL,           PARAMETER :: GM2TON  = 1.0 / 907184.74  ! grams to tons
 
@@ -149,7 +150,7 @@ C Local variables
               CHARACTER( 16 ) :: BIOGMECH
          END TYPE BIOG_MECH_TYPE
 
-         TYPE( BIOG_MECH_TYPE ) :: BIOG_MECH_MAP( 16 ) = (/
+         TYPE( BIOG_MECH_TYPE ) :: BIOG_MECH_MAP( NMECHS ) = (/
      &         BIOG_MECH_TYPE( 'CB05E51_AE6_AQ         ','B10C5   '),
      &         BIOG_MECH_TYPE( 'CB05E51_AE6NVPOA_AQ    ','B10C5   '),
      &         BIOG_MECH_TYPE( 'CB05EH51_AE6_AQ        ','B10C5   '),
@@ -164,6 +165,7 @@ C Local variables
      &         BIOG_MECH_TYPE( 'SAPRC07TC_AE6_AQ       ','B10SP   '),
      &         BIOG_MECH_TYPE( 'SAPRC07TC_AE6NVPOA_AQ  ','B10SP   '),
      &         BIOG_MECH_TYPE( 'SAPRC07TIC_AE6I_AQ     ','B10SP   '),
+     &         BIOG_MECH_TYPE( 'SAPRC07TIC_AE7I_AQ     ','B10SP   '),
      &         BIOG_MECH_TYPE( 'SAPRC07TIC_AE6I_AQKMTI ','B10SP   '),
      &         BIOG_MECH_TYPE( 'SAPRC07TIC_AE6INVPOA_AQ','B10SP   ') /)
      &   
@@ -180,7 +182,7 @@ C Open speciation profiles file
      &            .TRUE., .TRUE., 'GSPRO', PNAME )
 
          IF ( SPPRO .EQ. 'DEFAULT' ) THEN 
-            INDX = INDEX1( MECHNAME, 16, BIOG_MECH_MAP%CHEMMECH )
+            INDX = INDEX1( MECHNAME, NMECHS, BIOG_MECH_MAP%CHEMMECH )
             SPPRO = BIOG_MECH_MAP( INDX )%BIOGMECH
             WRITE( LOGDEV, '(5X,A,A,A)' ), 'Accessing compatible biogenic ',
      &             'emissions mechanism: ',TRIM( SPPRO )
