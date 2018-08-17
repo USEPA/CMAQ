@@ -23,6 +23,7 @@
 !.......................................................................
 
       INTEGER, PARAMETER :: N_FILES = 72
+
       CHARACTER( 16 ) :: LGCL_NAME( N_FILES ) 
       LOGICAL            IN_MODE( N_FILES )
 
@@ -245,4 +246,4 @@
       DATA LGCL_NAME( 71 ), IN_MODE( 71 )    / 'BNDY_TRAC_S     ', .FALSE. /
       DATA LGCL_NAME( 72 ), IN_MODE( 72 )    / 'INIT_TRAC_S     ', .FALSE. /
                                         
-!................   end   FILES3_CTM.EXT   .............................
+!................   end     FILES3_CTM.EXT   .............................
