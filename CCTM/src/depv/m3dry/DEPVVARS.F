@@ -41,11 +41,13 @@ C           05 May 2015: H.Pye: Added ISOPNN and MTNO3 with Donna Schwede
 C           24 Aug 2015: H.Pye: Added IEPOX and HACET with Donna Schwede
 C           26 Jan 2016: H. Pye added info for SOA SVOCs
 C           24 Mar 2016: G. Sarwar: added iodine and bromine species
-
+C           26 Sep 2016: D. Wong: removed unnecessary use module statements
+C           29 Dec 2015: H.Pye: added new monoterpene SOA surrogates
+C           06 Aug 2018: M.Qin: added new lumped anthropogenic semivolatiles
 C-----------------------------------------------------------------------
 
       INTEGER, PARAMETER :: LDDEP = 4
-      INTEGER, PARAMETER :: LTOTG = 157
+      INTEGER, PARAMETER :: LTOTG = 161
       INTEGER, PARAMETER :: LCMP  = 8
       CHARACTER( 16 )    :: DEPV_METHOD
 
@@ -237,7 +239,10 @@ C-------------------------------------------------------------------------------
          DEPSPC( 155) = 'SVMT5           '
          DEPSPC( 156) = 'SVMT6           '
          DEPSPC( 157) = 'SVMT7           '
-
+         DEPSPC( 158) = 'SV_AVB1         '
+         DEPSPC( 159) = 'SV_AVB2         '
+         DEPSPC( 160) = 'SV_AVB3         '
+         DEPSPC( 161) = 'SV_AVB4         '
 
          N_USE_DEPSPC = 0
          USE_DEPSPC = .FALSE.   ! array

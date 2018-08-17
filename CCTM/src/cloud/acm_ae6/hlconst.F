@@ -115,7 +115,7 @@ C...........INCLUDES and their descriptions
 
 C...........PARAMETERS and their descriptions:
 
-      INTEGER, PARAMETER :: MXSPCS = 208     ! Number of substances
+      INTEGER, PARAMETER :: MXSPCS = 212     ! Number of substances
       INTEGER, PARAMETER :: MXDSPCS = 19     ! Number of dissociating species
 
 C...pointers for the dissociation constants (array B and D)
@@ -389,6 +389,10 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA SUBNAME(206), A(206), E(206) / 'SVMT5           ', 1.8E+08,  6.0E+03 /   ! est based on Hodzic 2014 GRL
       DATA SUBNAME(207), A(207), E(207) / 'SVMT6           ', 2.2E+07,  6.0E+03 /   ! est based on Hodzic 2014 GRL
       DATA SUBNAME(208), A(208), E(208) / 'SVMT7           ', 2.8E+06,  6.0E+03 /   ! est based on Hodzic 2014 GRL
+      DATA SUBNAME(209), A(209), E(209) / 'SV_AVB1         ', 5.5E+09,  6.0E+03 /   ! est based on Hodzic 2014 GRL
+      DATA SUBNAME(210), A(210), E(210) / 'SV_AVB2         ', 7.9E+07,  6.0E+03 /   ! est based on Hodzic 2014 GRL
+      DATA SUBNAME(211), A(211), E(211) / 'SV_AVB3         ', 1.2E+07,  6.0E+03 /   ! est based on Hodzic 2014 GRL
+      DATA SUBNAME(212), A(212), E(212) / 'SV_AVB4         ', 1.8E+06,  6.0E+03 /   ! est based on Hodzic 2014 GRL
 
       DATA B( LSO2   ), D( LSO2   ) / 1.30E-02,  1.96E+03 /  ! SO2*H2O<=>HSO3+H     : Smith and Martell (1976)
       DATA B( LHSO3  ), D( LHSO3  ) / 6.60E-08,  1.50E+03 /  ! HSO3<=>SO3+H         : Smith and Martell (1976)

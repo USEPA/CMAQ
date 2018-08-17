@@ -311,7 +311,7 @@ C Land use information:
       DATA subname( 65), dif0( 65), ar( 65), meso( 65), lebas( 65) / 'MTNO3           ',0.0453,   96.2, 0.0,  251.2 /
       DATA subname( 66), dif0( 66), ar( 66), meso( 66), lebas( 66) / 'IEPOX           ',0.0579,    8.0, 0.0,  110.8 /
       DATA subname( 67), dif0( 67), ar( 67), meso( 67), lebas( 67) / 'HACET           ',0.1060,    8.0, 0.0,   72.6 /  ! dif0 from Nguyen 2015 PNAS
-      DATA subname( 68), dif0( 68), ar( 68), meso( 68), lebas( 68) / 'SVALK1          ',0.0514, 4572.8, 0.0,  280.5 /
+      DATA subname( 68), dif0( 68), ar( 68), meso( 68), lebas( 68) / 'SVALK1          ',0.0514, 4572.8, 0.0,  280.5 /  ! Pye et al. doi:10.5194/acp-17-343-2017; rel. reactivity per J. Bash
       DATA subname( 69), dif0( 69), ar( 69), meso( 69), lebas( 69) / 'SVALK2          ',0.0546,   12.9, 0.0,  275.6 /
       DATA subname( 70), dif0( 70), ar( 70), meso( 70), lebas( 70) / 'SVBNZ1          ',0.0642,20671.2, 0.0,  134.1 /
       DATA subname( 71), dif0( 71), ar( 71), meso( 71), lebas( 71) / 'SVBNZ2          ',0.0726,   52.5, 0.0,  127.5 /
@@ -344,16 +344,16 @@ C Land use information:
       DATA subname( 98), dif0( 98), ar( 98), meso( 98), lebas( 98) / 'BRCL            ',0.0966,    1.0, 0.0,   51.6 /
       DATA subname( 99), dif0( 99), ar( 99), meso( 99), lebas( 99) / 'DMS             ',0.0926,    2.0, 0.0,   77.4 /
       DATA subname(100), dif0(100), ar(100), meso(100), lebas(100) / 'MSA             ',0.0896,    2.0, 0.0,   77.4 /
-      DATA subname(101), dif0(101), ar(101), meso(101), lebas(101) / 'METHANE         ',0.2107,    2.0, 0.0,   29.6 / ! dif0, equation 9-22. Scwarzenbach et. (1993) Env. Org. Chem.
+      DATA subname(101), dif0(101), ar(101), meso(101), lebas(101) / 'METHANE         ',0.2107,    2.0, 0.0,   29.6 / ! dif0, eqn 9-22 Schwarzenbach Gschwend & Imboden (1993) Env Org Chem
       DATA subname(102), dif0(102), ar(102), meso(102), lebas(102) / 'ACRYACID        ',0.0908,    2.0, 0.0,   63.2 / 
       DATA subname(103), dif0(103), ar(103), meso(103), lebas(103) / 'CARBSULFIDE     ',0.1240,    5.0, 0.0,   51.5 / 
       DATA subname(104), dif0(104), ar(104), meso(104), lebas(104) / 'ACETONITRILE    ',0.1280,    5.0, 0.0,   52.3 / 
-      DATA subname(105), dif0(105), ar(105), meso(105), lebas(105) / '6_NITRO_O_CRESOL',0.0664,   16.0, 0.0,  155.0 / ! dif0, equation 9-22. Scwarzenbach et. (1993) Env. Org. Chem.
+      DATA subname(105), dif0(105), ar(105), meso(105), lebas(105) / '6_NITRO_O_CRESOL',0.0664,   16.0, 0.0,  155.0 / ! dif0, eqn 9-22 Schwarzenbach Gschwend & Imboden (1993) Env Org Chem
       DATA subname(106), dif0(106), ar(106), meso(106), lebas(106) / 'GENERIC_ALDEHYDE',0.0646,   10.0, 0.0,   56.0 / ! PCVOC
       DATA subname(107), dif0(107), ar(107), meso(107), lebas(107) / 'NTR_OH          ',0.0722,   16.0, 0.1,  140.4 / ! INTR
       DATA subname(108), dif0(108), ar(108), meso(108), lebas(108) / 'METHYLHYDROPEROX',0.0853,   10.0, 0.3,   49.0 / ! ISPX diffusion should be ~ 0.0710 according to Wolfe and thornton 2011 ACP
       DATA subname(109), dif0(109), ar(109), meso(109), lebas(109) / 'METHYLHYDROPEROX',0.1371,   10.0, 0.3,   49.0 / ! ROOH diffusion should be ~ 0.0710 according to Wolfe and thornton 2011 ACP
-      DATA subname(110), dif0(110), ar(110), meso(110), lebas(110) / 'ADIPIC_ACID     ',0.0646,90000.0, 0.0,   63.0 / ! LV_PCSOG
+      DATA subname(110), dif0(110), ar(110), meso(110), lebas(110) / 'ADIPIC_ACID     ',0.0646,90000.0, 0.0,   63.0 / ! LVPCSOG
       DATA subname(111), dif0(111), ar(111), meso(111), lebas(111) / 'ADIPIC_ACID     ',0.0456,13818.0, 0.0,   63.0 / ! VIVPO1
       DATA subname(112), dif0(112), ar(112), meso(112), lebas(112) / 'ADIPIC_ACID     ',0.0766, 1830.5, 0.0,   63.0 / ! VLVOO1
       DATA subname(113), dif0(113), ar(113), meso(113), lebas(113) / 'ADIPIC_ACID     ',0.0766,  241.0, 0.0,   63.0 / ! VLVOO2
@@ -365,7 +365,7 @@ C Land use information:
       DATA subname(119), dif0(119), ar(119), meso(119), lebas(119) / 'ADIPIC_ACID     ',0.0493,   18.1, 0.0,   63.0 / ! VSVPO2
       DATA subname(120), dif0(120), ar(120), meso(120), lebas(120) / 'ADIPIC_ACID     ',0.0474,    2.3, 0.0,   63.0 / ! VSVPO3
       DATA subname(121), dif0(121), ar(121), meso(121), lebas(121) / 'FORMIC_ACID     ',0.1411,   20.0, 0.0,   63.0 / ! FACD
-      DATA subname(122), dif0(122), ar(122), meso(122), lebas(122) / 'MEK             ',0.0859,    1.0, 0.0,  108.2 / ! KET different in differnt mechanisms
+      DATA subname(122), dif0(122), ar(122), meso(122), lebas(122) / 'MEK             ',0.0859,    1.0, 0.0,  108.2 / ! KET different in different mechanisms
       DATA subname(123), dif0(123), ar(123), meso(123), lebas(123) / 'ETHENE          ',0.1366,    1.0, 0.0,   58.1 / ! ETH
       DATA subname(124), dif0(124), ar(124), meso(124), lebas(124) / 'HNO4            ',0.1233,    1.0, 0.0,   45.2 / ! PNA
       DATA subname(125), dif0(125), ar(125), meso(125), lebas(125) / 'GLYOXAL         ',0.1188,    1.0, 0.0,   56.2 / ! GLY
@@ -401,6 +401,10 @@ C Land use information:
       DATA subname(155), dif0(155), ar(155), meso(155), lebas(155) / 'SVMT5           ',0.0619,   20.0,      0.0, 207.2/
       DATA subname(156), dif0(156), ar(156), meso(156), lebas(156) / 'SVMT6           ',0.0624,   20.0,      0.0, 222.0/
       DATA subname(157), dif0(157), ar(157), meso(157), lebas(157) / 'SVMT7           ',0.0661,   20.0,      0.0, 199.8/
+      DATA subname(158), dif0(158), ar(158), meso(158), lebas(158) / 'SV_AVB1         ',0.0560,100388.0,     0.0, 163.1/
+      DATA subname(159), dif0(159), ar(159), meso(159), lebas(159) / 'SV_AVB2         ',0.0600,  1461.2,     0.0, 163.2/
+      DATA subname(160), dif0(160), ar(160), meso(160), lebas(160) / 'SV_AVB3         ',0.0620,   175.2,     0.0, 163.0/
+      DATA subname(161), dif0(161), ar(161), meso(161), lebas(161) / 'SV_AVB4         ',0.0650,    20.8,     0.0, 162.7/
 
       CONTAINS
 
@@ -1360,7 +1364,7 @@ C------
          End Where
 
 !        Calculate the cosine of the zenith angle 
-         CALL CZANGLE( JDATE, JTIME, MY_NCOLS, MY_NROWS )
+         CALL CZANGLE(JDATE, JTIME, MY_NCOLS, MY_NROWS )
 
          Return
          End Subroutine GET_MET

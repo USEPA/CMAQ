@@ -38,10 +38,10 @@ C     26 June 2014 J.Bash: initial implementation
          Real,          Allocatable :: LeBasM     ( : )  ! Molar volume of deposited species
          Real,          Allocatable :: f0         ( : )  ! mesophyll resistance overide flag 
          Real,          Allocatable :: ApRx       ( : )  ! Apparent reactivity
-         Real,          Allocatable :: MassAC     ( : )  ! Mass M_accomindation coefficient 
+         Real,          Allocatable :: MassAC     ( : )  ! Mass accommodation coefficient 
          Character(16), Allocatable :: dep_name   ( : )  ! Dep Species Name
          Character(16), Allocatable :: gas_name   ( : )  ! Gas Species Name
-         Character(16), Allocatable :: H_name     ( : )  ! Henery's surrogate name from the name
+         Character(16), Allocatable :: H_name     ( : )  ! Henry's surrogate name from the name
          Real,          Allocatable :: dep_fac    ( : )  ! deposition factor from the namelist
       End Type Map_Type      
 
@@ -61,7 +61,7 @@ C     26 June 2014 J.Bash: initial implementation
       Real,            Save :: rel_rx      ( dep_gas_all )       ! reactivity relative to HNO3
       Real,            Save :: LeBasM      ( dep_gas_all )       ! Le Bas molar volume [cm3/mol ]
       Real,            Save :: f0          ( dep_gas_all )       ! Exception for species that
-      Real,            Save :: M_ac        ( dep_gas_all )       ! Mass M_accomodation Coeff
+      Real,            Save :: M_ac        ( dep_gas_all )       ! Mass accommodation Coeff
       Real,            Save :: molwt_all   ( dep_gas_all )       ! Molar Weight from the namelist
       CHARACTER( 16 ), SAVE :: H_name_all  ( dep_gas_all )       ! Henry's constant name for all species
       INTEGER, SAVE         :: N_USE_DEPSPC        
@@ -228,10 +228,10 @@ C     26 June 2014 J.Bash: initial implementation
       DATA vd_name(154), rel_rx(154), f0(154), LeBasM(154), M_ac(154) / 'SVMT5        ',    22.2, 0.0,  207.2, 0.444/ ! SVMT5
       DATA vd_name(155), rel_rx(155), f0(155), LeBasM(155), M_ac(155) / 'SVMT6        ',     2.8, 0.0,  222.0, 0.420/ ! SVMT6
       DATA vd_name(156), rel_rx(156), f0(156), LeBasM(156), M_ac(156) / 'SVMT7        ',     1.0, 0.0,  199.8, 0.420/ ! SVMT7
-      DATA vd_name(157), rel_rx(157), f0(157), LeBasM(157), M_ac(157) / 'SVAVB1       ',100388.0, 0.0,  163.1, 0.910/ ! SVAVB1
-      DATA vd_name(158), rel_rx(158), f0(158), LeBasM(158), M_ac(158) / 'SVAVB2       ',  1461.2, 0.0,  163.2, 0.896/ ! SVAVB2
-      DATA vd_name(159), rel_rx(159), f0(159), LeBasM(159), M_ac(159) / 'SVAVB3       ',   175.2, 0.0,  163.0, 0.783/ ! SVAVB3
-      DATA vd_name(160), rel_rx(160), f0(160), LeBasM(160), M_ac(160) / 'SVAVB4       ',    20.8, 0.0,  162.7, 0.444/ ! SVAVB4
+      DATA vd_name(157), rel_rx(157), f0(157), LeBasM(157), M_ac(157) / 'SV_AVB1      ',100388.0, 0.0,  163.1, 0.910/ ! SVAVB1
+      DATA vd_name(158), rel_rx(158), f0(158), LeBasM(158), M_ac(158) / 'SV_AVB2      ',  1461.2, 0.0,  163.2, 0.896/ ! SVAVB2
+      DATA vd_name(159), rel_rx(159), f0(159), LeBasM(159), M_ac(159) / 'SV_AVB3      ',   175.2, 0.0,  163.0, 0.783/ ! SVAVB3
+      DATA vd_name(160), rel_rx(160), f0(160), LeBasM(160), M_ac(160) / 'SV_AVB4      ',    20.8, 0.0,  162.7, 0.444/ ! SVAVB4
 
       Contains
          SUBROUTINE Map_STAGE 

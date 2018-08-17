@@ -65,6 +65,7 @@ C model depositon velocites array
 
 C no. of deposition velocity model species
       INTEGER, SAVE :: N_SPC_DEPV
+      INTEGER, SAVE :: N_GAS_DEPV
 
 C ddep spc conversion factors
       REAL,    ALLOCATABLE, SAVE :: DD_CONV( : )
@@ -83,9 +84,19 @@ C flag for HONO interaction with surfaces within in-lining depv
 C flag for ammonia bi-directional flux with in-lining depv
       LOGICAL, SAVE :: ABFLUX
 
+!C flag for mosaic - luc specific deposition - within in-lining depv
+!      LOGICAL, SAVE :: MOSAIC = .FALSE.
+
+!C flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depv
+!      LOGICAL, SAVE :: FST = .FALSE.      
+
+!      PUBLIC DEPV, DEPVJ, DEPVJ_FST, N_SPC_DEPV, DD_CONV, PLDV, CMP,
+!     &             ILDEPV, SFC_HONO, ABFLUX, MOSAIC, FST, N_GAS_DEPV,
+!     &             DEPV_INIT, GET_DEPV
+
       PUBLIC DEPV, N_SPC_DEPV, DD_CONV, PLDV,
-     &             ILDEPV, SFC_HONO, ABFLUX,
-     &             DEPV_INIT, GET_DEPV,DDEP_NH3
+     &             ILDEPV, SFC_HONO, ABFLUX, N_GAS_DEPV,
+     &             DEPV_INIT, GET_DEPV, DDEP_NH3
       PRIVATE
 
 C gas species (gas-phase and gas non-reactive) deposition velocities
@@ -111,7 +122,6 @@ C flag for diagnostic DEPV file
       INTEGER, ALLOCATABLE, SAVE         :: AER_DEPV_SUR( : )
 
       INTEGER, SAVE :: NR_OFFSET            ! Offset to NR start in CGRID
-      INTEGER, SAVE :: N_GAS_DEPV
 
       REAL,    ALLOCATABLE, SAVE :: ADEPV( :,:,: )    ! Aerosol dep vel from
                                                                ! subroutine AERO_DEPV

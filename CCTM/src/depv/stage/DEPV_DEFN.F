@@ -72,6 +72,7 @@ C model depositon velocites array by land use category
 
 C no. of deposition velocity model species
       INTEGER, SAVE :: N_SPC_DEPV
+      INTEGER, SAVE :: N_GAS_DEPV
 
 C ddep spc conversion factors
       REAL,    ALLOCATABLE, SAVE :: DD_CONV( : )
@@ -83,8 +84,8 @@ C  Dry dep flux of NH3 for m3dry bidi [kg/ha hr]
       REAL,    ALLOCATABLE, SAVE :: DDEP_NH3( :,: )
 
       PUBLIC DEPV, DEPVJ,PLDVJ, DEPVJ_FST, N_SPC_DEPV, DD_CONV, PLDV, CMP,
-     &             ILDEPV, SFC_HONO, ABFLUX, MOSAIC, FST,
-     &             DEPV_INIT, GET_DEPV,DDEP_NH3
+     &             ILDEPV, SFC_HONO, ABFLUX, MOSAIC, FST, N_GAS_DEPV,
+     &             DEPV_INIT, GET_DEPV, DDEP_NH3
       PRIVATE
 
 C gas species (gas-phase and gas non-reactive) deposition velocities
@@ -111,7 +112,6 @@ C flag for diagnostic DEPV file
       INTEGER, ALLOCATABLE, SAVE         :: AER_DEPV_SUR( : )
 
       INTEGER, SAVE :: NR_OFFSET            ! Offset to NR start in CGRID
-      INTEGER, SAVE :: N_GAS_DEPV
 
       REAL,    ALLOCATABLE, SAVE :: ADEPV( :,:,: )    ! Aerosol dep vel from
                                                                ! subroutine AERO_DEPV

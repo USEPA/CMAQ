@@ -807,7 +807,7 @@
 
       modname1 = module(1)%name; Call ucase( modname1 )
       modname2 = module(2)%name; Call ucase( modname2 )
-
+      
       If ( Trim( modname1 ) .Eq. 'STENEX' .And. Trim( modname2 ) .Eq. 'PARIO' ) Then
         Do n = 1, n_modules
           Call orderfiles( module(n), .False., nfiles, filename )
@@ -882,7 +882,6 @@
         Call getField( objStr, ' ', n, obj )
         Write( lfn, '(1x,a/2x,a,$)' ) backslash, Trim( obj )
       End Do
-
       Write( lfn,'(1x)' )
 
       Return
