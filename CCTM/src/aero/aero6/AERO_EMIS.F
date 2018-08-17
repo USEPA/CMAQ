@@ -68,11 +68,6 @@ C-----------------------------------------------------------------------
       IMPLICIT NONE
       SAVE 
 C aerosol emissions: [ppmv/s] for mass & number spcs, [m2/mol/s] for surface area spcs
-      CHARACTER( 16 )      :: CTM_SS_AERO = 'CTM_SS_AERO' ! env var for sea spray
-      LOGICAL              :: SS_AERO   ! flag for sea spray emissions option
-      CHARACTER( 16 )      :: CTM_WB_DUST = 'CTM_WB_DUST' ! env var for windblown dust
-      LOGICAL              :: WB_DUST   ! flag for windblown dust option
-
       PUBLIC EMISS_SIZE_DIST, AERO_EMIS_INIT,
      &       MAP_EMtoAERO, MAP_EMtoMODE, MAP_NUMtoEM, MAP_SRFtoEM,
      &       MAP_EMtoNUM, MAP_EMtoSRF, MAP_EMtoSD, EM_STREAM_SIZE, SD_SPLIT,

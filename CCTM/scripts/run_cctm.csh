@@ -96,7 +96,7 @@ echo "---CMAQ EXECUTION ID: $EXECUTION_ID ---"
 #> Master Log File Name; uncomment to write standard output to a log, otherwise write to screen
 #setenv LOGFILE $CMAQ_HOME/$RUNID.log  
 if (! -e $LOGDIR ) then
-  mkdir $LOGDIR
+  mkdir -p $LOGDIR
 endif
 setenv PRINT_PROC_TIME Y           #> Print timing for all science subprocesses to Logfile
                                    #>   [ default: TRUE or Y ]
