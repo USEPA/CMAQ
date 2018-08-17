@@ -367,9 +367,9 @@ C**********************************************************************
         call getField(record, delimiter, siteField, field1)
         if ( pocField .gt. 0 ) then
          call getField(record, delimiter, pocField, field2)
-	else
-	 field2 = '1' !use 1 as default parameter occurrence code
-	endif
+        else
+         field2 = '1' !use 1 as default parameter occurrence code
+        endif
         call rmQuots( field1 )
         call rmQuots( field2 )
 
@@ -516,6 +516,21 @@ C**********************************************************************
             Write(*,'(''Error, Invalid table type:'', a)') TRIM(TABLE_TYPE)
             Stop
           Endif
+
+          !  add state to outRecord
+          field = STATE(siteno)
+          Call LeftTrim(field)
+          outRecord = Trim(outRecord) // ',"' // trim(field) // '"'
+
+          !  add county to outRecord
+          field = COUNTY(siteno)
+          Call LeftTrim(field)
+          outRecord = Trim(outRecord) // ',"' // trim(field) // '"'
+
+          !  add elevation to outRecord
+          Write(field,'(f7.0)') ELEV(siteno)
+          Call LeftTrim(field)
+          outRecord = Trim(outRecord) // ',' // trim(field)
 
           !  add lat and long fields to outRecord
           Write(field,'(f12.4)') getLatitude(siteno)
@@ -692,11 +707,14 @@ C****************************************************************************
       Character*(3200) header2
       Character*(3200) header3
 
-      header1 = 'SiteId,POCode,Latitude,Longitude,Column,Row,Time On,Time Off'
+      header1 = 'SiteId,POCode,State,County,Elevation,Latitude,Longitude'
+      header1 = Trim(header1) // ',Column,Row,Time On,Time Off'
       header1 = Trim(header1) // ',SMM,SDD,SYYYY,Shh,Smm,EMM,EDD,EYYYY,Ehh,Emm'
-      header2 = ',,(deg),(deg),,,(MM/DD/YYYY hh:mm),(MM/DD/YYYY hh:mm)'
+      header2 = ',,,,(m),(deg),(deg)'
+      header2 = Trim(header2) // ',,,(MM/DD/YYYY hh:mm),(MM/DD/YYYY hh:mm)'
       header2 = Trim(header2) // ',MM,DD,YYYY,hh,mm,MM,DD,YYYY,hh,mm'
-      header3 = ',,,,,,,'
+      header3 = ',,,,,,'
+      header3 = Trim(header3) // ',,,,'
       header3 = Trim(header3) // ',,,,,,,,,,'
  
       Do i=1,NSPECVAR
@@ -1246,41 +1264,41 @@ C..SCRATCH LOCAL VARIABLES:
         LFIRST = .false.
       
         ! first, need to build a masterlist of all needed model species
-	! the master list is stored in MODSPEC_ALL
-	! these species are then read in for each site and time step
-	! and stored in SITESPECVAL
+        ! the master list is stored in MODSPEC_ALL
+        ! these species are then read in for each site and time step
+        ! and stored in SITESPECVAL
       
         NMODSPEC_ALL = 0
-	do n = 1, 100 !initialize the array of model species to blank
-	 MODSPEC_ALL(n) = '                '
-	enddo !n
-	
-	do n = 1, NSPECVAR !total number of species expressions from module SPECIES_DEF
-	 do k = 1, SPECVARS(n)%MOD_NUMSPEC !number of model species for this expression
-	 
-	  if (NMODSPEC_ALL .eq. 0) then !no elements in master list yet
-	  
-	   NMODSPEC_ALL = NMODSPEC_ALL + 1
-	   MODSPEC_ALL(NMODSPEC_ALL) = SPECVARS(n)%MOD_NAME(k)(1:16)
-	   
-	  else
-	  
-	   if (INDEX1 (SPECVARS(n)%MOD_NAME(k)(1:16), NMODSPEC_ALL,
+        do n = 1, 100 !initialize the array of model species to blank
+         MODSPEC_ALL(n) = '                '
+        enddo !n
+        
+        do n = 1, NSPECVAR !total number of species expressions from module SPECIES_DEF
+         do k = 1, SPECVARS(n)%MOD_NUMSPEC !number of model species for this expression
+         
+          if (NMODSPEC_ALL .eq. 0) then !no elements in master list yet
+          
+           NMODSPEC_ALL = NMODSPEC_ALL + 1
+           MODSPEC_ALL(NMODSPEC_ALL) = SPECVARS(n)%MOD_NAME(k)(1:16)
+           
+          else
+          
+           if (INDEX1 (SPECVARS(n)%MOD_NAME(k)(1:16), NMODSPEC_ALL,
      &                 MODSPEC_ALL) .eq. 0) then !species not found, add to master list
      
 
 
-	    NMODSPEC_ALL = NMODSPEC_ALL + 1
-	    MODSPEC_ALL(NMODSPEC_ALL) = SPECVARS(n)%MOD_NAME(k)(1:16)
-	   
+            NMODSPEC_ALL = NMODSPEC_ALL + 1
+            MODSPEC_ALL(NMODSPEC_ALL) = SPECVARS(n)%MOD_NAME(k)(1:16)
+           
            endif
-	   	  
-	  endif 
-	  
-	 enddo !k
-	
-	enddo !n
-	
+                     
+          endif 
+          
+         enddo !k
+        
+        enddo !n
+        
 c       try to add the precipitation variable to the list if available
 c       in file and not already part of the master list
 
@@ -1289,7 +1307,7 @@ c       in file and not already part of the master list
 
          IF ( DESC3( M3_FLNAME( 1 ) ) ) THEN
 
-	  IF (INDEX1 (PRECIP_FIELD(1:16), NVARS3D,
+          IF (INDEX1 (PRECIP_FIELD(1:16), NVARS3D,
      &                 VNAME3D) .ne. 0) THEN !precip variable found, add to master list
            NMODSPEC_ALL = NMODSPEC_ALL + 1
            MODSPEC_ALL(NMODSPEC_ALL) = PRECIP_FIELD(1:16)
@@ -1299,21 +1317,21 @@ c       in file and not already part of the master list
          ENDIF
          
         ENDIF
-	
-	Write(*,'(''master list of required model species:'')')
-	do k = 1, NMODSPEC_ALL
+        
+        Write(*,'(''master list of required model species:'')')
+        do k = 1, NMODSPEC_ALL
          Write(*,'(i0,1x,a)') k,MODSPEC_ALL(k)
-	enddo !k
+        enddo !k
       
         Allocate ( SITESPECVAL( NSITES, NSTEPS , NMODSPEC_ALL ), 
      *             STAT = ALLOCSTAT)
-	
-	if ( ALLOCSTAT .eq. 0 ) then !enough memory for fast approach
-	
-	 lfast = .true.
-	 Write(*,'(''enough memory, using data prefetch approach'')')
-	 Write(*,'(''reading model values for all sites and time steps'')')
-	
+        
+        if ( ALLOCSTAT .eq. 0 ) then !enough memory for fast approach
+        
+         lfast = .true.
+         Write(*,'(''enough memory, using data prefetch approach'')')
+         Write(*,'(''reading model values for all sites and time steps'')')
+        
          SITESPECVAL = -999.        
 
          do N = 1, NSTEPS !number of time steps across all model files from module_tstep
@@ -1324,7 +1342,7 @@ c       in file and not already part of the master list
           do K = 1, NMODSPEC_ALL
           
            
-	 
+         
            IF( .NOT. READ3( M3_FLNAME(STEP_FILE(N)), MODSPEC_ALL (k), 
      &                   1, STEP_DATE(N), 
      &                   STEP_TIME(N), GRIDVAL ) ) THEN
@@ -1337,7 +1355,7 @@ c       in file and not already part of the master list
             do S = 1, NSITES
 
              if ( ( ROW(S) .ne. 0 ) .and. ( COL(S) .ne. 0 ) ) then
-	   
+           
               SITESPECVAL(S,N,K) = GRIDVAL( COL(S), ROW(S) )
             
              endif ! site within domain
@@ -1345,19 +1363,19 @@ c       in file and not already part of the master list
             enddo !S
          
            ENDIF
-	  
-	  enddo !K
+          
+          enddo !K
         
          enddo !N
-	 
-	 Write(*,'(''finished reading model values'')')
+         
+         Write(*,'(''finished reading model values'')')
 
-	else ! not enough memory for fast approach
-	
-	 lfast = .false.
-	 Write(*,'(''not enough memory, not using data prefetch approach'')')
-	 
-	endif
+        else ! not enough memory for fast approach
+        
+         lfast = .false.
+         Write(*,'(''not enough memory, not using data prefetch approach'')')
+         
+        endif
 
       EndIf !Lfirst
 

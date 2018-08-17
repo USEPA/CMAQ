@@ -38,7 +38,7 @@
 !                       modes. Every stream by default is given a 'COARSE' and !
 !                       'FINE' mode. The user may refer to these, or define    !
 !                       others above and refer to them as well. This level of  !
-!                       speficity is needed so that aerosol number and         !
+!                       specificity is needed so that aerosol number and       !
 !                       surface area are calculated correctly, and so that any !
 !                       unit conversions between gases and aerosols can be     !
 !                       handled correctly.                                     !
@@ -53,7 +53,7 @@
 !                                this rule's features (ie. species, streams,   !
 !                                etc) and multiply them by the factor in this  !
 !                                particular rule.                              !
-!                          'o' - find existing scaling instrucitons matching   !
+!                          'o' - find existing scaling instructions matching   !
 !                                this rule and overwrite them.                 !
 !                                                                              !
 !                                                                              !
@@ -139,7 +139,7 @@
 /
 
 !------------------------------------------------------------------------------!
-! Additonal Emissions Scaling Variables                                        !
+! Additional Emissions Scaling Variables                                       !
 !    This section includes additional specific variables for governing the     !
 !    behavior of the emissions scaling routines. Explanations are provided     !
 !    below.                                                                    !
