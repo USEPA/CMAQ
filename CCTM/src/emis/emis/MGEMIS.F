@@ -34,6 +34,7 @@ C   03 Nov 15: B. Gantt and G. Sarwar: created the initial version for marine ga
 C   26 Sep 16: D. Wong: removed repeated SEAICE interpx statement
 
       USE HGRD_DEFN
+      USE EMIS_VARS
 
       IMPLICIT NONE
 
@@ -44,7 +45,7 @@ C   26 Sep 16: D. Wong: removed repeated SEAICE interpx statement
 C Marine gas Emissions Rates
       REAL, ALLOCATABLE, SAVE :: VDEMIS_MG( :,:,: )   ! marine gas emission rates [moles/s]
 
-      PUBLIC NMGSPC, VDEMIS_MG, MGSPC_MAP, MGEMIS_INIT, GET_MGEMIS, MGEM, MG_SPC
+      PUBLIC NMGSPC, VDEMIS_MG, MGEMIS_INIT, GET_MGEMIS, MGEM, MG_SPC, MGSPC_MAP
       PRIVATE
 
       INTEGER, SAVE              :: LGC_O3            ! pointer to O3 in CGRID
@@ -57,6 +58,7 @@ C Variables for the marine gas diagnostic file
       REAL,    ALLOCATABLE, SAVE :: MGBF( :,:,: )     ! marine gas emiss accumulator
       REAL,    ALLOCATABLE, SAVE :: WRMG( :,: )       ! marine gas emiss write buffer
       INTEGER, SAVE              :: SDATE, STIME      ! scenario start date & time
+      INTEGER, SAVE              :: MGSPC_MAP( NMGSPC )
 
 ! Species names in the speciated marine gas-emissions
       CHARACTER( 16 ), ALLOCATABLE :: WRMG_SPC( : )   ! species names
@@ -66,7 +68,6 @@ C Variables for handling marine gas emissions
       REAL,    ALLOCATABLE, SAVE :: SZONE( :,: )   ! fractional sea
       REAL,    ALLOCATABLE, SAVE :: CHLR( :,: )    ! chlorophyll
 
-      INTEGER, ALLOCATABLE       :: MGSPC_MAP( : ) ! map to gc array
       CHARACTER( 16 ) :: MG_SPC( NMGSPC)           ! emitted species
 
       DATA  MG_SPC  /  'MB3             ',
@@ -139,42 +140,25 @@ C-----------------------------------------------------------------------
             LOGDEV = SETUP_LOGDEV()
             SUCCESS = .TRUE.
 
-C flag for marine gas emissions; use in-line marine gas option only if CB05EH51 is used
-            IF ( INDEX( MECHNAME, 'CB05EH51' ) .GT. 0 ) then
-               MGEM = .TRUE.
-            ELSE
-               MGEM = .FALSE.
-               RETURN
-            END IF
-
-C Allocate mapping array
-            ALLOCATE ( MGSPC_MAP( NMGSPC ), STAT = STATUS )
-            IF ( STATUS .NE. 0 ) THEN
-               XMSG = '*** MGSPC_MAP memory allocation failed'
-               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-               SUCCESS = .FALSE.; RETURN
-            END IF
-
-            DO V = 1, NMGSPC
-               K = INDEX1( MG_SPC( V ), N_GC_EMIS, GC_EMIS )
-               IF ( K .GT. 0 ) THEN
-                  MGSPC_MAP( V ) = K
-               ELSE
-                  WRITE( LOGDEV,'(/5X,A)' ) TRIM( MG_SPC( V ) ) //
-     &                              ' not found in GC_EMIS'
-                  K = INDEX1( MG_SPC( V ), N_NR_EMIS, NR_EMIS )
-                  IF ( K .GT. 0 ) THEN
-                     MGSPC_MAP( V ) = N_GC_EMIS + K
-                     WRITE( LOGDEV,* ) ' '
-                  ELSE
-                     WRITE( LOGDEV,'(5X,A/)' ) TRIM( MG_SPC( V ) ) //
-     &                                 ' not found in NR_EMIS either'
-                     MGSPC_MAP( V ) = 0
-                  END IF
-               END IF
-            END DO
+C flag for marine gas emissions; this flag is set in the subroutine EM_FILE_INIT 
+            IF ( .NOT. MGEM ) RETURN
 
 C Allocate MG arrays using NMGSPC value
+            EM_FILE_SURR( IMGSRM )%LEN = NMGSPC
+            ALLOCATE( EM_FILE_SURR( IMGSRM )%ARRY ( NMGSPC ) )
+            ALLOCATE( EM_FILE_SURR( IMGSRM )%CMAQ ( NMGSPC ) )
+            ALLOCATE( EM_FILE_SURR( IMGSRM )%UNITS( NMGSPC ) )
+            ALLOCATE( EM_FILE_SURR( IMGSRM )%PHASE( NMGSPC ) )
+            ALLOCATE( EM_FILE_SURR( IMGSRM )%MW   ( NMGSPC ) )
+            ALLOCATE( EM_FILE_SURR( IMGSRM )%USED ( NMGSPC ) )
+            
+            EM_FILE_SURR( IMGSRM )%ARRY  = MG_SPC
+            EM_FILE_SURR( IMGSRM )%CMAQ  = MG_SPC
+            EM_FILE_SURR( IMGSRM )%UNITS = 'MOLES/S'
+            EM_FILE_SURR( IMGSRM )%PHASE = 'GAS'
+            EM_FILE_SURR( IMGSRM )%MW    = 0.0
+            EM_FILE_SURR( IMGSRM )%USED  = .FALSE.
+
             ALLOCATE ( VDEMIS_MG( NMGSPC,NCOLS,NROWS), STAT = STATUS )
             IF ( STATUS .NE. 0 ) THEN
                XMSG = '*** VDEMIS_MG, memory allocation failed'

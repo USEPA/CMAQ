@@ -128,8 +128,8 @@ B10RD;"SABI";"TERPB";1.0;120.0;1.1333
 B10RD;"SABI";"OLI";1.0;120.0;1.1333
 B10RD;"TRPO";"OLI";1.0;120.0;1.1333
 B10RD;"TRPO";"TERPB";1.0;120.0;1.1333
-B10SP;"ACET";"ACET";1.0;36.0;1.6111
-B10SP;"ACTAC";"AACD";1.0;24.0;2.5     ! Corrected mapping for Acetic Acid*
+B10SP;"ACET";"ACETONE";1.0;36.0;1.6111
+B10SP;"ACTAC";"CCOOH";1.0;24.0;2.5     ! Corrected mapping for Acetic Acid*
 B10SP;"ACTAL";"CCHO";1.0;24.0;1.8333  ! Corrected mapping for ACETALDEHYDE*
 B10SP;"ACTAL";"CCHO_PRIMARY";1.0;24.0;1.8333  ! Corrected mapping for ACETALDEHYDE
 B10SP;"APIN";"APIN";1.0;120.0;1.1333  ! Corrected mapping for Alpha-Pinene
@@ -144,16 +144,16 @@ B10SP;"CO";"CO";1.0;12.0;2.3333
 B10SP;"D3CAR";"TERP";1.0;120.0;1.1333 ! Changed all mappings for lumped Terpenes
 B10SP;"DLIM";"TERP";1.0;120.0;1.1333  ! Changed all mappings for lumped Terpenes
 B10SP;"ETHA";"ALK1";1.0;24.0;1.25
-B10SP;"ETHE";"ETHE";1.0;24.0;1.1667   ! Corrected mapping for Ethene
+B10SP;"ETHE";"ETHENE";1.0;24.0;1.1667   ! Corrected mapping for Ethene
 B10SP;"ETHO";"ETOH";1.0;24.0;1.9167   ! Corrected mapping for Ethanol
-B10SP;"FORAC";"FACD";1.0;12.0;3.8333  ! Corrected mapping for Formic Acid*
+B10SP;"FORAC";"HCOOH";1.0;12.0;3.8333  ! Corrected mapping for Formic Acid*
 B10SP;"FORM";"HCHO";1.0;12.0;2.5
 B10SP;"FORM";"HCHO_PRIMARY";1.0;12.0;2.5
 B10SP;"GTERP";"TERP";1.0;120.0;1.1333 ! Changed all mappings for lumped Terpenes
 B10SP;"HEXA";"RCHO";1.0;72.0;1.3611
 B10SP;"HEXE";"OLE1";1.0;72.0;1.3889
 B10SP;"HEXY";"OLE1";1.0;96.0;1.4792
-B10SP;"ISOP";"ISOP";1.0;60.0;1.1333   ! corrected mapping for isoprene
+B10SP;"ISOP";"ISOPRENE";1.0;60.0;1.1333   ! corrected mapping for isoprene
 B10SP;"MBO";"OLE2";1.0;60.0;1.4333
 B10SP;"METH";"MEOH";1.0;12.0;2.6667
 B10SP;"MYRC";"TERP";1.0;120.0;1.1333  ! Changed all mappings for lumped Terpenes
@@ -163,7 +163,7 @@ B10SP;"ORVOC";"ALK2";0.85;120.0;0.9633
 B10SP;"ORVOC";"NR";0.05;120.0;0.0567
 B10SP;"ORVOC";"OLE2";0.1;120.0;0.1133
 B10SP;"PCYM";"TERP";1.0;120.0;1.1333  ! Changed all mappings for lumped Terpenes
-B10SP;"PROPE";"PRPE";1.0;36.0;1.1667  ! Corrected mapping for Propene
+B10SP;"PROPE";"PROPENE";1.0;36.0;1.1667  ! Corrected mapping for Propene
 B10SP;"SABI";"TERP";1.0;120.0;1.1333  ! Changed all mappings for lumped Terpenes
 B10SP;"SESQT";"SESQ";1.0;180.0;1.1333
 B10SP;"TRPO";"TERP";1.0;120.0;1.1333  ! Changed all mappings for lumped Terpenes

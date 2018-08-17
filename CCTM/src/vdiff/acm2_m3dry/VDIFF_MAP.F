@@ -41,9 +41,10 @@ C   11 May 11 J.Bash: Modified for NH3 bidi component fluxes
 C   04 Jan 12 J.Young: Initalize char strings with blank padding
 
 C-----------------------------------------------------------------------
+      USE VDIFF_DATA
 
 C global diffusion species
-      INTEGER, SAVE :: N_SPC_DIFF 
+      !INTEGER, SAVE :: N_SPC_DIFF 
      
 C global dry dep species
       INTEGER, SAVE :: N_SPC_DDEP 
@@ -55,10 +56,20 @@ C global dry dep species
       INTEGER, ALLOCATABLE, SAVE :: DEPV_MAP( : ) ! global depv map to CGRID
       INTEGER, ALLOCATABLE, SAVE :: DV2DF   ( : )  ! map from depv spc to diff spc
 
+      ! These Masks Identify the Phase/Nature of Species in The Diffused
+      ! Species Vector
+      LOGICAL, ALLOCATABLE, SAVE :: DIFF_MASK_GAS ( : ) !Gases
+      LOGICAL, ALLOCATABLE, SAVE :: DIFF_MASK_AERO( : ) !Particles
+      LOGICAL, ALLOCATABLE, SAVE :: DIFF_MASK_NUM ( : ) !Particles
+      LOGICAL, ALLOCATABLE, SAVE :: DIFF_MASK_SRF ( : ) !Particles
+      LOGICAL, ALLOCATABLE, SAVE :: DIFF_MASK_NR  ( : ) !Non-Reactives
+      LOGICAL, ALLOCATABLE, SAVE :: DIFF_MASK_TRAC( : ) !Tracers
+
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: DDEP_SPC( : )
-      CHARACTER( 16 ), ALLOCATABLE, SAVE :: DIFF_SPC( : )
+      !CHARACTER( 16 ), ALLOCATABLE, SAVE :: DIFF_SPC( : )
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: DEPV_SPC( : )
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: DV2DF_SPC( : )
+      REAL,            ALLOCATABLE, SAVE :: DIFF_MW  ( : )
 
 C component flux output variables 
       INTEGER, PARAMETER :: LCMP  = 8
@@ -67,11 +78,11 @@ C component flux output variables
       CONTAINS
 
 C-----------------------------------------------------------------------
-         FUNCTION VDIFF_MAP_INIT( N_SPC_DEPV  ) RESULT ( SUCCESS )
+         FUNCTION VDIFF_MAP_INIT( ) RESULT ( SUCCESS )
 
          USE CGRID_SPCS   ! CGRID species number and offsets
-         USE AERO_EMIS    ! aerosol emissions defns and fncts
          USE UTILIO_DEFN
+         USE DEPV_DEFN, ONLY : N_SPC_DEPV
 
          IMPLICIT NONE
 
@@ -79,12 +90,8 @@ C Includes:
          INCLUDE SUBST_EMISPRM   ! Emissions processing control parameters
 
 C Arguments:
-         INTEGER, INTENT( IN ) :: N_SPC_DEPV ! no. of depv species
          LOGICAL SUCCESS
 
-C global emis species
-         INTEGER N_SPC_EMIS
- 
 C External Functions:
          INTEGER, EXTERNAL :: FINDEX
 
@@ -93,7 +100,6 @@ C Local variables:
          CHARACTER( 80 )  :: XMSG       ! Message text
          CHARACTER( 16 )  :: PNAME = 'VDIFF_MAP'
 
-         INTEGER NEMIS_AE
          INTEGER STRT, FINI
          INTEGER S, V, N, I, INDX
          INTEGER ALLOCSTAT
@@ -103,26 +109,21 @@ C Local variables:
          INTEGER LOGDEV   ! debug
 #endif
 
-C-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
 #ifdef Verbose_Vdiff
          LOGDEV = INIT3()   ! debug
 #endif
          SUCCESS = .TRUE.
 
-#ifdef emis_chem
-         EMISVD = .FALSE.; NEMIS = 0 
-#else
-         EMISVD = .TRUE.; NEMIS = N_GC_EMIS
-#endif
-
          N_SPC_DIFF = N_GC_TRNS + N_AE_TRNS + N_NR_TRNS + N_TR_DIFF
-
+         
          ALLOCATE ( DIFF_MAP( N_SPC_DIFF+1 ),
      &              DF2DV( N_SPC_DIFF+1 ),
-     &              DF2EM( N_SPC_DIFF+1 ),
-     &              diff_spc( n_spc_diff ), stat = allocstat )
+     &              DIFF_MW( N_SPC_DIFF+1 ),
+    ! &              DF2EM( N_SPC_DIFF+1 ),
+     &              DIFF_SPC( N_SPC_DIFF+1 ), stat = allocstat )
          IF ( ALLOCSTAT .NE. 0 ) THEN
-            XMSG = 'Failure allocating DIFF_MAP, DF2DV, DF2EM or DIFF_SPC'
+            XMSG = 'Failure allocating DIFF_MAP, DF2DV or DIFF_SPC'
             CALL M3WARN( PNAME, 0, 0, XMSG )
             SUCCESS = .FALSE.; RETURN
          END IF
@@ -147,79 +148,9 @@ C-----------------------------------------------------------------------
             SUCCESS = .FALSE.; RETURN
          END IF
 
-         IF ( N_AE_SPC .GT. 0 ) THEN
-            NEMIS_AE = N_AE_EMIS  ! from AERO_EMIS module
-         ELSE
-            NEMIS_AE = 0
-         END IF
+! Populate global maps to CGRID
 
-         N_SPC_EMIS = NEMIS + NEMIS_AE + N_NR_EMIS + N_TR_EMIS
-
-C create global maps to CGRID
-
-         N = 0; S = 0; I = 0
-         IF ( EMISVD ) THEN
-            DO V = 1, N_GC_TRNS ! assumes emis species a subset of vdif species
-               N = N + 1
-               INDX = FINDEX( GC_TRNS_MAP( V ), N_GC_EMIS, GC_EMIS_MAP )
-               IF ( INDX .GT. 0 ) THEN
-                  I = I + 1
-                  DF2EM( N ) = S + INDX
-               ELSE
-                  DF2EM( N ) = N_SPC_EMIS + 1
-               END IF
-            END DO
-         ELSE            ! emissions processing done in chem
-            DO V = 1, N_GC_TRNS 
-               N = N + 1
-               DF2EM( N ) = N_SPC_EMIS + 1
-            END DO
-         END IF
-
-         S = S + I     ! S should now be = N_GC_EMIS
-         I = 0
-         DO V = 1, N_AE_TRNS
-            N = N + 1
-            INDX = FINDEX( AE_TRNS_MAP( V ), N_AE_EMIS, AE_EMIS_MAP )
-            IF ( N_AE_SPC .GT. 0 .AND. INDX .GT. 0 ) THEN
-               I = I + 1
-               DF2EM( N ) = S + INDX
-            ELSE
-               DF2EM( N ) = N_SPC_EMIS + 1
-            END IF
-         END DO
-
-         S = S + I     ! S should now be = N_GC_EMIS + N_AE_EMIS
-         I = 0
-         DO V = 1, N_NR_TRNS
-            N = N + 1
-            INDX = FINDEX( NR_TRNS_MAP( V ), N_NR_EMIS, NR_EMIS_MAP )
-            IF ( INDX .GT. 0 ) THEN
-               I = I + 1
-               DF2EM( N ) = S + INDX
-            ELSE
-               DF2EM( N ) = N_SPC_EMIS + 1
-            END IF
-         END DO
-
-         S = S + I     ! S should now be = N_GC_EMIS + N_AE_EMIS + N_NR_EMIS
-         DO V = 1, N_TR_DIFF
-            N = N + 1
-            INDX = FINDEX( TR_DIFF_MAP( V ), N_TR_EMIS, TR_EMIS_MAP )
-            IF ( INDX .GT. 0 ) THEN
-               DF2EM( N ) = S + INDX
-            ELSE
-               DF2EM( N ) = N_SPC_EMIS + 1
-            END IF
-         END DO
-
-#ifdef Verbose_Vdiff
-         WRITE( LOGDEV,* ) '   n  DF2EM(n)'
-         DO N = 1, N_SPC_DIFF
-            WRITE( LOGDEV,'(2I6)' ) N, DF2EM( N )
-         END DO
-#endif
-
+! Map Diffusion Module Species to Deposition Velocity Species
          I = 0; S = 0; N = 0
          DO V = 1, N_GC_TRNS ! assumes dep.vel species subset of vdif species
             N = N + 1
@@ -269,13 +200,7 @@ C create global maps to CGRID
             END IF
          END DO
 
-#ifdef Verbose_Vdiff
-         WRITE( LOGDEV,* ) '   n  DF2DV(n)'
-         DO N = 1, N_SPC_DIFF
-            WRITE( LOGDEV,'(2I6)' ) N, DF2DV( N )
-         END DO
-#endif
-
+! Map Deposition Velocity Species to Dry Deposition Module Species
          LERROR = .FALSE.
          S = 0; V = 0
          DO N = 1, N_GC_DDEP
@@ -346,75 +271,79 @@ C create global maps to CGRID
          CMPSPC( 7 ) = 'NH3_Nat '
          CMPSPC( 8 ) = 'NH3_Wat '
 
-#ifdef Verbose_Vdiff
-         WRITE( LOGDEV,* ) '   n  DD2DV(n)  DDEP_SPC(n)'
-         DO N = 1, N_SPC_DDEP
-            WRITE( LOGDEV,'(2I6,9X,A)' ) N, DD2DV( N ), DDEP_SPC( N )
-         END DO
-#endif
-
+! Populate Deposition Velocity Map and Species 
          S = 0
          DO V = 1, N_GC_DEPV
             S = S + 1
             DEPV_MAP( S ) = GC_STRT - 1 + GC_DEPV_MAP( V )
-!           DEPV_SPC( S ) = GC_DEPV( V )
             DEPV_SPC( S ) = GC_SPC( GC_DEPV_MAP( V ) )
          END DO
          DO V = 1, N_AE_DEPV
             S = S + 1
             DEPV_MAP( S ) = AE_STRT - 1 + AE_DEPV_MAP( V )
-!           DEPV_SPC( S ) = AE_DEPV( V )
             DEPV_SPC( S ) = AE_SPC( AE_DEPV_MAP( V ) )
          END DO
          DO V = 1, N_NR_DEPV
             S = S + 1
             DEPV_MAP( S ) = NR_STRT - 1 + NR_DEPV_MAP( V )
-!           DEPV_SPC( S ) = NR_DEPV( V )
             DEPV_SPC( S ) = NR_SPC( NR_DEPV_MAP( V ) )
          END DO
          DO V = 1, N_TR_DEPV
             S = S + 1
             DEPV_MAP( S ) = TR_STRT - 1 + TR_DEPV_MAP( V )
-!           DEPV_SPC( S ) = TR_DEPV( V )
             DEPV_SPC( S ) = TR_SPC( TR_DEPV_MAP( V ) )
          END DO
 
-#ifdef Verbose_Vdiff
-         WRITE( LOGDEV,* ) '   n  DEPV_MAP(n)  DEPV_SPC(n)'
-         DO N = 1, N_SPC_DEPV
-            WRITE( LOGDEV,'(2I6,9X,A)' ) N, DEPV_MAP( N ), DEPV_SPC( N )
-         END DO
-#endif
+! Populate Diffusion Module Map and Species
+         ALLOCATE( DIFF_MASK_GAS ( N_SPC_DIFF ) )
+         ALLOCATE( DIFF_MASK_AERO( N_SPC_DIFF ) )
+         ALLOCATE( DIFF_MASK_NUM( N_SPC_DIFF ) )
+         ALLOCATE( DIFF_MASK_SRF( N_SPC_DIFF ) )
+         ALLOCATE( DIFF_MASK_NR  ( N_SPC_DIFF ) )
+         ALLOCATE( DIFF_MASK_TRAC( N_SPC_DIFF ) )
+         DIFF_MASK_GAS  = .FALSE.
+         DIFF_MASK_AERO = .FALSE.
+         DIFF_MASK_NUM  = .FALSE.
+         DIFF_MASK_SRF  = .FALSE.
+         DIFF_MASK_NR   = .FALSE.
+         DIFF_MASK_TRAC = .FALSE.
+         DIFF_MAP = 0
+         DIFF_SPC = ""
+         DIFF_MW  = 0.
 
          S = 0
          DO V = 1, N_GC_TRNS
             S = S + 1
             DIFF_MAP( S ) = GC_STRT - 1 + GC_TRNS_MAP( V )
             DIFF_SPC( S ) = GC_SPC( GC_TRNS_MAP( V ) )
+            DIFF_MW ( S ) = GC_MOLWT( GC_TRNS_MAP( V ) )
+            DIFF_MASK_GAS( S ) = .TRUE.
          END DO
          DO V = 1, N_AE_TRNS
             S = S + 1
             DIFF_MAP( S ) = AE_STRT - 1 + AE_TRNS_MAP( V )
             DIFF_SPC( S ) = AE_SPC( AE_TRNS_MAP( V ) )
+            DIFF_MW ( S ) = AE_MOLWT( AE_TRNS_MAP( V ) )
+            DIFF_MASK_AERO( S ) = .TRUE.
+            IF ( INDEX( DIFF_SPC( S ), 'NUM' ) .NE. 0 ) DIFF_MASK_NUM( S ) = .TRUE.
+            IF ( INDEX( DIFF_SPC( S ), 'SRF' ) .NE. 0 ) DIFF_MASK_SRF( S ) = .TRUE.
          END DO
          DO V = 1, N_NR_TRNS
             S = S + 1
             DIFF_MAP( S ) = NR_STRT - 1 + NR_TRNS_MAP( V )
             DIFF_SPC( S ) = NR_SPC( NR_TRNS_MAP( V ) )
+            DIFF_MW ( S ) = NR_MOLWT( NR_TRNS_MAP( V ) )
+            DIFF_MASK_NR( S ) = .TRUE.
          END DO
          DO V = 1, N_TR_DIFF
             S = S + 1
             DIFF_MAP( S ) = TR_STRT - 1 + TR_DIFF_MAP( V )
             DIFF_SPC( S ) = TR_SPC( TR_DIFF_MAP( V ) )
+            DIFF_MW ( S ) = TR_MOLWT( TR_DIFF_MAP( V ) )
+            DIFF_MASK_TRAC( S ) = .TRUE.
          END DO
 
-#ifdef Verbose_Vdiff
-         WRITE( LOGDEV,* ) '   n  DIFF_map(n)  DIFF_spc(n)'
-         DO N = 1, N_SPC_DIFF   ! DEBUG
-            WRITE( LOGDEV,'(2I6,9X,A)' ) N, DIFF_MAP( N ), DIFF_SPC( N )
-         END DO
-#endif
-
+! Map Deposition Velocity Species to Diffusion Module Species
          S = 0; V = 0
          DO N = 1, N_GC_DEPV
             V = V + 1
@@ -475,13 +404,7 @@ C create global maps to CGRID
             END IF
          END DO
 
-#ifdef Verbose_Vdiff
-         WRITE( LOGDEV,* ) '   n  DV2DF(n)  DV2DF(n)'
-         DO N = 1, N_SPC_DEPV
-            WRITE( LOGDEV,'(2I6,9X,A)' ) N, DV2DF( N ), dv2df_spc( N )
-         END DO
-#endif
-
+! Check for Errors and Exit
          IF ( LERROR ) THEN
             XMSG = '*** Species mapping error(s) in VDIFF_MAP'
             CALL M3WARN( PNAME, 0, 0, XMSG )

@@ -24,7 +24,7 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE TMPBEIS312( JDATE, JTIME, TSTEP, N_SPC_BIOG, BEIS_MAP, EMISL )
+      SUBROUTINE TMPBEIS312( JDATE, JTIME, TSTEP, BEIS_MAP, EMISL )
 
 C-----------------------------------------------------------------------
  
@@ -100,7 +100,6 @@ C Arguments:
       INTEGER, INTENT(  IN ) :: JDATE   ! current simulation date (YYYYDDD)
       INTEGER, INTENT(  IN ) :: JTIME   ! current simulation time (HHMMSS)
       INTEGER, INTENT(  IN ) :: TSTEP( 3 )      ! timestep vector
-      INTEGER, INTENT(  IN ) :: N_SPC_BIOG      ! model biogenic species
       INTEGER, INTENT(  IN ) :: BEIS_MAP( : )   ! mapping from beis3 to model species
       REAL,    INTENT( OUT ) :: EMISL( :,:,: )  ! emissions in moles/sec
 
@@ -332,8 +331,7 @@ C Build description for, and open beis diagnostic file
                VGLVS3D( I ) = VGLVS_GD( I )
             END DO
   
-!           NVARS3D = MSPCS
-            NVARS3D = N_SPC_BIOG
+            NVARS3D = MSPCS
 
             J = 0
             DO I = 1, MSPCS
@@ -417,7 +415,7 @@ C Allocate memory for arrays
          CALL CHECKMEM( IOS, 'NOPOL', PNAME )
 
          IF ( BEMIS_DIAG ) THEN
-            ALLOCATE( EMISS( NCOLS,NROWS,N_SPC_BIOG ), STAT=IOS )
+            ALLOCATE( EMISS( NCOLS,NROWS,MSPCS ), STAT=IOS )
             CALL CHECKMEM( IOS, 'EMISS', PNAME )
          END IF
 
@@ -524,30 +522,12 @@ C Calculate temporal non-speciated soil NO emissions
       EMPOL( :,:,NSEF )     = NOPOL
 
 C Speciate emissions
-
-#ifdef verbose_tmpbeis
-      EMISX = 0.0; CX = 0; RX = 0    ! arrays
-#endif
       DO K = 1, NSEF
          DO R = 1, MY_NROWS
             DO C = 1, MY_NCOLS
                EMPL = EMPOL( C,R,K ) * HR2SEC
-               IF ( EMPL .LE. 0.0 ) CYCLE
-               I = 0
-               DO S = 1, MSPCS
-                  IF ( BEIS_MAP( S ) .GT. 0 ) THEN
-                     I = I + 1
-                     MLFC = MLFAC( S,K )
-                     EMISL( I,C,R ) = EMISL( I,C,R ) + EMPL * MLFC
-#ifdef verbose_tmpbeis
-                     IF ( EMISL( I,C,R ) .GT. EMISX( I ) ) THEN
-                         EMISX( I ) = EMISL( I,C,R )
-                         CX( I ) = C
-                         RX( I ) = R
-                     END IF
-#endif
-                  END IF
-               END DO
+               IF ( EMPL .GT. 0.0 ) 
+     &            EMISL( :,C,R ) = EMISL( :,C,R ) + EMPL * MLFAC( :,K )
             END DO
          END DO
       END DO
@@ -556,7 +536,7 @@ C Speciate emissions
       WRITE( LOGDEV,* ) ' '
       WRITE( LOGDEV,* ) '       from TMPBEIS312'
       WRITE( LOGDEV,* ) '    Spc   EMISL  MaxC MaxR'
-      DO S = 1, N_SPC_BIOG
+      DO S = 1, MSPCS
          WRITE( LOGDEV,'( 4X, I3, F10.5, 2I4 )' ) S, EMISX( S ), CX( S ), RX( S )
       END DO
 
@@ -568,15 +548,13 @@ C Speciate emissions
       DO K = 1, NSEF
          EMPL = EMPOL( C,R,K ) * HR2SEC
          IF ( EMPL .LE. 0.0 ) CYCLE
-         I = 0
          DO S = 1, MSPCS
             IF ( BEIS_MAP( S ) .GT. 0 ) THEN
-               I = I + 1
                MLFC = MLFAC( S,K )
-               EMISX( I ) = EMISX( I ) + EMPL * MLFC
+               EMISX( S ) = EMISX( S ) + EMPL * MLFC
                IF ( MLFC .NE. 0.0 )
      &            WRITE( LOGDEV,'( 4X, I3, 2X, A6, 2X, I3, 1X, 3( 1PE10.3 ) )' )
-     &                              S, EMSPC( I ), K,  MLFC, EMPL, EMISX( I )
+     &                              S, EMSPC( S ), K,  MLFC, EMPL, EMISX( S )
             END IF
          END DO
       END DO
@@ -587,23 +565,23 @@ C Speciate emissions
 
       IF ( BEMIS_DIAG ) THEN
          DO K = 1, NSEF
-            I = 0
             DO S = 1, MSPCS
-               IF ( BEIS_MAP( S ) .GT. 0 ) THEN
-                  I = I + 1
 ! Unit conversion for the emission and fraction of the sync time step to the output time step
                   MSFC = MSFAC( S,K ) * FLOAT( TIME2SEC( TSTEP( 2 ) ) ) / FLOAT( TIME2SEC( TSTEP( 1 ) ) )
 ! Add the emission for the model output time step
-                  EMISS( :,:,I ) = EMISS( :,:,I ) + EMPOL( :,:,K ) * MSFC
-               END IF
+                  EMISS( :,:,S ) = EMISS( :,:,S ) + EMPOL( :,:,K ) * MSFC
             END DO
          END DO
          IF ( LASTTIC ) THEN
             EMISS = EMISS * HR2SEC   ! convert from gm/h to gm/s
-            IF ( .NOT. WRITE3( SNAME, 'ALL', MDATE, MTIME, EMISS ) ) THEN
-               MESG = 'Could not write to output file "' // TRIM( SNAME ) // '"'
-               CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
-            END IF
+            DO S = 1,MSPCS
+               IF ( BEIS_MAP( S ) .GT. 0 ) THEN
+                  IF ( .NOT. WRITE3( SNAME, EMSPC( S ), MDATE, MTIME, EMISS(:,:,S) ) ) THEN
+                     MESG = 'Could not write to output file "' // TRIM( SNAME ) // '"'
+                     CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+                  END IF
+               END IF
+            END DO
             WRITE( LOGDEV,94040 )
      &            'Timestep written to', SNAME,
      &            'for date and time', MDATE, MTIME

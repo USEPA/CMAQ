@@ -15,7 +15,7 @@
 #> Default location for CMAQ model build is one directory above
 #> the repository. The user may also set their own preferred 
 #> directory.
- set CMAQ_HOME = /home/username/CMAQ_project
+ set CMAQ_HOME = /home/bmurphy/cmaq_projects/EmissProc_MECHS
 
 #> This section allows users to choose explicitly which tools
 #> to make available from the repo. For each selected tool,
@@ -96,6 +96,7 @@
     cp CCTM/scripts/run_cctm_2010_4CALIF1.csh $CMAQ_HOME/CCTM/scripts/run_cctm_2010_4CALIF1.csh
     cp CCTM/scripts/run_cctm_2014_12US1.csh $CMAQ_HOME/CCTM/scripts/run_cctm_2014_12US1.csh
     cp CCTM/scripts/lonlat.csv $CMAQ_HOME/CCTM/scripts/lonlat.csv
+    cp CCTM/scripts/EmissCtrl.nml $CMAQ_HOME/CCTM/scripts/EmissCtrl.nml
  endif
 
 #===============================================================================

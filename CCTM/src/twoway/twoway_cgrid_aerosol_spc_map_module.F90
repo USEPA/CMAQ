@@ -46,7 +46,7 @@
     character (len = 16), parameter :: ss_spc(num_ss_spc) = &
       (/ 'ANAJ            ', 'ACLJ            ',            &
          'ACLK            ', 'ASO4K           ',            &
-         'ASEACAT         '                                 &
+         'ASEACATK        '                                 &
       /)
 
     ! water
@@ -85,7 +85,7 @@
          'AOLGAJ          ', 'AOLGBJ          ', 'AORGCJ          ', 'AORGPAI         ', 'AORGPAJ         ', &
          'AECI            ', 'AECJ            ', 'AOTHRI          ', 'AOTHRJ          ', 'ANAI            ', &
          'ANAJ            ', 'ANAK            ', 'ACLI            ', 'ACLJ            ', 'ACLK            ', &
-         'ACORS           ', 'ASOILJ          ', 'ASOIL           ',                                         &
+         'ACORSK          ', 'ASOILJ          ', 'ASOIL           ',                                         &
          'PMASSAT         ', 'PMASSAC         ', 'PMASSCO         '                                          &
       /)
 
@@ -101,7 +101,7 @@
          'AOLGAJ          ', 'AOLGBJ          ', 'AORGCJ          ', 'AORGPAI         ', 'AORGPAJ         ', &
          'AECI            ', 'AECJ            ', 'AOTHRI          ', 'AOTHRJ          ', 'ANAI            ', &
          'ANAJ            ', 'ANAK            ', 'ACLI            ', 'ACLJ            ', 'ACLK            ', &
-         'ACORS           ', 'ASOILJ          ', 'ASOIL           '                                          &
+         'ACORSK          ', 'ASOILJ          ', 'ASOILK          '                                          &
       /)
 
     integer :: twoway_ae_cmaq_spc_name_index (num_twoway_ae_cmaq_spc)
@@ -109,8 +109,8 @@
 ! this is for aerosol indirect effect to map cgrid species to wrf 
 
     character (len = 16), parameter :: twoway_ae_cmaq_spc_name_other (num_twoway_ae_cmaq_spc_other) =        &
-      (/ 'APOCI           ', 'APNCOMI         ', 'APOCJ           ', 'APNCOMJ         ', 'ASEACAT         ', &
-         'ASOIL           ', 'ACORS           ', 'AALJ            ', 'ASIJ            ', 'ACAJ            ', &
+      (/ 'APOCI           ', 'APNCOMI         ', 'APOCJ           ', 'APNCOMJ         ', 'ASEACATK        ', &
+         'ASOILK          ', 'ACORSK          ', 'AALJ            ', 'ASIJ            ', 'ACAJ            ', &
          'AFEJ            ', 'ATIJ            '  &
       /)
 
