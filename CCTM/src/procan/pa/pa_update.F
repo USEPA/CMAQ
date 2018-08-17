@@ -441,7 +441,8 @@ C..output if necessary for each output species
                ! Modify both the emiss process and the calling process
                DELC( :,:,:,IPEM ) = DELC( :,:,:,IPEM )
      &                              + SPCOEF( NPA,NGR ) * EM( :,:,: )
-               DELC( :,:,:,IPAJ ) = DELC( :,:,:,IPAJ )
+               IF ( IPAJ .NE. 0 )
+     &            DELC( :,:,:,IPAJ ) = DELC( :,:,:,IPAJ )
      &                              - SPCOEF( NPA,NGR ) * EM( :,:,: )
          END DO
       END DO
@@ -696,13 +697,17 @@ C-----------------------------------------------------------------------
             ICG = IPR2GRD( NPA,NGR )       ! CGRID species index 
 
                ! Modify both the emiss process and the calling process
-               DELC( :,:,:,IPCOAG ) = DELC( :,:,:,IPCOAG )
+               IF ( IPCOAG .NE. 0 )
+     &            DELC( :,:,:,IPCOAG ) = DELC( :,:,:,IPCOAG )
      &                              + SPCOEF( NPA,NGR ) * SUM( AERO_COAG( :,:,:,ICG,: ),4 )
-               DELC( :,:,:,IPCOND ) = DELC( :,:,:,IPCOND )
+               IF ( IPCOND .NE. 0 )
+     &            DELC( :,:,:,IPCOND ) = DELC( :,:,:,IPCOND )
      &                              + SPCOEF( NPA,NGR ) * AERO_COND( :,:,:,ICG )
-               DELC( :,:,:,IPNPF  ) = DELC( :,:,:,IPNPF )
+               IF ( IPNPF .NE. 0 )
+     &            DELC( :,:,:,IPNPF  ) = DELC( :,:,:,IPNPF )
      &                              + SPCOEF( NPA,NGR ) * AERO_NPF( :,:,:,ICG )
-               DELC( :,:,:,IPGROWTH)= DELC( :,:,:,IPGROWTH )
+               IF ( IPGROWTH .NE. 0 ) 
+     &            DELC( :,:,:,IPGROWTH)= DELC( :,:,:,IPGROWTH )
      &                              + SPCOEF( NPA,NGR ) * AERO_GROWTH( :,:,:,ICG )
          END DO
       END DO
