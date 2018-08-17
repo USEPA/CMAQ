@@ -1757,7 +1757,7 @@ C-----------------------------------------------------------------------
          ! End Emissions Scaling Preparation and Diagnostic Output
          WRITE( LOGDEV, '(/,5x,A)' ), REPEAT( '=',80 )
          WRITE( LOGDEV, '(5x,A,/,/)' ),
-     &          '|> END EMISSIONS SCALING PREPARTION AND DIAGNOSTIC OUTPUT'
+     &          '|> END EMISSIONS SCALING PREPARATION AND DIAGNOSTIC OUTPUT'
 
       END SUBROUTINE EMIS_SPC_MAP
 
