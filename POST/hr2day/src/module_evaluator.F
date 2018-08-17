@@ -559,6 +559,8 @@ C  Routine to read species value array for given date and time
       Subroutine readSpecies( field, specValue)
 
       USE M3UTILIO
+      USE M3FILES
+      USE TIME_STEP
 
       IMPLICIT NONE
 
@@ -568,8 +570,11 @@ C  Routine to read species value array for given date and time
 
       ! local variables
       Logical KSWIT
+      INTEGER ISTEP
+      
+      ISTEP = FIND2( IDATE, ITIME, NSTEPS, STEP_DATE, STEP_TIME)
 
-      KSWIT = READ3('INFILE', field, ilayer, idate, itime, specValue)
+      KSWIT = READ3(M3_FLNAME(STEP_FILE(ISTEP)), field, ilayer, idate, itime, specValue)
 
       !! check read status
       if( .NOT.KSWIT ) then
@@ -578,7 +583,7 @@ C  Routine to read species value array for given date and time
         specValue = AMISS3
         !KSWIT = SHUT3()
         !stop 
-        endif  
+      endif  
 
       return
       end Subroutine readSpecies  

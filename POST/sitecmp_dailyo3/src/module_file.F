@@ -30,11 +30,14 @@ C  REVISION HISTORY: Prototype created by Jerry Gipson, July, 1999
 C                   
 C*************************************************************************
 
+      USE M3UTILIO
+
       INTEGER LOGUNIT                       ! Logdevice
 
       INTEGER N_M3FILES                     ! No. of input Models-3 files
 
-      INTEGER, PARAMETER :: MXM3FLS = 12    ! Max no. of input
+      INTEGER, PARAMETER :: MXM3FLS = MXFILE3 - 1   ! Max no. of input files - use IOAPI parameter 
+                                                    ! MXFILE3 - 1 to also allow one output file
 
       CHARACTER*16  M3_FLNAME( MXM3FLS )    ! Names of Models-3 file
 
@@ -100,9 +103,12 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             IF( N .LT. 10 ) THEN
                WRITE( FL_NAME, '( ''M3_FILE_'', I1 )' ) N
                WRITE( ENV_DESC, '( ''CTM Concentration file no. '', I1 )' ) N 
-            ELSE
+            ELSEIF( N .LT. 100 ) THEN
                WRITE( FL_NAME, '( ''M3_FILE_'', I2 )' ) N
                WRITE( ENV_DESC, '( ''CTM Concentration file no. '', I2 )' ) N 
+            ELSE
+               WRITE( FL_NAME, '( ''M3_FILE_'', I3 )' ) N
+               WRITE( ENV_DESC, '( ''CTM Concentration file no. '', I3 )' ) N 
             ENDIF
 
             ENV_DFLT = ' '        
