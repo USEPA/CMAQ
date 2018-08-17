@@ -49,7 +49,7 @@ C-----------------------------------------------------------------------
 
       USE CGRID_SPCS          ! CGRID mechanism species
       USE GRID_CONF
-      USE EMIS_DEFN          
+      USE EMIS_VARS, ONLY : VDEMIS_DIFF          
       USE DEPV_DEFN
       USE ASX_DATA_MOD
       USE VDIFF_MAP
@@ -291,11 +291,7 @@ C-----------------------------------------------------------------------
          END DO
 
          EMIS = 0.0      ! array assignment
-         DO L = 1, EMLAYS
-            DO V = 1, N_SPC_DIFF
-               EMIS( V,L ) = DTS * VDEMIS( DF2EM( V ),L,C,R )
-            END DO
-         END DO
+         EMIS = DTS * VDEMIS_DIFF( :,:,C,R )
 
          DO L = 1, NLAYS
             DFSP( L ) = DFACP * Grid_Data%RDX3F( L )

@@ -356,7 +356,6 @@ C *** Parameters
       REAL( 8 ), PARAMETER :: STD_DIFF_N2O5 = 0.0855D-4  ! N2O5 molecular diffusivity at 101325 Pa and 273.15 K [m2/sec]
       REAL( 8 ), PARAMETER :: STD_DIFF_BRONO2 = 0.0855D-4  ! BRONO2 molecular diffusivity at 101325 Pa and 273.15 K [m2/sec]
 
-      REAL,      PARAMETER :: GPKG        = 1.0E+03                      ! g/kg unit conversion
       REAL,      PARAMETER :: CFACTOR     = 8.0 * GPKG  * RGASUNIV / PI  ! factor in cbar_coeff
       REAL,      PARAMETER :: PA2ATM      = 1.0 / STDATMPA               ! Pascal to atm conv fac
       REAL,      PARAMETER :: WMASS2PPM   = 1.0E6 * MWAIR / MWWAT        ! H20 mixing ratio to ppm

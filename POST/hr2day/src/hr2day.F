@@ -49,6 +49,10 @@ C*******************************************************************************
       USE M3UTILIO
       USE species_def
       USE evaluator
+      USE ENV_VARS
+      USE M3FILES
+      USE GRID_DATA
+      USE TIME_STEP
 
       IMPLICIT NONE
 
@@ -64,11 +68,10 @@ C local variables
       integer curdate, curtime, cdate, ctime
       integer first_date, first_time, last_date, last_time, runlen
       real x,y,longitude,latitude
-      integer hroffset
-      integer startHr, endHr
-      logical useLocal
-      logical useDST  
-      logical partDay 
+
+      character*(256)  MSG
+      character*(16)  PNAME
+      DATA  PNAME       / 'hr2day'  /
 
 C Array to store hourly input values
       real, allocatable :: hrValues (:, :, :)
@@ -80,21 +83,41 @@ C Array to store hourly input values
 C... start program
       logdev = init3 ()
 
-C... open input file
-      if( .not. open3('INFILE',fsread3, 'hr2day')) then
-        Call m3err('hr2day', 0, 0, 'Could not open INPUT_FILE', .TRUE.)
-        endif
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Get the Models-3 file(s) to process and the other environment   
+c  variables
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-C... load file description from INFILE
-      if( .not. desc3('INFILE')) then
-        Call m3err ('hr2day', 0, 0, 'Could not load file description from IN_FILE', .TRUE.)
-        endif
+      CALL OPEN_M3FILES
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Check the file(s) for consistency and make sure the requested   
+c  species is on the file(s)
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      CALL CK_M3FLS()
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Get the grid definition and the tsteps from the M3 files
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      CALL GET_M3GRID
+
+      CALL GET_TSTEPS
+
+
+C... load file description from first INFILE
+      IF( .NOT. DESC3 ( M3_FLNAME( 1 ) ) ) THEN
+         MSG = 'Could not read DESC of  ' // M3_FLNAME( 1 ) 
+     &         // ' file'
+         CALL M3ERR( PNAME, 0, 0, MSG, .TRUE. )
+      ENDIF
 
 C... check for 1 hour time step
       if( TSTEP3D.ne.10000 ) then
-        Call m3err('hr2day', 0, 0, 'Input file must have One hour time step', .TRUE.)
+        Call m3err(PNAME, 0, 0, 'Input file must have One hour time step', .TRUE.)
         endif
- 
+
+C... get environment variables
+      call GET_ENVS 
 c
 c... set up the correct projection
 c 
@@ -103,46 +126,30 @@ c
       elseif (GDTYP3D.eq.2) then !initialize Lambert projection
        if( .NOT. SETLAM( Real(P_ALP3D), Real(P_BET3D), Real(P_GAM3D),                            
      &                  Real(XCENT3D), Real(YCENT3D) )) then                                    
-        Call m3err ('hr2day', 0, 0, 'Lambert projection setup error', .TRUE.)
+        Call m3err (PNAME, 0, 0, 'Lambert projection setup error', .TRUE.)
        endif     
       elseif (GDTYP3D.eq.6) then !initialize polar stereographic projection
        if( .NOT. SETPOL( Real(P_ALP3D), Real(P_BET3D), Real(P_GAM3D),                            
      &                  Real(XCENT3D), Real(YCENT3D) )) then                                    
-        Call m3err ('hr2day', 0, 0, 'Polar Stereographic projection setup error', .TRUE.)
+        Call m3err (PNAME, 0, 0, 'Polar Stereographic projection setup error', .TRUE.)
        endif  
       else
-       Call m3err ('hr2day', 0, 0, 'Grid projection not supported', .TRUE.)   
+       Call m3err (PNAME, 0, 0, 'Grid projection not supported', .TRUE.)   
       endif
 
-C... Compute last date and time to process                    
-      first_date = SDATE3D
-      first_time = STIME3D                                      
-      last_date = SDATE3D
-      last_time = STIME3D                                      
-      runlen = SEC2TIME( (MXREC3D-1) * TIME2SEC( TSTEP3D ))
-      Call NEXTIME( last_date, last_time, runlen ) 
+C... store first and last day/time to process from module_tstep (across all input files)                    
+      first_date = STEP_DATE(1)
+      first_time = STEP_TIME(1)                                      
+      last_date = STEP_DATE(NSTEPS)
+      last_time = STEP_TIME(NSTEPS)                                      
 
+c... adjust first and last date based on START_DATE and END_DATE envvars
+
+      first_date = MAX( first_date, START_DATE)
+      last_date  = MIN( last_date, END_DATE)
+       
 C... get species definitions from system variables
       Call loadSpecies()
-
-C... get compute partial day switch
-      partDay = ENVYN('PARTIAL_DAY',"Compute partial day values", .FALSE., status)
-
-C... get use local time switch
-      useLocal = ENVYN('USELOCAL',"Use local time", .FALSE., status)
-
-C... get use daylight savings time switch id uselocal
-      useDST = .false.
-      if( useLocal ) then
-        useDST = ENVYN('USEDST',"Use Daylight Savings time", .FALSE., status)
-        endif
-
-C... get hour offset
-      hroffset = ENVINT('HROFFSET',"Hour offset", 0, status)
-
-C... get starting and ending hours for time window
-      startHr = ENVINT('START_HOUR',"Starting Hour of time window", 0, status)
-      endHr = ENVINT('END_HOUR',"Ending Hour of time window", 23, status)
 
 C... create output file
       NLAYS3D = 1
@@ -154,13 +161,13 @@ C... create output file
         VDESC3D(n) = SPECVARS(n)%DESCRIPTION
         UNITS3D(n) = SPECVARS(n)%UNITS
         VTYPE3D(n) = M3REAL
-        enddo
+      enddo
 
-       if(.not. open3('OUTFILE',3,'hr2day')) then
-        if(.not. open3('OUTFILE',2,'hr2day')) then
+      if(.not. open3('OUTFILE',3,PNAME)) then
+       if(.not. open3('OUTFILE',2,PNAME)) then
           Call m3err('average', 0, 0, 'Could not open OUTFILE file',.TRUE.)
-          endif
-        endif
+       endif
+      endif
 
 C... Allocate memory for data arrays
       Allocate( tzoffset(NCOLS3D, NROWS3D) )
@@ -182,31 +189,33 @@ C... Allocate memory for data arrays
              latitude=y
             elseif (GDTYP3D.eq.2) then ! convert Lambert coordinates to lat/lon
              if( .NOT. LAM2LL(x, y, longitude, latitude) ) then
-              Call m3err ('hr2day', 0, 0, 'Lat/Lon conversion error', .TRUE.)
+              Call m3err (PNAME, 0, 0, 'Lat/Lon conversion error', .TRUE.)
              endif
             elseif (GDTYP3D.eq.6) then !convert polar stereographic coordinates to lat/lon
              if( .NOT. POL2LL(x, y, longitude, latitude) ) then
-              Call m3err ('hr2day', 0, 0, 'Lat/Lon conversion error', .TRUE.)
+              Call m3err (PNAME, 0, 0, 'Lat/Lon conversion error', .TRUE.)
              endif
             else
-             Call m3err ('hr2day', 0, 0, 'Grid projection not supported', .TRUE.)   
+             Call m3err (PNAME, 0, 0, 'Grid projection not supported', .TRUE.)   
             endif
 
             tzoffset(c,r) = getTZ(longitude, latitude)
-            enddo
           enddo
-        endif
+        enddo
+      endif
 
 C... reload file description from INFILE
-      if( .not. desc3('INFILE')) then
-        Call m3err ('hr2day', 0, 0, 'Could not load file description from IN_FILE', .TRUE.)
-        endif
+      IF( .NOT. DESC3 ( M3_FLNAME( 1 ) ) ) THEN
+         MSG = 'Could not read DESC of  ' // M3_FLNAME( 1 ) 
+     &         // ' file'
+         CALL M3ERR( PNAME, 0, 0, MSG, .TRUE. )
+      ENDIF
 
 C... start loop to read and process each variable
       do n = 1, NSPECVAR
         hr1 = -36
-        curDate = SDATE3D
-        curTime = STIME3D
+        curDate = first_date
+        curTime = first_time
         hrValues = BADVAL3
         dayValues = BADVAL3
 
@@ -217,79 +226,79 @@ C... start loop to read and process each variable
           offset = tzoffset
           offset = offset + hroffset 
           if(useDST .and. isDSTime(cDate)) offset = offset - 1   ! adjustment for daylight savings time
-	  call NEXTIME(cDate,cTime,0) !reformat to make sure hours are between 0 and 23
+          call NEXTIME(cDate,cTime,0) !reformat to make sure hours are between 0 and 23
           Do h=hr1,66
             rstatus = .false.
             hrValues(h,:,:) = BADVAL3
-            if( (SECSDIFF(first_date, first_time, cdate, ctime) .ge. 0)
-     &    .and. (SECSDIFF(cdate, ctime, last_date, last_time) .ge. 0) ) then
+            if( (SECSDIFF(STEP_DATE(1), STEP_TIME(1), cdate, ctime) .ge. 0)
+     &      .and. (SECSDIFF(cdate, ctime, STEP_DATE(NSTEPS), STEP_TIME(NSTEPS)) .ge. 0) ) then
               Call evaluate(SPECVARS(n)%EXPRESSION, cdate, ctime, 1, NCOLS3D*NROWS3D, hrValues(h,:,:))
               endif
             Call NEXTIME(cDate, cTime, 10000)
-            enddo
+          enddo
 
           ! compute daily values
           if( SPECVARS(n)%OPERATION .eq. 'SUM' ) then
-            Call sumValues(hrValues, dayValues, offset, startHr, endHr, partDay)
-            endif
+            Call sumValues(hrValues, dayValues, offset)
+          endif
 
           if( SPECVARS(n)%OPERATION .eq. 'AVG' ) then
-            Call avgValues(hrValues, dayValues, offset, startHr, endHr, partDay)
-            endif
+            Call avgValues(hrValues, dayValues, offset)
+          endif
 
           if( SPECVARS(n)%OPERATION .eq. 'MIN' ) then
-            Call minValues(hrValues, dayValues, offset, startHr, endHr, partDay)
-            endif
+            Call minValues(hrValues, dayValues, offset)
+          endif
 
           if( SPECVARS(n)%OPERATION .eq. 'MAX' ) then
-            Call maxValues(hrValues, dayValues, offset, startHr, endHr, partDay)
-            endif
+            Call maxValues(hrValues, dayValues, offset)
+          endif
 
           if( SPECVARS(n)%OPERATION .eq. 'HR@MIN' ) then
-            Call minHrValues(hrValues, dayValues, offset, startHr, endHr, partDay)
-            endif
+            Call minHrValues(hrValues, dayValues, offset)
+          endif
 
           if( SPECVARS(n)%OPERATION .eq. 'HR@MAX' ) then
-            Call maxHrValues(hrValues, dayValues, offset, startHr, endHr, partDay)
-            endif
+            Call maxHrValues(hrValues, dayValues, offset)
+          endif
 
           if( SPECVARS(n)%OPERATION .eq. '@MAXT' ) then
-            Call maxTValues(hrValues, dayValues, offset, curDate, startHr, endHr, partDay)
-            endif
+            Call maxTValues(hrValues, dayValues, offset, curDate)
+          endif
 
           if( SPECVARS(n)%OPERATION .eq. 'MAXDIF' ) then
-            Call maxDifValues(hrValues, dayValues, offset, startHr, endHr, partDay)
-            endif
+            Call maxDifValues(hrValues, dayValues, offset)
+          endif
 
           if( SPECVARS(n)%OPERATION .eq. '8HRMAX' ) then
-            Call max8hr(hrValues, dayValues, offset, partDay)
-            endif
+            Call max8hr(hrValues, dayValues, offset)
+          endif
 
           if( SPECVARS(n)%OPERATION .eq. 'W126' ) then
-            Call w126(hrValues, dayValues, offset, SPECVARS(n)%UNITS, partDay)
+            Call w126(hrValues, dayValues, offset, SPECVARS(n)%UNITS)
             endif
 
           if( SPECVARS(n)%OPERATION .eq. '@8HRMAXO3' ) then
-            Call maxO3Values(hrValues, dayValues, offset, curDate, partDay)
-            endif
+            Call maxO3Values(hrValues, dayValues, offset, curDate)
+          endif
 
           if( SPECVARS(n)%OPERATION .eq. 'HR@8HRMAX' ) then
-            Call max8hrHour(hrValues, dayValues, offset, partDay)
-            endif
+            Call max8hrHour(hrValues, dayValues, offset)
+          endif
 
           if( SPECVARS(n)%OPERATION .eq. 'SUM06' ) then
-            Call sum06(hrValues, dayValues, offset, SPECVARS(n)%UNITS, partDay)
-            endif
+            Call sum06(hrValues, dayValues, offset, SPECVARS(n)%UNITS)
+          endif
 
           ! write daily values to output
           if(.not.write3('OUTFILE',SPECVARS(n)%NAME,curDate,000000,dayValues)) then
-          Call m3err ('hr2day', curDate, 0, 'Write Error for ' // SPECVARS(n)%NAME, .TRUE.)
+          Call m3err (PNAME, curDate, 0, 'Write Error for ' // SPECVARS(n)%NAME, .TRUE.)
           endif
 
           ! copy current day's values to next day
           do h = -36, 42
             hrValues( h,:,:) = hrvalues(h+24,:,:) 
-            enddo
+          enddo
 
           ! go to next time step
           Call NEXTIME(curdate, curtime, 240000) 
@@ -312,9 +321,10 @@ c
 c   Routine to sum hourly values at each cell
 c
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      Subroutine sumValues(hrValues, dayValues, tzoffset, startHr, endHr, partDay)  
+      Subroutine sumValues(hrValues, dayValues, tzoffset)  
 
       USE M3UTILIO
+      USE ENV_VARS
 
       IMPLICIT NONE
 
@@ -322,8 +332,6 @@ C... arguments
       Real hrValues(-36:66, NCOLS3D, NROWS3D)
       Real dayValues(NCOLS3D, NROWS3D)
       Integer tzoffset(NCOLS3D, NROWS3D)
-      Integer startHr, endHr
-      Logical partDay
 
 C... local variables
       Integer c, r, h, count
@@ -354,9 +362,10 @@ c
 c   Routine to average hourly values at each cell
 c
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      Subroutine avgValues(hrValues, dayValues, tzoffset, startHr, endHr, partDay)  
+      Subroutine avgValues(hrValues, dayValues, tzoffset)  
 
       USE M3UTILIO
+      USE ENV_VARS
 
       IMPLICIT NONE
 
@@ -364,8 +373,6 @@ C... arguments
       Real hrValues(-36:66, NCOLS3D, NROWS3D)
       Real dayValues(NCOLS3D, NROWS3D)
       Integer tzoffset(NCOLS3D, NROWS3D)
-      Integer startHr, endHr
-      Logical partDay
 
 C... local variables
       Integer c, r, h, count
@@ -397,9 +404,10 @@ c
 c   Routine to find the minimum hourly value at each cell
 c
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      Subroutine minValues(hrValues, dayValues, tzoffset, startHr, endHr, partDay)
+      Subroutine minValues(hrValues, dayValues, tzoffset)
 
       USE M3UTILIO
+      USE ENV_VARS
 
       IMPLICIT NONE
 
@@ -407,8 +415,6 @@ C... arguments
       Real hrValues(-36:66, NCOLS3D, NROWS3D)
       Real dayValues(NCOLS3D, NROWS3D)
       Integer tzoffset(NCOLS3D, NROWS3D)
-      Integer startHr, endHr
-      Logical partDay
 
 C... local variables
       Integer c, r, h, count
@@ -439,9 +445,10 @@ c
 c   Routine to find the hour at the minimum hourly value at each cell
 c
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      Subroutine minHrValues(hrValues, dayValues, tzoffset, startHr, endHr, partDay)
+      Subroutine minHrValues(hrValues, dayValues, tzoffset)
 
       USE M3UTILIO
+      USE ENV_VARS
 
       IMPLICIT NONE
 
@@ -449,8 +456,6 @@ C... arguments
       Real hrValues(-36:66, NCOLS3D, NROWS3D)
       Real dayValues(NCOLS3D, NROWS3D)
       Integer tzoffset(NCOLS3D, NROWS3D)
-      Integer startHr, endHr
-      Logical partDay
 
 C... local variables
       Integer c, r, h, count
@@ -487,9 +492,10 @@ c
 c   Routine to find the maximum hourly value at each cell
 c
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      Subroutine maxValues(hrValues, dayValues, tzoffset, startHr, endHr, partDay)
+      Subroutine maxValues(hrValues, dayValues, tzoffset)
 
       USE M3UTILIO
+      USE ENV_VARS
 
       IMPLICIT NONE
 
@@ -497,8 +503,6 @@ C... arguments
       Real hrValues(-36:66, NCOLS3D, NROWS3D)
       Real dayValues(NCOLS3D, NROWS3D)
       Integer tzoffset(NCOLS3D, NROWS3D)
-      Integer startHr, endHr
-      Logical partDay
 
 C... local variables
       Integer c, r, h, count
@@ -529,9 +533,10 @@ c
 c   Routine to find the hour at the maximum hourly value at each cell
 c
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      Subroutine maxHrValues(hrValues, dayValues, tzoffset, startHr, endHr, partDay)
+      Subroutine maxHrValues(hrValues, dayValues, tzoffset)
 
       USE M3UTILIO
+      USE ENV_VARS
 
       IMPLICIT NONE
 
@@ -539,8 +544,6 @@ C... arguments
       Real hrValues(-36:66, NCOLS3D, NROWS3D)
       Real dayValues(NCOLS3D, NROWS3D)
       Integer tzoffset(NCOLS3D, NROWS3D)
-      Integer startHr, endHr
-      Logical partDay
 
 C... local variables
       Integer c, r, h, count
@@ -577,9 +580,12 @@ c
 c   Routine to find the value when at maximum temperature
 c
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      Subroutine maxTValues(hrValues, dayValues, tzoffset, curDate, startHr, endHr, partDay)
+      Subroutine maxTValues(hrValues, dayValues, tzoffset, curDate)
 
       USE M3UTILIO
+      USE ENV_VARS
+      USE M3FILES
+      USE TIME_STEP
 
       IMPLICIT NONE
 
@@ -588,8 +594,6 @@ C... arguments
       Real dayValues(NCOLS3D, NROWS3D)
       Integer tzoffset(NCOLS3D, NROWS3D)
       Integer curDate
-      Integer startHr, endHr
-      Logical partDay
 
 C... local variables
       Integer status
@@ -599,9 +603,9 @@ C... local variables
       Integer, save :: last_date
       Integer, save :: last_time
 
-      Character*(16) tempvar
       Real, save,allocatable :: tvalues(:,:,:)
       Integer runlen
+      INTEGER ISTEP
       Integer c, r, h, count
       Integer cdate, ctime
       Real maxTemp, value
@@ -610,32 +614,39 @@ C... local variables
 C... first pass
       if( first ) then
         first = .false.
-        Call ENVSTR('TEMPERATURE','Temperature species used in @MAXT operation',
-     &              'TEMP2', tempvar, status)  
         Allocate ( tvalues(-36:66, NCOLS3D, NROWS3D) )
 
-        ! Compute last date and time to process                    
-        first_date = SDATE3D
-        first_time = STIME3D                                      
-        last_date = SDATE3D
-        last_time = STIME3D                                      
-        runlen = SEC2TIME( (MXREC3D-1) * TIME2SEC( TSTEP3D ))
-        Call NEXTIME( last_date, last_time, runlen ) 
-        endif   ! first pass
+C... store first and last day/time to process from module_tstep (across all input files)                    
+        first_date = STEP_DATE(1)
+        first_time = STEP_TIME(1)                                      
+        last_date = STEP_DATE(NSTEPS)
+        last_time = STEP_TIME(NSTEPS)                                      
+
+c... adjust first and last date based on START_DATE and END_DATE envvars
+
+        first_date = MAX( first_date, START_DATE)
+        last_date  = MIN( last_date, END_DATE)
+      endif   ! first pass
     
 C... read temperature values and fill tvalues array
       cdate = curDate
-      ctime = 0
+      ctime = -36 * 10000
+      call NEXTIME(cDate,cTime,0) !reformat to make sure hours are between 0 and 23
       tvalues = BADVAL3
       do h=-36,66
-        if( (SECSDIFF(first_date, first_time, cdate, ctime) .ge. 0)
-     &    .and. (SECSDIFF(cdate, ctime, last_date, last_time) .ge. 0) ) then
-          if(.not.READ3('INFILE', tempvar, 1, cdate, ctime, tvalues(h,:,:)) ) then
+
+        if( (SECSDIFF(STEP_DATE(1), STEP_TIME(1), cdate, ctime) .ge. 0)
+     &    .and. (SECSDIFF(cdate, ctime, STEP_DATE(NSTEPS), STEP_TIME(NSTEPS)) .ge. 0) ) then
+
+          ISTEP = FIND2( CDATE, CTIME, NSTEPS, STEP_DATE, STEP_TIME)
+
+          if(.not.READ3(M3_FLNAME(STEP_FILE(ISTEP)), tempvar, 1, cdate, ctime, tvalues(h,:,:)) ) then
             Write(*,'(''Cannot read temperature data for @MAXT operation'')')
             endif
           endif
+
         Call NEXTIME(cDate, cTime, 10000)
-        enddo
+      enddo
          
 C... start loops to find maximum temperature for each cell
       Do c = 1, NCOLS3D
@@ -666,9 +677,12 @@ c
 c   Routine to find the value in 8-hour-max ozone period
 c
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      Subroutine maxO3Values(hrValues, dayValues, tzoffset, curDate, partDay)
+      Subroutine maxO3Values(hrValues, dayValues, tzoffset, curDate)
 
       USE M3UTILIO
+      USE ENV_VARS
+      USE M3FILES
+      USE TIME_STEP
 
       IMPLICIT NONE
 
@@ -677,7 +691,7 @@ C... arguments
       Real dayValues(NCOLS3D, NROWS3D)
       Integer tzoffset(NCOLS3D, NROWS3D)
       Integer curDate
-      Logical partDay
+      INTEGER ISTEP
 
 C... local variables
       Logical, save :: first=.true.  
@@ -686,7 +700,7 @@ C... local variables
       Integer, save :: last_date
       Integer, save :: last_time
 
-      Character*(16) ozonevar
+c      Character*(16) ozonevar
       Real, save,allocatable :: O3values(:,:,:)
       Integer runlen
       Integer c, r, h, i
@@ -694,39 +708,29 @@ C... local variables
       Integer count, nperiods
       Real o3sum, sum, maxValue, sumValue, avg
       INTEGER STATUS                ! Status code
-      INTEGER HOURS_8HRMAX          ! number of 8hr values to compute 8hr max     
+c      INTEGER HOURS_8HRMAX          ! number of 8hr values to compute 8hr max     
       CHARACTER*16 ENV_DESC         ! message string
       CHARACTER*16 PNAME            ! Program Name
       CHARACTER*80 MSG              ! Error message
       DATA  PNAME           / 'HR2DAY'        /
 
-C... Get the HOURS_8HRMAX environment variable (default is 24)                                                          
-       ENV_DESC = 'Number of 8hr values to use when computing DM8HR'                                               
-       HOURS_8HRMAX= ENVINT( 'HOURS_8HRMAX', ENV_DESC, 24, STATUS)  
-	 
-       if ( ( HOURS_8HRMAX .NE. 24) .AND. ( HOURS_8HRMAX .NE. 17) ) THEN                                
-
-        MSG = '**Error** Invalid value for HOURS_8HRMAX, use 24 or 17'
-        CALL M3ERR( PNAME, 0, 0, MSG, .TRUE. ) 
-        Stop
-       Endif
 
 
 C... first pass
       if( first ) then
         first = .false.
-        Call ENVSTR('OZONE','Ozone species used in @8HRMAXO3 operation',
-     &              'O3', ozonevar, status)  
         Allocate ( O3values(-36:66, NCOLS3D, NROWS3D) )
+C... store first and last day/time to process from module_tstep (across all input files)                    
+        first_date = STEP_DATE(1)
+        first_time = STEP_TIME(1)                                      
+        last_date = STEP_DATE(NSTEPS)
+        last_time = STEP_TIME(NSTEPS)                                      
 
-        ! Compute last date and time to process                    
-        first_date = SDATE3D
-        first_time = STIME3D                                      
-        last_date = SDATE3D
-        last_time = STIME3D                                      
-        runlen = SEC2TIME( (MXREC3D-1) * TIME2SEC( TSTEP3D ))
-        Call NEXTIME( last_date, last_time, runlen ) 
-        endif   ! first pass
+c... adjust first and last date based on START_DATE and END_DATE envvars
+
+        first_date = MAX( first_date, START_DATE)
+        last_date  = MIN( last_date, END_DATE)
+      endif   ! first pass
     
 C... read ozone values and fill tvalues array
       cdate = curDate
@@ -734,14 +738,18 @@ C... read ozone values and fill tvalues array
       call NEXTIME(cDate,cTime,0) !reformat to make sure hours are between 0 and 23
       O3values = BADVAL3
       do h=-36,66
-        if( (SECSDIFF(first_date, first_time, cdate, ctime) .ge. 0)
-     &    .and. (SECSDIFF(cdate, ctime, last_date, last_time) .ge. 0) ) then
-          if(.not.READ3('INFILE', ozonevar, 1, cdate, ctime, O3values(h,:,:)) ) then
+        if( (SECSDIFF(STEP_DATE(1), STEP_TIME(1), cdate, ctime) .ge. 0)
+     &   .and. (SECSDIFF(cdate, ctime, STEP_DATE(NSTEPS), STEP_TIME(NSTEPS)) .ge. 0) ) then
+
+          ISTEP = FIND2( CDATE, CTIME, NSTEPS, STEP_DATE, STEP_TIME)
+
+          if(.not.READ3(M3_FLNAME(STEP_FILE(ISTEP)), ozonevar, 1, cdate, ctime, O3values(h,:,:)) ) then
             Write(*,'(''Cannot read Ozone data for @8HRMAXO3 operation'')')
-            endif
-          endif
+           endif
+
+        endif
         Call NEXTIME(cDate, cTime, 10000)
-        enddo
+      enddo
         
 C... start loops to find max 8-hr and save sum of hrValues
       Do c = 1, NCOLS3D
@@ -750,9 +758,9 @@ C... start loops to find max 8-hr and save sum of hrValues
           maxValue = BADVAL3
           sumValue = BADVAL3
           nperiods = 0
-	  
+          
           if ( HOURS_8HRMAX .eq. 24 ) then ! use 24 8hr values
-	  
+          
            Do h = tzoffset(c,r),tzoffset(c,r)+23
             o3sum = 0
             sum = 0
@@ -775,7 +783,7 @@ C... start loops to find max 8-hr and save sum of hrValues
                endif
             endDo      ! end hour loop
            if(partDay .or. nperiods.ge.18) dayValues(c,r) = sumValue !require 18/24
-	   
+           
           else !use only 17 8hr values, from 7 am to 11 pm LT
 
            Do h = tzoffset(c,r)+7,tzoffset(c,r)+23
@@ -801,8 +809,8 @@ C... start loops to find max 8-hr and save sum of hrValues
             endDo      ! end hour loop
            if(partDay .or. nperiods.ge.13) dayValues(c,r) = sumValue !require 13/17
 
-          endif	   
-	   
+          endif           
+           
           endDo      ! end row loop
         endDo      ! end column loop
 
@@ -815,9 +823,10 @@ c
 c   Routine to find the maximum hourly change
 c
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      Subroutine maxDifValues(hrValues, dayValues, tzoffset, startHr, endHr, partDay)
+      Subroutine maxDifValues(hrValues, dayValues, tzoffset)
 
       USE M3UTILIO
+      USE ENV_VARS
 
       IMPLICIT NONE
 
@@ -825,8 +834,6 @@ C... arguments
       Real hrValues(-36:66, NCOLS3D, NROWS3D)
       Real dayValues(NCOLS3D, NROWS3D)
       Integer tzoffset(NCOLS3D, NROWS3D)
-      Integer startHr, endHr
-      Logical partDay
 
 C... local variables
       Integer c, r, h, count
@@ -861,38 +868,38 @@ c
 c   Routine to find the 8-hour maximum value at each cell
 c
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      Subroutine max8hr(hrValues, dayValues, tzoffset, partDay)
+      Subroutine max8hr(hrValues, dayValues, tzoffset)
 
       USE M3UTILIO
-
+      USE ENV_VARS
+      
       IMPLICIT NONE
 
 C... arguments
       Real hrValues(-36:66, NCOLS3D, NROWS3D)
       Real dayValues(NCOLS3D, NROWS3D)
       Integer tzoffset(NCOLS3D, NROWS3D)
-      Logical partDay
 
 C... local variables
       Integer c, r, h, i, count, nperiods
       Real sum, maxValue, avg
       INTEGER STATUS                ! Status code
-      INTEGER HOURS_8HRMAX          ! number of 8hr values to compute 8hr max     
+c      INTEGER HOURS_8HRMAX          ! number of 8hr values to compute 8hr max     
       CHARACTER*16 ENV_DESC         ! message string
       CHARACTER*16 PNAME            ! Program Name
       CHARACTER*80 MSG              ! Error message
       DATA  PNAME           / 'HR2DAY'        /
 
 C... Get the HOURS_8HRMAX environment variable (default is 24)                                                          
-       ENV_DESC = 'Number of 8hr values to use when computing DM8HR'                                               
-       HOURS_8HRMAX= ENVINT( 'HOURS_8HRMAX', ENV_DESC, 24, STATUS)  
+c       ENV_DESC = 'Number of 8hr values to use when computing DM8HR'                                               
+c       HOURS_8HRMAX= ENVINT( 'HOURS_8HRMAX', ENV_DESC, 24, STATUS)  
 	 
-       if ( ( HOURS_8HRMAX .NE. 24) .AND. ( HOURS_8HRMAX .NE. 17) ) THEN                                
+c       if ( ( HOURS_8HRMAX .NE. 24) .AND. ( HOURS_8HRMAX .NE. 17) ) THEN                                
 
-        MSG = '**Error** Invalid value for HOURS_8HRMAX, use 24 or 17'
-        CALL M3ERR( PNAME, 0, 0, MSG, .TRUE. ) 
-        Stop
-       Endif
+c        MSG = '**Error** Invalid value for HOURS_8HRMAX, use 24 or 17'
+c        CALL M3ERR( PNAME, 0, 0, MSG, .TRUE. ) 
+c        Stop
+c       Endif
 
 C... start loops to find max 8-hr 
       Do c = 1, NCOLS3D
@@ -900,9 +907,9 @@ C... start loops to find max 8-hr
           dayValues(c,r) = BADVAL3
           maxValue = BADVAL3
           nperiods = 0
-	  
+          
           if ( HOURS_8HRMAX .eq. 24 ) then ! use 24 8hr values
-	  
+          
            Do h = tzoffset(c,r),tzoffset(c,r)+23
             sum = 0
             count = 0
@@ -919,7 +926,7 @@ C... start loops to find max 8-hr
               endif
             endDo      ! end hour loop
             if(partDay .or. nperiods.ge.18) dayValues(c,r) = maxValue !require 18/24
-	   
+           
           else !use only 17 8hr values, from 7 am to 11 pm LT
 
            Do h = tzoffset(c,r)+7,tzoffset(c,r)+23
@@ -938,9 +945,9 @@ C... start loops to find max 8-hr
               endif
             endDo      ! end hour loop
             if(partDay .or. nperiods.ge.13) dayValues(c,r) = maxValue !require 13/17
-	    
-	  endif
-	   
+            
+          endif
+           
           endDo      ! end row loop
         endDo      ! end column loop
 
@@ -954,9 +961,10 @@ c
 c   Routine to find the starting hour of the 8-hour maximum period
 c
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      Subroutine max8hrHour(hrValues, dayValues, tzoffset, partDay)
+      Subroutine max8hrHour(hrValues, dayValues, tzoffset)
 
       USE M3UTILIO
+      USE ENV_VARS
 
       IMPLICIT NONE
 
@@ -964,29 +972,28 @@ C... arguments
       Real hrValues(-36:66, NCOLS3D, NROWS3D)
       Real dayValues(NCOLS3D, NROWS3D)
       Integer tzoffset(NCOLS3D, NROWS3D)
-      Logical partDay
 
 C... local variables
       Integer c, r, h, i, count, nperiods
       Real sum, maxValue, avg
       Integer maxHour
       INTEGER STATUS                ! Status code
-      INTEGER HOURS_8HRMAX          ! number of 8hr values to compute 8hr max     
+c      INTEGER HOURS_8HRMAX          ! number of 8hr values to compute 8hr max     
       CHARACTER*16 ENV_DESC         ! message string
       CHARACTER*16 PNAME            ! Program Name
       CHARACTER*80 MSG              ! Error message
       DATA  PNAME           / 'HR2DAY'        /
 
 C... Get the HOURS_8HRMAX environment variable (default is 24)                                                          
-       ENV_DESC = 'Number of 8hr values to use when computing DM8HR'                                               
-       HOURS_8HRMAX= ENVINT( 'HOURS_8HRMAX', ENV_DESC, 24, STATUS)  
+c       ENV_DESC = 'Number of 8hr values to use when computing DM8HR'                                               
+c       HOURS_8HRMAX= ENVINT( 'HOURS_8HRMAX', ENV_DESC, 24, STATUS)  
 	 
-       if ( ( HOURS_8HRMAX .NE. 24) .AND. ( HOURS_8HRMAX .NE. 17) ) THEN                                
+c       if ( ( HOURS_8HRMAX .NE. 24) .AND. ( HOURS_8HRMAX .NE. 17) ) THEN                                
 
-        MSG = '**Error** Invalid value for HOURS_8HRMAX, use 24 or 17'
-        CALL M3ERR( PNAME, 0, 0, MSG, .TRUE. ) 
-        Stop
-       Endif
+c        MSG = '**Error** Invalid value for HOURS_8HRMAX, use 24 or 17'
+c        CALL M3ERR( PNAME, 0, 0, MSG, .TRUE. ) 
+c        Stop
+c       Endif
 
 C... start loops to find max 8-hr 
       Do c = 1, NCOLS3D
@@ -1020,7 +1027,7 @@ C... start loops to find max 8-hr
            if(partDay .or. nperiods.ge.18) dayValues(c,r) = 1.0 * maxHour !require 18/24
 
           else !use only 17 8hr values, from 7 am to 11 pm LT
-	  
+          
            Do h = tzoffset(c,r)+7,tzoffset(c,r)+23
             sum = 0
             count = 0
@@ -1041,8 +1048,8 @@ C... start loops to find max 8-hr
             endDo      ! end hour loop
 
            if(partDay .or. nperiods.ge.13) dayValues(c,r) = 1.0 * maxHour !require 13/17
-	  
-	  endif
+          
+          endif
 
           endDo      ! end row loop
         endDo      ! end column loop
@@ -1057,9 +1064,10 @@ c   Routine to compute to W126 values, sums the weighted concentrations in ppm
 c   between 8am & 8pm at each cell
 c
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      Subroutine w126(hrValues, dayValues, tzoffset, units, partDay)
+      Subroutine w126(hrValues, dayValues, tzoffset, units)
 
       USE M3UTILIO
+      USE ENV_VARS
 
       IMPLICIT NONE
 
@@ -1068,7 +1076,6 @@ C... arguments
       Real dayValues(NCOLS3D, NROWS3D)
       Integer tzoffset(NCOLS3D, NROWS3D)
       Character*(*) units
-      Logical partDay
 
 C... local variables
       Integer c, r, h, count
@@ -1107,9 +1114,10 @@ c
 c   Routine to sum hourly values >= 0.06ppm between 8am & 8pm at each cell
 c
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      Subroutine sum06(hrValues, dayValues, tzoffset, units, partDay)
+      Subroutine sum06(hrValues, dayValues, tzoffset, units)
 
       USE M3UTILIO
+      USE ENV_VARS
 
       IMPLICIT NONE
 
@@ -1118,7 +1126,6 @@ C... arguments
       Real dayValues(NCOLS3D, NROWS3D)
       Integer tzoffset(NCOLS3D, NROWS3D)
       Character*(*) units
-      Logical partDay
 
 C... local variables
       Integer c, r, h, count
@@ -1128,7 +1135,7 @@ C... local variables
 C... set minimum cutoff value
       minValue = 0.06     ! default is 0.06 ppm
       if( INDEX(units,'ppb') .gt.0 ) minValue = 1000.0 * minValue
-
+      
 C... start loops to find daily sum
       Do c = 1, NCOLS3D
         Do r = 1, NROWS3D

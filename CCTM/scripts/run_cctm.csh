@@ -99,6 +99,7 @@ setenv CTM_ADV_CFL 0.95      #> max CFL [ default: 0.75]
 #setenv RB_ATOL 1.0E-09       #> global ROS3 solver abs tol [ default: 1.0E-07 ] 
 
 #> Science Options
+setenv CTM_SS_AERO Y         #> use inline Sea Spray Aerosol emissions [ default: Y ]
 setenv CTM_WB_DUST Y         #> use inline windblown dust emissions [ default: Y ]
 setenv CTM_ERODE_AGLAND Y    #> use agricultural activity for windblown dust 
                              #>    [ default: N ]; ignore if CTM_WB_DUST = N
@@ -146,6 +147,20 @@ setenv FL_ERR_STOP N         #> stop on inconsistent input files
 setenv PROMPTFLAG F          #> turn on I/O-API PROMPT*FILE interactive mode [ options: T | F ]
 setenv IOAPI_OFFSET_64 NO    #> support large timestep records (>2GB/timestep record) [ options: YES | NO ]
 setenv CTM_EMISCHK N         #> Abort CMAQ if missing surrogates from emissions Input files
+setenv EMISDIAG F            #> Print Emission Rates at the output time step after they have been
+                             #>   scaled and modified by the user Rules [options: F | T or 2D | 3D | 2DSUM ]
+                             #>   Individual streams can be modified using the variables:
+                             #>       GR_EMIS_DIAG_## | STK_EMIS_DIAG_## | BIOG_EMIS_DIAG
+                             #>       MG_EMIS_DIAG    | LTNG_EMIS_DIAG   | DUST_EMIS_DIAG
+                             #>       SEASPRAY_EMIS_DIAG   
+                             #>   Note that these diagnostics are different than other emissions diagnostic
+                             #>   output because they occur after scaling.
+setenv EMIS_DATE_OVRD N      #> Master switch for allowing CMAQ to use the date from each Emission file
+                             #>   rather than checking the emissions date against the internal model date.
+                             #>   [options: T | F or Y | N]. If false (F/N), then the date from CMAQ's internal
+                             #>   time will be used and an error check will be performed (recommended). Users 
+                             #>   may switch the behavior for individual emission files below using the variables:
+                             #>       GR_EM_DTOVRD_## | STK_EM_DTOVRD_##
 
 #> Aerosol Diagnostic Controls
 setenv CTM_PMDIAG Y          #> Instantaneous Aerosol Diagnostic File [ default: Y ]
@@ -248,32 +263,59 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv MET_DOT_3D $METpath/METDOT3D_${YYMMDD}.nc
   setenv MET_BDY_3D $METpath/METBDY3D_${YYMMDD}.nc
 
-  #> Emissions files 
-  if ( $CTM_PT3DEMIS == 'N' ) then
-     #> Offline 3d emissions file name
-     set EMISfile  = emis_mole_all_${YYYYMMDD}_cb6_bench.nc
-  else
-     #> In-line emissions configuration
+  #> Emissions Control File
+  setenv EMISSCTRL_NML ${WORKDIR}/EmissCtrl.nml
+
+  #> Spatial Masks For Emissions Scaling
+  setenv CMAQ_MASKS $SZpath/12US1_surf_bench.nc #> horizontal grid-dependent surf zone file
+
+  #> Gridded Emissions files 
+  setenv N_EMIS_GR 1
+  set    EMISfile  = emis_mole_all_${YYYYMMDD}_cb6_bench.nc
+  setenv GR_EMIS_001 ${EMISpath}/${EMISfile}
+  setenv GR_EMIS_LAB_001 GRIDDED_EMIS
+  #setenv GR_EMIS_DIAG_001 2D
+  setenv GR_EM_DTOVRD_001 F
+
+  #> In-line point emissions configuration
+  if ( $CTM_PT3DEMIS == 'Y' ) then
+     setenv N_EMIS_PT 5          #> Number of elevated source groups
+
      set STKCASEG = 12US1_2011ek_cb6cmaq_v6_11g           # Stack Group Version Label
      set STKCASEE = 12US1_cmaq_cb6e51_2011ek_cb6cmaq_v6_11g   # Stack Emission Version Label
-     set EMISfile  = emis_mole_all_${YYYYMMDD}_cb6_bench.nc #> Surface emissions
-     setenv NPTGRPS 5          #> Number of elevated source groups
 
-     setenv STK_GRPS_01 $IN_PTpath/stack_groups/stack_groups_ptnonipm_${STKCASEG}.nc
-     setenv STK_GRPS_02 $IN_PTpath/stack_groups/stack_groups_ptegu_${STKCASEG}.nc
-     setenv STK_GRPS_03 $IN_PTpath/stack_groups/stack_groups_othpt_${STKCASEG}.nc
-     setenv STK_GRPS_04 $IN_PTpath/stack_groups/stack_groups_ptfire_${YYYYMMDD}_${STKCASEG}.nc
-     setenv STK_GRPS_05 $IN_PTpath/stack_groups/stack_groups_pt_oilgas_${STKCASEG}.nc
-
-     setenv STK_EMIS_01 $IN_PTpath/ptnonipm/inln_mole_ptnonipm_${YYYYMMDD}_${STKCASEE}.nc
-     setenv STK_EMIS_02 $IN_PTpath/ptegu/inln_mole_ptegu_${YYYYMMDD}_${STKCASEE}.nc
-     setenv STK_EMIS_03 $IN_PTpath/othpt/inln_mole_othpt_${YYYYMMDD}_${STKCASEE}.nc
-     setenv STK_EMIS_04 $IN_PTpath/ptfire/inln_mole_ptfire_${YYYYMMDD}_${STKCASEE}.nc
-     setenv STK_EMIS_05 $IN_PTpath/pt_oilgas/inln_mole_pt_oilgas_${YYYYMMDD}_${STKCASEE}.nc
-
-     setenv LAYP_STDATE $YYYYJJJ
+     setenv STK_GRPS_001 $IN_PTpath/stack_groups/stack_groups_ptnonipm_${STKCASEG}.nc
+     setenv STK_GRPS_002 $IN_PTpath/stack_groups/stack_groups_ptegu_${STKCASEG}.nc
+     setenv STK_GRPS_003 $IN_PTpath/stack_groups/stack_groups_othpt_${STKCASEG}.nc
+     setenv STK_GRPS_004 $IN_PTpath/stack_groups/stack_groups_ptfire_${YYYYMMDD}_${STKCASEG}.nc
+     setenv STK_GRPS_005 $IN_PTpath/stack_groups/stack_groups_pt_oilgas_${STKCASEG}.nc
      setenv LAYP_STTIME $STTIME
      setenv LAYP_NSTEPS $NSTEPS
+
+     setenv STK_EMIS_001 $IN_PTpath/ptnonipm/inln_mole_ptnonipm_${YYYYMMDD}_${STKCASEE}.nc
+     setenv STK_EMIS_002 $IN_PTpath/ptegu/inln_mole_ptegu_${YYYYMMDD}_${STKCASEE}.nc
+     setenv STK_EMIS_003 $IN_PTpath/othpt/inln_mole_othpt_${YYYYMMDD}_${STKCASEE}.nc
+     setenv STK_EMIS_004 $IN_PTpath/ptfire/inln_mole_ptfire_${YYYYMMDD}_${STKCASEE}.nc
+     setenv STK_EMIS_005 $IN_PTpath/pt_oilgas/inln_mole_pt_oilgas_${YYYYMMDD}_${STKCASEE}.nc
+     setenv LAYP_STDATE $YYYYJJJ
+
+     setenv STK_EMIS_LAB_001 POINT_NONEGU
+     setenv STK_EMIS_LAB_002 POINT_EGU
+     setenv STK_EMIS_LAB_003 POINT_OTHER
+     setenv STK_EMIS_LAB_004 POINT_FIRES
+     setenv STK_EMIS_LAB_005 POINT_OILGAS
+
+     #setenv STK_EMIS_DIAG_001 2DSUM
+     #setenv STK_EMIS_DIAG_002 2DSUM
+     #setenv STK_EMIS_DIAG_003 2DSUM
+     #setenv STK_EMIS_DIAG_004 2DSUM
+     #setenv STK_EMIS_DIAG_005 2DSUM
+
+     setenv STK_EM_DTOVRD_001 T
+     setenv STK_EM_DTOVRD_002 T
+     setenv STK_EM_DTOVRD_003 T
+     setenv STK_EM_DTOVRD_004 T
+     setenv STK_EM_DTOVRD_005 T
 
   endif
 
@@ -410,6 +452,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
         echo " deleting $file"
         /bin/rm -f $file  
      end
+     /bin/rm -f ${OUTDIR}/CCTM_EMDIAG*${RUNID}_${YYYYMMDD}.nc
 
   else
      #> error if previous log files exist
@@ -437,7 +480,6 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv CTM_STTIME      $STTIME
   setenv CTM_RUNLEN      $NSTEPS
   setenv CTM_TSTEP       $TSTEP
-  setenv EMIS_1 $EMISpath/$EMISfile
   setenv INIT_GASC_1 $ICpath/$ICFILE
   setenv INIT_AERO_1 $INIT_GASC_1
   setenv INIT_NONR_1 $INIT_GASC_1

@@ -1021,7 +1021,6 @@
 
 ! Build list of files to sort
       nfiles = 0
-
 ! If global, build list from all modules
       If ( global ) Then
         Do n = 1, n_modules
@@ -1036,7 +1035,6 @@
           End Do
         End Do
       End If     ! global
-
 ! If not global, build list from srcModule
       If ( .Not. global ) Then
         Do n = 1, srcModule%nfiles
@@ -1062,13 +1060,11 @@
           usename( nfiles )  = srcModule%file(n)%uses
         End Do  !  file loop
       End If   ! not global
-
 ! Count number of module files
       nmodfiles = 0
       Do n = 1, nfiles
         If ( modname(n) .Ne. ' ' ) nmodfiles = nmodfiles + 1
       End Do
-
       If ( nmodfiles .Gt. 0 ) Then
         ! Sort file list so modules are at the top
         msort = nfiles
@@ -1095,8 +1091,9 @@
 
           If ( sorted ) Exit
         End Do    ! end of sort loop to put modules at top
-
 ! Sort module files where modules are before uses
+        do m = 1,nmodfiles
+        end do
         Do
           sorted = .True.
 
@@ -1104,7 +1101,6 @@
             Do m = n+1, nmodfiles     ! module name loop
 
               modtemp = ':' // Trim(modname(m)) // ':'
-
               If ( Index(usename(n), Trim(modtemp) ) .Gt. 0 ) Then
                 filetemp = filename(n)
                 modtemp  = modname(n)
@@ -1127,9 +1123,7 @@
 
           If ( sorted ) Exit
         End Do
-
       End If  ! contains module files
-
       Return
       End Subroutine orderfiles
 
