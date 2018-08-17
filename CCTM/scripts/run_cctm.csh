@@ -87,15 +87,19 @@ else
    setenv NPCOL_NPROW "$NPCOL $NPROW"; 
 endif
 
+#> Define Execution ID: e.g. [CMAQ-Version-Info]_[User]_[Date]_[Time]
 setenv EXECUTION_ID "CMAQ_CCTM${VRSN}_`id -u -n`_`date -u +%Y%m%d_%H%M%S_%N`"    #> Inform IO/API of the Execution ID
 echo ""
 echo "---CMAQ EXECUTION ID: $EXECUTION_ID ---"
 
-#> Vertical extent
-set NZ         = 35
-
+#> Logfile Options
 #> Master Log File Name; uncomment to write standard output to a log, otherwise write to screen
 #setenv LOGFILE $CMAQ_HOME/$RUNID.log  
+if (! -e $LOGDIR ) then
+  mkdir $LOGDIR
+endif
+setenv PRINT_PROC_TIME Y           #> Print timing for all science subprocesses to Logfile
+                                   #>   [ default: TRUE or Y ]
 
 setenv GRID_NAME SE52BENCH         #> check GRIDDESC file for GRID_NAME options
 setenv GRIDDESC $INPDIR/GRIDDESC   #> grid description file
@@ -106,15 +110,15 @@ set NY = `grep -A 1 ${GRID_NAME} ${GRIDDESC} | tail -1 | sed 's/  */ /g' | cut -
 set NCELLS = `echo "${NX} * ${NY} * ${NZ}" | bc -l`
 
 #> Output Species and Layer Options
-#>   CONC file species; comment or set to "ALL" to write all species to CONC
-#setenv CONC_SPCS "O3 NO ANO3I ANO3J NO2 FORM ISOP ANH4J ASO4I ASO4J" 
-#setenv CONC_BLEV_ELEV " 1 4" #> CONC file layer range; comment to write all layers to CONC
+   #> CONC file species; comment or set to "ALL" to write all species to CONC
+   #setenv CONC_SPCS "O3 NO ANO3I ANO3J NO2 FORM ISOP ANH4J ASO4I ASO4J" 
+   #setenv CONC_BLEV_ELEV " 1 4" #> CONC file layer range; comment to write all layers to CONC
 
-#>   ACONC file species; comment or set to "ALL" to write all species to ACONC
-#setenv AVG_CONC_SPCS "O3 NO CO NO2 ASO4I ASO4J NH3" 
-setenv AVG_CONC_SPCS "ALL" 
-setenv ACONC_BLEV_ELEV " 1 1" #> ACONC file layer range; comment to write all layers to ACONC
-setenv AVG_FILE_ENDTIME N     #> override default beginning ACON timestamp [ default: N ]
+   #> ACONC file species; comment or set to "ALL" to write all species to ACONC
+   #setenv AVG_CONC_SPCS "O3 NO CO NO2 ASO4I ASO4J NH3" 
+   setenv AVG_CONC_SPCS "ALL" 
+   setenv ACONC_BLEV_ELEV " 1 1" #> ACONC file layer range; comment to write all layers to ACONC
+   setenv AVG_FILE_ENDTIME N     #> override default beginning ACON timestamp [ default: N ]
 
 #> Sychronization Time Step and Tolerance Options
 setenv CTM_MAXSYNC 300       #> max sync time step (sec) [ default: 720 ]
@@ -591,7 +595,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   ( /usr/bin/time -p mpirun -np $NPROCS $BLD/$EXEC ) |& tee buff_${EXECUTION_ID}.txt
 
   #> Harvest Timing Output so that it may be reported below
-  set rtarray = "${rtarray} `tail -3 buff_${EXECUTION_ID}.txt | grep -Eo '[+-]?[0-9]+([.][0-9]+)?' | cut -c 5-` "
+  set rtarray = "${rtarray} `tail -3 buff_${EXECUTION_ID}.txt | grep -Eo '[+-]?[0-9]+([.][0-9]+)?' | head -1` "
 
   #> Print Concluding Text
   echo 
@@ -606,9 +610,6 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 # ===================================================================
 
   #> Save Log Files and Move on to Next Simulation Day
-  if (! -e $LOGDIR ) then
-    mkdir $LOGDIR
-  endif
   mv CTM_LOG_???.${CTM_APPL} $LOGDIR
   if ( $CTM_DIAG_LVL != 0 ) then
     mv CTM_DIAG_???.${CTM_APPL} $LOGDIR
