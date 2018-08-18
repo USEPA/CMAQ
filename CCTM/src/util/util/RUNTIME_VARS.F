@@ -172,7 +172,7 @@
       LOGICAL :: DEPV_DIAG = .FALSE. ! flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depv
       Logical :: HGBIDI    = .FALSE. ! flag for Hg bidirectional exchange
       Logical :: BIDI_FERT_NH3 = .TRUE. ! flag to remove fertilizer ammonia from Bidirectional emissions
-      CHARACTER(16) :: LAND_SCHEME = "UNKNOWN" ! NLCD, USGS, etc
+      CHARACTER(16) :: DUST_LAND_SCHEME = "UNKNOWN" ! NLCD, USGS, etc
  
 
       ! Transport Processes
@@ -757,8 +757,8 @@
  
       ! Flag for using BELD Land Use for WindBlown Dust 
       VARDESC = 'Flag for Wind Blown Dust - Land Use from BELD'
-      STRTEMP = GET_ENVSTR( 'CTM_WBDUST_BELD', VARDESC, LAND_SCHEME )
-      LAND_SCHEME = STRTEMP( 1:16)
+      STRTEMP = GET_ENVSTR( 'CTM_WBDUST_BELD', VARDESC, DUST_LAND_SCHEME )
+      DUST_LAND_SCHEME = STRTEMP( 1:16)
  
       !-------------------------------------------------------------------------------------------------------
       !>> Transport Processes
@@ -1038,7 +1038,7 @@
            CALL LOG_MESSAGE( LOGDEV, XMSG )
       END IF
 
-      WRITE( XMSG, '(A16,2x,A,2x,L)' ),VAR_LABEL,'|',VARVAL
+      WRITE( XMSG, '(A20,2x,A,2x,L)' ),VAR_LABEL,'|',VARVAL
       IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
 
       END FUNCTION GET_ENVYN
@@ -1070,7 +1070,7 @@
            CALL LOG_MESSAGE( LOGDEV, XMSG )
       END IF
  
-      WRITE( XMSG, '(A16,2x,A1,2x,I7)' ),VAR_LABEL,'|',VARVAL
+      WRITE( XMSG, '(A20,2x,A1,2x,I7)' ),VAR_LABEL,'|',VARVAL
       IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
       
       END FUNCTION GET_ENVINT 
@@ -1102,7 +1102,7 @@
            CALL LOG_MESSAGE( LOGDEV, XMSG )
       END IF
  
-      WRITE( XMSG, '(A16,2x,A,2x,E10.3)' ),VAR_LABEL,'|',VARVAL
+      WRITE( XMSG, '(A20,2x,A,2x,E10.3)' ),VAR_LABEL,'|',VARVAL
       IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
       
       END FUNCTION GET_ENVREAL 
@@ -1136,7 +1136,7 @@
       END IF
  
       IF ( MYPE .EQ. 0 ) THEN 
-         WRITE( FMT, '("(", I0, "x,A16,2x,A,2x,A)")' ) LOG_MAJOR_TAB
+         WRITE( FMT, '("(", I0, "x,A20,2x,A,2x,A)")' ) LOG_MAJOR_TAB
          WRITE( OUTDEV, FMT ),VAR_LABEL,'|',TRIM(VARVAL)
       END IF
 

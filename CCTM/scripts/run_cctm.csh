@@ -106,7 +106,8 @@ setenv STDOUT T                    #> Override I/O-API trying to write informati
 setenv GRID_NAME SE52BENCH         #> check GRIDDESC file for GRID_NAME options
 setenv GRIDDESC $INPDIR/GRIDDESC   #> grid description file
 
-#> Retrieve the number of columns and rows in this simulation
+#> Retrieve the number of columns, rows, and layers in this simulation
+set NZ = 35
 set NX = `grep -A 1 ${GRID_NAME} ${GRIDDESC} | tail -1 | sed 's/  */ /g' | cut -d' ' -f6`
 set NY = `grep -A 1 ${GRID_NAME} ${GRIDDESC} | tail -1 | sed 's/  */ /g' | cut -d' ' -f7`
 set NCELLS = `echo "${NX} * ${NY} * ${NZ}" | bc -l`
