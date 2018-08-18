@@ -68,7 +68,6 @@
       REAL                       :: SQUAREKM
       REAL,                 SAVE :: SCL_FACTOR
 
-      LOGICAL,              SAVE :: NLDN_FILE  ! flag to use NLDN strike file directly 
       INTEGER,              SAVE :: LTLYRS     ! no. of emissions layers
       REAL,    ALLOCATABLE, SAVE :: VDEMIS_DIAG( :,:,: ) ! lightning NO diagnostic
       REAL,    ALLOCATABLE, SAVE :: COLUMN_DIAG( :,: ) ! column total NO
@@ -228,7 +227,7 @@
 
 #ifdef twoway
            IF (wrf_lightning_assim) THEN
-              NLDN_FILE = .FALSE.
+              NLDNSTRIKE = .FALSE.
            END IF
 #endif
 !C Open lightning parameters file?
@@ -239,7 +238,7 @@
      &                    'Enter name for gridded met input file',
      &                    FSREAD3, 'MET_CRO_2D', PNAME )
 !C Read description of normalized emissions file
-            IF (NLDN_FILE) THEN
+            IF ( NLDNSTRIKE ) THEN
                   XMSG = 'Using hourly NLDN Strike data'
                   CALL M3MSG2( XMSG )
                   ANAME = PROMPTMFILE(
@@ -258,7 +257,7 @@
                  LT_TSTEP = TIME2SEC ( TSTEP )
                  XMSG = 'Using derived parameters for KF scheme '
                  CALL M3MSG2( XMSG )
-            END IF  !END if NLDN_FILE
+            END IF  !END if NLDNSTRIKE
 
 !C Set Lambert projection
             IF ( .NOT. SETLAM( SNGL( P_ALP3D ),
@@ -569,7 +568,7 @@ C statement function for ERF approximation
                wrf_assim = .TRUE.
 !               WRITE(*,*) "Max NLDN_STRIKE = ", MAXVAL(NLDN_STRIKE)
             ELSE
-              IF ( .NOT. NLDN_FILE ) THEN
+              IF ( .NOT. NLDNSTRIKE ) THEN
                 IF ( .NOT. INTERPX( RNAME, RC_NAME, PNAME,
      &                       STRTCOLMC2,ENDCOLMC2,STRTROWMC2,ENDROWMC2, 1,1,
      &                       JDATE, JTIME, LTNG_RC) ) THEN
@@ -588,7 +587,7 @@ C statement function for ERF approximation
             END IF
 #else
             IF ( R_READY ) THEN
-               IF ( .NOT. NLDN_FILE ) THEN
+               IF ( .NOT. NLDNSTRIKE ) THEN
                  IF ( .NOT. XTRACT3( RNAME, RC_NAME, 1, 1,
      &                       STRTROWMC3,ENDROWMC3,STRTCOLMC3,ENDCOLMC3,
      &                       LDATE, LTIME, LTNG_RC) ) THEN
@@ -604,14 +603,14 @@ C statement function for ERF approximation
      &               LDATE, LTIME
                      CALL M3EXIT( PNAME, LDATE, LTIME, XMSG, XSTAT2 )
                END IF
-               IF ( .NOT. NLDN_FILE ) THEN
+               IF ( .NOT. NLDNSTRIKE ) THEN
                   R_READY = .FALSE.
                END IF
             END IF
 #endif
 
             IF( R_READY ) THEN
-               IF ( NLDN_FILE ) THEN
+               IF ( NLDNSTRIKE ) THEN
                   IF ( .NOT. XTRACT3( ANAME, "NLDNstrk", 1, 1,
      &                          STRTROWMC3,ENDROWMC3,STRTCOLMC3,ENDCOLMC3, 
      &                             LDATE, LTIME, NLDN_STRIKE ) ) THEN
@@ -619,7 +618,7 @@ C statement function for ERF approximation
                         CALL M3EXIT( PNAME, LDATE, LTIME, XMSG, XSTAT2 )
                   END IF
                      R_READY = .FALSE.
-               END IF  ! NLDN_FILE
+               END IF  ! NLDNSTRIKE
             END IF     !R_READY
             ALLOCATE( COLUMN_LTNG_NO( NCOLS,NROWS ), STAT = STATUS )
             IF ( STATUS .NE. 0 ) THEN
@@ -630,7 +629,7 @@ C statement function for ERF approximation
 !C Iterate over each grid cell and distribute lightning NO vertically
                DO ROW = 1, MY_NROWS
                   DO COL = 1, MY_NCOLS
-                     IF ( NLDN_FILE .or. wrf_assim ) THEN
+                     IF ( NLDNSTRIKE .or. wrf_assim ) THEN
                         COLUMN_LTNG_NO( COL,ROW ) =
      &                     ( NLDN_STRIKE( COL,ROW )
      &                       * SQUAREKM     ! NLDN_STRIKE in km-2
@@ -663,7 +662,7 @@ C statement function for ERF approximation
                         ELSE
                            COLUMN_LTNG_NO( COL,ROW ) = 0.0
                         END IF
-                     END IF   ! NLDN_FILE
+                     END IF   ! NLDNSTRIKE
                   END DO   ! COL
                END DO   ! ROW
 
