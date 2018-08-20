@@ -6,7 +6,7 @@
 
 
 ! --------- Photochemical Mechanism Reactions, Rates, etc. DAT ---------
-! Source file: /home/has/gitrepos/github/CCTM.momei.sprintweek/CCTM/src/MECHS/saprc07tic_ae7i_aq/mech_saprc07tic_ae7i_aq.def
+! Source file: /home/has/gitrepos/github/CCTM.havalapye.cmaqv52.newstruc/CCTM/src/MECHS/saprc07tic_ae7i_aq/mech_saprc07tic_ae7i_aq.def
 ! for Mechanism Name: SAPRC07TIC_AE7I_AQ              
 
 ! This file is used to create mechanism data and functions
@@ -246,9 +246,9 @@
       DATA GAS_CHEM_SPC( 120 ) / 'ALK4            ' /
       DATA GAS_CHEM_SPC( 121 ) / 'ALK5            ' /
       DATA GAS_CHEM_SPC( 122 ) / 'SOAALK          ' /
-      DATA GAS_CHEM_SPC( 123 ) / 'SV_AVB2         ' /
-      DATA GAS_CHEM_SPC( 124 ) / 'SV_AVB3         ' /
-      DATA GAS_CHEM_SPC( 125 ) / 'SV_AVB4         ' /
+      DATA GAS_CHEM_SPC( 123 ) / 'SVAVB2          ' /
+      DATA GAS_CHEM_SPC( 124 ) / 'SVAVB3          ' /
+      DATA GAS_CHEM_SPC( 125 ) / 'SVAVB4          ' /
       DATA GAS_CHEM_SPC( 126 ) / 'OLE1            ' /
       DATA GAS_CHEM_SPC( 127 ) / 'OLE2            ' /
       DATA GAS_CHEM_SPC( 128 ) / 'ARO1            ' /
@@ -274,7 +274,7 @@
       DATA GAS_CHEM_SPC( 148 ) / 'CLCCHO          ' /
       DATA GAS_CHEM_SPC( 149 ) / 'CLACET          ' /
       DATA GAS_CHEM_SPC( 150 ) / 'CLCHO           ' /
-      DATA GAS_CHEM_SPC( 151 ) / 'SV_AVB1         ' /
+      DATA GAS_CHEM_SPC( 151 ) / 'SVAVB1          ' /
       DATA GAS_CHEM_SPC( 152 ) / 'HCHO_PRIMARY    ' /
       DATA GAS_CHEM_SPC( 153 ) / 'CCHO_PRIMARY    ' /
       DATA GAS_CHEM_SPC( 154 ) / 'ACRO_PRIMARY    ' /
@@ -457,9 +457,9 @@
       DATA CHEMISTRY_SPC( 120 ), SPECIES_MOLWT( 120 ) / 'ALK4            ',   77.60 /
       DATA CHEMISTRY_SPC( 121 ), SPECIES_MOLWT( 121 ) / 'ALK5            ',  118.89 /
       DATA CHEMISTRY_SPC( 122 ), SPECIES_MOLWT( 122 ) / 'SOAALK          ',  112.00 /
-      DATA CHEMISTRY_SPC( 123 ), SPECIES_MOLWT( 123 ) / 'SV_AVB2         ',  179.00 /
-      DATA CHEMISTRY_SPC( 124 ), SPECIES_MOLWT( 124 ) / 'SV_AVB3         ',  169.00 /
-      DATA CHEMISTRY_SPC( 125 ), SPECIES_MOLWT( 125 ) / 'SV_AVB4         ',  158.00 /
+      DATA CHEMISTRY_SPC( 123 ), SPECIES_MOLWT( 123 ) / 'SVAVB2          ',  179.00 /
+      DATA CHEMISTRY_SPC( 124 ), SPECIES_MOLWT( 124 ) / 'SVAVB3          ',  169.00 /
+      DATA CHEMISTRY_SPC( 125 ), SPECIES_MOLWT( 125 ) / 'SVAVB4          ',  158.00 /
       DATA CHEMISTRY_SPC( 126 ), SPECIES_MOLWT( 126 ) / 'OLE1            ',   72.34 /
       DATA CHEMISTRY_SPC( 127 ), SPECIES_MOLWT( 127 ) / 'OLE2            ',   75.78 /
       DATA CHEMISTRY_SPC( 128 ), SPECIES_MOLWT( 128 ) / 'ARO1            ',   95.16 /
@@ -485,7 +485,7 @@
       DATA CHEMISTRY_SPC( 148 ), SPECIES_MOLWT( 148 ) / 'CLCCHO          ',   78.50 /
       DATA CHEMISTRY_SPC( 149 ), SPECIES_MOLWT( 149 ) / 'CLACET          ',   92.50 /
       DATA CHEMISTRY_SPC( 150 ), SPECIES_MOLWT( 150 ) / 'CLCHO           ',   64.50 /
-      DATA CHEMISTRY_SPC( 151 ), SPECIES_MOLWT( 151 ) / 'SV_AVB1         ',  198.00 /
+      DATA CHEMISTRY_SPC( 151 ), SPECIES_MOLWT( 151 ) / 'SVAVB1          ',  198.00 /
       DATA CHEMISTRY_SPC( 152 ), SPECIES_MOLWT( 152 ) / 'HCHO_PRIMARY    ',   30.03 /
       DATA CHEMISTRY_SPC( 153 ), SPECIES_MOLWT( 153 ) / 'CCHO_PRIMARY    ',   44.05 /
       DATA CHEMISTRY_SPC( 154 ), SPECIES_MOLWT( 154 ) / 'ACRO_PRIMARY    ',   56.06 /
@@ -693,9 +693,9 @@
       DATA CGRID_INDEX( 120 ), SPECIES_TYPE( 120 ), CONVERT_CONC( 120 ) /  119, 'GC', F /  ! ALK4
       DATA CGRID_INDEX( 121 ), SPECIES_TYPE( 121 ), CONVERT_CONC( 121 ) /  120, 'GC', F /  ! ALK5
       DATA CGRID_INDEX( 122 ), SPECIES_TYPE( 122 ), CONVERT_CONC( 122 ) /  121, 'GC', F /  ! SOAALK
-      DATA CGRID_INDEX( 123 ), SPECIES_TYPE( 123 ), CONVERT_CONC( 123 ) /  204, 'GC', F /  ! SV_AVB2
-      DATA CGRID_INDEX( 124 ), SPECIES_TYPE( 124 ), CONVERT_CONC( 124 ) /  205, 'GC', F /  ! SV_AVB3
-      DATA CGRID_INDEX( 125 ), SPECIES_TYPE( 125 ), CONVERT_CONC( 125 ) /  206, 'GC', F /  ! SV_AVB4
+      DATA CGRID_INDEX( 123 ), SPECIES_TYPE( 123 ), CONVERT_CONC( 123 ) /  204, 'GC', F /  ! SVAVB2
+      DATA CGRID_INDEX( 124 ), SPECIES_TYPE( 124 ), CONVERT_CONC( 124 ) /  205, 'GC', F /  ! SVAVB3
+      DATA CGRID_INDEX( 125 ), SPECIES_TYPE( 125 ), CONVERT_CONC( 125 ) /  206, 'GC', F /  ! SVAVB4
       DATA CGRID_INDEX( 126 ), SPECIES_TYPE( 126 ), CONVERT_CONC( 126 ) /  123, 'GC', F /  ! OLE1
       DATA CGRID_INDEX( 127 ), SPECIES_TYPE( 127 ), CONVERT_CONC( 127 ) /  124, 'GC', F /  ! OLE2
       DATA CGRID_INDEX( 128 ), SPECIES_TYPE( 128 ), CONVERT_CONC( 128 ) /  125, 'GC', F /  ! ARO1
@@ -721,7 +721,7 @@
       DATA CGRID_INDEX( 148 ), SPECIES_TYPE( 148 ), CONVERT_CONC( 148 ) /  145, 'GC', F /  ! CLCCHO
       DATA CGRID_INDEX( 149 ), SPECIES_TYPE( 149 ), CONVERT_CONC( 149 ) /  146, 'GC', F /  ! CLACET
       DATA CGRID_INDEX( 150 ), SPECIES_TYPE( 150 ), CONVERT_CONC( 150 ) /  147, 'GC', F /  ! CLCHO
-      DATA CGRID_INDEX( 151 ), SPECIES_TYPE( 151 ), CONVERT_CONC( 151 ) /  203, 'GC', F /  ! SV_AVB1
+      DATA CGRID_INDEX( 151 ), SPECIES_TYPE( 151 ), CONVERT_CONC( 151 ) /  203, 'GC', F /  ! SVAVB1
       DATA CGRID_INDEX( 152 ), SPECIES_TYPE( 152 ), CONVERT_CONC( 152 ) /  148, 'GC', F /  ! HCHO_PRIMARY
       DATA CGRID_INDEX( 153 ), SPECIES_TYPE( 153 ), CONVERT_CONC( 153 ) /  149, 'GC', F /  ! CCHO_PRIMARY
       DATA CGRID_INDEX( 154 ), SPECIES_TYPE( 154 ), CONVERT_CONC( 154 ) /  150, 'GC', F /  ! ACRO_PRIMARY
