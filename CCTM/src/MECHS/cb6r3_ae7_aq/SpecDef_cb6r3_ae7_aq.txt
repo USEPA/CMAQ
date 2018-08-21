@@ -188,7 +188,7 @@ AOMJ            ,ug m-3     ,APOMJ[0]  + ASOMJ[0]
 AOMIJ           ,ug m-3     ,APOMIJ[0] + ASOMIJ[0]
 
 !!! Anthropogenic-VOC Derived Organic Aerosol
-AORGAJ          ,ug m-3     ,AAVB1[1]+AAVB2[1]+AAVB3[1]+AAVB4[1]+AOLGAJ[1] \
+AORGAJ          ,ug m-3     ,AAVB1J[1]+AAVB2J[1]+AAVB3J[1]+AAVB4J[1]+AOLGAJ[1] \
 
 !!! Biogenic-VOC Derived Organic Aerosol
 AORGBJ          ,ug m-3     ,AISO1J[1] + AISO2J[1] + AISO3J[1]            \
