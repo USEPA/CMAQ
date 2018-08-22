@@ -85,7 +85,9 @@ C..SCRATCH LOCAL VARIABLES:
       INTEGER NRX              ! Loop index for number of reactions
 C***********************************************************************      
       
-      IF ( NSPECIAL_RXN .GT. 0 ) CALL SPECIAL_RATES( NUMCELLS, IOLD2NEW, NCS, CNEW, RK )   ! calculate special rate coefficients
+      IF ( NSPECIAL_RXN .GT. 0 ) THEN  ! calculate special rate coefficients
+          CALL SPECIAL_RATES( NUMCELLS, YIN, BLKTEMP, BLKDENS, RKI )
+      END IF
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Increment call counter and initialize dcdt=gloss

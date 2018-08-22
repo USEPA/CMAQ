@@ -49,7 +49,8 @@ C Argument variables
 
 C Local Variables
 
-      INTEGER ISPC, IRX, IFLD0, IFLD1, IFLD2
+      INTEGER ISPC, IRX, IFLD0, IFLD1, IFLD2, ISPCNEW
+
 
  
       CHARACTER( 47 ) :: EXHEAD_SPCS
@@ -59,35 +60,54 @@ C Local Variables
       REAL( 8 )       :: DBUFF( MAXRXNUM )
       REAL            :: SBUFF( MAXRXNUM )
       
+      REAL,   PARAMETER   :: ZERO = 0.0
+
+      INTEGER            :: LOGDEV  = 6     ! Logical unit number for log file
+      INTEGER            :: IOS             ! status
+      INTEGER            :: I 
+      CHARACTER( 80 )    :: MSG             ! Mesaage text for output log
+
+
+      IF( .NOT. ALLOCATED( INEW2OLD ) )THEN
+         ALLOCATE( INEW2OLD( NUMB_MECH_SPCS ), STAT = IOS )
+         IF ( IOS .NE. 0 ) THEN
+            MSG = 'ERROR INEW2OLD'
+            WRITE(LOGDEV,'(A)')MSG 
+            STOP
+         END IF
+         DO I = 1, NUMB_MECH_SPCS
+            INEW2OLD( I ) = I
+         END DO
+      END IF
 
 c_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 c     CTM Species intermediate species File prologue
 c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
  
 c                    12345678901234567890123456789012345678901234567
-      EXHEAD_SPCS = 'Mechanism CTM Species intermediate INCLUDE File'
-      WRITE( EXUNIT_SPCS, 1031 ) EXHEAD_SPCS
-1031  FORMAT( 'C', 1X, 9('-'), 1X, A47, 1X, 10('-') )
+      EXHEAD_SPCS = 'Intermediate Species Definition CVS Table'
+      WRITE( EXUNIT_SPCS, 1031 ) TRIM( EXHEAD_SPCS )
+1031  FORMAT( '#', 1X, 9('-'), 1X, A, 1X, 10('-') )
       CALL WRHDR1 ( EXUNIT_SPCS, EQNAME_SPCS, 108 )
       WRITE( EXUNIT_SPCS, 1027 )
-1027  FORMAT( 'C', 1X, 'Generated from ...' )
+1027  FORMAT( '#', 1X, 'Generated from ...' )
       CALL WRHDR1 ( EXUNIT_SPCS, EQNAME_MECH, 108 )
-      WRITE( EXUNIT_SPCS, 1033 ) DESCRP_MECH
-1033  FORMAT( 'C', 1X, 'for Mechanism Name:', 1X, A64 )
+      WRITE( EXUNIT_SPCS, 1033 ) TRIM( DESCRP_MECH )
+1033  FORMAT( '#', 1X, 'for Mechanism Name:', 1X, A )
       WRITE( EXUNIT_SPCS, 1035 )
-1035  FORMAT( /'C', 1X, 'The following are reserved symbols declared in this',
+1035  FORMAT( /'#', 1X, 'The following data were determine by the CHEMMECH input',
      &              1X, 'INCLUDE file:'
-     &        /'C', 4X, 'NSPCS    = Number of mechanism species'
-     &        /'C', 4X, 'SPCNAMES = Table of mechanism species names'
-     &        /'C', 4X, 'SPC1RX   = rx index of 1st occurence of species',
-     &              1X,            'in mechanism table' )
+     &        /'#', 4X, 'Species  = species names used by mechanism reaction'
+     &        /'#', 4X, 'Phase    = GC for gaseous or AE for aerosol'
+     &        /'#', 4X, 'Mol.Wgth = nonzero if input include mechanism namelists',
+     &        /'#', 4X, 'The user has to fill in definition column' )
 
 c_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 c     NS
 c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 
-      WRITE( EXUNIT_SPCS, 1053 ) NS + N_SS_SPC
-1053  FORMAT( /6X, 'INTEGER, PARAMETER', 1X, ':: NSPCS =', I4 )
+!      WRITE( EXUNIT_SPCS, 1053 ) NS + N_SS_SPC
+!1053  FORMAT( /6X, 'INTEGER, PARAMETER', 1X, ':: NSPCS =', I4 )
 
 
 c_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
@@ -95,29 +115,48 @@ c     CTMSPC and SPC1RX
 c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 
 
-      WRITE( EXUNIT_SPCS, 1057 )
-1057  FORMAT( /6X, 'CHARACTER( 16 ) :: SPCNAMES( NSPCS )'
-     &        /6X, 'INTEGER         :: SPC1RX( NSPCS )' / )
+!      WRITE( EXUNIT_SPCS, 1057 )
+!1057  FORMAT( /6X, 'CHARACTER( 16 ) :: SPCNAMES( NSPCS )'
+!     &        /6X, 'INTEGER         :: SPC1RX( NSPCS )' / )
 
  
 
-      DO ISPC = 1, NS
-         WRITE( EXUNIT_SPCS, 1059 ) ISPC, ISPC, SPCLIS( ISPC ), SPC1RX( ISPC )
-1059     FORMAT( 6X, 'DATA', 1X, 'SPCNAMES(', I3, '),', 1X, 'SPC1RX(', I3, ')',
-     &           2X, '/ ''', A16, ''',', I4, ' /' )
-      END DO
+!      DO ISPC = 1, NS
+!         WRITE( EXUNIT_SPCS, 1059 ) ISPC, ISPC, SPCLIS( ISPC ), SPC1RX( ISPC )
+!1059     FORMAT( 6X, 'DATA', 1X, 'SPCNAMES(', I3, '),', 1X, 'SPC1RX(', I3, ')',
+!     &           2X, '/ ''', A16, ''',', I4, ' /' )
+!      END DO
 
-      DO ISPC = 1, N_SS_SPC
-         WRITE( EXUNIT_SPCS, 1059 ) ISPC + NS, ISPC + NS, SS_SPC( ISPC ), SS1RX( ISPC )
-      END DO
+!      DO ISPC = 1, N_SS_SPC
+!         WRITE( EXUNIT_SPCS, 1059 ) ISPC + NS, ISPC + NS, SS_SPC( ISPC ), SS1RX( ISPC )
+!      END DO
 
 
 c_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 c     Fini
 c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 
-      WRITE( EXUNIT_SPCS, 2013 ) EXHEAD_SPCS
-2013  FORMAT( /'C', 1X, 'End of ', A47, 1X, 12('-') )
+!      WRITE( EXUNIT_SPCS, 2013 ) EXHEAD_SPCS
+!2013  FORMAT( /'C', 1X, 'End of ', A47, 1X, 12('-') )
+
+      WRITE( EXUNIT_SPCS, 2150)
+      IF( USE_SPCS_NAMELISTS )THEN
+          DO ISPC = 1, (NS + N_SS_SPC )
+              ISPCNEW = INEW2OLD( ISPC )
+             WRITE( EXUNIT_SPCS, 2161 ) MECHANISM_SPC( ISPCNEW ),
+     &       SPECIES_TYPE( ISPCNEW ), SPECIES_MOLWT( ISPCNEW )
+          END DO
+      ELSE
+          DO ISPC = 1, (NS + N_SS_SPC)
+              ISPCNEW = INEW2OLD( ISPC )
+             WRITE( EXUNIT_SPCS, 2161 ) MECHANISM_SPC( ISPCNEW ),
+     &       SPECIES_TYPE( ISPCNEW ), ZERO
+          END DO
+      END IF
+
+2150   FORMAT('Species, Phase, Mol.Wght., Definition')
+2161   FORMAT( A16, ', ', A2, ', ', F7.2, ', ,' )
+2162   FORMAT( A16, ', ', A2, ', ', F7.2, ', ,' )
 
       RETURN
       END
