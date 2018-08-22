@@ -403,11 +403,6 @@ C determine if gas-phase IEPOX uptake occurs for the mechanism
                orgprod( 5 )%parent = 'TOLUENE'
                orgprod( 8 )%parent = 'NAPHTHAL'
                orgprod( 9 )%parent = 'NAPHTHAL'
-               ! The following do not exist in aero7/7i
-               orgprod( 3 )%aerospc = ''    ! AXYL3J
-               orgprod( 5 )%aerospc = ''    ! ATOL3J
-               orgprod( 7 )%aerospc = ''    ! ABNZ3J
-               orgprod( 9 )%aerospc = ''    ! APAH3J
                IEPOX_SOA_mechanism = .True.
             Else If ( INDEX( MECHNAME, 'SAPRC07TB' ) .Gt. 0 ) Then
                orgprod( 2 )%parent     = 'MXYL'
@@ -465,6 +460,13 @@ C determine if gas-phase IEPOX uptake occurs for the mechanism
 !              Call m3exit( pname, 0, 0, xmsg, xstat3 )
             End If
 
+            ! AE7 mechanisms do not use nonvolatile species for anthro SOA
+            If( INDEX(MECHNAME, 'AE7') .Gt. 0) Then
+               orgprod( 3 )%aerospc = ''    ! AXYL3J
+               orgprod( 5 )%aerospc = ''    ! ATOL3J
+               orgprod( 7 )%aerospc = ''    ! ABNZ3J
+               orgprod( 9 )%aerospc = ''    ! APAH3J
+            End If
 ! SOA_DEFN NO LONGER HAS VERSION CONSTRAINTS ON SPECIES
 ! This SOA_DEFN works for AE6 and AE6i versions of aero
 !            If( INDEX( MECHNAME, '_AE6_' ) .EQ. 0 ) then

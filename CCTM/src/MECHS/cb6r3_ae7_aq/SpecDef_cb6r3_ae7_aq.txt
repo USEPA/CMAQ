@@ -201,7 +201,7 @@ AORGBJ          ,ug m-3     ,AISO1J[1] + AISO2J[1] + AISO3J[1]            \
 AORGCJ          ,ug m-3     ,AORGCJ[1]
 
 !!! OM/OC ratios
-AOMOCRAT_TOT    ,none      ,AOMIJ[0]/AOCIJ[0]
+AOMOCRAT_TOT    ,ug ug-1    ,AOMIJ[0]/AOCIJ[0]
 
 !! Total PM Aggregates
 ATOTI           ,ug m-3     ,ASO4I[1]+ANO3I[1]+ANH4I[1]+ANAI[1]+ACLI[1] \
