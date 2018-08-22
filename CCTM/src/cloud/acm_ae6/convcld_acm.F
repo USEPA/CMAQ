@@ -111,6 +111,7 @@ C       4Apr16 J.Bash      Calculate the Sundqvist et al. 1989 threshold humidit
 C                          for cloud formation based on Mocko and Cotton (1995) to be
 C                          More consistent with WRF
 C       7May 18 D. Schwede: Removed call to CZANGLE. COSZEN now calculated in ASX_DATA_MOD
+C       Aug 2018 J. Pleim: convert to Z coords
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
@@ -214,7 +215,7 @@ C   SYNCCLD=.FALSE. : every hour on the half hour
 C...........Local Variables
 
 C-------for ACM version - jp 2/05        REAL DPB
-      REAL, ALLOCATABLE, SAVE :: SIGF( : )
+      REAL, ALLOCATABLE, SAVE :: DZH( : )
       REAL, ALLOCATABLE, SAVE :: CCR ( :,: )
       REAL, ALLOCATABLE, SAVE :: CONC( :,: )
       REAL, ALLOCATABLE, SAVE :: CBELOW( : )
@@ -515,16 +516,16 @@ C...  field if a convective parameterization was not used in the WRF simulation
 
 C...allocate saved arrays
 
-        ALLOCATE ( SIGF( 0:NLAYS ), STAT = ALLOCSTAT )
+        ALLOCATE ( DZH( NLAYS ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
-          XMSG = 'Failure allocating SIGF'
+          XMSG = 'Failure allocating DZH'
           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
-        DO LAY = 1, NLAYS
-          SIGF( LAY ) = 1.0 - X3FACE_GD( LAY )
-        END DO
-        SIGF( 0 ) = 1.0
+!        DO LAY = 1, NLAYS
+!          SIGF( LAY ) = 1.0 - X3FACE_GD( LAY )
+!        END DO
+!        SIGF( 0 ) = 1.0
 
         MXSPCS = NSPCSD
 
@@ -1390,7 +1391,14 @@ C...  using direct exchange mixing mechanism by McHenry.
             CBELOW( SPC ) = CBASE0( SPC )
           END DO
 
-          CALL ACMCLD ( NSPCSD, NLAYS, F, CCR, SIGF, CBELOW, CLBASE, CLTOP,
+          DZH(1) = ZF( COL, ROW, 1 )
+          DO LAY = 2, NLAYS
+             DZH(LAY) = ZF( COL, ROW, LAY ) - ZF( COL, ROW, LAY-1 )
+          ENDDO
+          LAY = CLBASE - 1
+          DZH(LAY) = ZF( COL, ROW, LAY )
+
+          CALL ACMCLD ( NSPCSD, NLAYS, F, CCR, DZH, CBELOW, CLBASE, CLTOP,
      &                  FRAC, TCLIFE, DTCLD )
 
           DO SPC = 1, MXSPCS
