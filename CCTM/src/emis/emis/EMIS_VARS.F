@@ -468,7 +468,7 @@
          EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
          EM_NML_B(N_EM_RULE_B)%PHASE = 'COARSE'
          EM_NML_B(N_EM_RULE_B)%SURR  = 'PMC'
-         EM_NML_B(N_EM_RULE_B)%FAC   = 0.0 !REAL( ACORSEM_ASO4_FAC, 4 ) 
+         EM_NML_B(N_EM_RULE_B)%FAC   = REAL( ACORSEM_ASO4_FAC, 4 ) 
          EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
          EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
 
@@ -478,7 +478,7 @@
          EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
          EM_NML_B(N_EM_RULE_B)%PHASE = 'COARSE'
          EM_NML_B(N_EM_RULE_B)%SURR  = 'PMC'
-         EM_NML_B(N_EM_RULE_B)%FAC   = 0.0 !REAL( ACORSEM_ANO3_FAC, 4 )
+         EM_NML_B(N_EM_RULE_B)%FAC   = REAL( ACORSEM_ANO3_FAC, 4 )
          EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
          EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
 
@@ -488,7 +488,7 @@
          EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
          EM_NML_B(N_EM_RULE_B)%PHASE = 'COARSE'
          EM_NML_B(N_EM_RULE_B)%SURR  = 'PMC'
-         EM_NML_B(N_EM_RULE_B)%FAC   = 0.0 !REAL( ACORSEM_ACL_FAC, 4 ) 
+         EM_NML_B(N_EM_RULE_B)%FAC   = REAL( ACORSEM_ACL_FAC, 4 ) 
          EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
          EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
 
@@ -498,7 +498,7 @@
          EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
          EM_NML_B(N_EM_RULE_B)%PHASE = 'COARSE'
          EM_NML_B(N_EM_RULE_B)%SURR  = 'PMC'
-         EM_NML_B(N_EM_RULE_B)%FAC   = 0.0 !REAL( ACORSEM_AH2O_FAC, 4 )
+         EM_NML_B(N_EM_RULE_B)%FAC   = REAL( ACORSEM_AH2O_FAC, 4 )
          EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
          EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
  
@@ -707,52 +707,6 @@
             EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
             EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(5) * POA_AMF(5)
 
-            ! Multiply all PNCOM by 2 to reproduce bug in CMAQv5.2.1
-            N_EM_RULE_B = N_EM_RULE_B + 1
-            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%STREAM= 'POINT_NONEGU'
-            EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
-            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ALL'
-            EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
-            EM_NML_B(N_EM_RULE_B)%OP    = 'm' 
-            EM_NML_B(N_EM_RULE_B)%FAC   = 2.0 
-          
-            N_EM_RULE_B = N_EM_RULE_B + 1
-            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%STREAM= 'POINT_EGU'
-            EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
-            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ALL'
-            EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
-            EM_NML_B(N_EM_RULE_B)%OP    = 'm' 
-            EM_NML_B(N_EM_RULE_B)%FAC   = 2.0 
-          
-            N_EM_RULE_B = N_EM_RULE_B + 1
-            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%STREAM= 'POINT_OTHER'
-            EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
-            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ALL'
-            EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
-            EM_NML_B(N_EM_RULE_B)%OP    = 'm' 
-            EM_NML_B(N_EM_RULE_B)%FAC   = 2.0 
-          
-            N_EM_RULE_B = N_EM_RULE_B + 1
-            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%STREAM= 'POINT_FIRES'
-            EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
-            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ALL'
-            EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
-            EM_NML_B(N_EM_RULE_B)%OP    = 'm' 
-            EM_NML_B(N_EM_RULE_B)%FAC   = 2.0 
-          
-            N_EM_RULE_B = N_EM_RULE_B + 1
-            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%STREAM= 'POINT_OILGAS'
-            EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
-            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ALL'
-            EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
-            EM_NML_B(N_EM_RULE_B)%OP    = 'm' 
-            EM_NML_B(N_EM_RULE_B)%FAC   = 2.0 
-          
             ! PCVOC <- POC
             N_EM_RULE_B = N_EM_RULE_B + 1
             EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
