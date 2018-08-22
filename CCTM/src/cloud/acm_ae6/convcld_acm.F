@@ -1113,7 +1113,8 @@ C...Initialize variables needed for entrainment and in-cloud properties solver
           JHNO3_BAR = 0.0 ! cloud HNO3 photolysis, 1/min
 
 
-C...Determine condensed water content and entrainment at each cloud level C...  Determine FSIDE profile for raining clouds; side entrainment
+C...Determine condensed water content and entrainment at each cloud level
+C...Determine FSIDE profile for raining clouds; side entrainment
 C...  only for PFW and CNP clouds
 
           IF ( ICLDTYPE .EQ. 1 ) THEN   ! raining cloud
@@ -1276,7 +1277,7 @@ C...weighted cloud temp
 C...weighted cloud pres
             PBARC = PBARC + PRESL( LAY ) * DZZL( LAY ) * LWC( LAY )
 
-C...weigthed photolysis rate 
+C...weighted photolysis rate 
             JH2O2_BAR = JH2O2_BAR + JH2O2( LAY ) * DZZL( LAY ) * LWC( LAY )     
             JHNO3_BAR = JHNO3_BAR + JHNO3( LAY ) * DZZL( LAY ) * LWC( LAY )     
 

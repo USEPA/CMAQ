@@ -1276,7 +1276,7 @@ C...weighted cloud temp
 C...weighted cloud pres
             PBARC = PBARC + PRESL( LAY ) * DZZL( LAY ) * LWC( LAY )
 
-C...weigthed photolysis rate 
+C...weighted photolysis rate 
             JH2O2_BAR = JH2O2_BAR + JH2O2( LAY ) * DZZL( LAY ) * LWC( LAY )     
             JHNO3_BAR = JHNO3_BAR + JHNO3( LAY ) * DZZL( LAY ) * LWC( LAY )     
 

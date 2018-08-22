@@ -264,7 +264,7 @@ C-------------------------------------------
       REAL             FRAC             ! cloud fractional coverage
       REAL             FTST             ! functional product in Walcek bisection solver
       REAL             HTST             ! temp diff in Walcek bisection solver
-      REAL, SAVE    :: METSTEP          ! timestep on the met file
+      REAL, SAVE    :: METSTEP          ! reciprocal of timestep on the met file, 1/hr
       REAL             P1               ! intermediate pressure used in calculating WL
       REAL             P2               ! intermediate pressure used in calculating WL
       REAL             P3               ! intermediate pressure used in calculating WL
@@ -438,7 +438,7 @@ C...  the met timestep in hours
         STIME = STIME3D
         MSTEP = TSTEP3D
 
-        METSTEP = 3600.0 / FLOAT( TIME2SEC( MSTEP ) ) 
+        METSTEP = 3600.0 / FLOAT( TIME2SEC( MSTEP ) ) ! convert to 1/hours
 
 C...get horizontal domain window from met data
 
