@@ -1,24 +1,24 @@
 ! RCS file, release, date & time of last delta, author, state, [and locker]
-! $Header: /project/work/rep/arc/mechs/MECHS/src/saprc07tc_ae6_aq/NR_saprc07tc_ae6_aq.nml,v 1.1.1.1 2011/04/06 16:38:07 sjr Exp $
+! $Header: /project/work/rep/arc/mechs/MECHS/src/saprc07tc_ae6_aq/NR_saprc07tc_ae6_aq.nml,v 1.1.1.1 2011/04/06 16
 
 &NR_nml
  
-n_surr1 = 4,
+n_surr1 = 3,
 n_surr2 = 2,
 n_ctrl = 4,
  
 TYPE_HEADER =
-'SPC:MOLWT:EMIS_SUR:EMIS_FAC:DEPV_SUR:DEPV_FAC:ICBC_SUR:ICBC_FAC:SCAV_SUR:SCAV_FAC:N2AE_SUR:N2AQ_SUR:TRNS:DDEP:WDEP:CONC',
+'SPC:MOLWT:DEPV_SUR:DEPV_FAC:ICBC_SUR:ICBC_FAC:SCAV_SUR:SCAV_FAC:N2AE_SUR:N2AQ_SUR:TRNS:DDEP:WDEP:CONC',
 TYPE_MATRIX =
-'NH3: 17.0:NH3:1.0:VD_NH3:1.0:::NH3:1.0:NH3:NH3:Yes:Yes:Yes:Yes',
-'SV_ISO1:132.0:::VD_SVISO1:1.0:::SVISO1:1.0:SV_ISO1::Yes:Yes:Yes:Yes',
-'SV_ISO2:133.0:::VD_SVISO2:1.0:::SVISO2:1.0:SV_ISO2::Yes:Yes:Yes:Yes',
-'SV_SQT:273.0:::VD_SVSQT:1.0:::SVSQT:1.0:SV_SQT::Yes:Yes:Yes:Yes',
-'LV_PCSOG:170.0:::VD_ORA:1.0:::ADIPIC_ACID:1.0:LV_PCSOG::Yes:::Yes',
-'SV_MT1:300.0:::VD_SVMT1:1.0:::SVMT1:1.0:SV_MT1::Yes:Yes:Yes:Yes',
-'SV_MT2:200.0:::VD_SVMT2:1.0:::SVMT2:1.0:SV_MT2::Yes:Yes:Yes:Yes',
-'SV_MT3:186.0:::VD_SVMT3:1.0:::SVMT3:1.0:SV_MT3::Yes:Yes:Yes:Yes',
-'SV_MT4:184.0:::VD_SVMT4:1.0:::SVMT4:1.0:SV_MT4::Yes:Yes:Yes:Yes',
-'SV_MT5:170.0:::VD_SVMT5:1.0:::SVMT5:1.0:SV_MT5::Yes:Yes:Yes:Yes',
-'SV_MT6:168.0:::VD_SVMT6:1.0:::SVMT6:1.0:SV_MT6::Yes:Yes:Yes:Yes'
+'NH3: 17.0:VD_NH3:1.0:::NH3:1.0:NH3:NH3:Yes:Yes:Yes:Yes',
+'SV_ISO1:132.0:VD_SVISO1:1.0:::SVISO1:1.0:SV_ISO1::Yes:Yes:Yes:Yes',
+'SV_ISO2:133.0:VD_SVISO2:1.0:::SVISO2:1.0:SV_ISO2::Yes:Yes:Yes:Yes',
+'SV_SQT:273.0:VD_SVSQT:1.0:::SVSQT:1.0:SV_SQT::Yes:Yes:Yes:Yes',
+'LV_PCSOG:170.0:VD_ORA:1.0:::ADIPIC_ACID:1.0:LV_PCSOG::Yes:::Yes',
+'SV_MT1:300.0:VD_SVMT1:1.0:::SVMT1:1.0:SV_MT1::Yes:Yes:Yes:Yes',
+'SV_MT2:200.0:VD_SVMT2:1.0:::SVMT2:1.0:SV_MT2::Yes:Yes:Yes:Yes',
+'SV_MT3:186.0:VD_SVMT3:1.0:::SVMT3:1.0:SV_MT3::Yes:Yes:Yes:Yes',
+'SV_MT4:184.0:VD_SVMT4:1.0:::SVMT4:1.0:SV_MT4::Yes:Yes:Yes:Yes',
+'SV_MT5:170.0:VD_SVMT5:1.0:::SVMT5:1.0:SV_MT5::Yes:Yes:Yes:Yes',
+'SV_MT6:168.0:VD_SVMT6:1.0:::SVMT6:1.0:SV_MT6::Yes:Yes:Yes:Yes'
 /
