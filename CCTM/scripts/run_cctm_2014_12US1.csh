@@ -146,7 +146,13 @@ setenv FL_ERR_STOP N         #> stop on inconsistent input files
 setenv PROMPTFLAG F          #> turn on I/O-API PROMPT*FILE interactive mode [ options: T | F ]
 setenv IOAPI_OFFSET_64 YES   #> support large timestep records (>2GB/timestep record) [ options: YES | NO ]
 setenv CTM_EMISCHK N         #> Abort CMAQ if missing surrogates from emissions Input files
-
+setenv EMIS_DATE_OVRD N      #> Master switch for allowing CMAQ to use the date from each Emission file
+                             #>   rather than checking the emissions date against the internal model date.
+                             #>   [options: T | F or Y | N]. If false (F/N), then the date from CMAQ's internal
+                             #>   time will be used and an error check will be performed (recommended). Users 
+                             #>   may switch the behavior for individual emission files below using the variables:
+                             #>       GR_EM_DTOVRD_## | STK_EM_DTOVRD_##
+ 
 #> Aerosol Diagnostic Controls
 setenv CTM_PMDIAG Y          #> Instantaneous Aerosol Diagnostic File [ default: Y ]
 setenv CTM_APMDIAG Y         #> Hourly-Average Aerosol Diagnostic File [ default: Y ]
@@ -171,6 +177,14 @@ setenv B3GTS_DIAG Y          #> beis mass emissions diagnostic file [ default: N
 setenv PT3DDIAG N            #> optional 3d point source emissions diagnostic file [ default: N]; ignore if CTM_PT3DEMIS = N
 setenv PT3DFRAC N            #> optional layer fractions diagnostic (play) file(s) [ default: N]; ignore if CTM_PT3DEMIS = N
 setenv REP_LAYER_MIN -1      #> Minimum layer for reporting plume rise info [ default: -1 ]
+setenv EMISDIAG F            #> Print Emission Rates at the output time step after they have been
+                             #>   scaled and modified by the user Rules [options: F | T or 2D | 3D | 2DSUM ]
+                             #>   Individual streams can be modified using the variables:
+                             #>       GR_EMIS_DIAG_## | STK_EMIS_DIAG_## | BIOG_EMIS_DIAG
+                             #>       MG_EMIS_DIAG    | LTNG_EMIS_DIAG   | DUST_EMIS_DIAG
+                             #>       SEASPRAY_EMIS_DIAG
+                             #>   Note that these diagnostics are different than other emissions diagnostic
+                             #>   output because they occur after scaling.  
 
 set DISP = delete            #> [ delete | keep ] existing output files
 
@@ -262,11 +276,15 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   set all      = `echo $intable[8] | cut -d, -f1`
  
   #> Gridded Emissions Files
+  setenv N_EMIS_GR 1
   set EMISfile  = emis_mole_all_${YYYYMMDD}_12US1_cmaq_cb6_2014fb_cdc_cb6cmaq_14j.ncf
+  setenv GR_EMIS_001 ${EMISpath}/${EMISfile}
+  setenv GR_EMIS_LAB_001 GRIDDED_EMIS
+  setenv GR_EMIS_DTOVRD_001 F
   
   #> In-Line Point Emissions Files
   if ( $CTM_PT3DEMIS == 'Y' ) then
-     setenv NPTGRPS 7          #> Number of elevated source groups
+     setenv N_EMIS_PT 7          #> Number of elevated source groups
 
      set STKCASEG = 12US1_2014fb_cdc_cb6cmaq_14j
      set STKCASEE = 12US1_cmaq_cb6_2014fb_cdc_cb6cmaq_14j
@@ -289,7 +307,27 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      setenv STK_EMIS_06 $IN_PTpath/pt_oilgas/inln_mole_pt_oilgas_${mwdss_Y}_${STKCASEE}.ncf
      setenv STK_EMIS_07 $IN_PTpath/cmv_c3/inln_mole_cmv_c3_${aveday_N}_${STKCASEE}.ncf
      setenv LAYP_STDATE $YYYYJJJ
+ 
+     # Label Each Emissions Stream
+     setenv STK_EMIS_LAB_001 POINT_NONEGU
+     setenv STK_EMIS_LAB_002 POINT_EGU
+     setenv STK_EMIS_LAB_003 POINT_OTHER
+     setenv STK_EMIS_LAB_004 PT_WILDFIRES
+     setenv STK_EMIS_LAB_005 PT_FIRE_MXCA
+     setenv STK_EMIS_LAB_006 POINT_OILGAS
+     setenv STK_EMIS_LAB_007 PT_MARINE
 
+     # Allow CMAQ to Use Point Source files with dates that do not
+     # match the internal model date
+     setenv STK_EM_DTOVRD_001 T
+     setenv STK_EM_DTOVRD_002 T
+     setenv STK_EM_DTOVRD_003 T
+     setenv STK_EM_DTOVRD_004 T
+     setenv STK_EM_DTOVRD_005 T
+     setenv STK_EM_DTOVRD_006 T
+     setenv STK_EM_DTOVRD_007 T
+ 
+ 
   endif
 
   #> Lightning NOx configuration

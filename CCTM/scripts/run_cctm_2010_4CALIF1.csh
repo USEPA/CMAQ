@@ -182,7 +182,14 @@ setenv PT3DDIAG N            #> optional 3d point source emissions diagnostic fi
 setenv PT3DFRAC N            #> optional layer fractions diagnostic (play) file(s) [ default: N];
                              #>     Ignore if CTM_PT3DEMIS = N
 setenv REP_LAYER_MIN -1      #> Minimum layer for reporting plume rise info [ default: -1 ]
-
+setenv EMISDIAG F            #> Print Emission Rates at the output time step after they have been
+                             #>   scaled and modified by the user Rules [options: F | T or 2D | 3D | 2DSUM ]
+                             #>   Individual streams can be modified using the variables:
+                             #>       GR_EMIS_DIAG_## | STK_EMIS_DIAG_## | BIOG_EMIS_DIAG
+                             #>       MG_EMIS_DIAG    | LTNG_EMIS_DIAG   | DUST_EMIS_DIAG
+                             #>       SEASPRAY_EMIS_DIAG
+                             #>   Note that these diagnostics are different than other emissions diagnostic
+                             #>   output because they occur after scaling. 
 set DISP = delete            #> [ delete | keep ] existing output files
 
 
@@ -232,12 +239,14 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #> Initial conditions                                                     
   if ($NEW_START == true || $NEW_START == TRUE ) then
      setenv ICFILE ICON_v52_4CALIF1_saprc07tb_ae6_aq_timeind
+     setenv INIT_MEDC_1 notused
      setenv INITIAL_RUN Y #related to restart soil information file
      rm -rf $LOGDIR/CTM_LOG*${RUNID}*  # Remove all Log Files Since this is a new start
      mkdir -p $OUTDIR
   else
      set ICpath = $OUTDIR
      setenv ICFILE CCTM_CGRID_${RUNID}_${YESTERDAY}.nc
+     setenv INIT_MEDC_1 $ICpath/CCTM_MEDIA_CONC_${RUNID}_${YESTERDAY}
      setenv INITIAL_RUN N
   endif
 
@@ -265,7 +274,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv MET_BDY_3D  $METpath/METBDY3D.$GRID_NAME.${NZ}L.$YYMMDD
 
   setenv LAYER_FILE $MET_CRO_3D  # Deprecated: MET_CRO_3D is now read directly in CCTM
- 
+
   #> Determine Representative Emission Days
   set EMDATES = $INPDIR/emis/emis_dates/smk_merge_dates_${YYYYMM}.txt
   set intable = `grep "^${YYYYMMDD}" $EMDATES`
@@ -279,11 +288,15 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   set all      = `echo $intable[8] | cut -d, -f1`
   
   #> Gridded Emissions Files
+  setenv N_EMIS_GR 1
   set EMISfile  = emis_mole_all_${YYYYMMDD}_4CALIF1_cmaq_saprc07TB_2011eh_saprc_10g.ncf
+  setenv GR_EMIS_001 ${EMISpath}/${EMISfile}
+  setenv GR_EMIS_LAB_001 GRIDDED_EMIS
+  setenv GR_EMIS_DTOVRD_001 F
   
   #> In-Line Point Emissions Files
   if ( $CTM_PT3DEMIS == 'Y' ) then
-     setenv NPTGRPS 7          #> Number of elevated source groups
+     setenv N_EMIS_PT 7          #> Number of elevated source groups
 
      set STKCASEE = 4CALIF1_cmaq_saprc07TB_2011eh_saprc_10g  # In-line Emission Rate File Suffix
      set STKCASEG = 4CALIF1_2011eh_saprc_10g                 # Stack parameter File Suffix
@@ -307,6 +320,25 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      setenv STK_EMIS_07 $IN_PTpath/ship_int_cmv_c3/inln_mole_ship_int_cmv_c3_${aveday_N}_${STKCASEE}.ncf
      setenv LAYP_STDATE $YYYYJJJ
 
+     # Label Each Emissions Stream
+     setenv STK_EMIS_LAB_001 POINT_NONEGU
+     setenv STK_EMIS_LAB_002 POINT_EGU
+     setenv STK_EMIS_LAB_003 POINT_OTHER
+     setenv STK_EMIS_LAB_004 PT_WILDFIRES
+     setenv STK_EMIS_LAB_005 PT_RXFIRE
+     setenv STK_EMIS_LAB_006 POINT_OILGAS
+     setenv STK_EMIS_LAB_007 PT_MARINE
+
+     # Allow CMAQ to Use Point Source files with dates that do not
+     # match the internal model date
+     setenv STK_EM_DTOVRD_001 T
+     setenv STK_EM_DTOVRD_002 T
+     setenv STK_EM_DTOVRD_003 T
+     setenv STK_EM_DTOVRD_004 T
+     setenv STK_EM_DTOVRD_005 T
+     setenv STK_EM_DTOVRD_006 T
+     setenv STK_EM_DTOVRD_007 T
+ 
   endif
  
   #> Lightning NOx configuration
@@ -420,7 +452,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
              $CTM_DRY_DEP_FST $CTM_DEPV_MOS $CTM_DEPV_FST $CTM_VDIFF_DIAG $CTM_VSED_DIAG    \
              $CTM_LTNGDIAG_1 $CTM_LTNGDIAG_2)
   set OUT_FILES = `echo $OUT_FILES | sed "s; -v;;g" `
-  echo $OUT_FILES
+  #echo $OUT_FILES
   set out_test = `ls $OUT_FILES` 
 
   #> delete previous output if requested
@@ -466,7 +498,6 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv CTM_STTIME      $STTIME
   setenv CTM_RUNLEN      $NSTEPS
   setenv CTM_TSTEP       $TSTEP
-  setenv EMIS_1 $EMISpath/$EMISfile 
   setenv INIT_GASC_1 $ICpath/$ICFILE
   setenv INIT_AERO_1 $INIT_GASC_1
   setenv INIT_NONR_1 $INIT_GASC_1
