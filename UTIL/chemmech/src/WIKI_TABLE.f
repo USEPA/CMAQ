@@ -699,7 +699,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 5119    FORMAT( ' k<sub>0</sub> = ', ES12.4,'*exp<sup>(',ES12.4,'/T)</sup>*(T/300)<sup>',ES12.4,'</sup>;',
      &          ' k<sub>2</sub> = ', ES12.4,'*exp<sup>(',ES12.4,'/T)</sup>*(T/300)<sup>',ES12.4,'</sup>;',
      &          ' k<sub>3</sub> = ', ES12.4,'*exp<sup>(',ES12.4,'/T)</sup>')
-5120   FORMAT('min(', ES10.3,'*exp<sup>(',ES10.3'*P),</sup> +', ES10.3,'*exp<sup>(',ES10.3'*P),</sup>, 2.4000E-6)')
+5120   FORMAT('min(', ES10.3,'*exp<sup>(',ES10.3'*P),</sup> +', ES10.3,'*exp<sup>(',ES10.3'*P),</sup>, 2.675E-6)')
 
 5121   FORMAT('{|class="wikitable"',
      &        / '|-',
@@ -1366,7 +1366,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 5119    FORMAT( ' k<sub>0</sub> = ', ES12.4,'e<sup>(',ES12.4,'/T)</sup>(T/300)<sup>',ES12.4,'</sup>;',
      &          ' k<sub>2</sub> = ', ES12.4,'e<sup>(',ES12.4,'/T)</sup>(T/300)<sup>',ES12.4,'</sup>;',
      &          ' k<sub>3</sub> = ', ES12.4,'e<sup>(',ES12.4,'/T)</sup>')
-5120   FORMAT('min(', ES10.3,'e<sup>(',ES10.3'P),</sup> +', ES10.3,'e<sup>(',ES10.3'P),</sup>, 2.4000E-6)')
+5120   FORMAT('min(', ES10.3,'e<sup>(',ES10.3'P),</sup> +', ES10.3,'e<sup>(',ES10.3'P),</sup>, 2.675E-6)')
 
 5121   FORMAT(  '|Reaction Number|Reaction Label|Reaction|Rate Constant Formula|Value at ',F6.2,' K; ',
      &           ES12.4,' molec/cm<sup>3</sup>; ', F6.2,' Atm.',
@@ -2596,7 +2596,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 5119    FORMAT( ' k0 = ', ES12.4,'*exp(',ES12.4,'/T)*(T/300)^',ES12.4,';',
      &          ' k2 = ', ES12.4,'*exp(',ES12.4,'/T)*(T/300)^',ES12.4,';',
      &          ' k3 = ', ES12.4,'*exp(',ES12.4,'/T)')
-5120   FORMAT('min of ', ES10.3,'*exp(',ES10.3'*P), +', ES10.3,'*exp(',ES10.3'*P) and 2.4000E-6')
+5120   FORMAT('min of ', ES10.3,'*exp(',ES10.3'*P), +', ES10.3,'*exp(',ES10.3'*P) and 2.675E-6')
 
 5121   FORMAT(  'Reaction Number,Reaction Label,Reaction,Rate Constant Formula,Value at ',F6.2,' K; ',
      &           ES12.4,' molec/cm^3; ', F6.2,' Atm.',
@@ -3345,8 +3345,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 5119    FORMAT( ' k0 = ', ES12.4,'exp(',F9.2,'/T)(T/300)<sup>',F6.2,'</sup><br>',
      &          ' k2 = ', ES12.4,'exp(',F9.2,'/T)(T/300)<sup>',F6.2,'</sup><br>',
      &          ' k3 = ', ES12.4,'exp(',F9.2,'/T)')
-5120   FORMAT('min(', ES10.3,'exp(',ES10.3'P) +' ES10.3,'exp(',ES10.3'P), 2.4E-6)')
-
+5120   FORMAT('min(', ES10.3,'exp(',ES10.3'P) +' ES10.3,'exp(',ES10.3'P), 2.675E-6)')
 5121   FORMAT( 'Value (molecules/(sec*cm<sup>3</sup>)) <br> at ',
      &         F6.2,' K<br> ', ES12.4,' molec/cm<sup>3</sup><br> ', F6.2,' Atm.')
 
@@ -4050,7 +4049,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 5119    FORMAT( 'k<sub>0</sub>=', ES12.4,'e<sup>',F8.1,'/T</sup>(T/300)<sup>',F6.2,'</sup><br>',
      &          'k<sub>2</sub>=', ES12.4,'e<sup>',F8.1,'/T</sup>(T/300)<sup>',F6.2,'</sup><br>',
      &          'k<sub>3</sub>=', ES12.4,'e<sup>',F9.2,'/T</sup>')
-5120   FORMAT('min(', ES10.3,'e<sup>',ES10.3'P</sup>+', ES10.3,'e<sup>',ES10.3'P</sup>, <br>2.4000E-6)')
+5120   FORMAT('min(', ES10.3,'e<sup>',ES10.3'P</sup>+', ES10.3,'e<sup>',ES10.3'P</sup>, <br>2.675E-6)')
 
 5121   FORMAT(  '|Label|Reaction            |Rate Constant Formula| Value<br> molecules/(sec*cm<sup>3</sup>)|   ',
      &        / '|:---|:-------------------|:--------------------|:----:|   ')
