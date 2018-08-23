@@ -56,6 +56,7 @@
      &                                NEW_CL_SSA(:, :, :)
      
          INTEGER                  :: I, J, K
+         INTEGER, SAVE            :: I_CUTTOFF
 
 
 
@@ -687,6 +688,15 @@ C     Single scattering albedo
      &                                    CLOUD_LIQ_SSA(K)
 
                END DO
+
+               DO K = NJO_NEW, 1, -1
+!                  K = NJO_NEW - N_INLINE_BAND + I
+                   IF ( EFFECTIVE_LAMBDA(K) .LT. WCWVN( 1 ) )THEN
+!                IF ( CLOUD_LIQ_SSA( K ) .LE. 1.0E-6 )THEN
+                       I_CUTTOFF = K + 1 ! MIN( K + 1, NJO_NEW )
+                       EXIT
+                  END IF
+               END DO
                
 !              IF( WRITE_DATA )OPEN(UNIT=DATA_UNIT, FILE='HU_STAMNES_cloud_optics.dat',
 !     &                        STATUS='UNKNOWN',ERR=98)
@@ -882,7 +892,21 @@ C     Single scattering Co-albedo
 
          WC_SSA( 1:NJO_NEW ) = YDUMB( 1:NJO_NEW )
 
-         WRITE(6,'(4(es12.4,1X))')(WAVE_OUTL(ivwc),WC_EXT(ivwc),WC_ASF(ivwc),WC_SSA(ivwc),ivwc=1,NJO_NEW)
+               IF( I_CUTTOFF .GT. 0 )THEN
+            WRITE(6,'(A, 4(es12.4,1X))')'LOWEST Values:',WAVE_OUTL(I_CUTTOFF),WC_EXT(I_CUTTOFF),
+     &      WC_ASF(I_CUTTOFF),WC_SSA(I_CUTTOFF)
+                  DO I = 1, I_CUTTOFF-1 
+                     wc_ext(I) = wc_ext(I_CUTTOFF)
+                     wc_asf(I) = wc_asf(I_CUTTOFF)
+                     wc_ssa(I) = wc_ssa(I_CUTTOFF)
+                  END DO
+               END IF
+
+         IF( I_CUTTOFF .GT. 0 )PRINT*,' CUTTOFF = ',I_CUTTOFF,' at LAMBDA = ',EFFECTIVE_LAMBDA(I_CUTTOFF)
+         DO ivwc=1, NJO_NEW
+            WRITE(6,'(A, 4(es12.4,1X))')'Result:',WAVE_OUTL(ivwc),WC_EXT(ivwc),
+     &      WC_ASF(ivwc),WC_SSA(ivwc)
+         END DO
 
 !         pause
          RETURN

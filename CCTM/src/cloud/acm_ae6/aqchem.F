@@ -494,40 +494,40 @@ C... soluble aerosols
         SOIL_FE_FAC = ASOIL_FE_FAC * REAL( AEROSPC_MW( ASOIL_IDX ), 8 )
      &                             / REAL( AEROSPC_MW( AFE_IDX ), 8 ) / ASOIL_RENORM
         CORS_FE_FAC = ACORS_FE_FAC * REAL( AEROSPC_MW( ACORS_IDX ), 8 )
-     &                             / REAL( AEROSPC_MW( AFE_IDX ), 8 ) / ACORS_RENORM
+     &                             / REAL( AEROSPC_MW( AFE_IDX ), 8 ) / ACORSEM_RENORM
 
         SOIL_MN_FAC = ASOIL_MN_FAC * REAL( AEROSPC_MW( ASOIL_IDX ), 8 )
      &                             / REAL( AEROSPC_MW( AMN_IDX ), 8 ) / ASOIL_RENORM
         CORS_MN_FAC = ACORS_MN_FAC * REAL( AEROSPC_MW( ACORS_IDX ), 8 )
-     &                             / REAL( AEROSPC_MW( AMN_IDX ), 8 ) / ACORS_RENORM
+     &                             / REAL( AEROSPC_MW( AMN_IDX ), 8 ) / ACORSEM_RENORM
 
         SEAS_NA_FAC = ASCAT_NA_FAC * REAL( AEROSPC_MW( ASEACAT_IDX ), 8 )
      &                             / REAL( AEROSPC_MW( ANA_IDX ), 8 )
         SOIL_NA_FAC = ASOIL_NA_FAC * REAL( AEROSPC_MW( ASOIL_IDX ), 8 )
      &                             / REAL( AEROSPC_MW( ANA_IDX ), 8 ) / ASOIL_RENORM
         CORS_NA_FAC = ACORS_NA_FAC * REAL( AEROSPC_MW( ACORS_IDX ), 8 )
-     &                             / REAL( AEROSPC_MW( ANA_IDX ), 8 ) / ACORS_RENORM
+     &                             / REAL( AEROSPC_MW( ANA_IDX ), 8 ) / ACORSEM_RENORM
 
         SEAS_MG_FAC = ASCAT_MG_FAC * REAL( AEROSPC_MW( ASEACAT_IDX ), 8 )
      &                             / REAL( AEROSPC_MW( AMG_IDX ), 8 )
         SOIL_MG_FAC = ASOIL_MG_FAC * REAL( AEROSPC_MW( ASOIL_IDX ), 8 )
      &                             / REAL( AEROSPC_MW( AMG_IDX ), 8 ) / ASOIL_RENORM
         CORS_MG_FAC = ACORS_MG_FAC * REAL( AEROSPC_MW( ACORS_IDX ), 8 )
-     &                             / REAL( AEROSPC_MW( AMG_IDX ), 8 ) / ACORS_RENORM
+     &                             / REAL( AEROSPC_MW( AMG_IDX ), 8 ) / ACORSEM_RENORM
 
         SEAS_CA_FAC = ASCAT_CA_FAC * REAL( AEROSPC_MW( ASEACAT_IDX ), 8 )
      &                             / REAL( AEROSPC_MW( ACA_IDX ), 8 )
         SOIL_CA_FAC = ASOIL_CA_FAC * REAL( AEROSPC_MW( ASOIL_IDX ), 8 )
      &                             / REAL( AEROSPC_MW( ACA_IDX ), 8 ) / ASOIL_RENORM
         CORS_CA_FAC = ACORS_CA_FAC * REAL( AEROSPC_MW( ACORS_IDX ), 8 )
-     &                             / REAL( AEROSPC_MW( ACA_IDX ), 8 ) / ACORS_RENORM
+     &                             / REAL( AEROSPC_MW( ACA_IDX ), 8 ) / ACORSEM_RENORM
 
         SEAS_K_FAC = ASCAT_K_FAC * REAL( AEROSPC_MW( ASEACAT_IDX ), 8 )
      &                             / REAL( AEROSPC_MW( AK_IDX ), 8 )
         SOIL_K_FAC = ASOIL_K_FAC * REAL( AEROSPC_MW( ASOIL_IDX ), 8 )
      &                             / REAL( AEROSPC_MW( AK_IDX ), 8 ) / ASOIL_RENORM
         CORS_K_FAC = ACORS_K_FAC * REAL( AEROSPC_MW( ACORS_IDX ), 8 )
-     &                             / REAL( AEROSPC_MW( AK_IDX ), 8 ) / ACORS_RENORM
+     &                             / REAL( AEROSPC_MW( AK_IDX ), 8 ) / ACORSEM_RENORM
 
       END IF    ! FIRSTIME
 

@@ -9,7 +9,10 @@ This Fortran program combines fields from a set of IOAPI or wrfout input files t
  GENSPEC      Indicates to generate a new SPECIES_DEF file (does not generate OUTFILE)
               Choices are: Y, N. (e.g. setenv GENSPEC N)
  SPECIES_DEF  Species definition file defining the new variables of the output file
- INFILE1      input file number 1, (max of 9).
+ INFILE1      input file number 1
+              The maximum number of IOAPI files is set to be one less than the global IOAPI parameter MXFILE3.
+	      Since this parameter is currently set to 64 (https://www.cmascenter.org/ioapi/documentation/all_versions/html/TUTORIAL.html),
+	      the maximum number of IOAPI input files is 63.
  OUTFILE      IOAPI output file name, opened as read/write if it does not exist and 
               read/write/update if it already exists
 ```
