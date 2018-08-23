@@ -66,7 +66,7 @@ set TSTEP      = 010000            #> output time step interval (HHMMSS)
 if ( $PROC == serial ) then
    setenv NPCOL_NPROW "1 1"; set NPROCS   = 1 # single processor setting
 else
-   @ NPCOL  =  8; @ NPROW =  4
+   @ NPCOL  =  8; @ NPROW =  8
    @ NPROCS = $NPCOL * $NPROW
    setenv NPCOL_NPROW "$NPCOL $NPROW"; 
 endif
@@ -289,23 +289,23 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      set STKCASEG = 12US1_2014fb_cdc_cb6cmaq_14j
      set STKCASEE = 12US1_cmaq_cb6_2014fb_cdc_cb6cmaq_14j
 
-     setenv STK_GRPS_01 $IN_PTpath/ptnonipm/stack_groups_ptnonipm_${STKCASEG}.ncf
-     setenv STK_GRPS_02 $IN_PTpath/ptegu/stack_groups_ptegu_${STKCASEG}.ncf
-     setenv STK_GRPS_03 $IN_PTpath/othpt/stack_groups_othpt_${STKCASEG}.ncf
-     setenv STK_GRPS_04 $IN_PTpath/ptfire/stack_groups_ptfire_${YYYYMMDD}_${STKCASEG}.ncf
-     setenv STK_GRPS_05 $IN_PTpath/ptfire_mxca/stack_groups_ptfire_mxca_${YYYYMMDD}_${STKCASEG}.ncf
-     setenv STK_GRPS_06 $IN_PTpath/pt_oilgas/stack_groups_pt_oilgas_${STKCASEG}.ncf
-     setenv STK_GRPS_07 $IN_PTpath/cmv_c3/stack_groups_cmv_c3_${STKCASEG}.ncf
+     setenv STK_GRPS_001 $IN_PTpath/ptnonipm/stack_groups_ptnonipm_${STKCASEG}.ncf
+     setenv STK_GRPS_002 $IN_PTpath/ptegu/stack_groups_ptegu_${STKCASEG}.ncf
+     setenv STK_GRPS_003 $IN_PTpath/othpt/stack_groups_othpt_${STKCASEG}.ncf
+     setenv STK_GRPS_004 $IN_PTpath/ptfire/stack_groups_ptfire_${YYYYMMDD}_${STKCASEG}.ncf
+     setenv STK_GRPS_005 $IN_PTpath/ptfire_mxca/stack_groups_ptfire_mxca_${YYYYMMDD}_${STKCASEG}.ncf
+     setenv STK_GRPS_006 $IN_PTpath/pt_oilgas/stack_groups_pt_oilgas_${STKCASEG}.ncf
+     setenv STK_GRPS_007 $IN_PTpath/cmv_c3/stack_groups_cmv_c3_${STKCASEG}.ncf
      setenv LAYP_STTIME $STTIME
      setenv LAYP_NSTEPS $NSTEPS
 
-     setenv STK_EMIS_01 $IN_PTpath/ptnonipm/inln_mole_ptnonipm_${mwdss_Y}_${STKCASEE}.ncf
-     setenv STK_EMIS_02 $IN_PTpath/ptegu/inln_mole_ptegu_${YYYYMMDD}_${STKCASEE}.ncf
-     setenv STK_EMIS_03 $IN_PTpath/othpt/inln_mole_othpt_${mwdss_N}_${STKCASEE}.ncf
-     setenv STK_EMIS_04 $IN_PTpath/ptfire/inln_mole_ptfire_${YYYYMMDD}_${STKCASEE}.ncf
-     setenv STK_EMIS_05 $IN_PTpath/ptfire_mxca/inln_mole_ptfire_mxca_${YYYYMMDD}_${STKCASEE}.ncf
-     setenv STK_EMIS_06 $IN_PTpath/pt_oilgas/inln_mole_pt_oilgas_${mwdss_Y}_${STKCASEE}.ncf
-     setenv STK_EMIS_07 $IN_PTpath/cmv_c3/inln_mole_cmv_c3_${aveday_N}_${STKCASEE}.ncf
+     setenv STK_EMIS_001 $IN_PTpath/ptnonipm/inln_mole_ptnonipm_${mwdss_Y}_${STKCASEE}.ncf
+     setenv STK_EMIS_002 $IN_PTpath/ptegu/inln_mole_ptegu_${YYYYMMDD}_${STKCASEE}.ncf
+     setenv STK_EMIS_003 $IN_PTpath/othpt/inln_mole_othpt_${mwdss_N}_${STKCASEE}.ncf
+     setenv STK_EMIS_004 $IN_PTpath/ptfire/inln_mole_ptfire_${YYYYMMDD}_${STKCASEE}.ncf
+     setenv STK_EMIS_005 $IN_PTpath/ptfire_mxca/inln_mole_ptfire_mxca_${YYYYMMDD}_${STKCASEE}.ncf
+     setenv STK_EMIS_006 $IN_PTpath/pt_oilgas/inln_mole_pt_oilgas_${mwdss_Y}_${STKCASEE}.ncf
+     setenv STK_EMIS_007 $IN_PTpath/cmv_c3/inln_mole_cmv_c3_${aveday_N}_${STKCASEE}.ncf
      setenv LAYP_STDATE $YYYYJJJ
  
      # Label Each Emissions Stream
