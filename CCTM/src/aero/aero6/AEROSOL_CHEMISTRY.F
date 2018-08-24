@@ -365,7 +365,6 @@ C *** Parameters
 
       REAL( 8 ), PARAMETER :: STD_DIFF_BRONO2 = 0.0855D-4  ! BRONO2 molecular diffusivity at 101325 Pa and 273.15 K [m2/sec]
 
-      REAL,      PARAMETER :: GPKG        = 1.0E+03                      ! g/kg unit conversion
       REAL,      PARAMETER :: CFACTOR     = 8.0 * GPKG  * RGASUNIV / PI  ! factor in cbar_coeff
       REAL,      PARAMETER :: PA2ATM      = 1.0 / STDATMPA               ! Pascal to atm conv fac
       REAL,      PARAMETER :: WMASS2PPM   = 1.0E6 * MWAIR / MWWAT        ! H20 mixing ratio to ppm
@@ -669,7 +668,8 @@ C ***  Determine molecular weights
 C ***  Map to acids/nucleophiles for epoxide uptake
        INDX =  INDEX1( NAMES_AERO_RATES( IA_IEPOX ), NHETERO, HETERO )   
        IF ( INDX .GT. 0 ) THEN ! Find indices for acid catalyzed species in IEPOX reaction
-          If ( INDEX( MECHNAME, 'SAPRC07TIC_AE6I' ) .GT. 0 ) then
+          If ( ( INDEX( MECHNAME, 'SAPRC07TIC_AE6I' ) .GT. 0 ) .OR.
+     &         ( INDEX( MECHNAME, 'SAPRC07TIC_AE7I' ) .GT. 0 )  ) then
              NUMVOC         = 2
              N_NUCPAIRS     = N_NUCPAIRS_AE6I
              ALLOCATE ( ACID_NUC_PAIRS( N_NUCPAIRS ) )

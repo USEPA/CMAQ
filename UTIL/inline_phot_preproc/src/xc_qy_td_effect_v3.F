@@ -512,6 +512,39 @@
              ENDDO
 
              REPLACE = .TRUE.
+             
+         CASE( 'CLNO2', 'CLNO2_IUPAC13' )
+
+! IUPAC 2013 Data Sheet recommended temperature correction to cross-section
+! from
+!     B. Ghosh, D.K. Papanastasiou, R.K. Talukdar, J.M. Roberts, and J.B. Burkholder, 
+!     "Nitryl chloride (ClNO2): UV/Vis absorption spectrum between 210 and 296 K and 
+!     O(3P) quantum yield at 193 and 248 nm," J. Phys. Chem. A 116, 5796-5805 (2012); 
+!     DOI: 10.1021/jp207389y
+
+             DO IW = 1, NW
+!                    print*,"CLNO2: ",IW,WC(IW),CLNO2_XCROSS_A1(IW),CLNO2_XCROSS_A2(IW)
+               DO I = 1, NZ
+
+                  IF( TLEV( I ) .GE. 210.0 .AND. TLEV( I ) .LE. 296.0 )THEN
+                     TDUM  = TLEV(I)-296.0
+                     FACTOR = 1.0 
+     &                      + CLNO2_XCROSS_A1( IW )*TDUM 
+     &                      + CLNO2_XCROSS_A2( IW )*(TDUM*TDUM)
+                     print*,WC(IW),CLNO2_XCROSS_A1(IW),CLNO2_XCROSS_A1(IW)
+                  ELSE IF( TLEV( I ) .GT. 296.0 )THEN
+                     FACTOR = 1.0
+                  ELSE IF( TLEV( I ) .LT. 210.0 )THEN
+                     FACTOR = 1.0 
+     &                      -   86.0*CLNO2_XCROSS_A1( IW )
+     &                      + 7396.0*CLNO2_XCROSS_A2( IW )
+                  END IF  
+                  print*,"CLNO2: ",I, TLEV(I),FACTOR, XC(I, IW)
+                  XC(I, IW)  = FACTOR * XC(I, IW)
+                  SQ(I, IW)  = XC(I, IW) * QY(I, IW)
+               ENDDO
+             ENDDO
+             REPLACE = .TRUE.
 
          CASE( 'N2O5_IUPAC04', 'N2O5_IUPAC10' )
 

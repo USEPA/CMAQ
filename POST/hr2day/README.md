@@ -23,8 +23,17 @@ This Fortran program creates gridded IOAPI files with daily values from gridded 
                Allowed values are 24 (use all 8-hr averages with starting hours 
                from 0 - 23 hr local time) and 17 (use only the 17 8-hr averages
                with starting hours from 7 - 23 hr local time) (default is 24)
- INFILE        input IOAPI file name with hourly values. Supported map projections are 
-               Lambert conformal, polar stereographic, and lat/lon
+ M3_FILE_#     List of input IOAPI file names with hourly values.
+               If only a single input file is provided, INFILE can be used instead of
+	       M3_FILE_1.
+               The program will concatenate time steps from all input files to construct the
+	       longest possible time record which can be processed. Duplicate time steps are
+	       eliminated.
+	       The maximum number of IOAPI files is set to be one less than the global IOAPI parameter MXFILE3.
+	       Since this parameter is currently set to 64 (https://www.cmascenter.org/ioapi/documentation/all_versions/html/TUTORIAL.html),
+	       the maximum number of IOAPI input files is 63.
+	       Supported map projections are Lambert conformal, polar
+	       stereographic, and lat/lon
  OUTFILE       output IOAPI file name with computed daily values
 ```
 
@@ -32,6 +41,11 @@ This Fortran program creates gridded IOAPI files with daily values from gridded 
 ```
  IOAPI_ISPH  projection sphere type (use type #20 to match WRF/CMAQ)
              (ioapi default is 8)
+ START_DATE  Optional desired first and last processing date.
+ END_DATE    The program will adjust the requested dates if the desired range is not covered
+             by the input file(s). If these dates are not specified, the processing will be
+	     performed for the longest possible time record that can be derived from the
+	     model input file(s). 
 ```
 
 ##Species and operator definitions: 
