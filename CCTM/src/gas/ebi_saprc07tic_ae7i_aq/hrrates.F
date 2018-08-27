@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the saprc07tic family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Aug 22, 2018
+C  REVISION HISTORY: Created by EBI solver program, Aug 20, 2018
 C
 C***********************************************************************
       USE HRDATA

@@ -51,7 +51,7 @@ WDEP_ASO4IJK       ,kg ha-1   ,ASO4I[2] + ASO4J[2] + ASO4K[2]
 DDEP_AECIJ         ,kg ha-1   ,AECI[1] +AECJ[1]
 DDEP_POCIJ         ,kgC ha-1  , ALVPO1I[1]/1.39 + ASVPO1I[1]/1.32 + ASVPO2I[1]/1.26  \
                                +ALVPO1J[1]/1.39 + ASVPO1J[1]/1.32 + ASVPO2J[1]/1.26  \
-                               +ASVPO3J[1]/1.21 + AIVPO1J[1]/1.17                    \
+                               +ASVPO3J[1]/1.21 + AIVPO1J[1]/1.17
 DDEP_SOCIJ         ,kgC ha-1   ,ALVOO1I[1]/2.27 + ALVOO2I[1]/2.06                    \
                                +ASVOO1I[1]/1.88 + ASVOO2I[1]/1.73                    \
                                +AISO1J[1]/2.20 + AISO2J[1]/2.23 + AISO3J[1]/2.80     \
@@ -59,7 +59,7 @@ DDEP_SOCIJ         ,kgC ha-1   ,ALVOO1I[1]/2.27 + ALVOO2I[1]/2.06               
                                +AOLGBJ[1]/2.10 + AOLGAJ[1]/2.50                      \
                                +ALVOO1J[1]/2.27+ ALVOO2J[1]/2.06+ ASVOO1J[1]/1.88    \
                                +ASVOO2J[1]/1.73+ ASVOO3J[1]/1.60                     \
-                               +AAVB1J[1]/2.70 + AAVB2J[1]/2.35  + AAVB3J[1]/2.17     \
+                               +AAVB1J[1]/2.70 + AAVB2J[1]/2.35  + AAVB3J[1]/2.17    \
                                +AAVB4J[1]/1.99 + APCSOJ[1] /2.00                     \
                                +AIETETJ[1]/2.27 + AIEOSJ[1]/3.6   + ADIMJ[1]/2.07    \
                                +AIMGAJ[1]/2.5   + AIMOSJ[1]/4.17                     \
@@ -68,7 +68,7 @@ DDEP_SOCIJ         ,kgC ha-1   ,ALVOO1I[1]/2.27 + ALVOO2I[1]/2.06               
                                +AMTNO3J[1]/1.9 + AISOPNNJ[1]/3.8 + AMTHYDJ[1]/1.54   \
                                +AGLYJ[1]/2.13
 
-DDEP_AOCIJ         ,kgC ha-1   , DDEP_APOCIJ[0]+DDEP_SOCIJ[0]  \
+DDEP_AOCIJ         ,kgC ha-1   , DDEP_APOCIJ[0]+DDEP_SOCIJ[0]
 
 ! Sodium
 DDEP_ANAJ          ,kg ha-1   ,ANAJ[1]

@@ -34,7 +34,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Aug 22, 2018
+C  REVISION HISTORY: Created by EBI solver program, Aug 20, 2018
 C   21 Jun 10 J.Young:   convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files
@@ -260,9 +260,9 @@ c..Allocate and define ebi species
       EBISP( 107 ) = ALK4
       EBISP( 108 ) = ALK5
       EBISP( 109 ) = SOAALK
-      EBISP( 110 ) = SV_AVB2
-      EBISP( 111 ) = SV_AVB3
-      EBISP( 112 ) = SV_AVB4
+      EBISP( 110 ) = SVAVB2
+      EBISP( 111 ) = SVAVB3
+      EBISP( 112 ) = SVAVB4
       EBISP( 113 ) = OLE1
       EBISP( 114 ) = OLE2
       EBISP( 115 ) = ARO1
@@ -288,7 +288,7 @@ c..Allocate and define ebi species
       EBISP( 135 ) = CLCCHO
       EBISP( 136 ) = CLACET
       EBISP( 137 ) = CLCHO
-      EBISP( 138 ) = SV_AVB1
+      EBISP( 138 ) = SVAVB1
       EBISP( 139 ) = HCHO_PRIMARY
       EBISP( 140 ) = CCHO_PRIMARY
       EBISP( 141 ) = ACRO_PRIMARY
@@ -490,9 +490,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( ALK4         ) = 5.0D-04
       RTOL( ALK5         ) = 5.0D-04
       RTOL( SOAALK       ) = 5.0D-04
-      RTOL( SV_AVB2      ) = 5.0D-04
-      RTOL( SV_AVB3      ) = 5.0D-04
-      RTOL( SV_AVB4      ) = 5.0D-04
+      RTOL( SVAVB2       ) = 5.0D-04
+      RTOL( SVAVB3       ) = 5.0D-04
+      RTOL( SVAVB4       ) = 5.0D-04
       RTOL( OLE1         ) = 5.0D-04
       RTOL( OLE2         ) = 5.0D-04
       RTOL( ARO1         ) = 5.0D-04
@@ -518,7 +518,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( CLCCHO       ) = 5.0D-04
       RTOL( CLACET       ) = 5.0D-04
       RTOL( CLCHO        ) = 5.0D-04
-      RTOL( SV_AVB1      ) = 5.0D-04
+      RTOL( SVAVB1       ) = 5.0D-04
       RTOL( HCHO_PRIMARY ) = 5.0D-04
       RTOL( CCHO_PRIMARY ) = 5.0D-04
       RTOL( ACRO_PRIMARY ) = 5.0D-04

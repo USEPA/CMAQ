@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the saprc07tic family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Aug 22, 2018
+C  REVISION HISTORY: Created by EBI solver program, Aug 20, 2018
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables for solution
 C*************************************************************************
@@ -232,9 +232,9 @@ c..Species indices
       INTEGER, PARAMETER :: ALK4             =  120
       INTEGER, PARAMETER :: ALK5             =  121
       INTEGER, PARAMETER :: SOAALK           =  122
-      INTEGER, PARAMETER :: SV_AVB2          =  123
-      INTEGER, PARAMETER :: SV_AVB3          =  124
-      INTEGER, PARAMETER :: SV_AVB4          =  125
+      INTEGER, PARAMETER :: SVAVB2           =  123
+      INTEGER, PARAMETER :: SVAVB3           =  124
+      INTEGER, PARAMETER :: SVAVB4           =  125
       INTEGER, PARAMETER :: OLE1             =  126
       INTEGER, PARAMETER :: OLE2             =  127
       INTEGER, PARAMETER :: ARO1             =  128
@@ -260,7 +260,7 @@ c..Species indices
       INTEGER, PARAMETER :: CLCCHO           =  148
       INTEGER, PARAMETER :: CLACET           =  149
       INTEGER, PARAMETER :: CLCHO            =  150
-      INTEGER, PARAMETER :: SV_AVB1          =  151
+      INTEGER, PARAMETER :: SVAVB1           =  151
       INTEGER, PARAMETER :: HCHO_PRIMARY     =  152
       INTEGER, PARAMETER :: CCHO_PRIMARY     =  153
       INTEGER, PARAMETER :: ACRO_PRIMARY     =  154

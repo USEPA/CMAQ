@@ -26,7 +26,7 @@
 #> Set General Parameters and Labels for Configuring the Simulation
  set VRSN      = v53                #> Code Version
  set PROC      = mpi                #> serial or mpi
- set MECH      = saprc07tic_ae6i_aq #> Mechanism ID
+ set MECH      = saprc07tic_ae7i_aq #> Mechanism ID
  set EMIS      = 2011eh_saprc_10g   #> Emission Inventory Details
  set APPL      = 4CALIF1            #> Application Name (e.g. Domain)
                                                        
@@ -182,7 +182,14 @@ setenv PT3DDIAG N            #> optional 3d point source emissions diagnostic fi
 setenv PT3DFRAC N            #> optional layer fractions diagnostic (play) file(s) [ default: N];
                              #>     Ignore if CTM_PT3DEMIS = N
 setenv REP_LAYER_MIN -1      #> Minimum layer for reporting plume rise info [ default: -1 ]
-
+setenv EMISDIAG F            #> Print Emission Rates at the output time step after they have been
+                             #>   scaled and modified by the user Rules [options: F | T or 2D | 3D | 2DSUM ]
+                             #>   Individual streams can be modified using the variables:
+                             #>       GR_EMIS_DIAG_## | STK_EMIS_DIAG_## | BIOG_EMIS_DIAG
+                             #>       MG_EMIS_DIAG    | LTNG_EMIS_DIAG   | DUST_EMIS_DIAG
+                             #>       SEASPRAY_EMIS_DIAG
+                             #>   Note that these diagnostics are different than other emissions diagnostic
+                             #>   output because they occur after scaling. 
 set DISP = delete            #> [ delete | keep ] existing output files
 
 
@@ -232,12 +239,14 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #> Initial conditions                                                     
   if ($NEW_START == true || $NEW_START == TRUE ) then
      setenv ICFILE ICON_v52_4CALIF1_saprc07tb_ae6_aq_timeind
+     setenv INIT_MEDC_1 notused
      setenv INITIAL_RUN Y #related to restart soil information file
      rm -rf $LOGDIR/CTM_LOG*${RUNID}*  # Remove all Log Files Since this is a new start
      mkdir -p $OUTDIR
   else
      set ICpath = $OUTDIR
      setenv ICFILE CCTM_CGRID_${RUNID}_${YESTERDAY}.nc
+     setenv INIT_MEDC_1 $ICpath/CCTM_MEDIA_CONC_${RUNID}_${YESTERDAY}
      setenv INITIAL_RUN N
   endif
 
@@ -265,7 +274,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv MET_BDY_3D  $METpath/METBDY3D.$GRID_NAME.${NZ}L.$YYMMDD
 
   setenv LAYER_FILE $MET_CRO_3D  # Deprecated: MET_CRO_3D is now read directly in CCTM
- 
+
   #> Determine Representative Emission Days
   set EMDATES = $INPDIR/emis/emis_dates/smk_merge_dates_${YYYYMM}.txt
   set intable = `grep "^${YYYYMMDD}" $EMDATES`
@@ -279,34 +288,57 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   set all      = `echo $intable[8] | cut -d, -f1`
   
   #> Gridded Emissions Files
+  setenv N_EMIS_GR 1
   set EMISfile  = emis_mole_all_${YYYYMMDD}_4CALIF1_cmaq_saprc07TB_2011eh_saprc_10g.ncf
+  setenv GR_EMIS_001 ${EMISpath}/${EMISfile}
+  setenv GR_EMIS_LAB_001 GRIDDED_EMIS
+  setenv GR_EMIS_DTOVRD_001 F
   
   #> In-Line Point Emissions Files
   if ( $CTM_PT3DEMIS == 'Y' ) then
-     setenv NPTGRPS 7          #> Number of elevated source groups
+     setenv N_EMIS_PT 7          #> Number of elevated source groups
 
      set STKCASEE = 4CALIF1_cmaq_saprc07TB_2011eh_saprc_10g  # In-line Emission Rate File Suffix
      set STKCASEG = 4CALIF1_2011eh_saprc_10g                 # Stack parameter File Suffix
 
-     setenv STK_GRPS_01 $IN_PTpath/ptnonipm/stack_groups_ptnonipm_${STKCASEG}.ncf
-     setenv STK_GRPS_02 $IN_PTpath/ptegu/stack_groups_ptegu_${STKCASEG}.ncf
-     setenv STK_GRPS_03 $IN_PTpath/othpt/stack_groups_othpt_${STKCASEG}.ncf
-     setenv STK_GRPS_04 $IN_PTpath/wildfire/stack_groups_wildfire_${YYYYMMDD}_${STKCASEG}.ncf
-     setenv STK_GRPS_05 $IN_PTpath/rxfire/stack_groups_rxfire_${YYYYMMDD}_${STKCASEG}.ncf
-     setenv STK_GRPS_06 $IN_PTpath/pt_oilgas/stack_groups_pt_oilgas_${STKCASEG}.ncf
-     setenv STK_GRPS_07 $IN_PTpath/ship_int_cmv_c3/stack_groups_ship_int_cmv_c3_${STKCASEG}.ncf
+     setenv STK_GRPS_001 $IN_PTpath/ptnonipm/stack_groups_ptnonipm_${STKCASEG}.ncf
+     setenv STK_GRPS_002 $IN_PTpath/ptegu/stack_groups_ptegu_${STKCASEG}.ncf
+     setenv STK_GRPS_003 $IN_PTpath/othpt/stack_groups_othpt_${STKCASEG}.ncf
+     setenv STK_GRPS_004 $IN_PTpath/wildfire/stack_groups_wildfire_${YYYYMMDD}_${STKCASEG}.ncf
+     setenv STK_GRPS_005 $IN_PTpath/rxfire/stack_groups_rxfire_${YYYYMMDD}_${STKCASEG}.ncf
+     setenv STK_GRPS_006 $IN_PTpath/pt_oilgas/stack_groups_pt_oilgas_${STKCASEG}.ncf
+     setenv STK_GRPS_007 $IN_PTpath/ship_int_cmv_c3/stack_groups_ship_int_cmv_c3_${STKCASEG}.ncf
      setenv LAYP_STTIME $STTIME
      setenv LAYP_NSTEPS $NSTEPS
 
-     setenv STK_EMIS_01 $IN_PTpath/ptnonipm/inln_mole_ptnonipm_${mwdss_Y}_${STKCASEE}.ncf
-     setenv STK_EMIS_02 $IN_PTpath/ptegu/inln_mole_ptegu_${YYYYMMDD}_${STKCASEE}.ncf
-     setenv STK_EMIS_03 $IN_PTpath/othpt/inln_mole_othpt_${mwdss_N}_${STKCASEE}.ncf
-     setenv STK_EMIS_04 $IN_PTpath/wildfire/inln_mole_wildfire_${YYYYMMDD}_${STKCASEE}.ncf
-     setenv STK_EMIS_05 $IN_PTpath/rxfire/inln_mole_rxfire_${YYYYMMDD}_${STKCASEE}.ncf
-     setenv STK_EMIS_06 $IN_PTpath/pt_oilgas/inln_mole_pt_oilgas_${mwdss_Y}_${STKCASEE}.ncf
-     setenv STK_EMIS_07 $IN_PTpath/ship_int_cmv_c3/inln_mole_ship_int_cmv_c3_${aveday_N}_${STKCASEE}.ncf
+     setenv STK_EMIS_001 $IN_PTpath/ptnonipm/inln_mole_ptnonipm_${mwdss_Y}_${STKCASEE}.ncf
+     setenv STK_EMIS_002 $IN_PTpath/ptegu/inln_mole_ptegu_${YYYYMMDD}_${STKCASEE}.ncf
+     setenv STK_EMIS_003 $IN_PTpath/othpt/inln_mole_othpt_${mwdss_N}_${STKCASEE}.ncf
+     setenv STK_EMIS_004 $IN_PTpath/wildfire/inln_mole_wildfire_${YYYYMMDD}_${STKCASEE}.ncf
+     setenv STK_EMIS_005 $IN_PTpath/rxfire/inln_mole_rxfire_${YYYYMMDD}_${STKCASEE}.ncf
+     setenv STK_EMIS_006 $IN_PTpath/pt_oilgas/inln_mole_pt_oilgas_${mwdss_Y}_${STKCASEE}.ncf
+     setenv STK_EMIS_007 $IN_PTpath/ship_int_cmv_c3/inln_mole_ship_int_cmv_c3_${aveday_N}_${STKCASEE}.ncf
      setenv LAYP_STDATE $YYYYJJJ
 
+     # Label Each Emissions Stream
+     setenv STK_EMIS_LAB_001 POINT_NONEGU
+     setenv STK_EMIS_LAB_002 POINT_EGU
+     setenv STK_EMIS_LAB_003 POINT_OTHER
+     setenv STK_EMIS_LAB_004 POINT_FIRES
+     setenv STK_EMIS_LAB_005 PT_RXFIRE
+     setenv STK_EMIS_LAB_006 POINT_OILGAS
+     setenv STK_EMIS_LAB_007 PT_MARINE
+
+     # Allow CMAQ to Use Point Source files with dates that do not
+     # match the internal model date
+     setenv STK_EM_DTOVRD_001 T
+     setenv STK_EM_DTOVRD_002 T
+     setenv STK_EM_DTOVRD_003 T
+     setenv STK_EM_DTOVRD_004 T
+     setenv STK_EM_DTOVRD_005 T
+     setenv STK_EM_DTOVRD_006 T
+     setenv STK_EM_DTOVRD_007 T
+ 
   endif
  
   #> Lightning NOx configuration
@@ -396,8 +428,8 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv CTM_IRR_3       "$OUTDIR/CCTM_IRR_3_${CTM_APPL}.nc -v"      #> Chem Process Analysis
   setenv CTM_DRY_DEP_MOS "$OUTDIR/CCTM_DDMOS_${CTM_APPL}.nc -v"      #> Dry Dep
   setenv CTM_DRY_DEP_FST "$OUTDIR/CCTM_DDFST_${CTM_APPL}.nc -v"      #> Dry Dep
-  setenv CTM_DEPV_MOS    "$OUTDIR/CCTM_DEPVFST_${CTM_APPL}.nc -v"    #> Dry Dep Velocity
-  setenv CTM_DEPV_FST    "$OUTDIR/CCTM_DEPVMOS_${CTM_APPL}.nc -v"    #> Dry Dep Velocity
+  setenv CTM_DEPV_MOS    "$OUTDIR/CCTM_DEPVMOS_${CTM_APPL}.nc -v"    #> Dry Dep Velocity
+  setenv CTM_DEPV_FST    "$OUTDIR/CCTM_DEPVFST_${CTM_APPL}.nc -v"    #> Dry Dep Velocity
   setenv CTM_VDIFF_DIAG  "$OUTDIR/CCTM_VDIFF_DIAG_${CTM_APPL}.nc -v" #> Vertical Dispersion Diagnostic
   setenv CTM_VSED_DIAG   "$OUTDIR/CCTM_VSED_DIAG_${CTM_APPL}.nc -v"  #> Particle Grav. Settling Velocity
   setenv CTM_LTNGDIAG_1  "$OUTDIR/CCTM_LTNGHRLY_${CTM_APPL}.nc -v"   #> Hourly Avg Lightning NO
@@ -420,7 +452,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
              $CTM_DRY_DEP_FST $CTM_DEPV_MOS $CTM_DEPV_FST $CTM_VDIFF_DIAG $CTM_VSED_DIAG    \
              $CTM_LTNGDIAG_1 $CTM_LTNGDIAG_2)
   set OUT_FILES = `echo $OUT_FILES | sed "s; -v;;g" `
-  echo $OUT_FILES
+  #echo $OUT_FILES
   set out_test = `ls $OUT_FILES` 
 
   #> delete previous output if requested
@@ -466,7 +498,6 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv CTM_STTIME      $STTIME
   setenv CTM_RUNLEN      $NSTEPS
   setenv CTM_TSTEP       $TSTEP
-  setenv EMIS_1 $EMISpath/$EMISfile 
   setenv INIT_GASC_1 $ICpath/$ICFILE
   setenv INIT_AERO_1 $INIT_GASC_1
   setenv INIT_NONR_1 $INIT_GASC_1

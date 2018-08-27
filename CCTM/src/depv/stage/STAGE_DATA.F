@@ -181,7 +181,7 @@ C     26 June 2014 J.Bash: initial implementation
       DATA vd_name(107), rel_rx(107), f0(107), LeBasM(107), M_ac(107) / 'INTR         ',    16.0, 0.1,  140.4, 0.420/ ! INTR
       DATA vd_name(108), rel_rx(108), f0(108), LeBasM(108), M_ac(108) / 'ISPX         ',    10.0, 0.3,   49.0, 0.420/ ! ISPX diffusion should be ~ 0.0710 according to Wolfe and thornton 2011 M_acP
       DATA vd_name(109), rel_rx(109), f0(109), LeBasM(109), M_ac(109) / 'ROOH         ',    10.0, 0.3,   49.0, 0.420/ ! ROOH diffusion should be ~ 0.0710 according to Wolfe and thornton 2011 M_acP
-      DATA vd_name(110), rel_rx(110), f0(110), LeBasM(110), M_ac(110) / 'LV_PCSOG     ', 43507730.6, 0.0, 63.0, 0.91/ ! LV_PCSOG
+      DATA vd_name(110), rel_rx(110), f0(110), LeBasM(110), M_ac(110) / 'LVPCSOG      ', 43507730.6, 0.0, 63.0, 0.91/ ! LVPCSOG
       DATA vd_name(111), rel_rx(111), f0(111), LeBasM(111), M_ac(111) / 'VIVPO1       ', 13818.0, 0.0,   63.0, 0.909/ ! VIVPO1
       DATA vd_name(112), rel_rx(112), f0(112), LeBasM(112), M_ac(112) / 'VLVOO1       ',  1830.5, 0.0,   63.0, 0.910/ ! VLVOO1
       DATA vd_name(113), rel_rx(113), f0(113), LeBasM(113), M_ac(113) / 'VLVOO2       ',   241.0, 0.0,   63.0, 0.909/ ! VLVOO2
@@ -228,10 +228,10 @@ C     26 June 2014 J.Bash: initial implementation
       DATA vd_name(154), rel_rx(154), f0(154), LeBasM(154), M_ac(154) / 'SVMT5        ',    22.2, 0.0,  207.2, 0.444/ ! SVMT5
       DATA vd_name(155), rel_rx(155), f0(155), LeBasM(155), M_ac(155) / 'SVMT6        ',     2.8, 0.0,  222.0, 0.420/ ! SVMT6
       DATA vd_name(156), rel_rx(156), f0(156), LeBasM(156), M_ac(156) / 'SVMT7        ',     1.0, 0.0,  199.8, 0.420/ ! SVMT7
-      DATA vd_name(157), rel_rx(157), f0(157), LeBasM(157), M_ac(157) / 'SV_AVB1      ',100388.0, 0.0,  163.1, 0.910/ ! SVAVB1
-      DATA vd_name(158), rel_rx(158), f0(158), LeBasM(158), M_ac(158) / 'SV_AVB2      ',  1461.2, 0.0,  163.2, 0.896/ ! SVAVB2
-      DATA vd_name(159), rel_rx(159), f0(159), LeBasM(159), M_ac(159) / 'SV_AVB3      ',   175.2, 0.0,  163.0, 0.783/ ! SVAVB3
-      DATA vd_name(160), rel_rx(160), f0(160), LeBasM(160), M_ac(160) / 'SV_AVB4      ',    20.8, 0.0,  162.7, 0.444/ ! SVAVB4
+      DATA vd_name(157), rel_rx(157), f0(157), LeBasM(157), M_ac(157) / 'SVAVB1       ',100388.0, 0.0,  163.1, 0.910/ ! SVAVB1
+      DATA vd_name(158), rel_rx(158), f0(158), LeBasM(158), M_ac(158) / 'SVAVB2       ',  1461.2, 0.0,  163.2, 0.896/ ! SVAVB2
+      DATA vd_name(159), rel_rx(159), f0(159), LeBasM(159), M_ac(159) / 'SVAVB3       ',   175.2, 0.0,  163.0, 0.783/ ! SVAVB3
+      DATA vd_name(160), rel_rx(160), f0(160), LeBasM(160), M_ac(160) / 'SVAVB4       ',    20.8, 0.0,  162.7, 0.444/ ! SVAVB4
 
       Contains
          SUBROUTINE Map_STAGE 
