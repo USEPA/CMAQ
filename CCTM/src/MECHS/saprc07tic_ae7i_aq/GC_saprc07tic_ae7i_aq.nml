@@ -128,7 +128,6 @@ TYPE_MATRIX =
 'ALK4:77.6:::::BUTANE:1.0:::Yes::Yes:Yes',
 'ALK5:118.89:::::DECANE:1.0:::Yes::Yes:Yes',
 'SOAALK:112.0:::::DECANE:1:::Yes:::Yes',
-'ALKRXN:112.0:::::::ALKRXN:::::',
 'OLE1:72.34:::::ETHENE:1.0:::Yes::Yes:Yes',
 'OLE2:75.78:::::ETHENE:1.0:::Yes::Yes:Yes',
 'ARO1:95.16:::::TOLUENE:1.0:::Yes::Yes:Yes',
@@ -184,7 +183,7 @@ TYPE_MATRIX =
 'NIT1OHOO:194.12:::::::::Yes:::Yes',
 'MVKOO:119.1:::::::::Yes:::Yes',
 'MACROO:119.1:::::::::Yes:::Yes',
-'PYRUACD:88.1:VD_HNO3:1.0:::PYRUVIC_ACID    :1.0:::Yes:Yes:Yes:Yes',
+'PYRUACD:88.1:VD_HNO3:1.0:::PYRUVIC_ACID:1.0:::Yes:Yes:Yes:Yes',
 'IEPOX:118.13:VD_IEPOX:1.5:::IEPOX:1.0:IEPOX::Yes:Yes:Yes:Yes',
 'IEPOXOO:149.12:::::::::Yes:::Yes',
 'IMACO3:101.08:::::::::Yes:::Yes',
@@ -209,8 +208,8 @@ TYPE_MATRIX =
 'VSVOO3:134:VD_ORA:1:::ADIPIC_ACID:1:VSVOO3::Yes:Yes:Yes:Yes',
 'PCVOC:170:VD_GEN_ALD:1.0:::GENERIC_ALDEHYDE:1.0:::Yes:Yes:Yes:Yes',
 'PCSOARXN:170:::::::PCSOARXN:::::',
-'SV_AVB1:198:VD_SV_AVB1:1:::SV_AVB1:1:SV_AVB1::Yes:Yes:Yes:Yes',
-'SV_AVB2:179:VD_SV_AVB2:1:::SV_AVB2:1:SV_AVB2::Yes:Yes:Yes:Yes',
-'SV_AVB3:169:VD_SV_AVB3:1:::SV_AVB3:1:SV_AVB3::Yes:Yes:Yes:Yes',
-'SV_AVB4:158:VD_SV_AVB4:1:::SV_AVB4:1:SV_AVB4::Yes:Yes:Yes:Yes'
+'SVAVB1:198:VD_SVAVB1:1:::SVAVB1:1:SVAVB1::Yes:Yes:Yes:Yes',
+'SVAVB2:179:VD_SVAVB2:1:::SVAVB2:1:SVAVB2::Yes:Yes:Yes:Yes',
+'SVAVB3:169:VD_SVAVB3:1:::SVAVB3:1:SVAVB3::Yes:Yes:Yes:Yes',
+'SVAVB4:158:VD_SVAVB4:1:::SVAVB4:1:SVAVB4::Yes:Yes:Yes:Yes'
 /

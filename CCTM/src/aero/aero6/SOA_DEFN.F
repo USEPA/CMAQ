@@ -91,31 +91,31 @@ C
 C                   Name       Alpha     CStar    Enth      SOA          Decay    Drog
 C                                                          Name    Origin         Name
 C                  -------    -------   -------- -------  ------     --   ----   -------
-     & vapor_type('SV_ALK1 ',  0.0334,   0.1472,  53.0E3, 'AALK1J ', 'A', 12.0, 'ALKRXN  '),
-     & vapor_type('SV_ALK2 ',  0.2164,  51.8775,  53.0E3, 'AALK2J ', 'A', 12.0, 'ALKRXN  '),
-     & vapor_type('SV_XYL1 ',  0.0310,   1.3140,  32.0E3, 'AXYL1J ', 'A',  8.0, 'XYLNRXN '),
-     & vapor_type('SV_XYL2 ',  0.0900,  34.4830,  32.0E3, 'AXYL2J ', 'A',  8.0, 'XYLNRXN '),
-     & vapor_type('SV_TOL1 ',  0.0580,   2.3260,  18.0E3, 'ATOL1J ', 'A',  7.0, 'TOLNRXN '),
-     & vapor_type('SV_TOL2 ',  0.1130,  21.2770,  18.0E3, 'ATOL2J ', 'A',  7.0, 'TOLNRXN '),
-     & vapor_type('SV_BNZ1 ',  0.0720,   0.3020,  18.0E3, 'ABNZ1J ', 'A',  6.0, 'BNZNRXN '),
-     & vapor_type('SV_BNZ2 ',  0.8880, 111.1100,  18.0E3, 'ABNZ2J ', 'A',  6.0, 'BNZNRXN '),
-     & vapor_type('SV_PAH1 ',  0.2100,   1.6598,  18.0E3, 'APAH1J ', 'A', 10.0, 'PAHNRXN '),
-     & vapor_type('SV_PAH2 ',  1.0700, 264.6675,  18.0E3, 'APAH2J ', 'A', 10.0, 'PAHNRXN '),
-     & vapor_type('SV_TRP1 ',  0.1393,  14.7920,  40.0E3, 'ATRP1J ', 'B', 10.0, 'TRPRXN  '),
-     & vapor_type('SV_TRP2 ',  0.4542, 133.7297,  40.0E3, 'ATRP2J ', 'B', 10.0, 'TRPRXN  '),
-     & vapor_type('SV_MT1  ',   0.040,    0.010, 102.0E3, 'AMT1J  ', 'B',  0.0, 'TRPRXN  '),
-     & vapor_type('SV_MT2  ',   0.032,    0.100,  91.0E3, 'AMT2J  ', 'B',  0.0, 'TRPRXN  '),
-     & vapor_type('SV_MT3  ',   0.032,    1.000,  80.0E3, 'AMT3J  ', 'B',  0.0, 'TRPRXN  '),
-     & vapor_type('SV_MT4  ',   0.103,   10.000,  69.0E3, 'AMT4J  ', 'B',  0.0, 'TRPRXN  '),
-     & vapor_type('SV_MT5  ',   0.143,  100.000,  58.0E3, 'AMT5J  ', 'B',  0.0, 'TRPRXN  '),
-     & vapor_type('SV_MT6  ',   0.285, 1000.000,  47.0E3, 'AMT6J  ', 'B',  0.0, 'TRPRXN  '),
-     & vapor_type('SV_MT7  ',   0.160,10000.000,  36.0E3, 'AMT7J  ', 'B',  0.0, 'TRPRXN  '),
+     & vapor_type('SVALK1  ',  0.0334,   0.1472,  53.0E3, 'AALK1J ', 'A', 12.0, 'ALKRXN  '),
+     & vapor_type('SVALK2  ',  0.2164,  51.8775,  53.0E3, 'AALK2J ', 'A', 12.0, 'ALKRXN  '),
+     & vapor_type('SVXYL1  ',  0.0310,   1.3140,  32.0E3, 'AXYL1J ', 'A',  8.0, 'XYLNRXN '),
+     & vapor_type('SVXYL2  ',  0.0900,  34.4830,  32.0E3, 'AXYL2J ', 'A',  8.0, 'XYLNRXN '),
+     & vapor_type('SVTOL1  ',  0.0580,   2.3260,  18.0E3, 'ATOL1J ', 'A',  7.0, 'TOLNRXN '),
+     & vapor_type('SVTOL2  ',  0.1130,  21.2770,  18.0E3, 'ATOL2J ', 'A',  7.0, 'TOLNRXN '),
+     & vapor_type('SVBNZ1  ',  0.0720,   0.3020,  18.0E3, 'ABNZ1J ', 'A',  6.0, 'BNZNRXN '),
+     & vapor_type('SVBNZ2  ',  0.8880, 111.1100,  18.0E3, 'ABNZ2J ', 'A',  6.0, 'BNZNRXN '),
+     & vapor_type('SVPAH1  ',  0.2100,   1.6598,  18.0E3, 'APAH1J ', 'A', 10.0, 'PAHNRXN '),
+     & vapor_type('SVPAH2  ',  1.0700, 264.6675,  18.0E3, 'APAH2J ', 'A', 10.0, 'PAHNRXN '),
+     & vapor_type('SVTRP1  ',  0.1393,  14.7920,  40.0E3, 'ATRP1J ', 'B', 10.0, 'TRPRXN  '),
+     & vapor_type('SVTRP2  ',  0.4542, 133.7297,  40.0E3, 'ATRP2J ', 'B', 10.0, 'TRPRXN  '),
+     & vapor_type('SVMT1   ',   0.040,    0.010, 102.0E3, 'AMT1J  ', 'B',  0.0, 'TRPRXN  '),
+     & vapor_type('SVMT2   ',   0.032,    0.100,  91.0E3, 'AMT2J  ', 'B',  0.0, 'TRPRXN  '),
+     & vapor_type('SVMT3   ',   0.032,    1.000,  80.0E3, 'AMT3J  ', 'B',  0.0, 'TRPRXN  '),
+     & vapor_type('SVMT4   ',   0.103,   10.000,  69.0E3, 'AMT4J  ', 'B',  0.0, 'TRPRXN  '),
+     & vapor_type('SVMT5   ',   0.143,  100.000,  58.0E3, 'AMT5J  ', 'B',  0.0, 'TRPRXN  '),
+     & vapor_type('SVMT6   ',   0.285, 1000.000,  47.0E3, 'AMT6J  ', 'B',  0.0, 'TRPRXN  '),
+     & vapor_type('SVMT7   ',   0.160,10000.000,  36.0E3, 'AMT7J  ', 'B',  0.0, 'TRPRXN  '),
      & vapor_type('MTNO3   ',     0.0,     12.0,  40.0E3, 'AMTNO3J', 'B', 10.0, '        '),
      & vapor_type('ISOPNN  ',     0.0,     8.9,   40.0E3, 'AISOPNNJ','B', 5.0,  '        '),
-     & vapor_type('SV_ISO1 ',  0.2320, 116.0100,  40.0E3, 'AISO1J ', 'B',  5.0, 'ISOPRXN '),
-     & vapor_type('SV_ISO2 ',  0.0288,   0.6170,  40.0E3, 'AISO2J ', 'B',  5.0, 'ISOPRXN '),
-     & vapor_type('SV_SQT  ',  1.5370,  24.9840,  40.0E3, 'ASQTJ  ', 'B', 15.0, 'SESQRXN '),
-     & vapor_type('LV_PCSOG',  1.0   ,   1.0e-5,  40.0E3, 'APCSOJ ', 'A', 10.0, 'PCSOARXN'),
+     & vapor_type('SVISO1  ',  0.2320, 116.0100,  40.0E3, 'AISO1J ', 'B',  5.0, 'ISOPRXN '),
+     & vapor_type('SVISO2  ',  0.0288,   0.6170,  40.0E3, 'AISO2J ', 'B',  5.0, 'ISOPRXN '),
+     & vapor_type('SVSQT   ',  1.5370,  24.9840,  40.0E3, 'ASQTJ  ', 'B', 15.0, 'SESQRXN '),
+     & vapor_type('LVPCSOG ',  1.0   ,   1.0e-5,  40.0E3, 'APCSOJ ', 'A', 10.0, 'PCSOARXN'),
      & vapor_type('VLVPO1  ',  0.0000,    1.e-1,  96.0E3, 'ALVPO1J', 'A',  0.0, '        '),
      & vapor_type('VSVPO1  ',  0.0000,    1.e+0,  85.0E3, 'ASVPO1J', 'A',  0.0, '        '),
      & vapor_type('VSVPO2  ',  0.0000,    1.e+1,  74.0E3, 'ASVPO2J', 'A',  0.0, '        '),
@@ -126,14 +126,14 @@ C                  -------    -------   -------- -------  ------     --   ----  
      & vapor_type('VSVOO1  ',  0.0000,    1.e+0,  85.0E3, 'ASVOO1J', 'A',  0.0, '        '),
      & vapor_type('VSVOO2  ',  0.0000,    1.e+1,  74.0E3, 'ASVOO2J', 'A',  0.0, '        '),
      & vapor_type('VSVOO3  ',  0.0000,    1.e+2,  63.0E3, 'ASVOO3J', 'A',  0.0, '        '),
-     & vapor_type('SV_AVB1 ',  0.0000,    0.010,  18.0E3, 'AAVB1J ', 'A',  0.0, '        '),
-     & vapor_type('SV_AVB2 ',  0.0000,    1.000,  18.0E3, 'AAVB2J ', 'A',  0.0, '        '),
-     & vapor_type('SV_AVB3 ',  0.0000,   10.000,  18.0E3, 'AAVB3J ', 'A',  0.0, '        '),
-     & vapor_type('SV_AVB4 ',  0.0000,  100.000,  18.0E3, 'AAVB4J ', 'A',  0.0, '        ') /)
+     & vapor_type('SVAVB1  ',  0.0000,    0.010,  18.0E3, 'AAVB1J ', 'A',  0.0, '        '),
+     & vapor_type('SVAVB2  ',  0.0000,    1.000,  18.0E3, 'AAVB2J ', 'A',  0.0, '        '),
+     & vapor_type('SVAVB3  ',  0.0000,   10.000,  18.0E3, 'AAVB3J ', 'A',  0.0, '        '),
+     & vapor_type('SVAVB4  ',  0.0000,  100.000,  18.0E3, 'AAVB4J ', 'A',  0.0, '        ') /)
 
 C Required species
-      Character( 16 ), Private, Parameter :: req_sviso1  = 'SV_ISO1'
-      Character( 16 ), Private, Parameter :: req_sviso2  = 'SV_ISO2'
+      Character( 16 ), Private, Parameter :: req_sviso1  = 'SVISO1'
+      Character( 16 ), Private, Parameter :: req_sviso2  = 'SVISO2'
       Character( 16 ), Private, Parameter :: req_mtno3   = 'MTNO3'
       Character( 16 ), Private, Parameter :: req_isopnn  = 'ISOPNN'
       Character( 16 ), Private, Parameter :: req_aeiso1  = 'AISO1'
@@ -403,11 +403,6 @@ C determine if gas-phase IEPOX uptake occurs for the mechanism
                orgprod( 5 )%parent = 'TOLUENE'
                orgprod( 8 )%parent = 'NAPHTHAL'
                orgprod( 9 )%parent = 'NAPHTHAL'
-               ! The following do not exist in aero7/7i
-               orgprod( 3 )%aerospc = ''    ! AXYL3J
-               orgprod( 5 )%aerospc = ''    ! ATOL3J
-               orgprod( 7 )%aerospc = ''    ! ABNZ3J
-               orgprod( 9 )%aerospc = ''    ! APAH3J
                IEPOX_SOA_mechanism = .True.
             Else If ( INDEX( MECHNAME, 'SAPRC07TB' ) .Gt. 0 ) Then
                orgprod( 2 )%parent     = 'MXYL'
@@ -465,6 +460,13 @@ C determine if gas-phase IEPOX uptake occurs for the mechanism
 !              Call m3exit( pname, 0, 0, xmsg, xstat3 )
             End If
 
+            ! AE7 mechanisms do not use nonvolatile species for anthro SOA
+            If( INDEX(MECHNAME, 'AE7') .Gt. 0) Then
+               orgprod( 3 )%aerospc = ''    ! AXYL3J
+               orgprod( 5 )%aerospc = ''    ! ATOL3J
+               orgprod( 7 )%aerospc = ''    ! ABNZ3J
+               orgprod( 9 )%aerospc = ''    ! APAH3J
+            End If
 ! SOA_DEFN NO LONGER HAS VERSION CONSTRAINTS ON SPECIES
 ! This SOA_DEFN works for AE6 and AE6i versions of aero
 !            If( INDEX( MECHNAME, '_AE6_' ) .EQ. 0 ) then
