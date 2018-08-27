@@ -324,7 +324,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      setenv STK_EMIS_LAB_001 POINT_NONEGU
      setenv STK_EMIS_LAB_002 POINT_EGU
      setenv STK_EMIS_LAB_003 POINT_OTHER
-     setenv STK_EMIS_LAB_004 PT_WILDFIRES
+     setenv STK_EMIS_LAB_004 POINT_FIRES
      setenv STK_EMIS_LAB_005 PT_RXFIRE
      setenv STK_EMIS_LAB_006 POINT_OILGAS
      setenv STK_EMIS_LAB_007 PT_MARINE
