@@ -1,6 +1,3 @@
-! RCS file, release, date & time of last delta, author, state, [and locker]
-! $Header: /project/work/rep/arc/mechs/MECHS/src/cb05tucl_ae6_aq/NR_cb05tucl_ae6_aq.nml,v 1.1.1.1 2011/04/06 16
-
 &NR_nml
  
 n_surr1 = 3,
