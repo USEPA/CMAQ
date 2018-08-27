@@ -149,7 +149,6 @@
       INTEGER, PARAMETER :: N_SD_REG = 200
       TYPE( SD_RULE ), ALLOCATABLE :: SD_NML( : )
 
-
       LOGICAL :: DefaultScaling      = .TRUE.
       LOGICAL :: Guard_BiogenicVOC   = .FALSE.
       LOGICAL :: Guard_MarineGas     = .FALSE.
@@ -157,6 +156,9 @@
       LOGICAL :: Guard_WindBlownDust = .FALSE.
       LOGICAL :: Guard_SeaSpray      = .FALSE.
  
+      ! Flag to Zero out PCSOA from predictions
+      LOGICAL :: ZERO_PCSOA          = .FALSE.
+
       ! Create Map from CMAQ Species Names to Common Surrogate
       ! Names on Emissions Input Files. Also include default aerosol mode
       ! for aerosols and molecular weight assumed in SPECIATE/SMOKE/MOVES.
@@ -417,15 +419,18 @@
      &                     ACORSEM_RENORM,   POA_OP_VF,
      &                     POA_AMF, POG_AMF, PCVOC_FAC
       USE RXNS_DATA, ONLY: MECHNAME
+      USE M3UTILIO
 
       IMPLICIT NONE
 
       INTEGER,         INTENT( INOUT ) :: N_EM_RULE
       TYPE( EM_RULE_REG )              :: EM_NML_B( N_EM_RULE_REG  )
 
-      INTEGER          :: N_EM_RULE_B, IRULE, ISRM
+      INTEGER          :: N_EM_RULE_B, IRULE, ISRM, STATUS
       LOGICAL          :: SUBTRACT_FERTILIZER_NH3 = .TRUE.
+      CHARACTER(200)   :: VARDESC
  
+
       N_EM_RULE_B = 0
  
       ! Add a rule For Removing Fertilizer Ammonia if BiDi is
@@ -707,6 +712,10 @@
             EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
             EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(5) * POA_AMF(5)
 
+            ! Create rules for mapping PCSOA precursor.
+            VARDESC = 'Flag for Zeroing Out pcSOA'
+            ZERO_PCSOA = ENVYN( 'CTM_ZERO_PCSOA', VARDESC, ZERO_PCSOA, STATUS )
+
             IF ( .NOT. ZERO_PCSOA ) THEN
 
               ! PCVOC <- POC
@@ -742,6 +751,7 @@
               END DO
             END IF
          END IF
+
       ! [ INSERT MORE DEFAULT RULES HERE AS DESIRED ]
           
       ! Add Rules to Existing List at Beginning
