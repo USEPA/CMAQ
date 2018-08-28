@@ -61,7 +61,7 @@ HNO3            ,ppbV      ,1000.0*HNO3[1]
 HNO3_UGM3       ,ug m-3    ,1000.0*(HNO3[1]*2.1756*DENS[2])
 HONO            ,ppbV      ,1000.0*HONO[1]
 HOX             ,ppbV      ,1000.0*(OH[1]+HO2[1])
-OH	        ,ppbV      ,1000.0*(OH[1])
+OH              ,ppbV      ,1000.0*(OH[1])
 ISOP            ,ppbV      ,1000.0*ISOP[1]
 N2O5            ,ppbV      ,1000.0*N2O5[1]
 NH3             ,ppbV      ,1000.0*NH3[1]
@@ -282,12 +282,12 @@ PMC_TOT         ,ug m-3     ,ATOTIJK[0]-PM25_TOT[0]
 !! This section calculates the FRM applicable PM species, PMIJ_FRM and
 !! PM25_FRM. The intermediate variablse K...ANH4IJ_loss are needed to 
 !! calculate the final quantities.
-K               ,ppb2	   ,exp(118.87-24084/TEMP2[4]-6.025*log(TEMP2[4]))
+K               ,ppb2      ,exp(118.87-24084/TEMP2[4]-6.025*log(TEMP2[4]))
 P1              ,          ,exp(8763/TEMP2[4]+19.12*log(TEMP2[4])-135.94)
 P2              ,          ,exp(9969/TEMP2[4]+16.22*log(TEMP2[4])-122.65)
 P3              ,          ,exp(13875/TEMP2[4]+24.46*log(TEMP2[4])-182.61)
 a               ,          ,1-RH[0]/100
-K_prime         ,ppb2     ,(P1[0]-P2[0]*a[0]+(P3[0]*a[0]*a[0]))*(a[0]^1.75)*K[0]
+K_prime         ,ppb2      ,(P1[0]-P2[0]*a[0]+(P3[0]*a[0]*a[0]))*(a[0]^1.75)*K[0]
 sqrt_Ki         ,ppb       ,sqrt(RH[0]<=61 ? K[0] : K_prime[0])
 max_NO3_loss    ,ug m-3     ,745.7/TEMP2[4]*sqrt_Ki[0]
 PM25_NO3_loss   ,ug m-3     ,max_NO3_loss[0]<=PM25_NO3[0] ? max_NO3_loss[0] : PM25_NO3[0]

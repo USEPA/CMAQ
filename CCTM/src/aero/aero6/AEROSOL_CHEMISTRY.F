@@ -32,10 +32,9 @@
 ! 10 May 16 H. Pye: Merged with AEROSOL_CHEMISTRY.F from aero6i
 !                   Size of NAMES_AERO_RATES reduced to match RXN_DATA_MODULE
 !    May 16 H. Pye, B. Murphy: Updated treatment of aerosol moments
-! 23 May 16 C. Nolte: Allow for writing APMDIAG even if PMDIAG file turned off.
 ! 23 May 16 D. Wong: Allow for calculation for APMDIAG even if PMDIAG is turned off.
 ! 10 Jun 16 B.Hutzell: reduce occurrences of numerical underflow
-! 1 Aug 18 DJL:  added CLNO3 reactions as per SG - to be superceded by
+! 1 Aug 18 DJL:  added CLNO3 reactions as per SG - to be superseded by
 !              SG detailed halogen code
 !-----------------------------------------------------------------------
 
@@ -129,7 +128,7 @@
      &                       IA_IMAE     , IA_2MG      ,
      &                       IA_IMAEOS   , IA_NO3      ,
      &                       IA_GLY      , IA_MGLY     ,
-     &                       IA_NTR2     ,IA_BRONO2IJ ,
+     &                       IA_NTR2     , IA_BRONO2IJ ,
      &                       IA_BRONO2K  , IA_CLNO3_WAJ,
      &                       IA_CLNO3_WAK/)
 

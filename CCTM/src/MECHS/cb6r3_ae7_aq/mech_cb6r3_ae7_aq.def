@@ -16,7 +16,7 @@
 !   2.  Added new species, CLNO3 and reactions of CLNO3
 !   3. New heterogeneous reactions (<HET_CLNO3_WAJ> and <HET_CLNO3_WAK>) from
 !      hemispheric halogen chemical mechanism
-!   4. implemented temperature and pressure-dependant CS/QY for CLNO2
+!   4. implemented temperature and pressure-dependent CS/QY for CLNO2
 !
 !---------------------------------
 CB6R3_AE7_AQ
@@ -338,13 +338,13 @@ REACTIONS[CM] =
 <CL4>   CLO  + CLO         = 0.300*CL2 + 1.400*CL     # 1.63E-14;
 <CL5>   CLO  + NO          = CL        + NO2          # 6.4E-12 @ -290;
 <CL6>   CLO  + HO2         = HOCL                     # 2.2E-12 @ -340;
-<CL7> CLO + MEO2         = CL + FORM + HO2           # 3.2E-12@110;
+<CL7>   CLO  + MEO2        = CL + FORM + HO2          # 3.2E-12@110;
 <CL8>   OH   + FMCL        = CL        + CO           # 5.0E-13;
 <CL9>   FMCL               = CL        + CO + HO2     # 1.0/<FMCL_IUPAC04>;
-<CL10>   CL   + CH4         = HCL    + MEO2 + RO2      # 6.6E-12 @ 1240;
+<CL10>  CL   + CH4         = HCL + MEO2 + RO2         # 6.6E-12 @ 1240;
 <CL11>  CL   + PAR         = HCL + XPAR               # 5.0E-11;
-<CL12> CL + PRPA          = HCL + ACET + 0.97*XO2H + 0.03*XO2N + RO2 # 1.4E-10;
-<CL13>  CL   + ETHA       = HCL
+<CL12>  CL + PRPA          = HCL + ACET + 0.97*XO2H + 0.03*XO2N + RO2 # 1.4E-10;
+<CL13>  CL   + ETHA        = HCL
                              + 0.991*ALD2
                              + 0.991*XO2H
                              + 0.009*XO2N
