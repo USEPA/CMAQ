@@ -29,11 +29,11 @@ C*************************************************************************
 C
 C  FUNCTION:  Mechanism & solver data for EBI solver
 C
-C  PRECONDITIONS: For the cb6r3 family of mechanisms
+C  PRECONDITIONS: For the CB6R3 family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Jun 13, 2018
+C  REVISION HISTORY: Created by EBI solver program, Aug 20, 2018
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables for solution
 C*************************************************************************
@@ -56,7 +56,6 @@ c..Mechanism specific variables
 c..Control flags
       LOGICAL   L_AE_VRSN    ! Flag for aerosol version of mech
       LOGICAL   L_AQ_VRSN    ! Flag for aqueous chemistry version of mech
-      LOGICAL   CALL_IRR     ! Flag initializing for IRR and calling PA_IRR
 
   ! SWITCH for calling DEGRADE routine
       LOGICAL, SAVE :: CALL_DEG = .TRUE.
@@ -106,7 +105,6 @@ c...Allocatable arrays
       REAL,    ALLOCATABLE   :: OPEN_ZONE   ( :,: )       ! fractional sea water cover, [-]
       REAL,    ALLOCATABLE   :: SURF_ZONE   ( :,: )       ! fractional surf-zone cover, [-]
       LOGICAL, ALLOCATABLE   :: LAND_ZONE   ( :,: )       ! Is the surface totally land?
-      LOGICAL, ALLOCATABLE   :: LFLAGIRR    ( :,:,: )     ! Conduct IRR for cell
 
       REAL( 8 ), ALLOCATABLE ::  ATMPRES ( : )     ! Cell pressure, Atm
 !      REAL( 8 ), ALLOCATABLE ::  PRESCELL( : )         ! Cell pressure, Pa
@@ -211,63 +209,51 @@ c..Species indices
       INTEGER, PARAMETER :: FMCL             =   92
       INTEGER, PARAMETER :: HCL              =   93
       INTEGER, PARAMETER :: CLNO2            =   94
-      INTEGER, PARAMETER :: TOLNRXN          =   95
-      INTEGER, PARAMETER :: TOLHRXN          =   96
-      INTEGER, PARAMETER :: XYLNRXN          =   97
-      INTEGER, PARAMETER :: XYLHRXN          =   98
-      INTEGER, PARAMETER :: BNZNRXN          =   99
-      INTEGER, PARAMETER :: BNZHRXN          =  100
-      INTEGER, PARAMETER :: SESQ             =  101
-      INTEGER, PARAMETER :: SESQRXN          =  102
-      INTEGER, PARAMETER :: PAHNRXN          =  103
-      INTEGER, PARAMETER :: PAHHRXN          =  104
-      INTEGER, PARAMETER :: SOAALK           =  105
-      INTEGER, PARAMETER :: ALKRXN           =  106
-      INTEGER, PARAMETER :: H2NO3PIJ         =  107
-      INTEGER, PARAMETER :: H2NO3PK          =  108
-      INTEGER, PARAMETER :: ACLI             =  109
-      INTEGER, PARAMETER :: ACLJ             =  110
-      INTEGER, PARAMETER :: ACLK             =  111
-      INTEGER, PARAMETER :: AISO3J           =  112
-      INTEGER, PARAMETER :: AGLYJ            =  113
-      INTEGER, PARAMETER :: MTNO3            =  114
-      INTEGER, PARAMETER :: AMTNO3J          =  115
-      INTEGER, PARAMETER :: AMTHYDJ          =  116
-      INTEGER, PARAMETER :: AXYL1J           =  117
-      INTEGER, PARAMETER :: AOLGAJ           =  118
-      INTEGER, PARAMETER :: AXYL2J           =  119
-      INTEGER, PARAMETER :: ATOL1J           =  120
-      INTEGER, PARAMETER :: ATOL2J           =  121
-      INTEGER, PARAMETER :: ABNZ1J           =  122
-      INTEGER, PARAMETER :: ABNZ2J           =  123
-      INTEGER, PARAMETER :: AISO1J           =  124
-      INTEGER, PARAMETER :: AOLGBJ           =  125
-      INTEGER, PARAMETER :: AISO2J           =  126
-      INTEGER, PARAMETER :: ASQTJ            =  127
-      INTEGER, PARAMETER :: APAH1J           =  128
-      INTEGER, PARAMETER :: APAH2J           =  129
-      INTEGER, PARAMETER :: AALK1J           =  130
-      INTEGER, PARAMETER :: AALK2J           =  131
-      INTEGER, PARAMETER :: PCVOC            =  132
-      INTEGER, PARAMETER :: PCSOARXN         =  133
-      INTEGER, PARAMETER :: VLVPO1           =  134
-      INTEGER, PARAMETER :: VSVPO1           =  135
-      INTEGER, PARAMETER :: VSVPO2           =  136
-      INTEGER, PARAMETER :: VSVPO3           =  137
-      INTEGER, PARAMETER :: VIVPO1           =  138
-      INTEGER, PARAMETER :: VLVOO1           =  139
-      INTEGER, PARAMETER :: VLVOO2           =  140
-      INTEGER, PARAMETER :: VSVOO2           =  141
-      INTEGER, PARAMETER :: VSVOO3           =  142
-      INTEGER, PARAMETER :: VSVOO1           =  143
-      INTEGER, PARAMETER :: FORM_PRIMARY     =  144
-      INTEGER, PARAMETER :: ALD2_PRIMARY     =  145
-      INTEGER, PARAMETER :: BUTADIENE13      =  146
-      INTEGER, PARAMETER :: ACROLEIN         =  147
-      INTEGER, PARAMETER :: ACRO_PRIMARY     =  148
-      INTEGER, PARAMETER :: TOLU             =  149
-      INTEGER, PARAMETER :: HG               =  150
-      INTEGER, PARAMETER :: HGIIAER          =  151
-      INTEGER, PARAMETER :: HGIIGAS          =  152
+      INTEGER, PARAMETER :: SVAVB2           =   95
+      INTEGER, PARAMETER :: SVAVB3           =   96
+      INTEGER, PARAMETER :: SVAVB4           =   97
+      INTEGER, PARAMETER :: SVAVB1           =   98
+      INTEGER, PARAMETER :: SESQ             =   99
+      INTEGER, PARAMETER :: SESQRXN          =  100
+      INTEGER, PARAMETER :: SOAALK           =  101
+      INTEGER, PARAMETER :: H2NO3PIJ         =  102
+      INTEGER, PARAMETER :: H2NO3PK          =  103
+      INTEGER, PARAMETER :: ACLI             =  104
+      INTEGER, PARAMETER :: ACLJ             =  105
+      INTEGER, PARAMETER :: ACLK             =  106
+      INTEGER, PARAMETER :: AISO3J           =  107
+      INTEGER, PARAMETER :: AGLYJ            =  108
+      INTEGER, PARAMETER :: MTNO3            =  109
+      INTEGER, PARAMETER :: AMTNO3J          =  110
+      INTEGER, PARAMETER :: AMTHYDJ          =  111
+      INTEGER, PARAMETER :: AAVB2J           =  112
+      INTEGER, PARAMETER :: AOLGAJ           =  113
+      INTEGER, PARAMETER :: AAVB3J           =  114
+      INTEGER, PARAMETER :: AAVB4J           =  115
+      INTEGER, PARAMETER :: AISO1J           =  116
+      INTEGER, PARAMETER :: AOLGBJ           =  117
+      INTEGER, PARAMETER :: AISO2J           =  118
+      INTEGER, PARAMETER :: ASQTJ            =  119
+      INTEGER, PARAMETER :: PCVOC            =  120
+      INTEGER, PARAMETER :: PCSOARXN         =  121
+      INTEGER, PARAMETER :: VLVPO1           =  122
+      INTEGER, PARAMETER :: VSVPO1           =  123
+      INTEGER, PARAMETER :: VSVPO2           =  124
+      INTEGER, PARAMETER :: VSVPO3           =  125
+      INTEGER, PARAMETER :: VIVPO1           =  126
+      INTEGER, PARAMETER :: VLVOO1           =  127
+      INTEGER, PARAMETER :: VLVOO2           =  128
+      INTEGER, PARAMETER :: VSVOO2           =  129
+      INTEGER, PARAMETER :: VSVOO3           =  130
+      INTEGER, PARAMETER :: VSVOO1           =  131
+      INTEGER, PARAMETER :: FORM_PRIMARY     =  132
+      INTEGER, PARAMETER :: ALD2_PRIMARY     =  133
+      INTEGER, PARAMETER :: BUTADIENE13      =  134
+      INTEGER, PARAMETER :: ACROLEIN         =  135
+      INTEGER, PARAMETER :: ACRO_PRIMARY     =  136
+      INTEGER, PARAMETER :: TOLU             =  137
+      INTEGER, PARAMETER :: HG               =  138
+      INTEGER, PARAMETER :: HGIIAER          =  139
+      INTEGER, PARAMETER :: HGIIGAS          =  140
 
       END MODULE HRDATA

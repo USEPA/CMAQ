@@ -156,32 +156,27 @@ APOMIJ          ,ug m-3     ,APOMI[0] + APOMJ[0]
 
 ASOCI           ,ugC m-3    ,ALVOO1I[1]/2.27 + ALVOO2I[1]/2.06  \
                            +ASVOO1I[1]/1.88 + ASVOO2I[1]/1.73  
-ASOCJ           ,ugC m-3    ,AXYL1J[1]/2.42  + AXYL2J[1]/1.93  + AXYL3J[1]/2.30 \
-                           +ATOL1J[1]/2.26  + ATOL2J[1]/1.82  + ATOL3J[1]/2.70 \
-                           +ABNZ1J[1]/2.68  + ABNZ2J[1]/2.23  + ABNZ3J[1]/3.00 \
-                           +AISO1J[1]/2.20  + AISO2J[1]/2.23  + AISO3J[1]/2.80 \
+ASOCJ           ,ugC m-3    ,AISO1J[1]/2.20  + AISO2J[1]/2.23  + AISO3J[1]/2.80 \
                            +AMT1J[1]/1.67   + AMT2J[1]/1.67   + AMT3J[1]/1.72  \
                            +AMT4J[1]/1.53   + AMT5J[1]/1.57   + AMT6J[1]/1.40  \
-                           +AMT7J[1]/1.43   + AMTNO3J[1]/1.90 + AMTHYDJ[1]/1.54\
+                           + AMTNO3J[1]/1.90 + AMTHYDJ[1]/1.54                 \
                            +AGLYJ[1]/2.13   + ASQTJ[1]/1.52                    \
-                           +AALK1J[1]/1.56  + AALK2J[1]/1.42                   \
                            +AORGCJ[1]/2.00  + AOLGBJ[1]/2.10  + AOLGAJ[1]/2.50 \
-                           +APAH1J[1]/1.63  + APAH2J[1]/1.49  + APAH3J[1]/1.77 \
                            +ALVOO1J[1]/2.27 + ALVOO2J[1]/2.06 + ASVOO1J[1]/1.88\
-                           +ASVOO2J[1]/1.73 + ASVOO3J[1]/1.60 + APCSOJ[1] /2.00      
+                           +ASVOO2J[1]/1.73 + ASVOO3J[1]/1.60 + APCSOJ[1] /2.00 \     
+                           +AAVB1J[1]/2.70  + AAVB2J[1]/2.35  + AAVB3J[1]/2.17  \
+                           +AAVB4J[1]/1.99
 ASOCIJ          ,ugC m-3    ,ASOCI[0] + ASOCJ[0]
 
 ASOMI           ,ug m-3     ,ALVOO1I[1] + ALVOO2I[1] + ASVOO1I[1] + ASVOO2I[1] 
-ASOMJ           ,ug m-3     ,AXYL1J[1]  + AXYL2J[1]  + AXYL3J[1]  + ATOL1J[1] \
-                           +ATOL2J[1]  + ATOL3J[1]  + ABNZ1J[1]  + ABNZ2J[1] \
-                           +ABNZ3J[1]  + AISO1J[1]  + AISO2J[1]  + AISO3J[1] \
+ASOMJ           ,ug m-3     ,+AISO1J[1]+ AISO2J[1]  + AISO3J[1]              \
                            +AMT1J[1]   + AMT2J[1]   + AMT3J[1]   + AMT4J[1]  \
-                           +AMT5J[1]   + AMT6J[1]   + AMT7J[1]   + AMTNO3J[1]\
-                           +AMTHYDJ[1] + AGLYJ[1]   + ASQTJ[1]   + AALK1J[1] \
-                           +AALK2J[1]  + APAH1J[1]  + APAH2J[1]  + APAH3J[1] \
+                           +AMT5J[1]   + AMT6J[1]   + AMTNO3J[1]\
+                           +AMTHYDJ[1] + AGLYJ[1]   + ASQTJ[1]               \
                            +AORGCJ[1]  + AOLGBJ[1]  + AOLGAJ[1]              \
                            +ALVOO1J[1] + ALVOO2J[1] + ASVOO1J[1] + ASVOO2J[1]\
-                           +ASVOO3J[1] + APCSOJ[1]  
+                           +ASVOO3J[1] + APCSOJ[1]  + AAVB1J[1] + AAVB2J[1]\
+                           +AAVB3J[1] + AAVB4J[1]
 ASOMIJ          ,ug m-3     ,ASOMI[0] + ASOMJ[0]
  
 AOCI            ,ugC m-3    ,APOCI[0]  + ASOCI[0]
@@ -193,14 +188,12 @@ AOMJ            ,ug m-3     ,APOMJ[0]  + ASOMJ[0]
 AOMIJ           ,ug m-3     ,APOMIJ[0] + ASOMIJ[0]
 
 !!! Anthropogenic-VOC Derived Organic Aerosol
-AORGAJ          ,ug m-3     ,AXYL1J[1]+AXYL2J[1]+AXYL3J[1]+ATOL1J[1]+ATOL2J[1]+ATOL3J[1] \
-                           +ABNZ1J[1]+ABNZ2J[1]+ABNZ3J[1]+AALK1J[1]+AALK2J[1]+AOLGAJ[1] \
-                           +APAH1J[1]+APAH2J[1]+APAH3J[1]
+AORGAJ          ,ug m-3     ,AAVB1J[1]+AAVB2J[1]+AAVB3J[1]+AAVB4J[1]+AOLGAJ[1] \
 
 !!! Biogenic-VOC Derived Organic Aerosol
 AORGBJ          ,ug m-3     ,AISO1J[1] + AISO2J[1] + AISO3J[1]            \
                            +AMT1J[1]  + AMT2J[1]  + AMT3J[1] + AMT4J[1]  \
-                           +AMT5J[1]  + AMT6J[1]  + AMT7J[1]             \
+                           +AMT5J[1]  + AMT6J[1]                         \
                            +AMTNO3J[1]+ AMTHYDJ[1] + AGLYJ[1]            \
                            +ASQTJ[1]  + AOLGBJ[1]
 
@@ -208,7 +201,7 @@ AORGBJ          ,ug m-3     ,AISO1J[1] + AISO2J[1] + AISO3J[1]            \
 AORGCJ          ,ug m-3     ,AORGCJ[1]
 
 !!! OM/OC ratios
-AOMOCRAT_TOT    ,none      ,AOMIJ[0]/AOCIJ[0]
+AOMOCRAT_TOT    ,ug ug-1    ,AOMIJ[0]/AOCIJ[0]
 
 !! Total PM Aggregates
 ATOTI           ,ug m-3     ,ASO4I[1]+ANO3I[1]+ANH4I[1]+ANAI[1]+ACLI[1] \
