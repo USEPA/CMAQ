@@ -84,7 +84,7 @@ set CopySrc                            #> copy the source files into the BLD dir
 #> Set full path of Fortran 90 compiler
  set FC = ${myFC}
  set FP = $FC
- setenv BLDER ${CMAQ_HOME}/UTIL/bldmake/bldmake_${compiler}.exe   #> name of model builder executable
+ setenv BLDER ${CMAQ_HOME}/UTIL/bldmake/bldmake_${compilerString}.exe   #> name of model builder executable
 
 #> Set compiler flags
  set xLib_Base  = ${CMAQ_LIB}
@@ -131,7 +131,7 @@ set CopySrc                            #> copy the source files into the BLD dir
 
 #> Set and create the "BLD" directory for checking out and compiling 
 #> source code. Move current directory to that build directory.
- set Bld = $CMAQ_HOME/PREP/bcon/scripts/BLD_BCON_${VRSN}_${INPT}_${compiler}
+ set Bld = $CMAQ_HOME/PREP/bcon/scripts/BLD_BCON_${VRSN}_${INPT}_${compilerString}
  if ( ! -e "$Bld" ) then
     mkdir $Bld
  else
@@ -249,9 +249,9 @@ set CopySrc                            #> copy the source files into the BLD dir
  endif
 
 #> Rename Makefile to specify compiler option and link back to Makefile
- mv Makefile Makefile.$compiler
- if ( -e Makefile.$compiler && -e Makefile ) rm Makefile
- ln -s Makefile.$compiler Makefile
+ mv Makefile Makefile.$compilerString
+ if ( -e Makefile.$compilerString && -e Makefile ) rm Makefile
+ ln -s Makefile.$compilerString Makefile
 
 #> Alert user of error in BLDMAKE if it ocurred
  if ( $status != 0 ) then

@@ -14,11 +14,10 @@
 #> Choose compiler and set up CMAQ environment with correct 
 #> libraries using config.cmaq. Options: intel | gcc | pgi
  setenv compiler intel 
- setenv compilerVrsn 15.0
 
 #> Source the config_cmaq file to set the run environment
  pushd ../../../
- source ./config_cmaq.csh
+ source ./config_cmaq.csh $compiler
  popd
 
 #> Check that CMAQ_DATA is set:
@@ -36,7 +35,7 @@
 
 #> Set the build directory (this is where the CMAQ executable
 #> is located by default).
- set BLD      = ${CMAQ_HOME}/PREP/bcon/scripts/BLD_BCON_${VRSN}_${INPT}_${compiler}
+ set BLD      = ${CMAQ_HOME}/PREP/bcon/scripts/BLD_BCON_${VRSN}_${INPT}_${compilerString}
  set EXEC     = BCON_${VRSN}_$INPT.exe  
  cat $BLD/BCON_${VRSN}_$INPT.cfg; echo " "; set echo
 
