@@ -416,7 +416,7 @@ C                          '12345678901234567890'
                Call M3exit ( pname, jdate, jtime, xmsg, xstat1 )
             End If
 
-! EPIC data is for the end of the day. Here we want to get the values at the beginning of the day.
+! EPIC data as simulated in FEST-C 1.3 is for the end of the day. Here we want to get the values at the beginning of the day.
 ! EPIC ammonia evasion is estimated as 5% of nitrification. We add the evaided ammonia and nitrification 
 ! back to the soil NH3 to account for losses.             
             F1_NH4 = Nit1 / 0.95 

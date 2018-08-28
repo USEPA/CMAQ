@@ -471,8 +471,14 @@ C --------------- HET HONO RX -----------------
                         DD_FACJ( J,V ) = DTDENS1 * DD_CONV( V ) * DEPV_HNO3
                         DDBFJ( J,V ) = DDBFJ( J,V ) + THETA * DD_FACJ( J,V ) * ( CONC( S,1 ) - POLJ( J,V ) )
                      END DO
+                  ELSE IF ( V .EQ. NO2_HIT ) THEN  
+                     S = NO2_MAP
+                     DO J = 1, N_LUFRAC
+                        DEPV_NO2 = DEPVJCR( J,V ) + 2.0 * PLDV_HONO / CONC( S,1 )
+                        POLJ   ( J,V ) = PLDVJ( J,V,C,R ) / DEPV_NO2
+                        DDBFJ  ( J,V ) = DDBFJ( J,V ) + THETA * DD_FACJ( J,V ) * ( CONC( S,1 ) - POLJ( J,V ) )
+                     END DO
 C --------------- END of HET HONO RX ----------
-
                   ELSE
                      S = DV2DF( V )
                      DO J = 1, N_LUFRAC
@@ -614,6 +620,7 @@ C --------- END of HET HONO RX ----------
     
             IF ( XMOSAIC ) THEN
                DO V = 1, N_SPC_DEPV
+C --------- HET HONO RX -----------------
                   IF ( V .EQ. HNO3_HIT ) THEN
                      S = HNO3_MAP
                      DO J = 1, N_LUFRAC
@@ -621,6 +628,14 @@ C --------- END of HET HONO RX ----------
                         DD_FACJ( J,V ) = DTDENS1 * DD_CONV( V ) * DEPV_HNO3
                         DDBFJ( J,V ) = DDBFJ( J,V ) + THBAR * DD_FACJ( J,V ) * ( CONC( S,1 ) - POLJ( J,V ) )
                      END DO
+                  ELSE IF ( V .EQ. NO2_HIT ) THEN  
+                     S = NO2_MAP
+                     DO J = 1, N_LUFRAC
+                        DEPV_NO2 = DEPVJCR( J,V ) + 2.0 * PLDV_HONO / CONC( S,1 )
+                        POLJ   ( J,V ) = PLDVJ( J,V,C,R ) / DEPV_NO2
+                        DDBFJ  ( J,V ) = DDBFJ( J,V ) + THETA * DD_FACJ( J,V ) * ( CONC( S,1 ) - POLJ( J,V ) )
+                     END DO
+C --------- END of HET HONO RX ----------
                   ELSE
                      S = DV2DF( V )
                      DO J = 1, N_LUFRAC

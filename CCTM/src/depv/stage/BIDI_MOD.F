@@ -25,7 +25,7 @@ c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module Bidi_Mod
 
 C Contains the shared variables and subrountes needed for the bidirectional 
-C NH3 flux model in CMAQ
+C flux models in CMAQ
 C
 C OPASX_MEDIA - Opens the output file for NH4+ and H+ in the soil water solution
 C               
