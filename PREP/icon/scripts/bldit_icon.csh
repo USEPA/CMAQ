@@ -1,6 +1,6 @@
 #! /bin/csh -f
 
-# ====================== ICONv5.2 Build Script ====================   
+# ====================== ICONv5.3 Build Script ====================   
 # Usage: bldit_icon.csh >&! bldit.icon.log                                
 # Requirements: I/O API & netCDF libs, and a Fortran compiler    
 # Note that this script is configured/tested for Red Hat Linux O/S    
@@ -39,7 +39,7 @@
  set Mechs = ${CMAQ_REPO}/CCTM/src/MECHS   #> location of the chemistry mechanism defining files
 
 #> Working directory and Version IDs
- set VRSN  = v52                    #> Code Version
+ set VRSN  = v53                    #> Code Version
  set INPT = profile                #> Input data type: profile or m3conc?
  set EXEC = ICON_${VRSN}_$INPT.exe  #> executable name for this application
  set CFG  = ICON_${VRSN}_$INPT.cfg  #> BLDMAKE configuration file name
@@ -69,7 +69,8 @@ set CopySrc                            #> copy the source files into the BLD dir
 
 #set Mechanism = cb05tucl_ae6_aq/
 #set Mechanism = cb05tump_ae6_aq/
- set Mechanism = cb05e51_ae6_aq/
+#set Mechanism = cb05e51_ae6_aq/
+ set Mechanism = cb6r3_ae7_aq/
 #set Mechanism = cb05mp51_ae6_aq/
 #set Mechanism = saprc07tb_ae6_aq/
 #set Mechanism = saprc07tc_ae6_aq/

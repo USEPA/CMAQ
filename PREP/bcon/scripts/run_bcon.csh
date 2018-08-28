@@ -1,7 +1,7 @@
 #!/bin/csh -f
 
-# ======================= BCONv5.2 Run Script ======================== 
-# Usage: run.bcon.csh >&! bcon_v52.log &                                
+# ======================= BCONv5.3 Run Script ======================== 
+# Usage: run.bcon.csh >&! bcon_v53.log &                                
 #
 # To report problems or request help with this script/program:        
 #             http://www.cmascenter.org
@@ -28,10 +28,10 @@
  echo " "; echo " Input data path, CMAQ_DATA set to $CMAQ_DATA"; echo " "
 
 #> Set General Parameters for Configuring the Simulation
- set VRSN     = v52                     #> Code Version
+ set VRSN     = v53                     #> Code Version
  set APPL     = SE52BENCH               #> Application Name
  set INPT     = profile                 #> Input data type: profile or m3conc?
- set MECH     = cb05e51_ae6_aq          #> Mechanism ID
+ set MECH     = cb6r3_ae7_aq            #> Mechanism ID
 
 #> Set the build directory (this is where the CMAQ executable
 #> is located by default).
