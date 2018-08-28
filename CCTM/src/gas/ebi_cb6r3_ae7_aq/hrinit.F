@@ -34,11 +34,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-<<<<<<< HEAD
-C  REVISION HISTORY: Created by EBI solver program, Aug  8, 2018
-=======
-C  REVISION HISTORY: Created by EBI solver program, Aug 20, 2018
->>>>>>> master
+C  REVISION HISTORY: Created by EBI solver program, Aug 28, 2018
 C   21 Jun 10 J.Young:   convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files
@@ -154,11 +150,7 @@ C***********************************************************************
 
 c..Allocate and define ebi species
 
-<<<<<<< HEAD
-      N_EBISP  = 140
-=======
-      N_EBISP  = 127
->>>>>>> master
+      N_EBISP  = 128
       ALLOCATE( EBISP( N_EBISP ), STAT = IOS ) 
       IF ( IOS .NE. 0 ) THEN
          MSG = 'Error allocating EBISP' 
@@ -246,114 +238,53 @@ c..Allocate and define ebi species
       EBISP(  79 ) = FMCL
       EBISP(  80 ) = HCL
       EBISP(  81 ) = CLNO2
-<<<<<<< HEAD
       EBISP(  82 ) = CLNO3
-      EBISP(  83 ) = TOLNRXN
-      EBISP(  84 ) = TOLHRXN
-      EBISP(  85 ) = XYLNRXN
-      EBISP(  86 ) = XYLHRXN
-      EBISP(  87 ) = BNZNRXN
-      EBISP(  88 ) = BNZHRXN
-      EBISP(  89 ) = SESQ
-      EBISP(  90 ) = SESQRXN
-      EBISP(  91 ) = PAHNRXN
-      EBISP(  92 ) = PAHHRXN
-      EBISP(  93 ) = SOAALK
-      EBISP(  94 ) = ALKRXN
-      EBISP(  95 ) = H2NO3PIJ
-      EBISP(  96 ) = H2NO3PK
-      EBISP(  97 ) = ACLI
-      EBISP(  98 ) = ACLJ
-      EBISP(  99 ) = ACLK
-      EBISP( 100 ) = AISO3J
-      EBISP( 101 ) = AGLYJ
-      EBISP( 102 ) = MTNO3
-      EBISP( 103 ) = AMTNO3J
-      EBISP( 104 ) = AMTHYDJ
-      EBISP( 105 ) = AXYL1J
-      EBISP( 106 ) = AOLGAJ
-      EBISP( 107 ) = AXYL2J
-      EBISP( 108 ) = ATOL1J
-      EBISP( 109 ) = ATOL2J
-      EBISP( 110 ) = ABNZ1J
-      EBISP( 111 ) = ABNZ2J
-      EBISP( 112 ) = AISO1J
-      EBISP( 113 ) = AOLGBJ
-      EBISP( 114 ) = AISO2J
-      EBISP( 115 ) = ASQTJ
-      EBISP( 116 ) = APAH1J
-      EBISP( 117 ) = APAH2J
-      EBISP( 118 ) = AALK1J
-      EBISP( 119 ) = AALK2J
-      EBISP( 120 ) = PCVOC
-      EBISP( 121 ) = PCSOARXN
-      EBISP( 122 ) = VLVPO1
-      EBISP( 123 ) = VSVPO1
-      EBISP( 124 ) = VSVPO2
-      EBISP( 125 ) = VSVPO3
-      EBISP( 126 ) = VIVPO1
-      EBISP( 127 ) = VLVOO1
-      EBISP( 128 ) = VLVOO2
-      EBISP( 129 ) = VSVOO2
-      EBISP( 130 ) = VSVOO3
-      EBISP( 131 ) = VSVOO1
-      EBISP( 132 ) = FORM_PRIMARY
-      EBISP( 133 ) = ALD2_PRIMARY
-      EBISP( 134 ) = BUTADIENE13
-      EBISP( 135 ) = ACROLEIN
-      EBISP( 136 ) = ACRO_PRIMARY
-      EBISP( 137 ) = TOLU
-      EBISP( 138 ) = HG
-      EBISP( 139 ) = HGIIAER
-      EBISP( 140 ) = HGIIGAS
-=======
-      EBISP(  82 ) = SVAVB2
-      EBISP(  83 ) = SVAVB3
-      EBISP(  84 ) = SVAVB4
-      EBISP(  85 ) = SVAVB1
-      EBISP(  86 ) = SESQ
-      EBISP(  87 ) = SESQRXN
-      EBISP(  88 ) = SOAALK
-      EBISP(  89 ) = H2NO3PIJ
-      EBISP(  90 ) = H2NO3PK
-      EBISP(  91 ) = ACLI
-      EBISP(  92 ) = ACLJ
-      EBISP(  93 ) = ACLK
-      EBISP(  94 ) = AISO3J
-      EBISP(  95 ) = AGLYJ
-      EBISP(  96 ) = MTNO3
-      EBISP(  97 ) = AMTNO3J
-      EBISP(  98 ) = AMTHYDJ
-      EBISP(  99 ) = AAVB2J
-      EBISP( 100 ) = AOLGAJ
-      EBISP( 101 ) = AAVB3J
-      EBISP( 102 ) = AAVB4J
-      EBISP( 103 ) = AISO1J
-      EBISP( 104 ) = AOLGBJ
-      EBISP( 105 ) = AISO2J
-      EBISP( 106 ) = ASQTJ
-      EBISP( 107 ) = PCVOC
-      EBISP( 108 ) = PCSOARXN
-      EBISP( 109 ) = VLVPO1
-      EBISP( 110 ) = VSVPO1
-      EBISP( 111 ) = VSVPO2
-      EBISP( 112 ) = VSVPO3
-      EBISP( 113 ) = VIVPO1
-      EBISP( 114 ) = VLVOO1
-      EBISP( 115 ) = VLVOO2
-      EBISP( 116 ) = VSVOO2
-      EBISP( 117 ) = VSVOO3
-      EBISP( 118 ) = VSVOO1
-      EBISP( 119 ) = FORM_PRIMARY
-      EBISP( 120 ) = ALD2_PRIMARY
-      EBISP( 121 ) = BUTADIENE13
-      EBISP( 122 ) = ACROLEIN
-      EBISP( 123 ) = ACRO_PRIMARY
-      EBISP( 124 ) = TOLU
-      EBISP( 125 ) = HG
-      EBISP( 126 ) = HGIIAER
-      EBISP( 127 ) = HGIIGAS
->>>>>>> master
+      EBISP(  83 ) = SVAVB2
+      EBISP(  84 ) = SVAVB3
+      EBISP(  85 ) = SVAVB4
+      EBISP(  86 ) = SVAVB1
+      EBISP(  87 ) = SESQ
+      EBISP(  88 ) = SESQRXN
+      EBISP(  89 ) = SOAALK
+      EBISP(  90 ) = H2NO3PIJ
+      EBISP(  91 ) = H2NO3PK
+      EBISP(  92 ) = ACLI
+      EBISP(  93 ) = ACLJ
+      EBISP(  94 ) = ACLK
+      EBISP(  95 ) = AISO3J
+      EBISP(  96 ) = AGLYJ
+      EBISP(  97 ) = MTNO3
+      EBISP(  98 ) = AMTNO3J
+      EBISP(  99 ) = AMTHYDJ
+      EBISP( 100 ) = AAVB2J
+      EBISP( 101 ) = AOLGAJ
+      EBISP( 102 ) = AAVB3J
+      EBISP( 103 ) = AAVB4J
+      EBISP( 104 ) = AISO1J
+      EBISP( 105 ) = AOLGBJ
+      EBISP( 106 ) = AISO2J
+      EBISP( 107 ) = ASQTJ
+      EBISP( 108 ) = PCVOC
+      EBISP( 109 ) = PCSOARXN
+      EBISP( 110 ) = VLVPO1
+      EBISP( 111 ) = VSVPO1
+      EBISP( 112 ) = VSVPO2
+      EBISP( 113 ) = VSVPO3
+      EBISP( 114 ) = VIVPO1
+      EBISP( 115 ) = VLVOO1
+      EBISP( 116 ) = VLVOO2
+      EBISP( 117 ) = VSVOO2
+      EBISP( 118 ) = VSVOO3
+      EBISP( 119 ) = VSVOO1
+      EBISP( 120 ) = FORM_PRIMARY
+      EBISP( 121 ) = ALD2_PRIMARY
+      EBISP( 122 ) = BUTADIENE13
+      EBISP( 123 ) = ACROLEIN
+      EBISP( 124 ) = ACRO_PRIMARY
+      EBISP( 125 ) = TOLU
+      EBISP( 126 ) = HG
+      EBISP( 127 ) = HGIIAER
+      EBISP( 128 ) = HGIIGAS
 
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -453,20 +384,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( FMCL         ) = 5.0D-04
       RTOL( HCL          ) = 5.0D-04
       RTOL( CLNO2        ) = 5.0D-04
-<<<<<<< HEAD
       RTOL( CLNO3        ) = 5.0D-04
-      RTOL( TOLNRXN      ) = 1.0D+00
-      RTOL( TOLHRXN      ) = 1.0D+00
-      RTOL( XYLNRXN      ) = 1.0D+00
-      RTOL( XYLHRXN      ) = 1.0D+00
-      RTOL( BNZNRXN      ) = 1.0D+00
-      RTOL( BNZHRXN      ) = 1.0D+00
-=======
       RTOL( SVAVB2       ) = 5.0D-04
       RTOL( SVAVB3       ) = 5.0D-04
       RTOL( SVAVB4       ) = 5.0D-04
       RTOL( SVAVB1       ) = 5.0D-04
->>>>>>> master
       RTOL( SESQ         ) = 5.0D-04
       RTOL( SESQRXN      ) = 1.0D+00
       RTOL( SOAALK       ) = 5.0D-04

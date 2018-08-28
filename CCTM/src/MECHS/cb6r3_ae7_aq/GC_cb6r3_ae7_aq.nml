@@ -39,7 +39,7 @@ TYPE_MATRIX =
 'ROOH:90.1:VD_ROOH:1:::METHYLHYDROPEROX:1:::Yes:Yes:Yes:Yes',
 'XO2:87.1::::::::::::Yes',
 'XO2N:87.1::::::::::::Yes',
-'XPAR:45.0.1::::::::::::Yes',
+'XPAR:45.0::::::::::::Yes',
 'XPRP:89.1::::::::::::Yes',
 'NTR1:119.1:VD_NTRALK:1:::NTR_ALK:1:::Yes:Yes:Yes:Yes',
 'NTR2:135.1:VD_NTROH:1:::NTR_OH:1:::Yes:Yes:Yes:Yes',
