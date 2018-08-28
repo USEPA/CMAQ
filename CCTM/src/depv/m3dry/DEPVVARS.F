@@ -47,7 +47,7 @@ C           06 Aug 2018: M.Qin: added new lumped anthropogenic semivolatiles
 C-----------------------------------------------------------------------
 
       INTEGER, PARAMETER :: LDDEP = 4
-      INTEGER, PARAMETER :: LTOTG = 161
+      INTEGER, PARAMETER :: LTOTG = 162
       INTEGER, PARAMETER :: LCMP  = 8
       CHARACTER( 16 )    :: DEPV_METHOD
 
@@ -243,6 +243,7 @@ C-------------------------------------------------------------------------------
          DEPSPC( 159) = 'SVAVB2          '
          DEPSPC( 160) = 'SVAVB3          '
          DEPSPC( 161) = 'SVAVB4          '
+         DEPSPC( 162) = 'CLNO3           '
 
          N_USE_DEPSPC = 0
          USE_DEPSPC = .FALSE.   ! array
