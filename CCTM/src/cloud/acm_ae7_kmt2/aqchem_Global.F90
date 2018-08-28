@@ -52,7 +52,7 @@ MODULE aqchem_Global
   REAL(kind=dp) :: FIX(NFIX)
 ! VAR, FIX are chunks of array C
 !      EQUIVALENCE( C(1),VAR(1) )
-!      EQUIVALENCE( C(161),FIX(1) )
+!      EQUIVALENCE( C(162),FIX(1) )
 ! RCONST - Rate constants (global)
   REAL(kind=dp) :: RCONST(NREACT)
 ! TIME - Current integration time
@@ -136,15 +136,21 @@ MODULE aqchem_Global
       REAL( kind=dp ) :: HMAE          ! MAE H Law coef - from HLCONST
       REAL( kind=dp ) :: HHMML         ! HMML H Law coef - from HLCONST
       
+      REAL( kind=dp ) :: PYRACH        ! Pyruvic acid H Law coef - from HLCONST
+      
       REAL( kind=dp ) CZEN_KPP         ! For alternative SOA chemistry   
       
       REAL( kind=dp ) :: JH2O2         ! H2O2 photolysis rate  
       REAL( kind=dp ) :: JHNO3         ! HNO3 photolysis rate 
+      
+      REAL( kind=dp ) :: PHOTO         ! 1 or 0 whether to use simple photolysis
+                                       ! rate if not calculated externally
 
       INTEGER JDATEKPP
       INTEGER JTIMEKPP
       
-      INTEGER ISPC8       
+      INTEGER ISPC8
+      INTEGER MTPYRAC       
 
 
 ! INLINED global variable declarations

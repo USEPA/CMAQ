@@ -223,6 +223,14 @@ set ParOpt                             #> uncomment to build a multiple processo
     set ModGas = gas/ebi_saprc07tic_ae6i_aq
  endif
 
+ if ( $Mechanism == saprc07tic_ae7i_aqkmt2 ) then
+    set ModGas = gas/ebi_saprc07tic_ae7i_aq
+ endif
+ 
+ if ( $Mechanism == cb6r3_ae7_aqkmt2 ) then
+    set ModGas = gas/ebi_cb6r3_ae7_aq
+ endif 
+ 
 #> Tracer configuration files
  set ModTrac = MECHS/$Tracer
 
@@ -471,7 +479,7 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo "Module ${ModGas};"                                          >> $Cfile
  echo                                                              >> $Cfile
 
- set MechList = " cb6r3_ae6_aq, cb6r3_ae7_aq, racm2_ae6_aq, saprc07tc_ae6_aq, saprc07tic_ae6i_aq, saprc07tic_ae6i_aqkmti, saprc07tic_ae7i_aq"
+ set MechList = " cb6r3_ae6_aq, cb6r3_ae7_aq, cb6r3_ae7_aqkmt2, racm2_ae6_aq, saprc07tc_ae6_aq, saprc07tic_ae6i_aq, saprc07tic_ae7i_aqkmt2, saprc07tic_ae7i_aq"
 
  set text = "gas chemistry mechanisms"
  echo "// " $text                                                  >> $Cfile
@@ -498,7 +506,7 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo "Module ${ModAero};"                                         >> $Cfile
  echo                                                              >> $Cfile
 
- set text = "acm_ae6, acm_ae6_kmt, and acm_ae6_mp, acm_ae7"
+ set text = "acm_ae6, acm_ae6_kmt, acm_ae7_kmt2, acm_ae6_mp, acm_ae7"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModCloud};"                                        >> $Cfile
  echo                                                              >> $Cfile

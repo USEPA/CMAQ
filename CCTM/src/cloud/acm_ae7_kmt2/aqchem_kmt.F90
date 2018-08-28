@@ -216,6 +216,7 @@
       REAL,      INTENT( IN )  :: COSZEN                    ! Cosine solar zenith angle      
       
 !      LOGICAL,   INTENT( IN )  :: DARK                      ! DARK = TRUE is night,  DARK = FALSE is day
+
       REAL( 8 ), INTENT( INOUT ) :: GAS    ( : )            ! gas phase concentrations (mol/molV)
       REAL( 8 ), INTENT( INOUT ) :: AEROSOL( :, : )         ! aerosol concentrations (mol/molV)
       REAL( 8 ), INTENT( INOUT ) :: GASWDEP( : )            ! gas phase wet deposition array (mm mol/liter)
@@ -242,8 +243,9 @@
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE. ! flag for first pass thru
       LOGICAL, SAVE :: AEI = .TRUE.      ! flag for AE6I and AE7I mechanisms
+      LOGICAL, SAVE :: STIC = .FALSE.    ! flag for SAPRC07TIC mechanisms
       
-      LOGICAL       :: DARK                                 ! DARK = TRUE is night,  DARK = FALSE is day
+      LOGICAL       :: DARK                      ! DARK = TRUE is night,  DARK = FALSE is day
 
       CHARACTER( 16 ), SAVE :: PNAME = 'AQCHEM'             ! Driver program name
       CHARACTER( 16 ), SAVE :: MGLYSUR = 'METHYL_GLYOXAL  ' ! Henry's law surrogate for MGLY
@@ -262,15 +264,16 @@
       
       REAL( 8 ) :: NACOR, CACOR, MGCOR, KCOR, FECOR, MNCOR                ! Coarse crustal cation concentrations
       REAL( 8 ) :: WDNACOR, WDCACOR, WDMGCOR, WDKCOR, WDFECOR, WDMNCOR    ! Coarse crustal cation wet deposition
+      REAL( 8 ) :: WDPYRAC, APYRAC                          ! Pyruvic acid deposited and evaporated as aerosol species (gas mech dependent)                        
       
       REAL( 8 ) :: STARTM(4), ENDM(4), MBAL(4)
       
-      REAL( 8 ) :: OLIGGLY, OLIGMGLY                    ! Fraction of GLY/MGLY that oligomerizes upon evaporation
+      REAL( 8 ) :: OLIGGLY, OLIGMGLY                        ! Fraction of GLY/MGLY that oligomerizes upon evaporation
 
       REAL(kind=dp) :: T, DVAL(NSPEC)                       ! KPP integrator variables
       REAL(kind=dp) :: RSTATE(20)                           ! KPP integrator variables
 
-      INTEGER :: I, IGAS, IAER, IMOD, count, J, OLIG
+      INTEGER :: I, IGAS, IAER, IMOD, count, J, OLIG, OPTPY
 
 !...........External Functions:
 
@@ -301,11 +304,15 @@
 
 !...Is a SAPRC07TIC or CB6 mechanism is being used?
  
-         IF ( INDEX ( MECHNAME, 'CB05' ) .GT. 0 ) THEN
+         IF ( INDEX ( MECHNAME, 'CB05' ) .GT. 0  .OR. &
+            ( INDEX ( MECHNAME, 'RACM' ) .GT. 0 ) ) THEN
             XMSG = 'This version of AQCHEM requires SAPRC07TIC or a CB6 gas mech'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
          END IF 
  
+         IF ( INDEX ( MECHNAME, 'SAPRC07TIC' ) .GT. 0 ) THEN
+            STIC = .TRUE.
+         END IF 
 
 !... set MW ratios and speciation factors for molar concentrations of coarse
 !... soluble aerosols
@@ -376,7 +383,8 @@
       HMAE    = HLCONST( 'IMAE            ', TEMP2, .FALSE., 0.0 )
       HHMML   = HLCONST( 'IMAE            ', TEMP2, .FALSE., 0.0 )   
       NO3H    = HLCONST( 'NO3             ', TEMP2, .FALSE., 0.0 )
-      CH3O2H  = 2.7D0 * EXP( 2.03D+03 * ( ( 298.D0 - TEMP2 ) / ( 298.D0 * TEMP2 ) ) )  ! Leriche et al., 2013     
+      CH3O2H  = 2.7D0 * EXP( 2.03D+03 * ( ( 298.D0 - TEMP2 ) / ( 298.D0 * TEMP2 ) ) )  ! Leriche et al., 2013 
+      PYRACH  = HLCONST( 'PYRUVIC_ACID    ', TEMP2, .FALSE., 0.0 )     
 
       ONE_OVER_TEMP = 1.0D0 / TEMP2
       
@@ -385,11 +393,19 @@
         ISPC8 = 0
         IF(AEI) ISPC8 = 1 
 
-!  USE LATER IF TRANSPORTING EXPLICIT AEROSOL SPECIES       
-        OLIG = 0 !OLIGOMERIZATION 1= ON, 0 = OFF
+        MTPYRAC = 0
+        IF(STIC) MTPYRAC = 1
+       
+        OLIG = 0 !OLIGOMERIZATION OF GLY/MGLY UPON DROPLET EVAPORATION 
+                 !1= ON, 0 = OFF
+                 !USE LATER IF TRANSPORTING CLD SOA SPECIES EXPLICITLY
+                 !Set to 0 for now
 
-        OLIGGLY =  OLIG * 3.3D-1
+        OLIGGLY =  OLIG * 3.3D-1  !(De Haan et al., 2009; Liu et al., 2012)
         OLIGMGLY = OLIG * 1.9D-1
+
+        PHOTO = 0 ! =1 to estimate photolysis rate(s) with a single value modulated by COSZEN
+                  ! =0 to ignore photolysis rates not calculated externally in photolysis module
 
 !...Check for bad temperature, cloud air mass, or pressure
 
@@ -447,90 +463,6 @@
       ELSE
          DARK = .FALSE.  ! day
       END IF
-      
-#ifdef verbose_aqchem
-
-      Write( logdev, * ) "AQCHEM VERBOSE IN"
-      Write( logdev, * ) TEMP2, PRES_PA, TAUCLD
-      Write( logdev, * ) PRCRATE, WCAVG, WTAVG 
-      Write( logdev, * ) AIRM, ALFA0, ALFA2, ALFA3
-      Write( logdev, * ) "N, GAS (NGAS)"
-      DO I = 1,NGAS
-      Write( logdev, * ) I, GAS(I)
-      ENDDO
-      Write( logdev, * ) "I, J, AERO(I,J)"
-      DO J=1, 3
-      DO I=1, NAER
-      Write( logdev, * ) I, J, AEROSOL(I,J)
-      ENDDO
-      ENDDO
-      Write( logdev, * ) "DARK= ", DARK
-      Write( logdev, * ) "COSZ= ", COSZEN
-      Write( logdev, * ) "JH2O2= ", JH2O2     
-      
-      Write( logdev, * ) "MECH= ", MECHNAME
-        
-      Write( logdev, * ) " "
-      
-      Write( logdev, * ) "so2 = ", lso2     ! Sulfur Dioxide
-      Write( logdev, * ) "hno3 = ", lhno3    ! Nitric Acid
-      Write( logdev, * ) "n2o5 = ", ln2o5    ! Dinitrogen Pentoxide
-      Write( logdev, * ) "co2 = ", lco2     ! Carbon Dioxide
-      Write( logdev, * ) "nh3 = ", lnh3     ! Ammonia
-      Write( logdev, * ) "h2o2 = ", lh2o2    ! Hydrogen Perioxide
-      Write( logdev, * ) "o3 = ", lo3      ! Ozone
-      Write( logdev, * ) "foa = ", lfoa     ! Formic Acid
-      Write( logdev, * ) "mhp = ", lmhp     ! Methyl Hydrogen Peroxide
-      Write( logdev, * ) "paa = ", lpaa     ! Peroxyacidic Acid
-      Write( logdev, * ) "h2so4 = ", lh2so4   ! Sulfuric Acid
-      Write( logdev, * ) "hcl = ", lhcl     ! Hydrogen Chloride
-      Write( logdev, * ) "gly = ", lgly     ! Glyoxal
-      Write( logdev, * ) "mgly = ", lmgly    ! Methylglyoxal
-      Write( logdev, * ) "ho = ", lho      ! OH, hydroxyl radical
-      Write( logdev, * ) "iepox = ", liepox   ! Isoprene epoxydiols
-      Write( logdev, * ) "mae = ", limae    ! Methacrylic acid epoxide 
-      Write( logdev, * ) "hmml = ", lihmml   ! Hydroxymethyl-methyl-alpha-lactone
-      Write( logdev, * ) "ho2 = ", lho2     ! HO2
-      Write( logdev, * ) "no2 = ", lno2     ! NO2
-      Write( logdev, * ) "hono = ", lhono    ! HONO
-      Write( logdev, * ) "hno4 = ", lhno4    ! HNO4   
-      Write( logdev, * ) "gcol = ", lgcol    ! Glycolaldehyde
-      Write( logdev, * ) "ccooh = ", lccooh   ! Acetic acid 
-      Write( logdev, * ) "hcho = ", lhcho    ! Formaldehyde
-      Write( logdev, * ) "no3r = ", lno3rad  ! NO3
-      Write( logdev, * ) "meo2 = ", lch3o2   ! CH3O2 
-      Write( logdev, * ) "hchop = ", lhchop   ! Primary Formaldehyde  
-      Write( logdev, * ) "so4 = ", lso4     !  Sulfate
-      Write( logdev, * ) "nh4 = ", lnh4     !  Ammonium
-      Write( logdev, * ) "no3 = ", lno3     !  Nitrate
-      Write( logdev, * ) "soa = ", lsoa     !  SOA
-      Write( logdev, * ) "orgc = ", lorgc    !  SOA (anthropogenic organic oligomers)
-      Write( logdev, * ) "poa = ", lpoa     !  Primary organic aerosol
-      Write( logdev, * ) "ec = ", lec      !  Elemental carbon
-      Write( logdev, * ) "pri = ", lpri     !  Primary aerosol (Aitken and Accumulation)
-      Write( logdev, * ) "na = ", lna      !  Sodium
-      Write( logdev, * ) "cl = ", lcl      !  Chloride ion
-      Write( logdev, * ) "num = ", lnum     !  Number
-      Write( logdev, * ) "srf = ", lsrf     !  Surface area
-      Write( logdev, * ) "ca = ", lcaacc   !  Ca in Accumulation mode (AE6) SLN 16March2011
-      Write( logdev, * ) "mg = ", lmgacc   !  Mg in Accumulation mode (AE6) SLN 16March2011
-      Write( logdev, * ) "k = ", lkacc    !  K in Accumulation mode (AE6)  SLN 16March2011
-      Write( logdev, * ) "fe = ", lfeacc   !  Fe in Accumulation mode (AE6) SLN 22March2011
-      Write( logdev, * ) "mn = ", lmnacc   !  Mn in Accumulation mode (AE6) SLN 22March2011
-      Write( logdev, * ) "soil = ", lsoilc   !  SOIL in Coarse mode (AE6)     SLN 16March2011 
-      Write( logdev, * ) "anth = ", lanthc   !  CORS in Coarse mode (AE6)     SLN 16March2011
-      Write( logdev, * ) "seas = ", lseasc   !  SEAS in Coarse mode (AE6)     SLN 16March2011
-      Write( logdev, * ) "ietet = ", lietet   ! 2-Methyltetrols
-      Write( logdev, * ) "ieos = ", lieos    ! IEPOX-derived orgranosulfates
-      Write( logdev, * ) "dimer = ", ldimer   ! Dimers
-      Write( logdev, * ) "imga = ", limga    ! 2-Methylglyceric acid
-      Write( logdev, * ) "imos = ", limos    ! MAE/HMML-derived-organosulfates        
-      Write( logdev, * ) "iso3 = ", liso3    ! 
-    
-      Write( logdev, * ) " "
-      Write( logdev, * ) " END AQCHEM INPUT"
-      Write( logdev, * ) " ***********************"  
-#endif          
       
 !...Mass balance check - start
         STARTM = 0.d0
@@ -845,8 +777,8 @@ kron: DO WHILE (T < TEND)
       GASWDEP( LIEPOX ) = VAR( ind_WD_IEPOX )
       
       IF( ISPC8 .GT. 0 ) THEN 
-      GASWDEP( LIMAE )  = VAR( ind_WD_IMAE )
-      GASWDEP( LIHMML ) = VAR( ind_WD_IHMML ) 
+         GASWDEP( LIMAE )  = VAR( ind_WD_IMAE )
+         GASWDEP( LIHMML ) = VAR( ind_WD_IHMML ) 
       END IF     
       
       GASWDEP( LNO2 )   = VAR( ind_WD_NO2 )
@@ -855,22 +787,65 @@ kron: DO WHILE (T < TEND)
       
       GASWDEP( LNO3RAD )  = VAR( ind_WD_NO3 )
       GASWDEP( LCH3O2 ) = VAR( ind_WD_CH3O2 )
-      GASWDEP( LGCOL ) = VAR( ind_WD_GCOL )
+      GASWDEP( LGCOL) = VAR( ind_WD_GCOL )
       GASWDEP( LCCOOH ) = VAR( ind_WD_CCOOH ) 
       GASWDEP( LHCHO ) = VAR( ind_WD_CH2OHYD )
       GASWDEP( LHO2 ) = VAR( ind_WD_HO2 )
-      GASWDEP( LHCHOP ) = VAR( ind_WD_CH2OHYDP )   
+      GASWDEP( LHCHOP ) = VAR( ind_WD_CH2OHYDP )
+      
+      
+      OPTPY = 2  ! 1 = ALL PYRAC GOES OUT TO GAS
+                 ! 2 = G_PYRAC + L_PYRAC TO GAS; L_PYRACMIN TO AERO
+                 ! 3 = 30% TO GAS, 70% TO AERO
+                 ! 4 = ALL PYRAC GOES OUT TO AERO
+      
+      APYRAC = 0.d0 ! comment for CMAQ
+      WDPYRAC = 0.d0 ! comment for CMAQ
+      
+      IF( MTPYRAC .GT. 0 ) THEN
+         IF(OPTPY .EQ. 1) THEN
+            GAS( LPYRUV ) = ( VAR( ind_G_PYRAC ) + VAR( ind_L_PYRAC ) + &
+                              VAR( ind_L_PYRACMIN ) )*INVCFAC
+            GASWDEP( LPYRUV ) = VAR( ind_WD_PYRAC )
+            WDPYRAC = 0
+            APYRAC = 0
+         ELSE IF(OPTPY .EQ. 2) THEN
+            GAS( LPYRUV ) = ( VAR( ind_G_PYRAC ) + VAR( ind_L_PYRAC ) )*INVCFAC
+            GASWDEP( LPYRUV ) = VAR( ind_WD_PYRAC )
+            WDPYRAC = 0
+            APYRAC = VAR( ind_L_PYRACMIN )
+         ELSE IF(OPTPY .EQ. 3) THEN
+            GAS( LPYRUV ) = 0.3d0 * ( VAR( ind_G_PYRAC ) + VAR( ind_L_PYRAC ) + &
+                            VAR( ind_L_PYRACMIN ) )*INVCFAC
+            GASWDEP( LPYRUV ) = 0.3d0 * VAR( ind_WD_PYRAC )
+            WDPYRAC = 0.7d0 * VAR( ind_WD_PYRAC )
+            APYRAC = 0.7d0 * ( VAR( ind_G_PYRAC ) + VAR( ind_L_PYRAC ) + &
+                               VAR( ind_L_PYRACMIN ) )
+         ELSE 
+            GAS( LPYRUV ) = 0.d0
+            GASWDEP( LPYRUV ) = 0.d0
+            WDPYRAC = VAR( ind_WD_PYRAC )
+            APYRAC = ( VAR( ind_G_PYRAC ) + VAR( ind_L_PYRAC ) + &
+                       VAR( ind_L_PYRACMIN ) )
+         END IF      
+      ELSE
+         WDPYRAC = VAR(ind_WD_PYRAC) 
+         APYRAC = VAR( ind_L_PYRAC ) + VAR( ind_L_PYRACMIN ) 
+      END IF
       
 
       AEROSOL(LORGC,ACC) = (VAR(ind_L_ORGC) + ((74.04/177.)*VAR(ind_L_GLYAC)) + ((90.03/177.)*VAR(ind_L_OXLAC)) &
-      + ((90.03/177.)*VAR(ind_L_OXLACMIN)) + ((90.03/177.)*VAR(ind_L_OXLACMIN2)) + ((88.06/177.)*VAR(ind_L_PYRAC)) & 
-      + ((88.06/177.)*VAR(ind_L_PYRACMIN)) + ((76.05/177.)*VAR(ind_L_GCOLAC)) + ((74.04/177.)*VAR(ind_L_GLYACMIN)) &
+!      + ((90.03/177.)*VAR(ind_L_OXLACMIN)) + ((90.03/177.)*VAR(ind_L_OXLACMIN2)) + ((88.06/177.)*VAR(ind_L_PYRAC)) & 
+!      + ((88.06/177.)*VAR(ind_L_PYRACMIN)) + ((76.05/177.)*VAR(ind_L_GCOLAC)) + ((74.04/177.)*VAR(ind_L_GLYACMIN)) &
+      + ((90.03/177.)*VAR(ind_L_OXLACMIN)) + ((90.03/177.)*VAR(ind_L_OXLACMIN2)) + ((88.06/177.)* APYRAC ) & 
+      + ((76.05/177.)*VAR(ind_L_GCOLAC)) + ((74.04/177.)*VAR(ind_L_GLYACMIN)) &
       + ((76.05/177.)*VAR(ind_L_GCOLACMIN)) &
       + (58.04/177.)*OLIGGLY*VAR(ind_L_GLY) + (72.06/177.)*OLIGMGLY*VAR(ind_L_MGLY))*INVCFAC
   
       AERWDEP(LORGC,ACC) = VAR(ind_WD_ORGC) + ((74.04/177.)*VAR(ind_WD_GLYAC)) + &
                           ((90.03/177.)*VAR(ind_WD_OXLAC))  + & 
-                          ((88.06/177.)*VAR(ind_WD_PYRAC)) + & 
+!                          ((88.06/177.)*VAR(ind_WD_PYRAC) + & 
+                          ((88.06/177.)* WDPYRAC) + &
                           ((76.05/177.)*VAR(ind_WD_GCOLAC)) + &
                            (58.04/177.)*OLIGGLY*VAR(ind_WD_GLY) + (72.06/177.)*OLIGMGLY*VAR(ind_WD_MGLY)
   
@@ -912,7 +887,7 @@ kron: DO WHILE (T < TEND)
          BETASO4 = 0.d0
       END IF
       
-      AEROSOL( LNUM, ACC ) = AEROSOL( LNUM, ACC ) * EXP( -BETASO4 * TAUCLD )
+      AEROSOL( LNUM, ACC ) = AEROSOL( LNUM, ACC ) * EXP( -BETASO4 * TAUCLD )   
 
 !...Mass balance check - end
                 
@@ -945,11 +920,10 @@ kron: DO WHILE (T < TEND)
            ELSE
               MBAL(I) = 0.d0
            END IF
-              
-           IF( ABS(MBAL(I)) .GT. 0.2 ) THEN        
+             
+           IF( ABS(MBAL(I)) .GT. 0.1 ) THEN         
               write(logdev,*) 'POTL MBAL PROB IN AQCHEM'
               write(logdev,*) '1=S, 2=N(not NH3), 3=NH3/4, 4=CL'
-              write(logdev,*) 'MBAL = ', MBAL(I)
               write(logdev,*) 'I, START, END'
               write(logdev,*) I, STARTM(I), ENDM(I)
               XMSG = 'Mass balance problem in KMT?'
@@ -957,38 +931,6 @@ kron: DO WHILE (T < TEND)
            END IF  
                       
         END DO
-#ifdef verbose_aqchem
-      Write( logdev, * ) "AQCHEM VERBOSE OUT"
-      Write( logdev, * ) "GAS"
-      Write( logdev, * ) "N, GAS (NGAS)"
-      DO I = 1,NGAS
-      Write( logdev, * ) I, GAS(I)
-      ENDDO
-      Write( logdev, * ) "AEROSOL"
-      Write( logdev, * ) "spc, mode, AEROSOL(NAER,NMOD)"
-      DO J=1, 3
-      DO I=1, NAER
-      Write( logdev, * ) I, J, AEROSOL(I,J)
-      ENDDO
-      ENDDO
-      Write( logdev, * ) "HPWDEP", HPWDEP
-      Write( logdev, * ) "BETASO4", BETASO4
-      Write( logdev, * ) "GASWDEP"
-      DO I = 1,NGAS
-      Write( logdev, * ) I, GASWDEP(I)
-      ENDDO
-      Write( logdev, * ) "AERWDEP"
-      Write( logdev, * ) "spc, mode, AERWDEP(NAER,NMOD)"
-      DO J=1, 3
-      DO I=1, NAER
-      Write( logdev, * ) I, J, AERWDEP(I,J)
-      ENDDO
-      ENDDO
-      Write( logdev, * ) " "
-      Write( logdev, * ) " AQCHEM VERBOSE OUT DONE"
-      Write( logdev, * ) "+++++++++++++++++++++++++"  
-      STOP  
-#endif
      
       RETURN
 

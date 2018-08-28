@@ -17,6 +17,7 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
  
+
 ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ! 
 ! Initialization File
@@ -46,6 +47,7 @@ CONTAINS
 
 !kf Moved functions and rate coefficients that only need to be calculated once
 !kf per call to cloud chem from aqchem_Rates to aqchem_Initialize 
+
 
 
       REAL( kind=dp )FUNCTION KMTF ( ACCOM, DG, MW )
@@ -100,7 +102,7 @@ CONTAINS
             RETURN
  
       END FUNCTION KMTB
-      
+ 
       REAL( kind=dp )FUNCTION HYDF ( KF, DH )
 
             IMPLICIT NONE
@@ -137,7 +139,7 @@ CONTAINS
             IF ( JVAL .LT. 0.0) THEN
                KPHOT = MAXC
                IF (CZEN_KPP .GT. 0.001_dp) THEN
-                  KPHOT = 2.718281828_dp*(MAXC)*EXP(-1/CZEN_KPP)
+                  KPHOT = PHOTO*2.718281828_dp*(MAXC)*EXP(-1/CZEN_KPP)
                ELSE 
                   KPHOT = 0.0_dp
                END IF  
@@ -147,7 +149,7 @@ CONTAINS
  
             RETURN
  
-      END FUNCTION KPHOT       
+      END FUNCTION KPHOT                  
 
 ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ! 
@@ -333,7 +335,12 @@ CONTAINS
       VAR(ind_G_CCOOH) = GAS( LCCOOH )
       VAR(ind_G_HCHO) = GAS( LHCHO )
       VAR(ind_G_HO2) = GAS( LHO2 ) 
-      VAR(ind_G_HCHOP) = GAS( LHCHOP )     
+      VAR(ind_G_HCHOP) = GAS( LHCHOP )
+      
+      IF( MTPYRAC .gt. 0 ) THEN
+      VAR(ind_G_PYRAC) = GAS( LPYRUV )  
+      END IF
+         
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
      
       VAR( ind_A_NO3AKN ) = AEROSOL( LNO3, AKN )
@@ -360,7 +367,6 @@ CONTAINS
       VAR( ind_L_KPLUS )   = AEROSOL( LKACC, ACC )
       VAR( ind_L_PECACC )  = AEROSOL( LEC, ACC )
       VAR( ind_L_ORGC )    = AEROSOL( LORGC, ACC )
-!      VAR( ind_L_ORGC )    = 0.5*AEROSOL( LORGC, ACC )
       VAR( ind_L_POAACC )  = AEROSOL( LPOA, ACC )
       
       IF( ISPC8 .gt. 0 ) THEN
@@ -374,8 +380,6 @@ CONTAINS
       END IF
          
       VAR( ind_L_SO4MIN2 ) = VAR( ind_L_SO4MIN2 ) + GAS( LH2SO4 )
-      
-!      VAR( ind_L_OXLACMIN2 ) = 0.5*AEROSOL( LORGC, ACC )
 
 ! Coarse crustal species from SOILCOR, ANTHCOR, SEASCOR
  
@@ -455,11 +459,6 @@ CONTAINS
                VAR( ind_L_KPLUS ) + VAR( ind_L_NH4PLUS )
       SUMNEG = 2.D0 * ( VAR( ind_L_SO4MIN2 ) ) + VAR( ind_L_NO3MIN ) &
              + VAR( ind_L_CLMIN )
-
-!      SUMNEG = 2.D0 * ( VAR( ind_L_SO4MIN2 ) + VAR( ind_L_OXLACMIN2 )) &
-!             + VAR( ind_L_NO3MIN ) &
-!             + VAR( ind_L_CLMIN )
-    
     
       SUMPOS = SUMPOS * PHI2
       SUMNEG = SUMNEG * PHI2
@@ -474,7 +473,7 @@ CONTAINS
       ELSE
          XMSG = 'ERROR IN INITIAL PH CALC -- [OH-] <= 0.'
          CALL M3EXIT ( PNAME, JDATEKPP, JTIMEKPP, XMSG, XSTAT2 ) 
-     END IF
+      END IF 
           
       VAR( ind_L_OHMIN ) = VAR( ind_L_OHMIN ) * INVPHI2   ! convert to molec/cm3
       VAR( ind_L_HPLUS ) = VAR( ind_L_HPLUS ) * INVPHI2   ! convert to molec/cm3
@@ -574,7 +573,7 @@ CONTAINS
   RCONST(143) = ((KMTF(0.02D0,1.0D-5,102.0D0)))
   RCONST(144) = ((KMTB(HIEPOX,0.02D0,1.0D-5,118.13D0)))
   RCONST(145) = ((KMTB(HMAE,0.02D0,1.0D-5,102.0D0)))
-  RCONST(146) = ((KMTB(HHMML,0.02D0,1.0D-5,102.0D0)))  
+  RCONST(146) = ((KMTB(HHMML,0.02D0,1.0D-5,102.0D0)))
   RCONST(158) = (WETFAC_KPP)
   RCONST(159) = (WETFAC_KPP)
   RCONST(160) = (WETFAC_KPP)
@@ -588,17 +587,17 @@ CONTAINS
   RCONST(168) = ((KMTF(0.0322D0,1.24D-5,60.052D0)))
   RCONST(169) = ((KMTF(0.02D0,1.64D-5,30.03D0)))
   RCONST(170) = ((KMTF(0.02D0,1.64D-5,30.03D0)))
-  RCONST(171) = ((KMTB(GCOLH,0.023D0,1.15D-5,60.052D0)))
-  RCONST(172) = ((KMTB(CCOOHH,0.0322D0,1.24D-5,60.052D0)))
-  RCONST(173) = ((KMTB(HCHOH,0.02D0,1.64D-5,30.03D0)))
+  RCONST(171) = ((MTPYRAC*KMTF(0.0322D0,1.24D-5,88.06D0)))
+  RCONST(172) = ((KMTB(GCOLH,0.023D0,1.15D-5,60.052D0)))
+  RCONST(173) = ((KMTB(CCOOHH,0.0322D0,1.24D-5,60.052D0)))
   RCONST(174) = ((KMTB(HCHOH,0.02D0,1.64D-5,30.03D0)))
-  RCONST(187) = ((HYDF(1.8D-1,4.03D+3)))
-  RCONST(188) = (5.1D-3)
+  RCONST(175) = ((KMTB(HCHOH,0.02D0,1.64D-5,30.03D0)))
+  RCONST(176) = ((MTPYRAC*KMTB(PYRACH,0.0322D0,1.24D-5,88.06D0)))    
   RCONST(189) = ((HYDF(1.8D-1,4.03D+3)))
   RCONST(190) = (5.1D-3)
-  RCONST(191) = ((KPHOT(4.6D-6,JH2O2)))    
-  RCONST(210) = (WETFAC_KPP)
-  RCONST(211) = (WETFAC_KPP)
+  RCONST(191) = ((HYDF(1.8D-1,4.03D+3)))
+  RCONST(192) = (5.1D-3)
+  RCONST(193) = ((KPHOT(4.6D-6,JH2O2)))
   RCONST(212) = (WETFAC_KPP)
   RCONST(213) = (WETFAC_KPP)
   RCONST(214) = (WETFAC_KPP)
@@ -613,21 +612,23 @@ CONTAINS
   RCONST(223) = (WETFAC_KPP)
   RCONST(224) = (WETFAC_KPP)
   RCONST(225) = (WETFAC_KPP)
-  RCONST(226) = ((KMTF(0.05D0,1.D-5,62.0D0)))
-  RCONST(227) = ((KMTF(0.05D0,1.35D-5,49.0D0)))
-  RCONST(228) = ((KMTB(NO3H,0.05D0,1.D-5,62.0D0)))
-  RCONST(229) = ((KMTB(CH3O2H,0.05D0,1.35D-5,49.0D0)))
-  RCONST(230) = ((KPHOT(5.6D-7,-1.d0)))
-  RCONST(259) = (WETFAC_KPP)
-  RCONST(260) = (WETFAC_KPP)
+  RCONST(226) = (WETFAC_KPP)
+  RCONST(227) = (WETFAC_KPP)
+  RCONST(228) = ((KMTF(0.05D0,1.D-5,62.0D0)))
+  RCONST(229) = ((KMTF(0.05D0,1.35D-5,49.0D0)))
+  RCONST(230) = ((KMTB(NO3H,0.05D0,1.D-5,62.0D0)))
+  RCONST(231) = ((KMTB(CH3O2H,0.05D0,1.35D-5,49.0D0)))
+  RCONST(232) = ((KPHOT(5.6D-7,-1.d0)))
   RCONST(261) = (WETFAC_KPP)
   RCONST(262) = (WETFAC_KPP)
   RCONST(263) = (WETFAC_KPP)
   RCONST(264) = (WETFAC_KPP)
   RCONST(265) = (WETFAC_KPP)
   RCONST(266) = (WETFAC_KPP)
-  RCONST(267) = (WETFAC_KPP)    
-        
+  RCONST(267) = (WETFAC_KPP)
+  RCONST(268) = (WETFAC_KPP)
+  RCONST(269) = (WETFAC_KPP)        
+      
 END SUBROUTINE Initialize
 
 ! End of Initialize function

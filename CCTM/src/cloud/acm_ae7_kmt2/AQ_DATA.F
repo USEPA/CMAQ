@@ -35,21 +35,23 @@ C               indexing, density, variable names
 C     Mar 2011: Shawn Roselle, replaced I/O API include files with UTILIO_DEFN
 C     Sep 2011: B.Hutzell: adapted for mercury and HAP mechanisms
 C     Jun 2012: J.Young: remove full character blank padding for GNU Fortran (GCC) 4.1.2
-C     Jul 2014: Kathleen Fahey - Added IEPOX/MAE/HMML and associated aerosol species
+C     Jul 2014: K.Fahey: Added IEPOX/MAE/HMML and associated aerosol species
 C     Oct 2014: B.Hutzell:forcing to skip mapping if aerosol species
 C     index equals the values for H3OP species as for aerosol water
 C     species 
+C     Aug 2018: K.Fahey: Added gas/aero species for KMT2
 C-----------------------------------------------------------------------
       Use aero_data, Only: n_aerolist, n_aerospc, conmin
 
       Implicit None
 
-      Integer, Parameter :: ngas = 28   ! number of gas-phase species for AQCHEM
+      Integer, Parameter :: ngas = 29   ! number of gas-phase species for AQCHEM
 !     Integer, Parameter :: naddaer = 7 ! number of additional aerosol surrogate species for AQCHEM
-      Integer, Parameter :: naddaer = 2+6 ! number of additional aerosol surrogate species for AQCHEM
+      Integer, Parameter :: naddaer = 2 ! number of additional aerosol surrogate species for AQCHEM
       Integer, Parameter :: nadd_tx = 6 ! number of surrogates for HAPS aerosol species for AQCHEM
+      Integer, Parameter :: nadd_i = 6  ! number of surrogates for AEI aerosol species for AQCHEM
 
-      Integer, Parameter :: max_naer = n_aerolist + naddaer +  nadd_tx ! max number aero surrogates
+      Integer, Parameter :: max_naer = n_aerolist + naddaer +  nadd_tx + nadd_i ! max number aero surrogates
 
       Integer, Save      :: naer        ! number of aerosol surrogate species for AQCHEM
       Integer, Parameter :: nliqs = 55  ! number of liquid-phase species in AQCHEM
@@ -99,7 +101,8 @@ C                       ----------    ----------
      & sur_gas_type( 'HCHO      ',        0.0 ),
      & sur_gas_type( 'NO3RAD    ',        0.0 ),
      & sur_gas_type( 'CH3O2     ',        0.0 ),
-     & sur_gas_type( 'HCHOP     ',        0.0 ) / )
+     & sur_gas_type( 'HCHOP     ',        0.0 ), 
+     & sur_gas_type( 'PYRUV     ',        0.0 ) / )
 
 C...Required gas species
       Character( 16 ), Parameter, Private :: req_so2   = 'SO2'
@@ -129,7 +132,8 @@ C...Required gas species
       Character( 16 ), Parameter, Private :: req_hcho  = 'HCHO'
       Character( 16 ), Parameter, Private :: req_no3rad = 'NO3RAD'
       Character( 16 ), Parameter, Private :: req_ch3o2 = 'CH3O2' 
-      Character( 16 ), Parameter, Private :: req_hchop = 'HCHOP'               
+      Character( 16 ), Parameter, Private :: req_hchop = 'HCHOP'
+      Character( 16 ), Parameter, Private :: req_pyruv = 'PYRUV'               
 
 C...Pointers for the AQCHEM array GAS
 
@@ -160,7 +164,8 @@ C...Pointers for the AQCHEM array GAS
       Integer :: lhcho    ! Formaldehyde
       Integer :: lno3rad  ! NO3
       Integer :: lch3o2   ! CH3O2     
-      Integer :: lhchop   ! Primary Formaldehyde     
+      Integer :: lhchop   ! Primary Formaldehyde 
+      Integer :: lpyruv   ! Pyruvic Acid    
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C...Aerosol surrogates species 
@@ -184,17 +189,8 @@ C                      -------------    -------------    -------------    ------
 !    & sur_aer_type((/'             ', '             ', 'A3FE         '/),   0.0,     55.8, 2000.0),
 !    & sur_aer_type((/'             ', '             ', 'B2MN         '/),   0.0,     54.9, 2000.0),
 !    & sur_aer_type((/'             ', '             ', 'K            '/),   0.0,     39.1, 2200.0),
-!    & sur_aer_type((/'NUM_AITKEN   ', 'NUM_ACCUM    ', 'NUM_COARSE   '/),   0.0,      0.0,    1.0),
-!    & sur_aer_type((/'SRF_AITKEN   ', 'SRF_ACCUM    ', 'SRF_COARSE   '/),   0.0,      0.0,    1.0)/)
      & sur_aer_type((/'NUM_AITKEN   ', 'NUM_ACCUM    ', 'NUM_COARSE   '/),   0.0,      0.0,    1.0),
-     & sur_aer_type((/'SRF_AITKEN   ', 'SRF_ACCUM    ', 'SRF_COARSE   '/),   0.0,      0.0,    1.0),
-     & sur_aer_type((/'             ', 'IETET_ACCUM  ', '             '/),   0.0,   136.15, 1400.0),
-     & sur_aer_type((/'             ', 'IEOS_ACCUM   ', '             '/),   0.0,    216.2, 1400.0),
-     & sur_aer_type((/'             ', 'IMGA_ACCUM   ', '             '/),   0.0,    120.1, 1400.0),
-     & sur_aer_type((/'             ', 'IMOS_ACCUM   ', '             '/),   0.0,   200.16, 1400.0),
-     & sur_aer_type((/'             ', 'DIMER_ACCUM  ', '             '/),   0.0,   248.23, 1400.0),
-     & sur_aer_type((/'             ', 'ISO3_ACCUM   ', '             '/),   0.0,    168.2, 1400.0)/)
-
+     & sur_aer_type((/'SRF_AITKEN   ', 'SRF_ACCUM    ', 'SRF_COARSE   '/),   0.0,      0.0,    1.0)/)
 
 C...TX species added to Aerosol surrogate if not found in AE namelist file      
       Type ( sur_aer_type ), private :: srgaer_addtx( nadd_tx ) = (/
@@ -206,6 +202,17 @@ C                      -------------    -------------    -------------    ------
      & sur_aer_type((/'PHG_AITKEN   ', '             ', '             '/),   0.0,    200.5, 2200.0),
      & sur_aer_type((/'             ', 'PHG_ACCUM    ', '             '/),   0.0,    200.5, 2200.0),
      & sur_aer_type((/'             ', '             ', 'PHG_COARSE   '/),   0.0,    200.5, 2200.0)/)
+     
+C...I species added to Aerosol surrogate if not found in AE namelist file      
+      Type ( sur_aer_type ), private :: srgaer_addi( nadd_i ) = (/
+C                         Aitken           Accum            Coarse        Background MolWt  Density
+C                      -------------    -------------    -------------    ---------- -----  ------
+     & sur_aer_type((/'             ', 'IETET_ACCUM  ', '             '/),   0.0,   136.15, 1400.0),
+     & sur_aer_type((/'             ', 'IEOS_ACCUM   ', '             '/),   0.0,    216.2, 1400.0),
+     & sur_aer_type((/'             ', 'IMGA_ACCUM   ', '             '/),   0.0,    120.1, 1400.0),
+     & sur_aer_type((/'             ', 'IMOS_ACCUM   ', '             '/),   0.0,   200.16, 1400.0),
+     & sur_aer_type((/'             ', 'DIMER_ACCUM  ', '             '/),   0.0,   248.23, 1400.0),
+     & sur_aer_type((/'             ', 'ISO3_ACCUM   ', '             '/),   0.0,    168.2, 1400.0)/)    
 
 C...Required aerosol species
       Character( 16 ), Parameter, Private :: req_aso4   = 'SO4_ACCUM'
@@ -236,11 +243,11 @@ C...Required aerosol species
       Character( 16 ), Parameter, Private :: req_anthc  = 'ANTH_COARSE' ! SLN 16March2011
       Character( 16 ), Parameter, Private :: req_seasc  = 'SEAS_COARSE' ! SLN 16March2011
       
-      Character( 16 ), Parameter, Private :: req_aietet  = 'IETET_ACCUM' 
-      Character( 16 ), Parameter, Private :: req_aieos   = 'IEOS_ACCUM'
-      Character( 16 ), Parameter, Private :: req_adimer  = 'DIMER_ACCUM'
-      Character( 16 ), Parameter, Private :: req_aimga   = 'IMGA_ACCUM'
-      Character( 16 ), Parameter, Private :: req_aimos   = 'IMOS_ACCUM'
+      Character( 16 ), Parameter, Private :: req_aietet = 'IETET_ACCUM' 
+      Character( 16 ), Parameter, Private :: req_aieos  = 'IEOS_ACCUM'
+      Character( 16 ), Parameter, Private :: req_adimer = 'DIMER_ACCUM'
+      Character( 16 ), Parameter, Private :: req_aimga  = 'IMGA_ACCUM'
+      Character( 16 ), Parameter, Private :: req_aimos  = 'IMOS_ACCUM'
       
       Character( 16 ), Parameter, Private :: req_aiso3  = 'ISO3_ACCUM'
             
@@ -248,8 +255,8 @@ C...For TX version
       Character( 16 ), Parameter, Private :: req_traceri = 'TRACER_AITKEN'
       Character( 16 ), Parameter, Private :: req_tracerj = 'TRACER_ACCUM'
       Character( 16 ), Parameter, Private :: req_tracerk = 'TRACER_COARSE'
-      Character( 16 ), Parameter, Private :: req_phgi     = 'PHG_AITKEN'
-      Character( 16 ), Parameter, Private :: req_phgj     = 'PHG_ACCUM'
+      Character( 16 ), Parameter, Private :: req_phgi    = 'PHG_AITKEN'
+      Character( 16 ), Parameter, Private :: req_phgj    = 'PHG_ACCUM'
       Character( 16 ), Parameter, Private :: req_phgk    = 'PHG_COARSE'
 
 
@@ -295,7 +302,7 @@ C...TXHG aersosols
       Integer :: limga    ! 2-Methylglyceric acid
       Integer :: limos    ! MAE/HMML-derived-organosulfates  
       
-      Integer :: liso3    !       
+      Integer :: liso3    ! AISO3      
 
 C...Pointers for the AQCHEM arrays LIQUID and WETDEP
       Integer, Parameter :: lacl        = 01  ! Hydrogen ion
@@ -472,7 +479,7 @@ C...Set number of species in CGRID and used in Aqeuous module
 C...Map aero species
       Call map_aero()
 
-      naer = n_aerospc + naddaer + nadd_tx
+      naer = n_aerospc + naddaer + nadd_tx + nadd_i
 
       Allocate ( srgaer( naer ), stat = ios )
       If ( ios .Ne. 0 ) Then
@@ -495,19 +502,26 @@ C...Map aero species
 C...Populate optional aerosol surrogate species (e.g.
 C   TRACER_AITKEN, TRACER_ACCUM, TRACER_COARSE, 
 C   PHG_AITKEN,    PHG_ACCUM,    PHG_COARSE     )
+    
       Do spc = 1, nadd_tx
          srgaer( spc ) = srgaer_addtx( spc )
       End Do
- 
-C...Initialize aerosol surrogate species from AERO_DATA table
+      
+      Do var = 1, nadd_i
+      spc = nadd_tx + var
+         srgaer( spc ) = srgaer_addi( spc-nadd_tx )
+      End Do      
+
+C...Initialize aerosol surrogate species from AERO_DATA table 
       Do var = 1, n_aerospc
-         spc = nadd_tx + var
+
+         spc = nadd_tx + nadd_i + var
          srgaer( spc ) = sur_aer_type( (/' ',' ',' '/), 0.0, 0.0, 0.0 )
 
          ! Skip H2O, H2OP, and SOIL species
          If ( var .Eq. ah2o_idx .Or. var .Eq. ah3op_idx ) Then
               write(xmsg,'(4(A,1x))')'Skipping AQ surrogate for AEROSPC ',
-     &                               aerospc( spc-nadd_tx )%name( 1:n_mode )
+     &                               aerospc( spc-nadd_tx-nadd_i )%name( 1:n_mode )
               Call m3warn( 'aq_data_init', 0, 0, xmsg )
               Cycle
          End if
@@ -538,9 +552,8 @@ C...Initialize aerosol surrogate species from AERO_DATA table
 C...Initialize aerosol moment surrogates (i.e.
 C   NUM_AITKEN, NUM_ACCUM, NUM_COARSE,
 C   SRF_AITKEB, SRF_ACCUM, SRF_COARSE )
-C...and additional aerosol surrogate species
       Do n = 1, naddaer
-         spc = n_aerospc + nadd_tx + n
+         spc = n_aerospc + nadd_tx + nadd_i + n
          srgaer( spc ) = addsrgaer( n )
       End Do
    
@@ -677,6 +690,7 @@ C...Create the pointers for required gas surrogate species needed by AQCHEM
       lno3rad  = findSgrGas( req_no3rad )  ! NO3
       lch3o2 = findSgrGas( req_ch3o2 )  ! CH3O2   
       lhchop = findSgrGas( req_hchop )  ! Primary formaldehyde
+      lpyruv = findSgrGas( req_pyruv )  ! Pyruvic acid
       
 C...Create the pointers for required aerosol surrogate species needed by AQCHEM
       lso4   = findSgrAer( req_aso4 )    !  Sulfate
@@ -750,7 +764,8 @@ C...For TXHG version
       Write( logdev,'( 5x, a, i4 )' ) 'lhcho:  ', lhcho  
       Write( logdev,'( 5x, a, i4 )' ) 'lno3rad: ', lno3rad      
       Write( logdev,'( 5x, a, i4 )' ) 'lch3o2: ', lch3o2 
-      Write( logdev,'( 5x, a, i4 )' ) 'lhchop: ', lhchop           
+      Write( logdev,'( 5x, a, i4 )' ) 'lhchop: ', lhchop
+      Write( logdev,'( 5x, a, i4 )' ) 'lpyruv: ', lpyruv            
 
       Write( logdev,'( /5x, a )' ) 'AQCHEM aer  osol surrogate species'
       Write( logdev,'( 5x, a, i4 )' ) 'lso4:     ', lso4
@@ -789,12 +804,12 @@ C...For TXHG version
 
       Write( logdev,'( / 5x, a / )' ) ' --- AQCHEM Gas and Aerosol Species Mapped ---'
 
-C1005  Format( / "GASES" / "NGAS = ", i3 / "    name   "," backgrd" // )
-C1007  Format( a16, 1x, f8.2 )
-C1009  Format( / "AEROSOLS" / "NAER = ", i3 / "    name(1)   ", "    name(2)   ",
-C     &        "    name(3)   ", " dens ", " backgrd" // )
-C1111  Format( 3(a16,1x), f6.0, 2(1x, f8.2) )
-C1113  Format( a16, 1x, i4, 1x, a16, 1x, i4, 1x, i4)         
+1005  Format( / "GASES" / "NGAS = ", i3 / "    name   "," backgrd" // )
+1007  Format( a16, 1x, f8.2 )
+1009  Format( / "AEROSOLS" / "NAER = ", i3 / "    name(1)   ", "    name(2)   ",
+     &        "    name(3)   ", " dens ", " backgrd" // )
+1111  Format( 3(a16,1x), f6.0, 2(1x, f8.2) )
+1113  Format( a16, 1x, i4, 1x, a16, 1x, i4, 1x, i4)     
 1114  Format( / "   CGRID_SPC    ", 1x, "SPC ", 1x, "   SURROGATE   ", 1x, "ISRG", 1x, "IDX " )
 
       Return
