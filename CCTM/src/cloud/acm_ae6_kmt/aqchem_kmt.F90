@@ -317,7 +317,7 @@
         SOIL_K_FAC = ASOIL_K_FAC * REAL( AEROSPC_MW( ASOIL_IDX ), 8 )  &
                                   / REAL( AEROSPC_MW( AK_IDX ), 8 ) / ASOIL_RENORM
         CORS_K_FAC = ACORS_K_FAC * REAL( AEROSPC_MW( ACORS_IDX ), 8 )  &
-                                  / REAL( AEROSPC_MW( AK_IDX ), 8 ) / ACORS_RENORM 
+                                  / REAL( AEROSPC_MW( AK_IDX ), 8 ) / ACORSEM_RENORM 
       
       END IF    ! FIRSTIME
       
