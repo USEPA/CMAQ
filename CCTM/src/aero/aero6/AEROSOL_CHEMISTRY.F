@@ -32,9 +32,10 @@
 ! 10 May 16 H. Pye: Merged with AEROSOL_CHEMISTRY.F from aero6i
 !                   Size of NAMES_AERO_RATES reduced to match RXN_DATA_MODULE
 !    May 16 H. Pye, B. Murphy: Updated treatment of aerosol moments
-! 23 May 16 C. Nolte: Allow for writing APMDIAG even if PMDIAG file turned off.
 ! 23 May 16 D. Wong: Allow for calculation for APMDIAG even if PMDIAG is turned off.
 ! 10 Jun 16 B.Hutzell: reduce occurrences of numerical underflow
+! 1 Aug 18 DJL:  added CLNO3 reactions as per SG - to be superseded by
+!              SG detailed halogen code
 !-----------------------------------------------------------------------
 
        IMPLICIT NONE
@@ -56,7 +57,7 @@
        
        PRIVATE 
 
-       INTEGER, PARAMETER :: NUMB_AERO_RATES = 31
+       INTEGER, PARAMETER :: NUMB_AERO_RATES = 33
        
        CHARACTER( 16 ), PARAMETER :: NAMES_AERO_RATES( NUMB_AERO_RATES ) = 
      &                    (/ 'HETERO_N2O5IJ   ', 'HETERO_N2O5K    ', 
@@ -74,7 +75,8 @@
      &                       'HETERO_IMAEOS   ', 'HETERO_NO3      ',
      &                       'HETERO_GLY      ', 'HETERO_MGLY     ',
      &                       'HETERO_NTR2     ', 'HETERO_BRONO2IJ ',
-     &                       'HETERO_BRONO2K  '/)
+     &                       'HETERO_BRONO2K  ', 'HETERO_CLNO3_WAJ',
+     &                       'HETERO_CLNO3_WAK'/)
 
        INTEGER, PARAMETER  :: IA_N2O5IJ         =   1
        INTEGER, PARAMETER  :: IA_N2O5K          =   2
@@ -107,6 +109,8 @@
        INTEGER, PARAMETER  :: IA_NTR2           =   29
        INTEGER, PARAMETER  :: IA_BRONO2IJ       =   30
        INTEGER, PARAMETER  :: IA_BRONO2K        =   31
+       INTEGER, PARAMETER  :: IA_CLNO3_WAJ      =   32
+       INTEGER, PARAMETER  :: IA_CLNO3_WAK      =   33
 
 
        INTEGER, PARAMETER :: INDEX_AERO_RATES( NUMB_AERO_RATES ) = 
@@ -124,8 +128,9 @@
      &                       IA_IMAE     , IA_2MG      ,
      &                       IA_IMAEOS   , IA_NO3      ,
      &                       IA_GLY      , IA_MGLY     ,
-     &                       IA_NTR2     ,IA_BRONO2IJ ,
-     &                       IA_BRONO2K  /)
+     &                       IA_NTR2     , IA_BRONO2IJ ,
+     &                       IA_BRONO2K  , IA_CLNO3_WAJ,
+     &                       IA_CLNO3_WAK/)
 
        INTEGER               :: SELECTED_AERO_RATES
        INTEGER, ALLOCATABLE  :: WHICH_AERO_RATE( : )
@@ -344,6 +349,7 @@ C *** Parameters
       REAL( 8 ), PARAMETER :: AQUEOUS_FREQUENCY = 1.0D+9
       REAL( 8 ), PARAMETER :: INV_SQRT_MWNO2  = 1.47425932467825D-1
       REAL( 8 ), PARAMETER :: INV_SQRT_MWN2O5 = 9.62161363758323D-2
+      REAL( 8 ), PARAMETER :: INV_SQRT_MWCLNO3  = 1.012739360000D-1
       REAL( 8 ), PARAMETER :: INV_SQRT_MWBRONO2 = 8.394770000000D-2
 
       REAL( 8 ), PARAMETER :: UGM3_CONV_FAC   = 8.31251724585556D00 ! =1.0E-3*AIRDENS_STD*(PRESS_STD/TEMP_STD)
@@ -354,6 +360,8 @@ C *** Parameters
       REAL( 8 ), PARAMETER :: GAMMA_GLY       = 2.9D-3 ! Liggio et al. 2005
 
       REAL( 8 ), PARAMETER :: STD_DIFF_N2O5 = 0.0855D-4  ! N2O5 molecular diffusivity at 101325 Pa and 273.15 K [m2/sec]
+      REAL( 8 ), PARAMETER :: STD_DIFF_CLNO3  = 0.1014D-4    ! CLNO3 molecular diffusivity at 101325 Pa and 273.15 K [m2/sec]
+
       REAL( 8 ), PARAMETER :: STD_DIFF_BRONO2 = 0.0855D-4  ! BRONO2 molecular diffusivity at 101325 Pa and 273.15 K [m2/sec]
 
       REAL,      PARAMETER :: CFACTOR     = 8.0 * GPKG  * RGASUNIV / PI  ! factor in cbar_coeff
@@ -402,6 +410,7 @@ C *** Local Variables
       REAL( 8 )    :: FACTOR   ! scratch multiplicative factor
       REAL( 8 )    :: RFACTOR  ! factor converting rate constant from cm3/molec/sec to 1/ppm/min
       REAL( 8 )    :: RADIUS   ! effective particle radius [m]
+      REAL( 8 )    :: RADIUS_K ! effective particle radius [m] - coarse mode
       
       REAL( 8 )       :: CBAR             ! molecular velocity of N2O5 (m/s)
       REAL( 8 )       :: CBARIEPOX        ! molecular velocity of IEPOX (m/s)
@@ -416,7 +425,11 @@ C *** Local Variables
       REAL( 8 )       :: FDIM1(2)         ! fraction of epoxide aerosol as dimer, index: IEPOX(1) and MAE(2)
       REAL( 8 )       :: FDIM2(2)         ! fraction of epoxide aerosol as organosulfate dimer, index: IEPOX(1) and MAE(2)
       REAL( 8 ), SAVE :: INV_MWIETET, INV_MWIEOS  ! reciprocal of molecular weight for tetrol, iepoxos [mol/g]
+      REAL( 8 )       :: CBAR_CLNO3        ! molecular velocity of CLNO3 (m/s)
       REAL( 8 )       :: CBAR_BRONO2      ! molecular velocity of BRONO2 (m/s)
+      REAL( 8 )       :: CLNO3_H2O_RXN_TIME   ! CLNO3 reaction time per aerosol surface area density with H2O (s/m)
+      REAL( 8 )       :: INV_DIFF_CLNO3       ! reciprocal molecular diffusivity [m2/sec]
+
       REAL( 8 )       :: BRONO2_RXN_TIME  ! BRONO2 reaction time per aerosol surface area density (s/m)
 
       REAL( 8 )       :: INV_DIFF_BRONO2  ! reciprocal molecular diffusivity [m2/sec]
@@ -471,6 +484,10 @@ C *** Statement Function **************
 
 ! reciprocal of rxn probability for BRONO2 on aerosol, Yang et al., JGR, 2005
       REAL( 8 ), PARAMETER :: INV_GAMMA_BRONO2 = 1.0D0 / 0.3D0
+
+! reciprocal of rxn probability for CLNO3 on aerosol, Dieber et al.,
+! ACP, 2004
+      REAL( 8 ), PARAMETER :: INV_GAMMA_CLNO3_H2O  = 1.0D0 / 0.024D0 ! Dieber et al., ACP, 2004 (with H2O)
 
 C *** Coefficients for the equation, ESATL defining saturation vapor pressure
       REAL( 8 ), PARAMETER :: AL = 610.94D0 
@@ -772,6 +789,8 @@ C *** calculate molecular speeds (m/s) using Eq 4 of Pleim et al (1995)
                CBARGLY = CFACTOR_GLY  * DSQRT( AIRTEMP )
                CBARMGLY = CFACTOR_MGLY * DSQRT( AIRTEMP )
 
+               CBAR_CLNO3 = CBAR_COEFF * INV_SQRT_MWCLNO3
+
 C *** correct N2O5 molecular diffusivity for ambient conditions
 
                INV_DIFFUSIVITY = 1.0D0 / ( STD_DIFF_N2O5 * ADJUST_DIFF )
@@ -779,6 +798,8 @@ C *** correct N2O5 molecular diffusivity for ambient conditions
 C *** correct BRONO2 molecular diffusivity for ambient conditions - assumed similar to that of N2O5
 
                INV_DIFF_BRONO2 = 1.0D0 / ( STD_DIFF_BRONO2 * ADJUST_DIFF )
+               INV_DIFF_CLNO3  = 1.0D0 / ( STD_DIFF_CLNO3 * ADJUST_DIFF)
+
 
 C *** get KN2O5 rate constants YIELD_CLNO2 for each mode
                YIELD_CLNO2 = 0.0D0
@@ -860,6 +881,10 @@ C *** set up variables needed for calculating K_BRONO2
 
 C *** Calculate IEPOX and MAE uptake information for accumulation mode
                RADIUS    = 0.5D0 * DE_WET( 2 ) ! particle size
+               RADIUS_K     = 0.5D0 * DE_WET( 3 ) ! particle size - K-mode
+
+              CLNO3_H2O_RXN_TIME   = 4.0D0 * INV_GAMMA_CLNO3_H2O / CBAR_CLNO3
+
                CBARIEPOX = CFACTOR_IEPOX * DSQRT( AIRTEMP )
                CBARIMAE  = CFACTOR_IMAE  * DSQRT( AIRTEMP )
 
@@ -1079,6 +1104,12 @@ C hydrolysis
                         KHETERO( IRATE, C, R, L ) = REAL( F_PART_NTR2 * KHON, 8 ) ! [1/min]
      &                                            * ( 5.0D0 * AIRRH - 1.0D0 )
                      END IF
+C*** DJL added as per SG routines for CLNO3
+                 CASE( IA_CLNO3_WAJ )
+                  KHETERO( IRATE, C,R,L ) = 60.0D0 * WET_M2( 2 ) * DPI / ( RADIUS * INV_DIFF_CLNO3 + CLNO3_H2O_RXN_TIME )
+
+                 CASE( IA_CLNO3_WAK )
+                  KHETERO( IRATE, C,R,L ) = 60.0D0 * WET_M2( 3 ) * DPI / ( RADIUS_K * INV_DIFF_CLNO3 + CLNO3_H2O_RXN_TIME )
 
                  CASE( IA_BRONO2IJ )
 C *** calculate total KBRONO2 from fine modes

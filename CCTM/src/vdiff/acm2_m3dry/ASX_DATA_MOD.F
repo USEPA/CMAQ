@@ -405,6 +405,7 @@ C Land use information:
       DATA subname(159), dif0(159), ar(159), meso(159), lebas(159) / 'SVAVB2          ',0.0600,  1461.2,     0.0, 163.2/
       DATA subname(160), dif0(160), ar(160), meso(160), lebas(160) / 'SVAVB3          ',0.0620,   175.2,     0.0, 163.0/
       DATA subname(161), dif0(161), ar(161), meso(161), lebas(161) / 'SVAVB4          ',0.0650,    20.8,     0.0, 162.7/
+      DATA subname(162), dif0(162), ar(162), meso(162), lebas(162) / 'CLNO3           ',0.1014,    8.0,      0.0,  65.1/
 
       CONTAINS
 
