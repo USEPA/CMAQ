@@ -567,10 +567,8 @@ c..write photolysis rates used in cell
                   IF ( IPH( N,3 ) .NE. 0 ) THEN
                      I = IPH( N,1 )
                      J = IPH( N,2 )
-                     IF ( RTDAT( 1, I ) .GT. 0.0D+00 )THEN
-                        WRITE( LOGDEV, 92116 ) TRIM( RXLABEL( I ) ),
-     &                  TRIM( PHOTAB( J ) ), RKI( CELL_MAXERR,I ) / RTDAT( 1,I )
-                     END IF
+                     WRITE( LOGDEV, 92116 ) TRIM( RXLABEL( I ) ),
+     &               TRIM( PHOTAB( J ) ), RKI( CELL_MAXERR,I )
                   END IF
                END DO
           

@@ -86,7 +86,7 @@ C..SCRATCH LOCAL VARIABLES:
 C***********************************************************************      
       
       IF ( NSPECIAL_RXN .GT. 0 ) THEN  ! calculate special rate coefficients
-          CALL SPECIAL_RATES( NUMCELLS, YIN, BLKTEMP, BLKDENS, RKI )
+          CALL SPECIAL_RATES( NUMCELLS, CNEW, BLKTEMP, BLKDENS, RK )
       END IF
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
