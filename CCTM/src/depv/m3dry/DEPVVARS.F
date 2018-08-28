@@ -191,7 +191,7 @@ C-------------------------------------------------------------------------------
          DEPSPC( 107) = 'INTR            '
          DEPSPC( 108) = 'ISPX            '
          DEPSPC( 109) = 'ROOH            '
-         DEPSPC( 110) = 'LV_PCSOG        '
+         DEPSPC( 110) = 'LVPCSOG         '
          DEPSPC( 111) = 'VIVPO1          '
          DEPSPC( 112) = 'VLVOO1          '
          DEPSPC( 113) = 'VLVOO2          '
@@ -239,10 +239,10 @@ C-------------------------------------------------------------------------------
          DEPSPC( 155) = 'SVMT5           '
          DEPSPC( 156) = 'SVMT6           '
          DEPSPC( 157) = 'SVMT7           '
-         DEPSPC( 158) = 'SV_AVB1         '
-         DEPSPC( 159) = 'SV_AVB2         '
-         DEPSPC( 160) = 'SV_AVB3         '
-         DEPSPC( 161) = 'SV_AVB4         '
+         DEPSPC( 158) = 'SVAVB1          '
+         DEPSPC( 159) = 'SVAVB2          '
+         DEPSPC( 160) = 'SVAVB3          '
+         DEPSPC( 161) = 'SVAVB4          '
          DEPSPC( 162) = 'CLNO3           '
 
          N_USE_DEPSPC = 0

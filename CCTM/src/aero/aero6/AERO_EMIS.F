@@ -213,9 +213,6 @@ C External Functions:
          INTEGER, EXTERNAL :: FINDEX       !  looks up number in table.
 
 C Local Variables:
-         LOGICAL, SAVE :: ZERO_PCSOA
-         CHARACTER( 16 ), SAVE :: CTM_ZERO_PCSOA = 'CTM_ZERO_PCSOA' ! env var for toggling
-                                                                    ! pcSOA modeling
          REAL  DGV, SG, SPLIT_ACCUM
 
 C Variables for calculating the volume of each grid cell

@@ -147,14 +147,6 @@ setenv FL_ERR_STOP N         #> stop on inconsistent input files
 setenv PROMPTFLAG F          #> turn on I/O-API PROMPT*FILE interactive mode [ options: T | F ]
 setenv IOAPI_OFFSET_64 NO    #> support large timestep records (>2GB/timestep record) [ options: YES | NO ]
 setenv CTM_EMISCHK N         #> Abort CMAQ if missing surrogates from emissions Input files
-setenv EMISDIAG F            #> Print Emission Rates at the output time step after they have been
-                             #>   scaled and modified by the user Rules [options: F | T or 2D | 3D | 2DSUM ]
-                             #>   Individual streams can be modified using the variables:
-                             #>       GR_EMIS_DIAG_## | STK_EMIS_DIAG_## | BIOG_EMIS_DIAG
-                             #>       MG_EMIS_DIAG    | LTNG_EMIS_DIAG   | DUST_EMIS_DIAG
-                             #>       SEASPRAY_EMIS_DIAG   
-                             #>   Note that these diagnostics are different than other emissions diagnostic
-                             #>   output because they occur after scaling.
 setenv EMIS_DATE_OVRD N      #> Master switch for allowing CMAQ to use the date from each Emission file
                              #>   rather than checking the emissions date against the internal model date.
                              #>   [options: T | F or Y | N]. If false (F/N), then the date from CMAQ's internal
@@ -186,7 +178,14 @@ setenv B3GTS_DIAG Y          #> beis mass emissions diagnostic file [ default: N
 setenv PT3DDIAG N            #> optional 3d point source emissions diagnostic file [ default: N]; ignore if CTM_PT3DEMIS = N
 setenv PT3DFRAC N            #> optional layer fractions diagnostic (play) file(s) [ default: N]; ignore if CTM_PT3DEMIS = N
 setenv REP_LAYER_MIN -1      #> Minimum layer for reporting plume rise info [ default: -1 ]
-
+setenv EMISDIAG F            #> Print Emission Rates at the output time step after they have been
+                             #>   scaled and modified by the user Rules [options: F | T or 2D | 3D | 2DSUM ]
+                             #>   Individual streams can be modified using the variables:
+                             #>       GR_EMIS_DIAG_## | STK_EMIS_DIAG_## | BIOG_EMIS_DIAG
+                             #>       MG_EMIS_DIAG    | LTNG_EMIS_DIAG   | DUST_EMIS_DIAG
+                             #>       SEASPRAY_EMIS_DIAG
+                             #>   Note that these diagnostics are different than other emissions diagnostic
+                             #>   output because they occur after scaling. 
 set DISP = delete            #> [ delete | keep ] existing output files
 
 
@@ -217,6 +216,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 
   #> Retrieve Calendar day Information
   set YYYYMMDD = `date -ud "${TODAYG}" +%Y%m%d` #> Convert YYYY-MM-DD to YYYYMMDD
+  set YYYYMM = `date -ud "${TODAYG}" +%Y%m`     #> Convert YYYY-MM-DD to YYYYMM
   set YYMMDD = `date -ud "${TODAYG}" +%y%m%d`   #> Convert YYYY-MM-DD to YYMMDD
   set YYYYJJJ = $TODAYJ
 
@@ -421,8 +421,8 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv CTM_IRR_3       "$OUTDIR/CCTM_IRR_3_${CTM_APPL}.nc -v"      #> Chem Process Analysis
   setenv CTM_DRY_DEP_MOS "$OUTDIR/CCTM_DDMOS_${CTM_APPL}.nc -v"      #> Dry Dep
   setenv CTM_DRY_DEP_FST "$OUTDIR/CCTM_DDFST_${CTM_APPL}.nc -v"      #> Dry Dep
-  setenv CTM_DEPV_MOS    "$OUTDIR/CCTM_DEPVFST_${CTM_APPL}.nc -v"    #> Dry Dep Velocity
-  setenv CTM_DEPV_FST    "$OUTDIR/CCTM_DEPVMOS_${CTM_APPL}.nc -v"    #> Dry Dep Velocity
+  setenv CTM_DEPV_MOS    "$OUTDIR/CCTM_DEPVMOS_${CTM_APPL}.nc -v"    #> Dry Dep Velocity
+  setenv CTM_DEPV_FST    "$OUTDIR/CCTM_DEPVFST_${CTM_APPL}.nc -v"    #> Dry Dep Velocity
   setenv CTM_VDIFF_DIAG  "$OUTDIR/CCTM_VDIFF_DIAG_${CTM_APPL}.nc -v" #> Vertical Dispersion Diagnostic
   setenv CTM_VSED_DIAG   "$OUTDIR/CCTM_VSED_DIAG_${CTM_APPL}.nc -v"  #> Particle Grav. Settling Velocity
   setenv CTM_LTNGDIAG_1  "$OUTDIR/CCTM_LTNGHRLY_${CTM_APPL}.nc -v"   #> Hourly Avg Lightning NO
