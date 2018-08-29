@@ -921,7 +921,7 @@ kron: DO WHILE (T < TEND)
               MBAL(I) = 0.d0
            END IF
              
-           IF( ABS(MBAL(I)) .GT. 0.1 ) THEN         
+           IF( ABS(MBAL(I)) .GT. 0.5 ) THEN         
               write(logdev,*) 'POTL MBAL PROB IN AQCHEM'
               write(logdev,*) '1=S, 2=N(not NH3), 3=NH3/4, 4=CL'
               write(logdev,*) 'I, START, END'
