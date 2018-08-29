@@ -1,6 +1,3 @@
-! RCS file, release, date & time of last delta, author, state, [and locker]
-! $Header: /project/work/rep/arc/mechs/MECHS/src/cb05tucl_ae6_aq/GC_cb05tucl_ae6_aq.nml,v 1.1.1.1 2011/04/06 16:57:21 sjr Exp $       
-
 &GC_nml
  
 n_surr1 = 3,
@@ -42,7 +39,7 @@ TYPE_MATRIX =
 'ROOH:90.1:VD_ROOH:1:::METHYLHYDROPEROX:1:::Yes:Yes:Yes:Yes',
 'XO2:87.1::::::::::::Yes',
 'XO2N:87.1::::::::::::Yes',
-'XPAR:117.1::::::::::::Yes',
+'XPAR:45.0::::::::::::Yes',
 'XPRP:89.1::::::::::::Yes',
 'NTR1:119.1:VD_NTRALK:1:::NTR_ALK:1:::Yes:Yes:Yes:Yes',
 'NTR2:135.1:VD_NTROH:1:::NTR_OH:1:::Yes:Yes:Yes:Yes',
@@ -56,10 +53,10 @@ TYPE_MATRIX =
 'ETHA:30.1:VD_ETHA:1:::ETHANE:1:::Yes:Yes::Yes',
 'ETOH:46.1:VD_ETOH:1:::ETHANOL:1:::Yes:Yes::Yes',
 'KET:72.1:VD_KET:1:::MEK:1:::Yes:Yes::Yes',
-'PAR:72.1:VD_PAR:1:::ETHANE:1:::Yes:Yes::Yes',
+'PAR:14.0:VD_PAR:1:::ETHANE:1:::Yes:Yes::Yes',
 'ACET:58.1:VD_ACET:1:::ACETONE:1:::Yes:Yes::Yes',
 'PRPA:44.1:VD_PRPA:1:::PROPANE:1:::Yes:Yes::Yes',
-'ROR:71.1::::::::::::Yes',
+'ROR:29.0::::::::::::Yes',
 'ETHY:26:VD_ETHY:1:::ACETYLENE:1:::Yes:Yes::Yes',
 'ETH:28:VD_ETH:1:::ETHENE:1:::Yes:Yes::Yes',
 'OLE:42.1:VD_OLE:1:::ETHENE:1:::Yes:Yes::Yes',
@@ -105,18 +102,10 @@ TYPE_MATRIX =
 'FMCL:64.5:VD_FMCL:1:::FMCL:1:::Yes:Yes:Yes:Yes',
 'HCL:36.5:VD_HCL:1:::HCL:1:HCL:HCL:Yes:Yes:Yes:Yes',
 'CLNO2:81.5:VD_CLNO2:1:::NITRYL_CHLORIDE:1:::Yes:Yes::Yes',
-'TOLNRXN:141:::::::TOLNRXN:::::',
-'TOLHRXN:141:::::::TOLHRXN:::::',
-'XYLNRXN:155:::::::XYLNRXN:::::',
-'XYLHRXN:155:::::::XYLHRXN:::::',
-'BNZNRXN:127:::::::BNZNRXN:::::',
-'BNZHRXN:127:::::::BNZHRXN:::::',
+'CLNO3:97.5:VD_CLNO3:1:::CLNO3:1:CLNO3::Yes:Yes:Yes:Yes',
 'SESQ:204:VD_SESQ:1:::PINENE:1:::Yes:Yes::Yes',
 'SESQRXN:204:::::::SESQRXN:::::',
-'PAHNRXN:187.2:::::::PAHNRXN:::::',
-'PAHHRXN:187.2:::::::PAHHRXN:::::',
 'SOAALK:112.0:VD_SOAALK:1:::DECANE:1:::Yes:Yes::Yes',
-'ALKRXN:112.0:::::::ALKRXN:::::',
 'H2NO3PIJ:64.0::::::::::::Yes',
 'H2NO3PK:64.0::::::::::::Yes',
 'VLVPO1:218:VD_VLVPO1:1:::ADIPIC_ACID:1:VLVPO1::Yes:Yes:Yes:Yes',
@@ -139,5 +128,9 @@ TYPE_MATRIX =
 'TOLU:92.0:VD_TOL:1:::TOLUENE:1.0:::Yes:Yes::Yes',
 'HG:200.6:VD_HG:1.0:::HG:1.0::HG:Yes:Yes:Yes:Yes',
 'HGIIAER:200.6:::::::PHGRXN:::::',
-'HGIIGAS:271.5:VD_HGIIGAS:1.0:::HGIIGAS:1.0::HGIIGAS:Yes:Yes:Yes:Yes'
+'HGIIGAS:271.5:VD_HGIIGAS:1.0:::HGIIGAS:1.0::HGIIGAS:Yes:Yes:Yes:Yes',
+'SVAVB1:198:VD_SVAVB1:1:::SVAVB1:1:SVAVB1::Yes:Yes:Yes:Yes',
+'SVAVB2:179:VD_SVAVB2:1:::SVAVB2:1:SVAVB2::Yes:Yes:Yes:Yes',
+'SVAVB3:169:VD_SVAVB3:1:::SVAVB3:1:SVAVB3::Yes:Yes:Yes:Yes',
+'SVAVB4:158:VD_SVAVB4:1:::SVAVB4:1:SVAVB4::Yes:Yes:Yes:Yes'
 /

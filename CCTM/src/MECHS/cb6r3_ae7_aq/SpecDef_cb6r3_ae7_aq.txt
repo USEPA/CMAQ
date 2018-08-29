@@ -74,7 +74,7 @@ ANO3_PPB        ,ppbV      ,(ANO3I[1]+ANO3J[1]+ANO3K[1])/(DENS[2]*(62.0/28.97))
 NTR             ,ppbV      ,1000.0*(NTR1[1]+NTR2[1]+INTR[1])
 PANS            ,ppbV      ,1000.0*(PAN[1]+PANX[1]+OPAN[1])
 NOY             ,ppbV      ,1000.0* (NO[1]+NO2[1]+NO3[1]+2*N2O5[1]+HONO[1]+HNO3[1]+PNA[1] \
-                                     +CRON[1]+CLNO2[1]) \
+                                     +CRON[1]+CLNO2[1]+CLNO3[1]) \
                                      +PANS[0]+NTR[0]+ANO3_PPB[0]
 O3              ,ppbV      ,1000.0*O3[1]
 SO2             ,ppbV      ,1000.0*SO2[1]
@@ -99,17 +99,19 @@ XYL             ,ppbV      ,1000.0*XYLMN[1]
 !! Unused Gases. Presented Here for illustration. Users can uncomment
 !! them if they choose.
 !ALDX            ,ppbV      ,1000.0*ALDX[1]
-!CLNO2           ,ppbV      ,1000.0*CLNO2[1]
 !IOLE            ,ppbV      ,1000.0*IOLE[1]
 !OLE             ,ppbV      ,1000.0*OLE[1]
 !PAR             ,ppbV      ,1000.0*PAR[1]
 !PAN             ,ppbV      ,1000.0*PAN[1]
-!PANX            ,ppbV      ,1000.0*PANX[1]
 !SULF            ,ppbV      ,1000.0*SULF[1]
-!VOC             ,ppbC      ,1000.0* ( PAR[1]      + 2.0*ETH[1]  + MEOH[1]     + 2.0*ETOH[1]  \
-!                                     +2.0*OLE[1]  + 7.0*TOL[1]  + 8.0*XYLMN[1]+ FORM[1]      \
-!                                     +2.0*ALD2[1] + 2.0*ETHA[1] + 4.0*IOLE[1] + 2.0*ALDX[1]  \
-!                                     +5.0*ISOP[1] + 10.0*TERP[1]+ 10.0*NAPH[1])
+! emitted VOCs
+!VOC             ,ppbC      ,1000.0* (PAR[1] +2.0*ETHA[1] +3.0*PRPA[1] +MEOH[1]\
+!                            +2.0*ETH[1] +2.0*ETOH[1] +2.0*OLE[1] +3.0*ACET[1] \
+!                            +7.0*TOL[1] +8.0*XYLMN[1] +6.0*BENZENE[1] \
+!                            +FORM[1] +3.0*GLY[1] +4.0*KET[1] +2.0*ETHY[1] \
+!                           +2.0*ALD2[1] + 2.0*ETHA[1] + 4.0*IOLE[1] + 2.0*ALDX[1]  \
+!                           +5.0*ISOP[1] + 10.0*TERP[1]+ 10.0*NAPH[1] +10.*APIN[1])
+
 
 
 !-------------------------------------------!
@@ -156,32 +158,27 @@ APOMIJ          ,ug m-3     ,APOMI[0] + APOMJ[0]
 
 ASOCI           ,ugC m-3    ,ALVOO1I[1]/2.27 + ALVOO2I[1]/2.06  \
                            +ASVOO1I[1]/1.88 + ASVOO2I[1]/1.73  
-ASOCJ           ,ugC m-3    ,AXYL1J[1]/2.42  + AXYL2J[1]/1.93  + AXYL3J[1]/2.30 \
-                           +ATOL1J[1]/2.26  + ATOL2J[1]/1.82  + ATOL3J[1]/2.70 \
-                           +ABNZ1J[1]/2.68  + ABNZ2J[1]/2.23  + ABNZ3J[1]/3.00 \
-                           +AISO1J[1]/2.20  + AISO2J[1]/2.23  + AISO3J[1]/2.80 \
+ASOCJ           ,ugC m-3    ,AISO1J[1]/2.20  + AISO2J[1]/2.23  + AISO3J[1]/2.80 \
                            +AMT1J[1]/1.67   + AMT2J[1]/1.67   + AMT3J[1]/1.72  \
                            +AMT4J[1]/1.53   + AMT5J[1]/1.57   + AMT6J[1]/1.40  \
-                           +AMT7J[1]/1.43   + AMTNO3J[1]/1.90 + AMTHYDJ[1]/1.54\
+                           + AMTNO3J[1]/1.90 + AMTHYDJ[1]/1.54                 \
                            +AGLYJ[1]/2.13   + ASQTJ[1]/1.52                    \
-                           +AALK1J[1]/1.56  + AALK2J[1]/1.42                   \
                            +AORGCJ[1]/2.00  + AOLGBJ[1]/2.10  + AOLGAJ[1]/2.50 \
-                           +APAH1J[1]/1.63  + APAH2J[1]/1.49  + APAH3J[1]/1.77 \
                            +ALVOO1J[1]/2.27 + ALVOO2J[1]/2.06 + ASVOO1J[1]/1.88\
-                           +ASVOO2J[1]/1.73 + ASVOO3J[1]/1.60 + APCSOJ[1] /2.00      
+                           +ASVOO2J[1]/1.73 + ASVOO3J[1]/1.60 + APCSOJ[1] /2.00 \     
+                           +AAVB1J[1]/2.70  + AAVB2J[1]/2.35  + AAVB3J[1]/2.17  \
+                           +AAVB4J[1]/1.99
 ASOCIJ          ,ugC m-3    ,ASOCI[0] + ASOCJ[0]
 
 ASOMI           ,ug m-3     ,ALVOO1I[1] + ALVOO2I[1] + ASVOO1I[1] + ASVOO2I[1] 
-ASOMJ           ,ug m-3     ,AXYL1J[1]  + AXYL2J[1]  + AXYL3J[1]  + ATOL1J[1] \
-                           +ATOL2J[1]  + ATOL3J[1]  + ABNZ1J[1]  + ABNZ2J[1] \
-                           +ABNZ3J[1]  + AISO1J[1]  + AISO2J[1]  + AISO3J[1] \
+ASOMJ           ,ug m-3     ,+AISO1J[1]+ AISO2J[1]  + AISO3J[1]              \
                            +AMT1J[1]   + AMT2J[1]   + AMT3J[1]   + AMT4J[1]  \
-                           +AMT5J[1]   + AMT6J[1]   + AMT7J[1]   + AMTNO3J[1]\
-                           +AMTHYDJ[1] + AGLYJ[1]   + ASQTJ[1]   + AALK1J[1] \
-                           +AALK2J[1]  + APAH1J[1]  + APAH2J[1]  + APAH3J[1] \
+                           +AMT5J[1]   + AMT6J[1]   + AMTNO3J[1]\
+                           +AMTHYDJ[1] + AGLYJ[1]   + ASQTJ[1]               \
                            +AORGCJ[1]  + AOLGBJ[1]  + AOLGAJ[1]              \
                            +ALVOO1J[1] + ALVOO2J[1] + ASVOO1J[1] + ASVOO2J[1]\
-                           +ASVOO3J[1] + APCSOJ[1]  
+                           +ASVOO3J[1] + APCSOJ[1]  + AAVB1J[1] + AAVB2J[1]\
+                           +AAVB3J[1] + AAVB4J[1]
 ASOMIJ          ,ug m-3     ,ASOMI[0] + ASOMJ[0]
  
 AOCI            ,ugC m-3    ,APOCI[0]  + ASOCI[0]
@@ -193,14 +190,12 @@ AOMJ            ,ug m-3     ,APOMJ[0]  + ASOMJ[0]
 AOMIJ           ,ug m-3     ,APOMIJ[0] + ASOMIJ[0]
 
 !!! Anthropogenic-VOC Derived Organic Aerosol
-AORGAJ          ,ug m-3     ,AXYL1J[1]+AXYL2J[1]+AXYL3J[1]+ATOL1J[1]+ATOL2J[1]+ATOL3J[1] \
-                           +ABNZ1J[1]+ABNZ2J[1]+ABNZ3J[1]+AALK1J[1]+AALK2J[1]+AOLGAJ[1] \
-                           +APAH1J[1]+APAH2J[1]+APAH3J[1]
+AORGAJ          ,ug m-3     ,AAVB1J[1]+AAVB2J[1]+AAVB3J[1]+AAVB4J[1]+AOLGAJ[1] \
 
 !!! Biogenic-VOC Derived Organic Aerosol
 AORGBJ          ,ug m-3     ,AISO1J[1] + AISO2J[1] + AISO3J[1]            \
                            +AMT1J[1]  + AMT2J[1]  + AMT3J[1] + AMT4J[1]  \
-                           +AMT5J[1]  + AMT6J[1]  + AMT7J[1]             \
+                           +AMT5J[1]  + AMT6J[1]                         \
                            +AMTNO3J[1]+ AMTHYDJ[1] + AGLYJ[1]            \
                            +ASQTJ[1]  + AOLGBJ[1]
 
@@ -208,7 +203,7 @@ AORGBJ          ,ug m-3     ,AISO1J[1] + AISO2J[1] + AISO3J[1]            \
 AORGCJ          ,ug m-3     ,AORGCJ[1]
 
 !!! OM/OC ratios
-AOMOCRAT_TOT    ,none      ,AOMIJ[0]/AOCIJ[0]
+AOMOCRAT_TOT    ,ug ug-1    ,AOMIJ[0]/AOCIJ[0]
 
 !! Total PM Aggregates
 ATOTI           ,ug m-3     ,ASO4I[1]+ANO3I[1]+ANH4I[1]+ANAI[1]+ACLI[1] \
@@ -287,12 +282,12 @@ PMC_TOT         ,ug m-3     ,ATOTIJK[0]-PM25_TOT[0]
 !! This section calculates the FRM applicable PM species, PMIJ_FRM and
 !! PM25_FRM. The intermediate variablse K...ANH4IJ_loss are needed to 
 !! calculate the final quantities.
-K               ,ppb2	   ,exp(118.87-24084/TEMP2[4]-6.025*log(TEMP2[4]))
+K               ,ppb2      ,exp(118.87-24084/TEMP2[4]-6.025*log(TEMP2[4]))
 P1              ,          ,exp(8763/TEMP2[4]+19.12*log(TEMP2[4])-135.94)
 P2              ,          ,exp(9969/TEMP2[4]+16.22*log(TEMP2[4])-122.65)
 P3              ,          ,exp(13875/TEMP2[4]+24.46*log(TEMP2[4])-182.61)
 a               ,          ,1-RH[0]/100
-K_prime         ,ppb2     ,(P1[0]-P2[0]*a[0]+(P3[0]*a[0]*a[0]))*(a[0]^1.75)*K[0]
+K_prime         ,ppb2      ,(P1[0]-P2[0]*a[0]+(P3[0]*a[0]*a[0]))*(a[0]^1.75)*K[0]
 sqrt_Ki         ,ppb       ,sqrt(RH[0]<=61 ? K[0] : K_prime[0])
 max_NO3_loss    ,ug m-3     ,745.7/TEMP2[4]*sqrt_Ki[0]
 PM25_NO3_loss   ,ug m-3     ,max_NO3_loss[0]<=PM25_NO3[0] ? max_NO3_loss[0] : PM25_NO3[0]
