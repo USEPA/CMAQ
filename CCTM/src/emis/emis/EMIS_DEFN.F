@@ -1848,13 +1848,15 @@ C Are Biogenic Emissions Calculated On-Line
             WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
          END IF
          IF ( BIOGEMIS ) N_EM_SRM = N_EM_SRM + 1
-
-C Marine gas emissions; use in-line marine gas option only if CB05EH51 is used
+         
+C flag for marine gas emissions; use in-line marine gas option only if CB05EH51 or CB6R3m is used
          IF ( INDEX( MECHNAME, 'CB05EH51' ) .GT. 0 ) then
             MGEM = .TRUE.
+         ELSE IF ( INDEX( MECHNAME, 'CB6R3M_AE7_KMTBR' ) .GT. 0 ) then
+            MGEM = .TRUE.
          ELSE
-            MGEM = .FALSE.
-         END IF
+           MGEM = .FALSE.
+         END IF        
          IF ( MGEM ) N_EM_SRM = N_EM_SRM + 1
 
 C Determine if Lightning NO is Requested

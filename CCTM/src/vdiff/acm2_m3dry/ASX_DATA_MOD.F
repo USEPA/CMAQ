@@ -73,6 +73,8 @@ C    formulas.  W. Hutzell (04/08)
 C %% G. Sarwar: added data for iodine and bromine species (03/2016)
 C %% B. Hutzell: added dry deposition data for methane, acrylic acid, methyl chloride,
 C    and acetonitrile (09/2016)   
+C    G. Sarwar: added ClNO3 and FMBR, and updated INO3 and BRNO3 name changes (07/2018)
+C    G. Sarwar: removed NACL (07/2018)
 C-------------------------------------------------------------------------------
 
       Use GRID_CONF           ! horizontal & vertical domain specifications
@@ -121,7 +123,7 @@ C-------------------------------------------------------------------------------
          Integer, Allocatable :: LPBL     ( :,: )  ! PBL layer
          Logical, Allocatable :: CONVCT   ( :,: )  ! convection flag
          Real,    Allocatable :: PBL      ( :,: )  ! pbl height (m)
-         Real,    Allocatable :: NACL_EMIS( :,: )  ! NACL mass emission rate of particles with d <10 um (g/m2/s)
+!        Real,    Allocatable :: NACL_EMIS( :,: )  ! NACL mass emission rate of particles with d <10 um (g/m2/s)
          Real,    Allocatable :: COSZEN   ( :,: )  ! Cosine of the zenith angle
 !> U and V wind components on the cross grid points
          Real,    Allocatable :: UWIND    ( :,:,: )  ! [m/s]
@@ -335,11 +337,11 @@ C Land use information:
       DATA subname( 89), dif0( 89), ar( 89), meso( 89), lebas( 89) / 'HOI             ',0.0972,    8.0, 0.0,   48.1 /
       DATA subname( 90), dif0( 90), ar( 90), meso( 90), lebas( 90) / 'INO             ',0.0882,    8.0, 0.0,   60.9 /
       DATA subname( 91), dif0( 91), ar( 91), meso( 91), lebas( 91) / 'INO2            ',0.0883,   20.0, 0.0,   69.2 /
-      DATA subname( 92), dif0( 92), ar( 92), meso( 92), lebas( 92) / 'IONO2           ',0.0792,    8.0, 0.0,   77.5 /
+      DATA subname( 92), dif0( 92), ar( 92), meso( 92), lebas( 92) / 'INO3            ',0.0792,    8.0, 0.0,   77.5 /
       DATA subname( 93), dif0( 93), ar( 93), meso( 93), lebas( 93) / 'BRO             ',0.1144,    1.0, 0.0,   34.4 /
       DATA subname( 94), dif0( 94), ar( 94), meso( 94), lebas( 94) / 'HOBR            ',0.1101,    1.0, 0.0,   38.1 /
       DATA subname( 95), dif0( 95), ar( 95), meso( 95), lebas( 95) / 'HBR             ',0.1216,    2.0, 0.0,   30.7 /
-      DATA subname( 96), dif0( 96), ar( 96), meso( 96), lebas( 96) / 'BRONO2          ',0.0855,    1.0, 0.0,   67.5 /
+      DATA subname( 96), dif0( 96), ar( 96), meso( 96), lebas( 96) / 'BRNO3           ',0.0855,    1.0, 0.0,   67.5 /
       DATA subname( 97), dif0( 97), ar( 97), meso( 97), lebas( 97) / 'BRNO2           ',0.0909,    1.0, 0.0,   59.2 /
       DATA subname( 98), dif0( 98), ar( 98), meso( 98), lebas( 98) / 'BRCL            ',0.0966,    1.0, 0.0,   51.6 /
       DATA subname( 99), dif0( 99), ar( 99), meso( 99), lebas( 99) / 'DMS             ',0.0926,    2.0, 0.0,   77.4 /
@@ -406,6 +408,7 @@ C Land use information:
       DATA subname(160), dif0(160), ar(160), meso(160), lebas(160) / 'SVAVB3          ',0.0620,   175.2,     0.0, 163.0/
       DATA subname(161), dif0(161), ar(161), meso(161), lebas(161) / 'SVAVB4          ',0.0650,    20.8,     0.0, 162.7/
       DATA subname(162), dif0(162), ar(162), meso(162), lebas(162) / 'CLNO3           ',0.1014,    8.0,      0.0,  65.1/
+      DATA subname(163), dif0(163), ar(163), meso(163), lebas(163) / 'FMBR            ',0.1189,   10.0,      0.0,  52.9/
 
       CONTAINS
 
@@ -506,7 +509,7 @@ C-----------------------------------------------------------------------
      &             Met_Data%LPBL     ( NCOLS,NROWS ),
      &             Met_Data%CONVCT   ( NCOLS,NROWS ),
      &             Met_Data%PBL      ( NCOLS,NROWS ),
-     &             Met_Data%NACL_EMIS( NCOLS,NROWS ),
+!    &             Met_Data%NACL_EMIS( NCOLS,NROWS ),
      &             Met_Data%COSZEN   ( NCOLS,NROWS ),
      &             Met_Data%UWIND    ( NCOLS+1,NROWS+1,NLAYS ),
      &             Met_Data%VWIND    ( NCOLS+1,NROWS+1,NLAYS ),
