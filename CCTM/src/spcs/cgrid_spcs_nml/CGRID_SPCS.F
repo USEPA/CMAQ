@@ -63,26 +63,22 @@ c number of species in CGRID
       integer,                      save :: nspcsd = 1
 
 c surrogate species
-      integer,                      save :: n_gc_emis = 0, n_ae_emis = 0, n_nr_emis = 0, n_tr_emis = 0,
-     &                                      n_gc_icbc = 0, n_ae_icbc = 0, n_nr_icbc = 0, n_tr_icbc = 0,
+      integer,                      save :: n_gc_icbc = 0, n_ae_icbc = 0, n_nr_icbc = 0, n_tr_icbc = 0,
      &                                      n_gc_depv = 0, n_ae_depv = 0, n_nr_depv = 0, n_tr_depv = 0,
      &                                      n_gc_scav = 0, n_ae_scav = 0, n_nr_scav = 0, n_tr_scav = 0,
      &                                      n_gc_g2ae = 0,                n_nr_n2ae = 0, n_tr_t2ae = 0,
      &                                      n_gc_g2aq = 0, n_ae_a2aq = 0, n_nr_n2aq = 0, n_tr_t2aq = 0
-      character( 16 ), allocatable, save :: gc_emis( : ), ae_emis( : ), nr_emis( : ), tr_emis( : ),
-     &                                      gc_icbc( : ), ae_icbc( : ), nr_icbc( : ), tr_icbc( : ),
+      character( 16 ), allocatable, save :: gc_icbc( : ), ae_icbc( : ), nr_icbc( : ), tr_icbc( : ),
      &                                      gc_depv( : ), ae_depv( : ), nr_depv( : ), tr_depv( : ),
      &                                      gc_scav( : ), ae_scav( : ), nr_scav( : ), tr_scav( : ),
      &                                      gc_g2ae( : ),               nr_n2ae( : ), tr_t2ae( : ),
      &                                      gc_g2aq( : ), ae_a2aq( : ), nr_n2aq( : ), tr_t2aq( : )
-      integer, allocatable,         save :: gc_emis_map( : ), ae_emis_map( : ), nr_emis_map( : ), tr_emis_map( : ),
-     &                                      gc_icbc_map( : ), ae_icbc_map( : ), nr_icbc_map( : ), tr_icbc_map( : ),
+      integer, allocatable,         save :: gc_icbc_map( : ), ae_icbc_map( : ), nr_icbc_map( : ), tr_icbc_map( : ),
      &                                      gc_depv_map( : ), ae_depv_map( : ), nr_depv_map( : ), tr_depv_map( : ),
      &                                      gc_scav_map( : ), ae_scav_map( : ), nr_scav_map( : ), tr_scav_map( : ),
      &                                      gc_g2ae_map( : ),                   nr_n2ae_map( : ), tr_t2ae_map( : ),
      &                                      gc_g2aq_map( : ), ae_a2aq_map( : ), nr_n2aq_map( : ), tr_t2aq_map( : )
-      real, allocatable,            save :: gc_emis_fac( : ), ae_emis_fac( : ), nr_emis_fac( : ), tr_emis_fac( : ),
-     &                                      gc_icbc_fac( : ), ae_icbc_fac( : ), nr_icbc_fac( : ), tr_icbc_fac( : ),
+      real, allocatable,            save :: gc_icbc_fac( : ), ae_icbc_fac( : ), nr_icbc_fac( : ), tr_icbc_fac( : ),
      &                                      gc_depv_fac( : ), ae_depv_fac( : ), nr_depv_fac( : ), tr_depv_fac( : ),
      &                                      gc_scav_fac( : ), ae_scav_fac( : ), nr_scav_fac( : ), tr_scav_fac( : )
 
@@ -136,9 +132,7 @@ c !! NO   and to populate the allocated arrays from the stnd gc_spc.ext  !!! NO
             integer, save :: logdev
             
             logical success
-!           integer, parameter :: dev_gc_nml = 15, dev_ae_nml = 16, dev_nr_nml = 17, dev_tr_nml = 18
             integer, save :: dev_gc_nml, dev_ae_nml, dev_nr_nml, dev_tr_nml
-!           logical gc_matrix_err, ae_matrix_err, nr_matrix_err, tr_matrix_err
             integer i, ios
             integer i1, i2, i3, i4      ! surrogate type 1 counters
             integer j1, j2              ! surrogate type 2 counters
@@ -205,9 +199,6 @@ c-------------------------------------------------------------------------------
 
 c intialize module public data
 
-c from include file
-!!! NADA
-
 c from namelist files
 
             type_header = bl
@@ -218,23 +209,20 @@ c from namelist files
             write( logdev,* ) ' '
             write( logdev,* ) '    GC Species Namelist: ', trim( eqname )
 
-!           open( file = 'gc_matrix.nml', unit = dev_gc_nml,
             dev_gc_nml = junit()
             open( file = trim( eqname ), unit = dev_gc_nml,
      &            status = 'old', position = 'rewind' )
             read( nml = GC_nml, unit = dev_gc_nml ) 
 
 c create the surr1 table from the namelist header
-            surr1( 1 ) = 'EMIS'; surr1_ndx( 1 ) = index( type_header, trim( surr1( 1 ) ) )
-            surr1( 2 ) = 'ICBC'; surr1_ndx( 2 ) = index( type_header, trim( surr1( 2 ) ) )
-            surr1( 3 ) = 'DEPV'; surr1_ndx( 3 ) = index( type_header, trim( surr1( 3 ) ) )
-            surr1( 4 ) = 'SCAV'; surr1_ndx( 4 ) = index( type_header, trim( surr1( 4 ) ) )
+            surr1( 1 ) = 'ICBC'; surr1_ndx( 1 ) = index( type_header, trim( surr1( 1 ) ) )
+            surr1( 2 ) = 'DEPV'; surr1_ndx( 2 ) = index( type_header, trim( surr1( 2 ) ) )
+            surr1( 3 ) = 'SCAV'; surr1_ndx( 3 ) = index( type_header, trim( surr1( 3 ) ) )
 c establish surr1 order in the namelist header (surr1 possibly rearranged)
-            call bubble( 4, surr1_ndx, surr1 )   ! short sort on surr1_ndx
-            emis_ndx = index1a( 'EMIS', 4, surr1 )
-            icbc_ndx = index1a( 'ICBC', 4, surr1 )
-            depv_ndx = index1a( 'DEPV', 4, surr1 )
-            scav_ndx = index1a( 'SCAV', 4, surr1 )
+            call bubble( 3, surr1_ndx, surr1 )   ! short sort on surr1_ndx
+            icbc_ndx = index1a( 'ICBC', 3, surr1 )
+            depv_ndx = index1a( 'DEPV', 3, surr1 )
+            scav_ndx = index1a( 'SCAV', 3, surr1 )
 
 c create the surr2 table from the namelist header
             gc_surr2( 1 ) = 'G2AE'; gc_surr2_ndx( 1 ) = index( type_header, trim( gc_surr2( 1 ) ) )
@@ -259,7 +247,6 @@ c establish ctrl order in the namelist header (ctrl possibly rearranged)
 c the surrogate and ctrl arrays active dimensions not known a priori
             allocate ( 
      &      gc_spc( spc_dim ), gc_molwt( spc_dim ),
-     &      gc_emis( spc_dim ), gc_emis_map( spc_dim ), gc_emis_fac( spc_dim ),
      &      gc_icbc( spc_dim ), gc_icbc_map( spc_dim ), gc_icbc_fac( spc_dim ),
      &      gc_depv( spc_dim ), gc_depv_map( spc_dim ), gc_depv_fac( spc_dim ),
      &      gc_scav( spc_dim ), gc_scav_map( spc_dim ), gc_scav_fac( spc_dim ),
@@ -272,7 +259,6 @@ c the surrogate and ctrl arrays active dimensions not known a priori
      &      stat = ios )
 
             gc_spc = bl; gc_molwt = 0.0                        !  .
-            gc_emis = bl; gc_emis_map = 0; gc_emis_fac = 0.0   !  .
             gc_icbc = bl; gc_icbc_map = 0; gc_icbc_fac = 0.0   !  .
             gc_depv = bl; gc_depv_map = 0; gc_depv_fac = 0.0   !  .
             gc_scav = bl; gc_scav_map = 0; gc_scav_fac = 0.0   ! array
@@ -296,9 +282,7 @@ c the surrogate and ctrl arrays active dimensions not known a priori
             j1 = 0; j2 = 0
             k1 = 0; k2 = 0; k3 = 0; k4 = 0
             icall = 0
-#ifdef Verbose
-            write( logdev,'(5x,a)' ) '@@@ GC @@@'
-#endif
+            
             do i = 1, spc_dim
                if ( type_matrix( i ) .eq. bl ) then
                   n_gc_spc = i - 1; exit
@@ -309,14 +293,6 @@ c the surrogate and ctrl arrays active dimensions not known a priori
                gc_spc( i ) = mc_base%name
                gc_molwt( i ) = mc_base%mw
 
-               if ( emis_ndx .gt. 0 ) then
-                  if ( mc_surr1( emis_ndx )%name .ne. bl ) then
-                     i1 = i1 + 1
-                     gc_emis( i1 )     = mc_surr1( emis_ndx )%name
-                     gc_emis_map( i1 ) = mc_surr1( emis_ndx )%map
-                     gc_emis_fac( i1 ) = mc_surr1( emis_ndx )%fac
-                  end if
-               end if
                if ( icbc_ndx .gt. 0 ) then
                   if ( mc_surr1( icbc_ndx )%name .ne. bl ) then
                      i2 = i2 + 1
@@ -387,7 +363,6 @@ c the surrogate and ctrl arrays active dimensions not known a priori
                end if
             end do
 
-            n_gc_emis = i1
             n_gc_icbc = i2
             n_gc_depv = i3
             n_gc_scav = i4
@@ -404,10 +379,6 @@ c the surrogate and ctrl arrays active dimensions not known a priori
 
             deallocate ( mc_surr1, mc_surr2, mc_ctrl, stat = ios )
 
-!           if ( gc_matrix_err ) then
-!              success = .false.; return
-!           end if
-
             type_header = bl
             type_matrix = bl   ! array assignment
 
@@ -416,23 +387,20 @@ c the surrogate and ctrl arrays active dimensions not known a priori
             write( logdev,* ) ' '
             write( logdev,* ) '    AE Species Namelist: ', trim( eqname )
 
-!           open( file = 'ae_matrix.nml', unit = dev_ae_nml,
             dev_ae_nml = junit()
             open( file = trim( eqname ), unit = dev_ae_nml,
      &            status = 'old', position = 'rewind' )
             read( nml = AE_nml, unit = dev_ae_nml ) 
 
 c create the surr1 table from the namelist header
-            surr1( 1 ) = 'EMIS'; surr1_ndx( 1 ) = index( type_header, trim( surr1( 1 ) ) )
-            surr1( 2 ) = 'ICBC'; surr1_ndx( 2 ) = index( type_header, trim( surr1( 2 ) ) )
-            surr1( 3 ) = 'DEPV'; surr1_ndx( 3 ) = index( type_header, trim( surr1( 3 ) ) )
-            surr1( 4 ) = 'SCAV'; surr1_ndx( 4 ) = index( type_header, trim( surr1( 4 ) ) )
+            surr1( 1 ) = 'ICBC'; surr1_ndx( 1 ) = index( type_header, trim( surr1( 1 ) ) )
+            surr1( 2 ) = 'DEPV'; surr1_ndx( 2 ) = index( type_header, trim( surr1( 2 ) ) )
+            surr1( 3 ) = 'SCAV'; surr1_ndx( 3 ) = index( type_header, trim( surr1( 3 ) ) )
 c establish surr1 order in the namelist header (surr1 possibly rearranged)
-            call bubble( 4, surr1_ndx, surr1 )   ! short sort on surr1_ndx
-            emis_ndx = index1a( 'EMIS', 4, surr1 )
-            icbc_ndx = index1a( 'ICBC', 4, surr1 )
-            depv_ndx = index1a( 'DEPV', 4, surr1 )
-            scav_ndx = index1a( 'SCAV', 4, surr1 )
+            call bubble( 3, surr1_ndx, surr1 )   ! short sort on surr1_ndx
+            icbc_ndx = index1a( 'ICBC', 3, surr1 )
+            depv_ndx = index1a( 'DEPV', 3, surr1 )
+            scav_ndx = index1a( 'SCAV', 3, surr1 )
 
 c create the surr2 table from the namelist header
             ae_surr2_ndx( 1 ) = index( type_header, 'A2AQ' )
@@ -454,7 +422,6 @@ c establish ctrl order in the namelist header (ctrl possibly rearranged)
 c the surrogate and ctrl arrays active dimensions not known a priori
             allocate ( 
      &      ae_spc( spc_dim ), ae_molwt( spc_dim ),
-     &      ae_emis( spc_dim ), ae_emis_map( spc_dim ), ae_emis_fac( spc_dim ),
      &      ae_icbc( spc_dim ), ae_icbc_map( spc_dim ), ae_icbc_fac( spc_dim ),
      &      ae_depv( spc_dim ), ae_depv_map( spc_dim ), ae_depv_fac( spc_dim ),
      &      ae_scav( spc_dim ), ae_scav_map( spc_dim ), ae_scav_fac( spc_dim ),
@@ -466,7 +433,6 @@ c the surrogate and ctrl arrays active dimensions not known a priori
      &      stat = ios )
 
             ae_spc = bl; ae_molwt = 0.0                        !  .
-            ae_emis = bl; ae_emis_map = 0; ae_emis_fac = 0.0   !  .
             ae_icbc = bl; ae_icbc_map = 0; ae_icbc_fac = 0.0   !  .
             ae_depv = bl; ae_depv_map = 0; ae_depv_fac = 0.0   !  .
             ae_scav = bl; ae_scav_map = 0; ae_scav_fac = 0.0   ! array
@@ -503,14 +469,6 @@ c the surrogate and ctrl arrays active dimensions not known a priori
                ae_spc( i ) = mc_base%name
                ae_molwt( i ) = mc_base%mw
 
-               if ( emis_ndx .ne. 0 ) then
-                  if ( mc_surr1( emis_ndx )%name .ne. bl ) then
-                     i1 = i1 + 1
-                     ae_emis( i1 )     = mc_surr1( emis_ndx )%name
-                     ae_emis_map( i1 ) = mc_surr1( emis_ndx )%map
-                     ae_emis_fac( i1 ) = mc_surr1( emis_ndx )%fac
-                  end if
-               end if
                if ( icbc_ndx .ne. 0 ) then
                   if ( mc_surr1( icbc_ndx )%name .ne. bl ) then
                      i2 = i2 + 1
@@ -574,7 +532,6 @@ c the surrogate and ctrl arrays active dimensions not known a priori
                end if
             end do
 
-            n_ae_emis = i1
             n_ae_icbc = i2
             n_ae_depv = i3
             n_ae_scav = i4
@@ -589,10 +546,6 @@ c the surrogate and ctrl arrays active dimensions not known a priori
 
             deallocate ( mc_surr1, mc_surr2, mc_ctrl, stat = ios )
 
-!           if ( ae_matrix_err ) then
-!              success = .false.; return
-!           end if
-
             type_header = bl
             type_matrix = bl   ! array assignment
 
@@ -601,23 +554,20 @@ c the surrogate and ctrl arrays active dimensions not known a priori
             write( logdev,* ) ' '
             write( logdev,* ) '    NR Species Namelist: ', trim( eqname )
 
-!           open( file = 'nr_matrix.nml', unit = dev_nr_nml,
             dev_nr_nml = junit()
             open( file = trim( eqname ), unit = dev_nr_nml,
      &            status = 'old', position = 'rewind' )
             read( nml = NR_nml, unit = dev_nr_nml ) 
 
 c create the surr1 table from the namelist header
-            surr1( 1 ) = 'EMIS'; surr1_ndx( 1 ) = index( type_header, trim( surr1( 1 ) ) )
-            surr1( 2 ) = 'ICBC'; surr1_ndx( 2 ) = index( type_header, trim( surr1( 2 ) ) )
-            surr1( 3 ) = 'DEPV'; surr1_ndx( 3 ) = index( type_header, trim( surr1( 3 ) ) )
-            surr1( 4 ) = 'SCAV'; surr1_ndx( 4 ) = index( type_header, trim( surr1( 4 ) ) )
+            surr1( 1 ) = 'ICBC'; surr1_ndx( 1 ) = index( type_header, trim( surr1( 1 ) ) )
+            surr1( 2 ) = 'DEPV'; surr1_ndx( 2 ) = index( type_header, trim( surr1( 2 ) ) )
+            surr1( 3 ) = 'SCAV'; surr1_ndx( 3 ) = index( type_header, trim( surr1( 3 ) ) )
 c establish surr1 order in the namelist header (surr1 possibly rearranged)
-            call bubble( 4, surr1_ndx, surr1 )   ! short sort on surr1_ndx
-            emis_ndx = index1a( 'EMIS', 4, surr1 )
-            icbc_ndx = index1a( 'ICBC', 4, surr1 )
-            depv_ndx = index1a( 'DEPV', 4, surr1 )
-            scav_ndx = index1a( 'SCAV', 4, surr1 )
+            call bubble( 3, surr1_ndx, surr1 )   ! short sort on surr1_ndx
+            icbc_ndx = index1a( 'ICBC', 3, surr1 )
+            depv_ndx = index1a( 'DEPV', 3, surr1 )
+            scav_ndx = index1a( 'SCAV', 3, surr1 )
 
 c create the surr2 table from the namelist header
             nr_surr2( 1 ) = 'N2AE'; nr_surr2_ndx( 1 ) = index( type_header, trim( nr_surr2( 1 ) ) )
@@ -642,7 +592,6 @@ c establish ctrl order in the namelist header (ctrl possibly rearranged)
 c the surrogate and ctrl arrays active dimensions not known a priori
             allocate ( 
      &      nr_spc( spc_dim ), nr_molwt( spc_dim ),
-     &      nr_emis( spc_dim ), nr_emis_map( spc_dim ), nr_emis_fac( spc_dim ),
      &      nr_icbc( spc_dim ), nr_icbc_map( spc_dim ), nr_icbc_fac( spc_dim ),
      &      nr_depv( spc_dim ), nr_depv_map( spc_dim ), nr_depv_fac( spc_dim ),
      &      nr_scav( spc_dim ), nr_scav_map( spc_dim ), nr_scav_fac( spc_dim ),
@@ -655,7 +604,6 @@ c the surrogate and ctrl arrays active dimensions not known a priori
      &      stat = ios )
 
             nr_spc = bl; nr_molwt = 0.0                        !  .
-            nr_emis = bl; nr_emis_map = 0; nr_emis_fac = 0.0   !  .
             nr_icbc = bl; nr_icbc_map = 0; nr_icbc_fac = 0.0   !  .
             nr_depv = bl; nr_depv_map = 0; nr_depv_fac = 0.0   !  .
             nr_scav = bl; nr_scav_map = 0; nr_scav_fac = 0.0   ! array
@@ -679,9 +627,7 @@ c the surrogate and ctrl arrays active dimensions not known a priori
             j1 = 0; j2 = 0
             k1 = 0; k2 = 0; k3 = 0; k4 = 0
             icall = 0
-#ifdef Verbose
-            write( logdev,'(5x,a)' ) '@@@ NR @@@'
-#endif
+
             do i = 1, spc_dim
                if ( type_matrix( i ) .eq. bl ) then
                   n_nr_spc = i - 1
@@ -693,14 +639,6 @@ c the surrogate and ctrl arrays active dimensions not known a priori
                nr_spc( i ) = mc_base%name
                nr_molwt( i ) = mc_base%mw
 
-               if ( emis_ndx .gt. 0 ) then
-                  if ( mc_surr1( emis_ndx )%name .ne. bl ) then
-                     i1 = i1 + 1
-                     nr_emis( i1 )     = mc_surr1( emis_ndx )%name
-                     nr_emis_map( i1 ) = mc_surr1( emis_ndx )%map
-                     nr_emis_fac( i1 ) = mc_surr1( emis_ndx )%fac
-                  end if
-               end if
                if ( icbc_ndx .gt. 0 ) then
                   if ( mc_surr1( icbc_ndx )%name .ne. bl ) then
                      i2 = i2 + 1
@@ -771,7 +709,6 @@ c the surrogate and ctrl arrays active dimensions not known a priori
                end if
             end do
 
-            n_nr_emis = i1
             n_nr_icbc = i2
             n_nr_depv = i3
             n_nr_scav = i4
@@ -787,9 +724,6 @@ c the surrogate and ctrl arrays active dimensions not known a priori
 
             deallocate ( mc_surr1, mc_surr2, mc_ctrl, stat = ios )
 
-!           if ( nr_matrix_err ) then
-!              success = .false.; return
-!           end if
 
             type_header = bl
             type_matrix = bl   ! array assignment
@@ -799,23 +733,20 @@ c the surrogate and ctrl arrays active dimensions not known a priori
             write( logdev,* ) ' '
             write( logdev,* ) '    TR Species Namelist: ', trim( eqname )
 
-!           open( file = 'tr_matrix.nml', unit = dev_tr_nml,
             dev_tr_nml = junit()
             open( file = trim( eqname ), unit = dev_tr_nml,
      &            status = 'old', position = 'rewind' )
             read( nml = TR_nml, unit = dev_tr_nml )
 
 c create the surr1 table from the namelist header
-            surr1( 1 ) = 'EMIS'; surr1_ndx( 1 ) = index( type_header, trim( surr1( 1 ) ) )
-            surr1( 2 ) = 'ICBC'; surr1_ndx( 2 ) = index( type_header, trim( surr1( 2 ) ) )
-            surr1( 3 ) = 'DEPV'; surr1_ndx( 3 ) = index( type_header, trim( surr1( 3 ) ) )
-            surr1( 4 ) = 'SCAV'; surr1_ndx( 4 ) = index( type_header, trim( surr1( 4 ) ) )
+            surr1( 1 ) = 'ICBC'; surr1_ndx( 1 ) = index( type_header, trim( surr1( 1 ) ) )
+            surr1( 2 ) = 'DEPV'; surr1_ndx( 2 ) = index( type_header, trim( surr1( 2 ) ) )
+            surr1( 3 ) = 'SCAV'; surr1_ndx( 3 ) = index( type_header, trim( surr1( 3 ) ) )
 c establish surr1 order in the namelist header (surr1 possibly rearranged)
-            call bubble( 4, surr1_ndx, surr1 )   ! short sort on surr1_ndx
-            emis_ndx = index1a( 'EMIS', 4, surr1 )
-            icbc_ndx = index1a( 'ICBC', 4, surr1 )
-            depv_ndx = index1a( 'DEPV', 4, surr1 )
-            scav_ndx = index1a( 'SCAV', 4, surr1 )
+            call bubble( 3, surr1_ndx, surr1 )   ! short sort on surr1_ndx
+            icbc_ndx = index1a( 'ICBC', 3, surr1 )
+            depv_ndx = index1a( 'DEPV', 3, surr1 )
+            scav_ndx = index1a( 'SCAV', 3, surr1 )
 
 c create the surr2 table from the namelist header
             tr_surr2( 1 ) = 'T2AE'; tr_surr2_ndx( 1 ) = index( type_header, trim( tr_surr2( 1 ) ) )
@@ -842,7 +773,6 @@ c establish ctrl order in the namelist header (ctrl possibly rearranged)
 c the surrogate and ctrl arrays active dimensions not known a priori
             allocate (
      &      tr_spc( spc_dim ), tr_molwt( spc_dim ),
-     &      tr_emis( spc_dim ), tr_emis_map( spc_dim ), tr_emis_fac( spc_dim ),
      &      tr_icbc( spc_dim ), tr_icbc_map( spc_dim ), tr_icbc_fac( spc_dim ),
      &      tr_depv( spc_dim ), tr_depv_map( spc_dim ), tr_depv_fac( spc_dim ),
      &      tr_scav( spc_dim ), tr_scav_map( spc_dim ), tr_scav_fac( spc_dim ),
@@ -856,7 +786,6 @@ c the surrogate and ctrl arrays active dimensions not known a priori
      &      stat = ios )
 
             tr_spc = bl; tr_molwt = 0.0                        !  .
-            tr_emis = bl; tr_emis_map = 0; tr_emis_fac = 0.0   !  .
             tr_icbc = bl; tr_icbc_map = 0; tr_icbc_fac = 0.0   !  .
             tr_depv = bl; tr_depv_map = 0; tr_depv_fac = 0.0   !  .
             tr_scav = bl; tr_scav_map = 0; tr_scav_fac = 0.0   ! array
@@ -881,9 +810,7 @@ c the surrogate and ctrl arrays active dimensions not known a priori
             j1 = 0; j2 = 0
             k1 = 0; k2 = 0; k3 = 0; k4 = 0; k5 = 0
             icall = 0
-#ifdef Verbose
-            write( logdev,'(5x,a)' ) '@@@ TR @@@'
-#endif
+            
             do i = 1, spc_dim
                if ( type_matrix( i ) .eq. bl ) then
                   n_tr_spc = i - 1; exit
@@ -894,14 +821,6 @@ c the surrogate and ctrl arrays active dimensions not known a priori
                tr_spc( i ) = mc_base%name
                tr_molwt( i ) = mc_base%mw
 
-               if ( emis_ndx .gt. 0 ) then
-                  if ( mc_surr1( emis_ndx )%name .ne. bl ) then
-                     i1 = i1 + 1
-                     tr_emis( i1 )     = mc_surr1( emis_ndx )%name
-                     tr_emis_map( i1 ) = mc_surr1( emis_ndx )%map
-                     tr_emis_fac( i1 ) = mc_surr1( emis_ndx )%fac
-                  end if
-               end if
                if ( icbc_ndx .gt. 0 ) then
                   if ( mc_surr1( icbc_ndx )%name .ne. bl ) then
                      i2 = i2 + 1
@@ -979,7 +898,6 @@ c the surrogate and ctrl arrays active dimensions not known a priori
                end if
             end do
 
-            n_tr_emis = i1
             n_tr_icbc = i2
             n_tr_depv = i3
             n_tr_scav = i4
@@ -1008,7 +926,7 @@ c-------------------------------------------------------------------------------
 
 c assume chem mechanism types are in the order of:
 c 1) CGRID species, CGRID species molecular weight <- base type
-c 2) EMIS, ICBC, DEPV, SCAV  [any order]           <- surrogate type 1 (surr name, surr fac)
+c 2) ICBC, DEPV, SCAV  [any order]           <- surrogate type 1 (surr name, surr fac)
 c 3) x2AE, x2AQ  [any order]                       <- surrogate type 2 (surr name only )
 c 4) DIFF, DDEP, WDEP, CONC  [any order]           <- control type
 
@@ -1032,7 +950,6 @@ c 4) DIFF, DDEP, WDEP, CONC  [any order]           <- control type
             type( ctrl_type ),  intent ( out ) :: ctrl_out( n_ctrl )
 
             integer, parameter :: nfld = 20
-!           character(  1 ), parameter :: dc = ',', bl = ' '  ! namelist field delimiting character, blank character
             character(  1 ), parameter :: dc = ':', bl = ' '  ! namelist field delimiting character, blank character
             character( 32 ) :: str( nfld ) = bl               ! field substring
             character(  1 ) :: chr, lastchr
@@ -1097,7 +1014,7 @@ c 4) DIFF, DDEP, WDEP, CONC  [any order]           <- control type
             end do
 
 c assumed group order: {CGRID spc, mw},
-c                      {EMIS, ICBC, DEPV, SCAV} group,
+c                      {ICBC, DEPV, SCAV} group,
 c                      {x2AE, x2AQ} group,
 c                      {TRNS, DDEP, WDEP, CONC} group
 c str( 1 ) = CGRID name, str( 2 ) = CGRID name molec. wt.
@@ -1132,10 +1049,6 @@ c if there is a surrogate name and the factor field is blank, assume fac = 1.0
                   surr1_out( n )%map = 0
                   surr1_out( n )%fac = 0.0
                end if
-#ifdef Verbose
-               write( logdev,* ) 'surr1', n, ip, surr1_out( n )%name, surr1_out( n )%map,
-     &                            surr1_out( n )%fac
-#endif
                ip = ip + 2
             end do
 
@@ -1148,9 +1061,6 @@ c type 2 surrogate (surr2)
                   surr2_out( n )%name = bl
                   surr2_out( n )%map = 0
                end if
-#ifdef Verbose
-               write( logdev,* ) 'surr2', n, ip, surr2_out( n )%name, surr2_out( n )%map
-#endif
                ip = ip + 1
             end do
 
@@ -1168,9 +1078,6 @@ c type 2 surrogate (surr2)
                   ctrl_out( n )%name = bl
                   ctrl_out( n )%map = 0
                end if
-#ifdef Verbose
-               write( logdev,* ) 'ctrl', n, ip, ctrl_out( n )%name, ctrl_out( n )%map
-#endif
                ip = ip + 1
             end do
 

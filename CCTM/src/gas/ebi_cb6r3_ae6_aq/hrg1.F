@@ -30,11 +30,11 @@ C
 C  FUNCTION: To solve for the concentration of NO2, NO, O3, and O3P
 C            algebraically.
 C
-C  PRECONDITIONS: For the cb6r3 family of mechanisms
+C  PRECONDITIONS: For the CB6R3 family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Jun 13, 2018
+C  REVISION HISTORY: Created by EBI solver program, Aug  8, 2018
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C**********************************************************************
@@ -189,7 +189,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &   +                 RXRAT( 210 )      ! OPAN=NO2+OPO3
      &   +    5.0000D-01 * RXRAT( 214 )      ! OPAN+OH=0.5000D+...
      &   +                 RXRAT( 215 )      ! PANX+OH=NO2+ALD2
-     &   +                 RXRAT( 246 )      ! CLNO2=NO2+CL
+     &   +                 RXRAT( 247 )      ! CLNO2=NO2+CL
+     &   +                 RXRAT( 249 )      ! CLNO3=NO2+CLO
       P2 = YC0( NO2 ) + P2 * DTC
 
 
@@ -204,8 +205,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &   +                 RKI( 135 ) * YC( ROR          )   ! NO2+ROR=NTR1
      &   +                 RKI( 193 ) * YC( CRO          )   ! NO2+CRO=CRON
      &   +                 RKI( 209 ) * YC( OPO3         )   ! NO2+OPO3=OPAN
-     &   +                 RKI( 245 ) * YC( CLO          )   ! NO2+CLO=CLNO2
-     &   +                 RKI( 267 )                        ! NO2=0.5000D+...
+     &   +                 RKI( 248 ) * YC( CLO          )   ! NO2+CLO=CLNO3
+     &   +                 RKI( 273 )                        ! NO2=0.5000D+...
       L2     = 1.0D0 + L2 * DTC
 
 
@@ -236,7 +237,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &   +                 RKI( 200 ) * YC( XOPN         )   ! O3+XOPN=0.1200D+...
      &   +                 RKI( 204 ) * YC( OPEN         )   ! O3+OPEN=0.1400D+...
      &   +                 RKI( 223 ) * YC( CL           )   ! O3+CL=CLO
-     &   +                 RKI( 268 )                        ! O3=
+     &   +                 RKI( 274 )                        ! O3=
       L3    = 1.0D0 + L3 * DTC
 
 

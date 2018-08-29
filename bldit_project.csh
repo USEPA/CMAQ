@@ -15,7 +15,7 @@
 #> Default location for CMAQ model build is one directory above
 #> the repository. The user may also set their own preferred 
 #> directory.
- set CMAQ_HOME = /home/username/CMAQ_project
+ set CMAQ_HOME = /home/username/CMAQ_Project
 
 #> This section allows users to choose explicitly which tools
 #> to make available from the repo. For each selected tool,
@@ -34,6 +34,7 @@
  set EXT_APPENDWRF = Y
  set EXT_BLDOVERLAY = Y
  set EXT_BLOCK_EXTRACT = Y
+ set EXT_CALC_TMETRIC = Y
  set EXT_HR2DAY = Y
  set EXT_SITECMP = Y
  set EXT_SITECMP_DAILYO3 = Y
@@ -93,7 +94,10 @@
     endif
     cp CCTM/scripts/bldit_cctm.csh $CMAQ_HOME/CCTM/scripts/bldit_cctm.csh
     cp CCTM/scripts/run_cctm.csh $CMAQ_HOME/CCTM/scripts/run_cctm.csh
+    cp CCTM/scripts/run_cctm_2010_4CALIF1.csh $CMAQ_HOME/CCTM/scripts/run_cctm_2010_4CALIF1.csh
+    cp CCTM/scripts/run_cctm_2014_12US1.csh $CMAQ_HOME/CCTM/scripts/run_cctm_2014_12US1.csh
     cp CCTM/scripts/lonlat.csv $CMAQ_HOME/CCTM/scripts/lonlat.csv
+    cp CCTM/scripts/EmissCtrl.nml $CMAQ_HOME/CCTM/scripts/EmissCtrl.nml
  endif
 
 #===============================================================================
@@ -183,6 +187,17 @@
     endif
     cp POST/block_extract/scripts/bldit_block_extract.csh  $CMAQ_HOME/POST/block_extract/scripts/bldit_block_extract.csh
     cp POST/block_extract/scripts/run_block_extract.csh    $CMAQ_HOME/POST/block_extract/scripts/run_block_extract.csh
+ endif
+
+#===============================================================================
+#> Copy calc_tmetric Post-Processor scripts
+#===============================================================================
+ if ( $EXT_CALC_TMETRIC == 'Y' ) then
+    if ( ! -e "$CMAQ_HOME/POST/calc_tmetric/scripts" ) then
+       mkdir -pv $CMAQ_HOME/POST/calc_tmetric/scripts
+    endif
+    cp POST/calc_tmetric/scripts/bldit_calc_tmetric.csh  $CMAQ_HOME/POST/calc_tmetric/scripts/bldit_calc_tmetric.csh
+    cp POST/calc_tmetric/scripts/run_calc_tmetric.csh    $CMAQ_HOME/POST/calc_tmetric/scripts/run_calc_tmetric.csh
  endif
 
 #===============================================================================

@@ -82,7 +82,8 @@ C-----------------------------------------------------------------------
 
       USE CGRID_SPCS          ! CGRID mechanism species
       USE GRID_CONF
-      USE EMIS_DEFN          
+      USE EMIS_VARS, ONLY : VDEMIS_DIFF, EMLAYS
+      USE EMIS_DEFN, ONLY : EMIS_INIT, GET_EMIS
       USE DEPV_DEFN
       USE ASX_DATA_MOD
 !      USE MPAS_DATA_MOD
@@ -158,9 +159,9 @@ C Local Variables
       CHARACTER(LEN=8), PARAMETER :: NAME_NH3_EMIS = 'NH3_EMIS'
       CHARACTER(LEN=8), PARAMETER :: NAME_NH3_DDEP = 'NH3_DDEP'
       INTERFACE
-         SUBROUTINE PA_UPDATE_EMIS ( PNAME, VDEMIS, JDATE, JTIME, TSTEP )
+         SUBROUTINE PA_UPDATE_EMIS ( PNAME, VDEMIS_DIFF, JDATE, JTIME, TSTEP )
             CHARACTER( * ), INTENT( IN )  :: PNAME
-            REAL,           INTENT( IN )  :: VDEMIS( :,:,:,: )
+            REAL,           INTENT( IN )  :: VDEMIS_DIFF( :,:,:,: )
             INTEGER,        INTENT( IN )  :: JDATE, JTIME
             INTEGER,        INTENT( IN )  :: TSTEP( 3 )
          END SUBROUTINE PA_UPDATE_EMIS
@@ -205,7 +206,7 @@ C-----------------------------------------------------------------------
          END IF
 
 C create global maps
-         IF ( .NOT. VDIFF_MAP_INIT( N_SPC_DEPV ) ) THEN
+         IF ( .NOT. VDIFF_MAP_INIT( ) ) THEN
             XMSG = 'Failure initializing index mapping module'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
@@ -259,6 +260,7 @@ C Allocate and initialize dry deposition array
          END IF
          ICMP = 0.0   ! array assignment
 
+C Allocate and initialize emissions
          IF ( .NOT. EMIS_INIT ( JDATE, JTIME, TSTEP( 1 ) ) ) THEN
             XMSG = 'Failure initializing emissions module'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -266,7 +268,7 @@ C Allocate and initialize dry deposition array
 
 C Set up for process analysis
          IF ( LIPR ) THEN
-            ALLOCATE ( EMIS_PA( NCOLS,NROWS,EMLAYS,N_SPC_EMIS+1 ), STAT = ASTAT )
+            ALLOCATE ( EMIS_PA( NCOLS,NROWS,EMLAYS,N_SPC_DIFF ), STAT = ASTAT )
             IF ( ASTAT .NE. 0 ) THEN
                XMSG = 'EMIS_PA memory allocation failed'
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -324,15 +326,15 @@ C Calculate the changes in the layer J-,K-mode aerosol concentrations
          CALL SEDI( MDATE, MTIME, DTSEC, VSED_AE, CGRID, CNGRD )
       END IF
 
-C read & interpolate emissions data => VDEMIS from EMIS_DEFN module
-      CALL GET_EMIS ( MDATE, MTIME, TSTEP, CONVPA, CGRID )
+C read & interpolate emissions data => VDEMIS_DIFF from EMIS_DEFN module
+      CALL GET_EMIS ( MDATE, MTIME, TSTEP, CGRID )
 
       IF ( LIPR ) THEN
-         DO S = 1, N_SPC_EMIS+1
+         DO S = 1, N_SPC_DIFF
             DO L = 1, EMLAYS
                DO R = 1, MY_NROWS
                   DO C = 1, MY_NCOLS
-                     EMIS_PA( C,R,L,S ) = VDEMIS( S,L,C,R )
+                     EMIS_PA( C,R,L,S ) = VDEMIS_DIFF( S,L,C,R )
                   END DO
                END DO
             END DO

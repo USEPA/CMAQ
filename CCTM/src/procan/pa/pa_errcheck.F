@@ -119,9 +119,22 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Set up array of names of all species
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       N_SPC = N_GC_SPC + 1 + N_AE_SPC + N_NR_SPC + N_TR_SPC
+      ALLOCATE( CGRID_MASK_GAS( N_SPC ) )
+      ALLOCATE( CGRID_MASK_AERO( N_SPC ) )
+      ALLOCATE( CGRID_MASK_NUM( N_SPC ) )
+      ALLOCATE( CGRID_MASK_SRF( N_SPC ) )
+      ALLOCATE( CGRID_MASK_NR( N_SPC ) )
+      ALLOCATE( CGRID_MASK_TRAC( N_SPC ) )
+      CGRID_MASK_GAS = .FALSE.
+      CGRID_MASK_AERO = .FALSE.
+      CGRID_MASK_NUM = .FALSE.
+      CGRID_MASK_SRF = .FALSE.
+      CGRID_MASK_NR = .FALSE.
+      CGRID_MASK_TRAC = .FALSE.
 
       DO N = 1, N_GC_SPC
          SPC_NAME( N ) = GC_SPC( N )
+         CGRID_MASK_GAS( N ) = .TRUE.
       END DO
 
       SPC_NAME( N_GC_SPC + 1 ) = 'Air_Density'
@@ -129,16 +142,21 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       DO N = 1, N_AE_SPC
          INDX = N_GC_SPC + 1 + N
          SPC_NAME( INDX ) = AE_SPC( N )
+         CGRID_MASK_AERO( N ) = .TRUE.
+         IF ( INDEX( SPC_NAME( INDX ), 'NUM' ) .NE. 0 ) CGRID_MASK_NUM( N ) = .TRUE.
+         IF ( INDEX( SPC_NAME( INDX ), 'SRF' ) .NE. 0 ) CGRID_MASK_SRF( N ) = .TRUE.
       END DO 
         
       DO N = 1, N_NR_SPC
          INDX = N_GC_SPC + 1 + N_AE_SPC + N
          SPC_NAME( INDX ) = NR_SPC( N )
+         CGRID_MASK_NR( N ) = .TRUE.
       END DO    
 
       DO N = 1, N_TR_SPC
          INDX = N_GC_SPC + 1 + N_AE_SPC + N_NR_SPC + N
          SPC_NAME( INDX ) = TR_SPC( N )
+         CGRID_MASK_TRAC( N ) = .TRUE.
       END DO  
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc

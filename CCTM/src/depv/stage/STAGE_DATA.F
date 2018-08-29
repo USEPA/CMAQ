@@ -38,10 +38,10 @@ C     26 June 2014 J.Bash: initial implementation
          Real,          Allocatable :: LeBasM     ( : )  ! Molar volume of deposited species
          Real,          Allocatable :: f0         ( : )  ! mesophyll resistance overide flag 
          Real,          Allocatable :: ApRx       ( : )  ! Apparent reactivity
-         Real,          Allocatable :: MassAC     ( : )  ! Mass M_accomindation coefficient 
+         Real,          Allocatable :: MassAC     ( : )  ! Mass accommodation coefficient 
          Character(16), Allocatable :: dep_name   ( : )  ! Dep Species Name
          Character(16), Allocatable :: gas_name   ( : )  ! Gas Species Name
-         Character(16), Allocatable :: H_name     ( : )  ! Henery's surrogate name from the name
+         Character(16), Allocatable :: H_name     ( : )  ! Henry's surrogate name from the name
          Real,          Allocatable :: dep_fac    ( : )  ! deposition factor from the namelist
       End Type Map_Type      
 
@@ -61,7 +61,7 @@ C     26 June 2014 J.Bash: initial implementation
       Real,            Save :: rel_rx      ( dep_gas_all )       ! reactivity relative to HNO3
       Real,            Save :: LeBasM      ( dep_gas_all )       ! Le Bas molar volume [cm3/mol ]
       Real,            Save :: f0          ( dep_gas_all )       ! Exception for species that
-      Real,            Save :: M_ac        ( dep_gas_all )       ! Mass M_accomodation Coeff
+      Real,            Save :: M_ac        ( dep_gas_all )       ! Mass accommodation Coeff
       Real,            Save :: molwt_all   ( dep_gas_all )       ! Molar Weight from the namelist
       CHARACTER( 16 ), SAVE :: H_name_all  ( dep_gas_all )       ! Henry's constant name for all species
       INTEGER, SAVE         :: N_USE_DEPSPC        
@@ -181,7 +181,7 @@ C     26 June 2014 J.Bash: initial implementation
       DATA vd_name(107), rel_rx(107), f0(107), LeBasM(107), M_ac(107) / 'INTR         ',    16.0, 0.1,  140.4, 0.420/ ! INTR
       DATA vd_name(108), rel_rx(108), f0(108), LeBasM(108), M_ac(108) / 'ISPX         ',    10.0, 0.3,   49.0, 0.420/ ! ISPX diffusion should be ~ 0.0710 according to Wolfe and thornton 2011 M_acP
       DATA vd_name(109), rel_rx(109), f0(109), LeBasM(109), M_ac(109) / 'ROOH         ',    10.0, 0.3,   49.0, 0.420/ ! ROOH diffusion should be ~ 0.0710 according to Wolfe and thornton 2011 M_acP
-      DATA vd_name(110), rel_rx(110), f0(110), LeBasM(110), M_ac(110) / 'LV_PCSOG     ', 43507730.6, 0.0, 63.0, 0.91/ ! LV_PCSOG
+      DATA vd_name(110), rel_rx(110), f0(110), LeBasM(110), M_ac(110) / 'LVPCSOG      ', 43507730.6, 0.0, 63.0, 0.91/ ! LVPCSOG
       DATA vd_name(111), rel_rx(111), f0(111), LeBasM(111), M_ac(111) / 'VIVPO1       ', 13818.0, 0.0,   63.0, 0.909/ ! VIVPO1
       DATA vd_name(112), rel_rx(112), f0(112), LeBasM(112), M_ac(112) / 'VLVOO1       ',  1830.5, 0.0,   63.0, 0.910/ ! VLVOO1
       DATA vd_name(113), rel_rx(113), f0(113), LeBasM(113), M_ac(113) / 'VLVOO2       ',   241.0, 0.0,   63.0, 0.909/ ! VLVOO2
