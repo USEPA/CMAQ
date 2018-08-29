@@ -17,9 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6_mp/AQ_DATA.F,v 1.3 2012/01/26 18:45:08 sjr Exp $
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module aq_data
 
@@ -121,11 +118,11 @@ C...Pointers for the AQCHEM array GAS
       Integer :: ln2o5    ! Dinitrogen Pentoxide
       Integer :: lco2     ! Carbon Dioxide
       Integer :: lnh3     ! Ammonia
-      Integer :: lh2o2    ! Hydrogen Perioxide
+      Integer :: lh2o2    ! Hydrogen Peroxide
       Integer :: lo3      ! Ozone
       Integer :: lfoa     ! Formic Acid
       Integer :: lmhp     ! Methyl Hydrogen Peroxide
-      Integer :: lpaa     ! Peroxyacidic Acid
+      Integer :: lpaa     ! Peroxyacetic Acid
       Integer :: lh2so4   ! Sulfuric Acid
       Integer :: lhcl     ! Hydrogen Chloride
       Integer :: lgly     ! Glyoxal
@@ -135,7 +132,7 @@ C...Pointers for the AQCHEM array GAS
       Integer :: lhocl    ! Hypochlorous Acid
       Integer :: lho2     ! HO2, peroxy radical
       Integer :: lhg      ! Dissolved mercury
-      Integer :: lhgiigas ! Disolved oxidized mercury
+      Integer :: lhgiigas ! Dissolved oxidized mercury
 
       Real    :: aqchem_lat      ! latitude used for cosine of solar zenith angle (deg)
       Real    :: aqchem_lon      ! longitude used for cosine of solar zenith angle (deg)

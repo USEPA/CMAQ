@@ -17,9 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6/AQ_DATA.F,v 1.7 2012/01/19 13:53:19 yoj Exp $
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module aq_data
 
@@ -111,11 +108,11 @@ C...Pointers for the AQCHEM array GAS
       Integer :: ln2o5    ! Dinitrogen Pentoxide
       Integer :: lco2     ! Carbon Dioxide
       Integer :: lnh3     ! Ammonia
-      Integer :: lh2o2    ! Hydrogen Perioxide
+      Integer :: lh2o2    ! Hydrogen Peroxide
       Integer :: lo3      ! Ozone
       Integer :: lfoa     ! Formic Acid
       Integer :: lmhp     ! Methyl Hydrogen Peroxide
-      Integer :: lpaa     ! Peroxyacidic Acid
+      Integer :: lpaa     ! Peroxyacetic Acid
       Integer :: lh2so4   ! Sulfuric Acid
       Integer :: lhcl     ! Hydrogen Chloride
       Integer :: lgly     ! Glyoxal
@@ -130,7 +127,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
          Character( 16 ) :: name( nmodes )     ! surrogate name
          Real            :: backgnd            ! background value
          Real            :: molwt              ! molecular weight
-         Real            :: density            ! density (kg/m^3) 
+         Real            :: density            ! density [kg m-3] 
       End Type sur_aer_type
 
       Type ( sur_aer_type ), Allocatable, Save  :: srgaer( : )
@@ -190,8 +187,8 @@ C...For TX version
       Character( 16 ), Parameter, Private :: req_traceri = 'TRACER_AITKEN'
       Character( 16 ), Parameter, Private :: req_tracerj = 'TRACER_ACCUM'
       Character( 16 ), Parameter, Private :: req_tracerk = 'TRACER_COARSE'
-      Character( 16 ), Parameter, Private :: req_phgi     = 'PHG_AITKEN'
-      Character( 16 ), Parameter, Private :: req_phgj     = 'PHG_ACCUM'
+      Character( 16 ), Parameter, Private :: req_phgi    = 'PHG_AITKEN'
+      Character( 16 ), Parameter, Private :: req_phgj    = 'PHG_ACCUM'
       Character( 16 ), Parameter, Private :: req_phgk    = 'PHG_COARSE'
 
 
@@ -300,8 +297,8 @@ C for TX version
       Integer, Allocatable, Save :: cgrid2aq_map( : ) ! allocated in AQ_DATA_INIT
       Character( 16 ), Allocatable, Save :: cgrid2aq_name( : ) ! allocated in AQ_DATA_INIT
 
-      Real( 8 )              :: jh2o2_hydrometeors    ! H2O2 photolysis in condensed water, 1/sec
-      Real( 8 )              :: jhno3_hydrometeors    ! HNO3 photolysis in condensed water, 1/sec
+      Real( 8 )   :: jh2o2_hydrometeors    ! H2O2 photolysis rate in condensed water [sec-1]
+      Real( 8 )   :: jhno3_hydrometeors    ! HNO3 photolysis rate in condensed water [sec-1]
 
       Logical, Private, Save :: mapped = .False.
 
@@ -379,7 +376,7 @@ C...Build array of AE names that are mapped to AE_A2AQ
          aename( spc ) = ae_spc( ae_a2aq_map( spc ) )
       End Do
 
-C...Set number of species in CGRID and used in Aqeuous module
+C...Set number of species in CGRID and used in Aqueous module
       n_cgrid2aq = n_gc_g2aq + n_ae_a2aq + n_nr_n2aq + n_tr_t2aq
 
 !     Allocate ( cgrid2aq( n_cgrid2aq ),

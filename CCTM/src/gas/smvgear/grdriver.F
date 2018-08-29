@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/smvgear/grdriver.F,v 1.6 2011/10/21 16:11:14 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C @(#)grdriver.F        1.1 /project/mod3/CMAQ/src/chem/smvgear/SCCS/s.grdriver.F 07 Jul 1997 12:45:24
-
        SUBROUTINE CHEM( CONC, JDATE, JTIME, TSTEP )
 
 C**********************************************************************
@@ -343,7 +336,7 @@ C.. Get fractional surf-zone coverage from the OCEAN file.
 C..Initialize shared photolysis data
          CALL INIT_PHOT_SHARED()
 
-C:WTH Determine whether DEGRADE rountines are needed.
+C:WTH Determine whether DEGRADE routines are needed.
 
          CALL FIND_DEGRADED( JDATE, JTIME, LOGDEV, CALL_DEG )
          IF( CALL_DEG ) THEN

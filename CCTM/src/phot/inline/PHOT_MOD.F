@@ -17,8 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C $Header$
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE PHOT_MOD
 
@@ -143,10 +141,10 @@ C-----------------------------------------------------------------------
       
       SUBROUTINE INIT_PHOT_SHARED()
 
-          USE RXNS_DATA            ! chemistry varaibles and data
+          USE RXNS_DATA            ! chemistry variables and data
           USE GRID_CONF            ! horizontal & vertical domain specifications
           USE UTILIO_DEFN
-! Purpose initialized data and arrays shared by other science processes      
+! Purpose: initialize data and arrays shared by other science processes      
           IMPLICIT NONE
 !Arguments: None
 
@@ -155,7 +153,7 @@ C-----------------------------------------------------------------------
           CHARACTER( 240 ) :: XMSG = ' '
           LOGICAL, SAVE    :: INITIALIZED = .FALSE.
           
-          IF( INITIALIZED )RETURN
+          IF ( INITIALIZED ) RETURN
           
           INITIALIZED = .TRUE.
 

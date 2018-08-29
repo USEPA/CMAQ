@@ -17,9 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/driver/wrf/sciproc.F,v 1.2 2011/10/21 16:10:40 yoj Exp $ 
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE SCIPROC ( CGRID, JDATE, JTIME, TSTEP, ASTEP )
 

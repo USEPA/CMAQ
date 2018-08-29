@@ -154,7 +154,7 @@ C intermediate factor
       REAL            :: XKM
 
 C factor convert 1/min to 1/sec
-      REAL, PARAMETER :: PERMIN_TO_PERSEC = 1.0 / 60.0 
+      REAL, PARAMETER :: MINPERSEC = 1.0 / 60.0 
 
 C param contlng sidewall entrainment function for raining clouds
       REAL, PARAMETER :: SIDEFAC = 0.5
@@ -1528,8 +1528,8 @@ C...set mean photolysis rates to zero
             ELSE
               DARK = .FALSE.  ! day
 C...convert mean photolysis rates to 1/sec
-              JH2O2_HYDROMETEORS = REAL( JH2O2_BAR*PERMIN_TO_PERSEC, 8 ) 
-              JHNO3_HYDROMETEORS = REAL( JHNO3_BAR*PERMIN_TO_PERSEC, 8 )
+              JH2O2_HYDROMETEORS = REAL( JH2O2_BAR * MINPERSEC, 8 ) 
+              JHNO3_HYDROMETEORS = REAL( JHNO3_BAR * MINPERSEC, 8 )
             END IF
 
 C...  update variables used in hg_aqchem_data modules

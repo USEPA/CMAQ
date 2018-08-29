@@ -1910,7 +1910,7 @@ C-----------------------------------------------------------------------
       RETURN
       END SUBROUTINE GET_CSQY
       SUBROUTINE DEFINE_CSQY_ADJUST()
-! Purpose determine whether a phototlysis rate uses specific corrections to
+! Purpose determine whether a photolysis rate uses specific corrections to
 ! CSQY data
 !          Apr  2014 B.Hutzell Initial version
 !          Sept 2014 B.Hutzell corrected acetaldehyde case to include CCHO_R_SAPRC99,
@@ -1965,7 +1965,7 @@ C-----------------------------------------------------------------------
                         WHERE( WAVELENGTH .LT. 380.41 )
                             IPHI0_MGLY = 1.0
                             KMGLY      = 7.08021E-03
-                        ELSE WHERE ! maximim value correspond to wavelength = 711.8954 nm
+                        ELSE WHERE ! maximum value correspond to wavelength = 711.8954 nm
                             IPHI0_MGLY =  MAX( 2.755E+06 * EXP( -5639.0 / WAVELENGTH ), 1.0E+03 )
                             KMGLY       = MAX(  1.93E+04 * EXP( -5639.0 / WAVELENGTH ), 7.00590 )
                         END WHERE
@@ -2033,7 +2033,7 @@ C-----------------------------------------------------------------------
       REAL CC           ! scratch variable for IUPAC (2013) acetone QYZ
 
       REAL TEMP_OVER 295K   ! temperature divided by 295 K
-      REAL ONE_OVER_LAMBDA  ! reciporcal of wavelenght, 10E7/nm or 1/cm
+      REAL ONE_OVER_LAMBDA  ! reciprocal of wavelength, 1E7/nm or 1/cm
 
       TEMP_OVER 295K  = TEMP * ONE_OVER_295K
       ONE_OVER_LAMBDA = 1.0E7 / LAMBDA
@@ -2129,7 +2129,7 @@ C-----------------------------------------------------------------------
       REAL CC           ! scratch variable for IUPAC (2013) acetone QYZ
 
       REAL TEMP_OVER 295K   ! temperature divided by 295 K
-      REAL ONE_OVER_LAMBDA  ! reciporcal of wavelenght, 10E7/nm or 1/cm
+      REAL ONE_OVER_LAMBDA  ! reciprocal of wavelength, 1E7/nm or 1/cm
 
       TEMP_OVER 295K  = TEMP * ONE_OVER_295K
       ONE_OVER_LAMBDA = 1.0E7 / LAMBDA
@@ -2241,7 +2241,7 @@ C-----------------------------------------------------------------------
       REAL TEMP_OVER 295K   ! temperature divided by 295 K
       REAL ONE_OVER_LAMBDA  ! wavenumber, 10E7/nm or 1/cm
 #ifndef preprocessor
-      REAL LAMBDA           ! wavelenght, nm
+      REAL LAMBDA           ! wavelength, nm
 
       LAMBDA          = WAVELENGTH( IWAVE )
       ONE_OVER_LAMBDA = WAVENUMBER( IWAVE )
@@ -2347,7 +2347,7 @@ C-----------------------------------------------------------------------
       REAL CC           ! scratch variable for IUPAC (2013) acetone QYZ
 
       REAL TEMP_OVER 295K   ! temperature divided by 295 K
-      REAL ONE_OVER_LAMBDA  ! reciporcal of wavelenght, 10E7/nm or 1/cm
+      REAL ONE_OVER_LAMBDA  ! reciprocal of wavelength, 1E7/nm or 1/cm
 #ifndef preprocessor
       REAL LAMBDA           ! wavelength, nm
 
@@ -2466,7 +2466,7 @@ C-----------------------------------------------------------------------
 
         REAL ONE_OVER_LAMBDA  ! wavenumber, 10E7/nm or 1/cm
         REAL QY_DENS_NUMB     ! total qy at DENS_NUMB
-        REAL IQY_DENS0        ! reciporcal of total qy at DENS0
+        REAL IQY_DENS0        ! reciprocal of total qy at DENS0
 #ifndef preprocessor
         REAL LAMBDA           ! wavelength, nm
 

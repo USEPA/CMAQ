@@ -360,7 +360,7 @@ C.. Get pressure in Pascals
          CALL M3EXIT ( PNAME, JDATE, JTIME, MSG, XSTAT1 )
       END IF
 
-C.. Get Heteorogeneous rates and Update Aerosol Distribution Properties
+C.. Get Heterogeneous rates and Update Aerosol Distribution Properties
       CALL HETCHEM_RATES( TA, PRES, QV, CGRID )
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc

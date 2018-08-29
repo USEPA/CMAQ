@@ -17,12 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header$
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
        SUBROUTINE CHEM( CGRID, JDATE, JTIME, TSTEP )
 C**********************************************************************
 C
@@ -70,7 +64,7 @@ C**********************************************************************
       USE RXNS_FUNCTION
       USE HRDATA
       USE PHOT_MOD, Only: INIT_PHOT_SHARED, RJ     ! photolysis rate, in-line module
-      USE PA_DEFN, Only: LIRR                      ! Process Anaylsis control and data variable
+      USE PA_DEFN, Only: LIRR                      ! Process Analysis control and data variable
       USE PA_IRR_CLT
 R5      USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP
 

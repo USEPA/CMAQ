@@ -89,7 +89,7 @@
 !         reads this input file
 !       - added call to a routine called AERO_PHOTDATA that returns opacity data
 !         on the aerosol distribution
-!       - revised NEW_OPTICS' arguments based on  aerosol redesign in CMAQ
+!       - revised NEW_OPTICS' arguments based on aerosol redesign in CMAQ
 !         version 5.0
 !     March 29, 2011 S.Roselle
 !       - Replaced I/O API include files with UTILIO_DEFN
@@ -103,7 +103,7 @@
 !                          4) changed description and accounting of cloud effects
 !                             from 2D liquid water clouds to 3D resolved and subgrid
 !                             clouds with multi-phases of water
-!                          5) inserted calculation of aerosol optical properites via
+!                          5) inserted calculation of aerosol optical properties via
 !                             fortran module to improve efficiency in radiative
 !                             transfer solution
 !                          6) moved the O3TOTCOL routine from the PHOT_MOD to simplify
