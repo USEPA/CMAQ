@@ -29,7 +29,7 @@ C**********************************************************************
 C
 C  FUNCTION:  To solve for the concentration of C2O3 and PAN
 C
-C  PRECONDITIONS: For the SAPRC07TIC family of mechanisms
+C  PRECONDITIONS: For the saprc07tic family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C

@@ -28,7 +28,7 @@ C***********************************************************************
 C
 C  FUNCTION: To initialize species tolerances, arrays, and indices
 C
-C  PRECONDITIONS: For the SAPRC07TIC family of mechanisms
+C  PRECONDITIONS: For the saprc07tic family of mechanisms
 C
 C  RETURN VALUES: None
 C

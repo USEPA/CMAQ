@@ -29,7 +29,7 @@ C***********************************************************************
 C
 C  FUNCTION: To compute the production and loss rates for EBI species
 C
-C  PRECONDITIONS: For the SAPRC07TIC family of mechanisms
+C  PRECONDITIONS: For the saprc07tic family of mechanisms
 C
 C  RETURN VALUES: None
 C

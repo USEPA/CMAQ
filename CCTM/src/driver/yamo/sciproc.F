@@ -17,9 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/driver/yamo/sciproc.F,v 1.5 2011/10/21 16:10:43 yoj Exp $ 
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE SCIPROC ( CGRID, JDATE, JTIME, TSTEP, ASTEP )
 
@@ -146,6 +143,11 @@ C Local Variables:
             INTEGER, INTENT( IN )     :: JDATE, JTIME
             INTEGER, INTENT( IN )     :: TSTEP( 3 )
          END SUBROUTINE VDIFF
+         SUBROUTINE PHOT ( CGRID, JDATE, JTIME, TSTEP )
+            REAL, POINTER             :: CGRID( :,:,:,: )
+            INTEGER, INTENT( IN )     :: JDATE, JTIME
+            INTEGER, INTENT( IN )     :: TSTEP( : )
+         END SUBROUTINE PHOT
          SUBROUTINE CLDPROC ( CGRID, JDATE, JTIME, TSTEP )
             REAL, POINTER             :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )     :: JDATE, JTIME
@@ -224,6 +226,9 @@ C decouple CGRID for cloud and chemistry
 
       CALL DECOUPLE ( CGRID, SDATE, STIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'DECOUPLE', CGRID, JDATE, JTIME )
+
+      CALL PHOT ( CGRID, JDATE, JTIME, TSTEP )
+      IF ( CKSUM ) CALL CKSUMMER ( 'PHOT', CGRID, JDATE, JTIME )
 
       CALL CLDPROC ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'CLDPROC', CGRID, JDATE, JTIME )

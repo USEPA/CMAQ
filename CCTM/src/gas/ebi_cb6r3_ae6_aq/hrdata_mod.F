@@ -98,7 +98,6 @@ c...Allocatable arrays
       REAL, ALLOCATABLE      :: PRES( :, :, : )          ! pressure (Pa)
       REAL, ALLOCATABLE      :: QV  ( :, :, : )          ! water vapor (Kg/Kg air)
       REAL, ALLOCATABLE      :: TA  ( :, :, : )          ! temperature (K)
-      REAL, ALLOCATABLE      :: RJ  ( :, :, :, : )       ! J-values (min-1)
 
       REAL, ALLOCATABLE      :: SEAICE ( :, :)            ! fractional seaice cover, [-]
       REAL, ALLOCATABLE      :: DENS( :, :, : )           ! mass density (Kg/m^3)

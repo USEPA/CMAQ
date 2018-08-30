@@ -830,7 +830,6 @@ c..Write the section header
          CALL SUM_COEFF( PO3P,  'P', O3P,  N )
 
           IF( RO3P .GT. 0 .AND. PO3P .EQ. RO3P ) THEN
-             print*,'rxn = ',N,' Po3p = ',PO3P,' Ro3p = ',RO3P
              CYCLE                ! Skip rxns with Po3p=0
           END IF
 

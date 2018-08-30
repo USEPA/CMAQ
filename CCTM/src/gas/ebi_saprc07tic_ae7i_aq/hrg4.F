@@ -29,7 +29,7 @@ C**********************************************************************
 C
 C  FUNCTION:  To solve for the concentration of NO3 and N2O5
 C
-C  PRECONDITIONS: For the SAPRC07TIC family of mechanisms
+C  PRECONDITIONS: For the saprc07tic family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
