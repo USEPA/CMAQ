@@ -17,7 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
        SUBROUTINE CHEM( CGRID, JDATE, JTIME, TSTEP )
 C**********************************************************************
 C
@@ -25,7 +24,7 @@ C  FUNCTION: Driver subroutine for Euler Backward Iterative solver
 C
 R1  PRECONDITIONS: For the SAPRC99 family of mechanisms only
 C
-C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, PHOT, HRCALCKS, HRSOLVER
+C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, HRCALCKS, HRSOLVER
 R5C                                     FIND_DEGRADED, INIT_DEGRADE, FINAL_DEGRADE
 C
 R2  REVISION HISTORY: Prototype created by Jerry Gipson, September, 2003
@@ -68,7 +67,8 @@ C**********************************************************************
       USE SA_DEFN           
 #endif
       USE HRDATA
-      USE PA_DEFN, Only: LIRR   ! Process Anaylsis control and data variable
+      USE PHOT_MOD, Only: INIT_PHOT_SHARED, RJ     ! photolysis rate, in-line module
+      USE PA_DEFN, Only: LIRR                      ! Process Analysis control and data variable
       USE PA_IRR_CLT
 R5      USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP
 
@@ -141,14 +141,6 @@ C for INTERPX
       INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
 
       INTERFACE  
-         SUBROUTINE PHOT ( MDATE, MTIME, JDATE, JTIME, DTSTEP, RJ )
-          INTEGER, INTENT( IN )  :: MDATE       !"centered" Julian date (YYYYDDD)
-          INTEGER, INTENT( IN )  :: MTIME       !"centered" time (HHMMSS)
-          INTEGER, INTENT( IN )  :: JDATE       ! Current date (YYYYDDD)
-          INTEGER, INTENT( IN )  :: JTIME       ! Current time (HHMMSS)
-          INTEGER, INTENT( IN )  :: DTSTEP( : ) ! time step vector (HHMMSS)
-          REAL,    INTENT( OUT ) :: RJ(:,:,:,:) ! gridded J-values  (1/min units)
-        END SUBROUTINE PHOT
         SUBROUTINE HRSOLVER( JDATE, JTIME, C, R, L )
 R0
            INTEGER, INTENT( IN ) :: JDATE    ! Current date (YYYYDDD)
@@ -321,8 +313,10 @@ C.. Get fractional surf-zone coverage from the OCEAN file.
 
          ALLOCATE( DENS( NCOLS, NROWS, NLAYS ), PRES( NCOLS, NROWS, NLAYS ),
      &             QV  ( NCOLS, NROWS, NLAYS ), TA  ( NCOLS, NROWS, NLAYS ),
-     &             RJ  ( NCOLS, NROWS, NLAYS, NPHOTAB ),
      &             SEAICE( NCOLS, NROWS ) )
+
+C..Initialize shared photolysis data
+         CALL INIT_PHOT_SHARED()
 
 C..Determine which cells need IRR
          ALLOCATE( LFLAGIRR ( NCOLS, NROWS, NLAYS ) )
@@ -338,7 +332,7 @@ C..Determine which cells need IRR
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C  Set date and time to center of time step, get necessary physical 
-C  data, and get photolysis rates
+C  data
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       MIDDATE = JDATE
       MIDTIME = JTIME
@@ -410,8 +404,6 @@ C.. Get pressure in Pascals
          CALL M3EXIT ( PNAME, JDATE, JTIME, MSG, XSTAT1 )
       END IF
  
-C.. Get photolysis rates in 1/min
-      CALL PHOT ( MIDDATE, MIDTIME, JDATE, JTIME, TSTEP, RJ )
 C.. Get Heteorogeneous rates and Update Aerosol Distribution Properties 
       CALL HETCHEM_RATES( TA, PRES, QV, CGRID )
 

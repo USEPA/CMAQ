@@ -27,6 +27,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
          REAL, ALLOCATABLE :: QI( :,:,: )  ! ice content [kg/kg]
          REAL, ALLOCATABLE :: QS( :,:,: )  ! snow content [kg/kg]
          REAL, ALLOCATABLE :: QG( :,:,: )  ! graupel content [kg/kg]
+         REAL, ALLOCATABLE :: QV( :,:,: )  ! water vapor content [kg/kg]
            
          REAL, ALLOCATABLE :: CFRAC_3D( :,:,: ) ! 3D fractional cloud coverage
          REAL, ALLOCATABLE :: CFRAC_2D( :,: )   ! layer averaged 3D fractional cloud coverage
@@ -57,7 +58,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
          REAL              :: DIST_TO_SUN          ! solar distance [au]
 
 ! public variables:
-         PUBLIC :: QC, QR, QI, QS, QG,
+         PUBLIC :: QC, QR, QI, QS, QG, QV,
      &             CFRAC_2D, CFRAC_3D, AVE_HYDROMETEORS,
      &             USE_ACM_CLOUD, ACM_CFRAC, ACM_QC, ACM_QR, ACM_QI, ACM_QG,
      &             ACM_CLOUDS, ACM_AVE_H2O,
@@ -65,11 +66,11 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
      &             DENS, TA, PRES, ZM, ZFULL, DIST_TO_SUN
 
 ! public procedures:
-         PUBLIC :: GET_PHOT_MET, UPDATE_SUN, CLEAR_ACM_CLOUD, CAPTURE_ACM_CLOUD
+         PUBLIC :: GET_PHOT_MET, UPDATE_SUN, CLEAR_ACM_CLOUD, 
+     &             CAPTURE_ACM_CLOUD
            
          PRIVATE
 
-         REAL, ALLOCATABLE :: QV( :,:,: )  ! water vapor content [kg/kg]
          INTEGER           :: HYDROMETEORS ! denotes mix of hydrometeors available
 !        value   cloud water  rain       ice        snow     graupel
 !          1        x          x
@@ -491,10 +492,10 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 !...store met file time, date, and step information and compute
 !...  the met timestep in hours
 
-         IF ( LDATE .EQ. JDATE .AND. LTIME .EQ. JTIME ) RETURN
+         IF ( LDATE .EQ. MDATE .AND. LTIME .EQ. MTIME ) RETURN
         
-         LDATE = JDATE
-         LTIME = JTIME
+         LDATE = MDATE
+         LTIME = MTIME
 
 !...  Interpolate time dependent layered input variables
 

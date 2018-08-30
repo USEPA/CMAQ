@@ -45,7 +45,6 @@ C**********************************************************************
       USE SA_IRR_DEFN
 #endif
 
-
       IMPLICIT NONE
 
 C..INCLUDES:
@@ -337,7 +336,6 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
                  CALL SA_IRR_UNBLOCKED ( .FALSE., RKI, YC, DTC )
                  UPDATE_PROBABILITIES = .FALSE.
 #endif
-
                  CYCLE SUBSTEP_EBI ! solve for next sub time-step
 
                END IF

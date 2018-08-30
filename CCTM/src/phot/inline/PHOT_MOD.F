@@ -17,8 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C $Header$
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE PHOT_MOD
 
@@ -106,6 +104,11 @@ C-----------------------------------------------------------------------
       INTEGER, ALLOCATABLE, SAVE :: DIAG_WVL( : ) ! pointers to diagnostic wavelengths
       
       INTEGER            :: N_TROPO_O3_TOGGLE      ! number of adjustments to ozone extinction 
+ 
+      REAL, ALLOCATABLE  :: RJ      ( :, :, :, : ) ! average grid cell J-values (min-1)
+      REAL, ALLOCATABLE  :: RJ_RES  ( :, :, :, : ) ! resolved cloud J-values (min-1)
+      REAL, ALLOCATABLE  :: RJ_SUB  ( :, :, :, : ) ! subgrid cloud J-values (min-1)
+      REAL, ALLOCATABLE  :: ETOT_SFC_WL ( :,:,: )  ! total downward irradiance at sfc [ Watts / m**2  ]
       
       REAL, ALLOCATABLE  :: BLKDZ( : )             ! layer thicknesses [ m ]
       REAL, ALLOCATABLE  :: GAS_EXTINCTION( :,: )  ! extinction from gases per layer [1/m]
@@ -135,6 +138,47 @@ C-----------------------------------------------------------------------
 
 
       CONTAINS
+      
+      SUBROUTINE INIT_PHOT_SHARED()
+
+          USE RXNS_DATA            ! chemistry variables and data
+          USE GRID_CONF            ! horizontal & vertical domain specifications
+          USE UTILIO_DEFN
+! Purpose: initialize data and arrays shared by other science processes      
+          IMPLICIT NONE
+!Arguments: None
+
+!Local:          
+          INTEGER          :: ALLOCSTAT
+          CHARACTER( 240 ) :: XMSG = ' '
+          LOGICAL, SAVE    :: INITIALIZED = .FALSE.
+          
+          IF ( INITIALIZED ) RETURN
+          
+          INITIALIZED = .TRUE.
+
+          CALL LOAD_CSQY_DATA( )
+
+          CALL LOAD_OPTICS_DATA( )
+
+          ALLOCATE( RJ      ( NCOLS, NROWS, NLAYS, NPHOTAB ),
+     &              RJ_RES  ( NCOLS, NROWS, NLAYS, NPHOTAB ),
+     &              RJ_SUB  ( NCOLS, NROWS, NLAYS, NPHOTAB ), STAT = ALLOCSTAT )
+          IF ( ALLOCSTAT .NE. 0 ) THEN
+              XMSG = 'Failure allocating photolysis rate arrays'
+              CALL M3EXIT ( 'INIT_PHOT_SHARED', 0, 0, XMSG, XSTAT1 )
+          END IF
+
+          ALLOCATE( ETOT_SFC_WL( NCOLS,NROWS,NWL ), STAT = ALLOCSTAT )
+          IF ( ALLOCSTAT .NE. 0 ) THEN
+              XMSG = 'Failure allocating irradiance rate array'
+              CALL M3EXIT ( 'INIT_PHOT_SHARED', 0, 0, XMSG, XSTAT1 )
+          END IF
+
+          RJ = 0.0; RJ_RES = 0.0; RJ_SUB = 0.0
+          ETOT_SFC_WL = 0.0
+          
+      END SUBROUTINE INIT_PHOT_SHARED
 
 C///////////////////////////////////////////////////////////////////////
       SUBROUTINE NEW_OPTICS ( JDATE, JTIME, NLAYS, 
