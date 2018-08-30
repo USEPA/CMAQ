@@ -593,18 +593,19 @@ C                          '12345678901234567890'
 ! The organic soil change from the previous day is equal to the fertilzation - mineralization 
 ! Here we read in the previous days concentration to calucate the mineralization and add it to the NH4 pool.
 ! In EPIC run for CMAQ organic N mineralized goes to the NH4 pool and if mineralization is negative it is 
-! taken from the soil NO3 pool. 
+! taken from the soil NO3 pool. A cap was placed on the maximum mineralization based on the 0.999 precentile 
+! from mutliple years of EPIC simulations. 
             L1_MIN = L1_ON_Yest - L1_ON - F1_ON
             L2_MIN = L2_ON_Yest - L2_ON - F2_ON
             Where( L1_MIN .Lt. 0.0 )
                L1_MIN = 0.0
-            Else Where( L1_MIN .Gt. 6.0 )
-               L1_MIN = 6.0
+            Else Where( L1_MIN .Gt. 0.3 )
+               L1_MIN = 0.3
             End Where
             Where( L2_MIN .Lt. 0.0 )
                L2_MIN = 0.0
-            Else Where( L2_MIN .Gt. 6.0 )
-               L2_MIN = 6.0
+            Else Where( L2_MIN .Gt. 0.3 )
+               L2_MIN = 0.3
             End Where
             F1_NH4  = F1_NH4 + L1_MIN
             F2_NH4  = F2_NH4 + L2_MIN
