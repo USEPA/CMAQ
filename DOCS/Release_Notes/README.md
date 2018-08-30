@@ -6,7 +6,7 @@ Technical notes on the new features and science in this release of CMAQ.  Releas
 
 - [CMAQv5.3](v5.3/README.md)  
 
-For Release Notes of older versions of CMAQ, please see the repository branches for a model version of interest or visit the EPA CMAQ website (wwww.epa.gov/cmaq/cmaq-documentation#release-notes)  
+For Release Notes of older versions of CMAQ, please see the repository branches for a model version of interest or visit the EPA CMAQ website (https://wwww.epa.gov/cmaq/cmaq-documentation#release-notes)  
 
 
 
