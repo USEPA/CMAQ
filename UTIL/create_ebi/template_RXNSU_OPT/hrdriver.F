@@ -491,7 +491,6 @@ C...For diagnosing IRR calculations in log files
                    END IF
                 END IF        
 #endif 
-!               RKI_INIT( C,R,L,1:NRXNS ) = RKI(1:NRXNS)
                CALL SA_IRR_EXTRACT( C, R, L, DENS( C,R,L ),YC )
 #endif
 

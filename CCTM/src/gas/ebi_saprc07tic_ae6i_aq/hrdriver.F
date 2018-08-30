@@ -17,11 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header$
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
 
        SUBROUTINE CHEM( CGRID, JDATE, JTIME, TSTEP )
 C**********************************************************************
@@ -32,7 +27,7 @@ C  PRECONDITIONS: For the saprc07tic family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, PHOT, HRCALCKS, HRSOLVER
 C
-C  REVISION HISTORY: Created by EBI solver program, Jun 13, 2018
+C  REVISION HISTORY: Created by EBI solver program, Aug 29, 2018
 C                       Based on the algorithm in "Test of Two Numerical
 C                       Schemes for Use in Atmospheric Transport-Chemistry
 C                       Models", O. Hertel, R. Berkowicz, J. Christensen,
@@ -67,6 +62,10 @@ C**********************************************************************
       USE RXNS_DATA
       USE AEROSOL_CHEMISTRY
       USE RXNS_FUNCTION
+#ifdef isam
+      USE SA_IRR_DEFN
+      USE SA_DEFN
+#endif
       USE HRDATA
       USE PA_DEFN, Only: LIRR   ! Process Anaylsis control and data variable
       USE PA_IRR_CLT
@@ -135,8 +134,6 @@ C..Scratch Local Variables:
 
       INTEGER       :: GXOFF, GYOFF            ! global origin offset from file
 
-      INTEGER, SAVE :: PECOL_OFFSET        ! Local Column Offset for processor
-      INTEGER, SAVE :: PEROW_OFFSET        ! Local Column Offset for processor
 C for INTERPX
       INTEGER, SAVE :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2
       INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
@@ -287,6 +284,10 @@ C..Determine which cells need IRR
          ALLOCATE( LFLAGIRR ( NCOLS, NROWS, NLAYS ) )
          CALL      PA_IRR_CKCELLS ( LFLAGIRR )
 
+#ifdef isam
+        NUMB_ISAM_CELLS = 1.0D0 / ( NCOLS * NROWS * NLAYS )
+        CALL SA_IRR_INIT
+#endif
          LFIRST = .FALSE.
 
       END IF      ! First time
@@ -424,10 +425,26 @@ c..Get rate constants
                CALL CALC_RCONST( TEMP, ATMPRES, H2O, RJIN, HET, LSUNLIGHT, LAND, RKI_SAV, NCELL )
                FORALL( NPH = 1:NRXNS )RKI( NPH ) = RKI_SAV( NCELL, NPH )
 
+#ifdef isam
+#if defined(isam) || defined(verbose_isam)
+C...For diagnosing IRR calculations in log files
+                IF( CHECK_ISAM )THEN
+                   WRITE_CELL = .FALSE.
+                   IF( C .EQ. MAX(1, MY_NCOLS/2) .AND. R .EQ. MAX(1,MY_NROWS/2) .AND. L .EQ. 1 )THEN
+                        WRITE_CELL = .TRUE.
+                        WRITE(LOGDEV,*)'WRITE_CELL = .TRUE.'
+                   ELSE
+                        WRITE_CELL = .FALSE.
+                   END IF
+                END IF
+#endif
+               CALL SA_IRR_EXTRACT( C, R, L, DENS( C,R,L ),YC )
+#endif
+
 c..Call EBI solver
                N_EBI_IT = 0
 
-               CALL HRSOLVER( JDATE, JTIME, (C+PECOL_OFFSET), (R+PEROW_OFFSET), L )
+               CALL HRSOLVER( JDATE, JTIME, C, R, L )
 
 #ifdef hrstats
                MXEBI  = MAX( MXEBI, N_EBI_IT )
@@ -447,6 +464,10 @@ c..Update concentration array
                   END IF
                END DO
 
+
+#ifdef isam
+               CALL SA_IRR_UPLOAD( C, R, L, DENS( C,R,L ), YC )
+#endif
 
 c..update irrout arrays if needed
                IF ( LFLAGIRR( C,R,L ) )CALL PA_IRR_CELLENDF( C, R, L )
