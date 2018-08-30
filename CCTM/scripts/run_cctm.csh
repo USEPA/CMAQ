@@ -73,9 +73,6 @@ else
 endif
 
 #setenv LOGFILE $CMAQ_HOME/$RUNID.log  #> log file name; uncomment to write standard output to a log, otherwise write to screen
-if (! -e $LOGDIR ) then
-  mkdir $LOGDIR
-endif
 
 setenv GRID_NAME SE52BENCH         #> check GRIDDESC file for GRID_NAME options
 setenv GRIDDESC $INPDIR/GRIDDESC   #> grid description file
@@ -557,6 +554,9 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 # ===================================================================
 
   #> Save Log Files and Move on to Next Simulation Day
+  if (! -e $LOGDIR ) then
+    mkdir $LOGDIR
+  endif
   mv CTM_LOG_???.${CTM_APPL} $LOGDIR
 
   #> The next simulation day will, by definition, be a restart
