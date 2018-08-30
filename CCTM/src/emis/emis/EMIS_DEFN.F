@@ -590,7 +590,8 @@ C-----------------------------------------------------------------------
       USE AERO_EMIS           ! inherits GRID_CONF
       USE GRID_CONF
       USE VDIFF_MAP, ONLY : N_SPC_DIFF, DIFF_MASK_GAS, DIFF_MASK_AERO,
-     &                      DIFF_MASK_NUM, DIFF_MASK_SRF, DIFF_MW, DIFF_SPC
+     &                      DIFF_MASK_NUM, DIFF_MASK_SRF, DIFF_MW, DIFF_SPC,
+     &                      DIFF_MASK_NR, DIFF_MASK_TRAC
       USE AERO_DATA, ONLY : GPKG
 
       IMPLICIT NONE
@@ -640,7 +641,7 @@ C-----------------------------------------------------------------------
                !MAKE SURE TO APPLY RELEVANT UNIT CONVERSION TO EACH
                !TYPE OF VARIABLE (GAS, AEROSOL MASS, AEROSOL NUMBER,
                !AND AEROSOL SURFACE AREA)
-               WHERE( DIFF_MASK_GAS )
+               WHERE( DIFF_MASK_GAS .OR. DIFF_MASK_NR .OR. DIFF_MASK_TRAC )
                       ! GAS SPECIES
                       VDEMIS( C,R,L,: ) = CNVTC * VDEMIS0( :,L,C,R ) 
                ELSEWHERE( DIFF_MASK_NUM )

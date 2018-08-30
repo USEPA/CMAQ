@@ -1089,7 +1089,7 @@ C Local variables:
       Logical, Save :: first_time = .True.
       Integer, Save :: logdev
       Character( 300 ) :: xmsg
-      Integer       :: i, im, indx
+      Integer       :: i, im, indx, ispc
 
       Real, Save :: mwpoa                     ! Molecular weight of POA [ g/mol ]
 
@@ -1152,6 +1152,11 @@ C Variables used in equilibrium partitioning calculations
       Real totaer            ! total aerosol-phase mass of each semivolaitle component
       Real Phi               ! mass fraction of a semivolatile component
                              ! in each mode
+! *** Variables for computing the budget
+      REAL :: CBUDGET0_NUM ( N_MODE )
+      REAL :: CBUDGET0_SRF ( N_MODE )
+      REAL :: CBUDGET0_MASS( N_AEROSPC,N_MODE )
+
 
 C Variables for water uptake onto organics
       Real kappaVorg        ! sum_i(kappa_i*Vorganic_i) [m3 species/m3 air]
@@ -1208,6 +1213,13 @@ C Compute 3rd moment, 2nd moment. moment_conc arrays are wet
       Call calcmoments ( .true. )
       Call getpar( FIXED_sg )
 
+
+! Initialize Budget Variables
+      CBUDGET0_NUM  = MOMENT0_CONC
+      CBUDGET0_SRF  = MOMENT2_CONC
+      CBUDGET0_MASS = AEROSPC_CONC
+
+! Initialize Local Moment Variables
       m3wet_init( : ) = moment3_conc( 1:2 )
       m2wet_init( : ) = moment2_conc( 1:2 )
         
@@ -1547,6 +1559,18 @@ C condensation/evaporation does not affect the geometric standard deviation.
       m2wet_final( 1 ) = m2wet_init( 1 ) * ( m3wet_final( 1 ) / m3wet_init( 1 ) ) ** ( 2.0 / 3.0 )
       m2wet_final( 2 ) = m2wet_init( 2 ) * ( m3wet_final( 2 ) / m3wet_init( 2 ) ) ** ( 2.0 / 3.0 )
       moment2_conc( 1:2 )  = m2wet_final( : )
+
+! *** Update Budget Variables
+      DO IM = 1,N_MODE
+        COND_BUDGET( AERONUM_MAP( IM ) )  = MOMENT0_CONC( IM ) - CBUDGET0_NUM( IM )
+        COND_BUDGET( AEROSRF_MAP( IM ) )  = MOMENT2_CONC( IM ) - CBUDGET0_SRF( IM )
+
+        DO ISPC = 1,N_AEROSPC
+          IF ( AEROSPC_MAP( ISPC,IM ) .NE. 0 ) 
+     &         COND_BUDGET( AEROSPC_MAP( ISPC,IM ) ) = 
+     &              AEROSPC_CONC( ISPC,IM ) - CBUDGET0_MASS( ISPC,IM )
+        END DO
+      END DO
 
       Return
       End Subroutine orgaer

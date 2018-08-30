@@ -193,15 +193,6 @@ C Determine IPR subgrid mapping with data redistribution
      &               MY_BEGCOL, MY_ENDCOL, MY_BEGROW, MY_ENDROW,
      &               MY_BEGLEV, MY_ENDLEV, MY_PACOLS, MY_PAROWS )
 
-!              write( *,* ) ' se_subgrid_index - MY_BEGCOL: ', MY_BEGCOL
-!              write( *,* ) ' se_subgrid_index - MY_ENDCOL: ', MY_ENDCOL
-!              write( *,* ) ' se_subgrid_index - MY_BEGROW: ', MY_BEGROW
-!              write( *,* ) ' se_subgrid_index - MY_ENDROW: ', MY_ENDROW
-!              write( *,* ) ' se_subgrid_index - MY_BEGLEV: ', MY_BEGLEV
-!              write( *,* ) ' se_subgrid_index - MY_ENDLEV: ', MY_ENDLEV
-!              write( *,* ) ' se_subgrid_index - MY_PACOLS: ', MY_PACOLS
-!              write( *,* ) ' se_subgrid_index - MY_PAROWS: ', MY_PAROWS
-
 C NOTE: (CMAQ Forecast model version)
 C       SE_SUBGRID_INDEX doesn't know about the "writers" (I/O) partition.
 C       Therefore, COLLECT, which is in that partition won't have MY_PACOLS
@@ -235,17 +226,6 @@ C Construct the processor-to-subdomain map for IPR domain
 
                MY_PACOLS = NCOLS_PE( RANK+1 )
                MY_PAROWS = NROWS_PE( RANK+1 )
-
-!              write( *,* ) ' subhdomain - MY_PACOLS: ', MY_PACOLS
-!              write( *,* ) ' subhdomain - MY_PAROWS: ', MY_PAROWS
-!              do i = 1, NPROCS
-!                 write( *,* ) ' I, PA_NCOLS_PE: ', i, NCOLS_PE( i )
-!                 write( *,* ) ' I, PA_NROWS_PE: ', i, NROWS_PE( i )
-!                 write( *,* ) ' I, COLSZ_PE( 1,I ): ', i, COLSZ_PE( 1,i )
-!                 write( *,* ) ' I, COLSZ_PE( 2,I ): ', i, COLSZ_PE( 2,i )
-!                 write( *,* ) ' I, ROWSZ_PE( 1,I ): ', i, ROWSZ_PE( 1,i )
-!                 write( *,* ) ' I, ROWSZ_PE( 2,I ): ', i, ROWSZ_PE( 2,i )
-!              end do
 
                IF ( LIPR ) THEN
 

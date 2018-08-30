@@ -224,10 +224,10 @@ C --------------------------------------------------------------------------
         integer :: request, status(MPI_STATUS_SIZE), error
 
         do i = 0, se_numworkers-1
-           se_subgrid_send_ind(1,3,i) = 1
-           se_subgrid_send_ind(2,3,i) = se_my_nlays
-           se_subgrid_recv_ind(1,3,i) = 1
-           se_subgrid_recv_ind(2,3,i) = se_my_nlays
+           se_subgrid_send_ind(1,3,i) = se_my_subgrid_beglev
+           se_subgrid_send_ind(2,3,i) = se_my_subgrid_endlev
+           se_subgrid_recv_ind(1,3,i) = se_my_subgrid_beglev
+           se_subgrid_recv_ind(2,3,i) = se_my_subgrid_endlev
         end do
 
         do sdir = 0, se_numworkers-1

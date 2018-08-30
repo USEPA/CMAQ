@@ -73,6 +73,9 @@ else
 endif
 
 #setenv LOGFILE $CMAQ_HOME/$RUNID.log  #> log file name; uncomment to write standard output to a log, otherwise write to screen
+if (! -e $LOGDIR ) then
+  mkdir $LOGDIR
+endif
 
 setenv GRID_NAME SE52BENCH         #> check GRIDDESC file for GRID_NAME options
 setenv GRIDDESC $INPDIR/GRIDDESC   #> grid description file
@@ -137,9 +140,11 @@ setenv VERTLONLATPATH ${WORKDIR}/lonlat.csv
 setenv CTM_PROCAN N          #> use process analysis [ default: N]
 #> process analysis global column, row and layer ranges
 #> user must check GRIDDESC for validity!
-#setenv PA_BCOL_ECOL "10 320"
-#setenv PA_BROW_EROW "10 195"
+setenv PA_BCOL_ECOL "10 90"
+setenv PA_BROW_EROW "10 80"
 setenv PA_BLEV_ELEV "1  4"
+setenv PACM_INFILE PA.ctrl
+setenv PACM_REPORT ${LOGDIR}/PACM_REPORT.txt
 
 #> I/O Controls
 setenv IOAPI_LOG_WRITE F     #> turn on excess WRITE3 logging [ options: T | F ]
@@ -147,6 +152,14 @@ setenv FL_ERR_STOP N         #> stop on inconsistent input files
 setenv PROMPTFLAG F          #> turn on I/O-API PROMPT*FILE interactive mode [ options: T | F ]
 setenv IOAPI_OFFSET_64 NO    #> support large timestep records (>2GB/timestep record) [ options: YES | NO ]
 setenv CTM_EMISCHK N         #> Abort CMAQ if missing surrogates from emissions Input files
+setenv EMISDIAG F            #> Print Emission Rates at the output time step after they have been
+                             #>   scaled and modified by the user Rules [options: F | T or 2D | 3D | 2DSUM ]
+                             #>   Individual streams can be modified using the variables:
+                             #>       GR_EMIS_DIAG_## | STK_EMIS_DIAG_## | BIOG_EMIS_DIAG
+                             #>       MG_EMIS_DIAG    | LTNG_EMIS_DIAG   | DUST_EMIS_DIAG
+                             #>       SEASPRAY_EMIS_DIAG   
+                             #>   Note that these diagnostics are different than other emissions diagnostic
+                             #>   output because they occur after scaling.
 setenv EMIS_DATE_OVRD N      #> Master switch for allowing CMAQ to use the date from each Emission file
                              #>   rather than checking the emissions date against the internal model date.
                              #>   [options: T | F or Y | N]. If false (F/N), then the date from CMAQ's internal
@@ -549,9 +562,6 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 # ===================================================================
 
   #> Save Log Files and Move on to Next Simulation Day
-  if (! -e $LOGDIR ) then
-    mkdir $LOGDIR
-  endif
   mv CTM_LOG_???.${CTM_APPL} $LOGDIR
 
   #> The next simulation day will, by definition, be a restart

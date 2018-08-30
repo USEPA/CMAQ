@@ -46,53 +46,25 @@ C......................................................................
 
       IMPLICIT NONE
 
-!     INTEGER, PARAMETER :: NPROCS = 13    ! Number of CTM science processes
-
-!     CHARACTER( 16 ) :: PROCNAME( NPROCS ) = (/  ! Names of CTM science processes
-!    &                   'XADV ',  !  1
-!    &                   'YADV ',  !  2
-!    &                   'ZADV ',  !  3
-!    &                   'ADJC ',  !  4
-!    &                   'HADV ',  !  5
-!    &                   'HDIF ',  !  6
-!    &                   'VDIF ',  !  7
-!    &                   'EMIS ',  !  8
-!    &                   'DDEP ',  !  9
-!    &                   'CLDS ',  ! 10
-!    &                   'CHEM ',  ! 11
-!    &                   'AERO ',  ! 12
-!    &                   'PING '/) ! 13
-
-      INTEGER, PARAMETER :: NOPNAMES = 20  ! Number of IPR_OUTPUT operators
+      INTEGER, PARAMETER :: NOPNAMES = 16  ! Number of IPR_OUTPUT operators
 
       CHARACTER( 16 ) :: OPNAME( NOPNAMES ) = (/  ! IPR_OUTPUT Operator names
-     &                   'XADV         ',  !  1
-     &                   'YADV         ',  !  2
-     &                   'ZADV         ',  !  3
-     &                   'ADJC         ',  !  4
-     &                   'HADV         ',  !  5
-     &                   'HDIF         ',  !  6
-     &                   'VDIF         ',  !  7
-     &                   'EMIS         ',  !  8
-     &                   'DDEP         ',  !  9
-     &                   'CLDS         ',  ! 10
-     &                   'CHEM         ',  ! 11
-     &                   'AERO         ',  ! 12
-!    &                   'XYADV        ',  ! 13
-     &                   'ADV2         ',  ! 13
-!    &                   'XYZADV       ',  ! 14
-     &                   'ADV3         ',  ! 14
-!    &                   'HZADV        ',  ! 15
-     &                   'MADV         ',  ! 15
-!    &                   'TOTADV       ',  ! 16
-     &                   'TADV         ',  ! 16
-!    &                   'TOTDIF       ',  ! 17
-     &                   'TDIF         ',  ! 17
-!    &                   'TOTTRAN      ',  ! 18
-     &                   'TRAN         ',  ! 18
-!    &                   'TOTTRAN_YAMO ',  ! 19
-     &                   'TRNM         ',  ! 19
-     &                   'PING         '/) ! 20
+     &                   'ZADV         ',  !  1
+     &                   'HADV         ',  !  2
+     &                   'HDIF         ',  !  3
+     &                   'VDIF         ',  !  4
+     &                   'EMIS         ',  !  5
+     &                   'DDEP         ',  !  6
+     &                   'CLDS         ',  !  7
+     &                   'CHEM         ',  !  8
+     &                   'COND         ',  !  9
+     &                   'COAG         ',  ! 10
+     &                   'NPF          ',  ! 11
+     &                   'GROW         ',  ! 12
+     &                   'AERO         ',  ! 13
+     &                   'MADV         ',  ! 14
+     &                   'TDIF         ',  ! 15
+     &                   'TRNM         ' /)! 16
 
 C  OLD Operator 13-19 definitions:
 C      XYADV   = XADV + YADV
