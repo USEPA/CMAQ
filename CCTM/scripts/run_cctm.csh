@@ -136,15 +136,6 @@ setenv CTM_ZERO_PCSOA N      #> turn off the emissions of the VOC precursor to p
 #> Vertical Extraction Options
 setenv DOVERTEXT N
 setenv VERTLONLATPATH ${WORKDIR}/lonlat.csv
-#> Process Analysis Options
-setenv CTM_PROCAN N          #> use process analysis [ default: N]
-#> process analysis global column, row and layer ranges
-#> user must check GRIDDESC for validity!
-setenv PA_BCOL_ECOL "10 90"
-setenv PA_BROW_EROW "10 80"
-setenv PA_BLEV_ELEV "1  4"
-setenv PACM_INFILE PA.ctrl
-setenv PACM_REPORT ${LOGDIR}/PACM_REPORT.txt
 
 #> I/O Controls
 setenv IOAPI_LOG_WRITE F     #> turn on excess WRITE3 logging [ options: T | F ]
@@ -391,15 +382,19 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      setenv BELD4_LU ${B4LU_file}
   endif
 #
-#> Inline Process Analysis (PACM = Process Analysis Control Module)
-      set procanon = 0
-      if ( $?CTM_PROCAN ) then   # $CTM_PROCAN is defined
-         if ( $CTM_PROCAN == 'Y' || $CTM_PROCAN == 'T' ) set procanon = 1
-      endif
-      if ( $procanon ) then
-         setenv PACM_INFILE ${NMLpath}/pa.CB6_v53
-         setenv PACM_REPORT $OUTDIR/"PA_REPORT".${YYYYMMDD}
-      endif
+#> Inline Process Analysis 
+  setenv CTM_PROCAN N          #> use process analysis [ default: N]
+  if ( $?CTM_PROCAN ) then   # $CTM_PROCAN is defined
+     if ( $CTM_PROCAN == 'Y' || $CTM_PROCAN == 'T' ) then
+#> process analysis global column, row and layer ranges
+#> user must check GRIDDESC for validity!
+        setenv PA_BCOL_ECOL "10 90"
+        setenv PA_BROW_EROW "10 80"
+        setenv PA_BLEV_ELEV "1  4"
+        setenv PACM_INFILE ${NMLpath}/pa_${MECH}.ctl
+        setenv PACM_REPORT $OUTDIR/"PA_REPORT".${YYYYMMDD}
+     endif
+  endif
 
 # =====================================================================
 #> Output Files
