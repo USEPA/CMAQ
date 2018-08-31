@@ -462,7 +462,7 @@
       VARDESC = 'Scenario Output Time Step (HHMMSS)'
       LOCAL_TSTEP = GET_ENVINT( 'CTM_TSTEP', VARDESC, LOCAL_TSTEP )
 
-      ! Retrieve the domain decompostion processor array
+      ! Retrieve the domain decomposition processor array
       IF ( NPROCS .GT. 1 ) THEN
          CALL GET_ENVLIST ( 'NPCOL_NPROW', NV, V_LIST2 )
          IF ( NV .NE. 2 ) THEN
@@ -737,8 +737,8 @@
          VARDESC = 'Flag for WRF NOAH LSM'
          NOAH_LSM = GET_ENVYN( 'NOAH_VERSION', VARDESC, NOAH_LSM )
 
-         ! Flag for Tiled Aeosol and Gaseous Surface Exchange (TAGSX) model
-         VARDESC = 'Flag Tiled Aeosol and Gaseous Surface Exchange (TAGSX) model'
+         ! Flag for Tiled Aerosol and Gaseous Surface Exchange (TAGSX) model
+         VARDESC = 'Flag for Tiled Aerosol and Gaseous Surface Exchange (TAGSX) model'
          STAGE = GET_ENVYN( 'CTM_STAGE', VARDESC, STAGE )
 
       END IF   ! in-line depv
@@ -1014,7 +1014,7 @@
 !.........................................................................
       FUNCTION GET_ENVYN( VAR_LABEL, VARDESC, VARDEF )  RESULT( VARVAL )
 
-!  Wrapper for retrieving TRUE/FALSE and Y/N Environemnt Variables.
+!  Wrapper for retrieving TRUE/FALSE and Y/N environment variables.
 !  Applies standard error checking
 !.........................................................................
       USE UTILIO_DEFN
@@ -1029,13 +1029,13 @@
       CHARACTER( 250 ) :: XMSG
 
       CALL GET_ENV( VARVAL, VAR_LABEL, VARDEF, STATUS )
-      IF ( STATUS .NE. 0 ) CALL LOG_MESSAGE( LOGDEV, VARDESC )
+!     IF ( STATUS .NE. 0 ) CALL LOG_MESSAGE( LOGDEV, VARDESC )
       IF ( STATUS .EQ. -2 ) THEN
            XMSG = 'Environment variable improperly formatted'
            CALL M3EXIT( 'GET_ENV', 0, 0, XMSG, STATUS )
       ELSE IF ( STATUS .EQ. -1 ) THEN
-           XMSG = 'Environment variable not set or empty ... Using default:'
-           CALL LOG_MESSAGE( LOGDEV, XMSG )
+            XMSG = 'Environment variable not set or empty ... Using default:'
+!           CALL LOG_MESSAGE( LOGDEV, XMSG )
       END IF
 
       WRITE( XMSG, '(A20,2x,A,2x,L)' ),VAR_LABEL,'|',VARVAL
@@ -1046,7 +1046,7 @@
 !.........................................................................
       FUNCTION GET_ENVINT( VAR_LABEL, VARDESC, VARDEF )  RESULT( VARVAL )
 
-!  Wrapper for retrieving TRUE/FALSE and Y/N Environemnt Variables.
+!  Wrapper for retrieving integer environment variables.
 !  Applies standard error checking
 !.........................................................................
       USE UTILIO_DEFN
@@ -1061,13 +1061,13 @@
       CHARACTER( 250 ) :: XMSG
 
       CALL GET_ENV( VARVAL, VAR_LABEL, VARDEF, STATUS )
-      IF ( STATUS .NE. 0 ) CALL LOG_MESSAGE( LOGDEV, VARDESC )
+!     IF ( STATUS .NE. 0 ) CALL LOG_MESSAGE( LOGDEV, VARDESC )
       IF ( STATUS .EQ. -2 ) THEN
            XMSG = 'Environment variable improperly formatted'
            CALL M3EXIT( 'GET_ENV', 0, 0, XMSG, STATUS )
       ELSE IF ( STATUS .EQ. -1 ) THEN
-           XMSG = 'Environment variable not set or empty ... Using default:'
-           CALL LOG_MESSAGE( LOGDEV, XMSG )
+           XMSG = 'Environment variable not set or empty ... Using default:' 
+!          CALL LOG_MESSAGE( LOGDEV, XMSG )
       END IF
  
       WRITE( XMSG, '(A20,2x,A1,2x,I7)' ),VAR_LABEL,'|',VARVAL
@@ -1078,7 +1078,7 @@
 !.........................................................................
       FUNCTION GET_ENVREAL( VAR_LABEL, VARDESC, VARDEF )  RESULT( VARVAL )
 
-!  Wrapper for retrieving TRUE/FALSE and Y/N Environemnt Variables.
+!  Wrapper for retrieving real-valued environment variables.
 !  Applies standard error checking
 !.........................................................................
       USE UTILIO_DEFN
@@ -1093,13 +1093,13 @@
       CHARACTER( 250 ) :: XMSG
 
       CALL GET_ENV( VARVAL, VAR_LABEL, VARDEF, STATUS )
-      IF ( STATUS .NE. 0 ) CALL LOG_MESSAGE( LOGDEV, VARDESC )
+!     IF ( STATUS .NE. 0 ) CALL LOG_MESSAGE( LOGDEV, VARDESC )
       IF ( STATUS .EQ. -2 ) THEN
            XMSG = 'Environment variable improperly formatted'
            CALL M3EXIT( 'GET_ENV', 0, 0, XMSG, STATUS )
       ELSE IF ( STATUS .EQ. -1 ) THEN
-           XMSG = 'Environment variable not set or empty ... Using default:'
-           CALL LOG_MESSAGE( LOGDEV, XMSG )
+           XMSG = 'Environment variable not set or empty ... Using default:' 
+!          CALL LOG_MESSAGE( LOGDEV, XMSG )
       END IF
  
       WRITE( XMSG, '(A20,2x,A,2x,E10.3)' ),VAR_LABEL,'|',VARVAL
@@ -1110,7 +1110,7 @@
 !.........................................................................
       FUNCTION GET_ENVSTR( VAR_LABEL, VARDESC, VARDEF )  RESULT( VARVAL )
 
-!  Wrapper for retrieving TRUE/FALSE and Y/N Environemnt Variables.
+!  Wrapper for retrieving character environment variables.
 !  Applies standard error checking
 !.........................................................................
       USE UTILIO_DEFN
@@ -1126,13 +1126,13 @@
       CHARACTER( 40 )    :: FMT
 
       CALL GET_ENV( VARVAL, VAR_LABEL, VARDEF, STATUS )
-      IF ( STATUS .NE. 0 ) CALL LOG_MESSAGE( LOGDEV, VARDESC )
+!     IF ( STATUS .NE. 0 ) CALL LOG_MESSAGE( LOGDEV, VARDESC )
       IF ( STATUS .EQ. -2 ) THEN
            XMSG = 'Environment variable improperly formatted'
            CALL M3EXIT( 'GET_ENV', 0, 0, XMSG, STATUS )
       ELSE IF ( STATUS .EQ. -1 ) THEN
-           XMSG = 'Environment variable not set or empty ... Using default:'
-           CALL LOG_MESSAGE( LOGDEV, XMSG )
+           XMSG = 'Environment variable not set or empty ... Using default:' 
+!          CALL LOG_MESSAGE( LOGDEV, XMSG )
       END IF
  
       IF ( MYPE .EQ. 0 ) THEN 

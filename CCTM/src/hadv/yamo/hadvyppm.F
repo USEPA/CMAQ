@@ -255,10 +255,10 @@ C Get CGRID offsets
       IF ( LSTAT ) THEN 
          IF ( FIRST_BC ) THEN
             FIRST_BC = .FALSE.
-            WRITE( XMSG2, '(A,A,A)' ),
-     &            'ATTENTION: Applying fix to aerosol Boundary Conditions for aerosol',
-     &            ' modes. Turn on verbose_rdbcon preprocessor flag to learn ',
-     &            'more.'
+            WRITE( XMSG2, '(A)' ),
+     &            'ATTENTION: Applying fix to aerosol Boundary Conditions' //
+     &            ' for aerosol modes. Set verbose_rdbcon preprocessor' //
+     &            ' flag to learn more.'
             WRITE( LOGDEV, * )
             CALL LOG_MESSAGE( LOGDEV, XMSG2 )
             WRITE( LOGDEV, * )

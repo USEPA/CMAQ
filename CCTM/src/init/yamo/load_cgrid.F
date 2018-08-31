@@ -498,15 +498,16 @@ C Load RHOJ for transport and mixing ratio advection adjustment
 
            !Print warning if any aerosol ICs violated the size distribution parameters
            IF ( LSTAT ) THEN    
-               WRITE( XMSG2, '(A55,A61,A5)' ),
-     &            'ATTENTION: Applying fix to aerosol Initial Conditions for aerosol',
-     &            ' modes. Turn on verbose_loadcgrid preprocessor flag to learn ',
-     &            'more.'
+               WRITE( XMSG2, '(A)' ),
+     &            'ATTENTION: Applying fix to aerosol Initial' //
+     &            ' Conditions for aerosol modes.' //
+     &            ' Set verbose_loadcgrid preprocessor flag to' //
+     &            ' learn more.'
                CALL LOG_MESSAGE( LOGDEV, XMSG2 )
            END IF
          END IF
 
-C are ASO4J IC`s available on the file?
+C are ASO4J ICs available on the file?
 
          VNAME = 'ASO4J'
          NDX = INDEX1( VNAME, NVARS3D, VNAME3D )

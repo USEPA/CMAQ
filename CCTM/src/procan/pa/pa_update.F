@@ -169,7 +169,7 @@ C Reciprocal of map scale factor
       REAL, ALLOCATABLE, SAVE :: TRMSFX2( :,: )   
 
 C for copy of CGRID
-      REAL :: CNGRD( NCOLS,NROWS,NLAYS,N_CGRID_SPC )   
+      REAL, ALLOCATABLE :: CNGRD( :,:,:,: )   
 
 C Flag for couple/decouple HADV, ZADV, and HDIFF
       LOGICAL, SAVE :: LCOUPLE

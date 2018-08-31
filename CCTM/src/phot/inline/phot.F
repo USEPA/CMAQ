@@ -338,28 +338,6 @@ C...modules
 
          TSTEP  = TIME2SEC( DTSTEP( 1 ) ) ! output timestep for phot diagnostic files
 
-<<<<<<< HEAD
-!...Get photolysis rate diagnostic file flag
-
-         PHOTDIAG = .FALSE.         ! default
-         VARDESC= 'Flag for writing the photolysis rate diagnostic file'
-         PHOTDIAG = ENVYN( CTM_PHOTDIAG, VARDESC, PHOTDIAG, ESTAT )
-         IF ( ESTAT .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-         IF ( ESTAT .EQ. 1 ) THEN
-            XMSG = 'Environment variable improperly formatted'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-         ELSE IF ( ESTAT .EQ. -1 ) THEN
-            XMSG =
-     &          'Environment variable set, but empty ... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-         ELSE IF ( ESTAT .EQ. -2 ) THEN
-            XMSG = 'Environment variable not set ... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-         END IF
-=======
-         CGRID => PCGRID( 1:MY_NCOLS,1:MY_NROWS,:,: )
-
->>>>>>> 44f6517f5e5668da106d2ad45f1d8aa5c9ac07d5
 !...Set flag to initialize calculating aerosol extinction at 550 nm via Angstrom Exponents
          CALCULATE_EXT_550 = PHOTDIAG
 
@@ -635,7 +613,7 @@ C...modules
          CALL SEASONAL_STRAT_O3( JDATE, JTIME )
          MIN_STRATO3_FRAC = MONTH_STRAT_03_FRAC
          MAX_TROPOO3_FRAC = MAX( 1.0 - MONTH_STRAT_03_FRAC, 0.0 )
-!cgn     !WRITE( LOGDEV,*)'PHOT: MIN_STRATO3_FRAC = ',MIN_STRATO3_FRAC          
+        !WRITE( LOGDEV,*)'PHOT: MIN_STRATO3_FRAC = ',MIN_STRATO3_FRAC          
          JD_STRAT_O3MIN = REAL( JDATE, 4)
       END IF
 !...initialize variables tracking whether stratosphere ozone column satisfies

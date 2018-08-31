@@ -153,9 +153,6 @@
       LOGICAL :: Guard_WindBlownDust = .FALSE.
       LOGICAL :: Guard_SeaSpray      = .FALSE.
  
-      ! Flag to Zero out PCSOA from predictions
-      LOGICAL :: ZERO_PCSOA          = .FALSE.
-
       ! Create Map from CMAQ Species Names to Common Surrogate
       ! Names on Emissions Input Files. Also include default aerosol mode
       ! for aerosols and molecular weight assumed in SPECIATE/SMOKE/MOVES.

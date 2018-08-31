@@ -885,13 +885,8 @@ C...begin read
      &                                   ITT_LOAD = 1, NAE_REFRACT_REF )
 
 #ifdef verbose_phot
-<<<<<<< HEAD
-      write( log_unit, 99947)'REFRACTIVE_INDICES'
-      write( log_unit, 99948 )(AE_RERACT_REF( ITT_LOAD ),ITT_LOAD = 1,
-=======
       write( LOGDEV, 99947)'REFRACTIVE_INDICES'
       write( LOGDEV, 99948 )(AE_RERACT_REF( ITT_LOAD ),ITT_LOAD = 1, 
->>>>>>> 44f6517f5e5668da106d2ad45f1d8aa5c9ac07d5
      &                                 NAE_REFRACT_REF )
 #endif
 
@@ -1396,12 +1391,6 @@ C...begin read
 
       CLOSE(OPTICS_UNIT)
 
-<<<<<<< HEAD
-      WRITE( LOG_UNIT,* ) 'Sucessfully Loaded OPTICS_DATA file'
-
-
-=======
->>>>>>> 44f6517f5e5668da106d2ad45f1d8aa5c9ac07d5
 4999  FORMAT(17X,I3,2X,17X,I3)
 5012  FORMAT( 4X,A30,1X,3(F8.3,2X) )
 5013  FORMAT( 22X,I3 )
@@ -1815,17 +1804,10 @@ C-----------------------------------------------------------------------
                     END IF
 !***use relative change assuming that air density for interpolated value is 2.465e19 molecules/cm3
                     QYZ( LAYS, IWL, IPHOT ) = QYZ( LAYS, IWL, IPHOT )
-<<<<<<< HEAD
-     &                                      * ( BETA + 3.3601E-3 * TEMP( LAYS ) * ALPHA )
-     &                                      / ( BETA + PRESSURE * ALPHA )
-!      IF ( FIRSTCALL )THEN
-!                WRITE(CSQY_DATA_LOG, 99951)'TEMP, DENS, HCHO_M QYZ factor =  ', ' ',TEMP( LAYS ), DENS( LAYS ),
-=======
      &                                      * ( BETA + 3.3601E-3 * TEMP( LAYS ) * ALPHA ) 
      &                                      / ( BETA + PRESSURE * ALPHA )                    
 !      IF ( FIRSTCALL )THEN 
 !                WRITE(LOGDEV, 99951)'TEMP, DENS, HCHO_M QYZ factor =  ', ' ',TEMP( LAYS ), DENS( LAYS ),
->>>>>>> 44f6517f5e5668da106d2ad45f1d8aa5c9ac07d5
 !     &          ( BETA + 3.3601E-3 * TEMP( LAYS ) * ALPHA )/( BETA + PRESSURE * ALPHA )
 !      END IF
 
@@ -1949,13 +1931,8 @@ C-----------------------------------------------------------------------
                              KCH3CHO( IWL )      = 1.64731E-07
                              IPHI0_CH3CHO( IWL ) = 5.50947E+32
                              IPHIS_CH3CHO( IWL ) = 5.50946E+32
-<<<<<<< HEAD
-                           END IF
-!                WRITE(CSQY_DATA_LOG, 99951)'DENS, CH3CHO_IUPAC2013 QYZ factor =  ', ' ',2.465E19,
-=======
                            END IF                               
 !                WRITE(LOGDEV, 99951)'DENS, CH3CHO_IUPAC2013 QYZ factor =  ', ' ',2.465E19,
->>>>>>> 44f6517f5e5668da106d2ad45f1d8aa5c9ac07d5
 !     &          IPHIS_CH3CHO( IWL ),IPHI0_CH3CHO( IWL ),KCH3CHO( IWL )
                         END DO
                      CASE ( 'NC3CHO_R_MCMv32', 'NC3CHO_M_MCMv32' ) ! n-C3H7CHO (n-butyraldehyde, n-butanal)
@@ -2002,11 +1979,7 @@ C-----------------------------------------------------------------------
                      CASE DEFAULT
                         CSQY_ADJUST( IPHOT ) =  0
                      END SELECT
-<<<<<<< HEAD
-!                      WRITE(CSQY_DATA_LOG,'(A)')'For rate ' // TRIM( PHOTOLYSIS_RATE( IPHOT ) )
-=======
 !                      WRITE(LOGDEV,'(A)')'For rate ' // TRIM( PHOTOLYSIS_RATE( IPHOT ) ) 
->>>>>>> 44f6517f5e5668da106d2ad45f1d8aa5c9ac07d5
 !     &               // ' using CSQY_ADJUSTMENT ' // TRIM( CSQY_ADJUSTMENTS( CSQY_ADJUST( IPHOT ) ) )
                END DO
               RETURN
