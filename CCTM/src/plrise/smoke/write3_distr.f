@@ -17,12 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/plrise/smoke/write3_distr.f,v 1.4 2011/10/21 16:11:31 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       FUNCTION WRITE3_DISTR ( FNAME, VNAME, JDATE, JTIME, DIM1, DIM2, DATA )
      &                        RESULT ( SUCCESS )
@@ -38,6 +32,7 @@ C     5 Dec 2007 J.Young: initial implementation
 C    16 Feb 2011 S.Roselle: replaced I/O API include files with M3UTILIO
 C-----------------------------------------------------------------------
 
+      USE RUNTIME_VARS
       USE M3UTILIO
 
       IMPLICIT NONE
@@ -49,10 +44,7 @@ C-----------------------------------------------------------------------
       REAL,           INTENT( IN ) :: DATA( DIM1,DIM2 )
       LOGICAL SUCCESS
 
-      INTEGER, EXTERNAL :: SETUP_LOGDEV
-
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
-      INTEGER LOGDEV
       CHARACTER( 96 ) :: XMSG = ' '
 
 C-----------------------------------------------------------------------
@@ -61,7 +53,6 @@ C-----------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
-         LOGDEV = SETUP_LOGDEV()
       END If
 
       IF ( .NOT. WRITE3( FNAME, VNAME, JDATE, JTIME, DATA ) ) THEN

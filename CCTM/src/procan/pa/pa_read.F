@@ -184,8 +184,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          CALL GETIRROUT
       ELSE IF ( WORD .EQ. 'DESCRIPTION' ) THEN
          CALL GETDESC( LASTCMND )
-!     ELSE IF ( WORD .EQ. 'OUTPUT_DOMAIN' ) THEN
-     
       ELSE IF ( WORD .EQ. 'ENDPA' ) THEN
          GO TO 100
       ELSE

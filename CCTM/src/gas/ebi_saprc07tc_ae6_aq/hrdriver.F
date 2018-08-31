@@ -17,7 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
        SUBROUTINE CHEM( CGRID, JDATE, JTIME, TSTEP )
 C**********************************************************************
 C
@@ -155,8 +154,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  On first call, call routines to set-up for EBI solver
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF( LFIRST ) THEN
-
-         LOGDEV = INIT3( )
 
          IF( MECHNAME .NE. 'SAPRC07TC_AE6_AQ' ) THEN
              MSG = 'This version of the EBI solver can only be used with'

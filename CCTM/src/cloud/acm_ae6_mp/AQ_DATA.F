@@ -334,9 +334,6 @@ C mercuric compounds
 
       Logical, Private, Save :: mapped = .False.
 
-      Integer, Private, Save :: logdev
-      Integer, Private, External :: setup_logdev
-
       Contains
  
 C------------------------------------------------------------------------
@@ -390,7 +387,6 @@ C-----------------------------------------------------------------------
 
       If ( Firstcall ) Then
          Firstcall = .False.
-         logdev    = setup_logdev()
       Else
          Return
       End if

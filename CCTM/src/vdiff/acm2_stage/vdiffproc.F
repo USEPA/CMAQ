@@ -94,7 +94,6 @@ C-----------------------------------------------------------------------
       USE SEDIMENTATION
       USE VDIFF_DIAG
       USE PA_DEFN, Only: LIPR ! Process Anaylsis control and data variables
-      USE RUNTIME_VARS_MOD
 
       IMPLICIT NONE
 

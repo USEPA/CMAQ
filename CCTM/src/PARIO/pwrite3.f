@@ -17,12 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/work/rep/PARIO/src/pwrite3.f,v 1.11 2011/10/20 22:49:58 sjr Exp $ 
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
         LOGICAL FUNCTION PWRITE3( FNAME, VNAME, JDATE, JTIME, BUFFER )
 
 C-----------------------------------------------------------------------
@@ -59,6 +53,7 @@ C-----------------------------------------------------------------------
 
       USE PIOMAPS_MODULE
       USE M3UTILIO              ! i/o api
+      USE RUNTIME_VARS , ONLY : PWRTFLAG
 
       IMPLICIT NONE
 
@@ -92,10 +87,6 @@ C Local Variables:
       CHARACTER( 16 ) :: VAR16      ! scratch variable-name buffer
 
 C Static Variables:
-
-      LOGICAL, SAVE :: FIRSTIME = .TRUE.
-      LOGICAL, SAVE :: LOGFLAG = .TRUE.
-
       LOGICAL        FLCHANGE      ! File-changed indicator.
 
 C File written to on previous call to pwrite3.
@@ -126,12 +117,6 @@ C Check that Models-3 I/O has been initialized:
          PWRITE3 = .FALSE.
          RETURN
       END IF
-
-      IF ( FIRSTIME ) THEN
-         LOGFLAG = ENVYN( 'IOAPI_LOG_WRITE', 'Log write operations or not',
-     &                    .TRUE., IERR )
-         FIRSTIME = .FALSE.
-      END IF   !  firstime
 
 C Find netCDF index for the file, and check time step availability:
 
@@ -314,7 +299,7 @@ C Calculate buffer position.
       IF ( MY_PE .EQ. IO_PE ) THEN
          MXREC3( FID ) = MAX( MXREC3( FID ), ABS( STEP ) )
 
-         IF ( LOGFLAG ) THEN   ! log successful writes
+         IF ( PWRTFLAG ) THEN   ! log successful writes
             IF ( VAR16 .NE. ALLVAR3 ) THEN   ! single variable written
                IF ( TSTEP3( FID ) .EQ. 0 ) THEN
                   WRITE( LOGDEV,92020 ) VNAME, 'written to', FNAME
@@ -330,7 +315,7 @@ C Calculate buffer position.
      &                     'for date and time', JDATE, JTIME
                END IF
             END IF          ! if single variable write, or timestamp write
-         END IF          ! if logflag
+         END IF          ! if PWRTFLAG
       END IF
 
       RETURN

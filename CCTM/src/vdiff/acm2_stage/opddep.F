@@ -40,7 +40,6 @@ C   08 Jun 12 J.Young: remove full character blank padding for GNU Fortran (GCC)
       USE GRID_CONF           ! horizontal & vertical domain specifications
       USE CGRID_SPCS          ! CGRID mechanism species
       USE UTILIO_DEFN
-      USE RUNTIME_VARS_MOD
 
       IMPLICIT NONE
  

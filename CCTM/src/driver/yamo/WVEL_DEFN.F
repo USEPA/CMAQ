@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/driver/yamo/WVEL_DEFN.F,v 1.4 2011/10/21 16:10:42 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE WVEL_DEFN
 
@@ -33,7 +26,6 @@ C           conc file
       IMPLICIT NONE
 
       REAL, ALLOCATABLE, SAVE :: WVEL( :,:,: )
-      LOGICAL, SAVE :: W_VEL
 
       CONTAINS
 
@@ -53,17 +45,7 @@ C           conc file
 
 C-----------------------------------------------------------------------
 
-!        logdev = setup_logdev ()
-
          SUCCESS = .TRUE.
-
-         W_VEL = .FALSE.         ! default
-         W_VEL = ENVYN( CTM_WVEL, 'Write vert. vel. flag', W_VEL, IERR )
-         IF ( IERR .GT. 0 ) THEN
-            XMSG = 'Environment variable improperly formatted'
-            CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-            SUCCESS = .FALSE.; RETURN
-            END IF
 
          IF ( W_VEL ) THEN
 
@@ -72,11 +54,11 @@ C-----------------------------------------------------------------------
                XMSG = 'WVEL memory allocation failed'
                CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
                SUCCESS = .FALSE.; RETURN
-               END IF
+            END IF
 
             WVEL = 0.0
 
-            END IF
+         END IF
 
          END FUNCTION WVEL_INIT
 

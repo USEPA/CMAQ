@@ -17,9 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header$
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
        SUBROUTINE PVO3( CGRID, JDATE, JTIME )
 
@@ -66,16 +63,12 @@ C..Arguments:
       INTEGER, INTENT( IN ) :: JDATE      ! Current date (YYYYDDD)
       INTEGER, INTENT( IN ) :: JTIME      ! Current time (HHMMSS)
 
-C..External Functions:
-      INTEGER, EXTERNAL :: SETUP_LOGDEV
-
 C..Saved Local Variables:
       CHARACTER( 16 ), SAVE :: PNAME = 'PVO3'     ! Program name
       LOGICAL, SAVE :: LFIRST = .TRUE.  ! Flag for first call to this subroutine
       INTEGER, SAVE :: VO3       ! ozone
       INTEGER, SAVE :: VO3T = 0  ! tracer
       INTEGER, SAVE :: KPV
-      INTEGER, SAVE :: LOGDEV
 
 C..Scratch Local Variables:
       CHARACTER( 132 ) :: MSG       ! Message text
@@ -105,7 +98,6 @@ C..Scratch Local Variables:
 C First time: set up parameters
       IF ( LFIRST ) THEN
          LFIRST = .FALSE.
-         LOGDEV = SETUP_LOGDEV ()
 
          CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
      &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
@@ -216,9 +208,6 @@ C   of a 22-layer configuration
                FC     = CSTARZ( C,R ) + ( PRES( C,R,L ) - 5856.0 ) * CXX( C,R )
 
                CSTAR  = MAX ( 30.0, ABS( FC * GC ) )
-
-!     write( *,logdev ) "MFRC= ", MFRC, "C= ", CSTAR, "LAT= ", LATABS,
-!    &                  "PRES= ", PRES( C,R,L )
 
                CGRID( C,R,L,VO3 ) = 0.001 * CSTAR * ABS( PV( C,R,L ) )
                IF ( VO3T .GT. 0 ) THEN

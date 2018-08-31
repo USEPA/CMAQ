@@ -74,7 +74,7 @@ C %% G. Sarwar: added data for iodine and bromine species (03/2016)
 C %% B. Hutzell: added dry deposition data for methane, acrylic acid, methyl chloride,
 C    and acetonitrile (09/2016)   
 C-------------------------------------------------------------------------------
-
+      Use RUNTIME_VARS
       Use GRID_CONF           ! horizontal & vertical domain specifications
       Use LSM_MOD             ! Land surface data
       Use DEPVVARS, Only: ltotg
@@ -217,7 +217,6 @@ C Land use information:
 
       Logical, Save :: MET_INITIALIZED = .false.
       Real,    Save :: CONVPA             ! Pressure conversion factor file units to Pa
-      Logical, Save :: MINKZ     
       Logical, Save :: CSTAGUV            ! Winds are available with C stagger?
       Logical, Save :: ifwr     = .false.
 
@@ -233,7 +232,6 @@ C Land use information:
       Character( 16 ), Private, Save :: vname_rc, vname_rn, vname_uc, vname_vc
       Real,            Private, Save :: P0    ! reference pressure (100000.0 Pa) for Potential Temperature, note that in meteorology they do not use the SI 1 ATM.  
 
-      Integer, Private, Save :: LOGDEV
       Integer, Private, Save :: GXOFF, GYOFF              ! global origin offset from file
       Integer, Private, Save :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 ! MET_CRO_3D
       Integer, Private, Save :: STRTCOLMD3, ENDCOLMD3, STRTROWMD3, ENDROWMD3 ! MET_DOT_3D
@@ -410,7 +408,7 @@ C Land use information:
       CONTAINS
 
 C=======================================================================
-         Subroutine INIT_MET ( JDATE, JTIME, ABFLUX )
+         Subroutine INIT_MET ( JDATE, JTIME )
 
 C-----------------------------------------------------------------------
 C   30 Mar 01 J.Young: dyn alloc - Use HGRD_DEFN; replace INTERP3 with INTERPX;
@@ -432,7 +430,6 @@ C-----------------------------------------------------------------------
 
 C Arguments:
          Integer, Intent( IN ) :: JDATE, JTIME      ! internal simulation date&time
-         Logical, Intent( IN ) :: ABFLUX
 
 C File variables:
          Real, Pointer    :: MSFX2   ( :,: )
@@ -452,8 +449,6 @@ C for INTERPX
          Integer ALLOCSTAT
 
 C-----------------------------------------------------------------------
-
-         LOGDEV = INIT3()
 
          If( MET_INITIALIZED )Return
 
@@ -669,21 +664,6 @@ C-----------------------------------------------------------------------
                Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End Select
 
-         MINKZ = .True.   ! default
-         MINKZ = ENVYN( 'KZMIN', 'Kz min on flag', MINKZ, ALLOCSTAT )
-         If ( ALLOCSTAT .Ne. 0 ) Write( LOGDEV,'(5X, A)' ) 'Kz min on flag'
-         Select Case( ALLOCSTAT )
-            Case (  1 ) 
-               XMSG = 'Environment variable improperly formatted'
-               Call M3WARN( PNAME, JDATE, JTIME, XMSG )
-            Case ( -1 )
-               XMSG = 'Environment variable set, but empty ... Using default:'
-               Write( LOGDEV,'(5X, A)' ) XMSG
-            Case ( -2 )
-               XMSG = 'Environment variable not set ... Using default:'
-               Write( LOGDEV,'(5X, A)' ) XMSG
-         End Select
-
          If ( .Not. MINKZ ) Then
             XMSG = 'This run uses Kz0UT, *NOT* KZMIN in subroutine edyintb.'
             Write( LOGDEV,'(/5X, A, /)' ) XMSG
@@ -828,7 +808,7 @@ C-----------------------------------------------------------------------
          End Subroutine INIT_MET
 
 C=======================================================================
-         Subroutine GET_MET ( JDATE, JTIME, TSTEP, ABFLUX )
+         Subroutine GET_MET ( JDATE, JTIME, TSTEP )
 
 C-----------------------------------------------------------------------
 C   30 Mar 01 J.Young: dyn alloc - Use HGRD_DEFN; replace INTERP3 with INTERPX;
@@ -858,7 +838,6 @@ C-----------------------------------------------------------------------
 C Arguments:
 
          Integer, Intent( IN ) :: JDATE, JTIME, TSTEP      ! internal simulation date&time
-         Logical, Intent( IN ) :: ABFLUX
 
 C Parameters:
          Real, Parameter :: cond_min = 1.0 / resist_max ! minimum conductance [m/s]

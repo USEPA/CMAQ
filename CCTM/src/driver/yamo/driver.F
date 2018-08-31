@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/driver/yamo/driver.F,v 1.10 2012/01/19 14:32:57 yoj Exp $ 
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C @(#)driver.F  1.2 /project/mod3/CMAQ/src/driver/ctm/SCCS/s.driver.F 07 Jul 1997 09:20:18
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 #ifdef twoway
       SUBROUTINE CMAQ_DRIVER ( WRF_SDATE, WRF_STIME, WRF_TSTEP, WRF_NSTEP,
@@ -108,6 +101,7 @@ C-----------------------------------------------------------------------
       USE PA_DEFN, Only: LIPR, LIRR  ! Process Anaylsis control and data variables
       USE PAGRD_DEFN            ! Process Anaylsis horiz domain specs
       USE UTILIO_DEFN
+      USE RUNTIME_VARS
       USE VERTEXT_MODULE
 
 #ifdef twoway
@@ -135,14 +129,8 @@ C Include Files:
       INCLUDE 'mpif.h'
 #endif
 
-C External Functions:
-      INTEGER, EXTERNAL :: SETUP_LOGDEV
-
 C Local variables:
 
-      INTEGER      LOGDEV       ! FORTRAN unit number for log file
-      INTEGER      STDATE       ! starting date,    format YYYYDDD
-      INTEGER      STTIME       ! starting time,    format HHMMSS
       INTEGER, SAVE :: TSTEP( 3 ) ! time step vector (HHMMSS)
                                   ! TSTEP(1) = local output step
                                   ! TSTEP(2) = sciproc sync. step (chem)
@@ -158,6 +146,11 @@ C Local variables:
       INTEGER, SAVE :: JTIME    ! current model time, coded HHMMSS
       INTEGER          C, R, L, K, S, V     ! loop induction variables
       INTEGER          ALLOCSTAT
+      INTEGER          NFILE, IFILE
+      LOGICAL          EXST, OPD
+      CHARACTER( 1000 ) :: CFILE
+      CHARACTER(   16 ) :: ACT
+      REAL( 8 )         :: CPU_TIME_START, CPU_TIME_FINISH
 
       CHARACTER(  2 ) :: COLROW = 'CR'  ! col/row arg list order
       CHARACTER( 16 ) :: PNAME = 'DRIVER'
@@ -168,31 +161,28 @@ C Local variables:
       REAL    DIVFAC      ! trapezoidal average factor
       INTEGER A_NLYS
 
-      INTEGER NPROCS      ! number of processors
 #ifdef parallel
 !     INTEGER, PARAMETER :: GEO_ORI = 0   ! stenex array order: 0 (Cartesian), 1 (Matrix)
-      INTEGER PAR_ERR     ! Error code from parallel initialization
-      REAL    BEGTIME     ! Wall-clock time (sec) at MPI initialization
-      REAL    ENDTIME     ! Wall-clock time (sec) at MPI finish
+      INTEGER   PAR_ERR     ! Error code from parallel initialization
+      REAL( 8 ) BEGTIME     ! Wall-clock time (sec) at MPI initialization
+      REAL( 8 ) ENDTIME     ! Wall-clock time (sec) at MPI finish
 #endif
-      INTEGER ELAPTIME    ! ENDTIME-BEGTIME
+      REAL( 8 ) ELAPTIME    ! ENDTIME-BEGTIME
 
       LOGICAL, SAVE :: FIRST_RUN = .TRUE.  ! used for twoway model
       LOGICAL       :: WFLG                ! turn on write subdmap in pio_init
 
 #ifdef twoway
-      LOGICAL, SAVE :: SD_TIME_SERIES
-      LOGICAL       :: CMAQ_WRF_FEEDBACK
       INTEGER, SAVE :: myNREPS = 0
 #endif
 
       INTEGER, SAVE :: STEP_COUNT = 0, TOTAL_STEPS = 0
-      INTEGER       :: STATUS, RUNLEN
+      INTEGER       :: STATUS
 
       INTERFACE
-         SUBROUTINE INITSCEN ( CGRID, STDATE, STTIME, TSTEP, NSTEPS )
+         SUBROUTINE INITSCEN ( CGRID, TSTEP, NSTEPS )
             REAL, POINTER            :: CGRID( :,:,:,: )
-            INTEGER, INTENT( OUT )   :: STDATE, STTIME, TSTEP( 3 )
+            INTEGER, INTENT( OUT )   :: TSTEP( 3 )
             INTEGER, INTENT( OUT )   :: NSTEPS
          END SUBROUTINE INITSCEN
          SUBROUTINE ADVSTEP ( JDATE, JTIME, TSTEP, ASTEP, NREPS )
@@ -241,24 +231,22 @@ C-----------------------------------------------------------------------
          TSTEP( 3 ) = SEC2TIME( WRF_TSTEP )
          NSTEPS     = WRF_NSTEP
 
-         RUNLEN = ENVINT( 'CTM_RUNLEN', ' ', RUNLEN, STATUS )
          TOTAL_STEPS = TIME2SEC( RUNLEN ) / WRF_TSTEP
 #endif
 
 #ifdef parallel
-C Start up processor communication
+C Start up processor communication and retrieve number of compute
+C processes (NPROCS)
          CALL MPCOMM_INIT( NPROCS, MYPE, BEGTIME, PAR_ERR )
 #else
          NPROCS = 1
          MYPE = 0
 #endif
 
+C Initialize Environment Variables
          JDATE = 0
          JTIME = 0
-
-C Start I/O-API and set up log file(s)
-!        LOGDEV = INIT3()
-         LOGDEV = SETUP_LOGDEV()
+         CALL INIT_ENV_VARS( JDATE, JTIME )
 
 C Set up horizontal domain, calculate processor-to-subdomain maps
 C and define vertical layer structure (in module GRID_CONF)
@@ -322,7 +310,7 @@ C Generate the process analysis data: load PA_DEFN module
 C Set up horizontal domain and calculate processor-to-subdomain maps for
 C process analysis, if required
          IF ( LIPR .OR. LIRR ) THEN
-            IF ( .NOT. PAGRD_INIT( NPROCS, MYPE ) ) THEN
+            IF ( .NOT. PAGRD_INIT( MYPE ) ) THEN
                XMSG = '*** Failure defining PA domain configuration'
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
@@ -331,11 +319,11 @@ C process analysis, if required
          IF ( NSPCSD .GT. MXVARS3 ) THEN
             WRITE( XMSG,'(5X, A, I5, A)' ) 'The number of variables,', NSPCSD,
      &      ' to be written to the State CGRID File'
-            WRITE( LOGDEV, '( A )' ) XMSG
+            CALL LOG_MESSAGE( LOGDEV, XMSG )
             WRITE( XMSG,'(5X, A, I5)' ) 'exceeds the I/O-API limit:', MXVARS3
-            WRITE( LOGDEV, '( A )' ) XMSG
+            CALL LOG_MESSAGE( LOGDEV, XMSG )
             XMSG = 'Recompile with an I/O-API lib having a larger MXVARS3'
-            WRITE( LOGDEV, '( 5X, A )' ) XMSG
+            CALL LOG_MESSAGE( LOGDEV, XMSG )
             CALL M3EXIT( PNAME, JDATE, JTIME, ' ', XSTAT1 )
          END IF
 
@@ -354,6 +342,10 @@ C Get avg CONC definitions, species and layer pointers (in AVG_CONC F90 module)
          CALL A_CONC_DEFN ()
          A_NLYS = ACONC_ELEV - ACONC_BLEV + 1
 
+C Miscellaneous Configuration Operations
+         WRITE( LOGDEV, * )
+         CALL LOG_HEADING( LOGDEV, "Configure Scenario" )
+
 C Initialize optional derived vertical velocity writes to conc file
          IF ( .NOT. WVEL_INIT () ) THEN
             XMSG = 'Failure initializing derived vertical velocity writes'
@@ -362,7 +354,7 @@ C Initialize optional derived vertical velocity writes to conc file
 
 C Initialize conc field: Copy IC's to CONC file as step 0
 C Convention: the input file concentration units are always ppmV.
-         CALL INITSCEN ( CGRID, STDATE, STTIME, TSTEP, NSTEPS )
+         CALL INITSCEN ( CGRID, TSTEP, NSTEPS )
          JDATE = STDATE; JTIME = STTIME
          CALL CKSUMMER ( 'INITSCEN', CGRID, JDATE, JTIME )
 
@@ -377,41 +369,24 @@ C Verify input file header consistency and run duration
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
-!        AGRID = 0.0
-
          ALLOCATE ( ASTEP( NLAYS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'ASTEP memory allocation failed'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
-         FIRST_RUN = .FALSE.
-
 #ifdef twoway
-         CMAQ_WRF_FEEDBACK = ENVYN( 'CMAQ_WRF_FEEDBACK', ' ', .FALSE., STATUS )
-         IF ( STATUS .EQ. 1 ) THEN
-            PRINT *, 'Environment variable improperly formatted'
-            STOP
-         ELSE IF ( STATUS .EQ. -1 ) THEN
-            PRINT *, 'Environment variable set, but empty ... Using default:'
-         ELSE IF ( STATUS .EQ. -2 ) THEN
-            PRINT *, 'Environment variable not set ... Using default:'
-         END IF
-
          IF ( CMAQ_WRF_FEEDBACK ) THEN
             CALL FEEDBACK_SETUP ( JDATE, JTIME, TSTEP( 3 ) )
          END IF
-
-         SD_TIME_SERIES = ENVYN( "SD_TIME_SERIES", ' ', .FALSE., STATUS )
-         IF ( SD_TIME_SERIES ) THEN
-            CALL SD_TIME_SERIES_INIT ( LOGDEV, TSTEP( 3 ) )
-            CALL OUTPUT_SD_TIME_SERIES ( CGRID, JDATE, JTIME )
-         END IF
 #endif
+         FIRST_RUN = .FALSE.
 
       END IF ! first_run
 
 C Main processing loop:
+      IF ( MYPE .EQ. 0 ) WRITE( OUTDEV, * )
+      IF ( MYPE. EQ. 0 ) CALL LOG_HEADING( OUTDEV, "Time Integration" )
 
 #ifdef twoway
       TWOWAY_JDATE = JDATE
@@ -509,11 +484,14 @@ C science process sequence:
 C write conc fields
 
          IF ( MOD( TIME2SEC( JTIME ), TIME2SEC( TSTEP( 1 ) ) ) .EQ. 0 ) THEN
+            CPU_TIME_START =  MPI_WTIME()
             CALL WR_CONC ( JDATE, JTIME, TSTEP( 1 ) )
-            IF ( LDOVEXT ) CALL WR_VEXT ( JDATE, JTIME, TSTEP( 1 ) )
+            IF ( LVEXT ) CALL WR_VEXT ( JDATE, JTIME, TSTEP( 1 ) )
             CALL WR_ACONC ( AGRID, JDATE, JTIME, TSTEP( 1 ) )
             IF ( LIPR .OR. LIRR ) CALL PA_OUTPUT ( CGRID, JDATE, JTIME )
+            IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 3 )
          END IF
+ 
 
 #ifdef twoway
          IF ( SD_TIME_SERIES ) THEN
@@ -536,19 +514,30 @@ C write CGRID state file for subsequent runs
 
 C Shut down IOAPI
       IF ( SHUT3() ) THEN
-         XMSG = '>>---->  Program completed successfully  <----<<'
-         WRITE ( LOGDEV,'( //5X, A, / )' ) XMSG
-         WRITE( LOGDEV,2015 ) DT2STR( JDATE, JTIME ), JDATE, JTIME
+         WRITE( LOGDEV, * )
+         CALL LOG_HEADING( LOGDEV, 'Program Completed Successfully' )
+         WRITE( XMSG, '(A,A,A,I7,A,I6.6,A)' ) 'Date and time ',
+     &          DT2STR( JDATE, JTIME ), ' (',JDATE,':',JTIME,')' 
+         CALL LOG_MESSAGE( LOGDEV, XMSG ) 
+
+         IF ( MYPE .EQ. 0 ) WRITE( OUTDEV, * )
+         IF ( MYPE .EQ. 0 ) CALL LOG_HEADING( OUTDEV, 'Program Completed Successfully' )
+         IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
       ELSE
-         XMSG = ' *** FATAL ERROR shutting down Models-3 I/O *** '
-         WRITE ( LOGDEV,'( //5X, A, / )' ) XMSG
+         CALL LOG_MESSAGE( LOGDEV, ' *** FATAL ERROR shutting down Models-3 I/O *** ' )
       END IF
 
 #ifdef parallel
 C Shut down MPI
-      ENDTIME = REAL( MPI_WTIME() )   ! get final wall-clock time
-      ELAPTIME = NINT ( ENDTIME - BEGTIME )
-      IF ( MYPE .EQ. 0 ) WRITE( *,2021 ) ELAPTIME
+      ENDTIME = MPI_WTIME()   ! get final wall-clock time
+      ELAPTIME = ENDTIME - BEGTIME
+      WRITE( XMSG, '(A,F10.1,A)' ) 'The elapsed time for this simulation was', 
+     &                            ELAPTIME, ' seconds.'
+      CALL LOG_MESSAGE( LOGDEV, XMSG )
+      IF ( MYPE .EQ. 0 ) WRITE( OUTDEV, * )
+      IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
+      IF ( MYPE .EQ. 0 ) WRITE( OUTDEV, * )
+
       CALL MPI_FINALIZE ( PAR_ERR )
       IF ( PAR_ERR .NE. 0 ) THEN
          STOP 'Error terminating MPI'
@@ -556,7 +545,6 @@ C Shut down MPI
 #endif
 
 2015  FORMAT( 5X , 'Date and time ', A, ' (', I7, ':', I6.6, ')' )
-2021  FORMAT( //5X, 'The elapsed time for this job was', I7.6, ' seconds.' / )
 
       END PROGRAM DRIVER
 #endif

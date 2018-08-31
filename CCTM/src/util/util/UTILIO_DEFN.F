@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/util/util/UTILIO_DEFN.F,v 1.3 2011/10/21 16:11:36 yoj Exp $ 
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C....................................................................
 C  CONTAINS:  This module provides the interface to the Models3 IOAPI
 C     using the M3UTILIO module.  For parallel implementation of CMAQ, 

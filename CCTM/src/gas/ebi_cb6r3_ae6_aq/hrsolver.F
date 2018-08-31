@@ -17,7 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
        SUBROUTINE HRSOLVER( JDATE, JTIME, C, R, L )
 
 
@@ -38,6 +37,7 @@ C                        modules instead of include files and 2) to use
 C                        real(8) variables
 C**********************************************************************
 
+      USE RUNTIME_VARS
       USE UTILIO_DEFN
       USE RXNS_DATA
       USE HRDATA
@@ -121,12 +121,11 @@ C..SCRATCH LOCAL VARIABLES:
 #endif
 
       INTERFACE ! for degrade algorithm
-        SUBROUTINE DEGRADE( CBLK, DT, JDATE, JTIME, LOGDEV )
+        SUBROUTINE DEGRADE( CBLK, DT, JDATE, JTIME )
           REAL( 8 ), INTENT( IN ) :: CBLK( : )      ! array holding species concentrations
           REAL( 8 ), INTENT( IN ) :: DT             ! time step for integrations [sec]
           INTEGER,   INTENT( IN ) :: JDATE          ! current model date , coded YYYYDDD
           INTEGER,   INTENT( IN ) :: JTIME          ! current model time , coded HHMMSS
-          INTEGER,   INTENT( IN ) :: LOGDEV         ! unit number for the log
         END SUBROUTINE
       END INTERFACE
 
@@ -135,7 +134,6 @@ C**********************************************************************
 
        IF( LFIRST ) THEN
           LFIRST = .FALSE.
-          LOGDEV = INIT3( )
 
           ALLOCATE ( LEBISPFL( NUMB_MECH_SPC ), STAT = ERR )
           IF ( ERR .NE. 0 ) THEN
@@ -352,12 +350,12 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 
                IF( LEBI_CONV ) THEN
 
-                DTG = 60.0D0 * DTC
-                DO S = 1, NUMB_MECH_SPC
-                   M = CGRID_INDEX( S )
-                   YCCELL( M ) = YC( S )
-                END DO
-                IF( CALL_DEG )CALL DEGRADE(YCCELL, DTG, JDATE, JTIME, LOGDEV) ! :WTH Call degradation routine
+                  DTG = 60.0D0 * DTC
+                  DO S = 1, NUMB_MECH_SPC
+                     M = CGRID_INDEX( S )
+                     YCCELL( M ) = YC( S )
+                  END DO
+                  IF(CALL_DEG)CALL DEGRADE(YCCELL, DTG, JDATE, JTIME ) ! :WTH Call degradation routine
 
                  IF( CALL_IRR ) CALL PA_IRR ( .FALSE., RKI, YC, DTC )
 #ifdef isam

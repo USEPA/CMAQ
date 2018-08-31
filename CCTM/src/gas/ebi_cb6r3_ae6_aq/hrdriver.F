@@ -17,7 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
        SUBROUTINE CHEM( CGRID, JDATE, JTIME, TSTEP )
 C**********************************************************************
 C
@@ -147,20 +146,18 @@ C for INTERPX
            INTEGER, INTENT( IN ) :: JTIME    ! Current time (HHMMSS)
            INTEGER, INTENT( IN ) :: C, R, L  ! Cell col, row, lev
         END SUBROUTINE HRSOLVER
-         SUBROUTINE FIND_DEGRADED( JDATE, JTIME, LOGDEV, CALL_DEGRADE )
+         SUBROUTINE FIND_DEGRADED( JDATE, JTIME, CALL_DEGRADE )
            INTEGER, INTENT( IN )  :: JDATE        ! current model date , coded YYYYDDD
            INTEGER, INTENT( IN )  :: JTIME        ! current model time , coded HHMMSS
-           INTEGER, INTENT( IN )  :: LOGDEV       ! unit number for the log file
            LOGICAL, INTENT( OUT ) :: CALL_DEGRADE ! whether to call degradation routines
          END SUBROUTINE FIND_DEGRADED
-         SUBROUTINE INIT_DEGRADE( CBLK, TCELL, DCELL, PHOTO_CELL, JDATE, JTIME, LOGDEV )
+         SUBROUTINE INIT_DEGRADE( CBLK, TCELL, DCELL, PHOTO_CELL, JDATE, JTIME )
            REAL( 8 ), INTENT( IN ) :: CBLK( : )       !  species concentration in cell
            REAL,      INTENT( IN ) :: TCELL           !  cell temperature  [ k ]
            REAL,      INTENT( IN ) :: DCELL           !  cell air density  [ kg/m^3 ]
            REAL( 8 ), INTENT( IN ) :: PHOTO_CELL( : ) !  Photolysis table for cell [1/s]
            INTEGER,   INTENT( IN ) :: JDATE  ! current model date , coded YYYYDDD
            INTEGER,   INTENT( IN ) :: JTIME  ! current model time , coded HHMMSS
-           INTEGER,   INTENT( IN ) :: LOGDEV ! unit number for the log
          END SUBROUTINE INIT_DEGRADE
          SUBROUTINE FINAL_DEGRADE( CBLK )
            REAL( 8 ), INTENT( INOUT ) :: CBLK( : )    !  species concentration in cell
@@ -175,8 +172,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  On first call, call routines to set-up for EBI solver
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF( LFIRST ) THEN
-
-         LOGDEV = INIT3( )
 
          IF( MECHNAME .NE. 'CB6R3_AE6_AQ' ) THEN
              MSG = 'This version of the EBI solver can only be used with'
@@ -212,7 +207,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 ! Determine whether DEGRADE rountines are needed.
 
-         CALL FIND_DEGRADED( JDATE, JTIME, LOGDEV, CALL_DEG )
+         CALL FIND_DEGRADED( JDATE, JTIME, CALL_DEG )
          IF( CALL_DEG )THEN
             WRITE(LOGDEV,*)'TX DEGRADE ROUTINES USED'
             WRITE(LOGDEV,*)'Mechanism contains degraded species'
@@ -436,7 +431,7 @@ c..Load ICs
                      YCCELL( S ) = REAL( CGRID(C,R,L,S), 8)
                   END DO
                   CALL INIT_DEGRADE(YCCELL,TA(C,R,L),DENS(C,R,L),RJIN(NCELL,:),
-     &                              JDATE, JTIME, LOGDEV)
+     &                              JDATE, JTIME )
                END IF
 
 c..Set physical quantities

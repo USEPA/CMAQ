@@ -17,12 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/STK_PRMS.F,v 1.5 2012/01/19 15:28:13 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE STK_PRMS
 
@@ -80,7 +74,6 @@ c     END TYPE RARRY1
 
          CHARACTER( 16 ), INTENT( IN ) :: STKPRMS( : )   ! stack groups file names
          LOGICAL SUCCESS
-         INTEGER LOGDEV
 
          REAL,    ALLOCATABLE :: XLOCA( : )
          REAL,    ALLOCATABLE :: YLOCA( : )
@@ -101,7 +94,6 @@ C-----------------------------------------------------------------------
 
          SUCCESS = .TRUE.
 
-         LOGDEV = INIT3()
          M = MYPE + 1
          SCOL = COLSX_PE( 1,M ); ECOL = COLSX_PE( 2,M )
          SROW = ROWSX_PE( 1,M ); EROW = ROWSX_PE( 2,M )
@@ -268,16 +260,6 @@ C SOURCE maps STKEMIS read from stk emis file to local STKEM in GET_PT3D_EMIS.
             MY_END_SRC( N ) = END_SRC
             MY_DELTA = END_SRC - STRT_SRC + 1
 
-            WRITE( LOGDEV,1009 ) MYPE, N, MY_STRT_SRC( N ), MY_END_SRC( N ),
-     &                           MY_DELTA, MY_NSRC( N )
-!           write( logdev,'( 5x, a, i2, a )' ) '-> my_stkid(', n, ' )'
-!           write( logdev,'( 5x, "->", 24i3 )' )
-!    &                     ( my_stkid( n )%arry( s ), s = 1, my_nsrc( n ) )
-
-!           write( logdev,'( 5x, a, i2, a )' ) '-> source(', n, ' )'
-!           write( logdev,'( 5x, "->", 24i3 )' )
-!    &                     ( source( n )%arry( s ), s = 1, my_nsrc( n ) )
-
             STKDIAM( N )%LEN = MY_DELTA
             ALLOCATE ( STKDIAM( N )%ARRY( MY_DELTA ), STAT = ASTAT )
             CALL CHECKMEM( ASTAT, 'STKDIAM', PNAME )
@@ -378,10 +360,6 @@ C SOURCE maps STKEMIS read from stk emis file to local STKEM in GET_PT3D_EMIS.
          END DO   ! NGRPS
 
          RETURN
-
-1009     FORMAT( / 5X, '->  me', 3X, 'file', 3X, 'my_strt_src', 3X, 'my_end_src',
-     &             2X, 'delta', 6X, 'my_nsrc'
-     &           / 5X, '->', I3, 4X, I2, 4( 2X, I10 ) )
 
          END FUNCTION STK_PRMS_INIT
 

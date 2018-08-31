@@ -26,7 +26,7 @@ C %W% %P% %G% %U%
 
 
       SUBROUTINE INIT_DEGRADE( CBLK, TCELL, DCELL, PHOTO_CELL, NUMCELLS,
-     &                         JDATE, JTIME, LOGDEV, BLKID )
+     &                         JDATE, JTIME, BLKID )
 C**********************************************************************
 C
 C  FUNCTION:  Initialize arrays used by degrade routines then load
@@ -57,7 +57,6 @@ C.....ARGUMENTS:
       INTEGER,   INTENT( IN ) :: NUMCELLS  ! number of grid cells in block
       INTEGER,   INTENT( IN ) :: JDATE     ! current model date , coded YYYYDDD
       INTEGER,   INTENT( IN ) :: JTIME     ! current model time , coded HHMMSS
-      INTEGER,   INTENT( IN ) :: LOGDEV    ! unit number for the log
       INTEGER,   INTENT( IN ) :: BLKID     ! number for the block
 
 C.....LOCAL VARIABLES:

@@ -12,10 +12,16 @@
 #> Runtime Environment Options
 # ===================================================================
 
+echo 'Start Model Run At ' `date`
+
+#> Toggle Diagnostic Mode which will print verbose information to 
+#> standard output
+ setenv CTM_DIAG_LVL 0
+
 #> Choose compiler and set up CMAQ environment with correct 
 #> libraries using config.cmaq. Options: intel | gcc | pgi
  if ( ! $?compiler ) then
-   setenv compiler intel 
+   setenv compiler intel
  endif
 
 #> Source the config.cmaq file to set the build environment
@@ -37,17 +43,26 @@
 
 #> Set the build directory (this is where the CMAQ executable
 #> is located by default).
- set BLD      = ${CMAQ_HOME}/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}
- set EXEC     = CCTM_${VRSN}.exe  
- cat $BLD/CCTM_${VRSN}.cfg; echo "    "; set echo
+ setenv BLD    ${CMAQ_HOME}/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}
+ set EXEC    = CCTM_${VRSN}.exe  
+
+#> Output Each line of Runscript to Log File
+ if ( $CTM_DIAG_LVL != 0 ) set echo 
 
 #> Set Working, Input, and Output Directories
  setenv WORKDIR ${CMAQ_HOME}/CCTM/scripts       #> Working Directory. Where the runscript is.
  setenv OUTDIR  ${CMAQ_DATA}/output_CCTM_${RUNID} #> Output Directory
- setenv INPDIR  ${CMAQ_DATA}/SE52BENCH/single_day/cctm_input  #> Input Directory
+ setenv INPDIR  /work/MOD3DATA/SE52BENCH  #Input Directory
  setenv LOGDIR  ${OUTDIR}/LOGS     #> Log Directory Location
  setenv NMLpath ${BLD}             #> Location of Namelists. Common places are: 
                                    #>   ${WORKDIR} | ${CCTM_SRC}/MECHS/${MECH} | ${BLD}
+
+ echo ""
+ echo "Working Directory is $WORKDIR"
+ echo "Build Directory is $BLD"
+ echo "Output Directory is $OUTDIR"
+ echo "Log Directory is $LOGDIR"
+ echo "Executable Name is $EXEC"
 
 # =====================================================================
 #> CCTM Configuration Options
@@ -72,23 +87,41 @@ else
    setenv NPCOL_NPROW "$NPCOL $NPROW"; 
 endif
 
-#setenv LOGFILE $CMAQ_HOME/$RUNID.log  #> log file name; uncomment to write standard output to a log, otherwise write to screen
+#> Define Execution ID: e.g. [CMAQ-Version-Info]_[User]_[Date]_[Time]
+setenv EXECUTION_ID "CMAQ_CCTM${VRSN}_`id -u -n`_`date -u +%Y%m%d_%H%M%S_%N`"    #> Inform IO/API of the Execution ID
+echo ""
+echo "---CMAQ EXECUTION ID: $EXECUTION_ID ---"
+
+#> Logfile Options
+#> Master Log File Name; uncomment to write standard output to a log, otherwise write to screen
+#setenv LOGFILE $CMAQ_HOME/$RUNID.log  
+if (! -e $LOGDIR ) then
+  mkdir -p $LOGDIR
+endif
+setenv PRINT_PROC_TIME Y           #> Print timing for all science subprocesses to Logfile
+                                   #>   [ default: TRUE or Y ]
+setenv STDOUT T                    #> Override I/O-API trying to write information to both the processor 
+                                   #>   logs and STDOUT [ options: T | F ]
 
 setenv GRID_NAME SE52BENCH         #> check GRIDDESC file for GRID_NAME options
 setenv GRIDDESC $INPDIR/GRIDDESC   #> grid description file
 
+#> Retrieve the number of columns, rows, and layers in this simulation
+set NZ = 35
+set NX = `grep -A 1 ${GRID_NAME} ${GRIDDESC} | tail -1 | sed 's/  */ /g' | cut -d' ' -f6`
+set NY = `grep -A 1 ${GRID_NAME} ${GRIDDESC} | tail -1 | sed 's/  */ /g' | cut -d' ' -f7`
+set NCELLS = `echo "${NX} * ${NY} * ${NZ}" | bc -l`
+
 #> Output Species and Layer Options
-#>   CONC file species; comment or set to "ALL" to write all species to CONC
-#setenv CONC_SPCS "O3 NO ANO3I ANO3J NO2 FORM ISOP ANH4J ASO4I ASO4J" 
-#setenv CONC_BLEV_ELEV " 1 4" #> CONC file layer range; comment to write all layers to CONC
+   #> CONC file species; comment or set to "ALL" to write all species to CONC
+   #setenv CONC_SPCS "O3 NO ANO3I ANO3J NO2 FORM ISOP ANH4J ASO4I ASO4J" 
+   #setenv CONC_BLEV_ELEV " 1 4" #> CONC file layer range; comment to write all layers to CONC
 
-#>   ACONC file species; comment or set to "ALL" to write all species to ACONC
-#setenv AVG_CONC_SPCS "O3 NO CO NO2 ASO4I ASO4J NH3" 
-setenv AVG_CONC_SPCS "ALL" 
-setenv ACONC_BLEV_ELEV " 1 1" #> ACONC file layer range; comment to write all layers to ACONC
-setenv AVG_FILE_ENDTIME N     #> override default beginning ACON timestamp [ default: N ]
-
-setenv EXECUTION_ID $EXEC    #> define the model execution id
+   #> ACONC file species; comment or set to "ALL" to write all species to ACONC
+   #setenv AVG_CONC_SPCS "O3 NO CO NO2 ASO4I ASO4J NH3" 
+   setenv AVG_CONC_SPCS "ALL" 
+   setenv ACONC_BLEV_ELEV " 1 1" #> ACONC file layer range; comment to write all layers to ACONC
+   setenv AVG_FILE_ENDTIME N     #> override default beginning ACON timestamp [ default: N ]
 
 #> Sychronization Time Step and Tolerance Options
 setenv CTM_MAXSYNC 300       #> max sync time step (sec) [ default: 720 ]
@@ -119,6 +152,8 @@ setenv CLM_VERSION N         #> WRF CLM LSM
 setenv NOAH_VERSION N        #> WRF NOAH LSM
 setenv CTM_ABFLUX Y          #> ammonia bi-directional flux for in-line deposition 
                              #>    velocities [ default: N ]; ignore if CTM_ILDEPV = N
+setenv CTM_BIDI_FERT_NH3 T   #> subtract fertilizer NH3 from emissions because it will be handled
+                             #>    by the BiDi calculation [ default: Y ]
 setenv CTM_HGBIDI N          #> mercury bi-directional flux for in-line deposition 
                              #>    velocities [ default: N ]; ignore if CTM_ILDEPV = N
 setenv CTM_SFC_HONO Y        #> surface HONO interaction [ default: Y ]; ignore if CTM_ILDEPV = N
@@ -131,22 +166,24 @@ setenv CTM_ZERO_PCSOA N      #> turn off the emissions of the VOC precursor to p
                              #>    model for production runs. [ default: N ]
 
 #> Vertical Extraction Options
-setenv DOVERTEXT N
-setenv VERTLONLATPATH ${WORKDIR}/lonlat.csv
-#> Process Analysis Options
-setenv CTM_PROCAN N          #> use process analysis [ default: N]
-#> process analysis global column, row and layer ranges
-#> user must check GRIDDESC for validity!
-#setenv PA_BCOL_ECOL "10 320"
-#setenv PA_BROW_EROW "10 195"
-setenv PA_BLEV_ELEV "1  4"
+setenv VERTEXT N
+setenv VERTEXT_COORD_PATH ${WORKDIR}/lonlat.csv
 
 #> I/O Controls
 setenv IOAPI_LOG_WRITE F     #> turn on excess WRITE3 logging [ options: T | F ]
 setenv FL_ERR_STOP N         #> stop on inconsistent input files
 setenv PROMPTFLAG F          #> turn on I/O-API PROMPT*FILE interactive mode [ options: T | F ]
-setenv IOAPI_OFFSET_64 NO    #> support large timestep records (>2GB/timestep record) [ options: YES | NO ]
+setenv IOAPI_OFFSET_64 YES   #> support large timestep records (>2GB/timestep record) [ options: YES | NO ]
+setenv IOAPI_CHECK_HEADERS N #> check file headers [ options: Y | N ]
 setenv CTM_EMISCHK N         #> Abort CMAQ if missing surrogates from emissions Input files
+setenv EMISDIAG F            #> Print Emission Rates at the output time step after they have been
+                             #>   scaled and modified by the user Rules [options: F | T or 2D | 3D | 2DSUM ]
+                             #>   Individual streams can be modified using the variables:
+                             #>       GR_EMIS_DIAG_## | STK_EMIS_DIAG_## | BIOG_EMIS_DIAG
+                             #>       MG_EMIS_DIAG    | LTNG_EMIS_DIAG   | DUST_EMIS_DIAG
+                             #>       SEASPRAY_EMIS_DIAG   
+                             #>   Note that these diagnostics are different than other emissions diagnostic
+                             #>   output because they occur after scaling.
 setenv EMIS_DATE_OVRD N      #> Master switch for allowing CMAQ to use the date from each Emission file
                              #>   rather than checking the emissions date against the internal model date.
                              #>   [options: T | F or Y | N]. If false (F/N), then the date from CMAQ's internal
@@ -188,7 +225,6 @@ setenv EMISDIAG F            #> Print Emission Rates at the output time step aft
                              #>   output because they occur after scaling. 
 set DISP = delete            #> [ delete | keep ] existing output files
 
-
 # =====================================================================
 #> Input Directories and Filenames
 # =====================================================================
@@ -207,9 +243,11 @@ set SZpath    = $INPDIR/land              #> surf zone file for in-line seasalt 
 # =====================================================================
 #> Begin Loop Through Simulation Days
 # =====================================================================
+set rtarray = ""
 
 set TODAYG = ${START_DATE}
 set TODAYJ = `date -ud "${START_DATE}" +%Y%j` #> Convert YYYY-MM-DD to YYYYJJJ
+set START_DAY = ${TODAYJ} 
 set STOP_DAY = `date -ud "${END_DATE}" +%Y%j` #> Convert YYYY-MM-DD to YYYYJJJ
 
 while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
@@ -224,6 +262,21 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   set YESTERDAY = `date -ud "${TODAYG}-1days" +%Y%m%d` #> Convert YYYY-MM-DD to YYYYJJJ
 
 # =====================================================================
+#> Set Output String and Propagate Model Configuration Documentation
+# =====================================================================
+  echo ""
+  echo "Set up input and output files for Day ${TODAYG}."
+
+
+  #> set output file name extensions
+  setenv CTM_APPL ${RUNID}_${YYYYMMDD} 
+  
+  #> Copy Model Configuration To Output Folder
+  mkdir -p ${OUTDIR}
+  cp $BLD/CCTM_${VRSN}.cfg $OUTDIR/CCTM_${CTM_APPL}.cfg
+
+
+# =====================================================================
 #> Input Files (Some are Day-Dependent)
 # =====================================================================
 
@@ -232,8 +285,6 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      setenv ICFILE ICON_20110630_bench.nc
      setenv INIT_MEDC_1 notused
      setenv INITIAL_RUN Y #related to restart soil information file
-     rm -rf $LOGDIR/CTM_LOG*${RUNID}*  # Remove all Log Files Since this is a new start
-     mkdir -p $OUTDIR
   else
      set ICpath = $OUTDIR
      setenv ICFILE CCTM_CGRID_${RUNID}_${YESTERDAY}.nc
@@ -337,9 +388,9 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #> In-line biogenic emissions configuration
   if ( $CTM_BIOGEMIS == 'Y' ) then   
      set IN_BEISpath = ${INPDIR}/land
-     set GSPROpath   = ${IN_BEISpath}
      setenv GSPRO      $BLD/gspro_biogenics.txt
      setenv B3GRD      $IN_BEISpath/b3grd_bench.nc
+     setenv BIOG_SPRO  DEFAULT
      setenv BIOSW_YN   Y     #> use frost date switch [ default: Y ]
      setenv BIOSEASON  $IN_BEISpath/bioseason.cmaq.2011_12US1_wetland100.ghrsst_bench.ncf #> ignore season switch file if BIOSW_YN = N
      setenv SUMMER_YN  Y     #> Use summer normalized emissions? [ default: Y ]
@@ -377,22 +428,24 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      setenv E2C_FERT ${E2C_Fertfile}
      setenv BELD4_LU ${B4LU_file}
   endif
-#
-#> Inline Process Analysis (PACM = Process Analysis Control Module)
-      set procanon = 0
-      if ( $?CTM_PROCAN ) then   # $CTM_PROCAN is defined
-         if ( $CTM_PROCAN == 'Y' || $CTM_PROCAN == 'T' ) set procanon = 1
-      endif
-      if ( $procanon ) then
-         setenv PACM_INFILE ${NMLpath}/pa.CB6_v53
-         setenv PACM_REPORT $OUTDIR/"PA_REPORT".${YYYYMMDD}
-      endif
+
+#> Inline Process Analysis 
+  setenv CTM_PROCAN N          #> use process analysis [ default: N]
+  if ( $?CTM_PROCAN ) then   # $CTM_PROCAN is defined
+     if ( $CTM_PROCAN == 'Y' || $CTM_PROCAN == 'T' ) then
+#> process analysis global column, row and layer ranges
+#> user must check GRIDDESC for validity!
+        setenv PA_BCOL_ECOL "10 90"
+        setenv PA_BROW_EROW "10 80"
+        setenv PA_BLEV_ELEV "1  4"
+        setenv PACM_INFILE ${NMLpath}/pa_${MECH}.ctl
+        setenv PACM_REPORT $OUTDIR/"PA_REPORT".${YYYYMMDD}
+     endif
+  endif
 
 # =====================================================================
 #> Output Files
 # =====================================================================
-  #> set output file name extensions
-  setenv CTM_APPL ${RUNID}_${YYYYMMDD} 
 
   #> set output file names
   setenv S_CGRID         "$OUTDIR/CCTM_CGRID_${CTM_APPL}.nc"         #> 3D Inst. Concentrations
@@ -436,7 +489,10 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   if ( ! -d "$OUTDIR" ) mkdir -p $OUTDIR
 
   #> look for existing log files and output files
-  set log_test = `ls CTM_LOG_???.${CTM_APPL}`
+  ( ls CTM_LOG_???.${CTM_APPL} > buff.txt ) >& /dev/null
+  ( ls ${LOGDIR}/CTM_LOG_???.${CTM_APPL} >> buff.txt ) >& /dev/null
+  set log_test = `cat buff.txt`; rm -f buff.txt
+
   set OUT_FILES = (${FLOOR_FILE} ${S_CGRID} ${CTM_CONC_1} ${A_CONC_1} ${MEDIA_CONC}         \
              ${CTM_DRY_DEP_1} $CTM_DEPV_DIAG $CTM_PT3D_DIAG $B3GTS_S $SOILOUT $CTM_WET_DEP_1\
              $CTM_WET_DEP_2 $CTM_PMDIAG_1 $CTM_APMDIAG_1             \
@@ -445,22 +501,23 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
              $CTM_DRY_DEP_FST $CTM_DEPV_MOS $CTM_DEPV_FST $CTM_VDIFF_DIAG $CTM_VSED_DIAG    \
              $CTM_LTNGDIAG_1 $CTM_LTNGDIAG_2)
   set OUT_FILES = `echo $OUT_FILES | sed "s; -v;;g" `
-# echo $OUT_FILES
-  set out_test = `ls $OUT_FILES` 
-
+  ( ls $OUT_FILES > buff.txt ) >& /dev/null
+  set out_test = `cat buff.txt`; rm -f buff.txt
+  
   #> delete previous output if requested
   if ( $DISP == 'delete' ) then
+     echo 
+     echo "Existing Logs and Output Files for Day ${TODAYG} Will Be Deleted"
+
      #> remove previous log files
-     echo " ancillary log files being deleted"
-     foreach file ( $log_test )
-        echo " deleting $file"
+     foreach file ( ${log_test} )
+        #echo "Deleting Log File: $file"
         /bin/rm -f $file  
      end
-
+ 
      #> remove previous output files
-     echo " output files being deleted"
-     foreach file ( $out_test )
-        echo " deleting $file"
+     foreach file ( ${out_test} )
+        #echo "Deleting output file: $file"
         /bin/rm -f $file  
      end
      /bin/rm -f ${OUTDIR}/CCTM_EMDIAG*${RUNID}_${YYYYMMDD}.nc
@@ -473,8 +530,8 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
        echo "*** and these files will be automatically deleted. ***"
        exit 1
      endif
-
-     #> error if previous output files exist
+     
+     #> remove previous output files
      if ( "$out_test" != "" ) then
        echo "*** Output Files Exist - run will be ABORTED ***"
        foreach file ( $out_test )
@@ -528,31 +585,46 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 # ===================================================================
 
   #> Print attributes of the executable
-  ls -l $BLD/$EXEC; size $BLD/$EXEC
-  unlimit
-  limit
+  if ( $CTM_DIAG_LVL != 0 ) then
+     ls -l $BLD/$EXEC
+     size $BLD/$EXEC
+     unlimit
+     limit
+  endif
 
-  date
- 
+  #> Print Startup Dialogue Information to Standard Out
+  echo 
+  echo "CMAQ Processing of Day $YYYYMMDD Began at `date`"
+  echo 
+
   #> Executable call for single PE, uncomment to invoke
-  # /usr/bin/time  $BLD/$EXEC
+  #( /usr/bin/time -p $BLD/$EXEC ) |& tee buff_${EXECUTION_ID}.txt
 
   #> Executable call for multi PE, configure for your system 
   # set MPI = /usr/local/intel/impi/3.2.2.006/bin64
   # set MPIRUN = $MPI/mpirun
-  time mpirun -np $NPROCS $BLD/$EXEC
+  ( /usr/bin/time -p mpirun -np $NPROCS $BLD/$EXEC ) |& tee buff_${EXECUTION_ID}.txt
 
-  date
+  #> Harvest Timing Output so that it may be reported below
+  set rtarray = "${rtarray} `tail -3 buff_${EXECUTION_ID}.txt | grep -Eo '[+-]?[0-9]+([.][0-9]+)?' | head -1` "
+
+  #> Print Concluding Text
+  echo 
+  echo "CMAQ Processing of Day $YYYYMMDD Finished at `date`"
+  echo
+  echo "\\\\\=====\\\\\=====\\\\\=====\\\\\=====/////=====/////=====/////=====/////"
+  echo
+  rm -rf buff_${EXECUTION_ID}.txt
 
 # ===================================================================
 #> Finalize Run for This Day and Loop to Next Day
 # ===================================================================
 
   #> Save Log Files and Move on to Next Simulation Day
-  if (! -e $LOGDIR ) then
-    mkdir $LOGDIR
-  endif
   mv CTM_LOG_???.${CTM_APPL} $LOGDIR
+  if ( $CTM_DIAG_LVL != 0 ) then
+    mv CTM_DIAG_???.${CTM_APPL} $LOGDIR
+  endif
 
   #> The next simulation day will, by definition, be a restart
   setenv NEW_START false
@@ -562,5 +634,51 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   set TODAYJ = `date -ud "${TODAYG}" +%Y%j` #> Convert YYYY-MM-DD to YYYYJJJ
 
 end  #Loop to the next Simulation Day
+
+# ===================================================================
+#> Generate Timing Report
+# ===================================================================
+set NDAYS = `echo "$STOP_DAY - $START_DAY + 1" | bc -l`
+set RTMTOT = 0
+foreach it ( `seq ${NDAYS}` )
+    set rt = `echo ${rtarray} | cut -d' ' -f${it}`
+    set RTMTOT = `echo "${RTMTOT} + ${rt}" | bc -l`
+end
+
+set RTMAVG = `echo "scale=2; ${RTMTOT} / ${NDAYS}" | bc -l`
+set RTMTOT = `echo "scale=2; ${RTMTOT} / 1" | bc -l`
+
+echo
+echo "=================================="
+echo "  ***** CMAQ TIMING REPORT *****"
+echo "=================================="
+echo "Start Day: ${START_DATE}"
+echo "End Day:   ${END_DATE}"
+echo "Number of Simulation Days: ${NDAYS}"
+echo "Domain Name:               ${GRID_NAME}"
+echo "Number of Grid Cells:      ${NCELLS}  (ROW x COL x LAY)"
+echo "Number of Layers:          ${NZ}"
+echo "Number of Processes:       ${NPROCS}"
+echo "   All times are in seconds."
+echo
+echo "Num  Day        Wall Time"
+set d = 0
+set day = ${START_DATE}
+foreach it ( `seq ${NDAYS}` )
+    # Set the right day and format it
+    set d = `echo "${d} + 1"  | bc -l`
+    set n = `printf "%02d" ${d}`
+
+    # Choose the correct time variables
+    set rt = `echo ${rtarray} | cut -d' ' -f${it}`
+
+    # Write out row of timing data
+    echo "${n}   ${day}   ${rt}"
+
+    # Increment day for next loop
+    set day = `date -ud "${day}+1days" +%Y-%m-%d`
+end
+echo "     Total Time = ${RTMTOT}"
+echo "      Avg. Time = ${RTMAVG}"
 
 exit

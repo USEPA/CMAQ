@@ -137,7 +137,7 @@
 /
 
 !------------------------------------------------------------------------------!
-! Additional Emissions Scaling Variables                                        !
+! Additional Emissions Scaling Variables                                       !
 !    This section includes additional specific variables for governing the     !
 !    behavior of the emissions scaling routines. Explanations are provided     !
 !    below.                                                                    !

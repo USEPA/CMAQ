@@ -102,9 +102,8 @@ set ParOpt                             #> uncomment to build a multiple processo
  set ModDiag   = diag                  #> CCTM diagnostic modules
  set Tracer    = trac0                 #> tracer configuration directory under 
                                        #>   $CMAQ_MODEL/CCTM/src/MECHS [ default: no tracer species ]
- set ModPa     = procan/pa             #> name of process analysis. Include files are in directory 
-                                       #>   $CMAQ_MODEL/CCTM/src/ICL
- set ModPvO3   = pv_o3                 #> potential vorticity from the free troposphee
+ set ModPa     = procan/pa             #> CCTM process analysis
+ set ModPvO3   = pv_o3                 #> potential vorticity from the free troposphere
 
 #============================================================================================
 #> Computing System Configuration:

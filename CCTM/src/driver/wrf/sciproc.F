@@ -55,6 +55,7 @@ C    16 Sep 16 J.Young: update for inline procan (IPR)
 C-----------------------------------------------------------------------
 
       USE UTILIO_DEFN
+      USE RUNTIME_VARS
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
 #else
@@ -64,19 +65,20 @@ C-----------------------------------------------------------------------
 
       IMPLICIT NONE   
 
+      INCLUDE 'mpif.h'
+
 C Arguments:
       REAL, POINTER :: CGRID( :,:,:,: )
 
-      INTEGER      JDATE        ! current model date, coded YYYYDDD
-      INTEGER      JTIME        ! current model time, coded HHMMSS
-      INTEGER      TSTEP( 3 )   ! time step vector (HHMMSS)
-                                ! TSTEP(1) = local output step
-                                ! TSTEP(2) = sciproc sync. step (chem)
-                                ! TSTEP(3) = twoway model time step w.r.t. wrf time
-                                !            step and wrf/cmaq call frequency
+      INTEGER, INTENT(INOUT) :: JDATE        ! current model date, coded YYYYDDD
+      INTEGER, INTENT(INOUT) :: JTIME        ! current model time, coded HHMMSS
+      INTEGER, INTENT(IN)    :: TSTEP( 3 )   ! time step vector (HHMMSS)
+                                             ! TSTEP(1) = local output step
+                                             ! TSTEP(2) = sciproc sync. step (chem)
+                                             ! TSTEP(3) = twoway model time step w.r.t. wrf time
+                                             !            step and wrf/cmaq call frequency
 
-!     INTEGER      ASTEP( NLAYS )  ! layer advection time step
-      INTEGER      ASTEP( : )      ! layer advection time step
+      INTEGER, INTENT(IN)    :: ASTEP( : )   ! layer advection time step
 
 C Parameters:
 
@@ -86,12 +88,8 @@ C Local Variables:
 
       CHARACTER( 16 ) :: PNAME = 'SCIPROC'
 
-      LOGICAL, SAVE :: FIRSTIME = .TRUE.
-
       CHARACTER( 120 ) :: XMSG = ' '
       CHARACTER( 36 ) :: NMSG = 'After NEXTIME: returned JDATE, JTIME'
-
-      INTEGER, SAVE :: LOGDEV
 
       INTEGER      SDATE        ! current science process date, coded YYYYDDD
       INTEGER      STIME        ! current science process time, coded HHMMSS
@@ -100,8 +98,9 @@ C Local Variables:
       INTEGER      STATUS          ! ENV... status
       CHARACTER( 80 ) :: VARDESC   ! environment variable description
       CHARACTER( 80 ) :: MSG = ' '
-      CHARACTER( 16 ) :: CTM_CKSUM = 'CTM_CKSUM'     ! env var for cksum on
-      LOGICAL, SAVE   :: CKSUM     ! flag for cksum on, default = [T]
+      REAL( 8 )       :: CPU_TIME_START  ! Timing individual
+      REAL( 8 )       :: CPU_TIME_START_MASTER
+      CHARACTER( 24 ) :: CDATE_TIME
 
       INTERFACE
          SUBROUTINE CKSUMMER ( PNAME, CGRID, JDATE, JTIME )
@@ -177,32 +176,33 @@ C Local Variables:
   
 C-----------------------------------------------------------------------
 
-      IF ( FIRSTIME ) THEN
-         FIRSTIME = .FALSE.
-         LOGDEV = INIT3 ()
+! Write Time Step Information to Summary Logfile
+      IF ( MYPE .EQ. 0 ) WRITE( OUTDEV, * ) 
+      WRITE( LOGDEV, * )
 
-         CKSUM = .TRUE.         ! default
-         VARDESC = 'Cksum on flag'
-         CKSUM = ENVYN( CTM_CKSUM, VARDESC, CKSUM, STATUS )
-         IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-         IF ( STATUS .EQ. 1 ) THEN
-            XMSG = 'Environment variable improperly formatted'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-         ELSE IF ( STATUS .EQ. -1 ) THEN
-            MSG = 'Environment variable set, but empty ... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) MSG, JTIME
-         ELSE IF ( STATUS .EQ. -2 ) THEN
-            MSG = 'Environment variable not set ... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) MSG, JTIME
-         END IF
+      CPU_TIME_START = MPI_WTIME()
+      CPU_TIME_START_MASTER = CPU_TIME_START
+      WRITE( XMSG, '(A,I7.7,A,I6.6)' ), 'Processing Day/Time [YYYYDDD:HHMMSS]: ',JDATE, 
+     &       ':',JTIME
+      IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
+      CALL LOG_MESSAGE( LOGDEV, XMSG )
 
-      END IF       ! if firstime
+      CDATE_TIME = DT2STR( JDATE, JTIME )
+      WRITE( XMSG, '(2x,6A)' ), 'Which is Equivalent to (UTC): ',
+     &       CDATE_TIME(1:8),' ',TRIM( WEEKDAY( WKDAY( JDATE ) ) ),
+     &       ',', CDATE_TIME(9:)
+      IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
+      CALL LOG_MESSAGE( LOGDEV, XMSG )
+
+      WRITE( XMSG, '(2x,A,I6.6)' ), 'Time-Step Length (HHMMSS): ',TSTEP(2) 
+      IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
+      CALL LOG_MESSAGE( LOGDEV, XMSG )
 
 C Synchronization Step Physical Processes Sequence
-
       CALL VDIFF ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'VDIFF', CGRID, JDATE, JTIME )
       IF ( LIPR ) CALL PA_UPDATE ( 'VDIF', CGRID, JDATE, JTIME, TSTEP )
+      IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'VDIFF' )
 
 C couple CGRID for advection and horizontal diffusion
 C The COUPLE_WRF routine converts aerosol mass from ug/m3 to kg/m3. The 
@@ -210,19 +210,23 @@ C DECOUPL_WRF routine converts it back to ug/m3.
 
       CALL COUPLE_WRF ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'COUPLE_WRF', CGRID, JDATE, JTIME )
+      IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'COUPLE' )
 
       CALL SUBST_BARRIER()
       CALL HADV ( CGRID, JDATE, JTIME, TSTEP, ASTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'HADV', CGRID, JDATE, JTIME )
       IF ( LIPR ) CALL PA_UPDATE ( 'HADV', CGRID, JDATE, JTIME, TSTEP )
+      IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'HADV' )
 
       CALL ZADV ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'ADV', CGRID, JDATE, JTIME )
       IF ( LIPR ) CALL PA_UPDATE ( 'ZADV', CGRID, JDATE, JTIME, TSTEP )
+      IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'ZADV' )
 
       CALL HDIFF ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'HDIFF', CGRID, JDATE, JTIME )
       IF ( LIPR ) CALL PA_UPDATE ( 'HDIF', CGRID, JDATE, JTIME, TSTEP )
+      IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'HADV' )
 
 C decouple CGRID for cloud and chemistry
 
@@ -232,6 +236,7 @@ C decouple CGRID for cloud and chemistry
 
       CALL DECOUPLE_WRF ( CGRID, SDATE, STIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'DECOUPLE_WRF', CGRID, JDATE, JTIME )
+      IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'DECOUPLE' )
 
       CALL PHOT ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'PHOT', CGRID, JDATE, JTIME )
@@ -239,23 +244,32 @@ C decouple CGRID for cloud and chemistry
       CALL CLDPROC ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'CLDPROC', CGRID, JDATE, JTIME )
       IF ( LIPR ) CALL PA_UPDATE ( 'CLDS', CGRID, JDATE, JTIME, TSTEP )
+      IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'CLDPROC' )
 
       CALL CHEM ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'CHEM', CGRID, JDATE, JTIME )
       IF ( LIPR ) CALL PA_UPDATE ( 'CHEM', CGRID, JDATE, JTIME, TSTEP ) 
+      IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'CHEM' )
 
 #ifdef potvorto3
       CALL PVO3 ( CGRID, JDATE, JTIME )
       IF ( CKSUM ) CALL CKSUMMER ( 'PVO3', CGRID, JDATE, JTIME )
       IF ( LIPR ) CALL PA_UPDATE ( 'PVO3', CGRID, JDATE, JTIME, TSTEP )
+      IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'PVO3' )
 #endif
 
       CALL AERO ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'AERO', CGRID, JDATE, JTIME )
-      IF ( LIPR ) CALL PA_UPDATE ( 'AERO', CGRID, JDATE, JTIME, TSTEP )
+      IF ( LIPR ) CALL PA_UPDATE_AERO ( CGRID, JDATE, JTIME, TSTEP )
+      IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'AERO' )
 
       CALL NEXTIME ( JDATE, JTIME, TSTEP( 2 ) )
       WRITE( LOGDEV,'(/ 5X, A, I8, I7.6)' ) NMSG, JDATE, JTIME
+
+! Print Summary Timing for Master time step      
+      CALL TIMING_SPLIT ( CPU_TIME_START_MASTER, 2 )
+
+1002  FORMAT ( 2x, A15, ' completed... ', F6.1, ' seconds' )
 
       RETURN
       END

@@ -16,10 +16,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/vdiffacm2.F,v 1.13 2012/01/19 14:37:47 yoj Exp $
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE VDIFF ( CGRID, JDATE, JTIME, TSTEP )
 
@@ -30,7 +26,7 @@ C   calculates and writes dry deposition.
 C   calculates vertical diffusion
 
 C Subroutines and Functions Called:
-C   INIT3, SEC2TIME, TIME2SEC, WRITE3, NEXTIME,
+C   SEC2TIME, TIME2SEC, WRITE3, NEXTIME,
 C   M3EXIT, EDDYX, TRI, MATRIX, PA_UPDATE_EMIS, PA_UPDATE_DDEP
 
 C Revision History:
@@ -119,9 +115,7 @@ C External Functions: None
 
 C Local Variables: 
       CHARACTER( 16 ), SAVE :: PNAME = 'VDIFFPROC'
-      CHARACTER( 16 ), SAVE :: AERO_GRAV_SETL = 'CTM_GRAV_SETL'
       CHARACTER( 80 ) :: VARDESC                ! env variable description
-      LOGICAL, SAVE :: GRAV_SETL
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
       LOGICAL, SAVE :: WRITE_FIRSTIME = .TRUE.
       INTEGER, SAVE :: WSTEP  = 0               ! local write counter
@@ -151,8 +145,6 @@ C Local Variables:
       INTEGER, SAVE :: NH3_HIT
 C Local Variables
 
-      INTEGER, SAVE :: LOGDEV
- 
       INTEGER     ASTAT
       INTEGER     C, R, L, S, V, I, J, OFF      ! loop induction variables
       INTEGER     MDATE, MTIME, MSTEP           ! internal simulation date&time
@@ -198,7 +190,8 @@ C-----------------------------------------------------------------------
       IF ( FIRSTIME ) THEN
 
          FIRSTIME = .FALSE.
-         LOGDEV = INIT3()
+
+         CALL LOG_HEADING( LOGDEV, "Initialize Surface Exchange Module" )
 
          IF ( .NOT. DEPV_INIT ( JDATE, JTIME, TSTEP, CGRID ) ) THEN
             XMSG = 'Failure initializing deposition velocities module'
@@ -212,28 +205,16 @@ C create global maps
          END IF
 
 C Initialize the met data
-         CALL INIT_MET( JDATE, JTIME, ABFLUX )
+         CALL INIT_MET( JDATE, JTIME )
 
         IF ( HGBIDI ) THEN ! Initialize HGSIM module
            CALL INIT_HGSIM(JDATE, JTIME)
         END IF
 
-C Get gravitational settling (sedi) flag.
-         GRAV_SETL = .TRUE.         ! default
-         VARDESC = 'Using J-,K-mode aerosols gravitational settling'
-         GRAV_SETL = ENVYN( AERO_GRAV_SETL, VARDESC, GRAV_SETL, STATUS )
-         IF ( STATUS .EQ. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-
-C Get diagnostic files flag.
-         VDIFFDIAG = .FALSE.         ! default
-         VARDESC = 'Writing the VDIFF diagnostic files'
-         VDIFFDIAG = ENVYN( VDIFF_DIAG_FILE, VARDESC, VDIFFDIAG, STATUS )
-         IF ( STATUS .EQ. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
- 
 C Set output file characteristics based on COORD.EXT and open the dry dep file
          IF ( IO_PE_INCLUSIVE ) THEN
-            CALL OPDDEP ( JDATE, JTIME, TSTEP( 1 ), N_SPC_DDEP, ABFLUX )
-            IF ( ABFLUX .OR. HGBIDI  ) CALL OPASX_MEDIA( JDATE, JTIME, TSTEP( 1 ), ABFLUX )
+            CALL OPDDEP ( JDATE, JTIME, TSTEP( 1 ), N_SPC_DDEP )
+            IF ( ABFLUX .OR. HGBIDI ) CALL OPASX_MEDIA( JDATE, JTIME, TSTEP( 1 ) )
          END IF
 
 C Open vdiff diagnostics file (ioapi header from cgrd)
@@ -260,6 +241,8 @@ C Allocate and initialize dry deposition array
          END IF
          ICMP = 0.0   ! array assignment
 
+         CALL LOG_HEADING( LOGDEV, "Initialize Emissions Module" )
+
 C Allocate and initialize emissions
          IF ( .NOT. EMIS_INIT ( JDATE, JTIME, TSTEP( 1 ) ) ) THEN
             XMSG = 'Failure initializing emissions module'
@@ -268,6 +251,8 @@ C Allocate and initialize emissions
 
 C Set up for process analysis
          IF ( LIPR ) THEN
+            CALL LOG_HEADING( LOGDEV, "Initialize Surface Exchange for Process Analysis" )
+
             ALLOCATE ( EMIS_PA( NCOLS,NROWS,EMLAYS,N_SPC_DIFF ), STAT = ASTAT )
             IF ( ASTAT .NE. 0 ) THEN
                XMSG = 'EMIS_PA memory allocation failed'
@@ -282,6 +267,8 @@ C Set up for process analysis
 
 C Set up for grav. settling
          IF ( GRAV_SETL ) THEN
+            CALL LOG_HEADING( LOGDEV, "Set Up Gravitational Settling" )
+
             ALLOCATE ( VSED_AE( N_AE_SPC,NLAYS,NCOLS,NROWS ), STAT = ASTAT )
             IF ( ASTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating VSED_AE'
@@ -297,6 +284,7 @@ C Set up for grav. settling
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
          CNGRD = 0.0   ! array assignment
+ 
          NH3_HIT = 0
          DO V = 1, N_SPC_DDEP
             IF ( DDEP_SPC( V ) .EQ. 'NH3' ) NH3_HIT = V
@@ -314,7 +302,7 @@ C Convert non-molar mixing ratio species and re-order CGRID
       CALL CONV_CGRID ( CGRID, MDATE, MTIME, CNGRD )
 
 C read & interpolate met data
-      CALL GET_MET ( MDATE, MTIME, MSTEP, ABFLUX )
+      CALL GET_MET ( MDATE, MTIME, MSTEP )
 
 C read & interpolate deposition velocities
       CALL GET_DEPV ( MDATE, MTIME, TSTEP, CGRID )      
@@ -371,9 +359,7 @@ C EDDYV returned = Kz, where Kz is in m**2/sec
 
 C Calculate the change in concentration and dry dep from vertical diffusion and vsed
 C Note: cngrd is the argument keyword (from the INTERFACE); CNGRD is the actual argument
-!      IF ( .NOT. MOSAIC ) THEN
-         CALL VDIFFACMX( DTSEC, SEDDY, DDEP, ICMP,
-     &                   CNGRD )
+      CALL VDIFFACMX( DTSEC, SEDDY, DDEP, ICMP, CNGRD )
 
       IF ( VDIFFDIAG ) THEN
          NTICS = NTICS + 1
@@ -559,7 +545,7 @@ C Write other diagnostics
          END IF
          
          IF ( ABFLUX .OR. HGBIDI ) THEN    
-            CALL WRASX_MEDIA( MDATE, MTIME, ABFLUX )
+            CALL WRASX_MEDIA( MDATE, MTIME )
          END IF 
 
          IF ( LIPR ) THEN
