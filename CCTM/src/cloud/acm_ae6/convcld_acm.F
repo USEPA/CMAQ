@@ -742,7 +742,10 @@ C...Loop through all grid cells
             TAL( LAY )   = TA( COL,ROW,LAY )
             QVL( LAY )   = QV( COL,ROW,LAY )
             DZZL( LAY )  = DZZ( COL,ROW,LAY )
-            DENSL( LAY ) = PRESL( LAY ) / ( RDGAS * TAL( LAY ) )
+!            DENSL( LAY ) = PRESL( LAY ) / ( RDGAS * TAL( LAY ) )
+            DENSL( LAY ) = PRESL( LAY )
+     &                   / ( RDGAS * TAL( LAY ) * ( 1.0 + RWVAP * QVL( LAY ) / RDGAS ) )
+ 
           END DO
 
 C...load aerosol minimum concentrations into the "CONCMINL" array
@@ -1046,8 +1049,7 @@ C...  variables needed for rest of computations
 C...First, get mol air/m2 at each layer, initialize FSIDE
 
           DO LAY = 1, NLAYS
-            RHOM2( LAY ) = PRESL( LAY ) * DZZL( LAY )
-     &                   * 1.0E3 / ( RDGAS * MWAIR * TAL( LAY ) )
+            RHOM2( LAY ) = DENSL( LAY ) * DZZL( LAY ) * 1.0E3 / MWAIR
             FSIDE( LAY ) = 0.0
           END DO
 
@@ -1391,12 +1393,13 @@ C...  using direct exchange mixing mechanism by McHenry.
             CBELOW( SPC ) = CBASE0( SPC )
           END DO
 
-          DZH(1) = ZF( COL, ROW, 1 )
-          DO LAY = 2, NLAYS
-             DZH(LAY) = ZF( COL, ROW, LAY ) - ZF( COL, ROW, LAY-1 )
+! -- Need to uses dens * delz for ACM mixing
+          DO LAY = 1, NLAYS
+            DZH(LAY) = RHOM2( LAY )
           ENDDO
           LAY = CLBASE - 1
-          DZH(LAY) = ZF( COL, ROW, LAY )
+
+          DZH(LAY) = AIRMB0
 
           CALL ACMCLD ( NSPCSD, NLAYS, F, CCR, DZH, CBELOW, CLBASE, CLTOP,
      &                  FRAC, TCLIFE, DTCLD )
