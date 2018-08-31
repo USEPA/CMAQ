@@ -17,9 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6_mp/PRECURSOR_DATA.F,v 1.3 2012/01/26 18:44:38 sjr Exp $
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module precursor_data
 
@@ -123,8 +120,6 @@ C Private variables for loading and unloading to CGRID array
       Integer          :: precursor_map( n_precursor )  ! pointers to CGRID
       Logical, Private, Save :: mapped          = .False.
       Logical, Private, Save :: Precursor_eflag = .False.
-      Integer, Private, Save :: logdev
-      Integer, Private, External :: setup_logdev
 
       Character( 16 ), Private, Save :: pname = 'precursor_data'
 
@@ -157,8 +152,7 @@ C Local Variables:
 
 C If the species are mapped already, skip the mapping algorithm
       If ( mapped ) Return
-
-      logdev = setup_logdev()
+      CALL LOG_MESSAGE( LOGDEV, 'Map SOA Precursors' )
 
 C Initialize Precursor Map Variables
       precursor_mw = 0.0d0
@@ -238,14 +232,12 @@ C Find indices of required species
 
       mapped = .True.
 
-      Write( logdev,'( 5x, a )' ) ' --- Precursor Species Mapped ---'
-
 99901 Format( 'FATAL error(s) found in the GC and/or NR namelists used. Check that '
      &     /  'these namelists contain the above required data as the respective files '
      &     /  'in the respository version of the mechanism: ' , a )
-99902 Format( 'Note: ', a, ' is not found in G2AE or N2AE values of '
-     &    /   'the GC or NR namelist. Simulation does not include effects '
-     &    /   'on secondary aerosol production from the species.' )
+99902 Format( 5x,'Note: ', a, ' is not found in G2AE or N2AE values of',
+     &    /   7x,'the GC or NR namelist. Simulation does not include effects ',
+     &    /   7x,'on secondary aerosol production from the species.' )
 
       Return
       End Subroutine map_precursor

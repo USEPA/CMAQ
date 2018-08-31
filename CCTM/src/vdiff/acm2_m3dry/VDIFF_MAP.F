@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/VDIFF_MAP.F,v 1.7 2012/01/19 14:41:42 yoj Exp $
- 
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
- 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE VDIFF_MAP
 
@@ -105,14 +98,8 @@ C Local variables:
          INTEGER ALLOCSTAT
 
          LOGICAL LERROR                    ! Error flag
-#ifdef Verbose_Vdiff
-         INTEGER LOGDEV   ! debug
-#endif
 
 !-----------------------------------------------------------------------
-#ifdef Verbose_Vdiff
-         LOGDEV = INIT3()   ! debug
-#endif
          SUCCESS = .TRUE.
 
          N_SPC_DIFF = N_GC_TRNS + N_AE_TRNS + N_NR_TRNS + N_TR_DIFF

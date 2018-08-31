@@ -22,6 +22,8 @@
 !:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE CSQY_DATA
 
+      USE RUNTIME_VARS
+
       IMPLICIT NONE
 
       CHARACTER( 32 ), PUBLIC :: JTABLE_REF
@@ -298,8 +300,6 @@
 
       REAL :: OPTT                ! variable needed for acetone
 
-      INTEGER, PRIVATE :: CSQY_DATA_LOG
-
       CONTAINS
 
       SUBROUTINE LOAD_CSQY_DATA ( )
@@ -340,7 +340,6 @@ C     NONE
       INTEGER :: NWL_PHOT    ! # of wavelengths used in PHOT_MOD.F
       INTEGER :: IOST        ! IOST returned from OPEN function
       INTEGER :: JDATE = 0
-      INTEGER :: LOG_UNIT
       INTEGER :: PHOTAB_UNIT
       INTEGER :: IPHOT, IPHOT_LOAD ! loop indices
       INTEGER :: ITT, ITT_LOAD     ! loop indices
@@ -357,9 +356,6 @@ C     NONE
       LOGICAL                  :: ERROR_FLAG = .FALSE.
 
 !***external functions: none
-
-      LOG_UNIT = INIT3()
-      CSQY_DATA_LOG = INIT3()
 
       PHOTAB_UNIT = GETEFILE( CSQY_FILE, .TRUE., .TRUE., PNAME )
 
@@ -391,8 +387,8 @@ C...begin read
 
 
 #ifdef verbose_phot
-      write( log_unit,'(A,a32)' )'JTABLE_REF = ',trim(jtable_ref)
-      write( log_unit,'(A,10x,i4)' )'NPHOT_MAP = ', nphot_map
+      write( LOGDEV,'(A,a32)' )'JTABLE_REF = ',trim(jtable_ref)
+      write( LOGDEV,'(A,10x,i4)' )'NPHOT_MAP = ', nphot_map
 #endif
 
       READ( PHOTAB_UNIT,'(A)' ) FILE_LINE
@@ -405,7 +401,7 @@ C...begin read
          READ( PHOTAB_UNIT,'(A16)' ) PNAME_REF( IPHOT_LOAD )
 
 #ifdef verbose_phot
-         write( log_unit,'(i3,1x,a16)' ) iphot_load, pname_ref( iphot_load )
+         write( LOGDEV,'(i3,1x,a16)' ) iphot_load, pname_ref( iphot_load )
 #endif
 
          PNAME_MAP( IPHOT_LOAD ) = PNAME_REF( IPHOT_LOAD )
@@ -415,13 +411,13 @@ C...begin read
       READ( PHOTAB_UNIT,'(10X,I3)' ) NTEMP_REF
 
 #ifdef verbose_phot
-      write( log_unit,'(10x,i3)' ) ntemp_ref
+      write( LOGDEV,'(10x,i3)' ) ntemp_ref
 #endif
 
       READ( PHOTAB_UNIT,'(A)' ) FILE_LINE
 
 #ifdef verbose_phot
-      write( log_unit,* ) trim( file_line )
+      write( LOGDEV,* ) trim( file_line )
 #endif
 
       IREFTEMPS = NTEMP_REF
@@ -432,13 +428,13 @@ C...begin read
          READ( PHOTAB_UNIT,'(A)' ) FILE_LINE
 
 #ifdef verbose_phot
-         write( log_unit,* ) trim( file_line )
+         write( LOGDEV,* ) trim( file_line )
 #endif
 
          READ( FILE_LINE,* ) IPHOT_LOAD, TEMP_BASE( ITT_LOAD )
 
 #ifdef verbose_phot
-         write( log_unit,'(4x,f6.2)' ) temp_base( itt_load )
+         write( LOGDEV,'(4x,f6.2)' ) temp_base( itt_load )
 #endif
 
       END DO
@@ -448,19 +444,19 @@ C...begin read
       DO ITT_LOAD = 1, 15 ! skip next 15 lines
          READ( PHOTAB_UNIT,'(A)' ) FILE_LINE
 #ifdef verbose_phot
-         write( log_unit, '(I2,1X,A)' )ITT_LOAD,TRIM(FILE_LINE)
+         write( LOGDEV, '(I2,1X,A)' )ITT_LOAD,TRIM(FILE_LINE)
 #endif
       END DO
 
       READ( PHOTAB_UNIT,'(A)' ) FILE_LINE
 
 #ifdef verbose_phot
-      write( log_unit, '(A)' )TRIM(FILE_LINE)
+      write( LOGDEV, '(A)' )TRIM(FILE_LINE)
 #endif
       READ( FILE_LINE, 4999) NWL_REF
 
 #ifdef verbose_phot
-      write( log_unit,'(17x,i3)' ) nwl_ref
+      write( LOGDEV,'(17x,i3)' ) nwl_ref
 #endif
 
 
@@ -472,7 +468,7 @@ C...begin read
 
 
       IF ( NWL_REF .LT. 1 ) THEN
-         WRITE( LOG_UNIT,* ) 'NWL_REF  = ', NWL_REF
+         WRITE( LOGDEV,* ) 'NWL_REF  = ', NWL_REF
          MSG = 'NWL_REF in ' // CSQY_FILE
      &       // ' has the bad value, written above. '
          CALL M3EXIT( PNAME, 0, 0, MSG, -1 )
@@ -480,7 +476,7 @@ C...begin read
 
       READ( PHOTAB_UNIT,'(A)' ) FILE_LINE
 #ifdef verbose_phot
-      write( log_unit, * )FILE_LINE
+      write( LOGDEV, * )FILE_LINE
 #endif
 
       IF( .NOT. ALLOCATED( STWL_REF   ) ) ALLOCATE( STWL_REF  ( NWL_REF ) )
@@ -498,7 +494,7 @@ C...begin read
      &         ENDWL_REF( IWL_LOAD ), FSOLAR_REF( IWL_LOAD )
 
 #ifdef verbose_phot
-         write( log_unit,'(4x,3(f8.3,2x),2x,2(es12.4,2x),f8.3,2x,12(es12.4,2x))' )
+         write( LOGDEV,'(4x,3(f8.3,2x),2x,2(es12.4,2x),f8.3,2x,12(es12.4,2x))' )
      &          stwl_ref( iwl_load ), effwl_ref( iwl_load ),
      &          endwl_ref( iwl_load ),fsolar_ref( iwl_load )
 #endif
@@ -530,7 +526,7 @@ C...begin read
      &            ( CS_REF( IWL_LOAD, ITT_LOAD, IPHOT_LOAD ), IWL_LOAD = 1, NWL_REF )
 
 #ifdef verbose_phot
-            write( log_unit,'(a16,7x,f8.3,1x,40(1pe13.6,2x))' )
+            write( LOGDEV,'(a16,7x,f8.3,1x,40(1pe13.6,2x))' )
      &             phot_expect, temp_ref( itt_load, iphot_load),
      &             ( cs_ref( iwl_load, itt_load, iphot_load ), iwl_load = 1, nwl_ref )
 #endif
@@ -548,7 +544,7 @@ C...begin read
             QY_REF( 1:NWL_REF, ITT_LOAD, IPHOT_LOAD ) = EQY_REF( 1:NWL_REF, ITT_LOAD, IPHOT_LOAD )
 
 #ifdef verbose_phot
-            write( log_unit,'(a16,7x,f8.3,1x,40(1pe13.6,2x))' )
+            write( LOGDEV,'(a16,7x,f8.3,1x,40(1pe13.6,2x))' )
      &             phot_expect, temp_ref( itt_load, iphot_load),
      &             ( qy_ref( iwl_load, itt_load, iphot_load ), iwl_load = 1, nwl_ref )
 #endif
@@ -569,7 +565,7 @@ C...begin read
       READ( PHOTAB_UNIT,'(15X,I3)' ) NTEMP_STRAT_REF
 
 #ifdef verbose_phot
-      write( log_unit,'(16x,i3)' ) ntemp_strat_ref
+      write( LOGDEV,'(16x,i3)' ) ntemp_strat_ref
 #endif
 
       ALLOCATE( TEMP_STRAT_REF ( NTEMP_STRAT_REF ) )
@@ -583,7 +579,7 @@ C...begin read
      &         ( O3_CS_STRAT_REF( IWL_LOAD, ITT_LOAD ), IWL_LOAD = 1, NWL_REF )
 
 #ifdef verbose_phot
-         write( log_unit,'(a16,7x,f8.3,1x,40(1pe13.6,2x))' )
+         write( LOGDEV,'(a16,7x,f8.3,1x,40(1pe13.6,2x))' )
      &          phot_expect, temp_strat_ref( itt_load ),
      &          ( o3_cs_strat_ref( iwl_load, itt_load ), iwl_load = 1, nwl_ref )
 #endif
@@ -725,9 +721,6 @@ C...begin read
          CALL M3EXIT( PNAME, 0, 0, MSG, -1 )
        END IF
 
-      WRITE( LOG_UNIT,* ) 'Sucessfully Loaded CSQY_DATA file'
-
-!!!      CLOSE(LOG_UNIT)
       CLOSE(PHOTAB_UNIT)
 
 5012  FORMAT( 4X,A30,1X,3(F8.3,2X) )
@@ -785,7 +778,6 @@ C...begin read
       INTEGER :: NWL_OPTICS    ! # of wavelengths used in PHOT_MOD.F
       INTEGER :: IOST        ! IOST returned from OPEN function
       INTEGER :: JDATE = 0
-      INTEGER :: LOG_UNIT
       INTEGER :: OPTICS_UNIT
       INTEGER :: IPHOT, IPHOT_LOAD ! loop indices
       INTEGER :: ITT, ITT_LOAD     ! loop indices
@@ -803,20 +795,18 @@ C...begin read
 
 !***external functions: none
 
-      LOG_UNIT = INIT3()
-
       OPTICS_UNIT = GETEFILE( OPTICS_FILE, .TRUE., .TRUE., PNAME )
 
 
       READ( OPTICS_UNIT,'(A)' ) FILE_LINE
 
 #ifdef verbose_phot
-      write( log_unit, '(A)' )TRIM(FILE_LINE)
+      write( LOGDEV, '(A)' )TRIM(FILE_LINE)
 #endif
 
       READ( FILE_LINE, 4999) NWL_REF
 #ifdef verbose_phot
-      write( log_unit,'(17x,i3)' ) nwl_ref
+      write( LOGDEV,'(17x,i3)' ) nwl_ref
 #endif
 
       NWL_OPTICS = NWL_REF
@@ -824,7 +814,7 @@ C...begin read
       DO ITT_LOAD = 1, 15 ! skip next 15 lines
          READ( OPTICS_UNIT,'(A)' ) FILE_LINE
 #ifdef verbose_phot
-         write( log_unit, '(A)' )TRIM(FILE_LINE)
+         write( LOGDEV, '(A)' )TRIM(FILE_LINE)
 #endif
       END DO
 
@@ -846,7 +836,7 @@ C...begin read
 
 
 #ifdef verbose_phot
-         write( log_unit, 99946 )
+         write( LOGDEV, 99946 )
      &   stwl_ref( iwl_load ), effwl_ref( iwl_load ), endwl_ref( iwl_load ),
      &   cld_beta_ref( iwl_load ), cld_g_ref( iwl_load ), cld_coalbedo_ref( iwl_load )
 #endif
@@ -863,19 +853,19 @@ C...begin read
       DO ITT_LOAD = 1, 7 ! skip next 7 lines
          READ( OPTICS_UNIT,'(A)' ) FILE_LINE
 #ifdef verbose_phot
-         write( log_unit, '(A)' )TRIM(FILE_LINE)
+         write( LOGDEV, '(A)' )TRIM(FILE_LINE)
 #endif
       END DO
 
       READ( OPTICS_UNIT,'(A)' ) FILE_LINE
 #ifdef verbose_phot
-      write( log_unit, '(A)' )TRIM(FILE_LINE)
+      write( LOGDEV, '(A)' )TRIM(FILE_LINE)
 #endif
 
       READ( FILE_LINE, 4999)NAE_REFRACT_REF
 
 #ifdef verbose_phot
-      write( log_unit, * )' NAE_REFRACT_REF = ', NAE_REFRACT_REF
+      write( LOGDEV, * )' NAE_REFRACT_REF = ', NAE_REFRACT_REF
 #endif
 
       NUM_REFRACTIVE = NAE_REFRACT_REF
@@ -885,7 +875,7 @@ C...begin read
       READ( OPTICS_UNIT,'(A)' ) FILE_LINE
 
 #ifdef verbose_phot
-      write( log_unit, '(a)')TRIM(FILE_LINE)
+      write( LOGDEV, '(a)')TRIM(FILE_LINE)
 #endif
 
       STRT = SCAN(FILE_LINE, '=', BACK = .TRUE.) + 1
@@ -895,8 +885,13 @@ C...begin read
      &                                   ITT_LOAD = 1, NAE_REFRACT_REF )
 
 #ifdef verbose_phot
+<<<<<<< HEAD
       write( log_unit, 99947)'REFRACTIVE_INDICES'
       write( log_unit, 99948 )(AE_RERACT_REF( ITT_LOAD ),ITT_LOAD = 1,
+=======
+      write( LOGDEV, 99947)'REFRACTIVE_INDICES'
+      write( LOGDEV, 99948 )(AE_RERACT_REF( ITT_LOAD ),ITT_LOAD = 1, 
+>>>>>>> 44f6517f5e5668da106d2ad45f1d8aa5c9ac07d5
      &                                 NAE_REFRACT_REF )
 #endif
 
@@ -913,14 +908,14 @@ C...begin read
           ALLOCATE( REFRACTIVE_INDEX( ITT_LOAD )%IMAG_PART( N_MODE, NWL_REF )  )
 
 #ifdef verbose_phot
-          write( log_unit, '(i3, 1x, a16)')itt_load, refractive_index( itt_load )%name
+          write( LOGDEV, '(i3, 1x, a16)')itt_load, refractive_index( itt_load )%name
 #endif
 
       END DO
 
       READ( OPTICS_UNIT,'(A)' ) FILE_LINE
 #ifdef verbose_phot
-      write( log_unit, '(A)' )TRIM(FILE_LINE)
+      write( LOGDEV, '(A)' )TRIM(FILE_LINE)
 #endif
 
       DO IWL_LOAD = 1, NWL_REF
@@ -936,7 +931,7 @@ C...begin read
      &                                      = AE_IMAG_REFRACT( ITT_LOAD, IWL_LOAD )
                END DO
 #ifdef verbose_phot
-         write( log_unit, 99949 )
+         write( LOGDEV, 99949 )
      &          stwl_ref( iwl_load ), effwl_ref( iwl_load ),
      &          endwl_ref( iwl_load ),fsolar_ref( iwl_load ),
      &          ( ae_real_refract( itt_load, iwl_load ),
@@ -948,7 +943,7 @@ C...begin read
       DO ITT_LOAD = 1, 8 ! skip next 8 lines
          READ( OPTICS_UNIT,'(A)' ) FILE_LINE
 #ifdef verbose_phot
-      write( log_unit, '(a)' )TRIM(FILE_LINE)
+      write( LOGDEV, '(a)' )TRIM(FILE_LINE)
 #endif
       END DO
 
@@ -957,7 +952,7 @@ C...begin read
       READ( FILE_LINE, 4999)NRADIUS_LIQUID
 
 #ifdef verbose_phot
-      write( log_unit, '(a,i4)' )'NRADIUS_LIQUID = ',NRADIUS_LIQUID
+      write( LOGDEV, '(a,i4)' )'NRADIUS_LIQUID = ',NRADIUS_LIQUID
 #endif
 
       ALLOCATE(RADIUS_LIQUID( NRADIUS_LIQUID ))
@@ -970,7 +965,7 @@ C...begin read
 
       READ( OPTICS_UNIT,'(A)' ) FILE_LINE
 #ifdef verbose_phot
-      write( log_unit, '(a)' )TRIM(FILE_LINE)
+      write( LOGDEV, '(a)' )TRIM(FILE_LINE)
 #endif
 
       DO ITT_LOAD = 1, NRADIUS_LIQUID
@@ -979,7 +974,7 @@ C...begin read
      &         ( LIQUID_EXTINCT( ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_OPTICS )
 
 #ifdef verbose_phot
-          write( log_unit, 99950 )
+          write( LOGDEV, 99950 )
      &         OPTICS_EXPECT, RADIUS_LIQUID( ITT_LOAD ),
      &         ( LIQUID_EXTINCT( ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_OPTICS )
 #endif
@@ -996,7 +991,7 @@ C...begin read
 
       READ( OPTICS_UNIT,'(A)' ) FILE_LINE
 #ifdef verbose_phot
-      write( log_unit, '(a)' )TRIM(FILE_LINE)
+      write( LOGDEV, '(a)' )TRIM(FILE_LINE)
 #endif
       DO ITT_LOAD = 1, NRADIUS_LIQUID
          READ( OPTICS_UNIT, * )
@@ -1004,7 +999,7 @@ C...begin read
      &         ( LIQUID_ASYMFACT( ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_OPTICS )
 
 #ifdef verbose_phot
-          write( log_unit, 99950 )
+          write( LOGDEV, 99950 )
      &         OPTICS_EXPECT, RADIUS_LIQUID( ITT_LOAD ),
      &         ( LIQUID_ASYMFACT( ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_OPTICS )
 #endif
@@ -1018,7 +1013,7 @@ C...begin read
 
       READ( OPTICS_UNIT,'(A)' ) FILE_LINE
 #ifdef verbose_phot
-      write( log_unit, '(a)' )TRIM(FILE_LINE)
+      write( LOGDEV, '(a)' )TRIM(FILE_LINE)
 #endif
 
       QUANTITY = 'LIQ_COA'
@@ -1029,7 +1024,7 @@ C...begin read
      &         ( LIQUID_COALBEDO( ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_OPTICS )
 
 #ifdef verbose_phot
-          write( log_unit, 99950 )
+          write( LOGDEV, 99950 )
      &         OPTICS_EXPECT, RADIUS_LIQUID( ITT_LOAD ),
      &         ( LIQUID_COALBEDO( ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_OPTICS )
 #endif
@@ -1045,7 +1040,7 @@ C...begin read
       DO ITT_LOAD = 1, 7 ! skip next 7 lines
          READ( OPTICS_UNIT,'(A)' ) FILE_LINE
 #ifdef verbose_phot
-         write( log_unit, '(a)' )TRIM(FILE_LINE)
+         write( LOGDEV, '(a)' )TRIM(FILE_LINE)
 #endif
       END DO
 
@@ -1054,7 +1049,7 @@ C...begin read
       READ( FILE_LINE, 4999)NDIAMETER_ICE
 
 #ifdef verbose_phot
-      write( log_unit, '(a,i4)' )'NDIAMETER_ICE = ',NDIAMETER_ICE
+      write( LOGDEV, '(a,i4)' )'NDIAMETER_ICE = ',NDIAMETER_ICE
 #endif
 
       ALLOCATE(DIAMETER_ICE( NDIAMETER_ICE ))
@@ -1066,7 +1061,7 @@ C...begin read
 
       READ( OPTICS_UNIT,'(A)' ) FILE_LINE
 #ifdef verbose_phot
-      write( log_unit, '(a)' )TRIM(FILE_LINE)
+      write( LOGDEV, '(a)' )TRIM(FILE_LINE)
 #endif
 
       QUANTITY = 'ICE_EXT'
@@ -1077,7 +1072,7 @@ C...begin read
      &         ( ICE_EXTINCT( ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_OPTICS )
 
 #ifdef verbose_phot
-          write( log_unit, 99950 )
+          write( LOGDEV, 99950 )
      &         OPTICS_EXPECT, DIAMETER_ICE( ITT_LOAD ),
      &         ( ICE_EXTINCT( ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_OPTICS )
 #endif
@@ -1091,7 +1086,7 @@ C...begin read
 
       READ( OPTICS_UNIT,'(A)' ) FILE_LINE
 #ifdef verbose_phot
-      write( log_unit, '(a)' )TRIM(FILE_LINE)
+      write( LOGDEV, '(a)' )TRIM(FILE_LINE)
 #endif
 
       QUANTITY = 'ICE_ASY'
@@ -1102,7 +1097,7 @@ C...begin read
      &         ( ICE_ASYMFACT( ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_OPTICS )
 
 #ifdef verbose_phot
-          write( log_unit, 99950 )
+          write( LOGDEV, 99950 )
      &         OPTICS_EXPECT, DIAMETER_ICE( ITT_LOAD ),
      &         ( ICE_ASYMFACT( ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_OPTICS )
 #endif
@@ -1116,7 +1111,7 @@ C...begin read
 
       READ( OPTICS_UNIT,'(A)' ) FILE_LINE
 #ifdef verbose_phot
-      write( log_unit, '(a)' )TRIM(FILE_LINE)
+      write( LOGDEV, '(a)' )TRIM(FILE_LINE)
 #endif
 
       QUANTITY = 'ICE_COA'
@@ -1127,7 +1122,7 @@ C...begin read
      &         ( ICE_COALBEDO( ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_OPTICS )
 
 #ifdef verbose_phot
-          write( log_unit, 99950 )
+          write( LOGDEV, 99950 )
      &         OPTICS_EXPECT, DIAMETER_ICE( ITT_LOAD ),
      &         ( ICE_COALBEDO( ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_OPTICS )
 #endif
@@ -1141,7 +1136,7 @@ C...begin read
 
       READ( OPTICS_UNIT,'(A)' ) FILE_LINE
 #ifdef verbose_phot
-      write( log_unit, '(a)' )TRIM(FILE_LINE)
+      write( LOGDEV, '(a)' )TRIM(FILE_LINE)
 #endif
 
       QUANTITY = 'ICE_DEL'
@@ -1152,7 +1147,7 @@ C...begin read
      &         ( ICE_DELTRANS( ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_OPTICS )
 
 #ifdef verbose_phot
-          write( log_unit, 99950 )
+          write( LOGDEV, 99950 )
      &         OPTICS_EXPECT, DIAMETER_ICE( ITT_LOAD ),
      &         ( ICE_DELTRANS( ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_OPTICS )
 #endif
@@ -1200,7 +1195,7 @@ C...begin read
       DO ITT_LOAD = 1, 6 ! skip next 6 lines
          READ( OPTICS_UNIT,'(A)' ) FILE_LINE
 #ifdef verbose_phot
-         write( log_unit, '(a)' )TRIM(FILE_LINE)
+         write( LOGDEV, '(a)' )TRIM(FILE_LINE)
 #endif
       END DO
 
@@ -1209,7 +1204,7 @@ C...begin read
       DO ITT_LOAD = 1, 3 ! skip next 3 lines
          READ( OPTICS_UNIT,'(A)' ) FILE_LINE
 #ifdef verbose_phot
-         write( log_unit, '(a)' )TRIM(FILE_LINE)
+         write( LOGDEV, '(a)' )TRIM(FILE_LINE)
 #endif
       END DO
 
@@ -1218,10 +1213,10 @@ C...begin read
       READ( OPTICS_UNIT,5013 ) INDEX_SEA_ICE
 
 #ifdef verbose_phot
-      write( log_unit,6013 )'NUMB_LANDUSE_REF    = ', numb_landuse_ref
-      write( log_unit,6013 )'INDEX_GRASSLAND_REF = ', index_grassland_ref
-      write( log_unit,6013 )'INDEX_OCEAN_REF     = ', index_ocean_ref
-      write( log_unit,6013 )'INDEX_SEA_ICE       = ', index_sea_ice
+      write( LOGDEV,6013 )'NUMB_LANDUSE_REF    = ', numb_landuse_ref
+      write( LOGDEV,6013 )'INDEX_GRASSLAND_REF = ', index_grassland_ref
+      write( LOGDEV,6013 )'INDEX_OCEAN_REF     = ', index_ocean_ref
+      write( LOGDEV,6013 )'INDEX_SEA_ICE       = ', index_sea_ice
 #endif
 
       ALLOCATE( LANDUSE_REF     ( NUMB_LANDUSE_REF ) )
@@ -1232,7 +1227,7 @@ C...begin read
 
       READ( OPTICS_UNIT,'(A)' ) FILE_LINE ! skip line
 #ifdef verbose_phot
-      write( log_unit, '(a)' )TRIM(FILE_LINE)
+      write( LOGDEV, '(a)' )TRIM(FILE_LINE)
 #endif
 
       DO ITT_LOAD = 1, NUMB_LANDUSE_REF
@@ -1241,7 +1236,7 @@ C...begin read
      &                            SEASON_COEFF_REF( ITT_LOAD ),
      &                            SNOW_COEFF_REF( ITT_LOAD )
 #ifdef verbose_phot
-         write( log_unit,5012 ) landuse_ref( itt_load ),
+         write( LOGDEV,5012 ) landuse_ref( itt_load ),
      &                          zenith_coeff_ref( itt_load ),
      &                          season_coeff_ref( itt_load ),
      &                          snow_coeff_ref( itt_load )
@@ -1250,7 +1245,7 @@ C...begin read
 
       READ( OPTICS_UNIT,'(A)' ) FILE_LINE ! skip line
 #ifdef verbose_phot
-      write( log_unit, '(a)' )TRIM(FILE_LINE)
+      write( LOGDEV, '(a)' )TRIM(FILE_LINE)
 #endif
 
       DO ITT_LOAD = 1, NUMB_LANDUSE_REF
@@ -1258,7 +1253,7 @@ C...begin read
      &        ( SPECTRAL_ALBEDO_REF(IWL_LOAD, ITT_LOAD), IWL_LOAD = 1, NWL_REF )
 
 #ifdef verbose_phot
-         write( log_unit,'(a30,1x,40(1pe13.6,2x))' ) trim( land_expect ),
+         write( LOGDEV,'(a30,1x,40(1pe13.6,2x))' ) trim( land_expect ),
      &        ( spectral_albedo_ref(iwl_load, itt_load), iwl_load = 1, nwl_ref )
 #endif
 
@@ -1267,7 +1262,7 @@ C...begin read
       DO ITT_LOAD = 1, 3 ! skip next 3 lines
          READ( OPTICS_UNIT,'(A)' ) FILE_LINE
 #ifdef verbose_phot
-         write( log_unit, '(a)' )TRIM(FILE_LINE)
+         write( LOGDEV, '(a)' )TRIM(FILE_LINE)
 #endif
       END DO
 
@@ -1275,8 +1270,8 @@ C...begin read
       READ( OPTICS_UNIT,'(A)' ) FILE_LINE ! skip line
 
 #ifdef verbose_phot
-      write( log_unit,6013 ) 'NUMB_NLCD50_MODIS = ', numb_landuse_NLCD50
-      write( log_unit, '(a)' )TRIM(FILE_LINE)
+      write( LOGDEV,6013 ) 'NUMB_NLCD50_MODIS = ', numb_landuse_NLCD50
+      write( LOGDEV, '(a)' )TRIM(FILE_LINE)
 #endif
 
       ALLOCATE( LANDUSE_NLCD50( NUMB_LANDUSE_NLCD50 )  )
@@ -1289,7 +1284,7 @@ C...begin read
      &                            ALBFAC_REF2NLCD50( ITT_LOAD )
 
 #ifdef verbose_phot
-         write( log_unit,6016 ) itt_load, landuse_NLCD50( itt_load ),
+         write( LOGDEV,6016 ) itt_load, landuse_NLCD50( itt_load ),
      &                          albmap_ref2NLCD50( itt_load ),
      &                          albfac_ref2NLCD50( itt_load )
 #endif
@@ -1299,8 +1294,8 @@ C...begin read
       READ( OPTICS_UNIT,5013 ) NUMB_LANDUSE_USGS
       READ( OPTICS_UNIT,'(A)' ) FILE_LINE ! skip line
 #ifdef verbose_phot
-      write( log_unit,6013 ) 'NUMB_USGS = ', numb_landuse_usgs
-      write( log_unit, '(a)' )TRIM(FILE_LINE)
+      write( LOGDEV,6013 ) 'NUMB_USGS = ', numb_landuse_usgs
+      write( LOGDEV, '(a)' )TRIM(FILE_LINE)
 #endif
 
       ALLOCATE( LANDUSE_USGS   ( NUMB_LANDUSE_USGS ) )
@@ -1313,7 +1308,7 @@ C...begin read
      &                            ALBFAC_REF2USGS( ITT_LOAD )
 
 #ifdef verbose_phot
-         write( log_unit,6016 ) itt_load, landuse_usgs( itt_load ),
+         write( LOGDEV,6016 ) itt_load, landuse_usgs( itt_load ),
      &                          albmap_ref2usgs( itt_load ),
      &                          albfac_ref2usgs( itt_load )
 #endif
@@ -1323,8 +1318,8 @@ C...begin read
       READ( OPTICS_UNIT,5013 ) NUMB_LANDUSE_MODIS
       READ( OPTICS_UNIT,'(A)' ) FILE_LINE ! skip line
 #ifdef verbose_phot
-      write( log_unit,6013 ) 'NUMB_MODIS = ', numb_landuse_modis
-      write( log_unit, '(a)' )TRIM(FILE_LINE)
+      write( LOGDEV,6013 ) 'NUMB_MODIS = ', numb_landuse_modis
+      write( LOGDEV, '(a)' )TRIM(FILE_LINE)
 #endif
 
       ALLOCATE( LANDUSE_MODIS   ( NUMB_LANDUSE_MODIS ) )
@@ -1337,7 +1332,7 @@ C...begin read
      &                            ALBFAC_REF2MODIS( ITT_LOAD )
 
 #ifdef verbose_phot
-         write( log_unit,6016 ) itt_load, landuse_modis( itt_load ),
+         write( LOGDEV,6016 ) itt_load, landuse_modis( itt_load ),
      &                          albmap_ref2modis( itt_load ),
      &                          albfac_ref2modis( itt_load )
 #endif
@@ -1349,8 +1344,8 @@ C...begin read
       READ( OPTICS_UNIT,5013, END = 101 ) NUMB_LANDUSE_NLCD40
       READ( OPTICS_UNIT,'(A)' ) FILE_LINE ! skip line
 #ifdef verbose_phot
-      write( log_unit,6013 ) 'NUMB_NLCD40_MODIS = ', numb_landuse_NLCD40
-      write( log_unit, '(a)' )TRIM(FILE_LINE)
+      write( LOGDEV,6013 ) 'NUMB_NLCD40_MODIS = ', numb_landuse_NLCD40
+      write( LOGDEV, '(a)' )TRIM(FILE_LINE)
 #endif
 
       ALLOCATE( LANDUSE_NLCD40( NUMB_LANDUSE_NLCD40 )  )
@@ -1363,7 +1358,7 @@ C...begin read
      &                            ALBFAC_REF2NLCD40( ITT_LOAD )
 
 #ifdef verbose_phot
-         write( log_unit,6016 ) itt_load, landuse_NLCD40( itt_load ),
+         write( LOGDEV,6016 ) itt_load, landuse_NLCD40( itt_load ),
      &                          albmap_ref2NLCD40( itt_load ),
      &                          albfac_ref2NLCD40( itt_load )
 #endif
@@ -1401,9 +1396,12 @@ C...begin read
 
       CLOSE(OPTICS_UNIT)
 
+<<<<<<< HEAD
       WRITE( LOG_UNIT,* ) 'Sucessfully Loaded OPTICS_DATA file'
 
 
+=======
+>>>>>>> 44f6517f5e5668da106d2ad45f1d8aa5c9ac07d5
 4999  FORMAT(17X,I3,2X,17X,I3)
 5012  FORMAT( 4X,A30,1X,3(F8.3,2X) )
 5013  FORMAT( 22X,I3 )
@@ -1632,7 +1630,7 @@ C-----------------------------------------------------------------------
                END FORALL
 !      IF ( FIRSTCALL )THEN
 !             DO LAYS = 1, NLAYS
-!                WRITE(CSQY_DATA_LOG, 99951)'DENS, CH3CHO_IUPAC2013 QYZ factor =  ', ' ',DENS( LAYS ),
+!                WRITE(LOGDEV, 99951)'DENS, CH3CHO_IUPAC2013 QYZ factor =  ', ' ',DENS( LAYS ),
 !     &          (IPHIS_CH3CHO( IWL )/( IPHI0_CH3CHO( IWL ) + KCH3CHO( IWL ) * DENS( LAYS ) ),IWL=1,NWL_REF)
 !             END DO
 !      END IF
@@ -1817,10 +1815,17 @@ C-----------------------------------------------------------------------
                     END IF
 !***use relative change assuming that air density for interpolated value is 2.465e19 molecules/cm3
                     QYZ( LAYS, IWL, IPHOT ) = QYZ( LAYS, IWL, IPHOT )
+<<<<<<< HEAD
      &                                      * ( BETA + 3.3601E-3 * TEMP( LAYS ) * ALPHA )
      &                                      / ( BETA + PRESSURE * ALPHA )
 !      IF ( FIRSTCALL )THEN
 !                WRITE(CSQY_DATA_LOG, 99951)'TEMP, DENS, HCHO_M QYZ factor =  ', ' ',TEMP( LAYS ), DENS( LAYS ),
+=======
+     &                                      * ( BETA + 3.3601E-3 * TEMP( LAYS ) * ALPHA ) 
+     &                                      / ( BETA + PRESSURE * ALPHA )                    
+!      IF ( FIRSTCALL )THEN 
+!                WRITE(LOGDEV, 99951)'TEMP, DENS, HCHO_M QYZ factor =  ', ' ',TEMP( LAYS ), DENS( LAYS ),
+>>>>>>> 44f6517f5e5668da106d2ad45f1d8aa5c9ac07d5
 !     &          ( BETA + 3.3601E-3 * TEMP( LAYS ) * ALPHA )/( BETA + PRESSURE * ALPHA )
 !      END IF
 
@@ -1899,8 +1904,8 @@ C-----------------------------------------------------------------------
 !      IF ( FIRSTCALL )THEN
 !          DO IPHOT = 1, MECHANISM_RATES
 !             DO LAYS = 1, NLAYS
-!                WRITE(CSQY_DATA_LOG, 99951)'CSZ for ', PHOTOLYSIS_RATE( IPHOT ),(CSZ( LAYS, IWL, IPHOT ),IWL=1,NWL_REF)
-!                WRITE(CSQY_DATA_LOG, 99951)'QYZ for ', PHOTOLYSIS_RATE( IPHOT ),(QYZ( LAYS, IWL, IPHOT ),IWL=1,NWL_REF)
+!                WRITE(LOGDEV, 99951)'CSZ for ', PHOTOLYSIS_RATE( IPHOT ),(CSZ( LAYS, IWL, IPHOT ),IWL=1,NWL_REF)
+!                WRITE(LOGDEV, 99951)'QYZ for ', PHOTOLYSIS_RATE( IPHOT ),(QYZ( LAYS, IWL, IPHOT ),IWL=1,NWL_REF)
 !             END DO
 !          END DO
 !          FIRSTCALL = .FALSE.
@@ -1944,8 +1949,13 @@ C-----------------------------------------------------------------------
                              KCH3CHO( IWL )      = 1.64731E-07
                              IPHI0_CH3CHO( IWL ) = 5.50947E+32
                              IPHIS_CH3CHO( IWL ) = 5.50946E+32
+<<<<<<< HEAD
                            END IF
 !                WRITE(CSQY_DATA_LOG, 99951)'DENS, CH3CHO_IUPAC2013 QYZ factor =  ', ' ',2.465E19,
+=======
+                           END IF                               
+!                WRITE(LOGDEV, 99951)'DENS, CH3CHO_IUPAC2013 QYZ factor =  ', ' ',2.465E19,
+>>>>>>> 44f6517f5e5668da106d2ad45f1d8aa5c9ac07d5
 !     &          IPHIS_CH3CHO( IWL ),IPHI0_CH3CHO( IWL ),KCH3CHO( IWL )
                         END DO
                      CASE ( 'NC3CHO_R_MCMv32', 'NC3CHO_M_MCMv32' ) ! n-C3H7CHO (n-butyraldehyde, n-butanal)
@@ -1992,7 +2002,11 @@ C-----------------------------------------------------------------------
                      CASE DEFAULT
                         CSQY_ADJUST( IPHOT ) =  0
                      END SELECT
+<<<<<<< HEAD
 !                      WRITE(CSQY_DATA_LOG,'(A)')'For rate ' // TRIM( PHOTOLYSIS_RATE( IPHOT ) )
+=======
+!                      WRITE(LOGDEV,'(A)')'For rate ' // TRIM( PHOTOLYSIS_RATE( IPHOT ) ) 
+>>>>>>> 44f6517f5e5668da106d2ad45f1d8aa5c9ac07d5
 !     &               // ' using CSQY_ADJUSTMENT ' // TRIM( CSQY_ADJUSTMENTS( CSQY_ADJUST( IPHOT ) ) )
                END DO
               RETURN

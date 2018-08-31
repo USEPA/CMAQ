@@ -29,6 +29,7 @@ C Shawn Roselle 16 Feb 11: replaced I/O API include files with UTILIO_DEFN
 C 07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
 C 21 Apr 16 D.Luecken:  increased spc_dim to 1000
 c-----------------------------------------------------------------------
+      USE RUNTIME_VARS
 
       implicit none
 
@@ -135,9 +136,6 @@ c !! NO   and to populate the allocated arrays from the stnd gc_spc.ext  !!! NO
      
             implicit none
 
-
-            integer, save :: logdev
-            
             logical success
             integer, save :: dev_gc_nml, dev_ae_nml, dev_nr_nml, dev_tr_nml
             integer i, ios
@@ -160,11 +158,6 @@ c namelist variables
             namelist / NR_nml / n_surr1, n_surr2, n_ctrl, type_header, type_matrix
             namelist / TR_nml / n_surr1, n_surr2, n_ctrl, type_header, type_matrix
 
-            character( 16 ) :: gc_matrix = 'gc_matrix_nml'
-            character( 16 ) :: ae_matrix = 'ae_matrix_nml'
-            character( 16 ) :: nr_matrix = 'nr_matrix_nml'
-            character( 16 ) :: tr_matrix = 'tr_matrix_nml'
-            character( 256 ) :: eqname
 
 c intialize the surr1 table
             character( 4 ) :: surr1( 4 )
@@ -202,23 +195,16 @@ c species table structures
             type ( ctrl_type )  :: mc_ctrl_init  = ctrl_type ( ' ', 0 )
 
 c----------------------------------------------------------------------------------------
-            logdev = init3 ()
             success = .true.
 
-c intialize module public data
+            CALL LOG_HEADING( LOGDEV, "Retrieve Species Namelist" )
 
 c from namelist files
-
             type_header = bl
             type_matrix = bl   ! array assignment
 
-            call nameval( gc_matrix, eqname )
-
-            write( logdev,* ) ' '
-            write( logdev,* ) '    GC Species Namelist: ', trim( eqname )
-
             dev_gc_nml = junit()
-            open( file = trim( eqname ), unit = dev_gc_nml,
+            open( file = trim( gc_namelist ), unit = dev_gc_nml,
      &            status = 'old', position = 'rewind' )
             read( nml = GC_nml, unit = dev_gc_nml ) 
 
@@ -390,13 +376,8 @@ c the surrogate and ctrl arrays active dimensions not known a priori
             type_header = bl
             type_matrix = bl   ! array assignment
 
-            call nameval( ae_matrix, eqname )
-
-            write( logdev,* ) ' '
-            write( logdev,* ) '    AE Species Namelist: ', trim( eqname )
-
             dev_ae_nml = junit()
-            open( file = trim( eqname ), unit = dev_ae_nml,
+            open( file = trim( ae_namelist ), unit = dev_ae_nml,
      &            status = 'old', position = 'rewind' )
             read( nml = AE_nml, unit = dev_ae_nml ) 
 
@@ -463,9 +444,7 @@ c the surrogate and ctrl arrays active dimensions not known a priori
             j1 = 0; j2 = 0
             k1 = 0; k2 = 0; k3 = 0; k4 = 0
             icall = 0
-#ifdef Verbose
-            write( logdev,'(5x,a)' ) '@@@ AE @@@'
-#endif
+            
             do i = 1, spc_dim
                if ( type_matrix( i ) .eq. bl ) then
                   n_ae_spc = i - 1
@@ -557,13 +536,8 @@ c the surrogate and ctrl arrays active dimensions not known a priori
             type_header = bl
             type_matrix = bl   ! array assignment
 
-            call nameval( nr_matrix, eqname )
-
-            write( logdev,* ) ' '
-            write( logdev,* ) '    NR Species Namelist: ', trim( eqname )
-
             dev_nr_nml = junit()
-            open( file = trim( eqname ), unit = dev_nr_nml,
+            open( file = trim( nr_namelist ), unit = dev_nr_nml,
      &            status = 'old', position = 'rewind' )
             read( nml = NR_nml, unit = dev_nr_nml ) 
 
@@ -635,7 +609,7 @@ c the surrogate and ctrl arrays active dimensions not known a priori
             j1 = 0; j2 = 0
             k1 = 0; k2 = 0; k3 = 0; k4 = 0
             icall = 0
-
+            
             do i = 1, spc_dim
                if ( type_matrix( i ) .eq. bl ) then
                   n_nr_spc = i - 1
@@ -736,13 +710,8 @@ c the surrogate and ctrl arrays active dimensions not known a priori
             type_header = bl
             type_matrix = bl   ! array assignment
 
-            call nameval( tr_matrix, eqname )
-
-            write( logdev,* ) ' '
-            write( logdev,* ) '    TR Species Namelist: ', trim( eqname )
-
             dev_tr_nml = junit()
-            open( file = trim( eqname ), unit = dev_tr_nml,
+            open( file = trim( tr_namelist ), unit = dev_tr_nml,
      &            status = 'old', position = 'rewind' )
             read( nml = TR_nml, unit = dev_tr_nml )
 
@@ -988,10 +957,6 @@ c 4) DIFF, DDEP, WDEP, CONC  [any order]           <- control type
 
             implicit none
 
-#ifdef Verbose
-            integer, save :: logdev
-            logical, save :: firstime = .true.
-#endif
 
             integer,            intent ( in out ) :: ic
             character( * ),     intent (  in ) :: str_in
@@ -1013,13 +978,6 @@ c 4) DIFF, DDEP, WDEP, CONC  [any order]           <- control type
             logical :: nbf( nfld )                            ! non-blank field
             integer maxlen
 !           integer, save :: ic = 0   ! subroutine call count
-
-#ifdef Verbose
-            if ( firstime ) then
-               firstime = .false.
-               logdev = init3 ()
-            end if
-#endif
 
             ic = ic + 1
             maxlen = len_trim( str_in )
@@ -1145,28 +1103,12 @@ c-------------------------------------------------------------------------------
 
             implicit none
 
-#ifdef Verbose
-            integer, save :: logdev
-            logical, save :: firstime = .true.
-#endif
-
             integer, intent( in ) :: n
             integer, intent( in out ) :: ia( n )
             character( * ), intent( in out ) :: aa( n )
             character( 8 ) :: at
             integer i, it
             logical :: no_swap
-
-#ifdef Verbose
-            if ( firstime ) then
-               firstime = .false.
-               logdev = init3 ()
-            end if
-
-            do i = 1, n
-               write( logdev,* ) i, ia( i ), aa( i )
-            end do
-#endif
 
             do
                no_swap = .true.
@@ -1188,7 +1130,6 @@ c-------------------------------------------------------------------------------
                else
                   aa( i ) = ' '
                end if
-!              write( logdev,* ) i, ia( i ), aa( i )
             end do
 
 c compress list; move blanks to end
@@ -1204,11 +1145,6 @@ c compress list; move blanks to end
                aa( i ) = ' '
                ia( i ) = 0
             end do
-#ifdef Verbose
-            do i = 1, n
-               write( logdev,* ) i, ia( i ), aa( i )
-            end do
-#endif
 
             return
             end subroutine bubble

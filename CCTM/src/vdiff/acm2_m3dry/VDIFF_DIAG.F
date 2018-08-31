@@ -17,19 +17,15 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/vdiffacm2.F,v 1.13 2012/01/19 14:37:47 yoj Exp $
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       module vdiff_diag
 C diagnostic output of acm2 parameters and sedimentation velocities
+      use runtime_vars
       use utilio_defn
       use grid_conf
       use cgrid_spcs
 
       implicit none
-
-      logical, save :: vdiffdiag                   ! write diagnostic files
 
       character( 16 ), save :: vdiff_diag_file = 'VDIFF_DIAG_FILE'
 
@@ -78,9 +74,7 @@ C sedi sub-timestep counter
          logical ok, add, skip
          integer i, j, k, v, ios
          integer, allocatable :: found( : )
-         integer logdev
 
-         logdev = init3()
          success = .true.
 
          if ( grvsetl ) then
@@ -131,11 +125,6 @@ C Create the vsed_map (find the 1st vsed_ae species for each of the 6 surrogate 
 
             end do
     
-            write( logdev,* ) '   vsed_map'
-            do i = 1, n_vsed
-               write( logdev,* ) '     ', vsed_map( i ),
-     &                                    vsed_name( i )
-            end do
          end if
 
          if ( io_pe_inclusive ) then

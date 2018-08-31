@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/hdiff/multiscale/deform.F,v 1.5 2011/10/21 16:11:22 yoj Exp $ 
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE DEFORM ( JDATE, JTIME, DEFORM3D )
       
@@ -106,7 +99,6 @@ C External Functions: None
 C local variables:
       
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
-      INTEGER, SAVE :: LOGDEV
 
       INTEGER, SAVE :: MLAYS
        
@@ -171,7 +163,6 @@ C-----------------------------------------------------------------------
       IF ( FIRSTIME ) THEN
  
          FIRSTIME = .FALSE.
-         LOGDEV = INIT3()
 
          MLAYS = SIZE ( DEFORM3D,3 )
  
@@ -461,7 +452,6 @@ C for whole domain (DUDX, DVDY)
             END DO
          END DO
 
-!        WRITE( LOGDEV,1003 )
 1003     FORMAT( / '@1@Layer', 4X, 'Max Deform',
      &             5X, 'DUDX(4,5)',
      &             5X, 'DUDY(4,5)',
@@ -506,8 +496,6 @@ C Deformation only at inner domain
                DEFMAX = MAX( DEFMAX, DEFORM3D( C,R,L ) )
                END DO
             END DO
-!        WRITE( LOGDEV,1005 ) L, SUBST_GLOBAL_MAX ( DEFMAX ), 
-!    &                        DUDX(4,5), DUDY(4,5), DVDX(4,5), DVDY(4,5)
 1005     FORMAT( '@1@ ', I3, 2X, 5( 1PE14.6 ) )
 
 101   CONTINUE   ! MLAYS

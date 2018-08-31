@@ -28,7 +28,7 @@ C    above, below and in cumulus clouds.
 
 C Preconditions: HGRD_INIT() called from PAR_INIT, which is called from DRIVER
 
-C Subroutines/Functions called: INIT3, opphot
+C Subroutines/Functions called: opphot
 
 C Revision history:
 C    prototype(adaptation from RADM), Rohit Mathur, April 1993.
@@ -96,7 +96,6 @@ C saved local variables:
       INTEGER, SAVE :: JVHT               ! number of vertical levels
       INTEGER, SAVE :: JVTMAX             ! number of hour angles
       INTEGER, SAVE :: JVLAT              ! number of latitudes
-      INTEGER, SAVE :: LOGDEV
 
       INTEGER, ALLOCATABLE, SAVE :: PHID( : )     ! index of phot tab name in file list
 
@@ -211,7 +210,6 @@ C----------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
         FIRSTIME = .FALSE.
-        LOGDEV = INIT3()
         STDATE = JDATE
         STTIME = JTIME
         STRTHR = FLOAT ( JTIME / 10000 )
@@ -483,6 +481,7 @@ C...get height
           CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
+<<<<<<< HEAD
         CALL INIT_PHOT_SHARED()
 
 
@@ -505,6 +504,8 @@ C...Get photolysis rate diagnostic file flag
         END IF
 
 
+=======
+>>>>>>> 44f6517f5e5668da106d2ad45f1d8aa5c9ac07d5
         IF ( PHOTDIAG ) THEN
 C...open the photolysis rate diagnostic files
           IF ( IO_PE_INCLUSIVE ) CALL OPPHOT ( JDATE, JTIME, TSTEP )

@@ -17,12 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/plrise/smoke/plmris.F,v 1.2 2011/10/21 16:11:31 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE PLMRIS( EMLAYS, LSTK, HFX, HMIX,
      &                   STKDM, STKHT, STKTK, STKVE,
@@ -63,6 +57,7 @@ C Pathname: $Source: /project/yoj/arc/CCTM/src/plrise/smoke/plmris.F,v $
 C Last updated: $Date: 2011/10/21 16:11:31 $ 
    
 C-----------------------------------------------------------------------
+      USE RUNTIME_VARS, ONLY : LOGDEV
 
       IMPLICIT NONE
 
@@ -104,9 +99,6 @@ C Parameters:
       REAL, PARAMETER :: TWOTHD  = 2.0 / 3.0
       REAL, PARAMETER :: FIVETHD = 5.0 / 3.0
 
-C External Functions:
-      INTEGER, EXTERNAL :: SETUP_LOGDEV
-
 C Local Variables:
       INTEGER IQ              ! stability class:  1=unstbl, 2=neut, 3=stbl, 4=use DHM
       INTEGER LPLM            ! first L: ZH(L) > Plume height ! same as RADM's KPR
@@ -124,7 +116,6 @@ C Local Variables:
       REAL    WPLM            ! wind speed  at top of plume (m/s)
       REAL    ZMIX            ! hmix - hs
 
-      INTEGER, SAVE :: LOGDEV
       LOGICAL :: FIRSTIME = .TRUE.
 
 C Statement Functions:
@@ -144,7 +135,6 @@ C-----------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
-         LOGDEV = SETUP_LOGDEV()
       END IF
 
 C Compute convective scale, buoyancy flux.
@@ -186,7 +176,6 @@ C Compute the stable momentum rise, for layer of the stack
                DHSM = 0.646 * ( STKVE * STKVE * STKDM * STKDM
      &              / ( STKTK * WSTK ) ) ** D3 * SQRT( TSTK )
      &              / DTHDZ( LPLM ) ** D6
-!              write( logdev,* ) 'DHSM ', DHSM
             ELSE
                DHSM = DHM    ! set it to DHM, if THGRAD too small
             END IF

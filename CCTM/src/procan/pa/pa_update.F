@@ -17,9 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/procan/pa/pa_update.F,v 1.10 2011/12/08 16:22:11 sjr Exp $
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE PA_UPDATE( PRNAME, CGRID, JDATE, JTIME, TSTEP )
 
@@ -178,7 +175,6 @@ C Flag for couple/decouple HADV, ZADV, and HDIFF
       LOGICAL, SAVE :: LCOUPLE
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
-      INTEGER, SAVE :: LOGDEV
 
 C Local Variables:
       CHARACTER( 80 ) :: MSG                  ! Message for output log
@@ -252,7 +248,11 @@ C-----------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
-         LOGDEV = INIT3()
+         ALLOCATE ( CNGRD( NCOLS,NROWS,NLAYS,SIZE( CGRID,4 ) ), STAT = ASTAT )
+         IF ( ASTAT .NE. 0 ) THEN
+            MSG = '*** ERROR allocating CNGRD'
+            CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
+         END IF
       END IF
 
 C Get process index and convert units if necessary
@@ -768,7 +768,6 @@ C Local Variables:
       CHARACTER( 96 ) :: XMSG = ' '
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
-      INTEGER, SAVE :: LOGDEV
 
       INTEGER     GXOFF, GYOFF          ! global origin offset from file
 C for INTERPX
@@ -781,7 +780,6 @@ C-----------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
-         LOGDEV = INIT3()
 
          CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
      &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )

@@ -16,6 +16,7 @@
 !  General Public License or the GNU Lesser General Public License is    !
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
+
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module soa_defn
 
@@ -208,8 +209,6 @@ C mapping variables used for loading and unloading to CGRID array
 !     Integer, Save :: pfc = 0   ! possible false soabisect convergence counter
 
       Character( 16 ), Private, Save :: pname = 'Soa_Defn        '
-      Integer, Private, Save :: logdev
-      Integer, Private, External :: setup_logdev
 
       Contains
 
@@ -258,8 +257,6 @@ C Local Variables:
 
       If ( .Not. mapped ) Then
 
-         logdev = setup_logdev()
-
 C Before Anything Else, the VaporSpc Array must be populated with
 C the species from VaporList that have been identified in the GC
 C namelist or in the NR namelist.
@@ -275,9 +272,6 @@ C namelist or in the NR namelist.
              End If
           End Do
 
-#ifdef verbose_soa
-          write(logdev,'(a,i3)')'SOA_DEFN: n_vapor = ',n_vapor
-#endif
           Allocate ( vaporspc  ( n_vapor ))
           Allocate ( vapor_mw  ( n_vapor ))
           Allocate ( vapor_conc( n_vapor ))
@@ -288,10 +282,6 @@ C namelist or in the NR namelist.
           Do spc = 1,n_vapor
 !             vaporspc( spc ) = vaporlist( aerosol_to_vaporlist( spc ) )
              vaporspc( spc ) = vaporlist( vapor_to_vaporlist( spc ) )
-#ifdef verbose_soa
-             write(logdev,'(a,i3,3(1x,a))')'SOA_DEFN: n, vapor, aero_spc, precursor = ',
-     &       spc, vaporspc(spc)%name,vaporspc(spc)%soa_name,vaporspc(spc)%drog_name
-#endif
           End Do
 
 C Check GC or NR namelist contains precursor for each vapor used if the vapor has a
@@ -302,10 +292,6 @@ C precursor
             If ( n .Lt. 1 ) Then
               n = index1( vaporspc( spc )%drog_name, n_nr_spc, nr_spc )
               If ( n .Lt. 1 ) Then
-!                 xmsg = 'FATAL: SOA Precursor, ' // Trim( vaporspc( spc )%drog_name )
-!     &               // '. is not found among the species in GC or NR namelist'
-!     &               // ' used. Required for modeling vapor, '
-!     &               // Trim( vaporspc( spc )%name )
                 SOA_eflag  = .True.
                 write(logdev,99903)Trim( vaporspc( spc )%drog_name ),
      &          Trim( vaporspc( spc )%name )
@@ -327,19 +313,12 @@ C phase as model species
                  If( g .Lt. 1 ) Then
                     g = index1( vaporlist( spc )%name, n_gc_spc, gc_spc )
                     If( g .Lt. 1 ) Then
-!                      xmsg = 'FATAL: SOA Vapor, ' // Trim( vaporlist( spc )%name )
-!     &                     // ', is not found among the species in the NR or GC'
-!     &                     // ' namelist used. Required for modeling '
-!     &                     // Trim ( vaporlist( spc )%soa_name ) // '.'
                       SOA_eflag  = .True.
                       write(logdev,99902)Trim( vaporlist( spc )%name ), 
      &                Trim ( vaporlist( spc )%soa_name )
 !                      Call m3warn( pname, 0, 0, xmsg )
                     End If
                  End If
-!                 If( g .Gt. 0 ) Then
-!                    write(logdev,*)'found vapor species:', Trim( vaporlist( spc )%name )
-!                End If
              End If
          End Do
 
@@ -1087,7 +1066,6 @@ C Arguments:
 
 C Local variables:
       Logical, Save :: first_time = .True.
-      Integer, Save :: logdev
       Character( 300 ) :: xmsg
       Integer       :: i, im, indx, ispc
 
@@ -1187,7 +1165,6 @@ C-----------------------------------------------------------------------
 
       If ( first_time )  Then
          first_time = .False.
-         logdev = setup_logdev()
 
 C Set unit conversion and inverse mw constants
          drog_ppm2ug( : ) = orgprod_mw( : ) * convfac_298
@@ -2358,6 +2335,7 @@ C-----------------------------------------------------------------------
      &                          mlwt) RESULT ( nroot )
 
       Use utilio_defn
+      Use runtime_vars
 
       Implicit None
 
@@ -2376,11 +2354,9 @@ C     Result
       Real             :: nroot               ! solution (final nguess)
 
 C External functions:
-      Integer, External :: setup_logdev
 
 C     Local variables
       Logical, Save    :: first_time = .True.
-      Integer, Save    :: logdev
 
       Real             :: nguess              ! current guess for total moles organic aerosol
       Real             :: oldn, lower, upper, flower, fnguess ! intermediate values
@@ -2392,7 +2368,6 @@ C     Local variables
 
       If ( first_time )  Then
         first_time = .False.
-        logdev = setup_logdev()
       End If
 
 C     Store current lower and upper bound, evaluate at lower bound

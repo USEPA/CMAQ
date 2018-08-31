@@ -8,7 +8,6 @@ module sd_time_series_module
 
   implicit none
 
-  integer :: n_sd_spcs, sd_scol, sd_ecol, sd_srow, sd_erow
   character (len = 16), allocatable :: sd_spcs(:)
   integer, allocatable :: sd_spcs_index(:)
   real, allocatable :: sd_ts_data(:,:,:,:)
@@ -16,8 +15,8 @@ module sd_time_series_module
   contains
 
 ! --------------------------------------------------------------------------------
-  subroutine sd_time_series_init (logdev, tstep)
-
+  subroutine sd_time_series_init (tstep)
+    use runtime_vars
     use hgrd_defn
 
     use utilio_defn
@@ -26,35 +25,13 @@ module sd_time_series_module
 !   include 'IODECL3.EXT'
     include SUBST_FILES_ID    ! I/O definitions and declarations
 
-    integer, intent(in) :: logdev, tstep
+    integer, intent(in) :: tstep
 
     character (len = 80), allocatable :: temp(:,:)
     integer :: stat, n
 !   integer, external :: index1
 
     character (len = 16), parameter :: pname = 'sd_time_series_i'
-
-    interface
-      subroutine get_envlist (env_var, nvars, var_list)
-        character (len = *), intent(in)   :: env_var
-        integer, intent(out)              :: nvars
-        character (len = 16), intent(out) :: var_list(:)
-      end subroutine get_envlist
-    end interface
-
-    sd_scol = envint ('SD_SCOL', ' ', 1, stat)
-    sd_ecol = envint ('SD_ECOL', ' ', 1, stat)
-    sd_srow = envint ('SD_SROW', ' ', 1, stat)
-    sd_erow = envint ('SD_EROW', ' ', 1, stat)
-
-    if ( .not. desc3( ctm_conc_1 ) ) then
-       write (logdev, '(a14, a16, a17)') 'Could not get ', CTM_CONC_1, ' file description'
-       stop
-    end if
-
-    allocate (sd_spcs(nvars3d), stat=stat)
-
-    call get_envlist ('SD_CONC_SPCS', n_sd_spcs, sd_spcs)
 
     allocate (sd_spcs_index(n_sd_spcs), temp(n_sd_spcs,3), stat=stat)
 

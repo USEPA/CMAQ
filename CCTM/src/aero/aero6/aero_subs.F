@@ -17,12 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6_mp/aero_subs.F,v 1.3 2012/01/26 18:44:38 sjr Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C routines for aerosol formation and transformation processes
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -285,13 +279,11 @@ C *** local variables
       INTEGER      SPC        ! loop counter
       INTEGER      N          ! loop counter
 
-      integer, save :: logdev 
       logical, save :: firstime = .true.
 C-----------------------------------------------------------------------
 
       if ( firstime ) then
          firstime = .false.
-         logdev = init3()
 #ifdef nomm
          write( logdev,* ) 'aero_subs: nomm'
 #endif
@@ -915,7 +907,6 @@ C     mass partitioning between the modes
       INTEGER IMODE                       ! mode loop index  
       INTEGER ISTEP                       ! loop index, mass transfer time step loop
       INTEGER ISP                         ! loop index, species loop
-      INTEGER, SAVE :: LOGDEV 
       LOGICAL TrustIso                    ! For negative vap. press., TrustIso = F
 
 C *** Local Saved Variables 
@@ -959,7 +950,6 @@ C-----------------------------------------------------------------------
       IF ( FIRSTIME ) THEN
       
          FIRSTIME = .FALSE.
-         LOGDEV = INIT3()
 #ifdef noiso
          write( logdev,* ) 'aero_subs, volinorg: noiso'
 #endif
@@ -2120,20 +2110,7 @@ C Local Variables:
       REAL( 8 ) :: M0I( NPAIR )    ! single-solute molalities
       INTEGER :: J
 
-#ifdef verbose_aero
-!     logical, save :: firstime = .true.
-!     integer, save :: logdev
-!     integer, external :: setup_logdev
-#endif
-
 C-----------------------------------------------------------------------
-
-#ifdef verbose_aero
-!     if ( firstime ) then
-!        firstime = .false.
-!        logdev = setup_logdev()
-!     end if
-#endif
 
 C     Return if small concentration
       IF ( WI( 1 ) + WI( 2 ) + WI( 3 ) + WI( 4 )

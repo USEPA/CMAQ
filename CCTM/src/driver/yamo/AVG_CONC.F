@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/driver/yamo/AVG_CONC.F,v 1.5 2011/10/21 16:10:42 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE AVG_CONC
 
@@ -31,16 +24,11 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 C Revision History
 C   10 May 2016 D. Wong Modified code to provide flexibility to handle
-C                       environment variable AVG_CONC_SPCS is set to 'ALL' 
+C                       environment variable ACONC_FILE_SPCS is set to 'ALL' 
 C                       or not set.
 
 C Function: species, layer pointers and definitions for integral average
 C CONC calculations
-
-      INTEGER, SAVE :: N_ASPCS    ! Number of species saved to avg conc file
-      CHARACTER( 16 ), SAVE :: AVG_SPCS( 900 ) ! avg conc file species list
-      INTEGER, SAVE :: ACONC_BLEV ! Beginning level saved to avg conc file
-      INTEGER, SAVE :: ACONC_ELEV ! Ending level saved to avg conc file
 
       INTEGER, SAVE, ALLOCATABLE :: AVG_CONC_MAP( : ) ! pointer into CGRID
       CHARACTER( 16 ), SAVE, ALLOCATABLE :: A_GC_SPC( : ) ! pointer into GC_SPC
@@ -64,6 +52,7 @@ C species classes configuration for average CONC
 
          SUBROUTINE A_CONC_DEFN ()
 
+         USE RUNTIME_VARS
          USE VGRD_DEFN             ! vertical layer specifications
          USE CGRID_SPCS            ! CGRID mechanism species
          USE UTILIO_DEFN
@@ -81,72 +70,38 @@ C species classes configuration for average CONC
          INTEGER, ALLOCATABLE :: NR_MAP( : )
          INTEGER, ALLOCATABLE :: TR_MAP( : )
 
-         CHARACTER( 32 ) :: AVG_CONC_SPCS   = 'AVG_CONC_SPCS'
-         CHARACTER( 32 ) :: ACONC_BLEV_ELEV = 'ACONC_BLEV_ELEV'
-         CHARACTER( 16 ) :: V_LIST( 2 )
-
-#ifdef Verbose
-         integer logdev
-#endif
-
-         INTERFACE
-            SUBROUTINE GET_ENVLIST ( ENV_VAR, NVARS, VAL_LIST )
-               CHARACTER( * ),  INTENT ( IN )  :: ENV_VAR
-               INTEGER,         INTENT ( OUT ) :: NVARS
-               CHARACTER( 16 ), INTENT ( OUT ) :: VAL_LIST( : )
-            END SUBROUTINE GET_ENVLIST
-         END INTERFACE
 
 C-----------------------------------------------------------------------
 
-#ifdef Verbose
-         logdev = init3()
-#endif
-
 C RETRIEVE THE SPECIES SAVED TO INTEGRAL AVERAGE CONCENTRATION FILE
 
-         CALL GET_ENVLIST ( AVG_CONC_SPCS, N_ASPCS, AVG_SPCS )
-
-         IF ( N_ASPCS .EQ. 0 .OR. AVG_SPCS( 1 ) .EQ. 'ALL' ) THEN
+         IF ( N_ASPCS .EQ. 0 .OR. ACONC_FILE_SPCS( 1 ) .EQ. 'ALL' ) THEN
             N_ASPCS = N_GC_SPC + N_AE_SPC + N_NR_SPC + N_TR_SPC
             DO VAR = 1, N_GC_SPC
                V = VAR
-               AVG_SPCS( V ) = GC_SPC( VAR )
+               ACONC_FILE_SPCS( V ) = GC_SPC( VAR )
             END DO
             DO VAR = 1, N_AE_SPC
                V = N_GC_SPC + VAR
-               AVG_SPCS( V ) = AE_SPC( VAR )
+               ACONC_FILE_SPCS( V ) = AE_SPC( VAR )
             END DO
             DO VAR = 1, N_NR_SPC
                V = N_GC_SPC + N_AE_SPC + VAR
-               AVG_SPCS( V ) = NR_SPC( VAR )
+               ACONC_FILE_SPCS( V ) = NR_SPC( VAR )
             END DO
             DO VAR = 1, N_TR_SPC
                V = N_GC_SPC + N_AE_SPC + N_NR_SPC + VAR
-               AVG_SPCS( V ) = TR_SPC( VAR )
+               ACONC_FILE_SPCS( V ) = TR_SPC( VAR )
             END DO
          END IF
 
 C Retrieve the layer range used in integral average concentration file
-
-         CALL GET_ENVLIST ( ACONC_BLEV_ELEV, NV, V_LIST )
-         IF ( NV .NE. 2 ) THEN
-            XMSG = 'Environment variable error for ' // ACONC_BLEV_ELEV
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-         END IF
-         READ( V_LIST( 1 ), '( I4 )' ) ACONC_BLEV
-         READ( V_LIST( 2 ), '( I4 )' ) ACONC_ELEV
+         IF ( ACONC_ELEV .EQ. -1 ) ACONC_ELEV = NLAYS
 
          IF ( ACONC_BLEV .LE. 0 .OR. ACONC_ELEV .GT. NLAYS ) THEN
             WRITE( XMSG,'( "Layer range", 2I4, " invalid for this model" )' )
      &      ACONC_BLEV, ACONC_ELEV
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-         END IF
-
-         IF ( ACONC_BLEV .NE. 1 ) THEN
-            WRITE( XMSG,'( "Layer", I3, " Not 1st layer in CGRID" )' )
-     &      ACONC_BLEV
-            CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
          END IF
 
 C Check species names against include files and create AVG_CONC_MAP, and
@@ -177,35 +132,35 @@ C and the classes must be in the sequence: GC, AE, NR, TR
          N_A_TR_SPC = 0
 
          DO VAR = 1, N_ASPCS
-            V = INDEX1 ( AVG_SPCS( VAR ), N_GC_SPC, GC_SPC )
+            V = INDEX1 ( ACONC_FILE_SPCS( VAR ), N_GC_SPC, GC_SPC )
             IF ( V .GT. 0 ) THEN
                N_A_GC_SPC = N_A_GC_SPC + 1
-               A_GC_SPC( N_A_GC_SPC ) = AVG_SPCS( VAR )
+               A_GC_SPC( N_A_GC_SPC ) = ACONC_FILE_SPCS( VAR )
                OFF = 0
                GC_MAP( N_A_GC_SPC ) = V + OFF
             ELSE
-               V = INDEX1 ( AVG_SPCS( VAR ), N_AE_SPC, AE_SPC )
+               V = INDEX1 ( ACONC_FILE_SPCS( VAR ), N_AE_SPC, AE_SPC )
                IF ( V .GT. 0 ) THEN
                   N_A_AE_SPC = N_A_AE_SPC + 1
                   OFF = N_GC_SPC + 1   ! accounts for advected density
-                  A_AE_SPC( N_A_AE_SPC ) = AVG_SPCS( VAR )
+                  A_AE_SPC( N_A_AE_SPC ) = ACONC_FILE_SPCS( VAR )
                   AE_MAP( N_A_AE_SPC ) = V + OFF
                ELSE
-                  V = INDEX1 ( AVG_SPCS( VAR ), N_NR_SPC, NR_SPC )
+                  V = INDEX1 ( ACONC_FILE_SPCS( VAR ), N_NR_SPC, NR_SPC )
                   IF ( V .GT. 0 ) THEN
                      N_A_NR_SPC = N_A_NR_SPC + 1
                      OFF = N_GC_SPC + 1 + N_AE_SPC
-                     A_NR_SPC( N_A_NR_SPC ) = AVG_SPCS( VAR )
+                     A_NR_SPC( N_A_NR_SPC ) = ACONC_FILE_SPCS( VAR )
                      NR_MAP( N_A_NR_SPC ) = V + OFF
                   ELSE
-                     V = INDEX1 ( AVG_SPCS( VAR ), N_TR_SPC, TR_SPC )
+                     V = INDEX1 ( ACONC_FILE_SPCS( VAR ), N_TR_SPC, TR_SPC )
                      IF ( V .GT. 0 ) THEN
                         N_A_TR_SPC = N_A_TR_SPC + 1
                         OFF = N_GC_SPC + 1 + N_AE_SPC + N_NR_SPC
-                        A_TR_SPC( N_A_TR_SPC ) = AVG_SPCS( VAR )
+                        A_TR_SPC( N_A_TR_SPC ) = ACONC_FILE_SPCS( VAR )
                         TR_MAP( N_A_TR_SPC ) = V + OFF
                      ELSE
-                        XMSG = 'Variable ' // AVG_SPCS( VAR )
+                        XMSG = 'Variable ' // ACONC_FILE_SPCS( VAR )
      &                  // ' incorrect for this model'
                         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
                      END IF

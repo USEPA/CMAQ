@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/work/rep/arc/CCTM/src/cloud/cloud_acm_ae6/cldproc_acm.F,v 1.6 2011/10/21 16:10:23 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE CLDPROC ( CGRID, JDATE, JTIME, TSTEP )
 
@@ -60,7 +53,7 @@ C                             open CTM_WET_DEP_1 and CTM_WET_DEP_2 for parallel 
 C                             implementation
 
 C-----------------------------------------------------------------------
-
+      USE RUNTIME_VARS
       USE GRID_CONF           ! horizontal & vertical domain specifications
       USE CGRID_SPCS          ! CGRID mechanism species
       USE UTILIO_DEFN
@@ -72,7 +65,7 @@ C...........INCLUDES
       INCLUDE SUBST_CONST            ! constants
       INCLUDE SUBST_FILES_ID         ! file name parameters
 
-      CHARACTER( 120 ) :: XMSG = ' ' ! exit status message string
+      CHARACTER( 120 ) :: XMSG = ' ' ! exit message string
 
 C...........PARAMETERS
 
@@ -101,8 +94,6 @@ C...........Local Variables
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE. ! flag for first pass thru
 
-      LOGICAL, SAVE :: CLD_DIAG          ! flag to output cloud diagnostic files
-
       CHARACTER( 16 ), SAVE :: PNAME = 'CLDPROC' ! driver program name
       CHARACTER( 16 ) :: VNAME            ! input variable name list
 
@@ -120,15 +111,12 @@ C...........Local Variables
       INTEGER       ROW              ! row subscript indices
       INTEGER       SPC              ! species subscript indices
       INTEGER       STRT             ! starting position
-      INTEGER       STATUS           !  ENVINT status
       INTEGER       VAR              ! variable subscript indices
       INTEGER       ALLOCSTAT
       INTEGER, ALLOCATABLE, SAVE :: WDEP_MAP( : ) ! wet deposition map to CGRID
       INTEGER, ALLOCATABLE, SAVE :: QAE( : ) ! CGRID pointer to ug/m3 species
       INTEGER, ALLOCATABLE, SAVE :: NAE( : ) ! CGRID pointer to #/m3 species
       INTEGER, ALLOCATABLE, SAVE :: SAE( : ) ! CGRID pointer to m2/m3 species
-
-      INTEGER, SAVE :: LOGDEV           ! output log unit number
 
 
 !     REAL          DENS    ( NCOLS,NROWS,NLAYS ) ! air density (kg/m3)
@@ -179,7 +167,6 @@ C   begin body of subroutine  CLDPROC
 C...Initialization
 
       IF ( FIRSTIME ) THEN
-        LOGDEV = INIT3()
         FIRSTIME = .FALSE.
 
 C...first check to make sure that some species in CGRID were specified
@@ -206,23 +193,7 @@ C...and return
 
 C...check to see if user wants to output extra diagnostic files
 
-        CLD_DIAG = .FALSE.
-        XMSG = 'Output cloud diagnostic files? (Y/N)'
-        CLD_DIAG = ENVYN( 'CLD_DIAG', XMSG, CLD_DIAG, STATUS )
-
-        IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) XMSG
-
-        IF ( STATUS .EQ. 1 ) THEN
-          XMSG = 'Environment variable improperly formatted'
-          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-        ELSE IF ( STATUS .EQ. -1 ) THEN
-          XMSG = 'Environment variable set, but empty ... Using default:'
-          WRITE( LOGDEV, '(5X, A, L9)' ) XMSG, CLD_DIAG
-        ELSE IF ( STATUS .EQ. -2 ) THEN
-          XMSG = 'Environment variable not set ... Using default:'
-          WRITE( LOGDEV, '(5X, A, L9)' ) XMSG, CLD_DIAG
-        END IF
-
+        
         SPC = 0
         STRT = 1
         FINI = N_GC_WDEP

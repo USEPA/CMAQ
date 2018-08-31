@@ -110,6 +110,7 @@ C In the Fortran user-derived spcs_type, below, visual_idx is an optimal dry mas
 C extinction efficiency [m^2/g], see White, Atmos.Env., 294(10)(1990), pp 2673-1672
 C and Malm, et al., JGR, 99(D1)(1994), pp 1347-1370
 C----------------------------------------------------------------------
+      USE RUNTIME_VARS
 
       Implicit None
 
@@ -156,11 +157,8 @@ C Define Logical values as T and F for the aerospc table
       Logical, Parameter, Private :: T = .true.
       Logical, Parameter, Private :: F = .false.
 
-      Integer, Private, Save :: logdev
-      Integer, Private, External :: setup_logdev
+C-------------------------------------------------------------------------------------------------------
 
- 
-      ! Create Array of Aerosol Species to Be Filled with User Preferences
       Type spcs_type
          Character( 16 ) :: name( n_mode )       ! mode-dependent names of aerosol species
          Character( 16 ) :: bulkname             ! mode-independent names of aerosol species
@@ -729,7 +727,8 @@ C Local Variables:
 
       If ( mapped ) Return
 
-      logdev      = setup_logdev()
+      Call LOG_SUBHEADING( LOGDEV, "Map Aerosol Species" )
+
       mole_weight = 0.0
 
       n_aerospc      = 0   ! Number of Used Aerosol Chemical Species
@@ -976,7 +975,6 @@ C compute aeromode_minNum and aeromode_minM2
 
       mapped = .True.
 
-      Write( logdev,'( 5x, a )' ) ' --- Aero Species Mapped ---'
 
 99901 Format( 'FATAL Error(s) found in the AE namelist used. Check that ' 
      &     /  'this AE namelist contains the above required data as the file in '
@@ -1189,13 +1187,13 @@ C Find the substring vname in aerospc( spc )%name( n )
       End Do
 
       If ( .Not. required ) Then
-         xmsg = ' NOT FATAL: Optional Species '
+         xmsg = 'Optional Species '
      &       // Trim( vname ) // ' Not found in AE namelist.'
-         write(logdev,'(/ a / )')xmsg
+         write(logdev,'(5x,a)') xmsg
          Return
       End If
 
-      xmsg = 'FATAL: Required Species ' // Trim( vname ) // ' Not found in AE namelist'
+      xmsg = 'Required Species ' // Trim( vname ) // ' Not found in AE namelist'
       AE_eflag  = .True.
       Call m3warn( pname, 0, 0, xmsg )
 
