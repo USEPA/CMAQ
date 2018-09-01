@@ -215,7 +215,6 @@ C Land use information:
       Real,    Save :: zsoil1             ! Layer 1 soil depth
       Real,    Save :: zsoil2             ! Layer 2 soil depth
       Real,    Save :: CONVPA             ! Pressure conversion factor file units to Pa
-      Logical, Save :: MINKZ     
       Logical, Save :: CSTAGUV            ! Winds are available with C stagger?
       Logical, Save :: ifwr     = .false.
 
@@ -231,7 +230,6 @@ C Land use information:
       Character( 16 ), Private, Save :: vname_rc, vname_rn, vname_uc, vname_vc
       Real,            Private, Save :: P0    ! reference pressure (100000.0 Pa) for Potential Temperature, note that in meteorology they do not use the SI 1 ATM.  
 
-      Integer, Private, Save :: LOGDEV
       Integer, Private, Save :: GXOFF, GYOFF              ! global origin offset from file
       Integer, Private, Save :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 ! MET_CRO_3D
       Integer, Private, Save :: STRTCOLMD3, ENDCOLMD3, STRTROWMD3, ENDROWMD3 ! MET_DOT_3D
@@ -245,7 +243,7 @@ C Land use information:
       CONTAINS
 
 C=======================================================================
-         Subroutine INIT_MET ( JDATE, JTIME, HGBIDI )
+         Subroutine INIT_MET ( JDATE, JTIME )
 
 C-----------------------------------------------------------------------
 C   30 Mar 01 J.Young: dyn alloc - Use HGRD_DEFN; replace INTERP3 with INTERPX;
@@ -268,7 +266,6 @@ C-----------------------------------------------------------------------
 
 C Arguments:
          Integer, Intent( IN ) :: JDATE, JTIME      ! internal simulation date&time
-         Logical, Intent( IN ) :: HGBIDI
 
 C File variables:
          Real, Pointer    :: MSFX2   ( :,: )
@@ -289,11 +286,9 @@ C for INTERPX
 
 C-----------------------------------------------------------------------
 
-         LOGDEV = INIT3()
+         If ( MET_INITIALIZED ) Return
 
-         If( MET_INITIALIZED )Return
-
-         CALL INIT_MOSAIC( JDATE, JTIME, MOSAIC, ABFLUX )
+         CALL INIT_MOSAIC( JDATE, JTIME )
 
 !> Allocate buffers
          ALLOCATE ( BUFF1D( NLAYS ),
@@ -526,21 +521,6 @@ C-----------------------------------------------------------------------
                Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End Select
 
-         MINKZ = .True.   ! default
-         MINKZ = ENVYN( 'KZMIN', 'Kz min on flag', MINKZ, ALLOCSTAT )
-         If ( ALLOCSTAT .Ne. 0 ) Write( LOGDEV,'(5X, A)' ) 'Kz min on flag'
-         Select Case( ALLOCSTAT )
-            Case (  1 ) 
-               XMSG = 'Environment variable improperly formatted'
-               Call M3WARN( PNAME, JDATE, JTIME, XMSG )
-            Case ( -1 )
-               XMSG = 'Environment variable set, but empty ... Using default:'
-               Write( LOGDEV,'(5X, A)' ) XMSG
-            Case ( -2 )
-               XMSG = 'Environment variable not set ... Using default:'
-               Write( LOGDEV,'(5X, A)' ) XMSG
-         End Select
-
          If ( .Not. MINKZ ) Then
             XMSG = 'This run uses Kz0UT, *NOT* KZMIN in subroutine edyintb.'
             Write( LOGDEV,'(/5X, A, /)' ) XMSG
@@ -748,7 +728,7 @@ C-----------------------------------------------------------------------
          End Subroutine INIT_MET
 
 C=======================================================================
-         Subroutine GET_MET ( JDATE, JTIME, TSTEP, HGBIDI )
+         Subroutine GET_MET ( JDATE, JTIME, TSTEP )
 
 C-----------------------------------------------------------------------
 C   30 Mar 01 J.Young: dyn alloc - Use HGRD_DEFN; replace INTERP3 with INTERPX;
@@ -780,9 +760,6 @@ C-----------------------------------------------------------------------
 C Arguments:
 
          Integer, Intent( IN ) :: JDATE, JTIME, TSTEP      ! internal simulation date&time
-!         Logical, Intent( IN ) :: MOSAIC
-!         Logical, Intent( IN ) :: ABFLUX
-         Logical, Intent( IN ) :: HGBIDI
 
 C Parameters:
          Real, Parameter :: cond_min = 1.0 / resist_max ! minimum conductance [m/s]
@@ -808,10 +785,10 @@ C Local variables:
          Character( 96 ) :: XMSG = ' '
 
 C-----------------------------------------------------------------------
-C Check consisteancy with WRF LSM and CMAQ options
+C Check consistency with WRF LSM and CMAQ options
 C-----------------------------------------------------------------------
          If( .Not. PX_LSM .And. .Not. CLM_LSM .And. .Not. NOAH_LSM ) Then
-            XMSG = 'WRF LSM does not supported. PX, CLM and NOAH are supported'
+            XMSG = 'WRF LSM is not supported. PX, CLM and NOAH are supported'
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             If( ABFLUX ) Then
                XMSG = 'NH3 bidirectional exchange is not supported using this WRF LSM option. Set CTM_ABFLUX to N.'
@@ -1309,7 +1286,7 @@ C read in land use specific meteorology from WRF Noah or Ruc mosaic options
 !     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,n_lufrac,
 !     &                       JDATE, JTIME,  MOSAIC_DATA%LAI ) ) THEN
 !            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_3D
-         CALL CALC_LAI( JDATE, JTIME, LOGDEV, MET_DATA%SOIT2, GRID_DATA%LUFRAC,
+         CALL CALC_LAI( JDATE, JTIME, MET_DATA%SOIT2, GRID_DATA%LUFRAC,
      &                  MET_DATA%LAI, MOSAIC_DATA%VEG, MOSAIC_DATA%LAI, MOSAIC_DATA%Z0 )
 !         END IF
 

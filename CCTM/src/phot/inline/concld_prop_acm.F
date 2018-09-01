@@ -346,10 +346,6 @@ C for INTERPX
 
       CHARACTER( 120 ) :: XMSG = ' '   ! Exit status message
 
-C...........External Functions
-
-      INTEGER, EXTERNAL :: SETUP_LOGDEV
-
 C...........Statement Functions
 
       REAL             ESAT            ! sat vap pres (Pa) as fn of T (deg K)
@@ -372,7 +368,6 @@ C...  event-statistics variables.
       IF ( FIRSTIME ) THEN
 
         FIRSTIME = .FALSE.
-        LOGDEV = INIT3()
 
         CALL INIT_MET( JDATE, JTIME )
 

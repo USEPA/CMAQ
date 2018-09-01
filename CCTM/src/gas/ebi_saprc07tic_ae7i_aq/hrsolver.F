@@ -46,6 +46,7 @@ C**********************************************************************
       USE RXNS_DATA
       USE HRDATA
       USE PA_IRR_MODULE
+      USE RUNTIME_VARS
 
       IMPLICIT NONE
 
@@ -124,7 +125,6 @@ C**********************************************************************
 
        IF( LFIRST ) THEN
           LFIRST = .FALSE.
-          LOGDEV = INIT3( )
 
           ALLOCATE ( LEBISPFL( NUMB_MECH_SPC ), STAT = ERR )
           IF ( ERR .NE. 0 ) THEN

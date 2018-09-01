@@ -37,7 +37,7 @@ C References:
 C          Nemitz et al. 2001 Q. J. R. Meteorol. Soc DOI: 10.1002/qj.49712757306
 C          Binkowski and Shankar 1995 JGR  DOI: 10.1029/95JD02093
 C 
-C Default varialbes output area weighted Vd
+C Default variables output area weighted Vd
 C Optional variables output land use specific LAI, RA, U*, Z0, and Vd
 C
 C Revised:  1 Dec 2017  Original version.  (J. Bash)
@@ -90,7 +90,7 @@ C Aerosol deposition arrays
 
 
       Contains
-         SUBROUTINE INIT_STAGE ( JDATE, JTIME, HGBIDI )
+         SUBROUTINE INIT_STAGE ( JDATE, JTIME )
 
 C-----------------------------------------------------------------------
 C  This subroutine sets up the mapping and options for the TAGX gaseous 
@@ -105,7 +105,6 @@ C-----------------------------------------------------------------------
 
 C Arguments:
          Integer, Intent( IN ) :: JDATE, JTIME      ! internal simulation date&time
-         Logical, Intent( IN ) :: HGBIDI
          integer               :: c, r, l, n, s, v
          CHARACTER( 16 ), PARAMETER :: pname      = 'INIT_STAGE'        
          CHARACTER( 16 )       :: gc_depv_name( dep_gas_all )
@@ -124,8 +123,6 @@ C Local variables:
          DATA         VDAE_NAME( 8 ) / 'VSRFACC ' /
          DATA         VDAE_NAME( 9 ) / 'VSRFCOR ' /
 
-         logdev  = init3()
-  
          Call Map_Stage
 
          IF ( .NOT. desc3( met_cro_2d ) ) THEN
@@ -283,7 +280,6 @@ C-----------------------------------------------------------------
         
          Use NH3_BIDI_MOD
          Use MOSAIC_MOD, Only: Tile_Data 
-         Use BIDI_MOD, Only: HGBIDI
          Use HGSIM
 
          Implicit None
@@ -365,7 +361,7 @@ C Parameters specific to gas_x. Currently based on m3dry but subject to change
          ELSE
             hplus = hplus_def
          END IF
-! moved water temperature here to reduce redundency and facilitate moving the hlconst 
+! moved water temperature here to reduce redundancy and facilitate moving the hlconst 
 ! subroutine out of the land use loop for better vectorization.
          ctemp2 = temp_2m - stdtemp
          lv     = lv0 - dlvdt * ctemp2
@@ -845,9 +841,8 @@ C Meteorological variables
          REAL M3_WET, M3SUBT, M3_DRY
          REAL M2_WET, M2_DRY
 
-         INTEGER, SAVE :: LOGDEV                   ! unit number for the log file
          CHARACTER( 16 ), SAVE :: PNAME = 'AERO_X'
-         CHARACTER( 16 ) :: VNAME            ! varable name
+         CHARACTER( 16 ) :: VNAME            ! variable name
          CHARACTER( 96 ) :: XMSG = ' '
 
          INTEGER  V, N, L               ! loop counters

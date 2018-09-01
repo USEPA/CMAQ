@@ -304,7 +304,7 @@ C create header
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
          LOGICAL FUNCTION PWRVEC( FILNAME, VARNAME, DATE, TIME,
      &                            BUFFER, NLAYS3D,
-     &                            NCOLS, NROWS, NP, logdev,
+     &                            NCOLS, NROWS, NP, 
      &                            NVERTEXT, VERTEXTII, VERTEXTJI)
 C.....................................................................
   
@@ -375,7 +375,6 @@ C Arguments
 
          CHARACTER( * ), INTENT(IN) :: FILNAME   ! Name of file containing variable VARNAME
          CHARACTER( * ), INTENT(IN) :: VARNAME   ! Name of file variable to write
-         INTEGER, INTENT(IN)        :: logdev
          INTEGER, INTENT(IN)        :: DATE      ! Date, formatted YYYYDDD
          INTEGER, INTENT(IN)        :: TIME      ! Time, formatted HHMMSS 
          INTEGER, INTENT(IN)        :: NLAYS3D   ! Layer dimension of file variables
@@ -623,7 +622,7 @@ C open vext file for update
 
             IF ( .NOT. PWRVEC(CTM_VEXT_1, VNAME(V), JDATE, JTIME,
      &                        SGRID(:, :, :, V), NLAYS3D,
-     &                        NCOLS, NROWS, NUMPROCS, logdev,
+     &                        NCOLS, NROWS, NUMPROCS, 
      &                        NVERTEXT, VERTEXTI, VERTEXTJ     ) ) THEN
                      XMSG = 'PWRGRDD failed writing variable '
      &                     // TRIM( VNAME(V) ) //
@@ -634,7 +633,7 @@ C open vext file for update
 
          IF ( .NOT. PWRVEC(CTM_VEXT_1, VNAME(V + 1), JDATE, JTIME,
      &                     Met_Data%PRES(:, :, :), NLAYS3D,
-     &                     NCOLS, NROWS, NUMPROCS, logdev,
+     &                     NCOLS, NROWS, NUMPROCS, 
      &                     NVERTEXT, VERTEXTI, VERTEXTJ     ) ) THEN
                   XMSG = 'PWRGRDD failed writing variable '
      &                  // TRIM( VNAME(V) ) //
@@ -644,7 +643,7 @@ C open vext file for update
          
          IF ( .NOT. PWRVEC(CTM_VEXT_1, VNAME(V + 2), JDATE, JTIME,
      &                     Met_Data%TA(:, :, :), NLAYS3D,
-     &                     NCOLS, NROWS, NUMPROCS, logdev,
+     &                     NCOLS, NROWS, NUMPROCS, 
      &                     NVERTEXT, VERTEXTI, VERTEXTJ     ) ) THEN
                   XMSG = 'PWRGRDD failed writing variable '
      &                  // TRIM( VNAME(V) ) //
