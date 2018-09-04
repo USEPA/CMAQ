@@ -147,20 +147,18 @@ R0
            INTEGER, INTENT( IN ) :: JTIME    ! Current time (HHMMSS)
            INTEGER, INTENT( IN ) :: C, R, L  ! Cell col, row, lev
         END SUBROUTINE HRSOLVER
-R5         SUBROUTINE FIND_DEGRADED( JDATE, JTIME, LOGDEV, CALL_DEGRADE )
+R5         SUBROUTINE FIND_DEGRADED( JDATE, JTIME, CALL_DEGRADE )
 R5           INTEGER, INTENT( IN )  :: JDATE        ! current model date , coded YYYYDDD
 R5           INTEGER, INTENT( IN )  :: JTIME        ! current model time , coded HHMMSS
-R5           INTEGER, INTENT( IN )  :: LOGDEV       ! unit number for the log file
 R5           LOGICAL, INTENT( OUT ) :: CALL_DEGRADE ! whether to call degradation routines
 R5         END SUBROUTINE FIND_DEGRADED
-R5         SUBROUTINE INIT_DEGRADE( CBLK, TCELL, DCELL, PHOTO_CELL, JDATE, JTIME, LOGDEV )
+R5         SUBROUTINE INIT_DEGRADE( CBLK, TCELL, DCELL, PHOTO_CELL, JDATE, JTIME )
 R5           REAL( 8 ), INTENT( IN ) :: CBLK( : )       !  species concentration in cell
 R5           REAL,      INTENT( IN ) :: TCELL           !  cell temperature  [ k ]
 R5           REAL,      INTENT( IN ) :: DCELL           !  cell air density  [ kg/m^3 ]
 R5           REAL( 8 ), INTENT( IN ) :: PHOTO_CELL( : ) !  Photolysis table for cell [1/s]
 R5           INTEGER,   INTENT( IN ) :: JDATE  ! current model date , coded YYYYDDD
 R5           INTEGER,   INTENT( IN ) :: JTIME  ! current model time , coded HHMMSS
-R5           INTEGER,   INTENT( IN ) :: LOGDEV ! unit number for the log
 R5         END SUBROUTINE INIT_DEGRADE      
 R5         SUBROUTINE FINAL_DEGRADE( CBLK )
 R5           REAL( 8 ), INTENT( INOUT ) :: CBLK( : )    !  species concentration in cell
@@ -175,8 +173,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  On first call, call routines to set-up for EBI solver 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF( LFIRST ) THEN
-
-         LOGDEV = INIT3( )
 
 R3         IF( MECHNAME .NE. 'SAPRC99         ' .AND.
 R3     &       MECHNAME .NE. 'SAPRC99_AQ      ' .AND.
@@ -221,7 +217,7 @@ R5         MODEL_SPECIES = NSPCSD    ! WTH: find number of model species
 R5
 R5! Determine whether DEGRADE rountines are needed.
 R5
-R5         CALL FIND_DEGRADED( JDATE, JTIME, LOGDEV, CALL_DEG )
+R5         CALL FIND_DEGRADED( JDATE, JTIME, CALL_DEG )
 R5         IF( CALL_DEG )THEN
 R5            WRITE(LOGDEV,*)'TX DEGRADE ROUTINES USED'
 R5            WRITE(LOGDEV,*)'Mechanism contains degraded species'
@@ -445,7 +441,7 @@ R5                  DO S = 1, MODEL_SPECIES
 R5                     YCCELL( S ) = REAL( CGRID(C,R,L,S), 8)
 R5                  END DO
 R5                  CALL INIT_DEGRADE(YCCELL,TA(C,R,L),DENS(C,R,L),RJIN(NCELL,:),
-R5     &                              JDATE, JTIME, LOGDEV)
+R5     &                              JDATE, JTIME)
 R5               END IF
 
 c..Set physical quantities

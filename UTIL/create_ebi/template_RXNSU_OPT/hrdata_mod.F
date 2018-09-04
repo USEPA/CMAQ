@@ -56,7 +56,6 @@ R5! SWITCH for calling DEGRADE routine
 R5    LOGICAL, SAVE :: CALL_DEG = .TRUE.
 
 c..Miscellaneous variables
-      INTEGER   LOGDEV        ! Unit number of output log
       INTEGER   N_EBI_IT      ! No. of iterations for EBI
       INTEGER   N_EBI_STEPS   ! No. of time steps for EBI
       INTEGER   N_INR_STEPS   ! No. of inner time steps for EBI

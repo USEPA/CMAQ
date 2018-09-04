@@ -38,6 +38,7 @@ C                        modules instead of include files and 2) to use
 C                        real(8) variables
 C**********************************************************************
 
+      USE RUNTIME_VARS
       USE UTILIO_DEFN
       USE RXNS_DATA
       USE HRDATA
@@ -122,12 +123,11 @@ R5      REAL( 8 ) DTG         ! Time step in degrade routines, sec
 #endif
 
 R5      INTERFACE ! for degrade algorithm
-R5        SUBROUTINE DEGRADE( CBLK, DT, JDATE, JTIME, LOGDEV )
+R5        SUBROUTINE DEGRADE( CBLK, DT, JDATE, JTIME )
 R5          REAL( 8 ), INTENT( IN ) :: CBLK( : )      ! array holding species concentrations
 R5          REAL( 8 ), INTENT( IN ) :: DT             ! time step for integrations [sec]
 R5          INTEGER,   INTENT( IN ) :: JDATE          ! current model date , coded YYYYDDD
 R5          INTEGER,   INTENT( IN ) :: JTIME          ! current model time , coded HHMMSS
-R5          INTEGER,   INTENT( IN ) :: LOGDEV         ! unit number for the log
 R5        END SUBROUTINE
 R5      END INTERFACE
 
@@ -136,7 +136,6 @@ C**********************************************************************
 
        IF( LFIRST ) THEN
           LFIRST = .FALSE.
-          LOGDEV = INIT3( )
 
           ALLOCATE ( LEBISPFL( NUMB_MECH_SPC ), STAT = ERR )
           IF ( ERR .NE. 0 ) THEN
@@ -349,7 +348,7 @@ R5                DO S = 1, NUMB_MECH_SPC
 R5                   M = CGRID_INDEX( S )
 R5                   YCCELL( M ) = YC( S )
 R5                END DO
-R5                IF( CALL_DEG )CALL DEGRADE(YCCELL, DTG, JDATE, JTIME, LOGDEV) ! :WTH Call degradation routine
+R5                IF( CALL_DEG )CALL DEGRADE(YCCELL, DTG, JDATE, JTIME) ! :WTH Call degradation routine
 R5
                  IF( CALL_IRR ) CALL PA_IRR ( .FALSE., RKI, YC, DTC )
 #ifdef isam
