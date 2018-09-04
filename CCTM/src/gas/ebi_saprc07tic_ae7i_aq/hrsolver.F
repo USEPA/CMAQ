@@ -122,7 +122,6 @@ C**********************************************************************
 
        IF( LFIRST ) THEN
           LFIRST = .FALSE.
-          LOGDEV = INIT3( )
 
           ALLOCATE ( LEBISPFL( NUMB_MECH_SPC ), STAT = ERR )
           IF ( ERR .NE. 0 ) THEN

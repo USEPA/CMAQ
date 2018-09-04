@@ -323,11 +323,6 @@ C...modules
             INTEGER, INTENT( IN )    :: JTIME
             INTEGER, INTENT( IN )    :: TSTEP( 3 )
          END SUBROUTINE CONVCLD_PROP_ACM
-!cgn      SUBROUTINE GET_ENVLIST ( ENV_VAR, NVARS, VAL_LIST )
-!            CHARACTER( * ),  INTENT ( IN )  :: ENV_VAR
-!            INTEGER,         INTENT ( OUT ) :: NVARS
-!            CHARACTER( 16 ), INTENT ( OUT ) :: VAL_LIST( : )
-!         END SUBROUTINE GET_ENVLIST
       END INTERFACE
 
 ! ----------------------------------------------------------------------
