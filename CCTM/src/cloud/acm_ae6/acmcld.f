@@ -105,10 +105,7 @@ C-----------------------------------------------------------------------
       DTLIM = DTCLD
       MDWN ( CLTOP + 1 ) = 0.0
       M1UP = 0.0
-      DZHI(1) =  1./DZH(1)
-      DO K = 2, NLAYS
-         DZHI(K) =  1./DZH(K)
-      ENDDO
+      DZHI = 1.0 / DZH ! array assignment
       KB  = CLBASE - 1
       DZHI( KB ) = 1.0 / DZH( KB )
 
