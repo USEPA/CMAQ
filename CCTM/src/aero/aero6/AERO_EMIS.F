@@ -508,8 +508,8 @@ C ----------------------------------------------------------------------
          REAL                  :: VDEMIS ( N_EMIS_ISTR,EMLAYS,NCOLS,NROWS )
 
          INTEGER :: N, S, IAERO, IM, ISD, ISTR   ! Looping Variables
-         INTEGER :: ROW, COL, LAY, N_SD
-         REAL    :: WT
+         INTEGER :: ROW, COL, LAY, N_SD, INUM, ISRF
+         REAL    :: FACNUM, FACSRF
          REAL, ALLOCATABLE :: EMISM3( :,:,:,:,: ) 
          REAL              :: GSFAC( EMLAYS,NCOLS,NROWS )
          REAL, PARAMETER   :: F6DPIM9 = 1.0E-9 * F6DPI  ! 1.0E-9 = Kg/ug
@@ -587,10 +587,12 @@ C     converts 2nd moment to surface area.
             ELSE
                ! Apply Homogeneous Scale Factors Consistent with this Stream
                DO IM = 1, N_MODE
-                  VDEMIS( MAP_NUMtoEM(IM),:,:,: ) = VDEMIS( MAP_NUMtoEM(IM),:,:,: ) 
-     &                     + EMISM3( :,:,:,IM,ISD ) * EM_STREAM_SIZE( ISRM )%FACNUM( ISD,IM ) 
-                  VDEMIS( MAP_SRFtoEM(IM),:,:,: ) = VDEMIS( MAP_SRFtoEM(IM),:,:,: ) 
-     &                     + EMISM3( :,:,:,IM,ISD ) * EM_STREAM_SIZE( ISRM )%FACSRF( ISD,IM ) 
+                  INUM = MAP_NUMtoEM(IM)
+                  FACNUM = EM_STREAM_SIZE( ISRM )%FACNUM( ISD,IM )
+                  VDEMIS( INUM,:,:,: ) = VDEMIS( INUM,:,:,: ) + EMISM3( :,:,:,IM,ISD ) * FACNUM
+                  ISRF = MAP_SRFtoEM(IM)
+                  FACSRF = EM_STREAM_SIZE( ISRM )%FACSRF( ISD,IM )
+                  VDEMIS( ISRF,:,:,: ) = VDEMIS( ISRF,:,:,: ) + EMISM3( :,:,:,IM,ISD ) * FACSRF
                END DO
             END IF
          END DO

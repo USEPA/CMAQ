@@ -511,6 +511,7 @@ C-----------------------------------------------------------------------
       INTEGER, INTENT( IN ) :: ISRM
       REAL, INTENT( IN )    :: VDEMIS0( N_EMIS_ISTR,EMLAYS,NCOLS,NROWS )
       REAL                  :: VDEMIS ( N_EMIS_ISTR,EMLAYS,NCOLS,NROWS )
+      REAL                  :: FAC
 
       INTEGER ISTR, IRGN, IFAC, L, NL
 
@@ -525,50 +526,46 @@ C-----------------------------------------------------------------------
 
         ! Loop through Instructions Based on Region-Dependent Scaling
         DO IFAC = 1,EM_FAC_ST( ISTR,ISRM )%LEN
+              FAC = EM_FAC_ST( ISTR,ISRM )%FAC( IFAC )
               !Apply scaling using EM_FAC_ST and VDEMIS_RGN
               SELECT CASE ( EM_FAC_ST( ISTR,ISRM )%OP( IFAC ) )
               CASE ( 1 )  ! Add scaled emissions
                   IF ( EM_FAC_ST( ISTR,ISRM )%REG( IFAC ) .EQ. 1 ) THEN
                      ! Add Emissions for the Entire Domain
                      VDEMIS( ISTR,:,:,: ) = VDEMIS( ISTR,:,:,: ) +
-     &                   VDEMIS0( ISTR,:,:,: ) * EM_FAC_ST( ISTR,ISRM )%FAC( IFAC )
+     &                   VDEMIS0( ISTR,:,:,: ) * FAC
                   ELSE
                      ! Add Emissions just for a subdomain
                      IRGN = EM_FAC_ST( ISTR,ISRM )%REG( IFAC ) 
                      DO L = 1,NL
                        VDEMIS( ISTR,L,:,: ) = VDEMIS( ISTR,L,:,: ) +
-     &                   VDEMIS0( ISTR,L,:,: ) * EM_FAC_ST( ISTR,ISRM )%FAC( IFAC ) *
-     &                   EM_REG_FAC( :,:,IRGN )
+     &                   VDEMIS0( ISTR,L,:,: ) * FAC * EM_REG_FAC( :,:,IRGN )
                      END DO
                   END IF
               CASE ( 2 )  ! Modify scaled emissions
                   IF ( EM_FAC_ST( ISTR,ISRM )%REG( IFAC ) .EQ. 1 ) THEN
                      ! Scale Emissions for the Entire Domain
-                     VDEMIS( ISTR,:,:,: ) = VDEMIS( ISTR,:,:,: )
-     &                   * EM_FAC_ST( ISTR,ISRM )%FAC( IFAC )
+                     VDEMIS( ISTR,:,:,: ) = VDEMIS( ISTR,:,:,: ) * FAC
                   ELSE
                      ! Scale Emissions just for a subdomain
                      IRGN = EM_FAC_ST( ISTR,ISRM )%REG( IFAC ) 
                      DO L = 1,NL
                        VDEMIS( ISTR,L,:,: ) = VDEMIS( ISTR,L,:,: ) * 
      &                     (1.0 - EM_REG_FAC( :,:,IRGN ) ) +
-     &                   VDEMIS( ISTR,L,:,: ) * EM_FAC_ST( ISTR,ISRM )%FAC( IFAC ) *
-     &                   EM_REG_FAC( :,:,IRGN )
+     &                   VDEMIS( ISTR,L,:,: ) * FAC * EM_REG_FAC( :,:,IRGN )
                      END DO
                   END IF
               CASE ( 3 )  ! Overwrite emissions
                   IF ( EM_FAC_ST( ISTR,ISRM )%REG( IFAC ) .EQ. 1 ) THEN
                      ! Overwrite Emissions for the Entire Domain
-                     VDEMIS( ISTR,:,:,: ) = VDEMIS0( ISTR,:,:,: ) *
-     &                  EM_FAC_ST( ISTR,ISRM )%FAC( IFAC )
+                     VDEMIS( ISTR,:,:,: ) = VDEMIS0( ISTR,:,:,: ) * FAC
                   ELSE
                      ! Overwrite Emissions just for a subdomain
                      IRGN = EM_FAC_ST( ISTR,ISRM )%REG( IFAC ) 
                      DO L = 1,NL
                        VDEMIS( ISTR,L,:,: ) = VDEMIS( ISTR,L,:,: ) *
      &                     (1.0 - EM_REG_FAC( :,:,IRGN ) ) +
-     &                   VDEMIS0( ISTR,L,:,: ) * EM_FAC_ST( ISTR,ISRM )%FAC( IFAC ) *
-     &                   EM_REG_FAC( :,:,IRGN )
+     &                   VDEMIS0( ISTR,L,:,: ) * FAC * EM_REG_FAC( :,:,IRGN )
                      END DO
                   END IF
               END SELECT
@@ -710,7 +707,7 @@ C-----------------------------------------------------------------------
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
       INTEGER          GXOFF, GYOFF         ! global origin offset from file
       INTEGER, SAVE :: STARTCOL, ENDCOL, STARTROW, ENDROW
-      INTEGER       :: C, R, L, ISTR
+      INTEGER       :: C, R, L, ISTR, INDX
 
       ! Get domain decomp info from the emissions file
       IF ( FIRSTIME ) THEN
@@ -756,8 +753,9 @@ C-----------------------------------------------------------------------
       ! ...accounts for emissions species names as a subset of the vert. diffused species list
       VDEMIS = 0.0
       DO ISTR = 1,N_EMIS_ISTR
-        VDEMIS( MAP_EMtoDIFF( ISTR ),:,:,: ) = 
-     &     VDEMIS( MAP_EMtoDIFF( ISTR ),:,:,: ) + VDEMIS0( ISTR,:,:,: )
+        INDX = MAP_EMtoDIFF( ISTR )  
+        VDEMIS( INDX,:,:,: ) = 
+     &     VDEMIS( INDX,:,:,: ) + VDEMIS0( ISTR,:,:,: )
       END DO
  
 
