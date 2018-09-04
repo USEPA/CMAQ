@@ -55,7 +55,7 @@ C     26 June 2014 J.Bash: initial implementation
 
       Type( Map_Type ), Save :: Map_Data 
 
-      INTEGER, PARAMETER :: dep_gas_all = 161
+      INTEGER, PARAMETER :: dep_gas_all = 162
       INTEGER, PARAMETER :: LCMP = 8
       Character( 16 ), Save :: vd_name     ( dep_gas_all )       ! Deposition species name
       Real,            Save :: rel_rx      ( dep_gas_all )       ! reactivity relative to HNO3
@@ -162,11 +162,11 @@ C     26 June 2014 J.Bash: initial implementation
       DATA vd_name( 89), rel_rx( 89), f0( 89), LeBasM( 89), M_ac( 89) / 'HOI          ',     8.0, 0.0,   48.1, 0.420/
       DATA vd_name( 90), rel_rx( 90), f0( 90), LeBasM( 90), M_ac( 90) / 'INO          ',     8.0, 0.0,   60.9, 0.420/
       DATA vd_name( 91), rel_rx( 91), f0( 91), LeBasM( 91), M_ac( 91) / 'INO2         ',    20.0, 0.0,   69.2, 0.420/
-      DATA vd_name( 92), rel_rx( 92), f0( 92), LeBasM( 92), M_ac( 92) / 'IONO2        ',     8.0, 0.0,   77.5, 0.420/
+      DATA vd_name( 92), rel_rx( 92), f0( 92), LeBasM( 92), M_ac( 92) / 'INO3         ',     8.0, 0.0,   77.5, 0.420/
       DATA vd_name( 93), rel_rx( 93), f0( 93), LeBasM( 93), M_ac( 93) / 'BRO          ',     1.0, 0.0,   34.4, 0.420/
       DATA vd_name( 94), rel_rx( 94), f0( 94), LeBasM( 94), M_ac( 94) / 'HOBR         ',     1.0, 0.0,   38.1, 0.420/
       DATA vd_name( 95), rel_rx( 95), f0( 95), LeBasM( 95), M_ac( 95) / 'HBR          ',     2.0, 0.0,   30.7, 0.420/
-      DATA vd_name( 96), rel_rx( 96), f0( 96), LeBasM( 96), M_ac( 96) / 'BRONO2       ',     1.0, 0.0,   67.5, 0.420/
+      DATA vd_name( 96), rel_rx( 96), f0( 96), LeBasM( 96), M_ac( 96) / 'BRNO3        ',     1.0, 0.0,   67.5, 0.420/
       DATA vd_name( 97), rel_rx( 97), f0( 97), LeBasM( 97), M_ac( 97) / 'BRNO2        ',     1.0, 0.0,   59.2, 0.420/
       DATA vd_name( 98), rel_rx( 98), f0( 98), LeBasM( 98), M_ac( 98) / 'BRCL         ',     1.0, 0.0,   51.6, 0.420/
       DATA vd_name( 99), rel_rx( 99), f0( 99), LeBasM( 99), M_ac( 99) / 'DMS          ',     2.0, 0.0,   77.4, 0.420/
@@ -232,6 +232,7 @@ C     26 June 2014 J.Bash: initial implementation
       DATA vd_name(159), rel_rx(159), f0(159), LeBasM(159), M_ac(159) / 'SVAVB3       ',   175.2, 0.0,  163.0, 0.783/ ! SVAVB3
       DATA vd_name(160), rel_rx(160), f0(160), LeBasM(160), M_ac(160) / 'SVAVB4       ',    20.8, 0.0,  162.7, 0.444/ ! SVAVB4
       DATA vd_name(161), rel_rx(161), f0(161), LeBasM(161), M_ac(161) / 'CLNO3        ',     8.0, 0.0,   65.1, 0.420/ ! CLNO3
+      DATA vd_name(162), rel_rx(162), f0(162), LeBasM(162), M_ac(162) / 'FMBR         ',    10.0, 0.0,   52.9, 0.420/ ! FMBR
 
       Contains
          SUBROUTINE Map_STAGE 

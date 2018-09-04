@@ -174,11 +174,11 @@ C-------------------------------------------------------------------------------
          DEPSPC( 89 ) = 'HOI             '
          DEPSPC( 90 ) = 'INO             '
          DEPSPC( 91 ) = 'INO2            '
-         DEPSPC( 92 ) = 'INO3           '
+         DEPSPC( 92 ) = 'INO3            '
          DEPSPC( 93 ) = 'BRO             '
          DEPSPC( 94 ) = 'HOBR            '
          DEPSPC( 95 ) = 'HBR             '
-         DEPSPC( 96 ) = 'BRNO3          '
+         DEPSPC( 96 ) = 'BRNO3           '
          DEPSPC( 97 ) = 'BRNO2           '
          DEPSPC( 98 ) = 'BRCL            '
          DEPSPC( 99 ) = 'DMS             '
@@ -186,13 +186,13 @@ C-------------------------------------------------------------------------------
          DEPSPC( 101) = 'METHANE         '
          DEPSPC( 102) = 'ACRYACID        '
          DEPSPC( 103) = 'CARBSULFIDE     '
-         DEPSPC( 104) = 'ACETONITRILE    ' 
+         DEPSPC( 104) = 'ACETONITRILE    '
          DEPSPC( 105) = 'METH_NIT_PHEN   ' ! 6-methyl-2-nitrophenol aka 6-nitro-o-cresol
          DEPSPC( 106) = 'PCVOC           '
          DEPSPC( 107) = 'INTR            '
          DEPSPC( 108) = 'ISPX            '
          DEPSPC( 109) = 'ROOH            '
-         DEPSPC( 110) = 'LVPCSOG        '
+         DEPSPC( 110) = 'LVPCSOG         '
          DEPSPC( 111) = 'VIVPO1          '
          DEPSPC( 112) = 'VLVOO1          '
          DEPSPC( 113) = 'VLVOO2          '
@@ -246,7 +246,7 @@ C-------------------------------------------------------------------------------
          DEPSPC( 161) = 'SVAVB4         '
          DEPSPC( 162) = 'CLNO3           '
          DEPSPC( 163) = 'FMBR            '
-         
+
          N_USE_DEPSPC = 0
          USE_DEPSPC = .FALSE.   ! array
 
