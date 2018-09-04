@@ -55,7 +55,7 @@ C     26 June 2014 J.Bash: initial implementation
 
       Type( Map_Type ), Save :: Map_Data 
 
-      INTEGER, PARAMETER :: dep_gas_all = 160
+      INTEGER, PARAMETER :: dep_gas_all = 161
       INTEGER, PARAMETER :: LCMP = 8
       Character( 16 ), Save :: vd_name     ( dep_gas_all )       ! Deposition species name
       Real,            Save :: rel_rx      ( dep_gas_all )       ! reactivity relative to HNO3
@@ -70,7 +70,6 @@ C     26 June 2014 J.Bash: initial implementation
       Logical, Save         :: asx_run_map( dep_gas_all )
 
       CHARACTER( 16 ), Parameter    :: DEPV_METHOD = 'STAGE'
-      INTEGER, SAVE                 :: logdev                          ! unit number for the log file
 
       DATA vd_name(  1), rel_rx(  1), f0(  1), LeBasM(  1), M_ac(  1) / 'SO2          ',   10.0, 0.0,  35.0, 0.11 / 
       DATA vd_name(  2), rel_rx(  2), f0(  2), LeBasM(  2), M_ac(  2) / 'SULF         ', 8000.0, 0.0,  49.0, 0.12 /
@@ -232,6 +231,7 @@ C     26 June 2014 J.Bash: initial implementation
       DATA vd_name(158), rel_rx(158), f0(158), LeBasM(158), M_ac(158) / 'SVAVB2       ',  1461.2, 0.0,  163.2, 0.896/ ! SVAVB2
       DATA vd_name(159), rel_rx(159), f0(159), LeBasM(159), M_ac(159) / 'SVAVB3       ',   175.2, 0.0,  163.0, 0.783/ ! SVAVB3
       DATA vd_name(160), rel_rx(160), f0(160), LeBasM(160), M_ac(160) / 'SVAVB4       ',    20.8, 0.0,  162.7, 0.444/ ! SVAVB4
+      DATA vd_name(161), rel_rx(161), f0(161), LeBasM(161), M_ac(161) / 'CLNO3        ',     8.0, 0.0,   65.1, 0.420/ ! CLNO3
 
       Contains
          SUBROUTINE Map_STAGE 
@@ -246,7 +246,6 @@ C     26 June 2014 J.Bash: initial implementation
          CHARACTER( 16 )  :: PNAME = 'Map_STAGE'
          CHARACTER( 120 ) :: XMSG = ' '
 
-         logdev  = init3()
          molwt_all    = 0.0
          asx_run_map  = .FALSE.
          gc_depv_name = 'None'
@@ -303,7 +302,7 @@ C     26 June 2014 J.Bash: initial implementation
            If( asx_run_map (v) ) Write(Logdev,99902) gc_depv_name(v), H_name_all(v), molwt_all(v)
          End Do       
 99901    Format(A16,1x,A16,1x,A16)
-99902    Format(A16,1x,A16,1x,F5.2)
+99902    Format(A16,1x,A16,10x,F6.2)
 
          End Subroutine Map_Stage
       End Module Stage_Data

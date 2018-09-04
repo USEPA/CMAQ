@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/hdiff/multiscale/hdiff.F,v 1.7 2011/10/21 16:11:22 yoj Exp $ 
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE HDIFF ( CGRID, JDATE, JTIME, TSTEP )
 
@@ -40,7 +33,7 @@ C   same boundary perimeter structure with a thickness of 1
 C   CGRID in ppm units or micro-g/m**3, #/m**3 for aerosols
       
 C Subroutines and functions called:
-C   INIT3, TIME2SEC, SEC2TIME, CGRID_MAP, NEXTIME, RHO_J, 
+C   TIME2SEC, SEC2TIME, CGRID_MAP, NEXTIME, RHO_J, 
 C   HCDIFF3D
  
 C Revision history:
@@ -155,8 +148,6 @@ C Local Variables:
 
       INTEGER, ALLOCATABLE, SAVE :: DIFF_MAP( : )   ! global diff map to CGRID
 
-      INTEGER, SAVE :: LOGDEV
-
       INTEGER      C, R, L, S, V, N            ! loop counters
       INTEGER      D2C, IOS
 
@@ -182,7 +173,6 @@ C-----------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
-         LOGDEV = INIT3()
 
 C Get dx1 from COORD include file
 
@@ -280,8 +270,6 @@ C get number of steps based on eddy time
       NSTEPS = INT ( DTSEC / DT ) + 1
       DT = DTSEC / FLOAT( NSTEPS )
  
-      WRITE( LOGDEV,1005 ) DT, NSTEPS
-
       DTDX1S = DT * RDX1S
       DTDX2S = DT * RDX2S
 
@@ -381,6 +369,5 @@ C Update CGRID
 
 1001  FORMAT( 5X, 'Negative concentrations reset to', 1PE11.3 )
 1003  FORMAT( 1X, 4I7, 9X, 1PE11.3)
-1005  FORMAT( / 5X, 'H-eddy DT & integration steps: ', 1PE15.7, I8 )
 
       END

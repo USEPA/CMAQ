@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      FUNCTION SETUP_LOGDEV ()  RESULT ( LOGDEV )
+      SUBROUTINE SETUP_LOGDEV () 
 
 C Purpose
 C   Establish ancillary run time log files for each parallel processor
@@ -35,48 +35,86 @@ C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN;
 C                        removed deprecated TRIMLEN
 C   12 Aug 15 D.Wong:   Replaced SUBST_MPI with mpif.h
 
+      USE RUNTIME_VARS
       USE UTILIO_DEFN
+      USE LOG_HEADER
 
       IMPLICIT NONE
 
 #ifdef parallel      
       include 'mpif.h'
 #endif
-
-      INTEGER, PARAMETER :: MAXLEN_CCTM_APPL = 200
       INTEGER, PARAMETER :: MAXLEN_CTM_LOG   = MAXLEN_CCTM_APPL + 11
 
-      CHARACTER(  8 ) :: PRESTR = 'CTM_LOG_'
-      CHARACTER(  3 ) :: CMYPE
-      CHARACTER(  8 ) :: APPL = 'CTM_APPL'
-      
-      CHARACTER( MAXLEN_CCTM_APPL ) :: EQNAME
-      CHARACTER( MAXLEN_CTM_LOG   ) :: IOLOGEQ
+      CHARACTER(  8 ) :: PRESTR  = 'CTM_LOG_'
+      CHARACTER( MAXLEN_CTM_LOG ) :: IOLOGEQ
 
-      INTEGER :: ERROR, MYPE
-      INTEGER :: LOGDEV
+      INTEGER :: ERROR, IOST, FHEAD, IHEAD
+      INTEGER :: NIOAPI_HEAD, NCMAQ_HEAD
+      INTEGER, PARAMETER :: NHEAD = 200
+      CHARACTER( 90 ) :: CMAQ_HEADER( NHEAD )
+      CHARACTER( 90 ) :: IOAPI_HEADER( NHEAD )
 
-#ifdef parallel
-      CALL MPI_COMM_RANK ( MPI_COMM_WORLD, MYPE, ERROR )
-#else
-      MYPE = 0
-#endif
+      ! Fetch CMAQ Header
+      CALL LOAD_HEADER( CMAQ_HEADER )
+      DO IHEAD = SIZE( CMAQ_HEADER ),1,-1
+          ! Check for End of File
+          IF ( CMAQ_HEADER( IHEAD ) .NE. '' ) THEN
+             NCMAQ_HEAD = IHEAD 
+             EXIT
+          END IF
+      END DO
 
-      IF ( MYPE .NE. 0 ) THEN
-         CALL NAMEVAL ( APPL, EQNAME )
-         WRITE ( CMYPE, '(I3.3)' ) MYPE
-         IF ( APPL .NE. EQNAME(1:8 ) ) THEN
-            IOLOGEQ = PRESTR // CMYPE // '.' // TRIM( EQNAME )
-         ELSE
-            IOLOGEQ = PRESTR // CMYPE
-         END IF
-         IF ( .NOT. SETENVVAR ( 'LOGFILE', IOLOGEQ ) ) THEN
-            WRITE( *,* ) '*** Could not set environment variable for ' // IOLOGEQ
-            STOP
-         END IF
 
+      ! Create Log Filename using the processor rank and initialize
+      ! I/O-API and Logs
+      WRITE ( CMYPE, '(I3.3)' ) MYPE
+      IOLOGEQ = PRESTR // CMYPE // '.' // TRIM( APPL_NAME )
+      IF ( .NOT. SETENVVAR ( 'LOGFILE', IOLOGEQ ) ) THEN
+         WRITE( *,* ) '*** Could not set environment variable for ' // IOLOGEQ
+         STOP
       END IF
 
-      LOGDEV = INIT3()
+#ifndef twoway
+      ! Write CMAQ Header to Screen
+      IF ( MYPE .EQ. 0 ) THEN
+         DO IHEAD = 1,NCMAQ_HEAD
+            WRITE( OUTDEV, '(A)' ) CMAQ_HEADER( IHEAD )
+         END DO
+      END IF
+#endif
 
-      END FUNCTION SETUP_LOGDEV 
+      ! Redirect Standard Output
+      IF ( MYPE .NE. 0 ) OPEN( UNIT = 6, FILE = "/dev/null", STATUS = "OLD" )
+
+      LOGDEV = INIT3() 
+
+      ! Put Standard Output Back to File Unit 6 By Closing File Unit 6
+      IF ( MYPE .NE. 0 ) CLOSE( 6 ) 
+
+      ! Fetch I/O-API Header
+#ifndef twoway
+      REWIND( LOGDEV )
+      DO IHEAD = 1,NHEAD
+          READ( LOGDEV, '(A)', IOSTAT=IOST ), IOAPI_HEADER( IHEAD )
+          ! Check for End of File
+          IF ( IOST .LT. 0 ) THEN
+             NIOAPI_HEAD = IHEAD - 1
+             EXIT
+          END IF
+      END DO
+      REWIND( LOGDEV )
+#endif
+
+      ! Write CMAQ Header and then I/O-API Header
+      DO IHEAD = 1,NCMAQ_HEAD
+          WRITE( LOGDEV, '(A)' ) CMAQ_HEADER( IHEAD )
+      END DO
+      WRITE( LOGDEV, * )
+#ifndef twoway
+      DO IHEAD = 1,NIOAPI_HEAD
+          WRITE( LOGDEV, '(A)' ) IOAPI_HEADER( IHEAD )
+      END DO
+#endif
+
+      END SUBROUTINE SETUP_LOGDEV 

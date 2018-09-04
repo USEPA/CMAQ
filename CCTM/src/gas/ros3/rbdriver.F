@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ros3/rbdriver.F,v 1.7 2011/10/21 16:11:10 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
-
        SUBROUTINE CHEM( CONC, JDATE, JTIME, TSTEP )
 
 C**********************************************************************
@@ -118,7 +111,6 @@ C..Local Variables:
       LOGICAL, SAVE :: FIRSTCALL = .TRUE. ! Another Flag for first call
       LOGICAL, SAVE :: LIRRBLK         ! Flag for IRR to be done for block
 
-      INTEGER, SAVE :: LOGDEV          ! Unit number of output log
       INTEGER, SAVE :: NOXYZ           ! Total number of grid cells
 
       REAL,    SAVE :: AIRFC           ! Factor to convert gms air to ppm
@@ -196,23 +188,22 @@ C for interpolating meteorological inputs
 #endif
 
       INTERFACE
-         SUBROUTINE RBSOLVER ( LOGDEV, JDATE, JTIME, CHEMSTEP, NCSP,
+         SUBROUTINE RBSOLVER ( JDATE, JTIME, CHEMSTEP, NCSP,
      &                         LIRRFLAG, NIRRCLS, IRRCELL )
-            INTEGER,   INTENT( IN ) :: LOGDEV, JDATE, JTIME
+            INTEGER,   INTENT( IN ) :: JDATE, JTIME
             REAL( 8 ), INTENT( IN ) :: CHEMSTEP
             INTEGER,   INTENT( IN ) :: NCSP
             LOGICAL,   INTENT( IN ) :: LIRRFLAG
             INTEGER,   INTENT( INOUT ) :: NIRRCLS
             INTEGER,   INTENT( IN ) :: IRRCELL( : )
          END SUBROUTINE RBSOLVER
-         SUBROUTINE FIND_DEGRADED( JDATE, JTIME, LOGDEV, CALL_DEGRADE )
+         SUBROUTINE FIND_DEGRADED( JDATE, JTIME, CALL_DEGRADE )
            INTEGER, INTENT( IN )  :: JDATE        ! current model date , coded YYYYDDD
            INTEGER, INTENT( IN )  :: JTIME        ! current model time , coded HHMMSS
-           INTEGER, INTENT( IN )  :: LOGDEV       ! unit number for the log file
            LOGICAL, INTENT( OUT ) :: CALL_DEGRADE ! whether to call degradation routines
          END SUBROUTINE FIND_DEGRADED
          SUBROUTINE INIT_DEGRADE( CBLK, TCELL, DCELL, PHOTO_CELL, NUMCELLS,
-     &                         JDATE, JTIME, LOGDEV, BLKID )
+     &                         JDATE, JTIME, BLKID )
            REAL( 8 ), INTENT( IN ) :: CBLK ( :,: )      !  species concentration in cell
            REAL( 8 ), INTENT( IN ) :: TCELL( : )        !  cell temperature  [ k ]
            REAL( 8 ), INTENT( IN ) :: DCELL( : )        !  cell air density  [ kg/m^3 ]
@@ -220,7 +211,6 @@ C for interpolating meteorological inputs
            INTEGER,   INTENT( IN ) :: NUMCELLS  ! number of grid cells in block
            INTEGER,   INTENT( IN ) :: JDATE     ! current model date , coded YYYYDDD
            INTEGER,   INTENT( IN ) :: JTIME     ! current model time , coded HHMMSS
-           INTEGER,   INTENT( IN ) :: LOGDEV    ! unit number for the log
            INTEGER,   INTENT( IN ) :: BLKID     ! number for the block
          END SUBROUTINE INIT_DEGRADE      
          SUBROUTINE FINAL_DEGRADE( CBLK )
@@ -241,7 +231,6 @@ c  set-up to do emissions here if that option is invoked
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF ( LFIRST ) THEN
          LFIRST   = .FALSE.
-         LOGDEV   = INIT3( )
          ROS3_LOG = LOGDEV
 !        GASLOG   = LOGDEV
 
@@ -251,7 +240,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          END IF
 
          CALL RBINIT
-         CALL RBSPARSE( LOGDEV )
+         CALL RBSPARSE( )
          NOXYZ = MY_NCOLS * MY_NROWS * NLAYS
 
 C...Initialize and report data
@@ -381,7 +370,7 @@ C..Initialize shared photolysis data
 
 C Determine whether DEGRADE rountines are needed.
 
-         CALL FIND_DEGRADED( JDATE, JTIME, LOGDEV, CALL_DEG )
+         CALL FIND_DEGRADED( JDATE, JTIME, CALL_DEG )
          IF( CALL_DEG ) THEN
             WRITE( LOGDEV, * ) 'DEGRADE ROUTINES USED'
             WRITE( LOGDEV, * ) 'Mechanism contains degraded species'
@@ -486,8 +475,6 @@ C  no reordering, twice if reordering is required
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 100   CONTINUE
 
-!     write( logdev,* ) 'driver-lordering,lreorder: ', lordering, lreorder
-
       ERRMX2 = 0.0D0
 
       DO 500 BLK = 1, NBLKS
@@ -589,7 +576,7 @@ C  update cell concentrations for degradation routines
 C initialize degradation routines
 
             CALL INIT_DEGRADE( Y_DEGRADE, BLKTEMP, BLKDENS, RJBLK,
-     &                         NUMCELLS, JDATE, JTIME, LOGDEV, BLKID )
+     &                         NUMCELLS, JDATE, JTIME, BLKID )
 
          END IF
 
@@ -601,7 +588,7 @@ C initialize degradation routines
 
 #endif
 
-         CALL RBSOLVER( LOGDEV, JDATE, JTIME, CHEMSTEP, NCSP,
+         CALL RBSOLVER( JDATE, JTIME, CHEMSTEP, NCSP,
      &                  LIRRBLK, NIRRCLS, IRRCELL ) 
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc

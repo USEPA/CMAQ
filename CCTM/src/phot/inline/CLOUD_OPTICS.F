@@ -82,8 +82,6 @@
          real, parameter, private :: high     = 1.0e0 - low ! 1.0 - epsilon
          real, parameter, private :: cldtiny  = high*cldmin ! minimum value for cloud scattering
          
-         integer, private         :: log_cloud_optics  
-
 ! Abscissas of Gauss-Laguerre Integration
 ! for 32 point quadrature
          real( 8 ), parameter, private :: xk(32) = 
@@ -156,8 +154,6 @@
          If ( initialized ) Return
          
          initialized = .true.
-         
-         log_cloud_optics = init3()
          
          allocate( cloud_layering( nlays ),
      &             rel           ( nlays ),
@@ -1132,7 +1128,7 @@
                      cloud_aggreg_asy(layer, iwl)  = cloud_aggreg_asy(layer, iwl)  + (graupel_asy*graupel_scat)
 #ifdef phot_debug                     
                      if( abs( cloud_aggreg_asy(layer, iwl) ) .gt. cloud_aggreg_scat(layer, iwl) )then
-                        write(log_cloud_optics,99962)
+                        write(logdev,99962)
      &                  'gwc,deff_hydro,graupel_ext,graupel_scat,graupel_asy*graupel_scat,ssa,del, cloud_aggreg_asy = ',
      &                  gwc( layer ),deff_hydro(layer),graupel_ext,graupel_scat,(graupel_asy*graupel_scat),
      &                  graupel_ssa, graupel_del, cloud_aggreg_asy(layer, iwl), cloud_aggreg_scat(layer, iwl)

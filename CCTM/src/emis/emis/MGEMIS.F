@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/HALEMIS.F,v 1.8 2012/01/19 15:29:11 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE MGEMIS
 C-----------------------------------------------------------------------
@@ -32,7 +25,7 @@ C Description:
 C Revision History:
 C   03 Nov 15: B. Gantt and G. Sarwar: created the initial version for marine gas emissions
 C   26 Sep 16: D. Wong: removed repeated SEAICE interpx statement
-
+      USE RUNTIME_VARS
       USE HGRD_DEFN
       USE EMIS_VARS
 
@@ -54,10 +47,8 @@ C Variables for the marine gas diagnostic file
       INTEGER :: NMGDIAG                              ! number of species in marine gas
                                                       ! diagnostic emission file
       REAL,    ALLOCATABLE       :: MGOUTD( : )       ! emission rates
-      LOGICAL, SAVE              :: MGEMDIAG          ! flag for MGEM diagnostic file
       REAL,    ALLOCATABLE, SAVE :: MGBF( :,:,: )     ! marine gas emiss accumulator
       REAL,    ALLOCATABLE, SAVE :: WRMG( :,: )       ! marine gas emiss write buffer
-      INTEGER, SAVE              :: SDATE, STIME      ! scenario start date & time
       INTEGER, SAVE              :: MGSPC_MAP( NMGSPC )
 
 ! Species names in the speciated marine gas-emissions
@@ -97,7 +88,6 @@ C Domain decomposition info from emission and meteorology files
       INTEGER, SAVE :: STRTCOL_O1, ENDCOL_O1, STRTROW_O1, ENDROW_O1
       INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
       INTEGER, SAVE :: STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2
-      INTEGER, SAVE :: LOGDEV
 
       CONTAINS
 
@@ -120,12 +110,8 @@ C Arguments:
             INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
             LOGICAL :: SUCCESS
 
-            CHARACTER( 16 ), SAVE :: CTM_MGEMDIAG = 'CTM_MGEMDIAG'  ! env var for diagnostic file
 
             CHARACTER( 80 )       :: VARDESC                        ! env variable description
-
-C External Functions:
-            INTEGER, EXTERNAL :: SETUP_LOGDEV
 
 C Local Variables:
 
@@ -137,7 +123,6 @@ C Local Variables:
 
 C-----------------------------------------------------------------------
 
-            LOGDEV = SETUP_LOGDEV()
             SUCCESS = .TRUE.
 
 C flag for marine gas emissions; this flag is set in the subroutine EM_FILE_INIT 
@@ -225,24 +210,6 @@ C Get the surface ozone concentration (ppbv)
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
             END IF
 
-C Get marine gas emission diagnostic output file flag.
-           MGEMDIAG = .FALSE.         ! default
-           VARDESC = 'Flag for writing MG emission diagnostic file'
-           MGEMDIAG = ENVYN( CTM_MGEMDIAG, VARDESC, MGEMDIAG, STATUS )
-           IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-           IF ( STATUS .EQ. 1 ) THEN
-              XMSG = 'Environment variable improperly formatted'
-              CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-              SUCCESS = .FALSE.; RETURN
-           ELSE IF ( STATUS .EQ. -1 ) THEN
-              XMSG =
-     &             'Environ variable set, but empty ... Using default:'
-              WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-            ELSE IF ( STATUS .EQ. -2 ) THEN
-              XMSG = 'Environment variable not set ... Using default:'
-              WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-            END IF
-
             IF (MGEM .AND. MGEMDIAG ) THEN                            ! Open the marine gas emission diagnostic file
 C Determine number of marine gas species for diagnostic file
                 NMGDIAG = NMGSPC
@@ -264,12 +231,7 @@ C Build diagnostic file write buffer (WRMG_SPC) array
                 END DO
 
 C Open the marine gas emission dignostic file
-                SDATE = ENVINT( 'CTM_STDATE', 'Scenario Start (YYYYJJJ)',
-     &                  0, STATUS )
-                STIME = ENVINT( 'CTM_STTIME', 'Scenario Start (HHMMSS)',
-     &                  0, STATUS )
-
-                IF ( IO_PE_INCLUSIVE ) CALL OPMGEMIS ( SDATE, STIME, TSTEP, NMGDIAG, WRMG_SPC )
+                IF ( IO_PE_INCLUSIVE ) CALL OPMGEMIS ( STDATE, STTIME, TSTEP, NMGDIAG, WRMG_SPC )
 
                 ALLOCATE ( MGBF( NMGDIAG,NCOLS,NROWS ),
      &                     WRMG( NCOLS,NROWS ), STAT = STATUS )
@@ -673,7 +635,7 @@ C Then reset the MG emissions array and local write counter.
              WSTEP = WSTEP + TIME2SEC( TSTEP( 2 ) )
 
              IF ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) ) THEN
-                IF ( .NOT. CURRSTEP( JDATE, JTIME, SDATE, STIME, TSTEP( 1 ),
+                IF ( .NOT. CURRSTEP( JDATE, JTIME, STDATE, STTIME, TSTEP( 1 ),
      &                                MDATE, MTIME ) ) THEN
                      XMSG = 'Cannot get step date and time'
                      CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )

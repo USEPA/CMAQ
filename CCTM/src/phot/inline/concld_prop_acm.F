@@ -204,7 +204,6 @@ C...........Local Variables
 C-------for ACM version - jp 2/05        REAL DPB
       REAL, ALLOCATABLE, SAVE :: SIGF( : )
 C-------------------------------------------
-      INTEGER, SAVE :: LOGDEV
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE. ! flag for first pass thru
       LOGICAL, SAVE :: CONVCLD = .TRUE.  ! flag for modeling convective clds
@@ -345,21 +344,7 @@ C for INTERPX
       INTEGER, SAVE :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2
       INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
 
-C Gridded meteorology data: Golam Sarwar, July 1, 2011 
-C Latitude and longitude for zenith angle calculation:     
-
       CHARACTER( 120 ) :: XMSG = ' '   ! Exit status message
-C enviroment varaible for ammonia bi-directional flux with in-lining depv
-      CHARACTER( 16 )  :: CTM_ABFLUX = 'CTM_ABFLUX      '
-      CHARACTER( 80 )  :: VARDESC     ! environment variable description
-
-C flag for ammonia bi-directional flux with in-lining depv
-      LOGICAL          :: ABFLUX = .FALSE.
-
-
-C...........External Functions
-
-      INTEGER, EXTERNAL :: SETUP_LOGDEV
 
 C...........Statement Functions
 
@@ -383,26 +368,8 @@ C...  event-statistics variables.
       IF ( FIRSTIME ) THEN
 
         FIRSTIME = .FALSE.
-        LOGDEV = INIT3()
 
-C ammonia bi-directional flux with in-line deposition velocities
-C calculation?
-        ABFLUX = .FALSE.
-        VARDESC  = 'Flag for ammonia bi-directional flux calculation'
-        ABFLUX = ENVYN( CTM_ABFLUX, VARDESC, ABFLUX, STATUS )
-        IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) TRIM( VARDESC )
-        IF ( STATUS .EQ. 1 ) THEN
-            XMSG = TRIM( CTM_ABFLUX ) // ': environment variable improperly formatted'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-        ELSE IF ( STATUS .EQ. -1 ) THEN
-            XMSG = 'Environment variable set, but empty ... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-        ELSE IF ( STATUS .EQ. -2 ) THEN
-           XMSG = 'Environment variable not set ... Using default:'
-           WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-        END IF
-
-        CALL INIT_MET( JDATE, JTIME, ABFLUX )
+        CALL INIT_MET( JDATE, JTIME )
 
 C...check the grid resolution from the MET_CRO_2D and set an appropriate
 C...  flag as to whether convective clouds should be run for the given

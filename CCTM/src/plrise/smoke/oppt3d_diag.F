@@ -24,7 +24,7 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE OPPT3D_DIAG( PT3DNAME, SDATE, STIME, TSTEP, EMLAYS,
+      SUBROUTINE OPPT3D_DIAG( PT3DNAME, TSTEP, 
      &                        N_SPC, SPEC_NAME, SPEC_UNITS )
 
 C-----------------------------------------------------------------------
@@ -46,7 +46,7 @@ C     16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C     Aug 2015 D. Wong:    Replaced MYPE with IO_PE_INCLUSIVE for parallel I/O
 C                            implementation
 C-----------------------------------------------------------------------
-
+      USE RUNTIME_VARS
       USE GRID_CONF           ! horizontal & vertical domain specifications
       USE UTILIO_DEFN
 
@@ -60,10 +60,7 @@ C Local Parameters:
 
 C Arguments:
       CHARACTER( 16 ), INTENT( IN ) :: PT3DNAME ! diagnostic file logical name
-      INTEGER,         INTENT( IN ) :: SDATE    ! Julian start date
-      INTEGER,         INTENT( IN ) :: STIME    ! start time (HHMMSS)
       INTEGER,         INTENT( IN ) :: TSTEP    ! time step (HHMMSS)
-      INTEGER,         INTENT( IN ) :: EMLAYS   ! number of emissions layers
       INTEGER,         INTENT( IN ) :: N_SPC    ! number of point source surrogates
       CHARACTER( 16 ), INTENT( IN ) :: SPEC_NAME( N_SPC )  ! species names
       CHARACTER( 16 ), INTENT( IN ) :: SPEC_UNITS( N_SPC ) ! units
@@ -80,8 +77,8 @@ C-----------------------------------------------------------------------
 C Set output file characteristics based on GRID_CONF module and open the 3D emis file
 
       FTYPE3D = GRDDED3
-      SDATE3D = SDATE
-      STIME3D = STIME
+      SDATE3D = STDATE
+      STIME3D = STTIME
       TSTEP3D = TSTEP
       NCOLS3D = GL_NCOLS
       NROWS3D = GL_NROWS
@@ -134,7 +131,7 @@ C create header
       IF ( IO_PE_INCLUSIVE ) THEN   ! open new
          IF ( .NOT. OPEN3( PT3DNAME, FSNEW3, PNAME ) ) THEN
             XMSG = 'Could not open ' // TRIM( PT3DNAME )
-            CALL M3EXIT( PNAME, SDATE, STIME, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, STDATE, STTIME, XMSG, XSTAT1 )
          END IF
       END IF
 

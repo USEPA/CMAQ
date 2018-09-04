@@ -159,8 +159,6 @@ c  On first call, call routines to set-up for EBI solver
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF( LFIRST ) THEN
 
-         LOGDEV = INIT3( )
-
          IF( MECHNAME .NE. 'SAPRC07TIC_AE7I_AQ' ) THEN
              MSG = 'This version of the EBI solver can only be used with'
      &            // ' the SAPRC07TIC_AE7I_AQ chemical mechanism'

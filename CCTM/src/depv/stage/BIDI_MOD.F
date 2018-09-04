@@ -17,15 +17,11 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry_mp/BIDI_MOD.F,v 1.5 2012/01/26 18:45:35 sjr Exp $
-
 c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module Bidi_Mod
 
-C Contains the shared variables and subrountes needed for the bidirectional 
-C NH3 flux model in CMAQ
+C Contains the shared variables and subroutines needed for the bidirectional 
+C flux models in CMAQ
 C
 C OPASX_MEDIA - Opens the output file for NH4+ and H+ in the soil water solution
 C               
@@ -43,15 +39,11 @@ C                   J. Bash May 11 11: Updated for CMAQ 5.0
       Integer, Parameter, Private :: HG_SOL_CONC  = 2           
       
       Integer, Save,   Private :: N_Hg
-      Integer, Save,   Private :: LOGDEV      
       Character( 96 ), Private :: XMSG = ' '
 ! shared variables
       Character( 16 ), Save , Allocatable :: MEDIA_NAMES( : )
       Character( 16 ), Save , Allocatable :: MEDIA_UNITS( : )
       Character( 80 ), Save , Allocatable :: MEDIA_DESCR( : )
-
-! environment variable for mercury bi-directional flux
-      Character( 16 )                     :: CTM_HGBIDI = 'CTM_HGBIDI      '
 
       Integer, Parameter      :: HG_TOT = HG_AQ_CONC + HG_GAS_CONC + HG_SOL_CONC       
       Integer, Save           :: N_TOT
@@ -60,50 +52,26 @@ C                   J. Bash May 11 11: Updated for CMAQ 5.0
       Real, Save, Allocatable :: MHp1   ( :,: ) ! molar H+
       Real, Save, Allocatable :: MHp2   ( :,: ) ! molar H+  
       Real, Save, Allocatable :: CMEDIA ( :,:,: ) ! surface layer concs 
-      Logical, Save     :: HGBIDI  
+
       Logical, Save     :: INIT_LAI   
       Logical, Save     :: INIT_COMP              
 
 
       Contains 
-         Subroutine INIT_BIDI( ABFLUX )
+         Subroutine INIT_BIDI()
          Use GRID_CONF
          Use CGRID_SPCS          ! CGRID mechanism species
          Use UTILIO_DEFN
+         Use RUNTIME_VARS
          
          Implicit None
          
-C...Arguments:            
-         
-         Logical,     Intent( In ) :: abflux       
- 
 C... Local:
  
          Character( 16 ) :: PNAME = 'INIT_BIDI       '
-         Character( 80 ) :: VARDESC
          Integer         :: STATUS
          
 C--------------------------------------------------------------------------
-         LOGDEV = INIT3()  
-
-         If ( INDEX1( 'HG', N_GC_DDEP, GC_DDEP ) .Gt. 0 ) Then 
-         
-            HGBIDI = .FALSE.
-            XMSG   = 'Flag for mercury bi-directional flux calculation'
-            HGBIDI = ENVYN( CTM_HGBIDI, XMSG, HGBIDI, STATUS )
-            If ( STATUS .NE. 0 ) Write( LOGDEV, '(5X, A)' ) XMSG
-            If ( STATUS .EQ. 1 ) Then
-               XMSG = 'Environment variable improperly formatted'
-               Call M3EXIT ( PNAME, 0, 0, XMSG, XSTAT2 )
-            Else If ( STATUS .EQ. -1 ) Then
-               XMSG = 'Environment variable set, but empty ... Using default:'
-               Write( LOGDEV, '(5X, A)' ) XMSG
-            Else If ( STATUS .EQ. -2 ) Then
-               XMSG = 'Environment variable not set ... Using default:'
-               Write( LOGDEV, '(5X, A)' ) XMSG
-            End If
-            
-         End If
 
          If ( ABFLUX .And. .Not. HGBIDI ) Then
          
@@ -130,22 +98,22 @@ C--------------------------------------------------------------------------
             Allocate( MEDIA_NAMES( HG_TOT ), MEDIA_UNITS( N_TOT ), MEDIA_DESCR( N_TOT )  )
 
             MEDIA_NAMES( 1 ) = 'DGM             ' ! Dissolved gaseous Hg
-            MEDIA_UNITS( 1 ) = 'umol/mol' 
+            MEDIA_UNITS( 1 ) = 'umol mol-1' 
             MEDIA_DESCR( 1 ) = 'Surface water dissolved Hg(0)'
             MEDIA_NAMES( 2 ) = 'DRM             ' ! Dissolved reactive Hg
-            MEDIA_UNITS( 2 ) = 'umol/mol' 
+            MEDIA_UNITS( 2 ) = 'umol mol-1' 
             MEDIA_DESCR( 2 ) = 'Surface water dissolved Hg(II)'
             MEDIA_NAMES( 3 ) = 'HGSOIL          '
-            MEDIA_UNITS( 3 ) = 'umol/mol'      
+            MEDIA_UNITS( 3 ) = 'umol mol-1'      
             MEDIA_DESCR( 3 ) = 'Soil water dissolved Hg(0)'
             MEDIA_NAMES( 4 ) = 'HGZ0            '
             MEDIA_UNITS( 4 ) = 'ppmV'      
             MEDIA_DESCR( 4 ) = 'Hg(0) compensation point'
             MEDIA_NAMES( 5 ) = 'HGMES           ' ! mesophyll Hg
-            MEDIA_UNITS( 5 ) = 'umol/g'      
+            MEDIA_UNITS( 5 ) = 'umol g-1'      
             MEDIA_DESCR( 5 ) = 'Hg(0) bound to leaf mesophyll'
             MEDIA_NAMES( 6 ) = 'HGCUT           ' ! cuticular Hg  
-            MEDIA_UNITS( 6 ) = 'umol/g'      
+            MEDIA_UNITS( 6 ) = 'umol g-1'      
             MEDIA_DESCR( 6 ) = 'Hg(0) bound to vegetation surfaces'      
             
          Else If ( ABFLUX .And. HGBIDI ) Then
@@ -154,34 +122,34 @@ C--------------------------------------------------------------------------
             Allocate( MEDIA_NAMES( N_TOT ), MEDIA_UNITS( N_TOT ), MEDIA_DESCR( N_TOT )  )
 
             MEDIA_NAMES( 1 ) = 'DGM             ' ! Dissolved gaseous Hg
-            MEDIA_UNITS( 1 ) = 'umol/mol' 
+            MEDIA_UNITS( 1 ) = 'umol mol-1' 
             MEDIA_DESCR( 1 ) = 'Surface water dissolved Hg(0)'
             MEDIA_NAMES( 2 ) = 'DRM             ' ! Dissolved reactive Hg
-            MEDIA_UNITS( 2 ) = 'umol/mol' 
+            MEDIA_UNITS( 2 ) = 'umol mol-1' 
             MEDIA_DESCR( 2 ) = 'Surface water dissolved Hg(II)'
             MEDIA_NAMES( 3 ) = 'HGSOIL          '
-            MEDIA_UNITS( 3 ) = 'umol/mol'      
+            MEDIA_UNITS( 3 ) = 'umol mol-1'      
             MEDIA_DESCR( 3 ) = 'Soil water dissolved Hg(0)'
             MEDIA_NAMES( 4 ) = 'HGZ0            '
             MEDIA_UNITS( 4 ) = 'ppmV'      
             MEDIA_DESCR( 4 ) = 'Hg(0) compensation point'
             MEDIA_NAMES( 5 ) = 'HGMES           ' ! mesophyll Hg
-            MEDIA_UNITS( 5 ) = 'umol/g'      
+            MEDIA_UNITS( 5 ) = 'umol g-1'      
             MEDIA_DESCR( 5 ) = 'Hg(0) bound to leaf mesophyll'
             MEDIA_NAMES( 6 ) = 'HGCUT           ' ! cuticular Hg  
-            MEDIA_UNITS( 6 ) = 'umol/g'      
+            MEDIA_UNITS( 6 ) = 'umol g-1'      
             MEDIA_DESCR( 6 ) = 'Hg(0) bound to vegetation surfaces'   
             MEDIA_NAMES( 7 ) = 'Gamma1          ' 
-            MEDIA_UNITS( 7 ) = ' ' 
+            MEDIA_UNITS( 7 ) = '' 
             MEDIA_DESCR( 7 ) = 'NH4+/H+ in Soil layer 1'
             MEDIA_NAMES( 8 ) = 'Gamma2          '
-            MEDIA_UNITS( 8 ) = ' ' 
+            MEDIA_UNITS( 8 ) = '' 
             MEDIA_DESCR( 8 ) = 'NH4+/H+ in Soil layer 2'
             MEDIA_NAMES( 9 ) = 'MHpsl1'
-            MEDIA_UNITS( 9 ) = 'mol/l' 
+            MEDIA_UNITS( 9 ) = 'mol L-1' 
             MEDIA_DESCR( 9 ) = 'Molar H+ in Soil layer 1'
             MEDIA_NAMES( 10 ) = 'MHpsl2         '
-            MEDIA_UNITS( 10 ) = 'mol/l' 
+            MEDIA_UNITS( 10 ) = 'mol L-1' 
             MEDIA_DESCR( 10 ) = 'Molar H+ in Soil layer 2'
             
          End If
@@ -199,7 +167,7 @@ C--------------------------------------------------------------------------
 !************** Iput / output section of the module **************************
 !*****************************************************************************
 
-         Subroutine OPASX_MEDIA( JDATE, JTIME, TSTEP, ABFLUX )
+         Subroutine OPASX_MEDIA( JDATE, JTIME, TSTEP )
 
          Use GRID_CONF
          Use CGRID_SPCS          ! CGRID mechanism species
@@ -212,16 +180,13 @@ C--------------------------------------------------------------------------
          Integer,     Intent( In ) :: JDATE
          Integer,     Intent( In ) :: JTIME
          Integer,     Intent( In ) :: TSTEP
-         Logical,     Intent( In ) :: ABFLUX
 
          Character( 16 ) :: PNAME = 'OPASX_MEDIA     '
-         Character( 80 ) :: VARDESC
          Character( 96 ) :: MSG = ' '
 
          Integer  N, V, L
          
 C--------------------------------------------------------------------------
-         LOGDEV = INIT3()  
          
          If ( ABFLUX .And. .Not. HGBIDI) Then
 
@@ -270,7 +235,7 @@ C--------------------------------------------------------------------------
                   N = N + 1
                   VTYPE3D( N ) = M3REAL
                   VNAME3D( N ) = MEDIA_NAMES( N )
-                  UNITS3D( N ) = 'mol l-1'
+                  UNITS3D( N ) = 'mol L-1'
                   VDESC3D( N ) = 'aqueous phase concentration'
                End Do
 
@@ -438,7 +403,7 @@ C--------------------------------------------------------------------------
                   N = N + 1
                   VTYPE3D( N ) = M3REAL
                   VNAME3D( N ) = MEDIA_NAMES( N )
-                  UNITS3D( N ) = 'mol l-1'
+                  UNITS3D( N ) = 'mol L-1'
                   VDESC3D( N ) = 'aqueous phase concentration'
                End Do
 
@@ -477,7 +442,7 @@ C--------------------------------------------------------------------------
 
 !****************************************************************************
 
-         Subroutine WRASX_MEDIA( MDATE, MTIME, ABFLUX )
+         Subroutine WRASX_MEDIA( MDATE, MTIME )
 
 ! Revision History.
 !     Aug 12, 15 D. Wong: added code to handle parallel I/O implementation
@@ -492,7 +457,6 @@ C--------------------------------------------------------------------------
 
          Integer, Intent( In )    :: MDATE
          Integer, Intent( In )    :: MTIME
-         Logical, Intent( In )    :: ABFLUX
 
          Logical, Save :: FIRSTIME = .TRUE.
 
@@ -502,7 +466,6 @@ C--------------------------------------------------------------------------
          Character( 16 ) :: PNAME = 'WRASX_MEDIA     '
          
 !*****************************************************************************         
-         LOGDEV = INIT3()    
          
          If ( HGBIDI ) Then
             INIT_LAI  = .FALSE.   

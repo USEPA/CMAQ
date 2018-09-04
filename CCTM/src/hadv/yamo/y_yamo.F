@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/hadv/yamo/y_yamo.F,v 1.3 2011/10/21 16:11:20 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE Y_YAMO ( CGRID, FDATE, FTIME, TSTEP, LVL, BCON, YTRHOJ )
 
@@ -110,8 +103,6 @@ C Local Variables:
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
       CHARACTER( 96 ) :: XMSG = ' '
 
-      integer, save :: logdev
-
       REAL,    SAVE :: DX2                      ! dx2 (meters)
       INTEGER, SAVE :: ASPC                     ! RHOJ index in CGRID
       REAL          ADJFAC                      ! Yamo's adjustment - jp 11/02
@@ -176,7 +167,6 @@ C-----------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
-         logdev = init3 ()
 
          SFX = 0
          NFX = MY_NCOLS + MY_NROWS + 3
@@ -254,9 +244,6 @@ C Create global map to CGRID
             ENDROW2_LIM = ENDROW2 + 1
          END IF
 
-!        write( logdev,2005 ) bndy_pe_loy, bndy_pe_hiy,
-!    &                        startrow, endrow, startrow2, endrow2, endrow2_lim
-!        call flush_
 2005  format( '@@ #y_yamo> :', 2l6, 2x, 5i6.3 )
 
       END IF                    ! if firstime
@@ -329,15 +316,6 @@ C check adjusted velocities for Courant limited max timestep
                DTCFL = MIN ( DTCFL, 0.9 * DX2 / ABS( VELY( ROW ) ) )
             END IF
 
-!           if ( vely( row ) .lt. 0.0 ) then
-!              if ( adjfac .lt. 0.70 .or. adjfac .gt. 1.36 ) then
-!                 write( logdev,2009 ) col, row, lvl, adjfac, vely(row)
-!                 end if  !
-!              else
-!              if ( adjfac_l .lt. 0.70 .or. adjfac_l .gt. 1.36 ) then
-!                 write( logdev,2011 ) col, row, lvl, adjfac_l, vely(row)
-!                 end if  !
-!              end if
 2009           format(  '#y_yamo> col, row, lvl, adjfac,   vely: ',
      &                3i3, 1x, 2f7.2 )
 2011           format(  '#y_yamo> col, row, lvl, adjfac_l, vely: ',
@@ -385,15 +363,6 @@ C North boundary
 
          END DO   ! SPC
 
-!        if ( lvl .eq. 1 .and. col .eq. 22 ) then
-!           write( logdev,* ) '@@ y_yamo# time, row, vely'
-!           write( logdev,* ) '@@ y_yamo# time, row, trrhoj'
-!           do row = 20, my_nrows+1
-!           do row = 0, my_nrows
-!              write( logdev,2017 ) ftime, row, vely( row )
-!              write( logdev,2017 ) ftime, row, trrhoj( row )
-!           end do
-!        end if
 2017  format( '@@', 5x, i7.6, i4, 1pe12.3 )
 
 C PPM scheme
@@ -410,8 +379,6 @@ C PPM scheme
             A2C = ADV_MAP( SPC )
             DO ROW = 1, MY_NROWS
                CGRID( COL,ROW,LVL,A2C ) = CONY( ROW,SPC )
-!              if ( cony( row,spc ) .le. 0.0 )
-!    &            write( logdev,2019 ) ftime, col, row, lvl, spc, cony(row,spc )
             END DO
          END DO
 

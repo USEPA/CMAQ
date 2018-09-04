@@ -17,9 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker] 
-C $Header: /project/work/rep/PARIO/src/pm3exit.f,v 1.5 2011/10/20 22:48:55 sjr Exp $
-
         SUBROUTINE PM3EXIT( CALLER, JDATE, JTIME, MSGTXT, EXITSTAT )
 C.....................................................................
 C
@@ -62,6 +59,7 @@ C
 C***********************************************************************
 
       USE M3UTILIO              ! i/o api
+      USE RUNTIME_VARS
 
       IMPLICIT NONE
 
@@ -83,13 +81,11 @@ C...........   ARGUMENTS and their descriptions:
 C...........   LOCAL VARIABLES
 
       INTEGER      LENSTR       ! String length of CALLER.
-      INTEGER      LOGDEV       ! FORTRAN unit number for log file.
       INTEGER      IDEV         ! Loop counter over FORTRAN unit numbers.
       INTEGER      ERRCODE      ! Error code from abort attempt.
       INTEGER      IERROR       ! Error from MPI_ABORT routine.
       LOGICAL      OFLAG        ! Flag for indicating file open.
       CHARACTER*24 DTBUF        ! Scratch area for date string.
-      CHARACTER*3  CMYPE        ! Processor ID string.
       CHARACTER*7  PE_STR       ! String suffix to go with processor ID.
       CHARACTER*16 CALL16       ! First 16 characters of CALLER.
       CHARACTER*26 PCALLER      ! New caller string with PE information.
@@ -100,7 +96,6 @@ C   begin subroutine PM3EXIT
 
 C.......  Construct new CALLER string.
       WRITE (PE_STR,'(A7)') ' on PE '
-      WRITE(CMYPE,'(I3.3)') MY_PE
 
 
 C.......  Construct new CALLER string.
@@ -110,9 +105,6 @@ C.......  Construct new CALLER string.
 
 
 C.......  Do M3EXIT tasks.
-
-      LOGDEV = INIT3()
-
 
       IF ( EXITSTAT .NE. 0 ) THEN     ! Print messages for abnormal abort. 
 

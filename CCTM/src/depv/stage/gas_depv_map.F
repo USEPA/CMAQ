@@ -54,14 +54,11 @@ C Local variables:
       CHARACTER( 96 ) :: XMSG = ' '
       CHARACTER( 16 ) :: VNAME            ! scratch string
 
-!      INTEGER LOGDEV
       INTEGER ALLOCSTAT
       INTEGER V, N
       INTEGER STRT, FINI
 
 C----------------------------------------------------------------------
-
-      LOGDEV = INIT3()
 
       IF ( ( N_GC_SPC + N_NR_SPC + N_TR_SPC ) .LE. 0 ) THEN
          XMSG = 'Model not compiled for gases'

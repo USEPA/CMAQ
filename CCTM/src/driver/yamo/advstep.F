@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/driver/yamo/advstep.F,v 1.7 2012/04/06 13:28:48 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE ADVSTEP( JDATE, JTIME, TSTEP, ASTEP, NREPS )
 
@@ -47,7 +40,7 @@ C       eliminate TSTEP( 3 ). Add new argument ASTEP( NLAYS ) - output
 C Preconditions:
 
 C Subroutines and functions called:
-C    SEC2TIME, TIME2SEC, DESC3, M3EXIT, HVELOC, ENVREAL
+C    SEC2TIME, TIME2SEC, DESC3, M3EXIT, HVELOC
 
 C Revision history:
 C    prototype 2/93 by CJC
@@ -99,6 +92,7 @@ C   10 May 11 D.Wong: incorporated twoway model implementation
 C    6 Apr 12 J.Young: changed default HDIV_LIM to 0.9; made CFL an env var
 C-----------------------------------------------------------------------
 
+      USE RUNTIME_VARS
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE UTILIO_DEFN
 #ifdef parallel
@@ -130,16 +124,9 @@ C Parameters:
 C External Functions:
 
 C Local Variables:
-      INTEGER, SAVE :: LOGDEV       ! unit number for log device
-
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
 
-      INTEGER, SAVE :: MAXSYNC       ! force max TSTEP(2) (sec)
-      INTEGER, SAVE :: MINSYNC       ! force min TSTEP(2) (sec)
       INTEGER, SAVE :: ADVLAYR       ! adv=sync at least up to this level
-      REAL,    SAVE :: SIGST         ! sigma_sync_top value
-      REAL,    SAVE :: HDIV_LIM      ! cutoff for max horizontal divergence step adj
-      REAL,    SAVE :: CFL           ! maximum Courant-Friedrichs-Lewy number allowed
 
       INTEGER, SAVE :: WSTEP = 0     ! wind file interpolation time step
       INTEGER, SAVE :: SDATE, STIME  ! wind file start date and time
@@ -181,14 +168,9 @@ C Local Variables:
       CHARACTER( 96 ) :: XMSG = ' '
 
       INTEGER :: ALLOCSTAT
-      INTEGER :: STATUS         ! ENVINT status
 
       CHARACTER( 80 ) :: VARDESC  ! environment variable description
 
-C environment variable max sync step
-      CHARACTER( 16 ) :: CTM_MAXSYNC = 'CTM_MAXSYNC'
-C environment variable min sync step
-      CHARACTER( 16 ) :: CTM_MINSYNC = 'CTM_MINSYNC'
 C environment variable adv top layer for sync step calculation
       CHARACTER( 16 ) :: SIGMA_SYNC_TOP = 'SIGMA_SYNC_TOP'
 C environment variable max Courant-Friedrichs-Lewy number allowed
@@ -208,53 +190,8 @@ C-----------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
-         LOGDEV = INIT3()
 
-         MAXSYNC = 720          ! default
-         VARDESC = 'Maximum Synchronization Time Step (sec)'
-         MAXSYNC = ENVINT( CTM_MAXSYNC, VARDESC, MAXSYNC, STATUS )
-         IF ( STATUS .NE. 0 ) WRITE( LOGDEV,'(5X, A)' ) VARDESC
-         IF ( STATUS .EQ. 1 ) THEN
-            XMSG = 'Environment variable improperly formatted'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-         END IF
-
-         MINSYNC = 60           ! default
-         VARDESC = 'Minimum Synchronization Time Step (sec)'
-         MINSYNC = ENVINT( CTM_MINSYNC, VARDESC, MINSYNC, STATUS )
-         IF ( STATUS .NE. 0 ) WRITE(LOGDEV,'(5X, A)') VARDESC
-         IF ( STATUS .EQ. 1 ) THEN
-            XMSG = 'Environment variable improperly formatted'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-         END IF
-
-!        CFL = 0.9              ! default
-         CFL = 0.75             ! default
-         VARDESC = 'Maximum CFL number allowed'
-         CFL = ENVREAL( CTM_ADV_CFL, VARDESC, CFL, STATUS )
-         IF ( STATUS .NE. 0 ) WRITE( LOGDEV,'(5X, A)' ) VARDESC
-         IF ( STATUS .EQ. 1 ) THEN
-            XMSG = 'Environment variable improperly formatted'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-         END IF
-
-         SIGST = 0.7            ! default
-         VARDESC = 'Minimum layer limit for which adv = sync'
-         SIGST = ENVREAL( SIGMA_SYNC_TOP, VARDESC, SIGST, STATUS )
-         IF ( STATUS .NE. 0 ) WRITE( LOGDEV,'(5X, A)' ) VARDESC
-         IF ( STATUS .EQ. 1 ) THEN
-            XMSG = 'Environment variable improperly formatted'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-         END IF
-
-         HDIV_LIM = 0.9
-         VARDESC = 'Maximum horiz. div. limit for adv step adjustment'
-         HDIV_LIM = ENVREAL( ADV_HDIV_LIM, VARDESC, HDIV_LIM, STATUS )
-         IF ( STATUS .NE. 0 ) WRITE( LOGDEV,'(5X, A)' ) VARDESC
-         IF ( STATUS .EQ. 1 ) THEN
-            XMSG = 'Environment variable improperly formatted'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-         END IF
+         CALL LOG_HEADING( LOGDEV, 'INITIALIZE ADVECTION STEPPING' )
 
          IF ( VGTYP_GD .NE. VGSGPN3 .AND.
      &        VGTYP_GD .NE. VGSGPH3 .AND.
@@ -408,8 +345,6 @@ C A satisfactory MINSECS could not be found
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
          END DO
       END IF
-
-      WRITE( LOGDEV,92013 ) JDATE, JTIME
 
 C Establish ending time for this Courant number calculation:
       EDATE = JDATE
@@ -595,14 +530,12 @@ C------------------  FORMAT  STATEMENTS   ------------------------------
      &          1X, 'could not determine minimum step that divides TSTEP',
      &          1X, 'for model step:', I7.6, ' HHMMSS' )
 
-92013 FORMAT( / 5X, 'From ADVSTEP - date/time: ', I8, '/', I6.6 )
-
 92019 FORMAT( / 5X, 'Synchronization step adjusted up to mimimum (SEC):', I7
      &        /46X, '(HHMMSS): ', I6.6
-     &        / 5X, 'Number of Synchronization steps:', I5 / )
+     &        / 5X, 'Number of Synchronization steps:', I5  )
 
-92021 FORMAT( / 5X, 'Computed synchronization step (HHMMSS): ', I6.6
-     &        / 5X, 'Number of Synchronization steps:', I5 / )
+92021 FORMAT(   5X, 'Computed synchronization step (HHMMSS): ', I6.6
+     &        / 5X, 'Number of Synchronization steps:', I5  )
 
 92025 FORMAT( / 5X, 'Layer', 3X, 'Advection', 3X, 'per Sync'
      &        /11X, 'Step (HHMMSS)', 2X, 'Step' )

@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-! RCS file, release, date & time of last delta, author, state, [and locker]
-! $Header: /project/yoj/arc/CCTM/src/phot/phot_inline/phot.F,v 1.7 2011/10/21 16:11:28 yoj Exp $
-
-! what(1) key, module and SID; SCCS file; date and time of last delta:
-! %W% %P% %G% %U%
-
 !:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE PHOT ( CGRID, JDATE, JTIME, DTSTEP )
 
@@ -37,10 +30,10 @@
 ! Preconditions: HGRD_INIT() called from PAR_INIT, which is called from
 !     DRIVER
 !
-! Subroutines/Functions called: INIT3, M3EXIT, SUBHFILE, CGRID_MAP,
-!     OPPHOT, LOAD_CSQY_DATA, LOAD_OPTICS_DATA, INITIALIZE_ALBEDO,
-!     GET_PHOT_MET, UPDATE_SUN, GET_ALBEDO, GET_DROPLET_OPTICS,
-!     GET_ICE_OPTICS, GET_AGGREGATE_OPTICS, CLEAR_HYDROMETEOR_OPTICS,
+! Subroutines/Functions called: M3EXIT, SUBHFILE, CGRID_MAP,
+!     OPPHOT, LOAD_CSQY_DATA, LOAD_OPTICS_DATA, INITIALIZE_ALBEDO, 
+!     GET_PHOT_MET, UPDATE_SUN, GET_ALBEDO, GET_DROPLET_OPTICS, 
+!     GET_ICE_OPTICS, GET_AGGREGATE_OPTICS, CLEAR_HYDROMETEOR_OPTICS, 
 !     GET_AERO_DATA, O3TOTCOL, and NEW_OPTICS, GET_ENVLIST
 !
 ! Revision History.
@@ -166,7 +159,6 @@ C...modules
 !...local variables
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE.  ! Flag for first call to PHOT
-      LOGICAL, SAVE :: PHOTDIAG           ! Flag for PHOTDIAG file
 
       LOGICAL, SAVE :: CALL_INIT_ALBEDO = .TRUE.
       LOGICAL, SAVE :: CALL_GET_ALBEDO  = .TRUE.
@@ -176,9 +168,6 @@ C...modules
       CHARACTER(   3 ), ALLOCATABLE, SAVE :: WLTXT( : )
       CHARACTER(  16 )                    :: VARNM
       CHARACTER(  16 ), SAVE              :: PNAME = 'PHOT'
-      CHARACTER(  16 ), SAVE              :: CTM_PHOTDIAG   = 'CTM_PHOTDIAG'
-      CHARACTER(  32 )                    :: NLAYS_PHOTDIAG = 'NLAYS_PHOTDIAG'
-      CHARACTER(  32 )                    :: NWAVE_PHOTDIAG = 'NWAVE_PHOTDIAG'
       CHARACTER(  16 )                    :: V_LIST( 2 )
       CHARACTER(  16 )                    :: REQUESTED_WAVE
       CHARACTER(  16 ), ALLOCATABLE       :: WAVE_LIST( : )
@@ -186,7 +175,6 @@ C...modules
       CHARACTER(  80 ) :: VARDESC  ! environment variable description
       CHARACTER( 240 ) :: XMSG = ' '
 
-      INTEGER,    SAVE :: LOGDEV
       INTEGER,    SAVE :: LGC_O3   ! pointer to O3 in CGRID
       INTEGER,    SAVE :: LGC_NO2  ! pointer to NO2 in CGRID
       INTEGER,    SAVE :: TSTEP    ! output timestep in sec
@@ -335,11 +323,6 @@ C...modules
             INTEGER, INTENT( IN )    :: JTIME
             INTEGER, INTENT( IN )    :: TSTEP( 3 )
          END SUBROUTINE CONVCLD_PROP_ACM
-         SUBROUTINE GET_ENVLIST ( ENV_VAR, NVARS, VAL_LIST )
-            CHARACTER( * ),  INTENT ( IN )  :: ENV_VAR
-            INTEGER,         INTENT ( OUT ) :: NVARS
-            CHARACTER( 16 ), INTENT ( OUT ) :: VAL_LIST( : )
-         END SUBROUTINE GET_ENVLIST
       END INTERFACE
 
 ! ----------------------------------------------------------------------
@@ -347,27 +330,9 @@ C...modules
       IF ( FIRSTIME ) THEN
 
          FIRSTIME = .FALSE.
-         LOGDEV   = INIT3()
 
          TSTEP  = TIME2SEC( DTSTEP( 1 ) ) ! output timestep for phot diagnostic files
 
-!...Get photolysis rate diagnostic file flag
-
-         PHOTDIAG = .FALSE.         ! default
-         VARDESC= 'Flag for writing the photolysis rate diagnostic file'
-         PHOTDIAG = ENVYN( CTM_PHOTDIAG, VARDESC, PHOTDIAG, ESTAT )
-         IF ( ESTAT .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-         IF ( ESTAT .EQ. 1 ) THEN
-            XMSG = 'Environment variable improperly formatted'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-         ELSE IF ( ESTAT .EQ. -1 ) THEN
-            XMSG =
-     &          'Environment variable set, but empty ... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-         ELSE IF ( ESTAT .EQ. -2 ) THEN
-            XMSG = 'Environment variable not set ... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-         END IF
 !...Set flag to initialize calculating aerosol extinction at 550 nm via Angstrom Exponents
          CALCULATE_EXT_550 = PHOTDIAG
 
@@ -396,7 +361,7 @@ C...modules
 
 !...Initialize Surface albedo method
 
-         IF ( .NOT. INITIALIZE_ALBEDO( JDATE, JTIME, LOGDEV ) ) THEN
+         IF ( .NOT. INITIALIZE_ALBEDO( JDATE, JTIME ) ) THEN
               XMSG = 'Failure initializing photolysis surface albedo algorithm'
               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
@@ -465,27 +430,22 @@ C...modules
                WRITE( WLTXT( IWL ),'(I3.3)' ) INT( WAVELENGTH( IWL ) )
             END DO
 
-! get wanted number of layer for PHOTDIAG2 and PHOTDIAG3 files
-            CALL GET_ENVLIST ( NLAYS_PHOTDIAG, N, V_LIST )
-            IF ( N .EQ. 0 ) THEN
-               NLAYS_DIAG = NLAYS
-               WRITE(LOGDEV,'(/5X,A,I3)')'Environment Variable NLAYS_PHOTDIAG not found '
-     &      // 'setting NLAYS in PHOTDIAG2 and PHOTDIAG3 to total number of layers: ',
-     &         NLAYS
-            ELSE
-               READ( V_LIST( 1 ), '( I4 )' ) NLAYS_DIAG
-               NLAYS_DIAG = MAX( 1, MIN( NLAYS_DIAG, NLAYS))
-               WRITE(LOGDEV,'(/5X,A,I3,A)')'Environment Variable NLAYS_PHOTDIAG found'
-     &         // ' so PHOTDIAG2 and PHOTDIAG3 will span from first to ', NLAYS_DIAG,
-     &            ' layer.'
-            END IF
+! get wanted number of layers for PHOTDIAG2 and PHOTDIAG3 files 
+            IF ( NLAYS_DIAG .EQ. 0 ) NLAYS_DIAG = NLAYS
+            NLAYS_DIAG = MAX( 1, MIN( NLAYS_DIAG, NLAYS))
+
 ! get wanted wavelengths for PHOTDIAG2 and PHOTDIAG3 files
             ALLOCATE( WAVE_LIST( NWL ) )
-            CALL GET_ENVLIST ( NWAVE_PHOTDIAG, N, WAVE_LIST )
-            IF ( N .EQ. 0 ) THEN ! use all wavelenghts
-                N_DIAG_WVL = NWL
-                ALLOCATE ( DIAG_WVL( N_DIAG_WVL ) , STAT = ALLOCSTAT )
-                IF ( ALLOCSTAT .NE. 0 ) THEN
+            WAVE_LIST( : ) = ''
+            IF ( NWAVE .GT. NWL )
+     &          CALL LOG_MESSAGE( LOGDEV, 'Error: the number of ' //
+     &          'wavelengths the user has requested for diagnostic ' //
+     &          'photolysis output exceeds the number of internal model ' //
+     &          'wavelengths.' )
+            IF ( NWAVE .EQ. 0 ) THEN ! use all wavelenghts
+               N_DIAG_WVL = NWL
+               ALLOCATE ( DIAG_WVL( N_DIAG_WVL ) , STAT = ALLOCSTAT )
+               IF ( ALLOCSTAT .NE. 0 ) THEN
                   XMSG = 'Failure allocating DIAG_WVL'
                   CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF
@@ -500,6 +460,7 @@ C...modules
                   WRITE(LOGDEV,'(5X,I3,1X,A16)')IWL, WLTXT(SPC)
                END DO
             ELSE ! use the environment list
+                WAVE_LIST( 1:NWAVE ) = WAVE_ENV( 1:NWAVE )
                 N_DIAG_WVL = 0
                  ! first remove identical values
                 DO V = 1, N-1
@@ -647,8 +608,7 @@ C...modules
          CALL SEASONAL_STRAT_O3( JDATE, JTIME )
          MIN_STRATO3_FRAC = MONTH_STRAT_03_FRAC
          MAX_TROPOO3_FRAC = MAX( 1.0 - MONTH_STRAT_03_FRAC, 0.0 )
-         WRITE( LOGDEV,*)'PHOT: MIN_STRATO3_FRAC = ',MIN_STRATO3_FRAC
-
+        !WRITE( LOGDEV,*)'PHOT: MIN_STRATO3_FRAC = ',MIN_STRATO3_FRAC          
          JD_STRAT_O3MIN = REAL( JDATE, 4)
       END IF
 !...initialize variables tracking whether stratosphere ozone column satisfies
@@ -681,7 +641,7 @@ C...modules
 
 !...set surface albedos
 
-      CALL GET_ALBEDO( MIDDATE, MIDTIME, LOGDEV, COSINE_ZENITH, LAT, LON )
+      CALL GET_ALBEDO( MIDDATE, MIDTIME, COSINE_ZENITH, LAT, LON )
 
 !...SA  Write COSINE_ZENITH array at the end of each output tstep
 
@@ -725,7 +685,7 @@ C...modules
 
 !...write to the log file, CTM_RJ_1 file and return
 
-         WRITE( LOGDEV, 1003 ) MYPE, JDATE, JTIME
+         !WRITE( LOGDEV, 1003 ) MYPE, JDATE, JTIME
 
 !...Initialize ETOT_SFC, TAU_AERO, TAU_TOT, TAUO3_TOP to 0.0
 
@@ -1036,8 +996,6 @@ C...modules
                         END IF
                         CLOUD_LAYERING( L ) = .FALSE.
                      END DO
-!                    write(logdev,*)'ACM cloud present fraction, cloud lwc(lev),iwc(lev),rwc(1),gwc(1) = ',
-!     &              ACM_CLOUDS( COL,ROW ),lwc(lev),iwc(lev),rwc(1),gwc(1)
 
 ! get optical properties of of subgrid cloud hydrometeors
                      CALL GET_DROPLET_OPTICS( LEV, BLKTA, OWATER_FRAC, SEAICE_FRAC, SNOW_FRAC, LWC )

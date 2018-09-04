@@ -16,6 +16,7 @@
 !  General Public License or the GNU Lesser General Public License is    !
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
+
 !:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
        SUBROUTINE CONVCLD_ACM ( CGRID, JDATE, JTIME, TSTEP,
      &                         N_SPC_WDEP, WDEP_MAP, CONV_DEP, SUBTRANS )
@@ -111,6 +112,7 @@ C       4Apr16 J.Bash      Calculate the Sundqvist et al. 1989 threshold humidit
 C                          for cloud formation based on Mocko and Cotton (1995) to be
 C                          More consistent with WRF
 C       7May 18 D. Schwede: Removed call to CZANGLE. COSZEN now calculated in ASX_DATA_MOD
+C       Aug 2018 J. Pleim: convert to Z coords
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
@@ -218,12 +220,11 @@ C   SYNCCLD=.FALSE. : every hour on the half hour
 C...........Local Variables
 
 C-------for ACM version - jp 2/05        REAL DPB
-      REAL, ALLOCATABLE, SAVE :: SIGF( : )
+      REAL, ALLOCATABLE, SAVE :: DZH( : )
       REAL, ALLOCATABLE, SAVE :: CCR ( :,: )
       REAL, ALLOCATABLE, SAVE :: CONC( :,: )
       REAL, ALLOCATABLE, SAVE :: CBELOW( : )
 C-------------------------------------------
-      INTEGER, SAVE :: LOGDEV
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE. ! flag for first pass thru
       LOGICAL, SAVE :: CONVCLD = .TRUE.  ! flag for modeling convective clds
@@ -387,9 +388,6 @@ C Latitude and longitude for zenith angle calculation:
 
       CHARACTER( 120 ) :: XMSG = ' '   ! Exit status message
 
-C...........External Functions
-
-      INTEGER, EXTERNAL :: SETUP_LOGDEV
 
 C...........Statement Functions
 
@@ -439,7 +437,6 @@ C...  event-statistics variables.
       IF ( FIRSTIME ) THEN
 
         FIRSTIME = .FALSE.
-        LOGDEV = INIT3()
 
         IF ( N_AE_SPC .GT. 0 ) THEN
           ALLOCATE ( AECONCMIN( N_AE_SPC ), STAT = ALLOCSTAT )
@@ -451,14 +448,15 @@ C...  event-statistics variables.
 
         END IF
 
-C...check the grid resolution from the MET_CRO_2D and set an appropriate
-C...  flag as to whether convective clouds should be run for the given
-C...  resolution
-
-C...open MET_CRO_3D
+C...open MET_CRO_3D and MET_CRO_2D
 
         IF ( .NOT. OPEN3( MET_CRO_3D, FSREAD3, PNAME ) ) THEN
           XMSG = 'Could not open '// MET_CRO_3D // ' file'
+          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+        END IF
+
+        IF ( .NOT. OPEN3( MET_CRO_2D, FSREAD3, PNAME ) ) THEN
+          XMSG = 'Could not open '// MET_CRO_2D // ' file'
           CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
@@ -500,6 +498,8 @@ C...get horizontal domain window from met data
 
 C...check convective precipitation on met files to determine if WRF used
 C...  a convective parameterization
+C...in coordination with MCIPv4.0, negative values will be loaded into the RC
+C...  field if a convective parameterization was not used in the WRF simulation
 
         IF ( .NOT. INTERPX( MET_CRO_2D, RC_NAME, PNAME,
      &                      STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
@@ -507,9 +507,6 @@ C...  a convective parameterization
           XMSG = 'Could not read ' // TRIM( RC_NAME ) // ' from ' // MET_CRO_2D
           CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
-
-C...in coordination with MCIPv4.0, negative values will be loaded into the RC
-C...  field if a convective parameterization was not used in the WRF simulation
 
         IF ( MAXVAL( RC ) .LT. 0.0 ) THEN
           CONVCLD = .FALSE.
@@ -523,16 +520,11 @@ C...  field if a convective parameterization was not used in the WRF simulation
 
 C...allocate saved arrays
 
-        ALLOCATE ( SIGF( 0:NLAYS ), STAT = ALLOCSTAT )
+        ALLOCATE ( DZH( NLAYS ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
-          XMSG = 'Failure allocating SIGF'
+          XMSG = 'Failure allocating DZH'
           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
-
-        DO LAY = 1, NLAYS
-          SIGF( LAY ) = 1.0 - X3FACE_GD( LAY )
-        END DO
-        SIGF( 0 ) = 1.0
 
         MXSPCS = NSPCSD
 
@@ -555,7 +547,7 @@ C...allocate saved arrays
      &             STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating BMOL, CBASE0, CBASEF, CEND, POLC, REMOV,'
-     &         // 'QLQD or QICE'
+     &         // ' QLQD or QICE'
           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
@@ -585,7 +577,7 @@ C...check option for processing clouds on the synchronization timestep
 
 C...set the cloud timestep (=adv timestep)
 
-        STEP  = TIME2SEC( TSTEP( 2 ) )         ! syncronization timestep
+        STEP  = TIME2SEC( TSTEP( 2 ) )         ! synchronization timestep
         DTCLD = REAL( STEP )
 
 C...set time to the midpoint of this timestep for data interpolation
@@ -602,7 +594,7 @@ C...  if it does not, then return
 
         MDATE = JDATE
         MTIME = 10000 * ( JTIME / 10000 )      ! on the current hour
-        STEP  = TIME2SEC( TSTEP( 2 ) )         ! syncronization timestep
+        STEP  = TIME2SEC( TSTEP( 2 ) )         ! synchronization timestep
         DTCLD = TCLIFE
 
 C...  set mdate:mtime to one-half step before the half-hour
@@ -747,7 +739,8 @@ C...Loop through all grid cells
             TAL( LAY )   = TA( COL,ROW,LAY )
             QVL( LAY )   = QV( COL,ROW,LAY )
             DZZL( LAY )  = DZZ( COL,ROW,LAY )
-            DENSL( LAY ) = PRESL( LAY ) / ( RDGAS * TAL( LAY ) )
+            DENSL( LAY ) = PRESL( LAY )
+     &                   / ( RDGAS * TAL( LAY ) * ( 1.0 + RWVAP * QVL( LAY ) / RDGAS ) )
             JH2O2( LAY ) = RJ_SUB( COL,ROW,LAY,LH2O2_PHOTOLYSIS )
             JHNO3( LAY ) = RJ_SUB( COL,ROW,LAY,LHNO3_PHOTOLYSIS )
           END DO
@@ -1053,8 +1046,7 @@ C...  variables needed for rest of computations
 C...First, get mol air/m2 at each layer, initialize FSIDE
 
           DO LAY = 1, NLAYS
-            RHOM2( LAY ) = PRESL( LAY ) * DZZL( LAY )
-     &                   * 1.0E3 / ( RDGAS * MWAIR * TAL( LAY ) )
+            RHOM2( LAY ) = DENSL( LAY ) * DZZL( LAY ) * 1.0E3 / MWAIR
             FSIDE( LAY ) = 0.0
           END DO
 
@@ -1400,7 +1392,15 @@ C...  using direct exchange mixing mechanism by McHenry.
             CBELOW( SPC ) = CBASE0( SPC )
           END DO
 
-          CALL ACMCLD ( NSPCSD, NLAYS, F, CCR, SIGF, CBELOW, CLBASE, CLTOP,
+! -- Need to use dens * delz for ACM mixing
+          DO LAY = 1, NLAYS
+            DZH(LAY) = RHOM2( LAY )
+          ENDDO
+          LAY = CLBASE - 1
+
+          DZH(LAY) = AIRMB0
+
+          CALL ACMCLD ( NSPCSD, NLAYS, F, CCR, DZH, CBELOW, CLBASE, CLTOP,
      &                  FRAC, TCLIFE, DTCLD )
 
           DO SPC = 1, MXSPCS

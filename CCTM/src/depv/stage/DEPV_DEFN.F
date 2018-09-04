@@ -56,7 +56,6 @@ C                          parallel I/O implementation
 C                        Added a block of code to let non I/O processors to
 C                          open CTM_DEPV_DIAG in parallel I/O implementation
 C-------------------------------------------------------------------------------
-      USE RUNTIME_VARS_MOD !, Only: PX_LSM, CLM_LSM, NOAH_LSM
 
       IMPLICIT NONE
 
@@ -84,8 +83,7 @@ C  Dry dep flux of NH3 for m3dry bidi [kg/ha hr]
       REAL,    ALLOCATABLE, SAVE :: DDEP_NH3( :,: )
 
       PUBLIC DEPV, DEPVJ,PLDVJ, DEPVJ_FST, N_SPC_DEPV, DD_CONV, PLDV, CMP,
-     &             ILDEPV, SFC_HONO, ABFLUX, MOSAIC, FST, N_GAS_DEPV,
-     &             DEPV_INIT, GET_DEPV, DDEP_NH3
+     &             N_GAS_DEPV, DEPV_INIT, GET_DEPV, DDEP_NH3
       PRIVATE
 
 C gas species (gas-phase and gas non-reactive) deposition velocities
@@ -140,8 +138,7 @@ C-----------------------------------------------------------------------
          USE UTILIO_DEFN
 !         USE MOSAIC_MOD, Only: Init_Mosaic
          USE LSM_MOD, Only: Init_LSM, n_lufrac !, PX_LSM, CLM_LSM, NOAH_LSM
-         USE BIDI_MOD, Only: Init_Bidi, HgBidi
-         USE RUNTIME_VARS_MOD !, Only: PX_LSM, CLM_LSM, NOAH_LSM
+         USE BIDI_MOD, Only: Init_Bidi
          USE STAGE_MOD, Only: INIT_STAGE
 
          IMPLICIT NONE
@@ -209,8 +206,6 @@ C Local variables:
          END INTERFACE
 
 C-----------------------------------------------------------------------
-
-         LOGDEV = INIT3()
 
          SUCCESS = .TRUE.
 
@@ -293,8 +288,7 @@ C Initialize
 
          IF ( ILDEPV ) THEN            
             CALL INIT_LSM( JDATE, JTIME )
-            CALL INIT_VARS( JDATE, JTIME, LOGDEV )
-            CALL INIT_BIDI( ABFLUX )
+            CALL INIT_BIDI()
 !            IF ( MOSAIC .OR. ABFLUX ) THEN
 !               CALL INIT_MOSAIC( JDATE, JTIME, LTOTG, MOSAIC, ABFLUX )
 !            END IF
@@ -465,7 +459,7 @@ C Identify and remove multiple occurrences of aerosol deposition velocities
 
          END IF INIT_GAS_DV
 
-         WRITE( LOGDEV,'( 5X, A / )' ) 'DEPV_INIT: completed INIT_GAS_DV block '
+!        WRITE( LOGDEV,'( 5X, A / )' ) 'DEPV_INIT: completed INIT_GAS_DV block '
 
          IF ( .NOT. ILDEPV ) THEN
 
@@ -490,7 +484,7 @@ C Identify and remove multiple occurrences of aerosol deposition velocities
 
             END IF
 
-            Call INIT_STAGE( JDATE, JTIME, HGBIDI )
+            Call INIT_STAGE( JDATE, JTIME )
             
             IF ( MOSAIC ) THEN
 
@@ -533,8 +527,7 @@ C-----------------------------------------------------------------------
 !         USE DEPVVARS
          USE UTILIO_DEFN
          USE Mosaic_Mod
-         USE Bidi_Mod, Only: HgBidi
-         USE RUNTIME_VARS_MOD !, Only: PX_LSM, CLM_LSM, NOAH_LSM
+!        USE Bidi_Mod, Only: HgBidi
          USE LSM_Mod,  Only: n_lufrac
          USE ASX_DATA_MOD, Only: GRID_DATA, MOSAIC_DATA
          Use STAGE_MOD,    Only: GAS_X, AERO_X
@@ -573,7 +566,6 @@ C Local variables:
          CHARACTER( 120 ) :: XMSG = ' '
 
          INTEGER C, R, N, V, NDX, J
-         INTEGER, SAVE :: LOGDEV
 
          LOGICAL, SAVE :: FIRSTIME = .TRUE.
 
@@ -595,7 +587,6 @@ C Local variables:
          END INTERFACE
 
 C-----------------------------------------------------------------------
-         LOGDEV = INIT3()
 
          DEPV = 0.0         
 
