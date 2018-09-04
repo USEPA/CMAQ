@@ -121,15 +121,15 @@ set NCELLS = `echo "${NX} * ${NY} * ${NZ}" | bc -l`
    #setenv AVG_CONC_SPCS "O3 NO CO NO2 ASO4I ASO4J NH3" 
    setenv AVG_CONC_SPCS "ALL" 
    setenv ACONC_BLEV_ELEV " 1 1" #> ACONC file layer range; comment to write all layers to ACONC
-   setenv AVG_FILE_ENDTIME N     #> override default beginning ACON timestamp [ default: N ]
+   setenv AVG_FILE_ENDTIME N     #> override default beginning ACONC timestamp [ default: N ]
 
-#> Sychronization Time Step and Tolerance Options
+#> Synchronization Time Step and Tolerance Options
 setenv CTM_MAXSYNC 300       #> max sync time step (sec) [ default: 720 ]
 setenv CTM_MINSYNC  60       #> min sync time step (sec) [ default: 60 ]
 setenv SIGMA_SYNC_TOP 0.7    #> top sigma level thru which sync step determined [ default: 0.7 ] 
-#setenv ADV_HDIV_LIM 0.95     #> maximum horiz. div. limit for adv step adjust [ default: 0.9 ]
+#setenv ADV_HDIV_LIM 0.95    #> maximum horiz. div. limit for adv step adjust [ default: 0.9 ]
 setenv CTM_ADV_CFL 0.95      #> max CFL [ default: 0.75]
-#setenv RB_ATOL 1.0E-09       #> global ROS3 solver abs tol [ default: 1.0E-07 ] 
+#setenv RB_ATOL 1.0E-09      #> global ROS3 solver absolute tolerance [ default: 1.0E-07 ] 
 
 #> Science Options
 setenv CTM_SS_AERO Y         #> use inline Sea Spray Aerosol emissions [ default: Y ]
@@ -198,22 +198,28 @@ setenv CTM_APMDIAG Y         #> Hourly-Average Aerosol Diagnostic File [ default
 setenv APMDIAG_BLEV_ELEV ""  #> layer range for average pmdiag = NLAYS
 
 #> Diagnostic Output Flags
-setenv CTM_CKSUM Y           #> cksum report [ default: Y ]
+setenv CTM_CKSUM Y           #> checksum report [ default: Y ]
 setenv CLD_DIAG Y            #> cloud diagnostic file [ default: N ]
 setenv CTM_AERDIAG Y         #> aerosol diagnostic file [ default: N ]
 
 setenv CTM_PHOTDIAG Y        #> photolysis diagnostic file [ default: N ]
-setenv NLAYS_PHOTDIAG "3"    #> Number of layers for PHOTDIAG2 and PHOTDIAG3 from Layer 1 to NLAYS_PHOTDIAG  [ default: all layers ] 
-#setenv NWAVE_PHOTDIAG "294 303 310 316 333 381 607"  #> Wavelengths written for variables in PHOTDIAG2 and PHOTDIAG3 [ default: all wavelengths ]
+setenv NLAYS_PHOTDIAG "3"    #> Number of layers for PHOTDIAG2 and PHOTDIAG3 from 
+                             #>     Layer 1 to NLAYS_PHOTDIAG  [ default: all layers ] 
+#setenv NWAVE_PHOTDIAG "294 303 310 316 333 381 607"  #> Wavelengths written for variables
+                                                      #>   in PHOTDIAG2 and PHOTDIAG3 
+                                                      #>   [ default: all wavelengths ]
 
 setenv CTM_SSEMDIAG Y        #> sea-salt emissions diagnostic file [ default: N ]
-setenv CTM_DUSTEM_DIAG Y     #> windblown dust emissions diagnostic file [ default: N ]; ignore if CTM_WB_DUST = N
+setenv CTM_DUSTEM_DIAG Y     #> windblown dust emissions diagnostic file [ default: N ]; 
+                             #>     Ignore if CTM_WB_DUST = N
 setenv CTM_DEPV_FILE Y       #> deposition velocities diagnostic file [ default: N ]
 setenv VDIFF_DIAG_FILE Y     #> vdiff & possibly aero grav. sedimentation diagnostic file [ default: N ]
 setenv LTNGDIAG Y            #> lightning diagnostic file [ default: N ]
 setenv B3GTS_DIAG Y          #> beis mass emissions diagnostic file [ default: N ]
-setenv PT3DDIAG N            #> optional 3d point source emissions diagnostic file [ default: N]; ignore if CTM_PT3DEMIS = N
-setenv PT3DFRAC N            #> optional layer fractions diagnostic (play) file(s) [ default: N]; ignore if CTM_PT3DEMIS = N
+setenv PT3DDIAG N            #> 3D point source emissions diagnostic file [ default: N]; 
+                             #>     Ignore if CTM_PT3DEMIS = N
+setenv PT3DFRAC N            #> layer fractions diagnostic (play) file(s) [ default: N]; 
+                             #>     Ignore if CTM_PT3DEMIS = N
 setenv REP_LAYER_MIN -1      #> Minimum layer for reporting plume rise info [ default: -1 ]
 setenv EMISDIAG F            #> Print Emission Rates at the output time step after they have been
                              #>   scaled and modified by the user Rules [options: F | T or 2D | 3D | 2DSUM ]
@@ -267,14 +273,12 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   echo ""
   echo "Set up input and output files for Day ${TODAYG}."
 
-
   #> set output file name extensions
   setenv CTM_APPL ${RUNID}_${YYYYMMDD} 
   
   #> Copy Model Configuration To Output Folder
-  mkdir -p ${OUTDIR}
+  if ( ! -d "$OUTDIR" ) mkdir -p $OUTDIR
   cp $BLD/CCTM_${VRSN}.cfg $OUTDIR/CCTM_${CTM_APPL}.cfg
-
 
 # =====================================================================
 #> Input Files (Some are Day-Dependent)
@@ -332,8 +336,8 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   if ( $CTM_PT3DEMIS == 'Y' ) then
      setenv N_EMIS_PT 5          #> Number of elevated source groups
 
-     set STKCASEG = 12US1_2011ek_cb6cmaq_v6_11g           # Stack Group Version Label
-     set STKCASEE = 12US1_cmaq_cb6e51_2011ek_cb6cmaq_v6_11g   # Stack Emission Version Label
+     set STKCASEG = 12US1_2011ek_cb6cmaq_v6_11g              # Stack Group Version Label
+     set STKCASEE = 12US1_cmaq_cb6e51_2011ek_cb6cmaq_v6_11g  # Stack Emission Version Label
 
      setenv STK_GRPS_001 $IN_PTpath/stack_groups/stack_groups_ptnonipm_${STKCASEG}.nc
      setenv STK_GRPS_002 $IN_PTpath/stack_groups/stack_groups_ptegu_${STKCASEG}.nc
@@ -350,6 +354,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      setenv STK_EMIS_005 $IN_PTpath/pt_oilgas/inln_mole_pt_oilgas_${YYYYMMDD}_${STKCASEE}.nc
      setenv LAYP_STDATE $YYYYJJJ
 
+    # Label Each Emissions Stream
      setenv STK_EMIS_LAB_001 POINT_NONEGU
      setenv STK_EMIS_LAB_002 POINT_EGU
      setenv STK_EMIS_LAB_003 POINT_OTHER
@@ -362,6 +367,8 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      #setenv STK_EMIS_DIAG_004 2DSUM
      #setenv STK_EMIS_DIAG_005 2DSUM
 
+     # Allow CMAQ to Use Point Source files with dates that do not
+     # match the internal model date
      setenv STK_EM_DTOVRD_001 T
      setenv STK_EM_DTOVRD_002 T
      setenv STK_EM_DTOVRD_003 T
@@ -377,13 +384,12 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #> In-line lightning NOx options
      setenv USE_NLDN  Y        #> use hourly NLDN strike file [ default: Y ]
      if ( $USE_NLDN == Y ) then
-        setenv NLDN_STRIKES $INPDIR/lightning/NLDN.12US1.${YYYYMMDD}_bench.nc
+        setenv NLDN_STRIKES ${IN_LTpath}/NLDN.12US1.${YYYYMMDD}_bench.nc
      else
-        setenv LOG_START 2.0   #> RC value to transit linear to log linear
+        setenv LOG_START 2.0   #> RC value to transition from linear to log linear
      endif
-     setenv LTNGPARMS_FILE $INPDIR/lightning/LTNG_AllParms_12US1_bench.nc #> lightning parameter file
+     setenv LTNGPARMS_FILE ${IN_LTpath}/LTNG_AllParms_12US1_bench.nc #> lightning parameter file
   endif
-
 
   #> In-line biogenic emissions configuration
   if ( $CTM_BIOGEMIS == 'Y' ) then   
@@ -392,7 +398,8 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      setenv B3GRD      $IN_BEISpath/b3grd_bench.nc
      setenv BIOG_SPRO  DEFAULT
      setenv BIOSW_YN   Y     #> use frost date switch [ default: Y ]
-     setenv BIOSEASON  $IN_BEISpath/bioseason.cmaq.2011_12US1_wetland100.ghrsst_bench.ncf #> ignore season switch file if BIOSW_YN = N
+     setenv BIOSEASON  $IN_BEISpath/bioseason.cmaq.2011_12US1_wetland100.ghrsst_bench.ncf 
+                             #> ignore season switch file if BIOSW_YN = N
      setenv SUMMER_YN  Y     #> Use summer normalized emissions? [ default: Y ]
      setenv PX_VERSION Y     #> MCIP is PX version? [ default: N ]
      setenv SOILINP    $OUTDIR/CCTM_SOILOUT_${RUNID}_${YESTERDAY}.nc
@@ -407,13 +414,13 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      setenv MODIS_FPAR $LUpath/modis_bench.nc
 
      if ( $CTM_ERODE_AGLAND == 'Y' ) then
-        setenv CROPMAP01 ${INPDIR}/land/BeginPlanting_12km_bench.nc
-        setenv CROPMAP04 ${INPDIR}/land/EndPlanting_12km_bench.nc
-        setenv CROPMAP08 ${INPDIR}/land/EndHarvesting_12km_bench.nc
+        setenv CROPMAP01 ${LUpath}/BeginPlanting_12km_bench.nc
+        setenv CROPMAP04 ${LUpath}/EndPlanting_12km_bench.nc
+        setenv CROPMAP08 ${LUpath}/EndHarvesting_12km_bench.nc
      endif
   endif
 
-  #> In-line sea salt emissions configuration
+  #> In-line sea spray emissions configuration
   setenv OCEAN_1 $SZpath/12US1_surf_bench.nc #> horizontal grid-dependent surf zone file
 
   #> Bidirectional ammonia configuration
@@ -421,16 +428,16 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 # modify for FEST-C v1.4.
 #    setenv E2C_Soilfile  ${INPDIR}/land/2011_US1_soil_bench.nc
 #    setenv E2C_Fertfile  ${INPDIR}/land/2011_US1_time${YYYYMMDD}_bench.nc
-     setenv E2C_Soilfile  ${INPDIR}/land/epic_festc1.4/epic2011_20180516_soil.nc
-     setenv E2C_Fertfile  ${INPDIR}/land/epic_festc1.4/epic2011_20180516_time${YYYYMMDD}.nc
-     setenv B4LU_file     ${INPDIR}/land/beld4_12kmCONUS_2006nlcd_bench.nc    
+     setenv E2C_Soilfile  ${LUpath}/epic_festc1.4/epic2011_20180516_soil.nc
+     setenv E2C_Fertfile  ${LUpath}/epic_festc1.4/epic2011_20180516_time${YYYYMMDD}.nc
+     setenv B4LU_file     ${LUpath}/beld4_12kmCONUS_2006nlcd_bench.nc    
      setenv E2C_SOIL ${E2C_Soilfile}
      setenv E2C_FERT ${E2C_Fertfile}
      setenv BELD4_LU ${B4LU_file}
   endif
 
 #> Inline Process Analysis 
-  setenv CTM_PROCAN N          #> use process analysis [ default: N]
+  setenv CTM_PROCAN N        #> use process analysis [ default: N]
   if ( $?CTM_PROCAN ) then   # $CTM_PROCAN is defined
      if ( $CTM_PROCAN == 'Y' || $CTM_PROCAN == 'T' ) then
 #> process analysis global column, row and layer ranges
@@ -485,9 +492,6 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #> set floor file (neg concs)
   setenv FLOOR_FILE ${OUTDIR}/FLOOR_${CTM_APPL}.txt
 
-  #> create output directory 
-  if ( ! -d "$OUTDIR" ) mkdir -p $OUTDIR
-
   #> look for existing log files and output files
   ( ls CTM_LOG_???.${CTM_APPL} > buff.txt ) >& /dev/null
   ( ls ${LOGDIR}/CTM_LOG_???.${CTM_APPL} >> buff.txt ) >& /dev/null
@@ -511,7 +515,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 
      #> remove previous log files
      foreach file ( ${log_test} )
-        #echo "Deleting Log File: $file"
+        #echo "Deleting log file: $file"
         /bin/rm -f $file  
      end
  
@@ -526,18 +530,18 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      #> error if previous log files exist
      if ( "$log_test" != "" ) then
        echo "*** Logs exist - run ABORTED ***"
-       echo "*** To overide, set $DISP == delete in run_cctm.csh ***"
+       echo "*** To overide, set DISP == delete in run_cctm.csh ***"
        echo "*** and these files will be automatically deleted. ***"
        exit 1
      endif
      
-     #> remove previous output files
+     #> error if previous output files exist
      if ( "$out_test" != "" ) then
        echo "*** Output Files Exist - run will be ABORTED ***"
        foreach file ( $out_test )
           echo " cannot delete $file"
        end
-       echo "*** To overide, set $DISP == delete in run_cctm.csh ***"
+       echo "*** To overide, set DISP == delete in run_cctm.csh ***"
        echo "*** and these files will be automatically deleted. ***"
        exit 1
      endif

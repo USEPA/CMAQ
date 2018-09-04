@@ -24,7 +24,7 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 
-      SUBROUTINE DEGRADE( CBLK, DT, JDATE, JTIME, LOGDEV )
+      SUBROUTINE DEGRADE( CBLK, DT, JDATE, JTIME )
 
 C**********************************************************************
 C
@@ -58,7 +58,6 @@ C.....ARGUMENTS:
       REAL( 8 ), INTENT( IN ) :: DT             ! time step for integrations [sec]
       INTEGER,   INTENT( IN ) :: JDATE          ! current model date , coded YYYYDDD
       INTEGER,   INTENT( IN ) :: JTIME          ! current model time , coded HHMMSS
-      INTEGER,   INTENT( IN ) :: LOGDEV         ! unit number for the log
 
 C.....PARAMETERS:
 

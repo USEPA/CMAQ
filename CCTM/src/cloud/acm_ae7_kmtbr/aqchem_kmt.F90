@@ -254,9 +254,6 @@
 
       REAL, EXTERNAL :: HLCONST
 
-      INTEGER, SAVE :: LOGDEV
-      INTEGER, EXTERNAL :: SETUP_LOGDEV
-
 !*********************************************************************
 
 !...Initialization
@@ -264,10 +261,6 @@
       IF ( FIRSTIME ) THEN
 
          FIRSTIME = .FALSE.
-
-         LOGDEV = SETUP_LOGDEV()
-
-!...Make sure an AE6 version of the mechanism is being used
 
         IF ( INDEX( MECHNAME, 'CB6R3M_AE7_KMTBR' ) .LE. 0 ) Then        
            XMSG = 'This version of AQCHEM requires an CB6R3M_AE7_KMTBR chemical mechanism'
