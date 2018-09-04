@@ -77,6 +77,7 @@ C             species that are not organic. Water uptake onto inorganics calcula
 C             POC+NCOM kappa is set to zero and calculated in SOA_DEFN if those species are in use.
 C             Current kappaorg values are based on species specific
 C             OM/OC ratios (Pye et al. 2017 ACP).
+C GS  08/17/81 Added bromide in seasalt
 
 C References:
 C 1. Eddingsaas, N. C., Vandervelde, D. G., Wennberg, P. O., "Kinetics and
@@ -116,7 +117,7 @@ C----------------------------------------------------------------------
 
 C Number of aerosol species and modes
 
-      Integer, Parameter :: n_aerolist = 92     ! number of aero species
+      Integer, Parameter :: n_aerolist = 93     ! number of aero species
       Integer, Parameter :: n_mode = 3          ! number of modes:
                                                 ! 1 = Aitken
                                                 ! 2 = accumulation
@@ -302,7 +303,10 @@ C                     ---------- -------- ------- + + +   + ------ --- +  ------
      & spcs_list_type('ACD     ', cm_set, 2200.0, F,F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Cadmium
      & spcs_list_type('AMN_HAPS', cm_set, 2200.0, F,F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Manganese               #90
      & spcs_list_type('APHG    ', cm_set, 2200.0, F,F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Mercury
-     & spcs_list_type('AAS     ', cm_set, 2200.0, F,F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00)  ! Arsenic                 #92
+     & spcs_list_type('AAS     ', cm_set, 2200.0, F,F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Arsenic                 #92
+
+      ! The following species are associated with the marine chemistry code
+     & spcs_list_type('ABR     ', cm_set, 2200.0, F,F,F, -1,  1.7, 1.7,F, 'SOLUTE', 0.00)  ! Bromide 
      & /)
  
 ! Define Reference Emissions Size Distributions
@@ -449,7 +453,7 @@ C Sea-Spray Aerosol Speciation factors based on seawater composition:
 ! ISBN 9780080437514, http://dx.doi.org/10.1016/B0-08-043751-6/06105-3.
 
 C number of chemical species in seawater aerosol composition
-      integer, parameter :: nsea_spc = 16
+      integer, parameter :: nsea_spc = 17
 
       Type( emis_table ), Parameter :: sea_spc( nsea_spc ) = (/
 C                     -description--  -- Species --  -------- spcfac --------
@@ -469,7 +473,9 @@ C                                                     Aitken  accum   coarse
      &   emis_table( 'Lead          ', 'APB     ', (/ 0.0, 6.0E-11, 6.0E-11/) ),   ! accumulation and coarse mode Lead
      &   emis_table( 'Cadmium       ', 'ACD     ', (/ 0.0, 1.93E-9, 1.93E-9/) ),   ! accumulation and coarse mode cadmium
      &   emis_table( 'Air Toxics Mn ', 'AMN_HAPS', (/ 0.0, 4.7E-11, 4.7E-11/) ),   ! accumulation and coarse mode Air toxics Manganese
+     &   emis_table( 'bromine       ', 'ABR     ', (/ 0.0, 0.00190, 0.00190/) ),   ! Bromine 
      &   emis_table( 'Water         ', 'AH2O    ', (/ 0.0, 0.0    , 0.0    /) ) /) ! Water (uptake is calculated online)
+ 
       ! MAKE SURE WATER IS THE LAST COMPONENT IN THE TABLE ABOVE OR YOU
       ! WILL ENCOUNTER ISSUES WITH THE SEA SPRAY EMISSIONS MODULE.
 
@@ -569,6 +575,7 @@ C Flag if optional species present
       Logical :: ae6isoa = .False.
       Logical :: ae6hg   = .False.
       Logical :: ae7orgh2o = .False.
+      Logical :: marine  = .False.
 
 C Optional Species
       Character( 16 ), Private, Parameter :: req_ietet  = 'AIETET'
@@ -578,6 +585,7 @@ C Optional Species
       Character( 16 ), Private, Parameter :: req_imos   = 'AIMOS'
       Character( 16 ), Private, Parameter :: req_phgj   = 'APHGJ'
       Character( 16 ), Private, Parameter :: req_orgh2o = 'AORGH2O'
+      Character( 16 ), Private, Parameter :: req_br     = 'ABR' 
 
 C Indices of Optional species
       Integer :: aietet_idx = 0
@@ -587,6 +595,7 @@ C Indices of Optional species
       Integer :: aimos_idx  = 0
       Integer :: aphgj_idx  = 0
       Integer :: aorgh2o_idx= 0
+      Integer :: abr_idx    = 0
 
 C Common Arrays for Aerosol Data
       Real, Allocatable :: aerospc_mw( : )     ! aero species M.W. (from AE_SPC Namelist) [ g/mol ]
@@ -928,6 +937,14 @@ C Find indices of required species
          aimga_idx   = 0
          aimos_idx   = 0
          ae6isoa     = .False.
+      End If
+
+      If ( Index( mechname, 'CB6R3M_AE7_KMTBR' ) .Gt. 0 ) Then
+         abr_idx     = findAero( req_br,     .True. )
+         marine = .True.
+      Else
+         abr_idx     = 0
+         marine = .False.
       End If
 
       aphgj_idx = findAero( req_phgj,  .False. )

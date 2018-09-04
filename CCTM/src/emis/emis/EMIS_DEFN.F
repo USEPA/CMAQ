@@ -1787,12 +1787,12 @@ C and allowing the model to proceed.
          ! Online Biogenic Emissions
          IF ( BIOGEMIS ) N_EM_SRM = N_EM_SRM + 1
 
-         ! Marine gas emissions; use in-line marine gas option only if CB05EH51 is used
-         IF ( INDEX( MECHNAME, 'CB05EH51' ) .GT. 0 ) then
+         ! Marine gas emissions; use online marine gas option only if CB6R3m is used
+         IF ( INDEX( MECHNAME, 'CB6R3M' ) .GT. 0 ) then
             MGEM = .TRUE.
          ELSE
             MGEM = .FALSE.
-         END IF
+         END IF        
          IF ( MGEM ) N_EM_SRM = N_EM_SRM + 1
 
          ! Lightning NO Emissions

@@ -222,6 +222,11 @@ set ParOpt                             #> uncomment to build a multiple processo
     set ModGas = gas/ebi_saprc07tic_ae6i_aq
  endif
 
+#> Cloud chemistry options
+ if ( $Mechanism == cb6r3m_ae7_kmtbr ) then
+    set ModCloud = cloud/acm_ae7_kmtbr
+ endif
+
 #> Tracer configuration files
  set ModTrac = MECHS/$Tracer
 

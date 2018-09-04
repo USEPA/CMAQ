@@ -30,6 +30,7 @@ C   07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module.
 C   12 Aug 15 D.Wong: Replaced MYPE with IO_PE_INCLUSIVE for parallel I/O implementation
 C   09 Dec 15 D.Wong: Open CTM_SSEMIS_1 file in a IO_PE_INCLUSIVE conditional block
 C   24 Mar 16 G.Sarwar: updated to calculate NACL emissions (needed for BR2 emissions) 
+C   16 Aug 18 G. Sarwar: Removed NACL
 C-----------------------------------------------------------------------
       USE RUNTIME_VARS
       USE HGRD_DEFN
@@ -703,7 +704,6 @@ C----------------------------- Begin calc ------------------------------
 
 C Initialize sea-salt output buffer
             IF ( SSEMDIAG .AND. WSTEP .EQ. 0 ) SSBF = 0.0
-            Met_Data%NACL_EMIS = 0.0
 
             DO R = 1, MY_NROWS
                DO C = 1, MY_NCOLS
@@ -860,17 +860,6 @@ C obtain speciated mass emissions.
                         SSOUTM( S,3,C,R ) = ESEASK * REAL( XSW, 4 )
      &                                    * SEA_SPC( S )%SPCFAC( 3 )
                      END IF
-
-                     IF( MAP_SEAtoAERO( S ) .EQ. ana_idx )
-     &                  Met_Data%NACL_EMIS( C,R ) = Met_Data%NACL_EMIS( C,R ) + SSOUTM( S,2,C,R ) / RLAY1HT
-                     ! 0.80 = ratio of seasalt emisisions with d<10 um to all K-mode emisisions, 
-                     ! 0.8373 = NA fraction in SEACAT
-                     ! 0.66984 = 0.80 * 0.8373
-                     IF( MAP_SEAtoAERO( S ) .EQ. aseacat_idx )
-     &                  Met_Data%NACL_EMIS( C,R ) = Met_Data%NACL_EMIS( C,R ) + SSOUTM( S,3,C,R ) / RLAY1HT * 0.66984
-                     IF( MAP_SEAtoAERO( S ) .EQ. acl_idx )
-     &                  Met_Data%NACL_EMIS( C,R ) = Met_Data%NACL_EMIS( C,R ) + SSOUTM( S,2,C,R ) / RLAY1HT
-     &                                                                        + SSOUTM( S,3,C,R ) / RLAY1HT * 0.80
 
                   END DO
 

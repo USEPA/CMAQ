@@ -583,7 +583,7 @@ C=======================================================================
 ! Time step part of laypoint
 
          USE GRID_CONF, ONLY : NCOLS, NROWS
-         USE RXNS_DATA, ONLY : MECHNAME !Get Chemical Mechanism Name
+!        USE RXNS_DATA, ONLY : MECHNAME !Get Chemical Mechanism Name
          USE CGRID_SPCS  ! CGRID mechanism species
          USE STK_PRMS    ! stack groups file
          USE STK_EMIS    ! hourly point source emissions
