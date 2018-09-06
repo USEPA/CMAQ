@@ -186,7 +186,7 @@
 
 
       ! Emissions Processes
-      CHARACTER( MAXLEN_CCTM_APPL ) :: EMISSCTRL  = '' ! Emission Control Filename
+      CHARACTER( MAXLEN_CCTM_APPL ) :: EMISSCTRL  = 'EMISSCTRL_NML' ! Emission Control Filename
       INTEGER :: EMLAYS        = 0       ! Emission Layers
       INTEGER :: N_FILE_GR     = 0       ! Number of Gridded Emission Files
       INTEGER :: N_FILE_TR     = 0       ! NUmber of Tracer Emission Files
@@ -595,13 +595,15 @@
       VARDESC= 'Flag for writing the photolysis rate diagnostic file'
       PHOTDIAG = GET_ENVYN( 'CTM_PHOTDIAG', VARDESC, PHOTDIAG )
 
+      IF( PHOTDIAG ) THEN
       ! Get desired number of layers for PHOTDIAG2 and PHOTDIAG3 files
-      VARDESC = 'Number of Layers for PHOTDIAG2 and PHOTDIAG3'
-      NLAYS_DIAG = GET_ENVINT( 'NLAYS_PHOTDIAG', VARDESC, NLAYS_DIAG )
+         VARDESC = 'Number of Layers for PHOTDIAG2 and PHOTDIAG3'
+         NLAYS_DIAG = GET_ENVINT( 'NLAYS_PHOTDIAG', VARDESC, NLAYS_DIAG )
 
       ! Get Desired Wavelengths for Diagnostic Output
-      VARDESC = 'Wavelengths for output on PHOTDIAG2 and PHOTDIAG3'
-      CALL GET_ENVLIST( 'NWAVE_PHOTDIAG', NWAVE, WAVE_ENV )
+        VARDESC = 'Wavelengths for output on PHOTDIAG2 and PHOTDIAG3'
+        CALL GET_ENVLIST( 'NWAVE_PHOTDIAG', NWAVE, WAVE_ENV )
+      END IF  
 
       ! Get flag to use core-shell mixing model for aerosol optical properties
       VARDESC = 'Use core-shell mixing model for aerosol optical properties'
