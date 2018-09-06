@@ -1,7 +1,7 @@
 #!/bin/csh -f
 
 # ===================== CCTMv5.3 Run Script ========================= 
-# Usage: run.cctm >&! cctm_v52b.log &                                
+# Usage: run.cctm >&! cctm_v53.log &                                
 #
 # To report problems or request help with this script/program:     
 #             http://www.epa.gov/cmaq    (EPA CMAQ Website)
@@ -33,7 +33,6 @@ echo 'Start Model Run At ' `date`
  set VRSN      = v53               #> Code Version
  set PROC      = mpi               #> serial or mpi
  set MECH      = cb6r3_ae7_aq      #> Mechanism ID
- set EMIS      = 2013ef            #> Emission Inventory Details
  set APPL      = SE52BENCH         #> Application Name (e.g. Gridname)
                                                        
 #> Define RUNID as any combination of parameters above or others. By default,
@@ -43,8 +42,8 @@ echo 'Start Model Run At ' `date`
 
 #> Set the build directory (this is where the CMAQ executable
 #> is located by default).
- setenv BLD    ${CMAQ_HOME}/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}
- set EXEC    = CCTM_${VRSN}.exe  
+ set BLD       = ${CMAQ_HOME}/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}
+ set EXEC      = CCTM_${VRSN}.exe  
 
 #> Output Each line of Runscript to Log File
  if ( $CTM_DIAG_LVL != 0 ) set echo 
@@ -209,16 +208,16 @@ setenv NLAYS_PHOTDIAG "3"    #> Number of layers for PHOTDIAG2 and PHOTDIAG3 fro
                                                       #>   in PHOTDIAG2 and PHOTDIAG3 
                                                       #>   [ default: all wavelengths ]
 
-setenv CTM_SSEMDIAG Y        #> sea-salt emissions diagnostic file [ default: N ]
+setenv CTM_SSEMDIAG Y        #> sea-spray emissions diagnostic file [ default: N ]
 setenv CTM_DUSTEM_DIAG Y     #> windblown dust emissions diagnostic file [ default: N ]; 
                              #>     Ignore if CTM_WB_DUST = N
 setenv CTM_DEPV_FILE Y       #> deposition velocities diagnostic file [ default: N ]
 setenv VDIFF_DIAG_FILE Y     #> vdiff & possibly aero grav. sedimentation diagnostic file [ default: N ]
 setenv LTNGDIAG Y            #> lightning diagnostic file [ default: N ]
-setenv B3GTS_DIAG Y          #> beis mass emissions diagnostic file [ default: N ]
-setenv PT3DDIAG N            #> 3D point source emissions diagnostic file [ default: N]; 
+setenv B3GTS_DIAG Y          #> BEIS mass emissions diagnostic file [ default: N ]
+setenv PT3DDIAG N            #> 3D point source emissions diagnostic file [ default: N];
                              #>     Ignore if CTM_PT3DEMIS = N
-setenv PT3DFRAC N            #> layer fractions diagnostic (play) file(s) [ default: N]; 
+setenv PT3DFRAC N            #> layer fractions diagnostic (play) file(s) [ default: N];
                              #>     Ignore if CTM_PT3DEMIS = N
 setenv REP_LAYER_MIN -1      #> Minimum layer for reporting plume rise info [ default: -1 ]
 setenv EMISDIAG F            #> Print Emission Rates at the output time step after they have been
@@ -228,7 +227,7 @@ setenv EMISDIAG F            #> Print Emission Rates at the output time step aft
                              #>       MG_EMIS_DIAG    | LTNG_EMIS_DIAG   | DUST_EMIS_DIAG
                              #>       SEASPRAY_EMIS_DIAG
                              #>   Note that these diagnostics are different than other emissions diagnostic
-                             #>   output because they occur after scaling. 
+                             #>   output because they occur after scaling.
 set DISP = delete            #> [ delete | keep ] existing output files
 
 # =====================================================================
@@ -244,7 +243,7 @@ set METpath   = $INPDIR/met/mcip          #> meteorology input directory
 #set JVALpath  = $INPDIR/jproc            #> offline photolysis rate table directory
 set OMIpath   = $BLD                      #> ozone column data for the photolysis model
 set LUpath    = $INPDIR/land              #> BELD landuse data for windblown dust model
-set SZpath    = $INPDIR/land              #> surf zone file for in-line seasalt emissions
+set SZpath    = $INPDIR/land              #> surf zone file for in-line seaspray emissions
 
 # =====================================================================
 #> Begin Loop Through Simulation Days
@@ -287,12 +286,10 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #> Initial conditions
   if ($NEW_START == true || $NEW_START == TRUE ) then
      setenv ICFILE ICON_20110630_bench.nc
-     setenv INIT_MEDC_1 notused
      setenv INITIAL_RUN Y #related to restart soil information file
   else
      set ICpath = $OUTDIR
      setenv ICFILE CCTM_CGRID_${RUNID}_${YESTERDAY}.nc
-     setenv INIT_MEDC_1 $ICpath/CCTM_MEDIA_CONC_${RUNID}_${YESTERDAY}
      setenv INITIAL_RUN N
   endif
 
@@ -324,12 +321,11 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #> Spatial Masks For Emissions Scaling
   setenv CMAQ_MASKS $SZpath/12US1_surf_bench.nc #> horizontal grid-dependent surf zone file
 
-  #> Gridded Emissions files 
+  #> Gridded Emissions Files 
   setenv N_EMIS_GR 1
-  set    EMISfile  = emis_mole_all_${YYYYMMDD}_cb6_bench.nc
+  set EMISfile  = emis_mole_all_${YYYYMMDD}_cb6_bench.nc
   setenv GR_EMIS_001 ${EMISpath}/${EMISfile}
   setenv GR_EMIS_LAB_001 GRIDDED_EMIS
-  #setenv GR_EMIS_DIAG_001 2D
   setenv GR_EM_DTOVRD_001 F
 
   #> In-line point emissions configuration
@@ -354,13 +350,14 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      setenv STK_EMIS_005 $IN_PTpath/pt_oilgas/inln_mole_pt_oilgas_${YYYYMMDD}_${STKCASEE}.nc
      setenv LAYP_STDATE $YYYYJJJ
 
-    # Label Each Emissions Stream
+     # Label Each Emissions Stream
      setenv STK_EMIS_LAB_001 POINT_NONEGU
      setenv STK_EMIS_LAB_002 POINT_EGU
      setenv STK_EMIS_LAB_003 POINT_OTHER
      setenv STK_EMIS_LAB_004 POINT_FIRES
      setenv STK_EMIS_LAB_005 POINT_OILGAS
 
+     # Stack emissions diagnostic files
      #setenv STK_EMIS_DIAG_001 2DSUM
      #setenv STK_EMIS_DIAG_002 2DSUM
      #setenv STK_EMIS_DIAG_003 2DSUM
