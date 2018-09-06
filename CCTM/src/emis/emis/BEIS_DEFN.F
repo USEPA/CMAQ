@@ -17,10 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/BEIS_DEFN.F,v 1.5 2011/10/21 16:10:45 yoj Exp $
-
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE BEIS_DEFN
 
@@ -33,10 +29,11 @@ C     16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C     10 May 2011 D.Wong: incorporated twoway model implementation
 
 C-----------------------------------------------------------------------
+      USE RUNTIME_VARS
 
       IMPLICIT NONE
 
-      LOGICAL,              SAVE :: BIOGEMIS   ! flag to in-line beis
+      INTEGER,              SAVE :: N_SPC_BIOG ! biogenics emissions species
       REAL,    ALLOCATABLE, SAVE :: VDEMIS_BI( :,:,: ) ! beis emis
       INTEGER, ALLOCATABLE, SAVE :: BEIS_MAP( : ) ! map to GC
       CHARACTER( 16 ),      SAVE :: CTM_BIOGEMIS = 'CTM_BIOGEMIS'! env var for
@@ -61,29 +58,31 @@ C=======================================================================
 
          REAL, PARAMETER :: CMLMR = 1.0E+06       ! ppmV/Molar Mixing Ratio
 
-                                                               ! in-line beis
          CHARACTER( 16 )       :: PNAME = 'BEIS_INIT'
          CHARACTER( 80 )       :: VARDESC   ! env variable description
          CHARACTER( 120 )      :: XMSG = ' '
 
-         INTEGER V, K, LOGDEV, STATUS
+         INTEGER N_SPC
+         REAL    CONVEM               ! conversion for emissions rates to Kg/s
+         INTEGER V, K, STATUS
 
 C-----------------------------------------------------------------------
 
          SUCCESS = .TRUE.
 
-         LOGDEV = INIT3()
-
 C In-line biogenic emissions?
+         CALL LOG_SUBHEADING( LOGDEV, 'Initialize Online Biogenic VOC Emissions Module (BEIS)' )
+
+C biogenics to gas-phase species map
          IF ( BIOGEMIS ) THEN
 
             XMSG = 'Using in-line biogenic emissions option'
             CALL M3MSG2( XMSG )
 
             IF ( .NOT. BIOG_INIT() ) THEN
-               XMSG = 'Could not initialize biogenic emissions variables'
-               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-               SUCCESS = .FALSE.; RETURN
+                XMSG = 'Could not initialize biogenic emissions variables'
+                CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+                SUCCESS = .FALSE.; RETURN
             END IF
 
             ALLOCATE( VDEMIS_BI( MSPCS,MY_NCOLS,MY_NROWS ), STAT = STATUS )

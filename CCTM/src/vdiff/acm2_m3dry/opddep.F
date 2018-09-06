@@ -25,7 +25,7 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
  
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE OPDDEP ( JDATE, JTIME, TSTEP, N_SPC_DDEP, ABFLUX )
+      SUBROUTINE OPDDEP ( JDATE, JTIME, TSTEP, N_SPC_DDEP )
 
 C   30 Mar 01 J.Young: dyn alloc - Use HGRD_DEFN
 C   03 Sep 01 David Wong: for new pario
@@ -37,6 +37,7 @@ C   11 May 11 J.Bash: Modified to output NH3 bidi component fluxes
 C   04 Jan 12 J.Young: Initalize char strings with blank padding
 C   08 Jun 12 J.Young: remove full character blank padding for GNU Fortran (GCC) 4.1.2
 
+      USE RUNTIME_VARS, ONLY : ABFLUX
       USE GRID_CONF           ! horizontal & vertical domain specifications
       USE CGRID_SPCS          ! CGRID mechanism species
       USE UTILIO_DEFN
@@ -51,7 +52,6 @@ C Arguments:
       INTEGER, INTENT( IN ) :: JTIME  ! current model time, coded HHMMSS
       INTEGER, INTENT( IN ) :: TSTEP  ! output time step
       INTEGER, INTENT( IN ) :: N_SPC_DDEP ! no. of dry dep species
-      LOGICAL, INTENT( IN ) :: ABFLUX
 
 C Local variables:
 

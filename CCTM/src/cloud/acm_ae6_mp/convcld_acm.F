@@ -16,7 +16,8 @@
 !  General Public License or the GNU Lesser General Public License is    !
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
-!:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
        SUBROUTINE CONVCLD_ACM ( CGRID, JDATE, JTIME, TSTEP,
      &                         N_SPC_WDEP, WDEP_MAP, CONV_DEP, SUBTRANS )
 
@@ -118,8 +119,9 @@ C-----------------------------------------------------------------------
       USE UTILIO_DEFN
       USE AQ_DATA
       USE HG_AQCHEM_DATA      ! mercury chemistry parameters and constants
-      USE PHOT_MET_DATA, ONLY: USE_ACM_CLOUD, CLEAR_ACM_CLOUD, CAPTURE_ACM_CLOUD
       USE ASX_DATA_MOD,  ONLY: GRID_DATA, MET_DATA
+      USE PHOT_MOD,      ONLY: RJ, RJ_RES, RJ_SUB, LH2O2_PHOTOLYSIS => LH2O2,
+     &                   LHNO3_PHOTOLYSIS => LHNO3
 
       IMPLICIT NONE
 
@@ -151,6 +153,9 @@ C critical rel humidity for ocean
 
 C intermediate factor
       REAL            :: XKM
+
+C factor convert 1/min to 1/sec
+      REAL, PARAMETER :: MINPERSEC = 1.0 / 60.0 
 
 C param contlng sidewall entrainment function for raining clouds
       REAL, PARAMETER :: SIDEFAC = 0.5
@@ -221,7 +226,6 @@ C-------for ACM version - jp 2/05        REAL DPB
       REAL, ALLOCATABLE, SAVE :: CONC( :,: )
       REAL, ALLOCATABLE, SAVE :: CBELOW( : )
 C-------------------------------------------
-      INTEGER, SAVE :: LOGDEV
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE. ! flag for first pass thru
       LOGICAL, SAVE :: CONVCLD = .TRUE.  ! flag for modeling convective clds
@@ -281,6 +285,8 @@ C-------------------------------------------
       REAL             FRAC             ! cloud fractional coverage
       REAL             FTST             ! functional product in Walcek bisection solver
       REAL             HTST             ! temp diff in Walcek bisection solver
+      REAL             JH2O2_BAR        ! mean H2O2 photolysis rate in subgrid cloud, 1/min
+      REAL             JHNO3_BAR        ! mean HNO3 photolysis rate in subgrid cloud, 1/min
       REAL, SAVE    :: METSTEP          ! timestep on the met file
       REAL             P1               ! intermediate pressure used in calculating WL
       REAL             P2               ! intermediate pressure used in calculating WL
@@ -357,6 +363,8 @@ C-------------------------------------------
       REAL          :: DZZL ( NLAYS )              ! grid cell delta Z
       REAL          :: PRES ( NCOLS,NROWS,NLAYS )  ! file gridded vble
       REAL          :: PRESL( NLAYS )              ! grid cell pressure
+      REAL          :: JH2O2( NLAYS )              ! H2O2 photolysis rate (1/min)   
+      REAL          :: JHNO3( NLAYS )              ! HNO3 photolysis rate (1/min)   
       REAL          :: QAD  ( NLAYS )              ! moist adiab. sat. mix ratio
       REAL          :: QV   ( NCOLS,NROWS,NLAYS )  ! input gridded vble
       REAL          :: QVL  ( NLAYS )              ! grid cell sp. hum.
@@ -381,9 +389,6 @@ C Latitude and longitude for zenith angle calculation:
 
       CHARACTER( 120 ) :: XMSG = ' '   ! Exit status message
 
-C...........External Functions
-
-      INTEGER, EXTERNAL :: SETUP_LOGDEV
 
 C...........Statement Functions
 
@@ -433,7 +438,6 @@ C...  event-statistics variables.
       IF ( FIRSTIME ) THEN
 
         FIRSTIME = .FALSE.
-        LOGDEV = INIT3()
 
         IF ( N_AE_SPC .GT. 0 ) THEN
           ALLOCATE ( AECONCMIN( N_AE_SPC ), STAT = ALLOCSTAT )
@@ -614,10 +618,6 @@ C...  set the time to the half hour for data interpolation
       
       END IF
 
-C...clear arrays that capture ACM cloud results
-
-      IF ( USE_ACM_CLOUD ) CALL CLEAR_ACM_CLOUD( JDATE, JTIME )
-
 C...ACTUAL SCIENCE PROCESS (loop on internal process time steps):
 C...  Interpolate time dependent layered input variables
 C...  (reading those variables for which it is necessary)
@@ -744,6 +744,8 @@ C...Loop through all grid cells
             QVL( LAY )   = QV( COL,ROW,LAY )
             DZZL( LAY )  = DZZ( COL,ROW,LAY )
             DENSL( LAY ) = PRESL( LAY ) / ( RDGAS * TAL( LAY ) )
+            JH2O2( LAY ) = RJ_SUB( COL,ROW,LAY,LH2O2_PHOTOLYSIS )
+            JHNO3( LAY ) = RJ_SUB( COL,ROW,LAY,LHNO3_PHOTOLYSIS )
           END DO
 
 C...load aerosol minimum concentrations into the "CONCMINL" array
@@ -1103,6 +1105,8 @@ C...Initialize variables needed for entrainment and in-cloud properties solver
           WCBAR = 0.0  ! condensed wat cont (kg/m2) integ. thru cloud depth
           WTBAR = 0.0  ! total wat cont (kg/m2) integrated thru cloud depth
           TBARC = 0.0  ! cloud mean temp (K)
+          JH2O2_BAR = 0.0 ! cloud H2O2 photolysis, 1/min
+          JHNO3_BAR = 0.0 ! cloud HNO3 photolysis, 1/min
 
 C...Determine condensed water content and entrainment at each cloud level
 C...  Determine FSIDE profile for raining clouds; side entrainment
@@ -1268,6 +1272,10 @@ C...weighted cloud temp
 C...weighted cloud pres
             PBARC = PBARC + PRESL( LAY ) * DZZL( LAY ) * LWC( LAY )
 
+C...weighted photolysis rate 
+            JH2O2_BAR = JH2O2_BAR + JH2O2( LAY ) * DZZL( LAY ) * LWC( LAY )     
+            JHNO3_BAR = JHNO3_BAR + JHNO3( LAY ) * DZZL( LAY ) * LWC( LAY )     
+
 C...integrated liquid water content (kg/m3)
             WCBAR = WCBAR + DZZL( LAY ) * LWC( LAY )
 
@@ -1350,7 +1358,8 @@ C...again partition into ice and liquid
             WCBAR = WCBAR + DZZL( LAY ) * LWC( LAY )
             WTBAR = WTBAR + DZZL( LAY ) * TWC
             CTHK = CTHK + DZZL( LAY )
-
+            JH2O2_BAR = JH2O2_BAR + JH2O2( LAY ) * DZZL( LAY ) * LWC( LAY )
+            JHNO3_BAR = JHNO3_BAR + JHNO3( LAY ) * DZZL( LAY ) * LWC( LAY )
 C...excess water is all rain
 
             QXS = QXS + QWAT( LAY ) * RHOAIR * DZZL( LAY )
@@ -1372,11 +1381,6 @@ C...Final calc of storm rainfall rate and frac area (raining clds)
           CONV_DEP( COL,ROW, N_SPC_WDEP + 7 ) = FRAC
 
 7000      CONTINUE                        ! target of cloudtype split
-
-          IF ( USE_ACM_CLOUD ) THEN
-            CALL CAPTURE_ACM_CLOUD( JDATE, JTIME, COL, ROW, CLBASE, CLTOP,
-     &                              FRAC, QLQD, QICE )
-          END IF
 
 C...Begin mixing section, perform first for raining clouds using
 C...  modified form of original Walcek mixing for RADM: mixing
@@ -1447,6 +1451,9 @@ C...Compute cloud mean quantities
           TBARC = TBARC / WCBAR          ! deg K (note WCBAR has hidden factor CTHK in it)
           PBARC = PBARC / WCBAR          ! avg cloud pres, Pa
 
+          JH2O2_BAR = JH2O2_BAR / WCBAR  ! avg H2O2 photolysis, 1/min
+          JHNO3_BAR = JHNO3_BAR / WCBAR  ! avg HNO3 photolysis, 1/min
+
           WCBAR = WCBAR / CTHK           ! avg liq wat content in kg/m3
 
           WTBAR = WTBAR / CTHK           ! avg con wat content in kg/m3
@@ -1511,8 +1518,14 @@ C...  determine day or night from cosine of zenith angle for the cell; Golam Sar
 
             IF ( COSZ .LE. 0.0 ) THEN
               DARK = .TRUE.   ! night
+C...set mean photolysis rates to zero
+              JH2O2_HYDROMETEORS = 0.0D0 
+              JHNO3_HYDROMETEORS = 0.0D0
             ELSE
               DARK = .FALSE.  ! day
+C...convert mean photolysis rates to 1/sec
+              JH2O2_HYDROMETEORS = REAL( JH2O2_BAR * MINPERSEC, 8 ) 
+              JHNO3_HYDROMETEORS = REAL( JHNO3_BAR * MINPERSEC, 8 )
             END IF
 
 C...  update variables used in hg_aqchem_data modules

@@ -29,11 +29,11 @@ C*************************************************************************
 C
 C  FUNCTION:  Mechanism & solver data for EBI solver
 C
-C  PRECONDITIONS: For the SAPRC07TIC family of mechanisms
+C  PRECONDITIONS: For the saprc07tic family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Aug 13, 2018
+C  REVISION HISTORY: Created by EBI solver program, Aug 20, 2018
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables for solution
 C*************************************************************************
@@ -41,7 +41,7 @@ C*************************************************************************
 c..EBI solver fixed parameters
       INTEGER, PARAMETER    ::  NEBITER       = 1000     ! No. of iterations for EBI
       INTEGER, PARAMETER    ::  MAX_CELLS_EBI = 1        ! max # cells in local conc arrays
-      REAL( 8 ), PARAMETER  ::  DELTAT        = 2.5D+00  ! EBI time step
+      REAL( 8 ), PARAMETER  ::  DELTAT        = 1.25D+00 ! EBI time step
 
 c..Mechanism specific variables
       INTEGER   N_SPEC       ! No. of species in mechanism
@@ -56,10 +56,10 @@ c..Mechanism specific variables
 c..Control flags
       LOGICAL   L_AE_VRSN    ! Flag for aerosol version of mech
       LOGICAL   L_AQ_VRSN    ! Flag for aqueous chemistry version of mech
+      LOGICAL   CALL_IRR     ! Flag initializing for IRR and calling PA_IRR
 
 
 c..Miscellaneous variables
-      INTEGER   LOGDEV        ! Unit number of output log
       INTEGER   N_EBI_IT      ! No. of iterations for EBI
       INTEGER   N_EBI_STEPS   ! No. of time steps for EBI
       INTEGER   N_INR_STEPS   ! No. of inner time steps for EBI
@@ -91,7 +91,6 @@ c...Allocatable arrays
       REAL, ALLOCATABLE      :: PRES( :, :, : )          ! pressure (Pa)
       REAL, ALLOCATABLE      :: QV  ( :, :, : )          ! water vapor (Kg/Kg air)
       REAL, ALLOCATABLE      :: TA  ( :, :, : )          ! temperature (K)
-      REAL, ALLOCATABLE      :: RJ  ( :, :, :, : )       ! J-values (min-1)
 
       REAL, ALLOCATABLE      :: SEAICE ( :, :)            ! fractional seaice cover, [-]
       REAL, ALLOCATABLE      :: DENS( :, :, : )           ! mass density (Kg/m^3)
@@ -99,6 +98,7 @@ c...Allocatable arrays
       REAL,    ALLOCATABLE   :: OPEN_ZONE   ( :,: )       ! fractional sea water cover, [-]
       REAL,    ALLOCATABLE   :: SURF_ZONE   ( :,: )       ! fractional surf-zone cover, [-]
       LOGICAL, ALLOCATABLE   :: LAND_ZONE   ( :,: )       ! Is the surface totally land?
+      LOGICAL, ALLOCATABLE   :: LFLAGIRR    ( :,:,: )     ! Conduct IRR for cell
 
       REAL( 8 ), ALLOCATABLE ::  ATMPRES ( : )     ! Cell pressure, Atm
 !      REAL( 8 ), ALLOCATABLE ::  PRESCELL( : )         ! Cell pressure, Pa
@@ -231,9 +231,9 @@ c..Species indices
       INTEGER, PARAMETER :: ALK4             =  120
       INTEGER, PARAMETER :: ALK5             =  121
       INTEGER, PARAMETER :: SOAALK           =  122
-      INTEGER, PARAMETER :: SV_AVB2          =  123
-      INTEGER, PARAMETER :: SV_AVB3          =  124
-      INTEGER, PARAMETER :: SV_AVB4          =  125
+      INTEGER, PARAMETER :: SVAVB2           =  123
+      INTEGER, PARAMETER :: SVAVB3           =  124
+      INTEGER, PARAMETER :: SVAVB4           =  125
       INTEGER, PARAMETER :: OLE1             =  126
       INTEGER, PARAMETER :: OLE2             =  127
       INTEGER, PARAMETER :: ARO1             =  128
@@ -259,7 +259,7 @@ c..Species indices
       INTEGER, PARAMETER :: CLCCHO           =  148
       INTEGER, PARAMETER :: CLACET           =  149
       INTEGER, PARAMETER :: CLCHO            =  150
-      INTEGER, PARAMETER :: SV_AVB1          =  151
+      INTEGER, PARAMETER :: SVAVB1           =  151
       INTEGER, PARAMETER :: HCHO_PRIMARY     =  152
       INTEGER, PARAMETER :: CCHO_PRIMARY     =  153
       INTEGER, PARAMETER :: ACRO_PRIMARY     =  154

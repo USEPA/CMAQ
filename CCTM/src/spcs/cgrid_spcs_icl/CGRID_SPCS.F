@@ -17,10 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/spcs/cgrid_spcs_icl/CGRID_SPCS.F,v 1.4 2011/10/21 16:11:34 yoj Exp $
-
 c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       module cgrid_spcs
 
@@ -100,17 +96,10 @@ c init routine to set the CGRID species locations
             implicit none
 
 
-#ifdef Verbose
-            integer, save :: logdev
-#endif
-
             logical success
             logical, save :: firstime = .true.
 
 c----------------------------------------------------------------------------------------
-#ifdef Verbose
-            logdev = init3 ()
-#endif
             success = .true.
 
 c intialize module public data

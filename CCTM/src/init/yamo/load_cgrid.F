@@ -17,15 +17,8 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/init/yamo/load_cgrid.F,v 1.9 2012/01/19 14:47:23 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE LOAD_CGRID ( FNAME, JDATE, JTIME, SPC_CAT, CMIN, CGRID )
+      SUBROUTINE LOAD_CGRID ( FNAME, SPC_CAT, CMIN, CGRID )
 
 C-----------------------------------------------------------------------
 C Function:
@@ -140,8 +133,6 @@ C for XTRACT3
                                                !      (N, M2, M3) - Before
                                                !      (N, M2, M3) - After
       REAL          :: AECON( N_AE_SPC )
-      LOGICAL       :: NEW_START
-      CHARACTER( 16 ) :: CTM_NEW_START = 'NEW_START'
 
       CHARACTER( 16 ) :: PNAME = 'LOAD_CGRID'
       CHARACTER( 16 ) :: VNAME
@@ -157,13 +148,15 @@ C for XTRACT3
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
       LOGICAL       :: LSTAT
 
-      INTEGER, SAVE :: LOGDEV
-
 C-----------------------------------------------------------------------
+
+      JDATE = STDATE
+      JTIME = STTIME
 
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
-         LOGDEV = INIT3 ()
+
+         CALL LOG_HEADING( LOGDEV, 'Load Initial Conditions' ) 
          CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
      &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
 C IOFDESC common now loaded with MET_CRO_3D header
@@ -228,13 +221,14 @@ C Get INDX
       END DO
 
       IF ( SPC_CAT .EQ. 'GC' ) THEN
-         WRITE( LOGDEV,1009 ) 'transported gas-phase species'
+         WRITE( XMSG,1009 ) 'transported gas-phase (reactive) species'
+         WRITE( LOGDEV, * )
+         CALL LOG_MESSAGE( LOGDEV, XMSG )
          SPC_STRT = GC_STRT
          N_SPCS = N_GC_SPC
          DO SPC = 1, N_SPCS
 C is there a surrogate name?
             ISUR = FINDEX ( SPC, N_GC_ICBC, GC_ICBC_MAP )
-!           write( logdev,* ) '=c=spc,isur: ', spc, isur
             NDX = 0
             IF ( ISUR .NE. 0 ) THEN
 C is it on the IC file?
@@ -243,7 +237,6 @@ C is it on the IC file?
 C if there`s a surrogate name, CGRID_SPCS handles setting GC_ICBC_FAC
                   INDX( SPC ) = NDX   ! index in the IC file
                   ICBC_FAC( SPC ) = GC_ICBC_FAC( ISUR )
-!                 write( logdev,* ) '=c=_fac in sur: ', icbc_fac( spc )
                ELSE
                   XMSG = ESTR1 // TRIM( GC_ICBC( ISUR ) ) // ESTR2 // 
      &                   TRIM(GC_SPC( SPC ))
@@ -262,24 +255,20 @@ C If there is no surrogate or it cannot be found, look for the (main) species na
                END IF
             END IF
 
-#ifdef verbose_load_cgrid
-            write( logdev,* ) '=c=spc,indx: ', spc, indx( spc ), trim( gc_spc( spc ) ),
-     &                        '   icbc_fac:', icbc_fac( spc )
-            write( logdev,* ) ' '
-#endif
             IF ( INDX( SPC ) .GT. 0 )
      &         WRITE( LOGDEV,1013 ) INDX( SPC ), GC_SPC( SPC ), ICBC_FAC( SPC )
 
          END DO
 
       ELSE IF ( SPC_CAT .EQ. 'AE' ) THEN
-         WRITE( LOGDEV,1009 ) 'transported aerosol species'
+         WRITE( XMSG,1009 ) 'transported aerosol species'
+         WRITE( LOGDEV, * )
+         CALL LOG_MESSAGE( LOGDEV, XMSG )
          SPC_STRT = AE_STRT
          N_SPCS = N_AE_SPC
          DO SPC = 1, N_SPCS
 C is there a surrogate name?
             ISUR = FINDEX ( SPC, N_AE_ICBC, AE_ICBC_MAP )
-!           write( logdev,* ) '=c=spc,isur: ', spc, isur
             NDX = 0
             IF ( ISUR .NE. 0 ) THEN
 C is it on the IC file?
@@ -287,7 +276,6 @@ C is it on the IC file?
                IF ( NDX .NE. 0 ) THEN
                   INDX( SPC ) = NDX   ! index in the IC file
                   ICBC_FAC( SPC ) = AE_ICBC_FAC( ISUR )
-!                 write( logdev,* ) '=c=_fac in sur: ', icbc_fac( spc )
                ELSE
                   XMSG = ESTR1 // TRIM( AE_ICBC( ISUR ) ) // ESTR2 // 
      &                   TRIM(AE_SPC( SPC ))
@@ -306,24 +294,20 @@ C If there is no surrogate or it cant be found, look for the (main) species name
                END IF
             END IF
 
-#ifdef verbose_load_cgrid
-            write( logdev,* ) '=c=spc,indx: ', spc, indx( spc ), trim( ae_spc( spc ) ),
-     &                        '   icbc_fac:', icbc_fac( spc )
-            write( logdev,* ) ' '
-#endif
             IF ( INDX( SPC ) .GT. 0 )
      &         WRITE( LOGDEV,1013 ) INDX( SPC ), AE_SPC( SPC ), ICBC_FAC( SPC )
  
          END DO
 
       ELSE IF ( SPC_CAT .EQ. 'NR' ) THEN
-         WRITE( LOGDEV,1009 ) 'transported non-reactive gas species'
+         WRITE( XMSG,1009 ) 'transported non-reactive gas species'
+         WRITE( LOGDEV, * )
+         CALL LOG_MESSAGE( LOGDEV, XMSG )
          SPC_STRT = NR_STRT
          N_SPCS = N_NR_SPC
          DO SPC = 1, N_SPCS
 C is there a surrogate name?
             ISUR = FINDEX ( SPC, N_NR_ICBC, NR_ICBC_MAP )
-!           write( logdev,* ) '=c=spc,isur: ', spc, isur
             NDX = 0
             IF ( ISUR .NE. 0 ) THEN
 C is it on the IC file?
@@ -331,7 +315,6 @@ C is it on the IC file?
                IF ( NDX .NE. 0 ) THEN
                   INDX( SPC ) = NDX   ! index in the IC file
                   ICBC_FAC( SPC ) = NR_ICBC_FAC( ISUR )
-!                 write( logdev,* ) '=c=_fac in sur: ', icbc_fac( spc )
                ELSE
                   XMSG = ESTR1 // TRIM( NR_ICBC( ISUR ) ) // ESTR2 // 
      &                   TRIM(NR_SPC( SPC ))
@@ -350,24 +333,20 @@ C If there is no surrogate or it cant be found, look for the (main) species name
                END IF
             END IF
 
-#ifdef verbose_load_cgrid
-            write( logdev,* ) '=c=spc,indx: ', spc, indx( spc ), trim( nr_spc( spc ) ),
-     &                        '   icbc_fac:', icbc_fac( spc )
-            write( logdev,* ) ' '
-#endif
             IF ( INDX( SPC ) .GT. 0 )
      &         WRITE( LOGDEV,1013 ) INDX( SPC ), NR_SPC( SPC ), ICBC_FAC( SPC )
 
          END DO
 
       ELSE IF ( SPC_CAT .EQ. 'TR' ) THEN
-         WRITE( LOGDEV,1009 ) 'transported inert tracer gas species'
+         WRITE( XMSG, 1009 ) 'transported inert tracer gas species'
+         WRITE( LOGDEV, * )
+         CALL LOG_MESSAGE( LOGDEV, XMSG )
          SPC_STRT = TR_STRT
          N_SPCS = N_TR_SPC
          DO SPC = 1, N_SPCS
 C is there a surrogate name?
             ISUR = FINDEX ( SPC, N_TR_ICBC, TR_ICBC_MAP )
-!           write( logdev,* ) '=c=spc,isur: ', spc, isur
             NDX = 0
             IF ( ISUR .NE. 0 ) THEN
 C is it on the IC file?
@@ -375,7 +354,6 @@ C is it on the IC file?
                IF ( NDX .NE. 0 ) THEN
                   INDX( SPC ) = NDX   ! index in the IC file
                   ICBC_FAC( SPC ) = TR_ICBC_FAC( ISUR )
-!                 write( logdev,* ) '=c=_fac in sur: ', icbc_fac( spc )
                ELSE
                   XMSG = ESTR1 // TRIM( TR_ICBC( ISUR ) ) // ESTR2 // 
      &                   TRIM(TR_SPC( SPC ))
@@ -394,11 +372,6 @@ C If there is no surrogate or it cant be found, look for the (main) species name
                END IF
             END IF
 
-#ifdef verbose_load_cgrid
-            write( logdev,* ) '=c=spc,indx: ', spc, indx( spc ), trim( tr_spc( spc ) ),
-     &                        '   icbc_fac:', icbc_fac( spc )
-            write( logdev,* ) ' '
-#endif
             IF ( INDX( SPC ) .GT. 0 )
      &         WRITE( LOGDEV,1013 ) INDX( SPC ), TR_SPC( SPC ), ICBC_FAC( SPC )
 
@@ -406,7 +379,6 @@ C If there is no surrogate or it cant be found, look for the (main) species name
 
       ELSE IF ( SPC_CAT .EQ. 'RJ' ) THEN
          N_SPCS = 0
-!        WRITE( LOGDEV,'(/ 5X, A)' ) 'loading Density*Jacobian into CGRID'
       ELSE
          XMSG = 'Species categories incorrect for CGRID '
          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
@@ -423,9 +395,6 @@ C IOFDESC common now loaded with FNAME header
          NDX = INDX( SPC )
 
          IF ( NDX .GT. 0 ) THEN
-#ifdef verbose_load_cgrid
-            write( logdev,* ) '=vname3d=: ', spc, v, ndx, icbc_fac( spc ), vname3d( ndx )
-#endif
             IF ( .NOT. XTRACT3( FNAME, VNAME3D ( NDX ),
      &           1,NLAYS, STRTROWINI,ENDROWINI, STRTCOLINI,ENDCOLINI,
      &           JDATE, JTIME, DBUFF ) ) THEN
@@ -464,8 +433,8 @@ C IOFDESC common now loaded with FNAME header
       END DO
  
 
-      IF ( N_SPCS .NE. 0 ) WRITE( LOGDEV,'(/ 5X, A)' )
-     &                            SPC_CAT // ' loaded into CGRID'
+      !IF ( N_SPCS .NE. 0 ) WRITE( LOGDEV,'(/ 5X, A)' )
+      !&                            SPC_CAT // ' loaded into CGRID'
 
       IF ( SPC_CAT .EQ. 'RJ' ) THEN
 
@@ -488,17 +457,15 @@ C Load RHOJ for transport and mixing ratio advection adjustment
             END DO
          END DO
 
-         WRITE( LOGDEV,'(/ 5X, A)' ) 'Density*Jacobian loaded into CGRID'
+         !WRITE( LOGDEV,'(/ 5X, A)' ) 'Density*Jacobian loaded into CGRID'
 
-!        write( logdev,'( a,i7,i7.6,1pe15.7 )' ) 'rhoj sum1:', jdate, jtime, sum( rhoj )
 
       END IF
 
       IF ( SPC_CAT .EQ. 'AE' ) THEN
- 
+         CALL LOG_SUBHEADING( LOGDEV, 'Check Aerosol IC Size Distributions' )
+
          ! Check Aerosol Size Distributions and Warn the User if They Are Not Robust
-         NEW_START = ENVYN( CTM_NEW_START, 'Flag for Model Restart from Previous Day', 
-     &                      .FALSE., STAT )
          IF ( NEW_START ) THEN
            SPC_STRT = AE_STRT
            SPC_FINI = AE_STRT + N_AE_SPC - 1
@@ -531,15 +498,16 @@ C Load RHOJ for transport and mixing ratio advection adjustment
 
            !Print warning if any aerosol ICs violated the size distribution parameters
            IF ( LSTAT ) THEN    
-               WRITE( XMSG2, '(A55,A57,A5)' ),
-     &            'Applying fix to aerosol Initial Conditions for aerosol',
-     &            ' modes. Turn on verbose_loadcgrid preprocessor flag to learn ',
-     &            'more.'
-               CALL M3WARN( 'Read ICs', JDATE, JTIME, XMSG2 )
+               WRITE( XMSG2, '(A)' ),
+     &            'ATTENTION: Applying fix to aerosol Initial' //
+     &            ' Conditions for aerosol modes.' //
+     &            ' Set verbose_loadcgrid preprocessor flag to' //
+     &            ' learn more.'
+               CALL LOG_MESSAGE( LOGDEV, XMSG2 )
            END IF
          END IF
 
-C are ASO4J IC`s available on the file?
+C are ASO4J ICs available on the file?
 
          VNAME = 'ASO4J'
          NDX = INDEX1( VNAME, NVARS3D, VNAME3D )
@@ -666,15 +634,8 @@ C correct sulfate vapor concentration for part removed:
 
       END IF  !  SPC_CAT .EQ. 'AE'
 
-C Close the file
-
-!     IF ( .NOT. CLOSE3( FNAME ) ) THEN
-!        XMSG = 'Could not close ' // FNAME // ' file'
-!        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-!     END IF
-
       RETURN
 
-1009  FORMAT( / 5X, 'IC/BC Factors used for ', A )
+1009  FORMAT( 'Initial Condition Factors used for ', A )
 1013  FORMAT( 5X, I3, 2X, A, 1PG13.5 )
       END

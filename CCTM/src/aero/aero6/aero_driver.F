@@ -17,10 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero5/aero_driver.F,v 1.11 2012/01/19 13:12:57 yoj Exp $
-
 C >>> 08/04/2000 Changes necessary to be able to read and process
 C two different types of emissions files.
 C the first type is the existing opperational PM2.5 & PM10 unspeciated
@@ -116,6 +112,7 @@ C                      - set CTM_PMDIAG default value to .TRUE.
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AERO ( CGRID, JDATE, JTIME, TSTEP )
 
+      USE RUNTIME_VARS
       USE GRID_CONF           ! horizontal & vertical domain specifications
 
       USE RXNS_DATA
@@ -128,6 +125,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       USE AEROSOL_CHEMISTRY, ONLY : GAMMA_N2O5IJ, GAMMA_N2O5K, YCLNO2IJ, YCLNO2K, 
      &                              GAMMA_IEPOX, GAMMA_IMAE, KPARTIEPOX, AERO_CHEM_SET
       USE PMDIAG_DATA_MODULE
+      USE AERO_BUDGET
 
       IMPLICIT NONE
 
@@ -146,8 +144,6 @@ C *** CGRID is conc field (including gas and aerosol variables)
                                 ! TSTEP(2) = sciproc sync. step (chem)
                                 ! TSTEP(3) = twoway model time step w.r.t. wrf time
                                 !            step and wrf/cmaq call frequency
-
-      INTEGER, SAVE :: LOGDEV             ! unit number for the log file
 
 C *** Local Variables:
 
@@ -190,8 +186,6 @@ C *** aerosol size distribution variables
       CHARACTER( 16 ) :: V_LIST( 2 )
 
       INTEGER, SAVE :: N_APMDIAG_STEP
-      INTEGER, SAVE :: A_NLAYS
-      CHARACTER( 32 ) :: APMDIAG_BLEV_ELEV = 'APMDIAG_BLEV_ELEV'
 
 C *** atmospheric properties
       REAL XLM             ! atmospheric mean free path [ m ]
@@ -225,14 +219,6 @@ C *** variables aerosol diagnostic file flag
       INTEGER      STATUS            ! ENV... status
       CHARACTER( 80 ) :: VARDESC     ! environment variable description
 
-C *** environment variable for PMDIAG APMDIAG file
-      CHARACTER( 16 ), SAVE :: CTM_PMDIAG   = 'CTM_PMDIAG'
-      CHARACTER( 16 ), SAVE :: CTM_APMDIAG  = 'CTM_APMDIAG'
-
-C *** flag for PMDIAG and APMDIAG file [F], default
-      LOGICAL, SAVE :: PMDIAG
-      LOGICAL, SAVE :: APMDIAG
-
 C *** first pass flag
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
       LOGICAL, SAVE :: FIRST_CTM_PMDIAG_1 = .TRUE.
@@ -244,7 +230,6 @@ C *** dry moment factor
       REAL, PARAMETER :: TWOTHIRDS = 2.0 / 3.0
 
       LOGICAL :: TIME_TO_CALL_FEEDBACK_WRITE
-      LOGICAL, SAVE :: CMAQ_WRF_FEEDBACK
 
 C *** Statement Function **************
       REAL ESATL ! arithmetic statement function for vapor pressure [Pa]
@@ -257,7 +242,6 @@ C *** Coefficients for the equation, ESATL defining saturation vapor pressure
       INTEGER, SAVE :: O3
 
       CHARACTER( 16 ) :: AVG_FILE_ENDTIME = 'AVG_FILE_ENDTIME'
-      LOGICAL, SAVE :: END_TIME = .FALSE.
 
       REAL, ALLOCATABLE, SAVE :: TEMP_DATA(:)
 
@@ -273,14 +257,6 @@ C *** End Statement Function  ********
 
       logical, save :: now = .true.
 
-      INTERFACE
-         SUBROUTINE GET_ENVLIST ( ENV_VAR, NVARS, VAL_LIST )
-            CHARACTER( * ),  INTENT ( IN )  :: ENV_VAR
-            INTEGER,         INTENT ( OUT ) :: NVARS
-            CHARACTER( 16 ), INTENT ( OUT ) :: VAL_LIST( : )
-         END SUBROUTINE GET_ENVLIST
-      END INTERFACE
-
 #ifdef twoway
       INTERFACE
         SUBROUTINE FEEDBACK_WRITE (C, R, L, CGRID_DATA, O3_VALUE, JDATE, JTIME)
@@ -294,7 +270,6 @@ C ------------------ begin body of AERO_DRIVER -------------------------
 
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
-         LOGDEV = INIT3()
 
          IF ( ( INDEX(MECHNAME, 'SAPRC07TIC_AE6I_AQ') .GT. 0 ) .OR.
      &        ( INDEX(MECHNAME, 'SAPRC07TIC_AE7I_AQ') .GT. 0 ) ) THEN
@@ -303,22 +278,21 @@ C ------------------ begin body of AERO_DRIVER -------------------------
             NUM_PMDIAG_SPC = 39
          END IF
 
-         CALL GET_ENVLIST ( APMDIAG_BLEV_ELEV, N, V_LIST )
-         IF ( N .EQ. 0 ) THEN
-            A_NLAYS = NLAYS
-         ELSE
-           READ( V_LIST( 2 ), '( I4 )' ) A_NLAYS
-         END IF
-
          ALLOCATE (   PMDIAG_SPC( NCOLS,NROWS,NLAYS,NUM_PMDIAG_SPC ),
-     &              A_PMDIAG_SPC( NCOLS,NROWS,A_NLAYS,NUM_PMDIAG_SPC ),
+     &              A_PMDIAG_SPC( NCOLS,NROWS,NLAYS,NUM_PMDIAG_SPC ),
      &              TEMP_DATA( NUM_PMDIAG_SPC ), 
+     &              AERO_COND(   NCOLS,NROWS,NLAYS,NSPCSD ),
+     &              AERO_COAG(   NCOLS,NROWS,NLAYS,NSPCSD,N_MODE ),
+     &              AERO_NPF (    NCOLS,NROWS,NLAYS,NSPCSD ),
+     &              AERO_GROWTH ( NCOLS,NROWS,NLAYS,NSPCSD ),
+     &              COND_BUDGET( NSPCSD ),
+     &              COAG_BUDGET( NSPCSD,N_MODE ),
+     &              NPF_BUDGET( NSPCSD ),
+     &              GROWTH_BUDGET( NSPCSD ),
      &              STAT=ALLOCSTAT)
 
          A_PMDIAG_SPC  = 0.0
          N_APMDIAG_STEP = 0
-
-         END_TIME = ENVYN( AVG_FILE_ENDTIME, ' ', END_TIME, STATUS )
 
 #ifdef twoway
 ! -- this is for twoway
@@ -331,38 +305,6 @@ C ------------------ begin body of AERO_DRIVER -------------------------
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
          END IF
 #endif
-
-C *** Get aerosol diagnostic file flag.
-         PMDIAG = .TRUE.         ! default
-         VARDESC = 'Flag for writing the aerosol diagnostic file'
-         PMDIAG = ENVYN( CTM_PMDIAG, VARDESC, PMDIAG, STATUS )
-         IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-         IF ( STATUS .EQ. 1 ) THEN
-            XMSG = 'Environment variable improperly formatted'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-         ELSE IF ( STATUS .EQ. -1 ) THEN
-            XMSG = 'Environment variable set, but empty ... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-         ELSE IF ( STATUS .EQ. -2 ) THEN
-            XMSG = 'Environment variable not set ... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-         END IF
-
-C *** Get aerosol average diagnostic file flag.
-         APMDIAG = .FALSE.         ! default
-         VARDESC = 'Flag for writing the aerosol diagnostic file'
-         APMDIAG = ENVYN( CTM_APMDIAG, VARDESC, APMDIAG, STATUS )
-         IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-         IF ( STATUS .EQ. 1 ) THEN
-            XMSG = 'Environment variable improperly formatted'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-         ELSE IF ( STATUS .EQ. -1 ) THEN
-            XMSG = 'Environment variable set, but empty ... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-         ELSE IF ( STATUS .EQ. -2 ) THEN
-            XMSG = 'Environment variable not set ... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-         END IF
 
 C *** Open the met files.
          IF ( .NOT. OPEN3( MET_CRO_3D, FSREAD3, PNAME ) ) THEN
@@ -384,17 +326,6 @@ C *** Get domain decomp info from the MET_CRO_3D file
          CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
      &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
 
-#ifdef twoway
-         CMAQ_WRF_FEEDBACK = ENVYN( 'CMAQ_WRF_FEEDBACK', ' ', .FALSE., STATUS )
-         IF ( STATUS .EQ. 1 ) THEN
-            PRINT *, 'Environment variable improperly formatted'
-            STOP
-         ELSE IF ( STATUS .EQ. -1 ) THEN
-            PRINT *, 'Environment variable set, but empty ... Using default:'
-         ELSE IF ( STATUS .EQ. -2 ) THEN
-            PRINT *, 'Environment variable not set ... Using default:'
-         END IF
-#endif
 
       END IF    ! FIRSTIME
 
@@ -458,6 +389,13 @@ C *** air density [kg/m3]
       END IF
 #endif
 
+! *** Initialize Shared Arrays for Aerosol Budget
+      AERO_COND   = 0.
+      AERO_COAG   = 0.
+      AERO_NPF    = 0.
+      AERO_GROWTH = 0.
+
+
 C --------------------- Begin loops over grid cells --------------------------
 
 C *** initialize conc arrays
@@ -476,6 +414,12 @@ C *** Grid cell meteorological data.
                H2OSATVP = ESATL( AIRTEMP )
                H2OVP    = AIRPRES * AIRQV / ( EPSWATER  + AIRQV )
                AIRRH    = MAX( 0.005, MIN( 0.99, H2OVP / H2OSATVP ) )
+
+! *** Initialize aerosol process variables
+               COND_BUDGET = 0.
+               COAG_BUDGET = 0.
+               NPF_BUDGET = 0.
+               GROWTH_BUDGET = 0.
 
 C *** Extract grid cell concentrations of aero species from CGRID
 C     into aerospc_conc in aero_data module (set minimum)
@@ -580,9 +524,9 @@ C     diagnostic array (lowest vertical layer only)
                   END IF
                END IF
 
-C *** Calculate 2nd and 3rd moments of the "dry" aerosol distribution
-C     NOTE! "dry" aerosol excludes both H2O and SOA  (Jan 2004 --SJR)
-C     EXCEPT!  nonvolatile SOA is part of dry aerosol (Oct 2007 --PVB)
+! *** Calculate 2nd and 3rd moments of the "dry" aerosol distribution
+!     NOTE! "dry" aerosol excludes both H2O and SOA  (Jan 2004 --SJR)
+!     EXCEPT!  nonvolatile SOA is part of dry aerosol (Oct 2007 --PVB)
                CALL CALCMOMENTS( .FALSE. )
                CALL GETPAR( FIXED_sg ) ! update AEROMODE_DIAM,DENS,SDEV
 
@@ -600,7 +544,7 @@ C     EXCEPT!  nonvolatile SOA is part of dry aerosol (Oct 2007 --PVB)
                END IF
 
 C *** Accumulate wet diameters, 2nd, and 3rd moments to average aerosol diagnostic array
-               IF ( APMDIAG .AND. L .LE. A_NLAYS ) THEN
+               IF ( APMDIAG .AND. L .LE. APMDIAG_ZHI ) THEN
                   DO V = 1, NUM_PMDIAG_SPC
                      IF ( A_PMDIAG_SPC_MAP( V ) .EQ. 1 ) THEN
                         A_PMDIAG_SPC( C,R,L,V ) = A_PMDIAG_SPC( C,R,L,V ) + TEMP_DATA( V )
@@ -608,8 +552,14 @@ C *** Accumulate wet diameters, 2nd, and 3rd moments to average aerosol diagnost
                   END DO 
                END IF
 
-C *** Write dry aerosol distribution parameters to aerosol diagnostic array
+! *** Write dry aerosol distribution parameters to aerosol diagnostic array
                IF ( WRITETIME .AND. PMDIAG ) PMDIAG_SPC( C,R,L,: ) = TEMP_DATA
+
+! *** Collect Aerosol Sub-Process Rates in shared arrays
+               AERO_COND  ( C,R,L,: ) = COND_BUDGET( : )
+               AERO_COAG  ( C,R,L,:,: )=COAG_BUDGET( :,: )
+               AERO_NPF   ( C,R,L,: ) = NPF_BUDGET( : )
+               AERO_GROWTH( C,R,L,: ) = GROWTH_BUDGET( : )
 
 #ifdef twoway
                IF ( CMAQ_WRF_FEEDBACK ) THEN

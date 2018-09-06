@@ -17,12 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry_mp/HGSIM.F,v 1.3 2012/01/24 21:15:18 sjr Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE HGSIM
 
@@ -86,7 +80,6 @@ C-----------------------------------------------------------------------
       REAL(8), PARAMETER, PRIVATE :: ZG = 5d-2
 
       CHARACTER( 96 ), PRIVATE :: XMSG = ' '
-      INTEGER, SAVE,PRIVATE :: LOGDEV
       CHARACTER( 80 ), SAVE, Private   :: LAND_SCHEME
 
 ! variable needed for analytical solutions of exchange equations
@@ -159,8 +152,6 @@ C input/output parameters
          INTEGER  V, L, C, R
 
 C--------------------------------------------------------------------------
-         LOGDEV = INIT3()
-
          INIT_LAI = .TRUE.
 
          IF( .NOT. ALLOCATED (WRMC) ) THEN
@@ -431,10 +422,6 @@ C Arguments passed to and from m3dry
          rbg  = ( scn - LOG( 1.0D1 * del0 ) ) / ( karman * ustg )
 ! Compute soil resistance
          ist = Grid_Data%SLTYP(c,r)
-!         IF (ist.lt.1.or.ist.gt.11) THEN
-!            WRITE(logdev,*) ' ist=',ist
-!            ist = 4
-!         END IF
          wg_min = REAL(MAX(Met_Data%SOIM1(c,r),Grid_Data%Wres(c,r)),8)
          ldry= MAX(ZG*(EXP((1.0D0-wg_min/Grid_Data%Wsat(c,r))**5)-1.0D0)/1.718D0,1.0D-12)
          dp  = dif0(l)*1.D-4 * Grid_Data%Wsat(c,r)**2 

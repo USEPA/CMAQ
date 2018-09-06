@@ -55,7 +55,7 @@ C     26 June 2014 J.Bash: initial implementation
 
       Type( Map_Type ), Save :: Map_Data 
 
-      INTEGER, PARAMETER :: dep_gas_all = 160
+      INTEGER, PARAMETER :: dep_gas_all = 162
       INTEGER, PARAMETER :: LCMP = 8
       Character( 16 ), Save :: vd_name     ( dep_gas_all )       ! Deposition species name
       Real,            Save :: rel_rx      ( dep_gas_all )       ! reactivity relative to HNO3
@@ -70,7 +70,6 @@ C     26 June 2014 J.Bash: initial implementation
       Logical, Save         :: asx_run_map( dep_gas_all )
 
       CHARACTER( 16 ), Parameter    :: DEPV_METHOD = 'STAGE'
-      INTEGER, SAVE                 :: logdev                          ! unit number for the log file
 
       DATA vd_name(  1), rel_rx(  1), f0(  1), LeBasM(  1), M_ac(  1) / 'SO2          ',   10.0, 0.0,  35.0, 0.11 / 
       DATA vd_name(  2), rel_rx(  2), f0(  2), LeBasM(  2), M_ac(  2) / 'SULF         ', 8000.0, 0.0,  49.0, 0.12 /
@@ -163,11 +162,11 @@ C     26 June 2014 J.Bash: initial implementation
       DATA vd_name( 89), rel_rx( 89), f0( 89), LeBasM( 89), M_ac( 89) / 'HOI          ',     8.0, 0.0,   48.1, 0.420/
       DATA vd_name( 90), rel_rx( 90), f0( 90), LeBasM( 90), M_ac( 90) / 'INO          ',     8.0, 0.0,   60.9, 0.420/
       DATA vd_name( 91), rel_rx( 91), f0( 91), LeBasM( 91), M_ac( 91) / 'INO2         ',    20.0, 0.0,   69.2, 0.420/
-      DATA vd_name( 92), rel_rx( 92), f0( 92), LeBasM( 92), M_ac( 92) / 'IONO2        ',     8.0, 0.0,   77.5, 0.420/
+      DATA vd_name( 92), rel_rx( 92), f0( 92), LeBasM( 92), M_ac( 92) / 'INO3         ',     8.0, 0.0,   77.5, 0.420/
       DATA vd_name( 93), rel_rx( 93), f0( 93), LeBasM( 93), M_ac( 93) / 'BRO          ',     1.0, 0.0,   34.4, 0.420/
       DATA vd_name( 94), rel_rx( 94), f0( 94), LeBasM( 94), M_ac( 94) / 'HOBR         ',     1.0, 0.0,   38.1, 0.420/
       DATA vd_name( 95), rel_rx( 95), f0( 95), LeBasM( 95), M_ac( 95) / 'HBR          ',     2.0, 0.0,   30.7, 0.420/
-      DATA vd_name( 96), rel_rx( 96), f0( 96), LeBasM( 96), M_ac( 96) / 'BRONO2       ',     1.0, 0.0,   67.5, 0.420/
+      DATA vd_name( 96), rel_rx( 96), f0( 96), LeBasM( 96), M_ac( 96) / 'BRNO3        ',     1.0, 0.0,   67.5, 0.420/
       DATA vd_name( 97), rel_rx( 97), f0( 97), LeBasM( 97), M_ac( 97) / 'BRNO2        ',     1.0, 0.0,   59.2, 0.420/
       DATA vd_name( 98), rel_rx( 98), f0( 98), LeBasM( 98), M_ac( 98) / 'BRCL         ',     1.0, 0.0,   51.6, 0.420/
       DATA vd_name( 99), rel_rx( 99), f0( 99), LeBasM( 99), M_ac( 99) / 'DMS          ',     2.0, 0.0,   77.4, 0.420/
@@ -181,7 +180,7 @@ C     26 June 2014 J.Bash: initial implementation
       DATA vd_name(107), rel_rx(107), f0(107), LeBasM(107), M_ac(107) / 'INTR         ',    16.0, 0.1,  140.4, 0.420/ ! INTR
       DATA vd_name(108), rel_rx(108), f0(108), LeBasM(108), M_ac(108) / 'ISPX         ',    10.0, 0.3,   49.0, 0.420/ ! ISPX diffusion should be ~ 0.0710 according to Wolfe and thornton 2011 M_acP
       DATA vd_name(109), rel_rx(109), f0(109), LeBasM(109), M_ac(109) / 'ROOH         ',    10.0, 0.3,   49.0, 0.420/ ! ROOH diffusion should be ~ 0.0710 according to Wolfe and thornton 2011 M_acP
-      DATA vd_name(110), rel_rx(110), f0(110), LeBasM(110), M_ac(110) / 'LV_PCSOG     ', 43507730.6, 0.0, 63.0, 0.91/ ! LV_PCSOG
+      DATA vd_name(110), rel_rx(110), f0(110), LeBasM(110), M_ac(110) / 'LVPCSOG      ', 43507730.6, 0.0, 63.0, 0.91/ ! LVPCSOG
       DATA vd_name(111), rel_rx(111), f0(111), LeBasM(111), M_ac(111) / 'VIVPO1       ', 13818.0, 0.0,   63.0, 0.909/ ! VIVPO1
       DATA vd_name(112), rel_rx(112), f0(112), LeBasM(112), M_ac(112) / 'VLVOO1       ',  1830.5, 0.0,   63.0, 0.910/ ! VLVOO1
       DATA vd_name(113), rel_rx(113), f0(113), LeBasM(113), M_ac(113) / 'VLVOO2       ',   241.0, 0.0,   63.0, 0.909/ ! VLVOO2
@@ -228,10 +227,12 @@ C     26 June 2014 J.Bash: initial implementation
       DATA vd_name(154), rel_rx(154), f0(154), LeBasM(154), M_ac(154) / 'SVMT5        ',    22.2, 0.0,  207.2, 0.444/ ! SVMT5
       DATA vd_name(155), rel_rx(155), f0(155), LeBasM(155), M_ac(155) / 'SVMT6        ',     2.8, 0.0,  222.0, 0.420/ ! SVMT6
       DATA vd_name(156), rel_rx(156), f0(156), LeBasM(156), M_ac(156) / 'SVMT7        ',     1.0, 0.0,  199.8, 0.420/ ! SVMT7
-      DATA vd_name(157), rel_rx(157), f0(157), LeBasM(157), M_ac(157) / 'SV_AVB1      ',100388.0, 0.0,  163.1, 0.910/ ! SVAVB1
-      DATA vd_name(158), rel_rx(158), f0(158), LeBasM(158), M_ac(158) / 'SV_AVB2      ',  1461.2, 0.0,  163.2, 0.896/ ! SVAVB2
-      DATA vd_name(159), rel_rx(159), f0(159), LeBasM(159), M_ac(159) / 'SV_AVB3      ',   175.2, 0.0,  163.0, 0.783/ ! SVAVB3
-      DATA vd_name(160), rel_rx(160), f0(160), LeBasM(160), M_ac(160) / 'SV_AVB4      ',    20.8, 0.0,  162.7, 0.444/ ! SVAVB4
+      DATA vd_name(157), rel_rx(157), f0(157), LeBasM(157), M_ac(157) / 'SVAVB1       ',100388.0, 0.0,  163.1, 0.910/ ! SVAVB1
+      DATA vd_name(158), rel_rx(158), f0(158), LeBasM(158), M_ac(158) / 'SVAVB2       ',  1461.2, 0.0,  163.2, 0.896/ ! SVAVB2
+      DATA vd_name(159), rel_rx(159), f0(159), LeBasM(159), M_ac(159) / 'SVAVB3       ',   175.2, 0.0,  163.0, 0.783/ ! SVAVB3
+      DATA vd_name(160), rel_rx(160), f0(160), LeBasM(160), M_ac(160) / 'SVAVB4       ',    20.8, 0.0,  162.7, 0.444/ ! SVAVB4
+      DATA vd_name(161), rel_rx(161), f0(161), LeBasM(161), M_ac(161) / 'CLNO3        ',     8.0, 0.0,   65.1, 0.420/ ! CLNO3
+      DATA vd_name(162), rel_rx(162), f0(162), LeBasM(162), M_ac(162) / 'FMBR         ',    10.0, 0.0,   52.9, 0.420/ ! FMBR
 
       Contains
          SUBROUTINE Map_STAGE 
@@ -246,7 +247,6 @@ C     26 June 2014 J.Bash: initial implementation
          CHARACTER( 16 )  :: PNAME = 'Map_STAGE'
          CHARACTER( 120 ) :: XMSG = ' '
 
-         logdev  = init3()
          molwt_all    = 0.0
          asx_run_map  = .FALSE.
          gc_depv_name = 'None'
@@ -303,7 +303,7 @@ C     26 June 2014 J.Bash: initial implementation
            If( asx_run_map (v) ) Write(Logdev,99902) gc_depv_name(v), H_name_all(v), molwt_all(v)
          End Do       
 99901    Format(A16,1x,A16,1x,A16)
-99902    Format(A16,1x,A16,1x,F5.2)
+99902    Format(A16,1x,A16,10x,F6.2)
 
          End Subroutine Map_Stage
       End Module Stage_Data

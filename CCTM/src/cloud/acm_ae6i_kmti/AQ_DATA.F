@@ -17,9 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6/AQ_DATA.F,v 1.7 2012/01/19 13:53:19 yoj Exp $
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module aq_data
 
@@ -118,11 +115,11 @@ C...Pointers for the AQCHEM array GAS
       Integer :: ln2o5    ! Dinitrogen Pentoxide
       Integer :: lco2     ! Carbon Dioxide
       Integer :: lnh3     ! Ammonia
-      Integer :: lh2o2    ! Hydrogen Perioxide
+      Integer :: lh2o2    ! Hydrogen Peroxide
       Integer :: lo3      ! Ozone
       Integer :: lfoa     ! Formic Acid
       Integer :: lmhp     ! Methyl Hydrogen Peroxide
-      Integer :: lpaa     ! Peroxyacidic Acid
+      Integer :: lpaa     ! Peroxyacetic Acid
       Integer :: lh2so4   ! Sulfuric Acid
       Integer :: lhcl     ! Hydrogen Chloride
       Integer :: lgly     ! Glyoxal
@@ -207,8 +204,8 @@ C...For TX version
       Character( 16 ), Parameter, Private :: req_traceri = 'TRACER_AITKEN'
       Character( 16 ), Parameter, Private :: req_tracerj = 'TRACER_ACCUM'
       Character( 16 ), Parameter, Private :: req_tracerk = 'TRACER_COARSE'
-      Character( 16 ), Parameter, Private :: req_phgi     = 'PHG_AITKEN'
-      Character( 16 ), Parameter, Private :: req_phgj     = 'PHG_ACCUM'
+      Character( 16 ), Parameter, Private :: req_phgi    = 'PHG_AITKEN'
+      Character( 16 ), Parameter, Private :: req_phgj    = 'PHG_ACCUM'
       Character( 16 ), Parameter, Private :: req_phgk    = 'PHG_COARSE'
 
 
@@ -249,7 +246,7 @@ C...TXHG aersosols
       Integer :: lseasc   !  SEAS in Coarse mode (AE6)     SLN 16March2011
       
       Integer :: lietet   ! 2-Methyltetrols
-      Integer :: lieos    ! IEPOX-derived orgranosulfates
+      Integer :: lieos    ! IEPOX-derived organosulfates
       Integer :: ldimer   ! Dimers
       Integer :: limga    ! 2-Methylglyceric acid
       Integer :: limos    ! MAE/HMML-derived-organosulfates         
@@ -323,10 +320,10 @@ C for TX version
       Integer, Allocatable, Save :: cgrid2aq_map( : ) ! allocated in AQ_DATA_INIT
       Character( 16 ), Allocatable, Save :: cgrid2aq_name( : ) ! allocated in AQ_DATA_INIT
 
-      Logical, Private, Save :: mapped = .False.
+      Real( 8 )              :: jh2o2_hydrometeors    ! H2O2 photolysis in condensed water, 1/sec
+      Real( 8 )              :: jhno3_hydrometeors    ! HNO3 photolysis in condensed water, 1/sec
 
-      Integer, Private, Save :: logdev
-      Integer, Private, External :: setup_logdev
+      Logical, Private, Save :: mapped = .False.
 
       Contains
  
@@ -345,6 +342,7 @@ C-----------------------------------------------------------------------
       Use cgrid_spcs          ! CGRID mechanism species
       Use utilio_defn
       Use aero_data
+      Use phot_mod, Only: init_phot_shared  ! set-up shared photolysis arrays
 
       Implicit None
 
@@ -380,10 +378,11 @@ C-----------------------------------------------------------------------
 
       If ( Firstcall ) Then
          Firstcall = .False.
-         logdev    = setup_logdev()
       Else
          Return
       End if
+
+      Call init_phot_shared()
  
       Allocate ( aename( n_ae_a2aq ), stat = ios )
       If ( ios .Ne. 0 ) Then

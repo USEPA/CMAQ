@@ -88,7 +88,7 @@ C-----------------------------------------------------------------------
       REAL, PARAMETER, PRIVATE :: MWHG   = 200.6
       REAL, PARAMETER, PRIVATE :: MWHGII = 271.5
       CHARACTER( 96 ), PRIVATE :: XMSG = ' '
-      INTEGER, SAVE,PRIVATE :: LOGDEV
+
       CHARACTER( 80 ), SAVE, Private   :: LAND_SCHEME
       REAL, SAVE, PRIVATE  :: ZC, ZM   ! g/m2 of model surface media
       REAL, SAVE, PRIVATE  :: kam      ! Leaf Water partitioning coef mol water g-1 leaf dry mass
@@ -159,7 +159,6 @@ C input/output parameters
          INTEGER  V, L, C, R
 
 C--------------------------------------------------------------------------
-         LOGDEV = INIT3()
 
          IF( .NOT. ALLOCATED (WRMC) ) THEN
             ALLOCATE( WRMC(MY_NCOLS,MY_NROWS) )
@@ -227,7 +226,7 @@ C **** Read in saved surface layer concentrations
          RETURN
 
 !------------------------------------------------------------------------------
-! Error handeling section
+! Error handling section
 !------------------------------------------------------------------------------
 1001     CONTINUE
          CALL M3EXIT( pname, jdate, jtime, xmsg, xstat1 )

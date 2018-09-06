@@ -143,7 +143,7 @@ C**********************************************************************
 
       CONTAINS
 
-         SUBROUTINE DEGRADE_MAP( JDATE, JTIME, LOGDEV )
+         SUBROUTINE DEGRADE_MAP( JDATE, JTIME )
 C**********************************************************************
 C
 C  Function:  Determine CGRID indices used in DEGRADE routine.
@@ -164,7 +164,6 @@ C.....ARGUMENTS:
 
          INTEGER, INTENT( IN ) :: JDATE        ! current model date , coded YYYYDDD
          INTEGER, INTENT( IN ) :: JTIME        ! current model time , coded HHMMSS
-         INTEGER, INTENT( IN ) :: LOGDEV       ! unit number for the log file
 
 C.....PARAMETERS:
 

@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/hdiff/multiscale/hcdiff3d.F,v 1.5 2011/10/21 16:11:22 yoj Exp $ 
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE HCDIFF3D ( JDATE, JTIME, K11BAR, K22BAR, DT )
       
@@ -129,7 +122,6 @@ C local variables:
       CHARACTER( 96 ) :: XMSG = ' '
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
-      INTEGER, SAVE :: LOGDEV
       INTEGER, SAVE :: MLAYS
  
       REAL, SAVE :: DX1, DX2            ! CX x1- and x2-cell widths
@@ -166,15 +158,12 @@ C-----------------------------------------------------------------------
       
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
-         LOGDEV = INIT3()
 
          MLAYS = SIZE ( K11BAR,3 )
  
          CALL SUBST_LOOP_INDEX ( 'R', 1, NROWS, 1, MY_TEMP, STARTROW, ENDROW )
-!        write( LOGDEV,* ) 'STARTROW, ENDROW = ', STARTROW, ENDROW
 
          CALL SUBST_LOOP_INDEX ( 'C', 1, NCOLS, 1, MY_TEMP, STARTCOL, ENDCOL )
-!        write( LOGDEV,* ) 'STARTCOL, ENDCOL = ', STARTCOL, ENDCOL
 
          IF ( GDTYP_GD .EQ. LATGRD3 ) THEN
             DX1 = DG2M * XCELL_GD ! in m.
@@ -203,27 +192,15 @@ C Get map scale factor
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
-!        write( LOGDEV,* ) ' MSFD2(2,2) = ',  MSFD2(2,2) 
          KHA = ( DXB * DXB ) / ( DX1 * DX2 ) * KH 
-!        write( LOGDEV,* ) ' KHA = ', KHA
 
          ACOEF = ALP * ALP * ( DX1 * DX2 )
 
-!        MS2MAX = 0.0
-!        DO ROW = 1, MY_NROWS+1
-!           DO COL = 1, MY_NCOLS+1
-!              MS2MAX = MAX( MS2MAX, MSFD2( COL,ROW ) )
-!           END DO
-!        END DO
-!        WRITE( LOGDEV,* ) ' MS2MAX = ', MS2MAX
- 
          END IF                    ! if firstime
  
 C get wind deformation 
  
       CALL DEFORM ( JDATE, JTIME, DEFORM3D )
-
-!     write( LOGDEV,* ) '  DEFORM3D( 5,5,5 ): ', DEFORM3D( 5,5,5 )
 
       EDDYH3D = 0.0
 
@@ -240,12 +217,9 @@ C get wind deformation
                EDDYH3D( COL,ROW,LVL ) = MSFD2( COL,ROW )
      &                                * KHA * KHD / ( KHA + KHD )
 !              EKHMAX = MAX( EKHMAX, EDDYH3D( COL,ROW,LVL ) )
-!              write( LOGDEV,* ) ' EKHMAX: ', EKHMAX,
-!    &                           ' EDDYH3D( 5,5,5) :', EDDYH3D( 5,5,5 )
-               END DO
             END DO
-!        WRITE( LOGDEV,* ) ' LVL, EKHMAX = ', LVL, EKHMAX
          END DO
+      END DO
 
       CALL SUBST_COMM ( EDDYH3D, DSPL_N1_E1_S0_W0, DRCN_N_E )
 
@@ -261,7 +235,6 @@ C Obtain flux average values of contravariant diffusivities
              END DO
           END DO
 
-!     WRITE( LOGDEV,1003 )
 1003  FORMAT( / '@2@Layer', 5X, 'Time Step', 9X, 'EffKB' )
 
       DO LVL = 1, MLAYS
@@ -295,7 +268,6 @@ C Obtain flux average values of contravariant diffusivities
 
 !        DT = CFC * DX1 * DX2 / SUBST_GLOBAL_MAX ( EFFKB )
 
-!        WRITE( LOGDEV,1005 ) LVL, DT, EFFKB
 1005     FORMAT( '@2@ ', I3, 1X, F18.7, 1X, F12.7 )
 
          END DO ! for LVL

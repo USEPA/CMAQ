@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/work/rep/arc/CCTM/src/vadv/wrf/zadvppmwrf.F,v 1.2 2011/10/21 16:11:39 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE ZADV ( CGRID, JDATE, JTIME, TSTEP )
 
@@ -168,8 +161,6 @@ C for INTERPX
       REAL, ALLOCATABLE, SAVE :: FBLN( : ) ! blending function for upper layers
       INTEGER       ALLOCSTAT
 
-      INTEGER, SAVE :: LOGDEV
-
       INTERFACE
          SUBROUTINE VPPM ( NI, DT, DS, FLX, VEL, CON )
             INTEGER, INTENT( IN )    :: NI
@@ -185,7 +176,6 @@ C-----------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
-         LOGDEV = INIT3 ()
 
          ALLOCATE ( DS( NLAYS ),FBLN( NLAYS ),STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
@@ -205,16 +195,16 @@ C-----------------------------------------------------------------------
 C Get default file header attibutes from MET_CRO_3D (assumes file already open)
 
 C Get dx3 from the GRID_CONF(VGRD) F90 module
-         WRITE( LOGDEV,* ) ' '
-         WRITE( LOGDEV,* ) '    layer    S (X3FACE_GD) Delta S'
+         !WRITE( LOGDEV,* ) ' '
+         !WRITE( LOGDEV,* ) '    layer    S (X3FACE_GD) Delta S'
          DO LVL = 1, NLAYS
             DS ( LVL ) = ABS ( X3FACE_GD( LVL ) - X3FACE_GD( LVL-1 ) )
 !           FBLN( LVL ) = 1.0 - 1.0 / ( 1.0 + EXP( 15.0 * ( X3FACE_GD( LVL ) - 0.5 ) ) )
             FBLN( LVL ) = 1.0
-            WRITE( LOGDEV,'(5X, I3, 3F14.7)' ) LVL, X3FACE_GD( LVL ),
-     &                                         DS( LVL ), FBLN(LVL)
+            !WRITE( LOGDEV,'(5X, I3, 3F14.7)' ) LVL, X3FACE_GD( LVL ),
+            !&                                         DS( LVL ), FBLN(LVL)
          END DO
-         WRITE( LOGDEV,* ) ' '
+         !WRITE( LOGDEV,* ) ' '
 
 C Pointer to transported RHOJ
          ASPC = GC_STRT - 1 + N_GC_SPCD
@@ -329,8 +319,6 @@ C Get the contravariant x1 velocity component
 !              DIVV( LVL ) = DUDX * DS( LVL ) + DVDY * DS( LVL )
                DIVV( LVL ) = ( RJ1( LVL ) - RJT( LVL ) ) * DSDT
                DRJ = DRJ - DIVV( LVL )
-!              if ( lvl .eq. 15 ) write( logdev,* ) ' DSDT=', dsdt
-!    &                                              ' DIVV=', divv( lvl )
             END DO
                         
 111         CONTINUE   ! iteration loop if CC > 1
@@ -342,14 +330,9 @@ C Get the contravariant x1 velocity component
                DSDT = DS( LVL ) / DELT
                FLUX = FLUX - DSDT * ( RJ2( LVL ) - RJT( LVL ) )
                FLX( LVL+1 ) = FLX( LVL ) - DS( LVL ) * DRJ - DIVV( LVL )
-!              write( logdev,* ) '@@2 l=', l, ' flx=', flx( l+1 ), flux, x3face_gd( l )
                FLX( LVL+1 ) = FBLN( LVL ) * FLX( LVL+1 ) + ( 1.0 - FBLN( LVL ) ) * FLUX
                FLUX = FLX( LVL+1 )
             END DO
-
-!           if ( jtime .ge. 191000 .and. col .eq. 46 .and. row .eq. 15 )
-!    &         write( logdev,* )' density R,C,L1=', row, col,
-!    &                          ' RJT,1,2 =', rjt( 1 ), rj1( 1 ), rj2( 1 )
 
             DO LVL = 2, NLAYS
                IF ( FLX( LVL ) .GE. 0.0 ) THEN
@@ -357,10 +340,6 @@ C Get the contravariant x1 velocity component
                ELSE
                   VEL( LVL ) = FLX( LVL ) / RJT( LVL )
                END IF
-!              if ( jtime .ge. 191000 .and. col .eq. 46 .and. row .eq. 15 )
-!    &            write( logdev,* )' density R,C,L =', row, col, lvl,
-!    &                             ' RJT,1,2 =', rjt( lvl ), rj1( lvl ), rj2( lvl ),
-!    &                             ' Omega=', vel( lvl )
             END DO
 
             VEL( NLAYS+1 ) = FLX( NLAYS+1 ) / RJT( NLAYS )
@@ -409,7 +388,6 @@ C sub-steps.
 
                ITER = ITER + 1
                IF ( ITER .GT. MAXITER ) THEN
-!              if ( jtime .eq. 002500 .and. col .eq. 1 .and. row .eq. 53 ) then
                   WRITE( LOGDEV,2005 ) COL, ROW, CC, DELT, ITER, JTIME
 2005              FORMAT( 'zadv col  row     CC', 8X, 'dt    iter   jtime'
      &                    / 'zzzz', 2I4, 1PE12.3, 0PF10.5, 1X, I4, I10.6
