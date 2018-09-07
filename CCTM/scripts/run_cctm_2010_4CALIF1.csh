@@ -135,7 +135,7 @@ setenv CTM_WB_DUST Y         #> use inline windblown dust emissions [ default: Y
 setenv CTM_ERODE_AGLAND Y    #> use agricultural activity for windblown dust 
                              #>    [ default: N ]; ignore if CTM_WB_DUST = N
 setenv CTM_WBDUST_BELD BELD3 #> landuse database for identifying dust source regions 
-                             #>    [ default: BELD3 ]; ignore if CTM_WB_DUST = N 
+                             #>    [ default: UNKNOWN ]; ignore if CTM_WB_DUST = N 
 setenv CTM_LTNG_NO N         #> turn on lightning NOx [ default: N ]
 setenv CTM_WVEL Y            #> save derived vertical velocity component to conc 
                              #>    file [ default: N ]
