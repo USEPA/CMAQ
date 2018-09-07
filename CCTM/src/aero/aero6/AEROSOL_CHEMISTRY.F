@@ -66,7 +66,7 @@
      &                       'HETERO_H2NO3PBIJ', 'HETERO_H2NO3PAK ',
      &                       'HETERO_H2NO3PBK ', 'HETERO_H2NO3PAI ',
      &                       'HETERO_H2NO3PBI ', 'HETERO_H2NO3PAJ ',
-     &                       'HETERO_H2NO3PBJ ', 'HETERO_N2O5I    ', 
+     &                       'HETERO_H2NO3PBJ ', 'HETERO_N2O5I    ',
      &                       'HETERO_N2O5J    ', 'HETERO_PNCOMLI  ',
      &                       'HETERO_PNCOMLJ  ', 'HETERO_IEPOX    ',
      &                       'HETERO_TETROL   ', 'HETERO_IEPOXOS  ',
@@ -74,22 +74,22 @@
      &                       'HETERO_IMAE     ', 'HETERO_2MG      ',
      &                       'HETERO_IMAEOS   ', 'HETERO_NO3      ',
      &                       'HETERO_GLY      ', 'HETERO_MGLY     ',
-     &                       'HETERO_NTR2     ', 'HETERO_CLNO3_WAJ ', 
-     &                       'HETERO_CLNO3_WAK', 'HETERO_HBR_BRJ   ', 
-     &                       'HETERO_HBR_BRK  ', 'HETERO_BRNO3_WAJ ',
-     &                       'HETERO_BRNO3_WAK', 'HETERO_HOBR_CLJ  ',    
-     &                       'HETERO_HOBR_CLK ', 'HETERO_HOBR_BRJ  ',          
-     &                       'HETERO_HOBR_BRK ', 'HETERO_I2O2_AJ   ',     
-     &                       'HETERO_I2O2_AK  ', 'HETERO_I2O3_AJ   ', 
-     &                       'HETERO_I2O3_AK  ', 'HETERO_I2O4_AJ   ', 
-     &                       'HETERO_I2O4_AK  ', 'HETERO_INO3_CLJ  ', 
-     &                       'HETERO_INO3_CLK ', 'HETERO_INO3_BRJ  ', 
-     &                       'HETERO_INO3_BRK ', 'HETERO_INO2_CLJ  ', 
-     &                       'HETERO_INO2_CLK ', 'HETERO_INO2_BRJ  ', 
-     &                       'HETERO_INO2_BRK ', 'HETERO_HOI_CLJ   ', 
-     &                       'HETERO_HOI_CLK  ', 'HETERO_HOI_BRJ   ', 
-     &                       'HETERO_HOI_BRK  ', 'HETERO_HI_AJ      ', 
-     &                       'HETERO_HI_AK    '/) 
+     &                       'HETERO_NTR2     ', 'HETERO_CLNO3_WAJ',
+     &                       'HETERO_CLNO3_WAK', 'HETERO_HBR_BRJ  ',
+     &                       'HETERO_HBR_BRK  ', 'HETERO_BRNO3_WAJ',
+     &                       'HETERO_BRNO3_WAK', 'HETERO_HOBR_CLJ ',
+     &                       'HETERO_HOBR_CLK ', 'HETERO_HOBR_BRJ ',
+     &                       'HETERO_HOBR_BRK ', 'HETERO_I2O2_AJ  ',
+     &                       'HETERO_I2O2_AK  ', 'HETERO_I2O3_AJ  ',
+     &                       'HETERO_I2O3_AK  ', 'HETERO_I2O4_AJ  ',
+     &                       'HETERO_I2O4_AK  ', 'HETERO_INO3_CLJ ',
+     &                       'HETERO_INO3_CLK ', 'HETERO_INO3_BRJ ',
+     &                       'HETERO_INO3_BRK ', 'HETERO_INO2_CLJ ',
+     &                       'HETERO_INO2_CLK ', 'HETERO_INO2_BRJ ',
+     &                       'HETERO_INO2_BRK ', 'HETERO_HOI_CLJ  ',
+     &                       'HETERO_HOI_CLK  ', 'HETERO_HOI_BRJ  ',
+     &                       'HETERO_HOI_BRK  ', 'HETERO_HI_AJ    ',
+     &                       'HETERO_HI_AK    '/)
 
        INTEGER, PARAMETER  :: IA_N2O5IJ         =   1
        INTEGER, PARAMETER  :: IA_N2O5K          =   2
@@ -879,13 +879,13 @@ C *** Retrieve and Save the Dry 3rd and 2nd Moments
 
 C *** calculate molecular speeds (m/s) using Eq 4 of Pleim et al (1995)
 
-               CBAR = CBAR_COEFF * INV_SQRT_MWN2O5 
+               CBAR = CBAR_COEFF * INV_SQRT_MWN2O5
                CBARNO3 = CFACTOR_NO3 * DSQRT( AIRTEMP )
                CBARGLY = CFACTOR_GLY  * DSQRT( AIRTEMP )
                CBARMGLY = CFACTOR_MGLY * DSQRT( AIRTEMP )
 
-               CBAR_CLNO3 = CBAR_COEFF * INV_SQRT_MWCLNO3  
-               CBAR_HBR   = CBAR_COEFF * INV_SQRT_MWHBR      	       
+               CBAR_CLNO3 = CBAR_COEFF * INV_SQRT_MWCLNO3
+               CBAR_HBR   = CBAR_COEFF * INV_SQRT_MWHBR
                CBAR_BRNO3 = CBAR_COEFF * INV_SQRT_MWBRNO3       
                CBAR_BRNO2 = CBAR_COEFF * INV_SQRT_MWBRNO2  
                CBAR_HOBR  = CBAR_COEFF * INV_SQRT_MWHOBR                 
@@ -903,11 +903,11 @@ C *** correct N2O5 molecular diffusivity for ambient conditions
 
 C *** correct molecular diffusivity for ambient conditions - assumed similar to that of N2O5
 
-               INV_DIFF_CLNO3  = 1.0D0 / ( STD_DIFF_CLNO3 * ADJUST_DIFF )  
-               INV_DIFF_HBR    = 1.0D0 / ( STD_DIFF_HBR * ADJUST_DIFF )  
+               INV_DIFF_CLNO3  = 1.0D0 / ( STD_DIFF_CLNO3 * ADJUST_DIFF )
+               INV_DIFF_HBR    = 1.0D0 / ( STD_DIFF_HBR * ADJUST_DIFF )
                INV_DIFF_BRNO3  = 1.0D0 / ( STD_DIFF_BRNO3 * ADJUST_DIFF )
                INV_DIFF_BRNO2  = 1.0D0 / ( STD_DIFF_BRNO2 * ADJUST_DIFF )
-               INV_DIFF_HOBR   = 1.0D0 / ( STD_DIFF_HOBR * ADJUST_DIFF )   	      	                                               
+               INV_DIFF_HOBR   = 1.0D0 / ( STD_DIFF_HOBR * ADJUST_DIFF )
                INV_DIFF_I2O2   = 1.0D0 / ( STD_DIFF_I2O2 * ADJUST_DIFF )
                INV_DIFF_I2O3   = 1.0D0 / ( STD_DIFF_I2O3 * ADJUST_DIFF )
                INV_DIFF_I2O4   = 1.0D0 / ( STD_DIFF_I2O4 * ADJUST_DIFF )
