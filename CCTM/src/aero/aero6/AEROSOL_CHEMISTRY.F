@@ -74,21 +74,21 @@
      &                       'HETERO_IMAE     ', 'HETERO_2MG      ',
      &                       'HETERO_IMAEOS   ', 'HETERO_NO3      ',
      &                       'HETERO_GLY      ', 'HETERO_MGLY     ',
-     &                       'HETERO_NTR2     ', 'HETERO_CLNO3_WAJ ', 
-     &                       'HETERO_CLNO3_WAK', 'HETERO_HBR_BRJ   ', 
-     &                       'HETERO_HBR_BRK  ', 'HETERO_BRNO3_WAJ ',
-     &                       'HETERO_BRNO3_WAK', 'HETERO_HOBR_CLJ  ',    
-     &                       'HETERO_HOBR_CLK ', 'HETERO_HOBR_BRJ  ',          
-     &                       'HETERO_HOBR_BRK ', 'HETERO_I2O2_AJ   ',     
-     &                       'HETERO_I2O2_AK  ', 'HETERO_I2O3_AJ   ', 
-     &                       'HETERO_I2O3_AK  ', 'HETERO_I2O4_AJ   ', 
-     &                       'HETERO_I2O4_AK  ', 'HETERO_INO3_CLJ  ', 
-     &                       'HETERO_INO3_CLK ', 'HETERO_INO3_BRJ  ', 
-     &                       'HETERO_INO3_BRK ', 'HETERO_INO2_CLJ  ', 
-     &                       'HETERO_INO2_CLK ', 'HETERO_INO2_BRJ  ', 
-     &                       'HETERO_INO2_BRK ', 'HETERO_HOI_CLJ   ', 
-     &                       'HETERO_HOI_CLK  ', 'HETERO_HOI_BRJ   ', 
-     &                       'HETERO_HOI_BRK  ', 'HETERO_HI_AJ      ', 
+     &                       'HETERO_NTR2     ', 'HETERO_CLNO3_WAJ', 
+     &                       'HETERO_CLNO3_WAK', 'HETERO_HBR_BRJ  ', 
+     &                       'HETERO_HBR_BRK  ', 'HETERO_BRNO3_WAJ',
+     &                       'HETERO_BRNO3_WAK', 'HETERO_HOBR_CLJ ',    
+     &                       'HETERO_HOBR_CLK ', 'HETERO_HOBR_BRJ ',          
+     &                       'HETERO_HOBR_BRK ', 'HETERO_I2O2_AJ  ',     
+     &                       'HETERO_I2O2_AK  ', 'HETERO_I2O3_AJ  ', 
+     &                       'HETERO_I2O3_AK  ', 'HETERO_I2O4_AJ  ', 
+     &                       'HETERO_I2O4_AK  ', 'HETERO_INO3_CLJ ', 
+     &                       'HETERO_INO3_CLK ', 'HETERO_INO3_BRJ ', 
+     &                       'HETERO_INO3_BRK ', 'HETERO_INO2_CLJ ', 
+     &                       'HETERO_INO2_CLK ', 'HETERO_INO2_BRJ ', 
+     &                       'HETERO_INO2_BRK ', 'HETERO_HOI_CLJ  ', 
+     &                       'HETERO_HOI_CLK  ', 'HETERO_HOI_BRJ  ', 
+     &                       'HETERO_HOI_BRK  ', 'HETERO_HI_AJ    ', 
      &                       'HETERO_HI_AK    '/) 
 
        INTEGER, PARAMETER  :: IA_N2O5IJ         =   1
@@ -885,9 +885,9 @@ C *** calculate molecular speeds (m/s) using Eq 4 of Pleim et al (1995)
                CBARMGLY = CFACTOR_MGLY * DSQRT( AIRTEMP )
 
                CBAR_CLNO3 = CBAR_COEFF * INV_SQRT_MWCLNO3  
-               CBAR_HBR   = CBAR_COEFF * INV_SQRT_MWHBR      	       
+               CBAR_HBR   = CBAR_COEFF * INV_SQRT_MWHBR      
                CBAR_BRNO3 = CBAR_COEFF * INV_SQRT_MWBRNO3       
-               CBAR_BRNO2 = CBAR_COEFF * INV_SQRT_MWBRNO2  
+               CBAR_BRNO2 = CBAR_COEFF * INV_SQRT_MWBRNO2
                CBAR_HOBR  = CBAR_COEFF * INV_SQRT_MWHOBR                 
                CBAR_I2O2  = CBAR_COEFF * INV_SQRT_MWI2O2
                CBAR_I2O3  = CBAR_COEFF * INV_SQRT_MWI2O3
@@ -907,7 +907,7 @@ C *** correct molecular diffusivity for ambient conditions - assumed similar to 
                INV_DIFF_HBR    = 1.0D0 / ( STD_DIFF_HBR * ADJUST_DIFF )  
                INV_DIFF_BRNO3  = 1.0D0 / ( STD_DIFF_BRNO3 * ADJUST_DIFF )
                INV_DIFF_BRNO2  = 1.0D0 / ( STD_DIFF_BRNO2 * ADJUST_DIFF )
-               INV_DIFF_HOBR   = 1.0D0 / ( STD_DIFF_HOBR * ADJUST_DIFF )   	      	                                               
+               INV_DIFF_HOBR   = 1.0D0 / ( STD_DIFF_HOBR * ADJUST_DIFF ) 
                INV_DIFF_I2O2   = 1.0D0 / ( STD_DIFF_I2O2 * ADJUST_DIFF )
                INV_DIFF_I2O3   = 1.0D0 / ( STD_DIFF_I2O3 * ADJUST_DIFF )
                INV_DIFF_I2O4   = 1.0D0 / ( STD_DIFF_I2O4 * ADJUST_DIFF )
