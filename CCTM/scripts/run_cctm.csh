@@ -160,7 +160,7 @@ setenv CTM_GRAV_SETL Y       #> vdiff aerosol gravitational sedimentation [ defa
 setenv CTM_BIOGEMIS Y        #> calculate in-line biogenic emissions [ default: N ]
 setenv CTM_PT3DEMIS Y        #> calculate in-line plume rise for elevated point emissions 
                              #>    [ default: N ]
-setenv CTM_ZERO_PCSOA N      #> turn off the emissions of the VOC precursor to pcSOA.
+setenv CTM_ZERO_PCSOA N      #> zero out emissions of VOC precursor for pcSOA formation.
                              #>    The CMAQ dev team recommends leaving pcSOA mass in the
                              #>    model for production runs. [ default: N ]
 
@@ -438,10 +438,9 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   if ( $?CTM_PROCAN ) then   # $CTM_PROCAN is defined
      if ( $CTM_PROCAN == 'Y' || $CTM_PROCAN == 'T' ) then
 #> process analysis global column, row and layer ranges
-#> user must check GRIDDESC for validity!
-        setenv PA_BCOL_ECOL "10 90"
-        setenv PA_BROW_EROW "10 80"
-        setenv PA_BLEV_ELEV "1  4"
+#       setenv PA_BCOL_ECOL "10 90"  # default: all columns
+#       setenv PA_BROW_EROW "10 80"  # default: all rows
+#       setenv PA_BLEV_ELEV "1  4"   # default: all levels
         setenv PACM_INFILE ${NMLpath}/pa_${MECH}.ctl
         setenv PACM_REPORT $OUTDIR/"PA_REPORT".${YYYYMMDD}
      endif
