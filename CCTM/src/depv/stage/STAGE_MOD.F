@@ -686,8 +686,8 @@ C Calcuate Bare Soil Resistance
                   Else
 !-------------------------------------------------------------------------------------------------
 ! Non bidirectional exchange
-!-------------------------------------------------------------------------------------------------                                                               
-                     Tile_Data%depvel_gasj( l,s,c,r ) = Flux / c_atm
+!-------------------------------------------------------------------------------------------------   
+                     Tile_Data%depvel_gasj( l,s,c,r ) =  veg * (1.0-c_z0/c_atm)/Ra + no_veg /( Ra + Rg )                                                            
                      depvel_gas( n ) = depvel_gas( n ) + frac_lu * Tile_Data%depvel_gasj( l,s,c,r )                  
                   End If ! compensation points greater than 0
                End If ! Water      
