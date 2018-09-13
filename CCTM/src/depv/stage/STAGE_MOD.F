@@ -553,7 +553,7 @@ C Calcuate Rcut
 !-------------------------------------------------------------------------------------------------
 ! Calculate in canopy aerodynamic resistance based on the momentum attenuation coefficient derived 
 ! by Yi 2008 https://doi.org/10.1175/2007JAMC1667.1
-                     Rinc = 2 * MOSAIC_DATA%Z0( c,r,l ) * 10.0 / max(lai,1.0) *  Ra * ( Exp( lai / 2.0 ) - 1.0 )
+                     Rinc =  Ra * ( Exp( lai / 2.0 ) - 1.0 )
 !-------------------------------------------------------------------------------------------------
 ! Resistance to air-canopy covered soil exchange
 !-------------------------------------------------------------------------------------------------
