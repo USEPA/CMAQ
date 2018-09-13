@@ -37,6 +37,7 @@ C                        modules instead of include files and 2) to use
 C                        real(8) variables
 C**********************************************************************
 
+      USE RUNTIME_VARS
       USE UTILIO_DEFN
       USE RXNS_DATA
       USE HRDATA
