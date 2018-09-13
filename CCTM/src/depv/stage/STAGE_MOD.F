@@ -687,7 +687,7 @@ C Calcuate Bare Soil Resistance
 !-------------------------------------------------------------------------------------------------
 ! Non bidirectional exchange
 !-------------------------------------------------------------------------------------------------   
-                     Tile_Data%depvel_gasj( l,s,c,r ) =  veg * (1.0-c_z0/c_atm)/Ra + no_veg /( Ra + Rg )                                                            
+                     Tile_Data%depvel_gasj( l,s,c,r ) =  veg * (1.0 - c_z0/c_atm ) / Ra + no_veg / ( Ra + Rg )
                      depvel_gas( n ) = depvel_gas( n ) + frac_lu * Tile_Data%depvel_gasj( l,s,c,r )                  
                   End If ! compensation points greater than 0
                End If ! Water      
@@ -745,7 +745,7 @@ C study at New York (total A/V)
 
                surf_bldg = GRID_DATA%PURB( c,r ) * 0.002
 
-C Calculate rate constant for the reaction (psudeo-first order reaction,
+C Calculate rate constant for the reaction (pseudo-first order reaction,
 C unit per second). Calculate pseudo-first order rate constant using Eq 1
 C of Vogel et al. (2003).  Unit of KNO2 is in 1/min in the paper; divide it
 C by 60 to convert it into 1/sec.
