@@ -128,9 +128,9 @@ C the local grid, those with G refer to the global grid.
       GN_SKIP = GNS_SIZE + GEW_SIZE + BTHICK*( MY_COL1 - 1 ) - LN_START + 1
       GW_SKIP = 2*GNS_SIZE + GEW_SIZE + BTHICK*( MY_ROW1 - 1 ) - LW_START + 1
 
-C Construct SOUTH boundary
+      LARRAY = 0.0   ! array assignment
 
-!     LARRAY = 0.0   ! array assignment
+C Construct SOUTH boundary
 
       IF ( SOUTH_PE .EQ. -1 ) THEN
          DO IL = 1, NLAYS
