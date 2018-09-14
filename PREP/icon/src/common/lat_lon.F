@@ -34,12 +34,16 @@ C Function: Computes latitude and longitude of center of grid cells
 C Preconditions: None
   
 C Key Subroutines/Functions Called: SETLAM
+C                                   SETPOL
 C                                   LAM2LL
+C                                   POL2LL
 C                                   UTM2LL
  
 C Revision History: Modified form of LAT_LON program originally created
 C                      by C. J. Coats  -- Jerry Gipson, January 1998    
 C    06 Jun 11 J.Young: Replaced I/O API include files with UTILIO_DEFN
+C    28 Aug 18 R.Mathur/S.Roselle: Added polar stereographic projection
+C                      grid type option 
  
 C***********************************************************************
 
@@ -104,6 +108,24 @@ C***********************************************************************
             MSG = 'Lambert conversion error for CTM CONC file'
             CALL M3EXIT( PNAME, 0, 0, MSG, 2 )
          END IF                          
+
+      ELSE IF ( GDTYP .EQ. POLGRD3 ) THEN  ! Polar Stereographic Projection
+
+         IF ( .NOT. SETPOL( SNGL( P_ALP ),        !  first, initialize
+     &                      SNGL( P_BET ),        !  for POL2LL()
+     &                      SNGL( P_GAM ),
+     &                      SNGL( XCENT ),
+     &                      SNGL( YCENT ) ) ) THEN
+            MSG='Polar stereographic projection setup error for CTM CONC file'
+            CALL M3EXIT( PNAME, 0, 0, MSG, 2 )
+         END IF
+
+         X = X0 + FLOAT( COL ) * SNGL( XCELL )
+         Y = Y0 + FLOAT( ROW ) * SNGL( YCELL )
+         IF ( .NOT. POL2LL( X, Y, LON, LAT ) ) THEN
+            MSG = 'Polar stereographic conversion error for CTM CONC file'
+            CALL M3EXIT( PNAME, 0, 0, MSG, 2 )
+         END IF
 
       ELSE IF ( GDTYP .EQ. UTMGRD3 ) THEN   ! UTM Coordinates
 
