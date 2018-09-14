@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/grid/cartesian/PCGRID_DEFN.F,v 1.3 2011/10/21 16:11:18 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE PCGRID_DEFN
 
@@ -70,7 +63,6 @@ C-----------------------------------------------------------------------
 
          LOGICAL :: SUCCESS
          INTEGER :: ALLOCSTAT
-         INTEGER, SAVE :: LOGDEV
          LOGICAL, SAVE :: FIRSTIME = .TRUE.
          CHARACTER( 120 ) :: XMSG = ' '
 
@@ -84,7 +76,6 @@ C PCGRID extents
 
          IF ( FIRSTIME ) THEN
             FIRSTIME = .FALSE.
-            LOGDEV = INIT3()
 
 #ifdef parallel
             LCOL = 1 - NTHIK

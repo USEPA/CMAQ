@@ -17,9 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-! RCS file, release, date & time of last delta, author, state, [and locker]
-! $Header: /project/yoj/arc/CCTM/src/phot/phot_inline/o3totcol.f,v 1.2 2011/10/21 16:11:28 yoj Exp $ 
-
       subroutine o3totcol ( latitude, longitude, jdate, jtime, ozone )
 
 !----------------------------------------------------------------------
@@ -37,6 +34,7 @@
 !     Jun 2015 J.Young: maintain code stnds
 !----------------------------------------------------------------------
 
+      use runtime_vars
       use utilio_defn
 
       implicit none
@@ -74,7 +72,6 @@
 
       integer, save :: nlat ! = 17 ! or 19
       integer, save :: nlon ! = 17
-      integer, save :: logdev           ! output log unit number
       integer, save :: nt
       integer, save :: it
       integer, save :: icolumn_prev = 1 
@@ -94,7 +91,7 @@
       real :: tdate_temp, tdate
 
       real, save :: x1
-      real, save :: stdate, enddate
+      real, save :: strdate, enddate
       real, save :: max_lat, min_lat
 
       real, allocatable, save :: t( : )
@@ -109,7 +106,6 @@
       if ( firsttime ) then
       
         firsttime = .false.
-        logdev = init3()
 
         tmunit = getefile( tmfile, .true., .true., pname )
 
@@ -182,7 +178,7 @@
 
         max_lat = maxval( lat )
         min_lat = minval( lat )
-        stdate  = minval( t )
+        strdate  = minval( t )
         enddate = maxval( t )
 
       end if ! firsttime
@@ -224,17 +220,17 @@
                 write(xmsgs( 3 ),'(A,F14.8)')'Exact date: ',tdate_temp
                 call m3parag ( 3, xmsgs )
              end if
-           else if ( tdate .le. stdate ) then
+           else if ( tdate .le. strdate ) then
 ! Submitted date is outside of ozone database range.
 !     Total column ozone will be estimated from the corresponding Julian Day of
 !     the subsequent year
-             tdate_temp = real( int( stdate ) ) + ( tdate - real( int( tdate ) ) )
-             if ( tdate_temp .lt. stdate ) then
+             tdate_temp = real( int( strdate ) ) + ( tdate - real( int( tdate ) ) )
+             if ( tdate_temp .lt. strdate ) then
                tdate_temp = tdate_temp + 1.0
              end if
-             jstdate = int( stdate ) * 1000
-     &               + int( ( 1.0 / yr2day( int( stdate ) ) )
-     &               * ( stdate - aint( stdate ) ) )
+             jstdate = int( strdate ) * 1000
+     &               + int( ( 1.0 / yr2day( int( strdate ) ) )
+     &               * ( strdate - aint( strdate ) ) )
              jtdate_temp = int( tdate_temp ) * 1000
      &                   + nint( ( 1.0 / yr2day( int( tdate_temp ) ) )
      &                   * ( tdate_temp - aint( tdate_temp ) ) )

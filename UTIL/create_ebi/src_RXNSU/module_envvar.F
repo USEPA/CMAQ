@@ -409,7 +409,7 @@ c         LERROR = .FALSE.
            CHARACTER*(*), INTENT( OUT ) :: VAR_VALUE
            INTEGER,       INTENT( OUT ) :: STATUS 
 !local
-           CHARACTER( 120 ) :: MSG         ! Message text
+           CHARACTER( 300 ) :: MSG         ! Message text
 
            CALL GET_ENVIRONMENT_VARIABLE( NAME=VAR_NAME, VALUE= VAR_VALUE, STATUS=STATUS, TRIM_NAME=.TRUE.)
 

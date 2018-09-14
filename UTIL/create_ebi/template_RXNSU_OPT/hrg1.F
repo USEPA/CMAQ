@@ -17,11 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header$
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
 
        SUBROUTINE HRG1( DTC )
 
@@ -37,6 +32,9 @@ C
 R2  REVISION HISTORY: Prototype created by Jerry Gipson, January, 2003
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables                    
+C   01 Jun 18 B.Hutzell: replaced steady solution for O1D with backward Euler
+C                        approximation. To match conditions where the initial
+C                        concentration cannot be neglected.
 C**********************************************************************
       USE HRDATA
 
@@ -292,7 +290,7 @@ c       [NO]   = ( P1 + x ) / ( 1 + L1 )
 c       [NO2]  = ( P2 - x ) / ( 1 + L2 )
 c       [O3 ]  = ( P3 + Ko3p->O3 ) / (1 + K1,3 * [NO] + L3 )
 c       [O3P]  = ( P12 + J1 * [NO2] ) / ( 1 + L12 )
-c       [O1D2] = ( Ko3->o1d * [O3] ) / ( O1D_DNM )
+c       [O1D] = ( yc0(o1d) + Ko3->o1d * [O3] *dtc) / ( 1 + O1D_S*dtc )
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 S2
 
@@ -308,7 +306,8 @@ S2
 
       YCP( O3P ) = S1 * L12_INV
 
-      YCP( O1D2 ) = RKI(  18 ) * YCP( O3 ) / O1D_DNM
+      YCP( O1D2 ) = ( YC0( O1D2 ) + RKI(  18 ) * YCP( O3 ) * DTC )
+     &            / ( 1.0D0 + O1D_DNM * DTC )
 
       RETURN
 

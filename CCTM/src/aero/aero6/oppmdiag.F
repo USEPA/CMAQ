@@ -17,12 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero5/opdiam.F,v 1.5 2011/10/21 16:10:15 yoj Exp $
- 
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
  
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE OPPMDIAG ( JDATE, JTIME, TSTEP )
@@ -53,25 +47,22 @@ C                      - renamed the procedure name from OPDIAM to OPPMDIAG
       USE RXNS_DATA, ONLY : MECHNAME
       USE PMDIAG_DATA_MODULE
 
-      IMPLICIT NONE
+        IMPLICIT NONE
  
-!     INCLUDE SUBST_HGRD_ID   ! horizontal dimensioning parameters
-!     INCLUDE SUBST_VGRD_ID   ! vertical dimensioning parameters
-      INCLUDE SUBST_FILES_ID  ! file name parameters
-!     INCLUDE SUBST_COORD_ID  ! coordinate and domain definitions (req IOPARMS)
+        INCLUDE SUBST_FILES_ID  ! file name parameters
 
 C...Arguments:
 
-      INTEGER      JDATE      ! current model date, coded YYYYDDD
-      INTEGER      JTIME      ! current model time, coded HHMMSS
-      INTEGER      TSTEP      ! output time step
+        INTEGER, INTENT( IN ) :: JDATE      ! current model date, coded YYYYDDD
+        INTEGER, INTENT( IN ) :: JTIME      ! current model time, coded HHMMSS
+        INTEGER, INTENT( IN ) :: TSTEP      ! output time step
 
 C...Local variables:
 
-      CHARACTER( 16 ), SAVE :: PNAME = 'OPPMDIAG'
-      CHARACTER( 96 ) :: XMSG = ' '
+        CHARACTER( 16 ), SAVE :: PNAME = 'OPPMDIAG'
+        CHARACTER( 96 ) :: XMSG = ' '
 
-      INTEGER      L          ! loop induction variables
+        INTEGER :: L          ! loop induction variables
 
 C-----------------------------------------------------------------------
 

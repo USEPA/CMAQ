@@ -17,10 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header$
-
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       module lus_defn
 C Land Use/Cover Schema
@@ -489,8 +485,6 @@ C Includes:
          integer, intent( in ) :: jtime      ! current model time, coded HHMMSS
          logical :: success
 
-         integer, external :: setup_logdev
-
          type( lus_type ), allocatable :: vnmlu( : )
          real, allocatable :: lut( :,:,: ) ! landuse category fraction
 
@@ -498,7 +492,6 @@ C Includes:
          integer, save :: strtcol_01, endcol_01, strtrow_01, endrow_01
          integer, save :: strtcol_02, endcol_02, strtrow_02, endrow_02
 
-         character( 16 ) :: land_scheme
          character( 16 ) :: ctm_wbdust_beld = 'CTM_WBDUST_BELD'
          character( 16 ) :: lufile( 2 ) = ' '
          character( 16 ) :: pname = 'LUS_INIT'
@@ -507,26 +500,16 @@ C Includes:
          character( 24 ) :: strg = 'incorrect num_land_cat, '
          real( 8 ) :: tland
          logical isbeld
-         integer logdev
          integer i, c, r, err
 
-         logdev = setup_logdev()
          success = .true.
 
-         vardesc = 'Flag for Wind Blown Dust - Land Use from BELD'
-         call envstr( 'CTM_WBDUST_BELD', vardesc, 'UNKNOWN', land_scheme, err )
-         if ( err .gt. 0 ) then
-            write( logdev, '(5x, a, i4)' ) vardesc // ' err:', err
-            xmsg = 'Environment variable not set or empty or improperly formatted'
-            call m3warn ( pname, jdate, jtime, xmsg )
-            success = .false.; return
-         end if
 
-         if ( land_scheme .eq. 'BELD3' ) then
+         if ( dust_land_scheme .eq. 'BELD3' ) then
             isbeld = .true.
             lufile( 1 ) = dust_lu_1 
             lufile( 2 ) = dust_lu_2    ! total forest coverage
-         else if ( land_scheme .eq. 'BELD4' ) then
+         else if ( dust_land_scheme .eq. 'BELD4' ) then
             isbeld = .true.
             lufile( 1 ) = beld4_lu 
 !           lufile( 2 ) = beld4_lu_forest )
@@ -577,7 +560,7 @@ C mminlu and num_land_cat are WRF global variables
                      call m3warn( pname, jdate, jtime, xmsg )
                      success = .false.; return
                   end if
-                  land_scheme = 'USGS24'
+                  dust_land_scheme = 'USGS24'
                case( 'NLCD40' )
                   if ( num_land_cat .ne. 40 ) then
                      write( xmsg, '(a, i3, a )' ) strg, num_land_cat,
@@ -585,7 +568,7 @@ C mminlu and num_land_cat are WRF global variables
                      call m3warn( pname, jdate, jtime, xmsg )
                      success = .false.; return
                   end if
-                  land_scheme = 'NLCD40'
+                  dust_land_scheme = 'NLCD40'
                case( 'NLCD-MODIS' )
                   if ( num_land_cat .ne. 50 ) then
                      write( xmsg, '(a, i3, a )' ) strg, num_land_cat,
@@ -593,7 +576,7 @@ C mminlu and num_land_cat are WRF global variables
                      call m3warn( pname, jdate, jtime, xmsg )
                      success = .false.; return
                   end if
-                  land_scheme = 'NLCD-MODIS'
+                  dust_land_scheme = 'NLCD-MODIS'
                case( 'MODIFIED_IGBP_MODIS_NOAH' )
                   if ( num_land_cat .ne. 20 ) then
                      write( xmsg, '(a, i3, a )' ) strg, num_land_cat,
@@ -601,7 +584,7 @@ C mminlu and num_land_cat are WRF global variables
                      call m3warn( pname, jdate, jtime, xmsg )
                      success = .false.; return
                   end if
-                  land_scheme = 'MODIS_NOAH'
+                  dust_land_scheme = 'MODIS_NOAH'
                case( 'MODIS' )
                   if ( num_land_cat .ne. 20 ) then
                      write( xmsg, '(a, i3, a )' ) strg, num_land_cat,
@@ -609,7 +592,7 @@ C mminlu and num_land_cat are WRF global variables
                      call m3warn( pname, jdate, jtime, xmsg )
                      success = .false.; return
                   end if
-                  land_scheme = 'MODIS'
+                  dust_land_scheme = 'MODIS'
                case default
                   xmsg = 'Land use scheme not supported'
                   call m3warn( pname, jdate, jtime, xmsg )
@@ -621,18 +604,18 @@ C mminlu and num_land_cat are WRF global variables
             l_s: do i = 1, nvars3d   ! determine land scheme from GRID_CRO_2D
                if ( vname3d( i ) .eq. 'DLUSE' ) then
                   if ( index( vdesc3d( i ), 'USGS24' ) .ne. 0 ) then
-                     land_scheme = 'USGS24'; exit l_s
+                     dust_land_scheme = 'USGS24'; exit l_s
                   else if ( index( vdesc3d( i ), 'NLCD40' ) .ne. 0 ) then
-                     land_scheme = 'NLCD40'; exit l_s
+                     dust_land_scheme = 'NLCD40'; exit l_s
                   else if ( index( vdesc3d( i ), 'NLCD50' ) .ne. 0 ) then
-                     land_scheme = 'NLCD50'; exit l_s
+                     dust_land_scheme = 'NLCD50'; exit l_s
                   else if ( index( vdesc3d( i ), 'MODIS' ) .ne. 0 ) then
                      if ( index( vdesc3d( i ), 'NLCD-MODIS' ) .ne. 0 ) then
-                        land_scheme = 'NLCD-MODIS'; exit l_s
+                        dust_land_scheme = 'NLCD-MODIS'; exit l_s
                      else if ( index( vdesc3d( i ), 'MODIS NOAH' ) .ne. 0 ) then
-                        land_scheme = 'MODIS_NOAH'; exit l_s
+                        dust_land_scheme = 'MODIS_NOAH'; exit l_s
                      else
-                        land_scheme = 'MODIS'; exit l_s
+                        dust_land_scheme = 'MODIS'; exit l_s
                      end if
                   end if
                end if
@@ -641,7 +624,7 @@ C mminlu and num_land_cat are WRF global variables
 
          end if   ! .not. isbeld
 
-         select case( land_scheme )
+         select case( dust_land_scheme )
 
             case( 'BELD3' )
                n_lucat = n_lucat_beld3
@@ -770,7 +753,7 @@ C mminlu and num_land_cat are WRF global variables
          end select
 
          write( logdev,* ) ' '
-         write( logdev,* ) '    Land use scheme is ', trim( land_scheme )
+         write( logdev,* ) '    Land use scheme is ', trim( dust_land_scheme )
          write( logdev,* ) '    n_lucat,n_dlcat: ', n_lucat, n_dlcat
          write( logdev,* ) '    desert land categories ------------------------'
          do i = 1, n_dlcat
@@ -842,7 +825,7 @@ C Get landuse (fraction) data
          end if
 
 C Merge fractional landuse categories into 4 groups for dust transport factors
-         select case( land_scheme )
+         select case( dust_land_scheme )
 
             case( 'BELD3' )
             do r = 1, my_nrows

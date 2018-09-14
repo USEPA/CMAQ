@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker] 
-C $Header: /project/yoj/arc/CCTM/src/util/util/subhdomain.F,v 1.3 2011/10/21 16:11:38 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE SUBHDOMAIN ( NPROCS, NPCOL, NPROW, NCOLS, NROWS,
      &                        NCOLS_PE, NROWS_PE, COLSX_PE, ROWSX_PE )

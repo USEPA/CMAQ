@@ -17,12 +17,8 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/work/rep/arc/CCTM/src/depv/m3dry/m3dry.F,v 1.12 2012/01/19 14:19:43 yoj Exp $
-
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE m3dry ( jdate, jtime, dt, abflux, sfc_hono, cgridl1, depvel_gas, pvd,ddep_nh3)
-
+      SUBROUTINE m3dry ( jdate, jtime, dt, cgridl1, depvel_gas, pvd, ddep_nh3)
 
 C-------------------------------------------------------------------------------
 C Name:     Models-3 Dry Deposition
@@ -147,6 +143,7 @@ C                       ASX_DATA_MOD.
 C            June 2018  revised for v5.3 - removed mosaic, new epic-bidi - j pleim
 C-------------------------------------------------------------------------------
 
+      USE RUNTIME_VARS
       USE HGRD_DEFN      ! horizontal grid specifications
       USE DEPVVARS
       USE VGRD_DEFN      ! to get VGTYP_GD
@@ -175,7 +172,6 @@ C Arguments:
       INTEGER,     INTENT( IN )  :: jdate
       INTEGER,     INTENT( IN )  :: jtime
       INTEGER,     INTENT( IN )  :: dt( 3 )      ! model time step
-      LOGICAL,     INTENT( IN )  :: abflux, sfc_hono !, mosaic, fst
       REAL,        INTENT( IN )  :: cgridl1( :,:,: )    ! layer 1 concentrations
       REAL,        INTENT( OUT ) :: depvel_gas( :,:,: )
       REAL,        INTENT( OUT ) :: pvd( :,:,: )
@@ -186,7 +182,6 @@ C Local Variables:
       INTEGER                    :: c,r,l,n              ! loop variables
       INTEGER                    :: elapsedsec
       INTEGER                    :: ifsnow               ! 1=snow
-      INTEGER, SAVE              :: logdev               ! unit number for the log file
       INTEGER, SAVE, ALLOCATABLE :: lstwetdate( :,: )
       INTEGER, SAVE, ALLOCATABLE :: lstwettime( :,: )
 
@@ -286,7 +281,6 @@ C-------------------------------------------------------------------------------
 
       IF ( first_call ) THEN
          first_call = .FALSE.
-         logdev  = init3()
 
          DO l = 1, n_spc_m3dry
             IF ( dif0( l ) > 0.0 ) THEN
@@ -378,7 +372,6 @@ C-------------------------------------------------------------------------------
 
       depvel_gas( :,:,: ) = 0.0  ! initialize for this time period
       pvd       ( :,:,: ) = 0.0  !     "       "    "    "    "
-
 
       DO r = 1, my_nrows
       DO c = 1, my_ncols

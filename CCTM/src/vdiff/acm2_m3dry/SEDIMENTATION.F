@@ -16,9 +16,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/vdiffacm2.F,v 1.13 2012/01/19 14:37:47 yoj Exp $
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       module sedimentation
 
@@ -56,7 +53,6 @@ C 03 Jul 15 J.Young: inital
 !     integer, save :: odate, otime
       real    conv, fac            ! temp var
       integer ios
-      integer, save :: logdev
 
       integer gxoff, gyoff         ! global origin offset from file
 C for interpx
@@ -141,7 +137,6 @@ C-----------------------------------------------------------------------
       if ( firstime ) then
 
          firstime = .false.
-         logdev = init3()
 
          mdate = 0; mtime = 0
 
@@ -238,22 +233,6 @@ C #/m**3 (number density), and m**2/m**3 (surface area) species
                molwt( nqae ) = ae_molwt( s )
             end if
          end do
-
-C=======================================================================
-!        write( logdev,'( 2(a, i5) )' ), ' off: ', off, ' cg_off: ', cg_off
-!        write( logdev,'( a, i5 )' ), ' nae: ', nnae
-!        do s = 1, nnae
-!           write( logdev,'( 2i5 )' ), s, nae( s )
-!        end do
-!        write( logdev,'( a, i5 )' ), ' sae: ', nsae
-!        do s = 1, nsae
-!           write( logdev,'( 2i5 )' ), s, sae( s )
-!        end do
-!        write( logdev,'( a, i5 )' ), ' qae: ', nqae
-!        do s = 1, nqae
-!           write( logdev,'( 2i5,f10.4 )' ), s, qae( s ), ae_molwt( qae( s ) )
-!        end do
-C=======================================================================
 
       end if   !  if firstime
 

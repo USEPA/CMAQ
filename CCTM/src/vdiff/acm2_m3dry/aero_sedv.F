@@ -88,7 +88,6 @@ C follow the Namelist dep vel surrogate name table
       real m3_wet, m3subt, m3_dry
 
       logical, save :: firstime = .true.
-      integer, save :: logdev                   ! unit number for the log file
       character( 16 ), save :: pname = 'AERO_SEDI'
       character( 16 ) :: vname                  ! variable name
       character( 96 ) :: xmsg = ' '
@@ -121,7 +120,6 @@ c-----------------------------------------------------------------------
 
       if ( firstime ) then
          firstime = .false.
-         logdev = init3()
 
 C  Allocate arrays
          allocate( xxlsgac( nlays ),

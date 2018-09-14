@@ -17,9 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/eddyx.F,v 1.7 2012/01/19 14:42:46 yoj Exp $
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE EDDYX ( EDDYV )
 
@@ -103,15 +100,7 @@ C Local variables:
       CHARACTER( 16 ) :: UNITSCK
       CHARACTER( 96 ) :: XMSG = ' '
 
-      LOGICAL, SAVE :: FIRSTIME = .TRUE.
-      INTEGER, SAVE :: LOGDEV
-
 C-----------------------------------------------------------------------
-
-      IF ( FIRSTIME )  THEN
-         FIRSTIME  =  .FALSE.
-         LOGDEV = INIT3()
-      END IF          !  if firstime
 
       MEDDYV = 0.0
 
@@ -222,12 +211,12 @@ C Capture the col, row, lvl, and EDDYV for the global min DT
 222   CONTINUE       !  end loop on rows
 233   CONTINUE       !  end loop on levels
 
-      WRITE( LOGDEV,* ) ' '
-      WRITE( LOGDEV,1001 ) MEDDYV, MCOL, MROW, MLVL
+      !WRITE( LOGDEV,* ) ' '
+      !WRITE( LOGDEV,1001 ) MEDDYV, MCOL, MROW, MLVL
 1001  FORMAT(/ 5X, 'Maximum eddy diffusivity of:', 1PG13.5,
      &         1X, '(m**2/sec)'
      &       / 5X, 'at col, row, layer:', I4, 2(', ', I3) )
-      WRITE( LOGDEV,1003 ) MWS, MRIB, MTH1, MTH2
+      !WRITE( LOGDEV,1003 ) MWS, MRIB, MTH1, MTH2
 1003  FORMAT(  5X, 'corresponding to a free tropospheric wind shear of:',
      &         1PG13.5,  1X, '(/sec),'
      &        /28X, 'a bulk Richardson Number of:', 1PG13.5, ','

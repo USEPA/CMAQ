@@ -78,10 +78,6 @@ c..Mechanism specific variables
       LOGICAL :: LORDERING            ! Flag for reordering
       LOGICAL :: LSUNLIGHT            ! Flag for sun
 
-c..Global tolerances
-      REAL :: GLBL_ATOL                ! Global absolute tolerances
-      REAL :: GLBL_RTOL                ! Global relative tolerances
-
 c...Allocatable arrays
       REAL( 8 ), ALLOCATABLE :: RKI( :,: )         ! Rate constants 
       REAL( 8 ), ALLOCATABLE :: ATOL( : )          ! Species absolute tolerances 

@@ -74,7 +74,7 @@ ANO3_PPB        ,ppbV      ,(ANO3I[1]+ANO3J[1]+ANO3K[1])/(DENS[2]*(62.0/28.97))
 NTR             ,ppbV      ,1000.0*(NTR1[1]+NTR2[1]+INTR[1])
 PANS            ,ppbV      ,1000.0*(PAN[1]+PANX[1]+OPAN[1])
 NOY             ,ppbV      ,1000.0* (NO[1]+NO2[1]+NO3[1]+2*N2O5[1]+HONO[1]+HNO3[1]+PNA[1] \
-                                     +CRON[1]+CLNO2[1]) \
+                                     +CRON[1]+CLNO2[1]+CLNO3[1]) \
                                      +PANS[0]+NTR[0]+ANO3_PPB[0]
 O3              ,ppbV      ,1000.0*O3[1]
 SO2             ,ppbV      ,1000.0*SO2[1]
@@ -99,17 +99,19 @@ XYL             ,ppbV      ,1000.0*XYLMN[1]
 !! Unused Gases. Presented Here for illustration. Users can uncomment
 !! them if they choose.
 !ALDX            ,ppbV      ,1000.0*ALDX[1]
-!CLNO2           ,ppbV      ,1000.0*CLNO2[1]
 !IOLE            ,ppbV      ,1000.0*IOLE[1]
 !OLE             ,ppbV      ,1000.0*OLE[1]
 !PAR             ,ppbV      ,1000.0*PAR[1]
 !PAN             ,ppbV      ,1000.0*PAN[1]
-!PANX            ,ppbV      ,1000.0*PANX[1]
 !SULF            ,ppbV      ,1000.0*SULF[1]
-!VOC             ,ppbC      ,1000.0* ( PAR[1]      + 2.0*ETH[1]  + MEOH[1]     + 2.0*ETOH[1]  \
-!                                     +2.0*OLE[1]  + 7.0*TOL[1]  + 8.0*XYLMN[1]+ FORM[1]      \
-!                                     +2.0*ALD2[1] + 2.0*ETHA[1] + 4.0*IOLE[1] + 2.0*ALDX[1]  \
-!                                     +5.0*ISOP[1] + 10.0*TERP[1]+ 10.0*NAPH[1])
+! emitted VOCs
+!VOC             ,ppbC      ,1000.0* (PAR[1] +2.0*ETHA[1] +3.0*PRPA[1] +MEOH[1]\
+!                            +2.0*ETH[1] +2.0*ETOH[1] +2.0*OLE[1] +3.0*ACET[1] \
+!                            +7.0*TOL[1] +8.0*XYLMN[1] +6.0*BENZENE[1] \
+!                            +FORM[1] +3.0*GLY[1] +4.0*KET[1] +2.0*ETHY[1] \
+!                           +2.0*ALD2[1] + 2.0*ETHA[1] + 4.0*IOLE[1] + 2.0*ALDX[1]  \
+!                           +5.0*ISOP[1] + 10.0*TERP[1]+ 10.0*NAPH[1] +10.*APIN[1])
+
 
 
 !-------------------------------------------!
@@ -280,12 +282,12 @@ PMC_TOT         ,ug m-3     ,ATOTIJK[0]-PM25_TOT[0]
 !! This section calculates the FRM applicable PM species, PMIJ_FRM and
 !! PM25_FRM. The intermediate variablse K...ANH4IJ_loss are needed to 
 !! calculate the final quantities.
-K               ,ppb2	   ,exp(118.87-24084/TEMP2[4]-6.025*log(TEMP2[4]))
+K               ,ppb2      ,exp(118.87-24084/TEMP2[4]-6.025*log(TEMP2[4]))
 P1              ,          ,exp(8763/TEMP2[4]+19.12*log(TEMP2[4])-135.94)
 P2              ,          ,exp(9969/TEMP2[4]+16.22*log(TEMP2[4])-122.65)
 P3              ,          ,exp(13875/TEMP2[4]+24.46*log(TEMP2[4])-182.61)
 a               ,          ,1-RH[0]/100
-K_prime         ,ppb2     ,(P1[0]-P2[0]*a[0]+(P3[0]*a[0]*a[0]))*(a[0]^1.75)*K[0]
+K_prime         ,ppb2      ,(P1[0]-P2[0]*a[0]+(P3[0]*a[0]*a[0]))*(a[0]^1.75)*K[0]
 sqrt_Ki         ,ppb       ,sqrt(RH[0]<=61 ? K[0] : K_prime[0])
 max_NO3_loss    ,ug m-3     ,745.7/TEMP2[4]*sqrt_Ki[0]
 PM25_NO3_loss   ,ug m-3     ,max_NO3_loss[0]<=PM25_NO3[0] ? max_NO3_loss[0] : PM25_NO3[0]

@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/conv_cgrid.F,v 1.6 2011/10/21 16:11:44 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE CONV_CGRID ( CGRID, JDATE, JTIME, CNGRD )
 
@@ -66,7 +59,6 @@ C Parameters:
 C Local Variables:
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
-      INTEGER, SAVE :: LOGDEV
       CHARACTER( 16 ), SAVE :: PNAME = 'CONV_CGRID'
       CHARACTER( 96 ) :: XMSG = ' '
 
@@ -93,7 +85,6 @@ C-----------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
-         LOGDEV = INIT3()
 
          IF ( N_AE_SPC .GT. 0 ) THEN
 C create aerosol species pointers to distinguish micro-grams/m**3,

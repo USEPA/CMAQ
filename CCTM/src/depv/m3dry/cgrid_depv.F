@@ -17,15 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/cgrid_depv.F,v 1.4 2011/10/21 16:10:37 yoj Exp $
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/cgrid_depv.F,v 1.4 2011/10/21 16:10:37 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE CGRID_DEPV( GAS_DEPV_FOUND, GAS_DEPV_SUR, CGRID, CGRIDL1 )
 
@@ -53,14 +44,12 @@ C Arguments:
 C Local Variables:
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
-      integer, save :: logdev
 
        INTEGER C, R, S, N, V, NDX, STRT
 
 C-----------------------------------------------------------------------
       IF ( FIRSTIME )  THEN
          FIRSTIME  =  .FALSE.
-         logdev = init3()
       END IF
 
       N = 0
@@ -76,7 +65,6 @@ C-----------------------------------------------------------------------
                END DO
             END DO
          END IF
-!        write( logdev,* ) strt, v, n, ndx, s
       END DO
 
       STRT = N_GC_SPC + 1 + N_AE_SPC  ! +1 for RHOJ
@@ -91,7 +79,6 @@ C-----------------------------------------------------------------------
                END DO
             END DO
          END IF
-!        write( logdev,* ) strt, v, n, ndx, s
       END DO
 
       STRT = N_GC_SPC + 1 + N_AE_SPC + N_NR_SPC
@@ -106,7 +93,6 @@ C-----------------------------------------------------------------------
                END DO
             END DO
          END IF
-!        write( logdev,* ) strt, v, n, ndx, s
       END DO
 
       END SUBROUTINE CGRID_DEPV

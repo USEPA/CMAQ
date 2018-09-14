@@ -44,10 +44,11 @@ C           24 Mar 2016: G. Sarwar: added iodine and bromine species
 C           26 Sep 2016: D. Wong: removed unnecessary use module statements
 C           29 Dec 2015: H.Pye: added new monoterpene SOA surrogates
 C           06 Aug 2018: M.Qin: added new lumped anthropogenic semivolatiles
+C           16 Aug 2018: G. Sarwar: added ClNO3 and FMBR, and updated INO3 and BRNO3 name changes
 C-----------------------------------------------------------------------
 
       INTEGER, PARAMETER :: LDDEP = 4
-      INTEGER, PARAMETER :: LTOTG = 161
+      INTEGER, PARAMETER :: LTOTG = 163
       INTEGER, PARAMETER :: LCMP  = 8
       CHARACTER( 16 )    :: DEPV_METHOD
 
@@ -173,11 +174,11 @@ C-------------------------------------------------------------------------------
          DEPSPC( 89 ) = 'HOI             '
          DEPSPC( 90 ) = 'INO             '
          DEPSPC( 91 ) = 'INO2            '
-         DEPSPC( 92 ) = 'IONO2           '
+         DEPSPC( 92 ) = 'INO3            '
          DEPSPC( 93 ) = 'BRO             '
          DEPSPC( 94 ) = 'HOBR            '
          DEPSPC( 95 ) = 'HBR             '
-         DEPSPC( 96 ) = 'BRONO2          '
+         DEPSPC( 96 ) = 'BRNO3           '
          DEPSPC( 97 ) = 'BRNO2           '
          DEPSPC( 98 ) = 'BRCL            '
          DEPSPC( 99 ) = 'DMS             '
@@ -185,7 +186,7 @@ C-------------------------------------------------------------------------------
          DEPSPC( 101) = 'METHANE         '
          DEPSPC( 102) = 'ACRYACID        '
          DEPSPC( 103) = 'CARBSULFIDE     '
-         DEPSPC( 104) = 'ACETONITRILE    ' 
+         DEPSPC( 104) = 'ACETONITRILE    '
          DEPSPC( 105) = 'METH_NIT_PHEN   ' ! 6-methyl-2-nitrophenol aka 6-nitro-o-cresol
          DEPSPC( 106) = 'PCVOC           '
          DEPSPC( 107) = 'INTR            '
@@ -239,10 +240,12 @@ C-------------------------------------------------------------------------------
          DEPSPC( 155) = 'SVMT5           '
          DEPSPC( 156) = 'SVMT6           '
          DEPSPC( 157) = 'SVMT7           '
-         DEPSPC( 158) = 'SVAVB1          '
-         DEPSPC( 159) = 'SVAVB2          '
-         DEPSPC( 160) = 'SVAVB3          '
-         DEPSPC( 161) = 'SVAVB4          '
+         DEPSPC( 158) = 'SVAVB1         '
+         DEPSPC( 159) = 'SVAVB2         '
+         DEPSPC( 160) = 'SVAVB3         '
+         DEPSPC( 161) = 'SVAVB4         '
+         DEPSPC( 162) = 'CLNO3           '
+         DEPSPC( 163) = 'FMBR            '
 
          N_USE_DEPSPC = 0
          USE_DEPSPC = .FALSE.   ! array

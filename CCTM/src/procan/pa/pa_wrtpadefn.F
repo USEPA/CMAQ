@@ -396,7 +396,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             NHI = MIN( ( NS * 10 * MAXCNT ), NCSAVE )         
             WRITE( IOUT, 96320 ) NLO, NHI
             DO NPA = NLO,  NHI
-               WRITE( BUF6( NPA ), 96080 ) SV2GRD( NPA )
+               WRITE( BUF6( NPA ), 96080 ) SAV2GRD( NPA )
             END DO
             BUF6( NHI )( 6:7 ) = ' /'
 !           WRITE( IOUT, 96040 ) ( BUF6( NPA ), NPA = NLO, NHI )

@@ -96,15 +96,16 @@ set ParOpt                             #> uncomment to build a multiple processo
                                        #>     (see $CMAQ_MODEL/CCTM/src/phot)
  set Mechanism = cb6r3_ae7_aq          #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS)
  set ModGas    = gas/ebi_${Mechanism}  #> gas-phase chemistry solver (see $CMAQ_MODEL/CCTM/src/gas)
+                                       #>   overwritten below if using saprc07tic_ae6i_aqkmti mech
  set ModAero   = aero/aero7            #> aerosol chemistry module (see $CMAQ_MODEL/CCTM/src/aero)
  set ModCloud  = cloud/acm_ae7         #> cloud chemistry module (see $CMAQ_MODEL/CCTM/src/cloud)
+                                       #>   overwritten below if using cb6r3m_ae7_kmtbr mechanism
  set ModUtil   = util/util             #> CCTM utility modules
  set ModDiag   = diag                  #> CCTM diagnostic modules
  set Tracer    = trac0                 #> tracer configuration directory under 
                                        #>   $CMAQ_MODEL/CCTM/src/MECHS [ default: no tracer species ]
- set ModPa     = procan/pa             #> name of process analysis. Include files are in directory 
-                                       #>   $CMAQ_MODEL/CCTM/src/ICL
- set ModPvO3   = pv_o3                 #> potential vorticity from the free troposphee
+ set ModPa     = procan/pa             #> CCTM process analysis
+ set ModPvO3   = pv_o3                 #> potential vorticity from the free troposphere
 
 #============================================================================================
 #> Computing System Configuration:
@@ -221,6 +222,15 @@ set ParOpt                             #> uncomment to build a multiple processo
 #> Gas-phase chemistry solver options
  if ( $Mechanism == saprc07tic_ae6i_aqkmti ) then
     set ModGas = gas/ebi_saprc07tic_ae6i_aq
+ else if ( $Mechanism == saprc07tic_ae7i_aqkmt2 ) then
+    set ModGas = gas/ebi_saprc07tic_ae7i_aq
+ else if ( $Mechanism == cb6r3_ae7_aqkmt2 ) then    
+    set ModGas = gas/ebi_cb6r3_ae7_aq
+ endif
+
+#> Cloud chemistry options
+ if ( $Mechanism == cb6r3m_ae7_kmtbr ) then
+    set ModCloud = cloud/acm_ae7_kmtbr
  endif
 
 #> Tracer configuration files
@@ -471,8 +481,7 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo "Module ${ModGas};"                                          >> $Cfile
  echo                                                              >> $Cfile
 
- set MechList = " cb6r3_ae6_aq, cb6r3_ae7_aq, racm2_ae6_aq, saprc07tc_ae6_aq, saprc07tic_ae6i_aq, saprc07tic_ae6i_aqkmti, saprc07tic_ae7i_aq"
-
+ set MechList = " cb6mp_ae6_aq, cb6r3_ae6_aq, cb6r3_ae7_aq, cb6r3_ae7_aqkmt2, cb6r3m_ae7_kmtbr, racm2_ae6_aq, saprc07tc_ae6_aq, saprc07tic_ae6i_aq, saprc07tic_ae6i_aqkmti, saprc07tic_ae7i_aq, saprc07tic_ae7i_aqkmt2"
  set text = "gas chemistry mechanisms"
  echo "// " $text                                                  >> $Cfile
  set text = "$MechList"
@@ -498,7 +507,7 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo "Module ${ModAero};"                                         >> $Cfile
  echo                                                              >> $Cfile
 
- set text = "acm_ae6, acm_ae6_kmt, and acm_ae6_mp, acm_ae7"
+ set text = "acm_ae6, acm_ae6_kmt, acm_ae7_kmt2, acm_ae6_mp, acm_ae7"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModCloud};"                                        >> $Cfile
  echo                                                              >> $Cfile
