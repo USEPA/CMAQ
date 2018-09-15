@@ -410,7 +410,6 @@
      &                     ACORSEM_RENORM,   POA_OP_VF,
      &                     POA_AMF, POG_AMF, PCVOC_FAC
       USE RXNS_DATA, ONLY: MECHNAME
-      USE M3UTILIO
 
       IMPLICIT NONE
 

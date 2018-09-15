@@ -53,7 +53,7 @@ C-----------------------------------------------------------------------
       USE CGRID_SPCS           ! CGRID mechanism species
       USE UTILIO_DEFN
       USE RXNS_DATA, ONLY : MECHNAME
-      USE AERO_DATA, only : CHECK_AERO_ICBC, N_MODE
+      USE AERO_DATA, ONLY : CHECK_AERO_ICBC, N_MODE
 
       IMPLICIT NONE
  
@@ -66,9 +66,8 @@ C Arguments:
       INTEGER, INTENT( IN ) :: JTIME       ! current model time, coded HHMMSS
       INTEGER, INTENT( IN ) :: TSTEP       ! timestep
       INTEGER, INTENT( IN ) :: LVL         ! layer
-!     REAL           BCON( NBNDY,NLAYS,* )  ! boundary concentrations
       REAL,    INTENT( OUT ) :: BCON( :,: ) ! boundary concentrations
-      LOGICAL, INTENT( INOUT ) :: LSTAT       ! Flag for identifying Aerosol BC flaws
+      LOGICAL, INTENT( INOUT ) :: LSTAT    ! flag for identifying Aerosol BC flaws
 
 C Parameters:
       REAL, PARAMETER :: KGPMG = 1.0E-09  ! Kg / micro-gram
@@ -77,8 +76,6 @@ C Parameters:
       CHARACTER( 16 ) :: CONCMIN
 
 C File variables:
-!     REAL        JACOBM_BND( NBNDY,NLAYS )        ! boundary Jacobian
-!     REAL        RHOJ_BND  ( NBNDY,NLAYS )        ! mid-layer boundary RhoJ
       REAL, ALLOCATABLE, SAVE :: JACOBM_BND( :,: ) ! boundary Jacobian
       REAL, ALLOCATABLE, SAVE :: RHOJ_BND  ( :,: ) ! mid-layer boundary RhoJ
 
@@ -256,7 +253,6 @@ C    DENSA_J - KG M-2
          END IF
 
 C Fill in DENSJ array for boundaries
-
          COUNT = 0
          DO ROW = 0, 0                                ! South
             DO COL = 1, MY_NCOLS+1
@@ -288,7 +284,6 @@ C Fill in DENSJ array for boundaries
          END DO
 
       ELSE
-
 
          VNAME = 'JACOBM'
 #ifdef parallel
@@ -388,6 +383,7 @@ C Read & interpolate boundary concentrations
                ! running semivolatile POA
                IF ( BCNAME( VAR )( 1:4 ) .EQ. 'APOC' ) THEN 
                   IF ( INDEX( MECHNAME,"NVPOA" ) .EQ. 0 ) THEN
+                    BBUF_TMP = 0.0
                     BCNAME_TMP = 'APNCOM' // BCNAME( VAR )( 5:5 )
 #ifdef parallel
                     IF ( .NOT. INTERPB ( BNDY_AERO_1, BCNAME_TMP, PNAME,

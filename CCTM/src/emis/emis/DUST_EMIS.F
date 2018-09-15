@@ -870,6 +870,8 @@ C   in each soil type [Kg/Kg]. from Menut et al. [JGR,2013]
      &              0.00,   0.00,   0.00,   0.00 /),  ! Other
      &           (/ nsltyp,4 /), order = (/ 2,1 /) ) ! fill columns first
 
+         real :: soiltxt2( ndp )
+
 C---Mean mass median particle diameter (m) for each soil texture type
 C   Chatenet et al. [Sedimentology,1996] and Menut et al. [JGR,2013]
          real :: dp( ndp ) =
@@ -1119,8 +1121,9 @@ C---Vert-to-Horiz dust flux ratio : Kang et al. [JGR, 2011] : Eq. (12)
 !                       kvh( c,r,m ) = ( calpha * 9.81 * pfrac * 1000.0 / 2.0 / pp )
 !    &                               * ( 0.24 + 2.09 * ustr( c,r,m ) * sqrt( 2650.0 / pp ) )
                         kvh( c,r,m ) = flxfac1 * ( 0.24 + flxfac2 * ustr( c,r,m ) )
+                        soiltxt2 = soiltxt( j,: )
                         hflux = dust_hflux( ndp, dp,
-     &                                      soiltxt( j,: ),
+     &                                      soiltxt2,
      &                                      fmoit( c,r ),
      &                                      fruf( c,r,m ),
      &                                      ustr( c,r,m ),
@@ -1351,11 +1354,11 @@ C Then reset the emissions array and local write counter.
          end subroutine get_dust_emis
 
 C=======================================================================
-         function dust_hflux( ndp, dp, soiltxt, fmoit, fruf, ustr, sd_ep, dens )
+         function dust_hflux( ndp, dp, soiltxt2, fmoit, fruf, ustr, sd_ep, dens )
      &      result( hflux )
 
 C usage: hflux = dust_flux( ndp, dp,
-C                           soiltxt( j,: ),
+C                           soiltxt2( : ),
 C                           fmoit( c,r ),
 C                           fruf( c,r,m ),
 C                           ustr( c,r,m ),
@@ -1368,7 +1371,7 @@ C                           dens( c,r ) )
 
             integer, intent( in ) :: ndp
             real,    intent( in ) :: dp( ndp )
-            real,    intent( in ) :: soiltxt( ndp )
+            real,    intent( in ) :: soiltxt2( ndp )
             real,    intent( in ) :: fmoit, fruf, ustr, sd_ep, dens
             real hflux
 
@@ -1405,7 +1408,7 @@ C---Horiz. Flux from White (1979)
 C---Horiz. Flux from Owen (1964)
 !                 utem = ustr * ( ustr * ustr - utstar * utstar )
                   hflux = hflux
-     &                  + fac * utem * soiltxt( n )   !  [g/m/s]
+     &                  + fac * utem * soiltxt2( n )   !  [g/m/s]
                end if
             end do   ! dust particle size
 
