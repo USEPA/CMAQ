@@ -256,6 +256,8 @@ C    DENSA_J - KG M-2
          END IF
 
 C Fill in DENSJ array for boundaries
+         JACOBM_BND = 0.0
+         RHOJ_BND = 0.0
 
          COUNT = 0
          DO ROW = 0, 0                                ! South
@@ -288,7 +290,8 @@ C Fill in DENSJ array for boundaries
          END DO
 
       ELSE
-
+         JACOBM_BND = 0.0
+         RHOJ_BND = 0.0
 
          VNAME = 'JACOBM'
 #ifdef parallel
@@ -320,6 +323,10 @@ C Fill in DENSJ array for boundaries
 
       END IF   ! WINDOW
 
+      WHERE( JACOBM_BND .GT. 1e5 ) JACOBM_BND = 0.0
+      WHERE( JACOBM_BND .LT. 0.0 ) JACOBM_BND = 0.0
+      WHERE( RHOJ_BND .GT. 1e5 ) RHOJ_BND = 0.0
+      WHERE( RHOJ_BND .LT. 0.0 ) RHOJ_BND = 0.0
       BCON = 0.0
 
 C Read & interpolate boundary concentrations
@@ -388,6 +395,7 @@ C Read & interpolate boundary concentrations
                ! running semivolatile POA
                IF ( BCNAME( VAR )( 1:4 ) .EQ. 'APOC' ) THEN 
                   IF ( INDEX( MECHNAME,"NVPOA" ) .EQ. 0 ) THEN
+                    BBUF_TMP = 0.0
                     BCNAME_TMP = 'APNCOM' // BCNAME( VAR )( 5:5 )
 #ifdef parallel
                     IF ( .NOT. INTERPB ( BNDY_AERO_1, BCNAME_TMP, PNAME,
