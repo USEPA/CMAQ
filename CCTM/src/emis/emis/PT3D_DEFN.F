@@ -572,8 +572,8 @@ C Compute ZSTK, DDZF
 
 C=======================================================================
 
-         FUNCTION GET_PT3D_EMIS ( JDATE, JTIME, TSTEP, EM_SURR_PT, ISRM )
-     &                            RESULT( VDEMIS_PT )
+         SUBROUTINE GET_PT3D_EMIS ( JDATE, JTIME, TSTEP, EM_SURR_PT, ISRM,
+     &                            VDEMIS_PT, PT_LAYS )
 
 ! Revision History.
 !     Aug 12, 15 D. Wong: added code to handle parallel I/O implementation
@@ -602,6 +602,7 @@ C=======================================================================
          INTEGER               :: JDATE, JTIME
          INTEGER, INTENT( IN ) :: TSTEP( 3 )
          INTEGER, INTENT( IN ) :: ISRM
+         INTEGER, INTENT( OUT) :: PT_LAYS
 
 ! Outputs:
          REAL  :: VDEMIS_PT( N_EMIS_ISTR, EMLAYS, NCOLS, NROWS )
@@ -715,6 +716,7 @@ C Initialize Output Array
          VDEMIS_PT = 0.0   ! array assignment
 
          N = IPSRM( ISRM )
+         PT_LAYS = 1       ! Initialize Point Layers at lowest possible value
 
          IF ( MY_NSRC( N ) .LE. 0 ) RETURN
 
@@ -765,6 +767,7 @@ C Apportion emissions to the layers
                DO L = 1, EMLAYS
                   LFRC = TFRAC( L,S )
                   IF ( LFRC .LE. 0.0 ) CYCLE
+                  IF ( L .GT. PT_LAYS ) PT_LAYS = L
 
                   ! Save Emissions in Common Array
                   VDEMIS_PT( ISPC,L,C,R ) = VDEMIS_PT( ISPC,L,C,R )
@@ -836,7 +839,7 @@ C------------------  FORMAT  STATEMENTS   ------------------------------
 
 94030    FORMAT( /5X, 3( A, :, 1X ), I8, ":", I6.6 )
 
-         END FUNCTION GET_PT3D_EMIS
+         END SUBROUTINE GET_PT3D_EMIS
 
 C-------------- Subprograms used by GET_PT3D_EMIS ----------------------
 

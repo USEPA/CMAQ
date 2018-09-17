@@ -476,7 +476,7 @@ C-----------------------------------------------------------------------
 
 C-----------------------------------------------------------------------
 
-         SUBROUTINE EMISS_SIZE_DIST ( ISRM, VDEMIS )
+         SUBROUTINE EMISS_SIZE_DIST ( ISRM, VDEMIS, NL )
 
 C  EMISS_SIZE_DIST distributes bulk aerosol emissions into size space
 C  using parameters precompiled in the AERO_DATA module. 
@@ -494,7 +494,7 @@ C ----------------------------------------------------------------------
          USE EMIS_VARS
          USE SSEMIS, ONLY : SEA_FACTNUM, SEA_FACTSRF
 
-         INTEGER, INTENT( IN ) :: ISRM
+         INTEGER, INTENT( IN ) :: ISRM, NL
          REAL, INTENT( INOUT ) :: VDEMIS ( :,:,:,: ) 
 
          INTEGER :: N, S, IAERO, IM, ISD, ISTR   ! Looping Variables
@@ -518,7 +518,7 @@ C *** Initialize Variables
 C *** Calculate scaling factor for converting mass emissions into [ug/m3/s]
 C     note: RJACM converts grid heights from sigma coordinates to meters
 C     Also calculate scaling factors for converting to molar-mixing-ratio units
-         DO LAY = 1, EMLAYS
+         DO LAY = 1, NL
             GSFAC( LAY,:,: ) = CONVEM_PM( LAY,ISRM ) 
      &                           * Met_Data%RJACM( :,:,LAY ) ![g/s] or [kg/hr] to [ug/m3/s]
          END DO
@@ -544,18 +544,18 @@ C *** Apply Aerosol Size Distribution
              ! except Dust and Sea Spray. For those streams, convert
              ! [g/m3/s] to [ug/m3/s]
              IF ( ISRM .EQ. ISEASRM .OR. ISRM .EQ. IDUSTSRM ) THEN
-                VDEMIS( ISTR,:,:,: ) = VDEMIS( ISTR,:,:,: ) * CONVEM_PM_MASS( ISRM )
+                VDEMIS( ISTR,1:NL,:,: ) = VDEMIS( ISTR,1:NL,:,: ) * CONVEM_PM_MASS( ISRM )
              ELSE
-                VDEMIS( ISTR,:,:,: ) = VDEMIS( ISTR,:,:,: ) * GSFAC( :,:,: ) 
+                VDEMIS( ISTR,1:NL,:,: ) = VDEMIS( ISTR,1:NL,:,: ) * GSFAC( 1:NL,:,: ) 
              END IF
 
              ! Sum Total Volume of Mode N [m3/m3/s]
              IF ( .NOT. AEROSPC( IAERO )%TRACER ) 
-     &             EMISM3( :,:,:,IM,ISD ) = EMISM3( :,:,:,IM,ISD ) + 
-     &                  VDEMIS( ISTR,:,:,: ) * DENS_FAC
+     &             EMISM3( 1:NL,:,:,IM,ISD ) = EMISM3( 1:NL,:,:,IM,ISD ) + 
+     &                  VDEMIS( ISTR,1:NL,:,: ) * DENS_FAC
 
              ! Convert Mass Emission Rates from [ug/m3/s] to [umol/m3/s]
-             VDEMIS( ISTR,:,:,: ) = VDEMIS( ISTR,:,:,: ) * MW_FAC
+             VDEMIS( ISTR,1:NL,:,: ) = VDEMIS( ISTR,1:NL,:,: ) * MW_FAC
          END DO          
 
 C *** Calculate the number emissions rate for each mode [1/m3/s], using 
@@ -579,10 +579,10 @@ C     converts 2nd moment to surface area.
                DO IM = 1, N_MODE
                   INUM = MAP_NUMtoEM(IM)
                   FACNUM = EM_STREAM_SIZE( ISRM )%FACNUM( ISD,IM )
-                  VDEMIS( INUM,:,:,: ) = VDEMIS( INUM,:,:,: ) + EMISM3( :,:,:,IM,ISD ) * FACNUM
+                  VDEMIS( INUM,1:NL,:,: ) = VDEMIS( INUM,1:NL,:,: ) + EMISM3( 1:NL,:,:,IM,ISD ) * FACNUM
                   ISRF = MAP_SRFtoEM(IM)
                   FACSRF = EM_STREAM_SIZE( ISRM )%FACSRF( ISD,IM )
-                  VDEMIS( ISRF,:,:,: ) = VDEMIS( ISRF,:,:,: ) + EMISM3( :,:,:,IM,ISD ) * FACSRF
+                  VDEMIS( ISRF,1:NL,:,: ) = VDEMIS( ISRF,1:NL,:,: ) + EMISM3( 1:NL,:,:,IM,ISD ) * FACSRF
                END DO
             END IF
          END DO
