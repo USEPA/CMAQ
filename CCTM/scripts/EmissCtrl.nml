@@ -92,7 +92,6 @@
  !         | Stream Label   | Surr. Mode   | Ref. Mode 
  !<Default>  'ALL'          ,'FINE'        ,'FINE_REF',
  !<Default>  'ALL'          ,'COARSE'      ,'COARSE_REF',
-             'ALL'          ,'AIT_NULL'    ,'AIT_NULL',
 
 /
 
