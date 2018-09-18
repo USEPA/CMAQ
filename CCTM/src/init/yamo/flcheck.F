@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/init/yamo/flcheck.F,v 1.4 2011/10/21 16:11:23 yoj Exp $ 
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
        SUBROUTINE FLCHECK ( STDATE, STTIME, TSTEP )
 
 C-----------------------------------------------------------------------
@@ -48,12 +41,13 @@ C                     and the file is emtpy and requires to go through CHECK3
 C-----------------------------------------------------------------------
 
       USE UTILIO_DEFN
+      USE RUNTIME_VARS, ONLY : LOG_HEADING, LOG_SUBHEADING, LOG_MESSAGE,
+     &                         RUNLEN, FL_ERR_STOP, LOGDEV
 
       IMPLICIT NONE 
 
 C Includes:
       INCLUDE SUBST_FILES_ID    ! file name parameters
-      INCLUDE 'STATE3.EXT'
       
 C Arguments:
       INTEGER, INTENT( IN ) :: STDATE   ! Current date (YYYYDDD)
@@ -73,38 +67,34 @@ C Local Variables:
       INTEGER JDATE     ! Time step date (YYYYDDD)
       INTEGER JTIME     ! Time step time (HHMMSS)
       INTEGER N         ! Loop index
-      INTEGER RUNLEN    ! Length of run
       INTEGER STATUS    ! Status of returned value
-!     INTEGER LOGDEV    ! Log file device no.
 
-      LOGICAL LERROFF   ! Flag to stop run if errors found
       LOGICAL LERROR    ! Flag to indicate error for 1 or more files
       LOGICAL LOK       ! Flag to indicate error for 1 file
 
-      INTEGER :: FID
-      INTEGER, EXTERNAL :: NAME2FID
+      CHARACTER( 500 )  :: FNAME
+      INTEGER           :: LSTAT
+      LOGICAL           :: ESTAT
 
 C-----------------------------------------------------------------------
 
-      LOGDEV = INIT3()
-
-      WRITE( LOGDEV,2011 ) TRIM( PNAME )
-
-      LERROFF = .TRUE.   ! default
-      LERROFF = ENVYN( 'FL_ERR_STOP', 'Flag for stopping on errors',
-     &                 LERROFF, STATUS )  
+      CALL LOG_HEADING( LOGDEV, 'Check Input File Headers' )
 
       LERROR = .FALSE.
 
-      RUNLEN = 480000    ! default
-      RUNLEN = ENVINT( 'CTM_RUNLEN', 'Scenario Run Duration (HHMMSS)',
-     &                 RUNLEN, STATUS )
-
       DO N = 1, N_FILES      
 
-C skip Ping and Mepse files
-         IF ( INDEX( LGCL_NAME( N ), 'PING'  ) .EQ. 0 .AND. 
-     &        INDEX( LGCL_NAME( N ), 'MEPSE' ) .EQ. 0 ) THEN
+         ! Detect whether or not this filename logical has been set in the run
+         ! script
+         CALL GET_ENVIRONMENT_VARIABLE( NAME = LGCL_NAME( N ), 
+     &            VALUE = FNAME, STATUS = LSTAT )
+
+         ! Check to see if this file already exists
+         INQUIRE( FILE = TRIM( FNAME ), EXIST = ESTAT )
+         
+         ! skip checking files that were not set in the run script or do 
+         ! not exist 
+         IF ( LSTAT .LE. 0 .AND. ESTAT ) THEN
 
             LOK = OPEN3( LGCL_NAME( N ), FSREAD3, PNAME )
 
@@ -112,7 +102,7 @@ C skip Ping and Mepse files
 
                IF ( DESC3( LGCL_NAME( N ) ) ) THEN
      
-C only check gridded or boundary files
+                  ! only check gridded or boundary files
                   IF ( FTYPE3D .EQ. GRDDED3 .OR. FTYPE3D .EQ. BNDARY3 ) THEN
 
                      MSG = 'Checking header data for file: ' // LGCL_NAME( N )
@@ -120,23 +110,19 @@ C only check gridded or boundary files
 
                      CALL GRDCHECK ( LGCL_NAME( N ), LOK )
 
-c check time steps for time dependent files
+                     ! check time steps for time dependent files
                      IF ( TSTEP3D .GT. 0 ) THEN
                         JDATE = STDATE
                         JTIME = STTIME
 
-                        FID   = NAME2FID( LGCL_NAME( N ) )
-
-                        IF ( MXREC3( FID ) .GT. 0 ) THEN
-                           IF ( .NOT. CHECK3( LGCL_NAME( N ), ALLVAR3,
-     &                                        JDATE, JTIME ) ) THEN
-                              LOK = .FALSE.
-                              MSG = 'Starting time not on file'
-                              CALL M3MESG( MSG )
-                           END IF
+                        IF ( .NOT. CHECK3( LGCL_NAME( N ), ALLVAR3,
+     &                                     JDATE, JTIME ) ) THEN
+                           LOK = .FALSE.
+                           MSG = 'Starting time not on file'
+                           CALL M3MESG( MSG )
                         END IF
  
-c skip checking ending time for output files
+                        ! skip checking ending time for output files
                         IF ( IN_MODE( N ) ) THEN
                            CALL NEXTIME ( JDATE, JTIME, RUNLEN )
                            IF ( .NOT. CHECK3( LGCL_NAME( N ), ALLVAR3,
@@ -163,32 +149,23 @@ c skip checking ending time for output files
 
             END IF   ! successful open
 
-!           IF ( .NOT. CLOSE3( LGCL_NAME( N ) ) ) THEN
-!              MSG = '  >>> COULD NOT CLOSE ' // LGCL_NAME( N )
-!              CALL M3WARN ( PNAME, STDATE, STTIME, MSG )
-!           END IF
-
-         END IF  ! skip Ping and Mepse files
+         END IF  ! skip files not set in run script or that don't exist
 
       END DO
 
       IF ( LERROR ) THEN
          MSG = 'Inconsistent header data on input files'
-         IF ( LERROFF ) THEN       
+         IF ( FL_ERR_STOP ) THEN       
             CALL M3EXIT ( PNAME, STDATE, STTIME, MSG, XSTAT2 )
          ELSE
             CALL M3WARN ( PNAME, STDATE, STTIME, MSG )
-            WRITE( LOGDEV,2015 ) TRIM( PNAME )
             RETURN
          END IF
       ELSE
-         MSG = '   No inconsistent header data found on input files'
-         CALL M3MESG( MSG )
-         WRITE( LOGDEV,2015 ) TRIM( PNAME )
+         CALL LOG_MESSAGE( LOGDEV, 'No inconsistent header data found on input files' )
+         WRITE( LOGDEV, * )
       END IF
 
       RETURN
 
-2011  FORMAT( / 5X, 14( '= ' ), 'Start ', A, 14( ' =' ) / )
-2015  FORMAT( / 5X, 14( '= ' ), ' End  ', A, 14( ' =' ) / )
       END

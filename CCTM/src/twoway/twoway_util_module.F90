@@ -76,15 +76,8 @@
 
     integer, intent(in) :: g_ncols, g_nrows
 
-    character (len = 16), parameter :: griddesc = 'GRIDDESC'
-    character (len = 16), parameter :: grid_name = 'GRID_NAME'
-    character (len = 16)  :: grid_name_str
     character (len = 100) :: buffer, myfmt
-    character (len = 500) :: griddesc_fname
     character (len = 4)   :: projection_type
-
-    call nameval (griddesc, griddesc_fname)
-    call nameval (grid_name, grid_name_str)
 
     open (unit = 10, file = griddesc_fname, status = 'unknown')
     write (10, 11) "' '"

@@ -67,8 +67,6 @@ C Local variables:
 
 C-----------------------------------------------------------------------
 
-      LOGDEV = INIT3()
-
 C Try to open existing file for update
 
       IF ( IO_PE_INCLUSIVE ) THEN   ! open new

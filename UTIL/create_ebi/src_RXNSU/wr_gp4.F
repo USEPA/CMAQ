@@ -43,7 +43,7 @@ C..SCRATCH LOCAL VARIABLES:
       CHARACTER( 256 )  ::    LINOUT
       CHARACTER( 150 )  ::    RXOUT
       CHARACTER( 100 )  ::    BLANK_LINE
-      CHARACTER*(  3 )  ::    RNUM                 ! Reaction number
+      CHARACTER*(  5 )  ::    RNUM                 ! Reaction number
       CHARACTER*(  6 )  ::    COUT                 ! Output coefficient
       CHARACTER*(  1 )  ::    SGN                  ! Coefficient sign
    
@@ -362,7 +362,7 @@ c..Header & K15_15 term if present ( NO3+NO3=)
 
          DO N = 1, NRXNS
             IF( IRR( N, 1 ) .EQ. NO3 .AND.  IRR( N, 2 ) .EQ. NO3 ) THEN
-               WRITE( RNUM, '( I3 )' ) N
+               WRITE( RNUM, '( I5 )' ) N
                LINOUT = '      K15_15  = RKI( ' // RNUM // ' ) * DTC'
                E1 = LEN_TRIM( LINOUT )
                WRITE( IOUT, 92000 ) LINOUT( 1 : E1 )
@@ -382,7 +382,7 @@ c..R15_16 term ( production of NO3 from N2O5 )
       DO N = 1, NRXNS
          IF( IRR( N, 1 ) .EQ. N2O5 .AND. IRR( N, 4 ) .EQ. NO3 .OR.
      &       IRR( N, 1 ) .EQ. N2O5 .AND. IRR( N, 5 ) .EQ. NO3 ) THEN
-            WRITE( RNUM, '( I3 )' ) N
+            WRITE( RNUM, '( I5 )' ) N
             IF( LRXN1 )THEN
                 LINOUT = '      R15_16  = ( RKI( ' // RNUM // ' ) '
                 LRXN1  = .FALSE.
@@ -400,10 +400,10 @@ c..R16_15 term ( production of N2O5 from NO3 )
       DO N = 1, NRXNS
          IF( ( IRR( N, 1 ) .EQ. NO3 .AND. IRR( N, 4 ) .EQ. N2O5  ) .OR.
      &       ( IRR( N, 2 ) .EQ. NO3 .AND. IRR( N, 4 ) .EQ. N2O5 ) ) THEN
-            WRITE( RNUM, '( I3 )' ) N
+            WRITE( RNUM, '( I5 )' ) N
             
             LINOUT = '      R16_15  = RKI( ' // RNUM // 
-     &       ' ) * YC( NO2 ) * DTC'
+     &       ' ) * YCP( NO2 ) * DTC'
             E1 = LEN_TRIM( LINOUT )
             WRITE( IOUT, 92000 ) LINOUT( 1 : E1 )
          END IF

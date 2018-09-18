@@ -18,12 +18,6 @@
 !------------------------------------------------------------------------!
 
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/hadv/yamo/rdbcon.F,v 1.7 2012/01/19 14:51:13 yoj Exp $
- 
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
- 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE RDBCON ( JDATE, JTIME, TSTEP, LVL, BCON, LSTAT )
 
@@ -59,7 +53,7 @@ C-----------------------------------------------------------------------
       USE CGRID_SPCS           ! CGRID mechanism species
       USE UTILIO_DEFN
       USE RXNS_DATA, ONLY : MECHNAME
-      USE AERO_DATA, only : CHECK_AERO_ICBC, N_MODE
+      USE AERO_DATA, ONLY : CHECK_AERO_ICBC, N_MODE
 
       IMPLICIT NONE
  
@@ -72,9 +66,8 @@ C Arguments:
       INTEGER, INTENT( IN ) :: JTIME       ! current model time, coded HHMMSS
       INTEGER, INTENT( IN ) :: TSTEP       ! timestep
       INTEGER, INTENT( IN ) :: LVL         ! layer
-!     REAL           BCON( NBNDY,NLAYS,* )  ! boundary concentrations
       REAL,    INTENT( OUT ) :: BCON( :,: ) ! boundary concentrations
-      LOGICAL, INTENT( INOUT ) :: LSTAT       ! Flag for identifying Aerosol BC flaws
+      LOGICAL, INTENT( INOUT ) :: LSTAT    ! flag for identifying Aerosol BC flaws
 
 C Parameters:
       REAL, PARAMETER :: KGPMG = 1.0E-09  ! Kg / micro-gram
@@ -83,8 +76,6 @@ C Parameters:
       CHARACTER( 16 ) :: CONCMIN
 
 C File variables:
-!     REAL        JACOBM_BND( NBNDY,NLAYS )        ! boundary Jacobian
-!     REAL        RHOJ_BND  ( NBNDY,NLAYS )        ! mid-layer boundary RhoJ
       REAL, ALLOCATABLE, SAVE :: JACOBM_BND( :,: ) ! boundary Jacobian
       REAL, ALLOCATABLE, SAVE :: RHOJ_BND  ( :,: ) ! mid-layer boundary RhoJ
 
@@ -149,7 +140,6 @@ C for INTERPX
       END INTERFACE
 
 #ifdef verbose_rdbcon
-      integer, save :: logdev
       real sumbc
       integer s
 #endif
@@ -157,9 +147,6 @@ C-----------------------------------------------------------------------
  
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
-#ifdef verbose_rdbcon
-         logdev = init3()
-#endif
 
          WRITE( CONCMIN,'(1PE9.2)' ) CMIN
 
@@ -190,7 +177,6 @@ C currently not implemented: case where only one origin component matches file`s
          N_SPC_ADV = N_GC_TRNS + N_AE_TRNS + N_NR_TRNS + N_TR_ADV + 1
                                                   ! add 1 for advecting RHOJ
 
- !       write ( logdev,* ) '=0= window,n_spc_adv: ', window, n_spc_adv
 
          ALLOCATE ( BCNAME( N_SPC_ADV ),
      &              BCFAC ( N_SPC_ADV ),
@@ -267,7 +253,6 @@ C    DENSA_J - KG M-2
          END IF
 
 C Fill in DENSJ array for boundaries
-
          COUNT = 0
          DO ROW = 0, 0                                ! South
             DO COL = 1, MY_NCOLS+1
@@ -299,7 +284,6 @@ C Fill in DENSJ array for boundaries
          END DO
 
       ELSE
-
 
          VNAME = 'JACOBM'
 #ifdef parallel
@@ -399,6 +383,7 @@ C Read & interpolate boundary concentrations
                ! running semivolatile POA
                IF ( BCNAME( VAR )( 1:4 ) .EQ. 'APOC' ) THEN 
                   IF ( INDEX( MECHNAME,"NVPOA" ) .EQ. 0 ) THEN
+                    BBUF_TMP = 0.0
                     BCNAME_TMP = 'APNCOM' // BCNAME( VAR )( 5:5 )
 #ifdef parallel
                     IF ( .NOT. INTERPB ( BNDY_AERO_1, BCNAME_TMP, PNAME,
@@ -444,7 +429,7 @@ C Read & interpolate boundary concentrations
         IF ( STAT .GT. 0 ) THEN
           LSTAT = .TRUE.
 #ifdef verbose_rdbcon
-          WRITE ( 6, '(7x,A55,I1,/,7x,A20,I1,A42,/,9x,A51,/,9x,A22,I4,2x,I2,/,
+          WRITE ( LOGDEV,'(7x,A55,I1,/,7x,A20,I1,A42,/,9x,A51,/,9x,A22,I4,2x,I2,/,
      &                 9x,A19,1x,A3,8x,A2,8x,A2,8x,A2,8x,A2,/,
      &                 27x,E8.1,1x,E8.1,1x,E8.1,1x,E8.1,4x,F4.1,/,
      &                 9x,A19,1x,A3,8x,A2,8x,A2,8x,A2,8x,A2,/,

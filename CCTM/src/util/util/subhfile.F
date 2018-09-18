@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/util/util/subhfile.F,v 1.5 2012/01/19 15:36:09 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE SUBHFILE ( FNAME, GXOFF, GYOFF,
      &                      STRTCOL, ENDCOL, STRTROW, ENDROW )
@@ -70,7 +63,6 @@ C Parameters
 C local variables:
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
-      INTEGER, SAVE :: LOGDEV
       INTEGER       :: INDX                 ! because mype starts at 0
       CHARACTER( 16 ) :: PNAME = 'SubhFile_Cell'
       CHARACTER( 16 ) :: BNAME
@@ -91,7 +83,6 @@ C-----------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
-         LOGDEV = INIT3 ()
 
 C open cross file for subsequent comparison
 
@@ -294,13 +285,6 @@ C check the file against the processor setup (COORD.EXT), and get the offsets
       ENDCOL  = LOC_ENDCOL
       STRTROW = LOC_STRTROW
       ENDROW  = LOC_ENDROW
-
-!     WRITE( LOGDEV,* ) ' '
-!     WRITE( LOGDEV,* ) ' File: ', FNAME
-!     WRITE( LOGDEV,* ) '    StartCol: ', STRTCOL
-!     WRITE( LOGDEV,* ) '      EndCol: ', ENDCOL
-!     WRITE( LOGDEV,* ) '    StartRow: ', STRTROW
-!     WRITE( LOGDEV,* ) '      EndRow: ', ENDROW
 
       RETURN
       END SUBROUTINE SUBHFILE

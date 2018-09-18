@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/grid/cartesian/VGRD_DEFN.F,v 1.4 2011/10/21 16:11:18 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE VGRD_DEFN
 
@@ -34,6 +27,8 @@ C                   S. Roselle 29 Mar 11: Replaced I/O API include files
 C                                         with UTILIO_DEFN
 C                   D. Wong    11 May 11: incorporated twoway model implementation
 C.......................................................................
+
+      USE RUNTIME_VARS
 
       IMPLICIT NONE
 
@@ -96,7 +91,6 @@ C-----------------------------------------------------------------------
 
             LOGICAL :: SUCCESS
 
-!           INTEGER, SAVE :: LOGDEV
             LOGICAL, SAVE :: FIRSTIME = .TRUE.
             CHARACTER( 96 ) :: XMSG = ' '
 !           CHARACTER( 16 ) :: LAYER_FILE = 'LAYER_FILE'
@@ -108,11 +102,12 @@ C This function is expected to be called only once - at startup
 
             IF ( FIRSTIME ) THEN
                FIRSTIME = .FALSE.
-!              LOGDEV = INIT3()
                SUCCESS = .TRUE.
 
 C get vert layer definition from LAYER_FILE
 
+               WRITE( LOGDEV, * )
+               CALL LOG_HEADING( LOGDEV, "Retrieve Vertical Grid" )
                IF ( .NOT. OPEN3( LAYER_FILE, FSREAD3, 'VGRD_INIT' ) ) THEN
                   XMSG = 'Could not open '// LAYER_FILE
                   CALL M3WARN ( 'VGRD_INIT', 0, 0, XMSG )

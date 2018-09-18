@@ -71,7 +71,6 @@ C-------------------------------------------------------------------------------
       Real, Save,              Private :: C_gam           ! Canadian fertilizer facter   
       Real, Parameter,         Private :: maxgam   = 2.0e5 ! maximum soil gamm. It is assumed that any excess NH4 would from salts
       Real, Parameter,         Private :: natgam   = 20.0  ! Background soil gamma
-      Integer, Save,           Private :: logdev            
 ! variables for STAGE bidi NH3
       Real, Save, Allocatable, Private :: frac_ag( :,: ) ! fraction of ag    
       Real, Save, Allocatable, Private :: knit1  ( :,: ) ! EPIC Grid nitrificaiton rate
@@ -193,7 +192,6 @@ C                          '12345678901234567890'
      &                     'Beans               ',  ! 41
      &                     'Beans_ir            ' / ! 42
  
-         logdev =  init3() 
 
 ! Find the Canadian fertilizer factor based off of Sheppard et al 2010 Canadian J. Soil Sci. & 
 ! Zhang et al. 2010 JGR 
@@ -416,9 +414,10 @@ C                          '12345678901234567890'
                Call M3exit ( pname, jdate, jtime, xmsg, xstat1 )
             End If
 
-! EPIC data is for the end of the day. Here we want to get the values at the beginning of the day.
-! EPIC ammonia evasion is estimated as 5% of nitrification. We add the evaided ammonia and nitrification 
-! back to the soil NH3 to account for losses.             
+! EPIC data as simulated in FEST-C 1.3 is for the end of the day. Here we 
+! want to get the values at the beginning of the day.
+! EPIC ammonia evasion is estimated as 5% of nitrification. We add the 
+! evaded ammonia and nitrification back to the soil NH3 to account for losses.
             F1_NH4 = Nit1 / 0.95 
             F2_NH4 = Nit2 / 0.95 
 
@@ -487,7 +486,7 @@ C                          '12345678901234567890'
      &                 MHp1( c,r ) / Tot_Ag .Lt. 1.0e-4 .And.
      &                 MHp2( c,r ) / Tot_Ag .Gt. 1.0e-9 .And.
      &                 MHp2( c,r ) / Tot_Ag .Lt. 1.0e-4 ) Then
-! get the agricultrual only relevant number
+! get the agricultural only relevant number
                      MHp1( c,r ) = MHp1( c,r ) / Tot_Ag
                      MHp2( c,r ) = MHp2( c,r ) / Tot_Ag
                      gamma1( c,r ) = ( gamma1( c,r ) + fagam1( c,r ) ) / Tot_Ag
@@ -590,21 +589,22 @@ C                          '12345678901234567890'
                Go To 1001
             End If 
 
-! The organic soil change from the previous day is equal to the fertilzation - mineralization 
-! Here we read in the previous days concentration to calucate the mineralization and add it to the NH4 pool.
+! The organic soil change from the previous day is equal to the fertilization - mineralization 
+! Here we read in the previous days concentration to calculate the mineralization and add it to the NH4 pool.
 ! In EPIC run for CMAQ organic N mineralized goes to the NH4 pool and if mineralization is negative it is 
-! taken from the soil NO3 pool. 
+! taken from the soil NO3 pool. A cap was placed on the maximum mineralization based on the 0.999 percentile 
+! from multiple years of EPIC simulations. 
             L1_MIN = L1_ON_Yest - L1_ON - F1_ON
             L2_MIN = L2_ON_Yest - L2_ON - F2_ON
             Where( L1_MIN .Lt. 0.0 )
                L1_MIN = 0.0
-            Else Where( L1_MIN .Gt. 6.0 )
-               L1_MIN = 6.0
+            Else Where( L1_MIN .Gt. 0.3 )
+               L1_MIN = 0.3
             End Where
             Where( L2_MIN .Lt. 0.0 )
                L2_MIN = 0.0
-            Else Where( L2_MIN .Gt. 6.0 )
-               L2_MIN = 6.0
+            Else Where( L2_MIN .Gt. 0.3 )
+               L2_MIN = 0.3
             End Where
             F1_NH4  = F1_NH4 + L1_MIN
             F2_NH4  = F2_NH4 + L2_MIN
@@ -666,7 +666,7 @@ C                          '12345678901234567890'
      &                 MHp1( c,r ) .Lt. 1.0e-4 .And. 
      &                 MHp2( c,r ) .Gt. 1.0e-9 .And.
      &                 MHp2( c,r ) .Lt. 1.0e-4 ) Then
-! get the agricultrual only relevant number                                 
+! get the agricultural only relevant number                                 
                      gamma1( c,r )  = ( gamma1( c,r )*Tot_Ag + fagam1( c,r ) ) / Tot_Ag
                      gamma2( c,r )  = ( gamma2( c,r )*Tot_Ag + fagam2( c,r ) ) / Tot_Ag   
                      BDs1( c,r )    = BDs1( c,r ) / Tot_Ag
@@ -723,7 +723,6 @@ C-------------------------------------------------------------------------------
          Use Bidi_Mod, Only: gamma1, gamma2, MHp1, MHp2
          Use ASX_DATA_MOD
          Use LSM_MOD
-         USE RUNTIME_VARS_MOD
          
          Implicit None
          
@@ -762,12 +761,11 @@ C-------------------------------------------------------------------------------
          Real( 8 )              :: watfrac ! water fraction
 
          Integer                :: j
-! Point were soil solution NH4 equals half the maximum soprtion capacity Venteria et al. Sci. Rep. doi:10.1038/srep12153
+! Point were soil solution NH4 equals half the maximum sorption capacity Venteria et al. Sci. Rep. doi:10.1038/srep12153
          Real, Parameter        :: half_sol = 345.0 
 ! Maximum NH4 soil sorption capacity Venteria et al. Sci. Rep. doi:10.1038/srep12153
          Real, Parameter        :: max_sorp = 550.0 
 
-         logdev = init3()
  
          If( PX_LSM ) Then
 ! simplified from Darcy's law assuming stationarity and only gravitational draining with the Campbell hydrological functions applied

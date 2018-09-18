@@ -60,9 +60,5 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Declarations for species and mechanism data
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-      CHARACTER( 16 )    :: SPC_NAME( MXALLSPC ) ! Names of all species
-
-      INTEGER N_SPC      ! Total number of species
-     
       END MODULE PA_GLOBAL
  

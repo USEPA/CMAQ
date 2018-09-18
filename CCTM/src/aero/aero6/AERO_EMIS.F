@@ -68,16 +68,10 @@ C-----------------------------------------------------------------------
       IMPLICIT NONE
       SAVE 
 C aerosol emissions: [ppmv/s] for mass & number spcs, [m2/mol/s] for surface area spcs
-      CHARACTER( 16 )      :: CTM_SS_AERO = 'CTM_SS_AERO' ! env var for sea spray
-      LOGICAL              :: SS_AERO   ! flag for sea spray emissions option
-      CHARACTER( 16 )      :: CTM_WB_DUST = 'CTM_WB_DUST' ! env var for windblown dust
-      LOGICAL              :: WB_DUST   ! flag for windblown dust option
-
       PUBLIC EMISS_SIZE_DIST, AERO_EMIS_INIT,
      &       MAP_EMtoAERO, MAP_EMtoMODE, MAP_NUMtoEM, MAP_SRFtoEM,
      &       MAP_EMtoNUM, MAP_EMtoSRF, MAP_EMtoSD, EM_STREAM_SIZE, SD_SPLIT,
-     &       CTM_WB_DUST, WB_DUST, CELLVOL, CELLHGT, EM_SD_INIT, 
-     &       SS_AERO, CTM_SS_AERO
+     &       CELLVOL, CELLHGT, EM_SD_INIT
       PRIVATE
 
 C Variables for converting mass emissions rate to number emissions rate
@@ -116,8 +110,6 @@ C Domain decomposition info from emission and meteorology files
 C Miscellaneous variables
       INTEGER :: IDX
       CHARACTER( 200 ) :: XMSG = ' '
-      INTEGER, SAVE :: LOGDEV
-      INTEGER, EXTERNAL :: SETUP_LOGDEV
 
       CONTAINS
 
@@ -213,9 +205,6 @@ C External Functions:
          INTEGER, EXTERNAL :: FINDEX       !  looks up number in table.
 
 C Local Variables:
-         LOGICAL, SAVE :: ZERO_PCSOA
-         CHARACTER( 16 ), SAVE :: CTM_ZERO_PCSOA = 'CTM_ZERO_PCSOA' ! env var for toggling
-                                                                    ! pcSOA modeling
          REAL  DGV, SG, SPLIT_ACCUM
 
 C Variables for calculating the volume of each grid cell
@@ -235,7 +224,6 @@ C Miscellaneous variables
 
 C ----------------------------------------------------------------------
 
-         LOGDEV = SETUP_LOGDEV()
          SUCCESS = .TRUE.
 
 C *** Map data modules

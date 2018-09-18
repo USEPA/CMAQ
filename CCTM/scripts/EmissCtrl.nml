@@ -92,7 +92,6 @@
  !         | Stream Label   | Surr. Mode   | Ref. Mode 
  !<Default>  'ALL'          ,'FINE'        ,'FINE_REF',
  !<Default>  'ALL'          ,'COARSE'      ,'COARSE_REF',
-             'ALL'          ,'AIT_NULL'    ,'AIT_NULL',
 
 /
 
@@ -137,7 +136,7 @@
 /
 
 !------------------------------------------------------------------------------!
-! Additional Emissions Scaling Variables                                        !
+! Additional Emissions Scaling Variables                                       !
 !    This section includes additional specific variables for governing the     !
 !    behavior of the emissions scaling routines. Explanations are provided     !
 !    below.                                                                    !

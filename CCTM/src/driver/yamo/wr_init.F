@@ -17,12 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/init/yamo/opconc.F,v 1.4 2011/10/21 16:11:24 yoj Exp $ 
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE WR_INIT ( CGRID, JDATE, JTIME, TSTEP )
 
@@ -61,7 +55,6 @@ C Local Variables:
 
       REAL, ALLOCATABLE :: DBUFF( :,:,: )
       INTEGER      ALLOCSTAT
-      INTEGER      STATUS               !  ENVINT status
 
       CHARACTER( 16 ) :: PNAME = 'OPCONC'
       CHARACTER( 96 ) :: XMSG = ' '
@@ -73,8 +66,6 @@ C environment variable for no. of layers from bottom to save on CONC file
 C  environment variable description
       CHARACTER( 80 ) :: VARDESC
 
-      INTEGER      LOGDEV
-
       INTEGER      K, KD, L, SPC, V   ! loop counters
       INTEGER      STRT, FINI         ! loop counters
       INTEGER      INDX
@@ -82,8 +73,6 @@ C  environment variable description
       LOGICAL, EXTERNAL :: FLUSH3
 
 C-----------------------------------------------------------------------
-
-      LOGDEV = INIT3()
 
 #ifdef parallel_io
       CALL SUBST_BARRIER

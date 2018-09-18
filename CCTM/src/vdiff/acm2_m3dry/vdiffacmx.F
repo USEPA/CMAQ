@@ -16,10 +16,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/vdiffacm2.F,v 1.13 2012/01/19 14:37:47 yoj Exp $
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE VDIFFACMX ( DTSEC, SEDDY, DDEP, ICMP, CNGRD )
 
@@ -29,7 +25,7 @@ C Function:
 C   calculates vertical diffusion
 
 C Subroutines and Functions Called:
-C   INIT3, SEC2TIME, TIME2SEC, WRITE3, NEXTIME,
+C   SEC2TIME, TIME2SEC, WRITE3, NEXTIME,
 C   M3EXIT, EDDYX, TRI, MATRIX, PA_UPDATE_EMIS, PA_UPDATE_DDEP
 
 C Revision History:
@@ -131,7 +127,6 @@ C ACM Local Variables
       INTEGER, SAVE :: NH3_HIT
       REAL        DTLIM, DTS, DTACM, RZ
 
-      INTEGER, SAVE :: LOGDEV
       INTEGER     ASTAT
       INTEGER     C, R, L, S, V, I, J           ! loop induction variables
       INTEGER     MDATE, MTIME                  ! internal simulation date&time
@@ -155,7 +150,6 @@ C-----------------------------------------------------------------------
       IF ( FIRSTIME ) THEN
 
          FIRSTIME = .FALSE.
-         LOGDEV = INIT3()
 
          MDATE = 0; MTIME = 0
 
@@ -291,7 +285,7 @@ C-----------------------------------------------------------------------
          END DO
 
          EMIS = 0.0      ! array assignment
-         EMIS = DTS * VDEMIS_DIFF( :,:,C,R )
+         EMIS( :,1:EMLAYS ) = DTS * VDEMIS_DIFF( :,:,C,R )
 
          DO L = 1, NLAYS
             DFSP( L ) = DFACP * Grid_Data%RDX3F( L )

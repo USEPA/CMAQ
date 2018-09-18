@@ -16,6 +16,7 @@
 !  General Public License or the GNU Lesser General Public License is    !
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
+
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module soa_defn
 
@@ -66,6 +67,7 @@ C                   across mechanisms.
 C    Aug 18 M. Qin, H. Pye: Removed oligomerization option here. Oligomerization
 C                   must be done in gas chemistry (mech.def). Added anthropogenic
 C                   SOA condensation for aero7.
+C   29 Aug 18 G. Sarwar: updated for CB6R3M
 C-----------------------------------------------------------------------
       Implicit None
 
@@ -91,31 +93,31 @@ C
 C                   Name       Alpha     CStar    Enth      SOA          Decay    Drog
 C                                                          Name    Origin         Name
 C                  -------    -------   -------- -------  ------     --   ----   -------
-     & vapor_type('SV_ALK1 ',  0.0334,   0.1472,  53.0E3, 'AALK1J ', 'A', 12.0, 'ALKRXN  '),
-     & vapor_type('SV_ALK2 ',  0.2164,  51.8775,  53.0E3, 'AALK2J ', 'A', 12.0, 'ALKRXN  '),
-     & vapor_type('SV_XYL1 ',  0.0310,   1.3140,  32.0E3, 'AXYL1J ', 'A',  8.0, 'XYLNRXN '),
-     & vapor_type('SV_XYL2 ',  0.0900,  34.4830,  32.0E3, 'AXYL2J ', 'A',  8.0, 'XYLNRXN '),
-     & vapor_type('SV_TOL1 ',  0.0580,   2.3260,  18.0E3, 'ATOL1J ', 'A',  7.0, 'TOLNRXN '),
-     & vapor_type('SV_TOL2 ',  0.1130,  21.2770,  18.0E3, 'ATOL2J ', 'A',  7.0, 'TOLNRXN '),
-     & vapor_type('SV_BNZ1 ',  0.0720,   0.3020,  18.0E3, 'ABNZ1J ', 'A',  6.0, 'BNZNRXN '),
-     & vapor_type('SV_BNZ2 ',  0.8880, 111.1100,  18.0E3, 'ABNZ2J ', 'A',  6.0, 'BNZNRXN '),
-     & vapor_type('SV_PAH1 ',  0.2100,   1.6598,  18.0E3, 'APAH1J ', 'A', 10.0, 'PAHNRXN '),
-     & vapor_type('SV_PAH2 ',  1.0700, 264.6675,  18.0E3, 'APAH2J ', 'A', 10.0, 'PAHNRXN '),
-     & vapor_type('SV_TRP1 ',  0.1393,  14.7920,  40.0E3, 'ATRP1J ', 'B', 10.0, 'TRPRXN  '),
-     & vapor_type('SV_TRP2 ',  0.4542, 133.7297,  40.0E3, 'ATRP2J ', 'B', 10.0, 'TRPRXN  '),
-     & vapor_type('SV_MT1  ',   0.040,    0.010, 102.0E3, 'AMT1J  ', 'B',  0.0, 'TRPRXN  '),
-     & vapor_type('SV_MT2  ',   0.032,    0.100,  91.0E3, 'AMT2J  ', 'B',  0.0, 'TRPRXN  '),
-     & vapor_type('SV_MT3  ',   0.032,    1.000,  80.0E3, 'AMT3J  ', 'B',  0.0, 'TRPRXN  '),
-     & vapor_type('SV_MT4  ',   0.103,   10.000,  69.0E3, 'AMT4J  ', 'B',  0.0, 'TRPRXN  '),
-     & vapor_type('SV_MT5  ',   0.143,  100.000,  58.0E3, 'AMT5J  ', 'B',  0.0, 'TRPRXN  '),
-     & vapor_type('SV_MT6  ',   0.285, 1000.000,  47.0E3, 'AMT6J  ', 'B',  0.0, 'TRPRXN  '),
-     & vapor_type('SV_MT7  ',   0.160,10000.000,  36.0E3, 'AMT7J  ', 'B',  0.0, 'TRPRXN  '),
+     & vapor_type('SVALK1  ',  0.0334,   0.1472,  53.0E3, 'AALK1J ', 'A', 12.0, 'ALKRXN  '),
+     & vapor_type('SVALK2  ',  0.2164,  51.8775,  53.0E3, 'AALK2J ', 'A', 12.0, 'ALKRXN  '),
+     & vapor_type('SVXYL1  ',  0.0310,   1.3140,  32.0E3, 'AXYL1J ', 'A',  8.0, 'XYLNRXN '),
+     & vapor_type('SVXYL2  ',  0.0900,  34.4830,  32.0E3, 'AXYL2J ', 'A',  8.0, 'XYLNRXN '),
+     & vapor_type('SVTOL1  ',  0.0580,   2.3260,  18.0E3, 'ATOL1J ', 'A',  7.0, 'TOLNRXN '),
+     & vapor_type('SVTOL2  ',  0.1130,  21.2770,  18.0E3, 'ATOL2J ', 'A',  7.0, 'TOLNRXN '),
+     & vapor_type('SVBNZ1  ',  0.0720,   0.3020,  18.0E3, 'ABNZ1J ', 'A',  6.0, 'BNZNRXN '),
+     & vapor_type('SVBNZ2  ',  0.8880, 111.1100,  18.0E3, 'ABNZ2J ', 'A',  6.0, 'BNZNRXN '),
+     & vapor_type('SVPAH1  ',  0.2100,   1.6598,  18.0E3, 'APAH1J ', 'A', 10.0, 'PAHNRXN '),
+     & vapor_type('SVPAH2  ',  1.0700, 264.6675,  18.0E3, 'APAH2J ', 'A', 10.0, 'PAHNRXN '),
+     & vapor_type('SVTRP1  ',  0.1393,  14.7920,  40.0E3, 'ATRP1J ', 'B', 10.0, 'TRPRXN  '),
+     & vapor_type('SVTRP2  ',  0.4542, 133.7297,  40.0E3, 'ATRP2J ', 'B', 10.0, 'TRPRXN  '),
+     & vapor_type('SVMT1   ',   0.040,    0.010, 102.0E3, 'AMT1J  ', 'B',  0.0, 'TRPRXN  '),
+     & vapor_type('SVMT2   ',   0.032,    0.100,  91.0E3, 'AMT2J  ', 'B',  0.0, 'TRPRXN  '),
+     & vapor_type('SVMT3   ',   0.032,    1.000,  80.0E3, 'AMT3J  ', 'B',  0.0, 'TRPRXN  '),
+     & vapor_type('SVMT4   ',   0.103,   10.000,  69.0E3, 'AMT4J  ', 'B',  0.0, 'TRPRXN  '),
+     & vapor_type('SVMT5   ',   0.143,  100.000,  58.0E3, 'AMT5J  ', 'B',  0.0, 'TRPRXN  '),
+     & vapor_type('SVMT6   ',   0.285, 1000.000,  47.0E3, 'AMT6J  ', 'B',  0.0, 'TRPRXN  '),
+     & vapor_type('SVMT7   ',   0.160,10000.000,  36.0E3, 'AMT7J  ', 'B',  0.0, 'TRPRXN  '),
      & vapor_type('MTNO3   ',     0.0,     12.0,  40.0E3, 'AMTNO3J', 'B', 10.0, '        '),
      & vapor_type('ISOPNN  ',     0.0,     8.9,   40.0E3, 'AISOPNNJ','B', 5.0,  '        '),
-     & vapor_type('SV_ISO1 ',  0.2320, 116.0100,  40.0E3, 'AISO1J ', 'B',  5.0, 'ISOPRXN '),
-     & vapor_type('SV_ISO2 ',  0.0288,   0.6170,  40.0E3, 'AISO2J ', 'B',  5.0, 'ISOPRXN '),
-     & vapor_type('SV_SQT  ',  1.5370,  24.9840,  40.0E3, 'ASQTJ  ', 'B', 15.0, 'SESQRXN '),
-     & vapor_type('LV_PCSOG',  1.0   ,   1.0e-5,  40.0E3, 'APCSOJ ', 'A', 10.0, 'PCSOARXN'),
+     & vapor_type('SVISO1  ',  0.2320, 116.0100,  40.0E3, 'AISO1J ', 'B',  5.0, 'ISOPRXN '),
+     & vapor_type('SVISO2  ',  0.0288,   0.6170,  40.0E3, 'AISO2J ', 'B',  5.0, 'ISOPRXN '),
+     & vapor_type('SVSQT   ',  1.5370,  24.9840,  40.0E3, 'ASQTJ  ', 'B', 15.0, 'SESQRXN '),
+     & vapor_type('LVPCSOG ',  1.0   ,   1.0e-5,  40.0E3, 'APCSOJ ', 'A', 10.0, 'PCSOARXN'),
      & vapor_type('VLVPO1  ',  0.0000,    1.e-1,  96.0E3, 'ALVPO1J', 'A',  0.0, '        '),
      & vapor_type('VSVPO1  ',  0.0000,    1.e+0,  85.0E3, 'ASVPO1J', 'A',  0.0, '        '),
      & vapor_type('VSVPO2  ',  0.0000,    1.e+1,  74.0E3, 'ASVPO2J', 'A',  0.0, '        '),
@@ -126,14 +128,14 @@ C                  -------    -------   -------- -------  ------     --   ----  
      & vapor_type('VSVOO1  ',  0.0000,    1.e+0,  85.0E3, 'ASVOO1J', 'A',  0.0, '        '),
      & vapor_type('VSVOO2  ',  0.0000,    1.e+1,  74.0E3, 'ASVOO2J', 'A',  0.0, '        '),
      & vapor_type('VSVOO3  ',  0.0000,    1.e+2,  63.0E3, 'ASVOO3J', 'A',  0.0, '        '),
-     & vapor_type('SV_AVB1 ',  0.0000,    0.010,  18.0E3, 'AAVB1J ', 'A',  0.0, '        '),
-     & vapor_type('SV_AVB2 ',  0.0000,    1.000,  18.0E3, 'AAVB2J ', 'A',  0.0, '        '),
-     & vapor_type('SV_AVB3 ',  0.0000,   10.000,  18.0E3, 'AAVB3J ', 'A',  0.0, '        '),
-     & vapor_type('SV_AVB4 ',  0.0000,  100.000,  18.0E3, 'AAVB4J ', 'A',  0.0, '        ') /)
+     & vapor_type('SVAVB1  ',  0.0000,    0.010,  18.0E3, 'AAVB1J ', 'A',  0.0, '        '),
+     & vapor_type('SVAVB2  ',  0.0000,    1.000,  18.0E3, 'AAVB2J ', 'A',  0.0, '        '),
+     & vapor_type('SVAVB3  ',  0.0000,   10.000,  18.0E3, 'AAVB3J ', 'A',  0.0, '        '),
+     & vapor_type('SVAVB4  ',  0.0000,  100.000,  18.0E3, 'AAVB4J ', 'A',  0.0, '        ') /)
 
 C Required species
-      Character( 16 ), Private, Parameter :: req_sviso1  = 'SV_ISO1'
-      Character( 16 ), Private, Parameter :: req_sviso2  = 'SV_ISO2'
+      Character( 16 ), Private, Parameter :: req_sviso1  = 'SVISO1'
+      Character( 16 ), Private, Parameter :: req_sviso2  = 'SVISO2'
       Character( 16 ), Private, Parameter :: req_mtno3   = 'MTNO3'
       Character( 16 ), Private, Parameter :: req_isopnn  = 'ISOPNN'
       Character( 16 ), Private, Parameter :: req_aeiso1  = 'AISO1'
@@ -208,8 +210,6 @@ C mapping variables used for loading and unloading to CGRID array
 !     Integer, Save :: pfc = 0   ! possible false soabisect convergence counter
 
       Character( 16 ), Private, Save :: pname = 'Soa_Defn        '
-      Integer, Private, Save :: logdev
-      Integer, Private, External :: setup_logdev
 
       Contains
 
@@ -258,8 +258,6 @@ C Local Variables:
 
       If ( .Not. mapped ) Then
 
-         logdev = setup_logdev()
-
 C Before Anything Else, the VaporSpc Array must be populated with
 C the species from VaporList that have been identified in the GC
 C namelist or in the NR namelist.
@@ -275,9 +273,6 @@ C namelist or in the NR namelist.
              End If
           End Do
 
-#ifdef verbose_soa
-          write(logdev,'(a,i3)')'SOA_DEFN: n_vapor = ',n_vapor
-#endif
           Allocate ( vaporspc  ( n_vapor ))
           Allocate ( vapor_mw  ( n_vapor ))
           Allocate ( vapor_conc( n_vapor ))
@@ -288,10 +283,6 @@ C namelist or in the NR namelist.
           Do spc = 1,n_vapor
 !             vaporspc( spc ) = vaporlist( aerosol_to_vaporlist( spc ) )
              vaporspc( spc ) = vaporlist( vapor_to_vaporlist( spc ) )
-#ifdef verbose_soa
-             write(logdev,'(a,i3,3(1x,a))')'SOA_DEFN: n, vapor, aero_spc, precursor = ',
-     &       spc, vaporspc(spc)%name,vaporspc(spc)%soa_name,vaporspc(spc)%drog_name
-#endif
           End Do
 
 C Check GC or NR namelist contains precursor for each vapor used if the vapor has a
@@ -302,10 +293,6 @@ C precursor
             If ( n .Lt. 1 ) Then
               n = index1( vaporspc( spc )%drog_name, n_nr_spc, nr_spc )
               If ( n .Lt. 1 ) Then
-!                 xmsg = 'FATAL: SOA Precursor, ' // Trim( vaporspc( spc )%drog_name )
-!     &               // '. is not found among the species in GC or NR namelist'
-!     &               // ' used. Required for modeling vapor, '
-!     &               // Trim( vaporspc( spc )%name )
                 SOA_eflag  = .True.
                 write(logdev,99903)Trim( vaporspc( spc )%drog_name ),
      &          Trim( vaporspc( spc )%name )
@@ -327,19 +314,12 @@ C phase as model species
                  If( g .Lt. 1 ) Then
                     g = index1( vaporlist( spc )%name, n_gc_spc, gc_spc )
                     If( g .Lt. 1 ) Then
-!                      xmsg = 'FATAL: SOA Vapor, ' // Trim( vaporlist( spc )%name )
-!     &                     // ', is not found among the species in the NR or GC'
-!     &                     // ' namelist used. Required for modeling '
-!     &                     // Trim ( vaporlist( spc )%soa_name ) // '.'
                       SOA_eflag  = .True.
                       write(logdev,99902)Trim( vaporlist( spc )%name ), 
      &                Trim ( vaporlist( spc )%soa_name )
 !                      Call m3warn( pname, 0, 0, xmsg )
                     End If
                  End If
-!                 If( g .Gt. 0 ) Then
-!                    write(logdev,*)'found vapor species:', Trim( vaporlist( spc )%name )
-!                End If
              End If
          End Do
 
@@ -403,11 +383,6 @@ C determine if gas-phase IEPOX uptake occurs for the mechanism
                orgprod( 5 )%parent = 'TOLUENE'
                orgprod( 8 )%parent = 'NAPHTHAL'
                orgprod( 9 )%parent = 'NAPHTHAL'
-               ! The following do not exist in aero7/7i
-               orgprod( 3 )%aerospc = ''    ! AXYL3J
-               orgprod( 5 )%aerospc = ''    ! ATOL3J
-               orgprod( 7 )%aerospc = ''    ! ABNZ3J
-               orgprod( 9 )%aerospc = ''    ! APAH3J
                IEPOX_SOA_mechanism = .True.
             Else If ( INDEX( MECHNAME, 'SAPRC07TB' ) .Gt. 0 ) Then
                orgprod( 2 )%parent     = 'MXYL'
@@ -454,6 +429,10 @@ C determine if gas-phase IEPOX uptake occurs for the mechanism
                orgprod( 2 )%parent = 'XYLMN'
                orgprod( 3 )%parent = 'XYLMN'
                IEPOX_SOA_mechanism = .True.
+            Else If( INDEX(MECHNAME, 'CB6R3M') .Gt. 0) Then
+               orgprod( 2 )%parent = 'XYLMN'
+               orgprod( 3 )%parent = 'XYLMN'
+               IEPOX_SOA_mechanism = .True.
             Else 
                xmsg =  'FATAL: The ' // MECHNAME // ' mechanism '
      &             // ' is not supported in this version of the model.'
@@ -465,6 +444,13 @@ C determine if gas-phase IEPOX uptake occurs for the mechanism
 !              Call m3exit( pname, 0, 0, xmsg, xstat3 )
             End If
 
+            ! AE7 mechanisms do not use nonvolatile species for anthro SOA
+            If( INDEX(MECHNAME, 'AE7') .Gt. 0) Then
+               orgprod( 3 )%aerospc = ''    ! AXYL3J
+               orgprod( 5 )%aerospc = ''    ! ATOL3J
+               orgprod( 7 )%aerospc = ''    ! ABNZ3J
+               orgprod( 9 )%aerospc = ''    ! APAH3J
+            End If
 ! SOA_DEFN NO LONGER HAS VERSION CONSTRAINTS ON SPECIES
 ! This SOA_DEFN works for AE6 and AE6i versions of aero
 !            If( INDEX( MECHNAME, '_AE6_' ) .EQ. 0 ) then
@@ -1085,9 +1071,8 @@ C Arguments:
 
 C Local variables:
       Logical, Save :: first_time = .True.
-      Integer, Save :: logdev
       Character( 300 ) :: xmsg
-      Integer       :: i, im, indx
+      Integer       :: i, im, indx, ispc
 
       Real, Save :: mwpoa                     ! Molecular weight of POA [ g/mol ]
 
@@ -1150,6 +1135,11 @@ C Variables used in equilibrium partitioning calculations
       Real totaer            ! total aerosol-phase mass of each semivolaitle component
       Real Phi               ! mass fraction of a semivolatile component
                              ! in each mode
+! *** Variables for computing the budget
+      REAL :: CBUDGET0_NUM ( N_MODE )
+      REAL :: CBUDGET0_SRF ( N_MODE )
+      REAL :: CBUDGET0_MASS( N_AEROSPC,N_MODE )
+
 
 C Variables for water uptake onto organics
       Real kappaVorg        ! sum_i(kappa_i*Vorganic_i) [m3 species/m3 air]
@@ -1180,7 +1170,6 @@ C-----------------------------------------------------------------------
 
       If ( first_time )  Then
          first_time = .False.
-         logdev = setup_logdev()
 
 C Set unit conversion and inverse mw constants
          drog_ppm2ug( : ) = orgprod_mw( : ) * convfac_298
@@ -1206,6 +1195,13 @@ C Compute 3rd moment, 2nd moment. moment_conc arrays are wet
       Call calcmoments ( .true. )
       Call getpar( FIXED_sg )
 
+
+! Initialize Budget Variables
+      CBUDGET0_NUM  = MOMENT0_CONC
+      CBUDGET0_SRF  = MOMENT2_CONC
+      CBUDGET0_MASS = AEROSPC_CONC
+
+! Initialize Local Moment Variables
       m3wet_init( : ) = moment3_conc( 1:2 )
       m2wet_init( : ) = moment2_conc( 1:2 )
         
@@ -1545,6 +1541,18 @@ C condensation/evaporation does not affect the geometric standard deviation.
       m2wet_final( 1 ) = m2wet_init( 1 ) * ( m3wet_final( 1 ) / m3wet_init( 1 ) ) ** ( 2.0 / 3.0 )
       m2wet_final( 2 ) = m2wet_init( 2 ) * ( m3wet_final( 2 ) / m3wet_init( 2 ) ) ** ( 2.0 / 3.0 )
       moment2_conc( 1:2 )  = m2wet_final( : )
+
+! *** Update Budget Variables
+      DO IM = 1,N_MODE
+        COND_BUDGET( AERONUM_MAP( IM ) )  = MOMENT0_CONC( IM ) - CBUDGET0_NUM( IM )
+        COND_BUDGET( AEROSRF_MAP( IM ) )  = MOMENT2_CONC( IM ) - CBUDGET0_SRF( IM )
+
+        DO ISPC = 1,N_AEROSPC
+          IF ( AEROSPC_MAP( ISPC,IM ) .NE. 0 ) 
+     &         COND_BUDGET( AEROSPC_MAP( ISPC,IM ) ) = 
+     &              AEROSPC_CONC( ISPC,IM ) - CBUDGET0_MASS( ISPC,IM )
+        END DO
+      END DO
 
       Return
       End Subroutine orgaer
@@ -2332,6 +2340,7 @@ C-----------------------------------------------------------------------
      &                          mlwt) RESULT ( nroot )
 
       Use utilio_defn
+      Use runtime_vars
 
       Implicit None
 
@@ -2350,11 +2359,9 @@ C     Result
       Real             :: nroot               ! solution (final nguess)
 
 C External functions:
-      Integer, External :: setup_logdev
 
 C     Local variables
       Logical, Save    :: first_time = .True.
-      Integer, Save    :: logdev
 
       Real             :: nguess              ! current guess for total moles organic aerosol
       Real             :: oldn, lower, upper, flower, fnguess ! intermediate values
@@ -2366,7 +2373,6 @@ C     Local variables
 
       If ( first_time )  Then
         first_time = .False.
-        logdev = setup_logdev()
       End If
 
 C     Store current lower and upper bound, evaluate at lower bound

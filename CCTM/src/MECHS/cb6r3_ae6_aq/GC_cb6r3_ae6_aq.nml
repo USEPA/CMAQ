@@ -1,6 +1,3 @@
-! RCS file, release, date & time of last delta, author, state, [and locker]
-! $Header: /project/work/rep/arc/mechs/MECHS/src/cb05tucl_ae6_aq/GC_cb05tucl_ae6_aq.nml,v 1.1.1.1 2011/04/06 16:57:21 sjr Exp $       
-
 &GC_nml
  
 n_surr1 = 3,
@@ -102,6 +99,7 @@ TYPE_MATRIX =
 'FMCL:64.5:VD_FMCL:1:::FMCL:1:::Yes:Yes:Yes:Yes',
 'HCL:36.5:VD_HCL:1:::HCL:1:HCL:HCL:Yes:Yes:Yes:Yes',
 'CLNO2:81.5:VD_CLNO2:1:::::::Yes:Yes::Yes',
+'CLNO3:97.5:VD_CLNO3:1:::CLNO3:1::CLNO3:Yes:Yes:Yes:Yes',
 'TOLNRXN:141:::::::TOLNRXN:::::',
 'TOLHRXN:141:::::::TOLHRXN:::::',
 'XYLNRXN:155:::::::XYLNRXN:::::',

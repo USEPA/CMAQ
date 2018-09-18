@@ -17,15 +17,8 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-! RCS file, release, date & time of last delta, author, state, [and locker]
-! $Header: /project/yoj/arc/CCTM/src/phot/phot_inline/phot.F,v 1.7 2011/10/21 16:11:28 yoj Exp $
-
-! what(1) key, module and SID; SCCS file; date and time of last delta:
-! %W% %P% %G% %U%
-
 !:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE PHOT ( MDATE, MTIME, JDATE, JTIME, DTSTEP, RJ )
+      SUBROUTINE PHOT ( CGRID, JDATE, JTIME, DTSTEP )
 
 !-----------------------------------------------------------------------
 !
@@ -37,7 +30,7 @@
 ! Preconditions: HGRD_INIT() called from PAR_INIT, which is called from
 !     DRIVER
 !
-! Subroutines/Functions called: INIT3, M3EXIT, SUBHFILE, CGRID_MAP,
+! Subroutines/Functions called: M3EXIT, SUBHFILE, CGRID_MAP,
 !     OPPHOT, LOAD_CSQY_DATA, LOAD_OPTICS_DATA, INITIALIZE_ALBEDO, 
 !     GET_PHOT_MET, UPDATE_SUN, GET_ALBEDO, GET_DROPLET_OPTICS, 
 !     GET_ICE_OPTICS, GET_AGGREGATE_OPTICS, CLEAR_HYDROMETEOR_OPTICS, 
@@ -89,7 +82,7 @@
 !         reads this input file
 !       - added call to a routine called AERO_PHOTDATA that returns opacity data
 !         on the aerosol distribution
-!       - revised NEW_OPTICS' arguments based on  aerosol redesign in CMAQ
+!       - revised NEW_OPTICS' arguments based on aerosol redesign in CMAQ
 !         version 5.0
 !     March 29, 2011 S.Roselle
 !       - Replaced I/O API include files with UTILIO_DEFN
@@ -101,9 +94,9 @@
 !                          3) reading and calculation of met and geo data
 !                             now acomplished by a fortran module
 !                          4) changed description and accounting of cloud effects
-!                             from 2D liquid water clouds to 3D resolved and subgrid 
+!                             from 2D liquid water clouds to 3D resolved and subgrid
 !                             clouds with multi-phases of water
-!                          5) inserted calculation of aerosol optical properites via
+!                          5) inserted calculation of aerosol optical properties via
 !                             fortran module to improve efficiency in radiative
 !                             transfer solution
 !                          6) moved the O3TOTCOL routine from the PHOT_MOD to simplify
@@ -118,8 +111,8 @@
 C...modules
 
       USE RXNS_DATA            ! chemistry varaibles and data
+      USE GRID_CONF            ! horizontal & vertical domain specifications
       USE CGRID_SPCS           ! CGRID species number and offsets
-      USE PCGRID_DEFN          ! get cgrid
       USE UTILIO_DEFN
       USE AERO_DATA            ! describes aerosol distribution
       USE PHOT_MOD             ! photolysis in-line module - inherits CSQY_DATA module
@@ -140,17 +133,14 @@ C...modules
 !...include files
 
       INCLUDE SUBST_FILES_ID   ! file name parameters
-!     INCLUDE SUBST_CONST      ! physical constants--moved to PHOT_MOD.
 
 !...arguments
 
-      INTEGER, INTENT( IN ) :: MDATE         ! "centered" Julian date (YYYYDDD)
-      INTEGER, INTENT( IN ) :: MTIME         ! "centered" time (HHMMSS)
+      REAL,    POINTER      :: CGRID( :,:,:,: )  ! Species concentrations
       INTEGER, INTENT( IN ) :: JDATE         ! current Julian date (YYYYDDD)
       INTEGER, INTENT( IN ) :: JTIME         ! current time (HHMMSS)
       INTEGER, INTENT( IN ) :: DTSTEP( : )   ! time step vector (HHMMSS)
 
-      REAL,    INTENT( OUT ) :: RJ( :,:,:,: )  ! gridded J-values  (1/min units)
 
 !...parameters
 
@@ -161,29 +151,23 @@ C...modules
       REAL, PARAMETER :: PRES_CONV = 1.0 / STDATMPA ! conversion factor Pa to atm
       REAL, PARAMETER :: ZTOA      = 50.0E3   ! height of top of atmosphere [ m ] (=50km)
                                               ! based a 2005 WRF model Documentation
-                                                 
+
       REAL, PARAMETER   :: EPSLON  = 1.0E-30  ! Small number
 
 !...external functions: none
 
 !...local variables
 
-      REAL, SAVE, POINTER :: CGRID( :,:,:,: ) ! species concentrations
-
       LOGICAL, SAVE :: FIRSTIME = .TRUE.  ! Flag for first call to PHOT
-      LOGICAL, SAVE :: PHOTDIAG           ! Flag for PHOTDIAG file
 
       LOGICAL, SAVE :: CALL_INIT_ALBEDO = .TRUE.
       LOGICAL, SAVE :: CALL_GET_ALBEDO  = .TRUE.
-      
+
       LOGICAL       :: ZERO_ICE
 
       CHARACTER(   3 ), ALLOCATABLE, SAVE :: WLTXT( : )
       CHARACTER(  16 )                    :: VARNM
       CHARACTER(  16 ), SAVE              :: PNAME = 'PHOT'
-      CHARACTER(  16 ), SAVE              :: CTM_PHOTDIAG   = 'CTM_PHOTDIAG'
-      CHARACTER(  32 )                    :: NLAYS_PHOTDIAG = 'NLAYS_PHOTDIAG'
-      CHARACTER(  32 )                    :: NWAVE_PHOTDIAG = 'NWAVE_PHOTDIAG'
       CHARACTER(  16 )                    :: V_LIST( 2 )
       CHARACTER(  16 )                    :: REQUESTED_WAVE
       CHARACTER(  16 ), ALLOCATABLE       :: WAVE_LIST( : )
@@ -191,7 +175,6 @@ C...modules
       CHARACTER(  80 ) :: VARDESC  ! environment variable description
       CHARACTER( 240 ) :: XMSG = ' '
 
-      INTEGER,    SAVE :: LOGDEV
       INTEGER,    SAVE :: LGC_O3   ! pointer to O3 in CGRID
       INTEGER,    SAVE :: LGC_NO2  ! pointer to NO2 in CGRID
       INTEGER,    SAVE :: TSTEP    ! output timestep in sec
@@ -207,9 +190,13 @@ C...modules
       INTEGER V, N, MODE
       LOGICAL JTIME_CHK            ! To check for JTIME to write RJ values
       INTEGER ODATE                ! output date
-      INTEGER OTIME                ! output time 
+      INTEGER OTIME                ! output time
 
       INTEGER ALLOCSTAT
+
+      INTEGER ITMSTEP              ! one half synchronization timestep (sec)
+      INTEGER MIDDATE              ! Date at time step midpoint
+      INTEGER MIDTIME              ! Time at time step midpoint
 
       INTEGER, SAVE :: TDATE
       INTEGER, SAVE :: GXOFF, GYOFF        ! global origin offset from file
@@ -249,7 +236,7 @@ C...modules
       REAL RES_SKY_TRANSD  ! direct transmission coefficient based on resolved sky
 
       REAL                    :: TOTAL_O3_COLUMN ! total ozone column density, DU
-      
+
       REAL,              SAVE :: JYEAR          = 0.0 ! year
       REAL,              SAVE :: JD_STRAT_O3MIN = 0.0 ! Julian day (YYYYDDD) of min fraction for stratos ozone
 
@@ -262,7 +249,7 @@ C...modules
       REAL, ALLOCATABLE, SAVE :: TAUC_AERO( :,: )    ! aerosol optical depth at layer bottom
       REAL, ALLOCATABLE, SAVE :: TAU_TOT  ( :,: )    ! total optical depth at layer bottom
       REAL, ALLOCATABLE, SAVE :: TAU_CLOUD( :,: )    ! cloud optical depth at layer bottom
-      
+
       REAL, ALLOCATABLE, SAVE :: SSA      ( : ) ! aerosol single scattering albedo, column average
 
       REAL MSCALE          ! combined factor to scale ppm to Molecules / cm**3
@@ -286,11 +273,11 @@ C...modules
 
       REAL, ALLOCATABLE, SAVE :: BLKRJ_RES( :, : ) ! photolysis rates
       REAL, ALLOCATABLE, SAVE :: BLKRJ_ACM( :, : ) ! photolysis rates
-      
+
       LOGICAL, ALLOCATABLE, SAVE :: CLOUDS( : )    ! Does layer have clouds?
       LOGICAL                    :: NEW_PROFILE    ! Has atmospheric temperature and density profile changed?
       LOGICAL                    :: DARK           ! Are this processor's cells in darkness?
-      
+
 !...Variables for diagnostic outputs
 
       REAL, ALLOCATABLE, SAVE :: N_EXCEED_TROPO3( :,: )  ! Number of adjustments tropospheric ozone optical depth
@@ -301,17 +288,16 @@ C...modules
       REAL, ALLOCATABLE, SAVE :: TRANSMIS_DIFFUSE( :,: ) ! diffuse transmission coefficient at surface
       REAL, ALLOCATABLE, SAVE :: TRANSMIS_DIRECT( :,: )  ! direct transmission coefficient at surface
       REAL, ALLOCATABLE, SAVE :: REFLECT_COEFF( :,: )    ! reflection coefficient at top of atmosphere
-      REAL, ALLOCATABLE, SAVE :: ETOT_SFC_WL ( :,:,: )   ! total downward irradiance at sfc [ Watts / m**2  ]
       REAL, ALLOCATABLE, SAVE :: TAU_AERO_WL ( :,:,: )   ! total aerosol optical depth
       REAL, ALLOCATABLE, SAVE :: TAU_CLOUD_WL( :,:,: )   ! total cloud optical depth
       REAL, ALLOCATABLE, SAVE :: CLR_TRANSMISSION( :,: ) ! diffuse transmission coefficient of clouds
       REAL, ALLOCATABLE, SAVE :: CLR_REFLECTION  ( :,: ) ! reflection coefficient of cloud
       REAL, ALLOCATABLE, SAVE :: CLR_TRANS_DIRECT( :,: ) ! direct transmission coefficient of clouds
       REAL, ALLOCATABLE, SAVE :: TAU_AERO_550    ( :,: ) ! total aerosol optical depth at 550 nm (Angstrom Interpolation)
-#ifdef phot_debug      
+#ifdef phot_debug
       REAL, ALLOCATABLE, SAVE :: ASY_CLOUD_WL( :,:,: ) ! columm average of cloud asymmetry factor
       REAL, ALLOCATABLE, SAVE :: SSA_CLOUD_WL( :,:,: ) ! columm average of cloud single scattering albedo
-#endif      
+#endif
       REAL, ALLOCATABLE, SAVE :: TAU_TOT_WL  ( :,:,: ) ! total optical depth
       REAL, ALLOCATABLE, SAVE :: TAUO3_TOP_WL( :,:,: ) ! optical depth of ozone above model domain
 
@@ -332,11 +318,11 @@ C...modules
             REAL,    INTENT( IN )    :: LONGITUDE  ! longitude of point on earth's surface
             REAL,    INTENT( INOUT ) :: OZONE      ! total column ozone [DU]
          END SUBROUTINE O3TOTCOL
-         SUBROUTINE GET_ENVLIST ( ENV_VAR, NVARS, VAL_LIST )
-            CHARACTER( * ),  INTENT ( IN )  :: ENV_VAR
-            INTEGER,         INTENT ( OUT ) :: NVARS
-            CHARACTER( 16 ), INTENT ( OUT ) :: VAL_LIST( : )
-         END SUBROUTINE GET_ENVLIST
+         SUBROUTINE CONVCLD_PROP_ACM( JDATE, JTIME, TSTEP )
+            INTEGER, INTENT( IN )    :: JDATE
+            INTEGER, INTENT( IN )    :: JTIME
+            INTEGER, INTENT( IN )    :: TSTEP( 3 )
+         END SUBROUTINE CONVCLD_PROP_ACM
       END INTERFACE
 
 ! ----------------------------------------------------------------------
@@ -344,32 +330,12 @@ C...modules
       IF ( FIRSTIME ) THEN
 
          FIRSTIME = .FALSE.
-         LOGDEV   = INIT3()
 
          TSTEP  = TIME2SEC( DTSTEP( 1 ) ) ! output timestep for phot diagnostic files
 
-         CGRID => PCGRID( 1:MY_NCOLS,1:MY_NROWS,:,: )
-
-!...Get photolysis rate diagnostic file flag
-
-         PHOTDIAG = .FALSE.         ! default
-         VARDESC= 'Flag for writing the photolysis rate diagnostic file'
-         PHOTDIAG = ENVYN( CTM_PHOTDIAG, VARDESC, PHOTDIAG, ESTAT )
-         IF ( ESTAT .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-         IF ( ESTAT .EQ. 1 ) THEN
-            XMSG = 'Environment variable improperly formatted'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-         ELSE IF ( ESTAT .EQ. -1 ) THEN
-            XMSG =
-     &          'Environment variable set, but empty ... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-         ELSE IF ( ESTAT .EQ. -2 ) THEN
-            XMSG = 'Environment variable not set ... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-         END IF
 !...Set flag to initialize calculating aerosol extinction at 550 nm via Angstrom Exponents
          CALCULATE_EXT_550 = PHOTDIAG
-         
+
 !...Get met file offsets
 
          CALL SUBHFILE ( GRID_CRO_2D, GXOFF, GYOFF,
@@ -378,18 +344,16 @@ C...modules
      &                   STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2 )
          CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
      &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
- 
+
          PECOL_OFFSET = COLSD_PE( 1, MYPE+1 ) - 1
          PEROW_OFFSET = ROWSD_PE( 1, MYPE+1 ) - 1
 
-         CALL LOAD_CSQY_DATA( )
+         CALL INIT_PHOT_SHARED()
 
-         CALL LOAD_OPTICS_DATA( )         
- 
 !...Allocate array needed to calculation aerosol and cloud optical properties
 
          CALL INIT_AERO_DATA(  )
-         
+
          CALL INIT_CLOUD_OPTICS(  )
 
 ! set cosine values for sun effectively below horizon
@@ -397,27 +361,27 @@ C...modules
 
 !...Initialize Surface albedo method
 
-         IF ( .NOT. INITIALIZE_ALBEDO( JDATE, JTIME, LOGDEV ) ) THEN
+         IF ( .NOT. INITIALIZE_ALBEDO( JDATE, JTIME ) ) THEN
               XMSG = 'Failure initializing photolysis surface albedo algorithm'
               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
          ALLOCATE( ETOT_SFC ( NWL ) )
 
-         ALLOCATE( LWC    ( NLAYS ) ) 
-         ALLOCATE( RWC    ( NLAYS ) ) 
-         ALLOCATE( IWC    ( NLAYS ) ) 
-         ALLOCATE( SWC    ( NLAYS ) ) 
-         ALLOCATE( GWC    ( NLAYS ) ) 
-         ALLOCATE( BLKPRS ( NLAYS ) ) 
-         ALLOCATE( BLKTA  ( NLAYS ) ) 
-         ALLOCATE( BLKDENS( NLAYS ) ) 
-         ALLOCATE( BLKZH  ( NLAYS ) ) 
-         ALLOCATE( BLKO3  ( NLAYS ) ) 
-         ALLOCATE( BLKNO2 ( NLAYS ) ) 
+         ALLOCATE( LWC    ( NLAYS ) )
+         ALLOCATE( RWC    ( NLAYS ) )
+         ALLOCATE( IWC    ( NLAYS ) )
+         ALLOCATE( SWC    ( NLAYS ) )
+         ALLOCATE( GWC    ( NLAYS ) )
+         ALLOCATE( BLKPRS ( NLAYS ) )
+         ALLOCATE( BLKTA  ( NLAYS ) )
+         ALLOCATE( BLKDENS( NLAYS ) )
+         ALLOCATE( BLKZH  ( NLAYS ) )
+         ALLOCATE( BLKO3  ( NLAYS ) )
+         ALLOCATE( BLKNO2 ( NLAYS ) )
          ALLOCATE( BLKZF  ( NLAYS+1 ) )
-         ALLOCATE( CLOUDS ( NLAYS ) ) 
-         ALLOCATE( CLDFRAC( NLAYS ) ) 
+         ALLOCATE( CLOUDS ( NLAYS ) )
+         ALLOCATE( CLDFRAC( NLAYS ) )
 
          ALLOCATE( BLKRJ_RES( NLAYS,NPHOTAB ) )
          ALLOCATE( BLKRJ_ACM( NLAYS,NPHOTAB ) )
@@ -444,16 +408,15 @@ C...modules
             ALLOCATE( CLR_TRANS_DIRECT( NCOLS,NROWS ) )
             ALLOCATE( CLR_REFLECTION  ( NCOLS,NROWS ) )
             ALLOCATE( TAU_AERO_550    ( NCOLS,NROWS ) )
-            ALLOCATE( ETOT_SFC_WL     ( NCOLS,NROWS,NWL ) )
             ALLOCATE( TAU_AERO_WL     ( NCOLS,NROWS,NWL ) )
             ALLOCATE( TAU_CLOUD_WL    ( NCOLS,NROWS,NWL ) )
-#ifdef phot_debug            
+#ifdef phot_debug
             ALLOCATE( SSA_CLOUD_WL( NCOLS,NROWS,NWL ) )
             ALLOCATE( ASY_CLOUD_WL( NCOLS,NROWS,NWL ) )
-#endif            
+#endif
             ALLOCATE( TAU_TOT_WL  ( NCOLS,NROWS,NWL ) )
             ALLOCATE( TAUO3_TOP_WL( NCOLS,NROWS,NWL ) )
- 
+
             N_EXCEED_TROPO3 = 0.0
             TROPO_O3_EXCEED = 0.0
             TSTEP_COUNT     = 0
@@ -467,27 +430,22 @@ C...modules
                WRITE( WLTXT( IWL ),'(I3.3)' ) INT( WAVELENGTH( IWL ) )
             END DO
 
-! get wanted number of layer for PHOTDIAG2 and PHOTDIAG3 files
-            CALL GET_ENVLIST ( NLAYS_PHOTDIAG, N, V_LIST )
-            IF ( N .EQ. 0 ) THEN
-               NLAYS_DIAG = NLAYS
-               WRITE(LOGDEV,'(/5X,A,I3)')'Environment Variable NLAYS_PHOTDIAG not found '
-     &      // 'setting NLAYS in PHOTDIAG2 and PHOTDIAG3 to total number of layers: ',
-     &         NLAYS
-            ELSE
-               READ( V_LIST( 1 ), '( I4 )' ) NLAYS_DIAG
-               NLAYS_DIAG = MAX( 1, MIN( NLAYS_DIAG, NLAYS))
-               WRITE(LOGDEV,'(/5X,A,I3,A)')'Environment Variable NLAYS_PHOTDIAG found'
-     &         // ' so PHOTDIAG2 and PHOTDIAG3 will span from first to ', NLAYS_DIAG,
-     &            ' layer.'
-            END IF
+! get wanted number of layers for PHOTDIAG2 and PHOTDIAG3 files 
+            IF ( NLAYS_DIAG .EQ. 0 ) NLAYS_DIAG = NLAYS
+            NLAYS_DIAG = MAX( 1, MIN( NLAYS_DIAG, NLAYS))
+
 ! get wanted wavelengths for PHOTDIAG2 and PHOTDIAG3 files
             ALLOCATE( WAVE_LIST( NWL ) )
-            CALL GET_ENVLIST ( NWAVE_PHOTDIAG, N, WAVE_LIST )
-            IF ( N .EQ. 0 ) THEN ! use all wavelenghts
-                N_DIAG_WVL = NWL
-                ALLOCATE ( DIAG_WVL( N_DIAG_WVL ) , STAT = ALLOCSTAT )
-                IF ( ALLOCSTAT .NE. 0 ) THEN
+            WAVE_LIST( : ) = ''
+            IF ( NWAVE .GT. NWL )
+     &          CALL LOG_MESSAGE( LOGDEV, 'Error: the number of ' //
+     &          'wavelengths the user has requested for diagnostic ' //
+     &          'photolysis output exceeds the number of internal model ' //
+     &          'wavelengths.' )
+            IF ( NWAVE .EQ. 0 ) THEN ! use all wavelenghts
+               N_DIAG_WVL = NWL
+               ALLOCATE ( DIAG_WVL( N_DIAG_WVL ) , STAT = ALLOCSTAT )
+               IF ( ALLOCSTAT .NE. 0 ) THEN
                   XMSG = 'Failure allocating DIAG_WVL'
                   CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF
@@ -502,6 +460,7 @@ C...modules
                   WRITE(LOGDEV,'(5X,I3,1X,A16)')IWL, WLTXT(SPC)
                END DO
             ELSE ! use the environment list
+                WAVE_LIST( 1:NWAVE ) = WAVE_ENV( 1:NWAVE )
                 N_DIAG_WVL = 0
                  ! first remove identical values
                 DO V = 1, N-1
@@ -514,7 +473,7 @@ C...modules
                  ! Now count number of unique values
                 DO V = 1, N
                    IF( LEN_TRIM( WAVE_LIST( V ) ) .GT. 0 )N_DIAG_WVL = N_DIAG_WVL + 1
-                END DO   
+                END DO
                 ALLOCATE ( DIAG_WVL( N_DIAG_WVL ) , STAT = ALLOCSTAT )
                 IF ( ALLOCSTAT .NE. 0 ) THEN
                   XMSG = 'Failure allocating DIAG_WVL'
@@ -527,12 +486,12 @@ C...modules
                    IWL = IWL + 1
                    DIAG_WVL( IWL )  = INDEXR ( TRIM( WAVE_LIST( V ) ), NWL, WLTXT )
                    IF ( DIAG_WVL( IWL ) .LT. 1 ) THEN
-                      WRITE(LOGDEV,'(5X,A)')'PHOT: Cannot find requested wavelength, ' 
+                      WRITE(LOGDEV,'(5X,A)')'PHOT: Cannot find requested wavelength, '
      &                              // TRIM(  WAVE_LIST( IWL ) ) // ' for DIAG2 and DIAG3 files '
      &                              // ' in spectrum '
 !                   ELSE
-!                      WRITE(LOGDEV,'(5X,2(I3,1X),A)')IWL, N_DIAG_WVL, 'Wavelength, ' 
-!     &                              // TRIM(  WAVE_LIST( DIAG_WVL( IWL ) ) ) 
+!                      WRITE(LOGDEV,'(5X,2(I3,1X),A)')IWL, N_DIAG_WVL, 'Wavelength, '
+!     &                              // TRIM(  WAVE_LIST( DIAG_WVL( IWL ) ) )
 !     &                              // ' for DIAG2 and DIAG3 files '
                    END IF
                END DO
@@ -555,8 +514,8 @@ C...modules
                END IF
             END IF
             WRITE(LOGDEV,'(/)')
-            
-            
+
+
             ALLOCATE ( AERO_ASYM( NCOLS,NROWS,NLAYS_DIAG,N_DIAG_WVL ), STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating 3D AERO_ASYM'
@@ -580,7 +539,7 @@ C...modules
                XMSG = 'Failure allocating 3D AERO_EXT_550'
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
-            
+
             ALLOCATE ( TOT_EXT( NCOLS,NROWS,NLAYS_DIAG,N_DIAG_WVL ), STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating 3D TOT_EXT'
@@ -649,8 +608,7 @@ C...modules
          CALL SEASONAL_STRAT_O3( JDATE, JTIME )
          MIN_STRATO3_FRAC = MONTH_STRAT_03_FRAC
          MAX_TROPOO3_FRAC = MAX( 1.0 - MONTH_STRAT_03_FRAC, 0.0 )
-         WRITE( LOGDEV,*)'PHOT: MIN_STRATO3_FRAC = ',MIN_STRATO3_FRAC 
-         
+        !WRITE( LOGDEV,*)'PHOT: MIN_STRATO3_FRAC = ',MIN_STRATO3_FRAC          
          JD_STRAT_O3MIN = REAL( JDATE, 4)
       END IF
 !...initialize variables tracking whether stratosphere ozone column satisfies
@@ -661,12 +619,18 @@ C...modules
       N_TROPO_O3_TOGGLE = 0
       TSTEP_COUNT       = TSTEP_COUNT + 1
 
-      CALL GET_PHOT_MET( JDATE, JTIME, MDATE, MTIME )
+      MIDDATE = JDATE
+      MIDTIME = JTIME
+      ITMSTEP = TIME2SEC( DTSTEP( 2 ) ) / 2
+      CALL NEXTIME( MIDDATE, MIDTIME, SEC2TIME( ITMSTEP ) )
+
+      CALL CONVCLD_PROP_ACM( JDATE, JTIME, DTSTEP )
+      CALL GET_PHOT_MET( JDATE, JTIME, MIDDATE, MIDTIME )
 
 !...Get cosine of solar parameters and set DARK
 
-      CALL UPDATE_SUN( JDATE, JTIME, MDATE, MTIME )
-      
+      CALL UPDATE_SUN( JDATE, JTIME, MIDDATE, MIDTIME )
+
       RSQD = DIST_TO_SUN * DIST_TO_SUN
 
       IF ( MAXVAL( COSINE_ZENITH ) .LE. 0.0 ) THEN
@@ -677,7 +641,7 @@ C...modules
 
 !...set surface albedos
 
-      CALL GET_ALBEDO( MDATE, MTIME, LOGDEV, COSINE_ZENITH, LAT, LON )
+      CALL GET_ALBEDO( MIDDATE, MIDTIME, COSINE_ZENITH, LAT, LON )
 
 !...SA  Write COSINE_ZENITH array at the end of each output tstep
 
@@ -686,7 +650,7 @@ C...modules
          ODATE = JDATE; OTIME = JTIME
          CALL NEXTIME ( ODATE, OTIME, DTSTEP( 2 ) )  ! sync time step
 #endif
-         JTIME_CHK = ( MOD( TIME2SEC( OTIME ), TSTEP ) .EQ. 0 ) 
+         JTIME_CHK = ( MOD( TIME2SEC( OTIME ), TSTEP ) .EQ. 0 )
 #ifdef parallel_io
          IF ( .NOT. IO_PE_INCLUSIVE ) THEN
             IF ( .NOT. OPEN3( CTM_RJ_1, FSREAD3, PNAME ) ) THEN
@@ -703,22 +667,25 @@ C...modules
             END IF
          END IF
 #endif
-      ELSE     
+      ELSE
          JTIME_CHK         = .FALSE.
-      END IF 
+      END IF
 
-      CALCULATE_EXT_550 = JTIME_CHK 
-      
+      CALCULATE_EXT_550 = JTIME_CHK
+
 !...If sun below horizon at all cells, zero photolysis rates & exit
 !...  (assumes sun below horizon at *all* levels!)
 
       IF ( DARK ) THEN
 
          RJ = 0.0
+         RJ_SUB = 0.0
+         RJ_RES = 0.0
+         ETOT_SFC_WL  = 0.0
 
 !...write to the log file, CTM_RJ_1 file and return
 
-         WRITE( LOGDEV, 1003 ) MYPE, JDATE, JTIME
+         !WRITE( LOGDEV, 1003 ) MYPE, JDATE, JTIME
 
 !...Initialize ETOT_SFC, TAU_AERO, TAU_TOT, TAUO3_TOP to 0.0
 
@@ -729,16 +696,15 @@ C...modules
          IF ( JTIME_CHK ) THEN
 
             TROPO_OC     = 0.0
-            ETOT_SFC_WL  = 0.0
             TAUO3_TOP_WL = 0.0
             TAU_AERO_WL  = 0.0
 ! commented out because TAU_AERO_550 is set to zero after allocation and after written to PHOTDIAG1
-!           TAU_AERO_550 = 0.0 
+!           TAU_AERO_550 = 0.0
             TAU_CLOUD_WL = 0.0
-#ifdef phot_debug                   
+#ifdef phot_debug
             SSA_CLOUD_WL = 0.0
             ASY_CLOUD_WL = 0.0
-#endif                   
+#endif
             TAU_TOT_WL   = 0.0
             TOT_EXT      = 0.0
             GAS_EXT      = 0.0
@@ -754,7 +720,7 @@ C...modules
             REFLECT_COEFF     = 0.0
             CLR_TRANSMISSION  = 0.0
             CLR_TRANS_DIRECT  = 0.0
-            CLR_REFLECTION    = 0.0 
+            CLR_REFLECTION    = 0.0
 
          END IF  ! if JTIME_CHK
 
@@ -763,7 +729,7 @@ C...modules
 !...MAIN loop over all rows and columns
          LOOP_ROWS: DO ROW = 1, MY_NROWS
             LOOP_COLS: DO COL = 1, MY_NCOLS
-         
+
                PHOT_COL = COL + PECOL_OFFSET
                PHOT_ROW = ROW + PEROW_OFFSET
 
@@ -772,19 +738,21 @@ C...modules
                IF ( COSZEN .LE. 0.0 ) THEN
 !...the cell is dark: set variables to zero and cycle
                   RJ( COL,ROW, :,: ) = 0.0
-   
+                  RJ_RES( COL,ROW, :,: ) = 0.0
+                  RJ_SUB( COL,ROW, :,: ) = 0.0
+                  ETOT_SFC_WL ( COL,ROW, : ) = 0.0
+
                   IF ( JTIME_CHK ) THEN
-                     TOTAL_OC( COL,ROW )        = 0.0                            
-                     TROPO_OC( COL,ROW )        = 0.0                            
+                     TOTAL_OC( COL,ROW )        = 0.0
+                     TROPO_OC( COL,ROW )        = 0.0
 !                     TAU_AERO_550( COL,ROW )    = 0.0
-                     ETOT_SFC_WL ( COL,ROW, : ) = 0.0
                      TAUO3_TOP_WL( COL,ROW, : ) = 0.0
                      TAU_AERO_WL ( COL,ROW, : ) = 0.0
                      TAU_CLOUD_WL( COL,ROW, : ) = 0.0
-#ifdef phot_debug                   
+#ifdef phot_debug
                      SSA_CLOUD_WL( COL,ROW, : ) = 0.0
                      ASY_CLOUD_WL( COL,ROW, : ) = 0.0
-#endif                   
+#endif
                      TAU_TOT_WL  ( COL,ROW, : )   = 0.0
                      TOT_EXT     ( COL,ROW, :,: ) = 0.0
                      GAS_EXT     ( COL,ROW, :,: ) = 0.0
@@ -793,14 +761,14 @@ C...modules
                      AERO_SSA    ( COL,ROW, :,: ) = 0.0
                      AERO_ASYM   ( COL,ROW, :,: ) = 0.0
                      ACTINIC_FX  ( COL,ROW, :,: ) = 0.0
-                   
+
 !                     TROPO_O3_EXCEED( COL,ROW )  = 0.0
                      TRANSMIS_DIFFUSE( COL,ROW ) = 0.0
                      TRANSMIS_DIRECT ( COL,ROW ) = 0.0
                      REFLECT_COEFF   ( COL,ROW ) = 0.0
                      CLR_TRANSMISSION( COL,ROW ) = 0.0
                      CLR_TRANS_DIRECT( COL,ROW ) = 0.0
-                     CLR_REFLECTION  ( COL,ROW ) = 0.0 
+                     CLR_REFLECTION  ( COL,ROW ) = 0.0
                   END IF
 
                   CYCLE LOOP_COLS
@@ -825,14 +793,14 @@ C...modules
 !               LONCR = LON( COL,ROW )
 
 !...get total ozone column based on OMI observations
-               CALL O3TOTCOL ( LAT( COL,ROW ), LON( COL,ROW ), MDATE, MTIME, TOTAL_O3_COLUMN )
-            
+               CALL O3TOTCOL ( LAT( COL,ROW ), LON( COL,ROW ), MIDDATE, MIDTIME, TOTAL_O3_COLUMN )
+
                IF ( USE_ACM_CLOUD .OR. CLDATT ) THEN
                   OWATER_FRAC = MAX( ( 1.0 - SEAICE( COL,ROW ) ), 0.0 )
      &                        * WATER_FRACTION( COL,ROW )
                   SEAICE_FRAC = SEAICE( COL,ROW ) * WATER_FRACTION( COL,ROW )
                   SNOW_FRAC   = SNOCOV( COL,ROW )
-                  COL_CLOUD   = PHOT_COL 
+                  COL_CLOUD   = PHOT_COL
                   ROW_CLOUD   = PHOT_ROW
                END IF
 
@@ -862,7 +830,7 @@ C...modules
 
                IF ( CLDATT .AND. CFRAC_2D( COL,ROW ) .GT. 0.0 ) THEN
                   DO L = 1, NLAYS
-                 
+
                      IF ( CFRAC_3D( COL,ROW,L ) .GT. 0.0 ) THEN
                         CLOUDS ( L )        = .TRUE.
                         CLOUD_LAYERING( L ) = .TRUE.
@@ -871,7 +839,7 @@ C...modules
                         MSCALE   = 1.0E+3 * DENS ( COL,ROW,L )
                         IWC( L ) = MSCALE * QI( COL,ROW,L )
                         GWC( L ) = MSCALE * QG( COL,ROW,L )
-                        SWC( L ) = MSCALE * QS( COL,ROW,L )    
+                        SWC( L ) = MSCALE * QS( COL,ROW,L )
                         LWC( L ) = MSCALE * QC( COL,ROW,L )
                         RWC( L ) = MSCALE * QR( COL,ROW,L )
                      ELSE
@@ -880,15 +848,15 @@ C...modules
                         CLDFRAC( L )        = 0.0
                         IWC( L ) = 0.0
                         GWC( L ) = 0.0
-                        SWC( L ) = 0.0    
+                        SWC( L ) = 0.0
                         LWC( L ) = 0.0
                         RWC( L ) = 0.0
                      END IF
                   END DO ! loop on layers clouds
 ! get optical properties of resolved cloud hydrometeors
-                  CALL GET_DROPLET_OPTICS( NLAYS, BLKTA, OWATER_FRAC, SEAICE_FRAC, SNOW_FRAC, LWC )     
+                  CALL GET_DROPLET_OPTICS( NLAYS, BLKTA, OWATER_FRAC, SEAICE_FRAC, SNOW_FRAC, LWC )
                   CALL GET_ICE_OPTICS( NLAYS, BLKTA, IWC )
-                  CALL GET_AGGREGATE_OPTICS( NLAYS, RWC, SWC, GWC )     
+                  CALL GET_AGGREGATE_OPTICS( NLAYS, RWC, SWC, GWC )
                ELSE
                   CLOUDS         = .FALSE.
                   CLOUD_LAYERING = .FALSE.
@@ -901,7 +869,7 @@ C...modules
                   RWC = 0.0
                   CALL CLEAR_HYDROMETEOR_OPTICS()
                END IF
-            
+
 !..calculate needed aerosol properties in column
 
 !              IF ( CORE_SHELL ) THEN
@@ -912,15 +880,15 @@ C...modules
 
 ! set surface albedo
 
-               FORALL ( IWL = 1:NWL )
+               DO IWL = 1, NWL
                   ALB( IWL ) = SURFACE_ALBEDO( IWL, COL,ROW )
-               END FORALL
+               END DO
 !...calculate resolved-sky photolysis rates at all layers:
 
-               NEW_PROFILE    = .TRUE. 
-               ONLY_SOLVE_RAD = .FALSE. 
-                             
-               CALL NEW_OPTICS ( JDATE, JTIME, NLAYS, 
+               NEW_PROFILE    = .TRUE.
+               ONLY_SOLVE_RAD = .FALSE.
+
+               CALL NEW_OPTICS ( JDATE, JTIME, NLAYS,
      &                           BLKTA, BLKPRS, BLKDENS, BLKZH, BLKZF,
      &                           BLKO3, BLKNO2,
      &                           ZSFC, COSZEN, SINZEN, RSQD,
@@ -936,7 +904,11 @@ C...modules
      &                                         + TROPO_O3_EXCEED( COL,ROW )
 !               ELSE IF(  PHOTDIAG ) THEN
 !                     TROPO_O3_EXCEED( COL,ROW ) = 0.0
-               END IF 
+               END IF
+
+               FORALL ( IWL = 1:NWL )
+                  ETOT_SFC_WL ( COL,ROW,IWL ) = IRRADIANCE( 1,IWL )
+               END FORALL   
 
                IF ( JTIME_CHK  ) THEN
                   TOTAL_OC( COL,ROW )         = REAL( TOTAL_O3_COLUMN )
@@ -946,20 +918,20 @@ C...modules
                   REFLECT_COEFF( COL,ROW )    = REFLECTION
 
 
-                  FORALL( IWL = 1:NWL )
-                     ETOT_SFC_WL ( COL,ROW,IWL )     = IRRADIANCE( 1,IWL )
+                  DO IWL = 1, NWL
                      TAUO3_TOP_WL( COL,ROW,IWL )     = TAUO3_TOP( IWL )
                      TAU_AERO_WL ( COL,ROW,IWL )     = TAUC_AERO( 1,IWL )
                      TAU_TOT_WL  ( COL,ROW,IWL )     = TAU_TOT  ( 1,IWL )
                      TAU_CLOUD_WL( COL,ROW,IWL )     = TAU_CLOUD( 1,IWL )
-#ifdef phot_debug                      
+#ifdef phot_debug
                      SSA_CLOUD_WL( COL,ROW,IWL ) = AVE_SSA_CLD  ( IWL )
                      ASY_CLOUD_WL( COL,ROW,IWL ) = AVE_ASYMM_CLD( IWL )
-#endif                      
+#endif
+                  END DO
+
+                  FORALL ( L = 1:NLAYS_DIAG )
+                     AERO_EXT_550( COL,ROW,L ) = 1000.0 * AERO_EXTI_550( L )
                   END FORALL
-                  
-                  AERO_EXT_550( COL,ROW,1:NLAYS_DIAG ) = 1000.0 * AERO_EXTI_550( 1:NLAYS_DIAG )
-                  
                   DO LEV = 1, NLAYS
                      TAU_AERO_550 ( COL,ROW ) = TAU_AERO_550 ( COL,ROW )
      &                                        + AERO_EXTI_550( LEV ) * BLKDZ( LEV )
@@ -987,7 +959,10 @@ C...modules
 
 !Set Photolysis rates to resolved sky values
                FORALL ( L = 1:NLAYS, IPHOT = 1:NPHOTAB )
-                  RJ( COL,ROW, L,IPHOT ) = 60.0 * BLKRJ_RES( L,IPHOT ) 
+                  RJ( COL,ROW, L,IPHOT ) = 60.0 * BLKRJ_RES( L,IPHOT )
+               END FORALL ! Loop on layers and NPHOTAB
+               FORALL ( L = 1:NLAYS, IPHOT = 1:NPHOTAB )
+                  RJ_RES( COL,ROW, L,IPHOT ) = 60.0 * BLKRJ_RES( L,IPHOT )
                END FORALL  ! Loop on layers and NPHOTAB
 
                IF ( USE_ACM_CLOUD ) THEN
@@ -1021,16 +996,14 @@ C...modules
                         END IF
                         CLOUD_LAYERING( L ) = .FALSE.
                      END DO
-!                    write(logdev,*)'ACM cloud present fraction, cloud lwc(lev),iwc(lev),rwc(1),gwc(1) = ',
-!     &              ACM_CLOUDS( COL,ROW ),lwc(lev),iwc(lev),rwc(1),gwc(1)
-                 
+
 ! get optical properties of of subgrid cloud hydrometeors
-                     CALL GET_DROPLET_OPTICS( LEV, BLKTA, OWATER_FRAC, SEAICE_FRAC, SNOW_FRAC, LWC )     
-                     CALL GET_ICE_OPTICS( LEV, BLKTA, IWC )     
-                     CALL GET_AGGREGATE_OPTICS( LEV, RWC, SWC, GWC )     
+                     CALL GET_DROPLET_OPTICS( LEV, BLKTA, OWATER_FRAC, SEAICE_FRAC, SNOW_FRAC, LWC )
+                     CALL GET_ICE_OPTICS( LEV, BLKTA, IWC )
+                     CALL GET_AGGREGATE_OPTICS( LEV, RWC, SWC, GWC )
 
 !...calculate the acm-cloud photolysis rates for all layers:
-                     NEW_PROFILE = .FALSE.   
+                     NEW_PROFILE = .FALSE.
                      CALL NEW_OPTICS ( JDATE, JTIME, NLAYS,
      &                                 BLKTA, BLKPRS, BLKDENS, BLKZH, BLKZF,
      &                                 BLKO3, BLKNO2,
@@ -1044,6 +1017,10 @@ C...modules
 !...  note that both TAUC_AERO and TAUO3_TOP are the same for clear and
 !...  cloudy regions
                      MSCALE = MAX( 1.0 - ACM_CLOUDS( COL,ROW ), 0.0 )
+                     DO IWL = 1, NWL
+                       ETOT_SFC_WL ( COL,ROW,IWL ) = MSCALE * ETOT_SFC_WL( COL,ROW,IWL )
+     &                                             + ACM_CLOUDS( COL,ROW ) * IRRADIANCE( 1,IWL )
+                     END DO
 
                      IF ( JTIME_CHK ) THEN
 
@@ -1053,9 +1030,7 @@ C...modules
      &                                              + ACM_CLOUDS( COL,ROW ) * TRANSMISSION
                         REFLECT_COEFF( COL,ROW )    = MSCALE * REFLECT_COEFF( COL,ROW )
      &                                              + ACM_CLOUDS( COL,ROW ) * REFLECTION
-                        FORALL ( IWL = 1:NWL )
-                           ETOT_SFC_WL ( COL,ROW,IWL ) = MSCALE * ETOT_SFC_WL( COL,ROW,IWL )
-     &                                                 + ACM_CLOUDS( COL,ROW ) * IRRADIANCE( 1,IWL )
+                        DO IWL = 1, NWL
                            TAU_TOT_WL  ( COL,ROW,IWL ) = MSCALE * TAU_TOT_WL( COL,ROW,IWL )
      &                                                 + ACM_CLOUDS( COL,ROW ) * TAU_TOT( 1,IWL )
                            TAU_CLOUD_WL( COL,ROW,IWL ) = MSCALE * TAU_CLOUD_WL( COL,ROW,IWL )
@@ -1066,7 +1041,7 @@ C...modules
                            ASY_CLOUD_WL( COL,ROW,IWL ) = MSCALE * ASY_CLOUD_WL( COL,ROW,IWL )
      &                                                 + ACM_CLOUDS( COL,ROW ) * AVE_ASYMM_CLD( IWL )
 #endif
-                        END FORALL   ! iwl
+                        END DO   ! iwl
 
                         DO LEV = 1, NLAYS_DIAG
                            DO L = 1, N_DIAG_WVL
@@ -1080,9 +1055,10 @@ C...modules
                      END IF  ! photdiag
 !Photolysis rates become a weighted average of the values from resolved and ACM skies
                      FORALL ( L = 1:NLAYS, IPHOT = 1:NPHOTAB )
-                         RJ( COL,ROW, L, IPHOT ) = 60.0 * ACM_CLOUDS( COL,ROW ) * BLKRJ_ACM( L,IPHOT )
-     &                                           + MSCALE * RJ( COL,ROW,L,IPHOT )
-                     END FORALL  ! Loop on layers and PHOT
+                         RJ_SUB( COL,ROW, L, IPHOT ) = 60.0 * BLKRJ_ACM( L,IPHOT )
+                         RJ( COL,ROW, L, IPHOT )     = ACM_CLOUDS( COL,ROW ) *  RJ_SUB( COL,ROW, L, IPHOT )
+     &                                               + MSCALE * RJ( COL,ROW,L,IPHOT )
+                     END FORALL ! Loop on layers and PHOT
                   END IF
                END IF ! not USE_ACM_CLOUD and  ACM_CLOUDS > 0
 
@@ -1092,7 +1068,7 @@ C...modules
                         CLOUDS         = .FALSE.
                         NEW_PROFILE    = .FALSE.
                         ONLY_SOLVE_RAD = .TRUE.
-                        CALL NEW_OPTICS ( JDATE, JTIME, NLAYS, 
+                        CALL NEW_OPTICS ( JDATE, JTIME, NLAYS,
      &                                    BLKTA, BLKPRS, BLKDENS, BLKZH, BLKZF,
      &                                    BLKO3, BLKNO2,
      &                                    ZSFC, COSZEN, SINZEN, RSQD,
@@ -1303,7 +1279,7 @@ C...modules
 
          END DO  ! iwl
 
-         VARNM = 'AOD_W550_ANGST' 
+         VARNM = 'AOD_W550_ANGST'
          IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, TAU_AERO_550 ) ) THEN
             XMSG = 'Error writing variable ' // VARNM
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -1333,7 +1309,7 @@ C...modules
               XMSG = 'Could not write ' // TRIM( VARNM ) // ' to ' // CTM_RJ_3 // ' file'
               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
-         
+
          DO L = 1, N_DIAG_WVL
             IWL = DIAG_WVL( L )
 
@@ -1384,7 +1360,7 @@ C...modules
      &          'Radiative and Optical Data written to', CTM_RJ_3,
      &          'for date and time', ODATE, OTIME
 
-      END IF   ! if JTIME_CHK 
+      END IF   ! if JTIME_CHK
 
 1003  FORMAT( 8X, 'Processor ',I4.4,' is in darkness at ', I8.7, ':', I6.6,
      &        1X, 'GMT - no photolysis')
