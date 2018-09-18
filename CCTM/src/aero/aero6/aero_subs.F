@@ -1415,7 +1415,7 @@ C     densities. It is a waste of time updating the aitken and
 C     accumulation modes but the coarse mode does need to be updated
 C     each sub-time step. This should be for the wet distribution
                
-            CALL GETPAR( FIXED_SG )
+            CALL GETPAR( FIXED_sg )
 
          END DO   ! end mass transfer time step loop
          
