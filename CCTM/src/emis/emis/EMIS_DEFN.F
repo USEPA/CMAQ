@@ -137,7 +137,7 @@ C Get number of emissions layers
             ! the initial top.
             EMLAYS = MAXVAL( EM_GRID_LAYS(:) ) 
             
-            ! If there are inline point sources, irevise the top to be
+            ! If there are inline point sources, revise the top to be
             ! the model top.
             IF ( NPTGRPS .GT. 0 ) EMLAYS = NLAYS
 
@@ -483,7 +483,8 @@ C-----------------------------------------------------------------------
       REAL, ALLOCATABLE, SAVE :: FAC1( :,:,:,:,: )
       INTEGER, ALLOCATABLE, SAVE :: NFAC( : )
 
-      INTEGER ISTR, IFAC, L, NFAC_MAX, IRGN, FAC, OP, JSRM
+      INTEGER ISTR, IFAC, L, NFAC_MAX, IRGN, OP, JSRM
+      REAL    FAC
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
 
 
@@ -590,14 +591,13 @@ C-----------------------------------------------------------------------
       IMPLICIT NONE
 
       ! Local Variables
-      REAL,ALLOCATABLE, SAVE :: CNVTC( :,: ) ! combined conversion factor
-      REAL                CNVTI        ! intermediate combined conv. factor
-      REAL,       SAVE :: CNVTP        ! intermediate combined conv. factor
-      REAL,ALLOCATABLE, SAVE :: CONVM( :,: ) ! Aerosol Mass conversion factor         
-      REAL,ALLOCATABLE, SAVE :: CONVN( :,: ) ! Aerosol Number conversion factor       
-      REAL,ALLOCATABLE, SAVE :: CONVS( :,: ) ! Aerosol Surface Area conversion factor 
-      REAL, PARAMETER  :: GPKG = 1.0E+03     ! g/kg
-      REAL, PARAMETER  :: MWAIR = 28.9628    ! g/mol
+      REAL,ALLOCATABLE, SAVE :: CNVTC( :,:,: ) ! combined conversion factor
+      REAL,ALLOCATABLE, SAVE :: CNVTI( : )     ! intermediate combined conv. factor
+      REAL,       SAVE :: CNVTP                ! intermediate combined conv. factor
+      REAL,ALLOCATABLE, SAVE :: CONVM( :,:,: ) ! Aerosol Mass and Surface Area conversion factor         
+      REAL,ALLOCATABLE, SAVE :: CONVN( :,:,: ) ! Aerosol Number conversion factor       
+      REAL, PARAMETER  :: GPKG = 1.0E+03       ! g/kg
+      REAL, PARAMETER  :: MWAIR = 28.9628      ! g/mol
       REAL, PARAMETER  :: AVO  = 6.0221367E23
       REAL, PARAMETER  :: RAVO = 1.0 / AVO
       
@@ -617,50 +617,39 @@ C-----------------------------------------------------------------------
          CALL SUBHFILE ( EM_FILE_NAME( 1 ), GXOFF, GYOFF, STARTCOL, ENDCOL, STARTROW, ENDROW )
          CNVTP = CONVPA * 1.0E+06 * MWAIR / REAL( DX1 * DX2 ) !Conv. Factor for Gases 
 
-         ALLOCATE( CNVTC( NCOLS,NROWS ), CONVM( NCOLS,NROWS ),
-     &             CONVN( NCOLS,NROWS ), CONVS( NCOLS,NROWS ) )
-      !    ALLOCATE( VDEMIS0( N_EMIS_ISTR,EMLAYS,NCOLS,NROWS ) ,
-      !&             VDEMIS ( N_SPC_DIFF, EMLAYS,NCOLS,NROWS )  )
+         ALLOCATE( CNVTI( EMLAYS ), CNVTC( EMLAYS,NCOLS,NROWS ), 
+     &             CONVM( EMLAYS,NCOLS,NROWS ),
+     &             CONVN( EMLAYS,NCOLS,NROWS )  )
       END IF    !FirstTime
       
       ! Convert All Emissions to Units Appropriate for the Dispersion Solver
+      CNVTI( 1:NL ) = CNVTP * Grid_Data%RDX3F( 1:NL ) 
       DO L = 1,NL
-         CNVTI = CNVTP * Grid_Data%RDX3F( L ) 
-         CNVTC = CNVTI * Met_Data%RRHOJ( :,:,L )       ! Gas:       kmol/s -> ppmv/s
-         CONVM = MWAIR / GPKG / Met_Data%DENS( :,:,L ) ! Aer. Mass: umol/m3/s -> ppmv/s
-         CONVN = CONVM * RAVO * 1.0E+06                ! Aer. Num:  N/m3/s -> N/molec/s
-         CONVS = CONVM                                 ! Aer. Srf:  m2/m3/s -> m2/mol/s
-         
-         !MAKE SURE TO APPLY RELEVANT UNIT CONVERSION TO EACH
-         !TYPE OF VARIABLE (GAS, AEROSOL MASS, AEROSOL NUMBER,
-         !AND AEROSOL SURFACE AREA)
-         DO ISTR = 1,N_EMIS_ISTR
-           IF ( MAP_EMtoNUM( ISTR ) .EQ. 0 .AND. MAP_EMtoSRF( ISTR ) .EQ. 0 .AND.
-     &          MAP_EMtoAERO( ISTR ) .EQ. 0 ) THEN
-                ! GAS SPECIES
-                VDEMIS0( ISTR,L,:,: ) = CNVTC * VDEMIS0( ISTR,L,:,: )
-
-           ELSE IF ( MAP_EMtoNUM( ISTR ) .EQ. 0 .AND. MAP_EMtoSRF( ISTR ) .EQ. 0 ) THEN
-                ! AEROSOL MASS SPECIES
-                VDEMIS0( ISTR,L,:,: ) = CONVM * VDEMIS0( ISTR,L,:,: ) 
-
-           ELSE IF ( MAP_EMtoSRF( ISTR ) .EQ. 0 ) THEN
-                ! AEROSOL NUMBER SPECIES
-                VDEMIS0( ISTR,L,:,: ) = CONVN * VDEMIS0( ISTR,L,:,: ) 
-
-           ELSE
-                ! AEROSOL SURFACE AREA SPECIES
-                VDEMIS0( ISTR,L,:,: ) = CONVS * VDEMIS0( ISTR,L,:,: ) 
-
-           END IF
-        END DO
+        CNVTC( L,:,: ) = CNVTI( L ) * Met_Data%RRHOJ( :,:,L )       ! Gas:       kmol/s -> ppmv/s
+        CONVM( L,:,: ) = MWAIR / GPKG / Met_Data%DENS( :,:,L ) ! Aer. Mass: umol/m3/s -> ppmv/s
       END DO
+      CONVN( 1:NL,:,: ) = CONVM( 1:NL,:,: ) * RAVO * 1.0E+06                ! Aer. Num:  N/m3/s -> N/molec/s
+      
+      !MAKE SURE TO APPLY RELEVANT UNIT CONVERSION TO EACH
+      !TYPE OF VARIABLE (GAS, AEROSOL MASS, AEROSOL NUMBER,
+      !AND AEROSOL SURFACE AREA)
+      FORALL ( ISTR = 1:N_EMIS_ISTR, MAP_EMtoGAS( ISTR ) .NE. 0 )
+     &    VDEMIS0( ISTR,1:NL,:,: ) = CNVTC( 1:NL,:,: ) * VDEMIS0( ISTR,1:NL,:,: )
+  
+      FORALL ( ISTR = 1:N_EMIS_ISTR, MAP_EMtoAERO( ISTR ) .NE. 0 )
+     &    VDEMIS0( ISTR,1:NL,:,: ) = CONVM( 1:NL,:,: ) * VDEMIS0( ISTR,1:NL,:,: )
+      
+      FORALL ( ISTR = 1:N_EMIS_ISTR, MAP_EMtoSRF( ISTR ) .NE. 0 )
+     &    VDEMIS0( ISTR,1:NL,:,: ) = CONVM( 1:NL,:,: ) * VDEMIS0( ISTR,1:NL,:,: )
+      
+      FORALL ( ISTR = 1:N_EMIS_ISTR, MAP_EMtoNUM( ISTR ) .NE. 0 )
+     &    VDEMIS0( ISTR,1:NL,:,: ) = CONVN( 1:NL,:,: ) * VDEMIS0( ISTR,1:NL,:,: )
+
  
       ! zero out emissions values for diffused species not included in emissions list.
       ! ...accounts for emissions species names as a subset of the vert. diffused species list
       VDEMIS = 0.0
-      EMtoDIFF = MAP_EMtoDIFF( 1:N_EMIS_ISTR )
-      VDEMIS( EMtoDIFF,1:NL,:,: ) = VDEMIS( EMtoDIFF,1:NL,:,: ) + VDEMIS0( 1:N_EMIS_ISTR,1:NL,:,: )
+      VDEMIS( MAP_EMtoDIFF,1:NL,:,: ) = VDEMIS( MAP_EMtoDIFF,1:NL,:,: ) + VDEMIS0( 1:N_EMIS_ISTR,1:NL,:,: )
 
       RETURN
       END SUBROUTINE EMISS_CONV_DIFF

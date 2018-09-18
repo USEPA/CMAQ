@@ -767,7 +767,7 @@ C Apportion emissions to the layers
                DO L = 1, EMLAYS
                   LFRC = TFRAC( L,S )
                   IF ( LFRC .LE. 0.0 ) CYCLE
-                  IF ( L .GT. PT_LAYS ) PT_LAYS = L
+                  PT_LAYS = MAX( PT_LAYS, L )
 
                   ! Save Emissions in Common Array
                   VDEMIS_PT( ISPC,L,C,R ) = VDEMIS_PT( ISPC,L,C,R )

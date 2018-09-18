@@ -499,9 +499,10 @@ C ----------------------------------------------------------------------
 
          INTEGER :: N, S, IAERO, IM, ISD, ISTR   ! Looping Variables
          INTEGER :: ROW, COL, LAY, N_SD, INUM, ISRF
-         REAL    :: FACNUM, FACSRF, DENS_FAC, MW_FAC
+         REAL    :: FACNUM, FACSRF, MW_FAC
          REAL, ALLOCATABLE       :: EMISM3( :,:,:,:,: ) 
          REAL, ALLOCATABLE, SAVE :: GSFAC( :,:,: )
+         REAL, ALLOCATABLE, SAVE :: DENS_FAC( : )
          REAL, PARAMETER   :: F6DPIM9 = 1.0E-9 * F6DPI  ! 1.0E-9 = Kg/ug
          LOGICAL, SAVE     :: FIRST_TIME = .TRUE.
 
@@ -509,11 +510,18 @@ C *** Initialize Variables
          IF ( FIRST_TIME ) THEN
              FIRST_TIME = .FALSE.
              ALLOCATE( GSFAC ( EMLAYS,NCOLS,NROWS ) )
+
+             ALLOCATE( DENS_FAC( N_AEROSPC ) )
+             DO IAERO = 1,N_AEROSPC
+                 DENS_FAC( IAERO ) = F6DPIM9 / AEROSPC( IAERO )%DENSITY
+             END DO
+
          END IF
 
          N_SD   = EM_STREAM_SIZE( ISRM )%LEN 
          ALLOCATE( EMISM3( EMLAYS,NCOLS,NROWS,N_MODE,N_SD ) )
          EMISM3 = 0.0
+         !NL = EMLAYS
 
 C *** Calculate scaling factor for converting mass emissions into [ug/m3/s]
 C     note: RJACM converts grid heights from sigma coordinates to meters
@@ -537,8 +545,7 @@ C *** Apply Aerosol Size Distribution
                                             !  species so we can retrieve density
              IM    = MAP_EMtoMODE( ISTR )   !This maps to the internal CMAQ modes 
                                             !  (ie. I, J, and K)
-             DENS_FAC = F6DPIM9 / AEROSPC( IAERO )%DENSITY 
-             MW_FAC   = 1 / AEROSPC_MW( IAERO )
+             !DENS_FAC = F6DPIM9 / AEROSPC( IAERO )%DENSITY 
 
              ! Convert Aerosol from [g/s] to [ug/m3/s] for all streams
              ! except Dust and Sea Spray. For those streams, convert
@@ -552,10 +559,10 @@ C *** Apply Aerosol Size Distribution
              ! Sum Total Volume of Mode N [m3/m3/s]
              IF ( .NOT. AEROSPC( IAERO )%TRACER ) 
      &             EMISM3( 1:NL,:,:,IM,ISD ) = EMISM3( 1:NL,:,:,IM,ISD ) + 
-     &                  VDEMIS( ISTR,1:NL,:,: ) * DENS_FAC
+     &                  VDEMIS( ISTR,1:NL,:,: ) * DENS_FAC( IAERO )
 
              ! Convert Mass Emission Rates from [ug/m3/s] to [umol/m3/s]
-             VDEMIS( ISTR,1:NL,:,: ) = VDEMIS( ISTR,1:NL,:,: ) * MW_FAC
+             VDEMIS( ISTR,1:NL,:,: ) = VDEMIS( ISTR,1:NL,:,: ) / AEROSPC_MW( IAERO )
          END DO          
 
 C *** Calculate the number emissions rate for each mode [1/m3/s], using 
