@@ -373,7 +373,7 @@ C modal sedimentation velocities for number, 2nd, and 3rd moment, or mass:
       REAL RD3     ! canopy resisteance for 3rd moment
       REAL UTSCALE              ! scratch function of USTAR and WSTAR
       REAL NU                   ! kinematic viscosity [ m2 s-1 ]
-      REAL USTFAC               ! scratch function of USTAR, NU, and GRAV
+      REAL STOKEFAC             ! scratch function of USTAR, NU, and GRAV
 
       REAL, PARAMETER :: BHAT    = 1.246 ! Constant from Cunningham slip correction
       REAL, PARAMETER :: THREEPI = 3.0 * PI
