@@ -159,8 +159,6 @@ setenv CTM_HGBIDI N          #> mercury bi-directional flux for in-line depositi
 setenv CTM_SFC_HONO Y        #> surface HONO interaction [ default: Y ]; ignore if CTM_ILDEPV = N
 setenv CTM_GRAV_SETL Y       #> vdiff aerosol gravitational sedimentation [ default: Y ]
 setenv CTM_BIOGEMIS Y        #> calculate in-line biogenic emissions [ default: N ]
-setenv CTM_PT3DEMIS Y        #> calculate in-line plume rise for elevated point emissions 
-                             #>    [ default: N ]
 setenv CTM_ZERO_PCSOA N      #> turn off the emissions of the VOC precursor to pcSOA.
                              #>    The CMAQ dev team recommends leaving pcSOA mass in the
                              #>    model for production runs. [ default: N ]
@@ -217,9 +215,7 @@ setenv VDIFF_DIAG_FILE Y     #> vdiff & possibly aero grav. sedimentation diagno
 setenv LTNGDIAG Y            #> lightning diagnostic file [ default: N ]
 setenv B3GTS_DIAG Y          #> beis mass emissions diagnostic file [ default: N ]
 setenv PT3DDIAG N            #> 3D point source emissions diagnostic file [ default: N]; 
-                             #>     Ignore if CTM_PT3DEMIS = N
 setenv PT3DFRAC N            #> layer fractions diagnostic (play) file(s) [ default: N]; 
-                             #>     Ignore if CTM_PT3DEMIS = N
 setenv REP_LAYER_MIN -1      #> Minimum layer for reporting plume rise info [ default: -1 ]
 setenv EMISDIAG F            #> Print Emission Rates at the output time step after they have been
                              #>   scaled and modified by the user Rules [options: F | T or 2D | 3D | 2DSUM ]
@@ -333,49 +329,46 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv GR_EM_DTOVRD_001 F
 
   #> In-line point emissions configuration
-  if ( $CTM_PT3DEMIS == 'Y' ) then
-     setenv N_EMIS_PT 5          #> Number of elevated source groups
+  setenv N_EMIS_PT 5          #> Number of elevated source groups
 
-     set STKCASEG = 12US1_2011ek_cb6cmaq_v6_11g              # Stack Group Version Label
-     set STKCASEE = 12US1_cmaq_cb6e51_2011ek_cb6cmaq_v6_11g  # Stack Emission Version Label
+  set STKCASEG = 12US1_2011ek_cb6cmaq_v6_11g              # Stack Group Version Label
+  set STKCASEE = 12US1_cmaq_cb6e51_2011ek_cb6cmaq_v6_11g  # Stack Emission Version Label
 
-     setenv STK_GRPS_001 $IN_PTpath/stack_groups/stack_groups_ptnonipm_${STKCASEG}.nc
-     setenv STK_GRPS_002 $IN_PTpath/stack_groups/stack_groups_ptegu_${STKCASEG}.nc
-     setenv STK_GRPS_003 $IN_PTpath/stack_groups/stack_groups_othpt_${STKCASEG}.nc
-     setenv STK_GRPS_004 $IN_PTpath/stack_groups/stack_groups_ptfire_${YYYYMMDD}_${STKCASEG}.nc
-     setenv STK_GRPS_005 $IN_PTpath/stack_groups/stack_groups_pt_oilgas_${STKCASEG}.nc
-     setenv LAYP_STTIME $STTIME
-     setenv LAYP_NSTEPS $NSTEPS
+  setenv STK_GRPS_001 $IN_PTpath/stack_groups/stack_groups_ptnonipm_${STKCASEG}.nc
+  setenv STK_GRPS_002 $IN_PTpath/stack_groups/stack_groups_ptegu_${STKCASEG}.nc
+  setenv STK_GRPS_003 $IN_PTpath/stack_groups/stack_groups_othpt_${STKCASEG}.nc
+  setenv STK_GRPS_004 $IN_PTpath/stack_groups/stack_groups_ptfire_${YYYYMMDD}_${STKCASEG}.nc
+  setenv STK_GRPS_005 $IN_PTpath/stack_groups/stack_groups_pt_oilgas_${STKCASEG}.nc
+  setenv LAYP_STTIME $STTIME
+  setenv LAYP_NSTEPS $NSTEPS
 
-     setenv STK_EMIS_001 $IN_PTpath/ptnonipm/inln_mole_ptnonipm_${YYYYMMDD}_${STKCASEE}.nc
-     setenv STK_EMIS_002 $IN_PTpath/ptegu/inln_mole_ptegu_${YYYYMMDD}_${STKCASEE}.nc
-     setenv STK_EMIS_003 $IN_PTpath/othpt/inln_mole_othpt_${YYYYMMDD}_${STKCASEE}.nc
-     setenv STK_EMIS_004 $IN_PTpath/ptfire/inln_mole_ptfire_${YYYYMMDD}_${STKCASEE}.nc
-     setenv STK_EMIS_005 $IN_PTpath/pt_oilgas/inln_mole_pt_oilgas_${YYYYMMDD}_${STKCASEE}.nc
-     setenv LAYP_STDATE $YYYYJJJ
+  setenv STK_EMIS_001 $IN_PTpath/ptnonipm/inln_mole_ptnonipm_${YYYYMMDD}_${STKCASEE}.nc
+  setenv STK_EMIS_002 $IN_PTpath/ptegu/inln_mole_ptegu_${YYYYMMDD}_${STKCASEE}.nc
+  setenv STK_EMIS_003 $IN_PTpath/othpt/inln_mole_othpt_${YYYYMMDD}_${STKCASEE}.nc
+  setenv STK_EMIS_004 $IN_PTpath/ptfire/inln_mole_ptfire_${YYYYMMDD}_${STKCASEE}.nc
+  setenv STK_EMIS_005 $IN_PTpath/pt_oilgas/inln_mole_pt_oilgas_${YYYYMMDD}_${STKCASEE}.nc
+  setenv LAYP_STDATE $YYYYJJJ
 
-    # Label Each Emissions Stream
-     setenv STK_EMIS_LAB_001 POINT_NONEGU
-     setenv STK_EMIS_LAB_002 POINT_EGU
-     setenv STK_EMIS_LAB_003 POINT_OTHER
-     setenv STK_EMIS_LAB_004 POINT_FIRES
-     setenv STK_EMIS_LAB_005 POINT_OILGAS
+  # Label Each Emissions Stream
+  setenv STK_EMIS_LAB_001 POINT_NONEGU
+  setenv STK_EMIS_LAB_002 POINT_EGU
+  setenv STK_EMIS_LAB_003 POINT_OTHER
+  setenv STK_EMIS_LAB_004 POINT_FIRES
+  setenv STK_EMIS_LAB_005 POINT_OILGAS
 
-     #setenv STK_EMIS_DIAG_001 2DSUM
-     #setenv STK_EMIS_DIAG_002 2DSUM
-     #setenv STK_EMIS_DIAG_003 2DSUM
-     #setenv STK_EMIS_DIAG_004 2DSUM
-     #setenv STK_EMIS_DIAG_005 2DSUM
+  #setenv STK_EMIS_DIAG_001 2DSUM
+  #setenv STK_EMIS_DIAG_002 2DSUM
+  #setenv STK_EMIS_DIAG_003 2DSUM
+  #setenv STK_EMIS_DIAG_004 2DSUM
+  #setenv STK_EMIS_DIAG_005 2DSUM
 
-     # Allow CMAQ to Use Point Source files with dates that do not
-     # match the internal model date
-     setenv STK_EM_DTOVRD_001 T
-     setenv STK_EM_DTOVRD_002 T
-     setenv STK_EM_DTOVRD_003 T
-     setenv STK_EM_DTOVRD_004 T
-     setenv STK_EM_DTOVRD_005 T
-
-  endif
+  # Allow CMAQ to Use Point Source files with dates that do not
+  # match the internal model date
+  setenv STK_EM_DTOVRD_001 T
+  setenv STK_EM_DTOVRD_002 T
+  setenv STK_EM_DTOVRD_003 T
+  setenv STK_EM_DTOVRD_004 T
+  setenv STK_EM_DTOVRD_005 T
 
   #> Lightning NOx configuration
   if ( $CTM_LTNG_NO == 'Y' ) then
