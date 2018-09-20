@@ -188,7 +188,7 @@ C-----------------------------------------------------------------------
          SUCCESS = .TRUE.
 
 C In-line 3D point source emissions?
-         IF ( PT3DEMIS ) THEN
+         IF ( NPTGRPS .GT. 0 ) THEN
             XMSG = 'Using in-line 3d point source emissions option'
             CALL M3MSG2( XMSG )
          ELSE
@@ -198,14 +198,13 @@ C In-line 3D point source emissions?
 
 C Cannot use default and cannot set to less than 4 because of limits of plume
 C rise algorithm
-         IF ( EMLAYS .LT. 4 ) THEN
+         IF ( EMLAYS_MX .GT. 0 .AND. EMLAYS_MX .LT. 4 ) THEN
             XMSG = 'Environment variable CTM_EMLAYS must be set to ' //
      &             'a number from 4 to the ' // CRLF() // BLANK10 //
      &             'number of layers in the meteorology inputs.'
             CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
             SUCCESS = .FALSE.; RETURN
          END IF
-
 C get diagnostic files options
          IF ( REP_LAYR .LT. 1 ) THEN
             XMSG = 'NOTE: Environment variable REP_LAYR_MIN is ' //
@@ -713,7 +712,7 @@ C Convert pt source met data to bi-linear interpolated data
          CALL PTMET_CONVT( JDATE, JTIME, ZSTATIC )
 
 C Initialize Output Array
-         VDEMIS_PT = 0.0   ! array assignment
+         !VDEMIS_PT = 0.0   ! array assignment
 
          N = IPSRM( ISRM )
          PT_LAYS = 1       ! Initialize Point Layers at lowest possible value

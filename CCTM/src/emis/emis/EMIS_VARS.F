@@ -36,6 +36,7 @@
       INTEGER              :: N_EM_SRM   ! global number of emissions streams
       INTEGER              :: N_EMIS_ISTR! global emissions instructions
       INTEGER              :: N_EM_RGN   ! no. of region masks
+      INTEGER              :: EMLAYS
 
       CHARACTER( 16 ), ALLOCATABLE :: EM_SPEC  ( : ) ! Vector of Internal CMAQ Species names for 
                                                      ! each emission operation
