@@ -96,7 +96,8 @@ set ParOpt                             #> uncomment to build a multiple processo
                                        #>     (see $CMAQ_MODEL/CCTM/src/phot)
  set Mechanism = cb6r3_ae7_aq          #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS)
  set ModGas    = gas/ebi_${Mechanism}  #> gas-phase chemistry solver (see $CMAQ_MODEL/CCTM/src/gas)
-                                       #>   overwritten below if using saprc07tic_ae6i_aqkmti mech
+                                       #> use gas/ros3 or gas/smvgear for a solver independent 
+                                       #  of the photochemical mechanism
  set ModAero   = aero/aero7            #> aerosol chemistry module (see $CMAQ_MODEL/CCTM/src/aero)
  set ModCloud  = cloud/acm_ae7         #> cloud chemistry module (see $CMAQ_MODEL/CCTM/src/cloud)
                                        #>   overwritten below if using cb6r3m_ae7_kmtbr mechanism
@@ -218,15 +219,6 @@ set ParOpt                             #> uncomment to build a multiple processo
  
 #> Mechanism location
  set ModMech = MECHS/$Mechanism        #> chemical mechanism module
-
-#> Gas-phase chemistry solver options
- if ( $Mechanism == saprc07tic_ae6i_aqkmti ) then
-    set ModGas = gas/ebi_saprc07tic_ae6i_aq
- else if ( $Mechanism == saprc07tic_ae7i_aqkmt2 ) then
-    set ModGas = gas/ebi_saprc07tic_ae7i_aq
- else if ( $Mechanism == cb6r3_ae7_aqkmt2 ) then    
-    set ModGas = gas/ebi_cb6r3_ae7_aq
- endif
 
 #> Cloud chemistry options
  if ( $Mechanism == cb6r3m_ae7_kmtbr ) then

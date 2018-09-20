@@ -42,13 +42,12 @@ C-----------------------------------------------------------------------
 
       USE UTILIO_DEFN
       USE RUNTIME_VARS, ONLY : LOG_HEADING, LOG_SUBHEADING, LOG_MESSAGE,
-     &                         RUNLEN, FL_ERR_STOP
+     &                         RUNLEN, FL_ERR_STOP, LOGDEV
 
       IMPLICIT NONE 
 
 C Includes:
       INCLUDE SUBST_FILES_ID    ! file name parameters
-      INCLUDE 'STATE3.EXT'
       
 C Arguments:
       INTEGER, INTENT( IN ) :: STDATE   ! Current date (YYYYDDD)
@@ -73,8 +72,6 @@ C Local Variables:
       LOGICAL LERROR    ! Flag to indicate error for 1 or more files
       LOGICAL LOK       ! Flag to indicate error for 1 file
 
-      INTEGER :: FID
-      INTEGER, EXTERNAL :: NAME2FID
       CHARACTER( 500 )  :: FNAME
       INTEGER           :: LSTAT
       LOGICAL           :: ESTAT
@@ -96,10 +93,8 @@ C-----------------------------------------------------------------------
          INQUIRE( FILE = TRIM( FNAME ), EXIST = ESTAT )
          
          ! skip checking files that were not set in the run script or do 
-         ! not exist as well as Ping and Mepse files
-         IF ( LSTAT .LE. 0 .AND. ESTAT .EQV. .TRUE. .AND.
-     &        INDEX( LGCL_NAME( N ), 'PING'  ) .EQ. 0 .AND. 
-     &        INDEX( LGCL_NAME( N ), 'MEPSE' ) .EQ. 0 ) THEN
+         ! not exist 
+         IF ( LSTAT .LE. 0 .AND. ESTAT ) THEN
 
             LOK = OPEN3( LGCL_NAME( N ), FSREAD3, PNAME )
 
@@ -120,15 +115,11 @@ C-----------------------------------------------------------------------
                         JDATE = STDATE
                         JTIME = STTIME
 
-                        FID   = NAME2FID( LGCL_NAME( N ) )
-
-                        IF ( MXREC3( FID ) .GT. 0 ) THEN
-                           IF ( .NOT. CHECK3( LGCL_NAME( N ), ALLVAR3,
-     &                                        JDATE, JTIME ) ) THEN
-                              LOK = .FALSE.
-                              MSG = 'Starting time not on file'
-                              CALL M3MESG( MSG )
-                           END IF
+                        IF ( .NOT. CHECK3( LGCL_NAME( N ), ALLVAR3,
+     &                                     JDATE, JTIME ) ) THEN
+                           LOK = .FALSE.
+                           MSG = 'Starting time not on file'
+                           CALL M3MESG( MSG )
                         END IF
  
                         ! skip checking ending time for output files
@@ -158,7 +149,7 @@ C-----------------------------------------------------------------------
 
             END IF   ! successful open
 
-         END IF  ! skip Ping and Mepse files
+         END IF  ! skip files not set in run script or that don't exist
 
       END DO
 

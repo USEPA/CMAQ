@@ -135,7 +135,7 @@ setenv CTM_WB_DUST Y         #> use inline windblown dust emissions [ default: Y
 setenv CTM_ERODE_AGLAND Y    #> use agricultural activity for windblown dust 
                              #>    [ default: N ]; ignore if CTM_WB_DUST = N
 setenv CTM_WBDUST_BELD BELD3 #> landuse database for identifying dust source regions 
-                             #>    [ default: BELD3 ]; ignore if CTM_WB_DUST = N 
+                             #>    [ default: UNKNOWN ]; ignore if CTM_WB_DUST = N 
 setenv CTM_LTNG_NO N         #> turn on lightning NOx [ default: N ]
 setenv CTM_WVEL Y            #> save derived vertical velocity component to conc 
                              #>    file [ default: N ]
@@ -155,7 +155,7 @@ setenv CTM_HGBIDI N          #> mercury bi-directional flux for in-line depositi
 setenv CTM_SFC_HONO Y        #> surface HONO interaction [ default: Y ]; ignore if CTM_ILDEPV = N
 setenv CTM_GRAV_SETL Y       #> vdiff aerosol gravitational sedimentation [ default: Y ]
 setenv CTM_BIOGEMIS Y        #> calculate in-line biogenic emissions [ default: N ]
-setenv CTM_ZERO_PCSOA N      #> turn off the emissions of the VOC precursor to pcSOA.
+setenv CTM_ZERO_PCSOA N      #> zero out emissions of VOC precursor for pcSOA formation.
                              #>    The CMAQ dev team recommends leaving pcSOA mass in the
                              #>    model for production runs. [ default: N ]
 
@@ -448,10 +448,9 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   if ( $?CTM_PROCAN ) then   # $CTM_PROCAN is defined
      if ( $CTM_PROCAN == 'Y' || $CTM_PROCAN == 'T' ) then
 #> process analysis global column, row and layer ranges
-#> user must check GRIDDESC for validity!
-        setenv PA_BCOL_ECOL "10 90"
-        setenv PA_BROW_EROW "10 80"
-        setenv PA_BLEV_ELEV "1  4"
+#       setenv PA_BCOL_ECOL "10 90"  # default: all columns
+#       setenv PA_BROW_EROW "10 80"  # default: all rows
+#       setenv PA_BLEV_ELEV "1  4"   # default: all levels
         setenv PACM_INFILE ${NMLpath}/pa_${MECH}.ctl
         setenv PACM_REPORT $OUTDIR/"PA_REPORT".${YYYYMMDD}
      endif

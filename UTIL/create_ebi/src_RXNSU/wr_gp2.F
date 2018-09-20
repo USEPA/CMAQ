@@ -42,7 +42,7 @@ C..SCRATCH LOCAL VARIABLES:
       CHARACTER( 256 )  ::    LINOUT
       CHARACTER( 150 )  ::    RXOUT
       CHARACTER( 100 )  ::    BLANK_LINE
-      CHARACTER*(  3 )  ::    RNUM                 ! Reaction number
+      CHARACTER*(  5 )  ::    RNUM                 ! Reaction number
       CHARACTER*(  6 )  ::    COUT                 ! Output coefficient
       CHARACTER*(  1 )  ::    SGN                  ! Coefficient sign
    
@@ -740,7 +740,7 @@ c..Find OH+NO=HONO Rxn
      &         IRR( N, 4 ) .EQ. HONO ) .OR.
      &       ( IRR( N, 1 ) .EQ. NO .AND. IRR( N, 2 ) .EQ. OH .AND.
      &         IRR( N, 4 ) .EQ. HONO ) ) 
-     &     WRITE( RNUM, '(I3)' ) N
+     &     WRITE( RNUM, '(I5)' ) N
         
 
       END DO  
@@ -835,13 +835,13 @@ c..Find OH+NO=HONO Rxn
      &         IRR( N, 4 ) .EQ. HNO4 ) .OR.
      &       ( IRR( N, 1 ) .EQ. NO2 .AND. IRR( N, 2 ) .EQ. HO2 .AND.
      &         IRR( N, 4 ) .EQ. HNO4 ) ) 
-     &     WRITE( RNUM, '(I3)' ) N
+     &     WRITE( RNUM, '(I5)' ) N
         
 
       END DO  
 
       SPOUT = ADJUSTL( SPECIES( NO2 ) )
-      LINOUT = '      R21_5 =   RKI( ' // RNUM // ' ) * YC( ' //
+      LINOUT = '      R21_5 =   RKI( ' // RNUM // ' ) * YCP( ' //
      &    SPOUT // ' ) * DTC      ! HO2+NO2=HNO4'
 
       E1 = LEN_TRIM( LINOUT )
@@ -1171,7 +1171,7 @@ c..Build line for the A term (coefficient of [HO2]**2 )
       LRXN1 = .TRUE.
       DO N = 1, NRXNS
          IF( IRR( N, 1 ) .NE. HO2 .OR. IRR( N, 2 ) .NE. HO2 ) CYCLE
-         WRITE( RNUM, '(I3)' ) N
+         WRITE( RNUM, '(I5)' ) N
          IF( LRXN1 ) THEN
             LINOUT = LINOUT( 1 : E1 ) // RNUM // ' )'
             E1 = LEN_TRIM( LINOUT )

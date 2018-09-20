@@ -553,7 +553,7 @@ C Calcuate Rcut
 !-------------------------------------------------------------------------------------------------
 ! Calculate in canopy aerodynamic resistance based on the momentum attenuation coefficient derived 
 ! by Yi 2008 https://doi.org/10.1175/2007JAMC1667.1
-                     Rinc = 2 * MOSAIC_DATA%Z0( c,r,l ) * 10.0 / max(lai,1.0) *  Ra * ( Exp( lai / 2.0 ) - 1.0 )
+                     Rinc =  Ra * ( Exp( lai / 2.0 ) - 1.0 )
 !-------------------------------------------------------------------------------------------------
 ! Resistance to air-canopy covered soil exchange
 !-------------------------------------------------------------------------------------------------
@@ -686,8 +686,8 @@ C Calcuate Bare Soil Resistance
                   Else
 !-------------------------------------------------------------------------------------------------
 ! Non bidirectional exchange
-!-------------------------------------------------------------------------------------------------                                                               
-                     Tile_Data%depvel_gasj( l,s,c,r ) = Flux / c_atm
+!-------------------------------------------------------------------------------------------------   
+                     Tile_Data%depvel_gasj( l,s,c,r ) =  veg * (1.0 - c_z0/c_atm ) / Ra + no_veg / ( Ra + Rg )
                      depvel_gas( n ) = depvel_gas( n ) + frac_lu * Tile_Data%depvel_gasj( l,s,c,r )                  
                   End If ! compensation points greater than 0
                End If ! Water      
@@ -745,7 +745,7 @@ C study at New York (total A/V)
 
                surf_bldg = GRID_DATA%PURB( c,r ) * 0.002
 
-C Calculate rate constant for the reaction (psudeo-first order reaction,
+C Calculate rate constant for the reaction (pseudo-first order reaction,
 C unit per second). Calculate pseudo-first order rate constant using Eq 1
 C of Vogel et al. (2003).  Unit of KNO2 is in 1/min in the paper; divide it
 C by 60 to convert it into 1/sec.
