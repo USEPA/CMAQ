@@ -188,7 +188,7 @@ C-----------------------------------------------------------------------
          SUCCESS = .TRUE.
 
 C In-line 3D point source emissions?
-         IF ( PT3DEMIS ) THEN
+         IF ( NPTGRPS .GT. 0 ) THEN
             XMSG = 'Using in-line 3d point source emissions option'
             CALL M3MSG2( XMSG )
          ELSE
@@ -198,14 +198,13 @@ C In-line 3D point source emissions?
 
 C Cannot use default and cannot set to less than 4 because of limits of plume
 C rise algorithm
-         IF ( EMLAYS .LT. 4 ) THEN
+         IF ( EMLAYS_MX .GT. 0 .AND. EMLAYS_MX .LT. 4 ) THEN
             XMSG = 'Environment variable CTM_EMLAYS must be set to ' //
      &             'a number from 4 to the ' // CRLF() // BLANK10 //
      &             'number of layers in the meteorology inputs.'
             CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
             SUCCESS = .FALSE.; RETURN
          END IF
-
 C get diagnostic files options
          IF ( REP_LAYR .LT. 1 ) THEN
             XMSG = 'NOTE: Environment variable REP_LAYR_MIN is ' //
@@ -572,8 +571,8 @@ C Compute ZSTK, DDZF
 
 C=======================================================================
 
-         FUNCTION GET_PT3D_EMIS ( JDATE, JTIME, TSTEP, EM_SURR_PT, ISRM )
-     &                            RESULT( VDEMIS_PT )
+         SUBROUTINE GET_PT3D_EMIS ( JDATE, JTIME, TSTEP, EM_SURR_PT, ISRM,
+     &                            VDEMIS_PT, PT_LAYS )
 
 ! Revision History.
 !     Aug 12, 15 D. Wong: added code to handle parallel I/O implementation
@@ -602,6 +601,7 @@ C=======================================================================
          INTEGER               :: JDATE, JTIME
          INTEGER, INTENT( IN ) :: TSTEP( 3 )
          INTEGER, INTENT( IN ) :: ISRM
+         INTEGER, INTENT( OUT) :: PT_LAYS
 
 ! Outputs:
          REAL  :: VDEMIS_PT( N_EMIS_ISTR, EMLAYS, NCOLS, NROWS )
@@ -712,9 +712,10 @@ C Convert pt source met data to bi-linear interpolated data
          CALL PTMET_CONVT( JDATE, JTIME, ZSTATIC )
 
 C Initialize Output Array
-         VDEMIS_PT = 0.0   ! array assignment
+         !VDEMIS_PT = 0.0   ! array assignment
 
          N = IPSRM( ISRM )
+         PT_LAYS = 1       ! Initialize Point Layers at lowest possible value
 
          IF ( MY_NSRC( N ) .LE. 0 ) RETURN
 
@@ -765,6 +766,7 @@ C Apportion emissions to the layers
                DO L = 1, EMLAYS
                   LFRC = TFRAC( L,S )
                   IF ( LFRC .LE. 0.0 ) CYCLE
+                  PT_LAYS = MAX( PT_LAYS, L )
 
                   ! Save Emissions in Common Array
                   VDEMIS_PT( ISPC,L,C,R ) = VDEMIS_PT( ISPC,L,C,R )
@@ -836,7 +838,7 @@ C------------------  FORMAT  STATEMENTS   ------------------------------
 
 94030    FORMAT( /5X, 3( A, :, 1X ), I8, ":", I6.6 )
 
-         END FUNCTION GET_PT3D_EMIS
+         END SUBROUTINE GET_PT3D_EMIS
 
 C-------------- Subprograms used by GET_PT3D_EMIS ----------------------
 
