@@ -72,6 +72,8 @@
 
       Close (unit=lfn)
 
+! Delete Stray temp.* files
+      Call deletefile( 'temp.*', status )
 ! If not makefile only (makefo), Then run the make command to compile
       If ( .not. makefo ) Then
         Call RunMake( status )
