@@ -116,7 +116,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
             IF( LDEGRADE_SUBS ) WRITE( IOUT, 93045 ) LINEIN( 3 : LEN_TRIM( LINEIN ) )
 
-            LOUT5 = .TRUE.
+            LOUT5 = .FALSE.
 
          ELSEIF( LINEIN( 2 : 2 ) .EQ. '6' .AND. .NOT. LOUT6 ) THEN
 
