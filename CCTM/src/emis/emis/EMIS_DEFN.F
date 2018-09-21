@@ -699,7 +699,10 @@ C-----------------------------------------------------------------------
       ! zero out emissions values for diffused species not included in emissions list.
       ! ...accounts for emissions species names as a subset of the vert. diffused species list
       VDEMIS( :,1:NL,:,: ) = 0.0
-      VDEMIS( MAP_EMtoDIFF,1:NL,:,: ) = VDEMIS( MAP_EMtoDIFF,1:NL,:,: ) + VDEMIS0( 1:N_EMIS_ISTR,1:NL,:,: )
+      FORALL( ISTR = 1:N_EMIS_ISTR, MAP_EMtoDIFF( ISTR ) .NE. 0 ) 
+     &        VDEMIS( MAP_EMtoDIFF( ISTR ),1:NL,:,: ) = 
+     &                VDEMIS( MAP_EMtoDIFF( ISTR ),1:NL,:,: ) + 
+     &                VDEMIS0( ISTR,1:NL,:,: )
 
       RETURN
       END SUBROUTINE EMISS_CONV_DIFF
@@ -821,20 +824,20 @@ C-----------------------------------------------------------------------
       !MAKE SURE TO APPLY RELEVANT UNIT CONVERSION TO EACH
       !TYPE OF VARIABLE (GAS, AEROSOL MASS, AEROSOL NUMBER,
       !AND AEROSOL SURFACE AREA)
-      FORALL ( I = 1:N_SPC_DIFF, DIFF_MASK_GAS( I ) .NE. 0 .OR.
-     &                           DIFF_MASK_NR( I )  .NE. 0 .OR. 
-     &                           DIFF_MASK_TRAC( I ).NE. 0 )
+      FORALL ( I = 1:N_SPC_DIFF, DIFF_MASK_GAS( I ) .OR. 
+     &                           DIFF_MASK_NR( I )  .OR. 
+     &                           DIFF_MASK_TRAC( I ) )
      &    VDEMIS( :,:,1:NL,I ) = CNVTC( 1:NL,:,: ) * VDEMIS0( I,1:NL,:,: )
   
-      FORALL ( I = 1:N_SPC_DIFF, DIFF_MASK_AERO( I ).NE. 0 .AND. 
-     &                           DIFF_MASK_NUM( I ) .EQ. 0 .AND.
-     &                           DIFF_MASK_SRF( I ) .EQ. 0 )
+      FORALL ( I = 1:N_SPC_DIFF, DIFF_MASK_AERO( I ) .AND. 
+     &                           .NOT. DIFF_MASK_NUM( I ) .AND.
+     &                           .NOT. DIFF_MASK_SRF( I )  )
      &    VDEMIS( :,:,1:NL,I ) = CNVTC( 1:NL,:,: ) * VDEMIS0( I,1:NL,:,: ) * DIFF_MW( I )
       
-      FORALL ( I = 1:N_SPC_DIFF, MAP_EMtoSRF( I ) .NE. 0 )
+      FORALL ( I = 1:N_SPC_DIFF, DIFF_MASK_SRF( I ) )
      &    VDEMIS( :,:,1:NL,I ) = CONVM( 1:NL,:,: ) * VDEMIS0( I,1:NL,:,: )
       
-      FORALL ( I = 1:N_SPC_DIFF, MAP_EMtoNUM( I ) .NE. 0 )
+      FORALL ( I = 1:N_SPC_DIFF, DIFF_MASK_NUM( I ) )
      &    VDEMIS( :,:,1:NL,I ) = CONVN( 1:NL,:,: ) * VDEMIS0( I,1:NL,:,: )
 
  
