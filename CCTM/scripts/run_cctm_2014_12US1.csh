@@ -23,10 +23,13 @@ echo 'Start Model Run At ' `date`
  if ( ! $?compiler ) then
    setenv compiler intel
  endif
+ if ( ! $?compilerVrsn ) then
+   setenv compilerVrsn Empty
+ endif
 
 #> Source the config.cmaq file to set the build environment
  cd ../..
- source ./config_cmaq.csh $compiler
+ source ./config_cmaq.csh $compiler $compilerVrsn
  cd CCTM/scripts
 
 #> Set General Parameters for Configuring the Simulation
