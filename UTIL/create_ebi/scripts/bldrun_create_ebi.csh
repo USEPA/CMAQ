@@ -53,6 +53,7 @@ if ( ! ( -e ${RXNS_DATA_SRC} ) )then
   
  setenv SOLVER_DELT     2.5  # maximum time step of solver integration up to four significant figures
                              # in general or scientific notation, units are minutes
+                             # For saprc07tic based mechanisms, 1.25 minutes is recommended.
 
 #Set the below compound names within the mechanism
 #                 #Mech   #   Mechanism          #   Mechanism     # Description
