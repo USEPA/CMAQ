@@ -17,10 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/grid/cartesian/PAGRD_DEFN.F,v 1.4 2011/10/21 16:11:18 yoj Exp $
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE PAGRD_DEFN
 
@@ -42,6 +38,7 @@ C   S. Roselle 29 Mar 11: Replaced I/O API include files with UTILIO_DEFN
 C   J.Young 14 Sep 11: allow default subdomain values
 C   J.Young 28 Jun 16: use PA_DEFN module intead of include files
 C   J.Young 16 Sep 16: update for inline procan
+C   C. Nolte, S. Roselle Sep 18: replace M3UTILIO with UTILIO_DEFN
 C.......................................................................
       USE RUNTIME_VARS
 
@@ -86,7 +83,7 @@ C Buffer for writing IRR results
          FUNCTION PAGRD_INIT ( RANK ) RESULT ( SUCCESS )
 
          USE GRID_CONF           ! horizontal & vertical domain specifications
-         USE M3UTILIO            ! i/o-api
+         USE UTILIO_DEFN
 #ifdef parallel
          USE SE_MODULES          ! stenex (using SE_UTIL_MODULE)
 #else
@@ -139,13 +136,6 @@ C Determine IPR subgrid mapping with data redistribution
      &               PA_BEGLEV, PA_ENDLEV,
      &               MY_BEGCOL, MY_ENDCOL, MY_BEGROW, MY_ENDROW,
      &               MY_BEGLEV, MY_ENDLEV, MY_PACOLS, MY_PAROWS )
-
-C NOTE: (CMAQ Forecast model version)
-C       SE_SUBGRID_INDEX doesn't know about the "writers" (I/O) partition.
-C       Therefore, COLLECT, which is in that partition won't have MY_PACOLS
-C       and MY_PAROWS. COLLECT needs these to determine a size for the message
-C       buffer that receives grid data from the worker processors. Use
-C       SUBHDOMAIN (below).
 
                PACOLS = PA_ENDCOL - PA_BEGCOL + 1
                PAROWS = PA_ENDROW - PA_BEGROW + 1

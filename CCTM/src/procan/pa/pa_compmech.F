@@ -17,10 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/PROCAN/src/driver/pa/pa_compmech.F,v 1.8 2011/11/02 14:33:55 yoj Exp $
-
       SUBROUTINE PA_COMPMECH
 
 C-----------------------------------------------------------------------
@@ -40,9 +36,10 @@ C  Modified May 2002 by Jerry Gipson to increase number of reaction lines
 C  (for saprc99)
 C  Aug 2011 Jeff Young: Replaced I/O API include files with IOAPI's M3UTILIO
 C  Jul 2016 Jeff Young: Inline Function TRIMCOEF; fix bug if 5 dec. pt. coeff
+C  Sep 2018 C. Nolte, S. Roselle: replace M3UTILIO with UTILIO_DEFN
 C-----------------------------------------------------------------------
 
-      USE M3UTILIO      ! IOAPI module
+      USE UTILIO_DEFN   
       USE PA_GLOBAL     ! Mech data used 
       USE PA_VARS
       USE PA_PARSE
@@ -64,7 +61,7 @@ C Local Variables:
       INTEGER COUTLEN  ! Length of character based coefficient
       INTEGER ENDPOS   ! Ending position on line for next product
       INTEGER EQPOS    ! Position of equals sign
-      INTEGER EXPOS    ! Eclamation point position 
+      INTEGER EXPOS    ! Exclamation point position 
       INTEGER IE1, IE2 ! Ending position of characters in a string
       INTEGER IEND     ! Position of last non-blank character in LINOUT
       INTEGER INDX     ! Index for species name
