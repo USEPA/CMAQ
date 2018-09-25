@@ -61,9 +61,8 @@ C   17 Apr 13 J.Young: replace "SPFC ASO4" (found by Havala Pye) with "SPFC_ASO4
 C   07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module. 
 C-----------------------------------------------------------------------
 
-      USE AERO_DATA
-      USE EMIS_VARS
-      USE UDTYPES, ONLY: IARRY1
+      USE AERO_DATA, ONLY: N_EM_AERO_REF, N_MODE
+      USE EMIS_VARS, ONLY: EMLAYS, EM_STREAM_SIZE, N_EM_SRM
 
       IMPLICIT NONE
       SAVE 
@@ -82,7 +81,6 @@ C Variables for converting mass emissions rate to 2nd moment emissions rate
 
 C Variables for Saving split factors between emission modes
       REAL, ALLOCATABLE :: SD_SPLIT( :,: )
-
 
 C Variables for the thickness and volume of each grid cell
       REAL,    ALLOCATABLE :: CELLHGT( : ) ! grid-cell height [sigma]
@@ -179,16 +177,16 @@ C                   J. Geophys. Res., Vol 108, No D6, 4183
 C                   doi:10.1029/2001JD001409, 2003
 C-----------------------------------------------------------------------
 
-         USE GRID_CONF           ! horizontal & vertical domain configuration
-         USE RXNS_DATA           ! chemical mechanism data
-         USE CGRID_SPCS          ! CGRID mechanism species
-         USE SSEMIS              ! sea-salt emissions
-         USE DUST_EMIS           ! wind-blown dust emissions
-         USE AERO_DATA
-         USE PRECURSOR_DATA
-         USE UTILIO_DEFN
+         USE AERO_DATA, ONLY: EM_AERO_REF, N_AEROSPC, AEROSPC, 
+     &                        AERO_MISSING, MAP_AERO
+         USE GRID_CONF, ONLY: GDTYP_GD, XCELL_GD, YCELL_GD, YORIG_GD, GL_NROWS, X3FACE_GD
+         USE DUST_EMIS, ONLY: DUST_EMIS_INIT
+         USE EMIS_VARS, ONLY: CONVEM_PM_MASS, MAP_EMtoSURR
+         USE PRECURSOR_DATA, ONLY: MAP_PRECURSOR
+         USE RUNTIME_VARS, ONLY:  SS_AERO, WB_DUST
+         USE SSEMIS, ONLY:    SSEMIS_INIT
+         USE UTILIO_DEFN, ONLY: INDEX1, M3EXIT, LATGRD3, XSTAT1, XSTAT2
          USE VDIFF_MAP, ONLY : N_SPC_DIFF, DIFF_SPC
-         USE EMIS_VARS, ONLY : MAP_EMtoSURR
      
          INCLUDE SUBST_CONST     ! physical and mathematical constants
          INCLUDE SUBST_FILES_ID  ! file name parameters
@@ -230,10 +228,10 @@ C *** Map data modules
          CALL MAP_AERO()
          CALL MAP_PRECURSOR()
 
-C *** set up for sea-salt emission processing
+C *** set up for sea-spray emission processing
          IF ( SS_AERO ) THEN
             IF ( .NOT. SSEMIS_INIT( JDATE, JTIME, TSTEP ) ) THEN
-               XMSG = 'Failure initializing sea-salt emission processing'
+               XMSG = 'Failure initializing sea-spray emission processing'
                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
             END IF
          END IF
@@ -357,8 +355,6 @@ C     Multiply by grid area [m2] to obtain grid volume
             END DO
          END DO
 
-         
-
          END FUNCTION  AERO_EMIS_INIT
 
 C-----------------------------------------------------------------------
@@ -369,9 +365,9 @@ C  EM_SD_INIT initializes the structures that map modes and streams to
 C  reference modes including splits, diameters, and standard deviations.
 
 C-----------------------------------------------------------------------
-       USE EMIS_VARS
-       USE AERO_DATA
-       USE UTILIO_DEFN
+       USE AERO_DATA, ONLY: EM_AERO_REF, N_EM_AERO_REF
+       USE EMIS_VARS, ONLY: SD_NML, INTERPRET_EM_RULE_STREAM
+       USE UTILIO_DEFN, ONLY: INDEX1
          
        IMPLICIT NONE
 
@@ -487,12 +483,12 @@ C   16 AUG 17 BMURPHY: Created
 C                      
 C ----------------------------------------------------------------------
 
-         USE GRID_CONF
-         USE AERO_DATA, ONLY : AEROSPC 
-         USE AEROMET_DATA
+         USE AERO_DATA, ONLY: AEROSPC, N_AEROSPC, AEROSPC_MWINV 
+         USE AEROMET_DATA, ONLY: F6DPI
          USE ASX_DATA_MOD, ONLY: MET_DATA
-         USE EMIS_VARS
-         USE SSEMIS, ONLY : SEA_FACTNUM, SEA_FACTSRF
+         USE EMIS_VARS, ONLY: N_EMIS_ISTR, IDUSTSRM, ISEASRM, CONVEM_PM_MASS
+         USE GRID_CONF, ONLY: NCOLS, NROWS
+         USE SSEMIS, ONLY: SEA_FACTNUM, SEA_FACTSRF
 
          INTEGER, INTENT( IN ) :: ISRM, NL
          REAL, INTENT( INOUT ) :: VDEMIS ( :,:,:,: ) 
@@ -562,7 +558,7 @@ C *** Apply Aerosol Size Distribution
      &                  VDEMIS( ISTR,1:NL,:,: ) * DENS_FAC( IAERO )
 
              ! Convert Mass Emission Rates from [ug/m3/s] to [umol/m3/s]
-             VDEMIS( ISTR,1:NL,:,: ) = VDEMIS( ISTR,1:NL,:,: ) / AEROSPC_MW( IAERO )
+             VDEMIS( ISTR,1:NL,:,: ) = VDEMIS( ISTR,1:NL,:,: ) * AEROSPC_MWINV( IAERO )
          END DO          
 
 C *** Calculate the number emissions rate for each mode [1/m3/s], using 

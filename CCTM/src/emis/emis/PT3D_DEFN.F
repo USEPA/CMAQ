@@ -59,9 +59,8 @@ C                            species
 C     08 Aug 2016 B.Murphy: Neglect fire emissions for pcVOC
 C     16 Aug 2017 B.Murphy: Pull plume height calc. to separate subroutine.
 C-----------------------------------------------------------------------
-      USE RUNTIME_VARS
-      USE UDTYPES           ! implementation for multiple groups of stack input files
-      USE EMIS_VARS
+
+      USE UDTYPES, ONLY: RARRY1 
 
       IMPLICIT NONE
 
@@ -132,14 +131,20 @@ C=======================================================================
          FUNCTION PT3D_INIT ( JDATE, JTIME, TSTEP )
      &                       RESULT ( SUCCESS )
 
-         USE GRID_CONF   ! horizontal & vertical domain specifications
-         USE CGRID_SPCS  ! CGRID mechanism species
-         USE STK_PRMS    ! stack groups file
-         USE STK_EMIS    ! hourly point source emissions
-         USE PTMET       ! defines met variables used in plume rise
-         USE PTBILIN     ! defines bi-linear interpolation from grid to pt src locations
+         USE GRID_CONF, ONLY: NLAYS, VGTYP_GD
+         USE STK_PRMS, ONLY: SOURCE, STKDIAM, STKHT, STKVEL, STKTK, 
+     &                       ACRES_BURNED, STK_PRMS_INIT, NSRC, MY_NSRC
+         USE STK_EMIS, ONLY: EM_FILE_NAME, NSRC_EMIS, FIREFLAG, 
+     &                       MAP_PTtoISRM, STK_EMIS_INIT
+         USE PTMET, ONLY: PTMET_DATA, MC2NAME, MC3NAME, MD3NAME, PTMET_INIT
+         USE PTBILIN, ONLY: BILIN_DATA, PTBILIN_INIT, NPTGRPS, XBUF,
+     &                      METCGRID, METCXORIG, METCYORIG, XCELLCG, YCELLCG, 
+     &                      METDGRID, METDXORIG, METDYORIG, XCELLDG, YCELLDG
          USE UTILIO_DEFN
-         USE BMATVEC_MODULE
+         USE RUNTIME_VARS, ONLY: LOGDEV, MYPE, PT3DFRAC, PT_DATE, 
+     &                           PT_TIME, PT_NSTEPS, REP_LAYR
+         USE EMIS_VARS, ONLY: EMLAYS, EMLAYS_MX
+         USE BMATVEC_MODULE, ONLY: BMATVECN
 
          IMPLICIT NONE
 
@@ -258,7 +263,6 @@ C get diagnostic files options
 
 C get scenario timing
 
-
          JDATE = PT_DATE
          JTIME = PT_TIME
 
@@ -281,7 +285,6 @@ C Use time parameters for time defaults.
      &                   STRTCOLMC, ENDCOLMC, STRTROWMC, ENDROWMC )
 
 C Initialize reference grid with met file
-C (declared and stored in PTBILIN module)
          XCELLCG = XCELL3D
          YCELLCG = YCELL3D
          METCCOLS = NCOLS3D
@@ -581,14 +584,15 @@ C=======================================================================
 
 ! Time step part of laypoint
 
-         USE GRID_CONF, ONLY : NCOLS, NROWS
-!        USE RXNS_DATA, ONLY : MECHNAME !Get Chemical Mechanism Name
-         USE CGRID_SPCS  ! CGRID mechanism species
-         USE STK_PRMS    ! stack groups file
-         USE STK_EMIS    ! hourly point source emissions
-         USE PTMET
-         USE UTILIO_DEFN
+         USE GRID_CONF, ONLY:  NCOLS, NROWS
+         USE STK_PRMS, ONLY :  MY_NSRC, MY_STRT_SRC, MY_END_SRC, 
+     &                         MY_STKCOL, MY_STKROW, SOURCE
+         USE STK_EMIS, ONLY :  IPSRM, N_EMIS_ISTR, EM_FILE_SURR, EM_FILE_DATE, 
+     &                         STKDATE, STKEMIS
+         USE PTMET, ONLY    :  EMLAYS, PTMET_CONVT
          USE PRECURSOR_DATA, ONLY : PRECURSOR_MW, SULF_IDX
+         USE RUNTIME_VARS, ONLY : LOGDEV, PT3DDIAG, PT3DFRAC, STDATE, STTIME
+         USE UTILIO_DEFN, ONLY : INTERPX, XSTAT2
 
          IMPLICIT NONE
 
@@ -602,9 +606,7 @@ C=======================================================================
          INTEGER, INTENT( IN ) :: TSTEP( 3 )
          INTEGER, INTENT( IN ) :: ISRM
          INTEGER, INTENT( OUT) :: PT_LAYS
-
-! Outputs:
-         REAL  :: VDEMIS_PT( N_EMIS_ISTR, EMLAYS, NCOLS, NROWS )
+         REAL, INTENT(INOUT)  :: VDEMIS_PT( :,:,:,: ) 
 
 ! Parameters:
 
@@ -852,11 +854,12 @@ C=======================================================================
 
 C-----------------------------------------------------------------------
 
-      USE GRID_CONF   ! horizontal & vertical domain specifications
-      USE STK_EMIS
-      USE STK_PRMS
-      USE UTILIO_DEFN
-      USE PTMET, P_D => PTMET_DATA
+      USE VGRD_DEFN, ONLY : VGTOP_GD
+      USE STK_EMIS, ONLY : FIREVAR, FIREFLAG
+      USE STK_PRMS, ONLY : MY_STRT_SRC, MY_END_SRC, MY_NSRC, SOURCE
+      USE PTMET, ONLY : EMLAYS, P_D => PTMET_DATA
+      USE RUNTIME_VARS, ONLY : LOGDEV, IPVERT, PT3DFRAC, REP_LAYR
+      USE UTILIO_DEFN, ONLY : INTERPX, CRLF, XSTAT2
 
       IMPLICIT NONE
 
@@ -1249,7 +1252,7 @@ C-----------------------------------------------------------------------
 
          SUBROUTINE RETRIEVE_IOAPI_HEADER( FNAME, JDATE, JTIME )
 
-            USE UTILIO_DEFN
+            USE UTILIO_DEFN, ONLY : DESC3, XSTAT2
 
             IMPLICIT NONE
 
@@ -1273,9 +1276,9 @@ C-----------------------------------------------------------------------
 
          SUBROUTINE READGC3 ( VNAME, JDATE, JTIME, XBUF )
 
-            USE VGRD_DEFN             ! vertical layer specifications
+            USE VGRD_DEFN, ONLY: NLAYS
             USE PTBILIN, ONLY: XBND, YBND
-            USE UTILIO_DEFN
+            USE UTILIO_DEFN, ONLY: INTERPX, XSTAT2
 
             IMPLICIT NONE
 

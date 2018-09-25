@@ -112,7 +112,7 @@
                                            ! science submodules
       LOGICAL :: FL_ERR_STOP=.TRUE.  ! Flag to stop run if errors are found.
       LOGICAL :: CKSUM     = .TRUE.  ! flag for cksum on, default = [T]
-      LOGICAL :: END_TIME  = .FALSE. ! Override default beginning ACON timestamp
+      LOGICAL :: END_TIME  = .FALSE. ! Override default beginning ACONC timestamp
       
       INTEGER :: N_ASPCS   = 0       ! Number of species saved to avg conc file
       INTEGER :: N_CSPCS   = 0       ! Number of species saved to conc file

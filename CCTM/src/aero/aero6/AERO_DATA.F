@@ -597,8 +597,8 @@ C Indices of Optional species
       Integer :: abr_idx    = 0
 
 C Common Arrays for Aerosol Data
-      Real, Allocatable :: aerospc_mw( : )     ! aero species M.W. (from AE_SPC Namelist) [ g/mol ]
-      Real, Allocatable :: aerospc_mwinv( : )     ! aero species M.W. (from AE_SPC Namelist) [ g/mol ]
+      Real, Allocatable :: aerospc_mw( : )     ! molecular weights (from AE_SPC Namelist) [ g/mol ]
+      Real, Allocatable :: aerospc_mwinv( : )  ! reciprocal MWs (from AE_SPC Namelist) [ mol/g ]
       Real, Allocatable :: aerospc_conc( :,: ) ! aero species concentration [ ug/m^3 ]
 
 C Common factors

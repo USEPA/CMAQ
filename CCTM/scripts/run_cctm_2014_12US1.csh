@@ -217,7 +217,7 @@ setenv VDIFF_DIAG_FILE Y     #> vdiff & possibly aero grav. sedimentation diagno
 setenv LTNGDIAG Y            #> lightning diagnostic file [ default: N ]
 setenv B3GTS_DIAG Y          #> BEIS mass emissions diagnostic file [ default: N ]
 setenv PT3DDIAG N            #> 3D point source emissions diagnostic file [ default: N];
-setenv PT3DFRAC N            #> layer fractions diagnostic (play) file(s) [ default: N];
+setenv PT3DFRAC N            #> layer fractions diagnostic file(s) [ default: N];
 setenv REP_LAYER_MIN -1      #> Minimum layer for reporting plume rise info [ default: -1 ]
 setenv EMISDIAG F            #> Print Emission Rates at the output time step after they have been
                              #>   scaled and modified by the user Rules [options: F | T or 2D | 3D | 2DSUM ]
