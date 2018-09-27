@@ -30,10 +30,9 @@ C***********************************************************************
  
 C Function: To produce a Models-3 CTM Boundary Concentration file.
 C           Valid input options include: 
-C           1) a Models-3 CTM output file,
+C           1) a CMAQ CTM output file,
 C           2) a user specified ASCII file of vertical profiles,
-C           3) a RADM model output conc file,
-C           4) subroutines that produce catalogued tracer species concs.
+C           3) subroutines that produce catalogued tracer species concs.
               
 C Preconditions: None
   
@@ -49,13 +48,14 @@ C    01/05/05 J.Young: vert dyn alloc - Use VGRD_DEFN
 C    06 Jul 11 J.Young: Replaced I/O API include files with M3UTILIO
 C    13 Jul 11 J.Young: Convert for Namelist redesign
 C    23 May 12 J.Young: Replaced BC_PARMS include file with an F90 module
+C    14 Sep 18 S.Roselle: Removed species mapping; updates to enable runtime
+C                     option for profile, nest, or tracer BCs
       
 C***********************************************************************
 
       USE HGRD_DEFN     ! Module to store and load the horizontal grid variables
       USE VGRD_DEFN     ! vertical layer specifications
       USE M3UTILIO      ! IOAPI module
-      USE CGRID_SPCS    ! CGRID mechanism species
       USE BC_PARMS      ! BCON parameters
 
       IMPLICIT NONE   
@@ -69,13 +69,14 @@ C Parameters: None
 C External Procedures: None
 
 C Local Variables:
-!     CHARACTER( 16 ) :: NML_BC_NAME( NSPCSD )  ! Names of species in *.NMLs
-      CHARACTER( 16 ), ALLOCATABLE :: NML_BC_NAME( : )  ! Names of species in *.NMLs
       CHARACTER( 16 ) :: PNAME = 'BCON'         ! Procedure name
+      CHARACTER( 16 ) :: BCON_TYPE = 'BCON_TYPE'   ! BCON type environment variable
+      CHARACTER( 16 ) :: BC_MODULE              ! selected module
+
       CHARACTER( 80 ) :: MSG                    ! Log message 
+      CHARACTER( 80 ) :: VARDESC                ! variable description
 
       INTEGER    LOGUNIT     ! Unit number for output log
-      INTEGER    ISP         ! Species counter
       INTEGER    N           ! Loop index
       INTEGER    RUNLEN      ! No. of hours for BC output
       INTEGER :: SDATE = 0   ! Start date 
@@ -91,11 +92,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       LOGUNIT = INIT3( )
 
-      IF ( NSPCSD .LE. 0 ) THEN
-         MSG = 'Number of species in *.NML files must be greater than zero'
-         CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT2 )
-      END IF
-
       SDATE = ENVINT( 'SDATE', 'START DATE', 0, STATUS )
       IF ( STATUS .NE. 0 ) SDATE = 0
 
@@ -104,6 +100,20 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       RUNLEN = ENVINT( 'RUNLEN', 'RUN LENGTH', 0, STATUS )
       IF ( STATUS .NE. 0 ) RUNLEN = 0
+
+      VARDESC = 'Boundary condition type: (profile, nest)'
+      CALL ENVSTR( BCON_TYPE, VARDESC, 'profile', BC_MODULE, STATUS )
+      IF ( STATUS .NE. 0 ) WRITE( LOGUNIT, '(5X, A)' ) VARDESC
+      IF ( STATUS .EQ. 1 ) THEN
+         MSG = 'Environment variable improperly formatted'
+         CALL M3EXIT( PNAME, SDATE, STIME, MSG, XSTAT2 )
+      ELSE IF ( STATUS .EQ. -1 ) THEN
+         MSG = 'Environment variable set, but empty ... Using default:'
+         WRITE( LOGUNIT, '(5X, A, I9)' ) MSG, STIME
+      ELSE IF ( STATUS .EQ. -2 ) THEN
+         MSG = 'Environment variable not set ... Using default:'
+         WRITE( LOGUNIT, '(5X, A, I9)' ) MSG, STIME
+      END IF
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Load horizontal grid variables calling GRID_DEF->HGRD_INIT function
@@ -122,47 +132,18 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       END IF
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c Set CMAQ CGRID mechanism species
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      IF ( .NOT. CGRID_SPCS_INIT() ) THEN
-         MSG = 'Error in CGRID_SPCS:CGRID_SPCS_INIT'
-         CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT2 )
-      END IF
-
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c  Build one array containing the names of the species in *.NML files 
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      ALLOCATE ( NML_BC_NAME( NSPCSD ), STAT = STATUS )
-      IF ( STATUS .NE. 0 ) THEN
-         MSG = 'Error allocating NML_BC_NAME'
-         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
-      END IF
-
-      ISP = 0
-      DO N = 1, N_GC_SPC
-         ISP = ISP + 1
-         NML_BC_NAME( ISP ) = GC_SPC( N )
-      END DO
-
-      DO N = 1, N_AE_SPC
-         ISP = ISP + 1
-         NML_BC_NAME( ISP ) = AE_SPC( N )
-      END DO
-
-      DO N = 1, N_NR_SPC
-         ISP = ISP + 1
-         NML_BC_NAME( ISP ) = NR_SPC( N )
-      END DO
-
-      DO N = 1, N_TR_SPC
-         ISP = ISP + 1
-         NML_BC_NAME( ISP ) = TR_SPC( N )
-      END DO
-
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Generate the BC output file and quit
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      CALL INBNDY( LOGUNIT, SDATE, STIME, RUNLEN, NML_BC_NAME )
+      IF ( BC_MODULE .EQ. 'profile' ) THEN
+         CALL PROF_INBNDY( LOGUNIT, SDATE, STIME, RUNLEN )
+      ELSE IF ( BC_MODULE .EQ. 'nest' ) THEN
+         CALL M3_INBNDY( LOGUNIT, SDATE, STIME, RUNLEN )
+      ELSE IF ( BC_MODULE .EQ. 'tracer' ) THEN
+         CALL TRAC_INBNDY( LOGUNIT, SDATE, STIME, RUNLEN )
+      ELSE
+         MSG = '*** Unknown BCON type requested: ' // BC_MODULE
+         CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT2 )
+      END IF
 
       IF ( SHUT3() ) THEN
          WRITE ( *,92999 )

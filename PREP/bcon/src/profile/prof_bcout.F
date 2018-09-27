@@ -25,9 +25,10 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 
-      SUBROUTINE BCOUT( LOGUNIT, SDATE, STIME, NHRS, NSPCS_IN, NSPCS_OUT,
-     &                  SPMAP, PROF_FL_NAME, PROF_SP_NAME, SPNAME_OUT )
-
+      SUBROUTINE PROF_BCOUT( LOGUNIT, SDATE, STIME, NHRS, NLAYS_IN, NSPCS_IN,
+     &                       PROF_FL_NAME, PROF_SP_NAME, VTYPE_IN, UNITS_IN,
+     &                       VDESC_IN )
+      
 C***********************************************************************
  
 C  Function: Reads the input profile concentration file and opens and
@@ -46,13 +47,14 @@ C    01/05/05 J.Young: vert dyn alloc - Use VGRD_DEFN
 C    13 Jul 11 J.Young: Replaced I/O API include files with M3UTILIO and
 C                       Namelist for species definitions
 C    23 May 12 J.Young: Replaced BC_PARMS include file with an F90 module
- 
+C    19 Sep 18 C.Hogrefe and S.Roselle: Adapted to read new profile format;
+C                       removed species mapping
+
 C***********************************************************************
 
       USE HGRD_DEFN   ! Module to store and load the horizontal grid variables
       USE VGRD_DEFN   ! vertical layer specifications
       USE M3UTILIO    ! IOAPI module
-      USE CGRID_SPCS
       USE BC_PARMS    ! BCON parameters
 
       IMPLICIT NONE     
@@ -65,68 +67,61 @@ C Arguments:
       INTEGER STIME            ! Time for IC output
       INTEGER NHRS             ! No. of hours for BC output
       INTEGER NSPCS_IN         ! Total No. of species in input conc file(s)
-      INTEGER NSPCS_OUT        ! Number of IC species on output file(s)
-      INTEGER :: SPMAP( * )    ! Map to input file species from IC species
+      INTEGER NLAYS_IN         ! No. of layers in input conc file
       CHARACTER( * ) :: PROF_FL_NAME       ! Input profile file name
       CHARACTER( * ) :: PROF_SP_NAME( * )  ! Profile species names
-      CHARACTER( * ) :: SPNAME_OUT( * )    ! Ouput file species names
+
+      CHARACTER( 16 ) :: UNITS_IN( * ) ! Units for CTM species
+      CHARACTER( 80 ) :: VDESC_IN( * ) ! Variable description for CTM species
+
+      INTEGER :: VTYPE_IN( * ) ! variable type for CTM species
 
 C Parameters: None
+
+      INTEGER, PARAMETER :: MXVARS = 400
 
 C External Functions: None
  
 C Local Variables:
       CHARACTER( 80 ) :: MSG      ! Log message
-      CHARACTER( 16 ) :: PNAME = 'BCOUT'    ! Procedure Name
+      CHARACTER( 16 ) :: PNAME = 'PROF_BCOUT'    ! Procedure Name
       CHARACTER( 16 ) :: PROF_SP  ! Species name on profile file
       CHARACTER( 16 ) :: VNAME    ! Species name on CTM conc file
 
       CHARACTER( 16 ) :: BC_FNAME( MXCTMS )  ! Logical names of IC Output file(s) 
 
+      CHARACTER(1000) :: RECORD
+      CHARACTER(16), ALLOCATABLE :: VNAME_PROF_TEMP(:)
+      CHARACTER(16), ALLOCATABLE :: VUNIT_PROF_TEMP(:)
+      CHARACTER(16), ALLOCATABLE :: VNAME_PROF(:)
+      CHARACTER(16), ALLOCATABLE :: VUNIT_PROF(:)
+
       INTEGER C             ! Column loop indices
-      INTEGER EDG           ! Boundary edge loop index
-      INTEGER ES, EE        ! East boundary loop indices (East start, East end)
       INTEGER FLN           ! IC output file number
-      INTEGER IND           ! Array indices for species
       INTEGER L             ! Layer loop index
       INTEGER N, SPC        ! Loop indices for species
       INTEGER NLEVS_IN      ! No. of layers in input conc file
-      INTEGER NS, NE        ! North boundary loop indices (North start, North end)
       INTEGER PFILE         ! Unit number of profile file   
-      INTEGER SS, SE        ! South boundary loop indices (South start, South end)
-      INTEGER WS, WE        ! West boundary loop indices (West start, West end)
+
+      INTEGER I, K, NVARS, NFIELDS
+      INTEGER IOSTATUS
 
       LOGICAL LNEG          ! Flag for negative concentrations
 
       REAL    :: VGLVS_IN( MXLAYS3 + 1 )            ! Input vertical levels
+      REAL    :: ZH_IN( MXLAYS3 )                   ! Input layer heights
       REAL    :: COUT( NBNDY,NLAYS )                ! Output BC conc
-      REAL    :: INPROF( MXLAYS3,4,MX_INFL_SP )     ! Input conc profiles  
-      REAL    :: VIPROF( NLAYS,4,MX_INFL_SP )       ! Vertically interp profiles
-                            
+      REAL    :: INPROF( MXLAYS3,MX_INFL_SP )       ! Input conc profiles  
+      REAL    :: VIPROF( NBNDY,NLAYS,MX_INFL_SP )   ! Vertically interp profiles
+
+      REAL, ALLOCATABLE :: VAR_PROF_TEMP( :, : )
+      REAL, ALLOCATABLE :: VAR_PROF( :, : )
+          
 C***********************************************************************
 
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c  Compute loop paramters for boundary conc array
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      IF ( NTHIK .EQ. 1 ) THEN
-
-         SS = 1
-         SE = SS + NCOLS     ! = ncols + 1
-
-         ES = SE + 1         ! = ncols + 2
-         EE = ES + NROWS     ! = ncols + 2 + nrows
-
-         NS = EE + 1         ! = ncols + 2 + nrows + 1
-         NE = NS + NCOLS     ! = 2*ncols + nrows + 3
-
-         WS = NE + 1         ! = 2*ncols + nrows + 4
-         WE = WS + NROWS     ! = 2*(ncols + nrows) + 4  = nbndy
-
-      ELSE
-
+      IF ( NTHIK .NE. 1 ) THEN
          MSG = 'Only NTHIK = 1 currently allowed'
          CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
-
       END IF 
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -136,78 +131,116 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       OPEN( UNIT = PFILE, FILE = PROF_FL_NAME, ERR = 999 )
 
-C Consume the 3-line header
-      DO N = 1, 3
-         READ( PFILE, 94000 ) 
-      END DO
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  read comment lines
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-C Get file info (no. of species already retrieved)
-      READ( PFILE, * ) NLEVS_IN, SPC, ( VGLVS_IN( L ), L = 1, NLEVS_IN + 1 )
-!     READ( PFILE, * ) SPC, NLEVS_IN, ( VGLVS_IN( L ), L = 1, NLEVS_IN + 1 )
-
-C Consume a date and time line
-      READ( PFILE, * ) 
-
-C Get file data
-      DO EDG = 1, 4
-         READ( PFILE, * )
-         DO SPC = 1, NSPCS_IN
-            READ( PFILE, * ) PROF_SP, ( INPROF( L,EDG,SPC ), L = 1, NLEVS_IN )
-         END DO
+      DO 
+         READ( PFILE,'(A)',IOSTAT = IOSTATUS ) RECORD
+         IF ( IOSTATUS .NE. 0 ) THEN
+            MSG = 'Error reading profile file'
+            CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 ) 
+         END IF
+         IF ( RECORD(1:1) .NE. '#' ) EXIT
       END DO
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c  Possible vertical interpolation
+c  done reading comment lines, now parse column names
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      CALL PROF_VINTERP( LOGUNIT, NSPCS_IN, NLEVS_IN, VGLVS_IN, INPROF,
+
+      NFIELDS = 1
+      DO I = 1, LEN( RECORD )
+         IF ( RECORD(I:I) .EQ. ',' ) NFIELDS = NFIELDS + 1
+      END DO
+      NLEVS_IN = NFIELDS - 2 ! FIELDS 1 AND 2 ARE NAME AND UNITS       
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  allocate arrays
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+      ALLOCATE( VAR_PROF_TEMP( MXVARS, NLEVS_IN ),
+     &          VNAME_PROF_TEMP( MXVARS),
+     &          VUNIT_PROF_TEMP( MXVARS) )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  read data fields
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+      NVARS = 1
+      DO 
+         READ( PFILE,*,IOSTAT = IOSTATUS )
+     &      VNAME_PROF_TEMP( NVARS ),
+     &      VUNIT_PROF_TEMP( NVARS ),
+     &    ( VAR_PROF_TEMP( NVARS,K ), K=1,NLEVS_IN )
+
+         IF ( IOSTATUS .NE. 0 ) THEN
+            IF ( NVARS .EQ. 1 ) THEN    ! error in first data line
+               MSG = 'Error: no species data in profile file'
+               CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 ) 
+            ELSE
+               EXIT
+            END IF
+         END IF
+         NVARS = NVARS + 1
+      END DO
+      NVARS = NVARS - 1
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  load data into species arrays
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+      NSPCS_IN = 0
+      DO N = 1, NVARS
+         IF ( N .EQ. INDEX1( 'PRES', NVARS, VNAME_PROF_TEMP ) ) THEN
+         	  CYCLE
+         ELSE IF ( N .EQ. INDEX1( 'ZH', NVARS, VNAME_PROF_TEMP ) ) THEN
+            DO L = 1, NLEVS_IN
+               ZH_IN( L ) = VAR_PROF_TEMP( N,L )
+            END DO
+         ELSE IF ( N .EQ. INDEX1( 'ZF', NVARS, VNAME_PROF_TEMP ) ) THEN
+         	  CYCLE
+         ELSE IF ( N .EQ. INDEX1( 'WVEL', NVARS, VNAME_PROF_TEMP ) ) THEN
+         	  CYCLE
+         ELSE
+            NSPCS_IN = NSPCS_IN + 1
+            PROF_SP_NAME( NSPCS_IN ) = VNAME_PROF_TEMP( N )
+            UNITS_IN( NSPCS_IN )     = VUNIT_PROF_TEMP( N )
+            VTYPE_IN( NSPCS_IN )     = M3REAL
+            VDESC_IN( NSPCS_IN )     = VNAME_PROF_TEMP( N )
+            DO L = 1, NLEVS_IN
+               INPROF( L,NSPCS_IN ) = VAR_PROF_TEMP( N,L )
+            END DO
+         END IF
+      END DO
+      
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  vertical interpolation
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      CALL PROF_VINTERP( LOGUNIT, NSPCS_IN, NLEVS_IN, ZH_IN, INPROF,
      &                   VIPROF )      
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c  Open the Models3 BC output file
+c  Open BC output file
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      CALL OPN_BC_FILE( LOGUNIT, SDATE, STIME, NHRS, NSPCS_OUT, 
-     &                  SPNAME_OUT, BC_FNAME, 1 )  
+      CALL OPN_BC_FILE( LOGUNIT, SDATE, STIME, NHRS, NSPCS_IN, 
+     &                  PROF_SP_NAME, VTYPE_IN, UNITS_IN, VDESC_IN,
+     &                  BC_FNAME, 1 )  
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Write the output BC concentrations
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       LNEG = .FALSE.
 
-      DO N = 1, NSPCS_OUT
+      DO N = 1, NSPCS_IN
 
          FLN = ( N - 1 ) / MXVARS3 + 1
-         VNAME = SPNAME_OUT( N )
-         IND = SPMAP( N )
+         VNAME = PROF_SP_NAME( N )
 
          DO L = 1, NLAYS
 
             DO C = 1, NBNDY
-               COUT( C,L ) = 0.0
+               COUT( C,L ) = VIPROF( C,L,N )
             END DO                   
-
-c..North
-            DO C = NS, NE
-               COUT( C,L ) = COUT( C,L ) + VIPROF( L,1, IND )
-               IF ( COUT( C,L ) .LT. 0.0 ) LNEG = .TRUE.
-            END DO
-
-c..East
-            DO C = ES, EE
-               COUT( C,L ) = COUT( C,L ) + VIPROF( L,2,IND )
-               IF ( COUT( C,L ) .LT. 0.0 ) LNEG = .TRUE.
-            END DO
-
-c..South
-            DO C = SS, SE
-               COUT( C,L ) = COUT( C,L ) + VIPROF( L,3,IND )
-               IF ( COUT( C,L ) .LT. 0.0 ) LNEG = .TRUE.
-            END DO
-
-c..West
-            DO C = WS, WE
-               COUT( C,L ) = COUT( C,L ) + VIPROF( L,4,IND )
-               IF ( COUT( C,L ) .LT. 0.0 ) LNEG = .TRUE.
-            END DO
 
          END DO
 
@@ -222,7 +255,7 @@ c..West
 
       IF ( LNEG ) THEN
          MSG = 'Negative ICs output'
-         CALL M3EXIT( PNAME, 0, 0, ' ', XSTAT2 ) 
+         CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 ) 
       END IF
 
       RETURN
@@ -230,7 +263,7 @@ c..West
 999   CONTINUE 
 
       MSG = 'Could not open file ' // PROF_FL_NAME
-      CALL M3EXIT( PNAME, 0, 0, ' ', XSTAT2 ) 
+      CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 ) 
 
 C************************* FORMAT STATEMENTS ***************************
 

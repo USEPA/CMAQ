@@ -25,9 +25,9 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 
-      SUBROUTINE VINTERP( LOGUNIT, JDATE, JTIME, NCOLS_IN, NROWS_IN,
-     &                    NLAYS_IN, NSPCS_IN, COL_LOC, ROW_LOC, BCIN,
-     &                    BCVI, CTM_FL_NAME )
+      SUBROUTINE M3_VINTERP( LOGUNIT, JDATE, JTIME, NCOLS_IN, NROWS_IN,
+     &                       NLAYS_IN, NSPCS_IN, COL_LOC, ROW_LOC, BCIN,
+     &                       BCVI, CTM_FL_NAME )
 
 C*************************************************************************
  
@@ -101,7 +101,7 @@ C Local Variables:
       CHARACTER( 20 ) :: CHR1       ! Value of variable 1 in character data
       CHARACTER( 20 ) :: CHR2       ! Value of variable 1 in character data
       CHARACTER( 80 ) :: MSG        ! Log message
-      CHARACTER( 16 ) :: PNAME = 'VINTERP'  ! Procedure Name
+      CHARACTER( 16 ) :: PNAME = 'M3_VINTERP'  ! Procedure Name
       CHARACTER( 16 ) :: VNAME      ! Variable Name
 
       INTEGER C              ! Loop indices for columns

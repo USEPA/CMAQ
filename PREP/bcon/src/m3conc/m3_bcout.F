@@ -25,9 +25,10 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 
-      SUBROUTINE BCOUT( LOGUNIT, N_CTM_FLS, SDATE, STIME, NSTEPS,
-     &                  NCOLS_IN, NROWS_IN, NLAYS_IN, NSPCS_IN, NSPCS_OUT,
-     &                  SPMAP, CTM_FL_NAME, INFL_SP_NAME, SPNAME_OUT )
+      SUBROUTINE M3_BCOUT( LOGUNIT, N_CTM_FLS, SDATE, STIME, NSTEPS,
+     &                     NCOLS_IN, NROWS_IN, NLAYS_IN, NSPCS_IN,
+     &                     CTM_FL_NAME, INFL_SP_NAME,
+     &                     VTYPE_IN, UNITS_IN, VDESC_IN )
 
 C*************************************************************************
  
@@ -46,13 +47,13 @@ C    01/05/05 J.Young: vert dyn alloc - Use VGRD_DEFN eliminate malloc calls
 C    13 Jul 11 J.Young: Replaced I/O API include files with M3UTILIO and
 C                       Namelist for species definitions
 C    23 May 12 J.Young: Replaced BC_PARMS include file with an F90 module
+C    14 Sep 18 S.Roselle: Removed species mapping
  
 C*************************************************************************
 
       USE HGRD_DEFN   ! Module to store and load the horizontal grid variables
       USE VGRD_DEFN   ! vertical layer specifications
       USE M3UTILIO    ! IOAPI module
-      USE CGRID_SPCS
       USE BC_PARMS    ! BCON parameters
 
       IMPLICIT NONE     
@@ -69,11 +70,12 @@ C Arguments:
       INTEGER NLAYS_IN          ! No. of layers in input conc file
       INTEGER NROWS_IN          ! No. of rows in input conc file
       INTEGER NSPCS_IN          ! Total No. of species in input conc file(s)
-      INTEGER NSPCS_OUT         ! Number of BC species on output file(s)
-      INTEGER :: SPMAP( * )     ! Map to CTM species from BC species
       CHARACTER( 16 ) :: CTM_FL_NAME( * )   ! Name of CTM_CONC file
       CHARACTER( 16 ) :: INFL_SP_NAME( * )  ! Name of input CTM species
-      CHARACTER( 16 ) :: SPNAME_OUT( * )    ! Output file species names
+      CHARACTER( 16 ) :: UNITS_IN( * ) ! Units for CTM species
+      CHARACTER( 80 ) :: VDESC_IN( * ) ! Variable description for CTM species
+
+      INTEGER :: VTYPE_IN( * ) ! variable type for CTM species
 
 C Parameters:
       REAL, PARAMETER :: CMIN = 1.0E-30  ! Minimum output concentration
@@ -81,7 +83,7 @@ C Parameters:
 C External Functions: 
  
 C Local Variables:
-      CHARACTER( 16 ) :: PNAME = 'BCOUT'  ! Procedure Name
+      CHARACTER( 16 ) :: PNAME = 'M3_BCOUT'  ! Procedure Name
       CHARACTER( 80 ) :: MSG              ! Log message
       CHARACTER( 16 ) :: VNAME            ! Species name on CTM conc file
       CHARACTER( 16 ) :: BC_FNAME( MXCTMS )  ! Logical names of BC Output file(s) 
@@ -229,8 +231,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Call the spatial interpolation routine to log info only 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      CALL VINTERP( LOGUNIT, SDATE, STIME, NCOLS_IN, NROWS_IN, NLAYS_IN,
-     &              NSPCS_IN, COL_LOC, ROW_LOC, BCIN, BCVI, CTM_FL_NAME )
+      CALL M3_VINTERP( LOGUNIT, SDATE, STIME, NCOLS_IN, NROWS_IN, NLAYS_IN,
+     &                 NSPCS_IN, COL_LOC, ROW_LOC, BCIN, BCVI, CTM_FL_NAME )
  
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Call the routine to open the Models3 BC output file
@@ -242,8 +244,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       TSTEP = TSTEP3D
 
-      CALL OPN_BC_FILE( LOGUNIT, SDATE, STIME, TSTEP, NSPCS_OUT, 
-     &                  SPNAME_OUT, BC_FNAME, 1 )  
+      CALL OPN_BC_FILE( LOGUNIT, SDATE, STIME, TSTEP, NSPCS_IN, 
+     &                  INFL_SP_NAME, VTYPE_IN, UNITS_IN, VDESC_IN,
+     &                  BC_FNAME, 1 )  
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Top of loop over output time steps 
@@ -265,10 +268,9 @@ C Read the concentration file(s)
                CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT2 )
             END IF
 
-            DO V = 1, NVARS3D
+            DO ISP = 1, NSPCS_IN
 
-               ISP = ISP + 1
-               VNAME = INFL_SP_NAME( V )
+               VNAME = INFL_SP_NAME( ISP )
                   
                IF ( .NOT. READ3( CTM_FL_NAME( N ), VNAME, ALLAYS3, JDATE, 
      &                          JTIME, CONCIN( 1,1,1 ) ) ) THEN
@@ -291,26 +293,24 @@ C Read the concentration file(s)
          END DO
 
 C Do the spatial interpolation
-         CALL VINTERP( LOGUNIT, JDATE, JTIME, NCOLS_IN, NROWS_IN, 
-     &                 NLAYS_IN, NSPCS_IN, COL_LOC, ROW_LOC, BCIN, 
-     &                 BCVI, CTM_FL_NAME )
+         CALL M3_VINTERP( LOGUNIT, JDATE, JTIME, NCOLS_IN, NROWS_IN, 
+     &                    NLAYS_IN, NSPCS_IN, COL_LOC, ROW_LOC, BCIN, 
+     &                    BCVI, CTM_FL_NAME )
       
 C Write the output BC concentrations 
-         DO N = 1, NSPCS_OUT
+         DO ISP = 1, NSPCS_IN
 
-            FLN = ( N - 1 ) / MXVARS3 + 1
-            VNAME = SPNAME_OUT( N )
-
-            INDX = SPMAP( N )
+            FLN = ( ISP - 1 ) / MXVARS3 + 1
+            VNAME = INFL_SP_NAME( ISP )
 
             DO L = 1, NLAYS
                DO NBND = 1, NBNDY
-                  COUT( NBND,L ) = BCVI( NBND,L,INDX )
-                  IF ( COUT( NBND,L ) .LT. 0.0 ) THEN
-                     LNEG = .TRUE.
-                  ELSE IF ( COUT( NBND,L ) .LT. CMIN ) THEN
-                     COUT( NBND,L ) = CMIN 
-                  END IF
+                  COUT( NBND,L ) = BCVI( NBND,L,ISP )
+!                  IF ( COUT( NBND,L ) .LT. 0.0 ) THEN
+!                     LNEG = .TRUE.
+!                  ELSE IF ( COUT( NBND,L ) .LT. CMIN ) THEN
+!                     COUT( NBND,L ) = CMIN 
+!                  END IF
                END DO
             END DO
 
@@ -323,10 +323,10 @@ C Write the output BC concentrations
 
          END DO
 
-         IF ( LNEG ) THEN
-            MSG = 'Negative BCs output'
-            CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT2 ) 
-         END IF
+!         IF ( LNEG ) THEN
+!            MSG = 'Negative BCs output'
+!            CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT2 ) 
+!         END IF
 
          WRITE( LOGUNIT, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
      &         'Timestep written to', BC_FNAME( FLN ),

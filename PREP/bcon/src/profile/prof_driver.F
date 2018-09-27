@@ -25,7 +25,7 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 
-      SUBROUTINE INBNDY( LOGUNIT, SDATE, STIME, NHRS, NML_BC_NAME )   
+      SUBROUTINE PROF_INBNDY( LOGUNIT, SDATE, STIME, NHRS )   
 
 C***********************************************************************
  
@@ -34,10 +34,7 @@ C             compute the BCs and write the output BC file
               
 C  Preconditions: None
   
-C  Key Subroutines/Functions Called: GC_DPC_MAP
-C                                    NGC_SPC_MAP
-C                                    LST_SPC_MAP
-C                                    BCOUT
+C  Key Subroutines/Functions Called: PROF_BCOUT
  
 C  Revision History:
 C    Prototype created by Jerry Gipson, January, 1998
@@ -45,11 +42,11 @@ C    Modified April 1998 by JG to remove ppb option for input profile file
 C    13 Jul 11 J.Young: Replaced I/O API include files with M3UTILIO
 C                       and Namelist for species definitions
 C    23 May 12 J.Young: Replaced BC_PARMS include file with an F90 module
- 
+C    17 Sep 18 S.Roselle: Removed species mapping
+
 C***********************************************************************
 
       USE M3UTILIO    ! IOAPI module
-      USE CGRID_SPCS
       USE BC_PARMS    ! BCON parameters
 
       IMPLICIT NONE     
@@ -61,7 +58,6 @@ C Arguments:
       INTEGER SDATE                   ! Date for BC Output
       INTEGER STIME                   ! Time for BC output
       INTEGER NHRS                    ! No. of hours for BC output
-      CHARACTER( 16 ) :: NML_BC_NAME( * )  ! Names of species in *.NMLs
 
 C Parameters: None
 
@@ -78,22 +74,19 @@ C Local Variables:
       CHARACTER(  16 ) :: SPEC_NAME      ! Species name
 
       CHARACTER(  16 ) :: PROF_SP_NAME( MXCTMS*MXVARS3 ) ! Species names on profile file
-!     CHARACTER(  16 ) :: SPNAME_OUT( NSPCSD )       ! Output file species names
-      CHARACTER(  16 ), ALLOCATABLE :: SPNAME_OUT( : )            ! Output file species names
+      CHARACTER(  16 ) :: UNITS_IN( MXCTMS*MXVARS3 ) ! Units for CTM species
+      CHARACTER(  80 ) :: VDESC_IN( MXCTMS*MXVARS3 ) ! Variable description for CTM species
+
+      INTEGER :: VTYPE_IN( MXCTMS*MXVARS3 ) ! variable type for CTM species
 
       INTEGER INDX         ! Array indices for species
       INTEGER NEDGE        ! Loop index for no. of edges (4)  
       INTEGER N, SPC       ! Loop indices
-      INTEGER N_GC_OUT     ! No. of GC species for conversion 
       INTEGER NLAYS_IN     ! No. of layers in input conc file
       INTEGER NSPCS_IN     ! CTM files species counter
-      INTEGER NSPCS_OUT    ! Number of BC species on output file(s)
       INTEGER PFILE        ! Unit number of profile file    
       INTEGER STATUS       ! Status code
       INTEGER ALST         ! Allocate status
-
-!     INTEGER :: SPMAP( NSPCSD )  ! Map to input file species from BC species
-      INTEGER, ALLOCATABLE :: SPMAP( : )  ! Map to input file species from BC species
 
       LOGICAL LERROR                     ! Error flag
 
@@ -117,112 +110,17 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
       END IF
 
-      PFILE = JUNIT()
-
-      OPEN( UNIT = PFILE, FILE = PROF_FL_NAME , ERR = 999 )
-
-      WRITE( LOGUNIT, 92020 ) PROF_FL_NAME( 1:100 )
-
-C Report the 3-line header
-      DO N = 1, 3
-         READ( PFILE, 94000 ) LINEIN
-         WRITE( LOGUNIT, 92040 ) TRIM( LINEIN )
-      END DO
-
-      READ( PFILE, * ) NLAYS_IN, NSPCS_IN
-!     READ( PFILE, * ) NSPCS_IN, NLAYS_IN
-      BACKSPACE PFILE 
-      READ( PFILE, 94000 ) LINEIN
-      WRITE( LOGUNIT, 92040 ) TRIM( LINEIN )
-
-      READ( PFILE, 94000 ) LINEIN
-      WRITE( LOGUNIT, 92040 ) TRIM( LINEIN )
-
-      LERROR = .FALSE.
-      IF ( NLAYS_IN .GT. MXLAYS3 + 1 ) THEN
-         MSG = 'ERROR: No of layers on profile file exceeds MXLAYS + 1' 
-         WRITE( LOGUNIT, 92080  ) MSG
-         LERROR = .TRUE.
-      END IF
-
-      IF ( NSPCS_IN .GT. MX_INFL_SP ) THEN
-         MSG = 'ERROR: No of layers on profile file exceeds  MXINFL_SP' 
-         WRITE( LOGUNIT, 92080  ) MSG
-         LERROR = .TRUE.
-      END IF
-
-      IF ( LERROR ) THEN
-         MSG = 'Dimension problem in BC profile file'
-         CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
-      END IF
-
-      LERROR = .FALSE.
-      DO NEDGE = 1, 4   ! file order: North, East, South. West
-
-         READ( PFILE, 94000 ) LINEIN
-         WRITE( LOGUNIT, 92040 ) TRIM( LINEIN )
-
-         DO SPC = 1, NSPCS_IN
-            READ( PFILE, * ) SPEC_NAME
-            BACKSPACE PFILE
-            READ( PFILE, 94000 ) LINEIN
-            IF ( NEDGE .EQ. 1 ) THEN
-               PROF_SP_NAME( SPC ) = SPEC_NAME
-               WRITE( LOGUNIT, 92040 ) TRIM( LINEIN )
-            ELSE
-               INDX = INDEX1( SPEC_NAME, NSPCS_IN, PROF_SP_NAME( SPC ) )
-               IF ( INDX .EQ. 0 ) THEN
-                  LERROR = .TRUE.
-                  WRITE( LOGUNIT, 92050 ) TRIM( LINEIN )
-               ELSE
-                  WRITE( LOGUNIT, 92040 ) TRIM( LINEIN )
-               END IF
-            END IF
-         END DO
-                  
-      END DO
-
-      IF ( LERROR ) THEN
-         MSG = 'Inconsistent species names in BC profile file'
-         CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
-      END IF
-      
-      WRITE( LOGUNIT, 92060 ) 
-
-      CLOSE( PFILE )
-
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c  Build a species map and report
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      ALLOCATE ( SPMAP( NSPCSD ), SPNAME_OUT( NSPCSD ), STAT = ALST )
-      IF ( ALST .NE. 0 ) THEN
-         MSG = 'Error allocating SPMAP or SPNAME_OUT'
-         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT2 )
-      END IF
-
-      SPMAP = 0         ! array assignment
-      SPNAME_OUT = ' '  ! array assignment
-
-      CALL GC_SPC_MAP( LOGUNIT, NSPCS_IN, N_GC_OUT,
-     &                 SPMAP, PROF_SP_NAME, SPNAME_OUT )
-
-      CALL NGC_SPC_MAP( LOGUNIT, NSPCS_IN, N_GC_OUT, NSPCS_OUT,
-     &                  SPMAP, PROF_SP_NAME, SPNAME_OUT )
-
-      CALL LST_SPC_MAP( LOGUNIT, NSPCS_IN, NSPCS_OUT,
-     &                  SPMAP, NML_BC_NAME,
-     &                  PROF_SP_NAME, SPNAME_OUT )
-            
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Call the routine that computes and outputs BCs from the input
 c  CTM conc file(s)
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      CALL BCOUT( LOGUNIT,
-     &            SDATE, STIME, NHRS,
-     &            NSPCS_IN, NSPCS_OUT, SPMAP,
-     &            PROF_FL_NAME,
-     &            PROF_SP_NAME,
-     &            SPNAME_OUT )
+
+      CALL PROF_BCOUT( LOGUNIT,
+     &                 SDATE, STIME, NHRS,
+     &                 NLAYS_IN,
+     &                 NSPCS_IN,
+     &                 PROF_FL_NAME,
+     &                 PROF_SP_NAME, VTYPE_IN, UNITS_IN, VDESC_IN )
 
       RETURN
 
@@ -247,8 +145,6 @@ C************************* FORMAT STATEMENTS ***************************
 92050 FORMAT(  2X, '---> ', A )
 92060 FORMAT(  / 5X, 'End of file contents.')
 92080 FORMAT( // 1X, A )
-92200 FORMAT( // 5X, 'Profile concentration units assumed to be ppm' ) 
-92220 FORMAT( // 5X, 'Profile concentration units assumed to be ppb' ) 
 94000 FORMAT( A )
 
       END

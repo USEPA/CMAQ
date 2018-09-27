@@ -25,7 +25,7 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 
-      SUBROUTINE INBNDY( LOGUNIT, SDATE, STIME, RUNLEN, NML_BC_NAME )   
+      SUBROUTINE M3_INBNDY( LOGUNIT, SDATE, STIME, RUNLEN )   
 
 C***********************************************************************
  
@@ -36,10 +36,7 @@ C            compute the BCs and write the output BC file
 C  Preconditions: None
   
 C  Key Subroutines/Functions Called: CK_CTM_FLS
-C                                    GC_SPC_MAP
-C                                    NGC_SPC_MAP
-C                                    LST_SPC_MAP
-C                                    BCOUT  
+C                                    M3_BCOUT  
  
 C  Revision History:
 C    Prototype created by Jerry Gipson, January, 1998          
@@ -50,13 +47,13 @@ C    01/05/05 J.Young: vert dyn alloc - Use VGRD_DEFN
 C    13 Jul 11 J.Young: Replaced I/O API include files with M3UTILIO and
 C                       Namelist for species definitions
 C    23 May 12 J.Young: Replaced BC_PARMS include file with an F90 module
+C    14 Sep 18 S.Roselle: Removed species mapping
                     
 C***********************************************************************
 
       USE HGRD_DEFN   ! Module to store and load the horizontal grid variables
       USE VGRD_DEFN   ! vertical layer specifications
       USE M3UTILIO    ! IOAPI module
-      USE CGRID_SPCS
       USE BC_PARMS    ! BCON parameters
 
       IMPLICIT NONE     
@@ -68,7 +65,6 @@ C Arguments:
       INTEGER SDATE              ! Date for BC output
       INTEGER STIME              ! Time for BC output
       INTEGER RUNLEN             ! No. of hours for BC output
-      CHARACTER( 16 ) :: NML_BC_NAME( * )  ! Names of species in *.NMLs
 
 C Parameters: None
 
@@ -85,8 +81,10 @@ C Local Variables:
 
       CHARACTER(  16 ) :: CTM_FL_NAME( MXCTMS )           ! Names of CTM files
       CHARACTER(  16 ) :: INFL_SP_NAME( MXCTMS*MXVARS3 ) ! Names of CTM species
-!     CHARACTER(  16 ) :: SPNAME_OUT( NSPCSD )             ! Output file species names
-      CHARACTER(  16 ), ALLOCATABLE :: SPNAME_OUT( : )
+      CHARACTER(  16 ) :: UNITS_IN( MXCTMS*MXVARS3 ) ! Units for CTM species
+      CHARACTER(  80 ) :: VDESC_IN( MXCTMS*MXVARS3 ) ! Variable description for CTM species
+
+      INTEGER :: VTYPE_IN( MXCTMS*MXVARS3 ) ! variable type for CTM species
 
       INTEGER JDATE        ! Current date
       INTEGER JTIME        ! Current time
@@ -97,7 +95,6 @@ C Local Variables:
       INTEGER NLAYS_IN     ! No. of layers in input conc file
       INTEGER NROWS_IN     ! No. of rows in input conc file
       INTEGER NSPCS_IN     ! CTM files species counter
-      INTEGER NSPCS_OUT    ! Number of IC species on output file(s)
       INTEGER NSPCS        ! Number of NML species
       INTEGER NSTINC       ! No. of steps on file before start of output
       INTEGER STATUS       ! Status code
@@ -108,9 +105,6 @@ C Local Variables:
       INTEGER TSTEP        ! Time step on CTM_CONC_1 file
       INTEGER V            ! Variable loop index
       INTEGER ALST         ! Allocate status
-
-!     INTEGER :: SPMAP( NSPCSD )  ! Map to input file species from BC species
-      INTEGER, ALLOCATABLE :: SPMAP( : )   ! Map to input file species from BC species
 
       LOGICAL LCHKD                        ! Flag for met file checked
 
@@ -166,6 +160,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          DO V = 1, NVARS3D
             NSPCS_IN = NSPCS_IN + 1
             INFL_SP_NAME( NSPCS_IN ) = VNAME3D( V )
+            VTYPE_IN( NSPCS_IN ) = VTYPE3D( V )
+            UNITS_IN( NSPCS_IN ) = UNITS3D( V )
+            VDESC_IN( NSPCS_IN ) = VDESC3D( V )
          END DO
 
       END DO
@@ -272,35 +269,14 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       END IF
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c   Build a species map and report 
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      NSPCS = N_GC_SPC + N_AE_SPC + N_NR_SPC
-      ALLOCATE ( SPMAP( NSPCS ), SPNAME_OUT( NSPCS ), STAT = ALST )
-      IF ( ALST .NE. 0 ) THEN
-         MSG = 'Error allocating SPMAP or SPNAME_OUT'
-         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT2 )
-      END IF
-
-      CALL GC_SPC_MAP( LOGUNIT, NSPCS_IN, N_GC_OUT,
-     &                 SPMAP, INFL_SP_NAME, SPNAME_OUT )
-
-      CALL NGC_SPC_MAP( LOGUNIT, NSPCS_IN, N_GC_OUT, NSPCS_OUT,
-     &                  SPMAP, INFL_SP_NAME, SPNAME_OUT )
-
-      CALL LST_SPC_MAP( LOGUNIT, NSPCS_IN, NSPCS_OUT,
-     &                  SPMAP, NML_BC_NAME, INFL_SP_NAME, SPNAME_OUT )
-
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  compute and outputs BCs from the input CTM conc file(s)
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      CALL BCOUT( LOGUNIT,
+      CALL M3_BCOUT( LOGUNIT,
      &            N_CTM_FLS,
      &            SDATE, STIME, NSTEPS,
      &            NCOLS_IN, NROWS_IN, NLAYS_IN,
-     &            NSPCS_IN, NSPCS_OUT, SPMAP,   
-     &            CTM_FL_NAME,
-     &            INFL_SP_NAME,
-     &            SPNAME_OUT )
+     &            NSPCS_IN, CTM_FL_NAME,
+     &            INFL_SP_NAME, VTYPE_IN, UNITS_IN, VDESC_IN )
 
       RETURN
 
