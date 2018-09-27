@@ -565,9 +565,9 @@ C-------------------------------------------------------------------------------
          Real( 8 )              :: rsoil1
          Real( 8 )              :: rsoil2
          Real( 8 )              :: a1
-         Real( 8 )              :: agfrac
+         Real                   :: agfrac
          Real( 8 )              :: ddd
-         Real( 8 )              :: watfrac ! water fraction
+         Real                   :: watfrac ! water fraction
          Integer                :: k,j
          Real                   :: canfrac
          Real                   :: frac_sol1    ! Fraction of NHx in solution layer 1
