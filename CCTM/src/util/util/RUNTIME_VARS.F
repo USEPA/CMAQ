@@ -112,7 +112,7 @@
                                            ! science submodules
       LOGICAL :: FL_ERR_STOP=.TRUE.  ! Flag to stop run if errors are found.
       LOGICAL :: CKSUM     = .TRUE.  ! flag for cksum on, default = [T]
-      LOGICAL :: END_TIME  = .FALSE. ! Override default beginning ACON timestamp
+      LOGICAL :: END_TIME  = .FALSE. ! Override default beginning ACONC timestamp
       
       INTEGER :: N_ASPCS   = 0       ! Number of species saved to avg conc file
       INTEGER :: N_CSPCS   = 0       ! Number of species saved to conc file
@@ -187,7 +187,7 @@
 
       ! Emissions Processes
       CHARACTER( MAXLEN_CCTM_APPL ) :: EMISSCTRL  = 'EMISSCTRL_NML' ! Emission Control Filename
-      INTEGER :: EMLAYS        = 0       ! Emission Layers
+      INTEGER :: EMLAYS_MX     = 0       ! Emission Layers
       INTEGER :: N_FILE_GR     = 0       ! Number of Gridded Emission Files
       INTEGER :: N_FILE_TR     = 0       ! NUmber of Tracer Emission Files
       LOGICAL :: EMISCHK       = .TRUE.  ! flag for checking that surrogate emissions 
@@ -212,7 +212,6 @@
       REAL    :: MOLSNIC       = 350.0   ! Lightning NO Production Rate
       CHARACTER(250) :: LTNG_FNAME = 'InLine' ! Lightning NO Input Name
 
-      LOGICAL :: PT3DEMIS      = .FALSE. ! flag in-lining plume rise
       INTEGER :: NPTGRPS       = 0       ! no. pt src input file groups
       LOGICAL :: PT3DDIAG      = .FALSE. ! Write point source 3d emis diagnostic file
       LOGICAL :: PT3DFRAC      = .FALSE. ! Write layer fractions diagnostic file, if true
@@ -816,7 +815,7 @@
 
       ! Number of Layers for Emissions
       VARDESC = 'Number of emission layers'
-      EMLAYS = GET_ENVINT( 'CTM_EMLAYS', VARDESC, EMLAYS )
+      EMLAYS_MX = GET_ENVINT( 'CTM_EMLAYS', VARDESC, EMLAYS_MX )
 
       ! Get number of different Gridded File Emissionts Streams
       VARDESC = 'Number of Gridded Emissions Files'
@@ -906,10 +905,6 @@
       VARDESC = 'Flag for lightning NO production rate'
       MOLSNIC = GET_ENVREAL( 'MOLSNIC', VARDESC, 350.0 )
  
-      ! CTM_PT3DEMIS
-      VARDESC = 'Flag for in-line 3d point source emissions'
-      PT3DEMIS = GET_ENVYN( 'CTM_PT3DEMIS',VARDESC, PT3DEMIS )
-       
       ! get number of different file groups (sectors)
       VARDESC = 'Number of file groups'
       NPTGRPS = GET_ENVINT( 'N_EMIS_PT', VARDESC, NPTGRPS )

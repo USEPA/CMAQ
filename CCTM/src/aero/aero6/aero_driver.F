@@ -112,20 +112,27 @@ C                      - set CTM_PMDIAG default value to .TRUE.
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AERO ( CGRID, JDATE, JTIME, TSTEP )
 
-      USE RUNTIME_VARS
-      USE GRID_CONF           ! horizontal & vertical domain specifications
-
-      USE RXNS_DATA
-      USE AERO_DATA           ! aero variable data
-      USE PRECURSOR_DATA      ! gas phase aero precursor data
-      USE SOA_DEFN            ! gas soa data
-      USE AEROMET_DATA        ! air properties data, eg., T, P, RH includes CONST.EXT
-      USE UTILIO_DEFN
-      USE CGRID_SPCS
+      USE GRID_CONF, ONLY: NCOLS, NROWS, NLAYS, IO_PE_INCLUSIVE
+      USE RXNS_DATA, ONLY: MECHNAME
+      USE AERO_DATA, ONLY: COAG_BUDGET, COND_BUDGET, GROWTH_BUDGET, NPF_BUDGET,
+     &                     FIXED_sg, AEROMODE_DIAM, AEROMODE_LNSG, AEROMODE_DENS,
+     &                     MOMENT0_CONC, MOMENT2_CONC, MOMENT3_CONC,
+     &                     AEROSPC, AEROSPC_CONC, N_MODE, AH2O_IDX,
+     &                     EXTRACT_AERO, UPDATE_AERO, CALCMOMENTS
+      USE PRECURSOR_DATA, ONLY: SULPRD_IDX, SO4RATE, PRECURSOR_CONC, 
+     &                          PHGRXN_IDX, PHG_RATE, 
+     &                          EXTRACT_PRECURSOR, UPDATE_PRECURSOR
+      USE SOA_DEFN, ONLY: EXTRACT_SOA, UPDATE_SOA
+      USE AEROMET_DATA, ONLY: AIRTEMP, AIRPRES, AIRQV, AIRDENS, AIRRH, 
+     &                        H2OSATVP, H2OVP, MWWAT, MWAIR
+      USE UTILIO_DEFN, ONLY: OPEN3, INTERPX, WRITE3, FSREAD3, ALLVAR3,
+     &                       XSTAT1, TIME2SEC, SEC2TIME
+      USE CGRID_SPCS, ONLY: NSPCSD
       USE AEROSOL_CHEMISTRY, ONLY : GAMMA_N2O5IJ, GAMMA_N2O5K, YCLNO2IJ, YCLNO2K, 
      &                              GAMMA_IEPOX, GAMMA_IMAE, KPARTIEPOX, AERO_CHEM_SET
-      USE PMDIAG_DATA_MODULE
-      USE AERO_BUDGET
+      USE PMDIAG_DATA_MODULE, ONLY: NUM_PMDIAG_SPC, A_PMDIAG_SPC_MAP, PMDIAG_SPC_RECORD
+      USE RUNTIME_VARS, ONLY: LOGDEV, PMDIAG, APMDIAG, APMDIAG_ZHI, END_TIME
+      USE AERO_BUDGET, ONLY: AERO_COAG, AERO_COND, AERO_GROWTH, AERO_NPF
 
       IMPLICIT NONE
 
@@ -403,8 +410,8 @@ C *** initialize conc arrays
       N_APMDIAG_STEP = N_APMDIAG_STEP + 1
 
       DO L = 1, NLAYS
-         DO R = 1, MY_NROWS
-            DO C = 1, MY_NCOLS
+         DO R = 1, NROWS
+            DO C = 1, NCOLS
 
 C *** Grid cell meteorological data.
                AIRTEMP  = TA   ( C,R,L )

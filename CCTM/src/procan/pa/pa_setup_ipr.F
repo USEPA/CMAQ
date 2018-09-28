@@ -17,10 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/PROCAN/src/driver/pa/pa_setup_ipr.F,v 1.9 2011/11/02 14:34:00 yoj Exp $
-
       SUBROUTINE PA_SETUP_IPR
 
 C-----------------------------------------------------------------------
@@ -44,8 +40,9 @@ C  Jan, 2006 Jeff Young: change operator names to be 4 chars - they prepend
 C species names, which must remain less that 12 chars, i.e. OPNM_<__SPECIES__>
 C                                                           12345 67890123456
 C  Aug 2011 Jeff Young: Replaced I/O API include files with IOAPI`s M3UTILIO
+C  Sep 2018 C. Nolte, S. Roselle: replace M3UTILIO with UTILIO_DEFN
 C-----------------------------------------------------------------------
-      USE M3UTILIO      ! IOAPI module
+      USE UTILIO_DEFN
       USE PA_GLOBAL     ! Mech data used 
       USE PA_VARS, Only: NFAMLYS, FAMNAME, NUMFAMMEM, FAMMEMNAM, FAMSC
       USE PA_IPRVARS

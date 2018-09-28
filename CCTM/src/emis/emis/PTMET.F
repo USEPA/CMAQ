@@ -42,6 +42,7 @@ C                           PTMET_DATA%LEN1 = EMLAYS, PTMET_DATA%LEN2 = MSRC
 C-----------------------------------------------------------------------
       USE RUNTIME_VARS
       USE UDTYPES, ONLY: PTMET_TYPE
+      USE EMIS_VARS, ONLY : EMLAYS
 
       IMPLICIT NONE
 
