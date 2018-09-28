@@ -250,8 +250,11 @@ set TODAYG = ${START_DATE}
 set TODAYJ = `date -ud "${START_DATE}" +%Y%j` #> Convert YYYY-MM-DD to YYYYJJJ
 set START_DAY = ${TODAYJ}
 set STOP_DAY = `date -ud "${END_DATE}" +%Y%j` #> Convert YYYY-MM-DD to YYYYJJJ
+set NDAYS = 0
 
 while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
+  
+  set NDAYS = `echo "${NDAYS} + 1" | bc -l`
 
   #> Retrieve Calendar day Information
   set YYYYMMDD = `date -ud "${TODAYG}" +%Y%m%d` #> Convert YYYY-MM-DD to YYYYMMDD
@@ -618,8 +621,14 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 
   #> Abort script if abnormal termination
   if ( ! -e $S_CGRID ) then
-    echo "Error: CGRID file not written. Aborting execution."
-    exit 1
+    echo ""
+    echo "**************************************************************"
+    echo "** Runscript Detected an Error: CGRID file was not written. **"
+    echo "**   This indicates that CMAQ was interrupted or an issue   **"
+    echo "**   exists with writing output. The runscript will now     **"
+    echo "**   abort rather than proceeding to subsequent days.       **"
+    echo "**************************************************************"
+    break
   endif
 
   #> Print Concluding Text
@@ -651,7 +660,6 @@ end  #Loop to the next Simulation Day
 # ===================================================================
 #> Generate Timing Report
 # ===================================================================
-set NDAYS = `echo "$STOP_DAY - $START_DAY + 1" | bc -l`
 set RTMTOT = 0
 foreach it ( `seq ${NDAYS}` )
     set rt = `echo ${rtarray} | cut -d' ' -f${it}`
