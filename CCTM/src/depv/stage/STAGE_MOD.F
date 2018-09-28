@@ -1071,8 +1071,10 @@ C Return dry deposition velocities for aerosols (first layer only).
          DO V = 1, N_AE_DEPV
             IF ( DEPV_SUR( V ) .GT. 0 ) THEN
                VDEP_AE( V ) = VDEP( DEPV_SUR( V ) )
+               Tile_Data%ADEPVJ( :,V,C,R ) = VDEPJ( :,DEPV_SUR( V ) )
             ELSE
                VDEP_AE( V ) = 0.0
+               Tile_Data%ADEPVJ( :,V,C,R ) = 0.0 
             END IF
          END DO
                     
