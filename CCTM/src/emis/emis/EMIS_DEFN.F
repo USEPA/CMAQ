@@ -989,7 +989,7 @@ C and allowing the model to proceed.
 ! Set up Stream <-> Size Distribution relationship. This routine
 ! populates the EM_STREAM_SIZE structure which tells the logic below which
 ! modes are present on which streams.
-         CALL EM_SD_INIT( )
+         CALL EM_SD_INIT( JDATE, JTIME )
          
 ! Process Default Emissions Mapping (if requested in namelist; i.e. 
 ! DefaultScaling = TRUE) 

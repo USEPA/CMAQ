@@ -61,11 +61,11 @@
 
 &EmissionScalingRules
  EM_NML=
- !---Organic Aerosol Vapors and Particles            
- !          Region   | Stream Label  |Emission | CMAQ-   |Phase/ |Scale  | Op
- !           Label   |               |Surrogate| Species |Mode   |Factor |
- !<EXAMPLE> 'WATER'  , 'All'         ,'All'    ,'All'    ,'All'  ,0.     ,'o',
-
+ !          Region   | Stream Label  |Emission | CMAQ-   |Phase/ |Scale  |Basis | Op  
+ !           Label   |               |Surrogate| Species |Mode   |Factor |      |     
+ !<EXAMPLE> 'WATER'  , 'All'         ,'All'    ,'All'    ,'All'  ,0.     ,'MASS','o',
+                                                                                  
+         'EVERYWHERE', 'All'         ,'VOC_INV','SILOX'  ,'GAS'  ,0.01   ,'MOLE','a', 
 /
 
 !------------------------------------------------------------------------------!
