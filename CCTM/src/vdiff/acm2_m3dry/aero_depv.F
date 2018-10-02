@@ -307,8 +307,19 @@ C                     coarse surface area and to account for variable
 C                     standard deviation of the coarse mode.
 C 08 Sep 08 P.Bhave:  Backward compatibility with AE4 mechanisms
 C                     standardized names of all coarse-mode variables
-C August 2018 -- Changed Stokes # (Slinn 1982) and impaction term (Peters and Eiden, 1992)
-C                implimented by J pleim based on analysis by Qian Shu 
+C 29 Aug 18 J.Pleim:  Revised formulation of dry deposition impaction term 
+C                     so that it integrates the affect of mode width in the 
+C                     Stokes number via the settling velocity rather than 
+C                     adjusting the impaction term magnitude directly at the
+C                     end. This change is believed to resolve massive 
+C                     overprediction of deposition velocity for coarse-mode 
+C                     particles. Changed Stokes # to be more representative 
+C                     of vegetated surfaces as suggested by Slinn (1982) and 
+C                     Giorgi (1986), changed impaction term according to Slinn 
+C                     (1982), and added scaling of diffusion layer resistance 
+C                     (Rd) by LAI for vegetated fraction of grid cell. Developed 
+C                     based on analysis by Qian Shu, University of Florida. 
+C                     Peer-reviewed publication in preparation.
 C-----------------------------------------------------------------------
 
       USE GRID_CONF, Only: ncols, nrows
