@@ -285,7 +285,7 @@ C subset all the layers and species in cgrid for this grid cell
             ! Add the new time step increment
             adts = adts + dts
             if ( adts .gt. dtsec ) then   ! don`t overshoot the timestep
-               dts = adts - dtsec
+               dts = dtsec - (adts - dts)
                adts = dtsec
             end if
 
