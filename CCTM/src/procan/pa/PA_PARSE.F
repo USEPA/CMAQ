@@ -17,9 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/PROCAN/src/driver/pa/PA_PARSE.EXT,v 1.5 2011/11/02 14:33:55 yoj Exp $
-
 C......................................................................
       MODULE PA_PARSE
  
@@ -30,6 +27,7 @@ C methods: rdline, getchr, getword, eatcom, getreal, getlabel, getquote, catstri
 C Revision History:
 C  Based on code created by Jerry Gipson, 1996, 1997
 C  PA_PARSE.F module; 13 Jul 2016; Jeff Young
+C  Sep 2018 C. Nolte, S. Roselle: replace M3UTILIO with UTILIO_DEFN
 C......................................................................
 
       IMPLICIT NONE
@@ -66,7 +64,7 @@ C           in IEOL. All blank lines and lines with a ! in the first
 C           column are skipped. The line count is stored in LINNUM.
 C......................................................................
 
-         USE M3UTILIO      ! IOAPI module
+         USE UTILIO_DEFN
 
          IMPLICIT NONE
 C.......................................................................
@@ -147,7 +145,7 @@ C Preconditions: None
 C Key Subroutines/Functions Called: EATCOM, GETCHR, RDLINE
 C......................................................................
 
-         USE M3UTILIO      ! IOAPI module
+         USE UTILIO_DEFN
 
          IMPLICIT NONE
 
@@ -261,7 +259,7 @@ C              with the current character; the word can be any length,
 C              but only the first sixteen characters are retained.  The
 C              first character must be alphabetic.
 C.......................................................................
-         USE M3UTILIO      ! IOAPI module
+         USE UTILIO_DEFN
 
          IMPLICIT NONE
          
@@ -393,7 +391,7 @@ C              label length is sixteen characters.
 C Key Subroutines/Functions Called: EATCOM, GETCHR
 C.......................................................................
  
-         USE M3UTILIO      ! IOAPI module
+         USE UTILIO_DEFN
 
          IMPLICIT NONE
          
@@ -458,7 +456,7 @@ C           Line wrap is allowed.
 C Key Subroutines/Functions Called: RDLINE, GETCHR
 C.......................................................................
  
-         USE M3UTILIO      ! IOAPI module
+         USE UTILIO_DEFN
 
          IMPLICIT NONE
          

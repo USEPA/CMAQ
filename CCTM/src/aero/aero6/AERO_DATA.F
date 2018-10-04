@@ -597,7 +597,8 @@ C Indices of Optional species
       Integer :: abr_idx    = 0
 
 C Common Arrays for Aerosol Data
-      Real, Allocatable :: aerospc_mw( : )     ! aero species M.W. (from AE_SPC Namelist) [ g/mol ]
+      Real, Allocatable :: aerospc_mw( : )     ! molecular weights (from AE_SPC Namelist) [ g/mol ]
+      Real, Allocatable :: aerospc_mwinv( : )  ! reciprocal MWs (from AE_SPC Namelist) [ mol/g ]
       Real, Allocatable :: aerospc_conc( :,: ) ! aero species concentration [ ug/m^3 ]
 
 C Common factors
@@ -813,6 +814,7 @@ C Build mapping to CGRID for each species in the master AeroList
       ! know the value of n_aerospc
       Allocate ( aerospc       ( n_aerospc ) )
       Allocate ( aerospc_mw    ( n_aerospc ) )
+      Allocate ( aerospc_mwinv ( n_aerospc ) )
       Allocate ( aerospc_map   ( n_aerospc, n_mode ) )
       Allocate ( aerospc_conc  ( n_aerospc, n_mode ) )
       Allocate ( aero_missing  ( n_aerospc, n_mode ) )
@@ -838,6 +840,7 @@ C Build mapping to CGRID for each species in the master AeroList
 
          ! Map mode-independent properties
          aerospc_mw( spc ) = mole_weight( l )
+         aerospc_mwinv( spc ) = 1.0E0 / aerospc_mw( spc )
 
          Do n = 1,n_mode
             ! Map the Modal-Dependent CGRID Pointers from AeroSpc to AeroList

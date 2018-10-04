@@ -38,9 +38,10 @@ C  J.Young: fix LCHEMFAM array index bug, fix N_IPR_SPC value for no ipr,
 C  fix blank in 'Air density' species name (found by Michael Bane in UK)
 C  Aug 2011 Jeff Young: Replaced I/O API include files with IOAPI`s M3UTILIO
 C  Jul 2016 Jeff Young: modify for model inline
+C  Sep 2018 C. Nolte, S. Roselle: replace M3UTILIO with UTILIO_DEFN
 C-----------------------------------------------------------------------
 
-      USE M3UTILIO      ! IOAPI module
+      USE UTILIO_DEFN   
       USE PA_GLOBAL     ! Mech and Grid data used 
       USE CGRID_SPCS, Only: N_CGRID_SPC, CGRID_NAME
       USE PA_IPRVARS

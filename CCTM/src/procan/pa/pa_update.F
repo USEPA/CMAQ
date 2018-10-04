@@ -531,7 +531,7 @@ C..set pointers for the ddep array
             END DO            
          END DO
 
-C..set layer layer thickenesses
+C..set layer layer thicknesses
          X3FACE( 0 ) = VGLVS_GD( 1 )
          DO L = 1, NLAYS
             X3FACE( L ) = VGLVS_GD( L + 1 )
@@ -668,7 +668,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C-----------------------------------------------------------------------
       USE AERO_BUDGET
       USE PA_DEFN
-      USE M3UTILIO
+      USE UTILIO_DEFN
       USE PAGRD_DEFN
 
 

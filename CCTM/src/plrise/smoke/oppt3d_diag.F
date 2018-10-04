@@ -49,6 +49,7 @@ C-----------------------------------------------------------------------
       USE RUNTIME_VARS
       USE GRID_CONF           ! horizontal & vertical domain specifications
       USE UTILIO_DEFN
+      USE EMIS_VARS, ONLY : EMLAYS
 
       IMPLICIT NONE
  

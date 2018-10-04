@@ -17,10 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/procan/pa/pa_irr.F,v 1.4 2011/10/21 16:11:32 yoj Exp $
-
       MODULE PA_IRR_MODULE 
       
       IMPLICIT NONE
@@ -104,7 +100,7 @@ C..Saved Local Variables:
 
       REAL(8), ALLOCATABLE, SAVE :: RXOLD  ( :,: )
       REAL(8), ALLOCATABLE, SAVE :: RXSAV  ( :,: )       
-      REAL(8), ALLOCATABLE, SAVE :: RXRAT  ( :,: )     ! Calcualted reaction rates
+      REAL(8), ALLOCATABLE, SAVE :: RXRAT  ( :,: )     ! Calculated reaction rates
       REAL(8), ALLOCATABLE, SAVE :: INTRXN ( :,: )     ! Integrated reaction rates
       REAL(8), ALLOCATABLE, SAVE :: TEMPIRR( :,: )     ! Array of computed temp IRRs
 
@@ -118,7 +114,7 @@ C Allocate PA_DEFN arrays:
             MSG = 'Failure initializing IRRSTEP of IRRBLK'
             CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
          END IF
-C  On first call, flag the reactions for which to calculate IRRS
+C  On first call, flag the reactions for which to calculate IRRs
         ALLOCATE( LINTRXN( NRXNS ),
      &            RXOLD  ( BLKSIZE, NRXNS ),
      &            RXSAV  ( BLKSIZE, NRXNS ),
@@ -471,14 +467,14 @@ C..Scratch Local Variables:
 C..Saved Local Variables:
       LOGICAL, ALLOCATABLE, SAVE :: LINTRXN( : )  ! Flag for reaction integration
 
-      REAL(8), ALLOCATABLE, SAVE :: RXRAT  ( : )     ! Calcualted reaction rates
+      REAL(8), ALLOCATABLE, SAVE :: RXRAT  ( : )     ! Calculated reaction rates
       REAL(8), ALLOCATABLE, SAVE :: INTRXN ( : )     ! Integrated reaction rates
       REAL(8), ALLOCATABLE, SAVE :: TEMPIRR( : )     ! Array of computed temp IRRs
 
 C-----------------------------------------------------------------------
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c  On first call, flag the reactions for which to calculate IRRS
+c  On first call, flag the reactions for which to calculate IRRs
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF ( LFIRST ) THEN
 

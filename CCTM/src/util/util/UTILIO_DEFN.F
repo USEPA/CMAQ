@@ -24,7 +24,7 @@ C     several IOAPI routines are replaced with PARIO versions.  For
 C     example, the IOAPI function WRITE3 is renamed to an unused 
 C     function name "EXCLUDE_WRITE3", and the PARIO function PWRITE3
 C     is aliased to WRITE3.  So when WRITE3 is used in CMAQ, then the
-C     the PARIO function PWRITE3 is accessed.  This approach allows
+C     PARIO function PWRITE3 is accessed.  This approach allows
 C     flexibility in naming within CMAQ and eliminated the usage of
 C     "cpp" flags to achieve the function overloading.
 C              
