@@ -1415,7 +1415,7 @@ C     densities. It is a waste of time updating the aitken and
 C     accumulation modes but the coarse mode does need to be updated
 C     each sub-time step. This should be for the wet distribution
                
-            CALL GETPAR( FIXED_sg )
+            CALL GETPAR( .TRUE. )
 
          END DO   ! end mass transfer time step loop
          
@@ -1636,7 +1636,7 @@ C     densities. Note that moment2_conc needs to be up to date when this
 C     routine is called. Moment3_conc does not need to be up to date
 C     because it will be recalculated inside GETPAR as the sum of 
 C     aerospc_conc variables. This should be for the wet distribution.
-      CALL GETPAR( FIXED_sg )
+      CALL GETPAR( .TRUE. )
        
 ! *** Propagate Concentration Changes from Coarse-Mode Mass
 ! *** Transfer to Budget Vectors
