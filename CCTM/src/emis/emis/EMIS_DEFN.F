@@ -805,7 +805,8 @@ C-----------------------------------------------------------------------
          ALLOCATE( CNVTI( EMLAYS ), CNVTC( EMLAYS,NCOLS,NROWS ), 
      &             CONVM( EMLAYS,NCOLS,NROWS ),
      &             CONVN( EMLAYS,NCOLS,NROWS ),
-     &             VDEMIS( NCOLS,NROWS,EMLAYS,N_SPC_DIFF ) )
+     &             VDEMIS( N_SPC_DIFF,EMLAYS,NCOLS,NROWS,EMLAYS,N_SPC_DIFF ),
+     &             VDEMIS_OUT( NCOLS,NROWS,EMLAYS ) )
       END IF    !FirstTime
       
       VDEMIS = 0.0
@@ -827,18 +828,18 @@ C-----------------------------------------------------------------------
       FORALL ( I = 1:N_SPC_DIFF, DIFF_MASK_GAS( I ) .OR. 
      &                           DIFF_MASK_NR( I )  .OR. 
      &                           DIFF_MASK_TRAC( I ) )
-     &    VDEMIS( :,:,1:NL,I ) = CNVTC( 1:NL,:,: ) * VDEMIS0( I,1:NL,:,: )
+     &    VDEMIS( I,1:NL,:,: ) = CNVTC( 1:NL,:,: ) * VDEMIS0( I,1:NL,:,: )
   
       FORALL ( I = 1:N_SPC_DIFF, DIFF_MASK_AERO( I ) .AND. 
      &                           .NOT. DIFF_MASK_NUM( I ) .AND.
      &                           .NOT. DIFF_MASK_SRF( I )  )
-     &    VDEMIS( :,:,1:NL,I ) = CNVTC( 1:NL,:,: ) * VDEMIS0( I,1:NL,:,: ) * DIFF_MW( I )
+     &    VDEMIS( I,1:NL,:,: ) = CNVTC( 1:NL,:,: ) * VDEMIS0( I,1:NL,:,: ) * DIFF_MW( I )
       
       FORALL ( I = 1:N_SPC_DIFF, DIFF_MASK_SRF( I ) )
-     &    VDEMIS( :,:,1:NL,I ) = CONVM( 1:NL,:,: ) * VDEMIS0( I,1:NL,:,: )
+     &    VDEMIS( I,1:NL,:,: ) = CONVM( 1:NL,:,: ) * VDEMIS0( I,1:NL,:,: )
       
       FORALL ( I = 1:N_SPC_DIFF, DIFF_MASK_NUM( I ) )
-     &    VDEMIS( :,:,1:NL,I ) = CONVN( 1:NL,:,: ) * VDEMIS0( I,1:NL,:,: )
+     &    VDEMIS( I,1:NL,:,: ) = CONVN( 1:NL,:,: ) * VDEMIS0( I,1:NL,:,: )
 
  
       ! Output to Emissions Diagnostic File
@@ -849,13 +850,17 @@ C-----------------------------------------------------------------------
 
             ! Sum the column if requested
             IF ( EM_FILE_LDIAG( ISRM ) .EQ. '2DSUM' ) THEN
-                VDEMIS( :,:,1,IVAR ) = SUM( VDEMIS( :,:,1:NL,IVAR ),3 )
+                VDEMIS( IVAR,1,:,: ) = SUM( VDEMIS( IVAR,1:NL,:,: ),3 )
                 LAYS = 1
             END IF
 
+            DO L = 1,LAYS
+                VDEMIS_OUT( :,:,L ) = VDEMIS( IVAR,L,:,: )
+            END DO
+
             ! Write out the emissions data
             IF ( .NOT. WRITE3( EM_DIAG_FILE( ISRM ), DIFF_SPC( IVAR ),
-     &                 MDATE, MTIME, VDEMIS( :,:,1:LAYS,IVAR ) ) ) THEN
+     &                 MDATE, MTIME, VDEMIS_OUT( :,:,1:LAYS ) ) ) THEN
                 XMSG = 'Could not write ' // EM_DIAG_FILE( ISRM ) // ' file'
                 CALL M3EXIT( 'WRITE_EMISS_DIAG', MDATE, MTIME, XMSG, XSTAT1 )
             END IF
