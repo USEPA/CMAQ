@@ -17,10 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/PROCAN/src/driver/pa/PA_IPRDEF.EXT,v 1.6 2011/11/02 14:33:55 yoj Exp $
-
 C......................................................................
       MODULE PA_IPRDEF
  
@@ -65,23 +61,5 @@ C......................................................................
      &                   'MADV         ',  ! 14
      &                   'TDIF         ',  ! 15
      &                   'TRNM         ' /)! 16
-
-C  OLD Operator 13-19 definitions:
-C      XYADV   = XADV + YADV
-C      XYZADV  = XADV + YADV + ZADV
-C      HZADV   = HADV + ZADV  = TOTADV for YAMO
-C      TOTADV  = XADV + YADV + ZADV + ADJC
-C      TOTDIF  = HDIF + VDIF
-C      TOTTRAN = XADV + YADV + ZADV + ADJC + HDIF + VDIF
-C      TOTTRAN_YAMO = HADV + ZADV + HDIF + VDIF
-
-C  NEW Operator 13-19 definitions:
-C      ADV2 = XADV + YADV
-C      ADV3 = XADV + YADV + ZADV
-C      MADV = HADV + ZADV  = TOTADV for YAMO, "Mass-conserving ADV"
-C      TADV = XADV + YADV + ZADV + ADJC
-C      TDIF = HDIF + VDIF
-C      TRAN = XADV + YADV + ZADV + ADJC + HDIF + VDIF
-C      TRNM = HADV + ZADV + HDIF + VDIF = total "TRaN for Mass-conserving adv"
 
       END MODULE PA_IPRDEF

@@ -17,10 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/PROCAN/src/driver/pa/pa_getcycle.F,v 1.5 2011/11/02 14:33:56 yoj Exp $
-
       SUBROUTINE GETCYCLE
 
 C-----------------------------------------------------------------------
@@ -36,9 +32,10 @@ C  Prototype created by Jerry Gipson, August, 1996
 C  Modified May, 1997 by Jerry Gipson to be consistent with beta CTM
 C  Modified Sept, 1997 by Jerry Gipson to be consistent with targeted CTM
 C  Aug 2011 Jeff Young: Replaced I/O API include files with IOAPI's M3UTILIO
+C  Sep 2018 C. Nolte, S. Roselle: replace M3UTILIO with UTILIO_DEFN
 C-----------------------------------------------------------------------
  
-      USE M3UTILIO      ! IOAPI module
+      USE UTILIO_DEFN
       USE PA_VARS
       USE PA_PARSE
 

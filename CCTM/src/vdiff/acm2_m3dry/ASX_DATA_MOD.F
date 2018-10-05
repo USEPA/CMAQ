@@ -87,16 +87,16 @@ C-------------------------------------------------------------------------------
 
       Type :: MET_Type
 !> 2-D meteorological fields:
-         Real,    Allocatable :: RDEPVHT  ( :,: )  ! air dens / dep vel ht
+         Real,    Allocatable :: RDEPVHT  ( :,: )  ! reciprocal layer 1 height [m-1]
          Real,    Allocatable :: DENS1    ( :,: )  ! layer 1 air density
          Real,    Allocatable :: PRSFC    ( :,: )  ! surface pressure [Pa]
          Real,    Allocatable :: Q2       ( :,: )  ! 2 meter water vapor mixing ratio [kg/kg]
          Real,    Allocatable :: QSS_GRND ( :,: )  ! ground saturation water vapor mixing ratio [kg/kg]
          Real,    Allocatable :: RH       ( :,: )  ! relative humidity [ratio]
-         Real,    Allocatable :: RA       ( :,: )  ! aerodynamic resistnace [s/m]
-         Real,    Allocatable :: RS       ( :,: )  ! stomatal resistnace [s/m]
+         Real,    Allocatable :: RA       ( :,: )  ! aerodynamic resistance [s/m]
+         Real,    Allocatable :: RS       ( :,: )  ! stomatal resistance [s/m]
          Real,    Allocatable :: RC       ( :,: )  ! convective precipitation [cm]
-         Real,    Allocatable :: RN       ( :,: )  ! non-convective precipitation [mc]
+         Real,    Allocatable :: RN       ( :,: )  ! non-convective precipitation [cm]
          Real,    Allocatable :: RGRND    ( :,: )  ! Solar radiation at the ground [W/m**2]
          Real,    Allocatable :: HFX      ( :,: )  ! Sensible heat flux [W/m**2]
          Real,    Allocatable :: LH       ( :,: )  ! Latent heat flux [W/m**2]
@@ -114,7 +114,7 @@ C-------------------------------------------------------------------------------
          Real,    Allocatable :: SOIM1    ( :,: )  ! 1 cm soil moisture [m**3/m**3]
          Real,    Allocatable :: SOIM2    ( :,: )  ! 1 m soil moisture  [m**3/m**3]
          Real,    Allocatable :: SOIT1    ( :,: )  ! 1 cm soil temperature [K]
-         Real,    Allocatable :: SOIT2    ( :,: )  ! 1 m soil temperature [K]
+!        Real,    Allocatable :: SOIT2    ( :,: )  ! 1 m soil temperature [K]
          Real,    Allocatable :: SEAICE   ( :,: )  ! Sea ice coverage [%]
          Real,    Allocatable :: MOL      ( :,: )  ! Monin-Obukhov length [m]
          Real,    Allocatable :: MOLI     ( :,: )  ! inverse of Monin-Obukhov length [m]
@@ -130,14 +130,14 @@ C-------------------------------------------------------------------------------
          Real,    Allocatable :: VWIND    ( :,:,: )  ! [m/s]                    
 !> 3-D meteorological fields:
          Real,    Allocatable :: KZMIN    ( :,:,: )  ! minimum Kz [m**2/s]
-         Real,    Allocatable :: PRES     ( :,:,: )  ! layer 1 pressure [Pa]
+         Real,    Allocatable :: PRES     ( :,:,: )  ! pressure [Pa]
          Real,    Allocatable :: QV       ( :,:,: )  ! water vapor mixing ratio
          Real,    Allocatable :: QC       ( :,:,: )  ! cloud water mixing ratio
          Real,    Allocatable :: THETAV   ( :,:,: )  ! potential temp
          Real,    Allocatable :: TA       ( :,:,: )  ! temperature (K)
          Real,    Allocatable :: ZH       ( :,:,: )  ! mid-layer height above ground [m]
          Real,    Allocatable :: ZF       ( :,:,: )  ! layer height [m]
-         Real,    Allocatable :: DZF      ( :,:,: )  ! layer surface thickness
+         Real,    Allocatable :: DZF      ( :,:,: )  ! layer thickness
          Real,    Allocatable :: DENS     ( :,:,: )  ! air density
          Real,    Allocatable :: RJACM    ( :,:,: )  ! reciprocal mid-layer Jacobian
          Real,    Allocatable :: RJACF    ( :,:,: )  ! reciprocal full-layer Jacobian
@@ -155,11 +155,11 @@ C-------------------------------------------------------------------------------
          Real,    Allocatable :: LON    ( :,: )  ! longitude
          Real,    Allocatable :: LAT    ( :,: )  ! latitude
          Real,    Allocatable :: LWMASK ( :,: )  ! land water mask
-         Real,    Allocatable :: OCEAN  ( :,: )  ! Open ocean
-         Real,    Allocatable :: SZONE  ( :,: )  ! Surf zone
+         Real,    Allocatable :: OCEAN  ( :,: )  ! Open ocean fraction
+         Real,    Allocatable :: SZONE  ( :,: )  ! Surf zone fraction
          Real,    Allocatable :: PURB   ( :,: )  ! percent urban [%]
          Integer, Allocatable :: SLTYP  ( :,: )  ! soil type [category]
-         Real,    Allocatable :: WSAT   ( :,: )  ! soil wilting point
+         Real,    Allocatable :: WSAT   ( :,: )  ! volumetric soil saturation concentration
          Real,    Allocatable :: WWLT   ( :,: )  ! soil wilting point
          Real,    Allocatable :: BSLP   ( :,: )  ! B Slope 
          Real,    Allocatable :: WRES   ( :,: )  ! Soil residual moisture point
@@ -174,8 +174,6 @@ C Land use information:
 
       Type( MET_Type ),     Save :: Met_Data 
       Type( GRID_Type ),    Save :: Grid_Data 
-!      Type( MOSAIC_Type ),  Save :: Mosaic_Data
-!      Type( ChemMos_Type ), Save :: ChemMos_Data
 
       Integer, Save   :: n_spc_m3dry = ltotg       ! from DEPVVARS module
 !> M3 asx constants
@@ -222,7 +220,7 @@ C Land use information:
       Logical, Save :: CSTAGUV            ! Winds are available with C stagger?
       Logical, Save :: ifwr     = .false.
 
-      Public        :: INIT_MET
+      Public        :: INIT_MET, GET_MET
 
       Logical, Private, Save :: ifsst    = .false.
       Logical, Private, Save :: ifq2     = .false.
@@ -429,7 +427,6 @@ C-----------------------------------------------------------------------
          Implicit None
  
          Include SUBST_FILES_ID  ! file name parameters
-         Include SUBST_CONST     ! constants
 
 C Arguments:
          Integer, Intent( IN ) :: JDATE, JTIME      ! internal simulation date&time
@@ -538,6 +535,7 @@ C-----------------------------------------------------------------------
      &             Grid_Data%SZONE   ( NCOLS,NROWS ),
      &             Grid_Data%PURB    ( NCOLS,NROWS ),
      &             Grid_Data%SLTYP   ( NCOLS,NROWS ),
+     &             Grid_Data%WSAT    ( NCOLS,NROWS ),
      &             Grid_Data%NAME    ( n_lufrac ),
      &             Grid_Data%LU_Type ( n_lufrac ),
      &             STAT = ALLOCSTAT )
@@ -547,6 +545,7 @@ C-----------------------------------------------------------------------
          End If
          Grid_Data%NAME    = name_lu
          Grid_Data%LU_Type = cat_lu
+         Grid_Data%WSAT    = 0.0
 
          If ( ABFLUX  ) Then
             ALLOCATE( Met_Data%SOIM2    ( NCOLS,NROWS ),
@@ -556,8 +555,7 @@ C-----------------------------------------------------------------------
                Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             End If
 
-            ALLOCATE( Grid_Data%WSAT   ( NCOLS,NROWS ),
-     &                Grid_Data%WWLT   ( NCOLS,NROWS ),
+            ALLOCATE( Grid_Data%WWLT   ( NCOLS,NROWS ),
      &                Grid_Data%BSLP   ( NCOLS,NROWS ),
      &                Grid_Data%WRES   ( NCOLS,NROWS ),
      &                Grid_Data%WFC    ( NCOLS,NROWS ),
@@ -567,19 +565,10 @@ C-----------------------------------------------------------------------
                XMSG = 'Failure allocating Soil grid vars'
                Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             End If
-            Grid_Data%WSAT    = 0.0
             Grid_Data%WWLT    = 0.0
             Grid_Data%WFC     = 0.0
             Grid_Data%WRES    = 0.0
             Grid_Data%BSLP    = 0.0
-         Else
-           ALLOCATE( Grid_Data%WSAT   ( NCOLS,NROWS ),
-     &                STAT = ALLOCSTAT )
-            If ( ALLOCSTAT .Ne. 0 ) Then
-               XMSG = 'Failure allocating Wsat'
-               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            End If
-            Grid_Data%WSAT    = 0.0
          End If
 
 !> ccccccccccccccccccccc enable backward compatiblity ccccccccccccccccccccc
@@ -663,7 +652,7 @@ C-----------------------------------------------------------------------
                CONVPA = 1.0E-03
                P0     = 100000.0 * CONVPA
             Case Default
-               XMSG = 'Units incorrect on ' // MET_CRO_3D
+               XMSG = 'PRES units incorrect on ' // MET_CRO_3D
                Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End Select
 
@@ -698,7 +687,7 @@ C-----------------------------------------------------------------------
 !> nullify pointer
          Nullify( X3M )
 
-!> reciprical of msfx2**2
+!> reciprocal of msfx2**2
 !> assign MSFX2
          MSFX2 => BUFF2D
          VNAME = 'MSFX2'
@@ -836,7 +825,6 @@ C-----------------------------------------------------------------------
  
          Include SUBST_FILES_ID  ! file name parameters
          Include SUBST_PE_COMM   ! PE communication displacement and direction
-         Include SUBST_CONST     ! constants
 
 C Arguments:
 

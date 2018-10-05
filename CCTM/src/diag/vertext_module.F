@@ -41,17 +41,16 @@ C   24 Nov 17 B.Henderson: copied from OPCONC.
 C   09 Jan 18 D.Wong: put in parallel implementation
 C-----------------------------------------------------------------------
 
-         USE GRID_CONF             ! horizontal & vertical domain specifications
-         USE RUNTIME_VARS
-         USE STD_CONC              ! standard CONC
+         USE GRID_CONF
+         USE RUNTIME_VARS, ONLY: LOGDEV, LVEXT
+         USE STD_CONC, ONLY: N_C_GC_SPC, C_GC_SPC, N_C_AE_SPC, C_AE_SPC,  
+     &                       N_C_NR_SPC, C_NR_SPC, N_C_TR_SPC, C_TR_SPC
          USE UTILIO_DEFN
 #ifdef parallel
          USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
 #else
          USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
 #endif
-!         USE MODGCTP, only : XY2XY
-         USE HGRD_DEFN, only : MYPE, COLSX_PE, ROWSX_PE, NPCOL, NPROW
 
          IMPLICIT NONE
 C        INTERFACE
@@ -116,7 +115,7 @@ C-----------------------------------------------------------------------
 
          WRITE(LOGDEV, *)'IN', NVERTEXT
 
-C Set output file characteristics based on COORD.EXT and open it
+C Set output file characteristics from GRID_CONF and open 
 
          FTYPE3D = GRDDED3
          SDATE3D = JDATE
@@ -236,7 +235,7 @@ C Set output file characteristics based on COORD.EXT and open it
          DO SPC = STRT, FINI
             V = V + 1
             VTYPE3D( SPC ) = M3REAL
-            VNAME3D( SPC ) = C_AE_SPC( V )   ! from STD_CONC module
+            VNAME3D( SPC ) = C_AE_SPC( V )
             IF ( VNAME3D( SPC )(1:3) .EQ. 'NUM' ) THEN
                UNITS3D( SPC ) = 'm-3'
             ELSE IF ( VNAME3D( SPC )(1:3) .EQ. 'SRF' ) THEN
@@ -253,7 +252,7 @@ C Set output file characteristics based on COORD.EXT and open it
          DO SPC = STRT, FINI
             V = V + 1
             VTYPE3D( SPC ) = M3REAL
-            VNAME3D( SPC ) = C_NR_SPC( V )   ! from STD_CONC module
+            VNAME3D( SPC ) = C_NR_SPC( V )
             UNITS3D( SPC ) = 'ppmV'
             VDESC3D( SPC ) = 'Variable ' // VNAME3D( SPC )
          END DO
@@ -264,7 +263,7 @@ C Set output file characteristics based on COORD.EXT and open it
          DO SPC = STRT, FINI
             V = V + 1
             VTYPE3D( SPC ) = M3REAL
-            VNAME3D( SPC ) = C_TR_SPC( V )   ! from STD_CONC module
+            VNAME3D( SPC ) = C_TR_SPC( V )
             UNITS3D( SPC ) = 'ppmV'
             VDESC3D( SPC ) = 'Molar Mixing Ratio for species ' // VNAME3D( SPC )
          END DO
@@ -716,17 +715,17 @@ C-----------------------------------------------------------------------
 
          SUBROUTINE LONLAT2XY(NVERTEXT, VERTEXTLON, VERTEXTLAT,
      &                        VERTEXTIR, VERTEXTJR)
-         USE M3UTILIO, only : LL2LAM, LL2POL, LL2TRM, LL2EQM, LL2ALB,
-     &                        SETLAM, SETPOL, SETEQM, SETTRM, SETALB
          USE UTILIO_DEFN
          USE GRID_CONF             ! horizontal & vertical domain specifications
          IMPLICIT NONE
          INTEGER, INTENT(in) :: NVERTEXT
          REAL, INTENT(in) :: VERTEXTLON(NVERTEXT), VERTEXTLAT(NVERTEXT)
          REAL, INTENT(inout) :: VERTEXTIR(NVERTEXT), VERTEXTJR(NVERTEXT)
-         LOGICAL :: PRJSET
+         CHARACTER( 16 ) :: PNAME = 'LONLAT2XY'
+         CHARACTER( 96 ) :: XMSG = ' '
+         LOGICAL :: PRJSET, LSTAT
          REAL :: JR, IR
-         INTEGER :: V, STATUS
+         INTEGER :: V
 !         IOAPI 3.2 has an explicit function, but many users are likely
 !         using 3.1, so I basically rewrote LL2XY
 !         CALL XY2XY( GDTYP_GD, P_ALP_GD, P_BET_GD, P_GAM_GD, XCENT_GD, YCENT_GD,
@@ -736,8 +735,7 @@ C-----------------------------------------------------------------------
              PRJSET = SETLAM( REAL(P_ALP_GD), REAL(P_BET_GD), REAL(P_GAM_GD),
      &                         REAL(XCENT_GD), REAL(YCENT_GD))
              DO V=1,NVERTEXT
-                 STATUS = LL2LAM( VERTEXTLON(V), VERTEXTLAT(V), 
-     &                            IR, JR)
+                 LSTAT = LL2LAM( VERTEXTLON(V), VERTEXTLAT(V), IR, JR ) 
                  VERTEXTIR(V) = IR
                  VERTEXTJR(V) = JR
              ENDDO
@@ -745,8 +743,7 @@ C-----------------------------------------------------------------------
              PRJSET = SETPOL( REAL(P_ALP_GD), REAL(P_BET_GD), REAL(P_GAM_GD),
      &                         REAL(XCENT_GD), REAL(YCENT_GD))
              DO V=1,NVERTEXT
-                 STATUS = LL2POL( VERTEXTLON(V), VERTEXTLAT(V), 
-     &                            IR, JR)
+                 LSTAT = LL2POL( VERTEXTLON(V), VERTEXTLAT(V), IR, JR ) 
                  VERTEXTIR(V) = IR
                  VERTEXTJR(V) = JR
              ENDDO
@@ -754,8 +751,7 @@ C-----------------------------------------------------------------------
              PRJSET = SETEQM( REAL(P_ALP_GD), REAL(P_BET_GD), REAL(P_GAM_GD),
      &                         REAL(XCENT_GD), REAL(YCENT_GD))
              DO V=1,NVERTEXT
-                 STATUS = LL2EQM( VERTEXTLON(V), VERTEXTLAT(V), 
-     &                            IR, JR)
+                 LSTAT = LL2EQM( VERTEXTLON(V), VERTEXTLAT(V), IR, JR ) 
                  VERTEXTIR(V) = IR
                  VERTEXTJR(V) = JR
              ENDDO
@@ -763,8 +759,7 @@ C-----------------------------------------------------------------------
              PRJSET = SETTRM( REAL(P_ALP_GD), REAL(P_BET_GD), REAL(P_GAM_GD),
      &                         REAL(XCENT_GD), REAL(YCENT_GD))
              DO V=1,NVERTEXT
-                 STATUS = LL2TRM( VERTEXTLON(V), VERTEXTLAT(V), 
-     &                            IR, JR)
+                 LSTAT =  LL2TRM( VERTEXTLON(V), VERTEXTLAT(V), IR, JR )
                  VERTEXTIR(V) = IR
                  VERTEXTJR(V) = JR
              ENDDO
@@ -772,17 +767,14 @@ C-----------------------------------------------------------------------
              PRJSET = SETALB( REAL(P_ALP_GD), REAL(P_BET_GD), REAL(P_GAM_GD),
      &                         REAL(XCENT_GD), REAL(YCENT_GD))
              DO V=1,NVERTEXT
-                 STATUS = LL2ALB( VERTEXTLON(V), VERTEXTLAT(V), 
-     &                            IR, JR)
+                 LSTAT = LL2ALB( VERTEXTLON(V), VERTEXTLAT(V), IR, JR )
                  VERTEXTIR(V) = IR
                  VERTEXTJR(V) = JR
              ENDDO
          ELSE
-
-             CALL M3EXIT( 'LATLON/MAKEGRD', 0, 0,
-     &                   'Unsupported coordinate system type', 2 )
- 
-         END IF          !  if lat-lon, lambert, utm, or else if unsupported
+             XMSG = 'Unsupported coordinate system type'
+             CALL M3EXIT(PNAME, 0, 0, XMSG, XSTAT2)
+         END IF
 
          END SUBROUTINE LONLAT2XY
 

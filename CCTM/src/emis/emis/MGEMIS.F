@@ -358,7 +358,7 @@ C and Plane, J. M. C.: A laboratory characterisation of inorganic iodine emissio
 C surface: dependence on oceanic variables and parameterisation for global modelling, Atmos. Chem.
 C Phys., 14, 5841-5852, doi:10.5194/acp-14-5841-2014, 2014.
 C
-C	Sherwen, T., Evans, M. J., Carpenter, L. J., Andrews, S. J., Lidster, R. T., Dix, B., Koenig, T. K., 
+C Sherwen, T., Evans, M. J., Carpenter, L. J., Andrews, S. J., Lidster, R. T., Dix, B., Koenig, T. K., 
 C Sinreich, R., Ortega, I., Volkamer, R., Saiz-Lopez, A., Prados-Roman, C., Mahajan, A. S., and Ordóñez, C.: 
 C Iodine's impact on tropospheric oxidants: a global model study in GEOS-Chem. Atmos. Chem. Phys., 2016, 16, 1161-1186.
 

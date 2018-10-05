@@ -231,11 +231,14 @@ C              reflects the fact that alkane SOA precursor
 C              emissions are dominated by compounds smaller than dodecane.
 C-----------------------------------------------------------------------
 
-      Use rxns_data       ! chemical mechanism data
-      Use aero_data       ! aero species
-      Use aeromet_data    ! air and met variables
-      Use cgrid_spcs      ! CGRID mechanism species
-      Use utilio_defn
+      Use rxns_data, only: mechname
+      Use aero_data, only: AE_eflag, findAero
+      Use aeromet_data, only: airdens, inv_mwair, min_gasconc
+      Use cgrid_spcs, only: n_gc_spc, gc_spc, n_gc_g2ae, gc_g2ae, gc_strt, gc_molwt, gc_g2ae_map, 
+     &                      n_nr_spc, nr_spc, n_nr_n2ae, nr_n2ae, nr_strt, nr_molwt, nr_n2ae_map,
+     &                      n_ae_spc, ae_spc
+      Use runtime_vars, only: logdev
+      Use utilio_defn, only: index1, xstat3
 
       Implicit None
 
@@ -384,7 +387,7 @@ C determine if gas-phase IEPOX uptake occurs for the mechanism
                orgprod( 8 )%parent = 'NAPHTHAL'
                orgprod( 9 )%parent = 'NAPHTHAL'
                IEPOX_SOA_mechanism = .True.
-            Else If ( INDEX( MECHNAME, 'SAPRC07TB' ) .Gt. 0 ) Then
+            Else If ( INDEX( MECHNAME, 'SAPRC07TC' ) .Gt. 0 ) Then
                orgprod( 2 )%parent     = 'MXYL'
                orgprod( 3 )%parent     = 'MXYL'
                orgprod( 4 )%parent     = 'TOLUENE'
@@ -399,14 +402,6 @@ C determine if gas-phase IEPOX uptake occurs for the mechanism
                orgprod( 5 )%parent     = 'TOLUENE'
                orgprod( 8 )%parent     = 'NAPHTHAL'
                orgprod( 9 )%parent     = 'NAPHTHAL'
-            Else If ( INDEX( MECHNAME, 'SAPRC07TC' ) .Gt. 0 ) Then
-               orgprod( 2 )%parent     = 'MXYL'
-               orgprod( 3 )%parent     = 'MXYL'
-               orgprod( 4 )%parent     = 'TOLUENE'
-               orgprod( 5 )%parent     = 'TOLUENE'
-               orgprod( 8 )%parent     = 'NAPHTHAL'
-               orgprod( 9 )%parent     = 'NAPHTHAL'
-               IEPOX_SOA_mechanism = .True.
             Else If( INDEX(MECHNAME, 'RACM2') .Gt. 0) Then
 ! Changed by Golam Sarwar, 07/15/2015 for CMAQv51
                orgprod( 2 )%parent     = 'XYM'
@@ -414,22 +409,7 @@ C determine if gas-phase IEPOX uptake occurs for the mechanism
                orgprod( 4 )%parent     = 'TOL'
                orgprod( 5 )%parent     = 'TOL'
                IEPOX_SOA_mechanism = .True.
-            Else If( INDEX(MECHNAME, 'CB05TUCL') .Gt. 0) Then
-               orgprod( 2 )%parent = 'XYLMN'
-               orgprod( 3 )%parent = 'XYLMN'
-            Else If( INDEX(MECHNAME, 'CB05E51') .Gt. 0) Then
-               orgprod( 2 )%parent = 'XYLMN'
-               orgprod( 3 )%parent = 'XYLMN'
-               IEPOX_SOA_mechanism = .True.
             Else If( INDEX(MECHNAME, 'CB6R3') .Gt. 0) Then
-               orgprod( 2 )%parent = 'XYLMN'
-               orgprod( 3 )%parent = 'XYLMN'
-               IEPOX_SOA_mechanism = .True.
-            Else If( INDEX(MECHNAME, 'CB05EH51') .Gt. 0) Then
-               orgprod( 2 )%parent = 'XYLMN'
-               orgprod( 3 )%parent = 'XYLMN'
-               IEPOX_SOA_mechanism = .True.
-            Else If( INDEX(MECHNAME, 'CB6R3M') .Gt. 0) Then
                orgprod( 2 )%parent = 'XYLMN'
                orgprod( 3 )%parent = 'XYLMN'
                IEPOX_SOA_mechanism = .True.
@@ -451,14 +431,6 @@ C determine if gas-phase IEPOX uptake occurs for the mechanism
                orgprod( 7 )%aerospc = ''    ! ABNZ3J
                orgprod( 9 )%aerospc = ''    ! APAH3J
             End If
-! SOA_DEFN NO LONGER HAS VERSION CONSTRAINTS ON SPECIES
-! This SOA_DEFN works for AE6 and AE6i versions of aero
-!            If( INDEX( MECHNAME, '_AE6_' ) .EQ. 0 ) then
-!                  xmsg =  'Using AERO6 option and the Mechanism, '
-!     &                // Trim( MECHNAME ) // ', is not based on AERO6 '
-!                 Call m3exit( pname, 0, 0, xmsg, xstat3 )
-!            End If
-
 
 C Build mapping to CGRID for each ORGPROD species and find MW of parent
 
@@ -632,7 +604,6 @@ C Adjust ALK orgprod for fraction that produces SOA
 99905 Format(1X,'aerosol by-product from namelist species : ', a /)
 C99906 Format(1X,'precursor from namelist species : ', a /)
   
-
       Return
       End Subroutine extract_soa
 
@@ -649,8 +620,8 @@ C SH  03/10/11 Renamed met_data to aeromet_data
 C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
 
-      Use aeromet_data    ! air and met variables
-      Use utilio_defn
+      Use aeromet_data, only: airdens, inv_mwair, min_gasconc
+      Use utilio_defn, only: xstat3
 
       Implicit None
 
@@ -697,8 +668,6 @@ C
 C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
 
-      Use utilio_defn
-
       Implicit None
 
 C Arguments:
@@ -717,12 +686,10 @@ C Local Variables:
          End If
       End Do
 
-!      xmsg = 'Required Species ' // Trim( vname ) // ' not found in [vapor names] array'
       xmsg = 'FATAL:' // Trim( vname )
      &    // ' is not found in the G2AE or N2AE values of GC or namelists'
       SOA_eflag  = .True.
       Call m3warn( pname, 0, 0, xmsg )
-!     Call m3exit( pname, 0, 0, xmsg, xstat3 )
 
       Return
       End Function findVapor

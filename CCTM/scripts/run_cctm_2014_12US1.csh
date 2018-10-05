@@ -23,10 +23,13 @@ echo 'Start Model Run At ' `date`
  if ( ! $?compiler ) then
    setenv compiler intel
  endif
+ if ( ! $?compilerVrsn ) then
+   setenv compilerVrsn Empty
+ endif
 
 #> Source the config.cmaq file to set the build environment
  cd ../..
- source ./config_cmaq.csh $compiler
+ source ./config_cmaq.csh $compiler $compilerVrsn
  cd CCTM/scripts
 
 #> Set General Parameters for Configuring the Simulation
@@ -158,8 +161,6 @@ setenv CTM_HGBIDI N          #> mercury bi-directional flux for in-line depositi
 setenv CTM_SFC_HONO Y        #> surface HONO interaction [ default: Y ]; ignore if CTM_ILDEPV = N
 setenv CTM_GRAV_SETL Y       #> vdiff aerosol gravitational sedimentation [ default: Y ]
 setenv CTM_BIOGEMIS Y        #> calculate in-line biogenic emissions [ default: N ]
-setenv CTM_PT3DEMIS Y        #> calculate in-line plume rise for elevated point emissions 
-                             #>    [ default: N ]
 setenv CTM_ZERO_PCSOA N      #> zero out emissions of VOC precursor for pcSOA formation.
                              #>    The CMAQ dev team recommends leaving pcSOA mass in the
                              #>    model for production runs. [ default: N ]
@@ -216,9 +217,7 @@ setenv VDIFF_DIAG_FILE Y     #> vdiff & possibly aero grav. sedimentation diagno
 setenv LTNGDIAG Y            #> lightning diagnostic file [ default: N ]
 setenv B3GTS_DIAG Y          #> BEIS mass emissions diagnostic file [ default: N ]
 setenv PT3DDIAG N            #> 3D point source emissions diagnostic file [ default: N];
-                             #>     Ignore if CTM_PT3DEMIS = N
-setenv PT3DFRAC N            #> layer fractions diagnostic (play) file(s) [ default: N];
-                             #>     Ignore if CTM_PT3DEMIS = N
+setenv PT3DFRAC N            #> layer fractions diagnostic file(s) [ default: N];
 setenv REP_LAYER_MIN -1      #> Minimum layer for reporting plume rise info [ default: -1 ]
 setenv EMISDIAG F            #> Print Emission Rates at the output time step after they have been
                              #>   scaled and modified by the user Rules [options: F | T or 2D | 3D | 2DSUM ]
@@ -255,8 +254,11 @@ set TODAYG = ${START_DATE}
 set TODAYJ = `date -ud "${START_DATE}" +%Y%j` #> Convert YYYY-MM-DD to YYYYJJJ
 set START_DAY = ${TODAYJ} 
 set STOP_DAY = `date -ud "${END_DATE}" +%Y%j` #> Convert YYYY-MM-DD to YYYYJJJ
+set NDAYS = 0
 
 while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
+  
+  set NDAYS = `echo "${NDAYS} + 1" | bc -l`
 
   #> Retrieve Calendar day Information
   set YYYYMMDD = `date -ud "${TODAYG}" +%Y%m%d` #> Convert YYYY-MM-DD to YYYYMMDD
@@ -287,10 +289,12 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #> Initial conditions
   if ($NEW_START == true || $NEW_START == TRUE ) then
      setenv ICFILE icon_20140620.nc
+     setenv INIT_MEDC_1 notused
      setenv INITIAL_RUN Y #related to restart soil information file
   else
      set ICpath = $OUTDIR
      setenv ICFILE CCTM_CGRID_${RUNID}_${YESTERDAY}.nc
+     setenv INIT_MEDC_1 $ICpath/CCTM_MEDIA_CONC_${RUNID}_${YESTERDAY}
      setenv INITIAL_RUN N
   endif
 
@@ -342,61 +346,49 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv GR_EM_DTOVRD_001 F
   
   #> In-Line Point Emissions Files
-  if ( $CTM_PT3DEMIS == 'Y' ) then
-     setenv N_EMIS_PT 7          #> Number of elevated source groups
+  setenv N_EMIS_PT 7          #> Number of elevated source groups
 
-     set STKCASEG = 12US1_2014fb_cdc_cb6cmaq_14j            # Stack Group Version Label
-     set STKCASEE = 12US1_cmaq_cb6_2014fb_cdc_cb6cmaq_14j   # Stack Emission Version Label
+  set STKCASEG = 12US1_2014fb_cdc_cb6cmaq_14j
+  set STKCASEE = 12US1_cmaq_cb6_2014fb_cdc_cb6cmaq_14j
 
-     setenv STK_GRPS_001 $IN_PTpath/ptnonipm/stack_groups_ptnonipm_${STKCASEG}.ncf
-     setenv STK_GRPS_002 $IN_PTpath/ptegu/stack_groups_ptegu_${STKCASEG}.ncf
-     setenv STK_GRPS_003 $IN_PTpath/othpt/stack_groups_othpt_${STKCASEG}.ncf
-     setenv STK_GRPS_004 $IN_PTpath/ptfire/stack_groups_ptfire_${YYYYMMDD}_${STKCASEG}.ncf
-     setenv STK_GRPS_005 $IN_PTpath/ptfire_mxca/stack_groups_ptfire_mxca_${YYYYMMDD}_${STKCASEG}.ncf
-     setenv STK_GRPS_006 $IN_PTpath/pt_oilgas/stack_groups_pt_oilgas_${STKCASEG}.ncf
-     setenv STK_GRPS_007 $IN_PTpath/cmv_c3/stack_groups_cmv_c3_${STKCASEG}.ncf
-     setenv LAYP_STTIME $STTIME
-     setenv LAYP_NSTEPS $NSTEPS
+  setenv STK_GRPS_001 $IN_PTpath/ptnonipm/stack_groups_ptnonipm_${STKCASEG}.ncf
+  setenv STK_GRPS_002 $IN_PTpath/ptegu/stack_groups_ptegu_${STKCASEG}.ncf
+  setenv STK_GRPS_003 $IN_PTpath/othpt/stack_groups_othpt_${STKCASEG}.ncf
+  setenv STK_GRPS_004 $IN_PTpath/ptfire/stack_groups_ptfire_${YYYYMMDD}_${STKCASEG}.ncf
+  setenv STK_GRPS_005 $IN_PTpath/ptfire_mxca/stack_groups_ptfire_mxca_${YYYYMMDD}_${STKCASEG}.ncf
+  setenv STK_GRPS_006 $IN_PTpath/pt_oilgas/stack_groups_pt_oilgas_${STKCASEG}.ncf
+  setenv STK_GRPS_007 $IN_PTpath/cmv_c3/stack_groups_cmv_c3_${STKCASEG}.ncf
+  setenv LAYP_STTIME $STTIME
+  setenv LAYP_NSTEPS $NSTEPS
 
-     setenv STK_EMIS_001 $IN_PTpath/ptnonipm/inln_mole_ptnonipm_${mwdss_Y}_${STKCASEE}.ncf
-     setenv STK_EMIS_002 $IN_PTpath/ptegu/inln_mole_ptegu_${YYYYMMDD}_${STKCASEE}.ncf
-     setenv STK_EMIS_003 $IN_PTpath/othpt/inln_mole_othpt_${mwdss_N}_${STKCASEE}.ncf
-     setenv STK_EMIS_004 $IN_PTpath/ptfire/inln_mole_ptfire_${YYYYMMDD}_${STKCASEE}.ncf
-     setenv STK_EMIS_005 $IN_PTpath/ptfire_mxca/inln_mole_ptfire_mxca_${YYYYMMDD}_${STKCASEE}.ncf
-     setenv STK_EMIS_006 $IN_PTpath/pt_oilgas/inln_mole_pt_oilgas_${mwdss_Y}_${STKCASEE}.ncf
-     setenv STK_EMIS_007 $IN_PTpath/cmv_c3/inln_mole_cmv_c3_${aveday_N}_${STKCASEE}.ncf
-     setenv LAYP_STDATE $YYYYJJJ
+  setenv STK_EMIS_001 $IN_PTpath/ptnonipm/inln_mole_ptnonipm_${mwdss_Y}_${STKCASEE}.ncf
+  setenv STK_EMIS_002 $IN_PTpath/ptegu/inln_mole_ptegu_${YYYYMMDD}_${STKCASEE}.ncf
+  setenv STK_EMIS_003 $IN_PTpath/othpt/inln_mole_othpt_${mwdss_N}_${STKCASEE}.ncf
+  setenv STK_EMIS_004 $IN_PTpath/ptfire/inln_mole_ptfire_${YYYYMMDD}_${STKCASEE}.ncf
+  setenv STK_EMIS_005 $IN_PTpath/ptfire_mxca/inln_mole_ptfire_mxca_${YYYYMMDD}_${STKCASEE}.ncf
+  setenv STK_EMIS_006 $IN_PTpath/pt_oilgas/inln_mole_pt_oilgas_${mwdss_Y}_${STKCASEE}.ncf
+  setenv STK_EMIS_007 $IN_PTpath/cmv_c3/inln_mole_cmv_c3_${aveday_N}_${STKCASEE}.ncf
+  setenv LAYP_STDATE $YYYYJJJ
  
-     # Label Each Emissions Stream
-     setenv STK_EMIS_LAB_001 POINT_NONEGU
-     setenv STK_EMIS_LAB_002 POINT_EGU
-     setenv STK_EMIS_LAB_003 POINT_OTHER
-     setenv STK_EMIS_LAB_004 PT_WILDFIRES
-     setenv STK_EMIS_LAB_005 PT_FIRE_MXCA
-     setenv STK_EMIS_LAB_006 POINT_OILGAS
-     setenv STK_EMIS_LAB_007 PT_MARINE
+  # Label Each Emissions Stream
+  setenv STK_EMIS_LAB_001 POINT_NONEGU
+  setenv STK_EMIS_LAB_002 POINT_EGU
+  setenv STK_EMIS_LAB_003 POINT_OTHER
+  setenv STK_EMIS_LAB_004 PT_WILDFIRES
+  setenv STK_EMIS_LAB_005 PT_FIRE_MXCA
+  setenv STK_EMIS_LAB_006 POINT_OILGAS
+  setenv STK_EMIS_LAB_007 PT_MARINE
 
-     # Stack emissions diagnostic files
-     #setenv STK_EMIS_DIAG_001 2DSUM
-     #setenv STK_EMIS_DIAG_002 2DSUM
-     #setenv STK_EMIS_DIAG_003 2DSUM
-     #setenv STK_EMIS_DIAG_004 2DSUM
-     #setenv STK_EMIS_DIAG_005 2DSUM
-     #setenv STK_EMIS_DIAG_006 2DSUM
-     #setenv STK_EMIS_DIAG_007 2DSUM
-
-     # Allow CMAQ to Use Point Source files with dates that do not
-     # match the internal model date
-     setenv STK_EM_DTOVRD_001 T
-     setenv STK_EM_DTOVRD_002 T
-     setenv STK_EM_DTOVRD_003 T
-     setenv STK_EM_DTOVRD_004 T
-     setenv STK_EM_DTOVRD_005 T
-     setenv STK_EM_DTOVRD_006 T
-     setenv STK_EM_DTOVRD_007 T
-  
-  endif
-
+  # Allow CMAQ to Use Point Source files with dates that do not
+  # match the internal model date
+  setenv STK_EM_DTOVRD_001 T
+  setenv STK_EM_DTOVRD_002 T
+  setenv STK_EM_DTOVRD_003 T
+  setenv STK_EM_DTOVRD_004 T
+  setenv STK_EM_DTOVRD_005 T
+  setenv STK_EM_DTOVRD_006 T
+  setenv STK_EM_DTOVRD_007 T
+ 
   #> Lightning NOx configuration
   if ( $CTM_LTNG_NO == 'Y' ) then
      setenv LTNGNO "InLine"    #> set LTNGNO to "Inline" to activate in-line calculation
@@ -632,8 +624,14 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 
   #> Abort script if abnormal termination
   if ( ! -e $S_CGRID ) then
-    echo "Error: CGRID file not written. Aborting execution."
-    exit 1
+    echo ""
+    echo "**************************************************************"
+    echo "** Runscript Detected an Error: CGRID file was not written. **"
+    echo "**   This indicates that CMAQ was interrupted or an issue   **"
+    echo "**   exists with writing output. The runscript will now     **"
+    echo "**   abort rather than proceeding to subsequent days.       **"
+    echo "**************************************************************"
+    break
   endif
 
   #> Print Concluding Text
@@ -665,7 +663,6 @@ end  #Loop to the next Simulation Day
 # ===================================================================
 #> Generate Timing Report
 # ===================================================================
-set NDAYS = `echo "$STOP_DAY - $START_DAY + 1" | bc -l`
 set RTMTOT = 0
 foreach it ( `seq ${NDAYS}` )
     set rt = `echo ${rtarray} | cut -d' ' -f${it}`

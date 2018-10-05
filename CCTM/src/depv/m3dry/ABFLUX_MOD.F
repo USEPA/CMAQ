@@ -565,9 +565,9 @@ C-------------------------------------------------------------------------------
          Real( 8 )              :: rsoil1
          Real( 8 )              :: rsoil2
          Real( 8 )              :: a1
-         Real( 8 )              :: agfrac
+         Real                   :: agfrac
          Real( 8 )              :: ddd
-         Real( 8 )              :: watfrac ! water fraction
+         Real                   :: watfrac ! water fraction
          Integer                :: k,j
          Real                   :: canfrac
          Real                   :: frac_sol1    ! Fraction of NHx in solution layer 1
@@ -629,11 +629,15 @@ C-------------------------------------------------------------------------------
             If ( GRID_DATA%LUFRAC( c,r,j ) .Gt. 0.0 ) Then
                cnh3sj = a1 * luf_fac( j )
                Select Case( cat_lu( j ) )
-                  Case( 'WATER','SNOWICE' ) ! water, ice or snow
+                  Case( 'WATER' ) ! water
                      cnh3g1j = 0.0
                      cnh3g2j = 0.0
                      cnh3sj  =0.0
                      watfrac = watfrac + GRID_DATA%LUFRAC( c,r,j )
+                  Case( 'SNOWICE' ) ! ice or snow
+                     cnh3g1j = 0.0
+                     cnh3g2j = 0.0
+                     cnh3sj  =0.0
 !---- Gamma soil 
                   Case( 'AG','AGMOS' ) ! Ag
                       if (fcec1(c,r).gt. 0.299 ) Then                
