@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/hadv/yamo/hadvyppm.F,v 1.5 2011/10/21 16:11:19 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE HADV ( CGRID, JDATE, JTIME, TSTEP, ASTEP )
 
@@ -107,9 +100,9 @@ C Local Variables:
 
       CHARACTER( 16 ) :: PNAME = 'HADVYPPM'
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
+      LOGICAL, SAVE :: FIRST_BC = .TRUE.
       LOGICAL, ALLOCATABLE, SAVE :: XYFIRST( : )
 
-      integer, save :: logdev
 
       CHARACTER( 96 ) :: XMSG = ' '
       CHARACTER( 199 ) :: XMSG2 = ' '
@@ -169,7 +162,6 @@ C-----------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
-         logdev = init3 ()
 
          ALLOCATE( XYFIRST( NLAYS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
@@ -212,7 +204,6 @@ C Get CGRID offsets
 101      CONTINUE
 
          CALL RDBCON ( FDATE, FTIME, ASTEP( LVL ), LVL, BCON, LSTAT )
-!        write( logdev,* ) ' lvl, fdate, ftime: ', lvl, fdate, ftime
 
          IF ( XYFIRST( LVL ) ) THEN
 
@@ -225,7 +216,6 @@ C Get CGRID offsets
             END DO
             CALL SUBST_COMM ( YTRHOJ, DSPL_N0_E0_S1_W0, DRCN_S, '2 0' )
 
-!     write( logdev,* ) ' x_ppm/y_yamo - lvl, fdate, ftime: ', lvl, fdate, ftime
 
             CALL X_PPM ( CGRID, FDATE, FTIME, ASTEP( LVL ), LVL, BCON )
 !           CALL LCKSUMMER ( 'X_PPM', CGRID, FDATE, FTIME, LVL )
@@ -244,7 +234,6 @@ C Get CGRID offsets
             END DO
             CALL SUBST_COMM ( XTRHOJ, DSPL_N0_E0_S0_W1, DRCN_W, '1 0' )
 
-!     write( logdev,* ) ' y_ppm/x_yamo - lvl, fdate, ftime: ', lvl, fdate, ftime
 
             CALL Y_PPM ( CGRID, FDATE, FTIME, ASTEP( LVL ), LVL, BCON )
 !           CALL LCKSUMMER ( 'Y_PPM', CGRID, FDATE, FTIME, LVL )
@@ -263,12 +252,17 @@ C Get CGRID offsets
 301   CONTINUE
  
       !Print warning if any aerosol BCs violated the size distribution parameters
-      IF ( LSTAT ) THEN    
-            WRITE( XMSG2, '(A55,A57,A5)' ),
-     &            'Applying fix to aerosol Boundary Conditions for aerosol',
-     &            ' modes. Turn on verbose_rdbcon preprocessor flag to learn ',
-     &            'more.'
-            CALL M3WARN( 'Read BCs', FDATE, FTIME, XMSG2 )
+      IF ( LSTAT ) THEN 
+         IF ( FIRST_BC ) THEN
+            FIRST_BC = .FALSE.
+            WRITE( XMSG2, '(A)' ),
+     &            'ATTENTION: Applying fix to aerosol Boundary Conditions' //
+     &            ' for aerosol modes. Set verbose_rdbcon preprocessor' //
+     &            ' flag to learn more.'
+            WRITE( LOGDEV, * )
+            CALL LOG_MESSAGE( LOGDEV, XMSG2 )
+            WRITE( LOGDEV, * )
+         END IF
       END IF
  
  

@@ -27,10 +27,11 @@ C 21 Jun 10 - J.Young: convert for Namelist redesign
 C 16 Feb 11 - S.Roselle: replaced I/O API include files with UTILIO_DEFN;
 C                        removed deprecated TRIMLEN
 
+      USE RUNTIME_VARS    
       USE VGRD_DEFN           ! vertical layer specifications
       USE CGRID_SPCS          ! CGRID mechanism species
       USE UTILIO_DEFN
-      USE RXNS_DATA, only : MECHNAME 
+!     USE RXNS_DATA, only : MECHNAME 
       USE EMIS_VARS
       USE EMIS_DEFN
       USE AERO_DATA, only : AEROMODE, N_MODE, MGPG, GPKG
@@ -45,10 +46,7 @@ C Arguments:
       INTEGER      JDATE      ! current model date, coded YYYYDDD
       INTEGER      JTIME      ! current model time, coded HHMMSS
       LOGICAL      EM_TRAC    ! are there tracer emissions?
-
-C External Functions:
-
-      INTEGER, EXTERNAL :: SETUP_LOGDEV
+      INTEGER      NLAY_FILE  ! keep a running maximum of the layers from the gridded files
 
 C Local variables:
 
@@ -58,13 +56,12 @@ C Local variables:
 
       LOGICAL ::   LAERO
       LOGICAL ::   WRFLG = .FALSE.
-      INTEGER      LOGDEV
       INTEGER      STATUS, IOS
       INTEGER      V, N, S, ISRM, ITRAC, IGR, IVAR, X    
 
 C-----------------------------------------------------------------------
  
-      LOGDEV = SETUP_LOGDEV()
+      CALL LOG_SUBHEADING( LOGDEV,'Open Gridded Emissions' )
 
       EM_GRID_LAYS = 0
 
@@ -77,7 +74,6 @@ C Open All Tracer Emission Files
               XMSG = 'Could not open tracer file'
               CALL M3MESG( XMSG )
            ELSE
-
              ! Save Tracer Variables for Use in Emissions Species Check
              ! Routine
              EM_FILE_SURR( ISRM )%LEN = NVARS3D
@@ -198,7 +194,6 @@ C Open Gridded Emission Files (for gas chem, aerosols and non-reactive species)
                    END IF
                  END IF
                  EM_FILE_SURR( ISRM )%UNITS( IVAR ) = UNITS3D( IVAR )
-
             END DO
 
           END IF  ! (gas, aerosol or non-react emissions)

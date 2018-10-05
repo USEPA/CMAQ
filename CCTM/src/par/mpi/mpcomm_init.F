@@ -66,7 +66,7 @@ C Arguments
 
       INTEGER, INTENT( OUT ) :: NPROCS  ! number of parallel processors
       INTEGER, INTENT( OUT ) :: MYPE    ! this parallel processor
-      REAL,    INTENT( OUT ) :: CLOCK   ! Wall-clock time (sec) at MPI initialization
+      REAL(8), INTENT( OUT ) :: CLOCK   ! Wall-clock time (sec) at MPI initialization
       INTEGER, INTENT( OUT ) :: IERR    ! error code
 
 C Local Variables 
@@ -91,7 +91,7 @@ C Start up MPI
 #endif
 
 C Get wall-clock time
-      CLOCK = REAL( MPI_WTIME() )
+      CLOCK = MPI_WTIME()
 
 C Get number of processors
       CALL MPI_COMM_SIZE( MPI_COMM_WORLD, NPROCS, FLAG )

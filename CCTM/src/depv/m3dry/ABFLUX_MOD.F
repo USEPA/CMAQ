@@ -17,9 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-! RCS file, release, date & time of last delta, author, state, [and locker]
-! $Header: /project/work/rep/arc/CCTM/src/depv/m3dry/ABFLUX_MOD.F,v 1.11 2012/04/19 17:03:23 yoj Exp $
-
 !:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module ABFlux_Mod
 
@@ -85,7 +82,6 @@ C-------------------------------------------------------------------------------
       Real, Save,              Private :: C_gam           ! Canadian fertilizer facter      
       Real, Parameter,         Private :: maxgam   = 2.0e5 ! maximum soil gamm. It is assumed that any excess NH4 would from salts
       Real, Parameter,         Private :: natgam   = 20.0  ! Background soil gamma
-      Integer, Save, Private      :: logdev       
      
       Contains 
          Subroutine Init_ABFlux( jdate, jtime)
@@ -168,8 +164,6 @@ C                          '12345678901234567890'
      &                     'Canola_ir           ',  ! 40
      &                     'Beans               ',  ! 41
      &                     'Beans_ir            ' / ! 42
- 
-         logdev =  init3() 
  
 ! Find the Canadian fertilizer factor based off of Sheppard et al 2010 Canadian J. Soil Sci. & 
 ! Zhang et al. 2010 JGR 
@@ -571,16 +565,15 @@ C-------------------------------------------------------------------------------
          Real( 8 )              :: rsoil1
          Real( 8 )              :: rsoil2
          Real( 8 )              :: a1
-         Real( 8 )              :: agfrac
+         Real                   :: agfrac
          Real( 8 )              :: ddd
-         Real( 8 )              :: watfrac ! water fraction
+         Real                   :: watfrac ! water fraction
          Integer                :: k,j
          Real                   :: canfrac
          Real                   :: frac_sol1    ! Fraction of NHx in solution layer 1
          Real                   :: frac_sol2    ! Fraction of NHx in solution layer 2
          Real                   :: cnh3cdep
 
-         logdev = init3()
          canfrac = 0.5    !exp(-1.)   
 
 !> Compute quasi-laminar boundary layer resistance at the soil surface
@@ -636,11 +629,15 @@ C-------------------------------------------------------------------------------
             If ( GRID_DATA%LUFRAC( c,r,j ) .Gt. 0.0 ) Then
                cnh3sj = a1 * luf_fac( j )
                Select Case( cat_lu( j ) )
-                  Case( 'WATER','SNOWICE' ) ! water, ice or snow
+                  Case( 'WATER' ) ! water
                      cnh3g1j = 0.0
                      cnh3g2j = 0.0
                      cnh3sj  =0.0
                      watfrac = watfrac + GRID_DATA%LUFRAC( c,r,j )
+                  Case( 'SNOWICE' ) ! ice or snow
+                     cnh3g1j = 0.0
+                     cnh3g2j = 0.0
+                     cnh3sj  =0.0
 !---- Gamma soil 
                   Case( 'AG','AGMOS' ) ! Ag
                       if (fcec1(c,r).gt. 0.299 ) Then                

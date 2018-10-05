@@ -27,6 +27,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
          REAL, ALLOCATABLE :: QI( :,:,: )  ! ice content [kg/kg]
          REAL, ALLOCATABLE :: QS( :,:,: )  ! snow content [kg/kg]
          REAL, ALLOCATABLE :: QG( :,:,: )  ! graupel content [kg/kg]
+         REAL, ALLOCATABLE :: QV( :,:,: )  ! water vapor content [kg/kg]
            
          REAL, ALLOCATABLE :: CFRAC_3D( :,:,: ) ! 3D fractional cloud coverage
          REAL, ALLOCATABLE :: CFRAC_2D( :,: )   ! layer averaged 3D fractional cloud coverage
@@ -57,7 +58,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
          REAL              :: DIST_TO_SUN          ! solar distance [au]
 
 ! public variables:
-         PUBLIC :: QC, QR, QI, QS, QG,
+         PUBLIC :: QC, QR, QI, QS, QG, QV,
      &             CFRAC_2D, CFRAC_3D, AVE_HYDROMETEORS,
      &             USE_ACM_CLOUD, ACM_CFRAC, ACM_QC, ACM_QR, ACM_QI, ACM_QG,
      &             ACM_CLOUDS, ACM_AVE_H2O,
@@ -65,11 +66,11 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
      &             DENS, TA, PRES, ZM, ZFULL, DIST_TO_SUN
 
 ! public procedures:
-         PUBLIC :: GET_PHOT_MET, UPDATE_SUN, CLEAR_ACM_CLOUD, CAPTURE_ACM_CLOUD
+         PUBLIC :: GET_PHOT_MET, UPDATE_SUN, CLEAR_ACM_CLOUD, 
+     &             CAPTURE_ACM_CLOUD
            
          PRIVATE
 
-         REAL, ALLOCATABLE :: QV( :,:,: )  ! water vapor content [kg/kg]
          INTEGER           :: HYDROMETEORS ! denotes mix of hydrometeors available
 !        value   cloud water  rain       ice        snow     graupel
 !          1        x          x
@@ -92,9 +93,8 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
          CHARACTER( 16 )   :: VARNM            ! variable name for IOAPI to get
          CHARACTER( 16 )   :: VNAME_RN
-         CHARACTER( 120 )  :: XMSG = ' '       ! Exit status message
+         CHARACTER( 300 )  :: XMSG = ' '       ! Exit status message
 
-         INTEGER           :: LOGDEV            ! output log unit number
          INTEGER           :: LDATE             ! last jdate MET data updated
          INTEGER           :: LTIME             ! last jtime MET data updated
          INTEGER           :: STDATE            ! jdate MET module initiated
@@ -148,8 +148,6 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
        
          INITIALIZED = .TRUE.
        
-         LOGDEV = INIT3()     
-
 ! open GRID_CRO_3D file and read time independent grid variables
         
          IF ( .NOT. OPEN3( GRID_CRO_2D, FSREAD3, PNAME ) ) THEN
@@ -396,12 +394,13 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
             CFRAC_3D_AVAIL = .FALSE.
             XMSG = 'Variable CFRAC_3D (cloud fraction) not found in ' // MET_CRO_3D
             CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-            WRITE( LOGDEV, '( 5(/10X,A) )' )
-     &           'Model will diagnose layer cloud fraction using Xu and Randall (1996)',
+            WRITE( LOGDEV, * )
+            WRITE( XMSG, '(4A)' )
+     &           'Model will diagnose layer cloud fraction using Randall (1995) ',
      &           'and Hong (1998), based on mixing ratios of water vapor and its ',
-     &           'condensed states.',
-     &           'You may want to reprocess the meteorological data to obtain layer ',
-     &           'cloud fractions if possible.'
+     &           'condensed states. You may want to reprocess the meteorological ',
+     &           'data to obtain layer cloud fractions if possible.'
+            CALL LOG_MESSAGE( LOGDEV, XMSG )
 
          END IF
         
@@ -491,10 +490,10 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 !...store met file time, date, and step information and compute
 !...  the met timestep in hours
 
-         IF ( LDATE .EQ. JDATE .AND. LTIME .EQ. JTIME ) RETURN
+         IF ( LDATE .EQ. MDATE .AND. LTIME .EQ. MTIME ) RETURN
         
-         LDATE = JDATE
-         LTIME = JTIME
+         LDATE = MDATE
+         LTIME = MTIME
 
 !...  Interpolate time dependent layered input variables
 
@@ -1357,10 +1356,11 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
              
             CHARACTER( 18 ), PARAMETER  :: PNAME = 'INIT_ACM_CLOUD'
                        
-            CALL M3MESG('IMPORTANT NOTE: Attempt to include subgrid cloud effects:')
-            CALL M3MESG('photolysis rates include ACM CLOUD effects.')
-            CALL M3MESG('It would be prudent to examine diagnostic cloud fractions')
-            CALL M3MESG(' ')
+            WRITE( XMSG, '(3A)' ), 'ATTENTION: Attempt to include subgrid ',
+     &             'cloud effects: photolysis rates include ACM CLOUD effects. ',
+     &             'It would be prudent to examine diagnostic cloud fractions.'
+            CALL LOG_MESSAGE( LOGDEV, XMSG)
+            WRITE( LOGDEV, * )
              
             ALLOCATE ( ACM_CFRAC( NLAYS,NCOLS,NROWS ), STAT = ASTAT )
             IF ( ASTAT .NE. 0 ) THEN

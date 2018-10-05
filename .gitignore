@@ -40,6 +40,7 @@
 
 #temporary files
 *.swp
+*~
 
 #library symbolic links
 lib/

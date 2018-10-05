@@ -17,10 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/work/rep/arc/CCTM/src/depv/m3dry/MOSAIC_MOD.F,v 1.6 2012/03/28 16:11:09 yoj Exp $
-
 c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module MOSAIC_MOD
       
@@ -51,7 +47,6 @@ C shared variables
 !     Character( 80 ), Save   :: LAND_SCHEME 
 
 C Private variables used in this module and subroutines       
-      Integer, Save, Private  :: logdev 
       Real, Save, Allocatable, Private :: fseas          ( :,: )
       Real, Save, Allocatable, Private :: total_frac     ( :,: )
       Real, Save, Allocatable, Private :: sum_mos_frac   ( :,: )
@@ -95,7 +90,7 @@ C Buffer variables
       
       Contains
 
-         Subroutine Init_Mosaic( jdate, jtime, MOSAIC, ABFLUX )
+         Subroutine Init_Mosaic( jdate, jtime ) 
        
          Use HGRD_DEFN
          Use LSM_Mod
@@ -103,7 +98,7 @@ C Buffer variables
 !         USE DEPVVARS, Only: dep_gas_all
          USE STAGE_DATA, Only:dep_gas_all ! needs to be n_gas_asx to save memory but will require remapping
          USE CGRID_SPCS          ! CGRID mechanism species
-         USE RUNTIME_VARS_MOD, Only: FST
+         USE RUNTIME_VARS
        
          Implicit None    
 
@@ -113,8 +108,6 @@ C...include files
        
          Integer, Intent( In )  :: jdate
          Integer, Intent( In )  :: jtime  
-         Logical, Intent( In )  :: MOSAIC         
-         Logical, Intent( In )  :: ABFLUX         
          Character( 240 )       :: xmsg = ' '
          Character(  16 ), save :: pname = 'Init_Mosaic'
          Integer l
@@ -171,7 +164,7 @@ C...include files
           
          End Subroutine Init_Mosaic
        
-         Subroutine calc_lai( jday, jtime, logdev, SOIT2, LUFRAC, LAI,
+         Subroutine calc_lai( jday, jtime, SOIT2, LUFRAC, LAI,
      &                        MOS_VEG, MOS_LAI, MOS_Z0  )
 
 C***********************************************************************
@@ -190,7 +183,6 @@ C***********************************************************************
 C Arguments:
          Integer, Intent( In )  :: jday
          Integer, Intent( In )  :: jtime     
-         Integer, Intent( In )  :: logdev
          Real, Intent( In )     :: SOIT2( :,: )
          Real, Intent( In )     :: LAI( :,: )
          Real, Intent( In )     :: LUFRAC( :,:,: )

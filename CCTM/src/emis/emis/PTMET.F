@@ -17,12 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/PTMET.F,v 1.5 2012/01/19 15:26:14 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE PTMET
 
@@ -46,8 +40,9 @@ C                         - fixed a bug of incorrect assignment:
 C                           PTMET_DATA%LEN1 = EMLAYS, PTMET_DATA%LEN2 = MSRC
 
 C-----------------------------------------------------------------------
-
+      USE RUNTIME_VARS
       USE UDTYPES, ONLY: PTMET_TYPE
+      USE EMIS_VARS, ONLY : EMLAYS
 
       IMPLICIT NONE
 
@@ -92,14 +87,12 @@ C dot-point layered met file name
 C-----------------------------------------------------------------------
       CONTAINS
 
-         FUNCTION PTMET_INIT ( NPTGRPS, EMLAYS ) RESULT ( SUCCESS )
+         FUNCTION PTMET_INIT ( ) RESULT ( SUCCESS )
 
          USE STK_PRMS, ONLY: MY_NSRC
 
          IMPLICIT NONE
 
-         INTEGER, INTENT( IN ) :: NPTGRPS
-         INTEGER, INTENT( IN ) :: EMLAYS
          LOGICAL               :: SUCCESS                          
 
          INTEGER N, MSRC, IOS
@@ -168,7 +161,7 @@ C Allocate per-layer arrays from 0:EMLAYS
 
 C-----------------------------------------------------------------------
 
-         SUBROUTINE PTMET_CONVT( JDATE, JTIME, NPTGRPS, EMLAYS, ZSTATIC )
+         SUBROUTINE PTMET_CONVT( JDATE, JTIME, ZSTATIC )
 
          USE PTBILIN, B_D => BILIN_DATA   ! rename
          USE STK_PRMS, ONLY: MY_NSRC, SOURCE, STKHT
@@ -177,8 +170,6 @@ C-----------------------------------------------------------------------
          IMPLICIT NONE
 
          INTEGER, INTENT( IN ) :: JDATE, JTIME
-         INTEGER, INTENT( IN ) :: NPTGRPS
-         INTEGER, INTENT( IN ) :: EMLAYS
          LOGICAL, INTENT( IN ) :: ZSTATIC
 
          INTEGER N, MSRC
@@ -302,12 +293,8 @@ C for INTERPX
             CHARACTER( 96 ) :: XMSG = ' '
             LOGICAL         :: FIRSTIME = .TRUE.
 
-            integer, save :: logdev
-            integer, external :: setup_logdev
-
             IF ( FIRSTIME )  THEN
                FIRSTIME = .FALSE.
-               logdev = setup_logdev()
 
                MET_CRO_2D  = MC2NAME
 
@@ -320,15 +307,6 @@ C for INTERPX
                IF ( .NOT. YBND( 2 ) ) ENDROW  = ENDROW + 1
 
                LAY1 = 1; LAY2 = 1
-
-!              write( logdev,* ) 'file: ', met_cro_2d, 'var: ', vname
-!              write( logdev,* ) 'cols: ', endcol-strtcol+1
-!              write( logdev,* ) 'rows: ', endrow-strtrow+1
-!              write( logdev,* ) 'lays: ', lay2-lay1+1
-!              write( logdev,* ) 'read size: ', ( endcol-strtcol+1 )
-!    &                              * ( endrow-strtrow+1 )
-!    &                              * ( lay2-lay1+1 )
-!!             write( logdev,* ) 'xbuf size: ', size( xbuf )
 
             END IF
 
@@ -363,7 +341,7 @@ C-----------------------------------------------------------------------
             INTEGER           JTIME     ! time
             REAL              XBUF( :,: ) ! read buffer
 
-            INTEGER      GXOFF, GYOFF              ! global origin offset from file
+            INTEGER      GXOFF, GYOFF   ! global origin offset from file
 C for INTERPX
             INTEGER, SAVE   :: STRTCOL, ENDCOL, STRTROW, ENDROW
 
@@ -373,12 +351,8 @@ C for INTERPX
             CHARACTER( 96 ) :: XMSG = ' '
             LOGICAL         :: FIRSTIME = .TRUE.
 
-            integer, save :: logdev
-            integer, external :: setup_logdev
-
             IF ( FIRSTIME )  THEN
                FIRSTIME = .FALSE.
-               logdev = setup_logdev()
 
                MET_CRO_3D  = MC3NAME
 
@@ -392,15 +366,6 @@ C for INTERPX
 
 !              LAY1 = 1; LAY2 = NLAYS
                LAY1 = 1; LAY2 = SIZE( XBUF,2 )
-
-!              write( logdev,* ) 'file: ', MET_CRO_3D, 'var: ', vname
-!              write( logdev,* ) 'cols: ', endcol-strtcol+1
-!              write( logdev,* ) 'rows: ', endrow-strtrow+1
-!              write( logdev,* ) 'lays: ', lay2-lay1+1
-!              write( logdev,* ) 'read size: ', ( endcol-strtcol+1 )
-!    &                              * ( endrow-strtrow+1 )
-!    &                              * ( lay2-lay1+1 )
-!!             write( logdev,* ) 'xbuf size: ', size( xbuf )
 
             END IF
 
@@ -446,12 +411,8 @@ C for INTERPX
             LOGICAL         :: FIRSTIME = .TRUE.
             CHARACTER( 16 ) :: LOC_VNAME
 
-            integer, save :: logdev
-            integer, external :: setup_logdev
-
             IF ( FIRSTIME )  THEN
                FIRSTIME = .FALSE.
-               logdev = setup_logdev()
 
                MET_DOT_3D  = MD3NAME
 
@@ -465,15 +426,6 @@ C for INTERPX
 
 !              LAY1 = 1; LAY2 = NLAYS
                LAY1 = 1; LAY2 = SIZE( DBUF,2 )
-
-!              write( logdev,* ) 'file: ', met_dot_3d, 'var: ', vname
-!              write( logdev,* ) 'cols: ', endcol-strtcol+1
-!              write( logdev,* ) 'rows: ', endrow-strtrow+1
-!              write( logdev,* ) 'lays: ', lay2-lay1+1
-!              write( logdev,* ) 'read size: ', ( endcol-strtcol+1 )
-!    &                              * ( endrow-strtrow+1 )
-!    &                              * ( lay2-lay1+1 )
-!!             write( logdev,* ) 'xbuf size: ', size( xbuf )
 
             END IF
 

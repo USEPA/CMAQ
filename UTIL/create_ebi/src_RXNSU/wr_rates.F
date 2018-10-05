@@ -43,7 +43,7 @@ C..SCRATCH LOCAL VARIABLES:
       CHARACTER(  30 )  ::    VNAME     
       CHARACTER( 256 )  ::    FNAME                ! Name of file to open
       CHARACTER(  72 )  ::    CLINE                ! Line of c's
-      CHARACTER(   3 )  ::    RNUM
+      CHARACTER(   5 )  ::    RNUM
 
    
 
@@ -162,7 +162,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c..skip rxn if any reactant is a AE or AQ species
          IF( IND1 .NE. 0 .OR. IND2 .NE. 0 .OR. IND3 .NE. 0 ) CYCLE 
 
-         WRITE( RNUM, '( I3 )' ) N
+         WRITE( RNUM, '( I5 )' ) N
 
          LINOUT = '      RXRAT(  ' // RNUM // ' ) = RKI( ' // RNUM //
      &       ' )'
@@ -223,7 +223,7 @@ c..do rxn if any reactant is a AE or AQ species
 
             END IF
 
-            WRITE( RNUM, '( I3 )' ) N
+            WRITE( RNUM, '( I5 )' ) N
 
             LINOUT = '         RXRAT(  ' // RNUM // ' ) = RKI( ' // RNUM //
      &             ' )'
@@ -286,7 +286,7 @@ c..do rxn if any reactant is a AE or AQ species
 
             END IF
 
-            WRITE( RNUM, '( I3 )' ) N
+            WRITE( RNUM, '( I5 )' ) N
 
             LINOUT = '         RXRAT(  ' // RNUM // ' ) = RKI( ' // RNUM //
      &             ' )'

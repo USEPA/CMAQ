@@ -17,9 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6_mp/AQ_DATA.F,v 1.3 2012/01/26 18:45:08 sjr Exp $
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module aq_data
 
@@ -121,11 +118,11 @@ C...Pointers for the AQCHEM array GAS
       Integer :: ln2o5    ! Dinitrogen Pentoxide
       Integer :: lco2     ! Carbon Dioxide
       Integer :: lnh3     ! Ammonia
-      Integer :: lh2o2    ! Hydrogen Perioxide
+      Integer :: lh2o2    ! Hydrogen Peroxide
       Integer :: lo3      ! Ozone
       Integer :: lfoa     ! Formic Acid
       Integer :: lmhp     ! Methyl Hydrogen Peroxide
-      Integer :: lpaa     ! Peroxyacidic Acid
+      Integer :: lpaa     ! Peroxyacetic Acid
       Integer :: lh2so4   ! Sulfuric Acid
       Integer :: lhcl     ! Hydrogen Chloride
       Integer :: lgly     ! Glyoxal
@@ -135,7 +132,7 @@ C...Pointers for the AQCHEM array GAS
       Integer :: lhocl    ! Hypochlorous Acid
       Integer :: lho2     ! HO2, peroxy radical
       Integer :: lhg      ! Dissolved mercury
-      Integer :: lhgiigas ! Disolved oxidized mercury
+      Integer :: lhgiigas ! Dissolved oxidized mercury
 
       Real    :: aqchem_lat      ! latitude used for cosine of solar zenith angle (deg)
       Real    :: aqchem_lon      ! longitude used for cosine of solar zenith angle (deg)
@@ -332,10 +329,10 @@ C mercuric compounds
       Integer, Allocatable, Save :: cgrid2aq_map( : ) ! allocated in AQ_DATA_INIT
       Character( 16 ), Allocatable, Save :: cgrid2aq_name( : ) ! allocated in AQ_DATA_INIT
 
-      Logical, Private, Save :: mapped = .False.
+      Real( 8 )              :: jh2o2_hydrometeors    ! H2O2 photolysis in condensed water, 1/sec
+      Real( 8 )              :: jhno3_hydrometeors    ! HNO3 photolysis in condensed water, 1/sec
 
-      Integer, Private, Save :: logdev
-      Integer, Private, External :: setup_logdev
+      Logical, Private, Save :: mapped = .False.
 
       Contains
  
@@ -354,6 +351,7 @@ C-----------------------------------------------------------------------
       Use cgrid_spcs          ! CGRID mechanism species
       Use utilio_defn
       Use aero_data
+      Use phot_mod, Only: init_phot_shared  ! set-up shared photolysis arrays
 
       Implicit None
 
@@ -389,11 +387,12 @@ C-----------------------------------------------------------------------
 
       If ( Firstcall ) Then
          Firstcall = .False.
-         logdev    = setup_logdev()
       Else
          Return
       End if
  
+      Call init_phot_shared()
+
       Allocate ( aename( n_ae_a2aq ), stat = ios )
       If ( ios .Ne. 0 ) Then
          xmsg = '*** Error allocating aename'

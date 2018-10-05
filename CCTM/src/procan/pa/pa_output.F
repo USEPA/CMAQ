@@ -17,9 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/procan/pa/pa_output.F,v 1.5 2011/10/21 16:11:33 yoj Exp $
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
        SUBROUTINE PA_OUTPUT( CGRID, JDATE, JTIME )
 
@@ -28,7 +25,7 @@ C Function: Output the Process Analysis and/or Integrated Reaction Rate data
  
 C Preconditions: None
  
-C Key Subroutines/Functions Called: INIT3, ENVSTR, M3EXIT
+C Key Subroutines/Functions Called: M3EXIT
  
 C Revision History:
 C  Prototype created by Jerry Gipson, August, 1996
@@ -104,7 +101,6 @@ C Local Variables:
       CHARACTER( 16 ), SAVE :: IRRFNAM( MXFILE3 )  ! IRR output file names
       INTEGER, SAVE :: NIPRFLS          ! Number of IPR output files
       INTEGER, SAVE :: NIRRFLS          ! Number of IRR output files
-      INTEGER, SAVE :: LOGDEV           ! Unit number of output log
       LOGICAL, SAVE :: LFIRST = .TRUE.  ! Flag for first call
 
       CHARACTER( 80 ) ::  XMSG = ' '    ! Error message buffer
@@ -157,8 +153,6 @@ C Reset decomposition map
             RETURN
          END IF
 #endif
-
-         LOGDEV = INIT3( )
 
          IF ( LIPR .AND. NIPRVAR. GT. 0 ) THEN
 
@@ -264,7 +258,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          END DO
 
          DO NS = 1, NCSAVE
-            ICG = SV2GRD( NS )
+            ICG = SAV2GRD( NS )
 #ifdef parallel
             CALL SUBST_DATA_COPY ( CGRID, CSAV, ICG, NS )
 #else
@@ -294,9 +288,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
             DO NOUT = 1, NVARINDX
                VARINDX = ( NFL - 1 ) * MXVARS3 + NOUT
-
-!              write( logdev,* ) 'paout-nout,varindx,irrfnam,irrname,jdate,jtime: ',
-!    &         nout, varindx, irrfnam( nfl ), irrname( nfl ), jdate, jtime
 
 #ifdef parallel
 !              write( logdev,* ) 'paout-nout,varindx,my_pacols,etc,sizes: ',

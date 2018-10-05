@@ -27,8 +27,9 @@ C Revision History:
 C     ?? ??? ???? ?.?????: initial implementation
 C     20 Sep 2007 J.Young: inline DSCSPROF, eliminate MODSPRO module
 C     16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
-
+C     16 Aug 2018 G. Sarwar: updated for CB6R3M_AE7_KMTBR
 C-----------------------------------------------------------------------
+      USE RUNTIME_VARS
       USE EMIS_VARS
 
       IMPLICIT NONE
@@ -92,7 +93,7 @@ C (A line from the profile file is a record.)
          INTEGER,        PARAMETER :: NSEGS = 6  ! # of potential line segments (fields)
          INTEGER,        PARAMETER :: MXLINES = 100 ! max lines for requested sppro name
          INTEGER,        PARAMETER :: MXSPPOL = 10  ! max no. spc per pollutant
-         INTEGER,        PARAMETER :: NMECHS = 17   ! dimension for number of mechanisms considered
+         INTEGER,        PARAMETER :: NMECHS = 18   ! dimension for number of mechanisms considered
          CHARACTER,      PARAMETER :: CINVHDR = '#' ! Indicator for inventory hdr fields
 !        REAL,           PARAMETER :: GM2TON  = 1.0 / 907184.74  ! grams to tons
 
@@ -140,7 +141,6 @@ C Local variables
          CHARACTER(  16 ) :: SPNPRF     ! record (line) speciation profile name
          CHARACTER(  16 ) :: POLNAM     ! record (line) pollutant name
          CHARACTER(  16 ) :: SPECNM     ! record (line) species name
-         CHARACTER(  16 ) :: SPPRO      ! requested speciation profile name
          CHARACTER(  16 ) :: FILE_SPPRO ! label read from gspro
 
          REAL                SPLTFAC, SDIV, SMFAC ! line speciation profile factors
@@ -159,7 +159,8 @@ C Local variables
      &         BIOG_MECH_TYPE( 'CB6R3_AE6_AQ           ','B10C6   '),
      &         BIOG_MECH_TYPE( 'CB6MP_AE6_AQ           ','B10C6   '),
      &         BIOG_MECH_TYPE( 'CB6R3_AE6NVPOA_aq      ','B10C6   '),
-     &         BIOG_MECH_TYPE( 'CB6R3_AE7_AQ           ','B10C6AE7'),
+     &         BIOG_MECH_TYPE( 'CB6R3_AE7_AQ           ','B10C6AE7'),     
+     &         BIOG_MECH_TYPE( 'CB6R3M_AE7_KMTBR       ','B10C6AE7'),
      &         BIOG_MECH_TYPE( 'RACM2_AE6_AQ           ','B10RD   '),
      &         BIOG_MECH_TYPE( 'SAPRC07TB_AE6_AQ       ','B10SP   '),
      &         BIOG_MECH_TYPE( 'SAPRC07TC_AE6_AQ       ','B10SP   '),
@@ -171,23 +172,22 @@ C Local variables
      &   
  
          CHARACTER( 16 ) :: PNAME = 'BIOG_INIT'
-         integer logdev   ! debug
 
 C-----------------------------------------------------------------------
 
-         logdev = init3()   ! debug
          SUCCESS = .TRUE.
 
 C Open speciation profiles file
          RDEV = PROMPTFFILE(
      &            'Enter logical name for Speciation Profiles file',
      &            .TRUE., .TRUE., 'GSPRO', PNAME )
-C                 rdonly  fmtted
 
-         INDX = INDEX1( MECHNAME, NMECHS, BIOG_MECH_MAP%CHEMMECH )
-         SPPRO = BIOG_MECH_MAP( INDX )%BIOGMECH
-         WRITE( LOGDEV, '(5X,A,A,A)' ), 'Accessing compatible biogenic ',
-     &          'emissions mechanism: ',TRIM( SPPRO )
+         IF ( SPPRO .EQ. 'DEFAULT' ) THEN 
+            INDX = INDEX1( MECHNAME, NMECHS, BIOG_MECH_MAP%CHEMMECH )
+            SPPRO = BIOG_MECH_MAP( INDX )%BIOGMECH
+            WRITE( LOGDEV, '(5X,A,A,A)' ), 'Accessing compatible biogenic ',
+     &             'emissions mechanism: ',TRIM( SPPRO )
+         END IF
 
 C Scan speciation profiles file to get all of the pollutant-species combinations
 C that are valid for the pollutants in the inventory. The species names are sorted
@@ -241,7 +241,7 @@ C Check for header start
                SUCCESS = .FALSE.; RETURN
             END IF
 
-C Skip lines that don't reference the requested speciation profile name
+C Skip lines that dont reference the requested speciation profile name
             IF ( LINE( 1:1 ) .EQ. '"' ) THEN
                FILE_SPPRO = LINE( 2: INDEX( LINE,'"' )-1 )
                IF ( FILE_SPPRO .NE. SPPRO ) CYCLE 
@@ -488,7 +488,7 @@ C conversions
 C Skip blank and comment lines
             IF ( LINE .EQ. ' ' .OR. LINE( 1:1 ) .EQ. CINVHDR ) CYCLE
 
-C Skip lines that don't reference the requested speciation profile name
+C Skip lines that dont reference the requested speciation profile name
             IF ( LINE( 1:1 ) .EQ. '"' ) THEN
                FILE_SPPRO = LINE( 2: INDEX( LINE,'"' )-1 )
                IF ( FILE_SPPRO .NE. SPPRO ) CYCLE 

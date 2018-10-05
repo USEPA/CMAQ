@@ -37,7 +37,7 @@ C References:
 C          Nemitz et al. 2001 Q. J. R. Meteorol. Soc DOI: 10.1002/qj.49712757306
 C          Binkowski and Shankar 1995 JGR  DOI: 10.1029/95JD02093
 C 
-C Default varialbes output area weighted Vd
+C Default variables output area weighted Vd
 C Optional variables output land use specific LAI, RA, U*, Z0, and Vd
 C
 C Revised:  1 Dec 2017  Original version.  (J. Bash)
@@ -46,10 +46,10 @@ C-------------------------------------------------------------------------------
       Use GRID_CONF           ! horizontal & vertical domain specifications
       Use LSM_MOD             ! Land surface data
       Use ASX_DATA_MOD
-      USE RUNTIME_VARS_MOD
       USE UTILIO_DEFN      
       USE CGRID_SPCS          ! CGRID mechanism species
       USE STAGE_DATA
+      USE AERO_DATA, Only: N_MODE
 
       IMPLICIT NONE
 
@@ -66,7 +66,9 @@ C land use indexes
       Logical, Allocatable, Save :: Water( : )
       Logical, Allocatable, Save :: Ag( : )
       Logical, Allocatable, Save :: Forest( : )
-      Real,    Allocatable, Save :: l_leaf( : ) ! characteristic leaf width from Massad et al. 2010
+      Real,    Allocatable, Save :: l_leaf( : )    ! characteristic leaf width from Massad et al. 2010 Table 6
+      Real,    Allocatable, Save :: l_aero( : )    ! characteristic leaf radius from Zhang et al. 2001 Table 3
+      Real,    Allocatable, Save :: a_cut( : )     ! NH3 cuticular resistance exponential term Massad et al. 2010 Table 8
 C gas phase species indexes
       Integer, Save              :: n_HONO
       Integer, Save              :: s_HONO         ! m3dry map
@@ -80,11 +82,16 @@ C gas phase species indexes
       Integer, Save              :: s_HG
       Integer, Save              :: n_HGII          ! CGRID map
       Integer, Save              :: s_HGII
-      Integer,         PRIVATE :: ALLOCSTAT
+      Integer, PRIVATE           :: ALLOCSTAT
       CHARACTER( 96 )            :: xmsg = ' '
+C Aerosol deposition arrays
+      REAL, ALLOCATABLE, SAVE  :: XXLSG( : ) ! log of standard deviation
+      REAL, ALLOCATABLE, SAVE  :: DG( : )    ! geometric mean diameter
+      REAL, ALLOCATABLE, SAVE  :: PDENS( : ) ! particle density         
+
 
       Contains
-         SUBROUTINE INIT_STAGE ( JDATE, JTIME, HGBIDI )
+         SUBROUTINE INIT_STAGE ( JDATE, JTIME )
 
 C-----------------------------------------------------------------------
 C  This subroutine sets up the mapping and options for the TAGX gaseous 
@@ -99,7 +106,6 @@ C-----------------------------------------------------------------------
 
 C Arguments:
          Integer, Intent( IN ) :: JDATE, JTIME      ! internal simulation date&time
-         Logical, Intent( IN ) :: HGBIDI
          integer               :: c, r, l, n, s, v
          CHARACTER( 16 ), PARAMETER :: pname      = 'INIT_STAGE'        
          CHARACTER( 16 )       :: gc_depv_name( dep_gas_all )
@@ -118,8 +124,6 @@ C Local variables:
          DATA         VDAE_NAME( 8 ) / 'VSRFACC ' /
          DATA         VDAE_NAME( 9 ) / 'VSRFCOR ' /
 
-         logdev  = init3()
-  
          Call Map_Stage
 
          IF ( .NOT. desc3( met_cro_2d ) ) THEN
@@ -134,29 +138,30 @@ C Local variables:
             CALL Init_NH3_Bidi( jdate, jtime )
          END IF
 
-         If ( .Not. ALLOCATED ( Water ) ) THEN
-            Allocate ( Water  ( n_lufrac ),
-     &                 Ag     ( n_lufrac ),
-     &                 Forest ( n_lufrac ),
-     &                 l_leaf ( n_lufrac ) )
-         End If              
+         Allocate ( Water  ( n_lufrac ),
+     &              Ag     ( n_lufrac ),
+     &              Forest ( n_lufrac ),
+     &              a_cut  ( n_lufrac ),
+     &              l_leaf ( n_lufrac ), 
+     &              l_aero ( n_lufrac ), STAT = ALLOCSTAT )
+
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating Water, Ag, Forest, l_leaf, or a_cut'
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
                          
 C  Allocate arrays
-         ALLOCATE ( VDEP( N_AE_DEP_SPC ), STAT = ALLOCSTAT )
+         ALLOCATE ( VDEP( N_AE_DEP_SPC ), 
+     &              VDEPJ( N_LUFRAC,N_AE_DEP_SPC ), 
+     &              DEPV_SUR( N_AE_DEPV ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
-            XMSG = 'Failure allocating VDEP'
+            XMSG = 'Failure allocating VDEP, VDEPJ, DEPV_SUR'
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
-         ALLOCATE ( VDEPJ( N_LUFRAC,N_AE_DEP_SPC ), STAT = ALLOCSTAT )
+         ALLOCATE ( DG( N_MODE ), XXLSG( N_MODE ), PDENS( N_MODE), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
-            XMSG = 'Failure allocating VDEPJ'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
-         ALLOCATE ( DEPV_SUR( N_AE_DEPV ), STAT = ALLOCSTAT )
-         IF ( ALLOCSTAT .NE. 0 ) THEN
-            XMSG = 'Failure allocating DEPV_SUR'
+            XMSG = 'Failure allocating DG, XXLSG, or PDENS'
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
@@ -228,32 +233,58 @@ C-----------------------------------------------------------------
                Case( 'WATER' )
                   Water( l ) = .TRUE.
                   l_leaf( l ) = 0.0
+                  l_aero( l ) = 0.0
+                  a_cut( l )  = 0.0
                Case( 'AG'    )
                   ag( l )    = .TRUE.
                   l_leaf( l ) = 0.02
+                  l_aero( l ) = 0.005
+                  a_cut( l )  = 0.148
                Case( 'AGMOS' )
                   ag( l )    = .TRUE.
                   l_leaf( l ) = 0.035
+                  l_aero( l ) = 0.0035
+                  a_cut( l )  = 0.148
                Case( 'HAY'   )
                   ag( l )    = .TRUE.
                   l_leaf( l ) = 0.01
+                  l_aero( l ) = 0.005
+                  a_cut( l )  = 0.148
                Case( 'URBAN' )
                   l_leaf( l ) = 0.05
+                  l_aero( l ) = 0.01
+                  a_cut( l )  = 0.120
                Case( 'DECFOR' )
+                  Forest( l ) = .TRUE.
                   l_leaf( l ) = 0.05
-                  Forest( l ) = .TRUE.
+                  l_aero( l ) = 0.01
+                  a_cut( l )  = 0.0318
                Case( 'EVEFOR' )
+                  Forest( l ) = .TRUE.
                   l_leaf( l ) = 0.005
-                  Forest( l ) = .TRUE.
+                  l_aero( l ) = 0.002
+                  a_cut( l )  = 0.0318
                Case( 'MIXFOR' )
-                  l_leaf( l ) = 0.028
                   Forest( l ) = .TRUE.
+                  l_leaf( l ) = 0.028
+                  l_aero( l ) = 0.005
+                  a_cut( l )  = 0.0318
                Case( 'HERB','SHRUB' )
                   l_leaf( l ) = 0.02
-               Case( 'GRASS','WETLAND' )
+                  l_aero( l ) = 0.01
+                  a_cut( l )  = 0.120
+               Case( 'GRASS' )
                   l_leaf( l ) = 0.01
+                  l_aero( l ) = 0.005
+                  a_cut( l )  = 0.176
+               Case( 'WETLAND' )
+                  l_leaf( l ) = 0.01
+                  l_aero( l ) = 0.01
+                  a_cut( l )  = 0.0318
                Case Default
                   l_leaf( l ) = 0.01
+                  l_aero( l ) = 0.002
+                  a_cut( l )  = 0.120
             End Select
          END DO
 
@@ -263,7 +294,6 @@ C-----------------------------------------------------------------
         
          Use NH3_BIDI_MOD
          Use MOSAIC_MOD, Only: Tile_Data 
-         Use BIDI_MOD, Only: HGBIDI
          Use HGSIM
 
          Implicit None
@@ -345,7 +375,7 @@ C Parameters specific to gas_x. Currently based on m3dry but subject to change
          ELSE
             hplus = hplus_def
          END IF
-! moved water temperature here to reduce redundency and facilitate moving the hlconst 
+! moved water temperature here to reduce redundancy and facilitate moving the hlconst 
 ! subroutine out of the land use loop for better vectorization.
          ctemp2 = temp_2m - stdtemp
          lv     = lv0 - dlvdt * ctemp2
@@ -524,11 +554,7 @@ C Calcuate Rcut
                         rcdry = 1.0 / ( ( 1.0 -rh_func) / ( rcut0 * a0 / rel_rx( s ) )  + rh_func / rcwet )
                      ELSE IF ( s .Eq. s_NH3 .And. ABFLUX ) THEN  
          ! Massad et al. 2010 Cuticular resistance
-                        If( Ag( l ) ) Then
-                           rcdry    = rwm * EXP( 0.11 * ( 100.0 - rh ) )
-                        Else
-                           rcdry    = rwm * EXP( 0.03 * ( 100.0 - rh ) )
-                        End If                    
+                        rcdry    = rwm * EXP( a_cut( l ) * ( 100.0 - rh ) )
                      ELSE 
                         rcdry = rcut0 * a0 / rel_rx( s )
                      END IF ! O3 or NH3
@@ -541,7 +567,7 @@ C Calcuate Rcut
 !-------------------------------------------------------------------------------------------------
 ! Calculate in canopy aerodynamic resistance based on the momentum attenuation coefficient derived 
 ! by Yi 2008 https://doi.org/10.1175/2007JAMC1667.1
-                     Rinc = Ra * ( Exp( lai / 2.0 ) - 1.0 )
+                     Rinc =  Ra * ( Exp( lai / 2.0 ) - 1.0 )
 !-------------------------------------------------------------------------------------------------
 ! Resistance to air-canopy covered soil exchange
 !-------------------------------------------------------------------------------------------------
@@ -674,8 +700,8 @@ C Calcuate Bare Soil Resistance
                   Else
 !-------------------------------------------------------------------------------------------------
 ! Non bidirectional exchange
-!-------------------------------------------------------------------------------------------------                                                               
-                     Tile_Data%depvel_gasj( l,s,c,r ) = Flux / c_atm
+!-------------------------------------------------------------------------------------------------   
+                     Tile_Data%depvel_gasj( l,s,c,r ) =  veg * (1.0-c_z0/c_atm)/Ra + no_veg /( Ra + Rg )                                                            
                      depvel_gas( n ) = depvel_gas( n ) + frac_lu * Tile_Data%depvel_gasj( l,s,c,r )                  
                   End If ! compensation points greater than 0
                End If ! Water      
@@ -807,21 +833,15 @@ C Arguments
          INTEGER, INTENT( IN )  :: JTIME               ! current model time , coded HHMMSS
          INTEGER, INTENT( IN )  :: TSTEP               ! model time step, coded HHMMSS
          INTEGER, INTENT( IN )  :: C,R                 ! Column and Row
-         REAL,    INTENT( OUT ) :: VDEP_AE( : )    ! surrogate deposition velocities [ m s**-1 ]
+         REAL,    INTENT( OUT ) :: VDEP_AE( : )        ! surrogate deposition velocities [ m s**-1 ]
 
 
 
 C *** array indices hardcoded to match SUBROUTINE AERO_DEPV
-         INTEGER, PARAMETER :: VDNATK = 1,  ! Aitken mode number
-     &                         VDNACC = 2,  ! accumulation mode number
-     &                         VDNCOR = 3,  ! coarse mode number
-     &                         VDMATK = 4,  ! Aitken mode mass
-     &                         VDMACC = 5,  ! accumulation mode mass
-     &                         VDMCOR = 6,  ! coarse mode mass
-     &                         VDSATK = 7,  ! Aitken mode surface area
-     &                         VDSACC = 8,  ! accumulation mode surface area
-     &                         VDSCOR = 9   ! coarse mode surface area
-
+      INTEGER, PARAMETER, DIMENSION( 3 ) :: 
+     &                      VDN = (/ 1,2,3 /) , 
+     &                      VDM = (/ 4,5,6 /) , 
+     &                      VDS = (/ 7,8,9 /)  
 
 C Meteorological variables
 
@@ -829,24 +849,14 @@ C Meteorological variables
 
          INTEGER, SAVE :: NCELLS              ! number of cells per layer
 
-         REAL, SAVE  :: XXLSGAT    ! log of standard deviation
-         REAL, SAVE  :: XXLSGAC
-         REAL, SAVE  :: XXLSGCO
-         REAL, SAVE  :: DGATK      ! geometric mean diameter
-         REAL, SAVE  :: DGACC
-         REAL, SAVE  :: DGCOR
-         REAL, SAVE  :: PDENSAT    ! particle density         
-         REAL, SAVE  :: PDENSAC
-         REAL, SAVE  :: PDENSCO
          REAL, SAVE  :: XLM        ! mean free path [ m ]
          REAL, SAVE  :: AMU        ! dynamic viscosity [ kg m**-1 s**-1 ]
 
          REAL M3_WET, M3SUBT, M3_DRY
          REAL M2_WET, M2_DRY
 
-         INTEGER, SAVE :: LOGDEV                   ! unit number for the log file
          CHARACTER( 16 ), SAVE :: PNAME = 'AERO_X'
-         CHARACTER( 16 ) :: VNAME            ! varable name
+         CHARACTER( 16 ) :: VNAME            ! variable name
          CHARACTER( 96 ) :: XMSG = ' '
 
          INTEGER  V, N, L               ! loop counters
@@ -854,115 +864,63 @@ C Meteorological variables
          INTEGER  ALLOCSTAT
 
 C modal Knudsen numbers
-         REAL KNATK   ! Aitken mode Knudsen number
-         REAL KNACC   ! accumulation "
-         REAL KNCOR   ! coarse mode
+         REAL KN
 
 C modal particle diffusivities for number, 2nd, and 3rd moment, or mass:
-         REAL DCHAT0N, DCHAT0A, DCHAT0C
-         REAL DCHAT2N, DCHAT2A, DCHAT2C
-         REAL DCHAT3N, DCHAT3A, DCHAT3C
+         REAL DCHAT0
+         REAL DCHAT2
+         REAL DCHAT3
 
 C modal sedimentation velocities for number, 2nd, and 3rd moment, or mass:
-         REAL VGHAT0N, VGHAT0A, VGHAT0C
-         REAL VGHAT2N, VGHAT2A, VGHAT2C
-         REAL VGHAT3N, VGHAT3A, VGHAT3C
+         REAL VGHAT0
+         REAL VGHAT2
+         REAL VGHAT3
 
-         INTEGER NCELL, J
+         INTEGER NCELL, J, IM
 
-         REAL DCONST1, DCONST1N, DCONST1A, DCONST1C
-         REAL DCONST2, DCONST3N, DCONST3A, DCONST3C
-         REAL SC0N, SC0A, SC0C     ! Schmidt numbers for number
-         REAL SC2N, SC2A, SC2C     ! Schmidt numbers for 2ND MOMENT
-         REAL SC3N, SC3A, SC3C     ! Schmidt numbers for 3rd moment
-         REAL STOKEN, STOKEA, STOKEC ! Stokes numbers for each mode
-         REAL RD0N, RD0A, RD0C     ! canopy resistance for number
-         REAL RD2N, RD2A, RD2C     ! canopy resistance for 2nd moment
-         REAL RD3N, RD3A, RD3C     ! canopy resisteance for 3rd moment
-         REAL UTSCALE              ! scratch function of USTAR and WSTAR
-         REAL NU                   ! kinematic viscosity [ m**2 s**-1 ]
-         REAL USTFAC               ! scratch function of USTAR, NU, and GRAV
-         REAL TWOXLM               ! 2 X atmospheric mean free path
+         REAL DCONST,  DCONST1
+         REAL DCONST2, DCONST3
+         REAL SC0                   ! Schmidt numbers for number
+         REAL SC2                   ! Schmidt numbers for 2ND MOMENT
+         REAL SC3                   ! Schmidt numbers for 3rd moment
+         REAL ST_VEG                ! Stokes numbers for vegetation 
+         REAL ST_SMOOTH             ! Stokes numbers for each mode following Pleim
+         REAL RD0_VEG,RD0_SMOOTH    ! canopy resistance for number
+         REAL RD2_VEG,RD2_SMOOTH    ! canopy resistance for 2nd moment
+         REAL RD3_VEG,RD3_SMOOTH    ! canopy resisteance for 3rd moment
+         REAL UTSCALE               ! scratch function of USTAR and WSTAR
+         REAL NU                    ! kinematic viscosity [ m**2 s**-1 ]
+         REAL TWOXLM                ! 2 X atmospheric mean free path
+         REAL Ra, Ustar, Wstar, lai ! Land use specific environmental variables
+         REAL Lu_frac, Veg          ! Land use and vegetation coverage fraction
+         REAL V_fac                 ! Vegetation factor for deposition 
 
-         REAL, PARAMETER :: BHAT    = 1.246 ! Constant from Cunningham slip correction
-         REAL, PARAMETER :: T0 = 288.15      ! [ K ] ! starting standard surface temp.
+C Parameters
+         REAL, PARAMETER :: BHAT    = 1.246   ! Constant from Cunningham slip correction
+         REAL, PARAMETER :: T0      = 288.15  ! [ K ] ! starting standard surface temp.
          REAL, PARAMETER :: THREEPI = 3.0 * PI
          REAL, PARAMETER :: TWO3    = 2.0 / 3.0
 
 C Scalar variables for VARIABLE standard deviations.
 
-         REAL    L2SGAT, L2SGAC   ! see usage
-         REAL    L2SGCO
+         REAL    L2SG
 
-         REAL    EAT1             ! Aitken mode exp( log^2( sigmag )/8 )
-         REAL    EAC1             ! accumulation mode exp( log^2( sigmag )/8 )
-         REAL    ECO1             ! coarse mode exp( log^2( sigmag )/8 )
-
-         REAL    ESAT04           ! Aitken       " **4
-         REAL    ESAC04           ! accumulation "
-         REAL    ESCO04           ! coarse       "
-
-         REAL    ESAT08           ! Aitken       " **8
-         REAL    ESAC08           ! accumulation "
-         REAL    ESCO08           ! coarse       "
-
-         REAL    ESAT12           ! Aitken       " **12
-         REAL    ESAC12           ! accumulation "     
-         REAL    ESCO12           ! coarse       "     
-
-         REAL    ESAT16           ! Aitken       " **16
-         REAL    ESAC16           ! accumulation "
-         REAL    ESCO16           ! coarse       "
-
-         REAL    ESAT20           ! Aitken       " **20
-         REAL    ESAC20           ! accumulation "
-         REAL    ESCO20           ! coarse       "
-
-         REAL    ESAT28           ! Aitken       " **28
-         REAL    ESAC28           ! accumulation "
-         REAL    ESCO28           ! coarse       "
-
-         REAL    ESAT32           ! Aitken       " **32
-         REAL    ESAC32           ! accumulation "
-         REAL    ESCO32           ! coarse       "
-
-         REAL    ESAT36           ! Aitken       " **36
-         REAL    ESAC36           ! accumulation "
-         REAL    ESCO36           ! coarse       "
-
-         REAL    ESAT48           ! Aitken       " **48
-         REAL    ESAC48           ! accumulation "     
-         REAL    ESCO48           ! coarse       "     
-
-         REAL    ESAT64           ! Aitken       " **64
-         REAL    ESAC64           ! accumulation "
-         REAL    ESCO64           ! coarse       "
-
-         REAL    ESAT128          ! Aitken       " **128
-         REAL    ESAC128          ! accumulation "
-         REAL    ESCO128          ! coarse       "
-
-         REAL    ESAT160          ! Aitken       " **160
-         REAL    ESAC160          ! accumulation "
-         REAL    ESCO160          ! coarse       "
-
-         REAL    ESATM12          ! Aitken       " **(-12)
-         REAL    ESACM12          ! accumulation "        
-         REAL    ESCOM12          ! coarse       "        
-
-         REAL    ESATM16          ! Aitken       " **(-16)
-         REAL    ESACM16          ! accumulation "        
-         REAL    ESCOM16          ! coarse       "        
-
-         REAL    ESATM20          ! Aitken       " **(-20)
-         REAL    ESACM20          ! accumulation "
-         REAL    ESCOM20          ! coarse       "
-
-         REAL    ESATM32          ! Aitken       " **(-32)
-         REAL    ESACM32          ! accumulation "
-         REAL    ESCOM32          ! coarse       "
-
-         REAL    EIM              ! Impaction efficiency
+         REAL    E1                  ! mode exp( log^2( sigmag )/8 )
+         REAL    ES04                !        " **4
+         REAL    ES08                !        " **8
+         REAL    ES12                !        " **12
+         REAL    ES16                !        " **16
+         REAL    ES20                !        " **20
+         REAL    ES28                !        " **28
+         REAL    ES32                !        " **32
+         REAL    ES36                !        " **36
+         REAL    ES48                !        " **48
+         REAL    ES64                !        " **64
+         REAL    ESM12               !        " **(-12)
+         REAL    ESM16               !        " **(-16)
+         REAL    ESM20               !        " **(-20)
+         REAL    ESM32               !        " **(-32)
+         REAL    EIM_VEG, EIM_SMOOTH ! Impaction efficiency
 
 C-----------------------------------------------------------------------
 
@@ -985,282 +943,141 @@ C        "wet" size distribution
          CALL GETPAR( .FALSE. )     
 
 C        Save getpar values to arrays
-         XXLSGAT = AEROMODE_LNSG( 1 )
-         XXLSGAC = AEROMODE_LNSG( 2 )
-         XXLSGCO = AEROMODE_LNSG( 3 )
-
-         DGATK   = AEROMODE_DIAM( 1 )
-         DGACC   = AEROMODE_DIAM( 2 )
-         DGCOR   = AEROMODE_DIAM( 3 )
-
-         PDENSAT = AEROMODE_DENS( 1 )
-         PDENSAC = AEROMODE_DENS( 2 )
-         PDENSCO = AEROMODE_DENS( 3 )
+         DO IM = 1,N_MODE
+            XXLSG( IM ) = AEROMODE_LNSG( IM )   
+            DG( IM )    = AEROMODE_DIAM( IM )
+            PDENS( IM ) = AEROMODE_DENS( IM )
+         END DO
  
 C        Calculate mean free path [ m ]:
          XLM = 6.6328E-8 * STDATMPA * AIRTEMP / ( T0 * AIRPRES )
 
-C ***    Calcualte dynamic viscosity [ kg m**-1 s**-1 ]:
+C ***    Calcualte dynamic and kinimatic viscosity [ kg m**-1 s**-1 ]:
          AMU = 1.458E-6 * AIRTEMP * SQRT( AIRTEMP )
      &                 / ( AIRTEMP + 110.4 )
+         NU = AMU / Met_Data%DENS1( C,R )   
 
 C *** Calculate Knudsen numbers
-
          TWOXLM = XLM + XLM
-         KNATK = TWOXLM / DGATK
-         KNACC = TWOXLM / DGACC
-         KNCOR = TWOXLM / DGCOR
+         DO IM = 1, N_MODE
+            KN = TWOXLM / DG( IM )
 
 C *** Calculate functions of variable standard deviation.
 
-         L2SGAT = XXLSGAT * XXLSGAT
-         L2SGAC = XXLSGAC * XXLSGAC
-         L2SGCO = XXLSGCO * XXLSGCO
-
-         EAT1   = EXP( 0.125 * L2SGAT )
-         EAC1   = EXP( 0.125 * L2SGAC )
-         ECO1   = EXP( 0.125 * L2SGCO )
-
-         ESAT04  = EAT1 ** 4
-         ESAC04  = EAC1 ** 4
-         ESCO04  = ECO1 ** 4
-
-         ESAT08  = ESAT04 * ESAT04
-         ESAC08  = ESAC04 * ESAC04
-         ESCO08  = ESCO04 * ESCO04
-
-         ESAT12  = ESAT04 * ESAT08
-         ESAC12  = ESAC04 * ESAC08
-         ESCO12  = ESCO04 * ESCO08
-
-         ESAT16  = ESAT08 * ESAT08
-         ESAC16  = ESAC08 * ESAC08
-         ESCO16  = ESCO08 * ESCO08
-
-         ESAT20  = ESAT16 * ESAT04
-         ESAC20  = ESAC16 * ESAC04
-         ESCO20  = ESCO16 * ESCO04
-
-         ESAT28  = ESAT20 * ESAT08
-         ESAC28  = ESAC20 * ESAC08
-         ESCO28  = ESCO20 * ESCO08
-
-         ESAT32  = ESAT16 * ESAT16
-         ESAC32  = ESAC16 * ESAC16
-         ESCO32  = ESCO16 * ESCO16
-
-         ESAT36  = ESAT16 * ESAT20
-         ESAC36  = ESAC16 * ESAC20
-         ESCO36  = ESCO16 * ESCO20
-
-         ESAT48  = ESAT36 * ESAT12
-         ESAC48  = ESAC36 * ESAC12
-         ESCO48  = ESCO36 * ESCO12
-
-         ESAT64  = ESAT32 * ESAT32
-         ESAC64  = ESAC32 * ESAC32
-         ESCO64  = ESCO32 * ESCO32
-
-         ESAT128 = ESAT64 * ESAT64
-         ESAC128 = ESAC64 * ESAC64
-         ESCO128 = ESCO64 * ESCO64
-
-         ESAT160 = ESAT128* ESAT32
-         ESAC160 = ESAC128* ESAC32
-         ESCO160 = ESCO128* ESCO32
+            L2SG = XXLSG( IM ) ** 2
+            
+            E1   = EXP( 0.125 * L2SG )
+            ES04 = E1 ** 4
+            ES08 = ES04 ** 2
+            ES12 = ES04 * ES08
+            ES16 = ES08 ** 2
+            ES20 = ES16 * ES04
+            ES28 = ES20 * ES08
+            ES32 = ES16 ** 2
+            ES36 = ES16 * ES20
+            ES48 = ES36 * ES12
+            ES64 = ES32 ** 2
 
 C *** calculate inverses:
 
-         ESATM12 = 1.0 / ESAT12
-         ESACM12 = 1.0 / ESAC12
-         ESCOM12 = 1.0 / ESCO12
+            ESM12 = 1.0 / ES12
+            ESM16 = 1.0 / ES16
+            ESM20 = 1.0 / ES20
+            ESM32 = 1.0 / ES32
 
-         ESATM16 = 1.0 / ESAT16
-         ESACM16 = 1.0 / ESAC16
-         ESCOM16 = 1.0 / ESCO16
+            DCONST  = BOLTZMANN * Met_Data%TEMP2( C,R ) / ( THREEPI * AMU )
+            DCONST1 = DCONST / DG( IM )
 
-         ESATM20 = 1.0 / ESAT20
-         ESACM20 = 1.0 / ESAC20
-         ESCOM20 = 1.0 / ESCO20
+            DCONST2 = GRAV / ( 18.0 * AMU )
+            DCONST3 = DCONST2 * PDENS( IM ) * DG( IM ) ** 2 ! Gravitational settling 
+C Calculate characteristic parameters
+            DCHAT0  = DCONST1 * ( ES04  + BHAT * KN * ES16 )
+            DCHAT2  = DCONST1 * ( ESM12 + BHAT * KN * ESM16 )
+            DCHAT3  = DCONST1 * ( ESM20 + BHAT * KN * ESM32 )
+            VGHAT0  = DCONST3 * ( ES16  + BHAT * KN * ES04 )
+            VGHAT2  = DCONST3 * ( ES48  + BHAT * KN * ES20 )
+            VGHAT3  = DCONST3 * ( ES64  + BHAT * KN * ES28 )  
 
-         ESATM32 = 1.0 / ESAT32
-         ESACM32 = 1.0 / ESAC32
-         ESCOM32 = 1.0 / ESCO32
+            SC0 = NU / DCHAT0
+            SC2 = NU / DCHAT2   
+            SC3 = NU / DCHAT3
 
-         DCONST1  = BOLTZMANN * Met_Data%TEMP2( C,R ) / ( THREEPI * AMU )
-         DCONST1N = DCONST1 / DGATK
-         DCONST1A = DCONST1 / DGACC
-         DCONST1C = DCONST1 / DGCOR
-         DCONST2  = GRAV / ( 18.0 * AMU ) 
-         DCONST3N = DCONST2 * PDENSAT * DGATK * DGATK
-         DCONST3A = DCONST2 * PDENSAC * DGACC * DGACC
-         DCONST3C = DCONST2 * PDENSCO * DGCOR * DGCOR
 
-C i-mode
-         DCHAT0N  = DCONST1N * ( ESAT04  + BHAT * KNATK * ESAT16 )
-         DCHAT2N  = DCONST1N * ( ESATM12 + BHAT * KNATK * ESATM16 )
-         DCHAT3N  = DCONST1N * ( ESATM20 + BHAT * KNATK * ESATM32 )
-         VGHAT0N  = DCONST3N * ( ESAT16  + BHAT * KNATK * ESAT04 )
-         VGHAT2N  = DCONST3N * ( ESAT48  + BHAT * KNATK * ESAT20 )
-         VGHAT3N  = DCONST3N * ( ESAT64  + BHAT * KNATK * ESAT28 )
+            lu_loop: DO L = 1, N_LUFRAC
+C ***    Land use paramters
+               Veg     = Mosaic_Data%VEG( C,R,L )
+               Ustar   = Mosaic_Data%USTAR( C,R,L )
+               Wstar   = Mosaic_Data%WSTAR( C,R,L )
+               lai     = Mosaic_Data%LAI( C,R,L )
+               Ra      = Mosaic_Data%RA( C,R,L )
+               lu_frac = Grid_Data%LUFRAC( C,R,L )
 
-C j-mode
-         DCHAT0A  = DCONST1A * ( ESAC04  + BHAT * KNACC * ESAC16 )
-         DCHAT2A  = DCONST1A * ( ESACM12 + BHAT * KNACC * ESACM16 )
-         DCHAT3A  = DCONST1A * ( ESACM20 + BHAT * KNACC * ESACM32 )
-         VGHAT0A  = DCONST3A * ( ESAC16  + BHAT * KNACC * ESAC04 )
-         VGHAT2A  = DCONST3A * ( ESAC48  + BHAT * KNACC * ESAC20 )
-         VGHAT3A  = DCONST3A * ( ESAC64  + BHAT * KNACC * ESAC28 )
-
-C coarse mode
-         DCHAT0C  = DCONST1C * ( ESCO04  + BHAT * KNCOR * ESCO16 )
-         DCHAT2C  = DCONST1C * ( ESCOM12 + BHAT * KNCOR * ESCOM16 )
-         DCHAT3C  = DCONST1C * ( ESCOM20 + BHAT * KNCOR * ESCOM32 )
-         VGHAT0C  = DCONST3C * ( ESCO16  + BHAT * KNCOR * ESCO04 )
-         VGHAT2C  = DCONST3C * ( ESCO48  + BHAT * KNCOR * ESCO20 )
-         VGHAT3C  = DCONST3C * ( ESCO64  + BHAT * KNCOR * ESCO28 )
-
-         VDEP = 0.0
-         lu_loop: DO L = 1, N_LUFRAC
-            IF ( Grid_Data%LUFRAC( C,R,L ) .Eq. 0.0 ) Cycle lu_loop
+               RD0_Veg = 0.0
+               RD2_Veg = 0.0
+               RD3_Veg = 0.0
+               IF ( lu_frac .Eq. 0.0 ) Cycle lu_loop
 
 C now calculate the deposition velocities
+               UTSCALE = Ustar + 0.24 * Wstar**2 / Ustar
 
-            NU = AMU / Met_Data%DENS1( C,R )
-            USTFAC = Mosaic_Data%USTAR( C,R,L )**2 / ( GRAV * NU )
-            STOKEN = DCONST3N * USTFAC
-            STOKEA = DCONST3A * USTFAC
-            STOKEC = DCONST3C * USTFAC
-            UTSCALE = Mosaic_Data%USTAR( C,R,L )
-     &              + 0.24 * Met_Data%WSTAR( C,R )**2
-     &              /        Mosaic_Data%USTAR( C,R,L )
+C Estimate the vegetation deposition parameters for the 0th, 2nd, and 3rd moments
+               IF( veg .gt. 0.0 ) THEN ! EIM_Veg following Slinn 1982 equation 28
+                  V_fac   = max( lai, 1.0 )
+                  ST_VEG  = VGHAT0 * Ustar / ( GRAV * l_aero( l ) )
+                  EIM_Veg = ST_VEG**2 / ( 1.0 + ST_VEG**2 ) ! Slinn 1982 equation 28           
+                  RD0_Veg = 1.0 / ( V_fac * UTSCALE * ( SC0 ** ( -TWO3 ) + EIM_Veg ) )
 
+                  ST_VEG  = VGHAT2 * Ustar / ( GRAV * l_aero( l ) )
+                  EIM_Veg = ST_VEG**2 / ( 1.0 + ST_VEG**2 ) ! Slinn 1982 equation 28           
+                  RD2_Veg = 1.0 / ( V_fac * UTSCALE * ( SC2 ** ( -TWO3 ) + EIM_Veg ) )
+
+                  ST_VEG  = VGHAT3 * Ustar / ( GRAV * l_aero( l ) ) 
+                  EIM_Veg = ST_VEG**2 / ( 1.0 + ST_VEG**2 ) ! Slinn 1982 equation 28             
+                  RD3_Veg = 1.0 / ( V_fac * UTSCALE * ( SC3 ** ( -TWO3 ) + EIM_Veg ) )
+               END IF
+C EIM_SMOOTH following Giorgi 1986 Equation 17
+               ST_SMOOTH  = VGHAT0 * Ustar**2 / ( GRAV * NU )
+               EIM_SMOOTH = ST_SMOOTH**2 / ( 400.0 + ST_SMOOTH**2 )   ! Giorgi 1986 Equation 17  
+               RD0_SMOOTH = 1.0 / ( UTSCALE * ( SC0 ** ( -TWO3 ) + EIM_SMOOTH ) )
+
+               ST_SMOOTH  = VGHAT2 * Ustar**2 / ( GRAV * NU )
+               EIM_SMOOTH = ST_SMOOTH**2 / ( 400.0 + ST_SMOOTH**2 )   ! Giorgi 1986 Equation 17
+               RD2_SMOOTH = 1.0 / ( UTSCALE * ( SC2 ** ( -TWO3 ) + EIM_SMOOTH ) )
+
+               ST_SMOOTH  = VGHAT3 * Ustar**2 / ( GRAV * NU )
+               EIM_SMOOTH = ST_SMOOTH**2 / ( 400.0 + ST_SMOOTH**2 )   ! Giorgi 1986 Equation 17
+               RD3_SMOOTH = 1.0 / ( UTSCALE * ( SC3 ** ( -TWO3 ) + EIM_SMOOTH ) )
+C Parallel conductances are additive. Thus, the vegetated and non-vegetated deposition velocities are added. 
 C first do 0th moment for the deposition of number
-
-C  Aitken mode
-
-            SC0N = NU / DCHAT0N
-            EIM = STOKEN ** 2 / 400.0 * ESAT64
-            EIM = MIN( EIM, 1.0 )
-            RD0N = 1.0 / ( UTSCALE * ( SC0N ** ( -TWO3 ) + EIM ) )
-
-            VDEPJ( L,VDNATK ) = VGHAT0N
-     &              / ( 1.0 - EXP(-VGHAT0N * ( Mosaic_Data%RA( C,R,L ) + RD0N ) ) )
-            VDEP( VDNATK ) =  VDEP( VDNATK ) + Grid_Data%LUFRAC( C,R,L ) * VDEPJ( L,VDNATK )
-
-C accumulation mode
-
-            SC0A = NU / DCHAT0A
-            EIM = STOKEA ** 2 / 400.0 * ESAC64
-            EIM = MIN( EIM, 1.0 )
-            RD0A = 1.0 / ( UTSCALE * ( SC0A ** ( -TWO3 ) + EIM ) )
-
-            VDEPJ( L,VDNACC ) = VGHAT0A
-     &              / ( 1.0 - EXP(-VGHAT0A * ( Mosaic_Data%RA( C,R,L ) + RD0A ) ) )
-            VDEP( VDNACC ) =  VDEP( VDNACC ) + Grid_Data%LUFRAC( C,R,L ) * VDEPJ( L,VDNACC )
-
-C coarse mode
-
-            SC0C = NU / DCHAT0C
-            EIM = STOKEC ** 2 / 400.0 * ESCO64
-            EIM = MIN( EIM, 1.0 )
-            RD0C = 1.0 / ( UTSCALE * ( SC0C ** ( -TWO3 ) + EIM ) )
-
-            VDEPJ( L,VDNCOR ) = VGHAT0C
-     &              / ( 1.0 - EXP(-VGHAT0C * ( Mosaic_Data%RA( C,R,L ) + RD0C ) ) )
-            VDEP( VDNCOR ) =  VDEP( VDNCOR ) + Grid_Data%LUFRAC( C,R,L ) * VDEPJ( L,VDNCOR )
+               VDEPJ( L,VDN( IM ) ) = veg   * VGHAT0 / ( 1.0 - EXP( -VGHAT0 * ( Ra + RD0_Veg ) ) ) + 
+     &                        ( 1.0 - veg ) * VGHAT0 / ( 1.0 - EXP( -VGHAT0 * ( Ra + RD0_Smooth ) ) )
+               VDEP( VDN( IM ) ) =  VDEP( VDN( IM ) ) + Lu_Frac * VDEPJ( L,VDN( IM ) )
 
 C now do 2nd moment for the deposition of surface area
-
-C  Aitken mode
-
-            SC2N = NU / DCHAT2N
-            EIM = STOKEN ** 2 / 400.0 * ESAT128
-            EIM = MIN( EIM, 1.0 )
-            RD2N = 1.0 / ( UTSCALE * ( SC2N ** ( -TWO3 ) + EIM ) )
-
-            VDEPJ( L,VDSATK ) = VGHAT2N
-     &              / ( 1.0 - EXP(-VGHAT2N * ( Mosaic_Data%RA( C,R,L ) + RD2N ) ) )
-            VDEP( VDSATK ) =  VDEP( VDSATK ) + Grid_Data%LUFRAC( C,R,L ) * VDEPJ( L,VDSATK )
-
-C accumulation mode
-
-            SC2A = NU / DCHAT2A
-            EIM = STOKEA ** 2 / 400.0 * ESAC128
-            EIM = MIN( EIM, 1.0 )
-            RD2A = 1.0 / ( UTSCALE * ( SC2A ** ( -TWO3 ) + EIM ) )
-
-            VDEPJ( L,VDSACC ) = VGHAT2A
-     &              / ( 1.0 - EXP(-VGHAT2A * ( Mosaic_Data%RA( C,R,L ) + RD2A ) ) )
-            VDEP( VDSACC ) =  VDEP( VDSACC ) + Grid_Data%LUFRAC( C,R,L ) * VDEPJ( L,VDSACC )
-
-C coarse mode
-
-            SC2C = NU / DCHAT2C
-            EIM = STOKEC ** 2 / 400.0 * ESCO128
-            EIM = MIN( EIM, 1.0 )
-            RD2C = 1.0 / ( UTSCALE * ( SC2C ** ( -TWO3 ) + EIM ) )
-
-            VDEPJ( L,VDSCOR ) = VGHAT2C
-     &              / ( 1.0 - EXP(-VGHAT2C * ( Mosaic_Data%RA( C,R,L ) + RD2C ) ) )
-            VDEP( VDSCOR ) =  VDEP( VDSCOR ) + Grid_Data%LUFRAC( C,R,L ) * VDEPJ( L,VDSCOR )
+               VDEPJ( L,VDS( IM ) ) = veg   * VGHAT2 / ( 1.0 - EXP( -VGHAT2 * ( Ra + RD2_Veg ) ) ) + 
+     &                        ( 1.0 - veg ) * VGHAT2 / ( 1.0 - EXP( -VGHAT2 * ( Ra + RD2_Smooth ) ) )
+               VDEP( VDS( IM ) ) =  VDEP( VDS( IM ) ) + Lu_Frac * VDEPJ( L,VDS( IM ) )
 
 C now do 3rd moment for the deposition of mass
+               VDEPJ( L,VDM( IM ) ) = veg   * VGHAT3 / ( 1.0 - EXP( -VGHAT3 * ( Ra + RD3_Veg ) ) ) + 
+     &                        ( 1.0 - veg ) * VGHAT3 / ( 1.0 - EXP( -VGHAT3 * ( Ra + RD3_Smooth ) ) )
+               VDEP( VDM( IM ) ) =  VDEP( VDM( IM ) ) + Lu_Frac * VDEPJ( L,VDM( IM ) )
 
-C  Aitken mode
-
-            SC3N = NU / DCHAT3N
-            EIM = STOKEN ** 2 / 400.0 * ESAT160
-            EIM = MIN( EIM, 1.0 )
-            RD3N = 1.0 / ( UTSCALE * ( SC3N ** ( -TWO3 ) + EIM ) )
-
-            VDEPJ( L,VDMATK ) = VGHAT3N
-     &              / ( 1.0 - EXP(-VGHAT3N * ( Mosaic_Data%RA( C,R,L ) + RD3N ) ) )
-            VDEP( VDMATK ) =  VDEP( VDMATK ) + Grid_Data%LUFRAC( C,R,L ) * VDEPJ( L,VDMATK )
-
-C accumulation mode
-
-            SC3A = NU / DCHAT3A
-            EIM = STOKEA ** 2 / 400.0 * ESAC160
-            EIM = MIN( EIM, 1.0 )
-            RD3A = 1.0 / ( UTSCALE * ( SC3A ** ( -TWO3 ) + EIM ) )
-
-            VDEPJ( L,VDMACC ) = VGHAT3A
-     &              / ( 1.0 - EXP(-VGHAT3A * ( Mosaic_Data%RA( C,R,L ) + RD3A ) ) )
-            VDEP( VDMACC ) =  VDEP( VDMACC ) + Grid_Data%LUFRAC( C,R,L ) * VDEPJ( L,VDMACC )
-
-C coarse mode
-
-            SC3C = NU / DCHAT3C
-            EIM = STOKEC ** 2 / 400.0 * ESCO160
-            EIM = MIN( EIM, 1.0 )
-            RD3C = 1.0 / ( UTSCALE * ( SC3C ** ( -TWO3 ) + EIM ) )
-
-            VDEPJ( L,VDMCOR ) = VGHAT3C
-     &              / ( 1.0 - EXP(-VGHAT3C * ( Mosaic_Data%RA( C,R,L ) + RD3C ) ) )
-            VDEP( VDMCOR ) =  VDEP( VDMCOR ) + Grid_Data%LUFRAC( C,R,L ) * VDEPJ( L,VDMCOR )
-
-            DO V = 1, N_AE_DEPV
-               IF ( DEPV_SUR( V ) .GT. 0 ) THEN                 
-                  Tile_Data%adepvj( L,V,C,R ) = VDEPJ( L,DEPV_SUR( V ) )
-               ELSE
-                  Tile_Data%adepvj( L,V,C,R ) = 0.0
-               END IF
-            END DO
-
-         END DO lu_loop ! n_lufrac
+            END DO lu_loop ! n_lufrac
+         END DO ! aerosol mode
 
 C Return dry deposition velocities for aerosols (first layer only).
 
          DO V = 1, N_AE_DEPV
             IF ( DEPV_SUR( V ) .GT. 0 ) THEN
                VDEP_AE( V ) = VDEP( DEPV_SUR( V ) )
+               Tile_Data%ADEPVJ( :,V,C,R ) = VDEPJ( :,DEPV_SUR( V ) )
             ELSE
                VDEP_AE( V ) = 0.0
+               Tile_Data%ADEPVJ( :,V,C,R ) = 0.0 
             END IF
          END DO
                     
          Return
          END SUBROUTINE AERO_X
       END MODULE STAGE_MOD
-

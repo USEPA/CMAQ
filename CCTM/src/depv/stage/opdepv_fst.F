@@ -65,9 +65,6 @@ C Local variables:
 
 C-----------------------------------------------------------------------
 
-      LOGDEV = INIT3()
-
-
 C Try to open existing file for update
 
       IF ( .NOT. OPEN3( CTM_DEPV_FST, FSRDWR3, PNAME ) ) THEN

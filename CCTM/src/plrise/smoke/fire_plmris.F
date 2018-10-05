@@ -17,12 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/plrise/smoke/fire_plmris.F,v 1.2 2011/10/21 16:11:30 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE FIRE_PLMRIS( EMLAYS, LSTK, HFX, HMIX,
      &                        BFLX,
@@ -62,6 +56,7 @@ C smoke@emc.mcnc.org
 C Pathname: $Source: /project/yoj/arc/CCTM/src/plrise/smoke/fire_plmris.F,v $
 C Last updated: $Date: 2011/10/21 16:11:30 $ 
 C-----------------------------------------------------------------------
+      USE RUNTIME_VARS, ONLY : LOGDEV
 
       IMPLICIT NONE
 
@@ -102,9 +97,6 @@ C Parameters:
       
       REAL, PARAMETER :: ZERO = 0.0
 
-C External Functions:
-      INTEGER, EXTERNAL :: SETUP_LOGDEV
-
 C Local Variables:
       INTEGER IQ              ! stability class: 1-unstable, 2-neutral, 3-stable
       INTEGER LPLM            ! first L: ZH(L) > Plume height ! same as RADM's KPR
@@ -121,7 +113,6 @@ C Local Variables:
       REAL    WPLM            ! wind speed  at top of plume (m/s)
       REAL    ZMIX            ! hmix - hs
 
-      INTEGER, SAVE :: LOGDEV
       LOGICAL :: FIRSTIME = .TRUE.
 
 C Statement Functions:
@@ -140,7 +131,6 @@ C-----------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
-         LOGDEV = SETUP_LOGDEV()
       END IF
 
 C Compute convective scale.

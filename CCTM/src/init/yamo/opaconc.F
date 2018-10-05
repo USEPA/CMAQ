@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-! RCS file, release, date & time of last delta, author, state, [and locker]
-! $Header: /project/yoj/arc/CCTM/src/driver/yamo/wr_aconc.F,v 1.6 2011/10/21 16:10:43 yoj Exp $
-
-! what(1) key, module and SID; SCCS file; date and time of last delta:
-! %W% %P% %G% %U%
-
 !:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE OPACONC ( JDATE, JTIME, TSTEP )
 
@@ -57,14 +50,11 @@
       INTEGER      MTIME        ! modified model time, coded HHMMSS
 
       CHARACTER( 16 ) :: PNAME = 'OPACONC'
-      CHARACTER( 16 ) :: AVG_FILE_ENDTIME = 'AVG_FILE_ENDTIME'
       CHARACTER( 80 ) :: VARDESC = ' '
       CHARACTER( 96 ) :: XMSG = ' '
 
-      INTEGER, SAVE :: LOGDEV       ! FORTRAN unit number for log file
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
       LOGICAL OK
-      LOGICAL, SAVE :: END_TIME = .FALSE.
 
       INTEGER      L, K, KD, VAR, SPC ! loop counters
       INTEGER      STATUS
@@ -82,27 +72,15 @@
 
 ! Change output date/time to starting date/time - e.g. timestamp 1995196:090000
 ! represents data computed from time 1995196:090000 to 1995196:100000
-
-      LOGDEV = INIT3 ()
-
-! Override default beginning time timestamp for ACONC?
-      VARDESC = 'Flag to Override default beginning time timestamp for ACONC'
-      END_TIME = ENVYN( AVG_FILE_ENDTIME, VARDESC, END_TIME, STATUS )
-      IF ( STATUS .EQ. 1 ) THEN
-         XMSG = 'Environment variable improperly formatted'
-         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-      ELSE IF ( STATUS .NE. 0 ) THEN
-         WRITE( LOGDEV, '(5X, A)' ) VARDESC
-         XMSG = '... Using default:'
-         WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-      END IF
-
+ 
+! Override default beginning time timestamp for ACONC?      
       IF ( END_TIME ) THEN   ! ending time timestamp
          MDATE = JDATE; MTIME = JTIME
          CALL NEXTIME ( MDATE, MTIME, TSTEP )
       ELSE                   ! beginning time timestamp
          MDATE = JDATE; MTIME = JTIME
       END IF
+ 
 
 ! Try to open existing file for update
 
@@ -111,7 +89,9 @@
       OK = OPEN3( A_CONC_1, FSRDWR3, PNAME )
       CALL SUBST_GLOBAL_LOGICAL( OK, 'AND' )
       IF ( .NOT. OK ) THEN
-
+#ifndef twoway
+         BACKSPACE( LOGDEV )
+#endif
          XMSG = 'Could not open ' // TRIM( A_CONC_1 )
      &        // ' file for update - try to open new'
          CALL M3MESG( XMSG )
@@ -161,11 +141,10 @@
                END DO
             END IF
 
-            WRITE( LOGDEV,* ) ' '
-            WRITE( LOGDEV,* ) '      Avg Conc File Header Description:'
+            WRITE( LOGDEV,* ) 
+            WRITE( LOGDEV, '(5x,A)' ) 'Avg Conc File Header Description:'
             DO K = 1, KD + L
-               WRITE( LOGDEV,* ) '    => ',
-     &         TRIM( FDESC3D( K ) )
+               WRITE( LOGDEV,'(7x,A)' ) TRIM( FDESC3D( K ) )
             END DO
 
             VAR = 0
@@ -209,7 +188,7 @@
             END DO
 
             DO SPC = 1, VAR
-               WRITE( LOGDEV,'( 5X, "=> VNAME3D(", I3, " ): ", A )' )
+               WRITE( LOGDEV,'( 7X, "=> VNAME3D(", I3, " ): ", A )' )
      &                SPC, VNAME3D( SPC )
             END DO
 
@@ -264,9 +243,9 @@
 
          DO SPC = 1, N_ASPCS
             DO VAR = 1, NVARS3D
-               IF ( AVG_SPCS( SPC ) .EQ. VNAME3D( VAR ) ) GO TO 101
+               IF ( ACONC_FILE_SPCS( SPC ) .EQ. VNAME3D( VAR ) ) GO TO 101
             END DO
-            XMSG = 'Could not find ' // AVG_SPCS( SPC )
+            XMSG = 'Could not find ' // ACONC_FILE_SPCS( SPC )
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
 101         CONTINUE
          END DO

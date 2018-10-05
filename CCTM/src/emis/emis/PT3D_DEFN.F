@@ -17,10 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/PT3D_DEFN.F,v 1.12 2012/01/19 15:23:37 yoj Exp $
-
- 
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE PT3D_DEFN
 
@@ -64,20 +60,13 @@ C     08 Aug 2016 B.Murphy: Neglect fire emissions for pcVOC
 C     16 Aug 2017 B.Murphy: Pull plume height calc. to separate subroutine.
 C-----------------------------------------------------------------------
 
-      USE UDTYPES           ! implementation for multiple groups of stack input files
-      USE EMIS_VARS
+      USE UDTYPES, ONLY: RARRY1 
 
       IMPLICIT NONE
 
-      LOGICAL,              SAVE :: PT3DEMIS   ! flag in-lining plume rise
 
-      PUBLIC PT3DEMIS, 
-     &       PT3D_INIT, GET_PT3D_EMIS
+      PUBLIC PT3D_INIT, GET_PT3D_EMIS
       PRIVATE
-
-C Scenario start
-      INTEGER,              SAVE :: SDATE = 0   ! Julian start date (YYYYDDD)
-      INTEGER,              SAVE :: STIME = 0   ! start time (HHMMSS)
 
 C Output layer fractions, dimensioned NSRC, emlays, and for diagnostic file
       REAL,    ALLOCATABLE, SAVE :: LFRAC( :,: ) ! per source local layer fractn
@@ -102,8 +91,6 @@ C Play files source id file
 C Plume rise info report files
       CHARACTER( 13 ), ALLOCATABLE, SAVE :: REPTNAME( : )
       CHARACTER( 11 )                    :: REPSTR
-C Minimum layer for reporting srcs w/ high plumes
-      INTEGER, SAVE :: REP_LAYR
 
 C Layer fractions matrix output files
       CHARACTER(  16 ), ALLOCATABLE, SAVE :: PLAYNAME( : )
@@ -112,19 +99,13 @@ C Layer fractions source id output files
 
 C Get heights from GRID_CRO file, if true
       LOGICAL,              SAVE :: ZSTATIC = .TRUE.
-C Write point source 3d emis diagnostic file, if true
-      LOGICAL,              SAVE :: PT3DDIAG = .FALSE.
 C Point source 3d emis diagnostic file names
 !     CHARACTER( 16 ),               SAVE :: PT3DNAME
 C Point source 3d emis diagnostic integral average write buffers
       REAL,    ALLOCATABLE, SAVE :: VDEMIS_BUF( :,:,:,: )
 C Diagnostic file avg factor
       REAL                       :: DIVFAC
-C Write layer fractions diagnostic file, if true
-      LOGICAL,              SAVE :: PT3DFRAC = .FALSE.
 
-C Numerical flag for plume vertical spread method
-      INTEGER,              SAVE :: IPVERT
 
 C Stack parameters
       TYPE( RARRY1 ), ALLOCATABLE, SAVE :: STK_DM( : )
@@ -150,14 +131,20 @@ C=======================================================================
          FUNCTION PT3D_INIT ( JDATE, JTIME, TSTEP )
      &                       RESULT ( SUCCESS )
 
-         USE GRID_CONF   ! horizontal & vertical domain specifications
-         USE CGRID_SPCS  ! CGRID mechanism species
-         USE STK_PRMS    ! stack groups file
-         USE STK_EMIS    ! hourly point source emissions
-         USE PTMET       ! defines met variables used in plume rise
-         USE PTBILIN     ! defines bi-linear interpolation from grid to pt src locations
+         USE GRID_CONF, ONLY: NLAYS, VGTYP_GD
+         USE STK_PRMS, ONLY: SOURCE, STKDIAM, STKHT, STKVEL, STKTK, 
+     &                       ACRES_BURNED, STK_PRMS_INIT, NSRC, MY_NSRC
+         USE STK_EMIS, ONLY: EM_FILE_NAME, NSRC_EMIS, FIREFLAG, 
+     &                       MAP_PTtoISRM, STK_EMIS_INIT
+         USE PTMET, ONLY: PTMET_DATA, MC2NAME, MC3NAME, MD3NAME, PTMET_INIT
+         USE PTBILIN, ONLY: BILIN_DATA, PTBILIN_INIT, NPTGRPS, XBUF,
+     &                      METCGRID, METCXORIG, METCYORIG, XCELLCG, YCELLCG, 
+     &                      METDGRID, METDXORIG, METDYORIG, XCELLDG, YCELLDG
          USE UTILIO_DEFN
-         USE BMATVEC_MODULE
+         USE RUNTIME_VARS, ONLY: LOGDEV, MYPE, PT3DFRAC, PT_DATE, 
+     &                           PT_TIME, PT_NSTEPS, REP_LAYR
+         USE EMIS_VARS, ONLY: EMLAYS, EMLAYS_MX
+         USE BMATVEC_MODULE, ONLY: BMATVECN
 
          IMPLICIT NONE
 
@@ -170,14 +157,9 @@ C Arguments:
          INTEGER          TSTEP      ! output time step
          LOGICAL          SUCCESS
 
-C External Functions:
-         INTEGER,         EXTERNAL :: SETUP_LOGDEV
-
 C Parameters:
 
 C Local Variables:
-         CHARACTER( 16 ), SAVE :: CTM_PT3DEMIS = 'CTM_PT3DEMIS    ' ! env var for in-line
-                                                                    ! 3d pt src emis
          CHARACTER( 16 )       :: PNAME = 'PT3D_INIT       ' ! procedure name
          CHARACTER( 16 )       :: VNAME    ! variable name buffer
          CHARACTER( 16 ), SAVE, ALLOCATABLE :: STKGNAME( : ) ! stack groups file name
@@ -187,11 +169,8 @@ C Local Variables:
          INTEGER          METDCOLS       ! dot point grid number of columns
          INTEGER          METDROWS       ! dot point grid number of rows
          INTEGER          IOS            ! i/o and allocate memory status
-         INTEGER, SAVE :: NSTEPS = 1
          INTEGER          NDATE          ! next timestep file Julian date (YYYYDDD)
          INTEGER          NTIME          ! next timestep file time (HHMMSS)
-
-         INTEGER          LOGDEV
 
          INTEGER I, J, K, L, M, N, P, S, SRC, V, ISRM  ! counters and indices
 
@@ -213,70 +192,42 @@ C-----------------------------------------------------------------------
 
          SUCCESS = .TRUE.
 
-!        LOGDEV = INIT3()
-         LOGDEV = SETUP_LOGDEV()
-
-
 C In-line 3D point source emissions?
-         PT3DEMIS = ENVYN( 'CTM_PT3DEMIS',
-     &                   'Flag for in-line 3d point source emissions',
-     &                   .FALSE., IOS )
-
-         IF ( PT3DEMIS ) THEN
+         IF ( NPTGRPS .GT. 0 ) THEN
             XMSG = 'Using in-line 3d point source emissions option'
             CALL M3MSG2( XMSG )
          ELSE
             RETURN
          END IF
 
-C Get setting from environment variables
-         IPVERT = ENVINT( 'IPVERT', 'Method for vertical spread', 0, IOS )
 
 C Cannot use default and cannot set to less than 4 because of limits of plume
 C rise algorithm
-         IF ( EMLAYS .LT. 4 ) THEN
+         IF ( EMLAYS_MX .GT. 0 .AND. EMLAYS_MX .LT. 4 ) THEN
             XMSG = 'Environment variable CTM_EMLAYS must be set to ' //
      &             'a number from 4 to the ' // CRLF() // BLANK10 //
      &             'number of layers in the meteorology inputs.'
             CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
             SUCCESS = .FALSE.; RETURN
          END IF
-
 C get diagnostic files options
-
-         PT3DDIAG = ENVYN( 'PT3DDIAG',
-     &                     'generate diagnostic 3d pt emis file?',
-     &                     .FALSE., IOS )
-
-         PT3DFRAC = ENVYN( 'PT3DFRAC',
-     &                     'generate diagnostic layer fraction file?',
-     &                     .FALSE., IOS )
-
-         REP_LAYR = ENVINT( 'REP_LAYER_MIN',
-     &                      'Minimum layer for reporting plume rise info',
-     &                      -1, IOS )
-
-         IF ( IOS .EQ. 0 ) THEN
-
-            IF ( REP_LAYR .LT. 1 ) THEN
-               XMSG = 'NOTE: Environment variable REP_LAYR_MIN is ' //
-     &                'less than 1.  Turning off reporting...'
-            ELSE IF ( REP_LAYR .GT. EMLAYS ) THEN
-               WRITE( XMSG,94010 )
-     &                'NOTE: Environment variable REP_LAYR_MIN is '//
-     &                'greater than the number of emissions ' //
-     &                CRLF() // BLANK10 // 'layers (', EMLAYS, '). '//
-     &                'Resetting to number of emissions layers.'
-               REP_LAYR = EMLAYS
-            ELSE
-               WRITE( XMSG,94010 )
-     &                'logging stack data for plume rise .ge. layer', REP_LAYR
-            END IF
-
-            CALL M3MSG2( XMSG )
+         IF ( REP_LAYR .LT. 1 ) THEN
+            XMSG = 'NOTE: Environment variable REP_LAYR_MIN is ' //
+     &             'less than 1.  Turning off reporting...'
+         ELSE IF ( REP_LAYR .GT. EMLAYS ) THEN
+            WRITE( XMSG,94010 )
+     &             'NOTE: Environment variable REP_LAYR_MIN is '//
+     &             'greater than the number of emissions ' //
+     &             CRLF() // BLANK10 // 'layers (', EMLAYS, '). '//
+     &             'Resetting to number of emissions layers.'
+            REP_LAYR = EMLAYS
+         ELSE
+            WRITE( XMSG,94010 )
+     &             'logging stack data for plume rise .ge. layer', REP_LAYR
 
          END IF
 
+         CALL M3MSG2( XMSG )
 #ifdef srcid
          IF ( PT3DFRAC ) THEN   ! save local source id's
             ALLOCATE ( LDEV( NPTGRPS ), STAT = IOS )
@@ -312,20 +263,8 @@ C get diagnostic files options
 
 C get scenario timing
 
-         SDATE = ENVINT( 'LAYP_STDATE',
-     &                   'Scenario Starting Date (YYYYDDD)',
-     &                    2001188, IOS )
-
-         STIME = ENVINT( 'LAYP_STTIME',
-     &                   'Scenario Starting Time (HHMMSS)',
-     &                    0, IOS )
-
-         NSTEPS = ENVINT( 'LAYP_NSTEPS',
-     &                    'Scenario Run Duration (integer steps)',
-     &                     24, IOS )
-
-         JDATE = SDATE
-         JTIME = STIME
+         JDATE = PT_DATE
+         JTIME = PT_TIME
 
 C open met files
 
@@ -346,7 +285,6 @@ C Use time parameters for time defaults.
      &                   STRTCOLMC, ENDCOLMC, STRTROWMC, ENDROWMC )
 
 C Initialize reference grid with met file
-C (declared and stored in PTBILIN module)
          XCELLCG = XCELL3D
          YCELLCG = YCELL3D
          METCCOLS = NCOLS3D
@@ -431,10 +369,10 @@ C Store local layer information
             VGLVSXG( L ) = VGLVS3D( J )
          END DO
 
-         IF ( NSTEPS .GT. MXREC3D ) THEN
+         IF ( PT_NSTEPS .GT. MXREC3D ) THEN
             WRITE( XMSG,94010 ) 'Requested output time steps > those on met file '
      &                          // CRLF() // BLANK10 // 'reset to ', MXREC3D
-            NSTEPS = MXREC3D
+            PT_NSTEPS = MXREC3D
          END IF
 
 C Get stack data
@@ -494,19 +432,18 @@ C Initialize stack emissions data
             END IF
          END DO
 
-
 C Open diagnostic layer fractions file?
          IF ( PT3DFRAC ) THEN
             ALLOCATE ( PLAYNAME( NPTGRPS ), STAT = IOS )   ! stk parms files array
             CALL CHECKMEM( IOS, 'PLAYNAME', PNAME )
             PLAYNAME = ' '   ! array
-            NDATE = SDATE; NTIME = STIME
+            NDATE = PT_DATE; NTIME = PT_TIME
             CALL NEXTIME( NDATE, NTIME, TSTEP ) ! advance one output tstep
             CALL OPENLAYOUT( NDATE, NTIME, TSTEP, EMLAYS, VGLVSXG, NPTGRPS,
      &                       MY_NSRC, PLAYNAME )
          END IF
 
-         IF ( .NOT. PTMET_INIT ( NPTGRPS, EMLAYS ) ) THEN
+         IF ( .NOT. PTMET_INIT ( ) ) THEN
             XMSG = 'Could not initialize stack met data'
             CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
             SUCCESS = .FALSE.; RETURN
@@ -586,7 +523,7 @@ C If wildfires, allocate fire parameters
 
          END DO
 
-         IF ( .NOT. PTBILIN_INIT ( NPTGRPS ) ) THEN
+         IF ( .NOT. PTBILIN_INIT ( ) ) THEN
             XMSG = 'Could not initialize stack met bilinear interpolation data'
             CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
             SUCCESS = .FALSE.; RETURN
@@ -601,13 +538,13 @@ C Compute per-source heights
                IF ( MY_NSRC( N ) .GT. 0 ) THEN
 C Get un-gridding matrices for cross and dot point met data
                   CALL RETRIEVE_IOAPI_HEADER( GC3NAME, JDATE, JTIME )
-                  CALL READGC3 ( 'X3HT0M', SDATE, STIME, XBUF )
+                  CALL READGC3 ( 'X3HT0M', PT_DATE, PT_TIME, XBUF )
                   CALL BMATVECN( METCGRID, MY_NSRC( N ), EMLAYS,
      &                          BILIN_DATA( N )%NX,
      &                          BILIN_DATA( N )%CX,
      &                          XBUF, PTMET_DATA( N )%ZH )
 
-                  CALL READGC3 ( 'X3HT0F', SDATE, STIME, XBUF )
+                  CALL READGC3 ( 'X3HT0F', PT_DATE, PT_TIME, XBUF )
                   CALL BMATVECN( METCGRID, MY_NSRC( N ), EMLAYS,
      &                          BILIN_DATA( N )%NX,
      &                          BILIN_DATA( N )%CX,
@@ -637,8 +574,8 @@ C Compute ZSTK, DDZF
 
 C=======================================================================
 
-         FUNCTION GET_PT3D_EMIS ( JDATE, JTIME, TSTEP, EM_SURR_PT, ISRM )
-     &                            RESULT( VDEMIS_PT )
+         SUBROUTINE GET_PT3D_EMIS ( JDATE, JTIME, TSTEP, EM_SURR_PT, ISRM,
+     &                            VDEMIS_PT, PT_LAYS )
 
 ! Revision History.
 !     Aug 12, 15 D. Wong: added code to handle parallel I/O implementation
@@ -647,14 +584,15 @@ C=======================================================================
 
 ! Time step part of laypoint
 
-         USE GRID_CONF, ONLY : NCOLS, NROWS
-         USE RXNS_DATA, ONLY : MECHNAME !Get Chemical Mechanism Name
-         USE CGRID_SPCS  ! CGRID mechanism species
-         USE STK_PRMS    ! stack groups file
-         USE STK_EMIS    ! hourly point source emissions
-         USE PTMET
-         USE UTILIO_DEFN
+         USE GRID_CONF, ONLY:  NCOLS, NROWS
+         USE STK_PRMS, ONLY :  MY_NSRC, MY_STRT_SRC, MY_END_SRC, 
+     &                         MY_STKCOL, MY_STKROW, SOURCE
+         USE STK_EMIS, ONLY :  IPSRM, N_EMIS_ISTR, EM_FILE_SURR, EM_FILE_DATE, 
+     &                         STKDATE, STKEMIS
+         USE PTMET, ONLY    :  EMLAYS, PTMET_CONVT
          USE PRECURSOR_DATA, ONLY : PRECURSOR_MW, SULF_IDX
+         USE RUNTIME_VARS, ONLY : LOGDEV, PT3DDIAG, PT3DFRAC, STDATE, STTIME
+         USE UTILIO_DEFN, ONLY : INTERPX, XSTAT2
 
          IMPLICIT NONE
 
@@ -667,14 +605,11 @@ C=======================================================================
          INTEGER               :: JDATE, JTIME
          INTEGER, INTENT( IN ) :: TSTEP( 3 )
          INTEGER, INTENT( IN ) :: ISRM
-
-! Outputs:
-         REAL  :: VDEMIS_PT( N_EMIS_ISTR, EMLAYS, NCOLS, NROWS )
+         INTEGER, INTENT( OUT) :: PT_LAYS
+         REAL, INTENT(INOUT)  :: VDEMIS_PT( :,:,:,: ) 
 
 ! Parameters:
 
-! External functions:
-         INTEGER,         EXTERNAL :: SETUP_LOGDEV
          LOGICAL,         EXTERNAL :: WRITE3_DISTR   ! calls WRITE3 directly
 
 ! Local variables:
@@ -700,7 +635,6 @@ C=======================================================================
          LOGICAL, SAVE :: WRTIME
          INTEGER, SAVE :: NTICS = 0      ! no. of substeps within an output tstep
          LOGICAL, SAVE :: FIRSTIME = .TRUE.
-         INTEGER, SAVE :: LOGDEV
 
          INTEGER       :: NDATE, NTIME
          
@@ -712,13 +646,12 @@ C-----------------------------------------------------------------------
 
          IF ( FIRSTIME ) THEN
             FIRSTIME = .FALSE.
-            LOGDEV = SETUP_LOGDEV()
              
             ! Set up and open 3d point source emissions diagnostic file?
             IF ( PT3DDIAG ) THEN
-              NDATE = SDATE; NTIME = STIME
+              NDATE = STDATE; NTIME = STTIME
               CALL NEXTIME( NDATE, NTIME, TSTEP(1) ) ! advance one output tstep
-              CALL OPPT3D_DIAG( CTM_PT3D_DIAG, NDATE, NTIME, TSTEP(1), EMLAYS,
+              CALL OPPT3D_DIAG( CTM_PT3D_DIAG, NDATE, NTIME, TSTEP(1), 
      &                   EM_FILE_SURR( ISRM )%LEN, EM_FILE_SURR( ISRM )%ARRY( : ),
      &                   EM_FILE_SURR( ISRM )%UNITS( : ) )
  
@@ -778,12 +711,13 @@ C Based on the current time step, find whether or not a report should be written
 !         END IF
 
 C Convert pt source met data to bi-linear interpolated data
-         CALL PTMET_CONVT( JDATE, JTIME, NPTGRPS, EMLAYS, ZSTATIC )
+         CALL PTMET_CONVT( JDATE, JTIME, ZSTATIC )
 
 C Initialize Output Array
-         VDEMIS_PT = 0.0   ! array assignment
+         !VDEMIS_PT = 0.0   ! array assignment
 
          N = IPSRM( ISRM )
+         PT_LAYS = 1       ! Initialize Point Layers at lowest possible value
 
          IF ( MY_NSRC( N ) .LE. 0 ) RETURN
 
@@ -834,6 +768,7 @@ C Apportion emissions to the layers
                DO L = 1, EMLAYS
                   LFRC = TFRAC( L,S )
                   IF ( LFRC .LE. 0.0 ) CYCLE
+                  PT_LAYS = MAX( PT_LAYS, L )
 
                   ! Save Emissions in Common Array
                   VDEMIS_PT( ISPC,L,C,R ) = VDEMIS_PT( ISPC,L,C,R )
@@ -905,7 +840,7 @@ C------------------  FORMAT  STATEMENTS   ------------------------------
 
 94030    FORMAT( /5X, 3( A, :, 1X ), I8, ":", I6.6 )
 
-         END FUNCTION GET_PT3D_EMIS
+         END SUBROUTINE GET_PT3D_EMIS
 
 C-------------- Subprograms used by GET_PT3D_EMIS ----------------------
 
@@ -919,11 +854,12 @@ C=======================================================================
 
 C-----------------------------------------------------------------------
 
-      USE GRID_CONF   ! horizontal & vertical domain specifications
-      USE STK_EMIS
-      USE STK_PRMS
-      USE UTILIO_DEFN
-      USE PTMET, P_D => PTMET_DATA
+      USE VGRD_DEFN, ONLY : VGTOP_GD
+      USE STK_EMIS, ONLY : FIREVAR, FIREFLAG
+      USE STK_PRMS, ONLY : MY_STRT_SRC, MY_END_SRC, MY_NSRC, SOURCE
+      USE PTMET, ONLY : EMLAYS, P_D => PTMET_DATA
+      USE RUNTIME_VARS, ONLY : LOGDEV, IPVERT, PT3DFRAC, REP_LAYR
+      USE UTILIO_DEFN, ONLY : INTERPX, CRLF, XSTAT2
 
       IMPLICIT NONE
 
@@ -965,7 +901,6 @@ C Includes:
 
       INTEGER :: S, L, SRC
       INTEGER :: LTOP
-      INTEGER, SAVE :: LOGDEV
  
       INTERFACE
            SUBROUTINE PREPLM( FIREFLG, EMLAYS, HMIX, HTS, PSFC, TS, DDZF, QV,
@@ -1317,7 +1252,7 @@ C-----------------------------------------------------------------------
 
          SUBROUTINE RETRIEVE_IOAPI_HEADER( FNAME, JDATE, JTIME )
 
-            USE UTILIO_DEFN
+            USE UTILIO_DEFN, ONLY : DESC3, XSTAT2
 
             IMPLICIT NONE
 
@@ -1341,9 +1276,9 @@ C-----------------------------------------------------------------------
 
          SUBROUTINE READGC3 ( VNAME, JDATE, JTIME, XBUF )
 
-            USE VGRD_DEFN             ! vertical layer specifications
+            USE VGRD_DEFN, ONLY: NLAYS
             USE PTBILIN, ONLY: XBND, YBND
-            USE UTILIO_DEFN
+            USE UTILIO_DEFN, ONLY: INTERPX, XSTAT2
 
             IMPLICIT NONE
 
@@ -1363,12 +1298,8 @@ C for INTERPX
             CHARACTER( 16 ) :: PNAME = 'READGC3'   ! procedure name
             LOGICAL, SAVE   :: FIRSTIME = .TRUE.
 
-            integer, save :: logdev
-            integer, external :: setup_logdev
-
             IF ( FIRSTIME )  THEN
                FIRSTIME = .FALSE.
-               logdev = setup_logdev()
 
                GRID_CRO_3D = GC3NAME
 

@@ -17,10 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/PROCAN/src/driver/pa/pa_read.F,v 1.8 2011/11/02 14:33:59 yoj Exp $
-
       SUBROUTINE PA_READ
 
 C-----------------------------------------------------------------------
@@ -47,8 +43,9 @@ C  Updated May 2002 by Jerry Gipson for dynamic allocation version of CCTM
 C  Updated August 2004 by Jerry Gipson to get input file path from environment variables
 C  Modified output_domain error message, J. Gipson Aug '04 
 C  Aug 2011 Jeff Young: Replaced I/O API include files with IOAPI`s M3UTILIO
+C  Sep 2018 C. Nolte, S. Roselle: replace M3UTILIO with UTILIO_DEFN
 C-----------------------------------------------------------------------
-      USE M3UTILIO      ! IOAPI module
+      USE UTILIO_DEFN
       USE PA_GLOBAL     ! Mech and Grid data used 
       USE PA_VARS
       USE PA_DEFN, Only: LIPR, LIRR, NIPRVAR, NIRRVAR,
@@ -184,8 +181,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          CALL GETIRROUT
       ELSE IF ( WORD .EQ. 'DESCRIPTION' ) THEN
          CALL GETDESC( LASTCMND )
-!     ELSE IF ( WORD .EQ. 'OUTPUT_DOMAIN' ) THEN
-     
       ELSE IF ( WORD .EQ. 'ENDPA' ) THEN
          GO TO 100
       ELSE

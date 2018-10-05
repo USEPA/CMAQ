@@ -23,7 +23,7 @@ C $Header: /project/yoj/arc/CCTM/src/gas/ros3/rbsolver.F,v 1.5 2011/10/21 16:11:
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
-       SUBROUTINE RBSOLVER( LOGDEV, JDATE, JTIME, CHEMSTEP, NCSP,
+       SUBROUTINE RBSOLVER( JDATE, JTIME, CHEMSTEP, NCSP,
      &                      LIRRFLAG, NIRRCLS, IRRCELL )
 
 C**********************************************************************
@@ -68,7 +68,6 @@ C**********************************************************************
 C..Includes:
 
 C..Arguments:
-      INTEGER,   INTENT( IN ) :: LOGDEV        ! Unit number of output log
       INTEGER,   INTENT( IN ) :: JDATE         ! Current date (YYYYDDD)
       INTEGER,   INTENT( IN ) :: JTIME         ! Current time (HHMMSS)
       REAL( 8 ), INTENT( IN ) :: CHEMSTEP      ! Chem integration interval (min)
@@ -258,11 +257,6 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
                CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
             END IF
 !        END IF
-
-!        write( logdev,* ) 'n_spec,blksize,n_rxns: ', n_spec, blksize, n_rxns
-!        write( logdev,* ) 'ydot size: ', size( ydot )
-!        write( logdev,* ) 'cirr size: ', size( cirr )
-!        write( logdev,* ) 'rkirr size: ', size( rkirr )
 
          RNSPEC = 1.0 / FLOAT( N_SPEC )
 

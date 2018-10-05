@@ -82,10 +82,6 @@ C------------------------------------------------------------------------------
       CHARACTER( 80 ), SAVE      :: LAND_SCHEME
       CHARACTER( 16 ), SAVE, ALLOCATABLE :: cat_lu( : )
       CHARACTER( 16 ), SAVE, ALLOCATABLE :: name_lu( : )
-!      LOGICAL,              SAVE :: PX_LSM
-!      LOGICAL,              SAVE :: CLM_LSM
-!      LOGICAL,              SAVE :: NOAH_LSM
-
 
       INTEGER, PRIVATE, PARAMETER :: n_modis   = 20
       INTEGER, PRIVATE, PARAMETER :: n_nlcd50  = 50
@@ -110,7 +106,7 @@ C------------------------------------------------------------------------------
 
 
 C-------------------------------------------------------------------------------
-C Soil Characteristics by Type
+C Soil Characteristics by Type from WRF 3.8.1 PX
 C
 C   #  SOIL TYPE  WSAT  WFC  WWLT  BSLP  CGSAT   JP   AS   C2R  C1SAT  WRES
 C   _  _________  ____  ___  ____  ____  _____   ___  ___  ___  _____  ____
@@ -312,6 +308,7 @@ C-------------------------------------------------------------------------------
      &                  1.44e6, 1.72e6, 1.69e6 /
 
 !*****************************************************************************
+! Vegetation parameters are adapted from WRF 3.8.1 PX LSM
 !*****************************************************************************
 ! MODIS-ONLY (1XX)/MODIS (2XX) LU characterization ... reclassified by NCEP
 !-------------------------------------------------------------------------------

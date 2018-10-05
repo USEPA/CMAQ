@@ -73,7 +73,6 @@ C-------------------------------------------------------------------------------
 
       Use GRID_CONF           ! horizontal & vertical domain specifications
       Use LSM_MOD             ! Land surface data
-!      Use DEPVVARS, Only: ltotg
 
       Implicit None
 
@@ -81,16 +80,16 @@ C-------------------------------------------------------------------------------
 
       Type :: MET_Type
 !> 2-D meteorological fields:
-         Real,    Allocatable :: RDEPVHT  ( :,: )  ! air dens / dep vel ht
+         Real,    Allocatable :: RDEPVHT  ( :,: )  ! reciprocal layer 1 height [m-1]
          Real,    Allocatable :: DENS1    ( :,: )  ! layer 1 air density
          Real,    Allocatable :: PRSFC    ( :,: )  ! surface pressure [Pa]
          Real,    Allocatable :: Q2       ( :,: )  ! 2 meter water vapor mixing ratio [kg/kg]
          Real,    Allocatable :: QSS_GRND ( :,: )  ! ground saturation water vapor mixing ratio [kg/kg]
          Real,    Allocatable :: RH       ( :,: )  ! relative humidity [ratio]
-         Real,    Allocatable :: RA       ( :,: )  ! aerodynamic resistnace [s/m]
-         Real,    Allocatable :: RS       ( :,: )  ! stomatal resistnace [s/m]
+         Real,    Allocatable :: RA       ( :,: )  ! aerodynamic resistance [s/m]
+         Real,    Allocatable :: RS       ( :,: )  ! stomatal resistance [s/m]
          Real,    Allocatable :: RC       ( :,: )  ! convective precipitation [cm]
-         Real,    Allocatable :: RN       ( :,: )  ! non-convective precipitation [mc]
+         Real,    Allocatable :: RN       ( :,: )  ! non-convective precipitation [cm]
          Real,    Allocatable :: RGRND    ( :,: )  ! Solar radiation at the ground [W/m**2]
          Real,    Allocatable :: HFX      ( :,: )  ! Sensible heat flux [W/m**2]
          Real,    Allocatable :: LH       ( :,: )  ! Latent heat flux [W/m**2]
@@ -124,14 +123,14 @@ C-------------------------------------------------------------------------------
          Real,    Allocatable :: VWIND    ( :,:,: )  ! [m/s]                    
 !> 3-D meteorological fields:
          Real,    Allocatable :: KZMIN    ( :,:,: )  ! minimum Kz [m**2/s]
-         Real,    Allocatable :: PRES     ( :,:,: )  ! layer 1 pressure [Pa]
+         Real,    Allocatable :: PRES     ( :,:,: )  ! pressure [Pa]
          Real,    Allocatable :: QV       ( :,:,: )  ! water vapor mixing ratio
          Real,    Allocatable :: QC       ( :,:,: )  ! cloud water mixing ratio
          Real,    Allocatable :: THETAV   ( :,:,: )  ! potential temp
          Real,    Allocatable :: TA       ( :,:,: )  ! temperature (K)
          Real,    Allocatable :: ZH       ( :,:,: )  ! mid-layer height above ground [m]
          Real,    Allocatable :: ZF       ( :,:,: )  ! layer height [m]
-         Real,    Allocatable :: DZF      ( :,:,: )  ! layer surface thickness
+         Real,    Allocatable :: DZF      ( :,:,: )  ! layer thickness
          Real,    Allocatable :: DENS     ( :,:,: )  ! air density
          Real,    Allocatable :: RJACM    ( :,:,: )  ! reciprocal mid-layer Jacobian
          Real,    Allocatable :: RJACF    ( :,:,: )  ! reciprocal full-layer Jacobian
@@ -153,7 +152,7 @@ C-------------------------------------------------------------------------------
          Real,    Allocatable :: SZONE  ( :,: )  ! Surf zone
          Real,    Allocatable :: PURB   ( :,: )  ! percent urban [%]
          Integer, Allocatable :: SLTYP  ( :,: )  ! soil type [category]
-         Real,    Allocatable :: WSAT   ( :,: )  ! soil wilting point
+         Real,    Allocatable :: WSAT   ( :,: )  ! volumetric soil saturation concentration
          Real,    Allocatable :: WWLT   ( :,: )  ! soil wilting point
          Real,    Allocatable :: BSLP   ( :,: )  ! B Slope 
          Real,    Allocatable :: WRES   ( :,: )  ! Soil residual moisture point
@@ -184,7 +183,6 @@ C Land use information:
       Type( GRID_Type ),    Save :: Grid_Data 
       Type( MOSAIC_Type ),  Save :: Mosaic_Data
 
-!      Integer, Save   :: n_spc_m3dry = ltotg       ! from DEPVVARS module
 !> asx constants
       Real, Parameter :: a0         = 8.0        ! [dim'less]
       Real, Parameter :: d3         = 1.38564e-2 ! [dim'less]
@@ -215,11 +213,10 @@ C Land use information:
       Real,    Save :: zsoil1             ! Layer 1 soil depth
       Real,    Save :: zsoil2             ! Layer 2 soil depth
       Real,    Save :: CONVPA             ! Pressure conversion factor file units to Pa
-      Logical, Save :: MINKZ     
       Logical, Save :: CSTAGUV            ! Winds are available with C stagger?
       Logical, Save :: ifwr     = .false.
 
-      Public        :: INIT_MET
+      Public        :: INIT_MET, GET_MET
 
       Logical, Private, Save :: ifsst    = .false.
       Logical, Private, Save :: ifq2     = .false.
@@ -231,7 +228,6 @@ C Land use information:
       Character( 16 ), Private, Save :: vname_rc, vname_rn, vname_uc, vname_vc
       Real,            Private, Save :: P0    ! reference pressure (100000.0 Pa) for Potential Temperature, note that in meteorology they do not use the SI 1 ATM.  
 
-      Integer, Private, Save :: LOGDEV
       Integer, Private, Save :: GXOFF, GYOFF              ! global origin offset from file
       Integer, Private, Save :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 ! MET_CRO_3D
       Integer, Private, Save :: STRTCOLMD3, ENDCOLMD3, STRTROWMD3, ENDROWMD3 ! MET_DOT_3D
@@ -245,7 +241,7 @@ C Land use information:
       CONTAINS
 
 C=======================================================================
-         Subroutine INIT_MET ( JDATE, JTIME, HGBIDI )
+         Subroutine INIT_MET ( JDATE, JTIME )
 
 C-----------------------------------------------------------------------
 C   30 Mar 01 J.Young: dyn alloc - Use HGRD_DEFN; replace INTERP3 with INTERPX;
@@ -260,16 +256,13 @@ C-----------------------------------------------------------------------
 
          Use UTILIO_DEFN
          Use MOSAIC_MOD, Only: Init_Mosaic
-         USE RUNTIME_VARS_MOD
 
          Implicit None
  
          Include SUBST_FILES_ID  ! file name parameters
-         Include SUBST_CONST     ! constants
 
 C Arguments:
          Integer, Intent( IN ) :: JDATE, JTIME      ! internal simulation date&time
-         Logical, Intent( IN ) :: HGBIDI
 
 C File variables:
          Real, Pointer    :: MSFX2   ( :,: )
@@ -290,11 +283,9 @@ C for INTERPX
 
 C-----------------------------------------------------------------------
 
-         LOGDEV = INIT3()
+         If ( MET_INITIALIZED ) Return
 
-         If( MET_INITIALIZED )Return
-
-         CALL INIT_MOSAIC( JDATE, JTIME, MOSAIC, ABFLUX )
+         CALL INIT_MOSAIC( JDATE, JTIME )
 
 !> Allocate buffers
          ALLOCATE ( BUFF1D( NLAYS ),
@@ -523,23 +514,8 @@ C-----------------------------------------------------------------------
                CONVPA = 1.0E-03
                P0     = 100000.0 * CONVPA
             Case Default
-               XMSG = 'Units incorrect on ' // MET_CRO_3D
+               XMSG = 'PRES units incorrect on ' // MET_CRO_3D
                Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         End Select
-
-         MINKZ = .True.   ! default
-         MINKZ = ENVYN( 'KZMIN', 'Kz min on flag', MINKZ, ALLOCSTAT )
-         If ( ALLOCSTAT .Ne. 0 ) Write( LOGDEV,'(5X, A)' ) 'Kz min on flag'
-         Select Case( ALLOCSTAT )
-            Case (  1 ) 
-               XMSG = 'Environment variable improperly formatted'
-               Call M3WARN( PNAME, JDATE, JTIME, XMSG )
-            Case ( -1 )
-               XMSG = 'Environment variable set, but empty ... Using default:'
-               Write( LOGDEV,'(5X, A)' ) XMSG
-            Case ( -2 )
-               XMSG = 'Environment variable not set ... Using default:'
-               Write( LOGDEV,'(5X, A)' ) XMSG
          End Select
 
          If ( .Not. MINKZ ) Then
@@ -749,7 +725,7 @@ C-----------------------------------------------------------------------
          End Subroutine INIT_MET
 
 C=======================================================================
-         Subroutine GET_MET ( JDATE, JTIME, TSTEP, HGBIDI )
+         Subroutine GET_MET ( JDATE, JTIME, TSTEP )
 
 C-----------------------------------------------------------------------
 C   30 Mar 01 J.Young: dyn alloc - Use HGRD_DEFN; replace INTERP3 with INTERPX;
@@ -766,7 +742,6 @@ C-----------------------------------------------------------------------
          Use UTILIO_DEFN
          USE VGRD_DEFN, Only: VGTYP_GD
          USE MOSAIC_MOD
-         USE RUNTIME_VARS_MOD
 #ifdef parallel
          USE SE_MODULES      ! stenex (using SE_COMM_MODULE)
 #else
@@ -777,14 +752,10 @@ C-----------------------------------------------------------------------
  
          Include SUBST_FILES_ID  ! file name parameters
          Include SUBST_PE_COMM   ! PE communication displacement and direction
-         Include SUBST_CONST     ! constants
 
 C Arguments:
 
          Integer, Intent( IN ) :: JDATE, JTIME, TSTEP      ! internal simulation date&time
-!         Logical, Intent( IN ) :: MOSAIC
-!         Logical, Intent( IN ) :: ABFLUX
-         Logical, Intent( IN ) :: HGBIDI
 
 C Parameters:
          Real, Parameter :: cond_min = 1.0 / resist_max ! minimum conductance [m/s]
@@ -810,10 +781,10 @@ C Local variables:
          Character( 96 ) :: XMSG = ' '
 
 C-----------------------------------------------------------------------
-C Check consisteancy with WRF LSM and CMAQ options
+C Check consistency with WRF LSM and CMAQ options
 C-----------------------------------------------------------------------
          If( .Not. PX_LSM .And. .Not. CLM_LSM .And. .Not. NOAH_LSM ) Then
-            XMSG = 'WRF LSM does not supported. PX, CLM and NOAH are supported'
+            XMSG = 'WRF LSM is not supported. PX, CLM and NOAH are supported'
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             If( ABFLUX ) Then
                XMSG = 'NH3 bidirectional exchange is not supported using this WRF LSM option. Set CTM_ABFLUX to N.'
@@ -1311,7 +1282,7 @@ C read in land use specific meteorology from WRF Noah or Ruc mosaic options
 !     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,n_lufrac,
 !     &                       JDATE, JTIME,  MOSAIC_DATA%LAI ) ) THEN
 !            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_3D
-         CALL CALC_LAI( JDATE, JTIME, LOGDEV, MET_DATA%SOIT2, GRID_DATA%LUFRAC,
+         CALL CALC_LAI( JDATE, JTIME, MET_DATA%SOIT2, GRID_DATA%LUFRAC,
      &                  MET_DATA%LAI, MOSAIC_DATA%VEG, MOSAIC_DATA%LAI, MOSAIC_DATA%Z0 )
 !         END IF
 

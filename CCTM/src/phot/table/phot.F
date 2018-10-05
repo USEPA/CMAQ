@@ -17,14 +17,7 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/phot/phot_table/phot.F,v 1.4 2011/10/21 16:11:29 yoj Exp $ 
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C @(#)phot.F    1.2 /project/mod3/CMAQ/src/phot/phot/SCCS/s.phot.F 04 Jul 1997 10:09:53
-
-      SUBROUTINE PHOT ( MDATE, MTIME, JDATE, JTIME, DTSTEP, RJ )
+      SUBROUTINE PHOT ( CGRID, JDATE, JTIME, DTSTEP )
 C----------------------------------------------------------------------
 C Function:
 C    PHOT, adapted from RADM, calculates the photolysis rate constants
@@ -35,7 +28,7 @@ C    above, below and in cumulus clouds.
 
 C Preconditions: HGRD_INIT() called from PAR_INIT, which is called from DRIVER
 
-C Subroutines/Functions called: INIT3, opphot
+C Subroutines/Functions called: opphot
 
 C Revision history:
 C    prototype(adaptation from RADM), Rohit Mathur, April 1993.
@@ -70,7 +63,7 @@ C----------------------------------------------------------------------
       USE GRID_CONF           ! horizontal & vertical domain specifications
       USE RXNS_DATA           ! chemical mechanism data
       USE UTILIO_DEFN         ! IO and other utility routines
-      USE PHOT_MET_DATA       ! Met and Grid data
+      USE PHOT_MOD            ! Module with photolysis rate arrays and pointers
 
       IMPLICIT NONE
 
@@ -80,13 +73,10 @@ C include files:
       INCLUDE SUBST_CONST      ! physical constants
 
 C arguments:
-
-      INTEGER, INTENT( IN ) :: MDATE          ! "centered" Julian date (YYYYDDD)
-      INTEGER, INTENT( IN ) :: MTIME          ! "centered" time (HHMMSS)
-      INTEGER, INTENT( IN ) :: JDATE          ! current Julian date (YYYYDDD)
-      INTEGER, INTENT( IN ) :: JTIME          ! current time (HHMMSS)
-      INTEGER, INTENT( IN ) :: DTSTEP( : )    ! time step vector (HHMMSS)
-      REAL,    INTENT( OUT ) :: RJ(:,:,:,:)   ! gridded J-values  (1/min units)
+      REAL,    POINTER      :: CGRID( :,:,:,: )  ! Species concentrations
+      INTEGER, INTENT( IN ) :: JDATE         ! current Julian date (YYYYDDD)
+      INTEGER, INTENT( IN ) :: JTIME         ! current time (HHMMSS)
+      INTEGER, INTENT( IN ) :: DTSTEP( : )   ! time step vector (HHMMSS)
 
 C local parameters:
 
@@ -106,23 +96,21 @@ C saved local variables:
       INTEGER, SAVE :: JVHT               ! number of vertical levels
       INTEGER, SAVE :: JVTMAX             ! number of hour angles
       INTEGER, SAVE :: JVLAT              ! number of latitudes
-      INTEGER, SAVE :: LOGDEV
 
       INTEGER, ALLOCATABLE, SAVE :: PHID( : )     ! index of phot tab name in file list
 
       REAL, SAVE    :: STRTHR             ! starting GMT hour
       REAL, SAVE    :: JDSTRT             ! current Julian day (DDD)
-!     REAL, SAVE    :: LAT ( NCOLS, NROWS ) ! north lat in deg (cross pt.)
-!     REAL, SAVE    :: LON ( NCOLS, NROWS ) ! west long in deg (cross pt.)
-!     REAL, SAVE    :: HT  ( NCOLS, NROWS ) ! ground elevation msl (meters)
-!      REAL, ALLOCATABLE, SAVE :: LAT( :,: ) ! north lat in deg (cross pt.)
-!      REAL, ALLOCATABLE, SAVE :: LON( :,: ) ! west long in deg (cross pt.)
-!      REAL, ALLOCATABLE, SAVE :: HT( :,: ) ! ground elevation msl (meters)
+
       REAL, ALLOCATABLE, SAVE :: XJVAL( :,:,:,: ) ! file jvalues
       REAL, ALLOCATABLE, SAVE :: XHAJV ( : ) ! hours from noon
       REAL, ALLOCATABLE, SAVE :: XLATJV( : ) ! latitudes of file photolytic rates
       REAL, ALLOCATABLE, SAVE :: XZJV  ( : ) ! vertical heights of file photolytic
       REAL, ALLOCATABLE, SAVE :: ACLD  ( : ) ! ??????????
+      REAL, ALLOCATABLE, SAVE :: LAT   ( :,: ) ! north lat in deg (cross pt.)
+      REAL, ALLOCATABLE, SAVE :: LON   ( :,: ) ! west long in deg (cross pt.)
+      REAL, ALLOCATABLE, SAVE :: HT    ( :,: ) ! ground elevation msl (meters)
+      REAL, ALLOCATABLE, SAVE :: ZM    ( :,:,: )     ! layer half height agl [m]
 
 
       CHARACTER( 16 ), SAVE :: PNAME = 'PHOT'
@@ -163,6 +151,10 @@ C scratch local variables:
       INTEGER      ALLOCSTAT
       INTEGER      JTIME_CHK          ! To check for JTIME to write RJ values
       INTEGER      ESTAT              ! status from environment var check
+
+      INTEGER      ITMSTEP            ! one half synchronization timestep (sec)
+      INTEGER      MDATE              ! Date at time step midpoint
+      INTEGER      MTIME              ! Time at time step midpoint
 
       REAL         CURRHR             ! current GMT hour
       REAL         THETA              ! function dummy argument
@@ -213,11 +205,11 @@ C internal functions:
       SINE   ( THETA ) = SIN ( PI180 * THETA )
       COSINE ( THETA ) = COS ( PI180 * THETA )
 
+
 C----------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
         FIRSTIME = .FALSE.
-        LOGDEV = INIT3()
         STDATE = JDATE
         STTIME = JTIME
         STRTHR = FLOAT ( JTIME / 10000 )
@@ -489,24 +481,7 @@ C...get height
           CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
-
-C...Get photolysis rate diagnostic file flag
-
-        PHOTDIAG = .FALSE.         ! default
-        VARDESC= 'Flag for writing the photolysis rate diagnostic file'
-        PHOTDIAG = ENVYN( CTM_PHOTDIAG, VARDESC, PHOTDIAG, ESTAT )
-        IF ( ESTAT .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-        IF ( ESTAT .EQ. 1 ) THEN
-          XMSG = 'Environment variable improperly formatted'
-          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-        ELSE IF ( ESTAT .EQ. -1 ) THEN
-          XMSG =
-     &          'Environment variable set, but empty ... Using default:'
-          WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-        ELSE IF ( ESTAT .EQ. -2 ) THEN
-          XMSG = 'Environment variable not set ... Using default:'
-          WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-        END IF
+        CALL INIT_PHOT_SHARED()
 
         IF ( PHOTDIAG ) THEN
 C...open the photolysis rate diagnostic files
@@ -577,6 +552,12 @@ C...  (assumes sun below horizon at *all* levels!)
 
         RETURN
       END IF
+
+C...Calculate mid date and time
+      MDATE = JDATE
+      MTIME = JTIME
+      ITMSTEP = TIME2SEC( DTSTEP( 2 ) ) / 2
+      CALL NEXTIME( MDATE, MTIME, SEC2TIME( ITMSTEP ) )
 
 C...Get heights of each level
 
@@ -801,6 +782,8 @@ C...  in cloud - linearly interpolate between base and top value
                     RJ( COL, ROW, LEV, JP ) = FCLD
      &                                      * RJ( COL, ROW, LEV, JP )
 
+                    RJ_RES( COL, ROW, LEV, JP ) = RJ( COL, ROW, LEV, JP )
+                    RJ_SUB( COL, ROW, LEV, JP ) = RJ( COL, ROW, LEV, JP )
                   END DO
                 END DO
               END IF

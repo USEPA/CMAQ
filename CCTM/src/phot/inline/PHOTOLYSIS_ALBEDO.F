@@ -110,7 +110,7 @@ C for INTERPX
 
       CONTAINS
 
-         FUNCTION INITIALIZE_ALBEDO( MDATE, MTIME, LOGDEV ) RESULT ( SUCCESS )
+         FUNCTION INITIALIZE_ALBEDO( MDATE, MTIME ) RESULT ( SUCCESS )
 C...        Function sets up arrays and data needed to calculate surface albedos
 C           use in radiative transfer calculation for actinic fluxes
 
@@ -133,7 +133,6 @@ C...Arguments:
 
             INTEGER, INTENT( IN ) :: MDATE     ! Julian date (YYYYDDD)
             INTEGER, INTENT( IN ) :: MTIME     ! time        (HHMMSS)
-            INTEGER, INTENT( IN ) :: LOGDEV    ! messaging IO unit number  
 
 C...Local:
             REAL                       :: JYEAR                      ! year, ADE
@@ -610,7 +609,7 @@ C...set up sea ice annual and snow albedos along with correction factors
             
          END FUNCTION INITIALIZE_ALBEDO
             
-         SUBROUTINE GET_ALBEDO( MDATE, MTIME, LOGDEV, COSZENS, LAT, LON )
+         SUBROUTINE GET_ALBEDO( MDATE, MTIME, COSZENS, LAT, LON )
             
 C... Subroutine calculates diffuse and direct surface albedo versus wavelength over a set of
 C    latitudes and longitudes
@@ -632,7 +631,6 @@ C arguments:
 
             INTEGER, INTENT( IN ) :: MDATE            ! Julian date (YYYYDDD)
             INTEGER, INTENT( IN ) :: MTIME            ! time        (HHMMSS)
-            INTEGER, INTENT( IN ) :: LOGDEV           ! messaging IO unit number  
             REAL,    INTENT( IN ) :: COSZENS( :,: )   ! cosine of the solar zenith angle
             REAL,    INTENT( IN ) :: LAT( :,: )       ! north lat at cell center [deg]
             REAL,    INTENT( IN ) :: LON( :,: )       ! west long at cell center [deg] 

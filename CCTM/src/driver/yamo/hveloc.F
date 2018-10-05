@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/driver/yamo/hveloc.F,v 1.5 2011/10/21 16:10:43 yoj Exp $ 
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C @(#)hcontvel.F        1.1 /project/mod3/CMAQ/src/util/util/SCCS/s.hcontvel.F 03 Jun 1997 12:08:52
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE HVELOC ( JDATE, JTIME, TSTEP, UWIND, VWIND, HDIV )
       
@@ -106,7 +99,6 @@ C External Functions:
 C local variables:
       
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
-      INTEGER, SAVE :: LOGDEV
        
       INTEGER   MDATE             ! mid-advection date
       INTEGER   MTIME             ! mid-advection time
@@ -142,7 +134,6 @@ C-----------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
-         LOGDEV = INIT3 ()
 
          CALL LSTEPF( MET_CRO_3D, LDATE( 1 ), LTIME( 1 ) )
 !        CALL LSTEPF( MET_BDY_3D, LDATE( 2 ), LTIME( 2 ) )

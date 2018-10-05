@@ -25,20 +25,18 @@
 ! Revision History:
 !     09 Nov 2017 B.Murphy: Extracted these variables from EMIS_DEFN
 !-----------------------------------------------------------------------
+      USE RUNTIME_VARS
+
       IMPLICIT NONE
 
       SAVE
 
       REAL,    ALLOCATABLE :: VDEMIS_DIFF( :,:,:,: ) ! emissions array mapped to diffused species
 
-      INTEGER              :: STDATE, STTIME
-
       INTEGER              :: N_EM_SRM   ! global number of emissions streams
-      INTEGER              :: N_FILE_GR, NPTGRPS, N_FILE_TR  
       INTEGER              :: N_EMIS_ISTR! global emissions instructions
-      INTEGER              :: EMLAYS     ! no. of emis integration layers
-                                         ! EMLAYS must be .LE. NLAYS
       INTEGER              :: N_EM_RGN   ! no. of region masks
+      INTEGER              :: EMLAYS
 
       CHARACTER( 16 ), ALLOCATABLE :: EM_SPEC  ( : ) ! Vector of Internal CMAQ Species names for 
                                                      ! each emission operation
@@ -156,9 +154,6 @@
       LOGICAL :: Guard_WindBlownDust = .FALSE.
       LOGICAL :: Guard_SeaSpray      = .FALSE.
  
-      ! Flag to Zero out PCSOA from predictions
-      LOGICAL :: ZERO_PCSOA          = .FALSE.
-
       ! Create Map from CMAQ Species Names to Common Surrogate
       ! Names on Emissions Input Files. Also include default aerosol mode
       ! for aerosols and molecular weight assumed in SPECIATE/SMOKE/MOVES.
@@ -347,13 +342,11 @@
       INTEGER, INTENT( IN )       :: IRULE
       LOGICAL, INTENT( INOUT )    :: EM_STREAM_RULE( N_EM_SRM )
 
-      INTEGER ISRM, IDX, LOGDEV
+      INTEGER ISRM, IDX
       CHARACTER( 200 ) :: XMSG
       CHARACTER( 16 )  :: PNAME = "EMIS_SPC_MAP"
       INTEGER  :: JDATE = 0
       INTEGER  :: JTIME = 0
-
-      LOGDEV = INIT3()
 
       ! Initialize the output vector
       EM_STREAM_RULE = .FALSE.
@@ -413,29 +406,24 @@
 !     speciated compounds.
 !-----------------------------------------------------------------------
 
-      USE DEPV_DEFN, ONLY: ABFLUX ! ammonia bidi flag
       USE AERO_DATA, ONLY: ACORSEM_ASO4_FAC, ACORSEM_ANO3_FAC,
      &                     ACORSEM_ACL_FAC,  ACORSEM_AH2O_FAC,
      &                     ACORSEM_RENORM,   POA_OP_VF,
      &                     POA_AMF, POG_AMF, PCVOC_FAC
       USE RXNS_DATA, ONLY: MECHNAME
-      USE M3UTILIO
 
       IMPLICIT NONE
 
       INTEGER,         INTENT( INOUT ) :: N_EM_RULE
       TYPE( EM_RULE_REG )              :: EM_NML_B( N_EM_RULE_REG  )
 
-      INTEGER          :: N_EM_RULE_B, IRULE, ISRM, STATUS
-      LOGICAL          :: SUBTRACT_FERTILIZER_NH3 = .TRUE.
-      CHARACTER(200)   :: VARDESC
- 
+      INTEGER          :: N_EM_RULE_B, IRULE, ISRM
 
       N_EM_RULE_B = 0
  
       ! Add a rule For Removing Fertilizer Ammonia if BiDi is
       ! activated and the user has requested the correction
-         IF ( ABFLUX .AND. SUBTRACT_FERTILIZER_NH3 ) THEN
+         IF ( ABFLUX .AND. BIDI_FERT_NH3 ) THEN
             N_EM_RULE_B = N_EM_RULE_B + 1
             EM_NML_B(N_EM_RULE_B)%SPEC  = 'NH3'
             EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
@@ -711,13 +699,8 @@
             EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
             EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
             EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(5) * POA_AMF(5)
-
-            ! Create rules for mapping PCSOA precursor.
-            VARDESC = 'Flag for Zeroing Out pcSOA'
-            ZERO_PCSOA = ENVYN( 'CTM_ZERO_PCSOA', VARDESC, ZERO_PCSOA, STATUS )
-
+          
             IF ( .NOT. ZERO_PCSOA ) THEN
-
               ! PCVOC <- POC
               N_EM_RULE_B = N_EM_RULE_B + 1
               EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
@@ -979,11 +962,8 @@
          RGN_NML%FILE  = ''
          RGN_NML%VAR   = ''
 
-         LOGDEV = INIT3()
-
          ! Retrieve the Name of the Emission Control File
-         CALL NAMEVAL( "EMISSCTRL_NML", EQNAME )  ! Returns EMISSCTRL_NML if it fails
-         IF ( EQNAME .EQ. "EMISSCTRL_NML" ) THEN
+         IF ( EMISSCTRL .EQ. "EMISSCTRL_NML" ) THEN
              WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A)"),
      &              'You have chosen not to indicate the location of an',
      &              'Emission Control namelist file. Default settings ',
@@ -993,7 +973,7 @@
 
          ! Open Emission Control Namelist File
          EMCTRL_NML = JUNIT()
-         OPEN( FILE = EQNAME, UNIT = EMCTRL_NML, STATUS = 'OLD',
+         OPEN( FILE = EMISSCTRL, UNIT = EMCTRL_NML, STATUS = 'OLD',
      &         POSITION = 'REWIND', FORM='FORMATTED', IOSTAT = STAT )
 
          ! Check for Error in File Open Process

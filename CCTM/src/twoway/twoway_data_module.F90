@@ -8,8 +8,6 @@
 
   module twoway_data_module
 
-    LOGICAL :: indirect_effect
-
     CHARACTER (LEN = 40) :: mminlu
 
     INTEGER, SAVE :: num_land_cat

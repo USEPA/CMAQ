@@ -1,12 +1,6 @@
 C PE communication displacement and direction masks
 C NOTE: NE, NW, SE, SW stencils not used in CMAQ
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/ICL/src/fixed/mpi/PE_COMM.EXT,v 1.1 2010/07/23 15:24:03 yoj Exp $ 
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C.......................................................................
 
 !     CHARACTER( 12 ) :: DSPL_N0_E0_S0_W0 = '  0  0  0  0'

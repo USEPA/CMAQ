@@ -13,6 +13,5 @@ CCTM includes options for the in-line processing of emissions and photolysis rat
 Both in-line emissions and photolysis are invoked through compile-time configuration options for CCTM. When CCTM is instrumented for in-line emissions calculations, a series of additional input files and environment variables are required at execution. The details of these additional inputs are provided below. In-line photolysis does not require any additional inputs as CCTM includes all of the photolysis rate data internal to the in-line instrumented version of the model.
 
 ## Directories
-* **docs**: documentation, including the technical release notes and operational guidance
 * **scripts**: build and run scripts
 * **src**: model source code

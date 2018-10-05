@@ -17,10 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/PROCAN/src/driver/pa/pa_molcprod.F,v 1.5 2011/11/02 14:33:59 yoj Exp $
-
       REAL FUNCTION MOLCPROD( NAMETYP, NAMINDX, NRX, NPFND )
 
 C-----------------------------------------------------------------------

@@ -156,7 +156,6 @@ C Meteorological variables
       REAL M2_WET, M2_DRY
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
-      INTEGER, SAVE :: LOGDEV                   ! unit number for the log file
       CHARACTER( 16 ), SAVE :: PNAME = 'AERO_DEPV'
       CHARACTER( 16 ) :: VNAME            ! varable name
       CHARACTER( 96 ) :: XMSG = ' '
@@ -184,7 +183,6 @@ C-----------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
-         LOGDEV = INIT3()
 
          NCELLS = NCOLS * NROWS
 
@@ -309,10 +307,22 @@ C                     coarse surface area and to account for variable
 C                     standard deviation of the coarse mode.
 C 08 Sep 08 P.Bhave:  Backward compatibility with AE4 mechanisms
 C                     standardized names of all coarse-mode variables
+C 29 Aug 18 J.Pleim:  Revised formulation of dry deposition impaction term 
+C                     so that it integrates the affect of mode width in the 
+C                     Stokes number via the settling velocity rather than 
+C                     adjusting the impaction term magnitude directly at the
+C                     end. This change is believed to resolve massive 
+C                     overprediction of deposition velocity for coarse-mode 
+C                     particles. Changed Stokes # to be more representative 
+C                     of vegetated surfaces as suggested by Slinn (1982) and 
+C                     Giorgi (1986), changed impaction term according to Slinn 
+C                     (1982), and added scaling of diffusion layer resistance 
+C                     (Rd) by LAI for vegetated fraction of grid cell. Developed 
+C                     based on analysis by Qian Shu, University of Florida. 
+C                     Peer-reviewed publication in preparation.
 C-----------------------------------------------------------------------
 
-      USE GRID_CONF, Only: NCOLS, NROWS
-      !USE LSM_MOD, Only: n_lufrac      ! to get n_lufrac
+      USE GRID_CONF, Only: ncols, nrows
       USE AEROMET_DATA   ! Includes CONST.EXT
       USE ASX_DATA_MOD, Only: Met_Data, Grid_Data !, Mosaic_Data
       USE AERO_DATA, Only: N_MODE
@@ -337,17 +347,11 @@ C     log of modal geometric standard deviations
 C     average modal particle densities  [ kg m-3 ]
       REAL, INTENT( IN ) :: PDENS( :,:,: )  
 
-C     Mosaic variables
-!      LOGICAL, INTENT( IN ) :: MOSAIC
-
 C *** output arguments
 
-      ! deposition  velocity [ m s-1 ]
+      ! deposition  velocity [ m/s ]
       REAL, INTENT( OUT ) :: VDEP( :,:,: ) 
       
-      ! deposition  velocity [ m s-1 ] for each land use category
-      ! REAL, INTENT( OUT ) :: VDEPJ( :,:,:,: ) 
-
 C *** array indices hardcoded to match SUBROUTINE AERO_DEPV
       INTEGER, PARAMETER, DIMENSION( 3 ) :: 
      &                      VDN = (/ 1,2,3 /) , 
@@ -374,17 +378,18 @@ C modal sedimentation velocities for number, 2nd, and 3rd moment, or mass:
       REAL SC0     ! Schmidt numbers for number
       REAL SC2     ! Schmidt numbers for 2nd moment
       REAL SC3     ! Schmidt numbers for 3rd moment
-      REAL STOKE   ! Stokes numbers for each mode
+      REAL STOKE2  ! Stokes numbers for each mode squared
       REAL RD0     ! canopy resistance for number
       REAL RD2     ! canopy resistance for 2nd moment
-      REAL RD3     ! canopy resistance for 3rd moment
+      REAL RD3     ! canopy resisteance for 3rd moment
       REAL UTSCALE              ! scratch function of USTAR and WSTAR
       REAL NU                   ! kinematic viscosity [ m2 s-1 ]
-      REAL USTFAC               ! scratch function of USTAR, NU, and GRAV
+      REAL STOKEFAC             ! scratch function of USTAR, NU, and GRAV
 
       REAL, PARAMETER :: BHAT    = 1.246 ! Constant from Cunningham slip correction
       REAL, PARAMETER :: THREEPI = 3.0 * PI
       REAL, PARAMETER :: TWO3    = 2.0 / 3.0
+      REAL, PARAMETER :: A2      = 0.002        ! size of surface element = 2 mm, could be func of LU
 
 C Scalar variables for VARIABLE standard deviations.
 
@@ -414,13 +419,10 @@ C Scalar variables for VARIABLE standard deviations.
 C-----------------------------------------------------------------------
 
       VDEP  = 0.0   ! array assignment
-!      IF ( MOSAIC ) THEN
-!         VDEPJ = 0.0   ! array assignment
-!      END IF
 
-      DO IM = 1, N_MODE
-      DO R = 1, NROWS
-        DO C = 1, NCOLS
+      DO IM = 1,N_MODE
+      DO R = 1,NROWS
+        DO C = 1,NCOLS
 C *** Calculate Knudsen numbers
             TWOXLM = XLM( C,R ) + XLM( C,R )
             KN = TWOXLM / DG( C,R,IM )
@@ -466,16 +468,19 @@ C Calculate characteristic parameters
 C now calculate the deposition velocities
 
             NU = AMU( C,R ) / Met_Data%DENS1( C,R )
-            USTFAC = Met_Data%USTAR( C,R ) ** 2 / ( GRAV * NU )
-            STOKE  = DCONST3 * USTFAC
-            UTSCALE = Met_Data%USTAR( C,R )
+!            USTFAC = Met_Data%USTAR( C,R ) ** 2 / ( GRAV * NU )
+!            STOKE  = DCONST3 * USTFAC
+            STOKEFAC = Met_Data%USTAR( C,R ) / (GRAV * A2)
+            UTSCALE = (1.+Met_Data%VEG(C,R) * MAX(Met_Data%LAI(C,R)-1.,0.0) )
+     &              * (Met_Data%USTAR( C,R )
      &              + 0.24 * Met_Data%WSTAR( C,R )**2
-     &              /        Met_Data%USTAR( C,R )
+     &              /        Met_Data%USTAR( C,R ) )
 
 C first do 0th moment for the deposition of number
             SC0 = NU / DCHAT0
-            EIM = STOKE ** 2 / 400.0 * ES64
-            EIM = MIN( EIM, 1.0 )
+            STOKE2 = (STOKEFAC * VGHAT0)**2
+            EIM = STOKE2 / (1.0 + STOKE2)
+!            EIM = MIN( EIM, 1.0 )
             RD0 = 1.0 / ( UTSCALE * ( SC0 ** ( -TWO3 ) + EIM ) )
 
             VDEP( C,R,VDN( IM ) ) = VGHAT0
@@ -483,8 +488,9 @@ C first do 0th moment for the deposition of number
 
 C now do 2nd moment for the deposition of surface area
             SC2 = NU / DCHAT2
-            EIM = STOKE ** 2 / 400.0 * ES128
-            EIM = MIN( EIM, 1.0 )
+            STOKE2 = (STOKEFAC * VGHAT2)**2
+            EIM = STOKE2 / (1.0 + STOKE2)
+!            EIM = MIN( EIM, 1.0 )
             RD2 = 1.0 / ( UTSCALE * ( SC2 ** ( -TWO3 ) + EIM ) )
 
             VDEP( C,R,VDS( IM ) ) = VGHAT2
@@ -492,8 +498,9 @@ C now do 2nd moment for the deposition of surface area
 
 C now do 3rd moment for the deposition of mass
             SC3 = NU / DCHAT3
-            EIM = STOKE ** 2 / 400.0 * ES160
-            EIM = MIN( EIM, 1.0 )
+            STOKE2 = (STOKEFAC * VGHAT3)**2
+            EIM = STOKE2 / (1.0 + STOKE2)
+!            EIM = MIN( EIM, 1.0 )
             RD3 = 1.0 / ( UTSCALE * ( SC3 ** ( -TWO3 ) + EIM ) )
 
             VDEP( C,R,VDM( IM ) ) = VGHAT3

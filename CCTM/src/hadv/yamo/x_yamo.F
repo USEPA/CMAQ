@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/hadv/yamo/x_yamo.F,v 1.3 2011/10/21 16:11:20 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE X_YAMO ( CGRID, FDATE, FTIME, TSTEP, LVL, BCON, XTRHOJ )
 
@@ -110,8 +103,6 @@ C Local Variables:
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
       CHARACTER( 96 ) :: XMSG = ' '
 
-      integer, save :: logdev
-
       REAL,    SAVE :: DX1                      ! dx1 (meters)
       INTEGER, SAVE :: ASPC                     ! RHOJ index in CGRID
       REAL          ADJFAC                      ! Yamo's adjustment - jp 11/02
@@ -176,7 +167,6 @@ C-----------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
-         logdev = init3 ()
 
          EFX = MY_NCOLS + 1
          WFX = 2 * MY_NCOLS + MY_NROWS + 4
@@ -221,22 +211,18 @@ C Get dx1 from HGRD_DEFN module
 
 C Create global map to CGRID
  
-!        write( logdev,* ) ' advmap'
          SPC = 0
          DO VAR = 1, N_GC_TRNS
             SPC = SPC + 1
             ADV_MAP( SPC ) = GC_STRT - 1 + GC_TRNS_MAP( VAR )
-!           write( logdev,* ) spc, adv_map( spc ), gc_spc( gc_adv_map( var ) )
          END DO
          DO VAR = 1, N_AE_TRNS
             SPC = SPC + 1
             ADV_MAP( SPC ) = AE_STRT - 1 + AE_TRNS_MAP( VAR )
-!           write( logdev,* ) spc, adv_map( spc ), ae_spc( ae_adv_map( var ) )
          END DO
          DO VAR = 1, N_NR_TRNS
             SPC = SPC + 1
             ADV_MAP( SPC ) = NR_STRT - 1 + NR_TRNS_MAP( VAR )
-!           write( logdev,* ) spc, adv_map( spc ), nr_spc( nr_adv_map( var ) )
          END DO
          DO VAR = 1, N_TR_ADV
             SPC = SPC + 1
@@ -244,8 +230,6 @@ C Create global map to CGRID
          END DO
  
          ADV_MAP( N_SPC_ADV ) = ASPC
-!        spc = n_spc_adv
-!        write( logdev,* ) spc, adv_map( spc ), 'rhoj'
 
 !        CALL SUBST_LOOP_INDEX ( 'C', 1, MY_NCOLS, 1, MY_TEMP,
 !    &                           STARTCOL, ENDCOL )
@@ -261,9 +245,6 @@ C Create global map to CGRID
             ENDCOL2_LIM = ENDCOL2 + 1
          END IF
 
-!        write( logdev,2005 ) bndy_pe_lox, bndy_pe_hix,
-!    &                        startcol, endcol, startcol2, endcol2, endcol2_lim
-!        call flush_
 2005  format(  '#x_yamo> :', 2l6, 2x, 5i6.3 )
 
       END IF                    ! if firstime
@@ -336,15 +317,6 @@ C check adjusted velocities for Courant limited max timestep
                DTCFL = MIN ( DTCFL, 0.9 * DX1 / ABS( VELX( COL ) ) )
             END IF
 
-!           if ( velx( col ) .lt. 0.0 ) then
-!              if ( adjfac .lt. 0.70 .or. adjfac .gt. 1.36 ) then
-!                 write( logdev,2009 ) col, row, lvl, adjfac, velx(col)
-!              end if   !
-!           else
-!              if ( adjfac_l .lt. 0.70 .or. adjfac_l .gt. 1.36 ) then
-!                 write( logdev,2011 ) col, row, lvl, adjfac_l, velx(col)
-!              end if   !
-!           end if
 2009        format(  '#x_yamo> col, row, lvl, adjfac,   velx: ',
      &                3i3, 1x, 2f7.2 )
 2011        format(  '#x_yamo> col, row, lvl, adjfac_l, velx: ',
@@ -392,12 +364,6 @@ C East boundary
 
          END DO   ! SPC
 
-!        if ( lvl .eq. 1 .and. row .eq. 14 ) then
-!           write( logdev,* ) '@@ x_yamo# time, col, velx'
-!           do col = 30, my_ncols+1
-!              write( logdev,2017 ) ftime, col, velx( col )
-!           end do
-!        end if
 2017  format( '@@', 5x, i7.6, i4, 1pe12.3 )
 
 C PPM scheme
@@ -414,8 +380,6 @@ C PPM scheme
             A2C = ADV_MAP( SPC )
             DO COL = 1, MY_NCOLS
                CGRID( COL,ROW,LVL,A2C ) = CONX( COL,SPC )
-!              if ( conx( col,spc ) .le. 0.0 )
-!    &            write( logdev,2019 ) ftime, col, row, lvl, spc, conx(col,spc )
             END DO
          END DO
 

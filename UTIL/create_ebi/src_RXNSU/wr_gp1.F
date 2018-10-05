@@ -45,7 +45,7 @@ C..SCRATCH LOCAL VARIABLES:
       CHARACTER( 256 )  ::    LINOUT
       CHARACTER( 150 )  ::    RXOUT
       CHARACTER( 100 )  ::    BLANK_LINE
-      CHARACTER*(  3 )  ::    RNUM                 ! Reaction number
+      CHARACTER*(  5 )  ::    RNUM                 ! Reaction number
       CHARACTER*(  9 )  ::    COUT                 ! Output coefficient
       CHARACTER*(  1 )  ::    SGN                  ! Coefficient sign
    
@@ -70,7 +70,8 @@ C..SCRATCH LOCAL VARIABLES:
       LOGICAL  :: LFIRST       ! First pass flag
       LOGICAL  :: LRXN1        ! First rxn flag
       LOGICAL  :: LNO2EX_DONE  ! Flag to indicate NO2EX done
-
+      LOGICAL  :: LERROR       ! Error flag
+              
       REAL( 8 ) :: COEFF        ! Prod/loss coefficient
       REAL( 8 ) :: RNO          ! Sum of NO  reactant coefficients
       REAL( 8 ) :: RNO2         ! Sum of NO2 reactant coefficients
@@ -89,7 +90,8 @@ C..SCRATCH LOCAL VARIABLES:
       
 
 C**********************************************************************
-
+      LERROR = .FALSE.
+      
       DO N = 1, 72
         CLINE( N : N ) = 'c'
       END DO
@@ -676,10 +678,16 @@ c..Determine the rxn to include & get the coefficient for the loss term
          CALL SUM_COEFF( RNO2, 'R', NO2, N )
          CALL SUM_COEFF( PNO,  'P', NO,  N )
          CALL SUM_COEFF( PNO2, 'P', NO2, N )
-
          IF( RNO2 .LE. PNO2 ) CYCLE                ! Skip rxns w/ Lno2=0
-
          IF( RNO .GE. PNO )  COEFF = RNO2 - PNO2   ! Rxns w/ Lno2>0 & Pno=0      
+         IF( RNO2 + PNO2 .LT. 0.0D0 )THEN          ! Stop net stoichiometry
+            WRITE( RNUM, '(I5)') N
+            MSG = 'REACTION ' // RNUM // ': has net stoichiometry for NO2.'
+     &              // ' not permitted. '
+            WRITE(LOGDEV,92000)TRIM( MSG )
+            LERROR = .TRUE. 
+         END IF
+            
          IF( RNO .LT. PNO .AND.                    ! Rxns w/ Lno2>0 & Pno>0
      &       RNO2 - PNO2 .GT. PNO - RNO )          ! & Lno2>Pno
      &      COEFF = (RNO2 -PNO2 ) - ( PNO - RNO )  
@@ -829,9 +837,8 @@ c..Write the section header
          CALL SUM_COEFF( RO3P,  'R', O3P,  N )
          CALL SUM_COEFF( PO3P,  'P', O3P,  N )
 
-          IF( RO3P .GT. 0 .AND. PO3P .EQ. RO3P ) THEN
-             print*,'rxn = ',N,' Po3p = ',PO3P,' Ro3p = ',RO3P
-             CYCLE                ! Skip rxns with Po3p=0
+          IF( RO3P .GT. 0 .AND. PO3P .EQ. RO3P ) THEN ! Skip rxns with Po3p=0
+             CYCLE                
           END IF
 
 
@@ -1008,14 +1015,18 @@ c..Find NO2->NO2EX Rxn no. if NO2EX included in group
      &                     SPECIES( NO  )( 1 : LEN_TRIM( SPECIES( NO ) ) )
       WRITE( IOUT, 96100 ) SPECIES( O3P )( 1 : LEN_TRIM( SPECIES( O3P ) ) )
 
-      WRITE( RNUM, '(I3)' ) KO3_O1D
+      WRITE( RNUM, '(I5)' ) KO3_O1D
       RNUM = ADJUSTL( RNUM )
-      WRITE( IOUT, 96120 ) SPECIES( O1D )( 1 : LEN_TRIM( SPECIES( O1D ) ) ),
+!      WRITE( IOUT, 96120 ) SPECIES( O1D )( 1 : LEN_TRIM( SPECIES( O1D ) ) ),
+!     &                     RNUM( 1 : LEN_TRIM( RNUM ) ),
+!     &                     SPECIES( O3  )( 1 : LEN_TRIM( SPECIES( O3 ) ) )
+      WRITE( IOUT, 96121 ) SPECIES( O1D )( 1 : LEN_TRIM( SPECIES( O1D ) ) ),
+     &                     SPECIES( O1D )( 1 : LEN_TRIM( SPECIES( O1D ) ) ),      
      &                     RNUM( 1 : LEN_TRIM( RNUM ) ),
      &                     SPECIES( O3  )( 1 : LEN_TRIM( SPECIES( O3 ) ) )
 
       IF( LNO2EX_CYCLE ) THEN
-         WRITE( RNUM, '(I3)' ) KNO2_NO2EX 
+         WRITE( RNUM, '(I5)' ) KNO2_NO2EX 
          RNUM = ADJUSTL( RNUM )
          WRITE( IOUT, 96130 ) SPECIES( NO2EX )( 1 : LEN_TRIM( SPECIES( NO2EX ) ) ),
      &                        RNUM( 1 : LEN_TRIM( RNUM ) ),
@@ -1036,7 +1047,8 @@ c..Find NO2->NO2EX Rxn no. if NO2EX included in group
       NOUTFLS = NOUTFLS + 1
       OUTFLNAM( NOUTFLS ) = 'hrg1.F'
 
-
+      IF( LERROR )STOP
+      
       RETURN 
 
  9000 MSG = 'ERROR: Could not open ' // FNAME( 1 : LEN_TRIM( FNAME ) )
@@ -1103,6 +1115,8 @@ c..Find NO2->NO2EX Rxn no. if NO2EX included in group
 96100 FORMAT( '      YCP( ', A, ' ) = S1 * L12_INV' / )
 96120 FORMAT( '      YCP( ', A, ' ) = RKI( ', A, ' ) * YCP( ', A, 
      &               ' ) / O1D_S' / )
+96121 FORMAT( '      YCP( ', A, ' ) = ( YC0( ', A,' ) + RKI( ', A, ' ) * YCP( ', A, ' ) * DTC ) ',
+     &       /'     &           / ( 1.0D0 + O1D_S * DTC )' / )
 96130 FORMAT(  'C Steady State Solution ' /
      &         'C     YCP( ', A, ' ) = RKI( ', A, ' ) * YCP( ', A, 
      &               ' ) / EXN_S' / )

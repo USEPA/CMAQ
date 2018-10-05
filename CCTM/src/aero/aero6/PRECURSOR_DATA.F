@@ -17,9 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6_mp/PRECURSOR_DATA.F,v 1.3 2012/01/26 18:44:38 sjr Exp $
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module precursor_data
 
@@ -123,8 +120,6 @@ C Private variables for loading and unloading to CGRID array
       Integer          :: precursor_map( n_precursor )  ! pointers to CGRID
       Logical, Private, Save :: mapped          = .False.
       Logical, Private, Save :: Precursor_eflag = .False.
-      Integer, Private, Save :: logdev
-      Integer, Private, External :: setup_logdev
 
       Character( 16 ), Private, Save :: pname = 'precursor_data'
 
@@ -143,10 +138,12 @@ C HS  03/10/11 Changed vtmp to real(8)
 C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 C----------------------------------------------------------------------
 
-      Use rxns_data           ! chemical mechanism data
-      Use aero_data
-      Use cgrid_spcs          ! CGRID mechanism species
-      Use utilio_defn
+      Use rxns_data, only:  mechname
+      Use aero_data, only: ae6hg
+      Use cgrid_spcs, only: n_gc_g2ae, gc_g2ae, gc_g2ae_map, gc_molwt, gc_strt,
+     &                      n_nr_n2ae, nr_n2ae, nr_n2ae_map, nr_molwt, nr_strt
+      Use utilio_defn, only: index1, xstat3
+      Use runtime_vars, only: logdev, LOG_MESSAGE
 
       Implicit None
 
@@ -157,8 +154,7 @@ C Local Variables:
 
 C If the species are mapped already, skip the mapping algorithm
       If ( mapped ) Return
-
-      logdev = setup_logdev()
+      CALL LOG_MESSAGE( LOGDEV, 'Map SOA Precursors' )
 
 C Initialize Precursor Map Variables
       precursor_mw = 0.0d0
@@ -238,14 +234,12 @@ C Find indices of required species
 
       mapped = .True.
 
-      Write( logdev,'( 5x, a )' ) ' --- Precursor Species Mapped ---'
-
 99901 Format( 'FATAL error(s) found in the GC and/or NR namelists used. Check that '
      &     /  'these namelists contain the above required data as the respective files '
-     &     /  'in the respository version of the mechanism: ' , a )
-99902 Format( 'Note: ', a, ' is not found in G2AE or N2AE values of '
-     &    /   'the GC or NR namelist. Simulation does not include effects '
-     &    /   'on secondary aerosol production from the species.' )
+     &     /  'in the repository version of the mechanism: ' , a )
+99902 Format( 5x,'Note: ', a, ' is not found in G2AE or N2AE values of',
+     &    /   7x,'the GC or NR namelist. Simulation does not include effects ',
+     &    /   7x,'on secondary aerosol production from the species.' )
 
       Return
       End Subroutine map_precursor
@@ -263,8 +257,7 @@ C SH  03/10/11 Renamed met_data to aeromet_data
 C HS  03/10/11 Changed vtmp and gasconv to real(8)
 C-----------------------------------------------------------------------
 
-      Use aeromet_data            ! air and met variables
-      Use utilio_defn
+      Use aeromet_data, only: airdens, inv_mwair, min_gasconc
 
       Implicit None
 
@@ -311,8 +304,9 @@ C    -changed vtmp and gasconv to real(8)
 C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
 
-      Use aeromet_data        ! air and met variables
-      Use utilio_defn
+      Use aeromet_data, only: airdens, inv_mwair, min_gasconc
+      Use utilio_defn, only: xstat3
+      Use aero_data, only : COND_BUDGET, COAG_BUDGET, NPF_BUDGET, GROWTH_BUDGET
 
       Implicit None
 
@@ -344,6 +338,13 @@ C copy precursor_conc back to grid cell concentrations
                Else
                   vtmp = precursor_mw( spc ) * gasconv
                   conc( n ) = Max( real( precursor_conc( spc ) / vtmp, 4 ), min_gasconc  )
+          
+                  ! Convert Budget Process Numbers from ug m-3 to ppmv
+                  ! for application to process analysis and ISAM
+                  COND_BUDGET( n )   = COND_BUDGET( n )   / vtmp
+                  COAG_BUDGET( n,: ) = COAG_BUDGET( n,: ) / vtmp
+                  NPF_BUDGET( n )    = NPF_BUDGET( n )    / vtmp
+                  GROWTH_BUDGET( n ) = GROWTH_BUDGET( n ) / vtmp
                End If
             End If
          End If
@@ -363,8 +364,6 @@ C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
 C
 C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
-
-      Use utilio_defn
 
       Implicit None
 
@@ -391,7 +390,6 @@ C Local Variables:
      &    // ' is not found in the G2AE or N2AE values of GC or NR namelists'
       Precursor_eflag  = .True.
       Call m3warn( pname, 0, 0, xmsg )
-!     Call m3exit( pname, 0, 0, xmsg, xstat3 )
 
       Return
       End Function findPrecursor

@@ -73,8 +73,10 @@ C    formulas.  W. Hutzell (04/08)
 C %% G. Sarwar: added data for iodine and bromine species (03/2016)
 C %% B. Hutzell: added dry deposition data for methane, acrylic acid, methyl chloride,
 C    and acetonitrile (09/2016)   
+C    G. Sarwar: added ClNO3 and FMBR, and updated INO3 and BRNO3 name changes (07/2018)
+C    G. Sarwar: removed NACL (07/2018)
 C-------------------------------------------------------------------------------
-
+      Use RUNTIME_VARS
       Use GRID_CONF           ! horizontal & vertical domain specifications
       Use LSM_MOD             ! Land surface data
       Use DEPVVARS, Only: ltotg
@@ -85,16 +87,16 @@ C-------------------------------------------------------------------------------
 
       Type :: MET_Type
 !> 2-D meteorological fields:
-         Real,    Allocatable :: RDEPVHT  ( :,: )  ! air dens / dep vel ht
+         Real,    Allocatable :: RDEPVHT  ( :,: )  ! reciprocal layer 1 height [m-1]
          Real,    Allocatable :: DENS1    ( :,: )  ! layer 1 air density
          Real,    Allocatable :: PRSFC    ( :,: )  ! surface pressure [Pa]
          Real,    Allocatable :: Q2       ( :,: )  ! 2 meter water vapor mixing ratio [kg/kg]
          Real,    Allocatable :: QSS_GRND ( :,: )  ! ground saturation water vapor mixing ratio [kg/kg]
          Real,    Allocatable :: RH       ( :,: )  ! relative humidity [ratio]
-         Real,    Allocatable :: RA       ( :,: )  ! aerodynamic resistnace [s/m]
-         Real,    Allocatable :: RS       ( :,: )  ! stomatal resistnace [s/m]
+         Real,    Allocatable :: RA       ( :,: )  ! aerodynamic resistance [s/m]
+         Real,    Allocatable :: RS       ( :,: )  ! stomatal resistance [s/m]
          Real,    Allocatable :: RC       ( :,: )  ! convective precipitation [cm]
-         Real,    Allocatable :: RN       ( :,: )  ! non-convective precipitation [mc]
+         Real,    Allocatable :: RN       ( :,: )  ! non-convective precipitation [cm]
          Real,    Allocatable :: RGRND    ( :,: )  ! Solar radiation at the ground [W/m**2]
          Real,    Allocatable :: HFX      ( :,: )  ! Sensible heat flux [W/m**2]
          Real,    Allocatable :: LH       ( :,: )  ! Latent heat flux [W/m**2]
@@ -112,7 +114,7 @@ C-------------------------------------------------------------------------------
          Real,    Allocatable :: SOIM1    ( :,: )  ! 1 cm soil moisture [m**3/m**3]
          Real,    Allocatable :: SOIM2    ( :,: )  ! 1 m soil moisture  [m**3/m**3]
          Real,    Allocatable :: SOIT1    ( :,: )  ! 1 cm soil temperature [K]
-         Real,    Allocatable :: SOIT2    ( :,: )  ! 1 m soil temperature [K]
+!        Real,    Allocatable :: SOIT2    ( :,: )  ! 1 m soil temperature [K]
          Real,    Allocatable :: SEAICE   ( :,: )  ! Sea ice coverage [%]
          Real,    Allocatable :: MOL      ( :,: )  ! Monin-Obukhov length [m]
          Real,    Allocatable :: MOLI     ( :,: )  ! inverse of Monin-Obukhov length [m]
@@ -121,21 +123,21 @@ C-------------------------------------------------------------------------------
          Integer, Allocatable :: LPBL     ( :,: )  ! PBL layer
          Logical, Allocatable :: CONVCT   ( :,: )  ! convection flag
          Real,    Allocatable :: PBL      ( :,: )  ! pbl height (m)
-         Real,    Allocatable :: NACL_EMIS( :,: )  ! NACL mass emission rate of particles with d <10 um (g/m2/s)
+!        Real,    Allocatable :: NACL_EMIS( :,: )  ! NACL mass emission rate of particles with d <10 um (g/m2/s)
          Real,    Allocatable :: COSZEN   ( :,: )  ! Cosine of the zenith angle
 !> U and V wind components on the cross grid points
          Real,    Allocatable :: UWIND    ( :,:,: )  ! [m/s]
          Real,    Allocatable :: VWIND    ( :,:,: )  ! [m/s]                    
 !> 3-D meteorological fields:
          Real,    Allocatable :: KZMIN    ( :,:,: )  ! minimum Kz [m**2/s]
-         Real,    Allocatable :: PRES     ( :,:,: )  ! layer 1 pressure [Pa]
+         Real,    Allocatable :: PRES     ( :,:,: )  ! pressure [Pa]
          Real,    Allocatable :: QV       ( :,:,: )  ! water vapor mixing ratio
          Real,    Allocatable :: QC       ( :,:,: )  ! cloud water mixing ratio
          Real,    Allocatable :: THETAV   ( :,:,: )  ! potential temp
          Real,    Allocatable :: TA       ( :,:,: )  ! temperature (K)
          Real,    Allocatable :: ZH       ( :,:,: )  ! mid-layer height above ground [m]
          Real,    Allocatable :: ZF       ( :,:,: )  ! layer height [m]
-         Real,    Allocatable :: DZF      ( :,:,: )  ! layer surface thickness
+         Real,    Allocatable :: DZF      ( :,:,: )  ! layer thickness
          Real,    Allocatable :: DENS     ( :,:,: )  ! air density
          Real,    Allocatable :: RJACM    ( :,:,: )  ! reciprocal mid-layer Jacobian
          Real,    Allocatable :: RJACF    ( :,:,: )  ! reciprocal full-layer Jacobian
@@ -153,11 +155,11 @@ C-------------------------------------------------------------------------------
          Real,    Allocatable :: LON    ( :,: )  ! longitude
          Real,    Allocatable :: LAT    ( :,: )  ! latitude
          Real,    Allocatable :: LWMASK ( :,: )  ! land water mask
-         Real,    Allocatable :: OCEAN  ( :,: )  ! Open ocean
-         Real,    Allocatable :: SZONE  ( :,: )  ! Surf zone
+         Real,    Allocatable :: OCEAN  ( :,: )  ! Open ocean fraction
+         Real,    Allocatable :: SZONE  ( :,: )  ! Surf zone fraction
          Real,    Allocatable :: PURB   ( :,: )  ! percent urban [%]
          Integer, Allocatable :: SLTYP  ( :,: )  ! soil type [category]
-         Real,    Allocatable :: WSAT   ( :,: )  ! soil wilting point
+         Real,    Allocatable :: WSAT   ( :,: )  ! volumetric soil saturation concentration
          Real,    Allocatable :: WWLT   ( :,: )  ! soil wilting point
          Real,    Allocatable :: BSLP   ( :,: )  ! B Slope 
          Real,    Allocatable :: WRES   ( :,: )  ! Soil residual moisture point
@@ -172,8 +174,6 @@ C Land use information:
 
       Type( MET_Type ),     Save :: Met_Data 
       Type( GRID_Type ),    Save :: Grid_Data 
-!      Type( MOSAIC_Type ),  Save :: Mosaic_Data
-!      Type( ChemMos_Type ), Save :: ChemMos_Data
 
       Integer, Save   :: n_spc_m3dry = ltotg       ! from DEPVVARS module
 !> M3 asx constants
@@ -217,11 +217,10 @@ C Land use information:
 
       Logical, Save :: MET_INITIALIZED = .false.
       Real,    Save :: CONVPA             ! Pressure conversion factor file units to Pa
-      Logical, Save :: MINKZ     
       Logical, Save :: CSTAGUV            ! Winds are available with C stagger?
       Logical, Save :: ifwr     = .false.
 
-      Public        :: INIT_MET
+      Public        :: INIT_MET, GET_MET
 
       Logical, Private, Save :: ifsst    = .false.
       Logical, Private, Save :: ifq2     = .false.
@@ -233,7 +232,6 @@ C Land use information:
       Character( 16 ), Private, Save :: vname_rc, vname_rn, vname_uc, vname_vc
       Real,            Private, Save :: P0    ! reference pressure (100000.0 Pa) for Potential Temperature, note that in meteorology they do not use the SI 1 ATM.  
 
-      Integer, Private, Save :: LOGDEV
       Integer, Private, Save :: GXOFF, GYOFF              ! global origin offset from file
       Integer, Private, Save :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 ! MET_CRO_3D
       Integer, Private, Save :: STRTCOLMD3, ENDCOLMD3, STRTROWMD3, ENDROWMD3 ! MET_DOT_3D
@@ -335,11 +333,11 @@ C Land use information:
       DATA subname( 89), dif0( 89), ar( 89), meso( 89), lebas( 89) / 'HOI             ',0.0972,    8.0, 0.0,   48.1 /
       DATA subname( 90), dif0( 90), ar( 90), meso( 90), lebas( 90) / 'INO             ',0.0882,    8.0, 0.0,   60.9 /
       DATA subname( 91), dif0( 91), ar( 91), meso( 91), lebas( 91) / 'INO2            ',0.0883,   20.0, 0.0,   69.2 /
-      DATA subname( 92), dif0( 92), ar( 92), meso( 92), lebas( 92) / 'IONO2           ',0.0792,    8.0, 0.0,   77.5 /
+      DATA subname( 92), dif0( 92), ar( 92), meso( 92), lebas( 92) / 'INO3            ',0.0792,    8.0, 0.0,   77.5 /
       DATA subname( 93), dif0( 93), ar( 93), meso( 93), lebas( 93) / 'BRO             ',0.1144,    1.0, 0.0,   34.4 /
       DATA subname( 94), dif0( 94), ar( 94), meso( 94), lebas( 94) / 'HOBR            ',0.1101,    1.0, 0.0,   38.1 /
       DATA subname( 95), dif0( 95), ar( 95), meso( 95), lebas( 95) / 'HBR             ',0.1216,    2.0, 0.0,   30.7 /
-      DATA subname( 96), dif0( 96), ar( 96), meso( 96), lebas( 96) / 'BRONO2          ',0.0855,    1.0, 0.0,   67.5 /
+      DATA subname( 96), dif0( 96), ar( 96), meso( 96), lebas( 96) / 'BRNO3           ',0.0855,    1.0, 0.0,   67.5 /
       DATA subname( 97), dif0( 97), ar( 97), meso( 97), lebas( 97) / 'BRNO2           ',0.0909,    1.0, 0.0,   59.2 /
       DATA subname( 98), dif0( 98), ar( 98), meso( 98), lebas( 98) / 'BRCL            ',0.0966,    1.0, 0.0,   51.6 /
       DATA subname( 99), dif0( 99), ar( 99), meso( 99), lebas( 99) / 'DMS             ',0.0926,    2.0, 0.0,   77.4 /
@@ -406,11 +404,12 @@ C Land use information:
       DATA subname(160), dif0(160), ar(160), meso(160), lebas(160) / 'SVAVB3          ',0.0620,   175.2,     0.0, 163.0/
       DATA subname(161), dif0(161), ar(161), meso(161), lebas(161) / 'SVAVB4          ',0.0650,    20.8,     0.0, 162.7/
       DATA subname(162), dif0(162), ar(162), meso(162), lebas(162) / 'CLNO3           ',0.1014,    8.0,      0.0,  65.1/
+      DATA subname(163), dif0(163), ar(163), meso(163), lebas(163) / 'FMBR            ',0.1189,   10.0,      0.0,  52.9/
 
       CONTAINS
 
 C=======================================================================
-         Subroutine INIT_MET ( JDATE, JTIME, ABFLUX )
+         Subroutine INIT_MET ( JDATE, JTIME )
 
 C-----------------------------------------------------------------------
 C   30 Mar 01 J.Young: dyn alloc - Use HGRD_DEFN; replace INTERP3 with INTERPX;
@@ -428,11 +427,9 @@ C-----------------------------------------------------------------------
          Implicit None
  
          Include SUBST_FILES_ID  ! file name parameters
-         Include SUBST_CONST     ! constants
 
 C Arguments:
          Integer, Intent( IN ) :: JDATE, JTIME      ! internal simulation date&time
-         Logical, Intent( IN ) :: ABFLUX
 
 C File variables:
          Real, Pointer    :: MSFX2   ( :,: )
@@ -452,8 +449,6 @@ C for INTERPX
          Integer ALLOCSTAT
 
 C-----------------------------------------------------------------------
-
-         LOGDEV = INIT3()
 
          If( MET_INITIALIZED )Return
 
@@ -506,7 +501,7 @@ C-----------------------------------------------------------------------
      &             Met_Data%LPBL     ( NCOLS,NROWS ),
      &             Met_Data%CONVCT   ( NCOLS,NROWS ),
      &             Met_Data%PBL      ( NCOLS,NROWS ),
-     &             Met_Data%NACL_EMIS( NCOLS,NROWS ),
+!    &             Met_Data%NACL_EMIS( NCOLS,NROWS ),
      &             Met_Data%COSZEN   ( NCOLS,NROWS ),
      &             Met_Data%UWIND    ( NCOLS+1,NROWS+1,NLAYS ),
      &             Met_Data%VWIND    ( NCOLS+1,NROWS+1,NLAYS ),
@@ -540,6 +535,7 @@ C-----------------------------------------------------------------------
      &             Grid_Data%SZONE   ( NCOLS,NROWS ),
      &             Grid_Data%PURB    ( NCOLS,NROWS ),
      &             Grid_Data%SLTYP   ( NCOLS,NROWS ),
+     &             Grid_Data%WSAT    ( NCOLS,NROWS ),
      &             Grid_Data%NAME    ( n_lufrac ),
      &             Grid_Data%LU_Type ( n_lufrac ),
      &             STAT = ALLOCSTAT )
@@ -549,6 +545,7 @@ C-----------------------------------------------------------------------
          End If
          Grid_Data%NAME    = name_lu
          Grid_Data%LU_Type = cat_lu
+         Grid_Data%WSAT    = 0.0
 
          If ( ABFLUX  ) Then
             ALLOCATE( Met_Data%SOIM2    ( NCOLS,NROWS ),
@@ -558,8 +555,7 @@ C-----------------------------------------------------------------------
                Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             End If
 
-            ALLOCATE( Grid_Data%WSAT   ( NCOLS,NROWS ),
-     &                Grid_Data%WWLT   ( NCOLS,NROWS ),
+            ALLOCATE( Grid_Data%WWLT   ( NCOLS,NROWS ),
      &                Grid_Data%BSLP   ( NCOLS,NROWS ),
      &                Grid_Data%WRES   ( NCOLS,NROWS ),
      &                Grid_Data%WFC    ( NCOLS,NROWS ),
@@ -569,19 +565,10 @@ C-----------------------------------------------------------------------
                XMSG = 'Failure allocating Soil grid vars'
                Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             End If
-            Grid_Data%WSAT    = 0.0
             Grid_Data%WWLT    = 0.0
             Grid_Data%WFC     = 0.0
             Grid_Data%WRES    = 0.0
             Grid_Data%BSLP    = 0.0
-         Else
-           ALLOCATE( Grid_Data%WSAT   ( NCOLS,NROWS ),
-     &                STAT = ALLOCSTAT )
-            If ( ALLOCSTAT .Ne. 0 ) Then
-               XMSG = 'Failure allocating Wsat'
-               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            End If
-            Grid_Data%WSAT    = 0.0
          End If
 
 !> ccccccccccccccccccccc enable backward compatiblity ccccccccccccccccccccc
@@ -665,23 +652,8 @@ C-----------------------------------------------------------------------
                CONVPA = 1.0E-03
                P0     = 100000.0 * CONVPA
             Case Default
-               XMSG = 'Units incorrect on ' // MET_CRO_3D
+               XMSG = 'PRES units incorrect on ' // MET_CRO_3D
                Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         End Select
-
-         MINKZ = .True.   ! default
-         MINKZ = ENVYN( 'KZMIN', 'Kz min on flag', MINKZ, ALLOCSTAT )
-         If ( ALLOCSTAT .Ne. 0 ) Write( LOGDEV,'(5X, A)' ) 'Kz min on flag'
-         Select Case( ALLOCSTAT )
-            Case (  1 ) 
-               XMSG = 'Environment variable improperly formatted'
-               Call M3WARN( PNAME, JDATE, JTIME, XMSG )
-            Case ( -1 )
-               XMSG = 'Environment variable set, but empty ... Using default:'
-               Write( LOGDEV,'(5X, A)' ) XMSG
-            Case ( -2 )
-               XMSG = 'Environment variable not set ... Using default:'
-               Write( LOGDEV,'(5X, A)' ) XMSG
          End Select
 
          If ( .Not. MINKZ ) Then
@@ -715,7 +687,7 @@ C-----------------------------------------------------------------------
 !> nullify pointer
          Nullify( X3M )
 
-!> reciprical of msfx2**2
+!> reciprocal of msfx2**2
 !> assign MSFX2
          MSFX2 => BUFF2D
          VNAME = 'MSFX2'
@@ -828,7 +800,7 @@ C-----------------------------------------------------------------------
          End Subroutine INIT_MET
 
 C=======================================================================
-         Subroutine GET_MET ( JDATE, JTIME, TSTEP, ABFLUX )
+         Subroutine GET_MET ( JDATE, JTIME, TSTEP )
 
 C-----------------------------------------------------------------------
 C   30 Mar 01 J.Young: dyn alloc - Use HGRD_DEFN; replace INTERP3 with INTERPX;
@@ -853,12 +825,10 @@ C-----------------------------------------------------------------------
  
          Include SUBST_FILES_ID  ! file name parameters
          Include SUBST_PE_COMM   ! PE communication displacement and direction
-         Include SUBST_CONST     ! constants
 
 C Arguments:
 
          Integer, Intent( IN ) :: JDATE, JTIME, TSTEP      ! internal simulation date&time
-         Logical, Intent( IN ) :: ABFLUX
 
 C Parameters:
          Real, Parameter :: cond_min = 1.0 / resist_max ! minimum conductance [m/s]
