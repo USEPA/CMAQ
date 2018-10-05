@@ -294,7 +294,7 @@ C..Compute delta conc for this process if requested
                   CALL SUBST_DATA_COPY( CNGRD, TCGRID, ICG )
 #else
                   TCGRID( :,:,: ) = CNGRD( PA_BEGCOL:PA_ENDCOL,PA_BEGROW:PA_ENDROW,
-     &                                     PA_BEGLEV,PA_ENDLEV,ICG )
+     &                                     PA_BEGLEV:PA_ENDLEV,ICG )
 #endif
                   DELC( :,:,:,IPA ) = DELC( :,:,:,IPA ) + SPCOEF( NPA,NGR ) 
      &                 * ( TCGRID( :,:,: ) - CSAV( :,:,:,ISV ) )
@@ -310,7 +310,7 @@ C..Save concentrations for next delta c
          CALL SUBST_DATA_COPY( CNGRD, CSAV, ICG, N )
 #else
          CSAV( :,:,:,N ) = 
-             CNGRD( PA_BEGCOL:PA_ENDCOL,PA_BEGROW:PA_ENDROW,
+     &       CNGRD( PA_BEGCOL:PA_ENDCOL,PA_BEGROW:PA_ENDROW,
      &              PA_BEGLEV:PA_ENDLEV,ICG )
 #endif
       END DO
@@ -431,7 +431,9 @@ C..output if necessary for each output species
                IF ( LAESP ) CALL SUBST_DATA_COPY ( DENS, TDENS )
 #else
                TVEMIS( :,:,: ) = VEMIS( PA_BEGROW:PA_ENDROW,
-     &                 PA_BEGCOL:PA_ENDCOL,PA_BEGLEV:PA_ENDLE,IEM )
+     &                                  PA_BEGCOL:PA_ENDCOL,
+     &                                  PA_BEGLEV:PA_ENDLEV,
+     &                                  IEM )
                TDENS = DENS( PA_BEGROW:PA_ENDROW,PA_BEGCOL:PA_ENDCOL,
      &                       PA_BEGLEV:PA_ENDLEV )
 #endif
@@ -531,7 +533,7 @@ C..set pointers for the ddep array
             END DO            
          END DO
 
-C..set layer layer thicknesses
+C..set layer layer thickenesses
          X3FACE( 0 ) = VGLVS_GD( 1 )
          DO L = 1, NLAYS
             X3FACE( L ) = VGLVS_GD( L + 1 )
@@ -569,8 +571,7 @@ c..get reciprocal of msfx2 (squared map scale factor)
 #ifdef parallel
          CALL SUBST_DATA_COPY( RMSFX2, TRMSFX2 )
 #else
-         TRMSFX2 = RMSFX2( PA_BEGCOL:PA_ENDCOL,PA_BEGROW:PA_ENDROW, 
-     &                     PA_BEGLEV:PA_ENDLEV )                    
+         TRMSFX2 = RMSFX2( PA_BEGCOL:PA_ENDCOL,PA_BEGROW:PA_ENDROW )
 
 #endif
          
@@ -634,7 +635,7 @@ C..Compute delta conc due to ddep and adjust vdiff output if necessary
             CALL SUBST_DATA_COPY( DDEP, TDDEP, IDD )
 #else
             TDDEP = DDEP( PA_BEGCOL:PA_ENDCOL,PA_BEGROW:PA_ENDROW,
-     &                    PA_BEGLEV:PA_ENDLEV )
+     &                    IDD )
 #endif
 
 C..compute the dep in ppm
@@ -668,7 +669,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C-----------------------------------------------------------------------
       USE AERO_BUDGET
       USE PA_DEFN
-      USE UTILIO_DEFN
+      USE M3UTILIO
       USE PAGRD_DEFN
 
 

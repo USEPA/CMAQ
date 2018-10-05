@@ -112,7 +112,7 @@
                                            ! science submodules
       LOGICAL :: FL_ERR_STOP=.TRUE.  ! Flag to stop run if errors are found.
       LOGICAL :: CKSUM     = .TRUE.  ! flag for cksum on, default = [T]
-      LOGICAL :: END_TIME  = .FALSE. ! Override default beginning ACONC timestamp
+      LOGICAL :: END_TIME  = .FALSE. ! Override default beginning ACON timestamp
       
       INTEGER :: N_ASPCS   = 0       ! Number of species saved to avg conc file
       INTEGER :: N_CSPCS   = 0       ! Number of species saved to conc file
@@ -814,8 +814,8 @@
       EMISSCTRL = GET_ENVSTR( 'EMISSCTRL_NML', VARDESC, EMISSCTRL )
 
       ! Number of Layers for Emissions
-      VARDESC = 'Number of emission layers'
-      EMLAYS_MX = GET_ENVINT( 'CTM_EMLAYS', VARDESC, EMLAYS_MX )
+      VARDESC   = 'Number of emission layers'
+      EMLAYS_MX = GET_ENVINT( 'CTM_EMLAYS', VARDESC, EMLAYS )
 
       ! Get number of different Gridded File Emissionts Streams
       VARDESC = 'Number of Gridded Emissions Files'
@@ -1267,9 +1267,9 @@
 !.........................................................................
  
       IMPLICIT NONE
-
+#ifdef parallel
       INCLUDE 'mpif.h'
-
+#endif
       REAL( 8 )        :: CPU_TIME_START
       REAL( 8 )        :: CPU_TIME_FINISH
       INTEGER          :: IMSG   ! What kind of checkpoint this is
@@ -1279,6 +1279,10 @@
       CHARACTER( * ), INTENT(IN), OPTIONAL :: CPROCIN
       CHARACTER( len=: ), ALLOCATABLE :: CPROC
       CHARACTER( 250 ) :: XMSG
+#ifndef parallel
+      REAL :: REAL_TIME
+#endif
+
 
       IF ( PRESENT( CPROCIN ) ) THEN
          CPROC = CPROCIN
@@ -1287,7 +1291,13 @@
       END IF
  
       ! Record Time at this Checkpoint
+#ifdef parallel
       CPU_TIME_FINISH = MPI_WTIME()
+#else
+      CALL CPU_TIME( REAL_TIME )
+      CPU_TIME_FINISH = REAL( REAL_TIME,8 )
+#endif
+
 
       ! Assemble the statement requested by the calling program
       SELECT CASE ( IMSG )
@@ -1319,8 +1329,12 @@
 #ifndef twoway
       IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
 #endif
+#ifdef parallel      
       CPU_TIME_START = MPI_WTIME()
-
+#else
+      CALL CPU_TIME( REAL_TIME )
+      CPU_TIME_START = REAL( REAL_TIME,8 )
+#endif
       END SUBROUTINE TIMING_SPLIT    
  
       END MODULE RUNTIME_VARS

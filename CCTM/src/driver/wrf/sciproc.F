@@ -65,8 +65,9 @@ C-----------------------------------------------------------------------
 
       IMPLICIT NONE   
 
+#ifdef parallel
       INCLUDE 'mpif.h'
-
+#endif
 C Arguments:
       REAL, POINTER :: CGRID( :,:,:,: )
 
@@ -98,6 +99,7 @@ C Local Variables:
       INTEGER      STATUS          ! ENV... status
       CHARACTER( 80 ) :: VARDESC   ! environment variable description
       CHARACTER( 80 ) :: MSG = ' '
+      REAL            :: REAL_TIME
       REAL( 8 )       :: CPU_TIME_START  ! Timing individual
       REAL( 8 )       :: CPU_TIME_START_MASTER
       CHARACTER( 24 ) :: CDATE_TIME
@@ -180,7 +182,12 @@ C-----------------------------------------------------------------------
       IF ( MYPE .EQ. 0 ) WRITE( OUTDEV, * ) 
       WRITE( LOGDEV, * )
 
-      CPU_TIME_START = MPI_WTIME()
+#ifdef parallel
+            CPU_TIME_START =  MPI_WTIME()
+#else
+            CALL CPU_TIME( REAL_TIME )
+            CPU_TIME_START = REAL( REAL_TIME,8 )
+#endif
       CPU_TIME_START_MASTER = CPU_TIME_START
       WRITE( XMSG, '(A,I7.7,A,I6.6)' ), 'Processing Day/Time [YYYYDDD:HHMMSS]: ',JDATE, 
      &       ':',JTIME
@@ -240,7 +247,6 @@ C decouple CGRID for cloud and chemistry
 
       CALL PHOT ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'PHOT', CGRID, JDATE, JTIME )
-      IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'PHOT' )
 
       CALL CLDPROC ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'CLDPROC', CGRID, JDATE, JTIME )

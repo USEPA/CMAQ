@@ -102,7 +102,9 @@ C-----------------------------------------------------------------------
       USE PAGRD_DEFN            ! Process Anaylsis horiz domain specs
       USE UTILIO_DEFN
       USE RUNTIME_VARS
+#ifdef parallel
       USE VERTEXT_MODULE
+#endif
 
 #ifdef twoway
       USE SD_TIME_SERIES_MODULE
@@ -150,6 +152,7 @@ C Local variables:
       LOGICAL          EXST, OPD
       CHARACTER( 1000 ) :: CFILE
       CHARACTER(   16 ) :: ACT
+      REAL              :: REAL_TIME
       REAL( 8 )         :: CPU_TIME_START, CPU_TIME_FINISH
 
       CHARACTER(  2 ) :: COLROW = 'CR'  ! col/row arg list order
@@ -166,8 +169,12 @@ C Local variables:
       INTEGER   PAR_ERR     ! Error code from parallel initialization
       REAL( 8 ) BEGTIME     ! Wall-clock time (sec) at MPI initialization
       REAL( 8 ) ENDTIME     ! Wall-clock time (sec) at MPI finish
-#endif
       REAL( 8 ) ELAPTIME    ! ENDTIME-BEGTIME
+#else
+      REAL      BEGTIME     ! Wall-clock time (sec) at MPI initialization
+      REAL      ENDTIME     ! Wall-clock time (sec) at MPI finish
+      REAL      ELAPTIME    ! ENDTIME-BEGTIME
+#endif
 
       LOGICAL, SAVE :: FIRST_RUN = .TRUE.  ! used for twoway model
       LOGICAL       :: WFLG                ! turn on write subdmap in pio_init
@@ -241,6 +248,7 @@ C processes (NPROCS)
 #else
          NPROCS = 1
          MYPE = 0
+         CALL CPU_TIME( BEGTIME )
 #endif
 
 C Initialize Environment Variables
@@ -259,9 +267,12 @@ C and define vertical layer structure (in module GRID_CONF)
          write( logdev,* ) ' MYPE -> NPROCS:   ', mype, nprocs
          write( logdev,* ) ' MYPE -> NPCOL:    ', mype, npcol
          write( logdev,* ) ' MYPE -> NPROW:    ', mype, nprow
+         write( logdev,* ) ' MYPE -> MY_NCOLS: ', mype, my_ncols
+         write( logdev,* ) ' MYPE -> MY_NROWS: ', mype, my_nrows
          write( logdev,* ) ' MYPE -> GL_NCOLS: ', mype, gl_ncols
          write( logdev,* ) ' MYPE -> GL_NROWS: ', mype, gl_nrows
          write( logdev,* ) ' MYPE -> NLAYS:    ', mype, nlays
+         write( logdev,* ) ' MYPE -> NBNDY:    ', mype, nbndy
 #endif
 
 C Set CGRID mechanism
@@ -429,6 +440,8 @@ C science process sequence:
 
             CALL SCIPROC ( CGRID, JDATE, JTIME, TSTEP, ASTEP )
 
+
+
             DO V = 1, N_ASPCS
                S = AVG_CONC_MAP( V )
                L = 0
@@ -484,9 +497,16 @@ C science process sequence:
 C write conc fields
 
          IF ( MOD( TIME2SEC( JTIME ), TIME2SEC( TSTEP( 1 ) ) ) .EQ. 0 ) THEN
+#ifdef parallel
             CPU_TIME_START =  MPI_WTIME()
+#else
+            CALL CPU_TIME( REAL_TIME )
+            CPU_TIME_START = REAL( REAL_TIME,8 )
+#endif
             CALL WR_CONC ( JDATE, JTIME, TSTEP( 1 ) )
+#ifdef parallel
             IF ( LVEXT ) CALL WR_VEXT ( JDATE, JTIME, TSTEP( 1 ) )
+#endif
             CALL WR_ACONC ( AGRID, JDATE, JTIME, TSTEP( 1 ) )
             IF ( LIPR .OR. LIRR ) CALL PA_OUTPUT ( CGRID, JDATE, JTIME )
             IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 3 )
@@ -528,8 +548,10 @@ C Shut down IOAPI
       END IF
 
 #ifdef parallel
-C Shut down MPI
       ENDTIME = MPI_WTIME()   ! get final wall-clock time
+#else
+      CALL CPU_TIME( ENDTIME )   ! get final wall-clock time
+#endif
       ELAPTIME = ENDTIME - BEGTIME
       WRITE( XMSG, '(A,F10.1,A)' ) 'The elapsed time for this simulation was', 
      &                            ELAPTIME, ' seconds.'
@@ -538,6 +560,8 @@ C Shut down MPI
       IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
       IF ( MYPE .EQ. 0 ) WRITE( OUTDEV, * )
 
+#ifdef parallel
+C Shut down MPI
       CALL MPI_FINALIZE ( PAR_ERR )
       IF ( PAR_ERR .NE. 0 ) THEN
          STOP 'Error terminating MPI'
