@@ -128,13 +128,13 @@ C..Local Variables:
 
       LOGICAL LPASS               ! Flag for convergence achieved
 
-      REAL(8),    ALLOCATABLE, SAVE :: DTCELL         ! Time step for each cell for IRR
       REAL(8),    ALLOCATABLE, SAVE :: CIRR (  :,: )  ! Species concs for IRR analysis
       REAL(8),    ALLOCATABLE, SAVE :: RKIRR(  :,: )  ! Rate constants for IRR analysis
       INTEGER,    ALLOCATABLE, SAVE :: DUMMY(  : )    ! Dummy array for IRR call
 
       REAL( 8 ) :: D
       REAL( 8 ) :: DT             ! Time step
+      REAL( 8 ) :: DTCELL         ! Time step for each cell for IRR
       REAL( 8 ) :: DTINV          ! Inverse of time step
       REAL( 8 ) :: DTFAC          ! Time step scale factor
       REAL( 8 ) :: GDTINV         ! Inverse of gamma x time step
