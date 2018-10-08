@@ -815,7 +815,7 @@
 
       ! Number of Layers for Emissions
       VARDESC   = 'Number of emission layers'
-      EMLAYS_MX = GET_ENVINT( 'CTM_EMLAYS', VARDESC, EMLAYS )
+      EMLAYS_MX = GET_ENVINT( 'CTM_EMLAYS', VARDESC, EMLAYS_MX )
 
       ! Get number of different Gridded File Emissionts Streams
       VARDESC = 'Number of Gridded Emissions Files'
