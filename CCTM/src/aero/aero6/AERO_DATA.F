@@ -132,8 +132,8 @@ C Default minimum concentration
       Real,    Parameter :: evapmin = 1.0E-20    ! [ ug m-3 ]
       Real(8), Parameter :: evapminD= 1.0D-20    ! [ ug m-3 ]
       Real,    Parameter :: cm_set( n_mode ) = (/conmin, conmin, conmin/)
-      Real,    Parameter :: cm_so4( n_mode ) = (/1.0E-12,1.0e-6, conmin/)
-      Real,    Parameter :: cm_cor( n_mode ) = (/conmin, conmin, 1.889544e-05/)
+      Real,    Parameter :: cm_so4( n_mode ) = (/conmin, conmin, conmin/)
+      Real,    Parameter :: cm_cor( n_mode ) = (/conmin, conmin, conmin/)
 
       Real,    Parameter :: def_diam( n_mode )   = (/ 15.0E-9, 80.0E-9,  600.0E-9 /)  ! default background mean diameter for each mode
       Real,    Parameter :: min_diam_g( n_mode ) = (/ 1.0E-9,  30.0E-9,  120.0E-9 /)

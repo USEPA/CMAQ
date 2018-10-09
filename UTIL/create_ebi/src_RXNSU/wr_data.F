@@ -49,6 +49,7 @@ C..SCRATCH LOCAL VARIABLES:
       LOGICAL  :: LOUT3 = .FALSE.  ! Flag for line 3 output processed
       LOGICAL  :: LOUT4 = .FALSE.  ! Flag for group 4 output processed
       LOGICAL  :: LOUT5 = .FALSE.  ! Flag for group 5 output processed
+      LOGICAL  :: LOUT6 = .FALSE.  ! Flag for line 6 output processed
 
 
 C**********************************************************************
@@ -117,6 +118,12 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
             LOUT5 = .FALSE.
 
+         ELSEIF( LINEIN( 2 : 2 ) .EQ. '6' .AND. .NOT. LOUT6 ) THEN
+
+            WRITE( IOUT, 93082 ) REAL( TIME_STEP,8 )
+
+            LOUT6 = .TRUE. 
+            
          END IF
 
       END IF
@@ -205,6 +212,7 @@ c..write the ae and aq species
 93060 FORMAT( 'c..Gas species indices' )
 93080 FORMAT( 6X, 'INTEGER  :: ', A16,' = ',I4 )
 93081 FORMAT( 6X, 'INTEGER, PARAMETER :: ', A16,' = ',I4 )
+93082 FORMAT( 6X, 'REAL( 8 ), PARAMETER  ::  DELTAT        = ', 1PD9.3, ' ! EBI time step (min)' )
 93100 FORMAT( /'c..Aerosol species indices' )
 93120 FORMAT( /'c..AQ chemistry species indices' )
 93140 FORMAT( /6X, 'END MODULE HRDATA' )
