@@ -783,6 +783,7 @@ C-----------------------------------------------------------------------
       INTEGER, INTENT( IN ) :: MDATE, MTIME, ISRM
       REAL, INTENT( In )    :: VDEMIS0( :,:,:,: )
       REAL, ALLOCATABLE, SAVE :: VDEMIS ( :,:,:,: )
+      REAL, ALLOCATABLE, SAVE :: VDEMIS_OUT ( :,:,: )
 
       ! Local Variables
       REAL, PARAMETER :: RAVO = 1.0 / AVO
@@ -805,7 +806,7 @@ C-----------------------------------------------------------------------
          ALLOCATE( CNVTI( EMLAYS ), CNVTC( EMLAYS,NCOLS,NROWS ), 
      &             CONVM( EMLAYS,NCOLS,NROWS ),
      &             CONVN( EMLAYS,NCOLS,NROWS ),
-     &             VDEMIS( N_SPC_DIFF,EMLAYS,NCOLS,NROWS,EMLAYS,N_SPC_DIFF ),
+     &             VDEMIS( N_SPC_DIFF,EMLAYS,NCOLS,NROWS ),
      &             VDEMIS_OUT( NCOLS,NROWS,EMLAYS ) )
       END IF    !FirstTime
       
