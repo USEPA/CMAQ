@@ -115,14 +115,12 @@ C Local Variables:
 !     INTEGER, SAVE :: STARTCOL, ENDCOL
       LOGICAL, SAVE :: BNDY_PE_LOX, BNDY_PE_HIX
 
+#ifdef parallel
       INTEGER EAST_COL
-!     REAL    HALO_EAST( SWP,NROWS,N_SPC_ADV )
-!     REAL    HALO_WEST( SWP,NROWS,N_SPC_ADV )
-!     REAL    BUF_EW   ( SWP*NROWS*N_SPC_ADV )
       REAL, ALLOCATABLE, SAVE :: HALO_EAST( :,:,: )
       REAL, ALLOCATABLE, SAVE :: HALO_WEST( :,:,: )
       REAL, ALLOCATABLE, SAVE :: BUF_EW( :,:,: )
-
+#endif
       INTEGER, SAVE :: EFX    ! fixed parameter for eastern boundary
       INTEGER, SAVE :: WFX    ! fixed parameter for western boundary
 
@@ -180,7 +178,7 @@ C Get dx1 from HGRD_DEFN module
             XMSG = 'Failure allocating ADV_MAP'
             CALL M3EXIT ( PNAME, FDATE, FTIME, XMSG, XSTAT1 )
          END IF
-
+#ifdef parallel
          ALLOCATE ( HALO_EAST( SWP,MY_NROWS,N_SPC_ADV ),
      &              HALO_WEST( SWP,MY_NROWS,N_SPC_ADV ),
      &              BUF_EW   ( SWP,MY_NROWS,N_SPC_ADV ), STAT = ALLOCSTAT )
@@ -191,7 +189,7 @@ C Get dx1 from HGRD_DEFN module
          HALO_EAST = 0.0   ! array
          HALO_WEST = 0.0   ! array
          BUF_EW    = 0.0   ! array
-
+#endif
          ASPC = GC_STRT - 1 + N_GC_SPCD
 
 C Create global map to CGRID
@@ -229,7 +227,7 @@ C Get the contravariant x1 velocity component
       CALL HCONTVEL ( FDATE, FTIME, TSTEP, LVL, X1VEL, UHAT )
 
       CALL SUBST_COMM (UHAT, DSPL_N0_E1_S0_W0, DRCN_E)
-
+#ifdef parallel
       EAST_COL = MY_NCOLS - SWP
       DO SPC = 1, N_SPC_ADV
          A2C = ADV_MAP( SPC )
@@ -244,7 +242,7 @@ C Get the contravariant x1 velocity component
 
       CALL SUBST_COMM (HALO_WEST, HALO_EAST, DSPL_N0_E1_S0_W0, DRCN_E)
       CALL SUBST_COMM (BUF_EW,    HALO_WEST, DSPL_N0_E0_S0_W1, DRCN_W)
-
+#endif
       DO 233 ROW = 1, MY_NROWS
 
 !        DO COL = STARTCOL, ENDCOL         !    DO COL = 1, MY_NCOLS+1
@@ -258,12 +256,12 @@ C Get the contravariant x1 velocity component
             DO COL = 1, MY_NCOLS
                CONX( COL,SPC ) = CGRID( COL,ROW,LVL,A2C )
             END DO
-
+#ifdef parallel
             DO COL = 1, SWP
                CONX( COL-SWP,SPC )      = HALO_WEST( COL,ROW,SPC )
                CONX( MY_NCOLS+COL,SPC ) = HALO_EAST( COL,ROW,SPC )
             END DO
-
+#endif
 C West boundary
 
             IF ( BNDY_PE_LOX ) THEN
