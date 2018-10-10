@@ -113,7 +113,7 @@ C-------------------------------------------------------------------------------
          integer            :: strtcol_medi,  endcol_medi,  strtrow_medi,  endrow_medi
          integer            :: strtcol_fert,  endcol_fert,  strtrow_fert,  endrow_fert
          integer            :: strtcol_beld,  endcol_beld,  strtrow_beld,  endrow_beld
-         Integer            :: ALLOCSTAT
+         Integer            :: ALLOCSTAT, N_GMN
          Real,  Allocatable :: Beld_ag ( :,:,: )        
          Real               :: Tot_Ag          ! total ag in the grid cell    
          Real,    Parameter :: convl1 = 7.142857e-04   ! ha/m**2 * mol/g N * 1/z_soil_l1 
@@ -127,12 +127,11 @@ C-------------------------------------------------------------------------------
          Real,       Allocatable :: Nit2       ( :,:,: ) ! Epic Nitrification layer 2
          Real,       Allocatable :: L1_MIN     ( :,:,: ) ! Epic Layer 1 organic N mineralization
          Real,       Allocatable :: L2_MIN     ( :,:,: ) ! Epic Layer 2 organic N mineralization 
+         Real,       Allocatable :: GMN        ( :,:,: ) ! Epic Layer 1 and 2 N mineralized in Fest-C 1.4
          Real,       Allocatable :: L1_ON      ( :,:,: ) ! Epic Layer 1 organic N
          Real,       Allocatable :: L2_ON      ( :,:,: ) ! Epic Layer 2 organic N
          Real,       Allocatable :: L1_ON_Yest ( :,:,: ) ! Epic Layer 1 organic N
          Real,       Allocatable :: L2_ON_Yest ( :,:,: ) ! Epic Layer 2 organic N
-         Real,       Allocatable :: L1_NH4_Yest ( :,:,: ) ! Epic Layer 1 NH4
-         Real,       Allocatable :: L2_NH4_Yest ( :,:,: ) ! Epic Layer 2 NH4
          Real,       Allocatable :: F1_ON      ( :,:,: ) ! Epic Layer 1 organic N Fertilization 
          Real,       Allocatable :: F2_ON      ( :,:,: ) ! Epic Layer 2 organic N Fertilization 
          Real,       Allocatable :: C_knit1    ( :,:,: ) ! EPIC Crop nitrificaiton rate
@@ -261,12 +260,6 @@ C                          '12345678901234567890'
      &             L2_MIN     ( my_ncols,my_nrows,e2c_cats ),    
      &             L1_ON      ( my_ncols,my_nrows,e2c_cats ),
      &             L2_ON      ( my_ncols,my_nrows,e2c_cats ), 
-     &             L1_ON_Yest ( my_ncols,my_nrows,e2c_cats ),
-     &             L2_ON_Yest ( my_ncols,my_nrows,e2c_cats ),
-     &             L1_NH4_Yest ( my_ncols,my_nrows,e2c_cats ),
-     &             L2_NH4_Yest ( my_ncols,my_nrows,e2c_cats ),
-     &             F1_ON      ( my_ncols,my_nrows,e2c_cats ),
-     &             F2_ON      ( my_ncols,my_nrows,e2c_cats ),
      &             C_Knit1    ( my_ncols,my_nrows,e2c_cats ),
      &             C_Knit2    ( my_ncols,my_nrows,e2c_cats ),
      &             BDc1       ( my_ncols,my_nrows,e2c_cats ),
@@ -276,13 +269,20 @@ C                          '12345678901234567890'
      &             NH4ps2     ( my_ncols,my_nrows,e2c_cats ),
      &             STAT = ALLOCSTAT )
          If ( ALLOCSTAT .Ne. 0 ) Then
-            XMSG = 'Failure allocating met vars'
+            XMSG = 'Failure allocating EPIC vars'
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End If
          L1_MIN  = 0.0
          L2_MIN  = 0.0
          C_Knit1 = 0.0
          C_Knit2 = 0.0
+
+         If ( .Not. desc3( E2C_FERT ) ) Then
+            xmsg = 'Could not get ' // E2C_FERT // ' file description'
+            Call m3exit( pname, jdate, jtime, xmsg, xstat1 )
+         End If                                   
+
+         N_GMN = INDEX1( 'GMN', NVARS3D, VNAME3D )
          
          Call Subhfile ( E2C_FERT, gxoff, gyoff, strtcol_fert, endcol_fert, 
      &                   strtrow_fert, endrow_fert )
@@ -336,19 +336,23 @@ C                          '12345678901234567890'
      &                    strtcol_fert, endcol_fert, jdate, 0, L2_ON ) ) Then
             Write( xmsg,9001 ) vname, E2C_FERT
             Go To 1001
-         End If                         
-         vname = 'L1_AON'
-         If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
-     &                       strtcol_fert, endcol_fert, jdate, 0, F1_ON ) ) Then
-            Write( xmsg,9001 ) vname, E2C_FERT
-            Go To 1001
+         End If      
+
+         If( N_GMN .Gt. 0 ) Then ! Using Fest-C 1.4 output
+            Allocate( GMN     ( my_ncols,my_nrows,e2c_cats ), STAT = ALLOCSTAT )
+            If ( ALLOCSTAT .Ne. 0 ) Then
+               XMSG = 'Failure allocating GMN'
+               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            End If
+
+            vname = 'GMN'
+            If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
+     &                    strtcol_fert, endcol_fert, jdate, 0, GMN ) ) Then
+               Write( xmsg,9001 ) vname, E2C_FERT
+               Go To 1001
+            End If        
+           
          End If
-         vname = 'L2_AON'
-         If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
-     &                       strtcol_fert, endcol_fert, jdate, 0, F2_ON ) ) Then
-            Write( xmsg,9001 ) vname, E2C_FERT
-            Go To 1001
-         End If                
 
 ! get BELD4 land use types time independent files. 
          If ( .Not. Open3( BELD4_LU, fsread3, pname ) ) Then
@@ -386,7 +390,7 @@ C                          '12345678901234567890'
      &             frac_ag    ( my_ncols,my_nrows ), 
      &              STAT = ALLOCSTAT )
          If ( ALLOCSTAT .Ne. 0 ) Then
-            XMSG = 'Failure allocating met vars'
+            XMSG = 'Failure allocating soil vars'
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End If
 
@@ -414,12 +418,23 @@ C                          '12345678901234567890'
                Call M3exit ( pname, jdate, jtime, xmsg, xstat1 )
             End If
 
+            If( N_GMN .Gt. 0 ) Then
+! NH4 from organic N mineralization is not layer specific in Fest-C v1.4 therefore it is allocated proportionally
+! to the organic N from which it was mineralized.
+               Where( GMN .Gt. 0.0 .And. L1_ON .Gt. 0.0 )
+                  L1_MIN = GMN * L1_ON / ( L1_ON + L2_ON )
+               End Where
+               Where( GMN .Gt. 0.0 .And. L2_ON .Gt. 0.0 )
+                  L2_MIN = GMN * L2_ON / ( L1_ON + L2_ON )
+               End Where
+
+            End iF
 ! EPIC data as simulated in FEST-C 1.3 is for the end of the day. Here we 
 ! want to get the values at the beginning of the day.
 ! EPIC ammonia evasion is estimated as 5% of nitrification. We add the 
 ! evaded ammonia and nitrification back to the soil NH3 to account for losses.
-            F1_NH4 = Nit1 / 0.95 
-            F2_NH4 = Nit2 / 0.95 
+            F1_NH4 = Nit1 / 0.95 + L1_MIN
+            F2_NH4 = Nit2 / 0.95 + L2_MIN
 
          ! parameters
             Do r = 1, my_nrows
@@ -554,58 +569,83 @@ C                          '12345678901234567890'
                Go To 1001
             End If
 
-            If( MOD(jdate,1000) .Eq. 1 ) Then
-               If( MOD(jdate,4000) .Eq. 0 .And. MOD(jdate,100000) .Eq. 0 .And. MOD(jdate,400000) .Eq. 0) Then
-                  jdate_yest = (INT(jdate/1000)-1)*1000+366
-               Else ! not a leap year
-                  jdate_yest = (INT(jdate/1000)-1)*1000+365
+            If( N_GMN .Le. 0 ) Then
+
+               If( MOD(jdate,1000) .Eq. 1 ) Then
+                  If( MOD(jdate,4000) .Eq. 0 .And. MOD(jdate,100000) .Eq. 0 .And. MOD(jdate,400000) .Eq. 0) Then
+                     jdate_yest = (INT(jdate/1000)-1)*1000+366
+                  Else ! not a leap year
+                     jdate_yest = (INT(jdate/1000)-1)*1000+365
+                  End If
+               Else 
+                  jdate_yest = jdate-1
                End If
-            Else 
-               jdate_yest = jdate-1
-            End If
 
-            vname = 'L1_ON'
-            If ( .Not. Xtract3 (E2C_FERT_YEST, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
-     &                    strtcol_fert, endcol_fert, jdate_yest, 0, L1_ON_Yest ) ) Then
-               Write( xmsg,9001 ) vname, E2C_FERT
-               Go To 1001
-            End If
-            vname = 'L2_ON'
-            If ( .Not. Xtract3 (E2C_FERT_YEST, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
-     &                    strtcol_fert, endcol_fert, jdate_yest, 0, L2_ON_Yest ) ) Then
-               Write( xmsg,9001 ) vname, E2C_FERT
-               Go To 1001
-            End If 
-            vname = 'L1_NH3'
-            If ( .Not. Xtract3 (E2C_FERT_YEST, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
-     &                    strtcol_fert, endcol_fert, jdate_yest, 0, L1_NH4_Yest ) ) Then
-               Write( xmsg,9001 ) vname, E2C_FERT
-               Go To 1001
-            End If
-            vname = 'L2_NH3'
-            If ( .Not. Xtract3 (E2C_FERT_YEST, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
-     &                    strtcol_fert, endcol_fert, jdate_yest, 0, L2_NH4_Yest ) ) Then
-               Write( xmsg,9001 ) vname, E2C_FERT
-               Go To 1001
-            End If 
+               Allocate( L1_ON_Yest ( my_ncols,my_nrows,e2c_cats ),
+     &                   L2_ON_Yest ( my_ncols,my_nrows,e2c_cats ),
+     &                   F1_ON      ( my_ncols,my_nrows,e2c_cats ),
+     &                   F2_ON      ( my_ncols,my_nrows,e2c_cats ),
+     &                   STAT = ALLOCSTAT )
+               If ( ALLOCSTAT .Ne. 0 ) Then
+                  XMSG = 'Failure allocating organic N vars'
+                  Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+               End If
 
+               vname = 'L1_AON'
+               If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
+     &                          strtcol_fert, endcol_fert, jdate, 0, F1_ON ) ) Then
+                  Write( xmsg,9001 ) vname, E2C_FERT
+                  Go To 1001
+               End If
+               vname = 'L2_AON'
+               If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
+     &                             strtcol_fert, endcol_fert, jdate, 0, F2_ON ) ) Then
+                  Write( xmsg,9001 ) vname, E2C_FERT
+                  Go To 1001
+               End If   
+
+               vname = 'L1_ON'
+               If ( .Not. Xtract3 (E2C_FERT_YEST, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
+     &                       strtcol_fert, endcol_fert, jdate_yest, 0, L1_ON_Yest ) ) Then
+                  Write( xmsg,9001 ) vname, E2C_FERT
+                  Go To 1001
+               End If
+               vname = 'L2_ON'
+               If ( .Not. Xtract3 (E2C_FERT_YEST, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
+     &                       strtcol_fert, endcol_fert, jdate_yest, 0, L2_ON_Yest ) ) Then
+                  Write( xmsg,9001 ) vname, E2C_FERT
+                  Go To 1001
+               End If 
+            End If
+            If( N_GMN .Gt. 0 ) Then
+! NH4 from organic N mineralization is not layer specific in Fest-C v1.4 therefore it is allocated proportionally
+! to the organic N from which it was mineralized.
+               Where( GMN .Gt. 0.0 .And. L1_ON .Gt. 0.0 )
+                  L1_MIN = GMN * L1_ON / ( L1_ON + L2_ON )
+               End Where
+               Where( GMN .Gt. 0.0 .And. L2_ON .Gt. 0.0 )
+                  L2_MIN = GMN * L2_ON / ( L1_ON + L2_ON )
+               End Where
+
+            Else
 ! The organic soil change from the previous day is equal to the fertilization - mineralization 
 ! Here we read in the previous days concentration to calculate the mineralization and add it to the NH4 pool.
 ! In EPIC run for CMAQ organic N mineralized goes to the NH4 pool and if mineralization is negative it is 
 ! taken from the soil NO3 pool. A cap was placed on the maximum mineralization based on the 0.999 percentile 
 ! from multiple years of EPIC simulations. 
-            L1_MIN = L1_ON_Yest - L1_ON - F1_ON
-            L2_MIN = L2_ON_Yest - L2_ON - F2_ON
-            Where( L1_MIN .Lt. 0.0 )
-               L1_MIN = 0.0
-            Else Where( L1_MIN .Gt. 0.3 )
-               L1_MIN = 0.3
-            End Where
-            Where( L2_MIN .Lt. 0.0 )
-               L2_MIN = 0.0
-            Else Where( L2_MIN .Gt. 0.3 )
-               L2_MIN = 0.3
-            End Where
+               L1_MIN = L1_ON_Yest - L1_ON - F1_ON
+               L2_MIN = L2_ON_Yest - L2_ON - F2_ON
+               Where( L1_MIN .Lt. 0.0 )
+                  L1_MIN = 0.0
+               Else Where( L1_MIN .Gt. 0.3 )
+                  L1_MIN = 0.3
+               End Where
+               Where( L2_MIN .Lt. 0.0 )
+                  L2_MIN = 0.0
+               Else Where( L2_MIN .Gt. 0.3 )
+                  L2_MIN = 0.3
+               End Where
+            End If
             F1_NH4  = F1_NH4 + L1_MIN
             F2_NH4  = F2_NH4 + L2_MIN
 
