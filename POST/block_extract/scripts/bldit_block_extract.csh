@@ -1,6 +1,6 @@
 #! /bin/csh -f
 
-# ==================== BLOCK_EXTRACTv5.2.1 Build Script ===================== #
+# ==================== BLOCK_EXTRACTv5.3 Build Script ===================== #
 # Usage: bldit_block_extract.csh >&! bldit_block_extract.log                          #
 # Requirements: I/O API & netCDF libraries; a Fortran compiler        #
 #                                                                     #
@@ -45,7 +45,7 @@
 #===============================================================================
 
 #> User choices: working directory and application ID
- set VRSN     = v521                        #> model version
+ set VRSN     = v53                        #> model version
  set EXEC     = block_extract_${VRSN}.exe        #> executable name for this application
  set CFG      = block_extract_${VRSN}.cfg        #> BLDMAKE configuration file name
  setenv BLDER   ${CMAQ_HOME}/UTIL/bldmake/bldmake_${compilerString}.exe #> location of makefile builder executable 
