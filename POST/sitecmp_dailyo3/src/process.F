@@ -140,7 +140,7 @@ C*********************************************************************
         tpRecord = '  Output generated for all observed readings'
         Endif
  
-      header1 = 'SiteId,POCode,Latitude,Longitude,'
+      header1 = 'SiteId,POCode,State,County,Elevation,Latitude,Longitude,'
       if( LAMBXY ) header1 = TRIM(header1) // 'Lambert-X,LAMBERT-Y,'
       header1 = TRIM(header1) // 'Column,Row,Time On,Time Off,'
       header1 = TRIM(header1) // 'SMM,SDD,SYYYY,EMM,EDD,EYYYY,'
@@ -152,8 +152,8 @@ C*********************************************************************
       header1 = TRIM(header1) // 'O3_8hrmax_time_ob,O3_8hrmax_time_mod,'
       header1 = TRIM(header1) // 'W126_ob,W126_mod,SUM06_ob,SUM06_mod'
 
-      header2 = ',,(deg),(deg),,,mm/dd/yyyy hh:mm,mm/dd/yyyy hh:mm'  
-      if( LAMBXY ) header2 = ',(deg),(deg),(meters),(meters),,,mm/dd/yyyy hh:mm,mm/dd/yyyy hh:mm'  
+      header2 = ',,,,(m),(deg),(deg),,,mm/dd/yyyy hh:mm,mm/dd/yyyy hh:mm'  
+      if( LAMBXY ) header2 = ',,,,(m),(deg),(deg),(meters),(meters),,,mm/dd/yyyy hh:mm,mm/dd/yyyy hh:mm'  
       header2 = TRIM(header2) // ',MM,DD,YYYY,MM,DD,YYYY'
       header2 = TRIM(header2) // ',' // TRIM(SPECIES%OBS_UNITS) 
       header2 = TRIM(header2) // ',' // SPECIES%MOD_UNITS 
@@ -169,12 +169,12 @@ C*********************************************************************
       header2 = TRIM(header2) // ',ppm-hours,ppm-hours'
 
 
-      header3 = 'id,,,,,,,,,,,,,,observed,modeled,observed,modeled,observed,'//
+      header3 = 'id,,,,,,,,,,,,,,,,,observed,modeled,observed,modeled,observed,'//
      &  'modeled,observed,modeled,'//
      &  'observed,modeled,observed,modeled,observed,modeled,observed,modeled' 
      
       if( LAMBXY ) header3 =
-     &  'id,,,,,,,,,,,,,,,,observed,modeled,observed,modeled,observed,'//
+     &  'id,,,,,,,,,,,,,,,,,,,observed,modeled,observed,modeled,observed,'//
      &  'modeled,observed,modeled,'//
      &  'observed,modeled,observed,modeled,observed,modeled,observed,modeled' 
 
@@ -241,7 +241,7 @@ C**********************************************************************
         if (valcnt .eq. 0) DATACHECK = .FALSE. 
 
         siteno = getSiteNumber( siteid )
-	
+        
        ! check if site is located in grid domain
         if(getColumn(siteno).eq.0 .OR. getRow(siteno).eq.0) DATACHECK = .FALSE. 
      
@@ -279,7 +279,7 @@ C**********************************************************************
             if( startDate .lt. START_DATE )  DATACHECK = .FALSE.     
             if( startDate .eq. START_DATE .and. startTime .lt. START_TIME) DATACHECK = .FALSE. 
             Endif
-	    
+            
           if( END_DATE .gt. 0 ) Then
             if( startDate .gt. END_DATE )  DATACHECK = .FALSE.         
             Endif
@@ -314,14 +314,14 @@ C**********************************************************************
              Do i=1,24
               if( values(i) .ge. 0 ) valcnt = valcnt+1
               if( values(i) .gt. valmax ) then
-	       valmax = values(i)
-	       hrMaxVal = i - 1
-	      endif
+               valmax = values(i)
+               hrMaxVal = i - 1
+              endif
               if( vardata(i,5) .ge. 0 ) varcnt = varcnt+1
               if( vardata(i,5) .gt. varmax ) then
-	       varmax = VARDATA(i,5)
-	       hrMaxVar = i - 1
-	      endif            
+               varmax = VARDATA(i,5)
+               hrMaxVar = i - 1
+              endif            
               Enddo
 
              !  check for incomplete days
@@ -374,9 +374,9 @@ C**********************************************************************
             write (fields(8),'(a,a)')  Trim(date2Str(recDate)),' 23:59'
             write (fields(9),'(a)')  Trim(date2Str_csv(recDate))
             write (fields(10),'(a)')  Trim(date2Str_csv(recDate))
-	    fields(11) = real2Str(valmax, .true.)
+            fields(11) = real2Str(valmax, .true.)
             fields(12) = real2Str(varmax, .true.)
-	    fields(13) = real2Str(valmax, .true.)
+            fields(13) = real2Str(valmax, .true.)
             fields(14) = real2Str(varmax9, .true.)
             fields(15) = int2Str(hrMaxVal, .true.)
             fields(16) = int2Str(hrMaxVar, .true.)
@@ -400,9 +400,9 @@ C**********************************************************************
             write (fields(6),'(a,a)')  Trim(date2Str(recDate)),' 23:59'
             write (fields(7),'(a)')  Trim(date2Str_csv(recDate))
             write (fields(8),'(a)')  Trim(date2Str_csv(recDate))
-	    fields(9) = real2Str(valmax, .true.)
+            fields(9) = real2Str(valmax, .true.)
             fields(10) = real2Str(varmax, .true.)
-	    fields(11) = real2Str(valmax, .true.)
+            fields(11) = real2Str(valmax, .true.)
             fields(12) = real2Str(varmax9, .true.)
             fields(13) = int2Str(hrMaxVal, .true.)
             fields(14) = int2Str(hrMaxVar, .true.)
@@ -421,6 +421,9 @@ C**********************************************************************
            write(cpoc,'(i0)') poc
              ! write output record to out table
              Write(out,'(70a)') Trim(siteid),delimiter,Trim(cpoc),
+     &           delimiter,trim(SITES(siteno)%state),
+     &           delimiter,trim(SITES(siteno)%county),
+     &           delimiter,trim(real2Str(SITES(siteno)%elev, .true.)),
      &           (delimiter,Trim(fields(i)), i=1,nfields)
 
              Write(*,'(''values for site '',a,'' written for '',a)')       

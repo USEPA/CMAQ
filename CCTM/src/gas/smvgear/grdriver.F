@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/smvgear/grdriver.F,v 1.6 2011/10/21 16:11:14 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C @(#)grdriver.F        1.1 /project/mod3/CMAQ/src/chem/smvgear/SCCS/s.grdriver.F 07 Jul 1997 12:45:24
-
        SUBROUTINE CHEM( CONC, JDATE, JTIME, TSTEP )
 
 C**********************************************************************
@@ -36,7 +29,6 @@ C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: GRINIT
 C                                    JSPARSE
 C                                    SIGMAFH
-C                                    PHOT
 C                                    CALCKS
 C                                    SMVGEAR
 C
@@ -91,7 +83,9 @@ C**********************************************************************
       USE GRVARS              ! inherits GRID_CONF
       USE AEROSOL_CHEMISTRY
       USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP
-      USE PA_DEFN, Only: LIRR   ! Process Anaylsis control and data variable
+      USE PHOT_MOD, Only: INIT_PHOT_SHARED, RJ     ! photolysis rate, in-line module
+      USE PA_DEFN,  Only: LIRR                     ! Process Anaylsis control and data variable
+      USE PA_IRR_CLT
 
       IMPLICIT NONE 
 
@@ -126,7 +120,6 @@ C..SAVED LOCAL VARIABLES:
       LOGICAL, SAVE :: EMISVD = .TRUE. ! emission rates in vertical diffusion 
 
       INTEGER, SAVE :: IRUNC     ! Counter of calls to this subroutine
-      INTEGER, SAVE :: LOGDEV    ! Unit number of output log
       INTEGER, SAVE :: NOXYZ     ! Total number of grid cells
       LOGICAL, SAVE :: LIRRBLK   ! Flag to indicate IRR to be done for block
       REAL,    SAVE :: AIRFC     ! Factor to convert gms air to ppm
@@ -195,16 +188,10 @@ C..SCRATCH LOCAL VARIABLES:
       REAL, ALLOCATABLE, SAVE :: QV     ( :, :, : )      ! Cell water vapor (Kg/Kg air)
       REAL, ALLOCATABLE, SAVE :: TA     ( :, :, : )      ! Cell temperature (K)
 
-!      REAL :: RJ( NCOLS,NROWS,NLAYS,NPHOTAB )  ! J-values for each cell      
-      REAL,      ALLOCATABLE, SAVE :: RJ( :,:,:,: )  ! J-values for each cell      
-
       REAL,    ALLOCATABLE       :: OPEN_ZONE   ( :,: )       ! fractional sea water cover, [-]
       REAL,    ALLOCATABLE       :: SURF_ZONE   ( :,: )       ! fractional surf-zone cover, [-]
       LOGICAL, ALLOCATABLE, SAVE :: LAND_ZONE   ( :,: )       ! Is the surface totally land?
 
-
-!     REAL CHEMIS( NC_CH, NR_CH, NL_CH, NS_CH )  ! Emissions in each cell
-      REAL, ALLOCATABLE, SAVE :: CHEMIS( :, :, :, : )  ! Emissions in each cell
 
       INTEGER     GXOFF, GYOFF          ! global origin offset from file
 C for INTERPX
@@ -224,33 +211,6 @@ C for INTERPX
 #endif
 
       INTERFACE
-         SUBROUTINE PHOT ( MDATE, MTIME, JDATE, JTIME, DTSTEP, RJ )
-            INTEGER, INTENT( IN )  :: MDATE       !"centered" Julian date (YYYYDDD)
-            INTEGER, INTENT( IN )  :: MTIME       !"centered" time (HHMMSS)
-            INTEGER, INTENT( IN )  :: JDATE       ! Current date (YYYYDDD)
-            INTEGER, INTENT( IN )  :: JTIME       ! Current time (HHMMSS)
-            INTEGER, INTENT( IN )  :: DTSTEP( : ) ! time step vector (HHMMSS)
-            REAL,    INTENT( OUT ) :: RJ(:,:,:,:) ! gridded J-values  (1/min units)
-         END SUBROUTINE PHOT
-         SUBROUTINE PA_IRR_CKBLK ( NUMCELLS, LIRRBLK, OFFSET,
-     &                             CCOL, CROW, CLEV, NORDCELL,
-     &                             NIRRCLS, IRRCELL )
-            INTEGER, INTENT( IN )   :: NUMCELLS, OFFSET
-            LOGICAL, INTENT( INOUT )  :: LIRRBLK
-            INTEGER, INTENT( IN )   :: CCOL( : ), CROW( : ), CLEV( : )
-            INTEGER, INTENT( IN )   :: NORDCELL( : )
-            INTEGER, INTENT( IN )   :: NIRRCLS
-            INTEGER, INTENT( OUT )  :: IRRCELL( : )
-         END SUBROUTINE PA_IRR_CKBLK
-         SUBROUTINE PA_IRR_BLKENDC ( OFFSET, 
-     &                               CCOL, CROW, CLEV, NORDCELL,
-     &                               NIRRCLS, IRRCELL )
-            INTEGER, INTENT( IN )   :: OFFSET
-            INTEGER, INTENT( IN )   :: CCOL( : ), CROW( : ), CLEV( : )
-            INTEGER, INTENT( IN )   :: NORDCELL( : )
-            INTEGER, INTENT( IN )   :: NIRRCLS
-            INTEGER, INTENT( IN )   :: IRRCELL( : )
-         END SUBROUTINE PA_IRR_BLKENDC
          SUBROUTINE SMVGEAR ( IRUN, JDATE, JTIME, CHEMSTEP,
      &                        LIRRFLAG, NIRRCLS, IRRCELL )
             INTEGER,   INTENT( IN ) :: IRUN         ! Counter of calls to calling subroutine
@@ -261,14 +221,13 @@ C for INTERPX
             LOGICAL,   INTENT( IN ) :: LIRRFLAG     ! Flag for IRR calculations
             REAL( 8 ), INTENT( IN ) :: CHEMSTEP     ! Chemistry integration interval (min) 
          END SUBROUTINE SMVGEAR
-         SUBROUTINE FIND_DEGRADED( JDATE, JTIME, LOGDEV, CALL_DEGRADE )
+         SUBROUTINE FIND_DEGRADED( JDATE, JTIME, CALL_DEGRADE )
            INTEGER, INTENT( IN )  :: JDATE        ! current model date , coded YYYYDDD
            INTEGER, INTENT( IN )  :: JTIME        ! current model time , coded HHMMSS
-           INTEGER, INTENT( IN )  :: LOGDEV       ! unit number for the log file
            LOGICAL, INTENT( OUT ) :: CALL_DEGRADE ! whether to call degradation routines
          END SUBROUTINE FIND_DEGRADED
          SUBROUTINE INIT_DEGRADE( CBLK, TCELL, DCELL, PHOTO_CELL, NUMCELLS,
-     &                         JDATE, JTIME, LOGDEV, BLKID )
+     &                         JDATE, JTIME, BLKID )
            REAL( 8 ), INTENT( IN ) :: CBLK ( :, : )      !  species concentration in cell
            REAL( 8 ), INTENT( IN ) :: TCELL( : )         !  cell temperature  [ k ]
            REAL( 8 ), INTENT( IN ) :: DCELL( : )         !  cell air density  [ kg/m^3 ]
@@ -276,7 +235,6 @@ C for INTERPX
            INTEGER,   INTENT( IN ) :: NUMCELLS  ! number of grid cells in block
            INTEGER,   INTENT( IN ) :: JDATE     ! current model date , coded YYYYDDD
            INTEGER,   INTENT( IN ) :: JTIME     ! current model time , coded HHMMSS
-           INTEGER,   INTENT( IN ) :: LOGDEV    ! unit number for the log
            INTEGER,   INTENT( IN ) :: BLKID     ! number for the block
          END SUBROUTINE INIT_DEGRADE      
          SUBROUTINE FINAL_DEGRADE( CBLK )
@@ -297,7 +255,6 @@ c  set-up to do emissions here if that option is invoked
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF ( LFIRST ) THEN
          LFIRST = .FALSE.
-         LOGDEV = INIT3( )
 
          CALL GRVARS_INIT( JDATE, JTIME )
 
@@ -367,15 +324,17 @@ C.. Get fractional surf-zone coverage from the OCEAN file.
 
          ALLOCATE( DENS( NCOLS, NROWS, NLAYS ), PRES( NCOLS, NROWS, NLAYS ),
      &             QV  ( NCOLS, NROWS, NLAYS ), TA  ( NCOLS, NROWS, NLAYS ),
-     &             RJ  ( NCOLS, NROWS, NLAYS, NPHOTAB ),
      &             SEAICE( NCOLS, NROWS ) )
 
          ALLOCATE( IRRCELL( BLKSIZE ) )
          IRRCELL = 0
 
-C:WTH Determine whether DEGRADE rountines are needed.
+C..Initialize shared photolysis data
+         CALL INIT_PHOT_SHARED()
 
-         CALL FIND_DEGRADED( JDATE, JTIME, LOGDEV, CALL_DEG )
+C:WTH Determine whether DEGRADE routines are needed.
+
+         CALL FIND_DEGRADED( JDATE, JTIME, CALL_DEG )
          IF( CALL_DEG ) THEN
             WRITE( LOGDEV, * ) 'DEGRADE ROUTINES USED'
             WRITE( LOGDEV, * ) 'Mechanism contains degraded species'
@@ -465,10 +424,6 @@ C.. Get pressure in Pascals
          CALL M3EXIT ( PNAME, MIDDATE, MIDTIME, MSG, XSTAT1 )
       ENDIF
  
-C.. Get photolysis rates in /min
-
-      CALL PHOT ( MIDDATE, MIDTIME, JDATE, JTIME, TSTEP, RJ )
-
 C.. Get Heterogeneous reaction rates using aerosol surface area. Also
 C   store the initial surface area so that it can be updated after the
 C   solver finds a solution.
@@ -520,7 +475,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
              CALL PA_IRR_CKBLK ( NUMCELLS, LIRRBLK, OFFSET,
      &                           CCOL, CROW, CLEV, NORDCELL, NIRRCLS,
      &                           IRRCELL )
-             CALL PA_IRR_BLKSTRT( NUMCELLS )
          ENDIF
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C  Put the grid cell physical data in the block arrays, converting
@@ -589,21 +543,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !        CALL CALCKS( NPHOTAB, RJBLK )
          CALL CALC_RCONST( BLKTEMP, BLKPRES, BLKCH2O, RJBLK, BLKHET, LSUNLIGHT, BLKLAND, RK, NUMCELLS )
 
-!         DO NCELL = 1, NUMCELLS
-!            CELLNUM = NORDCELL( OFFSET + NCELL )
-!            COL = CCOL( CELLNUM )   ! wrong order
-!            ROW = CROW( CELLNUM )
-!            LEV = CLEV( CELLNUM )
-!            IF( LEV .EQ. INT(NLAYS/2)+1.AND. ROW .EQ. INT(MY_NROWS/2)+1 .AND. COL .EQ. INT(MY_NCOLS/2)+1 )THEN
-!                WRITE(LOGDEV,'(A,ES12.4)')'TEMP = ',BLKTEMP( NCELL ) 
-!                WRITE(LOGDEV,'(A,ES12.4)')'PRES = ',BLKPRES( NCELL ) 
-!                WRITE(LOGDEV,'(A,ES12.4)')'VH2O = ',BLKCH2O( NCELL )
-!                DO NPH = 1, NRXNS
-!                   WRITE(LOGDEV,'(A4,A16,A3,ES12.4)')'RXN:',RXLABEL(NPH),' = ',RK(NCELL, NPH)
-!                END DO
-!             END IF
-!         END DO
-
          IF ( LSUNLIGHT ) THEN
             HMAX = HMAXDAY( NCS )
             NCSP = NCS
@@ -629,7 +568,7 @@ C..WTH: Put concentrations into degradation array
 C..initialize degradation routines
               
             CALL INIT_DEGRADE( Y_DEGRADE, BLKTEMP, BLKDENS, RJBLK, 
-     &                         NUMCELLS, JDATE, JTIME, LOGDEV, BLKID )
+     &                         NUMCELLS, JDATE, JTIME, BLKID )
   
          ENDIF
 

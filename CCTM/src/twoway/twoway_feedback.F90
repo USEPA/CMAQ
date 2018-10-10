@@ -39,11 +39,7 @@ SUBROUTINE feedback_setup ( jdate, jtime, tstep )
     integer :: i, j, k, n, stat, slen
     logical :: found
 
-    integer, save :: logdev
-
     character (len = 4), save :: pe_str
-
-       logdev = init3 ()
 
        allocate (cmaq_wrf_c_send_to(0:9, 0:nprocs-1),              &
                  cmaq_wrf_c_recv_from(0:9, 0:nprocs-1),            &
@@ -74,7 +70,7 @@ SUBROUTINE feedback_setup ( jdate, jtime, tstep )
        nlays3d = ioapi_header%nlays
        nvars3d = n_feedback_var
        vname3d(1:nvars3d) = feedback_vlist
-       units3d(1:nvars3d) = ' '
+       units3d(1:nvars3d) = ''
        tstep3d = tstep
        vtype3d(1:nvars3d) = ioapi_header%vtype
 
@@ -88,7 +84,6 @@ SUBROUTINE feedback_setup ( jdate, jtime, tstep )
           end if
        end if
 
-       indirect_effect = envyn ('INDIRECT_EFFECT', ' ', .false., stat)
 
 ! The water soluble and insoluble lists are actually used to differentiate between two
 ! refractive index values. They do not necessarily align completely with water soluble
@@ -112,28 +107,28 @@ SUBROUTINE feedback_setup ( jdate, jtime, tstep )
               (ae_spc(i) .ne. 'ACLJ') .and.       &
               (ae_spc(i) .ne. 'ACLK') .and.       &
               (ae_spc(i) .ne. 'ASO4K') .and.      &
-              (ae_spc(i) .ne. 'ASEACAT') .and.    &
+              (ae_spc(i) .ne. 'ASEACATK') .and.    &
               (ae_spc(i) .ne. 'AH2OI') .and.      &
               (ae_spc(i) .ne. 'AH2OJ') .and.      &
               (ae_spc(i) .ne. 'AH2OK') .and.      &
               (ae_spc(i)(slen:slen) .ne. 'K')) then   ! not consider K mode ANH4K and ANO3K
              found = .false.
              k = 0
-             do while ((.not. found) .and. (k .lt. n_aerolist))
+             do while ((.not. found) .and. (k .lt. n_aerospc))
                k = k + 1
                n = 0
                do while ((.not. found) .and. (n .lt. n_mode))
                   n = n + 1
-                  if (aerolist(k)%name(n) .eq. ae_spc(i)) then
+                  if (aerospc(k)%name(n) .eq. ae_spc(i)) then
                      found = .true.
                   end if
                end do
              end do
              if (found) then
-                if (aerolist(k)%optic_surr .eq. 'SOLUTE') then
+                if (aerospc(k)%optic_surr .eq. 'SOLUTE') then
                    num_ws_spc(n) = num_ws_spc(n) + 1
                    ws_spc_index(num_ws_spc(n), n) = i
-                else if (aerolist(k)%optic_surr .eq. 'DUST') then
+                else if (aerospc(k)%optic_surr .eq. 'DUST') then
                    num_wi_spc(n) = num_wi_spc(n) + 1
                    wi_spc_index(num_wi_spc(n), n) = i
                 end if 
@@ -204,13 +199,9 @@ SUBROUTINE feedback_write ( c, r, l, cgrid, o3_value, jdate, jtime )
   INTEGER   GXOFF, GYOFF      ! global origin offset from file
   integer, save :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
 
-  integer :: logdev
-
   CHARACTER( 96 ) :: XMSG = ' '
 
   IF ( firstime ) THEN
-
-     logdev = init3()
 
      write (pe_str, 11) '_', twoway_mype
  11  format (a1, i3.3)

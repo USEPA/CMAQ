@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/SSEMIS.F,v 1.8 2012/01/19 15:29:11 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
- 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE SSEMIS
 C-----------------------------------------------------------------------
@@ -37,10 +30,12 @@ C   07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module.
 C   12 Aug 15 D.Wong: Replaced MYPE with IO_PE_INCLUSIVE for parallel I/O implementation
 C   09 Dec 15 D.Wong: Open CTM_SSEMIS_1 file in a IO_PE_INCLUSIVE conditional block
 C   24 Mar 16 G.Sarwar: updated to calculate NACL emissions (needed for BR2 emissions) 
+C   16 Aug 18 G. Sarwar: Removed NACL
 C-----------------------------------------------------------------------
-
+      USE RUNTIME_VARS
       USE HGRD_DEFN
       USE AERO_DATA, ONLY: N_MODE
+      USE EMIS_VARS
 
       IMPLICIT NONE
 
@@ -48,27 +43,23 @@ C Number of chemical species in fresh sea-salt aerosol
       INTEGER :: NSSSPC
 
 C Sea-Salt Emissions Rates
-      REAL, ALLOCATABLE, SAVE :: SSOUTM( :,:,:,: )  ! mass emission rates [ug/m3/s]
-      REAL, ALLOCATABLE, SAVE :: SSOUTN( :,:,: )    ! number emission rates [1/m3/s]
-      REAL, ALLOCATABLE, SAVE :: SSOUTS( :,:,: )    ! surface-area emisrates [m2/m3/s]
-
-      PUBLIC NSSSPC, SSOUTM, SSOUTN, SSOUTS, SSSPC_MAP, SSEMIS_INIT, GET_SSEMIS
+      PUBLIC NSSSPC, SSEMIS_INIT, GET_SSEMIS, SEA_FACTNUM, SEA_FACTSRF, SSOUTM
       PRIVATE
 
 C Position of H2O in sea-salt emission arrays
       INTEGER :: KH2O
 
-C Variables for handling sea-salt emissions
-      INTEGER, ALLOCATABLE       :: SSSPC_MAP( : ) ! map to aerospc array
-
 C Variables for the sea-salt diagnostic file
       INTEGER :: NSSDIAG                ! number of species in sea-salt
                                         ! diagnostic emission file
+      Real,    ALLOCATABLE, SAVE :: SSOUTM( :,:,:,: )! SeaSpray Mass Emiss Rate [ug/m3/s]
+      Real,    ALLOCATABLE, SAVE :: SSOUTN( :,:,: )  ! SeaSpray Number Emiss Rate [1/m3/s]
+      Real,    ALLOCATABLE, SAVE :: SSOUTS( :,:,: )  ! SeaSpray Surface Area Emiss Rate [m2/m3/s]
       REAL,    ALLOCATABLE       :: SSOUTD( : )   ! emission rates
-      LOGICAL, SAVE              :: SSEMDIAG      ! flag for SSEMIS diagnostic file
       REAL,    ALLOCATABLE, SAVE :: SSBF( :,:,: ) ! seasalt emiss accumulator
       REAL,    ALLOCATABLE, SAVE :: WRSS( :,: )   ! seasalt emiss write buffer
-      INTEGER, SAVE              :: SDATE, STIME  ! scenario start date & time
+      REAL,    ALLOCATABLE, SAVE :: SEA_FACTNUM( :,:,: ) ! Array for scaling Number Emissions
+      REAL,    ALLOCATABLE, SAVE :: SEA_FACTSRF( :,:,: ) ! Array for scaling Surface Area Emissions 
 
 C Species names in the speciated sea-salt-emissions
       CHARACTER( 16 ), ALLOCATABLE :: WRSS_SPC( : )  ! species names
@@ -257,8 +248,6 @@ C Polynomial coefficients from Zhang et al. (2005)
       DATA C0_COEFF / 28.376D0, -205.44D0, 653.37D0, -1031.7D0, 803.18D0, -247.08D0 /
       DATA X_COEFF  / 3.1657D0, -19.079D0,  55.72D0, -83.998D0, 63.436D0, -19.248D0 /
 
-      INTEGER, SAVE :: LOGDEV
-
       CONTAINS
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -290,93 +279,86 @@ C Arguments:
 C Includes:
             INCLUDE SUBST_FILES_ID  ! file name parameters
 
-C External Functions:
-            INTEGER, EXTERNAL :: SETUP_LOGDEV
-
 C Local Variables:
-            CHARACTER( 16 ), SAVE :: CTM_SSEMDIAG = 'CTM_SSEMDIAG' ! env var for
-                                                     ! diagnostic file
-
             CHARACTER( 16 ), SAVE :: PNAME = 'SSEMIS_INIT'
             CHARACTER( 80 ) :: VARDESC
-            CHARACTER( 96 ) :: XMSG = ' '
+            CHARACTER( 250 ) :: XMSG = ' '
             INTEGER STATUS
-            INTEGER S, N, L        
+            INTEGER S, N, L, ISEA, SPC, IM
+            LOGICAL SEA_MATCH
+            CHARACTER( 16 ) :: SN
 
 C-----------------------------------------------------------------------
 
-            LOGDEV = SETUP_LOGDEV()
             SUCCESS = .TRUE.
 
 C Map aerospc data
             CALL MAP_AERO()
 
-C Determine number of sea-salt species
-            NSSSPC = 0
-            DO S = 1, N_AEROSPC
-               IF ( AEROSPC_SSF( 2,S ) + AEROSPC_SSF( 3,S ) .GT. 0.0 ) NSSSPC = NSSSPC + 1
-            END DO
-C Include H2O
-            NSSSPC = NSSSPC + 1
+            CALL LOG_MESSAGE( LOGDEV, 'Initialize Sea Spray Aerosol Emissions' )
 
-C Allocate mapping array
-            ALLOCATE ( SSSPC_MAP( NSSSPC ), STAT = STATUS )
-            IF ( STATUS .NE. 0 ) THEN
-               XMSG = '*** SSSPC_MAP memory allocation failed'
-               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-               SUCCESS = .FALSE.; RETURN
-            END IF
+            ! Map The Sea-Salt Species to the AeroSpc Array
+            ALLOCATE( MAP_SEAtoAERO( NSEA_SPC ) )
+            MAP_SEAtoAERO = 0
 
-C build mapping array SSSPC_MAP
-            NSSSPC = 0
-            DO S = 1, N_AEROSPC
-               IF ( AEROSPC_SSF( 2,S ) + AEROSPC_SSF( 3,S ) .GT. 0.0 ) THEN
-                  NSSSPC = NSSSPC + 1
-                  SSSPC_MAP( NSSSPC ) = S
-               END IF
-            END DO
+            DO ISEA = 1, NSEA_SPC
 
-C Include H2O to mapping
-            NSSSPC = NSSSPC + 1      
-            KH2O = NSSSPC
-            SSSPC_MAP( NSSSPC ) = AH2O_IDX
+               ! Map to aerosol chemical species table 
+               ! This is just for retrieving the aerosol density later
+               DO SPC = 1,N_AEROSPC
+                  DO IM = 2,N_MODE
+                     SN = TRIM( SEA_SPC( ISEA )%NAME ) // MODESUFF( IM )
+                     IF ( SN .Eq. AEROSPC( SPC )%NAME( 2 ) .OR.
+     &                    SN .Eq. AEROSPC( SPC )%NAME( 3 ) .OR. 
+     &                    SEA_SPC( ISEA )%NAME .Eq. AEROSPC( SPC )%NAME( 3 ) )
+     &                     MAP_SEAtoAERO( ISEA ) = SPC
+                  End Do
+               End Do
 
+            End Do
+ 
+            ! Specify H2O in mapping
+            KH2O = NSEA_SPC
+
+
+C Populate Master Emissions Map Vector So That Diagnostics 
+C can be printed in EMIS_MAP
+            NSSSPC = NSEA_SPC
+            Em_File_Surr( iseasrm )%len = nssspc
+            Allocate( Em_File_Surr( iseasrm )%arry ( nssspc ) )
+            Allocate( Em_File_Surr( iseasrm )%cmaq ( nssspc ) )
+            Allocate( Em_File_Surr( iseasrm )%units( nssspc ) )
+            Allocate( Em_File_Surr( iseasrm )%phase( nssspc ) )
+            Allocate( Em_File_Surr( iseasrm )%mw   ( nssspc ) )
+            Allocate( Em_File_Surr( iseasrm )%used ( nssspc ) )
+            do i = 1,nssspc
+               Em_File_Surr( iseasrm )%arry( i )  = sea_spc(i)%name
+               Em_File_Surr( iseasrm )%cmaq( i )  = sea_spc(i)%name
+               Em_File_Surr( iseasrm )%units( i ) = 'G/S'
+               Em_File_Surr( iseasrm )%phase( i ) = 'AERO'
+               Em_File_Surr( iseasrm )%mw   ( i ) = 0.
+               Em_File_Surr( iseasrm )%used ( i ) = .FALSE.
+            end do
+ 
 C Allocate SS arrays using NSSSPC value
             ALLOCATE ( SSOUTM( NSSSPC,N_MODE,NCOLS,NROWS ),
      &                 SSOUTN( N_MODE,NCOLS,NROWS ),
-     &                 SSOUTS( N_MODE,NCOLS,NROWS ), STAT = STATUS )
+     &                 SSOUTS( N_MODE,NCOLS,NROWS ), 
+     &                 SEA_FACTNUM( N_MODE,NCOLS,NROWS ),
+     &                 SEA_FACTSRF( N_MODE,NCOLS,NROWS ), STAT = STATUS )
             IF ( STATUS .NE. 0 ) THEN
                XMSG = '*** SSOUTM, SSOUTN or SSOUTS memory allocation failed'
                CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
                SUCCESS = .FALSE.; RETURN
             END IF
 
-C Get sea-salt-emission diagnostic output file flag.
-
-            SSEMDIAG = .FALSE.         ! default
-            VARDESC = 'Flag for writing the sea-salt-emission diagnostic file'
-            SSEMDIAG = ENVYN( CTM_SSEMDIAG, VARDESC, SSEMDIAG, STATUS )
-            IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-            IF ( STATUS .EQ. 1 ) THEN
-               XMSG = 'Environment variable improperly formatted'
-               CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-               SUCCESS = .FALSE.; RETURN
-            ELSE IF ( STATUS .EQ. -1 ) THEN
-               XMSG =
-     &             'Environment variable set, but empty ... Using default:'
-               WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-            ELSE IF ( STATUS .EQ. -2 ) THEN
-               XMSG = 'Environment variable not set ... Using default:'
-               WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-            END IF
 
             IF ( SSEMDIAG ) THEN    ! Open the sea-salt emission diagnostic file
 C Determine number of sea-salt species For diagnostic file
-            NSSDIAG = 0
-               DO S = 1, N_AEROSPC
-                  IF ( AEROSPC_SSF( 2,S ) .GT. 0.0 ) NSSDIAG = NSSDIAG + 1
-                  IF ( AEROSPC_SSF( 3,S ) .GT. 0.0 ) NSSDIAG = NSSDIAG + 1
-               END DO
+               NSSDIAG = 0
+               DO ISEA = 1,NSSSPC
+                  NSSDIAG = NSSDIAG + COUNT( SEA_SPC( ISEA )%SPCFAC( : ) .GT. 0. )
+               ENDDO
 C Include H2O
                NSSDIAG = NSSDIAG + 2   !! count both J and K modes
 C Include NUMBER and SURFACE_AREA to diagnostic (J & K)
@@ -394,15 +376,15 @@ C Allocate diagnostic arrays
 C Build diagnostic file write buffer (WRSS_SPC) array
                NSSDIAG = 0
                DO N = 2, N_MODE
-                  DO S = 1, N_AEROSPC
-                     IF ( AEROSPC_SSF( N,S ) .GT. 0.0 ) THEN
+                  DO S = 1, NSSSPC
+                     IF ( SEA_SPC( S )%SPCFAC( N ) .GT. 0.0 ) THEN
                         NSSDIAG = NSSDIAG + 1
-                        WRSS_SPC( NSSDIAG ) = AEROSPC( S )%NAME( N )
+                        WRSS_SPC( NSSDIAG ) = TRIM( SEA_SPC( S )%NAME ) // MODESUFF( N ) 
                      END IF
                   END DO
 C Include H2O
                   NSSDIAG = NSSDIAG + 1
-                  WRSS_SPC( NSSDIAG ) = AEROSPC( AH2O_IDX )%NAME( N )
+                  WRSS_SPC( NSSDIAG ) = 'AH2O' // MODESUFF( N )
                END DO
 
 C Include Mode NUMBER to diagnostic
@@ -418,10 +400,7 @@ C Include Mode SURFACE_AREA to diagnostic
                END DO
 
 C Open the sea-salt emission dignostic file
-               SDATE = ENVINT( 'CTM_STDATE', 'Scenario Start (YYYYJJJ)', 0, STATUS )
-               STIME = ENVINT( 'CTM_STTIME', 'Scenario Start (HHMMSS)', 0, STATUS )
-
-               IF ( IO_PE_INCLUSIVE ) CALL OPSSEMIS ( SDATE, STIME, TSTEP, NSSDIAG, WRSS_SPC )
+               IF ( IO_PE_INCLUSIVE ) CALL OPSSEMIS ( STDATE, STTIME, TSTEP, NSSDIAG, WRSS_SPC )
 
                ALLOCATE ( SSBF( NSSDIAG,MY_NCOLS,MY_NROWS ),
      &                    WRSS( NCOLS,NROWS ), STAT = STATUS )
@@ -515,11 +494,11 @@ C Set output file characteristics based on COORD.EXT and open diagnostic file
                VTYPE3D( V ) = M3REAL
                VNAME3D( V ) = WRSS_SPC( V )
                IF ( VNAME3D( V )(1:3) .EQ. 'NUM' ) THEN
-                  UNITS3D( V ) = 'number/s'
+                  UNITS3D( V ) = 's-1'
                ELSE IF ( VNAME3D( V )(1:3) .EQ. 'SRF' ) THEN
-                  UNITS3D( V ) = 'm2/s'
+                  UNITS3D( V ) = 'm2 s-1'
                ELSE
-                  UNITS3D( V ) = 'g/s'
+                  UNITS3D( V ) = 'g s-1'
                END IF
                VDESC3D( V ) = 'hourly ' // TRIM( VNAME3D( V ) )
      &                     // ' sea-salt emission rate'
@@ -649,10 +628,7 @@ C Variables for calculating solute mass fraction & size-correction factors
             REAL( 8 ) :: XSW              ! fractional solute weight fraction
 
 C Density of dry sea salt [kg/m3] using volume additivity
-            REAL( 8 )       :: RHOSW            ! sea-salt particle density at ambient RH [g/m3]
-            REAL( 8 ), SAVE :: RHOSSDRY 
-            REAL( 8 ), SAVE :: RHSUM   
-            REAL( 8 ), SAVE :: SPECIFIC_VOL_H2O ! volume of aerosol water (m3/kg)   
+            REAL( 8 )       :: RHOSW( N_MODE )  ! sea-salt particle density at ambient RH [g/m3]
 
 C Maximum and minimum diameters for emission-flux integrations [m]
             REAL, PARAMETER :: DPMAX = 20.0E-6 ! upper limit used for the
@@ -717,7 +693,6 @@ C Variables for calculating dry surface-area emission rate for accum mode
             INTEGER           :: MDATE, MTIME  ! SSEMIS write date&time
 
             LOGICAL, SAVE :: FIRSTIME      = .TRUE.
-            LOGICAL, SAVE :: UNINITIALIZED = .TRUE.
 
 C Mathematical constants; statement function for ERF approximation
             REAL, PARAMETER      :: TWO3 = 2.0 / 3.0
@@ -727,24 +702,8 @@ C Mathematical constants; statement function for ERF approximation
 
 C----------------------------- Begin calc ------------------------------
 
-            IF ( UNINITIALIZED )THEN
-C Calculate dry sea-salt [kg/m3]
-               RHSUM = 0.0D0
-               DO S = 1, NSSSPC
-!RHSUM and RHOSSDRY are assumed the same between J and K modes
-                  IF ( AEROSPC_SSF( 2,SSSPC_MAP( S ) ) .LT. 1.0E-30 ) CYCLE
-                  IF ( S .EQ. KH2O .OR. AEROSPC( SSSPC_MAP( S ) )%TRACER ) CYCLE !! do not include Water or tracers
-                  RHSUM = RHSUM
-     &                  + REAL( ( AEROSPC_SSF( 2,SSSPC_MAP( S ) ) 
-     &                          / AEROSPC( SSSPC_MAP( S ) )%DENSITY ), 8 )
-               END DO
-               RHOSSDRY         = 1.0D0 / RHSUM    
-               SPECIFIC_VOL_H2O = 1.0D0 / REAL( AEROSPC( AH2O_IDX )%DENSITY, 8 )
-               UNINITIALIZED    = .FALSE.
-            END IF
 C Initialize sea-salt output buffer
             IF ( SSEMDIAG .AND. WSTEP .EQ. 0 ) SSBF = 0.0
-            Met_Data%NACL_EMIS = 0.0
 
             DO R = 1, MY_NROWS
                DO C = 1, MY_NCOLS
@@ -802,8 +761,10 @@ C Calculate solute mass fraction using Equation 1 of Zhang et al.
 
 C Calculate sea-salt-particle density [g/m3] at ambient RH, assuming
 C volume additivity of dry salt plus water
-                  RHOSW = 1.0D+3 
-     &                  / ( XSW * RHSUM + ( 1.0D0 - XSW ) * SPECIFIC_VOL_H2O )
+                  RHOSW( 2 ) = 1.0D+3 
+     &                  / ( XSW / SEASPRAY_DENS( 2 ) + ( 1.0D0 - XSW ) * SPECIFIC_VOL_H2O )
+                  RHOSW( 3 ) = 1.0D+3 
+     &                  / ( XSW / SEASPRAY_DENS( 3 ) + ( 1.0D0 - XSW ) * SPECIFIC_VOL_H2O )
 
 C Set minimum and maximum diameters for integration using the size-
 C correction factors of Zhang et al. (2005)
@@ -884,9 +845,9 @@ C scaling for wind speed, dividing by grid-cell height, and multiplying
 C by particle density.  Multiply by chemical speciation factors to
 C obtain speciated mass emissions.
 
-                  ESEASJ = VFLXRH * FRACMJ * WDSCALO * RLAY1HT * REAL( RHOSW, 4 )
+                  ESEASJ = VFLXRH * FRACMJ * WDSCALO * RLAY1HT * REAL( RHOSW( 2 ), 4 )
 
-                  ESEASK = VFLXRH * FRACMK * WDSCALO * RLAY1HT * REAL( RHOSW, 4 )
+                  ESEASK = VFLXRH * FRACMK * WDSCALO * RLAY1HT * REAL( RHOSW( 3 ), 4 )
 
                   DO S = 1, NSSSPC
                      SSOUTM( S,1,C,R ) = 0.0
@@ -895,25 +856,16 @@ C obtain speciated mass emissions.
                         SSOUTM( S,3,C,R ) = ESEASK * REAL( ( 1.0D0 - XSW ), 4 )
                      ELSE
                         SSOUTM( S,2,C,R ) = ESEASJ * REAL( XSW, 4 )
-     &                                    * AEROSPC_SSF( 2,SSSPC_MAP( S ) )
+     &                                    * SEA_SPC( S )%SPCFAC( 2 )
                         SSOUTM( S,3,C,R ) = ESEASK * REAL( XSW, 4 )
-     &                                    * AEROSPC_SSF( 3,SSSPC_MAP( S ) )
+     &                                    * SEA_SPC( S )%SPCFAC( 3 )
                      END IF
-
-                     IF( SSSPC_MAP( S ) .EQ. ana_idx )
-     &                  Met_Data%NACL_EMIS( C,R ) = Met_Data%NACL_EMIS( C,R ) + SSOUTM( S,2,C,R ) / RLAY1HT
-C 0.80 = ratio of seasalt emisisions with d<10 um to all K-mode emisisions, 0.8373 = NA fraction in SEACAT, 0.66984 = 0.80 * 0.8373
-                     IF( SSSPC_MAP( S ) .EQ. aseacat_idx )
-     &                  Met_Data%NACL_EMIS( C,R ) = Met_Data%NACL_EMIS( C,R ) + SSOUTM( S,3,C,R ) / RLAY1HT * 0.66984
-                     IF( SSSPC_MAP( S ) .EQ. acl_idx )
-     &                  Met_Data%NACL_EMIS( C,R ) = Met_Data%NACL_EMIS( C,R ) + SSOUTM( S,2,C,R ) / RLAY1HT
-     &                                                                        + SSOUTM( S,3,C,R ) / RLAY1HT * 0.80
 
                   END DO
 
 C Calculate mode-specific 3rd moment emission rates [m3/m3/s]
-                  M3J = ESEASJ * F6PI / REAL( RHOSW, 4 )
-                  M3K = ESEASK * F6PI / REAL( RHOSW, 4 )
+                  M3J = ESEASJ * F6PI / REAL( RHOSW( 2 ), 4 )
+                  M3K = ESEASK * F6PI / REAL( RHOSW( 3 ), 4 )
 
 C Calculate factors for converting 3rd moment emission rates into number
 C and 2nd moment emission rates.  See Equations 7b and 7c of Binkowski &
@@ -946,12 +898,21 @@ C Multiply dry 2nd moment by PI to obtain dry surface area emission rate.
                   SSOUTS( 2,C,R ) = PI * DRY_M2J
                   SSOUTS( 3,C,R ) = PI * DRY_M2K
 
+! Propagate Number and Surface Area Scaling Factors back to Emissions
+! Module so that the sea spray emissions can be scaled appropriately            
+                  SEA_FACTNUM( 1,C,R ) = 0.0
+                  SEA_FACTNUM( 2,C,R ) = FACTNUMJ
+                  SEA_FACTNUM( 3,C,R ) = FACTNUMK
+                  SEA_FACTSRF( 1,C,R ) = 0.0
+                  SEA_FACTSRF( 2,C,R ) = SSOUTS( 2,C,R ) / M3J
+                  SEA_FACTSRF( 3,C,R ) = SSOUTS( 3,C,R ) / M3K
+
 C Update the SSBF array, for writing the diagnostic sea-salt-emission file.
                   IF ( SSEMDIAG ) THEN
                      V = 0
                      DO N = 2, 3
                         DO S = 1, NSSSPC
-                           IF ( S .EQ. KH2O .OR. AEROSPC_SSF( N,SSSPC_MAP( S ) ) .GT. 0 ) THEN
+                           IF ( S .EQ. KH2O .OR. SEA_SPC( S )%SPCFAC( N ) .GT. 0 ) THEN
                               V = V + 1
                               SSOUTD( V ) = SSOUTM( S,N,C,R )
                            END IF
@@ -979,9 +940,6 @@ C Update the SSBF array, for writing the diagnostic sea-salt-emission file.
                END DO   ! C
             END DO   ! R
 
-!           write( logdev,* ) 'sum ssoutm, ssoutn, ssouts: ',
-!    &                         sum( ssoutm ), sum( ssoutn ), sum( ssouts )
-
 C If last call this hour, write out the total sea-salt emissions [g/s].
 C Then reset the sea-salt emissions array and local write counter.
             IF ( SSEMDIAG ) THEN
@@ -1001,7 +959,7 @@ C Then reset the sea-salt emissions array and local write counter.
                WSTEP = WSTEP + TIME2SEC( TSTEP( 2 ) )
 
                IF ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) ) THEN
-                  IF ( .NOT. CURRSTEP( JDATE, JTIME, SDATE, STIME, TSTEP( 1 ),
+                  IF ( .NOT. CURRSTEP( JDATE, JTIME, STDATE, STTIME, TSTEP( 1 ),
      &                                 MDATE, MTIME ) ) THEN
                      XMSG = 'Cannot get step date and time'
                      CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )

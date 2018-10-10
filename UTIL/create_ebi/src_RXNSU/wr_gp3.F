@@ -42,7 +42,7 @@ C..SCRATCH LOCAL VARIABLES:
       CHARACTER( 256 )  ::    LINOUT
       CHARACTER( 150 )  ::    RXOUT
       CHARACTER( 100 )  ::    BLANK_LINE
-      CHARACTER*(  3 )  ::    RNUM                 ! Reaction number
+      CHARACTER*(  5 )  ::    RNUM                 ! Reaction number
       CHARACTER*(  6 )  ::    COUT                 ! Output coefficient
       CHARACTER*(  1 )  ::    SGN                  ! Coefficient sign
    
@@ -333,21 +333,30 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       WRITE( IOUT, 94060 )
 
 c..K8,8 term ( C2O3+C2O3=)
-      DO N = 1, NRXNS
-         IF( IRR( N, 1 ) .EQ. C2O3 .AND.  IRR( N, 2 ) .EQ. C2O3 ) THEN
-            WRITE( RNUM, '( I3 )' ) N
-            LINOUT = '      K8_8  = RKI( ' // RNUM // ' ) * DTC'
-            E1 = LEN_TRIM( LINOUT )
-            WRITE( IOUT, 92000 ) LINOUT( 1 : E1 )
-         END IF
-      END DO
+!      DO N = 1, NRXNS
+!         IF( IRR( N, 1 ) .EQ. C2O3 .AND.  IRR( N, 2 ) .EQ. C2O3 ) THEN
+!            WRITE( RNUM, '( I5 )' ) N
+!            LINOUT = '      K8_8  = RKI( ' // RNUM // ' ) * DTC'
+!            E1 = LEN_TRIM( LINOUT )
+!            WRITE( IOUT, 92000 ) LINOUT( 1 : E1 )
+!         END IF
+!      END DO
+      IF( RXN_C2O3_SELF .GT. 0 )THEN
+         WRITE( RNUM, '( I5 )' ) RXN_C2O3_SELF
+         LINOUT = '      K8_8  = RKI( ' // RNUM // ' ) * DTC'
+         E1 = LEN_TRIM( LINOUT )
+         WRITE( IOUT, 92000 ) LINOUT( 1 : E1 )
+      ELSE
+         LINOUT = '      K8_8  = 0.0D0'
+         WRITE( IOUT, 92000 ) TRIM( LINOUT )      
+      END IF
 
 c..R8,9 term ( production of C2O3 fro PAN )
       LRXN1 = .TRUE.
       DO N = 1, NRXNS
          IF( IRR( N, 1 ) .EQ. PAN .AND. IRR( N, 4 ) .EQ. C2O3 .OR.
      &       IRR( N, 1 ) .EQ. PAN .AND. IRR( N, 5 ) .EQ. C2O3 ) THEN
-            WRITE( RNUM, '( I3 )' ) N
+            WRITE( RNUM, '( I5 )' ) N
 c            LINOUT = '      R8_9  = RKI( ' // RNUM // ' ) * DTC'
             IF( LRXN1 )THEN
                  LINOUT = '      R8_9  = ( RKI( ' // RNUM // ' ) '
@@ -369,7 +378,7 @@ c..R9,8 term ( production of PAN from C2O3 )
      &         IRR( N, 4 ) .EQ. PAN ) .OR.
      &       ( IRR( N, 1 ) .EQ. NO2  .AND. IRR( N, 2 ) .EQ. C2O3 .AND.
      &         IRR( N, 4 ) .EQ. PAN    ) ) THEN
-            WRITE( RNUM, '( I3 )' ) N
+            WRITE( RNUM, '( I5 )' ) N
             SPOUT = SPECIES( NO2 )
             E2 = LEN_TRIM( SPOUT )
             IF( LRXN1 )THEN

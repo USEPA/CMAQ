@@ -3,10 +3,24 @@ NO2-06
 ! From NASA (2006).                                                              
 ! Absorption cross sections are averages for wavelength intervals given.         
 ! Data alligned to smallest wavelength intervals for abs. coefs and qy's.        
-!                                                                                
+!
+!IUPAC 2005 for wavelength <242 to >205
+!Au and Brion J (1997), J Chem. Phys. 218, 109-126. for wavelength <205                                                                               
 Points (the mechanism evaluated with this format)                                
 ! With FAC, units are (cm^2/molecule)                                            
 FAC=1.0                                                                          
+155.0 1.250e-17 1.000
+165.3 1.160e-17 1.000
+177.1 6.800e-18 1.000
+190.8 1.800e-18 1.000
+205.0 3.381e-19 1.000
+210.0 4.451e-19 1.000
+215.0 4.887e-19 1.000
+220.0 4.672e-19 1.000
+225.0 3.904e-19 1.000
+230.0 2.765e-19 1.000
+235.0 1.653e-19 1.000
+240.0 8.300e-20 1.000
 242.0 5.770E-20 1.0000
 245.0 2.790E-20 1.0000
 248.0 1.620E-20 1.0000

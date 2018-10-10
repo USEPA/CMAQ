@@ -17,10 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/procan/pa/pa_init.F,v 1.7 2011/10/21 16:11:32 yoj Exp $ 
-
       SUBROUTINE PA_INIT( CGRID, SDATE, STIME, TSTEP )
  
 C-----------------------------------------------------------------------
@@ -100,7 +96,6 @@ C..Arguments:
                              ! TSTEP(2) = sciproc sync. step (chem)
                              ! TSTEP(3) = twoway model time step w.r.t. wrf time
                              !            step and wrf/cmaq call frequency
-
 
 C..Parameters:
 
@@ -197,31 +192,15 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C  Initialize arrays
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-         DO  NOUT = 1, NIPRVAR
-            DO L = 1, PALEVS
-               DO R = 1, MY_PAROWS
-                  DO C = 1, MY_PACOLS
-                     DELC( C,R,L,NOUT ) = 0.0
-                  END DO
-               END DO
-            END DO
-         END DO
+         DELC = 0.0
 
          DO NS = 1, NCSAVE
-            ICG = SV2GRD( NS )
+            ICG = SAV2GRD( NS )
 #ifdef parallel
             CALL SUBST_DATA_COPY( CGRID, CSAV, ICG, NS )
 #else
-            DO L = MY_BEGLEV, MY_ENDLEV
-               PL = L - MY_BEGLEV + 1
-               DO R = MY_BEGROW, MY_ENDROW
-                  PR = R - MY_BEGROW + 1
-                  DO C = MY_BEGCOL, MY_ENDCOL
-                     PC = C - MY_BEGCOL + 1
-                     CSAV( PC,PR,PL,NS ) = CGRID( C,R,L,ICG ) 
-                  END DO
-              END DO
-            END DO
+            CSAV( :,:,:,NS ) = CGRID( MY_BEGCOL:MY_ENDCOL,
+     &            MY_BEGROW:MY_ENDROW,MY_BEGLEV:MY_ENDLEV,ICG )
 #endif
          END DO
 
@@ -232,14 +211,6 @@ C  Open the Integrated Reaction Rates output file(s) if needed
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       IF ( LIRR ) THEN
-
-C Allocate PA_DEFN arrays:
-         ALLOCATE ( IRRSTEP( BLKSIZE,NIRRVAR ),
-     &              IRRBLK ( BLKSIZE,NIRRVAR ), STAT = STATUS )
-         IF ( STATUS .NE. 0 ) THEN
-            XMSG = 'Failure initializing IRRSTEP of IRRBLK'
-            CALL M3EXIT( PNAME, SDATE, STIME, XMSG, XSTAT1 )
-         END IF
 
 C..compute the number of files needed
 
@@ -292,33 +263,13 @@ C..try to open existing file for update
 
             CALL SUBST_BARRIER
 
-         END DO   ! NMFLS
+         END DO   ! NFL
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C  Initialize arrays
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-         DO NIRR = 1, NIRRVAR
-
-#ifdef parallel
-            DO L = MY_IRR_BEGLEV, MY_IRR_ENDLEV
-               DO R = MY_IRR_BEGROW, MY_IRR_ENDROW
-                  DO C = MY_IRR_BEGCOL, MY_IRR_ENDCOL
-                     IRROUT( C,R,L,NIRR ) = 0.0
-                     END DO
-               END DO
-            END DO
-#else
-            DO L = 1, PALEVS
-               DO R = 1, MY_PAROWS
-                  DO C = 1, MY_PACOLS
-                     IRROUT( C,R,L,NIRR ) = 0.0
-                  END DO
-               END DO
-            END DO
-#endif
-
-         END DO
+         IRROUT = 0.0
 
       END IF   !   LIRR
 

@@ -17,12 +17,8 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/work/rep/arc/CCTM/src/depv/m3dry/m3dry.F,v 1.12 2012/01/19 14:19:43 yoj Exp $
-
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE m3dry ( jdate, jtime, dt, abflux, sfc_hono, mosaic, fst, cgridl1, depvel_gas,
-     &                   pvd, cmp )
+      SUBROUTINE m3dry ( jdate, jtime, dt, cgridl1, depvel_gas, pvd, ddep_nh3)
 
 C-------------------------------------------------------------------------------
 C Name:     Models-3 Dry Deposition
@@ -144,8 +140,10 @@ C          14 Nov 2013  Added MPAN as an explicit species, separating it from PA
 C          28 Aug 2014  G. Sarwar: added deposition data for CLNO2
 C           7 Nov 2014  J. Bash: Modified for the restructuring of vidff. Moved constants and data to 
 C                       ASX_DATA_MOD.
+C            June 2018  revised for v5.3 - removed mosaic, new epic-bidi - j pleim
 C-------------------------------------------------------------------------------
 
+      USE RUNTIME_VARS
       USE HGRD_DEFN      ! horizontal grid specifications
       USE DEPVVARS
       USE VGRD_DEFN      ! to get VGTYP_GD
@@ -156,8 +154,6 @@ C-------------------------------------------------------------------------------
       USE NOOP_MODULES   ! stenex (using NOOP_COMM_MODULE)
 #endif     
       Use ABFlux_Mod     ! bidi NH3 exchange routines
-      Use LSM_Mod        ! land surface model variables needed for mosaic and bidi
-      Use Mosaic_Mod     ! contains mosaic routines
       Use ASX_DATA_MOD   ! contains CONSTANTS include
       Use BIDI_MOD, only:HGBIDI    ! contains CONSTANTS include
       Use HGSIM
@@ -176,18 +172,16 @@ C Arguments:
       INTEGER,     INTENT( IN )  :: jdate
       INTEGER,     INTENT( IN )  :: jtime
       INTEGER,     INTENT( IN )  :: dt( 3 )      ! model time step
-      LOGICAL,     INTENT( IN )  :: abflux, sfc_hono, mosaic, fst
       REAL,        INTENT( IN )  :: cgridl1( :,:,: )    ! layer 1 concentrations
       REAL,        INTENT( OUT ) :: depvel_gas( :,:,: )
       REAL,        INTENT( OUT ) :: pvd( :,:,: )
-      REAL,        INTENT( OUT ) :: cmp( :,:,: ) ! Bidi component fluxes JOB
+      REAL,        INTENT( OUT ) :: ddep_nh3(:,:)
 
 C Local Variables:
 
       INTEGER                    :: c,r,l,n              ! loop variables
       INTEGER                    :: elapsedsec
       INTEGER                    :: ifsnow               ! 1=snow
-      INTEGER, SAVE              :: logdev               ! unit number for the log file
       INTEGER, SAVE, ALLOCATABLE :: lstwetdate( :,: )
       INTEGER, SAVE, ALLOCATABLE :: lstwettime( :,: )
 
@@ -202,7 +196,6 @@ C Local Variables:
       REAL                       :: kvisw      ! kinematic viscosity of water [cm^2/s]
       REAL                       :: lv                   ! latent heat of vaporization
       REAL                       :: laicr                ! col row lai
-      REAL                       :: lufraccr (n_lufrac)  ! col row land use fraction
       REAL                       :: q2p0cr               ! cell 2.0 m water vapor mix ratio
       REAL                       :: rac
       REAL                       :: rbc
@@ -229,6 +222,9 @@ C Local Variables:
       REAL,    SAVE              :: ycent
       REAL                       :: xm                   ! liquid water mass frac
       REAL                       :: rh_func              ! Simple RH function for the development of a water film on leaf cuticles 
+      Real,            Parameter :: MolNH3   = 17.01     ! g/mol NH3  for NH3 bidi to convert to microg/m3
+      Real,            Parameter :: MolAir   = 29.97     ! g/mol dry air
+      Real                       :: cnh3,tpvd,lnh3,fdep
 
       REAL,    SAVE, ALLOCATABLE :: delta     ( :,: )
 
@@ -270,22 +266,6 @@ C For heterogenous hono on surfaces
       REAL                       :: kno2                      ! first order rate constant for the heterogenous reaction [1/s]
       REAL                       :: surf_bldg                 ! Surface area of bldgs to volume of air [-]
       REAL                       :: surf_leaf                 ! Surface area of leaves to volume of air [-]
-
-C-------------------------------------------------------------------------------
-C For Ammonia bi-directional flux
-      REAL                       :: cnh3         ! Layer 1 NH3 concentration from CGRID [ppm]
-      REAL                       :: tpvd         ! temp pvd variable
-      REAL                       :: f_stom       ! stomatal flux component
-      REAL                       :: f_cut        ! cuticular flux component
-      REAL                       :: f_soil       ! soil flux component
-      REAL                       :: f_emis       ! Emission flux component
-      REAL                       :: f_dep        ! Deposition flux component
-      REAL                       :: f_ag         ! flux from agriculture
-      REAL                       :: f_nat        ! flux from natural systems
-      REAL                       :: f_wat        ! direct flux to surface water
-      REAL                       :: lnh3         ! loss part of ammonia flux
-                                                 ! Note that lnh3 is stored in DEPVEL_GAS(nh3) for use in vdiff
-
 C-------------------------------------------------------------------------------
 C For Mercury bidirectional flux
       REAL                       :: chg            ! gem layer one concentration
@@ -297,31 +277,10 @@ C For Mercury bidirectional flux
       REAL                       :: dvel           ! dummy depvel_gas returned from ATX
 
 C-------------------------------------------------------------------------------
-C For Mosaic with Ammonia bi-directional flux
-      REAL                      :: rsj
-      REAL                      :: radl
-      REAL                      :: radf
-      REAL                      :: f1
-      REAL                      :: f2
-      REAL                      :: f3
-      REAL                      :: f4
-      REAL                      :: ftot
-      REAL                      :: fshelt
-      REAL                      :: gs
-      REAL                      :: ga
-      REAL                      :: racj
-      REAL                      :: rcij
-      REAL                      :: raw
-      REAL                      :: rgwwat
-      REAL                      :: w2avail
-      REAL                      :: w2mxav
-      INTEGER                   :: j
-      INTEGER                   :: jday
 
 
       IF ( first_call ) THEN
          first_call = .FALSE.
-         logdev  = init3()
 
          DO l = 1, n_spc_m3dry
             IF ( dif0( l ) > 0.0 ) THEN
@@ -413,66 +372,6 @@ C-------------------------------------------------------------------------------
 
       depvel_gas( :,:,: ) = 0.0  ! initialize for this time period
       pvd       ( :,:,: ) = 0.0  !     "       "    "    "    "
-      cmp       ( :,:,: ) = 0.0  !     "       "    "    "    " JOB
-
-      IF ( mosaic .OR. abflux ) THEN
-         depvel_gasj( :,:,:,: ) = 0.0 !     "       "    "    "    "
-         IF ( fst ) then
-            rcanj      ( :,:,:,: ) = 1.0e30 !     "       "    "    "    "
-            vd_fst_gasj( :,:,:,: ) = 0.0 !     "       "    "    "    "
-         END IF
-      END IF
-
-      jday = jdate - 1000 * ( jdate/1000 )
-
-      IF ( abflux .OR. mosaic ) THEN
-C------------------------------------------------------------------------------
-C Calculate LAI and Z0 for vegetated surfaces
-C------------------------------------------------------------------------------
-         CALL Calc_Lai( jday, jtime, logdev )
-C------------------------------------------------------------------------------
-C Calculate u* for all surfaces and Z0 for water surfaces
-C------------------------------------------------------------------------------
-         Do j = 1, n_lufrac
-            Where( GRID_DATA%LUFRAC( :,:,j ) .EQ. 1.0 )
-                MOSAIC_DATA%USTAR( :,:,j ) = MET_DATA%USTAR
-                MOSAIC_DATA%Z0( :,:,j )    = MET_DATA%Z0
-            Elsewhere
-                MOSAIC_DATA%USTAR( :,:,j ) = MET_DATA%USTAR * SQRT( LOG( MET_DATA%ZH( :,:,1 ) / MET_DATA%Z0 )
-     &                                                      / LOG( MET_DATA%ZH( :,:,1 ) / MOSAIC_DATA%Z0( :,:,j ) ) )
-            End Where
-C------------------------------------------------------------------------------
-C Calculate in-canopy resistance
-C------------------------------------------------------------------------------
-            Where( MOSAIC_DATA%Veg( :,:,j ) .Gt. 0.0 .And.
-     &             GRID_DATA%LUFRAC( :,:,j ) .GT. 0.0 )
-               MOSAIC_DATA%RINC( :,:,j ) = 14.0 * MOSAIC_DATA%LAI( :,:,j )
-     &                                   * MOSAIC_DATA%Z0( :,:,j ) * 10.0
-     &                                   / MOSAIC_DATA%USTAR( :,:,j )
-            Elsewhere
-               MOSAIC_DATA%RINC( :,:,j ) = 1.0e30
-            End Where
-C------------------------------------------------------------------------------
-C Calculate quasi-laminar boundary layer resistance
-C------------------------------------------------------------------------------
-            Do l = 1, n_spc_m3dry
-               ChemMos_Data%Rb( :,:,j,l ) = 5.0 / Mosaic_data%Ustar( :,:,j )
-     &                                    * scc_pr_23( l )
-            End Do
-         End Do
-C------------------------------------------------------------------------------
-C Calculate aerodynamic resistance
-C------------------------------------------------------------------------------
-         SELECT CASE( vgtyp_gd )
-            CASE( 7 )
-               CALL ra_wrf
-            CASE( 2 )
-               CALL ra_mm5
-            CASE DEFAULT
-               xmsg = 'met file format not recognized for mosaic'
-               CALL m3exit( pname, jdate, jtime, xmsg, xstat1 )
-         END SELECT
-      End If
 
       DO r = 1, my_nrows
       DO c = 1, my_ncols
@@ -484,12 +383,6 @@ C------------------------------------------------------------------------------
          ustarcr   = MET_DATA%USTAR ( c,r )
          vegcr     = MET_DATA%VEG   ( c,r )
          ifsnow    = MAX( 0, NINT( MET_DATA%SNOCOV( c,r ) ) )
-
-         IF ( abflux .OR. mosaic ) THEN
-            DO j = 1, n_lufrac
-               lufraccr( j ) = GRID_DATA%LUFRAC( c,r,j )
-            END DO
-         END IF ! mosaic loop
 
 ! Calculate the relative humidity of air and ground.
          
@@ -540,11 +433,6 @@ C------------------------------------------------------------------------------
 
                END IF
 
-               IF ( mosaic .OR. abflux ) THEN
-                  DO j = 1, n_lufrac
-                      MOSAIC_DATA%delta(c,r,j) = delta(c,r)
-                  END DO
-               END IF
 
             ELSE  ! Already have canopy wetness explicitly from met model
 
@@ -554,18 +442,6 @@ C------------------------------------------------------------------------------
                ELSE
                   delta( c,r ) = MET_DATA%WR( c,r ) / wrmax   ! refer to SiB model
                   delta( c,r ) = MIN( delta( c,r ), 1.0 )
-               END IF
-
-               IF ( mosaic .OR. abflux ) THEN
-                  DO j = 1, n_lufrac
-                     wrmax = 0.2e-3 * MOSAIC_DATA%VEG(c,r,j) * MOSAIC_DATA%LAI(c,r,j)   ! [m] changed to vegj for mosaic JOB
-                     IF ( ( MET_DATA%WR( c,r ) .LE. 0.0 ) .or. ( MOSAIC_DATA%LAI(c,r,j) .LE. 0.0 ) ) THEN
-                        MOSAIC_DATA%DELTA( c,r,j ) = 0.0
-                     ELSE
-                        MOSAIC_DATA%DELTA( c,r,j ) = MET_DATA%WR( c,r ) / wrmax   ! refer to SiB model
-                        MOSAIC_DATA%DELTA( c,r,j ) = MIN( MOSAIC_DATA%DELTA( c,r,j ), 1.0 )
-                     END IF
-                  END DO
                END IF
 
             END IF   ! canopy wetness
@@ -663,13 +539,6 @@ c        Iodide in sea-water based on SST  (mol /dm-3)
 
                   rsurf = rgw
 
-                  IF ( mosaic ) THEN
-                     DO j = 1, n_lufrac
-                        IF ( lufraccr( j ) .GT. 0.0 ) THEN
-                           rsurfj( j,l,c,r ) = rsurf
-                        END IF
-                     END DO
-                  END IF ! mosaic
                END IF ! Hg
 
             ELSE   ! land
@@ -696,8 +565,6 @@ c        Iodide in sea-water based on SST  (mol /dm-3)
          ! Leaf level rwet estimated from Altimir et al 2006 gives about 1350 s/m
                END IF
 
-               rgw  = rgwet0 / heff    ! wet ground
-
          ! Dry snow resistance.
 
                rsnow = rsnow0 * a0 / ar( l )
@@ -716,7 +583,8 @@ c        Iodide in sea-water based on SST  (mol /dm-3)
                   rh_func = max( 0.0,( MET_DATA%RH( c,r ) - 70.0 )/30.0 )
                   rcut = rcut0 * a0 / ar( l ) * ( 1.0 -rh_func) + rwet * rh_func
                ELSE IF ( l .Eq. l_NH3 ) THEN
-                  rcut = 4000.0 * EXP( -0.054 * MET_DATA%RH( c,r ) )
+         !        rcut = 4000.0 * EXP( -0.054 * MET_DATA%RH( c,r ) )
+                  rcut = rwetsfc + 100.0-max(MET_DATA%RH( c,r ),60.0)  ! consistant with bidi
                ELSE 
                   rcut = rcut0 * a0 / ar( l )
                END IF
@@ -725,20 +593,18 @@ c        Iodide in sea-water based on SST  (mol /dm-3)
  
                hcan  = MET_DATA%Z0( c,r ) * 10.0
                rinc  = 14.0 * laicr * hcan / ustarcr
-               rgnd  = rg0 * a0 / ar( l )
-               rgndc = 1.0 / ( ( 1.0 - delta( c,r ) ) /
+                IF ( depspc( l ) .NE. 'O3' ) THEN
+                   rgnd  = rg0 * a0 / ar( l )
+                   rgw  = rgwet0 / heff    ! wet ground
+               ELSE
+! Ozone soil resistence depends on soil moisture (Meszaros et al 2009, Biogeosci; Massman 2004, AE, Ran et al 2016, CMAS)
+                   rgnd  = 200. + 300. * MET_DATA%SOIM1(c,r)/GRID_DATA%WSAT (c,r)
+                   rgnd = min (500.0, rgnd)
+                   rgw = 500.              ! wet ground for ozone (Massman 2004)
+               END IF 
+
+               rgndc = 1.0 / ( ( 1.0 - delta( c,r ) ) / 
      &                 rgnd + delta( c,r ) / rgw ) + rinc          ! Add in-canopy part
-               IF ( mosaic .OR. abflux ) THEN
-                  DO j = 1, n_lufrac
-                     IF (lufraccr( j ) .GT. 0.0 ) THEN
-                        MOSAIC_DATA%RINC( c,r,j )  = 14.0 * MOSAIC_DATA%LAI( c,r,j ) *
-     &                                    MOSAIC_DATA%Z0( c,r,j ) * 10.0 / MOSAIC_DATA%USTAR( c,r,j )
-                        ChemMos_Data%Rgc( c,r,j,l ) = 1.0 / ( ( 1.0 - MOSAIC_DATA%DELTA( c,r,j ) ) /
-     &                                    rgnd + MOSAIC_DATA%DELTA( c,r,j ) / rgw ) +
-     &                                    MOSAIC_DATA%RINC( c,r,j )     ! Add in-canopy part
-                     END IF
-                  END DO
-               END IF
 
          ! Determine the snow liquid water mass fraction (0.0 to 0.5).
 
@@ -754,57 +620,6 @@ c        Iodide in sea-water based on SST  (mol /dm-3)
                rstom = MET_DATA%RS( c,r ) * dwat / dif0( l )
      &               + 1.0 / ( heff_ap / 3000.0 + 100.0 * meso( l ) ) / laicr
 
-! Recalculate stomal resistance for each land use category
-               IF ( mosaic .OR. abflux ) THEN
-                  DO j = 1, n_lufrac
-                     IF ( lufraccr( j ) .GT. 0.0 .AND. cat_lu(j) .NE. 'WATER') THEN
-                        IF ( MOSAIC_DATA%LAI( c,r,j ) .LT. 0.00001 ) THEN
-                           ChemMos_Data%Rst( c,r,j,l ) = rsmax
-                        ELSE
-!-RADIATION
-                           IF ( rsmin( j ) .GT. 130.0 ) THEN
-                              radl = 30.0                       ! W/M2
-                           ELSE
-                              radl = 100.0                      ! W/M2
-                           END IF
-                              radf = 1.1 * MET_DATA%RGRND( c,r ) / ( radl * MOSAIC_DATA%LAI( c,r,j ) )     ! NP89 - EQN34
-                              f1   = ( rsmin( j ) / rsmax + radf ) / ( 1.0 + radf )
-
-!-SOIL MOISTURE
-
-                              w2avail = MET_DATA%SOIM2( c,r ) - GRID_DATA%WWLT( c,r )
-                              w2mxav  = GRID_DATA%WFC ( c,r ) - GRID_DATA%WWLT( c,r )
-                              f2      = 1.0 / ( 1.0 + EXP( -5.0 * ( w2avail / w2mxav -
-     &                                ( w2mxav / 3.0 + GRID_DATA%WWLT( c,r ) ) ) ) )    ! according JP, 9/94
-
-!-AIR TEMP
-!... according to Avissar (1985) and AX 7/95
-
-                           IF ( temp2p0cr .LE. 302.15 ) THEN
-                              f4 = 1.0 / ( 1.0 + EXP( -0.41 * (temp2p0cr - 282.05 ) ) )
-                           ELSE
-                              f4 = 1.0 / ( 1.0 + EXP( 0.5 * (temp2p0cr - 314.0 ) ) )
-                           END IF
-
-                           ftot = MOSAIC_DATA%LAI( c,r,j ) * f1 * f2 * f4
-                           ftot = MAX( ftot,ftmin )
-                           fshelt = 1.0   ! go back to NP89
-                           gs     = ftot / ( rsmin( j ) * fshelt )
-                           raw    = MOSAIC_DATA%RA( c,r,j ) + 4.503 / MOSAIC_DATA%USTAR( c,r,j )
-                           ga     = 1.0 / raw
-
-!-- Compute humidity effect according to RH at leaf surf
-                           f3 = 0.5 * ( gs - ga + SQRT( ga * ga + ga * gs
-     &                              * ( 4.0 * MET_DATA%QV( c,r,1 ) / MET_DATA%QSS_GRND( c,r ) - 2.0 ) + gs * gs ) ) / gs
-                           f3 = MIN ( MAX( f3, f3min ), 1.0 )
-                           rsj = 1.0 / ( gs * f3 )
-                           ChemMos_Data%Rst( c,r,j,l ) = rsj * dwat / dif0( l )
-     &                         + 1.0 / ( heff_ap / 3000.0 + 100.0 * meso( l ) ) / MOSAIC_DATA%LAI( c,r,j )
-                        END IF
-                     END IF
-                  END DO   ! n_lufrac
-               END IF   ! mosaic
-
          ! Bulk surface resistance.
 
                rci = vegcr
@@ -816,44 +631,6 @@ c        Iodide in sea-water based on SST  (mol /dm-3)
 
                rsurf = 1.0 / rci
 
-               IF ( mosaic ) THEN
-                  DO j = 1, n_lufrac
-                     IF ( lufraccr( j ) .GT. 0.0 ) THEN
-                        IF ( cat_lu(j) .EQ. 'WATER') THEN
-                           ctemp2 = temp2p0cr - stdtemp
-                           lv     = lv0 - dlvdt * ctemp2
-                           cp_air = 1004.67 * ( 1.0 + 0.84 * q2p0cr )               ! [J/kg/K]
-                           tw     = ( ( 4.71E4 * cp_air / lv ) - 0.870 ) + stdtemp  ! [K]
-                           IF ( depspc( l ) .EQ. 'HG' ) THEN  ! elemental mercury gas
-                              rsurfj( j,l,c,r ) = 1.0E30
-                           ELSE
-                              heff  = hlconst( subname( l ), tw, effective, hplus_h2o )
-                              heff  = heff * 0.08205 * tw
-! from Hayduk and Laudie
-                              dw25 = 13.26e-5 / ( 0.8904**1.14 * lebas( l )**0.589 )
-                              kvisw = 0.017 * EXP( -0.025 * ( tw - stdtemp ) )
-                              dw    = dw25 * ( tw * rt25inK ) * ( 0.009025 / kvisw )
-                              scw_pr_23 = ( ( kvisw / dw ) / pr ) ** twothirds
-                              rgwwat   = 1.0 / ( heff * d3 * MOSAIC_DATA%USTAR( c,r,j ) )
-                              rsurfj( j,l,c,r ) = rgwwat
-                           END IF
-
-                        ELSE  ! land category
-                           rcij = MOSAIC_DATA%VEG( c,r,j ) *
-     &                        ( 1.0 / ChemMos_Data%Rst( c,r,j,l ) +                                    ! stomatal resistance
-     &                        ( 1.0 - MOSAIC_DATA%DELTA( c,r,j ) ) * MOSAIC_DATA%lai( c,r,j ) / rcut + ! dry cuticular resistance
-     &                        ( MOSAIC_DATA%DELTA( c,r,j ) * MOSAIC_DATA%LAI( c,r,j ) / rwetsfc ) +    ! wet cuticular resistance
-     &                        1.0 / ChemMos_Data%Rgc( c,r,j,l ) ) +                                    ! Canopy covered ground
-     &                        real( 1 - ifsnow ) * ( ( 1.0 - MOSAIC_DATA%VEG( c,r,j )) *
-     &                               ( ( 1.0 - MOSAIC_DATA%DELTA( c,r,j ) ) / rgnd  +                  ! Dry ground
-     &                               MOSAIC_DATA%DELTA( c,r,j ) / rgw ) ) +                            ! Wet ground
-     &                        real( ifsnow ) * ( ( 1.0 - xm) / rsnow + xm / ( rsndiff + rgw ) )        ! Snow covered ground
-                           rsurfj(j,l,c,r) = 1.0 / rcij
-                        END IF
-                     END IF
-                  END DO
-               END IF ! mosaic
-
             END IF   ! land or water cell
 
          ! Compute dry deposition velocity.
@@ -863,66 +640,19 @@ c        Iodide in sea-water based on SST  (mol /dm-3)
 
             depvel_gas( n,c,r ) = 1.0 / ( rsurf + rac )
 
-            IF ( mosaic ) THEN
-               DO j = 1, n_lufrac
-                  IF ( lufraccr( j ) .GT. 0.0 ) THEN
-                     racj = MOSAIC_DATA%RA( c,r,j ) + ChemMos_DATA%Rb( c,r,j,l )
-                     depvel_gasj( j,l,c,r) = 1.0 / ( rsurfj( j,l,c,r ) + racj )
-                     IF ( depvel_gasj( j,l,c,r ) .LT. 0.0 .OR.
-     &                    depvel_gasj( j,l,c,r ) .NE. depvel_gasj( j,l,c,r ) ) THEN
-                        WRITE( logdev,9033 ) c, r, j, TRIM( subname( l ) ),
-     &                                       depvel_gasj( j,l,c,r ), Mosaic_Data%lai( c,r,j ),
-     &                                       Mosaic_Data%z0( c,r,j ), Mosaic_Data%ustar( c,r,j ), ChemMos_Data%Rgc( c,r,j,l ),
-     &                                       Mosaic_Data%ra( c,r,j ), ChemMos_Data%Rb(c,r,j,l), rsurfj( j,l,c,r ),
-     &                                       ChemMos_Data%rst( c,r,j,l ), rcut, rwetsfc, rgnd, rgw,
-     &                                       Mosaic_Data%delta( c,r,j ), Mosaic_Data%veg(c,r,j), xm, rsndiff, ifsnow
-                        xmsg = 'ABORT'
-                        CALL m3exit( pname, jdate, jtime, xmsg, xstat1 )
-                     END IF
-                     IF ( fst ) THEN
-                        IF ( cat_lu(j) .EQ. 'WATER' ) THEN                         ! water
-                           vd_fst_gasj( j,l,c,r) = 0.0
-                        ELSE
-                           vd_fst_gasj(j,l,c,r) = (1.0/(racj+rsurfj(j,l,c,r)))*(rsurfj(j,l,c,r)/
-     &                                  ChemMos_Data%Rst( c,r,j,l ))
-                           IF  ( vd_fst_gasj( j,l,c,r ) > depvel_gasj( j,l,c,r ) ) THEN
-#ifdef Verbose
-                              write( logdev,* ) 'vd_fst > vd_mos at ', jdate, jtime
-                              write( logdev,* ) 'vd_fst, vd_mos: ', vd_fst_gasj( j,l,c,r ),
-     &                                                              depvel_gasj( j,l,c,r )
-                              write( logdev,* ) ' '
-                              WRITE( logdev,9034 ) c, r, j, TRIM( subname( l ) ),
-     &                                             vd_fst_gasj( j,l,c,r ),racj,rcanj(j,l,c,r),ChemMos_Data%Rst( c,r,j,l )
-#endif
-                              vd_fst_gasj( j,l,c,r ) = depvel_gasj( j,l,c,r ) ! best we can do with limitations of methid
-                           END IF
-                        END IF
-                     END IF   ! fst
-                  END IF
-               END DO
-            END IF  ! mosaic
 C--------------------------------------------------------------------------
             IF ( abflux .And. l .Eq. l_NH3 ) THEN   ! Ammonia Bidirectional Flux
-               cnh3  = cgridl1( n,c,r )
+               cnh3  = cgridl1( n,c,r ) * MolNH3/MolAir * 1000.0 * Met_Data%DENS1( C,R ) ! convert to micrograms/m3
 
                IF ( NINT( GRID_DATA%LWMASK( c,r ) ) .NE. 0 ) THEN  ! land
-                  CALL Get_Flux( cnh3,rwetsfc,rgw,r,c,l,tpvd,lnh3,f_stom,f_cut,f_soil,
-     &                           f_emis,f_dep,f_ag,f_nat, f_wat,dt(2), jtime )
-                   pvd( n,c,r ) = tpvd
+
+                  CALL Get_Flux( cnh3,rwetsfc,rgw,r,c,l,tpvd,lnh3, rbc, rinc, 
+     >                           rstom, delta(c,r),rgnd,fdep )
+                   pvd( n,c,r ) = tpvd * 0.001 * MolAir / (MolNH3 * Met_Data%DENS1( C,R ))
+                   ddep_nh3(c,r) = ddep_nh3(c,r) + fdep * dt(2) * 1.0e-5  ! convert from microg/m2  to kg/ha
                    depvel_gas( n,c,r ) = lnh3
-
-                   cmp( 1,c,r ) = max( f_emis, 0.0 )
-                   cmp( 2,c,r ) = max( f_dep, 0.0 )
-                   cmp( 3,c,r ) = f_stom
-                   cmp( 4,c,r ) = f_cut
-                   cmp( 5,c,r ) = f_soil
-                   cmp( 6,c,r ) = f_ag
-                   cmp( 7,c,r ) = f_nat
-                   cmp( 8,c,r ) = f_wat
-
                ELSE   ! water
-                  cmp( 2,c,r ) = depvel_gas( n,c,r ) * cnh3
-                  cmp( 8,c,r ) = depvel_gas( n,c,r ) * cnh3
+                   ddep_nh3(c,r) = ddep_nh3(c,r) + depvel_gas( n,c,r ) * cnh3 * dt(2) * 1.0e-5
                END IF
             END IF   ! 'abflux'
 

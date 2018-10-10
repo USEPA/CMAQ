@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/vadv/yamo/zadvyppm.F,v 1.4 2011/10/21 16:11:40 yoj Exp $
- 
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE ZADV ( CGRID, JDATE, JTIME, TSTEP )
 
@@ -161,8 +154,6 @@ C for INTERPX
       REAL          DSDT                   ! DS/DT
       INTEGER       ALLOCSTAT
  
-      INTEGER, SAVE :: LOGDEV
-
       INTERFACE
          SUBROUTINE VPPM ( NI, DT, DS, FLX, VEL, CON )
             INTEGER, INTENT( IN )    :: NI
@@ -178,7 +169,6 @@ C-----------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
-         LOGDEV = INIT3 ()
 
          ALLOCATE ( DS( NLAYS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN

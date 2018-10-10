@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/couple/gencoor_wrf/couplewrf.F,v 1.4 2011/10/21 16:10:30 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C @(#)couple.F 1.1 /project/mod3/CMAQ/src/convert/couple/SCCS/s.couple.F 03 Jun 1997 11:41:33
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE COUPLE_WRF ( CGRID, JDATE, JTIME, TSTEP )
 
@@ -88,7 +81,6 @@ C Local Variables:
       CHARACTER( 96 ) :: XMSG = ' '
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
-      INTEGER, SAVE :: LOGDEV
 
       INTEGER, SAVE :: NQAE              ! number of micro-grams/m**3 species
       INTEGER, SAVE :: NNAE              ! number of #/m**3 species
@@ -112,7 +104,6 @@ C If ISPCA .ne. 0, then air is advected and concs. are adjusted
 
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
-         LOGDEV = INIT3()
 
          IF ( N_AE_SPC .GT. 0 ) THEN
 C create aerosol species pointers to distinguish micro-grams/m**3,
@@ -197,8 +188,6 @@ C initialize RhoJ from MCIP - done once per sync step
             END DO
          END DO
       END DO
-
-!     write( logdev,'( a,i7,i7.6,1pe15.7 )' ) 'rhoj sum2:', jdate, jtime, sum( rhoj )
 
       OFF = AE_STRT - 1
 C CGRID in ug/m**3 -> ("total" Jacobian [m]) X [Kg/m**3]

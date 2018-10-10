@@ -40,6 +40,7 @@
 
 #temporary files
 *.swp
+*~
 
 #library symbolic links
 lib/
@@ -60,6 +61,6 @@ UTIL/create_ebi/output
 UTIL/create_ebi/input
 UTIL/inline_phot_preproc/output
 UTIL/inline_phot_preproc/input
-UTIL/*/bldrun*
+UTIL/inline_phot_preproc/bldrun.log
 
 #unique to user; below section unlikely to add and commit to repository

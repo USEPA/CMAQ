@@ -24,9 +24,8 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE OPPT3D_DIAG( PT3DNAME, SDATE, STIME, TSTEP, EMLAYS,
-     &                        N_SPC_EM, STKEM_NAME,
-     &                        N_SPC_PM, STKPM_NAME )
+      SUBROUTINE OPPT3D_DIAG( PT3DNAME, TSTEP, 
+     &                        N_SPC, SPEC_NAME, SPEC_UNITS )
 
 C-----------------------------------------------------------------------
  
@@ -47,9 +46,10 @@ C     16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C     Aug 2015 D. Wong:    Replaced MYPE with IO_PE_INCLUSIVE for parallel I/O
 C                            implementation
 C-----------------------------------------------------------------------
-
+      USE RUNTIME_VARS
       USE GRID_CONF           ! horizontal & vertical domain specifications
       USE UTILIO_DEFN
+      USE EMIS_VARS, ONLY : EMLAYS
 
       IMPLICIT NONE
  
@@ -61,15 +61,10 @@ C Local Parameters:
 
 C Arguments:
       CHARACTER( 16 ), INTENT( IN ) :: PT3DNAME ! diagnostic file logical name
-      INTEGER,         INTENT( IN ) :: SDATE    ! Julian start date
-      INTEGER,         INTENT( IN ) :: STIME    ! start time (HHMMSS)
       INTEGER,         INTENT( IN ) :: TSTEP    ! time step (HHMMSS)
-      INTEGER,         INTENT( IN ) :: EMLAYS   ! number of emissions layers
-!        REAL,         INTENT( IN ) :: VGLVSXG( 0:MXLAYS3 ) !  vertical coord values
-      INTEGER,         INTENT( IN ) :: N_SPC_EM ! number of point source gas species
-      CHARACTER( 16 ), INTENT( IN ) :: STKEM_NAME( N_SPC_EM ) ! non-PM species names
-      INTEGER,         INTENT( IN ) :: N_SPC_PM ! number of point source PM species
-      CHARACTER( 16 ), INTENT( IN ) :: STKPM_NAME( N_SPC_PM ) ! PM species names
+      INTEGER,         INTENT( IN ) :: N_SPC    ! number of point source surrogates
+      CHARACTER( 16 ), INTENT( IN ) :: SPEC_NAME( N_SPC )  ! species names
+      CHARACTER( 16 ), INTENT( IN ) :: SPEC_UNITS( N_SPC ) ! units
 
 C Local variables:
 
@@ -83,14 +78,14 @@ C-----------------------------------------------------------------------
 C Set output file characteristics based on GRID_CONF module and open the 3D emis file
 
       FTYPE3D = GRDDED3
-      SDATE3D = SDATE
-      STIME3D = STIME
+      SDATE3D = STDATE
+      STIME3D = STTIME
       TSTEP3D = TSTEP
       NCOLS3D = GL_NCOLS
       NROWS3D = GL_NROWS
       NLAYS3D = EMLAYS
       NTHIK3D = 1
-      NVARS3D = N_SPC_EM + N_SPC_PM
+      NVARS3D = N_SPC
       GDTYP3D = GDTYP_GD
       P_ALP3D = P_ALP_GD
       P_BET3D = P_BET_GD
@@ -105,42 +100,26 @@ C Set output file characteristics based on GRID_CONF module and open the 3D emis
       VGTOP3D = VGTOP_GD
       GDNAM3D = GRID_NAME  ! from HGRD_DEFN
 
-!     VGLVS3D = 0.0     ! array
-!     L = LBOUND( VGLVS3D, 1 )
-!     VGLVS3D( L:L+EMLAYS ) = VGLVSXG( 0:EMLAYS )  ! array
-
       DO L = 1, NLAYS3D + 1
          VGLVS3D( L ) = VGLVS_GD( L )
       END DO
 
       VNAME3D = ' '     ! array
-      DO V = 1, N_SPC_EM
-         VNAME3D( V ) = STKEM_NAME( V )
-      END DO
-      L = N_SPC_EM
-      DO V = 1, N_SPC_PM
-         VNAME3D( V+L ) = STKPM_NAME( V )
+      DO V = 1, N_SPC
+         VNAME3D( V ) = SPEC_NAME( V )
       END DO
 
       VTYPE3D = 0       ! array
       VTYPE3D( 1:NVARS3D ) = M3REAL
 
       UNITS3D = ' '     ! array
-      DO V = 1, N_SPC_EM
-         UNITS3D( V ) = 'mol/s'
-      END DO
-      L = N_SPC_EM
-      DO V = 1, N_SPC_PM
-         UNITS3D( V+L ) = 'g/s'
+      DO V = 1, N_SPC
+         UNITS3D( V ) = SPEC_UNITS( V )
       END DO
 
       VDESC3D = ' '     ! array
-      DO V = 1, N_SPC_EM
-         VDESC3D( V ) = 'Model species: ' // TRIM( STKEM_NAME( V ) )
-      END DO
-      L = N_SPC_EM
-      DO V = 1, N_SPC_PM
-         VDESC3D( V+L) = 'Primary particulate species: ' // TRIM( STKPM_NAME( V ) )
+      DO V = 1, N_SPC
+         VDESC3D( V ) = 'Model species: ' // TRIM( SPEC_NAME( V ) )
       END DO
 
       FDESC3D = ' '  ! array
@@ -148,23 +127,12 @@ C Set output file characteristics based on GRID_CONF module and open the 3D emis
       FDESC3D( 2 ) = '/From/ ' // PNAME
       FDESC3D( 3 ) = '/Version/ Inline'
 
-!     MESG = 'Enter logical name for Point Source 3D Emissions File'
-!     PT3DNAME = PROMPTMFILE( MESG, FSNEW3, 'PT3DEMIS', PNAME )
-!     PT3DNAME = 'PT3DEMIS_DIAG'
-
-!     XMSG = 'logical name for Point Source 3D Emissions File'
-!     CALL ENVSTR( PT3DNAME, XMSG, ' ', RET_VAL, IOS )
-!     IF ( IOS .NE. 0 ) THEN
-!     XMSG = 'Error retrieving Point Source 3D Emissions File name env var'
-!     CALL M3EXIT( PNAME, SDATE, STIME, XMSG, XSTAT1 )
-!     END IF
-
 C create header
 
       IF ( IO_PE_INCLUSIVE ) THEN   ! open new
          IF ( .NOT. OPEN3( PT3DNAME, FSNEW3, PNAME ) ) THEN
             XMSG = 'Could not open ' // TRIM( PT3DNAME )
-            CALL M3EXIT( PNAME, SDATE, STIME, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, STDATE, STTIME, XMSG, XSTAT1 )
          END IF
       END IF
 

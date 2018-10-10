@@ -17,12 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header$
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
        SUBROUTINE HRSOLVER( JDATE, JTIME, C, R, L )
 
 
@@ -30,22 +24,28 @@ C**********************************************************************
 C
 C  FUNCTION: EBI solver
 C
-C  PRECONDITIONS: For the CB6R3 family of mechanisms
+C  PRECONDITIONS: For the cb6r3 family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRRATES, HRG1, HRG2, HRG3
 C                                     HRG4, HRPRODLOSS
 C                                     DEGRADE
 C
-C  REVISION HISTORY: Created by EBI solver program, Mar 10, 2017
+C  REVISION HISTORY: Created by EBI solver program, Aug 29, 2018
 C   21 Jun 10 J.Young: convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised 1) to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files and 2) to use
 C                        real(8) variables
 C**********************************************************************
 
+      USE RUNTIME_VARS
       USE UTILIO_DEFN
       USE RXNS_DATA
       USE HRDATA
+      USE PA_IRR_MODULE
+#ifdef isam
+      USE SA_IRR_DEFN
+#endif
+
 
       IMPLICIT NONE
 
@@ -121,12 +121,11 @@ C..SCRATCH LOCAL VARIABLES:
 #endif
 
       INTERFACE ! for degrade algorithm
-        SUBROUTINE DEGRADE( CBLK, DT, JDATE, JTIME, LOGDEV )
+        SUBROUTINE DEGRADE( CBLK, DT, JDATE, JTIME )
           REAL( 8 ), INTENT( IN ) :: CBLK( : )      ! array holding species concentrations
           REAL( 8 ), INTENT( IN ) :: DT             ! time step for integrations [sec]
           INTEGER,   INTENT( IN ) :: JDATE          ! current model date , coded YYYYDDD
           INTEGER,   INTENT( IN ) :: JTIME          ! current model time , coded HHMMSS
-          INTEGER,   INTENT( IN ) :: LOGDEV         ! unit number for the log
         END SUBROUTINE
       END INTERFACE
 
@@ -135,7 +134,6 @@ C**********************************************************************
 
        IF( LFIRST ) THEN
           LFIRST = .FALSE.
-          LOGDEV = INIT3( )
 
           ALLOCATE ( LEBISPFL( NUMB_MECH_SPC ), STAT = ERR )
           IF ( ERR .NE. 0 ) THEN
@@ -216,6 +214,12 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
       N_INR_STEPS = 1
       NEBI        = 1
       LEBI_CONV   = .TRUE.
+#ifdef isam
+      UPDATE_SOLD = .FALSE.
+      UPDATE_PROBABILITIES = .TRUE.
+      CALL SA_IRR_UNBLOCKED ( .TRUE., RKI, YC, DTC )
+#endif
+
 
       DO S = 1, NUMB_MECH_SPC
          IF( YC( S ) .LE. MAXPRED )THEN
@@ -226,6 +230,8 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
          END IF
       END DO
 
+! Initial PA_IRR
+      IF( CALL_IRR ) CALL PA_IRR ( .TRUE., RKI, YC, DTC )
       TSTEP_EBI: DO    ! EBI time-step loop
 
          SUBSTEP_EBI: DO NINR = 1, N_INR_STEPS   ! time substeps loop
@@ -349,9 +355,17 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
                      M = CGRID_INDEX( S )
                      YCCELL( M ) = YC( S )
                   END DO
-                  IF(CALL_DEG)CALL DEGRADE(YCCELL, DTG, JDATE, JTIME, LOGDEV) ! :WTH Call degradation routine
+                  IF(CALL_DEG)CALL DEGRADE(YCCELL, DTG, JDATE, JTIME ) ! :WTH Call degradation routine
+
+                 IF( CALL_IRR ) CALL PA_IRR ( .FALSE., RKI, YC, DTC )
+#ifdef isam
+                 IF( NEBI .EQ. N_EBI_STEPS )UPDATE_SOLD = .TRUE.
+                 CALL SA_IRR_UNBLOCKED ( .FALSE., RKI, YC, DTC )
+                 UPDATE_PROBABILITIES = .FALSE.
+#endif
 
                  CYCLE SUBSTEP_EBI ! solve for next sub time-step
+
                END IF
 
             END DO ITER_SUBSTEP
@@ -363,13 +377,13 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 ! reset YC and cut sub time-step in half
                IF ( MXFL ) THEN
                   WRITE( LOGDEV, 92008 ) NBKUPS
-                  WRITE( LOGDEV, 92009 ) C, R, L
+                  WRITE( LOGDEV, 92009 ) C+PECOL_OFFSET, R+PEROW_OFFSET, L
                   DO S = 1, NUMB_MECH_SPC
                      IF( LEBISPFL( S ) )WRITE( LOGDEV, 92010 )TRIM( CHEMISTRY_SPC( S ) ),
      &               YC0(S), YCP(S)
                   END DO
                ELSE
-                  WRITE( LOGDEV, 92000 ) C, R, L, NBKUPS
+                  WRITE( LOGDEV, 92000 ) C+PECOL_OFFSET, R+PEROW_OFFSET, L, NBKUPS
                   DO S = 1, NUMB_MECH_SPC
                      IF( LEBISPFL( S ) )WRITE( LOGDEV, 92010 )TRIM( CHEMISTRY_SPC( S ) ),
      &               YC0(S), YCP(S)
@@ -386,7 +400,7 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 
             ELSE
 
-               WRITE( LOGDEV, 92040 ) C, R, L
+               WRITE( LOGDEV, 92040 ) C+PECOL_OFFSET, R+PEROW_OFFSET, L
 
                WRITE( LOGDEV, 92060 )
                DO S = 1, NUMB_MECH_SPC
@@ -416,6 +430,7 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
       END DO TSTEP_EBI
 
       RETURN
+
 
 91000 FORMAT( 'WARNING: EBI solver in cell (',2(I4,','),I4,') Init.Conc. for ',
      &         A16, ' = ', ES12.4,' ppmV')

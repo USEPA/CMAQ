@@ -1,39 +1,17 @@
 !CB6r3 for CMAQ
-! created by DJL from spreadsheet 
-! added *RXN SOA precursor species for TOL, XYL, BENZENE, TERP,  SESQ, PAH and ALK
-! added <HET_IEPOX>
-! added <OLIG_PAH1> through <OLIG_ALK2>
-! added ISOPRXN to ISOP+NO3
-! changed XYL to XYLMN and added NAPH with same rate and products as XYL
-! added <SA11> through <SA13> to make PAHNRXN, PAHHRXN and ALKRXN
-! updated <HAL_OZONE>
-! changed <HET_NTR2> coefficient by taking F_NTR2_ON out of AEROSOL_CHEMISTRY.F
-! 10-24-16 B.Hutzell:  created MP version by adding explicit species
-!   1.  TOLU (explicit toluene)
-!   2.  ACROLEIN  
-!   3.  ACRO_PRIMARY
-!   4.  BUTADIENE13 
-!   5.  FORM_PRIMARY 
-!   6.  ALD2_PRIMARY 
-!   7.  HG  
-!   8.  HGIIAER 
-!   9. HGIIGAS 
-! 2-13-17 DJL - updated some of the HAPs reactions to be consistent with CB6r3
-!   1.  FORM_PRIMARY+OH and +NO3 (<T01> and <T02>) changed to match 
-!               FORM+OH and +NO3 (<R96> and <R100>)
-!   2.  ALD2_PRIMARY+OH and +NO3 (<T06> and <T07>) changed to match 
-!               ALD2+OH and +NO3 (<R106> and <R107>)
-!   3.  BUTADIENE13+OH and +O3 (<T10> and <T11>) fixed small Ea error 
-!               and match Calvert value
-!   4.  ACROLEIN+NO3 (<T15>) and ACRO_PRIMARY+NO3 (<T19>) corrected because 
-!            rate in the reference (Cabanas) did not match Arrhenius equation. 
-!            Now both use Calvert recommendation.  
-!   5.  TOLU+OH (<T21>) now matches TOL+OH (<R180>) which was updated in CB6
-! 03-10-17 B.Hutzell
-!   1. changed the RO2 yield in the ISOP + RO2 reaction from 0.072 to 1.072
-!      based on a error in the CAMX cb6r3 report
-!   2. updated the oligomerization reactions to be consistent with the 
-!      saprc07tic_ae6_aq mechanism.
+! created for CMAQv5.2 and released in June 2017
+! documented in https://www.epa.gov/cmaq
+! Changes made for CMAQv5.3:
+! 06-19-18 G.Sarwar
+!    updated <HAL_OZONE>
+! 080118 DJL
+!   1. Modified chlorine reactions (<CL1> to <CL31>) to match CB6r2, mimic
+!      similar reactions in CB6r3, or updated to IUPAC
+!   2.  Added new species, CLNO3 and reactions of CLNO3
+!   3. New heterogeneous reactions (<HET_CLNO3_WAJ> and <HET_CLNO3_WAK>) from
+!      hemispheric halogen chemical mechanism
+!   4. implemented temperature and pressure-dependent CS/QY for CLNO2
+!
 !---------------------------------
 CB6R3_AE6_AQ
 
@@ -334,41 +312,38 @@ REACTIONS[CM] =
 <R219> XPAR = XO2N + RO2  # 4.81E-20 & 4.30E-01^-8.0 &0.41 &1.0;
 <R220> XPAR = 0.126*ALDX + 0.874*ROR + 0.126*XO2H + 0.874*XO2
               + RO2 -0.126*PAR  # 1.00E+00;
-! Chlorine reactions added from base CB05tucl
+!
+! Chlorine reactions added from base CB05tucl and updated
+!
 
 <CL1>   CL2                = 2.000*CL                 # 1.0/<CL2_IUPAC04>;
 <CL2>   HOCL               = OH        + CL           # 1.0/<HOCL_IUPAC04>;
 <CL3>   CL   + O3          = CLO                      # 2.3E-11 @ 200; 
 <CL4>   CLO  + CLO         = 0.300*CL2 + 1.400*CL     # 1.63E-14; 
 <CL5>   CLO  + NO          = CL        + NO2          # 6.4E-12 @ -290;
-<CL6>   CLO  + HO2         = HOCL                     # 2.7E-12 @ -220;
-<CL7>   OH   + FMCL        = CL        + CO           # 5.0E-13;
-<CL8>   FMCL               = CL        + CO + HO2     # 1.0/<FMCL_IUPAC04>;
-<CL9>   CL   + CH4         = HCL       + MEO2         # 6.6E-12 @ 1240;
-<CL10>  CL   + PAR         = HCL
-                             + 0.870*XO2
-                             + 0.130*XO2N
-                             + 0.110*HO2
-                             + 0.060*ALD2
-                             - 0.110*PAR
-                             + 0.760*ROR
-                             + 0.050*ALDX             # 5.0E-11;
-<CL11>  CL   + ETHA       = HCL
+<CL6>   CLO  + HO2         = HOCL                     # 2.2E-12 @ -340;
+<CL7>   CLO  + MEO2        = CL + FORM + HO2          # 3.2E-12@110;
+<CL8>   OH   + FMCL        = CL        + CO           # 5.0E-13;
+<CL9>   FMCL               = CL        + CO + HO2     # 1.0/<FMCL_IUPAC04>;
+<CL10>  CL   + CH4         = HCL + MEO2 + RO2         # 6.6E-12 @ 1240;
+<CL11>  CL   + PAR         = HCL + XPAR               # 5.0E-11;
+<CL12>  CL   + PRPA        = HCL + ACET + 0.97*XO2H + 0.03*XO2N + RO2 # 1.4E-10;
+<CL13>  CL   + ETHA        = HCL
                              + 0.991*ALD2
-                             + 0.991*XO2
+                             + 0.991*XO2H
                              + 0.009*XO2N
-                             + HO2                    # 8.3-11 @ 100;
-<CL12>  CL   + ETH         = FMCL
+                             + RO2                    # 8.3-11 @ 100;
+<CL14>  CL   + ETH         = FMCL
                              + 2.000*XO2
                              + 1.000*HO2
                              + 1.000*FORM             # 1.07E-10; 
-<CL13>  CL   + OLE         = FMCL
+<CL15>  CL   + OLE         = FMCL
                              + 0.330*ALD2
                              + 0.670*ALDX
                              + 2.000*XO2
                              + 1.000*HO2
                              - 1.000*PAR              # 2.5E-10;
-<CL14>  CL   + IOLE        = 0.300*HCL
+<CL16>  CL   + IOLE        = 0.300*HCL
                              + 0.700*FMCL
                              + 0.450*ALD2
                              + 0.550*ALDX
@@ -376,39 +351,32 @@ REACTIONS[CM] =
                              + 0.300*PAR
                              + 1.700*XO2
                              + 1.000*HO2              # 3.5E-10;
-<CL15>  CL   + ISOP        = 0.15*HCL
-                             + 1.000*XO2
-                             + 1.000*HO2
-                             + 0.850*FMCL
-                             + 1.000*ISPD             # 4.3E-10;
-<CL16>  CL   + FORM       = HCL
-                             + 1.000*HO2
-                             + 1.000*CO               # 8.2E-11 @ 34;
-<CL17>  CL   + ALD2       = HCL
-                             + 1.000*C2O3             # 7.9E-11;
-<CL18>  CL   + ALDX       = HCL
-                             + 1.000*CXO3             # 1.3E-10;
-<CL19>  CL   + MEOH       = HCL
-                             + 1.000*HO2
-                             + 1.000*FORM             # 5.5E-11;
-<CL20>  CL   + ETOH       = HCL
-                             + 1.000*HO2
-                             + 1.000*ALD2             # 8.2E-11 @ -45;                            
-<CL21>  HCL  + OH         = CL                        # 6.58E-13^1.16 @ -58;
-<CL22>  CL   + TOL        = HCL
-                             + 0.88*XO2
-                             + 0.88*HO2
-                             + 0.12*XO2N              # 6.1E-11;
-<CL23>  CL   + XYLMN        = HCL
-                             + 0.84*XO2
-                             + 0.84*HO2
-                             + 0.16*XO2N              # 1.2E-10;              
-<CL23a>  CL   + NAPH        = HCL
-                             + 0.84*XO2
-                             + 0.84*HO2
-                             + 0.16*XO2N              # 1.2E-10;              
-<CL24>   CLO  + NO2         = CLNO2                     # 2.3399E-12;
-<CL25> CLNO2 = CL + NO2             #1.0/<CLNO2>;               
+<CL17>  CL   + ISOP       = FMCL + ISPD + 0.96*XO2H + 0.04*XO2N + RO2 # 4.3E-10;
+<CL18>  CL   + FORM       = HCL + 1.00*HO2 + 1.00*CO  # 8.2E-11 @ 34;
+<CL19>  CL   + ALD2       = HCL + 1.000*C2O3          # 7.9E-11;
+<CL20>  CL   + ALDX       = HCL + 1.000*CXO3          # 1.3E-10;
+<CL21>  CL   + MEOH       = HCL + 1.00*HO2 + 1.00*FORM  # 5.5E-11;
+<CL22>  CL   + ETOH       = HCL + 1.00*HO2 + 1.00*ALD2  # 8.2E-11 @ -45;                            
+<CL23>  HCL  + OH         = CL                        # 6.58E-13^1.16 @ -58;
+
+<CL24>  CL   + TOL     = HCL + 0.18*CRES + 0.65*TO2 + 0.72*RO2 + 0.1*OPEN 
+                       + 0.1*OH + 0.07*XO2H + 0.18*HO2 + TOLRO2 # 6.1E-11;
+<CL25>  CL  +  XYLMN   =  HCL + 0.155*CRES + 0.544*XLO2 + 0.602*RO2 + 0.244*XOPN 
+                + 0.244*OH + 0.058*XO2H + 0.155*HO2 + XYLRO2 # 1.2E-10;
+<CL26>  CL  +  NAPH   =  HCL + 0.155*CRES + 0.544*XLO2 + 0.602*RO2 + 0.244*XOPN 
+                + 0.244*OH + 0.058*XO2H + 0.155*HO2 + PAHRO2 # 1.2E-10;
+<CL27> CLNO2 = CL + NO2                               #1.0/<CLNO2_IUPAC13>;               
+! add new reactions for chlorine nitrate 
+<CL28> CLO + NO2      = CLNO3                #1.8E-31^-3.4&1.5E-11^-1.9&0.6;
+!<CL29> CLNO3          = CLO + NO2   #4.48E-5^-1.0@12530&3.71E+15^3.5@12530&0.6;
+<CL30> CLNO3          = CLO + NO2                 # 1.0/<CLONO2_1>;
+<CL31> CLNO3          = CL + NO3                 # 1.0/<CLONO2_2>;
+
+! heterogeneous reactions from CB05eh51
+
+<HET_CLNO3_WAJ> CLNO3     = HOCL + HNO3               # 1.0~<HETERO_CLNO3_WAJ>;
+<HET_CLNO3_WAK> CLNO3     = HOCL + HNO3               # 1.0~<HETERO_CLNO3_WAK>;
+
 
 ! SOA precursors added from CB05tucl
 
@@ -426,7 +394,7 @@ REACTIONS[CM] =
 <SA13>  SOAALK  + OH      = OH  + 0.47*ALKRXN         # 2.70e-12@-374;
 
 
-! iorganic heteorogeneous reactions from hetchem version 5.0.2
+! inorganic heteorogeneous reactions from hetchem version 5.0.2
 ! included F_NTR2_ON factor here, rather than in AEROSOL_CHEM.F
 
 <HET_NTR2> NTR2 = HNO3 # 1.4~<HETERO_NTR2>;
@@ -444,7 +412,7 @@ REACTIONS[CM] =
 <HET_N02> NO2 = 0.5*HONO + 0.5*HNO3 # 1.0~<HETERO_NO2>;
 
 ! updated reaction rate to v51 release
-<HAL_Ozone> O3 =  %H # 1.0000E-40@-78.4256 & 4.0582E-9@-5.8212;
+<HAL_Ozone> O3 =  %H # 2.8964E-11@-11.9978 & 0.0E-0@-0.0;
 
 ! added het reaction based on EPOX 
 <HET_IEPOX> EPOX = AISO3J  # 1.0~<HETERO_IEPOX>;
@@ -561,4 +529,3 @@ CONSTANTS
 <C4> ATM_O2  = 0.2095E+06
 <C5> ATM_CH4 = 1.85
 END CONSTANTS
-

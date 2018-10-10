@@ -104,6 +104,7 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
   USE twoway_header_data_module
   USE twoway_met_param_module
   USE twoway_data_module
+  USE RUNTIME_VARS
   USE HGRD_DEFN
   USE SE_MODULES
 
@@ -231,12 +232,12 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 
   integer :: east_adjustment, north_adjustment
 
-    integer, save :: jdate, jtime, sdate, stime, logdev, nstep
+    integer, save :: jdate, jtime, sdate, stime, nstep
     integer       :: wrf_halo_x_l, wrf_halo_x_r
     integer       :: wrf_halo_y_l, wrf_halo_y_u
 
-    logical, save :: run_cmaq_driver, create_physical_file, write_to_physical_file, &
-                     north_bdy_pe, south_bdy_pe, east_bdy_pe, west_bdy_pe, turn_on_pv
+    logical, save :: write_to_physical_file, &
+                     north_bdy_pe, south_bdy_pe, east_bdy_pe, west_bdy_pe
     integer, save :: file_time_step, file_time_step_in_sec
 
     integer :: i, j, status(MPI_STATUS_SIZE)
@@ -306,6 +307,8 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 
      nprocs = grid%nproc_x * grid%nproc_y
 
+     call init_twoway_env_vars( )
+
      north_adjustment = 0
      if (twoway_mype >= (nprocs - grid%nproc_x)) then
         north_bdy_pe = .true.
@@ -372,29 +375,18 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
      wrf_c_col_dim = ide - ids + 1
      wrf_c_row_dim = jde - jds + 1
 
-     cmaq_c_col_dim = envint ('CMAQ_COL_DIM', ' ', wrf_c_col_dim-10, stat)
-     cmaq_c_row_dim = envint ('CMAQ_ROW_DIM', ' ', wrf_c_row_dim-10, stat)
-     delta_x        = envint ('TWOWAY_DELTA_X', ' ', 5, stat)
-     delta_y        = envint ('TWOWAY_DELTA_Y', ' ', 5, stat)
-
-     wrf_lc_ref_lat = envreal ('WRF_LC_REF_LAT', ' ', 0.0, stat)
-
-     logdev = init3 ()
-
-     wrf_cmaq_freq = envint ('WRF_CMAQ_FREQ', ' ', 1, stat)
-
-     stime = envint ('CTM_STTIME', ' ', 0, stat)
-     sdate = envint ('CTM_STDATE', ' ', 0, stat)
+     if ( cmaq_c_col_dim .eq. -1 ) cmaq_c_col_dim = wrf_c_col_dim - 10
+     if ( cmaq_c_row_dim .eq. -1 ) cmaq_c_row_dim = wrf_c_row_dim - 10
 
      cmaq_tstep = sec2time(grid%time_step*wrf_cmaq_freq)
 
-     jdate = sdate
-     jtime = stime
+     jdate = stdate
+     jtime = sttime
+     sdate = stdate
+     stime = sttime
 
      nstep = ((grid%run_days * 24 + grid%run_hours) * 3600 + grid%run_minutes * 60 + grid%run_seconds) / &
              (grid%time_step * wrf_cmaq_freq)
-
-     turn_on_pv = envyn ('CTM_TURN_ON_PV', ' ', def_false, stat)
 
 ! Allocate arrays for CCTM...to mimic MCIP output arrays.
 !-------------------------------------------------------------------------------
@@ -521,10 +513,8 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 
      CALL setup_griddesc_file (cmaq_c_col_dim, cmaq_c_row_dim)
 
-     create_physical_file = envyn ('CREATE_PHYSICAL_FILE', ' ', def_false, stat)
 
      if (create_physical_file) then
-        file_time_step = envint ('FILE_TIME_STEP', ' ', 10000, stat)
 
         file_time_step_in_sec = time2sec (file_time_step)
 
@@ -535,8 +525,6 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
            stop
         end if
      end if
-
-     RUN_CMAQ_DRIVER = envyn ('RUN_CMAQ_DRIVER', ' ', def_false, stat)
 
      if (config_flags%cu_physics == 0) then
         convective_scheme = .false.
@@ -568,11 +556,11 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 
      do v = 1, numlu
         write (vname3d(v+n_gridcro2d_var), '(a7, i2.2)') 'LUFRAC_', v
-        units3d(v+n_gridcro2d_var) = 'FRACTION'
+        units3d(v+n_gridcro2d_var) = '1'
      end do
 
 ! this is particular for m3dry LUFRAC_01
-     units3d(1+n_gridcro2d_var) = 'USGS24'
+     units3d(1+n_gridcro2d_var) = '1'
 
      nvars3d = numlu+n_gridcro2d_var
      tstep3d = 0

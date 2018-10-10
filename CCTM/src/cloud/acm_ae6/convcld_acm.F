@@ -16,6 +16,7 @@
 !  General Public License or the GNU Lesser General Public License is    !
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
+
 !:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
        SUBROUTINE CONVCLD_ACM ( CGRID, JDATE, JTIME, TSTEP,
      &                         N_SPC_WDEP, WDEP_MAP, CONV_DEP, SUBTRANS )
@@ -111,14 +112,16 @@ C       4Apr16 J.Bash      Calculate the Sundqvist et al. 1989 threshold humidit
 C                          for cloud formation based on Mocko and Cotton (1995) to be
 C                          More consistent with WRF
 C       7May 18 D. Schwede: Removed call to CZANGLE. COSZEN now calculated in ASX_DATA_MOD
+C       Aug 2018 J. Pleim: convert to Z coords
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
       USE CGRID_SPCS          ! CGRID mechanism species
       USE UTILIO_DEFN
       USE AQ_DATA
-      USE PHOT_MET_DATA, ONLY: USE_ACM_CLOUD, CLEAR_ACM_CLOUD, CAPTURE_ACM_CLOUD
       USE ASX_DATA_MOD,  ONLY: GRID_DATA, MET_DATA
+      USE PHOT_MOD,      ONLY: RJ, RJ_RES, RJ_SUB, LH2O2_PHOTOLYSIS => LH2O2,
+     &                   LHNO3_PHOTOLYSIS => LHNO3
 
       IMPLICIT NONE
 
@@ -149,6 +152,9 @@ C critical rel humidity for water (fraction)
 
 C intermediate factor
       REAL            :: XKM
+
+C factor convert 1/min to 1/sec
+      REAL, PARAMETER :: MINPERSEC = 1.0 / 60.0 
 
 C param contlng sidewall entrainment function for raining clouds
       REAL, PARAMETER :: SIDEFAC = 0.5
@@ -214,17 +220,16 @@ C   SYNCCLD=.FALSE. : every hour on the half hour
 C...........Local Variables
 
 C-------for ACM version - jp 2/05        REAL DPB
-      REAL, ALLOCATABLE, SAVE :: SIGF( : )
+      REAL, ALLOCATABLE, SAVE :: DZH( : )
       REAL, ALLOCATABLE, SAVE :: CCR ( :,: )
       REAL, ALLOCATABLE, SAVE :: CONC( :,: )
       REAL, ALLOCATABLE, SAVE :: CBELOW( : )
 C-------------------------------------------
-      INTEGER, SAVE :: LOGDEV
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE. ! flag for first pass thru
       LOGICAL, SAVE :: CONVCLD = .TRUE.  ! flag for modeling convective clds
 
-      CHARACTER( 16 ) :: PNAME = 'CONVCLD_ACM'   ! prcess name
+      CHARACTER( 16 ) :: PNAME = 'CONVCLD_ACM'   ! process name
       CHARACTER( 16 ) :: VARNM          ! variable name for IOAPI to get
 
       CHARACTER( 16 ), SAVE :: RC_NAME  ! RC name: old is RC and new is RCA
@@ -279,6 +284,8 @@ C-------------------------------------------
       REAL             FRAC             ! cloud fractional coverage
       REAL             FTST             ! functional product in Walcek bisection solver
       REAL             HTST             ! temp diff in Walcek bisection solver
+      REAL             JH2O2_BAR        ! mean H2O2 photolysis rate in subgrid cloud, 1/min
+      REAL             JHNO3_BAR        ! mean HNO3 photolysis rate in subgrid cloud, 1/min
       REAL, SAVE    :: METSTEP          ! timestep on the met file
       REAL             P1               ! intermediate pressure used in calculating WL
       REAL             P2               ! intermediate pressure used in calculating WL
@@ -355,6 +362,8 @@ C-------------------------------------------
       REAL          :: DZZL ( NLAYS )              ! grid cell delta Z
       REAL          :: PRES ( NCOLS,NROWS,NLAYS )  ! file gridded vble
       REAL          :: PRESL( NLAYS )              ! grid cell pressure
+      REAL          :: JH2O2( NLAYS )              ! H2O2 photolysis rate (1/min)   
+      REAL          :: JHNO3( NLAYS )              ! HNO3 photolysis rate (1/min)   
       REAL          :: QAD  ( NLAYS )              ! moist adiab. sat. mix ratio
       REAL          :: QV   ( NCOLS,NROWS,NLAYS )  ! input gridded vble
       REAL          :: QVL  ( NLAYS )              ! grid cell sp. hum.
@@ -379,9 +388,6 @@ C Latitude and longitude for zenith angle calculation:
 
       CHARACTER( 120 ) :: XMSG = ' '   ! Exit status message
 
-C...........External Functions
-
-      INTEGER, EXTERNAL :: SETUP_LOGDEV
 
 C...........Statement Functions
 
@@ -431,7 +437,6 @@ C...  event-statistics variables.
       IF ( FIRSTIME ) THEN
 
         FIRSTIME = .FALSE.
-        LOGDEV = INIT3()
 
         IF ( N_AE_SPC .GT. 0 ) THEN
           ALLOCATE ( AECONCMIN( N_AE_SPC ), STAT = ALLOCSTAT )
@@ -443,14 +448,15 @@ C...  event-statistics variables.
 
         END IF
 
-C...check the grid resolution from the MET_CRO_2D and set an appropriate
-C...  flag as to whether convective clouds should be run for the given
-C...  resolution
-
-C...open MET_CRO_3D
+C...open MET_CRO_3D and MET_CRO_2D
 
         IF ( .NOT. OPEN3( MET_CRO_3D, FSREAD3, PNAME ) ) THEN
           XMSG = 'Could not open '// MET_CRO_3D // ' file'
+          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+        END IF
+
+        IF ( .NOT. OPEN3( MET_CRO_2D, FSREAD3, PNAME ) ) THEN
+          XMSG = 'Could not open '// MET_CRO_2D // ' file'
           CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
@@ -492,6 +498,8 @@ C...get horizontal domain window from met data
 
 C...check convective precipitation on met files to determine if WRF used
 C...  a convective parameterization
+C...in coordination with MCIPv4.0, negative values will be loaded into the RC
+C...  field if a convective parameterization was not used in the WRF simulation
 
         IF ( .NOT. INTERPX( MET_CRO_2D, RC_NAME, PNAME,
      &                      STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
@@ -499,9 +507,6 @@ C...  a convective parameterization
           XMSG = 'Could not read ' // TRIM( RC_NAME ) // ' from ' // MET_CRO_2D
           CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
-
-C...in coordination with MCIPv4.0, negative values will be loaded into the RC
-C...  field if a convective parameterization was not used in the WRF simulation
 
         IF ( MAXVAL( RC ) .LT. 0.0 ) THEN
           CONVCLD = .FALSE.
@@ -515,16 +520,11 @@ C...  field if a convective parameterization was not used in the WRF simulation
 
 C...allocate saved arrays
 
-        ALLOCATE ( SIGF( 0:NLAYS ), STAT = ALLOCSTAT )
+        ALLOCATE ( DZH( NLAYS ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
-          XMSG = 'Failure allocating SIGF'
+          XMSG = 'Failure allocating DZH'
           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
-
-        DO LAY = 1, NLAYS
-          SIGF( LAY ) = 1.0 - X3FACE_GD( LAY )
-        END DO
-        SIGF( 0 ) = 1.0
 
         MXSPCS = NSPCSD
 
@@ -547,7 +547,7 @@ C...allocate saved arrays
      &             STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating BMOL, CBASE0, CBASEF, CEND, POLC, REMOV,'
-     &         // 'QLQD or QICE'
+     &         // ' QLQD or QICE'
           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
@@ -577,7 +577,7 @@ C...check option for processing clouds on the synchronization timestep
 
 C...set the cloud timestep (=adv timestep)
 
-        STEP  = TIME2SEC( TSTEP( 2 ) )         ! syncronization timestep
+        STEP  = TIME2SEC( TSTEP( 2 ) )         ! synchronization timestep
         DTCLD = REAL( STEP )
 
 C...set time to the midpoint of this timestep for data interpolation
@@ -594,7 +594,7 @@ C...  if it does not, then return
 
         MDATE = JDATE
         MTIME = 10000 * ( JTIME / 10000 )      ! on the current hour
-        STEP  = TIME2SEC( TSTEP( 2 ) )         ! syncronization timestep
+        STEP  = TIME2SEC( TSTEP( 2 ) )         ! synchronization timestep
         DTCLD = TCLIFE
 
 C...  set mdate:mtime to one-half step before the half-hour
@@ -613,8 +613,6 @@ C...  set the time to the half hour for data interpolation
       END IF
 
 C...clear arrays that capture ACM cloud results
-
-      IF ( USE_ACM_CLOUD ) CALL CLEAR_ACM_CLOUD( JDATE, JTIME )
 
 C...ACTUAL SCIENCE PROCESS (loop on internal process time steps):
 C...  Interpolate time dependent layered input variables
@@ -741,7 +739,10 @@ C...Loop through all grid cells
             TAL( LAY )   = TA( COL,ROW,LAY )
             QVL( LAY )   = QV( COL,ROW,LAY )
             DZZL( LAY )  = DZZ( COL,ROW,LAY )
-            DENSL( LAY ) = PRESL( LAY ) / ( RDGAS * TAL( LAY ) )
+            DENSL( LAY ) = PRESL( LAY )
+     &                   / ( RDGAS * TAL( LAY ) * ( 1.0 + RWVAP * QVL( LAY ) / RDGAS ) )
+            JH2O2( LAY ) = RJ_SUB( COL,ROW,LAY,LH2O2_PHOTOLYSIS )
+            JHNO3( LAY ) = RJ_SUB( COL,ROW,LAY,LHNO3_PHOTOLYSIS )
           END DO
 
 C...load aerosol minimum concentrations into the "CONCMINL" array
@@ -1045,8 +1046,7 @@ C...  variables needed for rest of computations
 C...First, get mol air/m2 at each layer, initialize FSIDE
 
           DO LAY = 1, NLAYS
-            RHOM2( LAY ) = PRESL( LAY ) * DZZL( LAY )
-     &                   * 1.0E3 / ( RDGAS * MWAIR * TAL( LAY ) )
+            RHOM2( LAY ) = DENSL( LAY ) * DZZL( LAY ) * 1.0E3 / MWAIR
             FSIDE( LAY ) = 0.0
           END DO
 
@@ -1101,9 +1101,12 @@ C...Initialize variables needed for entrainment and in-cloud properties solver
           WCBAR = 0.0  ! condensed wat cont (kg/m2) integ. thru cloud depth
           WTBAR = 0.0  ! total wat cont (kg/m2) integrated thru cloud depth
           TBARC = 0.0  ! cloud mean temp (K)
+          JH2O2_BAR = 0.0 ! cloud H2O2 photolysis, 1/min
+          JHNO3_BAR = 0.0 ! cloud HNO3 photolysis, 1/min
+
 
 C...Determine condensed water content and entrainment at each cloud level
-C...  Determine FSIDE profile for raining clouds; side entrainment
+C...Determine FSIDE profile for raining clouds; side entrainment
 C...  only for PFW and CNP clouds
 
           IF ( ICLDTYPE .EQ. 1 ) THEN   ! raining cloud
@@ -1266,6 +1269,10 @@ C...weighted cloud temp
 C...weighted cloud pres
             PBARC = PBARC + PRESL( LAY ) * DZZL( LAY ) * LWC( LAY )
 
+C...weighted photolysis rate 
+            JH2O2_BAR = JH2O2_BAR + JH2O2( LAY ) * DZZL( LAY ) * LWC( LAY )     
+            JHNO3_BAR = JHNO3_BAR + JHNO3( LAY ) * DZZL( LAY ) * LWC( LAY )     
+
 C...integrated liquid water content (kg/m3)
             WCBAR = WCBAR + DZZL( LAY ) * LWC( LAY )
 
@@ -1348,7 +1355,8 @@ C...again partition into ice and liquid
             WCBAR = WCBAR + DZZL( LAY ) * LWC( LAY )
             WTBAR = WTBAR + DZZL( LAY ) * TWC
             CTHK = CTHK + DZZL( LAY )
-
+            JH2O2_BAR = JH2O2_BAR + JH2O2( LAY ) * DZZL( LAY ) * LWC( LAY )
+            JHNO3_BAR = JHNO3_BAR + JHNO3( LAY ) * DZZL( LAY ) * LWC( LAY )
 C...excess water is all rain
 
             QXS = QXS + QWAT( LAY ) * RHOAIR * DZZL( LAY )
@@ -1371,12 +1379,6 @@ C...Final calc of storm rainfall rate and frac area (raining clds)
 
 7000      CONTINUE                        ! target of cloudtype split
 
-C...Capture cloud information for both cloud types
-
-          IF ( USE_ACM_CLOUD ) THEN
-            CALL CAPTURE_ACM_CLOUD( JDATE, JTIME, COL, ROW, CLBASE, CLTOP,
-     &                              FRAC, QLQD, QICE )
-          END IF
 
 C...Begin mixing section, perform first for raining clouds using
 C...  modified form of original Walcek mixing for RADM: mixing
@@ -1390,7 +1392,15 @@ C...  using direct exchange mixing mechanism by McHenry.
             CBELOW( SPC ) = CBASE0( SPC )
           END DO
 
-          CALL ACMCLD ( NSPCSD, NLAYS, F, CCR, SIGF, CBELOW, CLBASE, CLTOP,
+! -- Need to use dens * delz for ACM mixing
+          DO LAY = 1, NLAYS
+            DZH(LAY) = RHOM2( LAY )
+          ENDDO
+          LAY = CLBASE - 1
+
+          DZH(LAY) = AIRMB0
+
+          CALL ACMCLD ( NSPCSD, NLAYS, F, CCR, DZH, CBELOW, CLBASE, CLTOP,
      &                  FRAC, TCLIFE, DTCLD )
 
           DO SPC = 1, MXSPCS
@@ -1446,6 +1456,9 @@ C...Compute cloud mean quantities
 
           TBARC = TBARC / WCBAR          ! deg K (note WCBAR has hidden factor CTHK in it)
           PBARC = PBARC / WCBAR          ! avg cloud pres, Pa
+
+          JH2O2_BAR = JH2O2_BAR / WCBAR  ! avg H2O2 photolysis, 1/min
+          JHNO3_BAR = JHNO3_BAR / WCBAR  ! avg HNO3 photolysis, 1/min
 
           WCBAR = WCBAR / CTHK           ! avg liq wat content in kg/m3
 
@@ -1511,11 +1524,16 @@ C...  determine day or night from cosine of zenith angle for the cell; Golam Sar
 
             IF ( COSZ .LE. 0.0 ) THEN
               DARK = .TRUE.   ! night
+C...set mean photolysis rates to zero
+              JH2O2_HYDROMETEORS = 0.0D0 
+              JHNO3_HYDROMETEORS = 0.0D0
             ELSE
               DARK = .FALSE.  ! day
+C...convert mean photolysis rates to 1/sec
+              JH2O2_HYDROMETEORS = REAL( JH2O2_BAR * MINPERSEC, 8 ) 
+              JHNO3_HYDROMETEORS = REAL( JHNO3_BAR * MINPERSEC, 8 )
             END IF
 
-C *** Golam Sarwar 
 
             CALL AQ_MAP ( JDATE, JTIME, WTBAR, WCBAR, TBARC, PBARC,
      &                    CTHK1, AIRM, PRATE1, DTCLD, POLC, CEND,

@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ros3/rbdriver.F,v 1.7 2011/10/21 16:11:10 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
-
        SUBROUTINE CHEM( CONC, JDATE, JTIME, TSTEP )
 
 C**********************************************************************
@@ -35,7 +28,6 @@ C  Preconditions: None
 C
 C  Key Subroutines/Functions Called: RBINIT
 C                                    RBSPARSE
-C                                    PHOT
 C                                    CALCKS
 C                                    RBSOLVER
 C                                    FIND_DEGRADED
@@ -81,10 +73,12 @@ C**********************************************************************
       USE RBDATA                ! ROS3 solver data
       USE CGRID_SPCS            ! CGRID mechanism species
       USE UTILIO_DEFN
+      USE PHOT_MOD, Only: INIT_PHOT_SHARED, RJ     ! photolysis rate, in-line module
       USE AEROSOL_CHEMISTRY
       USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP
       USE PA_DEFN, Only: LIRR   ! Process Anaylsis control and data variable
-
+      USE PA_IRR_CLT
+      
       IMPLICIT NONE 
 
 C..Includes:
@@ -117,7 +111,6 @@ C..Local Variables:
       LOGICAL, SAVE :: FIRSTCALL = .TRUE. ! Another Flag for first call
       LOGICAL, SAVE :: LIRRBLK         ! Flag for IRR to be done for block
 
-      INTEGER, SAVE :: LOGDEV          ! Unit number of output log
       INTEGER, SAVE :: NOXYZ           ! Total number of grid cells
 
       REAL,    SAVE :: AIRFC           ! Factor to convert gms air to ppm
@@ -179,11 +172,6 @@ C for interpolating meteorological inputs
       REAL,    ALLOCATABLE       :: SURF_ZONE   ( :,: )       ! fractional surf-zone cover, [-]
       LOGICAL, ALLOCATABLE, SAVE :: LAND_ZONE   ( :,: )       ! Is the surface totally land?
 
-!     REAL :: RJBLK( BLKSIZE,NPHOTAB )           ! J-values for each cell in 
-                                                 ! a block
-
-!      REAL :: RJ( NCOLS,NROWS,NLAYS,NPHOTAB )  ! J-values for each cell      
-      REAL,      ALLOCATABLE, SAVE :: RJ( :,:,:,: )  ! J-values for each cell      
 
       REAL( 8 ), ALLOCATABLE, SAVE :: BLKHET( :, : )
 #ifdef rbstats
@@ -200,50 +188,22 @@ C for interpolating meteorological inputs
 #endif
 
       INTERFACE
-         SUBROUTINE PHOT ( MDATE, MTIME, JDATE, JTIME, DTSTEP, RJ )
-            INTEGER, INTENT( IN )  :: MDATE       !"centered" Julian date (YYYYDDD)
-            INTEGER, INTENT( IN )  :: MTIME       !"centered" time (HHMMSS)
-            INTEGER, INTENT( IN )  :: JDATE       ! Current date (YYYYDDD)
-            INTEGER, INTENT( IN )  :: JTIME       ! Current time (HHMMSS)
-            INTEGER, INTENT( IN )  :: DTSTEP( : ) ! time step vector (HHMMSS)
-            REAL,    INTENT( OUT ) :: RJ( :,:,:,: ) ! gridded J-values  (1/min units)
-         END SUBROUTINE PHOT
-         SUBROUTINE PA_IRR_CKBLK ( NUMCELLS, LIRRFLAG, OFFSET,
-     &                             CCOL, CROW, CLEV, NORDCELL,
-     &                             NIRRCLS, IRRCELL )
-            INTEGER, INTENT( IN )  :: NUMCELLS, OFFSET
-            LOGICAL, INTENT( OUT ) :: LIRRFLAG
-            INTEGER, INTENT( IN )  :: CCOL( : ), CROW( : ), CLEV( : )
-            INTEGER, INTENT( IN )  :: NORDCELL( : )
-            INTEGER, INTENT( INOUT ) :: NIRRCLS
-            INTEGER, INTENT( INOUT ) :: IRRCELL( : )
-         END SUBROUTINE PA_IRR_CKBLK
-         SUBROUTINE PA_IRR_BLKENDC ( OFFSET, 
-     &                               CCOL, CROW, CLEV, NORDCELL,
-     &                               NIRRCLS, IRRCELL )
-            INTEGER, INTENT( IN ) :: OFFSET
-            INTEGER, INTENT( IN ) :: CCOL( : ), CROW( : ), CLEV( : )
-            INTEGER, INTENT( IN ) :: NORDCELL( : )
-            INTEGER, INTENT( INOUT ) :: NIRRCLS
-            INTEGER, INTENT( INOUT ) :: IRRCELL( : )
-         END SUBROUTINE PA_IRR_BLKENDC
-         SUBROUTINE RBSOLVER ( LOGDEV, JDATE, JTIME, CHEMSTEP, NCSP,
+         SUBROUTINE RBSOLVER ( JDATE, JTIME, CHEMSTEP, NCSP,
      &                         LIRRFLAG, NIRRCLS, IRRCELL )
-            INTEGER,   INTENT( IN ) :: LOGDEV, JDATE, JTIME
+            INTEGER,   INTENT( IN ) :: JDATE, JTIME
             REAL( 8 ), INTENT( IN ) :: CHEMSTEP
             INTEGER,   INTENT( IN ) :: NCSP
             LOGICAL,   INTENT( IN ) :: LIRRFLAG
             INTEGER,   INTENT( INOUT ) :: NIRRCLS
             INTEGER,   INTENT( IN ) :: IRRCELL( : )
          END SUBROUTINE RBSOLVER
-         SUBROUTINE FIND_DEGRADED( JDATE, JTIME, LOGDEV, CALL_DEGRADE )
+         SUBROUTINE FIND_DEGRADED( JDATE, JTIME, CALL_DEGRADE )
            INTEGER, INTENT( IN )  :: JDATE        ! current model date , coded YYYYDDD
            INTEGER, INTENT( IN )  :: JTIME        ! current model time , coded HHMMSS
-           INTEGER, INTENT( IN )  :: LOGDEV       ! unit number for the log file
            LOGICAL, INTENT( OUT ) :: CALL_DEGRADE ! whether to call degradation routines
          END SUBROUTINE FIND_DEGRADED
          SUBROUTINE INIT_DEGRADE( CBLK, TCELL, DCELL, PHOTO_CELL, NUMCELLS,
-     &                         JDATE, JTIME, LOGDEV, BLKID )
+     &                         JDATE, JTIME, BLKID )
            REAL( 8 ), INTENT( IN ) :: CBLK ( :,: )      !  species concentration in cell
            REAL( 8 ), INTENT( IN ) :: TCELL( : )        !  cell temperature  [ k ]
            REAL( 8 ), INTENT( IN ) :: DCELL( : )        !  cell air density  [ kg/m^3 ]
@@ -251,7 +211,6 @@ C for interpolating meteorological inputs
            INTEGER,   INTENT( IN ) :: NUMCELLS  ! number of grid cells in block
            INTEGER,   INTENT( IN ) :: JDATE     ! current model date , coded YYYYDDD
            INTEGER,   INTENT( IN ) :: JTIME     ! current model time , coded HHMMSS
-           INTEGER,   INTENT( IN ) :: LOGDEV    ! unit number for the log
            INTEGER,   INTENT( IN ) :: BLKID     ! number for the block
          END SUBROUTINE INIT_DEGRADE      
          SUBROUTINE FINAL_DEGRADE( CBLK )
@@ -272,7 +231,6 @@ c  set-up to do emissions here if that option is invoked
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF ( LFIRST ) THEN
          LFIRST   = .FALSE.
-         LOGDEV   = INIT3( )
          ROS3_LOG = LOGDEV
 !        GASLOG   = LOGDEV
 
@@ -282,7 +240,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          END IF
 
          CALL RBINIT
-         CALL RBSPARSE( LOGDEV )
+         CALL RBSPARSE( )
          NOXYZ = MY_NCOLS * MY_NROWS * NLAYS
 
 C...Initialize and report data
@@ -343,7 +301,6 @@ C.. Get fractional surf-zone coverage from the OCEAN file.
 
          ALLOCATE( DENS( NCOLS, NROWS, NLAYS ), PRES( NCOLS, NROWS, NLAYS ),
      &             QV  ( NCOLS, NROWS, NLAYS ), TA  ( NCOLS, NROWS, NLAYS ),
-     &             RJ  ( NCOLS, NROWS, NLAYS, NPHOTAB ),
      &             SEAICE( NCOLS, NROWS ) )
 
          ALLOCATE( IRRCELL( BLKSIZE ) )
@@ -385,9 +342,9 @@ c..Open file for solver stats if requested
             VDESC3D( 1 ) = 'Number of fails at start'
             VDESC3D( 2 ) = 'Number of step fails'
             VDESC3D( 3 ) = 'Number of steps'
-            UNITS3D( 1 ) = 'None'
-            UNITS3D( 2 ) = 'None'
-            UNITS3D( 3 ) = 'None'
+            UNITS3D( 1 ) = ''
+            UNITS3D( 2 ) = ''
+            UNITS3D( 3 ) = ''
             VTYPE3D( 1 ) = M3REAL
             VTYPE3D( 2 ) = M3REAL
             VTYPE3D( 3 ) = M3REAL
@@ -406,11 +363,14 @@ c..Open file for solver stats if requested
 
 #endif
 
+C..Initialize shared photolysis data
+         CALL INIT_PHOT_SHARED()
+
          ALLOCATE( BLKHET( BLKSIZE, NHETERO ) )
 
 C Determine whether DEGRADE rountines are needed.
 
-         CALL FIND_DEGRADED( JDATE, JTIME, LOGDEV, CALL_DEG )
+         CALL FIND_DEGRADED( JDATE, JTIME, CALL_DEG )
          IF( CALL_DEG ) THEN
             WRITE( LOGDEV, * ) 'DEGRADE ROUTINES USED'
             WRITE( LOGDEV, * ) 'Mechanism contains degraded species'
@@ -493,10 +453,6 @@ C.. Get density in Kg/m^3
          CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
       END IF
 
-C.. Get photolysis rates in /min
-
-      CALL PHOT ( MIDDATE, MIDTIME, JDATE, JTIME, TSTEP, RJ )
-
 C.. Get Heterogeneous Rates using Aerosol Surface Area. Also Store
 C   a snapshot of the aerosol surface area so that it can be
 C   appropriately updated after the solver finds a solution.
@@ -519,8 +475,6 @@ C  no reordering, twice if reordering is required
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 100   CONTINUE
 
-!     write( logdev,* ) 'driver-lordering,lreorder: ', lordering, lreorder
-
       ERRMX2 = 0.0D0
 
       DO 500 BLK = 1, NBLKS
@@ -532,7 +486,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
              CALL PA_IRR_CKBLK ( NUMCELLS, LIRRBLK, OFFSET,
      &                           CCOL, CROW, CLEV, NORDCELL, NIRRCLS,
      &                           IRRCELL )
-             CALL PA_IRR_BLKSTRT( NUMCELLS )
          END IF
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C  Put the grid cell physical data in the block arrays, converting
@@ -623,7 +576,7 @@ C  update cell concentrations for degradation routines
 C initialize degradation routines
 
             CALL INIT_DEGRADE( Y_DEGRADE, BLKTEMP, BLKDENS, RJBLK,
-     &                         NUMCELLS, JDATE, JTIME, LOGDEV, BLKID )
+     &                         NUMCELLS, JDATE, JTIME, BLKID )
 
          END IF
 
@@ -635,7 +588,7 @@ C initialize degradation routines
 
 #endif
 
-         CALL RBSOLVER( LOGDEV, JDATE, JTIME, CHEMSTEP, NCSP,
+         CALL RBSOLVER( JDATE, JTIME, CHEMSTEP, NCSP,
      &                  LIRRBLK, NIRRCLS, IRRCELL ) 
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc

@@ -17,12 +17,8 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/init/yamo/initscen.F,v 1.7 2011/10/21 16:11:24 yoj Exp $
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE INITSCEN ( CGRID, STDATE, STTIME, TSTEP, NSTEPS )
+      SUBROUTINE INITSCEN ( CGRID, TSTEP, NSTEPS )
 
 C-----------------------------------------------------------------------
 C Function:
@@ -35,7 +31,7 @@ C   Write initial conc data as step "0" on output conc file
 C Preconditions:
  
 C Subroutines and functions called:
-C   INIT3, M3EXIT, OPEN3, CLOSE3, DESC3, ENVINT, TIME2SEC, HHMMSS
+C   M3EXIT, OPEN3, CLOSE3, DESC3, TIME2SEC, HHMMSS
  
 C Revision history:
 C   prototype 6/92 by CJC for "concept model"
@@ -68,7 +64,7 @@ C   11 May 11 D.Wong: incorporated twoway model implementation
 C   Aug 15 D.Wong:    Added two new subroutine calls to open ACONC and WDEP files
 C   Dec 15 D.Wong: new routine wr_init to write the initial data to the CONC file
 C-----------------------------------------------------------------------
-
+      USE RUNTIME_VARS
       USE HGRD_DEFN             ! horizontal domain specifications
       USE CGRID_SPCS            ! CGRID mechanism species
       USE UTILIO_DEFN
@@ -89,8 +85,6 @@ C Arguments:
 
 !     REAL      :: CGRID( :,:,:,: )  ! for initial CONC
       REAL, POINTER :: CGRID( :,:,:,: )  ! for initial CONC
-      INTEGER      STDATE       ! starting date,    format YYYYDDD
-      INTEGER      STTIME       ! starting time,    format HHMMSS
       INTEGER      TSTEP( 3 )   ! time step vector (HHMMSS)
                                 ! TSTEP(1) = local output step
                                 ! TSTEP(2) = sciproc sync. step (chem)
@@ -103,30 +97,12 @@ C Parameters:
       REAL, PARAMETER :: CMIN = 1.0E-30
 
 C Local Variables
-
-C  environment variable start date
-      CHARACTER( 16 ) :: CTM_STDATE = 'CTM_STDATE'
-C  environment variable start time
-      CHARACTER( 16 ) :: CTM_STTIME = 'CTM_STTIME'
-C  environment variable run duration
-      CHARACTER( 16 ) :: CTM_RUNLEN = 'CTM_RUNLEN'
-C  environment variable output time step
-      CHARACTER( 16 ) :: CTM_TSTEP = 'CTM_TSTEP'
-C driver program name
-      CHARACTER( 16 ) :: CTM_PROGNAME = 'CTM_PROGNAME'
-C  environment variable description
-      CHARACTER( 80 ) :: VARDESC
-
       CHARACTER( 16 ) :: PNAME = 'INITSCEN'
       CHARACTER( 16 ) :: FNAME
-      CHARACTER( 16 ) :: PROGNAME
       CHARACTER( 96 ) :: MSG = ' '
 
-      INTEGER      RUNLEN            ! run duration, HHMMSS
       INTEGER      STEPSECS          ! seconds per time step
       INTEGER      TOTSECS           ! run duration seconds
-      INTEGER      LOGDEV            ! FORTRAN unit number for log file
-      INTEGER      STATUS            !  ENVINT status
 
 #ifdef Verbose3
       real sumcg
@@ -134,99 +110,26 @@ C  environment variable description
 #endif
 
       INTERFACE
-         SUBROUTINE LOAD_CGRID ( FNAME, STDATE, STTIME, SPC_CAT, CMIN, CGRID )
+         SUBROUTINE LOAD_CGRID ( FNAME, SPC_CAT, CMIN, CGRID )
             CHARACTER( 16 ), INTENT( IN ) :: FNAME
-            INTEGER, INTENT( IN )         :: STDATE, STTIME
             CHARACTER(  2 ), INTENT( IN ) :: SPC_CAT
             REAL,    INTENT( IN )         :: CMIN
             REAL, POINTER                 :: CGRID( :,:,:,: )
          END SUBROUTINE LOAD_CGRID
-         SUBROUTINE WR_INIT ( CGRID, STDATE, STTIME, TSTEP )
+         SUBROUTINE WR_INIT ( CGRID, JDATE, JTIME, TSTEP )
             REAL, POINTER                 :: CGRID(:,:,:,:)
-            INTEGER, INTENT( IN )         :: STDATE, STTIME, TSTEP
+            INTEGER, INTENT( IN )         :: JDATE
+            INTEGER, INTENT( IN )         :: JTIME
+            INTEGER, INTENT( IN )         :: TSTEP
          END SUBROUTINE WR_INIT
       END INTERFACE
 
 C-----------------------------------------------------------------------
 
-      LOGDEV = INIT3()
-
-      TSTEP( 1 )  = 010000         ! default
-      VARDESC = 'Scenario Output Time Step (HHMMSS)'
-      TSTEP( 1 ) = ENVINT( CTM_TSTEP, VARDESC, TSTEP( 1 ), STATUS )
-      IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-      IF ( STATUS .EQ. 1 ) THEN
-         MSG = 'Environment variable improperly formatted'
-         CALL M3EXIT( PNAME, STDATE, STTIME, MSG, XSTAT2 )
-      ELSE IF ( STATUS .EQ. -1 ) THEN
-         MSG = 'Environment variable set, but empty ... Using default:'
-         WRITE( LOGDEV, '(5X, A, I9)' ) MSG, STTIME
-      ELSE IF ( STATUS .EQ. -2 ) THEN
-         MSG = 'Environment variable not set ... Using default:'
-         WRITE( LOGDEV, '(5X, A, I9)' ) MSG, STTIME
-      END IF
+      TSTEP( 1 ) = LOCAL_TSTEP 
 
 #ifndef twoway
-      VARDESC = 'Main Program Name'
-      CALL ENVSTR( CTM_PROGNAME, VARDESC, 'DRIVER', PROGNAME, STATUS )
-      IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-      IF ( STATUS .EQ. 1 ) THEN
-         MSG = 'Environment variable improperly formatted'
-         CALL M3EXIT( PNAME, STDATE, STTIME, MSG, XSTAT2 )
-      ELSE IF ( STATUS .EQ. -1 ) THEN
-         MSG = 'Environment variable set, but empty ... Using default:'
-         WRITE( LOGDEV, '(5X, A, I9)' ) MSG, STTIME
-      ELSE IF ( STATUS .EQ. -2 ) THEN
-         MSG = 'Environment variable not set ... Using default:'
-         WRITE( LOGDEV, '(5X, A, I9)' ) MSG, STTIME
-      END IF
-
-      STDATE = 1995192        ! default
-      VARDESC = 'Scenario Starting Date (YYYYDDD)'
-      STDATE = ENVINT( CTM_STDATE, VARDESC, STDATE, STATUS )
-      IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-      IF ( STATUS .EQ. 1 ) THEN
-         MSG = 'Environment variable improperly formatted'
-         CALL M3EXIT( PNAME, STDATE, STTIME, MSG, XSTAT2 )
-      ELSE IF ( STATUS .EQ. -1 ) THEN
-         MSG = 'Environment variable set, but empty ... Using default:'
-         WRITE( LOGDEV, '(5X, A, I9)' ) MSG, STTIME
-      ELSE IF ( STATUS .EQ. -2 ) THEN
-         MSG = 'Environment variable not set ... Using default:'
-         WRITE( LOGDEV, '(5X, A, I9)' ) MSG, STTIME
-      END IF
-
-      STTIME = 000000         ! default
-      VARDESC = 'Scenario Starting Time (HHMMSS)'
-      STTIME = ENVINT( CTM_STTIME, VARDESC, STTIME, STATUS )
-      IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-      IF ( STATUS .EQ. 1 ) THEN
-         MSG = 'Environment variable improperly formatted'
-         CALL M3EXIT( PNAME, STDATE, STTIME, MSG, XSTAT2 )
-      ELSE IF ( STATUS .EQ. -1 ) THEN
-         MSG = 'Environment variable set, but empty ... Using default:'
-         WRITE( LOGDEV, '(5X, A, I9)' ) MSG, STTIME
-      ELSE IF ( STATUS .EQ. -2 ) THEN
-         MSG = 'Environment variable not set ... Using default:'
-         WRITE( LOGDEV, '(5X, A, I9)' ) MSG, STTIME
-      END IF
-
-      RUNLEN = 480000         ! default
-      VARDESC = 'Scenario Run Duration (HHMMSS)'
-      RUNLEN = ENVINT( CTM_RUNLEN, VARDESC, RUNLEN, STATUS )
-      IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-      IF ( STATUS .EQ. 1 ) THEN
-         MSG = 'Environment variable improperly formatted'
-         CALL M3EXIT( PNAME, STDATE, STTIME, MSG, XSTAT2 )
-      ELSE IF ( STATUS .EQ. -1 ) THEN
-         MSG = 'Environment variable set, but empty ... Using default:'
-         WRITE( LOGDEV, '(5X, A, I9)' ) MSG, STTIME
-      ELSE IF ( STATUS .EQ. -2 ) THEN
-         MSG = 'Environment variable not set ... Using default:'
-         WRITE( LOGDEV, '(5X, A, I9)' ) MSG, STTIME
-      END IF
-
-C Calculate number of output time steps for this model run:
+      ! Calculate number of output time steps for this model run:
       IF ( RUNLEN .LT. 1000000 ) THEN
          TOTSECS  = TIME2SEC( RUNLEN )
       ELSE
@@ -251,7 +154,7 @@ C Initialize the CGRID array
 C Load CGRID
       IF ( N_GC_SPC .GT. 0 ) THEN
          FNAME = INIT_GASC_1
-         CALL LOAD_CGRID ( FNAME, STDATE, STTIME, 'GC', CMIN, CGRID )
+         CALL LOAD_CGRID ( FNAME, 'GC', CMIN, CGRID )
 #ifdef Verbose3
          write( logdev,'(/"@@@c ", i8, i7.6)') stdate, sttime
          l = 1
@@ -270,70 +173,33 @@ C Load CGRID
 
 C load rhoj
       FNAME = MET_CRO_3D
-      CALL LOAD_CGRID ( FNAME, STDATE, STTIME, 'RJ', CMIN, CGRID )
+      CALL LOAD_CGRID ( FNAME, 'RJ', CMIN, CGRID )
 
 C Get aerosols IC's. Note: INIT_AERO_1 may be setenv'ed to INIT_GASC_1
       IF ( N_AE_SPC .GT. 0 ) THEN
          FNAME = INIT_AERO_1
-         CALL LOAD_CGRID ( FNAME, STDATE, STTIME, 'AE', CMIN, CGRID )
-#ifdef Verbose3
-         write( logdev,'(/"@@@c ", i8, i7.6)') stdate, sttime
-         l = 1
-         do v = ae_strt, ae_fini
-            s = v + 1 - ae_strt
-            sumcg = 0.0
-            do r = 1, my_nrows
-               do c = 1, my_ncols
-                  sumcg = sumcg + cgrid( c,r,l,v )
-               end do
-            end do
-            write( logdev,'("@@@c ", a, i5, g16.6)') ae_spc( s ), s, sumcg
-         end do
-#endif
+         CALL LOAD_CGRID ( FNAME, 'AE', CMIN, CGRID )
       END IF  ! N_AE_SPC > 0
 
 C Get non-reactives IC's. Note: INIT_NONR_1 may be setenv'ed to INIT_GASC_1
       IF ( N_NR_SPC .GT. 0 ) THEN
          FNAME = INIT_NONR_1
-         CALL LOAD_CGRID ( FNAME, STDATE, STTIME, 'NR', CMIN, CGRID )
-#ifdef Verbose3
-         write( logdev,'(/"@@@c ", i8, i7.6)') stdate, sttime
-         l = 1
-         do v = nr_strt, nr_fini
-            s = v + 1 - nr_strt
-            sumcg = 0.0
-            do r = 1, my_nrows
-               do c = 1, my_ncols
-                  sumcg = sumcg + cgrid( c,r,l,v )
-               end do
-            end do
-            write( logdev,'("@@@c ", a, i5, g16.6)') nr_spc( s ), s, sumcg
-         end do
-#endif
+         CALL LOAD_CGRID ( FNAME, 'NR', CMIN, CGRID )
       END IF  ! N_NR_SPC > 0
 
 C Get tracer IC's. Note: INIT_TRAC_1 may be setenv'ed to INIT_GASC_1
       IF ( N_TR_SPC .GT. 0 ) THEN
          FNAME = INIT_TRAC_1
-         CALL LOAD_CGRID ( FNAME, STDATE, STTIME, 'TR', CMIN, CGRID )
-#ifdef Verbose3
-         write( logdev,'(/"@@@c ", i8, i7.6)') stdate, sttime
-         l = 1
-         do v = tr_strt, tr_fini
-            s = v + 1 - tr_strt
-            sumcg = 0.0
-            do r = 1, my_nrows
-               do c = 1, my_ncols
-                  sumcg = sumcg + cgrid( c,r,l,v )
-               end do
-            end do
-            write( logdev,'("@@@c ", a, i5, g16.6)') tr_spc( s ), s, sumcg
-         end do
-#endif
+         CALL LOAD_CGRID ( FNAME, 'TR', CMIN, CGRID )
       END IF  ! N_TR_SPC > 0
 
 C Test opening existing conc file for update
+      CALL LOG_HEADING( LOGDEV, "Open or Create Concentration File" )
+
       IF ( .NOT. OPEN3( CTM_CONC_1, FSRDWR3, PNAME ) ) THEN
+#ifndef twoway
+         BACKSPACE( LOGDEV )
+#endif
          MSG = 'Could not open ' // TRIM( CTM_CONC_1 ) // ' for update - '
      &        // 'try to open new'
          CALL M3MESG( MSG )
@@ -344,10 +210,16 @@ C Test opening existing conc file for update
       END IF
 
       CALL WR_INIT ( CGRID, STDATE, STTIME, TSTEP( 1 ) )
+      
+      CALL LOG_HEADING( LOGDEV, "Open or Create Average Concentration File" )
       CALL OPACONC ( STDATE, STTIME, TSTEP( 1 ) )
+      
+      CALL LOG_HEADING( LOGDEV, "Open or Create Wet Deposition File" )
       CALL OPWDEP  ( STDATE, STTIME, TSTEP( 1 ) )
 
       CALL SUBST_BARRIER
+      
+      CALL LOG_HEADING( LOGDEV, "Check Initial Concentrations" )
 
       RETURN
       END

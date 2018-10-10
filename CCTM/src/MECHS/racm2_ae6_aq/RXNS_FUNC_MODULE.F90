@@ -147,7 +147,7 @@
        END FUNCTION FALLOFF_T11
        REAL( 8 ) FUNCTION HALOGEN_FALLOFF(PRESS,A1,B1,A2,B2)
          IMPLICIT NONE
-         REAL( 8 ), PARAMETER    :: MAX_RATE = 2.4D-06  ! Maximum loss rate (1/sec)
+         REAL( 8 ), PARAMETER    :: MAX_RATE = 2.6750D-06  ! Maximum loss rate (1/sec)
          REAL( 8 ), INTENT( IN ) :: PRESS
          REAL( 8 ), INTENT( IN ) :: A1
          REAL( 8 ), INTENT( IN ) :: B1
@@ -329,8 +329,8 @@
 
                 IF( .NOT. LAND( NCELL ) )THEN
 !  Reaction Label HAL_Ozone       
-                   RKI( NCELL,  380) =  SFACT * HALOGEN_FALLOFF( BLKPRES( NCELL ),   1.0000D-40,   7.8426D+01,  & 
-     &                                                           4.0582D-09,         5.8212D+00 )
+                   RKI( NCELL,  380) =  SFACT * HALOGEN_FALLOFF( BLKPRES( NCELL ),   2.8964D-11,   1.1998D+01,  & 
+     &                                                           0.0000D+00,         0.0000D+00 )
                 END IF
 
             END DO 
@@ -1221,7 +1221,6 @@
             INTEGER J1, J2              ! SURROGATE TYPE 2 COUNTERS
             INTEGER K1, K2, K3, K4, K5  ! CONTROL TYPE COUNTERS
             INTEGER ICALL
-            INTEGER LOGDEV
 
             LOGICAL :: ORDER = .TRUE.
             LOGICAL :: FOUND = .TRUE.
@@ -1241,7 +1240,6 @@
             IF( INITIALIZED )RETURN
 
             INITIALIZED = .TRUE.
-            LOGDEV      =  INIT3()
             SUCCESS     = .TRUE.
 
 

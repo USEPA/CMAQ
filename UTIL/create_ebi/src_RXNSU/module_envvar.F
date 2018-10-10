@@ -1,6 +1,8 @@
 
       MODULE ENV_VARS
 
+      USE GET_ENV_FUNCTIONS           ! routines that retrieve environment data
+
       IMPLICIT NONE
       
       CHARACTER(  15 )  :: CR_DATE     ! Run date
@@ -34,7 +36,8 @@
       LOGICAL  :: LNO2EX_CYCLE         ! Flag for to include NO2EX cycle in groups 1 & 2
       LOGICAL  :: LDEGRADE_SUBS        ! Flag for include degrade codes for HAPs
 
-
+      REAL     :: TIME_STEP = 2.5      ! maximum solver time step in minutes
+      
       INTEGER, PARAMETER :: LOGDEV = 6
       
       CONTAINS
@@ -58,21 +61,15 @@ C                             of NO2EX cycle in Groups 1 and 2
 C                   
 C*************************************************************************
 
-
-!       USE M3UTILIO           ! IOAPI parameters and functions declarations
-
         IMPLICIT NONE
 
-C..INCLUDES:  
-!         INCLUDE SUBST_IOPARMS   ! IOAPI parameters
-!         INCLUDE SUBST_IODECL    ! IOAPI declarations
+C..INCLUDES: None
       
 C..ARGUMENTS: None
     
 C..PARAMETERS: None
 
-C..EXTERNAL FUNCTIONS:
-
+C..EXTERNAL FUNCTIONS: None
 
 C..SAVED LOCAL VARIABLES: None
 
@@ -99,6 +96,7 @@ c........env var names
          CHARACTER(  16 ) :: PAR_NEG_FLAG  = 'PAR_NEG_FLAG'
          CHARACTER(  16 ) :: NO2EX_FLAG    = 'NO2EX_CYCLE'
          CHARACTER(  16 ) :: DEGRADE_SUBS  = 'DEGRADE_SUBS'
+         CHARACTER(  16 ) :: SOLVER_DELT   = 'SOLVER_DELT'
 
          INTEGER :: EPOS                  ! String end position
          INTEGER :: STATUS                ! Status code
@@ -107,7 +105,7 @@ c........env var names
 
          LOGICAL :: LERROR                ! Error Flag
 
-
+         REAL    :: DELT         
 C**********************************************************************
 
 
@@ -115,28 +113,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Get the time and date to be used as the time stamp for all outputs;
 c  Convert from GMT to EDT or EST
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-!      CALL GETDTTIME( IDATE, ITIME )
-
- !     IF( ISDSTIME( IDATE ) ) THEN
- !        CALL NEXTIME( IDATE, ITIME, -40000 )
-         TZ = ' EDT '
- !     ELSE
- !        CALL NEXTIME( IDATE, ITIME, -50000 )
- !       TZ = ' EST '
- !     END IF
-
-!      TIMNDAT = DT2STR( IDATE, ITIME )
-
-!      CR_DATE = ADJUSTL( TIMNDAT( 10 : 24 ) )
 
        CALL GET_DDMONYY(CR_DATE)
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c Get flags for versions of mechanism to create
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          L_ALL_MECHS  = .FALSE.
-!         ENV_DESC = 'Flag do all mechanisms or one'
-!         L_ALL_MECHS = ENVYN( ALL_MECHS, ENV_DESC, L_ALL_MECHS, STATUS )
-
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c Get names to use for the mechanism
@@ -220,6 +202,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          LNO2EX_CYCLE  = .FALSE.
          ENV_DESC = 'Flag to include PAR negative stoichiometry'
          LNO2EX_CYCLE  = GET_ENV_FLAG( NO2EX_FLAG, ENV_DESC, LNO2EX_CYCLE, STATUS )
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Get the value for maximum solver timestep
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+         ENV_DESC  = 'Maximum EBI Solver TimeStep (minutes)'
+         TIME_STEP = GET_ENV_REAL( SOLVER_DELT, ENV_DESC, TIME_STEP, STATUS )
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Get the mechanism names for group species
@@ -400,139 +388,4 @@ c         LERROR = .FALSE.
      &           / A / 1X )
 
          END SUBROUTINE GET_ENVS
-         SUBROUTINE GET_ENV_STRING( VAR_NAME, VAR_DESC, VAR_DEFAULT, VAR_VALUE, STATUS )
-           IMPLICIT NONE
-!arguments
-           CHARACTER*(*), INTENT(  IN ) :: VAR_NAME
-           CHARACTER*(*), INTENT(  IN ) :: VAR_DESC
-           CHARACTER*(*), INTENT(  IN ) :: VAR_DEFAULT
-           CHARACTER*(*), INTENT( OUT ) :: VAR_VALUE
-           INTEGER,       INTENT( OUT ) :: STATUS 
-!local
-           CHARACTER( 120 ) :: MSG         ! Message text
-
-           CALL GET_ENVIRONMENT_VARIABLE( NAME=VAR_NAME, VALUE= VAR_VALUE, STATUS=STATUS, TRIM_NAME=.TRUE.)
-
-           IF( STATUS .LT. 0 ) THEN
-              MSG = 'ERROR in environment value for ' // TRIM( VAR_NAME )
-              WRITE(LOGDEV,'(a)')TRIM( MSG )
-           ELSE IF( STATUS .EQ. 1 )THEN
-              STATUS  = -1
-              VAR_VALUE = TRIM( VAR_DEFAULT ) 
-           ELSE IF( STATUS .GT. 1 )THEN
-              STATUS  = 1
-              MSG = 'ERROR in environment value for ' // TRIM( VAR_NAME )
-              WRITE(LOGDEV,'(a)')TRIM( MSG )
-              MSG = 'ERROR Processor does not support environment variables '
-              WRITE(LOGDEV,'(a)')
-           END IF
-           IF( STATUS .EQ. 0 )THEN
-               MSG = '     Value for ' // TRIM( VAR_NAME ) // ': ' // TRIM( VAR_VALUE )
-               WRITE(LOGDEV,'(a)')TRIM( MSG )
-           END IF
-
-         END SUBROUTINE GET_ENV_STRING
-         LOGICAL FUNCTION GET_ENV_FLAG( VAR_NAME, VAR_DESC, VAR_DEFAULT, STATUS )
-           IMPLICIT NONE
-!arguments
-           CHARACTER*(*), INTENT(  IN ) :: VAR_NAME
-           CHARACTER*(*), INTENT(  IN ) :: VAR_DESC
-           LOGICAL,       INTENT(  IN ) :: VAR_DEFAULT
-           INTEGER,       INTENT( OUT ) :: STATUS 
-!local
-           CHARACTER( 120 ) :: MSG         ! Message text
-           CHARACTER(  1  ) :: VAR_VALUE
-           CHARACTER(  5  ) :: REPLY
-
-           CALL GET_ENVIRONMENT_VARIABLE( NAME=VAR_NAME, VALUE= VAR_VALUE, STATUS=STATUS, TRIM_NAME=.TRUE.)
-
-           IF( STATUS .LT. 0 ) THEN
-              MSG = 'ERROR in environment value for ' // TRIM( VAR_NAME )
-              WRITE(LOGDEV,'(a)')TRIM( MSG )
-              STATUS = 1
-           ELSE IF( STATUS .EQ. 1 )THEN
-              STATUS  = -1
-              GET_ENV_FLAG = VAR_DEFAULT
-           ELSE IF( STATUS .GT. 1 )THEN
-              STATUS  = 1
-              MSG = 'ERROR in environment value for ' // TRIM( VAR_NAME )
-              WRITE(LOGDEV,'(a)')TRIM( MSG )
-              MSG = 'ERROR Processor does not support environment variables '
-              WRITE(LOGDEV,'(a)')
-           ELSE
-              STATUS = 0 
-              IF( VAR_VALUE(1:1) .EQ. 'T' .OR. VAR_VALUE(1:1) .EQ. 'Y' )THEN
-                  GET_ENV_FLAG = .TRUE.
-              ELSE IF( VAR_VALUE(1:1) .EQ. 't' .OR. VAR_VALUE(1:1) .EQ. 'y' )THEN
-                  GET_ENV_FLAG = .TRUE.
-              ELSE IF(  VAR_VALUE(1:1) .EQ. 'F' .OR. VAR_VALUE(1:1) .EQ. 'N' )THEN
-                  GET_ENV_FLAG = .FALSE.
-              ELSE IF(  VAR_VALUE(1:1) .EQ. 'f' .OR. VAR_VALUE(1:1) .EQ. 'n' )THEN
-                  GET_ENV_FLAG = .FALSE.
-              ELSE 
-                  WRITE(LOGDEV,' (A,L)')'Environment Variable '
-     &            // TRIM( VAR_NAME ) // ' must equal T, Y, F, or N.'
-     &            // ' Using default value of ',VAR_DEFAULT
-                  STATUS = -1
-                  GET_ENV_FLAG = VAR_DEFAULT
-              END IF
-           END IF
-           IF( STATUS .EQ. 0 )THEN
-              IF( GET_ENV_FLAG )THEN
-                  REPLY = 'TRUE '
-              ELSE
-                  REPLY = 'FALSE'
-              END IF
-              WRITE(MSG,'(a,L1,a)')'     Value for ' // TRIM( VAR_NAME ) // ': ',GET_ENV_FLAG,
-     &        ' returning ' // REPLY
-              WRITE(LOGDEV,'(a)')TRIM( MSG )
-           END IF 
-
-         END FUNCTION GET_ENV_FLAG
-         SUBROUTINE GET_DDMONYY(DATE)
-
-            IMPLICIT NONE
-            CHARACTER(*), INTENT(INOUT) :: DATE
-
-            CHARACTER( 2 ) :: DD
-            CHARACTER( 3 ) :: MONS(1:12)
-            CHARACTER( 4 ) :: YYYY
-            INTEGER        :: STIME, VALUES(8)
-
-            MONS = (/'Jan','Feb','Mar','Apr','May','Jun',
-     &               'Jul','Aug','Sep','Oct','Nov','Dec' /)
-
-           CALL DATE_AND_TIME(VALUES=VALUES)
-
-           WRITE(  DD,'(I2)') VALUES(3)
-!          DD = '00' 
-           WRITE(YYYY,'(I4)') (0 + VALUES(1))
-
-          PRINT*,MONS(VALUES(2)) // DD // YYYY(1:4) 
-          DATE = MONS(VALUES(2)) // ' ' // DD // ', ' // YYYY(1:4)
-
-        END SUBROUTINE GET_DDMONYY
-        INTEGER FUNCTION NAME_INDEX( NAME, N_NAMES, NAMES )
-           IMPLICIT NONE
-         
-           CHARACTER(*), INTENT( IN ) :: NAME
-           CHARACTER(*), INTENT( IN ) :: NAMES( : )
-           INTEGER,      INTENT( IN ) :: N_NAMES
-
-           INTEGER :: N,M
-
-           NAME_INDEX = 0
-
-           M =  SIZE( NAMES )
-           IF( M .LT. 1 )RETURN
-
-           DO N = 1, M
-              IF( NAME .EQ. NAMES( N ) )THEN
-                  NAME_INDEX = N
-                  RETURN
-              END IF
-           END DO
-           RETURN
-         END FUNCTION NAME_INDEX
-
       END MODULE ENV_VARS

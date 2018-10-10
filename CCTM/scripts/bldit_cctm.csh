@@ -1,6 +1,6 @@
 #!/bin/csh -f
 
-# ====================== CCTMv5.2.1 Build Script ======================== 
+# ======================= CCTMv5.3 Build Script ========================= 
 # Usage: bldit.cctm >&! bldit.cctm.log                                   
 # Requirements: I/O API & netCDF libraries, a Fortran compiler,               
 #               and MPI for multiprocessor computing                     
@@ -34,13 +34,13 @@
 # =======================================================================
 
 #> Source Code Locations
- setenv CCTM_SRC ${CMAQ_REPO}/CCTM/src   #> location of the CCTM source code
+ setenv CCTM_SRC ${CMAQ_REPO}/CCTM/src #> location of the CCTM source code
  set GlobInc = $CCTM_SRC/ICL           #> location of the global include files
  set Mechs   = $CCTM_SRC/MECHS         #> location of the chemistry mechanism include files
  setenv REPOROOT $CCTM_SRC
 
 #> Working directory and Version IDs
- set VRSN  = v521                    #> model configuration ID
+ set VRSN  = v53                       #> model configuration ID
  set EXEC  = CCTM_${VRSN}.exe          #> executable name
  set CFG   = CCTM_${VRSN}.cfg          #> configuration file name
 
@@ -79,11 +79,13 @@ set ParOpt                             #> uncomment to build a multiple processo
  set ModGrid   = grid/cartesian        #> grid configuration module 
  set ModCpl    = couple/gencoor_wrf    #> unit conversion and concentration coupling module 
                                        #>     (see $CMAQ_MODEL/CCTM/src/couple)
+ set DepMod    = m3dry                 #> m3dry or stage
+#set DepMod    = stage
  set ModHadv   = hadv/yamo             #> horizontal advection module
  set ModVadv   = vadv/wrf              #> vertical advection module (see $CMAQ_MODEL/CCTM/src/vadv)
  set ModHdiff  = hdiff/multiscale      #> horizontal diffusion module
- set ModVdiff  = vdiff/acm2            #> vertical diffusion module (see $CMAQ_MODEL/CCTM/src/vdiff)
- set ModDepv   = depv/m3dry            #> deposition velocity calculation module 
+ set ModVdiff  = vdiff/acm2_${DepMod}  #> vertical diffusion module (see $CMAQ_MODEL/CCTM/src/vdiff)
+ set ModDepv   = depv/${DepMod}        #> deposition velocity calculation module 
                                        #>     (see $CMAQ_MODEL/CCTM/src/depv)
  set ModEmis   = emis/emis             #> in-line emissions module
  set ModBiog   = biog/beis3            #> BEIS3 in-line emissions module 
@@ -92,17 +94,19 @@ set ParOpt                             #> uncomment to build a multiple processo
                                        #>     (see $CMAQ_MODEL/CCTM/src/spcs)
  set ModPhot   = phot/inline           #> photolysis calculation module 
                                        #>     (see $CMAQ_MODEL/CCTM/src/phot)
- set Mechanism = cb6r3_ae7_aq        #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS)
+ set Mechanism = cb6r3_ae7_aq          #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS)
  set ModGas    = gas/ebi_${Mechanism}  #> gas-phase chemistry solver (see $CMAQ_MODEL/CCTM/src/gas)
+                                       #> use gas/ros3 or gas/smvgear for a solver independent 
+                                       #  of the photochemical mechanism
  set ModAero   = aero/aero7            #> aerosol chemistry module (see $CMAQ_MODEL/CCTM/src/aero)
  set ModCloud  = cloud/acm_ae7         #> cloud chemistry module (see $CMAQ_MODEL/CCTM/src/cloud)
+                                       #>   overwritten below if using cb6r3m_ae7_kmtbr mechanism
  set ModUtil   = util/util             #> CCTM utility modules
  set ModDiag   = diag                  #> CCTM diagnostic modules
  set Tracer    = trac0                 #> tracer configuration directory under 
                                        #>   $CMAQ_MODEL/CCTM/src/MECHS [ default: no tracer species ]
- set ModPa     = procan/pa             #> name of process analysis. Include files are in directory 
-                                       #>   $CMAQ_MODEL/CCTM/src/ICL
- set ModPvO3   = pv_o3                 #> potential vorticity from the free troposphee
+ set ModPa     = procan/pa             #> CCTM process analysis
+ set ModPvO3   = pv_o3                 #> potential vorticity from the free troposphere
 
 #============================================================================================
 #> Computing System Configuration:
@@ -115,20 +119,20 @@ set ParOpt                             #> uncomment to build a multiple processo
  setenv BLDER ${CMAQ_HOME}/UTIL/bldmake/bldmake_${compilerString}.exe   #> name of model builder executable
 
 #> Libraries/include files
-# set LIOAPI   = "${IOAPI_DIR}/lib ${ioapi_lib}"      #> I/O API library directory
-# set IOAPIMOD = "${IOAPI_DIR}/include"               #> I/O API module directory
+#set LIOAPI   = "${IOAPI_DIR}/lib ${ioapi_lib}"      #> I/O API library directory
+#set IOAPIMOD = "${IOAPI_DIR}/include"               #> I/O API module directory
  set NETCDF   = "${NETCDF_DIR}/lib ${netcdf_lib}"    #> netCDF library directory
  set PNETCDF  = "${PNETCDF_DIR}/lib ${pnetcdf_lib}"  #> Parallel netCDF library directory
-# set PIO_INC  = "${IOAPI_DIR}/src"
+#set PIO_INC  = "${IOAPI_DIR}/src"
 
 #> Compiler flags set in config.cmaq
  set FSTD       = "${myFSTD}"
  set DBG        = "${myDBG}"
- setenv F_FLAGS   "${myFFLAGS}"  #> F77 flags
- set F90_FLAGS  = "${myFRFLAGS}" #> F90 flags
- set CPP_FLAGS  = "" #> Fortran preprocessor flags
+ setenv F_FLAGS   "${myFFLAGS}"            #> F77 flags
+ set F90_FLAGS  = "${myFRFLAGS}"           #> F90 flags
+ set CPP_FLAGS  = ""                       #> Fortran preprocessor flags
  set C_FLAGS    = "${myCFLAGS} -DFLDMN -I" #> C flags
- set LINK_FLAGS = "${myLINK_FLAG}" # Link flags
+ set LINK_FLAGS = "${myLINK_FLAG}"         # Link flags
 
 
 #============================================================================================
@@ -216,9 +220,9 @@ set ParOpt                             #> uncomment to build a multiple processo
 #> Mechanism location
  set ModMech = MECHS/$Mechanism        #> chemical mechanism module
 
-#> Gas-phase chemistry solver options
- if ( $Mechanism == saprc07tic_ae6i_aqkmti ) then
-    set ModGas = gas/ebi_saprc07tic_ae6i_aq
+#> Cloud chemistry options
+ if ( $Mechanism == cb6r3m_ae7_kmtbr ) then
+    set ModCloud = cloud/acm_ae7_kmtbr
  endif
 
 #> Tracer configuration files
@@ -244,12 +248,12 @@ set ParOpt                             #> uncomment to build a multiple processo
  endif
  cd $Bld
 
-#> Set locations for the inlude files of various modules
+#> Set locations for the include files of various modules
  set ICL_PAR   = $GlobInc/fixed/mpi         
  set ICL_CONST = $GlobInc/fixed/const       
  set ICL_FILES = $GlobInc/fixed/filenames
  set ICL_EMCTL = $GlobInc/fixed/emctrl
- #set ICL_PA    = $GlobInc/procan/$PAOpt
+#set ICL_PA    = $GlobInc/procan/$PAOpt
 
  #Test with xlib commented out
  if ( $?ParOpt ) then
@@ -321,7 +325,7 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo "lib_2       ioapi/include_files;"                           >> $Cfile
  echo                                                              >> $Cfile
  if ( $?ParOpt ) then
-    echo "lib_3       ${quote}mpi -I.$quote;"              >> $Cfile
+    echo "lib_3       ${quote}mpi -I.$quote;"                      >> $Cfile
     echo                                                           >> $Cfile
  endif
  echo                                                              >> $Cfile
@@ -427,12 +431,12 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo "Module ${ModHdiff};"                                        >> $Cfile
  echo                                                              >> $Cfile
 
- set text = "acm2"
+ set text = "acm2_m3dry or acm2_stage"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModVdiff};"                                        >> $Cfile
  echo                                                              >> $Cfile
 
- set text = "m3dry"
+ set text = "m3dry or stage"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModDepv};"                                         >> $Cfile
  echo                                                              >> $Cfile
@@ -469,8 +473,7 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo "Module ${ModGas};"                                          >> $Cfile
  echo                                                              >> $Cfile
 
- set MechList = " cb05e51_ae6_aq, cb05e51_ae6nvPOA_aq, cb05eh51_ae6_aq, cb05mp51_ae6_aq, cb05tucl_ae6_aq, cb05tump_ae6_aq, cb6r3_ae6_aq, cb6r3_ae7_aq, cb6r3_ae6nvPOA_aq, racm2_ae6_aq, saprc07tb_ae6_aq, saprc07tc_ae6_aq, saprc07tc_ae6nvPOA_aq, saprc07tic_ae6i_aq, saprc07tic_ae6i_aqkmti, saprc07tic_ae6invPOA_aq"
-
+ set MechList = " cb6mp_ae6_aq, cb6r3_ae6_aq, cb6r3_ae7_aq, cb6r3_ae7_aqkmt2, cb6r3m_ae7_kmtbr, racm2_ae6_aq, saprc07tc_ae6_aq, saprc07tic_ae6i_aq, saprc07tic_ae6i_aqkmti, saprc07tic_ae7i_aq, saprc07tic_ae7i_aqkmt2"
  set text = "gas chemistry mechanisms"
  echo "// " $text                                                  >> $Cfile
  set text = "$MechList"
@@ -496,7 +499,7 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo "Module ${ModAero};"                                         >> $Cfile
  echo                                                              >> $Cfile
 
- set text = "acm_ae6, acm_ae6_kmt, and acm_ae6_mp, acm_ae7"
+ set text = "acm_ae6, acm_ae6_kmt, acm_ae7_kmt2, acm_ae6_mp, acm_ae7"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModCloud};"                                        >> $Cfile
  echo                                                              >> $Cfile

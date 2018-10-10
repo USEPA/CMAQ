@@ -17,10 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/procan/pa/pa_mkhdr.F,v 1.5 2011/10/21 16:11:33 yoj Exp $
-
 C=======================================================================
       SUBROUTINE PA_MKHDR ( TYPE, NFL, OUTFNAME, SDATE, STIME, TSTEP )
 
@@ -135,11 +131,11 @@ C..Find the IPR species to set correct units descriptor
             IF ( ICG .GE. AE_STRT .AND. ICG .LT. NR_STRT ) THEN
                AE_INDX = ICG - AE_STRT + 1
                IF ( AE_SPC( AE_INDX ) ( 1 : 3 ) .EQ. 'NUM' ) THEN
-                  UNITS3D( NOUT ) = 'number/m**3'
+                  UNITS3D( NOUT ) = 'm-3'
                ELSE IF ( AE_SPC( AE_INDX ) ( 1 : 3 ) .EQ. 'SRF' ) THEN
-                  UNITS3D( NOUT ) = 'm**2/m**3'
+                  UNITS3D( NOUT ) = 'm2 m-3'
                ELSE
-                  UNITS3D( NOUT ) = 'micrograms/m**3'
+                  UNITS3D( NOUT ) = 'ug m-3'
                END IF
             END IF
 
@@ -155,7 +151,7 @@ C..Find the IPR species to set correct units descriptor
             VARINDX = ( NFL - 1 ) * MXVARS3 + NOUT
             VNAME3D( NOUT ) = IRRNAME( VARINDX )
             VTYPE3D( NOUT ) = M3REAL
-            UNITS3D( NOUT ) = 'ppm'
+            UNITS3D( NOUT ) = 'ppmV'
             VDESC3D( NOUT ) = IRRDESC( VARINDX )
          END DO
 

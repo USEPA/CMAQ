@@ -17,12 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header$
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
       REAL FUNCTION HLCONST ( CNAME, TEMP, EFFECTIVE, HPLUS )
 
 C-----------------------------------------------------------------------
@@ -97,6 +91,7 @@ C       3. removed dissociation  calculation for formaldedhyde because the liste
 C          is already an effective rate (Sander ACP, 2015, note 187)
 C       4. added dissociation constant for acrylic acid (LACRYACID) (via B. Hutzell)
 C  H.Pye       06/2017  added semivolatile monoterpene products
+C  G.Sarwar    08/2018  added Henry's Law constant for ClNO3, FMBR, IBR, and updated iodine and bromine species
 C-----------------------------------------------------------------------
 
       USE UTILIO_DEFN
@@ -115,7 +110,7 @@ C...........INCLUDES and their descriptions
 
 C...........PARAMETERS and their descriptions:
 
-      INTEGER, PARAMETER :: MXSPCS = 208     ! Number of substances
+      INTEGER, PARAMETER :: MXSPCS = 215     ! Number of substances
       INTEGER, PARAMETER :: MXDSPCS = 19     ! Number of dissociating species
 
 C...pointers for the dissociation constants (array B and D)
@@ -344,25 +339,26 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA SUBNAME(163), A(163), E(163) / 'I               ', 6.30E-03, 2.3E+03 /   ! ROLF SANDERS COMPILATION (1999)/Berdnikov and Bazhin (1970)
       DATA SUBNAME(164), A(164), E(164) / 'IO              ', 4.50E+02, 0.0E+00 /   ! Saiz-Lopez et al., ACPD, 2014
       DATA SUBNAME(165), A(165), E(165) / 'OIO             ', 1.00E+04, 0.0E+00 /   ! Saiz-Lopez et al., ACPD, 2014
-      DATA SUBNAME(166), A(166), E(166) / 'I2O2            ', 1.00E+04, 0.0E+00 /   ! Saiz-Lopez et al., ACPD, 2014
-      DATA SUBNAME(167), A(167), E(167) / 'I2O3            ', 1.00E+04, 0.0E+00 /   ! Saiz-Lopez et al., ACPD, 2014
-      DATA SUBNAME(168), A(168), E(168) / 'I2O4            ', 1.00E+04, 0.0E+00 /   ! Saiz-Lopez et al., ACPD, 2014
+      DATA SUBNAME(166), A(166), E(166) / 'I2O2            ', 1.00E+30, 0.0E+00 /   ! Sherwen et al., 2016
+      DATA SUBNAME(167), A(167), E(167) / 'I2O3            ', 1.00E+30, 0.0E+00 /   ! Sherwen et al., 2016
+      DATA SUBNAME(168), A(168), E(168) / 'I2O4            ', 1.00E+30, 0.0E+00 /   ! Sherwen et al., 2016
       DATA SUBNAME(169), A(169), E(169) / 'HI              ', 2.50E+00, 5.3E+03 /   ! Schweitzer et al. (2000)
-      DATA SUBNAME(170), A(170), E(170) / 'HOI             ', 4.10E+02, 0.0E+00 /   ! ROLF SANDERS COMPILATION (1999)/Palmer et al. (1985)
+      DATA SUBNAME(170), A(170), E(170) / 'HOI             ', 1.53E+04, 8.3E+03 /   ! Sherwen et al., 2016      
 
       DATA SUBNAME(171), A(171), E(171) / 'INO             ', 5.00E-02, 0.0E+00 /   ! Same as ClNO which is from ROLF SANDERS COMPILATION (1999)/Scheer et al. (1997)
       DATA SUBNAME(172), A(172), E(172) / 'INO2            ', 3.00E-01, 0.0E+00 /   ! Same as BRNO2 which is from ROLF SANDERS COMPILATION (1999)/Frenzel et al. (1998)
-      DATA SUBNAME(173), A(173), E(173) / 'IONO2           ', 1.00E+06, 0.0E+00 /   ! Same as BRONO2; BRONO2 from Ordonez et al. (2012)
+      DATA SUBNAME(173), A(173), E(173) / 'INO3            ', 1.00E+30, 0.0E+00 /   ! Same as BRNO3; BRNO3 from Sander (2015)      
       DATA SUBNAME(174), A(174), E(174) / 'CH3I            ', 1.40E-01, 4.3E+03 /   ! ROLF SANDERS COMPILATION (1999)/Moore et al. (1995)
       DATA SUBNAME(175), A(175), E(175) / 'MIC             ', 8.90E-01, 4.3E+03 /   ! ROLF SANDERS COMPILATION (1999)/Moore et al. (1995)
       DATA SUBNAME(176), A(176), E(176) / 'MIB             ', 8.90E-01, 4.3E+03 /   ! Same as MIC, Final Report to TCEQ, Environ International, 2012
       DATA SUBNAME(177), A(177), E(177) / 'MI2             ', 2.30E+00, 5.0E+03 /   ! ROLF SANDERS COMPILATION (1999)/Moore et al. (1995)
 
       DATA SUBNAME(178), A(178), E(178) / 'BRO             ', 7.10E-01, 0.0E+00 /   ! Parrella et al. (2012)
-      DATA SUBNAME(179), A(179), E(179) / 'HOBR            ', 6.10E+03, 6.0E+03 /   ! Parrella et al. (2012)
-      DATA SUBNAME(180), A(180), E(180) / 'HBR             ', 7.50E-01, 5.0E+03 /   ! Schweitzer et al. (2000)
-      DATA SUBNAME(181), A(181), E(181) / 'BR2             ', 1.80E+00, 3.3E+03 /   ! ROLF SANDERS COMPILATION (1999)/Dubik et al. (1987)
-      DATA SUBNAME(182), A(182), E(182) / 'BRONO2          ', 1.00E+06, 0.0E+00 /   ! Ordonez et al. (2012)
+      DATA SUBNAME(179), A(179), E(179) / 'HOBR            ', 6.10E+03, 6.0E+03 /   ! Sherwen et al., 2016
+      DATA SUBNAME(180), A(180), E(180) / 'HBR             ', 7.50E-01, 6.1E+03 /   ! A from Schweitzer et al. (2000) and E from Chmeides and Stelson (1992) - ROLF SANDERS COMPILATION (1999)
+      DATA SUBNAME(181), A(181), E(181) / 'BR2             ', 7.60E-01, 4.1E+03 /   ! Dean et al. (1992)
+      DATA SUBNAME(182), A(182), E(182) / 'BRNO3           ', 1.00E+30, 0.0E+00 /   ! Sander (2015)
+
       DATA SUBNAME(183), A(183), E(183) / 'MB3             ', 1.40E+00, 5.0E+03 /   ! ROLF SANDERS COMPILATION (1999)/Moore et al. (1995)
       DATA SUBNAME(184), A(184), E(184) / 'CH3BR           ', 1.50E-01, 0.0E+00 /   ! ROLF SANDERS COMPILATION (1999)/Yaws and Yang et al. (1992)
       DATA SUBNAME(185), A(185), E(185) / 'MB2             ', 9.30E-01, 4.4E+03 /   ! ROLF SANDERS COMPILATION (1999)/Moore et al. (1995)
@@ -370,8 +366,9 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA SUBNAME(187), A(187), E(187) / 'MBC2            ', 4.00E-01, 4.7E+03 /   ! ROLF SANDERS COMPILATION (1999)/Moore et al. (1995)
       DATA SUBNAME(188), A(188), E(188) / 'MBC             ', 8.90E-01, 4.3E+03 /   ! Same as MIC
       DATA SUBNAME(189), A(189), E(189) / 'BRNO2           ', 3.00E-01, 0.0E+00 /   ! Frenzel et al. (1998)
-      DATA SUBNAME(190), A(190), E(190) / 'BRCL            ', 5.90E-01, 0.0E+00 /   ! Frenzel et al. (1998)
-      DATA SUBNAME(191), A(191), E(191) / 'ICL             ', 1.10E+02, 0.0E+00 /   ! Wagman et al. (1982)
+      DATA SUBNAME(190), A(190), E(190) / 'BRCL            ', 9.70E-01, 0.0E+00 /   ! Sherwen et al., 2016
+      DATA SUBNAME(191), A(191), E(191) / 'ICL             ', 1.10E+02, 2.1E+03 /   ! Sherwen et al., 2016
+
       DATA SUBNAME(192), A(192), E(192) / 'DMS             ', 4.80E-01, 3.1E+03 /   ! ROLF SANDERS COMPILATION (1999)/De Bryuyn et al. (1995)
       DATA SUBNAME(193), A(193), E(193) / 'MSA             ', 7.70E+04, 0.0E+00 /   ! Meylan and Howard (1991), inverse of the value is used due to unit conversion
       DATA SUBNAME(194), A(194), E(194) / 'XYLENE          ', 1.90E-01, 4.2E+03  / ! .35/.3/.35 m/o/p, Sander ACP 2015, Staudinger and Roberts (2001) for m; Fogg and Sangster (2003) for o and p
@@ -389,6 +386,13 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA SUBNAME(206), A(206), E(206) / 'SVMT5           ', 1.8E+08,  6.0E+03 /   ! est based on Hodzic 2014 GRL
       DATA SUBNAME(207), A(207), E(207) / 'SVMT6           ', 2.2E+07,  6.0E+03 /   ! est based on Hodzic 2014 GRL
       DATA SUBNAME(208), A(208), E(208) / 'SVMT7           ', 2.8E+06,  6.0E+03 /   ! est based on Hodzic 2014 GRL
+      DATA SUBNAME(209), A(209), E(209) / 'SVAVB1          ', 5.5E+09,  6.0E+03 /   ! est based on Hodzic 2014 GRL
+      DATA SUBNAME(210), A(210), E(210) / 'SVAVB2          ', 7.9E+07,  6.0E+03 /   ! est based on Hodzic 2014 GRL
+      DATA SUBNAME(211), A(211), E(211) / 'SVAVB3          ', 1.2E+07,  6.0E+03 /   ! est based on Hodzic 2014 GRL
+      DATA SUBNAME(212), A(212), E(212) / 'SVAVB4          ', 1.8E+06,  6.0E+03 /   ! est based on Hodzic 2014 GRL
+      DATA SUBNAME(213), A(213), E(213) / 'CLNO3           ', 1.00E+30, 0.0E+00 /   ! Sander (2015)
+      DATA SUBNAME(214), A(214), E(214) / 'IBR             ', 2.43E+01, 4.9E+03 /   ! Sherwen et al., 2016
+      DATA SUBNAME(215), A(215), E(215) / 'FMBR            ', 7.40E+01, 0.0E+00 /   ! Sander, R. ACP (2015), krysztofiak et al. (2012)
 
       DATA B( LSO2   ), D( LSO2   ) / 1.30E-02,  1.96E+03 /  ! SO2*H2O<=>HSO3+H     : Smith and Martell (1976)
       DATA B( LHSO3  ), D( LHSO3  ) / 6.60E-08,  1.50E+03 /  ! HSO3<=>SO3+H         : Smith and Martell (1976)

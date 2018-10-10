@@ -17,10 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/grid/cartesian/PAGRD_DEFN.F,v 1.4 2011/10/21 16:11:18 yoj Exp $
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE PAGRD_DEFN
 
@@ -42,16 +38,11 @@ C   S. Roselle 29 Mar 11: Replaced I/O API include files with UTILIO_DEFN
 C   J.Young 14 Sep 11: allow default subdomain values
 C   J.Young 28 Jun 16: use PA_DEFN module intead of include files
 C   J.Young 16 Sep 16: update for inline procan
+C   C. Nolte, S. Roselle Sep 18: replace M3UTILIO with UTILIO_DEFN
 C.......................................................................
+      USE RUNTIME_VARS
 
       IMPLICIT NONE
-
-C Starting and ending column for PA output
-      INTEGER, SAVE :: PA_BEGCOL, PA_ENDCOL
-C Starting and ending row for PA output
-      INTEGER, SAVE :: PA_BEGROW, PA_ENDROW
-C Starting and ending layer for PA output
-      INTEGER, SAVE :: PA_BEGLEV, PA_ENDLEV
 
 C Total number of columns, rows and layers for PA output
       INTEGER, SAVE :: PACOLS, PAROWS, PALEVS
@@ -89,10 +80,10 @@ C Buffer for writing IRR results
       REAL, ALLOCATABLE, SAVE :: DBUFF( :,:,: )
 
       CONTAINS
-         FUNCTION PAGRD_INIT ( NPROCS, RANK ) RESULT ( SUCCESS )
+         FUNCTION PAGRD_INIT ( RANK ) RESULT ( SUCCESS )
 
          USE GRID_CONF           ! horizontal & vertical domain specifications
-         USE M3UTILIO            ! i/o-api
+         USE UTILIO_DEFN
 #ifdef parallel
          USE SE_MODULES          ! stenex (using SE_UTIL_MODULE)
 #else
@@ -100,7 +91,6 @@ C Buffer for writing IRR results
 #endif
          USE PA_DEFN             ! Process Anaylsis control and data variables
 
-         INTEGER, INTENT( IN ) :: NPROCS  ! total worker processors
          INTEGER, INTENT( IN ) :: RANK
          LOGICAL SUCCESS
 
@@ -116,19 +106,6 @@ C Buffer for writing IRR results
          INTEGER X1F0  ! dimension homotopy for parallel or serial
          CHARACTER( 16 ) :: PNAME = 'PAGRD_INIT'
          CHARACTER( 96 ) :: XMSG = ' '
-         CHARACTER( 32 ) :: PA_BCOL_ECOL = 'PA_BCOL_ECOL'
-         CHARACTER( 32 ) :: PA_BROW_EROW = 'PA_BROW_EROW'
-         CHARACTER( 32 ) :: PA_BLEV_ELEV = 'PA_BLEV_ELEV'
-         CHARACTER( 16 ) :: V_LIST( 2 )
-         INTEGER NV
-
-         INTERFACE
-            SUBROUTINE GET_ENVLIST ( ENV_VAR, NVARS, VAL_LIST )
-               CHARACTER( * ),  INTENT ( IN )  :: ENV_VAR
-               INTEGER,         INTENT ( OUT ) :: NVARS
-               CHARACTER( 16 ), INTENT ( OUT ) :: VAL_LIST( : )
-            END SUBROUTINE GET_ENVLIST
-         END INTERFACE
 
 C-----------------------------------------------------------------------
 
@@ -141,42 +118,9 @@ C This function is expected to be called only once - at startup
             IF ( LIPR .OR. LIRR ) THEN
 
 C Retrieve the process analysis subdomain dimensions:
-
-               CALL GET_ENVLIST ( PA_BCOL_ECOL, NV, V_LIST )
-               IF ( NV .LE. 0 ) THEN   ! default to GL_NCOLS
-                  PA_BEGCOL = 1; PA_ENDCOL = GL_NCOLS
-               ELSE IF ( NV .NE. 2 ) THEN
-                  XMSG = 'Environment variable error for ' // PA_BCOL_ECOL
-                  CALL M3WARN ( PNAME, 0, 0, XMSG )
-                  SUCCESS = .FALSE.; RETURN
-               ELSE
-                  READ( V_LIST( 1 ), '( I4 )' ) PA_BEGCOL
-                  READ( V_LIST( 2 ), '( I4 )' ) PA_ENDCOL
-               END IF
-
-               CALL GET_ENVLIST ( PA_BROW_EROW, NV, V_LIST )
-               IF ( NV .LE. 0 ) THEN   ! default to GL_NCOLS
-                  PA_BEGROW = 1; PA_ENDROW = GL_NROWS
-               ELSE IF ( NV .NE. 2 ) THEN
-                  XMSG = 'Environment variable error for ' // PA_BROW_EROW
-                  CALL M3WARN ( PNAME, 0, 0, XMSG )
-                  SUCCESS = .FALSE.; RETURN
-               ELSE
-                  READ( V_LIST( 1 ), '( I4 )' ) PA_BEGROW
-                  READ( V_LIST( 2 ), '( I4 )' ) PA_ENDROW
-               END IF
-
-               CALL GET_ENVLIST ( PA_BLEV_ELEV, NV, V_LIST )
-               IF ( NV .LE. 0 ) THEN   ! default to GL_NCOLS
-                  PA_BEGLEV = 1; PA_ENDLEV = NLAYS
-               ELSE IF ( NV .NE. 2 ) THEN
-                  XMSG = 'Environment variable error for ' // PA_BLEV_ELEV
-                  CALL M3WARN ( PNAME, 0, 0, XMSG )
-                  SUCCESS = .FALSE.; RETURN
-               ELSE
-                  READ( V_LIST( 1 ), '( I4 )' ) PA_BEGLEV
-                  READ( V_LIST( 2 ), '( I4 )' ) PA_ENDLEV
-               END IF
+               IF ( PA_ENDCOL .EQ. 0 ) PA_ENDCOL = GL_NCOLS
+               IF ( PA_ENDROW .EQ. 0 ) PA_ENDROW = GL_NROWS
+               IF ( PA_ENDLEV .EQ. 0 ) PA_ENDLEV = NLAYS
 
                IF ( PA_BEGCOL .LT. 1 .OR. PA_ENDCOL .GT. GL_NCOLS .OR.
      &              PA_BEGROW .LT. 1 .OR. PA_ENDROW .GT. GL_NROWS .OR.
@@ -192,22 +136,6 @@ C Determine IPR subgrid mapping with data redistribution
      &               PA_BEGLEV, PA_ENDLEV,
      &               MY_BEGCOL, MY_ENDCOL, MY_BEGROW, MY_ENDROW,
      &               MY_BEGLEV, MY_ENDLEV, MY_PACOLS, MY_PAROWS )
-
-!              write( *,* ) ' se_subgrid_index - MY_BEGCOL: ', MY_BEGCOL
-!              write( *,* ) ' se_subgrid_index - MY_ENDCOL: ', MY_ENDCOL
-!              write( *,* ) ' se_subgrid_index - MY_BEGROW: ', MY_BEGROW
-!              write( *,* ) ' se_subgrid_index - MY_ENDROW: ', MY_ENDROW
-!              write( *,* ) ' se_subgrid_index - MY_BEGLEV: ', MY_BEGLEV
-!              write( *,* ) ' se_subgrid_index - MY_ENDLEV: ', MY_ENDLEV
-!              write( *,* ) ' se_subgrid_index - MY_PACOLS: ', MY_PACOLS
-!              write( *,* ) ' se_subgrid_index - MY_PAROWS: ', MY_PAROWS
-
-C NOTE: (CMAQ Forecast model version)
-C       SE_SUBGRID_INDEX doesn't know about the "writers" (I/O) partition.
-C       Therefore, COLLECT, which is in that partition won't have MY_PACOLS
-C       and MY_PAROWS. COLLECT needs these to determine a size for the message
-C       buffer that receives grid data from the worker processors. Use
-C       SUBHDOMAIN (below).
 
                PACOLS = PA_ENDCOL - PA_BEGCOL + 1
                PAROWS = PA_ENDROW - PA_BEGROW + 1
@@ -235,17 +163,6 @@ C Construct the processor-to-subdomain map for IPR domain
 
                MY_PACOLS = NCOLS_PE( RANK+1 )
                MY_PAROWS = NROWS_PE( RANK+1 )
-
-!              write( *,* ) ' subhdomain - MY_PACOLS: ', MY_PACOLS
-!              write( *,* ) ' subhdomain - MY_PAROWS: ', MY_PAROWS
-!              do i = 1, NPROCS
-!                 write( *,* ) ' I, PA_NCOLS_PE: ', i, NCOLS_PE( i )
-!                 write( *,* ) ' I, PA_NROWS_PE: ', i, NROWS_PE( i )
-!                 write( *,* ) ' I, COLSZ_PE( 1,I ): ', i, COLSZ_PE( 1,i )
-!                 write( *,* ) ' I, COLSZ_PE( 2,I ): ', i, COLSZ_PE( 2,i )
-!                 write( *,* ) ' I, ROWSZ_PE( 1,I ): ', i, ROWSZ_PE( 1,i )
-!                 write( *,* ) ' I, ROWSZ_PE( 2,I ): ', i, ROWSZ_PE( 2,i )
-!              end do
 
                IF ( LIPR ) THEN
 

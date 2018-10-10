@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/util/util/findex.f,v 1.2 2011/10/21 16:11:37 yoj Exp $ 
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C @(#)findex.f  1.1 /project/mod3/CMAQ/src/util/util/SCCS/s.findex.f 03 Jun 1997 12:08:19
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       INTEGER FUNCTION FINDEX (INDX, N, NLIST)
 

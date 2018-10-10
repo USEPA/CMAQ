@@ -17,12 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/init/yamo/opconc.F,v 1.4 2011/10/21 16:11:24 yoj Exp $ 
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE OPCONC ( JDATE, JTIME, TSTEP )
 
@@ -96,8 +90,6 @@ C environment variable for no. of layers from bottom to save on CONC file
 C  environment variable description
       CHARACTER( 80 ) :: VARDESC
 
-      INTEGER      LOGDEV
-
       INTEGER      K, KD, L, SPC, V   ! loop counters
       INTEGER      STRT, FINI         ! loop counters
       INTEGER      INDX
@@ -105,8 +97,6 @@ C  environment variable description
       LOGICAL, EXTERNAL :: FLUSH3
 
 C-----------------------------------------------------------------------
-
-      LOGDEV = INIT3()
 
 C Set output file characteristics based on COORD.EXT and open it
 
@@ -158,9 +148,9 @@ C Set output file characteristics based on COORD.EXT and open it
       END IF
 
       WRITE( LOGDEV,* ) ' '
-      WRITE( LOGDEV,* ) '      Conc File Header Description:'
+      WRITE( LOGDEV,* ) '    Conc File Header Description:'
       DO K = 1, KD + L
-         WRITE( LOGDEV,* ) '    => ', TRIM( FDESC3D( K ) )
+         WRITE( LOGDEV,* ) '       ', TRIM( FDESC3D( K ) )
       END DO
 
       V = 0
@@ -182,11 +172,11 @@ C Set output file characteristics based on COORD.EXT and open it
          VTYPE3D( SPC ) = M3REAL
          VNAME3D( SPC ) = C_AE_SPC( V )   ! from STD_CONC module
          IF ( VNAME3D( SPC )(1:3) .EQ. 'NUM' ) THEN
-            UNITS3D( SPC ) = 'number/m**3'
+            UNITS3D( SPC ) = 'm-3'
          ELSE IF ( VNAME3D( SPC )(1:3) .EQ. 'SRF' ) THEN
-            UNITS3D( SPC ) = 'm**2/m**3'
+            UNITS3D( SPC ) = 'm2 m-3'
          ELSE
-            UNITS3D( SPC ) = 'micrograms/m**3'
+            UNITS3D( SPC ) = 'ug m-3'
          END IF
          VDESC3D( SPC ) = 'Variable ' // VNAME3D( SPC )
       END DO
@@ -217,7 +207,7 @@ C Set output file characteristics based on COORD.EXT and open it
          SPC = FINI + 1 
          VTYPE3D( SPC ) = M3REAL
          VNAME3D( SPC ) = 'W_VEL'
-         UNITS3D( SPC ) = 'm/s'
+         UNITS3D( SPC ) = 'm s-1'
          VDESC3D( SPC ) = 'Derived vertical velocity component'
          FINI = FINI + 1
       END IF

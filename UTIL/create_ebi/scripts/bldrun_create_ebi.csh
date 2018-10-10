@@ -51,6 +51,9 @@ if ( ! ( -e ${RXNS_DATA_SRC} ) )then
 # and should check the EBI solver's accuracy against the Gear or Rosenbrock solver
  setenv NO2EX_CYCLE     F    # modify group one solution to include excited NO2
   
+ setenv SOLVER_DELT     2.5  # maximum time step (minutes) of solver integration up to four 
+                             # significant figures in general or scientific notation
+                             # For saprc07tic based mechanisms, 1.25 minutes is recommended.
 
 #Set the below compound names within the mechanism
 #                 #Mech   #   Mechanism          #   Mechanism     # Description

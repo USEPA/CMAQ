@@ -84,7 +84,7 @@ C    REAL           VARRAY(VSIZE)   ! Interpolated values.
 C Local Variable Description:  see below
  
 C Calls:  OPEN3, DESC3, M3WARN,
-C         ENVYN, NEXTIME, SECSDIFF, TIME2SEC, CURRSTEP, TRIMLEN,
+C         NEXTIME, SECSDIFF, TIME2SEC, CURRSTEP, TRIMLEN,
 C         ALLOBBUF, ALLOMBUF, GROWBUF, SETINT, SETFLT, GROWREAL,
 C         GTNDXHDV, READBNDY, INTERPOL
  
@@ -185,8 +185,6 @@ C Local Variables:
       INTEGER        NLAYS        ! Local PE layer dimension of VARRAY
       INTEGER        NBNDY        ! Local PE boundary dimension of VARRAY
       INTEGER        MBUFSIZE     ! Message buffer size
-      INTEGER, SAVE :: LLOGDEV    ! Unit number for log file
-      INTEGER        STATUS       ! Status returned from routine ENVYN
 
       SAVE  MBUFSIZE
       
@@ -220,7 +218,6 @@ C........................................................................
          FIRSTIME = .FALSE.
 
          FIL16_OLD = ' '
-         LLOGDEV = INIT3()
 
 C Allocate memory for read and message buffers
 
@@ -471,7 +468,7 @@ C Check calling dimension against file header dimensions
 
          IF ( NLAYS .NE. NLAYS3D ) THEN
             MSG = 'Mismatch between VSIZE and file dimensions.'
-            WRITE( LLOGDEV,9020 ) VSIZE, NBNDY, NLAYS3D 
+            WRITE( LOGDEV,9020 ) VSIZE, NBNDY, NLAYS3D 
             CALL M3WARN ( 'PINTERPB', JDATE, JTIME, MSG )
             PINTERPB = .FALSE.; RETURN
          END IF

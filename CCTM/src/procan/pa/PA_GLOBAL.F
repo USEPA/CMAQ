@@ -17,17 +17,13 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/PROCAN/src/driver/pa/PA_GLOBAL.EXT,v 1.6 2011/11/02 14:33:54 yoj Exp $
-
 C......................................................................
       MODULE PA_GLOBAL
  
 C Contains: Mech and Grid data used in the Process Analysis Control Program
  
 C Dependent Upon: Nothing
-C Revision HistoryL
+C Revision History
 C Prototype created by Bill Hutzell, June, 2014 based in PA_GLOBAL.EXT
 C  from PROCAN version 5.0.2
 C PA_GLOBAL.EXT History:
@@ -60,9 +56,5 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Declarations for species and mechanism data
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-      CHARACTER( 16 )    :: SPC_NAME( MXALLSPC ) ! Names of all species
-
-      INTEGER N_SPC      ! Total number of species
-     
       END MODULE PA_GLOBAL
  

@@ -20,7 +20,6 @@
         MODULE BMATVEC_MODULE
 
 !=======================================================================
-! Version "@(#)$Header$"
 ! EDSS/Models-3 I/O API.
 ! Copyright (C) 1992-2002 MCNC and Carlie J. Coats, Jr., and
 ! (C) 2003-2010 Baron Advanced Meteorological Systems

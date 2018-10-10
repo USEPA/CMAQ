@@ -17,12 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6_mp/aero_subs.F,v 1.3 2012/01/26 18:44:38 sjr Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C routines for aerosol formation and transformation processes
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -212,6 +206,7 @@ C-----------------------------------------------------------------------
       USE SOA_DEFN
       USE AEROMET_DATA
       USE UTILIO_DEFN
+      USE AERO_BUDGET
 
       IMPLICIT NONE
 
@@ -260,6 +255,11 @@ C *** Intermodal coagulation rate [ m**3/s ] ( 3rd moment )
       REAL( 8 ) :: SG_D ( N_MODE )
       REAL( 8 ) :: XXL_D( N_MODE )
 
+! *** Variables for computing the budget
+      REAL( 8 ) :: CBUDGET0_NUM ( N_MODE )
+      REAL( 8 ) :: CBUDGET0_SRF ( N_MODE )
+      REAL( 8 ) :: CBUDGET0_MASS( N_AEROSPC,N_MODE )
+
 C *** variables for advancing concentrations one time step
       REAL( 8 ) :: A, B
       REAL( 8 ) :: Y0, Y
@@ -279,13 +279,11 @@ C *** local variables
       INTEGER      SPC        ! loop counter
       INTEGER      N          ! loop counter
 
-      integer, save :: logdev 
       logical, save :: firstime = .true.
 C-----------------------------------------------------------------------
 
       if ( firstime ) then
          firstime = .false.
-         logdev = init3()
 #ifdef nomm
          write( logdev,* ) 'aero_subs: nomm'
 #endif
@@ -332,28 +330,35 @@ C *** Compute H2SO4 diffusivity, correct for temperature and pressure
 C *** Update size parameters (distribution is wet from ORGAER)
       CALL GETPAR( FIXED_sg )
 
+! *** Mass transfer of inorganic constituents      
+! *** Process Budget is calculated inside this routine because NPF and
+! *** condensation are calculated simultaneously
       CALL VOLINORG( DT, COL, ROW, LAYER, DV_SO4, CGR )
 
-C *** Coagulation
-C     Calculate coagulation coefficients using a method dictated by
-C     the value of FASTCOAG_FLAG.  If TRUE, the computationally-
-C     efficient GETCOAGS routine is used.  If FALSE, the more intensive
-C     Gauss-Hermite numerical quadrature method is used.  See Section
-C     2.1 of Bhave et al. (2004) for further discussion.
-
-C *** set atmospheric mean free path in double precision
+! *** Coagulation
+!     Calculate coagulation coefficients using a method dictated by
+!     the value of FASTCOAG_FLAG.  If TRUE, the computationally-
+!     efficient GETCOAGS routine is used.  If FALSE, the more intensive
+!     Gauss-Hermite numerical quadrature method is used.  See Section
+!     2.1 of Bhave et al. (2004) for further discussion.
+! *** Initialize Budget Variables
+      CBUDGET0_NUM  = MOMENT0_CONC
+      CBUDGET0_SRF  = MOMENT2_CONC
+      CBUDGET0_MASS = AEROSPC_CONC
+ 
+! *** set atmospheric mean free path in double precision
       LAMDA    = XLM
 
-C *** calculate term used in Equation A6 of Binkowski & Shankar (1995)
+! *** calculate term used in Equation A6 of Binkowski & Shankar (1995)
       KNC      = TWOTHIRDS * BOLTZMANN *  AIRTEMP / AMU
 
-C *** calculate terms used in Equation A5 of Binkowski & Shankar (1995)
+! *** calculate terms used in Equation A5 of Binkowski & Shankar (1995)
       KFMAT    = SQRT( 3.0 * BOLTZMANN * AIRTEMP / AEROMODE_DENS( 1 ) )
       KFMAC    = SQRT( 3.0 * BOLTZMANN * AIRTEMP / AEROMODE_DENS( 2 ) )
       KFMATAC  = SQRT( 6.0 * BOLTZMANN * AIRTEMP
      &         / ( AEROMODE_DENS( 1 ) + AEROMODE_DENS( 2 ) ) )
 
-C *** transfer of number to accumulation mode from Aitken mode is zero
+! *** transfer of number to accumulation mode from Aitken mode is zero
       BACAT( 1 ) = 0.0
 
       IF ( FASTCOAG_FLAG ) THEN ! Solve coagulation analytically
@@ -474,6 +479,10 @@ C *** Transfer new value of M2_accum to moment array
 C *** Coarse mode: no change because coagulation of coarse particles
 C     is neglected in current model version.
 
+! ** Update Budget Variable for Second Moment
+      COAG_BUDGET( AEROSRF_MAP( 1 ),1 ) = MOMENT2_CONC( 1 ) - CBUDGET0_SRF( 1 )
+      COAG_BUDGET( AEROSRF_MAP( 2 ),2 ) = MOMENT2_CONC( 2 ) - CBUDGET0_SRF( 2 )
+
 C *** end of update for second moment
 
 C *** Update Zeroth Moment (i.e. number concentration)
@@ -512,6 +521,10 @@ C *** Solve for M0_accum using Smoluchowski`s solution
 
 C *** Transfer new value of M0_accum to the moment array
       MOMENT0_CONC( 2 ) = MAX( AEROMODE_MINNUM( 2 ), REAL( Y ) )
+
+! ** Update Budget Variable for Second Moment
+      COAG_BUDGET( AERONUM_MAP( 1 ),1 ) = MOMENT0_CONC( 1 ) - CBUDGET0_NUM( 1 )
+      COAG_BUDGET( AERONUM_MAP( 2 ),2 ) = MOMENT0_CONC( 2 ) - CBUDGET0_NUM( 2 )
 
 C *** end of update for zeroth moment - note that the coarse mode number does
 C     not change because coarse-mode coagulation is neglected in the model
@@ -561,6 +574,16 @@ C     intermodal coagulation.
      &                                REAL( AEROSPC_CONC( SPC,1 ) * EXPDT ) )
          AEROSPC_CONC( SPC,2 ) = MAX( AEROSPC( SPC )%MIN_CONC( 2 ),
      &                                TMASS - AEROSPC_CONC( SPC,1 ) )
+
+
+         ! Update Budget Variable for Second Moment
+         IF ( AEROSPC_MAP( SPC,1 ) .NE. 0 ) 
+     &      COAG_BUDGET( AEROSPC_MAP( SPC,1 ),1 ) = 
+     &           AEROSPC_CONC( SPC,1 ) - CBUDGET0_MASS( SPC,1 )
+         IF ( AEROSPC_MAP( SPC,2 ) .NE. 0 ) 
+     &      COAG_BUDGET( AEROSPC_MAP( SPC,2 ),1 ) = 
+     &           AEROSPC_CONC( SPC,2 ) - CBUDGET0_MASS( SPC,2 )
+
       END DO
 
 C *** end of update for species mass concentrations
@@ -571,6 +594,11 @@ C     If the Aitken mode mass is growing faster than accumulation mode
 C     mass and the Aitken mode number concentration exceeds the
 C     accumulation mode number concentration, then modes are merged by
 C     renaming.
+
+! *** Initialize Budget Variables
+      CBUDGET0_NUM  = MOMENT0_CONC
+      CBUDGET0_SRF  = MOMENT2_CONC
+      CBUDGET0_MASS = AEROSPC_CONC
 
 #ifdef nomm
       if ( .false. ) then
@@ -660,6 +688,15 @@ C *** Set minimum value for all concentrations in the CBLK array
             AEROSPC_CONC( SPC,N ) = MAX( AEROSPC_CONC( SPC,N ),
      &                                   AEROSPC( SPC )%MIN_CONC( N ) )
          END DO
+      END DO
+
+! *** Propagate Mode Merging and Minimum value impacts to budget variables
+      GROWTH_BUDGET( AERONUM_MAP(:) ) = MOMENT0_CONC(:) - CBUDGET0_NUM(:)
+      GROWTH_BUDGET( AEROSRF_MAP(:) ) = MOMENT0_CONC(:) - CBUDGET0_NUM(:)
+      DO SPC = 1,N_AEROSPC
+         WHERE( AEROSPC_MAP( SPC,: ) .NE. 0 )
+     &          GROWTH_BUDGET( AEROSPC_MAP(SPC,:) )=
+     &              AEROSPC_CONC(SPC,:) - CBUDGET0_MASS(SPC,:)
       END DO
 
       RETURN
@@ -848,12 +885,28 @@ C     mass partitioning between the modes
       REAL( 8 ) :: LOSS                   ! rate of loss of second moment [1/s] 
       REAL( 8 ) :: EQLBHIJ                ! H+ concentration from isoropia for I plus J-modes [ug/m**3]
 
+      REAL( 8 ) :: DELNUM( N_MODE ) ! Change in Number due to some process
+      REAL( 8 ) :: DELSRF( N_MODE ) ! Change in Surface Area due to some process
+      REAL( 8 ) :: DELSO4( N_MODE ) ! Change in Sulfate due to some process
+      REAL( 8 ) :: DELNO3( N_MODE ) ! Change in Nitrate due to some process
+      REAL( 8 ) :: DELNH4( N_MODE ) ! Change in Ammonium due to some process
+      REAL( 8 ) :: DELCL( N_MODE )  ! Change in Chloride due to some process
+      REAL( 8 ) :: DELH2O( N_MODE ) ! Change in Water due to some process
+      REAL( 8 ) :: DELH3OP( N_MODE )! Change in Proton due to some process
+      REAL( 8 ) :: CBUDGET0_NUM( N_MODE ) ! Initial Number before some process
+      REAL( 8 ) :: CBUDGET0_SRF( N_MODE ) ! Initial Surface Area before some process
+      REAL( 8 ) :: CBUDGET0_SO4( N_MODE ) ! Initial Sulfate before some process
+      REAL( 8 ) :: CBUDGET0_NO3( N_MODE ) ! Initial Nitrate before some process
+      REAL( 8 ) :: CBUDGET0_NH4( N_MODE ) ! Initial Ammonium before some process
+      REAL( 8 ) :: CBUDGET0_CL( N_MODE )  ! Initial Chloride before some process
+      REAL( 8 ) :: CBUDGET0_H2O( N_MODE ) ! Initial Particle Water before some process
+      REAL( 8 ) :: CBUDGET0_H3OP( N_MODE )! Initial Proton before some process
+
       REAL( 8 ) :: TMP
       INTEGER I, N                        ! loop and array indices
       INTEGER IMODE                       ! mode loop index  
       INTEGER ISTEP                       ! loop index, mass transfer time step loop
       INTEGER ISP                         ! loop index, species loop
-      INTEGER, SAVE :: LOGDEV 
       LOGICAL TrustIso                    ! For negative vap. press., TrustIso = F
 
 C *** Local Saved Variables 
@@ -862,6 +915,7 @@ C *** Local Saved Variables
       REAL( 8 ), SAVE :: SO4FAC         !  F6DPIM9 / RHOSO4
       REAL( 8 ), SAVE :: SOILFAC        !  F6DPIM9 / RHOSOIL
       REAL( 8 ), SAVE :: ANTHFAC        !  F6DPIM9 / RHOANTH
+      REAL( 8 ), SAVE :: H2SO4RAT       ! Mol. wt ratios H2SO4/SO4
       REAL( 8 ), SAVE :: NH3RAT         ! Mol. wt ratios NH3/NH4
       REAL( 8 ), SAVE :: HNO3RAT        ! Mol. wt ratios HNO3/NO3
       REAL( 8 ), SAVE :: HCLRAT         ! Mol. wt ratios HCL/CL 
@@ -888,6 +942,7 @@ C *** Local Saved Variables
       REAL( 8 ), SAVE :: M3FAC_ACL
       REAL( 8 ), SAVE :: M3FAC_H2O
 
+
       logical, save :: write1 = .true.
 
 C-----------------------------------------------------------------------
@@ -895,7 +950,6 @@ C-----------------------------------------------------------------------
       IF ( FIRSTIME ) THEN
       
          FIRSTIME = .FALSE.
-         LOGDEV = INIT3()
 #ifdef noiso
          write( logdev,* ) 'aero_subs, volinorg: noiso'
 #endif
@@ -934,7 +988,8 @@ C-----------------------------------------------------------------------
          DF( KCL )  = 1.0D0 / CFAC_ACL
          DFH2OR8    = 1.0D6 * MWWAT      ! aerospc_mw(AH2O_IDX) (18.0 != 18.0153)
 
-         ! Mol. wt ratios NH3/NH4, HNO3/NO3, HCL/CL
+         ! Mol. wt ratios H2SO4/SO4, NH3/NH4, HNO3/NO3, HCL/CL
+         H2SO4RAT= PRECURSOR_MW( SULF_IDX ) / REAL( AEROSPC_MW( ASO4_IDX ), 8 )
          NH3RAT  = PRECURSOR_MW( NH3_IDX )  / REAL( AEROSPC_MW( ANH4_IDX ), 8 )
          HNO3RAT = PRECURSOR_MW( HNO3_IDX ) / REAL( AEROSPC_MW( ANO3_IDX ), 8 )
          HCLRAT  = PRECURSOR_MW( HCL_IDX )  / REAL( AEROSPC_MW( ACL_IDX ), 8 )
@@ -1047,6 +1102,14 @@ C     rate minus the new particle production rate, following Equation
 C     3.23 of Jiang & Roth (2003).
          SCONDRATE = MAX( SO4RATE - DMDT_SO4, 0.0D0 )
 
+! *** Propagate NPF Change to budget variables
+         NPF_BUDGET( PRECURSOR_MAP( SULF_IDX ) ) = -DMDT_SO4 
+     &             * H2SO4RAT  * DELT ! ug m-3 of Sulfuric Acid
+                                      ! (converted to ppmv in update_precursor)
+         NPF_BUDGET( AEROSPC_MAP( ASO4_IDX,1 ) ) =  DMDT_SO4 * DELT ! ug m-3
+         NPF_BUDGET( AERONUM_MAP( 1 ) ) =  DNDT * DELT  ! N m-3
+         NPF_BUDGET( AEROSRF_MAP( 1 ) ) =  DM2DT * DELT ! m2 m-3
+
       END IF   ! SO4RATE .NE. 0
 
 C *** Sulfate Condensation (Size-resolved)
@@ -1070,6 +1133,20 @@ C *** Growth values for mode merge condition
       CGR( 1 ) = SO4FAC * SCONDRATE * OMEGA_AT_SO4
       CGR( 2 ) = SO4FAC * SCONDRATE * OMEGA_AC_SO4
 
+! *** Initialize Budget Counter Variables         
+      CBUDGET0_NUM( : ) = MOMENT0_CONC( : )
+      CBUDGET0_NUM( 1 ) = CBUDGET0_NUM( 1 ) + DNDT * DELT
+      CBUDGET0_SRF( : ) = MOMENT2_CONC( : )
+      CBUDGET0_SRF( 1 ) = CBUDGET0_SRF( 1 ) + DM2DT * DELT
+      CBUDGET0_SO4( : ) = AEROSPC_CONC( ASO4_IDX, : )
+      CBUDGET0_SO4( 1 ) = CBUDGET0_SO4( 1 ) + DMDT_SO4 * DELT
+      CBUDGET0_NO3( : ) = AEROSPC_CONC( ANO3_IDX, : )
+      CBUDGET0_NH4( : ) = AEROSPC_CONC( ANH4_IDX, : )
+      CBUDGET0_CL ( : ) = AEROSPC_CONC( ACL_IDX , : )
+      CBUDGET0_H2O( : ) = AEROSPC_CONC( AH2O_IDX, : )
+      CBUDGET0_H3OP( : )= AEROSPC_CONC( AH3OP_IDX, : )
+
+! *** Diagnose Condensaiton Sink to Each Mode
       CONDSO4( 1 ) = OMEGA_AT_SO4 * SCONDRATE      
       
       IF ( HYBRID ) THEN 
@@ -1121,9 +1198,9 @@ C     Equations A13-A14 of Binkowski & Shankar (1995).
 C *** Set conc array to aerosol concentrations prior to mass transfer
 C     (The _RENORM and cation_FAC constants are set in the AERO_DATA module)
 
-            SEACAT    = REAL( AEROSPC_CONC( ASEACAT_IDX,IMODE ), 8 )          ! ASEACAT_IDX = 40
-            SOILwVOLS = REAL( AEROSPC_CONC( ASOIL_IDX,IMODE ), 8 ) / ASOIL_RENORM ! ASOIL_IDX = 38
-            PMCwVOLS  = REAL( AEROSPC_CONC( ACORS_IDX,IMODE ), 8 ) / ACORS_RENORM ! ACORS_IDX = 39
+            SEACAT    = REAL( AEROSPC_CONC( ASEACAT_IDX,IMODE ), 8 )              
+            SOILwVOLS = REAL( AEROSPC_CONC( ASOIL_IDX,IMODE ), 8 ) / ASOIL_RENORM 
+            PMCwVOLS  = REAL( AEROSPC_CONC( ACORS_IDX,IMODE ), 8 ) / ACORSEM_RENORM 
 
             CINORG( KNH4,IMODE ) = REAL( AEROSPC_CONC( ANH4_IDX,IMODE ), 8 )  ! KNH4 = 1, ANH4_IDX = 4
             CINORG( KNO3,IMODE ) = REAL( AEROSPC_CONC( ANO3_IDX,IMODE ), 8 )  ! KNO3 = 2, ANO3_IDX = 2
@@ -1338,7 +1415,7 @@ C     densities. It is a waste of time updating the aitken and
 C     accumulation modes but the coarse mode does need to be updated
 C     each sub-time step. This should be for the wet distribution
                
-            CALL GETPAR( FIXED_sg )
+            CALL GETPAR( .TRUE. )
 
          END DO   ! end mass transfer time step loop
          
@@ -1559,8 +1636,34 @@ C     densities. Note that moment2_conc needs to be up to date when this
 C     routine is called. Moment3_conc does not need to be up to date
 C     because it will be recalculated inside GETPAR as the sum of 
 C     aerospc_conc variables. This should be for the wet distribution.
-      CALL GETPAR( FIXED_sg )
+      CALL GETPAR( .TRUE. )
+       
+! *** Propagate Concentration Changes from Coarse-Mode Mass
+! *** Transfer to Budget Vectors
+      DELNUM( : )  = MOMENT0_CONC( : ) - CBUDGET0_NUM( : )
+      DELSRF( : )  = MOMENT2_CONC( : ) - CBUDGET0_SRF( : )
+      DELSO4( : )  = AEROSPC_CONC( ASO4_IDX, : ) - CBUDGET0_SO4( : )
+      DELNH4( : )  = AEROSPC_CONC( ANH4_IDX, : ) - CBUDGET0_NH4( : )
+      DELNO3( : )  = AEROSPC_CONC( ANO3_IDX, : ) - CBUDGET0_NO3( : )
+      DELCL( : )   = AEROSPC_CONC( ACL_IDX , : ) - CBUDGET0_CL( : )
+      DELH2O( : )  = AEROSPC_CONC( AH2O_IDX, : ) - CBUDGET0_H2O( : )
+      DELH3OP( : ) = AEROSPC_CONC( AH3OP_IDX,: ) - CBUDGET0_H3OP( : )
 
+      COND_BUDGET( AERONUM_MAP( : ) ) = REAL( DELNUM( : ), 4 )
+      COND_BUDGET( AEROSRF_MAP( : ) ) = REAL( DELSRF( : ), 4 )
+      COND_BUDGET( AEROSPC_MAP( ASO4_IDX,: ) ) = REAL( DELSO4( : ), 4 )
+      COND_BUDGET( AEROSPC_MAP( ANH4_IDX,: ) ) = REAL( DELNH4( : ), 4 )
+      COND_BUDGET( AEROSPC_MAP( ANO3_IDX,: ) ) = REAL( DELNO3( : ), 4 )
+      COND_BUDGET( AEROSPC_MAP( ACL_IDX ,: ) ) = REAL( DELCL( : ) , 4 )
+      COND_BUDGET( AEROSPC_MAP( AH2O_IDX,: ) ) = REAL( DELH2O( : ), 4 )
+      COND_BUDGET( AEROSPC_MAP( AH3OP_IDX,:) ) = REAL( DELH3OP( : ),4 )
+
+      COND_BUDGET( PRECURSOR_MAP( SULF_IDX ) ) = SUM( REAL( -DELSO4(:) * H2SO4RAT, 4 ))
+      COND_BUDGET( PRECURSOR_MAP( NH3_IDX  ) ) = SUM( REAL( -DELNH4(:) * NH3RAT  , 4 ))
+      COND_BUDGET( PRECURSOR_MAP( HNO3_IDX ) ) = SUM( REAL( -DELNO3(:) * HNO3RAT , 4 ))
+      COND_BUDGET( PRECURSOR_MAP( HCL_IDX  ) ) = SUM( REAL( -DELCL(:)  * HCLRAT  , 4 ))
+
+ 
 C *** Update gas-phase concentrations from Aitken and Accumulation Mode Partitioning
       PRECURSOR_CONC( NH3_IDX )  = GNH3R8 + sum( CINORG( KNH4,1:2 )
      &                            -CFINAL( KNH4,1:2 ) ) * NH3RAT 
@@ -2007,20 +2110,7 @@ C Local Variables:
       REAL( 8 ) :: M0I( NPAIR )    ! single-solute molalities
       INTEGER :: J
 
-#ifdef verbose_aero
-!     logical, save :: firstime = .true.
-!     integer, save :: logdev
-!     integer, external :: setup_logdev
-#endif
-
 C-----------------------------------------------------------------------
-
-#ifdef verbose_aero
-!     if ( firstime ) then
-!        firstime = .false.
-!        logdev = setup_logdev()
-!     end if
-#endif
 
 C     Return if small concentration
       IF ( WI( 1 ) + WI( 2 ) + WI( 3 ) + WI( 4 )
@@ -2906,423 +2996,4 @@ C     Appendix B in Ensberg et al., 2013).
 
       END SUBROUTINE AERO_AMS
 
-C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE GETVISBY( DCV1, EXT1, DCV2, EXT2 )
- 
-C *** This routine calculates the Pitchford & Malm visual index,
-C     deciview, using the Evans & Fournier extinction with 20 point
-C     Gauss_Hermite numerical quadrature to integrate the extincetion
-C     over the log normal size distribution.
-C     This new method reproduces the results of Willeke and Brockmann
-C     very very closely.
-C     The Heintzenberg and Baker (h&b) method used previously has been
-C     replaced.
-C *** This also routine calculates the Pitchford & Malm visual index,
-C     deciview, using reconstructed extinction values from the IMPROVE
-C     monitoring network
- 
-C *** References:
- 
-C     Evans, B.T.N.  and G.R. Fournier, Simple approximations to
-C     extinction efficiency valid over all size parameters,
-C     Applied Optics, 29, 4666 - 4670.
- 
-C     Heintzenberg, j. and M. Baker, Applied Optics, vol. 15, no. 5,
-C     pp 1178-1181, 1976.
-C     correction in Applied Optics August 1976 does not affect this code.
- 
-C     Sisler, J. Fax dated March 18, 1998 with IMPROVE information.
- 
-C     Pitchford, M. and W. Malm, Atmos. Environ.,vol 28,no.5,
-C     pp 1049-1054, 1994.
- 
-C     Willeke,K. & J. E. Brockmann, Atmos. Environ., vol.11,
-C     pp 995 - 999, 1977.
- 
-Coding history:
-C    who           when     what
-C ------------------------------------------------------------------
-C   Peng Liu       05/2016  to get EXT2 and DCV2, use IMPROVE
-C                           reconstructed method, by calling subroutine
-C                           get_extinc (defined in module AOD_DEFN) in order to be consistent with
-C                           the updated algorithm to estimate the
-C                           aerosol extinction efficiency
-C   F.S. Binkowski 5/9/95   
-C             coded this version to use the h&b approximation
-C             and alfa and c obtained from fits to adt results
-C             b was fit from comparisons to willeke & brockmann.
-C   F.S. Binkowski 9/12/95  modified code to push j-loop inside.
-C   F.S. Binkowski 5/13/97  made models-3 version
-C   F.S. Binkowski 4/20/98  changed to Evans and Fournier approach
-C                           for extinction
-C   F.S. Binkowski 4/20/98  began code for reconstructed method
-C   F.S. Binkowski 4/24/98  merged codes for both methods
-C   F.S. Binkowski 5/20/98  corrected CONSTL
-C   F.S. Binkowski 3/9/99   Modified for variable XXLSGAT and XXLSGAC
-C   P.V. Bhave     1/30/08  Updated EXT2 to account for new SOA species
-C   J.T. Kelly     4/17/08  Modified for variable XXLSGCO
-C ////////
-C NOTE: This subroutine is dependent upon the variables defined in the
-C       IF( FIRSTIME ) section of aeroproc.f for implementation of
-C                      coarse mode contribution.
-C ///////
-
-      USE AERO_DATA
-      USE SOA_DEFN
-      USE AEROMET_DATA
-      USE AOD_DEFN
-
-      IMPLICIT NONE
-
-      REAL    DCV1   ! block deciview (Mie)
-      REAL    EXT1   ! block extinction [ km**-1 ] (Mie)
-
-      REAL    DCV2   ! block deciview (Reconstructed)
-      REAL    EXT2   ! block extinction [ km**-1 ]
-                                  ! (Reconstructed)
-
-C *** Paramters 
-
-      REAL, PARAMETER :: LAM = 0.55E-6  ! wavelenght of visible light [ m ]
-
-      REAL, PARAMETER :: CONSTL = 1.0E3 * PI6 / LAM    ! 1.0e3  to get km**-1
-
-      REAL, PARAMETER :: CONST3 = PI / LAM  ! Changed 3/9/99 FSB
-
-      REAL, PARAMETER :: SCALE = 1.0E-03  ! factor to rescale units from [ 1/Mm ] to [ 1/km ]
-
-      REAL, PARAMETER :: RAY = 0.01         ! standard value for Rayleigh extinction [ 1/km ]
-      REAL, PARAMETER :: RAY1 = 1.0 / RAY   ! the reciprocal of Rayleigh
-
-C *** internal variables:
-
-
-      REAL    WFRAC  ! water mass fraction
-      REAL    NR, NI ! real and imaginary parts of the refractive index
-      REAL    ALFV( n_mode )  ! Mie parameters for modal mass median diameters
-      REAL    BBEXT  ! dimensionless extinction coefficient
-      REAL    BEXT( n_mode ) ! Modal extinction coefficients [ 1/km ]
-
-
-      INTEGER N       ! loop counter
-
-C-----------------------------------------------------------------------
-
-C NOTE: In the following calculations, the contribution from the
-C        coarse mode is ignored.
-
-C *** calculate the  mass fraction of aerosol water
-
-      WFRAC = MIN( ( AEROSPC_CONC( AH2O_IDX,1 ) + AEROSPC_CONC( AH2O_IDX,2 ) )
-     &            / ( AEROMODE_MASS( 1 ) + AEROMODE_MASS( 2 ) ), 1.0 )
-
-C *** interpolate between "dry" state with m = 1.5 - 0.01i
-C     and pure water particle with  m = 1.33 - 0.0i as a function of
-C     wfrac
-
-      NR = 1.5 - 0.17 * WFRAC     ! real part of refractive index
-      NI = 0.01 * ( 1.0 - WFRAC ) ! imaginary part of refractive index
-
-C *** set up Mie parameters for Volume ( mass median diameter)
-      
-      DO N = 1, N_MODE
-        ALFV( N ) = CONST3 * AEROMODE_DIAM( N )
-     &            * EXP( 3.0 * AEROMODE_LNSG( N ) * AEROMODE_LNSG( N ) )
-      END DO
-
-C *** Call extinction routines
-
-      DO N = 1, N_MODE
-         CALL GETBEXT( NR, NI, ALFV( N ), AEROMODE_LNSG( N ), BBEXT )
-         BEXT( N ) = CONSTL * MOMENT3_CONC( N ) * BBEXT
-      END DO
-
-      BEXT( N_MODE ) = 0.0
-
-      EXT1  = BEXT( 1 ) + BEXT( 2 ) + RAY
-
-      DCV1  = 10.0 * LOG ( EXT1 * RAY1 )
-
-C     note if EXT1 < 0.01 then DCV1 is negative.
-C     this implies that visual range is greater than the Rayleigh limit.
-C     The definition of deciviews is based upon the Rayleigh limit
-C     being the maximum visual range
-C     thus, set a floor of 0.0 on DCV1.
-
-      DCV1  = MAX( 0.0, DCV1 )
-
-C *** begin  IMPROVE reconstructed method
-
-      EXT2 = 0.0
-      
-      CALL get_extinc( AIRRH, EXT2 )
-C EXT2 from get_extinc in [ 1/km ], no need to scale 
-C     EXT2 = SCALE * EXT2 + RAY
-      EXT2 = EXT2 + RAY
-
-      DCV2  = 10.0 * LOG ( EXT2  * RAY1 )
-
-C     note if EXT2 < RAY then DCV2 is negative.
-C     this implies that visual range is greater than the Rayleigh limit.
-C     The definition of deciviews is based upon the Rayleigh limit
-C     being the maximum visual range
-C     thus, set a floor of 0.0 on BLKDCV.
-
-      DCV2  = MAX( 0.0, DCV2 )
-
-      RETURN
-      END SUBROUTINE GETVISBY
-
-C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      subroutine getbext(nr, ni, alfv, xlnsig, bext)
-
-C     calculates the extinction coefficient normalized by wavelength
-C     and total particle volume concentration for a log normal
-C     particle distribution with the logarithm of the
-C     geometric standard deviation given by xlnsig.
- 
-C *** does gauss-hermite quadrature of Qext / alfa
-C     over log normal distribution
-C     using 20 symmetric points
- 
-      implicit none
-
-      INCLUDE SUBST_CONST     ! physical and mathematical constants
-
-      real nr, ni  ! indices of refraction
-      real alfv    ! Mie parameter for dgv
-      real xlnsig  ! log of geometric standard deviation
-      real bext    ! normalized extinction coefficient
-      real aa, aa1 ! see below for definition
-
-      real alfaip, alfaim   ! Mie parameters at abscissas
-
-      real xxqalf  ! function to calculate the extinction ceofficient
-      real qalfip, qalfim   ! extinction efficiencies at abscissas
-
-!     real, parameter :: pi      = 3.14159265
-!     real, parameter :: sqrtpi  = 1.77245385
-!     real, parameter :: sqrtpi1 = 1.0 / sqrtpi
-      real, parameter :: sqrt2   = 1.41421356
-!     real, parameter :: three_pi_two = 3.0 * pi / 2.0
-!     real, parameter :: const = three_pi_two * sqrtpi1
-
-      integer i
-      real const, sum, xi, wxi, xf
-
-      integer, parameter :: n = 10   ! one-half the number of abscissas
-      real ghxi( n ) ! Gauss-Hermite abscissas
-      real ghwi( n ) ! Gauss-Hermite weights
-
-C *** the following weights and abscissas are from abramowitz and
-C     stegun, page 924
-C *** tests show that 20 point is adquate.
-
-      data ghxi / 0.245341, 0.737474, 1.234076, 1.738538, 2.254974,
-     &            2.788806, 3.347855, 3.944764, 4.603682, 5.387481 /
-
-      data ghwi/ 4.622437e-1, 2.866755e-1, 1.090172e-1, 2.481052e-2,
-     &           3.243773e-3, 2.283386e-4, 7.802556e-6, 1.086069e-7,
-     &           4.399341e-10, 2.229394e-13 /
-
-      sum = 0.0
-
-      aa = 1.0 / ( sqrt2 * xlnsig )
-      aa1 = sqrt2 * xlnsig ! multiplication cheaper than another division
-
-      do i = 1, n
-
-         xi      = ghxi( i )
-         wxi     = ghwi( i)
-         xf      = exp( xi * aa1 )
-         alfaip  = alfv * xf
-         alfaim  = alfv / xf
-         qalfip  = xxqalf( alfaip, nr, ni )
-         qalfim  = xxqalf( alfaim, nr, ni )
-
-         sum = sum + wxi * ( qalfip + qalfim )
-
-      end do ! i
-
-C fsb      bext = const * aa * sum
-      const = 3.0 * sqrt( pi ) / 2.0
-      bext = const * sum ! corrected 07/21/2000 FSB; found by Rokjin Park
-
-      return
-      end subroutine getbext
-
-C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      real function xxqalf( alfa, nr, ni )
- 
-C *** compute the extinction efficiency divided by the Mie parameter
-C     reference:
-C     Evans, B.T.N.  and G.R. Fournier, Simple approximations to
-C     extinction efficiency valid over all size parameters,
-C     Applied Optics, 29, 4666 - 4670.
-
-      implicit none
-
-      real alfa
-      real nr, ni  ! real and imaginary parts of index of refraction
-
-      real qextray
-      real qextadt
-      real qextef
-      real tt        !  edge effect factor
-      real mu, mum1  !  exponents in formula
-      real aa        !  first coefficient in mu
-      real gg        !  second coefficient in mu
-      real nrm1, sqrtni
-      real alfm23   ! functions of alfa (mie parameter)
-
-      real, parameter :: three5 = 3.0 / 5.0,
-     &                   three4 = 3.0 / 4.0,
-     &                   two3   = 2.0 / 3.0
-
-      nrm1   = nr - 1.0
-      sqrtni = sqrt (ni )
-
-      call adtqext( alfa, nr, ni, qextadt )
-      call pendrfx( alfa, nr, ni, qextray )
-
-      if ( alfa .gt. 0.5 ) then
-
-         alfm23 = 1.0 / alfa ** two3
-         tt = 2.0 - exp( -alfm23 )
-
-         aa = 0.5 + ( nrm1 - two3 * sqrtni - 0.5 * ni )
-     &      + ( nrm1 + two3 * ( sqrtni - 5.0  * ni )  ) ** 2
-
-         gg = three5 - three4 * sqrt ( nrm1) + 3.0 * nrm1 ** 4
-     &      + 25.0 * ni / ( 6.0 * ni + 5.0 * nrm1 )
-
-         mu     = aa + gg / alfa
-         mum1   = - 1.0 / mu
-
-         qextef = qextray
-     &          * ( 1.0 + (qextray /( qextadt * tt)) ** mu ) ** mum1
-
-      else
-
-         qextef = qextray   ! Use Rayleigh extinction for really small alfa's
-
-      end if ! check on alfa
-
-      xxqalf = qextef / alfa
-
-      return
-      end function xxqalf
-
-C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      subroutine adtqext( alfa, nr, ni, QEXT )
- 
-C *** van de Hulst approximation for QEXT.
-C *** This approximation is known as Anomalous Diffraction Theory (ADT)
- 
-C *** originally coded by Dr Francis  S. Binkowski,
-C     AMAB/MD/ESRL RTP,N.C. 27711 28 July 1977.
-C     corrected 7/19/90 by fsb.
-C     revised 1/8/98 by FSB
- 
-C *** reference:
-C     van de Hulst- Light Scattering by Small Particles,
-C     Dover,1981 page 179. Original edition was Wiley, 1957.
-
-      implicit none
-
-      real alfa     ! Mie parameter
-      real nr, ni   ! real and imaginary parts of the index of refraction
-      real QEXT     ! extinction efficiency for a sphere
-      real z, tanb, b, cos2b, v1, v2, x, expmx, cs1, cs2
-      real twob, cosb
-      real nr1
-
-      nr1    = nr - 1.0
-      z      = 2.0 * alfa * nr1
-      tanb   = ni / nr1
-      b      = atan( tanb )
-      cosb   = cos( b )
-      twob   = 2.0 * b
-      cos2b  = cos( twob )
-      v1     = 5.0 * nr1
-      v2     = 4.08 / ( 1.0 + 3.0 * tanb )
-      x      = Min(z * tanb, 69.0)
-      expmx  = exp( -x )
-      cs1    = cosb / z
-      cs2    = cs1 * cs1
-      QEXT   = 2.0 - 4.0 * cs1 * expmx * sin( z - b )
-     &       + 4.0 * cs2 * ( cos2b - expmx * cos(z - twob ) )
-      return
-      end subroutine adtqext
-
-C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      subroutine pendrfx( alfa, nr, ni, QEXT )
- 
-C *** calculates the Mie efficiencies for extinction, scattering and
-C     absorption using Penndorf`s approximations for small
-C     values of alfa.
- 
-C  input:
-C       nr        the real part of the refractive index.
-C       ni        the imaginary part of the refractive index
-C       alfa      mie parameter
- 
-C  output:
-C       QEXT      extinction efficiency
- 
-C *** Reference:
-C       Penndorf, r., Scattering and extinction coefficients for small
-C       aerosols, J. Atmos. Sci., 19, p 193, 1962.
-C
-C *** Coded by Dr Francis  S.  Binkowski,
-C       AMAB/MD/ESRL RTP,N.C. 27711 28 July 1977.
-C       corrected 7/19/90 by FSB
-C       modified 30 september 1992 by FSB
-C       modified 1/6/98 by FSB
-
-      implicit none
-
-      real alfa, nr, ni
-      real QEXT
-      real alf2, alf3, alf4
-
-      real a1, a2, a3
-      real xnr, xni, xnr2, xni2, xnri, xnri2, xnrmi
-      real xri, xri2, xri36, xnx, xnx2
-      real z1, z12, z2, xc1
-
-      xnr   = nr
-      xni   = ni
-      xnr2  = xnr   * xnr
-      xni2  = xni   * xni
-      xnri  = xnr2  + xni2
-      xnri2 = xnri  * xnri
-      xnrmi = xnr2  - xni2
-      xri   = xnr   * xni
-      xri2  = xri   * xri
-      xri36 = 36.0  * xri2
-      xnx   = xnri2 + xnrmi - 2.0
-      xnx2  = xnx   * xnx
-
-      z1    = xnri2 + 4.0 * xnrmi + 4.0
-      z12   = z1    * z1
-      z2    = 4.0   * xnri2 + 12.0 * xnrmi + 9.0
-      xc1   = 8.0   / ( 3.0 * z12 )
-
-      alf2  = alfa  * alfa
-      alf3  = alfa  * alf2
-      alf4  = alfa  * alf3
-
-      a1    = 24.0  * xri / z1
-
-      a2    = 4.0   * xri / 15.0 + 20.0 * xri / ( 3.0 * z2 )
-     &      + 4.8   * xri * ( 7.0 * xnri2
-     &      + 4.0   * ( xnrmi - 5.0 ) ) / z12
-
-      a3    = xc1   * ( xnx2 - xri36 )
-
-      QEXT  = a1    * alfa + a2 * alf3 + a3 * alf4
-
-      return
-      end subroutine pendrfx
 

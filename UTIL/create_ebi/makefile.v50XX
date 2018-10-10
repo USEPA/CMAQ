@@ -9,8 +9,9 @@ ifeq ($(COMPILER),INTEL)
 
 FC = ifort
 FPP = $(FC)
-F_FLAGS    = -fixed -132 -O3 -override-limits -fno-alias -mp1   -I.  -g -CB -CU -traceback
-F90_FLAGS  = -free -O3 -fno-alias -mp1  -I.  -g -CB -CU -traceback
+#F_FLAGS    = -fixed -132 -O3 -qoverride-limits -fno-alias -mp1   -I.  -g -CB -CU -traceback
+F_FLAGS    = -fixed -132 -O0 -fno-alias -mp1 -fpe0  -I.  -g -CB -CU -traceback
+F90_FLAGS  = -free -O0 -fno-alias -mp1  -I. -fpe0 -g -CB -CU -traceback
  
 CC = icc
 CPP = $(FPP)
@@ -29,9 +30,9 @@ ifeq ($(COMPILER),PGF90)
  CC = pgcc
  
 # compiler options for subroutines
-  F_FLAGS = -Mfixed -Mextend -Mbounds  -Mchkfpstk -Mchkptr -Mchkstk -traceback -Ktrap=fp -O3 -I . -g
-  F90_FLAGS = -Mfree -Mbounds  -Mchkfpstk -Mchkptr -Mchkstk -traceback -Ktrap=fp -O3 -I . -g
-   f_FLAGS = -Mfixed -Mextend -Mbounds  -Mchkfpstk -Mchkptr -Mchkstk -traceback -Ktrap=fp -O3 -I . -g
+  F_FLAGS = -Mfixed -Mextend -Mbounds  -Mchkfpstk -Mchkptr -Mchkstk -traceback -Ktrap=fp -O0 -I . -g
+  F90_FLAGS = -Mfree -Mbounds  -Mchkfpstk -Mchkptr -Mchkstk -traceback -Ktrap=fp -O0 -I . -g
+   f_FLAGS = -Mfixed -Mextend -Mbounds  -Mchkfpstk -Mchkptr -Mchkstk -traceback -Ktrap=fp -O0 -I . -g
     C_FLAGS =  -O2  -DFLDMN=1
      LINK_FLAGS = -Bstatic  -Bstatic_pgi
 endif
@@ -40,9 +41,9 @@ ifeq ($(COMPILER),GFORT)
    FC    = gfortran
 #  FC    = /usr/local/gcc-4.6/bin/gfortran
    CC    = gcc
-   f_FLAGS       = -ffixed-form -ffixed-line-length-132 -O3 -funroll-loops -I. -fbounds-check
+   f_FLAGS       = -ffixed-form -ffixed-line-length-132 -O0 -funroll-loops -I. -fcheck=all -fbounds-check
    F_FLAGS       = $(f_FLAGS)
-   f90_FLAGS     = -cpp -ffree-form -ffree-line-length-none -O3 -funroll-loops -I. -fbounds-check
+   f90_FLAGS     = -cpp -ffree-form -ffree-line-length-none -O0 -funroll-loops -I. -fcheck=all -fbounds-check
    F90_FLAGS     = $(f90_FLAGS)
    C_FLAGS       = -O2 -DFLDMN 
    LINKER        = $(FC)
@@ -65,7 +66,8 @@ LIBS =
 
 
 
-OBJS = module_envvar.o \
+OBJS = module_env_functions.o \
+       module_envvar.o \
        module_glbldata.o \
        RXNS_DATA_MODULE.o \
        junit.o \
@@ -96,6 +98,9 @@ cr_ebi_solver: $(OBJS)
 
 RXNS_DATA_MODULE.o: $(RXNS_DATA_SRC)
 	$(LOAD_F90) -c $(INCLUDES) $(RXNS_DATA_SRC)
+
+module_env_functions.o:  $(SRCDIR)/module_env_functions.F 
+	$(LOAD) -c $(INCLUDES) $(SRCDIR)/module_env_functions.F
 
 module_envvar.o:  $(SRCDIR)/module_envvar.F 
 	$(LOAD) -c $(INCLUDES) $(SRCDIR)/module_envvar.F

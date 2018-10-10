@@ -17,24 +17,17 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header$
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
        SUBROUTINE CHEM( CGRID, JDATE, JTIME, TSTEP )
-
 C**********************************************************************
 C
 C  FUNCTION: Driver subroutine for Euler Backward Iterative solver
 C
-C  PRECONDITIONS: For the CB6R3 family of mechanisms
+C  PRECONDITIONS: For the cb6r3 family of mechanisms
 C
-C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, PHOT, HRCALCKS, HRSOLVER
+C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, HRCALCKS, HRSOLVER
 C                                     FIND_DEGRADED, INIT_DEGRADE, FINAL_DEGRADE
 C
-C  REVISION HISTORY: Created by EBI solver program, Mar 10, 2017
+C  REVISION HISTORY: Created by EBI solver program, Aug 29, 2018
 C                       Based on the algorithm in "Test of Two Numerical
 C                       Schemes for Use in Atmospheric Transport-Chemistry
 C                       Models", O. Hertel, R. Berkowicz, J. Christensen,
@@ -69,8 +62,14 @@ C**********************************************************************
       USE RXNS_DATA
       USE AEROSOL_CHEMISTRY
       USE RXNS_FUNCTION
+#ifdef isam
+      USE SA_IRR_DEFN
+      USE SA_DEFN
+#endif
       USE HRDATA
-      USE PA_DEFN, Only: LIRR   ! Process Anaylsis control and data variable
+      USE PHOT_MOD, Only: INIT_PHOT_SHARED, RJ     ! photolysis rate, in-line module
+      USE PA_DEFN, Only: LIRR                      ! Process Anaylsis control and data variable
+      USE PA_IRR_CLT
       USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP
 
       IMPLICIT NONE
@@ -137,40 +136,28 @@ C..Scratch Local Variables:
 
       INTEGER       :: GXOFF, GYOFF            ! global origin offset from file
 
-      INTEGER, SAVE :: PECOL_OFFSET        ! Local Column Offset for processor
-      INTEGER, SAVE :: PEROW_OFFSET        ! Local Column Offset for processor
 C for INTERPX
       INTEGER, SAVE :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2
       INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
 
       INTERFACE
-         SUBROUTINE PHOT ( MDATE, MTIME, JDATE, JTIME, DTSTEP, RJ )
-          INTEGER, INTENT( IN )  :: MDATE       !"centered" Julian date (YYYYDDD)
-          INTEGER, INTENT( IN )  :: MTIME       !"centered" time (HHMMSS)
-          INTEGER, INTENT( IN )  :: JDATE       ! Current date (YYYYDDD)
-          INTEGER, INTENT( IN )  :: JTIME       ! Current time (HHMMSS)
-          INTEGER, INTENT( IN )  :: DTSTEP( : ) ! time step vector (HHMMSS)
-          REAL,    INTENT( OUT ) :: RJ(:,:,:,:) ! gridded J-values  (1/min units)
-        END SUBROUTINE PHOT
         SUBROUTINE HRSOLVER( JDATE, JTIME, C, R, L )
            INTEGER, INTENT( IN ) :: JDATE    ! Current date (YYYYDDD)
            INTEGER, INTENT( IN ) :: JTIME    ! Current time (HHMMSS)
            INTEGER, INTENT( IN ) :: C, R, L  ! Cell col, row, lev
         END SUBROUTINE HRSOLVER
-         SUBROUTINE FIND_DEGRADED( JDATE, JTIME, LOGDEV, CALL_DEGRADE )
+         SUBROUTINE FIND_DEGRADED( JDATE, JTIME, CALL_DEGRADE )
            INTEGER, INTENT( IN )  :: JDATE        ! current model date , coded YYYYDDD
            INTEGER, INTENT( IN )  :: JTIME        ! current model time , coded HHMMSS
-           INTEGER, INTENT( IN )  :: LOGDEV       ! unit number for the log file
            LOGICAL, INTENT( OUT ) :: CALL_DEGRADE ! whether to call degradation routines
          END SUBROUTINE FIND_DEGRADED
-         SUBROUTINE INIT_DEGRADE( CBLK, TCELL, DCELL, PHOTO_CELL, JDATE, JTIME, LOGDEV )
+         SUBROUTINE INIT_DEGRADE( CBLK, TCELL, DCELL, PHOTO_CELL, JDATE, JTIME )
            REAL( 8 ), INTENT( IN ) :: CBLK( : )       !  species concentration in cell
            REAL,      INTENT( IN ) :: TCELL           !  cell temperature  [ k ]
            REAL,      INTENT( IN ) :: DCELL           !  cell air density  [ kg/m^3 ]
            REAL( 8 ), INTENT( IN ) :: PHOTO_CELL( : ) !  Photolysis table for cell [1/s]
            INTEGER,   INTENT( IN ) :: JDATE  ! current model date , coded YYYYDDD
            INTEGER,   INTENT( IN ) :: JTIME  ! current model time , coded HHMMSS
-           INTEGER,   INTENT( IN ) :: LOGDEV ! unit number for the log
          END SUBROUTINE INIT_DEGRADE
          SUBROUTINE FINAL_DEGRADE( CBLK )
            REAL( 8 ), INTENT( INOUT ) :: CBLK( : )    !  species concentration in cell
@@ -185,8 +172,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  On first call, call routines to set-up for EBI solver
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF( LFIRST ) THEN
-
-         LOGDEV = INIT3( )
 
          IF( MECHNAME .NE. 'CB6R3_AE6_AQ' ) THEN
              MSG = 'This version of the EBI solver can only be used with'
@@ -213,15 +198,16 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          END IF
 
          IF( LIRR ) THEN
-            MSG = 'IRR Analysis not allowed with EBI solver'
-            CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
+            CALL_IRR = .TRUE.
+         ELSE
+            CALL_IRR = .FALSE.
          END IF
 
          MODEL_SPECIES = NSPCSD    ! WTH: find number of model species
 
 ! Determine whether DEGRADE rountines are needed.
 
-         CALL FIND_DEGRADED( JDATE, JTIME, LOGDEV, CALL_DEG )
+         CALL FIND_DEGRADED( JDATE, JTIME, CALL_DEG )
          IF( CALL_DEG )THEN
             WRITE(LOGDEV,*)'TX DEGRADE ROUTINES USED'
             WRITE(LOGDEV,*)'Mechanism contains degraded species'
@@ -264,6 +250,7 @@ C Define processor offsets
 
          PECOL_OFFSET = COLSD_PE( 1, MYPE+1 ) - 1
          PEROW_OFFSET = ROWSD_PE( 1, MYPE+1 ) - 1
+
 
 C.. Get fractional seawater coverage from the OCEAN file.
 
@@ -312,9 +299,19 @@ C.. Get fractional surf-zone coverage from the OCEAN file.
 
          ALLOCATE( DENS( NCOLS, NROWS, NLAYS ), PRES( NCOLS, NROWS, NLAYS ),
      &             QV  ( NCOLS, NROWS, NLAYS ), TA  ( NCOLS, NROWS, NLAYS ),
-     &             RJ  ( NCOLS, NROWS, NLAYS, NPHOTAB ),
      &             SEAICE( NCOLS, NROWS ) )
 
+C..Initialize shared photolysis data
+         CALL INIT_PHOT_SHARED()
+
+C..Determine which cells need IRR
+         ALLOCATE( LFLAGIRR ( NCOLS, NROWS, NLAYS ) )
+         CALL      PA_IRR_CKCELLS ( LFLAGIRR )
+
+#ifdef isam
+        NUMB_ISAM_CELLS = 1.0D0 / ( NCOLS * NROWS * NLAYS )
+        CALL SA_IRR_INIT
+#endif
          LFIRST = .FALSE.
 
       END IF      ! First time
@@ -393,9 +390,7 @@ C.. Get pressure in Pascals
          CALL M3EXIT ( PNAME, JDATE, JTIME, MSG, XSTAT1 )
       END IF
 
-C.. Get photolysis rates in 1/min
-      CALL PHOT ( MIDDATE, MIDTIME, JDATE, JTIME, TSTEP, RJ )
-C.. Get Heteorogeneous rates and Update Aerosol Distribution Properties
+C.. Get Heterogeneous rates and Update Aerosol Distribution Properties
       CALL HETCHEM_RATES( TA, PRES, QV, CGRID )
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -413,6 +408,9 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       DO L = 1, NLAYS
          DO R = 1, MY_NROWS
             DO C = 1, MY_NCOLS
+
+c..reset CALL_IRR based on cell's values
+               CALL_IRR = LFLAGIRR( C,R,L )
 
 c..Load ICs
                INV_DENS = 1.0 / DENS( C,R,L )
@@ -433,7 +431,7 @@ c..Load ICs
                      YCCELL( S ) = REAL( CGRID(C,R,L,S), 8)
                   END DO
                   CALL INIT_DEGRADE(YCCELL,TA(C,R,L),DENS(C,R,L),RJIN(NCELL,:),
-     &                              JDATE, JTIME, LOGDEV)
+     &                              JDATE, JTIME )
                END IF
 
 c..Set physical quantities
@@ -458,10 +456,26 @@ c..Get rate constants
                CALL CALC_RCONST( TEMP, ATMPRES, H2O, RJIN, HET, LSUNLIGHT, LAND, RKI_SAV, NCELL )
                FORALL( NPH = 1:NRXNS )RKI( NPH ) = RKI_SAV( NCELL, NPH )
 
+#ifdef isam
+#if defined(isam) || defined(verbose_isam)
+C...For diagnosing IRR calculations in log files
+                IF( CHECK_ISAM )THEN
+                   WRITE_CELL = .FALSE.
+                   IF( C .EQ. MAX(1, MY_NCOLS/2) .AND. R .EQ. MAX(1,MY_NROWS/2) .AND. L .EQ. 1 )THEN
+                        WRITE_CELL = .TRUE.
+                        WRITE(LOGDEV,*)'WRITE_CELL = .TRUE.'
+                   ELSE
+                        WRITE_CELL = .FALSE.
+                   END IF
+                END IF
+#endif
+               CALL SA_IRR_EXTRACT( C, R, L, DENS( C,R,L ),YC )
+#endif
+
 c..Call EBI solver
                N_EBI_IT = 0
 
-               CALL HRSOLVER( JDATE, JTIME, (C+PECOL_OFFSET), (R+PEROW_OFFSET), L )
+               CALL HRSOLVER( JDATE, JTIME, C, R, L )
 
 #ifdef hrstats
                MXEBI  = MAX( MXEBI, N_EBI_IT )
@@ -492,6 +506,13 @@ c..Update concentration array
                      CGRID(C,R,L,ISP) = REAL( YCCELL(ISP), 4)
                   END DO UPDATE_DEGRADED
                END IF
+
+#ifdef isam
+               CALL SA_IRR_UPLOAD( C, R, L, DENS( C,R,L ), YC )
+#endif
+
+c..update irrout arrays if needed
+               IF ( LFLAGIRR( C,R,L ) )CALL PA_IRR_CELLENDF( C, R, L )
 
             END DO
          END DO

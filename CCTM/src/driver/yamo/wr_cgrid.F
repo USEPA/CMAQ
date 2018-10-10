@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/driver/yamo/wr_cgrid.F,v 1.4 2011/10/21 16:10:43 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE WR_CGRID ( CGRID, JDATE, JTIME, TSTEP )
 
@@ -78,7 +71,6 @@ C Local variables:
       INTEGER VGTYP_RF
       REAL VGTOP_RF
 
-      INTEGER, SAVE :: LOGDEV       ! FORTRAN unit number for log file
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
       LOGICAL OK
 
@@ -89,7 +81,6 @@ C-----------------------------------------------------------------------
       IF ( FIRSTIME ) THEN
 
          FIRSTIME = .FALSE.
-         LOGDEV = INIT3 ()
 
 C Try to open existing file for update
 
@@ -153,7 +144,7 @@ C pick up transported RHOJ
                VAR = VAR + 1
                VTYPE3D( VAR ) = M3REAL
                VNAME3D( VAR ) = 'RHOJ'
-               UNITS3D( VAR ) = 'm*Kg/m**3'
+               UNITS3D( VAR ) = 'm kg m-3'
                VDESC3D( VAR ) = 'Variable ' // VNAME3D( VAR )
 
                DO SPC = 1, N_AE_SPC
@@ -161,11 +152,11 @@ C pick up transported RHOJ
                   VTYPE3D( VAR ) = M3REAL
                   VNAME3D( VAR ) = AE_SPC( SPC )
                   IF ( VNAME3D( VAR )(1:3) .EQ. 'NUM' ) THEN
-                     UNITS3D( VAR ) = 'number/m**3'
+                     UNITS3D( VAR ) = 'm-3'
                   ELSE IF ( VNAME3D( VAR )(1:3) .EQ. 'SRF' ) THEN
-                     UNITS3D( VAR ) = 'm**2/m**3'
+                     UNITS3D( VAR ) = 'm2 m-3'
                   ELSE
-                     UNITS3D( VAR ) = 'micrograms/m**3'
+                     UNITS3D( VAR ) = 'ug m-3'
                   END IF
                   VDESC3D( VAR ) = 'Variable ' // VNAME3D( VAR )
                END DO

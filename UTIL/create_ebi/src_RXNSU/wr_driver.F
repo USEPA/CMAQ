@@ -35,7 +35,7 @@ C..SCRATCH LOCAL VARIABLES:
       CHARACTER(  32)   ::    MNAME                ! Mech name to write
       CHARACTER(  32 )  ::    MOUT                 ! Mech name for putput
       CHARACTER( 256 )  ::    MSG                  ! Message text
-      CHARACTER( 100 )  ::    LINEIN               ! Input line
+      CHARACTER( 140 )  ::    LINEIN               ! Input line
       CHARACTER( 256 )  ::    FNAME                ! Name of file to open
       CHARACTER( 4 )    ::    COM_AE_TAG           ! Compatible Aerosol version
 

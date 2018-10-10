@@ -17,10 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry_mp/BIDI_MOD.F,v 1.5 2012/01/26 18:45:35 sjr Exp $
-
 c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module Bidi_Mod
 
@@ -31,6 +27,8 @@ C OPASX_MEDIA - Opens the output file for NH4+ and H+ in the soil water solution
 C               
 C Revision History: J. Bash Mar 15 11: Created
 C                   J. Bash May 11 11: Updated for CMAQ 5.0
+      USE RUNTIME_VARS
+
 
       Implicit None
 ! Private variables
@@ -43,15 +41,11 @@ C                   J. Bash May 11 11: Updated for CMAQ 5.0
       Integer, Parameter, Private :: HG_SOL_CONC  = 2           
       
       Integer, Save,   Private :: N_Hg
-      Integer, Save,   Private :: LOGDEV      
       Character( 96 ), Private :: XMSG = ' '
 ! shared variables
       Character( 16 ), Save , Allocatable :: MEDIA_NAMES( : )
       Character( 16 ), Save , Allocatable :: MEDIA_UNITS( : )
       Character( 80 ), Save , Allocatable :: MEDIA_DESCR( : )
-
-! environment variable for mercury bi-directional flux
-      Character( 16 )                     :: CTM_HGBIDI = 'CTM_HGBIDI      '
 
       Integer, Parameter      :: HG_TOT = HG_AQ_CONC + HG_GAS_CONC + HG_SOL_CONC       
       Integer, Save           :: N_TOT
@@ -60,24 +54,19 @@ C                   J. Bash May 11 11: Updated for CMAQ 5.0
       Real, Save, Allocatable :: MHp1   ( :,: ) ! molar H+
       Real, Save, Allocatable :: MHp2   ( :,: ) ! molar H+  
       Real, Save, Allocatable :: CMEDIA ( :,:,: ) ! surface layer concs 
-      Logical, Save     :: HGBIDI  
       Logical, Save     :: INIT_LAI   
       Logical, Save     :: INIT_ATX 
       Logical, Save     :: INIT_ASX              
 
 
       Contains 
-         Subroutine INIT_BIDI( ABFLUX )
+         Subroutine INIT_BIDI( )
          Use GRID_CONF
          Use CGRID_SPCS          ! CGRID mechanism species
          Use UTILIO_DEFN
          
          Implicit None
          
-C...Arguments:            
-         
-         Logical,     Intent( In ) :: abflux       
- 
 C... Local:
  
          Character( 16 ) :: PNAME = 'INIT_BIDI       '
@@ -85,27 +74,11 @@ C... Local:
          Integer         :: STATUS
          
 C--------------------------------------------------------------------------
-         LOGDEV = INIT3()  
+         ! Set Mercury BiDi Processing Flag equal to false if there is
+         ! no mercury gas-phase species.
+         If ( INDEX1( 'HG', N_GC_DDEP, GC_DDEP ) .EQ. 0 ) HGBIDI = .FALSE.
 
-         If ( INDEX1( 'HG', N_GC_DDEP, GC_DDEP ) .Gt. 0 ) Then 
-         
-            HGBIDI = .FALSE.
-            XMSG   = 'Flag for mercury bi-directional flux calculation'
-            HGBIDI = ENVYN( CTM_HGBIDI, XMSG, HGBIDI, STATUS )
-            If ( STATUS .NE. 0 ) Write( LOGDEV, '(5X, A)' ) XMSG
-            If ( STATUS .EQ. 1 ) Then
-               XMSG = 'Environment variable improperly formatted'
-               Call M3EXIT ( PNAME, 0, 0, XMSG, XSTAT2 )
-            Else If ( STATUS .EQ. -1 ) Then
-               XMSG = 'Environment variable set, but empty ... Using default:'
-               Write( LOGDEV, '(5X, A)' ) XMSG
-            Else If ( STATUS .EQ. -2 ) Then
-               XMSG = 'Environment variable not set ... Using default:'
-               Write( LOGDEV, '(5X, A)' ) XMSG
-            End If
-            
-         End If
-
+         ! Define Media Concentration Output Variables and Descriptions
          If ( ABFLUX .And. .Not. HGBIDI ) Then
          
             N_TOT = NHx_TOT
@@ -200,7 +173,7 @@ C--------------------------------------------------------------------------
 !************** Iput / output section of the module **************************
 !*****************************************************************************
 
-         Subroutine OPASX_MEDIA( JDATE, JTIME, TSTEP, ABFLUX )
+         Subroutine OPASX_MEDIA( JDATE, JTIME, TSTEP )
 
          Use GRID_CONF
          Use CGRID_SPCS          ! CGRID mechanism species
@@ -213,7 +186,6 @@ C--------------------------------------------------------------------------
          Integer,     Intent( In ) :: JDATE
          Integer,     Intent( In ) :: JTIME
          Integer,     Intent( In ) :: TSTEP
-         Logical,     Intent( In ) :: ABFLUX
 
          Character( 16 ) :: PNAME = 'OPASX_MEDIA     '
          Character( 80 ) :: VARDESC
@@ -222,7 +194,6 @@ C--------------------------------------------------------------------------
          Integer  N, V, L
          
 C--------------------------------------------------------------------------
-         LOGDEV = INIT3()  
          
          If ( ABFLUX .And. .Not. HGBIDI) Then
 
@@ -271,7 +242,7 @@ C--------------------------------------------------------------------------
                   N = N + 1
                   VTYPE3D( N ) = M3REAL
                   VNAME3D( N ) = MEDIA_NAMES( N )
-                  UNITS3D( N ) = 'mol/l'
+                  UNITS3D( N ) = 'mol L-1'
                   VDESC3D( N ) = 'aqueous phase concentration'
                End Do
 
@@ -281,7 +252,7 @@ C--------------------------------------------------------------------------
                   N = N + 1
                   VTYPE3D( N ) = M3REAL
                   VNAME3D( N ) = MEDIA_NAMES( N )
-                  UNITS3D( N ) = 'ppmV g'
+                  UNITS3D( N ) = 'ppmV g-1'
                   VDESC3D( N ) = 'gas phase concentration'
                End Do
 
@@ -291,7 +262,7 @@ C--------------------------------------------------------------------------
                   N = N + 1
                   VTYPE3D( N ) = M3REAL
                   VNAME3D( N ) = MEDIA_NAMES( N )
-                  UNITS3D( N ) = 'umol/g'
+                  UNITS3D( N ) = 'umol g-1'
                   VDESC3D( N ) = 'Solid phase concentration'
                End Do              
             End If
@@ -340,7 +311,7 @@ C--------------------------------------------------------------------------
                   N = N + 1
                   VTYPE3D( N ) = M3REAL
                   VNAME3D( N ) = MEDIA_NAMES( N )
-                  UNITS3D( N ) = 'umol/mol'
+                  UNITS3D( N ) = 'umol mol-1'
                   VDESC3D( N ) = 'aqueous phase concentration'
                End Do
 
@@ -360,7 +331,7 @@ C--------------------------------------------------------------------------
                   N = N + 1
                   VTYPE3D( N ) = M3REAL
                   VNAME3D( N ) = MEDIA_NAMES( N )
-                  UNITS3D( N ) = 'umol/g'
+                  UNITS3D( N ) = 'umol g-1'
                   VDESC3D( N ) = 'Solid phase concentration'
                End Do
             End If
@@ -409,7 +380,7 @@ C--------------------------------------------------------------------------
                   N = N + 1
                   VTYPE3D( N ) = M3REAL
                   VNAME3D( N ) = MEDIA_NAMES( N )
-                  UNITS3D( N ) = 'umol/mol'
+                  UNITS3D( N ) = 'umol mol-1'
                   VDESC3D( N ) = 'aqueous phase concentration'
                End Do
 
@@ -429,7 +400,7 @@ C--------------------------------------------------------------------------
                   N = N + 1
                   VTYPE3D( N ) = M3REAL
                   VNAME3D( N ) = MEDIA_NAMES( N )
-                  UNITS3D( N ) = 'umol/g'
+                  UNITS3D( N ) = 'umol g-1'
                   VDESC3D( N ) = 'Solid phase concentration'
                End Do
                
@@ -439,7 +410,7 @@ C--------------------------------------------------------------------------
                   N = N + 1
                   VTYPE3D( N ) = M3REAL
                   VNAME3D( N ) = MEDIA_NAMES( N )
-                  UNITS3D( N ) = 'mol/l'
+                  UNITS3D( N ) = 'mol L-1'
                   VDESC3D( N ) = 'aqueous phase concentration'
                End Do
 
@@ -459,7 +430,7 @@ C--------------------------------------------------------------------------
                   N = N + 1
                   VTYPE3D( N ) = M3REAL
                   VNAME3D( N ) = MEDIA_NAMES( N )
-                  UNITS3D( N ) = 'umol/g'
+                  UNITS3D( N ) = 'umol g-1'
                   VDESC3D( N ) = 'Solid phase concentration'
                End Do        
             End If
@@ -478,7 +449,7 @@ C--------------------------------------------------------------------------
 
 !****************************************************************************
 
-         Subroutine WRASX_MEDIA( MDATE, MTIME, ABFLUX )
+         Subroutine WRASX_MEDIA( MDATE, MTIME )
 
 ! Revision History.
 !     Aug 12, 15 D. Wong: added code to handle parallel I/O implementation
@@ -493,7 +464,6 @@ C--------------------------------------------------------------------------
 
          Integer, Intent( In )    :: MDATE
          Integer, Intent( In )    :: MTIME
-         Logical, Intent( In )    :: ABFLUX
 
          Logical, Save :: FIRSTIME = .TRUE.
 
@@ -503,8 +473,6 @@ C--------------------------------------------------------------------------
          Character( 16 ) :: PNAME = 'WRASX_MEDIA     '
          
 !*****************************************************************************         
-         LOGDEV = INIT3()    
-         
          If ( HGBIDI ) Then
             INIT_LAI = .FALSE.   
             INIT_ATX = .FALSE.   

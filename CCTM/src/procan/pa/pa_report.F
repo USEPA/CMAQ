@@ -17,10 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/PROCAN/src/driver/pa/pa_report.F,v 1.7 2011/11/02 14:34:00 yoj Exp $
-
       SUBROUTINE PA_REPORT
 
 C-----------------------------------------------------------------------
@@ -38,9 +34,10 @@ C  Modified Sept, 1997 by Jerry Gipson to be consistent with targeted CTM
 C  Modified Jun, 1998 by Jerry Gipson to change name of output report
 C  Modified May 2002 by Jerry Gipson to add comma in format statements
 C  Aug 2011 Jeff Young: Replaced I/O API include files with IOAPI`s M3UTILIO
+C  Sep 2018 C. Nolte, S. Roselle: replace M3UTILIO with UTILIO_DEFN
 C-----------------------------------------------------------------------
 
-      USE M3UTILIO      ! IOAPI module
+      USE UTILIO_DEFN
       USE PA_GLOBAL     ! Mech data used 
       USE PA_VARS
       USE PA_IPRVARS
@@ -52,7 +49,7 @@ C-----------------------------------------------------------------------
 C Includes: None
 C Arguments: None
 C Parameters:
-      CHARACTER( 16 ), PARAMETER :: PACM_REPORT = 'PACM_REPORT'  
+      CHARACTER( 20 ), PARAMETER :: PACM_REPORT = 'PACM_REPORT'  
       CHARACTER( 16 ), PARAMETER :: PNAME = 'PA_REPORT'  
 
 C External Functions: None
@@ -122,8 +119,6 @@ C-----------------------------------------------------------------------
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Open file and write report header
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-!     IOUT = JUNIT( )
-!     OPEN( UNIT = IOUT, FILE = 'PA_REPORT' )
 
       LRDONLY = .FALSE.
       LFMTTED = .TRUE.
@@ -878,7 +873,7 @@ C-----------------------------------------------------------------------
 C Function: Convert an integer number into character representation
 C           that is left justified in a string 
 C-----------------------------------------------------------------------
-         USE M3UTILIO      ! IOAPI module
+         USE UTILIO_DEFN
 
          IMPLICIT NONE
       

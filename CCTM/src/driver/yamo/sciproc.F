@@ -17,9 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/driver/yamo/sciproc.F,v 1.5 2011/10/21 16:10:43 yoj Exp $ 
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE SCIPROC ( CGRID, JDATE, JTIME, TSTEP, ASTEP )
 
@@ -57,11 +54,12 @@ C    25 Mar 16 R.Mathur: incorporated pot. vorticity strat. O3 scaling
 C-----------------------------------------------------------------------
 
       USE UTILIO_DEFN
+      USE RUNTIME_VARS
 
       IMPLICIT NONE   
 
 C Include files:
-
+      INCLUDE 'mpif.h'
       INCLUDE SUBST_PACTL_ID    ! PA control parameters
 
 C Arguments:
@@ -86,12 +84,8 @@ C Local Variables:
 
       CHARACTER( 16 ) :: PNAME = 'SCIPROC'
 
-      LOGICAL, SAVE :: FIRSTIME = .TRUE.
-
       CHARACTER( 120 ) :: XMSG = ' '
       CHARACTER( 36 ) :: NMSG = 'After NEXTIME: returned JDATE, JTIME'
-
-      INTEGER, SAVE :: LOGDEV
 
       INTEGER      SDATE        ! current science process date, coded YYYYDDD
       INTEGER      STIME        ! current science process time, coded HHMMSS
@@ -100,8 +94,9 @@ C Local Variables:
       INTEGER      STATUS          ! ENV... status
       CHARACTER( 80 ) :: VARDESC   ! environment variable description
       CHARACTER( 80 ) :: MSG = ' '
-      CHARACTER( 16 ) :: CTM_CKSUM = 'CTM_CKSUM'     ! env var for cksum on
-      LOGICAL, SAVE   :: CKSUM     ! flag for cksum on, default = [T]
+      REAL( 8 )       :: CPU_TIME_START  ! Timing individual
+      REAL( 8 )       :: CPU_TIME_START_MASTER
+      CHARACTER( 24 ) :: CDATE_TIME
 
       INTERFACE
          SUBROUTINE CKSUMMER ( PNAME, CGRID, JDATE, JTIME )
@@ -146,6 +141,11 @@ C Local Variables:
             INTEGER, INTENT( IN )     :: JDATE, JTIME
             INTEGER, INTENT( IN )     :: TSTEP( 3 )
          END SUBROUTINE VDIFF
+         SUBROUTINE PHOT ( CGRID, JDATE, JTIME, TSTEP )
+            REAL, POINTER             :: CGRID( :,:,:,: )
+            INTEGER, INTENT( IN )     :: JDATE, JTIME
+            INTEGER, INTENT( IN )     :: TSTEP( : )
+         END SUBROUTINE PHOT
          SUBROUTINE CLDPROC ( CGRID, JDATE, JTIME, TSTEP )
             REAL, POINTER             :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )     :: JDATE, JTIME
@@ -172,49 +172,50 @@ C Local Variables:
   
 C-----------------------------------------------------------------------
 
-      IF ( FIRSTIME ) THEN
-         FIRSTIME = .FALSE.
-         LOGDEV = INIT3 ()
+! Write Time Step Information to Summary Logfile
+      IF ( MYPE .EQ. 0 ) WRITE( OUTDEV, * ) 
+      CPU_TIME_START = MPI_WTIME()
+      CPU_TIME_START_MASTER = CPU_TIME_START
+      WRITE( XMSG, '(A,I7.7,A,I6.6)' ), 'Processing Day/Time [YYYYDDD:HHMMSS]: ',JDATE, 
+     &       ':',JTIME
+      IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
+      CDATE_TIME = DT2STR( JDATE, JTIME )
+      WRITE( XMSG, '(2x,A,A)' ), 'Which is Equivalent to: ',CDATE_TIME
+      IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
 
-         CKSUM = .TRUE.         ! default
-         VARDESC = 'Cksum on flag'
-         CKSUM = ENVYN( CTM_CKSUM, VARDESC, CKSUM, STATUS )
-         IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-         IF ( STATUS .EQ. 1 ) THEN
-            XMSG = 'Environment variable improperly formatted'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-         ELSE IF ( STATUS .EQ. -1 ) THEN
-            MSG = 'Environment variable set, but empty ... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) MSG, JTIME
-         ELSE IF ( STATUS .EQ. -2 ) THEN
-            MSG = 'Environment variable not set ... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) MSG, JTIME
-         END IF
-
-      END IF       ! if firstime
+      WRITE( XMSG, '(2x,A,I6.6)' ), 'Time-Step Length (HHMMSS): ',TSTEP(2) 
+      IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
 
 C Synchronization Step Physical Processes Sequence
-
       CALL VDIFF ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'VDIFF', CGRID, JDATE, JTIME )
       IF ( LIPR ) CALL PA_UPDATE ( 'VDIF', CGRID, JDATE, JTIME, TSTEP )
+      IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'VDIFF' )
 
 C couple CGRID for advection and horizontal diffusion
+C The COUPLE_WRF routine converts aerosol mass from ug/m3 to kg/m3. The 
+C DECOUPL_WRF routine converts it back to ug/m3.
 
+      CPU_TIME_START = MPI_WTIME()
       CALL COUPLE ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'COUPLE', CGRID, JDATE, JTIME )
+      IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'COUPLE' )
 
+      CALL SUBST_BARRIER()
       CALL HADV ( CGRID, JDATE, JTIME, TSTEP, ASTEP )
-!     IF ( CKSUM ) CALL CKSUMMER ( 'HADV', CGRID, JDATE, JTIME )
+      IF ( CKSUM ) CALL CKSUMMER ( 'HADV', CGRID, JDATE, JTIME )
       IF ( LIPR ) CALL PA_UPDATE ( 'HADV', CGRID, JDATE, JTIME, TSTEP )
+      IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'HADV' )
 
       CALL ZADV ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'ADV', CGRID, JDATE, JTIME )
       IF ( LIPR ) CALL PA_UPDATE ( 'ZADV', CGRID, JDATE, JTIME, TSTEP )
+      IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'ZADV' )
 
       CALL HDIFF ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'HDIFF', CGRID, JDATE, JTIME )
       IF ( LIPR ) CALL PA_UPDATE ( 'HDIF', CGRID, JDATE, JTIME, TSTEP )
+      IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'HDIFF' )
 
 C decouple CGRID for cloud and chemistry
 
@@ -224,27 +225,39 @@ C decouple CGRID for cloud and chemistry
 
       CALL DECOUPLE ( CGRID, SDATE, STIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'DECOUPLE', CGRID, JDATE, JTIME )
+      IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'DECOUPLE' )
+
+      CALL PHOT ( CGRID, JDATE, JTIME, TSTEP )
+      IF ( CKSUM ) CALL CKSUMMER ( 'PHOT', CGRID, JDATE, JTIME )
+      IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'PHOT' )
 
       CALL CLDPROC ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'CLDPROC', CGRID, JDATE, JTIME )
       IF ( LIPR ) CALL PA_UPDATE ( 'CLDS', CGRID, JDATE, JTIME, TSTEP )
+      IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'CLDPROC' )
 
       CALL CHEM ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'CHEM', CGRID, JDATE, JTIME )
       IF ( LIPR ) CALL PA_UPDATE ( 'CHEM', CGRID, JDATE, JTIME, TSTEP ) 
+      IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'CHEM' )
 
 #ifdef potvorto3
       CALL PVO3 ( CGRID, JDATE, JTIME )
       IF ( CKSUM ) CALL CKSUMMER ( 'PVO3', CGRID, JDATE, JTIME )
       IF ( LIPR ) CALL PA_UPDATE ( 'PVO3', CGRID, JDATE, JTIME, TSTEP )
+      IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'PVO3' )
 #endif
 
       CALL AERO ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'AERO', CGRID, JDATE, JTIME )
-      IF ( LIPR ) CALL PA_UPDATE ( 'AERO', CGRID, JDATE, JTIME, TSTEP )
+      IF ( LIPR ) CALL PA_UPDATE_AERO ( JDATE, JTIME, TSTEP )
+      IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'AERO' )
 
       CALL NEXTIME ( JDATE, JTIME, TSTEP( 2 ) )
       WRITE( LOGDEV,'(/ 5X, A, I8, I7.6)' ) NMSG, JDATE, JTIME
+
+! Print Summary Timing for Master time step      
+      CALL TIMING_SPLIT ( CPU_TIME_START_MASTER, 2 )
 
       RETURN
       END

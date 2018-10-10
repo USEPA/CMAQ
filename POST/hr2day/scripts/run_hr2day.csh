@@ -1,7 +1,7 @@
 #! /bin/csh -f
 
-# ====================== HR2DAYv5.2.1 Run Script ======================
-# Usage: run.hr2day.csh >&! hr2day_v521.log &
+# ====================== HR2DAYv5.3 Run Script ======================
+# Usage: run.hr2day.csh >&! hr2day_v53.log &
 #
 # To report problems or request help with this script/program:
 #             http://www.epa.gov/cmaq    (EPA CMAQ Website)
@@ -20,7 +20,7 @@
  source ./config_cmaq.csh
 
 #> Set the model version
- set VRSN = v521
+ set VRSN = v53
 
 #> Set the build directory if this was not set above 
 #> (this is where the executable is located by default).
@@ -72,10 +72,19 @@
 #> define species (format: "Name, units, From_species, Operation")
 #>  operations : {SUM, AVG, MIN, MAX, @MAXT, MAXDIF, 8HRMAX, SUM06}
  setenv SPECIES_1 "O3,ppbV,O3,8HRMAX"
+ 
+#> Optional desired first and last processing date. The program will
+#> adjust the requested dates if the desired range is not covered by
+#> the input file(s). If these dates are not specified, the processing
+#> will be performed for the longest possible time record that can be
+#> derived from the model input file(s)
+ setenv START_DATE 2011182
+ setenv END_DATE 2011195
 
 #> set input and output files
- setenv INFILE ${CMAQ_DATA}/POST/COMBINE_ACONC_201107.nc
-          #[Add location of input file, e.g. COMBINE_ACONC file.]
+ setenv M3_FILE_1 ${CMAQ_DATA}/POST/COMBINE_ACONC_201107.nc
+# setenv M3_FILE_2 ${CMAQ_DATA}/POST/COMBINE_ACONC_201108.nc
+          #[Add location of one or more (up to 366) input files, e.g. COMBINE_ACONC file.]
  setenv OUTFILE ${CMAQ_DATA}/POST/dailymaxozone.nc
 
 #> Executable call:

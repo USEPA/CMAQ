@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/couple/gencoor_wrf/couple.F,v 1.4 2011/10/21 16:10:30 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C @(#)couple.F  1.1 /project/mod3/CMAQ/src/convert/couple/SCCS/s.couple.F 03 Jun 1997 11:41:33
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE COUPLE ( CGRID, JDATE, JTIME, TSTEP )
 
@@ -93,7 +86,6 @@ C Local Variables:
       CHARACTER( 96 ) :: XMSG = ' '
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
-      INTEGER, SAVE :: LOGDEV
 
       INTEGER, SAVE :: NQAE              ! number of micro-grams/m**3 species
       INTEGER, SAVE :: NNAE              ! number of #/m**3 species
@@ -116,7 +108,6 @@ C If ISPCA .ne. 0, then air is advected and concs. are adjusted
 
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
-         LOGDEV = INIT3()
 
          IF ( N_AE_SPC .GT. 0 ) THEN
 C create aerosol species pointers to distinguish micro-grams/m**3,
@@ -146,17 +137,6 @@ C #/m**3 (number density), and m**2/m**3 (surface area) species
                   QAE( NQAE ) = OFF + SPC
                END IF
             END DO
-
-!           write( logdev,* ) 'Couple'
-!           do v = 1, nqae
-!              write( logdev,2009 ) v, qae( v ) + ae_strt -1, ae_spc( qae( v ) )
-!           end do
-!           do v = 1, nnae
-!              write( logdev,2009 ) v, nae( v ) + ae_strt -1, ae_spc( nae( v ) )
-!           end do
-!           do v = 1, nsae
-!              write( logdev,2009 ) v, sae( v ) + ae_strt -1, ae_spc( sae( v ) )
-!           end do
 
 2009        format( 5x, 2i4, 2x, a )
 
@@ -287,7 +267,6 @@ C entry DECOUPLE
 
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
-         LOGDEV = INIT3()
 
          IF ( N_AE_SPC .GT. 0 ) THEN
 C create aerosol species pointers to distinguish micro-grams/m**3,
@@ -317,17 +296,6 @@ C #/m**3 (number density), and m**2/m**3 (surface area) species
                   QAE( NQAE ) = OFF + SPC
                END IF
             END DO
-
-!           write( logdev,* ) 'Decouple'
-!           do v = 1, nqae
-!              write( logdev,2009 ) v, qae( v ) + ae_strt -1, ae_spc( qae( v ) )
-!           end do
-!           do v = 1, nnae
-!              write( logdev,2009 ) v, nae( v ) + ae_strt -1, ae_spc( nae( v ) )
-!           end do
-!           do v = 1, nsae
-!              write( logdev,2009 ) v, sae( v ) + ae_strt -1, ae_spc( sae( v ) )
-!           end do
 
          END IF
 
