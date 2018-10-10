@@ -53,7 +53,7 @@ TYPE_MATRIX =
 'ETHA:30.1:VD_ETHA:1:::ETHANE:1:::Yes:Yes::Yes',
 'ETOH:46.1:VD_ETOH:1:::ETHANOL:1:::Yes:Yes::Yes',
 'KET:72.1:VD_KET:1:::MEK:1:::Yes:Yes::Yes',
-'PAR:14.0:VD_PAR:1:::ETHANE:1:::Yes:Yes::Yes',
+'PAR:72.1:VD_PAR:1:::ETHANE:1:::Yes:Yes::Yes',
 'ACET:58.1:VD_ACET:1:::ACETONE:1:::Yes:Yes::Yes',
 'PRPA:44.1:VD_PRPA:1:::PROPANE:1:::Yes:Yes::Yes',
 'ROR:71.1::::::::::::Yes',
