@@ -31,8 +31,6 @@ Pye, H. O. T., Murphy, B. N., Xu, L., Ng, N. L., Carlton, A. G., Guo, H., Weber,
 #### Relevant Pull Requests:
 [PR #335]
 
-#### Commit 
-IDs:                        
 
 
 -----
