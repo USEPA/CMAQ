@@ -1,4 +1,4 @@
-# Anthropogenic SOA Reorganization in Aero7
+# Anthropogenic SOA reorganization in aero7
 
 **Author/P.O.C.:**, [Momei Qin](mailto:qin.momei@epa.gov), Computational Exposure Division, U.S. EPA
 
@@ -9,7 +9,7 @@ without changing any of the major model dependencies or magnitude of mass. High 
 are retained as well as previous oligomerization pathways. In general, the same underlying experimental datasets are
 used, but yields are parameterized using a volatility basis set (VBS) instead of an Odum 2-product fit.
 BTX and PAH yields are the same as those in Pye et al. (2010) and long-chain alkanes follow
-the dodecane data of Presto et al. (2012). Properties (OM/OC, nC, molecular weights, 
+the dodecane data of Presto et al. (2010). Properties (OM/OC, nC, molecular weights, 
 solubilities, diffusivities, enthalpies of vaporization, LeBas molar volumes) of the VBS bins
 were set to be consistent with what had been used in the Odum 2-product parameterizations
 of aero6. Formation of the semivolatiles is performed in the gas-phase mechanism (note
@@ -21,17 +21,17 @@ SVAVB1-4
 
 Table 1: Mass-based SOA yields by C* (ug/m3)
 
-|	Precursor	|	MW (g/mol)	|	0.01	|	1	|	10	|	100	|
-|	------	|	------	|	------	|	------	|	------	|	------	|
-|	BENZ (high NOx)	|	78.11	|	0	|	0.078	|	0	|	0.793	|
-|	BENZ (low NOx)	|	78.11	|	0.37	|	0	|	0	|	0	|
-|	TOLU (high NOx)	|	92.14	|	0	|	0.032	|	0.094	|	0.08	|
-|	TOLU (low NOx)	|	92.14	|	0.3	|	0	|	0	|	0	|
-|	XYLE (high NOx)	|	106.17	|	0	|	0.025	|	0.036	|	0.09	|
-|	XYLE (low NOx)	|	106.17	|	0.36	|	0	|	0	|	0	|
-|	PAH (high NOx)	|	128.2	|	0	|	0.039	|	0.296	|	0.235	|
-|	PAH (low NOx)	|	128.2	|	0.73	|	0	|	0	|	0	|
-|	ALK (high NOx) (dodecane)	|	170	|	0	|	0.014	|	0.11	|	0.16	|
+|	Precursor		|	0.01	|	1	|	10	|	100	|
+|	------	|		------	|	------	|	------	|	------	|
+|	BENZ (high NOx)	|		0	|	0.078	|	0	|	0.793	|
+|	BENZ (low NOx)	|		0.37	|	0	|	0	|	0	|
+|	TOLU (high NOx)	|		0	|	0.032	|	0.094	|	0.08	|
+|	TOLU (low NOx)	|		0.3	|	0	|	0	|	0	|
+|	XYLE (high NOx)	|		0	|	0.025	|	0.036	|	0.09	|
+|	XYLE (low NOx)	|		0.36	|	0	|	0	|	0	|
+|	PAH (high NOx)	|		0	|	0.039	|	0.296	|	0.235	|
+|	PAH (low NOx)	|		0.73	|	0	|	0	|	0	|
+|	ALK (high NOx) 	|		0	|	0.014	|	0.11	|	0.16	|
             
 
 ## Significance and Impact
