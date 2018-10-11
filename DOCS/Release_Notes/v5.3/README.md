@@ -13,7 +13,9 @@ The Community Multiscale Air Quality (CMAQ) Model version 5.3 is a major update 
 ## Chemistry
 ### Photochemistry
 There are 11 unique gas-phase chemical mechanisms in CMAQv5.3. These are all located in the MECHS/ folder and may be invoked when building the model and Makefile. Variations of Carbon Bond 6 (CB6), RACM2, and SAPRC07 are all available. Specific science updates include the following:  
-
+ * [Halogen mediated first order ozone loss is revised for all mechanisms](simple_halogen_chemistry.md)
+ * [Detailed halogen and DMS chemistry with CB6r3](detailed_halogen_and_DMS_chemistry.md)
+ 
 ### Photolysis Rates
 
 ### Aerosol Processes
