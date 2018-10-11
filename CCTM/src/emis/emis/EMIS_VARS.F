@@ -207,7 +207,7 @@
      &    emis_legend( 'ORA2         ' ,'ORA2        ','GAS   ',060.0 ),
      &    emis_legend( 'ETOH         ' ,'ETOH        ','GAS   ',046.1 ),
      &    emis_legend( 'KET          ' ,'KET         ','GAS   ',072.1 ),
-     &    emis_legend( 'PAR          ' ,'PAR         ','GAS   ',072.1 ),
+     &    emis_legend( 'PAR          ' ,'PAR         ','GAS   ',014.0 ),
      &    emis_legend( 'ACET         ' ,'ACETONE     ','GAS   ',058.1 ),
      &    emis_legend( 'ACD          ' ,'ACD         ','GAS   ',044.0 ),
      &    emis_legend( 'ALD          ' ,'ALD         ','GAS   ',058.0 ),
