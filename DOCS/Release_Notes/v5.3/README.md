@@ -2,7 +2,7 @@ CMAQv5.3 Release Notes
 =====================================
 
 # Getting Started with CMAQ  
-[Building and running CMAQv5.2.1](../../../DOCS/User_Manual/CMAQ_OGD_ch05_sys_req.md)  
+[Building and running CMAQ](../../../DOCS/User_Manual/CMAQ_OGD_ch05_sys_req.md)  
 [Building and running WRF-CMAQ Two Way Model](Two_Way_Coupled_WRF-CMAQ.md)
 
 # Summary of CMAQv5.3 Updates
@@ -12,75 +12,69 @@ The Community Multiscale Air Quality (CMAQ) Model version 5.3 is a major update 
 <a id="chemistry"></a>
 ## Chemistry
 ### Photochemistry
-There are 10 unique gas-phase chemical mechanisms in CMAQv5.2. These are all located in the MECHS/ folder and may be invoked when building the model and Makefile. Variations of Carbon Bond 5 (CB05), Carbon Bond 6 (CB6), RACM2, and SAPRC07 are all available. Specific science updates include the following:  
-  * [CMAQv5.2 Photochemical Mechanisms](CMAQv5.2_Mechanisms.md)
+There are 11 unique gas-phase chemical mechanisms in CMAQv5.3. These are all located in the MECHS/ folder and may be invoked when building the model and Makefile. Variations of Carbon Bond 6 (CB6), RACM2, and SAPRC07 are all available. Specific science updates include the following:  
 
-Structural updates to the chemistry module in general include:  
-  * [Brute force no chemistry capacity](Brute_force_no_chemistry_capacity.md)
-
+  * Removal of obsolete mechanisms (deborahluecken)
+  * [Halogen mediated first order ozone loss is revised for all mechanisms](simple_halogen_chemistry.md)
+  * [Detailed halogen and DMS chemistry with CB6r3](detailed_halogen_and_DMS_chemistry.md)
+  * Updates to chlorine chemistry in CB6 and CB6r3 (PR 359, 342; deborahluecken)
+  * EBI integration (PR 377, 364; bhutzell)
+  
 ### Photolysis Rates
-Updates to the treatment of photolysis rates online include:
-  * [Updates to the OMI data file](In-Line_Photolysis_Updates_to_the_OMI_data_file.md)
+ * Updates to in-line photolysis (PR 334, 306, 276; bhutzell)
 
 ### Aerosol Processes
-The aerosol module has undergone significant changes that affect both its structure and the science it represents. Major science updates include the following:
-  * [Semivolatile POA and pcSOA implementation](SemiVolPOA_pcSOA.md)
-
-The following structural updates ensure consistent treatment of aerosols in CMAQv5.2 and flexibility as the code is developed in the future:
-  * [Consolidation of aero module and increased flexibility in AERO_DATA table](aero6_6i_6mp_consolidation.md)
-
-The following updates affect how aerosol concentrations from CMAQ output may be interpreted when evaluated against observation data:
-  * [PM Diagnsotic files have been enhanced to provide more detailed and robust information about CMAQ particulate properties](PM_Diagnostic_Files.md)
-
-These minor updates/bug fixes were necessary:
-  * [Reduce underflow errors in aerosol physics and chemistry](Reduce_underflow_errors_in_aerosol_physics_and_chemistry.md)
+CMAQ v5.3 introduces aero7 and aero7i. Aero6, available in previous versions of CMAQ, is still available. Aero 7/7i differs from aero6 in its treatment of organic aerosol.
+#### AERO7/7i
+  * [Overview of AERO7/7i](aero7_overview.md)  
+  * [Monoterpene SOA](monoterpene_SOA.md)  
+  * [Reorganization of anthropogenic SOA species](anthro_SOA.md)  
+  * [Uptake of water onto hydrophilic organic aerosol](organic_water.md)  
+  
+#### Other aerosol updates
+  * pcSOA flag
+  * getpar
+  * dry deposition
 
 ### Aqueous and Heterogeneous Chemistry
-  * [The subgrid non-precipitating shallow convective cloud treatment was updated to have scale-independent critical RH values consistent with the WRF meteorological model](Subgrid_Shallow_Conv_Cloud.md)
+ * AQCHEM-KMT2 cloud chemistry updates (PR363; kfahey92)
 
-### Lightning Interactions
-  * [Lightning NO<sub>x</sub> generation has been updated to leverage existing lightning fields for hindsight cases and an improved parameterization for future cases](Lightning_NOx.md)
  
-<a id="transport"></a>
 ## Transport Processes
-  * [The scaling of ozone in the upper troposphere has been corrected using an approach relying on potential vorticity](Potential_Vorticity_Scaling.md)
-
-<a id="exchange"></a>
+ * ACM2 updates related to z-coord (PR 354; jpleim)
+ * Settling (PR 381, 378; bnmurphy)
+ 
 ## Air-Surface Exchange
-### Windblown Dust Emissions
-  * [A major improvement was made to the windblown dust generation parameterization](Windblown_Dust_Emis.md)
+ * Centralized EPIC input (PR 315; jpleim)
+ * STAGE (PR 385, 375, 370, 368, 361, 345, 340; jessebash)
+ * M3dry, Namelist, MEDIACONC file corrections (PR 380, 348, 379; bnmurphy)
 
-### Deposition
-Important parameters for soluble gases have been updated to better represent resistances to dry deposition:
-  * [Update to the deposition parameters of H2O2, HACET, and Organic Nitrates.](Gas-Phase_Dep_H2O2_HACET_OrgNtr_s07tic_Species.md)
 
-The following minor update repairs an error in the wet deposition calculation:
-  * [Correct an intent declaration that resulted in errors when th emodel was not run at one hour intervals](Wet_Dep_Update.md)
-
-<a id="emissions"></a>
 ## Emission Updates
-CMAQ can now read multiple files for fire point sources into the model and apply them to the bulk species emissions rates:
-  * [Multiple fire inputs capability](Multiple_Fire_Inputs.md)
+ * [Biogenic speciation update for aero7](biogenic_apinene.md)
+ * DESID (PR 383, 376, 371, 356, 355, 305; bnmurphy, cgnolte)
+ * Lightning NOx (PR 324; dkang2)
+ * BEIS mapping lookup, bugs in BEIS (PR 318, 309, 308, 307; bnmurphy, jessebash)
 
-Improvements to speciation and error checking:  
-  * [Online speciation of biogenic VOCs from BEIS is now available and customizable](GSPRO.md)
-
-
-
-<a id="procan"></a>
 ## Process Analysis
-CCTM can now do process analysis with Integrated Process Rates (IPR) and/or Integrated Reactions Rates (IRR) as a run-time option.
-  * [Optional inline IPR and IRR process analysis](inline_procan.md)
+ * EBI and IRR (PR 326; bhutzell)
+ * Aerosols (PR 311; bnmurphy)
+
+## Structural Improvements
+ * LOGFILE (PR 384, 382, 277; bnmurphy)
+ * Moved PHOT to Sciproc (PR 352; bhutzell)
+ * Output units (PR 323; bnmurphy)
+ * CZANGLE centralization (PR 320; dschwede)
+ * Remove SWAP and SNL Routines (PR 274, 272; dwongepa)
+
+## Diagnostic
+ * Improved vertical extraction diagnostics (PR 319; barronh)
 
 ## Tools & Utilities
-  * [Update to run and build scripts for the CCTM and all pre- and post-processing tools](runscripts.md)
+ * [SpecDef aerosol updates](specdef_aero.md)
+ * [Updates to post-processing tools hr2day, sitecmp, and sitecmp_dailyo3; addition of new utility calc_tmetric.](postprocessing_tools.md)
 
 ## Instrumented Models
-The instrumented versions of CMAQv5.2 (e.g. CMAQ-DDM) will be release at a later date.
+CMAQ-DDM and CMAQ-ISAM will be released with the final version of CMAQv5.3 in Spring 2019.
 
-## Community Contributions
-New code to allow for multiple fire emission input files was contributed by Dr. Yongtao Hu from Georgia Tech University.
-
------
-# Release Testing
 

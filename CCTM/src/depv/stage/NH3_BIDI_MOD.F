@@ -569,7 +569,7 @@ C                          '12345678901234567890'
                Go To 1001
             End If
 
-            If( N_GMN .Gt. 0 ) Then
+            If( N_GMN .Le. 0 ) Then
 
                If( MOD(jdate,1000) .Eq. 1 ) Then
                   If( MOD(jdate,4000) .Eq. 0 .And. MOD(jdate,100000) .Eq. 0 .And. MOD(jdate,400000) .Eq. 0) Then
