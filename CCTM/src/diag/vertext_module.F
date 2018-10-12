@@ -20,6 +20,9 @@
 
          INTEGER              :: NVERTEXT
          INTEGER, ALLOCATABLE :: VERTEXTJ(:), VERTEXTI(:), VERT_SEQ(:)
+ 
+         INTEGER                      :: NVERTEXT_SPCS = 0
+         CHARACTER( 16 ), ALLOCATABLE :: VERTEXT_SPCS( : )
 
 ! for parallel implementation
          INTEGER              :: MY_NVERTEXT
@@ -41,17 +44,16 @@ C   24 Nov 17 B.Henderson: copied from OPCONC.
 C   09 Jan 18 D.Wong: put in parallel implementation
 C-----------------------------------------------------------------------
 
-         USE GRID_CONF             ! horizontal & vertical domain specifications
-         USE RUNTIME_VARS
-         USE STD_CONC              ! standard CONC
+         USE GRID_CONF
+         USE RUNTIME_VARS, ONLY: LOGDEV, LVEXT
+         USE STD_CONC, ONLY: N_C_GC_SPC, C_GC_SPC, N_C_AE_SPC, C_AE_SPC,  
+     &                       N_C_NR_SPC, C_NR_SPC, N_C_TR_SPC, C_TR_SPC
          USE UTILIO_DEFN
 #ifdef parallel
          USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
 #else
          USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
 #endif
-!         USE MODGCTP, only : XY2XY
-         USE HGRD_DEFN, only : MYPE, COLSX_PE, ROWSX_PE, NPCOL, NPROW
 
          IMPLICIT NONE
 C        INTERFACE
@@ -116,7 +118,7 @@ C-----------------------------------------------------------------------
 
          WRITE(LOGDEV, *)'IN', NVERTEXT
 
-C Set output file characteristics based on COORD.EXT and open it
+C Set output file characteristics from GRID_CONF and open 
 
          FTYPE3D = GRDDED3
          SDATE3D = JDATE
@@ -139,7 +141,7 @@ C Set output file characteristics based on COORD.EXT and open it
          YCELL3D = YCELL_GD
          VGTYP3D = VGTYP_GD
          VGTOP3D = VGTOP_GD
-         DO L = 1, NLAYS3D + 1
+         DO L = 1, NLAYS + 1
             VGLVS3D( L ) = VGLVS_GD( L )
          END DO
          GDNAM3D = GRID_NAME  ! from HGRD_DEFN
@@ -169,6 +171,7 @@ C Set output file characteristics based on COORD.EXT and open it
          WRITE (MYFMT, '(a10, i3, a6)') '(A16, 1X, ', NVERTEXT, 'f12.6)'
          WRITE (FDESC3D(KD + 4 + L), myfmt) 'Y list: ', VERTEXTJR(1:NVERTEXT)
          WRITE (FDESC3D(KD + 5 + L), myfmt) 'X list: ', VERTEXTIR(1:NVERTEXT)
+         
          
          STATUS = 0
          MY_NVERTEXT = 0
@@ -236,7 +239,7 @@ C Set output file characteristics based on COORD.EXT and open it
          DO SPC = STRT, FINI
             V = V + 1
             VTYPE3D( SPC ) = M3REAL
-            VNAME3D( SPC ) = C_AE_SPC( V )   ! from STD_CONC module
+            VNAME3D( SPC ) = C_AE_SPC( V )
             IF ( VNAME3D( SPC )(1:3) .EQ. 'NUM' ) THEN
                UNITS3D( SPC ) = 'm-3'
             ELSE IF ( VNAME3D( SPC )(1:3) .EQ. 'SRF' ) THEN
@@ -253,7 +256,7 @@ C Set output file characteristics based on COORD.EXT and open it
          DO SPC = STRT, FINI
             V = V + 1
             VTYPE3D( SPC ) = M3REAL
-            VNAME3D( SPC ) = C_NR_SPC( V )   ! from STD_CONC module
+            VNAME3D( SPC ) = C_NR_SPC( V )
             UNITS3D( SPC ) = 'ppmV'
             VDESC3D( SPC ) = 'Variable ' // VNAME3D( SPC )
          END DO
@@ -264,7 +267,7 @@ C Set output file characteristics based on COORD.EXT and open it
          DO SPC = STRT, FINI
             V = V + 1
             VTYPE3D( SPC ) = M3REAL
-            VNAME3D( SPC ) = C_TR_SPC( V )   ! from STD_CONC module
+            VNAME3D( SPC ) = C_TR_SPC( V )
             UNITS3D( SPC ) = 'ppmV'
             VDESC3D( SPC ) = 'Molar Mixing Ratio for species ' // VNAME3D( SPC )
          END DO
@@ -280,6 +283,10 @@ C Set output file characteristics based on COORD.EXT and open it
          VNAME3D( SPC ) = 'TA              '
          UNITS3D( SPC ) = 'K'
          VDESC3D( SPC ) = 'Temperature'
+
+         NVERTEXT_SPCS = NVARS3D
+         ALLOCATE( VERTEXT_SPCS( NVERTEXT_SPCS ), STAT = STATUS )
+         VERTEXT_SPCS( 1:NVERTEXT_SPCS ) = VNAME3D( 1:NVERTEXT_SPCS ) 
 
 C create header
 
@@ -300,15 +307,15 @@ C create header
          DEALLOCATE(VERTEXTLAT, VERTEXTLON, VERTEXTJR, VERTEXTIR)
 
          END SUBROUTINE OPVEXT
-
+#ifdef parallel
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
          LOGICAL FUNCTION PWRVEC( FILNAME, VARNAME, DATE, TIME,
-     &                            BUFFER, NLAYS3D,
+     &                            BUFFER, NLAYS,
      &                            NCOLS, NROWS, NP, 
      &                            NVERTEXT, VERTEXTII, VERTEXTJI)
 C.....................................................................
   
-C  PURPOSE:   Perform Models-3 file-write operation in a parallel or serial
+C  PURPOSE:   Perform Models-3 file-write operation in a parallel
 C             environment for a vector. Values of variable VARNAME on each processor
 C             subdomain region are collected, via MPI calls, by the
 C             primary I/O processor and the full grid of values are
@@ -332,9 +339,9 @@ C    CHARACTER*(*)  FILNAME        ! Name of file containing variable VARNAME
 C    CHARACTER*(*)  VARNAME        ! Name of file variable to write
 C    INTEGER        DATE           ! Date, formatted YYYYDDD
 C    INTEGER        TIME           ! Time, formatted HHMMSS
-C    REAL           BUFFER(NCOLS, NROWS, NLAYS3D)
+C    REAL           BUFFER(NCOLS, NROWS, NLAYS)
 C                                  ! Buffer holding (local) array to be written
-C    INTEGER  NLAYS3D              ! Layer dimension of file variables
+C    INTEGER  NLAYS                ! Layer dimension of file variables
 C    INTEGER  NCOLS                ! Column dimension of local-processor arrays
 C    INTEGER  NROWS                ! Row dimension of local-processor arrays
 C    INTEGER  NP                   ! Number of processors
@@ -353,35 +360,31 @@ C             arguments FILNAME, VARNAME, DATE, and TIME are meaningful
 C             only to the I/O processor.
  
 C         (2) This routine handles only gridded variables. The BUFFER is
-C             assumed to be declared as BUFFER( NCOLS, NROWS, NLAYS3D ),
+C             assumed to be declared as BUFFER( NCOLS, NROWS, NLAYS ),
 C             where NCOLS and NROWS are the local PE grid subdomain
-C             dimensions and NLAYS3D is the file variable layer dimension.
-C             BUFFER is assumed to be filled as BUFFER(1:C,1:R,1:NLAYS3D),
+C             dimensions and NLAYS is the file variable layer dimension.
+C             BUFFER is assumed to be filled as BUFFER(1:C,1:R,1:NLAYS),
 C             where C = WR_COLSX_PE(2,MY_PE+1), R = WR_ROWSX_PE(2,MY_PE+1).
 C-----------------------------------------------------------------------
 
-#ifdef parallel
          USE PIOMAPS_MODULE
          USE ALLOC_DATA_MODULE
-#else
-         USE HGRD_DEFN, ONLY: MY_PE => MYPE
-#endif
          USE M3UTILIO, ONLY : WRITE3              ! i/o api
 
          IMPLICIT NONE
 
 C Include Files
-#ifdef parallel
+
          INCLUDE 'mpif.h'            ! MPI definitions and parameters
          INCLUDE 'PIOVARS.EXT'
-#endif
+
 C Arguments
 
          CHARACTER( * ), INTENT(IN) :: FILNAME   ! Name of file containing variable VARNAME
          CHARACTER( * ), INTENT(IN) :: VARNAME   ! Name of file variable to write
          INTEGER, INTENT(IN)        :: DATE      ! Date, formatted YYYYDDD
          INTEGER, INTENT(IN)        :: TIME      ! Time, formatted HHMMSS 
-         INTEGER, INTENT(IN)        :: NLAYS3D   ! Layer dimension of file variables
+         INTEGER, INTENT(IN)        :: NLAYS     ! Layer dimension of file variables
          INTEGER, INTENT(IN)        :: NCOLS     ! Column dimension of local-processor arrays
          INTEGER, INTENT(IN)        :: NROWS     ! Row dimension of local-processor arrays
          INTEGER, INTENT(IN)        :: NP        ! Number of processors
@@ -394,26 +397,22 @@ C Arguments
          REAL, ALLOCATABLE       :: SENDVBUF(:,:)     ! to be written
 
 C External Functions:
-#ifdef parallel
+
          EXTERNAL PM3WARN                    ! Parallel M3IO library
-#endif
+
 C Local Variables:
 
          INTEGER         :: MSGSIZE   ! Message size of subgrid to receive
          INTEGER         :: IPE       ! For loop over processors
          INTEGER         :: IERROR    ! MPI error code
          LOGICAL         :: LERROR    ! LOCAL ERROR
-#ifdef parallel
          LOGICAL         :: RERROR    ! LOCAL MPI ALLREDUCE ERROR
-#endif
          INTEGER         :: TC,TR     ! This cell position
          INTEGER         :: IG        ! Loop counter over grid layers
          CHARACTER( 16 ) :: FIL16     ! Scratch area for file-name
          CHARACTER( 16 ) :: VAR16     ! Scratch area for vble-name
          CHARACTER( 80 ) :: MSG       ! Message issued from PM3WARN routine
-#ifdef parallel
          INTEGER         :: STATUS( MPI_STATUS_SIZE )   ! MPI status code
-#endif
          INTEGER         :: N, POS
 
          INTEGER, PARAMETER :: TAG1 = 901 ! MPI message tag for processor ID
@@ -425,11 +424,10 @@ C Initialize return value and error code
          LERROR = .FALSE.
          IERROR = 0
          
-#ifdef parallel
          IF ( MY_PE .EQ. IO_PE ) THEN    ! I/O processor collects and writes data
-#endif
+
             IF (.NOT. ALLOCATED(WRITVBUF)) THEN
-               ALLOCATE ( WRITVBUF  ( 1, NVERTEXT, NLAYS3D ), STAT = IERROR )
+               ALLOCATE ( WRITVBUF  ( 1, NVERTEXT, NLAYS ), STAT = IERROR )
                IF ( IERROR .NE. 0 ) THEN
                   MSG = 'Failure allocating WRITVBUF '
                   CALL M3EXIT( 'PWRVEC', DATE, TIME, MSG, 1 )
@@ -447,31 +445,20 @@ C I/O PE copies its own local array into output buffer
 
                WRITVBUF( 1, POS, : ) = BUFFER(TC, TR, :)
             END DO
-#ifndef parallel 
-            FIL16 = FILNAME
-            VAR16 = VARNAME
-            IF ( .NOT. WRITE3( FIL16, VAR16, DATE, TIME, WRITVBUF ) ) THEN
-               MSG = 'Could not write '
-     &               // TRIM( VARNAME ) //
-     &               ' to file '// TRIM( FIL16 )
-
-               CALL M3WARN( 'PWRVEC', DATE, TIME, MSG )
-               LERROR = .TRUE.
-            END IF
-#else
+ 
 C I/O PE receives array from all other processors and copies it to the output
 C buffer. Arrays are received in a first-come-first-serve order.  
 
             DO IPE = 1, NP - 1
 
                IF (PE_NVERTEXT(0, IPE) .GT. 0) THEN
-                  ALLOCATE ( RECVVBUF  ( PE_NVERTEXT(0, IPE), NLAYS3D ), STAT = IERROR )
+                  ALLOCATE ( RECVVBUF  ( PE_NVERTEXT(0, IPE), NLAYS ), STAT = IERROR )
                   IF ( IERROR .NE. 0 ) THEN
                      MSG = 'Failure allocating RECVVBUF '
                      CALL M3EXIT( 'PWRVEC', DATE, TIME, MSG, 1 )
                   END IF
 
-                  MSGSIZE = PE_NVERTEXT(0, IPE) * NLAYS3D
+                  MSGSIZE = PE_NVERTEXT(0, IPE) * NLAYS  
 
                   CALL MPI_RECV( RECVVBUF, MSGSIZE, MPI_REAL, IPE,
      &                           TAG1, MPI_COMM_WORLD, STATUS, IERROR )
@@ -512,7 +499,7 @@ C the I/O processor.
 
             IF (MY_NVERTEXT .GT. 0) THEN
                IF (.NOT. ALLOCATED(SENDVBUF)) THEN
-                  ALLOCATE ( SENDVBUF  ( MY_NVERTEXT, NLAYS3D ), STAT = IERROR )
+                  ALLOCATE ( SENDVBUF  ( MY_NVERTEXT, NLAYS   ), STAT = IERROR )
                   IF ( IERROR .NE. 0 ) THEN
                      MSG = 'Failure allocating SENDVBUF '
                      CALL M3EXIT( 'PWRVEC', DATE, TIME, MSG, 1 )
@@ -526,7 +513,7 @@ C the I/O processor.
                   SENDVBUF( IG, : ) = BUFFER(TC, TR, :)
                END DO
 
-               MSGSIZE = MY_NVERTEXT * NLAYS3D
+               MSGSIZE = MY_NVERTEXT * NLAYS  
 
                CALL MPI_SEND( SENDVBUF, MSGSIZE, MPI_REAL, IO_PE, TAG1,
      &                        MPI_COMM_WORLD, IERROR )
@@ -558,11 +545,11 @@ C Notify non-I/O processors of failure
             CALL PM3WARN( 'PWRVEC', DATE, TIME, MSG )
             PWRVEC = .FALSE.
          END IF
-#endif
+
          END FUNCTION PWRVEC
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-         SUBROUTINE WR_VEXT( JDATE, JTIME, TSTEP )
+         SUBROUTINE WR_VEXT( CGRID, JDATE, JTIME, TSTEP )
 
 C Revision History:
 C   24 Nov 17 B.Henderson: copied from WR_CONC
@@ -573,9 +560,7 @@ C-----------------------------------------------------------------------
          USE GRID_CONF             ! horizontal & vertical domain specifications
          USE RUNTIME_VARS
          USE STD_CONC              ! standard CONC
-#ifdef parallel
          USE PIOMAPS_MODULE
-#endif
          USE UTILIO_DEFN
          USE ASX_DATA_MOD, Only: Met_Data
 
@@ -585,9 +570,10 @@ C Include Files:
 
          INCLUDE SUBST_FILES_ID    ! I/O definitions and declarations
 
-         INTEGER, INTENT(IN) :: JDATE        ! current model date, coded YYYYDDD
-         INTEGER, INTENT(IN) :: JTIME        ! current model time, coded HHMMSS
-         INTEGER, INTENT(IN) :: TSTEP        ! output timestep (HHMMSS)
+         REAL,    POINTER    :: CGRID( :,:,:,: )  ! Species concentrations
+         INTEGER, INTENT(IN) :: JDATE             ! current model date, coded YYYYDDD
+         INTEGER, INTENT(IN) :: JTIME             ! current model time, coded HHMMSS
+         INTEGER, INTENT(IN) :: TSTEP             ! output timestep (HHMMSS)
 
 C Local variables:
 
@@ -596,9 +582,6 @@ C Local variables:
 
          REAL, ALLOCATABLE :: DBUFF ( :,: )     ! input for W_VEL
          INTEGER           :: ALLOCSTAT
-#ifndef parallel
-         INTEGER, SAVE     :: NUMPROCS = 1
-#endif
 
          LOGICAL, SAVE :: FIRSTIME = .TRUE.
 
@@ -606,8 +589,9 @@ C for INTERPX
 
          INTEGER      :: C, R, K, L, V,GI   ! loop induction variables
          INTEGER      :: C0, CN, R0, RN
-         CHARACTER( 16 ), ALLOCATABLE, SAVE :: VNAME( : )
-         INTEGER, SAVE :: NVARS
+         INTEGER      :: INDX
+!        CHARACTER( 16 ), ALLOCATABLE, SAVE :: VNAME( : )
+!        INTEGER, SAVE :: NVARS
 
 C-----------------------------------------------------------------------
          IF ( FIRSTIME ) THEN
@@ -624,14 +608,16 @@ C open vext file for update
                END IF
             END IF
 
-            IF ( .NOT. DESC3( CTM_VEXT_1 ) ) THEN
-               XMSG = 'Could not get file description from ' // CTM_VEXT_1
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-            NVARS = NVARS3D
-            ALLOCATE ( VNAME( NVARS ), STAT=ALLOCSTAT )
+!           IF ( .NOT. DESC3( CTM_VEXT_1 ) ) THEN
+!              XMSG = 'Could not get file description from ' // CTM_VEXT_1
+!              CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+!           END IF
+!           NVARS = NVARS3D
+!           ALLOCATE ( VNAME( NVARS ), STAT=ALLOCSTAT )
+!           VNAME = VNAME3D( 1:NVARS )
+!           WRITE(LOGDEV, *) 'WR_VEXT:NVARS', NVARS
 
-            VNAME = VNAME3D( 1:NVARS )
+
             IF ( .NOT. ALLOCATED( DBUFF ) ) THEN
                ALLOCATE ( DBUFF( NVERTEXT, NLAYS ), STAT = ALLOCSTAT )
                IF ( ALLOCSTAT .NE. 0 ) THEN
@@ -641,38 +627,40 @@ C open vext file for update
             END IF
 
          END IF   ! firstime
-         WRITE(LOGDEV, *) 'WR_VEXT:NVARS', NVARS
 
-         DO V = 1, NVARS
-
-            IF ( .NOT. PWRVEC(CTM_VEXT_1, VNAME(V), JDATE, JTIME,
-     &                        SGRID(:, :, :, V), NLAYS3D,
+         DO V = 1, N_CSPCS
+            INDX = CONC_MAP( V )
+            IF ( .NOT. PWRVEC(CTM_VEXT_1, CONC_FILE_SPCS( V ), JDATE, JTIME,
+     &                        CGRID(:, :, :, INDX), NLAYS,
      &                        NCOLS, NROWS, NUMPROCS, 
      &                        NVERTEXT, VERTEXTI, VERTEXTJ     ) ) THEN
-                     XMSG = 'PWRGRDD failed writing variable '
-     &                     // TRIM( VNAME(V) ) //
-     &                     ' to file '// TRIM( CTM_VEXT_1 )
+               XMSG = 'PWRGRDD failed writing variable '
+     &              // TRIM( CONC_FILE_SPCS(V) ) //
+     &              ' to file '// TRIM( CTM_VEXT_1 )
                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            ELSE
+               XMSG = 'PWRGRDD wrote variable '
+     &              // TRIM( CONC_FILE_SPCS(V) ) //
+     &              ' to file '// TRIM( CTM_VEXT_1 )
+               WRITE( LOGDEV, '(A)') XMSG
             END IF
          END DO
 
-         IF ( .NOT. PWRVEC(CTM_VEXT_1, VNAME(V + 1), JDATE, JTIME,
-     &                     Met_Data%PRES(:, :, :), NLAYS3D,
+         IF ( .NOT. PWRVEC(CTM_VEXT_1, 'PRES', JDATE, JTIME,
+     &                     Met_Data%PRES(:, :, :), NLAYS,
      &                     NCOLS, NROWS, NUMPROCS, 
      &                     NVERTEXT, VERTEXTI, VERTEXTJ     ) ) THEN
-                  XMSG = 'PWRGRDD failed writing variable '
-     &                  // TRIM( VNAME(V) ) //
-     &                  ' to file '// TRIM( CTM_VEXT_1 )
+            XMSG = 'PWRGRDD failed writing variable PRES'
+     &          // ' to file '// TRIM( CTM_VEXT_1 )
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
          
-         IF ( .NOT. PWRVEC(CTM_VEXT_1, VNAME(V + 2), JDATE, JTIME,
-     &                     Met_Data%TA(:, :, :), NLAYS3D,
+         IF ( .NOT. PWRVEC(CTM_VEXT_1, 'TA', JDATE, JTIME,
+     &                     Met_Data%TA(:, :, :), NLAYS,
      &                     NCOLS, NROWS, NUMPROCS, 
      &                     NVERTEXT, VERTEXTI, VERTEXTJ     ) ) THEN
-                  XMSG = 'PWRGRDD failed writing variable '
-     &                  // TRIM( VNAME(V) ) //
-     &                  ' to file '// TRIM( CTM_VEXT_1 )
+            XMSG = 'PWRGRDD failed writing variable TA '
+     &          // ' to file '// TRIM( CTM_VEXT_1 )
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
@@ -681,7 +669,7 @@ C open vext file for update
      &         'for date and time', JDATE, JTIME
 
          END SUBROUTINE WR_VEXT
-
+#endif
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
          SUBROUTINE GET_LONLAT(NVERT, VERTLON, VERTLAT)
 C-----------------------------------------------------------------------
@@ -741,17 +729,17 @@ C-----------------------------------------------------------------------
 
          SUBROUTINE LONLAT2XY(NVERTEXT, VERTEXTLON, VERTEXTLAT,
      &                        VERTEXTIR, VERTEXTJR)
-         USE M3UTILIO, only : LL2LAM, LL2POL, LL2TRM, LL2EQM, LL2ALB,
-     &                        SETLAM, SETPOL, SETEQM, SETTRM, SETALB
          USE UTILIO_DEFN
          USE GRID_CONF             ! horizontal & vertical domain specifications
          IMPLICIT NONE
          INTEGER, INTENT(in) :: NVERTEXT
          REAL, INTENT(in) :: VERTEXTLON(NVERTEXT), VERTEXTLAT(NVERTEXT)
          REAL, INTENT(inout) :: VERTEXTIR(NVERTEXT), VERTEXTJR(NVERTEXT)
-         LOGICAL :: PRJSET
+         CHARACTER( 16 ) :: PNAME = 'LONLAT2XY'
+         CHARACTER( 96 ) :: XMSG = ' '
+         LOGICAL :: PRJSET, LSTAT
          REAL :: JR, IR
-         INTEGER :: V, STATUS
+         INTEGER :: V
 !         IOAPI 3.2 has an explicit function, but many users are likely
 !         using 3.1, so I basically rewrote LL2XY
 !         CALL XY2XY( GDTYP_GD, P_ALP_GD, P_BET_GD, P_GAM_GD, XCENT_GD, YCENT_GD,
@@ -761,8 +749,7 @@ C-----------------------------------------------------------------------
              PRJSET = SETLAM( REAL(P_ALP_GD), REAL(P_BET_GD), REAL(P_GAM_GD),
      &                         REAL(XCENT_GD), REAL(YCENT_GD))
              DO V=1,NVERTEXT
-                 STATUS = LL2LAM( VERTEXTLON(V), VERTEXTLAT(V), 
-     &                            IR, JR)
+                 LSTAT = LL2LAM( VERTEXTLON(V), VERTEXTLAT(V), IR, JR ) 
                  VERTEXTIR(V) = IR
                  VERTEXTJR(V) = JR
              ENDDO
@@ -770,8 +757,7 @@ C-----------------------------------------------------------------------
              PRJSET = SETPOL( REAL(P_ALP_GD), REAL(P_BET_GD), REAL(P_GAM_GD),
      &                         REAL(XCENT_GD), REAL(YCENT_GD))
              DO V=1,NVERTEXT
-                 STATUS = LL2POL( VERTEXTLON(V), VERTEXTLAT(V), 
-     &                            IR, JR)
+                 LSTAT = LL2POL( VERTEXTLON(V), VERTEXTLAT(V), IR, JR ) 
                  VERTEXTIR(V) = IR
                  VERTEXTJR(V) = JR
              ENDDO
@@ -779,8 +765,7 @@ C-----------------------------------------------------------------------
              PRJSET = SETEQM( REAL(P_ALP_GD), REAL(P_BET_GD), REAL(P_GAM_GD),
      &                         REAL(XCENT_GD), REAL(YCENT_GD))
              DO V=1,NVERTEXT
-                 STATUS = LL2EQM( VERTEXTLON(V), VERTEXTLAT(V), 
-     &                            IR, JR)
+                 LSTAT = LL2EQM( VERTEXTLON(V), VERTEXTLAT(V), IR, JR ) 
                  VERTEXTIR(V) = IR
                  VERTEXTJR(V) = JR
              ENDDO
@@ -788,8 +773,7 @@ C-----------------------------------------------------------------------
              PRJSET = SETTRM( REAL(P_ALP_GD), REAL(P_BET_GD), REAL(P_GAM_GD),
      &                         REAL(XCENT_GD), REAL(YCENT_GD))
              DO V=1,NVERTEXT
-                 STATUS = LL2TRM( VERTEXTLON(V), VERTEXTLAT(V), 
-     &                            IR, JR)
+                 LSTAT =  LL2TRM( VERTEXTLON(V), VERTEXTLAT(V), IR, JR )
                  VERTEXTIR(V) = IR
                  VERTEXTJR(V) = JR
              ENDDO
@@ -797,17 +781,14 @@ C-----------------------------------------------------------------------
              PRJSET = SETALB( REAL(P_ALP_GD), REAL(P_BET_GD), REAL(P_GAM_GD),
      &                         REAL(XCENT_GD), REAL(YCENT_GD))
              DO V=1,NVERTEXT
-                 STATUS = LL2ALB( VERTEXTLON(V), VERTEXTLAT(V), 
-     &                            IR, JR)
+                 LSTAT = LL2ALB( VERTEXTLON(V), VERTEXTLAT(V), IR, JR )
                  VERTEXTIR(V) = IR
                  VERTEXTJR(V) = JR
              ENDDO
          ELSE
-
-             CALL M3EXIT( 'LATLON/MAKEGRD', 0, 0,
-     &                   'Unsupported coordinate system type', 2 )
- 
-         END IF          !  if lat-lon, lambert, utm, or else if unsupported
+             XMSG = 'Unsupported coordinate system type'
+             CALL M3EXIT(PNAME, 0, 0, XMSG, XSTAT2)
+         END IF
 
          END SUBROUTINE LONLAT2XY
 

@@ -505,7 +505,7 @@ C write conc fields
 #endif
             CALL WR_CONC ( JDATE, JTIME, TSTEP( 1 ) )
 #ifdef parallel
-            IF ( LVEXT ) CALL WR_VEXT ( JDATE, JTIME, TSTEP( 1 ) )
+            IF ( LVEXT ) CALL WR_VEXT ( CGRID, JDATE, JTIME, TSTEP( 1 ) )
 #endif
             CALL WR_ACONC ( AGRID, JDATE, JTIME, TSTEP( 1 ) )
             IF ( LIPR .OR. LIRR ) CALL PA_OUTPUT ( CGRID, JDATE, JTIME )

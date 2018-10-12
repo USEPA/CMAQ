@@ -558,12 +558,20 @@
       ! Get Flag for Vertical Extraction
       VARDESC = 'Extract a Vertical Column of Ouptut Data'
       LVEXT = GET_ENVYN( 'VERTEXT', VARDESC, LVEXT )
-
+#ifdef parallel
       ! Get Filepath for File Specifying Lon-Lat Coordinates for
       ! Vertical Extraction
       VARDESC = 'File Specifying Lon-Lat Coords for Vertical Extraction'
       VEXT_COORD_PATH = GET_ENVSTR( 'VERTEXT_COORD_PATH', VARDESC, VEXT_COORD_PATH )
-
+#else
+      IF( LVEXT ) THEN
+          LVEXT = .FALSE.
+          WRITE( OUTDEV,'(A)')'Option to extract a Vertical Column of Ouptut Data set to YES'
+          WRITE( OUTDEV,'(A)')'However, the serial version cannot execute the option'
+          WRITE( LOGDEV,'(A)')'Option to extract a Vertical Column of Ouptut Data set to YES'
+          WRITE( LOGDEV,'(A)')'However, the serial version cannot execute the option'
+      END IF
+#endif
       ! Get Filename for Gas Species Namelist
       VARDESC = 'Gas Species Namelist Filename'
       GC_NAMELIST = GET_ENVSTR(  'gc_matrix_nml', VARDESC, GC_NAMELIST )
