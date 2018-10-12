@@ -1,6 +1,6 @@
 #! /bin/csh -f
 
-# ==================== HR2DAYv5.2.1 Build Script ===================== #
+# ==================== HR2DAYv5.3 Build Script ===================== #
 # Usage: bldit_hr2day.csh >&! bldit_hr2day.log                          #
 # Requirements: I/O API & netCDF libraries; a Fortran compiler        #
 #                                                                     #
