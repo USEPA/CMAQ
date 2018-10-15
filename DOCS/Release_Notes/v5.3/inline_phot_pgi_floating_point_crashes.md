@@ -1,6 +1,6 @@
 # Remove floating point crashes from photolysis rate calculation when using Portland Group compiler.
  
-**Author/P.O.C.:**, [William T. Hutzell](mailto: hutzell.bill@epa.gov), Computational Exposure Division, U.S. EPA
+**Author/P.O.C.:**, [William T. Hutzell](mailto:hutzell.bill@epa.gov), Computational Exposure Division, U.S. EPA
 
 ## Brief Description
 The changes remove crashes when the model is compiled using the pgi compiler with debug options. Floating point errors within the in-line calculation of photolysis rates cause the crashes because exponentials are being evaluated at very large negative REAL(8) numbers for the **TWOSTREAM_S** and **get_aggregate_optics** subroutines within the **PHOT_MOD.F** and **CLOUD_OPTICS.F** files, respectively. Code changes limit lowest value of the exponential argument to -709.090848126508 which corresponds to 9.0x10<sup>-307</sup> so exponentials evaluated below the limit are set to 9.0x10<sup>-307</sup> .
