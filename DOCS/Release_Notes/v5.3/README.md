@@ -18,11 +18,15 @@ There are 11 unique gas-phase chemical mechanisms in CMAQv5.3. These are all loc
   * [Halogen mediated first order ozone loss is revised for all mechanisms](simple_halogen_chemistry.md)
   * [Detailed halogen and DMS chemistry with CB6r3](detailed_halogen_and_DMS_chemistry.md)
   * Updates to chlorine chemistry in CB6 and CB6r3 (PR 359, 342; deborahluecken)
-  * EBI integration (PR 377, 364; bhutzell)
+  * EBI Solvers
+    * [Setting Maximum Integration Time Step and Initial Changes for CMAS-ISAM](updates_to_create_ebi.md)
+    * [Ability to conduct Integrated Reaction Rate Analysis](allow_ebi_to_do_IRR_analysis.md)
   
 ### Photolysis Rates
- * Updates to in-line photolysis (PR 334, 306, 276; bhutzell)
-
+ * [In-line photolysis diagnostics and OMI files](inline_phot_diagnostic_and_OMI.md)
+ * [Floating point crashes using the Portland Group Compiler](inline_phot_pgi_floating_point_crashes.md)
+ * [inline_phot_preproc utility](updates_to_inline_phot_preproc.md)
+ 
 ### Aerosol Processes
 CMAQ v5.3 introduces aero7 and aero7i. Aero6, available in previous versions of CMAQ, is still available. Aero 7/7i differs from aero6 in its treatment of organic aerosol.
 #### AERO7/7i
@@ -57,12 +61,12 @@ CMAQ v5.3 introduces aero7 and aero7i. Aero6, available in previous versions of 
  * BEIS mapping lookup, bugs in BEIS (PR 318, 309, 308, 307; bnmurphy, jessebash)
 
 ## Process Analysis
- * EBI and IRR (PR 326; bhutzell)
+ * [IRR analysis available in EBI solvers](allow_ebi_to_do_IRR_analysis.md)
  * Aerosols (PR 311; bnmurphy)
 
 ## Structural Improvements
  * LOGFILE (PR 384, 382, 277; bnmurphy)
- * Moved PHOT to Sciproc (PR 352; bhutzell)
+ * [Moved PHOT to Sciproc](move_phot_to_sciproc.md)
  * Output units (PR 323; bnmurphy)
  * CZANGLE centralization (PR 320; dschwede)
  * Remove SWAP and SNL Routines (PR 274, 272; dwongepa)
@@ -73,7 +77,9 @@ CMAQ v5.3 introduces aero7 and aero7i. Aero6, available in previous versions of 
 ## Tools & Utilities
  * [SpecDef aerosol updates](specdef_aero.md)
  * [Updates to post-processing tools hr2day, sitecmp, and sitecmp_dailyo3; addition of new utility calc_tmetric.](postprocessing_tools.md)
-
+ * [Updates to the create_ebi utility](updates_to_create_ebi.md)
+ * [Updates to the inline_phot_preproc utility](updates_to_inline_phot_preproc.md)
+ 
 ## Instrumented Models
 CMAQ-DDM and CMAQ-ISAM will be released with the final version of CMAQv5.3 in Spring 2019.
 
