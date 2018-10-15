@@ -1,6 +1,6 @@
 # Updates to the Utilities that creates an EBI solver
 
-**Author/P.O.C.:**, [William T. Hutzell](mailto: hutzell.bill@epa.gov), Computational Exposure Division, U.S. EPA
+**Author/P.O.C.:**, [William T. Hutzell](mailto:hutzell.bill@epa.gov), Computational Exposure Division, U.S. EPA
 
 ## Brief Description
 
