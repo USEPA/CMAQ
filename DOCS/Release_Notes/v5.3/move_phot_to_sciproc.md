@@ -1,6 +1,6 @@
 # Move Photolysis Rate Calculation from CHEM to SCPROC
 
-**Author/P.O.C.:**, [William T. Hutzell](mailto: hutzell.bill@epa.gov), Computational Exposure Division, U.S. EPA
+**Author/P.O.C.:**, [William T. Hutzell](mailto:hutzell.bill@epa.gov), Computational Exposure Division, U.S. EPA
 
 ## Brief Description
 The pull request moves PHOT for the CHEM driver to sciproc for both in-line and tabular method for calculating photolysis rates. It also adds variables to the cloud options that use the H<sub>2</sub>O<sub>2</sub> and HNO<sub>3</sub> photolysis rates calculated from PHOT. Finally, the create_ebi utility was updated to account for this structural change.
