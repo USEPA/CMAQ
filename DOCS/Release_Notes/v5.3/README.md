@@ -2,7 +2,8 @@ CMAQv5.3 Release Notes
 =====================================
 
 # Getting Started with CMAQ  
-[Building and running CMAQ](../../../DOCS/User_Manual/CMAQ_OGD_ch05_sys_req.md)  
+[Tutorial on installing and running CMAQ](../../../DOCS/Tutorials/CMAQ_GettingStarted.md)  
+[Tutorial on running the CMAQ test case](../../../DOCS/Tutorials/CMAQ_Benchmark.md)  
 
 # Summary of CMAQv5.3 Updates
 
@@ -55,7 +56,6 @@ CMAQ v5.3 introduces aero7 and aero7i. Aero6, available in previous versions of 
 ## Emission Updates
  * [Biogenic speciation update for aero7](biogenic_apinene.md)
  * DESID (PR 383, 376, 371, 356, 355, 305; bnmurphy, cgnolte)
- * Lightning NOx (PR 324; dkang2)
  * BEIS mapping lookup, bugs in BEIS (PR 318, 309, 308, 307; bnmurphy, jessebash)
 
 ## Process Analysis
