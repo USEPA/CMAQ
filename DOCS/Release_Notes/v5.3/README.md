@@ -69,7 +69,7 @@ CMAQ v5.3 introduces aero7 and aero7i. Aero6, available in previous versions of 
  * CZANGLE centralization (PR 320; dschwede)
 
 ## Diagnostic
- * Improved vertical extraction diagnostics (PR 319; barronh)
+ * [Vertical Profile Extraction: extend CCTM to output vertical profiles at specified locations](vertical_extraction.md)
 
 ## Tools & Utilities
  * [SpecDef aerosol updates](specdef_aero.md)
