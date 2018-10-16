@@ -4,8 +4,7 @@
 
 ## Brief Description
 
-This update allows users to save vertical profiles of multiple species at selected locations specified by a custom set of latitude / longitude coordinates. These profiles are written to a new optional output file, CTM_VEXT_1. The species written to this new output file are identical to those written to the 3D CONC file which in turn are controlled either by the setting of CONC_SPCS in the run  
-script or the last column in the GC, AE, NR, and TR namelist files.
+This update allows users to save vertical profiles of multiple species at selected locations specified by a custom set of latitude / longitude coordinates. These profiles are written to a new optional output file, CTM_VEXT_1. The species written to this new output file are identical to those written to the 3D CONC file which in turn are controlled either by the setting of CONC_SPCS in the run script or the last column in the GC, AE, NR, and TR namelist files.
 
 The creation of this optional output file is enabled by the following run script setting:  
   
@@ -27,7 +26,7 @@ This text input file has N+1 lines where N is the number of desired locations sp
 
 This new feature incorporates a post-processing step needed for evaluation of 3D model data directly into the CMAQ run script. Previously the user would need to work with the 3D CONC output file to compare model output to vertical observations (Figure 1). The new CTM_VEXT_1 file contains model output for only the vertical columns of interest (Figure 2). The addition of this new diagnostic file allows the user the ability to delete the full 3D CONC file after the model simulation is complete, thus dramatically reducing storage space required for model outputs when specific columns (e.g., sonde locations or aircraft or satellite) are all that are required.
 
-Note that the new feature can be used to extract columns for boundaries on a pereimeter. However, the BCON tool does not currently  
+Note that the new feature can be used to extract columns for boundaries on a perimeter. However, the BCON tool does not currently  
 support the creation of boundary conditions from the diagnostic profile files created by this option.  The addition of this option into the BCON preprocessor may be considered for a future release. 
 
 ![conc](conc_pic1.jpg) 
