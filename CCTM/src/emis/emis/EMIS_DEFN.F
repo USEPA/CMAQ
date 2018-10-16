@@ -1857,7 +1857,7 @@ C and allowing the model to proceed.
          ELSE IF ( OP .EQ. 'O' .OR. OP .EQ. 'o' ) THEN
              OP = 'o'
          ELSE
-             WRITE( XMSG,'(A,I,A,A1)' ),
+             WRITE( XMSG,'(A,I3,A,A1)' ),
      &              'ERROR: OP parameter for rule ',IRULE,
      &              ' has invalid value: ',OP
              CALL LOG_MESSAGE( OUTDEV, XMSG )
@@ -1885,7 +1885,7 @@ C and allowing the model to proceed.
      &             BASIS .EQ. 'Mass' ) THEN
              BASIS = 'MASS'
          ELSE
-             WRITE( XMSG,'(A,I,A,A4)' ),
+             WRITE( XMSG,'(A,I3,A,A4)' ),
      &              'ERROR: BASIS parameter for rule ',IRULE,
      &              ' has invalid value: ',BASIS
              CALL LOG_MESSAGE( OUTDEV, XMSG )
