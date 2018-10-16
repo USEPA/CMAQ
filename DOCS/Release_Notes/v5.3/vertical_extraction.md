@@ -4,22 +4,18 @@
 
 ## Brief Description
 
-This update allows users to save vertical profiles of multiple species at selected locations specified  
-by a custom set of latitude / longitude coordinates. These profiles are written to a new optional  
-output file, CTM_VEXT_1. The species written to this new output file are identical to those written  
-to the 3D CONC file which in turn are controlled either by the setting of CONC_SPCS in the run  
+This update allows users to save vertical profiles of multiple species at selected locations specified by a custom set of latitude / longitude coordinates. These profiles are written to a new optional output file, CTM_VEXT_1. The species written to this new output file are identical to those written to the 3D CONC file which in turn are controlled either by the setting of CONC_SPCS in the run  
 script or the last column in the GC, AE, NR, and TR namelist files.
 
 The creation of this optional output file is enabled by the following run script setting:  
   
 setenv DOVERTEXT Y  
  
-The coordinates at which the profiles are to be extracted are specified in a new text input file  
-that also needs to be specified in the run script as follows:  
+The coordinates at which the profiles are to be extracted are specified in a new text input file that also needs to be specified in the run script as follows:  
   
  setenv VERTLONLATPATH /path/to/lonlat.txt 
   
-This text input file has N+1 lines where N is the number of desired locations specified as (lon,lat) pairs.  The following example is provided under CCTM/scripts/lonlat.csv.  
+This text input file has N+1 lines where N is the number of desired locations specified as (lon,lat) pairs. The following example is provided under CCTM/scripts/lonlat.csv.  
 
     4 # number of lon/lat pairs that follow
     -84.5684 32.8372
@@ -29,8 +25,10 @@ This text input file has N+1 lines where N is the number of desired locations sp
 
 ## Significance and Impact
 
-This new feature incorporates a post-processing step needed for evaluation of 3D model data directly into the CMAQ run script. Previously the user would need to work with the 3D CONC output file to compare model output to vertical observations (e.g. Figure 1). The new CTM_VEXT_1 file contains model output for only the vertical columns of interest.
-The addition of this new diagnostic file allows the user the ability to delete the full 3D CONC file after the model simulation is complete, thus dramatically reducing storage space required for model outputs when specific columns (e.g., sonde locations or aircraft or satellite) are all that are required.
+This new feature incorporates a post-processing step needed for evaluation of 3D model data directly into the CMAQ run script. Previously the user would need to work with the 3D CONC output file to compare model output to vertical observations (Figure 1). The new CTM_VEXT_1 file contains model output for only the vertical columns of interest (Figure 2). The addition of this new diagnostic file allows the user the ability to delete the full 3D CONC file after the model simulation is complete, thus dramatically reducing storage space required for model outputs when specific columns (e.g., sonde locations or aircraft or satellite) are all that are required.
+
+Note that the new feature can be used to extract columns for boundaries on a pereimeter. However, the BCON tool does not currently  
+support the creation of boundary conditions from the diagnostic profile files created by this option.  The addition of this option into the BCON preprocessor may be considered for a future release. 
 
 ![conc](conc_pic1.jpg) 
 
@@ -38,10 +36,9 @@ Figure 1: 3D CONC file needed for two vertical column extractions.
 
 ![vext](vext_pic2.jpg) 
 
-Figure 2: New CTM_VEXT_1 file containing model output for only  the two vertical columns of interest.
+Figure 2: New CTM_VEXT_1 file containing model output for only the two vertical columns of interest.
 
-Note that the new feature can be used to extract columns for boundaries on a pereimeter. However, the BCON tool does not currently  
-support the creation of boundary conditions from the diagnostic profile files created by this option.  The addition of this option into the BCON preprocessor may be considered for a future release. 
+
 
 ## Affected Files  
 
