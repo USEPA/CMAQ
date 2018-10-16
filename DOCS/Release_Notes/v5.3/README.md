@@ -41,8 +41,7 @@ CMAQ v5.3 introduces aero7 and aero7i. Aero6, available in previous versions of 
   * dry deposition
 
 ### Aqueous and Heterogeneous Chemistry
- * AQCHEM-KMT2 cloud chemistry updates (PR363; kfahey92)
-
+ * [AQCHEM-KMT2: Extended inorganic and organic cloud chemistry using the Kinetic PreProcessor](aqchem-kmt2.md)
  
 ## Transport Processes
  * ACM2 updates related to z-coord (PR 354; jpleim)
