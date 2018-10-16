@@ -3,7 +3,6 @@ CMAQv5.3 Release Notes
 
 # Getting Started with CMAQ  
 [Building and running CMAQ](../../../DOCS/User_Manual/CMAQ_OGD_ch05_sys_req.md)  
-[Building and running WRF-CMAQ Two Way Model](Two_Way_Coupled_WRF-CMAQ.md)
 
 # Summary of CMAQv5.3 Updates
 
@@ -68,7 +67,6 @@ CMAQ v5.3 introduces aero7 and aero7i. Aero6, available in previous versions of 
  * [Moved PHOT to Sciproc](move_phot_to_sciproc.md)
  * Output units (PR 323; bnmurphy)
  * CZANGLE centralization (PR 320; dschwede)
- * Remove SWAP and SNL Routines (PR 274, 272; dwongepa)
 
 ## Diagnostic
  * Improved vertical extraction diagnostics (PR 319; barronh)
