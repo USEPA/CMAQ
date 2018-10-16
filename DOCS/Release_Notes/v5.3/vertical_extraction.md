@@ -19,19 +19,31 @@ that also needs to be specified in the run script as follows:
   
  setenv VERTLONLATPATH /path/to/lonlat.txt 
   
-This text input file has N+1 lines where N is the number of desired locations specified as (lon,lat) pairs
-  
-L1: N  
-L2-N+1: LON LAT
+This text input file has N+1 lines where N is the number of desired locations specified as (lon,lat) pairs.  The following example is provided under CCTM/scripts/lonlat.csv.  
+
+    4 # number of lon/lat pairs that follow
+    -84.5684 32.8372
+    -83.1034 33.7499
+    -81.603 34.6438
+    -80.0667 35.5179
 
 ## Significance and Impact
 
-This new feature can eliminate the need for users to archive the full 3D CONC output files in cases where  
-such CONC files were created for the sole purpose of subsequently extracting profile data at specific locations  
-(e.g., sonde locations or boundaries of nested domains). Note, however, that the BCON tool does not currently  
-support the creation of boundary conditions from the diagnostic profile files created by this option.
+This new feature incorporates a post-processing step needed for evaluation of 3D model data directly into the CMAQ run script. Previously the user would need to work with the 3D CONC output file to compare model output to vertical observations (e.g. Figure 1). The new CTM_VEXT_1 file contains model output for only the vertical columns of interest.
+The addition of this new diagnostic file allows the user the ability to delete the full 3D CONC file after the model simulation is complete, thus dramatically reducing storage space required for model outputs when specific columns (e.g., sonde locations or aircraft or satellite) are all that are required.
 
-## Affected Files
+![conc](conc_pic1.jpg) 
+
+Figure 1: 3D CONC file needed for two vertical column extractions.
+
+![vext](vext_pic2.jpg) 
+
+Figure 2: New CTM_VEXT_1 file containing model output for only  the two vertical columns of interest.
+
+Note that the new feature can be used to extract columns for boundaries on a pereimeter. However, the BCON tool does not currently  
+support the creation of boundary conditions from the diagnostic profile files created by this option.  The addition of this option into the BCON preprocessor may be considered for a future release. 
+
+## Affected Files  
 
 CCTM/src/diag/vertext_module.F  
 CCTM/src/ICL/fixed/filenames/FILES_CTM.EXT  
