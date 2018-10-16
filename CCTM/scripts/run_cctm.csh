@@ -219,14 +219,6 @@ setenv B3GTS_DIAG Y          #> BEIS mass emissions diagnostic file [ default: N
 setenv PT3DDIAG N            #> 3D point source emissions diagnostic file [ default: N]; 
 setenv PT3DFRAC N            #> layer fractions diagnostic file(s) [ default: N]; 
 setenv REP_LAYER_MIN -1      #> Minimum layer for reporting plume rise info [ default: -1 ]
-setenv EMISDIAG F            #> Print Emission Rates at the output time step after they have been
-                             #>   scaled and modified by the user Rules [options: F | T or 2D | 3D | 2DSUM ]
-                             #>   Individual streams can be modified using the variables:
-                             #>       GR_EMIS_DIAG_## | STK_EMIS_DIAG_## | BIOG_EMIS_DIAG
-                             #>       MG_EMIS_DIAG    | LTNG_EMIS_DIAG   | DUST_EMIS_DIAG
-                             #>       SEASPRAY_EMIS_DIAG
-                             #>   Note that these diagnostics are different than other emissions diagnostic
-                             #>   output because they occur after scaling.
 set DISP = delete            #> [ delete | keep ] existing output files
 
 # =====================================================================
