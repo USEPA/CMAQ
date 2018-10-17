@@ -48,7 +48,7 @@ CMAQ v5.3 introduces aero7 and aero7i. Aero6, available in previous versions of 
  * Settling (PR 381, 378; bnmurphy)
  
 ## Air-Surface Exchange
- * Centralized EPIC input (PR 315; jpleim)
+ * [New NH3 bi-directional flux linked to daily EPIC input](M3dry-Bidi.md)
  * STAGE (PR 385, 375, 370, 368, 361, 345, 340; jessebash)
  * M3dry, Namelist, MEDIACONC file corrections (PR 380, 348, 379; bnmurphy)
 
