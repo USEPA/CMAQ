@@ -52,4 +52,4 @@ Williams J. R., 1995, The EPIC model, In: Singh VP (ed) Computer models in water
 -----
 ## Internal Records:
 #### Relevant Pull Requests:
-[PR #315]
+[PR #315](https://github.com/USEPA/CMAQ_Dev/pull/315)
