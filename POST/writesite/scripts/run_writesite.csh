@@ -1,7 +1,7 @@
 #! /bin/csh -f
 
-# ==================== WRITESITE_v5.2.1 Run Script ====================
-# Usage: run.writesite.csh >&! writesite_v521.log &
+# ==================== WRITESITE_v5.3 Run Script ====================
+# Usage: run.writesite.csh >&! writesite_v53.log &
 #
 # To report problems or request help with this script/program:
 #             http://www.epa.gov/cmaq    (EPA CMAQ Website)
@@ -20,7 +20,7 @@
  source ./config_cmaq.csh
 
 #> Set the model version
- set VRSN = v521
+ set VRSN = v53
 
 #> Set the build directory if this was not set above 
 #> (this is where the executable is located by default).
