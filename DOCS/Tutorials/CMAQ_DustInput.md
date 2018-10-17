@@ -1,5 +1,5 @@
 ## CMAQ Tutorial ##
-### Generate Required Dust Input File for MODIS Fraction of Photochemically Active Radiation (FPAR) ###
+### Generate Required Dust Input File for MODIS Fraction of Photosynthetically Active Radiation (FPAR) ###
 Purpose: The windblown dust module in CMAQv5.2 uses Fraction of Photosynthetically Active Radiation (FPAR) from MODIS as a surrogate to vegetation fraction. These data should be provided by the user as an input to the CCTM. The 1-km resolution gridded data are updated every 8 days and can be downloaded from the USGS [Land Processes Distributed Active Archive Center (LPDAAC)](https://lpdaac.usgs.gov/dataset_discovery/modis/modis_products_table/mod15a2).  
 These data should be smoothed and gap-filled data before use with the CCTM. Monthly global MODIS FPAR and leaf area index (LAI) data averaged over 10 years (2001-2010) are available as part of WRF Preprocessing System (WPS). A procedure to obtain and process the LPDAAC daily gridded FPAR and LAI data for CMAQ is described here.
 
