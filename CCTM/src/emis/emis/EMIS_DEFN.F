@@ -155,28 +155,28 @@ C Get number of emissions layers
 
 
 C Initialize 3D Point Source Emissions 
-         CALL LOG_SUBHEADING( LOGDEV, 'Initialize Point Emissinos' )
+         CALL LOG_SUBHEADING( LOGDEV, 'Initialize Point Emissions' )
          IF ( .NOT. PT3D_INIT( JDATE, JTIME, TSTEP ) ) THEN
             XMSG = 'Failure initializing plume rise emissions module' 
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
  
 C Initialize Online Biogenic Emissions
-         CALL LOG_SUBHEADING( LOGDEV, 'Initialize Biogenic Emissinos' )
+         CALL LOG_SUBHEADING( LOGDEV, 'Initialize Biogenic Emissions' )
          IF ( .NOT. BEIS_INIT( JDATE, JTIME, TSTEP ) ) THEN
             XMSG = 'Failure initializing biogenics emissions module'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
 C Initialize Online Marine Gas Emissions
-         CALL LOG_SUBHEADING( LOGDEV, 'Initialize Marine Gas Emissinos' )
+         CALL LOG_SUBHEADING( LOGDEV, 'Initialize Marine Gas Emissions' )
          IF ( .NOT. MGEMIS_INIT( JDATE, JTIME, TSTEP ) ) THEN
             XMSG = 'Failure initializing marine gas emissions module'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
          
 C Initialize Online Lightning NOx Emissions
-         CALL LOG_SUBHEADING( LOGDEV, 'Initialize Lightning NO Emissinos' )
+         CALL LOG_SUBHEADING( LOGDEV, 'Initialize Lightning NO Emissions' )
          IF ( .NOT. LTNG_INIT( JDATE, JTIME, TSTEP ) ) THEN
             XMSG = 'Failure initializing lightning emissions module'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
