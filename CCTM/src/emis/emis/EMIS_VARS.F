@@ -962,7 +962,6 @@
          ! Define Dummy Variables for Opening Emission Control Namelist
          CHARACTER( 300 ) :: EQNAME
          INTEGER          :: EMCTRL_NML
-         INTEGER          :: LOGDEV
          INTEGER          :: STAT
 
          ! Define General Parameters in Emission Control Namelist
