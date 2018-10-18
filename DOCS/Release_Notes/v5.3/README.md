@@ -16,7 +16,6 @@ There are 11 unique gas-phase chemical mechanisms in CMAQv5.3. These are all loc
 
   * [Halogen mediated first order ozone loss is revised for all mechanisms](simple_halogen_chemistry.md)
   * [Detailed halogen and DMS chemistry with CB6r3](detailed_halogen_and_DMS_chemistry.md)
-  * Updates to chlorine chemistry in CB6 and CB6r3 (PR 359, 342; deborahluecken)
   * EBI Solvers
     * [Setting Maximum Integration Time Step and Initial Changes for CMAS-ISAM](updates_to_create_ebi.md)
     * [Ability to conduct Integrated Reaction Rate Analysis](allow_ebi_to_do_IRR_analysis.md)
