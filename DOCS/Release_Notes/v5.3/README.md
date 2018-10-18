@@ -14,7 +14,6 @@ The Community Multiscale Air Quality (CMAQ) Model version 5.3 is a major update 
 ### Photochemistry
 There are 11 unique gas-phase chemical mechanisms in CMAQv5.3. These are all located in the MECHS/ folder and may be invoked when building the model and Makefile. Variations of Carbon Bond 6 (CB6), RACM2, and SAPRC07 are all available. Specific science updates include the following:  
 
-  * Removal of obsolete mechanisms (deborahluecken)
   * [Halogen mediated first order ozone loss is revised for all mechanisms](simple_halogen_chemistry.md)
   * [Detailed halogen and DMS chemistry with CB6r3](detailed_halogen_and_DMS_chemistry.md)
   * Updates to chlorine chemistry in CB6 and CB6r3 (PR 359, 342; deborahluecken)
@@ -35,38 +34,23 @@ CMAQ v5.3 introduces aero7 and aero7i. Aero6, available in previous versions of 
   * [Reorganization of anthropogenic SOA species](anthro_SOA.md)  
   * [Uptake of water onto hydrophilic organic aerosol](organic_water.md)  
   
-#### Other aerosol updates
-  * pcSOA flag
-  * getpar
-  * dry deposition
-
 ### Aqueous and Heterogeneous Chemistry
  * [AQCHEM-KMT2: Extended inorganic and organic cloud chemistry using the Kinetic PreProcessor](aqchem-kmt2.md)
  
 ## Transport Processes
  * [Changed ACM cloud model to use Z-coordinates](Z-coords%20for%20ACMcloud.md)
- * Settling (PR 381, 378; bnmurphy)
  
 ## Air-Surface Exchange
  * [New NH3 bi-directional flux linked to daily EPIC input](M3dry-Bidi.md)
- * STAGE (PR 385, 375, 370, 368, 361, 345, 340; jessebash)
- * M3dry, Namelist, MEDIACONC file corrections (PR 380, 348, 379; bnmurphy)
-
 
 ## Emission Updates
  * [Biogenic speciation update for aero7](biogenic_apinene.md)
- * DESID (PR 383, 376, 371, 356, 355, 305; bnmurphy, cgnolte)
- * BEIS mapping lookup, bugs in BEIS (PR 318, 309, 308, 307; bnmurphy, jessebash)
 
 ## Process Analysis
  * [IRR analysis available in EBI solvers](allow_ebi_to_do_IRR_analysis.md)
- * Aerosols (PR 311; bnmurphy)
 
 ## Structural Improvements
- * LOGFILE (PR 384, 382, 277; bnmurphy)
  * [Moved PHOT to Sciproc](move_phot_to_sciproc.md)
- * Output units (PR 323; bnmurphy)
- * CZANGLE centralization (PR 320; dschwede)
 
 ## Diagnostic
  * [Vertical Profile Extraction: extend CCTM to output vertical profiles at specified locations](vertical_extraction.md)
