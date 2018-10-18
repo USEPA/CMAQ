@@ -72,6 +72,7 @@
           REAL, ALLOCATABLE    :: FAC(:)  ! Scale Factor applied with potential aerosol splitting
           REAL, ALLOCATABLE    :: BULK(:) ! Scale Factor for bulk emission without
                                           !   splitting for aerosols
+          REAL, ALLOCATABLE    :: BASIS(:)! Conversion factor to account for mole or mass basis
           INTEGER, ALLOCATABLE :: REG(:)  ! Index Mapping this entry to a particlar region in EM_REGIONS
           INTEGER, ALLOCATABLE :: OP(:)   ! Operation to perform for this scaling
                                           !   (addition,'a' = 1, 
@@ -125,6 +126,7 @@
              CHARACTER( 16 ) :: SPEC
              CHARACTER( 16 ) :: PHASE
              REAL            :: FAC
+             CHARACTER( 4  ) :: BASIS
              CHARACTER( 1  ) :: OP
       END TYPE EM_RULE_REG
       INTEGER, PARAMETER  :: N_EM_RULE_REG = 2000
@@ -205,7 +207,7 @@
      &    emis_legend( 'ORA2         ' ,'ORA2        ','GAS   ',060.0 ),
      &    emis_legend( 'ETOH         ' ,'ETOH        ','GAS   ',046.1 ),
      &    emis_legend( 'KET          ' ,'KET         ','GAS   ',072.1 ),
-     &    emis_legend( 'PAR          ' ,'PAR         ','GAS   ',072.1 ),
+     &    emis_legend( 'PAR          ' ,'PAR         ','GAS   ',014.0 ),
      &    emis_legend( 'ACET         ' ,'ACETONE     ','GAS   ',058.1 ),
      &    emis_legend( 'ACD          ' ,'ACD         ','GAS   ',044.0 ),
      &    emis_legend( 'ALD          ' ,'ALD         ','GAS   ',058.0 ),
@@ -430,6 +432,7 @@
             EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
             EM_NML_B(N_EM_RULE_B)%SURR  = 'NH3_FERT'
             EM_NML_B(N_EM_RULE_B)%FAC   = -1.0
+            EM_NML_B(N_EM_RULE_B)%BASIS = 'MOLE'
             EM_NML_B(N_EM_RULE_B)%OP    = 'a'
             EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
          END IF
@@ -442,6 +445,7 @@
          EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
          EM_NML_B(N_EM_RULE_B)%SURR  = 'SULF'
          EM_NML_B(N_EM_RULE_B)%FAC   = 0.0
+         EM_NML_B(N_EM_RULE_B)%BASIS = 'MOLE'
          EM_NML_B(N_EM_RULE_B)%OP    = 'o' 
          EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
 
@@ -451,6 +455,7 @@
          EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
          EM_NML_B(N_EM_RULE_B)%SURR  = 'SULF'
          EM_NML_B(N_EM_RULE_B)%FAC   = 1.0
+         EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
          EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
          EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
 
@@ -462,6 +467,7 @@
          EM_NML_B(N_EM_RULE_B)%PHASE = 'COARSE'
          EM_NML_B(N_EM_RULE_B)%SURR  = 'PMC'
          EM_NML_B(N_EM_RULE_B)%FAC   = REAL( ACORSEM_ASO4_FAC, 4 ) 
+         EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
          EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
          EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
 
@@ -472,6 +478,7 @@
          EM_NML_B(N_EM_RULE_B)%PHASE = 'COARSE'
          EM_NML_B(N_EM_RULE_B)%SURR  = 'PMC'
          EM_NML_B(N_EM_RULE_B)%FAC   = REAL( ACORSEM_ANO3_FAC, 4 )
+         EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
          EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
          EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
 
@@ -482,6 +489,7 @@
          EM_NML_B(N_EM_RULE_B)%PHASE = 'COARSE'
          EM_NML_B(N_EM_RULE_B)%SURR  = 'PMC'
          EM_NML_B(N_EM_RULE_B)%FAC   = REAL( ACORSEM_ACL_FAC, 4 ) 
+         EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
          EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
          EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
 
@@ -492,6 +500,7 @@
          EM_NML_B(N_EM_RULE_B)%PHASE = 'COARSE'
          EM_NML_B(N_EM_RULE_B)%SURR  = 'PMC'
          EM_NML_B(N_EM_RULE_B)%FAC   = REAL( ACORSEM_AH2O_FAC, 4 )
+         EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
          EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
          EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
  
@@ -502,6 +511,7 @@
          EM_NML_B(N_EM_RULE_B)%PHASE = 'COARSE'
          EM_NML_B(N_EM_RULE_B)%SURR  = 'PMC'
          EM_NML_B(N_EM_RULE_B)%FAC   = REAL( ACORSEM_RENORM, 4 )
+         EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
          EM_NML_B(N_EM_RULE_B)%OP    = 'm' 
          EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
  
@@ -517,6 +527,7 @@
             EM_NML_B(N_EM_RULE_B)%SURR  = 'POC'
             EM_NML_B(N_EM_RULE_B)%SPEC  = 'VLVPO1'
             EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
+            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
             EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
             EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(1) * POG_AMF(1)
             ! VLVPO1 <- PNCOM
@@ -526,6 +537,7 @@
             EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
             EM_NML_B(N_EM_RULE_B)%SPEC  = 'VLVPO1'
             EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
+            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
             EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
             EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(1) * POG_AMF(1)
 
@@ -536,6 +548,7 @@
             EM_NML_B(N_EM_RULE_B)%SURR  = 'POC'
             EM_NML_B(N_EM_RULE_B)%SPEC  = 'VSVPO1'
             EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
+            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
             EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
             EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(2) * POG_AMF(2)
             ! VSVPO1 <- PNCOM
@@ -545,6 +558,7 @@
             EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
             EM_NML_B(N_EM_RULE_B)%SPEC  = 'VSVPO1'
             EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
+            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
             EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
             EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(2) * POG_AMF(2)
 
@@ -555,6 +569,7 @@
             EM_NML_B(N_EM_RULE_B)%SURR  = 'POC'
             EM_NML_B(N_EM_RULE_B)%SPEC  = 'VSVPO2'
             EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
+            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
             EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
             EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(3) * POG_AMF(3)
             ! VSVPO2 <- PNCOM
@@ -564,6 +579,7 @@
             EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
             EM_NML_B(N_EM_RULE_B)%SPEC  = 'VSVPO2'
             EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
+            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
             EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
             EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(3) * POG_AMF(3)
 
@@ -574,6 +590,7 @@
             EM_NML_B(N_EM_RULE_B)%SURR  = 'POC'
             EM_NML_B(N_EM_RULE_B)%SPEC  = 'VSVPO3'
             EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
+            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
             EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
             EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(4) * POG_AMF(4)
             ! VSVPO3 <- PNCOM
@@ -583,6 +600,7 @@
             EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
             EM_NML_B(N_EM_RULE_B)%SPEC  = 'VSVPO3'
             EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
+            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
             EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
             EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(4) * POG_AMF(4)
 
@@ -593,6 +611,7 @@
             EM_NML_B(N_EM_RULE_B)%SURR  = 'POC'
             EM_NML_B(N_EM_RULE_B)%SPEC  = 'VIVPO1'
             EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
+            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
             EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
             EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(5) * POG_AMF(5)
             ! VIVPO1 <- PNCOM
@@ -602,6 +621,7 @@
             EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
             EM_NML_B(N_EM_RULE_B)%SPEC  = 'VIVPO1'
             EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
+            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
             EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
             EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(5) * POG_AMF(5)
 
@@ -612,6 +632,7 @@
             EM_NML_B(N_EM_RULE_B)%SURR  = 'POC'
             EM_NML_B(N_EM_RULE_B)%SPEC  = 'ALVPO1'
             EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
+            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
             EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
             EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(1) * POA_AMF(1)
             ! ALVPO1 <- PNCOM
@@ -621,6 +642,7 @@
             EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
             EM_NML_B(N_EM_RULE_B)%SPEC  = 'ALVPO1'
             EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
+            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
             EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
             EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(1) * POA_AMF(1)
 
@@ -631,6 +653,7 @@
             EM_NML_B(N_EM_RULE_B)%SURR  = 'POC'
             EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASVPO1'
             EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
+            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
             EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
             EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(2) * POA_AMF(2)
             ! ASVPO1 <- PNCOM
@@ -640,6 +663,7 @@
             EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
             EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASVPO1'
             EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
+            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
             EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
             EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(2) * POA_AMF(2)
 
@@ -650,6 +674,7 @@
             EM_NML_B(N_EM_RULE_B)%SURR  = 'POC'
             EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASVPO2'
             EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
+            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
             EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
             EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(3) * POA_AMF(3)
             ! ASVPO2 <- PNCOM
@@ -659,6 +684,7 @@
             EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
             EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASVPO2'
             EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
+            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
             EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
             EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(3) * POA_AMF(3)
 
@@ -669,6 +695,7 @@
             EM_NML_B(N_EM_RULE_B)%SURR  = 'POC'
             EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASVPO3'
             EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
+            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
             EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
             EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(4) * POA_AMF(4)
             ! ASVPO3 <- PNCOM
@@ -678,6 +705,7 @@
             EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
             EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASVPO3'
             EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
+            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
             EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
             EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(4) * POA_AMF(4)
 
@@ -688,6 +716,7 @@
             EM_NML_B(N_EM_RULE_B)%SURR  = 'POC'
             EM_NML_B(N_EM_RULE_B)%SPEC  = 'AIVPO1'
             EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
+            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
             EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
             EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(5) * POA_AMF(5)
             ! AIVPO1 <- PNCOM
@@ -697,6 +726,7 @@
             EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
             EM_NML_B(N_EM_RULE_B)%SPEC  = 'AIVPO1'
             EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
+            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
             EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
             EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(5) * POA_AMF(5)
           
@@ -708,6 +738,7 @@
               EM_NML_B(N_EM_RULE_B)%SURR  = 'POC'
               EM_NML_B(N_EM_RULE_B)%SPEC  = 'PCVOC'
               EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
+              EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
               EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
               EM_NML_B(N_EM_RULE_B)%FAC   = PCVOC_FAC
               ! PCVOC <- PNCOM
@@ -717,6 +748,7 @@
               EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
               EM_NML_B(N_EM_RULE_B)%SPEC  = 'PCVOC'
               EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
+              EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
               EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
               EM_NML_B(N_EM_RULE_B)%FAC   = PCVOC_FAC
               ! PCVOC is turned off for Fires
@@ -728,6 +760,7 @@
                   EM_NML_B(N_EM_RULE_B)%SURR  = 'ALL'
                   EM_NML_B(N_EM_RULE_B)%SPEC  = 'PCVOC'
                   EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
+                  EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
                   EM_NML_B(N_EM_RULE_B)%OP    = 'o' 
                   EM_NML_B(N_EM_RULE_B)%FAC   = 0.0
                 END IF
@@ -949,6 +982,7 @@
          EM_NML%SPEC   = ''
          EM_NML%PHASE  = ''
          EM_NML%OP     = ''
+         EM_NML%BASIS  = ''
          EM_NML%FAC    = 0.
 
          ALLOCATE( SD_NML( N_SD_REG ) )
@@ -1041,6 +1075,7 @@
              EM_NML%SPEC   = ''
              EM_NML%PHASE  = ''
              EM_NML%OP     = ''
+             EM_NML%BASIS  = ''
              EM_NML%FAC    = 0.
          END IF
  

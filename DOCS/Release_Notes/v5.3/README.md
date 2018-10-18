@@ -2,8 +2,8 @@ CMAQv5.3 Release Notes
 =====================================
 
 # Getting Started with CMAQ  
-[Building and running CMAQ](../../../DOCS/User_Manual/CMAQ_OGD_ch05_sys_req.md)  
-[Building and running WRF-CMAQ Two Way Model](Two_Way_Coupled_WRF-CMAQ.md)
+[Tutorial on installing and running CMAQ](../../../DOCS/Tutorials/CMAQ_GettingStarted.md)  
+[Tutorial on running the CMAQ test case](../../../DOCS/Tutorials/CMAQ_Benchmark.md)  
 
 # Summary of CMAQv5.3 Updates
 
@@ -41,15 +41,14 @@ CMAQ v5.3 introduces aero7 and aero7i. Aero6, available in previous versions of 
   * dry deposition
 
 ### Aqueous and Heterogeneous Chemistry
- * AQCHEM-KMT2 cloud chemistry updates (PR363; kfahey92)
-
+ * [AQCHEM-KMT2: Extended inorganic and organic cloud chemistry using the Kinetic PreProcessor](aqchem-kmt2.md)
  
 ## Transport Processes
- * ACM2 updates related to z-coord (PR 354; jpleim)
+ * [Changed ACM cloud model to use Z-coordinates](Z-coords%20for%20ACMcloud.md)
  * Settling (PR 381, 378; bnmurphy)
  
 ## Air-Surface Exchange
- * Centralized EPIC input (PR 315; jpleim)
+ * [New NH3 bi-directional flux linked to daily EPIC input](M3dry-Bidi.md)
  * STAGE (PR 385, 375, 370, 368, 361, 345, 340; jessebash)
  * M3dry, Namelist, MEDIACONC file corrections (PR 380, 348, 379; bnmurphy)
 
@@ -57,7 +56,6 @@ CMAQ v5.3 introduces aero7 and aero7i. Aero6, available in previous versions of 
 ## Emission Updates
  * [Biogenic speciation update for aero7](biogenic_apinene.md)
  * DESID (PR 383, 376, 371, 356, 355, 305; bnmurphy, cgnolte)
- * Lightning NOx (PR 324; dkang2)
  * BEIS mapping lookup, bugs in BEIS (PR 318, 309, 308, 307; bnmurphy, jessebash)
 
 ## Process Analysis
@@ -69,10 +67,9 @@ CMAQ v5.3 introduces aero7 and aero7i. Aero6, available in previous versions of 
  * [Moved PHOT to Sciproc](move_phot_to_sciproc.md)
  * Output units (PR 323; bnmurphy)
  * CZANGLE centralization (PR 320; dschwede)
- * Remove SWAP and SNL Routines (PR 274, 272; dwongepa)
 
 ## Diagnostic
- * Improved vertical extraction diagnostics (PR 319; barronh)
+ * [Vertical Profile Extraction: extend CCTM to output vertical profiles at specified locations](vertical_extraction.md)
 
 ## Tools & Utilities
  * [SpecDef aerosol updates](specdef_aero.md)

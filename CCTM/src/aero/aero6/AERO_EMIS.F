@@ -359,7 +359,7 @@ C     Multiply by grid area [m2] to obtain grid volume
 
 C-----------------------------------------------------------------------
 
-       SUBROUTINE EM_SD_INIT ( )
+       SUBROUTINE EM_SD_INIT ( JDATE, JTIME )
 
 C  EM_SD_INIT initializes the structures that map modes and streams to
 C  reference modes including splits, diameters, and standard deviations.
@@ -367,10 +367,12 @@ C  reference modes including splits, diameters, and standard deviations.
 C-----------------------------------------------------------------------
        USE AERO_DATA, ONLY: EM_AERO_REF, N_EM_AERO_REF
        USE EMIS_VARS, ONLY: SD_NML, INTERPRET_EM_RULE_STREAM
-       USE UTILIO_DEFN, ONLY: INDEX1
+       USE UTILIO_DEFN, ONLY: INDEX1, XSTAT1
          
        IMPLICIT NONE
 
+       INTEGER, INTENT( IN ) :: JDATE      ! current model date, coded YYYYDDD
+       INTEGER, INTENT( IN ) :: JTIME      ! current model time, coded HHMMSS
        INTEGER ISRM
        
        INTEGER                          :: N_SD_RULE
@@ -379,6 +381,7 @@ C-----------------------------------------------------------------------
        INTEGER                          :: SD( N_EM_SRM, 10 )
        LOGICAL                          :: EM_STREAM_RULE( N_EM_SRM )
        CHARACTER( 16 )                  :: CSUR
+       CHARACTER( 16 ), SAVE            :: PNAME = 'EM_SD_INIT  '
 
        INTEGER IRULE, ISUR, N, NLEN, ISD, IM, IEM, NRULE
        
@@ -417,23 +420,38 @@ C-----------------------------------------------------------------------
                ! This Stream is Being Modified by a Size Distribution
                ! rule
                IF ( SD_NML( IRULE )%MODE .EQ. 'FINE' ) THEN
-                   ! Overwrite the FINE mode
+                   ! Overwrite the FINE mode. All fine particle species
+                   ! will go to this mode by default
                    SD( ISRM,1 ) = INDEX1( SD_NML( IRULE )%MODE_REF,
      &                               N_EM_AERO_REF, EM_AERO_REF( : )%NAME )
                ELSEIF ( SD_NML( IRULE )%MODE .EQ. 'COARSE' ) THEN
-                   ! Overwrite the COARSE mode
+                   ! Overwrite the COARSE mode. All coarse particle
+                   ! species will go to this mode by default
                    SD( ISRM,2 ) = INDEX1( SD_NML( IRULE )%MODE_REF,
      &                               N_EM_AERO_REF, EM_AERO_REF( : )%NAME )
                ELSEIF ( SD_NML( IRULE )%MODE .EQ. 'AERO' ) THEN
-                   ! Overwrite the COARSE mode
+                   ! Overwrite the Full Aerosol Distribution. All
+                   ! species will distributed to this configuration of
+                   ! modes. For example, dust or sea spray can be
+                   ! modified this way.
                    SD( ISRM,3 ) = INDEX1( SD_NML( IRULE )%MODE_REF,
      &                               N_EM_AERO_REF, EM_AERO_REF( : )%NAME )
                ELSE
-                   ! Add a New Available Mode
+                   ! Add a New Available Mode. For example, add a mode
+                   ! just for BC, call it PUREBC, and make sure the AEC
+                   ! for this stream is pointing to this mode. Also make
+                   ! sure you set AEC for FINE mode aerosol to 0.0 if
+                   ! you have default mapping turned on.
                    N_SD( ISRM ) = N_SD( ISRM ) + 1
                    SD_NAME( ISRM,N_SD( ISRM ) ) = SD_NML( IRULE )%MODE
                    SD( ISRM,N_SD( ISRM ) ) = INDEX1( SD_NML( IRULE )%MODE_REF,
      &                                 N_EM_AERO_REF, EM_AERO_REF( : )%NAME )
+                   IF ( SD( ISRM,N_SD( ISRM )) .EQ. 0 ) THEN
+                      WRITE( XMSG,'(A,A,A,/,A,I2,A)' ), '*** Reference Aerosol Mode (', 
+     &                       SD_NML( IRULE )%MODE_REF, 'Specified in Emissions Size ',
+     &                       'Dist Rule ',IRULE,' does not exist in AERO_DATA.'
+                      CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+                   END IF
 
                END IF
            END IF
