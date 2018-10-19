@@ -11,6 +11,10 @@ CMAQ combines current knowledge in atmospheric science and air quality modeling 
 computing techniques in an open-source framework to deliver fast, technically sound estimates of ozone,
 particulates, toxics, and acid deposition.
 
+**Take our 2018 CMAQ User Survey!**
+* [Link to online survey](https://unc.az1.qualtrics.com/jfe/form/SV_1IcuS1wIZ2PQUu1)
+* Deadline to complete the survey: October 31, 2018.
+
 ### Repository Framework
 The CMAQ Git repository is organized with each official public release stored as a branch on the public GitHub USEPA CMAQ repository.
 To clone code from the CMAQ Git repository, specify the branch (i.e. version number) and issue the following command from within a working directory on your server. For example, to get the 5.2 version to a local repository that you would name CMAQ_REPO:
