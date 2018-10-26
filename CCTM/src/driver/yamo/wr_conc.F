@@ -62,11 +62,6 @@ C Include Files:
       INTEGER      TSTEP        ! output timestep (HHMMSS)
 
 C Local variables:
-
-      INTEGER      MDATE        ! modified model date, coded YYYYDDD
-      INTEGER      MTIME        ! modified model time, coded HHMMSS
-
-
       CHARACTER( 16 ) :: PNAME = 'WR_CONC'
       CHARACTER( 96 ) :: XMSG = ' '
 
@@ -117,11 +112,11 @@ C open conc file for update
       DO SPC = 1, N_C_GC_SPC
          VAR = VAR + 1
          IF ( .NOT. WRITE3( CTM_CONC_1, C_GC_SPC( SPC ),
-     &      MDATE, MTIME, SGRID( :,:,:,VAR ) ) ) THEN
+     &      JDATE, JTIME, SGRID( :,:,:,VAR ) ) ) THEN
             XMSG = 'Could not write '
      &           // TRIM( C_GC_SPC( SPC ) )
      &           // ' to ' // CTM_CONC_1
-            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
       END DO
  
@@ -129,11 +124,11 @@ C open conc file for update
       DO SPC = 1, N_C_AE_SPC
          VAR = VAR + 1
          IF ( .NOT. WRITE3( CTM_CONC_1, C_AE_SPC( SPC ),
-     &      MDATE, MTIME, SGRID( :,:,:,VAR ) ) ) THEN
+     &      JDATE, JTIME, SGRID( :,:,:,VAR ) ) ) THEN
             XMSG = 'Could not write '
      &           // TRIM( C_AE_SPC( SPC ) )
      &           // ' to ' // CTM_CONC_1
-            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
       END DO
  
@@ -141,11 +136,11 @@ C open conc file for update
       DO SPC = 1, N_C_NR_SPC
          VAR = VAR + 1
          IF ( .NOT. WRITE3( CTM_CONC_1, C_NR_SPC( SPC ),
-     &      MDATE, MTIME, SGRID( :,:,:,VAR ) ) ) THEN
+     &      JDATE, JTIME, SGRID( :,:,:,VAR ) ) ) THEN
             XMSG = 'Could not write '
      &           // TRIM( C_NR_SPC( SPC ) )
      &           // ' to ' // CTM_CONC_1
-            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
       END DO
  
@@ -153,11 +148,11 @@ C open conc file for update
       DO SPC = 1, N_C_TR_SPC
          VAR = VAR + 1
          IF ( .NOT. WRITE3( CTM_CONC_1, C_TR_SPC( SPC ),
-     &      MDATE, MTIME, SGRID( :,:,:,VAR ) ) ) THEN
+     &      JDATE, JTIME, SGRID( :,:,:,VAR ) ) ) THEN
             XMSG = 'Could not write '
      &           // TRIM( C_TR_SPC( SPC ) )
      &           // ' to ' // CTM_CONC_1
-            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
       END DO
  

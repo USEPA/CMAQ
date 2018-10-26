@@ -129,7 +129,7 @@ C Retrieve the layer range used in the concentration file
 
 C Create conc subset array
 
-         ALLOCATE ( SGRID( MY_NCOLS,MY_NROWS,C_NLAYS,N_CSPCS ),
+         ALLOCATE ( SGRID( NCOLS,NROWS,C_NLAYS,N_CONC_VARS ),
      &              STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'SGRID memory allocation failed'

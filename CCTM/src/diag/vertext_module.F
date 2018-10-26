@@ -50,7 +50,7 @@ C   09 Jan 18 D.Wong: put in parallel implementation
 C-----------------------------------------------------------------------
 
          USE GRID_CONF
-         USE RUNTIME_VARS, ONLY: LOGDEV, LVEXT
+         USE RUNTIME_VARS, ONLY: LOGDEV, LVEXT, N_CONC_VARS
          USE UTILIO_DEFN
 #ifdef parallel
          USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
@@ -127,7 +127,7 @@ C Set output file characteristics from GRID_CONF and open
          SDATE3D = JDATE
          STIME3D = JTIME + TSTEP
          TSTEP3D = TSTEP
-         NVARS3D = N_CSPCS + 2
+         NVARS3D = N_CONC_VARS
          NCOLS3D = 1
          NROWS3D = NVERTEXT
          NLAYS3D = NLAYS

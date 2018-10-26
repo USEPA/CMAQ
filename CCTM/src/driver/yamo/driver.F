@@ -102,7 +102,7 @@ C-----------------------------------------------------------------------
       USE PAGRD_DEFN            ! Process Anaylsis horiz domain specs
       USE UTILIO_DEFN
       USE RUNTIME_VARS
-      USE ASX_DATA_MOD, Only : MET_DATA
+      USE ASX_DATA_MOD, Only : MET_DATA, INIT_MET, GET_MET
 #ifdef parallel
       USE VERTEXT_MODULE
 #endif
@@ -390,6 +390,12 @@ C Verify input file header consistency and run duration
             CALL FEEDBACK_SETUP ( JDATE, JTIME, TSTEP( 3 ) )
          END IF
 #endif
+
+C Initialize Meteorology Structures
+         CALL INIT_MET( JDATE, JTIME )
+         CALL GET_MET ( JDATE, JTIME, 0 )
+         CALL GET_WVEL( JDATE, JTIME )
+
          FIRST_RUN = .FALSE.
 
       END IF ! first_run
@@ -470,13 +476,13 @@ C science process sequence:
      &           - CGRID( :,:,ACONC_BLEV:ACONC_ELEV,S ) )
          END DO
          IF ( L_ACONC_WVEL ) 
-     &         AVG_WVEL( :,:,: ) = AVG_WVEL( :,:,: ) - WVEL( :,:,ACONC_BLEV:CONC_ELEV )
+     &         AVG_WVEL( :,:,: ) = DIVFAC * ( AVG_WVEL( :,:,: ) - WVEL( :,:,ACONC_BLEV:CONC_ELEV ) )
          IF ( L_ACONC_RH ) 
-     &         AVG_RH( :,:,: ) = AVG_RH( :,:,: ) - MET_DATA%RH( :,:,ACONC_BLEV:CONC_ELEV )
+     &         AVG_RH( :,:,: ) = DIVFAC * ( AVG_RH( :,:,: ) - MET_DATA%RH( :,:,ACONC_BLEV:CONC_ELEV ) )
          IF ( L_ACONC_TA ) 
-     &         AVG_TA( :,:,: ) = AVG_TA - MET_DATA%TA( :,:,ACONC_BLEV:ACONC_ELEV )
+     &         AVG_TA( :,:,: ) = DIVFAC * ( AVG_TA - MET_DATA%TA( :,:,ACONC_BLEV:ACONC_ELEV ) )
          IF ( L_ACONC_PRES ) 
-     &         AVG_PRES( :,:,: ) = AVG_PRES - MET_DATA%PRES( :,:,ACONC_BLEV:ACONC_ELEV )
+     &         AVG_PRES( :,:,: ) = DIVFAC * ( AVG_PRES - MET_DATA%PRES( :,:,ACONC_BLEV:ACONC_ELEV ) )
              
 #ifdef twoway
          END IF
