@@ -57,23 +57,19 @@ C Include Files:
 
       INCLUDE SUBST_FILES_ID    ! I/O definitions and declarations
 
-!     REAL      :: SGRID( :,:,:,: )
       INTEGER      JDATE        ! current model date, coded YYYYDDD
       INTEGER      JTIME        ! current model time, coded HHMMSS
       INTEGER      TSTEP        ! output timestep (HHMMSS)
 
 C Local variables:
 
+      INTEGER      MDATE        ! modified model date, coded YYYYDDD
+      INTEGER      MTIME        ! modified model time, coded HHMMSS
+
+
       CHARACTER( 16 ) :: PNAME = 'WR_CONC'
       CHARACTER( 96 ) :: XMSG = ' '
 
-      REAL, ALLOCATABLE, SAVE :: JACF( :,:,: ) ! full-layer Jacobian
-      REAL, ALLOCATABLE, SAVE :: MSFX2( :,: )  ! map scale factor ** 2
-      REAL, ALLOCATABLE :: DBUFF ( :,:,: )     ! input for W_VEL
-      REAL, ALLOCATABLE :: WBUFF ( :,:,: )     ! output for W_VEL
-      REAL, ALLOCATABLE :: H2OSATVP ( :,:,: )  ! output for RH
-      REAL, ALLOCATABLE :: H2OVP ( :,:,: )     ! output for RH
-      REAL, ALLOCATABLE :: AIRRH ( :,:,: )     ! output for RH
       INTEGER      ALLOCSTAT
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
@@ -83,7 +79,7 @@ C for INTERPX
       INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
       INTEGER       :: STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2
 
-      INTEGER      C, R, K, L, V   ! loop induction variables
+      INTEGER      C, R, K, L, V, VAR, SPC   ! loop induction variables
 
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: VNAME( : )
       INTEGER, SAVE :: NVARS
@@ -93,35 +89,6 @@ C-----------------------------------------------------------------------
       IF ( FIRSTIME ) THEN
 
          FIRSTIME = .FALSE.
-
-         IF ( W_VEL ) THEN
-
-            CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
-     &                      STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
-
-            ALLOCATE ( JACF( NCOLS,NROWS,NLAYS ), STAT = ALLOCSTAT )
-            IF ( ALLOCSTAT .NE. 0 ) THEN
-               XMSG = 'Failure allocating JACF'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-
-            CALL SUBHFILE ( GRID_CRO_2D, GXOFF, GYOFF,
-     &                      STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2 )
-
-            ALLOCATE ( MSFX2( NCOLS,NROWS ), STAT = ALLOCSTAT )
-            IF ( ALLOCSTAT .NE. 0 ) THEN
-               XMSG = 'Failure allocating MSFX2'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-
-            IF ( .NOT. INTERPX( GRID_CRO_2D, 'MSFX2', PNAME,
-     &                          STRTCOLGC2,ENDCOLGC2, STRTROWGC2,ENDROWGC2, 1,1,
-     &                          JDATE, JTIME, MSFX2 ) ) THEN
-               XMSG = 'Could not interpolate MSFX2 from ' // GRID_CRO_2D
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-
-         END IF
 
 C open conc file for update
 
@@ -136,104 +103,98 @@ C open conc file for update
             XMSG = 'Could not get file description from ' // CTM_CONC_1
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
-
-         IF ( W_VEL ) THEN
-            NVARS = NVARS3D - 1
-         ELSE
-            NVARS = NVARS3D
-         END IF
-
+         
+         ! Retrieve number and values of variable names
+         NVARS = NVARS3D
          ALLOCATE ( VNAME( NVARS ), STAT=ALLOCSTAT )
-
          VNAME = VNAME3D( 1:NVARS )
 
       END IF   ! firstime
-
-      DO V = 1, NVARS
-         IF ( .NOT. WRITE3( CTM_CONC_1, VNAME( V ), JDATE, JTIME,
-     &                      SGRID( :,:,:,V ) ) ) THEN
-            XMSG = 'Could not write ' // CTM_CONC_1
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+ 
+      VAR = 0
+    
+      ! Write Gas-Phase Species to CONC File
+      DO SPC = 1, N_C_GC_SPC
+         VAR = VAR + 1
+         IF ( .NOT. WRITE3( CTM_CONC_1, C_GC_SPC( SPC ),
+     &      MDATE, MTIME, SGRID( :,:,:,VAR ) ) ) THEN
+            XMSG = 'Could not write '
+     &           // TRIM( C_GC_SPC( SPC ) )
+     &           // ' to ' // CTM_CONC_1
+            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
          END IF
       END DO
-
-      IF ( W_VEL ) THEN
-
-         IF ( .NOT. INTERPX( MET_CRO_3D, 'JACOBF', PNAME,
-     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3,
-     &                       1,NLAYS, JDATE, JTIME, JACF ) ) THEN
-            XMSG = 'Could not interpolate JACOBF from MET_CRO_3D - '
-     &           // 'Using JACOBM <- KLUDGE!'
-            CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-
-            IF ( .NOT. ALLOCATED( DBUFF ) ) THEN
-               ALLOCATE ( DBUFF( MY_NCOLS,MY_NROWS,NLAYS ), STAT = ALLOCSTAT )
-               IF ( ALLOCSTAT .NE. 0 ) THEN
-                  XMSG = 'Failure allocating DBUFF'
-                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-               END IF
-            END IF
-
-            IF ( .NOT. INTERPX( MET_CRO_3D, 'JACOBM', PNAME,
-     &                          STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3,
-     &                          1,NLAYS, JDATE, JTIME, DBUFF ) ) THEN
-               XMSG = 'Could not interpolate JACOBM from MET_CRO_3D'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-
-            DO L = 1, NLAYS - 1
-               JACF( :,:,L ) = 0.5 * ( DBUFF( :,:,L ) + DBUFF( :,:,L+1 ) )
-            END DO
-            JACF( :,:,NLAYS ) = 0.4 * JACF( :,:,NLAYS-1 )
-     &                         +      DBUFF( :,:,NLAYS )
-
-         END IF   ! INTERPX for JACOBF
-
-C convert from contravariant vertical velocity component to true wind
-
-         IF ( .NOT. ALLOCATED( WBUFF ) ) THEN
-            ALLOCATE ( WBUFF( MY_NCOLS,MY_NROWS,C_NLAYS ), STAT = ALLOCSTAT )
-            IF ( ALLOCSTAT .NE. 0 ) THEN
-               XMSG = 'Failure allocating WBUFF'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
+ 
+      ! Write Aerosol Species Concentrations to CONC File
+      DO SPC = 1, N_C_AE_SPC
+         VAR = VAR + 1
+         IF ( .NOT. WRITE3( CTM_CONC_1, C_AE_SPC( SPC ),
+     &      MDATE, MTIME, SGRID( :,:,:,VAR ) ) ) THEN
+            XMSG = 'Could not write '
+     &           // TRIM( C_AE_SPC( SPC ) )
+     &           // ' to ' // CTM_CONC_1
+            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
          END IF
-
-         K = 0
-         DO L = CONC_BLEV, CONC_ELEV
-            K = K + 1
-            WBUFF( :,:,K ) = JACF( :,:,L ) * MSFX2( :,: ) * WVEL( :,:,L )
-         END DO
-
-         IF ( .NOT. WRITE3( CTM_CONC_1, 'W_VEL', JDATE, JTIME, WBUFF ) ) THEN
+      END DO
+ 
+      ! Write Nonreactive Species Concentrations to CONC File
+      DO SPC = 1, N_C_NR_SPC
+         VAR = VAR + 1
+         IF ( .NOT. WRITE3( CTM_CONC_1, C_NR_SPC( SPC ),
+     &      MDATE, MTIME, SGRID( :,:,:,VAR ) ) ) THEN
+            XMSG = 'Could not write '
+     &           // TRIM( C_NR_SPC( SPC ) )
+     &           // ' to ' // CTM_CONC_1
+            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+         END IF
+      END DO
+ 
+      ! Write Tracer Species Concentrations to CONC File
+      DO SPC = 1, N_C_TR_SPC
+         VAR = VAR + 1
+         IF ( .NOT. WRITE3( CTM_CONC_1, C_TR_SPC( SPC ),
+     &      MDATE, MTIME, SGRID( :,:,:,VAR ) ) ) THEN
+            XMSG = 'Could not write '
+     &           // TRIM( C_TR_SPC( SPC ) )
+     &           // ' to ' // CTM_CONC_1
+            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+         END IF
+      END DO
+ 
+      ! Write Vertical Velocity to Output CONC file
+      IF ( L_CONC_WVEL ) THEN
+         IF ( .NOT. WRITE3( CTM_CONC_1, 'W_VEL', 
+     &      JDATE, JTIME, WVEL( :,:,CONC_BLEV:CONC_ELEV ) ) ) THEN
             XMSG = 'Could not write W_VEL to ' // CTM_CONC_1
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
-
       END IF   ! W_VEL
 
-! Write Relative Humidity to Output CONC file
-      ! Calculate Saturation Vapor Pressure of Water
-      H2OSATVP = 610.94 * EXP( 17.625 * ( MET_DATA%TA - 273.15 ) / 
-     &                          ( MET_DATA%TA - 273.15 + 243.04 ) )
-
-      H2OVP    = MET_DATA%PRES * MET_DATA%QV / ( 0.622015  + MET_DATA%QV )
-      AIRRH    = MAX( 0., MIN( 1.00, H2OVP / H2OSATVP ) )
-      IF ( .NOT. WRITE3( CTM_CONC_1, 'RH', JDATE, JTIME, AIRRH ) ) THEN
+      ! Write Relative Humidity to Output CONC file
+      IF ( L_CONC_RH ) THEN
+      IF ( .NOT. WRITE3( CTM_CONC_1, 'RH', 
+     &     JDATE, JTIME, MET_DATA%RH( :,:,CONC_BLEV:CONC_ELEV ) ) ) THEN
          XMSG = 'Could not write RH to ' // CTM_CONC_1
          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
       END IF
+      END IF
 
-! Write Temperature to Output CONC file
-      IF ( .NOT. WRITE3( CTM_CONC_1, 'TA', JDATE, JTIME, MET_DATA%TA ) ) THEN
+      ! Write Temperature to Output CONC file
+      IF ( L_CONC_TA ) THEN
+      IF ( .NOT. WRITE3( CTM_CONC_1, 'TA', 
+     &     JDATE, JTIME, MET_DATA%TA( :,:,CONC_BLEV:CONC_ELEV ) ) ) THEN
          XMSG = 'Could not write Temperature to ' // CTM_CONC_1
          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
       END IF
+      END IF
 
-! Write Pressure to Output CONC file
-      IF ( .NOT. WRITE3( CTM_CONC_1, 'PRES', JDATE, JTIME, MET_DATA%PRES ) ) THEN
+      ! Write Pressure to Output CONC file
+      IF ( L_CONC_PRES ) THEN
+      IF ( .NOT. WRITE3( CTM_CONC_1, 'PRES', 
+     &     JDATE, JTIME, MET_DATA%PRES( :,:,CONC_BLEV:CONC_ELEV ) ) ) THEN
          XMSG = 'Could not write Pressure to ' // CTM_CONC_1
          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+      END IF
       END IF
 
 ! Write Summary Message for Output Procedure

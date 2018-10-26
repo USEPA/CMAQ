@@ -92,7 +92,7 @@ C-------------------------------------------------------------------------------
          Real,    Allocatable :: PRSFC    ( :,: )  ! surface pressure [Pa]
          Real,    Allocatable :: Q2       ( :,: )  ! 2 meter water vapor mixing ratio [kg/kg]
          Real,    Allocatable :: QSS_GRND ( :,: )  ! ground saturation water vapor mixing ratio [kg/kg]
-         Real,    Allocatable :: RH       ( :,: )  ! relative humidity [ratio]
+         Real,    Allocatable :: RH2      ( :,: )  ! relative humidity [percent]
          Real,    Allocatable :: RA       ( :,: )  ! aerodynamic resistance [s/m]
          Real,    Allocatable :: RS       ( :,: )  ! stomatal resistance [s/m]
          Real,    Allocatable :: RC       ( :,: )  ! convective precipitation [cm]
@@ -135,6 +135,7 @@ C-------------------------------------------------------------------------------
          Real,    Allocatable :: QC       ( :,:,: )  ! cloud water mixing ratio
          Real,    Allocatable :: THETAV   ( :,:,: )  ! potential temp
          Real,    Allocatable :: TA       ( :,:,: )  ! temperature (K)
+         Real,    Allocatable :: RH       ( :,:,: )  ! relative humidity [ratio]
          Real,    Allocatable :: ZH       ( :,:,: )  ! mid-layer height above ground [m]
          Real,    Allocatable :: ZF       ( :,:,: )  ! layer height [m]
          Real,    Allocatable :: DZF      ( :,:,: )  ! layer thickness
@@ -472,7 +473,7 @@ C-----------------------------------------------------------------------
      &             Met_Data%PRSFC    ( NCOLS,NROWS ),
      &             Met_Data%Q2       ( NCOLS,NROWS ),
      &             Met_Data%QSS_GRND ( NCOLS,NROWS ),
-     &             Met_Data%RH       ( NCOLS,NROWS ),
+     &             Met_Data%RH2      ( NCOLS,NROWS ),
      &             Met_Data%RA       ( NCOLS,NROWS ),
      &             Met_Data%RS       ( NCOLS,NROWS ),
      &             Met_Data%RC       ( NCOLS,NROWS ),
@@ -511,6 +512,7 @@ C-----------------------------------------------------------------------
      &             Met_Data%QC       ( NCOLS,NROWS,NLAYS ),
      &             Met_Data%THETAV   ( NCOLS,NROWS,NLAYS ),
      &             Met_Data%TA       ( NCOLS,NROWS,NLAYS ),
+     &             Met_Data%RH       ( NCOLS,NROWS,NLAYS ),
      &             Met_Data%ZH       ( NCOLS,NROWS,NLAYS ),
      &             Met_Data%ZF       ( NCOLS,NROWS,NLAYS ),
      &             Met_Data%DZF      ( NCOLS,NROWS,NLAYS ),
@@ -1223,13 +1225,22 @@ C Met_cro_2D variables that have recently changed due to MCIP or WRF/CMAQ
          Elsewhere
             Es_Air = vp0 *Exp( svp2 * ( Met_Data%TEMP2 -stdtemp ) / ( Met_Data%TEMP2 -svp3 ) ) 
          End Where
-         Met_Data%RH = Met_Data%Q2 / ( Es_Air * 0.622 / ( Met_Data%PRSFC - Es_Air ) ) * 100.0
-         Where( Met_Data%RH .Gt. 100.0 )
-            Met_Data%RH = 100.0
-         Elsewhere( Met_Data%RH .lt. 0.0 )
-            Met_Data%RH = 0.0
+
+         ! Calculate Relative Humidity at 2m
+         Met_Data%RH2 = Met_Data%Q2 / ( Es_Air * 0.622 / ( Met_Data%PRSFC - Es_Air ) ) * 100.0
+         Where( Met_Data%RH2 .Gt. 100.0 )
+            Met_Data%RH2 = 100.0
+         Elsewhere( Met_Data%RH2 .lt. 0.0 )
+            Met_Data%RH2 = 0.0
          End Where
          Nullify( Es_Air )
+
+         ! Calculate 3D Relative Humidity at Grid Scale
+         MET_DATA%RH = MET_DATA%QV * MET_DATA%PRES / ( MET_DATA%QV + 0.622015 ) /
+     &                 ( 610.94 * EXP( 17.625 * ( MET_DATA%TA - 273.15 ) / 
+     &                                 ( MET_DATA%TA - 273.15 + 243.04 ) ) )
+         MET_DATA%RH = MIN( 0.9999, MAX( 0.001, MET_DATA%RH ) )
+
 
 C-------------------------------- MET_DOT_3D --------------------------------
          If ( .Not. INTERPX( MET_DOT_3D, vname_uc, PNAME,

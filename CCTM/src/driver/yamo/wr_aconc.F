@@ -134,6 +134,7 @@ C Override default beginning time timestamp for ACONC?
          END IF
       END DO
  
+      ! Write Tracer Species Concentrations to Average Concentration File
       DO SPC = 1, N_A_TR_SPC
          VAR = VAR + 1
          IF ( .NOT. WRITE3( A_CONC_1, A_TR_SPC( SPC ),
@@ -144,15 +145,48 @@ C Override default beginning time timestamp for ACONC?
             CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
          END IF
       END DO
-
+ 
+      ! Write Vertical Velocity to Average Concentration File
+      IF ( L_ACONC_WVEL ) THEN
+        IF ( .NOT. WRITE3( A_CONC_1, 'WVEL',
+     &        MDATE, MTIME, AVG_WVEL ) ) THEN
+              XMSG = 'Could not write Vertical Wind Velocity'
+     &             // ' to ' // A_CONC_1
+              CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+        END IF 
+      END IF
+ 
       ! Write Relative Humidity to Average Concentration File
-
+      IF ( L_ACONC_RH ) THEN
+        IF ( .NOT. WRITE3( A_CONC_1, 'RH',
+     &        MDATE, MTIME, AVG_RH ) ) THEN
+              XMSG = 'Could not write Relative Humidity'
+     &             // ' to ' // A_CONC_1
+              CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+        END IF 
+      END IF
       
       ! Write Temperature to Average Concentration File
+      IF ( L_ACONC_TA ) THEN
+        IF ( .NOT. WRITE3( A_CONC_1, 'TA',
+     &        MDATE, MTIME, AVG_TA ) ) THEN
+              XMSG = 'Could not write Temperature'
+     &             // ' to ' // A_CONC_1
+              CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+        END IF 
+      END IF
+ 
 
-
-      ! Write Pressure Humidity to Average Concentration File
-
+      ! Write Pressure to Average Concentration File
+      IF (L_ACONC_PRES ) THEN
+        IF ( .NOT. WRITE3( A_CONC_1, 'PRES',
+     &        MDATE, MTIME, AVG_PRES ) ) THEN
+              XMSG = 'Could not write Pressure'
+     &             // ' to ' // A_CONC_1
+              CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+        END IF 
+      END IF
+ 
 
       WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
      &      'Timestep written to', A_CONC_1,
