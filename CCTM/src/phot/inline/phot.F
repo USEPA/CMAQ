@@ -1287,7 +1287,7 @@ C...modules
          TAU_AERO_550 = 0.0
 
          WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
-     &          'Photolysis Suface Summary written to', CTM_RJ_1,
+     &          'Photolysis Surface Summary written to', CTM_RJ_1,
      &          'for date and time', ODATE, OTIME
 
          DO IPHOT = 1, NPHOTAB

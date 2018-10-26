@@ -962,7 +962,6 @@
          ! Define Dummy Variables for Opening Emission Control Namelist
          CHARACTER( 300 ) :: EQNAME
          INTEGER          :: EMCTRL_NML
-         INTEGER          :: LOGDEV
          INTEGER          :: STAT
 
          ! Define General Parameters in Emission Control Namelist
@@ -1002,6 +1001,12 @@
      &              'You have chosen not to indicate the location of an',
      &              'Emission Control namelist file. Default settings ',
      &              'will be assumed.'
+             DefaultScaling      = .TRUE.
+             Guard_BiogenicVOC   = .FALSE.
+             Guard_MarineGas     = .FALSE.
+             Guard_LightningNO   = .FALSE.
+             Guard_WindBlownDust = .FALSE.
+             Guard_SeaSpray      = .FALSE.
              RETURN
          END IF
 
