@@ -103,6 +103,8 @@ C-----------------------------------------------------------------------
       USE UTILIO_DEFN
       USE RUNTIME_VARS
       USE ASX_DATA_MOD, Only : MET_DATA, INIT_MET, GET_MET
+      USE LSM_MOD, Only : INIT_LSM
+      USE BIDI_MOD, Only : INIT_BIDI
 #ifdef parallel
       USE VERTEXT_MODULE
 #endif
@@ -392,6 +394,12 @@ C Verify input file header consistency and run duration
 #endif
 
 C Initialize Meteorology Structures
+         IF ( ILDEPV ) THEN
+
+            CALL INIT_LSM( JDATE, JTIME )
+            CALL INIT_BIDI( )
+         END IF   ! in-line depv
+ 
          CALL INIT_MET( JDATE, JTIME )
          CALL GET_MET ( JDATE, JTIME, 0 )
          CALL GET_WVEL( JDATE, JTIME )

@@ -990,14 +990,6 @@ C Soil vars
                XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_2D
                Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             End If
-
-!            VNAME = 'SOIT2'
-!            If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
-!     &                          STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
-!     &                          JDATE, JTIME, Met_Data%SOIT2 ) ) Then
-!               XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_2D
-!               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-!            End If
          End If
 
          VNAME = 'SOIT1'
