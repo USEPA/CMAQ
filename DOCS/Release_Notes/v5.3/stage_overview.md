@@ -1,6 +1,6 @@
 # STAGE: Surface Tiled Aerosol and Gaseous Exchange dry deposition option
 
-**Author/P.O.C.:** [Jesse O. Bash](mailto: bash.jesse@epa.gov), Computational Exposure Division, U.S. EPA
+**Author/P.O.C.:** [Jesse O. Bash](mailto:bash.jesse@epa.gov), Computational Exposure Division, U.S. EPA
 
 This deposition option estimates fluxes from sub-grid cell fractional land uses and aggregates the fluxes to the model grid cell and unifies the bidirectional and unidirectional deposition schemes using the resistance model framework of Massad et al. 2010 and Nemitz et al. 2001. The MOSAIC option has been modified to work with this module to output the land use specific fluxes and deposition velocities. The following general changes to model processes and resistances have been made. 
 
