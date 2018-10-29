@@ -1,19 +1,29 @@
 # STAGE: Surface Tiled Aerosol and Gaseous Exchange dry deposition option
 
-**Author/P.O.C.:**, [Jesse O. Bash] (mailto: bash.jesse@epa.gov), Computational Exposure Division, U.S. EPA
+**Author/P.O.C.:** [Jesse O. Bash](mailto: bash.jesse@epa.gov), Computational Exposure Division, U.S. EPA
 
 This deposition option estimates fluxes from sub-grid cell fractional land uses and aggregates the fluxes to the model grid cell and unifies the bidirectional and unidirectional deposition schemes using the resistance model framework of Massad et al. 2010 and Nemitz et al. 2001. The MOSAIC option has been modified to work with this module to output the land use specific fluxes and deposition velocities. The following general changes to model processes and resistances have been made. 
+
 Bidirectional NH3 utilizes the widely used resistance model framework of Nemitz et al. 2001 with the cuticular resistance from Massad et al. 2010. Additionally, the nitrification rates are now estimated from EPIC model output as well as NH4 input from organic nitrogen mineralization.  Soil resistances were updated to be more consistent with the measurements that they were parameterized from. This included changing the maximum diffusive depth to be consistent with Kondo et al. 1990 and Swenson and Lawrence 2014.  Soil moisture at plow depth, 5 cm, is now estimated from gravitational draining rather than a weighted mean of the 0.01 m and 1 m soil layers. ABFLUX_MOD.F is now replaced with NH3_BIDI_MOD.F as the resistance model in STAGE now only needs the soil NH3 concentration and not a parallel resistance model. 
+
 The bidirectional Hg code was simplified and modified to provide soil, vegetation and water Hg concentrations and to integrate the fluxes from the STAGE model. 
+
 The form of the quasi boundary layer resistance has been changed to the leaf specific parameterization from Jensen and Hummelshoj 1995 and the quasi boundary layer resistance of soil parameterization from Nemitz et al. 2000. This form of quasi laminar boundary layer resistance for soil was previously used in the ABFLUX_MOD.F module and the parameterization of friction velocity at the soil surface was changed to be consistent with Yi 2008. 
+
 A new form of the in-canopy aerodynamic resistance was derived by integrating the in-canopy eddy diffusivity as parameterized by Yi 2008 from 0 to the full canopy leaf area index. 
+
 The parameterization of deposition to snow has been changed and it is now assumed that when snow is present it covers vegetation and soil thus eliminating the deposition pathways to those surfaces. 
+
 Ozone deposition to soil has been updated based on under canopy measurements Fares et al 2014 and Fumagalli et al. 20016. Here an asymptotic function was applied to set lower and upper bounds in the resistance as repoerted by Fumagalli et al. 2016.
+
 The resistance to deposition to wet terrestrial surfaces was modified following Fahey et al. 2017 to be consistent with the AQCHEM-KMT2 aqueous parametrization this added an additional diffusive rate that occasionally becomes the limiting resistance when the surface is wet and the aerodynamic resistance is low.  
+
 The cuticular resistance of non-ionic organic species is now modeled similar to the processes involving the partitioning of semi-volatile gases to organic aerosols. Bulk leaf wax properties and composition are taken from the observations of Schreiber and Schoenherr 2009 and the vapor pressure or C* is used to estimate the partitioning following Raoult’s law this is then used to estimate a relative reactivity used for the cuticular resistance. 
+
 Aerosol deposition followed the changes in M3dry with the following changes. Aerosol impaction for vegetated surfaces is parameterized following Slinn 1982 for vegetated surfaces using the characteristic aerodynamic leaf radius for plant functional types from Zhang et al. 2001 and Giorgi 1986 for soil and water surfaces.  Aerosol deposition velocities are then estimated for both smooth and vegetated surfaces and area weighted by the vegetation coverage. 
 
 ![Resistance](Resistance.model.png)
+
 Figure 1: Resistance schematic for STAGE adapted from Massad et al. 2010 and Nimitz et al. 2001
 
 ## Significance and Impact
