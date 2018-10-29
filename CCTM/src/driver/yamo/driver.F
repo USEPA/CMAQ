@@ -90,6 +90,7 @@ C   26 Jan 16 J.Young: Consolidate PIO_INIT, use keywords for optional arguments
 C   28 Jan 16 D.Wong:  Add SAVE attribute to TSTEP for the two-way model implementation
 C   16 Sep 16 J.Young: update for inline procan (IRR)
 C   29 Nov 17 D. Wong: removed all SWAP routines and replaced with SE_COMM
+C   29 Oct 18 L.Zhou, S.Napelenok: isam implementation
 C-----------------------------------------------------------------------
 
       USE PCGRID_DEFN           ! inherits GRID_CONF
@@ -102,7 +103,9 @@ C-----------------------------------------------------------------------
       USE PAGRD_DEFN            ! Process Anaylsis horiz domain specs
       USE UTILIO_DEFN
       USE RUNTIME_VARS
+#ifdef parallel
       USE VERTEXT_MODULE
+#endif
 
 #ifdef twoway
       USE SD_TIME_SERIES_MODULE
@@ -112,6 +115,14 @@ C-----------------------------------------------------------------------
       USE SE_MODULES            ! stenex (using SE_INIT_MODULE)
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_INIT_MODULE)
+#endif
+
+#ifdef isam
+      USE SA_LAYERS
+      USE SA_DEFN
+      USE PISAM_DEFN            ! SA array definition (borrowed )
+      USE PMFRC_DEFN            ! MAPFRAC array definition ( adapted )
+      USE OZVOC_DEFN            ! 20120911 populates VOC emission species
 #endif
 
       IMPLICIT NONE
@@ -150,6 +161,7 @@ C Local variables:
       LOGICAL          EXST, OPD
       CHARACTER( 1000 ) :: CFILE
       CHARACTER(   16 ) :: ACT
+      REAL              :: REAL_TIME
       REAL( 8 )         :: CPU_TIME_START, CPU_TIME_FINISH
 
       CHARACTER(  2 ) :: COLROW = 'CR'  ! col/row arg list order
@@ -166,8 +178,12 @@ C Local variables:
       INTEGER   PAR_ERR     ! Error code from parallel initialization
       REAL( 8 ) BEGTIME     ! Wall-clock time (sec) at MPI initialization
       REAL( 8 ) ENDTIME     ! Wall-clock time (sec) at MPI finish
-#endif
       REAL( 8 ) ELAPTIME    ! ENDTIME-BEGTIME
+#else
+      REAL      BEGTIME     ! Wall-clock time (sec) at MPI initialization
+      REAL      ENDTIME     ! Wall-clock time (sec) at MPI finish
+      REAL      ELAPTIME    ! ENDTIME-BEGTIME
+#endif
 
       LOGICAL, SAVE :: FIRST_RUN = .TRUE.  ! used for twoway model
       LOGICAL       :: WFLG                ! turn on write subdmap in pio_init
@@ -217,6 +233,21 @@ C Local variables:
             REAL, POINTER            :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )    :: JDATE, JTIME
          END SUBROUTINE PA_OUTPUT
+#ifdef isam
+         SUBROUTINE WR_SA ( JDATE, JTIME, TSTEP, NSTEPS )
+            IMPLICIT NONE
+            INTEGER                  :: JDATE, JTIME, TSTEP( 3 )
+            INTEGER                  :: NSTEPS
+         END SUBROUTINE WR_SA
+         SUBROUTINE WR_AVG_SA ( JDATE, JTIME, TSTEP )
+            IMPLICIT NONE
+            INTEGER                  :: JDATE, JTIME, TSTEP
+         END SUBROUTINE WR_AVG_SA
+         SUBROUTINE WR_SA_CGRID ( JDATE, JTIME, TSTEP )
+            IMPLICIT NONE
+            INTEGER                  :: JDATE, JTIME, TSTEP
+         END SUBROUTINE WR_SA_CGRID
+#endif
       END INTERFACE
 
 C-----------------------------------------------------------------------
@@ -241,6 +272,7 @@ C processes (NPROCS)
 #else
          NPROCS = 1
          MYPE = 0
+         CALL CPU_TIME( BEGTIME )
 #endif
 
 C Initialize Environment Variables
@@ -259,9 +291,12 @@ C and define vertical layer structure (in module GRID_CONF)
          write( logdev,* ) ' MYPE -> NPROCS:   ', mype, nprocs
          write( logdev,* ) ' MYPE -> NPCOL:    ', mype, npcol
          write( logdev,* ) ' MYPE -> NPROW:    ', mype, nprow
+         write( logdev,* ) ' MYPE -> MY_NCOLS: ', mype, my_ncols
+         write( logdev,* ) ' MYPE -> MY_NROWS: ', mype, my_nrows
          write( logdev,* ) ' MYPE -> GL_NCOLS: ', mype, gl_ncols
          write( logdev,* ) ' MYPE -> GL_NROWS: ', mype, gl_nrows
          write( logdev,* ) ' MYPE -> NLAYS:    ', mype, nlays
+         write( logdev,* ) ' MYPE -> NBNDY:    ', mype, nbndy
 #endif
 
 C Set CGRID mechanism
@@ -335,6 +370,16 @@ C Initialize PCGRID
       
          CGRID => PCGRID( 1:MY_NCOLS,1:MY_NROWS,:,: )   ! required for PinG
 
+#ifdef isam
+        IF ( .NOT. PCBFOR_INIT () ) THEN
+           XMSG = 'Failure defining horizontal domain'
+           CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2  )
+        END IF
+
+        CBFOR => PCBFOR( 1:MY_NCOLS,1:MY_NROWS,:,: )   ! required for
+        CPinG
+#endif
+
 C Initalize CONC definitions (in STD_CONC F90 module)
          CALL CONC_DEFN ()
 
@@ -345,6 +390,50 @@ C Get avg CONC definitions, species and layer pointers (in AVG_CONC F90 module)
 C Miscellaneous Configuration Operations
          WRITE( LOGDEV, * )
          CALL LOG_HEADING( LOGDEV, "Configure Scenario" )
+
+#ifdef isam
+         CALL GET_SA_LAYS ()
+         CALL SA_DIM()
+
+         N_SPCTAG = NSPC_SA * NTAG_SA
+
+         CALL MAP_FRAC( )
+
+         CALL GET_SPC_INDEX ()
+
+         IF ( ANY( L_OZONE ) .OR. ANY( L_VOC ) ) THEN
+            CALL VOC_INIT ()
+         END IF
+
+C Initialize PISAM
+         IF ( .NOT. PISAM_INIT ( NSPC_SA, NTAG_SA ) ) THEN
+            XMSG = 'Failure in defining SA horizontal domain'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2  )
+         END IF
+         ISAM => PISAM( 1:MY_NCOLS,1:MY_NROWS,:,:,: )
+
+C Pointer for mapfrac
+         IF ( .NOT. PMFRC_INIT ( NTAG_SA-3 ) ) THEN
+            XMSG = 'Failure in defining SA horizontal domain'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2  )
+         END IF
+         MFRC_P = PMFRC( 1:MY_NCOLS,1:MY_NROWS,: )
+         MFRC_P = MAPFRAC
+
+!20140416 Renormalization or not?
+         YES_RENORM = ENVYN( 'DO_RENORM','Want to renormalize ISAM ?',.FALSE., ALLOCSTAT )
+         write(*,*) 'renorm??', yes_renorm
+C Determine the number of combined species-tags
+
+         IF ( MYPE .EQ. 0 ) WRITE( LOGDEV,* ) 'In driver, N_SPCTAG =',N_SPCTAG
+
+C Allocate arrays of species indices, tagging indices, and
+C variable names for the combined species-tags
+C i.e. set s_spctag, t_spctag, and vnam_spctag
+         ALLOCATE ( S_SPCTAG( N_SPCTAG ) )
+         ALLOCATE ( T_SPCTAG( N_SPCTAG ) )
+         ALLOCATE ( VNAM_SPCTAG( N_SPCTAG ) )
+#endif
 
 C Initialize optional derived vertical velocity writes to conc file
          IF ( .NOT. WVEL_INIT () ) THEN
@@ -374,6 +463,17 @@ C Verify input file header consistency and run duration
             XMSG = 'ASTEP memory allocation failed'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
+
+#ifdef isam
+         ALLOCATE ( AISAM( MY_NCOLS,MY_NROWS,NLAYS,NSPC_SA,NTAG_SA ),STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            XMSG = 'AISAM memory allocation failed'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+         AISAM = 0.
+#endif
+
+
 
 #ifdef twoway
          IF ( CMAQ_WRF_FEEDBACK ) THEN
@@ -413,6 +513,22 @@ C Get synchronization and advection time steps, TSTEP(2), ASTEP(L) and NREPS
                   END DO
                END DO
             END DO
+#ifdef isam
+            DO ITAG = 1, NTAG_SA ! average isam
+               DO V = 1, NSPC_SA
+                  L = 0
+                  DO K = AISAM_BLEV, AISAM_ELEV
+                     L = L + 1
+                     DO R = 1, MY_NROWS
+                        DO C = 1, MY_NCOLS
+                           AISAM( C,R,L,V,ITAG ) = ISAM( C,R,K,V,ITAG )
+                        END DO
+                     END DO
+                  END DO
+               END DO
+            END DO
+#endif
+
 #ifdef twoway
          END IF
 #endif
@@ -429,6 +545,8 @@ C science process sequence:
 
             CALL SCIPROC ( CGRID, JDATE, JTIME, TSTEP, ASTEP )
 
+
+
             DO V = 1, N_ASPCS
                S = AVG_CONC_MAP( V )
                L = 0
@@ -442,6 +560,24 @@ C science process sequence:
                   END DO
                END DO
             END DO
+
+#ifdef isam
+            ! average isam
+            DO ITAG = 1, NTAG_SA
+               DO V = 1, NSPC_SA
+                  L = 0
+                  DO K = AISAM_BLEV, AISAM_ELEV
+                     L = L + 1
+                     DO R = 1, MY_NROWS
+                        DO C = 1, MY_NCOLS
+                           AISAM( C,R,L,V,ITAG ) = AISAM( C,R,L,V,ITAG )
+     &                                           + 2.0 * ISAM( C,R,K,V,ITAG )
+                        END DO
+                     END DO
+                  END DO
+               END DO
+            END DO
+#endif
 
          END DO
 
@@ -464,6 +600,24 @@ C science process sequence:
                   END DO
                END DO
             END DO
+
+#ifdef isam
+            DO ITAG = 1, NTAG_SA ! average isam
+               DO V = 1, NSPC_SA
+                  L = 0
+                  DO K = AISAM_BLEV, AISAM_ELEV
+                     L = L + 1
+                     DO R = 1, MY_NROWS
+                        DO C = 1, MY_NCOLS
+                           AISAM( C,R,L,V,ITAG ) = DIVFAC * ( AISAM(C,R,L,V,ITAG ) 
+     &                                           -            ISAM( C,R,K,V,ITAG ) )
+                        END DO
+                     END DO
+                  END DO
+               END DO
+            END DO
+#endif
+
 #ifdef twoway
          END IF
 #endif
@@ -484,10 +638,21 @@ C science process sequence:
 C write conc fields
 
          IF ( MOD( TIME2SEC( JTIME ), TIME2SEC( TSTEP( 1 ) ) ) .EQ. 0 ) THEN
+#ifdef parallel
             CPU_TIME_START =  MPI_WTIME()
+#else
+            CALL CPU_TIME( REAL_TIME )
+            CPU_TIME_START = REAL( REAL_TIME,8 )
+#endif
             CALL WR_CONC ( JDATE, JTIME, TSTEP( 1 ) )
-            IF ( LVEXT ) CALL WR_VEXT ( JDATE, JTIME, TSTEP( 1 ) )
+#ifdef parallel
+            IF ( LVEXT ) CALL WR_VEXT ( CGRID, JDATE, JTIME, TSTEP( 1 ) )
+#endif
             CALL WR_ACONC ( AGRID, JDATE, JTIME, TSTEP( 1 ) )
+#ifdef isam
+            CALL WR_SA     ( JDATE, JTIME, TSTEP, 1 )
+            CALL WR_AVG_SA ( JDATE, JTIME, TSTEP( 1 ) )
+#endif
             IF ( LIPR .OR. LIRR ) CALL PA_OUTPUT ( CGRID, JDATE, JTIME )
             IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 3 )
          END IF
@@ -506,6 +671,9 @@ C write conc fields
       IF ( ( STEP_COUNT .EQ. TOTAL_STEPS ) .OR. ( TOTAL_STEPS .EQ. 0 ) ) THEN
 C write CGRID state file for subsequent runs
          CALL WR_CGRID ( CGRID, JDATE, JTIME, TSTEP( 1 ) )
+#ifdef isam
+         CALL WR_SA_CGRID ( JDATE, JTIME, TSTEP( 1 ) )
+#endif
       END IF
 
 #ifdef twoway
@@ -528,8 +696,10 @@ C Shut down IOAPI
       END IF
 
 #ifdef parallel
-C Shut down MPI
       ENDTIME = MPI_WTIME()   ! get final wall-clock time
+#else
+      CALL CPU_TIME( ENDTIME )   ! get final wall-clock time
+#endif
       ELAPTIME = ENDTIME - BEGTIME
       WRITE( XMSG, '(A,F10.1,A)' ) 'The elapsed time for this simulation was', 
      &                            ELAPTIME, ' seconds.'
@@ -538,6 +708,8 @@ C Shut down MPI
       IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
       IF ( MYPE .EQ. 0 ) WRITE( OUTDEV, * )
 
+#ifdef parallel
+C Shut down MPI
       CALL MPI_FINALIZE ( PAR_ERR )
       IF ( PAR_ERR .NE. 0 ) THEN
          STOP 'Error terminating MPI'
