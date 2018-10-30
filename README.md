@@ -13,7 +13,7 @@ particulates, toxics, and acid deposition.
 
 **Take our 2018 CMAQ User Survey!**
 * [Link to online survey](https://unc.az1.qualtrics.com/jfe/form/SV_1IcuS1wIZ2PQUu1)
-* Deadline to complete the survey: October 31, 2018.
+* Deadline to complete the survey: November 30, 2018.
 
 ### Repository Framework
 The CMAQ Git repository is organized with each official public release stored as a branch on the public GitHub USEPA CMAQ repository.
