@@ -103,6 +103,15 @@ C-----------------------------------------------------------------------
       USE PAGRD_DEFN            ! Process Anaylsis horiz domain specs
       USE UTILIO_DEFN
       USE RUNTIME_VARS
+
+#ifdef isam
+      USE SA_LAYERS
+      USE SA_DEFN
+      USE PISAM_DEFN            ! SA array definition (borrowed )
+      USE PMFRC_DEFN            ! MAPFRAC array definition ( adapted )
+      USE OZVOC_DEFN            ! 20120911 populates VOC emissionspecies
+#endif
+
 #ifdef parallel
       USE VERTEXT_MODULE
 #endif
@@ -115,14 +124,6 @@ C-----------------------------------------------------------------------
       USE SE_MODULES            ! stenex (using SE_INIT_MODULE)
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_INIT_MODULE)
-#endif
-
-#ifdef isam
-      USE SA_LAYERS
-      USE SA_DEFN
-      USE PISAM_DEFN            ! SA array definition (borrowed )
-      USE PMFRC_DEFN            ! MAPFRAC array definition ( adapted )
-      USE OZVOC_DEFN            ! 20120911 populates VOC emission species
 #endif
 
       IMPLICIT NONE
@@ -369,16 +370,6 @@ C Initialize PCGRID
          END IF
       
          CGRID => PCGRID( 1:MY_NCOLS,1:MY_NROWS,:,: )   ! required for PinG
-
-#ifdef isam
-        IF ( .NOT. PCBFOR_INIT () ) THEN
-           XMSG = 'Failure defining horizontal domain'
-           CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2  )
-        END IF
-
-        CBFOR => PCBFOR( 1:MY_NCOLS,1:MY_NROWS,:,: )   ! required for
-        CPinG
-#endif
 
 C Initalize CONC definitions (in STD_CONC F90 module)
          CALL CONC_DEFN ()

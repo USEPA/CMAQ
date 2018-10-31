@@ -20,16 +20,17 @@
 
 ! KWOK: Define tagging emissions, species, dimensions, etc, based on user-supplied sa_io_list
 ! KWOK: Created Oct 5, 2010
-!
-
+! 29 Oct 18 L.Zhou, S.Napelenok: update for cmaq 5.3 release
+! 
       USE RXNS_DATA, ONLY : MECHNAME !Get Chemical Mechanism Name
 
       IMPLICIT NONE
 
       SAVE
 
-
       PUBLIC
+
+      INTEGER ITAG
 
 c...Tagging species, regular or combined
       CHARACTER( 16 ), ALLOCATABLE :: SPC_NAME( :,: )
