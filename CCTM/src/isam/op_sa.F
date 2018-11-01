@@ -32,8 +32,13 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       USE SA_LAYERS
       USE SA_DEFN               ! Mc06
       USE UTILIO_DEFN           ! replaces ioparms, iofdesc, iodecl
-      USE SUBST_MODULES         ! stenex
+c     USE SUBST_MODULES         ! stenex
       USE RXNS_DATA, ONLY : MECHNAME !Get Chemical Mechanism Name
+#ifdef parallel
+      USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
+#else
+      USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
+#endif
 
       IMPLICIT NONE
 
@@ -55,7 +60,8 @@ C...End of argument declaration
 
 C Local variables:
       
-      INTEGER          ALLOCSTAT, LOGDEV
+c     INTEGER          ALLOCSTAT, LOGDEV
+      INTEGER          ALLOCSTAT
 
       CHARACTER( 16 ), DIMENSION( :,: ), ALLOCATABLE::VNAME
       CHARACTER( 1 ),  DIMENSION(:), ALLOCATABLE::SPECIE_NAME
