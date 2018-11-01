@@ -26,6 +26,9 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C20140428  Writes hourly averaged ISAM conc to SA_ACONC_1
 C
 C          Called by driver.F
+C
+C     01 Nov 2018: S.Napelenok Updates for cmaq5.3 release 
+
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -33,8 +36,15 @@ C-----------------------------------------------------------------------
       USE SA_LAYERS             ! 20140428 for AISAM_BLEV, AISAM_ELEV, SA_NLAYS
       USE SA_DEFN
 
-      USE SUBST_MODULES         ! stenex
+!     USE SUBST_MODULES         ! stenex
 !     USE SUBST_UTIL_MODULE     ! stenex
+
+#ifdef parallel
+      USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
+#else
+      USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
+#endif
+
 
       IMPLICIT NONE
 
@@ -57,10 +67,10 @@ C Local variables:
       CHARACTER( 80 ) :: VARDESC = ' '
       CHARACTER( 96 ) :: XMSG = ' '
 
-      INTEGER, SAVE :: LOGDEV       ! FORTRAN unit number for log file
+c     INTEGER, SAVE :: LOGDEV       ! FORTRAN unit number for log file
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
       LOGICAL OK
-      LOGICAL, SAVE :: END_TIME = .FALSE.
+c     LOGICAL, SAVE :: END_TIME = .FALSE.
 
       INTEGER      L, K, KD, VAR, SPC ! loop counters
       INTEGER      STATUS
@@ -83,17 +93,17 @@ C represents data computed from time 1995196:090000 to 1995196:100000
          LOGDEV = INIT3 ()
 
 C Override default beginning time timestamp for ACONC?
-         VARDESC = 
-     &     'Flag to Override default beginning time timestamp for ACONC'
-         END_TIME = ENVYN( ACONC_END_TIME, VARDESC, END_TIME, STATUS )
-         IF ( STATUS .EQ. 1 ) THEN
-            XMSG = 'Environment variable improperly formatted'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         ELSE IF ( STATUS .NE. 0 ) THEN
-            WRITE( LOGDEV, '(5X, A)' ) VARDESC
-            XMSG = '... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-         END IF
+c        VARDESC = 
+c    &     'Flag to Override default beginning time timestamp for ACONC'
+c        END_TIME = ENVYN( ACONC_END_TIME, VARDESC, END_TIME, STATUS )
+c        IF ( STATUS .EQ. 1 ) THEN
+c           XMSG = 'Environment variable improperly formatted'
+c           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+c        ELSE IF ( STATUS .NE. 0 ) THEN
+c           WRITE( LOGDEV, '(5X, A)' ) VARDESC
+c           XMSG = '... Using default:'
+c           WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
+c        END IF
 
       END IF
 
@@ -109,7 +119,7 @@ C Override default beginning time timestamp for ACONC?
 
 C Try to open existing file for update
 
-         CALL SUBST_BARRIER
+c        CALL SUBST_BARRIER
 
          A_NLYS = AISAM_ELEV - AISAM_BLEV + 1
 
@@ -284,7 +294,7 @@ C Check other header data with CONC file as reference
 
          END IF   ! .NOT. OPEN SA_ACONC_1
 
-         CALL SUBST_BARRIER
+c        CALL SUBST_BARRIER
 
       END IF   ! FIRSTIME
     

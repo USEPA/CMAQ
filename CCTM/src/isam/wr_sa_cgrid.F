@@ -22,7 +22,7 @@ c
 c      [2] write tssa concentration data 
 c     
 C     Revision history
-C     created on 28 Oct 02 by Bo Wang: 
+C     01 Nov 2018: S.Napelenok Updates for cmaq5.3 release 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
       SUBROUTINE WR_SA_CGRID ( JDATE, JTIME, TSTEP )
@@ -34,8 +34,14 @@ C          Called by driver.F
 
       USE GRID_CONF
       USE UTILIO_DEFN           ! 20120615
-      USE SUBST_MODULES         ! stenex
+c     USE SUBST_MODULES         ! stenex
       USE SA_DEFN               ! Mc06
+#ifdef parallel
+      USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
+#else
+      USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
+#endif
+
 
       IMPLICIT NONE
 
@@ -53,12 +59,14 @@ C...End of argument declaration
 
 C Local variables:
       
-      INTEGER          ALLOCSTAT, LOGDEV
+c     INTEGER          ALLOCSTAT, LOGDEV
+      INTEGER          ALLOCSTAT
 
       CHARACTER( 16 ) :: PNAME = 'WR_SA_CGRID'
       CHARACTER( 96 ) :: XMSG = ' '
       
-      INTEGER   C,R,S,K,N, L, ITAG, JSPC    ! loop induction variables
+c     INTEGER   C,R,S,K,N, L, ITAG, JSPC    ! loop induction variables
+      INTEGER   C,R,S,K,N, L, JSPC    ! loop induction variables
 
       REAL, ALLOCATABLE :: ISAM_BUFF ( :,:,:,: )
 !20140519
