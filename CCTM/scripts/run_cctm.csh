@@ -94,6 +94,9 @@ setenv EXECUTION_ID "CMAQ_CCTM${VRSN}_`id -u -n`_`date -u +%Y%m%d_%H%M%S_%N`"   
 echo ""
 echo "---CMAQ EXECUTION ID: $EXECUTION_ID ---"
 
+#> Keep or Delete Existing Output Files
+set CLOBBER_DATA = FALSE
+
 #> Logfile Options
 #> Master Log File Name; uncomment to write standard output to a log, otherwise write to screen
 #setenv LOGFILE $CMAQ_HOME/$RUNID.log  
@@ -219,7 +222,6 @@ setenv B3GTS_DIAG Y          #> BEIS mass emissions diagnostic file [ default: N
 setenv PT3DDIAG N            #> 3D point source emissions diagnostic file [ default: N]; 
 setenv PT3DFRAC N            #> layer fractions diagnostic file(s) [ default: N]; 
 setenv REP_LAYER_MIN -1      #> Minimum layer for reporting plume rise info [ default: -1 ]
-set DISP = delete            #> [ delete | keep ] existing output files
 
 # =====================================================================
 #> Input Directories and Filenames
@@ -502,7 +504,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   set out_test = `cat buff.txt`; rm -f buff.txt
   
   #> delete previous output if requested
-  if ( $DISP == 'delete' ) then
+  if ( $CLOBBER_DATA == 'TRUE' ) then
      echo 
      echo "Existing Logs and Output Files for Day ${TODAYG} Will Be Deleted"
 
@@ -523,7 +525,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      #> error if previous log files exist
      if ( "$log_test" != "" ) then
        echo "*** Logs exist - run ABORTED ***"
-       echo "*** To overide, set DISP == delete in run_cctm.csh ***"
+       echo "*** To overide, set CLOBBER_DATA = TRUE in run_cctm.csh ***"
        echo "*** and these files will be automatically deleted. ***"
        exit 1
      endif
@@ -534,7 +536,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
        foreach file ( $out_test )
           echo " cannot delete $file"
        end
-       echo "*** To overide, set DISP == delete in run_cctm.csh ***"
+       echo "*** To overide, set CLOBBER_DATA = TRUE in run_cctm.csh ***"
        echo "*** and these files will be automatically deleted. ***"
        exit 1
      endif
