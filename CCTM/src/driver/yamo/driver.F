@@ -413,7 +413,7 @@ C Pointer for mapfrac
 
 !20140416 Renormalization or not?
          YES_RENORM = ENVYN( 'DO_RENORM','Want to renormalize ISAM ?',.FALSE., ALLOCSTAT )
-         write(*,*) 'renorm??', yes_renorm
+c        write(*,*) 'renorm??', yes_renorm
 C Determine the number of combined species-tags
 
          IF ( MYPE .EQ. 0 ) WRITE( LOGDEV,* ) 'In driver, N_SPCTAG =',N_SPCTAG

@@ -24,6 +24,8 @@ c20140428 If cold start, write ICON values to ISAM; otherwise,
 c         write to ISAM those ISAM values from last hour of previous day
 c           Called by initscen.F
 c
+C     01 Nov 2018: S.Napelenok Updates for cmaq5.3 release 
+c
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
       USE GRID_CONF
@@ -32,28 +34,27 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       USE SA_DEFN               ! Mc06
       USE OZVOC_DEFN            ! 20120911 populates VOC emission species
       
-      USE SUBST_MODULES         ! stenex
+#ifdef parallel
+      USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
+#else
+      USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
+#endif
+
 
       implicit none
       
-!      INCLUDE SUBST_VGRD_ID     ! vertical dimensioning parameters
-
       INCLUDE SUBST_FILES_ID    ! file name parameters
-!      INCLUDE SUBST_COORD_ID    ! coord. and domain definitions (req IOPARMS)
-            
 
 c.....arguments
 
       REAL, POINTER :: CGRID( :,:,:,: ) ! for initial CONC
-
-
 
 c.....local variables
 
       INTEGER          C, R, L, S, K              ! loop index
       INTEGER          N, NSPC, JVOC              ! 20140123
 
-      CHARACTER*1      NEW_START
+      CHARACTER*1      ISAM_NEW_START
 
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -61,12 +62,15 @@ c     program entry
 c.........................................................
 c.....update isam array according to isam ICON source tag
 
-      CALL GETENV('ISAM_NEW_START', NEW_START)
 
-Ckrt  print*,'Entered SA_ARRAY_INIT....'
-Ckrt  print*,'NSPC_SA, NLAYS, MY_NROWS, MY_NCOLS, ICONTAG'
-Ckrt  print*, NSPC_SA, NLAYS, MY_NROWS, MY_NCOLS, ICONTAG  
-      IF( NEW_START == 'Y') THEN
+      write(logdev,*) " TOP "
+
+      CALL GETENV('ISAM_NEW_START', ISAM_NEW_START)
+
+      write(logdev,*) 'Entered SA_ARRAY_INIT....'
+      write(logdev,*) 'NSPC_SA, NLAYS, MY_NROWS, MY_NCOLS, ICONTAG, ISAM_NEW_START'
+      write(logdev,*)  NSPC_SA, NLAYS, MY_NROWS, MY_NCOLS, ICONTAG, ISAM_NEW_START
+      IF( ISAM_NEW_START == 'Y') THEN
                                 !.....map N_SPC_ADV to the user-query species
         DO S = 1, NSPC_SA
 

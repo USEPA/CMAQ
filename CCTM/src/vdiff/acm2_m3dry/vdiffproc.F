@@ -74,6 +74,7 @@ C                     to open CTM_DRY_DEP_1, CTM_VSED_DIAG, CTM_VDIFF_DIAG,
 C                     CTM_DRY_DEP_MOS, and CTM_DRY_DEP_FST
 C 03 Mar 16 G.Sarwar: updated for halogen emissions
 C 16 Sep 16 J.Young: update for inline procan (IPR)
+C 02 Nov 2018: L.Zhou, S.Napelenok: isam implementation
 C-----------------------------------------------------------------------
 
       USE CGRID_SPCS          ! CGRID mechanism species
@@ -91,6 +92,14 @@ C-----------------------------------------------------------------------
       USE SEDIMENTATION
       USE VDIFF_DIAG
       USE PA_DEFN, Only: LIPR ! Process Anaylsis control and data variables
+
+#ifdef isam
+      USE PSAEM_DEFN
+      USE SA_DEFN
+      USE OZVOC_DEFN         ! 20120918
+#endif
+
+
 
       IMPLICIT NONE
 
@@ -143,13 +152,21 @@ C Local Variables:
 
       REAL, ALLOCATABLE, SAVE :: VSED_AE( :,:,:,: )
       INTEGER, SAVE :: NH3_HIT
-C Local Variables
 
+C Local Variables
       INTEGER     ASTAT
       INTEGER     C, R, L, S, V, I, J, OFF      ! loop induction variables
       INTEGER     MDATE, MTIME, MSTEP           ! internal simulation date&time
       CHARACTER(LEN=8), PARAMETER :: NAME_NH3_EMIS = 'NH3_EMIS'
       CHARACTER(LEN=8), PARAMETER :: NAME_NH3_DDEP = 'NH3_DDEP'
+
+#ifdef isam
+      REAL, ALLOCATABLE, SAVE :: SA_DDEP( :,:,: )   ! 20120712 ddep for tags
+      INTEGER IBGN, JSPCTAG            ! 20120712 for othrtag updates
+      REAL    :: SACONC( N_SPCTAG,NLAYS )
+      REAL    :: SAEMIS( N_SPCTAG,NLAYS )
+#endif
+
       INTERFACE
          SUBROUTINE PA_UPDATE_EMIS ( PNAME, VDEMIS_DIFF, JDATE, JTIME, TSTEP )
             CHARACTER( * ), INTENT( IN )  :: PNAME
@@ -176,13 +193,35 @@ C Local Variables
          SUBROUTINE EDDYX ( EDDYV )
             REAL,           INTENT( OUT ) :: EDDYV( :,:,: )
          END SUBROUTINE EDDYX
+#ifdef isam
+         SUBROUTINE VDIFFACMX( JDATE, JTIME, SA_DDEP, dtsec, seddy, ddep, icmp, ddepj, ddepj_fst, cngrd )
+#else
          SUBROUTINE VDIFFACMX( dtsec, seddy, ddep, icmp, cngrd)
+#endif
             REAL, INTENT( IN )    :: dtsec
             REAL, INTENT( INOUT ) :: seddy( :,:,: )
             REAL, INTENT( INOUT ) :: ddep ( :,:,: )
             REAL, INTENT( INOUT ) :: icmp ( :,:,: )
             REAL, INTENT( INOUT ) :: cngrd( :,:,:,: )
+#ifdef isam
+            INTEGER, INTENT(IN) :: JDATE, JTIME
+            REAL, ALLOCATABLE :: SA_DDEP( :,:,: )   ! 20120712 ddep for tags
+#endif
          END SUBROUTINE VDIFFACMX
+#ifdef isam
+         SUBROUTINE SA_OPWDDEP ( SADEPFILE, JDATE, JTIME, TSTEP )
+            IMPLICIT NONE
+            CHARACTER( 16 ) SADEPFILE ! Dry or wet dep file for tags
+            INTEGER      JDATE      ! current model date, coded YYYYDDD
+            INTEGER      JTIME      ! current model time, coded HHMMSS
+            INTEGER      TSTEP      ! output time step
+         END SUBROUTINE SA_OPWDDEP
+Ckrt...Filling up other tags..........
+         SUBROUTINE SA_FIL_OTHRTAG( JDATE, JTIME )
+            IMPLICIT NONE
+            INTEGER, INTENT( IN ) :: JDATE, JTIME
+         END SUBROUTINE SA_FIL_OTHRTAG
+#endif
       END INTERFACE
 
 C-----------------------------------------------------------------------
@@ -214,6 +253,9 @@ C Initialize the met data
 C Set output file characteristics based on COORD.EXT and open the dry dep file
          IF ( IO_PE_INCLUSIVE ) THEN
             CALL OPDDEP ( JDATE, JTIME, TSTEP( 1 ), N_SPC_DDEP )
+#ifdef isam
+            CALL SA_OPWDDEP ( SA_DD_1, JDATE, JTIME,TSTEP( 1 ) )
+#endif
             IF ( ABFLUX .OR. HGBIDI ) CALL OPASX_MEDIA( JDATE, JTIME, TSTEP( 1 ) )
          END IF
 
@@ -248,6 +290,28 @@ C Allocate and initialize emissions
             XMSG = 'Failure initializing emissions module'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
+
+#ifdef isam
+         ALLOCATE ( SA_DDEP( NCOLS,NROWS,N_SPCTAG ), STAT = ASTAT )
+         IF ( ASTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating SA_DDEP'
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+         SA_DDEP = 0.0
+
+         IF ( .NOT. PSAEM_INIT ( NSPC_SA, NTAG_SA ) ) THEN
+           XMSG = 'Failure in defining SA horizontal domain'
+           CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2  )
+         END IF
+         ISAMEM = PSAEM( 1:MY_NCOLS,1:MY_NROWS,:,:,: )
+
+!Ckrt...Pointer for isamem array
+         IF ( .NOT. PSAEM_INIT ( NSPC_SA, NTAG_SA ) ) THEN
+           XMSG = 'Failure in defining SA horizontal domain'
+           CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2  )
+         END IF
+         ISAMEM = PSAEM( 1:MY_NCOLS,1:MY_NROWS,:,:,: )
+#endif
 
 C Set up for process analysis
          IF ( LIPR ) THEN
@@ -290,6 +354,11 @@ C Set up for grav. settling
             IF ( DDEP_SPC( V ) .EQ. 'NH3' ) NH3_HIT = V
          END DO
 
+#ifdef isam
+      ELSE         ! 20120725 keep pointer ISAMEM pointed to what's supposed to point to
+         ISAMEM = PSAEM( 1:MY_NCOLS,1:MY_NROWS,:,:,: )
+#endif
+
       END IF   !  if Firstime
 
       MDATE = JDATE
@@ -316,6 +385,11 @@ C Calculate the changes in the layer J-,K-mode aerosol concentrations
 
 C read & interpolate emissions data => VDEMIS_DIFF from EMIS_DEFN module
       CALL GET_EMIS ( MDATE, MTIME, TSTEP, CGRID )
+
+#ifdef isam
+      ! Fill up isamem(:,:,:,:,othrtag)
+      CALL SA_FIL_OTHRTAG ( JDATE, JTIME )
+#endif
 
       IF ( LIPR ) THEN
          DO S = 1, N_SPC_DIFF
@@ -359,7 +433,11 @@ C EDDYV returned = Kz, where Kz is in m**2/sec
 
 C Calculate the change in concentration and dry dep from vertical diffusion and vsed
 C Note: cngrd is the argument keyword (from the INTERFACE); CNGRD is the actual argument
+#ifdef isam
+      CALL VDIFFACMX( JDATE, JTIME, SA_DDEP, DTSEC,  SEDDY, DDEP,ICMP, CNGRD )
+#else
       CALL VDIFFACMX( DTSEC, SEDDY, DDEP, ICMP, CNGRD )
+#endif
 
       IF ( VDIFFDIAG ) THEN
          NTICS = NTICS + 1
@@ -563,6 +641,26 @@ C re-set dry deposition array to zero
 
          DDEP = 0.0
          ICMP = 0.0
+
+#ifdef isam
+Ckrt Insert JSPCTAG Loop to write out sa_dd_1 here.....
+         WRDD = 0.0
+         DO JSPCTAG = 1, N_SPCTAG
+            DO R = 1, MY_NROWS
+               DO C = 1, MY_NCOLS
+                  WRDD( C,R ) = SA_DDEP( C,R,JSPCTAG )
+               END DO
+            END DO
+
+            IF ( .NOT. WRITE3( SA_DD_1, VNAM_SPCTAG( JSPCTAG ),
+     &                         MDATE, MTIME, WRDD ) ) THEN
+               XMSG = 'Could not write ' // SA_DD_1 // ' file'
+               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+            END IF
+         END DO
+
+         SA_DDEP = 0.0
+#endif
 
       END IF
 

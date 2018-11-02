@@ -199,10 +199,10 @@ C-----------------------------------------------------------------------
       CALL LOG_MESSAGE( LOGDEV, XMSG )
 
 C Synchronization Step Physical Processes Sequence
-c     CALL VDIFF ( CGRID, JDATE, JTIME, TSTEP )
-c     IF ( CKSUM ) CALL CKSUMMER ( 'VDIFF', CGRID, JDATE, JTIME )
-c     IF ( LIPR ) CALL PA_UPDATE ( 'VDIF', CGRID, JDATE, JTIME, TSTEP )
-c     IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'VDIFF' )
+      CALL VDIFF ( CGRID, JDATE, JTIME, TSTEP )
+      IF ( CKSUM ) CALL CKSUMMER ( 'VDIFF', CGRID, JDATE, JTIME )
+      IF ( LIPR ) CALL PA_UPDATE ( 'VDIF', CGRID, JDATE, JTIME, TSTEP )
+      IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'VDIFF' )
 
 C couple CGRID for advection and horizontal diffusion
 C The COUPLE_WRF routine converts aerosol mass from ug/m3 to kg/m3. The 
@@ -212,7 +212,7 @@ c     CALL COUPLE_WRF ( CGRID, JDATE, JTIME, TSTEP )
 c     IF ( CKSUM ) CALL CKSUMMER ( 'COUPLE_WRF', CGRID, JDATE, JTIME )
 c     IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'COUPLE' )
 
-c     CALL SUBST_BARRIER()
+      CALL SUBST_BARRIER()
 c     CALL HADV ( CGRID, JDATE, JTIME, TSTEP, ASTEP )
 c     IF ( CKSUM ) CALL CKSUMMER ( 'HADV', CGRID, JDATE, JTIME )
 c     IF ( LIPR ) CALL PA_UPDATE ( 'HADV', CGRID, JDATE, JTIME, TSTEP )

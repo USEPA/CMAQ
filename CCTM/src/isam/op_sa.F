@@ -23,6 +23,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c20140428  Opens ISAM's SA_CONC_1 file
 c       op_sa.F called by initscen.F
 c
+C     01 Nov 2018: S.Napelenok Updates for cmaq5.3 release 
 c
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -72,7 +73,8 @@ c     INTEGER          ALLOCSTAT, LOGDEV
       CHARACTER( 96 ) :: XMSG = ' '
       
       INTEGER   C,R,S,K,N, L    ! loop induction variables
-      INTEGER   ITAG, JSPC, JSPCTAG
+c     INTEGER   ITAG, JSPC, JSPCTAG
+      INTEGER   JSPC, JSPCTAG
 
 
       REAL, ALLOCATABLE :: ISAM_BUFF ( :,:,:,: )
