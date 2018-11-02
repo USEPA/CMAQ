@@ -14,8 +14,10 @@ The Community Multiscale Air Quality (CMAQ) Model version 5.3 is a major update 
 ### Photochemistry
 There are 11 unique gas-phase chemical mechanisms in CMAQv5.3. These are all located in the MECHS/ folder and may be invoked when building the model and Makefile. Variations of Carbon Bond 6 (CB6), RACM2, and SAPRC07 are all available. Specific science updates include the following:  
 
+  * [Removal of obsolete mechanisms in CMAQv5.3](obsolete_mechanisms.md)
   * [Halogen mediated first order ozone loss is revised for all mechanisms](simple_halogen_chemistry.md)
   * [Detailed halogen and DMS chemistry with CB6r3](detailed_halogen_and_DMS_chemistry.md)
+  * [Updates to the chlorine chemistry in CB6r3 mechanisms](chlorine_chemistry_CB6r3.md)
   * EBI Solvers
     * [Setting Maximum Integration Time Step and Initial Changes for CMAS-ISAM](updates_to_create_ebi.md)
     * [Ability to conduct Integrated Reaction Rate Analysis](allow_ebi_to_do_IRR_analysis.md)
@@ -41,6 +43,7 @@ CMAQ v5.3 introduces aero7 and aero7i. Aero6, available in previous versions of 
  
 ## Air-Surface Exchange
  * [New NH3 bi-directional flux linked to daily EPIC input](M3dry-Bidi.md)
+ * [STAGE: Surface Tiled Aerosol and Gaseous Exchange dry deposition option](stage_overview.md)
 
 ## Emission Updates
  * [Biogenic speciation update for aero7](biogenic_apinene.md)
