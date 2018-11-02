@@ -194,7 +194,7 @@ C Local Variables
             REAL,           INTENT( OUT ) :: EDDYV( :,:,: )
          END SUBROUTINE EDDYX
 #ifdef isam
-         SUBROUTINE VDIFFACMX( JDATE, JTIME, SA_DDEP, dtsec, seddy, ddep, icmp, ddepj, ddepj_fst, cngrd )
+         SUBROUTINE VDIFFACMX( SA_DDEP, dtsec, seddy, ddep, icmp, cngrd )
 #else
          SUBROUTINE VDIFFACMX( dtsec, seddy, ddep, icmp, cngrd)
 #endif
@@ -204,7 +204,6 @@ C Local Variables
             REAL, INTENT( INOUT ) :: icmp ( :,:,: )
             REAL, INTENT( INOUT ) :: cngrd( :,:,:,: )
 #ifdef isam
-            INTEGER, INTENT(IN) :: JDATE, JTIME
             REAL, ALLOCATABLE :: SA_DDEP( :,:,: )   ! 20120712 ddep for tags
 #endif
          END SUBROUTINE VDIFFACMX
@@ -434,7 +433,7 @@ C EDDYV returned = Kz, where Kz is in m**2/sec
 C Calculate the change in concentration and dry dep from vertical diffusion and vsed
 C Note: cngrd is the argument keyword (from the INTERFACE); CNGRD is the actual argument
 #ifdef isam
-      CALL VDIFFACMX( JDATE, JTIME, SA_DDEP, DTSEC,  SEDDY, DDEP,ICMP, CNGRD )
+      CALL VDIFFACMX( SA_DDEP, DTSEC,  SEDDY, DDEP,ICMP, CNGRD )
 #else
       CALL VDIFFACMX( DTSEC, SEDDY, DDEP, ICMP, CNGRD )
 #endif

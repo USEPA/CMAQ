@@ -18,7 +18,7 @@
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 #ifdef isam
-      SUBROUTINE VDIFFACMX ( JDATE, JTIME, SA_DDEP, DTSEC, SEDDY, DDEP, ICMP, DDEPJ, DDEPJ_FST, CNGRD )
+      SUBROUTINE VDIFFACMX ( SA_DDEP, DTSEC, SEDDY, DDEP, ICMP, CNGRD )
 #else
       SUBROUTINE VDIFFACMX ( DTSEC, SEDDY, DDEP, ICMP, CNGRD )
 #endif
@@ -142,8 +142,6 @@ C ACM Local Variables
 
 #ifdef isam
       REAL, ALLOCATABLE, SAVE :: SA_DDBF( : )   ! 20120712 secondary SA_DDEP
-      INTEGER, INTENT(IN) :: JDATE        ! current model date, coded YYYYDDD
-      INTEGER, INTENT(IN) :: JTIME        ! current model time, coded HHMMSS
       REAL, ALLOCATABLE :: SA_DDEP( :,:,: )   ! 20120712 ddep for tags
       INTEGER IBGN, JSPCTAG
       REAL    :: SACONC( N_SPCTAG,NLAYS )
@@ -207,7 +205,7 @@ C set auxiliary depv arrays
          ALLOCATE (  SA_DDBF( N_SPCTAG ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating SA_DDBF'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
          END IF
 #endif
 
