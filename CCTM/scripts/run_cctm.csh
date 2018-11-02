@@ -501,7 +501,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   set out_test = `cat buff.txt`; rm -f buff.txt
   
   #> delete previous output if requested
-  if ( $CLOBBER_DATA == 'TRUE' ) then
+  if ( $CLOBBER_DATA == true || $CLOBBER_DATA == TRUE  ) then
      echo 
      echo "Existing Logs and Output Files for Day ${TODAYG} Will Be Deleted"
 
