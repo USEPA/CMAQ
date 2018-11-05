@@ -186,6 +186,8 @@ C20140428  Read entries in each emissions tag in the input control file
 C         Called by sa_dim.F
 C
 C
+C 05 Nov 2018: L.Zhou, S.Napelenok: Reorganized the control file
+c 
 
         USE UTILIO_DEFN      ! 20120615
         USE HGRD_DEFN        ! just for mype
@@ -237,26 +239,31 @@ C-----------------------------------------------------------
           PRINT*, 'Start reading the list...'
         endif
 
+101     READ ( INPUT_UNIT, '(A)' ) TXTLINE
+        IF ( TXTLINE(1:3) .EQ. '!!!' ) GOTO 101
+        TAGCLASSES( ITAG ) = TXTLINE(18:LEN_TRIM( TXTLINE ) )
+
+
         !20130731 For stack group id counting
         NINLN = 0
 
         DO ITAG = 1, NTAGS 
-          READ ( INPUT_UNIT, '(A)' ) TXTLINE
+102       READ ( INPUT_UNIT, '(A)' ) TXTLINE
+          IF ( TXTLINE(1:3) .EQ. '!!!' ) GOTO 102
           TAGNAME( ITAG ) = TXTLINE(18:LEN_TRIM( TXTLINE ) )
 
-          READ ( INPUT_UNIT, '(A)' ) TXTLINE
-          TAGCLASSES( ITAG ) = TXTLINE(18:LEN_TRIM( TXTLINE ) )
-
-          READ ( INPUT_UNIT, '(A)' ) TXTLINE
+103       READ ( INPUT_UNIT, '(A)' ) TXTLINE
+          IF ( TXTLINE(1:3) .EQ. '!!!' ) GOTO 103
           TAGRGN( ITAG ) = TXTLINE(18:LEN_TRIM( TXTLINE ) )
 
           !20130731 For stack group id counting
-          IF ( TAGRGN( ITAG )(1:6) .EQ. 'INLINE' ) THEN
-            CALL COUNTCOMMAS( TXTLINE, CNTCMA )
-            IF ( CNTCMA .GT. NINLN ) NINLN = CNTCMA
-          ENDIF !tagrgn = inline
+c         IF ( TAGRGN( ITAG )(1:6) .EQ. 'INLINE' ) THEN
+c           CALL COUNTCOMMAS( TXTLINE, CNTCMA )
+c           IF ( CNTCMA .GT. NINLN ) NINLN = CNTCMA
+c         ENDIF !tagrgn = inline
 
-          READ ( INPUT_UNIT, '(A)' ) TXTLINE
+104       READ ( INPUT_UNIT, '(A)' ) TXTLINE
+          IF ( TXTLINE(1:3) .EQ. '!!!' ) GOTO 104
 !20130702          SGFILE( ITAG ) = TXTLINE(18:LEN_TRIM( TXTLINE ) )
           DO ISGSTK = 1, N_SGSTACKS
             WRITE( FNAME,'("SG",I2.2)' ) ISGSTK
