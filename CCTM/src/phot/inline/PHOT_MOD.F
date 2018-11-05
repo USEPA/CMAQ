@@ -110,7 +110,10 @@ C-----------------------------------------------------------------------
       REAL, ALLOCATABLE  :: RJ_SUB  ( :, :, :, : ) ! subgrid cloud J-values (min-1)
       REAL, ALLOCATABLE  :: ETOT_SFC_WL ( :,:,: )  ! total downward irradiance at sfc [ Watts / m**2  ]
       
-      REAL, ALLOCATABLE  :: BLKDZ( : )             ! layer thicknesses [ m ]
+      REAL, ALLOCATABLE  :: BLKHCHO( : )           ! formaldehyde concentration [ molecules/cm**3 ]
+      REAL, ALLOCATABLE  :: BLKCO  ( : )           ! CO concentration [ molecules/cm**3 ]
+      REAL, ALLOCATABLE  :: BLKSO2 ( : )           ! SO2 concentration [ molecules/cm**3 ]
+      REAL, ALLOCATABLE  :: BLKDZ  ( : )           ! layer thicknesses [ m ]
       REAL, ALLOCATABLE  :: GAS_EXTINCTION( :,: )  ! extinction from gases per layer [1/m]
       REAL, ALLOCATABLE  :: EXTINCTION    ( :,: )  ! total extinction per layer [1/m]
       REAL, ALLOCATABLE  :: ACTINIC_FLUX  ( :,: )  ! actinic fluxes, initially [Photons/(cm^2s)] then  [Watts/m^2] 

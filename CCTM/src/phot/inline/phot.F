@@ -175,8 +175,11 @@ C...modules
       CHARACTER(  80 ) :: VARDESC  ! environment variable description
       CHARACTER( 240 ) :: XMSG = ' '
 
-      INTEGER,    SAVE :: LGC_O3   ! pointer to O3 in CGRID
-      INTEGER,    SAVE :: LGC_NO2  ! pointer to NO2 in CGRID
+      INTEGER,    SAVE :: LGC_O3   = 0 ! pointer to O3 in CGRID
+      INTEGER,    SAVE :: LGC_NO2  = 0 ! pointer to NO2 in CGRID
+      INTEGER,    SAVE :: LGC_CO   = 0 ! pointer to CO in CGRID
+      INTEGER,    SAVE :: LGC_SO2  = 0 ! pointer to SO2 in CGRID
+      INTEGER,    SAVE :: LGC_HCHO = 0 ! pointer to formaldehyde  in CGRID
       INTEGER,    SAVE :: TSTEP    ! output timestep in sec
 
       INTEGER ESTAT                ! status from environment var check
@@ -284,6 +287,10 @@ C...modules
 
       REAL, ALLOCATABLE, SAVE :: TOTAL_OC( :,: )         ! total ozone column [DU]
       REAL, ALLOCATABLE, SAVE :: TROPO_OC( :,: )         ! tropospheric ozone column [DU]
+      REAL, ALLOCATABLE, SAVE :: NO2_COLUMN ( :,: )      ! tropospheric NO2 column []
+      REAL, ALLOCATABLE, SAVE :: CO_COLUMN  ( :,: )      ! tropospheric CO column  []
+      REAL, ALLOCATABLE, SAVE :: HCHO_COLUMN( :,: )      ! tropospheric HCHO column [DU]
+      REAL, ALLOCATABLE, SAVE :: SO2_COLUMN ( :,: )      ! tropospheric SO2 column [DU]
       REAL, ALLOCATABLE, SAVE :: TROPO_O3_EXCEED( :,: )   ! Factor used to adjust tropospheric ozone optical depth
       REAL, ALLOCATABLE, SAVE :: TRANSMIS_DIFFUSE( :,: ) ! diffuse transmission coefficient at surface
       REAL, ALLOCATABLE, SAVE :: TRANSMIS_DIRECT( :,: )  ! direct transmission coefficient at surface
@@ -398,7 +405,11 @@ C...modules
 
          IF ( PHOTDIAG ) THEN
 
-            ALLOCATE( TROPO_OC ( NCOLS,NROWS ) )
+            ALLOCATE( TROPO_OC   ( NCOLS,NROWS ) )
+            ALLOCATE( CO_COLUMN  ( NCOLS,NROWS ) )
+            ALLOCATE( SO2_COLUMN ( NCOLS,NROWS ) )
+            ALLOCATE( NO2_COLUMN ( NCOLS,NROWS ) )
+            ALLOCATE( HCHO_COLUMN( NCOLS,NROWS ) )
             ALLOCATE( TROPO_O3_EXCEED( NCOLS,NROWS ) )
             ALLOCATE( N_EXCEED_TROPO3( NCOLS,NROWS ) )
             ALLOCATE( TRANSMIS_DIFFUSE( NCOLS,NROWS ) )
@@ -421,6 +432,10 @@ C...modules
             TROPO_O3_EXCEED = 0.0
             TSTEP_COUNT     = 0
             TAU_AERO_550    = 0.0
+            CO_COLUMN       = 0.0
+            SO2_COLUMN      = 0.0
+            NO2_COLUMN      = 0.0
+            HCHO_COLUMN     = 0.0
 
 !...write wavelength data to a character array
 
@@ -565,6 +580,31 @@ C...modules
             END IF
 
 
+         VARNM = 'CO'
+         LGC_CO = INDEX1( VARNM, N_GC_SPC, GC_SPC )
+         IF ( LGC_CO .LE. 0 ) THEN
+            XMSG = 'Could not find ' // VARNM // 'in species table'
+            CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+            WRITE(LOGDEV,95101)
+         END IF
+
+         VARNM = 'SO2'
+         LGC_SO2 = INDEX1( VARNM, N_GC_SPC, GC_SPC )
+         IF ( LGC_SO2 .LE. 0 ) THEN
+            XMSG = 'Could not find ' // VARNM // 'in species table'
+            CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+            WRITE(LOGDEV,95101)
+         END IF
+
+         VARNM = 'HCHO'
+         LGC_HCHO = INDEX1( VARNM, N_GC_SPC, GC_SPC )
+         IF ( LGC_HCHO .LE. 0 ) THEN
+            VARNM = 'FORM'
+            LGC_HCHO = INDEX1( VARNM, N_GC_SPC, GC_SPC )
+            XMSG = 'Could not find HCHO or FORM, i.e., formaldehyde, in species table'
+            CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+            WRITE(LOGDEV,95101)
+         END IF
 !...open the photolysis rate diagnostic files
 
             ODATE = JDATE; OTIME = JTIME
@@ -592,6 +632,8 @@ C...modules
             XMSG = 'Could not find ' // VARNM // 'in species table'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
          END IF
+
+
 
 #ifdef phot_extra_tstep
       ELSE
@@ -722,6 +764,11 @@ C...modules
             CLR_TRANS_DIRECT  = 0.0
             CLR_REFLECTION    = 0.0
 
+            IF ( LGC_CO   .GT. 0 ) CO_COLUMN   = 0.0
+            IF ( LGC_SO2  .GT. 0 ) SO2_COLUMN  = 0.0
+            IF ( LGC_NO2  .GT. 0 ) NO2_COLUMN  = 0.0
+            IF ( LGC_HCHO .GT. 0 ) HCHO_COLUMN = 0.0
+
          END IF  ! if JTIME_CHK
 
       ELSE  ! all cells not dark
@@ -769,6 +816,12 @@ C...modules
                      CLR_TRANSMISSION( COL,ROW ) = 0.0
                      CLR_TRANS_DIRECT( COL,ROW ) = 0.0
                      CLR_REFLECTION  ( COL,ROW ) = 0.0
+                     
+                     IF ( LGC_CO   .GT. 0 ) CO_COLUMN( COL,ROW )   = 0.0
+                     IF ( LGC_SO2  .GT. 0 ) SO2_COLUMN( COL,ROW )  = 0.0
+                     IF ( LGC_NO2  .GT. 0 ) NO2_COLUMN( COL,ROW )  = 0.0
+                     IF ( LGC_HCHO .GT. 0 ) HCHO_COLUMN( COL,ROW ) = 0.0
+                     
                   END IF
 
                   CYCLE LOOP_COLS
@@ -955,6 +1008,11 @@ C...modules
                         AERO_ASYM( COL,ROW,LEV,L ) = 0.0
                      END FORALL
                   END DO
+                  MSCALE = 1.0E-21 ! 10E-15*PPM_MCM3, so units are petamolecules/cm2
+                  CALL COLUMN_GAS( IGAS=LGC_CO,   UNIT_FACTOR =MSCALE, COLUMN_DENSITY=CO_COLUMN   )
+                  CALL COLUMN_GAS( IGAS=LGC_SO2,  UNIT_FACTOR =MSCALE, COLUMN_DENSITY=SO2_COLUMN  )
+                  CALL COLUMN_GAS( IGAS=LGC_NO2,  UNIT_FACTOR =MSCALE, COLUMN_DENSITY=NO2_COLUMN  )
+                  CALL COLUMN_GAS( IGAS=LGC_HCHO, UNIT_FACTOR =MSCALE, COLUMN_DENSITY=HCHO_COLUMN )
                END IF
 
 !Set Photolysis rates to resolved sky values
@@ -1117,6 +1175,27 @@ C...modules
 
          VARNM = 'OZONE_COLUMN'
          IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, TOTAL_OC ) ) THEN
+            XMSG = 'Error writing variable ' // VARNM
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+
+         VARNM = 'CO_COLUMN'
+         IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, CO_COLUMN ) ) THEN
+            XMSG = 'Error writing variable ' // VARNM
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+         VARNM = 'SO2_COLUMN'
+         IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, SO2_COLUMN ) ) THEN
+            XMSG = 'Error writing variable ' // VARNM
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+         VARNM = 'NO2_COLUMN'
+         IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, NO2_COLUMN ) ) THEN
+            XMSG = 'Error writing variable ' // VARNM
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+         VARNM = 'HCHO_COLUMN'
+         IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, HCHO_COLUMN ) ) THEN
             XMSG = 'Error writing variable ' // VARNM
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
@@ -1287,7 +1366,7 @@ C...modules
          TAU_AERO_550 = 0.0
 
          WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
-     &          'Photolysis Surface Summary written to', CTM_RJ_1,
+     &          'Photolysis Suface Summary written to', CTM_RJ_1,
      &          'for date and time', ODATE, OTIME
 
          DO IPHOT = 1, NPHOTAB
@@ -1367,5 +1446,28 @@ C...modules
 9500  FORMAT(3(/ A), I7, 1X, I6.6, 1X, / "Total Number: ", I9, ";Mean Value: ", F9.6,
      &       "; Max Value: ",F9.6 /)
 
-      RETURN
+95101 FORMAT('Diagnostic Output will have zero values for the column density.',
+     &     / 'The lack of information does not affect model predictions.' )
+      
+      CONTAINS      
+          SUBROUTINE COLUMN_GAS( IGAS, UNIT_FACTOR, COLUMN_DENSITY )
+! Purpose: calculates column density in unit based on the value of UNIT_FACTOR
+             IMPLICIT NONE
+! argument:          
+               INTEGER, INTENT( IN  ) :: IGAS                  ! species index in CGRID
+               REAL,    INTENT( OUT ) :: COLUMN_DENSITY( :,: ) ! units determined by inputs
+               REAL,    INTENT( IN  ) :: UNIT_FACTOR           ! converts from 10E6*molecules*cm-2
+! local parameter:                
+!               REAL, PARAMETER :: UNIT_FACTOR = 1.0E-6 * CONC_TO_DU ! unit conversion factor
+               
+               IF( IGAS .LE. 0 )RETURN ! assumes column_density set to zero at allocation
+               
+               COLUMN_DENSITY( COL,ROW ) = 0.0
+               DO LEV = 1, NLAYS
+                  COLUMN_DENSITY( COL,ROW ) = ( UNIT_FACTOR * BLKDENS( L ) )
+     &                                      * CGRID( COL,ROW,L,IGAS  ) * BLKDZ ( L )
+     &                                      + COLUMN_DENSITY( COL,ROW )                  
+               END DO
+               
+          END SUBROUTINE COLUMN_GAS              
       END SUBROUTINE PHOT

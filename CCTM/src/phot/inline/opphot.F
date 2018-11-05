@@ -124,9 +124,33 @@ C...CSA Variables, Units and Descriptions for RJ_FILE
          VTYPE3D( N ) = M3REAL
 
          N = N + 1
+         VNAME3D( N ) = 'NO2_COLUMN'
+         UNITS3D( N ) = 'petamolec cm-2'
+         VDESC3D( N ) = 'Predicted nitric dioxide column density'
+         VTYPE3D( N ) = M3REAL
+
+         N = N + 1
+         VNAME3D( N ) = 'CO_COLUMN'
+         UNITS3D( N ) = 'petamolec cm-2'
+         VDESC3D( N ) = 'Predicted carbon monoxide column density'
+         VTYPE3D( N ) = M3REAL
+
+         N = N + 1
+         VNAME3D( N ) = 'SO2_COLUMN'
+         UNITS3D( N ) = 'petamolec cm-2'
+         VDESC3D( N ) = 'Predicted sulfur dioxide column density'
+         VTYPE3D( N ) = M3REAL
+
+         N = N + 1
+         VNAME3D( N ) = 'HCHO_COLUMN'
+         UNITS3D( N ) = 'petamolec cm-2'
+         VDESC3D( N ) = 'Predicted formaldehyde column density'
+         VTYPE3D( N ) = M3REAL
+
+         N = N + 1
          VNAME3D( N ) = 'TROPO_O3_COLUMN'
          UNITS3D( N ) = 'DU'
-         VDESC3D( N ) = 'Predicted Tropospheric Ozone Column Density'
+         VDESC3D( N ) = 'Predicted Tropospheric Ozone Column density'
          VTYPE3D( N ) = M3REAL
 
          N = N + 1
