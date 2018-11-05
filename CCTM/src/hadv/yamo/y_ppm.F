@@ -116,17 +116,15 @@ C Local Variables:
 !     INTEGER, SAVE :: STARTROW, ENDROW
       LOGICAL, SAVE :: BNDY_PE_LOY, BNDY_PE_HIY
 
+#ifdef parallel
       INTEGER NORTH_ROW
-!     REAL    HALO_NORTH( NCOLS,SWP,N_SPC_ADV )
-!     REAL    HALO_SOUTH( NCOLS,SWP,N_SPC_ADV )
-!     REAL    BUF_NS    ( SWP*NCOLS*N_SPC_ADV )
       REAL, ALLOCATABLE, SAVE :: HALO_NORTH( :,:,: )
       REAL, ALLOCATABLE, SAVE :: HALO_SOUTH( :,:,: )
       REAL, ALLOCATABLE, SAVE :: BUF_NS( :,:,: )
+#endif
 
       INTEGER, SAVE :: SFX    ! fixed parameter for southern boundary
       INTEGER, SAVE :: NFX    ! fixed parameter for northern boundary
-
 C Required interface for allocatable array dummy arguments
 
       INTERFACE
@@ -235,6 +233,7 @@ C Get the contravariant x2 velocity component
 
       CALL SUBST_COMM (VHAT, DSPL_N1_E0_S0_W0, DRCN_N)
 
+#ifdef parallel
       NORTH_ROW = MY_NROWS - SWP
       DO SPC = 1, N_SPC_ADV
          A2C = ADV_MAP( SPC )
@@ -250,6 +249,7 @@ C Get the contravariant x2 velocity component
 
       CALL SUBST_COMM (HALO_SOUTH, HALO_NORTH, DSPL_N1_E0_S0_W0, DRCN_N)
       CALL SUBST_COMM (BUF_NS,     HALO_SOUTH, DSPL_N0_E0_S1_W0, DRCN_S)
+#endif
 
       DO 233 COL = 1, MY_NCOLS
 
@@ -265,10 +265,12 @@ C Get the contravariant x2 velocity component
                CONY( ROW,SPC ) = CGRID( COL,ROW,LVL,A2C )
             END DO
 
+#ifdef parallel
             DO ROW = 1, SWP
                CONY( ROW-SWP,SPC )      = HALO_SOUTH( COL,ROW,SPC )
                CONY( MY_NROWS+ROW,SPC ) = HALO_NORTH( COL,ROW,SPC )
             END DO
+#endif
 
 C South boundary
 
