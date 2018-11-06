@@ -30,21 +30,18 @@
 #> Set General Parameters for Configuring the Simulation
  set VRSN     = v53                     #> Code Version
  set APPL     = SE52BENCH               #> Application Name
- set INPT     = profile                 #> Input data type: profile or m3conc?
- set MECH     = cb6r3_ae7_aq            #> Mechanism ID
+ set ICTYPE   = regrid                  #> Initial conditions type [profile|regrid|tracer]
 
 #> Set the working directory:
- set BLD      = ${CMAQ_HOME}/PREP/icon/scripts/BLD_ICON_${VRSN}_${INPT}_${compilerString}
- set EXEC     = ICON_${VRSN}_$INPT.exe  
- cat $BLD/ICON_${VRSN}_$INPT.cfg; echo " "; set echo
+ set BLD      = ${CMAQ_HOME}/PREP/icon/scripts/BLD_ICON_${VRSN}_${compilerString}
+ set EXEC     = ICON_${VRSN}.exe  
+ cat $BLD/ICON_${VRSN}.cfg; echo " "; set echo
 
 #> Horizontal grid definition 
  setenv GRID_NAME SE52BENCH               #> check GRIDDESC file for GRID_NAME options
  setenv GRIDDESC $CMAQ_DATA/$APPL/met/mcip/GRIDDESC #> grid description file 
+#setenv GRIDDESC /work/MOD3DEV/cmaq_benchmark/SE52BENCH/multi_day/cctm_input/met/mcip/GRIDDESC #> grid description file 
  setenv IOAPI_ISPH 20                     #> GCTP spheroid, use 20 for WRF-based modeling
-
-#> Vertical layer definition
- setenv LAYER_FILE $CMAQ_DATA/$APPL/met/mcip/METCRO3D_110701.nc #>METCRO3D file from MCIP
 
 #> I/O Controls
  setenv IOAPI_LOG_WRITE F     #> turn on excess WRITE3 logging [ options: T | F ]
@@ -52,72 +49,65 @@
  setenv EXECUTION_ID $EXEC    #> define the model execution id
 
 # =====================================================================
-#> ICON Configuration Options
+# ICON Configuration Options
 #
-# ICON can be run in one of two modes:                                     
+# ICON can be run in one of three modes:                                     
 #     1) use default profile inputs (IC = profile)
-#     2) use CMAQ CTM concentration files for nested runs (IC = m3conc)     
+#     2) regrids CMAQ CTM concentration files (IC = regrid)     
+#     3) generate set of tracer patterns for CTM transport tests (IC = tracer)     
 # =====================================================================
 
- set IC = profile      #> either profile or m3conc 
- set DATE = 2001182    #> only needed for nested runs
+ setenv ICON_TYPE ` echo $ICTYPE | tr "[A-Z]" "[a-z]" ` 
+ set DATE = `date -ud "2016-07-01" +%Y%j` #> Convert YYYY-MM-DD to YYYYJJJ
 
 # =====================================================================
 #> Input/Output Directories
 # =====================================================================
 
- set OUTDIR   = $CMAQ_DATA/icon       #> output file directory
+ set OUTDIR   = $CMAQ_HOME/data/icon       #> output file directory
 
 # =====================================================================
 #> Input Files
 #  
 #  Profile Mode (IC = profile)
 #     IC_PROFILE = static/default IC profiles 
-#  Nesting mode (IC = m3conc)
+#     MET_CRO_3D_FIN = the MET_CRO_3D met file for the target domain 
+#  Regrid mode (IC = regrid) (includes nested domains, windowed domains,
+#                             or general regridded domains)
 #     CTM_CONC_1 = the CTM concentration file for the coarse domain          
 #     MET_CRO_3D_CRS = the MET_CRO_3D met file for the coarse domain
-#                  only set if  or if the vertical grid type is   
-#                  changed between nests                                     
-#     MET_CRO_3D_FIN = the MET_CRO_3D met file for the inner, nested, domain 
-#                  only set if the vertical grid type is changed between  
-#                  nests                                                     
+#     MET_CRO_3D_FIN = the MET_CRO_3D met file for the target nested domain 
+#  Tracer Mode (IC = tracer)
+#     MET_CRO_3D_FIN = the MET_CRO_3D met file for the target domain 
 #                                                                            
 # NOTE: SDATE (yyyyddd) and STIME (hhmmss) must always be set           
 # =====================================================================
 
- if ( $IC == profile ) then
-    setenv IC_PROFILE      $BLD/ic_profile_CB05.dat
+ if ( $ICON_TYPE == profile ) then
+    setenv IC_PROFILE $BLD/avprofile_cb6r3aero6_hemi2016_col051_row068.csv
+    setenv MET_CRO_3D_FIN /work/MOD3DEV/cmaq_benchmark/SE52BENCH/multi_day/cctm_input/met/mcip/METCRO3D_110701.nc #>METCRO3D file from MCIP
  endif
  
- if ( $IC == m3conc ) then 
-    setenv CTM_CONC_1 $CMAQ_DATA/cctm/CCTM_d1bCONC.d1b
-    setenv MET_CRO_3D_CRS
-    setenv MET_CRO_3D_FIN
+ if ( $ICON_TYPE == regrid ) then
+    setenv CTM_CONC_1 /asm1/ROMO/global/CMAQv5.2/2016fe_hemi_cb6_16jh/108km/output/CONC/CCTM_CONC_v521_intel17.0_HEMIS_cb6_20160701
+    setenv MET_CRO_3D_CRS /asm1/ROMO/met/MCIP/WRFv3.8_108NHEMI2_2016_44aL/v4.3/METCRO3D.108NHEMI2.44L.160701
+    setenv MET_CRO_3D_FIN /work/MOD3DEV/cmaq_benchmark/SE52BENCH/multi_day/cctm_input/met/mcip/METBDY3D_110701.nc
     setenv SDATE           ${DATE}
     setenv STIME           000000
  endif
 
+ if ( $ICON_TYPE == tracer ) then
+    setenv MET_CRO_3D_FIN /work/MOD3DEV/cmaq_benchmark/SE52BENCH/multi_day/cctm_input/met/mcip/METCRO3D_110701.nc #>METCRO3D file from MCIP
+ endif
+ 
 # =====================================================================
 #> Output Files
 # =====================================================================
 
-
- if ( $IC == profile ) then
-    setenv INIT_CONC_1    "$OUTDIR/ICON_${VRSN}_${APPL}_profile -v"
-    endif
- if ( $IC == m3conc ) then 
-    set DATE = 2011182  # July 1, 2011
-    setenv INIT_CONC_1    "$OUTDIR/ICON_${VRSN}_${APPL}_${DATE} -v"
- endif
+ setenv INIT_CONC_1    "$OUTDIR/ICON_${VRSN}_${APPL}_${ICON_TYPE}_${DATE} -v"
 
 #>- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-#> species defn
- setenv gc_matrix_nml ${BLD}/GC_$MECH.nml
- setenv ae_matrix_nml ${BLD}/AE_$MECH.nml
- setenv nr_matrix_nml ${BLD}/NR_$MECH.nml
- setenv tr_matrix_nml ${BLD}/Species_Table_TR_0.nml
- 
  if ( ! -d "$OUTDIR" ) mkdir -p $OUTDIR
 
  ls -l $BLD/$EXEC; size $BLD/$EXEC
