@@ -24,14 +24,12 @@ C $Header: /project/yoj/arc/ICON/src/m3conc/m3_icout.F,v 1.2 2011/10/21 16:41:54
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
-      SUBROUTINE ICOUT( LOGUNIT,
-     &                  N_CTM_FLS,
-     &                  SDATE, STIME,
-     &                  GL_NCOLS_IN, GL_NROWS_IN, NLAYS_IN,
-     &                  NSPCS_IN, NSPCS_OUT, SPMAP, 
-     &                  CTM_FL_NAME,
-     &                  INFL_SP_NAME,
-     &                  SPNAME_OUT )
+      SUBROUTINE M3_ICOUT( LOGUNIT,
+     &                     N_CTM_FLS,
+     &                     SDATE, STIME,
+     &                     GL_NCOLS_IN, GL_NROWS_IN, NLAYS_IN, NSPCS_IN,
+     &                     CTM_FL_NAME, INFL_SP_NAME,
+     &                     VTYPE_IN, UNITS_IN, VDESC_IN )
 
 C***********************************************************************
  
@@ -124,6 +122,7 @@ C                        before normalized value of COL_LOC and ROW_LOC,
 C                        respectively
 
 C  21 May 12 J.Young: Replaced IC_PARMS include file with an F90 module
+C  02 Nov 18 S.Roselle: Removed species mapping
 C***********************************************************************
 
       USE HGRD_DEFN     ! Module to store and load the horizontal grid variables
@@ -144,11 +143,12 @@ C Arguments;
       INTEGER GL_NROWS_IN       ! No. of rows in input conc file
       INTEGER NLAYS_IN          ! No. of layers in input conc file
       INTEGER NSPCS_IN          ! Total No. of species in input conc file(s)
-      INTEGER NSPCS_OUT         ! Number of IC species on output file(s)
-      INTEGER :: SPMAP( * )     ! Map to CTM species from IC species
-      CHARACTER( 16 ) :: CTM_FL_NAME( * )         ! Name of CTM file
-      CHARACTER( 16 ) :: INFL_SP_NAME( * )        ! Name of input CTM species
-      CHARACTER( 16 ) :: SPNAME_OUT( * )          ! Output file species names
+      CHARACTER( 16 ) :: CTM_FL_NAME( * )   ! Name of CTM file
+      CHARACTER( 16 ) :: INFL_SP_NAME( * )  ! Name of input CTM species
+      CHARACTER( 16 ) :: UNITS_IN( * ) ! Units for CTM species
+      CHARACTER( 80 ) :: VDESC_IN( * ) ! Variable description for CTM species
+
+      INTEGER :: VTYPE_IN( * ) ! variable type for CTM species
 
 C Parameters:
       REAL, PARAMETER :: CMIN = 1.0E-30   ! Minimum output concentration
@@ -580,37 +580,36 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Do vertical interpolation/extrapolation
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      CALL VINTERP( CTM_FL_NAME, LOGUNIT, SDATE, STIME,
-     &              MY_NCOLS_IN, MY_NROWS_IN, NLAYS_IN, NSPCS_IN,
-     &              COL_LOC, ROW_LOC, PRE_COL_LOC, PRE_ROW_LOC,
-     &              CONCIN, CONCVI )
+      CALL M3_VINTERP( LOGUNIT, SDATE, STIME,
+     &                 MY_NCOLS_IN, MY_NROWS_IN, NLAYS_IN, NSPCS_IN,
+     &                 COL_LOC, ROW_LOC, PRE_COL_LOC, PRE_ROW_LOC,
+     &                 CONCIN, CONCVI, CTM_FL_NAME )
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Open the IC output file
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      CALL OPN_IC_FILE( LOGUNIT, SDATE, STIME, NSPCS_OUT, SPNAME_OUT,
+      CALL OPN_IC_FILE( LOGUNIT, SDATE, STIME, NSPCS_IN,
+     &                  INFL_SP_NAME, VTYPE_IN, UNITS_IN, VDESC_IN,
      &                  IC_FNAME, 1 )  
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Write the output IC concentrations
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       LNEG = .FALSE.
-      DO N = 1, NSPCS_OUT
+      DO N = 1, NSPCS_IN
 
          FLN = ( N - 1 ) / MXVARS3 + 1
-         VNAME = SPNAME_OUT( N )
+         VNAME = INFL_SP_NAME( N )
            
-         IND = SPMAP( N )
-
          DO L = 1, NLAYS
             DO R = 1, MY_NROWS
                DO C = 1, MY_NCOLS
-                  COUT( C,R,L ) = CONCVI( C,R,L,IND )
-                  IF ( COUT( C,R,L ) .LT. 0.0 ) THEN
-                     LNEG = .TRUE.
-                  ELSE IF ( COUT( C,R,L ) .LT. CMIN ) THEN
-                     COUT( C,R,L ) = CMIN
-                  END IF 
+                  COUT( C,R,L ) = CONCVI( C,R,L,N )
+!                  IF ( COUT( C,R,L ) .LT. 0.0 ) THEN
+!                     LNEG = .TRUE.
+!                  ELSE IF ( COUT( C,R,L ) .LT. CMIN ) THEN
+!                     COUT( C,R,L ) = CMIN
+!                  END IF 
                END DO
             END DO
          END DO
@@ -624,10 +623,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       END DO
 
-      IF ( LNEG ) THEN
-         MSG = 'Negative ICs output'
-         CALL M3EXIT( PNAME, SDATE, STIME, MSG, XSTAT2 ) 
-      END IF
+!      IF ( LNEG ) THEN
+!         MSG = 'Negative ICs output'
+!         CALL M3EXIT( PNAME, SDATE, STIME, MSG, XSTAT2 ) 
+!      END IF
 
       DEALLOCATE ( CONCVI, CONCIN )
 

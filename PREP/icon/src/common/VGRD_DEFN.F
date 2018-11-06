@@ -32,6 +32,9 @@ C Revision History: Jeff Young: 6 Dec 04: created
 C                              26 Jul 06: comments in line with PARMS3.EXT
 C                   S. Roselle 29 Mar 11: Replaced I/O API include files
 C                                         with UTILIO_DEFN
+C                   S.Roselle  02 Nov 18: Use MET_CRO_3D_FIN to get layer
+C                                         structure instead of requiring
+C                                         a separate LAYER_FILE
 C.......................................................................
 
       IMPLICIT NONE
@@ -98,7 +101,7 @@ C-----------------------------------------------------------------------
 !           integer, save :: logdev
             LOGICAL, SAVE :: FIRSTIME = .TRUE.
             CHARACTER( 96 ) :: XMSG = ' '
-            CHARACTER( 16 ) :: LAYER_FILE = 'LAYER_FILE'
+            CHARACTER( 16 ) :: LAYER_FILE = 'MET_CRO_3D_FIN'
 
             INTEGER L, ALLOCSTAT
 

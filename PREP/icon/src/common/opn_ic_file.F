@@ -26,7 +26,8 @@ C %W% %P% %G% %U%
 
 
       SUBROUTINE OPN_IC_FILE( LOGUNIT, SDATE, STIME, NSPCS_OUT, 
-     &                        SPNAME_OUT, IC_FNAME, RINDX )  
+     &                        SPNAME_OUT, VTYPE_OUT, UNITS_OUT, 
+     &                        VDESC_OUT, IC_FNAME, RINDX )  
 
 C***********************************************************************
  
@@ -56,24 +57,25 @@ C***********************************************************************
 
       USE HGRD_DEFN      ! Module to store and load the horizontal grid variables
       USE VGRD_DEFN      ! vertical layer specifications
-!     USE SUBST_MODULES  ! for BARRIER
       USE UTILIO_DEFN
-      USE CGRID_SPCS     ! CGRID mechanism species
       USE IC_PARMS       ! ICON parameters
 
       IMPLICIT NONE     
 
-C Include Files:
+C Include Files: None
 
 C Arguments: 
       CHARACTER( 16 ) :: IC_FNAME( * )    ! Logical names of IC Output file(s) 
       CHARACTER( 16 ) :: SPNAME_OUT( * )  ! Ouput file species names
+      CHARACTER( 16 ) :: UNITS_OUT( * )
+      CHARACTER( 80 ) :: VDESC_OUT( * )
 
       INTEGER LOGUNIT      ! Unit number for output log
       INTEGER NSPCS_OUT    ! Number of IC species on output file(s)
       INTEGER RINDX        ! Index of root file name
       INTEGER SDATE        ! Date for IC Output
       INTEGER STIME        ! Time for IC output
+      INTEGER VTYPE_OUT( * ) ! Variable type (e.g. integer, real, ...)
 
 C Parameters: None
 
@@ -197,29 +199,17 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          END IF
 
          FDESC3D( 1 ) = 'ICON output file ' // IC_FNAME( N )
-         NVARS3D = MIN( MXVARS3, ( NSPCS_OUT - ( N-1 )*MXVARS3 ) )
+         NVARS3D = MIN( MXVARS3,
+     &                  ( NSPCS_OUT - ( N - 1 ) * MXVARS3 ) )
           
          DO V = 1, NVARS3D
 
             VARINDX = ( N - 1 ) * MXVARS3 + V
-            VTYPE3D( V ) = M3REAL
-
+            VTYPE3D( V ) = VTYPE_OUT( VARINDX )
             VNAME3D( V ) = SPNAME_OUT( VARINDX )
-            UNITS3D( V ) = 'ppmV'
-            VDESC3D( V ) = 'Variable ' // SPNAME_OUT( VARINDX )
+            UNITS3D( V ) = UNITS_OUT( VARINDX )
+            VDESC3D( V ) = VDESC_OUT( VARINDX )
             
-            IF ( INDEX1( SPNAME_OUT( VARINDX ), N_AE_SPC, AE_SPC ) .GT. 0 ) THEN
-
-               IF ( SPNAME_OUT( V )( 1:3 ) .EQ. 'NUM' ) THEN
-                  UNITS3D( V ) = '#/m**3'
-               ELSE IF ( SPNAME_OUT( V )( 1:3 ) .EQ. 'SRF' ) THEN
-                  UNITS3D( V ) = 'm**2/m**3'
-               ELSE
-                  UNITS3D( V ) = 'micrograms/m**3'
-               END IF
-
-            END IF
-
          END DO
          
          WRITE( LOGUNIT, 92040 ) N, IC_FNAME( N )
@@ -236,20 +226,18 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          WRITE( LOGUNIT, 92100 )
 
          DO V = 1, NVARS3D
-            WRITE( LOGUNIT, 92120 ) V, VNAME3D( V ), VTYPE3D( V ),
-     &                                 UNITS3D( V ), TRIM( VDESC3D( V ) )
+            WRITE( LOGUNIT, 92120 ) VNAME3D( V ), VTYPE3D( V ),
+     &                              UNITS3D( V ), TRIM( VDESC3D( V ) )
          END DO
 
 C Only PE 0 opens file
          IF ( MYPE .EQ. 0 ) THEN   ! open new
             IF ( .NOT. OPEN3( IC_FNAME( N ), FSUNKN3, PNAME ) ) THEN
                MSG = 'Could not open nor create ' //  IC_FNAME( N ) //
-     &            ' file '
+     &               ' file '
                CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
             END IF
          END IF
-
-!        CALL SUBST_BARRIER
 
       END DO
 
@@ -291,6 +279,6 @@ C************************* FORMAT STATEMENTS ***************************
      &        ( 10X, '        ', 5 ( 1PE14.5 ) ) )
 92100 FORMAT( //10X, 'Output Variables:'
      &         /10X, 'Name', 15X, 'Type', 2X, 'Units', 13X, 'Description' )
-92120 FORMAT( 4X, I4, 2X, A16, 2X, I2, 5X, A, 2X, A )    
+92120 FORMAT(   10X, A16, 5X, I1, 3X, A16, 2X, A )    
 
       END

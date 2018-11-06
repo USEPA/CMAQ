@@ -98,15 +98,15 @@ C Catalogued tracer species names
      &                   'SPOS_C ' /)
 
 C Descriptions of tracers species
-      CHARACTER( 50 ) :: TRAC_DESC( NTRACERS ) = (/ ! Description of catalogued tracers
-     &                   'Uniform IC/BC with IC = 1.0 and BC 0.0   ',
-     &                   'Uniform IC/BC with IC = 1.0 and BC 1.0   ',
-     &                   'Uniform IC/BC with IC = 0.0 and BC 0.0   ',
+      CHARACTER( 80 ) :: TRAC_DESC( NTRACERS ) = (/ ! Description of catalogued tracers
+     &                   'Uniform IC/BC with IC = 1.0 and BC 0.0',
+     &                   'Uniform IC/BC with IC = 1.0 and BC 1.0',
+     &                   'Uniform IC/BC with IC = 0.0 and BC 0.0',
      &                   'Checkerboard pattern of IC/BC = 1.0 & 0.0',
-     &                   'Street pattern of IC/BC = 1.0 & 0.0      ',
-     &                   'Signal A for superposition test, A-B-C=0 ',
-     &                   'Signal B for superposition test, A-B-C=0 ',
-     &                   'Signal C for superposition test, A-B-C=0 ' /)
+     &                   'Street pattern of IC/BC = 1.0 & 0.0',
+     &                   'Signal A for superposition test, A-B-C=0',
+     &                   'Signal B for superposition test, A-B-C=0',
+     &                   'Signal C for superposition test, A-B-C=0' /)
 
 C Descriptions of catalogued vertical coordinate systems
       CHARACTER( 23 ) :: VGDESC( 8 ) = (/           ! Description of vertical grid type

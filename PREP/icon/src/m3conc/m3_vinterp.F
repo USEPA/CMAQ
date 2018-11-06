@@ -25,10 +25,10 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 
-      SUBROUTINE VINTERP( CTM_FL_NAME, LOGUNIT, SDATE, STIME,
-     &                    NCOLS_IN, NROWS_IN, NLAYS_IN, NSPCS_IN,
-     &                    COL_LOC, ROW_LOC, PRE_COL_LOC, PRE_ROW_LOC,
-     &                    CONCIN, CONCVI )
+      SUBROUTINE M3_VINTERP( LOGUNIT, SDATE, STIME, 
+     &                       NCOLS_IN, NROWS_IN, NLAYS_IN, NSPCS_IN,
+     &                       COL_LOC, ROW_LOC, PRE_COL_LOC, PRE_ROW_LOC,
+     &                       CONCIN, CONCVI, CTM_FL_NAME )
 
 C***********************************************************************
  
@@ -79,7 +79,6 @@ C***********************************************************************
 C Include Files:
 
 C Arguments:
-      CHARACTER( 16 ) :: CTM_FL_NAME( * )  ! Name of input conc file
       INTEGER    LOGUNIT                 ! Unit number for output log
       INTEGER    SDATE                   ! Date for IC Output
       INTEGER    STIME                   ! Time for IC output
@@ -94,19 +93,29 @@ C Arguments:
       INTEGER :: PRE_ROW_LOC( NCOLS,NROWS )  ! pre normalized ROW_LOC
       REAL    :: CONCIN( NCOLS_IN,NROWS_IN,NLAYS_IN,* )  ! Input conc array
       REAL    :: CONCVI( NCOLS,NROWS,NLAYS,* )           ! Output IC array
+      CHARACTER( 16 ) :: CTM_FL_NAME( * )  ! Name of input conc file
 
 C Parameters: None
 
 C External Functions: None
 
 C Local Variables:
+
+      INTEGER :: ABORT = 0   ! Abort code for Cray HPALLOC
+      LOGICAL LDEC           ! Flag for monotonic decreasing layer levels
+      LOGICAL LINC           ! Flag for monotonic increasing layer levels
+      LOGICAL L_IDENTICAL    ! Flag for identical vert coord systems      
+      LOGICAL L_RATINT       ! Flag to use rational function interpolation 
+      LOGICAL L_SAME_SCALE   ! Flag for same vert coord systems but 
+                             ! different resolutions  
+      REAL   :: X3_OLD( MXLAYS3 )   ! Old Vertical coordinate values
+
       CHARACTER( 20 ) :: CHR1     ! Value of variable 1 in character data
       CHARACTER( 20 ) :: CHR2     ! Value of variable 1 in character data
       CHARACTER( 80 ) :: MSG      ! Log message
-      CHARACTER( 16 ) :: PNAME = 'VINTERP'  ! Procedure Name
+      CHARACTER( 16 ) :: PNAME = 'M3_VINTERP'  ! Procedure Name
       CHARACTER( 16 ) :: VNAME    ! Variable Name
 
-      INTEGER ABORT          ! Abort code for Cray HPALLOC
       INTEGER C, CIN         ! Loop indices for columns
       INTEGER ERRCODE        ! Error code for Cray HPALLOC
       INTEGER L              ! Loop index for vertical layers
@@ -115,20 +124,11 @@ C Local Variables:
       INTEGER STATUS         ! Staus code
       INTEGER V              ! Loop index for variables
 
-      LOGICAL LDEC           ! Flag for monotonic decreasing layer levels
-      LOGICAL LINC           ! Flag for monotonic increasing layer levels
-      LOGICAL L_IDENTICAL    ! Flag for identical vert coord systems      
-      LOGICAL L_RATINT       ! Flag to use rational function interpolation 
-      LOGICAL L_SAME_SCALE   ! Flag for same vert coord systems but 
-                             ! different resolutions  
-
       REAL    DELY  ! Error estimate for conc interpolated by rational func
       REAL    X3    ! Vertical coordinate used in interpolation
       REAL    Y     ! Interpolated concentration
 
       REAL   :: WORKA(  MXLAYS3 )   ! Work array for conc input
-      REAL   :: X3_OLD( MXLAYS3 )   ! Old Vertical coordinate values
-
       REAL   :: HT_IC( NCOLS,NROWS,NLAYS )            ! New mid-layer heights
       REAL   :: HT_CTM( NCOLS_IN,NROWS_IN,NLAYS_IN )  ! Old mid-layer heights
      
@@ -219,7 +219,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          MXLEV = MAX( NLAYS + 1, NLAYS_IN + 1 )
 
          DO L = 1, MXLEV 
-
             IF ( L .LE. NLAYS + 1 .AND. L .LE. NLAYS_IN + 1 ) THEN
                WRITE( LOGUNIT, 92100 ) L, VGLVS_GD( L ), VGLVS3D( L )
             ELSE IF ( L .LE. NLAYS + 1 .AND. L .GT. NLAYS_IN + 1 ) THEN
@@ -227,7 +226,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             ELSE IF ( L .GT. NLAYS + 1 .AND. L .LE. NLAYS_IN + 1 ) THEN
                WRITE( LOGUNIT, 92120 ) L, VGLVS3D( L )
             END IF
-
          END DO        
 
          WRITE( LOGUNIT, 92140 ) MSG 
@@ -258,11 +256,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
                      IF ( NLAYS_IN .EQ. 1 ) THEN
                         CONCVI( C,R,L,V ) = WORKA( 1 )
-
                      ELSE
-
                         X3 = 0.5 * ( VGLVS_GD( L ) +  VGLVS_GD( L + 1 ) )
-
                         IF ( LINC .AND. X3 .LE. X3_OLD( 1 ) ) THEN
                            CONCVI( C,R,L,V ) = WORKA( 1 )
                         ELSE IF ( LDEC .AND. X3 .GE. X3_OLD( 1 ) ) THEN
@@ -276,7 +271,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &                                     X3, Y, DELY )
                            CONCVI( C,R,L,V ) = Y
                         END IF
-
                      END IF
 
                   END DO 
@@ -377,10 +371,8 @@ C Interpolate
 
                   IF ( NLAYS_IN .EQ. 1 ) THEN
                      CONCVI( C,R,L,V ) = WORKA( 1 )
-
                   ELSE
                      X3 = HT_IC( C,R,L )
-
                      IF ( X3 .LT. X3_OLD( 1 ) ) THEN
                         CONCVI( C,R,L,V ) = WORKA( 1 )
                      ELSE IF ( X3 .GT. X3_OLD( NLAYS_IN ) ) THEN
@@ -390,7 +382,6 @@ C Interpolate
      &                                  X3, Y, DELY )
                         CONCVI( C,R,L,V ) = Y
                      END IF
-
                   END IF
 
                END DO

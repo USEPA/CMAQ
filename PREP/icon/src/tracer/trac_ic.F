@@ -46,7 +46,6 @@ C***********************************************************************
 
       USE HGRD_DEFN    ! Module to store and load the horizontal grid variables
       USE VGRD_DEFN    ! vertical layer specifications
-      USE CGRID_SPCS   ! CGRID mechanism species
       USE IC_PARMS     ! ICON paramters
 
       IMPLICIT NONE     
@@ -73,9 +72,11 @@ C Saved Local Variables:
 C Local Variables:
       CHARACTER( 16 ) :: PNAME = 'TRAC_IC'      ! Procedure name
 
-      INTEGER C, R, L                  ! Grid loop indices
       INTEGER COL_PEAK   ! Location of center of peak for superposition tracers
       INTEGER ROW_PEAK   ! Location of center of peak for superposition tracers
+
+      INTEGER C, R, L                  ! Grid loop indices
+
       REAL    DISTSQ     ! Distance squared for for superposition tracers
       REAL    RADSQ      ! Hill radius squared for superposition tracers
       REAL    XDIST      ! x-distance for for superposition tracers

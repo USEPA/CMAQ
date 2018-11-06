@@ -25,7 +25,7 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 
-      SUBROUTINE INIC( LOGUNIT, SDATE, STIME, NML_IC_NAME )   
+      SUBROUTINE M3_INIC( LOGUNIT, SDATE, STIME )
 
 C***********************************************************************
  
@@ -50,13 +50,13 @@ C      06 Jun 11 J.Young: Replaced I/O API include files with UTILIO_DEFN
 C      07 Jun 11 J.Young: Removed RADM2<->CB4 mechanism conversion feature
 C      13 Jul 11 J.Young: Convert for Namelist redesign + UTILIO_DEFN
 C      21 May 12 J.Young: Replaced IC_PARMS include file with an F90 module
+C      02 Nov 18 S.Roselle: Removed species mapping
 
 C***********************************************************************
 
       USE HGRD_DEFN    ! Module to store and load the horizontal grid variables
       USE VGRD_DEFN    ! vertical layer specifications
       USE UTILIO_DEFN
-      USE CGRID_SPCS   ! CGRID mechanism species
       USE IC_PARMS     ! ICON parameters
 
       IMPLICIT NONE     
@@ -67,7 +67,6 @@ C Arguments:
       INTEGER LOGUNIT                 ! Unit number for output log
       INTEGER SDATE                   ! Date for IC output
       INTEGER STIME                   ! Time for IC output
-      CHARACTER( 16 ) :: NML_IC_NAME( * )  ! Names of species in *.NMLs
 
 C Parameters: None
 
@@ -85,10 +84,13 @@ C Local Variables:
 
       CHARACTER(  16 ) :: CTM_FL_NAME( MXCTMS )           ! Name of CTM file
       CHARACTER(  16 ) :: INFL_SP_NAME( MXCTMS*MXVARS3 )  ! Names of CTM species
-!     CHARACTER(  16 ) :: SPNAME_OUT( NSPCSD )            ! Output file species names
-      CHARACTER(  16 ), ALLOCATABLE :: SPNAME_OUT( : )    ! Output file species names
+      CHARACTER(  16 ) :: UNITS_IN( MXCTMS*MXVARS3 ) ! Units for CTM species
+      CHARACTER(  80 ) :: VDESC_IN( MXCTMS*MXVARS3 ) ! Variable description for CTM species
+
       CHARACTER(  15 ) :: VALR1, VALR2                    ! Character value of real
       CHARACTER(   3 ) :: VALI1, VALI2                    ! Character value of integer
+
+      INTEGER :: VTYPE_IN( MXCTMS*MXVARS3 ) ! variable type for CTM species
 
       INTEGER N            ! File loop index
       INTEGER N_GC_OUT     ! No. of GC species
@@ -97,15 +99,11 @@ C Local Variables:
       INTEGER NLAYS_IN     ! No. of layers in input conc file
       INTEGER NROWS_IN     ! No. of rows in input conc file
       INTEGER NSPCS_IN     ! CTM files species counter
-      INTEGER NSPCS_OUT    ! Number of IC species on output file(s)
       INTEGER NSPCS        ! Number of NML species
       INTEGER STATUS       ! Status code
       INTEGER V            ! Variable loop index
       INTEGER L            ! Layer loop index
       INTEGER ALST         ! Allocate status
-
-!     INTEGER SPMAP( NSPCSD )  ! Map to input file species from IC species
-      INTEGER, ALLOCATABLE :: SPMAP( : )  ! Map to input file species from IC species
 
       LOGICAL LCHKL            ! Flag for layer consistency check
       LOGICAL LCHKD            ! Flag for met file checked
@@ -160,15 +158,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             CALL M3EXIT( PNAME, SDATE, STIME, MSG, XSTAT2 )
          END IF
 
-         IF ( .NOT. CHECK3( CTM_FL_NAME( N ), 'ALL', SDATE, STIME ) ) THEN
-            MSG = 'Requested time is not on the ' // CTM_FL_NAME( N )
-     &            // ' file'
-            CALL M3EXIT( PNAME, SDATE, STIME, MSG, XSTAT2 )
-         END IF
-     
          DO V = 1, NVARS3D
             NSPCS_IN = NSPCS_IN + 1
             INFL_SP_NAME( NSPCS_IN ) = VNAME3D( V )
+            VTYPE_IN( NSPCS_IN ) = VTYPE3D( V )
+            UNITS_IN( NSPCS_IN ) = UNITS3D( V )
+            VDESC_IN( NSPCS_IN ) = VDESC3D( V )
          END DO
 
       END DO
@@ -189,34 +184,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       NLAYS_IN = NLAYS3D
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c  Check input CTM files for layer consistency with the LAYER_FILE(VGRD_DEFN)
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      IF ( NLAYS .NE. NLAYS3D ) THEN
-!        WRITE( LOGUNIT, 94080 ) NLAYS, NLAYS3D
-         WRITE( VALI1, '( I3 )' ) NLAYS
-         WRITE( VALI2, '( I3 )' ) NLAYS3D
-         MSG = 'No. of output layers, ' // VALI1 //
-     &         ' .NE. no. in CTM files, ' // VALI2
-!        CALL M3EXIT( PNAME, SDATE, STIME, MSG, XSTAT2 )
-         CALL M3WARN( PNAME, SDATE, STIME, MSG )
-      END IF
-
-      LCHKL = .FALSE.
-      DO L = 1 , NLAYS + 1
-         WRITE( VALR1, '( E15.5)' ) VGLVS_GD(  L )
-         WRITE( VALR2, '( E15.5)' ) VGLVS3D( L )
-         IF ( VALR1 .NE. VALR2 ) THEN
-            WRITE( LOGUNIT, 94440 ) L, VGLVS_GD( L ), L, VGLVS3D( L )
-            LCHKL = .TRUE.
-         END IF
-      END DO
-      IF ( LCHKL ) THEN
-         MSG = 'CTM files layers inconsistent with MET_CRO_3D'
-!        CALL M3EXIT( PNAME, SDATE, STIME, MSG, XSTAT2 )
-         CALL M3WARN( PNAME, SDATE, STIME, MSG )
-      END IF
-
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c   Check MET_CRO_3D_CRS (for input CCTM file) and MET_CRO_3D_FIN (for
 c   output IC file) if vertical grid types are different
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -229,35 +196,14 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       END IF
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c   Build a species map and report 
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      NSPCS = N_GC_SPC + N_AE_SPC + N_NR_SPC
-      ALLOCATE ( SPMAP( NSPCS ), SPNAME_OUT( NSPCS ), STAT = ALST )
-      IF ( ALST .NE. 0 ) THEN
-         MSG = 'Error allocating SPMAP or SPNAME_OUT'
-         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT2 )
-      END IF
-
-      CALL GC_SPC_MAP( LOGUNIT, NSPCS_IN, N_GC_OUT,
-     &                 SPMAP, INFL_SP_NAME, SPNAME_OUT )
-
-      CALL NGC_SPC_MAP( LOGUNIT, NSPCS_IN, N_GC_OUT, NSPCS_OUT,
-     &                  SPMAP, INFL_SP_NAME, SPNAME_OUT )
-
-      CALL LST_SPC_MAP( LOGUNIT, NSPCS_IN, NSPCS_OUT,
-     &                  SPMAP, NML_IC_NAME, INFL_SP_NAME, SPNAME_OUT )
-
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Compute and output ICs from the input CTM conc file(s)
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      CALL ICOUT( LOGUNIT,
-     &            N_CTM_FLS,
-     &            SDATE, STIME,
-     &            NCOLS_IN, NROWS_IN, NLAYS_IN,
-     &            NSPCS_IN, NSPCS_OUT, SPMAP,
-     &            CTM_FL_NAME,
-     &            INFL_SP_NAME,
-     &            SPNAME_OUT )
+      CALL M3_ICOUT( LOGUNIT,
+     &               N_CTM_FLS,
+     &               SDATE, STIME,
+     &               NCOLS_IN, NROWS_IN, NLAYS_IN,
+     &               NSPCS_IN, CTM_FL_NAME,
+     &               INFL_SP_NAME, VTYPE_IN, UNITS_IN, VDESC_IN )
 
       RETURN
 
@@ -270,9 +216,5 @@ C************************* FORMAT Statements ***************************
      &               'concentration file.' )
 
 92020 FORMAT( // 5X, 'Input CMAQ CTM file names: ' )
-
-94080 FORMAT( / 5X, 'NLAYS = ', I3, '   NLAYS3D = ', I3 )
-94440 FORMAT( / 5X, 'VGLVS_GD(', I2, ' ) = ', 1PE12.5, 
-     &          2X, 'VGLVS3D(', I2, ' ) = ', 1PE12.5 )
 
       END
