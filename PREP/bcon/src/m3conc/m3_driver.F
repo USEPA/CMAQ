@@ -272,11 +272,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  compute and outputs BCs from the input CTM conc file(s)
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       CALL M3_BCOUT( LOGUNIT,
-     &            N_CTM_FLS,
-     &            SDATE, STIME, NSTEPS,
-     &            NCOLS_IN, NROWS_IN, NLAYS_IN,
-     &            NSPCS_IN, CTM_FL_NAME,
-     &            INFL_SP_NAME, VTYPE_IN, UNITS_IN, VDESC_IN )
+     &               N_CTM_FLS,
+     &               SDATE, STIME, NSTEPS,
+     &               NCOLS_IN, NROWS_IN, NLAYS_IN,
+     &               NSPCS_IN, CTM_FL_NAME,
+     &               INFL_SP_NAME, VTYPE_IN, UNITS_IN, VDESC_IN )
 
       RETURN
 

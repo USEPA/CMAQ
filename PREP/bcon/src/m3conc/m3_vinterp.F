@@ -25,9 +25,10 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 
-      SUBROUTINE M3_VINTERP( LOGUNIT, JDATE, JTIME, NCOLS_IN, NROWS_IN,
-     &                       NLAYS_IN, NSPCS_IN, COL_LOC, ROW_LOC, BCIN,
-     &                       BCVI, CTM_FL_NAME )
+      SUBROUTINE M3_VINTERP( LOGUNIT, JDATE, JTIME, 
+     &                       NCOLS_IN, NROWS_IN, NLAYS_IN, NSPCS_IN, 
+     &                       COL_LOC, ROW_LOC, 
+     &                       BCIN, BCVI, CTM_FL_NAME )
 
 C*************************************************************************
  

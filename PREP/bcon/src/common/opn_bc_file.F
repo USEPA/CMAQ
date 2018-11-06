@@ -27,7 +27,7 @@ C %W% %P% %G% %U%
 
       SUBROUTINE OPN_BC_FILE( LOGUNIT, SDATE, STIME, TSTEP, NSPCS_OUT, 
      &                        SPNAME_OUT, VTYPE_OUT, UNITS_OUT, 
-     &                        VDESC_OUT, BC_FNAME, RINDX  )  
+     &                        VDESC_OUT, BC_FNAME, RINDX )  
 
 C***********************************************************************
  
@@ -74,9 +74,7 @@ C Arguments:
 
 C Parameters: None
 
-C External Functions: Nonde
-
-C Saved Local Variables: None
+C External Functions: None
 
 C Local Variables:
       CHARACTER(  16 ) :: BUF16          ! 16 character buffer
@@ -198,8 +196,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          END IF
 
          FDESC3D( 1 ) = 'BCON output file ' // BC_FNAME( N )
-         NVARS3D = MIN( MXVARS3 , ( NSPCS_OUT - ( N - 1 ) * 
-     &                  MXVARS3 ) )
+         NVARS3D = MIN( MXVARS3,
+     &                  ( NSPCS_OUT - ( N - 1 ) * MXVARS3 ) )
           
          DO V = 1, NVARS3D
 

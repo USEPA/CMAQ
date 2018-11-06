@@ -25,7 +25,9 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 
-      SUBROUTINE M3_BCOUT( LOGUNIT, N_CTM_FLS, SDATE, STIME, NSTEPS,
+      SUBROUTINE M3_BCOUT( LOGUNIT,
+     &                     N_CTM_FLS,
+     &                     SDATE, STIME, NSTEPS,
      &                     NCOLS_IN, NROWS_IN, NLAYS_IN, NSPCS_IN,
      &                     CTM_FL_NAME, INFL_SP_NAME,
      &                     VTYPE_IN, UNITS_IN, VDESC_IN )

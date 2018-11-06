@@ -68,7 +68,7 @@ C Local Variables:
       CHARACTER(  80 ) :: ENV_DESC       ! Environment variable description
       CHARACTER( 256 ) :: LINEIN         ! Input line
       CHARACTER(  80 ) :: MSG            ! Log message
-      CHARACTER(  16 ) :: PNAME = 'INBNDY'          ! Program name
+      CHARACTER(  16 ) :: PNAME = 'PROF_INBNDY'     ! Program name
       CHARACTER( 256 ) :: PROF_FL_NAME   ! Input profile file name
       CHARACTER(  16 ) :: BC_PROFILE = 'BC_PROFILE' ! Logical name of input profile file
       CHARACTER(  16 ) :: SPEC_NAME      ! Species name
@@ -111,8 +111,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       END IF
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c  Call the routine that computes and outputs BCs from the input
-c  CTM conc file(s)
+c  Compute BCs from the input PROFILE and output
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       CALL PROF_BCOUT( LOGUNIT,

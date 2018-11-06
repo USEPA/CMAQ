@@ -85,7 +85,7 @@ C Local Variables:
       INTEGER TRIND        ! Index for catalogued tracer
       INTEGER TSTEP        ! Time step for output file
       INTEGER ALST         ! Allocate status
-      INTEGER         :: VTYPE_OUT( NTRACERS )    ! Output tracer variable type
+      INTEGER :: VTYPE_OUT( NTRACERS )  ! Output tracer variable type
 
 !     REAL    :: TCOUT( NBNDY,NLAYS )   ! Output tracer concs
       REAL, ALLOCATABLE :: TCOUT( :,: )   ! Output tracer concs
@@ -105,8 +105,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  open the Models3 IC output file(s)
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       TSTEP = 0
-      CALL OPN_BC_FILE( LOGUNIT, SDATE, STIME, TSTEP, NSPCS_OUT, 
-     &                  SPNAME_OUT, VTYPE_OUT, UNITS_OUT, TRAC_DESC,
+      CALL OPN_BC_FILE( LOGUNIT, SDATE, STIME, TSTEP,
+     &                  NSPCS_OUT, SPNAME_OUT, VTYPE_OUT, UNITS_OUT, TRAC_DESC,
      &                  TR_FNAME, 1 )  
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc

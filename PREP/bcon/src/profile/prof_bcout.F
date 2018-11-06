@@ -25,9 +25,12 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 
-      SUBROUTINE PROF_BCOUT( LOGUNIT, SDATE, STIME, NHRS, NLAYS_IN, NSPCS_IN,
-     &                       PROF_FL_NAME, PROF_SP_NAME, VTYPE_IN, UNITS_IN,
-     &                       VDESC_IN )
+      SUBROUTINE PROF_BCOUT( LOGUNIT,
+     &                       SDATE, STIME, NHRS,
+     &                       NLAYS_IN, NSPCS_IN,
+     &                       PROF_FL_NAME,
+     &                       PROF_SP_NAME,
+     &                       VTYPE_IN, UNITS_IN, VDESC_IN )
       
 C***********************************************************************
  
@@ -68,27 +71,22 @@ C Arguments:
       INTEGER NHRS             ! No. of hours for BC output
       INTEGER NSPCS_IN         ! Total No. of species in input conc file(s)
       INTEGER NLAYS_IN         ! No. of layers in input conc file
-      CHARACTER( * ) :: PROF_FL_NAME       ! Input profile file name
-      CHARACTER( * ) :: PROF_SP_NAME( * )  ! Profile species names
-
+      CHARACTER( * )  :: PROF_FL_NAME       ! Input profile file name
+      CHARACTER( * )  :: PROF_SP_NAME( * )  ! Profile species names
       CHARACTER( 16 ) :: UNITS_IN( * ) ! Units for CTM species
       CHARACTER( 80 ) :: VDESC_IN( * ) ! Variable description for CTM species
-
       INTEGER :: VTYPE_IN( * ) ! variable type for CTM species
 
-C Parameters: None
+C Parameters:
 
       INTEGER, PARAMETER :: MXVARS = 400
 
-C External Functions: None
- 
 C Local Variables:
-      CHARACTER( 80 ) :: MSG      ! Log message
-      CHARACTER( 16 ) :: PNAME = 'PROF_BCOUT'    ! Procedure Name
-      CHARACTER( 16 ) :: PROF_SP  ! Species name on profile file
-      CHARACTER( 16 ) :: VNAME    ! Species name on CTM conc file
-
-      CHARACTER( 16 ) :: BC_FNAME( MXCTMS )  ! Logical names of IC Output file(s) 
+      CHARACTER( 80 ) :: MSG = ' '            ! Log message
+      CHARACTER( 16 ) :: PNAME = 'PROF_BCOUT' ! Procedure Name
+      CHARACTER( 16 ) :: PROF_SP              ! Species name on profile file
+      CHARACTER( 16 ) :: VNAME                ! Species name on CTM conc file
+      CHARACTER( 16 ) :: BC_FNAME( MXCTMS )   ! Logical names of IC Output file(s) 
 
       CHARACTER(1000) :: RECORD
       CHARACTER(16), ALLOCATABLE :: VNAME_PROF_TEMP(:)
@@ -96,7 +94,7 @@ C Local Variables:
       CHARACTER(16), ALLOCATABLE :: VNAME_PROF(:)
       CHARACTER(16), ALLOCATABLE :: VUNIT_PROF(:)
 
-      INTEGER C             ! Column loop indices
+      INTEGER C             ! Cell loop index
       INTEGER FLN           ! IC output file number
       INTEGER L             ! Layer loop index
       INTEGER N, SPC        ! Loop indices for species
@@ -108,7 +106,6 @@ C Local Variables:
 
       LOGICAL LNEG          ! Flag for negative concentrations
 
-      REAL    :: VGLVS_IN( MXLAYS3 + 1 )            ! Input vertical levels
       REAL    :: ZH_IN( MXLAYS3 )                   ! Input layer heights
       REAL    :: COUT( NBNDY,NLAYS )                ! Output BC conc
       REAL    :: INPROF( MXLAYS3,MX_INFL_SP )       ! Input conc profiles  

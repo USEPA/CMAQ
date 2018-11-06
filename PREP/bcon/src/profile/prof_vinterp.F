@@ -68,17 +68,16 @@ C Arguments:
       INTEGER LOGUNIT                   ! Unit number for output log
       INTEGER NSPCS_IN                  ! No. of species in input conc file
       INTEGER NLAYS_IN                  ! No. of layers in input conc file
-      REAL    :: ZH_IN( * )                ! Input layer heights
-      REAL    :: CONCIN( MXLAYS3,* )    ! Input conc array
-      REAL    :: CONCOUT( NBNDY,NLAYS,* )     ! Output IC array
+
+      REAL :: ZH_IN( * )                ! Input layer heights
+      REAL :: CONCIN( MXLAYS3,* )       ! Input conc array
+      REAL :: CONCOUT( NBNDY,NLAYS,* )  ! Output BC array
 
 C Parameters: None
 
 C External Functions: None
 
 C Local Variables:
-      CHARACTER( 20 ) :: CHR1     ! Value of variable 1 in character data
-      CHARACTER( 20 ) :: CHR2     ! Value of variable 1 in character data
       CHARACTER( 80 ) :: MSG      ! Log message
       CHARACTER( 16 ) :: PNAME = 'PROF_VINTERP'    ! Procedure Name
       CHARACTER( 16 ) :: VNAME    ! Variable Name
@@ -91,18 +90,15 @@ C Local Variables:
       INTEGER JDATE          ! Date for first record on BDY file
       INTEGER JTIME          ! Time for first record on BDY file
 
-      LOGICAL LDEC           ! Flag for monotonic decreasing layer levels
-      LOGICAL LINC           ! Flag for monotonic increasing layer levels
-      LOGICAL L_IDENTICAL    ! Flag for identical vert coord systems      
       LOGICAL L_RATINT       ! Flag to use rational function interpolation 
 
       REAL    DELY  ! Error estimate for conc interpolated by rational func
       REAL    X3    ! Vertical coordinate used in interpolation
       REAL    Y     ! Interpolated concentration
 
-      REAL    :: WORKA( MXLAYS3 )   ! Work array for conc input
-      REAL    :: X3_OLD( MXLAYS3 )  ! Old Vertical coordinate values
-      REAL    :: ZH_OUT( NBNDY,NLAYS ) ! mid-layer heights for traget BDY file
+      REAL    :: WORKA( MXLAYS3 )      ! Work array for conc input
+      REAL    :: X3_OLD( MXLAYS3 )     ! Old Vertical coordinate values
+      REAL    :: ZH_OUT( NBNDY,NLAYS ) ! mid-layer heights for target BDY file
 
 C***********************************************************************
 
@@ -172,32 +168,8 @@ C Get the layer mid-point heights
             END DO 
 
          END DO
-
       END DO
 
       RETURN
-
-C************************* FORMAT Statements ***************************
-
-92000 FORMAT( // 1X, 79( '#' ) 
-     &         / 1X, '#  Vertical Interpolation Section '
-     &         / 1X, 79( '#' ) 
-     &        // 5X, 'WARNING: The vertical grid type used for the ',
-     &               'profile data is assumed to be '
-     &         / 5X, 'the same as the type specified in the LAYER file. The ',
-     &               'resolution of '
-     &         / 5X, 'each is listed below.' )
-
-92020 FORMAT(  / 5X, 'LAYER file vertical grid type: ', A )
-92040 FORMAT(  / 5X, 'Vertical layer surface values: '
-     &         /10X, ' K   LAYER File    Input Profile data' )
-92060 FORMAT( A )
-92080 FORMAT(   10X, I2, 1X, F12.3, 10X, F12.3 )
-92100 FORMAT(   10X, I2,       13X, 10X, F12.3 )
-92120 FORMAT( // 5X, 'The vertical structure in LAYER file is identical',
-     &               ' to that of the input profile data. '
-     &        /  5X, 'No vertical interpolation necessary.' )
-
-94060 FORMAT( 1PE20.4 )
 
       END
