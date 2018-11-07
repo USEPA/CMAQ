@@ -154,13 +154,6 @@ Ckrt Set vname3d for SA_CONC_1 file
            END DO
         END DO
 
-        IF ( YES_PRINT ) THEN
-          if ( MYPE .eq. 0 ) then
-           print*,'In OP_SA, after assigning vname3d, units3d, etc...'
-           print*,'JSPCTAG becomes...',JSPCTAG
-          endif
-        ENDIF !yes_print
-       
         SDATE3D = JDATE
         STIME3D = JTIME
 

@@ -260,10 +260,6 @@ C KWOK: open new files SA_CONC_1, SA_CGRID_1 and write data to it
       CALL SUBST_BARRIER
       CALL OP_SA ( STDATE, STTIME, TSTEP, 1, SA_CONC_1 )
       IF ( MYPE .EQ. 0 ) CALL SA_OPWDDEP ( SA_WD_1, STDATE, STTIME, TSTEP( 1 ) )
-c kwok: new files opened, initial data written
-      IF ( YES_PRINT ) THEN
-         if ( MYPE .eq. 0 ) print*, 'Initscen Completed...'
-      END IF !yes_print
 #endif
 
 

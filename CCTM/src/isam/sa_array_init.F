@@ -75,18 +75,6 @@ c.....update isam array according to isam ICON source tag
         DO S = 1, NSPC_SA
 
           N = SPC_INDEX( S, 1 )
-          IF ( YES_PRINT ) THEN
-            if ( mype .eq. 0 ) then
-              print*,'SPC_INDEX( S,1 ) = ',N,'SPC_INDEX( S,2 )=',SPC_INDEX( S,2 )
-              if ( SPC_INDEX( S,2 ) .LE. GC_FINI ) then 
-                print*,"cgrid specs =",GC_SPC(SPC_INDEX(S,2))
-              elseif ( SPC_INDEX( S,2 ) .LE. AE_FINI ) then 
-                print*,"cgrid specs =",AE_SPC(SPC_INDEX(S,2)-AE_STRT+1)
-              elseif ( SPC_INDEX( S,2 ) .LE. NR_FINI ) then 
-                print*,"cgrid specs =",NR_SPC(SPC_INDEX(S,2)-NR_STRT+1)
-              endif ! position of spc_index( s,2 ) in cgrid species list
-            endif ! mype0 ?
-          ENDIF ! yes_print
           IF( N .EQ. 1) THEN  ! query is for an original species, includes O3A 20130627
             DO L = 1, NLAYS
               DO R = 1, MY_NROWS
@@ -123,10 +111,6 @@ c.....update isam array according to isam ICON source tag
 
       ELSE
         ! Initialize ISAM array by isam output from previous day
-        IF ( YES_PRINT ) THEN
-          if ( mype .eq. 0 )
-     &      print*, "    Create Initial Conc from PREVDAY data"
-        ENDIF ! yes_print
         CALL CREATE_ICON( )
 
       END IF

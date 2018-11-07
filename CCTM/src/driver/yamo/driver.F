@@ -392,7 +392,7 @@ C Miscellaneous Configuration Operations
 
          CALL GET_SPC_INDEX ()
 
-         IF ( ANY( L_OZONE ) .OR. ANY( L_VOC ) ) THEN
+         IF (  L_VOC ) THEN
             CALL VOC_INIT ()
          END IF
 

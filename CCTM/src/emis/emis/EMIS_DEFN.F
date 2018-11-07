@@ -89,6 +89,10 @@ C-----------------------------------------------------------------------
          USE AERO_EMIS           ! inherits GRID_CONF
          USE AERO_DATA           ! access subroutine map_pmemis
 
+#ifdef isam
+         USE SA_DEFN, ONLY : SA_VDEMIS_DIFF, NTAG_SA
+#endif
+
          IMPLICIT NONE
 
 C Includes:
@@ -202,7 +206,16 @@ C Allocate Space for Master Emissions Computation
             CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
             SUCCESS = .FALSE.; RETURN
          END IF
- 
+
+#ifdef isam
+         ALLOCATE ( SA_VDEMIS_DIFF( N_SPC_DIFF,EMLAYS,NCOLS,NROWS, NTAG_SA ),STAT = STATUS )
+         IF ( STATUS .NE. 0 ) THEN
+            XMSG = 'SA_VDEMIS_DIFF memory allocation failed'
+            CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+            SUCCESS = .FALSE.; RETURN
+         END IF
+#endif
+
 C Return From Initialization
          SUCCESS = .TRUE.; RETURN
 
@@ -231,6 +244,11 @@ C GET_AERO_EMIS has to apply factors - don`t do it at this level.
          USE RXNS_DATA, ONLY: MECHNAME
          USE AERO_DATA, ONLY : AERONUM_MAP, AEROSRF_MAP, DUSTOUTM
 
+#ifdef isam
+         USE SA_DEFN, ONLY : SA_VDEMIS_DIFF, ITAG, NTAG_SA, TAGSTREAMS,
+     &                       STREAM_TO_TAG, OTHRTAG
+#endif
+
          IMPLICIT NONE
 
 C Includes:
@@ -257,6 +275,10 @@ C Local Variables:
          LOGICAL         :: WRTIME
          LOGICAL, SAVE   :: FIRST_TIME = .TRUE.
 
+#ifdef isam
+         CHARACTER(30), ALLOCATABLE :: STREAM_NAMES(:) ! parsed stream names for a tag
+         INTEGER I, NUMNAMES
+#endif
 C-----------------------------------------------------------------------
 
          IF ( FIRST_TIME ) THEN
@@ -266,6 +288,36 @@ C-----------------------------------------------------------------------
      &                VDEMIS_SCALED( N_EMIS_ISTR,EMLAYS,NCOLS,NROWS ),
      &                VDEMIS_CONV  ( N_SPC_DIFF, EMLAYS,NCOLS,NROWS ) )
 
+#ifdef isam
+C Map Emissions streams to ISAM tags
+            ALLOCATE( STREAM_TO_TAG ( N_EM_SRM ),
+     &                STREAM_NAMES  ( N_EM_SRM ) )
+
+            STREAM_TO_TAG = OTHRTAG  ! every starts in the other tag
+
+c           DO ISRM = 1,N_EM_SRM
+c              EM_FILE_LAB( ISRM )
+
+c           END DO
+
+
+            DO ITAG = 1, NTAG_SA
+
+              DO ISRM = 1, N_EM_SRM
+                READ(TAGSTREAMS(ITAG),*,err=100) (STREAMS(I),I=1,ISRM)
+                NUMNAMES = ISRM
+              END DO
+100           CONTINUE
+
+            
+
+               write(logdev,*) "WATCH THIS"
+               WRITE(LOGDEV,*) ITAG, NUMNAMES, TAGSTREAMS(ITAG)
+               DO I = 1, NUMNAMES
+                 write(logdev,*) "    ", ISRM, STREAMS(I)
+               END DO
+            END DO
+#endif
          END IF
 
 C Initialize Emissions Array

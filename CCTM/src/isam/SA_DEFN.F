@@ -39,6 +39,7 @@ c...Tagging species, regular or combined
       INTEGER, ALLOCATABLE, SAVE   :: MAP_AEROtoSA( :,: )
       LOGICAL, ALLOCATABLE, SAVE   :: IS_SPC_AEROSOL( :,: )
       LOGICAL, ALLOCATABLE, SAVE   :: TRANSPORT_SPC ( : )
+      INTEGER, ALLOCATABLE, SAVE   :: STREAM_TO_TAG ( : )
 
 c...4th and 5th dimensions of ISAM array
       INTEGER ::     NSPC_SA
@@ -49,39 +50,51 @@ c...Define Allocatable Apportionment Arrays
       !REAL, ALLOCATABLE :: ISAMB4( :,:,:,:,: )
       !REAL, ALLOCATABLE :: ISAM  ( :,:,:,:,: )
       !REAL, ALLOCATABLE :: CBFOR ( :,:,:,: )
-      REAL, POINTER :: ISAMB4( :,:,:,:,: )
+c     REAL, POINTER :: ISAMB4( :,:,:,:,: )
       REAL, POINTER :: ISAM  ( :,:,:,:,: )
-      REAL, POINTER :: CBFOR ( :,:,:,: )
+c     REAL, POINTER :: CBFOR ( :,:,:,: )
       REAL, ALLOCATABLE :: AISAM ( :,:,:,:,: )
       REAL, ALLOCATABLE :: TOT_SADEP ( :,:,:,: )
       REAL, ALLOCATABLE :: CONV_SADEP ( :,:,:,: )
       REAL, ALLOCATABLE :: MAPFRAC( :,:,: )
       REAL, ALLOCATABLE :: MFRC_P( :,:,: )
       REAL, ALLOCATABLE :: VOC5D ( :,:,:,:,: )
-      REAL, ALLOCATABLE :: ISAMEM( :,:,:,:,: )
+      REAL, ALLOCATABLE :: ISAMEM( :,:,:,:,: )         ! subset of the emissions array for tagged species
+      REAL, ALLOCATABLE :: SA_VDEMIS_DIFF( :,:,:,:,: ) ! full emissions array mapped to diffused species 
+
+
 
 c...Variables regarding the tag list
       CHARACTER( 16 ), ALLOCATABLE :: TAGNAME( : )
-      CHARACTER( 40 ), ALLOCATABLE :: TAGCLASSES( : )
+      CHARACTER( 96 )              :: TAGCLASSES
       CHARACTER( 40 ), ALLOCATABLE :: TAGRGN( : )
+      CHARACTER( 96 ), ALLOCATABLE :: TAGSTREAMS( : )
 
 c...multi-sectors-for-a-single-tag
-      INTEGER,   PARAMETER :: N_SGSTACKS = 40
-      LOGICAL, ALLOCATABLE :: YESSTK( :,: )
+c     INTEGER,   PARAMETER :: N_SGSTACKS = 40
+c     LOGICAL, ALLOCATABLE :: YESSTK( :,: )
 c...stack group id counting
-      REAL,    ALLOCATABLE :: SAIDVALU( :,: )
+c     REAL,    ALLOCATABLE :: SAIDVALU( :,: )
 
 c...Logical values for tagging species
-      LOGICAL, ALLOCATABLE :: L_EC( : )
-      LOGICAL, ALLOCATABLE :: L_OC( : )
-      LOGICAL, ALLOCATABLE :: L_SFATE( : )
-      LOGICAL, ALLOCATABLE :: L_NTRATE( : )
-      LOGICAL, ALLOCATABLE :: L_NH4( : )
-      LOGICAL, ALLOCATABLE :: L_PM25( : )  !0705
-      LOGICAL, ALLOCATABLE :: L_CO( : )    !0705
-      LOGICAL, ALLOCATABLE :: L_OZONE( : ) !0705
-      LOGICAL, ALLOCATABLE :: L_VOC( : )   !20131209
-
+c     LOGICAL, ALLOCATABLE :: L_EC( : )
+c     LOGICAL, ALLOCATABLE :: L_OC( : )
+c     LOGICAL, ALLOCATABLE :: L_SFATE( : )
+c     LOGICAL, ALLOCATABLE :: L_NTRATE( : )
+c     LOGICAL, ALLOCATABLE :: L_NH4( : )
+c     LOGICAL, ALLOCATABLE :: L_PM25( : )  !0705
+c     LOGICAL, ALLOCATABLE :: L_CO( : )    !0705
+c     LOGICAL, ALLOCATABLE :: L_OZONE( : ) !0705
+c     LOGICAL, ALLOCATABLE :: L_VOC( : )   !20131209
+      LOGICAL, SAVE :: L_EC
+      LOGICAL, SAVE :: L_OC
+      LOGICAL, SAVE :: L_SFATE
+      LOGICAL, SAVE :: L_NTRATE
+      LOGICAL, SAVE :: L_NH4
+      LOGICAL, SAVE :: L_PM25
+      LOGICAL, SAVE :: L_CO
+      LOGICAL, SAVE :: L_OZONE
+      LOGICAL, SAVE :: L_VOC
 
 ! Cloud Module variables - sln 4 june 2018
       REAL, SAVE :: DEPSUM_SAVE = 0.0
@@ -99,14 +112,11 @@ C ...Tagging indices for bcon, others, icon
       INTEGER :: ICONTAG
 
 !20130627  2-regime ozone or 1-ozone
-      LOGICAL :: YES_2REGIME
-      INTEGER :: NUMOZRGM
-
-!20130709 optional printout to log files
-      LOGICAL :: YES_PRINT
+c     LOGICAL :: YES_2REGIME
+c     INTEGER :: NUMOZRGM
 
 !20130731  stack group id counting
-      INTEGER :: NINLN
+c     INTEGER :: NINLN
 
 !20140321  Option to use Ox production-loss for ozone apportionment
       LOGICAL :: FLAGOXSA
@@ -148,7 +158,7 @@ C external above
 C Text lines
         INTEGER, INTENT( OUT ) :: NTAGS
         INTEGER ILINE
-        CHARACTER( 80 ) :: TXTLINE
+        CHARACTER( 21 ) :: TXTLINE
 C text lines above     
         
 C-----------------------------------------------------------
@@ -211,7 +221,7 @@ C Text lines
         INTEGER, INTENT( IN ) :: NTAGS
         INTEGER ILINE
         INTEGER ITAG
-        CHARACTER( 80 ) :: TXTLINE
+        CHARACTER( 128 ) :: TXTLINE
 C text lines above     
 
 C...multi-sectors-for-a-single-tag 20130702
@@ -234,72 +244,36 @@ C-----------------------------------------------------------
           CALL M3EXIT ( 'SA_IOLIST', 0, 0, XMSG, XSTAT1 )
         ENDIF
         
-        if ( MYPE .eq. 0 ) then
-          PRINT*, 'SA_IO_LIST Sucessfully Opened'
-          PRINT*, 'Start reading the list...'
-        endif
-
 101     READ ( INPUT_UNIT, '(A)' ) TXTLINE
-        IF ( TXTLINE(1:3) .EQ. '!!!' ) GOTO 101
-        TAGCLASSES( ITAG ) = TXTLINE(18:LEN_TRIM( TXTLINE ) )
+        IF ( TXTLINE(1:3) .EQ. '!!!' .OR. TXTLINE(1:3) .EQ. '' ) GOTO 101
+        TAGCLASSES = TXTLINE(18:LEN_TRIM( TXTLINE ) )
 
-
-        !20130731 For stack group id counting
-        NINLN = 0
+        IF ( MYPE .eq. 0 ) then
+          WRITE(LOGDEV, *) 'Reading ISAM control file'
+          WRITE(LOGDEV, *) 'TAGCLASSES = ',TRIM(TAGCLASSES)
+          WRITE(LOGDEV, *) '  for ', NTAGS, ' tags'
+        ENDIF
 
         DO ITAG = 1, NTAGS 
 102       READ ( INPUT_UNIT, '(A)' ) TXTLINE
-          IF ( TXTLINE(1:3) .EQ. '!!!' ) GOTO 102
+          IF ( TXTLINE(1:3) .EQ. '!!!' .OR. TXTLINE(1:3) .EQ. '' ) GOTO 102
           TAGNAME( ITAG ) = TXTLINE(18:LEN_TRIM( TXTLINE ) )
 
 103       READ ( INPUT_UNIT, '(A)' ) TXTLINE
-          IF ( TXTLINE(1:3) .EQ. '!!!' ) GOTO 103
+          IF ( TXTLINE(1:3) .EQ. '!!!' .OR. TXTLINE(1:3) .EQ. '' ) GOTO 103
           TAGRGN( ITAG ) = TXTLINE(18:LEN_TRIM( TXTLINE ) )
 
-          !20130731 For stack group id counting
-c         IF ( TAGRGN( ITAG )(1:6) .EQ. 'INLINE' ) THEN
-c           CALL COUNTCOMMAS( TXTLINE, CNTCMA )
-c           IF ( CNTCMA .GT. NINLN ) NINLN = CNTCMA
-c         ENDIF !tagrgn = inline
-
 104       READ ( INPUT_UNIT, '(A)' ) TXTLINE
-          IF ( TXTLINE(1:3) .EQ. '!!!' ) GOTO 104
-!20130702          SGFILE( ITAG ) = TXTLINE(18:LEN_TRIM( TXTLINE ) )
-          DO ISGSTK = 1, N_SGSTACKS
-            WRITE( FNAME,'("SG",I2.2)' ) ISGSTK
-            LBACK = .FALSE.
-            BGN_SG = INDEX( TXTLINE(18:LEN_TRIM(TXTLINE)),
-     &                FNAME(1:LEN_TRIM(FNAME)), LBACK )
+          IF ( TXTLINE(1:3) .EQ. '!!!' .OR. TXTLINE(1:3) .EQ. '' ) GOTO 104
+          TAGSTREAMS( ITAG ) = TXTLINE(18:LEN_TRIM( TXTLINE ) )
 
-            IF ( MYPE .EQ. 0 ) THEN
-                print*,'Currently txtline18end, itag, sg file:',TXTLINE(18:LEN_TRIM(TXTLINE)), ITAG, FNAME
-            ENDIF
-            IF ( BGN_SG .NE. 0 ) THEN
-              YESSTK( ITAG, ISGSTK ) = .TRUE.
-              print*,'After screening, itag, sg file:', ITAG, FNAME
-            ENDIF
-          ENDDO ! isgstk
+          IF ( MYPE .eq. 0 ) then
+            WRITE(LOGDEV, *) '   ISAM Tag #   ',ITAG
+            WRITE(LOGDEV, *) '   ISAM Region  ',TAGRGN( ITAG )
+            WRITE(LOGDEV, *) '   ISAM Streams ',TAGSTREAMS( ITAG )
+          END IF
 
-          READ ( INPUT_UNIT, '(A)' ) TXTLINE
-!20130702          STKFILE( ITAG ) = TXTLINE(18:LEN_TRIM( TXTLINE ) )
-
-          READ ( INPUT_UNIT, '(A)' ) TXTLINE
-
-          if ( mype .eq. 0 )
-     &         PRINT *, ITAG, TAGNAME( ITAG ), TAGCLASSES( ITAG ), TAGRGN( ITAG )
-        ENDDO ! ITAG
-
-        if ( mype .eq. 0 ) then
-          print *,'max # inline sources among all tags, NINLN =',NINLN
-          !krt20130702 To acknowledge exactly which stack emissions are to be read for each tag....
-          print *,'itag, list_of_sg_files_for_each_tag'
-          do ITAG = 1, NTAGS
-            do ISGSTK = 1, N_SGSTACKS
-              !if ( YESSTK( ITAG, ISGSTK ) ) print*,ITAG, ISGSTK
-              print *,ITAG, ISGSTK, YESSTK( ITAG, ISGSTK )
-            enddo ! isgstk
-          enddo ! itag
-        endif ! mype0
+        END DO
 
         END SUBROUTINE RD_SA_IO_LIST
 C============================================================
@@ -421,9 +395,6 @@ C------------------------------------------------------------
         YES_INLN = .FALSE.
         DO ITAG = 1, NTAGS
           LENRGN = LEN_TRIM( TAGRGN( ITAG ) )
-          IF ( YES_PRINT ) THEN
-            IF ( MYPE .EQ. 0 ) print*, 'Tagrgn is ' // TAGRGN( ITAG )( 1:LENRGN )
-          ENDIF
           IF ( TAGRGN( ITAG )( 1:10 ) .EQ. 'EVERYWHERE' ) THEN
             DO R = 1, MY_NROWS
               DO C = 1, MY_NCOLS
@@ -437,25 +408,14 @@ C------------------------------------------------------------
               ENDDO !C
             ENDDO !R
             !20130731
-            IF ( .NOT. YES_INLN ) THEN
-              YES_INLN = .TRUE.
-              ALLOCATE( SAIDVALU( NTAGS, NINLN ) )
-              SAIDVALU = -666.6
-            ENDIF ! tagrgn = inline
+c           IF ( .NOT. YES_INLN ) THEN
+c             YES_INLN = .TRUE.
+c             ALLOCATE( SAIDVALU( NTAGS, NINLN ) )
+c             SAIDVALU = -666.6
+c           ENDIF ! tagrgn = inline
             CALL COUNTCOMMAS( TAGRGN( ITAG )( 1:LENRGN ), CNTCMA )
-            IF ( YES_PRINT ) THEN
-              if ( MYPE .EQ. 0 ) print*,
-     & 'For ITAG=',ITAG,', # commas in TAGRGN is CNTCMA =',CNTCMA
-            ENDIF ! yes_print
             ALLOCATE( LOCATCMA( CNTCMA ) )
             CALL LOCATECOMMAS( TAGRGN( ITAG )( 1:LENRGN ), CNTCMA, LOCATCMA )
-            IF ( YES_PRINT ) THEN 
-             if ( MYPE .EQ. 0 ) then
-              print*,'TAGRGN = ',TAGRGN(ITAG)
-              print*,'Positions of commas in TAGRGN:'
-              write( *,* )( LOCATCMA(JCNT), JCNT = 1,CNTCMA )
-             endif ! mype0
-            ENDIF ! yes_print
             DO JCNT = 1, CNTCMA
               IF ( CNTCMA .EQ. 1 .OR. JCNT .EQ. CNTCMA ) THEN
 !20140512       CVALU = TAGRGN( ITAG )( LOCATCMA(JCNT)+1:LOCATCMA(JCNT)+6 )
@@ -464,12 +424,7 @@ C------------------------------------------------------------
                 CVALU = TAGRGN( ITAG )( LOCATCMA(JCNT)+1:LOCATCMA(JCNT+1)-1 )
               ENDIF ! cntcma =1 or jcnt comes to cntcma
               READ( CVALU, '(F6.0)' ) VALU
-              SAIDVALU( ITAG,JCNT ) = VALU
-              if ( YES_PRINT ) then
-                if ( MYPE .EQ. 0 ) 
-     & print*,'itag=',ITAG,', jcnt=',JCNT,
-     & ', saidvalu=',SAIDVALU( ITAG,JCNT )
-              endif ! yes_print
+c             SAIDVALU( ITAG,JCNT ) = VALU
             ENDDO ! jcnt            
             DEALLOCATE( LOCATCMA )
 
@@ -493,9 +448,6 @@ C------------------------------------------------------------
      &    YESRGN-1+LENVNAM .EQ. LEN_TRIM(TAGRGN(ITAG)) ) ) THEN
                 YES_XTRAC = .TRUE.
               ENDIF !yesrgn = ?
-              IF ( YES_PRINT ) THEN
-                if ( MYPE .EQ. 0 ) print*,'Regions extracted: ',TAGRGN(ITAG)
-              ENDIF !yes_print
               IF ( YES_XTRAC ) THEN
                 IF ( .NOT. XTRACT3( MAPNAME, VNAME3D( IRGN ),
      &            1,1, STRTROW, ENDROW, STRTCOL, ENDCOL,
@@ -557,153 +509,101 @@ c----------------------------------------------------------
         L_VOC = .FALSE.   !20131209
 
         NSPC_SA = 0
-        DO ITAG = 1, NTAG_SA-3
-            LBACK = .FALSE. 
-            BGN_SP = INDEX( TAGCLASSES( ITAG ),'EC',LBACK )
-            IF ( BGN_SP .NE. 0 ) THEN
-              IF ( .NOT. ANY( L_EC )  ) THEN
-                NSPC_SA = NSPC_SA + 2  ! AECJ, AECI
-              ENDIF
-              L_EC( ITAG ) = .TRUE.
-            ENDIF
-
-            LBACK = .FALSE.
-            BGN_SP = INDEX( TAGCLASSES( ITAG ),'OC',LBACK )
-            IF ( BGN_SP .NE. 0 ) THEN
-              IF ( .NOT. ANY( L_OC ) ) THEN
-                IF( INDEX(MECHNAME, 'CB6R3_AE6_AQ') .GT. 0 ) THEN
-                NSPC_SA = NSPC_SA + 13  ! ALVPO1I,ALVPO1J,ASVPO1I,ASVPO1J,ASVPO2I,ASVPO2J,ASVPO3J,AIVPO1J
-                                        ! VLVPO1,VSVPO1,VSVPO2,VSVO3,VIVPO1
-                ELSE
-                NSPC_SA = NSPC_SA + 4  ! APOCJ, APOCI, APNCOMJ, APNCOMI  20120711
-                ENDIF
-               ENDIF
-              L_OC( ITAG ) = .TRUE.
-            ENDIF
-
-            LBACK = .FALSE.
-            BGN_SP = INDEX( TAGCLASSES( ITAG ),'SULFATE',LBACK )
-            IF ( BGN_SP .NE. 0 ) THEN
-              IF ( .NOT. ANY( L_SFATE ) ) THEN
-                NSPC_SA = NSPC_SA + 5  ! ASO4J, ASO4I, SO2, SULF(Fb21), SULRXN(20130529)
-              ENDIF
-              L_SFATE( ITAG ) = .TRUE.
-            ENDIF
-
-            LBACK = .FALSE.
-            BGN_SP = INDEX( TAGCLASSES( ITAG ),'NITRATE',LBACK )
-            IF ( BGN_SP .NE. 0 ) THEN
-              IF ( .NOT. ANY( L_NTRATE ) ) THEN
-                IF( INDEX(MECHNAME, 'CB6R3') .GT. 0) then
-                  NSPC_SA = NSPC_SA + 6  ! ANO3J, ANO3I, HNO3, NTR1, NTR2, INTR
-                ELSE
-                  NSPC_SA = NSPC_SA + 4  ! ANO3J, ANO3I, HNO3, NTR(cb05) or RNO3(saprc99)
-                ENDIF
-                NSPC_SA = NSPC_SA + 8  ! NO, NO2, NO3, HONO, N2O5, PNA, PAN, PANX
-              ENDIF
-              L_NTRATE( ITAG ) = .TRUE.
-            ENDIF
-
-            LBACK = .FALSE.
-            BGN_SP = INDEX( TAGCLASSES( ITAG ),'VOC',LBACK )
-            IF ( BGN_SP .NE. 0 ) THEN
-              IF ( .NOT. ANY( L_VOC ) ) THEN
-                IF( INDEX(MECHNAME, 'CB6R3') .GT. 0) then
-                  NSPC_SA = NSPC_SA + 21 !see OZ_DEFN.F for lists of vocs.
-                ELSE
-                  NSPC_SA = NSPC_SA + 14 !20131209 ald2,aldx,eth,etha,etoh,form,iole,isop,meoh,ole,par,terp,tol,xyl
-                ENDIF
-              ENDIF
-              L_VOC( ITAG ) = .TRUE.
-            ENDIF
-
-            LBACK = .FALSE.
-            BGN_SP = INDEX( TAGCLASSES( ITAG ),'AMMONIUM',LBACK )
-            IF ( BGN_SP .NE. 0 ) THEN
-              IF ( .NOT. ANY( L_NH4 ) ) THEN
-                NSPC_SA = NSPC_SA + 3  ! ANH4J, ANH4I, NH3
-              ENDIF
-              L_NH4( ITAG ) = .TRUE.
-            ENDIF
-
-            LBACK = .FALSE.
-            BGN_SP = INDEX( TAGCLASSES( ITAG ),'PM25_IONS',LBACK )
-            IF ( BGN_SP .NE. 0 ) THEN
-              IF ( .NOT. ANY( L_PM25 ) ) THEN
-                NSPC_SA = NSPC_SA + 14 ! ACLiJ,ANAiJ,AMGJ,AKJ,ACAJ,AFEJ,AALJ,ASIJ,ATIJ,AMNJ,AOTHRiJ(0705) 
-              ENDIF
-              L_PM25( ITAG ) = .TRUE.
-            ENDIF
-
-            LBACK = .FALSE.
-            BGN_SP = INDEX( TAGCLASSES( ITAG ),'CO',LBACK )
-            IF ( BGN_SP .NE. 0 ) THEN
-              IF ( .NOT. ANY( L_CO ) ) THEN
-                NSPC_SA = NSPC_SA + 1  ! CO
-              ENDIF
-              L_CO( ITAG ) = .TRUE.
-            ENDIF
-
-            LBACK = .FALSE.
-            BGN_SP = INDEX( TAGCLASSES( ITAG ),'OZONE',LBACK )
-            IF ( BGN_SP .NE. 0 ) THEN
-              IF ( .NOT. ANY( L_OZONE ) ) THEN
-!20140410                YES_2REGIME = ENVYN( 'OZ_2REGIME',
-!20140410     & 'yes=2 ozone regimes; no=1 ozone from Jacobian',
-!20140410     & .TRUE., IOST )
-!20140410                IF ( YES_2REGIME ) THEN
-                  YES_2REGIME = .TRUE.
-                  NUMOZRGM = 3
-!20140410                ELSE
-!20140410                  NUMOZRGM = 1
-!20140410                ENDIF ! yes_2regime
-                NSPC_SA = NSPC_SA + NUMOZRGM   ! O3V, O3N
-              ENDIF  ! any(l_ozone)
-              L_OZONE( ITAG ) = .TRUE.
-              BGN_NTRATE = INDEX( TAGCLASSES( ITAG ),'NITRATE',LBACK )
-              IF ( BGN_NTRATE .EQ. 0 ) THEN
-                IF ( .NOT. ANY( L_NTRATE ) ) THEN
-                  IF( INDEX(MECHNAME, 'CB6R3') .GT. 0) then
-                    NSPC_SA = NSPC_SA + 6  ! ANO3J, ANO3I, HNO3, NTR1, NTR2, INTR
-                  ELSE
-                    NSPC_SA = NSPC_SA + 4  ! ANO3J, ANO3I, HNO3, NTR(cb05) or RNO3(saprc99)
-                  ENDIF
-                  NSPC_SA = NSPC_SA + 8  ! NO, NO2, NO3, HONO, N2O5, PNA, PAN, PANX
-                ENDIF  ! no nitrate tracked so far
-                L_NTRATE( ITAG ) = .TRUE.
-              ENDIF ! bgn_ntrate nonzero
-              BGN_VOC = INDEX( TAGCLASSES( ITAG ),'VOC',LBACK )
-              IF ( BGN_VOC .EQ. 0 ) THEN
-                IF ( .NOT. ANY( L_VOC ) ) THEN
-                  IF( INDEX(MECHNAME, 'CB6R3') .GT. 0) then
-                    NSPC_SA = NSPC_SA + 21 !see OZ_DEFN.F for lists of vocs.
-                  ELSE
-                    NSPC_SA = NSPC_SA + 14 !20131209 ald2,aldx,eth,etha,etoh,form,iole,isop,meoh,ole,par,terp,tol,xyl
-                  ENDIF
-                ENDIF  ! no VOC tracked so far
-                L_VOC( ITAG ) = .TRUE.
-              ENDIF ! bgn_ntrate nonzero
-            ENDIF
-        ENDDO ! number of tags
-
-        IF ( YES_PRINT ) THEN
-          IF ( MYPE .EQ. 0 )  print*,'NSPC_SA = ', NSPC_SA
+c       DO ITAG = 1, NTAG_SA-3
+        LBACK = .FALSE. 
+        BGN_SP = INDEX( TAGCLASSES,'EC',LBACK )
+        IF ( BGN_SP .NE. 0 ) THEN
+          NSPC_SA = NSPC_SA + 2  ! AECJ, AECI
+          L_EC = .TRUE.
         ENDIF
 
-c...assign tags to bcon, others or icon for any tagging species
+        LBACK = .FALSE.
+        BGN_SP = INDEX( TAGCLASSES,'OC',LBACK )
+        IF ( BGN_SP .NE. 0 ) THEN
+          IF( INDEX(MECHNAME, 'CB6R3_AE6_AQ') .GT. 0 ) THEN
+            NSPC_SA = NSPC_SA + 13  ! ALVPO1I,ALVPO1J,ASVPO1I,ASVPO1J,ASVPO2I,ASVPO2J,ASVPO3J,AIVPO1J
+                                    ! VLVPO1,VSVPO1,VSVPO2,VSVO3,VIVPO1
+          ELSE
+            NSPC_SA = NSPC_SA + 4  ! APOCJ, APOCI, APNCOMJ, APNCOMI  20120711
+          ENDIF
+          L_OC = .TRUE.
+        ENDIF
 
-        DO ITAG = NTAG_SA-2, NTAG_SA
-          IF ( ANY( L_EC ) ) L_EC( ITAG ) = .TRUE.
-          IF ( ANY( L_OC ) ) L_OC( ITAG ) = .TRUE.
-          IF ( ANY( L_SFATE ) ) L_SFATE( ITAG ) = .TRUE.
-          IF ( ANY( L_NTRATE ) ) L_NTRATE( ITAG ) = .TRUE.
-          IF ( ANY( L_NH4 ) ) L_NH4( ITAG ) = .TRUE.
-          IF ( ANY( L_PM25 ) ) L_PM25( ITAG ) = .TRUE.
-          IF ( ANY( L_CO ) ) L_CO( ITAG ) = .TRUE.
-          IF ( ANY( L_OZONE ) ) L_OZONE( ITAG ) = .TRUE.
-          IF ( ANY( L_VOC ) ) L_VOC( ITAG ) = .TRUE.
-        ENDDO
+        LBACK = .FALSE.
+        BGN_SP = INDEX( TAGCLASSES,'SULFATE',LBACK )
+        IF ( BGN_SP .NE. 0 ) THEN
+          NSPC_SA = NSPC_SA + 5  ! ASO4J, ASO4I, SO2, SULF(Fb21), SULRXN(20130529)
+          L_SFATE = .TRUE.
+        ENDIF
 
+        LBACK = .FALSE.
+        BGN_SP = INDEX( TAGCLASSES,'NITRATE',LBACK )
+        IF ( BGN_SP .NE. 0 ) THEN
+          IF( INDEX(MECHNAME, 'CB6R3') .GT. 0) then
+            NSPC_SA = NSPC_SA + 6  ! ANO3J, ANO3I, HNO3, NTR1, NTR2, INTR
+          ELSE
+            NSPC_SA = NSPC_SA + 4  ! ANO3J, ANO3I, HNO3, NTR(cb05) or RNO3(saprc99)
+          ENDIF
+          NSPC_SA = NSPC_SA + 8  ! NO, NO2, NO3, HONO, N2O5, PNA, PAN, PANX
+          L_NTRATE = .TRUE.
+        ENDIF
+
+        LBACK = .FALSE.
+        BGN_SP = INDEX( TAGCLASSES,'VOC',LBACK )
+        IF ( BGN_SP .NE. 0 ) THEN
+          IF( INDEX(MECHNAME, 'CB6R3') .GT. 0) then
+            NSPC_SA = NSPC_SA + 21 !see OZ_DEFN.F for lists of vocs.
+          ELSE
+            NSPC_SA = NSPC_SA + 14 !20131209 ald2,aldx,eth,etha,etoh,form,iole,isop,meoh,ole,par,terp,tol,xyl
+          ENDIF
+          L_VOC = .TRUE.
+        ENDIF
+
+        LBACK = .FALSE.
+        BGN_SP = INDEX( TAGCLASSES,'AMMONIUM',LBACK )
+        IF ( BGN_SP .NE. 0 ) THEN
+          NSPC_SA = NSPC_SA + 3  ! ANH4J, ANH4I, NH3
+          L_NH4 = .TRUE.
+        ENDIF
+
+        LBACK = .FALSE.
+        BGN_SP = INDEX( TAGCLASSES,'PM25_IONS',LBACK )
+        IF ( BGN_SP .NE. 0 ) THEN
+          NSPC_SA = NSPC_SA + 14 ! ACLiJ,ANAiJ,AMGJ,AKJ,ACAJ,AFEJ,AALJ,ASIJ,ATIJ,AMNJ,AOTHRiJ(0705) 
+          L_PM25 = .TRUE.
+        ENDIF
+
+        LBACK = .FALSE.
+        BGN_SP = INDEX( TAGCLASSES,'CO',LBACK )
+        IF ( BGN_SP .NE. 0 ) THEN
+          NSPC_SA = NSPC_SA + 1  ! CO
+          L_CO = .TRUE.
+        ENDIF
+
+        LBACK = .FALSE.
+        BGN_SP = INDEX( TAGCLASSES,'OZONE',LBACK )
+        IF ( BGN_SP .NE. 0 ) THEN
+          NSPC_SA = NSPC_SA + 3  ! O3, O, HO2
+          L_OZONE = .TRUE.
+          IF ( .NOT. L_NTRATE ) THEN 
+            IF( INDEX(MECHNAME, 'CB6R3') .GT. 0) then
+              NSPC_SA = NSPC_SA + 6  ! ANO3J, ANO3I, HNO3, NTR1, NTR2,INTR
+            ELSE
+              NSPC_SA = NSPC_SA + 4  ! ANO3J, ANO3I, HNO3, NTR(cb05) or RNO3(saprc99)
+            ENDIF
+            NSPC_SA = NSPC_SA + 8  ! NO, NO2, NO3, HONO, N2O5, PNA, PAN, PANX
+            L_NTRATE = .TRUE.
+          ENDIF
+          IF ( .NOT. L_VOC ) THEN 
+            IF( INDEX(MECHNAME, 'CB6R3') .GT. 0) then
+              NSPC_SA = NSPC_SA + 21 !see OZ_DEFN.F for lists of vocs.
+            ELSE
+              NSPC_SA = NSPC_SA + 14 !20131209 ald2,aldx,eth,etha,etoh,form,iole,isop,meoh,ole,par,terp,tol,xyl
+            ENDIF
+            L_VOC = .TRUE.
+          ENDIF
+        END IF
+ 
         END SUBROUTINE GET_NSPC_SA
 
 c===============================================================
@@ -744,397 +644,207 @@ c----------------------------------------------------------
         TRANSPORT_SPC = .TRUE.
 
         J_SPC = 0
-        IF ( ANY( L_EC ) ) THEN
+
+        IF (  L_EC ) THEN
           J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_EC( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'AECJ'
-          ENDDO ! itag
-          J_SPC = J_SPC + 1 
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_EC( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'AECI'   
-          ENDDO ! itag 
+          SPC_NAME( J_SPC,: ) = 'AECJ'
+          J_SPC = J_SPC + 1
+          SPC_NAME( J_SPC,: ) = 'AECI'   
         ENDIF
 
-        IF ( ANY( L_OC ) ) THEN
-        IF( INDEX(MECHNAME, 'CB6R3_AE6_AQ') .GT. 0 ) THEN
-          J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_OC( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'ALVPO1J'   ! 20120615
-          ENDDO ! itag
-          J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_OC( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'ALVPO1I'   ! 20120615
-          ENDDO ! itag
-          J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_OC( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'ASVPO1J' ! 20120711
-          ENDDO ! itag
-          J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_OC( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'ASVPO1I' ! 20120711
-          ENDDO ! itag
-          J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_OC( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'ASVPO2J'   ! 20120615
-          ENDDO ! itag
-          J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_OC( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'ASVPO2I'   ! 20120615
-          ENDDO ! itag
-          J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_OC( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'ASVPO3J' ! 20120711
-          ENDDO ! itag
-          J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_OC( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'AIVPO1J' ! 20120711
-          ENDDO ! itag
-          J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_OC( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'VLVPO1'   ! 20120615
-          ENDDO ! itag
-          J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_OC( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'VSVPO1'   ! 20120615
-          ENDDO ! itag
-          J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_OC( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'VSVPO2'   ! 20120615
-          ENDDO ! itag
-          J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_OC( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'VSVPO3' ! 20120711
-          ENDDO ! itag
-          J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_OC( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'VIVPO1' ! 20120711
-          ENDDO ! itag
-         !if ( MYPE .EQ. 0 ) print*, '110', J_SPC, ITAG, SPC_NAME(J_SPC,ITAG)
-
-        ELSE
-          J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_OC( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'APOCJ'   ! 20120615
-          ENDDO ! itag
-          J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_OC( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'APOCI'   ! 20120615
-          ENDDO ! itag
-          J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_OC( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'APNCOMJ' ! 20120711
-          ENDDO ! itag
-          J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_OC( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'APNCOMI' ! 20120711
-          ENDDO ! itag
-        ENDIF
+        IF ( L_OC ) THEN
+          IF( INDEX(MECHNAME, 'CB6R3_AE6_AQ') .GT. 0 ) THEN
+            J_SPC = J_SPC + 1
+            SPC_NAME( J_SPC,: ) = 'ALVPO1J'
+            J_SPC = J_SPC + 1
+            SPC_NAME( J_SPC,: ) = 'ALVPO1I'
+            J_SPC = J_SPC + 1
+            SPC_NAME( J_SPC,: ) = 'ASVPO1J'
+            J_SPC = J_SPC + 1
+            SPC_NAME( J_SPC,: ) = 'ASVPO1I'
+            J_SPC = J_SPC + 1
+            SPC_NAME( J_SPC,: ) = 'ASVPO2J'
+            J_SPC = J_SPC + 1
+            SPC_NAME( J_SPC,: ) = 'ASVPO2I'
+            J_SPC = J_SPC + 1
+            SPC_NAME( J_SPC,: ) = 'ASVPO3J'
+            J_SPC = J_SPC + 1
+            SPC_NAME( J_SPC,: ) = 'AIVPO1J'
+            J_SPC = J_SPC + 1
+            SPC_NAME( J_SPC,: ) = 'VLVPO1'
+            J_SPC = J_SPC + 1
+            SPC_NAME( J_SPC,: ) = 'VSVPO1'
+            J_SPC = J_SPC + 1
+            SPC_NAME( J_SPC,: ) = 'VSVPO2'
+            J_SPC = J_SPC + 1
+            SPC_NAME( J_SPC,: ) = 'VSVPO3'
+            J_SPC = J_SPC + 1
+            SPC_NAME( J_SPC,: ) = 'VIVPO1'
+          ELSE
+            J_SPC = J_SPC + 1
+            SPC_NAME( J_SPC,: ) = 'APOCJ'
+            J_SPC = J_SPC + 1
+            SPC_NAME( J_SPC,: ) = 'APOCI'
+            J_SPC = J_SPC + 1
+            SPC_NAME( J_SPC,: ) = 'APNCOMJ'
+            J_SPC = J_SPC + 1
+            SPC_NAME( J_SPC,: ) = 'APNCOMI'
+          ENDIF
         ENDIF
 
 
-        IF ( ANY( L_SFATE ) ) THEN
+        IF ( L_SFATE ) THEN
           J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_SFATE( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'ASO4J'
-          ENDDO ! itag
+          SPC_NAME( J_SPC,: ) = 'ASO4J'
           J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_SFATE( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'ASO4I'    
-          ENDDO ! itag
+          SPC_NAME( J_SPC,: ) = 'ASO4I'    
           J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_SFATE( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'SO2'
-          ENDDO ! itag
+          SPC_NAME( J_SPC,: ) = 'SO2'
           J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_SFATE( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'SULF'  !Fb21    
-          ENDDO ! itag
+          SPC_NAME( J_SPC,: ) = 'SULF'    
           J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20130529
-            IF ( L_SFATE( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'SULRXN' !20130529
-          ENDDO ! itag
+          SPC_NAME( J_SPC,: ) = 'SULRXN'
         ENDIF
 
-        IF ( ANY( L_NTRATE ) ) THEN
+        IF ( L_NTRATE ) THEN
           J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_NTRATE( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'ANO3J'
-          ENDDO ! itag
+          SPC_NAME( J_SPC,: ) = 'ANO3J'
           J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_NTRATE( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'ANO3I'    
-          ENDDO ! itag
+          SPC_NAME( J_SPC,: ) = 'ANO3I'    
           J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_NTRATE( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'HNO3'
-          ENDDO ! itag
-          J_SPC = J_SPC + 1
+          SPC_NAME( J_SPC,: ) = 'HNO3'
 
+          J_SPC = J_SPC + 1
           IF( INDEX(MECHNAME, 'CB6R3') .GT. 0) then
-            DO ITAG = 1, NTAG_SA  ! 20120718
-              IF ( L_NTRATE( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'NTR1' !CB05   
-            ENDDO ! itag
+            SPC_NAME( J_SPC,: ) = 'NTR1' 
             J_SPC = J_SPC + 1  
-            DO ITAG = 1, NTAG_SA  ! 20120718
-              IF ( L_NTRATE( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'NTR2' !CB05   
-            ENDDO ! itag
+            SPC_NAME( J_SPC,: ) = 'NTR2'   
             J_SPC = J_SPC + 1
-            DO ITAG = 1, NTAG_SA  ! 20120718
-              IF ( L_NTRATE( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'INTR' !CB05   
-            ENDDO ! itag
+            SPC_NAME( J_SPC,: ) = 'INTR'   
           ELSE
-            DO ITAG = 1, NTAG_SA  ! 20120718
-              IF ( L_NTRATE( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'NTR' !CB05   
-            ENDDO ! itag
+            SPC_NAME( J_SPC,: ) = 'NTR'   
           ENDIF
 
           J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_NTRATE( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'NO'
-          ENDDO ! itag
+          SPC_NAME( J_SPC,: ) = 'NO'
           J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_NTRATE( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'NO2'
-          ENDDO ! itag
+          SPC_NAME( J_SPC,: ) = 'NO2'
           J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_NTRATE( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'NO3'
-          ENDDO ! itag
+          SPC_NAME( J_SPC,: ) = 'NO3'
           J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_NTRATE( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'HONO'
-          ENDDO ! itag
+          SPC_NAME( J_SPC,: ) = 'HONO'
           J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_NTRATE( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'N2O5'
-          ENDDO ! itag
+          SPC_NAME( J_SPC,: ) = 'N2O5'
           J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_NTRATE( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'PNA'
-          ENDDO ! itag
+          SPC_NAME( J_SPC,: ) = 'PNA'
           J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_NTRATE( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'PAN'
-          ENDDO ! itag
+          SPC_NAME( J_SPC,: ) = 'PAN'
           J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_NTRATE( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'PANX'
-          ENDDO ! itag
+          SPC_NAME( J_SPC,: ) = 'PANX'
         ENDIF
 
-        IF ( ANY( L_VOC ) ) THEN
+        IF ( L_VOC ) THEN
           J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20131209
-            IF ( L_VOC( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'ALD2'
-          ENDDO ! itag
+          SPC_NAME( J_SPC,: ) = 'ALD2'
           J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20131209
-            IF ( L_VOC( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'ALDX'
-          ENDDO ! itag
+          SPC_NAME( J_SPC,: ) = 'ALDX'
           J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20131209
-            IF ( L_VOC( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'ETH'
-          ENDDO ! itag
+          SPC_NAME( J_SPC,: ) = 'ETH'
           J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20131209
-            IF ( L_VOC( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'ETHA'
-          ENDDO ! itag
+          SPC_NAME( J_SPC,: ) = 'ETHA'
           J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20131209
-            IF ( L_VOC( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'ETOH'
-          ENDDO ! itag
+          SPC_NAME( J_SPC,: ) = 'ETOH'
           J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20131209
-            IF ( L_VOC( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'FORM'
-          ENDDO ! itag
+          SPC_NAME( J_SPC,: ) = 'FORM'
           J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20131209
-            IF ( L_VOC( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'IOLE'
-          ENDDO ! itag
+          SPC_NAME( J_SPC,: ) = 'IOLE'
           J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20131209
-            IF ( L_VOC( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'ISOP'
-          ENDDO ! itag
+          SPC_NAME( J_SPC,: ) = 'ISOP'
           J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20131209
-            IF ( L_VOC( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'MEOH'
-          ENDDO ! itag
+          SPC_NAME( J_SPC,: ) = 'MEOH'
           J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20131209
-            IF ( L_VOC( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'OLE'
-          ENDDO ! itag
+          SPC_NAME( J_SPC,: ) = 'OLE'
           J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20131209
-            IF ( L_VOC( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'PAR'
-          ENDDO ! itag
+          SPC_NAME( J_SPC,: ) = 'PAR'
           J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20131209
-            IF ( L_VOC( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'TERP'
-          ENDDO ! itag
+          SPC_NAME( J_SPC,: ) = 'TERP'
           J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20131209
-            IF ( L_VOC( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'TOL'
-          ENDDO ! itag
-          J_SPC = J_SPC + 1
+          SPC_NAME( J_SPC,: ) = 'TOL'
 
+          J_SPC = J_SPC + 1
           IF( INDEX(MECHNAME, 'CB6R3') .GT. 0) then
-            DO ITAG = 1, NTAG_SA  ! 20131209
-              IF ( L_VOC( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'XYLMN'
-            ENDDO ! itag
+            SPC_NAME( J_SPC,: ) = 'XYLMN'
             J_SPC = J_SPC + 1
-            DO ITAG = 1, NTAG_SA  ! 20131209
-              IF ( L_VOC( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'NAPH'
-            ENDDO ! itag
+            SPC_NAME( J_SPC,: ) = 'NAPH'
             J_SPC = J_SPC + 1
-            DO ITAG = 1, NTAG_SA  ! 20131209
-              IF ( L_VOC( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'ETHY'
-            ENDDO ! itag
+            SPC_NAME( J_SPC,: ) = 'ETHY'
             J_SPC = J_SPC + 1
-            DO ITAG = 1, NTAG_SA  ! 20131209
-              IF ( L_VOC( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'PRPA'
-            ENDDO ! itag
+            SPC_NAME( J_SPC,: ) = 'PRPA'
             J_SPC = J_SPC + 1
-            DO ITAG = 1, NTAG_SA  ! 20131209
-              IF ( L_VOC( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'ACET'
-            ENDDO ! itag
+            SPC_NAME( J_SPC,: ) = 'ACET'
             J_SPC = J_SPC + 1
-            DO ITAG = 1, NTAG_SA  ! 20131209
-              IF ( L_VOC( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'KET'
-            ENDDO ! itag
+            SPC_NAME( J_SPC,: ) = 'KET'
             J_SPC = J_SPC + 1
-            DO ITAG = 1, NTAG_SA  ! 20131209
-              IF ( L_VOC( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'GLY'
-            ENDDO ! itag
+            SPC_NAME( J_SPC,: ) = 'GLY'
             J_SPC = J_SPC + 1
-            DO ITAG = 1, NTAG_SA  ! 20131209
-              IF ( L_VOC( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'BENZENE'
-            ENDDO ! itag
+            SPC_NAME( J_SPC,: ) = 'BENZENE'
           ELSE
-            DO ITAG = 1, NTAG_SA  ! 20131209
-              IF ( L_VOC( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'XYL'
-            ENDDO ! itag
+            SPC_NAME( J_SPC,: ) = 'XYL'
           ENDIF
-        ENDIF ! any l_voc
+        ENDIF 
 
-        IF ( ANY( L_NH4 ) ) THEN
+        IF (  L_NH4 ) THEN
           J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_NH4( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'ANH4J'
-          ENDDO ! itag
+          SPC_NAME( J_SPC,: ) = 'ANH4J'
           J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_NH4( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'ANH4I'
-          ENDDO ! itag
+          SPC_NAME( J_SPC,: ) = 'ANH4I'
           J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_NH4( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'NH3'
-          ENDDO ! itag
+          SPC_NAME( J_SPC,: ) = 'NH3'
         ENDIF
 
-        IF ( ANY( L_PM25 ) ) THEN  ! 0705
+        IF ( L_PM25 ) THEN
           J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_PM25( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'ACLJ'
-          ENDDO ! itag
+          SPC_NAME( J_SPC,: ) = 'ACLJ'
           J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_PM25( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'ACLI'
-          ENDDO ! itag
+          SPC_NAME( J_SPC,: ) = 'ACLI'
           J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_PM25( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'ANAJ'
-          ENDDO ! itag
+          SPC_NAME( J_SPC,: ) = 'ANAJ'
           J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_PM25( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'ANAI' 
-          ENDDO ! itag
+          SPC_NAME( J_SPC,: ) = 'ANAI' 
           J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_PM25( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'AMGJ'
-          ENDDO ! itag
+          SPC_NAME( J_SPC,: ) = 'AMGJ'
           J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_PM25( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'AKJ'
-          ENDDO ! itag
+          SPC_NAME( J_SPC,: ) = 'AKJ'
           J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_PM25( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'ACAJ'
-          ENDDO ! itag
+          SPC_NAME( J_SPC,: ) = 'ACAJ'
           J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_PM25( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'AFEJ'
-          ENDDO ! itag
+          SPC_NAME( J_SPC,: ) = 'AFEJ'
           J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_PM25( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'AALJ'
-          ENDDO ! itag
+          SPC_NAME( J_SPC,: ) = 'AALJ'
           J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_PM25( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'ASIJ'
-          ENDDO ! itag
+          SPC_NAME( J_SPC,: ) = 'ASIJ'
           J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_PM25( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'ATIJ'
-          ENDDO ! itag
+          SPC_NAME( J_SPC,: ) = 'ATIJ'
           J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_PM25( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'AMNJ'
-          ENDDO ! itag
+          SPC_NAME( J_SPC,: ) = 'AMNJ'
           J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_PM25( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'AOTHRJ'
-          ENDDO ! itag
+          SPC_NAME( J_SPC,: ) = 'AOTHRJ'
           J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_PM25( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'AOTHRI'
-          ENDDO ! itag
+          SPC_NAME( J_SPC,: ) = 'AOTHRI'
         ENDIF
 
-        IF ( ANY( L_CO ) ) THEN  ! 0706
+        IF ( L_CO ) THEN
           J_SPC = J_SPC + 1
-          DO ITAG = 1, NTAG_SA  ! 20120718
-            IF ( L_CO( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'CO'
-          ENDDO ! itag
+          SPC_NAME( J_SPC,: ) = 'CO'
         ENDIF
 
-        IF ( ANY( L_OZONE ) ) THEN  ! 0706
-          IF ( NUMOZRGM .EQ. 1 ) THEN
-            J_SPC = J_SPC + 1
-            DO ITAG = 1, NTAG_SA  ! 20120718
-              IF ( L_OZONE( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'O3A'
-            ENDDO ! itag
-          ELSEIF ( NUMOZRGM .EQ. 3 ) THEN
-!           J_SPC = J_SPC + 1
-!           DO ITAG = 1, NTAG_SA  ! 20120718
-!             IF ( L_OZONE( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'O3V'
-!           ENDDO ! itag
-!           J_SPC = J_SPC + 1
-!           DO ITAG = 1, NTAG_SA  ! 20120718
-!             IF ( L_OZONE( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'O3N'
-!           ENDDO ! itag
-            J_SPC = J_SPC + 1
-            DO ITAG = 1, NTAG_SA  ! 20120718
-              IF ( L_OZONE( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'O3'
-            ENDDO ! itag
-            J_SPC = J_SPC + 1
-            DO ITAG = 1, NTAG_SA  ! 20120718
-              IF ( L_OZONE( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'O'
-            ENDDO ! itag
-!           J_SPC = J_SPC + 1
-!           DO ITAG = 1, NTAG_SA  ! 20120718
-!             IF ( L_OZONE( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'O1D'
-!           ENDDO ! itag
-!Do not add disturbs SULF tracking because large fraction of OH comes
-!from untracked precursor so add SULF SULFRXN to the other tag
-!           J_SPC = J_SPC + 1
-!           DO ITAG = 1, NTAG_SA  ! 20120718
-!             IF ( L_OZONE( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'OH'
-!           ENDDO ! itag
-            J_SPC = J_SPC + 1
-            DO ITAG = 1, NTAG_SA  ! 20120718
-              IF ( L_OZONE( ITAG ) ) SPC_NAME( J_SPC,ITAG ) = 'HO2'
-            ENDDO ! itag
-          ENDIF ! numozrgm = 1 or 2 ? 20130627
+        IF ( L_OZONE ) THEN
+          J_SPC = J_SPC + 1
+          SPC_NAME( J_SPC,: ) = 'O3'
+          J_SPC = J_SPC + 1
+          SPC_NAME( J_SPC,: ) = 'O'
+          J_SPC = J_SPC + 1
+          SPC_NAME( J_SPC,: ) = 'HO2'
         ENDIF
 
 
@@ -1148,10 +858,6 @@ C...Initialize species index
 
 C...Obtain ozone index from GC_SPC list
         N_OZN = INDEX1( 'O3', N_GC_SPC, GC_SPC )
-        IF ( YES_PRINT ) THEN
-          if ( MYPE .eq. 0 )
-     &   print*,'N_OZN, GC_SPC(N_OZN):',N_OZN, GC_SPC(N_OZN)
-        ENDIF !yes_print
 
 C..Determine which ISAM species are aerosols and are transported
         NSPC_TRANSPORT = 0
@@ -1231,17 +937,15 @@ C...Assign species index with CMAQ species mappings
          
 
 c...check assigned spc_name and spc_index
-!        IF ( YES_PRINT ) THEN
-          if ( MYPE .eq. 0 ) then
-            DO J_SPC = 1, NSPC_SA
-              !print *, J_SPC, ICONTAG 
-              !print *, SPC_NAME(J_SPC,ICONTAG)
-              DO I2 = 1,20
-                !print *, SPC_INDEX(J_SPC,I2)
-              ENDDO
-            ENDDO
-          endif
-!        ENDIF  ! yes_print
+c         if ( MYPE .eq. 0 ) then
+c           DO J_SPC = 1, NSPC_SA
+c             !print *, J_SPC, ICONTAG 
+c             !print *, SPC_NAME(J_SPC,ICONTAG)
+c             DO I2 = 1,20
+c               !print *, SPC_INDEX(J_SPC,I2)
+c             ENDDO
+c           ENDDO
+c         endif
 
         END SUBROUTINE GET_SPC_INDEX
 

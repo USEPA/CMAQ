@@ -47,11 +47,6 @@ c...externals above
 
 C----------------------------------------------
 
-!20130709 Not really related with tracers' layers;
-!         Just determine whether users want printouts in log files
-          YES_PRINT = ENVYN( 'LETSPRINT', 'Y=print; N=noprint',
-     &  .FALSE., IOST )
-
 CCC     IF ( MYPE .EQ. 0 ) THEN
 C
 C...Count the number of tags specified by user
@@ -61,8 +56,11 @@ C...Reading in the tag information
           ALLOCATE ( TAGNAME( NTAGS ), STAT = IOST )
           CALL CHECKMEM( IOST, 'TAGNAME', PNAME )
 
-          ALLOCATE ( TAGCLASSES( NTAGS ), STAT = IOST )
-          CALL CHECKMEM( IOST, 'TAGCLASSES', PNAME )
+c         ALLOCATE ( TAGCLASSES( NTAGS ), STAT = IOST )
+c         CALL CHECKMEM( IOST, 'TAGCLASSES', PNAME )
+
+          ALLOCATE ( TAGSTREAMS( NTAGS ), STAT = IOST )
+          CALL CHECKMEM( IOST, 'TAGSTREAMS', PNAME )
 
 c...Only for the calling of RD_SA_IO_LIST
           ALLOCATE ( TAGRGN( NTAGS ), STAT = IOST )
@@ -74,41 +72,37 @@ c...Only for the calling of RD_SA_IO_LIST
 !20130702          ALLOCATE ( STKFILE( NTAGS ), STAT = IOST )
 !20130702          CALL CHECKMEM( IOST, 'STKFILE', PNAME )
 
-          ALLOCATE( YESSTK( NTAGS, N_SGSTACKS ), STAT = IOST )
-          CALL CHECKMEM( IOST, 'YESSTK', PNAME )
-          YESSTK = .FALSE.
+c         ALLOCATE( YESSTK( NTAGS, N_SGSTACKS ), STAT = IOST )
+c         CALL CHECKMEM( IOST, 'YESSTK', PNAME )
+c         YESSTK = .FALSE.
 
           CALL RD_SA_IO_LIST( NTAGS )
-
 
 C..Assign Tag Indices To ICON, BCON, OTHER *in that order*
           BCONTAG = NTAGS + 1
           OTHRTAG = BCONTAG + 1
           ICONTAG = OTHRTAG + 1
           NTAG_SA = ICONTAG
-          IF ( YES_PRINT ) THEN
-          !  if ( MYPE .EQ. 0 ) print*,'NTAG_SA =',NTAG_SA
-          ENDIF ! yes_print
            
 c...Only for the calling of GET_NSPC_SA
-          ALLOCATE ( L_EC( NTAGS+3 ), STAT = IOST ) 
-          CALL CHECKMEM( IOST, 'L_EC', PNAME )
-          ALLOCATE ( L_OC( NTAGS+3 ), STAT = IOST )
-          CALL CHECKMEM( IOST, 'L_OC', PNAME )
-          ALLOCATE ( L_SFATE( NTAGS+3 ), STAT = IOST )
-          CALL CHECKMEM( IOST, 'L_SFATE', PNAME )
-          ALLOCATE ( L_NTRATE( NTAGS+3 ), STAT = IOST )
-          CALL CHECKMEM( IOST, 'L_NTRATE', PNAME )
-          ALLOCATE ( L_NH4( NTAGS+3 ), STAT = IOST )
-          CALL CHECKMEM( IOST, 'L_NH4', PNAME )
-          ALLOCATE ( L_PM25( NTAGS+3 ), STAT = IOST )
-          CALL CHECKMEM( IOST, 'L_PM25', PNAME )
-          ALLOCATE ( L_CO( NTAGS+3 ), STAT = IOST )
-          CALL CHECKMEM( IOST, 'L_CO', PNAME )
-          ALLOCATE ( L_OZONE( NTAGS+3 ), STAT = IOST )
-          CALL CHECKMEM( IOST, 'L_OZONE', PNAME )
-          ALLOCATE ( L_VOC( NTAGS+3 ), STAT = IOST )
-          CALL CHECKMEM( IOST, 'L_VOC', PNAME )
+c         ALLOCATE ( L_EC( NTAGS+3 ), STAT = IOST ) 
+c         CALL CHECKMEM( IOST, 'L_EC', PNAME )
+c         ALLOCATE ( L_OC( NTAGS+3 ), STAT = IOST )
+c         CALL CHECKMEM( IOST, 'L_OC', PNAME )
+c         ALLOCATE ( L_SFATE( NTAGS+3 ), STAT = IOST )
+c         CALL CHECKMEM( IOST, 'L_SFATE', PNAME )
+c         ALLOCATE ( L_NTRATE( NTAGS+3 ), STAT = IOST )
+c         CALL CHECKMEM( IOST, 'L_NTRATE', PNAME )
+c         ALLOCATE ( L_NH4( NTAGS+3 ), STAT = IOST )
+c         CALL CHECKMEM( IOST, 'L_NH4', PNAME )
+c         ALLOCATE ( L_PM25( NTAGS+3 ), STAT = IOST )
+c         CALL CHECKMEM( IOST, 'L_PM25', PNAME )
+c         ALLOCATE ( L_CO( NTAGS+3 ), STAT = IOST )
+c         CALL CHECKMEM( IOST, 'L_CO', PNAME )
+c         ALLOCATE ( L_OZONE( NTAGS+3 ), STAT = IOST )
+c         CALL CHECKMEM( IOST, 'L_OZONE', PNAME )
+c         ALLOCATE ( L_VOC( NTAGS+3 ), STAT = IOST )
+c         CALL CHECKMEM( IOST, 'L_VOC', PNAME )
 
           CALL GET_NSPC_SA 
 
