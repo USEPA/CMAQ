@@ -1464,8 +1464,8 @@ C...modules
                
                COLUMN_DENSITY( COL,ROW ) = 0.0
                DO LEV = 1, NLAYS
-                  COLUMN_DENSITY( COL,ROW ) = ( UNIT_FACTOR * BLKDENS( L ) )
-     &                                      * CGRID( COL,ROW,L,IGAS  ) * BLKDZ ( L )
+                  COLUMN_DENSITY( COL,ROW ) = ( UNIT_FACTOR * BLKDENS( LEV ) )
+     &                                      * CGRID( COL,ROW,LEV,IGAS  ) * BLKDZ ( LEV )
      &                                      + COLUMN_DENSITY( COL,ROW )                  
                END DO
                
