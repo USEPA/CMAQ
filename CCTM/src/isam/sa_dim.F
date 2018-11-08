@@ -30,6 +30,8 @@ C PCGRID_DEFN inherits CGRID_SPC and GRID_CONF( inherits HGRD_DEFN, VGRD_DEFN )
         USE UTILIO_DEFN       ! 20120615
         USE SA_DEFN
 
+        USE EMIS_VARS, ONLY: N_EM_SRM
+
         IMPLICIT NONE
 
         CHARACTER( 16 ) :: PNAME = 'SA_DIM'
@@ -59,8 +61,12 @@ C...Reading in the tag information
 c         ALLOCATE ( TAGCLASSES( NTAGS ), STAT = IOST )
 c         CALL CHECKMEM( IOST, 'TAGCLASSES', PNAME )
 
-          ALLOCATE ( TAGSTREAMS( NTAGS ), STAT = IOST )
+          ALLOCATE ( TAGSTREAMS( NTAGS, N_EM_SRM ), STAT = IOST )
           CALL CHECKMEM( IOST, 'TAGSTREAMS', PNAME )
+
+          ALLOCATE ( TAGSTREAMS_NUM( NTAGS ), STAT = IOST )
+          CALL CHECKMEM( IOST, 'TAGSTREAMS', PNAME )
+          TAGSTREAMS_NUM = 0
 
 c...Only for the calling of RD_SA_IO_LIST
           ALLOCATE ( TAGRGN( NTAGS ), STAT = IOST )

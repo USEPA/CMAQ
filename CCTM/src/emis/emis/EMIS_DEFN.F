@@ -277,7 +277,6 @@ C Local Variables:
 
 #ifdef isam
          CHARACTER(30), ALLOCATABLE :: STREAM_NAMES(:) ! parsed stream names for a tag
-         INTEGER I, NUMNAMES
 #endif
 C-----------------------------------------------------------------------
 
@@ -295,28 +294,23 @@ C Map Emissions streams to ISAM tags
 
             STREAM_TO_TAG = OTHRTAG  ! every starts in the other tag
 
-c           DO ISRM = 1,N_EM_SRM
-c              EM_FILE_LAB( ISRM )
-
-c           END DO
-
-
             DO ITAG = 1, NTAG_SA
-
-              DO ISRM = 1, N_EM_SRM
-                READ(TAGSTREAMS(ITAG),*,err=100) (STREAMS(I),I=1,ISRM)
-                NUMNAMES = ISRM
-              END DO
-100           CONTINUE
-
-            
-
-               write(logdev,*) "WATCH THIS"
-               WRITE(LOGDEV,*) ITAG, NUMNAMES, TAGSTREAMS(ITAG)
-               DO I = 1, NUMNAMES
-                 write(logdev,*) "    ", ISRM, STREAMS(I)
-               END DO
+               write(LOGDEV,*) TAGSTREAMS(ITAG)
             END DO
+
+
+            DO ISRM = 1,N_EM_SRM
+              WRITE(LOGDEV,*)"READING STREAM #",ISRM,EM_FILE_LAB( ISRM )
+
+
+              ITAG = INDEX1(EM_FILE_LAB( ISRM ),NTAG_SA,TAGSTREAMS)
+              WRITE(LOGDEV,*)"   FOUND", ITAG
+              IF ( ITAG .NE. 0 ) STREAM_TO_TAG(ISRM) = ITAG
+       
+              WRITE(LOGDEV,*)" STREAM_TO_TAG = ",STREAM_TO_TAG(ISRM)
+
+            END DO
+
 #endif
          END IF
 

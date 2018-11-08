@@ -215,11 +215,6 @@ C Local Variables
             INTEGER      JTIME      ! current model time, coded HHMMSS
             INTEGER      TSTEP      ! output time step
          END SUBROUTINE SA_OPWDDEP
-Ckrt...Filling up other tags..........
-         SUBROUTINE SA_FIL_OTHRTAG( JDATE, JTIME )
-            IMPLICIT NONE
-            INTEGER, INTENT( IN ) :: JDATE, JTIME
-         END SUBROUTINE SA_FIL_OTHRTAG
 #endif
       END INTERFACE
 
@@ -303,13 +298,6 @@ C Allocate and initialize emissions
            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2  )
          END IF
          ISAMEM = PSAEM( 1:MY_NCOLS,1:MY_NROWS,:,:,: )
-
-!Ckrt...Pointer for isamem array
-         IF ( .NOT. PSAEM_INIT ( NSPC_SA, NTAG_SA ) ) THEN
-           XMSG = 'Failure in defining SA horizontal domain'
-           CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2  )
-         END IF
-         ISAMEM = PSAEM( 1:MY_NCOLS,1:MY_NROWS,:,:,: )
 #endif
 
 C Set up for process analysis
@@ -384,11 +372,6 @@ C Calculate the changes in the layer J-,K-mode aerosol concentrations
 
 C read & interpolate emissions data => VDEMIS_DIFF from EMIS_DEFN module
       CALL GET_EMIS ( MDATE, MTIME, TSTEP, CGRID )
-
-#ifdef isam
-      ! Fill up isamem(:,:,:,:,othrtag)
-      CALL SA_FIL_OTHRTAG ( JDATE, JTIME )
-#endif
 
       IF ( LIPR ) THEN
          DO S = 1, N_SPC_DIFF
