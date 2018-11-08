@@ -71,44 +71,7 @@ $TIME $EXE
 
 Run the script and check the output directory designated in the run script for the new OCEAN file.
 
-## OPTION 2: Zero Out Sea Salt Emissions
+## OPTION 2: Zero Out Sea Spray Emissions
 
-Even if your modeling domain does not contain areas of sea salt emissions, you need to provide an OCEAN file to the CCTM. You can create a dummy OCEAN file for domains with no sea salt sources or if you prefer to set sea salt emissions to zero. Copy and run the following I/O API Tool m3fake script to create an OCEAN file containing zeros for the open ocean and surf zone coverage fractions. Using this file will effectively configure a CCTM simulation with zero sea salt emissions.  
+To turn off the Sea-Spray Emissions, set the RunScript option "CTM_SS_AERO" to "N" or "F". You should then not need an OCEAN input file.
 
-Note that you will need the [I/O API Tools](www.cmascenter.org/ioapi) installed and compiled on your Linux system to use this script.
-
-```
-#!/bin/csh -f
-
-# m3fake script to create a dummy ocean file
-
-setenv GRIDDESC $CMAQ_HOME/data/mcip/GRIDDESC
-setenv GRID_NAME CMAQ-BENCHMARK
-setenv OUTFILE $CMAQ_HOME/data/ocean/ocean_file.dummy.$GRID_NAME.ncf
-m3fake << EOF
-
-
-2
-$GRID_NAME
-1
-0
-2
-OPEN
-UNKNOWN
-OPEN
-3
-5
-
-SURF
-UNKNOWN
-SURF
-3
-5
-
-
-
-OUTFILE
-EOF
-```
-
-After running the script, check for the output file designated in the above script and use it in place of the OCEAN file in the CCTM.
