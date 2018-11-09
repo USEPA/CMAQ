@@ -672,7 +672,7 @@ C open vext file for update
          END DO
  
          IF ( L_CONC_WVEL ) THEN
-         IF ( .NOT. PWRVEC(CTM_VEXT_1, 'WVEL', JDATE, JTIME,
+         IF ( .NOT. PWRVEC(CTM_VEXT_1, 'W_VEL', JDATE, JTIME,
      &                     WVEL(:, :, :), NLAYS,
      &                     NCOLS, NROWS, NUMPROCS, 
      &                     NVERTEXT, VERTEXTI, VERTEXTJ     ) ) THEN
