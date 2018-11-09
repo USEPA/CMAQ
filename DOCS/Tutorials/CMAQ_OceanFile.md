@@ -83,29 +83,27 @@ Note that you will need the [I/O API Tools](www.cmascenter.org/ioapi) installed 
 # m3fake script to create a dummy ocean file
 
 setenv GRIDDESC $CMAQ_HOME/data/mcip/GRIDDESC
-setenv GRID_NAME CMAQ-BENCHMARK
+setenv GRID_NAME SE52BENCH
 setenv OUTFILE $CMAQ_HOME/data/ocean/ocean_file.dummy.$GRID_NAME.ncf
 m3fake << EOF
-
-
+Y
 2
-$GRID_NAME
+SE52BENCH
 1
 0
 2
 OPEN
-UNKNOWN
-OPEN
-3
+1
+open ocean fraction 
+1
 5
-
+0.
 SURF
-UNKNOWN
-SURF
-3
+1
+surf zone fraction
+1
 5
-
-
+0.
 
 OUTFILE
 EOF
