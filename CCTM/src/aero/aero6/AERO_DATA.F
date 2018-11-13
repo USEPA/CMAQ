@@ -369,9 +369,10 @@ C                     ---------- -------- ------- + + +   + ------ --- +  ------
 C number of lognormal modes in windblown dust aerosol = n_mode
 C - but only accumulation and coarse modes used
       Type emis_table
-         Character( 16 ) :: description
-         Character( 16 ) :: name  
-         Real            :: spcfac( n_mode )
+         Character( 16 ) :: description       ! Species Long Name
+         Character( 16 ) :: name              ! Species Name
+         Real            :: mw                ! Molecular weight (g/mol)
+         Real            :: spcfac( n_mode )  ! Speciation Factor (g/g)
       End type emis_table
 
 C For the wind-blown dust speciation factors, we used the median of the Desert Soil
@@ -403,36 +404,36 @@ C maximum number of chemical species in windblown dust aerosol
 
        
       Type( emis_table ) :: dust_spc( ndust_spc ) = (/
-C                    --description-- -- Species --  -------- spcfac --------
-C                                                    Aitken  accum   coarse
-     &   emis_table( 'Sulfate       ', 'ASO4    ', (/ 0.0, 0.02250, 0.02655/) ),   ! Sulfate
-     &   emis_table( 'Nitrate       ', 'ANO3    ', (/ 0.0, 0.00020, 0.00160/) ),   ! Nitrate
-     &   emis_table( 'Chlorine      ', 'ACL     ', (/ 0.0, 0.00945, 0.01190/) ),   ! Chlorine
-     &   emis_table( 'Ammonium      ', 'ANH4    ', (/ 0.0, 0.00005, 0.0    /) ),   ! Ammonium
-     &   emis_table( 'Sodium        ', 'ANA     ', (/ 0.0, 0.03935, 0.0    /) ),   ! Sodium
-     &   emis_table( 'Calcium       ', 'ACA     ', (/ 0.0, 0.07940, 0.0    /) ),   ! Calcium
-     &   emis_table( 'Magnesium     ', 'AMG     ', (/ 0.0, 0.01900, 0.0    /) ),   ! Magnesium
-     &   emis_table( 'Potassium     ', 'AK      ', (/ 0.0, 0.03770, 0.0    /) ),   ! Potassium
-     &   emis_table( 'Org. Carbon   ', 'APOC    ', (/ 0.0, 0.01075, 0.0    /) ),   ! Organic Carbon
-     &   emis_table( 'NonCarbon Org.', 'APNCOM  ', (/ 0.0, 0.00430, 0.0    /) ),   ! Non-Carbon Organic Matter
-     &   emis_table( 'Low-Vol. POA  ', 'ALVPO1  ', (/ 0.0, 0.01501, 0.0    /) ),   ! Non-Carbon Organic Matter
-     &   emis_table( 'Low-Vol. OOA  ', 'ALVOO1  ', (/ 0.0, 2.23E-5, 0.0    /) ),   ! Non-Carbon Organic Matter
-     &   emis_table( 'Black Carbon  ', 'AEC     ', (/ 0.0, 0.0,     0.0    /) ),   ! Black or Elemental Carbon
-     &   emis_table( 'Iron          ', 'AFE     ', (/ 0.0, 0.03355, 0.0    /) ),   ! Iron
-     &   emis_table( 'Aluminum      ', 'AAL     ', (/ 0.0, 0.05695, 0.0    /) ),   ! Aluminum
-     &   emis_table( 'Silicon       ', 'ASI     ', (/ 0.0, 0.19425, 0.0    /) ),   ! Silicon
-     &   emis_table( 'Titanium      ', 'ATI     ', (/ 0.0, 0.00280, 0.0    /) ),   ! Titanium
-     &   emis_table( 'Manganese     ', 'AMN     ', (/ 0.0, 0.00115, 0.0    /) ),   ! Manganese
-     &   emis_table( 'Water         ', 'AH2O    ', (/ 0.0, 0.00541, 0.00637/) ),   ! Water
-     &   emis_table( 'Undefined Mass', 'AOTHR   ', (/ 0.0, 0.48319, 0.0    /) ),   ! Other
-     &   emis_table( 'Non-Anion Dust', 'ASOIL   ', (/ 0.0, 0.0,     0.95358/) ),   ! Non-Anion Dust
-     &   emis_table( 'Air Toxics Mn ', 'AMN_HAPS', (/ 0.0, 0.00041, 0.00041/) ),   ! Air toxics Manganese J and K mode
-     &   emis_table( 'Nickel        ', 'ANI     ', (/ 0.0, 2.0E-05, 2.0E-05/) ),   ! Nickel J and K mode
-     &   emis_table( 'Chromium III  ', 'ACR_III ', (/ 0.0, 5.6E-05, 5.6E-05/) ),   ! Trivalent Chromium J and K mode
-     &   emis_table( 'Arsenic       ', 'AAS     ', (/ 0.0, 5.5E-06, 5.5E-06/) ),   ! Arsenic J and K mode
-     &   emis_table( 'Lead          ', 'APB     ', (/ 0.0, 1.6E-05, 1.6E-05/) ),   ! Lead J and K mode
-     &   emis_table( 'Cadmium       ', 'ACD     ', (/ 0.0, 9.7E-08, 9.7E-08/) ),   ! Cadmium J and K mode
-     &   emis_table( 'Mercury       ', 'APHG    ', (/ 0.0, 1.4E-08, 1.4E-08/) ) /) ! Mercury J and K mode
+C                    --description-- -- Species -- --MW-- -------- spcfac --------
+C                                                           Aitken  accum   coarse
+     &   emis_table( 'Sulfate       ', 'ASO4    ',  96.0, (/ 0.0, 0.02250, 0.02655/) ),   ! Sulfate
+     &   emis_table( 'Nitrate       ', 'ANO3    ',  62.0, (/ 0.0, 0.00020, 0.00160/) ),   ! Nitrate
+     &   emis_table( 'Chlorine      ', 'ACL     ',  35.5, (/ 0.0, 0.00945, 0.01190/) ),   ! Chlorine
+     &   emis_table( 'Ammonium      ', 'ANH4    ',  18.0, (/ 0.0, 0.00005, 0.0    /) ),   ! Ammonium
+     &   emis_table( 'Sodium        ', 'ANA     ',  23.0, (/ 0.0, 0.03935, 0.0    /) ),   ! Sodium
+     &   emis_table( 'Calcium       ', 'ACA     ',  40.1, (/ 0.0, 0.07940, 0.0    /) ),   ! Calcium
+     &   emis_table( 'Magnesium     ', 'AMG     ',  24.3, (/ 0.0, 0.01900, 0.0    /) ),   ! Magnesium
+     &   emis_table( 'Potassium     ', 'AK      ',  39.1, (/ 0.0, 0.03770, 0.0    /) ),   ! Potassium
+     &   emis_table( 'Org. Carbon   ', 'APOC    ', 220.0, (/ 0.0, 0.01075, 0.0    /) ),   ! Organic Carbon
+     &   emis_table( 'NonCarbon Org.', 'APNCOM  ', 220.0, (/ 0.0, 0.00430, 0.0    /) ),   ! Non-Carbon Organic Matter
+     &   emis_table( 'Low-Vol. POA  ', 'ALVPO1  ', 218.0, (/ 0.0, 0.01501, 0.0    /) ),   ! Non-Carbon Organic Matter
+     &   emis_table( 'Low-Vol. OOA  ', 'ALVOO1  ', 136.0, (/ 0.0, 2.23E-5, 0.0    /) ),   ! Non-Carbon Organic Matter
+     &   emis_table( 'Black Carbon  ', 'AEC     ',  12.0, (/ 0.0, 0.0,     0.0    /) ),   ! Black or Elemental Carbon
+     &   emis_table( 'Iron          ', 'AFE     ',  55.8, (/ 0.0, 0.03355, 0.0    /) ),   ! Iron
+     &   emis_table( 'Aluminum      ', 'AAL     ',  27.0, (/ 0.0, 0.05695, 0.0    /) ),   ! Aluminum
+     &   emis_table( 'Silicon       ', 'ASI     ',  28.1, (/ 0.0, 0.19425, 0.0    /) ),   ! Silicon
+     &   emis_table( 'Titanium      ', 'ATI     ',  47.9, (/ 0.0, 0.00280, 0.0    /) ),   ! Titanium
+     &   emis_table( 'Manganese     ', 'AMN     ',  54.9, (/ 0.0, 0.00115, 0.0    /) ),   ! Manganese
+     &   emis_table( 'Water         ', 'AH2O    ',  18.0, (/ 0.0, 0.00541, 0.00637/) ),   ! Water
+     &   emis_table( 'Undefined Mass', 'AOTHR   ', 200.0, (/ 0.0, 0.48319, 0.0    /) ),   ! Other
+     &   emis_table( 'Non-Anion Dust', 'ASOIL   ', 100.0, (/ 0.0, 0.0,     0.95358/) ),   ! Non-Anion Dust
+     &   emis_table( 'Air Toxics Mn ', 'AMN_HAPS',  54.9, (/ 0.0, 0.00041, 0.00041/) ),   ! Air toxics Manganese J and K mode
+     &   emis_table( 'Nickel        ', 'ANI     ',  58.7, (/ 0.0, 2.0E-05, 2.0E-05/) ),   ! Nickel J and K mode
+     &   emis_table( 'Chromium III  ', 'ACR_III ',  52.0, (/ 0.0, 5.6E-05, 5.6E-05/) ),   ! Trivalent Chromium J and K mode
+     &   emis_table( 'Arsenic       ', 'AAS     ',  74.92,(/ 0.0, 5.5E-06, 5.5E-06/) ),   ! Arsenic J and K mode
+     &   emis_table( 'Lead          ', 'APB     ', 207.2, (/ 0.0, 1.6E-05, 1.6E-05/) ),   ! Lead J and K mode
+     &   emis_table( 'Cadmium       ', 'ACD     ', 112.4, (/ 0.0, 9.7E-08, 9.7E-08/) ),   ! Cadmium J and K mode
+     &   emis_table( 'Mercury       ', 'APHG    ', 200.5, (/ 0.0, 1.4E-08, 1.4E-08/) ) /) ! Mercury J and K mode
 
       ! Manually Enter the mode-dependent Density of the Dust Particles using the mass fractions in 
       ! the dust_spc table and user-defined densities for each component. You may reference the aerolist 
@@ -455,25 +456,25 @@ C number of chemical species in seawater aerosol composition
       integer, parameter :: nsea_spc = 17
 
       Type( emis_table ), Parameter :: sea_spc( nsea_spc ) = (/
-C                     -description--  -- Species --  -------- spcfac --------
-C                                                     Aitken  accum   coarse
-     &   emis_table( 'Sulfate       ', 'ASO4    ', (/ 0.0, 0.07760, 0.07760/) ),   ! Sulfate
-     &   emis_table( 'Chlorine      ', 'ACL     ', (/ 0.0, 0.55380, 0.55380/) ),   ! Chlorine
-     &   emis_table( 'Sodium        ', 'ANA     ', (/ 0.0, 0.30860, 0.0    /) ),   ! Sodium
-     &   emis_table( 'Calcium       ', 'ACA     ', (/ 0.0, 0.01180, 0.0    /) ),   ! Calcium
-     &   emis_table( 'Magnesium     ', 'AMG     ', (/ 0.0, 0.03680, 0.0    /) ),   ! Magnesium
-     &   emis_table( 'Potassium     ', 'AK      ', (/ 0.0, 0.01140, 0.0    /) ),   ! Potassium
-     &   emis_table( 'SeaSalt_Cation', 'ASEACAT ', (/ 0.0, 0.0    , 0.36860/) ),   ! Sea-Salt Cations
-     &   emis_table( 'Chromium IV   ', 'ACR_VI  ', (/ 0.0, 5.95E-9, 5.95E-9/) ),   ! accumulation and coarse mode Hexavalent Chromium
-     &   emis_table( 'Nickel        ', 'ANI     ', (/ 0.0, 1.34E-8, 1.34E-8/) ),   ! accumulation and coarse mode Nickle
-     &   emis_table( 'Arsenic       ', 'AAS     ', (/ 0.0, 4.93E-8, 4.93E-8/) ),   ! accumulation and coarse mode Arsenic
-     &   emis_table( 'Beryllium     ', 'ABE     ', (/ 0.0, 5.2E-11, 5.2E-11/) ),   ! accumulation and coarse mode Beryllium
-     &   emis_table( 'Mercury       ', 'APHG    ', (/ 0.0, 5.8E-11, 5.8E-11/) ),   ! accumulation and coarse mode Mercury
-     &   emis_table( 'Lead          ', 'APB     ', (/ 0.0, 6.0E-11, 6.0E-11/) ),   ! accumulation and coarse mode Lead
-     &   emis_table( 'Cadmium       ', 'ACD     ', (/ 0.0, 1.93E-9, 1.93E-9/) ),   ! accumulation and coarse mode cadmium
-     &   emis_table( 'Air Toxics Mn ', 'AMN_HAPS', (/ 0.0, 4.7E-11, 4.7E-11/) ),   ! accumulation and coarse mode Air toxics Manganese
-     &   emis_table( 'bromine       ', 'ABR     ', (/ 0.0, 0.00190, 0.00190/) ),   ! Bromine 
-     &   emis_table( 'Water         ', 'AH2O    ', (/ 0.0, 0.0    , 0.0    /) ) /) ! Water (uptake is calculated online)
+C                     -description--  -- Species -- --MW-- -------- spcfac --------
+C                                                           Aitken  accum   coarse
+     &   emis_table( 'Sulfate       ', 'ASO4    ',  96.0, (/ 0.0, 0.07760, 0.07760/) ),   ! Sulfate
+     &   emis_table( 'Chlorine      ', 'ACL     ',  35.5, (/ 0.0, 0.55380, 0.55380/) ),   ! Chlorine
+     &   emis_table( 'Sodium        ', 'ANA     ',  23.0, (/ 0.0, 0.30860, 0.0    /) ),   ! Sodium
+     &   emis_table( 'Calcium       ', 'ACA     ',  40.1, (/ 0.0, 0.01180, 0.0    /) ),   ! Calcium
+     &   emis_table( 'Magnesium     ', 'AMG     ',  24.3, (/ 0.0, 0.03680, 0.0    /) ),   ! Magnesium
+     &   emis_table( 'Potassium     ', 'AK      ',  39.1, (/ 0.0, 0.01140, 0.0    /) ),   ! Potassium
+     &   emis_table( 'SeaSalt_Cation', 'ASEACAT ',  23.75,(/ 0.0, 0.0    , 0.36860/) ),   ! Sea-Salt Cations
+     &   emis_table( 'Chromium IV   ', 'ACR_VI  ',  52.0, (/ 0.0, 5.95E-9, 5.95E-9/) ),   ! accumulation and coarse mode Hexavalent Chromium
+     &   emis_table( 'Nickel        ', 'ANI     ',  58.7, (/ 0.0, 1.34E-8, 1.34E-8/) ),   ! accumulation and coarse mode Nickle
+     &   emis_table( 'Arsenic       ', 'AAS     ',  74.92,(/ 0.0, 4.93E-8, 4.93E-8/) ),   ! accumulation and coarse mode Arsenic
+     &   emis_table( 'Beryllium     ', 'ABE     ',   9.0, (/ 0.0, 5.2E-11, 5.2E-11/) ),   ! accumulation and coarse mode Beryllium
+     &   emis_table( 'Mercury       ', 'APHG    ', 200.5, (/ 0.0, 5.8E-11, 5.8E-11/) ),   ! accumulation and coarse mode Mercury
+     &   emis_table( 'Lead          ', 'APB     ', 207.2, (/ 0.0, 6.0E-11, 6.0E-11/) ),   ! accumulation and coarse mode Lead
+     &   emis_table( 'Cadmium       ', 'ACD     ', 112.4, (/ 0.0, 1.93E-9, 1.93E-9/) ),   ! accumulation and coarse mode cadmium
+     &   emis_table( 'Air Toxics Mn ', 'AMN_HAPS',  54.9, (/ 0.0, 4.7E-11, 4.7E-11/) ),   ! accumulation and coarse mode Air toxics Manganese
+     &   emis_table( 'Bromine       ', 'ABR     ',  79.9, (/ 0.0, 0.00190, 0.00190/) ),   ! Bromine 
+     &   emis_table( 'Water         ', 'AH2O    ',  18.0, (/ 0.0, 0.0    , 0.0    /) ) /) ! Water (uptake is calculated online)
  
       ! MAKE SURE WATER IS THE LAST COMPONENT IN THE TABLE ABOVE OR YOU
       ! WILL ENCOUNTER ISSUES WITH THE SEA SPRAY EMISSIONS MODULE.

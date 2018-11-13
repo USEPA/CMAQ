@@ -1,0 +1,265 @@
+!------------------------------------------------------------------------------!
+! EMISSION CONTROL INPUT FILE                                                  !
+!  FOR THE                                                                     !
+! COMMUNITY MULTISCALE AIR QUALITY (CMAQ) MODEL                                !
+!  DEVELOPED AND MAINTAINED BY THE                                             !
+! NATIONAL EXPOSURE RESEARCH LABORATORY, OFFICE OF RESEARCH AND DEVELOPMENT    !
+! UNITED STATES ENVIRONMENTAL PROTECTION AGENCY                                !
+!                                                                              !
+! THIS VERSION CONSISTENT WITH THE RELEASE OF CMAQv5.3 (SPRING 2019)           !
+!------------------------------------------------------------------------------!
+
+!------------------------------------------------------------------------------!
+! Emissions Scaling Variables                                                  !
+!    This section includes specific variables for governing the behavior of the!
+!    emissions scaling routines. Explanations are provided below.              !
+!------------------------------------------------------------------------------!
+
+&GeneralSpecs
+
+ DefaultScaling      = .TRUE.   !Find All matches and map them 1:1. Map Aerosols as usual
+ Guard_BiogenicVOC   = .FALSE.  !If True, then using 'ALL' to identify all of the available 
+ Guard_MarineGas     = .FALSE.  !  streams will not apply to these streams. They will, in
+ Guard_LightningNO   = .FALSE.  !  effect, be 'guarded' from the scaling operation.
+ Guard_WindBlownDust = .FALSE.
+ Guard_SeaSpray      = .FALSE.
+
+/
+!------------------------------------------------------------------------------!
+! Emissions Scaling Specification Section                                      !
+!   Each rule is presented as a row of inputs. The syntax of the               !
+!   emissions scaling rules is the following:                                  !
+!      EM_INSTR(I) = 'Region Label', 'Stream Label', 'Emission Surrogate',     !
+!                     'CMAQ-Species', 'Phase/Mode', 'Scale Factor', 'Operation'!
+!   Definition of Fields:                                                      !
+!         'Region Label' - Apply scaling for specific regions of the domain.   !
+!         'Stream Label' - Short Name from Run Script (ie. the value of        !
+!                          GR_EMIS_01_LAB or STK_EMIS_01_LAB). There are a few !
+!                          reserved names that apply to inline emissions       !
+!                          streams. These are:                                 !
+!                            BIOG - Biogenic VOC emissions                     !
+!                            MGEM - Marine Gas Emissions                       !
+!                            LTNG - Lightning NO Emissions                     !
+!                            WBDUST - Wind-Blown Dust Emissions                !
+!                            SeaSpray - Sea Spray Aerosol Emissions            ! 
+!         'Emission   - The character string identifying the surrogate on the  !
+!          Surrogate'   emission file or in the inline calculation that the    !
+!                       CMAQ species should be mapped to. Usually this name is !
+!                       the same as the CMAQ species for convenience. For      !
+!                       aerosols, it's usually slightly different (e.g ANO3 vs.!
+!                       PNO3)                                                  !
+!         'CMAQ-Species' - Internal Species Name                               !
+!         'Phase/Mode'- If the CMAQ-Species is a Gas, this field should equal  !
+!                       'Gas'. If the CMAQ-Species is an aerosol, this field   !
+!                       should indicate one of the possible emission aerosol   !
+!                       modes. Every stream by default is given a 'COARSE' and !
+!                       'FINE' mode. The user may refer to these, or define    !
+!                       others above and refer to them as well. This level of  !
+!                       specificity is needed so that aerosol number and       !
+!                       surface area are calculated correctly, and so that any !
+!                       unit conversions between gases and aerosols can be     !
+!                       handled correctly.                                     !
+!         'Scale Factor' - Adjustment factor to be applied to the mapping      !
+!         'Basis' - Specifies whether to conserve moles or mass when           !
+!                   performing scaling operations. Options are 'MOLES' or      !
+!                   'MASS'.                                                    !
+!         'Operation' - Specifies what kind of rule is to be carried           !
+!                       out. Options are:                                      !
+!                          'a' - add the rule to existing instructions. This   !
+!                                operation should be used for new entries, too.!
+!                          'm' - find existing scaling instructions matching   !
+!                                this rule's features (ie. species, streams,   !
+!                                etc) and multiply them by the factor in this  !
+!                                particular rule.                              !
+!                          'o' - find existing scaling instructions matching   !
+!                                this rule and overwrite them.                 !
+!                                                                              !
+!                                                                              !
+!------------------------------------------------------------------------------!
+
+&EmissionScalingRules
+ EM_NML=
+ !          Region      | Stream Label  |Emission | CMAQ-   |Phase/ |Scale  |Basis | Op  
+ !           Label      |               |Surrogate| Species |Mode   |Factor |      |     
+ 
+                                     !> DEFAULT MAPPING <!
+
+            'EVERYWHERE', 'ALL'         ,'NO2'    ,'NO2'    ,'GAS'  ,1.     ,'MOLE','a', 
+            'EVERYWHERE', 'ALL'         ,'NO'     ,'NO'     ,'GAS'  ,1.     ,'MOLE','a', 
+            'EVERYWHERE', 'ALL'         ,'HONO'   ,'HONO'   ,'GAS'  ,1.     ,'MOLE','a', 
+            'EVERYWHERE', 'ALL'         ,'SO2'    ,'SO2'    ,'GAS'  ,1.     ,'MOLE','a', 
+            'EVERYWHERE', 'ALL'         ,'NH3'    ,'NH3'    ,'GAS'  ,1.     ,'MOLE','a', 
+            'EVERYWHERE', 'ALL'         ,'PACD'   ,'PACD'   ,'GAS'  ,1.     ,'MOLE','a', 
+            'EVERYWHERE', 'ALL'         ,'AACD'   ,'AACD'   ,'GAS'  ,1.     ,'MOLE','a', 
+            'EVERYWHERE', 'ALL'         ,'ALD2'   ,'ALD2'   ,'GAS'  ,1.     ,'MOLE','a', 
+            'EVERYWHERE', 'ALL'         ,'FORM'   ,'FORM'   ,'GAS'  ,1.     ,'MOLE','a', 
+            'EVERYWHERE', 'ALL'         ,'MEOH'   ,'MEOH'   ,'GAS'  ,1.     ,'MOLE','a', 
+            'EVERYWHERE', 'ALL'         ,'FACD'   ,'FACD'   ,'GAS'  ,1.     ,'MOLE','a', 
+            'EVERYWHERE', 'ALL'         ,'CO'     ,'CO'     ,'GAS'  ,1.     ,'MOLE','a', 
+            'EVERYWHERE', 'ALL'         ,'ALDX'   ,'ALDX'   ,'GAS'  ,1.     ,'MOLE','a', 
+            'EVERYWHERE', 'ALL'         ,'GLYXL'  ,'GLY'    ,'GAS'  ,1.     ,'MOLE','a', 
+            'EVERYWHERE', 'ALL'         ,'ETHA'   ,'ETHA'   ,'GAS'  ,1.     ,'MOLE','a', 
+            'EVERYWHERE', 'ALL'         ,'ETOH'   ,'ETOH'   ,'GAS'  ,1.     ,'MOLE','a', 
+            'EVERYWHERE', 'ALL'         ,'KET'    ,'KET'    ,'GAS'  ,1.     ,'MOLE','a', 
+            'EVERYWHERE', 'ALL'         ,'PAR'    ,'PAR'    ,'GAS'  ,1.     ,'MOLE','a', 
+            'EVERYWHERE', 'ALL'         ,'ACET'   ,'ACET'   ,'GAS'  ,1.     ,'MOLE','a', 
+            'EVERYWHERE', 'ALL'         ,'PRPA'   ,'PRPA'   ,'GAS'  ,1.     ,'MOLE','a', 
+            'EVERYWHERE', 'ALL'         ,'ETHY'   ,'ETHY'   ,'GAS'  ,1.     ,'MOLE','a', 
+            'EVERYWHERE', 'ALL'         ,'ETH'    ,'ETH'    ,'GAS'  ,1.     ,'MOLE','a', 
+            'EVERYWHERE', 'ALL'         ,'OLE'    ,'OLE'    ,'GAS'  ,1.     ,'MOLE','a', 
+            'EVERYWHERE', 'ALL'         ,'IOLE'   ,'IOLE'   ,'GAS'  ,1.     ,'MOLE','a', 
+            'EVERYWHERE', 'ALL'         ,'ISOP'   ,'ISOP'   ,'GAS'  ,1.     ,'MOLE','a', 
+            'EVERYWHERE', 'ALL'         ,'APIN'   ,'APIN'   ,'GAS'  ,1.     ,'MOLE','a', 
+            'EVERYWHERE', 'ALL'         ,'TERP'   ,'TERP'   ,'GAS'  ,1.     ,'MOLE','a', 
+            'EVERYWHERE', 'ALL'         ,'BENZENE','BENZENE','GAS'  ,1.     ,'MOLE','a', 
+            'EVERYWHERE', 'ALL'         ,'TOL'    ,'TOL'    ,'GAS'  ,1.     ,'MOLE','a', 
+            'EVERYWHERE', 'ALL'         ,'XYLMN'  ,'XYLMN'  ,'GAS'  ,1.     ,'MOLE','a', 
+            'EVERYWHERE', 'ALL'         ,'NAPH'   ,'NAPH'   ,'GAS'  ,1.     ,'MOLE','a', 
+            'EVERYWHERE', 'ALL'         ,'CH4'    ,'ECH4'   ,'GAS'  ,1.     ,'MOLE','a', 
+            'EVERYWHERE', 'ALL'         ,'CL2'    ,'CL2'    ,'GAS'  ,1.     ,'MOLE','a', 
+            'EVERYWHERE', 'ALL'         ,'HCL'    ,'HCL'    ,'GAS'  ,1.     ,'MOLE','a', 
+            'EVERYWHERE', 'ALL'         ,'SESQ'   ,'SESQ'   ,'GAS'  ,1.     ,'MOLE','a', 
+            'EVERYWHERE', 'ALL'         ,'SOAALK' ,'SOAALK' ,'GAS'  ,1.     ,'MOLE','a', 
+            'EVERYWHERE', 'ALL'         ,'SULF'   ,'ASO4'   ,'FINE' ,1.     ,'MASS','a', 
+            'EVERYWHERE', 'ALL'         ,'PSO4'   ,'ASO4'   ,'FINE' ,1.     ,'MASS','a', 
+            'EVERYWHERE', 'ALL'         ,'PNH4'   ,'ANH4'   ,'FINE' ,1.     ,'MASS','a', 
+            'EVERYWHERE', 'ALL'         ,'PNO3'   ,'ANO3'   ,'FINE' ,1.     ,'MASS','a', 
+            'EVERYWHERE', 'ALL'         ,'PCL'    ,'ACL'    ,'FINE' ,1.     ,'MASS','a', 
+            'EVERYWHERE', 'ALL'         ,'PNA'    ,'ANA'    ,'FINE' ,1.     ,'MASS','a', 
+            'EVERYWHERE', 'ALL'         ,'PEC'    ,'AEC'    ,'FINE' ,1.     ,'MASS','a', 
+            'EVERYWHERE', 'ALL'         ,'PMOTHR' ,'AOTHR'  ,'FINE' ,1.     ,'MASS','a', 
+            'EVERYWHERE', 'ALL'         ,'PFE'    ,'AFE'    ,'FINE' ,1.     ,'MASS','a', 
+            'EVERYWHERE', 'ALL'         ,'PAL'    ,'AAL'    ,'FINE' ,1.     ,'MASS','a', 
+            'EVERYWHERE', 'ALL'         ,'PSI'    ,'ASI'    ,'FINE' ,1.     ,'MASS','a', 
+            'EVERYWHERE', 'ALL'         ,'PTI'    ,'ATI'    ,'FINE' ,1.     ,'MASS','a', 
+            'EVERYWHERE', 'ALL'         ,'PCA'    ,'ACA'    ,'FINE' ,1.     ,'MASS','a', 
+            'EVERYWHERE', 'ALL'         ,'PMG'    ,'AMG'    ,'FINE' ,1.     ,'MASS','a', 
+            'EVERYWHERE', 'ALL'         ,'PK'     ,'AK'     ,'FINE' ,1.     ,'MASS','a', 
+            'EVERYWHERE', 'ALL'         ,'PMN'    ,'AMN'    ,'FINE' ,1.     ,'MASS','a', 
+            'EVERYWHERE', 'ALL'         ,'PH2O'   ,'AH2O'   ,'FINE' ,1.     ,'MASS','a', 
+                                                                      
+            'EVERYWHERE', 'ALL'         ,'PMC'    ,'ACORS'  ,'COARSE',0.99675,'MASS','a', 
+            'EVERYWHERE', 'ALL'         ,'PMC'    ,'ASO4'   ,'COARSE',0.001  ,'MASS','a', 
+            'EVERYWHERE', 'ALL'         ,'PMC'    ,'ANO3'   ,'COARSE',0.00048,'MASS','a', 
+            'EVERYWHERE', 'ALL'         ,'PMC'    ,'ACL'    ,'COARSE',0.00145,'MASS','a', 
+            'EVERYWHERE', 'ALL'         ,'PMC'    ,'AH2O'   ,'COARSE',0.00032,'MASS','a', 
+
+            'EVERYWHERE', 'ALL'         ,'POC'    ,'VLVPO1' ,'GAS'  ,0.     ,'MASS','a', 
+            'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'VLVPO1' ,'GAS'  ,0.     ,'MASS','a', 
+            'EVERYWHERE', 'ALL'         ,'POC'    ,'VSVPO1' ,'GAS'  ,0.045  ,'MASS','a', 
+            'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'VSVPO1' ,'GAS'  ,0.045  ,'MASS','a', 
+            'EVERYWHERE', 'ALL'         ,'POC'    ,'VSVPO2' ,'GAS'  ,0.14   ,'MASS','a', 
+            'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'VSVPO2' ,'GAS'  ,0.14   ,'MASS','a', 
+            'EVERYWHERE', 'ALL'         ,'POC'    ,'VSVPO3' ,'GAS'  ,0.18   ,'MASS','a', 
+            'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'VSVPO3' ,'GAS'  ,0.18   ,'MASS','a', 
+            'EVERYWHERE', 'ALL'         ,'POC'    ,'VIVPO1' ,'GAS'  ,0.50   ,'MASS','a', 
+            'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'VIVPO1' ,'GAS'  ,0.50   ,'MASS','a', 
+            'EVERYWHERE', 'ALL'         ,'POC'    ,'ALVPO1' ,'FINE' ,0.09   ,'MASS','a', 
+            'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'ALVPO1' ,'FINE' ,0.09   ,'MASS','a', 
+            'EVERYWHERE', 'ALL'         ,'POC'    ,'ASVPO1' ,'FINE' ,0.045  ,'MASS','a', 
+            'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'ASVPO1' ,'FINE' ,0.045  ,'MASS','a', 
+            'EVERYWHERE', 'ALL'         ,'POC'    ,'ASVPO2' ,'FINE' ,0.     ,'MASS','a', 
+            'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'ASVPO2' ,'FINE' ,0.     ,'MASS','a', 
+            'EVERYWHERE', 'ALL'         ,'POC'    ,'ASVPO3' ,'FINE' ,0.     ,'MASS','a', 
+            'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'ASVPO3' ,'FINE' ,0.     ,'MASS','a', 
+            'EVERYWHERE', 'ALL'         ,'POC'    ,'AIVPO1' ,'FINE' ,0.     ,'MASS','a', 
+            'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'AIVPO1' ,'FINE' ,0.     ,'MASS','a', 
+
+            'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'PCVOC'  ,'GAS'  ,6.579  ,'MASS','a', 
+            'EVERYWHERE', 'ALL'         ,'POC'    ,'PCVOC'  ,'GAS'  ,6.579  ,'MASS','a', 
+
+
+                                     !> BEGIN CUSTOM MAPPING <!
+
+        !<EX> 'WATER', 'All'            ,'All'    ,'All'    ,'All'  ,0.     ,'MASS','o', !Zero out all emissions over 
+                                                                                         ! water grid cells
+        !<EX> 'EVERYWHERE','ONROAD_GAS' ,'NO'     ,'NO'     ,'GAS'  ,2.     ,'MOLE','o', !Scale NO from gasoline 
+                                                                                         ! vehicles by a factor of 2
+        !<EX> 'EVERYWHERE','ONROAD_GAS' ,'NO'     ,'NO'     ,'GAS'  ,2.     ,'MOLE','m', !Alternative: Scale NO 
+                                                                                         ! from gasoline vehicles
+                                                                                         ! by a factor of 2
+        !<EX> 'EVERYWHERE','FIRES'      ,'POC'    ,'ALL'    ,'ALL'  ,0.5    ,'MASS','m', !Scale all Organic Carbon 
+                                                                                         ! mass from fires by 50%
+        !<EX> 'EVERYWHERE','FIRES'      ,'PNCOM'  ,'ALL'    ,'ALL'  ,0.5    ,'MASS','m', !Scale all Organic Non-Carbon 
+                                                                                         ! mass from fires by 50%
+        !<EX> 'EVERYWHERE','FIRES'      ,'PNCOM'  ,'ALL'    ,'ALL'  ,0.5    ,'MASS','m', !Scale all Organic Non-Carbon 
+                                                                                         ! mass from fires by 50%
+        !<EX> 'EVERYWHERE','AIRCRAFT'   ,'VOC_INV','PAR'    ,'GAS'  ,0.02   ,'MOLE','a', !Add more mass to PAR from aircraft
+                                                                                         ! equal to 2% of the VOC_INV from
+                                                                                         ! aircraft
+
+/
+
+!------------------------------------------------------------------------------!
+! Size Distribution Specification Section                                      !
+!   Each size distribution rule either modifies the parameters associated with !
+!   the aerosol modes of a particular stream, or adds new modes to a particular!
+!   stream if they do not already exist.                                       !
+!                                                                              !
+!   Definition of Fields:                                                      !
+!      'Stream - Label for the emissions stream that the instruction will      !
+!        Label'   apply to. If the label is 'ALL', then the instruction will   !
+!                 be expanded to apply to all streams.                         !
+!      'Surrogate Mode' - With this label, the user identifies which mode from !
+!                         the emissions is to be modified or created. With this!
+!                         specificity, multiple modes can be defined and mapped!
+!                         in the emissions instructions in the next section.   !
+!      'Reference Mode' - This label maps the emissions surrogate aerosol mode !
+!                         to specific parameters catalogued in the AERO_DATA   !
+!                         module.
+!------------------------------------------------------------------------------!
+
+&SizeDistributions
+ SD_NML    = 
+ !         | Stream Label   | Surr. Mode   | Ref. Mode 
+ !<Default>  'ALL'          ,'FINE'        ,'FINE_REF',
+ !<Default>  'ALL'          ,'COARSE'      ,'COARSE_REF',
+ !<Example>  'AIRCRAFT'     ,'FINE'        ,'AIR_FINE',   !To use these examples, you 
+ !<Example>  'AIRCRAFT'     ,'COARSE'      ,'AIR_COARSE', ! must add entries for AIR_FINE
+                                                          ! and AIR_COARSE to the data structure
+                                                          ! em_aero_ref in AERO_DATA.
+
+/
+
+!------------------------------------------------------------------------------!
+! Region-Based Scaling Specification Section                                   !
+!   It is possible in CMAQ to scale emissions for a subset of the model domain !
+!   using gridded masks to indicate where the scaling should occur. These masks!
+!   should be of type real and provided as variables on a file with format     !
+!   consistent with IO-API. Any number of files and variables may be used to   !
+!   specify 1 or more "regions" to be used in CMAQ. This section of the name-  !
+!   list provides users with an interface to name these regions and identify   !
+!   the stream data for each.
+!                                                                              !
+!   Definition of Fields:                                                      !
+!      'Region  - Label for the region that is being specified. By default, the!
+!        Label'   first region, which will never be specified here, is the     !
+!                 whole domain, or "EVERYWHERE". It is included in this file   !
+!                 for transparency but should always be commented out.         !
+!      'File  - With this label, the user identifies the file that the data for!
+!       Label'  this region is stored on. The CMAQ runscript should provide the!
+!               path to this file using the environment variable construct. For!
+!               example, to refer to file "CMAQ_REGIONS" with path             !
+!               "/home/user/data/cmaq/cmaq_region_file.nc" the specification in!
+!               the CMAQ runscript would look like:                            !
+!                  SETENV CMAQ_REGIONS /home/user/data/cmaq/cmaq_region_file.nc!
+!               Note that an unlimited number of files can be used here, but   !
+!               each must contain a path for reference in the runscript.       !
+!      'Variable  - This label identifies the variable on the region file that !
+!        on File'   should be used to populate this particular region. Each    !
+!                   variable should be of type real and have dimensions equal  !
+!                   to the size of the CMAQ domain. In this way, the fraction  !
+!                   of every region should be available for every model grid   !
+!                   cell.
+!------------------------------------------------------------------------------!
+
+&RegionsRegistry
+ RGN_NML  =   
+ !          | Region Label   | File_Label  | Variable on File
+ !<Default>    'EVERYWHERE'  ,'N/A'        ,'N/A',
+ !<Example>    'WATER'       ,'CMAQ_MASKS' ,'OPEN',
+ !<Example>    'ALL'         ,'CMAQ_MASKS' ,'ALL',
+/
+
+
+ 

@@ -448,18 +448,34 @@ C Find emitted CMAQ species names
 C Save Species names in global array for mapping emissions
          EM_FILE_SURR( IBIOSRM )%LEN = MSPCS
          ALLOCATE( EM_FILE_SURR( IBIOSRM )%ARRY ( MSPCS ) )
-         ALLOCATE( EM_FILE_SURR( IBIOSRM )%CMAQ ( MSPCS ) )
          ALLOCATE( EM_FILE_SURR( IBIOSRM )%UNITS( MSPCS ) )
-         ALLOCATE( EM_FILE_SURR( IBIOSRM )%PHASE( MSPCS ) )
          ALLOCATE( EM_FILE_SURR( IBIOSRM )%MW   ( MSPCS ) )
          ALLOCATE( EM_FILE_SURR( IBIOSRM )%USED ( MSPCS ) )
+         ALLOCATE( EM_FILE_SURR( IBIOSRM )%CONV ( MSPCS ) )
+         ALLOCATE( EM_FILE_SURR( IBIOSRM )%BASIS( MSPCS ) )
          
          EM_FILE_SURR( IBIOSRM )%ARRY  = EMSPC
-         EM_FILE_SURR( IBIOSRM )%CMAQ  = EMSPC
          EM_FILE_SURR( IBIOSRM )%UNITS = 'MOLES/S'
-         EM_FILE_SURR( IBIOSRM )%PHASE = 'GAS'
-         EM_FILE_SURR( IBIOSRM )%MW    = 0.0
+         EM_FILE_SURR( IBIOSRM )%MW    = 1.0
          EM_FILE_SURR( IBIOSRM )%USED  = .FALSE.
+         EM_FILE_SURR( IBIOSRM )%CONV  = 1.0
+         EM_FILE_SURR( IBIOSRM )%BASIS = 'MOLE'
+
+         ! Populate the Molecular Weight Field by Matching Gas Species
+         ! to the CMAQ mechanism species
+         DO ISP = 1,MSPCS
+             INDX = INDEXN( EMSPC( ISP ), N_CGRID_SPC, CGRID_NAME )
+             IF ( INDX .NE. 0 ) THEN
+                 EM_FILE_SURR( IBIOSRM )%MW( ISP ) = CGRID_MW( INDX )
+             ELSE
+                 WRITE( MESG, '(A,A,/,A,/,A)' ) 'WARNING: BEIS emission species',
+     &               EMSPC( ISP ),' is not found in the Gas-Phase Mechanism. ',
+     &               'The surrogate molecular weight will be set to 1.0'
+                 CALL LOG_MESSAGE( LOGDEV, MESG )
+                 EM_FILE_SURR( IBIOSRM )%MW( ISP ) = 1.0
+             END IF
+
+         END DO
 
 C Allocate memory for storing mole- and mass-based factors
          ALLOCATE( MLFAC( MSPCS,NSEF ), STAT=IOS )

@@ -326,18 +326,18 @@ C can be printed in EMIS_MAP
             NSSSPC = NSEA_SPC
             Em_File_Surr( iseasrm )%len = nssspc
             Allocate( Em_File_Surr( iseasrm )%arry ( nssspc ) )
-            Allocate( Em_File_Surr( iseasrm )%cmaq ( nssspc ) )
             Allocate( Em_File_Surr( iseasrm )%units( nssspc ) )
-            Allocate( Em_File_Surr( iseasrm )%phase( nssspc ) )
             Allocate( Em_File_Surr( iseasrm )%mw   ( nssspc ) )
             Allocate( Em_File_Surr( iseasrm )%used ( nssspc ) )
+            Allocate( Em_File_Surr( iseasrm )%conv ( nssspc ) )
+            Allocate( Em_File_Surr( iseasrm )%basis( nssspc ) )
             do i = 1,nssspc
                Em_File_Surr( iseasrm )%arry( i )  = sea_spc(i)%name
-               Em_File_Surr( iseasrm )%cmaq( i )  = sea_spc(i)%name
                Em_File_Surr( iseasrm )%units( i ) = 'G/S'
-               Em_File_Surr( iseasrm )%phase( i ) = 'AERO'
-               Em_File_Surr( iseasrm )%mw   ( i ) = 0.
+               Em_File_Surr( iseasrm )%mw   ( i ) = sea_spc(i)%mw
                Em_File_Surr( iseasrm )%used ( i ) = .FALSE.
+               Em_File_Surr( iseasrm )%conv ( i ) = 1.0
+               Em_File_Surr( iseasrm )%basis( i ) = 'MASS'
             end do
  
 C Allocate SS arrays using NSSSPC value

@@ -256,17 +256,17 @@ C   can be printed in EMIS_MAP
          Em_File_Surr( IDUSTSRM )%len = ndust_spc
          Allocate( Em_File_Surr( IDUSTSRM )%arry( ndust_spc ) )
          Allocate( Em_File_Surr( IDUSTSRM )%cmaq ( ndust_spc ) )
-         Allocate( Em_File_Surr( IDUSTSRM )%units( ndust_spc ) )
-         Allocate( Em_File_Surr( IDUSTSRM )%phase( ndust_spc ) )
          Allocate( Em_File_Surr( IDUSTSRM )%mw   ( ndust_spc ) )
          Allocate( Em_File_Surr( IDUSTSRM )%used ( ndust_spc ) )
+         Allocate( Em_File_Surr( IDUSTSRM )%conv ( ndust_spc ) )
+         Allocate( Em_File_Surr( IDUSTSRM )%basis( ndust_spc ) )
          do i = 1,ndust_spc
             Em_File_Surr( IDUSTSRM )%arry( i )  = dust_spc(i)%name
-            Em_File_Surr( IDUSTSRM )%cmaq( i )  = dust_spc(i)%name
             Em_File_Surr( IDUSTSRM )%units( i ) = 'G/S'
-            Em_File_Surr( IDUSTSRM )%phase( i ) = 'AERO'
-            Em_File_Surr( IDUSTSRM )%mw   ( i ) = 0.
+            Em_File_Surr( IDUSTSRM )%mw   ( i ) = dust_spc(i)%mw
             Em_File_Surr( IDUSTSRM )%used ( i ) = .FALSE.
+            Em_File_Surr( IDUSTSRM )%conv ( i ) = 1.0
+            Em_File_Surr( IDUSTSRM )%basis( i ) = 'MASS'
          end do
  
 C...Count the number of mass emissions species
