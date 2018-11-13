@@ -382,6 +382,7 @@ C...modules
          ALLOCATE( GWC    ( NLAYS ) )
          ALLOCATE( BLKPRS ( NLAYS ) )
          ALLOCATE( BLKTA  ( NLAYS ) )
+         ALLOCATE( BLKDZ  ( NLAYS ) )
          ALLOCATE( BLKDENS( NLAYS ) )
          ALLOCATE( BLKZH  ( NLAYS ) )
          ALLOCATE( BLKO3  ( NLAYS ) )
@@ -432,11 +433,13 @@ C...modules
             TROPO_O3_EXCEED = 0.0
             TSTEP_COUNT     = 0
             TAU_AERO_550    = 0.0
+            TROPO_OC        = 0.0
             CO_COLUMN       = 0.0
             SO2_COLUMN      = 0.0
             NO2_COLUMN      = 0.0
             HCHO_COLUMN     = 0.0
-
+     
+   
 !...write wavelength data to a character array
 
             ALLOCATE ( WLTXT( NWL ) )
@@ -504,10 +507,6 @@ C...modules
                       WRITE(LOGDEV,'(5X,A)')'PHOT: Cannot find requested wavelength, '
      &                              // TRIM(  WAVE_LIST( IWL ) ) // ' for DIAG2 and DIAG3 files '
      &                              // ' in spectrum '
-!                   ELSE
-!                      WRITE(LOGDEV,'(5X,2(I3,1X),A)')IWL, N_DIAG_WVL, 'Wavelength, '
-!     &                              // TRIM(  WAVE_LIST( DIAG_WVL( IWL ) ) )
-!     &                              // ' for DIAG2 and DIAG3 files '
                    END IF
                END DO
                IF( MINVAL( DIAG_WVL ) .LT. 1 )THEN
@@ -646,11 +645,9 @@ C...modules
 
       IF ( INT ( JD_STRAT_O3MIN ) .NE. JDATE ) THEN
 !...set minimum fraction of ozone column above PTOP
-
          CALL SEASONAL_STRAT_O3( JDATE, JTIME )
          MIN_STRATO3_FRAC = MONTH_STRAT_03_FRAC
          MAX_TROPOO3_FRAC = MAX( 1.0 - MONTH_STRAT_03_FRAC, 0.0 )
-        !WRITE( LOGDEV,*)'PHOT: MIN_STRATO3_FRAC = ',MIN_STRATO3_FRAC          
          JD_STRAT_O3MIN = REAL( JDATE, 4)
       END IF
 !...initialize variables tracking whether stratosphere ozone column satisfies
@@ -725,19 +722,13 @@ C...modules
          RJ_RES = 0.0
          ETOT_SFC_WL  = 0.0
 
-!...write to the log file, CTM_RJ_1 file and return
-
-         !WRITE( LOGDEV, 1003 ) MYPE, JDATE, JTIME
 
 !...Initialize ETOT_SFC, TAU_AERO, TAU_TOT, TAUO3_TOP to 0.0
 
 !...Write data to output diagnostic file
 
-         TOTAL_OC = 0.0
-
          IF ( JTIME_CHK ) THEN
 
-            TROPO_OC     = 0.0
             TAUO3_TOP_WL = 0.0
             TAU_AERO_WL  = 0.0
 ! commented out because TAU_AERO_550 is set to zero after allocation and after written to PHOTDIAG1
@@ -756,7 +747,6 @@ C...modules
             AERO_ASYM    = 0.0
             ACTINIC_FX   = 0.0
 
-!           TROPO_O3_EXCEED   = 0.0
             TRANSMIS_DIFFUSE  = 0.0
             TRANSMIS_DIRECT   = 0.0
             REFLECT_COEFF     = 0.0
@@ -764,10 +754,25 @@ C...modules
             CLR_TRANS_DIRECT  = 0.0
             CLR_REFLECTION    = 0.0
 
-            IF ( LGC_CO   .GT. 0 ) CO_COLUMN   = 0.0
-            IF ( LGC_SO2  .GT. 0 ) SO2_COLUMN  = 0.0
-            IF ( LGC_NO2  .GT. 0 ) NO2_COLUMN  = 0.0
-            IF ( LGC_HCHO .GT. 0 ) HCHO_COLUMN = 0.0
+            DO ROW = 1, MY_NROWS
+               DO COL = 1, MY_NCOLS
+                  BLKDENS( 1 ) = DENS ( COL,ROW,1 ) * DENS_CONV ! [molecules / cm**3]
+                  BLKDZ  ( 1 ) = ZFULL( COL,ROW,1 )
+                  DO L = 2, NLAYS
+                     BLKDENS( L ) = DENS( COL,ROW,L ) * DENS_CONV ! [molecules / cm**3]
+                     BLKDZ  ( L ) = ZFULL( COL,ROW,L ) - ZFULL( COL,ROW,L-1 )
+                  END DO
+                  MSCALE = 1.0E-19 ! 100.0*10E-15*PPM_MCM3, so units are petamolecules/cm2
+                  CALL COLUMN_GAS( IGAS=LGC_CO,   UNIT_FACTOR=MSCALE, COLUMN_DENSITY=CO_COLUMN   )
+                  CALL COLUMN_GAS( IGAS=LGC_SO2,  UNIT_FACTOR=MSCALE, COLUMN_DENSITY=SO2_COLUMN  )
+                  CALL COLUMN_GAS( IGAS=LGC_NO2,  UNIT_FACTOR=MSCALE, COLUMN_DENSITY=NO2_COLUMN  )
+                  CALL COLUMN_GAS( IGAS=LGC_HCHO, UNIT_FACTOR=MSCALE, COLUMN_DENSITY=HCHO_COLUMN )
+                  MSCALE = 1.0E-4 * CONC_TO_DU ! so units are Dobsons
+                  CALL COLUMN_GAS( IGAS=LGC_O3, UNIT_FACTOR=MSCALE, COLUMN_DENSITY=TROPO_OC )                     
+!...get total ozone column based on OMI observations
+                  CALL O3TOTCOL ( LAT( COL,ROW ), LON( COL,ROW ), MIDDATE, MIDTIME, TOTAL_OC( COL,ROW ) )
+               END DO
+            END DO   
 
          END IF  ! if JTIME_CHK
 
@@ -790,9 +795,6 @@ C...modules
                   ETOT_SFC_WL ( COL,ROW, : ) = 0.0
 
                   IF ( JTIME_CHK ) THEN
-                     TOTAL_OC( COL,ROW )        = 0.0
-                     TROPO_OC( COL,ROW )        = 0.0
-!                     TAU_AERO_550( COL,ROW )    = 0.0
                      TAUO3_TOP_WL( COL,ROW, : ) = 0.0
                      TAU_AERO_WL ( COL,ROW, : ) = 0.0
                      TAU_CLOUD_WL( COL,ROW, : ) = 0.0
@@ -817,11 +819,21 @@ C...modules
                      CLR_TRANS_DIRECT( COL,ROW ) = 0.0
                      CLR_REFLECTION  ( COL,ROW ) = 0.0
                      
-                     IF ( LGC_CO   .GT. 0 ) CO_COLUMN( COL,ROW )   = 0.0
-                     IF ( LGC_SO2  .GT. 0 ) SO2_COLUMN( COL,ROW )  = 0.0
-                     IF ( LGC_NO2  .GT. 0 ) NO2_COLUMN( COL,ROW )  = 0.0
-                     IF ( LGC_HCHO .GT. 0 ) HCHO_COLUMN( COL,ROW ) = 0.0
-                     
+                     BLKDENS( 1 ) = DENS ( COL,ROW,1 ) * DENS_CONV ! [molecules / cm**3]
+                     BLKDZ  ( 1 ) = ZFULL( COL,ROW,1 )
+                     DO L = 2, NLAYS
+                        BLKDENS( L ) = DENS( COL,ROW,L ) * DENS_CONV ! [molecules / cm**3]
+                        BLKDZ  ( L ) = ZFULL( COL,ROW,L ) - ZFULL( COL,ROW,L-1 )
+                     END DO
+                     MSCALE = 1.0E-19 ! 100.0*10E-15*PPM_MCM3, so units are petamolecules/cm2
+                     CALL COLUMN_GAS( IGAS=LGC_CO,   UNIT_FACTOR=MSCALE, COLUMN_DENSITY=CO_COLUMN   )
+                     CALL COLUMN_GAS( IGAS=LGC_SO2,  UNIT_FACTOR=MSCALE, COLUMN_DENSITY=SO2_COLUMN  )
+                     CALL COLUMN_GAS( IGAS=LGC_NO2,  UNIT_FACTOR=MSCALE, COLUMN_DENSITY=NO2_COLUMN  )
+                     CALL COLUMN_GAS( IGAS=LGC_HCHO, UNIT_FACTOR=MSCALE, COLUMN_DENSITY=HCHO_COLUMN )
+                     MSCALE = 1.0E-4 * CONC_TO_DU ! so units are Dobsons
+                     CALL COLUMN_GAS( IGAS=LGC_O3, UNIT_FACTOR=MSCALE, COLUMN_DENSITY=TROPO_OC )                     
+!...get total ozone column based on OMI observations
+                     CALL O3TOTCOL ( LAT( COL,ROW ), LON( COL,ROW ), MIDDATE, MIDTIME, TOTAL_OC( COL,ROW ) )
                   END IF
 
                   CYCLE LOOP_COLS
@@ -839,11 +851,6 @@ C...modules
 
                ZSFC   = HT( COL,ROW ) ! surface height [m]
                SINZEN = SQRT( 1.0 - COSZEN * COSZEN ) ! sine of zenith angle
-
-!...local latitude and longitude
-
-!               LATCR = LAT( COL,ROW )
-!               LONCR = LON( COL,ROW )
 
 !...get total ozone column based on OMI observations
                CALL O3TOTCOL ( LAT( COL,ROW ), LON( COL,ROW ), MIDDATE, MIDTIME, TOTAL_O3_COLUMN )
@@ -953,10 +960,7 @@ C...modules
                IF ( PHOTDIAG .AND. .NOT. STRATO3_MINS_MET ) THEN
                     N_EXCEED_TROPO3( COL,ROW ) =  N_EXCEED_TROPO3( COL,ROW ) + 1.0
                     TROPO_O3_EXCEED( COL,ROW ) = TROPO_O3_COLUMN/(MAX_TROPOO3_FRAC*TOTAL_O3_COLUMN) - 1.0
-!     &                                         + 1.0 / TROPO_O3_TOGGLE - 1.0
      &                                         + TROPO_O3_EXCEED( COL,ROW )
-!               ELSE IF(  PHOTDIAG ) THEN
-!                     TROPO_O3_EXCEED( COL,ROW ) = 0.0
                END IF
 
                FORALL ( IWL = 1:NWL )
@@ -964,8 +968,7 @@ C...modules
                END FORALL   
 
                IF ( JTIME_CHK  ) THEN
-                  TOTAL_OC( COL,ROW )         = REAL( TOTAL_O3_COLUMN )
-                  TROPO_OC( COL,ROW )         = REAL( TROPO_O3_COLUMN )
+                  TOTAL_OC( COL,ROW )         = TOTAL_O3_COLUMN
                   TRANSMIS_DIFFUSE( COL,ROW ) = TRANSMISSION
                   TRANSMIS_DIRECT( COL,ROW )  = TRANS_DIRECT
                   REFLECT_COEFF( COL,ROW )    = REFLECTION
@@ -1008,11 +1011,22 @@ C...modules
                         AERO_ASYM( COL,ROW,LEV,L ) = 0.0
                      END FORALL
                   END DO
-                  MSCALE = 1.0E-21 ! 10E-15*PPM_MCM3, so units are petamolecules/cm2
-                  CALL COLUMN_GAS( IGAS=LGC_CO,   UNIT_FACTOR =MSCALE, COLUMN_DENSITY=CO_COLUMN   )
-                  CALL COLUMN_GAS( IGAS=LGC_SO2,  UNIT_FACTOR =MSCALE, COLUMN_DENSITY=SO2_COLUMN  )
-                  CALL COLUMN_GAS( IGAS=LGC_NO2,  UNIT_FACTOR =MSCALE, COLUMN_DENSITY=NO2_COLUMN  )
-                  CALL COLUMN_GAS( IGAS=LGC_HCHO, UNIT_FACTOR =MSCALE, COLUMN_DENSITY=HCHO_COLUMN )
+                  IF ( COSZEN .LE. COS85 ) THEN 
+                  ! calculate because NEW_OPTICS sets BLKDZ and TROPO_O3_COLUMN to zero
+                     BLKDZ( 1 ) = BLKZF( 2 )
+                     DO L = 2, NLAYS
+                        BLKDZ( L ) = BLKZF( L+1 ) - BLKZF( L )
+                     END DO
+                     MSCALE = 1.0E-4 * CONC_TO_DU ! so units are Dobsons
+                     CALL COLUMN_GAS( IGAS=LGC_O3, UNIT_FACTOR=MSCALE, COLUMN_DENSITY=TROPO_OC )
+                  ELSE
+                     TROPO_OC( COL,ROW ) = TROPO_O3_COLUMN
+                  END IF   
+                  MSCALE = 1.0E-19 ! 100.0*10E-15*PPM_MCM3, so units are petamolecules/cm2
+                  CALL COLUMN_GAS( IGAS=LGC_CO,   UNIT_FACTOR=MSCALE, COLUMN_DENSITY=CO_COLUMN   )
+                  CALL COLUMN_GAS( IGAS=LGC_SO2,  UNIT_FACTOR=MSCALE, COLUMN_DENSITY=SO2_COLUMN  )
+                  CALL COLUMN_GAS( IGAS=LGC_NO2,  UNIT_FACTOR=MSCALE, COLUMN_DENSITY=NO2_COLUMN  )
+                  CALL COLUMN_GAS( IGAS=LGC_HCHO, UNIT_FACTOR=MSCALE, COLUMN_DENSITY=HCHO_COLUMN )
                END IF
 
 !Set Photolysis rates to resolved sky values

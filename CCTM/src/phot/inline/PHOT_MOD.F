@@ -391,7 +391,6 @@ C-----------------------------------------------------------------------
          ALLOCATE( IRRADIANCE    ( NLAYS,NWL ) )
          
          ALLOCATE( DSDH_TD ( NLAYS+1 ),
-     &             BLKDZ   ( NLAYS ),
      &             DSDH    ( NLAYS ),
      &             DTAU    ( NLAYS+1 ),
      &             DT_AERO ( NLAYS+1 ),
@@ -470,7 +469,6 @@ C-----------------------------------------------------------------------
       IF ( COSZEN .LE. COS85 ) THEN
          TAUO3_TOP = 0.0
          TAU_RAY   = 0.0
-         TOTAL_O3_COLUMN = 0.0
          TROPO_O3_COLUMN = 0.0
          TROPO_O3_TOGGLE = 1.0
          RETURN
