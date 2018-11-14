@@ -40,6 +40,7 @@ c...Tagging species, regular or combined
       LOGICAL, ALLOCATABLE, SAVE   :: IS_SPC_AEROSOL( :,: )
       LOGICAL, ALLOCATABLE, SAVE   :: TRANSPORT_SPC ( : )
       INTEGER, ALLOCATABLE, SAVE   :: STREAM_TO_TAG ( : )
+      INTEGER, ALLOCATABLE, SAVE   :: MAP_DIFFtoSA( : )
 
 c...4th and 5th dimensions of ISAM array
       INTEGER ::     NSPC_SA
@@ -59,16 +60,18 @@ c     REAL, POINTER :: CBFOR ( :,:,:,: )
       REAL, ALLOCATABLE :: MAPFRAC( :,:,: )
       REAL, ALLOCATABLE :: MFRC_P( :,:,: )
       REAL, ALLOCATABLE :: VOC5D ( :,:,:,:,: )
-      REAL, ALLOCATABLE :: ISAMEM( :,:,:,:,: )         ! subset of the emissions array for tagged species
-      REAL, ALLOCATABLE :: SA_VDEMIS_DIFF( :,:,:,:,: ) ! full emissions array mapped to diffused species 
-
+c     REAL, ALLOCATABLE :: ISAMEM( :,:,:,:,: )             ! subset of the emissions array for tagged species
+      REAL, ALLOCATABLE :: SA_VDEMIS_DIFF_ALL( :,:,:,:,: ) ! full emissions array mapped to diffused species 
+      REAL, ALLOCATABLE :: SA_VDEMIS_DIFF( :,:,:,:,: ) 
 
 
 c...Variables regarding the tag list
-      CHARACTER( 16 ), ALLOCATABLE :: TAGNAME( : )
-      CHARACTER( 96 )              :: TAGCLASSES
-      CHARACTER( 40 ), ALLOCATABLE :: TAGRGN( : )
-      CHARACTER( 96 ), ALLOCATABLE :: TAGSTREAMS( : )
+      CHARACTER( 16 ), ALLOCATABLE, SAVE :: TAGNAME( : )
+      CHARACTER( 96 )                    :: TAGCLASSES
+      CHARACTER( 40 ), ALLOCATABLE, SAVE :: TAGRGN( : )
+      CHARACTER( 96 ), ALLOCATABLE, SAVE :: TAGSTREAMS_TEMP( : )
+      CHARACTER( 96 ), ALLOCATABLE, SAVE :: TAGSTREAMS( :, : )
+      INTEGER, ALLOCATABLE, SAVE         :: TAGSTREAMS_NUM( : )
 
 c...multi-sectors-for-a-single-tag
 c     INTEGER,   PARAMETER :: N_SGSTACKS = 40
@@ -254,7 +257,7 @@ C-----------------------------------------------------------
           WRITE(LOGDEV, *) '  for ', NTAGS, ' tags'
         ENDIF
 
-        DO ITAG = 1, NTAGS 
+        DO ITAG = 1, ( NTAGS )
 102       READ ( INPUT_UNIT, '(A)' ) TXTLINE
           IF ( TXTLINE(1:3) .EQ. '!!!' .OR. TXTLINE(1:3) .EQ. '' ) GOTO 102
           TAGNAME( ITAG ) = TXTLINE(18:LEN_TRIM( TXTLINE ) )
@@ -265,12 +268,12 @@ C-----------------------------------------------------------
 
 104       READ ( INPUT_UNIT, '(A)' ) TXTLINE
           IF ( TXTLINE(1:3) .EQ. '!!!' .OR. TXTLINE(1:3) .EQ. '' ) GOTO 104
-          TAGSTREAMS( ITAG ) = TXTLINE(18:LEN_TRIM( TXTLINE ) )
+          TAGSTREAMS_TEMP( ITAG ) = TXTLINE(18:LEN_TRIM( TXTLINE ) )
 
           IF ( MYPE .eq. 0 ) then
             WRITE(LOGDEV, *) '   ISAM Tag #   ',ITAG
             WRITE(LOGDEV, *) '   ISAM Region  ',TAGRGN( ITAG )
-            WRITE(LOGDEV, *) '   ISAM Streams ',TAGSTREAMS( ITAG )
+            WRITE(LOGDEV, *) '   ISAM Streams ',TAGSTREAMS_TEMP( ITAG )
           END IF
 
         END DO

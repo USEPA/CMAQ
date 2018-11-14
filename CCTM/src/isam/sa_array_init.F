@@ -63,13 +63,8 @@ c.........................................................
 c.....update isam array according to isam ICON source tag
 
 
-      write(logdev,*) " TOP "
-
       CALL GETENV('ISAM_NEW_START', ISAM_NEW_START)
 
-      write(logdev,*) 'Entered SA_ARRAY_INIT....'
-      write(logdev,*) 'NSPC_SA, NLAYS, MY_NROWS, MY_NCOLS, ICONTAG, ISAM_NEW_START'
-      write(logdev,*)  NSPC_SA, NLAYS, MY_NROWS, MY_NCOLS, ICONTAG, ISAM_NEW_START
       IF( ISAM_NEW_START == 'Y') THEN
                                 !.....map N_SPC_ADV to the user-query species
         DO S = 1, NSPC_SA
@@ -221,8 +216,6 @@ Ckrt allocate data-loading array
         S = INDEX1( VNAME3D( JSPCTAG )( 1:IBGN-1 ),NSPC_SA,SPCNAME1 )
         K = INDEX1( VNAME3D( JSPCTAG )( IBGN+1:LEN_TRIM(VNAME3D(JSPCTAG))),
      &        NTAG_SA, TAGNAME )
-Ckrt    print*,'In SA_ARRAY_INIT, ',VNAME3D( JSPCTAG ), SPCNAME1( S ),TAGNAME( K )
-Ckrt    print*,'In SA_ARRAY_INIT, S =',S,' K =',K
         IF ( S .GT. 0 ) THEN
           IF ( K .GT. 0 ) THEN
             DO C = 1, MY_NCOLS

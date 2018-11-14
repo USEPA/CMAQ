@@ -90,7 +90,7 @@ C-----------------------------------------------------------------------
          USE AERO_DATA           ! access subroutine map_pmemis
 
 #ifdef isam
-         USE SA_DEFN, ONLY : SA_VDEMIS_DIFF, NTAG_SA
+         USE SA_DEFN, ONLY : SA_VDEMIS_DIFF, NTAG_SA, SA_VDEMIS_DIFF_ALL, NSPC_SA
 #endif
 
          IMPLICIT NONE
@@ -208,7 +208,8 @@ C Allocate Space for Master Emissions Computation
          END IF
 
 #ifdef isam
-         ALLOCATE ( SA_VDEMIS_DIFF( N_SPC_DIFF,EMLAYS,NCOLS,NROWS, NTAG_SA ),STAT = STATUS )
+         ALLOCATE ( SA_VDEMIS_DIFF    ( NSPC_SA,   EMLAYS,NCOLS,NROWS, NTAG_SA ),
+     &              SA_VDEMIS_DIFF_ALL( N_SPC_DIFF,EMLAYS,NCOLS,NROWS, NTAG_SA ), STAT = STATUS )
          IF ( STATUS .NE. 0 ) THEN
             XMSG = 'SA_VDEMIS_DIFF memory allocation failed'
             CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
@@ -246,7 +247,10 @@ C GET_AERO_EMIS has to apply factors - don`t do it at this level.
 
 #ifdef isam
          USE SA_DEFN, ONLY : SA_VDEMIS_DIFF, ITAG, NTAG_SA, TAGSTREAMS,
-     &                       STREAM_TO_TAG, OTHRTAG
+     &                       STREAM_TO_TAG, OTHRTAG, TAGSTREAMS_TEMP,
+     &                       TAGSTREAMS_NUM, SA_VDEMIS_DIFF_ALL,
+     &                       MAP_DIFFtoSA, SPC_NAME, NSPC_SA
+         USE VDIFF_MAP, ONLY : DIFF_MAP, DIFF_SPC
 #endif
 
          IMPLICIT NONE
@@ -277,6 +281,7 @@ C Local Variables:
 
 #ifdef isam
          CHARACTER(30), ALLOCATABLE :: STREAM_NAMES(:) ! parsed stream names for a tag
+         INTEGER                    :: IDX, SPC
 #endif
 C-----------------------------------------------------------------------
 
@@ -289,28 +294,46 @@ C-----------------------------------------------------------------------
 
 #ifdef isam
 C Map Emissions streams to ISAM tags
-            ALLOCATE( STREAM_TO_TAG ( N_EM_SRM ),
-     &                STREAM_NAMES  ( N_EM_SRM ) )
+            ALLOCATE( STREAM_TO_TAG( N_EM_SRM ),
+     &                STREAM_NAMES ( N_EM_SRM ),
+     &                MAP_DIFFtoSA ( NSPC_SA  )  )
 
-            STREAM_TO_TAG = OTHRTAG  ! every starts in the other tag
+            ALLOCATE ( TAGSTREAMS( NTAG_SA, N_EM_SRM ) )
+            TAGSTREAMS='empty'
 
-            DO ITAG = 1, NTAG_SA
-               write(LOGDEV,*) TAGSTREAMS(ITAG)
+            ALLOCATE ( TAGSTREAMS_NUM( NTAG_SA ) )
+            TAGSTREAMS_NUM = 0
+
+            STREAM_TO_TAG = OTHRTAG  ! everything starts in the other tag
+
+            DO ITAG = 1, NTAG_SA-3
+
+C Count the number of streams going to each ISAM tag
+              TAGSTREAMS_NUM( ITAG ) = 1 + COUNT(TRANSFER(TAGSTREAMS_TEMP(ITAG), 'A', LEN(TAGSTREAMS_TEMP(ITAG))) == ",")
+
+C Parse out the stream names the use wants tagged
+              READ(TAGSTREAMS_TEMP(ITAG), *) TAGSTREAMS(ITAG,1:TAGSTREAMS_NUM( ITAG ))
+
+C Find emissions stream in the list of available streams
+              DO ISRM = 1, TAGSTREAMS_NUM( ITAG )
+                 IDX = INDEX1(TRIM(TAGSTREAMS(ITAG,ISRM)),N_EM_SRM,EM_FILE_LAB )
+                 IF ( IDX .EQ. 0 ) THEN
+                   XMSG = " User specified ISAM tag - " //
+     &                    TAGSTREAMS(ITAG,ISRM) // 
+     &                    " - not found in available emissions streams "
+                   CALL M3EXIT( 'ISAM_STREAMS', 1, 1, XMSG, XSTAT1 )
+                 ELSE
+                   STREAM_TO_TAG(IDX) = ITAG
+                 END IF
+              END DO
+
             END DO
 
-
-            DO ISRM = 1,N_EM_SRM
-              WRITE(LOGDEV,*)"READING STREAM #",ISRM,EM_FILE_LAB( ISRM )
-
-
-              ITAG = INDEX1(EM_FILE_LAB( ISRM ),NTAG_SA,TAGSTREAMS)
-              WRITE(LOGDEV,*)"   FOUND", ITAG
-              IF ( ITAG .NE. 0 ) STREAM_TO_TAG(ISRM) = ITAG
-       
-              WRITE(LOGDEV,*)" STREAM_TO_TAG = ",STREAM_TO_TAG(ISRM)
-
+C Develop a map of emitted/diffused ISAM species
+            MAP_DIFFtoSA = 0
+            DO SPC = 1, NSPC_SA
+              MAP_DIFFtoSA( SPC ) = INDEX1(TRIM(SPC_NAME(SPC,1)), N_SPC_DIFF, DIFF_SPC )
             END DO
-
 #endif
          END IF
 
@@ -322,7 +345,10 @@ C Initialize Emissions Array
          CALL NEXTIME( MDATE, MTIME,  SEC2TIME( TIME2SEC( TSTEP( 2 ) ) / 2 ) )
          IF ( MOD( TIME2SEC( MTIME ), TIME2SEC( TSTEP( 1 ) ) ) .EQ. 0 ) WRTIME = .TRUE.
 
-
+#ifdef isam
+        SA_VDEMIS_DIFF = 0.0
+        SA_VDEMIS_DIFF_ALL = 0.0
+#endif
 
 C Retrieve Emissions from All Stream Types
          IF ( N_EM_SRM .GT. 0 ) THEN
@@ -421,8 +447,25 @@ C Retrieve Emissions from All Stream Types
 
            IF ( EM_FILE_LAPPLY( ISRM ) ) 
      &          VDEMIS_DIFF( :,1:NL,:,: ) = VDEMIS_DIFF( :,1:NL,:,: ) + VDEMIS_CONV( :,1:NL,:,: )
+
+#ifdef isam
+           IF ( EM_FILE_LAPPLY( ISRM ) ) THEN
+             IDX = STREAM_TO_TAG( ISRM )
+             SA_VDEMIS_DIFF_ALL( :,1:NL,:,:,IDX ) = SA_VDEMIS_DIFF_ALL( :,1:NL,:,:,IDX ) 
+     &                                            + VDEMIS_CONV( :,1:NL,:,: )
+           END IF
+#endif 
+         END DO 
+
+#ifdef isam
+C Subset the emissions array for ISAM traced species  
+         DO SPC = 1, NSPC_SA
+           IF ( MAP_DIFFtoSA( SPC ) .NE. 0 ) THEN
+             SA_VDEMIS_DIFF( SPC,:,:,:,: ) =  SA_VDEMIS_DIFF_ALL( MAP_DIFFtoSA( SPC ),:,:,:,: )
+           END IF
  
-         END DO  
+         END DO
+#endif
          END IF
 
          RETURN

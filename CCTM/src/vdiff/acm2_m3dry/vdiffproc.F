@@ -94,7 +94,6 @@ C-----------------------------------------------------------------------
       USE PA_DEFN, Only: LIPR ! Process Anaylsis control and data variables
 
 #ifdef isam
-      USE PSAEM_DEFN
       USE SA_DEFN
       USE OZVOC_DEFN         ! 20120918
 #endif
@@ -162,9 +161,9 @@ C Local Variables
 
 #ifdef isam
       REAL, ALLOCATABLE, SAVE :: SA_DDEP( :,:,: )   ! 20120712 ddep for tags
-      INTEGER IBGN, JSPCTAG            ! 20120712 for othrtag updates
-      REAL    :: SACONC( N_SPCTAG,NLAYS )
-      REAL    :: SAEMIS( N_SPCTAG,NLAYS )
+c     INTEGER IBGN, JSPCTAG
+c     REAL    :: SACONC( N_SPCTAG,NLAYS )
+c     REAL    :: SAEMIS( N_SPCTAG,NLAYS )
 #endif
 
       INTERFACE
@@ -293,11 +292,11 @@ C Allocate and initialize emissions
          END IF
          SA_DDEP = 0.0
 
-         IF ( .NOT. PSAEM_INIT ( NSPC_SA, NTAG_SA ) ) THEN
-           XMSG = 'Failure in defining SA horizontal domain'
-           CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2  )
-         END IF
-         ISAMEM = PSAEM( 1:MY_NCOLS,1:MY_NROWS,:,:,: )
+c        IF ( .NOT. PSAEM_INIT ( NSPC_SA, NTAG_SA ) ) THEN
+c          XMSG = 'Failure in defining SA horizontal domain'
+c          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2  )
+c        END IF
+c        ISAMEM = PSAEM( 1:MY_NCOLS,1:MY_NROWS,:,:,: )
 #endif
 
 C Set up for process analysis
@@ -342,8 +341,8 @@ C Set up for grav. settling
          END DO
 
 #ifdef isam
-      ELSE         ! 20120725 keep pointer ISAMEM pointed to what's supposed to point to
-         ISAMEM = PSAEM( 1:MY_NCOLS,1:MY_NROWS,:,:,: )
+c     ELSE         ! 20120725 keep pointer ISAMEM pointed to what's supposed to point to
+c        ISAMEM = PSAEM( 1:MY_NCOLS,1:MY_NROWS,:,:,: )
 #endif
 
       END IF   !  if Firstime
@@ -625,16 +624,15 @@ C re-set dry deposition array to zero
          ICMP = 0.0
 
 #ifdef isam
-Ckrt Insert JSPCTAG Loop to write out sa_dd_1 here.....
          WRDD = 0.0
-         DO JSPCTAG = 1, N_SPCTAG
+         DO ITAG = 1, N_SPCTAG
             DO R = 1, MY_NROWS
                DO C = 1, MY_NCOLS
-                  WRDD( C,R ) = SA_DDEP( C,R,JSPCTAG )
+                  WRDD( C,R ) = SA_DDEP( C,R,ITAG )
                END DO
             END DO
 
-            IF ( .NOT. WRITE3( SA_DD_1, VNAM_SPCTAG( JSPCTAG ),
+            IF ( .NOT. WRITE3( SA_DD_1, VNAM_SPCTAG( ITAG ),
      &                         MDATE, MTIME, WRDD ) ) THEN
                XMSG = 'Could not write ' // SA_DD_1 // ' file'
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )

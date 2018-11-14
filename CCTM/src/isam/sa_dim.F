@@ -61,12 +61,9 @@ C...Reading in the tag information
 c         ALLOCATE ( TAGCLASSES( NTAGS ), STAT = IOST )
 c         CALL CHECKMEM( IOST, 'TAGCLASSES', PNAME )
 
-          ALLOCATE ( TAGSTREAMS( NTAGS, N_EM_SRM ), STAT = IOST )
+          ALLOCATE ( TAGSTREAMS_TEMP( NTAGS ), STAT = IOST )
           CALL CHECKMEM( IOST, 'TAGSTREAMS', PNAME )
-
-          ALLOCATE ( TAGSTREAMS_NUM( NTAGS ), STAT = IOST )
-          CALL CHECKMEM( IOST, 'TAGSTREAMS', PNAME )
-          TAGSTREAMS_NUM = 0
+          TAGSTREAMS_TEMP = ''
 
 c...Only for the calling of RD_SA_IO_LIST
           ALLOCATE ( TAGRGN( NTAGS ), STAT = IOST )

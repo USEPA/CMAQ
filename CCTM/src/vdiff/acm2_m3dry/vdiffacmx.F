@@ -45,7 +45,7 @@ C           convective PBL, with the ACM1 matrix solver followed by the tridiago
 C           matrix solver
 C   30 May 14 J.Young: split vdiff calculation out of vdiff proc.
 C   07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module. 
-C 02 Nov 2018: L.Zhou, S.Napelenok: isam implementation
+C   02 Nov 2018: L.Zhou, S.Napelenok: isam implementation
 C-----------------------------------------------------------------------
 
       USE CGRID_SPCS          ! CGRID mechanism species
@@ -60,7 +60,9 @@ C-----------------------------------------------------------------------
       USE VDIFF_DIAG, NLPCR => NLPCR_MEAN
 
 #ifdef isam
-      USE SA_DEFN
+      USE SA_DEFN, ONLY: N_SPCTAG, ISAM, VNAM_SPCTAG, TRANSPORT_SPC,
+     &                   SA_VDEMIS_DIFF, ITAG, NTAG_SA, NSPC_SA,
+     &                   S_SPCTAG, T_SPCTAG
 #endif
 
       IMPLICIT NONE
@@ -144,10 +146,17 @@ C ACM Local Variables
       REAL, ALLOCATABLE, SAVE :: SA_DDBF( : )   ! 20120712 secondary SA_DDEP
       REAL, ALLOCATABLE :: SA_DDEP( :,:,: )   ! 20120712 ddep for tags
       INTEGER IBGN, JSPCTAG
-      REAL    :: SACONC( N_SPCTAG,NLAYS )
-      REAL    :: SAEMIS( N_SPCTAG,NLAYS )
-      REAL    :: SA_DD( N_SPCTAG,NLAYS )
-      REAL    :: SA_UU( N_SPCTAG,NLAYS )
+c     REAL    :: SACONC( N_SPCTAG,NLAYS )
+c     REAL    :: SAEMIS( N_SPCTAG,NLAYS )
+c     REAL    :: SA_DD( N_SPCTAG,NLAYS )
+c     REAL    :: SA_UU( N_SPCTAG,NLAYS )
+
+      REAL, ALLOCATABLE,SAVE :: SAEMIS( :,: )
+      REAL, ALLOCATABLE,SAVE :: SACONC( :,: )
+      REAL, ALLOCATABLE,SAVE :: SA_DD( :,: )
+      REAL, ALLOCATABLE,SAVE :: SA_UU( :,: )
+
+      INTEGER TOP, BOT
 #endif      
 
 
@@ -200,15 +209,6 @@ C set auxiliary depv arrays
             CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
          END IF
 
-#ifdef isam
-!Ckrt Allocate SA_DDBF
-         ALLOCATE (  SA_DDBF( N_SPCTAG ), STAT = ASTAT )
-         IF ( ASTAT .NE. 0 ) THEN
-            XMSG = 'Failure allocating SA_DDBF'
-            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-         END IF
-#endif
-
          ALLOCATE ( CMPF( LCMP ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating CMPF'
@@ -246,6 +246,24 @@ C set auxiliary depv arrays
                NH3_HIT = V
             END IF
          END DO
+
+#ifdef isam
+         ALLOCATE (  SA_DDBF( N_SPCTAG ), 
+     &               SACONC( N_SPCTAG, NLAYS ),
+     &               SAEMIS( N_SPCTAG, NLAYS ), 
+     &               SA_DD ( N_SPCTAG, NLAYS ),
+     &               SA_UU ( N_SPCTAG, NLAYS ), STAT = ASTAT )
+         IF ( ASTAT .NE. 0 ) THEN
+            XMSG = 'Failure ISAM diffusion variables'
+            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+         END IF
+         SACONC = 0.0
+         SAEMIS = 0.0
+         SA_DD  = 0.0
+         SA_UU  = 0.0
+#endif
+
+
 
  
       END IF   !  if Firstime
@@ -336,8 +354,15 @@ C-----------------------------------------------------------------------
 
 #ifdef isam
          SAEMIS = 0.0
-         DO JSPCTAG = 1, N_SPCTAG
-            SAEMIS( JSPCTAG,: ) = ISAMEM( C,R,:,S_SPCTAG( JSPCTAG ),T_SPCTAG( JSPCTAG ) ) * DTS
+c        DO JSPCTAG = 1, N_SPCTAG
+c           SAEMIS( JSPCTAG,: ) = ISAMEM( C,R,:,S_SPCTAG( JSPCTAG ),T_SPCTAG( JSPCTAG ) ) * DTS
+c        END DO
+         DO L = 1, EMLAYS
+            DO ITAG = 1, NTAG_SA
+               BOT = (ITAG-1)*NSPC_SA+1
+               TOP = NSPC_SA*ITAG
+               SAEMIS( BOT:TOP,L ) = DTS * SA_VDEMIS_DIFF( :,L,C,R,ITAG )
+            END DO
          END DO
 #endif
 
