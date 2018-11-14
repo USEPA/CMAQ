@@ -484,9 +484,9 @@ C science process sequence:
      &           - CGRID( :,:,ACONC_BLEV:ACONC_ELEV,S ) )
          END DO
          IF ( L_ACONC_WVEL ) 
-     &         AVG_WVEL( :,:,: ) = DIVFAC * ( AVG_WVEL( :,:,: ) - WVEL( :,:,ACONC_BLEV:CONC_ELEV ) )
+     &         AVG_WVEL( :,:,: ) = DIVFAC * ( AVG_WVEL( :,:,: ) - WVEL( :,:,ACONC_BLEV:ACONC_ELEV ) )
          IF ( L_ACONC_RH ) 
-     &         AVG_RH( :,:,: ) = DIVFAC * ( AVG_RH( :,:,: ) - MET_DATA%RH( :,:,ACONC_BLEV:CONC_ELEV ) )
+     &         AVG_RH( :,:,: ) = DIVFAC * ( AVG_RH( :,:,: ) - MET_DATA%RH( :,:,ACONC_BLEV:ACONC_ELEV ) )
          IF ( L_ACONC_TA ) 
      &         AVG_TA( :,:,: ) = DIVFAC * ( AVG_TA - MET_DATA%TA( :,:,ACONC_BLEV:ACONC_ELEV ) )
          IF ( L_ACONC_PRES ) 
