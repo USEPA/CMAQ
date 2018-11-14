@@ -126,7 +126,7 @@ C...CSA Variables, Units and Descriptions for RJ_FILE
          N = N + 1
          VNAME3D( N ) = 'NO2_COLUMN'
          UNITS3D( N ) = 'petamolec cm-2'
-         VDESC3D( N ) = 'Predicted nitric dioxide column density'
+         VDESC3D( N ) = 'Predicted nitrogen dioxide column density'
          VTYPE3D( N ) = M3REAL
 
          N = N + 1
