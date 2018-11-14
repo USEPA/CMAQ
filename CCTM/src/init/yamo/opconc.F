@@ -90,7 +90,7 @@ C environment variable for no. of layers from bottom to save on CONC file
 C  environment variable description
       CHARACTER( 80 ) :: VARDESC
 
-      INTEGER      K, KD, L, SPC, V   ! loop counters
+      INTEGER      K, KD, L, SPC, V, VAR   ! loop counters
       INTEGER      STRT, FINI         ! loop counters
       INTEGER      INDX
 
@@ -104,8 +104,7 @@ C Set output file characteristics based on COORD.EXT and open it
       SDATE3D = JDATE
       STIME3D = JTIME
       TSTEP3D = TSTEP
-      NVARS3D = N_CSPCS
-      IF ( W_VEL ) NVARS3D = NVARS3D + 1   ! for W_YAMO
+      NVARS3D = N_CONC_VARS
       NCOLS3D = GL_NCOLS
       NROWS3D = GL_NROWS
       NLAYS3D = C_NLAYS
@@ -161,7 +160,7 @@ C Set output file characteristics based on COORD.EXT and open it
          VTYPE3D( SPC ) = M3REAL
          VNAME3D( SPC ) = C_GC_SPC( V )
          UNITS3D( SPC ) = 'ppmV'
-         VDESC3D( SPC ) = 'Variable ' // VNAME3D( SPC )
+         VDESC3D( SPC ) = 'Instantaneous Molar Mixing Ratio ' // VNAME3D( SPC )
       END DO
 
       V = 0
@@ -178,7 +177,7 @@ C Set output file characteristics based on COORD.EXT and open it
          ELSE
             UNITS3D( SPC ) = 'ug m-3'
          END IF
-         VDESC3D( SPC ) = 'Variable ' // VNAME3D( SPC )
+         VDESC3D( SPC ) = 'Instantaneous Aerosol Concentration of ' // VNAME3D( SPC )
       END DO
 
       V = 0
@@ -189,7 +188,7 @@ C Set output file characteristics based on COORD.EXT and open it
          VTYPE3D( SPC ) = M3REAL
          VNAME3D( SPC ) = C_NR_SPC( V )   ! from STD_CONC module
          UNITS3D( SPC ) = 'ppmV'
-         VDESC3D( SPC ) = 'Variable ' // VNAME3D( SPC )
+         VDESC3D( SPC ) = 'Instantaneous molar mixing ratio of ' // VNAME3D( SPC )
       END DO
 
       V = 0
@@ -200,15 +199,40 @@ C Set output file characteristics based on COORD.EXT and open it
          VTYPE3D( SPC ) = M3REAL
          VNAME3D( SPC ) = C_TR_SPC( V )   ! from STD_CONC module
          UNITS3D( SPC ) = 'ppmV'
-         VDESC3D( SPC ) = 'Variable ' // VNAME3D( SPC )
+         VDESC3D( SPC ) = 'Instantaneous molar mixing ratio of ' // VNAME3D( SPC )
       END DO
 
-      IF ( W_VEL ) THEN   ! for W_YAMO
-         SPC = FINI + 1 
-         VTYPE3D( SPC ) = M3REAL
-         VNAME3D( SPC ) = 'W_VEL'
-         UNITS3D( SPC ) = 'm s-1'
-         VDESC3D( SPC ) = 'Derived vertical velocity component'
+      VAR = FINI
+      IF ( L_CONC_WVEL ) THEN   ! for W_YAMO
+         VAR = VAR + 1
+         VTYPE3D( VAR ) = M3REAL
+         VNAME3D( VAR ) = 'W_VEL'
+         UNITS3D( VAR ) = 'm s-1'
+         VDESC3D( VAR ) = 'Derived vertical velocity component'
+      END IF
+ 
+      IF ( L_CONC_RH ) THEN   ! for Relative Humidity
+         VAR = VAR + 1 
+         VTYPE3D( VAR ) = M3REAL
+         VNAME3D( VAR ) = 'RH'
+         UNITS3D( VAR ) = '1'
+         VDESC3D( VAR ) = 'Fractional Relative Humidity'
+      END IF
+    
+      IF ( L_CONC_TA ) THEN   ! for Temperature
+         VAR = VAR + 1 
+         VTYPE3D( VAR ) = M3REAL
+         VNAME3D( VAR ) = 'TA'
+         UNITS3D( VAR ) = 'K'
+         VDESC3D( VAR ) = 'Air Temperature'
+      END IF
+    
+      IF ( L_CONC_PRES ) THEN   ! for Pressure
+         VAR = VAR + 1 
+         VTYPE3D( VAR ) = M3REAL
+         VNAME3D( VAR ) = 'PRES'
+         UNITS3D( VAR ) = 'Pa'
+         VDESC3D( VAR ) = 'Air Pressure'
       END IF
 
 C create header
