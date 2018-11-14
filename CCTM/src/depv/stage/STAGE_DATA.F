@@ -157,7 +157,7 @@ C     26 June 2014 J.Bash: initial implementation
       DATA vd_name( 84), rel_rx( 84), f0( 84), LeBasM( 84), M_ac( 84) / 'OIO          ',     8.0, 0.0,   51.8, 0.420/
       DATA vd_name( 85), rel_rx( 85), f0( 85), LeBasM( 85), M_ac( 85) / 'I2O2         ',     8.0, 0.0,   88.8, 0.420/
       DATA vd_name( 86), rel_rx( 86), f0( 86), LeBasM( 86), M_ac( 86) / 'I2O3         ',     8.0, 0.0,   96.2, 0.420/
-      DATA vd_name( 87), rel_rx( 87), f0( 87), LeBasM( 87), M_ac( 84) / 'I2O4         ',     8.0, 0.0,  103.6, 0.420/
+      DATA vd_name( 87), rel_rx( 87), f0( 87), LeBasM( 87), M_ac( 87) / 'I2O4         ',     8.0, 0.0,  103.6, 0.420/
       DATA vd_name( 88), rel_rx( 88), f0( 88), LeBasM( 88), M_ac( 88) / 'HI           ',     8.0, 0.0,   40.7, 0.420/
       DATA vd_name( 89), rel_rx( 89), f0( 89), LeBasM( 89), M_ac( 89) / 'HOI          ',     8.0, 0.0,   48.1, 0.420/
       DATA vd_name( 90), rel_rx( 90), f0( 90), LeBasM( 90), M_ac( 90) / 'INO          ',     8.0, 0.0,   60.9, 0.420/
