@@ -1609,10 +1609,11 @@ C and allowing the model to proceed.
 
 ! Inspect all of the Emissions Instructions for conversion based on 
 ! mass or moles. If there is a conversion, apply the correct factor
-! based on species moleculer weights.
+! based on species molecular weights.
          ALLOCATE( EM_FAC_ST( N_EMIS_ISTR,N_EM_SRM ) )
          DO ISTR = 1,N_EMIS_ISTR
             DO ISRM = 1,N_EM_SRM
+               EM_FAC_ST( ISTR,ISRM )%LEN = 0
                IF ( MAP_EMtoSURR( ISTR,ISRM ) .NE. 0 ) THEN 
 
                ! First load emission factor structure
