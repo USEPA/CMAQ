@@ -79,6 +79,7 @@ C-----------------------------------------------------------------------
       
          USE RXNS_DATA, ONLY : MECHNAME
          USE UTILIO_DEFN
+         USE CGRID_SPC, ONLY : N_CGRID_SPC, CGRID_NAME, CGRID_MW 
 
          IMPLICIT NONE
 

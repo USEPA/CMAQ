@@ -253,21 +253,25 @@ C...Determine maps for dust speciation
 
 C...Populate Master Emissions Map Vector So That Diagnostics 
 C   can be printed in EMIS_MAP
-         Em_File_Surr( IDUSTSRM )%len = ndust_spc
-         Allocate( Em_File_Surr( IDUSTSRM )%arry( ndust_spc ) )
-         Allocate( Em_File_Surr( IDUSTSRM )%cmaq ( ndust_spc ) )
-         Allocate( Em_File_Surr( IDUSTSRM )%mw   ( ndust_spc ) )
-         Allocate( Em_File_Surr( IDUSTSRM )%used ( ndust_spc ) )
-         Allocate( Em_File_Surr( IDUSTSRM )%conv ( ndust_spc ) )
-         Allocate( Em_File_Surr( IDUSTSRM )%basis( ndust_spc ) )
+         Em_File_Surr( IDUSTSRM )%len = ndust_spc*2
+         Allocate( Em_File_Surr( IDUSTSRM )%arry( ndust_spc*2 ) )
+         Allocate( Em_File_Surr( IDUSTSRM )%cmaq ( ndust_spc*2 ) )
+         Allocate( Em_File_Surr( IDUSTSRM )%mw   ( ndust_spc*2 ) )
+         Allocate( Em_File_Surr( IDUSTSRM )%used ( ndust_spc*2 ) )
+         Allocate( Em_File_Surr( IDUSTSRM )%conv ( ndust_spc*2 ) )
+         Allocate( Em_File_Surr( IDUSTSRM )%basis( ndust_spc*2 ) )
          do i = 1,ndust_spc
-            Em_File_Surr( IDUSTSRM )%arry( i )  = dust_spc(i)%name
-            Em_File_Surr( IDUSTSRM )%units( i ) = 'G/S'
-            Em_File_Surr( IDUSTSRM )%mw   ( i ) = dust_spc(i)%mw
-            Em_File_Surr( IDUSTSRM )%used ( i ) = .FALSE.
-            Em_File_Surr( IDUSTSRM )%conv ( i ) = 1.0
-            Em_File_Surr( IDUSTSRM )%basis( i ) = 'MASS'
+            Em_File_Surr( IDUSTSRM )%arry( i )  = 
+     &                    'PMFINE_' // dust_spc(i)%name
+            Em_File_Surr( IDUSTSRM )%mw( i )  = dust_spc(i)%mw
+            Em_File_Surr( IDUSTSRM )%arry( i+ndust_spc )  = 
+     &                    'PMCOARSE_' // dust_spc(i)%name
+            Em_File_Surr( IDUSTSRM )%mw( i+ndust_spc )  = dust_spc(i)%mw
          end do
+         Em_File_Surr( IDUSTSRM )%units( : ) = 'G/S'
+         Em_File_Surr( IDUSTSRM )%used ( : ) = .FALSE.
+         Em_File_Surr( IDUSTSRM )%conv ( : ) = 1.0
+         Em_File_Surr( IDUSTSRM )%basis( : ) = 'MASS'
  
 C...Count the number of mass emissions species
         n_mass_emissions = 0
@@ -277,9 +281,9 @@ C...Count the number of mass emissions species
      &               n_mass_emissions = n_mass_emissions + 1  
            end do
         end do                     
-        allocate ( dustoutm( ndust_spc,n_mode,ncols,nrows ),
-     &              dustoutn( n_mode,ncols,nrows ),
-     &              dustouts( n_mode,ncols,nrows ), stat = status )
+        allocate ( dustoutm( ndust_spc*2,ncols,nrows ),
+     &              dustoutn( 2,ncols,nrows ),
+     &              dustouts( 2,ncols,nrows ), stat = status )
          if ( status .ne. 0 ) then
             xmsg = '*** Failure allocating DUSTOUTM, DUSTOUTN, or DUSTOUTS'
             call m3warn ( pname, jdate, jtime, xmsg )
@@ -1171,10 +1175,6 @@ C J/K mass emis rate [g/s]  (edust( 1 ) not used)
             edust( 2 ) = fracmj * dust_em( c,r )
             edust( 3 ) = fracmk * dust_em( c,r )
 
-            do v = 1, ndust_spc
-               dustoutm( v,1,c,r ) = 0.0
-            end do
-
             do n = 2, n_mode
                do v = 1, ndust_spc
                   dustoutm( v,n,c,r ) = edust( n ) * dust_spc( v )%spcfac( n )
@@ -1192,9 +1192,8 @@ C Mode-specific emission rates of particle number [1/s]
 
 C Mode-specific dry surface area emission rates [m**2/s].
 C 2nd moment multiplied by PI to obtain the surface area emissions rate.
-            dustouts( 1,c,r ) = 0.0
-            dustouts( 2,c,r ) = m3j * factsrfj
-            dustouts( 3,c,r ) = m3k * factsrfk
+            dustouts( 1,c,r ) = m3j * factsrfj
+            dustouts( 2,c,r ) = m3k * factsrfk
 
 ! Propagate Number and Surface Area Scaling Factors back to Emissions
 ! Module so that the dust emissions can be scaled appropriately            
@@ -1253,25 +1252,25 @@ C 2nd moment multiplied by PI to obtain the surface area emissions rate.
                n = n + 8
 
 ! accum and coarse mode number density emissions
-               diagv( n+1 ) = dustoutn( 2,c,r )
-               diagv( n+2 ) = dustoutn( 3,c,r )
+               diagv( n+1 ) = dustoutn( 1,c,r )
+               diagv( n+2 ) = dustoutn( 2,c,r )
 ! accum and coarse mode surface area density emissions
-               diagv( n+3 ) = dustouts( 2,c,r )
-               diagv( n+4 ) = dustouts( 3,c,r )
+               diagv( n+3 ) = dustouts( 1,c,r )
+               diagv( n+4 ) = dustouts( 2,c,r )
               
                n = n + 4
                m = 0
                do v = 1, ndust_spc
-                  if ( dust_spc( v )%spcfac( 2 ) .gt. 0. ) then  ! accum. mode mass emissions
+                  if ( dust_spc( v )%spcfac( 1 ) .gt. 0. ) then  ! accum. mode mass emissions
                      m = m + 1
-                     diagv( m+n ) = dustoutm( v,2,c,r )
+                     diagv( m+n ) = dustoutm( v,c,r )
                   end if
                end do
 
                do v = 1, ndust_spc
-                  if ( dust_spc( v )%spcfac( 3 ) .gt. 0. ) then  ! coarse mode mass emissions
+                  if ( dust_spc( v )%spcfac( 2 ) .gt. 0. ) then  ! coarse mode mass emissions
                      m = m + 1
-                     diagv( m+n ) = dustoutm( v,3,c,r )
+                     diagv( m+n ) = dustoutm( v+ndust_spc,c,r )
                   end if
                end do
 
