@@ -414,9 +414,6 @@ C Pointer for mapfrac
 !20140416 Renormalization or not?
          YES_RENORM = ENVYN( 'DO_RENORM','Want to renormalize ISAM ?',.FALSE., ALLOCSTAT )
 c        write(*,*) 'renorm??', yes_renorm
-C Determine the number of combined species-tags
-
-         IF ( MYPE .EQ. 0 ) WRITE( LOGDEV,* ) 'In driver, N_SPCTAG =',N_SPCTAG
 
 C Allocate arrays of species indices, tagging indices, and
 C variable names for the combined species-tags
@@ -424,6 +421,11 @@ C i.e. set s_spctag, t_spctag, and vnam_spctag
          ALLOCATE ( S_SPCTAG( N_SPCTAG ) )
          ALLOCATE ( T_SPCTAG( N_SPCTAG ) )
          ALLOCATE ( VNAM_SPCTAG( N_SPCTAG ) )
+         ALLOCATE ( BCON_SPC( N_SPCTAG ) )
+
+C Assign BCON tag indicies used in advection
+         BCON_SPC = .FALSE.
+         BCON_SPC( ((BCONTAG - 1)*NSPC_SA+1) : (NSPC_SA*BCONTAG) ) = .TRUE.
 #endif
 
 C Initialize optional derived vertical velocity writes to conc file

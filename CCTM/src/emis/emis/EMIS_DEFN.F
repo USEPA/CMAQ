@@ -44,6 +44,7 @@ C     08 Aug 2016 B.Murphy: Neglect fire emissions for pcVOC
 C     12 Jan 2017 B.Murphy: Remove warning when model species are not
 C                           read in correctly. Invoke error and model stop when model 
 C                           species are not found on any emission file
+C     16 NOv 2018 S.Napelenok: ISAM implementation
 C-----------------------------------------------------------------------
       USE RUNTIME_VARS
       USE GRID_CONF           ! horizontal & vertical domain specifications      

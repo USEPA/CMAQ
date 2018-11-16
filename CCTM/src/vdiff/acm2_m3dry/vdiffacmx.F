@@ -17,11 +17,7 @@
 !------------------------------------------------------------------------!
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-#ifdef isam
-      SUBROUTINE VDIFFACMX ( SA_DDEP, DTSEC, SEDDY, DDEP, ICMP, CNGRD )
-#else
       SUBROUTINE VDIFFACMX ( DTSEC, SEDDY, DDEP, ICMP, CNGRD )
-#endif
 
 C-----------------------------------------------------------------------
 C Asymmetric Convective Model v2 (ACM2/ACM1) -- Pleim(2006/2014)
@@ -62,7 +58,7 @@ C-----------------------------------------------------------------------
 #ifdef isam
       USE SA_DEFN, ONLY: N_SPCTAG, ISAM, VNAM_SPCTAG, TRANSPORT_SPC,
      &                   SA_VDEMIS_DIFF, ITAG, NTAG_SA, NSPC_SA,
-     &                   S_SPCTAG, T_SPCTAG
+     &                   S_SPCTAG, T_SPCTAG, SA_DDEP
 #endif
 
       IMPLICIT NONE
@@ -144,7 +140,6 @@ C ACM Local Variables
 
 #ifdef isam
       REAL, ALLOCATABLE, SAVE :: SA_DDBF( : )   ! 20120712 secondary SA_DDEP
-      REAL, ALLOCATABLE :: SA_DDEP( :,:,: )   ! 20120712 ddep for tags
       INTEGER IBGN, JSPCTAG
 c     REAL    :: SACONC( N_SPCTAG,NLAYS )
 c     REAL    :: SAEMIS( N_SPCTAG,NLAYS )
@@ -496,8 +491,12 @@ Ckrt nonNOX....
 
             END DO
 
-            SA_DD( JSPCTAG,L ) = 0.0
-            SA_UU( JSPCTAG,L ) = 0.0
+            DO L = 1, NLAYS
+               DO V = 1, N_SPCTAG
+                 SA_DD( V,L ) = 0.0
+                 SA_UU( V,L ) = 0.0
+               END DO
+            END DO
 #endif
 
 C Compute tendency of CBL concentrations - semi-implicit solution
@@ -527,7 +526,6 @@ C Set MATRIX1 elements A (col 1), B (diag.), E (superdiag.) and D (RHS)
      &                    +   MFAC( L ) * CONC( V,L+1 )
                      DD( V,L ) = CONC( V,L ) + DFACQ * DELC
                   END DO
-               END DO
 
 #ifdef isam
                   DO JSPCTAG = 1, N_SPCTAG
@@ -537,6 +535,8 @@ C Set MATRIX1 elements A (col 1), B (diag.), E (superdiag.) and D (RHS)
                      SA_DD( JSPCTAG,L ) = SACONC( JSPCTAG,L ) + DFACQ  * DELC
                   END DO
 #endif
+
+               END DO
 
                CALL MATRIX1 ( LCBL, AA, BB1, EE1, DD, UU )
 #ifdef isam 
@@ -687,11 +687,11 @@ Ckrt nonNOX....
                CNGRD( DIFF_MAP( V ),L,C,R ) = CONC( V,L )
             END DO
 #ifdef isam
-           DO JSPCTAG = 1, N_SPCTAG
-              IF( TRANSPORT_SPC( JSPCTAG ) )THEN
-                 ISAM( C,R,L,S_SPCTAG( JSPCTAG ),T_SPCTAG( JSPCTAG ) ) = SACONC( JSPCTAG,L )
-              END IF
-           END DO
+            DO JSPCTAG = 1, N_SPCTAG
+               IF( TRANSPORT_SPC( JSPCTAG ) )THEN
+                  ISAM( C,R,L,S_SPCTAG( JSPCTAG ),T_SPCTAG( JSPCTAG ) ) = SACONC( JSPCTAG,L )
+               END IF
+            END DO
 #endif
          END DO
 

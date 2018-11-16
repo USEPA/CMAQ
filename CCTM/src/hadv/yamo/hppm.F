@@ -212,9 +212,12 @@ C Local variables:
 
 C----------------------------------------------------------------------
 
+#ifdef isam
+      FIRSTIME = .TRUE.
+#else
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
-
+#endif
          NMX = MAX( NI,NJ )
          NSPCS = SIZE ( CON,2 )
          ALLOCATE( FM(     1:NMX+1,    NSPCS ),
@@ -228,8 +231,10 @@ C----------------------------------------------------------------------
             XMSG = '*** Error allocating FM, FP, CM, CL, CR, DC, or C6'
             CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
          END IF
-
+#ifdef isam
+#else
       END IF   ! Firstime
+#endif
 
       IF ( ORI .NE. FIRSTORI ) THEN
          FIRSTORI = ORI
@@ -431,6 +436,23 @@ C Update concentrations as in Equation (1.13)
      &                 + ( FP( I-1,S ) - FP( I,S ) + FM( I+1,S ) - FM( I,S ) ) / DS
          END DO
       END DO
+
+#ifdef isam
+Ckrt...deallocate local arrays....20140126
+         IF ( ALLOCATED( FM ) ) DEALLOCATE( FM )
+
+         IF ( ALLOCATED( FP ) ) DEALLOCATE( FP )
+
+         IF ( ALLOCATED( CM ) ) DEALLOCATE( CM )
+
+         IF ( ALLOCATED( CL ) ) DEALLOCATE( CL )
+
+         IF ( ALLOCATED( CR ) ) DEALLOCATE( CR )
+
+         IF ( ALLOCATED( DC ) ) DEALLOCATE( DC )
+
+         IF ( ALLOCATED( C6 ) ) DEALLOCATE( C6 )
+#endif
 
       RETURN
       END

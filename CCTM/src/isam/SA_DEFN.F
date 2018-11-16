@@ -41,6 +41,7 @@ c...Tagging species, regular or combined
       LOGICAL, ALLOCATABLE, SAVE   :: TRANSPORT_SPC ( : )
       INTEGER, ALLOCATABLE, SAVE   :: STREAM_TO_TAG ( : )
       INTEGER, ALLOCATABLE, SAVE   :: MAP_DIFFtoSA( : )
+      INTEGER, ALLOCATABLE, SAVE   :: MAP_ADVtoSA( : )
 
 c...4th and 5th dimensions of ISAM array
       INTEGER ::     NSPC_SA
@@ -60,10 +61,8 @@ c     REAL, POINTER :: CBFOR ( :,:,:,: )
       REAL, ALLOCATABLE :: MAPFRAC( :,:,: )
       REAL, ALLOCATABLE :: MFRC_P( :,:,: )
       REAL, ALLOCATABLE :: VOC5D ( :,:,:,:,: )
-c     REAL, ALLOCATABLE :: ISAMEM( :,:,:,:,: )             ! subset of the emissions array for tagged species
       REAL, ALLOCATABLE :: SA_VDEMIS_DIFF_ALL( :,:,:,:,: ) ! full emissions array mapped to diffused species 
       REAL, ALLOCATABLE :: SA_VDEMIS_DIFF( :,:,:,:,: ) 
-
 
 c...Variables regarding the tag list
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: TAGNAME( : )
@@ -73,22 +72,7 @@ c...Variables regarding the tag list
       CHARACTER( 96 ), ALLOCATABLE, SAVE :: TAGSTREAMS( :, : )
       INTEGER, ALLOCATABLE, SAVE         :: TAGSTREAMS_NUM( : )
 
-c...multi-sectors-for-a-single-tag
-c     INTEGER,   PARAMETER :: N_SGSTACKS = 40
-c     LOGICAL, ALLOCATABLE :: YESSTK( :,: )
-c...stack group id counting
-c     REAL,    ALLOCATABLE :: SAIDVALU( :,: )
-
 c...Logical values for tagging species
-c     LOGICAL, ALLOCATABLE :: L_EC( : )
-c     LOGICAL, ALLOCATABLE :: L_OC( : )
-c     LOGICAL, ALLOCATABLE :: L_SFATE( : )
-c     LOGICAL, ALLOCATABLE :: L_NTRATE( : )
-c     LOGICAL, ALLOCATABLE :: L_NH4( : )
-c     LOGICAL, ALLOCATABLE :: L_PM25( : )  !0705
-c     LOGICAL, ALLOCATABLE :: L_CO( : )    !0705
-c     LOGICAL, ALLOCATABLE :: L_OZONE( : ) !0705
-c     LOGICAL, ALLOCATABLE :: L_VOC( : )   !20131209
       LOGICAL, SAVE :: L_EC
       LOGICAL, SAVE :: L_OC
       LOGICAL, SAVE :: L_SFATE
@@ -103,6 +87,7 @@ c     LOGICAL, ALLOCATABLE :: L_VOC( : )   !20131209
       REAL, SAVE :: DEPSUM_SAVE = 0.0
       REAL, SAVE :: DS4_SAVE    = 0.0
       REAL, SAVE :: REMOV_SAVE  = 0.0
+
 c...Final, combined tags
       INTEGER                      :: N_SPCTAG
       INTEGER,         ALLOCATABLE :: S_SPCTAG( : )
@@ -114,20 +99,19 @@ C ...Tagging indices for bcon, others, icon
       INTEGER :: OTHRTAG
       INTEGER :: ICONTAG
 
-!20130627  2-regime ozone or 1-ozone
-c     LOGICAL :: YES_2REGIME
-c     INTEGER :: NUMOZRGM
-
-!20130731  stack group id counting
-c     INTEGER :: NINLN
-
 !20140321  Option to use Ox production-loss for ozone apportionment
-      LOGICAL :: FLAGOXSA
+c     LOGICAL :: FLAGOXSA
 
 !20140416 Option to renormalise ISAM
       LOGICAL :: YES_RENORM
 
       REAL, PRIVATE, ALLOCATABLE :: BUFF2( :,: )
+
+! Diffusion module variables
+      REAL, ALLOCATABLE, SAVE :: SA_DDEP( :,:,: )
+
+! Advection module variables
+      LOGICAL, ALLOCATABLE, SAVE :: BCON_SPC( : )
 
       CONTAINS
 
@@ -628,6 +612,8 @@ C
         INTEGER N_OZN     ! index of ozone in gc_spc list
         INTEGER ALLOCSTAT
 
+        CHARACTER( 16 ), ALLOCATABLE, SAVE :: CMAQ_ADV_NAMES( : )  
+        INTEGER FRST, LAST, CMAQ_ADV
 
         LOGICAL FOUND
 c----------------------------------------------------------
@@ -937,7 +923,43 @@ C...Assign species index with CMAQ species mappings
 
           ENDIF
         ENDDO ! number of tagging species
-         
+
+C...Map SA species for Advection
+        ALLOCATE( MAP_ADVtoSA ( N_SPCTAG ) )
+ 
+        CMAQ_ADV = N_GC_TRNS + N_AE_TRNS + N_NR_TRNS + N_TR_ADV
+        ALLOCATE( CMAQ_ADV_NAMES( CMAQ_ADV ) )
+
+        FRST = 0
+        LAST = 0
+        IF ( N_GC_TRNS .NE. 0 ) THEN 
+           FRST = 1
+           LAST = N_GC_TRNS
+           CMAQ_ADV_NAMES( FRST:LAST ) = GC_TRNS
+        ENDIF
+
+        IF ( N_AE_TRNS .NE. 0 ) THEN
+           FRST = LAST + 1
+           LAST = LAST + N_AE_TRNS
+           CMAQ_ADV_NAMES( FRST:LAST ) = AE_TRNS
+        END IF
+
+        IF ( N_NR_TRNS .NE. 0 ) THEN
+           FRST = LAST + 1
+           LAST = LAST + N_NR_TRNS
+           CMAQ_ADV_NAMES( FRST:LAST ) = NR_TRNS
+        END IF
+
+        IF ( N_TR_ADV .NE. 0 ) THEN
+           FRST = LAST + 1
+           LAST = LAST + N_NR_TRNS
+           CMAQ_ADV_NAMES( FRST:LAST ) = TR_ADV
+        END IF
+
+        MAP_ADVtoSA = 0
+        DO N = 1, N_SPCTAG
+           MAP_ADVtoSA(N) = INDEX1( SPC_NAME(N,1), CMAQ_ADV, CMAQ_ADV_NAMES )
+        END DO
 
 c...check assigned spc_name and spc_index
 c         if ( MYPE .eq. 0 ) then

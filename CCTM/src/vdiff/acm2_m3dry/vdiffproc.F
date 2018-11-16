@@ -94,8 +94,7 @@ C-----------------------------------------------------------------------
       USE PA_DEFN, Only: LIPR ! Process Anaylsis control and data variables
 
 #ifdef isam
-      USE SA_DEFN
-      USE OZVOC_DEFN         ! 20120918
+      USE SA_DEFN, Only: ITAG, N_SPCTAG, VNAM_SPCTAG, SA_DDEP
 #endif
 
 
@@ -159,13 +158,6 @@ C Local Variables
       CHARACTER(LEN=8), PARAMETER :: NAME_NH3_EMIS = 'NH3_EMIS'
       CHARACTER(LEN=8), PARAMETER :: NAME_NH3_DDEP = 'NH3_DDEP'
 
-#ifdef isam
-      REAL, ALLOCATABLE, SAVE :: SA_DDEP( :,:,: )   ! 20120712 ddep for tags
-c     INTEGER IBGN, JSPCTAG
-c     REAL    :: SACONC( N_SPCTAG,NLAYS )
-c     REAL    :: SAEMIS( N_SPCTAG,NLAYS )
-#endif
-
       INTERFACE
          SUBROUTINE PA_UPDATE_EMIS ( PNAME, VDEMIS_DIFF, JDATE, JTIME, TSTEP )
             CHARACTER( * ), INTENT( IN )  :: PNAME
@@ -192,19 +184,12 @@ c     REAL    :: SAEMIS( N_SPCTAG,NLAYS )
          SUBROUTINE EDDYX ( EDDYV )
             REAL,           INTENT( OUT ) :: EDDYV( :,:,: )
          END SUBROUTINE EDDYX
-#ifdef isam
-         SUBROUTINE VDIFFACMX( SA_DDEP, dtsec, seddy, ddep, icmp, cngrd )
-#else
          SUBROUTINE VDIFFACMX( dtsec, seddy, ddep, icmp, cngrd)
-#endif
             REAL, INTENT( IN )    :: dtsec
             REAL, INTENT( INOUT ) :: seddy( :,:,: )
             REAL, INTENT( INOUT ) :: ddep ( :,:,: )
             REAL, INTENT( INOUT ) :: icmp ( :,:,: )
             REAL, INTENT( INOUT ) :: cngrd( :,:,:,: )
-#ifdef isam
-            REAL, ALLOCATABLE :: SA_DDEP( :,:,: )   ! 20120712 ddep for tags
-#endif
          END SUBROUTINE VDIFFACMX
 #ifdef isam
          SUBROUTINE SA_OPWDDEP ( SADEPFILE, JDATE, JTIME, TSTEP )
@@ -291,12 +276,6 @@ C Allocate and initialize emissions
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
          SA_DDEP = 0.0
-
-c        IF ( .NOT. PSAEM_INIT ( NSPC_SA, NTAG_SA ) ) THEN
-c          XMSG = 'Failure in defining SA horizontal domain'
-c          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2  )
-c        END IF
-c        ISAMEM = PSAEM( 1:MY_NCOLS,1:MY_NROWS,:,:,: )
 #endif
 
 C Set up for process analysis
@@ -339,11 +318,6 @@ C Set up for grav. settling
          DO V = 1, N_SPC_DDEP
             IF ( DDEP_SPC( V ) .EQ. 'NH3' ) NH3_HIT = V
          END DO
-
-#ifdef isam
-c     ELSE         ! 20120725 keep pointer ISAMEM pointed to what's supposed to point to
-c        ISAMEM = PSAEM( 1:MY_NCOLS,1:MY_NROWS,:,:,: )
-#endif
 
       END IF   !  if Firstime
 
@@ -414,11 +388,8 @@ C EDDYV returned = Kz, where Kz is in m**2/sec
 
 C Calculate the change in concentration and dry dep from vertical diffusion and vsed
 C Note: cngrd is the argument keyword (from the INTERFACE); CNGRD is the actual argument
-#ifdef isam
-      CALL VDIFFACMX( SA_DDEP, DTSEC,  SEDDY, DDEP,ICMP, CNGRD )
-#else
+
       CALL VDIFFACMX( DTSEC, SEDDY, DDEP, ICMP, CNGRD )
-#endif
 
       IF ( VDIFFDIAG ) THEN
          NTICS = NTICS + 1
