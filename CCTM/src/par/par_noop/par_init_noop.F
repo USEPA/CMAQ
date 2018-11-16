@@ -62,14 +62,13 @@ C
 C........................................................................
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
+      USE PA_DEFN               ! PROCAN flags
       USE PAGRD_DEFN            ! PA horiz domain specs
       USE UTILIO_DEFN
 
       IMPLICIT  NONE
 
 C Include Files
-
-      INCLUDE SUBST_PACTL_ID    ! PA control parameters
 
 C Arguments
 
@@ -80,7 +79,6 @@ C Arguments
 
 C Local Variables
 
-      INTEGER NPROCS
       CHARACTER( 96 ) :: MSG
 
 C Set error code to zero.
@@ -104,7 +102,7 @@ C Set up horizontal domain and calculate processor-to-subdomain maps for
 C process analysis, if required
 
       IF ( LIPR .OR. LIRR ) THEN
-         IF ( .NOT. PAGRD_INIT( NPROCS, MYPE ) ) THEN
+         IF ( .NOT. PAGRD_INIT( MYPE ) ) THEN
             MSG = '*** Failure defining PA domain configuration'
             CALL M3WARN ( 'PAR_INIT', 0, 0, MSG )
             IERROR = 1

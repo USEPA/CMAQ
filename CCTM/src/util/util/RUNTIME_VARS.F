@@ -112,10 +112,10 @@
                                            ! science submodules
       LOGICAL :: FL_ERR_STOP=.TRUE.  ! Flag to stop run if errors are found.
       LOGICAL :: CKSUM     = .TRUE.  ! flag for cksum on, default = [T]
-      LOGICAL :: END_TIME  = .FALSE. ! Override default beginning ACONC timestamp
+      LOGICAL :: END_TIME  = .FALSE. ! Override default beginning ACON timestamp
       
-      INTEGER :: N_ASPCS   = 0       ! Number of species saved to avg conc file
-      INTEGER :: N_CSPCS   = 0       ! Number of species saved to conc file
+      INTEGER :: N_ACONC_VARS = 0    ! Number of species saved to avg conc file
+      INTEGER :: N_CONC_VARS  = 0    ! Number of species saved to conc file
       INTEGER :: ACONC_BLEV= 0       ! Beginning level saved to avg conc file
       INTEGER :: ACONC_ELEV= 0       ! Ending level saved to avg conc file
       INTEGER :: CONC_BLEV = 0       ! Beginning level saved to conc file
@@ -514,10 +514,10 @@
       END_TIME = GET_ENVYN( 'AVG_FILE_ENDTIME', VARDESC, END_TIME )
       
       ! ACONC File Species List
-      CALL GET_ENVLIST ( 'AVG_CONC_SPCS', N_ASPCS, ACONC_FILE_SPCS )
+      CALL GET_ENVLIST ( 'AVG_CONC_SPCS', N_ACONC_VARS, ACONC_FILE_SPCS )
 
       ! CONC File Species List 
-      CALL GET_ENVLIST ( 'CONC_SPCS', N_CSPCS, CONC_FILE_SPCS )
+      CALL GET_ENVLIST ( 'CONC_SPCS', N_CONC_VARS, CONC_FILE_SPCS )
  
       ! ACONC Layer Specification
       CALL GET_ENVLIST ( 'ACONC_BLEV_ELEV', NV, V_LIST2 )
@@ -558,12 +558,20 @@
       ! Get Flag for Vertical Extraction
       VARDESC = 'Extract a Vertical Column of Ouptut Data'
       LVEXT = GET_ENVYN( 'VERTEXT', VARDESC, LVEXT )
-
+#ifdef parallel
       ! Get Filepath for File Specifying Lon-Lat Coordinates for
       ! Vertical Extraction
       VARDESC = 'File Specifying Lon-Lat Coords for Vertical Extraction'
       VEXT_COORD_PATH = GET_ENVSTR( 'VERTEXT_COORD_PATH', VARDESC, VEXT_COORD_PATH )
-
+#else
+      IF( LVEXT ) THEN
+          LVEXT = .FALSE.
+          WRITE( OUTDEV,'(A)')'Option to extract a Vertical Column of Ouptut Data set to YES'
+          WRITE( OUTDEV,'(A)')'However, the serial version cannot execute the option'
+          WRITE( LOGDEV,'(A)')'Option to extract a Vertical Column of Ouptut Data set to YES'
+          WRITE( LOGDEV,'(A)')'However, the serial version cannot execute the option'
+      END IF
+#endif
       ! Get Filename for Gas Species Namelist
       VARDESC = 'Gas Species Namelist Filename'
       GC_NAMELIST = GET_ENVSTR(  'gc_matrix_nml', VARDESC, GC_NAMELIST )
@@ -814,7 +822,7 @@
       EMISSCTRL = GET_ENVSTR( 'EMISSCTRL_NML', VARDESC, EMISSCTRL )
 
       ! Number of Layers for Emissions
-      VARDESC = 'Number of emission layers'
+      VARDESC   = 'Number of emission layers'
       EMLAYS_MX = GET_ENVINT( 'CTM_EMLAYS', VARDESC, EMLAYS_MX )
 
       ! Get number of different Gridded File Emissionts Streams
@@ -1267,9 +1275,9 @@
 !.........................................................................
  
       IMPLICIT NONE
-
+#ifdef parallel
       INCLUDE 'mpif.h'
-
+#endif
       REAL( 8 )        :: CPU_TIME_START
       REAL( 8 )        :: CPU_TIME_FINISH
       INTEGER          :: IMSG   ! What kind of checkpoint this is
@@ -1279,6 +1287,10 @@
       CHARACTER( * ), INTENT(IN), OPTIONAL :: CPROCIN
       CHARACTER( len=: ), ALLOCATABLE :: CPROC
       CHARACTER( 250 ) :: XMSG
+#ifndef parallel
+      REAL :: REAL_TIME
+#endif
+
 
       IF ( PRESENT( CPROCIN ) ) THEN
          CPROC = CPROCIN
@@ -1287,7 +1299,13 @@
       END IF
  
       ! Record Time at this Checkpoint
+#ifdef parallel
       CPU_TIME_FINISH = MPI_WTIME()
+#else
+      CALL CPU_TIME( REAL_TIME )
+      CPU_TIME_FINISH = REAL( REAL_TIME,8 )
+#endif
+
 
       ! Assemble the statement requested by the calling program
       SELECT CASE ( IMSG )
@@ -1319,8 +1337,12 @@
 #ifndef twoway
       IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
 #endif
+#ifdef parallel      
       CPU_TIME_START = MPI_WTIME()
-
+#else
+      CALL CPU_TIME( REAL_TIME )
+      CPU_TIME_START = REAL( REAL_TIME,8 )
+#endif
       END SUBROUTINE TIMING_SPLIT    
  
       END MODULE RUNTIME_VARS

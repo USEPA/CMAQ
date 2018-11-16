@@ -580,11 +580,11 @@ c        Iodide in sea-water based on SST  (mol /dm-3)
          ! Dry cuticle resistance.
 
                IF( l .Eq. l_O3 ) THEN
-                  rh_func = max( 0.0,( MET_DATA%RH( c,r ) - 70.0 )/30.0 )
+                  rh_func = max( 0.0,( MET_DATA%RH2( c,r ) - 70.0 )/30.0 )
                   rcut = rcut0 * a0 / ar( l ) * ( 1.0 -rh_func) + rwet * rh_func
                ELSE IF ( l .Eq. l_NH3 ) THEN
-         !        rcut = 4000.0 * EXP( -0.054 * MET_DATA%RH( c,r ) )
-                  rcut = rwetsfc + 100.0-max(MET_DATA%RH( c,r ),60.0)  ! consistant with bidi
+         !        rcut = 4000.0 * EXP( -0.054 * MET_DATA%RH2( c,r ) )
+                  rcut = rwetsfc + 100.0-max(MET_DATA%RH2( c,r ),60.0)  ! consistant with bidi
                ELSE 
                   rcut = rcut0 * a0 / ar( l )
                END IF
@@ -644,7 +644,7 @@ C--------------------------------------------------------------------------
             IF ( abflux .And. l .Eq. l_NH3 ) THEN   ! Ammonia Bidirectional Flux
                cnh3  = cgridl1( n,c,r ) * MolNH3/MolAir * 1000.0 * Met_Data%DENS1( C,R ) ! convert to micrograms/m3
 
-               IF ( ( NINT( GRID_DATA%LWMASK( c,r ) ) .NE. 0 ) .AND. ( vegcr .GT. 0.0 ) ) THEN  ! land
+               IF ( NINT( GRID_DATA%LWMASK( c,r ) ) .NE. 0 ) THEN  ! land
 
                   CALL Get_Flux( cnh3,rwetsfc,rgw,r,c,l,tpvd,lnh3, rbc, rinc, 
      >                           rstom, delta(c,r),rgnd,fdep )

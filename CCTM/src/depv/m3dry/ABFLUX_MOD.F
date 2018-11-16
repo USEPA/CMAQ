@@ -615,7 +615,7 @@ C-------------------------------------------------------------------------------
              
          a1    = 161512.0d0 / real( MET_DATA%tempg( c,r ), 8 )
      &         * 10.0d0 ** ( -4507.11d0 / real( MET_DATA%tempg( c,r ), 8 ) )
-         a1    = a1 * 17.0D9    ! microgram/m3  24.5d0 * 1.0d6  ! ppm    
+         a1    = a1 * 17.0d9    ! microgram/m3  24.5d0 * 1.0d6  ! ppm    
          
 !> Set a maximum [NH4]/[H+] ratio at 200,000 based on output from the AIM aerosol
 !> model any [NH4] in excess of this ratio is assumed to partition into the solid
@@ -628,13 +628,18 @@ C-------------------------------------------------------------------------------
          Do j = 1, n_lufrac
             If ( GRID_DATA%LUFRAC( c,r,j ) .Gt. 0.0 ) Then
                cnh3sj = a1 * luf_fac( j )
-               if ( cat_lu( j ) .eq. 'WATER' .OR. cat_lu( j ) .eq. 'SNOWICE' ) THEN
+               Select Case( cat_lu( j ) )
+                  Case( 'WATER' ) ! water
                      cnh3g1j = 0.0
                      cnh3g2j = 0.0
                      cnh3sj  =0.0
                      watfrac = watfrac + GRID_DATA%LUFRAC( c,r,j )
+                  Case( 'SNOWICE' ) ! ice or snow
+                     cnh3g1j = 0.0
+                     cnh3g2j = 0.0
+                     cnh3sj  =0.0
 !---- Gamma soil 
-               else if ( cat_lu( j ) .eq. 'AG' .OR. cat_lu( j ) .eq. 'AGMOS' ) then ! Ag
+                  Case( 'AG','AGMOS' ) ! Ag
                       if (fcec1(c,r).gt. 0.299 ) Then                
                         frac_sol1= fcec1(c,r) * 0.6  ! scale EPIC cec func to give .55 at Lillington
                         frac_sol2= fcec2(c,r) * 0.6
@@ -658,25 +663,19 @@ C-------------------------------------------------------------------------------
                         agfrac  = agfrac  + twothree * GRID_DATA%LUFRAC( c,r,j )
                      endif
 
-               else ! not ag
+                  Case Default ! not ag
                      cnh3g1j = Min( natgam , maxgam )
                      cnh3g2j = Min( natgam , maxgam )
-               End If
+               End Select
                cnh3g1  = cnh3g1 + GRID_DATA%LUFRAC( c,r,j ) * cnh3g1j             
                cnh3g1  = cnh3g1 + GRID_DATA%LUFRAC( c,r,j ) * cnh3g1j
                cnh3s   = cnh3s  + GRID_DATA%LUFRAC( c,r,j ) * cnh3sj
             End If
          End Do
-         if ( watfrac .lt. 1.0 ) then
-           cnh3g1 = a1 * Max( cnh3g1, 0.01 ) / (1.0 - watfrac)   ! Land only (microgram/m3)
-           cnh3g2 = a1 * Max( cnh3g2, 0.01 ) / (1.0 - watfrac)   ! Land only (microgram/m3)
-           cnh3s = cnh3s / (1.0 - watfrac)   ! Land only (microgram/m3)
-         else
-           cnh3g1 = 0.0
-           cnh3g2 = 0.0
-           cnh3s  = 0.0
-         end if
+         cnh3g1 = a1 * Max( cnh3g1, 0.01 ) / (1.0 - watfrac)   ! Land only (microgram/m3)
+         cnh3g2 = a1 * Max( cnh3g2, 0.01 ) / (1.0 - watfrac)   ! Land only (microgram/m3)
          cnh3g  = Max (cnh3g1, cnh3g2)   ! use greater of layer concs
+         cnh3s = cnh3s / (1.0 - watfrac)   ! Land only (microgram/m3)
          if(agfrac.GT.0.5.and.gamma1( c,r ).gt.50000.) then
             write(logdev,*) ' frac_sol1',frac_sol1,' cnh3g1',cnh3g1,' gamma1',gamma1( c,r )
             write(logdev,*) ' c,r=',c,r
@@ -687,7 +686,7 @@ C-------------------------------------------------------------------------------
          If ( MET_DATA%LAI( c,r ) .Gt. 0.0 ) Then
 
             rwx   = rwetsfc   
-            rwmb  = rwm + rwx + (100.0-max(MET_DATA%RH( c,r ),60.0) + Rb) * MET_DATA%LAI( c,r )  ! from Pleim et al 2013 JGR
+            rwmb  = rwm + rwx + (100.0-max(MET_DATA%RH2( c,r ),60.0) + Rb) * MET_DATA%LAI( c,r )  ! from Pleim et al 2013 JGR
             ga    = 1.0 / ( MET_DATA%RA( c,r ) + canfrac * rinc ) !
             gsb   = 1.0 / ( rstom + rb )
             gg1   = 1.0 / ( rbg + (1.-canfrac) * rinc + rsoil1 )

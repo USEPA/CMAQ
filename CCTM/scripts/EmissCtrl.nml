@@ -13,15 +13,10 @@
 ! Emissions Scaling Specification Section                                      !
 !   Each rule is presented as a row of inputs. The syntax of the               !
 !   emissions scaling rules is the following:                                  !
-!      EM_INSTR(I) = 'CMAQ-Species', 'Stream Label', 'Phase',                  !
-!                     'Surrogate', 'Scale Factor', 'Mask', 'Operation'         !
+!      EM_INSTR(I) = 'Region Label', 'Stream Label', 'Emission Surrogate',     !
+!                     'CMAQ-Species', 'Phase/Mode', 'Scale Factor', 'Operation'!
 !   Definition of Fields:                                                      !
-!         'Surrogate' - The character string identifying the surrogate on the  !
-!                       emission file or in the inline calculation that the    !
-!                       CMAQ species should be mapped to. Usually this name is !
-!                       the same as the CMAQ species for convenience. For      !
-!                       aerosols, it's usually slightly different (e.g ANO3 vs.!
-!                       PNO3)                                                  !
+!         'Region Label' - Apply scaling for specific regions of the domain.   !
 !         'Stream Label' - Short Name from Run Script (ie. the value of        !
 !                          GR_EMIS_01_LAB or STK_EMIS_01_LAB). There are a few !
 !                          reserved names that apply to inline emissions       !
@@ -30,7 +25,13 @@
 !                            MGEM - Marine Gas Emissions                       !
 !                            LTNG - Lightning NO Emissions                     !
 !                            WBDUST - Wind-Blown Dust Emissions                !
-!                            SeaSpray - Sea Spray Aerosol Emissions            !
+!                            SeaSpray - Sea Spray Aerosol Emissions            ! 
+!         'Emission   - The character string identifying the surrogate on the  !
+!          Surrogate'   emission file or in the inline calculation that the    !
+!                       CMAQ species should be mapped to. Usually this name is !
+!                       the same as the CMAQ species for convenience. For      !
+!                       aerosols, it's usually slightly different (e.g ANO3 vs.!
+!                       PNO3)                                                  !
 !         'CMAQ-Species' - Internal Species Name                               !
 !         'Phase/Mode'- If the CMAQ-Species is a Gas, this field should equal  !
 !                       'Gas'. If the CMAQ-Species is an aerosol, this field   !
@@ -43,8 +44,6 @@
 !                       unit conversions between gases and aerosols can be     !
 !                       handled correctly.                                     !
 !         'Scale Factor' - Adjustment factor to be applied to the mapping      !
-!         'Mask'         - Not implemented yet. Will apply scaling for specific! 
-!                          regions of the domain.                              !
 !         'Operation' - Specifies what kind of rule is to be carried           !
 !                       out. Options are:                                      !
 !                          'a' - add the rule to existing instructions. This   !
@@ -61,11 +60,25 @@
 
 &EmissionScalingRules
  EM_NML=
- !---Organic Aerosol Vapors and Particles            
- !          Region   | Stream Label  |Emission | CMAQ-   |Phase/ |Scale  | Op
- !           Label   |               |Surrogate| Species |Mode   |Factor |
- !<EXAMPLE> 'WATER'  , 'All'         ,'All'    ,'All'    ,'All'  ,0.     ,'o',
-
+ !          Region      | Stream Label  |Emission | CMAQ-   |Phase/ |Scale  |Basis | Op  
+ !           Label      |               |Surrogate| Species |Mode   |Factor |      |     
+ !<EXAMPLE> 'WATER'     , 'All'         ,'All'    ,'All'    ,'All'  ,0.     ,'MASS','o', !Zero out all emissions over 
+                                                                                         ! water grid cells
+ !<EXAMPLE> 'EVERYWHERE', 'ONROAD_GAS'  ,'NO'     ,'NO'     ,'GAS'  ,2.     ,'MOLE','o', !Scale NO from gasoline 
+                                                                                         ! vehicles by a factor of 2
+ !<EXAMPLE> 'EVERYWHERE', 'ONROAD_GAS'  ,'NO'     ,'NO'     ,'GAS'  ,2.     ,'MOLE','m', !Alternative: Scale NO 
+                                                                                         ! from gasoline vehicles
+                                                                                         ! by a factor of 2
+ !<EXAMPLE> 'EVERYWHERE', 'FIRES'       ,'POC'    ,'ALL'    ,'ALL'  ,0.5    ,'MASS','m', !Scale all Organic Carbon 
+                                                                                         ! mass from fires by 50%
+ !<EXAMPLE> 'EVERYWHERE', 'FIRES'       ,'PNCOM'  ,'ALL'    ,'ALL'  ,0.5    ,'MASS','m', !Scale all Organic Non-Carbon 
+                                                                                         ! mass from fires by 50%
+ !<EXAMPLE> 'EVERYWHERE', 'FIRES'       ,'PNCOM'  ,'ALL'    ,'ALL'  ,0.5    ,'MASS','m', !Scale all Organic Non-Carbon 
+                                                                                         ! mass from fires by 50%
+ 
+ !<EXAMPLE> 'EVERYWHERE', 'AIRCRAFT'    ,'VOC_INV','PAR'    ,'GAS'  ,0.02   ,'MOLE','a', !Add more mass to PAR from aircraft
+                                                                                         ! equal to 2% of the VOC_INV from
+                                                                                         ! aircraft
 /
 
 !------------------------------------------------------------------------------!
@@ -92,6 +105,10 @@
  !         | Stream Label   | Surr. Mode   | Ref. Mode 
  !<Default>  'ALL'          ,'FINE'        ,'FINE_REF',
  !<Default>  'ALL'          ,'COARSE'      ,'COARSE_REF',
+ !<Example>  'AIRCRAFT'     ,'FINE'        ,'AIR_FINE',   !To use these examples, you 
+ !<Example>  'AIRCRAFT'     ,'COARSE'      ,'AIR_COARSE', ! must add entries for AIR_FINE
+                                                          ! and AIR_COARSE to the data structure
+                                                          ! em_aero_ref in AERO_DATA.
 
 /
 

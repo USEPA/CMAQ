@@ -94,6 +94,9 @@ setenv EXECUTION_ID "CMAQ_CCTM${VRSN}_`id -u -n`_`date -u +%Y%m%d_%H%M%S_%N`"   
 echo ""
 echo "---CMAQ EXECUTION ID: $EXECUTION_ID ---"
 
+#> Keep or Delete Existing Output Files
+set CLOBBER_DATA = FALSE
+
 #> Logfile Options
 #> Master Log File Name; uncomment to write standard output to a log, otherwise write to screen
 #setenv LOGFILE $CMAQ_HOME/$RUNID.log  
@@ -220,15 +223,6 @@ setenv B3GTS_DIAG Y          #> BEIS mass emissions diagnostic file [ default: N
 setenv PT3DDIAG N            #> 3D point source emissions diagnostic file [ default: N];
 setenv PT3DFRAC N            #> layer fractions diagnostic file(s) [ default: N];
 setenv REP_LAYER_MIN -1      #> Minimum layer for reporting plume rise info [ default: -1 ]
-setenv EMISDIAG F            #> Print Emission Rates at the output time step after they have been
-                             #>   scaled and modified by the user Rules [options: F | T or 2D | 3D | 2DSUM ]
-                             #>   Individual streams can be modified using the variables:
-                             #>       GR_EMIS_DIAG_## | STK_EMIS_DIAG_## | BIOG_EMIS_DIAG
-                             #>       MG_EMIS_DIAG    | LTNG_EMIS_DIAG   | DUST_EMIS_DIAG
-                             #>       SEASPRAY_EMIS_DIAG
-                             #>   Note that these diagnostics are different than other emissions diagnostic
-                             #>   output because they occur after scaling.
-set DISP = delete            #> [ delete | keep ] existing output files
 
 # =====================================================================
 #> Input Directories and Filenames
@@ -254,8 +248,11 @@ set TODAYG = ${START_DATE}
 set TODAYJ = `date -ud "${START_DATE}" +%Y%j` #> Convert YYYY-MM-DD to YYYYJJJ
 set START_DAY = ${TODAYJ} 
 set STOP_DAY = `date -ud "${END_DATE}" +%Y%j` #> Convert YYYY-MM-DD to YYYYJJJ
+set NDAYS = 0
 
 while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
+  
+  set NDAYS = `echo "${NDAYS} + 1" | bc -l`
 
   #> Retrieve Calendar day Information
   set YYYYMMDD = `date -ud "${TODAYG}" +%Y%m%d` #> Convert YYYY-MM-DD to YYYYMMDD
@@ -287,10 +284,12 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #> Initial conditions
   if ($NEW_START == true || $NEW_START == TRUE ) then
      setenv ICFILE CCTM_CGRID_v52_hdifupdate_intel17.0_HEMIS_cb6_20150930
+     setenv INIT_MEDC_1 notused
      setenv INITIAL_RUN Y #related to restart soil information file
   else
      set ICpath = $OUTDIR
      setenv ICFILE CCTM_CGRID_${RUNID}_${YESTERDAY}.nc
+     setenv INIT_MEDC_1 $ICpath/CCTM_MEDIA_CONC_${RUNID}_${YESTERDAY}
      setenv INITIAL_RUN N
   endif
 
@@ -542,7 +541,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   set out_test = `cat buff.txt`; rm -f buff.txt
   
   #> delete previous output if requested
-  if ( $DISP == 'delete' ) then
+  if ( $CLOBBER_DATA == true || $CLOBBER_DATA == TRUE ) then
      echo 
      echo "Existing Logs and Output Files for Day ${TODAYG} Will Be Deleted"
 
@@ -563,7 +562,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      #> error if previous log files exist
      if ( "$log_test" != "" ) then
        echo "*** Logs exist - run ABORTED ***"
-       echo "*** To overide, set DISP == delete in run_cctm.csh ***"
+       echo "*** To overide, set CLOBBER_DATA = TRUE in run_cctm.csh ***"
        echo "*** and these files will be automatically deleted. ***"
        exit 1
      endif
@@ -574,7 +573,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
        foreach file ( $out_test )
           echo " cannot delete $file"
        end
-       echo "*** To overide, set DISP == delete in run_cctm.csh ***"
+       echo "*** To overide, set CLOBBER_DATA = TRUE in run_cctm.csh ***"
        echo "*** and these files will be automatically deleted. ***"
        exit 1
      endif
@@ -648,8 +647,14 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 
   #> Abort script if abnormal termination
   if ( ! -e $S_CGRID ) then
-    echo "Error: CGRID file not written. Aborting execution."
-    exit 1
+    echo ""
+    echo "**************************************************************"
+    echo "** Runscript Detected an Error: CGRID file was not written. **"
+    echo "**   This indicates that CMAQ was interrupted or an issue   **"
+    echo "**   exists with writing output. The runscript will now     **"
+    echo "**   abort rather than proceeding to subsequent days.       **"
+    echo "**************************************************************"
+    break
   endif
 
   #> Print Concluding Text
@@ -681,7 +686,6 @@ end  #Loop to the next Simulation Day
 # ===================================================================
 #> Generate Timing Report
 # ===================================================================
-set NDAYS = `echo "$STOP_DAY - $START_DAY + 1" | bc -l`
 set RTMTOT = 0
 foreach it ( `seq ${NDAYS}` )
     set rt = `echo ${rtarray} | cut -d' ' -f${it}`

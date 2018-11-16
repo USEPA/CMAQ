@@ -1,7 +1,7 @@
 #! /bin/csh -f
 
-# ====================== COMBINE Run Script ======================== 
-# Usage: run.combine.uncoupled.csh >&! combine_v521_uncoupled.log &                                
+# ====================== COMBINE_v5.3 Run Script ======================== 
+# Usage: run.combine.uncoupled.csh >&! combine_v53_uncoupled.log &                                
 #
 # To report problems or request help with this script/program:     
 #             http://www.epa.gov/cmaq    (EPA CMAQ Website)
@@ -20,13 +20,16 @@
  cd ../../..
  source ./config_cmaq.csh
        
-#> Set the model version
- set VRSN = v521
-
-#> Set General Parameters for Labeling the Simulation
- set MECH = cb6r3_ae6_aq          #> Mechanism ID
- set CASE = SE52BENCH
- set APPL = v521_intel_$CASE	  #> Application Name (e.g. Code version, compiler, gridname, emissions, etc.)
+#> Set General Parameters for Configuring the Simulation
+ set VRSN      = v53               #> Code Version
+ set PROC      = mpi               #> serial or mpi
+ set MECH      = cb6r3_ae7_aq      #> Mechanism ID
+ set APPL      = SE52BENCH         #> Application Name (e.g. Gridname)
+                                                      
+#> Define RUNID as any combination of parameters above or others. By default,
+#> this information will be collected into this one string, $RUNID, for easy
+#> referencing in output binaries and log files as well as in other scripts.
+ setenv RUNID  ${VRSN}_${compilerString}_${APPL}
 
 #> Set the build directory if this was not set above 
 #> (this is where the CMAQ executable is located by default).
@@ -41,9 +44,9 @@
  setenv REPO_HOME  ${CMAQ_REPO}
 
 #> Set working, input and output directories
- setenv METDIR     ${CMAQ_DATA}/$CASE/met/mcip            #> Met Output Directory
- setenv CCTMOUTDIR ${CMAQ_DATA}/output_CCTM_${APPL} #> CCTM Output Directory
- setenv POSTDIR    ${CMAQ_DATA}/POST                #> Location where combine file will be written
+ setenv METDIR     ${CMAQ_DATA}/$APPL/met/mcip            #> Met Output Directory
+ setenv CCTMOUTDIR ${CMAQ_DATA}/output_CCTM_${RUNID}      #> CCTM Output Directory
+ setenv POSTDIR    ${CMAQ_DATA}/POST                      #> Location where combine file will be written
 
   if ( ! -e $POSTDIR ) then
 	  mkdir $POSTDIR
@@ -91,16 +94,16 @@
 
   #> Define name of combine output file to save hourly average concentration.
   #> A new file will be created for each month/year.
-   setenv OUTFILE ${POSTDIR}/COMBINE_ACONC_${APPL}_$YYYY$MM.nc
+   setenv OUTFILE ${POSTDIR}/COMBINE_ACONC_${RUNID}_$YYYY$MM.nc
 
   #> Define name of input files needed for combine program.
   #> File [1]: CMAQ conc/aconc file
   #> File [2]: MCIP METCRO3D file
   #> File [3]: CMAQ APMDIAG file
   #> File [4]: MCIP METCRO2D file
-   setenv INFILE1 $CCTMOUTDIR/CCTM_ACONC_${APPL}_$YYYY$MM$DD.nc
+   setenv INFILE1 $CCTMOUTDIR/CCTM_ACONC_${RUNID}_$YYYY$MM$DD.nc
    setenv INFILE2 $METDIR/METCRO3D_$YY$MM$DD.nc
-   setenv INFILE3 $CCTMOUTDIR/CCTM_APMDIAG_${APPL}_$YYYY$MM$DD.nc
+   setenv INFILE3 $CCTMOUTDIR/CCTM_APMDIAG_${RUNID}_$YYYY$MM$DD.nc
    setenv INFILE4 $METDIR/METCRO2D_$YY$MM$DD.nc
 
   #> Executable call:
@@ -137,15 +140,15 @@
 
   #> Define name of combine output file to save hourly total deposition.
   #> A new file will be created for each month/year.
-   setenv OUTFILE ${POSTDIR}/COMBINE_DEP_${APPL}_$YYYY$MM
+   setenv OUTFILE ${POSTDIR}/COMBINE_DEP_${RUNID}_$YYYY$MM
 
   #> Define name of input files needed for combine program.
   #> File [1]: CMAQ DRYDEP file
   #> File [2]: CMAQ WETDEP file
   #> File [3]: MCIP METCRO2D
   #> File [4]: {empty}
-   setenv INFILE1 $CCTMOUTDIR/CCTM_DRYDEP_${APPL}_$YYYY$MM$DD.nc
-   setenv INFILE2 $CCTMOUTDIR/CCTM_WETDEP1_${APPL}_$YYYY$MM$DD.nc
+   setenv INFILE1 $CCTMOUTDIR/CCTM_DRYDEP_${RUNID}_$YYYY$MM$DD.nc
+   setenv INFILE2 $CCTMOUTDIR/CCTM_WETDEP1_${RUNID}_$YYYY$MM$DD.nc
    setenv INFILE3 $METDIR/METCRO2D_$YY$MM$DD.nc
    setenv INFILE4
 

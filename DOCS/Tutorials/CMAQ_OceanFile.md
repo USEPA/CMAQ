@@ -71,9 +71,14 @@ $TIME $EXE
 
 Run the script and check the output directory designated in the run script for the new OCEAN file.
 
-## OPTION 2: Zero Out Sea Salt Emissions
 
-Even if your modeling domain does not contain areas of sea salt emissions, you need to provide an OCEAN file to the CCTM. You can create a dummy OCEAN file for domains with no sea salt sources or if you prefer to set sea salt emissions to zero. Copy and run the following I/O API Tool m3fake script to create an OCEAN file containing zeros for the open ocean and surf zone coverage fractions. Using this file will effectively configure a CCTM simulation with zero sea salt emissions.  
+## OPTION 2: Run without an OCEAN input file in CMAQv5.3 and later
+
+If your modeling domain does not contain any coastal area, you can run CMAQ without an OCEAN input file by turning off Sea-Spray Emissions. To turn off the Sea-Spray Emissions, set the RunScript option "CTM_SS_AERO" to "N" or "F". 
+
+## OPTION 3: Zero Out Sea-Spray Emissions in CMAQv5.2 or earlier
+
+Options 2 for turning off Sea-Spray Emissions through the RunScript is only available in v5.3 and onward.  In earlier CMAQ versions, even if your modeling domain does not contain areas of sea salt emissions, you need to provide an OCEAN file to the CCTM. You can create a dummy OCEAN file for domains with no sea salt sources or if you prefer to set sea salt emissions to zero. Copy and run the following I/O API Tool m3fake script to create an OCEAN file containing zeros for the open ocean and surf zone coverage fractions. Using this file will effectively configure a CCTM simulation with zero sea salt emissions.  
 
 Note that you will need the [I/O API Tools](www.cmascenter.org/ioapi) installed and compiled on your Linux system to use this script.
 
@@ -83,29 +88,27 @@ Note that you will need the [I/O API Tools](www.cmascenter.org/ioapi) installed 
 # m3fake script to create a dummy ocean file
 
 setenv GRIDDESC $CMAQ_HOME/data/mcip/GRIDDESC
-setenv GRID_NAME CMAQ-BENCHMARK
+setenv GRID_NAME SE52BENCH
 setenv OUTFILE $CMAQ_HOME/data/ocean/ocean_file.dummy.$GRID_NAME.ncf
 m3fake << EOF
-
-
+Y
 2
-$GRID_NAME
+SE52BENCH
 1
 0
 2
 OPEN
-UNKNOWN
-OPEN
-3
+1
+open ocean fraction 
+1
 5
-
+0.
 SURF
-UNKNOWN
-SURF
-3
+1
+surf zone fraction
+1
 5
-
-
+0.
 
 OUTFILE
 EOF

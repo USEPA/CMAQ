@@ -18,8 +18,16 @@
 
        MODULE VERTEXT_MODULE
 
+         USE STD_CONC, ONLY: N_C_GC_SPC, C_GC_SPC, N_C_AE_SPC, C_AE_SPC,  
+     &                       N_C_NR_SPC, C_NR_SPC, N_C_TR_SPC, C_TR_SPC,
+     &                       N_CSPCS, L_CONC_WVEL, L_CONC_RH, L_CONC_TA,
+     &                       L_CONC_PRES
+
          INTEGER              :: NVERTEXT
          INTEGER, ALLOCATABLE :: VERTEXTJ(:), VERTEXTI(:), VERT_SEQ(:)
+ 
+         INTEGER                      :: NVERTEXT_SPCS = 0
+         CHARACTER( 16 ), ALLOCATABLE :: VERTEXT_SPCS( : )
 
 ! for parallel implementation
          INTEGER              :: MY_NVERTEXT
@@ -42,9 +50,7 @@ C   09 Jan 18 D.Wong: put in parallel implementation
 C-----------------------------------------------------------------------
 
          USE GRID_CONF
-         USE RUNTIME_VARS, ONLY: LOGDEV, LVEXT
-         USE STD_CONC, ONLY: N_C_GC_SPC, C_GC_SPC, N_C_AE_SPC, C_AE_SPC,  
-     &                       N_C_NR_SPC, C_NR_SPC, N_C_TR_SPC, C_TR_SPC
+         USE RUNTIME_VARS, ONLY: LOGDEV, LVEXT, N_CONC_VARS
          USE UTILIO_DEFN
 #ifdef parallel
          USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
@@ -80,7 +86,7 @@ C environment variable for no. of layers from bottom to save on VEXT file
 C  environment variable description
          CHARACTER( 80 ) :: VARDESC
 
-         INTEGER :: K, KD, L, SPC, V   ! loop counters
+         INTEGER :: K, KD, L, SPC, V, VAR   ! loop counters
          INTEGER :: STRT, FINI         ! loop counters
          INTEGER :: STATUS
          INTEGER :: GDTYP2 = 1
@@ -121,7 +127,7 @@ C Set output file characteristics from GRID_CONF and open
          SDATE3D = JDATE
          STIME3D = JTIME + TSTEP
          TSTEP3D = TSTEP
-         NVARS3D = N_CSPCS + 2
+         NVARS3D = N_CONC_VARS
          NCOLS3D = 1
          NROWS3D = NVERTEXT
          NLAYS3D = NLAYS
@@ -138,7 +144,7 @@ C Set output file characteristics from GRID_CONF and open
          YCELL3D = YCELL_GD
          VGTYP3D = VGTYP_GD
          VGTOP3D = VGTOP_GD
-         DO L = 1, NLAYS3D + 1
+         DO L = 1, NLAYS + 1
             VGLVS3D( L ) = VGLVS_GD( L )
          END DO
          GDNAM3D = GRID_NAME  ! from HGRD_DEFN
@@ -168,6 +174,7 @@ C Set output file characteristics from GRID_CONF and open
          WRITE (MYFMT, '(a10, i3, a6)') '(A16, 1X, ', NVERTEXT, 'f12.6)'
          WRITE (FDESC3D(KD + 4 + L), myfmt) 'Y list: ', VERTEXTJR(1:NVERTEXT)
          WRITE (FDESC3D(KD + 5 + L), myfmt) 'X list: ', VERTEXTIR(1:NVERTEXT)
+         
          
          STATUS = 0
          MY_NVERTEXT = 0
@@ -267,18 +274,43 @@ C Set output file characteristics from GRID_CONF and open
             UNITS3D( SPC ) = 'ppmV'
             VDESC3D( SPC ) = 'Molar Mixing Ratio for species ' // VNAME3D( SPC )
          END DO
-
-         SPC = FINI + 1
-         VTYPE3D( SPC ) = M3REAL
-         VNAME3D( SPC ) = 'PRES            '
-         UNITS3D( SPC ) = 'Pa'
-         VDESC3D( SPC ) = 'Pressure'
-
-         SPC = FINI + 2
-         VTYPE3D( SPC ) = M3REAL
-         VNAME3D( SPC ) = 'TA              '
-         UNITS3D( SPC ) = 'K'
-         VDESC3D( SPC ) = 'Temperature'
+ 
+         VAR = FINI
+         IF ( L_CONC_WVEL ) THEN   ! for W_YAMO
+            VAR = VAR + 1
+            VTYPE3D( VAR ) = M3REAL
+            VNAME3D( VAR ) = 'W_VEL'
+            UNITS3D( VAR ) = 'm s-1'
+            VDESC3D( VAR ) = 'Derived vertical velocity component'
+         END IF
+      
+         IF ( L_CONC_RH ) THEN   ! for Relative Humidity
+            VAR = VAR + 1 
+            VTYPE3D( VAR ) = M3REAL
+            VNAME3D( VAR ) = 'RH'
+            UNITS3D( VAR ) = '1'
+            VDESC3D( VAR ) = 'Fractional Relative Humidity'
+         END IF
+       
+         IF ( L_CONC_TA ) THEN   ! for Temperature
+            VAR = VAR + 1 
+            VTYPE3D( VAR ) = M3REAL
+            VNAME3D( VAR ) = 'TA'
+            UNITS3D( VAR ) = 'K'
+            VDESC3D( VAR ) = 'Air Temperature'
+         END IF
+       
+         IF ( L_CONC_PRES ) THEN   ! for Pressure
+            VAR = VAR + 1 
+            VTYPE3D( VAR ) = M3REAL
+            VNAME3D( VAR ) = 'PRES'
+            UNITS3D( VAR ) = 'Pa'
+            VDESC3D( VAR ) = 'Air Pressure'
+         END IF
+ 
+         NVERTEXT_SPCS = NVARS3D
+         ALLOCATE( VERTEXT_SPCS( NVERTEXT_SPCS ), STAT = STATUS )
+         VERTEXT_SPCS( 1:NVERTEXT_SPCS ) = VNAME3D( 1:NVERTEXT_SPCS ) 
 
 C create header
 
@@ -299,10 +331,10 @@ C create header
          DEALLOCATE(VERTEXTLAT, VERTEXTLON, VERTEXTJR, VERTEXTIR)
 
          END SUBROUTINE OPVEXT
-
+#ifdef parallel
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
          LOGICAL FUNCTION PWRVEC( FILNAME, VARNAME, DATE, TIME,
-     &                            BUFFER, NLAYS3D,
+     &                            BUFFER, NLAYS,
      &                            NCOLS, NROWS, NP, 
      &                            NVERTEXT, VERTEXTII, VERTEXTJI)
 C.....................................................................
@@ -331,9 +363,9 @@ C    CHARACTER*(*)  FILNAME        ! Name of file containing variable VARNAME
 C    CHARACTER*(*)  VARNAME        ! Name of file variable to write
 C    INTEGER        DATE           ! Date, formatted YYYYDDD
 C    INTEGER        TIME           ! Time, formatted HHMMSS
-C    REAL           BUFFER(NCOLS, NROWS, NLAYS3D)
+C    REAL           BUFFER(NCOLS, NROWS, NLAYS)
 C                                  ! Buffer holding (local) array to be written
-C    INTEGER  NLAYS3D              ! Layer dimension of file variables
+C    INTEGER  NLAYS                ! Layer dimension of file variables
 C    INTEGER  NCOLS                ! Column dimension of local-processor arrays
 C    INTEGER  NROWS                ! Row dimension of local-processor arrays
 C    INTEGER  NP                   ! Number of processors
@@ -352,10 +384,10 @@ C             arguments FILNAME, VARNAME, DATE, and TIME are meaningful
 C             only to the I/O processor.
  
 C         (2) This routine handles only gridded variables. The BUFFER is
-C             assumed to be declared as BUFFER( NCOLS, NROWS, NLAYS3D ),
+C             assumed to be declared as BUFFER( NCOLS, NROWS, NLAYS ),
 C             where NCOLS and NROWS are the local PE grid subdomain
-C             dimensions and NLAYS3D is the file variable layer dimension.
-C             BUFFER is assumed to be filled as BUFFER(1:C,1:R,1:NLAYS3D),
+C             dimensions and NLAYS is the file variable layer dimension.
+C             BUFFER is assumed to be filled as BUFFER(1:C,1:R,1:NLAYS),
 C             where C = WR_COLSX_PE(2,MY_PE+1), R = WR_ROWSX_PE(2,MY_PE+1).
 C-----------------------------------------------------------------------
 
@@ -376,7 +408,7 @@ C Arguments
          CHARACTER( * ), INTENT(IN) :: VARNAME   ! Name of file variable to write
          INTEGER, INTENT(IN)        :: DATE      ! Date, formatted YYYYDDD
          INTEGER, INTENT(IN)        :: TIME      ! Time, formatted HHMMSS 
-         INTEGER, INTENT(IN)        :: NLAYS3D   ! Layer dimension of file variables
+         INTEGER, INTENT(IN)        :: NLAYS     ! Layer dimension of file variables
          INTEGER, INTENT(IN)        :: NCOLS     ! Column dimension of local-processor arrays
          INTEGER, INTENT(IN)        :: NROWS     ! Row dimension of local-processor arrays
          INTEGER, INTENT(IN)        :: NP        ! Number of processors
@@ -419,7 +451,7 @@ C Initialize return value and error code
          IF ( MY_PE .EQ. IO_PE ) THEN    ! I/O processor collects and writes data
 
             IF (.NOT. ALLOCATED(WRITVBUF)) THEN
-               ALLOCATE ( WRITVBUF  ( 1, NVERTEXT, NLAYS3D ), STAT = IERROR )
+               ALLOCATE ( WRITVBUF  ( 1, NVERTEXT, NLAYS ), STAT = IERROR )
                IF ( IERROR .NE. 0 ) THEN
                   MSG = 'Failure allocating WRITVBUF '
                   CALL M3EXIT( 'PWRVEC', DATE, TIME, MSG, 1 )
@@ -444,13 +476,13 @@ C buffer. Arrays are received in a first-come-first-serve order.
             DO IPE = 1, NP - 1
 
                IF (PE_NVERTEXT(0, IPE) .GT. 0) THEN
-                  ALLOCATE ( RECVVBUF  ( PE_NVERTEXT(0, IPE), NLAYS3D ), STAT = IERROR )
+                  ALLOCATE ( RECVVBUF  ( PE_NVERTEXT(0, IPE), NLAYS ), STAT = IERROR )
                   IF ( IERROR .NE. 0 ) THEN
                      MSG = 'Failure allocating RECVVBUF '
                      CALL M3EXIT( 'PWRVEC', DATE, TIME, MSG, 1 )
                   END IF
 
-                  MSGSIZE = PE_NVERTEXT(0, IPE) * NLAYS3D
+                  MSGSIZE = PE_NVERTEXT(0, IPE) * NLAYS  
 
                   CALL MPI_RECV( RECVVBUF, MSGSIZE, MPI_REAL, IPE,
      &                           TAG1, MPI_COMM_WORLD, STATUS, IERROR )
@@ -491,7 +523,7 @@ C the I/O processor.
 
             IF (MY_NVERTEXT .GT. 0) THEN
                IF (.NOT. ALLOCATED(SENDVBUF)) THEN
-                  ALLOCATE ( SENDVBUF  ( MY_NVERTEXT, NLAYS3D ), STAT = IERROR )
+                  ALLOCATE ( SENDVBUF  ( MY_NVERTEXT, NLAYS   ), STAT = IERROR )
                   IF ( IERROR .NE. 0 ) THEN
                      MSG = 'Failure allocating SENDVBUF '
                      CALL M3EXIT( 'PWRVEC', DATE, TIME, MSG, 1 )
@@ -505,7 +537,7 @@ C the I/O processor.
                   SENDVBUF( IG, : ) = BUFFER(TC, TR, :)
                END DO
 
-               MSGSIZE = MY_NVERTEXT * NLAYS3D
+               MSGSIZE = MY_NVERTEXT * NLAYS  
 
                CALL MPI_SEND( SENDVBUF, MSGSIZE, MPI_REAL, IO_PE, TAG1,
      &                        MPI_COMM_WORLD, IERROR )
@@ -541,7 +573,7 @@ C Notify non-I/O processors of failure
          END FUNCTION PWRVEC
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-         SUBROUTINE WR_VEXT( JDATE, JTIME, TSTEP )
+         SUBROUTINE WR_VEXT( CGRID, JDATE, JTIME, TSTEP )
 
 C Revision History:
 C   24 Nov 17 B.Henderson: copied from WR_CONC
@@ -555,6 +587,7 @@ C-----------------------------------------------------------------------
          USE PIOMAPS_MODULE
          USE UTILIO_DEFN
          USE ASX_DATA_MOD, Only: Met_Data
+         USE WVEL_DEFN, Only : WVEL
 
          IMPLICIT NONE
 
@@ -562,9 +595,10 @@ C Include Files:
 
          INCLUDE SUBST_FILES_ID    ! I/O definitions and declarations
 
-         INTEGER, INTENT(IN) :: JDATE        ! current model date, coded YYYYDDD
-         INTEGER, INTENT(IN) :: JTIME        ! current model time, coded HHMMSS
-         INTEGER, INTENT(IN) :: TSTEP        ! output timestep (HHMMSS)
+         REAL,    POINTER    :: CGRID( :,:,:,: )  ! Species concentrations
+         INTEGER, INTENT(IN) :: JDATE             ! current model date, coded YYYYDDD
+         INTEGER, INTENT(IN) :: JTIME             ! current model time, coded HHMMSS
+         INTEGER, INTENT(IN) :: TSTEP             ! output timestep (HHMMSS)
 
 C Local variables:
 
@@ -580,8 +614,9 @@ C for INTERPX
 
          INTEGER      :: C, R, K, L, V,GI   ! loop induction variables
          INTEGER      :: C0, CN, R0, RN
-         CHARACTER( 16 ), ALLOCATABLE, SAVE :: VNAME( : )
-         INTEGER, SAVE :: NVARS
+         INTEGER      :: INDX, VAR
+!        CHARACTER( 16 ), ALLOCATABLE, SAVE :: VNAME( : )
+!        INTEGER, SAVE :: NVARS
 
 C-----------------------------------------------------------------------
          IF ( FIRSTIME ) THEN
@@ -598,14 +633,16 @@ C open vext file for update
                END IF
             END IF
 
-            IF ( .NOT. DESC3( CTM_VEXT_1 ) ) THEN
-               XMSG = 'Could not get file description from ' // CTM_VEXT_1
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-            NVARS = NVARS3D
-            ALLOCATE ( VNAME( NVARS ), STAT=ALLOCSTAT )
+!           IF ( .NOT. DESC3( CTM_VEXT_1 ) ) THEN
+!              XMSG = 'Could not get file description from ' // CTM_VEXT_1
+!              CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+!           END IF
+!           NVARS = NVARS3D
+!           ALLOCATE ( VNAME( NVARS ), STAT=ALLOCSTAT )
+!           VNAME = VNAME3D( 1:NVARS )
+!           WRITE(LOGDEV, *) 'WR_VEXT:NVARS', NVARS
 
-            VNAME = VNAME3D( 1:NVARS )
+
             IF ( .NOT. ALLOCATED( DBUFF ) ) THEN
                ALLOCATE ( DBUFF( NVERTEXT, NLAYS ), STAT = ALLOCSTAT )
                IF ( ALLOCSTAT .NE. 0 ) THEN
@@ -615,39 +652,68 @@ C open vext file for update
             END IF
 
          END IF   ! firstime
-         WRITE(LOGDEV, *) 'WR_VEXT:NVARS', NVARS
 
-         DO V = 1, NVARS
-
-            IF ( .NOT. PWRVEC(CTM_VEXT_1, VNAME(V), JDATE, JTIME,
-     &                        SGRID(:, :, :, V), NLAYS3D,
+         DO V = 1, N_CSPCS
+            INDX = CONC_MAP( V )
+            IF ( .NOT. PWRVEC(CTM_VEXT_1, CONC_FILE_SPCS( V ), JDATE, JTIME,
+     &                        CGRID(:, :, :, INDX), NLAYS,
      &                        NCOLS, NROWS, NUMPROCS, 
      &                        NVERTEXT, VERTEXTI, VERTEXTJ     ) ) THEN
-                     XMSG = 'PWRGRDD failed writing variable '
-     &                     // TRIM( VNAME(V) ) //
-     &                     ' to file '// TRIM( CTM_VEXT_1 )
+               XMSG = 'PWRGRDD failed writing variable '
+     &              // TRIM( CONC_FILE_SPCS(V) ) //
+     &              ' to file '// TRIM( CTM_VEXT_1 )
                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            ELSE
+               XMSG = 'PWRGRDD wrote variable '
+     &              // TRIM( CONC_FILE_SPCS(V) ) //
+     &              ' to file '// TRIM( CTM_VEXT_1 )
+               WRITE( LOGDEV, '(A)') XMSG
             END IF
          END DO
-
-         IF ( .NOT. PWRVEC(CTM_VEXT_1, VNAME(V + 1), JDATE, JTIME,
-     &                     Met_Data%PRES(:, :, :), NLAYS3D,
+ 
+         IF ( L_CONC_WVEL ) THEN
+         IF ( .NOT. PWRVEC(CTM_VEXT_1, 'W_VEL', JDATE, JTIME,
+     &                     WVEL(:, :, :), NLAYS,
      &                     NCOLS, NROWS, NUMPROCS, 
      &                     NVERTEXT, VERTEXTI, VERTEXTJ     ) ) THEN
-                  XMSG = 'PWRGRDD failed writing variable '
-     &                  // TRIM( VNAME(V) ) //
-     &                  ' to file '// TRIM( CTM_VEXT_1 )
+            XMSG = 'PWRGRDD failed writing variable WVEL'
+     &          // ' to file '// TRIM( CTM_VEXT_1 )
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
+         END IF
          
-         IF ( .NOT. PWRVEC(CTM_VEXT_1, VNAME(V + 2), JDATE, JTIME,
-     &                     Met_Data%TA(:, :, :), NLAYS3D,
+         IF ( L_CONC_RH ) THEN
+         IF ( .NOT. PWRVEC(CTM_VEXT_1, 'RH', JDATE, JTIME,
+     &                     MET_DATA%RH(:, :, :), NLAYS,
      &                     NCOLS, NROWS, NUMPROCS, 
      &                     NVERTEXT, VERTEXTI, VERTEXTJ     ) ) THEN
-                  XMSG = 'PWRGRDD failed writing variable '
-     &                  // TRIM( VNAME(V) ) //
-     &                  ' to file '// TRIM( CTM_VEXT_1 )
+            XMSG = 'PWRGRDD failed writing variable RH'
+     &          // ' to file '// TRIM( CTM_VEXT_1 )
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+         END IF
+         
+ 
+         IF ( L_CONC_PRES ) THEN
+         IF ( .NOT. PWRVEC(CTM_VEXT_1, 'PRES', JDATE, JTIME,
+     &                     Met_Data%PRES(:, :, :), NLAYS,
+     &                     NCOLS, NROWS, NUMPROCS, 
+     &                     NVERTEXT, VERTEXTI, VERTEXTJ     ) ) THEN
+            XMSG = 'PWRGRDD failed writing variable PRES'
+     &          // ' to file '// TRIM( CTM_VEXT_1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+         END IF
+         
+         IF ( L_CONC_TA ) THEN
+         IF ( .NOT. PWRVEC(CTM_VEXT_1, 'TA', JDATE, JTIME,
+     &                     Met_Data%TA(:, :, :), NLAYS,
+     &                     NCOLS, NROWS, NUMPROCS, 
+     &                     NVERTEXT, VERTEXTI, VERTEXTJ     ) ) THEN
+            XMSG = 'PWRGRDD failed writing variable TA '
+     &          // ' to file '// TRIM( CTM_VEXT_1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
          END IF
 
          WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
@@ -655,7 +721,7 @@ C open vext file for update
      &         'for date and time', JDATE, JTIME
 
          END SUBROUTINE WR_VEXT
-
+#endif
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
          SUBROUTINE GET_LONLAT(NVERT, VERTLON, VERTLAT)
 C-----------------------------------------------------------------------

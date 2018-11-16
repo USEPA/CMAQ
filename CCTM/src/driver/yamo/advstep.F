@@ -92,7 +92,6 @@ C   10 May 11 D.Wong: incorporated twoway model implementation
 C    6 Apr 12 J.Young: changed default HDIV_LIM to 0.9; made CFL an env var
 C-----------------------------------------------------------------------
 
-      USE RUNTIME_VARS
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE UTILIO_DEFN
 #ifdef parallel
@@ -154,8 +153,6 @@ C Local Variables:
       REAL, ALLOCATABLE, SAVE :: WIND_IDX_BEG( : )  ! at beginning of output step
       REAL, ALLOCATABLE, SAVE :: WIND_IDX_END( : )  ! at end of output step
       REAL, ALLOCATABLE, SAVE :: WIND_IDX    ( : )  ! for whole output step
-!     REAL,              SAVE :: WIND_IDX    ( NLAYS ) Can't SAVE an automatic array!
-                                                    ! MAX ( HDIV ) ...
       REAL, ALLOCATABLE, SAVE :: MX_HDIV_BEG( : )   ! at beginning of output step
       REAL, ALLOCATABLE, SAVE :: MX_HDIV_END( : )   ! at end of output step
       REAL, ALLOCATABLE, SAVE :: MX_HDIV    ( : )   ! for whole output step
@@ -170,13 +167,6 @@ C Local Variables:
       INTEGER :: ALLOCSTAT
 
       CHARACTER( 80 ) :: VARDESC  ! environment variable description
-
-C environment variable adv top layer for sync step calculation
-      CHARACTER( 16 ) :: SIGMA_SYNC_TOP = 'SIGMA_SYNC_TOP'
-C environment variable max Courant-Friedrichs-Lewy number allowed
-      CHARACTER( 16 ) :: CTM_ADV_CFL = 'CTM_ADV_CFL'
-C environment variable max horizontal divergence for adv step adjustment
-      CHARACTER( 16 ) :: ADV_HDIV_LIM = 'ADV_HDIV_LIM'
 
       INTERFACE
         SUBROUTINE HVELOC( FDATE, FTIME, FSTEP, UWIND, VWIND, HDIV )
@@ -373,22 +363,8 @@ C Get the next wind field: do not interpolate
             END DO
          END DO
 
-#ifdef Verbose
-!        if ( jtime .gt. 075600 ) then
-         if ( jtime .gt. 005600 ) then
-            write( logdev,* ) 'local MX_HDIV_END: ', l, mx_hdiv_end( l )
-         end if
-#endif
-
          WIND_IDX_END( L ) = SUBST_GLOBAL_MAX( WIND_IDX_END( L ) )
          MX_HDIV_END( L )  = SUBST_GLOBAL_MAX( MX_HDIV_END( L ) )
-
-#ifdef Verbose
-!        if ( jtime .gt. 075600 ) then
-         if ( jtime .gt. 005600 ) then
-            write( logdev,* ) 'global MX_HDIV_END: ', l, mx_hdiv_end( l )
-         end if
-#endif
 
       END DO
 
@@ -530,7 +506,7 @@ C------------------  FORMAT  STATEMENTS   ------------------------------
      &          1X, 'could not determine minimum step that divides TSTEP',
      &          1X, 'for model step:', I7.6, ' HHMMSS' )
 
-92019 FORMAT( / 5X, 'Synchronization step adjusted up to mimimum (SEC):', I7
+92019 FORMAT( / 5X, 'Synchronization step adjusted up to minimum (SEC):', I7
      &        /46X, '(HHMMSS): ', I6.6
      &        / 5X, 'Number of Synchronization steps:', I5  )
 
