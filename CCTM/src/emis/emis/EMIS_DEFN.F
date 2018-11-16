@@ -295,6 +295,7 @@ C Retrieve Emissions from All Stream Types
 
              ! Retrieve Point Source Emissions Streams
              CASE ( 2 )
+               NL = 1
                CALL GET_PT3D_EMIS ( JDATE, JTIME, TSTEP, EM_SURR( :,ISRM ), ISRM, VDEMIS_READ, NL )
                CALL EMISS_SCALING( VDEMIS_READ, ISRM, NL, VDEMIS_SCALED )
                CALL EMISS_SIZE_DIST( ISRM, VDEMIS_SCALED, NL )
@@ -1236,6 +1237,10 @@ C and allowing the model to proceed.
               IF ( EM_NML( IRULE )%PHASE .EQ. 'ALL' ) THEN
                  ! Expand the Rule to Apply to All Phases and Modes
                  EM_PHASE_RULE( ISRM )%ARRY = .TRUE.
+                 LERROR = .FALSE.
+              ELSE IF ( EM_NML( IRULE )%PHASE .EQ. 'AERO' ) THEN
+                 ! Expand the Rule to Apply to All Aerosol Modes
+                 EM_PHASE_RULE( ISRM )%ARRY(2:) = .TRUE.
                  LERROR = .FALSE.
               ELSE
                  ! Find the Specific Phase/Mode this Rule Identifies

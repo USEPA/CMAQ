@@ -392,13 +392,11 @@ C-----------------------------------------------------------------------
        SD_NAME = ''
 
        DO ISRM = 1,N_EM_SRM
-         N_SD( ISRM ) = 3
+         N_SD( ISRM ) = 2
          SD_NAME( ISRM,1 ) = 'FINE'
          SD( ISRM,1 ) = INDEX1( 'FINE_REF',   N_EM_AERO_REF, EM_AERO_REF( : )%NAME )
          SD_NAME( ISRM,2 ) = 'COARSE'
          SD( ISRM,2 ) = INDEX1( 'COARSE_REF', N_EM_AERO_REF, EM_AERO_REF( : )%NAME )
-         SD_NAME( ISRM,3 ) = 'AERO'
-         SD( ISRM,3 ) = INDEX1( 'UNITY_REF',   N_EM_AERO_REF, EM_AERO_REF( : )%NAME )
        END DO
        
        ! Now Modify those defaults or add new modes to desired streams
@@ -420,13 +418,6 @@ C-----------------------------------------------------------------------
                    ! Overwrite the COARSE mode. All coarse particle
                    ! species will go to this mode by default
                    SD( ISRM,2 ) = INDEX1( SD_NML( IRULE )%MODE_REF,
-     &                               N_EM_AERO_REF, EM_AERO_REF( : )%NAME )
-               ELSEIF ( SD_NML( IRULE )%MODE .EQ. 'AERO' ) THEN
-                   ! Overwrite the Full Aerosol Distribution. All
-                   ! species will distributed to this configuration of
-                   ! modes. For example, dust or sea spray can be
-                   ! modified this way.
-                   SD( ISRM,3 ) = INDEX1( SD_NML( IRULE )%MODE_REF,
      &                               N_EM_AERO_REF, EM_AERO_REF( : )%NAME )
                ELSE
                    ! Add a New Available Mode. For example, add a mode

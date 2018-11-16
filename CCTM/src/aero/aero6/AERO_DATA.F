@@ -442,7 +442,6 @@ C                                                             fine    coarse
       ! Make sure to ignore any tracer species when performing this calculation.
       Real, Parameter :: dust_dens( n_mode ) = (/ 2200.0, 2156.55, 2536.92 /)
 
-      INTEGER, ALLOCATABLE, SAVE :: MAP_DUSTtoAERO( : ) 
       Real, ALLOCATABLE, SAVE    :: DUSTOUTM( :,:,:,: ) ! Wind-Blown Dust Mass Emiss Rate [ug/m3/s]
       Real, ALLOCATABLE, SAVE    :: DUSTOUTN( :,:,: )   ! Wind-Blown Dust Number Emiss Rate [1/m3/s]
       Real, ALLOCATABLE, SAVE    :: DUSTOUTS( :,:,: )   ! Wind-Blown Dust Surface Area Emiss Rate [m2/m3/s]
@@ -487,8 +486,6 @@ C                                                              fine    coarse
       Real, Parameter :: seaspray_dens( n_mode ) = (/ 2162.7, 2162.7, 2162.7 /)
       Real, Parameter :: specific_vol_h2o = 0.001  !Inverse Density of Particulate Water
  
-      INTEGER, ALLOCATABLE, SAVE :: MAP_SEAtoAERO( : )  !
-
 C Constants used for simulating the ionic effects of sea-spray,
 C windblown dust and anthropogenic dust in the coarse mode. These cation
 C species are not transported individually in the domain but their
