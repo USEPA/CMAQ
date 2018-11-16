@@ -79,7 +79,7 @@ C-----------------------------------------------------------------------
       
          USE RXNS_DATA, ONLY : MECHNAME
          USE UTILIO_DEFN
-         USE CGRID_SPC, ONLY : N_CGRID_SPC, CGRID_NAME, CGRID_MW 
+         USE CGRID_SPCS, ONLY : N_CGRID_SPC, CGRID_NAME, CGRID_MW 
 
          IMPLICIT NONE
 
@@ -465,11 +465,11 @@ C Save Species names in global array for mapping emissions
          ! Populate the Molecular Weight Field by Matching Gas Species
          ! to the CMAQ mechanism species
          DO ISP = 1,MSPCS
-             INDX = INDEXN( EMSPC( ISP ), N_CGRID_SPC, CGRID_NAME )
+             INDX = INDEX1( EMSPC( ISP ), N_CGRID_SPC, CGRID_NAME )
              IF ( INDX .NE. 0 ) THEN
                  EM_FILE_SURR( IBIOSRM )%MW( ISP ) = CGRID_MW( INDX )
              ELSE
-                 WRITE( MESG, '(A,A,/,A,/,A)' ) 'WARNING: BEIS emission species',
+                 WRITE( MESG, '(A,A,A,A)' ) 'WARNING: BEIS emission species',
      &               EMSPC( ISP ),' is not found in the Gas-Phase Mechanism. ',
      &               'The surrogate molecular weight will be set to 1.0'
                  CALL LOG_MESSAGE( LOGDEV, MESG )

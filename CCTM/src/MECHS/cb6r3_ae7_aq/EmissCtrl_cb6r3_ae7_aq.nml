@@ -230,6 +230,10 @@
  !         | Stream Label   | Surr. Mode   | Ref. Mode 
  !<Default>  'ALL'          ,'FINE'        ,'FINE_REF',
  !<Default>  'ALL'          ,'COARSE'      ,'COARSE_REF',
+             'WBDUST'       ,'FINE'        ,'FINE_WBDUST',
+             'WBDUST'       ,'COARSE'      ,'COARSE_WBDUST',
+             'SEASPRAY'     ,'FINE'        ,'FINE_SEASPRAY',
+             'SEASPRAY'     ,'COARSE'      ,'COARSE_SEASPRAY',
  !<Example>  'AIRCRAFT'     ,'FINE'        ,'AIR_FINE',   !To use these examples, you 
  !<Example>  'AIRCRAFT'     ,'COARSE'      ,'AIR_COARSE', ! must add entries for AIR_FINE
                                                           ! and AIR_COARSE to the data structure

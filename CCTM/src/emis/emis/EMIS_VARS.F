@@ -371,7 +371,7 @@
          IDX = INDEX1( RULE_STREAM, N_EM_SRM, EM_FILE_LAB ) 
          IF ( IDX .NE. 0 ) THEN
            EM_STREAM_RULE( IDX ) = .TRUE.
-         ELSE
+         ELSE IF ( RULE_STREAM .NE. 'WBDUST' .AND. RULE_STREAM .NE. 'SEASPRAY' ) THEN
            WRITE( LOGDEV, * )
            WRITE( LOGDEV, '(/,3A,I3,/,2A,/,2A)' ),
      &         'The Emissions Stream Label (',TRIM( RULE_STREAM ),

@@ -147,7 +147,7 @@ C Open Gridded Emission Files (for gas chem, aerosols and non-reactive species)
                   CALL UPCASE( UNITSCK )
                   EM_FILE_SURR( ISRM )%UNITS( IVAR ) = UNITS3D( IVAR )
             END DO
-
+          END IF
         END IF    ! (gridded emission file)
       END DO
 

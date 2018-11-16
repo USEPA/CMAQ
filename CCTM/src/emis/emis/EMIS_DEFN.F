@@ -331,8 +331,7 @@ C Retrieve Emissions from All Stream Types
                NL = 1
                CALL GET_SSEMIS ( JDATE, JTIME, TSTEP, CELLVOL( 1 ), CELLHGT( 1 ) )
                FORALL( ISTR = 1:N_EMIS_ISTR, MAP_EMtoSURR( ISTR,ISRM ) .GT. 0 )
-                  VDEMIS_READ( ISTR,1,:,: ) = 
-     &                  SSOUTM( MAP_EMtoSURR( ISTR,ISRM ),MAP_EMtoMODE( ISTR ),:,: ) 
+                  VDEMIS_READ( ISTR,1,:,: ) = SSOUTM( MAP_EMtoSURR( ISTR,ISRM ),:,: ) 
                END FORALL
                CALL EMISS_SCALING( VDEMIS_READ, ISRM, NL, VDEMIS_SCALED )
                CALL EMISS_SIZE_DIST( ISRM, VDEMIS_SCALED, NL )
@@ -342,8 +341,7 @@ C Retrieve Emissions from All Stream Types
                NL = 1
                CALL GET_DUST_EMIS ( JDATE, JTIME, TSTEP, Met_data%RJACM( :,:,1 ), CELLHGT( 1 ) )
                FORALL( ISTR = 1:N_EMIS_ISTR, MAP_EMtoSURR( ISTR,ISRM ) .GT. 0 )
-                  VDEMIS_READ( ISTR,1,:,: ) = 
-     &                  DUSTOUTM( MAP_EMtoSURR( ISTR,ISRM ),MAP_EMtoMODE( ISTR ),:,: ) 
+                  VDEMIS_READ( ISTR,1,:,: ) = DUSTOUTM( MAP_EMtoSURR( ISTR,ISRM ),:,: ) 
                END FORALL
                CALL EMISS_SCALING( VDEMIS_READ, ISRM, NL, VDEMIS_SCALED )
                CALL EMISS_SIZE_DIST( ISRM, VDEMIS_SCALED, NL )
@@ -1084,7 +1082,7 @@ C and allowing the model to proceed.
          END DO
 
          ! Implement Default Scaling Rules that will Always Be Applied
-         IF ( DefaultScaling ) CALL CUSTOM_EM_RULES( N_EM_RULE )
+         CALL CUSTOM_EM_RULES( N_EM_RULE )
 
 
          ! Allocate Rule->Instruction Transform Masks
@@ -1326,14 +1324,15 @@ C and allowing the model to proceed.
 
                     LTEST = .TRUE.
                     
-                    ! Test to make sure that if this is a Gas species,
+                    ! Test to make sure that if this is a Gas CMAQ species,
                     ! the aerosol-relevant 'phases' are not added as well.
                     IF ( .NOT. DIFF_MASK_AERO( IDIFF ) .AND. 
      &                   EM_STREAM_SIZE( ISRM )%NAME( ISD ) .NE. 'GAS' )
      &                 LTEST = .FALSE.
 
                     ! Test to make sure if this is an aerosol species
-                    ! that the 'phase' selection will actually populate it
+                    ! that the 'phase/mode' selection will actually populate 
+                    ! this CMAQ species, DIFF_SPC( IDIFF )
                     IF ( DIFF_MASK_AERO( IDIFF ) ) THEN
                         DO IAERO = 1,N_AEROSPC
                            IM = INDEX1( DIFF_SPC( IDIFF ), N_MODE,
@@ -1350,7 +1349,9 @@ C and allowing the model to proceed.
                     ! exact matches or existing relationships should be
                     ! populated.
                     IF ( (EM_NML( IRULE )%SURR .EQ. 'ALL' .OR. 
-     &                    EM_NML( IRULE )%SPEC .EQ. 'ALL') .AND.
+     &                    EM_NML( IRULE )%SPEC .EQ. 'ALL' .OR.
+     &                    EM_NML( IRULE )%PHASE.EQ. 'ALL' .OR.
+     &                    EM_NML( IRULE )%PHASE.EQ. 'AERO'     ) .AND.
      &                   (EM_FILE_SURR( ISRM )%ARRY( ISUR ) .NE. 
      &                    DIFF_SPC( IDIFF ) ) ) THEN
                       ! Look for this relationship in at least one
@@ -1358,7 +1359,7 @@ C and allowing the model to proceed.
                       LTEST = .FALSE.
                       DO ISTRN = 1,N_EMIS_ISTR
                           IF ( EM_SPEC( ISTRN ) .EQ. DIFF_SPC( IDIFF ) .AND.
-     &                         EM_SURR( ISTRN ) .EQ. 
+     &                         EM_SURR( ISTRN,ISRM ) .EQ. 
      &                           EM_FILE_SURR( ISRM )%ARRY( ISUR ) ) THEN
                             LTEST = .TRUE.
                           END IF
@@ -1772,7 +1773,7 @@ C and allowing the model to proceed.
          INTEGER, INTENT( IN )            :: ISUR
          CHARACTER( 16 ), INTENT( IN )    :: SPEC
          CHARACTER( 200 )      :: XMSG
-         INTEGER               :: X
+         INTEGER               :: X, SLASH_IND
 
          CONV = 1.0
 
@@ -1864,7 +1865,7 @@ C and allowing the model to proceed.
             ! Convert hours -> seconds
             CONV = CONV * 60.0
          ELSE
-            WRITE( XMSG,'(A,A16,A,/,I3,A11,A16,A,/,A)' ),
+            WRITE( XMSG,'(A,A16,A,I3,A11,A16,A,A)' ),
      &              'ERROR: Surrogate Species ',SPEC,' on emission stream ',
      &              ISRM, ' has units ',UNITS,' which are unkown to CMAQ. ',
      &              'Please correct them to proceed.'

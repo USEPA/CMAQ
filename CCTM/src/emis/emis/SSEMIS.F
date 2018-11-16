@@ -838,9 +838,9 @@ C obtain speciated mass emissions.
                         SSOUTM( S+NSSSPC,C,R ) = ESEASK * REAL( ( 1.0D0 - XSW ), 4 )
                      ELSE
                         SSOUTM( S,C,R ) = ESEASJ * REAL( XSW, 4 )
-     &                                    * SEA_SPC( S )%SPCFAC( 2 )
+     &                                    * SEA_SPC( S )%SPCFAC( 1 )
                         SSOUTM( S+NSSSPC,C,R ) = ESEASK * REAL( XSW, 4 )
-     &                                    * SEA_SPC( S )%SPCFAC( 3 )
+     &                                    * SEA_SPC( S )%SPCFAC( 2 )
                      END IF
 
                   END DO

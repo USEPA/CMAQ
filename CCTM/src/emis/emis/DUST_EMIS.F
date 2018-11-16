@@ -237,7 +237,7 @@ C...Populate Master Emissions Map Vector So That Diagnostics
 C   can be printed in EMIS_MAP
          Em_File_Surr( IDUSTSRM )%len = ndust_spc*2
          Allocate( Em_File_Surr( IDUSTSRM )%arry( ndust_spc*2 ) )
-         Allocate( Em_File_Surr( IDUSTSRM )%cmaq ( ndust_spc*2 ) )
+         Allocate( Em_File_Surr( IDUSTSRM )%units( ndust_spc*2 ) )
          Allocate( Em_File_Surr( IDUSTSRM )%mw   ( ndust_spc*2 ) )
          Allocate( Em_File_Surr( IDUSTSRM )%used ( ndust_spc*2 ) )
          Allocate( Em_File_Surr( IDUSTSRM )%conv ( ndust_spc*2 ) )
@@ -445,8 +445,8 @@ C...append diagnostic variables with mass emissions species
                   if( dust_spc( i )%spcfac( j ) .eq. 0. ) cycle 
                     n = 0
                     do k = 1, idiag   ! determine if dust emissions is already added to diagnostic output
-                       if( trim( EM_FILE_SURR( IDUSTSRM )%ARRY( (j-1)*ndust_spc+i ) 
-     &                     .Eq. diagnm( k )%var )Then
+                       if( trim( EM_FILE_SURR( IDUSTSRM )%ARRY( (j-1)*ndust_spc+i )) 
+     &                     .Eq. diagnm( k )%var ) Then
                          n = k
                          exit
                      end if
