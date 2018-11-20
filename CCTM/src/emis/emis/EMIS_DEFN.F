@@ -321,9 +321,11 @@ C Retrieve Emissions from All Stream Types
              CASE ( 6 )
                NL = EMLAYS
                CALL GET_LTNG ( JDATE, JTIME, TSTEP )
-               FORALL( ISTR = 1:N_EMIS_ISTR, MAP_EMtoSURR( ISTR,ISRM ) .GT. 0 )
-                  VDEMIS_READ( ISTR,1:NL,:,: ) = VDEMIS_LT( :,:,1:NL ) 
-               END FORALL
+               DO L = 1,NL
+                  FORALL( ISTR = 1:N_EMIS_ISTR, MAP_EMtoSURR( ISTR,ISRM ) .GT. 0 )
+                     VDEMIS_READ( ISTR,L,:,: ) = VDEMIS_LT( :,:,L ) 
+                  END FORALL
+               END DO
                CALL EMISS_SCALING( VDEMIS_READ, ISRM, NL, VDEMIS_SCALED )
 
              ! Retrieve Sea Spray Aerosol Emissions 
@@ -1838,36 +1840,37 @@ C and allowing the model to proceed.
             BASIS = 'MASS'
          ELSE
             WRITE( XMSG,'(A,A16,A,/,I3,A11,A16,A,/,A)' ),
-     &              'ERROR: Surrogate Species ',SPEC,' on emission stream ',
-     &              ISRM, ' has units ',UNITS,' which are unkown to CMAQ. ',
+     &              'ERROR: Surrogate Species ',TRIM(SPEC),' on emission stream ',
+     &              ISRM, ' has units ',TRIM(UNITS),' which are unkown to CMAQ. ',
      &              'Please correct them to proceed.'
             CALL LOG_MESSAGE( OUTDEV, XMSG )
             STOP
          END IF
           
          ! Check for Time Units
-         IF ( UNITS(X+1:) .EQ. 'S' .OR. UNITS(X+1:) .EQ. 'S-1' .OR.
-     &        UNITS(X+1:) .EQ. 'SEC'.OR.UNITS(X+1:) .EQ. 'SEC-1' .OR.
-     &        UNITS(X+1:) .EQ. 'SECOND'.OR.UNITS(X+1:) .EQ. 'SECOND-1' .OR.
-     &        UNITS(X+1:) .EQ. 'SECONDS'.OR.UNITS(X+1:) .EQ. 'SECONDS-1' ) THEN
+         X = X + 2
+         IF ( UNITS(X:) .EQ. 'S' .OR. UNITS(X:) .EQ. 'S-1' .OR.
+     &        UNITS(X:) .EQ. 'SEC'.OR.UNITS(X:) .EQ. 'SEC-1' .OR.
+     &        UNITS(X:) .EQ. 'SECOND'.OR.UNITS(X:) .EQ. 'SECOND-1' .OR.
+     &        UNITS(X:) .EQ. 'SECONDS'.OR.UNITS(X:) .EQ. 'SECONDS-1' ) THEN
             ! No Conversion Necessary for seconds -> seconds
             CONV = CONV * 1.0
-         ELSE IF ( UNITS(X+1:) .EQ. 'H' .OR. UNITS(X+1:) .EQ. 'H-1' .OR.
-     &             UNITS(X+1:) .EQ. 'HR'.OR.UNITS(X+1:) .EQ. 'HR-1' .OR.
-     &             UNITS(X+1:) .EQ. 'HOUR'.OR.UNITS(X+1:) .EQ. 'HOUR-1' .OR.
-     &             UNITS(X+1:) .EQ. 'HOURS'.OR.UNITS(X+1:) .EQ. 'HOURS-1' ) THEN
+         ELSE IF ( UNITS(X:) .EQ. 'H' .OR. UNITS(X:) .EQ. 'H-1' .OR.
+     &             UNITS(X:) .EQ. 'HR'.OR.UNITS(X:) .EQ. 'HR-1' .OR.
+     &             UNITS(X:) .EQ. 'HOUR'.OR.UNITS(X:) .EQ. 'HOUR-1' .OR.
+     &             UNITS(X:) .EQ. 'HOURS'.OR.UNITS(X:) .EQ. 'HOURS-1' ) THEN
             ! Convert hours -> seconds
             CONV = CONV * 3600.0
-         ELSE IF ( UNITS(X+1:) .EQ. 'M' .OR. UNITS(X+1:) .EQ. 'M-1' .OR.
-     &             UNITS(X+1:) .EQ. 'MIN'.OR.UNITS(X+1:) .EQ. 'MIN-1' .OR.
-     &             UNITS(X+1:) .EQ. 'MINUTE'.OR.UNITS(X+1:) .EQ. 'MINUTE-1' .OR.
-     &             UNITS(X+1:) .EQ. 'MINUTES'.OR.UNITS(X+1:) .EQ. 'MINUTES-1' ) THEN
+         ELSE IF ( UNITS(X:) .EQ. 'M' .OR. UNITS(X:) .EQ. 'M-1' .OR.
+     &             UNITS(X:) .EQ. 'MIN'.OR.UNITS(X:) .EQ. 'MIN-1' .OR.
+     &             UNITS(X:) .EQ. 'MINUTE'.OR.UNITS(X:) .EQ. 'MINUTE-1' .OR.
+     &             UNITS(X:) .EQ. 'MINUTES'.OR.UNITS(X:) .EQ. 'MINUTES-1' ) THEN
             ! Convert hours -> seconds
             CONV = CONV * 60.0
          ELSE
-            WRITE( XMSG,'(A,A16,A,I3,A11,A16,A,A)' ),
-     &              'ERROR: Surrogate Species ',SPEC,' on emission stream ',
-     &              ISRM, ' has units ',UNITS,' which are unkown to CMAQ. ',
+            WRITE( XMSG,'(A,A,A,I3,A11,A,A,A)' ),
+     &              'ERROR: Surrogate Species ',TRIM(SPEC),' on emission stream ',
+     &              ISRM, ' has units ',TRIM(UNITS),' which are unkown to CMAQ. ',
      &              'Please correct them to proceed.'
             CALL LOG_MESSAGE( OUTDEV, XMSG )
             STOP

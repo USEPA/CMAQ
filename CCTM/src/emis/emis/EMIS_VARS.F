@@ -415,7 +415,7 @@
             EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
             EM_NML_B(N_EM_RULE_B)%SURR  = 'NH3_FERT'
             EM_NML_B(N_EM_RULE_B)%FAC   = -1.0
-            EM_NML_B(N_EM_RULE_B)%BASIS = 'MOLE'
+            EM_NML_B(N_EM_RULE_B)%BASIS = 'UNIT'
             EM_NML_B(N_EM_RULE_B)%OP    = 'a'
             EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
          END IF

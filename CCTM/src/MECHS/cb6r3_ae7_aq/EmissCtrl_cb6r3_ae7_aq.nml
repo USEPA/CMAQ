@@ -100,7 +100,6 @@
                                      !> DEFAULT MAPPING <!                   
             ! Default Gases                                                                  
             'EVERYWHERE', 'ALL'         ,'ALL'    ,'ALL'    ,'GAS'  ,1.      ,'UNIT','a', 
-            'EVERYWHERE', 'ALL'         ,'GLYXL'  ,'GLY'    ,'GAS'  ,1.      ,'UNIT','a', 
             'EVERYWHERE', 'ALL'         ,'CH4'    ,'ECH4'   ,'GAS'  ,1.      ,'UNIT','a', 
 
             ! Default Aerosols
