@@ -165,7 +165,7 @@ setenv CTM_SFC_HONO Y        #> surface HONO interaction [ default: Y ]; ignore 
 setenv CTM_GRAV_SETL Y       #> vdiff aerosol gravitational sedimentation [ default: Y ]
 setenv CTM_BIOGEMIS N        #> calculate in-line biogenic emissions [ default: N ]
                              #>    [ default: N ]
-setenv CTM_ZERO_PCSOA N      #> zero out emissions of VOC precursor for pcSOA formation.
+setenv CTM_ZERO_PCSOA Y      #> zero out emissions of VOC precursor for pcSOA formation.
                              #>    The CMAQ dev team recommends leaving pcSOA mass in the
                              #>    model for production runs. [ default: N ]
 
@@ -361,8 +361,12 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 
   #> Gridded Emissions Files 
   setenv N_EMIS_GR 1
-  set EMISfile  = emis_mole_all_${YYYYMMDD}_HEMI_108k_withbeis_2016fe_spinup_cb6_15jh.ncf
-  #set EMISfile  = emis_mole_all_${YYYYMMDD}_HEMI_108k_withbeis_2016fe_hemi_cb6_16jh.ncf
+  if( $year == 2015 ) then
+      set EMISfile  = emis_mole_all_${YYYYMMDD}_HEMI_108k_withbeis_2016fe_spinup_cb6_15jh.ncf
+   else
+      set EMISfile  = emis_mole_all_${YYYYMMDD}_HEMI_108k_withbeis_2016fe_hemi_cb6_16jh.ncf
+  endif
+
   setenv GR_EMIS_001 ${EMISpath}/${EMISfile}
   setenv GR_EMIS_LAB_001 GRIDDED_EMIS
   setenv GR_EM_DTOVRD_001 F
