@@ -294,7 +294,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       WRITE( MODULE_UNIT,'(7X,"MODULE RXNS_DATA", 3/ 7X, "IMPLICIT NONE" 3/ )')
        
-      LITE = .TRUE.
+      LITE = OMIT_RCONST_DATA
       
       CALL WREXTS_FORTRAN90 ( MODULE_UNIT, EQUATIONS_MECHFILE,
      &              MECHNAME,
@@ -694,6 +694,7 @@ C Error-check phot tables and report to log
 5117  FORMAT(/    '!  Reaction Label ', A / 16X, 'RKI( NCELL, ', I4, ') = ')
 5118  FORMAT(     '!  Reaction Label ', A / 19X, 'RKI( NCELL, ', I4, ') = ')
       WRITE(MODULE_UNIT,99882)
+      IF( LINES_CAPTURED .GT. 0 )WRITE(MODULE_UNIT,99884)
       IF( ( KTN5 + KTN6 ) .GT. 0 )WRITE(MODULE_UNIT,99883)
     
       IF( LINES_CAPTURED .GT. 0 )THEN ! then write call to subroutine with user defined functions
@@ -1589,13 +1590,13 @@ C Error-check phot tables and report to log
      & '!  Set-up conversion factors '/
      & '             INV_TEMP  = 1.0D+00 / BLKTEMP( NCELL ) '/
      & '             CAIR      = 1.0D+06 * COEF1 * BLKPRES( NCELL ) * INV_TEMP '/
-     & '             H2O       = CAIR * BLKH2O( NCELL ) ' /
      & '             CFACT     = 6.0D-05 * CAIR' / 
      & '             CFACT_SQU = 6.0D-11 * CAIR * CAIR '/
      & '             INV_CAIR  = 1.0D0 / CAIR ' /
      & '             INV_CFACT = 6.0D+07 * INV_CAIR '/     
      & '             TEMP      = BLKTEMP( NCELL ) '/
      & '             TEMPOT300 = BLKTEMP( NCELL ) * TI300 '  )
+99884  FORMAT('             H2O       = CAIR * BLKH2O( NCELL ) ')
 99883  FORMAT(
      & '             RFACT     = 1.0D+06 * INV_CAIR ' / 
      & '             RFACT_SQU = 1.0D+12 * INV_CAIR * INV_CAIR ')

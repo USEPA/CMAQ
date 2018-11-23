@@ -954,7 +954,7 @@ c..Determine the rxn to include & get the coefficient for the loss term
      &       ROH - POH  .GT.  PHO2 - RHO2 )           ! Rxns w/ Loh > 0 &
      &      COEFF =  ROH - POH - ( PHO2 - RHO2 )      ! Pho2 > 0
 
-         IF( COEFF .EQ. 0.0D0 ) CYCLE
+         IF( ABS( COEFF ) .LT. 1.0D-8 ) CYCLE
 
 c..call routine to create output line & write it
          NPOS  = 20

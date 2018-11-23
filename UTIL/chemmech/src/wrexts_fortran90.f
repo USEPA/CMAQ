@@ -256,8 +256,10 @@ C                    1234567890123456789012345678901234567890123456789012
      &        /'!', 4X, 'THREE_REACT_REACTIONS = number three reactant reactions',
      &        /'!', 4X, 'NSUNLIGHT_RXNS  = Number of mechanism reactions requiring sunlight',
      &        /'!', 4X, 'NTHERMAL_RXNS   = Number of mechanism reactions not requiring sunlight',
+     &        /'C', 4X, 'KUNITS          = Units of mechanism reactions'
      &        /'!', 4X, 'IRXBITS         = Bit test mask vector for selected reactions'
      &        /'!', 4X, 'IORDER          = Order of the reaction'
+     &        /'!', 4X, 'KTYPE           = Reaction type'
      &        /'!', 4x, 'NTERMS_JACOB    = Maximum number of nonzero terms in day/night Jacobian'
      &        /'!', 4x, 'NSTEPS_JACOB    = Maximum number of LU Decomposition steps to solve each Jacobian' )
 
@@ -727,33 +729,24 @@ c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 
       END IF
 
-      IF( .NOT. LITE )THEN
-c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
-C
-C--------------------------------------------------------------------------------
-      WRITE( WRUNIT, 1411 )
-1411  FORMAT( /6X, 'REAL( 8 )', 10X, ':: RTDAT( 3,NRXNS )' )
+      IF( .NOT. LITE )THEN ! write rate constant parameters
+         WRITE( WRUNIT, 1411 )
+1411     FORMAT( /6X, 'REAL( 8 )', 10X, ':: RTDAT( 3,NRXNS )' )
 
-      WRITE( WRUNIT, 1501 ) NFALLOFF
-1501  FORMAT( /6X, 'INTEGER, PARAMETER', 1X, ':: NFALLOFF =', I4 )
+         WRITE( WRUNIT, 1501 ) NFALLOFF
+1501     FORMAT( /6X, 'INTEGER, PARAMETER', 1X, ':: NFALLOFF =', I4 )
 
-      IF ( NFALLOFF .NE. 0 ) THEN
-
-         WRITE( WRUNIT, 1521 )
-1521     FORMAT(  6X, 'REAL( 8 )', 10X, ':: RFDAT( 5,NFALLOFF )' )
-
-      ELSE
-
-         WRITE( WRUNIT, 1525 )
-1525     FORMAT(  6X, 'REAL( 8 )', 10X, ':: RFDAT( 1,1 )' )
-
-      END IF
-
-
-c_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+         IF ( NFALLOFF .NE. 0 ) THEN
+            WRITE( WRUNIT, 1521 )
+1521        FORMAT(  6X, 'REAL( 8 )', 10X, ':: RFDAT( 5,NFALLOFF )' )
+         ELSE
+            WRITE( WRUNIT, 1525 )
+1525        FORMAT(  6X, 'REAL( 8 )', 10X, ':: RFDAT( 1,1 )' )
+         END IF
+      END IF 
+c
 c     KTYPE
-c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
- 
+c
         WRITE( WRUNIT, 1101 )
 1101    FORMAT( /6X, 'INTEGER', 12X, ':: KTYPE( NRXNS )' )
 
@@ -761,12 +754,9 @@ c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 1103    FORMAT( /6X, 'DATA ( KTYPE( IRXXN ), IRXXN = 1, NRXNS ) /  & ' )
 
         CALL WRBF6_FORTRAN90 ( WRUNIT, 10, NR, KTYPE )
-      END IF 
-      
-c_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+c
 c     IRXBITS
-c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
-
+c
       WRITE( WRUNIT, 1105 )
 1105  FORMAT( /6X, 'INTEGER', 12X, ':: IRXBITS( NRXNS )' )
 
@@ -774,20 +764,17 @@ c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 1107  FORMAT( /6X, 'DATA ( IRXBITS( IRXXN ), IRXXN = 1, NRXNS ) / & ' )
 
       CALL WRBF6_FORTRAN90( WRUNIT, 10, NR, IRXBITS )
-
-c_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+c
 c     Jacobian information
-c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+c
       WRITE( WRUNIT, 1115 ) MXARRAY
 1115  FORMAT( /6X, 'INTEGER, PARAMETER', 1X, ':: NTERMS_JACOB = ', I8 )
 
       WRITE( WRUNIT, 1117 ) MAXGL3
 1117  FORMAT( /6X, 'INTEGER, PARAMETER', 1X, ':: NSTEPS_JACOB = ', I8 )
-   
-c_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+c
 c     IORDER
-c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
-
+c
       WRITE( WRUNIT, 1109 )
 1109  FORMAT( /6X, 'INTEGER', 12X, ':: IORDER( NRXNS )' )
 
@@ -941,8 +928,8 @@ c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
       END IF
       IF ( HAS_CONSTS ) THEN
          ISPC = INDEX1 ( 'ATM_AIR', MAXCONSTS, NAMCONSTS )
-         WRITE( WRUNIT, 1310 ) REAL(CVAL(ISPC), 4)
-1310     FORMAT(  6X, 'REAL,    PARAMETER ::', 1X, 'ATM_AIR =', 1PE12.5  )
+         WRITE( WRUNIT, 1310 )  CVAL(ISPC)
+1310     FORMAT(  6X, 'REAL( 8 ),    PARAMETER ::', 1X, 'ATM_AIR =', 1PD12.5  )
       END IF
 
       WRITE( WRUNIT, 1311) NWW
@@ -977,7 +964,7 @@ c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
       IF ( HAS_CONSTS ) THEN
          ISPC = INDEX1 ( 'ATM_O2', MAXCONSTS, NAMCONSTS )
          WRITE( WRUNIT, 1330 ) REAL(CVAL(ISPC), 4)
-1330     FORMAT(  6X, 'REAL,    PARAMETER ::', 1X, 'ATM_O2 =', 1PE12.5  )
+1330     FORMAT(  6X, 'REAL( 8 ),    PARAMETER ::', 1X, 'ATM_O2 =', 1PD12.5  )
       END IF
 
       WRITE( WRUNIT, 1331 ) NWN2
@@ -997,7 +984,7 @@ c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
       IF ( HAS_CONSTS ) THEN
          ISPC = INDEX1 ( 'ATM_N2', MAXCONSTS, NAMCONSTS )
          WRITE( WRUNIT, 1340 ) REAL(CVAL(ISPC), 4)
-1340     FORMAT(  6X, 'REAL,    PARAMETER ::', 1X, 'ATM_N2 =', 1PE12.5  )
+1340     FORMAT(  6X, 'REAL( 8 ),    PARAMETER ::', 1X, 'ATM_N2 =', 1PD12.5  )
       END IF
 
       WRITE( WRUNIT, 1341 ) NWCH4
@@ -1017,7 +1004,7 @@ c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
       IF ( HAS_CONSTS ) THEN
          ISPC = INDEX1 ( 'ATM_CH4', MAXCONSTS, NAMCONSTS )
          WRITE( WRUNIT, 1350 ) REAL(CVAL(ISPC), 4)
-1350     FORMAT(  6X, 'REAL,    PARAMETER ::', 1X, 'ATM_CH4 =', 1PE12.5  )
+1350     FORMAT(  6X, 'REAL( 8 ),    PARAMETER ::', 1X, 'ATM_CH4 =', 1PD12.5  )
       END IF
 
       WRITE( WRUNIT, 1351 ) NWH2
@@ -1037,7 +1024,7 @@ c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
       IF ( HAS_CONSTS ) THEN
          ISPC = INDEX1 ( 'ATM_H2', MAXCONSTS, NAMCONSTS )
          WRITE( WRUNIT, 1360 ) REAL(CVAL(ISPC), 4)
-1360     FORMAT(  6X, 'REAL,    PARAMETER ::', 1X, 'ATM_H2 =', 1PE12.5  )
+1360     FORMAT(  6X, 'REAL( 8 ),    PARAMETER ::', 1X, 'ATM_H2 =', 1PD12.5  )
       END IF
 
 c_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_

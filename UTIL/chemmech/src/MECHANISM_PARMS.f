@@ -34,5 +34,6 @@
          LOGICAL :: REORDER_SPECIES    = .FALSE.   ! .TRUE.   ! reorder species based on #terms in time derivative
          LOGICAL :: ASSESS_EFFECTS     = .FALSE.   ! remove terms in time derivative if reaction loss and production cancel out
          LOGICAL :: REORDER_REACTIONS  = .FALSE.   ! .TRUE.
-      
+         LOGICAL :: OMIT_RCONST_DATA   = .FALSE.   ! Do not write rate constant parameters of reaction data module
+
          END MODULE MECHANISM_PARMS

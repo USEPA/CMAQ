@@ -1088,13 +1088,14 @@ C functions block
       CALL WRT_RATE_CONSTANT( NR, IP, NS, SPCLIS, LABEL  )
       
       CLOSE( EXUNIT_SPCS )
-
       CALL WRT_KPP_INPUTS( NR, IP, LABEL, NS  )
       CALL WRT_WIKI_TABLE( NR, IP, LABEL, NS  )
 !      CALL WRT_MD_TABLE( NR, IP, LABEL, NS  )
       CALL WRT_MD_SUBTABLE( NR, IP, LABEL, NS  )
       CALL WRT_CSV_TABLE( NR, IP, LABEL, NS  )
       CALL WRT_HTML_TABLE( NR, IP, LABEL, NS  )
+      CLOSE( IMECH )
+
 
       WRITE( LUNOUT, * ) '   Normal Completion of CHEMMECH'
       WRITE( LUNOUT, * )' Author is ', TRIM( AUTHOR )

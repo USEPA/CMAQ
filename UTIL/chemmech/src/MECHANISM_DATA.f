@@ -298,16 +298,19 @@ c..indices for decomposition
            CHARACTER( 32 )    :: SPECIES_REORDER   = 'REORDER_SPECIES'
            CHARACTER( 32 )    :: REACTIONS_REORDER = 'REORDER_REACTIONS'
            CHARACTER( 32 )    :: EFFECTS_ASSESS    = 'ASSESS_EFFECTS'
+           CHARACTER( 32 )    :: CUT_RCONST_DATA   = 'OMIT_RCONST_DATA'
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c get environment values for optimization options
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-  
-            REORDER_SPECIES   = GET_ENV_FLAG( SPECIES_REORDER, " ", .TRUE., STATUS)
-            REORDER_REACTIONS = GET_ENV_FLAG( REACTIONS_REORDER, " ", .TRUE., STATUS)
-            ASSESS_EFFECTS    = GET_ENV_FLAG( EFFECTS_ASSESS, " ", .FALSE., STATUS)
-            
-            
+            REORDER_SPECIES   = GET_ENV_FLAG( SPECIES_REORDER, "Reorder Species based on Empty Jacobain Values",
+     &                          .TRUE., STATUS)
+            REORDER_REACTIONS = GET_ENV_FLAG( REACTIONS_REORDER, "Reorder Species based on Type and Order",
+     &                          .TRUE., STATUS)
+            ASSESS_EFFECTS    = GET_ENV_FLAG( EFFECTS_ASSESS, "Asset Net Effect of Reactions on Species",
+     &                          .FALSE., STATUS)
+            OMIT_RCONST_DATA  = GET_ENV_FLAG( CUT_RCONST_DATA, "Omit Rate Constant Parameters",
+     &                          .FALSE., STATUS)            
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C Initialize mechanism array variables
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
