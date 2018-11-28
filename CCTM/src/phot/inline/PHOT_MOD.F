@@ -110,7 +110,10 @@ C-----------------------------------------------------------------------
       REAL, ALLOCATABLE  :: RJ_SUB  ( :, :, :, : ) ! subgrid cloud J-values (min-1)
       REAL, ALLOCATABLE  :: ETOT_SFC_WL ( :,:,: )  ! total downward irradiance at sfc [ Watts / m**2  ]
       
-      REAL, ALLOCATABLE  :: BLKDZ( : )             ! layer thicknesses [ m ]
+      REAL, ALLOCATABLE  :: BLKHCHO( : )           ! formaldehyde concentration [ molecules/cm**3 ]
+      REAL, ALLOCATABLE  :: BLKCO  ( : )           ! CO concentration [ molecules/cm**3 ]
+      REAL, ALLOCATABLE  :: BLKSO2 ( : )           ! SO2 concentration [ molecules/cm**3 ]
+      REAL, ALLOCATABLE  :: BLKDZ  ( : )           ! layer thicknesses [ m ]
       REAL, ALLOCATABLE  :: GAS_EXTINCTION( :,: )  ! extinction from gases per layer [1/m]
       REAL, ALLOCATABLE  :: EXTINCTION    ( :,: )  ! total extinction per layer [1/m]
       REAL, ALLOCATABLE  :: ACTINIC_FLUX  ( :,: )  ! actinic fluxes, initially [Photons/(cm^2s)] then  [Watts/m^2] 
@@ -388,7 +391,6 @@ C-----------------------------------------------------------------------
          ALLOCATE( IRRADIANCE    ( NLAYS,NWL ) )
          
          ALLOCATE( DSDH_TD ( NLAYS+1 ),
-     &             BLKDZ   ( NLAYS ),
      &             DSDH    ( NLAYS ),
      &             DTAU    ( NLAYS+1 ),
      &             DT_AERO ( NLAYS+1 ),
@@ -467,7 +469,6 @@ C-----------------------------------------------------------------------
       IF ( COSZEN .LE. COS85 ) THEN
          TAUO3_TOP = 0.0
          TAU_RAY   = 0.0
-         TOTAL_O3_COLUMN = 0.0
          TROPO_O3_COLUMN = 0.0
          TROPO_O3_TOGGLE = 1.0
          RETURN
