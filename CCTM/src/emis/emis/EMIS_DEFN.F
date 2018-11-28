@@ -526,7 +526,7 @@ C-----------------------------------------------------------------------
              ! Loop through existing instructions
              DO ISTR = 1,N_EMIS_ISTR
                ! Determine whether Emissions for this combination exist
-               IF ( EM_FAC_ST( ISTR,JSRM )%FAC( 1 ) .NE. 0.0 ) THEN
+               IF ( EM_FAC_ST( ISTR,JSRM )%LEN .GT. 0 ) THEN
                  IRGN = EM_FAC_ST( ISTR,JSRM )%REG( 1 )
                  ISTR_TMP = ISTR_TMP + 1
                  MAP_FACtoISTR( ISTR_TMP ) = ISTR
@@ -1609,10 +1609,13 @@ C and allowing the model to proceed.
 
 ! Inspect all of the Emissions Instructions for conversion based on 
 ! mass or moles. If there is a conversion, apply the correct factor
-! based on species moleculer weights.
+! based on species molecular weights.
          ALLOCATE( EM_FAC_ST( N_EMIS_ISTR,N_EM_SRM ) )
          DO ISTR = 1,N_EMIS_ISTR
             DO ISRM = 1,N_EM_SRM
+               EM_FAC_ST( ISTR,ISRM )%LEN = 0
+               IF ( MAP_EMtoSURR( ISTR,ISRM ) .NE. 0 ) THEN 
+
                ! First load emission factor structure
                NFAC = 1
                DO IFAC = 2,N_SCALEFAC
@@ -1688,6 +1691,8 @@ C and allowing the model to proceed.
      &                EM_FAC_ST( ISTR,ISRM )%FAC( IFAC ) = 
      &                     EM_FAC_ST( ISTR,ISRM )%FAC( IFAC ) * BASIS_FAC
                END DO
+
+               END IF
             END DO
 
          END DO

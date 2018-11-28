@@ -580,11 +580,11 @@ c        Iodide in sea-water based on SST  (mol /dm-3)
          ! Dry cuticle resistance.
 
                IF( l .Eq. l_O3 ) THEN
-                  rh_func = max( 0.0,( MET_DATA%RH( c,r ) - 70.0 )/30.0 )
+                  rh_func = max( 0.0,( MET_DATA%RH2( c,r ) - 70.0 )/30.0 )
                   rcut = rcut0 * a0 / ar( l ) * ( 1.0 -rh_func) + rwet * rh_func
                ELSE IF ( l .Eq. l_NH3 ) THEN
-         !        rcut = 4000.0 * EXP( -0.054 * MET_DATA%RH( c,r ) )
-                  rcut = rwetsfc + 100.0-max(MET_DATA%RH( c,r ),60.0)  ! consistant with bidi
+         !        rcut = 4000.0 * EXP( -0.054 * MET_DATA%RH2( c,r ) )
+                  rcut = rwetsfc + 100.0-max(MET_DATA%RH2( c,r ),60.0)  ! consistant with bidi
                ELSE 
                   rcut = rcut0 * a0 / ar( l )
                END IF
