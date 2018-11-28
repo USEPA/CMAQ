@@ -9,7 +9,7 @@ ifndef COMPILER
 #COMPILER = GFORT
 endif
 
-ifeq ($(COMPILER),INTEL)
+ifeq "$(COMPILER)" "INTEL"
 
  FC = ifort
  CC = icc
@@ -21,7 +21,7 @@ ifeq ($(COMPILER),INTEL)
  C_FLAGS   =  -O2  -DFLDMN=1
  LINK_FLAGS = 
 
-else ifeq ($(COMPILER),PGF90)
+else ifeq "$(COMPILER)" "PGF90"
 
  FC = pgf90
  CC = pgcc
@@ -32,7 +32,7 @@ else ifeq ($(COMPILER),PGF90)
  C_FLAGS   =  -O2  -DFLDMN=1
  LINK_FLAGS = 
 
-else ifeq ($(COMPILER),GFORT)
+else ifeq "$(COMPILER)" "GFORT"
 
  FC    = gfortran
  CC    = gcc

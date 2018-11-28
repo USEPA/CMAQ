@@ -305,13 +305,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c get environment values for optimization options
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             REORDER_SPECIES   = GET_ENV_FLAG( SPECIES_REORDER, "Reorder Species based on Empty Jacobain Values",
-     &                          .TRUE., STATUS)
+     &                          REORDER_SPECIES, STATUS)
             REORDER_REACTIONS = GET_ENV_FLAG( REACTIONS_REORDER, "Reorder Species based on Type and Order",
-     &                          .TRUE., STATUS)
+     &                          REORDER_SPECIES, STATUS)
             ASSESS_EFFECTS    = GET_ENV_FLAG( EFFECTS_ASSESS, "Asset Net Effect of Reactions on Species",
-     &                          .FALSE., STATUS)
+     &                          ASSESS_EFFECTS, STATUS)
             OMIT_RCONST_DATA  = GET_ENV_FLAG( CUT_RCONST_DATA, "Omit Rate Constant Parameters",
-     &                          .FALSE., STATUS)            
+     &                          ASSESS_EFFECTS, STATUS)            
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C Initialize mechanism array variables
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
