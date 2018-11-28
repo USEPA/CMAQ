@@ -960,6 +960,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          MECHANISM_INDEX( I ) = I
          MECHANISM_SPC( I )   = SPCLIS( I )
          SPARSE_SPECIES( I )  = SPCLIS( I )
+         IF( LEN_TRIM( SPCLIS( I ) ) .GT. MAXLEN_SPECIES )THEN
+             MAXLEN_SPECIES = LEN_TRIM( SPCLIS( I ) )
+         END IF    
        END DO
 
       IF( LEN( DESCRP_MECH ) .GT. 0 )THEN

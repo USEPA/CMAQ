@@ -155,6 +155,7 @@ c.. Variables for steady-state species
          LOGICAL                      ::  HALOGEN_PARAMETER = .FALSE.          
          INTEGER                      ::  N_GAS_CHEM_SPC
          INTEGER                      ::  NUMB_MECH_SPCS
+         INTEGER                      ::  MAXLEN_SPECIES = 1
          INTEGER ,        ALLOCATABLE ::  MECHANISM_INDEX( : )
          CHARACTER( 16 ), ALLOCATABLE ::  MECHANISM_SPC  ( : )
          CHARACTER( 16 ), ALLOCATABLE ::  SPARSE_SPECIES ( : )

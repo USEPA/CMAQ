@@ -695,6 +695,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          WRITE(KPPEQN_UNIT,'(A)')' ;'
       END DO
 
+      CLOSE( KPPEQN_UNIT )
       RETURN
       
 1993  FORMAT( / 5X, '*** ERROR: Special label already used'

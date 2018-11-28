@@ -509,13 +509,16 @@ C Error-check phot tables and report to log
 !             IF( IRX .GT. 0 .AND. KC_COEFFS( NXX, IREACT ) .NE. 1.0 )THEN
              IF( IRX .GT. 0 )THEN
 !                WRITE(PHRASE,'(A,I4,A)')'* Y( NCELL, IOLD2NEW( ', ISPC, ', NCS) ) '
-                WRITE(PHRASE,'(A,A16,A)')'* Y( NCELL, INDEX_',MECHANISM_SPC( ISPC )(1:16), ' ) '
+                WRITE(PHRASE,'(A,A,A)')'* Y( NCELL, INDEX_',
+     &          MECHANISM_SPC( ISPC )(1:MAXLEN_SPECIES), ' ) '
              ELSE
 !                WRITE(PHRASE,'(A,I4,A)')'Y( NCELL, IOLD2NEW( ', ISPC, ', NCS) ) '
                 IF( KUNITS .EQ. 2 )THEN
-                   WRITE(PHRASE,'(A,A16,A)')'CFACT * Y( NCELL, INDEX_',MECHANISM_SPC( ISPC )(1:16), ' ) '
+                   WRITE(PHRASE,'(A,A,A)')'CFACT * Y( NCELL, INDEX_',
+     &             MECHANISM_SPC( ISPC )(1:MAXLEN_SPECIES), ' ) '
                 ELSE
-                   WRITE(PHRASE,'(A,A16,A)')'Y( NCELL, INDEX_',MECHANISM_SPC( ISPC )(1:16), ' ) '
+                   WRITE(PHRASE,'(A,A,A)')'Y( NCELL, INDEX_',
+     &             MECHANISM_SPC( ISPC )(1:MAXLEN_SPECIES), ' ) '
                 END IF
              END IF
              WRITE(MODULE_UNIT, 4709, ADVANCE = 'NO')TRIM( PHRASE )
@@ -927,6 +930,20 @@ C Error-check phot tables and report to log
          STOP
       END IF
       CLOSE( TEMPLATE_UNIT )
+
+       WRITE( MODULE_UNIT,2260)
+2260   FORMAT(7X, 'SUBROUTINE RESET_SPECIES_POINTERS( IOLD2NEW )',
+     &       /10X,'USE RXNS_DATA',
+     &       /10X,'IMPLICIT NONE',
+     &       /10X,'INTEGER, INTENT( IN ) :: IOLD2NEW( :,: ) ' )
+          DO ISPC = 1, NS + N_SS_SPC
+              ISPCNEW = INEW2OLD( ISPC )
+              WRITE( MODULE_UNIT, 2261 ) MECHANISM_SPC( ISPCNEW )(1:MAXLEN_SPECIES), 
+     &        MECHANISM_SPC( ISPCNEW )(1:MAXLEN_SPECIES)
+          END DO
+2261   FORMAT( 10X, 'INDEX_', A, ' = IOLD2NEW( INDEX_', A, ',1 )' ) 
+       WRITE( MODULE_UNIT,2262 )
+2262  FORMAT(7X,'END SUBROUTINE RESET_SPECIES_POINTERS')
 
       IF( LINES_CAPTURED .GT. 0 )THEN
           INQUIRE( FILE = TRIM( FUNCTIONS_CAPTURED ), EXIST = EXISTING )

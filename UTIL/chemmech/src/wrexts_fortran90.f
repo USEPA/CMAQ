@@ -545,9 +545,9 @@ c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
               ISPCNEW = INEW2OLD( ISPC )
 !             WRITE( WRUNIT, 2161 ) ISPC, ISPC, ISPC, ISPC,  ISPC, MECHANISM_SPC( ISPC ), CGRID_INDEX( ISPC ), 
 !     &       SPECIES_TYPE( ISPC ), SPECIES_MOLWT( ISPC ), CONVERT_CONC( ISPC )
-              WRITE( WRUNIT, 2261 ) MECHANISM_SPC( ISPCNEW )(1:16), ISPC
+              WRITE( WRUNIT, 2261 ) MECHANISM_SPC( ISPCNEW )(1:MAXLEN_SPECIES), ISPC
           END DO
-2261   FORMAT( 6X, 'INTEGER :: ', 1X, 'INDEX_', A16, ' = ', I4  )
+2261   FORMAT( 6X, 'INTEGER :: INDEX_', A, ' = ', I4  )
 
 
 
