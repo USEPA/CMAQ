@@ -260,6 +260,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
          CALL GRINIT
          CALL JSPARSE
+         CALL RESET_SPECIES_POINTERS( IOLD2NEW )
+
          NOXYZ = MY_NCOLS * MY_NROWS * NLAYS
          MAOMV =  MWAIR / MWWAT
          

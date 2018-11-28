@@ -241,6 +241,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
          CALL RBINIT
          CALL RBSPARSE( )
+         CALL RESET_SPECIES_POINTERS( IOLD2NEW )
+
          NOXYZ = MY_NCOLS * MY_NROWS * NLAYS
 
 C...Initialize and report data
