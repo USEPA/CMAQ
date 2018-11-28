@@ -287,6 +287,11 @@ C Initialize
      &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
 
          IF ( ILDEPV ) THEN            
+            CALL INIT_LSM( JDATE, JTIME )
+            CALL INIT_BIDI()
+!            IF ( MOSAIC .OR. ABFLUX ) THEN
+!               CALL INIT_MOSAIC( JDATE, JTIME, LTOTG, MOSAIC, ABFLUX )
+!            END IF
 C Allocate additional arrays needed for mosaic and initialize land use parameters
             IF ( MOSAIC ) THEN
 

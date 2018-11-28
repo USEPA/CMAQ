@@ -107,6 +107,11 @@ C BLKPRM
 
 C Integral average conc
 
+!     INTEGER, SAVE :: N_ASPCS    ! Number of species saved to avg conc file
+!     CHARACTER( 16 ), SAVE :: AVG_CONC( 100 ) ! avg conc file species list
+!     INTEGER, SAVE :: ACONC_BLEV ! Beginning level saved to avg conc file
+!     INTEGER, SAVE :: ACONC_ELEV ! Ending level saved to avg conc file
+
       CONTAINS
 
          FUNCTION HGRD_INIT ( NPROCS, MYID ) RESULT ( SUCCESS )

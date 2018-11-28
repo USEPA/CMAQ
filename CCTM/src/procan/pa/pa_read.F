@@ -291,6 +291,8 @@ C----------------------- FORMAT Statements -----------------------------
 94360 FORMAT( 'WARNING: LIRRTYPE not specified but PARTIAL commands',
      &                     ' included' )
 94380 FORMAT( '         A PARTIAL IRR analysis will be generated' )  
+94440 FORMAT( '       set output domain via enviroment variables in CCTM',
+     &        ' run script' )
 94460 FORMAT( 'ERROR: Unable to allocate IRRNAME or IRRDESC memory' )
 
       END SUBROUTINE PA_READ

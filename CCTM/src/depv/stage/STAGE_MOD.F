@@ -353,7 +353,7 @@ C Parameters specific to gas_x. Currently based on m3dry but subject to change
          temp_2m = Met_Data%TEMP2(c,r)
          q_2m    = MET_DATA%Q2( c,r )
          temp_g  = MET_DATA%TEMPG( c,r )
-         rh      = MET_DATA%RH2( c,r )
+         rh      = MET_DATA%RH( c,r )
          snow    = max( 0.0, MET_DATA%SNOCOV( c,r ) )
 ! total snow fraction
          no_snow = 1.0 - snow

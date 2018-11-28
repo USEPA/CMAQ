@@ -81,7 +81,6 @@ C-----------------------------------------------------------------------
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE CGRID_SPCS            ! CGRID mechanism species
       USE WVEL_DEFN             ! derived vertical velocity component
-
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_GLOBAL_SUM_MODULE)
 #else
@@ -117,6 +116,7 @@ C Advected species dimension
 C File Variables:
 
       REAL        RHOJM( NCOLS,NROWS,NLAYS ) ! RhoJ (Kg/m**3) from Met file
+      REAL        WY   ( NLAYS,NCOLS,NROWS ) ! Diagnosed vert vel ala yamo
 
 C Local variables:
  
@@ -153,9 +153,6 @@ C for INTERPX
       REAL          DTNEW                  ! sub timestep
       REAL          DSDT                   ! DS/DT
       INTEGER       ALLOCSTAT
-      REAL, ALLOCATABLE :: DBUFF ( :,:,: )     ! input for W_VEL
-      REAL, ALLOCATABLE, SAVE :: JACF( :,:,: ) ! full-layer Jacobian
-      REAL, ALLOCATABLE, SAVE :: MSFX2( :,: )  ! map scale factor ** 2
  
       INTERFACE
          SUBROUTINE VPPM ( NI, DT, DS, FLX, VEL, CON )
@@ -227,7 +224,6 @@ C Create global map to CGRID
 C get file local domain offsets
          CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
      &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 ) 
-
 
       END IF                    ! if firstime
 
@@ -363,7 +359,15 @@ C sub-steps.
 222         CONTINUE   ! COL
 333      CONTINUE   ! ROW
 
-      IF ( L_CONC_WVEL .OR. L_ACONC_WVEL ) CALL GET_WVEL( JDATE,JTIME )
+      IF ( W_VEL ) THEN
+         DO LVL = 1, NLAYS
+            DO ROW = 1, MY_NROWS
+               DO COL = 1, MY_NCOLS
+                  WVEL( COL,ROW,LVL ) = WY( LVL,COL,ROW )
+               END DO
+            END DO
+         END DO
+      END IF
 
       RETURN
       END SUBROUTINE ZADV 

@@ -174,7 +174,7 @@ C atmospheric water vapor variables used for leaf latent heat flux
                ES = VP0 * EXP( SVP2 * (TAIR - STDTEMP) /
      &                                (TAIR - SVP3) )
             END IF
-            RH   = MET_DATA%RH2( C,R ) / 100.0
+            RH   = MET_DATA%RH( C,R ) / 100.0
             DVAP = ES*(1.0-RH)/PSFC
             SSVP = (SVP2*(STDTEMP-SVP3)*ES/(TAIR-SVP3)**2)/
      &              PSFC

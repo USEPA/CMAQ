@@ -112,6 +112,9 @@ C Local Variables:
       INTEGER NFL       ! Loop index for no. of files
       INTEGER NOUT      ! Loop index for PA output variables
       INTEGER NS        ! Loop index for number cgrid concs saved
+      INTEGER PC        ! Index for PA output column
+      INTEGER PL        ! Index for PA output level
+      INTEGER PR        ! Index for PA output row
       INTEGER R         ! Loop index for rows
       INTEGER VARINDX   ! Index for output variable
       INTEGER NVARINDX  ! number of output variable
@@ -120,6 +123,7 @@ C Local Variables:
       CHARACTER( 2 ) :: COLROW = 'CR'  ! col/row arg list order for pio_re_init
       LOGICAL :: WFLG                  ! pio_init - print decomposition
 #endif
+      INTEGER ALLOCSTAT
 
 C-----------------------------------------------------------------------
 

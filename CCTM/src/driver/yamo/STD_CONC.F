@@ -30,8 +30,7 @@ C           was called with the CONC_FILE_SPCS argument before it was allocated
 C           D.Wong 11 May 2016: Modified code to provide flexibility to handle
 C                environment variable CONC_FILE_SPCS is set to 'ALL' or not set.
 
-      INTEGER, SAVE :: N_CSPCS = 0 ! Number of chemical species saved to conc file
-      INTEGER, SAVE :: C_NLAYS = 1 ! Number of layers saved to conc file
+      INTEGER, SAVE :: C_NLAYS    ! Number of layers saved to conc file
 
       INTEGER, SAVE, ALLOCATABLE :: CONC_MAP( : ) ! pointer into CGRID
       CHARACTER( 16 ), SAVE, ALLOCATABLE :: C_GC_SPC( : ) ! pointer into GC_SPC
@@ -52,12 +51,6 @@ C species classes configuration for CONC
       INTEGER, SAVE :: N_C_TR_SPC
 
       INTEGER, SAVE :: N_C_AE_SPCD
-
-C Logical to test whether met variables are included
-      LOGICAL, SAVE :: L_CONC_WVEL = .FALSE.
-      LOGICAL, SAVE :: L_CONC_RH = .FALSE.
-      LOGICAL, SAVE :: L_CONC_TA = .FALSE.
-      LOGICAL, SAVE :: L_CONC_PRES = .FALSE.
 
       CONTAINS
 
@@ -86,7 +79,8 @@ C-----------------------------------------------------------------------
 
 C Retrieve the species saved to the concentration file
 
-         IF ( N_CONC_VARS .EQ. 0 .OR. CONC_FILE_SPCS( 1 ) .EQ. 'ALL' ) THEN
+         IF ( N_CSPCS .EQ. 0 .OR. CONC_FILE_SPCS( 1 ) .EQ. 'ALL' ) THEN
+            N_CSPCS = N_GC_CONC + N_AE_CONC + N_NR_CONC + N_TR_SPC
             V = 0
             DO VAR = 1, N_GC_CONC
                V = V + 1
@@ -104,11 +98,6 @@ C Retrieve the species saved to the concentration file
                V = V + 1
                CONC_FILE_SPCS( V ) = TR_SPC( VAR )
             END DO
-            CONC_FILE_SPCS( V + 1 ) = 'WVEL'
-            CONC_FILE_SPCS( V + 2 ) = 'RH'
-            CONC_FILE_SPCS( V + 3 ) = 'TA'
-            CONC_FILE_SPCS( V + 4 ) = 'PRES'
-            N_CONC_VARS = V + 4 
          END IF
 
 C Retrieve the layer range used in the concentration file
@@ -129,7 +118,7 @@ C Retrieve the layer range used in the concentration file
 
 C Create conc subset array
 
-         ALLOCATE ( SGRID( NCOLS,NROWS,C_NLAYS,N_CONC_VARS ),
+         ALLOCATE ( SGRID( MY_NCOLS,MY_NROWS,C_NLAYS,N_CSPCS ),
      &              STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'SGRID memory allocation failed'
@@ -141,16 +130,57 @@ C Create conc subset array
 C Check species names against include files and create CONC_MAP, and
 C get starting index in CGRID and total count for each species class
 
-         ALLOCATE ( C_GC_SPC( N_CONC_VARS ),
-     &              C_AE_SPC( N_CONC_VARS ),
-     &              C_NR_SPC( N_CONC_VARS ),
-     &              C_TR_SPC( N_CONC_VARS ),
-     &              GC_MAP( N_CONC_VARS ),
-     &              AE_MAP( N_CONC_VARS ),
-     &              NR_MAP( N_CONC_VARS ),
-     &              TR_MAP( N_CONC_VARS ), STAT = ALLOCSTAT )
+         ALLOCATE ( CONC_MAP( N_CSPCS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
-            XMSG = 'CONC species mapping  memory allocation failed'
+            XMSG = 'CONC_MAP memory allocation failed'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         ALLOCATE ( C_GC_SPC( N_CSPCS ), STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            XMSG = 'C_GC_SPC memory allocation failed'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         ALLOCATE ( C_AE_SPC( N_CSPCS ), STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            XMSG = 'C_AE_SPC memory allocation failed'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         ALLOCATE ( C_NR_SPC( N_CSPCS ), STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            XMSG = 'C_NR_SPC memory allocation failed'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         ALLOCATE ( C_TR_SPC( N_CSPCS ), STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            XMSG = 'C_TR_SPC memory allocation failed'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         ALLOCATE ( GC_MAP( N_CSPCS ), STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            XMSG = 'GC_MAP memory allocation failed'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         ALLOCATE ( AE_MAP( N_CSPCS ), STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            XMSG = 'AE_MAP memory allocation failed'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         ALLOCATE ( NR_MAP( N_CSPCS ), STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            XMSG = 'NR_MAP memory allocation failed'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         ALLOCATE ( TR_MAP( N_CSPCS ), STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            XMSG = 'TR_MAP memory allocation failed'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
          END IF
 
@@ -159,10 +189,9 @@ C get starting index in CGRID and total count for each species class
          N_C_NR_SPC = 0
          N_C_TR_SPC = 0
 
-         DO VAR = 1, N_CONC_VARS
+         DO VAR = 1, N_CSPCS
             V = INDEX1 ( CONC_FILE_SPCS( VAR ), N_GC_SPC, GC_SPC )
             IF ( V .GT. 0 ) THEN
-               N_CSPCS = N_CSPCS + 1
                N_C_GC_SPC = N_C_GC_SPC + 1
                C_GC_SPC( N_C_GC_SPC ) = CONC_FILE_SPCS( VAR )
                OFF = 0
@@ -170,7 +199,6 @@ C get starting index in CGRID and total count for each species class
             ELSE
                V = INDEX1 ( CONC_FILE_SPCS( VAR ), N_AE_SPC, AE_SPC )
                IF ( V .GT. 0 ) THEN
-                  N_CSPCS = N_CSPCS + 1
                   N_C_AE_SPC = N_C_AE_SPC + 1
                   OFF = N_GC_SPC + 1   ! accounts for advected density
                   C_AE_SPC( N_C_AE_SPC ) = CONC_FILE_SPCS( VAR )
@@ -178,7 +206,6 @@ C get starting index in CGRID and total count for each species class
                ELSE
                   V = INDEX1 ( CONC_FILE_SPCS( VAR ), N_NR_SPC, NR_SPC )
                   IF ( V .GT. 0 ) THEN
-                     N_CSPCS = N_CSPCS + 1
                      N_C_NR_SPC = N_C_NR_SPC + 1
                      OFF = N_GC_SPC + 1 + N_AE_SPC
                      C_NR_SPC( N_C_NR_SPC ) = CONC_FILE_SPCS( VAR )
@@ -186,19 +213,10 @@ C get starting index in CGRID and total count for each species class
                   ELSE
                      V = INDEX1 ( CONC_FILE_SPCS( VAR ), N_TR_SPC, TR_SPC )
                      IF ( V .GT. 0 ) THEN
-                        N_CSPCS = N_CSPCS + 1
                         N_C_TR_SPC = N_C_TR_SPC + 1
                         OFF = N_GC_SPC + 1 + N_AE_SPC + N_NR_SPC
                         C_TR_SPC( N_C_TR_SPC ) = CONC_FILE_SPCS( VAR )
                         TR_MAP( N_C_TR_SPC ) = V + OFF
-                     ELSE IF ( CONC_FILE_SPCS( VAR ) .EQ. 'WVEL' ) THEN
-                        L_CONC_WVEL = .TRUE.
-                     ELSE IF ( CONC_FILE_SPCS( VAR ) .EQ. 'RH' ) THEN
-                        L_CONC_RH = .TRUE.
-                     ELSE IF ( CONC_FILE_SPCS( VAR ) .EQ. 'TA' ) THEN
-                        L_CONC_TA = .TRUE.
-                     ELSE IF ( CONC_FILE_SPCS( VAR ) .EQ. 'PRES' ) THEN
-                        L_CONC_PRES = .TRUE.
                      ELSE
                         XMSG = 'Variable ' // CONC_FILE_SPCS( VAR )
      &                  // ' incorrect for this model'
@@ -220,39 +238,59 @@ C get starting index in CGRID and total count for each species class
             N_C_AE_SPCD = 1
          END IF
 
-         ! Populate CONC species maps
-         ALLOCATE ( CONC_MAP( N_CSPCS ), STAT = ALLOCSTAT )
-         IF ( ALLOCSTAT .NE. 0 ) THEN
-            XMSG = 'CONC_MAP memory allocation failed'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-         END IF
-
          VAR = 0
          DO V = 1, N_C_GC_SPC
             VAR = VAR + 1
             CONC_MAP( VAR ) = GC_MAP( V )
+#ifdef Verbose
+            write( logdev,* ) '<<>>var, CONC_MAP, _SPCS: ',
+     &                         VAR, CONC_MAP( VAR ), CONC_FILE_SPCS( VAR )
+#endif
          END DO
 
          DO V = 1, N_C_AE_SPC
             VAR = VAR + 1
             CONC_MAP( VAR ) = AE_MAP( V )
+#ifdef Verbose
+            write( logdev,* ) '<<>>var, CONC_MAP, _SPCS: ',
+     &                         VAR, CONC_MAP( VAR ), CONC_FILE_SPCS( VAR )
+#endif
          END DO
 
          DO V = 1, N_C_NR_SPC
             VAR = VAR + 1
             CONC_MAP( VAR ) = NR_MAP( V )
+#ifdef Verbose
+            write( logdev,* ) '<<>>var, CONC_MAP, _SPCS: ',
+     &                         VAR, CONC_MAP( VAR ), CONC_FILE_SPCS( VAR )
+#endif
          END DO
 
          DO V = 1, N_C_TR_SPC
             VAR = VAR + 1
             CONC_MAP( VAR ) = TR_MAP( V )
+#ifdef Verbose
+            write( logdev,* ) '<<>>var, CONC_MAP, _SPCS: ',
+     &                         VAR, CONC_MAP( VAR ), CONC_FILE_SPCS( VAR )
+#endif
          END DO
 
-         ! Deallocate Arrays if Possible
-         IF ( N_C_GC_SPC .EQ. 0 ) DEALLOCATE ( C_GC_SPC )
-         IF ( N_C_AE_SPC .EQ. 0 ) DEALLOCATE ( C_AE_SPC )
-         IF ( N_C_NR_SPC .EQ. 0 ) DEALLOCATE ( C_NR_SPC )
-         IF ( N_C_TR_SPC .EQ. 0 ) DEALLOCATE ( C_TR_SPC )
+         IF ( N_C_GC_SPC .EQ. 0 ) THEN
+            DEALLOCATE ( C_GC_SPC )
+            DEALLOCATE ( GC_MAP )
+         END IF
+         IF ( N_C_AE_SPC .EQ. 0 ) THEN
+            DEALLOCATE ( C_AE_SPC )
+            DEALLOCATE ( AE_MAP )
+         END IF
+         IF ( N_C_NR_SPC .EQ. 0 ) THEN
+            DEALLOCATE ( C_NR_SPC )
+            DEALLOCATE ( NR_MAP )
+         END IF
+         IF ( N_C_TR_SPC .EQ. 0 ) THEN
+            DEALLOCATE ( C_TR_SPC )
+            DEALLOCATE ( TR_MAP )
+         END IF
 
          END SUBROUTINE CONC_DEFN
 

@@ -269,11 +269,11 @@ C Initialize
          CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
      &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
 
-         !IF ( ILDEPV ) THEN
-         !
-         !   CALL INIT_LSM( JDATE, JTIME )
-         !   CALL INIT_BIDI( )
-         !END IF   ! in-line depv
+         IF ( ILDEPV ) THEN
+
+            CALL INIT_LSM( JDATE, JTIME )
+            CALL INIT_BIDI( )
+         END IF   ! in-line depv
 
          INIT_GAS_DV:
      &   IF ( N_GAS_DEPV .GT. 0 ) THEN

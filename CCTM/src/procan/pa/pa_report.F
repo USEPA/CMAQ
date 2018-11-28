@@ -70,7 +70,7 @@ C Local Variables
       CHARACTER( 50 ) :: STRING( 20 )             ! Strings to concatenate
       CHARACTER( LABLEN ) :: RJLABL( MXRXNS ) ! Right justified reaction label
       CHARACTER(  4 ) ::  SAVOP( MAXTERMS )        ! Operator name
-      CHARACTER(  3 ) ::  SAVLBL( MAXTERMS )       ! Operator label
+      CHARACTER(  4 ) ::  SAVLBL( MAXTERMS )       ! Operator label
 
       INTEGER E1, E2, E3 ! Ending character positions
       INTEGER EQPOS1     ! Position of equal sign plus 1

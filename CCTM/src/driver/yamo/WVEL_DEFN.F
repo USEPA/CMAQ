@@ -26,7 +26,6 @@ C           conc file
       IMPLICIT NONE
 
       REAL, ALLOCATABLE, SAVE :: WVEL( :,:,: )
-      REAL, ALLOCATABLE, SAVE :: WY( :,:,: ) ! Diagnosed vert vel ala yamo
 
       CONTAINS
 
@@ -62,106 +61,5 @@ C-----------------------------------------------------------------------
          END IF
 
          END FUNCTION WVEL_INIT
-
-C-----------------------------------------------------------------------
-
-      SUBROUTINE GET_WVEL( JDATE, JTIME )
-
-      USE GRID_CONF
-      USE STD_CONC, ONLY : L_CONC_WVEL
-      USE AVG_CONC, ONLY : L_ACONC_WVEL 
-      USE UTILIO_DEFN
-      include SUBST_FILES_ID
-
-      INTEGER     JDATE         ! current model date, coded YYYYDDD
-      INTEGER     JTIME         ! current model time, coded HHMMSS 
-      
-      ! For INTERPX
-      INTEGER      GXOFF, GYOFF            ! global origin offset from file
-      INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
-      INTEGER, SAVE :: STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2
-
-      INTEGER       MTIME, MDATE, LVL
-      LOGICAL, SAVE :: FIRST_TIME  = .TRUE.
-
-      INTEGER       ALLOCSTAT
-      CHARACTER( 16 ) :: PNAME = 'GET_WVEL'
-      CHARACTER( 200 ) :: XMSG
-      REAL, ALLOCATABLE :: DBUFF ( :,:,: )     ! input for W_VEL
-      REAL, ALLOCATABLE, SAVE :: JACF( :,:,: ) ! full-layer Jacobian
-      REAL, ALLOCATABLE, SAVE :: MSFX2( :,: )  ! map scale factor ** 2
-                                         
-      IF ( FIRST_TIME ) THEN
-            FIRST_TIME = .FALSE.
-
-            CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
-     &                      STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
-
-            CALL SUBHFILE ( GRID_CRO_2D, GXOFF, GYOFF,
-     &                      STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2 )
-
-            ALLOCATE ( JACF( NCOLS,NROWS,NLAYS ), STAT = ALLOCSTAT )
-            IF ( ALLOCSTAT .NE. 0 ) THEN
-               XMSG = 'Failure allocating JACF'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-
-            ALLOCATE ( MSFX2( NCOLS,NROWS ), STAT = ALLOCSTAT )
-            IF ( ALLOCSTAT .NE. 0 ) THEN
-               XMSG = 'Failure allocating MSFX2'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-
-            IF ( .NOT. INTERPX( GRID_CRO_2D, 'MSFX2', PNAME,
-     &                          STRTCOLGC2,ENDCOLGC2, STRTROWGC2,ENDROWGC2, 1,1,
-     &                          JDATE, JTIME, MSFX2 ) ) THEN
-               XMSG = 'Could not interpolate MSFX2 from ' // GRID_CRO_2D
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-
-            ALLOCATE( WY( NLAYS,NCOLS,NROWS ) )
-            WY = 0.0
-      END IF
- 
- 
-      ! Time-Dependent Part of Vertical Velocity Retrieval
-      IF ( .NOT. INTERPX( MET_CRO_3D, 'JACOBF', PNAME,
-     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3,
-     &                    1,NLAYS, JDATE, JTIME, JACF ) ) THEN
-         XMSG = 'Could not interpolate JACOBF from MET_CRO_3D - '
-     &        // 'Using JACOBM <- KLUDGE!'
-         CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-
-         IF ( .NOT. ALLOCATED( DBUFF ) ) THEN
-            ALLOCATE ( DBUFF( MY_NCOLS,MY_NROWS,NLAYS ), STAT = ALLOCSTAT )
-            IF ( ALLOCSTAT .NE. 0 ) THEN
-               XMSG = 'Failure allocating DBUFF'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-         END IF
-
-         IF ( .NOT. INTERPX( MET_CRO_3D, 'JACOBM', PNAME,
-     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3,
-     &                       1,NLAYS, JDATE, JTIME, DBUFF ) ) THEN
-            XMSG = 'Could not interpolate JACOBM from MET_CRO_3D'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
-         JACF( :,:,1:NLAYS-1 ) = 0.5 * ( DBUFF( :,:,1:NLAYS-1 ) 
-     &                           + DBUFF( :,:,2:NLAYS ) )
-         JACF( :,:,NLAYS ) = 0.4 * JACF( :,:,NLAYS-1 )
-     &                           + DBUFF( :,:,NLAYS )
-
-      END IF   ! INTERPX for JACOBF
-
-      ! convert from contravariant vertical velocity component to true wind
-      DO LVL = 1, NLAYS
-         WVEL( :,:,LVL ) = JACF( :,:,LVL )
-     &                     * MSFX2( :,: ) * WY( LVL,:,: )
-      END DO 
-
-
-
-      END SUBROUTINE GET_WVEL    
 
       END MODULE WVEL_DEFN
