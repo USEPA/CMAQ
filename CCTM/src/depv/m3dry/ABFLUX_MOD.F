@@ -686,7 +686,7 @@ C-------------------------------------------------------------------------------
          If ( MET_DATA%LAI( c,r ) .Gt. 0.0 ) Then
 
             rwx   = rwetsfc   
-            rwmb  = rwm + rwx + (100.0-max(MET_DATA%RH( c,r ),60.0) + Rb) * MET_DATA%LAI( c,r )  ! from Pleim et al 2013 JGR
+            rwmb  = rwm + rwx + (100.0-max(MET_DATA%RH2( c,r ),60.0) + Rb) * MET_DATA%LAI( c,r )  ! from Pleim et al 2013 JGR
             ga    = 1.0 / ( MET_DATA%RA( c,r ) + canfrac * rinc ) !
             gsb   = 1.0 / ( rstom + rb )
             gg1   = 1.0 / ( rbg + (1.-canfrac) * rinc + rsoil1 )

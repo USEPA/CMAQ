@@ -696,30 +696,26 @@ C-----------------------------------------------------------------------
 !-----------------------------------------------------------------------
       FUNCTION EMISS_NEG_CHECK( VDEMIS, ISRM, NL ) RESULT( STAT )
 
-!     Check Emissions Array for Negative Values and Exit if one is
-!     found. VDEMIS is the scaled emissions and VDEMIS0 is the emissions
+!     Check Emissions Array for negative values and exit if negative values
+!     exceed tolerance of 1.0E-7. Emissions that are negative but within 
+!     tolerance are set to 0.0.
+!     VDEMIS is the scaled emissions and VDEMIS0 is the emissions
 !     read in from each stream.
 !-----------------------------------------------------------------------
-      USE GRID_CONF
       USE UTILIO_DEFN
-         USE VDIFF_MAP, only : DIFF_SPC ! Name for every Diffusion Module Species 
+      USE VDIFF_MAP, only : DIFF_SPC ! Name for every Diffusion Module Species 
 
       IMPLICIT NONE
 
-      REAL, INTENT( IN )    :: VDEMIS ( :,:,:,: )
+      REAL, INTENT( INOUT ) :: VDEMIS ( :,:,:,: )
       INTEGER, INTENT( IN ) :: NL
-      INTEGER ISRM, ISPC
-      INTEGER ALOC( 4 )
-      REAL EMIS_MIN
+      INTEGER, INTENT( IN ) :: ISRM
 
-      CHARACTER(250) XMSG
-      INTEGER STAT
-      LOGICAL, SAVE :: FIRST_TIME = .TRUE.
-
-      IF ( FIRST_TIME ) THEN
-          FIRST_TIME = .FALSE.
-          !ALLOCATE( VDEMIS( N_SPC_DIFF,EMLAYS,NCOLS,NROWS ) )
-      END IF
+      INTEGER :: ISPC
+      INTEGER :: STAT
+      INTEGER :: ALOC( 4 )
+      REAL    :: EMIS_MIN
+      CHARACTER(250) :: XMSG
 
       STAT = 0
 
@@ -727,8 +723,7 @@ C-----------------------------------------------------------------------
       EMIS_MIN = MINVAL( VDEMIS( :,1:NL,:,: ) )
       IF ( EMIS_MIN .GE. 0.0 ) RETURN
 
-      ! Set Tolerance to 0.01% of Initial Emission Rate
-      IF ( EMIS_MIN .LT. -1.0e-10 ) THEN
+      IF ( EMIS_MIN .LT. -1.0e-7 ) THEN
 
           STAT = 1
 
@@ -736,13 +731,16 @@ C-----------------------------------------------------------------------
           ALOC = MINLOC( VDEMIS( :,1:NL,:,: ) )
           ISPC = ALOC( 1 )
 
-          WRITE( LOGDEV, '(/,5x,A,/,5x,4A,/,5x,A)' ),
-     &      'ERROR: Invalid Negative emission rates have been detected from ',
-     &      TRIM(EM_FILE_LAB( ISRM )), ' for CMAQ species ',TRIM(DIFF_SPC( ISPC )),'.',
+          WRITE( LOGDEV, '(/,5x,A,ES10.3,A,/,5x,5A,/,5x,A)' ),
+     &      'ERROR: Invalid Negative emission rate ', EMIS_MIN, ' has been ',
+     &      ' detected from ', TRIM(EM_FILE_LAB( ISRM )), 
+     &      ' for CMAQ species ',TRIM(DIFF_SPC( ISPC )),'.',
      &      'Please inspect the Emission Control Namelist File.'
           XMSG = 'Negative Emissions Detected'
-          CALL M3EXIT( 'EMISS"NEG_CHECK', 1, 1, XMSG, XSTAT1 )
-
+          CALL M3EXIT( 'EMISS_NEG_CHECK', 0, 0, XMSG, XSTAT1 )
+      
+      ELSE ! reset slightly negative values to 0.0
+          WHERE ( VDEMIS .LT. 0.0 ) VDEMIS = 0.0
       END IF
 
       END FUNCTION EMISS_NEG_CHECK    
@@ -859,7 +857,7 @@ C-----------------------------------------------------------------------
 
 C Check the chemical species from the namelists and AERO_DATA against
 C the species that are available on the actual emissions input files. If
-C they do not agree, print warngings or crash the program depending on
+C they do not agree, print warnings or crash the program depending on
 C how severe the error is.
 C
 C    16 Mar 2017  B.Murphy     Created Subroutine
@@ -1526,10 +1524,11 @@ C and allowing the model to proceed.
 
 ! Inspect all of the Emissions Instructions for conversion based on 
 ! mass or moles. If there is a conversion, apply the correct factor
-! based on species moleculer weights.
+! based on species molecular weights.
          ALLOCATE( EM_FAC_ST( N_EMIS_ISTR,N_EM_SRM ) )
          DO ISTR = 1,N_EMIS_ISTR
             DO ISRM = 1,N_EM_SRM
+               EM_FAC_ST( ISTR,ISRM )%LEN = 0
                IF ( MAP_EMtoSURR( ISTR,ISRM ) .NE. 0 ) THEN 
 
                ! First load emission factor structure
