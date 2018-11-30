@@ -54,19 +54,22 @@ C    25 Mar 16 R.Mathur: incorporated pot. vorticity strat. O3 scaling
 C    16 Sep 16 J.Young: update for inline procan (IPR)
 C-----------------------------------------------------------------------
 
-      USE UTILIO_DEFN
-      USE RUNTIME_VARS
+      USE UTILIO_DEFN, ONLY: DT2STR, WKDAY
+      USE RUNTIME_VARS, ONLY: LOGDEV, OUTDEV, MYPE, CKSUM, 
+     &                        PRINT_PROC_TIME, WEEKDAY, 
+     &                        LOG_MESSAGE, TIMING_SPLIT
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
 #endif
-      USE PA_DEFN, Only: LIPR   ! Process Anaylsis control and data variables
+      USE PA_DEFN, Only: LIPR   ! Process Analysis control and data variables
 
       IMPLICIT NONE   
 
+#ifdef parallel
       INCLUDE 'mpif.h'
-
+#endif
 C Arguments:
       REAL, POINTER :: CGRID( :,:,:,: )
 
@@ -80,24 +83,17 @@ C Arguments:
 
       INTEGER, INTENT(IN)    :: ASTEP( : )   ! layer advection time step
 
-C Parameters:
-
-C External Functions:
-
 C Local Variables:
 
       CHARACTER( 16 ) :: PNAME = 'SCIPROC'
-
       CHARACTER( 120 ) :: XMSG = ' '
       CHARACTER( 36 ) :: NMSG = 'After NEXTIME: returned JDATE, JTIME'
 
-      INTEGER      SDATE        ! current science process date, coded YYYYDDD
-      INTEGER      STIME        ! current science process time, coded HHMMSS
+      INTEGER         ::     SDATE       ! current science process date, coded YYYYDDD
+      INTEGER         ::     STIME       ! current science process time, coded HHMMSS
  
-      INTEGER      ALLOCSTAT
-      INTEGER      STATUS          ! ENV... status
-      CHARACTER( 80 ) :: VARDESC   ! environment variable description
-      CHARACTER( 80 ) :: MSG = ' '
+      REAL            :: REAL_TIME
+
       REAL( 8 )       :: CPU_TIME_START  ! Timing individual
       REAL( 8 )       :: CPU_TIME_START_MASTER
       CHARACTER( 24 ) :: CDATE_TIME
@@ -180,7 +176,12 @@ C-----------------------------------------------------------------------
       IF ( MYPE .EQ. 0 ) WRITE( OUTDEV, * ) 
       WRITE( LOGDEV, * )
 
-      CPU_TIME_START = MPI_WTIME()
+#ifdef parallel
+            CPU_TIME_START =  MPI_WTIME()
+#else
+            CALL CPU_TIME( REAL_TIME )
+            CPU_TIME_START = REAL( REAL_TIME,8 )
+#endif
       CPU_TIME_START_MASTER = CPU_TIME_START
       WRITE( XMSG, '(A,I7.7,A,I6.6)' ), 'Processing Day/Time [YYYYDDD:HHMMSS]: ',JDATE, 
      &       ':',JTIME
@@ -226,7 +227,7 @@ C DECOUPL_WRF routine converts it back to ug/m3.
       CALL HDIFF ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'HDIFF', CGRID, JDATE, JTIME )
       IF ( LIPR ) CALL PA_UPDATE ( 'HDIF', CGRID, JDATE, JTIME, TSTEP )
-      IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'HADV' )
+      IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'HDIFF' )
 
 C decouple CGRID for cloud and chemistry
 
@@ -240,6 +241,7 @@ C decouple CGRID for cloud and chemistry
 
       CALL PHOT ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'PHOT', CGRID, JDATE, JTIME )
+      IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'PHOT' )
 
       CALL CLDPROC ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'CLDPROC', CGRID, JDATE, JTIME )

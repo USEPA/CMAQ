@@ -94,8 +94,6 @@
       REAL,    ALLOCATABLE, SAVE :: ICCG           ( :,: ) ! intercloud strikes per cloud to ground strike
 !C Vertical coord values
       REAL,    ALLOCATABLE, SAVE :: VGLVSLT        ( : )
-!C Buffer for Reading Emissions
-      REAL,    ALLOCATABLE, SAVE :: BUFF           ( :,:,: )
 
 !C    scenario time/date needed for diagnostic output
       INTEGER,              SAVE :: NTICS = 0 ! no. of substeps within an output tstep
@@ -452,16 +450,9 @@
          LTLYRS = EMLAYS
 
 !C Build Emissions Buffer
-         ALLOCATE( VDEMIS_LT( LTLYRS,NCOLS,NROWS ), STAT = STATUS )
+         ALLOCATE( VDEMIS_LT( NCOLS,NROWS,LTLYRS ), STAT = STATUS )
          IF ( STATUS .NE. 0 ) THEN
             XMSG = 'VDEMIS_LT memory allocation failed'
-            CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-            SUCCESS = .FALSE.; RETURN
-         END IF
- 
-         ALLOCATE( BUFF( NCOLS,NROWS,LTLYRS ), STAT = STATUS )
-         IF ( STATUS .NE. 0 ) THEN
-            XMSG = 'BUFF memory allocation failed'
             CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
             SUCCESS = .FALSE.; RETURN
          END IF
@@ -732,7 +723,7 @@ C statement function for ERF approximation
 
                   DO LAY = 1, LTLYRS
 !C Re-normalize, in some cases area under the error function is not 1
-                     VDEMIS_LT( LAY,COL,ROW ) = LTEMIS( LAY ) / SUM_FRAC
+                     VDEMIS_LT( COL,ROW,LAY ) = LTEMIS( LAY ) / SUM_FRAC
                   END DO        ! layers renormalized
 
                END DO   ! columns
@@ -753,12 +744,7 @@ C statement function for ERF approximation
 !C Write lightning NO to the diagnostic file
             IF ( LTNGDIAG ) THEN 
                DO LAY = 1,LTLYRS
-               DO ROW = 1, MY_NROWS
-               DO COL = 1, MY_NCOLS
-                  VDEMIS_DIAG( COL,ROW,LAY ) = VDEMIS_DIAG( COL,ROW,LAY ) 
-     &                   + VDEMIS_LT( LAY,COL,ROW )   ! array assignment
-               END DO
-               END DO
+                  VDEMIS_DIAG = VDEMIS_DIAG + VDEMIS_LT   ! array assignment
                END DO
                COLUMN_DIAG = COLUMN_DIAG + COLUMN_LTNG_NO
                IF ( LASTTIC ) THEN   ! time to write out
@@ -792,19 +778,14 @@ C statement function for ERF approximation
 
 !C Read in lightning NO production from an input file
             VDEMIS_LT = 0.0   ! array assignment
-            BUFF = 0.0
 
             IF ( .NOT. INTERPX( LTNG_FNAME, LTSPC, PNAME,
      &                          STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,LTLYRS,
-     &                          JDATE, JTIME, BUFF ) ) THEN
+     &                          JDATE, JTIME, VDEMIS_LT ) ) THEN
                XMSG = 'Could not read NO' //
      &                ' from file "' // TRIM( LTNG_FNAME ) // '"'
                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
             END IF
-
-            DO LAY = 1,LTLYRS
-               VDEMIS_LT( LAY,:,: ) = BUFF( :,:,LAY )
-            END DO
 
          END IF  ! end lightning NO production inline or from a file
 

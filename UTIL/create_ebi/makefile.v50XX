@@ -66,7 +66,8 @@ LIBS =
 
 
 
-OBJS = module_envvar.o \
+OBJS = module_env_functions.o \
+       module_envvar.o \
        module_glbldata.o \
        RXNS_DATA_MODULE.o \
        junit.o \
@@ -97,6 +98,9 @@ cr_ebi_solver: $(OBJS)
 
 RXNS_DATA_MODULE.o: $(RXNS_DATA_SRC)
 	$(LOAD_F90) -c $(INCLUDES) $(RXNS_DATA_SRC)
+
+module_env_functions.o:  $(SRCDIR)/module_env_functions.F 
+	$(LOAD) -c $(INCLUDES) $(SRCDIR)/module_env_functions.F
 
 module_envvar.o:  $(SRCDIR)/module_envvar.F 
 	$(LOAD) -c $(INCLUDES) $(SRCDIR)/module_envvar.F

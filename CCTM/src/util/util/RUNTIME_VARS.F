@@ -114,8 +114,8 @@
       LOGICAL :: CKSUM     = .TRUE.  ! flag for cksum on, default = [T]
       LOGICAL :: END_TIME  = .FALSE. ! Override default beginning ACON timestamp
       
-      INTEGER :: N_ASPCS   = 0       ! Number of species saved to avg conc file
-      INTEGER :: N_CSPCS   = 0       ! Number of species saved to conc file
+      INTEGER :: N_ACONC_VARS = 0    ! Number of species saved to avg conc file
+      INTEGER :: N_CONC_VARS  = 0    ! Number of species saved to conc file
       INTEGER :: ACONC_BLEV= 0       ! Beginning level saved to avg conc file
       INTEGER :: ACONC_ELEV= 0       ! Ending level saved to avg conc file
       INTEGER :: CONC_BLEV = 0       ! Beginning level saved to conc file
@@ -187,7 +187,7 @@
 
       ! Emissions Processes
       CHARACTER( MAXLEN_CCTM_APPL ) :: EMISSCTRL  = 'EMISSCTRL_NML' ! Emission Control Filename
-      INTEGER :: EMLAYS        = 0       ! Emission Layers
+      INTEGER :: EMLAYS_MX     = 0       ! Emission Layers
       INTEGER :: N_FILE_GR     = 0       ! Number of Gridded Emission Files
       INTEGER :: N_FILE_TR     = 0       ! NUmber of Tracer Emission Files
       LOGICAL :: EMISCHK       = .TRUE.  ! flag for checking that surrogate emissions 
@@ -212,7 +212,6 @@
       REAL    :: MOLSNIC       = 350.0   ! Lightning NO Production Rate
       CHARACTER(250) :: LTNG_FNAME = 'InLine' ! Lightning NO Input Name
 
-      LOGICAL :: PT3DEMIS      = .FALSE. ! flag in-lining plume rise
       INTEGER :: NPTGRPS       = 0       ! no. pt src input file groups
       LOGICAL :: PT3DDIAG      = .FALSE. ! Write point source 3d emis diagnostic file
       LOGICAL :: PT3DFRAC      = .FALSE. ! Write layer fractions diagnostic file, if true
@@ -515,10 +514,10 @@
       END_TIME = GET_ENVYN( 'AVG_FILE_ENDTIME', VARDESC, END_TIME )
       
       ! ACONC File Species List
-      CALL GET_ENVLIST ( 'AVG_CONC_SPCS', N_ASPCS, ACONC_FILE_SPCS )
+      CALL GET_ENVLIST ( 'AVG_CONC_SPCS', N_ACONC_VARS, ACONC_FILE_SPCS )
 
       ! CONC File Species List 
-      CALL GET_ENVLIST ( 'CONC_SPCS', N_CSPCS, CONC_FILE_SPCS )
+      CALL GET_ENVLIST ( 'CONC_SPCS', N_CONC_VARS, CONC_FILE_SPCS )
  
       ! ACONC Layer Specification
       CALL GET_ENVLIST ( 'ACONC_BLEV_ELEV', NV, V_LIST2 )
@@ -559,12 +558,20 @@
       ! Get Flag for Vertical Extraction
       VARDESC = 'Extract a Vertical Column of Ouptut Data'
       LVEXT = GET_ENVYN( 'VERTEXT', VARDESC, LVEXT )
-
+#ifdef parallel
       ! Get Filepath for File Specifying Lon-Lat Coordinates for
       ! Vertical Extraction
       VARDESC = 'File Specifying Lon-Lat Coords for Vertical Extraction'
       VEXT_COORD_PATH = GET_ENVSTR( 'VERTEXT_COORD_PATH', VARDESC, VEXT_COORD_PATH )
-
+#else
+      IF( LVEXT ) THEN
+          LVEXT = .FALSE.
+          WRITE( OUTDEV,'(A)')'Option to extract a Vertical Column of Ouptut Data set to YES'
+          WRITE( OUTDEV,'(A)')'However, the serial version cannot execute the option'
+          WRITE( LOGDEV,'(A)')'Option to extract a Vertical Column of Ouptut Data set to YES'
+          WRITE( LOGDEV,'(A)')'However, the serial version cannot execute the option'
+      END IF
+#endif
       ! Get Filename for Gas Species Namelist
       VARDESC = 'Gas Species Namelist Filename'
       GC_NAMELIST = GET_ENVSTR(  'gc_matrix_nml', VARDESC, GC_NAMELIST )
@@ -815,8 +822,8 @@
       EMISSCTRL = GET_ENVSTR( 'EMISSCTRL_NML', VARDESC, EMISSCTRL )
 
       ! Number of Layers for Emissions
-      VARDESC = 'Number of emission layers'
-      EMLAYS = GET_ENVINT( 'CTM_EMLAYS', VARDESC, EMLAYS )
+      VARDESC   = 'Number of emission layers'
+      EMLAYS_MX = GET_ENVINT( 'CTM_EMLAYS', VARDESC, EMLAYS_MX )
 
       ! Get number of different Gridded File Emissionts Streams
       VARDESC = 'Number of Gridded Emissions Files'
@@ -906,10 +913,6 @@
       VARDESC = 'Flag for lightning NO production rate'
       MOLSNIC = GET_ENVREAL( 'MOLSNIC', VARDESC, 350.0 )
  
-      ! CTM_PT3DEMIS
-      VARDESC = 'Flag for in-line 3d point source emissions'
-      PT3DEMIS = GET_ENVYN( 'CTM_PT3DEMIS',VARDESC, PT3DEMIS )
-       
       ! get number of different file groups (sectors)
       VARDESC = 'Number of file groups'
       NPTGRPS = GET_ENVINT( 'N_EMIS_PT', VARDESC, NPTGRPS )
@@ -1272,9 +1275,9 @@
 !.........................................................................
  
       IMPLICIT NONE
-
+#ifdef parallel
       INCLUDE 'mpif.h'
-
+#endif
       REAL( 8 )        :: CPU_TIME_START
       REAL( 8 )        :: CPU_TIME_FINISH
       INTEGER          :: IMSG   ! What kind of checkpoint this is
@@ -1284,6 +1287,10 @@
       CHARACTER( * ), INTENT(IN), OPTIONAL :: CPROCIN
       CHARACTER( len=: ), ALLOCATABLE :: CPROC
       CHARACTER( 250 ) :: XMSG
+#ifndef parallel
+      REAL :: REAL_TIME
+#endif
+
 
       IF ( PRESENT( CPROCIN ) ) THEN
          CPROC = CPROCIN
@@ -1292,7 +1299,13 @@
       END IF
  
       ! Record Time at this Checkpoint
+#ifdef parallel
       CPU_TIME_FINISH = MPI_WTIME()
+#else
+      CALL CPU_TIME( REAL_TIME )
+      CPU_TIME_FINISH = REAL( REAL_TIME,8 )
+#endif
+
 
       ! Assemble the statement requested by the calling program
       SELECT CASE ( IMSG )
@@ -1324,8 +1337,12 @@
 #ifndef twoway
       IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
 #endif
+#ifdef parallel      
       CPU_TIME_START = MPI_WTIME()
-
+#else
+      CALL CPU_TIME( REAL_TIME )
+      CPU_TIME_START = REAL( REAL_TIME,8 )
+#endif
       END SUBROUTINE TIMING_SPLIT    
  
       END MODULE RUNTIME_VARS

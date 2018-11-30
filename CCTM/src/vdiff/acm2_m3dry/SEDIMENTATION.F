@@ -111,7 +111,7 @@ C Local Variables:
       integer, allocatable, save :: conc_map( : )
       real       adts, dts, rdts
       real       ldt, fs
-      integer    off, dtc
+      integer    off, dtc, iter 
       integer, save :: n_sedi_map   ! aero species, all modes
       integer    c, r, l, n, s, v
       integer    astat
@@ -255,28 +255,24 @@ C subset all the layers and species in cgrid for this grid cell
          if ( vdiffdiag ) then
             sumvsed = 0.0   ! array assignment
          end if
-         adts = 0.0; dtc = 0
+         adts = 0.0; dtc = 0; iter = 0
 
-         do while ( adts .lt. dtsec )
+         do while ( adts .lt. dtsec .and. iter .le. 10 )
+            iter = iter + 1
 
             call aero_sedv( c, r, cgrd, vsed_ae )
-            if ( vdiffdiag ) then
-               do l = 1, nlays
-                  do v = 1, n_ae_spc
-                     sumvsed( v,l ) = sumvsed( v,l ) + vsed_ae( v,l )
-                  end do
-               end do
-            end if
+            if ( vdiffdiag ) sumvsed = sumvsed + vsed_ae
 
- ! cgrd -> conc: from density units to mixing ratio units
+            ! cgrd -> conc: from density units to mixing ratio units
             call conv_cgrd( )
 
-            do l = 1, nlays
-               do v = 1, n_sedi_map
-                  vsed( v,l ) = vsed_ae( sedi_map( v ),l )
-               end do
+            do v = 1, n_sedi_map
+               vsed( v,: ) = vsed_ae( sedi_map( v ),: )
             end do
 
+            ! Assess reciprocal of the time step and increase it if
+            ! one of the surrogates shows a very fast sedimentation 
+            ! velocity
             rdts = 1.0 / dtsec
             do l = 1, nlays
                do v = 1, n_sedi_map
@@ -285,13 +281,17 @@ C subset all the layers and species in cgrid for this grid cell
                end do
             end do
             dts = 1.0 / rdts
+            
+            ! Add the new time step increment
             adts = adts + dts
             if ( adts .gt. dtsec ) then   ! don`t overshoot the timestep
-               dts = adts - dtsec
+               dts = dtsec - (adts - dts)
                adts = dtsec
             end if
+
             dtc = dtc + 1
 
+            ! Integrate sedimentation velocity change in time
             do l = 1, nlays
                ldt = dts * ldens( l )
                do v = 1, n_sedi_map
@@ -299,12 +299,18 @@ C subset all the layers and species in cgrid for this grid cell
                end do
             end do
 
+            ! Important Issue: Are these rrhodz values being applied
+            ! correctly or should they be matched to each layer?
+
+            ! Apply sedimentation from layer 2 to layer 1, only
+            ! production
             l = 1
             do v = 1, n_sedi_map
                conc( v,l ) = conc( v,l )
      &                     + dtsvsed( v,l+1 ) * conc( v,l+1 ) * rrhodz( l )
             end do
 
+            ! Apply production and loss to layers 2 through NZ-1
             do l = 2, nlays-1
                do v = 1, n_sedi_map
                   conc( v,l ) = conc( v,l )
@@ -312,17 +318,17 @@ C subset all the layers and species in cgrid for this grid cell
      &                        -   dtsvsed( v,l )   * conc( v,l ) ) * rrhodz( l )
                end do
             end do
+
+            ! Apply only loss to layer NZ
             l = nlays
             do v = 1, n_sedi_map
                conc( v,l ) = conc( v,l )
      &                     - dtsvsed( v,l ) * conc( v,l ) * rrhodz( l )
             end do
 
- ! conc -> cgrd: from mixing ratio units to density units
+            ! conc -> cgrd: from mixing ratio units to density units
             call conv_conc( )
-
          end do   ! while
-
          if ( vdiffdiag ) then
             dtccr( c,r ) = real( dtc )
             do l = 1, nlays
@@ -337,7 +343,6 @@ C subset all the layers and species in cgrid for this grid cell
                cngrd( conc_map( v ),l,c,r ) = conc( v,l )
             end do
          end do
-
 344   continue         !  end loop on col C
 345   continue         !  end loop on row R
 

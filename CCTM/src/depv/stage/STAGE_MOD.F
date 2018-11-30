@@ -67,6 +67,7 @@ C land use indexes
       Logical, Allocatable, Save :: Ag( : )
       Logical, Allocatable, Save :: Forest( : )
       Real,    Allocatable, Save :: l_leaf( : )    ! characteristic leaf width from Massad et al. 2010 Table 6
+      Real,    Allocatable, Save :: l_aero( : )    ! characteristic leaf radius from Zhang et al. 2001 Table 3
       Real,    Allocatable, Save :: a_cut( : )     ! NH3 cuticular resistance exponential term Massad et al. 2010 Table 8
 C gas phase species indexes
       Integer, Save              :: n_HONO
@@ -141,7 +142,8 @@ C Local variables:
      &              Ag     ( n_lufrac ),
      &              Forest ( n_lufrac ),
      &              a_cut  ( n_lufrac ),
-     &              l_leaf ( n_lufrac ), STAT = ALLOCSTAT )
+     &              l_leaf ( n_lufrac ), 
+     &              l_aero ( n_lufrac ), STAT = ALLOCSTAT )
 
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating Water, Ag, Forest, l_leaf, or a_cut'
@@ -231,45 +233,57 @@ C-----------------------------------------------------------------
                Case( 'WATER' )
                   Water( l ) = .TRUE.
                   l_leaf( l ) = 0.0
+                  l_aero( l ) = 0.0
                   a_cut( l )  = 0.0
                Case( 'AG'    )
                   ag( l )    = .TRUE.
                   l_leaf( l ) = 0.02
+                  l_aero( l ) = 0.005
                   a_cut( l )  = 0.148
                Case( 'AGMOS' )
                   ag( l )    = .TRUE.
                   l_leaf( l ) = 0.035
+                  l_aero( l ) = 0.0035
                   a_cut( l )  = 0.148
                Case( 'HAY'   )
                   ag( l )    = .TRUE.
                   l_leaf( l ) = 0.01
+                  l_aero( l ) = 0.005
                   a_cut( l )  = 0.148
                Case( 'URBAN' )
                   l_leaf( l ) = 0.05
+                  l_aero( l ) = 0.01
                   a_cut( l )  = 0.120
                Case( 'DECFOR' )
                   Forest( l ) = .TRUE.
                   l_leaf( l ) = 0.05
+                  l_aero( l ) = 0.01
                   a_cut( l )  = 0.0318
                Case( 'EVEFOR' )
                   Forest( l ) = .TRUE.
                   l_leaf( l ) = 0.005
+                  l_aero( l ) = 0.002
                   a_cut( l )  = 0.0318
                Case( 'MIXFOR' )
                   Forest( l ) = .TRUE.
                   l_leaf( l ) = 0.028
+                  l_aero( l ) = 0.005
                   a_cut( l )  = 0.0318
                Case( 'HERB','SHRUB' )
                   l_leaf( l ) = 0.02
+                  l_aero( l ) = 0.01
                   a_cut( l )  = 0.120
                Case( 'GRASS' )
                   l_leaf( l ) = 0.01
+                  l_aero( l ) = 0.005
                   a_cut( l )  = 0.176
                Case( 'WETLAND' )
                   l_leaf( l ) = 0.01
+                  l_aero( l ) = 0.01
                   a_cut( l )  = 0.0318
                Case Default
                   l_leaf( l ) = 0.01
+                  l_aero( l ) = 0.002
                   a_cut( l )  = 0.120
             End Select
          END DO
@@ -339,7 +353,7 @@ C Parameters specific to gas_x. Currently based on m3dry but subject to change
          temp_2m = Met_Data%TEMP2(c,r)
          q_2m    = MET_DATA%Q2( c,r )
          temp_g  = MET_DATA%TEMPG( c,r )
-         rh      = MET_DATA%RH( c,r )
+         rh      = MET_DATA%RH2( c,r )
          snow    = max( 0.0, MET_DATA%SNOCOV( c,r ) )
 ! total snow fraction
          no_snow = 1.0 - snow
@@ -687,7 +701,7 @@ C Calcuate Bare Soil Resistance
 !-------------------------------------------------------------------------------------------------
 ! Non bidirectional exchange
 !-------------------------------------------------------------------------------------------------   
-                     Tile_Data%depvel_gasj( l,s,c,r ) =  veg * (1.0 - c_z0/c_atm ) / Ra + no_veg / ( Ra + Rg )
+                     Tile_Data%depvel_gasj( l,s,c,r ) =  veg * (1.0-c_z0/c_atm)/Ra + no_veg /( Ra + Rg )                                                            
                      depvel_gas( n ) = depvel_gas( n ) + frac_lu * Tile_Data%depvel_gasj( l,s,c,r )                  
                   End If ! compensation points greater than 0
                End If ! Water      
@@ -745,7 +759,7 @@ C study at New York (total A/V)
 
                surf_bldg = GRID_DATA%PURB( c,r ) * 0.002
 
-C Calculate rate constant for the reaction (pseudo-first order reaction,
+C Calculate rate constant for the reaction (psudeo-first order reaction,
 C unit per second). Calculate pseudo-first order rate constant using Eq 1
 C of Vogel et al. (2003).  Unit of KNO2 is in 1/min in the paper; divide it
 C by 60 to convert it into 1/sec.
@@ -866,17 +880,20 @@ C modal sedimentation velocities for number, 2nd, and 3rd moment, or mass:
 
          REAL DCONST,  DCONST1
          REAL DCONST2, DCONST3
-         REAL SC0                  ! Schmidt numbers for number
-         REAL SC2                  ! Schmidt numbers for 2ND MOMENT
-         REAL SC3                  ! Schmidt numbers for 3rd moment
-         REAL STOKE                ! Stokes numbers for each mode
-         REAL RD0                  ! canopy resistance for number
-         REAL RD2                  ! canopy resistance for 2nd moment
-         REAL RD3                  ! canopy resisteance for 3rd moment
-         REAL UTSCALE              ! scratch function of USTAR and WSTAR
-         REAL NU                   ! kinematic viscosity [ m**2 s**-1 ]
-         REAL USTFAC               ! scratch function of USTAR, NU, and GRAV
-         REAL TWOXLM               ! 2 X atmospheric mean free path
+         REAL SC0                   ! Schmidt numbers for number
+         REAL SC2                   ! Schmidt numbers for 2ND MOMENT
+         REAL SC3                   ! Schmidt numbers for 3rd moment
+         REAL ST_VEG                ! Stokes numbers for vegetation 
+         REAL ST_SMOOTH             ! Stokes numbers for each mode following Pleim
+         REAL RD0_VEG,RD0_SMOOTH    ! canopy resistance for number
+         REAL RD2_VEG,RD2_SMOOTH    ! canopy resistance for 2nd moment
+         REAL RD3_VEG,RD3_SMOOTH    ! canopy resisteance for 3rd moment
+         REAL UTSCALE               ! scratch function of USTAR and WSTAR
+         REAL NU                    ! kinematic viscosity [ m**2 s**-1 ]
+         REAL TWOXLM                ! 2 X atmospheric mean free path
+         REAL Ra, Ustar, Wstar, lai ! Land use specific environmental variables
+         REAL Lu_frac, Veg          ! Land use and vegetation coverage fraction
+         REAL V_fac                 ! Vegetation factor for deposition 
 
 C Parameters
          REAL, PARAMETER :: BHAT    = 1.246   ! Constant from Cunningham slip correction
@@ -888,24 +905,22 @@ C Scalar variables for VARIABLE standard deviations.
 
          REAL    L2SG
 
-         REAL    E1             ! mode exp( log^2( sigmag )/8 )
-         REAL    ES04           !        " **4
-         REAL    ES08           !        " **8
-         REAL    ES12           !        " **12
-         REAL    ES16           !        " **16
-         REAL    ES20           !        " **20
-         REAL    ES28           !        " **28
-         REAL    ES32           !        " **32
-         REAL    ES36           !        " **36
-         REAL    ES48           !        " **48
-         REAL    ES64           !        " **64
-         REAL    ES128          !        " **128
-         REAL    ES160          !        " **160
-         REAL    ESM12          !        " **(-12)
-         REAL    ESM16          !        " **(-16)
-         REAL    ESM20          !        " **(-20)
-         REAL    ESM32          !        " **(-32)
-         REAL    EIM            ! Impaction efficiency
+         REAL    E1                  ! mode exp( log^2( sigmag )/8 )
+         REAL    ES04                !        " **4
+         REAL    ES08                !        " **8
+         REAL    ES12                !        " **12
+         REAL    ES16                !        " **16
+         REAL    ES20                !        " **20
+         REAL    ES28                !        " **28
+         REAL    ES32                !        " **32
+         REAL    ES36                !        " **36
+         REAL    ES48                !        " **48
+         REAL    ES64                !        " **64
+         REAL    ESM12               !        " **(-12)
+         REAL    ESM16               !        " **(-16)
+         REAL    ESM20               !        " **(-20)
+         REAL    ESM32               !        " **(-32)
+         REAL    EIM_VEG, EIM_SMOOTH ! Impaction efficiency
 
 C-----------------------------------------------------------------------
 
@@ -937,12 +952,12 @@ C        Save getpar values to arrays
 C        Calculate mean free path [ m ]:
          XLM = 6.6328E-8 * STDATMPA * AIRTEMP / ( T0 * AIRPRES )
 
-C ***    Calcualte dynamic viscosity [ kg m**-1 s**-1 ]:
+C ***    Calcualte dynamic and kinimatic viscosity [ kg m**-1 s**-1 ]:
          AMU = 1.458E-6 * AIRTEMP * SQRT( AIRTEMP )
      &                 / ( AIRTEMP + 110.4 )
+         NU = AMU / Met_Data%DENS1( C,R )   
 
 C *** Calculate Knudsen numbers
-         VDEP = 0.0
          TWOXLM = XLM + XLM
          DO IM = 1, N_MODE
             KN = TWOXLM / DG( IM )
@@ -953,17 +968,15 @@ C *** Calculate functions of variable standard deviation.
             
             E1   = EXP( 0.125 * L2SG )
             ES04 = E1 ** 4
-            ES08 = ES04 * ES04
+            ES08 = ES04 ** 2
             ES12 = ES04 * ES08
-            ES16 = ES08 * ES08
+            ES16 = ES08 ** 2
             ES20 = ES16 * ES04
             ES28 = ES20 * ES08
-            ES32 = ES16 * ES16
+            ES32 = ES16 ** 2
             ES36 = ES16 * ES20
             ES48 = ES36 * ES12
-            ES64 = ES32 * ES32
-            ES128= ES64 * ES64
-            ES160= ES128* ES32
+            ES64 = ES32 ** 2
 
 C *** calculate inverses:
 
@@ -976,57 +989,79 @@ C *** calculate inverses:
             DCONST1 = DCONST / DG( IM )
 
             DCONST2 = GRAV / ( 18.0 * AMU )
-            DCONST3 = DCONST2 * PDENS( IM ) * DG( IM ) * DG( IM ) 
+            DCONST3 = DCONST2 * PDENS( IM ) * DG( IM ) ** 2 ! Gravitational settling 
 C Calculate characteristic parameters
             DCHAT0  = DCONST1 * ( ES04  + BHAT * KN * ES16 )
             DCHAT2  = DCONST1 * ( ESM12 + BHAT * KN * ESM16 )
             DCHAT3  = DCONST1 * ( ESM20 + BHAT * KN * ESM32 )
             VGHAT0  = DCONST3 * ( ES16  + BHAT * KN * ES04 )
             VGHAT2  = DCONST3 * ( ES48  + BHAT * KN * ES20 )
-            VGHAT3  = DCONST3 * ( ES64  + BHAT * KN * ES28 )        
+            VGHAT3  = DCONST3 * ( ES64  + BHAT * KN * ES28 )  
+
+            SC0 = NU / DCHAT0
+            SC2 = NU / DCHAT2   
+            SC3 = NU / DCHAT3
+
 
             lu_loop: DO L = 1, N_LUFRAC
-               IF ( Grid_Data%LUFRAC( C,R,L ) .Eq. 0.0 ) Cycle lu_loop
+C ***    Land use paramters
+               Veg     = Mosaic_Data%VEG( C,R,L )
+               Ustar   = Mosaic_Data%USTAR( C,R,L )
+               Wstar   = Mosaic_Data%WSTAR( C,R,L )
+               lai     = Mosaic_Data%LAI( C,R,L )
+               Ra      = Mosaic_Data%RA( C,R,L )
+               lu_frac = Grid_Data%LUFRAC( C,R,L )
+
+               RD0_Veg = 0.0
+               RD2_Veg = 0.0
+               RD3_Veg = 0.0
+               IF ( lu_frac .Eq. 0.0 ) Cycle lu_loop
 
 C now calculate the deposition velocities
+               UTSCALE = Ustar + 0.24 * Wstar**2 / Ustar
 
-               NU = AMU / Met_Data%DENS1( C,R )
-               USTFAC = Mosaic_Data%USTAR( C,R,L )**2 / ( GRAV * NU )
-               STOKE = DCONST3 * USTFAC
-               UTSCALE = Mosaic_Data%USTAR( C,R,L )
-     &                 + 0.24 * Mosaic_Data%WSTAR( C,R,L )**2
-     &                 /        Mosaic_Data%USTAR( C,R,L )
+C Estimate the vegetation deposition parameters for the 0th, 2nd, and 3rd moments
+               IF( veg .gt. 0.0 ) THEN ! EIM_Veg following Slinn 1982 equation 28
+                  V_fac   = max( lai, 1.0 )
+                  ST_VEG  = VGHAT0 * Ustar / ( GRAV * l_aero( l ) )
+                  EIM_Veg = ST_VEG**2 / ( 1.0 + ST_VEG**2 ) ! Slinn 1982 equation 28           
+                  RD0_Veg = 1.0 / ( V_fac * UTSCALE * ( SC0 ** ( -TWO3 ) + EIM_Veg ) )
 
+                  ST_VEG  = VGHAT2 * Ustar / ( GRAV * l_aero( l ) )
+                  EIM_Veg = ST_VEG**2 / ( 1.0 + ST_VEG**2 ) ! Slinn 1982 equation 28           
+                  RD2_Veg = 1.0 / ( V_fac * UTSCALE * ( SC2 ** ( -TWO3 ) + EIM_Veg ) )
+
+                  ST_VEG  = VGHAT3 * Ustar / ( GRAV * l_aero( l ) ) 
+                  EIM_Veg = ST_VEG**2 / ( 1.0 + ST_VEG**2 ) ! Slinn 1982 equation 28             
+                  RD3_Veg = 1.0 / ( V_fac * UTSCALE * ( SC3 ** ( -TWO3 ) + EIM_Veg ) )
+               END IF
+C EIM_SMOOTH following Giorgi 1986 Equation 17
+               ST_SMOOTH  = VGHAT0 * Ustar**2 / ( GRAV * NU )
+               EIM_SMOOTH = ST_SMOOTH**2 / ( 400.0 + ST_SMOOTH**2 )   ! Giorgi 1986 Equation 17  
+               RD0_SMOOTH = 1.0 / ( UTSCALE * ( SC0 ** ( -TWO3 ) + EIM_SMOOTH ) )
+
+               ST_SMOOTH  = VGHAT2 * Ustar**2 / ( GRAV * NU )
+               EIM_SMOOTH = ST_SMOOTH**2 / ( 400.0 + ST_SMOOTH**2 )   ! Giorgi 1986 Equation 17
+               RD2_SMOOTH = 1.0 / ( UTSCALE * ( SC2 ** ( -TWO3 ) + EIM_SMOOTH ) )
+
+               ST_SMOOTH  = VGHAT3 * Ustar**2 / ( GRAV * NU )
+               EIM_SMOOTH = ST_SMOOTH**2 / ( 400.0 + ST_SMOOTH**2 )   ! Giorgi 1986 Equation 17
+               RD3_SMOOTH = 1.0 / ( UTSCALE * ( SC3 ** ( -TWO3 ) + EIM_SMOOTH ) )
+C Parallel conductances are additive. Thus, the vegetated and non-vegetated deposition velocities are added. 
 C first do 0th moment for the deposition of number
-
-               SC0 = NU / DCHAT0
-               EIM = STOKE ** 2 / 400.0 * ES64 
-               EIM = MIN( EIM, 1.0 )
-               RD0 = 1.0 / ( UTSCALE * ( SC0 ** ( -TWO3 ) + EIM ) )
-
-               VDEPJ( L,VDN( IM ) ) = VGHAT0
-     &             / ( 1.0 - EXP( -VGHAT0 * ( Mosaic_Data%RA( C,R,L ) + RD0 ) ) )
-               VDEP( VDN( IM ) ) =  VDEP( VDN( IM ) ) + Grid_Data%LUFRAC( C,R,L ) * VDEPJ( L,VDN( IM ) )
+               VDEPJ( L,VDN( IM ) ) = veg   * VGHAT0 / ( 1.0 - EXP( -VGHAT0 * ( Ra + RD0_Veg ) ) ) + 
+     &                        ( 1.0 - veg ) * VGHAT0 / ( 1.0 - EXP( -VGHAT0 * ( Ra + RD0_Smooth ) ) )
+               VDEP( VDN( IM ) ) =  VDEP( VDN( IM ) ) + Lu_Frac * VDEPJ( L,VDN( IM ) )
 
 C now do 2nd moment for the deposition of surface area
-               SC2 = NU / DCHAT2
-               EIM = STOKE ** 2 / 400.0 * ES128
-               EIM = MIN( EIM, 1.0 )
-               RD2 = 1.0 / ( UTSCALE * ( SC2 ** ( -TWO3 ) + EIM ) )
-
-               VDEPJ( L,VDS( IM ) ) = VGHAT2
-     &                / ( 1.0 - EXP( -VGHAT2 * ( Mosaic_Data%RA( C,R,L ) + RD2 ) ) )
-               VDEP( VDS( IM ) ) =  VDEP( VDS( IM ) ) + Grid_Data%LUFRAC( C,R,L ) * VDEPJ( L,VDS( IM ) )
+               VDEPJ( L,VDS( IM ) ) = veg   * VGHAT2 / ( 1.0 - EXP( -VGHAT2 * ( Ra + RD2_Veg ) ) ) + 
+     &                        ( 1.0 - veg ) * VGHAT2 / ( 1.0 - EXP( -VGHAT2 * ( Ra + RD2_Smooth ) ) )
+               VDEP( VDS( IM ) ) =  VDEP( VDS( IM ) ) + Lu_Frac * VDEPJ( L,VDS( IM ) )
 
 C now do 3rd moment for the deposition of mass
-               SC3 = NU / DCHAT3
-               EIM = STOKE ** 2 / 400.0 * ES160
-               EIM = MIN( EIM, 1.0 )
-               RD3 = 1.0 / ( UTSCALE * ( SC3 ** ( -TWO3 ) + EIM ) )
-
-               VDEPJ( L,VDM( IM ) ) = VGHAT3
-     &                / ( 1.0 - EXP( -VGHAT3 * ( Mosaic_Data%RA( C,R,L ) + RD3 ) ) )
-               VDEP( VDM( IM ) ) =  VDEP( VDM( IM ) ) + Grid_Data%LUFRAC( C,R,L ) * VDEPJ( L,VDM( IM ) )
+               VDEPJ( L,VDM( IM ) ) = veg   * VGHAT3 / ( 1.0 - EXP( -VGHAT3 * ( Ra + RD3_Veg ) ) ) + 
+     &                        ( 1.0 - veg ) * VGHAT3 / ( 1.0 - EXP( -VGHAT3 * ( Ra + RD3_Smooth ) ) )
+               VDEP( VDM( IM ) ) =  VDEP( VDM( IM ) ) + Lu_Frac * VDEPJ( L,VDM( IM ) )
 
             END DO lu_loop ! n_lufrac
          END DO ! aerosol mode
@@ -1036,13 +1071,13 @@ C Return dry deposition velocities for aerosols (first layer only).
          DO V = 1, N_AE_DEPV
             IF ( DEPV_SUR( V ) .GT. 0 ) THEN
                VDEP_AE( V ) = VDEP( DEPV_SUR( V ) )
+               Tile_Data%ADEPVJ( :,V,C,R ) = VDEPJ( :,DEPV_SUR( V ) )
             ELSE
                VDEP_AE( V ) = 0.0
+               Tile_Data%ADEPVJ( :,V,C,R ) = 0.0 
             END IF
          END DO
                     
          Return
          END SUBROUTINE AERO_X
       END MODULE STAGE_MOD
-
-

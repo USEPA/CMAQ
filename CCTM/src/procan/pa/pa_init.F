@@ -17,10 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/procan/pa/pa_init.F,v 1.7 2011/10/21 16:11:32 yoj Exp $ 
-
       SUBROUTINE PA_INIT( CGRID, SDATE, STIME, TSTEP )
  
 C-----------------------------------------------------------------------
@@ -100,7 +96,6 @@ C..Arguments:
                              ! TSTEP(2) = sciproc sync. step (chem)
                              ! TSTEP(3) = twoway model time step w.r.t. wrf time
                              !            step and wrf/cmaq call frequency
-
 
 C..Parameters:
 
@@ -268,7 +263,7 @@ C..try to open existing file for update
 
             CALL SUBST_BARRIER
 
-         END DO   ! NMFLS
+         END DO   ! NFL
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C  Initialize arrays

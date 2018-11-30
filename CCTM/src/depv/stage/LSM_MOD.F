@@ -82,10 +82,6 @@ C------------------------------------------------------------------------------
       CHARACTER( 80 ), SAVE      :: LAND_SCHEME
       CHARACTER( 16 ), SAVE, ALLOCATABLE :: cat_lu( : )
       CHARACTER( 16 ), SAVE, ALLOCATABLE :: name_lu( : )
-!      LOGICAL,              SAVE :: PX_LSM
-!      LOGICAL,              SAVE :: CLM_LSM
-!      LOGICAL,              SAVE :: NOAH_LSM
-
 
       INTEGER, PRIVATE, PARAMETER :: n_modis   = 20
       INTEGER, PRIVATE, PARAMETER :: n_nlcd50  = 50
