@@ -44,10 +44,11 @@ C                      by C. J. Coats  -- Jerry Gipson, January 1998
 C    06 Jun 11 J.Young: Replaced I/O API include files with UTILIO_DEFN
 C    28 Aug 18 R.Mathur/S.Roselle: Added polar stereographic projection
 C                      grid type option 
- 
+C    06 Nov 18 S.Roselle: Replaced UTILIO_DEFN with M3UTILIO
+
 C***********************************************************************
 
-      USE UTILIO_DEFN
+      USE M3UTILIO   ! IOAPI module
 
       IMPLICIT NONE     
 

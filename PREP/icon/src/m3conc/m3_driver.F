@@ -51,13 +51,14 @@ C      07 Jun 11 J.Young: Removed RADM2<->CB4 mechanism conversion feature
 C      13 Jul 11 J.Young: Convert for Namelist redesign + UTILIO_DEFN
 C      21 May 12 J.Young: Replaced IC_PARMS include file with an F90 module
 C      02 Nov 18 S.Roselle: Removed species mapping
+C      06 Nov 18 S.Roselle: Replaced UTILIO_DEFN with M3UTILIO
 
 C***********************************************************************
 
-      USE HGRD_DEFN    ! Module to store and load the horizontal grid variables
-      USE VGRD_DEFN    ! vertical layer specifications
-      USE UTILIO_DEFN
-      USE IC_PARMS     ! ICON parameters
+      USE HGRD_DEFN   ! Module to store and load the horizontal grid variables
+      USE VGRD_DEFN   ! vertical layer specifications
+      USE M3UTILIO    ! IOAPI module
+      USE IC_PARMS    ! ICON parameters
 
       IMPLICIT NONE     
 
@@ -75,10 +76,9 @@ C External Functions: None
 C Local Variables:
       CHARACTER(  16 ) :: ENV_DFLT       ! Environment variable default value
       CHARACTER(  80 ) :: ENV_DESC       ! Environment variable description
-      CHARACTER(  16 ) :: ICON_PING = 'ICON_PING' ! Environment variable for PinG (Y/N)
       CHARACTER(  16 ) :: FL_NAME        ! Input CTM file name
       CHARACTER(  80 ) :: MSG            ! Log message
-      CHARACTER(  16 ) :: PNAME = 'INIC' ! Program name
+      CHARACTER(  16 ) :: PNAME = 'M3_INIC' ! Program name
       CHARACTER( 256 ) :: RET_VAL        ! Returned value of environment variable
       CHARACTER(  80 ) :: VARDESC        ! environment variable description
 
@@ -86,9 +86,6 @@ C Local Variables:
       CHARACTER(  16 ) :: INFL_SP_NAME( MXCTMS*MXVARS3 )  ! Names of CTM species
       CHARACTER(  16 ) :: UNITS_IN( MXCTMS*MXVARS3 ) ! Units for CTM species
       CHARACTER(  80 ) :: VDESC_IN( MXCTMS*MXVARS3 ) ! Variable description for CTM species
-
-      CHARACTER(  15 ) :: VALR1, VALR2                    ! Character value of real
-      CHARACTER(   3 ) :: VALI1, VALI2                    ! Character value of integer
 
       INTEGER :: VTYPE_IN( MXCTMS*MXVARS3 ) ! variable type for CTM species
 
@@ -201,8 +198,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       CALL M3_ICOUT( LOGUNIT,
      &               N_CTM_FLS,
      &               SDATE, STIME,
-     &               NCOLS_IN, NROWS_IN, NLAYS_IN,
-     &               NSPCS_IN, CTM_FL_NAME,
+     &               NCOLS_IN, NROWS_IN, NLAYS_IN, NSPCS_IN,
+     &               CTM_FL_NAME,
      &               INFL_SP_NAME, VTYPE_IN, UNITS_IN, VDESC_IN )
 
       RETURN

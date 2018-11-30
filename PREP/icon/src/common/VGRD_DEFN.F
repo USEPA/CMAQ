@@ -35,6 +35,7 @@ C                                         with UTILIO_DEFN
 C                   S.Roselle  02 Nov 18: Use MET_CRO_3D_FIN to get layer
 C                                         structure instead of requiring
 C                                         a separate LAYER_FILE
+C                   S.Roselle  06 Nov 18: Replaced UTILIO_DEFN with M3UTILIO
 C.......................................................................
 
       IMPLICIT NONE
@@ -92,7 +93,7 @@ C-----------------------------------------------------------------------
 
          FUNCTION VGRD_INIT ( ) RESULT ( SUCCESS )
 
-            USE UTILIO_DEFN
+            USE M3UTILIO   ! IOAPI module
 
             IMPLICIT NONE
 

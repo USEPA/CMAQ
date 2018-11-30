@@ -27,6 +27,7 @@ C %W% %P% %G% %U%
 
       SUBROUTINE PROF_VINTERP( LOGUNIT, NSPCS_IN, NLAYS_IN, ZH_IN,
      &                         CONCIN, CONCOUT )    
+
 C*************************************************************************
  
 C  Function: Interpolates/Extrapolates concentrations in vertical.
@@ -50,12 +51,13 @@ C    06 Jun 11 J.Young: Replaced I/O API include files with UTILIO_DEFN
 C    21 May 12 J.Young: Replaced IC_PARMS include file with an F90 module
 C    02 Nov 19 S.Roselle: Reconfigured to do vertical interpolation to
 C                       target boundary vertical layer heights (ZH)
-                   
+C    06 Nov 18 S.Roselle: Replaced UTILIO_DEFN with M3UTILIO
+                  
 C*************************************************************************
 
       USE HGRD_DEFN   ! Module to store and load the horizontal grid variables
       USE VGRD_DEFN   ! vertical layer specifications
-      USE UTILIO_DEFN
+      USE M3UTILIO    ! IOAPI module
       USE IC_PARMS    ! ICON parameters
 
       IMPLICIT NONE     
@@ -64,8 +66,8 @@ C Include Files:
 
 C Arguments: 
       INTEGER LOGUNIT                ! Unit number for output log
-      INTEGER NSPCS_IN               ! No. of species in input profile file
-      INTEGER NLAYS_IN               ! No. of layers in input profile file
+      INTEGER NSPCS_IN               ! No. of species in input profile
+      INTEGER NLAYS_IN               ! No. of layers in input profile
 
       REAL :: ZH_IN( * )             ! Input layer heights
       REAL :: CONCIN( MXLAYS3,* )    ! Input conc array

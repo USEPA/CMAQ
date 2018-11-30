@@ -56,13 +56,14 @@ C  06 Jun 11 J.Young: Replaced I/O API include files with UTILIO_DEFN
 C  21 May 12 J.Young: Replaced IC_PARMS include file with an F90 module
 C  02 Sep 18 C.Hogrefe and S.Roselle: Adapted to read new profile format;
 C                       removed species mapping
+C  06 Nov 18 S.Roselle: Replaced UTILIO_DEFN with M3UTILIO
  
 C***********************************************************************
 
-      USE HGRD_DEFN    ! Module to store and load the horizontal grid variables
-      USE VGRD_DEFN    ! vertical layer specifications
-      USE UTILIO_DEFN
-      USE IC_PARMS     ! ICON parameters
+      USE HGRD_DEFN   ! Module to store and load the horizontal grid variables
+      USE VGRD_DEFN   ! vertical layer specifications
+      USE M3UTILIO    ! IOAPI module
+      USE IC_PARMS    ! ICON parameters
 
       IMPLICIT NONE     
 
@@ -209,13 +210,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       END DO
       
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c  Possible vertical interpolation
+c  vertical interpolation
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       CALL PROF_VINTERP( LOGUNIT, NSPCS_IN, NLEVS_IN, ZH_IN, INPROF,
      &                   VIPROF )      
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c  Open the Models3 IC output file
+c  Open IC output file
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       SDATE = 0
       STIME = 0

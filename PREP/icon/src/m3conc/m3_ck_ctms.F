@@ -41,11 +41,12 @@ C                    Modified by JG May, 1999 to change way reals are
 C                       checked
 C    08 Jun 11 J.Young: Replaced I/O API include files with UTILIO_DEFN
 C    21 May 12 J.Young: Replaced IC_PARMS include file with an F90 module
- 
+C    06 Nov 18 S.Roselle: Replaced UTILIO_DEFN with M3UTILIO
+
 C***********************************************************************
 
-      USE UTILIO_DEFN
-      USE IC_PARMS     ! ICON parameters
+      USE M3UTILIO   ! IOAPI module
+      USE IC_PARMS   ! ICON parameters
 
       IMPLICIT NONE     
 

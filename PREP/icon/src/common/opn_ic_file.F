@@ -52,13 +52,15 @@ C    12/13/04 J.Young: vert dyn alloc - Use VGRD_DEFN
 C    06 Jun 11 J.Young: Replaced I/O API include files with UTILIO_DEFN
 C    13 Jun 11 J.Young: Convert for Namelist redesign
 C    21 May 12 J.Young: Replaced IC_PARMS include file with an F90 module
-                    
+C    07 Nov 18 S.Roselle: Removed parallel processing code; 
+C                         replaced UTILIO_DEFN with M3UTILIO
+
 C***********************************************************************
 
-      USE HGRD_DEFN      ! Module to store and load the horizontal grid variables
-      USE VGRD_DEFN      ! vertical layer specifications
-      USE UTILIO_DEFN
-      USE IC_PARMS       ! ICON parameters
+      USE HGRD_DEFN   ! Module to store and load the horizontal grid variables
+      USE VGRD_DEFN   ! vertical layer specifications
+      USE M3UTILIO    ! IOAPI module
+      USE IC_PARMS    ! ICON parameters
 
       IMPLICIT NONE     
 
@@ -230,13 +232,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &                              UNITS3D( V ), TRIM( VDESC3D( V ) )
          END DO
 
-C Only PE 0 opens file
-         IF ( MYPE .EQ. 0 ) THEN   ! open new
-            IF ( .NOT. OPEN3( IC_FNAME( N ), FSUNKN3, PNAME ) ) THEN
-               MSG = 'Could not open nor create ' //  IC_FNAME( N ) //
-     &               ' file '
-               CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
-            END IF
+         IF ( .NOT. OPEN3( IC_FNAME( N ), FSUNKN3, PNAME ) ) THEN
+            MSG = 'Could not open nor create ' //  IC_FNAME( N ) //
+     &            ' file '
+            CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
          END IF
 
       END DO

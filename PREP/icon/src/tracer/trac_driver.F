@@ -42,12 +42,13 @@ C  Prototype created by Jerry Gipson, January, 1998
 C  01/24/02 Steve Howard (Jeff Young) - dynamic allocation
 C  19 Jul 11 J.Young: Convert for Namelist redesign + UTILIO_DEFN
 C  21 May 12 J.Young: Replaced IC_PARMS include file with an F90 module
-                    
+C  05 Nov 18 S.Roselle: UTILIO_DEFN replaced with M3UTILIO
+
 C***********************************************************************
 
       USE HGRD_DEFN    ! Module to store and load the horizontal grid variables
       USE VGRD_DEFN    ! vertical layer specifications
-      USE UTILIO_DEFN
+      USE M3UTILIO     ! IOAPI
       USE IC_PARMS     ! ICON parameters
 
       IMPLICIT NONE     

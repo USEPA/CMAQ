@@ -27,13 +27,13 @@ C %W% %P% %G% %U%
 
       SUBROUTINE M3_VINTERP( LOGUNIT, SDATE, STIME, 
      &                       NCOLS_IN, NROWS_IN, NLAYS_IN, NSPCS_IN,
-     &                       COL_LOC, ROW_LOC, PRE_COL_LOC, PRE_ROW_LOC,
-     &                       CONCIN, CONCVI, CTM_FL_NAME )
+     &                       COL_LOC, ROW_LOC,
+     &                       ICIN, ICVI, CTM_FL_NAME )
 
 C***********************************************************************
  
 C  Function: Interpolates/Extrapolates concentrations in vertical.
-C            The number of layers in CONCIN is collapsed or expanded
+C            The number of layers in ICIN is collapsed or expanded
 C            according to the number of layers in env var LAYER_FILE.
 C            Interpolation is done using rational function interpolation
 C            ( Numerical Recipes, Press et al.) or linear 
@@ -66,12 +66,14 @@ C                           - used PRE_COL_LOC and PRE_ROW_LOC to determine the
 C                             beginning and ending column and row number for
 C                             calling INTERPX with MET_CRO_3D_CRS file
 C     21 May 12 J.Young: Replaced IC_PARMS include file with an F90 module
+C     06 Nov 18 S.Roselle: Removed parallel processing code;
+C                          Replaced UTILIO_DEFN with M3UTILIO
                     
 C***********************************************************************
 
       USE HGRD_DEFN   ! Module to store and load the horizontal grid variables
       USE VGRD_DEFN   ! vertical layer specifications
-      USE UTILIO_DEFN
+      USE M3UTILIO    ! IOAPI module
       USE IC_PARMS    ! ICON parameters
 
       IMPLICIT NONE     
@@ -89,10 +91,8 @@ C Arguments:
       INTEGER :: COL_LOC( NCOLS,NROWS )  ! Output IC col corresponding to &
       INTEGER :: ROW_LOC( NCOLS,NROWS )  ! Output IC row corresponding to
                                          ! a cell in the input conc file
-      INTEGER :: PRE_COL_LOC( NCOLS,NROWS )  ! pre normalized COL_LOC
-      INTEGER :: PRE_ROW_LOC( NCOLS,NROWS )  ! pre normalized ROW_LOC
-      REAL    :: CONCIN( NCOLS_IN,NROWS_IN,NLAYS_IN,* )  ! Input conc array
-      REAL    :: CONCVI( NCOLS,NROWS,NLAYS,* )           ! Output IC array
+      REAL    :: ICIN( NCOLS,NROWS,NLAYS_IN,* )  ! Input conc array
+      REAL    :: ICVI( NCOLS,NROWS,NLAYS,* )           ! Output IC array
       CHARACTER( 16 ) :: CTM_FL_NAME( * )  ! Name of input conc file
 
 C Parameters: None
@@ -132,9 +132,6 @@ C Local Variables:
       REAL   :: HT_IC( NCOLS,NROWS,NLAYS )            ! New mid-layer heights
       REAL   :: HT_CTM( NCOLS_IN,NROWS_IN,NLAYS_IN )  ! Old mid-layer heights
      
-      INTEGER :: BEG_COL, END_COL, BEG_ROW, END_ROW          ! Fine file indices
-      INTEGER :: BEG_COL_C, END_COL_C, BEG_ROW_C, END_ROW_C  ! Coarse file indices
- 
 C***********************************************************************
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -152,9 +149,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       MSG = 'Flag for interpolation by rational function'
 !     L_RATINT = ENVYN( 'RATIONAL_FUNC', MSG, L_RATINT, STATUS )  
       IF ( .NOT. L_RATINT ) THEN
-         MSG = 'Linear Vertical interpolation method'
+         MSG = 'Vertical interpolation method: Linear'
       ELSE
-         MSG = 'Rational Function Vertical interpolation method'
+         MSG = 'Vertical interpolation method: Rational Function.'
       END IF
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -190,13 +187,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
          WRITE( LOGUNIT, 92020 ) 
 
-         DO C = 1, MY_NCOLS
-            DO R = 1, MY_NROWS
-               CIN = COL_LOC( C, R )
-               RIN = ROW_LOC( C, R )
+         DO C = 1, NCOLS
+            DO R = 1, NROWS
                DO L = 1, NLAYS
                   DO V = 1, NSPCS_IN
-                     CONCVI( C, R, L, V ) = CONCIN( CIN, RIN, L, V )
+                     ICVI( C, R, L, V ) = ICIN( C, R, L, V )
                   END DO
                END DO
             END DO
@@ -211,6 +206,12 @@ c  Interpolate by VGLEVS for vertical coords of same type but different
 c  resolution
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF ( L_SAME_SCALE ) THEN
+
+         IF ( .NOT. DESC3( CTM_FL_NAME( 1 ) ) ) THEN
+            MSG = 'Could not read DESC of  ' // CTM_FL_NAME( 1 )
+     &         // ' file'
+         CALL M3EXIT( PNAME, SDATE, STIME, MSG, XSTAT2 )
+         END IF
 
          WRITE( LOGUNIT, 92040 )
          WRITE( LOGUNIT, 92060 ) VGDESC( VGTYP_GD )
@@ -242,34 +243,32 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             LDEC = .TRUE.
          END IF
 
-         DO C = 1, MY_NCOLS
-            DO R = 1, MY_NROWS
-               CIN = COL_LOC( C,R )
-               RIN = ROW_LOC( C,R )
-               DO V = 1, NSPCS_IN    
+         DO C = 1, NCOLS
+            DO R = 1, NROWS
+              DO V = 1, NSPCS_IN
 
                   DO L = 1, NLAYS_IN
-                     WORKA( L ) = CONCIN( CIN,RIN,L,V )
+                     WORKA( L ) = ICIN( C,R,L,V )
                   END DO
 
                   DO L = 1, NLAYS
 
                      IF ( NLAYS_IN .EQ. 1 ) THEN
-                        CONCVI( C,R,L,V ) = WORKA( 1 )
+                        ICVI( C,R,L,V ) = WORKA( 1 )
                      ELSE
                         X3 = 0.5 * ( VGLVS_GD( L ) +  VGLVS_GD( L + 1 ) )
                         IF ( LINC .AND. X3 .LE. X3_OLD( 1 ) ) THEN
-                           CONCVI( C,R,L,V ) = WORKA( 1 )
+                           ICVI( C,R,L,V ) = WORKA( 1 )
                         ELSE IF ( LDEC .AND. X3 .GE. X3_OLD( 1 ) ) THEN
-                           CONCVI( C,R,L,V ) = WORKA( 1 )
+                           ICVI( C,R,L,V ) = WORKA( 1 )
                         ELSE IF ( LINC .AND. X3 .GE. X3_OLD( NLAYS_IN ) ) THEN
-                           CONCVI( C,R,L,V ) = WORKA( NLAYS_IN )
+                           ICVI( C,R,L,V ) = WORKA( NLAYS_IN )
                         ELSE IF ( LDEC .AND. X3 .LE. X3_OLD( NLAYS_IN ) ) THEN
-                           CONCVI( C,R,L,V ) = WORKA( NLAYS_IN )
+                           ICVI( C,R,L,V ) = WORKA( NLAYS_IN )
                         ELSE
                            CALL LR_INTERP( L_RATINT, X3_OLD, WORKA, NLAYS_IN,
      &                                     X3, Y, DELY )
-                           CONCVI( C,R,L,V ) = Y
+                           ICVI( C,R,L,V ) = Y
                         END IF
                      END IF
 
@@ -290,97 +289,47 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       WRITE( LOGUNIT, 92160 )
       WRITE( LOGUNIT, 92140 ) MSG
 
-#ifdef parallel
-      BEG_COL = COLSX_PE( 1, MYPE+1 )
-      END_COL = COLSX_PE( 2, MYPE+1 )
-      BEG_ROW = ROWSX_PE( 1, MYPE+1 )
-      END_ROW = ROWSX_PE( 2, MYPE+1 )
-#else
-      BEG_COL = 1
-      END_COL = NCOLS
-      BEG_ROW = 1
-      END_ROW = NROWS
-#endif
-
 C Get the layer mid-point heights
       VNAME = 'ZH'
-      IF ( .NOT. INTERPX( MET_CRO_3D_FIN, VNAME, PNAME,
-     &                    BEG_COL, END_COL, BEG_ROW, END_ROW, 
-     &                    1,NLAYS, SDATE, STIME, HT_IC ) ) THEN
-         MSG = 'Could not read layer heights from ' // MET_CRO_3D_FIN 
+      IF ( .NOT. READ3( MET_CRO_3D_FIN, VNAME, ALLAYS3, SDATE, STIME,
+     &                  HT_IC ) ) THEN
+         MSG = 'Could not read layer heights from file ' // MET_CRO_3D_FIN
          CALL M3EXIT( PNAME, SDATE, STIME, MSG, XSTAT1 )
       END IF
 
       VNAME = 'ZH'
-      if ( .not. desc3( met_cro_3d_crs ) ) then
-         msg = 'Could not read layer heights from ' // met_cro_3d_fin 
-         call m3exit( pname, sdate, stime, msg, xstat1 )
-      end if
-      write( logunit,* ) 'gdtyp3d: ', gdtyp3d
-      write( logunit,* ) 'ftype3d: ', ftype3d
-      write( logunit,* ) 'sdate3d: ', sdate3d
-      write( logunit,* ) 'stime3d: ', stime3d
-      write( logunit,* ) 'tstep3d: ', tstep3d
-      write( logunit,* ) 'nvars3d: ', nvars3d
-      write( logunit,* ) 'p_alp3d: ', p_alp3d
-      write( logunit,* ) 'p_bet3d: ', p_bet3d
-      write( logunit,* ) 'p_gam3d: ', p_gam3d
-      write( logunit,* ) 'xorig3d: ', xorig3d
-      write( logunit,* ) 'xcell3d: ', xcell3d
-      write( logunit,* ) 'ncols3d: ', ncols3d
-      write( logunit,* ) 'nrows3d: ', nrows3d
-      write( logunit,* ) 'nlays3d: ', nlays3d
-      write( logunit,* ) 'vgtyp3d: ', vgtyp3d
-      write( logunit,* ) 'vgtop3d: ', vgtop3d
-
-#ifdef parallel
-      BEG_COL = PRE_COL_LOC( 1,1 )
-      END_COL = PRE_COL_LOC( SIZE( PRE_COL_LOC,1 ), 1 )
-      BEG_ROW = PRE_ROW_LOC( 1,1 )
-      END_ROW = PRE_ROW_LOC( 1, SIZE( PRE_ROW_LOC,2 ) )
-      BEG_COL_C = 1
-      END_COL_C = END_COL - BEG_COL + 1
-      BEG_ROW_C = 1
-      END_ROW_C = END_ROW - BEG_ROW + 1
-      IF ( .NOT. INTERPX( MET_CRO_3D_CRS, VNAME, PNAME,
-     &                    BEG_COL, END_COL, BEG_ROW, END_ROW,
-     &                    1,NLAYS_IN, SDATE, STIME, 
-     &                    HT_CTM( 1:END_COL_C,1:END_ROW_C,: ) ) ) THEN
-#else
-      IF ( .NOT. INTERPX( MET_CRO_3D_CRS, VNAME, PNAME,
-     &                    1,NCOLS_IN, 1,NROWS_IN,
-     &                    1,NLAYS_IN, SDATE, STIME, HT_CTM ) ) THEN
-#endif
-         MSG = 'Could not interpolate ZH from ' // MET_CRO_3D_CRS
+      IF ( .NOT. READ3( MET_CRO_3D_CRS, VNAME, ALLAYS3, SDATE, STIME,
+     &                  HT_CTM ) ) THEN
+         MSG = 'Could not read layer heights from file ' // MET_CRO_3D_CRS
          CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT1 )
       END IF
 
 C Interpolate
-      DO C = 1, MY_NCOLS
-         DO R = 1, MY_NROWS
+      DO C = 1, NCOLS
+         DO R = 1, NROWS
             CIN = COL_LOC( C,R )
             RIN = ROW_LOC( C,R )
             DO V = 1, NSPCS_IN    
 
                DO L = 1, NLAYS_IN
-                  WORKA( L ) = CONCIN( CIN,RIN,L,V )
+                  WORKA( L ) = ICIN( C,R,L,V )
                   X3_OLD( L ) = HT_CTM( CIN,RIN,L )
                END DO
 
                DO L = 1, NLAYS
 
                   IF ( NLAYS_IN .EQ. 1 ) THEN
-                     CONCVI( C,R,L,V ) = WORKA( 1 )
+                     ICVI( C,R,L,V ) = WORKA( 1 )
                   ELSE
                      X3 = HT_IC( C,R,L )
                      IF ( X3 .LT. X3_OLD( 1 ) ) THEN
-                        CONCVI( C,R,L,V ) = WORKA( 1 )
+                        ICVI( C,R,L,V ) = WORKA( 1 )
                      ELSE IF ( X3 .GT. X3_OLD( NLAYS_IN ) ) THEN
-                        CONCVI( C,R,L,V ) = WORKA( NLAYS_IN )
+                        ICVI( C,R,L,V ) = WORKA( NLAYS_IN )
                      ELSE
                         CALL LR_INTERP( L_RATINT, X3_OLD, WORKA, NLAYS_IN, 
      &                                  X3, Y, DELY )
-                        CONCVI( C,R,L,V ) = Y
+                        ICVI( C,R,L,V ) = Y
                      END IF
                   END IF
 

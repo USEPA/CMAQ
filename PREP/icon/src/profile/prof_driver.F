@@ -44,11 +44,12 @@ C  07 Jun 11 J.Young: Removed RADM2<->CB4 mechanism conversion feature
 C  13 Jun 11 J.Young: Convert for Namelist redesign
 C  21 May 12 J.Young: Replaced IC_PARMS include file with an F90 module
 C  02 Nov 18 S.Roselle: Removed species mapping
- 
+C  06 Nov 18 S.Roselle: Replaced UTILIO_DEFN with M3UTILIO
+
 C***********************************************************************
 
-      USE UTILIO_DEFN
-      USE IC_PARMS     ! ICON parameters
+      USE M3UTILIO    ! IOAPI module
+      USE IC_PARMS    ! ICON parameters
 
       IMPLICIT NONE     
 
@@ -126,16 +127,5 @@ C************************* FORMAT STATEMENTS ***************************
      &         / 1X, 79( '#' )
      &        // 5X, 'Initial Concentrations from an input IC profile ',
      &               'file.' )
-
-92020 FORMAT( / 5X, 'Profile file name: ', A 
-     &        / 5X, 'File contents: '
-     &        / 1X )
-
-92040 FORMAT(  5X, A )
-92060 FORMAT( / 5X, 'End of file contents.')
-92080 FORMAT( //1X, A )
-92200 FORMAT( //5X, 'Profile concentration units assumed to be ppm' ) 
-92220 FORMAT( //5X, 'Profile concentration units assumed to be ppb' ) 
-94000 FORMAT( A )
 
       END
