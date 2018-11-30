@@ -132,7 +132,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          IF ( .NOT. DESC3( CTM_FL_NAME( 1 ) ) ) THEN
             MSG = 'Could not read DESC of  ' // CTM_FL_NAME( 1 ) 
      &         // ' file'
-            CALL M3ERR( PNAME, JDATE, JTIME, MSG, .TRUE. )
+            CALL M3EXIT( PNAME, SDATE, STIME, MSG, XSTAT2 )
          END IF
 
 C Determine type of interpolation to use: linear or rational function
@@ -254,7 +254,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          IF ( .NOT. DESC3( CTM_FL_NAME( 1 ) ) ) THEN
             MSG = 'Could not read DESC of  ' // CTM_FL_NAME( 1 ) 
      &         // ' file'
-            CALL M3ERR( PNAME, JDATE, JTIME, MSG, .TRUE. )
+            CALL M3EXIT( PNAME, SDATE, STIME, MSG, XSTAT2 )
          END IF
 
          DO V = 1, NSPCS_IN    
@@ -305,14 +305,14 @@ C Get the layer mid-point heights
       VNAME = 'ZH'
       IF ( .NOT. READ3( MET_BDY_3D_FIN, VNAME, ALLAYS3, JDATE, JTIME,
      &                  HT_BNDY ) ) THEN
-         MSG = 'Could not read layer heights form file  ' // MET_BDY_3D_FIN 
+         MSG = 'Could not read layer heights from file ' // MET_BDY_3D_FIN 
          CALL M3ERR( PNAME, JDATE, JTIME, MSG, .TRUE. )
       END IF
 
       VNAME = 'ZH'
       IF ( .NOT. READ3( MET_CRO_3D_CRS, VNAME, ALLAYS3, JDATE, JTIME,
      &                  HT_CTM ) ) THEN
-         MSG = 'Could not read layer heights form file  ' // MET_CRO_3D_CRS 
+         MSG = 'Could not read layer heights from file ' // MET_CRO_3D_CRS 
          CALL M3ERR( PNAME, JDATE, JTIME, MSG, .TRUE. )
       END IF
 

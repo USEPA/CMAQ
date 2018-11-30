@@ -211,7 +211,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          
          WRITE( LOGUNIT, 92040 ) N, BC_FNAME( N )
 
-
          WRITE( LOGUNIT, 92060 ) EXECN3D, FTYPE3D, SDATE3D, STIME3D,
      &                           TSTEP3D, NCOLS3D, NROWS3D, NLAYS3D,
      &                           NTHIK3D, NVARS3D, GDTYP3D, P_ALP3D,

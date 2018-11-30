@@ -75,7 +75,7 @@ C Local Variables:
       CHARACTER(  80 ) :: ENV_DESC       ! Environment variable description
       CHARACTER(  16 ) :: FL_NAME        ! Input CTM file name
       CHARACTER(  80 ) :: MSG            ! Log message
-      CHARACTER(  16 ) :: PNAME = 'INBNDY' ! Procedure name
+      CHARACTER(  16 ) :: PNAME = 'M3_INBNDY' ! Procedure name
       CHARACTER( 256 ) :: RET_VAL        ! Returned value of environment variable
       CHARACTER(  80 ) :: VARDESC        ! environment variable description
 

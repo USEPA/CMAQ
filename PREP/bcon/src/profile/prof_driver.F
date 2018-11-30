@@ -137,13 +137,4 @@ C************************* FORMAT STATEMENTS ***************************
      &               'file.'
      &         / 5X, 'BCs do not vary with time.' )
 
-92020 FORMAT(  / 5X, 'Profile file name: ', A 
-     &         / 5X, 'File contents: '/ )
-
-92040 FORMAT(  7X, A )
-92050 FORMAT(  2X, '---> ', A )
-92060 FORMAT(  / 5X, 'End of file contents.')
-92080 FORMAT( // 1X, A )
-94000 FORMAT( A )
-
       END

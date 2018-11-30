@@ -66,8 +66,8 @@ C Include Files:
 
 C Arguments: 
       INTEGER LOGUNIT                   ! Unit number for output log
-      INTEGER NSPCS_IN                  ! No. of species in input conc file
-      INTEGER NLAYS_IN                  ! No. of layers in input conc file
+      INTEGER NSPCS_IN                  ! No. of species in input profile
+      INTEGER NLAYS_IN                  ! No. of layers in input profile
 
       REAL :: ZH_IN( * )                ! Input layer heights
       REAL :: CONCIN( MXLAYS3,* )       ! Input conc array

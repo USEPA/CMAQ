@@ -17,7 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
 C RCS file, release, date & time of last delta, author, state, [and locker]
 C $Header: /project/yoj/arc/BCON/src/common/bcon.F,v 1.2 2011/10/21 16:52:32 yoj Exp $ 
 
@@ -69,9 +68,9 @@ C Parameters: None
 C External Procedures: None
 
 C Local Variables:
-      CHARACTER( 16 ) :: PNAME = 'BCON'         ! Procedure name
-      CHARACTER( 16 ) :: BCON_TYPE = 'BCON_TYPE'   ! BCON type environment variable
-      CHARACTER( 16 ) :: BC_MODULE              ! selected module
+      CHARACTER( 16 ) :: PNAME = 'BCON'          ! Procedure name
+      CHARACTER( 16 ) :: BCON_TYPE = 'BCON_TYPE' ! BCON type environment variable
+      CHARACTER( 16 ) :: BC_MODULE               ! selected module
 
       CHARACTER( 80 ) :: MSG                    ! Log message 
       CHARACTER( 80 ) :: VARDESC                ! variable description
@@ -82,7 +81,6 @@ C Local Variables:
       INTEGER :: SDATE = 0   ! Start date 
       INTEGER :: STIME = 0   ! Start time 
       INTEGER    STATUS      ! Status code
-      INTEGER, SAVE :: NPROCS = 1 ! dummy for non-parallel
 
 C***********************************************************************
 

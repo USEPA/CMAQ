@@ -144,6 +144,4 @@ C************************* FORMAT STATEMENTS ***************************
      &        // 5X, 'The tracer species module has been invoked; ',
      &               'BCs will be generated for tracer species ONLY.' )
 
-94000 FORMAT( A )
-
       END
