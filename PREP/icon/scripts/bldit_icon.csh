@@ -43,13 +43,13 @@
  set CFG  = ICON_${VRSN}.cfg        #> BLDMAKE configuration file name
 
 #> Controls for managing the source code and MPI compilation
-set CompileBLDMAKE                     #> Recompile the BLDMAKE utility from source
-                                       #>   comment out to use an existing BLDMAKE executable
-set CopySrc                            #> copy the source files into the BLD directory
-#set CopySrcTree                       #> copy the source files and directory tree into the build directory
-#set Opt = verbose                     #> show requested commands as they are executed
-#set MakeFileOnly                      #> uncomment to build a Makefile, but do not compile; 
-                                       #>   comment out to compile the model (default if not set)
+set CompileBLDMAKE                  #> Recompile the BLDMAKE utility from source
+                                    #>   comment out to use an existing BLDMAKE executable
+set CopySrc                         #> copy the source files into the BLD directory
+#set CopySrcTree                    #> copy the source files and directory tree into the build directory
+#set Opt = verbose                  #> show requested commands as they are executed
+#set MakeFileOnly                   #> uncomment to build a Makefile, but do not compile; 
+                                    #>   comment out to compile the model (default if not set)
 
 #>==============================================================================
 #> ICON Science Modules
