@@ -118,8 +118,8 @@ set NCELLS = `echo "${NX} * ${NY} * ${NZ}" | bc -l`
 
 #> Output Species and Layer Options
    #>   CONC file species; comment or set to "ALL" to write all species to CONC
-   #setenv CONC_SPCS "O3 NO ANO3I ANO3J NO2 FORM ISOP ANH4J ASO4I ASO4J" 
-   #setenv CONC_BLEV_ELEV " 1 4" #> CONC file layer range; comment to write all layers to CONC
+   setenv CONC_SPCS "O3 NO ANO3I ANO3J NO2 FORM ISOP NH3 ANH4I ANH4J ASO4I ASO4J" 
+   setenv CONC_BLEV_ELEV " 1 1" #> CONC file layer range; comment to write all layers to CONC
 
    #>   ACONC file species; comment or set to "ALL" to write all species to ACONC
    #setenv AVG_CONC_SPCS "O3 NO CO NO2 ASO4I ASO4J NH3" 
