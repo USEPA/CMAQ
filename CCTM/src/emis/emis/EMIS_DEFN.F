@@ -1489,6 +1489,7 @@ C and allowing the model to proceed.
                       IF ( EM_SURR( ISTR, ISRM ) .EQ. RULE_ISTR_SURR( IC ) .AND.
      &                     MAP_EMtoSD( ISTR,ISRM ) .EQ. RULE_ISTR_PHASE( IC ) ) THEN
                   
+                        ISUR = RULE_ISTR_ISUR( IC )
                         IEM = EM_STREAM_SIZE( ISRM )%REF( RULE_ISTR_PHASE( IC ) )
                         AERO_SPLIT = 1.0
                         IF ( DIFF_MASK_AERO( RULE_ISTR_IDIFF( IC ) ) .AND.
@@ -1499,7 +1500,7 @@ C and allowing the model to proceed.
                         ! that the scale factor can be added.
                         DO IFAC = 1,N_SCALEFAC
                           IF ( EM_OP( ISTR, ISRM, IFAC ) .EQ. '' ) THEN
-                              EM_FAC ( ISTR, ISRM, IFAC )     = EM_NML( IRULE )%FAC * AERO_SPLIT
+                             EM_FAC ( ISTR, ISRM, IFAC )     = EM_NML( IRULE )%FAC * AERO_SPLIT
                              EM_FAC_BULK ( ISTR, ISRM, IFAC ) = EM_NML( IRULE )%FAC
                              EM_REG( ISTR, ISRM, IFAC )       = REGNUM
                              CALL CHECK_OP( EM_NML( IRULE )%OP, IRULE )
