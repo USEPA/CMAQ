@@ -18,6 +18,11 @@
 
        MODULE VERTEXT_MODULE
 
+         USE STD_CONC, ONLY: N_C_GC_SPC, C_GC_SPC, N_C_AE_SPC, C_AE_SPC,  
+     &                       N_C_NR_SPC, C_NR_SPC, N_C_TR_SPC, C_TR_SPC,
+     &                       N_CSPCS, L_CONC_WVEL, L_CONC_RH, L_CONC_TA,
+     &                       L_CONC_PRES
+
          INTEGER              :: NVERTEXT
          INTEGER, ALLOCATABLE :: VERTEXTJ(:), VERTEXTI(:), VERT_SEQ(:)
  
@@ -45,9 +50,7 @@ C   09 Jan 18 D.Wong: put in parallel implementation
 C-----------------------------------------------------------------------
 
          USE GRID_CONF
-         USE RUNTIME_VARS, ONLY: LOGDEV, LVEXT
-         USE STD_CONC, ONLY: N_C_GC_SPC, C_GC_SPC, N_C_AE_SPC, C_AE_SPC,  
-     &                       N_C_NR_SPC, C_NR_SPC, N_C_TR_SPC, C_TR_SPC
+         USE RUNTIME_VARS, ONLY: LOGDEV, LVEXT, N_CONC_VARS
          USE UTILIO_DEFN
 #ifdef parallel
          USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
@@ -83,7 +86,7 @@ C environment variable for no. of layers from bottom to save on VEXT file
 C  environment variable description
          CHARACTER( 80 ) :: VARDESC
 
-         INTEGER :: K, KD, L, SPC, V   ! loop counters
+         INTEGER :: K, KD, L, SPC, V, VAR   ! loop counters
          INTEGER :: STRT, FINI         ! loop counters
          INTEGER :: STATUS
          INTEGER :: GDTYP2 = 1
@@ -124,7 +127,7 @@ C Set output file characteristics from GRID_CONF and open
          SDATE3D = JDATE
          STIME3D = JTIME + TSTEP
          TSTEP3D = TSTEP
-         NVARS3D = N_CSPCS + 2
+         NVARS3D = N_CONC_VARS
          NCOLS3D = 1
          NROWS3D = NVERTEXT
          NLAYS3D = NLAYS
@@ -271,19 +274,40 @@ C Set output file characteristics from GRID_CONF and open
             UNITS3D( SPC ) = 'ppmV'
             VDESC3D( SPC ) = 'Molar Mixing Ratio for species ' // VNAME3D( SPC )
          END DO
-
-         SPC = FINI + 1
-         VTYPE3D( SPC ) = M3REAL
-         VNAME3D( SPC ) = 'PRES            '
-         UNITS3D( SPC ) = 'Pa'
-         VDESC3D( SPC ) = 'Pressure'
-
-         SPC = FINI + 2
-         VTYPE3D( SPC ) = M3REAL
-         VNAME3D( SPC ) = 'TA              '
-         UNITS3D( SPC ) = 'K'
-         VDESC3D( SPC ) = 'Temperature'
-
+ 
+         VAR = FINI
+         IF ( L_CONC_WVEL ) THEN   ! for W_YAMO
+            VAR = VAR + 1
+            VTYPE3D( VAR ) = M3REAL
+            VNAME3D( VAR ) = 'W_VEL'
+            UNITS3D( VAR ) = 'm s-1'
+            VDESC3D( VAR ) = 'Derived vertical velocity component'
+         END IF
+      
+         IF ( L_CONC_RH ) THEN   ! for Relative Humidity
+            VAR = VAR + 1 
+            VTYPE3D( VAR ) = M3REAL
+            VNAME3D( VAR ) = 'RH'
+            UNITS3D( VAR ) = '1'
+            VDESC3D( VAR ) = 'Fractional Relative Humidity'
+         END IF
+       
+         IF ( L_CONC_TA ) THEN   ! for Temperature
+            VAR = VAR + 1 
+            VTYPE3D( VAR ) = M3REAL
+            VNAME3D( VAR ) = 'TA'
+            UNITS3D( VAR ) = 'K'
+            VDESC3D( VAR ) = 'Air Temperature'
+         END IF
+       
+         IF ( L_CONC_PRES ) THEN   ! for Pressure
+            VAR = VAR + 1 
+            VTYPE3D( VAR ) = M3REAL
+            VNAME3D( VAR ) = 'PRES'
+            UNITS3D( VAR ) = 'Pa'
+            VDESC3D( VAR ) = 'Air Pressure'
+         END IF
+ 
          NVERTEXT_SPCS = NVARS3D
          ALLOCATE( VERTEXT_SPCS( NVERTEXT_SPCS ), STAT = STATUS )
          VERTEXT_SPCS( 1:NVERTEXT_SPCS ) = VNAME3D( 1:NVERTEXT_SPCS ) 
@@ -563,6 +587,7 @@ C-----------------------------------------------------------------------
          USE PIOMAPS_MODULE
          USE UTILIO_DEFN
          USE ASX_DATA_MOD, Only: Met_Data
+         USE WVEL_DEFN, Only : WVEL
 
          IMPLICIT NONE
 
@@ -589,7 +614,7 @@ C for INTERPX
 
          INTEGER      :: C, R, K, L, V,GI   ! loop induction variables
          INTEGER      :: C0, CN, R0, RN
-         INTEGER      :: INDX
+         INTEGER      :: INDX, VAR
 !        CHARACTER( 16 ), ALLOCATABLE, SAVE :: VNAME( : )
 !        INTEGER, SAVE :: NVARS
 
@@ -645,7 +670,31 @@ C open vext file for update
                WRITE( LOGDEV, '(A)') XMSG
             END IF
          END DO
-
+ 
+         IF ( L_CONC_WVEL ) THEN
+         IF ( .NOT. PWRVEC(CTM_VEXT_1, 'W_VEL', JDATE, JTIME,
+     &                     WVEL(:, :, :), NLAYS,
+     &                     NCOLS, NROWS, NUMPROCS, 
+     &                     NVERTEXT, VERTEXTI, VERTEXTJ     ) ) THEN
+            XMSG = 'PWRGRDD failed writing variable WVEL'
+     &          // ' to file '// TRIM( CTM_VEXT_1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+         END IF
+         
+         IF ( L_CONC_RH ) THEN
+         IF ( .NOT. PWRVEC(CTM_VEXT_1, 'RH', JDATE, JTIME,
+     &                     MET_DATA%RH(:, :, :), NLAYS,
+     &                     NCOLS, NROWS, NUMPROCS, 
+     &                     NVERTEXT, VERTEXTI, VERTEXTJ     ) ) THEN
+            XMSG = 'PWRGRDD failed writing variable RH'
+     &          // ' to file '// TRIM( CTM_VEXT_1 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+         END IF
+         
+ 
+         IF ( L_CONC_PRES ) THEN
          IF ( .NOT. PWRVEC(CTM_VEXT_1, 'PRES', JDATE, JTIME,
      &                     Met_Data%PRES(:, :, :), NLAYS,
      &                     NCOLS, NROWS, NUMPROCS, 
@@ -654,7 +703,9 @@ C open vext file for update
      &          // ' to file '// TRIM( CTM_VEXT_1 )
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
+         END IF
          
+         IF ( L_CONC_TA ) THEN
          IF ( .NOT. PWRVEC(CTM_VEXT_1, 'TA', JDATE, JTIME,
      &                     Met_Data%TA(:, :, :), NLAYS,
      &                     NCOLS, NROWS, NUMPROCS, 
@@ -662,6 +713,7 @@ C open vext file for update
             XMSG = 'PWRGRDD failed writing variable TA '
      &          // ' to file '// TRIM( CTM_VEXT_1 )
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
          END IF
 
          WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
