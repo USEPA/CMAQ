@@ -549,7 +549,7 @@ C *** Apply Aerosol Size Distribution
              ! except Dust and Sea Spray. For those streams, convert
              ! [g/m3/s] to [ug/m3/s]
              IF ( ISRM .NE. ISEASRM .AND. ISRM .NE. IDUSTSRM ) THEN
-                VDEMIS( ISTR,1:NL,:,: ) = VDEMIS( ISTR,1:NL,:,: ) * GSFAC( 1:NL,:,: ) 
+                VDEMIS( ISTR,1:NL,:,: ) = VDEMIS( ISTR,1:NL,:,: )  * 1.0E6 * GSFAC( 1:NL,:,: ) 
              END IF
 
              ! Sum Total Volume of Mode N [m3/m3/s]

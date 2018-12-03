@@ -661,7 +661,7 @@ C-----------------------------------------------------------------------
       CNVTI( 1:NL ) = CNVTP * Grid_Data%RDX3F( 1:NL ) 
       DO L = 1,NL
         CNVTC( L,:,: ) = 1.0E-3 * CNVTI( L ) * Met_Data%RRHOJ( :,:,L )  ! Gas Moles:   mol/s -> ppmv/s
-        CONVM( L,:,: ) = MWAIR / GPKG / Met_Data%DENS( :,:,L )          ! Aer. Mass:   umol/m3/s -> ppmv/s
+        CONVM( L,:,: ) = MWAIR / GPKG / Met_Data%DENS( :,:,L ) !m3/mol  ! Aer. Mass:   umol/m3/s -> ppmv/s
       END DO                                                                         ! m2/m3/s -> m2/mol/s
       CONVN( 1:NL,:,: ) = CONVM( 1:NL,:,: ) * RAVO * 1.0E+06            ! Aer. Num:    N/m3/s -> N/molec/s
       
@@ -802,7 +802,7 @@ C-----------------------------------------------------------------------
       CNVTI( 1:NL ) = CNVTP * Grid_Data%RDX3F( 1:NL ) 
       DO L = 1,NL
         CNVTC( L,:,: ) = 1.0E3 / ( CNVTI( L ) * Met_Data%RRHOJ( :,:,L ) )   ! Gas Moles: ppmv/s -> mol/s
-        CONVM( L,:,: ) = 1.0 / MWAIR * GPKG * Met_Data%DENS( :,:,L )        ! Aer. Mass: ppmv/s -> g/s
+        CONVM( L,:,: ) = (1.0 / MWAIR) * GPKG * Met_Data%DENS( :,:,L )      ! Aer. Mass: ppmv/s -> umol/s
       END DO                                                                           ! m2/mol/s -> m2/m3/s
       CONVN( 1:NL,:,: ) = CONVM( 1:NL,:,: ) / RAVO / 1.0E+12                ! Aer. Num:  N/molec/s -> N/cm3/s
       
@@ -972,7 +972,12 @@ C and allowing the model to proceed.
                   ! surrogates.
                   EM_FILE_SURR( ISRM )%MW   ( ISUR ) = 1.0
                END IF
+            END DO
 
+         END DO
+
+         DO ISRM = 1,N_EM_SRM
+            DO ISUR = 1,EM_FILE_SURR( ISRM )%LEN
                ! Check Units and Assign Conversion Factors for
                ! translating [kmol or umol] -> mol, [kg or mg] -> g, and
                ! [s, min, hr] -> s
@@ -981,10 +986,9 @@ C and allowing the model to proceed.
      &                                EM_FILE_SURR( ISRM )%UNITS( ISUR ), 
      &                                EM_FILE_SURR( ISRM )%CONV ( ISUR ),
      &                                EM_FILE_SURR( ISRM )%BASIS( ISUR ) )
-
             END DO
-
          END DO
+
 
 ! Set up Stream <-> Size Distribution relationship. This routine
 ! populates the EM_STREAM_SIZE structure which tells the logic below which
@@ -1627,14 +1631,16 @@ C and allowing the model to proceed.
 
          LERROR = .FALSE.
          DO ISRM = 1,N_EM_SRM
-             N_UNUSED = COUNT( .NOT. EM_FILE_SURR( ISRM )%USED( : ) )
+             N_UNUSED = COUNT( .NOT.EM_FILE_SURR( ISRM )%USED( : )
+     &                         .AND. EM_FILE_SURR(ISRM)%ARRY( : ) .NE. 'NOT_AVAILABLE'  )
              WRITE( LOGDEV, '(5x,4A,I2,A)' ), TRIM( EM_FILE_LAB( ISRM )),' | ',
      &              TRIM(EM_FILE_DESC( ISRM )),': ', N_UNUSED,' unused surrogates.'
              IF ( N_UNUSED .GT. 0 ) THEN
                  LERROR = .TRUE.
 
                  DO ISUR = 1,EM_FILE_SURR( ISRM )%LEN
-                   IF ( .NOT. EM_FILE_SURR( ISRM )%USED( ISUR ) ) 
+                   IF ( .NOT.EM_FILE_SURR( ISRM )%USED( ISUR )
+     &                  .AND.EM_FILE_SURR( ISRM )%ARRY( ISUR ) .NE. 'NOT_AVAILABLE' ) 
      &               WRITE( LOGDEV, '(10x,A)'), EM_FILE_SURR( ISRM )%ARRY( ISUR )
                  END DO
              END IF

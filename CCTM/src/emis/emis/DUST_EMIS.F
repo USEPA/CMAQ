@@ -242,10 +242,13 @@ C   can be printed in EMIS_MAP
          Allocate( Em_File_Surr( IDUSTSRM )%used ( ndust_spc*2 ) )
          Allocate( Em_File_Surr( IDUSTSRM )%conv ( ndust_spc*2 ) )
          Allocate( Em_File_Surr( IDUSTSRM )%basis( ndust_spc*2 ) )
+         Em_File_Surr( IDUSTSRM )%arry( : ) = 'NOT_AVAILABLE'
          do i = 1,ndust_spc
-            Em_File_Surr( IDUSTSRM )%arry( i )  = 
+            IF ( dust_spc( i )%spcfac(1) .NE. 0.0 ) 
+     &         Em_File_Surr( IDUSTSRM )%arry( i )  = 
      &                    'PMFINE_' // dust_spc(i)%name
-            Em_File_Surr( IDUSTSRM )%arry( i+ndust_spc )  = 
+            IF ( dust_spc( i )%spcfac(2) .NE. 0.0 ) 
+     &         Em_File_Surr( IDUSTSRM )%arry( i+ndust_spc )  = 
      &                    'PMCOARSE_' // dust_spc(i)%name
             Em_File_Surr( IDUSTSRM )%mw( i )  = dust_spc(i)%mw
             Em_File_Surr( IDUSTSRM )%mw( i+ndust_spc )  = dust_spc(i)%mw
