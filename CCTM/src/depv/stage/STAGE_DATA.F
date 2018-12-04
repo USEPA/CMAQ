@@ -180,7 +180,7 @@ C     26 June 2014 J.Bash: initial implementation
       DATA vd_name(107), rel_rx(107), f0(107), LeBasM(107), M_ac(107) / 'INTR         ',    16.0, 0.1,  140.4, 0.420/ ! INTR
       DATA vd_name(108), rel_rx(108), f0(108), LeBasM(108), M_ac(108) / 'ISPX         ',    10.0, 0.3,   49.0, 0.420/ ! ISPX diffusion should be ~ 0.0710 according to Wolfe and thornton 2011 M_acP
       DATA vd_name(109), rel_rx(109), f0(109), LeBasM(109), M_ac(109) / 'ROOH         ',    10.0, 0.3,   49.0, 0.420/ ! ROOH diffusion should be ~ 0.0710 according to Wolfe and thornton 2011 M_acP
-      DATA vd_name(110), rel_rx(110), f0(110), LeBasM(110), M_ac(110) / 'LVPCSOG      ',900000.0, 0.0,   63.0, 0.910/ ! LVPCSOG
+      DATA vd_name(110), rel_rx(110), f0(110), LeBasM(110), M_ac(110) / 'LVPCSOG      ', 90000.0, 0.0,   63.0, 0.910/ ! LVPCSOG
       DATA vd_name(111), rel_rx(111), f0(111), LeBasM(111), M_ac(111) / 'VIVPO1       ',     4.2, 0.0,   63.0, 0.909/ ! VIVPO1
       DATA vd_name(112), rel_rx(112), f0(112), LeBasM(112), M_ac(112) / 'VLVOO1       ', 71624.8, 0.0,   63.0, 0.910/ ! VLVOO1
       DATA vd_name(113), rel_rx(113), f0(113), LeBasM(113), M_ac(113) / 'VLVOO2       ',  9042.0, 0.0,   63.0, 0.909/ ! VLVOO2
