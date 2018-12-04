@@ -104,6 +104,7 @@
    'EVERYWHERE', 'ALL'         ,'HONO'   ,'HONO'        ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'SO2'    ,'SO2'         ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'NH3'    ,'NH3'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PACD'   ,'PACD'        ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'AACD'   ,'AACD'        ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'ALD2'   ,'ALD2'        ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'FORM'   ,'FORM'        ,'GAS'  ,1.  ,'UNIT','a', 
@@ -122,7 +123,6 @@
    'EVERYWHERE', 'ALL'         ,'OLE'    ,'OLE'         ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'IOLE'   ,'IOLE'        ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'ISOP'   ,'ISOP'        ,'GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'         ,'APIN'   ,'APIN'        ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'TERP'   ,'TERP'        ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'BENZ'   ,'BENZENE'     ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'TOL'    ,'TOL'         ,'GAS'  ,1.  ,'UNIT','a', 
@@ -138,7 +138,7 @@
    'EVERYWHERE', 'ALL'    ,'FORM_PRIMARY','FORM_PRIMARY','GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'        ,'ACROLEIN','ACRO_PRIMARY','GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'     ,'BUTADIENE13','BUTADIENE13' ,'GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'         ,'SULF'   ,'SULF'        ,'GAS'  ,0.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'TOLU'   ,'TOLU'        ,'GAS'  ,1.  ,'UNIT','a', 
 
    ! Default Aerosols
    'EVERYWHERE', 'ALL'         ,'SULF'   ,'ASO4'        ,'FINE' ,1.  ,'MASS','a', 
@@ -167,10 +167,6 @@
    'EVERYWHERE', 'ALL'         ,'PMC'    ,'AH2O'    ,'COARSE',0.00032,'UNIT','a', 
 
    ! VBS Primary Organic Particle and Vapor Scaling
-   ! --> Nonvolatile POA
-   !'EVERYWHERE', 'ALL'         ,'POC'    ,'APOC'        ,'FINE',1.   ,'MASS','a', 
-   !'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'APNCOM'      ,'FINE',1.   ,'MASS','a', 
-   ! --> Semivolatile POA
    'EVERYWHERE', 'ALL'         ,'POC'    ,'VLVPO1'      ,'GAS' ,0.   ,'MASS','a', 
    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'VLVPO1'      ,'GAS' ,0.   ,'MASS','a', 
    'EVERYWHERE', 'ALL'         ,'POC'    ,'VSVPO1'      ,'GAS' ,0.045,'MASS','a', 
@@ -207,6 +203,8 @@
    'EVERYWHERE', 'ALL'    ,'PMFINE_CA'   ,'ACA'         ,'FINE',1.   ,'UNIT','a', 
    'EVERYWHERE', 'ALL'    ,'PMFINE_MG'   ,'AMG'         ,'FINE',1.   ,'UNIT','a', 
    'EVERYWHERE', 'ALL'    ,'PMFINE_K'    ,'AK'          ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_LVPO1','ALVPO1'      ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_LVOO1','ALVOO1'      ,'FINE',1.   ,'UNIT','a', 
    'EVERYWHERE', 'ALL'    ,'PMFINE_FE'   ,'AFE'         ,'FINE',1.   ,'UNIT','a', 
    'EVERYWHERE', 'ALL'    ,'PMFINE_AL'   ,'AAL'         ,'FINE',1.   ,'UNIT','a', 
    'EVERYWHERE', 'ALL'    ,'PMFINE_SI'   ,'ASI'         ,'FINE',1.   ,'UNIT','a', 
@@ -214,13 +212,6 @@
    'EVERYWHERE', 'ALL'    ,'PMFINE_MN'   ,'AMN'         ,'FINE',1.   ,'UNIT','a', 
    'EVERYWHERE', 'ALL'    ,'PMFINE_H2O'  ,'AH2O'        ,'FINE',1.   ,'UNIT','a', 
    'EVERYWHERE', 'ALL'    ,'PMFINE_OTHR' ,'AOTHR'       ,'FINE',1.   ,'UNIT','a', 
-   ! --> Nonvolatile POA
-   !'EVERYWHERE', 'ALL'    ,'PMFINE_POC' ,'APOC'         ,'FINE',1.   ,'UNIT','a', 
-   !'EVERYWHERE', 'ALL'   ,'PMFINE_PNCOM','APNCOM'       ,'FINE',1.   ,'UNIT','a', 
-   ! --> Semivolatile POA
-   'EVERYWHERE', 'ALL'    ,'PMFINE_LVPO1','ALVPO1'      ,'FINE',1.   ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'    ,'PMFINE_LVOO1','ALVOO1'      ,'FINE',1.   ,'UNIT','a', 
-
    ! Coarse Components                                               
    'EVERYWHERE', 'ALL'    ,'PMCOARSE_SO4','ASO4'      ,'COARSE',1.   ,'UNIT','a', 
    'EVERYWHERE', 'ALL'    ,'PMCOARSE_NO3','ANO3'      ,'COARSE',1.   ,'UNIT','a', 

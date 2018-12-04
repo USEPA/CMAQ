@@ -317,7 +317,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv MET_BDY_3D $METpath/METBDY3D.$MCONF.${YYYYMMDD}
 
   #> Emissions Control File
-  setenv EMISSCTRL_NML ${WORKDIR}/EmissCtrl.nml
+  setenv EMISSCTRL_NML ${BLD}/EmissCtrl_${MECH}.nml
 
 #> Spatial Masks For Emissions Scaling
 

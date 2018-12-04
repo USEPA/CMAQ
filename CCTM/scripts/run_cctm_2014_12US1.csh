@@ -326,7 +326,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   set all      = `echo $intable[8] | cut -d, -f1`
  
   #> Emissions Control File
-  setenv EMISSCTRL_NML ${WORKDIR}/EmissCtrl.nml
+  setenv EMISSCTRL_NML ${BLD}/EmissCtrl_${MECH}.nml
 
   #> Spatial Masks For Emissions Scaling
   setenv CMAQ_MASKS $SZpath/12US1_surf_bench.nc #> horizontal grid-dependent surf zone file
