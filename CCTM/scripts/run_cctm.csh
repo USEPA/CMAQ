@@ -194,31 +194,28 @@ setenv EMIS_DATE_OVRD N      #> Master switch for allowing CMAQ to use the date 
                              #>   may switch the behavior for individual emission files below using the variables:
                              #>       GR_EM_DTOVRD_## | STK_EM_DTOVRD_##
 
-#> Aerosol Diagnostic Controls
-setenv CTM_PMDIAG Y          #> Instantaneous Aerosol Diagnostic File [ default: Y ]
-setenv CTM_APMDIAG Y         #> Hourly-Average Aerosol Diagnostic File [ default: Y ]
-#setenv APMDIAG_BLEV_ELEV "1 3" #> layer range for average pmdiag
-setenv APMDIAG_BLEV_ELEV ""  #> layer range for average pmdiag = NLAYS
-
 #> Diagnostic Output Flags
 setenv CTM_CKSUM Y           #> checksum report [ default: Y ]
-setenv CLD_DIAG Y            #> cloud diagnostic file [ default: N ]
-setenv CTM_AERDIAG Y         #> aerosol diagnostic file [ default: N ]
+setenv CLD_DIAG N            #> cloud diagnostic file [ default: N ]
 
-setenv CTM_PHOTDIAG Y        #> photolysis diagnostic file [ default: N ]
-setenv NLAYS_PHOTDIAG "3"    #> Number of layers for PHOTDIAG2 and PHOTDIAG3 from 
+setenv CTM_PHOTDIAG N        #> photolysis diagnostic file [ default: N ]
+setenv NLAYS_PHOTDIAG "1"    #> Number of layers for PHOTDIAG2 and PHOTDIAG3 from 
                              #>     Layer 1 to NLAYS_PHOTDIAG  [ default: all layers ] 
 #setenv NWAVE_PHOTDIAG "294 303 310 316 333 381 607"  #> Wavelengths written for variables
                                                       #>   in PHOTDIAG2 and PHOTDIAG3 
                                                       #>   [ default: all wavelengths ]
 
-setenv CTM_SSEMDIAG Y        #> sea-spray emissions diagnostic file [ default: N ]
-setenv CTM_DUSTEM_DIAG Y     #> windblown dust emissions diagnostic file [ default: N ]; 
+setenv CTM_PMDIAG N          #> Instantaneous Aerosol Diagnostic File [ default: Y ]
+setenv CTM_APMDIAG Y         #> Hourly-Average Aerosol Diagnostic File [ default: Y ]
+setenv APMDIAG_BLEV_ELEV "1 1"  #> layer range for average pmdiag = NLAYS
+
+setenv CTM_SSEMDIAG N        #> sea-spray emissions diagnostic file [ default: N ]
+setenv CTM_DUSTEM_DIAG N     #> windblown dust emissions diagnostic file [ default: N ]; 
                              #>     Ignore if CTM_WB_DUST = N
-setenv CTM_DEPV_FILE Y       #> deposition velocities diagnostic file [ default: N ]
-setenv VDIFF_DIAG_FILE Y     #> vdiff & possibly aero grav. sedimentation diagnostic file [ default: N ]
-setenv LTNGDIAG Y            #> lightning diagnostic file [ default: N ]
-setenv B3GTS_DIAG Y          #> BEIS mass emissions diagnostic file [ default: N ]
+setenv CTM_DEPV_FILE N       #> deposition velocities diagnostic file [ default: N ]
+setenv VDIFF_DIAG_FILE N     #> vdiff & possibly aero grav. sedimentation diagnostic file [ default: N ]
+setenv LTNGDIAG N            #> lightning diagnostic file [ default: N ]
+setenv B3GTS_DIAG N          #> BEIS mass emissions diagnostic file [ default: N ]
 setenv PT3DDIAG N            #> 3D point source emissions diagnostic file [ default: N]; 
 setenv PT3DFRAC N            #> layer fractions diagnostic file(s) [ default: N]; 
 setenv REP_LAYER_MIN -1      #> Minimum layer for reporting plume rise info [ default: -1 ]
