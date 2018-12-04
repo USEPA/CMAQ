@@ -50,8 +50,11 @@ C    12/13/04 J.Young: vert dyn alloc - Use VGRD_DEFN
 C    06 Jun 11 J.Young: Replaced I/O API include files with UTILIO_DEFN
 C    21 May 12 J.Young: Replaced IC_PARMS include file with an F90 module
 C    02 Nov 19 S.Roselle: Reconfigured to do vertical interpolation to
-C                       target boundary vertical layer heights (ZH)
+C                       target vertical layer heights (ZH)
 C    06 Nov 18 S.Roselle: Replaced UTILIO_DEFN with M3UTILIO
+C    30 Nov 18 S.Roselle: To provide spatially uniform ICs, target domain 
+C                       average mid-layer heights are used for the vertical
+C                       interpolation
                   
 C*************************************************************************
 
@@ -99,6 +102,7 @@ C Local Variables:
       REAL :: WORKA(  MXLAYS3 )  ! Work array for conc input
       REAL :: X3_OLD( MXLAYS3 )  ! Old Vertical coordinate values
       REAL :: ZH_OUT( NCOLS,NROWS,NLAYS )    ! mid-layer heights for target file
+      REAL :: ZH_OUT_AVG( NLAYS )! domain average mid-layer heights for target file
       
 C**********************************************************************
 
@@ -137,38 +141,77 @@ C Get the layer mid-point heights
          CALL M3ERR( PNAME, JDATE, JTIME, MSG, .TRUE. )
       END IF
 
+C Compute domain average layer mid-point heights
+
+      ZH_OUT_AVG = 0.0
+      DO L = 1, NLAYS
+         DO C = 1, MY_NCOLS
+            DO R = 1, MY_NROWS
+               ZH_OUT_AVG( L ) = ZH_OUT_AVG( L ) + ZH_OUT( C,R,L )
+            END DO
+         END DO
+         ZH_OUT_AVG( L ) = ZH_OUT_AVG( L ) / ( MY_NCOLS * MY_NROWS )
+         print *, L, ZH_OUT_AVG( L )
+      END DO
+
       DO L = 1, NLAYS_IN 
          X3_OLD( L ) = ZH_IN( L )
       END DO
 
-      DO C = 1, MY_NCOLS
-         DO R = 1, MY_NROWS
-            DO N = 1, NSPCS_IN    
+      DO N = 1, NSPCS_IN   
 
-               DO L = 1, NLAYS_IN
-                  WORKA( L ) = CONCIN( L,N )
-               END DO
-              
-               DO L = 1, NLAYS
-              
-                  IF ( NLAYS_IN .EQ. 1 ) THEN
+         DO L = 1, NLAYS_IN
+            WORKA( L ) = CONCIN( L,N )
+         END DO
+
+         IF ( NLAYS_IN .EQ. 1 ) THEN
+
+            DO L = 1, NLAYS
+               DO R = 1, MY_NROWS
+                  DO C = 1, MY_NCOLS
                      CONCOUT( C,R,L,N ) = WORKA( 1 )
-                  ELSE
-                     X3 = ZH_OUT( C,R,L )
-                     IF ( X3 .LT. X3_OLD( 1 ) ) THEN
-                        CONCOUT( C,R,L,N ) = WORKA( 1 )
-                     ELSE IF ( X3 .GT. X3_OLD( NLAYS_IN ) ) THEN
-                        CONCOUT( C,R,L,N ) = WORKA( NLAYS_IN )
-                     ELSE
-                        CALL LR_INTERP( L_RATINT, X3_OLD, WORKA, NLAYS_IN,
-     &                                  X3, Y, DELY )
-                        CONCOUT( C,R,L,N ) = Y
-                     END IF
-                  END IF
-              
+                  END DO
                END DO
             END DO
-         END DO
+
+         ELSE
+
+            DO L = 1, NLAYS
+
+               X3 = ZH_OUT_AVG( L )
+
+               IF ( X3 .LT. X3_OLD( 1 ) ) THEN
+
+                  DO R = 1, MY_NROWS
+                     DO C = 1, MY_NCOLS
+                        CONCOUT( C,R,L,N ) = WORKA( 1 )
+                     END DO
+                  END DO
+
+               ELSE IF ( X3 .GT. X3_OLD( NLAYS_IN ) ) THEN
+
+                  DO R = 1, MY_NROWS
+                     DO C = 1, MY_NCOLS
+                        CONCOUT( C,R,L,N ) = WORKA( NLAYS_IN )
+                     END DO
+                  END DO
+
+               ELSE
+
+                  CALL LR_INTERP( L_RATINT, X3_OLD, WORKA, NLAYS_IN,
+     &                            X3, Y, DELY )
+                  DO R = 1, MY_NROWS
+                     DO C = 1, MY_NCOLS
+                        CONCOUT( C,R,L,N ) = Y
+                     END DO
+                  END DO
+
+               END IF
+
+            END DO
+
+         END IF
+
       END DO
 
       RETURN

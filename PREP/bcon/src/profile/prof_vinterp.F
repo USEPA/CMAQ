@@ -52,6 +52,9 @@ C    13 Jul 11 J.Young: Replaced I/O API include files with M3UTILIO
 C    23 May 12 J.Young: Replaced BC_PARMS include file with an F90 module
 C    21 Sep 19 S.Roselle: Reconfigured to do vertical interpolation to
 C                       target boundary vertical layer heights (ZH)
+C    30 Nov 18 S.Roselle: To provide spatially uniform BCs, target boundary 
+C                       average mid-layer heights are used for the vertical
+C                       interpolation
                     
 C***********************************************************************
 
@@ -99,6 +102,7 @@ C Local Variables:
       REAL    :: WORKA( MXLAYS3 )      ! Work array for conc input
       REAL    :: X3_OLD( MXLAYS3 )     ! Old Vertical coordinate values
       REAL    :: ZH_OUT( NBNDY,NLAYS ) ! mid-layer heights for target BDY file
+      REAL    :: ZH_OUT_AVG( NLAYS )   ! avg mid-layer hts for target BDY file
 
 C***********************************************************************
 
@@ -137,37 +141,68 @@ C Get the layer mid-point heights
          CALL M3ERR( PNAME, JDATE, JTIME, MSG, .TRUE. )
       END IF
 
+C Compute domain average layer mid-point heights
+
+      ZH_OUT_AVG = 0.0
+      DO L = 1, NLAYS
+         DO C = 1, NBNDY
+            ZH_OUT_AVG( L ) = ZH_OUT_AVG( L ) + ZH_OUT( C,L )
+         END DO
+         ZH_OUT_AVG( L ) = ZH_OUT_AVG( L ) / NBNDY
+         print *, L, ZH_OUT_AVG( L )
+      END DO
+
       DO L = 1, NLAYS_IN 
          X3_OLD( L ) = ZH_IN( L )
       END DO
 
-      DO C = 1, NBNDY
-         DO N = 1, NSPCS_IN    
+      DO N = 1, NSPCS_IN    
 
-            DO L = 1, NLAYS_IN
-               WORKA( L ) = CONCIN( L,N )
+         DO L = 1, NLAYS_IN
+            WORKA( L ) = CONCIN( L,N )
+         END DO
+
+
+         IF ( NLAYS_IN .EQ. 1 ) THEN
+
+            DO L = 1, NLAYS
+               DO C = 1, NBNDY
+                  CONCOUT( C,L,N ) = WORKA( 1 )
+               END DO
             END DO
+
+         ELSE
 
             DO L = 1, NLAYS
 
-               IF ( NLAYS_IN .EQ. 1 ) THEN
-                  CONCOUT( C,L,N ) = WORKA( 1 )
-               ELSE
-                  X3 = ZH_OUT( C,L )
-                  IF ( X3 .LT. X3_OLD( 1 ) ) THEN
+               X3 = ZH_OUT_AVG( L )
+
+               IF ( X3 .LT. X3_OLD( 1 ) ) THEN
+
+                  DO C = 1, NBNDY
                      CONCOUT( C,L,N ) = WORKA( 1 )
-                  ELSE IF ( X3 .GT. X3_OLD( NLAYS_IN ) ) THEN
+                  END DO
+
+               ELSE IF ( X3 .GT. X3_OLD( NLAYS_IN ) ) THEN
+
+                  DO C = 1, NBNDY
                      CONCOUT( C,L,N ) = WORKA( NLAYS_IN )
-                  ELSE
+                  END DO
+
+               ELSE
+
+                  DO C = 1, NBNDY
                      CALL LR_INTERP( L_RATINT, X3_OLD, WORKA, NLAYS_IN,
      &                               X3, Y, DELY )
                      CONCOUT( C,L,N ) = Y
-                  END IF
+                  END DO
+
                END IF
 
             END DO 
 
-         END DO
+         END IF
+
       END DO
 
       RETURN
