@@ -312,10 +312,10 @@ C can be printed in EMIS_MAP
             Allocate( Em_File_Surr( iseasrm )%basis( nssspc*2 ) )
             Em_File_Surr( iseasrm )%arry( : ) = 'NOT_AVAILABLE'
             do i = 1,nssspc
-              IF ( sea_spc( i )%spcfac(1) .NE. 0.0 ) 
+              IF ( sea_spc( i )%spcfac(1) .NE. 0.0 .or. i .EQ. nssspc ) 
      &           Em_File_Surr( iseasrm )%arry( i )  =
      &                         "PMFINE_" // sea_spc(i)%name
-              IF ( sea_spc( i )%spcfac(2) .NE. 0.0 ) 
+              IF ( sea_spc( i )%spcfac(2) .NE. 0.0 .or. i .EQ. nssspc ) 
      &           Em_File_Surr( iseasrm )%arry( i+nssspc )  =
      &                         "PMCOARSE_" // sea_spc(i)%name
                Em_File_Surr( iseasrm )%mw   ( i ) = sea_spc(i)%mw

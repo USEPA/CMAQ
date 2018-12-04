@@ -834,7 +834,7 @@ C-----------------------------------------------------------------------
 
             ! Sum the column if requested
             IF ( EM_FILE_LDIAG( ISRM ) .EQ. '2DSUM' ) THEN
-                VDEMIS( IVAR,1,:,: ) = SUM( VDEMIS( IVAR,1:NL,:,: ),3 )
+                VDEMIS( IVAR,1,:,: ) = SUM( VDEMIS( IVAR,1:NL,:,: ),1 )
                 LAYS = 1
             END IF
 

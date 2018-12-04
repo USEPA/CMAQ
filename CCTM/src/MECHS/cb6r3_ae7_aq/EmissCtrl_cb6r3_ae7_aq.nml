@@ -187,9 +187,11 @@
             'EVERYWHERE', 'ALL'         ,'POC'    ,'AIVPO1' ,'FINE' ,0.      ,'MASS','a', 
             'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'AIVPO1' ,'FINE' ,0.      ,'MASS','a', 
             
-            ! pcSOA Scaling                                                                
+            ! pcSOA Scaling for all sources except Fires 
             'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'PCVOC'  ,'GAS'  ,6.579   ,'MASS','a', 
             'EVERYWHERE', 'ALL'         ,'POC'    ,'PCVOC'  ,'GAS'  ,6.579   ,'MASS','a', 
+            'EVERYWHERE', 'POINT_FIRES' ,'ALL'    ,'PCVOC'  ,'GAS'  ,0.0     ,'MASS','o', 
+
             
             ! Wind-Blown Dust and Sea Spray Scaling
             ! Fine Components
