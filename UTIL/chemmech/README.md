@@ -2,24 +2,23 @@
 
 ## Quick Start
 
-FORTRAN codes that create the RXNS modules for the CMAQ model version 5.2
+This directory contains a template bldrun script and source code directory for creating
+the RXNS_DATA_MODULE.F90 and RXNS_FUNC_MODULE.F90 files under the scripts and src subdirectories, respectively.
 
-This directory contains the template bldrun script under script and code directory to generates the RXNS_DATA_MODULE.F90 and RXNS_FUNC_MODULE.F90 files
-for CMAQ version 5.2.
+To use this utilitiy:
 
-To use this tool:
+1.  Compile it by modifying the bldit script in the scripts directory. Set Fortran compiler based on your system, save and run the script.
 
-1.  Compile the tool by modifying the bldit script in the scripts directory. Set Fortran compiler based on your system, save and run the script.
-
-2.  Modify the run script by setting the Mechanism that you are building.
+2.  Modify the run script by setting the Photochemical Mechanism to use.
 
 3.  Execute the run script and inspect the results under the output directory.
 
 ##  Background
 
 The chemical mechanism processor (CHEMMECH) allows altering a photochemical mechanisms or using a different mechanism in the CMAQ model. Two output files implement the photochemical mechanism and are compiled along CMAQ’s source code. Both output files contain FORTRAN 90 modules. RXNS_DATA_MOD.F90 defines the mechanism species, their reactions and rate constants. RXN_FUNC_MOD.F90 specifies functions that map CMAQ model species to photochemical mechanism species and calculate reaction rate constants. CHEMMECH produces additional output files to check whether the two modules represent the photochemical mechanism intended by the user.  One additional ouput file, SPCS.ext, list the species participating in the mechanism. Two other additional output file are prototypes for the species and equations files used to run the Kinetic PreProcess (KPP) (Damian et al., 2002).  The KPP inputs have not been tested in several years so a user should use them with discretion.
+Remaining output files are markdown, csv and, html files. They contains table that at least list each reactions, their rate constant formula, and values at specified atmospheric conditions.
 
-CHEMMECH inputs include the mechanism chemical definitions (mech.def) file and the three CMAQ species namelist files. All are ASCII files. Namelists specify species participating in photochemical reaction divided into the Gas (GC), Aerosol (AE) and Nonreactive (NR) groups but not all namelist species have to participate in photochemical reactions. The namelist are optional but are recommended when modifying an existing photochemical mechanism because CHEMMECH can cross check whether species used in the mech.def are found the namelists. The mech.def file lists the reactions and other data representing the photochemistry. Input tiles follow a rigid format; the CCTM/src/MECHS subdirectories contain examples. For namelists, the examples show the data in each file and the formatting rules. The following information regards formatting used in the mech.def file.
+CHEMMECH inputs include the mechanism chemical definitions (mech.def) file and the three CMAQ species namelist files. All are ASCII files. Namelists specify species participating in photochemical reaction divided into the Gas (GC), Aerosol (AE) and Nonreactive (NR) groups but not all namelist species have to participate in photochemical reactions. The namelist are optional but are recommended when modifying an existing photochemical mechanism because CHEMMECH can cross check whether species used in the mech.def are found the namelists. The mech.def file lists the reactions and other data representing the photochemistry. Input tiles follow a rigid format; the CCTM/src/MECHS subdirectories contain examples. For namelists, the examples show the data in each file and the formatting rules. The following information regards formatting used in the mech.def file. 
 
 ## Chemical Reactions Input Format
 
@@ -65,29 +64,44 @@ The mechanism name is an optional input. If it is included, it must be the first
 
 #### SPECIAL.
 
-The key word SPECIAL lists operators used in the REACTIONS block to express reaction rate constant. Operators combine reaction rate constant and concentrations. A mechanism often uses them to lump reactions together with an already defined rate constant. An example shows an operator called RY is derived from two following reactions with respective rate constants, RKA and RKB, that are used in a mechanism.
+The key word SPECIAL lists operators used in the REACTIONS block to express reaction rate constant. Operators combine reaction rate constant and concentrations. A mechanism often uses them to lump reactions together with an already defined rate constant. An example shows an operator called RY is derived from two following reactions with respective rate constants, RKA RKB, RKH, and RKI used in a photochemical mechanism.
 
         X + Y = 0.3*Z
         U + Y = 0.5*W
+        H + Y = 0.2*M
+        I + Y = 0.7*N
 
 The reactions can be represented as the below reaction with the effective rate constant, RY, where X and U concentrations are values at the beginning of the integration time step of the chemistry solver.
 
          Y = Z + W
+         Y = M + N
 
-RY equal the sum of RKA*X and RKB*W. The SPECIAL block expresses RY with formula.
+RKXU and RKHI equal the weighted values of RKA\*X plus RKB\*W and RKA\*X plus RKB\*I. The SPECIAL block expresses RY with formula.
 
        SPECIAL =
-          RY = 0.3*K<RKA>*C<X> + 0.5*K<RKB>*C<U>;
+          RKXU = 0.3*K<RKA>*C<X> + 0.5*K<RKB>*C<U>;
+          RKHI = 0.2*K<RKH>*C<H> + 0.7*K<RKI>*C<I>;
         end special
 
- Operator definitions allow using an already defined expression so for example the RZ operator can use RY in its definition.
+ Operator definitions allow using an already defined expression so for example the RKZ operator can use RKXU and RKHI in its definition.
 
       SPECIAL =
-         RY = 0.3*K<RKA>*C<X> + 0.5*K<RKB>*C<U>;
-         RZ = 0.5*RY;
+         RKXU = 0.3*K<RKA>*C<X> + 0.5*K<RKB>*C<U>;
+         RKHI = 0.2*K<RKH>*C<H> + 0.7*K<RKI>*C<I>;
+         RKZ  = RKXU + RKHI;
       end special
 
-Using operators can increase efficiency for solving species concentrations if they are used correctly and the approximation regarding concentration is acceptable.
+The value of RKZ corresponds to the rate constant for the below reaction. 
+
+      Y = Z + W + M + N
+
+Check Reaction Type 11 in __Table 1__ on to how access on
+an operator defined in the SPECIAL block. For an example of a CMAQ photochemical mechanism that uses the SPECIAL block, examine the mechanism
+definitions of the saprc07tb_ae6_aq mechanism in CMAQ version 5.2.
+
+Operators can increase computational efficiency for solving concentrations. Using them assumes that the concentrations used
+are constant over subtime steps within the photochemical solver. Mechanism developers should test the assumption before commiting 
+to them by comparing two mechanisms that do and do not use such operators.
 
 #### ELIMINATE.
 
@@ -136,10 +150,11 @@ Rate constant parameters begin with either a # sign or the expression, "%s#", wh
 | 7   |	%1  #  A           | A\*(1+0.6\*P) |  
 | 8   |	%2  #  A0@E0&A2@E2&A3@E3       | k0  +  k3\*M/(1+k3/k2) where  k0  =  A0\*exp(-E0/T),  k2  =  A2\*EXP(-E2/T),  and  k3  =  A3\*EXP(-E3/T)  |  
 | 9   |	%3  #  A0@E0&A1@E1             | A0\*EXP(-E0/T)+A1\*EXP(-E1/T)\*M |  
-| 9.1 | %3  #  A0^B0@E0&A1^B1@E1&A2@E2 | A0\*(T/300)\*\*B0\*EXP(-E0/T)+A1\*(T/300)\*\*B1\*EXP(-E1/T)\*M+A2\*EXP(-E2/T) |  
-| 10  | #  A0^B0@E0&A1^B1@E1&N&F       | [  ko\*M/(1+ko\*M/kinf)]F\*\*G  where  ko  =  A0\*(T/300)\*\*B0\*EXP(-E0/T),  kinf  =  A1\*(T/300)\*\*B1\*EXP(-E1/T)  and  G  =  G=1/[1+(log10(k0\*M/kinf)/n)**2)]  |  
+| 9.1 | %3  #  A0^B0@E0&A1\^B1@E1&A2@E2 | A0\*(T/300)\*\*B0\*EXP(-E0/T)+A1\*(T/300)\*\*B1\*EXP(-E1/T)\*M+A2\*EXP(-E2/T) |  
+| 10  | #  A0^B0@E0&A1\^B1@E1&N&F       | [  ko\*M/(1+ko\*M/kinf)]F\*\*G  where  ko  =  A0\*(T/300)\*\*B0\*EXP(-E0/T),  kinf  =  A1\*(T/300)\*\*B1\*EXP(-E1/T)  and  G  =  G=1/[1+(log10(k0\*M/kinf)/n)**2)]  |  
 | 11  | #A?OPERATOR                    | A\*O |  
 | 12  |  %H  #  A0@E0&A1@E1            | A0\*EXP(-E0\*P)+A1\*EXP(-E1\*P)  if  the  sun  is  above  the  horizon  and  the  surface  is over  open  water  with  no  surf  zone.  0.0  if  otherwise |  
+| 13  | %4 # _Text String_     | Simple Fortran formula for rate constant | 
 
 **Notes:**   
 1.  For rate constants with the form A<Reference> or A*Reference, reference gives label for a photolysis rate (J), a heteorogeneous rate constant (H), rate constant for the given (K) reaction label or an operator (O). A equals one if not given.
@@ -147,6 +162,7 @@ Rate constant parameters begin with either a # sign or the expression, "%s#", wh
 3.  Calculating the photolysis and heteorogeneous rates takes place outside the RXNS_FUNC_MODULE.F90 file produced by the CHEMMECH processor.   
 4.  Operators are defined the SPECIAL block where <''REACTION''> is the rate constant for the given ''REACTION'' and [''species''] equals the concentration of a mechanism ''species'' at the beginning of the integration time-step for the chemistry's numerical solver.   
 5.  Type 12 is used to include ozone destruction by marine bromine and iodide compounds. It parameters effects from reactions predicted by a photochemical mechanism that includes them.  
+6.  Type 13 can use TEMP (K), PRES (atm), and the constant atmospheric species (molec/cm\*\*3). They also can use function and operator defined in the __FUNCTIONS__ and __SPECIAL__ blocks.
 
 #### CONSTANTS.
 
@@ -161,6 +177,39 @@ The key word defines volume mixing ratio of the subset of fixed list of constant
        end constants
 
 The values have units of parts per million. ATM_AIR equals the mixing ratio of M, any gas molecule. The block does not define the mixing ratio for H2O because the meteorological input data specific their values so the values depend on time and location.
+
+#### FUNCTIONS.
+
+The FUNCTIONS block defines formulas for calculating rate constant that can used by reaction Type 13. 
+They are limited to one line in lenght but can reference preceeding formulas within the FUNCTIONS block.
+They can use TEMP (K), PRES (atm), and the constant atmospheric species (molec/cm\*\*3). The syntax obeys
+FORTRAN mathematical expressions.
+
+The below lines gives an example based on the CRI mechanism version version 2.1 (Jenkin et al., 2008 and Watson et al., 2008).
+
+        FUNCTIONS
+         KD0 = 4.90D-3*EXP(-12100/TEMP)*M;
+         KDI = 5.4D+16*EXP(-13830/TEMP);
+         KRD = KD0/KDI;
+         FCD = 0.30;
+         NCD = 0.75-1.27*(LOG10(FCD));
+         FD = 10**(LOG10(FCD)/(1+(LOG10(KRD)/NCD)**2));
+         KBPAN = (KD0*KDI)*FD/(KD0+KDI);
+         KC0 = 2.7D-28*M*(TEMP/300)**-7.1;
+         KCI = 1.2D-11*(TEMP/300)**-0.9;
+         KRC = KC0/KCI;
+         FCC = 0.30;
+         NC = 0.75-1.27*(LOG10(FCC));
+         FC = 10**(LOG10(FCC)/(1+(LOG10(KRC)/NC)**2));
+         KFPAN = (KC0*KCI)*FC/(KC0+KCI);
+         KMT06 = 1 + (1.40D-21*EXP(2200/TEMP)*H2O);
+        END FUNCTIONS
+
+Use reaction type 13 to access the value of a formula expressed in the __FUNCTIONS__ block.
+
+        <R22>  HO2 + HO2    = H2O2          %4 # 2.20D-13*KMT06*EXP(600/TEMP);
+        <R348> CH3CO3 + NO2 = PAN           %4 # KFPAN;
+        <R721> PAN          = CH3CO3 + NO2  %4 # KBPAN;        
 
 ## Building and Running
 
@@ -189,7 +238,7 @@ Table 2.
 
 Running CHEMMECH is accomplished by modifying and executing the run script under the scripts subdirectory. In the run script, environment variables define names, directories and runtime options. The script contains comments describing each variable. Names and directory are used to set paths for the inputs, outputs, and CHEMMECH. Run time options are set based on the application and user. The option, compile, determines whether to recompile CHEMMECH. A user may want to recompile if they are modifying the CHEMMECH source code or wish to use a different compiler from a previous application. The variable, COMPILER sets which the compiler to use from possible values mentioned above if compile equals true. The option, USE_SPCS_NAMELISTS states whether CHEMMECH reads in the three mechanism species namelists and then checks whether the mech.def file uses a species not found in the namelists. CHEMMECH will stop when this occurs. Running CHEMMECH using the namelists is not required but the option provides check for potential errors when modifying an existing photochemical mechanism within the CMAQ model system. A user may want to set USE_SPCS_NAMELISTS  to false, F,  if they are creating a new photochemical mechanism.
 
-CHEMMECH produces two files, RXNS_DATA_MODULE.F90 and RXNS_FUNCTION.F90, to compile the CMAQ Chemical Transport Model (CCTM) that uses the photochemical mechanism. The data module contains parameters describing the reactions, rates, and species. The functions module contains routines for setting up the photochemical mechanism and calculating its rate constants. Compiling the CCTM requires no additional files if the model uses the Sparse Matrix Vectorized versions of the Rosenbrock or Gear chemistry solver (repository directories, CCTM/src/gas/ros3 or CCTM/src/gas/smvgear). Besides the species namelists, executing the CCTM requires a CSQY_DATA_mechanism_name file containing cross-sections and quantum yields for the photolysis rates used by the mechanism. The inline_phot_preproc utility creates file by using the data module. Check the subdirectory containing this utility for more information. If the user wants CCTM to use a gas chemistry solver faster than Rosenbrock or Gear, they have to create a Euler Backward Interative (EBI) solver for the photochemical mechanism. The create_ebi utility creates an EBI solver specific to a photochemical mechanism by using its data module. Check this utility’s subdirectory for more information.
+CHEMMECH produces two files, RXNS_DATA_MODULE.F90 and RXNS_FUNCTION.F90, to compile the CMAQ Chemical Transport Model (CCTM) that uses the photochemical mechanism. The data module contains parameters describing the reactions, rates, and species. The functions module contains routines for setting up the photochemical mechanism and calculating its rate constants. Compiling the CCTM requires no additional files if the model uses the Sparse Matrix Vectorized versions of the Rosenbrock (Sandu et al., 1997) or Gear (Jacobson and Turco, 1994) chemistry solver (repository directories, CCTM/src/gas/ros3 or CCTM/src/gas/smvgear). Besides the species namelists, executing the CCTM requires a CSQY_DATA_mechanism_name file containing cross-sections and quantum yields for the photolysis rates used by the mechanism. The inline_phot_preproc utility creates file by using the data module. Check the subdirectory containing this utility for more information. If the user wants CCTM to use a gas chemistry solver faster than Rosenbrock or Gear, they have to create a Euler Backward Interative (EBI) solver (Hertel et al., 1993) for the photochemical mechanism. The create_ebi utility creates an EBI solver specific to a photochemical mechanism by using its data module. Check this utility’s subdirectory for more information.
 
 ## References.
 
@@ -203,4 +252,10 @@ Jacobson M.Z. and Turco R.P. (1994). SMVGEAR: A sparse-matrix, vectorized gear c
 
 Jefferies, H.E. (1990) User Guide to Photochemical Kinetics Simulation System PC-PKSS Software Version 3, Chapel Hill, NC 27514.
 
+Jenkin M.E., Watson L.A., Shallcross D.E., Utembe S.R. (2008). A Common Representative Intermediate (CRI) mechanism for VOC degradation. Part-1: gas phase mechanism development
+Atmos. Environ., 42, pp. 7185-7195
+
 Sandu A., Verwer J.G, Blom J.G., Spee E.J., Carmichael G.R. and Potra F.A (1997). Benchmarking stiff ODE solvers for atmospheric chemistry problems II: Rosenbrock solvers. Atmospheric environment 31 (20), 3459-3472.
+
+Watson L.A., Shallcross D.E., Utembe S.R., Jenkin M.E. (2008). A Common Representative Intermediates (CRI) mechanism for VOC degradation. Part 2: Gas phase mechanism reduction
+Atmospheric Environment, 42 (31) , pp. 7185-7193
