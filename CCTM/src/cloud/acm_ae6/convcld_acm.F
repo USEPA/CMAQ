@@ -18,8 +18,14 @@
 !------------------------------------------------------------------------!
 
 !:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+#ifdef isam
+       SUBROUTINE CONVCLD_ACM ( CGRID, JDATE, JTIME, TSTEP,
+     &                         N_SPC_WDEP, WDEP_MAP, CONV_DEP, SUBTRANS,
+     &                         CONV_SADEP)
+#else
        SUBROUTINE CONVCLD_ACM ( CGRID, JDATE, JTIME, TSTEP,
      &                         N_SPC_WDEP, WDEP_MAP, CONV_DEP, SUBTRANS )
+#endif
 
 C-----------------------------------------------------------------------
 C
@@ -113,6 +119,7 @@ C                          for cloud formation based on Mocko and Cotton (1995) 
 C                          More consistent with WRF
 C       7May 18 D. Schwede: Removed call to CZANGLE. COSZEN now calculated in ASX_DATA_MOD
 C       Aug 2018 J. Pleim: convert to Z coords
+C       26 Nov 2018 S. Napelenok: ISAM implementation
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
@@ -122,6 +129,11 @@ C-----------------------------------------------------------------------
       USE ASX_DATA_MOD,  ONLY: GRID_DATA, MET_DATA
       USE PHOT_MOD,      ONLY: RJ, RJ_RES, RJ_SUB, LH2O2_PHOTOLYSIS => LH2O2,
      &                   LHNO3_PHOTOLYSIS => LHNO3
+#ifdef isam
+      USE SA_DEFN, ONLY: ISAM, NSPC_SA, NTAG_SA, SPC_INDEX, OTHRTAG,
+     &                   SPC_NAME, DEPSUM_SAVE, DS4_SAVE, REMOV_SAVE,
+     &                   ITAG
+#endif
 
       IMPLICIT NONE
 
@@ -402,6 +414,29 @@ C...........Statement Functions
 
       QSAT( E, P ) = MVOMA * ( E / ( P - E ) )
 
+#ifdef isam
+      REAL                    :: CONV_SADEP( :,:,:,: )
+      REAL, ALLOCATABLE, SAVE :: SA_BASE0  ( :,: )
+      REAL, ALLOCATABLE, SAVE :: SA_POLC   ( :,: )
+      REAL, ALLOCATABLE, SAVE :: SA_CEND   ( :,: )
+      REAL, ALLOCATABLE, SAVE :: SA_PCLD   ( :,:,: )
+      REAL, ALLOCATABLE, SAVE :: SA_BASEF  ( :,: )
+      REAL, ALLOCATABLE, SAVE :: SA_CCR    ( :,:,: )
+      REAL, ALLOCATABLE, SAVE :: SA_CBELOW ( :,: )
+      REAL, ALLOCATABLE, SAVE :: SA_REMOV  ( :,: )
+      REAL, ALLOCATABLE, SAVE :: SA_BMOL   ( :,: )
+      REAL, ALLOCATABLE, SAVE :: SA_CONC   ( :,:,: )
+      REAL, ALLOCATABLE, SAVE :: SA_DS4    ( : )
+      REAL, ALLOCATABLE, SAVE :: SA_INCLOUD( : )
+
+      INTEGER, SAVE           :: S_SO2, S_SO4J, S_SULF, S_N2O5
+      INTEGER, SAVE           :: C_SO2, C_SO4J, C_SULF
+      INTEGER CSPC
+
+      REAL BLNC
+#endif
+
+
       INTERFACE
         SUBROUTINE SCAVWDEP ( JDATE, JTIME, WTBAR, WCBAR, TBARC, PBARC,
      &                        CTHK1, AIRM, PRATE1, TAUCLD, POLC, CEND,
@@ -563,6 +598,36 @@ C...Mocko and Cotton (1995)
         XKM = REAL( XCELL_GD / 1000 )
         RCRITW = 0.879 + SQRT( 1.0 / ( 100.0 + XKM * XKM ) )
         RCRITL = 0.839 + SQRT( 1.0 / ( 50.0 + 0.5 * XKM ** 3 ) )
+
+#ifdef isam
+C Move this to a better place later
+        S_SO2  = INDEX1( 'SO2', NSPC_SA, SPC_NAME(:,OTHRTAG) )
+        S_SO4J = INDEX1( 'ASO4J', NSPC_SA, SPC_NAME(:,OTHRTAG) )
+        S_SULF = INDEX1( 'SULF', NSPC_SA, SPC_NAME(:,OTHRTAG) )
+        S_N2O5 = INDEX1( 'N2O5', NSPC_SA, SPC_NAME(:,OTHRTAG) )
+
+        C_SO2  = INDEX1( 'SO2',   N_GC_SPC, GC_SPC )
+        C_SO4J = INDEX1( 'ASO4J', N_AE_SPC, AE_SPC ) + 1 + N_GC_SPC
+        C_SULF = INDEX1( 'SULF',  N_GC_SPC, GC_SPC )
+
+        ALLOCATE ( SA_BASE0  ( NSPC_SA, NTAG_SA ),
+     &             SA_BASEF  ( NSPC_SA, NTAG_SA ),
+     &             SA_POLC   ( NSPC_SA, NTAG_SA ),
+     &             SA_CEND   ( NSPC_SA, NTAG_SA ),
+     &             SA_PCLD   ( NSPC_SA, NLAYS, NTAG_SA ),
+     &             SA_CCR    ( NSPC_SA, NLAYS, NTAG_SA ),
+     &             SA_CBELOW ( NSPC_SA, NTAG_SA ),
+     &             SA_REMOV  ( NSPC_SA, NTAG_SA ),
+     &             SA_BMOL   ( NSPC_SA, NTAG_SA ),
+     &             SA_CONC   ( NSPC_SA, NLAYS, NTAG_SA ),
+     &             SA_DS4    ( NTAG_SA ),
+     &             SA_INCLOUD( NTAG_SA ),
+     &             STAT = ALLOCSTAT )
+        IF ( ALLOCSTAT .NE. 0 ) THEN
+          XMSG = 'Failure allocating SA arrays'
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+        END IF
+#endif
 
       END IF   ! Firstime
 
@@ -769,6 +834,19 @@ C...  set minimum for aerosol species
      &                                  CONCMINL( SPC,LAY ) )
             END DO
           END DO
+
+#ifdef isam         
+          DO SPC = 1, NSPC_SA
+            CSPC = SPC_INDEX(SPC,2)
+            DO ITAG = 1, NTAG_SA
+              DO LAY = 1, NLAYS
+                SA_CONC( SPC,LAY,ITAG ) = MAX( ISAM( COL,ROW,LAY,SPC,ITAG ),
+     &                                    CONCMINL( CSPC,LAY ) )
+              END DO
+            END DO
+          END DO
+#endif
+
 
 C...Test for raining clouds
 C...If the rainfall amount is below the specified threshold, then set
@@ -1092,6 +1170,32 @@ C...determine average trace gas mixing ratio below cloud level
             CBASEF( SPC ) = CBASE0( SPC )
           END DO
 
+#ifdef isam
+          SA_BMOL  = 0.0
+          SA_REMOV = 0.0
+          SA_CEND  = 0.0
+          SA_PCLD  = 0.0
+          SA_POLC  = 0.0
+
+          DO ITAG = 1, NTAG_SA
+            DO LAY = 1, CLBASE - 1
+              DO SPC = 1, NSPC_SA
+                SA_BMOL( SPC,ITAG ) = SA_BMOL( SPC,ITAG ) +
+     &                              + SA_CONC( SPC,LAY,ITAG )
+     &                              * RHOM2( LAY )
+              END DO
+            END DO
+          END DO
+
+          DO ITAG = 1, NTAG_SA
+            DO SPC = 1, NSPC_SA
+              SA_BASE0(SPC,ITAG) = SA_BMOL( SPC,ITAG ) * AIRMBI
+              SA_BASEF(SPC,ITAG) = SA_BASE0(SPC,ITAG)
+            END DO
+          END DO
+#endif
+
+
 C...Initialize variables needed for entrainment and in-cloud properties solver
 
           QXS =   0.0  ! integrated excess water over grid cell nec. for rnout
@@ -1400,12 +1504,39 @@ C...  using direct exchange mixing mechanism by McHenry.
 
           DZH(LAY) = AIRMB0
 
+#ifdef isam
+          DO ITAG = 1, NTAG_SA
+            DO SPC = 1, NSPC_SA
+              DO LAY = 1, NLAYS
+                SA_CCR( SPC, LAY,ITAG ) = SA_CONC( SPC,LAY,ITAG )
+              END DO
+              SA_CBELOW( SPC,ITAG ) = SA_BASE0( SPC, ITAG )
+            END DO
+          END DO
+#endif
+
           CALL ACMCLD ( NSPCSD, NLAYS, F, CCR, DZH, CBELOW, CLBASE, CLTOP,
      &                  FRAC, TCLIFE, DTCLD )
+
+#ifdef isam
+          DO ITAG = 1, NTAG_SA
+            CALL ACMCLD ( NSPC_SA, NLAYS, F, SA_CCR(:,:,ITAG), DZH, 
+     &                    SA_CBELOW(:,ITAG), CLBASE, CLTOP,
+     &                    FRAC, TCLIFE, DTCLD )
+          END DO
+#endif
 
           DO SPC = 1, MXSPCS
             CBASEF( SPC ) =  CBELOW( SPC ) 
           END DO
+
+#ifdef isam
+          DO ITAG = 1, NTAG_SA
+            DO SPC = 1, NSPC_SA
+              SA_BASEF( SPC,ITAG ) =  SA_CBELOW( SPC,ITAG )
+            END DO
+          END DO
+#endif
 
           DO LAY = CLTOP, CLBASE, -1
             DO SPC = 1, NSPCSD
@@ -1418,6 +1549,24 @@ C...POLC in mol sp/m2
 
               POLC( SPC ) = POLC( SPC )
      &                    + PCLD( SPC,LAY ) * RHOM2( LAY )
+#ifdef isam
+              CSPC = 0
+              CSPC = INDEXINT1(SPC,NSPC_SA,SPC_INDEX(:,2))
+
+              IF ( CSPC .NE. 0) THEN
+                DO ITAG = 1, NTAG_SA
+                  CONDIS = SA_CONC( CSPC,LAY,ITAG )
+
+                  SA_PCLD( CSPC,LAY,ITAG ) = F( LAY ) * ( FSIDE( LAY ) * CONDIS )
+     &                                     + ( 1.0 - F( LAY ) ) * SA_BASE0( CSPC,ITAG )
+                  IF ( ( CCR( SPC,LAY ) / FRAC) .EQ. PCLD( SPC,LAY ) ) THEN
+                    SA_PCLD( CSPC,LAY,ITAG ) = SA_CCR( CSPC,LAY,ITAG ) / FRAC 
+                  END IF
+                  SA_POLC( CSPC,ITAG ) = SA_POLC( CSPC,ITAG )
+     &                              + SA_PCLD( CSPC,LAY,ITAG ) * RHOM2( LAY )
+                END DO
+              END IF
+#endif
             END DO
           END DO
 
@@ -1441,6 +1590,25 @@ C...  below cloud concentrations in mol sp/mol air
                 IF ( ICLDTYPE .EQ. 1 ) THEN
                   POLC( SPC ) = POLC( SPC ) + PCLD( SPC, LAY ) * RHOM2( LAY )
                 END IF
+
+#ifdef isam
+                CSPC = 0
+                CSPC = INDEXINT1(SPC,NSPC_SA,SPC_INDEX(:,2))
+                IF ( CSPC .NE. 0) THEN
+                  DO ITAG = 1, NTAG_SA
+
+                     BCLDWT = SA_CONC( CSPC,LAY,ITAG ) / MAX( SA_BASE0( CSPC, ITAG ),1.0E-30 )
+                     SA_PCLD( CSPC,LAY, ITAG ) = BCLDWT * SA_BASEF( CSPC,ITAG )
+
+                     IF ( ICLDTYPE .EQ. 1 ) THEN
+                       SA_POLC( CSPC, ITAG ) = SA_POLC( CSPC, ITAG )
+     &                                       + SA_PCLD( CSPC, LAY, ITAG)
+     &                                       * RHOM2( LAY )
+                     END IF
+                  END DO
+                END IF
+#endif
+
               END DO
             END DO
 
@@ -1506,10 +1674,41 @@ C...Finally, get in cloud pollutant concentrations in mol sp per mol air
           RTCH = ( MOLVOL / STDTEMP ) * TBARC
           CTHK1 = AIRM * RTCH / ( ARPRES * 1000.0 )
 
+#ifdef isam
+          DO SPC = 1, NSPC_SA
+            DO ITAG = 1, NTAG_SA
+              SA_POLC( SPC, ITAG ) = SA_POLC( SPC, ITAG ) / AIRM
+              SA_CEND( SPC, ITAG ) = SA_POLC( SPC, ITAG )
+            END DO
+          END DO
+          SA_REMOV = 0.0
+#endif 
+
           CALL SCAVWDEP ( JDATE, JTIME, WTBAR,
      &                    WCBAR, TBARC, PBARC,
      &                    CTHK1, AIRM, PRATE1, DTCLD, POLC, CEND,
      &                    REMOV, REMOVAC, ALFA0, ALFA2, ALFA3 )
+
+#ifdef isam
+          DO SPC = 1, NSPC_SA
+             CSPC = SPC_INDEX(SPC,2)
+
+             IF ( POLC( CSPC ) .GT. 1.0E-30 ) THEN
+                DO ITAG = 1, NTAG_SA
+                   SA_CEND( SPC, ITAG ) = SA_POLC( SPC, ITAG )
+     &                                  * CEND( CSPC )
+     &                                  / POLC( CSPC )
+                   SA_REMOV( SPC, ITAG ) = SA_POLC( SPC, ITAG )
+     &                                   * REMOV( CSPC )
+     &                                   / POLC( CSPC )
+                END DO
+             ELSE
+                DO ITAG = 1, NTAG_SA
+                   SA_CEND( SPC, ITAG ) = 1.0E-30
+                END DO
+             END IF
+          END DO
+#endif
 
 C...if the liquid water content is above the specified threshold
 C...  then perform the aqueous chemistry within the cloud and
@@ -1539,6 +1738,65 @@ C...convert mean photolysis rates to 1/sec
      &                    CTHK1, AIRM, PRATE1, DTCLD, POLC, CEND,
      &                    REMOV, REMOVAC, ALFA0, ALFA2, ALFA3, DARK )
 
+
+#ifdef isam
+            DO SPC = 1, NSPC_SA ! general case
+
+              CSPC = SPC_INDEX(SPC,2)
+
+              DO ITAG = 1, NTAG_SA
+                IF ( POLC( CSPC ) .GT. 1.0E-30 ) THEN
+                  SA_CEND( SPC,ITAG ) = SA_POLC( SPC,ITAG )
+     &                                * CEND( CSPC )
+     &                                / POLC( CSPC )
+                  SA_REMOV( SPC,ITAG ) = SA_POLC( SPC, ITAG )
+     &                                 * REMOV( CSPC )
+     &                                 / POLC( CSPC )
+                END IF
+              END DO
+
+            END DO
+
+            IF ( S_N2O5 .NE. 0 ) THEN
+              DO ITAG = 1, NTAG_SA
+                SA_CEND( S_N2O5,ITAG )  = 1.0E-30
+              END DO
+            END IF
+
+
+            IF (S_SO4J .NE. 0 ) THEN ! sulfate case
+
+              DO ITAG = 1, NTAG_SA  ! sulfate from H2SO4
+                SA_DS4( ITAG ) = SA_POLC( S_SULF,ITAG )
+                SA_CEND( S_SULF,ITAG )  = 1.0E-30
+              END DO
+
+              DS4_SAVE = MAX( ( DS4_SAVE - SUM( SA_DS4 ) ), 0.0 ) ! sulfate produced from SO2
+
+              DO ITAG = 1, NTAG_SA
+                SA_DS4( ITAG ) = SA_DS4( ITAG ) + DS4_SAVE ! total sulfate produced
+     &                         * SA_POLC( S_SO2,ITAG )
+     &                         / SUM ( SA_POLC( S_SO2,: ) )
+                SA_CEND( S_SO4J,ITAG ) = SA_POLC( S_SO4J,ITAG )  ! sulfate before removal
+     &                                       + SA_DS4( ITAG )
+              END DO
+
+              CONDIS = SUM ( SA_CEND( S_SO4J,: ) ) ! total apportioned sulfate before removal
+ 
+              DO ITAG = 1, NTAG_SA ! final sulfate removal and concentration
+                SA_REMOV( S_SO4J,ITAG ) = REMOV_SAVE
+     &                                  * SA_CEND( S_SO4J,ITAG )
+     &                                  / CONDIS
+                SA_CEND( S_SO4J,ITAG ) = SA_CEND( S_SO4J,ITAG )
+     &                                 - DEPSUM_SAVE
+     &                                 * SA_CEND( S_SO4J,ITAG )
+     &                                 / CONDIS
+                SA_CEND( S_SO4J,ITAG ) = MAX ( SA_CEND( S_SO4J,ITAG ), 1.0E-30 )
+              END DO
+
+            END IF
+#endif
+
           END IF
 
           DO SPC = 1, NSPCSD
@@ -1558,6 +1816,16 @@ C...  for gases
             SPC = SPC + 1
             REMOV( VAR ) = REMOV( VAR ) * GC_MOLWT( SPC )
      &                   * M2PHA / GPKG * FRAC
+#ifdef isam
+            CSPC = 0
+            CSPC = INDEXINT1(VAR,NSPC_SA,SPC_INDEX(:,2))
+            IF ( CSPC .GT. 0 ) THEN
+              DO ITAG = 1, NTAG_SA
+                SA_REMOV( CSPC,ITAG ) = SA_REMOV( CSPC,ITAG ) * GC_MOLWT( SPC )
+     &                                * M2PHA / GPKG * FRAC
+              END DO
+            END IF
+#endif
           END DO
 
 C...  for aerosols
@@ -1571,6 +1839,16 @@ C...  for aerosols
      &           ( INDEX( AE_SPC( SPC ), 'SRF' ) .EQ. 0 ) ) THEN
               REMOV( VAR ) = REMOV( VAR ) * AE_MOLWT( SPC )
      &                     * M2PHA / GPKG * FRAC
+#ifdef isam
+              CSPC = 0
+              CSPC = INDEXINT1(VAR,NSPC_SA,SPC_INDEX(:,2))
+              IF ( CSPC .GT. 0 ) THEN
+                DO ITAG = 1, NTAG_SA
+                  SA_REMOV( CSPC,ITAG ) = SA_REMOV( CSPC,ITAG ) * AE_MOLWT( SPC )
+     &                                  * M2PHA / GPKG * FRAC
+                END DO
+              END IF
+#endif
             ELSE
               REMOV( VAR ) = REMOV( VAR ) * M2PHA * FRAC
             END IF
@@ -1585,6 +1863,16 @@ C...  for non-reactives
             SPC = SPC + 1
             REMOV( VAR ) = REMOV( VAR ) * NR_MOLWT( SPC )
      &                   * M2PHA / GPKG * FRAC
+#ifdef isam
+            CSPC = 0
+            CSPC = INDEXINT1(VAR,NSPC_SA,SPC_INDEX(:,2))
+            IF ( CSPC .GT. 0 ) THEN
+              DO ITAG = 1, NTAG_SA
+                SA_REMOV( CSPC,ITAG ) = SA_REMOV( CSPC,ITAG ) * NR_MOLWT( SPC )
+     &                                * M2PHA / GPKG * FRAC
+              END DO
+            END IF
+#endif
           END DO
 
 C...  for tracers
@@ -1610,6 +1898,15 @@ C...  and load H+ concentration into the deposition array as well
           CONV_DEP( COL,ROW,N_SPC_WDEP+1 ) = CONV_DEP( COL,ROW,N_SPC_WDEP+1 )
      &                                     + REMOVAC
 
+#ifdef isam
+          DO ITAG = 1, NTAG_SA
+            DO SPC = 1, NSPC_SA
+              CONV_SADEP( COL,ROW,SPC,ITAG ) = CONV_SADEP( COL,ROW,SPC,ITAG )
+     &                                       + SA_REMOV( SPC,ITAG )
+            END DO
+          END DO
+#endif
+
 C...Compute concentration changes in the grid column resulting
 C...  from subgrid scale vertical mixing:
 
@@ -1627,12 +1924,68 @@ C...   include raining region below cld base
      &                                     + ( 1.0 - FRAC ) * OUTCLOUD
                 END IF
               END DO
+#ifdef isam
+              DO SPC = 1, NSPC_SA
+                CSPC = SPC_INDEX(SPC,2)
+
+                DO ITAG = 1, NTAG_SA
+                  INCLOUD = SA_PCLD( SPC, LAY, ITAG )
+     &                    * SA_CEND( SPC, ITAG )
+     &                    / MAX( SA_POLC( SPC, ITAG ), CONCMINL( CSPC,LAY ) )
+                  OUTCLOUD = SA_PCLD( SPC, LAY, ITAG )
+                  ISAM( COL,ROW,LAY,SPC,ITAG ) = FRAC * INCLOUD
+     &                                         + ( 1.0 - FRAC ) * OUTCLOUD
+                END DO
+              END DO
+
+              IF (S_SO4J .NE. 0 ) THEN ! sulfate case
+
+                CONDIS = 0.0
+                DO ITAG = 1, NTAG_SA
+                  SA_INCLOUD( ITAG ) = PCLD( C_SO4J,LAY ) * SA_CEND( S_SO4J,ITAG ) 
+     &                    / MAX( POLC( C_SO4J ), CONCMINL( C_SO4J,LAY ) )
+     &                    - ( PCLD( C_SO4J,LAY ) * CEND( C_SO4J ) / MAX( POLC( C_SO4J ), CONCMINL( C_SO4J,LAY ) ) )
+     &                    * SA_POLC( S_SO4J,ITAG ) / MAX( POLC( C_SO4J ), CONCMINL( C_SO4J,LAY ) )
+     &                    + SA_PCLD( S_SO4J,LAY,ITAG ) * CEND( C_SO4J ) / MAX( POLC( C_SO4J ), CONCMINL( C_SO4J,LAY ) )
+                  IF ( SA_INCLOUD( ITAG ) .LT. 0.0 ) THEN
+                    CONDIS = CONDIS + SA_INCLOUD( ITAG )
+c                   SA_INCLOUD( ITAG )  = 0.0
+                  END IF
+                END DO
+
+                IF ( CONDIS .NE. 0.0 ) THEN
+                  BLNC = ( CONDIS + SUM( SA_INCLOUD( : ) ) ) / SUM( SA_INCLOUD( : ) )
+                  DO ITAG = 1, NTAG_SA
+                    IF ( SA_INCLOUD( ITAG ) .GT. 0.0 ) THEN
+c                     SA_INCLOUD( ITAG ) = BLNC * SA_INCLOUD( ITAG )
+                    END IF
+                  END DO
+                END IF
+
+                DO ITAG = 1, NTAG_SA
+                  OUTCLOUD = SA_PCLD( S_SO4J,LAY,ITAG )
+                  ISAM( COL,ROW,LAY,S_SO4J,ITAG ) = FRAC * SA_INCLOUD( ITAG )
+     &                                       + ( 1.0 - FRAC ) * OUTCLOUD
+c                 ISAM( COL,ROW,LAY,S_SO4J,ITAG ) = MAX( ISAM( COL,ROW,LAY,S_SO4J,ITAG ), 1.0E-30 )
+                END DO
+
+              END IF
+#endif
             END DO
           ELSE
             DO LAY = 1, CLBASE - 1
               DO SPC = 1, NSPCSD
                 CGRID( COL,ROW,LAY,SPC ) = PCLD( SPC,LAY )
               END DO
+#ifdef isam
+              DO SPC = 1, NSPC_SA
+                DO ITAG = 1, NTAG_SA
+                  ISAM( COL,ROW,LAY,SPC,ITAG ) = SA_PCLD( SPC, LAY, ITAG )
+                END DO
+              END DO
+#endif
+
+
             END DO
           END IF
 
@@ -1650,6 +2003,44 @@ C...Now do changes in cloudy layers:
      &                                   + ( 1.0 - FRAC ) * OUTCLOUD
               END IF
             END DO
+#ifdef isam
+            DO SPC = 1, NSPC_SA
+              CSPC = SPC_INDEX(SPC,2)
+
+              DO ITAG = 1, NTAG_SA
+                INCLOUD = SA_PCLD( SPC,LAY,ITAG ) * SA_CEND( SPC,ITAG )
+     &                  / MAX( SA_POLC( SPC,ITAG ), CONCMINL( CSPC,LAY ) )
+
+                OUTCLOUD = ( SA_CCR( SPC,LAY,ITAG ) - FRAC * SA_PCLD( SPC,LAY,ITAG ) )
+     &                   / ( 1.0 - FRAC )
+
+                OUTCLOUD = MAX( OUTCLOUD, CONCMINL( CSPC,LAY ) )
+                ISAM( COL,ROW,LAY,SPC,ITAG ) = FRAC * INCLOUD
+     &                                       + ( 1.0 - FRAC ) * OUTCLOUD
+              END DO
+            END DO
+
+
+            IF (S_SO4J .NE. 0 ) THEN ! sulfate case
+              DO ITAG = 1, NTAG_SA
+
+                INCLOUD = PCLD( C_SO4J,LAY ) * SA_CEND( S_SO4J,ITAG ) / MAX( POLC( C_SO4J ), CONCMINL( C_SO4J,LAY ) )
+     &                  - ( PCLD( C_SO4J,LAY ) * CEND( C_SO4J ) / MAX( POLC( C_SO4J ), CONCMINL( C_SO4J,LAY ) ) )
+     &                  * SA_POLC( S_SO4J,ITAG ) / MAX( POLC( C_SO4J ), CONCMINL( C_SO4J,LAY ) ) 
+     &                  + SA_PCLD( S_SO4J,LAY,ITAG ) * CEND( C_SO4J ) / MAX( POLC( C_SO4J ), CONCMINL( C_SO4J,LAY ) )
+                INCLOUD = MAX( INCLOUD, CONCMINL( C_SO4J,LAY ) )
+
+                OUTCLOUD = ( SA_CCR( S_SO4J,LAY,ITAG ) - FRAC * SA_PCLD( S_SO4J,LAY,ITAG ) )
+     &                   / ( 1.0 - FRAC )
+                OUTCLOUD = MAX( OUTCLOUD, CONCMINL( CSPC,LAY ) )
+
+                ISAM( COL,ROW,LAY,S_SO4J,ITAG ) = FRAC * INCLOUD
+     &                                       + ( 1.0 - FRAC ) * OUTCLOUD
+              END DO
+            END IF
+#endif
+
+
           END DO
         GO TO 301
 

@@ -18,8 +18,15 @@
 !------------------------------------------------------------------------!
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+#ifdef isam
+      SUBROUTINE RESCLD ( CGRID, JDATE, JTIME, TSTEP,
+     &                    N_SPC_WDEP, WDEP_MAP, DEP, RESTRANS,
+     &                    SA_DEP)
+
+#else
       SUBROUTINE RESCLD ( CGRID, JDATE, JTIME, TSTEP,
      &                    N_SPC_WDEP, WDEP_MAP, DEP, RESTRANS )
+#endif
 
 C-----------------------------------------------------------------------
 C  FUNCTION: Resolved-scale CLOUD processor Models-3 science process:
@@ -60,6 +67,7 @@ C      16 02Aug12 S.Roselle:  instrumented to calculate and return
 C                             transmissivity for resolved clouds
 C      07 Nov 14 J.Bash: Updated call to czangle.F for the ASX_DATA_MOD shared data module. 
 C      07 May 18 D. Schwede: Removed call to CZANGLE. COSZEN now calculated in ASX_DATA_MOD
+C      26 Nov 18 S. Napelenok: ISAM implementation
 C  Called by:  CLDPROC
  
 C  Calls the following subroutines:  SCAVWDEP and AQ_MAP
@@ -71,6 +79,12 @@ C-----------------------------------------------------------------------
       USE AQ_DATA,       ONLY: JH2O2_HYDROMETEORS,  JHNO3_HYDROMETEORS
       USE ASX_DATA_MOD,  ONLY: MET_DATA
       USE PHOT_MOD,      ONLY: RJ, RJ_RES, RJ_SUB, LH2O2, LHNO3
+#ifdef isam
+      USE SA_DEFN, ONLY: ISAM, NSPC_SA, NTAG_SA, SPC_INDEX, OTHRTAG, 
+     &                   SPC_NAME, DEPSUM_SAVE, DS4_SAVE, REMOV_SAVE,
+     &                   ITAG
+
+#endif
 
 
       IMPLICIT NONE
@@ -89,6 +103,9 @@ C...........Arguments:
       INTEGER, INTENT( IN )    :: WDEP_MAP( : )    ! wet deposition species map to CGRID
       REAL,    INTENT( INOUT ) :: DEP( :,:,: )     ! wet deposition
       REAL,    INTENT( OUT )   :: RESTRANS( :,: )  ! resolved cloud transmissivity
+#ifdef isam
+      REAL,    INTENT( INOUT ) :: SA_DEP( :,:,:,: )
+#endif
 
       CHARACTER( 120 ) :: XMSG  = ' '    ! Exit status message
 
@@ -180,6 +197,14 @@ C Latitude and longitude for zenith angle calculation: Golam Sarwar * July 1, 20
       REAL          JH2O2                           ! H2O2 photolysis rate, 1/min 
       REAL          JHNO3                           ! HNO3 photolysis rate, 1/min 
       LOGICAL       DARK                            ! DARK = TRUE is night,  DARK = FALSE is day
+
+#ifdef isam
+      INTEGER, SAVE :: S_SO2, S_SO4J, S_SULF
+      INTEGER, SAVE :: C_SO2, C_SO4J, C_SULF
+      REAL, ALLOCATABLE, SAVE :: SA_POLC   ( :,: )
+      REAL, ALLOCATABLE, SAVE :: SA_CEND   ( :,: )
+      INTEGER CSPC
+#endif
 
 C...........External Functions:
 
@@ -317,6 +342,27 @@ C...  the met timestep in hours
           XMSG = 'Failure allocating CEND, POLC or REMOV'
           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
+
+#ifdef isam
+! move all this somewhere else eventually
+
+        S_SO2  = INDEX1( 'SO2', NSPC_SA, SPC_NAME(:,OTHRTAG) )
+        S_SO4J = INDEX1( 'ASO4J', NSPC_SA, SPC_NAME(:,OTHRTAG) )
+        S_SULF = INDEX1( 'SULF', NSPC_SA, SPC_NAME(:,OTHRTAG) )
+
+        C_SO2  = INDEX1( 'SO2',   N_GC_SPC, GC_SPC )
+        C_SO4J = INDEX1( 'ASO4J', N_AE_SPC, AE_SPC ) + 1 + N_GC_SPC
+        C_SULF = INDEX1( 'SULF',  N_GC_SPC, GC_SPC )
+
+        ALLOCATE ( SA_POLC  ( NSPC_SA, NTAG_SA ),
+     &             SA_CEND  ( NSPC_SA, NTAG_SA ),
+     &             STAT = ALLOCSTAT )
+        IF ( ALLOCSTAT .NE. 0 ) THEN
+          XMSG = 'Failure allocating SA_POLC or SA_CEND'
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+        END IF
+#endif
+
 
       END IF  ! FIRSTIME
 
@@ -601,6 +647,15 @@ C...  per mole air
                   REMOV( SPC ) = 0.0
                 END DO
 
+#ifdef isam
+                DO SPC = 1, NSPC_SA
+                  DO ITAG = 1, NTAG_SA
+                    SA_POLC( SPC, ITAG ) = ISAM( COL,ROW,LAY,SPC,ITAG )
+                    SA_CEND( SPC, ITAG ) = SA_POLC( SPC, ITAG )
+                  END DO
+                END DO
+#endif 
+
 C...perform scavenging and aqueous chemistry within the cloud
 C...  and re-adjust the ending and removed amounts for those species
 C...  that were scavenged or that participated in cloud chemistry
@@ -609,6 +664,19 @@ C...  that were scavenged or that participated in cloud chemistry
      &                          PBARC, CTHK1, AIRM, PRATE1, TAUCLD,
      &                          POLC, CEND, REMOV, REMOVAC, ALFA0,
      &                          ALFA2, ALFA3 )
+
+#ifdef isam
+                DO SPC = 1, NSPC_SA
+                  CSPC = SPC_INDEX(SPC,2)
+                  DO ITAG = 1, NTAG_SA
+                    IF ( POLC( CSPC ) .GT. 1.0E-30 ) THEN
+                      SA_CEND( SPC, ITAG ) = SA_POLC( SPC, ITAG )
+     &                                     * CEND( CSPC )
+     &                                     / POLC( CSPC )
+                    END IF
+                  END DO
+                END DO
+#endif
 
 C...if the liquid water content is above the specified threshold
 C...  then perform the aqueous chemistry within the cloud and
@@ -631,10 +699,70 @@ C...  calculate cosine of zenith angle for the cell and determine day or night; 
                     JH2O2_HYDROMETEORS = REAL( JH2O2*PERMIN_TO_PERSEC, 8 )
                     JHNO3_HYDROMETEORS = REAL( JHNO3*PERMIN_TO_PERSEC, 8 )
                   END IF
+
                   CALL AQ_MAP ( JDATE, JTIME, WTBAR, WCBAR, TBARC,
      &                          PBARC, CTHK1, AIRM, PRATE1, TAUCLD,
      &                          POLC, CEND, REMOV, REMOVAC, ALFA0,
      &                          ALFA2, ALFA3, DARK )
+
+#ifdef isam
+
+
+c                 IF (COL.EQ.8 .AND. ROW.EQ.6) THEN
+
+c                   write(logdev,*) C_SO2, C_SO4J, C_SULF
+c                   write(logdev,*) S_SO2, S_SO4J, S_SULF
+
+c                   write(logdev,*) " =-=-=-=-=-=-=-=-=-=-=-=-= "
+c                   write(logdev,*) "BEFORE, LAY = ", LAY
+c                   write(logdev,*) "POLC( C_SO2  ) = ",POLC( C_SO2 )
+c                   write(logdev,*) "POLC( C_SO4J ) = ",POLC( C_SO4J )
+c                   write(logdev,*) "POLC( C_SULF ) = ",POLC( C_SULF )
+c                   write(logdev,*) "SA_POLC( S_SO2  ) = ",SA_POLC( S_SO2,:  )
+c                   write(logdev,*) "SA_POLC( S_SO4J ) = ",SA_POLC( S_SO4J,: )
+c                   write(logdev,*) "SA_POLC( S_SULF ) = ",SA_POLC( S_SULF,: )
+c                 END IF
+
+                  DO SPC = 1, NSPC_SA ! general case
+                    CSPC = SPC_INDEX(SPC,2)
+                    DO ITAG = 1, NTAG_SA
+                      IF ( POLC( CSPC ) .GT. 1.0E-30 ) THEN
+                        SA_CEND( SPC, ITAG ) = SA_POLC( SPC,ITAG )
+     &                                     * CEND( CSPC )
+     &                                     / POLC( CSPC )
+                      END IF
+                    END DO
+                  END DO
+
+                  IF (S_SO4J .NE. 0 ) THEN ! sulfate case
+                    DO ITAG = 1, NTAG_SA
+                      SA_CEND( S_SO4J,ITAG ) = SA_POLC( S_SO4J,ITAG )
+     &                        + DS4_SAVE
+     &                        * ( SA_POLC( S_SO2,ITAG ) + SA_POLC( S_SULF,ITAG ) ) 
+c    &                        / ( POLC( C_SO2 ) + POLC ( C_SULF ) )  
+     &                        / ( SUM( SA_POLC( S_SO2,: ) ) + SUM( SA_POLC( S_SULF,: ) ) ) 
+     &                        - DEPSUM_SAVE
+     &                        * SA_POLC( S_SO4J,ITAG )
+c    &                        / POLC( C_SO4J )
+     &                        / ( SUM( SA_POLC( S_SO4J,: ) ) )
+                      SA_CEND( S_SO4J,ITAG ) = MAX( SA_CEND( S_SO4J,ITAG ), 1.E-30) 
+                    END DO
+                  END IF
+
+c                 IF (COL.EQ.8 .AND. ROW.EQ.6) THEN
+c                   write(logdev,*) " =-=-=-=-=-=-=-=-=-=-=-=-= "
+c                   write(logdev,*) "AFTER, LAY = ", LAY
+c                   write(logdev,*) "CEND( C_SO2  ) = ",CEND( C_SO2 )
+c                   write(logdev,*) "CEND( C_SO4J ) = ",CEND( C_SO4J )
+c                   write(logdev,*) "CEND( C_SULF ) = ",CEND( C_SULF )
+c                   write(logdev,*) "SA_CEND( S_SO2  ) = ",SA_CEND( S_SO2,:  )
+c                   write(logdev,*) "SA_CEND( S_SO4J ) = ",SA_CEND( S_SO4J,: )
+c                   write(logdev,*) "SA_CEND( S_SULF ) = ",SA_CEND( S_SULF,: )
+c                 END IF
+
+
+#endif
+
 
                 END IF
 
@@ -708,6 +836,21 @@ C...set cgrid to the ending concentrations
                     CGRID( COL, ROW, LAY, SPC ) = CEND( SPC )
                   END IF
                 END DO
+
+#ifdef isam
+                DO SPC = 1, NSPC_SA
+                  CSPC = SPC_INDEX(SPC,2)
+                  DO ITAG = 1, NTAG_SA
+                    SA_DEP( COL, ROW, SPC, ITAG ) = SA_DEP( COL, ROW, SPC, ITAG )
+     &                                    + ( REMOV ( CSPC )
+     &                                    *   SA_POLC( SPC, ITAG )
+     &                                    /   POLC( CSPC ) )
+
+                    ISAM( COL,ROW,LAY,SPC,ITAG ) = SA_CEND( SPC, ITAG )
+                  END DO
+                END DO
+#endif
+
 
               END IF        ! Sum( QC,QR,QG ) > 0.00005 ?
             END DO       ! lay
