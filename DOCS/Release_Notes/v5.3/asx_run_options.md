@@ -1,6 +1,6 @@
 # Air-Surface Exchange Option Updates
 
-**Author/P.O.C.:**, [Ben Murphy](mailto:murphy.ben@epa.gov), Computational Exposure Division, U.S. EPA
+**Author/P.O.C.:** [Ben Murphy](mailto:murphy.ben@epa.gov), Computational Exposure Division, U.S. EPA
 
 ## Brief Description
 Three minor updates were made to the options used by CMAQ to drive air-surface exchange processes.  
