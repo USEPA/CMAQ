@@ -1,10 +1,44 @@
 ## CMAQ Tutorial ##
 ### Prescribing Emissions Using the DESID, the Detailed Emissions Scaling, Isolation and Diagnostics Module ###
-Purpose: 
+Purpose: This tutorial will guide users to utilizing the Emission Control namelist to perform some basic manipulation 
+of their emission streams. For additional questions, contact Ben Murphy (murphy.ben@epa.gov).
 
 ------------
 
-### STEP 1: Regrid MODIS FPAR and LAI Data
+### Definitions of Terms
+- Stream: an Online emission source or a group of sources processed offline and read into CMAQ from one file. Common 
+examples of streams include biogenic VOCs, mobile sources, winf-blown dust, prescribed fires, electric-generating units, 
+residential heating, etc.  
+- Species: A variable representing a chemical compound or group of compounds in CMAQ.  
+- Surrogate: A variable representing a chemical compound or group of compounds on an emission Stream.  
+
+### Example Use Cases
+- (Zero out all emissions )[#zero_out]  
+- (Add emissions for a new tracer species)[#add_emissions]  
+- (Scale emissions from one stream by a common factor)[#scale_stream]  
+- (Scale emissions for one species on all streams)[#scale_species]  
+- (Scale all gas phase emissions but leave aerosols alone)[#scale_gases]  
+- (Scale all aerosols)[#scale_aerosols]  
+- (Add or subtract emissions from one surrogate to existing emissions)[#add_surrogate]  
+- (Overwrite the scale factor for a single stream or species)[#overwrite]  
+- (Scale all species except one by a common factor)[#scale_all_but_one]  
+- (Apply scaling while conserving moles or mass)[#scale_moles_mass]  
+- (Apply scaling with spatial dependence)[#apply_mask]  
+
+
+<a id=zero_out></a>
+### Zero Out All Emissions 
+There are two options for zeroing out emissions from specific streams or zeroing out all emissions at once.
+
+#### 1. Using the CMAQ RunScript
+
+
+#### 2. Using the Emission Control Namelist
+
+
+
+<a id=add_emissions></a>
+### Add Emissions For a New Tracer Species
 
 Use the WRF program geogrid.exe to re-grid the global MODIS FPAR and LAI data from WPS over a specific domain.
 
@@ -14,6 +48,7 @@ Modify the "rel_path" of "GREENFRAC" in GEOGRID.TBL (not needed for WPSv3.8 and 
 name=GREENFRAC
 rel_path=default:greenfrac_fpar_modis/
 ```
+
 
 Run geogrid.exe to create a “geo_em.d01.nc” file containing re-gridded FPAR and LAI over the specified domain. A sample namelist.wps for running geogrid.exe is provided below (in this example a 12-km 460 X 300 horizontal grid over the CONUS):
 
