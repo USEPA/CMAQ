@@ -8,7 +8,7 @@ Two minor updates were made to BEIS input and diagnostic output.
 the mechanism field on the BEIS gspro file. Previsouly, users were responsible for selecting 
 mechanisms on the gspro file to be compatible with the CMAQ chemical mechanism selected.
 2) For diagnostic output, an error was found in the initialization of NTICS which caused BEIS 
-diagnostic emissions to appear overestimated, since the running sum was accumulating to much
+diagnostic emissions to appear overestimated, since the running sum was accumulating too much
 mass from output time step to output time step.
 
 ## Significance and Impact  
@@ -26,7 +26,7 @@ NA
 -----
 ## Internal Records:
 #### Relevant Pull Requests:
-[PR #307] 
+[PR #307]
 [PR #308]
 [PR #309]
 [PR #318]
