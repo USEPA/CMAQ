@@ -1,6 +1,6 @@
 # BEIS default Chemical Mapping 
 
-**Author/P.O.C.:**, [Ben Murphy](mailto:murphy.ben@epa.gov), Computational Exposure Division, U.S. EPA
+**Author/P.O.C.:** [Ben Murphy](mailto:murphy.ben@epa.gov), Computational Exposure Division, U.S. EPA
 
 ## Brief Description
 Two minor updates were made to BEIS input and diagnostic output. 
