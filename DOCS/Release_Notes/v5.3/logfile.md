@@ -1,6 +1,6 @@
 # Logfile Output: Streamlining and Centralization
 
-**Author/P.O.C.:**, [Ben Murphy](mailto:murphy.ben@epa.gov), Computational Exposure Division, U.S. EPA
+**Author/P.O.C.:** [Ben Murphy](mailto:murphy.ben@epa.gov), Computational Exposure Division, U.S. EPA
 
 ## Brief Description
 CMAQ users and developers have often noted the difficulty in using the default logfile for information 
