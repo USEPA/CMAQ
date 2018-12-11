@@ -1,6 +1,6 @@
 # Variable Units on Output Files
 
-**Author/P.O.C.:**, [Ben Murphy](mailto:murphy.ben@epa.gov), Computational Exposure Division, U.S. EPA
+**Author/P.O.C.:** [Ben Murphy](mailto:murphy.ben@epa.gov), Computational Exposure Division, U.S. EPA
 
 ## Brief Description
 As CMAQ has evolved, the conventions for variable units have evolved inconsistently, with different 
