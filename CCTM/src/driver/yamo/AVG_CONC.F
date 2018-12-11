@@ -29,6 +29,7 @@ C                       or not set.
 
 C Function: species, layer pointers and definitions for integral average
 C CONC calculations
+      INTEGER, SAVE :: N_ASPCS = 0
 
       INTEGER, SAVE, ALLOCATABLE :: AVG_CONC_MAP( : ) ! pointer into CGRID
       CHARACTER( 16 ), SAVE, ALLOCATABLE :: A_GC_SPC( : ) ! pointer into GC_SPC
@@ -47,18 +48,33 @@ C species classes configuration for average CONC
       INTEGER, SAVE :: N_A_TR_SPC
 
       INTEGER, SAVE :: N_A_AE_SPCD
+                                
+C Number of Average Concentration Layers                                
+      INTEGER, SAVE :: A_NLYS = 1
+
+C Average Arrays for Met variables
+      REAL, SAVE, ALLOCATABLE :: AVG_WVEL( :,:,: )
+      REAL, SAVE, ALLOCATABLE :: AVG_RH( :,:,: )
+      REAL, SAVE, ALLOCATABLE :: AVG_TA( :,:,: )
+      REAL, SAVE, ALLOCATABLE :: AVG_PRES( :,:,: )
+
+C Logical to test whether met variables are included
+      LOGICAL, SAVE :: L_ACONC_WVEL = .FALSE.
+      LOGICAL, SAVE :: L_ACONC_RH = .FALSE.
+      LOGICAL, SAVE :: L_ACONC_TA = .FALSE.
+      LOGICAL, SAVE :: L_ACONC_PRES = .FALSE.
 
       CONTAINS
 
          SUBROUTINE A_CONC_DEFN ()
 
          USE RUNTIME_VARS
-         USE VGRD_DEFN             ! vertical layer specifications
+         USE GRID_CONF             ! Grid Configuration
          USE CGRID_SPCS            ! CGRID mechanism species
          USE UTILIO_DEFN
 
          CHARACTER( 16 ) :: PNAME = 'A_CONC_DEFN'
-         CHARACTER( 96 ) :: XMSG = ' '
+         CHARACTER(200 ) :: XMSG = ' '
 
          INTEGER OFF, VAR, V, NV, LVL
          INTEGER ALLOCSTAT, STATUS
@@ -75,24 +91,29 @@ C-----------------------------------------------------------------------
 
 C RETRIEVE THE SPECIES SAVED TO INTEGRAL AVERAGE CONCENTRATION FILE
 
-         IF ( N_ASPCS .EQ. 0 .OR. ACONC_FILE_SPCS( 1 ) .EQ. 'ALL' ) THEN
-            N_ASPCS = N_GC_SPC + N_AE_SPC + N_NR_SPC + N_TR_SPC
+         IF ( N_ACONC_VARS .EQ. 0 .OR. ACONC_FILE_SPCS( 1 ) .EQ. 'ALL' ) THEN
+            V = 0
             DO VAR = 1, N_GC_SPC
-               V = VAR
+               V = V + 1
                ACONC_FILE_SPCS( V ) = GC_SPC( VAR )
             END DO
             DO VAR = 1, N_AE_SPC
-               V = N_GC_SPC + VAR
+               V = V + 1
                ACONC_FILE_SPCS( V ) = AE_SPC( VAR )
             END DO
             DO VAR = 1, N_NR_SPC
-               V = N_GC_SPC + N_AE_SPC + VAR
+               V = V + 1
                ACONC_FILE_SPCS( V ) = NR_SPC( VAR )
             END DO
             DO VAR = 1, N_TR_SPC
-               V = N_GC_SPC + N_AE_SPC + N_NR_SPC + VAR
+               V = V + 1
                ACONC_FILE_SPCS( V ) = TR_SPC( VAR )
             END DO
+            ACONC_FILE_SPCS( V + 1 ) = 'WVEL'
+            ACONC_FILE_SPCS( V + 2 ) = 'RH'
+            ACONC_FILE_SPCS( V + 3 ) = 'TA'
+            ACONC_FILE_SPCS( V + 4 ) = 'PRES'
+            N_ACONC_VARS = V + 4
          END IF
 
 C Retrieve the layer range used in integral average concentration file
@@ -104,18 +125,19 @@ C Retrieve the layer range used in integral average concentration file
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
          END IF
 
+         A_NLYS = ACONC_ELEV - ACONC_BLEV + 1
+
 C Check species names against include files and create AVG_CONC_MAP, and
 C get starting index in AGRID and total count for each species class
 
-         ALLOCATE ( AVG_CONC_MAP( N_ASPCS ),
-     &              A_GC_SPC    ( N_ASPCS ),
-     &              A_AE_SPC    ( N_ASPCS ),
-     &              A_NR_SPC    ( N_ASPCS ),
-     &              A_TR_SPC    ( N_ASPCS ),
-     &              GC_MAP      ( N_ASPCS ),
-     &              AE_MAP      ( N_ASPCS ),
-     &              NR_MAP      ( N_ASPCS ),
-     &              TR_MAP      ( N_ASPCS ), STAT = ALLOCSTAT )
+         ALLOCATE ( A_GC_SPC    ( N_ACONC_VARS ),
+     &              A_AE_SPC    ( N_ACONC_VARS ),
+     &              A_NR_SPC    ( N_ACONC_VARS ),
+     &              A_TR_SPC    ( N_ACONC_VARS ),
+     &              GC_MAP      ( N_ACONC_VARS ),
+     &              AE_MAP      ( N_ACONC_VARS ),
+     &              NR_MAP      ( N_ACONC_VARS ),
+     &              TR_MAP      ( N_ACONC_VARS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'AVG_CONC_MAP or A_GC_SPC or A_AE_SPC or A_NR_SPC'
      &           // ' or A_TR_SPC or GC_MAP or AE_MAP or NR_MAP or TR_MAP'
@@ -131,9 +153,10 @@ C and the classes must be in the sequence: GC, AE, NR, TR
          N_A_NR_SPC = 0
          N_A_TR_SPC = 0
 
-         DO VAR = 1, N_ASPCS
+         DO VAR = 1, N_ACONC_VARS
             V = INDEX1 ( ACONC_FILE_SPCS( VAR ), N_GC_SPC, GC_SPC )
             IF ( V .GT. 0 ) THEN
+               N_ASPCS = N_ASPCS + 1
                N_A_GC_SPC = N_A_GC_SPC + 1
                A_GC_SPC( N_A_GC_SPC ) = ACONC_FILE_SPCS( VAR )
                OFF = 0
@@ -141,6 +164,7 @@ C and the classes must be in the sequence: GC, AE, NR, TR
             ELSE
                V = INDEX1 ( ACONC_FILE_SPCS( VAR ), N_AE_SPC, AE_SPC )
                IF ( V .GT. 0 ) THEN
+                  N_ASPCS = N_ASPCS + 1
                   N_A_AE_SPC = N_A_AE_SPC + 1
                   OFF = N_GC_SPC + 1   ! accounts for advected density
                   A_AE_SPC( N_A_AE_SPC ) = ACONC_FILE_SPCS( VAR )
@@ -148,6 +172,7 @@ C and the classes must be in the sequence: GC, AE, NR, TR
                ELSE
                   V = INDEX1 ( ACONC_FILE_SPCS( VAR ), N_NR_SPC, NR_SPC )
                   IF ( V .GT. 0 ) THEN
+                     N_ASPCS = N_ASPCS + 1
                      N_A_NR_SPC = N_A_NR_SPC + 1
                      OFF = N_GC_SPC + 1 + N_AE_SPC
                      A_NR_SPC( N_A_NR_SPC ) = ACONC_FILE_SPCS( VAR )
@@ -155,13 +180,28 @@ C and the classes must be in the sequence: GC, AE, NR, TR
                   ELSE
                      V = INDEX1 ( ACONC_FILE_SPCS( VAR ), N_TR_SPC, TR_SPC )
                      IF ( V .GT. 0 ) THEN
+                        N_ASPCS = N_ASPCS + 1
                         N_A_TR_SPC = N_A_TR_SPC + 1
                         OFF = N_GC_SPC + 1 + N_AE_SPC + N_NR_SPC
                         A_TR_SPC( N_A_TR_SPC ) = ACONC_FILE_SPCS( VAR )
                         TR_MAP( N_A_TR_SPC ) = V + OFF
+                     ELSE IF ( ACONC_FILE_SPCS( VAR ) .EQ. 'WVEL' ) THEN
+                        L_ACONC_WVEL = .TRUE.
+                        ALLOCATE( AVG_WVEL( NCOLS,NROWS,A_NLYS ) )
+                     ELSE IF ( ACONC_FILE_SPCS( VAR ) .EQ. 'RH' ) THEN
+                        L_ACONC_RH = .TRUE.
+                        ALLOCATE( AVG_RH( NCOLS,NROWS,A_NLYS ) )
+                     ELSE IF ( ACONC_FILE_SPCS( VAR ) .EQ. 'TA' ) THEN
+                        L_ACONC_TA = .TRUE.
+                        ALLOCATE( AVG_TA( NCOLS,NROWS,A_NLYS ) )
+                     ELSE IF ( ACONC_FILE_SPCS( VAR ) .EQ. 'PRES' ) THEN
+                        L_ACONC_PRES = .TRUE.
+                        ALLOCATE( AVG_PRES( NCOLS,NROWS,A_NLYS ) )
                      ELSE
                         XMSG = 'Variable ' // ACONC_FILE_SPCS( VAR )
-     &                  // ' incorrect for this model'
+     &                  // ' was requested for average concentration '
+     &                  // ' output, but it is not available from any '
+     &                  // ' species namelist.'
                         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
                      END IF
                   END IF
@@ -180,55 +220,36 @@ C and the classes must be in the sequence: GC, AE, NR, TR
             N_A_AE_SPCD = 1
          END IF
 
+         ! Map the CGRID indices to the AGRID indices 
+         !    i.e.: AVG_CONC_MAP( AGRID_IND ) = CGRID_IND
+         ALLOCATE( AVG_CONC_MAP( N_ASPCS ) )
          VAR = 0
          DO V = 1, N_A_GC_SPC
             VAR = VAR + 1
             AVG_CONC_MAP( VAR ) = GC_MAP( V )
-#ifdef Verbose
-            write( logdev,* ) '<<>>var, AVG_CONC_MAP: ', VAR, AVG_CONC_MAP( VAR )
-#endif
          END DO
 
          DO V = 1, N_A_AE_SPC
             VAR = VAR + 1
             AVG_CONC_MAP( VAR ) = AE_MAP( V )
-#ifdef Verbose
-            write( logdev,* ) '<<>>var, AVG_CONC_MAP: ', VAR, AVG_CONC_MAP( VAR )
-#endif
          END DO
 
          DO V = 1, N_A_NR_SPC
             VAR = VAR + 1
             AVG_CONC_MAP( VAR ) = NR_MAP( V )
-#ifdef Verbose
-            write( logdev,* ) '<<>>var, AVG_CONC_MAP: ', VAR, AVG_CONC_MAP( VAR )
-#endif
          END DO
 
          DO V = 1, N_A_TR_SPC
             VAR = VAR + 1
             AVG_CONC_MAP( VAR ) = TR_MAP( V )
-#ifdef Verbose
-            write( logdev,* ) '<<>>var, AVG_CONC_MAP: ', VAR, AVG_CONC_MAP( VAR )
-#endif
          END DO
 
-         IF ( N_A_GC_SPC .EQ. 0 ) THEN
-            DEALLOCATE ( A_GC_SPC )
-            DEALLOCATE ( GC_MAP )
-         END IF
-         IF ( N_A_AE_SPC .EQ. 0 ) THEN
-            DEALLOCATE ( A_AE_SPC )
-            DEALLOCATE ( AE_MAP )
-         END IF
-         IF ( N_A_NR_SPC .EQ. 0 ) THEN
-            DEALLOCATE ( A_NR_SPC )
-            DEALLOCATE ( NR_MAP )
-         END IF
-         IF ( N_A_TR_SPC .EQ. 0 ) THEN
-            DEALLOCATE ( A_TR_SPC )
-            DEALLOCATE ( TR_MAP )
-         END IF
+         ! Deallocate arrays if they are unused
+         DEALLOCATE( GC_MAP, AE_MAP, NR_MAP, TR_MAP )
+         IF ( N_A_GC_SPC .EQ. 0 ) DEALLOCATE ( A_GC_SPC )
+         IF ( N_A_AE_SPC .EQ. 0 ) DEALLOCATE ( A_AE_SPC )
+         IF ( N_A_NR_SPC .EQ. 0 ) DEALLOCATE ( A_NR_SPC )
+         IF ( N_A_TR_SPC .EQ. 0 ) DEALLOCATE ( A_TR_SPC )
 
          END SUBROUTINE A_CONC_DEFN
 

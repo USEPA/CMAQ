@@ -51,9 +51,14 @@ C   18 Mar 16 J.Young: Add "INTENT" attribute; remove commented out code;
 C                      rearrange logic for efficiency
 C-----------------------------------------------------------------------
 
-      USE GRID_CONF           ! horizontal & vertical domain specifications
-      USE CGRID_SPCS          ! CGRID mechanism species
-      USE UTILIO_DEFN
+      USE GRID_CONF, ONLY:  NCOLS, NROWS, NLAYS
+      USE CGRID_SPCS, ONLY: N_GC_SPC, GC_STRT, GC_SPC, 
+     &                      N_AE_SPC, AE_STRT, AE_SPC,
+     &                      N_NR_SPC, NR_STRT, NR_SPC,
+     &                      N_TR_SPC, TR_STRT, TR_SPC
+      USE RUNTIME_VARS, ONLY: LOGDEV, OUTDEV, CMYPE, APPL_NAME
+
+      USE UTILIO_DEFN, ONLY: GETEFILE
 #ifdef parallel
       USE SE_MODULES          ! stenex (using SE_GLOBAL_SUM_MODULE)
 #else
@@ -115,8 +120,8 @@ C-----------------------------------------------------------------------
             DO S = GC_STRT, GC_STRT - 1 + N_GC_SPC
                V = V + 1
                DO L = 1, NLAYS
-                  DO R = 1, MY_NROWS
-                     DO C = 1, MY_NCOLS
+                  DO R = 1, NROWS
+                     DO C = 1, NCOLS
                         DBL_CKSUM = DBL_CKSUM + CGRID( C,R,L,S )
                         IF ( CGRID( C,R,L,S ) .LT. CMIN ) THEN
                            IF ( EXFLG ) THEN
@@ -151,8 +156,8 @@ C-----------------------------------------------------------------------
             DO S = AE_STRT, AE_STRT - 1 + N_AE_SPC
                V = V + 1
                DO L = 1, NLAYS
-                  DO R = 1, MY_NROWS
-                     DO C = 1, MY_NCOLS
+                  DO R = 1, NROWS
+                     DO C = 1, NCOLS
                         DBL_CKSUM = DBL_CKSUM + CGRID( C,R,L,S )
                         IF ( CGRID( C,R,L,S ) .LT. CMIN ) THEN
                            IF ( EXFLG ) THEN
@@ -187,8 +192,8 @@ C-----------------------------------------------------------------------
             DO S = NR_STRT, NR_STRT - 1 + N_NR_SPC
                V = V + 1
                DO L = 1, NLAYS
-                  DO R = 1, MY_NROWS
-                     DO C = 1, MY_NCOLS
+                  DO R = 1, NROWS
+                     DO C = 1, NCOLS
                         DBL_CKSUM = DBL_CKSUM + CGRID( C,R,L,S )
                         IF ( CGRID( C,R,L,S ) .LT. CMIN ) THEN
                            IF ( EXFLG ) THEN
@@ -223,8 +228,8 @@ C-----------------------------------------------------------------------
             DO S = TR_STRT, TR_STRT - 1 + N_TR_SPC
                V = V + 1
                DO L = 1, NLAYS
-                  DO R = 1, MY_NROWS
-                     DO C = 1, MY_NCOLS
+                  DO R = 1, NROWS
+                     DO C = 1, NCOLS
                         DBL_CKSUM = DBL_CKSUM + CGRID( C,R,L,S )
                         IF ( CGRID( C,R,L,S ) .LT. CMIN ) THEN
                            IF ( EXFLG ) THEN
@@ -271,7 +276,7 @@ C-----------------------------------------------------------------------
          IF ( ( GC_CKSUM .NE. GC_CKSUM ) .OR. ( GC_CKSUM*2. .EQ. GC_CKSUM ) .OR.
      &        ( AE_CKSUM .NE. AE_CKSUM ) .OR. ( AE_CKSUM*2. .EQ. AE_CKSUM ) .OR.
      &        ( NR_CKSUM .NE. NR_CKSUM ) .OR. ( NR_CKSUM*2. .EQ. NR_CKSUM ) ) THEN
-              WRITE( OUTDEV, '(7x,A,A)' ),'NaN or Infitinity detected on processor ',TRIM(CMYPE)
+              WRITE( OUTDEV, '(7x,A,A)' ),'NaN or Infinity detected on processor ',TRIM(CMYPE)
               WRITE( OUTDEV,1008 ) SCIPROC,GC_CKSUM/LCELLS,AE_CKSUM/LCELLS,NR_CKSUM/LCELLS
          END IF
  
@@ -285,7 +290,7 @@ C-----------------------------------------------------------------------
      &        ( AE_CKSUM .NE. AE_CKSUM ) .OR. ( AE_CKSUM*2. .EQ. AE_CKSUM ) .OR.
      &        ( NR_CKSUM .NE. NR_CKSUM ) .OR. ( NR_CKSUM*2. .EQ. NR_CKSUM ) .OR.
      &        ( TR_CKSUM .NE. TR_CKSUM ) .OR. ( TR_CKSUM*2. .EQ. TR_CKSUM ) ) THEN
-              WRITE( OUTDEV, '(7x,A,A)' ),'NaN or Infitinity detected on processor ',TRIM(CMYPE)
+              WRITE( OUTDEV, '(7x,A,A)' ),'NaN or Infinity detected on processor ',TRIM(CMYPE)
               WRITE( OUTDEV,1009 ) SCIPROC,GC_CKSUM/LCELLS,AE_CKSUM/LCELLS,NR_CKSUM/LCELLS,TR_CKSUM/LCELLS
          END IF
       END IF

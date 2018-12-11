@@ -73,7 +73,9 @@ C-----------------------------------------------------------------------
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
 #endif
+#ifdef parallel
       USE VERTEXT_MODULE
+#endif
 
       IMPLICIT NONE
 
@@ -206,7 +208,9 @@ C Test opening existing conc file for update
          ! Open the file new
          CALL SUBST_BARRIER
          CALL OPCONC ( STDATE, STTIME, TSTEP( 1 ) )
+#ifdef parallel
          CALL OPVEXT ( STDATE, STTIME, TSTEP( 1 ) )
+#endif
       END IF
 
       CALL WR_INIT ( CGRID, STDATE, STTIME, TSTEP( 1 ) )
