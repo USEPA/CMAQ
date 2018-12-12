@@ -157,8 +157,6 @@ c namelist variables
             TYPE SPECIES_DATA_REG_1
                 CHARACTER( 16 ) :: SPECIES_NAME  ! CMAQ Species Name
                 REAL            :: MOLWT         ! g mol-1
-                CHARACTER( 16 ) :: EMIS_SURR     ! Default Emissions Surrogate
-                REAL            :: EMIS_DEF_FAC  ! Default Emissions Scale Factor
                 CHARACTER( 16 ) :: ICBC_SURR     ! ICBC Surrogate
                 REAL            :: ICBC_FAC      ! ICBC Scale Factor
                 CHARACTER( 16 ) :: DEPV_SURR     ! Dry Deposition Surrogate
@@ -177,8 +175,6 @@ c namelist variables
             TYPE SPECIES_DATA_REG_2
                 CHARACTER( 16 ) :: SPECIES_NAME  ! CMAQ Species Name
                 REAL            :: MOLWT         ! g mol-1
-                CHARACTER( 16 ) :: EMIS_SURR     ! Default Emissions Surrogate
-                REAL            :: EMIS_DEF_FAC  ! Default Emissions Scale Factor
                 CHARACTER( 16 ) :: ICBC_SURR     ! ICBC Surrogate
                 REAL            :: ICBC_FAC      ! ICBC Scale Factor
                 CHARACTER( 16 ) :: DEPV_SURR     ! Dry Deposition Surrogate
@@ -196,8 +192,6 @@ c namelist variables
             TYPE SPECIES_DATA_REG_3
                 CHARACTER( 16 ) :: SPECIES_NAME  ! CMAQ Species Name
                 REAL            :: MOLWT         ! g mol-1
-                CHARACTER( 16 ) :: EMIS_SURR     ! Default Emissions Surrogate
-                REAL            :: EMIS_DEF_FAC  ! Default Emissions Scale Factor
                 CHARACTER( 16 ) :: ICBC_SURR     ! ICBC Surrogate
                 REAL            :: ICBC_FAC      ! ICBC Scale Factor
                 CHARACTER( 16 ) :: DEPV_SURR     ! Dry Deposition Surrogate
