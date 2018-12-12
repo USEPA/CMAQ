@@ -59,8 +59,6 @@
       INTEGER      L, K, KD, VAR, SPC ! loop counters
       INTEGER      STATUS
 
-      INTEGER, SAVE :: A_NLYS
-
       INTEGER TSTEP_RF, NTHIK_RF, NCOLS_RF, NROWS_RF, GDTYP_RF
       REAL( 8 ) :: P_ALP_RF, P_BET_RF, P_GAM_RF
       REAL( 8 ) :: XCENT_RF, YCENT_RF
@@ -83,9 +81,6 @@
  
 
 ! Try to open existing file for update
-
-      A_NLYS = ACONC_ELEV - ACONC_BLEV + 1
-
       OK = OPEN3( A_CONC_1, FSRDWR3, PNAME )
       CALL SUBST_GLOBAL_LOGICAL( OK, 'AND' )
       IF ( .NOT. OK ) THEN
@@ -112,7 +107,7 @@
             SDATE3D = MDATE
             STIME3D = MTIME
             TSTEP3D = TSTEP
-            NVARS3D = N_ASPCS
+            NVARS3D = N_ACONC_VARS
             NLAYS3D = A_NLYS
 
             L = 0
@@ -154,7 +149,7 @@
                VTYPE3D( VAR ) = M3REAL
                VNAME3D( VAR ) = A_GC_SPC( SPC )
                UNITS3D( VAR ) = 'ppmV'
-               VDESC3D( VAR ) = 'Variable ' // VNAME3D( VAR )
+               VDESC3D( VAR ) = 'Average Molar Mixing Ratio of ' // VNAME3D( VAR )
             END DO
 
             DO SPC = 1, N_A_AE_SPC
@@ -168,7 +163,7 @@
                ELSE
                   UNITS3D( VAR ) = 'ug m-3'
                END IF
-               VDESC3D( VAR ) = 'Variable ' // VNAME3D( VAR )
+               VDESC3D( VAR ) = 'Average Concentrations of ' // VNAME3D( VAR )
             END DO
 
             DO SPC = 1, N_A_NR_SPC
@@ -176,7 +171,7 @@
                VTYPE3D( VAR ) = M3REAL
                VNAME3D( VAR ) = A_NR_SPC( SPC )
                UNITS3D( VAR ) = 'ppmV'
-               VDESC3D( VAR ) = 'Variable ' // VNAME3D( VAR )
+               VDESC3D( VAR ) = 'Average Molar Mixing Ratio of ' // VNAME3D( VAR )
             END DO
 
             DO SPC = 1, N_A_TR_SPC
@@ -184,8 +179,40 @@
                VTYPE3D( VAR ) = M3REAL
                VNAME3D( VAR ) = A_TR_SPC( SPC )
                UNITS3D( VAR ) = 'ppmV'
-               VDESC3D( VAR ) = 'Variable ' // VNAME3D( VAR )
+               VDESC3D( VAR ) = 'Average Molar Mixing Ratio of ' // VNAME3D( VAR )
             END DO
+
+            IF ( L_ACONC_WVEL ) THEN
+               VAR = VAR + 1 
+               VTYPE3D( VAR ) = M3REAL
+               VNAME3D( VAR ) = 'WVEL'
+               UNITS3D( VAR ) = 'm s-1'
+               VDESC3D( VAR ) = 'Vertical Wind Velocity'
+            END IF
+             
+            IF ( L_ACONC_RH ) THEN
+               VAR = VAR + 1 
+               VTYPE3D( VAR ) = M3REAL
+               VNAME3D( VAR ) = 'RH'
+               UNITS3D( VAR ) = '1'
+               VDESC3D( VAR ) = 'Fractional Relative Humidity'
+            END IF
+             
+            IF ( L_ACONC_TA ) THEN
+               VAR = VAR + 1 
+               VTYPE3D( VAR ) = M3REAL
+               VNAME3D( VAR ) = 'TA'
+               UNITS3D( VAR ) = 'K'
+               VDESC3D( VAR ) = 'Air Temperature'
+            END IF
+          
+            IF ( L_ACONC_PRES ) THEN
+               VAR = VAR + 1 
+               VTYPE3D( VAR ) = M3REAL
+               VNAME3D( VAR ) = 'PRES'
+               UNITS3D( VAR ) = 'Pa'
+               VDESC3D( VAR ) = 'Air Pressure'
+            END IF
 
             DO SPC = 1, VAR
                WRITE( LOGDEV,'( 7X, "=> VNAME3D(", I3, " ): ", A )' )
@@ -235,9 +262,9 @@
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
-         IF ( N_ASPCS .NE. NVARS3D ) THEN
+         IF ( N_ACONC_VARS .NE. NVARS3D ) THEN
             WRITE( XMSG, '( A, 2I6 )' )
-     &      'Number of variables don''t match file: ', N_ASPCS, NVARS3D
+     &      'Number of variables don''t match file: ', N_ACONC_VARS, NVARS3D
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
          END IF
 

@@ -60,8 +60,6 @@ C Local Variables:
 
       CHARACTER( 16 ) ::  PNAME = 'PA_MKHDR'  ! Subroutine Name
 
-      LOGICAL, SAVE :: FIRSTIME = .TRUE.
-
 C-----------------------------------------------------------------------
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc

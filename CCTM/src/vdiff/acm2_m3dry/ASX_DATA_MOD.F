@@ -92,7 +92,7 @@ C-------------------------------------------------------------------------------
          Real,    Allocatable :: PRSFC    ( :,: )  ! surface pressure [Pa]
          Real,    Allocatable :: Q2       ( :,: )  ! 2 meter water vapor mixing ratio [kg/kg]
          Real,    Allocatable :: QSS_GRND ( :,: )  ! ground saturation water vapor mixing ratio [kg/kg]
-         Real,    Allocatable :: RH       ( :,: )  ! relative humidity [ratio]
+         Real,    Allocatable :: RH2      ( :,: )  ! relative humidity [percent]
          Real,    Allocatable :: RA       ( :,: )  ! aerodynamic resistance [s/m]
          Real,    Allocatable :: RS       ( :,: )  ! stomatal resistance [s/m]
          Real,    Allocatable :: RC       ( :,: )  ! convective precipitation [cm]
@@ -135,6 +135,7 @@ C-------------------------------------------------------------------------------
          Real,    Allocatable :: QC       ( :,:,: )  ! cloud water mixing ratio
          Real,    Allocatable :: THETAV   ( :,:,: )  ! potential temp
          Real,    Allocatable :: TA       ( :,:,: )  ! temperature (K)
+         Real,    Allocatable :: RH       ( :,:,: )  ! relative humidity [ratio]
          Real,    Allocatable :: ZH       ( :,:,: )  ! mid-layer height above ground [m]
          Real,    Allocatable :: ZF       ( :,:,: )  ! layer height [m]
          Real,    Allocatable :: DZF      ( :,:,: )  ! layer thickness
@@ -352,16 +353,16 @@ C Land use information:
       DATA subname(108), dif0(108), ar(108), meso(108), lebas(108) / 'METHYLHYDROPEROX',0.0853,   10.0, 0.3,   49.0 / ! ISPX diffusion should be ~ 0.0710 according to Wolfe and thornton 2011 ACP
       DATA subname(109), dif0(109), ar(109), meso(109), lebas(109) / 'METHYLHYDROPEROX',0.1371,   10.0, 0.3,   49.0 / ! ROOH diffusion should be ~ 0.0710 according to Wolfe and thornton 2011 ACP
       DATA subname(110), dif0(110), ar(110), meso(110), lebas(110) / 'ADIPIC_ACID     ',0.0646,90000.0, 0.0,   63.0 / ! LVPCSOG
-      DATA subname(111), dif0(111), ar(111), meso(111), lebas(111) / 'ADIPIC_ACID     ',0.0456,13818.0, 0.0,   63.0 / ! VIVPO1
-      DATA subname(112), dif0(112), ar(112), meso(112), lebas(112) / 'ADIPIC_ACID     ',0.0766, 1830.5, 0.0,   63.0 / ! VLVOO1
-      DATA subname(113), dif0(113), ar(113), meso(113), lebas(113) / 'ADIPIC_ACID     ',0.0766,  241.0, 0.0,   63.0 / ! VLVOO2
-      DATA subname(114), dif0(114), ar(114), meso(114), lebas(114) / 'ADIPIC_ACID     ',0.0533,   31.8, 0.0,   63.0 / ! VLVPO1
-      DATA subname(115), dif0(115), ar(115), meso(115), lebas(115) / 'ADIPIC_ACID     ',0.0771,    4.2, 0.0,   63.0 / ! VSVOO1
-      DATA subname(116), dif0(116), ar(116), meso(116), lebas(116) / 'ADIPIC_ACID     ',0.0771,71624.8, 0.0,   63.0 / ! VSVOO2
-      DATA subname(117), dif0(117), ar(117), meso(117), lebas(117) / 'ADIPIC_ACID     ',0.0775, 9042.0, 0.0,   63.0 / ! VSVOO3
-      DATA subname(118), dif0(118), ar(118), meso(118), lebas(118) / 'ADIPIC_ACID     ',0.0511, 1133.9, 0.0,   63.0 / ! VSVPO1
-      DATA subname(119), dif0(119), ar(119), meso(119), lebas(119) / 'ADIPIC_ACID     ',0.0493,   18.1, 0.0,   63.0 / ! VSVPO2
-      DATA subname(120), dif0(120), ar(120), meso(120), lebas(120) / 'ADIPIC_ACID     ',0.0474,    2.3, 0.0,   63.0 / ! VSVPO3
+      DATA subname(111), dif0(111), ar(111), meso(111), lebas(111) / 'ADIPIC_ACID     ',0.0456,    4.2, 0.0,   63.0 / ! VIVPO1
+      DATA subname(112), dif0(112), ar(112), meso(112), lebas(112) / 'ADIPIC_ACID     ',0.0766,71624.8, 0.0,   63.0 / ! VLVOO1
+      DATA subname(113), dif0(113), ar(113), meso(113), lebas(113) / 'ADIPIC_ACID     ',0.0766, 9042.0, 0.0,   63.0 / ! VLVOO2
+      DATA subname(114), dif0(114), ar(114), meso(114), lebas(114) / 'ADIPIC_ACID     ',0.0533,13818.0, 0.0,   63.0 / ! VLVPO1
+      DATA subname(115), dif0(115), ar(115), meso(115), lebas(115) / 'ADIPIC_ACID     ',0.0771, 1133.9, 0.0,   63.0 / ! VSVOO1
+      DATA subname(116), dif0(116), ar(116), meso(116), lebas(116) / 'ADIPIC_ACID     ',0.0771,   18.1, 0.0,   63.0 / ! VSVOO2
+      DATA subname(117), dif0(117), ar(117), meso(117), lebas(117) / 'ADIPIC_ACID     ',0.0775,    2.3, 0.0,   63.0 / ! VSVOO3
+      DATA subname(118), dif0(118), ar(118), meso(118), lebas(118) / 'ADIPIC_ACID     ',0.0511, 1830.5, 0.0,   63.0 / ! VSVPO1
+      DATA subname(119), dif0(119), ar(119), meso(119), lebas(119) / 'ADIPIC_ACID     ',0.0493,  241.0, 0.0,   63.0 / ! VSVPO2
+      DATA subname(120), dif0(120), ar(120), meso(120), lebas(120) / 'ADIPIC_ACID     ',0.0474,   31.8, 0.0,   63.0 / ! VSVPO3
       DATA subname(121), dif0(121), ar(121), meso(121), lebas(121) / 'FORMIC_ACID     ',0.1411,   20.0, 0.0,   63.0 / ! FACD
       DATA subname(122), dif0(122), ar(122), meso(122), lebas(122) / 'MEK             ',0.0859,    1.0, 0.0,  108.2 / ! KET different in different mechanisms
       DATA subname(123), dif0(123), ar(123), meso(123), lebas(123) / 'ETHENE          ',0.1366,    1.0, 0.0,   58.1 / ! ETH
@@ -472,7 +473,7 @@ C-----------------------------------------------------------------------
      &             Met_Data%PRSFC    ( NCOLS,NROWS ),
      &             Met_Data%Q2       ( NCOLS,NROWS ),
      &             Met_Data%QSS_GRND ( NCOLS,NROWS ),
-     &             Met_Data%RH       ( NCOLS,NROWS ),
+     &             Met_Data%RH2      ( NCOLS,NROWS ),
      &             Met_Data%RA       ( NCOLS,NROWS ),
      &             Met_Data%RS       ( NCOLS,NROWS ),
      &             Met_Data%RC       ( NCOLS,NROWS ),
@@ -511,6 +512,7 @@ C-----------------------------------------------------------------------
      &             Met_Data%QC       ( NCOLS,NROWS,NLAYS ),
      &             Met_Data%THETAV   ( NCOLS,NROWS,NLAYS ),
      &             Met_Data%TA       ( NCOLS,NROWS,NLAYS ),
+     &             Met_Data%RH       ( NCOLS,NROWS,NLAYS ),
      &             Met_Data%ZH       ( NCOLS,NROWS,NLAYS ),
      &             Met_Data%ZF       ( NCOLS,NROWS,NLAYS ),
      &             Met_Data%DZF      ( NCOLS,NROWS,NLAYS ),
@@ -988,14 +990,6 @@ C Soil vars
                XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_2D
                Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             End If
-
-!            VNAME = 'SOIT2'
-!            If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
-!     &                          STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
-!     &                          JDATE, JTIME, Met_Data%SOIT2 ) ) Then
-!               XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_2D
-!               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-!            End If
          End If
 
          VNAME = 'SOIT1'
@@ -1223,13 +1217,22 @@ C Met_cro_2D variables that have recently changed due to MCIP or WRF/CMAQ
          Elsewhere
             Es_Air = vp0 *Exp( svp2 * ( Met_Data%TEMP2 -stdtemp ) / ( Met_Data%TEMP2 -svp3 ) ) 
          End Where
-         Met_Data%RH = Met_Data%Q2 / ( Es_Air * 0.622 / ( Met_Data%PRSFC - Es_Air ) ) * 100.0
-         Where( Met_Data%RH .Gt. 100.0 )
-            Met_Data%RH = 100.0
-         Elsewhere( Met_Data%RH .lt. 0.0 )
-            Met_Data%RH = 0.0
+
+         ! Calculate Relative Humidity at 2m
+         Met_Data%RH2 = Met_Data%Q2 / ( Es_Air * 0.622 / ( Met_Data%PRSFC - Es_Air ) ) * 100.0
+         Where( Met_Data%RH2 .Gt. 100.0 )
+            Met_Data%RH2 = 100.0
+         Elsewhere( Met_Data%RH2 .lt. 0.0 )
+            Met_Data%RH2 = 0.0
          End Where
          Nullify( Es_Air )
+
+         ! Calculate 3D Relative Humidity at Grid Scale
+         MET_DATA%RH = MET_DATA%QV * MET_DATA%PRES / ( MET_DATA%QV + 0.622015 ) /
+     &                 ( 610.94 * EXP( 17.625 * ( MET_DATA%TA - 273.15 ) / 
+     &                                 ( MET_DATA%TA - 273.15 + 243.04 ) ) )
+         MET_DATA%RH = MIN( 0.9999, MAX( 0.001, MET_DATA%RH ) )
+
 
 C-------------------------------- MET_DOT_3D --------------------------------
          If ( .Not. INTERPX( MET_DOT_3D, vname_uc, PNAME,
