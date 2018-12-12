@@ -61,25 +61,21 @@ c number of species in CGRID
 
 c surrogate species
       integer,                      save :: n_gc_icbc = 0, n_ae_icbc = 0, n_nr_icbc = 0, n_tr_icbc = 0,
-     &                                      n_gc_emis = 0, n_ae_emis = 0, n_nr_emis = 0, n_tr_emis = 0,
      &                                      n_gc_depv = 0, n_ae_depv = 0, n_nr_depv = 0, n_tr_depv = 0,
      &                                      n_gc_scav = 0, n_ae_scav = 0, n_nr_scav = 0, n_tr_scav = 0,
      &                                      n_gc_g2ae = 0,                n_nr_n2ae = 0, n_tr_t2ae = 0,
      &                                      n_gc_g2aq = 0, n_ae_a2aq = 0, n_nr_n2aq = 0, n_tr_t2aq = 0
       character( 16 ), allocatable, save :: gc_icbc( : ), ae_icbc( : ), nr_icbc( : ), tr_icbc( : ),
-     &                                      gc_emis( : ), ae_emis( : ), nr_emis( : ), tr_emis( : ),
      &                                      gc_depv( : ), ae_depv( : ), nr_depv( : ), tr_depv( : ),
      &                                      gc_scav( : ), ae_scav( : ), nr_scav( : ), tr_scav( : ),
      &                                      gc_g2ae( : ),               nr_n2ae( : ), tr_t2ae( : ),
      &                                      gc_g2aq( : ), ae_a2aq( : ), nr_n2aq( : ), tr_t2aq( : )
       integer, allocatable,         save :: gc_icbc_map( : ), ae_icbc_map( : ), nr_icbc_map( : ), tr_icbc_map( : ),
-     &                                      gc_emis_map( : ), ae_emis_map( : ), nr_emis_map( : ), tr_emis_map( : ),
      &                                      gc_depv_map( : ), ae_depv_map( : ), nr_depv_map( : ), tr_depv_map( : ),
      &                                      gc_scav_map( : ), ae_scav_map( : ), nr_scav_map( : ), tr_scav_map( : ),
      &                                      gc_g2ae_map( : ),                   nr_n2ae_map( : ), tr_t2ae_map( : ),
      &                                      gc_g2aq_map( : ), ae_a2aq_map( : ), nr_n2aq_map( : ), tr_t2aq_map( : )
       real, allocatable,            save :: gc_icbc_fac( : ), ae_icbc_fac( : ), nr_icbc_fac( : ), tr_icbc_fac( : ),
-     &                                      gc_emis_fac( : ), ae_emis_fac( : ), nr_emis_fac( : ), tr_emis_fac( : ),
      &                                      gc_depv_fac( : ), ae_depv_fac( : ), nr_depv_fac( : ), tr_depv_fac( : ),
      &                                      gc_scav_fac( : ), ae_scav_fac( : ), nr_scav_fac( : ), tr_scav_fac( : )
 
@@ -234,7 +230,6 @@ c-------------------------------------------------------------------------------
             ! Allocate and Initialize Permanent Variables
             allocate ( 
      &      gc_spc( spc_dim ), gc_molwt( spc_dim ),
-     &      gc_emis( spc_dim ), gc_emis_map( spc_dim ), gc_emis_fac( spc_dim ),
      &      gc_icbc( spc_dim ), gc_icbc_map( spc_dim ), gc_icbc_fac( spc_dim ),
      &      gc_depv( spc_dim ), gc_depv_map( spc_dim ), gc_depv_fac( spc_dim ),
      &      gc_scav( spc_dim ), gc_scav_map( spc_dim ), gc_scav_fac( spc_dim ),
@@ -247,7 +242,6 @@ c-------------------------------------------------------------------------------
      &      stat = ios )
 
             gc_spc = bl; gc_molwt = 0.0                        !  .
-            gc_emis = bl; gc_emis_map = 0; gc_emis_fac = 0.0   !  .
             gc_icbc = bl; gc_icbc_map = 0; gc_icbc_fac = 0.0   !  .
             gc_depv = bl; gc_depv_map = 0; gc_depv_fac = 0.0   !  .
             gc_scav = bl; gc_scav_map = 0; gc_scav_fac = 0.0   ! array
@@ -260,7 +254,7 @@ c-------------------------------------------------------------------------------
 
 
             ! Pass Data from GC Namelist to Internal Variables
-            N_GC_SPC = 0;  N_GC_EMIS = 0; N_GC_ICBC = 0; N_GC_DEPV = 0; N_GC_SCAV = 0
+            N_GC_SPC = 0;  N_GC_ICBC = 0; N_GC_DEPV = 0; N_GC_SCAV = 0
             N_GC_G2AE = 0; N_GC_G2AQ = 0; N_GC_TRNS = 0; N_GC_DDEP = 0; N_GC_WDEP = 0
             N_GC_CONC = 0
 
@@ -272,14 +266,6 @@ c-------------------------------------------------------------------------------
 
                 GC_SPC( IGC )      = GC_SPECIES_DATA( IGC )%SPECIES_NAME
                 GC_MOLWT( IGC )    = GC_SPECIES_DATA( IGC )%MOLWT
-
-                ! Gas Emissions
-                IF ( GC_SPECIES_DATA( IGC )%EMIS_SURR .NE. '' ) THEN
-                    N_GC_EMIS = N_GC_EMIS + 1
-                    GC_EMIS( N_GC_EMIS )     = GC_SPECIES_DATA( IGC )%EMIS_SURR 
-                    GC_EMIS_MAP( N_GC_EMIS ) = IGC
-                    GC_EMIS_FAC( N_GC_EMIS ) = GC_SPECIES_DATA( IGC )%EMIS_DEF_FAC
-                END IF
 
                 ! Gas ICBCs
                 IF ( GC_SPECIES_DATA( IGC )%ICBC_SURR .NE. '' ) THEN
@@ -369,7 +355,6 @@ c-------------------------------------------------------------------------------
             ! Allocate and Initialize Permanent Variables
             allocate ( 
      &      ae_spc( spc_dim ), ae_molwt( spc_dim ),
-     &      ae_emis( spc_dim ), ae_emis_map( spc_dim ), ae_emis_fac( spc_dim ),
      &      ae_icbc( spc_dim ), ae_icbc_map( spc_dim ), ae_icbc_fac( spc_dim ),
      &      ae_depv( spc_dim ), ae_depv_map( spc_dim ), ae_depv_fac( spc_dim ),
      &      ae_scav( spc_dim ), ae_scav_map( spc_dim ), ae_scav_fac( spc_dim ),
@@ -391,7 +376,7 @@ c-------------------------------------------------------------------------------
             ae_conc = bl; ae_conc_map = 0                      !  .
 
             ! Pass Data from AE Namelist to Internal Variables
-            N_AE_SPC = 0;  N_AE_EMIS = 0; N_AE_ICBC = 0; N_AE_DEPV = 0; N_AE_SCAV = 0
+            N_AE_SPC = 0;  N_AE_ICBC = 0; N_AE_DEPV = 0; N_AE_SCAV = 0
             N_AE_A2AQ = 0; N_AE_TRNS = 0; N_AE_DDEP = 0; N_AE_WDEP = 0
             N_AE_CONC = 0
 
@@ -403,14 +388,6 @@ c-------------------------------------------------------------------------------
 
                 AE_SPC( IAE )      = AE_SPECIES_DATA( IAE )%SPECIES_NAME
                 AE_MOLWT( IAE )    = AE_SPECIES_DATA( IAE )%MOLWT
-
-                ! Aerosol Emissions
-                IF ( AE_SPECIES_DATA( IAE )%EMIS_SURR .NE. '' ) THEN
-                    N_AE_EMIS = N_AE_EMIS + 1
-                    AE_EMIS( N_AE_EMIS )     = AE_SPECIES_DATA( IAE )%EMIS_SURR 
-                    AE_EMIS_MAP( N_AE_EMIS ) = IAE
-                    AE_EMIS_FAC( N_AE_EMIS ) = AE_SPECIES_DATA( IAE )%EMIS_DEF_FAC
-                END IF
 
                 ! Aerosol ICBCs
                 IF ( AE_SPECIES_DATA( IAE )%ICBC_SURR .NE. '' ) THEN
@@ -493,7 +470,6 @@ c-------------------------------------------------------------------------------
             ! Allocate and Initialize Permanent Variables
             allocate ( 
      &      NR_spc( spc_dim ), NR_molwt( spc_dim ),
-     &      NR_emis( spc_dim ), NR_emis_map( spc_dim ), NR_emis_fac( spc_dim ),
      &      NR_icbc( spc_dim ), NR_icbc_map( spc_dim ), NR_icbc_fac( spc_dim ),
      &      NR_depv( spc_dim ), NR_depv_map( spc_dim ), NR_depv_fac( spc_dim ),
      &      NR_scav( spc_dim ), NR_scav_map( spc_dim ), NR_scav_fac( spc_dim ),
@@ -517,7 +493,7 @@ c-------------------------------------------------------------------------------
             NR_conc = bl; NR_conc_map = 0                      !  .
 
             ! Pass Data from NR Namelist to Internal Variables
-            N_NR_SPC = 0;  N_NR_EMIS = 0; N_NR_ICBC = 0; N_NR_DEPV = 0; N_NR_SCAV = 0
+            N_NR_SPC = 0;  N_NR_ICBC = 0; N_NR_DEPV = 0; N_NR_SCAV = 0
             N_NR_N2AE = 0; N_NR_N2AQ = 0; N_NR_TRNS = 0; N_NR_DDEP = 0; N_NR_WDEP = 0
             N_NR_CONC = 0
 
@@ -529,14 +505,6 @@ c-------------------------------------------------------------------------------
 
                 NR_SPC( INR )      = NR_SPECIES_DATA( INR )%SPECIES_NAME
                 NR_MOLWT( INR )    = NR_SPECIES_DATA( INR )%MOLWT
-
-                ! Nonreactive Emissions
-                IF ( NR_SPECIES_DATA( INR )%EMIS_SURR .NE. '' ) THEN
-                    N_NR_EMIS = N_NR_EMIS + 1
-                    NR_EMIS( N_NR_EMIS )     = NR_SPECIES_DATA( INR )%EMIS_SURR 
-                    NR_EMIS_MAP( N_NR_EMIS ) = INR
-                    NR_EMIS_FAC( N_NR_EMIS ) = NR_SPECIES_DATA( INR )%EMIS_DEF_FAC
-                END IF
 
                 ! Nonreactive ICBCs
                 IF ( NR_SPECIES_DATA( INR )%ICBC_SURR .NE. '' ) THEN
@@ -625,7 +593,6 @@ c-------------------------------------------------------------------------------
             ! Allocate and Initialize Permanent Variables
             allocate ( 
      &      TR_spc( spc_dim ), TR_molwt( spc_dim ),
-     &      TR_emis( spc_dim ), TR_emis_map( spc_dim ), TR_emis_fac( spc_dim ),
      &      TR_icbc( spc_dim ), TR_icbc_map( spc_dim ), TR_icbc_fac( spc_dim ),
      &      TR_depv( spc_dim ), TR_depv_map( spc_dim ), TR_depv_fac( spc_dim ),
      &      TR_scav( spc_dim ), TR_scav_map( spc_dim ), TR_scav_fac( spc_dim ),
@@ -651,7 +618,7 @@ c-------------------------------------------------------------------------------
             TR_conc = bl; TR_conc_map = 0                      !  .
 
             ! Pass Data from TR Namelist to Internal Variables
-            N_TR_SPC = 0;  N_TR_EMIS = 0; N_TR_ICBC = 0; N_TR_DEPV = 0; N_TR_SCAV = 0
+            N_TR_SPC = 0;  N_TR_ICBC = 0; N_TR_DEPV = 0; N_TR_SCAV = 0
             N_TR_T2AE = 0; N_TR_T2AQ = 0; N_TR_ADV = 0; N_TR_DDEP = 0; N_TR_WDEP = 0
             N_TR_CONC = 0; N_TR_DIFF = 0
 
@@ -663,14 +630,6 @@ c-------------------------------------------------------------------------------
 
                 TR_SPC( ITR )      = TR_SPECIES_DATA( ITR )%SPECIES_NAME
                 TR_MOLWT( ITR )    = TR_SPECIES_DATA( ITR )%MOLWT
-
-                ! Tracer Emissions
-                IF ( TR_SPECIES_DATA( ITR )%EMIS_SURR .NE. '' ) THEN
-                    N_TR_EMIS = N_TR_EMIS + 1
-                    TR_EMIS( N_TR_EMIS )     = TR_SPECIES_DATA( ITR )%EMIS_SURR 
-                    TR_EMIS_MAP( N_TR_EMIS ) = ITR
-                    TR_EMIS_FAC( N_TR_EMIS ) = TR_SPECIES_DATA( ITR )%EMIS_DEF_FAC
-                END IF
 
                 ! Tracer ICBCs
                 IF ( TR_SPECIES_DATA( ITR )%ICBC_SURR .NE. '' ) THEN
