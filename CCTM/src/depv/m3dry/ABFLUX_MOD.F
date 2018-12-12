@@ -164,7 +164,7 @@ C                          '12345678901234567890'
      &                     'Canola_ir           ',  ! 40
      &                     'Beans               ',  ! 41
      &                     'Beans_ir            ' / ! 42
-
+ 
 ! Find the Canadian fertilizer factor based off of Sheppard et al 2010 Canadian J. Soil Sci. & 
 ! Zhang et al. 2010 JGR 
          Select Case( jdate )
@@ -497,7 +497,7 @@ C-------------------------------------------------------------------------------
          Return
          
          End Subroutine Init_ABFlux
-
+                  
 !------------------------------------------------------------------------------
 ! Subroutine to get the soil and canopy compensation point
 !------------------------------------------------------------------------------          
@@ -530,7 +530,7 @@ C-------------------------------------------------------------------------------
          Real,    Intent( OUT ) :: pvd
          Real,    Intent( OUT ) :: lnh3
          Real,    Intent( OUT ) :: femis
-                  
+         
          Real( 8 )              :: aq           ! Quadradic equation variable
          Real( 8 )              :: bq           ! Quadradic equation variable
          Real                   :: cnh3c        ! In canopy NH3 concentration [ppm]
@@ -574,7 +574,7 @@ C-------------------------------------------------------------------------------
          Real                   :: frac_sol2    ! Fraction of NHx in solution layer 2
          Real                   :: cnh3cdep
          Real                   :: cnh3cemis, rcut, gwd
-         
+
          canfrac = 0.5    !exp(-1.)   
 
 !> Compute quasi-laminar boundary layer resistance at the soil surface
@@ -701,28 +701,28 @@ C-------------------------------------------------------------------------------
             cnh3c = (-bq + sqrt( bq**2 - 4.0d0 * aq * cq))/(2.0d0 * aq)  ! this should always yield non-negative result
            
 ! if the compensation point less than zero reset it to zero
-            cnh3c = max( cnh3c, 0.0 ) 
-        
-!-- comput emission componeent using cnh3c from bidi flux for Rcut
+            cnh3c = max( cnh3c, 0.0 )   
+
+!-- compute emission component using cnh3c from bidi flux for Rcut
 !         rcut = rwm + rwx*(cnh3c+1.) + (100.0-max(MET_DATA%RH( c,r ),60.0) + Rb) * MET_DATA%LAI( c,r )
             rcut = rwmb + rwx* cnh3c
             gwd = ( 1.0 - delta )* MET_DATA%LAI( c,r )/rcut
-            cnh3cemis = (gsb * cnh3s + gg1 * cnh3g)/( gt + gwd)         
+            cnh3cemis = (gsb * cnh3s + gg1 * cnh3g)/( gt + gwd)
          else
+            cnh3c = 0.0
+            cnh3cemis = 0.0
 
-             cnh3c = 0.0
-             cnh3cemis = 0.0
-            
          End If  ! lai > 0.0
 
          ddd = ( 1.0 - delta ) / rgnd
      &       + delta / rgw
 
          vdg = 1.0 / ( MET_DATA%RA( c,r ) + rb + 1.0 / ddd )
-         
+
          pvd  = cnh3c * ga * MET_DATA%VEG( c,r )                  ! microg/m2/s
          lnh3  = vdg + MET_DATA%VEG( c,r ) * ( ga - vdg )
-         femis  = ga*(cnh3cemis)*MET_DATA%VEG( c,r )           
+         femis  = ga*(cnh3cemis)*MET_DATA%VEG( c,r ) 
+
 !         if(r.eq.18.and.c.eq.27) then
 !            Write(Logdev,*) ' Bidi-Epic conc'
 !            Write(Logdev,*) cnh3g1,cnh3g2,cnh3g,cnh3s,cnh3c,cnh3
