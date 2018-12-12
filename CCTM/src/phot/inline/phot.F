@@ -481,15 +481,15 @@ C...modules
                 WAVE_LIST( 1:NWAVE ) = WAVE_ENV( 1:NWAVE )
                 N_DIAG_WVL = 0
                  ! first remove identical values
-                DO V = 1, N-1
-                   DO L = (V+1), N
+                DO V = 1, NWAVE-1
+                   DO L = (V+1), NWAVE
                       IF( TRIM( WAVE_LIST( V ) ) .EQ. TRIM( WAVE_LIST( L ) ) )THEN
                          WAVE_LIST( L ) = " "
                       END IF
                    END DO
                 END DO
                  ! Now count number of unique values
-                DO V = 1, N
+                DO V = 1, NWAVE
                    IF( LEN_TRIM( WAVE_LIST( V ) ) .GT. 0 )N_DIAG_WVL = N_DIAG_WVL + 1
                 END DO
                 ALLOCATE ( DIAG_WVL( N_DIAG_WVL ) , STAT = ALLOCSTAT )
@@ -499,7 +499,7 @@ C...modules
                END IF
                 ! Next find unique list value in wavelenght spectrum
                IWL = 0
-               DO V = 1, N
+               DO V = 1, NWAVE
                    IF( LEN_TRIM( WAVE_LIST( V ) ) .LT. 1 )CYCLE
                    IWL = IWL + 1
                    DIAG_WVL( IWL )  = INDEXR ( TRIM( WAVE_LIST( V ) ), NWL, WLTXT )

@@ -353,16 +353,16 @@ C Land use information:
       DATA subname(108), dif0(108), ar(108), meso(108), lebas(108) / 'METHYLHYDROPEROX',0.0853,   10.0, 0.3,   49.0 / ! ISPX diffusion should be ~ 0.0710 according to Wolfe and thornton 2011 ACP
       DATA subname(109), dif0(109), ar(109), meso(109), lebas(109) / 'METHYLHYDROPEROX',0.1371,   10.0, 0.3,   49.0 / ! ROOH diffusion should be ~ 0.0710 according to Wolfe and thornton 2011 ACP
       DATA subname(110), dif0(110), ar(110), meso(110), lebas(110) / 'ADIPIC_ACID     ',0.0646,90000.0, 0.0,   63.0 / ! LVPCSOG
-      DATA subname(111), dif0(111), ar(111), meso(111), lebas(111) / 'ADIPIC_ACID     ',0.0456,13818.0, 0.0,   63.0 / ! VIVPO1
-      DATA subname(112), dif0(112), ar(112), meso(112), lebas(112) / 'ADIPIC_ACID     ',0.0766, 1830.5, 0.0,   63.0 / ! VLVOO1
-      DATA subname(113), dif0(113), ar(113), meso(113), lebas(113) / 'ADIPIC_ACID     ',0.0766,  241.0, 0.0,   63.0 / ! VLVOO2
-      DATA subname(114), dif0(114), ar(114), meso(114), lebas(114) / 'ADIPIC_ACID     ',0.0533,   31.8, 0.0,   63.0 / ! VLVPO1
-      DATA subname(115), dif0(115), ar(115), meso(115), lebas(115) / 'ADIPIC_ACID     ',0.0771,    4.2, 0.0,   63.0 / ! VSVOO1
-      DATA subname(116), dif0(116), ar(116), meso(116), lebas(116) / 'ADIPIC_ACID     ',0.0771,71624.8, 0.0,   63.0 / ! VSVOO2
-      DATA subname(117), dif0(117), ar(117), meso(117), lebas(117) / 'ADIPIC_ACID     ',0.0775, 9042.0, 0.0,   63.0 / ! VSVOO3
-      DATA subname(118), dif0(118), ar(118), meso(118), lebas(118) / 'ADIPIC_ACID     ',0.0511, 1133.9, 0.0,   63.0 / ! VSVPO1
-      DATA subname(119), dif0(119), ar(119), meso(119), lebas(119) / 'ADIPIC_ACID     ',0.0493,   18.1, 0.0,   63.0 / ! VSVPO2
-      DATA subname(120), dif0(120), ar(120), meso(120), lebas(120) / 'ADIPIC_ACID     ',0.0474,    2.3, 0.0,   63.0 / ! VSVPO3
+      DATA subname(111), dif0(111), ar(111), meso(111), lebas(111) / 'ADIPIC_ACID     ',0.0456,    4.2, 0.0,   63.0 / ! VIVPO1
+      DATA subname(112), dif0(112), ar(112), meso(112), lebas(112) / 'ADIPIC_ACID     ',0.0766,71624.8, 0.0,   63.0 / ! VLVOO1
+      DATA subname(113), dif0(113), ar(113), meso(113), lebas(113) / 'ADIPIC_ACID     ',0.0766, 9042.0, 0.0,   63.0 / ! VLVOO2
+      DATA subname(114), dif0(114), ar(114), meso(114), lebas(114) / 'ADIPIC_ACID     ',0.0533,13818.0, 0.0,   63.0 / ! VLVPO1
+      DATA subname(115), dif0(115), ar(115), meso(115), lebas(115) / 'ADIPIC_ACID     ',0.0771, 1133.9, 0.0,   63.0 / ! VSVOO1
+      DATA subname(116), dif0(116), ar(116), meso(116), lebas(116) / 'ADIPIC_ACID     ',0.0771,   18.1, 0.0,   63.0 / ! VSVOO2
+      DATA subname(117), dif0(117), ar(117), meso(117), lebas(117) / 'ADIPIC_ACID     ',0.0775,    2.3, 0.0,   63.0 / ! VSVOO3
+      DATA subname(118), dif0(118), ar(118), meso(118), lebas(118) / 'ADIPIC_ACID     ',0.0511, 1830.5, 0.0,   63.0 / ! VSVPO1
+      DATA subname(119), dif0(119), ar(119), meso(119), lebas(119) / 'ADIPIC_ACID     ',0.0493,  241.0, 0.0,   63.0 / ! VSVPO2
+      DATA subname(120), dif0(120), ar(120), meso(120), lebas(120) / 'ADIPIC_ACID     ',0.0474,   31.8, 0.0,   63.0 / ! VSVPO3
       DATA subname(121), dif0(121), ar(121), meso(121), lebas(121) / 'FORMIC_ACID     ',0.1411,   20.0, 0.0,   63.0 / ! FACD
       DATA subname(122), dif0(122), ar(122), meso(122), lebas(122) / 'MEK             ',0.0859,    1.0, 0.0,  108.2 / ! KET different in different mechanisms
       DATA subname(123), dif0(123), ar(123), meso(123), lebas(123) / 'ETHENE          ',0.1366,    1.0, 0.0,   58.1 / ! ETH
