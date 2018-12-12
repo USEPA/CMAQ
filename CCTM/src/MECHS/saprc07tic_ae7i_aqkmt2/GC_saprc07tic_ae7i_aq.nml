@@ -1,12 +1,5 @@
 &GC_nml
-
-n_surr1 = 3,
-n_surr2 = 2,
-n_ctrl = 4,
- 
-TYPE_HEADER =
 'SPC:MOLWT:DEPV_SUR:DEPV_FAC:ICBC_SUR:ICBC_FAC:SCAV_SUR:SCAV_FAC:G2AE_SUR:G2AQ_SUR:TRNS:DDEP:WDEP:CONC',
-TYPE_MATRIX =
 'NO2:46.01:VD_NO2:1.0:::NO2:1.0:NO2:NO2:Yes:Yes:Yes:Yes',
 'NO:30.01:VD_NO:1.0:::NO:1.0:::Yes:Yes:Yes:Yes',
 'O3P:16::::::::::::',
