@@ -247,7 +247,6 @@ C...loop over the number of wavelengths and continue reading
 
          
 C...check for read errors
-
           IF ( IOST .GT. 0) THEN
             MSG = 'Errors occurred while reading WL,CS,QY for ' //
      &             PHOTAB( IPHOT )
@@ -263,7 +262,16 @@ C...adjust loop counter index index and close file
 
         NWLIN = IWL - 1
         CLOSE( CQUNIT )
-
+        DO IWL = 2, NWLIN
+          IF( WLIN( IWL ) .LE. WLIN( IWL-1 ) )THEN
+                WRITE(6,'(3(A/))') TRIM(  CQFILE ) // ': contains the below error',
+     &          'consequentives lines with equal or decrease wavelengths',
+     &          'Last two lines read:'
+                WRITE(6,*) WLIN( IWL-1 ), CSIN( IWL-1 ), QYIN( IWL-1 )
+                WRITE(6,*) WLIN( IWL ),   CSIN( IWL ),   QYIN( IWL )
+                STOP
+          END IF
+        END DO
 C...transform the cs data to the same wavelength intervals as
 C...  the irradiance data.
 
