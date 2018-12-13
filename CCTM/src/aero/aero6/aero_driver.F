@@ -118,7 +118,11 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
      &                     FIXED_sg, AEROMODE_DIAM, AEROMODE_LNSG, AEROMODE_DENS,
      &                     MOMENT0_CONC, MOMENT2_CONC, MOMENT3_CONC,
      &                     AEROSPC, AEROSPC_CONC, N_MODE, AH2O_IDX,
+#ifdef stm
+     &                     EXTRACT_AERO, UPDATE_AERO, CALCMOMENTS, ADJ_SULFTRK
+#else
      &                     EXTRACT_AERO, UPDATE_AERO, CALCMOMENTS
+#endif
       USE PRECURSOR_DATA, ONLY: SULPRD_IDX, SO4RATE, PRECURSOR_CONC, 
      &                          PHGRXN_IDX, PHG_RATE, 
      &                          EXTRACT_PRECURSOR, UPDATE_PRECURSOR
@@ -131,7 +135,11 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       USE AEROSOL_CHEMISTRY, ONLY : GAMMA_N2O5IJ, GAMMA_N2O5K, YCLNO2IJ, YCLNO2K, 
      &                              GAMMA_IEPOX, GAMMA_IMAE, KPARTIEPOX, AERO_CHEM_SET
       USE PMDIAG_DATA_MODULE, ONLY: NUM_PMDIAG_SPC, A_PMDIAG_SPC_MAP, PMDIAG_SPC_RECORD
+#ifdef stm
+      USE RUNTIME_VARS, ONLY: LOGDEV, PMDIAG, APMDIAG, APMDIAG_ZHI, END_TIME, ADJ_STMSPC
+#else
       USE RUNTIME_VARS, ONLY: LOGDEV, PMDIAG, APMDIAG, APMDIAG_ZHI, END_TIME
+#endif
       USE AERO_BUDGET, ONLY: AERO_COAG, AERO_COND, AERO_GROWTH, AERO_NPF
 
       IMPLICIT NONE
@@ -453,6 +461,10 @@ C     convert M2 to wet
 C *** Aerosol process routines
                CALL AEROPROC( DT, C, R, L )
 
+#ifdef stm
+C *** Normalize sulfur tracking species
+               IF ( ADJ_STMSPC ) CALL ADJ_SULFTRK
+#endif
 C *** Update aerosol variables conc back into CGRID (set minimum) 
 C     and convert M2 to dry and save as surface area
                CALL UPDATE_AERO( CGRID( C,R,L,: ), .TRUE. )

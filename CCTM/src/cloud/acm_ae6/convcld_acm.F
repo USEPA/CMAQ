@@ -83,6 +83,9 @@ C                     domain specifications in one module
 C       5/05 J.Pleim Replaced cloud mixing algorithm with ACM
 C       6/05 S.Roselle added new cloud diagnostic variables
 C       7/05 J.Young: clean up and mod for CMAQ-F
+#ifdef stm
+C       7/06 S.Roselle Modified for sulfate tracking model
+#endif
 C       8/10 J.Young: replace chem mechanism include files with namelists
 C                    and accomodate Shawn Roselle`s, Sergey Napelenok`s
 C                    and Steve Howard`s aerosol reengineering
@@ -122,6 +125,9 @@ C-----------------------------------------------------------------------
       USE ASX_DATA_MOD,  ONLY: GRID_DATA, MET_DATA
       USE PHOT_MOD,      ONLY: RJ, RJ_RES, RJ_SUB, LH2O2_PHOTOLYSIS => LH2O2,
      &                   LHNO3_PHOTOLYSIS => LHNO3
+#ifdef stm
+      USE RXNS_DATA,     ONLY: MECHNAME
+#endif
 
       IMPLICIT NONE
 
@@ -234,6 +240,36 @@ C-------------------------------------------
 
       CHARACTER( 16 ), SAVE :: RC_NAME  ! RC name: old is RC and new is RCA
 
+#ifdef stm
+      INTEGER, PARAMETER :: NSTRKCOR  = 3  ! number of corse mode SO4 tracked species
+      INTEGER, PARAMETER :: NSTRKACC  = 8  ! number of acc mode SO4 tracked species
+      INTEGER, PARAMETER :: NSTRKATKN = 3  ! number of Atkn mode SO4 tracked species
+      
+      CHARACTER( 16 ), SAVE :: STRKCOR ( NSTRKCOR  )  ! list of coarse mode tracked SO4 species
+      CHARACTER( 16 ), SAVE :: STRKACC ( NSTRKACC  )  ! list of acc mode tracked SO4 species
+      CHARACTER( 16 ), SAVE :: STRKATKN( NSTRKATKN )  ! list of atkn mode tracked SO4 species
+
+      DATA STRKCOR( 1 ) / 'ASO4GASK        ' /
+      DATA STRKCOR( 2 ) / 'ASO4EMISK       ' /
+      DATA STRKCOR( 3 ) / 'ASO4ICBCK       ' /
+
+      DATA STRKACC( 1 ) / 'ASO4AQH2O2J     ' /
+      DATA STRKACC( 2 ) / 'ASO4AQO3J       ' /
+      DATA STRKACC( 3 ) / 'ASO4AQFEMNJ     ' /
+      DATA STRKACC( 4 ) / 'ASO4AQMHPJ      ' /
+      DATA STRKACC( 5 ) / 'ASO4AQPAAJ      ' /
+      DATA STRKACC( 6 ) / 'ASO4GASJ        ' /
+      DATA STRKACC( 7 ) / 'ASO4EMISJ       ' /
+      DATA STRKACC( 8 ) / 'ASO4ICBCJ       ' /
+
+      DATA STRKATKN( 1 ) / 'ASO4GASI        ' /
+      DATA STRKATKN( 2 ) / 'ASO4EMISI       ' /
+      DATA STRKATKN( 3 ) / 'ASO4ICBCI       ' /
+
+      INTEGER, ALLOCATABLE, SAVE :: SURCLDMX( : )    ! surrogate species for cloud mixing
+      INTEGER, SAVE :: VSO4AK, VSO4AJ, VSO4AI   ! pointers to ASO4K, ASO4J, and ASO4I
+      INTEGER          ITRKSPC          ! temporary variable for tracked species index
+#endif
       INTEGER          ATIME            ! time diff from half-hour
       INTEGER          CLTOP            ! model LAY containing cloud top
       INTEGER          COL              ! column loop counter
@@ -448,6 +484,36 @@ C...  event-statistics variables.
 
         END IF
 
+#ifdef stm
+C...determine CGRID species map
+
+        VARNM = 'ASO4K '
+        SPC = INDEX1( VARNM, N_AE_SPC, AE_SPC )
+        IF ( SPC .NE. 0 ) THEN
+           VSO4AK = AE_STRT - 1 + SPC
+        ELSE
+           XMSG = 'Could not find ' // VARNM // 'in species table'
+           CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+        END IF
+
+        VARNM = 'ASO4J '
+        SPC = INDEX1( VARNM, N_AE_SPC, AE_SPC )
+        IF ( SPC .NE. 0 ) THEN
+           VSO4AJ = AE_STRT - 1 + SPC
+        ELSE
+           XMSG = 'Could not find ' // VARNM // 'in species table'
+           CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+        END IF
+
+        VARNM = 'ASO4I '
+        SPC = INDEX1( VARNM, N_AE_SPC, AE_SPC )
+        IF ( SPC .NE. 0 ) THEN
+           VSO4AI = AE_STRT - 1 + SPC
+        ELSE
+           XMSG = 'Could not find ' // VARNM // 'in species table'
+           CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+        END IF
+#endif
 C...open MET_CRO_3D and MET_CRO_2D
 
         IF ( .NOT. OPEN3( MET_CRO_3D, FSREAD3, PNAME ) ) THEN
@@ -563,6 +629,55 @@ C...Mocko and Cotton (1995)
         XKM = REAL( XCELL_GD / 1000 )
         RCRITW = 0.879 + SQRT( 1.0 / ( 100.0 + XKM * XKM ) )
         RCRITL = 0.839 + SQRT( 1.0 / ( 50.0 + 0.5 * XKM ** 3 ) )
+
+#ifdef stm
+C...initialize surrogate array
+
+        ALLOCATE ( SURCLDMX( MXSPCS ), STAT = ALLOCSTAT )
+        DO SPC = 1, NSPCSD
+          SURCLDMX( SPC ) = SPC
+        END DO
+
+C...set cloud mixing surrogates for the sulfate tracking species
+C...  coarse mode surrogate is ASO4K
+
+        DO ITRKSPC = 1, NSTRKCOR
+          VARNM = STRKCOR( ITRKSPC )
+          SPC = INDEX1( VARNM, N_AE_SPC, AE_SPC )
+          IF ( SPC .NE. 0 ) THEN
+            SURCLDMX( AE_STRT - 1 + SPC ) = VSO4AK
+          END IF
+        END DO
+
+C...  accumulation mode surrogate is ASO4J
+
+        DO ITRKSPC = 1, NSTRKACC
+          VARNM = STRKACC( ITRKSPC )
+          SPC = INDEX1( VARNM, N_AE_SPC, AE_SPC )
+          IF ( SPC .NE. 0 ) THEN
+            SURCLDMX( AE_STRT - 1 + SPC ) = VSO4AJ
+          END IF
+        END DO
+
+C...  Aitken mode surrogate is ASO4I
+
+        DO ITRKSPC = 1, NSTRKATKN
+          VARNM = STRKATKN( ITRKSPC )
+          SPC = INDEX1( VARNM, N_AE_SPC, AE_SPC )
+          IF ( SPC .NE. 0 ) THEN
+            SURCLDMX( AE_STRT - 1 + SPC ) = VSO4AI
+          END IF
+        END DO
+
+        SPC = 0
+        STRT = AE_STRT
+        FINI = AE_STRT - 1 + N_AE_SPC
+        DO VAR = STRT, FINI
+          SPC = SPC + 1
+          WRITE( XMSG, '(i6,1x,A16,1x,i6,1x,a16)') VAR, AE_SPC( SPC ), SURCLDMX( VAR ), AE_SPC( SURCLDMX( VAR )-AE_STRT+1 )
+           CALL M3MESG ( XMSG )
+        END DO
+#endif
 
       END IF   ! Firstime
 
@@ -1428,13 +1543,38 @@ C...  to be part of the aqueous reaction chamber
               AIRM = AIRM + RHOM2( LAY )
 
               DO SPC = 1, NSPCSD
+#ifdef stm
+                IF ( SPC .NE. SURCLDMX( SPC ) ) THEN      ! use its surrogate
+!                  PCLD( SPC, LAY ) = MAX( ( CONC( SPC, LAY )
+!     &                             + ( ( CONC( SURCLDMX( SPC ), LAY )
+!     &                             / MAX( CBASE0( SURCLDMX( SPC ) ), 1.0E-30 ) )
+!     &                             * ( CBASEF( SPC ) - CBASE0( SPC ) ) ) ), 1.0E-30 )
+                  IF ( CBASE0( SURCLDMX( SPC ) ) .EQ. 0.0 ) THEN
+                    BCLDWT = 1.0 / ( CLBASE - 1 )
+                  ELSE
+                    BCLDWT = CONC( SURCLDMX( SPC ),LAY ) / MAX( CBASE0( SURCLDMX( SPC ) ), CONCMINL( SURCLDMX( SPC ),LAY ) )
+                  END IF
+!                  PCLD( SPC, LAY ) = MAX( ( CONC( SPC, LAY )
+!     &                             + ( BCLDWT * ( CBASEF( SPC ) - CBASE0( SPC ) ) ) ), 1.0E-30 )
+                  PCLD( SPC, LAY ) = BCLDWT * CBASEF( SPC )
+                ELSE
+                  IF ( CBASE0( SPC ) .EQ. 0.0 ) THEN
+!                    BCLDWT = 1.0 / CLBASE
+                    BCLDWT = 1.0 / ( CLBASE - 1 )
+                  ELSE
+                    BCLDWT = CONC( SPC,LAY ) / MAX( CBASE0( SPC ), CONCMINL( SPC,LAY ) )
+                  END IF
+                  PCLD( SPC,LAY ) = BCLDWT * CBASEF( SPC )
+                END IF
+#else
                 IF ( CBASE0( SPC ) .EQ. 0.0 ) THEN
                   BCLDWT = 1.0 / CLBASE
                 ELSE
                   BCLDWT = CONC( SPC,LAY ) / MAX( CBASE0( SPC ), 1.0E-30 )
                 END IF
                 PCLD( SPC,LAY ) = BCLDWT * CBASEF( SPC )
-         
+#endif
+
 C...Necessary because CBASEF and CBASE0 are the ending vertical averages
 C...  below cloud concentrations in mol sp/mol air
 
@@ -1620,8 +1760,42 @@ C...   include raining region below cld base
             DO LAY = 1, CLBASE - 1
               DO SPC = 1, NSPCSD
                 IF ( SPC .NE. N_GC_SPCD ) THEN
+#ifdef stm
+!                  IF ( ( SPC .NE. SURCLDMX( SPC ) ) .AND.
+!     &                 ( CEND( SPC ) .GT. POLC( SPC ) ) ) THEN       ! use its surrogate
+                  IF ( SPC .NE. SURCLDMX( SPC ) ) THEN       ! use its surrogate
+!                    INCLOUD = MAX( ( PCLD( SPC, LAY )
+!     &                      + ( PCLD( SURCLDMX( SPC ), LAY )
+!     &                      / MAX( POLC( SURCLDMX( SPC ) ),
+!     &                        CONCMINL( SURCLDMX( SPC ), LAY ) )
+!     &                      * ( CEND( SPC ) - POLC( SPC ) ) ) ),
+!     &                        CONCMINL( SPC, LAY ) )
+                    IF ( POLC( SURCLDMX( SPC ) ) .EQ. 0.0 ) THEN
+                      BCLDWT = 1.0 / CLTOP
+                    ELSE
+                      BCLDWT = PCLD( SURCLDMX( SPC ),LAY ) / MAX( POLC( SURCLDMX( SPC ) ), CONCMINL( SURCLDMX( SPC ),LAY ) )
+                    END IF
+c                  IF ( ( SPC .NE. SURCLDMX( SPC ) ) .AND.
+c     &                 ( CEND( SPC ) .GT. CEND_SW( SPC ) ) ) THEN       ! use its surrogate
+c                    INCLOUD = MAX( ( PCLD( SPC, LAY ) * CEND_SW( SPC )
+c     &                      / MAX( POLC( SPC ), CONCMINL( SPC, LAY ) )
+c     &                      + ( PCLD( SURCLDMX( SPC ), LAY )
+c     &                      / MAX( POLC( SURCLDMX( SPC ) ),
+c     &                        CONCMINL( SURCLDMX( SPC ), LAY ) )
+c     &                      * ( CEND( SPC ) - CEND_SW( SPC ) ) ) ),
+c     &                        CONCMINL( SPC, LAY ) )
+                  ELSE
+                    IF ( POLC( SPC ) .EQ. 0.0 ) THEN
+                      BCLDWT = 1.0 / CLTOP
+                    ELSE
+                      BCLDWT = PCLD( SPC,LAY ) / MAX( POLC( SPC ), CONCMINL( SPC,LAY ) )
+                    END IF
+                  END IF
+                  INCLOUD = BCLDWT * CEND( SPC )
+#else
                   INCLOUD = PCLD( SPC,LAY ) * CEND( SPC )
      &                    / MAX( POLC( SPC ), CONCMINL( SPC,LAY ) )
+#endif
                   OUTCLOUD = PCLD( SPC,LAY )
                   CGRID( COL,ROW,LAY,SPC ) = FRAC * INCLOUD
      &                                     + ( 1.0 - FRAC ) * OUTCLOUD
@@ -1641,8 +1815,50 @@ C...Now do changes in cloudy layers:
           DO LAY = CLBASE, CLTOP
             DO SPC = 1, NSPCSD
               IF ( SPC .NE. N_GC_SPCD ) THEN
+#ifdef stm
+!                IF ( ( SPC .NE. SURCLDMX( SPC ) ) .AND.
+!     &               ( CEND( SPC ) .GT. POLC( SPC ) ) ) THEN       ! use its surrogate
+                IF ( SPC .NE. SURCLDMX( SPC ) ) THEN       ! use its surrogate
+!                  INCLOUD = MAX( ( PCLD( SPC, LAY )
+!     &                    + ( PCLD( SURCLDMX( SPC ), LAY )
+!     &                    / MAX( POLC( SURCLDMX( SPC ) ),
+!     &                      CONCMINL( SURCLDMX( SPC ), LAY ) )
+!     &                    * ( CEND( SPC ) - POLC( SPC ) ) ) ),
+!     &                      CONCMINL( SPC, LAY ) )
+                  IF ( POLC( SURCLDMX( SPC ) ) .EQ. 0.0 ) THEN
+                    IF ( ICLDTYPE .EQ. 1 ) THEN   ! raining cloud
+                      BCLDWT = 1.0 / CLTOP
+                    ELSE
+                      BCLDWT = 1.0 / ( CLTOP - CLBASE + 1 )
+                    END IF
+                  ELSE
+                    BCLDWT = PCLD( SURCLDMX( SPC ),LAY ) / MAX( POLC( SURCLDMX( SPC ) ), CONCMINL( SURCLDMX( SPC ),LAY ) )
+                  END IF
+c                IF ( ( SPC .NE. SURCLDMX( SPC ) ) .AND.
+c     &               ( CEND( SPC ) .GT. CEND_SW( SPC ) ) ) THEN       ! use its surrogate
+c                  INCLOUD = MAX( ( PCLD( SPC, LAY ) * CEND_SW( SPC )
+c     &                    / MAX( POLC( SPC ), CONCMINL( SPC, LAY ) )
+c     &                    + ( PCLD( SURCLDMX( SPC ), LAY )
+c     &                    / MAX( POLC( SURCLDMX( SPC ) ),
+c     &                      CONCMINL( SURCLDMX( SPC ), LAY ) )
+c     &                    * ( CEND( SPC ) - CEND_SW( SPC ) ) ) ),
+c     &                      CONCMINL( SPC, LAY ) )
+                ELSE
+                  IF ( POLC( SPC ) .EQ. 0.0 ) THEN
+                    IF ( ICLDTYPE .EQ. 1 ) THEN   ! raining cloud
+                      BCLDWT = 1.0 / CLTOP
+                    ELSE
+                      BCLDWT = 1.0 / ( CLTOP - CLBASE + 1 )
+                    END IF
+                  ELSE
+                    BCLDWT = PCLD( SPC,LAY ) / MAX( POLC( SPC ), CONCMINL( SPC,LAY ) )
+                  END IF
+                END IF
+                INCLOUD = BCLDWT * CEND( SPC )
+#else
                 INCLOUD = PCLD( SPC,LAY ) * CEND( SPC )
      &                  / MAX( POLC( SPC ), CONCMINL( SPC,LAY ) )
+#endif
                 OUTCLOUD = ( CCR( SPC,LAY ) - FRAC * PCLD( SPC,LAY ) )
      &                   / ( 1.0 - FRAC )
                 OUTCLOUD = MAX( OUTCLOUD, CONCMINL( SPC,LAY ) )

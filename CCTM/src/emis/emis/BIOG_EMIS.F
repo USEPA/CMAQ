@@ -93,7 +93,11 @@ C (A line from the profile file is a record.)
          INTEGER,        PARAMETER :: NSEGS = 6  ! # of potential line segments (fields)
          INTEGER,        PARAMETER :: MXLINES = 100 ! max lines for requested sppro name
          INTEGER,        PARAMETER :: MXSPPOL = 10  ! max no. spc per pollutant
+#ifdef stm
+         INTEGER,        PARAMETER :: NMECHS = 18+1 ! dimension for number of mechanisms considered
+#else
          INTEGER,        PARAMETER :: NMECHS = 18   ! dimension for number of mechanisms considered
+#endif
          CHARACTER,      PARAMETER :: CINVHDR = '#' ! Indicator for inventory hdr fields
 !        REAL,           PARAMETER :: GM2TON  = 1.0 / 907184.74  ! grams to tons
 
@@ -160,6 +164,9 @@ C Local variables
      &         BIOG_MECH_TYPE( 'CB6MP_AE6_AQ           ','B10C6   '),
      &         BIOG_MECH_TYPE( 'CB6R3_AE6NVPOA_aq      ','B10C6   '),
      &         BIOG_MECH_TYPE( 'CB6R3_AE7_AQ           ','B10C6AE7'),     
+#ifdef stm
+     &         BIOG_MECH_TYPE( 'CB6R3_AE7ST_AQ         ','B10C6AE7'),     
+#endif
      &         BIOG_MECH_TYPE( 'CB6R3M_AE7_KMTBR       ','B10C6AE7'),
      &         BIOG_MECH_TYPE( 'RACM2_AE6_AQ           ','B10RD   '),
      &         BIOG_MECH_TYPE( 'SAPRC07TB_AE6_AQ       ','B10SP   '),

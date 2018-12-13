@@ -156,6 +156,11 @@
       INTEGER :: N_APMDIAG_SPC= 0    ! PM Diagnostic File Number of Species
       CHARACTER(  16 ) :: APMDIAG_SPC( 200 ) = '' !PM Diagnostic File Species Names
 
+#ifdef stm
+      ! Sulfur tracking adjustment
+      LOGICAL :: ADJ_STMSPC = .FALSE. ! flag for normalizing sulfur tracking species
+#endif
+
       ! Cloud Parameters
       LOGICAL :: CLD_DIAG  = .FALSE. ! flag to output cloud diagnostic files
 
@@ -685,7 +690,17 @@
        
       ! APMDIAG File Species List 
       CALL GET_ENVLIST ( 'AVG_PMDIAG_SPCS', N_APMDIAG_SPC, APMDIAG_SPC )
- 
+
+#ifdef stm
+      !-------------------------------------------------------------------------------------------------------
+      !>> sulfur tracking model
+      !-------------------------------------------------------------------------------------------------------
+
+      ! Get flag for average PM diagnostic file.
+      VARDESC = 'Flag to normalize sulfur tracking species'
+      ADJ_STMSPC = GET_ENVYN( 'STM_ADJSO4', VARDESC, ADJ_STMSPC )
+      
+#endif 
       !-------------------------------------------------------------------------------------------------------
       !>> Cloud Parameters
       !-------------------------------------------------------------------------------------------------------

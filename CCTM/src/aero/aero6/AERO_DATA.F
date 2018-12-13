@@ -78,6 +78,9 @@ C             POC+NCOM kappa is set to zero and calculated in SOA_DEFN if those 
 C             Current kappaorg values are based on species specific
 C             OM/OC ratios (Pye et al. 2017 ACP).
 C GS  08/17/81 Added bromide in seasalt
+#ifdef stm
+C SR 05/12/2017 Added sulfur tracking capability
+#endif
 
 C References:
 C 1. Eddingsaas, N. C., Vandervelde, D. G., Wennberg, P. O., "Kinetics and
@@ -117,7 +120,11 @@ C----------------------------------------------------------------------
 
 C Number of aerosol species and modes
 
+#ifdef stm
+      Integer, Parameter :: n_aerolist = 93+8   ! number of aero species
+#else
       Integer, Parameter :: n_aerolist = 93     ! number of aero species
+#endif
       Integer, Parameter :: n_mode = 3          ! number of modes:
                                                 ! 1 = Aitken
                                                 ! 2 = accumulation
@@ -305,8 +312,24 @@ C                     ---------- -------- ------- + + +   + ------ --- +  ------
      & spcs_list_type('APHG    ', cm_set, 2200.0, F,F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Mercury
      & spcs_list_type('AAS     ', cm_set, 2200.0, F,F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Arsenic                 #92
 
+#ifdef stm
+      ! The following species are associated with the marine chemistry code
+     & spcs_list_type('ABR     ', cm_set, 2200.0, F,F,F, -1,  1.7, 1.7,F, 'SOLUTE', 0.00),  ! Bromide 
+
+      ! The following species are associated with the sulfur tracking model
+     & spcs_list_type('ASO4AQH2O2', cm_set, 1800.0, F,F,T,  0,  0.0, 0.0,F, 'SOLUTE', 0.00),
+     & spcs_list_type('ASO4AQO3  ', cm_set, 1800.0, F,F,T,  0,  0.0, 0.0,F, 'SOLUTE', 0.00),
+     & spcs_list_type('ASO4AQFEMN', cm_set, 1800.0, F,F,T,  0,  0.0, 0.0,F, 'SOLUTE', 0.00),
+     & spcs_list_type('ASO4AQMHP ', cm_set, 1800.0, F,F,T,  0,  0.0, 0.0,F, 'SOLUTE', 0.00),
+     & spcs_list_type('ASO4AQPAA ', cm_set, 1800.0, F,F,T,  0,  0.0, 0.0,F, 'SOLUTE', 0.00),
+     & spcs_list_type('ASO4GAS   ', cm_set, 1800.0, F,F,T,  0,  0.0, 0.0,F, 'SOLUTE', 0.00),
+     & spcs_list_type('ASO4EMIS  ', cm_set, 1800.0, F,F,T,  0,  0.0, 0.0,F, 'SOLUTE', 0.00),
+     & spcs_list_type('ASO4ICBC  ', cm_so4, 1800.0, F,F,T,  0,  0.0, 0.0,F, 'SOLUTE', 0.00),
+#else
       ! The following species are associated with the marine chemistry code
      & spcs_list_type('ABR     ', cm_set, 2200.0, F,F,F, -1,  1.7, 1.7,F, 'SOLUTE', 0.00)  ! Bromide 
+
+#endif
      & /)
  
 ! Define Reference Emissions Size Distributions
@@ -399,13 +422,20 @@ C See Ref. (4), above and https://cfpub.epa.gov/si/speciate/
 ! Speciation factors between j and k modes were assumed constant because no data was found.
 
 C maximum number of chemical species in windblown dust aerosol
+#ifdef stm
+      Integer, Parameter :: ndust_spc = 28+1
+#else
       Integer, Parameter :: ndust_spc = 28
+#endif
 
        
       Type( emis_table ) :: dust_spc( ndust_spc ) = (/
 C                    --description-- -- Species --  -------- spcfac --------
 C                                                    Aitken  accum   coarse
      &   emis_table( 'Sulfate       ', 'ASO4    ', (/ 0.0, 0.02250, 0.02655/) ),   ! Sulfate
+#ifdef stm
+     &   emis_table( 'Sulfate Tracer', 'ASO4EMIS', (/ 0.0, 0.02250, 0.02655/) ),   ! Sulfate tracking species
+#endif
      &   emis_table( 'Nitrate       ', 'ANO3    ', (/ 0.0, 0.00020, 0.00160/) ),   ! Nitrate
      &   emis_table( 'Chlorine      ', 'ACL     ', (/ 0.0, 0.00945, 0.01190/) ),   ! Chlorine
      &   emis_table( 'Ammonium      ', 'ANH4    ', (/ 0.0, 0.00005, 0.0    /) ),   ! Ammonium
@@ -452,12 +482,19 @@ C Sea-Spray Aerosol Speciation factors based on seawater composition:
 ! ISBN 9780080437514, http://dx.doi.org/10.1016/B0-08-043751-6/06105-3.
 
 C number of chemical species in seawater aerosol composition
+#ifdef stm
+      integer, parameter :: nsea_spc = 17+1
+#else
       integer, parameter :: nsea_spc = 17
+#endif
 
       Type( emis_table ), Parameter :: sea_spc( nsea_spc ) = (/
 C                     -description--  -- Species --  -------- spcfac --------
 C                                                     Aitken  accum   coarse
      &   emis_table( 'Sulfate       ', 'ASO4    ', (/ 0.0, 0.07760, 0.07760/) ),   ! Sulfate
+#ifdef stm
+     &   emis_table( 'Sulfate Tracer', 'ASO4EMIS', (/ 0.0, 0.07760, 0.07760/) ),   ! Sulfate tracking species
+#endif
      &   emis_table( 'Chlorine      ', 'ACL     ', (/ 0.0, 0.55380, 0.55380/) ),   ! Chlorine
      &   emis_table( 'Sodium        ', 'ANA     ', (/ 0.0, 0.30860, 0.0    /) ),   ! Sodium
      &   emis_table( 'Calcium       ', 'ACA     ', (/ 0.0, 0.01180, 0.0    /) ),   ! Calcium
@@ -534,6 +571,16 @@ C sources (G. Pouliot - private communication):
  
 C Required species
       Character( 16 ), Private, Parameter :: req_so4    = 'ASO4'
+#ifdef stm
+      Character( 16 ), Private, Parameter :: req_so4aqh2o2 = 'ASO4AQH2O2'
+      Character( 16 ), Private, Parameter :: req_so4aqo3   = 'ASO4AQO3'
+      Character( 16 ), Private, Parameter :: req_so4aqfemn = 'ASO4AQFEMN'
+      Character( 16 ), Private, Parameter :: req_so4aqmhp  = 'ASO4AQMHP'
+      Character( 16 ), Private, Parameter :: req_so4aqpaa  = 'ASO4AQPAA'
+      Character( 16 ), Private, Parameter :: req_so4gas    = 'ASO4GAS'
+      Character( 16 ), Private, Parameter :: req_so4emis   = 'ASO4EMIS'
+      Character( 16 ), Private, Parameter :: req_so4icbc   = 'ASO4ICBC'
+#endif
       Character( 16 ), Private, Parameter :: req_no3    = 'ANO3'
       Character( 16 ), Private, Parameter :: req_cl     = 'ACL'
       Character( 16 ), Private, Parameter :: req_nh4    = 'ANH4'
@@ -553,6 +600,16 @@ C Required species
 
 C Indices of required species
       Integer :: aso4_idx
+#ifdef stm
+      Integer :: aso4aqh2o2_idx
+      Integer :: aso4aqo3_idx
+      Integer :: aso4aqfemn_idx
+      Integer :: aso4aqmhp_idx
+      Integer :: aso4aqpaa_idx
+      Integer :: aso4gas_idx
+      Integer :: aso4emis_idx
+      Integer :: aso4icbc_idx
+#endif
       Integer :: ano3_idx
       Integer :: acl_idx
       Integer :: anh4_idx
@@ -901,6 +958,16 @@ C Build mapping to CGRID for aero # and surf area variables
 
 C Find indices of required species
       aso4_idx    = findAero( req_so4,    .True. )
+#ifdef stm
+      aso4aqh2o2_idx = findAero( req_so4aqh2o2, .True. )
+      aso4aqo3_idx   = findAero( req_so4aqo3,   .True. )
+      aso4aqfemn_idx = findAero( req_so4aqfemn, .True. )
+      aso4aqmhp_idx  = findAero( req_so4aqmhp,  .True. )
+      aso4aqpaa_idx  = findAero( req_so4aqpaa,  .True. )
+      aso4gas_idx    = findAero( req_so4gas,    .True. )
+      aso4emis_idx   = findAero( req_so4emis,   .True. )
+      aso4icbc_idx   = findAero( req_so4icbc,   .True. )
+#endif
       ano3_idx    = findAero( req_no3,    .True. )
       acl_idx     = findAero( req_cl,     .True. )
       anh4_idx    = findAero( req_nh4,    .True. )
@@ -1493,6 +1560,77 @@ C Local variables:
       ENDDO
 
       End Subroutine CHECK_AERO_ICBC
+
+#ifdef stm
+C-----------------------------------------------------------------------
+      Subroutine adj_sulftrk()
+
+C  Adjust sulfur tracking species to total sulfur prediction
+ 
+C  Revision History:
+C     First version coded in July 2013 by Shawn Roselle
+C     
+C-----------------------------------------------------------------------
+
+!      Use utilio_defn
+
+      Implicit None
+
+C Local variables:
+      Integer m
+      Real aso4trk( n_mode ), mscor( n_mode )
+
+C Normalize tracked sulfate species to total modeled sulfate
+
+      m = 1
+      aso4trk( m ) = aerospc_conc( aso4gas_idx,m )
+     &             + aerospc_conc( aso4emis_idx,m )
+     &             + aerospc_conc( aso4icbc_idx,m )
+
+      If ( aso4trk( m ) .Gt. 0.0 ) Then
+         mscor( m ) = aerospc_conc( aso4_idx,m ) / aso4trk( m )
+         aerospc_conc( aso4gas_idx,m  ) = aerospc_conc( aso4gas_idx,m  ) * mscor( m )
+         aerospc_conc( aso4emis_idx,m ) = aerospc_conc( aso4emis_idx,m ) * mscor( m )
+         aerospc_conc( aso4icbc_idx,m ) = aerospc_conc( aso4icbc_idx,m ) * mscor( m )
+      End If
+
+      m = 2
+      aso4trk( m ) = aerospc_conc( aso4aqh2o2_idx,m )
+     &             + aerospc_conc( aso4aqo3_idx,m )
+     &             + aerospc_conc( aso4aqfemn_idx,m ) 
+     &             + aerospc_conc( aso4aqmhp_idx,m )
+     &             + aerospc_conc( aso4aqpaa_idx,m )
+     &             + aerospc_conc( aso4gas_idx,m )
+     &             + aerospc_conc( aso4emis_idx,m )
+     &             + aerospc_conc( aso4icbc_idx,m )
+
+      If ( aso4trk( m ) .Gt. 0.0 ) Then
+         mscor( m ) = aerospc_conc( aso4_idx,m ) / aso4trk( m )
+         aerospc_conc( aso4aqh2o2_idx,m ) = aerospc_conc( aso4aqh2o2_idx,m ) * mscor( m )
+         aerospc_conc( aso4aqo3_idx,m   ) = aerospc_conc( aso4aqo3_idx,m ) * mscor( m )
+         aerospc_conc( aso4aqfemn_idx,m ) = aerospc_conc( aso4aqfemn_idx,m ) * mscor( m )
+         aerospc_conc( aso4aqmhp_idx,m  ) = aerospc_conc( aso4aqmhp_idx,m  ) * mscor( m )
+         aerospc_conc( aso4aqpaa_idx,m  ) = aerospc_conc( aso4aqpaa_idx,m  ) * mscor( m )
+         aerospc_conc( aso4gas_idx,m    ) = aerospc_conc( aso4gas_idx,m ) * mscor( m )
+         aerospc_conc( aso4emis_idx,m   ) = aerospc_conc( aso4emis_idx,m ) * mscor( m )
+         aerospc_conc( aso4icbc_idx,m   ) = aerospc_conc( aso4icbc_idx,m ) * mscor( m )
+      End If
+
+      m = 3
+      aso4trk( m ) = aerospc_conc( aso4gas_idx,m )
+     &             + aerospc_conc( aso4emis_idx,m )
+     &             + aerospc_conc( aso4icbc_idx,m )
+
+      If ( aso4trk( m ) .GT. 0.0 ) Then
+         mscor( m ) = aerospc_conc( aso4_idx,m ) / aso4trk( m )
+         aerospc_conc( aso4gas_idx,m  ) = aerospc_conc( aso4gas_idx,m  ) * mscor( m )
+         aerospc_conc( aso4emis_idx,m ) = aerospc_conc( aso4emis_idx,m ) * mscor( m )
+         aerospc_conc( aso4icbc_idx,m ) = aerospc_conc( aso4icbc_idx,m ) * mscor( m )
+      End If
+
+      Return
+      End Subroutine adj_sulftrk
+#endif
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
       End Module aero_data
