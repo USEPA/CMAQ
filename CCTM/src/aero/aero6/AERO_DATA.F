@@ -324,7 +324,7 @@ C                     ---------- -------- ------- + + +   + ------ --- +  ------
      & spcs_list_type('ASO4AQPAA ', cm_set, 1800.0, F,F,T,  0,  0.0, 0.0,F, 'SOLUTE', 0.00),
      & spcs_list_type('ASO4GAS   ', cm_set, 1800.0, F,F,T,  0,  0.0, 0.0,F, 'SOLUTE', 0.00),
      & spcs_list_type('ASO4EMIS  ', cm_set, 1800.0, F,F,T,  0,  0.0, 0.0,F, 'SOLUTE', 0.00),
-     & spcs_list_type('ASO4ICBC  ', cm_so4, 1800.0, F,F,T,  0,  0.0, 0.0,F, 'SOLUTE', 0.00),
+     & spcs_list_type('ASO4ICBC  ', cm_so4, 1800.0, F,F,T,  0,  0.0, 0.0,F, 'SOLUTE', 0.00)
 #else
       ! The following species are associated with the marine chemistry code
      & spcs_list_type('ABR     ', cm_set, 2200.0, F,F,F, -1,  1.7, 1.7,F, 'SOLUTE', 0.00)  ! Bromide 
