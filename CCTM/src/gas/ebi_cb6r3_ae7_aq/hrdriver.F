@@ -174,11 +174,19 @@ c  On first call, call routines to set-up for EBI solver
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF( LFIRST ) THEN
 
+#ifdef stm
+         IF( MECHNAME .NE. 'CB6R3_AE7ST_AQ' ) THEN
+             MSG = 'This version of the EBI solver can only be used with'
+     &            // ' the CB6R3_AE7ST_AQ chemical mechanism'
+             CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+         END IF
+#else
          IF( MECHNAME .NE. 'CB6R3_AE7_AQ' ) THEN
              MSG = 'This version of the EBI solver can only be used with'
      &            // ' the CB6R3_AE7_AQ chemical mechanism'
              CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
          END IF
+#endif
 
 #ifdef emis_chem
          EMISVD = .FALSE.
