@@ -220,25 +220,45 @@ c-------------------------------------------------------------------------------
 
             ! Gas (GC) Namelist
             ALLOCATE( GC_SPECIES_DATA( SPC_DIM ), STAT=IOS )
-
-            dev_gc_nml = junit()
-            open( file = trim( gc_namelist ), unit = dev_gc_nml,
-     &            status = 'old', position = 'rewind' )
-            read( nml = GC_nml, unit = dev_gc_nml ) 
- 
-
+            GC_SPECIES_DATA%SPECIES_NAME = ''
+            GC_SPECIES_DATA%MOLWT = 0.
+            GC_SPECIES_DATA%ICBC_SURR = ''
+            GC_SPECIES_DATA%ICBC_FAC = 0.
+            GC_SPECIES_DATA%DEPV_SURR = ''
+            GC_SPECIES_DATA%DEPV_FAC = 0.
+            GC_SPECIES_DATA%SCAV_SURR = ''
+            GC_SPECIES_DATA%SCAV_FAC = 0.
+            GC_SPECIES_DATA%AERO_SURR = ''
+            GC_SPECIES_DATA%CLOUD_SURR = ''
+            GC_SPECIES_DATA%TRNS_FLAG = ''
+            GC_SPECIES_DATA%DDEP_FLAG = ''
+            GC_SPECIES_DATA%WDEP_FLAG = ''
+            GC_SPECIES_DATA%CONC_FLAG = ''
+                                                                                             
+            dev_gc_nml = junit()                                                             
+            open( file = trim( gc_namelist ), unit = dev_gc_nml,                             
+     &            status = 'old', position = 'rewind' )                                      
+            read( nml = GC_nml, unit = dev_gc_nml )                                          
+                                                                                             
+            ! Determine Number of Gas Species                                                
+            N_GC_SPC = 0                                                                     
+            DO IGC = 1,SPC_DIM                                                              
+                IF ( GC_SPECIES_DATA( IGC )%SPECIES_NAME .EQ. '' ) EXIT                      
+                N_GC_SPC = IGC                                                               
+            END DO                                                                           
+                                                                                             
             ! Allocate and Initialize Permanent Variables
             allocate ( 
-     &      gc_spc( spc_dim ), gc_molwt( spc_dim ),
-     &      gc_icbc( spc_dim ), gc_icbc_map( spc_dim ), gc_icbc_fac( spc_dim ),
-     &      gc_depv( spc_dim ), gc_depv_map( spc_dim ), gc_depv_fac( spc_dim ),
-     &      gc_scav( spc_dim ), gc_scav_map( spc_dim ), gc_scav_fac( spc_dim ),
-     &      gc_g2ae( spc_dim ), gc_g2ae_map( spc_dim ),
-     &      gc_g2aq( spc_dim ), gc_g2aq_map( spc_dim ),
-     &      gc_trns( spc_dim ), gc_trns_map( spc_dim ),
-     &      gc_ddep( spc_dim ), gc_ddep_map( spc_dim ),
-     &      gc_wdep( spc_dim ), gc_wdep_map( spc_dim ),
-     &      gc_conc( spc_dim ), gc_conc_map( spc_dim ),
+     &      gc_spc( n_gc_spc+1 ), gc_molwt( n_gc_spc+1 ),
+     &      gc_icbc( n_gc_spc+1 ), gc_icbc_map( n_gc_spc+1 ), gc_icbc_fac( n_gc_spc+1 ),
+     &      gc_depv( n_gc_spc+1 ), gc_depv_map( n_gc_spc+1 ), gc_depv_fac( n_gc_spc+1 ),
+     &      gc_scav( n_gc_spc+1 ), gc_scav_map( n_gc_spc+1 ), gc_scav_fac( n_gc_spc+1 ),
+     &      gc_g2ae( n_gc_spc+1 ), gc_g2ae_map( n_gc_spc+1 ),
+     &      gc_g2aq( n_gc_spc+1 ), gc_g2aq_map( n_gc_spc+1 ),
+     &      gc_trns( n_gc_spc+1 ), gc_trns_map( n_gc_spc+1 ),
+     &      gc_ddep( n_gc_spc+1 ), gc_ddep_map( n_gc_spc+1 ),
+     &      gc_wdep( n_gc_spc+1 ), gc_wdep_map( n_gc_spc+1 ),
+     &      gc_conc( n_gc_spc+1 ), gc_conc_map( n_gc_spc+1 ),
      &      stat = ios )
 
             gc_spc = bl; gc_molwt = 0.0                        !  .
@@ -254,16 +274,12 @@ c-------------------------------------------------------------------------------
 
 
             ! Pass Data from GC Namelist to Internal Variables
-            N_GC_SPC = 0;  N_GC_ICBC = 0; N_GC_DEPV = 0; N_GC_SCAV = 0
+            N_GC_ICBC = 0; N_GC_DEPV = 0; N_GC_SCAV = 0
             N_GC_G2AE = 0; N_GC_G2AQ = 0; N_GC_TRNS = 0; N_GC_DDEP = 0; N_GC_WDEP = 0
             N_GC_CONC = 0
 
-            DO IGC = 1,SPC_DIM
-                IF ( GC_SPECIES_DATA( IGC )%SPECIES_NAME .EQ. '' ) EXIT
+            DO IGC = 1,N_GC_SPC
                 
-                ! Autoincrease number of gas constituents
-                N_GC_SPC = IGC
-
                 GC_SPC( IGC )      = GC_SPECIES_DATA( IGC )%SPECIES_NAME
                 GC_MOLWT( IGC )    = GC_SPECIES_DATA( IGC )%MOLWT
 
@@ -307,7 +323,7 @@ c-------------------------------------------------------------------------------
                 
                 ! Gas - Perform Transport
                 LTRNS = GET_LOGICAL_NML( GC_SPECIES_DATA( IGC )%TRNS_FLAG )
-                IF ( LTRNS .NE. '' ) THEN
+                IF ( LTRNS ) THEN
                     N_GC_TRNS = N_GC_TRNS + 1
                     GC_TRNS( N_GC_TRNS )     = GC_SPECIES_DATA( IGC )%SPECIES_NAME
                     GC_TRNS_MAP( N_GC_TRNS ) = IGC
@@ -315,7 +331,7 @@ c-------------------------------------------------------------------------------
                 
                 ! Gas - Output Deposition Velocity
                 LDDEP = GET_LOGICAL_NML( GC_SPECIES_DATA( IGC )%DDEP_FLAG )
-                IF ( LDDEP .NE. '' ) THEN
+                IF ( LDDEP ) THEN
                     N_GC_DDEP = N_GC_DDEP + 1
                     GC_DDEP( N_GC_DDEP )     = GC_SPECIES_DATA( IGC )%SPECIES_NAME
                     GC_DDEP_MAP( N_GC_DDEP ) = IGC
@@ -323,7 +339,7 @@ c-------------------------------------------------------------------------------
                 
                 ! Gas - Output Wet Scavenging Flux
                 LWDEP = GET_LOGICAL_NML( GC_SPECIES_DATA( IGC )%WDEP_FLAG )
-                IF ( LWDEP .NE. '' ) THEN
+                IF ( LWDEP ) THEN
                     N_GC_WDEP = N_GC_WDEP + 1
                     GC_WDEP( N_GC_WDEP )     = GC_SPECIES_DATA( IGC )%SPECIES_NAME
                     GC_WDEP_MAP( N_GC_WDEP ) = IGC
@@ -331,7 +347,7 @@ c-------------------------------------------------------------------------------
                 
                 ! Gas - Output Concentration Field
                 LCONC = GET_LOGICAL_NML( GC_SPECIES_DATA( IGC )%CONC_FLAG )
-                IF ( LCONC .NE. '' ) THEN
+                IF ( LCONC ) THEN
                     N_GC_CONC = N_GC_CONC + 1
                     GC_CONC( N_GC_CONC )     = GC_SPECIES_DATA( IGC )%SPECIES_NAME
                     GC_CONC_MAP( N_GC_CONC ) = IGC
@@ -346,23 +362,44 @@ c-------------------------------------------------------------------------------
 
             ! Aerosol (AE) Namelist
             ALLOCATE( AE_SPECIES_DATA( SPC_DIM ), STAT=IOS )
+            AE_SPECIES_DATA%SPECIES_NAME = ''
+            AE_SPECIES_DATA%MOLWT = 0.
+            AE_SPECIES_DATA%ICBC_SURR = ''
+            AE_SPECIES_DATA%ICBC_FAC = 0.
+            AE_SPECIES_DATA%DEPV_SURR = ''
+            AE_SPECIES_DATA%DEPV_FAC = 0.
+            AE_SPECIES_DATA%SCAV_SURR = ''
+            AE_SPECIES_DATA%SCAV_FAC = 0.
+            AE_SPECIES_DATA%CLOUD_SURR = ''
+            AE_SPECIES_DATA%TRNS_FLAG = ''
+            AE_SPECIES_DATA%DDEP_FLAG = ''
+            AE_SPECIES_DATA%WDEP_FLAG = ''
+            AE_SPECIES_DATA%CONC_FLAG = ''
+                                                                                             
 
             dev_ae_nml = junit()
             open( file = trim( ae_namelist ), unit = dev_ae_nml,
      &            status = 'old', position = 'rewind' )
             read( nml = AE_nml, unit = dev_ae_nml ) 
 
+            ! Determine Number of Gas Species
+            N_AE_SPC = 0
+            DO IAE = 1,SPC_DIM
+                IF ( AE_SPECIES_DATA( IAE )%SPECIES_NAME .EQ. '' ) EXIT
+                N_AE_SPC = IAE
+            END DO
+
             ! Allocate and Initialize Permanent Variables
             allocate ( 
-     &      ae_spc( spc_dim ), ae_molwt( spc_dim ),
-     &      ae_icbc( spc_dim ), ae_icbc_map( spc_dim ), ae_icbc_fac( spc_dim ),
-     &      ae_depv( spc_dim ), ae_depv_map( spc_dim ), ae_depv_fac( spc_dim ),
-     &      ae_scav( spc_dim ), ae_scav_map( spc_dim ), ae_scav_fac( spc_dim ),
-     &      ae_a2aq( spc_dim ), ae_a2aq_map( spc_dim ),
-     &      ae_trns( spc_dim ), ae_trns_map( spc_dim ),
-     &      ae_ddep( spc_dim ), ae_ddep_map( spc_dim ),
-     &      ae_wdep( spc_dim ), ae_wdep_map( spc_dim ),
-     &      ae_conc( spc_dim ), ae_conc_map( spc_dim ),
+     &      ae_spc( n_ae_spc ), ae_molwt( n_ae_spc ),
+     &      ae_icbc( n_ae_spc ), ae_icbc_map( n_ae_spc ), ae_icbc_fac( n_ae_spc ),
+     &      ae_depv( n_ae_spc ), ae_depv_map( n_ae_spc ), ae_depv_fac( n_ae_spc ),
+     &      ae_scav( n_ae_spc ), ae_scav_map( n_ae_spc ), ae_scav_fac( n_ae_spc ),
+     &      ae_a2aq( n_ae_spc ), ae_a2aq_map( n_ae_spc ),
+     &      ae_trns( n_ae_spc ), ae_trns_map( n_ae_spc ),
+     &      ae_ddep( n_ae_spc ), ae_ddep_map( n_ae_spc ),
+     &      ae_wdep( n_ae_spc ), ae_wdep_map( n_ae_spc ),
+     &      ae_conc( n_ae_spc ), ae_conc_map( n_ae_spc ),
      &      stat = ios )
 
             ae_spc = bl; ae_molwt = 0.0                        !  .
@@ -376,15 +413,11 @@ c-------------------------------------------------------------------------------
             ae_conc = bl; ae_conc_map = 0                      !  .
 
             ! Pass Data from AE Namelist to Internal Variables
-            N_AE_SPC = 0;  N_AE_ICBC = 0; N_AE_DEPV = 0; N_AE_SCAV = 0
+            N_AE_ICBC = 0; N_AE_DEPV = 0; N_AE_SCAV = 0
             N_AE_A2AQ = 0; N_AE_TRNS = 0; N_AE_DDEP = 0; N_AE_WDEP = 0
             N_AE_CONC = 0
 
-            DO IAE = 1,SPC_DIM
-                IF ( AE_SPECIES_DATA( IAE )%SPECIES_NAME .EQ. '' ) EXIT
-                
-                ! Autoincrease number of aerosol constituents
-                N_AE_SPC = IAE
+            DO IAE = 1,N_AE_SPC
 
                 AE_SPC( IAE )      = AE_SPECIES_DATA( IAE )%SPECIES_NAME
                 AE_MOLWT( IAE )    = AE_SPECIES_DATA( IAE )%MOLWT
@@ -422,7 +455,7 @@ c-------------------------------------------------------------------------------
                 
                 ! Aerosol - Perform Transport
                 LTRNS = GET_LOGICAL_NML( AE_SPECIES_DATA( IAE )%TRNS_FLAG )
-                IF ( LTRNS .NE. '' ) THEN
+                IF ( LTRNS ) THEN
                     N_AE_TRNS = N_AE_TRNS + 1
                     AE_TRNS( N_AE_TRNS )     = AE_SPECIES_DATA( IAE )%SPECIES_NAME
                     AE_TRNS_MAP( N_AE_TRNS ) = IAE
@@ -430,7 +463,7 @@ c-------------------------------------------------------------------------------
                 
                 ! Aerosol - Output Deposition Velocity
                 LDDEP = GET_LOGICAL_NML( AE_SPECIES_DATA( IAE )%DDEP_FLAG )
-                IF ( LDDEP .NE. '' ) THEN
+                IF ( LDDEP ) THEN
                     N_AE_DDEP = N_AE_DDEP + 1
                     AE_DDEP( N_AE_DDEP )     = AE_SPECIES_DATA( IAE )%SPECIES_NAME
                     AE_DDEP_MAP( N_AE_DDEP ) = IAE
@@ -438,7 +471,7 @@ c-------------------------------------------------------------------------------
                 
                 ! Aerosol - Output Wet Scavenging Flux
                 LWDEP = GET_LOGICAL_NML( AE_SPECIES_DATA( IAE )%WDEP_FLAG )
-                IF ( LWDEP .NE. '' ) THEN
+                IF ( LWDEP ) THEN
                     N_AE_WDEP = N_AE_WDEP + 1
                     AE_WDEP( N_AE_WDEP )     = AE_SPECIES_DATA( IAE )%SPECIES_NAME
                     AE_WDEP_MAP( N_AE_WDEP ) = IAE
@@ -446,7 +479,7 @@ c-------------------------------------------------------------------------------
                 
                 ! Aerosol - Output Concentration Field
                 LCONC = GET_LOGICAL_NML( AE_SPECIES_DATA( IAE )%CONC_FLAG )
-                IF ( LCONC .NE. '' ) THEN
+                IF ( LCONC ) THEN
                     N_AE_CONC = N_AE_CONC + 1
                     AE_CONC( N_AE_CONC )     = AE_SPECIES_DATA( IAE )%SPECIES_NAME
                     AE_CONC_MAP( N_AE_CONC ) = IAE
@@ -461,24 +494,45 @@ c-------------------------------------------------------------------------------
 
             ! Nonreactive (NR) Namelist
             ALLOCATE( NR_SPECIES_DATA( SPC_DIM ), STAT=IOS )
+            NR_SPECIES_DATA%SPECIES_NAME = ''
+            NR_SPECIES_DATA%MOLWT = 0.
+            NR_SPECIES_DATA%ICBC_SURR = ''
+            NR_SPECIES_DATA%ICBC_FAC = 0.
+            NR_SPECIES_DATA%DEPV_SURR = ''
+            NR_SPECIES_DATA%DEPV_FAC = 0.
+            NR_SPECIES_DATA%SCAV_SURR = ''
+            NR_SPECIES_DATA%SCAV_FAC = 0.
+            NR_SPECIES_DATA%AERO_SURR = ''
+            NR_SPECIES_DATA%CLOUD_SURR = ''
+            NR_SPECIES_DATA%TRNS_FLAG = ''
+            NR_SPECIES_DATA%DDEP_FLAG = ''
+            NR_SPECIES_DATA%WDEP_FLAG = ''
+            NR_SPECIES_DATA%CONC_FLAG = ''
 
             dev_nr_nml = junit()
             open( file = trim( nr_namelist ), unit = dev_nr_nml,
      &            status = 'old', position = 'rewind' )
             read( nml = NR_nml, unit = dev_nr_nml ) 
            
+            ! Determine Number of Gas Species
+            N_NR_SPC = 0
+            DO INR = 1,SPC_DIM
+                IF ( NR_SPECIES_DATA( INR )%SPECIES_NAME .EQ. '' ) EXIT
+                N_NR_SPC = INR
+            END DO
+
             ! Allocate and Initialize Permanent Variables
             allocate ( 
-     &      NR_spc( spc_dim ), NR_molwt( spc_dim ),
-     &      NR_icbc( spc_dim ), NR_icbc_map( spc_dim ), NR_icbc_fac( spc_dim ),
-     &      NR_depv( spc_dim ), NR_depv_map( spc_dim ), NR_depv_fac( spc_dim ),
-     &      NR_scav( spc_dim ), NR_scav_map( spc_dim ), NR_scav_fac( spc_dim ),
-     &      NR_n2ae( spc_dim ), NR_n2ae_map( spc_dim ),
-     &      NR_n2aq( spc_dim ), NR_n2aq_map( spc_dim ),
-     &      NR_trns( spc_dim ), NR_trns_map( spc_dim ),
-     &      NR_ddep( spc_dim ), NR_ddep_map( spc_dim ),
-     &      NR_wdep( spc_dim ), NR_wdep_map( spc_dim ),
-     &      NR_conc( spc_dim ), NR_conc_map( spc_dim ),
+     &      NR_spc( n_nr_spc ), NR_molwt( n_nr_spc ),
+     &      NR_icbc( n_nr_spc ), NR_icbc_map( n_nr_spc ), NR_icbc_fac( n_nr_spc ),
+     &      NR_depv( n_nr_spc ), NR_depv_map( n_nr_spc ), NR_depv_fac( n_nr_spc ),
+     &      NR_scav( n_nr_spc ), NR_scav_map( n_nr_spc ), NR_scav_fac( n_nr_spc ),
+     &      NR_n2ae( n_nr_spc ), NR_n2ae_map( n_nr_spc ),
+     &      NR_n2aq( n_nr_spc ), NR_n2aq_map( n_nr_spc ),
+     &      NR_trns( n_nr_spc ), NR_trns_map( n_nr_spc ),
+     &      NR_ddep( n_nr_spc ), NR_ddep_map( n_nr_spc ),
+     &      NR_wdep( n_nr_spc ), NR_wdep_map( n_nr_spc ),
+     &      NR_conc( n_nr_spc ), NR_conc_map( n_nr_spc ),
      &      stat = ios )
 
             NR_spc = bl; NR_molwt = 0.0                        !  .
@@ -493,15 +547,11 @@ c-------------------------------------------------------------------------------
             NR_conc = bl; NR_conc_map = 0                      !  .
 
             ! Pass Data from NR Namelist to Internal Variables
-            N_NR_SPC = 0;  N_NR_ICBC = 0; N_NR_DEPV = 0; N_NR_SCAV = 0
+            N_NR_ICBC = 0; N_NR_DEPV = 0; N_NR_SCAV = 0
             N_NR_N2AE = 0; N_NR_N2AQ = 0; N_NR_TRNS = 0; N_NR_DDEP = 0; N_NR_WDEP = 0
             N_NR_CONC = 0
 
-            DO INR = 1,SPC_DIM
-                IF ( NR_SPECIES_DATA( INR )%SPECIES_NAME .EQ. '' ) EXIT
-                
-                ! Autoincrease number of Nonreactive constituents
-                N_NR_SPC = INR
+            DO INR = 1,N_NR_SPC
 
                 NR_SPC( INR )      = NR_SPECIES_DATA( INR )%SPECIES_NAME
                 NR_MOLWT( INR )    = NR_SPECIES_DATA( INR )%MOLWT
@@ -546,7 +596,7 @@ c-------------------------------------------------------------------------------
                 
                 ! Nonreactive - Perform Transport
                 LTRNS = GET_LOGICAL_NML( NR_SPECIES_DATA( INR )%TRNS_FLAG )
-                IF ( LTRNS .NE. '' ) THEN
+                IF ( LTRNS ) THEN
                     N_NR_TRNS = N_NR_TRNS + 1
                     NR_TRNS( N_NR_TRNS )     = NR_SPECIES_DATA( INR )%SPECIES_NAME
                     NR_TRNS_MAP( N_NR_TRNS ) = INR
@@ -554,7 +604,7 @@ c-------------------------------------------------------------------------------
                 
                 ! Nonreactive - Output Deposition Velocity
                 LDDEP = GET_LOGICAL_NML( NR_SPECIES_DATA( INR )%DDEP_FLAG )
-                IF ( LDDEP .NE. '' ) THEN
+                IF ( LDDEP ) THEN
                     N_NR_DDEP = N_NR_DDEP + 1
                     NR_DDEP( N_NR_DDEP )     = NR_SPECIES_DATA( INR )%SPECIES_NAME
                     NR_DDEP_MAP( N_NR_DDEP ) = INR
@@ -562,7 +612,7 @@ c-------------------------------------------------------------------------------
                 
                 ! Nonreactive - Output Wet Scavenging Flux
                 LWDEP = GET_LOGICAL_NML( NR_SPECIES_DATA( INR )%WDEP_FLAG )
-                IF ( LWDEP .NE. '' ) THEN
+                IF ( LWDEP ) THEN
                     N_NR_WDEP = N_NR_WDEP + 1
                     NR_WDEP( N_NR_WDEP )     = NR_SPECIES_DATA( INR )%SPECIES_NAME
                     NR_WDEP_MAP( N_NR_WDEP ) = INR
@@ -570,7 +620,7 @@ c-------------------------------------------------------------------------------
                 
                 ! Nonreactive - Output Concentration Field
                 LCONC = GET_LOGICAL_NML( NR_SPECIES_DATA( INR )%CONC_FLAG )
-                IF ( LCONC .NE. '' ) THEN
+                IF ( LCONC ) THEN
                     N_NR_CONC = N_NR_CONC + 1
                     NR_CONC( N_NR_CONC )     = NR_SPECIES_DATA( INR )%SPECIES_NAME
                     NR_CONC_MAP( N_NR_CONC ) = INR
@@ -584,25 +634,47 @@ c-------------------------------------------------------------------------------
 
             ! Tracer (TR) Namelists
             ALLOCATE( TR_SPECIES_DATA( SPC_DIM ), STAT=IOS )
+            TR_SPECIES_DATA%SPECIES_NAME = ''
+            TR_SPECIES_DATA%MOLWT = 0.
+            TR_SPECIES_DATA%ICBC_SURR = ''
+            TR_SPECIES_DATA%ICBC_FAC = 0.
+            TR_SPECIES_DATA%DEPV_SURR = ''
+            TR_SPECIES_DATA%DEPV_FAC = 0.
+            TR_SPECIES_DATA%SCAV_SURR = ''
+            TR_SPECIES_DATA%SCAV_FAC = 0.
+            TR_SPECIES_DATA%AERO_SURR = ''
+            TR_SPECIES_DATA%CLOUD_SURR = ''
+            TR_SPECIES_DATA%ADVC_FLAG = ''
+            TR_SPECIES_DATA%DIFF_FLAG = ''
+            TR_SPECIES_DATA%DDEP_FLAG = ''
+            TR_SPECIES_DATA%WDEP_FLAG = ''
+            TR_SPECIES_DATA%CONC_FLAG = ''
 
             dev_tr_nml = junit()
             open( file = trim( tr_namelist ), unit = dev_tr_nml,
      &            status = 'old', position = 'rewind' )
             read( nml = TR_nml, unit = dev_tr_nml )
 
+            ! Determine Number of Gas Species
+            N_TR_SPC = 0
+            DO ITR = 1,SPC_DIM
+                IF ( TR_SPECIES_DATA( ITR )%SPECIES_NAME .EQ. '' ) EXIT
+                N_TR_SPC = ITR
+            END DO
+
             ! Allocate and Initialize Permanent Variables
             allocate ( 
-     &      TR_spc( spc_dim ), TR_molwt( spc_dim ),
-     &      TR_icbc( spc_dim ), TR_icbc_map( spc_dim ), TR_icbc_fac( spc_dim ),
-     &      TR_depv( spc_dim ), TR_depv_map( spc_dim ), TR_depv_fac( spc_dim ),
-     &      TR_scav( spc_dim ), TR_scav_map( spc_dim ), TR_scav_fac( spc_dim ),
-     &      TR_t2ae( spc_dim ), TR_t2ae_map( spc_dim ),
-     &      TR_t2aq( spc_dim ), TR_t2aq_map( spc_dim ),
-     &      TR_adv( spc_dim ),  TR_adv_map( spc_dim ),
-     &      TR_diff( spc_dim ), TR_diff_map( spc_dim ),
-     &      TR_ddep( spc_dim ), TR_ddep_map( spc_dim ),
-     &      TR_wdep( spc_dim ), TR_wdep_map( spc_dim ),
-     &      TR_conc( spc_dim ), TR_conc_map( spc_dim ),
+     &      TR_spc( n_tr_spc ), TR_molwt( n_tr_spc ),
+     &      TR_icbc( n_tr_spc ), TR_icbc_map( n_tr_spc ), TR_icbc_fac( n_tr_spc ),
+     &      TR_depv( n_tr_spc ), TR_depv_map( n_tr_spc ), TR_depv_fac( n_tr_spc ),
+     &      TR_scav( n_tr_spc ), TR_scav_map( n_tr_spc ), TR_scav_fac( n_tr_spc ),
+     &      TR_t2ae( n_tr_spc ), TR_t2ae_map( n_tr_spc ),
+     &      TR_t2aq( n_tr_spc ), TR_t2aq_map( n_tr_spc ),
+     &      TR_adv( n_tr_spc ),  TR_adv_map( n_tr_spc ),
+     &      TR_diff( n_tr_spc ), TR_diff_map( n_tr_spc ),
+     &      TR_ddep( n_tr_spc ), TR_ddep_map( n_tr_spc ),
+     &      TR_wdep( n_tr_spc ), TR_wdep_map( n_tr_spc ),
+     &      TR_conc( n_tr_spc ), TR_conc_map( n_tr_spc ),
      &      stat = ios )
 
             TR_spc = bl; TR_molwt = 0.0                        !  .
@@ -622,11 +694,7 @@ c-------------------------------------------------------------------------------
             N_TR_T2AE = 0; N_TR_T2AQ = 0; N_TR_ADV = 0; N_TR_DDEP = 0; N_TR_WDEP = 0
             N_TR_CONC = 0; N_TR_DIFF = 0
 
-            DO ITR = 1,SPC_DIM
-                IF ( TR_SPECIES_DATA( ITR )%SPECIES_NAME .EQ. '' ) EXIT
-                
-                ! Autoincrease number of Tracer constituents
-                N_TR_SPC = ITR
+            DO ITR = 1,N_TR_SPC
 
                 TR_SPC( ITR )      = TR_SPECIES_DATA( ITR )%SPECIES_NAME
                 TR_MOLWT( ITR )    = TR_SPECIES_DATA( ITR )%MOLWT
@@ -671,7 +739,7 @@ c-------------------------------------------------------------------------------
                 
                 ! Tracer - Perform Advection?
                 LADVC = GET_LOGICAL_NML( TR_SPECIES_DATA( ITR )%ADVC_FLAG )
-                IF ( LADVC .NE. '' ) THEN
+                IF ( LADVC ) THEN
                     N_TR_ADV = N_TR_ADV + 1
                     TR_ADV( N_TR_ADV )     = TR_SPECIES_DATA( ITR )%SPECIES_NAME
                     TR_ADV_MAP( N_TR_ADV ) = ITR
@@ -679,7 +747,7 @@ c-------------------------------------------------------------------------------
                 
                 ! Tracer - Perform Dispersion (i.e. Diffusion)?
                 LDIFF = GET_LOGICAL_NML( TR_SPECIES_DATA( ITR )%DIFF_FLAG )
-                IF ( LDIFF .NE. '' ) THEN
+                IF ( LDIFF ) THEN
                     N_TR_DIFF = N_TR_DIFF + 1
                     TR_DIFF( N_TR_DIFF )     = TR_SPECIES_DATA( ITR )%SPECIES_NAME
                     TR_DIFF_MAP( N_TR_DIFF ) = ITR
@@ -687,7 +755,7 @@ c-------------------------------------------------------------------------------
                 
                 ! Tracer - Output Deposition Velocity
                 LDDEP = GET_LOGICAL_NML( TR_SPECIES_DATA( ITR )%DDEP_FLAG )
-                IF ( LDDEP .NE. '' ) THEN
+                IF ( LDDEP ) THEN
                     N_TR_DDEP = N_TR_DDEP + 1
                     TR_DDEP( N_TR_DDEP )     = TR_SPECIES_DATA( ITR )%SPECIES_NAME
                     TR_DDEP_MAP( N_TR_DDEP ) = ITR
@@ -695,7 +763,7 @@ c-------------------------------------------------------------------------------
                 
                 ! Tracer - Output Wet Scavenging Flux
                 LWDEP = GET_LOGICAL_NML( TR_SPECIES_DATA( ITR )%WDEP_FLAG )
-                IF ( LWDEP .NE. '' ) THEN
+                IF ( LWDEP ) THEN
                     N_TR_WDEP = N_TR_WDEP + 1
                     TR_WDEP( N_TR_WDEP )     = TR_SPECIES_DATA( ITR )%SPECIES_NAME
                     TR_WDEP_MAP( N_TR_WDEP ) = ITR
@@ -703,7 +771,7 @@ c-------------------------------------------------------------------------------
                 
                 ! Tracer - Output Concentration Field
                 LCONC = GET_LOGICAL_NML( TR_SPECIES_DATA( ITR )%CONC_FLAG )
-                IF ( LCONC .NE. '' ) THEN
+                IF ( LCONC ) THEN
                     N_TR_CONC = N_TR_CONC + 1
                     TR_CONC( N_TR_CONC )     = TR_SPECIES_DATA( ITR )%SPECIES_NAME
                     TR_CONC_MAP( N_TR_CONC ) = ITR

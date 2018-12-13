@@ -68,7 +68,7 @@ GC_SPECIES_DATA =
 'EPOX'          ,118.1    ,       ,    ,'VD_IEPOX'        ,1    ,'MEK'             ,1   ,               ,'IEPOX'   ,'Yes' ,'Yes' ,      ,'Yes',         
 'EPX2'          ,149.1    ,       ,    ,                  ,     ,                  ,    ,               ,          ,      ,      ,      ,'Yes',         
 'TERP'          ,136.2    ,       ,    ,'VD_TERP'         ,1    ,'PINENE'          ,1   ,               ,          ,'Yes' ,'Yes' ,      ,'Yes',         
-'APIN'          ,136.2    ,       ,    ,'VD_TERP'         ,     ,'PINENE'          ,1   ,               ,          ,'Yes' ,'Yes' ,      ,'Yes',         
+'APIN'          ,136.2    ,       ,    ,'VD_TERP'         ,1    ,'PINENE'          ,1   ,               ,          ,'Yes' ,'Yes' ,      ,'Yes',         
 'TERPNRO2'      ,197.0    ,       ,    ,                  ,     ,                  ,    ,               ,          ,'Yes' ,      ,      ,'Yes',         
 'MTNO3'         ,231.0    ,       ,    ,'VD_MTNO3'        ,1    ,'MTNO3'           ,1   ,'MTNO3'        ,'MTNO3'   ,'Yes' ,'Yes' ,'Yes' ,'Yes',         
 'TRPRXN'        ,136.2    ,       ,    ,                  ,     ,                  ,    ,'TRPRXN'       ,          ,      ,      ,      ,     ,         
