@@ -220,7 +220,7 @@ C           PRINT*,'For reaction ',N,', ', P, OH
 
 C         IF ( IRR( N, 1 ) .NE. O1D .OR. IRR( N, 4 ) .NE. OH ) CYCLE 
 
-         COEFF = REAL( SC( N, 1 ), 8 )
+         COEFF = SC( N, 1 )
 
          NPOS  = 20
          RPOS1 = O1D
@@ -266,7 +266,7 @@ C           PRINT*,'For reaction ',N,', ', P, HO2
             PRINT*,' Found HO2 production via O1D in reaction #',N
          END IF
 
-         COEFF = REAL( SC( N, 1 ), 8 )
+         COEFF = SC( N, 1 )
 
          NPOS  = 20
          RPOS1 = O1D
