@@ -1292,7 +1292,7 @@ c..Build line for the A term (coefficient of [HO2]**2 )
      & 'c..', A, ' loss terms not included in R4_19' )
 
 94280 FORMAT( 
-     & 'c..', A, ' loss terms not inluded in R5_21' )
+     & 'c..', A, ' loss terms not included in R5_21' )
 
 95000 FORMAT( 
      & 'c..solve quadratic equation for ', A )
