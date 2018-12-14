@@ -494,7 +494,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !                   CALL WRITE_RATE_CONVERT_BEFORE(MODULE_UNIT, IDIFF_ORDER )
 !                 END IF
              END IF
-             WRITE(MODULE_UNIT,5115, ADVANCE = 'NO')1.0D0/RTDAT( 1, NXX ), -RTDAT(2, NXX ),TRIM(LABEL(IRX,1))
+             WRITE(TABLE_UNIT,5115, ADVANCE = 'NO')1.0D0/RTDAT( 1, NXX ), -RTDAT(2, NXX ),TRIM(LABEL(IRX,1))
           CASE( 6 )
 !             DO IDX = 1, KTN6
 !                IF( KRX6( IDX ) .EQ. NXX )EXIT
@@ -677,7 +677,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 5114   FORMAT(ES12.4,'P*(T/300)<sup>(', ES12.4,' )</sup>')
 !5114   FORMAT('ARRHENUIS_T04( INV_TEMP,  TEMPOT300,',  ES12.4,', 0.0000D+0,',
 !     &        ES12.4,' )  * PRESS ')             
-5115   FORMAT( ES12.4,'*exp<sup>(', ES12.4,'/T)</sup><', A, '>')
+5115   FORMAT( ES12.4,'*exp<sup>(', ES12.4,'/T)</sup> \* ', A )
 !5108   FORMAT('FALLOFF_T08( INV_TEMP,  CAIR, ', 3(ES12.4,', '),2(ES12.4,', '), ES12.4, ' )' )
 !5109   FORMAT('FALLOFF_T09( INV_TEMP,  CAIR,', 3(ES12.4,', '), ES12.4, ' )' )
 !5110   FORMAT('FALLOFF_T90( INV_TEMP,  TEMPOT300,  CAIR,', 3(ES12.4,', '), 3(ES12.4,', '), ES12.4,
@@ -1162,7 +1162,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !                   CALL WRITE_RATE_CONVERT_BEFORE(MODULE_UNIT, IDIFF_ORDER )
 !                 END IF
              END IF
-             WRITE(MODULE_UNIT,5115, ADVANCE = 'NO')1.0D0/RTDAT( 1, NXX ), -RTDAT(2, NXX ),TRIM(LABEL(IRX,1))
+             WRITE(TABLE_UNIT,5115, ADVANCE = 'NO')1.0D0/RTDAT( 1, NXX ), -RTDAT(2, NXX ),TRIM(LABEL(IRX,1))
           CASE( 6 )
 !             DO IDX = 1, KTN6
 !                IF( KRX6( IDX ) .EQ. NXX )EXIT
@@ -1594,7 +1594,8 @@ C   begin body of subroutine  UPCASE
           	 CASE( 5 )
           	    IDX = INT( RTDAT( 3, NXX) )
          	    RATE_CONSTANT( N,NXX ) = RATE_CONSTANT( N,IDX ) 
-     &                                     * RTDAT( 1, NXX )*EXP( RTDAT(2, NXX ) ) 
+     &                                     * EXP( - RTDAT(2, NXX ) * ONE_OTEMP( N ) )
+     &                                     /  RTDAT( 1, NXX )
           	 CASE( 6 )
           	    IDX = INT( RTDAT( 2, NXX) )
           	    IF( RTDAT( 1, NXX ) .NE. 1.0 )THEN
@@ -2394,7 +2395,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !                   CALL WRITE_RATE_CONVERT_BEFORE(MODULE_UNIT, IDIFF_ORDER )
 !                 END IF
              END IF
-             WRITE(MODULE_UNIT,5115, ADVANCE = 'NO')1.0D0/RTDAT( 1, NXX ), -RTDAT(2, NXX ),TRIM(LABEL(IRX,1))
+             WRITE(TABLE_UNIT,5115, ADVANCE = 'NO')1.0D0/RTDAT( 1, NXX ), -RTDAT(2, NXX ),TRIM(LABEL(IRX,1))
           CASE( 6 )
 !             DO IDX = 1, KTN6
 !                IF( KRX6( IDX ) .EQ. NXX )EXIT
@@ -2574,7 +2575,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 5114   FORMAT(ES12.4,'P*(T/300)^(', ES12.4,' )')
 !5114   FORMAT('ARRHENUIS_T04( INV_TEMP,  TEMPOT300,',  ES12.4,', 0.0000D+0,',
 !     &        ES12.4,' )  * PRESS ')             
-5115   FORMAT( ES12.4,'*exp(', ES12.4,'/T)<', A, '>')
+5115   FORMAT( ES12.4,'*exp(', ES12.4,'/T) \* ', A)
 !5108   FORMAT('FALLOFF_T08( INV_TEMP,  CAIR, ', 3(ES12.4,', '),2(ES12.4,', '), ES12.4, ' )' )
 !5109   FORMAT('FALLOFF_T09( INV_TEMP,  CAIR,', 3(ES12.4,', '), ES12.4, ' )' )
 !5110   FORMAT('FALLOFF_T90( INV_TEMP,  TEMPOT300,  CAIR,', 3(ES12.4,', '), 3(ES12.4,', '), ES12.4,
@@ -3022,7 +3023,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !                   CALL WRITE_RATE_CONVERT_BEFORE(MODULE_UNIT, IDIFF_ORDER )
 !                 END IF
              END IF
-             WRITE(MODULE_UNIT,5115)1.0D0/RTDAT( 1, NXX ), -RTDAT(2, NXX ),TRIM(LABEL(IRX,1))
+             WRITE(STRING,5115)1.0D0/RTDAT( 1, NXX ), -RTDAT(2, NXX ),TRIM(LABEL(IRX,1))
+             WRITE(6,5115)1.0D0/RTDAT( 1, NXX ), -RTDAT(2, NXX ),TRIM(LABEL(IRX,1))
           CASE( 6 )
 !             DO IDX = 1, KTN6
 !                IF( KRX6( IDX ) .EQ. NXX )EXIT
@@ -3816,7 +3818,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !                   CALL WRITE_RATE_CONVERT_BEFORE(MODULE_UNIT, IDIFF_ORDER )
 !                 END IF
              END IF
-             WRITE(MODULE_UNIT,5115, ADVANCE = 'NO')1.0D0/RTDAT( 1, NXX ), -RTDAT(2, NXX ),TRIM(LABEL(IRX,1))
+             WRITE(TABLE_UNIT,5115, ADVANCE = 'NO')1.0D0/RTDAT( 1, NXX ), -RTDAT(2, NXX ),TRIM(LABEL(IRX,1))
+             WRITE(6,5115)1.0D0/RTDAT( 1, NXX ), -RTDAT(2, NXX ),TRIM(LABEL(IRX,1))
           CASE( 6 )
 !             DO IDX = 1, KTN6
 !                IF( KRX6( IDX ) .EQ. NXX )EXIT
@@ -4037,7 +4040,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 5103   FORMAT(ES10.2,'e<sup>', F9.2,'/T</sup>')
 5104   FORMAT(ES10.2,'e<sup>',F9.2,'/T</sup>(T/300)<sup>',F6.2,' </sup>')
 5114   FORMAT(ES10.2,'P(T/300)<sup>', F9.2,'</sup>')
-5115   FORMAT( ES10.2,'e<sup>', F9.2,'/T</sup><', A, '>')
+5115   FORMAT( ES10.2,'e<sup>', F9.2,'/T</sup> \*', A )
 5108    FORMAT('k<sub>0</sub>=', ES10.2,'e<sup>',F8.1,'/T</sup><br>',
      &         'k<sub>1</sub>=', ES10.2,'e<sup>',F8.1,'/T</sup><br>',
      &         'k<sub>3</sub>=', ES10.2,'e<sup>',F8.1,'/T</sup>')
