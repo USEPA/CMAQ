@@ -360,7 +360,7 @@ c..HONO loss terms not included in R4_19
 
       L19   = 1.0D0 + L19 * DTC + R4_19
 
-c..PNA loss terms not inluded in R5_21
+c..PNA loss terms not included in R5_21
       L21 =    4.1000D-01 * RKI(    50 )                         ! PNA=0.5900D+...
      &    +                 RKI(    51 ) * YC ( OH           )   ! PNA+OH=NO2
 
