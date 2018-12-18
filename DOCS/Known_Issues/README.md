@@ -100,3 +100,21 @@ The resolution of this issue should result in more stable code that avoids numer
 
 ### Solution  
 Several modifications need to be made to the following files: AERO_DATA.F, rdbcon.F, load_cgrid.F. Copies of the new files are available in the folder CMAQv5.2-i6.  
+
+## *CMAQv5.2-i7:* Error in SpecDef files for the saprc07tb_ae6_aq, saprc07tc_ae6_aq, and saprc07tc_ae6nvPOA_aq mechanisms causes error when running the combine utility 
+Date: 2018-12-18
+Contact: Christian Hogrefe (hogrefe.christian@epa.gov) 
+
+### Description  
+BENZENE is defined twice in the species definition files for the saprc07tb_ae6_aq, saprc07tc_ae6_aq, and saprc07tc_ae6nvPOA_aq mechanisms.  These SpecDef files are located under CCTM/src/MECHS/ and are used for the SPECIES_DEF environment variable in the combine run script. The duplicated BENZENE definition causes the combine utility to fail with error:
+
+    Variable name VNAME3D( 40 ) = “BENZENE” duplicates VNAME3D( 10 ) = “BENZENE” in file “OUTFILE”
+    (some more variables set)
+    Error creating netCDF variable BENZENE
+
+### Scope and Impact
+This will only impact users who are trying to use the combine utility on CMAQv5.2 output from a simulation that used the saprc07tb_ae6_aq, saprc07tc_ae6_aq, or saprc07tc_ae6nvPOA_aq chemical mechanism.
+
+### Solution
+Commenting out or deleting the second definition for BENZENE in the species definition files for saprc07tb_ae6_aq, saprc07tc_ae6_aq, and saprc07tc_ae6nvPOA_aq will resolve this issue, allowing the combine utility to run successfully. 
+
