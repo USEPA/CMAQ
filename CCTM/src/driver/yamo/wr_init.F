@@ -180,7 +180,7 @@ C (inital data assumed to be in correct output units)
 
       END DO
  
-      IF ( L_CONC_W_VEL ) THEN   ! for W_YAMO
+      IF ( L_CONC_WVEL ) THEN   ! for W_YAMO
          DBUFF = 0.0
          IF ( .NOT. WRITE3( CTM_CONC_1, 'W_VEL',
      &                      JDATE, JTIME, DBUFF ) ) THEN
