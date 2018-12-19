@@ -1,6 +1,6 @@
 # Fix to Gravitational Settling Sub-timestep Calculation
 
-**Author/P.O.C.:**, [Ben Murphy](mailto:murphy.ben@epa.gov), Computational Exposure Division, U.S. EPA
+**Author/P.O.C.:** [Ben Murphy](mailto:murphy.ben@epa.gov), Computational Exposure Division, U.S. EPA
 
 ## Brief Description
 The gravitational settling algorithm in the vertical dispersion module is responsible for allowing

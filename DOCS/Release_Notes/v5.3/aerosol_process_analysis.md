@@ -1,9 +1,9 @@
 # Process Analysis for Aerosol Sub-Processes
 
-**Author/P.O.C.:**, [Ben Murphy](mailto:murphy.ben@epa.gov), Computational Exposure Division, U.S. EPA
+**Author/P.O.C.:** [Ben Murphy](mailto:murphy.ben@epa.gov), Computational Exposure Division, U.S. EPA
 
 ## Brief Description
-The Process Analysis module (IPR) has been extended to quantify the contribution of aerosol subprocess
+The Process Analysis (PA) module has been extended to quantify the contribution of aerosol subprocess
 such as condensation, coagulation, mode reallocation and new particle formation on all model species. 
 Process Analysis input and output have been integrated with this new feature. The short-names of these 
 new processes (to be used in the PA control file) are:

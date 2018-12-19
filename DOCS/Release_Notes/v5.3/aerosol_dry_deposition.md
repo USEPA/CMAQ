@@ -1,10 +1,10 @@
 # Aerosol Dry Deposition Algorithm Updated
 
-**Author/P.O.C.:**, [Ben Murphy](mailto:murphy.ben@epa.gov), Computational Exposure Division, U.S. EPA
+**Author/P.O.C.:** [Ben Murphy](mailto:murphy.ben@epa.gov), Computational Exposure Division, U.S. EPA
 
 ## Brief Description
-It was noted in CMAQv5.2.1 and before that dry deposition velocities, particularly for coarse-mode 
-particles was too high by a factor of 10-100 in some cases. Detailed testing revealed that the 
+It was noted in CMAQv5.2.1 that dry deposition velocities, particularly for coarse-mode 
+particles, were too high by a factor of 10-100 in some cases. Detailed testing revealed that the 
 current algorithm was not suitable for coarse-mode particles, especially when the mode width (sigma) 
 of the coarse mode approached 2.5, the upper bound. 
 

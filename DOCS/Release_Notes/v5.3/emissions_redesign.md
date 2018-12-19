@@ -1,6 +1,6 @@
 # DESID: Detailed Emissions Scaling, Isolation, and Diagnostic Module
 
-**Author/P.O.C.:**, [Ben Murphy](mailto:murphy.ben@epa.gov), Computational Exposure Division, U.S. EPA
+**Author/P.O.C.:** [Ben Murphy](mailto:murphy.ben@epa.gov), Computational Exposure Division, U.S. EPA
 
 ## Brief Description
 Past versions of CMAQ have allowed users to set and scale emissions on a per-species basis for gases and 
