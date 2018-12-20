@@ -113,6 +113,8 @@ C                          for cloud formation based on Mocko and Cotton (1995) 
 C                          More consistent with WRF
 C       7May 18 D. Schwede: Removed call to CZANGLE. COSZEN now calculated in ASX_DATA_MOD
 C       Aug 2018 J. Pleim: convert to Z coords
+C       Oct 2018 D. Wong: Declared array, F as allocatable and added subroutine ACMCLD 
+C                         in the interface block
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
@@ -335,12 +337,12 @@ C-------------------------------------------
       REAL, ALLOCATABLE, SAVE :: CEND   ( : )   ! ending equiv gas phase conc (mol/mol)
       REAL, ALLOCATABLE, SAVE :: POLC   ( : )   ! ave vert conc incloud mol sp/m2 and mol sp/ mol air
       REAL, ALLOCATABLE, SAVE :: REMOV  ( : )   ! mol/m2 or mm*mol/lit scavenged
-      REAL          :: DENSL( NLAYS )      ! air density (kg/m3)
-      REAL          :: F    ( NLAYS )      ! cloud entrainment fraction to be solved for
-      REAL          :: FSIDE( NLAYS )      ! sidewall entrainment vertical profile
-      REAL          :: LWC  ( NLAYS )      ! liq wat cont of cloud in kg H2O/m3 air
-      REAL, ALLOCATABLE, SAVE :: QICE ( : )      ! ice mixing ratio in cloud
-      REAL, ALLOCATABLE, SAVE :: QLQD ( : )      ! actual liq. wat. mix ratio in cloud
+      REAL          :: DENSL( NLAYS )           ! air density (kg/m3)
+      REAL, ALLOCATABLE, SAVE :: F      ( : )   ! cloud entrainment fraction to be solved for
+      REAL          :: FSIDE( NLAYS )           ! sidewall entrainment vertical profile
+      REAL          :: LWC  ( NLAYS )           ! liq wat cont of cloud in kg H2O/m3 air
+      REAL, ALLOCATABLE, SAVE :: QICE ( : )     ! ice mixing ratio in cloud
+      REAL, ALLOCATABLE, SAVE :: QLQD ( : )     ! actual liq. wat. mix ratio in cloud
       REAL          :: QVC  ( NLAYS )      ! saturation wat vap mix ratio at T1
       REAL          :: QWAT ( NLAYS )      ! liq wat mix rat, taken as total condensed water (ice + liq) profile (Eq.4, W&T)
       REAL          :: RHOM2( NLAYS )      ! mol/m2 air
@@ -403,6 +405,21 @@ C...........Statement Functions
       QSAT( E, P ) = MVOMA * ( E / ( P - E ) )
 
       INTERFACE
+        SUBROUTINE ACMCLD ( NSP, NLAYS, F, C, DZH, CBELOW, CLBASE, CLTOP,
+     &                      FRAC, TCLIFE, DTCLD )
+          INTEGER, INTENT( IN ) :: NSP
+          INTEGER, INTENT( IN ) :: NLAYS
+          REAL, INTENT( IN )    :: F( : )
+          REAL, INTENT( INOUT ) :: C( :, : )
+          REAL, INTENT( IN )    :: DZH( : )
+          REAL, INTENT( INOUT ) :: CBELOW( : )
+          INTEGER, INTENT( IN ) :: CLBASE
+          INTEGER, INTENT( IN ) :: CLTOP
+          REAL, INTENT( IN )    :: FRAC
+          REAL, INTENT( IN )    :: TCLIFE
+          REAL, INTENT( IN )    :: DTCLD
+        END SUBROUTINE ACMCLD
+
         SUBROUTINE SCAVWDEP ( JDATE, JTIME, WTBAR, WCBAR, TBARC, PBARC,
      &                        CTHK1, AIRM, PRATE1, TAUCLD, POLC, CEND,
      &                        REMOV, REMOVAC, ALFA0, ALFA2, ALFA3 )
@@ -414,6 +431,7 @@ C...........Statement Functions
           REAL,    INTENT( OUT ) :: REMOVAC
           REAL,    INTENT( OUT ) :: ALFA0, ALFA2, ALFA3
         END SUBROUTINE SCAVWDEP
+
         SUBROUTINE AQ_MAP( JDATE, JTIME, WTBAR, WCBAR, TBARC, PBARC,
      &                     CTHK1, AIRM, PRATE1, TAUCLD, POLC, CEND,
      &                     REMOV, REMOVAC, ALFA0, ALFA2, ALFA3, DARK )
@@ -519,6 +537,12 @@ C...  field if a convective parameterization was not used in the WRF simulation
         END IF
 
 C...allocate saved arrays
+
+        ALLOCATE ( F( NLAYS ), STAT = ALLOCSTAT )
+        IF ( ALLOCSTAT .NE. 0 ) THEN
+          XMSG = 'Failure allocating F'
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+        END IF
 
         ALLOCATE ( DZH( NLAYS ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
