@@ -284,7 +284,6 @@ C namelist or in the NR namelist.
           Allocate ( vapor_map  ( n_vapor ))
 
           Do spc = 1,n_vapor
-!             vaporspc( spc ) = vaporlist( aerosol_to_vaporlist( spc ) )
              vaporspc( spc ) = vaporlist( vapor_to_vaporlist( spc ) )
           End Do
 
@@ -311,8 +310,6 @@ C phase as model species
              g = 0
              n = index1( vaporlist( spc )%soa_name, n_ae_spc, ae_spc )
              If ( n .Gt. 0 ) Then ! vapor phase
-!                 write(logdev,*)'found soa species:',TRIM( ae_spc(n) ),
-!     &           ' Search for vapor species:',Trim( vaporlist( spc )%name )
                  g = index1( vaporlist( spc )%name, n_nr_spc, nr_spc )
                  If( g .Lt. 1 ) Then
                     g = index1( vaporlist( spc )%name, n_gc_spc, gc_spc )
@@ -649,7 +646,6 @@ C Copy vapor_conc back to grid cell concentrations
          If ( n .Ne. 0 ) Then
             vtmp = vapor_mw( spc ) * gasconv
             conc( n ) = Max ( vapor_conc( spc ) / vtmp, min_gasconc )
-            ! Write( *,'(a,i5,g16.6)' ) vaporspc( spc )%name, n, conc( n )
          End If
       End Do
 
