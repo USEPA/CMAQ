@@ -257,6 +257,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   set YYMMDD = `date -ud "${TODAYG}" +%y%m%d`   #> Convert YYYY-MM-DD to YYMMDD
   set YYYYJJJ = $TODAYJ
   set MONTH = `date -ud "${TODAYG}" +%m`        #> Convert YYYY-MM-DD to MM
+  set YEAR = `date -ud "${TODAYG}" +%Y`         #> Convert YYYY-MM-DD to YYYY
 
   #> Calculate Yesterday's Date
   set YESTERDAY = `date -ud "${TODAYG}-1days" +%Y%m%d` #> Convert YYYY-MM-DD to YYYYJJJ
@@ -358,7 +359,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 
   #> Gridded Emissions Files 
   setenv N_EMIS_GR 1
-  if( $year == 2015 ) then
+  if( $YEAR == 2015 ) then
       set EMISfile  = emis_mole_all_${YYYYMMDD}_HEMI_108k_withbeis_2016fe_spinup_cb6_15jh.ncf
    else
       set EMISfile  = emis_mole_all_${YYYYMMDD}_HEMI_108k_withbeis_2016fe_hemi_cb6_16jh.ncf
