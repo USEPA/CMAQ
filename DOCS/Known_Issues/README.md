@@ -21,3 +21,16 @@ This will only impact users who are trying to use the combine utility on CMAQv5.
 ### Solution
 Commenting out or deleting the second definition for BENZENE in the species definition files for saprc07tb_ae6_aq, saprc07tc_ae6_aq, and saprc07tc_ae6nvPOA_aq will resolve this issue, allowing the combine utility to run successfully.
 
+
+## *CMAQv5.2.1-i2:* ICON and BCON fail to compile in v5.2.1
+Date: 2018-12-21
+Contact: Shawn Roselle (roselle.shawn@epa.gov) 
+
+### Description  
+In the CMAQv5.2.1 release, a change in "config_cmaq.csh" for the environment variable that specifies the FORTRAN compiler version was not propagated into the build and run scripts for ICON and BCON.  
+
+### Scope and Impact
+ICON and BCON did not compile with the build scripts released with v5.2.1.  Updated build and run scripts are now provided that will allow these utilities to be used. 
+
+### Solution
+Replace build and run scripts in PREP/icon/scripts/ and PREP/bcon/scripts/ in repository with the updated versions located in the folder CMAQv5.2.1-i2
