@@ -44,7 +44,7 @@ C   29 Nov 17 David Wong: removed all SWAP routines and replaced with SE_COMM
 C-----------------------------------------------------------------------
 
       USE HGRD_DEFN             ! horizontal domain specifications
-      USE CGRID_SPCS          ! CGRID mechanism species
+      USE CGRID_SPCS            ! CGRID mechanism species
       USE UTILIO_DEFN
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_COMM_MODULE, SE_UTIL_MODULE)
@@ -66,7 +66,6 @@ C Arguments:
       INTEGER, INTENT( IN ) :: FTIME         ! current model time, coded HHMMSS
       INTEGER, INTENT( IN ) :: TSTEP         ! time step (HHMMSS)
       INTEGER, INTENT( IN ) :: LVL           ! layer
-!     REAL,    INTENT( IN ) :: BCON( NBNDY,1: ) ! boundary concentrations
       REAL,    INTENT( IN ) :: BCON( :,: )      ! boundary concentrations
 
 C External Functions:
@@ -95,7 +94,6 @@ C Local Variables:
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
       CHARACTER( 96 ) :: XMSG = ' '
 
-
       REAL,    SAVE :: DX2                      ! dx2 (meters)
       INTEGER, SAVE :: ASPC                     ! RHOJ index in CGRID
 
@@ -112,8 +110,6 @@ C Local Variables:
       INTEGER      COL, ROW, SPC, VAR           ! loop counters
       INTEGER      A2C
 
-      INTEGER MY_TEMP
-!     INTEGER, SAVE :: STARTROW, ENDROW
       LOGICAL, SAVE :: BNDY_PE_LOY, BNDY_PE_HIY
 
 #ifdef parallel
@@ -122,9 +118,9 @@ C Local Variables:
       REAL, ALLOCATABLE, SAVE :: HALO_SOUTH( :,:,: )
       REAL, ALLOCATABLE, SAVE :: BUF_NS( :,:,: )
 #endif
-
       INTEGER, SAVE :: SFX    ! fixed parameter for southern boundary
       INTEGER, SAVE :: NFX    ! fixed parameter for northern boundary
+
 C Required interface for allocatable array dummy arguments
 
       INTERFACE
@@ -159,6 +155,7 @@ C Get dx2 from HGRD_DEFN module
 
          IF ( GDTYP_GD .EQ. LATGRD3 ) THEN
             DX2 = DG2M * YCELL_GD   ! in m.
+
          ELSE
             DX2 = YCELL_GD          ! in m.
          END IF
@@ -216,9 +213,6 @@ C Create global map to CGRID
 
          ADV_MAP( N_SPC_ADV ) = ASPC
 
-!        CALL SUBST_LOOP_INDEX ( 'R', 1, MY_NROWS, 1, MY_TEMP,
-!    &                           STARTROW, ENDROW )
-
          CALL SUBST_HI_LO_BND_PE ( 'R', BNDY_PE_LOY, BNDY_PE_HIY )
 
          END IF                    ! if firstime
@@ -241,7 +235,6 @@ C Get the contravariant x2 velocity component
             DO COL = 1, MY_NCOLS
                HALO_SOUTH( COL,ROW,SPC ) = CGRID( COL,ROW,LVL,A2C )
                HALO_NORTH( COL,ROW,SPC ) = CGRID( COL,NORTH_ROW+ROW,LVL,A2C )
-!              M = M + 1
                BUF_NS( COL,ROW,SPC ) = HALO_NORTH( COL,ROW,SPC )
             END DO
          END DO
@@ -253,7 +246,6 @@ C Get the contravariant x2 velocity component
 
       DO 233 COL = 1, MY_NCOLS
 
-!        DO ROW = STARTROW, ENDROW         !    DO ROW = 1, MY_NROWS+1
          DO ROW = 1, MY_NROWS+1
             VELY( ROW ) = VHAT( COL,ROW )
          END DO
@@ -308,11 +300,6 @@ C PPM scheme
                CGRID( COL,ROW,LVL,A2C ) = CONY( ROW,SPC )
             END DO
          END DO
-
-!019  format( 'y_ppm# date, time, col, row, lvl, cony: ',
-!    &         2I7, 3I4, 1pe12.3 )
-2019  format( 'y_ppm# time, c, r, l, s, cony: ',
-     &         I7.6, 4I4, 1pe12.3 )
 
 233   CONTINUE
 

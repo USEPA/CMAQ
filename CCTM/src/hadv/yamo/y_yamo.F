@@ -56,6 +56,8 @@ C-----------------------------------------------------------------------
       USE NOOP_MODULES          ! stenex (using NOOP_COMM_MODULE, NOOP_UTIL_MODULE)
 #endif
 
+      use runtime_vars
+
       IMPLICIT NONE
       
 C Includes:
@@ -70,9 +72,7 @@ C Arguments:
       INTEGER, INTENT( IN ) :: FTIME         ! current model time, coded HHMMSS
       INTEGER, INTENT( IN ) :: TSTEP         ! time step (HHMMSS)
       INTEGER, INTENT( IN ) :: LVL           ! layer
-!     REAL,    INTENT( IN ) :: BCON( NBNDY,* ) ! boundary concentrations
       REAL,    INTENT( IN ) :: BCON( :,: )     ! boundary concentrations
-!     REAL,    INTENT( IN ) :: YTRHOJ( NCOLS,0:NROWS )
       REAL,    INTENT( IN ) :: YTRHOJ( 1:,0: ) ! met RHOJ
 
 C External Functions:
@@ -122,7 +122,6 @@ C Local Variables:
       INTEGER      A2C
 
       INTEGER MY_TEMP
-!     INTEGER, SAVE :: STARTROW, ENDROW, STARTROW2, ENDROW2, ENDROW2_LIM
       INTEGER, SAVE :: STARTROW2, ENDROW2, ENDROW2_LIM
       LOGICAL, SAVE :: BNDY_PE_LOY, BNDY_PE_HIY
 
@@ -230,9 +229,6 @@ C Create global map to CGRID
 
          ADV_MAP( N_SPC_ADV ) = ASPC
 
-!        CALL SUBST_LOOP_INDEX ( 'R', 1, MY_NROWS, 1, MY_TEMP,
-!    &                           STARTROW, ENDROW )
-
          CALL SUBST_LOOP_INDEX ( 'R', 2, MY_NROWS, 1, MY_TEMP,
      &                           STARTROW2, ENDROW2 )
 
@@ -243,8 +239,6 @@ C Create global map to CGRID
          ELSE
             ENDROW2_LIM = ENDROW2 + 1
          END IF
-
-2005  format( '@@ #y_yamo> :', 2l6, 2x, 5i6.3 )
 
       END IF                    ! if firstime
 
@@ -275,7 +269,6 @@ C Get the contravariant x2 velocity component
 
       DO 253 COL = 1, MY_NCOLS
 
-!        DO ROW = STARTROW, ENDROW      ! DO ROW = 1, MY_NROWS+1
          DO ROW = 1, MY_NROWS+1
             VELY( ROW ) = VHAT( COL,ROW )
          END DO
@@ -315,11 +308,6 @@ C check adjusted velocities for Courant limited max timestep
             IF (VELY( ROW ) .NE. 0.0) THEN
                DTCFL = MIN ( DTCFL, 0.9 * DX2 / ABS( VELY( ROW ) ) )
             END IF
-
-2009           format(  '#y_yamo> col, row, lvl, adjfac,   vely: ',
-     &                3i3, 1x, 2f7.2 )
-2011           format(  '#y_yamo> col, row, lvl, adjfac_l, vely: ',
-     &                3i3, 1x, 2f7.2 )
 
          END DO   ! ROW
 
@@ -363,11 +351,10 @@ C North boundary
 
          END DO   ! SPC
 
-2017  format( '@@', 5x, i7.6, i4, 1pe12.3 )
-
 C PPM scheme
          IF ( DTCFL .LT. DT ) THEN
             NITER = INT( DT / DTCFL ) + 1
+            write(logdev,*) 'y_yamo: col, niter = ',col, niter           
             DO ITER = 1, NITER
                CALL HPPM ( MY_NROWS, MY_NCOLS, CONY, VELY, DTCFL, DX2, 'R' )
             END DO
@@ -381,9 +368,6 @@ C PPM scheme
                CGRID( COL,ROW,LVL,A2C ) = CONY( ROW,SPC )
             END DO
          END DO
-
-2019  format( 'y_yamo# time, c, r, l, s, cony: ',
-     &         I7.6, 4I4, 1pe12.3 )
 
 253   CONTINUE
 

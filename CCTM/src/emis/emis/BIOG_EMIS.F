@@ -54,7 +54,7 @@ C dimensioning parameters for BEIS v3.12
 C Names for BEIS species, emitted model species
 C DO NOT CHANGE THE ORDER OF THESE ARRAYS
 
-      CHARACTER( 5 ) :: BIOTYPES( NSEF ) =
+      CHARACTER( 5 ), PARAMETER :: BIOTYPES( NSEF ) =
      &                          (/ 'ISOP ', 'MBO  ', 'METH ', 
      &                             'APIN ', 'BPIN ', 'D3CAR', 'DLIM ',
      &                             'CAMPH', 'MYRC ', 'ATERP', 'BPHE ', 
@@ -66,10 +66,10 @@ C DO NOT CHANGE THE ORDER OF THESE ARRAYS
      &                             'CO   ', 'ORVOC', 'SESQT',
      &                             'NO   ' /)
 
-      CHARACTER( 5 ) :: LAITYPES( NLAI ) =
+      CHARACTER( 5 ), PARAMETER :: LAITYPES( NLAI ) =
      &                          (/ 'ISOP ', 'MBO  ', 'METH ' /)
 
-      CHARACTER( 1 ) :: SEASON( NSEASONS ) =
+      CHARACTER( 1 ), PARAMETER :: SEASON( NSEASONS ) =
      &                          (/ 'S', 'W' /)
 
 C-----------------------------------------------------------------------

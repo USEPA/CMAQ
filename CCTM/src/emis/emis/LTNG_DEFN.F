@@ -65,7 +65,7 @@
       PRIVATE
 
 !C lightning log linear regression parameters with RC 
-      REAL                       :: SQUAREKM
+      REAL,                 SAVE :: SQUAREKM
       REAL,                 SAVE :: SCL_FACTOR
 
       INTEGER,              SAVE :: LTLYRS     ! no. of emissions layers
@@ -99,13 +99,13 @@
       INTEGER,              SAVE :: NTICS = 0 ! no. of substeps within an output tstep
       INTEGER,              SAVE :: MTICS = 0 ! temporary sub for NTICS before it set to 0 
       INTEGER,              SAVE :: LDATE     ! test date to update emissions diag avg
-      INTEGER                    :: LTIME     ! test time to update emissions diag avg
+      INTEGER,              SAVE :: LTIME     ! test time to update emissions diag avg
       INTEGER                    :: FTIME     ! Start time to Write to Diagnostic files
 
       INTEGER,              SAVE :: GXOFF, GYOFF   ! global origin offset from file
       INTEGER,              SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
 
-      INTEGER                    :: LT_TSTEP
+      INTEGER,              SAVE :: LT_TSTEP
 
       CONTAINS
 
@@ -520,7 +520,7 @@
          LOGICAL,     SAVE :: R_READY = .TRUE.
          LOGICAL,     SAVE :: wrf_assim = .FALSE.
          INTEGER,     SAVE :: TOT_TSTEP
-         LOGICAL           :: FIRSTIME = .TRUE.
+         LOGICAL,     SAVE :: FIRSTIME = .TRUE.
 
 C statement function for ERF approximation
          REAL              :: ERF                ! ERF approx. statement function
