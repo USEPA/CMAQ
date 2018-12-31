@@ -82,7 +82,6 @@ SO2_UGM3        ,ug m-3     ,1000.0*(SO2[1]*2.2118*DENS[2])
 TERPTOT         ,ppbV      ,1000.0*(TERP[1]+APIN[1])
 APIN            ,ppbV      ,1000.0*APIN[1]
 TOL             ,ppbV      ,1000.0*TOLUENE[1]
-BENZENE         ,ppbv      ,1000.0*BENZENE[1]
 XYL             ,ppbV      ,1000.0*(MXYL[1]+OXYL[1]+PXYL[1]) 
 ALK             ,ppbC      ,1000.*(2.*ALK1[1]+3.*ALK2[1]+4.*ALK3[1]+5.*ALK4[1]+8.*ALK5[1])
 
