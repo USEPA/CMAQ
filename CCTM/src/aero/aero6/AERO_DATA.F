@@ -789,8 +789,8 @@ C Build mapping to CGRID for each species in the master AeroList
                   ! namelist is not matching the standing
                   ! molecular weight, throw an error
                   xmsg = 'The molecular weight of ' // Trim( sn )
-     &                   // ' is different from that of the same species'
-     &                   // ' in the same or another mode.'
+     &                  // ' is different from that of the same species'
+     &                  // ' in the same or another mode.'
                   Call m3warn( pname, 0, 0, xmsg )
                   Write( xmsg,* ) 'New Value(', n, ') = ', ae_molwt( n ),
      &                            'Expected value(', spc, ')= ', mole_weight( spc )
@@ -987,17 +987,18 @@ C compute aeromode_minNum and aeromode_minM2
 
       if( AE_eflag )Then
          Write(logdev,99901) Trim( mechname )
-             xmsg = 'The FATAL errors found in namelist used. Check '
-     &         //  'the log of exiting processor if more details are needed.'
+          xmsg = 'The FATAL errors found in namelist used. Check '
+     &    //  'the log of exiting processor if more details are needed.'
          Call m3exit( pname, 0, 0, xmsg, xstat3 )
       End If 
 
       mapped = .True.
 
 
-99901 Format( 'FATAL Error(s) found in the AE namelist used. Check that ' 
-     &     /  'this AE namelist contains the above required data as the file in '
-     &     /  'the respository version of the mechanism: ', a )
+99901 Format( 'FATAL Error(s) found in the AE namelist used. Check that' 
+     &  /' this AE namelist contains the above required data '
+     &  / 'as the file in '
+     &  /'the respository version of the mechanism: ', a )
       Return
       End Subroutine map_aero
 
@@ -1212,7 +1213,8 @@ C Find the substring vname in aerospc( spc )%name( n )
          Return
       End If
 
-      xmsg = 'Required Species ' // Trim( vname ) // ' Not found in AE namelist'
+      xmsg = 'Required Species ' // Trim( vname ) // 
+     &       ' Not found in AE namelist'
       AE_eflag  = .True.
       Call m3warn( pname, 0, 0, xmsg )
 
@@ -1493,6 +1495,122 @@ C Local variables:
       ENDDO
 
       End Subroutine CHECK_AERO_ICBC
+
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
+      SUBROUTINE HETCHEM_EXTRACT_AERO ( CGRID )  
+
+c  Calculates the change in aerosol surface area due to heterogeneous
+C  reactions and updates the CGRID array with this information.
+C  
+C  History
+C  May 2016: BM Created
+
+C  Key Subroutines Called: none
+C
+C  Called by: Gas-Phase Chemistry Driver
+      USE AEROMET_DATA, ONLY: pi
+      USE GRID_CONF, ONLY: NLAYS, MY_NROWS, MY_NCOLS
+
+      IMPLICIT NONE
+      
+      REAL, POINTER   :: CGRID ( :,:,:,: )  ! pointer to model concentrations
+      REAL, PARAMETER :: TWOTHIRDS = 2.0 / 3.0
+      REAL            :: M2DRY_FINAL( N_MODE ) ! Dry 2nd Aerosol Moment
+      REAL            :: M3DRY_FINAL( N_MODE ) ! Dry 3rd Aerosol Moment
+
+C *** extract grid cell concentrations of aero species from CGRID
+C     into aerospc_conc in aero_data module
+C     also converts dry surface area to wet second moment
+               CALL EXTRACT_AERO ( CGRID( C,R,L,: ), .TRUE. )
+
+C *** extract in inorganic aerosol processors
+
+               CALL EXTRACT_PRECURSOR( CGRID( C,R,L,: ) ) 
+ 
+C *** Update geometric mean diameters, geometric
+C     standard deviations, modal mass totals, and modal particle
+C     densities, based on the concentrations of M2, M0, and speciated
+C     masses.
+               CALL getpar( FIXED_sg )
+    
+C *** set up variables needed for calculating KN2O5 and YIELD_CLNO2
+
+               DO N = 1, N_MODE
+C *** estimate the "wet third moments" from moment3_conc
+C     Note: this is the H2O concentration from previous time step
+                  WET_M3( N ) = REAL( MOMENT3_CONC( N ), 8 )
+C *** calculate "wet second moment" assuming that H2O does not
+C     affect the geometric standard deviation
+                  WET_M2( N ) = REAL( MOMENT2_CONC( N ), 8 ) 
+C *** The "wet" geometric mean (same as median) diameter was updated in
+C     getpar. It is stored in aeromode_diam
+C *** calculate effective diameter (this is actually the mean) using Eq 3 of Pleim et al (1995)
+                  DE_WET( N ) = REAL( AEROMODE_DIAM( N ) * EXP( 1.5 * AEROMODE_LNSG( N ) ** 2 ), 8)
+               END DO
+
+C *** Retrieve and Save the Dry 3rd and 2nd Moments
+               CALL calcmoments( .False. )
+               CHEM_M2DRY_INIT( C,R,L,: ) = REAL( MOMENT2_CONC( : ), 8 )
+               CHEM_M3DRY_INIT( C,R,L,: ) = REAL( MOMENT3_CONC( : ), 8 )
+
+      END SUBROUTINE HETCHEM_EXTRACT_AERO
+
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+      SUBROUTINE HETCHEM_UPDATE_AERO ( CGRID )  
+
+c  Calculates the change in aerosol surface area due to heterogeneous
+C  reactions and updates the CGRID array with this information.
+C  
+C  History
+C  May 2016: BM Created
+
+C  Key Subroutines Called: none
+C
+C  Called by: Gas-Phase Chemistry Driver
+      USE AEROMET_DATA, ONLY: pi
+      USE GRID_CONF, ONLY: NLAYS, MY_NROWS, MY_NCOLS
+
+      IMPLICIT NONE
+      
+      REAL, POINTER   :: CGRID ( :,:,:,: )  ! pointer to model concentrations
+      REAL, PARAMETER :: TWOTHIRDS = 2.0 / 3.0
+      REAL            :: M2DRY_FINAL( N_MODE ) ! Dry 2nd Aerosol Moment
+      REAL            :: M3DRY_FINAL( N_MODE ) ! Dry 3rd Aerosol Moment
+      INTEGER L, R, C, M 
+      LOOP_LAY: DO L = 1, NLAYS
+         LOOP_ROW: DO R = 1, MY_NROWS
+            LOOP_COL: DO C = 1, MY_NCOLS
+     
+               ! Extract grid cell concentrations of aero species from CGRID
+               ! into aerospc_conc in aero_data module
+               ! also converts dry surface area to wet second moment
+               CALL extract_aero ( CGRID( C,R,L,: ), .True. )
+
+               ! Recalculate Dry 3rd Moment After Chemistry Processes
+               ! 2nd moment hasnt been update yet.
+               CALL calcmoments( .False. )
+               M2DRY_FINAL( : ) = MOMENT2_CONC( : )
+               M3DRY_FINAL( : ) = MOMENT3_CONC( : )
+
+               ! Calculate new Second Moment Manually
+               ! Assume standard deviation is fixed.
+               M2DRY_FINAL( : ) = REAL( CHEM_M2DRY_INIT( C,R,L,: ) ) 
+     &             * ( M3DRY_FINAL( : ) 
+     &             / REAL( CHEM_M3DRY_INIT( C,R,L,: ) ) ) ** TWOTHIRDS
+
+               ! Update the Aerosol Surface Area making sure to multiply
+               ! the 2nd moment by Pi to convert properly
+               DO M = 1, N_MODE
+                 CGRID( C,R,L, aerosrf_map( M ) ) = 
+     &                        PI * M2DRY_FINAL( M )
+               END DO
+
+            END DO LOOP_COL
+         END DO LOOP_ROW
+      END DO LOOP_LAY
+
+      END SUBROUTINE HETCHEM_UPDATE_AERO
+C
       End Module aero_data
