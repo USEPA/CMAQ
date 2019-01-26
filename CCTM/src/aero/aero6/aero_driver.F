@@ -122,7 +122,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       USE PRECURSOR_DATA, ONLY: SULPRD_IDX, SO4RATE, PRECURSOR_CONC, 
      &                          PHGRXN_IDX, PHG_RATE, 
      &                          EXTRACT_PRECURSOR, UPDATE_PRECURSOR
-      USE SOA_DEFN, ONLY: EXTRACT_SOA, UPDATE_SOA
+      USE SOA_DEFN, ONLY: EXTRACT_SOA, UPDATE_ORGVAPOR
       USE AEROMET_DATA, ONLY: AIRTEMP, AIRPRES, AIRQV, AIRDENS, AIRRH, 
      &                        H2OSATVP, H2OVP, MWWAT, MWAIR
       USE UTILIO_DEFN, ONLY: OPEN3, INTERPX, WRITE3, FSREAD3, ALLVAR3,
@@ -461,7 +461,7 @@ C *** Update precursor variables conc back into CGRID
                CALL UPDATE_PRECURSOR( CGRID( C,R,L,: ) )
 
 C *** Update gas soa concentrations back to CGRID
-               CALL UPDATE_SOA( CGRID( C,R,L,: ) )
+               CALL UPDATE_ORGVAPOR( CGRID( C,R,L,: ) )
 
 C *** OUTPUT DIAGNOSTIC INFORMATION
 C *** Get wet moment info (dry will be converted to wet)
