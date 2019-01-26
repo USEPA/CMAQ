@@ -140,6 +140,7 @@ Rate constant parameters begin with either a # sign or the expression, "%s#", wh
 
 | Type | Mechanism Definition File Expression| Formula, where M is air number density (molecules/cm3), T is air temperature(degrees K), and P is air pressure (Atm) |  
 |:---:|:-------------------:|:---:|   
+| -1   | #  A\\< HETEOROGENOUS>  | A\*H |  
 | 0   | #  A\\< PHOTOLYSIS>  | A\*J |  
 | 1   | #  A               | A   |  
 | 2   | #  A \^B             | A\*(T/300)\*\*B |  
