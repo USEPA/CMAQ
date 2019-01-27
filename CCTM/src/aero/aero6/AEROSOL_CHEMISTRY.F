@@ -817,7 +817,8 @@ C *** Calculate rate constants at each grid cell location
 #endif         
 C *** Extract aerosol concentrations and update aerosol volume, surface
 C     area and diameter values.
-               CALL HETCHEM_EXTRACT_AERO( CGRID( C,R,L,: ) )
+               CALL HETCHEM_EXTRACT_AERO( CGRID, C, R, L,
+     &               WET_M2, WET_M3, DE_WET )
 
 C *** Load Meteorological Variables
                AIRTEMP = REAL( TEMP( C,R,L ), 8 )

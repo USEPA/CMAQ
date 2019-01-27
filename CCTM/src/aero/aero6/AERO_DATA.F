@@ -686,6 +686,11 @@ C Private variables for loading from and unloading to CGRID array
       REAL, ALLOCATABLE :: NPF_BUDGET( : )
       REAL, ALLOCATABLE :: GROWTH_BUDGET( : )
 
+! Initial Reference Values for M2 and M3 used for Heterogenous Chemistry
+! Module.
+      REAL( 8 ), ALLOCATABLE :: CHEM_M2DRY_INIT( :,:,:,: ),
+     &                          CHEM_M3DRY_INIT( :,:,:,: )
+
       Contains
 
 C-----------------------------------------------------------------------
@@ -1498,11 +1503,12 @@ C Local variables:
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-      SUBROUTINE HETCHEM_EXTRACT_AERO ( CGRID )  
+      SUBROUTINE HETCHEM_EXTRACT_AERO ( CGRID, C, R, L, WET_M2, WET_M3, 
+     &                                  DE_WET )
 
 c  Calculates the change in aerosol surface area due to heterogeneous
 C  reactions and updates the CGRID array with this information.
-C  
+  
 C  History
 C  May 2016: BM Created
 
@@ -1510,7 +1516,8 @@ C  Key Subroutines Called: none
 C
 C  Called by: Gas-Phase Chemistry Driver
       USE AEROMET_DATA, ONLY: pi
-      USE GRID_CONF, ONLY: NLAYS, MY_NROWS, MY_NCOLS
+      USE GRID_CONF, ONLY: NLAYS, NCOLS, NROWS
+      USE PRECURSOR_DATA, ONLY: EXTRACT_PRECURSOR
 
       IMPLICIT NONE
       
@@ -1518,6 +1525,16 @@ C  Called by: Gas-Phase Chemistry Driver
       REAL, PARAMETER :: TWOTHIRDS = 2.0 / 3.0
       REAL            :: M2DRY_FINAL( N_MODE ) ! Dry 2nd Aerosol Moment
       REAL            :: M3DRY_FINAL( N_MODE ) ! Dry 3rd Aerosol Moment
+      INTEGER         :: C, R, L, N
+      REAL( 8 )       :: WET_M2( N_MODE ), WET_M3( N_MODE ), DE_WET( N_MODE )
+      LOGICAL         :: FIRSTIME = .TRUE.
+
+      IF ( FIRSTIME ) THEN
+
+          ALLOCATE( CHEM_M2DRY_INIT( NCOLS,NROWS,NLAYS,N_MODE ),
+     &              CHEM_M3DRY_INIT( NCOLS,NROWS,NLAYS,N_MODE ) )
+
+      END IF
 
 C *** extract grid cell concentrations of aero species from CGRID
 C     into aerospc_conc in aero_data module
@@ -1558,7 +1575,7 @@ C *** Retrieve and Save the Dry 3rd and 2nd Moments
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-      SUBROUTINE HETCHEM_UPDATE_AERO ( CGRID )  
+      SUBROUTINE HETCHEM_UPDATE_AERO ( CGRID )
 
 c  Calculates the change in aerosol surface area due to heterogeneous
 C  reactions and updates the CGRID array with this information.
@@ -1570,7 +1587,7 @@ C  Key Subroutines Called: none
 C
 C  Called by: Gas-Phase Chemistry Driver
       USE AEROMET_DATA, ONLY: pi
-      USE GRID_CONF, ONLY: NLAYS, MY_NROWS, MY_NCOLS
+      USE GRID_CONF, ONLY: NLAYS, NROWS, NCOLS
 
       IMPLICIT NONE
       
@@ -1579,9 +1596,10 @@ C  Called by: Gas-Phase Chemistry Driver
       REAL            :: M2DRY_FINAL( N_MODE ) ! Dry 2nd Aerosol Moment
       REAL            :: M3DRY_FINAL( N_MODE ) ! Dry 3rd Aerosol Moment
       INTEGER L, R, C, M 
+
       LOOP_LAY: DO L = 1, NLAYS
-         LOOP_ROW: DO R = 1, MY_NROWS
-            LOOP_COL: DO C = 1, MY_NCOLS
+         LOOP_ROW: DO R = 1, NROWS
+            LOOP_COL: DO C = 1, NCOLS
      
                ! Extract grid cell concentrations of aero species from CGRID
                ! into aerospc_conc in aero_data module
