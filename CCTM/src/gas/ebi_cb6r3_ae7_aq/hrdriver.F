@@ -72,6 +72,7 @@ C**********************************************************************
       USE PA_DEFN, Only: LIRR                      ! Process Anaylsis control and data variable
       USE PA_IRR_CLT
       USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP
+      USE AERO_DATA, ONLY : HETCHEM_UPDATE_AERO
 
       IMPLICIT NONE
 
