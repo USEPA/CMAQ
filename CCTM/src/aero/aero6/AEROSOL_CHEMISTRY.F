@@ -639,6 +639,12 @@ C                            pp 601-609, April, 1996.
          SUBROUTINE GETPAR( FIXED_sg  )
            LOGICAL, INTENT( IN ) :: FIXED_sg    ! fix coarse and accum Sg's to the input value?
          END SUBROUTINE GETPAR
+         Subroutine Hetchem_Extract_Aero( CONCVEC, C, R, L, WET_M2,
+     &                                  WET_M3, DE_WET )
+           Real, Intent( In )    :: CONCVEC( : )
+           Integer, Intent(In)   :: C, R, L
+           Real(8), Intent( Out ):: Wet_M2( : ), Wet_M3( : ), De_Wet( : )
+         End Subroutine Hetchem_Extract_Aero
       END INTERFACE 
   
 C-----------------------------------------------------------------------
