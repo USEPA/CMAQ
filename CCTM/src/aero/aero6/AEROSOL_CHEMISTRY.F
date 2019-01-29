@@ -201,9 +201,6 @@ C *** 2nd and 3rd moments with wet species
       REAL( 8 ), ALLOCATABLE :: WET_M3( : ) ! WET_M3_I,  WET_M3_J, WET_M3_K   ! M3 w.H2O, svOA
       REAL( 8 ), ALLOCATABLE :: WET_M2( : ) ! WET_M2_I,  WET_M2_J, WET_M2_K   ! M2 w.H2O, svOA
       REAL( 8 ), ALLOCATABLE :: DE_WET( : ) ! DE_AT_WET, DE_AC_WET, DE_CO_WET ! Initial effective diameter w.H2O
-      REAL( 8 ), ALLOCATABLE, SAVE :: CHEM_M3DRY_INIT( :,:,:,: ) ! Gridded M3 without H2O, svOA
-      REAL( 8 ), ALLOCATABLE, SAVE :: CHEM_M2DRY_INIT( :,:,:,: ) ! Gridded M2 without H2O, svOA
-
 
 C Isoprene product particle phase reaction rates (Eddingsaas et al. 2010) [1/(M^2 s)]
       REAL ( 8 ), PARAMETER :: K_H_WATER    = 9.0D-4
@@ -665,9 +662,6 @@ C *** 2nd and 3rd moments (w. H2O and svOA)
      &             DE_WET( N_MODE ) )
 C *** Allocate Gridded Dry Initial Moments so they can be saved for the
 C     end of the gas-phase chemical driver
-        ALLOCATE( CHEM_M2DRY_INIT( NCOLS,NROWS,NLAYS,N_MODE ) )
-        ALLOCATE( CHEM_M3DRY_INIT( NCOLS,NROWS,NLAYS,N_MODE ) )
-        
         WHICH_AERO_RATE = -1
         
         SELECTED_AERO_RATES = 0
@@ -817,7 +811,7 @@ C *** Calculate rate constants at each grid cell location
 #endif         
 C *** Extract aerosol concentrations and update aerosol volume, surface
 C     area and diameter values.
-               CALL HETCHEM_EXTRACT_AERO( CGRID, C, R, L,
+               CALL HETCHEM_EXTRACT_AERO( CGRID( C,R,L,: ), C, R, L,
      &               WET_M2, WET_M3, DE_WET )
 
 C *** Load Meteorological Variables

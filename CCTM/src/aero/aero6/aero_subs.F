@@ -2998,7 +2998,7 @@ C     Appendix B in Ensberg et al., 2013).
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-      SUBROUTINE HETCHEM_EXTRACT_AERO ( CGRID, C, R, L, WET_M2, WET_M3, 
+      SUBROUTINE HETCHEM_EXTRACT_AERO ( CONC, C, R, L, WET_M2, WET_M3, 
      &                                  DE_WET )
 
 c  Calculates the change in aerosol surface area due to heterogeneous
@@ -3017,13 +3017,13 @@ C  Called by: Gas-Phase Chemistry Driver
 
       IMPLICIT NONE
       
-      REAL, POINTER   :: CGRID ( :,:,:,: )  ! pointer to model concentrations
-      REAL, PARAMETER :: TWOTHIRDS = 2.0 / 3.0
-      REAL            :: M2DRY_FINAL( N_MODE ) ! Dry 2nd Aerosol Moment
-      REAL            :: M3DRY_FINAL( N_MODE ) ! Dry 3rd Aerosol Moment
-      INTEGER         :: C, R, L, N
-      REAL( 8 )       :: WET_M2( N_MODE ), WET_M3( N_MODE ), DE_WET( N_MODE )
-      LOGICAL, SAVE   :: FIRSTIME = .TRUE.
+      REAL, INTENT( IN ) :: CONC ( : )  ! pointer to model concentrations
+      REAL, PARAMETER    :: TWOTHIRDS = 2.0 / 3.0
+      REAL               :: M2DRY_FINAL( N_MODE ) ! Dry 2nd Aerosol Moment
+      REAL               :: M3DRY_FINAL( N_MODE ) ! Dry 3rd Aerosol Moment
+      INTEGER            :: C, R, L, N
+      REAL( 8 )          :: WET_M2( N_MODE ), WET_M3( N_MODE ), DE_WET( N_MODE )
+      LOGICAL, SAVE      :: FIRSTIME = .TRUE.
 
       IF ( FIRSTIME ) THEN
           FIRSTIME = .FALSE.
@@ -3035,11 +3035,11 @@ C  Called by: Gas-Phase Chemistry Driver
 C *** extract grid cell concentrations of aero species from CGRID
 C     into aerospc_conc in aero_data module
 C     also converts dry surface area to wet second moment
-               CALL EXTRACT_AERO ( CGRID( C,R,L,: ), .TRUE. )
+               CALL EXTRACT_AERO ( CONC, .TRUE. )
 
 C *** extract in inorganic aerosol processors
 
-               CALL EXTRACT_PRECURSOR( CGRID( C,R,L,: ) ) 
+               CALL EXTRACT_PRECURSOR( CONC ) 
  
 C *** Update geometric mean diameters, geometric
 C     standard deviations, modal mass totals, and modal particle
