@@ -72,7 +72,6 @@ C**********************************************************************
       USE PA_DEFN, Only: LIRR                      ! Process Anaylsis control and data variable
       USE PA_IRR_CLT
       USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP
-      USE AERO_DATA, ONLY : HETCHEM_UPDATE_AERO
 
       IMPLICIT NONE
 
@@ -164,6 +163,9 @@ C for INTERPX
          SUBROUTINE FINAL_DEGRADE( CBLK )
            REAL( 8 ), INTENT( INOUT ) :: CBLK( : )    !  species concentration in cell
          END SUBROUTINE FINAL_DEGRADE
+         SUBROUTINE HETCHEM_UPDATE_AERO( CGRID )
+           REAL, POINTER :: CGRID( :,:,:,: )    !  species concentration in cell
+         END SUBROUTINE HETCHEM_UPDATE_AERO
       END INTERFACE
 
 C**********************************************************************
