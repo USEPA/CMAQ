@@ -89,54 +89,54 @@ C-----------------------------------------------------------------------
 
       Type( oa_type ), Save :: oa_list( n_oa_list ) = (/
 C
-C                   OA         Alpha     CStar    Enth     Gas           Decay    ROG
-C                   Name                                   Name    Origin         Name
-C                 ------     -------   -------- -------  -------    --   ----   -------
-     & vapor_type('APOCJ   ',  0.0000,  1.0e-10,   1.0  ,'        ', 'A',  0.0, '        '),
-     & vapor_type('APNCOMJ ',  0.0000,  1.0e-10,   1.0  ,'        ', 'A',  0.0, '        '),
-     & vapor_type('AALK1J  ',  0.0334,   0.1472,  53.0E3,'SVALK1  ', 'A', 12.0, 'ALKRXN  '),
-     & vapor_type('AALK2J  ',  0.2164,  51.8775,  53.0E3,'SVALK2  ', 'A', 12.0, 'ALKRXN  '),
-     & vapor_type('AXYL1J  ',  0.0310,   1.3140,  32.0E3,'SVXYL1  ', 'A',  8.0, 'XYLNRXN '),
-     & vapor_type('AXYL2J  ',  0.0900,  34.4830,  32.0E3,'SVXYL2  ', 'A',  8.0, 'XYLNRXN '),
-     & vapor_type('AXYL3J  ',  0.3600,  1.0e-10,  32.0E3,'        ', 'A',  8.0, 'XYLHRXN '),
-     & vapor_type('ATOL1J  ',  0.0580,   2.3260,  18.0E3,'SVTOL1  ', 'A',  7.0, 'TOLNRXN '),
-     & vapor_type('ATOL2J  ',  0.1130,  21.2770,  18.0E3,'SVTOL2  ', 'A',  7.0, 'TOLNRXN '),
-     & vapor_type('ATOL3J  ',  0.3000,  1.0e-10,  18.0E3,'        ', 'A',  7.0, 'TOLHRXN '),
-     & vapor_type('ABNZ1J  ',  0.0720,   0.3020,  18.0E3,'SVBNZ1  ', 'A',  6.0, 'BNZNRXN '),
-     & vapor_type('ABNZ2J  ',  0.8880, 111.1100,  18.0E3,'SVBNZ2  ', 'A',  6.0, 'BNZNRXN '),
-     & vapor_type('ABNZ3J  ',  0.3700,  1.0e-10,  18.0E3,'        ', 'A',  6.0, 'BNZHRXN '),
-     & vapor_type('APAH1J  ',  0.2100,   1.6598,  18.0E3,'SVPAH1  ', 'A', 10.0, 'PAHNRXN '),
-     & vapor_type('APAH2J  ',  1.0700, 264.6675,  18.0E3,'SVPAH2  ', 'A', 10.0, 'PAHNRXN '),
-     & vapor_type('APAH3J  ',  0.7300,  1.0e-10,  18.0E3,'        ', 'A', 10.0, 'PAHHRXN '),
-     & vapor_type('ATRP1J  ',  0.1393,  14.7920,  40.0E3,'SVTRP1  ', 'B', 10.0, 'TRPRXN  '),
-     & vapor_type('ATRP2J  ',  0.4542, 133.7297,  40.0E3,'SVTRP2  ', 'B', 10.0, 'TRPRXN  '),
-     & vapor_type('AMT1J   ',   0.040,    0.010, 102.0E3,'SVMT1   ', 'B',  0.0, 'TRPRXN  '),
-     & vapor_type('AMT2J   ',   0.032,    0.100,  91.0E3,'SVMT2   ', 'B',  0.0, 'TRPRXN  '),
-     & vapor_type('AMT3J   ',   0.032,    1.000,  80.0E3,'SVMT3   ', 'B',  0.0, 'TRPRXN  '),
-     & vapor_type('AMT4J   ',   0.103,   10.000,  69.0E3,'SVMT4   ', 'B',  0.0, 'TRPRXN  '),
-     & vapor_type('AMT5J   ',   0.143,  100.000,  58.0E3,'SVMT5   ', 'B',  0.0, 'TRPRXN  '),
-     & vapor_type('AMT6J   ',   0.285, 1000.000,  47.0E3,'SVMT6   ', 'B',  0.0, 'TRPRXN  '),
-     & vapor_type('AMT7J   ',   0.160,10000.000,  36.0E3,'SVMT7   ', 'B',  0.0, 'TRPRXN  '),
-     & vapor_type('AMTNO3J ',     0.0,     12.0,  40.0E3,'MTNO3   ', 'B', 10.0, '        '),
-     & vapor_type('AISOPNNJ',     0.0,     8.9,   40.0E3,'ISOPNN  ', 'B', 5.0,  '        '),
-     & vapor_type('AISO1J  ',  0.2320, 116.0100,  40.0E3,'SVISO1  ', 'B',  5.0, 'ISOPRXN '),
-     & vapor_type('AISO2J  ',  0.0288,   0.6170,  40.0E3,'SVISO2  ', 'B',  5.0, 'ISOPRXN '),
-     & vapor_type('ASQTJ   ',  1.5370,  24.9840,  40.0E3,'SVSQT   ', 'B', 15.0, 'SESQRXN '),
-     & vapor_type('APCSOJ  ',  1.0   ,   1.0e-5,  40.0E3,'LVPCSOG ', 'A', 10.0, 'PCSOARXN'),
-     & vapor_type('ALVPO1J ',  0.0000,    1.e-1,  96.0E3,'VLVPO1  ', 'A',  0.0, '        '),
-     & vapor_type('ASVPO1J ',  0.0000,    1.e+0,  85.0E3,'VSVPO1  ', 'A',  0.0, '        '),
-     & vapor_type('ASVPO2J ',  0.0000,    1.e+1,  74.0E3,'VSVPO2  ', 'A',  0.0, '        '),
-     & vapor_type('ASVPO3J ',  0.0000,    1.e+2,  63.0E3,'VSVPO3  ', 'A',  0.0, '        '),
-     & vapor_type('AIVPO1J ',  0.0000,    1.e+3,  52.0E3,'VIVPO1  ', 'A',  0.0, '        '),
-     & vapor_type('ALVOO1J ',  0.0000,    1.e-2, 107.0E3,'VLVOO1  ', 'A',  0.0, '        '),
-     & vapor_type('ALVOO2J ',  0.0000,    1.e-1,  96.0E3,'VLVOO2  ', 'A',  0.0, '        '),
-     & vapor_type('ASVOO1J ',  0.0000,    1.e+0,  85.0E3,'VSVOO1  ', 'A',  0.0, '        '),
-     & vapor_type('ASVOO2J ',  0.0000,    1.e+1,  74.0E3,'VSVOO2  ', 'A',  0.0, '        '),
-     & vapor_type('ASVOO3J ',  0.0000,    1.e+2,  63.0E3,'VSVOO3  ', 'A',  0.0, '        '),
-     & vapor_type('AAVB1J  ',  0.0000,    0.010,  18.0E3,'SVAVB1  ', 'A',  0.0, '        '),
-     & vapor_type('AAVB2J  ',  0.0000,    1.000,  18.0E3,'SVAVB2  ', 'A',  0.0, '        '),
-     & vapor_type('AAVB3J  ',  0.0000,   10.000,  18.0E3,'SVAVB3  ', 'A',  0.0, '        '),
-     & vapor_type('AAVB4J  ',  0.0000,  100.000,  18.0E3,'SVAVB4  ', 'A',  0.0, '        ') /)
+C                OA         Alpha     CStar    Enth     Gas           Decay    ROG
+C                Name                                   Name    Origin         Name
+C               ------     -------   -------- -------  -------    --   ----   -------
+     & oa_type('APOCJ   ',  0.0000,  1.0e-10,   1.0  ,'        ', 'A',  0.0, '        '),
+     & oa_type('APNCOMJ ',  0.0000,  1.0e-10,   1.0  ,'        ', 'A',  0.0, '        '),
+     & oa_type('AALK1J  ',  0.0334,   0.1472,  53.0E3,'SVALK1  ', 'A', 12.0, 'ALKRXN  '),
+     & oa_type('AALK2J  ',  0.2164,  51.8775,  53.0E3,'SVALK2  ', 'A', 12.0, 'ALKRXN  '),
+     & oa_type('AXYL1J  ',  0.0310,   1.3140,  32.0E3,'SVXYL1  ', 'A',  8.0, 'XYLNRXN '),
+     & oa_type('AXYL2J  ',  0.0900,  34.4830,  32.0E3,'SVXYL2  ', 'A',  8.0, 'XYLNRXN '),
+     & oa_type('AXYL3J  ',  0.3600,  1.0e-10,  32.0E3,'        ', 'A',  8.0, 'XYLHRXN '),
+     & oa_type('ATOL1J  ',  0.0580,   2.3260,  18.0E3,'SVTOL1  ', 'A',  7.0, 'TOLNRXN '),
+     & oa_type('ATOL2J  ',  0.1130,  21.2770,  18.0E3,'SVTOL2  ', 'A',  7.0, 'TOLNRXN '),
+     & oa_type('ATOL3J  ',  0.3000,  1.0e-10,  18.0E3,'        ', 'A',  7.0, 'TOLHRXN '),
+     & oa_type('ABNZ1J  ',  0.0720,   0.3020,  18.0E3,'SVBNZ1  ', 'A',  6.0, 'BNZNRXN '),
+     & oa_type('ABNZ2J  ',  0.8880, 111.1100,  18.0E3,'SVBNZ2  ', 'A',  6.0, 'BNZNRXN '),
+     & oa_type('ABNZ3J  ',  0.3700,  1.0e-10,  18.0E3,'        ', 'A',  6.0, 'BNZHRXN '),
+     & oa_type('APAH1J  ',  0.2100,   1.6598,  18.0E3,'SVPAH1  ', 'A', 10.0, 'PAHNRXN '),
+     & oa_type('APAH2J  ',  1.0700, 264.6675,  18.0E3,'SVPAH2  ', 'A', 10.0, 'PAHNRXN '),
+     & oa_type('APAH3J  ',  0.7300,  1.0e-10,  18.0E3,'        ', 'A', 10.0, 'PAHHRXN '),
+     & oa_type('ATRP1J  ',  0.1393,  14.7920,  40.0E3,'SVTRP1  ', 'B', 10.0, 'TRPRXN  '),
+     & oa_type('ATRP2J  ',  0.4542, 133.7297,  40.0E3,'SVTRP2  ', 'B', 10.0, 'TRPRXN  '),
+     & oa_type('AMT1J   ',   0.040,    0.010, 102.0E3,'SVMT1   ', 'B',  0.0, 'TRPRXN  '),
+     & oa_type('AMT2J   ',   0.032,    0.100,  91.0E3,'SVMT2   ', 'B',  0.0, 'TRPRXN  '),
+     & oa_type('AMT3J   ',   0.032,    1.000,  80.0E3,'SVMT3   ', 'B',  0.0, 'TRPRXN  '),
+     & oa_type('AMT4J   ',   0.103,   10.000,  69.0E3,'SVMT4   ', 'B',  0.0, 'TRPRXN  '),
+     & oa_type('AMT5J   ',   0.143,  100.000,  58.0E3,'SVMT5   ', 'B',  0.0, 'TRPRXN  '),
+     & oa_type('AMT6J   ',   0.285, 1000.000,  47.0E3,'SVMT6   ', 'B',  0.0, 'TRPRXN  '),
+     & oa_type('AMT7J   ',   0.160,10000.000,  36.0E3,'SVMT7   ', 'B',  0.0, 'TRPRXN  '),
+     & oa_type('AMTNO3J ',     0.0,     12.0,  40.0E3,'MTNO3   ', 'B', 10.0, '        '),
+     & oa_type('AISOPNNJ',     0.0,     8.9,   40.0E3,'ISOPNN  ', 'B', 5.0,  '        '),
+     & oa_type('AISO1J  ',  0.2320, 116.0100,  40.0E3,'SVISO1  ', 'B',  5.0, 'ISOPRXN '),
+     & oa_type('AISO2J  ',  0.0288,   0.6170,  40.0E3,'SVISO2  ', 'B',  5.0, 'ISOPRXN '),
+     & oa_type('ASQTJ   ',  1.5370,  24.9840,  40.0E3,'SVSQT   ', 'B', 15.0, 'SESQRXN '),
+     & oa_type('APCSOJ  ',  1.0   ,   1.0e-5,  40.0E3,'LVPCSOG ', 'A', 10.0, 'PCSOARXN'),
+     & oa_type('ALVPO1J ',  0.0000,    1.e-1,  96.0E3,'VLVPO1  ', 'A',  0.0, '        '),
+     & oa_type('ASVPO1J ',  0.0000,    1.e+0,  85.0E3,'VSVPO1  ', 'A',  0.0, '        '),
+     & oa_type('ASVPO2J ',  0.0000,    1.e+1,  74.0E3,'VSVPO2  ', 'A',  0.0, '        '),
+     & oa_type('ASVPO3J ',  0.0000,    1.e+2,  63.0E3,'VSVPO3  ', 'A',  0.0, '        '),
+     & oa_type('AIVPO1J ',  0.0000,    1.e+3,  52.0E3,'VIVPO1  ', 'A',  0.0, '        '),
+     & oa_type('ALVOO1J ',  0.0000,    1.e-2, 107.0E3,'VLVOO1  ', 'A',  0.0, '        '),
+     & oa_type('ALVOO2J ',  0.0000,    1.e-1,  96.0E3,'VLVOO2  ', 'A',  0.0, '        '),
+     & oa_type('ASVOO1J ',  0.0000,    1.e+0,  85.0E3,'VSVOO1  ', 'A',  0.0, '        '),
+     & oa_type('ASVOO2J ',  0.0000,    1.e+1,  74.0E3,'VSVOO2  ', 'A',  0.0, '        '),
+     & oa_type('ASVOO3J ',  0.0000,    1.e+2,  63.0E3,'VSVOO3  ', 'A',  0.0, '        '),
+     & oa_type('AAVB1J  ',  0.0000,    0.010,  18.0E3,'SVAVB1  ', 'A',  0.0, '        '),
+     & oa_type('AAVB2J  ',  0.0000,    1.000,  18.0E3,'SVAVB2  ', 'A',  0.0, '        '),
+     & oa_type('AAVB3J  ',  0.0000,   10.000,  18.0E3,'SVAVB3  ', 'A',  0.0, '        '),
+     & oa_type('AAVB4J  ',  0.0000,  100.000,  18.0E3,'SVAVB4  ', 'A',  0.0, '        ') /)
 
 C Required species
       Character( 16 ), Private, Parameter :: req_sviso1  = 'SVISO1'
@@ -164,33 +164,15 @@ C Indices of required species
 
       Real, Allocatable    :: oa_mw    ( : )   ! Molecular weights
       Real, Allocatable    :: og_mw    ( : )   ! Molecular weights
+      Real, Allocatable    :: rog_mw   ( : )   ! Molecular weights
       Real, Allocatable    :: og_conc  ( : )   ! vapor concentration
       Real, Allocatable    :: rog_dconc( : )   ! vapor concentration
       Integer, Allocatable :: mao_ROGtoCGRID( : )   ! drog mapping assignments
 
-!      Type( orgprod_type ), Save      :: orgprod( n_orgprod ) = (/
-C                      Name      Parent     Aerospc  AlphaH
-!C                     -------    -------    ------   ------
-!     & orgprod_type( 'ALKRXN  ', 'SOAALK ', '      ', 0.000 ),
-!     & orgprod_type( 'XYLNRXN ', 'XYL    ', '      ', 0.000 ),
-!     & orgprod_type( 'XYLHRXN ', 'XYL    ', 'AXYL3J', 0.360 ),
-!     & orgprod_type( 'TOLNRXN ', 'TOL    ', '      ', 0.000 ),
-!     & orgprod_type( 'TOLHRXN ', 'TOL    ', 'ATOL3J', 0.300 ),
-!     & orgprod_type( 'BNZNRXN ', 'BENZENE', '      ', 0.000 ),
-!     & orgprod_type( 'BNZHRXN ', 'BENZENE', 'ABNZ3J', 0.370 ),
-!     & orgprod_type( 'PAHNRXN ', 'NAPH   ', '      ', 0.000 ),
-!     & orgprod_type( 'PAHHRXN ', 'NAPH   ', 'APAH3J', 0.730 ),
-!     & orgprod_type( 'TRPRXN  ', 'TRPRXN ', '      ', 0.000 ),
-!     & orgprod_type( 'ISOPRXN ', 'ISOPRXN', '      ', 0.000 ),
-!     & orgprod_type( 'SESQRXN ', 'SESQRXN', '      ', 0.000 ),
-!     & orgprod_type( 'PCSOARXN', 'PCVOC  ', '      ', 0.000 ) /)
-
-
-
-
 C mapping variables used for loading and unloading to CGRID array
-      Integer, Allocatable :: mao_OAtoAERO( : )    ! organic aerosol pointers to aerospc
-      Integer, Allocatable :: map_OGtoCGRID( : )     ! pointers of vapor species to CGRID
+      Integer, Allocatable :: map_OAtoAERO( : )    ! organic aerosol pointers to aerospc
+      Integer, Allocatable :: map_OGtoCGRID( : )   ! pointers of vapor species to CGRID
+      Integer, Allocatable :: map_ROGtoCGRID( : )  ! pointers of SOA parent species to CGRID
 
       Logical, Private, Save :: mapped              = .False.
       Logical, Private, Save :: IEPOX_SOA_mechanism = .False. ! IEPOX uptake in mechanism reactions?
@@ -222,7 +204,7 @@ C              emissions are dominated by compounds smaller than dodecane.
 C-----------------------------------------------------------------------
 
       Use rxns_data, only: mechname
-      Use aero_data, only: AE_eflag, findAero
+      Use aero_data, only: AE_eflag, findAero, aerospc_mw
       Use aeromet_data, only: airdens, inv_mwair, min_gasconc
       Use cgrid_spcs, only: n_gc_spc, gc_spc, n_gc_g2ae, gc_g2ae, gc_strt, gc_molwt, gc_g2ae_map, 
      &                      n_nr_spc, nr_spc, n_nr_n2ae, nr_n2ae, nr_strt, nr_molwt, nr_n2ae_map,
@@ -241,16 +223,14 @@ C Local Variables:
       Character( 300 ) :: xmsg
       Real            :: gasconv
       Real            :: vtmp
-      Integer         :: n, a
+      Integer         :: n, a, g
       Integer         :: spc
-      Integer         :: naerosol_volatile
-      Integer         :: aerosol_to_vaporlist( n_vapor_list )
-      Integer         :: vapor_to_vaporlist( n_vapor_list )
+      Integer         :: map_OAtoOAlist( 200 )
 
       Real, Save :: alk_factor = 1.00
 
       If ( .Not. mapped ) Then
-
+          mapped = .TRUE.
 C First, the number and names of all active OA species must be
 C determined by checking the AE namelist with the species names
 C available from the OA_LIST table. 
@@ -262,13 +242,14 @@ C available from the OA_LIST table.
              a = index1( oa_list( spc )%name, n_ae_spc, ae_spc )
              If ( n .Gt. 0 .Or. a .Gt. 0 ) Then
                  n_oa = n_oa + 1
-                 map_OA_to_OAlist( n_oa ) = spc
+                 map_OAtoOAlist( n_oa ) = spc
              End If
           End Do
 
           Allocate ( oaspc  ( n_oa ))
           Allocate ( oa_mw  ( n_oa ))
           Allocate ( og_mw  ( n_oa ))
+          Allocate ( rog_mw ( n_oa ))
           Allocate ( og_conc( n_oa ))
           Allocate ( rog_dconc( n_oa ))
           Allocate ( map_ROGtoCGRID( n_oa ))
@@ -278,14 +259,14 @@ C available from the OA_LIST table.
           map_OAtoAERO = 0
           oa_mw = 200.0
           Do spc = 1,n_oa
-             oaspc( spc ) = oa_list( map_OA_to_OAlist( spc ) )
+             oaspc( spc ) = oa_list( map_OAtoOAlist( spc ) )
              map_OAtoAERO( spc ) = findAero( oaspc( spc )%name, .True. )
              If( map_OAtoAERO( spc ) .Lt. 1 ) 
      &           write(logdev,99904) Trim( oaspc( spc )%name )
              oa_mw( spc ) = aerospc_mw( map_OAtoAERO( spc ) )
           End Do
 
-C Check GC or NR namelist contains precursor for each aerosol used if
+C Check GC namelist contains ireaction counter for each aerosol used if
 C the aerosols condensable vapor has a precursor identified
           map_ROGtoCGRID = 0
           Do spc = 1, n_oa
@@ -294,6 +275,7 @@ C the aerosols condensable vapor has a precursor identified
             if ( g .ge. 1 ) then
               ! Populate Mapping Vector for the Precursor Species
               map_ROGtoCGRID( spc ) = gc_strt - 1 + g
+              ROG_mw( spc ) = gc_molwt( g )
             else
               ! Log an Error
               OA_eflag  = .True.
@@ -318,7 +300,7 @@ C phase as model species, and map the species if found
            g = index1( oaspc( spc )%gas_name, n_gc_spc, gc_spc )
            If ( g .ge. 1 ) Then
                map_OGtoCGRID = gc_strt - 1 + g
-               og_mw( spc ) = gc_molwt( n )
+               og_mw( spc ) = gc_molwt( g )
            End If
 
            If( n .lt. 1 .and. g .lt. 1 ) Then
@@ -326,97 +308,6 @@ C phase as model species, and map the species if found
                write(logdev,99902)Trim( oaspc( spc )%gas_name ), 
      &         Trim ( oaspc( spc )%name )
            End If
-         End Do
-
-!!!! Need to deal with parent molecular weight assignment. This is
-!necessary for correctly applying mass-based yields from experiments. On
-!the other hand, the need for this information goes away if mole-based
-!yields are used in the chemical mechanism.
-
-C define orgprod parent names based on mechanism dependence
-C if they differ from above declarations and
-C determine if gas-phase IEPOX uptake occurs for the mechanism
-            If ( INDEX( MECHNAME, 'SAPRC07TIC_AE6I' ) .Gt. 0 ) Then
-               orgprod( 2 )%parent = 'MXYL'
-               orgprod( 3 )%parent = 'MXYL'
-               orgprod( 4 )%parent = 'TOLUENE'
-               orgprod( 5 )%parent = 'TOLUENE'
-               orgprod( 8 )%parent = 'NAPHTHAL'
-               orgprod( 9 )%parent = 'NAPHTHAL'
-               IEPOX_SOA_mechanism = .True.
-            Else If ( INDEX( MECHNAME, 'SAPRC07TIC_AE7I' ) .Gt. 0 ) Then
-               orgprod( 2 )%parent = 'MXYL'
-               orgprod( 3 )%parent = 'MXYL'
-               orgprod( 4 )%parent = 'TOLUENE'
-               orgprod( 5 )%parent = 'TOLUENE'
-               orgprod( 8 )%parent = 'NAPHTHAL'
-               orgprod( 9 )%parent = 'NAPHTHAL'
-               IEPOX_SOA_mechanism = .True.
-            Else If ( INDEX( MECHNAME, 'SAPRC07TC' ) .Gt. 0 ) Then
-               orgprod( 2 )%parent     = 'MXYL'
-               orgprod( 3 )%parent     = 'MXYL'
-               orgprod( 4 )%parent     = 'TOLUENE'
-               orgprod( 5 )%parent     = 'TOLUENE'
-               orgprod( 8 )%parent     = 'NAPHTHAL'
-               orgprod( 9 )%parent     = 'NAPHTHAL'
-               IEPOX_SOA_mechanism = .True.
-            Else If ( INDEX( MECHNAME, 'CRIe' ) .Gt. 0 ) Then
-               orgprod( 2 )%parent     = 'MXYL'
-               orgprod( 3 )%parent     = 'MXYL'
-               orgprod( 4 )%parent     = 'TOLUENE'
-               orgprod( 5 )%parent     = 'TOLUENE'
-               orgprod( 8 )%parent     = 'NAPHTHAL'
-               orgprod( 9 )%parent     = 'NAPHTHAL'
-            Else If( INDEX(MECHNAME, 'RACM2') .Gt. 0) Then
-! Changed by Golam Sarwar, 07/15/2015 for CMAQv51
-               orgprod( 2 )%parent     = 'XYM'
-               orgprod( 3 )%parent     = 'XYM'
-               orgprod( 4 )%parent     = 'TOL'
-               orgprod( 5 )%parent     = 'TOL'
-               IEPOX_SOA_mechanism = .True.
-            Else If( INDEX(MECHNAME, 'CB6R3') .Gt. 0) Then
-               orgprod( 2 )%parent = 'XYLMN'
-               orgprod( 3 )%parent = 'XYLMN'
-               IEPOX_SOA_mechanism = .True.
-            Else 
-               xmsg =  'FATAL: The ' // MECHNAME // ' mechanism '
-     &       // ' is not supported in this version of the model.'
-     &       // ' Change CCTM build script to use a mechanism based on '
-     &       // ' mechanisms available in currect CMAQ repository or '
-     &       // ' Change MECHNAME to one of the repository mechanisms.'
-               RXNS_eflag  = .True.
-               Call m3warn( pname, 0, 0, xmsg )
-!              Call m3exit( pname, 0, 0, xmsg, xstat3 )
-            End If
-
-            ! AE7 mechanisms do not use nonvolatile species for anthro SOA
-            If( INDEX(MECHNAME, 'AE7') .Gt. 0) Then
-               orgprod( 3 )%aerospc = ''    ! AXYL3J
-               orgprod( 5 )%aerospc = ''    ! ATOL3J
-               orgprod( 7 )%aerospc = ''    ! ABNZ3J
-               orgprod( 9 )%aerospc = ''    ! APAH3J
-            End If
-
-C Build mapping to CGRID for each ORGPROD species and find MW of parent
-
-         orgprod_map = 0
-         Do spc = 1, n_orgprod
-            n = index1( orgprod( spc )%name, n_gc_g2ae, gc_g2ae )
-            If ( n .Ne. 0 ) Then
-               orgprod_map( spc ) = gc_strt - 1 + gc_g2ae_map( n )
-               n = index1( orgprod( spc )%parent, n_gc_spc, gc_spc )
-               If ( n .Ne. 0 ) Then
-                  orgprod_mw( spc ) = gc_molwt( n )
-               Else
-                  xmsg = 'FATAL: Species ' // orgprod( spc )%parent
-     &           // ' in ORGPROD parent name is not in the G2AE values'
-     &           // ' of the GC namelist for the ' // TRIM ( MECHNAME ) 
-     &           // ' mechanism '
-                  OA_eflag  = .True.
-                  Call m3warn( pname, 0, 0, xmsg )
-!                 Call m3exit( pname, 0, 0, xmsg, xstat3 )
-               End If
-            End If
          End Do
 
 C Find indices of required species
@@ -439,6 +330,7 @@ C Find indices of required species
 
       End If     ! mapping condition
 
+
 C Compute gas conversion constant
       gasconv = airdens * inv_mwair
 
@@ -459,19 +351,14 @@ C Copy grid cell concentrations of vapor species
          End If
       End Do
 
-99901 Format(/'FATAL Error(s) found in the namelist(s) used. Check that'
-     &     /  ' these namelists contain the data as the files in '
-     &     /  'the respository version of the mechanism: ', a / )
 99902 Format('FATAL: SOA Vapor, ', a, 
      &       ', is not found among the species in '
      &     / 'the NR or GC namelist used. Required for modeling ', a / )
-99903 Format( 'FATAL: SOA Precursor, ', a,  
+99903 Format( 'FATAL: SOA Reaction Counter, ', a,  
      &        '. is not found among the species',
-     &     / 'in GC or NR namelist used. Required for modeling vapor, ', 
+     &     / 'in GC namelist used. Required for modeling vapor, ', 
      &       a / )
 99904 Format(1X,'aerosol product from namelist species: ', a /)
-99905 Format(1X,'aerosol by-product from namelist species : ', a /)
-C99906 Format(1X,'precursor from namelist species : ', a /)
   
       Return
       End Subroutine extract_soa
@@ -863,12 +750,12 @@ C Arguments:
 C Local variables:
       Logical, Save :: first_time = .True.
       Character( 300 ) :: xmsg
-      Integer       :: i, im, indx, ispc
+      Integer       :: i, im, indx, ispc, n
 
       Real, Allocatable, Save ::  mw_vap_m1( : )     ! Inverse MW of SVOCs [ mol/g ]
 
-      Real, Save ::  drog_ppm2ug( n_orgprod ) ! [ ppm per ug/m3 ] for ORGPROD at
-                                              ! reference temperature and pressure
+      Real, Allocatable, Save ::  rog_ppm2ug( : ) ! [ ppm per ug/m3 ] for ORGPROD at
+                                        ! reference temperature and pressure
 
 C Parameters & variables for adjusting cstar to ambient conditions
       Real, Parameter :: tref   = 298.0          ! reference temperature [ K ]
@@ -901,7 +788,7 @@ C Variables used in acid-enhanced isoprene SOA calculations
       Real isofrac       ! ratio for depletion of vapor-phase products
 
 C Variables used in equilibrium partitioning calculations
-      Real drog( n_orgprod ) ! change in precursor conc [ ug/m3 ]
+      Real drog( n_oa ) ! change in precursor conc [ ug/m3 ]
       Real totrog( n_oa ) ! drog conc mapped to each SVOC [ ug/m3 ]
       Real(8) GRtmp( n_mode )   ! Dummy variable for accurate treatment of growth to specific moment
       Real GR3( n_oa,n_mode ) ! 3rd Moment Growth for each mode and compound
@@ -961,8 +848,8 @@ C-----------------------------------------------------------------------
          first_time = .False.
 
 C Set unit conversion and inverse mw constants
-         rog_ppm2ug( : ) = orgprod_mw( : ) * convfac_298
-         Allocate( mw_vap_m1( n_vapor ) )
+         Allocate( rog_ppm2ug( n_oa ), mw_vap_m1( n_oa ) )
+         rog_ppm2ug( : ) = ROG_mw( : ) * convfac_298
          mw_vap_m1( : ) = 1.0 / og_mw( : )
 
       End If ! first_time
@@ -1003,7 +890,7 @@ C Compute 3rd moment, 2nd moment. moment_conc arrays are wet
 
         Do i = 1, n_oa
           If ( aero_missing( map_OAtoAERO( i ),im ) .or.
-     &         cstar( i ) .lt. 1.0e-4 ) Cycle
+     &         oaspc(i)%cstar .lt. 1.0e-4 ) Cycle
           
           Call HCOND3( m0_init( im ), m1wet_init( im ),
      &                 m2wet_initD( im ), Dv_org, alphorg, 
@@ -1369,7 +1256,7 @@ C PVB 11/19/07 renamed NP to NCVAP for consistency with ORGAER5 subroutine
 C
 C SH  02/10/10 embedded the old Fortran module, SOA_NEWT, into a new module,
 C     SOA_DEFN, so all SOA-related code can be found in one file.  Renamed
-C     NCVAP to n_vapor.  Its value is now set in SOA_DEFN (instead of inside
+C     NCVAP to n_oa.  Its value is now set in SOA_DEFN (instead of inside
 C     this subroutine).  Added TOLX to the call vector of Subroutine LNSRCH,
 C     since that parameter is now set in this subroutine (instead of in the
 C     Fortran module).
@@ -1397,7 +1284,7 @@ C  Following Numerical recipes
 
       Integer NN
       REAL :: FVEC( N )               ! vector of functions to be zeroed
-      ! COMMON /NEWTV/ FVEC(n_vapor), NN
+      ! COMMON /NEWTV/ FVEC(n_oa), NN
       ! SAVE /NEWTV/
 
 C  Parameters
@@ -1413,13 +1300,13 @@ C  Local variables
       ! REAL CS
       ! REAL IMW
       ! REAL M
-      ! COMMON /NEWTINP/ CT( N_VAPOR ), CS( N_VAPOR ), IMW( N_VAPOR ), M
+      ! COMMON /NEWTINP/ CT( n_oa ), CS( n_oa ), IMW( n_oa ), M
       ! SAVE /NEWTINP/
 
-      INTEGER I, ITS, J, INDX( N_VAPOR )
+      INTEGER I, ITS, J, INDX( N_OA )
       REAL D, DEN, F, FOLD, STPMAX, SUM, TEMP, TEST
-      REAL FJAC( N_VAPOR,N_VAPOR )
-      REAL G( N_VAPOR), P( N_VAPOR ), XOLD( N_VAPOR )
+      REAL FJAC( N_OA,N_OA )
+      REAL G( N_OA), P( N_OA ), XOLD( N_OA )
 !     EXTERNAL FDJAC
 
 C-----------------------------------------------------------------------
@@ -1526,7 +1413,7 @@ C           delta X_j    ( ( X_i  - CTOT_i ) * IMW_j     If i .NE. j
 
 C Revision History:
 C   CGN 01/12/04 changed B1 & B2 to scalars
-C   SH  02/10/10 renamed NCVAP to n_vapor. Value is inherited from SOA_DEFN.
+C   SH  02/10/10 renamed NCVAP to n_oa. Value is inherited from SOA_DEFN.
 
       IMPLICIT NONE
 
@@ -1541,8 +1428,8 @@ C   SH  02/10/10 renamed NCVAP to n_vapor. Value is inherited from SOA_DEFN.
       REAL FJAC( N,N )
 
       INTEGER I, J              ! loop index
-      REAL A( N_VAPOR )
-      REAL B( N_VAPOR )
+      REAL A( N_OA )
+      REAL B( N_OA )
       REAL B1
       REAL B2
       REAL SUM_JNEI
@@ -1586,7 +1473,7 @@ C Key Subroutines Called: FUNCV
 C Revision History:
 C   YOJ 07/31/02 changed FUNCTION FMIN to SUBROUTINE FMINV to avoid errors
 C       with (some) compilers
-C   SH  02/10/10 renamed NCVAP to n_vapor. Value is inherited from SOA_DEFN.
+C   SH  02/10/10 renamed NCVAP to n_oa. Value is inherited from SOA_DEFN.
 
       IMPLICIT NONE
 
@@ -1634,7 +1521,7 @@ C Key Subroutines Called: none
 
 C Revision History:
 C CGN 01/12/04  Added documentation, removed extraneous lines of code
-C SH  02/10/10 renamed NCVAP to n_vapor.  Value is inherited from SOA_DEFN
+C SH  02/10/10 renamed NCVAP to n_oa.  Value is inherited from SOA_DEFN
 
 C References:
 C   1. Schell, B., I. J. Ackermann, H. Hass, F. S. Binkowski, and
@@ -1655,9 +1542,9 @@ C      Res., Vol 106, No D22, 28275-28293, 2001.
 
       INTEGER I, J
       REAL SUM_JNEI
-      REAL A( N_VAPOR )
-      REAL B( N_VAPOR )
-      REAL C( N_VAPOR )
+      REAL A( N_OA )
+      REAL B( N_OA )
+      REAL C( N_OA )
 
       DO I = 1, N
          A( I ) = IMW( I )
@@ -1957,9 +1844,9 @@ C     Created 7/2011 by HOT Pye
 C     Function arguments
       Real, Intent(IN) :: lowerb, upperb      ! lower bound, upper bound 
       Real, Intent(IN) :: nonvolmol           ! nonvolatile aerosol in moles = POA + non-voltile SOA
-      Real, Intent(IN) :: cstaratt(n_vapor)   ! Cstars at T of interest
-      Real, Intent(IN) :: totsemivol(n_vapor) ! total semivolatile to partition in ug/m3 (gas+aer+newlyformed)
-      Real, Intent(IN) :: mlwt(n_vapor)       ! molecular weight of semivolatiles 
+      Real, Intent(IN) :: cstaratt(n_oa)   ! Cstars at T of interest
+      Real, Intent(IN) :: totsemivol(n_oa) ! total semivolatile to partition in ug/m3 (gas+aer+newlyformed)
+      Real, Intent(IN) :: mlwt(n_oa)       ! molecular weight of semivolatiles 
 
 C     Parameters for solution convergenc
       Real             :: FRACTOL = 1.0e-6    ! Solution converged if abs(old-new)/new < FRACTOL
@@ -2093,8 +1980,8 @@ C     Created 7/2011 HOT Pye
 
 C     Function inputs and output
       Real, INTENT(IN) :: nonvmol, currentN                ! nonvolatile moles, total moles
-      Real, INTENT(IN) :: mlwt(n_vapor)                    ! molecular weights of semivolatiles
-      Real, INTENT(IN) :: semivol(n_vapor), cstar(n_vapor) ! semivolatile mass, sat conc in ug/m3
+      Real, INTENT(IN) :: mlwt(n_oa)                    ! molecular weights of semivolatiles
+      Real, INTENT(IN) :: semivol(n_oa), cstar(n_oa) ! semivolatile mass, sat conc in ug/m3
       Real             :: eqnerror                         ! result, deviation from 0.0 in equation
 
 C     Local variables
@@ -2103,10 +1990,11 @@ C     Local variables
 
 C     Compute function value for current value of N 
       temptot = 0.0e0
-      Do i = 1, n_vapor
+      Do i = 1, n_oa
          temptot = temptot + semivol(i) / ( cstar(i) + mlwt(i) * currentN )
       End Do
-      eqnerror = temptot + nonvmol / currentN - 1.0e0
+      !eqnerror = temptot + nonvmol / currentN - 1.0e0
+      eqnerror = temptot - 1.0e0
 
       End function soaequation
 
