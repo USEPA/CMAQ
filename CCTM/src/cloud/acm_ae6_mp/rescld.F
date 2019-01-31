@@ -68,7 +68,7 @@ C-----------------------------------------------------------------------
       USE GRID_CONF           ! horizontal & vertical domain specifications
       USE CGRID_SPCS          ! CGRID mechanism species
       USE UTILIO_DEFN
-      USE AQ_DATA 
+      USE AQ_DATA,       ONLY: JH2O2_HYDROMETEORS,  JHNO3_HYDROMETEORS 
       USE HG_AQCHEM_DATA      ! mercury chemistry parameters and constants
       USE ASX_DATA_MOD,  ONLY: MET_DATA
       USE PHOT_MOD,      ONLY: RJ, RJ_RES, RJ_SUB, LH2O2, LHNO3
