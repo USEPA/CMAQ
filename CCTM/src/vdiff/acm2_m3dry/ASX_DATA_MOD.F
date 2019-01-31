@@ -194,7 +194,7 @@ C Land use information:
       Real, Parameter :: rg0        = 1000.0     ! [s/m]
       Real, Parameter :: rgwet0     = 25000.0    ! [s/m]
       Real, Parameter :: rsndiff    = 10.0       ! snow diffusivity fac
-      Real, Parameter :: rsnow0     = 1000.0
+      Real, Parameter :: rsnow0     = 10000.0    !  Changed from 1000 to 10000 - Helmig et al 2012
       Real, Parameter :: svp2       = 17.67      ! from MM5 and WRF
       Real, Parameter :: svp3       = 29.65      ! from MM5 and WRF
       Real, Parameter :: rt25inK    = 1.0/(stdtemp + 25.0) ! 298.15K = 25C
@@ -538,6 +538,7 @@ C-----------------------------------------------------------------------
      &             Grid_Data%PURB    ( NCOLS,NROWS ),
      &             Grid_Data%SLTYP   ( NCOLS,NROWS ),
      &             Grid_Data%WSAT    ( NCOLS,NROWS ),
+     &             Grid_Data%WFC     ( NCOLS,NROWS ),   !We now use WFC whether BIDI is on or off
      &             Grid_Data%NAME    ( n_lufrac ),
      &             Grid_Data%LU_Type ( n_lufrac ),
      &             STAT = ALLOCSTAT )
@@ -548,6 +549,7 @@ C-----------------------------------------------------------------------
          Grid_Data%NAME    = name_lu
          Grid_Data%LU_Type = cat_lu
          Grid_Data%WSAT    = 0.0
+         Grid_Data%WFC     = 0.0
 
          If ( ABFLUX  ) Then
             ALLOCATE( Met_Data%SOIM2    ( NCOLS,NROWS ),
@@ -560,7 +562,7 @@ C-----------------------------------------------------------------------
             ALLOCATE( Grid_Data%WWLT   ( NCOLS,NROWS ),
      &                Grid_Data%BSLP   ( NCOLS,NROWS ),
      &                Grid_Data%WRES   ( NCOLS,NROWS ),
-     &                Grid_Data%WFC    ( NCOLS,NROWS ),
+!     &                Grid_Data%WFC    ( NCOLS,NROWS ),
      &                Grid_Data%LUFRAC ( NCOLS,NROWS,n_lufrac ),
      &                STAT = ALLOCSTAT )
             If ( ALLOCSTAT .Ne. 0 ) Then
@@ -568,7 +570,7 @@ C-----------------------------------------------------------------------
                Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             End If
             Grid_Data%WWLT    = 0.0
-            Grid_Data%WFC     = 0.0
+!            Grid_Data%WFC     = 0.0
             Grid_Data%WRES    = 0.0
             Grid_Data%BSLP    = 0.0
          End If
@@ -769,6 +771,7 @@ C-----------------------------------------------------------------------
          Else
             Forall( C = 1:MY_NCOLS, R = 1:MY_NROWS, Grid_Data%SLTYP(C,R) .Le. 11 )
                Grid_Data%WSAT( C,R ) = WSAT( Grid_Data%SLTYP( C,R ) )
+               Grid_Data%WFC ( C,R ) = WFC ( Grid_Data%SLTYP( C,R ) )
             End Forall
          End If
 
