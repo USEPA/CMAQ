@@ -273,11 +273,6 @@ C...compute total Aitken mode mass (ug/m3)
         IF (( INDEX( CGRID_SCAV( L_MASAKN( I ) ), 'NUM' ) .EQ. 0 ) .AND.
      &      ( INDEX( CGRID_SCAV( L_MASAKN( I ) ), 'SRF' ) .EQ. 0 ) .AND.
      &      ( INDEX( CGRID_SCAV( L_MASAKN( I ) ), 'H2O' ) .EQ. 0 ) .AND.
-#ifdef stm
-     &      ( INDEX( CGRID_SCAV( L_MASAKN( I ) ), 'GAS' ) .EQ. 0 ) .AND.
-     &      ( INDEX( CGRID_SCAV( L_MASAKN( I ) ), 'EMIS' ) .EQ. 0 ) .AND.
-     &      ( INDEX( CGRID_SCAV( L_MASAKN( I ) ), 'ICBC' ) .EQ. 0 ) .AND.
-#endif
      &      ( INDEX( CGRID_SCAV( L_MASAKN( I ) ), 'TRACER' ) .EQ. 0 ) ) THEN
           MASAKN = MASAKN + ( POLC( PNTR ) * AIRM / CTHK1
      &           * AE_MOLWT( PNTR - AE_STRT + 1 ) * 1.0E6 )

@@ -57,9 +57,7 @@ C                       discussions
 C     14  08/05/03 sjr  revision made to the coarse aerosol number washout
 C     15  04/20/05  us  revisions to add sea salt species in the fine and
 C                       coarse aerosol modes, and HCl dissolution/dissociation
-#ifdef stm
 C         08/01/05 sjr  Modified for sulfate tracking model
-#endif
 C     16  10/13/05 sjr  fixed bug in the integration time step calculation
 C                       (reported by Bonyoung Koo)
 C     17  03/01/06 sjr  added elemental carbon aerosol; organic aerosols
@@ -286,7 +284,7 @@ C...........Local Variables (scalars):
       REAL( 8 ) :: HSO4            ! HSO4 concn in cloudwater (mol/liter)
       REAL( 8 ) :: HSO4ACC         ! accumulation mode HSO4 concn in cloudwater (mol/liter)
       REAL( 8 ) :: HSO4COR         ! coarse HSO4 concn in cloudwater (mol/liter)
-#ifdef stm
+C...for sulfur tracking
       REAL( 8 ) :: HSO4AQH2O2      ! HSO4 concn from AQH2O2 in cloudwater (mol/liter)
       REAL( 8 ) :: HSO4AQO3        ! HSO4 concn from AQO3 in cloudwater (mol/liter)
       REAL( 8 ) :: HSO4AQFEMN      ! HSO4 concn from AQFEMN in cloudwater (mol/liter)
@@ -301,7 +299,7 @@ C...........Local Variables (scalars):
       REAL( 8 ) :: HSO4ICBC        ! HSO4 concn from ICBC in cloudwater (mol/liter)
       REAL( 8 ) :: HSO4ICBCACC     ! accumulation mode HSO4 concn from ICBC in cloudwater (mol/liter)
       REAL( 8 ) :: HSO4ICBCCOR     ! coarse HSO4 concn from ICBC in cloudwater (mol/liter)
-#endif
+
       REAL( 8 ) :: HTST            !
       REAL( 8 ) :: K               ! K conc in cloudwater (mol/liter)
       !REAL( 8 ) :: LGTEMP          ! log of TEMP
@@ -364,7 +362,7 @@ C...........Local Variables (scalars):
       REAL( 8 ) :: SIV             ! dissolved so2 in cloudwater (mol/liter)
       REAL( 8 ) :: SK6             !
       REAL( 8 ) :: SK6TS6          !
-#ifdef stm
+C...for sulfur tracking
       REAL( 8 ) :: SK6TS6AQH2O2    !
       REAL( 8 ) :: SK6TS6AQO3      !
       REAL( 8 ) :: SK6TS6AQFEMN    !
@@ -373,7 +371,7 @@ C...........Local Variables (scalars):
       REAL( 8 ) :: SK6TS6GAS       !
       REAL( 8 ) :: SK6TS6EMIS      !
       REAL( 8 ) :: SK6TS6ICBC      !
-#endif
+
       REAL( 8 ) :: SO21            ! First dissociation constant for SO2
       REAL( 8 ) :: SO22            ! Second dissociation constant for SO2
       REAL( 8 ) :: SO2H            ! Henry's Law Constant for SO2
@@ -385,7 +383,7 @@ C...........Local Variables (scalars):
       REAL( 8 ) :: SO4             ! SO4= conc in cloudwater (mol/liter)
       REAL( 8 ) :: SO4ACC          ! accumulation mode SO4= conc in cloudwater (mol/liter)
       REAL( 8 ) :: SO4COR          ! coarse SO4= conc in cloudwater (mol/liter)
-#ifdef stm
+C...for sulfur tracking
       REAL( 8 ) :: SO4AQH2O2       ! SO4= conc from AQH2O2 in cloudwater (mol/liter)
       REAL( 8 ) :: SO4AQO3         ! SO4= conc from AQO3 in cloudwater (mol/liter)
       REAL( 8 ) :: SO4AQFEMN       ! SO4= conc from AQFEMN in cloudwater (mol/liter)
@@ -400,7 +398,7 @@ C...........Local Variables (scalars):
       REAL( 8 ) :: SO4ICBC         ! SO4= conc from ICBC in cloudwater (mol/liter)
       REAL( 8 ) :: SO4ICBCACC      ! accumulation mode SO4= conc from ICBC in cloudwater (mol/liter)
       REAL( 8 ) :: SO4ICBCCOR      ! coarse SO4= conc from ICBC in cloudwater (mol/liter)
-#endif
+
       REAL( 8 ) :: STION           ! ionic strength
       REAL( 8 ) :: TAC             !
       REAL( 8 ) :: TEMP1           ! (1/T) - (1/298) (1/K)
@@ -418,7 +416,7 @@ C...........Local Variables (scalars):
       REAL( 8 ) :: TS6             ! SO4 conc in cloudwater (mol/liter)
       REAL( 8 ) :: TS6ACC          ! SO4 acc conc in cloudwater (mol/liter)
       REAL( 8 ) :: TS6COR          ! coarse SO4 conc in cloudwater   (mol/liter)
-#ifdef stm
+C...for sulfur tracking
       REAL( 8 ) :: TS6AQH2O2ACCA   ! init SO4 acc conc from AQH2O2 in cloudwater (mol/liter)
       REAL( 8 ) :: TS6AQO3ACCA     ! init SO4 acc conc from AQO3 in cloudwater (mol/liter)
       REAL( 8 ) :: TS6AQFEMNACCA   ! init SO4 acc conc from AQFEMN in cloudwater (mol/liter)
@@ -447,7 +445,7 @@ C...........Local Variables (scalars):
       REAL( 8 ) :: TS6ICBC         ! SO4 conc from ICBC (mol/liter)
       REAL( 8 ) :: TS6ICBCACC      ! accumulation mode SO4 conc from ICBC (mol/liter)
       REAL( 8 ) :: TS6ICBCCOR      ! coarse SO4 conc from ICBC (mol/liter)
-#endif
+
       REAL( 8 ) :: TSIV            ! total S(iv) available for oxidation
       REAL( 8 ) :: TST             !
       REAL( 8 ) :: TWASH           ! washout time for clouds (sec)
@@ -735,10 +733,10 @@ C...  aerosol mass in incorporated into the cloud droplets
 
       LOADING( LSO4, ACC ) = ( AEROSOL( LSO4, ACC ) + GAS( LH2SO4 ) ) * PRES_ATM_OVER_XL
 
-#ifdef stm
-      LOADING( LSO4GAS,    ACC ) = ( AEROSOL( LSO4GAS,  ACC )
-     &                           +   GAS( LH2SO4 ) ) * PRES_ATM_OVER_XL
-#endif
+      IF ( STM ) THEN
+         LOADING( LSO4GAS,    ACC ) = ( AEROSOL( LSO4GAS,  ACC )
+     &                              +   GAS( LH2SO4 ) ) * PRES_ATM_OVER_XL
+      END IF
 
 C...initial concentration from coarse-mode aerosol loading (mol/liter)
 C...  an assumption is made that all of the coarse-mode
@@ -832,11 +830,11 @@ C...Molar concentrations of soluble aerosols
 C...   = Initial amount - amount deposited  (mol/liter)
 
         TS6COR  = MAX( LOADING( LSO4,  COR ) - WETDEP( LTS6CORL ) * XC1, 0.0D0 )
-#ifdef stm
-        TS6GASCOR  = MAX( LOADING( LSO4GAS,  COR ) - WETDEP( LTS6GASCORL  ) * XC1, 0.0D0 )
-        TS6EMISCOR = MAX( LOADING( LSO4EMIS, COR ) - WETDEP( LTS6EMISCORL ) * XC1, 0.0D0 )
-        TS6ICBCCOR = MAX( LOADING( LSO4ICBC, COR ) - WETDEP( LTS6ICBCCORL ) * XC1, 0.0D0 )
-#endif
+        IF ( STM ) THEN
+           TS6GASCOR  = MAX( LOADING( LSO4GAS,  COR ) - WETDEP( LTS6GASCORL  ) * XC1, 0.0D0 )
+           TS6EMISCOR = MAX( LOADING( LSO4EMIS, COR ) - WETDEP( LTS6EMISCORL ) * XC1, 0.0D0 )
+           TS6ICBCCOR = MAX( LOADING( LSO4ICBC, COR ) - WETDEP( LTS6ICBCCORL ) * XC1, 0.0D0 )
+        END IF
         NO3COR  = MAX( LOADING( LNO3,  COR ) - WETDEP( LNO3CORL ) * XC1, 0.0D0 )
 !       NACOR   = MAX( LOADING( LNA,   COR ) - WETDEP( LNACORL  ) * XC1, 0.0D0 ) ! SLN 29March2011
         CLCOR   = MAX( LOADING( LCL,   COR ) - WETDEP( LCLCORL  ) * XC1, 0.0D0 )
@@ -854,30 +852,30 @@ C...   = Initial amount - amount deposited  (mol/liter)
         TS6     = LOADING( LSO4,  AKN ) + LOADING( LSO4, ACC ) + TS6COR
      &          - ( WETDEP( LSO4ACCL ) + WETDEP( LHSO4ACCL ) ) * XC1
      &          - DS4( 0 )
-#ifdef stm
-        TS6GAS  = LOADING( LSO4GAS, AKN ) + LOADING( LSO4GAS, ACC ) + TS6GASCOR
-     &        - ( WETDEP( LSO4GASACCL ) + WETDEP( LHSO4GASACCL ) ) * XC1
-        TS6EMIS = LOADING( LSO4EMIS, AKN ) + LOADING( LSO4EMIS, ACC ) + TS6EMISCOR
-     &        - ( WETDEP( LSO4EMISACCL ) + WETDEP( LHSO4EMISACCL ) ) * XC1
-        TS6ICBC = LOADING( LSO4ICBC, AKN ) + LOADING( LSO4ICBC, ACC ) + TS6ICBCCOR
-     &        - ( WETDEP( LSO4ICBCACCL ) + WETDEP( LHSO4ICBCACCL ) ) * XC1
+        IF ( STM ) THEN
+          TS6GAS  = LOADING( LSO4GAS, AKN ) + LOADING( LSO4GAS, ACC ) + TS6GASCOR
+     &          - ( WETDEP( LSO4GASACCL ) + WETDEP( LHSO4GASACCL ) ) * XC1
+          TS6EMIS = LOADING( LSO4EMIS, AKN ) + LOADING( LSO4EMIS, ACC ) + TS6EMISCOR
+     &          - ( WETDEP( LSO4EMISACCL ) + WETDEP( LHSO4EMISACCL ) ) * XC1
+          TS6ICBC = LOADING( LSO4ICBC, AKN ) + LOADING( LSO4ICBC, ACC ) + TS6ICBCCOR
+     &          - ( WETDEP( LSO4ICBCACCL ) + WETDEP( LHSO4ICBCACCL ) ) * XC1
 
-        TS6AQH2O2 = LOADING( LSO4AQH2O2, ACC )
-     &            - ( WETDEP( LSO4AQH2O2L ) + WETDEP( LHSO4AQH2O2L ) ) * XC1
-     &            - DS4( 1 )
-        TS6AQO3   = LOADING( LSO4AQO3, ACC )
-     &            - ( WETDEP( LSO4AQO3L ) + WETDEP( LHSO4AQO3L ) ) * XC1
-     &            - DS4( 2 )
-        TS6AQFEMN = LOADING( LSO4AQFEMN, ACC )
-     &            - ( WETDEP( LSO4AQFEMNL ) + WETDEP( LHSO4AQFEMNL ) ) * XC1
-     &            - DS4( 3 )
-        TS6AQMHP  = LOADING( LSO4AQMHP, ACC )
-     &            - ( WETDEP( LSO4AQMHPL ) + WETDEP( LHSO4AQMHPL ) ) * XC1
-     &            - DS4( 4 )
-        TS6AQPAA  = LOADING( LSO4AQPAA, ACC )
-     &            - ( WETDEP( LSO4AQPAAL ) + WETDEP( LHSO4AQPAAL ) ) * XC1
-     &            - DS4( 5 )
-#endif
+          TS6AQH2O2 = LOADING( LSO4AQH2O2, ACC )
+     &              - ( WETDEP( LSO4AQH2O2L ) + WETDEP( LHSO4AQH2O2L ) ) * XC1
+     &              - DS4( 1 )
+          TS6AQO3   = LOADING( LSO4AQO3, ACC )
+     &              - ( WETDEP( LSO4AQO3L ) + WETDEP( LHSO4AQO3L ) ) * XC1
+     &              - DS4( 2 )
+          TS6AQFEMN = LOADING( LSO4AQFEMN, ACC )
+     &              - ( WETDEP( LSO4AQFEMNL ) + WETDEP( LHSO4AQFEMNL ) ) * XC1
+     &              - DS4( 3 )
+          TS6AQMHP  = LOADING( LSO4AQMHP, ACC )
+     &              - ( WETDEP( LSO4AQMHPL ) + WETDEP( LHSO4AQMHPL ) ) * XC1
+     &              - DS4( 4 )
+          TS6AQPAA  = LOADING( LSO4AQPAA, ACC )
+     &              - ( WETDEP( LSO4AQPAAL ) + WETDEP( LHSO4AQPAAL ) ) * XC1
+     &              - DS4( 5 )
+        END IF
 
         NA      = LOADING( LNA,   ACC ) + LOADING( LNA, AKN ) + NACOR
      &          - WETDEP( LNAACCL ) * XC1
@@ -907,16 +905,16 @@ C...   = Initial amount - amount deposited  (mol/liter)
 C...don't allow aerosol concentrations to go below zero
 
         TS6     = MAX( TS6,     0.0D0 )
-#ifdef stm
-        TS6GAS    = MAX( TS6GAS,    0.0D0 )
-        TS6EMIS   = MAX( TS6EMIS,   0.0D0 )
-        TS6ICBC   = MAX( TS6ICBC,   0.0D0 )
-        TS6AQH2O2 = MAX( TS6AQH2O2, 0.0D0 )
-        TS6AQO3   = MAX( TS6AQO3,   0.0D0 )
-        TS6AQFEMN = MAX( TS6AQFEMN, 0.0D0 )
-        TS6AQMHP  = MAX( TS6AQMHP,  0.0D0 )
-        TS6AQPAA  = MAX( TS6AQPAA,  0.0D0 )
-#endif
+        IF ( STM ) THEN
+          TS6GAS    = MAX( TS6GAS,    0.0D0 )
+          TS6EMIS   = MAX( TS6EMIS,   0.0D0 )
+          TS6ICBC   = MAX( TS6ICBC,   0.0D0 )
+          TS6AQH2O2 = MAX( TS6AQH2O2, 0.0D0 )
+          TS6AQO3   = MAX( TS6AQO3,   0.0D0 )
+          TS6AQFEMN = MAX( TS6AQFEMN, 0.0D0 )
+          TS6AQMHP  = MAX( TS6AQMHP,  0.0D0 )
+          TS6AQPAA  = MAX( TS6AQPAA,  0.0D0 )
+        END IF
         NA      = MAX( NA,      0.0D0 )
         CA      = MAX( CA,      0.0D0 )
         MG      = MAX( MG,      0.0D0 )
@@ -938,16 +936,16 @@ C...don't allow aerosol concentrations to go below zero
         B = 2.0D0 * MN_OX
 
         SK6TS6 = SK6 * TS6
-#ifdef stm
-        SK6TS6GAS    = SK6 * TS6GAS
-        SK6TS6EMIS   = SK6 * TS6EMIS
-        SK6TS6ICBC   = SK6 * TS6ICBC
-        SK6TS6AQH2O2 = SK6 * TS6AQH2O2
-        SK6TS6AQO3   = SK6 * TS6AQO3
-        SK6TS6AQFEMN = SK6 * TS6AQFEMN
-        SK6TS6AQMHP  = SK6 * TS6AQMHP
-        SK6TS6AQPAA  = SK6 * TS6AQPAA
-#endif
+        IF ( STM ) THEN
+          SK6TS6GAS    = SK6 * TS6GAS
+          SK6TS6EMIS   = SK6 * TS6EMIS
+          SK6TS6ICBC   = SK6 * TS6ICBC
+          SK6TS6AQH2O2 = SK6 * TS6AQH2O2
+          SK6TS6AQO3   = SK6 * TS6AQO3
+          SK6TS6AQFEMN = SK6 * TS6AQFEMN
+          SK6TS6AQMHP  = SK6 * TS6AQMHP
+          SK6TS6AQPAA  = SK6 * TS6AQPAA
+        END IF
 
 C...find solution of the equation using a method of reiterative
 C...  bisections Make initial guesses for pH:   between .01  to  10.
@@ -1011,27 +1009,27 @@ C...  HCOOH, and CO2 (atm)
 C...calculate liquid phase concentrations (moles/liter)
 
           SO4  = SK6TS6 / ( AE * GM2 + SK6 )
-#ifdef stm
-          SO4GAS    = SK6TS6GAS    / ( AE * GM2 + SK6 )
-          SO4EMIS   = SK6TS6EMIS   / ( AE * GM2 + SK6 )
-          SO4ICBC   = SK6TS6ICBC   / ( AE * GM2 + SK6 )
-          SO4AQH2O2 = SK6TS6AQH2O2 / ( AE * GM2 + SK6 )
-          SO4AQO3   = SK6TS6AQO3   / ( AE * GM2 + SK6 )
-          SO4AQFEMN = SK6TS6AQFEMN / ( AE * GM2 + SK6 )
-          SO4AQMHP  = SK6TS6AQMHP  / ( AE * GM2 + SK6 )
-          SO4AQPAA  = SK6TS6AQPAA  / ( AE * GM2 + SK6 )
-#endif
+          IF ( STM ) THEN
+            SO4GAS    = SK6TS6GAS    / ( AE * GM2 + SK6 )
+            SO4EMIS   = SK6TS6EMIS   / ( AE * GM2 + SK6 )
+            SO4ICBC   = SK6TS6ICBC   / ( AE * GM2 + SK6 )
+            SO4AQH2O2 = SK6TS6AQH2O2 / ( AE * GM2 + SK6 )
+            SO4AQO3   = SK6TS6AQO3   / ( AE * GM2 + SK6 )
+            SO4AQFEMN = SK6TS6AQFEMN / ( AE * GM2 + SK6 )
+            SO4AQMHP  = SK6TS6AQMHP  / ( AE * GM2 + SK6 )
+            SO4AQPAA  = SK6TS6AQPAA  / ( AE * GM2 + SK6 )
+          END IF
           HSO4 = TS6 - SO4
-#ifdef stm
-          HSO4GAS    = TS6GAS    - SO4GAS
-          HSO4EMIS   = TS6EMIS   - SO4EMIS
-          HSO4ICBC   = TS6ICBC   - SO4ICBC
-          HSO4AQH2O2 = TS6AQH2O2 - SO4AQH2O2
-          HSO4AQO3   = TS6AQO3   - SO4AQO3
-          HSO4AQFEMN = TS6AQFEMN - SO4AQFEMN
-          HSO4AQMHP  = TS6AQMHP  - SO4AQMHP
-          HSO4AQPAA  = TS6AQPAA  - SO4AQPAA
-#endif
+          IF ( STM ) THEN
+            HSO4GAS    = TS6GAS    - SO4GAS
+            HSO4EMIS   = TS6EMIS   - SO4EMIS
+            HSO4ICBC   = TS6ICBC   - SO4ICBC
+            HSO4AQH2O2 = TS6AQH2O2 - SO4AQH2O2
+            HSO4AQO3   = TS6AQO3   - SO4AQO3
+            HSO4AQFEMN = TS6AQFEMN - SO4AQFEMN
+            HSO4AQMHP  = TS6AQMHP  - SO4AQMHP
+            HSO4AQPAA  = TS6AQPAA  - SO4AQPAA
+          END IF
           SO3  = SO212H  * PSO2F  * RECIPA2
           HSO3 = SO21H   * PSO2F  * RECIPA1
           CO3  = CO212H  * PCO2F  * RECIPA2
@@ -1089,27 +1087,27 @@ C...  HCOOH, and CO2 (atm)
 C...calculate liquid phase concentrations (moles/liter)
 
             SO4  = SK6TS6 / ( AE * GM2 + SK6 )
-#ifdef stm
-            SO4GAS    = SK6TS6GAS    / ( AE * GM2 + SK6 )
-            SO4EMIS   = SK6TS6EMIS   / ( AE * GM2 + SK6 )
-            SO4ICBC   = SK6TS6ICBC   / ( AE * GM2 + SK6 )
-            SO4AQH2O2 = SK6TS6AQH2O2 / ( AE * GM2 + SK6 )
-            SO4AQO3   = SK6TS6AQO3   / ( AE * GM2 + SK6 )
-            SO4AQFEMN = SK6TS6AQFEMN / ( AE * GM2 + SK6 )
-            SO4AQMHP  = SK6TS6AQMHP  / ( AE * GM2 + SK6 )
-            SO4AQPAA  = SK6TS6AQPAA  / ( AE * GM2 + SK6 )
-#endif
+            IF ( STM ) THEN
+              SO4GAS    = SK6TS6GAS    / ( AE * GM2 + SK6 )
+              SO4EMIS   = SK6TS6EMIS   / ( AE * GM2 + SK6 )
+              SO4ICBC   = SK6TS6ICBC   / ( AE * GM2 + SK6 )
+              SO4AQH2O2 = SK6TS6AQH2O2 / ( AE * GM2 + SK6 )
+              SO4AQO3   = SK6TS6AQO3   / ( AE * GM2 + SK6 )
+              SO4AQFEMN = SK6TS6AQFEMN / ( AE * GM2 + SK6 )
+              SO4AQMHP  = SK6TS6AQMHP  / ( AE * GM2 + SK6 )
+              SO4AQPAA  = SK6TS6AQPAA  / ( AE * GM2 + SK6 )
+            END IF
             HSO4 = TS6 - SO4
-#ifdef stm
-            HSO4GAS    = TS6GAS    - SO4GAS
-            HSO4EMIS   = TS6EMIS   - SO4EMIS
-            HSO4ICBC   = TS6ICBC   - SO4ICBC
-            HSO4AQH2O2 = TS6AQH2O2 - SO4AQH2O2
-            HSO4AQO3   = TS6AQO3   - SO4AQO3
-            HSO4AQFEMN = TS6AQFEMN - SO4AQFEMN
-            HSO4AQMHP  = TS6AQMHP  - SO4AQMHP
-            HSO4AQPAA  = TS6AQPAA  - SO4AQPAA
-#endif
+            IF ( STM ) THEN
+              HSO4GAS    = TS6GAS    - SO4GAS
+              HSO4EMIS   = TS6EMIS   - SO4EMIS
+              HSO4ICBC   = TS6ICBC   - SO4ICBC
+              HSO4AQH2O2 = TS6AQH2O2 - SO4AQH2O2
+              HSO4AQO3   = TS6AQO3   - SO4AQO3
+              HSO4AQFEMN = TS6AQFEMN - SO4AQFEMN
+              HSO4AQMHP  = TS6AQMHP  - SO4AQMHP
+              HSO4AQPAA  = TS6AQPAA  - SO4AQPAA
+            END IF
             SO3  = SO212H  * PSO2F  * RECIPA2
             HSO3 = SO21H   * PSO2F  * RECIPA1
             CO3  = CO212H  * PCO2F  * RECIPA2
@@ -1256,23 +1254,23 @@ C...compute modal concentrations
         TS6ACC  = MAX( TS6  - TS6COR,   0.0D0 )
         SO4ACC  = MAX( SO4  - SO4COR,   0.0D0 )
         HSO4ACC = MAX( HSO4 - HSO4COR,  0.0D0 )
-#ifdef stm
-        SO4GASCOR   = SK6 * TS6GASCOR  / ( AE * GM2 + SK6 )
-        SO4EMISCOR  = SK6 * TS6EMISCOR / ( AE * GM2 + SK6 )
-        SO4ICBCCOR  = SK6 * TS6ICBCCOR / ( AE * GM2 + SK6 )
-        HSO4GASCOR  = MAX( TS6GASCOR  - SO4GASCOR,  0.0D0 )
-        HSO4EMISCOR = MAX( TS6EMISCOR - SO4EMISCOR, 0.0D0 )
-        HSO4ICBCCOR = MAX( TS6ICBCCOR - SO4ICBCCOR, 0.0D0 )
-        TS6GASACC   = MAX( TS6GAS  - TS6GASCOR,  0.0D0 )
-        TS6EMISACC  = MAX( TS6EMIS - TS6EMISCOR, 0.0D0 )
-        TS6ICBCACC  = MAX( TS6ICBC - TS6ICBCCOR, 0.0D0 )
-        SO4GASACC   = MAX( SO4GAS  - SO4GASCOR,  0.0D0 )
-        SO4EMISACC  = MAX( SO4EMIS - SO4EMISCOR, 0.0D0 )
-        SO4ICBCACC  = MAX( SO4ICBC - SO4ICBCCOR, 0.0D0 )
-        HSO4GASACC  = MAX( HSO4GAS  - HSO4GASCOR,  0.0D0 )
-        HSO4EMISACC = MAX( HSO4EMIS - HSO4EMISCOR, 0.0D0 )
-        HSO4ICBCACC = MAX( HSO4ICBC - HSO4ICBCCOR, 0.0D0 )
-#endif
+        IF ( STM ) THEN
+          SO4GASCOR   = SK6 * TS6GASCOR  / ( AE * GM2 + SK6 )
+          SO4EMISCOR  = SK6 * TS6EMISCOR / ( AE * GM2 + SK6 )
+          SO4ICBCCOR  = SK6 * TS6ICBCCOR / ( AE * GM2 + SK6 )
+          HSO4GASCOR  = MAX( TS6GASCOR  - SO4GASCOR,  0.0D0 )
+          HSO4EMISCOR = MAX( TS6EMISCOR - SO4EMISCOR, 0.0D0 )
+          HSO4ICBCCOR = MAX( TS6ICBCCOR - SO4ICBCCOR, 0.0D0 )
+          TS6GASACC   = MAX( TS6GAS  - TS6GASCOR,  0.0D0 )
+          TS6EMISACC  = MAX( TS6EMIS - TS6EMISCOR, 0.0D0 )
+          TS6ICBCACC  = MAX( TS6ICBC - TS6ICBCCOR, 0.0D0 )
+          SO4GASACC   = MAX( SO4GAS  - SO4GASCOR,  0.0D0 )
+          SO4EMISACC  = MAX( SO4EMIS - SO4EMISCOR, 0.0D0 )
+          SO4ICBCACC  = MAX( SO4ICBC - SO4ICBCCOR, 0.0D0 )
+          HSO4GASACC  = MAX( HSO4GAS  - HSO4GASCOR,  0.0D0 )
+          HSO4EMISACC = MAX( HSO4EMIS - HSO4EMISCOR, 0.0D0 )
+          HSO4ICBCACC = MAX( HSO4ICBC - HSO4ICBCCOR, 0.0D0 )
+        END IF
         NO3ACC  = MAX( NO3  - NO3COR,   0.0D0 )
         NAACC   = MAX( NA   - NACOR,    0.0D0 )
         CLACC   = MAX( CL   - CLCOR,    0.0D0 )
@@ -1337,27 +1335,27 @@ C...load the liquid concentration array with current values
         LIQUID( LSEASCL   ) = SEASCOR ! AE6 - SLN 16March2011
         LIQUID( LFEACCL   ) = FEACC   ! AE6 - SLN 22March2011
         LIQUID( LMNACCL   ) = MNACC   ! AE6 - SLN 22March2011
-#ifdef stm
-        LIQUID( LSO4AQH2O2L   ) = SO4AQH2O2
-        LIQUID( LHSO4AQH2O2L  ) = HSO4AQH2O2
-        LIQUID( LSO4AQO3L     ) = SO4AQO3
-        LIQUID( LHSO4AQO3L    ) = HSO4AQO3
-        LIQUID( LSO4AQFEMNL   ) = SO4AQFEMN
-        LIQUID( LHSO4AQFEMNL  ) = HSO4AQFEMN
-        LIQUID( LSO4AQMHPL    ) = SO4AQMHP
-        LIQUID( LHSO4AQMHPL   ) = HSO4AQMHP
-        LIQUID( LSO4AQPAAL    ) = SO4AQPAA
-        LIQUID( LHSO4AQPAAL   ) = HSO4AQPAA
-        LIQUID( LSO4GASACCL   ) = SO4GASACC
-        LIQUID( LHSO4GASACCL  ) = HSO4GASACC
-        LIQUID( LSO4EMISACCL  ) = SO4EMISACC
-        LIQUID( LHSO4EMISACCL ) = HSO4EMISACC
-        LIQUID( LSO4ICBCACCL  ) = SO4ICBCACC
-        LIQUID( LHSO4ICBCACCL ) = HSO4ICBCACC
-        LIQUID( LTS6GASCORL   ) = TS6GASCOR
-        LIQUID( LTS6EMISCORL  ) = TS6EMISCOR
-        LIQUID( LTS6ICBCCORL  ) = TS6ICBCCOR
-#endif
+        IF ( STM ) THEN
+          LIQUID( LSO4AQH2O2L   ) = SO4AQH2O2
+          LIQUID( LHSO4AQH2O2L  ) = HSO4AQH2O2
+          LIQUID( LSO4AQO3L     ) = SO4AQO3
+          LIQUID( LHSO4AQO3L    ) = HSO4AQO3
+          LIQUID( LSO4AQFEMNL   ) = SO4AQFEMN
+          LIQUID( LHSO4AQFEMNL  ) = HSO4AQFEMN
+          LIQUID( LSO4AQMHPL    ) = SO4AQMHP
+          LIQUID( LHSO4AQMHPL   ) = HSO4AQMHP
+          LIQUID( LSO4AQPAAL    ) = SO4AQPAA
+          LIQUID( LHSO4AQPAAL   ) = HSO4AQPAA
+          LIQUID( LSO4GASACCL   ) = SO4GASACC
+          LIQUID( LHSO4GASACCL  ) = HSO4GASACC
+          LIQUID( LSO4EMISACCL  ) = SO4EMISACC
+          LIQUID( LHSO4EMISACCL ) = HSO4EMISACC
+          LIQUID( LSO4ICBCACCL  ) = SO4ICBCACC
+          LIQUID( LHSO4ICBCACCL ) = HSO4ICBCACC
+          LIQUID( LTS6GASCORL   ) = TS6GASCOR
+          LIQUID( LTS6EMISCORL  ) = TS6EMISCOR
+          LIQUID( LTS6ICBCCORL  ) = TS6ICBCCOR
+        END IF
 
 C...Load array variable TXHG Version
 
@@ -1676,11 +1674,11 @@ C...  there is no wet deposition of aitken particles, they attached
 C...  to the accumulation mode particles
 
       AERWDEP( LSO4, AKN ) = 0.0D0
-#ifdef stm
-      AERWDEP( LSO4GAS,  AKN ) = 0.0D0
-      AERWDEP( LSO4EMIS, AKN ) = 0.0D0
-      AERWDEP( LSO4ICBC, AKN ) = 0.0D0
-#endif
+      IF ( STM ) THEN
+        AERWDEP( LSO4GAS,  AKN ) = 0.0D0
+        AERWDEP( LSO4EMIS, AKN ) = 0.0D0
+        AERWDEP( LSO4ICBC, AKN ) = 0.0D0
+      END IF
       AERWDEP( LNH4, AKN ) = 0.0D0
       AERWDEP( LNO3, AKN ) = 0.0D0
       AERWDEP( LEC,  AKN ) = 0.0D0
@@ -1689,16 +1687,16 @@ C...  to the accumulation mode particles
       AERWDEP( LPOA, AKN ) = 0.0D0
 
       AERWDEP( LSO4, ACC ) = WETDEP( LSO4ACCL ) + WETDEP( LHSO4ACCL )
-#ifdef stm
-      AERWDEP( LSO4AQH2O2, ACC ) = WETDEP( LSO4AQH2O2L  ) + WETDEP( LHSO4AQH2O2L )
-      AERWDEP( LSO4AQO3,   ACC ) = WETDEP( LSO4AQO3L    ) + WETDEP( LHSO4AQO3L   )
-      AERWDEP( LSO4AQFEMN, ACC ) = WETDEP( LSO4AQFEMNL  ) + WETDEP( LHSO4AQFEMNL )
-      AERWDEP( LSO4AQMHP,  ACC ) = WETDEP( LSO4AQMHPL   ) + WETDEP( LHSO4AQMHPL  )
-      AERWDEP( LSO4AQPAA,  ACC ) = WETDEP( LSO4AQPAAL   ) + WETDEP( LHSO4AQPAAL  )
-      AERWDEP( LSO4GAS,    ACC ) = WETDEP( LSO4GASACCL  ) + WETDEP( LHSO4GASACCL  )
-      AERWDEP( LSO4EMIS,   ACC ) = WETDEP( LSO4EMISACCL ) + WETDEP( LHSO4EMISACCL )
-      AERWDEP( LSO4ICBC,   ACC ) = WETDEP( LSO4ICBCACCL ) + WETDEP( LHSO4ICBCACCL )
-#endif
+      IF ( STM ) THEN
+        AERWDEP( LSO4AQH2O2, ACC ) = WETDEP( LSO4AQH2O2L  ) + WETDEP( LHSO4AQH2O2L )
+        AERWDEP( LSO4AQO3,   ACC ) = WETDEP( LSO4AQO3L    ) + WETDEP( LHSO4AQO3L   )
+        AERWDEP( LSO4AQFEMN, ACC ) = WETDEP( LSO4AQFEMNL  ) + WETDEP( LHSO4AQFEMNL )
+        AERWDEP( LSO4AQMHP,  ACC ) = WETDEP( LSO4AQMHPL   ) + WETDEP( LHSO4AQMHPL  )
+        AERWDEP( LSO4AQPAA,  ACC ) = WETDEP( LSO4AQPAAL   ) + WETDEP( LHSO4AQPAAL  )
+        AERWDEP( LSO4GAS,    ACC ) = WETDEP( LSO4GASACCL  ) + WETDEP( LHSO4GASACCL  )
+        AERWDEP( LSO4EMIS,   ACC ) = WETDEP( LSO4EMISACCL ) + WETDEP( LHSO4EMISACCL )
+        AERWDEP( LSO4ICBC,   ACC ) = WETDEP( LSO4ICBCACCL ) + WETDEP( LHSO4ICBCACCL )
+      END IF
       AERWDEP( LNH4, ACC ) = WETDEP( LNH4ACCL )
       AERWDEP( LNO3, ACC ) = WETDEP( LNO3ACCL )
       AERWDEP( LEC,  ACC ) = WETDEP( LECL     )
@@ -1709,11 +1707,11 @@ C...  to the accumulation mode particles
       AERWDEP( LPOA,  ACC ) = WETDEP( LPOAL )
 
       AERWDEP( LSO4, COR ) = WETDEP( LTS6CORL  )
-#ifdef stm
-      AERWDEP( LSO4GAS,  COR ) = WETDEP( LTS6GASCORL  )
-      AERWDEP( LSO4EMIS, COR ) = WETDEP( LTS6EMISCORL  )
-      AERWDEP( LSO4ICBC, COR ) = WETDEP( LTS6ICBCCORL  )
-#endif
+      IF ( STM ) THEN
+        AERWDEP( LSO4GAS,  COR ) = WETDEP( LTS6GASCORL  )
+        AERWDEP( LSO4EMIS, COR ) = WETDEP( LTS6EMISCORL  )
+        AERWDEP( LSO4ICBC, COR ) = WETDEP( LTS6ICBCCORL  )
+      END IF
       AERWDEP( LNO3, COR ) = WETDEP( LNO3CORL  )
       AERWDEP( LNH4, COR ) = WETDEP( LNH4CORL  )
 !     AERWDEP( LPRICOR, COR ) = WETDEP( LPRIMCORL )
@@ -1759,11 +1757,11 @@ C...Compute for Aerosol species in  TXHG Version
 C...aerosol concentrations (mol/molV)
 
       AEROSOL( LSO4, AKN ) = AEROSOL( LSO4, AKN ) * EALFA3T
-#ifdef stm
-      AEROSOL( LSO4GAS,  AKN ) = AEROSOL( LSO4GAS,  AKN ) * EALFA3T
-      AEROSOL( LSO4EMIS, AKN ) = AEROSOL( LSO4EMIS, AKN ) * EALFA3T
-      AEROSOL( LSO4ICBC, AKN ) = AEROSOL( LSO4ICBC, AKN ) * EALFA3T
-#endif
+      IF ( STM ) THEN
+        AEROSOL( LSO4GAS,  AKN ) = AEROSOL( LSO4GAS,  AKN ) * EALFA3T
+        AEROSOL( LSO4EMIS, AKN ) = AEROSOL( LSO4EMIS, AKN ) * EALFA3T
+        AEROSOL( LSO4ICBC, AKN ) = AEROSOL( LSO4ICBC, AKN ) * EALFA3T
+      END IF
       AEROSOL( LNH4, AKN ) = AEROSOL( LNH4, AKN ) * EALFA3T
       AEROSOL( LNO3, AKN ) = AEROSOL( LNO3, AKN ) * EALFA3T
       AEROSOL( LEC,  AKN ) = AEROSOL( LEC,  AKN ) * EALFA3T
@@ -1772,16 +1770,16 @@ C...aerosol concentrations (mol/molV)
       AEROSOL( LPOA, AKN ) = AEROSOL( LPOA, AKN ) * EALFA3T
 
       AEROSOL( LSO4, ACC ) = TS6ACC * XL * RECIPAP1
-#ifdef stm
-      AEROSOL( LSO4AQH2O2, ACC ) = TS6AQH2O2  * XL * RECIPAP1
-      AEROSOL( LSO4AQO3,   ACC ) = TS6AQO3    * XL * RECIPAP1
-      AEROSOL( LSO4AQFEMN, ACC ) = TS6AQFEMN  * XL * RECIPAP1
-      AEROSOL( LSO4AQMHP,  ACC ) = TS6AQMHP   * XL * RECIPAP1
-      AEROSOL( LSO4AQPAA,  ACC ) = TS6AQPAA   * XL * RECIPAP1
-      AEROSOL( LSO4GAS,    ACC ) = TS6GASACC  * XL * RECIPAP1
-      AEROSOL( LSO4EMIS,   ACC ) = TS6EMISACC * XL * RECIPAP1
-      AEROSOL( LSO4ICBC,   ACC ) = TS6ICBCACC * XL * RECIPAP1
-#endif
+      IF ( STM ) THEN
+        AEROSOL( LSO4AQH2O2, ACC ) = TS6AQH2O2  * XL * RECIPAP1
+        AEROSOL( LSO4AQO3,   ACC ) = TS6AQO3    * XL * RECIPAP1
+        AEROSOL( LSO4AQFEMN, ACC ) = TS6AQFEMN  * XL * RECIPAP1
+        AEROSOL( LSO4AQMHP,  ACC ) = TS6AQMHP   * XL * RECIPAP1
+        AEROSOL( LSO4AQPAA,  ACC ) = TS6AQPAA   * XL * RECIPAP1
+        AEROSOL( LSO4GAS,    ACC ) = TS6GASACC  * XL * RECIPAP1
+        AEROSOL( LSO4EMIS,   ACC ) = TS6EMISACC * XL * RECIPAP1
+        AEROSOL( LSO4ICBC,   ACC ) = TS6ICBCACC * XL * RECIPAP1
+      END IF
       AEROSOL( LEC,  ACC ) = EC     * XL * RECIPAP1
       AEROSOL( LPRI, ACC ) = PRIM   * XL * RECIPAP1
 
@@ -1793,11 +1791,11 @@ C...aerosol concentrations (mol/molV)
       AEROSOL( LNO3, ACC ) = FNO3ACC * TOTNIT
 
       AEROSOL( LSO4, COR )    = TS6COR * XL * RECIPAP1
-#ifdef stm
-      AEROSOL( LSO4GAS,  COR ) = TS6GASCOR  * XL * RECIPAP1
-      AEROSOL( LSO4EMIS, COR ) = TS6EMISCOR * XL * RECIPAP1
-      AEROSOL( LSO4ICBC, COR ) = TS6ICBCCOR * XL * RECIPAP1
-#endif
+      IF ( STM ) THEN
+        AEROSOL( LSO4GAS,  COR ) = TS6GASCOR  * XL * RECIPAP1
+        AEROSOL( LSO4EMIS, COR ) = TS6EMISCOR * XL * RECIPAP1
+        AEROSOL( LSO4ICBC, COR ) = TS6ICBCCOR * XL * RECIPAP1
+      END IF
       AEROSOL( LNO3, COR )    = NO3COR * XL * RECIPAP1
       AEROSOL( LNH4, COR )    = NH4COR * XL * RECIPAP1
 !     AEROSOL( LPRICOR, COR ) = PRIMCOR* XL * RECIPAP1

@@ -138,6 +138,7 @@ c !! NO   and to populate the allocated arrays from the stnd gc_spc.ext  !!! NO
 
             logical success
             integer, save :: dev_gc_nml, dev_ae_nml, dev_nr_nml, dev_tr_nml
+            integer, save :: dev_stm_nml = 0
             integer i, ios
             integer i1, i2, i3, i4      ! surrogate type 1 counters
             integer j1, j2              ! surrogate type 2 counters
@@ -158,6 +159,10 @@ c namelist variables
             namelist / NR_nml / n_surr1, n_surr2, n_ctrl, type_header, type_matrix
             namelist / TR_nml / n_surr1, n_surr2, n_ctrl, type_header, type_matrix
 
+            integer stm_n_surr1, stm_n_surr2, stm_n_ctrl
+            character( 256 ) :: stm_type_header, stm_type_matrix( spc_dim )
+            namelist / STM_AE_nml / stm_n_surr1, stm_n_surr2, stm_n_ctrl, stm_type_header, stm_type_matrix
+            namelist / STM_NR_nml / stm_n_surr1, stm_n_surr2, stm_n_ctrl, stm_type_header, stm_type_matrix
 
 c intialize the surr1 table
             character( 4 ) :: surr1( 4 )
@@ -381,6 +386,41 @@ c the surrogate and ctrl arrays active dimensions not known a priori
      &            status = 'old', position = 'rewind' )
             read( nml = AE_nml, unit = dev_ae_nml ) 
 
+            if ( stm ) then
+               stm_type_header = bl
+               stm_type_matrix = bl   ! array assignment
+               
+               dev_stm_nml = junit()
+               open( file = trim( stm_namelist ), unit = dev_stm_nml,
+     &               status = 'old', position = 'rewind' )
+               read( nml = STM_AE_nml, unit = dev_stm_nml ) 
+               
+               if ( ( stm_type_header .ne. type_header ) .or.
+     &              ( stm_n_surr1 .ne. n_surr1 ) .or.
+     &              ( stm_n_surr2 .ne. n_surr2 ) .or.
+     &              ( stm_n_ctrl .ne. n_ctrl ) ) then
+                  write( logdev,* ) '*** Namelist STM_AE_nml in File ', 
+     &                              trim( stm_namelist ), ' is Incompatable with ',
+     &                              trim( ae_namelist )
+                  success = .false.
+                  return
+               end if
+               
+               do i = 1, spc_dim
+                  if ( type_matrix( i ) .eq. bl ) then
+                     n_ae_spc = i - 1
+                     exit
+                  end if
+               end do
+               
+               do i = 1, spc_dim
+                  if ( stm_type_matrix( i ) .eq. bl ) then
+                     exit
+                  end if
+                  type_matrix( n_ae_spc + i ) = stm_type_matrix( i )
+               end do
+            end if ! stm
+
 c create the surr1 table from the namelist header
             surr1( 1 ) = 'ICBC'; surr1_ndx( 1 ) = index( type_header, trim( surr1( 1 ) ) )
             surr1( 2 ) = 'DEPV'; surr1_ndx( 2 ) = index( type_header, trim( surr1( 2 ) ) )
@@ -540,6 +580,43 @@ c the surrogate and ctrl arrays active dimensions not known a priori
             open( file = trim( nr_namelist ), unit = dev_nr_nml,
      &            status = 'old', position = 'rewind' )
             read( nml = NR_nml, unit = dev_nr_nml ) 
+
+            if ( stm ) then
+               stm_type_header = bl
+               stm_type_matrix = bl   ! array assignment
+               
+               if ( dev_stm_nml .eq. 0 ) then
+                  dev_stm_nml = junit()
+                  open( file = trim( stm_namelist ), unit = dev_stm_nml,
+     &                  status = 'old', position = 'rewind' )
+               end if
+               read( nml = STM_NR_nml, unit = dev_stm_nml ) 
+               
+               if ( ( stm_type_header .ne. type_header ) .or.
+     &              ( stm_n_surr1 .ne. n_surr1 ) .or.
+     &              ( stm_n_surr2 .ne. n_surr2 ) .or.
+     &              ( stm_n_ctrl .ne. n_ctrl ) ) then
+                  write( logdev,* ) '*** Namelist STM_NR_nml in File ',  
+     &                              trim( stm_namelist ), ' is Incompatable with ', 
+     &                              trim( nr_namelist )
+                  success = .false.
+                  return
+               end if
+               
+               do i = 1, spc_dim
+                  if ( type_matrix( i ) .eq. bl ) then
+                     n_nr_spc = i - 1
+                     exit
+                  end if
+               end do
+               
+               do i = 1, spc_dim
+                  if ( stm_type_matrix( i ) .eq. bl ) then
+                     exit
+                  end if
+                  type_matrix( n_nr_spc + i ) = stm_type_matrix( i )
+               end do
+            end if ! stm
 
 c create the surr1 table from the namelist header
             surr1( 1 ) = 'ICBC'; surr1_ndx( 1 ) = index( type_header, trim( surr1( 1 ) ) )

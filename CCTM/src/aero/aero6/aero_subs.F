@@ -1107,9 +1107,6 @@ C     3.23 of Jiang & Roth (2003).
      &             * H2SO4RAT  * DELT ! ug m-3 of Sulfuric Acid
                                       ! (converted to ppmv in update_precursor)
          NPF_BUDGET( AEROSPC_MAP( ASO4_IDX,1 ) ) =  DMDT_SO4 * DELT ! ug m-3
-#ifdef stm
-         NPF_BUDGET( AEROSPC_MAP( ASO4GAS_IDX,1 ) ) =  DMDT_SO4 * DELT ! ug m-3
-#endif
          NPF_BUDGET( AERONUM_MAP( 1 ) ) =  DNDT * DELT  ! N m-3
          NPF_BUDGET( AEROSRF_MAP( 1 ) ) =  DM2DT * DELT ! m2 m-3
 
@@ -1365,10 +1362,6 @@ C *** Update all Local Aerosol Mass and Vapor Concentrations
             AEROSPC_CONC( ANO3_IDX,IMODE ) = REAL( CFINAL( KNO3,IMODE ),4 )
             AEROSPC_CONC( ACL_IDX,IMODE )  = REAL( CFINAL( KCL, IMODE ),4 )
             AEROSPC_CONC( ASO4_IDX,IMODE ) = REAL( SO4,4 )
-#ifdef stm
-            AEROSPC_CONC( ASO4GAS_IDX,IMODE ) = AEROSPC_CONC( ASO4GAS_IDX,IMODE ) 
-     &                                        + REAL( RATE * TSTEP * H2SO4RATM1,4 )
-#endif
             AEROSPC_CONC( AH2O_IDX,IMODE ) = REAL( H2O,4 )
 
             !Gas
@@ -1565,17 +1558,9 @@ C *** Apply Final Concentrations to Moment Variables in Aerosol Scheme
             ! Add NPF to total condensation rate
             RATE = DMDT_SO4 + CONDSO4( IMODE )
             SO4 = CINORG( KSO4,IMODE ) + RATE * DELT * H2SO4RATM1 
-#ifdef stm
-            AEROSPC_CONC( ASO4GAS_IDX, IMODE ) = AEROSPC_CONC( ASO4GAS_IDX, IMODE )
-     &                                         + REAL( RATE * DELT * H2SO4RATM1,4 )
-#endif
          ELSE
             ! Ignore NPF. The small particles are not in these modes
             SO4 = CINORG( KSO4,IMODE ) + CONDSO4( IMODE ) * DELT * H2SO4RATM1
-#ifdef stm
-            AEROSPC_CONC( ASO4GAS_IDX, IMODE ) = AEROSPC_CONC( ASO4GAS_IDX, IMODE ) 
-     &                                         + REAL( CONDSO4( IMODE ) * DELT * H2SO4RATM1,4 )
-#endif
          END IF
 
 C *** Double precision vars for CALC_H2O
@@ -1667,9 +1652,6 @@ C     aerospc_conc variables. This should be for the wet distribution.
       COND_BUDGET( AERONUM_MAP( : ) ) = REAL( DELNUM( : ), 4 )
       COND_BUDGET( AEROSRF_MAP( : ) ) = REAL( DELSRF( : ), 4 )
       COND_BUDGET( AEROSPC_MAP( ASO4_IDX,: ) ) = REAL( DELSO4( : ), 4 )
-#ifdef stm
-      COND_BUDGET( AEROSPC_MAP( ASO4GAS_IDX,: ) ) = REAL( DELSO4( : ), 4 )
-#endif
       COND_BUDGET( AEROSPC_MAP( ANH4_IDX,: ) ) = REAL( DELNH4( : ), 4 )
       COND_BUDGET( AEROSPC_MAP( ANO3_IDX,: ) ) = REAL( DELNO3( : ), 4 )
       COND_BUDGET( AEROSPC_MAP( ACL_IDX ,: ) ) = REAL( DELCL( : ) , 4 )

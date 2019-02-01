@@ -119,9 +119,7 @@ C for XTRACT3
       INTEGER      N_SPCS                     ! no. of species for this call
       INTEGER      NDX                        ! loop copy of INDX
       INTEGER      ISUR                       ! surrogate index
-#ifdef stm
       INTEGER      ISPCS                      ! model species index
-#endif
       INTEGER, ALLOCATABLE, SAVE :: INDX( : ) ! Variable indices for all IC species
       REAL,    ALLOCATABLE, SAVE :: ICBC_FAC( : ) ! Factor to be applied to ICs
       INTEGER      C, R, L, SPC, V, J         ! loop counters
@@ -247,7 +245,7 @@ C if there`s a surrogate name, CGRID_SPCS handles setting GC_ICBC_FAC
                END IF
             END IF
 C If there is no surrogate or it cannot be found, look for the (main) species name on the IC file
-            If ( ISUR .EQ. 0 .OR. NDX .EQ. 0 ) THEN
+            If ( ISUR .EQ. 0 .OR. NDX .EQ. 0 .OR. (.NOT. NEW_START ) ) THEN
                NDX = INDEX1( GC_SPC( SPC ), NVARS3D, VNAME3D )
                IF ( NDX .NE. 0 ) THEN
                   INDX( SPC ) = NDX   ! index in the IC file
@@ -284,18 +282,19 @@ C is it on the IC file?
      &                   TRIM(AE_SPC( SPC ))
                   CALL M3MESG( XMSG )
                END IF
-#ifdef stm
-C If there is a surrogate, also look for the (main) species name on the IC file
-C override surrogate if the (main) species is available & reset scaling factor
-               ISPCS = INDEX1( AE_SPC( SPC ), NVARS3D, VNAME3D )
-               IF ( ISPCS .NE. 0 ) THEN
-                  INDX( SPC ) = ISPCS
-                  ICBC_FAC( SPC ) = 1.0
-               END IF
-#endif
+!C for sulfur tracking option
+!               IF ( STM ) THEN
+!C If there is a surrogate, also look for the (main) species name on the IC file
+!C override surrogate if the (main) species is available & reset scaling factor
+!                  ISPCS = INDEX1( AE_SPC( SPC ), NVARS3D, VNAME3D )
+!                  IF ( ISPCS .NE. 0 ) THEN
+!                     INDX( SPC ) = ISPCS
+!                     ICBC_FAC( SPC ) = 1.0
+!                  END IF
+!               END IF
             END IF
 C If there is no surrogate or it cant be found, look for the (main) species name on the IC file
-            If ( ISUR .EQ. 0 .OR. NDX .EQ. 0 ) THEN
+            If ( ISUR .EQ. 0 .OR. NDX .EQ. 0 .OR. (.NOT. NEW_START ) ) THEN
                NDX = INDEX1( AE_SPC( SPC ), NVARS3D, VNAME3D )
                IF ( NDX .NE. 0 ) THEN
                   INDX( SPC ) = NDX
@@ -332,18 +331,19 @@ C is it on the IC file?
      &                   TRIM(NR_SPC( SPC ))
                   CALL M3MESG( XMSG )
                END IF
-#ifdef stm
-C If there is a surrogate, also look for the (main) species name on the IC file
-C override surrogate if the (main) species is available & reset scaling factor
-               ISPCS = INDEX1( NR_SPC( SPC ), NVARS3D, VNAME3D )
-               IF ( ISPCS .NE. 0 ) THEN
-                  INDX( SPC ) = ISPCS
-                  ICBC_FAC( SPC ) = 1.0
-               END IF
-#endif
+!C for sulfur tracking option
+!               IF ( STM ) THEN
+!C If there is a surrogate, also look for the (main) species name on the IC file
+!C override surrogate if the (main) species is available & reset scaling factor
+!                  ISPCS = INDEX1( NR_SPC( SPC ), NVARS3D, VNAME3D )
+!                  IF ( ISPCS .NE. 0 ) THEN
+!                     INDX( SPC ) = ISPCS
+!                     ICBC_FAC( SPC ) = 1.0
+!                  END IF
+!               END IF
             END IF
 C If there is no surrogate or it cant be found, look for the (main) species name on the IC file
-            If ( ISUR .EQ. 0 .OR. NDX .EQ. 0 ) THEN
+            If ( ISUR .EQ. 0 .OR. NDX .EQ. 0 .OR. (.NOT. NEW_START ) ) THEN
                NDX = INDEX1( NR_SPC( SPC ), NVARS3D, VNAME3D )
                IF ( NDX .NE. 0 ) THEN
                   INDX( SPC ) = NDX
@@ -382,7 +382,7 @@ C is it on the IC file?
                END IF
             END IF
 C If there is no surrogate or it cant be found, look for the (main) species name on the IC file
-            If ( ISUR .EQ. 0 .OR. NDX .EQ. 0 ) THEN
+            If ( ISUR .EQ. 0 .OR. NDX .EQ. 0 .OR. (.NOT. NEW_START ) ) THEN
                NDX = INDEX1( TR_SPC( SPC ), NVARS3D, VNAME3D )
                IF ( NDX .NE. 0 ) THEN
                   INDX( SPC ) = NDX

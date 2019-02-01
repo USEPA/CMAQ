@@ -768,6 +768,60 @@
             END IF
          END IF
 
+      ! sulfur tracking instrument model option
+         IF ( STM ) THEN
+      ! SULF emissions
+            N_EM_RULE_B = N_EM_RULE_B + 1
+            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASO4EMIS'
+            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
+            EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
+            EM_NML_B(N_EM_RULE_B)%SURR  = 'SULF'
+            EM_NML_B(N_EM_RULE_B)%FAC   = 1.0
+            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
+            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
+            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
+      !  PSO4 emissions 
+            N_EM_RULE_B = N_EM_RULE_B + 1
+            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASO4EMIS'
+            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
+            EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
+            EM_NML_B(N_EM_RULE_B)%SURR  = 'PSO4'
+            EM_NML_B(N_EM_RULE_B)%FAC   = 1.0
+            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
+            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
+            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
+      ! Coarse-Mode Sulfate
+            N_EM_RULE_B = N_EM_RULE_B + 1
+            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASO4EMIS'
+            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
+            EM_NML_B(N_EM_RULE_B)%PHASE = 'COARSE'
+            EM_NML_B(N_EM_RULE_B)%SURR  = 'PMC'
+            EM_NML_B(N_EM_RULE_B)%FAC   = REAL( ACORSEM_ASO4_FAC, 4 ) 
+            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
+            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
+            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
+      !  Dust SO4 emissions 
+            N_EM_RULE_B = N_EM_RULE_B + 1
+            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASO4EMIS'
+            EM_NML_B(N_EM_RULE_B)%STREAM= 'WBDUST'
+            EM_NML_B(N_EM_RULE_B)%PHASE = 'AERO'
+            EM_NML_B(N_EM_RULE_B)%SURR  = 'ASO4'
+            EM_NML_B(N_EM_RULE_B)%FAC   = 1.0
+            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
+            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
+            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
+      !  Sea spray SO4 emissions 
+            N_EM_RULE_B = N_EM_RULE_B + 1
+            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASO4EMIS'
+            EM_NML_B(N_EM_RULE_B)%STREAM= 'SEASPRAY'
+            EM_NML_B(N_EM_RULE_B)%PHASE = 'AERO'
+            EM_NML_B(N_EM_RULE_B)%SURR  = 'ASO4'
+            EM_NML_B(N_EM_RULE_B)%FAC   = 1.0
+            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
+            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
+            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
+         END IF ! stm
+
       ! [ INSERT MORE DEFAULT RULES HERE AS DESIRED ]
           
       ! Add Rules to Existing List at Beginning

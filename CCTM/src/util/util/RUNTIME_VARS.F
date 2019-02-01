@@ -132,7 +132,7 @@
       CHARACTER(256) :: AE_NAMELIST = '' ! Aerosol Species Namelist
       CHARACTER(256) :: NR_NAMELIST = '' ! Nonreactive Species Namelist
       CHARACTER(256) :: TR_NAMELIST = '' ! Tracer Species Namelist
-      
+     
       ! Chemistry and Photolysis
       LOGICAL :: PHOTDIAG  = .FALSE. ! Flag for PHOTDIAG file
       INTEGER :: NLAYS_DIAG = 0      ! Number of Diagnostic Layers to write out for photolysis
@@ -156,10 +156,10 @@
       INTEGER :: N_APMDIAG_SPC= 0    ! PM Diagnostic File Number of Species
       CHARACTER(  16 ) :: APMDIAG_SPC( 200 ) = '' !PM Diagnostic File Species Names
 
-#ifdef stm
-      ! Sulfur tracking adjustment
+      ! Sulfur tracking
+      LOGICAL :: STM        = .FALSE. ! flag sulfur tracking option
       LOGICAL :: ADJ_STMSPC = .FALSE. ! flag for normalizing sulfur tracking species
-#endif
+      CHARACTER(256) :: STM_NAMELIST = '' ! Sulfur Tracking Model Namelist
 
       ! Cloud Parameters
       LOGICAL :: CLD_DIAG  = .FALSE. ! flag to output cloud diagnostic files
@@ -691,16 +691,24 @@
       ! APMDIAG File Species List 
       CALL GET_ENVLIST ( 'AVG_PMDIAG_SPCS', N_APMDIAG_SPC, APMDIAG_SPC )
 
-#ifdef stm
       !-------------------------------------------------------------------------------------------------------
-      !>> sulfur tracking model
+      !>> sulfur tracking option
       !-------------------------------------------------------------------------------------------------------
 
-      ! Get flag for average PM diagnostic file.
-      VARDESC = 'Flag to normalize sulfur tracking species'
-      ADJ_STMSPC = GET_ENVYN( 'STM_ADJSO4', VARDESC, ADJ_STMSPC )
-      
-#endif 
+      ! Flag for sulfur tracking option
+      VARDESC = 'Flag for sulfur tracking'
+      STM = GET_ENVYN( 'CTM_SO4TRACK', VARDESC, STM )
+
+      IF ( STM ) THEN
+         ! Get Filename for Sulfur Tracking Model Namelist
+         VARDESC = 'Sulfur Tracking Model Namelist Filename'
+         STM_NAMELIST = GET_ENVSTR( 'stm_matrix_nml', VARDESC, STM_NAMELIST )
+
+         ! Get sulfur tracking normalization flag
+         VARDESC = 'Flag to normalize sulfur tracking species'
+         ADJ_STMSPC = GET_ENVYN( 'STM_ADJSO4', VARDESC, ADJ_STMSPC )
+      END IF      
+
       !-------------------------------------------------------------------------------------------------------
       !>> Cloud Parameters
       !-------------------------------------------------------------------------------------------------------
