@@ -240,6 +240,9 @@ C for INTERPX
          SUBROUTINE FINAL_DEGRADE( CBLK )
            REAL( 8 ), INTENT( INOUT ) :: CBLK( :, : ) ! species conc in cell
          END SUBROUTINE FINAL_DEGRADE
+         SUBROUTINE HETCHEM_UPDATE_AERO( CGRID )
+           REAL, POINTER :: CGRID( :,:,:,: )    !  species concentration in cell
+         END SUBROUTINE HETCHEM_UPDATE_AERO       
       END INTERFACE
 
 !     logical, save :: bingo1 = .true.
