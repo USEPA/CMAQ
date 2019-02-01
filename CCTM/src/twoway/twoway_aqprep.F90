@@ -92,6 +92,8 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 !              -- fixed a bug in outputing MET_CRO_2D physical file
 !           11 Jan 2017  (David Wong)
 !              -- fixed a bug to handle simulation with convective scheme or not
+!           01 Feb 2019  (Tanya Spero)
+!              -- updated Jacobian calculation for hybrid vertical coordinate
 !===============================================================================
 
   USE module_domain                                ! WRF module
@@ -202,6 +204,8 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
   REAL, ALLOCATABLE, SAVE :: zf      ( : , : , : )
   REAL, ALLOCATABLE, SAVE :: dzf     ( : , : , : )
   REAL, ALLOCATABLE, SAVE :: presf   ( : , : , : )
+  REAL, ALLOCATABLE, SAVE :: muhybf  ( : , : )      ! for hybrid vertical coord
+  REAL, ALLOCATABLE, SAVE :: muhybh  ( : , : )      ! for hybrid vertical coord
 
 ! metdot3d temporary storage
 
@@ -388,6 +392,7 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
      nstep = ((grid%run_days * 24 + grid%run_hours) * 3600 + grid%run_minutes * 60 + grid%run_seconds) / &
              (grid%time_step * wrf_cmaq_freq)
 
+!-------------------------------------------------------------------------------
 ! Allocate arrays for CCTM...to mimic MCIP output arrays.
 !-------------------------------------------------------------------------------
 
@@ -398,6 +403,8 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 
      ALLOCATE ( dzf     (wrf_c_ncols,   wrf_c_nrows,   nlays) )  ! used in calcs, not output
      ALLOCATE ( presf   (wrf_c_ncols,   wrf_c_nrows,   nlays) )  ! used in calcs, not output
+     ALLOCATE ( muhybf  (wrf_c_ncols,   wrf_c_nrows)          )  ! used in calcs, not output
+     ALLOCATE ( muhybh  (wrf_c_ncols,   wrf_c_nrows)          )  ! used in calcs, not output
 
 ! Fields from METDOT3D
 
@@ -1092,15 +1099,33 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
            qf    = 0.5 * ( qv_curr_wrf(ii,kk,jj) + qv_curr_wrf(ii,kp1,jj) )
            densf = presf(c,r,kk) / ( r_d * tf * (1.0 + r_v*qf/r_d) )
 
+        !-----------------------------------------------------------------------
+        ! Update calculation of Jacobian for hybrid vertical coordinate.
+        ! TLS 1 Feb 19
+        !
+        ! Calculate new variables MUHYBF and MUHYBH (mu hybrid on full and half
+        ! levels).  Note that full level indexing in vertical differs by 1 from
+        ! WRF because CMAQ's arrays are zero-based.
+        !
+        ! Replace MUT in the Jacobian calculations, below, with MUHYBF or
+        ! MUHYBH, depending on the level where we want the Jacobian.
+        !-----------------------------------------------------------------------
+
+           muhybf(c,r) = grid%c1f(kp1) * grid%mut(ii,jj) + grid%c2f(kp1)
+           muhybh(c,r) = grid%c1h(k)   * grid%mut(ii,jj) + grid%c2h(k)
+
            if (turn_on_pv) then
               metcro3d_data_wrf (c,r,kk,1) = tf*2
            else
-              metcro3d_data_wrf (c,r,kk,1) = gravi * grid%mut(ii,jj) / (densf * gridcro2d_data_wrf (c,r,3))   ! calculate jacobf
+!             metcro3d_data_wrf (c,r,kk,1) = gravi * grid%mut(ii,jj) / (densf * gridcro2d_data_wrf (c,r,3))   ! calculate jacobf
+              metcro3d_data_wrf (c,r,kk,1) = gravi * muhybf(c,r) / (densf * gridcro2d_data_wrf (c,r,3))   ! calculate jacobf
            end if
 
-           metcro3d_data_wrf (c,r,kk,2) = gravi * grid%mut(ii,jj) / (metcro3d_data_wrf(c,r,kk,12) * gridcro2d_data_wrf (c,r,3))
+!          metcro3d_data_wrf (c,r,kk,2) = gravi * grid%mut(ii,jj) / (metcro3d_data_wrf(c,r,kk,12) * gridcro2d_data_wrf (c,r,3))
+           metcro3d_data_wrf (c,r,kk,2) = gravi * muhybh(c,r) / (metcro3d_data_wrf(c,r,kk,12) * gridcro2d_data_wrf (c,r,3))
 
-           metcro3d_data_wrf(c,r,kk,3) = gravi * grid%mut(ii,jj) / gridcro2d_data_wrf (c,r,3)
+!          metcro3d_data_wrf(c,r,kk,3) = gravi * grid%mut(ii,jj) / gridcro2d_data_wrf (c,r,3)
+           metcro3d_data_wrf(c,r,kk,3) = gravi * muhybh(c,r) / gridcro2d_data_wrf (c,r,3)
 
         ENDDO
      ENDDO
