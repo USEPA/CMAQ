@@ -370,7 +370,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv GR_EM_DTOVRD_001 F
 
   #> In-line point emissions configuration
-  setenv N_EMIS_PT 5          #> Number of elevated source groups
+  setenv N_EMIS_PT 0          #> Number of elevated source groups
 
   set STKCASEG = 12US1_2011ek_cb6cmaq_v6_11g              # Stack Group Version Label
   set STKCASEE = 12US1_cmaq_cb6e51_2011ek_cb6cmaq_v6_11g  # Stack Emission Version Label

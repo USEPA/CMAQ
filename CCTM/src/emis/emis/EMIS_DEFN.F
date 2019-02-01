@@ -635,7 +635,7 @@ C-----------------------------------------------------------------------
 C     Convert rate and map to Diffusivity module species order
 C-----------------------------------------------------------------------
           
-      USE ASX_DATA_MOD, ONLY: MET_DATA, GRID_DATA, CONVPA
+      USE ASX_DATA_MOD, ONLY: MET_DATA, GRID_DATA
       USE AERO_EMIS           ! inherits GRID_CONF
 
       IMPLICIT NONE
@@ -665,7 +665,7 @@ C-----------------------------------------------------------------------
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
          ! Populate Persistent Variables
-         CNVTP = CONVPA * 1.0E+06 * MWAIR / REAL( DX1 * DX2 ) !Conv. Factor for Gases 
+         CNVTP = 1.0E+06 * MWAIR / REAL( DX1 * DX2 ) !Conv. Factor for Gases 
 
          ALLOCATE( CNVTI( EMLAYS ), CNVTC( EMLAYS,NCOLS,NROWS ), 
      &             CONVM( EMLAYS,NCOLS,NROWS ),
@@ -766,7 +766,7 @@ C-----------------------------------------------------------------------
 !     Write out emissions diagnostic file
 !-----------------------------------------------------------------------
           
-      USE ASX_DATA_MOD, ONLY: MET_DATA, GRID_DATA, CONVPA
+      USE ASX_DATA_MOD, ONLY: MET_DATA, GRID_DATA
       USE AERO_EMIS           ! inherits GRID_CONF
       USE GRID_CONF
       USE VDIFF_MAP, ONLY : N_SPC_DIFF, DIFF_MASK_GAS, DIFF_MASK_AERO,
@@ -799,7 +799,7 @@ C-----------------------------------------------------------------------
       ! Get pressure info from ASX_DATA_MOD
       IF ( FIRST_TIME ) THEN
          FIRST_TIME = .FALSE.
-         CNVTP = CONVPA * 1.0E+06 * MWAIR / REAL( DX1 * DX2 ) !Conv. Factor for Gases 
+         CNVTP = 1.0E+06 * MWAIR / REAL( DX1 * DX2 ) !Conv. Factor for Gases 
 
          ALLOCATE( CNVTI( EMLAYS ), CNVTC( EMLAYS,NCOLS,NROWS ), 
      &             CONVM( EMLAYS,NCOLS,NROWS ),
