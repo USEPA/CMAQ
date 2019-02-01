@@ -144,6 +144,9 @@ C for INTERPX
            INTEGER, INTENT( IN ) :: JTIME    ! Current time (HHMMSS)
            INTEGER, INTENT( IN ) :: C, R, L  ! Cell col, row, lev
         END SUBROUTINE HRSOLVER
+        SUBROUTINE HETCHEM_UPDATE_AERO( CGRID )
+           REAL, POINTER :: CGRID( :,:,:,: )    !  species concentration in cell
+        END SUBROUTINE HETCHEM_UPDATE_AERO      
       END INTERFACE
 
 C**********************************************************************

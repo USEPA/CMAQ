@@ -163,6 +163,9 @@ R5         END SUBROUTINE INIT_DEGRADE
 R5         SUBROUTINE FINAL_DEGRADE( CBLK )
 R5           REAL( 8 ), INTENT( INOUT ) :: CBLK( : )    !  species concentration in cell
 R5         END SUBROUTINE FINAL_DEGRADE
+        SUBROUTINE HETCHEM_UPDATE_AERO( CGRID )
+           REAL, POINTER :: CGRID( :,:,:,: )  !  species concentration in cell
+        END SUBROUTINE HETCHEM_UPDATE_AERO 
       END INTERFACE
 
 C**********************************************************************
