@@ -45,17 +45,17 @@ C-----------------------------------------------------------------------\
 
 C Arguments
 
-       INTEGER NSP                ! no. of species
-       INTEGER NLAYS              ! no. of model layers
-       REAL    F( NLAYS )         ! entrainment fraction
-       REAL    C( NSP, NLAYS )    ! species concentration
-       REAL    DZH( NLAYS )       ! full layer thickness (m)
-       REAL    CBELOW( NSP )      ! spec conc in layer below cld base
-       INTEGER CLBASE
-       INTEGER CLTOP
-       REAL    FRAC               ! grid cell fractional cloud cover
-       REAL    TCLIFE             ! cloud lifetime (s)
-       REAL    DTCLD              ! cloud integration time step
+      INTEGER, INTENT( IN ) :: NSP            ! no. of species
+      INTEGER, INTENT( IN ) :: NLAYS          ! no. of model layers
+      REAL, INTENT( IN )    :: F( : )         ! entrainment fraction
+      REAL, INTENT( INOUT ) :: C( :, : )      ! species concentration
+      REAL, INTENT( IN )    :: DZH( : )
+      REAL, INTENT( INOUT ) :: CBELOW( : )    ! spec conc in layer below cld base
+      INTEGER, INTENT( IN ) :: CLBASE
+      INTEGER, INTENT( IN ) :: CLTOP
+      REAL, INTENT( IN )    :: FRAC           ! grid cell fractional cloud cover
+      REAL, INTENT( IN )    :: TCLIFE         ! cloud lifetime (s)
+      REAL, INTENT( IN )    :: DTCLD          ! cloud integration time step
 
 C Parameters
 

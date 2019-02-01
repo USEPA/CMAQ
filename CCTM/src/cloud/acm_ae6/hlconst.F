@@ -92,6 +92,7 @@ C          is already an effective rate (Sander ACP, 2015, note 187)
 C       4. added dissociation constant for acrylic acid (LACRYACID) (via B. Hutzell)
 C  H.Pye       06/2017  added semivolatile monoterpene products
 C  G.Sarwar    08/2018  added Henry's Law constant for ClNO3, FMBR, IBR, and updated iodine and bromine species
+C  G. Sarwar   11/2018  added Henry's Law constant for CLO
 C-----------------------------------------------------------------------
 
       USE UTILIO_DEFN
@@ -110,7 +111,7 @@ C...........INCLUDES and their descriptions
 
 C...........PARAMETERS and their descriptions:
 
-      INTEGER, PARAMETER :: MXSPCS = 215     ! Number of substances
+      INTEGER, PARAMETER :: MXSPCS = 216     ! Number of substances
       INTEGER, PARAMETER :: MXDSPCS = 19     ! Number of dissociating species
 
 C...pointers for the dissociation constants (array B and D)
@@ -393,6 +394,7 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA SUBNAME(213), A(213), E(213) / 'CLNO3           ', 1.00E+30, 0.0E+00 /   ! Sander (2015)
       DATA SUBNAME(214), A(214), E(214) / 'IBR             ', 2.43E+01, 4.9E+03 /   ! Sherwen et al., 2016
       DATA SUBNAME(215), A(215), E(215) / 'FMBR            ', 7.40E+01, 0.0E+00 /   ! Sander, R. ACP (2015), krysztofiak et al. (2012)
+      DATA SUBNAME(216), A(216), E(216) / 'CLO             ', 7.00E-03, 0.0E+00 /   ! Sander et al., ACP, 2015
 
       DATA B( LSO2   ), D( LSO2   ) / 1.30E-02,  1.96E+03 /  ! SO2*H2O<=>HSO3+H     : Smith and Martell (1976)
       DATA B( LHSO3  ), D( LHSO3  ) / 6.60E-08,  1.50E+03 /  ! HSO3<=>SO3+H         : Smith and Martell (1976)

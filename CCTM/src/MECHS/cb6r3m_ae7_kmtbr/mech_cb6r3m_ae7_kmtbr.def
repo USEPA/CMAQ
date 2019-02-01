@@ -18,7 +18,7 @@
 !      hemispheric halogen chemical mechanism
 !   4. implemented temperature and pressure-dependent CS/QY for CLNO2
 !
-! 07-16-18 G.Sarwar, removed cocndensed halogen chemistry and added bromine/iodine and DMS chemistry
+! 07-16-18 G.Sarwar, removed condensed halogen chemistry and added bromine/iodine and DMS chemistry
 !---------------------------------
 CB6R3M_AE7_KMTBR
 
@@ -390,9 +390,7 @@ REACTIONS[CM] =
 <CL31> CLNO3          = CL + NO3                 # 1.0/<CLONO2_2>;
 
 ! heterogeneous reactions from CB05eh51
-
 <HET_CLNO3_WAJ> CLNO3     = HOCL + HNO3               # 1.0~<HETERO_CLNO3_WAJ>;
-<HET_CLNO3_WAK> CLNO3     = HOCL + HNO3               # 1.0~<HETERO_CLNO3_WAK>;
 
 ! SOA counter species and semivolatiles formed
 <SA01>  TOLRO2  + NO      = NO  + 0.016*SVAVB2 + 0.051*SVAVB3 +
@@ -419,10 +417,8 @@ REACTIONS[CM] =
 
 <HET_N2O5IJ>    N2O5 = HNO3 + H2NO3PIJ  # 1.0~<HETERO_N2O5IJ>;
 <HET_N2O5K>     N2O5 = HNO3 + H2NO3PK   # 1.0~<HETERO_N2O5K>;
-
 <HET_H2NO3PIJA> H2NO3PIJ = HNO3         # 1.0~<HETERO_H2NO3PAIJ>;
 <HET_H2NO3PKA>  H2NO3PK  = HNO3         # 1.0~<HETERO_H2NO3PAK>;
-
 <HET_H2NO3PIB>  H2NO3PIJ + ACLI = CLNO2 # 1.0~<HETERO_H2NO3PBIJ>;
 <HET_H2NO3PJB>  H2NO3PIJ + ACLJ = CLNO2 # 1.0~<HETERO_H2NO3PBIJ>;
 <HET_H2NO3PKB>  H2NO3PK  + ACLK = CLNO2 # 1.0~<HETERO_H2NO3PBK>;
@@ -597,15 +593,11 @@ REACTIONS[CM] =
 
 ! Heterogeneous reactions
 <HET_BRNO3_WAJ> BRNO3 = HOBR + HNO3                   # 1.0~<HETERO_BRNO3_WAJ>;
-<HET_BRNO3_WAK> BRNO3 = HOBR + HNO3                   # 1.0~<HETERO_BRNO3_WAK>;
 <HET_HOBR_CLJ>  HOBR + ACLJ = BRCL                    # 1.0~<HETERO_HOBR_CLJ>;
-<HET_HOBR_CLK>  HOBR + ACLK = BRCL                    # 1.0~<HETERO_HOBR_CLK>;
 <HET_HOBR_BRJ>  HOBR + ABRJ = BR2                     # 1.0~<HETERO_HOBR_BRJ>;
-<HET_HOBR_BRK>  HOBR + ABRK = BR2                     # 1.0~<HETERO_HOBR_BRK>;
 
 ! Heterogeneous reaction of HBR
 <HET_HBR_BRJ>  HBR = ABRJ                             # 1.0~<HETERO_HBR_BRJ>;
-<HET_HBR_BRK>  HBR = ABRK                             # 1.0~<HETERO_HBR_BRK>;
 
 ! Iodine chemistry
 
@@ -666,25 +658,15 @@ REACTIONS[CM] =
 
 ! heterogeneous reactions
 <HET_I2O2_AJ>  I2O2 =                                 # 1.0~<HETERO_I2O2_AJ>;
-<HET_I2O2_AK>  I2O2 =                                 # 1.0~<HETERO_I2O2_AK>;
 <HET_I2O3_AJ>  I2O3 =                                 # 1.0~<HETERO_I2O3_AJ>;
-<HET_I2O3_AK>  I2O3 =                                 # 1.0~<HETERO_I2O3_AK>;
 <HET_I2O4_AJ>  I2O4 =                                 # 1.0~<HETERO_I2O4_AJ>;
-<HET_I2O4_AK>  I2O4 =                                 # 1.0~<HETERO_I2O4_AK>;
 <HET_INO3_CLJ> INO3 + ACLJ = ICL + HNO3               # 1.0~<HETERO_INO3_CLJ>;
-<HET_INO3_CLK> INO3 + ACLK = ICL + HNO3               # 1.0~<HETERO_INO3_CLK>;
 <HET_INO3_BRJ> INO3 + ABRJ = IBR + HNO3               # 1.0~<HETERO_INO3_BRJ>;
-<HET_INO3_BRK> INO3 + ABRK = IBR + HNO3               # 1.0~<HETERO_INO3_BRK>;
 <HET_INO2_CLJ> INO2 + ACLJ = ICL + HONO               # 1.0~<HETERO_INO2_CLJ>;
-<HET_INO2_CLK> INO2 + ACLK = ICL + HONO               # 1.0~<HETERO_INO2_CLK>;
 <HET_INO2_BRJ> INO2 + ABRJ = IBR + HONO               # 1.0~<HETERO_INO2_BRJ>;
-<HET_INO2_BRK> INO2 + ABRK = IBR + HONO               # 1.0~<HETERO_INO2_BRK>;
 <HET_HOI_CLJ>  HOI + ACLJ = ICL                       # 1.0~<HETERO_HOI_CLJ>;
-<HET_HOI_CLK>  HOI + ACLK = ICL                       # 1.0~<HETERO_HOI_CLK>;
 <HET_HOI_BRJ>  HOI + ABRJ = IBR                       # 1.0~<HETERO_HOI_BRJ>;
-<HET_HOI_BRK>  HOI + ABRK = IBR                       # 1.0~<HETERO_HOI_BRK>;
 <HET_HI_AJ>    HI   =                                 # 1.0~<HETERO_HI_AJ>;
-<HET_HI_AK>    HI   =                                 # 1.0~<HETERO_HI_AK>;
 
 ! DMS chemistry (IUPAC except DMS4 which is from Somariva and Glasow, 2012 )
 <DMS1>  DMS + OH           = SO2     + MEO2
