@@ -323,9 +323,6 @@ C for TX version
 
       Logical, Private, Save :: mapped = .False.
 
-      Integer, Private, Save :: logdev
-      Integer, Private, External :: setup_logdev
-
       Contains
  
 C------------------------------------------------------------------------
@@ -343,6 +340,7 @@ C-----------------------------------------------------------------------
       Use cgrid_spcs          ! CGRID mechanism species
       Use utilio_defn
       Use aero_data
+      Use phot_mod, Only: init_phot_shared  ! set-up shared photolysis arrays
 
       Implicit None
 
@@ -378,11 +376,12 @@ C-----------------------------------------------------------------------
 
       If ( Firstcall ) Then
          Firstcall = .False.
-         logdev    = setup_logdev()
       Else
          Return
       End if
- 
+
+      Call init_phot_shared()
+
       Allocate ( aename( n_ae_a2aq ), stat = ios )
       If ( ios .Ne. 0 ) Then
          xmsg = '*** Error allocating aename'

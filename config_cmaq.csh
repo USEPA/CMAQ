@@ -88,11 +88,16 @@
         setenv MPI_LIB_DIR     mpi_lib_intel    #> MPI directory path
     
         #> Compiler Aliases and Flags
+        #>   Comments: 
+        #>      -xCORE-AVX2 == Use advanced vector extensions on Intel processors and
+        #>                     non-Intel processors that support the Intel instruction 
+        #>                     set. Try turning off if you having compilation errors
+        #>                     on non-Intel systems.
         setenv myFC mpiifort
         setenv myCC icc       
-        setenv myFSTD "-O3 -fno-alias -mp1 -fp-model source"
+        setenv myFSTD "-O3 -fno-alias -mp1 -fp-model source -ftz -simd -align all -xCORE-AVX2"
         setenv myDBG  "-O0 -g -check bounds -check uninit -fpe0 -fno-alias -ftrapuv -traceback"
-        setenv myLINK_FLAG #"-openmp"
+        setenv myLINK_FLAG "-qopenmp-simd"
         setenv myFFLAGS "-fixed -132"
         setenv myFRFLAGS "-free"
         setenv myCFLAGS "-O2"
