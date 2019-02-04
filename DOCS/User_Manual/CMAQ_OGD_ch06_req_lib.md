@@ -8,7 +8,7 @@
 
 # Required Libraries #
 
-The CMAQ programs require a set of third-party libraries that must be installed on the users system before CMAQ can be compiled and run. These libraries control the data flow through CMAQ, define the binary file formats used by the CMAQ input and output files, and control how CMAQ functions in a multiple-processor computing environment. The [Input/Output Applications Programming Interface (I/O API)](#IOAPI) and the [Network Common Data Form (netCDF)](#NCF) are required for all applications of CMAQ. The [Message Passing Interface (MPI)](#MPI) is only required for multiple-processor applications of CCTM. Brief descriptions of these three libraries are provided in this section. For additional information, including how to compile and configure these libraries, refer to the documentation associated with each library.
+The CMAQ programs require a set of third-party libraries that must be installed on the user's system before CMAQ can be compiled and run. These libraries control the data flow through CMAQ, define the binary file formats used by the CMAQ input and output files, and control how CMAQ functions in a multiple-processor computing environment. The [Input/Output Applications Programming Interface (I/O API)](#IOAPI) and the [Network Common Data Form (netCDF)](#NCF) are required for all applications of CMAQ. The [Message Passing Interface (MPI)](#MPI) is only required for multiple-processor applications of CCTM. Brief descriptions of these three libraries are provided in this section. For additional information, including how to compile and configure these libraries, refer to the documentation associated with each library.
 
 <a name=IOAPI></a>
 
@@ -27,7 +27,7 @@ The I/O API stores and retrieves data using files and virtual files, which have 
 
 ```
 YYYYDAY = (1000 * Year) + Julian Day
-HHMMSS = (10000 * Hour) + (100 * Minute) + Seconds
+HHMMSS = (10000 * Hour) + (100 * Minute) + Seconds.
 ```
 
 Rather than forcing the programmer and program-user to deal with hard-coded file names or hard-coded unit numbers, the I/O API utilizes the concept of logical file names. The modelers can define the logical names as properties of a program, and then at run-time the logical names can be linked to the actual file name using environment variables. For programming purposes, the only limitations are that file names cannot contain blank spaces and must be at most 16 characters long. When a modeler runs a program that uses the I/O API, environment variables must be used to set the values for the program’s logical file names. Additional details of how the CMAQ programs use I/O API environment variables are discussed in  [Chapter 7](CMAQ_OGD_ch07_programs_libraries.md). The remainder of this section explains some of the rudimentary details of programming in an environment using I/O API data files.
@@ -36,7 +36,7 @@ Rather than forcing the programmer and program-user to deal with hard-coded file
 
 Each CMAQ data file has internal file descriptions that contain the file type, the file start date and time, the file time step, the grid and coordinate descriptions, and a set of descriptions for the set of variables contained within the file (i.e., names, units specifications, and text descriptions). Some of the elements in a file description, such as the dates and times for file creation and update and the name of the program that created the file, are maintained automatically by the I/O API. The remainder of the descriptive information must be provided at the time of file creation.
 
-All files manipulated by the I/O API may have multiple variables and multiple layers. Each file also has a time-step structure that is shared by all of its variables. There are three kinds of time-step structure supported ([Table 6‑1](#Table6-1)). Within a file, all the variables are data arrays with the same dimensions, number of layers, and data structure type, although possibly different basic types (e.g., gridded and boundary variables cannot be mixed within the same file, but real and integer variables can). The data type structures that are supported are listed in [Table 6‑2](#Table6-2). GRDDED3 and BNDARY3 are the most prevalent file types in a CMAQ simulation. Magic number is an indicator associated with the files type.
+All files manipulated by the I/O API may have multiple variables and multiple layers. Each file also has a time-step structure that is shared by all of its variables. There are three kinds of time-step structures supported ([Table 6‑1](#Table6-1)). Within a file, all the variables are data arrays with the same dimensions, number of layers, and data structure type, although possibly different basic types (e.g., gridded and boundary variables cannot be mixed within the same file, but real and integer variables can). The data type structures that are supported are listed in [Table 6‑2](#Table6-2). GRDDED3 and BNDARY3 are the most prevalent file types in a CMAQ simulation. Magic number is an indicator associated with the file's type.
 
 <a id=Table6-1></a>
 
@@ -209,7 +209,7 @@ Message Passing Interface Library (MPI)
 The Message Passing Interface (MPI) is a standard library specification for message passing, or intra-software communication, on both massively parallel computing hardware and workstation clusters. There are different open source MPI libraries available that work well with CMAQ.
 
 - [MVAPICH2](http://mvapich.cse.ohio-state.edu) is a portable implementation of MPI that is available from Ohio State University.
-- [OpenMPI](https://www.open-mpi.org) is an open-source MPI implelmentation that is developed and maintained by a consortium of academic, research, and industry partners.
+- [OpenMPI](https://www.open-mpi.org) is an open-source MPI implementation that is developed and maintained by a consortium of academic, research, and industry partners.
 
 References for Chapter 6: Required Libraries
 ------------------------------------------
@@ -218,7 +218,7 @@ Unidata, 2009: NetCDF. Available online at [NetCDF website](http://www.unidata.u
 
 <!-- BEGIN COMMENT -->
 
-[<< Previous Chapter](CMAQ_OGD_ch05_sys_req.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch07_programs_libraries.md) 
+[<< Previous Chapter](CMAQ_OGD_ch05_sys_req.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch07_programs_libraries.md)
 CMAQ Operational Guidance Document (c) 2016
 
 <!-- END COMMENT -->
