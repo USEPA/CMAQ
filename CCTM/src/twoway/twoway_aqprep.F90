@@ -92,7 +92,7 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 !              -- fixed a bug in outputing MET_CRO_2D physical file
 !           11 Jan 2017  (David Wong)
 !              -- fixed a bug to handle simulation with convective scheme or not
-!           01 Feb 2019  (Tanya Spero)
+!           04 Feb 2019  (Tanya Spero)
 !              -- updated Jacobian calculation for hybrid vertical coordinate
 !===============================================================================
 
@@ -204,8 +204,8 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
   REAL, ALLOCATABLE, SAVE :: zf      ( : , : , : )
   REAL, ALLOCATABLE, SAVE :: dzf     ( : , : , : )
   REAL, ALLOCATABLE, SAVE :: presf   ( : , : , : )
-  REAL, ALLOCATABLE, SAVE :: muhybf  ( : , : )      ! for hybrid vertical coord
-  REAL, ALLOCATABLE, SAVE :: muhybh  ( : , : )      ! for hybrid vertical coord
+  REAL                    :: muhybf                 ! for hybrid vertical coord
+  REAL                    :: muhybh                 ! for hybrid vertical coord
 
 ! metdot3d temporary storage
 
@@ -403,8 +403,6 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 
      ALLOCATE ( dzf     (wrf_c_ncols,   wrf_c_nrows,   nlays) )  ! used in calcs, not output
      ALLOCATE ( presf   (wrf_c_ncols,   wrf_c_nrows,   nlays) )  ! used in calcs, not output
-     ALLOCATE ( muhybf  (wrf_c_ncols,   wrf_c_nrows)          )  ! used in calcs, not output
-     ALLOCATE ( muhybh  (wrf_c_ncols,   wrf_c_nrows)          )  ! used in calcs, not output
 
 ! Fields from METDOT3D
 
@@ -1111,21 +1109,21 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
         ! MUHYBH, depending on the level where we want the Jacobian.
         !-----------------------------------------------------------------------
 
-           muhybf(c,r) = grid%c1f(kp1) * grid%mut(ii,jj) + grid%c2f(kp1)
-           muhybh(c,r) = grid%c1h(k)   * grid%mut(ii,jj) + grid%c2h(k)
+           muhybf = grid%c1f(kp1) * grid%mut(ii,jj) + grid%c2f(kp1)
+           muhybh = grid%c1h(k)   * grid%mut(ii,jj) + grid%c2h(k)
 
            if (turn_on_pv) then
               metcro3d_data_wrf (c,r,kk,1) = tf*2
            else
 !             metcro3d_data_wrf (c,r,kk,1) = gravi * grid%mut(ii,jj) / (densf * gridcro2d_data_wrf (c,r,3))   ! calculate jacobf
-              metcro3d_data_wrf (c,r,kk,1) = gravi * muhybf(c,r) / (densf * gridcro2d_data_wrf (c,r,3))   ! calculate jacobf
+              metcro3d_data_wrf (c,r,kk,1) = gravi * muhybf / (densf * gridcro2d_data_wrf (c,r,3))   ! calculate jacobf
            end if
 
 !          metcro3d_data_wrf (c,r,kk,2) = gravi * grid%mut(ii,jj) / (metcro3d_data_wrf(c,r,kk,12) * gridcro2d_data_wrf (c,r,3))
-           metcro3d_data_wrf (c,r,kk,2) = gravi * muhybh(c,r) / (metcro3d_data_wrf(c,r,kk,12) * gridcro2d_data_wrf (c,r,3))
+           metcro3d_data_wrf (c,r,kk,2) = gravi * muhybh / (metcro3d_data_wrf(c,r,kk,12) * gridcro2d_data_wrf (c,r,3))   ! calculate jacobm
 
 !          metcro3d_data_wrf(c,r,kk,3) = gravi * grid%mut(ii,jj) / gridcro2d_data_wrf (c,r,3)
-           metcro3d_data_wrf(c,r,kk,3) = gravi * muhybh(c,r) / gridcro2d_data_wrf (c,r,3)
+           metcro3d_data_wrf(c,r,kk,3) = gravi * muhybh) / gridcro2d_data_wrf (c,r,3)   ! calculate densaj
 
         ENDDO
      ENDDO
