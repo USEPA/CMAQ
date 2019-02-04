@@ -7,15 +7,17 @@
 
 # CMAQ Installation and System Requirements #
 
-This section describes how to set up and install CMAQ on a Linux system.  The installation instructions in this section guide the user through obtaining the CMAQ source code and installing it on his or her system. Brief instructions for running the CMAQ benchmark case and benchmarking the model are also addressed. Here, the term “benchmarking” refers to the process of verifying that a model has installed correctly on a new computer. CMAQ is distributed with a reference dataset that can be used to benchmark the CMAQ installation. This distribution includes input data (e.g. emissions, land use, meteorology, etc) and reference output data from a CMAQ tun so that results may be compared.
+This section describes how to set up and install CMAQ on a Linux system.  The installation instructions in this section guide the user through obtaining the CMAQ source code and installing it on his or her system. Brief instructions for running the CMAQ benchmark case and benchmarking the model are also addressed. Here, the term “benchmarking” refers to the process of verifying that a model has installed correctly on a new computer. CMAQ is distributed with a reference dataset that can be used to benchmark the CMAQ installation. This distribution includes input data (e.g. emissions, land use, meteorology, etc.) and reference output data from a CMAQ run so that results may be compared.
 
 After benchmarking has been successfully completed, the CMAQ system can be configured for other simulations. The same steps that are required to build the model for the benchmark case apply to building it for new simulations. Configuring CMAQ for new applications is covered in [Chapter 10](CMAQ_OGD_ch10_new_simulation.md).
 
 ## System Recommendations
 
-All of the CMAQ programs are written in Fortran and are optimized for use on computers running a version of the Linux operating system (OS). Most personal computers (PCs) running a Linux OS are sufficiently powerful to handle basic CMAQ applications. However, to use CMAQ in a production environment where multiple iterations of the model will be executed for different spatial domains and/or emissions control strategies, either a cluster of multiprocessor PCs on a high-end network or an expandable rack-mounted Linux server is recommended.
+All of the CMAQ programs are written in Fortran and are optimized for use on computers running a version of the Linux operating system (OS). However, to use CMAQ in a production environment where multiple iterations of the model will be executed for different spatial domains and/or emissions control strategies, either a cluster of multiprocessor PCs on a high-end network or an expandable rack-mounted Linux server is recommended.
 
-CMAQ is distributed and supported for executing on Linux operating systems with the Intel Fortran, Portland Group Fortran (PGF), or Gnu Fortran compilers. CMAQ can be ported to most computers running Linux. Documented configurations include the SGI Altix, Red Hat Enterprise, Fedora, Ubuntu, Mandrake, MacOSX, and Suse operating systems. In addition to the Intel and PGF compilers, CMAQ has been built with Sun and Absoft compilers. Information about these ports and up-to-date hardware recommendations are available through the [CMAS Center web site](http://www.cmascenter.org/).
+CMAQ is distributed and supported for executing on Linux operating systems with the Intel Fortran, Portland Group Fortran (PGF), or Gnu Fortran compilers. CMAQ can be ported to most computers running Linux. Documented configurations include the SGI Altix, Red Hat Enterprise, Fedora, Ubuntu, Mandrake, MacOSX, and Suse operating systems.
+
+The [CMAS Release Testing Page](https://www.airqualitymodeling.org/index.php/CMAQ) provides technical and operational details on current and prior CMAQ releases.
 
 ### Hardware
 
@@ -23,9 +25,7 @@ The minimum hardware requirements for running the CMAQ benchmark case are:
 
 -   Linux PC with a single processor
 -   1 GB RAM
--   100 GB hard drive storage 
-
-Recommendations on production-level hardware configurations for CMAQ are available on the CMAS Center [Hardware Blog](https://www.airqualitymodeling.org/index.php/CMAS_Hardware_Blog).
+-   100 GB hard drive storage
 
 ### Software
 
@@ -87,11 +87,11 @@ CMAQ requires all of the programs listed in [Table 5‑1](#Table5-1). This list 
 Installing and Compiling CMAQ Source Code
 -----------------------------------------
 
-Several steps are required to prepare your Linux system for compiling and running CMAQ. The general sequence for installing CMAQ, including the required support software and libraries is listed here.  
+Several steps are required to prepare your Linux system for compiling and running CMAQ. The general sequence for installing CMAQ, including the required support software and libraries, is listed here.  
 
-1. Check for Fortran and C compilers on your Linux system.  Install if they are not available.  
+1. Check for Fortran and C compilers on your Linux system. Install if they are not available.  
 2. [Install Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) (or CVS for older versions of CMAQ).
-3. Download the  [I/O API](http://www.cmascenter.org/ioapi) and [netCDF](http://www.unidata.ucar.edu/software/netcdf/) source and install those libraries. Follow the instructions in the documentation for each library on how to build them for your Linux system. Note: It is highly recommended that you use the same compiler for these libraries as you will use to build the CMAQ programs.
+3. Download the [I/O API](http://www.cmascenter.org/ioapi) and [netCDF](http://www.unidata.ucar.edu/software/netcdf/) source and install those libraries. Follow the instructions in the documentation for each library on how to build them for your Linux system. Note: It is highly recommended that you use the same compiler for these libraries as you will use to build the CMAQ programs.
 4. Install a Message Passing Interface (MPI) library on your Linux system.
 5. Download the CMAQ source code and scripts from either the [EPA GitHub Repository](https://github.com/USEPA/CMAQ) or the CMAS Center ([<http://www.cmascenter.org>](http://www.cmascenter.org/)). After registering to download CMAQ on the CMAS Center Software Clearinghouse, users are redirected to a page that contains links to download Linux tar files of the CMAQ code, scripts, and benchmark data along with various documents describing the installation and execution processes. *Note that GitHub only provides access to source codes and scripts.  Benchmark input and output data may only be downloaded from EPA or the CMAS Center.*
 
@@ -102,11 +102,11 @@ Starting with CMAQv5.2, the structure of the CMAQ repository includes:
 - PREP - Input pre-processing software (e.g., ICON, BCON, MCIP) source code and scripts
 - UTIL - Utility software (e.g., BLDMAKE, CHEMMECH, NML) source code and scripts
 - POST - Post-processing and analysis software (e.g., COMBINE, HR2DAY, BLDOVERLAY) source code and scripts
-- DOCS - This User's Manual, tutorials, and developers guidance 
+- DOCS - This User's Manual, tutorials, and developers guidance
 
 ### Notes on the CMAQ directory structure
 
-When cloning the repository or unpacking the tar file of the CMAQ distribution, the top-level directory is recognized by the default build and run scripts as `CMAQ_HOME` (formerly M3HOME prior to CMAQv5.2). This directory is an arbitrary base location of the CMAQ installation on your Linux system for a specific application. It's up to the user to decide where to install CMAQ. If the user will build and run CMAQ within the repository folder structure, then `CMAQ_HOME` does not need to be set explicitly. If on the other hand, the user wishes to extract the build and run scripts and compile the model outside of the repository, then `CMAQ_HOME` will need to be specified in `bldit_project.csh`. Executing `bldit_project.csh` will automatically perform this extraction and create a CMAQ folder structure under the locatino now specified by `CMAQ_HOME`.
+When cloning the repository or unpacking the tar file of the CMAQ distribution, the top-level directory is recognized by the default build and run scripts as `CMAQ_HOME` (formerly M3HOME prior to CMAQv5.2). This directory is an arbitrary base location of the CMAQ installation on your Linux system for a specific application. It's up to the user to decide where to install CMAQ. If the user will build and run CMAQ within the repository folder structure, then `CMAQ_HOME` does not need to be set explicitly. If, on the other hand, the user wishes to extract the build and run scripts and compile the model outside of the repository, then `CMAQ_HOME` will need to be specified in `bldit_project.csh`. Executing `bldit_project.csh` will automatically perform this extraction and create a CMAQ folder structure under the location now specified by `CMAQ_HOME`.
 
 Under `CMAQ_HOME`, the `data` directory serves as a container for the input and output data for the model, and the `lib` directory contains links to the compiled binary library files required to build the CMAQ executables. The CMAQ scripts use the following environment variables to alias the locations of these directories:
 
@@ -129,7 +129,6 @@ Compiler flag consistency between the Fortran and C compilers used to build netC
 |netCDF|`CC = icc`<br> `CPPFLAGS = -DNDEBUG –DpgiFortran` <br>`CFLAGS = -g –O` <br>`FC = ifort` <br>`F77 = ifort`<br>`FFLAGS = –O2 –mp –recursive`<br> `CXX = icpc`|`CC = gcc`<br> `CPPFLAGS = -DNDEBUG –DpgiFortran`<br>`CFLAGS = -O`<br>`FC = pgf90`<br>`FFLAGS = -O –w` <br>`CXX = g++`|`CC = gcc`<br> `CPPFLAGS = -DNDEBUG –DgFortran` <br>`CFLAGS = -O`<br>`FC = gfortran`<br>`FFLAGS = -O –w`<br>`CXX = g++`|
 |I/O API 32-bit|BIN = Linux2_x86ifort|BIN = Linux2_x86pg_pgcc_nomp|N/A|
 |I/O API 64-bit|BIN = Linux2_x86_64ifort|BIN = Linux2_x86_64pg_pgcc_nomp|BIN = Linux2_x86_64gfort|
-
 
 #### config_cmaq.csh
 
@@ -181,9 +180,9 @@ In the directory where you would like to install CMAQ, issue the following comma
 
 `git clone -b 5.2.1 https://github.com/USEPA/CMAQ CMAQ_REPO`
 
-##### Zipfile Installation #####
+##### Zip file Installation #####
 
-Zipfiles of the CMAQ source code are available from the public GitHub repository. Click the button "Clone or download" from https://github.com/USEPA/CMAQ/tree/5.2.1 and select "Download ZIP" to download a Zipfile of the CMAQv5.2.1 repository. Alternatively, you may download the zipfile from the [EPA CMAQ website](https://www.epa.gov/cmaq/access-cmaq-source-code).
+Zip files of the CMAQ source code are available from the public GitHub repository. Click the button "Clone or download" from https://github.com/USEPA/CMAQ/tree/5.2.1 and select "Download ZIP" to download a Zip file of the CMAQv5.2.1 repository. Alternatively, you may download the Zip file from the [EPA CMAQ website](https://www.epa.gov/cmaq/access-cmaq-source-code).
 
 Reference input/output data for testing the installation of the software are available from the CMAS Center; *data are not available through GitHub*. You must register/login to access the source codes and data from the CMAS Center.
 
@@ -201,7 +200,7 @@ CMAQ-5.2.1/UTIL
 CMAQ-5.2.1/DOCS
 ```
 
-The Git and zipfile installation options will produce slightly different subdirectories on your Linux system. The base installation directory using the git clone commmand will be `CMAQ_REPO`; the directory from the zipfile will be `CMAQ-5.2.1`.  The subesquent instructions in this guide will be based on the git clone installation. For Zipfile installations, replace CMAQ_REPO with CMAQ-v5.2.1 in the instructions that follow. The differences in the directory names highlights the difference in functionality between the two options. Cloning the repository gives the user access to the full repository and its history, while downloading the zip file will only give access to version 5.2.1.
+The Git and Zip file installation options will produce slightly different subdirectories on your Linux system. The base installation directory using the git clone command will be `CMAQ_REPO`; the directory from the Zip file will be `CMAQ-5.2.1`. The subsequent instructions in this guide will be based on the git clone installation. For Zip file installations, replace CMAQ_REPO with CMAQ-v5.2.1 in the instructions that follow. The differences in the directory names highlights the difference in functionality between the two options. Cloning the repository gives the user access to the full repository and its history, while downloading the Zip file will only give access to version 5.2.1.
 
 Using the git clone option, CMAQ will install into the following directories:
 
@@ -359,7 +358,7 @@ For an MPI configuration with 6 processors,
 @ NPCOL = 3; @ NPROW = 2
 ```
 
-Most clustered multiprocessor systems require a command to start the MPI run-time environment. The default CCTM run script uses the *mpirun* command. Consult your system administrator to find out how to invoke MPI when running multiprocessor applications. For single-processor computing, set NPROCS to 1, NPCOL to 1, and NPROW to 1
+Most clustered multiprocessor systems require a command to start the MPI run-time environment. The default CCTM run script uses the *mpirun* command. Consult your system administrator to find out how to invoke MPI when running multiprocessor applications. For single-processor computing, set NPROCS to 1, NPCOL to 1, and NPROW to 1.
 
 For single-processor computing, set NPCOL_NPROW to "1 1":
 
@@ -367,7 +366,7 @@ For single-processor computing, set NPCOL_NPROW to "1 1":
 setenv NPCOL_NPROW "1 1"
 ```
 
-After configuring the MPI settings for your Linux system, using the following command to run the CCTM. Per the note above, different Linux systems have different requirements for submitting MPI jobs.  The command below is an example of how to submit the CCTM run script and may differ depending on the MPI requirements of your Linux system. 
+After configuring the MPI settings for your Linux system, using the following command to run the CCTM. Per the note above, different Linux systems have different requirements for submitting MPI jobs. The command below is an example of how to submit the CCTM run script and may differ depending on the MPI requirements of your Linux system.
 
 ```
 ./run_cctm.csh |& tee cctm.log
@@ -408,7 +407,7 @@ The system configuration parameters used to generate the benchmark reference dat
 
   After completing the CMAQ benchmark case, the CCTM output files can be compared with the reference datasets provided in the CMAQ distribution. The reference data for CMAQ are available from the CMAS Center Software Clearinghouse. The reference data may be compared to the results from your simulation using tile plots of differences, grid-cell statistics (minimum/maximum differences), and domain-wide statistics. See [Chapter 12](CMAQ_OGD_ch12_analysis_tools.md) for a list of analysis tools that are available for comparing two model simulations.
 
-  Domain-wide differences between the reference data and your simulation results for each model species and each simulation time step (hourly) of less than 1% indicate a successful benchmarking of the software on a Linux system.  While larger differences may indicate a problem with the installation, they may also point to a configuration discrepancy in the benchmark simulation.  Review the compiler optimization flags and the CCTM configuration that you used to resolve differences with the reference data.
+  Domain-wide differences between the reference data and your simulation results for each model species and each simulation time step (hourly) of less than 1% indicate a successful benchmarking of the software on a Linux system. While larger differences may indicate a problem with the installation, they may also point to a configuration discrepancy in the benchmark simulation. Review the compiler optimization flags and the CCTM configuration that you used to resolve differences with the reference data.
 
   Support for CMAQ is available from the CMAS Center (see [Chapter 13](CMAQ_OGD_ch13_support.md)).
 
