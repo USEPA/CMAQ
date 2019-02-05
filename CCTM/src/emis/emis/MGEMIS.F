@@ -400,7 +400,7 @@ C.. Define Marine Gas indices
             REAL, PARAMETER :: SECS2HR = 1.0 / 3600.0          ! hour per seconds
             REAL, PARAMETER :: C_FACT  = 1.0E-9 /(24.0*3600.0) ! factor to convert nmole/m2/day to mole/m2/sec
             REAL, PARAMETER :: LON2TZ  = 1.0 / 15.0            ! longitude to time zone, 1/degrees
-            REAL, PARAMETER :: FHRLY(24) =
+            REAL, PARAMETER :: FHRLY(0:23) =
      &                         ( / 0.032, 0.032, 0.032, 0.033, 0.034, 0.036,
      &                             0.039, 0.044, 0.051, 0.057, 0.062, 0.064,
      &                             0.062, 0.057, 0.051, 0.044, 0.039, 0.036,
