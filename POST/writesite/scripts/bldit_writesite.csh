@@ -1,6 +1,6 @@
 #! /bin/csh -f
 
-# ==================== WRITESITEv5.2.1 Build Script ===================== #
+# ==================== WRITESITEv5.3 Build Script ===================== #
 # Usage: bldit_writesite.csh >&! bldit_writesite.log                          #
 # Requirements: I/O API & netCDF libraries; a Fortran compiler        #
 #                                                                     #
@@ -45,7 +45,7 @@
 #===============================================================================
 
 #> User choices: working directory and application ID
- set VRSN     = v521                        #> model version
+ set VRSN     = v53                        #> model version
  set EXEC     = writesite_${VRSN}.exe        #> executable name for this application
  set CFG      = writesite_${VRSN}.cfg        #> BLDMAKE configuration file name
  setenv BLDER   ${CMAQ_HOME}/UTIL/bldmake/bldmake_${compilerString}.exe #> location of makefile builder executable 

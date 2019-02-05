@@ -17,24 +17,19 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header$
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
 
       SUBROUTINE HRINIT
 C***********************************************************************
 C
 C  FUNCTION: To initialize species tolerances, arrays, and indices
 C
-C  PRECONDITIONS: For the cb6r3m family of mechanisms
+C  PRECONDITIONS: For the CB6R3M family of mechanisms
 C
 C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Aug 29, 2018
+C  REVISION HISTORY: Created by EBI solver program, Dec 27, 2018
 C   21 Jun 10 J.Young:   convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files
@@ -150,7 +145,7 @@ C***********************************************************************
 
 c..Allocate and define ebi species
 
-      N_EBISP  = 165
+      N_EBISP  = 164
       ALLOCATE( EBISP( N_EBISP ), STAT = IOS ) 
       IF ( IOS .NE. 0 ) THEN
          MSG = 'Error allocating EBISP' 
@@ -303,25 +298,24 @@ c..Allocate and define ebi species
       EBISP( 144 ) = MSA
       EBISP( 145 ) = BRCL
       EBISP( 146 ) = ABRJ
-      EBISP( 147 ) = ABRK
-      EBISP( 148 ) = I
-      EBISP( 149 ) = IO
-      EBISP( 150 ) = HI
-      EBISP( 151 ) = I2
-      EBISP( 152 ) = HOI
-      EBISP( 153 ) = INO
-      EBISP( 154 ) = INO2
-      EBISP( 155 ) = INO3
-      EBISP( 156 ) = OIO
-      EBISP( 157 ) = I2O4
-      EBISP( 158 ) = I2O2
-      EBISP( 159 ) = I2O3
-      EBISP( 160 ) = CH3I
-      EBISP( 161 ) = ICL
-      EBISP( 162 ) = IBR
-      EBISP( 163 ) = MI2
-      EBISP( 164 ) = MIB
-      EBISP( 165 ) = MIC
+      EBISP( 147 ) = I
+      EBISP( 148 ) = IO
+      EBISP( 149 ) = HI
+      EBISP( 150 ) = I2
+      EBISP( 151 ) = HOI
+      EBISP( 152 ) = INO
+      EBISP( 153 ) = INO2
+      EBISP( 154 ) = INO3
+      EBISP( 155 ) = OIO
+      EBISP( 156 ) = I2O4
+      EBISP( 157 ) = I2O2
+      EBISP( 158 ) = I2O3
+      EBISP( 159 ) = CH3I
+      EBISP( 160 ) = ICL
+      EBISP( 161 ) = IBR
+      EBISP( 162 ) = MI2
+      EBISP( 163 ) = MIB
+      EBISP( 164 ) = MIC
 
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -486,7 +480,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( MSA          ) = 5.0D-04
       RTOL( BRCL         ) = 5.0D-04
       RTOL( ABRJ         ) = 5.0D-04
-      RTOL( ABRK         ) = 5.0D-04
       RTOL( I            ) = 5.0D-04
       RTOL( IO           ) = 5.0D-04
       RTOL( HI           ) = 5.0D-04

@@ -448,7 +448,7 @@ c..HONO loss terms not included in R4_19
 
 c..HNO4 loss terms not inluded in R5_21
       L21 =    2.0000D-01 * RKI(     9 )                     ! HNO4=0.8000D+...
-     &    +                 RKI(    68 ) * YCP( HO       )   ! HNO4+HO=NO2
+     &    +                 RKI(    68 ) * YC ( HO       )   ! HNO4+HO=NO2
 
       L21   = 1.0D0 + L21 * DTC + R5_21
 

@@ -93,6 +93,9 @@ setenv EXECUTION_ID "CMAQ_CCTM${VRSN}_`id -u -n`_`date -u +%Y%m%d_%H%M%S_%N`"   
 echo ""
 echo "---CMAQ EXECUTION ID: $EXECUTION_ID ---"
 
+#> Keep or Delete Existing Output Files
+set CLOBBER_DATA = FALSE
+
 #> Logfile Options
 #> Master Log File Name; uncomment to write standard output to a log, otherwise write to screen
 #setenv LOGFILE $CMAQ_HOME/$RUNID.log  
@@ -115,8 +118,8 @@ set NCELLS = `echo "${NX} * ${NY} * ${NZ}" | bc -l`
 
 #> Output Species and Layer Options
    #>   CONC file species; comment or set to "ALL" to write all species to CONC
-   #setenv CONC_SPCS "O3 NO ANO3I ANO3J NO2 FORM ISOP ANH4J ASO4I ASO4J" 
-   #setenv CONC_BLEV_ELEV " 1 4" #> CONC file layer range; comment to write all layers to CONC
+   setenv CONC_SPCS "O3 NO ANO3I ANO3J NO2 FORM ISOP NH3 ANH4I ANH4J ASO4I ASO4J" 
+   setenv CONC_BLEV_ELEV " 1 1" #> CONC file layer range; comment to write all layers to CONC
 
    #>   ACONC file species; comment or set to "ALL" to write all species to ACONC
    #setenv AVG_CONC_SPCS "O3 NO CO NO2 ASO4I ASO4J NH3" 
@@ -188,43 +191,31 @@ setenv EMIS_DATE_OVRD N      #> Master switch for allowing CMAQ to use the date 
                              #>   may switch the behavior for individual emission files below using the variables:
                              #>       GR_EM_DTOVRD_## | STK_EM_DTOVRD_##
 
-#> Aerosol Diagnostic Controls
-setenv CTM_PMDIAG Y          #> Instantaneous Aerosol Diagnostic File [ default: Y ]
-setenv CTM_APMDIAG Y         #> Hourly-Average Aerosol Diagnostic File [ default: Y ]
-#setenv APMDIAG_BLEV_ELEV "1 3" #> layer range for average pmdiag
-setenv APMDIAG_BLEV_ELEV ""  #> layer range for average pmdiag = NLAYS
-
 #> Diagnostic Output Flags
 setenv CTM_CKSUM Y           #> checksum report [ default: Y ]
-setenv CLD_DIAG Y            #> cloud diagnostic file [ default: N ]
-setenv CTM_AERDIAG Y         #> aerosol diagnostic file [ default: N ]
+setenv CLD_DIAG N            #> cloud diagnostic file [ default: N ]
 
-setenv CTM_PHOTDIAG Y        #> photolysis diagnostic file [ default: N ]
-setenv NLAYS_PHOTDIAG "3"    #> Number of layers for PHOTDIAG2 and PHOTDIAG3 from 
+setenv CTM_PHOTDIAG N        #> photolysis diagnostic file [ default: N ]
+setenv NLAYS_PHOTDIAG "1"    #> Number of layers for PHOTDIAG2 and PHOTDIAG3 from 
                              #>     Layer 1 to NLAYS_PHOTDIAG  [ default: all layers ] 
 #setenv NWAVE_PHOTDIAG "294 303 310 316 333 381 607"  #> Wavelengths written for variables 
                                                       #>   in PHOTDIAG2 and PHOTDIAG3 
                                                       #>   [ default: all wavelengths ]
 
-setenv CTM_SSEMDIAG Y        #> sea-spray emissions diagnostic file [ default: N ]
-setenv CTM_DUSTEM_DIAG Y     #> windblown dust emissions diagnostic file [ default: N ]; 
+setenv CTM_PMDIAG N          #> Instantaneous Aerosol Diagnostic File [ default: Y ]
+setenv CTM_APMDIAG Y         #> Hourly-Average Aerosol Diagnostic File [ default: Y ]
+setenv APMDIAG_BLEV_ELEV "1 1"  #> layer range for average pmdiag = NLAYS
+
+setenv CTM_SSEMDIAG N        #> sea-spray emissions diagnostic file [ default: N ]
+setenv CTM_DUSTEM_DIAG N     #> windblown dust emissions diagnostic file [ default: N ]; 
                              #>     Ignore if CTM_WB_DUST = N
-setenv CTM_DEPV_FILE Y       #> deposition velocities diagnostic file [ default: N ]
-setenv VDIFF_DIAG_FILE Y     #> vdiff & possibly aero grav. sedimentation diagnostic file [ default: N ]
+setenv CTM_DEPV_FILE N       #> deposition velocities diagnostic file [ default: N ]
+setenv VDIFF_DIAG_FILE N     #> vdiff & possibly aero grav. sedimentation diagnostic file [ default: N ]
 setenv LTNGDIAG N            #> lightning diagnostic file [ default: N ]
-setenv B3GTS_DIAG Y          #> beis mass emissions diagnostic file [ default: N ]
+setenv B3GTS_DIAG N          #> beis mass emissions diagnostic file [ default: N ]
 setenv PT3DDIAG N            #> 3D point source emissions diagnostic file [ default: N]; 
 setenv PT3DFRAC N            #> layer fractions diagnostic file(s) [ default: N];
 setenv REP_LAYER_MIN -1      #> Minimum layer for reporting plume rise info [ default: -1 ]
-setenv EMISDIAG F            #> Print Emission Rates at the output time step after they have been
-                             #>   scaled and modified by the user Rules [options: F | T or 2D | 3D | 2DSUM ]
-                             #>   Individual streams can be modified using the variables:
-                             #>       GR_EMIS_DIAG_## | STK_EMIS_DIAG_## | BIOG_EMIS_DIAG
-                             #>       MG_EMIS_DIAG    | LTNG_EMIS_DIAG   | DUST_EMIS_DIAG
-                             #>       SEASPRAY_EMIS_DIAG
-                             #>   Note that these diagnostics are different than other emissions diagnostic
-                             #>   output because they occur after scaling. 
-set DISP = delete            #> [ delete | keep ] existing output files
 
 # =====================================================================
 #> Input Directories and Filenames
@@ -509,13 +500,13 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
              $CTM_RJ_1 $CTM_RJ_2 $CTM_RJ_3 $CTM_SSEMIS_1 $CTM_DUST_EMIS_1 $CTM_IPR_1 $CTM_IPR_2       \
              $CTM_IPR_3 $CTM_IRR_1 $CTM_IRR_2 $CTM_IRR_3 $CTM_DRY_DEP_MOS                   \
              $CTM_DRY_DEP_FST $CTM_DEPV_MOS $CTM_DEPV_FST $CTM_VDIFF_DIAG $CTM_VSED_DIAG    \
-             $CTM_LTNGDIAG_1 $CTM_LTNGDIAG_2)
+             $CTM_LTNGDIAG_1 $CTM_LTNGDIAG_2 $CTM_VEXT_1 )
   set OUT_FILES = `echo $OUT_FILES | sed "s; -v;;g" `
   ( ls $OUT_FILES > buff.txt ) >& /dev/null
   set out_test = `cat buff.txt`; rm -f buff.txt
 
   #> delete previous output if requested
-  if ( $DISP == 'delete' ) then
+  if ( $CLOBBER_DATA == true || $CLOBBER_DATA == TRUE ) then
      echo 
      echo "Existing Logs and Output Files for Day ${TODAYG} Will Be Deleted"
 
@@ -536,7 +527,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      #> error if previous log files exist
      if ( "$log_test" != "" ) then
        echo "*** Logs exist - run ABORTED ***"
-       echo "*** To overide, set DISP == delete in run_cctm.csh ***"
+       echo "*** To overide, set CLOBBER_DATA = TRUE in run_cctm.csh ***"
        echo "*** and these files will be automatically deleted. ***"
        exit 1
      endif
@@ -547,7 +538,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
        foreach file ( $out_test )
           echo " cannot delete $file"
        end
-       echo "*** To overide, set DISP == delete in run_cctm.csh ***"
+       echo "*** To overide, set CLOBBER_DATA = TRUE in run_cctm.csh ***"
        echo "*** and these files will be automatically deleted. ***"
        exit 1
      endif

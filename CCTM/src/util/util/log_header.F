@@ -15,7 +15,7 @@
      &   '================================================================================', 
      &   '|                                                                              |', 
      &   '|               The Community Multiscale Air Quality (CMAQ) Model              |', 
-     &   '|                                   Version 5.3alpha                           |', 
+     &   '|                                   Version 5.3 Beta                           |', 
      &   '|                            Interim Freeze August 31, 2018                    |', 
      &   '|                                                                              |', 
      &   '|                          Built and Maintained by the                         |', 

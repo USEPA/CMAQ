@@ -102,7 +102,12 @@ C-----------------------------------------------------------------------
       USE PAGRD_DEFN            ! Process Anaylsis horiz domain specs
       USE UTILIO_DEFN
       USE RUNTIME_VARS
+      USE ASX_DATA_MOD, Only : MET_DATA, INIT_MET, GET_MET
+      USE LSM_MOD, Only : INIT_LSM
+      USE BIDI_MOD, Only : INIT_BIDI
+#ifdef parallel
       USE VERTEXT_MODULE
+#endif
 
 #ifdef twoway
       USE SD_TIME_SERIES_MODULE
@@ -150,6 +155,7 @@ C Local variables:
       LOGICAL          EXST, OPD
       CHARACTER( 1000 ) :: CFILE
       CHARACTER(   16 ) :: ACT
+      REAL              :: REAL_TIME
       REAL( 8 )         :: CPU_TIME_START, CPU_TIME_FINISH
 
       CHARACTER(  2 ) :: COLROW = 'CR'  ! col/row arg list order
@@ -159,15 +165,18 @@ C Local variables:
       REAL, SAVE, POINTER     :: CGRID( :,:,:,: )
       REAL, ALLOCATABLE, SAVE :: AGRID( :,:,:,: )
       REAL    DIVFAC      ! trapezoidal average factor
-      INTEGER A_NLYS
 
 #ifdef parallel
 !     INTEGER, PARAMETER :: GEO_ORI = 0   ! stenex array order: 0 (Cartesian), 1 (Matrix)
       INTEGER   PAR_ERR     ! Error code from parallel initialization
       REAL( 8 ) BEGTIME     ! Wall-clock time (sec) at MPI initialization
       REAL( 8 ) ENDTIME     ! Wall-clock time (sec) at MPI finish
-#endif
       REAL( 8 ) ELAPTIME    ! ENDTIME-BEGTIME
+#else
+      REAL      BEGTIME     ! Wall-clock time (sec) at MPI initialization
+      REAL      ENDTIME     ! Wall-clock time (sec) at MPI finish
+      REAL      ELAPTIME    ! ENDTIME-BEGTIME
+#endif
 
       LOGICAL, SAVE :: FIRST_RUN = .TRUE.  ! used for twoway model
       LOGICAL       :: WFLG                ! turn on write subdmap in pio_init
@@ -241,6 +250,7 @@ C processes (NPROCS)
 #else
          NPROCS = 1
          MYPE = 0
+         CALL CPU_TIME( BEGTIME )
 #endif
 
 C Initialize Environment Variables
@@ -259,9 +269,12 @@ C and define vertical layer structure (in module GRID_CONF)
          write( logdev,* ) ' MYPE -> NPROCS:   ', mype, nprocs
          write( logdev,* ) ' MYPE -> NPCOL:    ', mype, npcol
          write( logdev,* ) ' MYPE -> NPROW:    ', mype, nprow
+         write( logdev,* ) ' MYPE -> MY_NCOLS: ', mype, ncols
+         write( logdev,* ) ' MYPE -> MY_NROWS: ', mype, nrows
          write( logdev,* ) ' MYPE -> GL_NCOLS: ', mype, gl_ncols
          write( logdev,* ) ' MYPE -> GL_NROWS: ', mype, gl_nrows
          write( logdev,* ) ' MYPE -> NLAYS:    ', mype, nlays
+         write( logdev,* ) ' MYPE -> NBNDY:    ', mype, nbndy
 #endif
 
 C Set CGRID mechanism
@@ -333,14 +346,13 @@ C Initialize PCGRID
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2  )
          END IF
       
-         CGRID => PCGRID( 1:MY_NCOLS,1:MY_NROWS,:,: )   ! required for PinG
+         CGRID => PCGRID( 1:NCOLS,1:NROWS,:,: )   ! required for PinG
 
 C Initalize CONC definitions (in STD_CONC F90 module)
          CALL CONC_DEFN ()
 
 C Get avg CONC definitions, species and layer pointers (in AVG_CONC F90 module)
          CALL A_CONC_DEFN ()
-         A_NLYS = ACONC_ELEV - ACONC_BLEV + 1
 
 C Miscellaneous Configuration Operations
          WRITE( LOGDEV, * )
@@ -363,7 +375,7 @@ C Convention: the input file concentration units are always ppmV.
 C Verify input file header consistency and run duration
          CALL FLCHECK ( JDATE, JTIME, TSTEP( 1 ) )
 
-         ALLOCATE ( AGRID( MY_NCOLS,MY_NROWS,A_NLYS,N_ASPCS ), STAT = ALLOCSTAT )
+         ALLOCATE ( AGRID( NCOLS,NROWS,A_NLYS,N_ASPCS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'AGRID memory allocation failed'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -380,6 +392,18 @@ C Verify input file header consistency and run duration
             CALL FEEDBACK_SETUP ( JDATE, JTIME, TSTEP( 3 ) )
          END IF
 #endif
+
+C Initialize Meteorology Structures
+         IF ( ILDEPV ) THEN
+
+            CALL INIT_LSM( JDATE, JTIME )
+            CALL INIT_BIDI( )
+         END IF   ! in-line depv
+ 
+         CALL INIT_MET( JDATE, JTIME )
+         CALL GET_MET ( JDATE, JTIME, 0 )
+         CALL GET_WVEL( JDATE, JTIME )
+
          FIRST_RUN = .FALSE.
 
       END IF ! first_run
@@ -403,16 +427,18 @@ C Get synchronization and advection time steps, TSTEP(2), ASTEP(L) and NREPS
 #endif
             DO V = 1, N_ASPCS
                S = AVG_CONC_MAP( V )
-               L = 0
-               DO K = ACONC_BLEV, ACONC_ELEV
-                  L = L + 1
-                  DO R = 1, MY_NROWS
-                     DO C = 1, MY_NCOLS
-                        AGRID( C,R,L,V ) = CGRID( C,R,K,S )
-                     END DO
-                  END DO
-               END DO
+               AGRID( :,:,:,V ) = CGRID( :,:,ACONC_BLEV:ACONC_ELEV,S )
             END DO
+            IF ( L_ACONC_WVEL ) 
+     &         AVG_WVEL( :,:,: ) = WVEL( :,:,ACONC_BLEV:ACONC_ELEV )
+            IF ( L_ACONC_RH ) 
+     &         AVG_RH( :,:,: ) = MET_DATA%RH( :,:,ACONC_BLEV:ACONC_ELEV )
+            IF ( L_ACONC_TA ) 
+     &         AVG_TA( :,:,: ) = MET_DATA%TA( :,:,ACONC_BLEV:ACONC_ELEV )
+            IF ( L_ACONC_PRES ) 
+     &         AVG_PRES( :,:,: ) = MET_DATA%PRES( :,:,ACONC_BLEV:ACONC_ELEV )
+               
+
 #ifdef twoway
          END IF
 #endif
@@ -431,17 +457,18 @@ C science process sequence:
 
             DO V = 1, N_ASPCS
                S = AVG_CONC_MAP( V )
-               L = 0
-               DO K = ACONC_BLEV, ACONC_ELEV
-                  L = L + 1
-                  DO R = 1, MY_NROWS
-                     DO C = 1, MY_NCOLS
-                        AGRID( C,R,L,V ) = AGRID( C,R,L,V )
-     &                                   + 2.0 * CGRID( C,R,K,S )
-                     END DO
-                  END DO
-               END DO
+               AGRID( :,:,:,V ) = AGRID( :,:,:,V )
+     &               + 2.0 * CGRID( :,:,ACONC_BLEV:ACONC_ELEV,S )
             END DO
+            IF ( L_ACONC_WVEL ) 
+     &         AVG_WVEL( :,:,: ) = AVG_WVEL + 2.0 * WVEL( :,:,ACONC_BLEV:ACONC_ELEV )
+            IF ( L_ACONC_RH ) 
+     &         AVG_RH( :,:,: ) = AVG_RH + 2.0 * MET_DATA%RH( :,:,ACONC_BLEV:ACONC_ELEV )
+            IF ( L_ACONC_TA ) 
+     &         AVG_TA( :,:,: ) = AVG_TA + 2.0 * MET_DATA%TA( :,:,ACONC_BLEV:ACONC_ELEV )
+            IF ( L_ACONC_PRES ) 
+     &         AVG_PRES( :,:,: ) = AVG_PRES + 2.0 * MET_DATA%PRES( :,:,ACONC_BLEV:ACONC_ELEV )
+ 
 
          END DO
 
@@ -451,42 +478,42 @@ C science process sequence:
          DIVFAC = 0.5 / FLOAT( myNREPS )
          myNREPS = 0
 #endif
-            DO V = 1, N_ASPCS
-               S = AVG_CONC_MAP( V )
-               L = 0
-               DO K = ACONC_BLEV, ACONC_ELEV
-                  L = L + 1
-                  DO R = 1, MY_NROWS
-                     DO C = 1, MY_NCOLS
-                        AGRID( C,R,L,V ) = DIVFAC * ( AGRID( C,R,L,V )
-     &                                   -            CGRID( C,R,K,S ) )
-                     END DO
-                  END DO
-               END DO
-            END DO
+         DO V = 1, N_ASPCS
+            S = AVG_CONC_MAP( V )
+            AGRID( :,:,:,V ) = DIVFAC * ( AGRID( :,:,:,V )
+     &           - CGRID( :,:,ACONC_BLEV:ACONC_ELEV,S ) )
+         END DO
+         IF ( L_ACONC_WVEL ) 
+     &         AVG_WVEL( :,:,: ) = DIVFAC * ( AVG_WVEL( :,:,: ) - WVEL( :,:,ACONC_BLEV:ACONC_ELEV ) )
+         IF ( L_ACONC_RH ) 
+     &         AVG_RH( :,:,: ) = DIVFAC * ( AVG_RH( :,:,: ) - MET_DATA%RH( :,:,ACONC_BLEV:ACONC_ELEV ) )
+         IF ( L_ACONC_TA ) 
+     &         AVG_TA( :,:,: ) = DIVFAC * ( AVG_TA - MET_DATA%TA( :,:,ACONC_BLEV:ACONC_ELEV ) )
+         IF ( L_ACONC_PRES ) 
+     &         AVG_PRES( :,:,: ) = DIVFAC * ( AVG_PRES - MET_DATA%PRES( :,:,ACONC_BLEV:ACONC_ELEV ) )
+             
 #ifdef twoway
          END IF
 #endif
 
          DO V = 1, N_CSPCS
             S = CONC_MAP( V )
-            L = 0
-            DO K = CONC_BLEV, CONC_ELEV
-               L = L + 1
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
-                     SGRID( C,R,L,V ) = CGRID( C,R,K,S )
-                  END DO
-               END DO
-            END DO
+            SGRID( :,:,:,V ) = CGRID( :,:,CONC_BLEV:CONC_ELEV,S )
          END DO
 
 C write conc fields
 
          IF ( MOD( TIME2SEC( JTIME ), TIME2SEC( TSTEP( 1 ) ) ) .EQ. 0 ) THEN
+#ifdef parallel
             CPU_TIME_START =  MPI_WTIME()
+#else
+            CALL CPU_TIME( REAL_TIME )
+            CPU_TIME_START = REAL( REAL_TIME,8 )
+#endif
             CALL WR_CONC ( JDATE, JTIME, TSTEP( 1 ) )
-            IF ( LVEXT ) CALL WR_VEXT ( JDATE, JTIME, TSTEP( 1 ) )
+#ifdef parallel
+            IF ( LVEXT ) CALL WR_VEXT ( CGRID, JDATE, JTIME, TSTEP( 1 ) )
+#endif
             CALL WR_ACONC ( AGRID, JDATE, JTIME, TSTEP( 1 ) )
             IF ( LIPR .OR. LIRR ) CALL PA_OUTPUT ( CGRID, JDATE, JTIME )
             IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 3 )
@@ -528,8 +555,10 @@ C Shut down IOAPI
       END IF
 
 #ifdef parallel
-C Shut down MPI
       ENDTIME = MPI_WTIME()   ! get final wall-clock time
+#else
+      CALL CPU_TIME( ENDTIME )   ! get final wall-clock time
+#endif
       ELAPTIME = ENDTIME - BEGTIME
       WRITE( XMSG, '(A,F10.1,A)' ) 'The elapsed time for this simulation was', 
      &                            ELAPTIME, ' seconds.'
@@ -538,6 +567,8 @@ C Shut down MPI
       IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
       IF ( MYPE .EQ. 0 ) WRITE( OUTDEV, * )
 
+#ifdef parallel
+C Shut down MPI
       CALL MPI_FINALIZE ( PAR_ERR )
       IF ( PAR_ERR .NE. 0 ) THEN
          STOP 'Error terminating MPI'

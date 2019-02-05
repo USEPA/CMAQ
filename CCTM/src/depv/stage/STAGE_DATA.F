@@ -157,7 +157,7 @@ C     26 June 2014 J.Bash: initial implementation
       DATA vd_name( 84), rel_rx( 84), f0( 84), LeBasM( 84), M_ac( 84) / 'OIO          ',     8.0, 0.0,   51.8, 0.420/
       DATA vd_name( 85), rel_rx( 85), f0( 85), LeBasM( 85), M_ac( 85) / 'I2O2         ',     8.0, 0.0,   88.8, 0.420/
       DATA vd_name( 86), rel_rx( 86), f0( 86), LeBasM( 86), M_ac( 86) / 'I2O3         ',     8.0, 0.0,   96.2, 0.420/
-      DATA vd_name( 87), rel_rx( 87), f0( 87), LeBasM( 87), M_ac( 84) / 'I2O4         ',     8.0, 0.0,  103.6, 0.420/
+      DATA vd_name( 87), rel_rx( 87), f0( 87), LeBasM( 87), M_ac( 87) / 'I2O4         ',     8.0, 0.0,  103.6, 0.420/
       DATA vd_name( 88), rel_rx( 88), f0( 88), LeBasM( 88), M_ac( 88) / 'HI           ',     8.0, 0.0,   40.7, 0.420/
       DATA vd_name( 89), rel_rx( 89), f0( 89), LeBasM( 89), M_ac( 89) / 'HOI          ',     8.0, 0.0,   48.1, 0.420/
       DATA vd_name( 90), rel_rx( 90), f0( 90), LeBasM( 90), M_ac( 90) / 'INO          ',     8.0, 0.0,   60.9, 0.420/
@@ -180,17 +180,17 @@ C     26 June 2014 J.Bash: initial implementation
       DATA vd_name(107), rel_rx(107), f0(107), LeBasM(107), M_ac(107) / 'INTR         ',    16.0, 0.1,  140.4, 0.420/ ! INTR
       DATA vd_name(108), rel_rx(108), f0(108), LeBasM(108), M_ac(108) / 'ISPX         ',    10.0, 0.3,   49.0, 0.420/ ! ISPX diffusion should be ~ 0.0710 according to Wolfe and thornton 2011 M_acP
       DATA vd_name(109), rel_rx(109), f0(109), LeBasM(109), M_ac(109) / 'ROOH         ',    10.0, 0.3,   49.0, 0.420/ ! ROOH diffusion should be ~ 0.0710 according to Wolfe and thornton 2011 M_acP
-      DATA vd_name(110), rel_rx(110), f0(110), LeBasM(110), M_ac(110) / 'LVPCSOG      ', 43507730.6, 0.0, 63.0, 0.91/ ! LVPCSOG
-      DATA vd_name(111), rel_rx(111), f0(111), LeBasM(111), M_ac(111) / 'VIVPO1       ', 13818.0, 0.0,   63.0, 0.909/ ! VIVPO1
-      DATA vd_name(112), rel_rx(112), f0(112), LeBasM(112), M_ac(112) / 'VLVOO1       ',  1830.5, 0.0,   63.0, 0.910/ ! VLVOO1
-      DATA vd_name(113), rel_rx(113), f0(113), LeBasM(113), M_ac(113) / 'VLVOO2       ',   241.0, 0.0,   63.0, 0.909/ ! VLVOO2
-      DATA vd_name(114), rel_rx(114), f0(114), LeBasM(114), M_ac(114) / 'VLVPO1       ',    31.8, 0.0,   63.0, 0.420/ ! VLVPO1
-      DATA vd_name(115), rel_rx(115), f0(115), LeBasM(115), M_ac(115) / 'VSVOO1       ',     4.2, 0.0,   63.0, 0.896/ ! VSVOO1
-      DATA vd_name(116), rel_rx(116), f0(116), LeBasM(116), M_ac(116) / 'VSVOO2       ', 71624.8, 0.0,   63.0, 0.444/ ! VSVOO2
-      DATA vd_name(117), rel_rx(117), f0(117), LeBasM(117), M_ac(117) / 'VSVOO3       ',  9042.0, 0.0,   63.0, 0.420/ ! VSVOO3
-      DATA vd_name(118), rel_rx(118), f0(118), LeBasM(118), M_ac(118) / 'VSVPO1       ',  1133.9, 0.0,   63.0, 0.896/ ! VSVPO1
-      DATA vd_name(119), rel_rx(119), f0(119), LeBasM(119), M_ac(119) / 'VSVPO2       ',    18.1, 0.0,   63.0, 0.783/ ! VSVPO2
-      DATA vd_name(120), rel_rx(120), f0(120), LeBasM(120), M_ac(120) / 'VSVPO3       ',     2.3, 0.0,   63.0, 0.444/ ! VSVPO3
+      DATA vd_name(110), rel_rx(110), f0(110), LeBasM(110), M_ac(110) / 'LVPCSOG      ', 90000.0, 0.0,   63.0, 0.910/ ! LVPCSOG
+      DATA vd_name(111), rel_rx(111), f0(111), LeBasM(111), M_ac(111) / 'VIVPO1       ',     4.2, 0.0,   63.0, 0.909/ ! VIVPO1
+      DATA vd_name(112), rel_rx(112), f0(112), LeBasM(112), M_ac(112) / 'VLVOO1       ', 71624.8, 0.0,   63.0, 0.910/ ! VLVOO1
+      DATA vd_name(113), rel_rx(113), f0(113), LeBasM(113), M_ac(113) / 'VLVOO2       ',  9042.0, 0.0,   63.0, 0.909/ ! VLVOO2
+      DATA vd_name(114), rel_rx(114), f0(114), LeBasM(114), M_ac(114) / 'VLVPO1       ', 13818.0, 0.0,   63.0, 0.420/ ! VLVPO1
+      DATA vd_name(115), rel_rx(115), f0(115), LeBasM(115), M_ac(115) / 'VSVOO1       ',  1133.9, 0.0,   63.0, 0.896/ ! VSVOO1
+      DATA vd_name(116), rel_rx(116), f0(116), LeBasM(116), M_ac(116) / 'VSVOO2       ',    18.1, 0.0,   63.0, 0.444/ ! VSVOO2
+      DATA vd_name(117), rel_rx(117), f0(117), LeBasM(117), M_ac(117) / 'VSVOO3       ',     2.3, 0.0,   63.0, 0.420/ ! VSVOO3
+      DATA vd_name(118), rel_rx(118), f0(118), LeBasM(118), M_ac(118) / 'VSVPO1       ',  1830.5, 0.0,   63.0, 0.896/ ! VSVPO1
+      DATA vd_name(119), rel_rx(119), f0(119), LeBasM(119), M_ac(119) / 'VSVPO2       ',   241.0, 0.0,   63.0, 0.783/ ! VSVPO2
+      DATA vd_name(120), rel_rx(120), f0(120), LeBasM(120), M_ac(120) / 'VSVPO3       ',    31.8, 0.0,   63.0, 0.444/ ! VSVPO3
       DATA vd_name(121), rel_rx(121), f0(121), LeBasM(121), M_ac(121) / 'FACD         ',    20.0, 0.0,   63.0, 0.023/ ! FACD
       DATA vd_name(122), rel_rx(122), f0(122), LeBasM(122), M_ac(122) / 'KET          ',     1.0, 0.0,  108.2, 0.420/ ! KET different in differnt mechanisms
       DATA vd_name(123), rel_rx(123), f0(123), LeBasM(123), M_ac(123) / 'ETH          ',     1.0, 0.0,   58.1,1.0e-4/ ! ETH

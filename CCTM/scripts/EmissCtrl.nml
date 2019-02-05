@@ -60,26 +60,25 @@
 
 &EmissionScalingRules
  EM_NML=
- !          Region      | Stream Label  |Emission | CMAQ-   |Phase/ |Scale  | Op
- !           Label      |               |Surrogate| Species |Mode   |Factor |
- !<EXAMPLE> 'WATER'     , 'All'         ,'All'    ,'All'    ,'All'  ,0.     ,'o', !Zero out all emissions over 
-                                                                                  ! water grid cells
- !<EXAMPLE> 'EVERYWHERE', 'ONROAD_GAS'  ,'NO'     ,'NO'     ,'GAS'  ,2.     ,'o', !Scale NO from gasoline 
-                                                                                  ! vehicles by a factor of 2
- !<EXAMPLE> 'EVERYWHERE', 'ONROAD_GAS'  ,'NO'     ,'NO'     ,'GAS'  ,2.     ,'m', !Alternative: Scale NO 
-                                                                                  ! from gasoline vehicles
-                                                                                  ! by a factor of 2
- !<EXAMPLE> 'EVERYWHERE', 'FIRES'       ,'POC'    ,'ALL'    ,'ALL'  ,0.5    ,'m', !Scale all Organic Carbon 
-                                                                                  ! mass from fires by 50%
- !<EXAMPLE> 'EVERYWHERE', 'FIRES'       ,'PNCOM'  ,'ALL'    ,'ALL'  ,0.5    ,'m', !Scale all Organic Non-Carbon 
-                                                                                  ! mass from fires by 50%
- !<EXAMPLE> 'EVERYWHERE', 'FIRES'       ,'PNCOM'  ,'ALL'    ,'ALL'  ,0.5    ,'m', !Scale all Organic Non-Carbon 
-                                                                                  ! mass from fires by 50%
+ !          Region      | Stream Label  |Emission | CMAQ-   |Phase/ |Scale  |Basis | Op  
+ !           Label      |               |Surrogate| Species |Mode   |Factor |      |     
+ !<EXAMPLE> 'WATER'     , 'All'         ,'All'    ,'All'    ,'All'  ,0.     ,'MASS','o', !Zero out all emissions over 
+                                                                                         ! water grid cells
+ !<EXAMPLE> 'EVERYWHERE', 'ONROAD_GAS'  ,'NO'     ,'NO'     ,'GAS'  ,2.     ,'MOLE','o', !Scale NO from gasoline 
+                                                                                         ! vehicles by a factor of 2
+ !<EXAMPLE> 'EVERYWHERE', 'ONROAD_GAS'  ,'NO'     ,'NO'     ,'GAS'  ,2.     ,'MOLE','m', !Alternative: Scale NO 
+                                                                                         ! from gasoline vehicles
+                                                                                         ! by a factor of 2
+ !<EXAMPLE> 'EVERYWHERE', 'FIRES'       ,'POC'    ,'ALL'    ,'ALL'  ,0.5    ,'MASS','m', !Scale all Organic Carbon 
+                                                                                         ! mass from fires by 50%
+ !<EXAMPLE> 'EVERYWHERE', 'FIRES'       ,'PNCOM'  ,'ALL'    ,'ALL'  ,0.5    ,'MASS','m', !Scale all Organic Non-Carbon 
+                                                                                         ! mass from fires by 50%
+ !<EXAMPLE> 'EVERYWHERE', 'FIRES'       ,'PNCOM'  ,'ALL'    ,'ALL'  ,0.5    ,'MASS','m', !Scale all Organic Non-Carbon 
+                                                                                         ! mass from fires by 50%
  
- !<EXAMPLE> 'EVERYWHERE', 'AIRCRAFT'    ,'VOC_INV','PAR'    ,'GAS'  ,0.02   ,'a', !Add more mass to PAR from aircraft
-                                                                                  ! equal to 2% of the VOC_INV from
-                                                                                  ! aircraft
-
+ !<EXAMPLE> 'EVERYWHERE', 'AIRCRAFT'    ,'VOC_INV','PAR'    ,'GAS'  ,0.02   ,'MOLE','a', !Add more mass to PAR from aircraft
+                                                                                         ! equal to 2% of the VOC_INV from
+                                                                                         ! aircraft
 /
 
 !------------------------------------------------------------------------------!

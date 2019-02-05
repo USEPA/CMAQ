@@ -155,28 +155,28 @@ C Get number of emissions layers
 
 
 C Initialize 3D Point Source Emissions 
-         CALL LOG_SUBHEADING( LOGDEV, 'Initialize Point Emissinos' )
+         CALL LOG_SUBHEADING( LOGDEV, 'Initialize Point Emissions' )
          IF ( .NOT. PT3D_INIT( JDATE, JTIME, TSTEP ) ) THEN
             XMSG = 'Failure initializing plume rise emissions module' 
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
  
 C Initialize Online Biogenic Emissions
-         CALL LOG_SUBHEADING( LOGDEV, 'Initialize Biogenic Emissinos' )
+         CALL LOG_SUBHEADING( LOGDEV, 'Initialize Biogenic Emissions' )
          IF ( .NOT. BEIS_INIT( JDATE, JTIME, TSTEP ) ) THEN
             XMSG = 'Failure initializing biogenics emissions module'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
 C Initialize Online Marine Gas Emissions
-         CALL LOG_SUBHEADING( LOGDEV, 'Initialize Marine Gas Emissinos' )
+         CALL LOG_SUBHEADING( LOGDEV, 'Initialize Marine Gas Emissions' )
          IF ( .NOT. MGEMIS_INIT( JDATE, JTIME, TSTEP ) ) THEN
             XMSG = 'Failure initializing marine gas emissions module'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
          
 C Initialize Online Lightning NOx Emissions
-         CALL LOG_SUBHEADING( LOGDEV, 'Initialize Lightning NO Emissinos' )
+         CALL LOG_SUBHEADING( LOGDEV, 'Initialize Lightning NO Emissions' )
          IF ( .NOT. LTNG_INIT( JDATE, JTIME, TSTEP ) ) THEN
             XMSG = 'Failure initializing lightning emissions module'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -526,7 +526,7 @@ C-----------------------------------------------------------------------
              ! Loop through existing instructions
              DO ISTR = 1,N_EMIS_ISTR
                ! Determine whether Emissions for this combination exist
-               IF ( EM_FAC_ST( ISTR,JSRM )%FAC( 1 ) .NE. 0.0 ) THEN
+               IF ( EM_FAC_ST( ISTR,JSRM )%LEN .GT. 0 ) THEN
                  IRGN = EM_FAC_ST( ISTR,JSRM )%REG( 1 )
                  ISTR_TMP = ISTR_TMP + 1
                  MAP_FACtoISTR( ISTR_TMP ) = ISTR
@@ -711,30 +711,26 @@ C-----------------------------------------------------------------------
 !-----------------------------------------------------------------------
       FUNCTION EMISS_NEG_CHECK( VDEMIS, ISRM, NL ) RESULT( STAT )
 
-!     Check Emissions Array for Negative Values and Exit if one is
-!     found. VDEMIS is the scaled emissions and VDEMIS0 is the emissions
+!     Check Emissions Array for negative values and exit if negative values
+!     exceed tolerance of 1.0E-7. Emissions that are negative but within 
+!     tolerance are set to 0.0.
+!     VDEMIS is the scaled emissions and VDEMIS0 is the emissions
 !     read in from each stream.
 !-----------------------------------------------------------------------
-      USE GRID_CONF
       USE UTILIO_DEFN
-         USE VDIFF_MAP, only : DIFF_SPC ! Name for every Diffusion Module Species 
+      USE VDIFF_MAP, only : DIFF_SPC ! Name for every Diffusion Module Species 
 
       IMPLICIT NONE
 
-      REAL, INTENT( IN )    :: VDEMIS ( :,:,:,: )
+      REAL, INTENT( INOUT ) :: VDEMIS ( :,:,:,: )
       INTEGER, INTENT( IN ) :: NL
-      INTEGER ISRM, ISPC
-      INTEGER ALOC( 4 )
-      REAL EMIS_MIN
+      INTEGER, INTENT( IN ) :: ISRM
 
-      CHARACTER(250) XMSG
-      INTEGER STAT
-      LOGICAL, SAVE :: FIRST_TIME = .TRUE.
-
-      IF ( FIRST_TIME ) THEN
-          FIRST_TIME = .FALSE.
-          !ALLOCATE( VDEMIS( N_SPC_DIFF,EMLAYS,NCOLS,NROWS ) )
-      END IF
+      INTEGER :: ISPC
+      INTEGER :: STAT
+      INTEGER :: ALOC( 4 )
+      REAL    :: EMIS_MIN
+      CHARACTER(250) :: XMSG
 
       STAT = 0
 
@@ -742,8 +738,7 @@ C-----------------------------------------------------------------------
       EMIS_MIN = MINVAL( VDEMIS( :,1:NL,:,: ) )
       IF ( EMIS_MIN .GE. 0.0 ) RETURN
 
-      ! Set Tolerance to 0.01% of Initial Emission Rate
-      IF ( EMIS_MIN .LT. -1.0e-10 ) THEN
+      IF ( EMIS_MIN .LT. -1.0e-7 ) THEN
 
           STAT = 1
 
@@ -751,13 +746,16 @@ C-----------------------------------------------------------------------
           ALOC = MINLOC( VDEMIS( :,1:NL,:,: ) )
           ISPC = ALOC( 1 )
 
-          WRITE( LOGDEV, '(/,5x,A,/,5x,4A,/,5x,A)' ),
-     &      'ERROR: Invalid Negative emission rates have been detected from ',
-     &      TRIM(EM_FILE_LAB( ISRM )), ' for CMAQ species ',TRIM(DIFF_SPC( ISPC )),'.',
+          WRITE( LOGDEV, '(/,5x,A,ES10.3,A,/,5x,5A,/,5x,A)' ),
+     &      'ERROR: Invalid Negative emission rate ', EMIS_MIN, ' has been ',
+     &      ' detected from ', TRIM(EM_FILE_LAB( ISRM )), 
+     &      ' for CMAQ species ',TRIM(DIFF_SPC( ISPC )),'.',
      &      'Please inspect the Emission Control Namelist File.'
           XMSG = 'Negative Emissions Detected'
-          CALL M3EXIT( 'EMISS"NEG_CHECK', 1, 1, XMSG, XSTAT1 )
-
+          CALL M3EXIT( 'EMISS_NEG_CHECK', 0, 0, XMSG, XSTAT1 )
+      
+      ELSE ! reset slightly negative values to 0.0
+          WHERE ( VDEMIS .LT. 0.0 ) VDEMIS = 0.0
       END IF
 
       END FUNCTION EMISS_NEG_CHECK    
@@ -783,6 +781,7 @@ C-----------------------------------------------------------------------
       INTEGER, INTENT( IN ) :: MDATE, MTIME, ISRM
       REAL, INTENT( In )    :: VDEMIS0( :,:,:,: )
       REAL, ALLOCATABLE, SAVE :: VDEMIS ( :,:,:,: )
+      REAL, ALLOCATABLE, SAVE :: VDEMIS_OUT ( :,:,: )
 
       ! Local Variables
       REAL, PARAMETER :: RAVO = 1.0 / AVO
@@ -805,7 +804,8 @@ C-----------------------------------------------------------------------
          ALLOCATE( CNVTI( EMLAYS ), CNVTC( EMLAYS,NCOLS,NROWS ), 
      &             CONVM( EMLAYS,NCOLS,NROWS ),
      &             CONVN( EMLAYS,NCOLS,NROWS ),
-     &             VDEMIS( NCOLS,NROWS,EMLAYS,N_SPC_DIFF ) )
+     &             VDEMIS( N_SPC_DIFF,EMLAYS,NCOLS,NROWS ),
+     &             VDEMIS_OUT( NCOLS,NROWS,EMLAYS ) )
       END IF    !FirstTime
       
       VDEMIS = 0.0
@@ -827,18 +827,18 @@ C-----------------------------------------------------------------------
       FORALL ( I = 1:N_SPC_DIFF, DIFF_MASK_GAS( I ) .OR. 
      &                           DIFF_MASK_NR( I )  .OR. 
      &                           DIFF_MASK_TRAC( I ) )
-     &    VDEMIS( :,:,1:NL,I ) = CNVTC( 1:NL,:,: ) * VDEMIS0( I,1:NL,:,: )
+     &    VDEMIS( I,1:NL,:,: ) = CNVTC( 1:NL,:,: ) * VDEMIS0( I,1:NL,:,: )
   
       FORALL ( I = 1:N_SPC_DIFF, DIFF_MASK_AERO( I ) .AND. 
      &                           .NOT. DIFF_MASK_NUM( I ) .AND.
      &                           .NOT. DIFF_MASK_SRF( I )  )
-     &    VDEMIS( :,:,1:NL,I ) = CNVTC( 1:NL,:,: ) * VDEMIS0( I,1:NL,:,: ) * DIFF_MW( I )
+     &    VDEMIS( I,1:NL,:,: ) = CNVTC( 1:NL,:,: ) * VDEMIS0( I,1:NL,:,: ) * DIFF_MW( I )
       
       FORALL ( I = 1:N_SPC_DIFF, DIFF_MASK_SRF( I ) )
-     &    VDEMIS( :,:,1:NL,I ) = CONVM( 1:NL,:,: ) * VDEMIS0( I,1:NL,:,: )
+     &    VDEMIS( I,1:NL,:,: ) = CONVM( 1:NL,:,: ) * VDEMIS0( I,1:NL,:,: )
       
       FORALL ( I = 1:N_SPC_DIFF, DIFF_MASK_NUM( I ) )
-     &    VDEMIS( :,:,1:NL,I ) = CONVN( 1:NL,:,: ) * VDEMIS0( I,1:NL,:,: )
+     &    VDEMIS( I,1:NL,:,: ) = CONVN( 1:NL,:,: ) * VDEMIS0( I,1:NL,:,: )
 
  
       ! Output to Emissions Diagnostic File
@@ -849,13 +849,17 @@ C-----------------------------------------------------------------------
 
             ! Sum the column if requested
             IF ( EM_FILE_LDIAG( ISRM ) .EQ. '2DSUM' ) THEN
-                VDEMIS( :,:,1,IVAR ) = SUM( VDEMIS( :,:,1:NL,IVAR ),3 )
+                VDEMIS( IVAR,1,:,: ) = SUM( VDEMIS( IVAR,1:NL,:,: ),3 )
                 LAYS = 1
             END IF
 
+            DO L = 1,LAYS
+                VDEMIS_OUT( :,:,L ) = VDEMIS( IVAR,L,:,: )
+            END DO
+
             ! Write out the emissions data
             IF ( .NOT. WRITE3( EM_DIAG_FILE( ISRM ), DIFF_SPC( IVAR ),
-     &                 MDATE, MTIME, VDEMIS( :,:,1:LAYS,IVAR ) ) ) THEN
+     &                 MDATE, MTIME, VDEMIS_OUT( :,:,1:LAYS ) ) ) THEN
                 XMSG = 'Could not write ' // EM_DIAG_FILE( ISRM ) // ' file'
                 CALL M3EXIT( 'WRITE_EMISS_DIAG', MDATE, MTIME, XMSG, XSTAT1 )
             END IF
@@ -868,7 +872,7 @@ C-----------------------------------------------------------------------
 
 C Check the chemical species from the namelists and AERO_DATA against
 C the species that are available on the actual emissions input files. If
-C they do not agree, print warngings or crash the program depending on
+C they do not agree, print warnings or crash the program depending on
 C how severe the error is.
 C
 C    16 Mar 2017  B.Murphy     Created Subroutine
@@ -897,7 +901,8 @@ C-----------------------------------------------------------------------
      &                 N, IM, IAERO, V, ISRM, NSPC, IA, IDIFF, JDX, JM,
      &                 ISTR, ISUR0, ISRM0, IEM, KDX, JSD, JEM, ISD,
      &                 IFAC, IRGN, ISTRN, NFAC
-         REAL       :: AERO_SPLIT, UNIT_FAC_1, UNIT_FAC_2, SURR_MW
+         REAL       :: AERO_SPLIT, UNIT_FAC_1, UNIT_FAC_2, SURR_MW, 
+     &                 SPEC_MW, BASIS_FAC
 
          LOGICAL    :: LERROR, LFOUND, L_WDIFF, L_WISD, LTEST
          LOGICAL    :: LGAS_DIFF, LGAS_SURR
@@ -929,6 +934,7 @@ C-----------------------------------------------------------------------
          REAL, ALLOCATABLE :: EM_FAC( :,:,: )
          REAL, ALLOCATABLE :: EM_FAC_BULK( :,:,: )
          CHARACTER( 1 ), ALLOCATABLE :: EM_OP( :,:,: )
+         CHARACTER( 4 ), ALLOCATABLE :: EM_BASIS( :,:,: )
          INTEGER, ALLOCATABLE :: EM_REG( :,:,: )
          INTEGER             :: N_EM_RULE
 
@@ -989,7 +995,7 @@ C and allowing the model to proceed.
 ! Set up Stream <-> Size Distribution relationship. This routine
 ! populates the EM_STREAM_SIZE structure which tells the logic below which
 ! modes are present on which streams.
-         CALL EM_SD_INIT( )
+         CALL EM_SD_INIT( JDATE, JTIME )
          
 ! Process Default Emissions Mapping (if requested in namelist; i.e. 
 ! DefaultScaling = TRUE) 
@@ -1000,17 +1006,19 @@ C and allowing the model to proceed.
          ALLOCATE( EM_FAC ( NISTR0,N_EM_SRM,N_SCALEFAC ) ) ! Scale Factor
          EM_FAC = 0.0
          ALLOCATE( EM_FAC_BULK( NISTR0,N_EM_SRM,N_SCALEFAC ) ) ! Bulk Scale Factor For Printing to Diagnostic
-         EM_FAC_BULK = 0.0                                        !   Output. Ignores aero_split and unit conversion
-         ALLOCATE( EM_OP( NISTR0,N_EM_SRM,N_SCALEFAC ) )  ! Bulk Scale Factor For Printing to Diagnostic
-         EM_OP = ""                                          !   Output. Ignores aero_split and unit conversion
-         ALLOCATE( EM_REG( NISTR0,N_EM_SRM,N_SCALEFAC ) ) ! Bulk Scale Factor For Printing to Diagnostic
-         EM_REG = 1                                          !   Output. Ignores aero_split and unit conversion
+         EM_FAC_BULK = 0.0                                     !   Output. Ignores aero_split and unit conversion
+         ALLOCATE( EM_OP( NISTR0,N_EM_SRM,N_SCALEFAC ) )       ! Bulk Scale Factor For Printing to Diagnostic
+         EM_OP = ""                                            !   Output. Ignores aero_split and unit conversion
+         ALLOCATE( EM_REG( NISTR0,N_EM_SRM,N_SCALEFAC ) )      ! Bulk Scale Factor For Printing to Diagnostic
+         EM_REG = 1                                            !   Output. Ignores aero_split and unit conversion
+         ALLOCATE( EM_BASIS ( NISTR0,N_EM_SRM,N_SCALEFAC ) )   ! Mass or Mole Basis for Conversion
+         EM_BASIS = ""
          ALLOCATE( MAP_EMtoDIFF( NISTR0 ) )           ! Map from Emissions Species 
          MAP_EMtoDIFF = 0                             !   to Diffusion Vector
          ALLOCATE( MAP_EMtoSURR( NISTR0,N_EM_SRM ) )  ! Map from Emissions Species 
          MAP_EMtoSURR = 0                             !   to Surrogate Locatino on File
-         ALLOCATE( MAP_EMtoGAS( NISTR0 ) )           ! Map from Emissions Species 
-         MAP_EMtoGAS = 0                             !   to aerosol table
+         ALLOCATE( MAP_EMtoGAS( NISTR0 ) )            ! Map from Emissions Species 
+         MAP_EMtoGAS = 0                              !   to aerosol table
          ALLOCATE( MAP_EMtoAERO( NISTR0 ) )           ! Map from Emissions Species 
          MAP_EMtoAERO = 0                             !   to aerosol table
          ALLOCATE( MAP_EMtoMODE( NISTR0 ) )           ! Map from Emissions Species 
@@ -1138,9 +1146,15 @@ C and allowing the model to proceed.
                     EM_FILE_DIFF( IDIFF,ISRM ) = .TRUE.
 
                     EM_FAC ( N_EMIS_ISTR, ISRM, 1 ) = 1.0 * AERO_SPLIT
-                    EM_FAC_BULK ( N_EMIS_ISTR, ISRM, 1 ) = 1.0         
+                    EM_FAC_BULK ( N_EMIS_ISTR, ISRM, 1 ) = 1.0
                     EM_REG( N_EMIS_ISTR, ISRM, 1 ) = 1
                     EM_OP( N_EMIS_ISTR, ISRM, 1 )  = 'a'
+
+                    IF ( DIFF_MASK_AERO( IDIFF ) ) THEN
+                         EM_BASIS ( N_EMIS_ISTR, ISRM, 1 ) = 'MASS'
+                    ELSE
+                         EM_BASIS ( N_EMIS_ISTR, ISRM, 1 ) = 'MOLE'
+                    END IF
 
                  END IF
                END DO
@@ -1154,7 +1168,8 @@ C and allowing the model to proceed.
                ! Aerosol Number
                EM_SPEC( N_EMIS_ISTR+1 ) = AEROMODE( IM )%NUM_NAME
                EM_FAC ( N_EMIS_ISTR+1,:,1 ) = 1.0
-               EM_FAC_BULK ( N_EMIS_ISTR+1,:,1 ) = 1.0         
+               EM_FAC_BULK ( N_EMIS_ISTR+1,:,1 ) = 1.0        
+               EM_BASIS( N_EMIS_ISTR+1,:,1 ) = ''
                EM_OP ( N_EMIS_ISTR+1,:,1 ) = "a"
                EM_REG ( N_EMIS_ISTR+1,:,1 ) = 1
                MAP_NUMtoEM( IM ) = N_EMIS_ISTR+1
@@ -1167,6 +1182,7 @@ C and allowing the model to proceed.
                EM_SPEC( N_EMIS_ISTR+2 ) = AEROMODE( IM )%SRF_NAME
                EM_FAC ( N_EMIS_ISTR+2,:,1 ) = 1.0
                EM_FAC_BULK ( N_EMIS_ISTR+2,:,1 ) = 1.0         
+               EM_BASIS( N_EMIS_ISTR+2,:,1 ) = ''
                EM_OP ( N_EMIS_ISTR+1,:,1 ) = "a"
                EM_REG ( N_EMIS_ISTR+1,:,1 ) = 1
                MAP_SRFtoEM( IM ) = N_EMIS_ISTR+2
@@ -1534,8 +1550,11 @@ C and allowing the model to proceed.
                       IF ( EM_OP( ISTR, ISRM, IFAC ) .EQ. '' ) THEN
                            EM_FAC ( ISTR, ISRM, IFAC ) = EM_NML( IRULE )%FAC * AERO_SPLIT
                         EM_FAC_BULK ( ISTR, ISRM, IFAC ) = EM_NML( IRULE )%FAC
-                        EM_REG( ISTR, ISRM, IFAC ) = REGNUM
-                        EM_OP( ISTR, ISRM, IFAC )  = EM_NML( IRULE )%OP
+                        EM_REG( ISTR, ISRM, IFAC )    = REGNUM
+                        CALL CHECK_OP( EM_NML( IRULE )%OP, IRULE )
+                        EM_OP( ISTR, ISRM, IFAC )     = EM_NML( IRULE )%OP
+                        CALL CHECK_BASIS( EM_NML( IRULE )%BASIS, IRULE )
+                        EM_BASIS( ISTR, ISRM, IFAC )  = EM_NML( IRULE )%BASIS
                         EXIT
                      END IF
                   END DO
@@ -1562,10 +1581,13 @@ C and allowing the model to proceed.
                         ! that the scale factor can be added.
                         DO IFAC = 1,N_SCALEFAC
                           IF ( EM_OP( ISTR, ISRM, IFAC ) .EQ. '' ) THEN
-                              EM_FAC ( ISTR, ISRM, IFAC )      = EM_NML( IRULE )%FAC * AERO_SPLIT
+                              EM_FAC ( ISTR, ISRM, IFAC )     = EM_NML( IRULE )%FAC * AERO_SPLIT
                              EM_FAC_BULK ( ISTR, ISRM, IFAC ) = EM_NML( IRULE )%FAC
                              EM_REG( ISTR, ISRM, IFAC )       = REGNUM
+                             CALL CHECK_OP( EM_NML( IRULE )%OP, IRULE )
                              EM_OP( ISTR, ISRM, IFAC )        = EM_NML( IRULE )%OP
+                             CALL CHECK_BASIS( EM_NML( IRULE )%BASIS, IRULE )
+                             EM_BASIS( ISTR, ISRM, IFAC )     = EM_NML( IRULE )%BASIS
                              EXIT
                           END IF
                         END DO
@@ -1585,12 +1607,15 @@ C and allowing the model to proceed.
             END IF  ! Operator
          END DO !IRULE
 
-! Inspect all of the Emissions Instructions for conversion between gases
-! and particles. If there is a conversion, apply the correct factor
-! based on species moleculer weights.
+! Inspect all of the Emissions Instructions for conversion based on 
+! mass or moles. If there is a conversion, apply the correct factor
+! based on species molecular weights.
          ALLOCATE( EM_FAC_ST( N_EMIS_ISTR,N_EM_SRM ) )
          DO ISTR = 1,N_EMIS_ISTR
             DO ISRM = 1,N_EM_SRM
+               EM_FAC_ST( ISTR,ISRM )%LEN = 0
+               IF ( MAP_EMtoSURR( ISTR,ISRM ) .NE. 0 ) THEN 
+
                ! First load emission factor structure
                NFAC = 1
                DO IFAC = 2,N_SCALEFAC
@@ -1598,67 +1623,78 @@ C and allowing the model to proceed.
                  NFAC = NFAC + 1  
                END DO
 
-        
+               ! Allocate and Prepopulate Emission Factor Structure
                EM_FAC_ST( ISTR,ISRM )%LEN = NFAC
                ALLOCATE( EM_FAC_ST( ISTR,ISRM )%FAC( NFAC ) )
                ALLOCATE( EM_FAC_ST( ISTR,ISRM )%BULK( NFAC ) )
+               ALLOCATE( EM_FAC_ST( ISTR,ISRM )%BASIS( NFAC ) )
                ALLOCATE( EM_FAC_ST( ISTR,ISRM )%REG( NFAC ) )
                ALLOCATE( EM_FAC_ST( ISTR,ISRM )%OP( NFAC ) )
                  
                EM_FAC_ST( ISTR,ISRM )%FAC  = 0.
                EM_FAC_ST( ISTR,ISRM )%BULK = 0.
+               EM_FAC_ST( ISTR,ISRM )%BASIS= 1.
                EM_FAC_ST( ISTR,ISRM )%REG  = 1
                EM_FAC_ST( ISTR,ISRM )%OP   = 0
-        
+               
+               ISUR  = MAP_EMtoSURR( ISTR,ISRM )
+               SURR_MW = EM_FILE_SURR( ISRM )%MW( ISUR ) ! MW [g mol-1]
+               SPEC_MW = DIFF_MW( MAP_EMtoDIFF( ISTR ) )
+               
+
+               ! Populate Emission Factor Structure
                DO IFAC = 1,NFAC
                  EM_FAC_ST( ISTR,ISRM )%FAC( IFAC )    = EM_FAC ( ISTR, ISRM, IFAC ) 
                  EM_FAC_ST( ISTR,ISRM )%BULK( IFAC )   = EM_FAC_BULK( ISTR, ISRM, IFAC )
                  EM_FAC_ST( ISTR,ISRM )%REG( IFAC )    = EM_REG( ISTR, ISRM, IFAC )
-                      
-                   SELECT CASE ( EM_OP( ISTR, ISRM, IFAC ) )
-                   CASE ( 'a' )
-                       EM_FAC_ST( ISTR,ISRM )%OP( IFAC )    = 1
-                   CASE ( 'm' )
-                       EM_FAC_ST( ISTR,ISRM )%OP( IFAC )    = 2
-                   CASE ( 'o' )
-                       EM_FAC_ST( ISTR,ISRM )%OP( IFAC )    = 3
+                 
+                 SELECT CASE ( EM_OP( ISTR, ISRM, IFAC ) )
+                 CASE ( 'a' )
+                     EM_FAC_ST( ISTR,ISRM )%OP( IFAC )    = 1
+                 CASE ( 'm' )
+                     EM_FAC_ST( ISTR,ISRM )%OP( IFAC )    = 2
+                 CASE ( 'o' )
+                     EM_FAC_ST( ISTR,ISRM )%OP( IFAC )    = 3
                  END SELECT
-               END DO
-            END DO
 
-            ! Now Calculate Conversion Factors needed for going from gas moles
-            ! to particle mass or vice-versa.
-            ! Do Not Modify Number or Surface Area Emissions
-            IF ( MAP_EMtoNUM( ISTR ) .GT. 0 .OR. MAP_EMtoSRF( ISTR ) .GT. 0 ) CYCLE
+                 BASIS_FAC = 1.0
+                 IF ( EM_BASIS( ISTR, ISRM, IFAC ) .EQ. 'MOLE' ) THEN
+                     IF ( EM_FILE_SURR( ISRM )%PHASE( MAP_EMtoSURR( ISTR,ISRM ) ) .EQ. 'GAS' ) THEN
+                        BASIS_FAC = BASIS_FAC
+                     ELSE
+                        ! Convert surrogate emission rate to moles
+                        BASIS_FAC = BASIS_FAC / SURR_MW  
+                     END IF
+                     IF ( .NOT. DIFF_MASK_AERO( MAP_EMtoDIFF( ISTR ) ) ) THEN
+                        BASIS_FAC = BASIS_FAC
+                     ELSE
+                        ! Convert species emission rate to mass
+                        BASIS_FAC = BASIS_FAC * SPEC_MW
+                     END IF
+                 ELSE IF ( EM_BASIS( ISTR, ISRM, IFAC ) .EQ. 'MASS' ) THEN
+                     IF ( EM_FILE_SURR( ISRM )%PHASE( MAP_EMtoSURR( ISTR,ISRM ) ) .EQ. 'GAS' ) THEN
+                        ! Convert surrogate emission rate to mass
+                        BASIS_FAC = BASIS_FAC * SURR_MW  
+                     ELSE
+                        BASIS_FAC = BASIS_FAC
+                     END IF
+                     IF ( .NOT. DIFF_MASK_AERO( MAP_EMtoDIFF( ISTR ) ) ) THEN
+                        ! Convert species emission rate to moles
+                        BASIS_FAC = BASIS_FAC / SPEC_MW
+                     ELSE
+                        BASIS_FAC = BASIS_FAC
+                     END IF                                          
+                 END IF
+                 EM_FAC_ST( ISTR,ISRM )%BASIS = BASIS_FAC
 
-            UNIT_FAC_1 = 1.0
-
-            ! First Get Phase of CMAQ Species
-            IDIFF = MAP_EMtoDIFF( ISTR )
-            LGAS_DIFF = .NOT. DIFF_MASK_AERO( IDIFF )
-            IF ( LGAS_DIFF ) UNIT_FAC_1 = 1.0 / DIFF_MW( IDIFF )
-
-            ! Now Get Phase of Emission Surrogate
-            DO ISRM = 1, N_EM_SRM
-              ISUR  = MAP_EMtoSURR( ISTR,ISRM )
-              IF ( ISUR .EQ. 0 ) CYCLE
-
-              LGAS_SURR = ( EM_FILE_SURR( ISRM )%PHASE( ISUR ) .EQ. 'GAS' )
-              SURR_MW   = EM_FILE_SURR( ISRM )%MW( ISUR ) ! MW [g mol-1]
-
-              UNIT_FAC_2 = UNIT_FAC_1
-              IF ( LGAS_SURR ) UNIT_FAC_2 = UNIT_FAC_2 * SURR_MW
-
-              ! Apply the unit conversion factor to all existing 'add'
-              ! and 'overwrite' scale factors. Do not apply to 'modify'
-              ! scale factors because then the conversion will be double
-              ! counted.
-              DO IFAC = 1,EM_FAC_ST( ISTR,ISRM )%LEN
                  IF ( EM_FAC_ST( ISTR,ISRM )%OP( IFAC ) .NE. 2 ) 
      &                EM_FAC_ST( ISTR,ISRM )%FAC( IFAC ) = 
-     &                     EM_FAC_ST( ISTR,ISRM )%FAC( IFAC ) * UNIT_FAC_2
-              END DO
+     &                     EM_FAC_ST( ISTR,ISRM )%FAC( IFAC ) * BASIS_FAC
+               END DO
+
+               END IF
             END DO
+
          END DO
 
 ! Warn the User if there are no emissions instructions provided        
@@ -1737,10 +1773,10 @@ C and allowing the model to proceed.
 
 
            ! Finally Print Every Instruction for this Stream
-           WRITE( LOGDEV, '(/,8x,A,5x,A,2x,A,9x,A,13x,A,1x,A)' ),
-     &            'CMAQ Species','Phase/Mode','Surrogate','Region','Op','Scale Factor'
-           WRITE( LOGDEV, '(  8x,A,5x,A,2x,A,9x,A,13x,A,1x,A)' ),
-     &            '------------','----------','---------','------','--','------------'
+           WRITE( LOGDEV, '(/,8x,A,5x,A,2x,A,9x,A,13x,A,1x,A,1x,A,1x,A)' ),
+     &            'CMAQ Species','Phase/Mode','Surrogate','Region','Op','ScaleFac','Basis','FinalFac'
+           WRITE( LOGDEV, '(8x,A,5x,A,2x,A,9x,A,13x,A,1x,A,1x,A,1x,A)' ),
+     &            '------------','----------','---------','------','--','--------','-----','--------'
 
            DO IDIFF = 1,N_SPC_DIFF
              L_WDIFF = .TRUE.
@@ -1752,33 +1788,42 @@ C and allowing the model to proceed.
      &                  MAP_EMtoSD( ISTR,ISRM ) .EQ. ISD       .AND.
      &                  MAP_EMtoSURR( ISTR,ISRM ) .EQ. ISUR ) THEN
                      IF ( L_WDIFF ) THEN
-                        WRITE( LOGDEV, '(10x,A,1x,A,1x,A,1x,A,1x,A,2x,F6.3)' ),
+                        WRITE( LOGDEV, '(10x,A,1x,A,1x,A,1x,A,1x,A,2x,F6.3,4x,A,2x,F6.3)' ),
      &                         EM_SPEC( ISTR ),
      &                         EM_STREAM_SIZE( ISRM )%NAME( ISD )(1:10),
      &                         EM_SURR( ISTR, ISRM ),
      &                         EM_REGIONS( EM_FAC_ST( ISTR,ISRM )%REG( 1 ) )%LABEL(1:18),
-     &                         EM_OP( ISTR,ISRM,1 ), EM_FAC_ST( ISTR, ISRM )%BULK( 1 )
+     &                         EM_OP( ISTR,ISRM,1 ), 
+     &                         EM_FAC_ST( ISTR, ISRM )%BULK( 1 ), EM_BASIS( ISTR,ISRM,1 ),
+     &                         EM_FAC_ST( ISTR,ISRM )%FAC( 1 ) 
+     &                         
                         L_WDIFF = .FALSE.
                         L_WISD  = .FALSE.
                       ELSE IF ( L_WISD ) THEN
-                        WRITE( LOGDEV, '(27x,A,1x,A,1x,A,1x,A,2x,F6.3)' ),
+                        WRITE( LOGDEV, '(27x,A,1x,A,1x,A,1x,A,2x,F6.3,4x,A,2x,F6.3)' ),
      &                         EM_STREAM_SIZE( ISRM )%NAME( ISD )(1:10),
      &                         EM_SURR( ISTR, ISRM ),
      &                         EM_REGIONS( EM_FAC_ST( ISTR,ISRM )%REG( 1 ) )%LABEL(1:18),
-     &                         EM_OP( ISTR,ISRM,1 ), EM_FAC_ST( ISTR, ISRM )%BULK( 1 )
+     &                         EM_OP( ISTR,ISRM,1 ), 
+     &                         EM_FAC_ST( ISTR, ISRM )%BULK( 1 ), EM_BASIS( ISTR,ISRM,1 ),
+     &                         EM_FAC_ST( ISTR,ISRM )%FAC( 1 ) 
                         L_WISD = .FALSE.
                       ELSE 
-                        WRITE( LOGDEV, '(38x,A,1x,A,1x,A,2x,F6.3)' ),
+                        WRITE( LOGDEV, '(38x,A,1x,A,1x,A,2x,F6.3,4x,A,2x,F6.3)' ),
      &                         EM_SURR( ISTR, ISRM ),
      &                         EM_REGIONS( EM_FAC_ST( ISTR,ISRM )%REG( 1 ) )%LABEL(1:18),
-     &                         EM_OP( ISTR,ISRM,1 ), EM_FAC_ST( ISTR, ISRM )%BULK( 1 )
+     &                         EM_OP( ISTR,ISRM,1 ), 
+     &                         EM_FAC_ST( ISTR, ISRM )%BULK( 1 ), EM_BASIS( ISTR,ISRM,1 ),
+     &                         EM_FAC_ST( ISTR,ISRM )%FAC( 1 ) 
                       END IF    
 
                       IF ( EM_FAC_ST( ISTR,ISRM )%LEN .GT. 1 ) THEN
                       DO IFAC = 2,EM_FAC_ST( ISTR,ISRM )%LEN
-                         WRITE( LOGDEV, '(55x,A,1x,A,2x,F6.3)' ),
+                         WRITE( LOGDEV, '(55x,A,1x,A,2x,F6.3,4x,A,2x,F6.3)' ),
      &                          EM_REGIONS( EM_FAC_ST( ISTR,ISRM )%REG( IFAC ) )%LABEL(1:18),
-     &                          EM_OP( ISTR,ISRM,IFAC ), EM_FAC_ST( ISTR, ISRM )%BULK( IFAC )
+     &                          EM_OP( ISTR,ISRM,IFAC ),
+     &                          EM_FAC_ST( ISTR, ISRM )%BULK( IFAC ), EM_BASIS( ISTR,ISRM,IFAC ),
+     &                          EM_FAC_ST( ISTR,ISRM )%FAC( IFAC )
                       END DO
                       END IF
 
@@ -1796,6 +1841,62 @@ C and allowing the model to proceed.
 
       END SUBROUTINE EMIS_SPC_MAP
 
+!-----------------------------------------------------------------------
+         SUBROUTINE CHECK_OP( OP, IRULE )
+
+! This subroutine checks for invalid values of the operation parameter 
+! in the rules from the emission control list
+
+         IMPLICIT NONE
+
+         CHARACTER( 1 )        :: OP
+         INTEGER, INTENT( IN ) :: IRULE
+         CHARACTER( 200 )      :: XMSG
+
+         IF ( OP .EQ. 'A' .OR. OP .EQ. 'a' ) THEN
+             OP = 'a'
+         ELSE IF ( OP .EQ. 'M' .OR. OP .EQ. 'm' ) THEN
+             OP = 'm'
+         ELSE IF ( OP .EQ. 'O' .OR. OP .EQ. 'o' ) THEN
+             OP = 'o'
+         ELSE
+             WRITE( XMSG,'(A,I3,A,A1)' ),
+     &              'ERROR: OP parameter for rule ',IRULE,
+     &              ' has invalid value: ',OP
+             CALL LOG_MESSAGE( OUTDEV, XMSG )
+             STOP
+         END IF
+
+         END SUBROUTINE CHECK_OP
+
+!-----------------------------------------------------------------------
+         SUBROUTINE CHECK_BASIS( BASIS, IRULE )
+
+! This subroutine checks for invalid values of the operation parameter 
+! in the rules from the emission control list
+
+         IMPLICIT NONE
+
+         CHARACTER( 4 )        :: BASIS
+         INTEGER, INTENT( IN ) :: IRULE
+         CHARACTER( 200 )      :: XMSG
+
+         IF ( BASIS .EQ. 'mole' .OR. BASIS .EQ. 'MOLE' .OR.
+     &        BASIS .EQ. 'Mole' ) THEN
+             BASIS = 'MOLE'
+         ELSE IF ( BASIS .EQ. 'mass' .OR. BASIS .EQ. 'MASS' .OR.
+     &             BASIS .EQ. 'Mass' ) THEN
+             BASIS = 'MASS'
+         ELSE
+             WRITE( XMSG,'(A,I3,A,A4)' ),
+     &              'ERROR: BASIS parameter for rule ',IRULE,
+     &              ' has invalid value: ',BASIS
+             CALL LOG_MESSAGE( OUTDEV, XMSG )
+             STOP
+         END IF
+
+         END SUBROUTINE CHECK_BASIS
+ 
 !-----------------------------------------------------------------------
          SUBROUTINE EM_FILE_INIT( JDATE, JTIME )
 

@@ -79,6 +79,8 @@ C-----------------------------------------------------------------------
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE CGRID_SPCS            ! CGRID species number and offsets
       USE WVEL_DEFN             ! derived vertical velocity component
+      USE STD_CONC, ONLY : L_CONC_WVEL
+      USE AVG_CONC, ONLY : L_ACONC_WVEL
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_GLOBAL_SUM_MODULE)
 #else
@@ -118,7 +120,6 @@ C File Variables:
 
       REAL        RHOJM1( NCOLS,NROWS,NLAYS ) ! RhoJ from Met file at start of tstep
       REAL        RHOJM2( NCOLS,NROWS,NLAYS ) ! RhoJ from Met file at end of tstep
-      REAL        WY   ( NLAYS,NCOLS,NROWS )  ! Diagnosed vert vel ala yamo
 
 C Local variables:
 
@@ -160,6 +161,7 @@ C for INTERPX
       REAL          DSDT                   ! DS/DT
       REAL, ALLOCATABLE, SAVE :: FBLN( : ) ! blending function for upper layers
       INTEGER       ALLOCSTAT
+ 
 
       INTERFACE
          SUBROUTINE VPPM ( NI, DT, DS, FLX, VEL, CON )
@@ -424,17 +426,9 @@ C sub-steps.
 
 222         CONTINUE   ! COL
 333      CONTINUE   ! ROW
-
-      IF ( W_VEL ) THEN
-         DO LVL = 1, NLAYS
-            DO ROW = 1, MY_NROWS
-               DO COL = 1, MY_NCOLS
-                  WVEL( COL,ROW,LVL ) = WY( LVL,COL,ROW )
-               END DO
-            END DO
-         END DO
-      END IF
-
+ 
+      IF ( L_CONC_WVEL .OR. L_ACONC_WVEL ) CALL GET_WVEL( JDATE,JTIME )
+       
       RETURN
       END SUBROUTINE ZADV
 
