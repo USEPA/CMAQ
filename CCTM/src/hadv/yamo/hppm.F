@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/hadv/yamo/hppm.F,v 1.3 2011/10/21 16:11:20 yoj Exp $ 
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE HPPM ( NI, NJ, CON, VEL, DT, DS, ORI )
       
@@ -239,15 +232,8 @@ C----------------------------------------------------------------------
 C Set all fluxes to zero. Either positive or negative flux will remain zero
 C depending on the sign of the velocity.
 
-!      FM( 1:NI+1,: ) = 0.0
-!      FP( 0:NI,: ) = 0.0
-      FM = 0.0
-      FP = 0.0 
-      CM = 0.0
-      CL = 0.0
-      CR = 0.0
-      DC = 0.0
-      C6 = 0.0
+      FM( 1:NI+1,: ) = 0.0
+      FP( 0:NI,: ) = 0.0
 
 ! #ifndef parallel
 C If PE near bottom or left domain boundary...

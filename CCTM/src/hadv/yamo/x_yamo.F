@@ -56,8 +56,6 @@ C-----------------------------------------------------------------------
       USE NOOP_MODULES          ! stenex (using NOOP_COMM_MODULE, NOOP_UTIL_MODULE)
 #endif
 
-      use runtime_vars
-
       IMPLICIT NONE
       
 C Includes:
@@ -307,7 +305,8 @@ C Get the contravariant x1 velocity component
 
 C check adjusted velocities for Courant limited max timestep
             IF (VELX(COL) .NE. 0.0) THEN
-               DTCFL = MIN ( DTCFL, 0.9 * DX1 / ABS( VELX( COL ) ) )
+!              DTCFL = MIN ( DTCFL, 0.9 * DX1 / ABS( VELX( COL ) ) )
+               DTCFL = MIN ( DTCFL, CFL * DX1 / ABS( VELX( COL ) ) )
             END IF
 
          END DO   ! COL
@@ -355,7 +354,7 @@ C East boundary
 C PPM scheme
          IF ( DTCFL .LT. DT ) THEN
             NITER = INT( DT / DTCFL ) + 1
-            write(logdev,*) 'x_yamo: row, niter = ',row, niter           
+            DTCFL = DT / REAL( NITER )
             DO ITER = 1, NITER
                CALL HPPM ( MY_NCOLS, MY_NROWS, CONX, VELX, DTCFL, DX1, 'C' )
             END DO
