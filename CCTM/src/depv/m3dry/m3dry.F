@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE m3dry ( jdate, jtime, dt, cgridl1, depvel_gas, pvd, ddep_nh3)
+      SUBROUTINE m3dry ( jdate, jtime, dt, cgridl1, depvel_gas, pvd, nh3_emis)
 
 C-------------------------------------------------------------------------------
 C Name:     Models-3 Dry Deposition
@@ -157,7 +157,7 @@ C-------------------------------------------------------------------------------
       Use ASX_DATA_MOD   ! contains CONSTANTS include
       Use BIDI_MOD, only:HGBIDI    ! contains CONSTANTS include
       Use HGSIM
-#ifdef twoway
+#ifdef twoway 
       USE twoway_data_module, only : num_land_cat
 #endif
 
@@ -175,7 +175,7 @@ C Arguments:
       REAL,        INTENT( IN )  :: cgridl1( :,:,: )    ! layer 1 concentrations
       REAL,        INTENT( OUT ) :: depvel_gas( :,:,: )
       REAL,        INTENT( OUT ) :: pvd( :,:,: )
-      REAL,        INTENT( OUT ) :: ddep_nh3(:,:)
+      REAL,        INTENT( OUT ) :: nh3_emis(:,:)
 
 C Local Variables:
 
@@ -224,7 +224,7 @@ C Local Variables:
       REAL                       :: rh_func              ! Simple RH function for the development of a water film on leaf cuticles 
       Real,            Parameter :: MolNH3   = 17.01     ! g/mol NH3  for NH3 bidi to convert to microg/m3
       Real,            Parameter :: MolAir   = 29.97     ! g/mol dry air
-      Real                       :: cnh3,tpvd,lnh3,fdep
+      Real                       :: cnh3,tpvd,lnh3,femis
 
       REAL,    SAVE, ALLOCATABLE :: delta     ( :,: )
 
@@ -251,7 +251,7 @@ C gas phase species indexes
       Integer, Save              :: n_HG          ! CGRID map
       Integer, Save              :: l_HG
       Integer, Save              :: n_HGII          ! CGRID map
-      Integer, Save              :: l_HGII
+      Integer, Save              :: l_HGII 
 C-------------------------------------------------------------------------------
 C For ozone exchange over the ocean
 
@@ -321,7 +321,7 @@ C        Species maps
 C-----------------------------------------------------------------
          l_HONO = 0
          n_HONO = 0
-         l_NO2  = 0
+         l_NO2  = 0 
          n_NO2  = 0
          l_O3   = 0
          n_O3   = 0
@@ -581,9 +581,9 @@ c        Iodide in sea-water based on SST  (mol /dm-3)
 
                IF( l .Eq. l_O3 ) THEN
                   rh_func = max( 0.0,( MET_DATA%RH2( c,r ) - 70.0 )/30.0 )
-                  rcut = rcut0 * a0 / ar( l ) * ( 1.0 -rh_func) + rwet * rh_func
+                  rcut = rcut0 * a0 / ar( l ) * ( 1.0 -rh_func) + rwetsfc * rh_func
                ELSE IF ( l .Eq. l_NH3 ) THEN
-         !        rcut = 4000.0 * EXP( -0.054 * MET_DATA%RH2( c,r ) )
+         !        rcut = 4000.0 * EXP( -0.054 * MET_DATA%RH( c,r ) )
                   rcut = rwetsfc + 100.0-max(MET_DATA%RH2( c,r ),60.0)  ! consistant with bidi
                ELSE 
                   rcut = rcut0 * a0 / ar( l )
@@ -598,13 +598,19 @@ c        Iodide in sea-water based on SST  (mol /dm-3)
                    rgw  = rgwet0 / heff    ! wet ground
                ELSE
 ! Ozone soil resistence depends on soil moisture (Meszaros et al 2009, Biogeosci; Massman 2004, AE, Ran et al 2016, CMAS)
-                   rgnd  = 200. + 300. * MET_DATA%SOIM1(c,r)/GRID_DATA%WSAT (c,r)
-                   rgnd = min (500.0, rgnd)
-                   rgw = 500.              ! wet ground for ozone (Massman 2004)
+                   IF ( tempgcr .GE. stdtemp ) THEN
+                     rgnd  = 200. + 300. * MET_DATA%SOIM1(c,r)/GRID_DATA%WFC (c,r)
+                     rgnd = min (500.0, rgnd)
+                     rgw = 500.              ! wet ground for ozone (Massman 2004)
+                   ELSE
+                     rgnd  = 200. + (rsnow-200.) * MET_DATA%SOIM1(c,r)/GRID_DATA%WFC (c,r)
+                     rgnd = min (rsnow, rgnd)
+                   endif
                END IF 
 
-               rgndc = 1.0 / ( ( 1.0 - delta( c,r ) ) / 
-     &                 rgnd + delta( c,r ) / rgw ) + rinc          ! Add in-canopy part
+               IF ( tempgcr .LT. stdtemp ) THEN   ! frozen ground water = ice
+                  rgw = rsnow
+               END IF
 
          ! Determine the snow liquid water mass fraction (0.0 to 0.5).
 
@@ -612,6 +618,12 @@ c        Iodide in sea-water based on SST  (mol /dm-3)
                xm = MIN (xm, 0.5)
                xm = MAX (xm, 0.0)
                IF ( temp2p0cr .LT. ( stdtemp - 1.0 ) ) xm = 0.0
+
+         ! pathway through canopy to ground, either wet, dry, or snow
+
+               rgndc = rinc + 1.0 / (real( 1-ifsnow )*( ( 1.0 - delta( c,r ) ) / 
+     &                 rgnd + delta( c,r ) / rgw ) + real( ifsnow ) 
+     &                 * ( (1.0 - xm) / rsnow + xm / (rsndiff + rgw) ) )
 
          ! Bulk stomatal resistance; include mesophyll resistance.
 
@@ -624,10 +636,10 @@ c        Iodide in sea-water based on SST  (mol /dm-3)
 
                rci = vegcr
      &             * ( 1.0/rstom + (1.0-delta( c,r ) ) * laicr / rcut
-     &             +   ( delta( c,r ) * laicr / rwetsfc ) + 1.0 / rgndc )
-     &             + real( 1-ifsnow ) * ( (1.0 - vegcr) * ( (1.0-delta( c,r ) ) /
-     &                               rgnd + delta( c,r ) / rgw ) )
-     &             + real( ifsnow ) * ( (1.0 - xm) / rsnow + xm / (rsndiff + rgw) )
+     &             + ( delta( c,r ) * laicr / rwetsfc ) + 1.0 / rgndc )
+     &             + (1.0 - vegcr) * ( real( 1-ifsnow ) * ( (1.0-delta( c,r ) ) /
+     &                                         rgnd + delta( c,r ) / rgw )  
+     &             + real( ifsnow ) * ( (1.0 - xm) / rsnow + xm / (rsndiff + rgw) ) )
 
                rsurf = 1.0 / rci
 
@@ -647,12 +659,13 @@ C--------------------------------------------------------------------------
                IF ( NINT( GRID_DATA%LWMASK( c,r ) ) .NE. 0 ) THEN  ! land
 
                   CALL Get_Flux( cnh3,rwetsfc,rgw,r,c,l,tpvd,lnh3, rbc, rinc, 
-     >                           rstom, delta(c,r),rgnd,fdep )
+     >                           rstom, delta(c,r),rgnd,femis )
                    pvd( n,c,r ) = tpvd * 0.001 * MolAir / (MolNH3 * Met_Data%DENS1( C,R ))
-                   ddep_nh3(c,r) = ddep_nh3(c,r) + fdep * dt(2) * 1.0e-5  ! convert from microg/m2  to kg/ha
+                   nh3_emis(c,r) = nh3_emis(c,r) + femis * dt(2) * 1.0e-5  ! convert from microg/m2  to kg/ha
                    depvel_gas( n,c,r ) = lnh3
                ELSE   ! water
-                   ddep_nh3(c,r) = ddep_nh3(c,r) + depvel_gas( n,c,r ) * cnh3 * dt(2) * 1.0e-5
+!                   ddep_nh3(c,r) = ddep_nh3(c,r) + depvel_gas( n,c,r ) * cnh3 * dt(2) * 1.0e-5
+                   nh3_emis(c,r) = 0.0
                END IF
             END IF   ! 'abflux'
 
