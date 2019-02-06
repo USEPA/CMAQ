@@ -90,8 +90,11 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 !                 rather than the two-way model time step
 !           30 Aug 2016  (David Wong)
 !              -- fixed a bug in outputing MET_CRO_2D physical file
-!           11 Jan 2017  (David Wong)
-!              -- fixed a bug to handle simulation with convective scheme or not
+!           11 Jan 2018  (David Wong)
+!              -- Added convective_scheme to set rainc accordingly
+!           31 Jan 2019  (David Wong)
+!              -- adopted the idea to process all twoway related environment
+!                 variables in one place
 !===============================================================================
 
   USE module_domain                                ! WRF module
@@ -104,7 +107,6 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
   USE twoway_header_data_module
   USE twoway_met_param_module
   USE twoway_data_module
-  USE RUNTIME_VARS
   USE HGRD_DEFN
   USE SE_MODULES
 
@@ -228,17 +230,15 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
   real, allocatable, save :: temp_rainnc(:,:)
   real, allocatable, save :: temp_rainc(:,:)
 
-  real :: wrf_lc_ref_lat
-
   integer :: east_adjustment, north_adjustment
 
-    integer, save :: jdate, jtime, sdate, stime, nstep
+    integer, save :: jdate, jtime, sdate, stime, loc_logdev, nstep
     integer       :: wrf_halo_x_l, wrf_halo_x_r
     integer       :: wrf_halo_y_l, wrf_halo_y_u
 
-    logical, save :: write_to_physical_file, &
+    logical, save :: write_to_physical_file,                                 &
                      north_bdy_pe, south_bdy_pe, east_bdy_pe, west_bdy_pe
-    integer, save :: file_time_step, file_time_step_in_sec
+    integer, save :: file_time_step_in_sec
 
     integer :: i, j, status(MPI_STATUS_SIZE)
     character (len = 50) :: myfmt
@@ -247,7 +247,7 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 
     logical, parameter :: debug = .true.
 
-    integer, save :: wrf_cmaq_freq, cmaq_tstep
+    integer, save :: cmaq_tstep
 
     TYPE(WRFU_Time) :: current_wrf_time
     integer :: rc
@@ -305,12 +305,10 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
      wrf_halo_y_l = abs(jts - jms)
      wrf_halo_y_u = abs(jte - jme)
 
-     nprocs = grid%nproc_x * grid%nproc_y
-
-     call init_twoway_env_vars( )
+     twoway_nprocs = grid%nproc_x * grid%nproc_y
 
      north_adjustment = 0
-     if (twoway_mype >= (nprocs - grid%nproc_x)) then
+     if (twoway_mype >= (twoway_nprocs - grid%nproc_x)) then
         north_bdy_pe = .true.
         north_adjustment = -1
      else
@@ -337,10 +335,10 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
         west_bdy_pe = .false.
      end if
 
-     allocate (wrf_c_domain_map(3, 2, 0:nprocs-1), cmaq_c_domain_map(3, 2, 0:nprocs-1),           &
-               wrf_d_domain_map(3, 2, 0:nprocs-1), cmaq_d_domain_map(3, 2, 0:nprocs-1),           &
-                                                   cmaq_ce_domain_map(3, 2, 0:nprocs-1),          &
-                                                   cmaq_de_domain_map(3, 2, 0:nprocs-1), stat=stat)
+     allocate (wrf_c_domain_map(3, 2, 0:twoway_nprocs-1), cmaq_c_domain_map(3, 2, 0:twoway_nprocs-1),           &
+               wrf_d_domain_map(3, 2, 0:twoway_nprocs-1), cmaq_d_domain_map(3, 2, 0:twoway_nprocs-1),           &
+                                                   cmaq_ce_domain_map(3, 2, 0:twoway_nprocs-1),          &
+                                                   cmaq_de_domain_map(3, 2, 0:twoway_nprocs-1), stat=stat)
      if (stat .ne. 0) then
         print *, ' Error: Allocating domain_maps'
         stop
@@ -375,15 +373,18 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
      wrf_c_col_dim = ide - ids + 1
      wrf_c_row_dim = jde - jds + 1
 
-     if ( cmaq_c_col_dim .eq. -1 ) cmaq_c_col_dim = wrf_c_col_dim - 10
-     if ( cmaq_c_row_dim .eq. -1 ) cmaq_c_row_dim = wrf_c_row_dim - 10
+     cmaq_c_col_dim = envint ('CMAQ_COL_DIM', ' ', wrf_c_col_dim-10, stat)
+     cmaq_c_row_dim = envint ('CMAQ_ROW_DIM', ' ', wrf_c_row_dim-10, stat)
+
+     loc_logdev = init3 ()
+
+     stime = cmaq_stime
+     sdate = cmaq_sdate
 
      cmaq_tstep = sec2time(grid%time_step*wrf_cmaq_freq)
 
-     jdate = stdate
-     jtime = sttime
-     sdate = stdate
-     stime = sttime
+     jdate = sdate
+     jtime = stime
 
      nstep = ((grid%run_days * 24 + grid%run_hours) * 3600 + grid%run_minutes * 60 + grid%run_seconds) / &
              (grid%time_step * wrf_cmaq_freq)
@@ -423,7 +424,7 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
      se_twoway_npcol = npcol
      se_twoway_nprow = nprow
 
-     nprocs = npcol * nprow
+     twoway_nprocs = npcol * nprow
 
      wrf_d_domain_map(1,:,:) = wrf_c_domain_map(1,:,:)
      wrf_d_domain_map(2,:,:) = wrf_c_domain_map(2,:,:) + 1
@@ -453,53 +454,53 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
      cmaq_d_ncols = cmaq_d_domain_map(3, 1, twoway_mype)
      cmaq_d_nrows = cmaq_d_domain_map(3, 2, twoway_mype)
 
-! the reason for nprocs*3 is in the worst scenario, the entire cmaq domain is inside one wrf processor domain
-     allocate (wrf_cmaq_c_send_to(0:9, 0:nprocs-1),               &
-               wrf_cmaq_c_recv_from(0:9, 0:nprocs-1),             &
-               wrf_cmaq_c_send_index_g(9*3, 2, 0:nprocs-1),       &    ! starting and ending dimension, dimenionality
-               wrf_cmaq_c_send_index_l(9*3, 2, 0:nprocs-1),       &    ! starting and ending dimension, dimenionality
-               wrf_cmaq_c_recv_index_g(9*3, 2, 0:nprocs-1),       &    ! starting and ending dimension, dimenionality
-               wrf_cmaq_c_recv_index_l(9*3, 2, 0:nprocs-1),       &    ! starting and ending dimension, dimenionality
-               wrf_cmaq_d_send_to(0:9, 0:nprocs-1),               &
-               wrf_cmaq_d_recv_from(0:9, 0:nprocs-1),             &
-               wrf_cmaq_d_send_index_g(9*3, 2, 0:nprocs-1),       &    ! starting and ending dimension, dimenionality
-               wrf_cmaq_d_send_index_l(9*3, 2, 0:nprocs-1),       &    ! starting and ending dimension, dimenionality
-               wrf_cmaq_d_recv_index_g(9*3, 2, 0:nprocs-1),       &    ! starting and ending dimension, dimenionality
-               wrf_cmaq_d_recv_index_l(9*3, 2, 0:nprocs-1),       &    ! starting and ending dimension, dimenionality
-               wrf_cmaq_ce_send_to(0:9, 0:nprocs-1),              &
-               wrf_cmaq_ce_recv_from(0:9, 0:nprocs-1),            &
-               wrf_cmaq_ce_send_index_g(9*3, 2, 0:nprocs-1),      &    ! starting and ending dimension, dimenionality
-               wrf_cmaq_ce_send_index_l(9*3, 2, 0:nprocs-1),      &    ! starting and ending dimension, dimenionality
-               wrf_cmaq_ce_recv_index_g(9*3, 2, 0:nprocs-1),      &    ! starting and ending dimension, dimenionality
-               wrf_cmaq_ce_recv_index_l(9*3, 2, 0:nprocs-1),      &    ! starting and ending dimension, dimenionality
-               wrf_cmaq_de_send_to(0:9, 0:nprocs-1),              &
-               wrf_cmaq_de_recv_from(0:9, 0:nprocs-1),            &
-               wrf_cmaq_de_send_index_g(9*3, 2, 0:nprocs-1),      &    ! starting and ending dimension, dimenionality
-               wrf_cmaq_de_send_index_l(9*3, 2, 0:nprocs-1),      &    ! starting and ending dimension, dimenionality
-               wrf_cmaq_de_recv_index_g(9*3, 2, 0:nprocs-1),      &    ! starting and ending dimension, dimenionality
-               wrf_cmaq_de_recv_index_l(9*3, 2, 0:nprocs-1),      &    ! starting and ending dimension, dimenionality
+! the reason for twoway_nprocs*3 is in the worst scenario, the entire cmaq domain is inside one wrf processor domain
+     allocate (wrf_cmaq_c_send_to(0:9, 0:twoway_nprocs-1),               &
+               wrf_cmaq_c_recv_from(0:9, 0:twoway_nprocs-1),             &
+               wrf_cmaq_c_send_index_g(9*3, 2, 0:twoway_nprocs-1),       &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_c_send_index_l(9*3, 2, 0:twoway_nprocs-1),       &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_c_recv_index_g(9*3, 2, 0:twoway_nprocs-1),       &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_c_recv_index_l(9*3, 2, 0:twoway_nprocs-1),       &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_d_send_to(0:9, 0:twoway_nprocs-1),               &
+               wrf_cmaq_d_recv_from(0:9, 0:twoway_nprocs-1),             &
+               wrf_cmaq_d_send_index_g(9*3, 2, 0:twoway_nprocs-1),       &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_d_send_index_l(9*3, 2, 0:twoway_nprocs-1),       &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_d_recv_index_g(9*3, 2, 0:twoway_nprocs-1),       &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_d_recv_index_l(9*3, 2, 0:twoway_nprocs-1),       &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_ce_send_to(0:9, 0:twoway_nprocs-1),              &
+               wrf_cmaq_ce_recv_from(0:9, 0:twoway_nprocs-1),            &
+               wrf_cmaq_ce_send_index_g(9*3, 2, 0:twoway_nprocs-1),      &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_ce_send_index_l(9*3, 2, 0:twoway_nprocs-1),      &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_ce_recv_index_g(9*3, 2, 0:twoway_nprocs-1),      &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_ce_recv_index_l(9*3, 2, 0:twoway_nprocs-1),      &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_de_send_to(0:9, 0:twoway_nprocs-1),              &
+               wrf_cmaq_de_recv_from(0:9, 0:twoway_nprocs-1),            &
+               wrf_cmaq_de_send_index_g(9*3, 2, 0:twoway_nprocs-1),      &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_de_send_index_l(9*3, 2, 0:twoway_nprocs-1),      &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_de_recv_index_g(9*3, 2, 0:twoway_nprocs-1),      &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_de_recv_index_l(9*3, 2, 0:twoway_nprocs-1),      &    ! starting and ending dimension, dimenionality
                stat=stat) 
      if (stat .ne. 0) then
         print *, ' Error: Allocating communication indices arrays'
         stop
      end if
 
-     call compute_comm_indices (nprocs, wrf_c_domain_map, cmaq_c_domain_map,      &
+     call compute_comm_indices (twoway_nprocs, wrf_c_domain_map, cmaq_c_domain_map,      &
                                 wrf_cmaq_c_send_to, wrf_cmaq_c_recv_from,         &
                                 wrf_cmaq_c_send_index_g, wrf_cmaq_c_send_index_l, &
                                 wrf_cmaq_c_recv_index_g, wrf_cmaq_c_recv_index_l   )
 
-     call compute_comm_indices (nprocs, wrf_d_domain_map, cmaq_d_domain_map,      &
+     call compute_comm_indices (twoway_nprocs, wrf_d_domain_map, cmaq_d_domain_map,      &
                                 wrf_cmaq_d_send_to, wrf_cmaq_d_recv_from,         &
                                 wrf_cmaq_d_send_index_g, wrf_cmaq_d_send_index_l, &
                                 wrf_cmaq_d_recv_index_g, wrf_cmaq_d_recv_index_l   )
 
-     call compute_comm_indices (nprocs, wrf_c_domain_map, cmaq_ce_domain_map,       &
+     call compute_comm_indices (twoway_nprocs, wrf_c_domain_map, cmaq_ce_domain_map,       &
                                 wrf_cmaq_ce_send_to, wrf_cmaq_ce_recv_from,         &
                                 wrf_cmaq_ce_send_index_g, wrf_cmaq_ce_send_index_l, &
                                 wrf_cmaq_ce_recv_index_g, wrf_cmaq_ce_recv_index_l   )
 
-     call compute_comm_indices (nprocs, wrf_d_domain_map, cmaq_de_domain_map,       &
+     call compute_comm_indices (twoway_nprocs, wrf_d_domain_map, cmaq_de_domain_map,       &
                                 wrf_cmaq_de_send_to, wrf_cmaq_de_recv_from,         &
                                 wrf_cmaq_de_send_index_g, wrf_cmaq_de_send_index_l, &
                                 wrf_cmaq_de_recv_index_g, wrf_cmaq_de_recv_index_l   )
@@ -513,18 +514,20 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 
      CALL setup_griddesc_file (cmaq_c_col_dim, cmaq_c_row_dim)
 
+     create_physical_file = envyn ('CREATE_PHYSICAL_FILE', ' ', def_false, stat)
 
      if (create_physical_file) then
-
         file_time_step_in_sec = time2sec (file_time_step)
 
         if (.not.  pio_init (colrow, cmaq_c_col_dim, cmaq_c_row_dim,    &
                              nlays, 1, cmaq_c_ncols, cmaq_c_nrows,      &
-                             npcol, nprow, nprocs, twoway_mype, wflg=.false.) ) then
+                             npcol, nprow, twoway_nprocs, twoway_mype, wflg=.false.) ) then
            print *, ' Error: in invoking pio_init'
            stop
         end if
      end if
+
+     RUN_CMAQ_DRIVER = envyn ('RUN_CMAQ_DRIVER', ' ', def_false, stat)
 
      if (config_flags%cu_physics == 0) then
         convective_scheme = .false.
@@ -556,11 +559,11 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 
      do v = 1, numlu
         write (vname3d(v+n_gridcro2d_var), '(a7, i2.2)') 'LUFRAC_', v
-        units3d(v+n_gridcro2d_var) = '1'
+        units3d(v+n_gridcro2d_var) = 'FRACTION'
      end do
 
 ! this is particular for m3dry LUFRAC_01
-     units3d(1+n_gridcro2d_var) = '1'
+     units3d(1+n_gridcro2d_var) = 'USGS24'
 
      nvars3d = numlu+n_gridcro2d_var
      tstep3d = 0
@@ -1576,7 +1579,6 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
   metcro2d_data_wrf (:,:,11) =  grid%gsw   (sc:ec, sr:er)   ! gsw
 
   metcro2d_data_wrf (:,:,13) =  (grid%rainnc(sc:ec, sr:er) - grid%prev_rainnc(sc:ec,sr:er)) * 0.1  ! RNA = SUM(RN), in cm
-
   if (convective_scheme) then
      metcro2d_data_wrf (:,:,14) = (grid%rainc (sc:ec, sr:er) - grid%prev_rainc(sc:ec,sr:er)) * 0.1   ! RCA = SUM(RC), in cm
   else
