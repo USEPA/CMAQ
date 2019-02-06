@@ -55,7 +55,7 @@ C                   acid enhancement. Note that saprc07tic_ae6i is a research
 C                   version and it is unclear how duplicative AISO1+AISO2+their oligomers
 C                   are with  IEPOX+MAE uptake and their oligomers.
 C                   Both pathways occur with sarpc07tic_ae6i. To turn AISO1+AISO2
-C                   oligomers off, set "Decay" in vaporspc to 0.0 for SV_ISO1/2.
+C                   oligomers off, set "Decay" in oaspc to 0.0 for SV_ISO1/2.
 C 27 Sep 14 H. Pye: Added alkane and PAH SOA (Pye and Pouliot 2012 ES&T)
 C 15 Jul 15 G. Sarwar: updated SOA from alkane, PAH, and isoprene for RACM2
 C 03/03/16  D. Luecken: added capability for CB6
@@ -71,72 +71,86 @@ C   29 Aug 18 G. Sarwar: updated for CB6R3M
 C-----------------------------------------------------------------------
       Implicit None
 
-      Integer, Parameter :: n_oa_list = 45   ! # of potential partitioning SVOCs
+      ! Define Logical values as T and F for the OA table
+      Logical, Parameter, Private :: T = .true.
+      Logical, Parameter, Private :: F = .false.
+
+      Integer, Parameter :: n_oa_list = 56   ! # of potential partitioning SVOCs
       Integer, Save      :: n_oa             ! # of actual simulated SOA vapors
 
       Type oa_type
-         Character( 16 ) :: name
+         Character( 16 ) :: name        ! Organic Aerosol Species Name
+         Character( 16 ) :: gas_name    ! Condensable Vapor Species Name
+         Character( 16 ) :: ctr_name    ! Reaction Counter Name
          Real            :: alpha       ! Mass-based stoichiometric coefficients [ug/m^3]/[ug/m^3]
          Real            :: cstar       ! Effective saturation concentrations [ug/m^3] at 298 K
          Real            :: enth        ! Enthalphy of Vaporization [J/mol]
-         Character( 16 ) :: gas_name    ! Species name
-         Character(  1 ) :: oa_origin   ! A = Anthropogenic; B = Biogenic
-         Real            :: oa_decay    ! Factor used in oligomerization
-         Character( 16 ) :: rog_name    ! Precursor name
+         Logical         :: nonvol      ! Flag identifying nonvolatile species
       End Type oa_type
 
       Type( oa_type ), Allocatable, Save :: oaspc( : )
 
       Type( oa_type ), Save :: oa_list( n_oa_list ) = (/
 C
-C                OA         Alpha     CStar    Enth     Gas           Decay    ROG
-C                Name                                   Name    Origin         Name
-C               ------     -------   -------- -------  -------    --   ----   -------
-     & oa_type('APOCJ   ',  0.0000,  1.0e-10,   1.0  ,'        ', 'A',  0.0, '        '),
-     & oa_type('APNCOMJ ',  0.0000,  1.0e-10,   1.0  ,'        ', 'A',  0.0, '        '),
-     & oa_type('AALK1J  ',  0.0334,   0.1472,  53.0E3,'SVALK1  ', 'A', 12.0, 'ALKRXN  '),
-     & oa_type('AALK2J  ',  0.2164,  51.8775,  53.0E3,'SVALK2  ', 'A', 12.0, 'ALKRXN  '),
-     & oa_type('AXYL1J  ',  0.0310,   1.3140,  32.0E3,'SVXYL1  ', 'A',  8.0, 'XYLNRXN '),
-     & oa_type('AXYL2J  ',  0.0900,  34.4830,  32.0E3,'SVXYL2  ', 'A',  8.0, 'XYLNRXN '),
-     & oa_type('AXYL3J  ',  0.3600,  1.0e-10,  32.0E3,'        ', 'A',  8.0, 'XYLHRXN '),
-     & oa_type('ATOL1J  ',  0.0580,   2.3260,  18.0E3,'SVTOL1  ', 'A',  7.0, 'TOLNRXN '),
-     & oa_type('ATOL2J  ',  0.1130,  21.2770,  18.0E3,'SVTOL2  ', 'A',  7.0, 'TOLNRXN '),
-     & oa_type('ATOL3J  ',  0.3000,  1.0e-10,  18.0E3,'        ', 'A',  7.0, 'TOLHRXN '),
-     & oa_type('ABNZ1J  ',  0.0720,   0.3020,  18.0E3,'SVBNZ1  ', 'A',  6.0, 'BNZNRXN '),
-     & oa_type('ABNZ2J  ',  0.8880, 111.1100,  18.0E3,'SVBNZ2  ', 'A',  6.0, 'BNZNRXN '),
-     & oa_type('ABNZ3J  ',  0.3700,  1.0e-10,  18.0E3,'        ', 'A',  6.0, 'BNZHRXN '),
-     & oa_type('APAH1J  ',  0.2100,   1.6598,  18.0E3,'SVPAH1  ', 'A', 10.0, 'PAHNRXN '),
-     & oa_type('APAH2J  ',  1.0700, 264.6675,  18.0E3,'SVPAH2  ', 'A', 10.0, 'PAHNRXN '),
-     & oa_type('APAH3J  ',  0.7300,  1.0e-10,  18.0E3,'        ', 'A', 10.0, 'PAHHRXN '),
-     & oa_type('ATRP1J  ',  0.1393,  14.7920,  40.0E3,'SVTRP1  ', 'B', 10.0, 'TRPRXN  '),
-     & oa_type('ATRP2J  ',  0.4542, 133.7297,  40.0E3,'SVTRP2  ', 'B', 10.0, 'TRPRXN  '),
-     & oa_type('AMT1J   ',   0.040,    0.010, 102.0E3,'SVMT1   ', 'B',  0.0, 'TRPRXN  '),
-     & oa_type('AMT2J   ',   0.032,    0.100,  91.0E3,'SVMT2   ', 'B',  0.0, 'TRPRXN  '),
-     & oa_type('AMT3J   ',   0.032,    1.000,  80.0E3,'SVMT3   ', 'B',  0.0, 'TRPRXN  '),
-     & oa_type('AMT4J   ',   0.103,   10.000,  69.0E3,'SVMT4   ', 'B',  0.0, 'TRPRXN  '),
-     & oa_type('AMT5J   ',   0.143,  100.000,  58.0E3,'SVMT5   ', 'B',  0.0, 'TRPRXN  '),
-     & oa_type('AMT6J   ',   0.285, 1000.000,  47.0E3,'SVMT6   ', 'B',  0.0, 'TRPRXN  '),
-     & oa_type('AMT7J   ',   0.160,10000.000,  36.0E3,'SVMT7   ', 'B',  0.0, 'TRPRXN  '),
-     & oa_type('AMTNO3J ',     0.0,     12.0,  40.0E3,'MTNO3   ', 'B', 10.0, '        '),
-     & oa_type('AISOPNNJ',     0.0,     8.9,   40.0E3,'ISOPNN  ', 'B', 5.0,  '        '),
-     & oa_type('AISO1J  ',  0.2320, 116.0100,  40.0E3,'SVISO1  ', 'B',  5.0, 'ISOPRXN '),
-     & oa_type('AISO2J  ',  0.0288,   0.6170,  40.0E3,'SVISO2  ', 'B',  5.0, 'ISOPRXN '),
-     & oa_type('ASQTJ   ',  1.5370,  24.9840,  40.0E3,'SVSQT   ', 'B', 15.0, 'SESQRXN '),
-     & oa_type('APCSOJ  ',  1.0   ,   1.0e-5,  40.0E3,'LVPCSOG ', 'A', 10.0, 'PCSOARXN'),
-     & oa_type('ALVPO1J ',  0.0000,    1.e-1,  96.0E3,'VLVPO1  ', 'A',  0.0, '        '),
-     & oa_type('ASVPO1J ',  0.0000,    1.e+0,  85.0E3,'VSVPO1  ', 'A',  0.0, '        '),
-     & oa_type('ASVPO2J ',  0.0000,    1.e+1,  74.0E3,'VSVPO2  ', 'A',  0.0, '        '),
-     & oa_type('ASVPO3J ',  0.0000,    1.e+2,  63.0E3,'VSVPO3  ', 'A',  0.0, '        '),
-     & oa_type('AIVPO1J ',  0.0000,    1.e+3,  52.0E3,'VIVPO1  ', 'A',  0.0, '        '),
-     & oa_type('ALVOO1J ',  0.0000,    1.e-2, 107.0E3,'VLVOO1  ', 'A',  0.0, '        '),
-     & oa_type('ALVOO2J ',  0.0000,    1.e-1,  96.0E3,'VLVOO2  ', 'A',  0.0, '        '),
-     & oa_type('ASVOO1J ',  0.0000,    1.e+0,  85.0E3,'VSVOO1  ', 'A',  0.0, '        '),
-     & oa_type('ASVOO2J ',  0.0000,    1.e+1,  74.0E3,'VSVOO2  ', 'A',  0.0, '        '),
-     & oa_type('ASVOO3J ',  0.0000,    1.e+2,  63.0E3,'VSVOO3  ', 'A',  0.0, '        '),
-     & oa_type('AAVB1J  ',  0.0000,    0.010,  18.0E3,'SVAVB1  ', 'A',  0.0, '        '),
-     & oa_type('AAVB2J  ',  0.0000,    1.000,  18.0E3,'SVAVB2  ', 'A',  0.0, '        '),
-     & oa_type('AAVB3J  ',  0.0000,   10.000,  18.0E3,'SVAVB3  ', 'A',  0.0, '        '),
-     & oa_type('AAVB4J  ',  0.0000,  100.000,  18.0E3,'SVAVB4  ', 'A',  0.0, '        ') /)
+C               OA          Vapor       Rxn Cntr     Alpha   CStar     Enth-   Nonvol-     
+C               Name        Name        Name                            alpy    atile        
+C              ----------  ----------  ----------   ------  --------  -------  -----    
+     & oa_type('AMT1J   ', 'SVMT1   ', 'TRPRXN  ',   0.040,    0.010, 102.0E3,   F ),
+     & oa_type('AMT2J   ', 'SVMT2   ', 'TRPRXN  ',   0.032,    0.100,  91.0E3,   F ),
+     & oa_type('AMT3J   ', 'SVMT3   ', 'TRPRXN  ',   0.032,    1.000,  80.0E3,   F ),
+     & oa_type('AMT4J   ', 'SVMT4   ', 'TRPRXN  ',   0.103,   10.000,  69.0E3,   F ),
+     & oa_type('AMT5J   ', 'SVMT5   ', 'TRPRXN  ',   0.143,  100.000,  58.0E3,   F ),
+     & oa_type('AMT6J   ', 'SVMT6   ', 'TRPRXN  ',   0.285, 1000.000,  47.0E3,   F ),
+     & oa_type('AMT7J   ', 'SVMT7   ', 'TRPRXN  ',   0.160,10000.000,  36.0E3,   F ),
+     & oa_type('AMTNO3J ', 'MTNO3   ', '        ',     0.0,     12.0,  40.0E3,   F ),
+     & oa_type('AISOPNNJ', 'ISOPNN  ', '        ',     0.0,     8.9,   40.0E3,   F ),
+     & oa_type('AMTHYDJ ', '        ', '        ',     0.0,   1.E-10,   1.0E0,   T ),
+     & oa_type('AIETETJ ', '        ', '        ',     0.0,   1.E-10,   1.0E0,   T ),
+     & oa_type('AIEOSJ  ', '        ', '        ',     0.0,   1.E-10,   1.0E0,   T ),
+     & oa_type('ADIMJ   ', '        ', '        ',     0.0,   1.E-10,   1.0E0,   T ),
+     & oa_type('AIMGAJ  ', '        ', '        ',     0.0,   1.E-10,   1.0E0,   T ),
+     & oa_type('AIMOSJ  ', '        ', '        ',     0.0,   1.E-10,   1.0E0,   T ),
+     & oa_type('AISO1J  ', 'SVISO1  ', 'ISOPRXN ',  0.2320, 116.0100,  40.0E3,   F ),
+     & oa_type('AISO2J  ', 'SVISO2  ', 'ISOPRXN ',  0.0288,   0.6170,  40.0E3,   F ),
+     & oa_type('AISO3J  ', '        ', '        ',     0.0,   1.e-10,   1.0E0,   T ),
+     & oa_type('ASQTJ   ', 'SVSQT   ', 'SESQRXN ',  1.5370,  24.9840,  40.0E3,   F ),
+     & oa_type('AGLYJ   ', '        ', '        ',     0.0,   1.E-10,   1.0E0,   T ),
+     & oa_type('AORGCJ  ', '        ', '        ',     0.0,   1.E-10,   1.0E0,   T ),
+     & oa_type('AALK1J  ', 'SVALK1  ', 'ALKRXN  ',  0.0334,   0.1472,  53.0E3,   F ),
+     & oa_type('AALK2J  ', 'SVALK2  ', 'ALKRXN  ',  0.2164,  51.8775,  53.0E3,   F ),
+     & oa_type('AXYL1J  ', 'SVXYL1  ', 'XYLNRXN ',  0.0310,   1.3140,  32.0E3,   F ),
+     & oa_type('AXYL2J  ', 'SVXYL2  ', 'XYLNRXN ',  0.0900,  34.4830,  32.0E3,   F ),
+     & oa_type('AXYL3J  ', '        ', 'XYLNRXN ',  0.3600,   1.e-10,   1.0E0,   T ),
+     & oa_type('ATOL1J  ', 'SVTOL1  ', 'TOLNRXN ',  0.0580,   2.3260,  18.0E3,   F ),
+     & oa_type('ATOL2J  ', 'SVTOL2  ', 'TOLNRXN ',  0.1130,  21.2770,  18.0E3,   F ),
+     & oa_type('ATOL3J  ', '        ', 'TOLNRXN ',  0.3000,   1.e-10,   1.0E0,   T ),
+     & oa_type('ABNZ1J  ', 'SVBNZ1  ', 'BNZNRXN ',  0.0720,   0.3020,  18.0E3,   F ),
+     & oa_type('ABNZ2J  ', 'SVBNZ2  ', 'BNZNRXN ',  0.8880, 111.1100,  18.0E3,   F ),
+     & oa_type('ABNZ3J  ', '        ', 'BNZNRXN ',  0.3700,   1.e-10,   1.0E0,   T ),
+     & oa_type('APAH1J  ', 'SVPAH1  ', 'PAHNRXN ',  0.2100,   1.6598,  18.0E3,   F ),
+     & oa_type('APAH2J  ', 'SVPAH2  ', 'PAHNRXN ',  1.0700, 264.6675,  18.0E3,   F ),
+     & oa_type('APAH3J  ', '        ', 'PAHNRXN ',  0.7300,   1.e-10,   1.0E0,   T ),
+     & oa_type('ATRP1J  ', 'SVTRP1  ', 'TRPRXN  ',  0.1393,  14.7920,  40.0E3,   F ),
+     & oa_type('ATRP2J  ', 'SVTRP2  ', 'TRPRXN  ',  0.4542, 133.7297,  40.0E3,   F ),
+     & oa_type('APOCJ   ', '        ', '        ',  0.0   ,   1.e-10,   1.0E0,   T ),
+     & oa_type('APNCOMJ ', '        ', '        ',  0.0   ,   1.e-10,   1.0E0,   T ),
+     & oa_type('ALVPO1J ', 'VLVPO1  ', '        ',  0.0000,   1.e-01,  96.0E3,   F ),
+     & oa_type('ASVPO1J ', 'VSVPO1  ', '        ',  0.0000,   1.e+00,  85.0E3,   F ),
+     & oa_type('ASVPO2J ', 'VSVPO2  ', '        ',  0.0000,   1.e+01,  74.0E3,   F ),
+     & oa_type('ASVPO3J ', 'VSVPO3  ', '        ',  0.0000,   1.e+02,  63.0E3,   F ),
+     & oa_type('AIVPO1J ', 'VIVPO1  ', '        ',  0.0000,   1.e+03,  52.0E3,   F ),
+     & oa_type('ALVOO1J ', 'VLVOO1  ', '        ',  0.0000,   1.e-02, 107.0E3,   F ),
+     & oa_type('ALVOO2J ', 'VLVOO2  ', '        ',  0.0000,   1.e-01,  96.0E3,   F ),
+     & oa_type('ASVOO1J ', 'VSVOO1  ', '        ',  0.0000,   1.e+00,  85.0E3,   F ),
+     & oa_type('ASVOO2J ', 'VSVOO2  ', '        ',  0.0000,   1.e+01,  74.0E3,   F ),
+     & oa_type('ASVOO3J ', 'VSVOO3  ', '        ',  0.0000,   1.e+02,  63.0E3,   F ),
+     & oa_type('AAVB1J  ', 'SVAVB1  ', '        ',  0.0000,    0.010,  18.0E3,   F ),
+     & oa_type('AAVB2J  ', 'SVAVB2  ', '        ',  0.0000,    1.000,  18.0E3,   F ),
+     & oa_type('AAVB3J  ', 'SVAVB3  ', '        ',  0.0000,   10.000,  18.0E3,   F ),
+     & oa_type('AAVB4J  ', 'SVAVB4  ', '        ',  0.0000,  100.000,  18.0E3,   F ),
+     & oa_type('APCSOJ  ', 'LVPCSOG ', 'PCSOARXN',  1.0   ,   1.e-05,  40.0E3,   F ),
+     & oa_type('AOLGAJ  ', '        ', '        ',  0.0000,   1.E-10,   1.0E0,   T ),
+     & oa_type('AOLGBJ  ', '        ', '        ',  0.0000,   1.E-10,   1.0E0,   T ) /)
 
 C Required species
       Character( 16 ), Private, Parameter :: req_sviso1  = 'SVISO1'
@@ -167,7 +181,6 @@ C Indices of required species
       Real, Allocatable    :: rog_mw   ( : )   ! Molecular weights
       Real, Allocatable    :: og_conc  ( : )   ! vapor concentration
       Real, Allocatable    :: rog_dconc( : )   ! vapor concentration
-      Integer, Allocatable :: mao_ROGtoCGRID( : )   ! drog mapping assignments
 
 C mapping variables used for loading and unloading to CGRID array
       Integer, Allocatable :: map_OAtoAERO( : )    ! organic aerosol pointers to aerospc
@@ -177,11 +190,11 @@ C mapping variables used for loading and unloading to CGRID array
       Logical, Private, Save :: mapped              = .False.
       Logical, Private, Save :: IEPOX_SOA_mechanism = .False. ! IEPOX uptake in mechanism reactions?
       Logical, Private, Save :: RXNS_eflag          = .False. ! error flag for RXNS modules used
-      Logical, Private, Save :: OA_eflag           = .False. ! error flag for soa_defn
+      Logical, Private, Save :: OA_eflag            = .False. ! error flag for soa_defn
      
 !     Integer, Save :: pfc = 0   ! possible false soabisect convergence counter
 
-      Character( 16 ), Private, Save :: pname = 'Soa_Defn        '
+      Character( 16 ), Private, Save :: pname = 'SOA_DEFN        '
 
       Contains
 
@@ -270,8 +283,8 @@ C Check GC namelist contains ireaction counter for each aerosol used if
 C the aerosols condensable vapor has a precursor identified
           map_ROGtoCGRID = 0
           Do spc = 1, n_oa
-            If( oaspc( spc )%rog_name == '' ) Cycle
-            g = index1( oaspc( spc )%rog_name, n_gc_spc, gc_spc )
+            If( oaspc( spc )%ctr_name == '' ) Cycle
+            g = index1( oaspc( spc )%ctr_name, n_gc_spc, gc_spc )
             if ( g .ge. 1 ) then
               ! Populate Mapping Vector for the Precursor Species
               map_ROGtoCGRID( spc ) = gc_strt - 1 + g
@@ -279,8 +292,8 @@ C the aerosols condensable vapor has a precursor identified
             else
               ! Log an Error
               OA_eflag  = .True.
-              write(logdev,99903)Trim( oaspc( spc )%rog_name ),
-     &        Trim( oaspc( spc )%name )
+              write(logdev,99903)Trim( oaspc( spc )%ctr_name ),
+     &        Trim( oaspc( spc )%gas_name )
             End If
          End Do
 
@@ -293,13 +306,13 @@ C phase as model species, and map the species if found
 
            n = index1( oaspc( spc )%gas_name, n_nr_spc, nr_spc )
            If ( n .ge. 1 ) Then
-               map_OGtoCGRID = nr_strt - 1 + n
+               map_OGtoCGRID( spc ) = nr_strt - 1 + n
                og_mw( spc ) = nr_molwt( n )
            End If
 
            g = index1( oaspc( spc )%gas_name, n_gc_spc, gc_spc )
            If ( g .ge. 1 ) Then
-               map_OGtoCGRID = gc_strt - 1 + g
+               map_OGtoCGRID( spc ) = gc_strt - 1 + g
                og_mw( spc ) = gc_molwt( g )
            End If
 
@@ -399,7 +412,7 @@ C Local Variables:
 C Compute gas conversion constant
       gasconv = airdens * inv_mwair
 
-C Copy vapor_conc back to grid cell concentrations
+C Copy og_conc back to grid cell concentrations
       Do spc = 1, n_oa
          n = map_OGtoCGRID( spc )
          If ( n .Ne. 0 ) Then
@@ -414,7 +427,7 @@ C Copy vapor_conc back to grid cell concentrations
 C-----------------------------------------------------------------------
       Function findVapor( vname ) Result ( ndx )
 
-C  Finds the index of 'required' semivolatile species in the vaporspc list
+C  Finds the index of 'required' semivolatile species in the oaspc list
 
 C  Revision History:
 C     First version was coded in April 2010 by Steve Howard with
@@ -750,9 +763,9 @@ C Arguments:
 C Local variables:
       Logical, Save :: first_time = .True.
       Character( 300 ) :: xmsg
-      Integer       :: i, im, indx, ispc, n
+      Integer       :: i, im, indx, ispc, n, nsvol
 
-      Real, Allocatable, Save ::  mw_vap_m1( : )     ! Inverse MW of SVOCs [ mol/g ]
+      Real, Allocatable, Save ::  mw_inv( : )     ! Inverse MW of SVOCs [ mol/g ]
 
       Real, Allocatable, Save ::  rog_ppm2ug( : ) ! [ ppm per ug/m3 ] for ORGPROD at
                                         ! reference temperature and pressure
@@ -788,21 +801,14 @@ C Variables used in acid-enhanced isoprene SOA calculations
       Real isofrac       ! ratio for depletion of vapor-phase products
 
 C Variables used in equilibrium partitioning calculations
-      Real drog( n_oa ) ! change in precursor conc [ ug/m3 ]
       Real totrog( n_oa ) ! drog conc mapped to each SVOC [ ug/m3 ]
       Real(8) GRtmp( n_mode )   ! Dummy variable for accurate treatment of growth to specific moment
       Real GR3( n_oa,n_mode ) ! 3rd Moment Growth for each mode and compound
       Real GR3FRAC( n_oa,n_mode ) ! Fraction of each mode growing/shrinking
-      Real c0    ( n_oa ) ! cstar at AIRTEMP [ ug/m3 ]
-      Real caer0 ( n_oa ) ! SVOC conc before current time step [ ug/m3 ]
-      Real ctoti ( n_oa ) ! SVOC conc before current time step [ ug/m3 ]
-      Real prod  ( n_oa ) ! SVOC generated during current step [ ug/m3 ]
-      Real ctotf ( n_oa ) ! SVOC conc after current time step [ ug/m3 ]
-      Real caer  ( n_oa ) ! SVOC conc in aerosol phase [ ug/m3 ]
-      Real dcaer ( n_oa ) ! Change in SVOC conc after partitioning happens[ ug/m3 ]
+      Real dcaer          ! Change in SVOC conc after partitioning happens[ ug/m3 ]
       Real cbar_org(n_oa) ! On-line molecular speed of each organic
       Real dv_org            ! On-line gas-phase diffusivity of each organic
-      Real totorgsw          ! POA + non-volatile SOA [ umole/m3 ]
+      Real totorgnv          ! Non-volatile OA [ umole/m3 ]
       Real totorg            ! SOA + POA before time step [ umole/m3 ]
       Real threshold         ! criterion for establishing gas/part equil.
       Real faer              ! fraction of total in aerosol, intermediate value
@@ -811,6 +817,14 @@ C Variables used in equilibrium partitioning calculations
       Real totaer            ! total aerosol-phase mass of each semivolaitle component
       Real Phi               ! mass fraction of a semivolatile component
                              ! in each mode
+      Character(16), Allocatable, Save :: svname( : )
+      Real, Allocatable, Save          :: svmw( : ), svmw_inv( : )
+      Real, Allocatable, Save          :: c0    ( : ) ! cstar at AIRTEMP [ ug/m3 ]
+      Real, Allocatable, Save          :: caer0 ( : ) ! SVOC conc before current time step [ ug/m3 ]
+      Real, Allocatable, Save          :: ctoti ( : ) ! SVOC conc before current time step [ ug/m3 ]
+      Real, Allocatable, Save          :: prod  ( : ) ! SVOC generated during current step [ ug/m3 ]
+      Real, Allocatable, Save          :: ctotf ( : ) ! SVOC conc after current time step [ ug/m3 ]
+      Real, Allocatable, Save          :: caer  ( : ) ! SVOC conc in aerosol phase [ ug/m3 ]
 ! *** Variables for computing the budget
       REAL :: CBUDGET0_NUM ( N_MODE )
       REAL :: CBUDGET0_SRF ( N_MODE )
@@ -848,9 +862,14 @@ C-----------------------------------------------------------------------
          first_time = .False.
 
 C Set unit conversion and inverse mw constants
-         Allocate( rog_ppm2ug( n_oa ), mw_vap_m1( n_oa ) )
+         Allocate( rog_ppm2ug( n_oa ), mw_inv( n_oa ) )
          rog_ppm2ug( : ) = ROG_mw( : ) * convfac_298
-         mw_vap_m1( : ) = 1.0 / og_mw( : )
+         mw_inv( : ) = 1.0 / oa_mw( : )
+
+         nsvol = count( .not.oaspc( : )%nonvol )
+         Allocate( svname( nsvol ), svmw( nsvol ), svmw_inv( nsvol ),
+     &             c0( nsvol ), caer0( nsvol ), ctoti( nsvol ),
+     &             prod( nsvol ), ctotf( nsvol ), caer( nsvol ) )
 
       End If ! first_time
 
@@ -890,7 +909,7 @@ C Compute 3rd moment, 2nd moment. moment_conc arrays are wet
 
         Do i = 1, n_oa
           If ( aero_missing( map_OAtoAERO( i ),im ) .or.
-     &         oaspc(i)%cstar .lt. 1.0e-4 ) Cycle
+     &         oaspc(i)%cstar .lt. 1.0e-6 ) Cycle
           
           Call HCOND3( m0_init( im ), m1wet_init( im ),
      &                 m2wet_initD( im ), Dv_org, alphorg, 
@@ -912,27 +931,43 @@ C gas tracer species to the array that will be multiplied by alpha
 C to give newly formed semivolatile vapors.
       totrog( : ) = rog_dconc( : ) * rog_ppm2ug( : ) * convfac
 
-C Compute molar concentrations of non-volatile organic material and total
-C organic material
-
-      ! Sum Up Initial OA. This includes Nonvolatile species like APOC, 
-      ! APNCOM and SOA Products in the former orgprd table. It also
-      ! includes all semivolatile species.
-      totorgsw = 0.0  
-      totorg   = 0.0  
+C Transfer non-volatile products directly to aerospc_conc array (2nd mode)
       Do i = 1, n_oa
-         n = map_OAtoAERO( i )
-         If(  n .eq. 0 .or. aerospc( n )%tracer ) Cycle
-         
-         caer0( i ) = sum( aerospc_conc( n,1:2 ) )
-         ctoti( i ) = caer0( i ) + og_conc( i )
-         
-         totorg = totorg + caer0( i ) * aerospc_mwinv( n ) ![umol/m3]
-
-         If ( aerospc( n )%nonVol_soa ) 
-     &        totorgsw = totorgsw + 
-     &          caer0( i ) * aerospc_mwinv( n ) ![umol/m3]
+         If ( oaspc( i )%nonvol .and. oaspc( i )%alpha .gt. 0. ) Then
+            aerospc_conc( map_OAtoAERO( i ),2 ) =
+     &      aerospc_conc( map_OAtoAERO( i ),2 )
+     &      + oaspc( i )%alpha * totrog( i )
+         End If
       End Do
+
+C Compute molar concentrations of non-volatile organic material and total
+C organic material; in future code updates, molecular weights of non-volatile
+C SOA species should be inherited from the include files or namelists to avoid
+C hard-coded values.
+      !totorgsw = 0.0
+
+      ! Sum Up Nonvolatile OA. 
+      !Do i = 1, n_oa
+      !   If ( aerospc( i )%nonvol ) Then
+      !   End If
+      !End Do
+      
+      !totorg = totorgsw
+
+C Initialize ctoti as sum of vapor-phase and particle-phase SVOCs
+C Note: all of these CBLK species are in [ug/m**3]
+  !    totorg = 0.
+  !    Do i = 1, n_oa
+  !       n = map_OAtoAERO( i )
+  !       If(  n .lt. 1 .or. aerospc( n )%tracer ) Cycle
+  !       caer0( i ) = aerospc_conc( n,2 ) + aerospc_conc( n,1 )
+  !       ctoti( i ) = og_conc( i ) + 
+  !   &                aerospc_conc( n,2 ) + aerospc_conc( n,1 )
+  !       
+  !       totorg = totorg + mw_inv( i ) * 
+  !   &            ( aerospc_conc( n,2 ) + aerospc_conc( n,1 ) ) ![umol/m3]
+  !
+  !    End Do
 
 C Equilibrium Partitioning Calculations
 
@@ -948,28 +983,49 @@ C    caer = ctotf / ( 1 + c0/MW / totorg )
                        ! or not OA partitioning is even likely.
       upb = 0.0  ! Upper bound for bisection method
 
-      Do i = 1, n_oa
-         tempcorr   = tt1 * Exp( oaspc( i )%enth * rgas1 * tt2 )
-         c0( i )    = oaspc( i )%cstar * tempcorr        ! Satn Conc. [ug/m3]
-         prod( i )  = oaspc( i )%alpha * totrog( i )     ! Total Vapor Produced [ug/m3]
-         ctotf( i ) = ctoti( i ) + prod( i )             ! Vapor + Particle [ug/m3]
-         threshold  = threshold +  ctotf( i ) / c0( i )
-         
-         if ( map_OGtoCGRID( i ) .lt. 1 ) Then
-             ! Let nonvolatile species be all in particle phase
-             faer   = 1.0
-         else
-             ! Partition semivolatile species accordingly
-             faer   = totorg                             ! initial fraction in aerosol
-     &              / (totorg + c0( i ) * mw_vap_m1( i ) ) 
-         end if
+      ! Count the number of semivolatile compounds
+      nsvol    = 0
+      totorgnv = 0.0
+      totorg   = sum( sum( aerospc_conc( :,1:2 ),2 ) * aerospc_mwinv( : ), 
+     &                     mask=aerospc(:)%om )  
 
-         caer( i )  = ctotf( i ) * faer                  ! initial amount in aerosol
-         upb        = upb + ctotf( i) * mw_vap_m1( i )   ! upper: all moles (semi and nonvolatile)
+      ! Calculate the Initial Partitioning of Each Semivolatile
+      ! Compound
+      Do i = 1, n_oa
+        if ( oaspc( i )%nonvol ) Then
+          totorgnv = totorgnv + 
+     &          ( aerospc_conc( i,1 ) + aerospc_conc( i,2 ) ) / aerospc_mw( i )
+        else
+          nsvol = nsvol + 1
+          n = map_OAtoAERO( i )
+          svname( nsvol ) = oaspc( i )%name
+
+          ! Sum particle-phase and total organic mass for this
+          ! semivolatile species
+          caer0( nsvol ) = aerospc_conc( n,2 ) + aerospc_conc( n,1 )
+          ctoti( nsvol ) = og_conc( i ) + 
+     &                     aerospc_conc( n,2 ) + aerospc_conc( n,1 )
+
+          ! Calculate C* at current temperature
+          tempcorr      = tt1 * Exp( oaspc( i )%enth * rgas1 * tt2 )
+          c0( nsvol )   = oaspc( i )%cstar * tempcorr      ! Satn Conc. [ug/m3]
+          prod( nsvol ) = oaspc( i )%alpha * totrog( i )   ! Total Vapor Produced [ug/m3]
+          ctotf( nsvol )= ctoti( nsvol ) + prod( nsvol )   ! Vapor + Particle [ug/m3]
+          threshold  = threshold +  ctotf( nsvol ) / c0( nsvol )
+         
+          ! Partition semivolatile species accordingly
+          faer   = totorg                                  ! initial fraction in aerosol
+     &              / (totorg + c0( nsvol ) * mw_inv( i ) ) 
+
+          caer( nsvol )  = ctotf( nsvol ) * faer           ! initial amount in aerosol
+          upb        = upb + ctotf( nsvol ) * mw_inv( i )  ! upper: all moles (semi and nonvolatile) 
+          svmw_inv( nsvol ) = mw_inv( i )
+          svmw( nsvol ) = oa_mw( i )
+        end if
       End Do
 
 C Check If gas/particle equilibrium can be established
-      If ( ( threshold .Gt. 1.0 ) .Or. ( totorgsw .Gt. threshmin ) ) Then
+      If ( ( threshold .Gt. 1.0 ) .Or. ( totorgnv .Gt. threshmin ) ) Then
 
 C Perform one of two methods for partitioning
         If ( newtpartition ) Then
@@ -981,21 +1037,21 @@ C quadratic system shown in eqn 8 of Schell et al:
 C    A(i)  * caer(i) ** 2 + B * caer(i) + C(i) = 0.0,
 C    where B(i) contains the sum of all caer(j), for j not equal to i.
 
-         Call newt( layer, caer, n_oa, check,
-     &              ctotf, c0, mw_vap_m1, totorgsw )
-         If ( check ) Then
+          Call newt( layer, caer, nsvol, check,
+     &               ctotf, c0, svmw_inv, totorgnv )
+          If ( check ) Then
 C Try again with initial guess of 50/50 gas/aerosol split.
-            Do i = 1, n_oa
-               caer( i ) = 0.5 * ctotf( i )
-            End Do
-            Call newt( layer, caer, n_oa, check,
-     &                 ctotf, c0, mw_vap_m1, totorgsw )
-            If ( check ) Then
-               Write( xmsg,'( A,I4 )' ) 
-     &                ' *** Problem in NEWT at Layer = ', layer
-               Call m3exit( pname, 0, 0, xmsg, xstat3 )
-            End If
-         End If
+             Do i = 1, nsvol
+                caer( i ) = 0.5 * ctotf( i )
+             End Do
+             Call newt( layer, caer, nsvol, check,
+     &                  ctotf, c0, svmw_inv, totorgnv )
+             If ( check ) Then
+                Write( xmsg,'( A,I4 )' ) 
+     &                 ' *** Problem in NEWT at Layer = ', layer
+                Call m3exit( pname, 0, 0, xmsg, xstat3 )
+             End If
+          End If
 
 C METHOD2
 C      Calculate new SOA by partitioning.
@@ -1003,101 +1059,98 @@ C      Method uses bisection method to solve for total number of moles
 C      of orgaic aerosol. Caer is then calculated based on that number.
         Else
 
-C        Solve for total number of organic moles in aerosol (hotp 7/5/11)
-         lowb      = totorgsw   ! lower: moles of nonvolatile
-         upb       = lowb + upb ! upper: all moles (semi and nonvolatile)
-         upb       = upb * ( 1.0 + 1e-7*n_oa ) ! prevent numerical issues
-         If ( abs( upb - lowb ) .Lt. threshmin ) Then
-           ! no SOA to partition
-           orgmoles = ( lowb + upb ) / 2.0
-         Else
-           orgmoles = soabisect( lowb, upb, totorgsw, c0, ctotf, og_mw )
-         End If
+C         Solve for total number of organic moles in aerosol (hotp 7/5/11)
+          lowb      = totorgnv   ! lower: moles of nonvolatile
+          upb       = lowb + upb ! upper: all moles (semi and nonvolatile)
+          upb       = upb * ( 1.0 + 1e-7*nsvol ) ! prevent numerical issues
+          If ( abs( upb - lowb ) .Lt. threshmin ) Then
+            ! no SOA to partition
+            orgmoles = ( lowb + upb ) / 2.0
+          Else
+            orgmoles = soabisect( lowb, upb, totorgnv, nsvol, c0, ctotf, svmw )
+          End If
 
-C        Determine concentration of each semivoltile (hotp 7/5/11)
-         Do i = 1, n_oa
-            if ( map_OGtoCGRID( i ) .lt. 1 ) then
-              faer = 1.0
-            else
-              faer = oa_mw(i) * orgmoles / 
-     &                ( c0(i) + oa_mw(i) * orgmoles )
-            end if
-            caer(i) = ctotf(i) * faer
-         End Do
+C         Determine concentration of each semivoltile (hotp 7/5/11)
+          Do i = 1, nsvol
+            faer = svmw(i) * orgmoles / 
+     &             ( c0( i ) + svmw(i) * orgmoles )
+            caer( i ) = ctotf( i ) * faer
+          End Do
 
-C End OA paritioning solver METHOD selection
-        End If
+        End If  ! End OA paritioning solver METHOD selection
 
 C Constrain caer to values between conmin and ctotf
+        nsvol = 0
         Do i = 1, n_oa
+           If ( oaspc( i )%nonvol ) Cycle
+           nsvol = nsvol + 1
 
-           If ( map_OAtoAERO( i ) .Lt. 1 )Then
-               caer( i ) = 0.0
-               Cycle
-           End If
-
-           If ( caer( i ) .Lt. 0.0 ) Then
-                  Write( logdev,* ) 'caer negative at i: ', i, caer( i ),
+           ! Check that the mass of aerosol left has not gone below a
+           ! minimum value
+           If ( caer( nsvol ) .Lt. evapmin ) Then
+              Write( logdev,* ) 'caer less than evapmin for OA species: ', 
+     &                              oaspc( i )%name, ' ', caer( nsvol ),
      &                              ' reset to evapmin'
+              caer( nsvol ) = max( caer( nsvol ), evapmin )
            End If
-           caer( i ) = max( caer(i), evapmin )
 
-           If ( caer( i ) - ctotf( i ) .Gt. ctolmin ) Then
+           ! Check that the mass of aerosol condensed does not exceed
+           ! the total
+           If ( caer( nsvol ) - ctotf( nsvol ) .Gt. ctolmin ) Then
                Write( logdev,* ) 'caer-ctotf exceeds ctolmin at i = ', i
-               Write( logdev,* ) 'caer: ', caer( i ), ' ctotf: ', ctotf( i )
+               Write( logdev,* ) 'caer: ', caer( nsvol ), ' ctotf: ', ctotf( nsvol )
                Write( logdev,* ) 'caer reset to ctotf'
-               caer( i ) = ctotf( i )
+               caer( nsvol ) = ctotf( nsvol )
            End If
 
-           indx = map_OAtoAERO( i )
 
            ! Calculate total change in OA Species Concentration
-           dcaer( i ) = caer( i ) - caer0( i )  
+           dcaer = caer( nsvol ) - caer0( nsvol )  
 
            ! Sum the total aerosol mass of this compound across all
            ! aerosol modes
+           indx = map_OAtoAERO( i )
            totaer = max( sum( aerospc_conc( indx,: ) , mask = 
      &                 .NOT.aero_missing( indx,: ) ), conmin )
     
            ! Transfer the semivolatile mass
            Do im = 1,2
-              If ( aero_missing( map_OAtoAERO( i ),im ) ) Cycle
-              If ( dcaer( i ) .lt. 0.0 ) Then
+              If ( aero_missing( indx,im ) ) Cycle
+              If ( dcaer .lt. 0.0 ) Then
                  ! Evaporate using mode-dependent mass fraction
                  Phi = aerospc_conc( indx,im ) / totaer
                  aerospc_conc( indx,im ) = 
-     &                aerospc_conc( indx,im ) + dcaer( i ) * Phi
+     &                aerospc_conc( indx,im ) + dcaer * Phi
               Else
                  ! Condense using mode-dependent condensaiton flux 
                  ! fraction
                  aerospc_conc( indx,im ) = aerospc_conc( indx,im ) 
-     &                + dcaer( i ) * GR3FRAC( i,im )
+     &                + dcaer * GR3FRAC( i,im )
               End If
            End Do
+
+           og_conc( i ) = ctotf( nsvol ) - caer( nsvol )
         End Do  ! Partitioning Vapor Loop
  
       Else   ! threshold not exceeded; no material transferred to aerosol phase
         
-        caer = 0.0
+        nsvol = 0
         Do i = 1, n_oa
-            If ( map_OAtoAERO( i ) .Lt. 1 ) Cycle
+            if ( oaspc( i )%nonvol ) Cycle
+            nsvol = nsvol + 1
             indx = map_OAtoAERO( i )
+
+            ! Set all semivolatile aerosols to minimum concentration
             aerospc_conc( indx, 1:n_mode ) = conmin
-            Do im = 1, n_mode
-              If ( .Not. aero_missing( indx,im ) ) Then
-                  caer( i ) =  conmin + caer( i )
-              End If
-            End Do
+            ! Sum up particle-phase mass to subtract it from available
+            ! vapor
+            og_conc( i ) = ctotf( nsvol ) -
+     &                       sum( aerospc_conc( indx,: ), 
+     &                            mask=.not.aero_missing( indx,: ) )
         End Do
 
       End If    ! check on equilibrium threshold
 
-C Update Vapor-Phase Organic Species
-      og_conc = 0.0
-      do i = 1,n_oa
-        if ( map_OGtoCGRID( i ) .ge. 1 ) 
-     &       og_conc( i ) = ctotf( i ) - caer( i )
-      end do
 
 C Add uptake of water onto hydrophillic organics (see Petters and
 C Kreidenweis 2007 ACP and Pye et al. 2017 ACP for method).
@@ -1542,9 +1595,9 @@ C      Res., Vol 106, No D22, 28275-28293, 2001.
 
       INTEGER I, J
       REAL SUM_JNEI
-      REAL A( N_OA )
-      REAL B( N_OA )
-      REAL C( N_OA )
+      REAL A( N )
+      REAL B( N )
+      REAL C( N )
 
       DO I = 1, N
          A( I ) = IMW( I )
@@ -1824,7 +1877,7 @@ C    all dimensions now depend upon N only
       END SUBROUTINE LUDCMP
 
 C-----------------------------------------------------------------------
-      Function soabisect( lowerb, upperb, nonvolmol, cstaratt, totsemivol,
+      Function soabisect( lowerb, upperb, nonvolmol, n, cstaratt, totsemivol,
      &                    mlwt) RESULT ( nroot )
 
 C     Determines the root of an equation, nroot, that is located
@@ -1844,9 +1897,10 @@ C     Created 7/2011 by HOT Pye
 C     Function arguments
       Real, Intent(IN) :: lowerb, upperb      ! lower bound, upper bound 
       Real, Intent(IN) :: nonvolmol           ! nonvolatile aerosol in moles = POA + non-voltile SOA
-      Real, Intent(IN) :: cstaratt(n_oa)   ! Cstars at T of interest
-      Real, Intent(IN) :: totsemivol(n_oa) ! total semivolatile to partition in ug/m3 (gas+aer+newlyformed)
-      Real, Intent(IN) :: mlwt(n_oa)       ! molecular weight of semivolatiles 
+      Integer, Intent(IN) :: n
+      Real, Intent(IN) :: cstaratt(n)   ! Cstars at T of interest
+      Real, Intent(IN) :: totsemivol(n) ! total semivolatile to partition in ug/m3 (gas+aer+newlyformed)
+      Real, Intent(IN) :: mlwt(n)       ! molecular weight of semivolatiles 
 
 C     Parameters for solution convergenc
       Real             :: FRACTOL = 1.0e-6    ! Solution converged if abs(old-new)/new < FRACTOL
@@ -1868,8 +1922,8 @@ C     Local variables
 C     Store current lower and upper bound, evaluate at lower bound 
       lower  = lowerb
       upper  = upperb
-      flower = soaequation( nonvolmol, cstaratt, totsemivol, mlwt, lowerb )
-      fupper = soaequation( nonvolmol, cstaratt, totsemivol, mlwt, upperb )
+      flower = soaequation( nonvolmol, n, cstaratt, totsemivol, mlwt, lowerb )
+      fupper = soaequation( nonvolmol, n, cstaratt, totsemivol, mlwt, upperb )
 
 C     First guess: solution at upperb
       nguess = upperb
@@ -1896,7 +1950,7 @@ C     abstol (absolute) amount
         iter   = iter + 1
         oldn   = nguess                     ! store last guess
         nguess = ( lower + upper ) / 2.0e0  ! new guess is halfway b/w old lower and upper
-        fnguess = soaequation( nonvolmol, cstaratt, totsemivol, mlwt, nguess ) ! function evaluated at new guess
+        fnguess = soaequation( nonvolmol, n, cstaratt, totsemivol, mlwt, nguess ) ! function evaluated at new guess
         If ( nguess .ne. 0.0 ) Then            ! safe division
            ea = Abs( nguess - oldn ) / nguess  ! fractional diff b/w 2 guesses
         Else
@@ -1930,7 +1984,7 @@ C     abstol (absolute) amount
         If ( ( ea .Lt. FRACTOL ) .Or. ( ( upper + lower ) .Lt. ABSTOL ) ) Then
           nroot = nguess
           ! double check that the function is approximately zero
-          fnguess = soaequation( nonvolmol, cstaratt, totsemivol, mlwt, nguess ) ! function evaluated at new guess
+          fnguess = soaequation( nonvolmol, n, cstaratt, totsemivol, mlwt, nguess ) ! function evaluated at new guess
           If ( Abs( fnguess ) .Gt. 1.0e-03 ) Then
 !           pfc = pfc + 1
 #ifdef verbose_soa
@@ -1964,7 +2018,7 @@ C     abstol (absolute) amount
       End Function soabisect
 
 C-----------------------------------------------------------------------
-      Function soaequation( nonvmol, cstar, semivol, mlwt, currentN ) Result ( eqnerror )
+      Function soaequation( nonvmol, n, cstar, semivol, mlwt, currentN ) Result ( eqnerror )
 
 C     Evaluates the following function of total aerosol moles, N
 C     Function evaluates to zero at equilibrium 
@@ -1979,9 +2033,10 @@ C     Created 7/2011 HOT Pye
       Implicit None
 
 C     Function inputs and output
-      Real, INTENT(IN) :: nonvmol, currentN                ! nonvolatile moles, total moles
-      Real, INTENT(IN) :: mlwt(n_oa)                    ! molecular weights of semivolatiles
-      Real, INTENT(IN) :: semivol(n_oa), cstar(n_oa) ! semivolatile mass, sat conc in ug/m3
+      Real, INTENT(IN) :: nonvmol, currentN             ! nonvolatile moles, total moles
+      Integer, INTENT(IN) :: n                          ! number of semivolatile species
+      Real, INTENT(IN) :: mlwt(n)                    ! molecular weights of semivolatiles
+      Real, INTENT(IN) :: semivol(n), cstar(n) ! semivolatile mass, sat conc in ug/m3
       Real             :: eqnerror                         ! result, deviation from 0.0 in equation
 
 C     Local variables
@@ -1990,16 +2045,15 @@ C     Local variables
 
 C     Compute function value for current value of N 
       temptot = 0.0e0
-      Do i = 1, n_oa
+      Do i = 1, n
          temptot = temptot + semivol(i) / ( cstar(i) + mlwt(i) * currentN )
       End Do
-      !eqnerror = temptot + nonvmol / currentN - 1.0e0
-      eqnerror = temptot - 1.0e0
+      eqnerror = temptot + nonvmol / currentN - 1.0e0
 
       End function soaequation
 
 C-----------------------------------------------------------------------
-      Function soabisect_debug( lowerb, upperb, nonvolmol, cstaratt, totsemivol,
+      Function soabisect_debug( lowerb, upperb, nonvolmol, n, cstaratt, totsemivol,
      &                          mlwt) RESULT ( nroot )
 
       Use utilio_defn
@@ -2010,6 +2064,7 @@ C-----------------------------------------------------------------------
 C     Function arguments
       Real, Intent(IN) :: lowerb, upperb      ! lower bound, upper bound
       Real, Intent(IN) :: nonvolmol           ! nonvolatile aerosol in moles = POA + non-voltile SOA
+      Integer, Intent(IN) :: n                ! Number of semivolatile species
       Real, Intent(IN) :: cstaratt(:)   ! Cstars at T of interest
       Real, Intent(IN) :: totsemivol(:) ! total semivolatile to partition in ug/m3 (gas+aer+newlyformed)
       Real, Intent(IN) :: mlwt(:)       ! molecular weight of semivolatiles
@@ -2041,8 +2096,8 @@ C     Local variables
 C     Store current lower and upper bound, evaluate at lower bound
       lower  = lowerb
       upper  = upperb
-      flower = soaequation( nonvolmol, cstaratt, totsemivol, mlwt, lowerb )
-      fupper = soaequation( nonvolmol, cstaratt, totsemivol, mlwt, upperb )
+      flower = soaequation( nonvolmol, n, cstaratt, totsemivol, mlwt, lowerb )
+      fupper = soaequation( nonvolmol, n, cstaratt, totsemivol, mlwt, upperb )
 
 C     First guess: solution at upperb
       nguess = upperb
@@ -2063,7 +2118,7 @@ C     (percent) or abstol (absolute) amount
         iter    = iter + 1
         oldn    = nguess                    ! store last guess
         nguess  = ( lower + upper ) / 2.0e0 ! new guess is halfway b/w old lower and upper
-        fnguess = soaequation( nonvolmol, cstaratt, totsemivol, mlwt, nguess ) ! function evaluated at new guess
+        fnguess = soaequation( nonvolmol, n, cstaratt, totsemivol, mlwt, nguess ) ! function evaluated at new guess
 
         Write( logdev,* ), 'iter   ', iter
         Write( logdev,* ), 'Lower= ', lower, flower
@@ -2098,7 +2153,7 @@ C     (percent) or abstol (absolute) amount
         If ( ( ea .Lt. FRACTOL ) .Or. ( ( upper + lower ) .Lt. ABSTOL ) ) then
           nroot = nguess
           ! double check that the function is approximately zero
-          fnguess = soaequation( nonvolmol, cstaratt, totsemivol, mlwt, nguess ) ! function evaluated at new guess
+          fnguess = soaequation( nonvolmol, n, cstaratt, totsemivol, mlwt, nguess ) ! function evaluated at new guess
           If ( Abs( fnguess ) .Gt. 1.0e-03 ) Then
              xmsg = 'Warning: possible false convergence in soa bisection'
              Write( logdev,* ) xmsg
@@ -2131,7 +2186,7 @@ C
 C The diameter is the wet, volume equivalent, diameter of the particle.
 
       Implicit None
-
+                                       
       Include SUBST_CONST    ! common constants
 
 C     Function arguments
