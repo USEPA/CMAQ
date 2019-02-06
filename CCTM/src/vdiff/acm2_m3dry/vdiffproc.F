@@ -139,7 +139,7 @@ C Local Variables:
       REAL     :: SEDDY ( NLAYS,NCOLS,NROWS )   ! flipped EDDYV
       REAL        DTSEC                         ! model time step in seconds
 
-      REAL     :: NH3_EMIS( NCOLS,NROWS )
+      REAL     :: DDEP_NH3( NCOLS,NROWS )
 
       REAL, ALLOCATABLE, SAVE :: VSED_AE( :,:,:,: )
       INTEGER, SAVE :: NH3_HIT
@@ -424,7 +424,7 @@ C Write extra arrays for NH3 emission and net flux for bidi
          IF ( ABFLUX ) THEN
            DO R = 1, MY_NROWS
                DO C = 1, MY_NCOLS
-                  NH3_EMIS(C,R) = DDEP_NH3(C,R)-DDEP( DD2DV(NH3_HIT),C,R )
+                  DDEP_NH3(C,R) = NH3_EMIS(C,R)+DDEP( DD2DV(NH3_HIT),C,R )
                END DO
             END DO
 
@@ -442,7 +442,7 @@ C Write extra arrays for NH3 emission and net flux for bidi
 ! the subdomain size for this PE. 
 !          WRITE( LOGDEV,*) ' NH3emis, drydep, flux=',NH3_EMIS(27,18),
 !    &                     DDEP_NH3(27,18),DDEP( DD2DV(NH3_HIT),27,18)
-         DDEP_NH3 = 0.0
+         NH3_EMIS = 0.0
          END IF
 
          WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
