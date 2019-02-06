@@ -5,6 +5,7 @@
 
 <!-- END COMMENT -->
 
+** >> Comment <<**  Throughout… need to de-emphasize I/O API language and dependencies. I think we can reference Carlie's page rather than trying to repeat it all here.  I/O API may *not* be required and may become optional VERY soon.
 
 # Required Libraries #
 
@@ -15,15 +16,17 @@ The CMAQ programs require a set of third-party libraries that must be installed 
 [Input/Output Applications Programming Interface (I/O API)](https://www.cmascenter.org/ioapi)
 ---------------------------------------------------------
 
-The Models-3 Input/Output Applications Programming Interface (I/O API) is an environmental software development library that provides an interface with the data involved in CMAQ applications (Coats, 2005). The I/O API is the core input/output framework of the CMAQ programs, providing a set of commonly used subroutines for passing information between source code modules and for reading and writing data files. Users should download the latest code for the I/O API from the [website](https://www.cmascenter.org/ioapi). In addition to providing the input/output framework for CMAQ, the I/O API forms part of the binary file format used by the CMAQ programs. ***Starting with CMAQ version 5.0, the I/O API version 3.1 or newer is required to compile and run CMAQ.***
+The Models-3 Input/Output Applications Programming Interface (I/O API) is an environmental software development library that provides an input/output interface with the data involved in CMAQ applications (Coats, 2005). The I/O API is the core input/output framework of the CMAQ programs, providing a set of commonly used subroutines for passing information between source code modules and for reading and writing data files. Users should download the latest code for the I/O API from the [website](https://www.cmascenter.org/ioapi). In order to work with IOAPI buffered file format, which is used in the WRF-CMAQ two-way coupled model, and/or to perform parallel I/O operations in CMAQ 5.0.1 or later version, users should use IOAPI 3.2.
 
-The CMAQ input and output files use a hybrid Network Common Data Form (netCDF)-I/O API file format. The netCDF is described below. The CMAQ data files all use the netCDF convention of self-describing, selective direct access, meaning the modeling system can be more efficient by reading only the necessary parts of the data files. Additionally, netCDF files are portable across computing platforms. This means that the same file can be read, for example, on a Sun workstation, a Red Hat Linux workstation, and on Mac OSX. The I/O API component of the file format is the way that spatial information is defined in the CMAQ data files. The I/O API convention of defining horizontal grids is to use a combination of the map projection and an offset from the projection center to the southwest corner of the modeling domain. After defining the southwest corner of the domain, or the “offset” from the projection center, the I/O API grid definition specifies the size of the horizontal grid cells and the number of cells in the X and Y directions. An additional benefit of the I/O API is that an expansive set of data manipulation utilities and statistical analysis programs is available to evaluate and postprocess the binary CMAQ input/output data files.
+** >> Comment <<** In the paragraph below, the “CMAQ_OGD_Chapter6_review_DW.docx” marked-up file had an edit that described a “Red Hat 51 Linux Workstation.” However, the number 51 did not appear in the original Atom file, nor did “51” appear to be an addition within the marked-up file. So I am just making sure "51" actually belongs in the document and isn’t an unintentional remnant of something else.
+
+The CMAQ input and output files use a Network Common Data Form (netCDF) file format. Additionally, netCDF files are portable across computing platforms. This means that a file can be written, for example, on a Sun workstation or a Red Hat 51 Linux workstation, and can be read on Mac OSX. The I/O API component of the file format is the way that spatial information is defined in the CMAQ data files. The I/O API convention of defining horizontal grids is to use a combination of the map projection and an offset from the projection center to the southwest corner of the modeling domain. After defining the southwest corner of the domain, or the “offset” from the projection center, the I/O API grid definition specifies the size of the horizontal grid cells and the number of cells in the X and Y directions. An additional benefit of the I/O API is that an expansive set of data manipulation utilities and statistical analysis programs is available to evaluate and postprocess the binary CMAQ input/output data files.
 
 For CMAQ users using preconfigured applications of the model, the I/O API system can be essentially transparent. For users who plan to modify the code or implement updated modules for research purposes, a few key elements of the I/O API should be understood, and they are discussed below. This section covers only the barest of necessities in terms of a CMAQ user’s interaction with I/O API. For more detailed information about developing new modules for CMAQ using the I/O API code libraries, please refer to the [I/O API User's Manual](https://www.cmascenter.org/ioapi/documentation/all_versions/html).
 
 ### Files, Logical Names, and Physical Names
 
-The I/O API stores and retrieves data using files and virtual files, which have (optionally) multiple time steps of multiple layers of multiple variables. Files are formatted internally so that they are machine- and network-independent. This behavior is unlike Fortran files, whose internal formats are platform-specific, which means that the files do not transfer using the File Transfer Protocol (FTP) or Network File System (NFS)-mount very well. Each I/O API file has an internal description, consisting of the file type, the grid and coordinate descriptions, and a set of descriptions for the file variables (i.e., names, unit specifications, and text descriptions). According to the I/O API format, files and variables are referred to by names, layers are referred to by numbers (from 1 to the greatest number of layers in the file), and dates and times are stored as integers, using the coding formats *YYYYDDD* (commonly called “JDATE”) and *HHMMSS* (commonly called “JTIME”), where
+The I/O API stores and retrieves data using files and virtual files, which have (optionally) multiple time steps of multiple layers of multiple variables. Files are formatted internally so that they are machine- and network-independent. Each I/O API file has an internal description, consisting of file type, grid and coordinate descriptions, and a set of descriptions for file variables (i.e., names, unit specifications, and text descriptions). According to the I/O API format, files and variables are referred to by names, layers are referred to by numbers (from 1 to the greatest number of layers in the file), and dates and times are stored as integers, using the coding formats *YYYYDDD* (commonly called “JDATE”) and *HHMMSS* (commonly called “JTIME”), where
 
 ```
 YYYYDAY = (1000 * Year) + Julian Day
@@ -71,7 +74,7 @@ All files manipulated by the I/O API may have multiple variables and multiple la
 The I/O API function `OPEN3` is used to open both new and existing files. `OPEN3` is a Fortran logical function that returns TRUE when it succeeds and FALSE when it fails.
 
 ```
-LOGICAL FUNCTION OPEN3( FNAME, FSTATUS, PGNAME )
+LOGICAL FUNCTION OPEN3 ( FNAME, FSTATUS, PGNAME )
 ```
 where:
 ```
@@ -84,7 +87,7 @@ PGNAME (CHARACTER) = name of calling program
 
 <a id=Table6-3></a>
 
-**Table 6‑3. Possible values for OPEN(3) FSTATUS**
+**Table 6‑3. Possible values for OPEN3 FSTATUS**
 
 |**FSTATUS**|**Value**|**Description**|
 |---------|-------|-------------------------------------------------------|
@@ -208,9 +211,9 @@ Message Passing Interface Library (MPI)
 
 The Message Passing Interface (MPI) is a standard library specification for message passing, or intra-software communication, on both massively parallel computing hardware and workstation clusters. There are different open source MPI libraries available that work well with CMAQ.
 
+- MPICH is a high performance and widely portable implementation of the Message Passing Interface (MPI) standard.
 - [MVAPICH2](http://mvapich.cse.ohio-state.edu) is a portable implementation of MPI that is available from Ohio State University.
 - [OpenMPI](https://www.open-mpi.org) is an open-source MPI implementation that is developed and maintained by a consortium of academic, research, and industry partners.
-
 References for Chapter 6: Required Libraries
 ------------------------------------------
 Coats, C., 2005: The EDSS/Models-3 I/O API. Available online at the [I/O API website](https://www.cmascenter.org/ioapi)

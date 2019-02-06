@@ -1,7 +1,7 @@
 
 <!-- BEGIN COMMENT -->
 
-[<< Previous Chapter](CMAQ_OGD_ch06_req_lib.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch08_input_files.md)
+[<< Previous Chapter](CMAQ_OGD_ch06_req_lib.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch08_input_and_output_files.md)
 
 <!-- END COMMENT -->
 
@@ -11,10 +11,11 @@
 
 Overview
 --------
+** >> Comment <<** Section 7 doesn’t really mention a couple of the input files: how to make the OCEAN file? Mention the GRIDDESC file and options to where to get this info (like MCIP)
 
 The core CMAQ programs that are needed to perform a basic air quality model simulation are [MCIP](#mcip), [ICON](#icon), [BCON](#bcon), and [CCTM](#cctm). The relationships among these programs are depicted within the green box in [Figure 7-1 CMAQ Core Programs](#Figure7-1). The blue boxes represent programs that are not part of the CMAQ distribution package but supply data necessary for an air quality simulation (emissions and meteorology data). The yellow boxes represent the standard CMAQ preprocessors: MCIP, ICON, and BCON. The red box represents the CMAQ chemistry-transport model (CCTM), the Eulerian air quality modeling component of CMAQ. Data flows between the CMAQ programs are represented in by arrows. The red arrows illustrate the flow of data from the CMAQ preprocessors and the emissions model to CCTM. The green arrows show the data feedbacks from CCTM to create initial and boundary conditions for nested simulations. The black arrow illustrates the connection between the meteorological model and MCIP. Finally, the blue arrow shows that the output from MCIP can be used to drive an emissions model.
 
-A meteorological model,such as [WRF‑ARW](http://www.wrf-model.org), generates gridded meteorology for input to both CMAQ and the emissions model. These data are processed for input to CMAQ using MCIP.
+A meteorological model, such as [WRF‑ARW](http://www.wrf-model.org), generates gridded meteorology for input to both CMAQ and the emissions model. These data are processed for input to CMAQ using MCIP.
 
 An emissions model converts emissions inventories to gridded, hourly emissions formatted for CMAQ. The [SMOKE](http://www.smoke-model.org) emissions model is currently available for preparing emissions data for CMAQ.
 
@@ -25,12 +26,15 @@ CMAQ includes several "in-line" options to support coupling between meteorology 
 3. Disk space may be saved, because a 3‑D emissions file is no longer needed for elevated point sources
 4. CMAQ can more easily be coupled with a meteorological model, enabling direct emissions modulation by the underlying, freshly computed meteorological variables
 
+** >> Comment <<** Fig. 7-1 seems unnecessary.  A better version of this figure should be developed (where optional codes are shown) and it should appear earlier in the document.  The quality of this figure also needs to be improved.
 
 <a id=Figure7-1></a>
 
 ![](./images/Figure7-1.png "Figure7-1.png")
 
 **Figure 7‑1.CMAQ core programs**
+
+** >> Comment <<** Not sure that MCIP is the "first program…that a user should run".  There may be emissions-related programs that could/should be run earlier.
 
 [MCIP](#mcip) is the first program in the CMAQ distribution package that a user should run when setting up a new simulation. MCIP is used to preprocess the data from a meteorological model for CMAQ and SMOKE.
 
@@ -61,8 +65,11 @@ CCTM can also be forced with chemical boundary conditions downscaled from global
 
 ### Files, configuration, and environment variables ###
 
-[Figure 7‑2](#Figure7-2) shows the input and output files and configuration options for BCON. A distinction is made between the options that are invoked at compilation versus those invoked at execution of the program. When compiling BCON, the user specifies a chemical mechanism to configure the gas-phase chemistry and aerosol mechanism used to create the chemical BCs. Setting the `ModMech` and `Mechanism` variables in the BCON compile script configures the program to use a specific set of mechanism INCLUDE files to build an executable. Setting the `ModType` variable in the BCON compile script configures the program to input either a text file of static concentrations or a binary netCDF file of time-dependent concentrations for estimating BCs for CCTM. Separate BCON executables must be prepared for different mechanism and input file configurations.
+[Figure 7‑2](#Figure7-2) shows the input and output files and configuration options for BCON. A distinction is made between the options that are invoked at compilation versus those invoked at execution time. When compiling BCON, the user specifies a chemical mechanism to configure the gas-phase chemistry and aerosol mechanism used to create the chemical BCs. Setting the `ModMech` and `Mechanism` variables in the BCON compile script configures the program to use a specific set of mechanism INCLUDE files to build an executable. Setting the `ModType` variable in the BCON compile script configures the program to input either a text file of static concentrations or a binary netCDF file of time-dependent concentrations for estimating BCs for CCTM. Separate BCON executables must be prepared for different mechanism and input file configurations.
 
+** >> Comment <<** This figure is absolutely confusing, especially the blue box, which is not a list of "Execution Options".  This whole figure needs to be redone to communicate better.
+
+** >> Comment <<** BCON Flow Chart [is] very confusing.
 
 <a id=Figure7-2></a>
 
@@ -130,7 +137,7 @@ The configuration options listed here are set during compilation of the BCON exe
     -   `saprc07tb_ae6_aq`: SAPRC-07 gas-phase mechanism with toluene updates and sixth-generation CMAQ aerosol mechanism
     -  `racm2_ae6_aq`: RACM2 gas-phase mechanism with toluene updates and sixth-generation CMAQ aerosol mechanism
 -   `Tracer [default trac0] `  
-    Specifies tracer species. Invoking inert tracer species in CMAQ requires defining the tracers using namelist files and compiling the CMAQ programs with these files. The setting for this module corresponds to the directory name in the $CMAQ_HOME/CCTM/src/MECHS directory that contains the namelist files for the tracer configuration. The default setting is to not use any tracers.
+    Specifies tracer species. Invoking inert tracer species in CMAQ requires defining the tracers using namelist files and compiling the CMAQ programs with these files. The setting for this module corresponds to the directory name in the $CMAQ_HOME/CCTM/src/MECHS directory that contains the namelist files for the tracer configuration. The default setting is to use no tracers.
     - `trac[n]`
 
 #### Execution Configuration Variables ####
@@ -158,11 +165,11 @@ The environment variables listed here are invoked during execution of the progra
 -   `gc_matrix.nml: [default: none]`
     Gas-phase species namelist file. This file is used to configure the gas-phase species that will be output by BCON.
 -   `ae_matrix.nml: [default: none]`
-    Aerosol-phase species namelist file. This file is used to configure the aerosol-phase species that will be output by BCON
+    Aerosol-phase species namelist file. This file is used to configure the aerosol-phase species that will be output by BCON.
 -   `nr_matrix.nml: [default: none]`
-    Nonreactive species namelist file. This file is used to configure the nonreactive species that will be output by BCON
+    Nonreactive species namelist file. This file is used to configure the nonreactive species that will be output by BCON.
 -   `tr_matrix.nml: [default: none]`
-    Tracer species namelist file. This file is used to configure the tracer species that will be output by BCON
+    Tracer species namelist file. This file is used to configure the tracer species that will be output by BCON.
 -   `OUTDIR: [default: $CMAQ_HOME/data/bcon]`
     Output data directory.
 -   `BC:` Sets the input file type. The setting of this variable determines how the run script sets the input and output environment variables.
@@ -200,6 +207,8 @@ cd $CMAQ_HOME/PREP/BCON
 ./run_bcon.csh |& tee run_bcon.log
 ```
 
+** >> Comment <<** Ummm… where did this "Calmap" come from?  It's not in Fig. 7-1.  Do I need to run this?  How would I decide if I needed to do this?
+
 <a id="Calmap"></a>
 
 ## Calmap
@@ -210,7 +219,11 @@ The preprocessor program Calmap produces gridded planting start dates, planting 
 
 ### Files, configuration, and environment variables
 
+** >> Comment <<** What's a "Spatial Allocator"?  What's this BEIS emissions model, and how is it different from SMOKE?
+
 [Figure 7-3](Figure7-3) shows that Calmap reads five input files to produce eight outputs, only three of which are used by the CCTM. Calmap uses the GRIDCRO2D file, produced by MCIP, to define the modeling grid. The BELD01 file points to a BELD3 “a” file of gridded land cover/land use data containing coverage for several different crop categories. The BELD3 “a” file is an input to the BEIS emissions model and can be [generated by the Spatial Allocator](https://github.com/CMASCenter/Spatial-Allocator/blob/master/docs/User_Manual/SA_ch03_vector.md#5-creating-inputs-to-smoke-biogenic-processing). The rest of the inputs to Calmap are crop calendar data for the United States that are packaged with CMAQv5. Calmap converts to the data to I/O API GRDDED3 files on the modeling grid defined in the GRIDCRO2D file. The CROPMAP01 file contains planting start dates for specific crops. The CROPMAP04 file contains planting end dates for specific crops. The CROPMAP08 file contains harvesting end dates for specific crops. Each of these files are input to the CCTM when the erodible agricultural land (CTM_ERODE_AGLAND) feature is turned on.
+
+** >> Comment <<** What if I'm outside the US?  Can I run CMAQ at all?  Can I run CMAQ with this option?  What's the workaround if I don't have Calmap input?  Can I "roll my own" datasets?  How would I do that?
 
 <a id=Figure7-3></a>
 
@@ -236,13 +249,21 @@ The preprocessor program Calmap produces gridded planting start dates, planting 
 
 |**File Name**|**Format**|**Description**|
 |-----------|---------|-------------------------------------------------------|
-|CROPMAP01|GRDDED3|Name and location of the gridded planting start dates file.|
-|CROPMAP02|GRDDED3|Name and location of the gridded ??? start dates file; not used by the CCTM.|
+|CROPMAP01|GRDDED3|Name and location of the gridded planting start dates file|
+|CROPMAP02|GRDDED3|Name and location of the gridded ??? start dates file; not used by the CCTM|
 |CROPMAP03|GRDDED3|Name and location of the gridded ??? dates file; not used by the CCTM|
-|CROPMAP04|GRDDED3|Name and location of the gridded planting end dates file.|
+|CROPMAP04|GRDDED3|Name and location of the gridded planting end dates file|
 |CROPMAP05|GRDDED3|Name and location of the gridded ??? start dates file; not used by the CCTM|
 |CROPMAP06|GRDDED3|Name and location of the gridded ??? start dates file; not used by the CCTM|
-|CROPMAP07|GRDDED3|Name and location of the gridded harvesting end dates file.|
+|CROPMAP07|GRDDED3|Name and location of the gridded harvesting end dates file|
+
+** >> Comment <<** Fig. 7-3 lists 8 CROPMAP outputs, but "CROPMAP08" is missing from the Table.
+
+** >> Comment <<** Are the "???" entries intentional?
+
+** >> Comment <<** Order processors in order they should be applied rather than alphabetical. [Note:  this comment is not assigned to any specific location in the document.]
+
+** >> Comment <<** Maybe there is a way to combine the ICON and BCON sections since much of the material is the same or similar. [Note:  this comment is not assigned to any specific location in the document.]
 
 #### Execution Configuration Variables ####
 
@@ -251,7 +272,7 @@ The environment variables listed here are invoked during execution of the progra
 ```
 -   BASE: [default: $CMAQ_HOME/PREP/agdust/scripts] Base Calmap installation location.
 -   GRID_CRO_2D: [default: none] Directory path and name of the GRID_CRO_2D file for defining the modeling grid.
--   BELD01: [default: none] Directory path and name of the BELD3 A file for defining the gridded land cover,land use in the modeling domain. Note that this is the same file used by the CCTM to compute dust emissions (DUST_LU_1).
+-   BELD01: [default: none] Directory path and name of the BELD3 A file for defining the gridded land cover, land use in the modeling domain. Note that this is the same file used by the CCTM to compute dust emissions (DUST_LU_1).
 -   CROPMAP01-08: [default: none] Directory path and names of Calmap output files. The CROPMAP01, CROPMAP04, and CROPMAP08 are the only files used by the CCTM for the dust calculation.
 ```
 
@@ -280,13 +301,13 @@ cd $CMAQ_HOME/PREP/agdust/scripts
 
 --------
 
-<a id=CCTM></a> 
+<a id=CCTM></a>
 
 ## CCTM
 
 ### Description
 
-CCTM is the Eulerian chemistry and transport component of CMAQ. It uses input data produced by the other CMAQ programs and from meteorological and emissions models. CCTM produces multiple output files for each simulation. The basic CCTM outputs include instantaneous and average hourly concentration files, wet and dry deposition files, and visibility estimates. Other CCTM outputs can include diagnostic aerosol and cloud files and processes analysis files.
+CCTM is the Eulerian chemistry and transport component of CMAQ. It uses input data produced by the other CMAQ programs and from meteorological and emissions models. CCTM produces multiple output files for each simulation. The basic CCTM outputs include instantaneous and average hourly concentration files, wet and dry deposition files, and visibility estimates. Other CCTM outputs can include diagnostic files and process analysis files.
 
 CCTM contains several science configurations for simulating transport, chemistry, and deposition. All of the science configuration options in CCTM, such as the chemical mechanism to be used, are set when compiling the executable. The model grid and vertical layer structure for CCTM are set at execution. The important distinction between selecting the science configura­tion and the model grid, layer configuration is that CCTM does not need to be recompiled when changing model grids, layers but does need to be recompiled when new science options are invoked.
 
@@ -298,7 +319,10 @@ Both in-line emissions and photolysis are invoked through compile-time configura
 
 ### Files, configuration, and environment variables
 
-[Figure 7‑4](#Figure7-4) shows the input and output files and configuration options for CCTM. A distinction is made between the options that are invoked at compilation time versus those invoked at execution of the program. When compiling CCTM, the user specifies a chemical mechanism to configure the gas-phase chemistry and aerosol mechanism used for the air quality calculations. Setting the `Mechanism` variable in CCTM compile script configures the program to use a specific set of mechanism INCLUDE files to build an executable. All of the science processes simulated by CCTM must also be selected during the compilation step for CCTM. Separate CCTM executables must be prepared for different mechanism and science configurations. During the execution step, or when CCTM is run, the user sets the horizontal and vertical grid definitions and the input files used for the simulation. Different spatial domains, vertical grid structures and input files can be used with a single CCTM executable, as long as the input files are consistent with the scientific configuration built into the executable. For example, with the gas-phase photochemical mechanism configuration built into a CCTM executable, different modeling domains can be simulated with the executable as long as the emissions and `IC/BC` files are consistent with the photochemical mechanism configuration built into the executable.
+[Figure 7‑4](#Figure7-4) shows the input and output files and configuration options for CCTM. A distinction is made between the options that are invoked at compilation time versus those invoked at execution time. When compiling CCTM, the user specifies a chemical mechanism to configure the gas-phase chemistry and aerosol mechanism used for the air quality calculations. Setting the `Mechanism` variable in CCTM compile script configures the program to use a specific set of mechanism INCLUDE files to build an executable. All of the science processes simulated by CCTM must also be selected during the compilation step for CCTM. Separate CCTM executables must be prepared for different mechanism and science configurations. During the execution step, or when CCTM is run, the user sets the horizontal and vertical grid definitions and the input files used for the simulation. Different spatial domains, vertical grid structures and input files can be used with a single CCTM executable, as long as the input files are consistent with the scientific configuration built into the executable. For example, with the gas-phase photochemical mechanism configuration built into a CCTM executable, different modeling domains can be simulated with the executable as long as the emissions and `IC/BC` files are consistent with the photochemical mechanism configuration built into the executable.
+
+
+** >> Comment <<** Distinguish mandatory from optional pre-processors more clearly [in Figure 7.4].
 
 <a id=Figure7-4></a>
 
@@ -333,6 +357,8 @@ Both in-line emissions and photolysis are invoked through compile-time configura
 |nr_matrix.nml|ASCII|Namelist file for defining the non-reactive species that are input to the model through the boundary|
 |tr_matrix.nml|ASCII|Namelist file for defining the tracer species that are input to the model through the boundary|
 
+** >> Comment <<** All of the CCTM options need to be double-checked for updates made in v5.3.
+
 #### CCTM optional input files
 
 <a id=Table7-6></a>
@@ -345,9 +371,9 @@ Both in-line emissions and photolysis are invoked through compile-time configura
 |STK_GRPS_nn|GRDDED3|Stack parameter file for calculating inline plume rise for point source emissions - nn refers to the sector ID number, where there could be multiple point source stack groups used in a single simulation; produced by the SMOKE program Elevpoint|
 |STK_EMIS_nn|GRDDED3|Emissions for elevated point sources - nn refers to the sector ID number, where there could be multiple point source sectors used in a single simulation; produced by the SMOKE program Smkmerge|
 |GSPRO|ASCII|Speciation profile file. Contains the factors that are used to separate aggregated inventory pollutant emissions totals into emissions of model species required by CCTM|
-|B3GRD|GRDDED3|Normalized biogenic emissions for input to BEIS3; produced by the SMOKE program Normbeis3.|
+|B3GRD|GRDDED3|Normalized biogenic emissions for input to BEIS3; produced by the SMOKE program Normbeis3|
 |BIOSEASON|GRDDED3|Indicates the biogenic emissions factors to use for each day in a given year. This file can be created using the SMOKE utility program Metscan. The BIOSEASON file is time-dependent and usually contains data for an entire year (365 or 366 days). It uses one variable, SEASON, which is either 0 (grid cell should use winter factors for current day) or 1 (grid cell should use summer factors for current day.|
-|SOILINP|GRDDED3|Biogenic NO soil input restart file; output by the previous day CCTM simulation.|
+|SOILINP|GRDDED3|Biogenic NO soil input restart file; output by the previous day CCTM simulation|
 |DUST_LU_1|GRDDED3|BELD land use “A” data file for calculating windblown dust emissions; produced with BELD land use tiles and the Spatial Allocator|
 |DUST_LU_2|GRDDED3|BELD land use “TOT” data file for calculating windblown dust emissions; produced with BELD land use tiles and the Spatial Allocator|
 |MODIS_FPAR|GRDDED3|MODIS derived time-varying vegetation land cover data. Can be generated with the [Spatial Allocator Raster Tools](https://github.com/CMASCenter/Spatial-Allocator/blob/master/docs/User_Manual/SA_ch04_raster.md).|
@@ -355,7 +381,7 @@ Both in-line emissions and photolysis are invoked through compile-time configura
 |CROPMAP04|GRDDED3|Gridded planting end dates for estimating dust emissions from erodible cropland; produced by the CMAQ preprocessor [Calmap](#Calmap)|
 |CROPMAP08|GRDDED3|Gridded harvesting end dates for estimating dust emissions from erodible cropland; produced by the CMAQ preprocessor [Calmap](#Calmap)|
 |LTNGNO|GRDDED3|Lightning NO emissions file with rate of production (moles/sec) for each model layer at each time step|
-|NLDN_STRIKES|GRDDED3|Hourly observed lightning strikes (km<sup>-2</sup>) gridded to the CCTM domain.|
+|NLDN_STRIKES|GRDDED3|Hourly observed lightning strikes (km<sup>-2</sup>) gridded to the CCTM domain|
 |LTNGPARMS_FILE|GRDDED3|Time-independent, gridded lightning parameters file that includes the regression parameters derived from historical NLDN observations and WRF predicted convective precipitations using Kain-Fritsch convective scheme, ocean masks, and the ratio of intercloud to cloud-to-ground flashes|
 |BELD4_LU|GRDDED3|BELD4 land use file with fractional crop distributions gridded to the modeling domain|
 |E2C_SOIL|GRDDED3|EPIC soil properties file for each crop type gridded to the modeling domain. This time-independent file contains the soil pH for each agricultural crop being modeled for the 1‑cm surface layer and 10-cm tilled layer|
@@ -414,7 +440,7 @@ The default location of the CCTM output files is the `$CMAQ_HOME/data/cctm` dire
 
 The configuration options listed here are set during compilation of the CCTM executable. When these options are invoked they create a binary executable that is fixed to the specified configuration. To change these options you must recompile CCTM and create a new executable.
 
-Several of the CCTM science modules have more than one option.  Brief descriptions of these options are provided here.  For details on the science of the different options refer to the [CMAQ Release Notes](../../CCTM/docs/Release_Notes/README.md).
+Several of the CCTM science modules have more than one option. Brief descriptions of these options are provided here. For details on the science of the different options refer to the [CMAQ Release Notes](../../CCTM/docs/Release_Notes/README.md).
 
 The following five options are invoked by uncommenting the line in the CCTM build script.  Comment the line in the script using a "#" to turn the option off.
 
@@ -428,22 +454,22 @@ The following five options are invoked by uncommenting the line in the CCTM buil
     Uncomment to build a Makefile to compile the executable. Comment out to both create a Makefile and compile.
 
 -   `set build_parallel_io`  
-     Uncomment to build CMAQ with true parallel I/O feature (requires ioapi3.2 and pnetcdf)
+     Uncomment to build CMAQ with true parallel I/O feature (requires ioapi3.2 and pnetcdf).
 
 -   `set build_twoway`  
-    Uncomment to build WRF-CMAQ twoway - this cannot be set for stand-alone CMAQ
+    Uncomment to build WRF-CMAQ twoway – this cannot be set for stand-alone CMAQ.
 
 -   `set potvortO3`  
-    Uncomment to build CMAQ with potential vorticity free-troposphere O3 scaling
+    Uncomment to build CMAQ with potential vorticity free-troposphere O3 scaling.
 
 The following configuration settings may have multiple options. Select one option in the CCTM build script.
 
 -   `ModDriver: [default: driver/wrf]`  
     The CCTM generalized -coordinate driver module.
     - `driver/wrf`  
-    use WRF-based scheme for mass-conserving advection; select this option when using WRF meteorology
+    Use WRF-based scheme for mass-conserving advection; select this option when using WRF meteorology.
     - `driver/yamo`  
-    use Yamartino scheme for mass-conserving advection
+    Use Yamartino scheme for mass-conserving advection.
 
 -   `ModGrid: [default: Cartesian]`  
     The CCTM model grid configuration module. Currently only Cartesian coordinates are supported by CMAQ. Do not change this module setting.
@@ -456,7 +482,7 @@ The following configuration settings may have multiple options. Select one optio
 -   `ModCpl: [default: couple/gencoor_wrf]`  
     Mass coupling concentration converstion module options. Unit conversion and concentration coupling module.
     -   `couple/gencoor_wrf`  
-    Coupling scheme compatible with the WRF-based advection scheme; select this option when `ModDriver` is set to `driver/wrf`
+    Coupling scheme compatible with the WRF-based advection scheme; select this option when `ModDriver` is set to `driver/wrf`.
     -  `couple/gencoor`  
     Coupling scheme compatible with the Yamartino advection scheme; select this option when `ModDriver` is set to `driver/yamo`.  
 
@@ -467,16 +493,16 @@ The following configuration settings may have multiple options. Select one optio
 -   `ModVadv: [default: vadv/wrf]`  
     Vertical advection module.
     -   `vadv/wrf`  
-    use the WRF omega calculation with the Piecewise Parabolic Method (PPM) to calculate vertical advection; this module should be used only with WRF meteorology
-    -   `vadv/yamo`  
-    use the global mass-conserving scheme to calculate vertical advection
+    Use the WRF omega calculation with the Piecewise Parabolic Method (PPM) to calculate vertical advection; this module should be used only with WRF meteorology
+    -   `vadv/yamo`.  
+    Use the global mass-conserving scheme to calculate vertical advection.
 -   `ModHdiff: [default: hdiff/multiscale]`  
     The only option in CMAQv5 for the horizontal diffusion module is `hdiff/multiscale`, which uses a diffusion coefficient based on local wind deformation. Do not change this module setting.
     -   `hdiff/multiscale`  
 -   `ModVdiff: [default: vdiff/acm2]`  
     Vertical diffusion and surface exchange module. Do not change this module setting.
     -   `vdiff/acm2`  
-    calculate vertical diffusion using the Asymmetric Convective Model version 2 (ACM2)
+    Calculate vertical diffusion using the Asymmetric Convective Model version 2 (ACM2).
 -   `ModDepv: [default: depv/m3dry]`  
     Deposition velocity calculation module. Do not change this module setting.
     -   `depv/m3dry`  
@@ -493,15 +519,15 @@ Calculate in-line plume rise for large point sources using the Briggs algorithm 
 -   `ModCgrds: [default: spcs/cgrid_spcs_nml]`  
     CMAQ model species configuration module.
     -   `spcs/cgrid_spcs_nml`  
-    namelist files used to configure CMAQ model species
+    Namelist files used to configure CMAQ model species.
     -   `spcs/cgrid_specs_icl`  
-    use Fortran INCLUDE files used to configure CMAQ model species
+    Use Fortran INCLUDE files used to configure CMAQ model species
 -   `ModPhot: [default: phot/inline]`  
     Photolysis calculation module.
     -   `phot/inline`  
-    calculate photolysis rates in-line using simulated aerosols and ozone concentrations
+    Calculate photolysis rates in-line using simulated aerosols and ozone concentrations.
     -   `phot/table`  
-    calculate clear-sky photolysis rates off-line using the CMAQ program JPROC; provide daily photolysis rate look-up tables to CCTM
+    Calculate clear-sky photolysis rates off-line using the CMAQ program JPROC; provide daily photolysis rate look-up tables to CCTM.
 -   `Mechanism: [default: cb05e51_ae6_aq`]  
     Chemistry mechanism for gas, aerosol, and aqueous chemistry. See the [CMAQ Mechanism Definitions Table(https://github.com/USEPA/CMAQ/blob/5.2.1/DOCS/User_Manual/CMAQ_OGD_appendix_A.md) for a listing of the mechanism choices that are available in CMAQv5.2.1.
 -   `Tracer [default trac0] `  
@@ -510,25 +536,25 @@ Calculate in-line plume rise for large point sources using the Briggs algorithm 
 -   `ModGas: [default: gas/ebi_${Mechanism}]`  
      Gas-phase chemistry solver module.
      -  `smvgear`  
-     use the SMVGEAR chemistry solver
+     Use the SMVGEAR chemistry solver.
      -  `ros3`  
-     use gas/the Rosenbrock chemistry solver
+     Use gas/the Rosenbrock chemistry solver.
      -  `ebi`  
-     use the Euler Backward Iterative solver
+     Use the Euler Backward Iterative solver.
 -   `ModAero: [default: aero6]`  
     CMAQ aero/aerosol module.
     -   `aero6`  
-    sixth-generation modal CMAQ aerosol model with extensions for sea salt emissions and thermodynamics; includes a new formulation for secondary organic aerosol yields
+    Sixth-generation modal CMAQ aerosol model with extensions for sea salt emissions and thermodynamics; includes a new formulation for secondary organic aerosol yields.
 -   `ModCloud: [default: cloud/acm_ae6]`  
     CMAQ cloud module for modeling the impacts of clouds on deposition, mixing, photolysis, and aqueous chemistry.
     -   `cloud/acm_ae6`  
-    ACM cloud processor that uses the ACM methodology to compute convective mixing with heterogeneous chemistry for AERO6
+    ACM cloud processor that uses the ACM methodology to compute convective mixing with heterogeneous chemistry for AERO6.
     -   `cloud/acm_ae6_mp`  
-    ACM cloud processor that uses the ACM methodology to compute convective mixing with heterogeneous chemistry for AERO6 and air toxics; this is the multipollutant mechanism in CMAQv5
+    ACM cloud processor that uses the ACM methodology to compute convective mixing with heterogeneous chemistry for AERO6 and air toxics; this is the multipollutant mechanism in CMAQv5.
     -   `cloud/acm_ae6_kmt`  
-    ACM cloud processor that uses the ACM methodology to compute convective mixing with heterogeneous chemistry for AERO6 and aqueous chemistry with kinetic mass transfer and Rosenbrock solver
+    ACM cloud processor that uses the ACM methodology to compute convective mixing with heterogeneous chemistry for AERO6 and aqueous chemistry with kinetic mass transfer and Rosenbrock solver.
     -   `cloud/acm_ae6i_kmti`  
-    ACM cloud processor that uses the ACM methodology to compute convective mixing with heterogeneous chemistry for AERO6 and aqueous chemistry with kinetic mass transfer and Rosenbrock solver with an extension to simulate the aqueous phase formation of SOA in cloud droplets, see: [CMAQv5.1 Aqueous Chemistry](https://www.airqualitymodeling.org/index.php/CMAQv5.1_Aqueous_Chemistry)
+    ACM cloud processor that uses the ACM methodology to compute convective mixing with heterogeneous chemistry for AERO6 and aqueous chemistry with kinetic mass transfer and Rosenbrock solver with an extension to simulate the aqueous phase formation of SOA in cloud droplets, see: [CMAQv5.1 Aqueous Chemistry](https://www.airqualitymodeling.org/index.php/CMAQv5.1_Aqueous_Chemistry).
 -   `ModUtil: [default: util]`  
     CMAQ utility modules. Do not change this module setting.
     -  `util/util`
@@ -554,40 +580,40 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Use MPI multi-processor configuration. Additional configuration settings are required when selecting `mpi`. The CCTM must have been built to support MPI. The run script requires settings for the number of processors and other MPI configuration variables required by the Linux system.
     - `serial`  
     Run the CCTM in serial, single-processor mode.
--   `MECH [default: None]` 
+-   `MECH [default: None]`
     CMAQ chemical mechanism. Must match Mechanism variable setting in the CCTM build script.
 -   `EMIS [default: 2013ef]`
 -   `APPL [default: SE52BENCH]`  
     CCTM executable identifier. Must match APPL Variable setting in the CCTM build script.
--   `RUNID [default: $VRSN_compiler_APPL]` 
+-   `RUNID [default: $VRSN_compiler_APPL]`
     Run ID used to track version number, compiler, and application case name.
 -   `EXEC [default: CCTM_$APPL_$EXECID]`  
     The name of the CCTM executable.
 
 ##### MPI Configuration
 -   `NPCOL_NPROW [default: 1 1]`  
-    The numbers of columns and rows for decomposing the modeling domain in an MPI configuration. The product of this pair of numbers must equal the total number of processors allocated to the CCTM simulation. For serial or single-processor MPI runs set to `1 1`. For multi-processor simulations, the number of columns (i.e, the first number in the pair) should be greater than or equal to the number of rows.  For example, for an 8 processor MPI simulation, set to `4 2`
+    The numbers of columns and rows for decomposing the modeling domain in an MPI configuration. The product of this pair of numbers must equal the total number of processors allocated to the CCTM simulation. For serial or single-processor MPI runs set to `1 1`. For multi-processor simulations, the number of columns (i.e, the first number in the pair) should be greater than or equal to the number of rows. For example, for an 8 processor MPI simulation, set to `4 2`.
 -   `NPROCS [default: 1]`  
     Number of processors to allocate for the CCTM simulation; equal to the product of NPCOL x NPROW. For serial or single-processor MPI runs set to `1`, otherwise set to the product of the two numbers used in NPCOL_NPROW.
 
 ##### Vertical extent
--    `NZ [default: 35]` 
-      Set the number of vertical layers. 
+-    `NZ [default: 35]`
+      Set the number of vertical layers.
 
 ##### Timestep Configuration
 
--   `NEW_START_TRUE [default: TRUE]` 
-     For a model restart set to FALSE
+-   `NEW_START_TRUE [default: TRUE]`
+     For a model restart set to FALSE.
 -   `START_DATE`  
-    Simulation start date in Gregorian format (YYYY-MM-DD)
+    Simulation start date in Gregorian format (YYYY-MM-DD).
 -   `END_DATE`
-    Simulation end date in Gregorian format (YYYY-MM-DD)
+    Simulation end date in Gregorian format (YYYY-MM-DD).
 -   `STTIME`  
-    Simulation start time (HHMMSS)
+    Simulation start time (HHMMSS).
 -   `NSTEPS [default: 240000]`  
-    Number of simulation time steps (HHMMSS)
+    Number of simulation time steps (HHMMSS).
 -   `TSTEP [default: 010000]`  
-    Simulation output time step interval (HHMMSS)
+    Simulation output time step interval (HHMMSS).
 
 ##### CCTM Configuration Options
 
@@ -617,30 +643,30 @@ Sets if the CCTM will run in multi-processor or serial mode.
 ##### Synchronization Time Step and Tolerance Options
 
 -   `CTM_MAXSYNC [default: 300]`  
-    Maximum synchronization time step in seconds
+    Maximum synchronization time step in seconds.
 -   `CTM_MINSYNC [default: 60]`  
-    Minimum synchronization time step in seconds
+    Minimum synchronization time step in seconds.
 -   `SIGMA_SYNC_TOP [default: .70]`  
-    Top sigma level thru which sync step determined
--   `ADV_HDIV_LIM [default: .95]` 
-     Maximum horizontal division limit for advection time step adjustment
+    Top sigma level thru which sync step determined.
+-   `ADV_HDIV_LIM [default: .95]`
+     Maximum horizontal division limit for advection time step adjustment.
 -   `CTM_ADV_CFL [default: .95]`  
-    Maximum Courant–Friedrichs–Lewy (cfl) condition
+    Maximum Courant–Friedrichs–Lewy (cfl) condition.
 -   `RB_ATOL [default: 1.0E-09]`  
-    Global Rosenbrock (ROS3) chemistry solver absolute tolerance
+    Global Rosenbrock (ROS3) chemistry solver absolute tolerance.
 
 ##### Science Options
 
 -   `CTM_WB_DUST [default: Y]`  
-    Setting to calculate in-line windblown dust emissions in CCTM. Setting this variable to Y requires the availability of gridded land use input files that include the following BELD USGS land use classifications: shrubland, shrubgrass, and sprsbarren. See [Chapter 8](CMAQ_OGD_ch08_input_files.md#Table8-1) for a description of the DUST_LU_1 and DUST_LU_2 input files. Comment out variable or set to Y to turn on; set to N to turn off.
+    Setting to calculate in-line windblown dust emissions in CCTM. Setting this variable to Y requires the availability of gridded land use input files that include the following BELD USGS land use classifications: shrubland, shrubgrass, and sprsbarren. See [Chapter 8](CMAQ_OGD_ch08_input_and_output_files.md#Table8-1) for a description of the DUST_LU_1 and DUST_LU_2 input files. Comment out variable or set to Y to turn on; set to N to turn off.
 -   `CTM_ERODE_AGLAND [default: Y]`  
-    Setting to use optional erodible agricultural land classifications for computing windblown dust emissions from agricultural land. Setting this variable to Y requires the availability of gridded crop timing data that describe planting start dates, planting end dates, and harvesting end dates for 18 crop types. See [Chapter 8](CMAQ_OGD_ch08_input_files.md#Table8-1) for a description of the CROPMAP01, CROPMAP04, and CROPMAP08 input files. If CTM_WB_DUST is set to N, this setting will be ignored. Set to Y to turn on; comment out variable or set to N to turn off.
--   `CTM_WBDUST_BELD [default: BELD3]` 
-    Landuse database for identifying dust source regions;  ignore if `CTM_WB_DUST = N`
+    Setting to use optional erodible agricultural land classifications for computing windblown dust emissions from agricultural land. Setting this variable to Y requires the availability of gridded crop timing data that describe planting start dates, planting end dates, and harvesting end dates for 18 crop types. See [Chapter 8](CMAQ_OGD_ch08_input_and_output_files.md#Table8-1) for a description of the CROPMAP01, CROPMAP04, and CROPMAP08 input files. If CTM_WB_DUST is set to N, this setting will be ignored. Set to Y to turn on; comment out variable or set to N to turn off.
+-   `CTM_WBDUST_BELD [default: BELD3]`
+    Landuse database for identifying dust source regions;  ignore if `CTM_WB_DUST = N`.
     - `BELD3`  
-    Use BELD3 landuse data
+    Use BELD3 landuse data.
     - `BELD4`
-    Use BELD4 landuse data
+    Use BELD4 landuse data.
 -   `CTM_LTNG_NO [default: Y]`  
     Setting to activate lightning NO emissions. Setting this variable to Y requires additional variables to define the configuration of the lightning NO emissions calculation. See the settings for `LTNGNO`, `LTNGPARAMS`, `NLDN_STRIKES`, and `LTNGDIAG` below. Set to Y to turn on; comment out variable or set to N to turn off.
 -   `CTM_WVEL [default: Y]`  
@@ -654,7 +680,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `CTM_FST [default: N]`  
     Use MOSAIC method to get land-use specific stomatal flux.
 -   `CTM_ABFLUX [default: Y]`  
-    Activate fertilizer ammonia bidirectional flux for in-line emissions and deposition velocities. If CTM_ILDEPV is set to N this variable is ignored. Setting this variable to Y requires four additional input files that include gridded fractional crop distributions (B4LU_file), soil properties (E2C_Soilfile), fertilizer conditions (E2C_Fertfile), and an agricultural soil initial conditions file (INIT_MEDC_1). Activation of this setting will produce additional variables in the output dry deposition file. See [Chapter 8](CMAQ_OGD_ch08_input_files.md#Table8-1) for a description of the required input files. Set to Y to turn on; comment out or set to N to turn off.
+    Activate fertilizer ammonia bidirectional flux for in-line emissions and deposition velocities. If CTM_ILDEPV is set to N this variable is ignored. Setting this variable to Y requires four additional input files that include gridded fractional crop distributions (B4LU_file), soil properties (E2C_Soilfile), fertilizer conditions (E2C_Fertfile), and an agricultural soil initial conditions file (INIT_MEDC_1). Activation of this setting will produce additional variables in the output dry deposition file. See [Chapter 8](CMAQ_OGD_ch08_input_and_output_files.md#Table8-1) for a description of the required input files. Set to Y to turn on; comment out or set to N to turn off.
 -   `CTM_HGBIDI [default: N]`  
     Activate mercury bidirectional flux for in-line emissions and deposition velocities. If CTM_ILDEPV is set to N this variable is ignored. Activation of this setting will produce additional variables in the output dry deposition file. Set to Y to turn on; comment out or set to N to turn off.
 -   `CTM_SFC_HONO [default: Y]`  
@@ -764,25 +790,16 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Setting to define whether the lightning emissions calculation will be in-line or off-line. This variable can be set to a gridded netCDF file of lightning NO emissions to use emissions calculated with a preprocessor outside of CCTM. Setting this variable to “inline” activates the in-line emissions calculation in CCTM and requires the LTNGPARMS variable (see below) to define the configuration of the in-line emissions.
 
 -   `USE_NLDN [default: Y]`  
-    Use hourly NLDN strikes file to compute inline lighing NO emissions. Activating this setting requires the NLDN_STRIKES input file.  Comment out or set to Y to turn on; set to N to turn off.
-
--   `LTNGPARAMS [default: Y]`  
-    Use the lightning parameters configuration file to compute inline lightning NO emissions. When the variable `LTNGNO` is set to `inline`, this setting is used to define how the in-line emissions will be calculated. Commenting out this variable or setting it to Y will compute lightning NO from input hourly flash count observations. Setting this variable to N will compute lightning NO strictly from convective precipitation rates in the input meteorology data. When this variable is set to Y, an additional input lightning parameter file (LTNGPARMS_FILE) will need to be available that includes intercloud to cloud-to-ground flash ratios, scaling factors for calculating flashes using the convective precipitation rate, and the moles of NO per flash.
+    Use hourly NLDN strikes file to compute inline lightning NO emissions. Activating this setting requires the NLDN_STRIKES input file. Comment out or set to Y to turn on; set to N to turn off.
 
 -  `NLDN_STRIKES [default: None]`  
-    Hourly NLDN lightning strike netCDF FILE. Required when `LTNGNO` is set to `Inline` and `USE_NLDN` is set to `Y`; otherwise ignore this setting.
-
--  `LOG_START [default: 0.9]`  
-    Convective precipitation (RC) value to transition the lightning NO emissions calculation from linear to log linear.
+    Hourly NLDN lightning flash netCDF FILE. Required when `LTNGNO` is set to `Inline` and `USE_NLDN` is set to `Y`; otherwise ignore this setting.
 
 -   `LTNGDIAG [default: N]`  
     Output a lightning NO emissions diagnostics file. Set to `Y` to turn on; comment out or set to `N` to turn off.
 
 -  `LTNGPARMS_FILE [default: None]`  
-    Lightning parameters output netCDF file; ignore if `LTNGPARAMS = N`
-
--  `LTNGOUT [default: None]`  
-    Lightning diagnostics output netCDF file; ignore if `LTNGDIAG = N`
+    Lightning parameters output netCDF file; ignore if not `LTNGNO = InLine.`
 
 ##### In-line biogenic emissions configuration
 
@@ -877,6 +894,10 @@ cd $CMAQ_HOME/CCTM/scripts
 
 ## CHEMMECH and CSV2NML
 
+** >> Comment <<** Where do these things fit on Fig. 7-1?
+
+** >> Comment <<** Delete sections 7.5 and 7.6 or put them in an appendix; provide that information upon request as not many people will make their own chemical mechanisms.
+
 ### Description
 
 The program CHEMMECH generates mechanism source code files for all chemical mechanism-dependent CMAQ programs. Using an ASCII mechanism definition file as input, the Fortran program CHEMMECH creates all of the Fortran files that define the gas-phase chemical mechanisms for the CMAQ programs. The C-Shell script CSV2NML converts a comma-delimited text file that defines the processes (e.g., input as emissions, input through boundary conditions, transport, deposition) impacting the concentrations of each model species to a NAMELIST file for input to the CMAQ programs. In combination the Fortran source and NAMELIST files define chemical mechanisms in the CMAQ programs.
@@ -885,7 +906,7 @@ Implementing new mechanisms created by CHEMMECH and CSV2NML in the CMAQ programs
 
 CHEMMECH reads in a mechanism definition (mech.def) text file that lists the stoichiometry and kinetics of a photochemical reaction mechanism. The program converts the mech.def file to two RXNS files, RXNS_DATA_MODULE.F90 and RXNS_FUNC_MODULE.F90 that get compiled with the CMAQ source code into a new executable. The source files created by CHEMMECH must be manually moved to the correct directory location in the CMAQ source code directories to be available during compilation of the CMAQ programs. The mechanism files for CMAQ are found in $CMAQ_HOME/CCTM/src/MECHS/$Mechanism, where $Mechanism is the unique ID of a chemical mechanism (e.g., cb05e51_aq6_aq).
 
-CSV2NML reads in a series of CSV files that define the processes that impact the concentrations of all of the CMAQ species. The CSV files are converted to NAMELIST files that are invoked at execution of the various CMAQ programs. Environment variables in the run scripts for ICON, BCON, and CCTM must be set to point to the NAMELIST files for a particular mechanism.
+CSV2NML reads in a series of CSV files that define the processes that impact the concentrations of all CMAQ species. The CSV files are converted to NAMELIST files that are invoked at execution of the various CMAQ programs. Environment variables in the run scripts for ICON, BCON, and CCTM must be set to point to the NAMELIST files for a particular mechanism.
 
 See [Chapter 9](CMAQ_OGD_ch09_grid_defn.md) for details on how to update existing mechanisms or create new mechanisms in CMAQ.
 
@@ -926,7 +947,7 @@ The location of the CHEMMECH output files is set in the run script by the variab
 
 #### CSV2NML input files
 
-Detailed descriptions of the formats of the files shown in [Table 7-11](#Table5-9) are provided in [Chapter 8](CMAQ_OGD_ch08_input_files.md). 
+Detailed descriptions of the formats of the files shown in [Table 7-11](#Table5-9) are provided in [Chapter 8](CMAQ_OGD_ch08_input_and_output_files.md).
 
 <a id=Table7-11></a>
 
@@ -1007,7 +1028,7 @@ cd $CMAQ_HOME/UTIL/nml/scripts
 ./csv2nml.csh GC.CSV
 ```
 
-There is also a script to convert an existing namelist file to a CSV
+There is also a script to convert an existing namelist file to a CSV.
 
 ```
 cd $CMAQ_HOME/UTIL/nml/scripts
@@ -1019,6 +1040,8 @@ cd $CMAQ_HOME/UTIL/nml/scripts
 <a id=CREATE_EBI></a>
 
 ## CREATE_EBI
+
+** >> Comment <<** Where is this in Fig. 7-1?
 
 ### Description
 
@@ -1199,7 +1222,9 @@ CCTM can also be forced with initial conditions downscaled from global chemistry
 
 ### Files, configuration, and environment variables ###
 
-[Figure 7‑6](#Figure7-6) shows the input and output files and configuration options for ICON. A distinction is made between the options that are invoked at compilation versus those invoked at execution of the program. When compiling ICON, the user specifies a chemical mechanism to configure the gas-phase chemistry and aerosol mechanism used to create the chemical ICs. Setting the `ModMech` and `Mechanism` variables in the ICON compile script configures the program to use a specific set of mechanism namelist files to build an executable. Setting the `ModType` variable in the ICON compile script configures the program to input either a text file of static concentrations or a binary netCDF file of time-dependent concentrations for estimating ICs for CCTM. Separate ICON executables must be prepared for different mechanism and input file configurations.
+[Figure 7‑6](#Figure7-6) shows the input and output files and configuration options for ICON. A distinction is made between the options that are invoked at compilation versus those invoked at execution time. When compiling ICON, the user specifies a chemical mechanism to configure the gas-phase chemistry and aerosol mechanism used to create the chemical ICs. Setting the `ModMech` and `Mechanism` variables in the ICON compile script configures the program to use a specific set of mechanism namelist files to build an executable. Setting the `ModType` variable in the ICON compile script configures the program to input either a text file of static concentrations or a binary netCDF file of time-dependent concentrations for estimating ICs for CCTM. Separate ICON executables must be prepared for different mechanism and input file configurations.
+
+** >> Comment <<** ICON Flow Chart [is] very confusing.
 
 <a id=Figure7-6></a>
 
@@ -1341,6 +1366,8 @@ cd $CMAQ_HOME/PREP/icon/scripts
 
 ## INLINE_PHOT_PREPROC
 
+** >> Comment <<** Section 7.8 is confusing with the initial sub-sections talking about INLINE_PHOT_PREPROC and the last few referring to CREATE_EBI. are these the same tools? A flow chart may actually help here.
+
 ### Description
 
 The program INLINE_PHOT_PREPROC generates absorption cross-section/quantum yield (CSQY) data files for the CCTM inline photolysis module. This utility program allows users to create new CSQY tables when reaction rate data are modified or added to CMAQ. The data tables generated by INLINE_PHOT_PREPROC should be used to create the photochemistry data tables needed for inline photolysis configurations of the CCTM.  
@@ -1379,7 +1406,7 @@ To implement new CSQY data in CMAQ, start with individual CSQY data files for ea
 |File Name|Format|Description|
 |----------------|------------|------------------------------------------------------------|
 |CSQY_DATA|ASCII|Tabulated CSQY data as a function of temperature and wavelength bin|
-|PHOT_OPTICS|ASCII|Wavelength, Optical and Surface Albedo Parameters for CMAQ In-Line Photolysis calculation.|
+|PHOT_OPTICS|ASCII|Wavelength, Optical and Surface Albedo Parameters for CMAQ In-Line Photolysis calculation|
 
 The location of the INLINE_PHOT_PREPROC output files is set in the run script by the variable OUTDIR. To compile a version of the CMAQ programs that use the files created by INLINE_PHO_PREPROC, copy the output files to a new directory under the `$CMAQ_HOME/CCTM/src/MECHS/$Mechanism` directory. Point the CMAQ build scripts to this new directory with the “Mechanism” variable.
 
@@ -1443,11 +1470,13 @@ cd $CMAQ_HOME/UTIL/create_ebi/scripts
 
 ## JPROC
 
+** >> Comment <<** Delete section 7.9; refer users to older manuals if they want to run older options like JPROC.
+
 ### Description
 
 The program JPROC calculates daily clear-sky photolysis rates from look-up tables of molecular absorption cross-section and quantum yield (CSQY) data, and climatologically derived ozone-column and optical depth data. The outputs from JPROC are ASCII look-up tables of daily clear-sky photolysis rates for photochemical reactions in a selected gas-phase photochemical mechanism at different altitudes, latitudes, and hours from noon. The photochemical mechanism from which these rates are derived is selected during compilation of JPROC. The altitudes (meters), latitudes (degrees), and hour angles (from noon) for which the rates are derived are hardwired in the JPROC source code.
 
-CCTM currently uses an in-line photolysis option that calculates photolysis rates using predicted ozone and aerosols. JPROC is notused for the default configuration of ModPhot set to  phot/inline). JPROC is required to produce daily photolysis rate look-up tables if CCTM is compiled with *ModPhot* set to phot/table.
+CCTM currently uses an in-line photolysis option that calculates photolysis rates using predicted ozone and aerosols. JPROC is not used for the default configuration of ModPhot set to phot/inline). JPROC is required to produce daily photolysis rate look-up tables if CCTM is compiled with *ModPhot* set to phot/table.
 
 ### Files, configuration, and environment variables
 
@@ -1531,7 +1560,7 @@ The environment variables listed here are invoked during execution of the progra
 
 [Chapter 5](CMAQ_OGD_ch05_sys_req.md) provides an overview of how to install and compile the CMAQ programs for the tutorial simulation. Follow the steps outlined in Chapter 5 (summarized below) to compile new versions of JPROC:
 
-1.   Compile Bldmake, the CMAQ source code and compilation management program. This needs to be done only once—the first time CMAQ is installed.
+1.  Compile Bldmake, the CMAQ source code and compilation management program. This needs to be done only once—the first time CMAQ is installed.
 -   Cnfigure the JPROC build script to use the config_cmaq.csh script, which points to the available I/O API and netCDF libraries.
 -   Configure the JPROC build script for your application by setting the compilation configuration variables described above.
 -   Invoke the build script to create an executable:
@@ -1557,13 +1586,17 @@ cd $CMAQ_HOME/UTIL/jproc/scripts
 
 ## MCIP
 
+** >> Comment <<** It seems like I'd want to know about MCIP before all of the codes that rely on its output.
+
 ### Description
 
-The Meteorology-Chemistry Interface Processor (MCIP) processes meteorological model output from either MM5 or WRF‑ARW model into I/O API-formatted files that are compatible with CMAQ and SMOKE. MCIP automatically determines whether an input file is generated by MM5 or WRF‑ARW by trying to open the file as a netCDF file. If the file can be read as netCDF, MCIP assumes the input is a WRF‑ARW dataset; otherwise, MM5 is assumed.
+The Meteorology-Chemistry Interface Processor (MCIP) processes meteorological model output from the WRF‑ARW model into I/O API-formatted files that are compatible with CMAQ and SMOKE. MCIP automatically determines whether an input file is generated by WRF‑ARW by trying to open the file as a netCDF file. If the file can be read as netCDF, MCIP assumes the input is a WRF‑ARW dataset.
 
 Many of the fields that are simulated by the meteorological model are not modified by MCIP for the emissions model and CCTM, and they are written to I/O API files. Fields that are required for the transformation to CMAQ’s generalized coordinate system are calculated within MCIP. The dry deposition velocities are no longer calculated by the current version of MCIP. CMAQv5 can now calculate all deposition velocities, MCIPv3.4 will be the last version of MCIP to calculate those velocities internally.
 
 MCIP can extract both temporal and spatial subsets of the input meteorology files. The run script allows the user to specify the beginning and end dates/times of the MCIP simulation; these dates/times can fall anywhere within the range of the input meteorological time period, but must be consistent with the time granularity of the meteorological files. MCIP cannot perform temporal interpolations to artificially increase the temporal resolution of the meteorology fields. Two types of horizontal domain windowing are allowed with MCIP. The boundary trim option (“BTRIM”) uniformly trims grid cells off each of the four lateral boundaries of the input meteorology grid. The nonuniform trim option specifies an offset from the lower left corner of the input meteorology domain and the number of cells in the X and Y directions from the revised origin to extract from the input domain. More information about how to invoke these options is provided in the next section: [MCIP](#Execution Configuration Variables). MCIP also provides the capability to reconfigure the vertical layer structure in the input meteorology through interpolation from the input structure to an output structure defined through sigma coordinates in the run script. Commonly referred to as “layer collapsing,” this option should be exercised with caution as it can significantly impact the conservation of energy assumption inherent in the meteorology through its effects on the predicted wind fields.
+
+** >> Comment <<** ***Tanya will update this information.  Some of it is outdated.***
 
 ### Files, configuration, and environment variables
 
@@ -1571,10 +1604,13 @@ MCIP can extract both temporal and spatial subsets of the input meteorology file
 
 <a id=Figure7-8></a>
 
+** >> Comment <<** [From "CMAQ_OGD_Chapter7_review_DK.pdf", regarding the figure below] This is the wrong figure. This flow chart was the old way to create lightning NO.
+
 ![](./images/Figure7-8.png "Figure7-8.png")
 
 **Figure 7‑8. MCIP input and output files**
 
+** >> Comment <<** Fig. 7-8 has nothing to do with MCIP.  This seems to be messed up.  Need an actual figure that fits here.
 
 #### MCIP Input Files
 
@@ -1584,8 +1620,7 @@ MCIP can extract both temporal and spatial subsets of the input meteorology file
 
 |**File Name**|**Format**|**Description**|
 |------------|------------------------------|-----------------------------------------------------|
-|InMetFiles|binary (MM5) or netCDF (WRF\‑ARW)|List of MM5 or WRF‑ARW output files for input to MCIP|
-|InTerFile|binary|MM5 Terrain file with fractional land use categories; used for calculating land-use-dependent vertical diffusivity. Not necessary with WRF‑ARW; this information is included in the WRF-ARW met file.|
+|InMetFiles|netCDF (WRF\‑ARW)|List of WRF‑ARW output files for input to MCIP|
 |InSatFiles||GOES satellite cloud data|
 
 #### MCIP Output Files
@@ -1605,7 +1640,6 @@ MCIP can extract both temporal and spatial subsets of the input meteorology file
 |MET_CRO_2D|GRDDED3|Time-dependent 2-D cross-point meteorology file|
 |MET_CRO_3D|GRDDED3|Time-dependent 3-D cross-point meteorology file|
 |MET_DOT_3D|GRDDED3|Time-dependent 3-D dot-point meteorology file|
-|mmheader|ASCII|Content of MM5 header including configuration information; not generated for WRF‑ARW input|
 
 The default location of the MCIP output files is the `$CMAQ_HOME/data/mcip/$GridName` directory. Since the default file names do not have any information about the model grid that they are simulating, the name of the grid is set in the output directory path. The default naming convention for all MCIP output files uses only the APPL environment variable in the file name. All of the file-naming variables for the MCIP outputs are set in the run script.
 
@@ -1614,6 +1648,8 @@ The default location of the MCIP output files is the `$CMAQ_HOME/data/mcip/$Grid
 All model configuration options for MCIP are set during execution. System compiler options must be set in the provided Linux Makefile to build the program for different operating system/compiler combinations. Example compiler paths, flags, and library locations are provided in the default Makefile.
 
 #### Execution Configuration Variables
+
+** >> Comment <<** These are not environment variables.  MCIP does not read environment variables like CCTM does.
 
 The environment variables listed here are invoked during execution of the program and are set in the MCIP run script.
 
@@ -1626,9 +1662,9 @@ The environment variables listed here are invoked during execution of the progra
 -   `DataPath [default: $CMAQ_DATA]`  
     Input/output data directory path
 -   `InMetDir [default: None]`  
-    Path of the input data directory containing the MM5 or WRF‑ARW output data files
+    Path of the input data directory containing the WRF‑ARW output data files
 -   `InTerDir [default: None]`  
-    Path of the input data directory containing the MM5 TERRAIN or WRF Geogrid file
+    Path of the input data directory containing the WRF Geogrid file
 -   `InSatDir [default: None]`  
     Path of the input data directory containing GOES satellite files for using observed cloud cover data.
 -   `OutDir [default: $CMAQ_HOME/data/mcip]`  
@@ -1642,9 +1678,9 @@ The environment variables listed here are invoked during execution of the progra
 -   `InSatFiles [default: None]`  
     List of input GOES satellite cloud data files.
 -   `IfTer [default: F]`  
-    Binary flag indicating the availability of an input MM5 TERRAIN or WRF Geogrid file; options include T (true) or F (false)
+    Binary flag indicating the availability of an input WRF Geogrid file; options include T (true) or F (false)
 -   `InTerFile [default: None]`  
-    Name and location of input MM5 TERRAIN or WRF Geogrid file
+    Name and location of input WRF Geogrid file
 -   `LPV: [default: 0]`  
     Compute and output potential vorticity. This must be activated to support the [CCTM O3 potential vorticity scaling](../../CCTM/docs/ReleaseNotes/Potential_Vorticity_Scaling.md).
     -   `0`: Do not compute and output potential vorticity
@@ -1662,9 +1698,9 @@ The environment variables listed here are invoked during execution of the progra
     -   `0`: No satellite data are available
     -   `1`: Use GOES observed cloud information to replace model-derived input
 -   `MCIP_START [format: YYYY-MM-DD-HH:MM:SS.SSSS]`  
-    Beginning date and time (UTC) of data to output from MCIP. The start date and time must be contained within the input data from MM5 or WRF‑ARW.
+    Beginning date and time (UTC) of data to output from MCIP. The start date and time must be contained within the input data from WRF‑ARW.
 -   `MCIP_END [format: YYYY-MM-DD-HH:MM:SS.SSSS]`  
-    End date and time (UTC) of data to output from MCIP. The end date and time must be contained within the input data from MM5 or WRF‑ARW.
+    End date and time (UTC) of data to output from MCIP. The end date and time must be contained within the input data from WRF‑ARW.
 -   `INTVL [default: 60]`  
     Output interval in minutes. This setting determines the amount of model time contained in each output time step. The output interval for MCIP can be less frequent than the incoming meteorological model output (e.g., process 30-minute data for CCTM from 15-minute WRF‑ARW output).
 -   `CTMLAYS [default: “-1.0” ]`  
@@ -1672,13 +1708,13 @@ The environment variables listed here are invoked during execution of the progra
 -   `MKGRID [default: T]`  
     Determines whether to output static (GRID) meteorology files
 -   `BTRIM [default: 5]`  
-    The number of boundary points to remove on each of the four horizontal sides of the MCIP domain. Setting BTRIM = 0 will specify the maximum extent of the input meteorology domain. To remove the MM5 or WRF‑ARW lateral boundaries, set BTRIM = 5 (recommended).
+    The number of boundary points to remove on each of the four horizontal sides of the MCIP domain. Setting BTRIM = 0 will specify the maximum extent of the input meteorology domain. To remove the WRF‑ARW lateral boundaries, set BTRIM = 5 (recommended).
     This setting affects the output MCIP horizontal domain by reducing the input meteorology domain by 2*BTRIM + 2*NTHIK + 1, where NTHIK is the lateral boundary thickness (from the BDY files). The extra point reflects the conversion from the grid points (dot points) to grid cells (cross points).
     For windowing a subset domain of the input meteorology, set BTRIM = -1; this setting causes BTRIM to be replaced by the information provided by X0, Y0, NCOLS, and NROWS (see below).
 -   `X0 [used only if BTRIM = -1]`  
-    The *x*-coordinate of the lower-left corner of the full MCIP cross-point domain (including the MCIP lateral boundary) based on the input MM5 or WRF‑ARW domain. X0 refers to the east-west direction.
+    The *x*-coordinate of the lower-left corner of the full MCIP cross-point domain (including the MCIP lateral boundary) based on the input WRF‑ARW domain. X0 refers to the east-west direction.
 -   `Y0 [used only if BTRIM = -1]`  
-    The *y*-coordinate of the lower-left corner of the full MCIP cross-point domain (including the MCIP lateral boundary) based on the input MM5 or WRF‑ARW domain. Y0 refers to the north-south direction.
+    The *y*-coordinate of the lower-left corner of the full MCIP cross-point domain (including the MCIP lateral boundary) based on the input WRF‑ARW domain. Y0 refers to the north-south direction.
 -   `NCOLS [used only if BTRIM = -1]`  
     Number of columns in the output MCIP domain (excluding MCIP lateral boundaries)
 -   `NROWS [used only if BTRIM = -1]`  
@@ -1688,7 +1724,7 @@ The environment variables listed here are invoked during execution of the progra
 -   `LPRT_ROW [default: 0]`  
     Row cell coordinate for diagnostic outputs on the MCIP modeling domain
 -   `WRF_LC_REF_LAT [default: -999.0]`  
-    WRF Lambert Conformal reference latitude. Use this setting to force the reference latitude in the output MCIP data. If not set, MCIP will use the average of the two true latitudes. This setting is useful for matching WRF grids to existing MM5 grids.
+    WRF Lambert Conformal reference latitude. Use this setting to force the reference latitude in the output MCIP data. If not set, MCIP will use the average of the two true latitudes.
 
 ### Compiling and Running
 
@@ -1724,7 +1760,7 @@ cd $CMAQ_HOME/PREP/mcip/scripts
 
 Arya, P., 1984: Parametric relations for the atmospheric boundary layer. Bound.-Layer Meteor., 30, 57–73.  
 
-Byun, D. W., and J. K. S. Ching, 1999: Science Algorithms of the EPA Models-3 Community Multiscale Air Quality (CMAQ) Modeling System. U. S. Environmental Protection Agency Rep. EPA‑600/R‑99/030, 727 pp. [Available from Office of Research and Development, EPA, Washington, DC 20460.]  
+Byun, D. W., and J. K. S. Ching, 1999: Science Algorithms of the EPA Models-3 Community Multiscale Air Quality (CMAQ) Modeling System. U.S. Environmental Protection Agency Rep. EPA-600/R‑99/030, 727 pp. [Available from Office of Research and Development, EPA, Washington, DC 20460.]  
 
 Hanna, S. R., G. A. Briggs, and R. P. Hosker, 1982: Handbook on atmospheric diffusion, U.S. DOE, DOE/TIC-11223, DE82002045, National Technical Info. Center, Springfield, VA.  
 
@@ -1745,7 +1781,7 @@ Wesely, M. L., 1989: Parameterization of surface resistances to gaseous dry depo
 
 <!-- BEGIN COMMENT -->
 
-[<< Previous Chapter](CMAQ_OGD_ch06_req_lib.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch08_input_files.md)  
+[<< Previous Chapter](CMAQ_OGD_ch06_req_lib.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch08_input_and_output_files.md)  
 CMAQ Operational Guidance Document (c) 2016
 
 <!-- END COMMENT -->
