@@ -6,24 +6,37 @@
 
 
 # Science Overview #
+** >>COMMENT<< ** 2nd para. "application communities" is somewhat jargon.  I would think that the primary goal to state here is to serve the regulatory operations of the EPA, even if that's not how it works in practice.
+
+** >>COMMENT<< ** If possible, add hyperlink for Byun and Schere.
 
 As discussed in [Chapter 1](CMAQ_OGD_ch01_intro.md), CMAQ is a multipollutant, multiscale air quality modeling system that estimates the transport and chemistry of ozone, PM, toxic airborne pollutants (referred to as “air toxics”), and acidic and nutrient pollutant species, as well as visibility degradation and deposition totals. CMAQ includes state-of-the-art technical and computational techniques to simulate air quality from urban to global scales. It can model complex atmospheric processes affecting transformation, transport, and deposition of air pollutants using a system architecture that is designed for fast and efficient computing.
 
 This chapter summarizes the CMAQ modeling system framework and science features in various components of the CMAQ system, including MCIP, ICON, BCON, CHEMMECH, and CCTM. More detailed discussions on these features can be found in [Byun and Ching (1999)](https://www.cmascenter.org/cmaq/science_documentation/) and Byun and Schere (2006).
 
 ## Features Implemented to Achieve the Goals of CMAQ
+** >>COMMENT<< ** This whole section does not fit with the concept of a "Science Overview".  Many of these features were special to CMAQ when first developed but are pretty standard in CTMs now and CMAQ is no longer unique.
+
+** >>COMMENT<< ** Needs to be dramatically shortened to remove history (*really* old) and flexibility/modularity stuff.
 
 As noted previously, early air quality model development resulted in separate air quality models that addressed single pollutants and issues, such as ozone or acid deposition. These models had little or no flexibility to be updated with advances in science or to accommodate new regulations. CMAQ was therefore designed to have more adaptability and flexibility for different applications and for changing or improving the modeling methodology. Within the context of the model’s science, the following subsections discuss CMAQ’s design in terms of (1) accommodating multiple pollutants and multiple scales, (2) providing flexibility through modularity, and (3) reducing the potential for model simulation error.
 
 As a community model, CMAQ is able to leverage the expertise of model developers in many areas of atmospheric science. This facilitates improving and enhancing the CMAQ modeling system as the state-of-the-science evolves.
 
 ### Multiple pollutants and multiple scales
+** >>COMMENT<< ** para 1:  "One-atmosphere" needs to be defined.
+
+** >>COMMENT<< **  para 1:  Atmospheric chemistry talk got really intense, really fast.
+
+** >>COMMENT<< **  para 2:  "Multiscale" is not limited to spatial scales.
+
 
 CMAQ is a dramatic improvement over the earlier, single-pollutant models. The CMAQ system provides state-of-the-science capabilities for modeling multiple air quality pollutants/issues in a single simulation, including tropospheric ozone, PM, air toxics, visibility, and acidic and nutrient pollutant species. The “one-atmosphere” approach is important because the various chemical species interact. For example, ozone and hydroxyl radicals react with emitted species such as anthropogenic and biogenic organics to generate secondary PM species. These PM species can interact with solar radiation to alter photolysis rates, temperature, ventilation, winds, thermal reactions, and temperature- and windspeed-dependent emission rates.
 
 The multiple spatial scale (multiscale) capabilities of CMAQ enable applications from local to hemispheric scales. By combining this multiscale feature with the temporal flexibility of the model, users can perform simulations to evaluate annual and interannual pollutant climatology, as well as shorter-term transport from localized sources. To implement multiscale capabilities in CMAQ, several different issues have been addressed, such as scalable atmospheric dynamics and generalized coordinates that depend on the desired model resolution. CMAQ’s generalized coordinate system is used so that meteorological fields on different horizontal and vertical coordinates can easily be accommodated and multiple scales can be simulated with the same CTM. The Jacobian used by the generalized coordinate system encapsulates the necessary grid and coordinate transformations between the physical and computational spaces (cf., Byun, 1999).
 
 ### Modular flexibility
+** >>COMMENT<< ** Need to completely redo without emphasis on "modular" and made current.  
 
 CMAQ’s current coding structure is based on a modularity level that distinguishes from each other CCTM’s main driver, science modules, data estimation modules, and control/utility subroutines. Also distinguished from each other are the science models (including submodels for meteorology, emissions, chemistry-transport modeling) and the analysis and visualization subsystems.
 
@@ -68,6 +81,7 @@ In-line Emissions Modules:
 The CMAQ modularity makes it easy to modify or introduce a specific scientific process in CCTM. For example, the *gas* module contains several options for different gas-phase chemistry solvers that can be used to optimize model performance. Without the modular structure, changes to just one scientific process could entail having to modify source code throughout CCTM, thereby greatly increasing the risk of human error.
 
 ### Quality control features
+** >>COMMENT<< ** Need to rewrite without emphasis on "modularity".  Also not sure how peer review really serves as QC.  There are better ways that we can tout QC, such as our internal reviews of the code in GitHub.  Maybe we also need a more formal process…but that's beyond the scope of this activity.
 
 The CMAQ system was designed to minimize the potential for model simulation error in several significant ways:
 
@@ -75,8 +89,13 @@ The CMAQ system was designed to minimize the potential for model simulation erro
 - The modularity of the scientific processes in CMAQ makes modifications and adaptations to the user’s needs more straightforward. The potential for error is minimized because the user is not required to change code or declare variables within program modules outside the one of immediate interest.
 
 ## CMAQ Input Processors
+** >>COMMENT<< ** This section is totally redundant with the information in section 7. Since the preprocessors are not really core CTM processes I suggest deleting section 4.2 or merging with the information in section 7 on the same pre-processors.
+
+** >>COMMENT<< ** Opening line needs to be updated, and full section needs to be made consistent with an updated Fig. 4-2.
 
 CCTM uses data from other models and CMAQ input processing programs as input for model simulations [Figure 4-2](#Figure4-2).
+
+** >>COMMENT<< ** Figure 4.2 Needs to be updated to be more complete.
 
 <a id="Figure4-2"></a>
 
@@ -94,9 +113,12 @@ The input data for CCTM are developed using the three pre-processors shown in gr
 
 The choices for these options and how they are selected for each of the CMAQ programs are detailed in [Chapter 7](CMAQ_OGD_ch07_programs_libraries.md).
 
+** >>COMMENT<< ** Need to clarify roles of ICON and BCON because they are not used every time or for every case.  SMOKE is not always used with CCTM, especially outside the US.
+
 CMAQ uses MCIP software to process output from the meteorological model and prepare it for CCTM. The ICON and BCON processors generate the initial and boundary conditions for a CCTM simulation. Emissions for CMAQ must be prepared with an emissions data processing system (SMOKE) that generates emissions for direct input to CCTM. Brief descriptions of the various CMAQ pre-processors are presented in this section. Also described is the CHEMMECH processor, not shown in [Figure 4.2](#Figure4-2).
 
 ### MCIP: Meteorology-Chemistry Interface Processor
+** >>COMMENT<< ** Consider update to output format to include both I/O API and netCDF.  And in the last bullet in this section, be sure to update output format.
 
 MCIP ingests output files from meteorological models, including the <a href="http://www.wrf-model.org">Weather Research and Forecasting Model (WRF), to create meteorology files that are used within the CMAQ Modeling System. The goal of MCIP is to use as much of the data directly from the meteorological model to ensure physical consistency in the atmospheric state used by the CMAQ Modeling System. The output from MCIP is in the standard I/O API format that is used within the CMAQ Modeling System. MCIP output files can be used by the emissions processor (e.g., for meteorologically varying temperatures for mobile emissions) and by the CCTM to define the atmospheric conditions. An overview of MCIP can be found in Otte and Pleim (2010).
 
@@ -112,6 +134,11 @@ MCIP is written in FORTRAN, and it runs on a single processor in a Unix/Linux en
 MCIP is often updated concurrently with the CCTM.  The changes to MCIP are documented with each update to the software, and a "Frequently Asked Questions" (FAQ) file exists that is specific to MCIP.
 
 ### ICON and BCON: The initial and boundary conditions processors
+** >>COMMENT<< **  Last two paragraphs of this section don't seem to fit the italicized heading of "Chemical mechanism".
+
+** >>COMMENT<< **  The last paragraph is confusing and needs to be rewritten.  Asking a reader to "contact us" is vague and not appropriate here.
+
+** >>COMMENT<< **  Updates are needed here and throughout the document for the chemical mechanisms we now support and AERO7
 
 To perform air quality simulations, both initial and boundary conditions are required. Initial conditions (calculated in ICON) are needed to provide concentrations of individual chemical species for the first time step throughout the modeling domain. Boundary conditions (calculated in BCON) are needed to provide concentrations of individual chemical species at the lateral boundaries of the modeling domain. In a single run ICON and BCON can generate these concentrations for all of the chemical species required by CMAQ. ICON and BCON require a file that specifies the concentrations of various chemical species in the troposphere and specification of the photochemical chemical and aerosol mechanisms that will be used in the supported CCTM simulation. These processors require two inputs [Figure 4‑4](#Figure4-4): a concentration file for the chemical species to be simulated, and the chemical mechanism.
 
@@ -120,6 +147,8 @@ To perform air quality simulations, both initial and boundary conditions are req
 -   A time-independent set of vertical concentration profiles that are dependent upon the chemical mechanism being used. This approach is usually taken when no other information about the initial and boundary concentrations is available. CMAQ is currently distributed with IC and BC profiles for the CB05, RACM2, and SAPRC-07T photochemical mechanisms and the CMAQ AERO6 aerosol module. These files are set at the four boundaries (north, east, south, west) of the computational grid and are thus fixed in space.
 
 -   Existing CCTM 3-D concentration fields. Usually, this option is selected when performing a nested model simulation and modeling results from a previous CCTM simulation are available from a coarser-grid-resolution simulation. Existing CCTM concentration fields are also used when a CCTM simulation is extended in time in a separate run step. Unlike the profiles discussed in the previous bullet, these CCTM concentration files are spatially and temporally resolved.
+
+** >>COMMENT<< ** Figure 4-4. Is this accurate for all use cases?  Also not sure this figure adds much value anyway.
 
 <a id="Figure4-4"></a>
 
@@ -137,6 +166,9 @@ ICON and BCON can linearly interpolate input concentration profiles from the hor
 The current ICON and BCON processors cannot generate initial and boundary conditions for the CMAQ model from hemispheric and global model results.  A separate processor (GEOS2CMAQ) is available for generating boundary conditions for the CMAQ model using the GEOS-Chem model results. Another processor is also available for generating boundary conditions for the regional CMAQ model using the hemispheric CMAQ model results. These processors are under development and will be released at a later date. Please contact us if you need the processors now.
 
 ### CHEMMECH: Chemical mechanism compiler
+** >>COMMENT<< ** How do "users choose which mechanism to use"?
+
+** >>COMMENT<< ** The last sentence of this section is confusing.
 
 The release version of CMAQ includes all necessary chemical mechanism information for the preconfigured atmospheric chemistry reactions sets or mechanisms in a released version of CMAQ. Users choose which mechanism to use for compiling and running the CCTM executable. CCTM implements a chemical mechanism by using its namelist and FORTRAN modules. The files are in ASCII format and include the mechanism parameters required such as the species, reaction stoichiometry, and kinetics information. The module files are used to compile the CCTM executable while the namelists are read by CCTM at run time.
 
@@ -145,12 +177,24 @@ Advanced users who wish to generate a new chemical mechanism have to use the CHE
 This approach defining the CMAQ chemical mechanisms allows the chemical reactions and their species to be a fixed part of the executable code. Modifications to the namelists can change predictions saved to the output files, deposition processes of species, emissions inputs and other options for species without recompiling the executable. The namelists defining a chemical mechanism are used by CCTM as well as the ICON and BCON pre-processors. The FORTRAN modules are required to run utility programs such as create_ebi and inline_phot_preproc and JPROC.
 
 ### Lightning NO processing in CMAQ
+** >>COMMENT<< ** Update sentence about the availability of the parameter file (should not say "with the NLDN hourly flash data")
 
+** >>COMMENT<< ** Need to be sure this is still accurate (and recommended for use).
+
+** >>COMMENT<< **  The reliance on K-F needs to be better explained here.  This means K-F in WRF; there is no provision to use LNO in CMAQ if K-F was not used in WRF.  How is this information communicated from WRF to MCIP to CCTM?
+ 
 CMAQ is instrumented to estimate the impacts of NO emissions from lightning on air quality. Details of the CCTM lightning NO capability are described in [Chapter 7](CMAQ_OGD_ch07_programs_libraries.md) and in the [CMAQv52 Release Notes](../../CCTM/docs/Release_Notes/Lightning_NOx.md). Emissions of lightning NO can either be generated inline or read in as an external input file that contains 3-D NO data. There are two ways to estimate lightning NO emissions in the CCTM:
 * Use observed hourly lightning flash count data from National Lightning Detection Network (NLDN). A lightning parameter file also contains the ocean mask and ICCG data (climatological data for the ratio between inter-cloud to cloud-to-ground flashes); the ocean mask and ICCG data are used in both inline production schemes. The parameter file is available with the NLDN hourly flash data. The default lightning NO production rate is set to 350 moles per flash for both CG and IC flashes, but these values can be modified through the CCTM environment variables (MOLSNCG and MOLSNIC).
 * Use linear (log-linear) parameters derived from historical NLDN data and model predicted convective precipitation from the Kain-Fritsch convective scheme. This option is available when observed hourly flash count data (e.g., NLDN) are not available, such as air quality forecasts and future climate applications.
 
 ### CALMAP: Crop calendar map preprocessor
+** >>COMMENT<< ** Has anyone run/tested the CALMAP processor recently?  Deposition changes in v5.3 have a large impact on dust estimates.  Need to think carefully about what we want to say about windblown dust in the updated guide.
+
+** >>COMMENT<< ** Are we recommending dust here?  How would a user know whether to use dust or not?
+
+** >>COMMENT<< **  Can I run dust with the two-way model?  If so, where would I get GRIDCRO2D?  Is this done before I run CCTM, or can it be done on the fly?
+
+** >>COMMENT<< ** Figure 4-5: Where do I get these inputs?  Need to specify what comes with CCTM and what a user has to do separately.  Where does BELD01 come from?
 
 CMAQ has the capability to estimate windblown dust emissions in-line in the CCTM. The CMAQ dust emissions module uses land cover/land use data to identify dust source regions. The dust module includes a feature to estimate dust blown off by the wind (as opposed to anthropogenic dust emissions) from agricultural areas and the impacts of planting and harvesting cycles on available erodible lands that affect dust emissions. Calmap is a preprocessor to the CCTM that uses crop calendar information to produce gridded crop planting and harvesting dates for input to the CMAQ dust module.
 
@@ -164,6 +208,13 @@ CMAQ has the capability to estimate windblown dust emissions in-line in the CCTM
 **Figure 4‑5. Crop calendar data preprocessor for the CCTM**
 
 ## CCTM: The CMAQ Chemistry-Transport Model
+** >>COMMENT<< ** Consider moving details in this section to an updated CMAQ Science Document, rather than having them be part of the Users' Guide.  This will help focus the Users' Guide and will allow the content in the Users' Guide to be updated on a different schedule than the content in the Science Document. 
+
+** >>COMMENT<< ** Figure 4-6: Need to show which of these processes would be invoked only with user options to turn them on.
+
+** >>COMMENT<< ** Throughout this section:  Lines at top of subsections referring readers to CMAQv5.2 release notes are annoying, but they also would need to be updated to v5.3.
+
+** >>COMMENT<< ** Throughout this section: Need to de-emphasize changes that are part of CMAQv5.  We are on our 3rd major update to CMAQv5.
 
 [Figure 4‑6](#Figure4-10) illustrates the CMAQ modeling system used to simulate the chemistry and transport of pollutants. This figure also shows how CMAQ relates to other parts of an air quality modeling system: the meteorological model, emissions model, and analysis software. To perform a model simulation, CMAQ needs input data, including meteorological and emissions data. Using this information, CCTM simulates each of the atmospheric processes that affect the transport, transformation, and removal of ozone, particulate matter, and other pollutants. CMAQ uses state-of-the-science techniques to simulate these processes, as described below.
 
@@ -174,14 +225,26 @@ CMAQ has the capability to estimate windblown dust emissions in-line in the CCTM
 **Figure 4-6. CMAQ chemistry-transport model and associated preprocessors**
 
 ### Gas-Phase Chemistry
+** >>COMMENT<< ** A section on chemical mechanisms should precede this section.
+
+** >>COMMENT<< ** This single sentence is underwhelming.
 
 See the [CMAQv5.2.1 release notes](../../CCTM/docs/Release_Notes/README.md#chemistry) for updates on the chemistry algorithms in CMAQ.
 
 #### Gas-phase chemistry solvers
+** >>COMMENT<< ** Mentioning ODEs seems too technical here.
+
+** >>COMMENT<< ** If I were a new user, I'd want to know how to choose from these solvers for my work.
+
+** >>COMMENT<< ** Under what circumstances would I create a new chemical mechanism?  What if I'm using ROS3 or SMVGEAR?  Is there a utility like "create_ebi" for that?
+
 
 To determine the time dependent concentrations of species described by a chemical mechanism, the CCTM uses numerical methods to solve ordinary differential equations representing the chemical transformations. Three solution methods are available and differ in terms of accuracy, generalization, and computational efficiency, and have properties that can substantially affect model run times. They include the Rosenbrock (ROS3) solver (Sandu et al., 1997), the Euler Backward Iterative (EBI) solver (Hertel et al., 1993), and the Sparse Matrix Vectorized GEAR (SMVGEAR) solver (Jacobson and Turco, 1994). SMVGEAR and ROS3 are considered more accurate, in the order listed. Both solutions are labeled as “generalized” because using either only requires the mechanism’s namelist and FORTRAN modules. The EBI solver is more computationally efficient but is less accurate and is not a “generalized” solver so each chemical mechanism requires its own EBI solver; it can still be preferable if accelerated model execution is worth a compromise in accuracy. CMAQ includes EBI solvers for each mechanism definitions file released with a model version. Consult the CMAQ release notes for what mechanisms are in a specific version. If a user creates or modifies a chemical mechanism, they have to create a new EBI solver by using the create_ebi utility.  
 
 #### Photolysis
+** >>COMMENT<< ** Have Bill H. check for needed updates
+
+** >>COMMENT<< **  First sentence makes no sense.
 
 Photolysis or photodissociation energize and break apart compounds in several key of chemical processes in the atmosphere. It plays in the formation of ozone and particular material that affect human health. Computing the rate of photolysis reactions therefore strongly influences how well an air quality model simulates reality.
 
@@ -198,6 +261,10 @@ See the [CMAQv5.2.1 release notes](../../CCTM/docs/Release_Notes/README.md#trans
 Pollutant transport includes both advection and sub-grid-scale diffusion. Advection has to do with pollutant transport that is due to the mean wind fields, while diffusion involves sub-grid-scale turbulent mixing of pollutants. If a pollutant plume is transported primarily by advection, then it may travel a long distance without much change in pollutant concentrations. On the other hand, if a plume is transported primarily by diffusion, then the pollutants will mix more quickly and nearer to the source, which will result in substantial changes to pollutant concentrations.
 
 #### Advection ####
+** >>COMMENT<< ** This really gets pretty technical for an operational guide.
+
+** >>COMMENT<< ** last para:  What is omega?
+
 In CCTM, the advection process is divided into horizontal and vertical components. This distinction is possible because mean atmospheric motion is mostly horizontal. Often, the vertical motion is related to the interaction of dynamics and thermodynamics. The advection process relies on the mass conservation characteristics of the continuity equation. Data consis­tency is maintained for air quality simulations by using dynamically and thermodynamically consistent meteorology data from MCIP. When the meteorological data and the numerical advection algorithms are not exactly mass consistent, one needs to solve a modified advection equation (Byun, 1999).
 
 The horizontal advection scheme for CMAQ is the piecewise parabolic method (PPM) (Colella and Woodward, 1984). This algorithm is based on the finite-volume subgrid definition of the advected scalar. In PPM, the subgrid distribution is described by a parabola in each grid interval. PPM is a monotonic and positive-definite scheme. Positive-definite schemes maintain the sign of input values, which in this case means that positive concentrations will remain positive and cannot become negative. These codes are implemented in a global mass-conserving scheme introduced in v4.6 that is similar to the one used in the air quality forecasting version of CMAQ. Inspired by discussions with Robert Yamartino of Cambridge Environmental, the method uses the PPM scheme for horizontal advection, deriving a vertical velocity component at each grid cell that satisfies the continuity equation using the driving meteorological model’s air density.
@@ -205,6 +272,10 @@ The horizontal advection scheme for CMAQ is the piecewise parabolic method (PPM)
 The vertical advection modules solve for the vertical advection with no mass-exchange boundary conditions at the bottom or top of the model. CMAQ also uses PPM as its vertical advection module. Starting in CMAQv5.0, a new method for computing the vertical velocity was implemented that follows the omega calculation in WRF but uses PPM to compute horizontal mass divergence. The two-step process first integrates the continuity equation through the vertical column to get the change in column mass and then solves for omega layer by layer using the horizontal mass divergence (see equation 2.27 in [the WRF ARWv3 Technical Note](http://www2.mmm.ucar.edu/wrf/users/docs/arw_v3.pdf)). In CCTM, the PPM algorithm with a steepening procedure is implemented for vertical advection as the default because of the strong gradients in the tracer species that are observed in photochemical air quality conditions.
 
 #### Diffusion ####
+** >>COMMENT<< ** This really gets pretty technical for an operational guide.
+
+** >>COMMENT<< **  Sentence on improvements to ACM2 is not needed.
+
 In CCTM, vertical diffusion is represented by the Asymmetric Convective Method (ACM) of Pleim and Chang (1992). ACM2 (Pleim, 2007), an updated version of ACM, was implemented starting in CMAQv5.0 (note that ACM2 has been updated in CCTM beyond what is reflected in Pleim, 2007). This method recognizes that under convective conditions (when the surface is warming), heated air is transported vertically by buoyancy and mixes with ambient air at each level above the surface until the temperature of the rising air equals the ambient temperature. This process results from fast-moving air in narrow updrafts and slower-moving air in broader downdrafts. Thus, under convective conditions, vertical diffusion is asymmetric. An in-line method for treating biogenic and point-source emissions uses ACM to vertically distribute these emissions during a CMAQ calculation.
 
 Under non-convective conditions (when the surface is cooling), vertical diffusion is represented by an eddy diffusivity approach. Eddy diffusivity is a local mixing scheme and is estimated using the same planetary boundary layer (PBL) similarity-based algorithm as in the Regional Acid Deposition Model (Chang et al., 1987, 1990). In CCTM, the deposition process is simulated as a flux boundary condition that affects the concentration in the lowest vertical model layer. By treating the deposition process as the loss of mass due to the diffusion flux at the bottom of the model, one can relate the bottom boundary condition in the generalized coordinate system to that in the Cartesian coordinate system. CMAQv5 has an improved version of the minimum allowable vertical eddy diffusivity scheme. The new version interpolates between urban and nonurban land cover, allowing a larger minimum vertical diffusivity value for grid cells that are primarily urban.
@@ -212,6 +283,11 @@ Under non-convective conditions (when the surface is cooling), vertical diffusio
 Horizontal diffusion is implemented with a single eddy diffusion algorithm that is based on local wind deformation and is scaled to the grid cell size. The horizontal eddy diffusivity is assumed to be uniform but dependent on the grid resolution of the model. This diffusivity is larger for a higher-resolution run where the numerical diffusion due to the advection process is smaller.
 
 ### Particulate matter (aerosols) ###
+** >>COMMENT<< ** If this section and its material are retained, add an update for AERO7 and for marine chemistry.
+
+** >>COMMENT<< ** The ISORROPIA details seem a bit much for an OGD.
+ 
+** >>COMMENT<< ** Make sure the haze section is up to date
 
 See the [CMAQv5.2.1 release notes](../../CCTM/docs/Release_Notes/README.md#chemistry) for updates on the aerosol chemistry algorithms in CMAQ.
 
@@ -232,6 +308,7 @@ For easier comparison of CMAQ’s output PM values with measurements, time-depen
 Further discussion on the scientific improvements to the CMAQ PM treatment is available in the release notes for each version of the model.
 
 ### Clouds and aqueous-phase chemistry ###
+** >>COMMENT<< **  Add info for KMT2?
 
 See the [CMAQv5.2.1 release notes](../../CCTM/docs/Release_Notes/README.md#chemistry) for updates on the heterogeneous chemistry algorithms in CMAQ.
 
@@ -240,6 +317,15 @@ Clouds are an important component of air quality modeling and play a key role in
 CMAQ’s standard cloud chemistry treatment estimates sulfate production from five sulfur oxidation reactions, as well as secondary organic aerosol formation from the reaction of glyoxal and methylglyoxal with the hydroxyl radical.  The distribution between gas and aqueous phases is determined by instantaneous Henry’s law equilibrium, and the bisection method is used to estimate pH (and the distribution of ionic species) assuming electroneutrality. Beginning with CMAQv5.1, two additional cloud chemistry module options, AQCHEM-KMT and AQCHEM-KMTI, were made available along with standard AQCHEM (Fahey et al., 2017). These modules employ a Rosenbrock solver generated using the Kinetic PreProcessor (KPP), version 2.2.3 (Damian et al., 2002) to solve cloud chemistry, ionic dissociation, wet deposition, and kinetic mass transfer between the gas and aqueous phases (Schwartz, 1986). AQCHEM-KMTI also includes an expanded aqueous-phase chemical mechanism that treats SOA formation from biogenic-derived epoxides (Pye et al., 2013) in cloud, in addition to the standard sulfur and -dicarbonyl oxidation reactions. In all cloud chemistry modules, the parameters for cation content of coarse species have been updated to be consistent with the rest of CMAQ.
 
 ### Deposition
+** >>COMMENT<< ** Add information about multiple deposition modules
+
+** >>COMMENT<< **  Update information on surrogates
+
+** >>COMMENT<< ** The FEST-C/EPIC section needs some work.
+
+** >>COMMENT<< **  Need to state that EPIC can only be used over US.  What if I want bidi and I'm outside the US?
+
+** >>COMMENT<< ** Figure 4-7 Relationship between EPIC and FEST-C is unclear from this figure.  Relationship between meteorological model and EPIC (per the caption) is unclear from this figure.
 
 See the [CMAQv5.2.1 release notes](../../CCTM/docs/Release_Notes/README.md#exchange) for updates on the air-surface exchange algorithms in CMAQ.
 
@@ -258,6 +344,7 @@ An additional configuration option related to deposition is the CMAQ_MOSAIC runt
 In previous versions of CMAQ, the effects of HONO heterogeneous chemistry on deposition velocities were included. These effects were removed in CMAQv5.0.
 
 ### Emissions
+** >>COMMENT<< ** The biogenic emissions section needs some work.  There are many concepts and file that are not defined well.  Also, cite Jesse's paper on BEIS.
 
 See the [CMAQv5.2.1 release notes](../../CCTM/docs/Release_Notes/README.md#emissions) for updates on the emissions algorithms in CMAQ.
 
@@ -285,6 +372,11 @@ PA variables are computed by saving the differential operators associated with e
 If the user activates PA during CMAQ runtime (CTM_PROCAN=Y), the PA input file (PACM_INFILE) specifies whether IPR, IRR or both analyses are performed, and defines which variables are required for each analysis. The IRR parameters are highly customizable and can be easily modified for new chemical mechanisms, but must be checked carefully before running to ensure that they correspond to the mechanism being used. The PA_REPORT output file should always be reviewed to verify that the calculations are being performed correctly. Note that while the IPR option can be run with any of the chemical solvers, use of IRR in CMAQ requires either the Rosenbrock or the SMVGEAR solvers.
 
 ## The CMAQ User Interface
+** >>COMMENT<< ** "The CMAQ User Interface" refers to run scipts, GitHub and compilers.  This is out of place and should be deleted or moved to another section. Also GitHub, CMAS center, etc are not really part of the interface.
+
+** >>COMMENT<< ** CMAS Center does not really support CMAQ with those compilers; CMAQ has been tested with those compilers.
+
+** >>COMMENT<< ** last para:  I don't think you can really deviate here.  You have to use the same compiler, and often the same version of that compiler…at least for the libraries and the code that is pulling them in.
 
 The CMAQ user interface that is distributed with the model source code consists of a series of C-shell scripts for building and running the various CMAQ programs on Linux operating systems. These scripts function primarily to set environment variables that are required by the program Bldmake or by the CMAQ program executables. The scripts can be adapted to work with any Linux shell scripting language (e.g., Bash, Bourne).
 
@@ -295,6 +387,7 @@ The CMAS Center currently supports CMAQ on Linux systems using the Gnu, Portland
 **CMAQ users are strongly urged** to use the *same* Fortran compiler for *all* components of the CMAQ system, including the netCDF and I/O API libraries on which CMAQ depends.
 
 ## References for Chapter 4: Science Overview
+** >>COMMENT<< ** References are too difficult to keep updated.  Suggest removing, but can include links to CMAQ website page on publications or How to Cite CMAQ somewhere else in the document.  Since these references are cited in this section would have to change the write-out to remove specific references. 
 
 Bash, J. O., E. J. Cooter, R. L. Dennis, J. T. Walker, and J. E. Pleim, 2013: Evaluation of a regional air-quality model with bidirectional NH3 exchange coupled to an agroecosystem model. *Biogeosciences*, **10**, 1635-1645.
 

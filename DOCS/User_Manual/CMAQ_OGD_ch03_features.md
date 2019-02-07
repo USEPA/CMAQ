@@ -9,6 +9,22 @@
 
 Features of CMAQ for Application Users
 -------------------------------------------------
+** >>COMMENT<< **  This information does not need to be in a separate chapter.  Most of it is redundant with information found in Chapters 1 and 2.  The only new information seems to be links to release notes.
+
+** >>COMMENT<< **  suggest deleting "independent but" in first bullet
+
+** >>COMMENT<< ** If this information is retained somewhere, need to explain regulatory applications and SIPs.  Be generic for international user community.
+
+** >>COMMENT<< ** bullet 2:  Delete.  All of the modularity/flexibility jargon drove the original design and is not necessarily applicable today.  We certainly do not optimize model performance for anyone.
+
+** >>COMMENT<< ** bullet 5:  The community aspect is not necessarily true (and it never really was).  In principle, the community really relies on a single, centralized development group.
+ 
+** >>COMMENT<< ** bullet 6:  The first sentence on training is misleading.  It implies that you can get online training from CMAS, which only appears to be true for SMOKE.  The vast majority of the training is in-residence for a fee.
+
+** >>COMMENT<< ** bullet 6:  The link for "support resource" appears to be broken.
+
+** >>COMMENT<< ** Add a bullet about the user forum for support and to exchange development ideas.
+
 
 The CMAQ modeling system provides a variety of important features to users who are interested in applying the model for investigating scientific research questions or for regulatory applications such as preparation of State Implementation Plans (SIPs).
 
@@ -22,6 +38,15 @@ The CMAQ modeling system provides a variety of important features to users who a
 
 Features of CMAQ for Air Quality Model Developers
 -------------------------------------------------
+** >>COMMENT<< ** Remove opening clause "Designed under a community modeling paradigm", and delete "with a modular…"
+
+** >>COMMENT<< **  Remove references to I/O API and netCDF.  This will get blurry really soon.
+
+** >>COMMENT<< **  should rework the IO discussion to convey that the system employs flexible I/O and internal data structures that facilitate its modularity and extensibility
+
+** >>COMMENT<< **  Actually, if this material is retained somewhere, consider shortening the opening material to simply say: "CMAQ is distributed as open-source software.  CMAQ provides the following features to scientists interested in developing new algorithms or adding science to the model:"
+
+** >>COMMENT<< **  Combine bullets 1 and 2, and delete bullet 3.
 
 Designed under a community-modeling paradigm, CMAQ is distributed as open-source software engineered with a modular code design to facilitate decentralized development. Built around a layered [I/O API](https://www.cmascenter.org/ioapi) and [netCDF](http://www.unidata.ucar.edu/software/netcdf) code framework, CMAQ provides a flexible platform for testing new science algorithms, chemistry representations, and optimization techniques. CMAQ provides the following features to scientists interested in developing new algorithms or adding science to the model:
 
@@ -32,6 +57,12 @@ Designed under a community-modeling paradigm, CMAQ is distributed as open-source
 
 New Features in CMAQ and MCIP
 --------------------------------
+** >>COMMENT<< ** Delete the first sentence; that's pretty much obvious.
+
+** >>COMMENT<< ** 2nd sentence needs to be reworded (grammatically incorrect)
+
+** >>COMMENT<< ** No need to include hyperlinks to each version of CMAQ and MCIP; those should be easy to find from GitHub.
+
 
 Each release version of CMAQ contains new features and improvements over the previous release of the model. Details of the new features in each release are available as release notes is provided below. Technical details about these features are contained in the [CMAQ Wiki](https://www.airqualitymodeling.org/index.php/CMAQ) for versions 5.1 and earlier.  Beginning with version 5.2, release notes are available on the [U.S. EPA GitHub repository](https://github.com/USEPA/CMAQ). The following links provide details about the new features added to CMAQ since version 5.0.
 

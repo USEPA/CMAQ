@@ -14,6 +14,8 @@ Institute for the Environment University of North Carolina at Chapel Hill.
 </center>
 Disclaimer
 --
+** >>COMMENT<< ** Ensure that the Disclaimer reflects current EPA/ORD language.  
+
 The information in this operational guidance document has been funded wholly or in part by the United States Environmental Protection Agency (EPA). The draft version of this document has not been subjected to the Agency’s peer and administrative review, nor has it been approved for publication as an EPA document. The draft document has been subjected to review by the Community Modeling and Analysis System Center only; this content has not yet been approved by the EPA. Mention of trade names or commercial products does not constitute endorsement or recommendation for use.
 
 Foreword
@@ -22,12 +24,30 @@ The Community Multiscale Air Quality (CMAQ) modeling system is being developed a
 
 Introduction
 --
+** >>COMMENT<< ** para 1: Add reference for CAA, and update reference for NAAQS. 
+
+** >>COMMENT<< ** para 1: : Not sure "ambient" is the right word here.
+
+** >>COMMENT<< ** para 2: Explain why single-pollutant models are insufficient.
+
+** >>COMMENT<< ** para 2: "indirect exposure to air toxics" is vague
+
+
 Under the authority of the Clean Air Act, the U.S. Environmental Protection Agency (EPA) has established National Ambient Air Quality Standards (NAAQS) (EPA, 2008). These standards are designed to protect human health and the environment from high levels of criteria pollutants, such as ozone and particulate matter. Meeting the NAAQS often requires the use of controls on sources of air pollutants. The complex nature of air pollution scenarios requires control strategies to be effective for a variety of air pollutants, geographic regions, and scales. As part of the effort to decrease ambient concentrations of criteria pollutants, the EPA has approved air quality simulation models for use at regional, state, and local scales within the United States. The models have been applied to estimate the ability of various control strategies to improve air quality and ensure cost-effective results.
 
 Because some emission sources contribute to the ambient levels of more than one pollutant and can affect an entire region on various time scales, an integrated modeling approach capable of handling multiple air pollutants and spatiotemporal scales was needed to isolate control strategies that improve overall air quality in a cost-effective manner. The [EPA Community Multiscale Air Quality (CMAQ) modeling system](http://www.epa.gov/cmaq) was formulated and designed to facilitate extensions needed to examine emerging linked multi-pollutants air pollution issues. The source code for CMAQ is available through a publicly-accessible, version-controlled git repository on [GitHub](www.github.com/usepa/cmaq) where interested parties may obtain the open-source software and contribute to enhancements of the model. CMAQ is designed for applications ranging from regulatory and policy analysis to probing and understanding the complex interactions of atmospheric chemistry and physics. It is a three\-dimensional Eulerian (i.e., gridded) atmospheric chemistry and transport modeling system that simulates ozone, particulate matter (PM), toxic airborne pollutants, visibility, and acidic and nutrient pollutant species throughout the troposphere. Designed as a “one-atmosphere” model, CMAQ can address the complex couplings among several air quality issues simultaneously across spatial scales ranging from local to hemispheric.
 
 Model Background and Goals
 --
+
+** >>COMMENT<< ** bulleted text:  Seems really out-of-place here to get to this level of detail. 
+
+** >>COMMENT<< ** emissions para: Double-check that these chemical mechanisms are all still supported.
+
+** >>COMMENT<< **  Should information be provided about where to go for information on advanced configurations? 
+
+** >>COMMENT<< **   will the I/O discussion also apply to David's new I/O?
+
 Air quality models integrate our understandings of the complex processes that affect the concentrations of pollutants in the atmosphere. Establishing the relationships among meteorology, chemical transformations, emissions of chemical species, and removal processes in the context of atmospheric pollutants is the fundamental goal of an air quality model (Seinfeld and Pandis, 1998). CMAQ uses coupled mathematical representations of actual chemical and physical processes to simulate air quality. The model is formulated to conserve mass in the 3-D atmosphere within the modeled domain. The resultant partial differential governing equation is numerically solved over a 3-D grid discretizing the geographic domain of interest. A model grid is an *x\-y\-z* array that is fixed in space and covers a particular domain (i.e., a geographic area of interest). CMAQ therefore belongs to the Eulerian class of mathematical models that calculate a mass balance within each grid cell by solving the transport across each cell boundary and chemical transformations within each cell during a given time period. As a framework for simulating the interactions of multiple complex atmospheric processes, CMAQ thus requires two primary types of inputs: meteorological information, and emission rates from sources of emissions that affect the modeled air pollutant species.
 
 With weather conditions contributing the primary physical driving forces in the atmosphere (such as the changes in temperature, winds, cloud formation, and precipitation rates), representative gridded meteorology forms the basis of all 3\-D air quality model simulations. The Weather Research and Forecasting (WRF) model \- Advanced Research WRF (WRF\-ARW) (Skamarock et al., 2005) is compatible with CMAQ and commonly used to drive the system. The meteorology inputs dictate the following CMAQ configuration parameters:

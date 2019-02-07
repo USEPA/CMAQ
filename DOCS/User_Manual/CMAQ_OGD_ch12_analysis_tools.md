@@ -5,12 +5,18 @@
 <!-- END COMMENT -->
 
 # Analysis Tools for CMAQ #
+** >>COMMENT<< ** Recommend shortening this section. Remove the summaries of the software programs that are a mix of technical and big picture descriptions.  For each tool just provide a brief summary (in list form) of the tasks that the software can be used to perform.
+
+** >>COMMENT<< ** Delete PAVE section; move the AMET subsection up behind VERDI and emphasize tool much more than the others and provide more specifics on how to run AMET similar to the detail for ICON/BCON. Suggested order: VERDI, AMET, CMAQ tools (hr2day, etc.), then all the other stuff like NCO and IDL.
+
+** >>COMMENT<< ** Add new Fortran utility "calc_tmetric", add Barron's PseudoNetCDF
 
 Several tools are freely available for visualizing, analyzing, and evaluating CMAQ inputs and outputs. The list includes CMAQ utility tools, m3tools, PAVE, VERDI, Panoply, the Atmospheric Model Evaluation Tool (AMET), netCDF Operators (NCO), UNIDATA Integrated Data Viewer (IDV), and the NCAR Command-line Language (NCL). Several other commercial packages, including MATLAB and IDL, also support the analysis and visualization of CMAQ inputs and outputs. Most visualization and analysis software that supports netCDF file formats will work with CMAQ output data.
 
 This page briefly describes several of these software utilities and provides links to where they may be downloaded. Refer to the documentation for each piece of software for additional information.
 
 Two classes of analysis tools are presented here
+
 - [Command line utilities](#cmdtools) for manipulating CMAQ input/output data
   - [netCDF](#netcdf)
   - [appendwrf](#post_tools)
@@ -62,6 +68,8 @@ where:
 
 ### CMAQ Utility Tools
 
+** >>COMMENT<< **
+
 [https://github.com/USEPA/CMAQ](https://github.com/USEPA/CMAQ)
 
 Several Fortran-based post-processing tools are provided along with the CMAQ code/scripts distribution. These are located in the $CMAQ_HOME/POST directory in the CMAQ distribution (version 5.2 and later). These tools work directly with the CMAQ outputs and help in processing, formatting, and preparing datasets from various ambient monitoring networks for subsequent evaluation. These networks include the EPA Air Quality System (AQS)AIRS-AQS, Interagency Monitoring of Protected Visual Environments (IMPROVE), Clean Air Status Trends Network (CASTNET), Speciated Trends Network (STN), National Atmospheric Deposition Program (NADP), Mercury Deposition Network (MDN) and the Southeast Aerosol Research and Characterization Study (SEARCH). The formatted observation data files needed for running the sitecmp and sitecmp_dailyo3 utilities are available for 2000 through 2014 from the CMAS Center Data Clearinghouse under the heading "2000-2014 North American Air Quality Observation Data": https://www.cmascenter.org/download/data.cfm.
@@ -81,6 +89,7 @@ The various CMAQ utility tools are described below.  Documentation and sample ru
 <a id="m3tools"><a/>
 
 ### M3tools
+** >>COMMENT<< ** M3tools list needs to be checked to confirm it is still accurate/up to date.  Same for NCO operators.  Do we want to continue to keep this list up to date, or simply point to the websites for these tools?
 
 [<https://www.cmascenter.org/ioapi/>](https://www.cmascenter.org/ioapi/)
 
@@ -145,7 +154,10 @@ Visualization Tools
 -------------------------------
 <a id="verdi"></a>
 
+** >>COMMENT<< ** Add reference to RSIG?
+
 ### Visualization Environment for Rich Data Interpretation (VERDI)
+** >>COMMENT<< **  Donna should review summary of VERDI (12.2.1).  Should mention that VERDI can be used to view MPAS data. 
 
 [http://www.verdi-tool.org](http://www.verdi-tool.org/)
 
@@ -154,6 +166,7 @@ The Visualization Environment for Rich Data Interpretation (VERDI) is a flexible
 <a id="amet"><a/>
 
 ### Atmospheric Model Evaluation Tool (AMET)
+** >>COMMENT<< ** Ask Wyat/Rob to update this summary. 
 
 [http://www.cmascenter.org](http://www.cmascenter.org/)
 

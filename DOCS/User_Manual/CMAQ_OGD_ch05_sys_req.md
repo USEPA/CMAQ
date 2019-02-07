@@ -12,6 +12,7 @@ This section describes how to set up and install CMAQ on a Linux system.  The in
 After benchmarking has been successfully completed, the CMAQ system can be configured for other simulations. The same steps that are required to build the model for the benchmark case apply to building it for new simulations. Configuring CMAQ for new applications is covered in [Chapter 10](CMAQ_OGD_ch10_new_simulation.md).
 
 ## System Recommendations
+** >>COMMENT<< **  Should we say that we recommend Intel for speed?
 
 All of the CMAQ programs are written in Fortran and are optimized for use on computers running a version of the Linux operating system (OS). However, to use CMAQ in a production environment where multiple iterations of the model will be executed for different spatial domains and/or emissions control strategies, either a cluster of multiprocessor PCs on a high-end network or an expandable rack-mounted Linux server is recommended.
 
@@ -20,6 +21,7 @@ CMAQ is distributed and supported for executing on Linux operating systems with 
 The [CMAS Release Testing Page](https://www.airqualitymodeling.org/index.php/CMAQ) provides technical and operational details on current and prior CMAQ releases.
 
 ### Hardware
+** >>COMMENT<< ** After this secion on Hardware add a section with examples of what is actually used, e.g. at EPA compiler X is used on a ___ type of linux cluster….  In an academic setting, this system is used, etc. 
 
 The minimum hardware requirements for running the CMAQ benchmark case are:
 
@@ -30,6 +32,8 @@ The minimum hardware requirements for running the CMAQ benchmark case are:
 ### Software
 
 CMAQ requires all of the programs listed in [Table 5‑1](#Table5-1). This list includes the programs distributed with CMAQ. Note that CMAQv5.0 and greater requires I/O API version 3.1. Newer version of CMAQ will not compile with earlier versions of the I/O API library. [Table 5‑2](#Table5-2) lists additional utility software that is not required for running CMAQ, but is useful for model diagnostics and evaluation.
+
+** >>COMMENT<< ** 	9. Table 5.1. Some of these are not required for all runs: CHEMMECH, CREATE_EBI, LAPACK (maybe not needed at all? Ask Jesse), BLAS (ask Jesse)
 
 <a id=Table5-1></a>
 
@@ -65,6 +69,7 @@ CMAQ requires all of the programs listed in [Table 5‑1](#Table5-1). This list 
 > Although CMAQ output is described as being in the netCDF format,
 > it is actually a [hybrid format of the I/O API and the netCDF](https://www.cmascenter.org/ioapi/).
 
+** >>COMMENT<< ** 	10. Table 5.2 on support software (VERDI, IDV) seems out of place since there is an entire chapter on this later on
 
 <a id=Table5-2></a>
 
@@ -119,6 +124,9 @@ The CMAQ scripts require users to select only the location of the `CMAQ_HOME` di
 ### Configuring your system for compiling CMAQ
 
 Compiler flag consistency between the Fortran and C compilers used to build netCDF and I/O API is critical for building library files compatible with CMAQ. [Table 5-3](#Table5-3) lists the suggested compilation options for building netCDF and I/O API libraries that are compatible with CMAQ. Refer to the documentation for these libraries for additional information on installation and compiling.
+
+
+** >>COMMENT<< ** 	11. Get David to review Table 5.3 on NetCDF and I/O API compilation options for CMAQ
 
 <a id=Table5-3></a>
 
@@ -288,6 +296,8 @@ In CMAQv5.2.1, bldmake is compiled automatically the first time you run any of t
 
 ##### Compile the CMAQ programs #####
 
+** >>COMMENT<< ** What is CALMAP? (mentioned at the end of this section)
+
 Create the model executables for ICON, BCON, MCIP, and CCTM.
 
 ICON and BCON can be configured for different chemical mechanisms and for different kinds of input data. The configuration options for ICON and BCON are discussed in detail in [Chapter 7](CMAQ_OGD_ch07_programs_libraries.md).
@@ -373,6 +383,8 @@ After configuring the MPI settings for your Linux system, using the following co
 ```
 
 ### Benchmarking
+** >>COMMENT<< ** This section is redundant.
+
 Benchmarking is the process of confirming that the model source code compiles and executes correctly on a new computer system. CMAQ should be benchmarked on a computing system before the model is used for research or regulatory applications on that system. The purpose of benchmarking is to ensure that there are no inconsistencies introduced into the model solution from local system parameters, such as compilers, processors, or operating systems. While differences are expected in the CMAQ results produced by different operating systems, hardware, and compilers, these differences should be small and within the numerical error of the model. Input and output reference data are packaged with CMAQ to use for benchmarking the model on new systems. After running the test case packaged with the source code, compare the results against the reference data provided in the CMAQ distribution.
 
 #### CMAQ benchmark parameters
