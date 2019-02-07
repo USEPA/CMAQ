@@ -5,33 +5,25 @@
 
 <!-- END COMMENT -->
 
+# Model Forumulation 
 
-Numerical Approach
---
+## Numerical Approach
 
-Grid Configuration
---
+## Grid Configuration
 
-Emissions
---
+## Emissions
 
-Transport
---
+## Transport
 
-Photochemistry
---
+## Photochemistry
 
-Chemistry Mechanisms
---
+## Chemistry Mechanisms
 
-Aerosol Processes
---
+## Aerosol Processes
 
-Aqueous and Heterogeneous Chemistry
---
+## Aqueous and Heterogeneous Chemistry
 
-Air-Surface Exchange
---
+## Air-Surface Exchange
 
 <!-- BEGIN COMMENT -->
 

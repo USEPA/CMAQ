@@ -4,8 +4,7 @@
 
 <!-- END COMMENT -->
 
-GLOSSARY
-========
+# GLOSSARY
 
 **Accumulation mode.** Aerosol particles with diameters nominally between 0.1 and 1.0 micrometers. The term is based upon the concept that particles in this size range accumulate in the atmosphere from the growth of much smaller particles. (See also “Aitken mode.”) The growth may be from new mass condensing on the smaller particles, or from the coagulation of the smaller particles.
 

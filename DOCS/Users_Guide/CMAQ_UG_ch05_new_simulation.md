@@ -5,24 +5,19 @@
 
 <!-- END COMMENT -->
 
-Overview
---
+# Setting Up a New Simulation
 
-Choosing a Grid and Time Configuration
---
+## Overview
 
-Obtaining Meteorological Inputs with MCIP
---
+## Choosing a Grid and Time Configuration
 
-Obtaining Emissions
---
+## Obtaining Meteorological Inputs with MCIP
 
-Gathering Other Input Files
---
+## Obtaining Emissions
 
-Science Options
---
+## Gathering Other Input Files
 
+## Science Options
 
 <!-- BEGIN COMMENT -->
 

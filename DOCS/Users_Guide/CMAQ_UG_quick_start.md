@@ -4,9 +4,9 @@
 
 <!-- END COMMENT -->
 
-## CMAQ Installation Quick Start Guide
+# CMAQ Installation Quick Start Guide
 
-### System Checks ###
+## System Checks 
 
 The following support software are required for compiling and running CMAQ.  
 
@@ -16,7 +16,7 @@ The following support software are required for compiling and running CMAQ.
 4. [netCDF](http://www.unidata.ucar.edu/software/netcdf)
 5. Message Passing Interface (MPI), e.g., [OpenMPI](https://www.open-mpi.org) or [MVAPICH2](http://www.mcs.anl.gov/research/projects/mpich2).
 
-### Install CMAQ and Required Libraries ###
+## Install CMAQ and Required Libraries 
 
 In the directory where you would like to install CMAQ, create the directory issue the following command to clone the EPA GitHub repository for CMAQv5.2.1:
 
@@ -26,7 +26,7 @@ git clone -b 5.2.1 https://github.com/USEPA/CMAQ.git CMAQ_REPO
 
 For instructions on installing CMAQ from Zip files, see [Chapter 5](CMAQ_OGD_ch05_sys_req.md).
 
-### Check Out a new Branch in the CMAQ Repository ###
+## Check Out a new Branch in the CMAQ Repository 
 
 Checking out a new branch is a good idea even if you are not doing code development, per se. It is likely that you will want to retrieve new updates in the future, and an easy way to do this is through the master branch in the git repo. Thus it is beneficial to leave it unperturbed if possible.
 ```
@@ -34,11 +34,11 @@ cd CMAQ_REPO
 git checkout -b my_branch
 ```
 
-### Configure the CMAQ build environment
+## Configure the CMAQ build environment
 
 The user has two options for building an environment. She or he may build and run CMAQ components directly in the repository structure (object files and executables will be ignored with .gitignore), or they may extract the build and run scripts out of the repository and work in a separate location. If you would like to build directly in the repository, skip to "Install the CMAQ Libraries" below.
 
-#### Build and run in a user-specified directory outside of the repository
+### Build and run in a user-specified directory outside of the repository
 In the top level of CMAQ_REPO, the bldit_project.csh script will automatically replicate the CMAQ folder structure and copy every build and run script out of the repository so that you may modify them freely without version control.
 
 In bldit_project.csh, modify the variable $CMAQ_HOME to identify the folder that you would like to install the CMAQ package under. For example:
@@ -50,7 +50,7 @@ Now execute the script.
 ./bldit_project.csh
 ```
 
-### Install the CMAQ Libraries
+## Install the CMAQ Libraries
 The CMAQ build scripts require the following libraries and INCLUDE files to be available in the CMAQ_LIB directory (Note the CMAQ_LIB gets set automatically by the config_cmaq.csh script, where `CMAQ_LIB = $CMAQ_HOME/lib`): 
 
 - netCDF library files are located in the `$CMAQ_LIB/netcdf/lib` directory
@@ -80,7 +80,7 @@ You may also identify the version of the compiler if you wish it to be identifie
 source config_cmaq.csh intel 17.0
 ```
 
-### Compiling CMAQ ###
+## Compiling CMAQ 
 
 Create the model executables for ICON, BCON, and CCTM:
 
@@ -99,7 +99,7 @@ cd $CMAQ_HOME/CCTM/scripts
 ./bldit_cctm.csh [compiler] [version] |& tee bldit.cctm.log
 ```
 
-### Install the CMAQ input reference/benchmark data
+## Install the CMAQ input reference/benchmark data
 
 Download the CMAQ single day reference data from the [CMAS Center Software Clearinghouse](https://www.cmascenter.org/download/software.cfm) and copy to `$CMAQ_DATA`. Navigate to the `$CMAQ_DATA` directory, unzip and untar the single day benchmark input and output files:
 
@@ -109,7 +109,7 @@ tar xvzf CMAQv5.2.1_Benchmark_SingleDay_Input.tar.gz
 tar xvzf CMAQv5.2.1_Benchmark_SingleDay_Output.tar.gz
 ```
 
-### Configure the CCTM script for MPI
+## Configure the CCTM script for MPI
 
 For an MPI configuration with 6 processors,
 

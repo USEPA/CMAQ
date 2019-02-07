@@ -5,14 +5,13 @@
 
 <!-- END COMMENT -->
 
-Binary Input/Output files
---
+# Input and Output Files
 
-Input Files
---
+## Working with Binary Data files
 
-Output Files
---
+## Input Files
+
+## Output Files
 
 
 <!-- BEGIN COMMENT -->

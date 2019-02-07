@@ -4,10 +4,10 @@
 
 <!-- END COMMENT -->
 
-CMAQ Operational Guidance document
-==
-List of Figures
---
+# CMAQ User's Guide
+
+## List of Figures
+
 
 [Figure 4‑1. CMAQ Modeling Framework](CMAQ_OGD_ch04_science.md#Figure4-1)
 
@@ -47,7 +47,7 @@ List of Figures
 
 [Figure 10-2. 12-km nested two-day modeling period IC/BC schematic](CMAQ_OGD_ch10_new_simulation.md#Figure10-2)
 
-**List of Tables**
+## List of Tables
 
 [Table 5‑1. Software required for running CMAQ](CMAQ_OGD_ch05_sys_req.md#Table5-1)
 
