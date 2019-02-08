@@ -71,7 +71,7 @@ C     26 June 2014 J.Bash: initial implementation
 
       CHARACTER( 16 ), Parameter    :: DEPV_METHOD = 'STAGE'
 
-      DATA vd_name(  1), rel_rx(  1), f0(  1), LeBasM(  1), M_ac(  1) / 'SO2          ',   10.0, 0.0,  35.0, 0.11 / 
+      DATA vd_name(  1), rel_rx(  1), f0(  1), LeBasM(  1), M_ac(  1) / 'SO2          ',   32.8, 0.0,  35.0, 0.11 / ! apperent reactivity derrived from Duke Forest fluxes measurments (Bash et al in prep)
       DATA vd_name(  2), rel_rx(  2), f0(  2), LeBasM(  2), M_ac(  2) / 'SULF         ', 8000.0, 0.0,  49.0, 0.12 /
       DATA vd_name(  3), rel_rx(  3), f0(  3), LeBasM(  3), M_ac(  3) / 'NO2          ',    2.0, 0.1,  21.0,1.5e-3/
       DATA vd_name(  4), rel_rx(  4), f0(  4), LeBasM(  4), M_ac(  4) / 'NO           ',    2.0, 0.0,  14.0,1.0e-3/

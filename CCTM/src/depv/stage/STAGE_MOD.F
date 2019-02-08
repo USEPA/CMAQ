@@ -315,8 +315,8 @@ C Parameters specific to gas_x. Currently based on m3dry but subject to change
          Real, Parameter :: rcut0      = 3000.0     ! [s/m]
          Real, Parameter :: rcw0       = 125000.0   ! acc'd'g to Padro and
          Real, Parameter :: rg0        = 1000.0     ! [s/m]
-         Real, Parameter :: rgwet0     = 25000.0    ! [s/m]
-         Real, Parameter :: rsnow0     = 1000.0
+         Real, Parameter :: rsnow0     = 10000.0    ! to match the maximum snow deposition (0.01 cm/s) of D Helmig et al. 2007 
+                                                    ! this should be ~14000 for stage and 15000 for m3dry due to the relative reactivity adjustment
          Real, Parameter :: rt25inK    = 1.0/(stdtemp + 25.0) ! 298.15K = 25C
          Real, Parameter :: rwm = 31.5              ! Minimum NH3 cuticle resistance [s/m] from Massad et al. 2010
          Real            :: rh_func                 ! functions of humidity
@@ -324,9 +324,8 @@ C Parameters specific to gas_x. Currently based on m3dry but subject to change
          Real            :: heff_ap, heff_wat, heff
          Real            :: hplus
          Real            :: w10cm
-         Real            :: rcwet, rcdry
+         Real            :: rwet, rcdry
          Real            :: rawmt, rad_wat, rmsv, dif_T, k_vis, dwat_T ! mass transport between the air-water droplet interface
-         Real            :: rgwet
          Real            :: rgdry, sm_func  
          Real            :: temp_g, temp_2m, q_2m, rh, ustar, lai ! column met data
          Real            :: Ra, Rb, Rb_leaf, Rbgc, Rst, Rcut, Rgc, Rg, Rsnow, Rinc, Rwat ! land use and species specific bulk resistances
@@ -357,11 +356,21 @@ C Parameters specific to gas_x. Currently based on m3dry but subject to change
          snow    = max( 0.0, MET_DATA%SNOCOV( c,r ) )
 ! total snow fraction
          no_snow = 1.0 - snow
-! Liquid snow fraction
-         melt_snow = 0.02 * ( temp_2m - ( stdtemp - 1.0 ) )**2
-         IF ( temp_2m .Lt. ( stdtemp - 1.0 ) ) melt_snow = 0.0
-         melt_snow = MIN (melt_snow, 0.5)
-         melt_snow = MAX (melt_snow, 0.0)
+! Liquid snow fraction modeled as a system dominated by van der Walls forces following Dash et al. 1999 S. Rep. Prog. Phys. 
+! with a maximum fraction of the disordered interface acting as an aqueous solution as 20% following Conklin et al 1993 with
+! the negligible impact of the disordered interface depth of 2 nm following Roth et al 2004. The 2 nm depth was approximated 
+! to be around 263 interpolated from figure 3 in Huthwelker et al 2006 doi:10.1021/cr020506v
+         IF( snow .GT. 0.0 ) Then
+            IF( stdtemp-temp_g .GT. 0.002 ) THEN
+               melt_snow = 0.025 / (stdtemp-temp_g)**(1.0/3.0)
+               melt_snow = MIN (melt_snow, 0.2)
+               melt_snow = MAX (melt_snow, 0.01)
+            ELSE
+               melt_snow = 0.2
+            ENDIF
+         Else
+            melt_snow = 0.0
+         End IF
 ! frozen snow fraction
          ice_snow  = 1.0 - melt_snow
          rh_func = max( 0.0,( rh - 70.0 )/30.0 )
@@ -382,8 +391,6 @@ C Parameters specific to gas_x. Currently based on m3dry but subject to change
          cp_air = CPD * ( 1.0 + 0.84 * q_2m )               ! [J/kg/K]
          tw     = ( ( 4.71e4 * cp_air / lv ) - 0.870 ) + stdtemp  ! [K]
          k_vis  = kvis*1.0e-4 * ( temp_2m/STDTEMP )**1.81 ! Following Massman 1999
-!         dwat_T    = 1.0e-7*temp_2m**1.75 * sqrt( 1.0/MWAIR + 1.0/molwt_all( s ) ) / 
-!     &             ( MOLVOL**(1.0/3.0) + LeBasM( s )**(1.0/3.0) )**2 ! Following Fuller et al 1966.
          dwat_T    = dwat*1.0e-4 * ( temp_2m/STDTEMP )**1.81 ! Following Massman 1999
          n = 0
          cmp = 0.0
@@ -485,6 +492,8 @@ c        Iodide in sea-water based on SST  (mol /dm-3)
                      ELSE                  ! O3 over sea ice
                         Rwat   = scw_pr_23 / ( heff_wat * d3 * ustar )
                      END IF
+                  ELSE IF( s .EQ. s_Hg ) THEN
+                     Rwat = 1.0e6 ! surface waters are typically enriched in Hg(0) and act as an emission source
                   ELSE                     ! other chems
                      Rwat   = scw_pr_23 / ( heff_wat * d3 * ustar )
                   END IF
@@ -507,6 +516,22 @@ c        Iodide in sea-water based on SST  (mol /dm-3)
 C Calcuate Rsnow
                   Rsnow = rsnow0 * a0 / rel_rx( s )
 !-------------------------------------------------------------------------------------------------
+! Resistance to air-wet surface exchange
+!-------------------------------------------------------------------------------------------------
+C Calcuate Rwet
+C The conditional slowed down model run time and was uncessary as the resistance model only uses rwet
+C if wet or metl_snow > 1
+
+!                  If ( wet .Gt. 0.0 .OR. melt_snow .Gt. 0.0 ) Then
+                     rad_wat = 1.9e-4
+                     rmsv    = sqrt( 3.0 * RGASUNIV * 1.0e3 * temp_g / molwt_all( s ) ) 
+                     rawmt   = rad_wat / dif_T  + 4.0 / ( rmsv  * M_ac( s ) )
+                     rwet   = rawmt + rawmt/( heff * rad_wat )
+!                  Else 
+!                     rwet = 1.0e6
+!                  End If
+
+!-------------------------------------------------------------------------------------------------
 ! Resistance to air-canopy exchange
 !-------------------------------------------------------------------------------------------------
 C Calculate Rst
@@ -528,30 +553,20 @@ C Calculate Rst
 C Calcuate Rcut
          ! wet Cuticle
          ! If the surface is cold and wet, use dry snow.
-                     IF ( temp_g .LT. stdtemp ) THEN
-                        rcwet = Rsnow
-                     ELSE
-                        IF ( s .Ne. s_O3 ) THEN 
-!                           rcwet = rcw0 / heff
-                           If ( Met_Data%WR( C, R ) .Gt. 0.0 ) Then
-                              rad_wat = 1.9e-4
-                              rmsv    = sqrt( 3.0 * RGASUNIV * 1.0e3 * temp_2m / molwt_all( s ) ) 
-                              rawmt   = rad_wat / dif_T  + 4.0 / ( rmsv  * M_ac( s ) )
-                              rcwet   = rawmt + rawmt/( heff * rad_wat )
-                           Else 
-                              rcwet = 1.0e6
-                           End If
-                        Else
+                     IF ( temp_g .GE. stdtemp ) THEN                    
+                        IF ( s .EQ. s_O3 ) THEN 
          ! Canopy level wet resistence Rwet to ozone was found to be about 200 s/m on basis of Keysburg exp
          ! Using LAI(1-sided) of about 6.25 measured at Keysburg gives leaf level rwet about 1250 s/m
-                           rcwet = 1250.0    ! s/m
+                           rwet = 1250.0    ! s/m
          ! Leaf level rwet estimated from Altimir et al 2006 gives about 1350 s/m                           
                         End If ! O3
+                     ELSE
+                        rwet = Rsnow
                      END IF ! temp 
          ! Dry Cuticle
                      IF( s .Eq. s_O3 ) THEN
          ! Leaf level rwet estimated from Altimir et al 2006 gives about 1350 s/m
-                        rcdry = 1.0 / ( ( 1.0 -rh_func) / ( rcut0 * a0 / rel_rx( s ) )  + rh_func / rcwet )
+                        rcdry = 1.0 / ( ( 1.0 -rh_func) / ( rcut0 * a0 / rel_rx( s ) )  + rh_func / rwet )
                      ELSE IF ( s .Eq. s_NH3 .And. ABFLUX ) THEN  
          ! Massad et al. 2010 Cuticular resistance
                         rcdry    = rwm * EXP( a_cut( l ) * ( 100.0 - rh ) )
@@ -560,7 +575,7 @@ C Calcuate Rcut
                      END IF ! O3 or NH3
 
                      Rcut = no_snow / ( lai * ( dry / rcdry +  ! Dry Cuticle 
-     &                                       wet / rcwet ) ) +                      ! Wet Cuticle 
+     &                                       wet / rwet ) ) +                      ! Wet Cuticle 
      &                                       snow * Rsnow                           ! Snow
 !-------------------------------------------------------------------------------------------------
 ! Resistance to in-canopy exchange
@@ -594,16 +609,15 @@ C Calcuate Bare Soil Resistance
                   del0   = dif_T / ( karman * ustar )
                   Rb   = ( scn - LOG( del0 / 0.10 ) ) / ( karman * ustar )
          ! Wet Ground
-                  rgwet  = rgwet0 / heff   
                   If(ABFLUX .And. s .Eq. s_NH3) Then
                      Call Get_NH3_Comp( c_stom, c_grnd, rgdry, dif_T, r, c, l, s )
 !                     rgdry  = rgdry
                      Rgc = no_snow * rgdry +                                                   ! Snow free soil 
-     &                     snow * ( 1.0 / ( ice_snow / Rsnow + melt_snow / ( rsndiff + rgwet ) ) ) +    ! Snow covered soil
+     &                     snow * ( 1.0 / ( ice_snow / Rsnow + melt_snow / ( rsndiff + rwet ) ) ) +    ! Snow covered soil
      &                     Rbgc + Rinc                                                                ! Incanopy resistances
 
                      Rg  = no_snow * rgdry +                                                   ! Snow free soil 
-     &                     snow * ( 1.0 / ( ice_snow / Rsnow + melt_snow / ( rsndiff+rgwet ) ) ) +     ! Snow covered soil
+     &                     snow * ( 1.0 / ( ice_snow / Rsnow + melt_snow / ( rsndiff+rwet ) ) ) +     ! Snow covered soil
      &                     Rb                                                                         ! Qauzi Laminar Boundary Layer resistance
                   Else ! not ABFLUX and NH3       
                      IF( s .Eq. s_O3 ) THEN  
@@ -617,14 +631,16 @@ C Calcuate Bare Soil Resistance
                      Else                   
                         rgdry  = rg0 * a0 / rel_rx( s )     
                      End If
-                     Rgc = no_snow * ( 1.0/ ( dry / rgdry +                                       ! Snow free dry soil 
-     &                     wet / rgwet ) ) +                                                          ! Snow free wet soil 
-     &                     snow * ( 1.0 / ( ice_snow / Rsnow + melt_snow / ( rsndiff + rgwet ) ) ) +  ! Snow covered soil
+!                     Write(logdev,*) 'JOB: rwet ',rwet, 'melt_snow',melt_snow,'snow',snow
+
+                     Rgc = no_snow * ( 1.0/ ( dry / rgdry +                                      ! Snow free dry soil 
+     &                     wet / rwet ) ) +                                                          ! Snow free wet soil 
+     &                     snow * ( 1.0 / ( ice_snow / Rsnow + melt_snow / ( rsndiff + rwet ) ) ) +  ! Snow covered soil
      &                     Rbgc + Rinc                                                                ! Incanopy resistances
 
                      Rg  = no_snow * ( 1.0/ ( dry / rgdry +                                       ! Snow free dry soil 
-     &                     wet / rgwet ) ) +                                                          ! Snow free wet soil 
-     &                     snow * ( 1.0 / ( ice_snow / Rsnow + melt_snow / ( rsndiff+rgwet ) ) ) +    ! Snow covered soil
+     &                     wet / rwet ) ) +                                                          ! Snow free wet soil 
+     &                     snow * ( 1.0 / ( ice_snow / Rsnow + melt_snow / ( rsndiff+rwet ) ) ) +    ! Snow covered soil
      &                     Rb                                                                         ! Qauzi Laminar Boundary Layer resistance
                   End If ! ABFLUX and NH3
 !-------------------------------------------------------------------------------------------------
