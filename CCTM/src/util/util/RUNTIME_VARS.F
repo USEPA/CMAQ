@@ -23,7 +23,6 @@
 !
 !  It also contains routines for reading environment variables, and
 !  opening input files.
-
 !  31 Jan 2019  (David Wong)
 !     -- removed all twoway related environment variables in this file
 !....................................................................
@@ -59,7 +58,6 @@
       CHARACTER( 10 ) :: WEEKDAY( 7 ) = (/'Monday   ','Tuesday  ','Wednesday',
      &                        'Thursday ','Friday   ','Saturday ','Sunday   ' /)
 
-
       !-----------------------------------------------------------------------------------
       !>> Define Environment Variables for Controlling CMAQ Processes
       !-----------------------------------------------------------------------------------
@@ -89,8 +87,8 @@
       LOGICAL :: CKSUM     = .TRUE.  ! flag for cksum on, default = [T]
       LOGICAL :: END_TIME  = .FALSE. ! Override default beginning ACON timestamp
       
-      INTEGER :: N_ASPCS   = 0       ! Number of species saved to avg conc file
-      INTEGER :: N_CSPCS   = 0       ! Number of species saved to conc file
+      INTEGER :: N_ACONC_VARS = 0    ! Number of species saved to avg conc file
+      INTEGER :: N_CONC_VARS  = 0    ! Number of species saved to conc file
       INTEGER :: ACONC_BLEV= 0       ! Beginning level saved to avg conc file
       INTEGER :: ACONC_ELEV= 0       ! Ending level saved to avg conc file
       INTEGER :: CONC_BLEV = 0       ! Beginning level saved to conc file
@@ -373,10 +371,10 @@
       END_TIME = GET_ENVYN( 'AVG_FILE_ENDTIME', VARDESC, END_TIME )
       
       ! ACONC File Species List
-      CALL GET_ENVLIST ( 'AVG_CONC_SPCS', N_ASPCS, ACONC_FILE_SPCS )
+      CALL GET_ENVLIST ( 'AVG_CONC_SPCS', N_ACONC_VARS, ACONC_FILE_SPCS )
 
       ! CONC File Species List 
-      CALL GET_ENVLIST ( 'CONC_SPCS', N_CSPCS, CONC_FILE_SPCS )
+      CALL GET_ENVLIST ( 'CONC_SPCS', N_CONC_VARS, CONC_FILE_SPCS )
  
       ! ACONC Layer Specification
       CALL GET_ENVLIST ( 'ACONC_BLEV_ELEV', NV, V_LIST2 )
