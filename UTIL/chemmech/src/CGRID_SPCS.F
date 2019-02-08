@@ -127,6 +127,7 @@ c !! NO   and to populate the allocated arrays from the stnd gc_spc.ext  !!! NO
 
          function cgrid_spcs_init() result ( success )
              
+            USE GET_ENV_VARS
             USE MECHANISM_DATA
             
             implicit none
@@ -221,7 +222,7 @@ c from namelist files
             type_header = bl
             type_matrix = bl   ! array assignment
 
-            call nameval( gc_matrix, eqname )
+            call value_name( gc_matrix, eqname )
 
             write( logdev,* ) ' '
             write( logdev,* ) '    GC Species Namelist: ', trim( eqname )
@@ -420,7 +421,7 @@ c the surrogate and ctrl arrays active dimensions not known a priori
             type_header = bl
             type_matrix = bl   ! array assignment
 
-            call nameval( ae_matrix, eqname )
+            call value_name( ae_matrix, eqname )
 
             write( logdev,* ) ' '
             write( logdev,* ) '    AE Species Namelist: ', trim( eqname )
@@ -607,7 +608,7 @@ c the surrogate and ctrl arrays active dimensions not known a priori
             type_header = bl
             type_matrix = bl   ! array assignment
 
-            call nameval( nr_matrix, eqname )
+            call value_name( nr_matrix, eqname )
 
             write( logdev,* ) ' '
             write( logdev,* ) '    NR Species Namelist: ', trim( eqname )
@@ -806,7 +807,7 @@ c the surrogate and ctrl arrays active dimensions not known a priori
             type_header = bl
             type_matrix = bl   ! array assignment
 
-            call nameval( tr_matrix, eqname )
+            call value_name( tr_matrix, eqname )
 
             write( logdev,* ) ' '
             write( logdev,* ) '    TR Species Namelist: ', trim( eqname )
