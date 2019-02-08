@@ -55,7 +55,7 @@ C     26 June 2014 J.Bash: initial implementation
 
       Type( Map_Type ), Save :: Map_Data 
 
-      INTEGER, PARAMETER :: dep_gas_all = 176
+      INTEGER, PARAMETER :: dep_gas_all = 177
       INTEGER, PARAMETER :: LCMP = 8
       Character( 16 ), Save :: vd_name     ( dep_gas_all )       ! Deposition species name
       Real,            Save :: rel_rx      ( dep_gas_all )       ! reactivity relative to HNO3
@@ -247,7 +247,7 @@ C     26 June 2014 J.Bash: initial implementation
       DATA vd_name(174), rel_rx(174), f0(174), LeBasM(174), M_ac(174) / 'MB2C         ',     2.0, 0.0,  101.5, 0.420/ ! MB2C
       DATA vd_name(175), rel_rx(175), f0(175), LeBasM(175), M_ac(175) / 'MBC2         ',     2.0, 0.0,   94.5, 0.420/ ! MBC2
       DATA vd_name(176), rel_rx(176), f0(176), LeBasM(176), M_ac(176) / 'MBC          ',     2.0, 0.0,   77.0, 0.420/ ! MBC
-      DATA vd_name(176), rel_rx(176), f0(176), LeBasM(176), M_ac(176) / 'CLO          ',     8.0, 0.0,   31.5, 0.420/ ! CLO
+      DATA vd_name(177), rel_rx(177), f0(177), LeBasM(177), M_ac(177) / 'CLO          ',     8.0, 0.0,   31.5, 0.420/ ! CLO
 
       Contains
          SUBROUTINE Map_STAGE 
