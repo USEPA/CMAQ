@@ -25,12 +25,12 @@ C**********************************************************************
 C
 C  FUNCTION: EBI solver
 C
-C  PRECONDITIONS: For the saprc07tic family of mechanisms
+C  PRECONDITIONS: For the SAPRC07TIC family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRRATES, HRG1, HRG2, HRG3
 C                                     HRG4, HRPRODLOSS
 C
-C  REVISION HISTORY: Created by EBI solver program, Aug 29, 2018
+C  REVISION HISTORY: Created by EBI solver program, Dec 11, 2018
 C   21 Jun 10 J.Young: convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised 1) to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files and 2) to use
@@ -45,6 +45,7 @@ C**********************************************************************
 #ifdef isam
       USE SA_IRR_DEFN
 #endif
+
 
       IMPLICIT NONE
 
@@ -336,6 +337,7 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
                  CALL SA_IRR_UNBLOCKED ( .FALSE., RKI, YC, DTC )
                  UPDATE_PROBABILITIES = .FALSE.
 #endif
+
                  CYCLE SUBSTEP_EBI ! solve for next sub time-step
 
                END IF
