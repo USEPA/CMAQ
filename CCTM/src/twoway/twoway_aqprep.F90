@@ -514,8 +514,6 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 
      CALL setup_griddesc_file (cmaq_c_col_dim, cmaq_c_row_dim)
 
-     create_physical_file = envyn ('CREATE_PHYSICAL_FILE', ' ', def_false, stat)
-
      if (create_physical_file) then
         file_time_step_in_sec = time2sec (file_time_step)
 
@@ -526,8 +524,6 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
            stop
         end if
      end if
-
-     RUN_CMAQ_DRIVER = envyn ('RUN_CMAQ_DRIVER', ' ', def_false, stat)
 
      if (config_flags%cu_physics == 0) then
         convective_scheme = .false.
@@ -559,11 +555,11 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 
      do v = 1, numlu
         write (vname3d(v+n_gridcro2d_var), '(a7, i2.2)') 'LUFRAC_', v
-        units3d(v+n_gridcro2d_var) = 'FRACTION'
+        units3d(v+n_gridcro2d_var) = '1'
      end do
 
 ! this is particular for m3dry LUFRAC_01
-     units3d(1+n_gridcro2d_var) = 'USGS24'
+     units3d(1+n_gridcro2d_var) = '1'
 
      nvars3d = numlu+n_gridcro2d_var
      tstep3d = 0

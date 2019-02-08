@@ -104,6 +104,9 @@ C-----------------------------------------------------------------------
       USE PAGRD_DEFN            ! Process Anaylsis horiz domain specs
       USE UTILIO_DEFN
       USE RUNTIME_VARS
+      USE ASX_DATA_MOD, Only : MET_DATA, INIT_MET, GET_MET
+      USE LSM_MOD, Only : INIT_LSM
+      USE BIDI_MOD, Only : INIT_BIDI
 #ifdef parallel
       USE VERTEXT_MODULE
 #endif
@@ -165,7 +168,6 @@ C Local variables:
       REAL, SAVE, POINTER     :: CGRID( :,:,:,: )
       REAL, ALLOCATABLE, SAVE :: AGRID( :,:,:,: )
       REAL    DIVFAC      ! trapezoidal average factor
-      INTEGER A_NLYS
 
 #ifdef parallel
 !     INTEGER, PARAMETER :: GEO_ORI = 0   ! stenex array order: 0 (Cartesian), 1 (Matrix)
@@ -270,8 +272,8 @@ C and define vertical layer structure (in module GRID_CONF)
          write( logdev,* ) ' MYPE -> NPROCS:   ', mype, nprocs
          write( logdev,* ) ' MYPE -> NPCOL:    ', mype, npcol
          write( logdev,* ) ' MYPE -> NPROW:    ', mype, nprow
-         write( logdev,* ) ' MYPE -> MY_NCOLS: ', mype, my_ncols
-         write( logdev,* ) ' MYPE -> MY_NROWS: ', mype, my_nrows
+         write( logdev,* ) ' MYPE -> MY_NCOLS: ', mype, ncols
+         write( logdev,* ) ' MYPE -> MY_NROWS: ', mype, nrows
          write( logdev,* ) ' MYPE -> GL_NCOLS: ', mype, gl_ncols
          write( logdev,* ) ' MYPE -> GL_NROWS: ', mype, gl_nrows
          write( logdev,* ) ' MYPE -> NLAYS:    ', mype, nlays
@@ -347,14 +349,13 @@ C Initialize PCGRID
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2  )
          END IF
       
-         CGRID => PCGRID( 1:MY_NCOLS,1:MY_NROWS,:,: )   ! required for PinG
+         CGRID => PCGRID( 1:NCOLS,1:NROWS,:,: )   ! required for PinG
 
 C Initalize CONC definitions (in STD_CONC F90 module)
          CALL CONC_DEFN ()
 
 C Get avg CONC definitions, species and layer pointers (in AVG_CONC F90 module)
          CALL A_CONC_DEFN ()
-         A_NLYS = ACONC_ELEV - ACONC_BLEV + 1
 
 C Miscellaneous Configuration Operations
          WRITE( LOGDEV, * )
@@ -377,7 +378,7 @@ C Convention: the input file concentration units are always ppmV.
 C Verify input file header consistency and run duration
          CALL FLCHECK ( JDATE, JTIME, TSTEP( 1 ) )
 
-         ALLOCATE ( AGRID( MY_NCOLS,MY_NROWS,A_NLYS,N_ASPCS ), STAT = ALLOCSTAT )
+         ALLOCATE ( AGRID( NCOLS,NROWS,A_NLYS,N_ASPCS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'AGRID memory allocation failed'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -399,6 +400,18 @@ C Verify input file header consistency and run duration
             CALL FEEDBACK_SETUP ( JDATE, JTIME, TSTEP( 3 ) )
          END IF
 #endif
+
+C Initialize Meteorology Structures
+         IF ( ILDEPV ) THEN
+
+            CALL INIT_LSM( JDATE, JTIME )
+            CALL INIT_BIDI( )
+         END IF   ! in-line depv
+
+         CALL INIT_MET( JDATE, JTIME )
+         CALL GET_MET ( JDATE, JTIME, 0 )
+         CALL GET_WVEL( JDATE, JTIME )
+
          FIRST_RUN = .FALSE.
 
       END IF ! first_run
@@ -422,16 +435,18 @@ C Get synchronization and advection time steps, TSTEP(2), ASTEP(L) and NREPS
 #endif
             DO V = 1, N_ASPCS
                S = AVG_CONC_MAP( V )
-               L = 0
-               DO K = ACONC_BLEV, ACONC_ELEV
-                  L = L + 1
-                  DO R = 1, MY_NROWS
-                     DO C = 1, MY_NCOLS
-                        AGRID( C,R,L,V ) = CGRID( C,R,K,S )
-                     END DO
-                  END DO
-               END DO
+               AGRID( :,:,:,V ) = CGRID( :,:,ACONC_BLEV:ACONC_ELEV,S )
             END DO
+            IF ( L_ACONC_WVEL ) 
+     &         AVG_WVEL( :,:,: ) = WVEL( :,:,ACONC_BLEV:ACONC_ELEV )
+            IF ( L_ACONC_RH ) 
+     &         AVG_RH( :,:,: ) = MET_DATA%RH( :,:,ACONC_BLEV:ACONC_ELEV )
+            IF ( L_ACONC_TA ) 
+     &         AVG_TA( :,:,: ) = MET_DATA%TA( :,:,ACONC_BLEV:ACONC_ELEV )
+            IF ( L_ACONC_PRES ) 
+     &         AVG_PRES( :,:,: ) = MET_DATA%PRES( :,:,ACONC_BLEV:ACONC_ELEV )
+               
+
 #ifdef twoway
          END IF
 #endif
@@ -448,21 +463,20 @@ C science process sequence:
 
             CALL SCIPROC ( CGRID, JDATE, JTIME, TSTEP, ASTEP )
 
-
-
             DO V = 1, N_ASPCS
                S = AVG_CONC_MAP( V )
-               L = 0
-               DO K = ACONC_BLEV, ACONC_ELEV
-                  L = L + 1
-                  DO R = 1, MY_NROWS
-                     DO C = 1, MY_NCOLS
-                        AGRID( C,R,L,V ) = AGRID( C,R,L,V )
-     &                                   + 2.0 * CGRID( C,R,K,S )
-                     END DO
-                  END DO
-               END DO
+               AGRID( :,:,:,V ) = AGRID( :,:,:,V )
+     &               + 2.0 * CGRID( :,:,ACONC_BLEV:ACONC_ELEV,S )
             END DO
+            IF ( L_ACONC_WVEL ) 
+     &         AVG_WVEL( :,:,: ) = AVG_WVEL + 2.0 * WVEL( :,:,ACONC_BLEV:ACONC_ELEV )
+            IF ( L_ACONC_RH ) 
+     &         AVG_RH( :,:,: ) = AVG_RH + 2.0 * MET_DATA%RH( :,:,ACONC_BLEV:ACONC_ELEV )
+            IF ( L_ACONC_TA ) 
+     &         AVG_TA( :,:,: ) = AVG_TA + 2.0 * MET_DATA%TA( :,:,ACONC_BLEV:ACONC_ELEV )
+            IF ( L_ACONC_PRES ) 
+     &         AVG_PRES( :,:,: ) = AVG_PRES + 2.0 * MET_DATA%PRES( :,:,ACONC_BLEV:ACONC_ELEV )
+
 
          END DO
 
@@ -472,34 +486,27 @@ C science process sequence:
          DIVFAC = 0.5 / FLOAT( myNREPS )
          myNREPS = 0
 #endif
-            DO V = 1, N_ASPCS
-               S = AVG_CONC_MAP( V )
-               L = 0
-               DO K = ACONC_BLEV, ACONC_ELEV
-                  L = L + 1
-                  DO R = 1, MY_NROWS
-                     DO C = 1, MY_NCOLS
-                        AGRID( C,R,L,V ) = DIVFAC * ( AGRID( C,R,L,V )
-     &                                   -            CGRID( C,R,K,S ) )
-                     END DO
-                  END DO
-               END DO
-            END DO
+         DO V = 1, N_ASPCS
+            S = AVG_CONC_MAP( V )
+            AGRID( :,:,:,V ) = DIVFAC * ( AGRID( :,:,:,V )
+     &           - CGRID( :,:,ACONC_BLEV:ACONC_ELEV,S ) )
+         END DO
+         IF ( L_ACONC_WVEL ) 
+     &         AVG_WVEL( :,:,: ) = DIVFAC * ( AVG_WVEL( :,:,: ) - WVEL( :,:,ACONC_BLEV:ACONC_ELEV ) )
+         IF ( L_ACONC_RH ) 
+     &         AVG_RH( :,:,: ) = DIVFAC * ( AVG_RH( :,:,: ) - MET_DATA%RH( :,:,ACONC_BLEV:ACONC_ELEV ) )
+         IF ( L_ACONC_TA ) 
+     &         AVG_TA( :,:,: ) = DIVFAC * ( AVG_TA - MET_DATA%TA( :,:,ACONC_BLEV:ACONC_ELEV ) )
+         IF ( L_ACONC_PRES ) 
+     &         AVG_PRES( :,:,: ) = DIVFAC * ( AVG_PRES - MET_DATA%PRES( :,:,ACONC_BLEV:ACONC_ELEV ) )
+             
 #ifdef twoway
          END IF
 #endif
 
          DO V = 1, N_CSPCS
             S = CONC_MAP( V )
-            L = 0
-            DO K = CONC_BLEV, CONC_ELEV
-               L = L + 1
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
-                     SGRID( C,R,L,V ) = CGRID( C,R,K,S )
-                  END DO
-               END DO
-            END DO
+            SGRID( :,:,:,V ) = CGRID( :,:,CONC_BLEV:CONC_ELEV,S )
          END DO
 
 C write conc fields

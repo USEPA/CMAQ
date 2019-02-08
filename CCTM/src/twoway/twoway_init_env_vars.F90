@@ -44,6 +44,8 @@
 
           call get_env (cmaq_wrf_feedback, 'CMAQ_WRF_FEEDBACK', .false., status)
 
+          call get_env (indirect_effect, 'INDIRECT_EFFECT', .false., status)
+
           call get_env (cmaq_sdate, 'CTM_STDATE', 0, status)
 
           call get_env (cmaq_stime, 'CTM_STTIME', 0, status)
