@@ -305,8 +305,7 @@ C Get the contravariant x1 velocity component
 
 C check adjusted velocities for Courant limited max timestep
             IF (VELX(COL) .NE. 0.0) THEN
-!              DTCFL = MIN ( DTCFL, 0.9 * DX1 / ABS( VELX( COL ) ) )
-               DTCFL = MIN ( DTCFL, CFL * DX1 / ABS( VELX( COL ) ) )
+               DTCFL = MIN ( DTCFL, 0.9 * DX1 / ABS( VELX( COL ) ) )
             END IF
 
          END DO   ! COL
@@ -354,6 +353,8 @@ C East boundary
 C PPM scheme
          IF ( DTCFL .LT. DT ) THEN
             NITER = INT( DT / DTCFL ) + 1
+            WRITE( LOGDEV, 2005 ) PNAME, ROW, DT, DTCFL, NITER
+ 2005       FORMAT( A6, ' CFL:', I4, 2F8.2, 2X, I3 )
             DTCFL = DT / REAL( NITER )
             DO ITER = 1, NITER
                CALL HPPM ( MY_NCOLS, MY_NROWS, CONX, VELX, DTCFL, DX1, 'C' )
