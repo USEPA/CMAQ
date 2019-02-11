@@ -90,7 +90,7 @@
         #> Compiler Aliases and Flags
         setenv myFC mpiifort
         setenv myCC icc       
-        setenv myFSTD "-O3 -fno-alias -mp1 -fp-model source -ftz -simd -align all -xHost"
+        setenv myFSTD "-O3 -fno-alias -mp1 -fp-model source -ftz -simd -align all -axCOMMON-AVX512 -vec-guard-write -unroll-aggressive -mssse3"
         setenv myDBG  "-O0 -g -check bounds -check uninit -fpe0 -fno-alias -ftrapuv -traceback"
         setenv myLINK_FLAG "-qopenmp-simd"
         setenv myFFLAGS "-fixed -132"
@@ -147,7 +147,7 @@
         setenv myFC mpif90
         #setenv myFC mpifort
         setenv myCC gcc
-        setenv myFSTD "-O3 -funroll-loops -finit-character=32 -Wtabs -Wsurprising"
+        setenv myFSTD "-O3 -funroll-loops -finit-character=32 -Wtabs -Wsurprising -mtune=native -march=native -mavx2 -ftree-loop-if-convert -finline-limit=512"
         setenv myDBG  "-Wall -O0 -g -fcheck=all -ffpe-trap=invalid,zero,overflow -fbacktrace"
         #setenv myDBG  "$myDBG -fimplicit-none"
         setenv myFFLAGS "-ffixed-form -ffixed-line-length-132 -funroll-loops -finit-character=32"
